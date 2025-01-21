@@ -3616,7 +3616,7 @@ int PPViewGoodsOpAnalyze::PreprocessTi(const PPTransferItem * pTi, const PPIDArr
 			PPGoodsTaxEntry gtx;
 			const  bool re = LOGIC(pTi->Flags & PPTFR_RMVEXCISE);
 			const  bool excl_stax = (CConfig.Flags & CCFLG_PRICEWOEXCISE) ? !re : re;
-			if(GObj.FetchTax(goods_id, pTi->Date, pBlk->OpID, &gtx) > 0) {
+			if(GObj.FetchTaxEntry2(goods_id, 0/*lotID*/, 0/*taxPayerID*/, pTi->Date, pBlk->OpID, &gtx) > 0) {
 				if(pTi->Flags & PPTFR_PRICEWOTAXES) {
 					GObj.AdjPriceToTaxes(gtx.TaxGrpID, tax_factor, &pBlk->Price, excl_stax);
 					if(pBlk->OldPrice != 0.0 && !(Filt.Flags & GoodsOpAnalyzeFilt::fPriceDeviation) && !P_TradePlanPacket)

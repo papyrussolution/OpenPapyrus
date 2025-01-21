@@ -247,7 +247,7 @@ public:
 	{
 		SString file_name;
 		GetExecPath(file_name);
-		(SlipLogFileName = file_name).SetLastSlash().Cat("SberTrmnl_Slip.log"); // @v10.1.9
+		(SlipLogFileName = file_name).SetLastSlash().Cat("SberTrmnl_Slip.log");
 		DRVS.SetLogFileName(file_name.SetLastSlash().Cat("SberTrmnl.log"));
 	}
 	~PPDrvSberTrmnl() 
@@ -581,14 +581,12 @@ int PPDrvSberTrmnl::Pay(double amount, SString & rSlip)
 	THROWERR((result = CardAuth(0, &auth_answr)) == SBRBNK_ERR_OK, SBRBNK_ERR_PAY); // Будем надеяться, что код ошибки и так вернет
 	if(!isempty(auth_answr.P_Check)) {
 		rSlip = auth_answr.P_Check;
-		// @v10.1.9 {
 		{
 			SString temp_buf;
 			temp_buf.CatCurDateTime(DATF_DMY|DATF_CENTURY, TIMF_HMS);
 			SLS.LogMessage(SlipLogFileName, temp_buf, 8192);
 			SLS.LogMessage(SlipLogFileName, rSlip, 8192);
 		}
-		// } @v10.1.9 
 		::GlobalFree(auth_answr.P_Check);
 		auth_answr.P_Check = 0;
 	}
@@ -622,14 +620,12 @@ int PPDrvSberTrmnl::Refund(double amount, SString & rSlip)
 	THROWERR((result = CardAuth(0, &auth_answr)) == SBRBNK_ERR_OK, SBRBNK_ERR_REFUND); // Будем надеяться, что код ошибки и так вернет
 	if(!isempty(auth_answr.P_Check)) {
 		rSlip = auth_answr.P_Check;
-		// @v10.1.9 {
 		{
 			SString temp_buf;
 			temp_buf.CatCurDateTime(DATF_DMY|DATF_CENTURY, TIMF_HMS);
 			SLS.LogMessage(SlipLogFileName, temp_buf, 8192);
 			SLS.LogMessage(SlipLogFileName, rSlip, 8192);
 		}
-		// } @v10.1.9 
 		::GlobalFree(auth_answr.P_Check);
 		auth_answr.P_Check = 0;
 	}

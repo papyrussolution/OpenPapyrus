@@ -1,5 +1,5 @@
 // V_CCHECK.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1005,7 +1005,7 @@ int PPViewCCheck::ProcessCheckRec(const CCheckTbl::Rec * pRec, BExtInsert * pBei
 							{
 								BVATAccm  bva_item;
 								PPGoodsTaxEntry gtx;
-								if(GdsObj.FetchTax(ln_rec.GoodsID, LConfig.OperDate, 0L, &gtx) > 0)
+								if(GObj.FetchTaxEntry2(ln_rec.GoodsID, 0/*lotID*/, 0/*taxPayerID*/, ZERODATE, 0L, &gtx) > 0) // @v12.2.4 LConfig.OperDate-->getcurdate_()
 									bva_item.PRate = gtx.GetVatRate();
 								bva_item.PTrnovr  += ln_q * (ln_p - ln_rec.Dscnt);
 								bva_item.Discount += ln_q * ln_rec.Dscnt;
@@ -1446,7 +1446,7 @@ int PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 					case CCheckFilt::gAgentGoodsSCSer:
 					case CCheckFilt::gGoodsCard:       // @erik v10.5.2
 						if(!(Filt.Flags & CCheckFilt::fGoodsCorr))
-							THROW(GdsObj.SubstGoods(item.G_GoodsID, &ccgitem.GoodsID, Filt.Sgg, &sgg_blk, &Gsl));
+							THROW(GObj.SubstGoods(item.G_GoodsID, &ccgitem.GoodsID, Filt.Sgg, &sgg_blk, &Gsl));
 						if(last_chk_id != item.ID) {
 							last_chk_id = item.ID;
 							gds_id_ary.clear();
@@ -1552,10 +1552,10 @@ int PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 						case CCheckFilt::gGoodsDate:
 						case CCheckFilt::gGoodsDateSerial:
 							if(!(Filt.Flags & CCheckFilt::fGoodsCorr)) {
-								GdsObj.GetSubstText(rec.GoodsID, Filt.Sgg, &Gsl, temp_buf);
+								GObj.GetSubstText(rec.GoodsID, Filt.Sgg, &Gsl, temp_buf);
 							}
 							else {
-								GdsObj.FetchNameR(rec.GoodsID, temp_buf);
+								GObj.FetchNameR(rec.GoodsID, temp_buf);
 							}
 							break;
 						case CCheckFilt::gGuestCount: // @fallthrough
@@ -1599,9 +1599,9 @@ int PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 							else
 								PPGetWord(PPWORD_AGENTNOTDEF, 0, temp_buf);
 							if(!(Filt.Flags & CCheckFilt::fGoodsCorr))
-								GdsObj.GetSubstText(rec.GoodsID, Filt.Sgg, &Gsl, goods_name);
+								GObj.GetSubstText(rec.GoodsID, Filt.Sgg, &Gsl, goods_name);
 							else
-								GdsObj.FetchNameR(rec.GoodsID, goods_name);
+								GObj.FetchNameR(rec.GoodsID, goods_name);
 							temp_buf.CatDiv('-', 1).Cat(goods_name);
 							break;
 						case CCheckFilt::gAgentGoodsSCSer:
@@ -1610,9 +1610,9 @@ int PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 							else
 								PPGetWord(PPWORD_AGENTNOTDEF, 0, temp_buf);
 							if(!(Filt.Flags & CCheckFilt::fGoodsCorr))
-								GdsObj.GetSubstText(rec.GoodsID, Filt.Sgg, &Gsl, goods_name);
+								GObj.GetSubstText(rec.GoodsID, Filt.Sgg, &Gsl, goods_name);
 							else
-								GdsObj.FetchNameR(rec.GoodsID, goods_name);
+								GObj.FetchNameR(rec.GoodsID, goods_name);
 							temp_buf.CatDiv('-', 1).Cat(goods_name);
 							if(rec.SCardID) {
 								PPSCardSeries sc_rec;
@@ -1626,16 +1626,16 @@ int PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 							else
 								temp_buf.Z();
 							if(!(Filt.Flags & CCheckFilt::fGoodsCorr))
-								GdsObj.GetSubstText(rec.GoodsID, Filt.Sgg, &Gsl, goods_name);
+								GObj.GetSubstText(rec.GoodsID, Filt.Sgg, &Gsl, goods_name);
 							else
-								GdsObj.FetchNameR(rec.GoodsID, goods_name);
+								GObj.FetchNameR(rec.GoodsID, goods_name);
 							temp_buf.CatDivIfNotEmpty('-', 1).Cat(goods_name);
 							break;
 						case CCheckFilt::gGoodsSCSer:
 							if(!(Filt.Flags & CCheckFilt::fGoodsCorr))
-								GdsObj.GetSubstText(rec.GoodsID, Filt.Sgg, &Gsl, goods_name);
+								GObj.GetSubstText(rec.GoodsID, Filt.Sgg, &Gsl, goods_name);
 							else
-								GdsObj.FetchNameR(rec.GoodsID, goods_name);
+								GObj.FetchNameR(rec.GoodsID, goods_name);
 							temp_buf = goods_name;
 							if(rec.CashID) {
 								PPSCardSeries sc_rec;
@@ -1653,17 +1653,17 @@ int PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 								temp_buf.Cat(upp, MKSFMTD(0, prec, NMBF_NOTRAILZ));
 							}
 							if(!(Filt.Flags & CCheckFilt::fGoodsCorr))
-								GdsObj.GetSubstText(rec.GoodsID, Filt.Sgg, &Gsl, goods_name);
+								GObj.GetSubstText(rec.GoodsID, Filt.Sgg, &Gsl, goods_name);
 							else
-								GdsObj.FetchNameR(rec.GoodsID, goods_name);
+								GObj.FetchNameR(rec.GoodsID, goods_name);
 							temp_buf.CatDivIfNotEmpty('-', 1).Cat(goods_name);
 							break;
 						// @erik v10.5.2{
 						case CCheckFilt::gGoodsCard:
 							if(!(Filt.Flags & CCheckFilt::fGoodsCorr))
-								GdsObj.GetSubstText(rec.GoodsID, Filt.Sgg, &Gsl, goods_name);
+								GObj.GetSubstText(rec.GoodsID, Filt.Sgg, &Gsl, goods_name);
 							else
-								GdsObj.FetchNameR(rec.GoodsID, goods_name);
+								GObj.FetchNameR(rec.GoodsID, goods_name);
 							temp_buf = goods_name;
 							SCardTbl::Rec crd_rec;
 							if(ScObj.Fetch(rec.SCardID, &crd_rec) > 0) {
@@ -2849,7 +2849,7 @@ int PPViewCCheck::CreateGoodsCorrTbl()
 			PPID goods_id = cl_rec.GoodsID;
 			if(!excl_goods_list.bsearch(goods_id)) {
 				if(Filt.Sgg) {
-					THROW(GdsObj.SubstGoods(cl_rec.GoodsID, &cl_rec.GoodsID, Filt.Sgg, &sgg_blk, &Gsl));
+					THROW(GObj.SubstGoods(cl_rec.GoodsID, &cl_rec.GoodsID, Filt.Sgg, &sgg_blk, &Gsl));
 				}
 				THROW_SL(gds_qtty_ary.Add(cl_rec.GoodsID, cl_rec.Quantity, 1, 1));
 			}
@@ -2914,9 +2914,9 @@ int PPViewCCheck::CreateGoodsCorrTbl()
 					min_at_ary = MIN(min_at_ary, term_count);
 					max_at_ary = MAX(max_at_ary, term_count);
 					if(Filt.Sgg)
-						GdsObj.GetSubstText(goods1_id, Filt.Sgg, &Gsl, goods1_name);
+						GObj.GetSubstText(goods1_id, Filt.Sgg, &Gsl, goods1_name);
 					else
-						GdsObj.FetchNameR(goods1_id, goods1_name);
+						GObj.FetchNameR(goods1_id, goods1_name);
 					goods_chk_ary.BSearch(goods1_id, &goods1_chk_count, 0);
 					for(uint pos1 = 0; pos1 < term_count; pos1++) {
 						long  count = p_goods_ary->at(pos1).Val;
@@ -2924,9 +2924,9 @@ int PPViewCCheck::CreateGoodsCorrTbl()
 							const  PPID goods2_id = p_goods_ary->at(pos1).Key;
 							long   goods2_chk_count = 0;
 							if(Filt.Sgg)
-								GdsObj.GetSubstText(goods2_id, Filt.Sgg, &Gsl, goods2_name);
+								GObj.GetSubstText(goods2_id, Filt.Sgg, &Gsl, goods2_name);
 							else
-								GdsObj.FetchNameR(goods2_id, goods2_name);
+								GObj.FetchNameR(goods2_id, goods2_name);
 							{
 								TempCCheckGdsCorrTbl::Rec gc_rec;
 								gc_rec.Goods1ID = goods1_id;
@@ -3050,9 +3050,9 @@ int PPViewCCheck::EditGoods(const void * pHdr, int goodsNo)
 		const  TempCCheckGdsCorrTbl::Rec * p_gc_rec = static_cast<const TempCCheckGdsCorrTbl::Rec *>(pHdr);
 		PPID   goods_id   = (goodsNo == 1) ? p_gc_rec->Goods1ID : p_gc_rec->Goods2ID;
 		SString goods_name((goodsNo == 1) ? p_gc_rec->GoodsName1 : p_gc_rec->GoodsName2);
-		if(GdsObj.Edit(&goods_id, 0) == cmOK) {
+		if(GObj.Edit(&goods_id, 0) == cmOK) {
 			Goods2Tbl::Rec  gds_rec;
-			if(GdsObj.Fetch(goods_id, &gds_rec) > 0 && goods_name.Cmp(gds_rec.Name, 0)) {
+			if(GObj.Fetch(goods_id, &gds_rec) > 0 && goods_name.Cmp(gds_rec.Name, 0)) {
 				TempCCheckGdsCorrTbl::Key1  k1;
 				TempCCheckGdsCorrTbl::Key2  k2;
 				MEMSZERO(k1);
@@ -3456,7 +3456,7 @@ int PPViewCCheck::Recover()
 						{
 							PPID temp_id = h_goods_id;
 							do {
-								if(GdsObj.Fetch(temp_id, &ex_goods_rec) > 0)
+								if(GObj.Fetch(temp_id, &ex_goods_rec) > 0)
 									replace_id = ex_goods_rec.ID;
 							} while(!replace_id && p_sj && p_sj->GetLastObjUnifyEvent(PPOBJ_GOODS, temp_id, &temp_id, 0) > 0);
 						}
@@ -4386,7 +4386,8 @@ int PPViewCCheck::CreateDraftBySuspCheck(PPViewCCheck * pV, PPID chkID)
 		if(!skip && op_id && GetOpType(op_id) == PPOPT_DRAFTEXPEND && (chkID || select_all)) {
 			PPID    loc_id = LConfig.Location;
 			PPID    ar_id = 0;
-			SString bill_memo, temp_buf;
+			SString temp_buf;
+			SString bill_memo;
 			CCheckViewItem chk_rec;
 			PPBillPacket  pack;
 			BillFilt    b_filt;
@@ -4480,7 +4481,7 @@ int PPViewCCheck::CalcVATData()
 			PPGoodsTaxEntry gtx;
 			bva_item.PTrnovr  = ln_rec.Quantity * (intmnytodbl(ln_rec.Price) - ln_rec.Dscnt);
 			bva_item.Discount = ln_rec.Quantity * ln_rec.Dscnt;
-			bva_item.PRate = (GdsObj.FetchTax(ln_rec.GoodsID, view_item.Dt, 0L, &gtx) > 0) ? gtx.GetVatRate() : 0.0;
+			bva_item.PRate = (GObj.FetchTaxEntry2(ln_rec.GoodsID, 0/*lotID*/, 0/*taxPayerID*/, view_item.Dt, 0L, &gtx) > 0) ? gtx.GetVatRate() : 0.0;
 			THROW(P_InOutVATList->Add(&bva_item, 1));
 		}
 		PPWaitPercent(GetCounter(), msg_buf);

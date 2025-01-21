@@ -1,5 +1,5 @@
 // PPPOSPROTOCOL.CPP
-// Copyright (c) A.Sobolev 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -3617,7 +3617,7 @@ int PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos, int a
 			temp_buf.Z().Cat(rBlk.ID);
 			if(GObj.P_Tbl->SearchByArCode(rP.SrcArID, temp_buf, 0, &ex_goods_rec) > 0) {
 				//
-				// @v10.2.4 Специальный случай: товар имеет более одного кода по статье rP.SrcArID в числе которых наш.
+				// Специальный случай: товар имеет более одного кода по статье rP.SrcArID в числе которых наш.
 				// В этом случае мы отбираем наш код у этого товара и создаем новую товарную позицию. В противном
 				// случае возможны негативные эффекты в виде невозможности правильно идентифицировать товар.
 				//
@@ -5156,7 +5156,7 @@ int PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 				p_dict->GetDbSymb(this_db_symb);
 			}
 			for(uint i = 0; i < fep.GetCount(); i++) {
-				if(fep.Get(i, &fep_entry, &in_file_name) && fileExists(in_file_name) && SFile::WaitForWriteSharingRelease(in_file_name, 6000)) { // @v10.0.02 60000-->6000
+				if(fep.Get(i, &fep_entry, &in_file_name) && fileExists(in_file_name) && SFile::WaitForWriteSharingRelease(in_file_name, 6000)) {
 					DestroyReadBlock();
 					PPID   my_cn_id = 0;
 					S_GUID my_pos_node_uuid;
@@ -5320,8 +5320,7 @@ int PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 											all_receipients_processed_file = 1;
 									}
 									if(all_receipients_processed_file) {
-										// @v10.7.5 int    backup_ok = (rPib.Flags & rPib.fBackupProcessed) ? BackupInputFile(in_file_name) : 1;
-										int    backup_ok = (rPib.Flags & rPib.fBackupProcessed) ? PPBackupOperationFile(in_file_name, "pppp-backup", 0) : 1; // @v10.7.5
+										int    backup_ok = (rPib.Flags & rPib.fBackupProcessed) ? PPBackupOperationFile(in_file_name, "pppp-backup", 0) : 1;
 										if(do_remove_file && backup_ok) {
 											to_remove_file_list.add(in_file_name);
 											if(fep_entry.RemoteUrl.NotEmpty()) {
@@ -5787,7 +5786,7 @@ int RunInputProcessThread(PPID posNodeID)
 			PPPosProtocol::ProcessInputBlock pib;
 			pib.PosNodeID = IB.PosNodeID;
 			pib.Flags = (pib.fProcessRefs|pib.fProcessQueries|pib.fBackupProcessed|pib.fRemoveProcessed|pib.fSilent);
-			pib.SetOuterProcessedFileList(&ProcessedFileTab); // @v10.0.07
+			pib.SetOuterProcessedFileList(&ProcessedFileTab);
 			rPppp.ProcessInput(pib);
 		}
 		virtual void Run()

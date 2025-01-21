@@ -1383,7 +1383,7 @@ int SCS_SHTRIHFRF::GetCheckInfo(const PPBillPacket * pPack, BillTaxArray * pAry,
 		for(uint i = 0; pPack->EnumTItems(&i, &ti);) {
 			int re;
 			PPGoodsTaxEntry gtx;
-			THROW(goods_obj.FetchTax(ti->GoodsID, pPack->Rec.Dt, pPack->Rec.OpID, &gtx));
+			THROW(goods_obj.FetchTaxEntry2(ti->GoodsID, 0/*lotID*/, 0/*taxPayerID*/, pPack->Rec.Dt, pPack->Rec.OpID, &gtx));
 			bt_entry.VAT = wovatax ? 0 : gtx.VAT;
 			re = (ti->Flags & PPTFR_RMVEXCISE) ? 1 : 0;
 			bt_entry.SalesTax = ((CConfig.Flags & CCFLG_PRICEWOEXCISE) ? !re : re) ? 0 : gtx.SalesTax;

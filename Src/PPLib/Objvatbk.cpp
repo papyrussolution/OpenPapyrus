@@ -1,5 +1,5 @@
 // OBJVATBK.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025
 // @codepage windows-1251
 // Книги продаж и покупок
 //
@@ -1217,7 +1217,7 @@ int PPViewVatBook::LoadClbList(PPID billID)
 				for(int rbb = 0; P_BObj->trfr->EnumItems(billID, &rbb, &ti) > 0;) {
 					char   list_item[VBV_CLB_ITEM_SIZE];
 					size_t li_pos = 0;
-					int    is_parent_lot = 0;
+					bool   is_parent_lot = false;
 					if(P_BObj->GetClbNumberByLot(ti.LotID, &is_parent_lot, clb) > 0) {
 						THROW_MEM(SETIFZ(P_GObj, new PPObjGoods));
 						THROW_MEM(SETIFZ(P_ClbList, new SArray(VBV_CLB_ITEM_SIZE)));
@@ -1245,7 +1245,7 @@ int PPViewVatBook::LoadClbList(PPID billID)
 int PPViewVatBook::InitIteration()
 {
 	int    ok = 1;
-	int    idx = (Filt.Flags & VatBookFilt::fPaymPeriod) ? 5 : 3;
+	const  int idx = (Filt.Flags & VatBookFilt::fPaymPeriod) ? 5 : 3;
 	long   f;
 	union {
 		char _k[BTRMAXKEYLEN];

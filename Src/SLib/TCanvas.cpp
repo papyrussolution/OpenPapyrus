@@ -1,5 +1,5 @@
 // TCANVAS.CPP
-// Copyright (c) A.Sobolev 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -981,7 +981,7 @@ int TCanvas2::_DrawText(const TRect & rRect, const char * pText, uint options)
 	char   zero[16];
 	const  int len = sstrlen(pText);
 	if(!len) {
-		PTR32(zero)[0] = 0;
+		zero[0] = 0;
 		pText = zero;
 	}
 	RECT   rect = rRect;
@@ -993,7 +993,7 @@ int TCanvas2::TextOut(SPoint2S p, const char * pText)
 	char   zero[16];
 	const  int len = sstrlen(pText);
 	if(!len) {
-		PTR32(zero)[0] = 0;
+		zero[0] = 0;
 		pText = zero;
 	}
 	return BIN(::TextOut(static_cast<HDC>(S.HCtx), p.x, p.y, SUcSwitch(pText), len));
@@ -3568,7 +3568,7 @@ int SPaintObj::CreateHPen(int style, float width, SColor c)
 		H = handle;
 	}
 	else
-		ok = SLS.SetOsError();
+		ok = SLS.SetOsError(0, 0);
 	return ok;
 }
 
@@ -3586,7 +3586,7 @@ int SPaintObj::CreateHBrush(int style, SColor c, int32 hatch)
 		H = handle;
 	}
 	else
-		ok = SLS.SetOsError();
+		ok = SLS.SetOsError(0, 0);
 	return ok;
 }
 
@@ -3979,7 +3979,7 @@ int SPaintObj::SetBitmap(uint bmpId)
 		H = handle;
 	}
 	else
-		ok = SLS.SetOsError();
+		ok = SLS.SetOsError(0, 0);
 	return ok;
 }
 
@@ -4004,7 +4004,7 @@ int SPaintObj::CreateCursor(uint cursorId)
 		H = handle;
 	}
 	else
-		ok = SLS.SetOsError();
+		ok = SLS.SetOsError(0, 0);
 	return ok;
 }
 //

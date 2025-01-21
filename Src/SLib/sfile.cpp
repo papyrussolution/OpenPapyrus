@@ -1,5 +1,5 @@
 // SFILE.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -1216,7 +1216,7 @@ int SFile::Stat::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 	else {
 		ASSIGN_PTR(pTotal, 0);
 		ASSIGN_PTR(pAvail, 0);
-		ok = SLS.SetOsError();
+		ok = SLS.SetOsError(0, 0);
 	}
 	return ok;
 }

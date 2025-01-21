@@ -1,5 +1,5 @@
 // PPEXPR.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025
 // @codepage UTF-8
 // @Kernel
 // Трансляция формул
@@ -317,7 +317,7 @@ int BillContext::ResolveFunc(int funcId, FC & rFc)
 			//
 			{
 				BillTotalData local_bt;
-				const_cast<PPBillPacket *>(P_Pack)->CalcTotal(&local_bt, BTC_CALCSALESTAXES|BTC_CALCNOMINALGVAT); // @attention cast const-->nonconst
+				const_cast<PPBillPacket *>(P_Pack)->CalcTotal(local_bt, BTC_CALCSALESTAXES|BTC_CALCNOMINALGVAT); // @attention cast const-->nonconst
 				const BillVatEntry * p_vat_entry = local_bt.VatList.GetByRate(arg);
 				if(p_vat_entry)
 					result = p_vat_entry->AmountByVat;
@@ -330,7 +330,7 @@ int BillContext::ResolveFunc(int funcId, FC & rFc)
 				double arg2 = (rFc.ArgList.getCount() > 1) ? rFc.ArgList.at(1) : 0.0;
 				THROW_PP(objid.Obj == PPOBJ_GOODSTYPE, PPERR_OBJEXPECTED_GOODSTYPE);
 				BillTotalData local_bt;
-				const_cast<PPBillPacket *>(P_Pack)->CalcTotal(&local_bt, objid.Id, BTC_CALCSALESTAXES); // @attention cast const-->nonconst
+				const_cast<PPBillPacket *>(P_Pack)->CalcTotal(local_bt, objid.Id, BTC_CALCSALESTAXES); // @attention cast const-->nonconst
 				const BillVatEntry * p_vat_entry = local_bt.VatList.GetByRate(arg2);
 				if(p_vat_entry)
 					result = p_vat_entry->AmountByVat;
@@ -350,7 +350,7 @@ int BillContext::CalcTotalBlock()
 {
 	int    ok = -1;
 	if(!(Bt.Flags & BillTotalData::fInitialized) && P_Pack) {
-		const_cast<PPBillPacket *>(P_Pack)->CalcTotal(&Bt, BTC_CALCSALESTAXES); // @attention cast const-->nonconst
+		const_cast<PPBillPacket *>(P_Pack)->CalcTotal(Bt, BTC_CALCSALESTAXES); // @attention cast const-->nonconst
 		ok = 1;
 	}
 	return ok;
@@ -366,7 +366,7 @@ int BillContext::ProcessLink(PPID linkBillID, PPID amtID, int artefactSymb, PPID
 			BillTotalData btd;
 			PPBillPacket link_pack;
 			THROW(p_bobj->ExtractPacket(linkBillID, &link_pack) > 0);
-			link_pack.CalcTotal(&btd, 0);
+			link_pack.CalcTotal(btd, 0);
 			if(artefactSymb == ARTSYMB_QTTY)
 				result = btd.UnitsCount;
 			else if(artefactSymb == ARTSYMB_PHQTTY)

@@ -609,7 +609,6 @@ int PPObjPersonEvent::TC_SetCalendar(PPID psnID, const PPPsnOpKind * pPok, const
 	int    ok = -1, r2;
 	if(pClause->DirObj) {
 		PPID   cal_id = 0;
-		// @v10.3.0 (never used) long   dt_val = 0;
 		CALDATE cdt;
 		StaffCalendarTbl::Rec entry;
 		PPObjID oi(PPOBJ_PERSON, psnID);

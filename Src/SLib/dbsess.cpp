@@ -1,5 +1,5 @@
 // DBSESS.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2011, 2013, 2015, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2011, 2013, 2015, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2025
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -82,7 +82,7 @@ void * FASTCALL DbThreadLocalArea::DbRegList::GetBySupplementPtr(const void * pS
 
 DbThreadLocalArea::DbThreadLocalArea() : P_StFileName(0), P_CurDict(0)
 {
-	PTR32(ClientID)[0] = 0; // @v10.3.0
+	ClientID[0] = 0;
 	Init();
 }
 

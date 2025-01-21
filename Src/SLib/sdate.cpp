@@ -993,7 +993,7 @@ int setcurdatetime(LDATETIME dtm)
 		return 1;
 	}
 	else
-		return SLS.SetOsError();
+		return SLS.SetOsError(0, 0);
 }
 
 int FASTCALL getcurdatetime(LDATE * pDt, LTIME * pTm)

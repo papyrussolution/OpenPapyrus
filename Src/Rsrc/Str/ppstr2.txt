@@ -6634,6 +6634,10 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @executiontime                       "Время выполнения"
 @datetime                            "Дата/время"
 @daterange                           "Период"
+// @v12.2.4 { Следующие два определения нужны для того, что бы элиминировать эти строки в функциях PPFormatPeriod
+@daterange_from                      "с"
+@daterange_to                        "по"
+// } @v12.2.4
 @calcperiod                          "Период расчета"
 @turnovercalcperiod                  "Период расчета оборотов"
 @daterange_begin                     "Начало перида"
@@ -9085,7 +9089,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cmd_goodsclass 				          "@{goodsclass_pl}"
 @cmd_goodsexpimpparams 			          "Конфигурация форматов экспорта/импорта товаров"
 @cmd_goodsgroup 				          "@{view_goodsgroup}"
-// @v12.2.2 @cmd_goodsgrprlztax                       "@{view_goodstaxanalyze}"
+@cmd_goodsgrprlztax                       "@{view_goodstaxanalyze}"
 @cmd_goodsgrprlz 				          "Реализация по группам товаров"
 @cmd_goodsmov 					          "@{view_goodsmov}"
 @cmd_goodsoper 					          "@{view_goodsopanalyze}"
@@ -11028,7 +11032,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cfgperson_topfolder                      "Каталог персональных папок"
 @cfgperson_tradelicregtype                "Тип регистра торговой лицензии"
 @cfgperson_newclientdetectionlist         "Транзакции нового клиента" // @v12.2.2 replaced with @cfgperson_clientactivity
-@cfgperson_clientactivity                 "Конфигуация клиентской активности" // @v12.2.2
+@cfgperson_clientactivity                 "Конфигурация клиентской активности" // @v12.2.2
 @cfgperson_clientactivity_traitem         "Транзакция клиентской активности" // @v12.2.2
 @cfgperson_dlvraddrextfldlist             "@{daddressextfield_pl}"
 
@@ -14787,6 +14791,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @personfilt_srchstr_                      "@{srchpattern_substr}"
 @personfilt_stafforg                      "@{employer}"
 @personfilt_status                        "@{person_status}"
+@personfilt_clientactivityevaldate        "Дата анализа состояния клиентской активности"
 
 @updpersonlist                            "Изменение атрибутов персоналий"
 @updpersonlist_action                     ""

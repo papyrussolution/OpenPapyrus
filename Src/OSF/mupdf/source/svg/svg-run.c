@@ -1396,23 +1396,18 @@ static void svg_run_element(fz_context * ctx, fz_device * dev, svg_document * do
 {
 	if(fz_xml_is_tag(root, "svg"))
 		svg_run_svg(ctx, dev, doc, root, state);
-
 	else if(fz_xml_is_tag(root, "g"))
 		svg_run_g(ctx, dev, doc, root, state);
-
 	else if(fz_xml_is_tag(root, "title"))
 		;
 	else if(fz_xml_is_tag(root, "desc"))
 		;
-
 	else if(fz_xml_is_tag(root, "defs"))
 		;
 	else if(fz_xml_is_tag(root, "symbol"))
 		;
-
 	else if(fz_xml_is_tag(root, "use"))
 		svg_run_use(ctx, dev, doc, root, state);
-
 	else if(fz_xml_is_tag(root, "path"))
 		svg_run_path(ctx, dev, doc, root, state);
 	else if(fz_xml_is_tag(root, "rect"))
@@ -1427,13 +1422,10 @@ static void svg_run_element(fz_context * ctx, fz_device * dev, svg_document * do
 		svg_run_polyline(ctx, dev, doc, root, state);
 	else if(fz_xml_is_tag(root, "polygon"))
 		svg_run_polygon(ctx, dev, doc, root, state);
-
 	else if(fz_xml_is_tag(root, "image"))
 		svg_run_image(ctx, dev, doc, root, state);
-
 	else if(fz_xml_is_tag(root, "text"))
 		svg_run_text(ctx, dev, doc, root, state, 0, 0, 1, 1);
-
 	else {
 		/* ignore unrecognized tags */
 	}
@@ -1446,22 +1438,17 @@ void svg_parse_document_bounds(fz_context * ctx, svg_document * doc, fz_xml * ro
 	char * h_att;
 	char * viewbox_att;
 	int version;
-
 	if(!fz_xml_is_tag(root, "svg"))
 		fz_throw(ctx, FZ_ERROR_GENERIC, "expected svg element (found %s)", fz_xml_tag(root));
-
 	version_att = fz_xml_att(root, "version");
 	w_att = fz_xml_att(root, "width");
 	h_att = fz_xml_att(root, "height");
 	viewbox_att = fz_xml_att(root, "viewBox");
-
 	version = 10;
 	if(version_att)
 		version = fz_atof(version_att) * 10;
-
 	if(version > 12)
 		fz_warn(ctx, "svg document version is newer than we support");
-
 	/* If no width or height attributes, then guess from the viewbox */
 	if(w_att == NULL && h_att == NULL && viewbox_att != NULL) {
 		float min_x, min_y, box_w, box_h;
@@ -1473,7 +1460,6 @@ void svg_parse_document_bounds(fz_context * ctx, svg_document * doc, fz_xml * ro
 		doc->width = DEF_WIDTH;
 		if(w_att)
 			doc->width = svg_parse_length(w_att, doc->width, DEF_FONTSIZE);
-
 		doc->height = DEF_HEIGHT;
 		if(h_att)
 			doc->height = svg_parse_length(h_att, doc->height, DEF_FONTSIZE);
@@ -1483,27 +1469,19 @@ void svg_parse_document_bounds(fz_context * ctx, svg_document * doc, fz_xml * ro
 void svg_run_document(fz_context * ctx, svg_document * doc, fz_xml * root, fz_device * dev, fz_matrix ctm)
 {
 	svg_state state;
-
 	svg_parse_document_bounds(ctx, doc, root);
-
 	/* Initial graphics state */
 	state.transform = ctm;
 	state.stroke = fz_default_stroke_state;
 	state.use_depth = 0;
-
 	state.viewport_w = DEF_WIDTH;
 	state.viewport_h = DEF_HEIGHT;
-
 	state.viewbox_w = DEF_WIDTH;
 	state.viewbox_h = DEF_HEIGHT;
 	state.viewbox_size = sqrtf(DEF_WIDTH*DEF_WIDTH + DEF_HEIGHT*DEF_HEIGHT) / sqrtf(2);
-
 	state.fontsize = 12;
-
 	state.opacity = 1;
-
 	state.fill_rule = 0;
-
 	state.fill_is_set = 1;
 	state.fill_color[0] = 0;
 	state.fill_color[1] = 0;

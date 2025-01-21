@@ -233,6 +233,7 @@ int WsCtl_Config::Write()
 	THROW_SL(pool.Serialize(+1, sbuf, 0));
 	{
 		WinRegKey reg_key(HKEY_LOCAL_MACHINE, PPConst::WrKey_WsCtl, 0);
+		//THROW_SL(reg_key.IsValid());
 		THROW_SL(reg_key.PutBinary(PPConst::WrParam_WsCtl_Config, sbuf.GetBufC(), sbuf.GetAvailableSize()));
 		ok = 1;
 	}
@@ -1022,7 +1023,7 @@ bool WsCtlSrvBlock::StartSessBlock::FromJsonObj(const SJson * pJs)
 }
 #endif // } 0 @construction
 
-WsCtlSrvBlock::WsCtlSrvBlock() : PrcID(0), ScSerID(0), PsnKindID(0)
+WsCtlSrvBlock::WsCtlSrvBlock() : PrcID(0), ComputerID(0), CompCatID(0), ScSerID(0), PsnKindID(0)
 {
 	ScObj.FetchConfig(&ScCfg);
 	if(ScCfg.DefCreditSerID) {
@@ -1035,7 +1036,7 @@ WsCtlSrvBlock::WsCtlSrvBlock() : PrcID(0), ScSerID(0), PsnKindID(0)
 	}
 }
 	
-int WsCtlSrvBlock::SearchPrcByWsCtlUuid(const S_GUID & rWsCtlUuid, PPID * pPrcID, SString * pPrcNameUtf8)
+int WsCtlSrvBlock::SearchPrcByWsCtlUuid(const S_GUID & rWsCtlUuid, PPID * pPrcID, SString * pPrcNameUtf8, ProcessorTbl::Rec * pRec)
 {
 	int    ok = -1;
 	ASSIGN_PTR(pPrcID, 0);
@@ -1049,11 +1050,13 @@ int WsCtlSrvBlock::SearchPrcByWsCtlUuid(const S_GUID & rWsCtlUuid, PPID * pPrcID
 		{
 			const  PPID prc_id = prc_list.get(0);
 			ProcessorTbl::Rec prc_rec;
-			THROW(TSesObj.PrcObj.Fetch(prc_id, &prc_rec) > 0);
+			// @v12.2.4 THROW(TSesObj.PrcObj.Fetch(prc_id, &prc_rec) > 0);
+			THROW(TSesObj.GetPrc(prc_id, &prc_rec, 1, 1) > 0); // @v12.2.4 
 			ASSIGN_PTR(pPrcID, prc_id);
 			//WsUUID = rUuid;
 			if(pPrcNameUtf8)
 				(*pPrcNameUtf8 = prc_rec.Name).Transf(CTRANSF_INNER_TO_UTF8);
+			ASSIGN_PTR(pRec, prc_rec); // @v12.2.4
 			ok = 1;
 		}
 	}
@@ -1063,9 +1066,20 @@ int WsCtlSrvBlock::SearchPrcByWsCtlUuid(const S_GUID & rWsCtlUuid, PPID * pPrcID
 	
 int WsCtlSrvBlock::Init(const S_GUID & rUuid)
 {
-	int    ok = SearchPrcByWsCtlUuid(rUuid, &PrcID, &PrcNameUtf8);
-	if(ok > 0)
+	ProcessorTbl::Rec prc_rec;
+	int    ok = SearchPrcByWsCtlUuid(rUuid, &PrcID, &PrcNameUtf8, &prc_rec);
+	if(ok > 0) {
 		WsUUID = rUuid;
+		// @v12.2.4 {
+		if(prc_rec.LinkObjType == PPOBJ_COMPUTER) {
+			PPComputerPacket comp_pack;
+			if(prc_rec.LinkObjID && CompObj.Get(prc_rec.LinkObjID, &comp_pack) > 0) {
+				ComputerID = comp_pack.Rec.ID;
+				CompCatID = comp_pack.Rec.CategoryID;
+			}
+		}
+		// } @v12.2.4 
+	}
 	return ok;
 }
 //
@@ -1149,8 +1163,8 @@ int WsCtlSrvBlock::StartSess(StartSessBlock & rBlk)
 		SString prc_name_utf8;
 		ProcessorTbl::Rec prc_rec;
 		TechTbl::Rec tec_rec;
-		THROW(SearchPrcByWsCtlUuid(rBlk.WsCtlUuid, &prc_id, &prc_name_utf8) > 0);
-		THROW(TSesObj.GetPrc(prc_id, &prc_rec, 1, 1) > 0);
+		THROW(SearchPrcByWsCtlUuid(rBlk.WsCtlUuid, &prc_id, &prc_name_utf8, &prc_rec) > 0); // @v12.2.4 (&prc_rec)
+		// @v12.2.4 THROW(TSesObj.GetPrc(prc_id, &prc_rec, 1, 1) > 0);
 		TSesObj.TecObj.GetListByPrcGoods(prc_id, rBlk.GoodsID, &tec_id_list);
 		if(!tec_id_list.getCount()) {
 			msg_buf.Z().Cat(goods_rec.Name).Space().Cat("->").Space().Cat(prc_rec.Name);

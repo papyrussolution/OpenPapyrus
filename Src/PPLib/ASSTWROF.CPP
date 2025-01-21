@@ -1,5 +1,5 @@
 // ASSTWROF.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2015, 2016, 2017, 2019, 2020, 2021, 2024
+// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2015, 2016, 2017, 2019, 2020, 2021, 2024, 2025
 //
 #include <pp.h>
 #pragma hdrstop
@@ -343,7 +343,7 @@ int RevalAssets()
 	prcssr.InitParam(&param);
 
 	const PPConfig & r_cfg = LConfig;
-	param.Dt    = getcurdate_(); // @v10.8.10 LConfig.OperDate-->getcurdate_()
+	param.Dt    = getcurdate_();
 	param.LocID = r_cfg.Location;
 	PPID op_id  = GetSingleOp(PPOPT_GOODSREVAL);
 	if(op_id) {

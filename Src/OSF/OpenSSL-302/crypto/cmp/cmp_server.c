@@ -317,33 +317,24 @@ static OSSL_CMP_MSG * process_certConf(OSSL_CMP_SRV_CTX * srv_ctx,
 			ossl_cmp_warn(ctx, "All CertStatus but the first will be ignored");
 		status = sk_OSSL_CMP_CERTSTATUS_value(ccc, OSSL_CMP_CERTREQID);
 	}
-
 	if(status != NULL) {
 		int certReqId = ossl_cmp_asn1_get_int(status->certReqId);
 		ASN1_OCTET_STRING * certHash = status->certHash;
 		OSSL_CMP_PKISI * si = status->statusInfo;
-
 		if(!srv_ctx->process_certConf(srv_ctx, req, certReqId, certHash, si))
 			return NULL; /* reason code may be: CMP_R_CERTHASH_UNMATCHED */
-
-		if(si != NULL && ossl_cmp_pkisi_get_status(si)
-		    != OSSL_CMP_PKISTATUS_accepted) {
+		if(si != NULL && ossl_cmp_pkisi_get_status(si) != OSSL_CMP_PKISTATUS_accepted) {
 			int pki_status = ossl_cmp_pkisi_get_status(si);
 			const char * str = ossl_cmp_PKIStatus_to_string(pki_status);
-
-			ossl_cmp_log2(INFO, ctx, "certificate rejected by client %s %s",
-			    str == NULL ? "without" : "with",
-			    str == NULL ? "PKIStatus" : str);
+			ossl_cmp_log2(INFO, ctx, "certificate rejected by client %s %s", str == NULL ? "without" : "with", str == NULL ? "PKIStatus" : str);
 		}
 	}
-
 	if((msg = ossl_cmp_pkiconf_new(ctx)) == NULL)
 		ERR_raise(ERR_LIB_CMP, CMP_R_ERROR_CREATING_PKICONF);
 	return msg;
 }
 
-static OSSL_CMP_MSG * process_pollReq(OSSL_CMP_SRV_CTX * srv_ctx,
-    const OSSL_CMP_MSG * req)
+static OSSL_CMP_MSG * process_pollReq(OSSL_CMP_SRV_CTX * srv_ctx, const OSSL_CMP_MSG * req)
 {
 	OSSL_CMP_POLLREQCONTENT * prc;
 	OSSL_CMP_POLLREQ * pr;
@@ -351,10 +342,8 @@ static OSSL_CMP_MSG * process_pollReq(OSSL_CMP_SRV_CTX * srv_ctx,
 	OSSL_CMP_MSG * certReq;
 	int64_t check_after = 0;
 	OSSL_CMP_MSG * msg = NULL;
-
 	if(!ossl_assert(srv_ctx != NULL && srv_ctx->ctx != NULL && req != NULL))
 		return NULL;
-
 	prc = req->body->value.pollReq;
 	if(sk_OSSL_CMP_POLLREQ_num(prc) != 1) {
 		ERR_raise(ERR_LIB_CMP, CMP_R_MULTIPLE_REQUESTS_NOT_SUPPORTED);

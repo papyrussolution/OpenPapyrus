@@ -1,5 +1,5 @@
 // CHECKFMT.CPP
-// Copyright (c) V.Nasonov, A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) V.Nasonov, A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2024
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1519,7 +1519,7 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 			const PPSlipFormat::Zone * p_zone = pIter->P_Zone;
 			if(pIter->EntryNo < p_zone->getCountI()) {
 				const PPSlipFormat::Entry * p_entry = pIter->P_Entry = p_zone->at(pIter->EntryNo);
-				PPGoodsTaxEntry tax_entry;
+				PPGoodsTaxEntry gtx;
 				if(P_CcPack) {
 					CCheckLineTbl::Rec cc_item;
 					PPTransferItem ti;
@@ -1552,8 +1552,8 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 								STRNSCPY(pIter->Text, goods_rec.Name);
 								P_Od->GObj.GetSingleBarcode(pIter->GoodsID, 0, temp_buf);
 								STRNSCPY(pIter->Code, temp_buf);
-								if(P_Od->GObj.FetchTax(pIter->GoodsID, P_CcPack->Rec.Dt, 0, &tax_entry) > 0)
-									pIter->VatRate = tax_entry.GetVatRate();
+								if(P_Od->GObj.FetchTaxEntry2(pIter->GoodsID, 0/*lotID*/, 0/*taxPayerID*/, P_CcPack->Rec.Dt, 0, &gtx) > 0)
+									pIter->VatRate = gtx.GetVatRate();
 								if(goods_rec.GoodsTypeID && P_Od->GObj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0) {
 									chzn_product_type = gt_rec.ChZnProdType;
 									if(gt_rec.Flags & GTF_ADVANCECERT)
@@ -1668,8 +1668,8 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 								STRNSCPY(pIter->Text, goods_rec.Name);
 								P_Od->GObj.GetSingleBarcode(pIter->GoodsID, 0, temp_buf);
 								STRNSCPY(pIter->Code, temp_buf);
-								if(P_Od->GObj.FetchTax(pIter->GoodsID, ti.Date, 0, &tax_entry) > 0)
-									pIter->VatRate = tax_entry.GetVatRate();
+								if(P_Od->GObj.FetchTaxEntry2(pIter->GoodsID, 0/*lotID*/, 0/*taxPayerID*/, ti.Date, 0, &gtx) > 0)
+									pIter->VatRate = gtx.GetVatRate();
 								if(goods_rec.GoodsTypeID && P_Od->GObj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0 && gt_rec.Flags & GTF_ADVANCECERT)
 									pIter->Ptt = CCheckPacket::pttAdvance;
 							}

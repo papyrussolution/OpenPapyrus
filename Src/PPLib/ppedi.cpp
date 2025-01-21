@@ -9,7 +9,7 @@
 //
 GtinStruc::GtinStruc() : StrAssocArray(), SpecialNaturalToken(0)
 {
-	memzero(SpecialStopChars, sizeof(SpecialStopChars)); // @v10.9.9
+	memzero(SpecialStopChars, sizeof(SpecialStopChars));
 }
 
 struct GtinFixedLengthToken {
@@ -5090,7 +5090,7 @@ int EdiProviderImplementation_SBIS::Write_ORDERRSP(xmlTextWriter * pX, const S_G
 						uint   current_ti_pos = 0;
 						const PPTransferItem & r_ti = r_org_pack.ConstTI(i);
 						const PPTransferItem * p_current_ti = rBp.SearchTI(r_ti.RByBill, &current_ti_pos) ? &rBp.ConstTI(current_ti_pos) : 0;
-						{
+						if(p_current_ti) { // @v12.2.4 @fix if(p_current_ti)
 							SXml::WNode n_ti(G.P_X, G.GetToken_Ansi(PPHSC_RU_TABOFDOCLINE));
 							//<СтрТабл ЕдИзм="шт" Идентификатор="4fe8ce3e-1ae7-11e2-93ed-00215e68f831##" 
 							//  Код="77208" КодПокупателя="4fe8ce3e-1ae7-11e2-93ed-00215e68f831##" КодПоставщика="00000000112" Кол_во="10.000" 
@@ -5113,7 +5113,7 @@ int EdiProviderImplementation_SBIS::Write_ORDERRSP(xmlTextWriter * pX, const S_G
 							const double qtty = fabs(p_current_ti->Quantity_);
 							const double price = fabs(p_current_ti->NetPrice());
 							const double amt = price * qtty;
-							gtv.CalcTI(*p_current_ti, rBp.Rec.OpID, TIAMT_PRICE, exclude_tax_flags, -1);
+							gtv.CalcBPTI(rBp, *p_current_ti, TIAMT_PRICE, exclude_tax_flags, -1);
 							const double amt_aftertaxes = gtv.GetValue(GTAXVF_AFTERTAXES);
 							total_qtty += qtty;
 							total_amt += amt;
@@ -5153,7 +5153,7 @@ int EdiProviderImplementation_SBIS::Write_ORDERRSP(xmlTextWriter * pX, const S_G
 								}
 								const double qtty = fabs(r_ti.Quantity_);
 								const double price = fabs(r_ti.NetPrice());
-								gtv.CalcTI(r_ti, rBp.Rec.OpID, TIAMT_PRICE, exclude_tax_flags, -1);
+								gtv.CalcBPTI(r_org_pack, r_ti, TIAMT_PRICE, exclude_tax_flags, -1);
 								n_prev_item.PutAttrib(G.GetToken_Ansi(PPHSC_RU_QT_TY), temp_buf.Z().Cat(qtty, MKSFMTD_030));
 								n_prev_item.PutAttrib(G.GetToken_Ansi(PPHSC_RU_AMOUNT), temp_buf.Z().Cat(price * qtty, MKSFMTD_020));
 								n_prev_item.PutAttrib(G.GetToken_Ansi(PPHSC_RU_AMOUNTAFTERTAX), temp_buf.Z().Cat(gtv.GetValue(GTAXVF_AFTERTAXES), MKSFMTD_020)); // СуммаБезНал
@@ -6029,7 +6029,7 @@ int EdiProviderImplementation_Kontur::Write_OwnFormat_DESADV(xmlTextWriter * pX,
 				double qtty = fabs(r_ti.Quantity_);
 				//
 					GTaxVect gtv;
-					gtv.CalcTI(r_ti, rBp.Rec.OpID, TIAMT_PRICE);
+					gtv.CalcBPTI(rBp, r_ti, TIAMT_PRICE);
 					const double amount_with_vat = gtv.GetValue(GTAXVF_AFTERTAXES|GTAXVF_VAT);
 					const double amount_without_vat = gtv.GetValue(GTAXVF_AFTERTAXES);
 					const double vat_rate = gtv.GetTaxRate(GTAX_VAT, 0);
@@ -6549,7 +6549,7 @@ int EdiProviderImplementation_Kontur::Write_OwnFormat_INVOIC(xmlTextWriter * pX,
 				double qtty = fabs(r_ti.Quantity_);
 				//
 					GTaxVect gtv;
-					gtv.CalcTI(r_ti, rBp.Rec.OpID, TIAMT_PRICE);
+					gtv.CalcBPTI(rBp, r_ti, TIAMT_PRICE);
 					const double amount_with_vat = gtv.GetValue(GTAXVF_AFTERTAXES|GTAXVF_VAT);
 					const double amount_without_vat = gtv.GetValue(GTAXVF_AFTERTAXES);
 					const double vat_rate = gtv.GetTaxRate(GTAX_VAT, 0);
@@ -8893,7 +8893,7 @@ int EdiProviderImplementation_Exite::ReceiveDocument(const PPEdiProcessor::Docum
 																								else if(pos_blk.PriceWithoutVat > 0.0) {
 																									double result_price = pos_blk.PriceWithoutVat;
 																									PPGoodsTaxEntry gtx;
-																									if(GObj.FetchTax(pos_blk.Ti.GoodsID, getcurdate_(), p_bpack->Rec.OpID, &gtx) > 0) {
+																									if(GObj.FetchTaxEntry2(pos_blk.Ti.GoodsID, 0/*lotID*/, 0/*taxPayerID*/, ZERODATE, p_bpack->Rec.OpID, &gtx) > 0) {
 																										double tax_factor = 1.0;
 																										GObj.MultTaxFactor(pos_blk.Ti.GoodsID, &tax_factor);
 																										GObj.AdjPriceToTaxes(gtx.TaxGrpID, tax_factor, &result_price, 1);
@@ -9143,7 +9143,7 @@ int EdiProviderImplementation_Exite::ReceiveDocument(const PPEdiProcessor::Docum
 																			else if(pos_blk.PriceWithoutVat > 0.0) {
 																				double result_price = pos_blk.PriceWithoutVat;
 																				PPGoodsTaxEntry gtx;
-																				if(GObj.FetchTax(pos_blk.Ti.GoodsID, getcurdate_(), p_bpack->Rec.OpID, &gtx) > 0) {
+																				if(GObj.FetchTaxEntry2(pos_blk.Ti.GoodsID, 0/*lotID*/, 0/*taxPayerID*/, ZERODATE, p_bpack->Rec.OpID, &gtx) > 0) {
 																					double tax_factor = 1.0;
 																					GObj.MultTaxFactor(pos_blk.Ti.GoodsID, &tax_factor);
 																					GObj.AdjPriceToTaxes(gtx.TaxGrpID, tax_factor, &result_price, 1);
@@ -9333,7 +9333,7 @@ int EdiProviderImplementation_Exite::ReceiveDocument(const PPEdiProcessor::Docum
 																			else if(pos_blk.PriceWithoutVat > 0.0) {
 																				double result_price = pos_blk.PriceWithoutVat;
 																				PPGoodsTaxEntry gtx;
-																				if(GObj.FetchTax(pos_blk.Ti.GoodsID, getcurdate_(), p_bpack->Rec.OpID, &gtx) > 0) {
+																				if(GObj.FetchTaxEntry2(pos_blk.Ti.GoodsID, 0/*lotID*/, 0/*taxPayerID*/, ZERODATE, p_bpack->Rec.OpID, &gtx) > 0) {
 																					double tax_factor = 1.0;
 																					GObj.MultTaxFactor(pos_blk.Ti.GoodsID, &tax_factor);
 																					GObj.AdjPriceToTaxes(gtx.TaxGrpID, tax_factor, &result_price, 1);
@@ -9599,7 +9599,7 @@ int EdiProviderImplementation_Exite::Write_OwnFormat_ORDERS(xmlTextWriter * pX, 
 						double amount = cost * qtty;
 						//
 							GTaxVect gtv;
-							gtv.CalcTI(r_ti, 0/*opID*/, TIAMT_COST);
+							gtv.CalcBPTI(rBp, r_ti, TIAMT_COST);
 							const double amount_with_vat = gtv.GetValue(GTAXVF_AFTERTAXES|GTAXVF_VAT);
 							const double amount_without_vat = gtv.GetValue(GTAXVF_AFTERTAXES);
 							const double vat_rate = gtv.GetTaxRate(GTAX_VAT, 0);

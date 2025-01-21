@@ -1,5 +1,5 @@
 // WSCTL.H
-// Copyright (c) A.Sobolev 2023, 2024
+// Copyright (c) A.Sobolev 2023, 2024, 2025
 //
 //
 // Descr: Блок само-идентификации. 
@@ -340,7 +340,7 @@ public:
 	};
 
 	WsCtlSrvBlock();
-	int    SearchPrcByWsCtlUuid(const S_GUID & rWsCtlUuid, PPID * pPrcID, SString * pPrcNameUtf8);
+	int    SearchPrcByWsCtlUuid(const S_GUID & rWsCtlUuid, PPID * pPrcID, SString * pPrcNameUtf8, ProcessorTbl::Rec * pRec); // @v12.2.4 (ProcessorTbl::Rec * pRec)
 	int    Init(const S_GUID & rUuid);
 	//
 	// Descr: Возвращает ранжированный список видов котировок, которые могут быть применены для установки цен для технологических сессий.
@@ -369,6 +369,9 @@ public:
 	PPObjComputer CompObj;
 	S_GUID WsUUID; // UUID управляемой рабочей станции
 	PPID   PrcID;  // Ид процессора, соответствующего рабочей станции
+	PPID   ComputerID;  // @v12.2.4 Идентификатор компьютера (в общем, должно выполняться правило: 
+		// ProcessorRec(PrcID).LinkObjType == PPOBJ_COMPUTER && ProcessorRec(PrcID).LinkObjID == ComputerID)
+	PPID   CompCatID;   // @v12.2.4 Идентификатор категории компьютера
 	SString PrcNameUtf8;
 private:
 	PPSCardConfig ScCfg;

@@ -1,5 +1,5 @@
 // FUTIL.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -283,7 +283,8 @@ int pathValid(const char * pPath, int existOnly)
 
 SString & STDCALL MakeTempFileName(const char * pDir, const char * pPrefix, const char * pExt, long * pStart, SString & rBuf)
 {
-	char   prefix[128], ext[128];
+	char   prefix[128];
+	char   ext[128];
 	size_t prefix_len = 0;
 	long   start = DEREFPTROR(pStart, 1);
 	if(pPrefix)
@@ -297,7 +298,7 @@ SString & STDCALL MakeTempFileName(const char * pDir, const char * pPrefix, cons
 		else
 			strnzcpy(ext, pExt, sizeof(ext));
 	else
-		PTR32(ext)[0] = 0;
+		ext[0] = 0;
 	for(rBuf.Z(); rBuf.IsEmpty() && start < 9999999L;) {
 		if(pDir)
 			(rBuf = pDir).Strip().SetLastSlash();
@@ -439,7 +440,7 @@ int copyFileByName(const char * pSrcFileName, const char * pDestFileName)
 	dest_fn.CopyToUnicode(dest_fn_u);
 	int    r = ::CopyFileW(src_fn_u, dest_fn_u, 0);
 	if(!r)
-		SLS.SetOsError();
+		SLS.SetOsError(0, 0);
 	return r;
 #else
 	return SCopyFile(pSrcFileName, pDestFileName, 0, 0);

@@ -21,10 +21,9 @@
 
 // Заметки списаны с http://www.microterm.ru/d/20158/d/hid_rus.pdf, где на чистом русском языке кратко
 // описано функционирование usb.
-
+//
 #include <slib-internal.h>
 #pragma hdrstop
-// @v10.9.3 #include <pp.h>
 
 extern "C" {
 	#include <Cfgmgr32.h>
@@ -788,7 +787,7 @@ int SRawInputInitArray::Add(uint16 usagePage, uint16 usage, uint flags, HWND tar
 
 SRawInputData::SRawInputData() : AllocatedSize(0), P_Buf(FixedBuffer)
 {
-	PTR32(FixedBuffer)[0] = 0;
+	FixedBuffer[0] = 0;
 }
 
 SRawInputData::~SRawInputData()

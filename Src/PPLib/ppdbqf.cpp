@@ -1,5 +1,5 @@
 // PPDBQF.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 //
 #include <pp.h>
 #pragma hdrstop
@@ -93,7 +93,7 @@ static IMPL_DBE_PROC(dbqf_unxtext_iii)
 {
 	char   text_buf[2048];
 	if(!DbeInitSize(option, result, sizeof(text_buf))) {
-		PTR32(text_buf)[0] = 0;
+		text_buf[0] = 0;
 		PPID   obj_type  = params[0].lval;
 		PPID   obj_id    = params[1].lval;
 		PPID   text_prop = params[2].lval;
@@ -186,7 +186,7 @@ static IMPL_DBE_PROC(dbqf_empty)
 {
 	char   buf[8];
 	if(!DbeInitSize(option, result, sizeof(buf))) {
-		PTR32(buf)[0] = 0;
+		buf[0] = 0;
 		result->init(buf);
 	}
 }
@@ -695,7 +695,7 @@ static IMPL_DBE_PROC(dbqf_ariscatperson_ii) // @v11.1.9
 		if(ar_id) {
 			const  PPID psn_id = ObjectToPerson(ar_id, 0);
 			if(psn_id) {
-				PPObjPerson psn_obj;
+				PPObjPerson psn_obj(SConstructorLite); // @v12.2.4 SConstructorLite
 				PersonTbl::Rec psn_rec;
 				if(psn_obj.Fetch(psn_id, &psn_rec) > 0 && psn_rec.CatID == cat_id)
 					r = 1;
@@ -827,7 +827,7 @@ static IMPL_DBE_PROC(dbqf_objname_arbyacc_i)
 		dbqf_objname_i <PPObjArticle, ArticleTbl::Rec> (option, result, params);
 	else {
 		char zero_str[8];
-		PTR32(zero_str)[0] = 0;
+		zero_str[0] = 0;
 		result->init(zero_str);
 	}
 }
@@ -1041,12 +1041,13 @@ static IMPL_DBE_PROC(dbqf_objname_personpost_i)
 	}
 }
 
-static IMPL_DBE_PROC(dbqf_clientactivitystatisticsindicator_ii)
+static IMPL_DBE_PROC(dbqf_clientactivitystatisticsindicator_idi)
 {
 	double value = 0.0;
-	const  PPID id = params[0].lval;
-	const  PPID indicator = params[1].lval;
-	PPObjPerson psn_obj;
+	const  PPID  id = params[0].lval;
+	const  LDATE actual_date = params[1].dtval; // @v12.2.4
+	const  PPID  indicator = params[2].lval;
+	PPObjPerson psn_obj(SConstructorLite); // @v12.2.4 SConstructorLite
 	PPObjPerson::ClientActivityStatistics cas;
 	if(psn_obj.FetchCas(id, &cas) > 0) {
 		switch(indicator) {
@@ -1056,6 +1057,26 @@ static IMPL_DBE_PROC(dbqf_clientactivitystatisticsindicator_ii)
 			case PPObjPerson::casiDateCount: value = cas.DateCount; break;
 			case PPObjPerson::casiGapDaysAvg: value = cas.GapDaysAvg; break;
 			case PPObjPerson::casiGapDaysStdDev: value = cas.GapDaysStdDev; break;
+			case PPObjPerson::casiCurrentDelayDays: // @v12.2.4
+				{
+					PPObjPerson::ClientActivityState st;
+					st.PersonID = id;
+					st.ActualDate = actual_date;
+					st.NewCliPeriod.Z();
+					psn_obj.IdentifyClientActivityState(st);
+					value = st.CurrentDelayDays;
+				}
+				break;
+			case PPObjPerson::casiCurrentDelaySd: // @v12.2.4
+				{
+					PPObjPerson::ClientActivityState st;
+					st.PersonID = id;
+					st.ActualDate = actual_date;
+					st.NewCliPeriod.Z();
+					psn_obj.IdentifyClientActivityState(st);
+					value = st.CurrentDelaySd;
+				}
+				break;
 		}
 	}
 	result->init(value);
@@ -1068,7 +1089,7 @@ static IMPL_DBE_PROC(dbqf_clientactivitystate_iddd) // @v12.2.2
 	st.PersonID = params[0].lval;
 	st.ActualDate = params[1].dval;
 	st.NewCliPeriod.Set(params[2].dval, params[3].dval);
-	PPObjPerson psn_obj;
+	PPObjPerson psn_obj(SConstructorLite); // @v12.2.4 SConstructorLite
 	psn_obj.IdentifyClientActivityState(st);
 	result->init(st.State);
 }
@@ -1083,7 +1104,7 @@ static IMPL_DBE_PROC(dbqf_stafforgname_i)
 			PPObjStaffList obj;
 			PPStaffEntry se_rec;
 			if(obj.Fetch(id, &se_rec) > 0 && se_rec.OrgID) {
-				PPObjPerson psn_obj;
+				PPObjPerson psn_obj(SConstructorLite); // @v12.2.4 SConstructorLite
 				PersonTbl::Rec psn_rec;
 				if(psn_obj.Fetch(se_rec.OrgID, &psn_rec) > 0)
 					STRNSCPY(name_buf, psn_rec.Name);
@@ -1535,7 +1556,7 @@ int PPDbqFuncPool::IdTSessBillLinkTo      = 0; // @v11.6.12
 int PPDbqFuncPool::IdTSessBillLinkTo_Text = 0; // @v11.6.12
 int PPDbqFuncPool::IdBillMemoSubStr       = 0; // @v11.7.4
 int PPDbqFuncPool::IdBillAmount           = 0; // @v12.1.0 (fldBillID, amountType)
-int PPDbqFuncPool::IdClientActivityStatisticsIndicator = 0; // @v12.2.2 (personID, indicator/*PPObjPerson::casiXXX*/) ¬озвращает значение индикатора статистики клиентской активности
+int PPDbqFuncPool::IdClientActivityStatisticsIndicator = 0; // @v12.2.2 (personID, actualDate, indicator/*PPObjPerson::casiXXX*/) ¬озвращает значение индикатора статистики клиентской активности
 int PPDbqFuncPool::IdClientActivityState  = 0; // @v12.2.2 (personID, LDATE actualDate, LDATE newCliPeriodLo, LDATE newCliPeriodUp) ¬озвращает ClientActivityState::State
 
 static IMPL_DBE_PROC(dbqf_goodsstockdim_i)
@@ -1841,7 +1862,7 @@ static IMPL_DBE_PROC(dbqf_datebase_id)
 	THROW(DbqFuncTab::RegisterDyn(&IdTSessBillLinkTo_Text, BTS_STRING, dbqf_tsessbilllinkto_text_i, 1, BTS_INT)); // @v11.6.12
 	THROW(DbqFuncTab::RegisterDyn(&IdBillMemoSubStr,       BTS_INT,    dbqf_billmemosubstr_is,      2, BTS_INT, BTS_STRING)); // @v11.7.4
 	THROW(DbqFuncTab::RegisterDyn(&IdBillAmount,           BTS_REAL,   dbqf_billamount_ii,          2, BTS_INT, BTS_INT)); // @v12.1.0
-	THROW(DbqFuncTab::RegisterDyn(&IdClientActivityStatisticsIndicator, BTS_REAL, dbqf_clientactivitystatisticsindicator_ii, 2, BTS_INT, BTS_INT)); // @v12.2.2
+	THROW(DbqFuncTab::RegisterDyn(&IdClientActivityStatisticsIndicator, BTS_REAL, dbqf_clientactivitystatisticsindicator_idi, 3, BTS_INT, BTS_DATE, BTS_INT)); // @v12.2.2
 	THROW(DbqFuncTab::RegisterDyn(&IdClientActivityState,  BTS_INT, dbqf_clientactivitystate_iddd, 4, BTS_INT, BTS_DATE, BTS_DATE, BTS_DATE)); // @v12.2.2
 	CATCHZOK
 	return ok;
@@ -1909,6 +1930,6 @@ static IMPL_DBE_PROC(dbqf_datebase_id)
 		id = params[0].lval;
 	else if(params[0].Tag == DBConst::rv)
 		id = static_cast<long>(params[0].rval);
-	PTR32(pNameBuf)[0] = 0;
+	pNameBuf[0] = 0;
 	return id;
 }

@@ -1,5 +1,5 @@
 // OBJDBDIV.CPP
-// Copyright (c) A.Sobolev 1997-2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2024
+// Copyright (c) A.Sobolev 1997-2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2024, 2025
 // @codepage UTF-8
 // Объект, управляющий разделами БД
 //
@@ -316,13 +316,11 @@ IMPL_HANDLE_EVENT(DBDivDialog)
 			SetupAddr(addr_list);
 		}
 	}
-	// @v10.5.4 {
 	else if(event.isClusterClk(CTL_DBDIV_MQBEXCHG)) {
 		GetClusterData(CTL_DBDIV_MQBEXCHG, &data.Rec.Flags); 
 		disableCtrl(CTL_DBDIV_ADDR, (data.Rec.Flags & DBDIVF_MQBEXCHANGE));
 		enableCommand(cmAddrList, !(data.Rec.Flags & DBDIVF_MQBEXCHANGE));
 	}
-	// } @v10.5.4 
 	else
 		return;
 	clearEvent(event);
@@ -347,22 +345,18 @@ int DBDivDialog::setDTS(const DBDivPack * p)
 	data.GetExtStrData(DBDIVEXSTR_ACCLIST, temp_buf);
 	setCtrlString(CTL_DBDIV_ACCLIST, temp_buf);
 	SetupPPObjCombo(this, CTLSEL_DBDIV_INTRRCPT, PPOBJ_OPRKIND, data.Rec.IntrRcptOpr, OLW_CANINSERT, reinterpret_cast<void *>(PPOPT_GOODSRECEIPT));
-	// @v10.5.4 {
 	AddClusterAssoc(CTL_DBDIV_MQBEXCHG, 0, DBDIVF_MQBEXCHANGE);
 	SetClusterData(CTL_DBDIV_MQBEXCHG, data.Rec.Flags); 
-	// } @v10.5.4 
 	AddClusterAssoc(CTL_DBDIV_FLAGS, 0, DBDIVF_DISPATCH);
 	AddClusterAssoc(CTL_DBDIV_FLAGS, 1, DBDIVF_SCARDSONLY);
 	AddClusterAssoc(CTL_DBDIV_FLAGS, 2, DBDIVF_RCVCSESSANDWROFFBILLS);
 	AddClusterAssoc(CTL_DBDIV_FLAGS, 3, DBDIVF_CONSOLID);
 	AddClusterAssoc(CTL_DBDIV_FLAGS, 4, DBDIVF_PASSIVE);
 	SetClusterData(CTL_DBDIV_FLAGS, data.Rec.Flags);
-	// @v10.5.4 {
 	{
 		disableCtrl(CTL_DBDIV_ADDR, (data.Rec.Flags & DBDIVF_MQBEXCHANGE));
 		enableCommand(cmAddrList, !(data.Rec.Flags & DBDIVF_MQBEXCHANGE));
 	}
-	// } @v10.5.4 
 	return 1;
 }
 

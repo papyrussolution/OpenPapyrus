@@ -2194,7 +2194,7 @@ int AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 							STRNSCPY(Rec.AsscPosNodeSymb, cn_rec.Symb);
 						}
 					}
-					if(GObj.FetchTax(grec.ID, /*LConfig.OperDate*/now_dtm.d, 0L, &gtx) > 0)
+					if(GObj.FetchTaxEntry2(grec.ID, 0/*lotID*/, 0/*taxPayerID*/, now_dtm.d, 0L, &gtx) > 0)
 						Rec.VatRate = gtx.GetVatRate();
 					CodePos = 0;
 					GObj.ReadBarcodes(grec.ID, Codes);
@@ -2686,7 +2686,7 @@ int AsyncCashGoodsGroupIterator::MakeGroupList(StrAssocArray * pTreeList, PPID p
 				STRNSCPY(info.Name, goods_rec.Name);
 				info.ParentID = item.ParentId;
 				info.UnitID  = goods_rec.UnitID;
-				if(GObj.FetchTax(goods_rec.ID, getcurdate_(), 0L, &gtx) > 0)
+				if(GObj.FetchTaxEntry2(goods_rec.ID, 0/*lotID*/, 0/*taxPayerID*/, ZERODATE, 0L, &gtx) > 0)
 					info.VatRate = gtx.GetVatRate();
 				GObj.GetSingleBarcode(goods_rec.ID, 0, temp_buf);
 				temp_buf.ShiftLeftChr('@');

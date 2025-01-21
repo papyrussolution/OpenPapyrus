@@ -321,7 +321,7 @@ double CalcPriceParam::Calc(double inPrice, double * pVatRate, double * pVatSum,
 			goods_obj.AdjCostToVat(InTaxGrpID, goods_rec.TaxGrpID, Dt, 1, &inPrice, 0, 0);
 	}
 	double price = inPrice;
-	if(goods_obj.FetchTax(GoodsID, /*Dt*/ZERODATE, 0, &gtx) > 0) {
+	if(goods_obj.FetchTaxEntry2(GoodsID, 0/*lotID*/, 0/*taxPayerID*/, ZERODATE, 0, &gtx) > 0) {
 		goods_obj.MultTaxFactor(GoodsID, &tax_factor);
 		gtv.Calc_(gtx, price, tax_factor, GTAXVF_AFTERTAXES, 0);
 		vat_rate = gtv.GetTaxRate(GTAX_VAT, 0);
@@ -745,7 +745,7 @@ void CalcTaxPriceDialog::calc()
 {
 	getDTS(0);
 	PPGoodsTaxEntry gtx;
-	if(GObj.FetchTax(Data.GoodsID, Data.Dt, Data.OpID, &gtx) > 0) {
+	if(GObj.FetchTaxEntry2(Data.GoodsID, 0/*lotID*/, 0/*taxPayerID*/, Data.Dt, Data.OpID, &gtx) > 0) {
 		double tax_factor = 1.0;
 		GObj.MultTaxFactor(Data.GoodsID, &tax_factor);
 		if(Data.CalcWotaxByWtax) {

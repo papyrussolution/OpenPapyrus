@@ -1,5 +1,5 @@
 // PPDEVICE.CPP
-// Copyright (c) A.Sobolev 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2020, 2021, 2023, 2024
+// Copyright (c) A.Sobolev 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2020, 2021, 2023, 2024, 2025
 //
 #include <pp.h>
 #pragma hdrstop
@@ -482,7 +482,7 @@ int PPAbstractDevice::Helper_RunCmd(const SString & rCmd, const SString & rArg, 
 		RetBuf.Alloc(buf_size_quant);
 	THROW_SL(RetBuf.IsValid());
 	if(!Ib) {
-		SLS.SetOsError("RunCommand");
+		SLS.SetOsError(0, "RunCommand");
 		THROW(0);
 	}
 	do {

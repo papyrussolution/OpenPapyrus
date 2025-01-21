@@ -1885,7 +1885,7 @@ int SRegion::Add(const SRegion & rS, int combine)
 			}
 			ok = ::CombineRgn(h_prev, static_cast<HRGN>(static_cast<void *>(rS.H)), h_prev, _c);
 			if(!ok) {
-				SLS.SetOsError(0);
+				SLS.SetOsError(0, 0);
 			}
 		}
 		else

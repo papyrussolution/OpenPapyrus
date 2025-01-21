@@ -9847,7 +9847,7 @@ public:
 					if(r_item.ID && GObj.Search(r_item.ID, &goods_rec) > 0) {
 						PPGoodsTaxEntry gtx;
 						double vat_rate = 0.0;
-						if(GObj.FetchTax(goods_rec.ID, ZERODATE, 0, &gtx) > 0)
+						if(GObj.FetchTaxEntry2(goods_rec.ID, 0/*lotID*/, 0/*taxPayerID*/, ZERODATE, 0, &gtx) > 0)
 							vat_rate = gtx.GetVatRate();
 						SXml::WNode n_i(p_x, "product");
 						n_i.PutAttrib("code", temp_buf.Z().Cat(goods_rec.ID));
@@ -10347,7 +10347,7 @@ class EfopMayTea : public PrcssrSupplInterchange::ExecuteBlock { // @v12.0.7 @co
 									if(p_goods_entry) {
 										PPGoodsTaxEntry gtx;
 										item.GoodsID = p_goods_entry->ID;
-										if(GObj.FetchTax(goods_rec.ID, pBp->Rec.Dt, 0, &gtx) > 0) {
+										if(GObj.FetchTaxEntry2(goods_rec.ID, 0/*lotID*/, 0/*taxPayerID*/, pBp->Rec.Dt, 0, &gtx) > 0) {
 											GObj.CalcCostVat(0, goods_rec.TaxGrpID, pBp->Rec.Dt, 1.0, ti.NetPrice(), &vat_sum_in_full_price, 0, 0, 16);
 											//item.CostWoVat = (item.Cost - vat_sum_in_full_price);
 											//item.VatInCost = vat_sum_in_full_price;
@@ -11644,7 +11644,7 @@ int Ostankino::Helper_MakeBillEntry(PPID billID, PPBillPacket * pBp, const TSVec
 								if(p_goods_entry) {
 									PPGoodsTaxEntry gtx;
 									item.GoodsID = p_goods_entry->ID;
-									if(GObj.FetchTax(goods_rec.ID, pBp->Rec.Dt, 0, &gtx) > 0) {
+									if(GObj.FetchTaxEntry2(goods_rec.ID, 0/*lotID*/, 0/*taxPayerID*/, pBp->Rec.Dt, 0, &gtx) > 0) {
 										GObj.CalcCostVat(0, goods_rec.TaxGrpID, pBp->Rec.Dt, 1.0, item.Cost, &vat_sum_in_full_price, 0, 0, 16);
 										item.CostWoVat = (item.Cost - vat_sum_in_full_price);
 										item.VatInCost = vat_sum_in_full_price;
@@ -12263,14 +12263,8 @@ private:
 										{
 											PPGoodsTaxEntry gtx;
 											GTaxVect gtv;
-											gtv.CalcTI(ti, pBp->Rec.OpID, TIAMT_PRICE);
+											gtv.CalcBPTI(*pBp, ti, TIAMT_PRICE);
 											item.Vat = gtv.GetValue(GTAXVF_VAT);
-											/*if(GObj.FetchTax(goods_rec.ID, pBp->Rec.Dt, 0, &gtx) > 0) {
-												GObj.CalcCostVat(0, goods_rec.TaxGrpID, pBp->Rec.Dt, 1.0, ti.NetPrice(), &vat_sum_in_full_price, 0, 0, 16);
-												//item.CostWoVat = (item.Cost - vat_sum_in_full_price);
-												//item.VatInCost = vat_sum_in_full_price;
-												//item.VatRate = static_cast<double>(gtx.VAT) / 100.0;
-											}*/
 										}
 										THROW_SL(p_new_pack->ItemList.insert(&item));
 										ok = 1;

@@ -3365,7 +3365,7 @@ int CCheckCore::GetSessTotal(PPID sessID, long flags, CSessTotal * pTotal, BVATA
 			{
 				BVATAccm  bva_item;
 				PPGoodsTaxEntry gtx;
-				if(goods_obj.FetchTax(r_ln_rec.GoodsID, now_date, 0L, &gtx) > 0) // @v12.2.3 LConfig.OperDate-->now_date
+				if(goods_obj.FetchTaxEntry2(r_ln_rec.GoodsID, 0/*lotID*/, 0/*taxPayerID*/, now_date, 0L, &gtx) > 0) // @v12.2.3 LConfig.OperDate-->now_date
 					bva_item.PRate = gtx.GetVatRate();
 				bva_item.PTrnovr  += ln_q * (ln_p - r_ln_rec.Dscnt);
 				bva_item.Discount += ln_q * r_ln_rec.Dscnt;

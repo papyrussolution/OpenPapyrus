@@ -1479,7 +1479,8 @@ int FASTCALL PPSession::ThreadCollection::StopThread(ThreadID tId)
 	PPThread * p_target = 0;
 	THROW_PP(tId != DS.GetConstTLA().GetThreadID(), PPERR_THREADCANTBESTOPPED);
 	THROW(p_target = SearchById(tId));
-	THROW_PP(oneof3(p_target->GetKind(), PPThread::kJob, PPThread::kNetSession, PPThread::kStyloQServer), PPERR_THREADCANTBESTOPPED); // @v11.1.9 PPThread::kStyloQServer
+	THROW_PP(oneof4(p_target->GetKind(), PPThread::kJob, PPThread::kNetSession, 
+		PPThread::kStyloQServer, PPThread::kWsCtl), PPERR_THREADCANTBESTOPPED); // @v11.1.9 PPThread::kStyloQServer // @v12.2.4 PPThread::kWsCtl
 	p_target->SetStopState();
 	CATCHZOK
 	return ok;

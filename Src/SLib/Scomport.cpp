@@ -1,5 +1,5 @@
 // SCOMPORT.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2006, 2010, 2011, 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2022
+// Copyright (c) A.Sobolev 2001, 2002, 2006, 2010, 2011, 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2022, 2025
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -249,7 +249,7 @@ int FASTCALL SCommPort::GetChr(int * pChr)
 			}
 		}
 		if(!r)
-			SLS.SetOsError();
+			SLS.SetOsError(0, 0);
 		else
 			SLS.SetError(SLERR_COMMRCV);
 	}
@@ -291,7 +291,7 @@ int SCommPort::GetChr()
 			}
 		}
 		if(!r)
-			SLS.SetOsError();
+			SLS.SetOsError(0, 0);
 		else
 			SLS.SetError(SLERR_COMMRCV);
 		return 0;

@@ -2791,7 +2791,7 @@ public:
 	//
 	HWND   PrevInStack;
 	HWND   HW; // hWnd;
-	ToolbarList Toolbar;
+	ToolbarList ToolbarL; // @v12.2.4 Toolbar-->ToolbarL
 protected:
 	static BOOL CALLBACK SetupCtrlTextProc(HWND hwnd, LPARAM lParam);
 	static int PassMsgToCtrl(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
@@ -4230,7 +4230,7 @@ private:
 	Item   TempItem;
 };
 
-class StdTreeListBoxDef2_ : public ListBoxDef { // @construction
+class StdTreeListBoxDef2_ : public ListBoxDef {
 public:
 	friend class SmartListBox;
 
@@ -4297,14 +4297,6 @@ private:
 	};
 	SearchBlock Sb;
 };
-
-/* @v11.2.5 class StringListBoxDef : public StdListBoxDef {
-public:
-	StringListBoxDef(uint stringSize, uint aOptions);
-	virtual int    addItem(long id, const char *, long * pPos = 0);
-	virtual int    removeItem(long pos);
-	virtual void   freeAll();
-};*/
 
 class DBQListBoxDef : public ListBoxDef {
 public:
@@ -4478,7 +4470,7 @@ private:
 	long   State;
 	long   Range;
 	long   Top;
-	long   Height;
+	long   ItemHeight; // @v12.2.4 Height-->ItemHeight
 	CompFunc SrchFunc;
 	uint   SrchPatternPos; // Позиция последнего образца поиска в StrPool
 	uint   ColumnsSpcPos;  // Позиция строки спецификации колонок в StrPool
@@ -5585,7 +5577,6 @@ public:
 	//
 	int    ChangeResource(uint resID, DBQuery * pQuery, int force = 0);
 	int    ChangeResource(uint resID, SArray * pArray, int force = 0);
-	// @v11.0.0 (replaced with TWindow::LoadToolbarResource) int    LoadToolbar(uint toolbarId);
 	void   CalcRight();
 	void   SetupScroll();
 	int    insertColumn(int atPos, const char * pTxt, uint fldNo, TYPEID typ, long fmt, uint opt);
@@ -6232,7 +6223,6 @@ private:
 	static LRESULT CALLBACK ScintillaWindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 	virtual TBaseBrowserWindow::IdentBlock & GetIdentBlock(TBaseBrowserWindow::IdentBlock & rBlk);
 	virtual int ProcessCommand(uint ppvCmd, const void * pHdr, void * pBrw);
-	// @v11.0.0 (replaced with TWindow::LoadToolbarResource) int    LoadToolbar(uint tbId);
 	int    GetText(SString & rBuf);
 	int    SetText(SString & rBuf);
 	int    SaveChanges();

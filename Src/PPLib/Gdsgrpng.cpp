@@ -1313,9 +1313,9 @@ int GoodsGrpngArray::ProcessGoodsGrouping(const GCTFilt & rFilt, const AdjGdsGrp
 				PPUnit urec;
 				GoodsExtTbl::Rec gext_rec;
 				phuperu = (GObj.FetchUnit(goods_rec.UnitID, &urec) > 0 && urec.Flags & PPUnit::Physical) ? 1.0 : goods_rec.PhUPerU;
-				if(goods_rec.Flags & GF_TAXFACTOR && GObj.P_Tbl->GetExt(filt.GoodsID, &gext_rec) > 0 && gext_rec.TaxFactor > 0)
+				if(goods_rec.Flags & GF_TAXFACTOR && GObj.P_Tbl->GetExt(filt.GoodsID, &gext_rec) > 0 && gext_rec.TaxFactor > 0.0)
 					tax_factor = gext_rec.TaxFactor;
-				if(filt.Flags & (OPG_SETTAXES | OPG_NOZEROEXCISE) && GObj.FetchTax(filt.GoodsID, ZERODATE, 0L, &gtx) > 0)
+				if(filt.Flags & (OPG_SETTAXES | OPG_NOZEROEXCISE) && GObj.FetchTaxEntry2(filt.GoodsID, 0/*lotID*/, 0/*taxPayerID*/, ZERODATE, 0L, &gtx) > 0)
 					tax_grp_id = gtx.TaxGrpID;
 			}
 			if(!(filt.Flags & OPG_NOZEROEXCISE) || !(gtx.Flags & GTAXF_ZEROEXCISE)) {
@@ -1350,8 +1350,9 @@ int GoodsGrpngArray::ProcessGoodsGrouping(const GCTFilt & rFilt, const AdjGdsGrp
 					GCT_Iterator gcti(filt, &pAgg->Period, pAgg);
 					if(gcti.First(&trfr_rec) > 0)
 						do {
-							if(pAgg->BillList.bsearch(trfr_rec.BillID))
+							if(pAgg->BillList.bsearch(trfr_rec.BillID)) {
 								THROW(ProcessTrfrRec(filt, pAgg, trfr_rec, tax_grp_id, phuperu, tax_factor));
+							}
 						} while(gcti.Next(&trfr_rec) > 0);
 					filt.Flags &= ~OPG_ADJPAYM;
 				}

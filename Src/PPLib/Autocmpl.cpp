@@ -1,5 +1,5 @@
 // AUTOCMPL.CPP
-// Copyright (c) A.Sobolev 1998-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2016, 2017, 2018, 2019, 2020, 2021, 2024
+// Copyright (c) A.Sobolev 1998-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2016, 2017, 2018, 2019, 2020, 2021, 2024, 2025
 // @codepage UTF-8
 // Автоматическая комплектация //
 //
@@ -131,7 +131,7 @@ PUGL & FASTCALL PUGL::operator = (const PUGL & rS)
 	CalcCostPct  = rS.CalcCostPct;
 	SArray::copy(rS);
 	SupplSubstList = rS.SupplSubstList;
-	Slmt = rS.Slmt; // @v10.5.12
+	Slmt = rS.Slmt;
 	return *this;
 }
 
@@ -1243,7 +1243,7 @@ int PPBillPacket::InsertAutoComplRow(uint pos, int pcug)
 		THROW(loti.SetupGoods(r_ti.GoodsID));
 		loti.UnitPerPack = r_ti.UnitPerPack;
 		if(!(P_BObj->GetConfig().Flags & BCF_DONTINHQCERT))
-			P_BObj->trfr->Rcpt.GetLastQCert(labs(r_ti.GoodsID), r_ti.Date, Rec.LocID, &loti.QCert, 0); // @v10.4.10 r_ti.Date
+			P_BObj->trfr->Rcpt.GetLastQCert(labs(r_ti.GoodsID), r_ti.Date, Rec.LocID, &loti.QCert, 0);
 		loti.Quantity_ = fabs(r_ti.Quantity_);
 		loti.Cost     = 0.0;
 		loti.Price    = r_ti.Price;

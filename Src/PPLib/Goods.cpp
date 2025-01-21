@@ -1,5 +1,5 @@
 // GOODS.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 // @Kernel
 //
@@ -3225,8 +3225,7 @@ int GoodsCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/
 		if(p_cache_rec->TypeID && oneof2(rec.Kind, PPGDSK_GOODS, PPGDSK_GROUP)) {
 			PPObjGoodsType gt_obj;
 			PPGoodsType gt_rec;
-			// @v10.4.2 THROW(gt_obj.Fetch(p_cache_rec->TypeID, &gt_rec) > 0);
-			if(gt_obj.Fetch(p_cache_rec->TypeID, &gt_rec) > 0) { // @v10.4.2 
+			if(gt_obj.Fetch(p_cache_rec->TypeID, &gt_rec) > 0) {
 				if(p_cache_rec->TypeID != PPGT_DEFAULT)
 					p_cache_rec->Flags |= GF_ODD;
 				if(gt_rec.Flags & GTF_UNLIMITED)
@@ -3243,7 +3242,6 @@ int GoodsCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/
 	}
 	else
 		ok = -1;
-	// @v10.4.3 CATCHZOK
 	return ok;
 }
 

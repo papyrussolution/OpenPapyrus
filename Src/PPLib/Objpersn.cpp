@@ -348,7 +348,7 @@ bool PPObjPerson::ClientActivityStatistics::IsDetermined() const
 	return (PersonID > 0 && EventCount && checkdate(FirstEventDt) && checkdate(LastEventDt));
 }
 
-PPObjPerson::ClientActivityState::ClientActivityState() : PersonID(0), ActualDate(ZERODATE), State(stUndef)
+PPObjPerson::ClientActivityState::ClientActivityState() : PersonID(0), ActualDate(ZERODATE), State(stUndef), CurrentDelayDays(0), CurrentDelaySd(0.0f)
 {
 	NewCliPeriod.Z();
 }
@@ -969,6 +969,11 @@ void PPPersonConfig::Init()
 	ClientActivityDetectionList.freeAll();
 }
 
+/*static*/int PPObjPerson::EditClientAcitivityConfig(PPPersonConfig & rCfg)
+{
+	return PPDialogProcBody <ClientActivityDetectionListDialog, PPPersonConfig>(&rCfg);
+}
+
 /*static*/int PPObjPerson::EditConfig()
 {
 	class PersonCfgDialog : public TDialog {
@@ -1039,22 +1044,9 @@ void PPPersonConfig::Init()
 				delete p_dlg;
 				clearEvent(event);
 			}
-			// @vmiller {
-			else if(event.isCmd(cmNewPersnMarks)) {
-				ClientActivityDetectionListDialog * p_dlg = new ClientActivityDetectionListDialog;
-				if(CheckDialogPtrErr(&p_dlg) > 0) {
-					p_dlg->setDTS(&Data);
-					for(int valid_data = 0; !valid_data && ExecView(p_dlg) == cmOK;) {
-						if(p_dlg->getDTS(&Data) > 0)
-							valid_data = 1;
-						else
-							PPError();
-					}
-				}
-				delete p_dlg;
-				clearEvent(event);
+			else if(event.isCmd(cmNewPersnMarks) || event.isCmd(cmClientActivityConfig)) { // @v12.2.4 
+				PPObjPerson::EditClientAcitivityConfig(Data);
 			}
-			// } @vmiller
 		}
 	};
 	int    ok = -1;
@@ -6737,6 +6729,7 @@ int FASTCALL PPObjPerson::FetchConfig(PPPersonConfig * pCfg)
 
 int PPObjPerson::DirtyConfig()
 {
+	Cfg.Flags &= ~PPPersonConfig::fValid; // @v12.2.4
 	PersonCache * p_cache = GetDbLocalCachePtr <PersonCache> (PPOBJ_PERSON, 0);
 	return p_cache ? p_cache->GetConfig(0, 1) : 0;
 }
@@ -8183,29 +8176,32 @@ int PPObjPerson::IdentifyClientActivityState(ClientActivityState & rParam)
 						}
 					}
 					if(checkdate(last_ev_date)) {
-						const long delay_days = diffdate(actual_date, last_ev_date);
+						const long   delay_days = diffdate(actual_date, last_ev_date);
+						const double delay_sd = (cas.GapDaysStdDev != 0.0) ? delay_days / cas.GapDaysStdDev : 0.0;
 						const PPPersonConfig & r_cfg = GetConfig();
-						if(r_cfg.HopelessCliActivityDelayDays > 0) {
+						if(r_cfg.HopelessCliActivityDelaySigm > 0.0f && delay_sd > 0.0) {
+							if(delay_sd >= static_cast<double>(r_cfg.HopelessCliActivityDelaySigm))
+								rParam.State = ClientActivityState::stHopelesslyDelayedTa;
+						}
+						else if(r_cfg.HopelessCliActivityDelayDays > 0) {
 							if(delay_days >= static_cast<long>(r_cfg.HopelessCliActivityDelayDays))
 								rParam.State = ClientActivityState::stHopelesslyDelayedTa;
 						}
-						else if(r_cfg.HopelessCliActivityDelaySigm > 0 && cas.GapDaysStdDev != 0.0f) {
-							if(delay_days >= fabs(r_cfg.HopelessCliActivityDelaySigm * cas.GapDaysStdDev))
-								rParam.State = ClientActivityState::stHopelesslyDelayedTa;
-						}
 						if(rParam.State != ClientActivityState::stHopelesslyDelayedTa) {
-							if(r_cfg.CriticalCliActivityDelayDays > 0) {
-								if(delay_days >= static_cast<long>(r_cfg.CriticalCliActivityDelayDays))
+							if(r_cfg.CriticalCliActivityDelaySigm > 0 && delay_sd > 0.0) {
+								if(delay_sd >= static_cast<double>(r_cfg.CriticalCliActivityDelaySigm))
 									rParam.State = ClientActivityState::stDelayedTa;
 							}
-							else if(r_cfg.CriticalCliActivityDelaySigm > 0 && cas.GapDaysStdDev != 0.0f) {
-								if(delay_days >= fabs(r_cfg.CriticalCliActivityDelaySigm * cas.GapDaysStdDev))
+							else if(r_cfg.CriticalCliActivityDelayDays > 0) {
+								if(delay_days >= static_cast<long>(r_cfg.CriticalCliActivityDelayDays))
 									rParam.State = ClientActivityState::stDelayedTa;
 							}
 						}
 						if(!oneof2(rParam.State, ClientActivityState::stDelayedTa, ClientActivityState::stHopelesslyDelayedTa)) {
 							rParam.State = ClientActivityState::stRegularTa;
 						}
+						rParam.CurrentDelayDays = delay_days;
+						rParam.CurrentDelaySd = delay_sd;
 					}
 					else 
 						rParam.State = ClientActivityState::stNoData;

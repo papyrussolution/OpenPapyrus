@@ -1,6 +1,7 @@
 // OBJQCERT.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2013, 2015, 2016, 2017, 2019, 2020, 2022, 2024
-// @codepage windows-1251
+// Copyright (c) A.Sobolev 1996, 1997, 1998-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2013, 2015, 2016, 2017, 2019, 2020, 2022, 2024, 2025
+// @codepage UTF-8
+// Управление сертификатами качества.
 //
 #include <pp.h>
 #pragma hdrstop
@@ -235,10 +236,7 @@ int PPObjQCert::Edit(PPID * pID, void * extraPtr /*sampleID*/)
 	return ok ? r : 0;
 }
 
-const char * PPObjQCert::GetNamePtr()
-{
-	return P_Tbl->data.Code;
-}
+const char * PPObjQCert::GetNamePtr() { return P_Tbl->data.Code; }
 
 int PPObjQCert::HandleMsg(int msg, PPID objType, PPID objID, void * extraPtr)
 {

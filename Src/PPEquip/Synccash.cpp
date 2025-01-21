@@ -1464,15 +1464,17 @@ int SCS_SYNCCASH::LineFeed(int lineCount, int useReceiptRibbon, int useJournalRi
 
 int SCS_SYNCCASH::GetCheckInfo(const PPBillPacket * pPack, Sync_BillTaxArray * pAry, long * pFlags, SString & rName)
 {
-	int    ok = 1, wovatax = 0;
+	int    ok = 1;
 	long   flags = 0;
 	Sync_BillTaxEntry bt_entry;
-	PPID   main_org_id;
+	const  PPID main_org_id = GetMainOrgID();
+	/* @v12.2.4 
+	int    wovatax = 0;
 	if(GetMainOrgID(&main_org_id)) {
 		PersonTbl::Rec prec;
 		if(SearchObject(PPOBJ_PERSON, main_org_id, &prec) > 0 && prec.Flags & PSNF_NOVATAX)
 			wovatax = 1;
-	}
+	}*/
 	THROW_INVARG(pPack && pAry);
 	RVALUEPTR(flags, pFlags);
 	if(pPack->OpTypeID == PPOPT_ACCTURN) {
@@ -1510,8 +1512,9 @@ int SCS_SYNCCASH::GetCheckInfo(const PPBillPacket * pPack, Sync_BillTaxArray * p
 		for(uint i = 0; pPack->EnumTItems(&i, &ti);) {
 			int re;
 			PPGoodsTaxEntry gtx;
-			THROW(goods_obj.FetchTax(ti->GoodsID, pPack->Rec.Dt, pPack->Rec.OpID, &gtx));
-			bt_entry.VAT = wovatax ? 0 : gtx.VAT;
+			THROW(goods_obj.FetchTaxEntry2(ti->GoodsID, 0/*lotID*/, main_org_id/*taxPayerID*/, pPack->Rec.Dt, pPack->Rec.OpID, &gtx));
+			// @v12.2.4 bt_entry.VAT = wovatax ? 0 : gtx.VAT;
+			bt_entry.VAT = gtx.VAT; // @v12.2.4
 			re = (ti->Flags & PPTFR_RMVEXCISE) ? 1 : 0;
 			bt_entry.SalesTax = ((CConfig.Flags & CCFLG_PRICEWOEXCISE) ? !re : re) ? 0 : gtx.SalesTax;
 			bt_entry.Amount   = ti->CalcAmount();

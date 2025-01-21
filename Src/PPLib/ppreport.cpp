@@ -1,5 +1,5 @@
 // PPREPORT.CPP
-// Copyright (C) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (C) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1625,7 +1625,7 @@ static int RemoveCompName(SString & rPrintDevice)
 	TCHAR  buf[256];
 	SString sbuf;
 	DWORD  buf_size = SIZEOFARRAY(buf);
-	PTR32(buf)[0] = 0;
+	buf[0] = 0;
 	GetComputerNameEx(ComputerNameNetBIOS, buf, &buf_size);
 	(sbuf = "\\\\").Cat(SUcSwitch(buf)).BSlash();
 	if(rPrintDevice.CmpPrefix(sbuf, 1) == 0)
@@ -2757,7 +2757,7 @@ static int FASTCALL __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPRe
 									MEMSZERO(pi);
 									int    r = ::CreateProcess(0, static_cast<TCHAR *>(cmd_line.vptr()), 0, 0, FALSE, 0, 0, 0, &si, &pi);
 									if(!r) {
-										SLS.SetOsError(0);
+										SLS.SetOsError(0, 0);
 										PPSetErrorSLib();
 										CALLEXCEPT();
 									}
@@ -2804,7 +2804,7 @@ static int FASTCALL __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPRe
 								MEMSZERO(pi);
 								int    r = ::CreateProcess(0, static_cast<TCHAR *>(cmd_line.vptr()), 0, 0, FALSE, 0, 0, 0, &si, &pi); // @unicodeproblem
 								if(!r) {
-									SLS.SetOsError(0);
+									SLS.SetOsError(0, 0);
 									PPSetErrorSLib();
 									CALLEXCEPT();
 								}

@@ -1,5 +1,5 @@
 // IE_GOODS.CPP
-// Copyright (c) A.Starodub 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Starodub 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -1121,10 +1121,10 @@ int PPGoodsExporter::ExportPacket(PPGoodsPacket * pPack, const char * pBarcode, 
 		// Ёкспорт информации о налоговых ставках
 		//
 		{
-			PPGoodsTaxEntry tax_entry;
-			if(P_GObj->FetchTax(pPack->Rec.ID, getcurdate_(), 0, &tax_entry) > 0) {
-				sdr_goods.SalesTax = fdiv100i(tax_entry.SalesTax);
-				sdr_goods.Vat      = fdiv100i(tax_entry.VAT);
+			PPGoodsTaxEntry gtx;
+			if(P_GObj->FetchTaxEntry2(pPack->Rec.ID, 0/*lotID*/, 0/*taxPayerID*/, ZERODATE, 0, &gtx) > 0) {
+				sdr_goods.SalesTax = fdiv100i(gtx.SalesTax);
+				sdr_goods.Vat      = fdiv100i(gtx.VAT);
 			}
 		}
 		sdr_goods.PckgQtty   = pPack->Stock.Package;

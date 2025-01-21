@@ -5,9 +5,14 @@
 #include <pp.h>
 #pragma hdrstop
 
-PPGoodsTaxEntry::PPGoodsTaxEntry()
+PPGoodsTaxEntry::PPGoodsTaxEntry() : TaxGrpID(0), OpID(0), VAT(0), Excise(0), SalesTax(0), Flags(0), Order(0), UnionVect(0)
 {
-	THISZERO();
+	Period.Z();
+}
+
+PPGoodsTaxEntry::PPGoodsTaxEntry(double vat, long flags) : TaxGrpID(0), OpID(0), VAT(R0i(vat * 100L)), Excise(0), SalesTax(0), Flags(flags), Order(0), UnionVect(0)
+{
+	Period.Z();
 }
 
 int FASTCALL PPGoodsTaxEntry::IsEq(const PPGoodsTaxEntry & rS) const
@@ -28,29 +33,22 @@ int FASTCALL PPGoodsTaxEntry::IsEq(const PPGoodsTaxEntry & rS) const
 
 double PPGoodsTaxEntry::GetVatRate() const { return fdiv100i(VAT); }
 
-char * PPGoodsTaxEntry::FormatVAT(char * pBuf, size_t bufLen) const
+SString & PPGoodsTaxEntry::FormatVAT(SString & rBuf) const
 {
-	const  long fmt = MKSFMTD(0, 2, NMBF_NOTRAILZ | ALIGN_LEFT | NMBF_NOZERO);
-	char   str[32];
-	realfmt(fdiv100i(VAT), fmt, str); // @divtax
-	return strnzcpy(pBuf, str, bufLen);
+	return rBuf.Z().Cat(fdiv100i(VAT), MKSFMTD(0, 2, NMBF_NOTRAILZ|ALIGN_LEFT|NMBF_NOZERO));
 }
 
-char * PPGoodsTaxEntry::FormatSTax(char * pBuf, size_t bufLen) const
+SString & PPGoodsTaxEntry::FormatSTax(SString & rBuf) const
 {
-	const  long fmt = MKSFMTD(0, 2, NMBF_NOTRAILZ | ALIGN_LEFT | NMBF_NOZERO);
-	char   str[32];
-	realfmt(fdiv100i(SalesTax), fmt, str); // @divtax
-	return strnzcpy(pBuf, str, bufLen);
+	return rBuf.Z().Cat(fdiv100i(SalesTax), MKSFMTD(0, 2, NMBF_NOTRAILZ|ALIGN_LEFT|NMBF_NOZERO));
 }
 
-char * PPGoodsTaxEntry::FormatExcise(char * pBuf, size_t bufLen) const
+SString & PPGoodsTaxEntry::FormatExcise(SString & rBuf) const
 {
-	SString temp_buf;
-	temp_buf.Cat(fdiv100i(Excise), MKSFMTD(0, 2, NMBF_NOTRAILZ|ALIGN_LEFT|NMBF_NOZERO)); // @divtax
+	rBuf.Z().Cat(fdiv100i(Excise), MKSFMTD(0, 2, NMBF_NOTRAILZ|ALIGN_LEFT|NMBF_NOZERO));
 	if(Excise && Flags & GTAXF_ABSEXCISE)
-		temp_buf.CatChar('$');
-	return temp_buf.CopyTo(pBuf, bufLen);
+		rBuf.CatChar('$');
+	return rBuf;
 }
 
 PPGoodsTax2::PPGoodsTax2()
@@ -142,18 +140,46 @@ void PPGoodsTaxPacket::Sort() { sort(PTR_CMPFUNC(PPGoodsTaxEntry)); }
 //
 //
 //
+GTaxVect::EvalBlock::EvalBlock() : P_BPack(0), P_Ti(0), P_Gte(0), TiIdx(-1), OpID(0), TiAmt(TIAMT_UNDEF), ExclFlags(0), CorrectionFlag(0), 
+	MainOrgID(0), SupplPsnID(0), Amount(0.0), Qtty(0.0)
+{
+}
+
+GTaxVect::EvalBlock::EvalBlock(const PPBillPacket & rBPack, int tiIdx) // @construction
+{
+}
+
+/*static*/int GTaxVect::GetTaxNominalAmountType(const BillTbl::Rec & rBillRec) // @v12.2.4
+{
+	int   at = 0;
+	PPOprKind op_rec;
+	GetOpData(rBillRec.OpID, &op_rec);
+	if(op_rec.Flags & OPKF_BUYING)
+		at = TIAMT_COST;
+	else if(op_rec.Flags & OPKF_SELLING)
+		at = TIAMT_PRICE;
+	else {
+		at = TIAMT_PRICE; // Здесь, вероятно, нужны уточнения //
+	}
+	return at;
+}
+
 GTaxVect::GTaxVect(int roundPrec) : RoundPrec(roundPrec)
 {
 }
 
 int FASTCALL GTaxVect::TaxToVect(int taxIdx) const
 {
-	if(taxIdx == 0)
-		return 0;
-	for(int i = 1; i <= N; i++)
-		if(OrderVect[i] == static_cast<long>(taxIdx))
-			return i;
-	return -1;
+	int    result = -1;
+	if(taxIdx) {
+		for(int i = 1; result < 0 && i <= N; i++) {
+			if(OrderVect[i] == static_cast<long>(taxIdx))
+				result = i;
+		}
+	}
+	else
+		result = 0;
+	return result;
 }
 
 int FASTCALL GTaxVect::VectToTax(int idx) const { return (idx > 0 && idx <= N) ? static_cast<int>(OrderVect[idx]) : (idx ? -1 : 0); }
@@ -183,9 +209,14 @@ double FASTCALL GTaxVect::GetValue(long flags) const
 		return Amount;
 	else {
 		double amount = 0.0;
-		for(int i = 0; i <= N; i++)
-			if(flags & (1 << i))
-				amount += Vect[TaxToVect(i)];
+		for(int i = 0; i <= N; i++) {
+			if(flags & (1 << i)) {
+				const int v = TaxToVect(i);
+				assert(v >= 0 && v < SIZEOFARRAYi(Vect));
+				if(v >= 0 && v < SIZEOFARRAYi(Vect))
+					amount += Vect[v];
+			}
+		}
 		return amount;
 	}
 }
@@ -342,6 +373,11 @@ void GTaxVect::Calc_(const PPGoodsTaxEntry & rGtEntry, double amount, double qtt
 	}
 }
 
+int GTaxVect::CalcBPTI(const PPBillPacket & rBp, const PPTransferItem & rTi, int tiamt/* TIAMT_XXX */, long exclFlags, int correctionFlag) // @v12.2.4
+{
+	return CalcTI(rTi, rBp.Rec.OpID, tiamt, exclFlags, correctionFlag);
+}
+
 int GTaxVect::CalcTI(const PPTransferItem & rTi, PPID opID, int tiamt, long exclFlags, int correctionFlag/*= 0*/)
 {
 	int    ok = 1;
@@ -349,33 +385,35 @@ int GTaxVect::CalcTI(const PPTransferItem & rTi, PPID opID, int tiamt, long excl
 	PPObjBill * p_bobj = BillObj;
 	const  bool calcti_costwovat_byprice = (r_ccfg.Flags & CCFLG_COSTWOVATBYSUM) ? false : true;
 	const  LDATE date_of_relevance = checkdate(rTi.LotDate) ? rTi.LotDate : rTi.Date; // Драфт-документы имеют нулевой LotDate
-	int    cost_wo_vat = 0;
-	int    is_asset = 0;
-	int    is_exclvat = 0;
-	int    reval_assets = 0;
+	bool   is_cost_wo_vat = false;
+	bool   is_asset = false;
+	bool   is_exclvat = false;
+	bool   is_asset_reval = false;
 	long   amt_flags = ~0L;
 	PPID   tax_grp_id = 0;
 	PPGoodsTaxEntry gtx;
 	PPObjGoods    gobj;
-	Goods2Tbl::Rec goods_rec;
 	double amount = 0.0;
 	double qtty   = fabs(rTi.Qtty());
 	double tax_qtty = qtty;
-	if(gobj.Fetch(labs(rTi.GoodsID), &goods_rec) > 0) {
-		if(goods_rec.Flags & GF_ASSETS)
-			is_asset = 1;
-		tax_grp_id = goods_rec.TaxGrpID;
-		if(!(exclFlags & GTAXVF_NOMINAL) && r_ccfg.DynGoodsTypeForSupplAgent && rTi.LotID && p_bobj->GetSupplAgent(rTi.LotID) > 0) {
-			PPObjGoodsType gt_obj;
-			PPGoodsType gt_rec;
-			if(gt_obj.Fetch(r_ccfg.DynGoodsTypeForSupplAgent, &gt_rec) > 0 && gt_rec.Flags & GTF_EXCLVAT)
-				is_exclvat = 1;
+	{
+		Goods2Tbl::Rec goods_rec;
+		if(gobj.Fetch(labs(rTi.GoodsID), &goods_rec) > 0) {
+			if(goods_rec.Flags & GF_ASSETS)
+				is_asset = true;
+			tax_grp_id = goods_rec.TaxGrpID;
+			if(!(exclFlags & GTAXVF_NOMINAL) && r_ccfg.DynGoodsTypeForSupplAgent && rTi.LotID && p_bobj->GetSupplAgent(rTi.LotID) > 0) {
+				PPObjGoodsType gt_obj;
+				PPGoodsType gt_rec;
+				if(gt_obj.Fetch(r_ccfg.DynGoodsTypeForSupplAgent, &gt_rec) > 0 && gt_rec.Flags & GTF_EXCLVAT)
+					is_exclvat = true;
+			}
+			else if(goods_rec.Flags & GF_EXCLVAT)
+				is_exclvat = true;
 		}
-		else if(goods_rec.Flags & GF_EXCLVAT)
-			is_exclvat = 1;
-	}
-	else {
-		MEMSZERO(goods_rec);
+		else {
+			MEMSZERO(goods_rec);
+		}
 	}
 	if(!(exclFlags & GTAXVF_NOMINAL) && PPObjLocation::CheckWarehouseFlags(rTi.LocID, LOCF_VATFREE))
 		exclFlags |= GTAXVF_VAT;
@@ -443,8 +481,8 @@ int GTaxVect::CalcTI(const PPTransferItem & rTi, PPID opID, int tiamt, long excl
 		// изменение цен поступления (балансовой стоимости основных фондов).
 		//
 		if(rTi.Flags & PPTFR_REVAL)
-			reval_assets = is_asset;
-		if(!reval_assets && tiamt != TIAMT_ASSETEXPL && (tiamt == TIAMT_PRICE || (tiamt != TIAMT_COST && rTi.Flags & (PPTFR_SELLING|PPTFR_REVAL)))) {
+			is_asset_reval = is_asset;
+		if(!is_asset_reval && tiamt != TIAMT_ASSETEXPL && (tiamt == TIAMT_PRICE || (tiamt != TIAMT_COST && rTi.Flags & (PPTFR_SELLING|PPTFR_REVAL)))) {
 			if(rTi.Flags & PPTFR_PRICEWOTAXES)
 				amt_flags = GTAXVF_AFTERTAXES;
 			if(rTi.Flags & PPTFR_COSTWOVAT && is_asset)
@@ -463,12 +501,12 @@ int GTaxVect::CalcTI(const PPTransferItem & rTi, PPID opID, int tiamt, long excl
 			if(rTi.Flags & PPTFR_COSTWOVAT) {
 				amt_flags &= ~GTAXVF_VAT;
 				if(calcti_costwovat_byprice)
-					cost_wo_vat = 1;
+					is_cost_wo_vat = true;
 			}
 			if(tiamt == TIAMT_ASSETEXPL)
 				amount = (rTi.Flags & PPTFR_ASSETEXPL) ? rTi.Cost : 0.0;
 			else if(rTi.Flags & PPTFR_REVAL)
-				amount = (reval_assets && tiamt != TIAMT_COST) ? rTi.NetPrice() : (rTi.Cost - rTi.RevalCost);
+				amount = (is_asset_reval && tiamt != TIAMT_COST) ? rTi.NetPrice() : (rTi.Cost - rTi.RevalCost);
 			else
 				amount = rTi.Cost;
 			if(!(rTi.Flags & PPTFR_COSTWSTAX))
@@ -479,16 +517,230 @@ int GTaxVect::CalcTI(const PPTransferItem & rTi, PPID opID, int tiamt, long excl
 				exclFlags |= GTAXVF_EXCISE;
 		}
 	}
-	if(gtx.Flags & GTAXF_ABSEXCISE)
+	if(gtx.Flags & GTAXF_ABSEXCISE) {
 		gobj.MultTaxFactor(rTi.GoodsID, &tax_qtty);
-	if(!(calcti_costwovat_byprice && cost_wo_vat)) {
+	}
+	if(!(calcti_costwovat_byprice && is_cost_wo_vat)) {
 		amount *= qtty;
 	}
 	Calc_(gtx, amount, tax_qtty, amt_flags, exclFlags);
-	if(calcti_costwovat_byprice && cost_wo_vat) {
+	if(calcti_costwovat_byprice && is_cost_wo_vat) {
 		for(int i = 0; i < N; i++)
 			Vect[i] *= qtty;
 		Amount *= qtty;
+	}
+	return ok;
+}
+
+GTaxVect::WareBlock::WareBlock(PPObjGoods & rGObj, PPID goodsID, PPID lotID, long exclFlags) : GoodsID(labs(goodsID)), LotID(lotID), TaxGroupID(0),
+	IsFound(false), IsAsset(false), IsExclVat(false), TaxFactor(1.0)
+{
+	Goods2Tbl::Rec goods_rec;
+	if(rGObj.Fetch(GoodsID, &goods_rec) > 0) {
+		IsFound = true;
+		const PPCommConfig & r_ccfg = CConfig;
+		if(goods_rec.Flags & GF_ASSETS)
+			IsAsset = true;
+		TaxGroupID = goods_rec.TaxGrpID;
+		if(!(exclFlags & GTAXVF_NOMINAL) && r_ccfg.DynGoodsTypeForSupplAgent && LotID && BillObj->GetSupplAgent(LotID) > 0) {
+			PPGoodsType gt_rec;
+			if(rGObj.GtObj.Fetch(r_ccfg.DynGoodsTypeForSupplAgent, &gt_rec) > 0 && gt_rec.Flags & GTF_EXCLVAT)
+				IsExclVat = true;
+		}
+		else if(goods_rec.Flags & GF_EXCLVAT)
+			IsExclVat = true;
+		{
+			GoodsExtTbl::Rec gext_rec;
+			TaxFactor = ((r_ccfg.Flags & CCFLG_USEGDSCLS) && (goods_rec.Flags & GF_TAXFACTOR) && 
+				rGObj.P_Tbl->GetExt(GoodsID, &gext_rec) > 0 && gext_rec.TaxFactor > 0.0) ? gext_rec.TaxFactor : 1.0;
+				//rGObj.MultTaxFactor(GoodsID, &TaxFactor);
+		}
+	}
+	assert(TaxFactor > 0.0);
+}
+
+int GTaxVect::EvaluateTaxes(const EvalBlock & rBlk__) // @v12.2.4
+{
+	/*
+			//
+			Кейсы направления расчета:
+			-- Входящие налоги (в основном, речь об НДС). EvalBlock::TiAmt == TIAMT_COST
+			-- Исходящие налоги. EvalBlock::TiAmt == TIAMT_PRICE
+			//
+			Операционные кейсы:
+			-- Корректировочный документ прихода
+			-- Корректировочный документ расхода
+			-- Переоценка основных фондов
+			-- Прочие операции 
+	*/ 
+	int    ok = 1;
+	EvalBlock lblk(rBlk__); // локальная копия расчетного блока (rBlk__ более в функции не используется)
+	{
+		const  PPCommConfig & r_ccfg = CConfig;
+		PPObjBill * p_bobj = BillObj;
+		const  bool calcti_costwovat_byprice = (r_ccfg.Flags & CCFLG_COSTWOVATBYSUM) ? false : true;
+		bool   is_cost_wo_vat = false;
+		long   amt_flags = ~0L;
+		PPGoodsTaxEntry gtx;
+		const  PPID  op_id = lblk.P_BPack ? lblk.P_BPack->Rec.OpID : lblk.OpID;
+		const  PPTransferItem * p_ti = lblk.P_Ti ? lblk.P_Ti : ((lblk.P_BPack && lblk.TiIdx >= 0 && lblk.TiIdx < lblk.P_BPack->GetTCountI()) ? &lblk.P_BPack->ConstTI(lblk.TiIdx) : 0);
+		const  long  ti_flags = p_ti ? p_ti->Flags : 0;
+		const  PPID  goods_id = p_ti ? labs(p_ti->GoodsID) : 0;
+		const  PPID  lot_id = p_ti ? p_ti->LotID : 0;
+		const  PPID  loc_id = p_ti ? p_ti->LocID : (lblk.P_BPack ? lblk.P_BPack->Rec.LocID : 0);
+		const  PPID  lot_tax_grp_id = p_ti ? p_ti->LotTaxGrpID : 0;
+		const  PPID  main_org_id = lblk.MainOrgID;
+		const  PPID  suppl_psn_id = lblk.SupplPsnID;
+		const  LDATE op_date  = p_ti ? p_ti->Date : (lblk.P_BPack ? lblk.P_BPack->Rec.Dt : ZERODATE);
+		const  LDATE lot_date = p_ti ? p_ti->LotDate : op_date;
+		const  LDATE date_of_relevance = checkdate(lot_date) ? lot_date : op_date; // Драфт-документы имеют нулевой LotDate
+		const  bool  is_suppl_vat_free = p_ti ? (IsSupplVATFree(p_ti->Suppl) > 0) : false; // @temporary
+		const  double cost = p_ti ? p_ti->Cost : 0.0;
+		const  double price = p_ti ? p_ti->NetPrice() : 0.0;
+		double qtty  = fabs(p_ti ? p_ti->Qtty() : lblk.Qtty);
+		double tax_qtty = qtty;
+		double amount = 0.0;
+		PPObjGoods gobj;
+		const  WareBlock wb(gobj, goods_id, lot_id, lblk.ExclFlags);
+		PPID   tax_grp_id = wb.TaxGroupID;
+		if(!(lblk.ExclFlags & GTAXVF_NOMINAL) && PPObjLocation::CheckWarehouseFlags(loc_id, LOCF_VATFREE))
+			lblk.ExclFlags |= GTAXVF_VAT;
+		{ // Операционные кейсы
+			if(p_ti && p_ti->IsCorrectionRcpt()) { // Операционный кейс: Корректировочный документ прихода
+				if(!(lblk.ExclFlags & GTAXVF_NOMINAL) && lot_tax_grp_id)
+					tax_grp_id = lot_tax_grp_id;
+				gobj.GTxObj.Fetch(tax_grp_id, date_of_relevance, 0, &gtx);
+				const double q_pre = fabs(p_ti->QuotPrice);
+				qtty = fabs(p_ti->Quantity_);
+				const double q_diff = (qtty - q_pre);
+				const double cq = R2(p_ti->Cost * qtty - p_ti->RevalCost * q_pre);
+				const double pq = R2(p_ti->Price * qtty - p_ti->Discount * q_pre);
+				if(q_diff != 0.0) {
+					qtty = q_diff;
+				}
+				else {
+					;
+				}
+				amount = ((lblk.TiAmt != TIAMT_PRICE) ? cq : pq) / qtty;
+			}
+			else if(p_ti && p_ti->IsCorrectionExp()) { // Операционный кейс: Корректировочный документ расхода
+				LDATE   tax_date = op_date;
+				{
+					PPID link_bill_id = 0;
+					if(lblk.P_BPack)
+						link_bill_id = lblk.P_BPack->Rec.LinkBillID;
+					else {
+						BillTbl::Rec bill_rec;
+						if(p_bobj->Fetch(p_ti->BillID, &bill_rec) > 0) {
+							link_bill_id = bill_rec.LinkBillID;
+						}
+					}
+					if(link_bill_id) {
+						BillTbl::Rec link_bill_rec;
+						if(p_bobj->Fetch(link_bill_id, &link_bill_rec) > 0)
+							tax_date = link_bill_rec.Dt;
+					}
+				}
+				//gobj.FetchTaxEntry2(goods_id, )
+				gobj.GTxObj.Fetch(tax_grp_id, tax_date, 0, &gtx);
+				const double q_pre = fabs(p_ti->QuotPrice);
+				qtty = fabs(p_ti->Quantity_);
+				const double q_diff = (qtty - q_pre);
+				if(lblk.CorrectionFlag == 0) {
+					if(lblk.TiAmt == TIAMT_COST) {
+						const double pq = R2(p_ti->Cost * (qtty - q_pre));
+						if(q_diff != 0.0)
+							qtty = q_diff;
+						amount = pq / qtty;
+					}
+					else {
+						const double pq = R2(p_ti->NetPrice() * qtty - p_ti->RevalCost * q_pre);
+						if(q_diff != 0.0)
+							qtty = q_diff;
+						amount = pq / qtty;
+					}
+				}
+				else if(lblk.CorrectionFlag < 0) {
+					qtty = q_pre;
+					amount = (lblk.TiAmt == TIAMT_COST) ? R2(p_ti->Cost) : p_ti->RevalCost;
+				}
+				else if(lblk.CorrectionFlag > 0) {
+					amount = (lblk.TiAmt == TIAMT_COST) ? R2(p_ti->Cost) : p_ti->NetPrice();
+				}
+			}
+			else {
+				//
+				// При переоценке основных фондов в ценах реализации используем схему расчета
+				// налогов, применяемую для цен поступления, поскольку такая переоценка - суть
+				// изменение цен поступления (балансовой стоимости основных фондов).
+				//
+				const bool is_asset_reval = (ti_flags & PPTFR_REVAL) ? wb.IsAsset : false;
+				if(!is_asset_reval && lblk.TiAmt != TIAMT_ASSETEXPL && (lblk.TiAmt == TIAMT_PRICE || (lblk.TiAmt != TIAMT_COST && ti_flags & (PPTFR_SELLING|PPTFR_REVAL)))) {
+					if(ti_flags & PPTFR_PRICEWOTAXES)
+						amt_flags = GTAXVF_AFTERTAXES;
+					if(ti_flags & PPTFR_COSTWOVAT && wb.IsAsset)
+						amt_flags &= ~GTAXVF_VAT;
+					const int  re = BIN(ti_flags & PPTFR_RMVEXCISE);
+					if((r_ccfg.Flags & CCFLG_PRICEWOEXCISE) ? !re : re) {
+						lblk.ExclFlags |= GTAXVF_SALESTAX;
+					}
+					gobj.GTxObj.Fetch(tax_grp_id, op_date, op_id, &gtx);
+					if(!wb.IsExclVat)
+						amount = price;
+				}
+				else {
+					if(!(lblk.ExclFlags & GTAXVF_NOMINAL) && lot_tax_grp_id)
+						tax_grp_id = lot_tax_grp_id;
+					gobj.GTxObj.Fetch(tax_grp_id, date_of_relevance, 0, &gtx);
+					if(ti_flags & PPTFR_COSTWOVAT) {
+						amt_flags &= ~GTAXVF_VAT;
+						if(calcti_costwovat_byprice)
+							is_cost_wo_vat = true;
+					}
+					if(lblk.TiAmt == TIAMT_ASSETEXPL)
+						amount = (ti_flags & PPTFR_ASSETEXPL) ? cost : 0.0;
+					else if(ti_flags & PPTFR_REVAL) {
+						assert(p_ti); // Иначе ti_flags был бы нулевым
+						if(p_ti) {
+							amount = (is_asset_reval && lblk.TiAmt != TIAMT_COST) ? p_ti->NetPrice() : (p_ti->Cost - p_ti->RevalCost);
+						}
+					}
+					else
+						amount = cost;
+					if(!(ti_flags & PPTFR_COSTWSTAX))
+						lblk.ExclFlags |= GTAXVF_SALESTAX;
+					if(!(lblk.ExclFlags & GTAXVF_NOMINAL) && is_suppl_vat_free)
+						lblk.ExclFlags |= GTAXVF_VAT;
+					if(gtx.Flags & GTAXF_NOLOTEXCISE)
+						lblk.ExclFlags |= GTAXVF_EXCISE;
+				}
+			}
+		}
+		{ // Собственно, расчет
+			/*
+				const PPGoodsTaxEntry gtx;
+				const  WareBlock wb;
+				double amount;
+				double qtty;
+				double tax_qtty;
+				long   amt_flags;
+				bool   is_cost_wo_vat;
+				const  bool calcti_costwovat_byprice = (r_ccfg.Flags & CCFLG_COSTWOVATBYSUM) ? false : true;
+			*/ 
+			if(gtx.Flags & GTAXF_ABSEXCISE) {
+				//gobj.MultTaxFactor(goods_id, &tax_qtty);
+				tax_qtty *= wb.TaxFactor;
+			}
+			if(!(calcti_costwovat_byprice && is_cost_wo_vat)) {
+				amount *= qtty;
+			}
+			Calc_(gtx, amount, tax_qtty, amt_flags, lblk.ExclFlags);
+			if(calcti_costwovat_byprice && is_cost_wo_vat) {
+				for(int i = 0; i < N; i++)
+					Vect[i] *= qtty;
+				Amount *= qtty;
+			}
+		}
 	}
 	return ok;
 }
@@ -651,8 +903,9 @@ int PPObjGoodsTax::GetByScheme(PPID * pID, double vat, double excise, double sta
 	return GetTranspositionNumber(list, 3);
 }
 
-int PPObjGoodsTax::FormatOrder(long order, long unionVect, char * buf, size_t /*buflen*/)
+int PPObjGoodsTax::FormatOrder(long order, long unionVect, SString & rBuf)
 {
+	rBuf.Z();
 	long   list[8];
 	const  int N = 3;
 	int    i;
@@ -661,24 +914,22 @@ int PPObjGoodsTax::FormatOrder(long order, long unionVect, char * buf, size_t /*
 		mask |= (1 << i);
 	unionVect &= mask;
 	if(GetNthTransposition(list, N, order)) {
-		char * b = buf;
 		for(i = 0; i < N; i++) {
 			if(i < (N-1) && (unionVect & (1 << (i+1))))
-				*b++ = '[';
+				rBuf.CatChar('[');
 			if(list[i] == GTAX_VAT)
-				*b = 'V';
+				rBuf.CatChar('V');
 			else if(list[i] == GTAX_EXCISE)
-				*b = 'A';
+				rBuf.CatChar('A');
 			else if(list[i] == GTAX_SALES)
-				*b = 'S';
-			b++;
+				rBuf.CatChar('S');
+			else
+				rBuf.CatChar('x');
 			if(unionVect & (1 << i) && !(unionVect & (1 << (i+1))))
-				*b++ = ']';
+				rBuf.CatChar(']');
 		}
-		*b = 0;
 		return 1;
 	}
-	buf[0] = 0;
 	return 0;
 }
 
@@ -1040,13 +1291,13 @@ int GTaxCache::GetByID(PPID id, PPGoodsTaxEntry * pEntry)
 	if(id) {
 		uint   pos = 0;
 		if(P_Ary->lsearch(&id, &pos, CMPF_LONG, offsetof(PPGoodsTaxEntry, TaxGrpID))) {
-			ASSIGN_PTR(pEntry, *(PPGoodsTaxEntry *)P_Ary->at(pos));
+			ASSIGN_PTR(pEntry, *static_cast<const PPGoodsTaxEntry *>(P_Ary->at(pos)));
 			ok = 1;
 		}
 		else if(!GetFromBase(id & 0x00ffffffL))
 			ok = 0;
 		else if(P_Ary->lsearch(&id, &(pos = 0), CMPF_LONG, offsetof(PPGoodsTaxEntry, TaxGrpID))) {
-			ASSIGN_PTR(pEntry, *(PPGoodsTaxEntry *)P_Ary->at(pos));
+			ASSIGN_PTR(pEntry, *static_cast<const PPGoodsTaxEntry *>(P_Ary->at(pos)));
 			ok = 1;
 		}
 	}

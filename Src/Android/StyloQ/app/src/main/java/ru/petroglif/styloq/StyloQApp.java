@@ -1235,7 +1235,7 @@ public class StyloQApp extends SLib.App {
 				try {
 					StyloQDatabase db = GetDB();
 					if(db != null) {
-						NotificationManager notify_mgr = (NotificationManager) getSystemService(android.content.Context.NOTIFICATION_SERVICE); // @v11.6.1
+						NotificationManager notify_mgr = (NotificationManager)getSystemService(android.content.Context.NOTIFICATION_SERVICE); // @v11.6.1
 						Database.Transaction tra = new Database.Transaction(db, true);
 						for(Long id : SeenNotificationList) {
 							//if(db.RegisterNotificationAsSeen_beforev90v(id, false)) {
@@ -1300,29 +1300,32 @@ public class StyloQApp extends SLib.App {
 			StyloQDatabase db = null;
 			try {
 				db = GetDB();
-				//StyloQConfig pack = (StyloQConfig)subj;
 				StyloQDatabase.SecStoragePacket own_pack = db.GetOwnPeerEntry();
 				if(own_pack != null) {
 					//String cfg_json = pack.ToJson();
+					StyloQConfig cfg = new StyloQConfig();
 					byte [] cfg_bytes = own_pack.Pool.Get(SecretTagPool.tagPrivateConfig);
 					if(SLib.GetLen(cfg_bytes) > 0) {
 						String cfg_json = new String(cfg_bytes);
-						StyloQConfig cfg = new StyloQConfig();
-						if(cfg.FromJson(cfg_json)) {
-							int user_flags = SLib.satoi(cfg.Get(StyloQConfig.tagUserFlags));
-							if(local_network_disabled_flags)
-								user_flags |= StyloQConfig.userfNetworkDisabled;
-							else
-								user_flags &= ~StyloQConfig.userfNetworkDisabled;
-							cfg.Set(StyloQConfig.tagUserFlags, Integer.toString(user_flags));
-							cfg_json = cfg.ToJson();
-							cfg_bytes = cfg_json.getBytes();
-							if(SLib.GetLen(cfg_bytes) > 0) {
-								own_pack.Pool.Put(SecretTagPool.tagPrivateConfig, cfg_bytes);
-								if(db.PutPeerEntry(own_pack.Rec.ID, own_pack, true) > 0) {
-									// Устанавливаем member-переменную только после успешного сохранения значения в базе данных
-									NetworkDisabled = local_network_disabled_flags;
-								}
+						if(!cfg.FromJson(cfg_json)) {
+							cfg = null;
+							cfg = new StyloQConfig();
+						}
+					}
+					if(cfg != null) {
+						int user_flags = SLib.satoi(cfg.Get(StyloQConfig.tagUserFlags));
+						if(local_network_disabled_flags)
+							user_flags |= StyloQConfig.userfNetworkDisabled;
+						else
+							user_flags &= ~StyloQConfig.userfNetworkDisabled;
+						cfg.Set(StyloQConfig.tagUserFlags, Integer.toString(user_flags));
+						String cfg_json = cfg.ToJson();
+						cfg_bytes = cfg_json.getBytes();
+						if(SLib.GetLen(cfg_bytes) > 0) {
+							own_pack.Pool.Put(SecretTagPool.tagPrivateConfig, cfg_bytes);
+							if(db.PutPeerEntry(own_pack.Rec.ID, own_pack, true) > 0) {
+								// Устанавливаем member-переменную только после успешного сохранения значения в базе данных
+								NetworkDisabled = local_network_disabled_flags;
 							}
 						}
 					}

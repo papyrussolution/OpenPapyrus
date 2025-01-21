@@ -15,7 +15,7 @@
 // embedded systems with a very limited resources. These routines are thread safe and reentrant!
 // Use this instead of the bloated standard/newlib printf cause these use malloc for printf (and may not be thread safe).
 // ---------------------------------
-// Adopted to slib by A.Sobolev 2020..2022, 2023
+// Adopted to slib by A.Sobolev 2020..2022, 2023, 2025
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -416,7 +416,7 @@ static int sl_printf_implementation(SString & rBuf, const char * pFormat, va_lis
 									l = strlen(p);
 							}
 							else {
-								PTR32(zero)[0] = 0;
+								zero[0] = 0;
 								p = zero;
 								l = precision;
 							}

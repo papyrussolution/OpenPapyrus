@@ -705,7 +705,7 @@ int GoodsRestParam::AddLot(Transfer * pTrfr, const ReceiptTbl::Rec * pLotRec, do
 					}
 				}
 				if(!price_wo_vat_reckoned && gobj.GTxObj.FetchByID(GoodsTaxGrpID, &gtx) > 0) {
-					const long   amt_fl = (CConfig.Flags & CCFLG_PRICEWOEXCISE) ? ~GTAXVF_SALESTAX : GTAXVF_BEFORETAXES;
+					const long amt_fl = (CConfig.Flags & CCFLG_PRICEWOEXCISE) ? ~GTAXVF_SALESTAX : GTAXVF_BEFORETAXES;
 					gtv.Calc_(gtx, add.Price, tax_factor, amt_fl, 0);
 					add.Price = gtv.GetValue(GTAXVF_AFTERTAXES | GTAXVF_EXCISE);
 					price_wo_vat_reckoned = 1;

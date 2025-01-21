@@ -1,5 +1,6 @@
 // PPTVUTIL.CPP
 // Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -54,9 +55,7 @@ int InitSTimeChunkBrowserParam(const char * pSymbol, STimeChunkBrowser::Param * 
 		pParam->Z();
 		pParam->RegSaveParam = pSymbol;
 		{
-			// @v11.2.6 UserInterfaceSettings ui_cfg;
-			// @v11.2.6 if(ui_cfg.Restore() > 0 && ui_cfg.Flags & UserInterfaceSettings::fTcbInterlaced)
-			if(APPL->GetUiSettings().Flags & UserInterfaceSettings::fTcbInterlaced) // @v11.2.6
+			if(APPL->GetUiSettings().Flags & UserInterfaceSettings::fTcbInterlaced)
 				pParam->Flags |= pParam->fInterlaced;
 		}
 		pParam->Flags |= pParam->fUseToolTip;
@@ -66,8 +65,8 @@ int InitSTimeChunkBrowserParam(const char * pSymbol, STimeChunkBrowser::Param * 
 	return ok;
 }
 //
-// В следующих трех функциях проверка не ненулевой APPL сделана из-за того, что
-// функции эти могут вызываться в контексте JobServer'а
+// Р’ СЃР»РµРґСѓСЋС‰РёС… С‚СЂРµС… С„СѓРЅРєС†РёСЏС… РїСЂРѕРІРµСЂРєР° РЅРµ РЅРµРЅСѓР»РµРІРѕР№ APPL СЃРґРµР»Р°РЅР° РёР·-Р·Р° С‚РѕРіРѕ, С‡С‚Рѕ
+// С„СѓРЅРєС†РёРё СЌС‚Рё РјРѕРіСѓС‚ РІС‹Р·С‹РІР°С‚СЊСЃСЏ РІ РєРѕРЅС‚РµРєСЃС‚Рµ JobServer'Р°
 //
 BrowserWindow * PPFindLastBrowser() { return APPL ? static_cast<BrowserWindow *>(APPL->FindBrowser(static_cast<PPApp *>(APPL)->LastCmd, 0)) : 0; }
 STimeChunkBrowser * PPFindLastTimeChunkBrowser() { return APPL ? static_cast<STimeChunkBrowser *>(APPL->FindBrowser(static_cast<PPApp *>(APPL)->LastCmd, 1)) : 0; }
@@ -138,30 +137,35 @@ int STDCALL SetComboBoxListText(TDialog * dlg, uint comboBoxCtlID)
 
 SString & FASTCALL PPFormatPeriod(const DateRange * pPeriod, SString & rBuf)
 {
+	// @v12.2.4 usage PPLoadStringS("daterange_from", SLS.AcquireRvlStr()) and PPLoadStringS("daterange_to", SLS.AcquireRvlStr()) insted russian text
 	rBuf.Z();
 	if(pPeriod) {
 		LDATE  beg = pPeriod->low;
 		LDATE  end = pPeriod->upp;
 		if(beg) {
-			if(beg != end)
-				rBuf.CatChar('с').Space();
+			if(beg != end) {
+				rBuf.Cat(PPLoadStringS("daterange_from", SLS.AcquireRvlStr())).Space();
+			}
 			rBuf.Cat(beg, DATF_DMY);
 		}
 		if(end && beg != end) {
 			if(beg)
 				rBuf.Space();
-			rBuf.Cat("по").Space().Cat(end, DATF_DMY);
+			rBuf.Cat(PPLoadStringS("daterange_to", SLS.AcquireRvlStr())).Space().Cat(end, DATF_DMY);
 		}
 	}
-	return rBuf.Transf(CTRANSF_OUTER_TO_INNER);
+	// @v12.2.4 return rBuf.Transf(CTRANSF_OUTER_TO_INNER);
+	return rBuf; // @v12.2.4
 }
 
 SString & FASTCALL PPFormatPeriod(const LDATETIME & rBeg, const LDATETIME & rEnd, SString & rBuf)
 {
+	// @v12.2.4 usage PPLoadStringS("daterange_from", SLS.AcquireRvlStr()) and PPLoadStringS("daterange_to", SLS.AcquireRvlStr()) insted russian text
 	rBuf.Z();
 	if(rBeg.d) {
-		if(rBeg.d != rEnd.d)
-			rBuf.CatChar('с').Space();
+		if(rBeg.d != rEnd.d) {
+			rBuf.Cat(PPLoadStringS("daterange_from", SLS.AcquireRvlStr())).Space();
+		}
 		rBuf.Cat(rBeg.d, DATF_DMY);
 		if(rBeg.t)
 			rBuf.Space().Cat(rBeg.t, TIMF_HMS);
@@ -169,18 +173,19 @@ SString & FASTCALL PPFormatPeriod(const LDATETIME & rBeg, const LDATETIME & rEnd
 	if(rEnd.d && rBeg.d != rEnd.d) {
 		if(rBeg.d)
 			rBuf.Space();
-		rBuf.Cat("по").Space().Cat(rEnd.d, DATF_DMY);
+		rBuf.Cat(PPLoadStringS("daterange_to", SLS.AcquireRvlStr())).Space().Cat(rEnd.d, DATF_DMY);
 		if(rEnd.t)
 			rBuf.Space().Cat(rEnd.t, TIMF_HMS);
 	}
-	return rBuf.Transf(CTRANSF_OUTER_TO_INNER);
+	// @v12.2.4 return rBuf.Transf(CTRANSF_OUTER_TO_INNER);
+	return rBuf; // @v12.2.4
 }
 
 void STDCALL SetPeriodInput(TDialog * dlg, uint fldID, const DateRange * rng)
 {
 	if(dlg) {
 		char   b[64];
-		PTR32(b)[0] = 0;
+		b[0] = 0;
 		periodfmt(rng, b);
 		dlg->setCtrlData(fldID, b);
 	}
@@ -1072,11 +1077,11 @@ int    Lst2LstAryDialog::getDTS(SArray * pList) { return pList->copy(*P_Right); 
 int    Lst2LstAryDialog::setupRightList() { return SetupList(P_Right, GetRightList()); }
 int    Lst2LstAryDialog::setupLeftList() { return SetupList(P_Left, GetLeftList()); }
 
-int Lst2LstAryDialog::SetupList(SArray *pA, SmartListBox * pL)
+int Lst2LstAryDialog::SetupList(SArray * pA, SmartListBox * pL)
 {
 	if(SmartListBox::IsValidS(pL)) {
 		const long pos = pL->P_Def->_curItem();
-		StdListBoxDef * def = new StdListBoxDef(pA, lbtFocNotify | lbtDblClkNotify, MKSTYPE(S_ZSTRING, 64));
+		StdListBoxDef * def = new StdListBoxDef(pA, lbtFocNotify|lbtDblClkNotify, MKSTYPE(S_ZSTRING, 64));
 		pL->setDef(def);
 		pL->P_Def->go(pos);
 		pL->Draw_();
@@ -1092,8 +1097,7 @@ int Lst2LstAryDialog::addItem()
 	SmartListBox * p_view = GetLeftList();
 	if(p_view && p_view->getCurID(&tmp) && tmp && !P_Right->lsearch(&tmp, &idx, CMPF_LONG, 0)) {
 		P_Left->lsearch(&tmp, &idx, CMPF_LONG, 0);
-		// @v10.9.4 const TaggedString_obsolete * p_current = static_cast<const TaggedString_obsolete *>(P_Left->at(idx));
-		const void * p_current = P_Left->at(idx); // @v10.9.4
+		const void * p_current = P_Left->at(idx);
 		THROW(P_Right->insert(p_current));
 		THROW(setupRightList());
 	}
@@ -1128,27 +1132,6 @@ int Lst2LstAryDialog::removeAll()
 	P_Right->freeAll();
 	return setupRightList() ? 1 : PPErrorZ();
 }
-
-#if 0 // @v10.8.5 (unused) {
-int FASTCALL ListToListAryDialog(ListToListAryData * pData)
-{
-	if(pData) {
-		pData->Flags &= ~ListToListData::fIsTreeList;
-		int    r;
-		uint   rez_id = pData->RezID ? pData->RezID : ((pData->Flags & ListToListData::fIsTreeList) ? DLG_TLST2TLST : DLG_LST2LST);
-		Lst2LstAryDialog * dlg = new Lst2LstAryDialog(rez_id, pData, pData->P_LList, pData->P_RList);
-		if(CheckDialogPtr(&dlg)) {
-			if((r = ExecView(dlg)) == cmOK)
-				if(!dlg->getDTS(pData->P_RList))
-					r = 0;
-			delete dlg;
-			if(r)
-				return (r == cmOK) ? 1 : -1;
-		}
-	}
-	return 0;
-}
-#endif // } 0 @v10.8.5 (unused)
 //
 // Lst2LstObjDialog
 //
@@ -1241,9 +1224,9 @@ int Lst2LstObjDialog::setupRightTList()
 int Lst2LstObjDialog::setupRightList()
 {
 	int    ok = 1;
-	StrAssocListBoxDef * p_def = 0; // @v10.7.9 StdListBoxDef-->StrAssocListBoxDef
-	StrAssocArray * p_ary = 0; // @v10.7.9 TaggedStringArray-->StrAssocArray
-	setCtrlLong(CTL_LST2LST_CT2, Data.P_List ? Data.P_List->getCountI() : 0); // @v10.8.5
+	StrAssocListBoxDef * p_def = 0;
+	StrAssocArray * p_ary = 0;
+	setCtrlLong(CTL_LST2LST_CT2, Data.P_List ? Data.P_List->getCountI() : 0);
 	if(Data.Flags & ListToListData::fIsTreeList) {
 		return setupRightTList();
 	}
@@ -1259,8 +1242,7 @@ int Lst2LstObjDialog::setupRightList()
 				THROW_SL(p_ary->Add(id, name_buf));
 			}
 			p_ary->SortByText();
-			// @v10.7.9 THROW_MEM(p_def = new StdListBoxDef(p_ary, lbtDisposeData|lbtDblClkNotify, TaggedString::BufType()));
-			THROW_MEM(p_def = new StrAssocListBoxDef(p_ary, lbtDisposeData|lbtDblClkNotify)); // @v10.7.9 
+			THROW_MEM(p_def = new StrAssocListBoxDef(p_ary, lbtDisposeData|lbtDblClkNotify));
 			p_lb->setDef(p_def);
 			p_lb->P_Def->go(pos);
 			p_lb->Draw_();
@@ -1490,10 +1472,9 @@ int Lst2LstObjDialog::removeItem()
 	uint sc = GetRightSelectionList(&sel_list);
 	if(p_view && sel_list.getCount()) {
 		for(uint i = 0; i < sel_list.getCount(); i++) {
-			PPID id = sel_list.get(i);
-			if(id > 0) {
+			const PPID id = sel_list.get(i);
+			if(id > 0)
 				Data.P_List->freeByKey(id, 0);
-			}
 		}
 		THROW(setupRightList());
 	}
@@ -1601,8 +1582,7 @@ int GetDeviceTypeName(uint dvcClass, PPID deviceTypeID, SString & rBuf)
 			SString symbol, drv_name;
 			int    drv_impl = 0;
 			if(PPAbstractDevice::ParseRegEntry(line_buf, symbol, drv_name, path, &drv_impl)) {
-				// @v10.3.12 rBuf = drv_name.Transf(CTRANSF_OUTER_TO_INNER);
-				rBuf = drv_name; // @v10.3.12
+				rBuf = drv_name;
 				ok = 1;
 			}
 		}
@@ -1640,7 +1620,7 @@ int SetupStringComboDevice(TDialog * dlg, uint ctlID, uint dvcClass, long initID
 						id = (idx+1);
 						txt_buf = item_buf;
 					}
-					if(!txt_buf.IsEqiAscii("Unused")) { // @v10.4.5
+					if(!txt_buf.IsEqiAscii("Unused")) {
 						THROW_SL(p_list->Add(id, txt_buf));
 					}
 				}
@@ -1649,7 +1629,7 @@ int SetupStringComboDevice(TDialog * dlg, uint ctlID, uint dvcClass, long initID
 			for(int i = /*(idx + 1)*/PPCMT_FIRST_DYN_DVC; GetStrFromDrvIni(ini_file, ini_sect_id, i, /*list_count*/PPCMT_FIRST_DYN_DVC, line_buf) > 0; i++) {
 				int    drv_impl = 0;
 				if(PPAbstractDevice::ParseRegEntry(line_buf, symbol, drv_name, path, &drv_impl)) {
-					THROW_SL(p_list->Add((int)i, drv_name/* @v10.3.12 .Transf(CTRANSF_OUTER_TO_INNER)*/));
+					THROW_SL(p_list->Add((int)i, drv_name));
 				}
 			}
 			p_cb->setListWindow(CreateListWindow(p_list, lbtDisposeData | lbtDblClkNotify), initID);
@@ -1782,8 +1762,12 @@ int SetupSubstDateCombo(TDialog * dlg, uint ctlID, long initID)
 
 int STDCALL SetupSubstPersonCombo(TDialog * pDlg, uint ctlID, SubstGrpPerson sgp)
 {
-	PPID   id = 0, init_id = 0;
-	SString buf, word_rel, id_buf, txt_buf;
+	PPID   id = 0;
+	PPID   init_id = 0;
+	SString buf;
+	SString word_rel;
+	SString id_buf;
+	SString txt_buf;
 	PPPersonRelType item;
 	StrAssocArray ary;
 	PPObjPersonRelType relt_obj;
@@ -1792,8 +1776,7 @@ int STDCALL SetupSubstPersonCombo(TDialog * pDlg, uint ctlID, SubstGrpPerson sgp
 	for(uint i = 0; ss.get(&i, buf);)
 		if(buf.Divide(',', id_buf, txt_buf) > 0)
 			ary.Add(id_buf.ToLong(), txt_buf);
-	// @v10.5.9 PPGetWord(PPWORD_RELATION, 0, word_rel);
-	PPLoadString("relation", word_rel); // @v10.5.9
+	PPLoadString("relation", word_rel);
 	for(id = 0; relt_obj.EnumItems(&id, &item) > 0;)
 		if(item.Cardinality & (PPPersonRelType::cOneToOne | PPPersonRelType::cManyToOne)) {
 			(buf = word_rel).Colon().Cat(item.Name);
@@ -1926,7 +1909,6 @@ int CycleCtrlGroup::Recalc(TDialog * pDlg, uint leaderCtl)
 	int    ok = 1;
 	int    enable_pdc = 0;
 	PPCycleFilt cf;
-	// @v10.7.12 @ctr cf.Init();
 	DateRange prd, prev_prd;
 	PPCycleArray ca;
 	long   c = pDlg->getCtrlLong(CtlSelCycle);
@@ -2005,8 +1987,7 @@ void CycleCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 			if(event.isCbSelected(CtlSelCycle)) {
 				int    enable_pdc = 0;
 				PPCycleFilt cf;
-				// @v10.7.12 @ctr cf.Init();
-				long   c = pDlg->getCtrlLong(CtlSelCycle);
+				const long c = pDlg->getCtrlLong(CtlSelCycle);
 				cf.Cycle = (int16)c;
 				if((cf.Cycle & PRD_PRECDAYSMASK) == PRD_PRECDAYSMASK) {
 					cf.Cycle = (int16)PRD_PRECDAYSMASK;
@@ -2024,7 +2005,6 @@ int CycleCtrlGroup::setData(TDialog * pDlg, void * pData)
 	Rec    rec;
 	if(pData)
 		rec = *static_cast<Rec *>(pData);
-	// @v10.7.12 @ctr else rec.C.Init();
 	if(setupCycleCombo(pDlg, rec.C.Cycle)) {
 		pDlg->setCtrlData(CtlNumCycles, &rec.C.NumCycles);
 		return 1;
@@ -2038,8 +2018,7 @@ int CycleCtrlGroup::getData(TDialog * pDlg, void * pData)
 	int    ok = 1;
 	long   c = 0;
 	Rec    rec;
-	// @v10.7.12 @ctr rec.C.Init();
-	pDlg->getCtrlData(CtlSelCycle, &c/*rec.Cycle*/);
+	pDlg->getCtrlData(CtlSelCycle, &c);
 	rec.C.Cycle = (int16)c;
     if(c == PRD_PRECDAYSMASK) {
         uint16 pdc = pDlg->getCtrlUInt16(CtlPdc);
@@ -2105,7 +2084,7 @@ static int SplitPath(const char * pDirNFile, SString & rDir, SString & rFile)
 
 FileBrowseCtrlGroup::Rec::Rec()
 {
-	PTR32(FilePath)[0] = 0;
+	FilePath[0] = 0;
 }
 
 FileBrowseCtrlGroup::FileBrowseCtrlGroup(uint buttonId, uint inputId, const char * pTitle, long flags) :
@@ -2215,7 +2194,7 @@ int FileBrowseCtrlGroup::showFileBrowse(TDialog * pDlg)
 	reg_key_buf.Cat("FileBrowseLastPath").CatChar('(').Cat(pDlg->GetId()).CatDiv(',', 2).Cat(InputCtlId).CatChar(')');
 	RecentItemsStorage ris(reg_key_buf, 20, PTR_CMPFUNC(FilePathUtf8)); // @v10.2.1
 	StringSet ss_ris;
-	PTR32(file_name)[0] = 0;
+	file_name[0] = 0;
 	pDlg->getCtrlString(InputCtlId, temp_buf);
 	temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
 	if(temp_buf.IsEmpty() || !fileExists(temp_buf))
@@ -2392,8 +2371,7 @@ int PPOpenFile(SString & rPath, const StringSet & rPatterns, long flags, HWND ow
 	memzero(&sofn, sizeof(sofn));
 	sofn.lStructSize = sizeof(sofn);
 	sofn.hwndOwner   = NZOR(owner, GetForegroundWindow());
-	// @v10.4.0 sofn.lpstrFilter = SUcSwitch(rPatterns.getBuf()); // @unicodeproblem
-	sofn.lpstrFilter = MakeOpenFileInitPattern(rPatterns, filter_buf); // @v10.4.0
+	sofn.lpstrFilter = MakeOpenFileInitPattern(rPatterns, filter_buf);
 	sofn.lpstrFile   = file_name;
 	sofn.nMaxFile    = SIZEOFARRAY(file_name);
 	PPLoadString("fileopen", title_buf);
@@ -2405,7 +2383,7 @@ int PPOpenFile(SString & rPath, const StringSet & rPatterns, long flags, HWND ow
 	sofn.lpstrInitialDir = SUcSwitch(dir);
 	ok = GetOpenFileName(&sofn);
 	if(!ok)
-		PTR32(file_name)[0] = 0;
+		file_name[0] = 0;
 	rPath = SUcSwitch(file_name);
 	return ok;
 }
@@ -2606,7 +2584,7 @@ int ImageBrowseCtrlGroup::setData(TDialog * pDlg, void * pData)
 				TImageView * p_iv = static_cast<TImageView *>(p_v);
 				SDrawImage * p_fig = new SDrawImage(Data.ImgBuf);
 				if(p_fig)
-					p_iv->SetOuterFigure(p_fig); // p_fig переходит в собственность p_iv
+					p_iv->SetOuterFigure(p_fig); // p_fig РїРµСЂРµС…РѕРґРёС‚ РІ СЃРѕР±СЃС‚РІРµРЅРЅРѕСЃС‚СЊ p_iv
 			}
 			else {
 				pDlg->setCtrlString(CtlImage, Data.Path);
@@ -2671,7 +2649,7 @@ void ImageBrowseCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 						imgbuf.Destroy();
 						SDrawImage * p_fig = new SDrawImage(Data.ImgBuf);
 						if(p_fig) {
-							p_iv->SetOuterFigure(p_fig); // p_fig переходит в собственность p_iv
+							p_iv->SetOuterFigure(p_fig); // p_fig РїРµСЂРµС…РѕРґРёС‚ РІ СЃРѕР±СЃС‚РІРµРЅРЅРѕСЃС‚СЊ p_iv
 							Data.Flags |= Rec::fUpdated;
 							p_v->MessageCommandToOwner(cmImageChanged); // @v12.0.4
 						}
@@ -2710,7 +2688,7 @@ void ImageBrowseCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 					TImageView * p_iv = static_cast<TImageView *>(p_v);
 					SDrawImage * p_fig = new SDrawImage(Data.ImgBuf);
 					if(p_fig)
-						p_iv->SetOuterFigure(p_fig); // p_fig переходит в собственность p_iv
+						p_iv->SetOuterFigure(p_fig); // p_fig РїРµСЂРµС…РѕРґРёС‚ РІ СЃРѕР±СЃС‚РІРµРЅРЅРѕСЃС‚СЊ p_iv
 				}
 			}
 			else {
@@ -3027,14 +3005,78 @@ static const float FixedCtrlHeight = 21.0f;
 // {75; 21}
 
 class ListSelectionDialog : public TWindowBase {
-	static constexpr uint CtlListGroupBox = 1001; // GroupBox вокруг списка
+	static constexpr uint CtlListGroupBox = 1001; // GroupBox РІРѕРєСЂСѓРі СЃРїРёСЃРєР°
 	static constexpr float DefMargin = 4.0f;
 public:
-	static int Exec();
-	ListSelectionDialog(const char * pOuterTitle) : 
-		TWindowBase(SUcSwitch(ListSelectionDialog::GetWindowTitle(pOuterTitle)), wbcDrawBuffer),
-		LoExtraList(GetLayoutExtraVector())
+	enum {
+		fcedCreate = 0x0001, // Р•СЃР»Рё СѓСЃС‚Р°РЅРѕРІР»РµРЅ, С‚Рѕ РІ РѕРєРЅРµ РµСЃС‚СЊ РєРЅРѕРїРєР° [Create Item]
+		fcedEdit   = 0x0002, // Р•СЃР»Рё СѓСЃС‚Р°РЅРѕРІР»РµРЅ, С‚Рѕ РІ РѕРєРЅРµ РµСЃС‚СЊ РєРЅРѕРїРєР° [Edit Item]
+		fcedDelete = 0x0004, // Р•СЃР»Рё СѓСЃС‚Р°РЅРѕРІР»РµРЅ, С‚Рѕ РІ РѕРєРЅРµ РµСЃС‚СЊ РєРЅРѕРїРєР° [Delete Item]
+		fOkCancel  = 0x0008, // Р•СЃР»Рё СѓСЃС‚Р°РЅРѕРІР»РµРЅ, С‚Рѕ РІ РѕРєРЅРµ РµСЃС‚СЊ РєРЅРѕРїРєРё [ok] && [cancel], РёРЅР°С‡Рµ С‚РѕР»СЊРєРѕ [close]
+	};
+	struct Param {
+		Param() : Flags(0)
+		{
+		}
+		uint   Flags; // ListSelectionDialog::fXXX
+		SString Title;
+		SString ColumnDescription;
+	};
+
+	static int Exec(ListSelectionDialog * pView);
+	ListSelectionDialog(const Param & rParam, ListBoxDef * pDef) : 
+		P(rParam), TWindowBase(SUcSwitch(ListSelectionDialog::GetWindowTitle(rParam.Title)), wbcDrawBuffer),
+		LoExtraList(GetLayoutExtraVector()), P_Def(pDef)
 	{
+	}
+protected:
+	DECL_HANDLE_EVENT
+	{
+		TWindowBase::handleEvent(event);
+		if(event.isKeyDown(kbEsc)) {
+			if(IsInState(sfModal)) {
+				EndModalCmd = cmCancel;
+				clearEvent(event);
+			}
+		}
+		else if(TVINFOPTR) {
+			if(event.isCmd(cmInit)) {
+				OnInit(static_cast<CreateBlock *>(TVINFOPTR));
+				// don't clearEvent
+			}
+			else if(event.isCmd(cmClose)) {
+				if(IsInState(sfModal)) {
+					EndModalCmd = cmCancel;
+					clearEvent(event);
+				}
+			}
+			else if(event.isCmd(cmPaint)) {
+				PaintEvent * p_blk = static_cast<PaintEvent *>(TVINFOPTR);
+				//CreateFont_();
+				if(oneof2(p_blk->PaintType, PaintEvent::tPaint, PaintEvent::tEraseBackground)) {
+					SPaintToolBox * p_tb = APPL->GetUiToolBox();
+					if(p_tb) {
+						if(GetWbCapability() & wbcDrawBuffer) {
+							// Р•СЃР»Рё РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ Р±СѓС„РµСЂРёР·РѕРІР°РЅРЅР°СЏ РѕС‚СЂРёСЃРѕРІРєР°, С‚Рѕ С„РѕРЅ РЅСѓР¶РЅРѕ РїРµСЂРµСЂРёСЃРѕРІР°С‚СЊ РІ Р»СЋР±РѕРј СЃР»СѓС‡Р°Рµ Р° РЅР° СЃРѕР±С‹С‚РёРµ PaintEvent::tEraseBackground
+							// РЅРµ СЂРµР°РіРёСЂРѕРІР°С‚СЊ
+							if(p_blk->PaintType == PaintEvent::tPaint) {
+								TCanvas2 canv(*p_tb, static_cast<HDC>(p_blk->H_DeviceContext));
+								canv.Rect(p_blk->Rect, 0, TProgram::tbiListBkgBrush);
+								DrawLayout(canv, P_Lfc);
+							}
+						}
+						else {
+							TCanvas2 canv(*p_tb, static_cast<HDC>(p_blk->H_DeviceContext));
+							if(p_blk->PaintType == PaintEvent::tEraseBackground)
+								canv.Rect(p_blk->Rect, 0, TProgram::tbiListBkgBrush);
+							if(p_blk->PaintType == PaintEvent::tPaint)
+								DrawLayout(canv, P_Lfc);
+						}
+					}
+					clearEvent(event);
+				}
+			}
+		}
 	}
 private:
 	enum {
@@ -3067,38 +3109,36 @@ private:
 	}
 	void OnInit(CreateBlock * pBlk)
 	{
-		enum {
-			cedCreate = 0x0001,
-			cedEdit   = 0x0002,
-			cedDelete = 0x0004
-		};
-		uint   ced_flags = (cedCreate | cedEdit | cedDelete);
 		{
 			const TRect _def_rect(0, 0, 40, 40);
+			SString font_face;
+			PPGetSubStr(PPTXT_FONTFACE, /*PPFONT_MSSANSSERIF*/PPFONT_ARIAL, font_face);
+			//TView::setFont(HW, font_face, 12);
 			{
 				TGroupBox * p_gb = new TGroupBox(_def_rect);
 				InsertCtlWithCorrespondingNativeItem(p_gb, CtlListGroupBox, 0);
 			}
 			{
-				SmartListBox * p_lb = new SmartListBox(_def_rect, 0);
+				SmartListBox * p_lb = new SmartListBox(_def_rect, P_Def, 0/*isTreeList*/);
 				InsertCtlWithCorrespondingNativeItem(p_lb, STDCTL_SINGLELISTBOX, 0);
+				{
+					SetCtrlFont(STDCTL_SINGLELISTBOX, font_face, /*16*//*22*/12);
+				}
 			}
-			if(ced_flags) {
-				if(ced_flags & cedCreate) {
+			if(P.Flags & (fcedCreate|fcedEdit|fcedDelete)) {
+				if(P.Flags & fcedCreate) {
 					InsertCtlWithCorrespondingNativeItem(new TButton(_def_rect, "@but_add", cmaInsert, 0, 0), STDCTL_INSBUTTON, 0);
 				}
-				if(ced_flags & cedEdit) {
+				if(P.Flags & fcedEdit) {
 					InsertCtlWithCorrespondingNativeItem(new TButton(_def_rect, "@but_edit", cmaEdit, 0, 0), STDCTL_EDITBUTTON, 0);
 				}
-				if(ced_flags & cedDelete) {
+				if(P.Flags & fcedDelete) {
 					InsertCtlWithCorrespondingNativeItem(new TButton(_def_rect, "@but_delete", cmaDelete, 0, 0), STDCTL_DELBUTTON, 0);
 				}
 			}
 			InsertCtlWithCorrespondingNativeItem(new TButton(_def_rect, "@but_ok", cmOK, 0, 0), STDCTL_OKBUTTON, 0);
 			InsertCtlWithCorrespondingNativeItem(new TButton(_def_rect, "@but_cancel", cmCancel, 0, 0), STDCTL_CANCELBUTTON, 0);
 		}
-		//CreateLayout();
-		//void ListSelectionDialog::CreateLayout()
 		{
 			class InnerBlock {
 			public:
@@ -3186,15 +3226,15 @@ private:
 					InnerBlock::InsertCtrlLayout(this, NZOR(p_lo_groupbox, p_lo_body), STDCTL_SINGLELISTBOX, alb, 1.0f);
 				}
 				if(p_lo_groupbox) {
-					if(ced_flags) {
+					if(P.Flags & (fcedCreate|fcedEdit|fcedDelete)) {
 						SUiLayout * p_lo_ced_button_group = 0;
 						{
 							SUiLayoutParam alb(DIREC_HORZ);
 							alb.GrowFactor = 1.0f;
 							alb.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
-							alb.SetFixedSizeY(40.0f);
-							alb.Margin.Set(8.0f);
-							alb.Margin.b.x += 20.0f;
+							alb.SetFixedSizeY(68.0f);
+							alb.Margin.Set(1.0f);
+							//alb.Margin.b.x += 20.0f;
 							//alb.Padding.Set(def_margin);
 							//alb.Padding.b.x += 20.0f;
 							p_lo_ced_button_group = p_lo_groupbox->InsertItem(0, &alb);
@@ -3206,13 +3246,13 @@ private:
 							alb.SetFixedSizeY(FixedCtrlHeight);
 							alb.Margin.Set(DefMargin);
 							alb.Padding.Set(DefMargin);
-							if(ced_flags & cedCreate) {
+							if(P.Flags & fcedCreate) {
 								InnerBlock::InsertButtonLayout(this, p_lo_ced_button_group, STDCTL_INSBUTTON, alb, 0.0f);
 							}
-							if(ced_flags & cedEdit) {
+							if(P.Flags & fcedEdit) {
 								InnerBlock::InsertButtonLayout(this, p_lo_ced_button_group, STDCTL_EDITBUTTON, alb, 0.0f);
 							}
-							if(ced_flags & cedDelete) {
+							if(P.Flags & fcedDelete) {
 								InnerBlock::InsertButtonLayout(this, p_lo_ced_button_group, STDCTL_DELBUTTON, alb, 0.0f);
 							}							
 						}
@@ -3233,86 +3273,121 @@ private:
 		}
 		EvaluateLayout(pBlk->Coord);
 	}
-	DECL_HANDLE_EVENT
-	{
-		TWindowBase::handleEvent(event);
-		if(event.isKeyDown(kbEsc)) {
-			if(IsInState(sfModal)) {
-				EndModalCmd = cmCancel;
-				clearEvent(event);
-			}
-		}
-		else if(TVINFOPTR) {
-			if(event.isCmd(cmInit)) {
-				OnInit(static_cast<CreateBlock *>(TVINFOPTR));
-			}
-			else if(event.isCmd(cmClose)) {
-				if(IsInState(sfModal)) {
-					EndModalCmd = cmCancel;
-					clearEvent(event);
-				}
-			}
-			else if(event.isCmd(cmPaint)) {
-				PaintEvent * p_blk = static_cast<PaintEvent *>(TVINFOPTR);
-				//CreateFont_();
-				if(oneof2(p_blk->PaintType, PaintEvent::tPaint, PaintEvent::tEraseBackground)) {
-					SPaintToolBox * p_tb = APPL->GetUiToolBox();
-					if(p_tb) {
-						if(GetWbCapability() & wbcDrawBuffer) {
-							// Если используется буферизованная отрисовка, то фон нужно перерисовать в любом случае а на событие PaintEvent::tEraseBackground
-							// не реагировать
-							if(p_blk->PaintType == PaintEvent::tPaint) {
-								TCanvas2 canv(*p_tb, static_cast<HDC>(p_blk->H_DeviceContext));
-								canv.Rect(p_blk->Rect, 0, TProgram::tbiListBkgBrush);
-								DrawLayout(canv, P_Lfc);
-							}
-						}
-						else {
-							TCanvas2 canv(*p_tb, static_cast<HDC>(p_blk->H_DeviceContext));
-							if(p_blk->PaintType == PaintEvent::tEraseBackground)
-								canv.Rect(p_blk->Rect, 0, TProgram::tbiListBkgBrush);
-							if(p_blk->PaintType == PaintEvent::tPaint)
-								DrawLayout(canv, P_Lfc);
-						}
-					}
-					clearEvent(event);
-				}
-			}
-		}
-	}
 	const  LayoutExtra * GetLayoutExtra(int ident, uint val) const;
 	void   DrawLayout(TCanvas2 & rCanv, const SUiLayout * pLo);
 	const  SVector LoExtraList;
+	Param  P;
+	ListBoxDef * P_Def;
 };
+
+static ListBoxDef * Test_ListSelectionDialog_MakeTestData(bool multiColumn, bool treeView)
+{
+	ListBoxDef * p_result = 0;
+	//static const char * P_TestDataFile = "D:/Papyrus/Src/PPTEST/DATA/person.txt";
+	SString file_name;
+	PPGetPath(PPPATH_TESTROOT, file_name);
+	file_name.SetLastSlash().Cat("data").SetLastSlash().Cat("person.txt");
+	SFile f_in(file_name, SFile::mRead);
+	if(f_in.IsValid()) {
+		StrAssocArray * p_data = new StrAssocArray;
+		p_result = new StrAssocListBoxDef(p_data, lbtDisposeData|lbtDblClkNotify|lbtFocNotify);
+		//
+		uint   line_no = 0;
+		SString temp_buf;
+		SString line_buf;
+		StringSet ss(SLBColumnDelim);
+		while(f_in.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
+			line_no++;
+			if(line_no >= 8) { // Р’ РЅР°С‡Р°Р»Рµ С„Р°Р№Р»Р° С‚Р°Рј РєР°РєРѕР№-С‚Рѕ РјСѓСЃРѕСЂ, РєРѕС‚РѕСЂС‹Р№ СЏ РїРѕРѕСЃС‚РѕСЂРѕР¶РЅРёС‡Р°Р» СѓР±РёСЂР°С‚СЊ
+				ss.Z();
+				line_buf.Transf(CTRANSF_OUTER_TO_INNER);
+				line_buf.Tokenize("|", ss);
+				if(multiColumn) {
+					p_result->addItem(line_no, ss.getBuf());
+				}
+				else {
+					if(ss.get(0U, temp_buf)) {
+						p_result->addItem(line_no, temp_buf);
+					}
+				}
+			}
+		}
+	}
+	return p_result;
+}
 
 int Test_ListSelectionDialog()
 {
+	class __TestListSelectionDialog : public ListSelectionDialog {
+	public:
+		__TestListSelectionDialog(const ListSelectionDialog::Param & rParam, ListBoxDef * pDef) : ListSelectionDialog(rParam, pDef), P_Def(pDef)
+		{
+		}
+	private:
+		DECL_HANDLE_EVENT
+		{
+			/*if(event.isCmd(cmInit)) { // 
+				TView * p_view = getCtrlView(STDCTL_SINGLELISTBOX);
+				if(TView::IsSubSign(p_view, TV_SUBSIGN_LISTBOX)) {
+					SmartListBox * p_box = static_cast<SmartListBox *>(p_view);
+					p_box->setDef(P_Def);
+				}
+			}*/
+			ListSelectionDialog::handleEvent(event);
+			/*if(event.isCmd(cmInit)) {
+				TView * p_view = getCtrlView(STDCTL_SINGLELISTBOX);
+				if(TView::IsSubSign(p_view, TV_SUBSIGN_LISTBOX)) {
+					SmartListBox * p_box = static_cast<SmartListBox *>(p_view);
+					p_box->setDef(P_Def);
+					//p_box->onInitDialog(1);
+					//p_box->Draw_();
+	   				//p_box->focusItem(0);
+				}
+			}*/
+		}
+		ListBoxDef * P_Def;
+	};
+	
 	int    ok = 0;
-	ok = ListSelectionDialog::Exec();
+	TRect  b;
+	b.set(0, 0, 295, 440); 
+	ListBoxDef * p_lb_def = Test_ListSelectionDialog_MakeTestData(false/*multiColumn*/, false/*treeView*/);
+	if(p_lb_def) {
+		ListSelectionDialog::Param param;
+		param.Flags |= (ListSelectionDialog::fcedCreate|ListSelectionDialog::fcedEdit|ListSelectionDialog::fcedDelete|ListSelectionDialog::fOkCancel);
+		param.Title = "Test list selection dialog";
+		__TestListSelectionDialog * p_view = new __TestListSelectionDialog(param, p_lb_def);
+		if(p_view) {
+			p_view->setBounds(b);
+			ok = ListSelectionDialog::Exec(p_view);
+		}
+	}
 	return ok;
 }
 
-/*static*/int ListSelectionDialog::Exec()
+/*static*/int ListSelectionDialog::Exec(ListSelectionDialog * pView)
 {
 	int    ok = -1;
-	ListSelectionDialog * p_win = 0;
-	const UiDescription * p_uid = SLS.GetUiDescription();
-	const SUiLayout * p_lo = 0;
-	TRect  b;
-	b.set(0, 0, 295, 440); 
-	THROW(p_uid);
-	p_lo = p_uid->GetLayoutBySymbC("listdialog");
-	THROW(p_lo);
-	p_win = new ListSelectionDialog("A title");
-	THROW_MEM(p_win);
-	p_win->setBounds(b);
-	//p_win->setDTS(&rData);
-	ok = APPL->P_DeskTop->execView(p_win);
-	if(ok > 0) {
-		//p_win->getDTS(&rData);
+	//ListSelectionDialog * p_win = 0;
+	if(pView) {
+		const UiDescription * p_uid = SLS.GetUiDescription();
+		const SUiLayout * p_lo = 0;
+		//TRect  b;
+		//b.set(0, 0, 295, 440); 
+		THROW(p_uid);
+		p_lo = p_uid->GetLayoutBySymbC("listdialog");
+		THROW(p_lo);
+		//p_win = new ListSelectionDialog("A title");
+		//THROW_MEM(p_win);
+		//pView->setBounds(b);
+		//p_win->setDTS(&rData);
+		ok = APPL->P_DeskTop->execView(pView);
+		if(ok > 0) {
+			//p_win->getDTS(&rData);
+		}
 	}
 	CATCHZOK
-	delete p_win;
+	delete pView;
 	return ok;
 }
 
@@ -3344,7 +3419,7 @@ void ListSelectionDialog::DrawLayout(TCanvas2 & rCanv, const SUiLayout * pLo)
 			if(p_tb) {
 				SString text_utf8;
 				SString symb;
-				// Прежде всего закрасим фон
+				// РџСЂРµР¶РґРµ РІСЃРµРіРѕ Р·Р°РєСЂР°СЃРёРј С„РѕРЅ
 				rCanv.Rect(lo_rect, 0, TProgram::tbiListBkgBrush);
 				if(pen_ident) {
 					/*if(pLo == P_LoFocused) {
@@ -3368,7 +3443,7 @@ void ListSelectionDialog::DrawLayout(TCanvas2 & rCanv, const SUiLayout * pLo)
 						}
 						LMatrix2D mtx;
 						SViewPort vp;
-						rCanv.Fill(SColor(192, 192, 192, 255), 0); // Прозрачный фон
+						rCanv.Fill(SColor(192, 192, 192, 255), 0); // РџСЂРѕР·СЂР°С‡РЅС‹Р№ С„РѕРЅ
 						rCanv.PushTransform();
 						p_fig->GetViewPort(&vp);
 						rCanv.PushTransform();
@@ -3479,7 +3554,6 @@ public:
 		AddClusterAssoc(CTL_UICFG_FLAGS, 14, UserInterfaceSettings::fDateTimePickerBefore1124); // @v11.2.6
 		INVERSEFLAG(Data.Flags, UserInterfaceSettings::fDontExitBrowserByEsc);
 		SetClusterData(CTL_UICFG_FLAGS, Data.Flags);
-		// @v10.3.0 {
 		{
 			const  long t = CHKXORFLAGS(Data.Flags, UserInterfaceSettings::fEnalbeBillMultiPrint, UserInterfaceSettings::fDisableBillMultiPrint);
 			AddClusterAssocDef(CTL_UICFG_MULTBILLPRINT, 0, 0);
@@ -3487,7 +3561,6 @@ public:
 			AddClusterAssoc(CTL_UICFG_MULTBILLPRINT, 2, UserInterfaceSettings::fDisableBillMultiPrint);
 			SetClusterData(CTL_UICFG_MULTBILLPRINT, t);
 		}
-		// } @v10.3.0
 		{
 			Data.TableFont.ToStr(temp_buf.Z(), 0);
 			setStaticText(CTL_UICFG_ST_TABLEFONT, temp_buf);
@@ -3958,7 +4031,7 @@ int LocationCtrlGroup::setData(TDialog * pDlg, void * pData)
 			if(LocObj.P_Tbl->SearchEAddrByLink(PPOBJ_LOCATION, single_id, ea_list) > 0 && ea_list.getCount())
 				ea_id = ea_list.get(0);
 		}
-		pDlg->SetupWordSelector(CtlPhone, new PhoneSelExtra(pse_flags), ea_id, 5, 0); // Выбор адреса без комбобокса
+		pDlg->SetupWordSelector(CtlPhone, new PhoneSelExtra(pse_flags), ea_id, 5, 0); // Р’С‹Р±РѕСЂ Р°РґСЂРµСЃР° Р±РµР· РєРѕРјР±РѕР±РѕРєСЃР°
 	}
 	SetupInfo(pDlg, single_id);
 	return 1;
@@ -4263,7 +4336,7 @@ StrAssocArray * PersonSelExtra::GetList(const char * pText)
 	SString pattern(pText);
 	if(pattern.Len()) {
 		//
-		// сначала обычный поиск по имени (поиск неточный)
+		// СЃРЅР°С‡Р°Р»Р° РѕР±С‹С‡РЅС‹Р№ РїРѕРёСЃРє РїРѕ РёРјРµРЅРё (РїРѕРёСЃРє РЅРµС‚РѕС‡РЅС‹Р№)
 		//
 		int   search_yourself = 1;
 		if(P_OutDlg) {
@@ -4279,21 +4352,21 @@ StrAssocArray * PersonSelExtra::GetList(const char * pText)
 			PsnObj.GetListBySubstring(pText, PersonKindID, p_list, 0/*fromBegStr*/);
 		}
 		//
-		// Если не найдено ни одной персоналии/статьи, тогда ищем по номеру регистра (поиск точный)
+		// Р•СЃР»Рё РЅРµ РЅР°Р№РґРµРЅРѕ РЅРё РѕРґРЅРѕР№ РїРµСЂСЃРѕРЅР°Р»РёРё/СЃС‚Р°С‚СЊРё, С‚РѕРіРґР° РёС‰РµРј РїРѕ РЅРѕРјРµСЂСѓ СЂРµРіРёСЃС‚СЂР° (РїРѕРёСЃРє С‚РѕС‡РЅС‹Р№)
 		//
 		if((!p_list || !p_list->getCount()) && pattern.ShiftLeftChr('*').Len() >= MinSymbCount) {
 			SETIFZ(p_list, new StrAssocArray());
 			PPIDArray psn_list;
 			StrAssocArray phone_list;
 			PPIDArray reg_list;
-			// сначала поиск по поисковому регистру
+			// СЃРЅР°С‡Р°Р»Р° РїРѕРёСЃРє РїРѕ РїРѕРёСЃРєРѕРІРѕРјСѓ СЂРµРіРёСЃС‚СЂСѓ
 			RegisterFilt reg_flt;
 			reg_flt.Oid.Obj = PPOBJ_PERSON; // @v10.0.1
 			reg_flt.RegTypeID  = SrchRegTypeID;
 			reg_flt.NmbPattern = pattern;
 			PsnObj.RegObj.SearchByFilt(&reg_flt, &reg_list, &psn_list);
 			//
-			// Если по поисковому регистру не нашли, то ищем по всем регистрам
+			// Р•СЃР»Рё РїРѕ РїРѕРёСЃРєРѕРІРѕРјСѓ СЂРµРіРёСЃС‚СЂСѓ РЅРµ РЅР°С€Р»Рё, С‚Рѕ РёС‰РµРј РїРѕ РІСЃРµРј СЂРµРіРёСЃС‚СЂР°Рј
 			//
 			if(SrchRegTypeID > 0 && psn_list.getCount() == 0) {
 				reg_flt.RegTypeID  = 0;
@@ -4301,7 +4374,7 @@ StrAssocArray * PersonSelExtra::GetList(const char * pText)
 			}
 			if(!psn_list.getCount()) {
 				//
-				// Если не найдено по номеру регистра, тогда ищем по номеру телефона (поиск неточный)
+				// Р•СЃР»Рё РЅРµ РЅР°Р№РґРµРЅРѕ РїРѕ РЅРѕРјРµСЂСѓ СЂРµРіРёСЃС‚СЂР°, С‚РѕРіРґР° РёС‰РµРј РїРѕ РЅРѕРјРµСЂСѓ С‚РµР»РµС„РѕРЅР° (РїРѕРёСЃРє РЅРµС‚РѕС‡РЅС‹Р№)
 				//
 				SString phone_buf;
 				LongArray temp_phone_list;
@@ -4323,7 +4396,7 @@ StrAssocArray * PersonSelExtra::GetList(const char * pText)
 			}
 			else {
 				//
-				// Персоналии по номеру регистру найдены. Теперь добавим персоналии, которые являются филиалами по отношению к найденым и наследуют регистры
+				// РџРµСЂСЃРѕРЅР°Р»РёРё РїРѕ РЅРѕРјРµСЂСѓ СЂРµРіРёСЃС‚СЂСѓ РЅР°Р№РґРµРЅС‹. РўРµРїРµСЂСЊ РґРѕР±Р°РІРёРј РїРµСЂСЃРѕРЅР°Р»РёРё, РєРѕС‚РѕСЂС‹Рµ СЏРІР»СЏСЋС‚СЃСЏ С„РёР»РёР°Р»Р°РјРё РїРѕ РѕС‚РЅРѕС€РµРЅРёСЋ Рє РЅР°Р№РґРµРЅС‹Рј Рё РЅР°СЃР»РµРґСѓСЋС‚ СЂРµРіРёСЃС‚СЂС‹
 				//
 				PPIDArray temp_list = psn_list;
 				PPIDArray psn_list2;
@@ -4531,7 +4604,7 @@ int PersonCtrlGroup::setData(TDialog * pDlg, void * pData)
 		SetupPPObjCombo(pDlg, Ctlsel, PPOBJ_PERSON, person_id, psn_combo_flags, reinterpret_cast<void *>(Data.PsnKindID));
 		SetupAnonym(pDlg, Data.Flags & Data.fAnonym);
 		if(CtlSCardCode) {
-			pDlg->SetupWordSelector(CtlSCardCode, new SCardSelExtra(0), Data.SCardID, 4, 0); // Выбор карты без комбобокса
+			pDlg->SetupWordSelector(CtlSCardCode, new SCardSelExtra(0), Data.SCardID, 4, 0); // Р’С‹Р±РѕСЂ РєР°СЂС‚С‹ Р±РµР· РєРѕРјР±РѕР±РѕРєСЃР°
 		}
 	}
 	return ok;
@@ -4978,7 +5051,7 @@ int SCardCtrlGroup::Setup(TDialog * pDlg, int event)
 			card_id = pDlg->getCtrlLong(CtlSCard);
 		}
 		pDlg->disableCtrl(CtlselSCardSer, BIN(Data.SCardSerList.getCount() > 1));
-		pDlg->SetupWordSelector(CtlSCard, new SCardSelExtra(ser_id), card_id, SCARD_MIN_SYMBS, 0); // Выбор карты без комбобокса
+		pDlg->SetupWordSelector(CtlSCard, new SCardSelExtra(ser_id), card_id, SCARD_MIN_SYMBS, 0); // Р’С‹Р±РѕСЂ РєР°СЂС‚С‹ Р±РµР· РєРѕРјР±РѕР±РѕРєСЃР°
 		ok = 1;
 	}
 	return ok;
@@ -5653,7 +5726,7 @@ int FASTCALL InputStringDialog(PPInputStringDialogParam * pParam, SString & rBuf
 			}
 			if(pParam->P_Wse) {
 				dlg->SetupWordSelector(CTL_INPUT_STR, pParam->P_Wse, 0, pParam->P_Wse->MinSymbCount, pParam->P_Wse->Flags);
-				pParam->P_Wse = 0; // Диалог разрушит объект pParam->P_Wse
+				pParam->P_Wse = 0; // Р”РёР°Р»РѕРі СЂР°Р·СЂСѓС€РёС‚ РѕР±СЉРµРєС‚ pParam->P_Wse
 			}
 		}
 		if(ExecView(dlg) == cmOK) {
@@ -6427,9 +6500,9 @@ void TimePickerDialog::DrawMainRect(TCanvas * pCanv, RECT * pRect)
 	if(TmRects.Minuts.getCount()) {
 		m_rect = TmRects.Minuts.at(TmRects.Minuts.getCount() - 1);
 		TRect draw_rect(pRect->left + 3, 3, pRect->right - 3, m_rect.b.y + 8);
-		// нарисуем прямоугольник
+		// РЅР°СЂРёСЃСѓРµРј РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРє
 		pCanv->FillRect(draw_rect, static_cast<HBRUSH>(Ptb.Get(brMainRect)));
-		// Эффект объемного прямоугольника
+		// Р­С„С„РµРєС‚ РѕР±СЉРµРјРЅРѕРіРѕ РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєР°
 		pCanv->SelectObjectAndPush(Ptb.Get(penBlack));
 		pCanv->LineHorz(draw_rect.a.x + 1, draw_rect.b.x - 1, draw_rect.a.y + 1);
 		pCanv->LineVert(draw_rect.a.x + 1, draw_rect.a.y + 1, draw_rect.b.y - 1);
@@ -7126,9 +7199,9 @@ int PPCallHelp(void * hWnd, uint cmd, uint ctx)
 				SFsPath ps(path);
 				if(ps.Flags & SFsPath::fUNC || ((ps.Flags & SFsPath::fDrv) && GetDriveType(SUcSwitch(ps.Drv.SetLastSlash())) == DRIVE_REMOTE)) { // @unicodeproblem
 					//
-					// В связи с проблемой загрузки help'а с сетевого каталога коприруем файл в
-					// локальный каталог. При этом, чтобы избежать лишних копирований, проверяем, нет ли
-					// в локальном каталоге скопированного до этого актуального файла.
+					// Р’ СЃРІСЏР·Рё СЃ РїСЂРѕР±Р»РµРјРѕР№ Р·Р°РіСЂСѓР·РєРё help'Р° СЃ СЃРµС‚РµРІРѕРіРѕ РєР°С‚Р°Р»РѕРіР° РєРѕРїСЂРёСЂСѓРµРј С„Р°Р№Р» РІ
+					// Р»РѕРєР°Р»СЊРЅС‹Р№ РєР°С‚Р°Р»РѕРі. РџСЂРё СЌС‚РѕРј, С‡С‚РѕР±С‹ РёР·Р±РµР¶Р°С‚СЊ Р»РёС€РЅРёС… РєРѕРїРёСЂРѕРІР°РЅРёР№, РїСЂРѕРІРµСЂСЏРµРј, РЅРµС‚ Р»Рё
+					// РІ Р»РѕРєР°Р»СЊРЅРѕРј РєР°С‚Р°Р»РѕРіРµ СЃРєРѕРїРёСЂРѕРІР°РЅРЅРѕРіРѕ РґРѕ СЌС‚РѕРіРѕ Р°РєС‚СѓР°Р»СЊРЅРѕРіРѕ С„Р°Р№Р»Р°.
 					//
 					SString local_path;
 					// @v11.8.5 if(SFile::GetSysDir(SFile::sdAppDataLocal, local_path)) {
@@ -7145,7 +7218,7 @@ int PPCallHelp(void * hWnd, uint cmd, uint ctx)
 							if(st_local.ModTm_ < st.ModTm_)
 								do_copy = 1;
 							else
-								path = local_path; // В локальном каталоге уже лежит актуальный файл: недо использовать его.
+								path = local_path; // Р’ Р»РѕРєР°Р»СЊРЅРѕРј РєР°С‚Р°Р»РѕРіРµ СѓР¶Рµ Р»РµР¶РёС‚ Р°РєС‚СѓР°Р»СЊРЅС‹Р№ С„Р°Р№Р»: РЅРµРґРѕ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РµРіРѕ.
 						else
 							do_copy = 1;
 						if(do_copy && copyFileByName(path, local_path))
@@ -7214,7 +7287,7 @@ int ExportDialogs(const char * pFileName)
 	SString ctl_text;
 	SString ctl_text_processed;
 	SString label_text;
-	SString text_line_buf; // Буфер вывода строк из диалогов
+	SString text_line_buf; // Р‘СѓС„РµСЂ РІС‹РІРѕРґР° СЃС‚СЂРѕРє РёР· РґРёР°Р»РѕРіРѕРІ
 	SString cls_name;
 	SString dlg_title_buf;
 	SString dlg_symb_body;
@@ -7287,7 +7360,7 @@ int ExportDialogs(const char * pFileName)
 				// %topic(DLG_BILLSTATUS)
                 line_buf.Z().Cat("%topic").CatParStr(dlg_symb_body).CR();
                 f_out_manual.WriteLine(line_buf);
-                // \ppypict{dlg-billstatus}{Диалог редактирования статуса документов}
+                // \ppypict{dlg-billstatus}{Р”РёР°Р»РѕРі СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёСЏ СЃС‚Р°С‚СѓСЃР° РґРѕРєСѓРјРµРЅС‚РѕРІ}
                 PreprocessCtrlText(dlg_title_buf, ctl_text_processed);
                 (temp_buf = dlg_symb_body).ReplaceStr("_", "-", 0).ToLower();
                 line_buf.Z().BSlash().Cat("ppypict").CatChar('{').Cat(temp_buf).CatChar('}');
@@ -7361,7 +7434,7 @@ int ExportDialogs(const char * pFileName)
 											TakeInCountCtrl(h_combo, child_list, seen_pos_list);
 										}
 										{
-											// \item[\dlgcombo{Счетчик}]
+											// \item[\dlgcombo{РЎС‡РµС‚С‡РёРє}]
 											PreprocessCtrlText(ctl_text, ctl_text_processed);
 											line_buf.Z().Tab().BSlash().Cat("item").CatChar('[').BSlash().Cat("dlgcombo").
 												CatChar('{').Cat(ctl_text_processed).CatChar('}').CatChar(']').CR().CR();
@@ -7386,7 +7459,7 @@ int ExportDialogs(const char * pFileName)
 										DlScope::PropListToLine(prop_list, 2, line_buf).Semicol().CR();
 										f_out.WriteLine(line_buf);
 										{
-											// \item[Наименование]
+											// \item[РќР°РёРјРµРЅРѕРІР°РЅРёРµ]
 											PreprocessCtrlText(ctl_text, ctl_text_processed);
 											line_buf.Z().Tab().BSlash().Cat("item").CatBrackStr(ctl_text_processed).CR().CR();
 											f_out_manual.WriteLine(line_buf);
@@ -7416,7 +7489,7 @@ int ExportDialogs(const char * pFileName)
 										if(p_clu->getKind() == RADIOBUTTONS) {
 											p_kind = "radiocluster";
 											{
-												// \item[\dlgradioc{Сортировать по}]
+												// \item[\dlgradioc{РЎРѕСЂС‚РёСЂРѕРІР°С‚СЊ РїРѕ}]
 												PreprocessCtrlText(ctl_text, ctl_text_processed);
 												line_buf.Z().Tab().BSlash().Cat("item").CatChar('[').BSlash().Cat("dlgradioc").
 													CatChar('{').Cat(ctl_text_processed).CatChar('}').CatChar(']').CR().CR();
@@ -7448,14 +7521,14 @@ int ExportDialogs(const char * pFileName)
 															f_out_text.WriteLine(text_line_buf);
 															{
 																if(p_clu->getKind() == RADIOBUTTONS) {
-																	// \item[\dlgradioc{Сортировать по}]
+																	// \item[\dlgradioc{РЎРѕСЂС‚РёСЂРѕРІР°С‚СЊ РїРѕ}]
 																	PreprocessCtrlText(temp_buf, ctl_text_processed);
 																	line_buf.Z().Tab(2).BSlash().Cat("item").CatChar('[').BSlash().Cat("dlgradioi").
 																		CatChar('{').Cat(ctl_text_processed).CatChar('}').CatChar(']').CR().CR();
 																	f_out_manual.WriteLine(line_buf);
 																}
 																else if(p_clu->getKind() == CHECKBOXES) {
-																	// \dlgflag{Просмотр}
+																	// \dlgflag{РџСЂРѕСЃРјРѕС‚СЂ}
 																	PreprocessCtrlText(temp_buf, ctl_text_processed);
 																	line_buf.Z().Tab(2).BSlash().Cat("dlgflag").CatChar('{').Cat(ctl_text_processed).CatChar('}').CR().CR();
 																	f_out_manual.WriteLine(line_buf);
@@ -7510,7 +7583,7 @@ int ExportDialogs(const char * pFileName)
 							}
 							else if(cls_name.IsEqiAscii("Static")) {
 								//
-								// Этикетки (TLabel) пропускаем (они обрабатываются объектами, которым принадлежат)
+								// Р­С‚РёРєРµС‚РєРё (TLabel) РїСЂРѕРїСѓСЃРєР°РµРј (РѕРЅРё РѕР±СЂР°Р±Р°С‚С‹РІР°СЋС‚СЃСЏ РѕР±СЉРµРєС‚Р°РјРё, РєРѕС‚РѕСЂС‹Рј РїСЂРёРЅР°РґР»РµР¶Р°С‚)
 								//
 								if(!TView::IsSubSign(p_view, TV_SUBSIGN_LABEL)) {
 									if(wi.dwExStyle & WS_EX_STATICEDGE) {
@@ -7594,7 +7667,7 @@ int ExportDialogs2(const char * pFileName)
 	SString ctl_text;
 	SString ctl_text_processed;
 	SString label_text;
-	SString text_line_buf; // Буфер вывода строк из диалогов
+	SString text_line_buf; // Р‘СѓС„РµСЂ РІС‹РІРѕРґР° СЃС‚СЂРѕРє РёР· РґРёР°Р»РѕРіРѕРІ
 	SString cls_name;
 	SString dlg_title_buf;
 	SString dlg_symb_body;
@@ -7676,7 +7749,7 @@ int ExportDialogs2(const char * pFileName)
 				// %topic(DLG_BILLSTATUS)
                 line_buf.Z().Cat("%topic").CatParStr(dlg_symb_body).CR();
                 f_out_manual.WriteLine(line_buf);
-                // \ppypict{dlg-billstatus}{Диалог редактирования статуса документов}
+                // \ppypict{dlg-billstatus}{Р”РёР°Р»РѕРі СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёСЏ СЃС‚Р°С‚СѓСЃР° РґРѕРєСѓРјРµРЅС‚РѕРІ}
                 PreprocessCtrlText(dlg_title_buf, ctl_text_processed);
                 (temp_buf = dlg_symb_body).ReplaceStr("_", "-", 0).ToLower();
                 line_buf.Z().BSlash().Cat("ppypict").CatChar('{').Cat(temp_buf).CatChar('}');
@@ -7758,7 +7831,7 @@ int ExportDialogs2(const char * pFileName)
 											TakeInCountCtrl(h_combo, child_list, seen_pos_list);
 										}
 										{
-											// \item[\dlgcombo{Счетчик}]
+											// \item[\dlgcombo{РЎС‡РµС‚С‡РёРє}]
 											PreprocessCtrlText(ctl_text, ctl_text_processed);
 											line_buf.Z().Tab().BSlash().Cat("item").CatChar('[').BSlash().Cat("dlgcombo").
 												CatChar('{').Cat(ctl_text_processed).CatChar('}').CatChar(']').CR().CR();
@@ -7801,7 +7874,7 @@ int ExportDialogs2(const char * pFileName)
 										//DlScope::PropListToLine(prop_list, 2, line_buf).Semicol().CR();
 										f_out.WriteLine(line_buf.CR());
 										{
-											// \item[Наименование]
+											// \item[РќР°РёРјРµРЅРѕРІР°РЅРёРµ]
 											PreprocessCtrlText(ctl_text, ctl_text_processed);
 											line_buf.Z().Tab().BSlash().Cat("item").CatBrackStr(ctl_text_processed).CR().CR();
 											f_out_manual.WriteLine(line_buf);
@@ -7838,7 +7911,7 @@ int ExportDialogs2(const char * pFileName)
 										if(p_clu->getKind() == RADIOBUTTONS) {
 											p_kind = "radiocluster";
 											{
-												// \item[\dlgradioc{Сортировать по}]
+												// \item[\dlgradioc{РЎРѕСЂС‚РёСЂРѕРІР°С‚СЊ РїРѕ}]
 												PreprocessCtrlText(ctl_text, ctl_text_processed);
 												line_buf.Z().Tab().BSlash().Cat("item").CatChar('[').BSlash().Cat("dlgradioc").
 													CatChar('{').Cat(ctl_text_processed).CatChar('}').CatChar(']').CR().CR();
@@ -7887,14 +7960,14 @@ int ExportDialogs2(const char * pFileName)
 															f_out_text.WriteLine(text_line_buf);
 															{
 																if(p_clu->getKind() == RADIOBUTTONS) {
-																	// \item[\dlgradioc{Сортировать по}]
+																	// \item[\dlgradioc{РЎРѕСЂС‚РёСЂРѕРІР°С‚СЊ РїРѕ}]
 																	PreprocessCtrlText(item_title_buf, ctl_text_processed);
 																	line_buf.Z().Tab(2).BSlash().Cat("item").CatChar('[').BSlash().Cat("dlgradioi").
 																		CatChar('{').Cat(ctl_text_processed).CatChar('}').CatChar(']').CR().CR();
 																	f_out_manual.WriteLine(line_buf);
 																}
 																else if(p_clu->getKind() == CHECKBOXES) {
-																	// \dlgflag{Просмотр}
+																	// \dlgflag{РџСЂРѕСЃРјРѕС‚СЂ}
 																	PreprocessCtrlText(item_title_buf, ctl_text_processed);
 																	line_buf.Z().Tab(2).BSlash().Cat("dlgflag").CatChar('{').Cat(ctl_text_processed).CatChar('}').CR().CR();
 																	f_out_manual.WriteLine(line_buf);
@@ -7961,7 +8034,7 @@ int ExportDialogs2(const char * pFileName)
 							}
 							else if(cls_name.IsEqiAscii("Static")) {
 								//
-								// Этикетки (TLabel) пропускаем (они обрабатываются объектами, которым принадлежат)
+								// Р­С‚РёРєРµС‚РєРё (TLabel) РїСЂРѕРїСѓСЃРєР°РµРј (РѕРЅРё РѕР±СЂР°Р±Р°С‚С‹РІР°СЋС‚СЃСЏ РѕР±СЉРµРєС‚Р°РјРё, РєРѕС‚РѕСЂС‹Рј РїСЂРёРЅР°РґР»РµР¶Р°С‚)
 								//
 								if(!TView::IsSubSign(p_view, TV_SUBSIGN_LABEL)) {
 									const bool is_image = (p_view && p_view->IsSubSign(TV_SUBSIGN_IMAGEVIEW));

@@ -1613,8 +1613,7 @@ int PPViewLot::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pB
 						LotViewItem item;
 						PPIDArray lot_list;
 						RAssocArray ret_bill_lot_list;
-						// @v10.6.8 const  PPID loc_id = NZOR(Filt.LocID, LConfig.Location);
-						const  PPID loc_id = NZOR(LocList.getSingle(), LConfig.Location); // @v10.6.8
+						const  PPID loc_id = NZOR(LocList.getSingle(), LConfig.Location);
 						THROW(ep);
 						PPWaitStart();
 						if(selection == (PPEDIOP_EGAIS_ACTCHARGEONSHOP+1000)) {

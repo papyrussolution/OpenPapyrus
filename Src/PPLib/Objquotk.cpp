@@ -884,7 +884,7 @@ static int GetDiscount(TDialog * pDlg, uint ctl, PPQuotKind * pRec)
 		strtodoub(buf, &v);
 		v = R2(v);
 		if(v == 0 && !absdis)
-			PTR32(buf)[0] = 0;
+			buf[0] = 0;
 		pDlg->setCtrlData(ctl, buf);
 	}
 	else

@@ -1,5 +1,5 @@
 // PPSERVER.CPP
-// Copyright (c) A.Sobolev 2005, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 2005, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -3335,7 +3335,7 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 				}
 			}
 			break;
-		case PPSCMD_WSCTL_INIT: // @v11.7.3 @construction
+		case PPSCMD_WSCTL_INIT: // @v11.7.3
 			THROW_PP(State_PPws & stLoggedIn, PPERR_NOTLOGGEDIN);
 			{
 				if(pEv->GetAvailableSize() >= sizeof(S_GUID)) {
@@ -3351,6 +3351,14 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 						js_obj.InsertInt("prcid", P_WsCtlBlk->PrcID);
 						js_obj.InsertString("prcnm", P_WsCtlBlk->PrcNameUtf8);
 						js_obj.InsertString("wsctluuid", temp_buf.Z().Cat(P_WsCtlBlk->WsUUID, S_GUID::fmtIDL));
+						// @v12.2.4 {
+						if(P_WsCtlBlk->ComputerID) {
+							js_obj.InsertInt("computerid", P_WsCtlBlk->ComputerID); 
+							if(P_WsCtlBlk->CompCatID) {
+								js_obj.InsertInt("compcatid", P_WsCtlBlk->CompCatID);
+							}
+						}
+						// } @v12.2.4 
 						THROW_SL(js_obj.ToStr(temp_buf));
 						rReply.SetString(temp_buf);
 						ok = cmdretOK;
@@ -3566,8 +3574,8 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 						TSessionTbl::Rec tsess_rec;
 						ProcessorTbl::Rec prc_rec;
 						THROW_PP(_blk.WsCtlUuid, PPERR_WSCTL_PROT_UNDEFMCHNUUID);
-						THROW(P_WsCtlBlk->SearchPrcByWsCtlUuid(_blk.WsCtlUuid, &prc_id, 0) > 0);
-						THROW(P_WsCtlBlk->TSesObj.GetPrc(prc_id, &prc_rec, 1, 1) > 0);
+						THROW(P_WsCtlBlk->SearchPrcByWsCtlUuid(_blk.WsCtlUuid, &prc_id, 0, &prc_rec) > 0); // @v12.2.4 (&prc_rec)
+						// @v12.2.4 THROW(P_WsCtlBlk->TSesObj.GetPrc(prc_id, &prc_rec, 1, 1) > 0);
 						THROW(P_WsCtlBlk->Registration(_blk));
 						{
 							SJson js_reply(SJson::tOBJECT);
@@ -3603,8 +3611,8 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 						TSessionTbl::Rec tsess_rec;
 						ProcessorTbl::Rec prc_rec;
 						THROW_PP(_blk.WsCtlUuid, PPERR_WSCTL_PROT_UNDEFMCHNUUID);
-						THROW(P_WsCtlBlk->SearchPrcByWsCtlUuid(_blk.WsCtlUuid, &prc_id, 0) > 0);
-						THROW(P_WsCtlBlk->TSesObj.GetPrc(prc_id, &prc_rec, 1, 1) > 0);
+						THROW(P_WsCtlBlk->SearchPrcByWsCtlUuid(_blk.WsCtlUuid, &prc_id, 0, &prc_rec) > 0); // @v12.2.4 (&prc_rec)
+						// @v12.2.4 THROW(P_WsCtlBlk->TSesObj.GetPrc(prc_id, &prc_rec, 1, 1) > 0);
 						THROW(P_WsCtlBlk->Auth(_blk));
 						const int is_prc_busy_r = P_WsCtlBlk->TSesObj.IsProcessorBusy(prc_id, 0, TSESK_SESSION, now_dtm, 1/*1sec*/, &tsess_id);
 						THROW(is_prc_busy_r);
@@ -3756,8 +3764,8 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 							ProcessorTbl::Rec prc_rec;
 							TechTbl::Rec tech_rec;
 							SETIFZQ(P_WsCtlBlk, new WsCtlSrvBlock());
-							THROW(P_WsCtlBlk->SearchPrcByWsCtlUuid(ws_ctl_uuid, &prc_id, 0) > 0);
-							THROW(P_WsCtlBlk->TSesObj.GetPrc(prc_id, &prc_rec, 1, 1) > 0);
+							THROW(P_WsCtlBlk->SearchPrcByWsCtlUuid(ws_ctl_uuid, &prc_id, 0, &prc_rec) > 0); // @v12.2.4 (&prc_rec)
+							// @v12.2.4 THROW(P_WsCtlBlk->TSesObj.GetPrc(prc_id, &prc_rec, 1, 1) > 0);
 							int    r = P_WsCtlBlk->TSesObj.IsProcessorBusy(prc_id, 0, TSESK_SESSION, now_dtm, 1/*1sec*/, &actual_tsess_id);
 							THROW(r);
 							{
@@ -3884,8 +3892,8 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 							PPID   actual_tsess_id = 0;
 							ProcessorTbl::Rec prc_rec;
 							TSessionTbl::Rec tsess_rec;
-							THROW(P_WsCtlBlk->SearchPrcByWsCtlUuid(ws_ctl_uuid, &prc_id, 0) > 0);
-							THROW(P_WsCtlBlk->TSesObj.GetPrc(prc_id, &prc_rec, 1, 1) > 0);
+							THROW(P_WsCtlBlk->SearchPrcByWsCtlUuid(ws_ctl_uuid, &prc_id, 0, &prc_rec) > 0); // @v12.2.4 (&prc_rec)
+							// @v12.2.4 THROW(P_WsCtlBlk->TSesObj.GetPrc(prc_id, &prc_rec, 1, 1) > 0);
 							const int is_prc_busy_r = P_WsCtlBlk->TSesObj.IsProcessorBusy(prc_id, 0, TSESK_SESSION, now_dtm, 1/*1sec*/, &actual_tsess_id);
 							THROW(is_prc_busy_r);
 							THROW(is_prc_busy_r > 0); // @todo @err

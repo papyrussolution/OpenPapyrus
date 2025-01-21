@@ -77,7 +77,7 @@ cairo_public const char * cairo_version_string();
  *
  * Since: 1.0
  **/
-typedef int cairo_bool_t_Unused; // @v10.5.2 replaced with boolint
+typedef int cairo_bool_t_Unused; // replaced with boolint
 /**
  * cairo_t:
  *

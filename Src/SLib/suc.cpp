@@ -1,5 +1,5 @@
 // SUC.CPP
-// Copyright (c) A.Sobolev 2017, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2017, 2019, 2020, 2021, 2022, 2025
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -957,7 +957,7 @@ IMPL_CMPFUNC(CPMCPENTRYUREF, p1, p2)
 
 SCodepageMapPool::MapEntry::MapEntry() : U2(0)
 {
-	PTR32(B)[0] = 0;
+	B[0] = 0;
 }
 
 int FASTCALL SCodepageMapPool::MapEntry::operator == (const MapEntry & rS) const

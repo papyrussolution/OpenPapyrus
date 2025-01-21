@@ -1741,15 +1741,10 @@ int CPosProcessor::CalcRestByCrdCard_(int checkCurItem)
 					MessageError(PPERR_CHKPAN_SCOUTOFCRDLIMIT, sc_rec.Code, /*eomMsgWindow*/eomPopup|eomBeep);
 				}
 				else {
-					// @v10.9.0 add_paym = cc - (CSt.RestByCrdCard + CSt.MaxCreditByCrdCard);
-					// @v11.1.10 (возвращаем назад) add_paym = non_crd_amt - (cc + CSt.RestByCrdCard + CSt.MaxCreditByCrdCard); // @v10.9.0
+					// @v11.1.10 (возвращаем назад) add_paym = non_crd_amt - (cc + CSt.RestByCrdCard + CSt.MaxCreditByCrdCard);
 					add_paym = cc - (CSt.RestByCrdCard + CSt.MaxCreditByCrdCard); // @v11.1.10 (возвращаем назад)
 				}
 				if(!skip_crd_processing) {
-					/* @v10.9.0 if(add_paym <= 0.0)
-						add_paym = non_crd_amt;
-					else
-						add_paym += non_crd_amt;*/
 					if(Flags & fSCardBonus)
 						CSt.UsableBonus = MIN(MAX(cc, 0.0), init_rest);
 					else /*if(!(Flags & fSCardBonus))*/ { // Для бонусных карт запрос доплаты не выводится и сумма дебета не корректируется //
@@ -2136,7 +2131,6 @@ void CPosProcessor::Helper_SetupDiscount(double roundingDiscount, int distribute
 			part_amount += (p * qtty); // @debug
 		}
 	}
-	//delete p_scst; // @v10.1.6
 }
 
 void CPosProcessor::SetupDiscount(int distributeGiftDiscount /*=0*/)
@@ -2886,7 +2880,7 @@ int CPosProcessor::AutosaveCheck()
 				}
 				THROW(tra.Commit());
 			}
-			else if(mode != accmAveragePrinting || reprint_regular) { // @v10.6.12 (|| reprint_regular)
+			else if(mode != accmAveragePrinting || reprint_regular) {
 				THROW(StoreCheck(&epb.Pack, (epb.Flags & epb.fIsExtPack) ? &epb.ExtPack : 0, mode));
 			}
 			//
@@ -3616,11 +3610,9 @@ CheckPaneDialog::CheckPaneDialog(PPID cashNodeID, PPID checkID, CCheckPacket * p
 			showButton(cmChkPanPrint, 0);
 		showButton(cmToLocPrinters, 0);
 	}
-	// @v10.0.10 {
 	if(Flags & fLockBankPaym || !(OperRightsFlags & orfBanking)) {
 		setButtonBitmap(cmBanking, IDB_BANKINGDISABLED);
 	}
-	// } @v10.0.10
 	LastCtrlID = 0;
 }
 
@@ -4285,7 +4277,7 @@ int CPosProcessor::RecognizeCode(int mode, const char * pCode, int autoInput)
 				}
 			}
 			else
-				ok = MessageError(PPERR_GDSBYBARCODENFOUND, pCode, eomBeep|eomMsgWindow); // @v10.0.03 eomStatusLine-->eomMsgWindow
+				ok = MessageError(PPERR_GDSBYBARCODENFOUND, pCode, eomBeep|eomMsgWindow);
 		}
 		if(try_next && oneof2(mode, crmodeAuto, crmodeGoods)) {
 			ok = 0;
@@ -4699,11 +4691,11 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 									else
 										CDispCommand(cdispcmdChange, 0, paym_blk2.Amount, 0.0);
 									if(bnk_paym_result) {
-										PrintBankingSlip(0/*beforeReceipt*/, bnk_slip_buf); // @v10.9.11 Печатать банковский слип до чека
+										PrintBankingSlip(0/*beforeReceipt*/, bnk_slip_buf); // Печатать банковский слип до чека
 										// @v11.3.6 const  PPID alt_reg_id = (paym_blk2.AltCashReg > 0) ? AltRegisterID : 0;
 										const  PPID alt_reg_id = ((paym_blk2.Flags & PosPaymentBlock::fAltCashRegUse) && (paym_blk2.Flags & PosPaymentBlock::fAltCashRegEnabled)) ? AltRegisterID : 0; // @v11.3.6
 										AcceptCheck(&cc_id, &paym_blk2.CcPl, alt_reg_id, paym_blk2.NoteAmt, accmRegular);
-										PrintBankingSlip(1/*afterReceipt*/, bnk_slip_buf); // @v10.9.11 Печатать банковский слип после чека
+										PrintBankingSlip(1/*afterReceipt*/, bnk_slip_buf); // Печатать банковский слип после чека
 									}
 								}
 							}
@@ -5346,7 +5338,7 @@ int SelCheckListDialog::getDTS(_SelCheck * pSelCheck)
 				State &= ~stListUpdated;
 				long   chk_no = getCtrlLong(CTL_SELCHECK_CODE);
 				LDATE  dt = getCtrlView(CTL_SELCHECK_DATE) ? getCtrlDate(CTL_SELCHECK_DATE) : ZERODATE;
-				if(!checkdate(dt/*@v10.6.11 , 1*/))
+				if(!checkdate(dt))
 					dt = unprinted_only ? getcurdate_() : ZERODATE;
 				if(chk_no || dt) {
 					if(chk_no != LastChkNo || diffdate(dt, LastDate)) {
@@ -5936,7 +5928,6 @@ IMPL_HANDLE_EVENT(SelCheckListDialog)
 		}
 		else if(oneof2(TVCMD, cmLBItemSelected, cmLBItemFocused) && ev_ctl_id == CTL_SELCHECK_LIST)
 			SetupItemList();
-		// @v10.6.11 {
 		else if(event.isClusterClk(CTL_SELCHECK_UNFC)) {
 			const int org_unfc = BIN(State & stSelectUnfinished);
 			GetClusterData(CTL_SELCHECK_UNFC, &State);
@@ -5949,7 +5940,6 @@ IMPL_HANDLE_EVENT(SelCheckListDialog)
 				updateList(-1);
 			}
 		}
-		// } @v10.6.11
 		else if(TVCMD == cmSplitCheck) {
 			if(SplitCheck() > 0) {
 				State |= stListUpdated;
@@ -6033,7 +6023,7 @@ public:
 		AddClusterAssoc(CTL_CCHKDLVR_FLAGS, 0, Data.fDelivery);
 		AddClusterAssoc(CTL_CCHKDLVR_FLAGS, 1, Data.fSpFinished);
 		SetClusterData(CTL_CCHKDLVR_FLAGS, Data.Flags);
-		SetupPPObjCombo(this, CTLSEL_CCHKDLVR_CITY, PPOBJ_WORLD, NZOR(Data.Addr_.CityID, 0/*DefCityID*/), OLW_WORDSELECTOR, PPObjWorld::MakeExtraParam(WORLDOBJ_CITY, 0, 0)); // @v10.7.8 OLW_WORDSELECTOR
+		SetupPPObjCombo(this, CTLSEL_CCHKDLVR_CITY, PPOBJ_WORLD, NZOR(Data.Addr_.CityID, 0/*DefCityID*/), OLW_WORDSELECTOR, PPObjWorld::MakeExtraParam(WORLDOBJ_CITY, 0, 0));
 		SetupDeliveryCtrls(0);
 		if(DlvrPhone.NotEmpty()) {
 			Data.Flags |= Data.fDelivery;
@@ -6050,7 +6040,7 @@ public:
 		}
 		{
 			AddClusterAssoc(CTL_CCHKDLVR_LPHTOCRD, 0, Data.fAttachPhoneToSCard);
-			AddClusterAssoc(CTL_CCHKDLVR_LPHTOCRD, 1, Data.fCreateCardByPhone); // @v10.2.7
+			AddClusterAssoc(CTL_CCHKDLVR_LPHTOCRD, 1, Data.fCreateCardByPhone);
 			SetClusterData(CTL_CCHKDLVR_LPHTOCRD, Data.Flags);
 		}
 		return ok;
@@ -6060,11 +6050,11 @@ public:
 		int    ok = 1;
 		SString temp_buf;
 		const  PPID preserve_loc_id = CheckAddrModif(0) ? 0 : Data.Addr_.ID;
-		const  PPID preserve_init_user_id = Data.InitUserID; // @v10.6.8
+		const  PPID preserve_init_user_id = Data.InitUserID;
 		const LDATETIME preserve_init_dtm = Data.InitDtm;
 		Data.Z();
 		Data.Addr_.ID = preserve_loc_id;
-		Data.InitUserID = preserve_init_user_id; // @v10.6.8
+		Data.InitUserID = preserve_init_user_id;
 		Data.InitDtm = preserve_init_dtm;
 		getCtrlString(CTL_CCHKDLVR_MEMO, Data.Memo);
 		GetClusterData(CTL_CCHKDLVR_FLAGS, &Data.Flags);
@@ -6429,7 +6419,6 @@ private:
 							}
 						}
 					}
-					// @v10.2.7 {
 					if(sc_list.getCount()) {
 						SCardCtrlGroup::Rec scgrec;
 						getGroupData(ctlgrouSCard, &scgrec);
@@ -6438,11 +6427,10 @@ private:
 							setGroupData(ctlgrouSCard, &scgrec);
 						}
 					}
-					// } @v10.2.7
 				}
 			}
 		}
-		DisableClusterItem(CTL_CCHKDLVR_LPHTOCRD, 1, phone_buf.IsEmpty()); // @v10.2.7
+		DisableClusterItem(CTL_CCHKDLVR_LPHTOCRD, 1, phone_buf.IsEmpty());
 		{
 			const  uint c = AddrByPhoneList.getCount();
 			enableCommand(cmSelAddrByPhone, BIN(c));
@@ -7804,8 +7792,7 @@ int CheckPaneDialog::UpdateGList(int updGoodsList, PPID selGroupID)
 				Goods2Tbl::Rec grp_rec;
 				PPWaitStart();
 				if(GObj.Fetch(selGroupID, &grp_rec) > 0) {
-					// @v10.7.10 PPGetWord(PPWORD_GROUP, 0, grp_name).CatDiv(':', 2).Cat(grp_rec.Name);
-					PPLoadStringS("group", grp_name).CatDiv(':', 2).Cat(grp_rec.Name); // @v10.7.10
+					PPLoadStringS("group", grp_name).CatDiv(':', 2).Cat(grp_rec.Name);
 				}
 				else
 					grp_name.Z();
@@ -8380,7 +8367,7 @@ void CheckPaneDialog::setupRetCheck(int ret)
 				CCheckPacket  chk_pack;
 				if(!oneof2(GetState(), sLISTSEL_EMPTYBUF, sLISTSEL_BUF)) {
 					PPID   chk_id = 0;
-					PPLoadString("selectccheck_forrefund", temp_buf); // @v10.9.6
+					PPLoadString("selectccheck_forrefund", temp_buf);
 					if(SelectCheck(&chk_id, 0, temp_buf/*pTitle*/, 0) > 0) {
 						GetCc().LoadPacket(chk_id, 0, &SelPack);
 						//chk_pack.PPExtStrContainer::Copy(SelPack); // @v11.8.2
@@ -8959,7 +8946,7 @@ int CheckPaneDialog::RemoveRow()
 					p_def_->SetItemColor(i, SClrBlack, SColor(0xFC, 0xD5, 0xB4));
 				else if(p_item->Flags & cifPartOfComplex)
 					p_def_->SetItemColor(i, SClrBlack, SColor(0xD7, 0xE4, 0xBC));
-				else if(p_item->RemoteProcessingTa[0] && p_item->Flags & cifFixedPrice) // @v10.1.7
+				else if(p_item->RemoteProcessingTa[0] && p_item->Flags & cifFixedPrice)
 					p_def_->SetItemColor(i, SClrBlack, SClrCadetblue);
 				else
 					p_def_->ResetItemColor(i);
@@ -8974,8 +8961,7 @@ int CheckPaneDialog::RemoveRow()
 			SString buf;
 			setStaticText(CTL_CHKPAN_TOTAL, buf.Cat(cct.Amount, MKSFMTD(0, 2, NMBF_NOZERO)));
 			if(cct.Discount != 0.0) {
-				// @v10.7.11 PPGetWord(PPWORD_DISCOUNT, 0, buf).Colon().Cat(discount, SFMT_MONEY);
-				PPLoadStringS("discount", buf).Colon().Cat(cct.Discount, SFMT_MONEY); // @v10.7.11
+				PPLoadStringS("discount", buf).Colon().Cat(cct.Discount, SFMT_MONEY);
 			}
 			else
 				buf.Z();
@@ -9097,7 +9083,7 @@ int CheckPaneDialog::SelectSerial(PPID goodsID, SString & rSerial, double * pPri
 	const  SelLotBrowser::Entry * p_sel = 0;
 	int    r;
 	uint   s = 0;
-	const  LDATE curdt = getcurdate_(); // @v10.8.10 LConfig.OperDate-->getcurdate_()
+	const  LDATE curdt = getcurdate_();
 	double total_exp = 0.0; // Общий расход товара goodsID активными сессиями
 	SString serial;
 	DateIter diter;
@@ -9921,7 +9907,6 @@ int CheckPaneDialog::VerifyQuantity(PPID goodsID, double & rQtty, int adjustQtty
 					}
 				}
 			}
-			// @v10.8.0 {
 			if(pCurItem && !isempty(pCurItem->ChZnMark)) { 
 				PPGoodsType gt_rec;
 				// @v11.2.5 if(CnSpeciality == PPCashNode::spApteka) {
@@ -9950,7 +9935,6 @@ int CheckPaneDialog::VerifyQuantity(PPID goodsID, double & rQtty, int adjustQtty
 					}
 				}
 			}
-			// } @v10.8.0 
 			//
 			// Проверка на непревышение текущего остатка (при установленном флаге CASHF_ABOVEZEROSALE)
 			//
@@ -10073,7 +10057,7 @@ void CheckPaneDialog::AcceptQuantity()
 			}
 		}
 	}
-	if(is_input != 2) // @v10.2.1 При установке внешнего значение ввод очищать не следует
+	if(is_input != 2) // При установке внешнего значение ввод очищать не следует
 		ClearInput(0);
 }
 
@@ -10148,12 +10132,10 @@ public:
 	{
 		if(asSelector)
 			LocalState |= stAsSelector;
-		// @v10.9.0 {
 		{
 			PPObjSCardSeries scs_obj;
 			scs_obj.GetSeriesWithSpecialTreatment(SpcTrtScsList);
 		}
-		// } @v10.9.0 
 		addGroup(ctlgroupIBG, new ImageBrowseCtrlGroup(/*PPTXT_PICFILESEXTS,*/CTL_SCARDVIEW_IMAGE, cmAddImage, cmDelImage,
 			PsnObj.CheckRights(PSNRT_UPDIMAGE), ImageBrowseCtrlGroup::fUseExtOpenDlg));
 		selectCtrl(CTL_SCARDVIEW_INPUT);
@@ -10171,7 +10153,7 @@ public:
 		if(!(LocalState & stAsSelector))
 			showCtrl(STDCTL_OKBUTTON, 0);
 		showButton(cmActivate, 0);
-		showButton(cmVerify, 0); // @v10.1.5
+		showButton(cmVerify, 0);
 		SetupMode(modeCheckView, 1);
 	}
 	int    setDTS(const  PPID * pData)

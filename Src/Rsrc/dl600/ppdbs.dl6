@@ -855,7 +855,7 @@ table Goods2 {             // size=200
 	long   ManufID;        // Производитель           ->Person.ID               For PPOBJ_BRAND used as Owner // @v6.2.2 For PPOBJ_TRANSPORT used as Owner
 	long   StrucID;        // Структура товара        ->Ref(PPOBJ_GOODSSTRUC)
 	long   TaxGrpID;       // Группа налогообложения  ->Ref(PPOBJ_GOODSTAX)     For PPOBJ_PCKGTYPE used as Counter
-	long   WrOffGrpID;     // Группа списания         ->Ref(PPOBJ_ASSTWROFFGRP) For PPOBJ_PCKGTYPE used as GoodsGrpID // @v11.9.12 For PPOBJ_SWPROGRAM used as Category
+	long   WrOffGrpID;     // Группа списания         ->Ref(PPOBJ_ASSTWROFFGRP) For PPOBJ_PCKGTYPE used as GoodsGrpID // @v11.9.12 For PPOBJ_SWPROGRAM and PPOBJ_COMPUTER used as Category
 	long   Flags;          // Флаги GF_XXX
 	long   GdsClsID;       // ИД отраслевого класса товара ->Ref(PPOBJ_GDSCLS)  For PPOBJ_TRANSPORT used as TransportType
 	long   BrandID;        // Брэнд ->Goods2.ID (Kind = PPGDSK_BRAND [5])       // @v6.2.2 For PPOBJ_TRANSPORT used as TransportModel -->Ref(PPOBJ_TRANSPMODEL)

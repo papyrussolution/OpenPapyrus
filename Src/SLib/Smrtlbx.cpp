@@ -52,9 +52,9 @@ INT_PTR CALLBACK TreeListBoxDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPAR
 		case WM_KEYDOWN:
 		case WM_SYSKEYDOWN: ::SendMessageW(GetParent(hWnd), WM_VKEYTOITEM, MAKEWPARAM((WORD)wParam, 0), reinterpret_cast<LPARAM>(hWnd)); break; // Process by default
 		case WM_SETFOCUS:
-		case WM_KILLFOCUS: ::SendMessageW(GetParent(hWnd), uMsg, wParam, reinterpret_cast<LPARAM>(hWnd)); break;
-		case WM_CHAR: ::SendMessageW(GetParent(hWnd), uMsg, wParam, reinterpret_cast<LPARAM>(hWnd)); return 0;
-		case WM_NOTIFY: ::SendMessageW(GetParent(hWnd), uMsg, wParam, lParam); return 0;
+		case WM_KILLFOCUS:  ::SendMessageW(GetParent(hWnd), uMsg, wParam, reinterpret_cast<LPARAM>(hWnd)); break;
+		case WM_CHAR:       ::SendMessageW(GetParent(hWnd), uMsg, wParam, reinterpret_cast<LPARAM>(hWnd)); return 0;
+		case WM_NOTIFY:     ::SendMessageW(GetParent(hWnd), uMsg, wParam, lParam); return 0;
 		case WM_ERASEBKGND:
 			if(p_view && p_view->HasState(SmartListBox::stOwnerDraw)) {
 				TDrawItemData di;
@@ -170,7 +170,7 @@ INT_PTR CALLBACK ListViewDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
 //
 //
 SmartListBox::SmartListBox(const TRect & bounds, ListBoxDef * aDef, int isTreeList) : TView(bounds), Columns(sizeof(ColumnDescr)),
-	State(0), SrchPatternPos(0), ColumnsSpcPos(0), P_Def(0), Range(0), Height(0), Top(0), HIML(0), SrchFunc(PTR_CMPFUNC(_PcharNoCase))
+	State(0), SrchPatternPos(0), ColumnsSpcPos(0), P_Def(0), Range(0), ItemHeight(0), Top(0), HIML(0), SrchFunc(PTR_CMPFUNC(_PcharNoCase))
 {
 	SubSign = TV_SUBSIGN_LISTBOX;
 	StrPool.add("$"); // zero index - is empty string
@@ -273,10 +273,15 @@ bool SmartListBox::GetOrgColumnsDescr(SString & rBuf) const
 
 int SmartListBox::SetupColumns(const char * pColsBuf)
 {
+	constexpr uint default_column_width = 2; // @v12.2.4
 	RemoveColumns();
 	SString columns_buf(pColsBuf);
 	if(columns_buf.NotEmptyS()) {
-		SString cstr, citem, left, right, title_buf;
+		SString title_buf;
+		SString cstr;
+		SString citem;
+		SString left;
+		SString right;
 		if(columns_buf.Strip().C(0) == '@' && SLS.LoadString_(columns_buf.ShiftLeft(), cstr) > 0)
 			columns_buf = cstr;
 		columns_buf.Transf(CTRANSF_INNER_TO_OUTER);
@@ -285,11 +290,12 @@ int SmartListBox::SetupColumns(const char * pColsBuf)
 		for(uint columns_pos = 0; columns_ss.get(&columns_pos, cstr);) {
 			uint   pos = 0;
 			ss.setBuf(cstr);
-			uint   width = 0;
-			uint   format = 0;
+			uint   width = default_column_width; // @v12.2.4 0-->default_column_width
+			uint   format = ALIGN_LEFT; // @v12.2.4 0-->ALIGN_LEFT
 			title_buf.Z();
 			if(ss.get(&pos, citem)) {
 				width = static_cast<uint16>((citem.Divide('w', left, right) > 0) ? right.ToLong() : citem.ToLong());
+				SETIFZ(width, default_column_width); // @v12.2.4
 				if(ss.get(&pos, citem)) {
 					switch(toupper(citem.Strip().C(0))) {
 						case 'L': format |= ALIGN_LEFT; break;
@@ -489,7 +495,13 @@ int  SmartListBox::GetMaxListHeight()
 	RECT   list_rect;
 	::GetClientRect(Parent, &list_rect);
 	const int list_height = list_rect.bottom - list_rect.top;
-	const int item_height = ::SendMessageW(h_lb, LB_GETITEMHEIGHT, 0, 0);
+	int item_height = ::SendMessageW(h_lb, LB_GETITEMHEIGHT, 0, 0);
+	// @v12.2.4 {
+	if(item_height <= 0) {
+		int sihr = ::SendMessageW(h_lb, LB_SETITEMHEIGHT, 0, static_cast<LPARAM>(20));
+		item_height = ::SendMessageW(h_lb, LB_GETITEMHEIGHT, 0, 0);
+	}
+	// } @v12.2.4 
 	return (P_Def && P_Def->Options & lbtHSizeAlreadyDef) ? P_Def->ViewHight : (item_height ? (list_height-5) / item_height : 0);
 }
 
@@ -505,7 +517,6 @@ void SmartListBox::onInitDialog(int useScrollBar)
 	}
 	// } @v11.2.4 
 	if(State & stTreeList) {
-		//StdTreeListBoxDef * p_def = (StdTreeListBoxDef*)def;
 		dlg_proc = TreeListBoxDialogProc;
 	}
 	else {
@@ -540,14 +551,14 @@ void SmartListBox::onInitDialog(int useScrollBar)
 			::GetWindowRect(hwh, &rc);
 			item_height = rc.bottom - rc.top - 4;
 			SForEachVectorItem(Columns, i) { Helper_InsertColumn(i); }
-			Height = ((list_height-3) / item_height) - 1;
+			ItemHeight = ((list_height-3) / item_height) - 1;
 			ListView_SetExtendedListViewStyle(h_lb, LVS_EX_FULLROWSELECT|LVS_EX_GRIDLINES);
 		}
 		else {
-			Height = GetMaxListHeight();
+			ItemHeight = GetMaxListHeight();
 			/*
 			item_height = ::SendMessageW(h_lb, LB_GETITEMHEIGHT, 0, 0);
-			Height = (def && def->Options & lbtHSizeAlreadyDef) ? def->ViewHight : (item_height ? (list_height-5) / item_height : 0);
+			ItemHeight = (def && def->Options & lbtHSizeAlreadyDef) ? def->ViewHight : (item_height ? (list_height-5) / item_height : 0);
 			*/
 			if(P_Def) {
 				long   scroll_delta = 0;
@@ -559,7 +570,7 @@ void SmartListBox::onInitDialog(int useScrollBar)
 				SetScrollBarPos(scroll_pos, 1);
 			}
 		}
-		CALLPTRMEMB(P_Def, setViewHight(Height));
+		CALLPTRMEMB(P_Def, setViewHight(ItemHeight));
 		dlg_proc = IsMultiColumn() ? ListViewDialogProc : ListBoxDialogProc;
 	}
 	State |= stInited;
@@ -648,13 +659,8 @@ int  SmartListBox::SetupTreeWnd2(void * pParent)
 									//
 									// @? Здесь программа получает сообщение от системы, которое нигде ни используется!
 									//
-									//TCHAR temp_buf[256];
-									//::FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), temp_buf, SIZEOFARRAY(temp_buf), 0);
-									//(err_msg = SUcSwitch(temp_buf)).Chomp();
-									// @v10.3.11 {
 									SSystem::SFormatMessage(err_msg); 
 									err_msg.Chomp();
-									// } @v10.3.11
 								}
 							}
 						}
@@ -710,13 +716,8 @@ int  SmartListBox::SetupTreeWnd2(void * pParent)
 							//
 							// @? Здесь программа получает сообщение от системы, которое нигде ни используется!
 							//
-							//TCHAR temp_buf[256];
-							//::FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), temp_buf, SIZEOFARRAY(temp_buf), 0);
-							//(err_msg = SUcSwitch(temp_buf)).Chomp();
-							// @v10.3.11 {
 							SSystem::SFormatMessage(err_msg); 
 							err_msg.Chomp();
-							// } @v10.3.11
 						}
 						ok = 1;
 					}
@@ -810,7 +811,7 @@ int  SmartListBox::GetImageIdxByID(long id, long * pIdx)
 	return -1;
 }*/
 
-int  SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
+int SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	switch(uMsg) {
 		case WM_INITDIALOG:
@@ -971,9 +972,8 @@ int  SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 								if(!r_temp_buf.NotEmptyS())
 									r_temp_buf.Z().CatChar('#').Cat(lptvdi->item.lParam);
 								// } @debug
-								// @v10.3.10 r_temp_buf.Transf(CTRANSF_INNER_TO_OUTER).CopyTo(lptvdi->item.pszText, 0); // @unicodeproblem
-								r_temp_buf.Transf(CTRANSF_INNER_TO_OUTER); // @v10.3.10 
-								strnzcpy(lptvdi->item.pszText, SUcSwitch(r_temp_buf), lptvdi->item.cchTextMax); // @v10.3.10 
+								r_temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
+								strnzcpy(lptvdi->item.pszText, SUcSwitch(r_temp_buf), lptvdi->item.cchTextMax);
 							}
 							if(lptvdi->item.mask & (TVIF_IMAGE|TVIF_SELECTEDIMAGE)) {
 								long idx = 0;
@@ -998,7 +998,6 @@ int  SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 								StdTreeListBoxDef2_ * p_def = static_cast<StdTreeListBoxDef2_ *>(P_Def);
 								p_def->GoByID(pnmtv->itemNew.lParam);
 							}
-							//static_cast<StdTreeListBoxDef *>(def)->GoByID(pnmtv->itemNew.lParam);
 							if(P_Def->Options & lbtFocNotify)
 								MessageCommandToOwner(cmLBItemFocused);
 							if(State & stLButtonDown) {
@@ -1090,8 +1089,7 @@ int  SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 										}
 									}
 									else {
-										// @v10.2.12 @fix p_cd->clrText = p_cd->clrText;
-										// @v10.2.12 @fix p_cd->clrTextBk = p_cd->clrTextBk;
+										;
 									}
 								}
 								break;
@@ -1391,7 +1389,6 @@ UiSearchTextBlock::~UiSearchTextBlock()
 					int    x  = rc_parent.left;
 					int    y  = is_browser ? rc_parent.top : (rc_parent.top - ht);
 					::MoveWindow(hwndDlg, x, y, wd, ht, 0);
-					// @v10.7.7 {
 					{
 						HWND hw_input = GetDlgItem(hwndDlg, p_slb->InputCtlId);
 						if(hw_input) {
@@ -1400,7 +1397,6 @@ UiSearchTextBlock::~UiSearchTextBlock()
 							::MoveWindow(hw_input, rc_parent.left, rc_parent.top, rc_parent.right-rc_parent.left, rc_chld.bottom-rc_chld.top, 0);
 						}
 					}
-					// } @v10.7.7 
 				}
 				SendDlgItemMessage(hwndDlg, p_slb->InputCtlId, EM_SETLIMITTEXT, UISEARCHTEXTBLOCK_MAXLEN, 0);
 				TView::SSetWindowText(GetDlgItem(hwndDlg, p_slb->InputCtlId), (temp_buf = p_slb->Text).Transf(CTRANSF_INNER_TO_OUTER));
@@ -1562,9 +1558,9 @@ void FASTCALL SmartListBox::setDef(ListBoxDef * aDef)
 		P_Def = aDef;
 		setRange(P_Def->GetRecsCount());
 		if(P_Def->Options & lbtHSizeAlreadyDef)
-			Height = P_Def->ViewHight;
+			ItemHeight = P_Def->ViewHight;
 		else
-			P_Def->setViewHight(Height);
+			P_Def->setViewHight(ItemHeight);
 		P_Def->top();
 	}
 }
@@ -1663,13 +1659,12 @@ void SmartListBox::Implement_Draw()
 				if(HIML)
 		 			ListView_SetImageList(h_lb, HIML, LVSIL_SMALL);
 			}
-			if(Height) {
+			if(ItemHeight) {
 				long   first_item = 0;
 				long   last_item = 0;
 				StringSet ss(SLBColumnDelim);
 				if(cc) {
 					last_item  = P_Def->GetRecsCount();
-					// @v10.9.12 {
 					if(auto_calc_column_sizes/*&& first_item < last_item*/) {
 						LongArray column_text_size_list;
 						if(auto_calc_column_sizes == auotocalccolszNominal) {
@@ -1735,7 +1730,6 @@ void SmartListBox::Implement_Draw()
 								}
 							}
 						}
-						// } @v10.9.12 
 					}
 				}
 				/*else if(P_Def->_isSolid()) { // @v11.4.5
@@ -1876,7 +1870,7 @@ int WordSelectorSmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPA
 					}
 				}
 				else
-					code  = LOWORD(wParam); // @v10.3.2 (short code)-->code
+					code  = LOWORD(wParam);
 				if(P_Def->_curItem() == 0 && oneof3(code, SB_LINEUP, SB_PAGEUP, SB_TOP)) {
 					HWND parent = GetParent(getHandle());
 					WordSelector * p_selector = static_cast<WordSelector *>(TView::GetWindowUserData(parent));

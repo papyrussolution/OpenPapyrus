@@ -1,5 +1,5 @@
 // PPTEST.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2010, 2012, 2015, 2016, 2017, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2010, 2012, 2015, 2016, 2017, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8 // @v11.4.1
 //
 #include <pp.h>
@@ -1181,111 +1181,6 @@ int TestSStringPerf()
     return 1;
 }
 //
-//
-//
-#if 0 // @v10.2.4 {
-#include <fann.h>
-
-int TestFann()
-{
-	const size_t input_count = 48;
-	const size_t output_count = 1;
-	const uint   iter_count = 5; // Последняя итерация - только результат (без обучения)
-	int    ok = 1;
-#ifndef NDEBUG // {
-	uint   i;
-	//uint   layers[5] = {input_count, 512, 1024, 512, output_count};
-	LongArray _layers;
-	_layers.addzlist(input_count, 512, 1024, 512, output_count, 0);
-	Fann * p_ann1 = 0;
-	Fann * p_ann2 = 0;
-	float result1[output_count];
-	float result2[output_count];
-	float pre_result1[output_count];
-	float pre_result2[output_count];
-	THROW(p_ann1 = fann_create_standard_array(/*SIZEOFARRAY(layers), layers*/_layers));
-	p_ann1->SetTrainingAlgorithm(Fann::FANN_TRAIN_INCREMENTAL);
-	p_ann1->SetLearningRate(0.06f);
-	p_ann1->SetActivationFunctionHidden(Fann::FANN_SIN_SYMMETRIC/*FANN_SIGMOID_STEPWISE*/);
-	//fann_randomize_weights(p_ann1, 0, +873.0f);
-	THROW(p_ann2 = fann_create_standard_array(/*SIZEOFARRAY(layers), layers*/_layers));
-	p_ann2->SetTrainingAlgorithm(Fann::FANN_TRAIN_INCREMENTAL);
-	p_ann2->SetLearningRate(0.05f);
-	p_ann2->SetActivationFunctionHidden(Fann::FANN_COS_SYMMETRIC/*FANN_GAUSSIAN*/);
-	//fann_randomize_weights(p_ann2, 0, +911.0f);
-    {
-    	SString line_buf, input_buf;
-    	StringSet ss;
-    	LongArray pos_list;
-    	SFile f_in("D:\\Papyrus\\Src\\PPTEST\\DATA\\nn-test-01.txt", SFile::mRead);
-    	THROW_SL(f_in.IsValid());
-    	while(f_in.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
-			if(line_buf.NotEmpty()) {
-				uint   ss_pos = 0;
-				ss.add(line_buf, &ss_pos);
-				pos_list.add((long)ss_pos);
-			}
-    	}
-    	{
-    		SFile f_out("D:\\Papyrus\\Src\\PPTEST\\nn-test-outp-01.txt", SFile::mWrite);
-			pos_list.shuffle();
-			memzero(result1, sizeof(result1));
-			memzero(result2, sizeof(result2));
-			memzero(pre_result1, sizeof(pre_result1));
-			memzero(pre_result2, sizeof(pre_result2));
-			float init1 = -1.0f;
-			float init2 = -2.0f;
-			for(uint iter = 0; iter < iter_count; iter++) {
-				for(i = 0; i < pos_list.getCount(); i++) {
-					const uint ss_pos = pos_list.get(i);
-					ss.get(ss_pos, input_buf);
-					input_buf.Trim(input_count);
-					float input[input_count];
-					memzero(input, sizeof(input));
-					for(uint j = 0; j < input_buf.Len() && j < input_count; j++) {
-						input[j] = (float)(uchar)input_buf.C(j);
-					}
-					{
-						const float * p_temp_result = p_ann1->Run(input);
-						THROW(p_temp_result);
-						memcpy(pre_result1, p_temp_result, sizeof(pre_result1));
-					}
-					{
-						const float * p_temp_result = p_ann2->Run(input);
-						THROW(p_temp_result);
-						memcpy(pre_result2, p_temp_result, sizeof(pre_result2));
-					}
-					if(iter < (iter_count-1)) {
-						p_ann1->TrainWithOutput(input, pre_result2, result1);
-						p_ann2->TrainWithOutput(input, pre_result1, result2);
-						line_buf.Z().Cat(iter).Slash().Cat(i).Tab().
-							Cat(result1[0], MKSFMTD(0, 10, 0)).Tab().
-							Cat(result2[0], MKSFMTD(0, 10, 0)).Tab().
-							Cat(result2[0]-result1[0], MKSFMTD(0, 10, 0)).Tab().
-							Cat(input_buf).CR();
-					}
-					else {
-						line_buf.Z().Cat(iter).Slash().Cat(i).Tab().
-							Cat(pre_result1[0], MKSFMTD(0, 10, 0)).Tab().
-							Cat(pre_result2[0], MKSFMTD(0, 10, 0)).Tab().
-							Tab().
-							Cat(input_buf).CR();
-					}
-					f_out.WriteLine(line_buf);
-				}
-			}
-    	}
-	}
-    CATCH
-		ok = 0;
-    ENDCATCH
-	fann_destroy(p_ann1);
-	fann_destroy(p_ann2);
-#endif // } NDEBUG
-    return ok;
-}
-#endif // } @v10.2.4
-//
 // Construction tests
 // Ситуативные тесты, доступные через команду рабочего стола
 //
@@ -1859,7 +1754,6 @@ static void GumboTest()
 //
 //
 int TestSuffixTree(); //
-// @v10.2.4 int TestFann();
 int  TestFann2();
 int  LuaTest();
 int  CollectLldFileStat();
@@ -2073,7 +1967,6 @@ int DoConstructionTest()
 	//PPWhatmanWindow::Launch("D:/PAPYRUS/Src/PPTEST/DATA/test04.wtm");
 	//PPWhatmanWindow::Edit("D:/PAPYRUS/Src/PPTEST/DATA/test04.wtm", "D:/PAPYRUS/Src/PPTEST/DATA/test02.wta");
 	//TestSuffixTree();
-	//TestFann();
 	{
 		//TSCollection <PPBarcode::Entry> bc_list;
 		//PPBarcode::RecognizeImage("D:/Papyrus/Src/OSF/ZBAR/examples/barcode.png", bc_list);
@@ -2116,3 +2009,31 @@ int DoConstructionTest()
 }
 
 #endif // } 0 @construction
+//
+//
+//
+PPTestDbInfrastructure::PPTestDbInfrastructure()
+{
+}
+
+PPTestDbInfrastructure::~PPTestDbInfrastructure()
+{
+}
+
+int PPTestDbInfrastructure::SetupDatabaseObjects()
+{
+	// Здесь надо будет создать необходимые объекты данных.
+	int    ok = 1;
+	return ok;
+}
+
+int PPTestDbInfrastructure::_Case_TaxEvaluation()
+{
+	int    ok = -1;
+	/*
+		План теста:
+			-- Создаем налоговую группу
+			-- Создаем товарную позицию с заданной налоговой группой
+	*/ 
+	return ok;
+}

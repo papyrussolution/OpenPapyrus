@@ -6188,10 +6188,10 @@ int PPBillExporter::PutPacket(PPBillPacket * pPack, int sessId /*=0*/, ImpExpDll
 					(temp_buf = u_rec.Name).Transf(CTRANSF_INNER_TO_OUTER).CopyTo(brow.PhUnitName, sizeof(brow.PhUnitName));
 			}
 			{
-				gtv.CalcTI(*p_ti, pPack->Rec.OpID, TIAMT_PRICE, 0);
+				gtv.CalcBPTI(*pPack, *p_ti, TIAMT_PRICE);
 				brow.VatRate = gtv.GetTaxRate(GTAX_VAT, 0);
 				brow.VatSum  = gtv.GetValue(GTAXVF_VAT);
-				gtv.CalcTI(*p_ti, pPack->Rec.OpID, TIAMT_COST, 0);
+				gtv.CalcBPTI(*pPack, *p_ti, TIAMT_COST);
 				brow.CVatRate = gtv.GetTaxRate(GTAX_VAT, 0);
 				brow.CVatSum  = gtv.GetValue(GTAXVF_VAT);
 			}
@@ -6940,7 +6940,7 @@ int DocNalogRu_Generator::WriteInvoiceItems(const PPBillImpExpParam & rParam, co
 	if(correction) {
 		p_bobj->GetCorrectionBackChain(rBp.Rec, correction_bill_chain);
 	}
-	const int tiamt = (rBp.OutAmtType == TIAMT_COST) ? TIAMT_COST : ((rBp.OutAmtType == TIAMT_PRICE) ? TIAMT_PRICE : TIAMT_AMOUNT);
+	const int tiamt = (rBp.OutAmtType == TIAMT_COST) ? TIAMT_COST : ((rBp.OutAmtType == TIAMT_PRICE) ? TIAMT_PRICE : /*TIAMT_AMOUNT*/GTaxVect::GetTaxNominalAmountType(rBp.Rec));
 	SXml::WNode n_t(P_X, GetToken_Ansi(correction ? PPHSC_RU_CORRINVOICETAB : PPHSC_RU_INVOICETAB));
 	for(uint item_idx = 0; item_idx < rBp.GetTCount(); item_idx++) {
 		// <ÑâåäÒîâ ÍàëÑò="18%" ÍîìÑòð="1" ÍàèìÒîâ="Òîâàð" ÎÊÅÈ_Òîâ="796" ÊîëÒîâ="5" ÖåíàÒîâ="1.00" ÑòÒîâÁåçÍÄÑ="5.00" ÑòÒîâÓ÷Íàë="5.90">
@@ -7094,7 +7094,7 @@ int DocNalogRu_Generator::WriteInvoiceItems(const PPBillImpExpParam & rParam, co
 		}
 		{
 			GTaxVect gtv;
-			long   exclude_tax_flags = GTAXVF_SALESTAX;
+			const long exclude_tax_flags = GTAXVF_SALESTAX;
 			if(correction) {
 				double amt_wo_vat_before = 0.0;
 				double amt_wo_vat_after = 0.0;
@@ -7105,7 +7105,7 @@ int DocNalogRu_Generator::WriteInvoiceItems(const PPBillImpExpParam & rParam, co
 				double amt_before = 0.0;
 				double amt_after = 0.0;
 				{
-					gtv.CalcTI(r_ti, rBp.Rec.OpID, tiamt, exclude_tax_flags, -1);
+					gtv.CalcBPTI(rBp, r_ti, tiamt, exclude_tax_flags, -1);
 					{
 						if(rHi.Flags & FileInfo::fVatFree)
 							temp_buf.Z().Cat(GetToken_Ansi(PPHSC_RU_NOVAT_VAL));
@@ -7128,7 +7128,7 @@ int DocNalogRu_Generator::WriteInvoiceItems(const PPBillImpExpParam & rParam, co
 					excise_sum_before = gtv.GetValue(GTAXVF_EXCISE);
 				}
 				{
-					gtv.CalcTI(r_ti, rBp.Rec.OpID, tiamt, exclude_tax_flags, +1);
+					gtv.CalcBPTI(rBp, r_ti, tiamt, exclude_tax_flags, +1);
 					{
 						if(rHi.Flags & FileInfo::fVatFree)
 							temp_buf.Z().Cat(GetToken_Ansi(PPHSC_RU_NOVAT_VAL));
@@ -7223,7 +7223,7 @@ int DocNalogRu_Generator::WriteInvoiceItems(const PPBillImpExpParam & rParam, co
 					<xs:enumeration value="áåç ÍÄÑ"/>
 				</xs:restriction>
 				*/
-				gtv.CalcTI(r_ti, rBp.Rec.OpID, tiamt, exclude_tax_flags);
+				gtv.CalcBPTI(rBp, r_ti, tiamt, exclude_tax_flags);
 				{
 					if(rHi.Flags & FileInfo::fVatFree)
 						temp_buf.Z().Cat(GetToken_Ansi(PPHSC_RU_NOVAT_VAL));
@@ -8096,7 +8096,7 @@ int DocNalogRu_WriteBillBlock::Do_DP_REZRUISP(SString & rResultFileName)
 											//
 											GTaxVect gtv;
 											long   exclude_tax_flags = GTAXVF_SALESTAX;
-											gtv.CalcTI(r_ti, R_Bp.Rec.OpID, TIAMT_PRICE, exclude_tax_flags);
+											gtv.CalcBPTI(R_Bp, r_ti, TIAMT_PRICE, exclude_tax_flags);
 											double vat_rate = gtv.GetTaxRate(GTAX_VAT, 0);
 											temp_buf.Z().Cat(vat_rate, MKSFMTD(0, 0, NMBF_NOTRAILZ)).CatChar('%');
 											n_471.PutAttribSkipEmpty(GetToken(PPHSC_RU_TAXRATE), temp_buf); // @optional

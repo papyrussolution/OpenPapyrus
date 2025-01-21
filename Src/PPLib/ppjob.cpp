@@ -301,8 +301,7 @@ int PPJobMngr::LoadPool2(const char * pDbSymb, PPJobPool * pPool, bool readOnly)
 							else if(SXml::GetContentByName(p_hdr_node, "LastID", temp_buf))
 								hdr.LastId = temp_buf.ToLong();
 							else if(SXml::GetContentByName(p_hdr_node, "PpyVersion", temp_buf)) {
-								// @v10.9.12 hdr.Ver = temp_buf.ToLong();
-								hdr.Ver.FromStr(temp_buf); // @v10.9.12
+								hdr.Ver.FromStr(temp_buf);
 							}
 						}
 						hdr.Signature = JOBSTRGSIGN;
@@ -1500,16 +1499,12 @@ public:
 	virtual int Run(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = 1;
-		// @v10.3.0 (never used) PPCashMachine * p_cm = 0;
 		CashNodeParam param;
 		THROW(param.Read(*pParam, 0));
 		THROW(!PPObjCashNode::IsLocked(param.CashNodeID));
 		param.Period.Actualize(ZERODATE);
-		THROW(PPCashMachine::AsyncCloseSession2(param.CashNodeID, &param.Period)); // @v10.1.1
-		// @v10.1.1 THROW(p_cm = PPCashMachine::CreateInstance(param.CashNodeID));
-		// @v10.1.1 THROW(p_cm->AsyncCloseSession(0, &param.Period));
+		THROW(PPCashMachine::AsyncCloseSession2(param.CashNodeID, &param.Period));
 		CATCHZOK
-		// @v10.3.0 (never used) delete p_cm;
 		return ok;
 	}
 };
@@ -1732,8 +1727,6 @@ public:
 	SString UserPassword;
 };
 
-// @v10.5.5 (replaced with PPConst::LaunchAppParam_Signature)#define SIGNATURE_LAUNCHAPPPARAM 0x4c484150L // 'LHAP'
-
 LaunchAppParam::LaunchAppParam() : Signature(PPConst::Signature_LaunchAppParam), Ver(0), Flags(0)
 {
 	memzero(Reserve, sizeof(Reserve));
@@ -1894,7 +1887,7 @@ public:
 			strnzcpy(static_cast<TCHAR *>(cmd_line.vptr()), SUcSwitch(temp_buf), cmd_line.GetSize()/sizeof(TCHAR));
 			int    r = ::CreateProcess(0, static_cast<TCHAR *>(cmd_line.vptr()), 0, 0, FALSE, 0, 0, 0, &si, &pi); // @unicodeproblem
 			if(!r) {
-				SLS.SetOsError(0);
+				SLS.SetOsError(0, 0);
 				PPSetErrorSLib();
 				PPError();
 			}
@@ -2267,7 +2260,7 @@ IMPL_HANDLE_EVENT(ExportBillsFiltDialog)
 		}
 		// @vmiller {
 		else if(event.isClusterClk(CTL_BILLEXPFILT_FLAGS)) {
-			long   id = 0; // @v10.4.0 uint-->long
+			long   id = 0;
 			uint   p = 0;
 			PPBillImpExpParam bill_param, brow_param;
 			GetClusterData(CTL_BILLEXPFILT_FLAGS, &Data.Flags);
@@ -2473,7 +2466,7 @@ public:
 	}
 	ExportGoodsParam & Z()
 	{
-		LocID = 0; // @v10.9.5
+		LocID = 0;
 		Filt.Init(1, 0);
 		ExpCfg.Z();
 		return *this;
@@ -2499,17 +2492,15 @@ public:
 	int Write(SBuffer & rBuf, long)
 	{
 		int    ok = 1;
-		// @v10.9.5 {
 		uint32 _signature = ExportGoodsParam::Signature; 
 		THROW_SL(rBuf.Write(_signature));
 		THROW_SL(rBuf.Write(LocID));
-		// } @v10.9.5
 		THROW(Filt.Write(rBuf, 0));
 		THROW(rBuf.Write(ExpCfg));
 		CATCHZOK
 		return ok;
 	}
-	PPID   LocID; // @v10.9.5
+	PPID   LocID;
 	SString ExpCfg;
 	GoodsFilt Filt;
 };
@@ -2553,7 +2544,7 @@ public:
 			GetParamByName(Data.ExpCfg, &param);
 			const uint id = (CfgList.SearchByTextNc(param.Name, &p) > 0) ? static_cast<uint>(CfgList.Get(p).Id) : 0;
 			SetupStrAssocCombo(this, CTLSEL_GOODSEXPFILT_CFG, CfgList, static_cast<long>(id), 0);
-			SetupLocationCombo(this, CTLSEL_GOODSEXPFILT_LOC, Data.LocID, 0, 0); // @v10.9.5
+			SetupLocationCombo(this, CTLSEL_GOODSEXPFILT_LOC, Data.LocID, 0, 0);
 		}
 		return ok;
 	}
@@ -2629,7 +2620,7 @@ public:
 			PPGoodsImpExpParam ie_param;
 			THROW(ExportGoodsFiltDialog::GetParamByName(param.ExpCfg, &ie_param));
 			THROW(view.Init_(&param.Filt));
-			ie_param.LocID = param.LocID; // @v10.9.5
+			ie_param.LocID = param.LocID;
 			ok = view.Export(&ie_param);
 		}
 		CATCHZOK

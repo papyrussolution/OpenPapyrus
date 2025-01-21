@@ -363,11 +363,12 @@ void TDialog::RemoveUnusedControls()
 		case WM_MEASUREITEM:
 			{
 				MEASUREITEMSTRUCT * p_mis = reinterpret_cast<MEASUREITEMSTRUCT *>(lParam);
-				for(int i = 0; i < 32; i++)
+				for(int i = 0; i < 32; i++) {
 					if(OwnerDrawCtrls[i].CtrlID == wParam) {
 						p_mis->itemHeight = OwnerDrawCtrls[i].ExtraParam;
 						break;
 					}
+				}
 				APPL->DrawControl(hwndDlg, uMsg, wParam, lParam);
 			}
 			return TRUE;

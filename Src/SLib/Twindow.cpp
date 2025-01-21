@@ -1,7 +1,7 @@
 // TWINDOW.CPP  Turbo Vision 1.0
 // Copyright (c) 1991 by Borland International
 // @codepage UTF-8
-// Modified and adopted by A.Sobolev 1996-2001, 2002, 2003, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Modified and adopted by A.Sobolev 1996-2001, 2002, 2003, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -847,13 +847,13 @@ void FASTCALL TWindow::setSubTitle(const char * pBuf)
 
 void TWindow::showLocalMenu()
 {
-	if(Toolbar.getItemsCount()) {
+	if(ToolbarL.getItemsCount()) {
 		TMenuPopup menu;
 		ToolbarItem item;
-		for(uint i = 0; Toolbar.enumItems(&i, &item);) {
+		for(uint i = 0; ToolbarL.enumItems(&i, &item);) {
 			if(item.KeyCode != TV_MENUSEPARATOR)
 				menu.Add(item.ToolTipText, 0, item.KeyCode);
-			else if(i < Toolbar.getItemsCount()) // Последний разделитель не заносим
+			else if(i < ToolbarL.getItemsCount()) // Последний разделитель не заносим
 				menu.AddSeparator();
 		}
 		uint   cmd = 0;
@@ -871,8 +871,8 @@ int TWindow::translateKeyCode(ushort keyCode, uint * pCmd) const
 {
 	int    ok = 0;
 	uint   idx = 0;
-	if(Toolbar.searchKeyCode(keyCode, &idx)) {
-		const ToolbarItem & r_item = Toolbar.getItem(idx);
+	if(ToolbarL.searchKeyCode(keyCode, &idx)) {
+		const ToolbarItem & r_item = ToolbarL.getItem(idx);
 		if(r_item.Cmd) {
 			ASSIGN_PTR(pCmd, static_cast<uint>(r_item.Cmd));
 			ok = 1;
@@ -883,8 +883,8 @@ int TWindow::translateKeyCode(ushort keyCode, uint * pCmd) const
 
 void TWindow::setupToolbar(const ToolbarList * pToolbar)
 {
-	if(!RVALUEPTR(Toolbar, pToolbar))
-		Toolbar.clearAll();
+	if(!RVALUEPTR(ToolbarL, pToolbar))
+		ToolbarL.clearAll();
 }
 
 int TWindow::LoadToolbarResource(uint toolbarResourceId)
@@ -919,7 +919,7 @@ HWND TWindow::showToolbar()
 	HIMAGELIST himl = ImageList_Create(GetSystemMetrics(SM_CXSMICON), GetSystemMetrics(SM_CYSMICON), ILC_COLOR32, 16, 64);
  	::SendMessage(h_tool_bar, CCM_SETVERSION, 5, 0);
 	ToolbarItem item;
-	for(uint i = 0; Toolbar.enumItems(&i, &item);) {
+	for(uint i = 0; ToolbarL.enumItems(&i, &item);) {
 		if(!(item.Flags & ToolbarItem::fHidden)) {
 			TBBUTTON btns;
 			/*
@@ -1170,7 +1170,6 @@ static LPCTSTR P_SLibWindowBaseClsName = _T("SLibWindowBase");
 		pView->ResetOwnerCurrent();
 		if(!pView->IsInState(sfModal)) {
 			APPL->P_DeskTop->remove(pView);
-			// @v10.9.11 Поменял порядок следующих двух операторов
 			TView::SetWindowUserData(hWnd, 0);
 			delete pView;
 		}
@@ -1195,13 +1194,11 @@ TWindowBase::~TWindowBase()
 			Sf &= ~sfOnDestroy;
 		}
 	}
-	// @v10.9.3 {
 	if(P_Lfc && !(Sf & (sfOnDestroy|sfOnParentDestruction))) {
 		if(!P_Lfc->FatherKillMe())
 			delete P_Lfc;
 		P_Lfc = 0;
 	}
-	// } @v10.9.3 
 }
 
 int TWindowBase::Create(void * hParentWnd, long createOptions)
@@ -1272,9 +1269,7 @@ int TWindowBase::AddChild(TWindowBase * pWin, long createOptions, long zone)
 	int    ok = 1;
 	if(pWin) {
 		pWin->Create(HW, createOptions);
-		// @v10.9.3 if(zone) Layout_Obsolete.InsertWindow(zone, pWin, 0, 0);
 		TWindow::Insert_(pWin);
-		// @v10.9.3 Layout_Obsolete.Arrange();
 		::ShowWindow(pWin->H(), SW_SHOWNORMAL);
 		::UpdateWindow(H());
 	}
@@ -1294,7 +1289,6 @@ void TWindowBase::SetupLayoutItem(void * pLayout)
 	}
 }
 
-// @v10.9.3 {
 int TWindowBase::AddChildWithLayout(TWindowBase * pChildWindow, long createOptions, void * pLayout) 
 {
 	int    ok = 1;
@@ -1313,7 +1307,6 @@ int TWindowBase::AddChildWithLayout(TWindowBase * pChildWindow, long createOptio
 	}
 	return ok;
 }
-// } @v10.9.3 
 
 IMPL_HANDLE_EVENT(TWindowBase)
 {
@@ -1354,7 +1347,7 @@ IMPL_HANDLE_EVENT(TWindowBase)
 			}
 			else if(event.isCmd(cmSetBounds)) {
 				const TRect * p_rc = static_cast<const TRect *>(TVINFOPTR);
-				::SetWindowPos(H(), 0, p_rc->a.x, p_rc->a.y, p_rc->width(), p_rc->height(), SWP_NOZORDER/* @v10.9.3 |SWP_NOREDRAW*/|SWP_NOREDRAW|SWP_NOCOPYBITS);
+				::SetWindowPos(H(), 0, p_rc->a.x, p_rc->a.y, p_rc->width(), p_rc->height(), SWP_NOZORDER|SWP_NOREDRAW|SWP_NOCOPYBITS);
 				clearEvent(event);
 			}
 			else if(event.isCmd(cmSize)) {

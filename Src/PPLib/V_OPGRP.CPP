@@ -1,5 +1,5 @@
 // V_OPGRP.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -91,8 +91,7 @@ int PPViewOpGrouping::Init_(const PPBaseFilt * pBaseFilt)
 	Filt.ShipmentPeriod.Actualize(ZERODATE);
 	CycleList.init2(&Filt.Period, &Filt.Cycl);
 	//
-	// Если заданы группа товара или товар, то колонки
-	// по дополнительному типу товара получить нельзя.
+	// Если заданы группа товара или товар, то колонки по дополнительному типу товара получить нельзя.
 	//
 	if(Filt.GoodsGrpID || Filt.GoodsID)
 		Filt.ExtGoodsTypeID = 0;
@@ -979,7 +978,7 @@ int PPViewOpGrouping::EnumBillList(uint * pPos, OpGroupingViewItem * pItem)
 				item.VatSum    = amt_list.Get(PPAMT_VATAX, 0L);
 				//
 				BillTotalData btd;
-				P_ViewBill->CalcItemTotal(bill_item.ID, &btd);
+				P_ViewBill->CalcItemTotal(bill_item.ID, btd);
 				item.LnCount   = btd.LinesCount;
 				item.Qtty      = fabs(btd.UnitsCount);
 				item.PhQtty    = fabs(btd.PhUnitsCount);
@@ -1000,7 +999,9 @@ int PPViewOpGrouping::ViewGraph(const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = -1;
 	const  int col = pBrw ? pBrw->GetCurColumn() : -1;
-	SString line_text, temp_buf, op_name;
+	SString temp_buf;
+	SString line_text;
+	SString op_name;
 	Generator_GnuPlot plot(0);
 	Generator_GnuPlot::PlotParam param;
 	if(CycleList.getCount()) {
@@ -1046,8 +1047,7 @@ int PPViewOpGrouping::ViewGraph(const void * pHdr, PPViewBrowser * pBrw)
 					break;
 				case  9:
 					si = siCount;
-					PPLoadString("linecount", line_text); // @v9.3.1
-					// @v9.3.1 (line_text = "Количество строк").ToOem();
+					PPLoadString("linecount", line_text);
 					break;
 				case 10:
 					si = siAmount;
@@ -1141,7 +1141,7 @@ int PPViewOpGrouping::ViewGraph(const void * pHdr, PPViewBrowser * pBrw)
 
 		LAssocArray op_list;
 		TSCollection <OpGroupingStatEntry> stat_list[siNumItems];
-		TSVector <OpGroupingViewItem> item_list; // @v9.8.4 TSArray-->TSVector
+		TSVector <OpGroupingViewItem> item_list;
 		THROW(CreateStatList(&op_list, &item_list, stat_list));
 		plot.StartData(1);
 		double _min = GetStatItem(CYCLESTAT_MIN, cur_op_id, cur_sign, si, stat_list);
@@ -1267,7 +1267,7 @@ int PPALDD_OpGrouping::NextIteration(PPIterID iterId)
 			I.GoodsTaxGrpID = item.GoodsTaxGrpID;
 			I.LotTaxGrpID = item.LotTaxGrpID;
 			if(oneof2(item.OpID, -1, 10000) && p_filt->Flags & OpGroupingFilt::fPrnBillList)
-				PTR32(I.OpName)[0] = 0;
+				I.OpName[0] = 0;
 			else
 				STRNSCPY(I.OpName, item.OpName);
 			I.Sign     = item.Sign;
@@ -1323,4 +1323,3 @@ int PPALDD_OpGrouping::NextIteration(PPIterID iterId)
 }
 
 void PPALDD_OpGrouping::Destroy() { DESTROY_PPVIEW_ALDD(OpGrouping); }
-

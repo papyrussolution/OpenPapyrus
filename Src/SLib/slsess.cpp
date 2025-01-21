@@ -898,9 +898,9 @@ bool FASTCALL SlSession::SetError(int errCode)
 	return false;
 }
 
-bool FASTCALL SlSession::SetOsError(const char * pAddedMsg)
+bool SlSession::SetOsError(int outerOsErrCode, const char * pAddedMsg)
 {
-	const int last_err = ::GetLastError();
+	const int last_err = NZOR(outerOsErrCode, ::GetLastError());
 	SlThreadLocalArea & r_tla = GetTLA();
 	if(&r_tla) {
 		//

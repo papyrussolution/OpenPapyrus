@@ -1203,7 +1203,7 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 					double vat_in_cost = 0.0;
 					{
 						GTaxVect gtv;
-						gtv.CalcTI(r_ti, p_bp->Rec.OpID, TIAMT_PRICE);
+						gtv.CalcBPTI(*p_bp, r_ti, TIAMT_PRICE);
 						vat_in_cost = gtv.GetValue(GTAXVF_VAT) / fabs(r_ti.Quantity_);
 					}
 					p_bp->XcL.Get(i+1, 0, lotxcode_set);
@@ -1300,7 +1300,7 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 						double vat_in_cost = 0.0;
 						{
 							GTaxVect gtv;
-							gtv.CalcTI(r_ti, p_bp->Rec.OpID, TIAMT_PRICE);
+							gtv.CalcBPTI(*p_bp, r_ti, TIAMT_PRICE);
 							vat_in_cost = gtv.GetValue(GTAXVF_VAT) / fabs(r_ti.Quantity_);
 						}
 						p_bp->XcL.Get(i+1, 0, lotxcode_set);
@@ -1433,7 +1433,7 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 													double cost = R2(ccitem.Price - ccitem.Discount);
 													double vat_in_cost = 0.0;
 													PPGoodsTaxEntry gtx;
-													if(goods_obj.FetchTax(ccitem.GoodsID, p_ccp->Rec.Dt, 0, &gtx) > 0) {
+													if(goods_obj.FetchTaxEntry2(ccitem.GoodsID, 0/*lotID*/, 0/*taxPayerID*/, p_ccp->Rec.Dt, 0, &gtx) > 0) {
 														GTaxVect gtv;
 														gtv.Calc_(gtx, cost, 1.0, GTAXVF_BEFORETAXES, 0);
 														vat_in_cost = gtv.GetValue(GTAXVF_VAT);
@@ -1493,7 +1493,7 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 								double vat_in_cost = 0.0;
 								{
 									GTaxVect gtv;
-									gtv.CalcTI(r_ti, p_bp->Rec.OpID, TIAMT_COST);
+									gtv.CalcBPTI(*p_bp, r_ti, TIAMT_COST);
 									vat_in_cost = gtv.GetValue(GTAXVF_VAT) / fabs(r_ti.Quantity_);
 								}
 								p_bp->XcL.Get(i+1, 0, lotxcode_set);
@@ -1565,7 +1565,7 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 								double vat_in_cost = 0.0;
 								{
 									GTaxVect gtv;
-									gtv.CalcTI(r_ti, p_bp->Rec.OpID, TIAMT_COST);
+									gtv.CalcBPTI(*p_bp, r_ti, TIAMT_COST);
 									vat_in_cost = gtv.GetValue(GTAXVF_VAT) / fabs(r_ti.Quantity_);
 								}
 								p_bp->XcL.Get(i+1, 0, lotxcode_set);
@@ -1785,7 +1785,7 @@ int ChZnInterface::GetSign(const InitBlock & rIb, const void * pData, size_t dat
 			strnzcpy(static_cast<TCHAR *>(cmd_line.vptr()), SUcSwitch(temp_buf), cmd_line.GetSize() / sizeof(TCHAR));
 			int    r = ::CreateProcess(0, static_cast<TCHAR *>(cmd_line.vptr()), 0, 0, FALSE, 0, 0, 0, &si, &pi);
 			if(!r) {
-				SLS.SetOsError(0);
+				SLS.SetOsError(0, 0);
 				CALLEXCEPT_PP(PPERR_SLIB);
 			}
 			WaitForSingleObject(pi.hProcess, INFINITE); // Wait until child process exits.

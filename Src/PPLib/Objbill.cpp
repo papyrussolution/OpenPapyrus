@@ -126,8 +126,7 @@ TLP_IMPL(PPObjBill, AdvBillItemTbl, P_AdvBI);
 TLP_IMPL(PPObjBill, LotExtCodeCore, P_LotXcT);
 
 PPObjBill::PPObjBill(void * extraPtr) : PPObject(PPOBJ_BILL), CcFlags(CConfig.Flags), P_CpTrfr(0),
-	P_AdvBI(0), P_InvT(0), P_GsT(0), P_ScObj(0), /*HistBill(0),*/ P_LotXcT(0), P_Cr(0), ExtraPtr(extraPtr),
-	State2(0) /*, DemoRestrict(-1)*/
+	P_AdvBI(0), P_InvT(0), P_GsT(0), P_ScObj(0), P_LotXcT(0), P_Cr(0), ExtraPtr(extraPtr), State2(0)
 {
 	atobj   = new PPObjAccTurn(0);
 	P_OpObj = new PPObjOprKind(0);
@@ -481,7 +480,7 @@ int PPObjBill::ValidatePacket(PPBillPacket * pPack, long flags)
 						PPGoodsType2 gt_rec;
 						if(GObj.Fetch(r_ti.GoodsID, &goods_rec) > 0) {
 							if(bs_rec.CheckFields & BILCHECKF_LNEXPLVATRATE) {
-								THROW_PP(GObj.FetchTax(r_ti.GoodsID, pPack->Rec.Dt, pPack->Rec.OpID, &gtx) > 0 && gtx.GetVatRate() > 0.0, PPERR_BILLSTCHECKFLD_LNEXPLVATRATE);
+								THROW_PP(GObj.FetchTaxEntry2(r_ti.GoodsID, 0/*lotID*/, 0/*taxPayerID*/, pPack->Rec.Dt, pPack->Rec.OpID, &gtx) > 0 && gtx.GetVatRate() > 0.0, PPERR_BILLSTCHECKFLD_LNEXPLVATRATE);
 							}
 							if(bs_rec.CheckFields & BILCHECKF_LNCHZNMARKS) {
 								if(goods_rec.GoodsTypeID && GObj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0) {
@@ -5401,11 +5400,6 @@ int PPObjBill::SetupQuot(PPBillPacket * pPack, PPID forceArID)
 			uint i;
 			PPClientAgreement cliagt;
 			ArObj.GetClientAgreement(pPack->Rec.Object, cliagt, 1);
-			/* @construction {
-			// @v7.3.12 {
-			if(cliagt.DefQuotKindID && qkobj.Fetch(cliagt.DefQuotKindID, &qk_rec) > 0)
-				qk_id = cliagt.DefQuotKindID;
-			} @construction */
 			if(p_qbo_ary->getCount() > 1) {
 				qk_id = NZOR(pPack->QuotKindID, static_cast<const PPObjQuotKind::ListEntry *>(p_qbo_ary->at(0))->ID);
 				int  valid_data = 0;
@@ -5443,7 +5437,6 @@ int PPObjBill::SetupQuot(PPBillPacket * pPack, PPID forceArID)
 					if(GObj.GetQuotExt(p_ti->GoodsID, qi, p_ti->Cost, p_ti->Price, &quot, 1) > 0) {
 						bool skip = false; // @v11.1.3
 						//
-						// @v9.2.7 {
 						// Специальный случай - для отгрузки, привязанной к заказу, принятому из некоторых
 						// систем, требуется поправлять конечную цену на величину процентной скидки из заказа
 						// @iSales
@@ -5481,7 +5474,6 @@ int PPObjBill::SetupQuot(PPBillPacket * pPack, PPID forceArID)
 								}
 							}
 						}
-						// } @v9.2.7
 						if(!skip) {
 							if(cliagt.Flags & AGTF_PRICEROUNDING) {
 								quot = p_ti->RoundPrice(quot, cliagt.PriceRoundPrec, cliagt.PriceRoundDir,
@@ -6648,16 +6640,17 @@ int PPObjBill::GetTagListByLot(PPID lotID, int skipReserveTags, ObjTagList * pLi
 	return ok;
 }
 
-int PPObjBill::GetClbNumberByLot(PPID lotID, int * pIsParentLot, SString & rBuf)
+int PPObjBill::GetClbNumberByLot(PPID lotID, bool * pIsParentLot, SString & rBuf)
 {
 	int    ok = -1;
-	int    is_parent_lot = 0;
+	Reference * p_ref = PPRef;
+	bool   is_parent_lot = false;
 	rBuf.Z();
 	if(lotID) {
 		ObjTagItem oti;
 		PPIDArray lot_id_list;
 		do {
-			if(PPRef->Ot.EnumTags(PPOBJ_LOT, lotID, PPTAG_LOT_CLB, 0, &oti) > 0 && oti.Val.PStr) {
+			if(p_ref->Ot.EnumTags(PPOBJ_LOT, lotID, PPTAG_LOT_CLB, 0, &oti) > 0 && oti.Val.PStr) {
 				(rBuf = oti.Val.PStr).Strip();
 				ASSIGN_PTR(pIsParentLot, is_parent_lot);
 				ok = 1;
@@ -6665,7 +6658,7 @@ int PPObjBill::GetClbNumberByLot(PPID lotID, int * pIsParentLot, SString & rBuf)
 			else if(trfr->Rcpt.Search(lotID, 0) > 0) {
 				lotID = trfr->Rcpt.data.PrevLotID;
 				if(lot_id_list.addUnique(lotID) > 0)
-					is_parent_lot = 1;
+					is_parent_lot = true;
 				else
 					lotID = 0;
 			}
@@ -9453,7 +9446,8 @@ int PPObjBill::UniteReceiptBill(PPID destBillID, const PPIDArray & rSrcList, int
 				/*PPID*/ src_lot_id  = ti.LotID;
 				PPID   dest_lot_id = 0;
 				PPID   goods_id    = ti.GoodsID;
-				int    src_is_derived = 0, dest_is_derived = 0;
+				bool   src_is_derived = false;
+				bool   dest_is_derived = false;
 				GetClbNumberByLot(src_lot_id, &src_is_derived, src_clb);
 				if(ary.BSearch(goods_id, &dest_lot_id, &pos)) {
 					tmlof |= TMLOF_ADDLOTS;

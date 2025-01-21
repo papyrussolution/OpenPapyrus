@@ -12071,10 +12071,7 @@ void RunStyloQMqbServer()
 	return ok;
 }
 
-uint PPStyloQInterchange::GetNominalSessionLifeTimeSec() const
-{
-	return 3600;
-}
+uint PPStyloQInterchange::GetNominalSessionLifeTimeSec() const { return 3600; }
 
 int PPStyloQInterchange::RunStyloQLocalMqbServer(RunServerParam & rP, const DbLoginBlock * pDlb)
 {

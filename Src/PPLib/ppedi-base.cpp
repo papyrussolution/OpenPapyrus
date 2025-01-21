@@ -1,5 +1,5 @@
 // PPEDI-BASE.CPP
-// Copyright (c) A.Sobolev 2018, 2020, 2021, 2022, 2024
+// Copyright (c) A.Sobolev 2018, 2020, 2021, 2022, 2024, 2025
 // @codepage UTF-8
 // Attention! Этот исходный файл включается самостоятельно в специализированные модули обмена 
 // с различными провайдерами. Поэтому он не должен зависеть от других функций и классов
@@ -63,13 +63,13 @@ SEancomXmlSegment::DTM & SEancomXmlSegment::DTM::Z()
 
 SEancomXmlSegment::MOA::MOA() : Type(0), Value(0.0)
 {
-	PTR32(CurrencySymb)[0] = 0;
+	CurrencySymb[0] = 0;
 }
 		
 SEancomXmlSegment::MOA & SEancomXmlSegment::MOA::Z()
 {
 	Type = 0;
-	PTR32(CurrencySymb)[0] = 0;
+	CurrencySymb[0] = 0;
 	Value = 0.0;
 	return *this;
 }
@@ -82,9 +82,9 @@ SEancomXmlSegment::NAD::NAD()
 SEancomXmlSegment::NAD & SEancomXmlSegment::NAD::Z()
 {
 	Type = 0;
-	PTR32(GLN)[0] = 0;
-	PTR32(CountryCode)[0] = 0;
-	PTR32(PostalCode)[0] = 0;
+	GLN[0] = 0;
+	CountryCode[0] = 0;
+	PostalCode[0] = 0;
 	Name = 0;
 	City = 0;
 	Address = 0;

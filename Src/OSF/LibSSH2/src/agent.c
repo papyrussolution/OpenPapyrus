@@ -230,7 +230,7 @@ static int agent_connect_pageant(LIBSSH2_AGENT * agent)
 static int agent_transact_pageant(LIBSSH2_AGENT * agent, agent_transaction_ctx_t transctx)
 {
 	HWND hwnd;
-	char mapname[64]; // @v10.3.11 [23]-->[64]
+	char mapname[64];
 	HANDLE filemap;
 	uchar * p;
 	uchar * p2;

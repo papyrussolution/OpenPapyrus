@@ -3907,7 +3907,7 @@ void PPBillPacket::SetTotalDiscount(double dis, int pctdis, int rmvexcise)
 						if(rmvexcise || qr) {
 							double rate = 0.0;
 							if(!empty_toggle) {
-								gobj.FetchTax(labs(ti->GoodsID), ti->Date, Rec.OpID, &gtx);
+								gobj.FetchTaxEntry2(ti->GoodsID, 0/*lotID*/, 0/*taxPayerID*/, ti->Date, Rec.OpID, &gtx);
 								rate = fdiv100i(gtx.SalesTax); // @divtax
 								if(!rmvexcise)
 									AddSalesTax(ti, rate, 1);
@@ -3999,16 +3999,17 @@ void PPBillPacket::SetTotalDiscount(double dis, int pctdis, int rmvexcise)
 							set_ti_dis(ti, round(ti_price2(ti) * rel, cfg.TDisCalcPrec));
 				}
 			}
-			if(cfg.TDisCalcMethod == PPBillConfig::tdcmSimple)
+			if(cfg.TDisCalcMethod == PPBillConfig::tdcmSimple) {
 				for(i = 0; EnumTItems(&i, &ti);) {
 					if(!(ti->Flags & PPTFR_PCKG)) {
 						if(rmvexcise && !empty_toggle) {
-							gobj.FetchTax(labs(ti->GoodsID), ti->Date, Rec.OpID, &gtx);
+							gobj.FetchTaxEntry2(ti->GoodsID, 0/*lotID*/, 0/*taxPayerID*/, ti->Date, Rec.OpID, &gtx);
 							AddSalesTax(ti, fdiv100i(gtx.SalesTax), 0);
 						}
 						SETFLAG(ti->Flags, PPTFR_RMVEXCISE, rmvexcise);
 					}
 				}
+			}
 		}
 		else {
 			//
@@ -4039,7 +4040,7 @@ void PPBillPacket::SetTotalDiscount(double dis, int pctdis, int rmvexcise)
 						if(rmvexcise || qr) {
 							double rate = 0.0;
 							if(!empty_toggle) {
-								gobj.FetchTax(labs(ti->GoodsID), ti->Date, Rec.OpID, &gtx);
+								gobj.FetchTaxEntry2(ti->GoodsID, 0/*lotID*/, 0/*taxPayerID*/, ti->Date, Rec.OpID, &gtx);
 								rate = fdiv100i(gtx.SalesTax); // @divtax
 							}
 							if(!rmvexcise) {
@@ -4143,7 +4144,7 @@ void PPBillPacket::SetTotalDiscount(double dis, int pctdis, int rmvexcise)
 				for(i = 0; EnumTItems(&i, &ti);)
 					if(!(ti->Flags & PPTFR_PCKG)) {
 						if(rmvexcise && !empty_toggle) {
-							gobj.FetchTax(labs(ti->GoodsID), ti->Date, Rec.OpID, &gtx);
+							gobj.FetchTaxEntry2(ti->GoodsID, 0/*lotID*/, 0/*taxPayerID*/, ti->Date, Rec.OpID, &gtx);
 							AddSalesTax(ti, fdiv100i(gtx.SalesTax), 0);
 						}
 						SETFLAG(ti->Flags, PPTFR_RMVEXCISE, rmvexcise);
@@ -4525,80 +4526,83 @@ int PPBillPacket::CalcShadowQuantity(PPID lotID, double * pQtty) const
 //
 // Helper. Called only from PPBillPacket::CalcModifCost
 //
-static void CalcTiModifCost(PPTransferItem * pTI, uint outCount, double sumCost, double sumPrice)
+static void CalcTiModifCost(PPTransferItem & rTi, uint outCount, double sumCost, double sumPrice)
 {
-	if(!(pTI->Flags & PPTFR_FIXMODIFCOST))
-		if(sumPrice == 0 && outCount == 1)
-			pTI->Cost = TR5(sumCost / fabs(pTI->Qtty()));
+	if(!(rTi.Flags & PPTFR_FIXMODIFCOST)) {
+		if(sumPrice == 0.0 && outCount == 1)
+			rTi.Cost = TR5(sumCost / fabs(rTi.Qtty()));
 		else
-			pTI->Cost = TR5(sumCost * pTI->Price / sumPrice);
+			rTi.Cost = TR5(sumCost * rTi.Price / sumPrice);
+	}
 }
 
-static double CalcTiInputCost(const PPTransferItem * pTI, PPID opID, double sumCost, int minus)
+static double CalcTiInputCost(const PPBillPacket & rBp, const PPTransferItem & rTi, double sumCost, int minus)
 {
-	double cost = (pTI->Flags & PPTFR_REVAL) ? pTI->RevalCost : pTI->Cost;
-	if(pTI->Flags & PPTFR_UNLIM && cost == 0.0)
-		cost = pTI->NetPrice();
-	double c = R2(cost * fabs(pTI->Qtty()));
-	if(pTI->Flags & PPTFR_COSTWOVAT) {
+	double cost = (rTi.Flags & PPTFR_REVAL) ? rTi.RevalCost : rTi.Cost;
+	if(rTi.Flags & PPTFR_UNLIM && cost == 0.0)
+		cost = rTi.NetPrice();
+	double c = R2(cost * fabs(rTi.Qtty()));
+	if(rTi.Flags & PPTFR_COSTWOVAT) {
 		GTaxVect gtv;
-		gtv.CalcTI(*pTI, opID, TIAMT_COST);
+		gtv.CalcBPTI(rBp, rTi, TIAMT_COST);
 		c += gtv.GetValue(GTAXVF_VAT);
 	}
 	return minus ? (sumCost-c) : (sumCost+c);
 }
 
-int PPBillPacket::CalcModifCost()
+void PPBillPacket::CalcModifCost()
 {
-	uint   i, out_count = 0;
+	uint   out_count = 0;
 	double sum_cost = 0.0;
 	double sum_price = 0.0;
-	PPTransferItem * p_ti;
-	for(i = 0; Lots.enumItems(&i, (void **)&p_ti);) {
-		if(p_ti->IsRecomplete()) {
-			if(!(p_ti->Flags & PPTFR_FIXMODIFCOST)) {
-				out_count++;
-				sum_price += R2(p_ti->Price * fabs(p_ti->Qtty()));
+	{
+		for(uint tii = 0; tii < GetTCount(); tii++) {
+			const PPTransferItem & r_ti = ConstTI(tii);
+			if(r_ti.IsRecomplete()) {
+				if(!(r_ti.Flags & PPTFR_FIXMODIFCOST)) {
+					out_count++;
+					sum_price += R2(r_ti.Price * fabs(r_ti.Qtty()));
+				}
+				sum_cost = CalcTiInputCost(*this, r_ti, sum_cost, 0);
 			}
-			sum_cost = CalcTiInputCost(p_ti, Rec.OpID, sum_cost, 0);
-		}
-		else if(p_ti->Flags & PPTFR_MINUS)
-			sum_cost = CalcTiInputCost(p_ti, Rec.OpID, sum_cost, 0);
-		else if(p_ti->Flags & PPTFR_PLUS) {
-			if(Rec.Flags & BILLF_RECOMPLETE || p_ti->Flags & PPTFR_FIXMODIFCOST)
-				sum_cost = CalcTiInputCost(p_ti, Rec.OpID, sum_cost, 1);
-			else {
-				out_count++;
-				sum_price += R2(p_ti->Price * fabs(p_ti->Qtty()));
+			else if(r_ti.Flags & PPTFR_MINUS)
+				sum_cost = CalcTiInputCost(*this, r_ti, sum_cost, 0);
+			else if(r_ti.Flags & PPTFR_PLUS) {
+				if(Rec.Flags & BILLF_RECOMPLETE || r_ti.Flags & PPTFR_FIXMODIFCOST)
+					sum_cost = CalcTiInputCost(*this, r_ti, sum_cost, 1);
+				else {
+					out_count++;
+					sum_price += R2(r_ti.Price * fabs(r_ti.Qtty()));
+				}
 			}
 		}
 	}
 	if(sum_price || out_count == 1) {
-		for(i = 0; EnumTItems(&i, &p_ti);) {
-			if((p_ti->Flags & PPTFR_PLUS && !(Rec.Flags & BILLF_RECOMPLETE)) || p_ti->IsRecomplete()) {
+		for(uint tii = 0; tii < GetTCount(); tii++) {
+			PPTransferItem & r_ti = TI(tii);
+			if((r_ti.Flags & PPTFR_PLUS && !(Rec.Flags & BILLF_RECOMPLETE)) || r_ti.IsRecomplete()) {
 				double cost = 0.0;
-				if(p_ti->Flags & PPTFR_COSTWOVAT && !(p_ti->Flags & PPTFR_FIXMODIFCOST)) {
-					CalcTiModifCost(p_ti, out_count, sum_cost, sum_price);
-					cost = p_ti->Cost;
+				if(r_ti.Flags & PPTFR_COSTWOVAT && !(r_ti.Flags & PPTFR_FIXMODIFCOST)) {
+					CalcTiModifCost(r_ti, out_count, sum_cost, sum_price);
+					cost = r_ti.Cost;
 					GTaxVect gtv;
-					p_ti->Flags &= ~PPTFR_COSTWOVAT;
-					gtv.CalcTI(*p_ti, Rec.OpID, TIAMT_COST);
-					p_ti->Flags |= PPTFR_COSTWOVAT;
-					p_ti->Cost   = R2(p_ti->Cost - gtv.GetValue(GTAXVF_VAT) / fabs(p_ti->Qtty()));
+					r_ti.Flags &= ~PPTFR_COSTWOVAT;
+					gtv.CalcBPTI(*this, r_ti, TIAMT_COST);
+					r_ti.Flags |= PPTFR_COSTWOVAT;
+					r_ti.Cost   = R2(r_ti.Cost - gtv.GetValue(GTAXVF_VAT) / fabs(r_ti.Qtty()));
 				}
 				else {
-					CalcTiModifCost(p_ti, out_count, sum_cost, sum_price);
-					cost = p_ti->Cost;
+					CalcTiModifCost(r_ti, out_count, sum_cost, sum_price);
+					cost = r_ti.Cost;
 				}
-				if(p_ti->Price == 0)
-					p_ti->Price = cost;
-				if(P_Outer && p_ti->LotID < 0)
-					for(uint pos = 0; P_Outer->SearchLot(p_ti->LotID, &pos); pos++)
-						P_Outer->TI(pos).Cost = p_ti->Cost;
+				if(r_ti.Price == 0)
+					r_ti.Price = cost;
+				if(P_Outer && r_ti.LotID < 0)
+					for(uint pos = 0; P_Outer->SearchLot(r_ti.LotID, &pos); pos++)
+						P_Outer->TI(pos).Cost = r_ti.Cost;
 			}
 		}
 	}
-	return 1;
 }
 
 int PPBillPacket::CheckLargeBill(int genWarn) const
@@ -5482,64 +5486,68 @@ const BillVatEntry * BillVatArray::GetByRate(double rate) const
 
 int BillVatArray::Add(double rate, double sum, double base, double amtByVat)
 {
-	for(uint i = 0; i < count; i++) {
+	int    ok = 0;
+	for(uint i = 0; !ok && i < count; i++) {
 		BillVatEntry & r_entry = at(i);
 		if(feqeps(r_entry.Rate, rate, 1E-5)) {
 			r_entry.VatSum += sum;
 			r_entry.BaseAmount += base;
 			r_entry.AmountByVat += amtByVat;
-			return 1;
+			ok = 1;
 		}
 	}
-	BillVatEntry entry;
-	entry.Rate = rate;
-	entry.VatSum = sum;
-	entry.BaseAmount = base;
-	entry.AmountByVat = amtByVat;
-	return ordInsert(&entry, 0, PTR_CMPFUNC(double)) ? 1 : PPSetErrorSLib();
+	if(!ok) {
+		BillVatEntry entry;
+		entry.Rate = rate;
+		entry.VatSum = sum;
+		entry.BaseAmount = base;
+		entry.AmountByVat = amtByVat;
+		ok = ordInsert(&entry, 0, PTR_CMPFUNC(double)) ? 1 : PPSetErrorSLib();
+	}
+	return ok;
 }
 
-BillTotalBlock::BillTotalBlock(BillTotalData * pData, PPID opID, PPID goodsTypeID, int outAmtType, long flags) :
-	State(0), P_Data(pData), OpID(opID), GoodsTypeID(goodsTypeID), OutAmtType(outAmtType), Flags(flags)
+BillTotalBlock::BillTotalBlock(BillTotalData & rData, /*PPID opID*/const PPBillPacket & rBPack, PPID goodsTypeID, int outAmtType, long flags) :
+	State(0), R_Data(rData), /*OpID(opID)*/R_BPack(rBPack), GoodsTypeID(goodsTypeID), OutAmtType(outAmtType), Flags(flags)
 {
-	SETFLAG(State, stSelling, BIN(IsSellingOp(OpID) > 0));
+	SETFLAG(State, stSelling, BIN(IsSellingOp(R_BPack.Rec.OpID) > 0));
 	State |= stAllGoodsUnlimUndef;
 	DynGoodsTypeForSupplAgent = CConfig.DynGoodsTypeForSupplAgent;
 }
 
-void FASTCALL BillTotalBlock::Add(const PPAdvBillItemList::Item * pItem)
+void FASTCALL BillTotalBlock::Add(const PPAdvBillItemList::Item & rItem)
 {
-	P_Data->Amt += pItem->Amount;
+	R_Data.Amt += rItem.Amount;
 }
 //
 // This is temporary and wrong function. Must be corrected !!!
 //
 void BillTotalBlock::AddPckg(const PPTransferItem * /*pTI*/)
 {
-	P_Data->PackCount++;
+	R_Data.PackCount++;
 }
 
 void BillTotalBlock::SetupStdAmount(PPID stdAmtID, PPID altAmtID, double stdAmount, double altAmount, long replaceStdAmount, int in_out)
 {
 	PPID   in_id = 0, out_id = 0;
 	if(altAmtID && altAmtID != stdAmtID) {
-		P_Data->Amounts.Add(altAmtID, 0L/*@curID*/, altAmount, 1);
+		R_Data.Amounts.Add(altAmtID, 0L/*@curID*/, altAmount, 1);
 		if(in_out && ATObj.FetchCompl(altAmtID, &in_id, &out_id) > 0) {
 			if(in_out < 0 && in_id) {
-				P_Data->Amounts.Add(in_id, 0L/*@curID*/, -altAmount, 1); // Для входящих позиций сумма имеет инвертированный знак
+				R_Data.Amounts.Add(in_id, 0L/*@curID*/, -altAmount, 1); // Для входящих позиций сумма имеет инвертированный знак
 			}
 			if(in_out > 0 && out_id)
-				P_Data->Amounts.Add(out_id, 0L/*@curID*/, altAmount, 1);
+				R_Data.Amounts.Add(out_id, 0L/*@curID*/, altAmount, 1);
 		}
 	}
 	if(!replaceStdAmount || altAmtID == stdAmtID) {
-		P_Data->Amounts.Add(stdAmtID, 0L/*@curID*/, stdAmount, 1);
+		R_Data.Amounts.Add(stdAmtID, 0L/*@curID*/, stdAmount, 1);
 		if(in_out && ATObj.FetchCompl(stdAmtID, &in_id, &out_id) > 0) {
 			if(in_out < 0 && in_id) {
-				P_Data->Amounts.Add(in_id, 0L/*@curID*/, -stdAmount, 1); // Для входящих позиций сумма имеет инвертированный знак
+				R_Data.Amounts.Add(in_id, 0L/*@curID*/, -stdAmount, 1); // Для входящих позиций сумма имеет инвертированный знак
 			}
 			if(in_out > 0 && out_id)
-				P_Data->Amounts.Add(out_id, 0L/*@curID*/, stdAmount, 1);
+				R_Data.Amounts.Add(out_id, 0L/*@curID*/, stdAmount, 1);
 		}
 	}
 }
@@ -5547,29 +5555,29 @@ void BillTotalBlock::SetupStdAmount(PPID stdAmtID, PPID altAmtID, double stdAmou
 void BillTotalBlock::SetupStdAmount(PPID stdAmtID, double stdAmount, int in_out)
 {
 	PPID   in_id = 0, out_id = 0;
-	P_Data->Amounts.Add(stdAmtID, 0L/*@curID*/, stdAmount, 1);
+	R_Data.Amounts.Add(stdAmtID, 0L/*@curID*/, stdAmount, 1);
 	if(in_out && ATObj.FetchCompl(stdAmtID, &in_id, &out_id) > 0) {
 		if(in_out < 0 && in_id) {
-			P_Data->Amounts.Add(in_id, 0L/*@curID*/, -stdAmount, 1); // Для входящих позиций сумма имеет инвертированный знак
+			R_Data.Amounts.Add(in_id, 0L/*@curID*/, -stdAmount, 1); // Для входящих позиций сумма имеет инвертированный знак
 		}
 		if(in_out > 0 && out_id)
-			P_Data->Amounts.Add(out_id, 0L/*@curID*/, stdAmount, 1);
+			R_Data.Amounts.Add(out_id, 0L/*@curID*/, stdAmount, 1);
 	}
 }
 
-void FASTCALL BillTotalBlock::Add(PPTransferItem * pTI)
+void FASTCALL BillTotalBlock::Add(PPTransferItem & rTi)
 {
 	if(State & stAllGoodsUnlimUndef) {
 		State |= stAllGoodsUnlim;
 		State &= ~stAllGoodsUnlimUndef;
-		P_Data->Flags |= BillTotalData::fAllGoodsUnlim;
+		R_Data.Flags |= BillTotalData::fAllGoodsUnlim;
 	}
-	if(!(pTI->Flags & PPTFR_UNLIM)) {
+	if(!(rTi.Flags & PPTFR_UNLIM)) {
 		State &= ~stAllGoodsUnlim;
 		State &= ~stAllGoodsUnlimUndef;
-		P_Data->Flags &= ~BillTotalData::fAllGoodsUnlim;
+		R_Data.Flags &= ~BillTotalData::fAllGoodsUnlim;
 	}
-	const  PPID goods_id = labs(pTI->GoodsID);
+	const  PPID goods_id = labs(rTi.GoodsID);
 	Goods2Tbl::Rec goods_rec;
 	//
 	// Условие (goods_rec.ID == goods_id) в дальнейшем будет означать,
@@ -5614,27 +5622,27 @@ void FASTCALL BillTotalBlock::Add(PPTransferItem * pTI)
 		double tax_sum;
 		double asset_expl = 0.0;
 		GTaxVect gtv;
-		SETFLAG(pTI->Flags, PPTFR_SELLING, (State & stSelling));
-		if(pTI->Flags & PPTFR_RECEIPT && pTI->ExtCost != 0.0) {
+		SETFLAG(rTi.Flags, PPTFR_SELLING, (State & stSelling));
+		if(rTi.Flags & PPTFR_RECEIPT && rTi.ExtCost != 0.0) {
 			State |= stExtCost;
 		}
-		P_Data->LinesCount++;
+		R_Data.LinesCount++;
 		//
 		// Count goods IDs
 		//
 		if(GoodsList.addUnique(goods_id) > 0)
-			P_Data->GoodsCount++;
+			R_Data.GoodsCount++;
 		//
 		// Count quantity and phisical units quantity
 		//
-		P_Data->UnitsCount += pTI->Qtty();
+		R_Data.UnitsCount += rTi.Qtty();
 		if(goods_rec.ID == goods_id || GObj.Fetch(goods_id, &goods_rec) > 0) {
 			is_asset = BIN(goods_rec.Flags & GF_ASSETS);
 			GoodsStockExt gse;
-			P_Data->PhUnitsCount += pTI->Qtty() * goods_rec.PhUPerU;
+			R_Data.PhUnitsCount += rTi.Qtty() * goods_rec.PhUPerU;
 			if(GObj.GetStockExt(goods_id, &gse, 1) > 0) {
-				P_Data->Brutto += gse.CalcBrutto(pTI->Qtty());
-				P_Data->Volume += gse.CalcVolume(pTI->Qtty());
+				R_Data.Brutto += gse.CalcBrutto(rTi.Qtty());
+				R_Data.Volume += gse.CalcVolume(rTi.Qtty());
 			}
 		}
 		else
@@ -5642,86 +5650,86 @@ void FASTCALL BillTotalBlock::Add(PPTransferItem * pTI)
 		//
 		// Count number of packs
 		//
-		if(pTI->UnitPerPack > 0.0)
-			P_Data->PackCount += fabs(pTI->Qtty()) / pTI->UnitPerPack;
+		if(rTi.UnitPerPack > 0.0)
+			R_Data.PackCount += fabs(rTi.Qtty()) / rTi.UnitPerPack;
 		//
 		// Рассчитываем суммы вводимых в эксплуатацию основных средств
 		//
-		if(pTI->Flags & PPTFR_ASSETEXPL) {
-			gtv.CalcTI(*pTI, OpID, TIAMT_ASSETEXPL);
+		if(rTi.Flags & PPTFR_ASSETEXPL) {
+			gtv.CalcBPTI(R_BPack, rTi, TIAMT_ASSETEXPL);
 			asset_expl = gtv.GetValue(GTAXVF_AFTERTAXES | GTAXVF_EXCISE);
-			if(pTI->Flags & PPTFR_MODIF)
+			if(rTi.Flags & PPTFR_MODIF)
 				asset_expl = -asset_expl; // Вывод из эксплуатации
 		}
 		//
 		// Count generic amounts: cost*qtty, price*qtty, nominal amount*qtty
 		//
-		if(pTI->Flags & PPTFR_REVAL) {
-			if(pTI->Flags & PPTFR_CORRECTION) {
-				qtty = fabs(pTI->Quantity_);
-				const double q = fabs(pTI->Quantity_);
-				const double q_pre = fabs(pTI->QuotPrice);
-				cq = R2(pTI->Cost * q - pTI->RevalCost * q_pre);
-				pq = R2(pTI->Price * q - pTI->Discount * q_pre);
+		if(rTi.Flags & PPTFR_REVAL) {
+			if(rTi.Flags & PPTFR_CORRECTION) {
+				qtty = fabs(rTi.Quantity_);
+				const double q = fabs(rTi.Quantity_);
+				const double q_pre = fabs(rTi.QuotPrice);
+				cq = R2(rTi.Cost * q - rTi.RevalCost * q_pre);
+				pq = R2(rTi.Price * q - rTi.Discount * q_pre);
 				dq = 0.0;
 			}
 			else {
-				qtty = fabs(pTI->Rest_);
-				cq = R2((pTI->Cost  - pTI->RevalCost) * qtty);
-				pq = R2((pTI->Price - pTI->Discount) * qtty);
+				qtty = fabs(rTi.Rest_);
+				cq = R2((rTi.Cost  - rTi.RevalCost) * qtty);
+				pq = R2((rTi.Price - rTi.Discount) * qtty);
 				dq = 0.0;
 			}
 		}
 		else {
-			if(pTI->Flags & PPTFR_CORRECTION) {
-				qtty = fabs(pTI->Quantity_);
-				const double q = fabs(pTI->Quantity_);
-				const double q_pre = fabs(pTI->QuotPrice);
-				cq = R2(pTI->Cost * (q - q_pre));
-				pq = R2(pTI->NetPrice() * q - pTI->RevalCost * q_pre);
+			if(rTi.Flags & PPTFR_CORRECTION) {
+				qtty = fabs(rTi.Quantity_);
+				const double q = fabs(rTi.Quantity_);
+				const double q_pre = fabs(rTi.QuotPrice);
+				cq = R2(rTi.Cost * (q - q_pre));
+				pq = R2(rTi.NetPrice() * q - rTi.RevalCost * q_pre);
 				dq = 0.0;
 			}
 			else {
-				if(OpID && GetOpType(OpID) == PPOPT_GOODSMODIF) {
-					qtty = pTI->SQtty(OpID);
-					if(pTI->Flags & PPTFR_MINUS) {
+				if(GetOpType(R_BPack.Rec.OpID) == PPOPT_GOODSMODIF) {
+					qtty = rTi.SQtty(R_BPack.Rec.OpID);
+					if(rTi.Flags & PPTFR_MINUS) {
 						sign = -1;
 						in_out = -1;
 					}
-					else if(pTI->Flags & PPTFR_PLUS)
+					else if(rTi.Flags & PPTFR_PLUS)
 						in_out = 1;
 				}
 				else
-					qtty = fabs(pTI->Quantity_);
-				cq = R2(pTI->Cost  * qtty);
-				pq = R2(pTI->Price * qtty);
-				if(pTI->Date > CConfig._390_DisCalcMethodLockDate)
-					dq = pq - R2((pTI->Price-pTI->Discount) * qtty);
+					qtty = fabs(rTi.Quantity_);
+				cq = R2(rTi.Cost  * qtty);
+				pq = R2(rTi.Price * qtty);
+				if(rTi.Date > CConfig._390_DisCalcMethodLockDate)
+					dq = pq - R2((rTi.Price-rTi.Discount) * qtty);
 				else
-					dq = R2(pTI->Discount * qtty);
+					dq = R2(rTi.Discount * qtty);
 			}
 		}
 		//
 		// If cost defined without VAT, then adjust (cost*qtty) value to VAT
 		//
-		if(pTI->Flags & PPTFR_COSTWOVAT) {
-			gtv.CalcTI(*pTI, OpID, TIAMT_COST);
+		if(rTi.Flags & PPTFR_COSTWOVAT) {
+			gtv.CalcBPTI(R_BPack, rTi, TIAMT_COST);
 			cq += gtv.GetValue(GTAXVF_VAT) * sign;
 			//
 			// Для основных фондов, если балансовая стоимость задана без НДС, то
 			// и остаточная стоимость учитывается без НДС
 			//
 			if(is_asset) {
-				gtv.CalcTI(*pTI, OpID, TIAMT_PRICE);
+				gtv.CalcBPTI(R_BPack, rTi, TIAMT_PRICE);
 				pq += gtv.GetValue(GTAXVF_VAT) * sign;
 			}
 		}
-		if(pTI->Flags & PPTFR_PRICEWOTAXES) {
-			gtv.CalcTI(*pTI, OpID, TIAMT_PRICE);
+		if(rTi.Flags & PPTFR_PRICEWOTAXES) {
+			gtv.CalcBPTI(R_BPack, rTi, TIAMT_PRICE);
 			pq = gtv.GetValue(GTAXVF_BEFORETAXES);
 			dq = 0;
 		}
-		curamtq = R2(pTI->CurPrice * qtty);
+		curamtq = R2(rTi.CurPrice * qtty);
 		//
 		// Calculation values for printing and another output
 		//
@@ -5729,35 +5737,44 @@ void FASTCALL BillTotalBlock::Add(PPTransferItem * pTI)
 			int    tiamt = 0;
 			if(OutAmtType == TIAMT_COST) {
 				tiamt = TIAMT_COST;
-				P_Data->Amt += cq;
+				R_Data.Amt += cq;
 			}
 			else if(OutAmtType == TIAMT_PRICE) {
 				tiamt = TIAMT_PRICE;
-				P_Data->Amt += (pq - dq);
+				R_Data.Amt += (pq - dq);
 			}
 			else {
-				tiamt = TIAMT_AMOUNT;
-				P_Data->Amt += (pTI->Flags & (PPTFR_SELLING|PPTFR_REVAL)) ? (pq - dq) : cq;
+				// @v12.2.4 tiamt = TIAMT_AMOUNT;
+				// @v12.2.4 R_Data.Amt += (rTi.Flags & (PPTFR_SELLING|PPTFR_REVAL)) ? (pq - dq) : cq;
+				// @v12.2.4 {
+				tiamt = GTaxVect::GetTaxNominalAmountType(R_BPack.Rec);
+				if(tiamt == TIAMT_PRICE) {
+					R_Data.Amt += (rTi.Flags & (PPTFR_SELLING|PPTFR_REVAL)) ? (pq - dq) : cq;
+				}
+				else { // @fixme Возможно, здесь нужно уточнение
+					R_Data.Amt += cq;
+				}
+				// } @v12.2.4 
 			}
-			gtv.CalcTI(*pTI, OpID, tiamt, (Flags & BTC_EXCLUDEVAT) ? GTAXVF_VAT : 0);
+			gtv.CalcBPTI(R_BPack, rTi, tiamt, (Flags & BTC_EXCLUDEVAT) ? GTAXVF_VAT : 0);
 			tax_sum = gtv.GetValue(GTAXVF_VAT);
 			if(tax_sum != 0.0) {
 				tax_rate = gtv.GetTaxRate(GTAX_VAT, 0);
-				P_Data->VAT  += gtv.GetValue(GTAXVF_VAT);
-				P_Data->VatList.Add(tax_rate, tax_sum, gtv.GetValue(GTAXVF_AFTERTAXES), gtv.GetValue(GTAXVF_BEFORETAXES));
+				R_Data.VAT  += gtv.GetValue(GTAXVF_VAT);
+				R_Data.VatList.Add(tax_rate, tax_sum, gtv.GetValue(GTAXVF_AFTERTAXES), gtv.GetValue(GTAXVF_BEFORETAXES));
 			}
-			P_Data->STax += gtv.GetValue(GTAXVF_SALESTAX);
+			R_Data.STax += gtv.GetValue(GTAXVF_SALESTAX);
 		}
 		else {
 			PPID   gt_id = 0;
-			if(DynGoodsTypeForSupplAgent && pTI->LotID) {
-				if(BillObj->GetSupplAgent(pTI->LotID) > 0) // @slow
+			if(DynGoodsTypeForSupplAgent && rTi.LotID) {
+				if(BillObj->GetSupplAgent(rTi.LotID) > 0) // @slow
 					gt_id = DynGoodsTypeForSupplAgent;
 			}
 			//
 			// Full calculation amounts and taxes
 			//
- 			if(gt_id || pTI->Flags & PPTFR_ODDGOODS) {
+ 			if(gt_id || rTi.Flags & PPTFR_ODDGOODS) {
 				PPGoodsType gt_rec;
 				if(SETIFZ(gt_id, goods_rec.GoodsTypeID) && gt_id != PPGT_DEFAULT) {
 					oddgoods = 1;
@@ -5777,11 +5794,11 @@ void FASTCALL BillTotalBlock::Add(PPTransferItem * pTI)
 				SetupStdAmount(PPAMT_SELLING,  pq, in_out);
 				SetupStdAmount(PPAMT_DISCOUNT, dq, 0);
 			}
-			P_Data->Amounts.Add(PPAMT_ASSETEXPL, 0L  /*@curID*/, asset_expl, 1);
+			R_Data.Amounts.Add(PPAMT_ASSETEXPL, 0L  /*@curID*/, asset_expl, 1);
 			if(!exclamount) {
-				P_Data->Amt = R2(P_Data->Amt + ((State & stSelling) ? (pq - dq) : cq));
-				if(pTI->CurID)
-					P_Data->CurAmt = R2(P_Data->CurAmt + curamtq);
+				R_Data.Amt = R2(R_Data.Amt + ((State & stSelling) ? (pq - dq) : cq));
+				if(rTi.CurID)
+					R_Data.CurAmt = R2(R_Data.CurAmt + curamtq);
 			}
 			if(Flags & BTC_CALCSALESTAXES) {
 				PPID   tax_amt_id = 0;
@@ -5798,48 +5815,48 @@ void FASTCALL BillTotalBlock::Add(PPTransferItem * pTI)
 					//
 					// Расчет налоговых сумм в номинальных ценах //
 					//
-					gtv.CalcTI(*pTI, OpID, TIAMT_AMOUNT, (Flags & BTC_CALCNOMINALGVAT) ? GTAXVF_NOMINAL : 0);
+					gtv.CalcBPTI(R_BPack, rTi, /*TIAMT_AMOUNT*/GTaxVect::GetTaxNominalAmountType(R_BPack.Rec), (Flags & BTC_CALCNOMINALGVAT) ? GTAXVF_NOMINAL : 0);
 					vat      = gtv.GetValue(GTAXVF_VAT) * sign;
 					vat_base = gtv.GetValue(GTAXVF_AFTERTAXES) * sign;
 					amt_by_vat = gtv.GetValue(GTAXVF_BEFORETAXES) * sign;
 					tax_rate = gtv.GetTaxRate(GTAX_VAT, 0);
 					excise   = gtv.GetValue(GTAXVF_EXCISE) * sign;
 					stax     = gtv.GetValue(GTAXVF_SALESTAX) * sign;
-					P_Data->VatList.Add(tax_rate, vat, vat_base, amt_by_vat);
+					R_Data.VatList.Add(tax_rate, vat, vat_base, amt_by_vat);
 				}
 				{
 					//
 					// Расчет налоговых сумм в ценах поступления //
 					//
-					gtv.CalcTI(*pTI, OpID, TIAMT_COST);
+					gtv.CalcBPTI(R_BPack, rTi, TIAMT_COST);
 					cvat    = gtv.GetValue(GTAXVF_VAT) * sign;
 					cexcise = gtv.GetValue(GTAXVF_EXCISE) * sign;
 					cstax   = gtv.GetValue(GTAXVF_SALESTAX) * sign;
 					if(cvat_amt_id)
-						P_Data->Amounts.Add(cvat_amt_id, 0L/*@curID*/, cvat, 1);
-					P_Data->CostVatList.Add(gtv.GetTaxRate(GTAX_VAT, 0), cvat, gtv.GetValue(GTAXVF_AFTERTAXES) * sign, gtv.GetValue(GTAXVF_BEFORETAXES) * sign);
+						R_Data.Amounts.Add(cvat_amt_id, 0L/*@curID*/, cvat, 1);
+					R_Data.CostVatList.Add(gtv.GetTaxRate(GTAX_VAT, 0), cvat, gtv.GetValue(GTAXVF_AFTERTAXES) * sign, gtv.GetValue(GTAXVF_BEFORETAXES) * sign);
 				}
 				{
 					//
 					// Расчет налоговых сумм в ценах реализации //
 					//
-					gtv.CalcTI(*pTI, OpID, TIAMT_PRICE);
+					gtv.CalcBPTI(R_BPack, rTi, TIAMT_PRICE);
 					pvat = gtv.GetValue(GTAXVF_VAT) * sign;
-					P_Data->PriceVatList.Add(gtv.GetTaxRate(GTAX_VAT, 0), pvat, gtv.GetValue(GTAXVF_AFTERTAXES) * sign, gtv.GetValue(GTAXVF_BEFORETAXES) * sign);
+					R_Data.PriceVatList.Add(gtv.GetTaxRate(GTAX_VAT, 0), pvat, gtv.GetValue(GTAXVF_AFTERTAXES) * sign, gtv.GetValue(GTAXVF_BEFORETAXES) * sign);
 				}
-				P_Data->VAT     += vat;
-				P_Data->CVAT    += cvat;
-				P_Data->PVAT    += pvat;
-				P_Data->Excise  += excise;
-				P_Data->CExcise += cexcise;
-				P_Data->STax    += stax;
-				P_Data->CSTax   += cstax;
+				R_Data.VAT     += vat;
+				R_Data.CVAT    += cvat;
+				R_Data.PVAT    += pvat;
+				R_Data.Excise  += excise;
+				R_Data.CExcise += cexcise;
+				R_Data.STax    += stax;
+				R_Data.CSTax   += cstax;
 				if(vat != 0.0) {
 					if(ATObj.FetchByTax(&tax_amt_id, GTAX_VAT, tax_rate) > 0)
-						P_Data->Amounts.Add(tax_amt_id, 0L/*@curID*/, vat, 1);
+						R_Data.Amounts.Add(tax_amt_id, 0L/*@curID*/, vat, 1);
 				}
 				if(stax != 0.0 && ATObj.FetchByTax(&tax_amt_id, GTAX_SALES, gtv.GetTaxRate(GTAX_SALES, 0)) > 0)
-					P_Data->Amounts.Add(tax_amt_id, 0L/*@curID*/, stax, 1);
+					R_Data.Amounts.Add(tax_amt_id, 0L/*@curID*/, stax, 1);
 				SetupStdAmount(PPAMT_VATAX,    vat,     in_out);
 				SetupStdAmount(PPAMT_CVAT,     cvat,    in_out);
 				SetupStdAmount(PPAMT_PVAT,     pvat,    in_out);
@@ -5852,14 +5869,14 @@ void FASTCALL BillTotalBlock::Add(PPTransferItem * pTI)
 	}
 }
 
-void BillTotalBlock::Finish(const PPBillPacket * pPack)
+void BillTotalBlock::Finish(/*const PPBillPacket * pPack*/)
 {
-	if(!(State & stExtCost) && pPack && pPack->UsesDistribCost()) {
+	if(!(State & stExtCost) && R_BPack.UsesDistribCost()) {
 		PPObjAmountType at_obj;
 		if(at_obj.IsThereDistribCostAmounts()) {
 			PPAmountType at_rec;
-			for(uint i = 0; i < pPack->Amounts.getCount(); i++) {
-				const AmtEntry & r_ae = pPack->Amounts.at(i);
+			for(uint i = 0; i < R_BPack.Amounts.getCount(); i++) {
+				const AmtEntry & r_ae = R_BPack.Amounts.at(i);
 				if(at_obj.Fetch(r_ae.AmtTypeID, &at_rec) > 0 && at_rec.Flags & PPAmountType::fDistribCost) {
 					State |= stExtCost;
 					break;
@@ -5867,35 +5884,35 @@ void BillTotalBlock::Finish(const PPBillPacket * pPack)
 			}
 		}
 	}
-	SETFLAG(P_Data->Flags, BillTotalData::fExtCost, (State & stExtCost));
-	P_Data->Flags |= BillTotalData::fInitialized;
+	SETFLAG(R_Data.Flags, BillTotalData::fExtCost, (State & stExtCost));
+	R_Data.Flags |= BillTotalData::fInitialized;
 }
 
-int PPBillPacket::CalcTotal(BillTotalData * pData, PPID goodsTypeID, long btcFlags)
+int PPBillPacket::CalcTotal(BillTotalData & rTotal, PPID goodsTypeID, long btcFlags)
 {
-	PPTransferItem * p_ti;
-	BillTotalBlock btb(pData, Rec.OpID, goodsTypeID, OutAmtType, btcFlags);
+	BillTotalBlock btb(rTotal, *this, goodsTypeID, OutAmtType, btcFlags);
 	if(GetOpType(Rec.OpID) == PPOPT_ACCTURN) {
 		for(uint i = 0; i < AdvList.GetCount(); i++)
-			btb.Add(&AdvList.Get(i));
+			btb.Add(AdvList.Get(i));
 	}
 	{
-		for(uint i = 0; EnumTItems(&i, &p_ti);) {
-			if(!(p_ti->Flags & PPTFR_PCKG))
-				btb.Add(p_ti);
+		for(uint tii = 0; tii < GetTCount(); tii++) {
+			PPTransferItem & r_ti = TI(tii);
+			if(!(r_ti.Flags & PPTFR_PCKG))
+				btb.Add(r_ti);
 			else
-				btb.AddPckg(p_ti);
+				btb.AddPckg(&r_ti);
 		}
 	}
-	btb.Finish(this);
-	SETFLAG(ProcessFlags, pfAllGoodsUnlim, (pData->Flags & BillTotalData::fAllGoodsUnlim));
-	SETFLAG(ProcessFlags, pfHasExtCost, (pData->Flags & BillTotalData::fExtCost));
+	btb.Finish();
+	SETFLAG(ProcessFlags, pfAllGoodsUnlim, (rTotal.Flags & BillTotalData::fAllGoodsUnlim));
+	SETFLAG(ProcessFlags, pfHasExtCost, (rTotal.Flags & BillTotalData::fExtCost));
 	return 1;
 }
 
-int PPBillPacket::CalcTotal(BillTotalData * pData, long btcFlags)
+int PPBillPacket::CalcTotal(BillTotalData & rTotal, long btcFlags)
 {
-	return CalcTotal(pData, 0, btcFlags);
+	return CalcTotal(rTotal, 0, btcFlags);
 }
 
 int PPBillPacket::SumAmounts(AmtList * pList, int fromDB)
@@ -5913,27 +5930,30 @@ int PPBillPacket::SumAmounts(AmtList * pList, int fromDB)
 	/* @v11.6.6 if(CheckOpFlags(Rec.OpID, OPKF_CALCSTAXES))
 		btb_flags |= BTC_CALCSALESTAXES;*/
 	{
-		BillTotalBlock btb(&total_data, Rec.OpID, 0, 0, btb_flags);
+		BillTotalBlock btb(total_data, *this, 0, 0, btb_flags);
 		if(GetOpType(Rec.OpID) == PPOPT_ACCTURN) {
 			for(i = 0; i < AdvList.GetCount(); i++)
-				btb.Add(&AdvList.Get(i));
+				btb.Add(AdvList.Get(i));
 		}
 		if(fromDB) {
 			PPTransferItem ti;
-			int    r, r_by_bill = 0;
-			while((r = P_BObj->trfr->EnumItems(Rec.ID, &r_by_bill, &ti)) > 0)
+			int    r;
+			int    r_by_bill = 0;
+			while((r = P_BObj->trfr->EnumItems(Rec.ID, &r_by_bill, &ti)) > 0) {
 				if(!(ti.Flags & PPTFR_PCKG))
-					btb.Add(&ti);
+					btb.Add(ti);
+			}
 			if(!r)
 				return 0;
 		}
 		else {
-			PPTransferItem * p_ti;
-			for(i = 0; EnumTItems(&i, &p_ti);)
-				if(!(p_ti->Flags & PPTFR_PCKG))
-					btb.Add(p_ti);
+			for(uint tii = 0; tii < GetTCount(); tii++) {
+				PPTransferItem & r_ti = TI(tii);
+				if(!(r_ti.Flags & PPTFR_PCKG))
+					btb.Add(r_ti);
+			}
 		}
-		btb.Finish(this);
+		btb.Finish();
 		SETFLAG(ProcessFlags, pfHasExtCost, (total_data.Flags & BillTotalData::fExtCost));
 		pList->Put(&total_data.Amounts, 1, 1);
 		if(btb_flags & BTC_CALCSALESTAXES) {
@@ -5951,7 +5971,7 @@ int PPBillPacket::SumAmounts(AmtList * pList, int fromDB)
 				if(virtual_goods_id) {
 					PPObjGoods gobj;
 					PPGoodsTaxEntry te;
-					if(gobj.FetchTax(virtual_goods_id, Rec.Dt, Rec.OpID, &te) > 0) {
+					if(gobj.FetchTaxEntry2(virtual_goods_id, 0/*lotID*/, 0/*taxPayerID*/, Rec.Dt, Rec.OpID, &te) > 0) {
 						const double def_vat_rate = te.GetVatRate();
 						PPObjAmountType amtt_obj;
 						TaxAmountIDs tais;

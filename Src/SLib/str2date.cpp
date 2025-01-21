@@ -1,5 +1,5 @@
 // STR2DATE.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2005, 2006, 2008, 2010, 2013, 2015, 2016, 2017, 2018, 2020, 2021, 2022
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2005, 2006, 2008, 2010, 2013, 2015, 2016, 2017, 2018, 2020, 2021, 2022, 2025
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -52,7 +52,7 @@ int STDCALL _strtodate(const char * pBuf, int style, int * pDay, int * pMon, int
 	long   ret_flags = 0;
 
 	if(!c) {
-		PTR32(zero_buf)[0] = 0;
+		zero_buf[0] = 0;
 		c = zero_buf;
 		ret_flags |= strtodatefZero;
 	}

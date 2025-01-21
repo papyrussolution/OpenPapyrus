@@ -1,5 +1,5 @@
 // RFLDCORR.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2024
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -2245,13 +2245,62 @@ enum {
 			if(p_fld_data) {
 				char   buf[512];
 				long   fmt = 0;
-				int    t = GETSTYPE(inner_fld.T.Typ);
-				if(oneof4(t, S_FLOAT, S_DEC, S_MONEY, S_INT)) {
-					fmt = SFMT_MONEY;
-					sttostr(inner_fld.T.Typ, p_fld_data, fmt, buf);
-					val = satof(buf);
-					ok = 1;
+				const  int t = GETSTYPE(inner_fld.T.Typ);
+				// @v12.2.4 {
+				const  int s = GETSSIZE(inner_fld.T.Typ); 
+				bool   is_processed = false;
+				switch(t) {
+					case S_FLOAT:
+						if(s == 8) {
+							val = *static_cast<const double *>(p_fld_data);
+							is_processed = true;
+						}
+						else if(s == 4) {
+							val = static_cast<double>(*static_cast<const float *>(p_fld_data));
+							is_processed = true;
+						}
+						break;
+					case S_INT:
+						if(s == 8) {
+							val = static_cast<double>(*static_cast<const int64 *>(p_fld_data));
+							is_processed = true;
+						}
+						else if(s == 4) {
+							val = static_cast<double>(*static_cast<const int32 *>(p_fld_data));
+							is_processed = true;
+						}
+						else if(s == 2) {
+							val = static_cast<double>(*static_cast<const int16 *>(p_fld_data));
+							is_processed = true;
+						}
+						else if(s == 1) {
+							val = static_cast<double>(*static_cast<const int8 *>(p_fld_data));
+							is_processed = true;
+						}
+						break;
+					case S_DEC:
+					case S_MONEY:
+						{
+							const int decprec = GETSPRECD(inner_fld.T.Typ);
+							val = dectobin(static_cast<const char *>(p_fld_data), s, decprec);
+							is_processed = true;
+						}
+						break;
 				}
+				if(!is_processed)
+				// } @v12.2.4 
+				{
+					if(oneof4(t, S_FLOAT, S_DEC, S_MONEY, S_INT)) {
+						fmt = SFMT_MONEY;
+						sttostr(inner_fld.T.Typ, p_fld_data, fmt, buf);
+						val = satof(buf);
+						is_processed = true;
+					}
+				}
+				// @v12.2.4 {
+				if(is_processed)
+					ok = 1;
+				// } @v12.2.4 
 			}
 		}
 	}

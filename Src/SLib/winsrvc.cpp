@@ -1,5 +1,5 @@
 // WINSRVC.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2010, 2016, 2019, 2020, 2021, 2023
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2010, 2016, 2019, 2020, 2021, 2023, 2025
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -58,7 +58,7 @@ WinService::WinService(const WinServiceMngr & rMngr, const char * pServiceName, 
 			if(GetLastError() == ERROR_SERVICE_DOES_NOT_EXIST)
 				SLS.SetError(SLERR_WINSVC_SVCNEXISTS, pServiceName);
 			else
-				SLS.SetOsError();
+				SLS.SetOsError(0, 0);
 			SetLastError(last_err);
 		}
 	}

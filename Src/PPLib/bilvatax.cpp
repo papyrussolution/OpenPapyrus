@@ -95,7 +95,7 @@ int BVATAccmArray::Add(const PPTransferItem & rTi, PPID opID)
 void BVATAccmArray::Scale_(double part, int useRounding)
 {
 	BVATAccm * p_item;
-	if(part != 1.0 /* @v6.7.12 && part != 0.0*/) {
+	if(part != 1.0) {
 		for(uint i = 0; enumItems(&i, (void **)&p_item);) {
 			p_item->Cost    = p_item->Cost    * part;
 			p_item->Price   = p_item->Price   * part;
@@ -184,7 +184,4 @@ int BVATAccmArray::CalcBill(PPID id)
 	return BIN(r);
 }
 
-int BVATAccmArray::IsVataxableSuppl(PPID suppl)
-{
-	return (!(Flags & BVATF_IGNORESUPPL) && suppl && IsSupplVATFree(suppl) > 0) ? 0 : 1;
-}
+int BVATAccmArray::IsVataxableSuppl(PPID suppl) { return (!(Flags & BVATF_IGNORESUPPL) && suppl && IsSupplVATFree(suppl) > 0) ? 0 : 1; }

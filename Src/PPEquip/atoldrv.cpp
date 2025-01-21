@@ -759,8 +759,6 @@ private:
 		BarcodeControlCode,
 		TaxTypeNumber,      // 1..5
 		OperatorName,       // Имя кассира 
-		//set_Mode, // @v10.3.9
-		//get_Mode  // @v10.3.9
 	};
 
 	enum AtolDrvFlags {

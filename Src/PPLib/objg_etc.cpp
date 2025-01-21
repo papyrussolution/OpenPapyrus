@@ -1,5 +1,5 @@
 // OBJG_ETC.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2005, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 2002, 2003, 2005, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 // Дополнительные классы инфраструктуры управления товарами
 //
@@ -1351,8 +1351,10 @@ public:
 		getCtrlData(sel = CTL_COMPUTER_NAME,  Data.Rec.Name);
 		THROW_PP(*strip(Data.Rec.Name), PPERR_NAMENEEDED);
 		getCtrlData(CTLSEL_COMPUTER_CAT, &Data.Rec.CategoryID);
+		getCtrlString(CTL_COMPUTER_UUID, temp_buf);
+		Data.Rec.Uuid.FromStr(temp_buf);
 		getCtrlString(CTL_COMPUTER_MACADR, temp_buf);
-		// @todo MACAddr::FromStr
+		Data.Rec.MacAdr.FromStr(temp_buf);
 		getCtrlString(CTL_COMPUTER_IPADR, temp_buf);
 		Data.Rec.IpAdr.FromStr(temp_buf); // @todo check error
 		{
@@ -1413,6 +1415,28 @@ int PPObjComputer::DeleteObj(PPID id)
 	return Put(&id, 0, 0);
 }
 
+int PPObjComputer::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
+{
+	if(msg == DBMSG_OBJDELETE) {
+		if(_obj == PPOBJ_COMPUTERCATEGORY && _id) {
+			constexpr long _kind = PPGDSK_COMPUTER;
+			Goods2Tbl * p_tbl = P_Tbl;
+			Goods2Tbl::Key2 k2;
+			BExtQuery q(p_tbl, 2, 4);
+			// Ид категории компьютера хранится в поле Goods2Tbl::WrOffGrpID
+			q.select(p_tbl->ID, p_tbl->Name, 0L).where(p_tbl->Kind == _kind && p_tbl->WrOffGrpID == _id);
+			MEMSZERO(k2);
+			k2.Kind = _kind;
+			for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;) {
+				if(p_tbl->data.WrOffGrpID == _id) { // @paranoic
+					return RetRefsExistsErr(Obj, p_tbl->data.ID);
+				}
+			}
+		}
+	}
+	return DBRPL_OK;
+}
+
 /*virtual*/int PPObjComputer::Edit(PPID * pID, void * extraPtr)
 {
 	int    ok = -1;
@@ -1461,13 +1485,24 @@ ComputerFilt & FASTCALL ComputerFilt::operator = (const ComputerFilt & rS)
 	return (Flags == 0 && SrchStr.IsEmpty());
 }
 
-PPViewComputer::BrwItem::BrwItem(const PPComputer * pS) : ID(0), Flags(0), ViewFlags(0)
+PPViewComputer::BrwItem::BrwItem(const PPComputerPacket * pS) : ID(0), CategoryID(0), Flags(0), ViewFlags(0)
 {
 	Name[0] = 0;
+	CategoryName[0] = 0;
 	if(pS) {
-		ID = pS->ID;
-		Flags = pS->Flags;
-		STRNSCPY(Name, pS->Name);
+		ID = pS->Rec.ID;
+		Flags = pS->Rec.Flags;
+		STRNSCPY(Name, pS->Rec.Name);
+		Uuid = pS->Rec.Uuid;
+		MacAdr = pS->Rec.MacAdr;
+		CategoryID = pS->Rec.CategoryID;
+		if(CategoryID) {
+			PPObjComputerCategory cc_obj;
+			PPComputerCategory cc_rec;
+			if(cc_obj.Search(CategoryID, &cc_rec) > 0) {
+				STRNSCPY(CategoryName, cc_rec.Name);
+			}
+		}
 	}
 }
 
@@ -1497,12 +1532,33 @@ PPViewComputer::~PPViewComputer()
 	
 int PPViewComputer::InitIteration()
 {
-	return -1; // @stub
+	int    ok = 1;
+	if(P_DsList) {
+		Counter.Init(P_DsList->getCount());
+	}
+	else
+		ok = -1;
+	return ok;
 }
 	
 int FASTCALL PPViewComputer::NextIteration(ComputerViewItem * pItem)
 {
-	return -1; // @stub
+	int    ok = -1;
+	if(P_DsList) {
+		for(; ok < 0 && Counter < P_DsList->getCount(); Counter.Increment()) {
+			if(pItem) {
+				const BrwItem & r_item = P_DsList->at(Counter);
+				PPComputerPacket pack;
+				if(Obj.Get(r_item.ID, &pack) > 0) {
+					*pItem = pack.Rec;
+					ok = 1;
+				}
+			}
+			else
+				ok = 1;
+		}
+	}
+	return ok;
 }
 	
 /*static*/int PPViewComputer::CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle, PPViewBrowser * pBrw)
@@ -1518,10 +1574,10 @@ int FASTCALL PPViewComputer::NextIteration(ComputerViewItem * pItem)
 	
 /*virtual*/SArray * PPViewComputer::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
 {
-	SArray * p_array = 0;
+	TSArray <BrwItem> * p_array = 0;
 	PPBrand ds_item;
 	THROW(MakeList());
-	p_array = new SArray(*P_DsList);
+	p_array = new TSArray <BrwItem>(*P_DsList);
 	CATCH
 		ZDELETE(P_DsList);
 	ENDCATCH
@@ -1555,11 +1611,10 @@ static int PPViewComputer_CellStyleFunc(const void * pData, long col, int paintA
 	
 /*virtual*/int PPViewComputer::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
+	PPID   id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
+	const  PPID preserve_id = id;
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
-	PPID   preserve_id = 0;
 	if(ok == -2) {
-		PPID   id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
-		preserve_id = id;
 		switch(ppvCmd) {
 			case PPVCMD_MOUSEHOVER:
 				if(id && static_cast<const BrwItem *>(pHdr)->Flags & GF_DERIVED_HASIMAGES) {
@@ -1581,7 +1636,7 @@ static int PPViewComputer_CellStyleFunc(const void * pData, long col, int paintA
 		if(pBrw) {
 			AryBrowserDef * p_def = pBrw ? static_cast<AryBrowserDef *>(pBrw->getDef()) : 0;
 			if(p_def) {
-				SArray * p_array = new SArray(*P_DsList);
+				TSArray <BrwItem> * p_array = new TSArray <BrwItem>(*P_DsList);
 				p_def->setArray(p_array, 0, 1);
 				pBrw->setRange(p_array->getCount());
 				uint   temp_pos = 0;
@@ -1613,6 +1668,23 @@ int PPViewComputer::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 		switch(pBlk->ColumnN) {
 			case 0: pBlk->Set(p_item->ID); break; // @id
 			case 1: pBlk->Set(p_item->Name); break; // @name
+			case 2: pBlk->Set(p_item->CategoryName); break; // @v12.2.4 categoryname
+			case 3: // @v12.2.4 uuid
+				{
+					SString & r_buf = SLS.AcquireRvlStr();
+					if(!!p_item->Uuid)
+						p_item->Uuid.ToStr(S_GUID::fmtIDL, r_buf);
+					pBlk->Set(r_buf);
+				}
+				break;
+			case 4: // @v12.2.4 mac address
+				{
+					SString & r_buf = SLS.AcquireRvlStr();
+					if(!!p_item->MacAdr)
+						p_item->MacAdr.ToStr(0, r_buf);
+					pBlk->Set(r_buf);
+				}
+				break;
 		}
 	}
 	return ok;
@@ -1633,15 +1705,15 @@ int PPViewComputer::MakeList()
 	if(P_DsList)
 		P_DsList->clear();
 	else
-		P_DsList = new SArray(sizeof(BrwItem));
+		P_DsList = new TSArray <BrwItem>();
 	//dbq = ppcheckfiltid(dbq, p_tbl->ManufID, single_owner_id);
 	q.select(p_tbl->ID, p_tbl->Name, p_tbl->Abbr, p_tbl->WrOffGrpID, p_tbl->GoodsTypeID, p_tbl->ManufID, p_tbl->Flags, 0L).where(*dbq);
 	MEMSZERO(k2);
 	k2.Kind = PPGDSK_COMPUTER;
 	for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;) {
-		PPComputer rec;
-		if(Obj.Helper_GetRec(p_tbl->data, &rec) && rec.CheckForFilt(&Filt)) {
-			BrwItem new_item(&rec);
+		PPComputerPacket pack;
+		if(Obj.Get(p_tbl->data.ID, &pack) > 0 && pack.Rec.CheckForFilt(&Filt)) {
+			BrwItem new_item(&pack);
 			//if(Filt.Flags & Filt.fShowGoodsCount) {
 				//single_brand_list.clear();
 				//single_brand_list.add(rec.ID);

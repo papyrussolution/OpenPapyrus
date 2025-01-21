@@ -1,5 +1,5 @@
 // MACADDR.CPP
-// Copyright (c) A.Sobolev 2005, 2008, 2010, 2011, 2014, 2016, 2019, 2020, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 2005, 2008, 2010, 2011, 2014, 2016, 2019, 2020, 2022, 2023, 2024, 2025
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -433,6 +433,7 @@ SString & S_IPAddr::ToStr(long fmt, SString & rBuf) const
 bool S_IPAddr::FromStr(const char * pStr) // @construction
 {
 	bool    ok = true;
+	Z(); // @v12.2.4
 	THROW(!isempty(pStr));
 	while(oneof2(pStr[0], ' ', '\t'))
 		pStr++;

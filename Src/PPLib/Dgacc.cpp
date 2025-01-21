@@ -1,5 +1,5 @@
 // DGACC.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2023, 2024
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2023, 2024, 2025
 // @codepage windows-1251
 // Диалоговая группа ввода счета и аналитической статьи
 //
@@ -128,7 +128,7 @@ int AcctCtrlGroup::processAccInput(TDialog * dlg)
 	else {
 		if(!ppobj->ConvertStr(b, CurID, &acct, &AcctId, &AccSheetID)) {
 			PPError();
-			PTR32(b)[0] = 0;
+			b[0] = 0;
 			dlg->setCtrlData(ctl_acc, b);
 			dlg->selectCtrl(ctl_acc);
 			return 0;
@@ -171,7 +171,7 @@ void AcctCtrlGroup::processArtCombo(TDialog * dlg)
 	if(ctlsel_artname) {
 		dlg->getCtrlData(ctlsel_artname, &ar);
 		if(ar != AcctId.ar) {
-			PTR32(b)[0] = 0;
+			b[0] = 0;
 			if(ppobj->P_Tbl->Art.Search(ar) <= 0)
 				PPError();
 			else if(ar)
@@ -189,7 +189,7 @@ int AcctCtrlGroup::processArtInput(TDialog * dlg)
 	long   ar;
 	const  long prev_ar = AcctId.ar;
 	char   b[32];
-	PTR32(b)[0] = 0;
+	b[0] = 0;
 	dlg->getCtrlData(ctl_art, b);
 	if((ar = AccSheetID ? atol(b) : 0) != 0)
 		if((r = ppobj->P_Tbl->Art.SearchNum(AccSheetID, ar)) <= 0) {

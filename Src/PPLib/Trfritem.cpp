@@ -546,16 +546,14 @@ bool FASTCALL PPTransferItem::IsEq(const PPTransferItem & rS) const
 		RETIFNEQ(Rest_);
 		RETIFNEQ(RevalCost);
 	}
-	if(Flags & PPTFR_RECEIPT) {
+	if(Flags & (PPTFR_RECEIPT|PPTFR_DRAFT)) { // @v12.2.4 (|PPTFR_DRAFT)
 		RETIFNEQ(Suppl);
 		RETIFNEQ(LotTaxGrpID);
 		RETIFNEQ(ExtCost);
 	}
 #undef  RETIFNEQ
-	// @v10.5.8 {
 	if((TFlags & (tfQrSeqAccepted|tfQrSeqRejected)) != (rS.TFlags & (tfQrSeqAccepted|tfQrSeqRejected)))
 		return false;
-	// } @v10.5.8 
 	return true;
 }
 

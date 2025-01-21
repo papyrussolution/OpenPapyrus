@@ -4874,14 +4874,9 @@ public:
 	//
 	void   destroy();
 	//
-	// Descr: Обнуляет текущую длину данных экземпляра, не освобождая буфер.
+	// Descr: Обнуляет текущую длину данных экземпляра, не освобождая буфер и не меняя разделитель.
 	// Note: Следует использовать при необходимости повторного использования объекта
 	//   (распределенный ранее буфер улучшит производительность).
-	//
-	// @v11.8.3 void   clear(/*int dontFreeBuf = 0*/);
-	//
-	// Descr: Функционально идентична clear(), семантически же, соответствует SString::Z()
-	//   (не освобождает память и возвращает *this)
 	//
 	StringSet & Z();
 	int    FASTCALL copy(const StringSet & rS);
@@ -7007,6 +7002,7 @@ public:
 	{
 		memcpy(D, rS.D, sizeof(D));
 	}
+	bool operator ! () const { return IsZero(); } // @v12.2.4
 	TSBinary <BYTESIZE> & Z()
 	{
 		memzero(D, sizeof(D));
@@ -8462,7 +8458,7 @@ private:
 
 class STypArray : public SArray {
 public:
-	STypArray(TYPEID, /*uint aDelta = 8,*/ uint o /*= O_ARRAY*/);
+	STypArray(TYPEID, uint o/*= O_ARRAY*/);
 	virtual	void FASTCALL freeItem(void *);
 	TYPEID getType() const { return type; }
 	int    search(const void *, uint *) const;
@@ -8474,7 +8470,7 @@ protected:
 
 template <class T> class TSArray : public SArray {
 public:
-	explicit TSArray(uint o = O_ARRAY) : SArray(sizeof(T), /*8,*/ o) {}
+	explicit TSArray(uint o = O_ARRAY) : SArray(sizeof(T), o) {}
 	TSArray(const TSArray & src) : SArray(src) {}
 	T &    FASTCALL at(uint pos) const { return *reinterpret_cast<T *>(SArray::at(pos)); }
 };
@@ -17700,7 +17696,7 @@ public:
 	//
 	// Returns: false
 	//
-	bool   FASTCALL SetOsError(const char * pAddedMsg = 0);
+	bool   SetOsError(int outerOsErrCode, const char * pAddedMsg);
 	int    GetOsError() const;
 	const  SString & GetAddedMsgString() const;
 	int    LogMessage(const char * pFileName, const char * pStr, ulong maxFileSize = 0);

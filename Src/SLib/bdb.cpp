@@ -1,5 +1,5 @@
 // BDB.CPP
-// Copyright (c) A.Sobolev 2011, 2012, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 2011, 2012, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -224,7 +224,7 @@ BDbDatabase::BDbDatabase(const char * pHomeDir, Config * pCfg, long options) : S
 		if(options & oExclusive)
 			State |= stExclusive;
 		r = E->open(E, pHomeDir, opf, /* Open flags */0);
-		E->set_flags(E, DB_TXN_NOSYNC, 1); // @v10.1.8
+		E->set_flags(E, DB_TXN_NOSYNC, 1);
 	}
 	{
 		Config temp_cfg;
@@ -467,19 +467,14 @@ void * BDbDatabase::Helper_Open(const char * pFileName, BDbTable * pTbl, int fla
 	{
 		int    opf = DB_AUTO_COMMIT|DB_MULTIVERSION|DB_READ_UNCOMMITTED;
 		if(flags & BDbTable::ofExclusive) {
-			/* @v10.1.12
-			r = p_db->set_lk_exclusive(p_db, 1);  
-			THROW(ProcessError(r, p_db, pFileName));
-			*/
+			;
 		}
 		else
 			opf |= DB_THREAD;
 		if(flags & BDbTable::ofReadOnly)
 			opf |= DB_RDONLY;
-		// @v10.1.8 {
 		if(flags & BDbTable::ofReadUncommited)
 			opf |= DB_READ_UNCOMMITTED;
-		// } @v10.1.8
 		r = p_db->open(p_db, T.T, (r2 > 0) ? file_name.cptr() : 0, (r2 == 2) ? tbl_name.cptr() : 0, DB_UNKNOWN, opf, 0 /*mode*/);
 	}
 	THROW(ProcessError(r, p_db, pFileName));
@@ -543,7 +538,7 @@ int BDbDatabase::Helper_Create(const char * pFileName, int createMode, const BDb
 		THROW(ProcessError(p_db->set_partition(p_db, pCfg->PartitionCount, 0, BDbTable::PartitionCallback), p_db, pFileName));
 	}
 	{
-		int    opf = (DB_CREATE|DB_AUTO_COMMIT/*|DB_MULTIVERSION*/); // @v10.0.1 DB_MULTIVERSION 
+		int    opf = (DB_CREATE|DB_AUTO_COMMIT/*|DB_MULTIVERSION*/);
 		opf |= DB_THREAD;
 		r = p_db->open(p_db, T.T, (r2 > 0) ? file_name.cptr() : 0, (r2 == 2) ? tbl_name.cptr() : 0, dbtype, opf, 0 /*mode*/);
 	}
@@ -1378,10 +1373,8 @@ int BDbTable::Helper_Search(Buffer & rKey, Buffer & rData, uint32 flags)
 		SProfile::Measure pm;
 		DB_TXN * p_txn = P_Db ? static_cast<DB_TXN *>(*P_Db) : static_cast<DB_TXN *>(0);
 		int r = BDbDatabase::ProcessError(H->get(H, p_txn, rKey, rData, flags), H, 0);
-		// @v10.7.9 @fix {
 		if(r)
 			ok = 1;
-		// } @v10.7.9 @fix 
 		else if(!r && BtrError == BE_UBUFLEN) {
 			int    r2 = 0;
 			r2 = rData.Realloc();
@@ -1415,7 +1408,7 @@ int BDbTable::Search(int idx, Buffer & rKey, Buffer & rData)
 			pkey.Alloc(256);
 			uint32 flags = 0;
 			THROW_D(p_idx_tbl, BE_INVKEY);
-			THROW_D(p_idx_tbl->H, BE_INVKEY); // @v10.7.9
+			THROW_D(p_idx_tbl->H, BE_INVKEY);
 			{
 				SProfile::Measure pm;
 				DB_TXN * p_txn = P_Db ? static_cast<DB_TXN *>(*P_Db) : 0;
@@ -1440,7 +1433,7 @@ int BDbTable::Search(int idx, Buffer & rKey, Buffer & rData)
 int BDbTable::Helper_Put(Buffer & rKey, Buffer & rData, uint32 flags)
 {
 	int    ok = 0;
-	if(H) { // @v10.7.9
+	if(H) {
 		SProfile::Measure pm;
 		DB_TXN * p_txn = P_Db ? static_cast<DB_TXN *>(*P_Db) : 0;
 		ok = BDbDatabase::ProcessError(H->put(H, p_txn, rKey, rData, flags), H, 0);
@@ -1462,7 +1455,7 @@ int BDbTable::UpdateRec(Buffer & rKey, Buffer & rData) { return Helper_Put(rKey,
 int BDbTable::DeleteRec(Buffer & rKey)
 {
 	int    ok = 1;
-	if(H) { // @v10.7.9
+	if(H) {
 		SProfile::Measure pm;
 		DB_TXN * p_txn = P_Db ? static_cast<DB_TXN *>(*P_Db) : 0;
 		//int DB->del(DB *db, DB_TXN *txnid, DBT *key, uint32 flags);

@@ -1,5 +1,5 @@
 // TEXTBRW.CPP
-// Copyright (c) A.Starodub 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Starodub 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // STextBrowser
 //
 #include <pp.h>
@@ -927,8 +927,6 @@ STextBrowser::~STextBrowser()
 		}
 		DestroyWindow(HwndSci);
 	}
-	// @v10.9.11 (moved to ~TBaseBrowserWindow) P_Toolbar->DestroyHWND();
-	// @v10.9.11 (moved to ~TBaseBrowserWindow) ZDELETE(P_Toolbar);
 }
 
 int STextBrowser::SetSpecialMode(int spcm)
@@ -1554,16 +1552,6 @@ int SKeyAccelerator::Set(const KeyDownCommand & rK, int cmd)
 	return ok;
 }
 
-/* @v11.0.0 (replaced with TWindow::LoadToolbarResource) int STextBrowser::LoadToolbar(uint tbId)
-{
-	TVRez & rez = *P_SlRez;
-	ToolbarList tb_list;
-	int    r = rez.findResource(tbId, TV_EXPTOOLBAR, 0, 0) ? ImpLoadToolbar(rez, &tb_list) : 0;
-	if(r > 0)
-		setupToolbar(&tb_list);
-	return r;
-}*/
-
 /*static*/LRESULT CALLBACK STextBrowser::ScintillaWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	STextBrowser * p_this = reinterpret_cast<STextBrowser *>(::GetWindowLongPtr(hwnd, GWLP_USERDATA));
@@ -1615,7 +1603,7 @@ int STextBrowser::WMHCreate()
 	GetWindowRect(H(), &rc);
 	P_Toolbar = new TToolbar(H(), TBS_NOMOVE);
 	if(P_Toolbar && LoadToolbarResource(ToolbarID) > 0) {
-		P_Toolbar->Init(ToolbarID, &Toolbar);
+		P_Toolbar->Init(ToolbarID, &ToolbarL);
 		if(P_Toolbar->IsValid()) {
 			RECT tbr;
 			::GetWindowRect(P_Toolbar->H(), &tbr);

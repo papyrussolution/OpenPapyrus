@@ -1959,9 +1959,9 @@ int PPMarketplaceInterface_Wildberries::AddWareListToPromotion()
 	return ok;
 }
 
-int PPMarketplaceInterface_Wildberries::RequestPromoCampaignList() // @v12.2.3
+int PPMarketplaceInterface_Wildberries::RequestPromoCampaignList(TSCollection <Campaign> & rList) // @v12.2.3
 {
-	//rList.freeAll();
+	rList.freeAll();
 	int    ok = 1;
 	SJson * p_js_reply = 0;
 	SString temp_buf;
@@ -1989,7 +1989,74 @@ int PPMarketplaceInterface_Wildberries::RequestPromoCampaignList() // @v12.2.3
 							if(p_cur->Text.IsEqiAscii("adverts")) {
 								if(SJson::IsArray(p_cur->P_Child)) {
 									for(const SJson * p_js_item = p_cur->P_Child->P_Child; p_js_item; p_js_item = p_js_item->P_Next) {
-										//
+										if(SJson::IsObject(p_js_item)) {
+											int   _type = 0;
+											int   _status = 0;
+											int   _count = 0;
+											TSVector <uint> new_item_pos_list;
+											for(const SJson * p_ag_cur = p_js_item->P_Child; p_ag_cur; p_ag_cur = p_ag_cur->P_Next) {
+												if(p_ag_cur->Text.IsEqiAscii("type")) {
+													if(SJson::IsNumber(p_ag_cur->P_Child)) {
+														_type = p_ag_cur->P_Child->Text.ToLong();
+													}
+												}
+												else if(p_ag_cur->Text.IsEqiAscii("status")) {
+													if(SJson::IsNumber(p_ag_cur->P_Child)) {
+														_status = p_ag_cur->P_Child->Text.ToLong();
+													}
+												}
+												else if(p_ag_cur->Text.IsEqiAscii("count")) {
+													if(SJson::IsNumber(p_ag_cur->P_Child)) {
+														_count = p_ag_cur->P_Child->Text.ToLong();
+													}
+												}
+												else if(p_ag_cur->Text.IsEqiAscii("advert_list")) {
+													if(SJson::IsArray(p_ag_cur->P_Child)) {
+														for(const SJson * p_ag_item = p_ag_cur->P_Child->P_Child; p_ag_item; p_ag_item = p_ag_item->P_Next) {
+															if(SJson::IsObject(p_ag_item)) {
+																int64 _id = 0;
+																LDATETIME _cdtm(ZERODATETIME);
+																for(const SJson * p_agi_cur = p_ag_item->P_Child; p_agi_cur; p_agi_cur = p_agi_cur->P_Next) {
+																	if(p_agi_cur->Text.IsEqiAscii("advertId")) {
+																		if(SJson::IsNumber(p_agi_cur->P_Child)) {
+																			_id = p_ag_cur->P_Child->Text.ToInt64();
+																		}
+																	}
+																	else if(p_agi_cur->Text.IsEqiAscii("changeTime")) {
+																		if(SJson::IsString(p_agi_cur->P_Child)) {
+																			strtodatetime(p_agi_cur->P_Child->Text, &_cdtm, DATF_ISO8601, 0);
+																		}
+																	}
+																}
+																if(_id) {
+																	uint new_item_pos = 0;
+																	Campaign * p_new_item = rList.CreateNewItem(&new_item_pos);
+																	if(p_new_item) {
+																		new_item_pos_list.insert(&new_item_pos);
+																		p_new_item->ID = _id;
+																		p_new_item->ChangeDtm = _cdtm;
+																		p_new_item->Status = _status;
+																		p_new_item->Type = _type;
+																	}
+																}
+															}
+														}
+													}
+												}
+											}
+											//
+											// Следующий цикл - страховка на случай, если массив элементов advert_list будет предшествовать
+											// одному из элементов "type", "status". Я знаю, что это - маловероятно, но и не такое встречал.
+											//
+											for(uint nipidx = 0; nipidx < new_item_pos_list.getCount(); nipidx++) {
+												const uint new_item_pos = new_item_pos_list.at(nipidx);
+												Campaign * p_item = rList.at(new_item_pos);
+												if(p_item) {
+													p_item->Status = _status;
+													p_item->Type = _type;
+												}
+											}
+										}
 									}
 								}
 							}
@@ -4137,9 +4204,10 @@ int TestMarketplace()
 				//TSCollection <PPMarketplaceInterface_Wildberries::Income> income_list;
 				TSCollection <PPMarketplaceInterface_Wildberries::SalesRepDbpEntry> sales_rep_dbp_list;
 				TSCollection <PPMarketplaceInterface_Wildberries::Promotion> promo_list;
+				TSCollection <PPMarketplaceInterface_Wildberries::Campaign> campaign_list;
 
 				int r = 0;
-				r = p_ifc_wb->RequestPromoCampaignList(); // @v12.2.3
+				r = p_ifc_wb->RequestPromoCampaignList(campaign_list); // @v12.2.3
 				r = p_ifc_wb->RequestPromotionList(promo_list); // @v12.2.2
 				r = p_ifc_wb->RequestPromotionDetail(promo_list); // @v12.2.2
 				{

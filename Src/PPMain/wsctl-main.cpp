@@ -140,7 +140,10 @@ public:
 	WsCtlReqQueue();
 	int    FASTCALL Push(const Req & rReq);
 	int    FASTCALL Pop(Req & rReq);
-
+	void   Clear()
+	{
+		SQueue::clear();
+	}
 	Evnt   NonEmptyEv; // Событие поможет "разбудить" поток, принимающий данные из этой очереди. 
 private:
 	SMtLock Lck;
@@ -318,12 +321,14 @@ public:
 	//
 	class DPrc : public DServerError {
 	public:
-		DPrc() : PrcID(0), CurrentTSessID(0), ReservedTSessID(0), DtmActual(ZERODATETIME)
+		DPrc() : PrcID(0), ComputerID(0), CompCatID(0), CurrentTSessID(0), ReservedTSessID(0), DtmActual(ZERODATETIME)
 		{
 		}
 		LDATETIME DtmActual; // Момент последней актуализации данных
 		S_GUID PrcUuid;
 		PPID   PrcID;
+		PPID   ComputerID;      // @v12.2.4 Связанный с процессором компьютер (PPOBJ_COMPUTER)
+		PPID   CompCatID;       // @v12.2.4 Ид категории связанного с процессором компьютера   
 		PPID   CurrentTSessID;  // Текущая сессия процессора
 		PPID   ReservedTSessID; // Ближайшая (будущая) зарезервированная сессия процессора
 		MACAddrArray MacAdrList; // @v12.0.1 Список mac-адресов компьютера
@@ -636,8 +641,8 @@ public:
 			// это поле обязано поддерживать информацию о сеансе для своевременной остановки и прочих рабочих функций.
 		DbInfo Dbi; // @v12.1.11 После успешного выполнения //
 	};
-	int GetScreen() const { return Screen; }
-	int SetScreen(int scr);
+	int    GetScreenId() const { return ScrSt.GetScreenId(); }
+	int    SetScreenId(int scr) { return ScrSt.SetScreenId(scr); }
 	SString & InputLabelPrefix(const char * pLabel);
 
 	class ImDialog_WsCtlConfig : public ImDialogState {
@@ -657,100 +662,13 @@ public:
 		char   SubstTxt_User[128];
 		char   SubstTxt_Password[128];
 	};
+
 	class ImDialog_WsRegisterComputer : public ImDialogState {
 	public:
-		ImDialog_WsRegisterComputer(WsCtl_ImGuiSceneBlock & rBlk, WsCtl_SelfIdentityBlock * pCtx) : R_Blk(rBlk), 
-			ImDialogState(pCtx), CompCatID(0), WaitOnQueryResult(false)
-		{
-			SString temp_buf;
-			RVALUEPTR(Data, pCtx);
-			STRNSCPY(SubstTxt_Name, Data.PrcName);
-			if(Data.MacAdrList.getCount()) {
-				Data.MacAdrList.at(0).ToStr(0, temp_buf);
-			}
-			else
-				temp_buf.Z();
-			STRNSCPY(SubstTxt_MacAdr, temp_buf);
-			Data.Uuid.ToStr(S_GUID::fmtIDL, temp_buf);
-			STRNSCPY(SubstTxt_UUID, temp_buf);
-		}
-		~ImDialog_WsRegisterComputer()
-		{
-		}
-		virtual int Build()
-		{
-			int    result = 0;
-			SString temp_buf;
-			//const char * p_popup_title = "Register computer";
-			PPLoadStringUtf8("computerregistration", temp_buf);
-			ImGui::OpenPopup(temp_buf);
-			if(ImGui::BeginPopup(temp_buf)) {
-				DComputerCategoryList st_data_compcat_list;
-				R_Blk.St.D_CompCatList.GetData(st_data_compcat_list);
-				//
-				ImGui::InputText(R_Blk.InputLabelPrefix(PPLoadStringUtf8S("computername", temp_buf)), SubstTxt_Name, sizeof(SubstTxt_Name));
-				if(st_data_compcat_list.L.getCount()) {
-					const char * p_selected_text = 0;
-					if(CompCatID) {
-						for(uint i = 0; i < st_data_compcat_list.L.getCount(); i++) {
-							StrAssocArray::Item comp_cat_item = st_data_compcat_list.L.Get(i);
-							if(comp_cat_item.Id == CompCatID) {
-								p_selected_text = comp_cat_item.Txt;
-							}
-						}
-					}
-					if(ImGui::BeginCombo(R_Blk.InputLabelPrefix(PPLoadStringUtf8S("computercategory", temp_buf)), p_selected_text)) {
-						for(uint catidx = 0; catidx < st_data_compcat_list.L.getCount(); catidx++) {
-							StrAssocArray::Item item = st_data_compcat_list.L.Get(catidx);
-							if(ImGui::Selectable(item.Txt, item.Id == CompCatID)) {
-								CompCatID = item.Id;
-								//PgmL.SetSelectedCatSurrogateId(item.Id);
-							}
-						}
-						ImGui::EndCombo();
-					}
-				}
-				ImGui::InputText(R_Blk.InputLabelPrefix("MAC Address"), SubstTxt_MacAdr, sizeof(SubstTxt_MacAdr));
-				ImGui::InputText(R_Blk.InputLabelPrefix("UUID"), SubstTxt_UUID, sizeof(SubstTxt_UUID));
-				ImGui::NewLine();
-				if(ImGui::Button(PPLoadStringUtf8S("but_ok", temp_buf), R_Blk.P_ICD->ButtonSize_Std)) {
-					ImGui::CloseCurrentPopup();
-					result = 1;
-				}
-				ImGui::SameLine();
-				if(ImGui::Button(PPLoadStringUtf8S("but_cancel", temp_buf), R_Blk.P_ICD->ButtonSize_Std)) {
-					ImGui::CloseCurrentPopup();
-					result = -1;
-				}
-				ImGui::EndPopup();
-			}
-			return result;
-		}
-		virtual bool CommitData()
-		{
-			bool   ok = true;
-			if(P_Ctx) {
-				WsCtl_SelfIdentityBlock * p_blk = static_cast<WsCtl_SelfIdentityBlock *>(P_Ctx);
-				p_blk->CompCatID = CompCatID;
-				p_blk->PrcName = SubstTxt_Name;
-				{
-					MACAddr macadr;
-					p_blk->MacAdrList.clear();
-					if(macadr.FromStr(SubstTxt_MacAdr)) {
-						p_blk->MacAdrList.insert(&macadr);
-					}
-				}
-				{
-					S_GUID uuid;
-					if(uuid.FromStr(SubstTxt_UUID)) {
-						p_blk->Uuid = uuid;
-					}
-				}
-			}
-			else
-				ok = false;
-			return ok;
-		}
+		ImDialog_WsRegisterComputer(WsCtl_ImGuiSceneBlock & rBlk, WsCtl_SelfIdentityBlock * pCtx, PPID compCatID);
+		~ImDialog_WsRegisterComputer();
+		virtual int Build();
+		virtual bool CommitData();
 		void   SetWaitingOnQueryResult() { WaitOnQueryResult = true; }
 		void   ResetWaitingOnQueryResult() { WaitOnQueryResult = false; }
 		bool   IsWaitingOnQueryResult() const { return WaitOnQueryResult; }
@@ -791,7 +709,63 @@ private:
 	};
 	bool   ShowDemoWindow; // @sobolev true-->false
 	bool   ShowAnotherWindow;
-	int    Screen; // screenXXX
+	// @v12.2.4 (replaced with ScreenState ScrSt) int    Screen; // screenXXX
+	class ScreenState { // @v12.2.4
+	public:
+		ScreenState(WsCtl_ImGuiSceneBlock & rOwner) : R_Owner(rOwner), ScreenId(screenUndef), ErrState(0)
+		{
+		}
+		int    SetScreenId(int scr) 
+		{
+			int    ok = 0;
+			if(oneof8(scr, screenConstruction, screenHybernat, screenLogin, screenAuthSelectSess, screenSession, screenIntro, screenAdmin, screenRegistration)) {
+				if(ScreenId != scr) {
+					ScreenId = scr;
+					ErrState = 0;
+					ErrMessage.Z();
+					ok = 1;
+				}
+				else
+					ok = -1;
+			}
+			return ok;
+		}
+		int    GetScreenId() const { return ScreenId; }
+		int    SetErrState(int errSt)
+		{
+			int    ok = 0;
+			if(oneof3(errSt, errstateNone, errstateCommon, errstateServer)) {
+				if(errSt != ErrState) {
+					ErrState = errSt;
+					{
+						if(ErrState == errstateNone) {
+							ErrMessage.Z();
+						}
+						else if(ErrState == errstateServer) {
+							ErrMessage = R_Owner.LastSvrErr._Message;
+						}
+						else if(ErrState == errstateCommon) {
+							PPGetMessage(mfError, PPErrCode, 0, 1, ErrMessage);
+							ErrMessage.Transf(CTRANSF_INNER_TO_UTF8);
+						}
+					}
+					ok = 1;
+				}
+				else
+					ok = -1;
+			}
+			return ok;
+		}
+		int    GetErrState() const { return ErrState; }
+		int  & GetErrStateRef() { return ErrState; }
+		const SString & GetErrMessage() const { return ErrMessage; }
+	private:
+		WsCtl_ImGuiSceneBlock & R_Owner; // Ссылка для доступа к членам класса-владельца
+		int    ScreenId; // screenXXX
+		int    ErrState; // errstateXXX
+		SString ErrMessage;
+	};
+	ScreenState ScrSt; // @v12.2.4 
 	const  int ProgramGalleryScrollDirection; // DIREC_HORZ || DIREC_VERT
 	class Texture_CachedFileEntity : public SCachedFileEntity, public CommonTextureCacheEntry {
 	public:
@@ -980,8 +954,9 @@ private:
 	//   true - либо rErrState не находится в состоянии ошибки, либо пользователь нажал кнопку [Close] в диалоге и, соответственно, состояние ошибки сброшено.
 	//   false - состояние ошибки установлено и не изменилось в процессе исполнения функции
 	//
-	bool   ErrorPopup_(int & rErrState);
+	bool   ErrorPopup_(ScreenState & rScrSt);
 	static int CbInput(ImGuiInputTextCallbackData * pInputData);
+	int    LaunchClientSession();
 
 	//
 	char   TestInput[128];
@@ -1015,6 +990,7 @@ public:
 	int  ExecuteProgram(const WsCtl_ProgramEntry * pPe);
 	void EmitEvents();
 	void BuildScene();
+	int  TestConnection(const WsCtl_Config & rCfg, int & rTestConnectionResult, int & rTestLoginResult);
 };
 //
 //
@@ -1161,27 +1137,7 @@ WsCtl_ImGuiSceneBlock::ImDialog_WsCtlConfig::~ImDialog_WsCtlConfig()
 		if(CommitData()) {
 			ImGui::NewLine();
 			if(ImGui::Button(PPLoadStringUtf8S("test", temp_buf), R_Blk.P_ICD->ButtonSize_Std)) {
-				if(Data.Server.NotEmpty()) {
-					PPJobSrvClient cli;
-					if(cli.Connect(/*JsP*/Data.Server, /*JsP*/Data.Port)) {
-						TestConnectionResult = 1;
-						if(/*JsP*/Data.DbSymb.NotEmpty() && /*JsP*/Data.User.NotEmpty()) {
-							if(cli.Login(/*JsP*/Data.DbSymb, /*JsP*/Data.User, /*JsP*/Data.Password)) {
-								TestLoginResult = 1;
-							}
-							else {
-								TestLoginResult = 0;
-							}
-						}
-						else 
-							TestLoginResult = -1;
-					}
-					else {
-						TestConnectionResult = 0;
-					}
-				}
-				else
-					TestConnectionResult = -1;
+				R_Blk.TestConnection(Data, TestConnectionResult, TestLoginResult);
 				LastTestedForConnectionData = Data;
 			}
 			if(LastTestedForConnectionData.IsEq(Data)) {
@@ -1232,7 +1188,117 @@ WsCtl_ImGuiSceneBlock::ImDialog_WsCtlConfig::~ImDialog_WsCtlConfig()
 		ok = false;
 	return ok;
 }
+//
+//
+//
+WsCtl_ImGuiSceneBlock::ImDialog_WsRegisterComputer::ImDialog_WsRegisterComputer(WsCtl_ImGuiSceneBlock & rBlk, WsCtl_SelfIdentityBlock * pCtx, PPID compCatID) : 
+	R_Blk(rBlk), ImDialogState(pCtx), CompCatID(compCatID), WaitOnQueryResult(false)
+{
+	SString temp_buf;
+	RVALUEPTR(Data, pCtx);
+	STRNSCPY(SubstTxt_Name, Data.PrcName);
+	if(Data.MacAdrList.getCount()) {
+		Data.MacAdrList.at(0).ToStr(0, temp_buf);
+	}
+	else
+		temp_buf.Z();
+	STRNSCPY(SubstTxt_MacAdr, temp_buf);
+	Data.Uuid.ToStr(S_GUID::fmtIDL, temp_buf);
+	STRNSCPY(SubstTxt_UUID, temp_buf);
+}
 
+WsCtl_ImGuiSceneBlock::ImDialog_WsRegisterComputer::~ImDialog_WsRegisterComputer()
+{
+}
+
+/*virtual*/int WsCtl_ImGuiSceneBlock::ImDialog_WsRegisterComputer::Build()
+{
+	int    result = 0;
+	SString temp_buf;
+	//const char * p_popup_title = "Register computer";
+	PPLoadStringUtf8("computerregistration", temp_buf);
+	ImGui::OpenPopup(temp_buf);
+	if(ImGui::BeginPopup(temp_buf)) {
+		DComputerCategoryList st_data_compcat_list;
+		R_Blk.St.D_CompCatList.GetData(st_data_compcat_list);
+		//
+		ImGui::InputText(R_Blk.InputLabelPrefix(PPLoadStringUtf8S("computername", temp_buf)), SubstTxt_Name, sizeof(SubstTxt_Name));
+		if(st_data_compcat_list.L.getCount()) {
+			const char * p_selected_text = 0;
+			if(CompCatID) {
+				for(uint i = 0; i < st_data_compcat_list.L.getCount(); i++) {
+					StrAssocArray::Item comp_cat_item = st_data_compcat_list.L.Get(i);
+					if(comp_cat_item.Id == CompCatID) {
+						p_selected_text = comp_cat_item.Txt;
+					}
+				}
+			}
+			if(ImGui::BeginCombo(R_Blk.InputLabelPrefix(PPLoadStringUtf8S("computercategory", temp_buf)), p_selected_text)) {
+				for(uint catidx = 0; catidx < st_data_compcat_list.L.getCount(); catidx++) {
+					StrAssocArray::Item item = st_data_compcat_list.L.Get(catidx);
+					if(ImGui::Selectable(item.Txt, item.Id == CompCatID)) {
+						CompCatID = item.Id;
+						//PgmL.SetSelectedCatSurrogateId(item.Id);
+					}
+				}
+				ImGui::EndCombo();
+			}
+		}
+		// @v12.2.4 {
+		else if(st_data_compcat_list._Status != 0) {
+			ImGui::NewLine();
+			temp_buf.Z().Cat("Error getting computer category list");
+			if(st_data_compcat_list._Message.NotEmpty()) {
+				temp_buf.CatDiv(':', 2).Cat(st_data_compcat_list._Message);
+			}
+			ImGui::Text(temp_buf);
+		}
+		// } @v12.2.4 
+		ImGui::InputText(R_Blk.InputLabelPrefix("MAC Address"), SubstTxt_MacAdr, sizeof(SubstTxt_MacAdr));
+		ImGui::InputText(R_Blk.InputLabelPrefix("UUID"), SubstTxt_UUID, sizeof(SubstTxt_UUID));
+		ImGui::NewLine();
+		if(ImGui::Button(PPLoadStringUtf8S("but_ok", temp_buf), R_Blk.P_ICD->ButtonSize_Std)) {
+			ImGui::CloseCurrentPopup();
+			result = 1;
+		}
+		ImGui::SameLine();
+		if(ImGui::Button(PPLoadStringUtf8S("but_cancel", temp_buf), R_Blk.P_ICD->ButtonSize_Std)) {
+			ImGui::CloseCurrentPopup();
+			result = -1;
+		}
+		ImGui::EndPopup();
+	}
+	return result;
+}
+
+/*virtual*/bool WsCtl_ImGuiSceneBlock::ImDialog_WsRegisterComputer::CommitData()
+{
+	bool   ok = true;
+	if(P_Ctx) {
+		WsCtl_SelfIdentityBlock * p_blk = static_cast<WsCtl_SelfIdentityBlock *>(P_Ctx);
+		p_blk->CompCatID = CompCatID;
+		p_blk->PrcName = SubstTxt_Name;
+		{
+			MACAddr macadr;
+			p_blk->MacAdrList.clear();
+			if(macadr.FromStr(SubstTxt_MacAdr)) {
+				p_blk->MacAdrList.insert(&macadr);
+			}
+		}
+		{
+			S_GUID uuid;
+			if(uuid.FromStr(SubstTxt_UUID)) {
+				p_blk->Uuid = uuid;
+			}
+		}
+	}
+	else
+		ok = false;
+	return ok;
+}
+//
+//
+//
 WsCtl_ImGuiSceneBlock::DTSess::DTSess() : TSessID(0), GoodsID(0), TechID(0), SCardID(0), WrOffAmount(0.0), DtmActual(ZERODATETIME)
 {
 }
@@ -1941,9 +2007,9 @@ void WsCtl_ImGuiSceneBlock::WsCtl_CliSession::SendRequest(PPJobSrvClient & rCli,
 			if(P_St) {
 				SJson * p_js_param = 0;
 				PPJobSrvCmd cmd;
-				WsCtl_ImGuiSceneBlock::DPrc st_prc;
 				WsCtl_ImGuiSceneBlock::DComputerRegistration st_data;
 				WsCtlSrvBlock::ComputerRegistrationBlock comp_reg_blk;
+				WsCtl_ImGuiSceneBlock::DPrc st_prc;
 				P_St->D_Prc.GetData(st_prc);
 				comp_reg_blk.Name = rReq.P.NameTextUtf8;
 				comp_reg_blk.WsCtlUuid = rReq.P.Uuid;
@@ -2195,6 +2261,16 @@ void WsCtl_ImGuiSceneBlock::WsCtl_CliSession::SendRequest(PPJobSrvClient & rCli,
 							if(SJson::IsString(p_c)) {
 								st_data.PrcUuid.FromStr(p_c->Text);
 							}
+							// @v12.2.4 {
+							p_c = p_js_obj->FindChildByKey("computerid");
+							if(SJson::IsNumber(p_c)) {
+								st_data.ComputerID = p_c->Text.ToLong();
+							}
+							p_c = p_js_obj->FindChildByKey("compcatid");
+							if(SJson::IsNumber(p_c)) {
+								st_data.CompCatID = p_c->Text.ToLong();
+							}
+							// } @v12.2.4 
 							// @v11.7.12 {
 							{
 								// Сразу отправляем запрос на получение клиентской политики
@@ -2429,7 +2505,7 @@ void WsCtl_ImGuiSceneBlock::WsCtl_CliSession::SendRequest(PPJobSrvClient & rCli,
 	}
 }
 
-WsCtl_ImGuiSceneBlock::WsCtl_ImGuiSceneBlock() : ImGuiSceneBase(), ShowDemoWindow(false), ShowAnotherWindow(false), Screen(screenUndef),
+WsCtl_ImGuiSceneBlock::WsCtl_ImGuiSceneBlock() : ImGuiSceneBase(), ScrSt(*this), ShowDemoWindow(false), ShowAnotherWindow(false), /*Screen(screenUndef),*/
 	P_CmdQ(new WsCtlReqQueue), Cache_Texture(1024, 0), P_Dlg_Cfg(0), P_Dlg_RegComp(0), P_ICD(0),
 	ProgramGalleryScrollDirection(DIREC_HORZ)
 {
@@ -2440,20 +2516,6 @@ WsCtl_ImGuiSceneBlock::~WsCtl_ImGuiSceneBlock()
 {
 	// P_CmdQ не разрушаем поскольку на него ссылается отдельный поток.
 	// Все равно этот объект живет в течении всего жизненного цикла процесса.
-}
-
-int WsCtl_ImGuiSceneBlock::SetScreen(int scr)
-{
-	int    ok = 0;
-	if(oneof8(scr, screenConstruction, screenHybernat, screenLogin, screenAuthSelectSess, screenSession, screenIntro, screenAdmin, screenRegistration)) {
-		if(Screen != scr) {
-			Screen = scr;
-			ok = 1;
-		}
-		else
-			ok = -1;
-	}
-	return ok;
 }
 
 SString & WsCtl_ImGuiSceneBlock::InputLabelPrefix(const char * pLabel)
@@ -2480,6 +2542,86 @@ int WsCtl_ImGuiSceneBlock::ExecuteProgram(const WsCtl_ProgramEntry * pPe)
 	return ok;
 }
 
+int WsCtl_ImGuiSceneBlock::TestConnection(const WsCtl_Config & rCfg, int & rTestConnectionResult, int & rTestLoginResult)
+{
+	int    ok = 0;
+	if(rCfg.Server.NotEmpty()) {
+		PPJobSrvClient cli;
+		if(cli.Connect(rCfg.Server, rCfg.Port)) {
+			rTestConnectionResult = 1;
+			if(rCfg.DbSymb.NotEmpty() && rCfg.User.NotEmpty()) {
+				if(cli.Login(rCfg.DbSymb, rCfg.User, rCfg.Password)) {
+					cli.Logout();
+					rTestLoginResult = 1;
+					ok = 1;
+				}
+				else {
+					rTestLoginResult = 0;
+				}
+			}
+			else 
+				rTestLoginResult = -1;
+			cli.Disconnect();
+		}
+		else {
+			rTestConnectionResult = 0;
+		}
+	}
+	else
+		rTestConnectionResult = -1;
+	//LastTestedForConnectionData = Data;
+	return ok;
+}
+
+int WsCtl_ImGuiSceneBlock::LaunchClientSession()
+{
+	int    ok = 0;
+	LongArray ex_list;
+	DS.GetThreadListByKind(PPThread::kWsCtl, ex_list);
+	uint failed_iter_count = 0;
+	uint prev_ex_list_count = ex_list.getCount();
+	while(ex_list.getCount()) {
+		uint tidx = ex_list.getCount();
+		if(tidx) do {
+			long thr_id = ex_list.get(--tidx);
+			DS.StopThread(thr_id);
+		} while(tidx);
+		DS.GetThreadListByKind(PPThread::kWsCtl, ex_list);
+		if(ex_list.getCount() >= prev_ex_list_count) {
+			failed_iter_count++;
+			if(failed_iter_count >= 3) {
+				break;
+			}
+		}
+		else {
+			failed_iter_count = 0;
+		}
+		prev_ex_list_count = ex_list.getCount();
+	}
+	if(failed_iter_count) {
+		ok = 0; 
+	}
+	else {
+		JsP.Read();
+		int test_connection_result = -1;
+		int test_login_result = -1;
+		if(TestConnection(JsP, test_connection_result, test_login_result)) {
+			assert(test_connection_result > 0);
+			assert(test_login_result > 0);
+			//
+			//JsP.DbSymb.SetIfEmpty("wsctl");
+			//JsP.User.SetIfEmpty("master");
+			//JsP.Password.SetIfEmpty("");
+			//
+			P_CmdQ->Clear();
+			WsCtl_CliSession * p_sess = new WsCtl_CliSession(JsP, &St, P_CmdQ);
+			p_sess->Start(1);
+			ok = 1;
+		}
+	}
+	return ok;
+}
+
 /*virtual*/int WsCtl_ImGuiSceneBlock::Init(ImGuiIO & rIo)
 {
 	int    ok = 0;
@@ -2494,21 +2636,13 @@ int WsCtl_ImGuiSceneBlock::ExecuteProgram(const WsCtl_ProgramEntry * pPe)
 		JsP.Timeout = -1;
 	ini_file.Get(PPINISECT_SERVER, PPINIPARAM_SERVER_NAME, JsP.Server);
 	St.SidBlk.GetOwnIdentifiers();
-	JsP.Read();
-	if(JsP.Server.NotEmpty()) {
-		//
-		JsP.DbSymb.SetIfEmpty("wsctl");
-		JsP.User.SetIfEmpty("master");
-		JsP.Password.SetIfEmpty("");
-		//
-		WsCtl_CliSession * p_sess = new WsCtl_CliSession(JsP, &St, P_CmdQ);
-		p_sess->Start(1);
+	if(LaunchClientSession()) {
 		if(!!St.SidBlk.Uuid) {
 			WsCtlReqQueue::Req req(PPSCMD_WSCTL_INIT);
 			req.P.Uuid = St.SidBlk.Uuid;
 			P_CmdQ->Push(req);
 		}
-		ok = 1;
+		ok = 1;		
 	}
 	{
 		St.SetupSyncUpdateTime(State::syncdataPrices, 30000);
@@ -2731,12 +2865,13 @@ void WsCtl_ImGuiSceneBlock::EmitEvents()
 	return 0;
 }
 
-bool WsCtl_ImGuiSceneBlock::ErrorPopup_(int & rErrState)
+bool WsCtl_ImGuiSceneBlock::ErrorPopup_(ScreenState & rScrSt)
 {
 	bool result = false;
-	if(oneof2(rErrState, errstateCommon, errstateServer)) {
-		SString message;
+	if(oneof2(rScrSt.GetErrState(), errstateCommon, errstateServer)) {
 		const char * p_popup_title = "Error message";
+		SString message(rScrSt.GetErrMessage());
+		/* @v12.2.4
 		if(rErrState == errstateServer) {
 			message = LastSvrErr._Message;
 		}
@@ -2744,6 +2879,7 @@ bool WsCtl_ImGuiSceneBlock::ErrorPopup_(int & rErrState)
 			PPGetMessage(mfError, PPErrCode, 0, 1, message);
 			message.Transf(CTRANSF_INNER_TO_UTF8);
 		}
+		*/
 		if(message.IsEmpty())
 			message.Space().Z();
 		ImGui::OpenPopup(p_popup_title);
@@ -2751,9 +2887,9 @@ bool WsCtl_ImGuiSceneBlock::ErrorPopup_(int & rErrState)
 			ImGui::Text(message);
 			if(ImGui::Button("Close", P_ICD->ButtonSize_Std)) {
 				ImGui::CloseCurrentPopup();
-				if(rErrState == errstateServer)
+				if(rScrSt.GetErrState() == errstateServer)
 					LastSvrErr.Z();
-				rErrState = errstateNone;
+				rScrSt.SetErrState(errstateNone);
 				result = true;
 			}
 			ImGui::EndPopup();
@@ -3180,7 +3316,7 @@ void WsCtl_ImGuiSceneBlock::LoadProgramList2()
 
 void WsCtl_ImGuiSceneBlock::BuildScene()
 {
-	int    errstate = errstateNone;
+	// @v12.2.4 int    errstate = errstateNone;
 	const LDATETIME now_dtm = getcurdatetime_();
 	if(!TestBlk.DtmLastQuerySent || diffdatetimesec(now_dtm, TestBlk.DtmLastQuerySent) > 5) {
 		if(P_CmdQ) {
@@ -3209,7 +3345,7 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 			SUiLayout::Param evp;
 			evp.ForceSize.x = sz.x;
 			evp.ForceSize.y = sz.y;
-			const int _screen = GetScreen();
+			const int _screen = GetScreenId();
 			if(0) {
 				Texture_CachedFileEntity * p_bkg_te = Cache_Texture.Get(GetFilePathS(fnBackground, true, SLS.AcquireRvlStr()));
 				if(p_bkg_te && p_bkg_te->GetTexture()) {
@@ -3226,7 +3362,7 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 							void * p_icon_back = Cache_Icon.Get(ImgRtb, PPDV_ARROWBACK);
 							if(p_icon_back) {
 								if(ImGui::ImageButton(p_icon_back, ImVec2(ImGuiRuntimeBlock::IconSize, ImGuiRuntimeBlock::IconSize))) {
-									SetScreen(screenIntro);
+									SetScreenId(screenIntro);
 								}
 								//ImGui::Image(p_icon_back, ImVec2(WsCtlConst::IconSize, WsCtlConst::IconSize));
 							}
@@ -3245,6 +3381,10 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 								if(!P_Dlg_RegComp) { 
 									DComputerCategoryList st_data_compcat_list; // @v12.0.3
 									DComputerRegistration st_data_compreg;
+									// @v12.2.4 {
+									WsCtl_ImGuiSceneBlock::DPrc st_prc;
+									St.D_Prc.GetData(st_prc);
+									// } @v12.2.4 
 									St.D_CompReg.GetData(st_data_compreg); // Обнуляем текущее состояние регистрации компьютера
 									St.D_CompCatList.GetData(st_data_compcat_list);
 									if(St.SidBlk.PrcName.IsEmpty()) {
@@ -3253,7 +3393,7 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 									if(!st_data_compcat_list.DtmActual) {
 										P_CmdQ->Push(WsCtlReqQueue::Req(WsCtl_CliSession::reqidQueryComputerCategoryList));
 									}
-									P_Dlg_RegComp = new ImDialog_WsRegisterComputer(*this, &St.SidBlk);
+									P_Dlg_RegComp = new ImDialog_WsRegisterComputer(*this, &St.SidBlk, st_prc.CompCatID);
 								}
 							}
 							if(ImGui::Button2("Create profile image...", button_size)) {
@@ -3265,7 +3405,18 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 									if(r != 0) {
 										if(r > 0) {
 											if(P_Dlg_Cfg->CommitData()) {
-												JsP.Write();
+												if(JsP.Write()) {
+													if(LaunchClientSession()) {
+														if(!!St.SidBlk.Uuid) {
+															WsCtlReqQueue::Req req(PPSCMD_WSCTL_INIT);
+															req.P.Uuid = St.SidBlk.Uuid;
+															P_CmdQ->Push(req);
+														}
+													}
+												}
+												else {
+													ScrSt.SetErrState(errstateCommon); 
+												}
 											}
 										}
 										ZDELETE(P_Dlg_Cfg);
@@ -3278,6 +3429,11 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 										if(st_data._Status == 0) {
 											if(st_data.ComputerID) {
 												// @todo @ok
+												if(!!St.SidBlk.Uuid) {
+													WsCtlReqQueue::Req req(PPSCMD_WSCTL_INIT);
+													req.P.Uuid = St.SidBlk.Uuid;
+													P_CmdQ->Push(req);
+												}
 												ZDELETE(P_Dlg_RegComp); // Уходим из диалога
 											}
 										}
@@ -3311,6 +3467,7 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 									}
 								}
 							}
+							ErrorPopup_(ScrSt); // @v12.2.4
 						}
 					}
 				}
@@ -3331,11 +3488,11 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 								PPLoadTextUtf8(PPTXT_PRESSTOAUTHANDSTART, r_temp_buf);
 								ImVec2 sz(256.0f, 64.0f);
 								if(ImGui::Button2(r_temp_buf, /*ButtonSize_Std*/sz, ImGuiButtonFlags_NoShadow)) {
-									SetScreen(screenLogin);
+									SetScreenId(screenLogin);
 								}
 								PPLoadStringUtf8("registration", r_temp_buf);
 								if(ImGui::Button2(r_temp_buf, /*ButtonSize_Std*/sz, ImGuiButtonFlags_NoShadow)) {
-									SetScreen(screenRegistration);
+									SetScreenId(screenRegistration);
 								}
 								GImGui->Style.FrameBorderSize = preserve_fbs;
 							}
@@ -3355,7 +3512,7 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 						void * p_icon_back = Cache_Icon.Get(ImgRtb, PPDV_ARROWBACK);
 						if(p_icon_back) {
 							if(ImGui::ImageButton(p_icon_back, ImVec2(ImGuiRuntimeBlock::IconSize, ImGuiRuntimeBlock::IconSize))) {
-								SetScreen(screenIntro);
+								SetScreenId(screenIntro);
 							}
 						}
 					}
@@ -3367,14 +3524,14 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 							St.D_Reg.GetData(data_reg);
 							if(data_reg.SCardID && data_reg.PersonID && data_reg._Status == 0) {
 								RegBlk.Z();
-								SetScreen(screenLogin);
+								SetScreenId(screenLogin);
 							}
 							else {
 								{
 									//
 									// Handle an error
 									//
-									errstate = errstateNone;
+									// @v12.2.4 errstate = errstateNone;
 									if(!data_reg.SCardID || !data_reg.PersonID || data_reg._Status != 0) {
 										LastSvrErr = data_reg;
 										// Сбрасываем информацию об ошибке {
@@ -3382,16 +3539,18 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 										St.D_Reg.SetData(data_reg);
 										// }
 										if(LastSvrErr._Message.NotEmpty()) {
-											errstate = errstateServer;
+											// @v12.2.4 errstate = errstateServer;
+											ScrSt.SetErrState(errstateServer); // @v12.2.4
 										}
 									}
 									else if(LastSvrErr._Status != 0) {
 										if(LastSvrErr._Message.NotEmpty()) {
-											errstate = errstateServer;
+											// @v12.2.4 errstate = errstateServer;
+											ScrSt.SetErrState(errstateServer); // @v12.2.4
 										}
 									}
 									//LastServerErrorPopup(is_err);
-									ErrorPopup_(errstate);
+									ErrorPopup_(ScrSt);
 								}
 								{
 									SString & r_name_buf = SLS.AcquireRvlStr();
@@ -3434,7 +3593,7 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 						void * p_icon_back = Cache_Icon.Get(ImgRtb, PPDV_ARROWBACK);
 						if(p_icon_back) {
 							if(ImGui::ImageButton(p_icon_back, ImVec2(ImGuiRuntimeBlock::IconSize, ImGuiRuntimeBlock::IconSize))) {
-								SetScreen(screenIntro);
+								SetScreenId(screenIntro);
 							}
 						}
 					}
@@ -3446,14 +3605,14 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 							St.D_Auth.GetData(data_auth);
 							if(data_auth.SCardID && data_auth._Status == 0) {
 								LoginBlk.Z();
-								SetScreen(screenAuthSelectSess);
+								SetScreenId(screenAuthSelectSess);
 							}
 							else {
 								{
 									//
 									// Handle an error
 									//
-									errstate = errstateNone;
+									// @v12.2.4 errstate = errstateNone;
 									if(!data_auth.SCardID && data_auth._Status != 0) {
 										LastSvrErr = data_auth;
 										// Сбрасываем информацию об ошибке {
@@ -3461,18 +3620,17 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 										St.D_Auth.SetData(data_auth);
 										// }
 										if(LastSvrErr._Message.NotEmpty()) {
-											//is_err = true;
-											errstate = errstateServer;
+											// @v12.2.4 errstate = errstateServer;
+											ScrSt.SetErrState(errstateServer); // @v12.2.4
 										}
 									}
 									else if(LastSvrErr._Status != 0) {
 										if(LastSvrErr._Message.NotEmpty()) {
-											//is_err = true;
-											errstate = errstateServer;
+											// @v12.2.4 errstate = errstateServer;
+											ScrSt.SetErrState(errstateServer); // @v12.2.4
 										}
 									}
-									//LastServerErrorPopup(is_err);
-									ErrorPopup_(errstate);
+									ErrorPopup_(ScrSt);
 								}
 								ImGui::InputText(InputLabelPrefix(PPLoadStringUtf8S("phone", SLS.AcquireRvlStr())), 
 									LoginBlk.LoginText, sizeof(LoginBlk.LoginText), ImGuiInputTextFlags_CallbackAlways, CbInput, this);
@@ -3490,7 +3648,7 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 											P_CmdQ->Push(req);
 										}
 										if(ImGui::Button("Admin", P_ICD->ButtonSize_Std)) {
-											SetScreen(screenAdmin);
+											SetScreenId(screenAdmin);
 										}
 									}
 								}
@@ -3508,12 +3666,12 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 					St.D_Acc.GetData(st_data_acc);
 					St.D_TSess.GetData(st_data_tses);
 					if(st_data_acc.SCardID == 0) {
-						SetScreen(screenConstruction); // @todo Здесь надо перейти на какой-то вменяемый экран, а не на отладочную панель!
+						SetScreenId(screenConstruction); // @todo Здесь надо перейти на какой-то вменяемый экран, а не на отладочную панель!
 						SessF.Finish(); // @v11.8.7
 					}
 					else if(st_data_tses.TSessID == 0) {
 						SessF.Finish(); // @v11.8.5
-						SetScreen(screenAuthSelectSess);
+						SetScreenId(screenAuthSelectSess);
 					}
 					else {
 						SUiLayout tl(*p_tl_);
@@ -3571,17 +3729,19 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 					St.D_TSess.GetData(st_data_tses);
 					if(st_data_tses.TSessID && st_data_tses._Status == 0) {
 						SessF.SetClientPolicy(PolicyL); // @v11.8.6
-						if(!errstate && SessF.Start()) { // @v11.8.5
-							errstate = errstateNone;
-							SetScreen(screenSession);
+						if(!ScrSt.GetErrState() && SessF.Start()) { // @v11.8.5
+							// @v12.2.4 errstate = errstateNone;
+							ScrSt.SetErrState(errstateNone); // @v12.2.4
+							SetScreenId(screenSession);
 						}
 						else {
-							errstate = errstateCommon;
-							if(ErrorPopup_(errstate)) {
-								assert(!errstate);
+							// @v12.2.4 errstate = errstateCommon;
+							ScrSt.SetErrState(errstateCommon); // @v12.2.4
+							if(ErrorPopup_(ScrSt)) {
+								assert(!ScrSt.GetErrState());
 								st_data_tses.Z();
 								St.D_TSess.SetData(st_data_tses);
-								SetScreen(screenConstruction); // @debug
+								SetScreenId(screenConstruction); // @debug
 							}
 						}
 					}
@@ -3591,7 +3751,8 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 							// Handle an error
 							//
 							//bool is_err = false;
-							errstate = errstateNone;
+							// @v12.2.4 errstate = errstateNone;
+							ScrSt.SetErrState(errstateNone); // @v12.2.4
 							if(!st_data_tses.TSessID && st_data_tses._Status != 0) {
 								LastSvrErr = st_data_tses;
 								// Сбрасываем информацию об ошибке {
@@ -3600,17 +3761,19 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 								// }
 								if(LastSvrErr._Message.NotEmpty()) {
 									//is_err = true;
-									errstate = errstateServer;
+									// @v12.2.4 errstate = errstateServer;
+									ScrSt.SetErrState(errstateServer); // @v12.2.4
 								}
 							}
 							else if(LastSvrErr._Status != 0) {
 								if(LastSvrErr._Message.NotEmpty()) {
 									//is_err = true;
-									errstate = errstateServer;
+									// @v12.2.4 errstate = errstateServer;
+									ScrSt.SetErrState(errstateServer); // @v12.2.4
 								}
 							}
 							//LastServerErrorPopup(is_err);
-							ErrorPopup_(errstate);
+							ErrorPopup_(ScrSt);
 						}
 						p_tl->Evaluate(&evp);
 						{
@@ -3620,7 +3783,7 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 								if(ImGui::ImageButton(p_icon_back, ImVec2(ImGuiRuntimeBlock::IconSize, ImGuiRuntimeBlock::IconSize))) {
 									DAuth data_auth;
 									St.D_Auth.SetData(data_auth);
-									SetScreen(screenLogin);
+									SetScreenId(screenLogin);
 								}
 							}
 						}
@@ -3759,10 +3922,10 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 							button_size.y = 0.0f;
 							ImGui::Text("X");
 							if(ImGui::Button("Login...", button_size)) {
-								SetScreen(screenLogin);
+								SetScreenId(screenLogin);
 							}
 							if(ImGui::Button("Select session...", button_size)) {
-								SetScreen(screenAuthSelectSess);
+								SetScreenId(screenAuthSelectSess);
 							}
 							if(ImGui::Button("Start...", button_size)) {
 								;
@@ -3774,7 +3937,7 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 								PolicyL.CreateSystemImage();
 							}
 							if(ImGui::Button("Intro Screen...", button_size)) {
-								SetScreen(screenIntro);
+								SetScreenId(screenIntro);
 							}
 						}
 					}
@@ -4137,7 +4300,7 @@ int main(int argc, char ** ppArgv)
 		scene_blk.Init(io);
 		{
 			int   init_screen = development_mode ? WsCtl_ImGuiSceneBlock::screenConstruction : WsCtl_ImGuiSceneBlock::screenIntro;
-			scene_blk.SetScreen(init_screen);
+			scene_blk.SetScreenId(init_screen);
 		}
 		/* @v12.2.1 {
 			const char * p_img_path = "/Papyrus/Src/PPTEST/DATA/test-gif.gif";

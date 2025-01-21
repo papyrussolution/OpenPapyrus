@@ -1,5 +1,5 @@
 // PPLOG.CPP
-// Copyright (c) A.Sobolev, A.Osolotkin 1999, 2000, 2001, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev, A.Osolotkin 1999, 2000, 2001, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -26,7 +26,6 @@ private:
 	static LRESULT CALLBACK ScintillaWindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 	virtual int ProcessCommand(uint ppvCmd, const void * pHdr, void * pBrw);
 	int    WMHCreate();
-	// @v11.0.0 (replaced with TWindow::LoadToolbarResource) int    LoadToolbar(uint tbId);
 	HWND   GetSciWnd() const { return HwndSci; }
 	void   Resize();
 
@@ -163,16 +162,6 @@ int LogListWindowSCI::ProcessCommand(uint ppvCmd, const void * pHdr, void * pBrw
 	return ok;
 }
 
-/* @v11.0.0 (replaced with TWindow::LoadToolbarResource) int LogListWindowSCI::LoadToolbar(uint tbId)
-{
-	TVRez & rez = *P_SlRez;
-	ToolbarList tb_list;
-	const int r = rez.findResource(tbId, TV_EXPTOOLBAR, 0, 0) ? ImpLoadToolbar(rez, &tb_list) : 0;
-	if(r > 0)
-		setupToolbar(&tb_list);
-	return r;
-}*/
-
 int LogListWindowSCI::WMHCreate()
 {
 	RECT   rc;
@@ -180,7 +169,7 @@ int LogListWindowSCI::WMHCreate()
 	GetWindowRect(HW, &rc);
 	P_Toolbar = new TToolbar(HW, TBS_NOMOVE);
 	if(P_Toolbar && LoadToolbarResource(toolbar_id) > 0) {
-		P_Toolbar->Init(toolbar_id, &Toolbar);
+		P_Toolbar->Init(toolbar_id, &ToolbarL);
 		if(P_Toolbar->IsValid()) {
 			RECT tbr;
 			::GetWindowRect(P_Toolbar->H(), &tbr);

@@ -1,5 +1,5 @@
 // WINPROFILE.CPP
-// Copyright (c) A.Sobolev 2023
+// Copyright (c) A.Sobolev 2023, 2025
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -172,7 +172,7 @@ struct SystemLogonParamBlock {
 					}
 					else {
 						//DWORD gle = ::GetLastError();
-						SLS.SetOsError("DuplicateTokenEx");
+						SLS.SetOsError(0, "DuplicateTokenEx");
 						_ASSERT(0);
 						//Log(StrFormat(L"Error duplicating a user token (%S, %d)", file, line), GetLastError());
 					}
@@ -199,14 +199,14 @@ struct SystemLogonParamBlock {
 					}
 					else { // @error
 						::CloseHandle(h_token);
-						SLS.SetOsError("LoadUserProfile");
+						SLS.SetOsError(0, "LoadUserProfile");
 						h_token = 0;
 					}
 				}
 				result = h_token;
 			}
 			else {
-				SLS.SetOsError("LogonUser");
+				SLS.SetOsError(0, "LogonUser");
 			}
 		}
 		return result;

@@ -1,5 +1,5 @@
 // PPSOAPCLIENT.CPP
-// Copyright (c) A.Sobolev 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -45,15 +45,15 @@ int FASTCALL PPSoapDestroyResultPtr(void * p)
 
 PPSoapClientSession::PPSoapClientSession() : ErrCode(0)
 {
-	PTR32(Url)[0] = 0;
-	PTR32(ErrMsg)[0] = 0;
+	Url[0] = 0;
+	ErrMsg[0] = 0;
 }
 
 void PPSoapClientSession::Setup(const char * pUrl)
 {
 	STRNSCPY(Url, pUrl);
 	ErrCode = 0;
-	PTR32(ErrMsg)[0] = 0;
+	ErrMsg[0] = 0;
 	User.Z();
 	Password.Z();
 }
@@ -320,7 +320,7 @@ void FASTCALL UhttTagItem::SetValue(const char * pText) { _StripAndTransfToUtf8(
 //
 UhttBrandPacket::UhttBrandPacket() : ID(0), OwnerID(0), Flags(0)
 {
-	PTR32(Name)[0] = 0;
+	Name[0] = 0;
 }
 //
 //
@@ -336,8 +336,8 @@ void FASTCALL UhttStyloDevicePacket::SetSymb(const char * pText) { _StripAndTran
 //
 UhttGoodsPacket::UhttGoodsPacket() : ID(0), BrandID(0), ManufID(0), Package(0.0)
 {
-	PTR32(Name)[0] = 0;
-	PTR32(SingleBarcode)[0] = 0;
+	Name[0] = 0;
+	SingleBarcode[0] = 0;
 }
 
 UhttGoodsPacket & FASTCALL UhttGoodsPacket::operator = (const UhttGoodsPacket & rS)
@@ -396,7 +396,7 @@ void FASTCALL UhttGoodsPacket::SetExt(int extFldId, const char * pText)
 //
 UhttCodeRefItem::UhttCodeRefItem() : PrivateID(0), UhttID(0), InnerPos(0)
 {
-	PTR32(Code)[0] = 0;
+	Code[0] = 0;
 }
 
 UhttCodeRefItem & FASTCALL UhttCodeRefItem::Set(int privateID, const char * pCode)

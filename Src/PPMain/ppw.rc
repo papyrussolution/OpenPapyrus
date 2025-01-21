@@ -12867,7 +12867,7 @@ BEGIN
     CONTROL         "@personfilt_floctagf",17593,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,265,105,205,10
     CONTROL         "@personfilt_fshowfiasrcgn",21689,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,265,115,205,10
     CONTROL         "@personfilt_fcliactivitystats",25785,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,265,125,210,10
-    LTEXT           "ƒата анализа состо€ни€ клиентской активности",4007,265,155,210,8,0,WS_EX_RIGHT
+    LTEXT           "@personfilt_clientactivityevaldate",4007,265,155,210,8,0,WS_EX_RIGHT
     EDITTEXT        CTL_PSNFLT_CASDT,410,165,50,13,ES_AUTOHSCROLL
     LTEXT           "@personfilt_newcliperiod",4008,270,185,190,8,0,WS_EX_RIGHT
     EDITTEXT        CTL_PSNFLT_NEWCLIPERIOD,355,195,105,13,ES_AUTOHSCROLL
@@ -12878,11 +12878,12 @@ BEGIN
     CONTROL         "@clientactivity_state_delayedta",17607,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,489,190,177,10
     CONTROL         "@clientactivity_state_hldelayedta",21703,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,489,201,177,10
     CONTROL         "@clientactivity_state_new",25799,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,489,210,177,10
-    PUSHBUTTON      "@but_addendum",4010,5,190,65,13
+    PUSHBUTTON      "@{cfgperson_clientactivity}...",4010,265,220,195,13
+    PUSHBUTTON      "@but_addendum",4011,5,190,65,13
     PUSHBUTTON      "@but_tags",STDCTL_TAGSBUTTON,80,190,65,13
     PUSHBUTTON      "@but_sysj",STDCTL_SJBUTTON,155,190,65,13
-    DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,95,225,50,13
-    PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,170,225,50,13
+    DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,95,220,50,13
+    PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,170,220,50,13
     PUSHBUTTON      "",CTLCAL_PSNFLT_NEWCLIPERIOD,460,195,13,13,BS_BITMAP | NOT WS_TABSTOP
     GROUPBOX        "",IDC_STATIC,260,65,220,75
     GROUPBOX        "",IDC_STATIC,260,140,415,100

@@ -1,5 +1,5 @@
 // PPBUILD.CPP
-// Copyright (c) A.Sobolev 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -535,7 +535,7 @@ int PrcssrBuild::Helper_Compile(const Param::ConfigEntry * pCfgEntry, int supple
 				rLogger.Log(msg_buf.Printf(fmt_buf, temp_buf.cptr()));
 				int    r = ::CreateProcess(0, static_cast<TCHAR *>(cmd_line.vptr()), 0, 0, FALSE, 0, 0, SUcSwitch(p_prc_cur_dir), &si, &pi);
 				if(!r) {
-					SLS.SetOsError(0);
+					SLS.SetOsError(0, 0);
 					CALLEXCEPT_PP(PPERR_SLIB);
 				}
 				WaitForSingleObject(pi.hProcess, INFINITE); // Wait until child process exits.
@@ -700,7 +700,7 @@ int	PrcssrBuild::Run()
 				logger.Log(msg_buf.Printf(fmt_buf, temp_buf.cptr()));
 				int    r = ::CreateProcess(0, static_cast<TCHAR *>(cmd_line.vptr()), 0, 0, FALSE, 0, 0, SUcSwitch(build_path), &si, &pi); // @unicodeproblem
 				if(!r) {
-					SLS.SetOsError(0);
+					SLS.SetOsError(0, 0);
 					CALLEXCEPT_PP(PPERR_SLIB);
 				}
 				WaitForSingleObject(pi.hProcess, INFINITE); // Wait until child process exits.
@@ -823,7 +823,7 @@ int PrcssrBuild::BuildLocalDl600(const char * pPath)
 			strnzcpy(static_cast<TCHAR *>(cmd_line_buf.vptr()), SUcSwitch(cmd_line), cmd_line_buf.GetSize()/sizeof(TCHAR));
 			cpr = ::CreateProcess(0, static_cast<TCHAR *>(cmd_line_buf.vptr()), 0, 0, FALSE, 0, 0, SUcSwitch(cur_dir), &si, &pi); // @unicodeproblem
 			if(!cpr) {
-				SLS.SetOsError(0);
+				SLS.SetOsError(0, 0);
 				CALLEXCEPT_PP(PPERR_SLIB);
 			}
 			WaitForSingleObject(pi.hProcess, INFINITE); // Wait until child process exits.

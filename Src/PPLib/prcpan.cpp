@@ -1,5 +1,5 @@
 // PRCPAN.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2010, 2011, 2013, 2015, 2016, 2017, 2019, 2020, 2022, 2024
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2010, 2011, 2013, 2015, 2016, 2017, 2019, 2020, 2022, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -31,8 +31,8 @@ private:
 	struct Header {
 		Header() : PrcID(0), SessID(0), MainGoodsID(0), MainGoodsPack(0.0), LinkBillID(0)
 		{
-			PTR32(SessText)[0] = 0;
-			PTR32(MainGoodsName)[0] = 0;
+			SessText[0] = 0;
+			MainGoodsName[0] = 0;
 		}
 		PPID   PrcID;
 		ProcessorTbl::Rec PrcRec;
@@ -46,9 +46,9 @@ private:
 	struct Entry : public TSessLineTbl::Rec {
 		Entry() : TSessLineTbl::Rec(), Pack(0.0), PackQtty(0.0)
 		{
-			PTR32(GoodsName)[0] = 0;
+			GoodsName[0] = 0;
 		}
-		char   GoodsName[64];
+		char   GoodsName[128]; // @v12.2.4 [64]-->[128]
 		double Pack;       // Емкость упаковки
 		double PackQtty;   // Количество упаковок
 	};

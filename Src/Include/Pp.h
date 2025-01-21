@@ -1559,7 +1559,7 @@ public:
 	static int IdTSessBillLinkTo_Text; // @v11.6.12 (fldBillID)
 	static int IdBillMemoSubStr;    // @v11.7.4 (fldBillID, const char *) Определяет, содержит ли примечание к документу заданную подстроку
 	static int IdBillAmount;        // @v12.1.0 (fldBillID, amountType)
-	static int IdClientActivityStatisticsIndicator; // @v12.2.2 (personID, indicator/*PPObjPerson::casiXXX*/) Возвращает значение индикатора статистики клиентской активности
+	static int IdClientActivityStatisticsIndicator; // @v12.2.2 (personID, actualDate, indicator/*PPObjPerson::casiXXX*/) Возвращает значение индикатора статистики клиентской активности
 	static int IdClientActivityState; // @v12.2.2 (personID, LDATE actualDate, LDATE newCliPeriodLo, LDATE newCliPeriodUp) Возвращает ClientActivityState::State
 
 	static int Register();
@@ -1876,13 +1876,7 @@ struct PPBackupScen { // @flat // @persistent
 	PPBackupScen & Z();
 	bool   FASTCALL IsEq(const PPBackupScen & rS) const;
 	bool   ValidateValue_MaxCopies() const { return (MaxCopies > 0 && MaxCopies <= 1000); }
-	bool   NormalizeValue_MaxCopies()
-	{
-		const bool ok = ValidateValue_MaxCopies();
-		if(!ok)
-			MaxCopies = 1;
-		return ok;
-	}
+	bool   NormalizeValue_MaxCopies();
 	int    ToStr(SString & rBuf) const;
 	long   ID;
 	long   Period;     // Backup period (days)
@@ -1890,10 +1884,8 @@ struct PPBackupScen { // @flat // @persistent
 	uint32 MaxCopies;  // Max number of copies // @v12.1.8 long NumCopies-->uint32 MaxCopies
 	char   Name[64];
 	char   DBName[64];
-	char   BackupPath[261]; // @v10.8.2 MAX_PATH-->261 (из-за @persistent)
+	char   BackupPath[261]; // абсолютное значение (не макрос) из-за @persistent
 };
-
-//void TestMonitor();
 
 class PPBackup : public DBBackup {
 public:
@@ -7411,7 +7403,7 @@ public:
 	void   LogLocStk();
 	//
 	// Descr: Останавливает поток с идентификатором tId.
-	// Note: Могут быть остановлены только потоки видов PPThread::kJob, PPThread::kNetSession.
+	// Note: Могут быть остановлены только потоки видов PPThread::kJob, PPThread::kNetSession, PPThread::kStyloQServer, PPThread::kWsCtl
 	//
 	int    StopThread(ThreadID tId);
 	//
@@ -10662,6 +10654,7 @@ private:
 //
 // Будем различать следующие виды сумм элемента PPTransferItem
 //
+#define TIAMT_UNDEF              0 // @v12.2.4 undefined 
 #define TIAMT_COST               1 // Cost * Quantity
 #define TIAMT_PRICE              2 // NetPrice() * Quantity
 #define TIAMT_AMOUNT             3 // CalcAmount()
@@ -12244,9 +12237,9 @@ public:
 	//  0  - ошибка.
 	//
 	int    GetDebtDim(PPID * pDebtDimID) const;
-	int    CalcModifCost();
-	int    CalcTotal(BillTotalData *, long btcFlags /* BTC_XXX */);
-	int    CalcTotal(BillTotalData *, PPID goodsTypeID, long btcFlags /* BTC_XXX */);
+	void   CalcModifCost();
+	int    CalcTotal(BillTotalData & rTotal, long btcFlags /* BTC_XXX */);
+	int    CalcTotal(BillTotalData & rTotal, PPID goodsTypeID, long btcFlags /* BTC_XXX */);
 	bool   SearchGoods(PPID goodsID, uint * pPos) const;
 	int    HasOneOfGoods(const ObjIdListFilt & rList) const;
 	//
@@ -24825,6 +24818,21 @@ public:
 	};
 	int    CheckStruct(PPIDArray * pGoodsIDs, PPIDArray * pStructIDs, const PPGoodsStruc * pStruct,
 		TSCollection <CheckGsProblem> * pProblemList, PPLogger * pLogger);
+	// @v12.2.4 @construction {
+	// Далее - просто прикидка по поводу как реализовывать экспорт/импорт товарных структур.
+	// Общая идея такова, чтоб использовать предопределенный собственный формат (xml and (or) json).
+	// Основные проблемы - в идентификации товаров при импорте.
+	//
+	// Descr: Параметры импорта/экспорта товарных структур
+	//
+	struct ImpExpParam {
+		ImpExpParam()
+		{
+		}
+	};
+	int    Export(const PPIDArray & rStrucIdList, const ImpExpParam & rParam, const char * pFileName);
+	int    Import(const char * pFileName, const ImpExpParam * pParam);
+	// } @v12.2.4 @construction 
 private:
 	static  int  EditExtDialog(PPGoodsStruc *);
 	virtual StrAssocArray * MakeStrAssocList(void * extraPtr /*goodsID*/);
@@ -24852,12 +24860,17 @@ int LoadGoodsStruc(const PPGoodsStruc::Ident & rIdent, PPGoodsStruc * pGs);
 	// по какой ставке облагается товар. В общем, это - та хрень, которую вводят в России с 2025 года (5% и 7%)
 
 struct PPGoodsTaxEntry { // @flat
+	static const PPGoodsTaxEntry & GetVatFreeEntry()
+	{
+		static PPGoodsTaxEntry entry(0.0, GTAXF_ENTRY|GTAXF_SPCVAT);
+		return entry;
+	}
 	PPGoodsTaxEntry();
 	int    FASTCALL IsEq(const PPGoodsTaxEntry & rS) const;
 	double GetVatRate() const;
-	char * FormatVAT(char *, size_t) const;
-	char * FormatExcise(char *, size_t) const;
-	char * FormatSTax(char *, size_t) const;
+	SString & FormatVAT(SString & rBuf) const;
+	SString & FormatExcise(SString & rBuf) const;
+	SString & FormatSTax(SString & rBuf) const;
 
 	PPID   TaxGrpID;       //
 	DateRange Period;      //
@@ -24868,6 +24881,8 @@ struct PPGoodsTaxEntry { // @flat
 	long   Flags;          // GTAXF_XXX
 	long   Order;          // Порядок начисления налогов
 	long   UnionVect;      //
+private:
+	PPGoodsTaxEntry(double vat, long flags);
 };
 
 struct PPGoodsTax2 {       // @persistent @store(Reference2Tbl+)
@@ -24927,7 +24942,7 @@ public:
 	int    SearchIdentical(const PPGoodsTax * pPattern, PPID * pID, PPGoodsTax * pRec);
 	int    SearchAnalog(const PPGoodsTax * pSample, PPID * pID, PPGoodsTax * pRec);
 	int    Test(PPID);
-	int    FormatOrder(long order, long unionVect, char * buf, size_t buflen);
+	int    FormatOrder(long order, long unionVect, SString & rBuf);
 	int    StrToOrder(const char *, long * pOrder, long * pUnionVect);
 	int    GetPacket(PPID id, PPGoodsTaxPacket *);
 	int    PutPacket(PPID * pID, PPGoodsTaxPacket *, int use_ta);
@@ -24952,15 +24967,36 @@ private:
 #define GTAXVF_EXCISE      0x00000004L
 #define GTAXVF_SALESTAX    0x00000008L
 #define GTAXVF_BEFORETAXES 0x80000000L // With all operational taxes
-#define GTAXVF_NOMINAL     0x08000000L // Специальный флаг, применяемый для того,
-	// чтобы рассчитать суммы налогов исходя из номинальных налоговых групп по товарам
-	// (опуская признаки освобождения от НДС и входящие налоговые группы по лотам).
+#define GTAXVF_NOMINAL     0x08000000L // Флаг, применяемый для того, чтобы рассчитать суммы налогов исходя из номинальных налоговых 
+	// групп по товарам (опуская признаки освобождения от НДС и входящие налоговые группы по лотам).
 	// Может быть использован только в аргументе exclFlags функции GTaxVect::CalcTI().
 
 class GTaxVect {
 public:
+	struct EvalBlock { // @v12.2.4
+		EvalBlock();
+		EvalBlock(const PPBillPacket & rBPack, int tiIdx);
+		const PPBillPacket * P_BPack;
+		const PPTransferItem * P_Ti;
+		const PPGoodsTaxEntry * P_Gte; // Если P_Ti != 0 then ignored
+		int    TiIdx;          // Если P_Ti == 0 && P_BPack != 0 && TiIdx >= 0 && TiIdx < P_BPack->GetTCount(), то элемент PPTransferItem извлекается как P_BPack->ConstTI(TiIdx)
+		PPID   OpID;           // if P_BPack != 0 then ignored
+		int    TiAmt;          // TIAMT_XXX
+		long   ExclFlags;      //
+		int    CorrectionFlag; // processed cases: 0, <0, >0
+		PPID   MainOrgID;      // Если 0, то возможно определение из контекста (P_BPack)
+		PPID   SupplPsnID;     // Если 0, то возможно определение из контекста (P_BPack, P_Ti)
+		double Amount;         // if P_Ti != 0 then ignored 
+		double Qtty;           // if P_Ti != 0 then ignored
+	};
 	static int Test(PPID gtaxID);
+	static int GetTaxNominalAmountType(const BillTbl::Rec & rBillRec); // @v12.2.4
 	explicit GTaxVect(int roundPrec = 2);
+	//
+	// Descr: Новый вариант централизованного расчета налогов. Возник из-за ввода тупой российской властью
+	//   специальных ставок НДС. 
+	//
+	int    EvaluateTaxes(const EvalBlock & rBlk); // @v12.2.4
 	void   Calc_(const PPGoodsTaxEntry & rGtEntry, double amount, double qtty, long amtFlags, long excludeFlags = 0);
 	//
 	// ARG(correctionFlag IN): Флаг расчета сумм по строке корректирующего документа.
@@ -24969,9 +25005,23 @@ public:
 	//  1 - по финальным значениям (после корректировки)
 	//
 	int    CalcTI(const PPTransferItem & rTi, PPID opID, int tiamt/* TIAMT_XXX */, long exclFlags = 0L, int correctionFlag = 0);
+	int    CalcBPTI(const PPBillPacket & rBp, const PPTransferItem & rTi, int tiamt/* TIAMT_XXX */, long exclFlags = 0L, int correctionFlag = 0); // @v12.2.4
 	double FASTCALL GetValue(long flags /* mask GTAXVF_XXX */) const;
 	double GetTaxRate(long taxID/* GTAX_XXX */, bool * pIsAbs) const;
 private:
+	//
+	// Descr: Внутренняя структура, обеспечивающая атрибуты расчета налогов, зависящие только от товара
+	//
+	struct WareBlock {
+		WareBlock(PPObjGoods & rGObj, PPID goodsID, PPID lotID, long exclFlags);
+		PPID   GoodsID;
+		PPID   LotID;
+		PPID   TaxGroupID; // Налоговая группа, принадлежащая товару (точно - не лоту lotID)
+		bool   IsFound;    // Признак того, что запись товара goodsID существует.
+		bool   IsAsset;    //
+		bool   IsExclVat;  //
+		double TaxFactor;  // 
+	};
 	int    FASTCALL TaxToVect(int) const;
 	int    FASTCALL VectToTax(int) const;
 	void   CalcForward(int n, double amount);
@@ -26799,6 +26849,14 @@ public:
 	static int FASTCALL ReadConfig(PPPersonConfig *);
 	static int FASTCALL WriteConfig(const PPPersonConfig *, int use_ta);
 	static int EditConfig();
+	//
+	// Descr: Специализированная функция, открывающая диалог для редактирования параметров
+	//   анализа клиентской активности как части конфигурации персоналий.
+	//   В качестве standalone-варианта понадобилась потому, что эти параметры
+	//   необходимо редактировать не только из диалога конфигурации персоналий, но и из
+	//   диалога фильтра персоналий.
+	//
+	static int EditClientAcitivityConfig(PPPersonConfig & rCfg);
 	static int ReplacePerson(PPID srcID = 0, PPID srcKindID = 0);
 	static int ReplaceDlvrAddr(PPID srcID);
 	static int TestSearchEmail();
@@ -26821,6 +26879,7 @@ public:
 	static int FASTCALL GetCurUserPerson(PPID * pPersonID, SString * pPersonName);
 
 	explicit PPObjPerson(void * extraPtr = 0);
+	explicit PPObjPerson(SCtrLite); // @v12.2.4 private-->public
 	~PPObjPerson();
 	virtual int    Browse(void * extraPtr);
 	virtual int    Edit(PPID * pID, void * extraPtr);
@@ -27134,6 +27193,8 @@ public:
 		casiDateCount,        // Количество дней, охваченных событиями 
 		casiGapDaysAvg,       // Средний перерыв между событиями в днях //
 		casiGapDaysStdDev,    // Стандартное отклонение перерыва между событиями 
+		casiCurrentDelayDays, // @v12.2.4 Текущая (относительно даты ActualDate) задержка активности в днях
+		casiCurrentDelaySd    // @v12.2.4 Текущая (относительно даты ActualDate) задержка активности в стандартных отклонениях //
 	};
 	//
 	// Descr: Структура представляющая агрегированные значения статистики активности клиентов.
@@ -27180,6 +27241,8 @@ public:
 		PPID   PersonID;        // IN
 		LDATE  ActualDate;      // IN
 		DateRange NewCliPeriod; // IN
+		int    CurrentDelayDays; // OUT Текущая (относительно даты ActualDate) задержка активности в днях
+		float  CurrentDelaySd;   // OUT Текущая (относительно даты ActualDate) задержка активности в стандартных отклонениях //
 		uint   State;           // OUT
 	};
 
@@ -27192,7 +27255,6 @@ private:
 	friend class PersonCache;
 	friend int FASTCALL GetPersonName(PPID id, SString & rBuf);
 
-	PPObjPerson(SCtrLite);
 	virtual ListBoxDef * Selector(ListBoxDef * pOrgDef, long flags, void * extraPtr);
 	// @v11.1.10 virtual int  UpdateSelector_Obsolete(ListBoxDef * pDef, long flags, void * extraPtr);
 	virtual int  DeleteObj(PPID id);
@@ -30400,7 +30462,7 @@ public:
 	//   Поля TaxGrpID, GoodsType содержат корректные значения с
 	//   учетом наследования соответствующих характеристик из групп.
 	//
-	int    Fetch(PPID, Goods2Tbl::Rec *);
+	int    Fetch(PPID goodsID, Goods2Tbl::Rec * pRec);
 	//
 	// Descr: Извлекает через кэш наименование товара goodsID.
 	// Returns:
@@ -30410,7 +30472,27 @@ public:
 	//    0 - error
 	//
 	int    FetchNameR(PPID goodsID, SString & rBuf);
-	int    FetchTax(PPID goodsID, LDATE, PPID opID, PPGoodsTaxEntry *);
+	int    FetchTax_(PPID goodsID, LDATE dt, PPID opID, PPGoodsTaxEntry * pGtx); // @v12.2.4 replaced with FetchTaxEntry2
+	//
+	// ARG(goodsID in): Идентификатор товара, налогообложение которого нас интересует
+	// ARG(lotID in): Идентификатор лота, по которому получен товар. Этот идентификатор нужен только в случае,
+	//   если необходимо расчитать входящий НДС (к зачету). Если интересует налогообложение при продаже товара,
+	//   то lotID должен быть 0 (в противном случае можете получить не ту налоговую группу, которая нужна).
+	// ARG(taxPayerPsnID in): Идентификатор персоналии-налогоплательщика. В случае, если нужна налоговая группа
+	//   для расчета налогов, которые должны заплатить мы, то это - идентификатор главной организации.
+	//   Если требуется получить налоговую группу для расчета входящего НДС (к зачету) то здесь должен быть
+	//   идентификатор поставщика. Важно: если указан ненулевой lotID, то поставщик берется из него и taxPayerPsnID
+	//   будет проигнорирован.
+	// ARG(dt in): Дата, на которую расчитываются налоги. Может быть важна для получения правильного элемента налоговой группы.
+	// ARG(opID in): Вид операции, для которой расчитываются налоги. Может быть важен для получения правильного элемента налоговой группы.
+	// ARG(pGtx out): Результирующий эффективный элемент налоговой группы для расчета налогов. Он может быть синтезирован 
+	//   из налоговой группы товара (лота) и налоговой группы налогоплательщика. 
+	// Returns:
+	//   >0 
+	//   <0
+	//    0
+	//
+	int    FetchTaxEntry2(PPID goodsID, PPID lotID, PPID taxPayerPsnID, LDATE dt, PPID opID, PPGoodsTaxEntry * pGtx); // @v12.2.4
 	int    FetchCls(PPID goodsID, Goods2Tbl::Rec * pRec, PPGdsClsPacket * pGcPack);
 	int    MultTaxFactor(PPID goodsID, double * pVal);
 	//
@@ -30615,6 +30697,7 @@ public:
 
 	PPObjGoodsStruc GSObj;
 	PPObjGoodsTax   GTxObj;
+	PPObjGoodsType  GtObj;
 protected:
 	PPObjGoods(PPID objType, PPID kind, void * extraPtr);
 	virtual int  HandleMsg(int, PPID, PPID, void * extraPtr);
@@ -30653,13 +30736,13 @@ private:
 		PPID arID, LDATETIME actualDtm, double qtty, RetailGoodsInfo * pInfo, long flags);
 	int    Helper_SearchByBarcodeAdopt(const char * pCode, int mode, StringSet & rProcessedList, BarcodeTbl::Rec * pBcRec, Goods2Tbl::Rec * pGoodsRec);
 	bool   Helper_GetOriginalRawGoodsByStruc(PPID goodsID, const PPIDArray * pValidBcStdList, PPID * pOriginalGoodsID, SString * pValidCode); // @v12.0.5
+	int    CombineTaxEntry(const PPGoodsTaxEntry & rGtx, PPID taxPayerPersonID, LDATE dt, PPID opID, PPGoodsTaxEntry * pResultGtx);
 
 	PPGoodsConfig * P_Cfg;
 	SCtrLite Sctr;
 	int16  EcoSel;         // if !0 && !__WIN32__ then 'exists only' selection uses DBQuery, not SArray
 	int16  DoObjVer;       // Хранить версии измененных и удаленных объектов
 	PPObjPerson * P_PsnObj;
-	PPObjGoodsType GtObj;  //
 	PPIDArray Locks;
 public:
 	TLP_MEMB(GoodsCore, P_Tbl);
@@ -31401,7 +31484,7 @@ struct PPComputerCategory {
 
 class PPObjComputerCategory : public PPObjReference {
 public:
-	PPObjComputerCategory(void * extraPtr = 0);
+	explicit PPObjComputerCategory(void * extraPtr = 0);
 	virtual int  Edit(PPID * pID, void * extraPtr);
 	int    MakeReservedItem(PPID * pID, int use_ta);
 private:
@@ -31447,7 +31530,6 @@ public:
 	ObjTagList TagL;
 };
 
-
 class PPObjComputer : public PPObjGoods { // @construction
 public:
 	static  int  Helper_SetRec(const PPComputer * pRec, Goods2Tbl::Rec & rGoodsRec);
@@ -31475,6 +31557,7 @@ private:
 	virtual ListBoxDef * Selector(ListBoxDef * pOrgDef, long flags, void * extraPtr);
 	virtual int  Edit(PPID * pID, void * extraPtr);
 	virtual int  DeleteObj(PPID id);
+	virtual int  HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr);
 	//
 	// Descr: Реализация извлечения записей по критерию равенства mac-адреса.
 	//
@@ -31488,10 +31571,14 @@ typedef PPComputer ComputerViewItem;
 class PPViewComputer : public PPView {
 public:
 	struct BrwItem { // @persistent @store(Reference2Tbl)
-		explicit BrwItem(const PPComputer * pS);
+		explicit BrwItem(const PPComputerPacket * pS);
 		PPID   ID;
 		long   Flags;
+		PPID   CategoryID; // @v12.2.4
+		S_GUID Uuid;       // @v12.2.4
+		MACAddr MacAdr;    // @v12.2.4  
 		char   Name[128];
+		char   CategoryName[48]; // @v12.2.4
 		long   ViewFlags;
 	};
 	PPViewComputer();
@@ -31511,7 +31598,7 @@ private:
 	int    _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	int    MakeList();
 
-	SArray * P_DsList;
+	TSArray <BrwItem> * P_DsList;
 	ComputerFilt Filt;
 	PPObjComputer Obj;
 };
@@ -34208,7 +34295,7 @@ public:
 	//
 	int    LoadClbList(PPBillPacket * pPack, int force);
 	int    LoadRowTagListForDraft(PPID billID, PPLotTagContainer & rContainer);
-	int    GetClbNumberByLot(PPID lotID, int * isParentLot, SString & rBuf);
+	int    GetClbNumberByLot(PPID lotID, bool * isParentLot, SString & rBuf);
 	int    GetSerialNumberByLot(PPID lotID, SString & rBuf, int useCache);
 	//
 	// Descr: Функция выясняет существует ли хоть одна марка в таблице LotExtCodeTbl (P_LotXcT), связанная с лотом lotID.
@@ -39501,7 +39588,7 @@ public:
 	int    FASTCALL NextIteration(BillViewItem *);
 	int    GetBillIDList(PPIDArray *);
 	int    CalcTotal(BillTotal *);
-	int    CalcItemTotal(PPID billID, BillTotalData * pTotal);
+	int    CalcItemTotal(PPID billID, BillTotalData & rTotal);
 	int    ExportBnkOrder();
 	int    ViewPayments(PPID, int kind);
 	int    ViewBillsByOrder(PPID);
@@ -41158,6 +41245,15 @@ public:
 		int   ExceptionProductsCount;    // Количество товаров, исключенных из автоакции до её старта. Только при "type": "auto". В момент старта акции эти товары автоматически будут без скидки
 		TSVector <RangingItem> RangingList; // 
 	};
+	struct Campaign {
+		Campaign() : ID(0), Type(0), Status(0), ChangeDtm(ZERODATETIME)
+		{
+		}
+		int64  ID;
+		int    Type;
+		int    Status;
+		LDATETIME ChangeDtm;
+	};
 	struct Stock {
 		Stock();
 		Stock & Z();
@@ -41421,7 +41517,7 @@ public:
 	int   AddWareListToPromotion();
 	// } @v12.2.2 
 	//
-	int   RequestPromoCampaignList(); // @v12.2.3
+	int   RequestPromoCampaignList(TSCollection <Campaign> & rList); // @v12.2.3
 	int   CreateWarehouse(PPID * pID, int64 outerId, const char * pOuterName, const char * pAddress, int use_ta);
 	const Warehouse * SearchWarehouseByName(const TSCollection <Warehouse> & rWhList, const char * pWhName, bool adoptive) const;
 	int   ResolveWarehouseByName(const TSCollection <Warehouse> & rWhList, const char * pWhName, PPID defaultID, PPID * pResultID, int use_ta);
@@ -44571,17 +44667,17 @@ private:
 	int    Recover();
 	int    ExportToChZn();
 
-	static int DynFuncPosText; // @v10.1.9
+	static int DynFuncPosText;
 
 	CCheckCore  * P_CC;
 	PPObjCSession CsObj;
-	PPObjGoods  GdsObj;
+	PPObjGoods  GObj;
 	PPObjPerson PsnObj;
 	PPObjSCard ScObj;
 	TempCCheckQttyTbl * P_TmpTbl;
 	TempCCheckGrpTbl  * P_TmpGrpTbl;
 	TempCCheckGdsCorrTbl * P_TmpGdsCorrTbl;
-	CCheckViewItem * P_InnerIterItem; // @v10.2.6 Внутренний собственнй экземпляр элемента текущей итерации. Если необходим, должен быть распределен функцией AllocInnerIterItem()
+	CCheckViewItem * P_InnerIterItem; // Внутренний собственнй экземпляр элемента текущей итерации. Если необходим, должен быть распределен функцией AllocInnerIterItem()
 	CCheckFilt  Filt;
 	enum {
 		stHasExt        = 0x0001,
@@ -44604,7 +44700,7 @@ private:
 	LAssocArray SessCnList;    // Список ассоциация Кассовая сессия - Кассовый узел. Используется для быстрой идентификации принадлежности чека кассовому узлу.
 	BVATAccmArray * P_InOutVATList; //
 	GoodsSubstList Gsl;        //
-	LAssocArray Problems;      // @v10.8.8 Список чеков, ассоциированных с ошибками, обнаруженными функцией корректировки
+	LAssocArray Problems;      // Список чеков, ассоциированных с ошибками, обнаруженными функцией корректировки
 };
 //
 // @ModuleDecl(PPViewObjSync)
@@ -51735,11 +51831,15 @@ private:
 //
 class BillTotalBlock {
 public:
-	BillTotalBlock(BillTotalData * pData, PPID opID, PPID goodsTypeID, int outAmtType, long flags);
-	void   FASTCALL Add(PPTransferItem *);
+	BillTotalBlock(BillTotalData & rData, /*PPID opID*/const PPBillPacket & rBPack, PPID goodsTypeID, int outAmtType, long flags);
+	//
+	// Note: Функция принимает non-const аргумент rTi поскольку может изменить 
+	//   значение флага PPTFR_SELLING в поле rTi.Flags.
+	//
+	void   FASTCALL Add(PPTransferItem & rTi);
 	void   AddPckg(const PPTransferItem *);
-	void   FASTCALL Add(const PPAdvBillItemList::Item *);
-	void   Finish(const PPBillPacket * pPack);
+	void   FASTCALL Add(const PPAdvBillItemList::Item &);
+	void   Finish(/*const PPBillPacket * pPack*/);
 private:
 	void   SetupStdAmount(PPID stdAmtID, PPID altAmtID, double stdAmount, double altAmount, long replaceStdAmount, int in_out);
 	void   SetupStdAmount(PPID stdAmtID, double stdAmount, int in_out);
@@ -51750,7 +51850,7 @@ private:
 		stExtCost    = 0x0008
 	};
 	int    OutAmtType;
-	PPID   OpID;
+	// @v12.2.4 (replaced with R_BPack.Rec.OpID) PPID   OpID;
 	PPID   GoodsTypeID;
 	PPID   DynGoodsTypeForSupplAgent; // ==PPCommConfig::DynGoodsTypeForSupplAgent
 	long   State;
@@ -51759,7 +51859,8 @@ private:
 	PPObjGoodsType  GtObj;
 	PPObjGoods      GObj;
 	PPObjAmountType ATObj;
-	BillTotalData * P_Data;
+	BillTotalData & R_Data;
+	const PPBillPacket & R_BPack; // @v12.2.4
 };
 //
 //
@@ -56982,7 +57083,7 @@ public:
 	//
 	// Descr: Записывает тип "УчастникТип"
 	//
-	int    WriteParticipant(const char * pHeaderTag, PPID psnID, PPID dlvrLocID);
+	int    WriteParticipant(const char * pHeaderTag, PPID personID, PPID dlvrLocID);
 	//
 	// Descr: Разбивает строку pName на фамилию/имя/отчество и записывает их тегами либо атрибутами
 	//   в зависимости от параметра asTags внутри тега с именем, определямемым идентификатором parentTokId.
@@ -60405,6 +60506,37 @@ private:
 	int    Helper_Compile(const Param::ConfigEntry * pCfgEntry, int supplementalConfig, PPLogger & rLogger);
 
 	Param  P;
+};
+//
+// Descr: Класс, управляющий инфраструктурой тестирования сложных объектов в базе данных.
+//   Как обычно, этим классом я пытаюсь обобщить все ошметки тестирования оъектов в базе данных,
+//   которые были сделаны до сих пор.
+// 
+// Далее общие замечания по тестированию (будут расширяться).
+// Символы тегов, идентифицирующих тестовые объекты в базе данных:
+//   pptest-bill
+//   pptest-goods
+//   pptest-person
+//   pptest-location
+//   pptest-posnode
+//   pptest-ccheck
+//   pptest-prc
+//   pptest-tsess
+//   pptest-computer
+//   pptest-lot
+//   pptest-gua
+//   Все теги, идентифицирующие тестовые объекты, строковые. В значениях тегов будут указываться специальные
+//   символы и мнемоники, обозначающие назначение тестового объекта.
+//   У объекта PPObjGoodsTax тегов нет, потому для них будем использовать специальные символы
+//
+class PPTestDbInfrastructure { // @v12.2.4 @construction
+public:
+	PPTestDbInfrastructure();
+	~PPTestDbInfrastructure();
+	int    SetupDatabaseObjects();
+	
+	int    _Case_TaxEvaluation(); // Это будет первой задачей на нашего амбициозного субпроекта PPTestDbInfrastructure :)
+private:
 };
 //
 // Descr: Возвращает минимальный множитель, цены кратные которому

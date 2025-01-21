@@ -1,5 +1,5 @@
 // V_FRGHT.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -86,6 +86,7 @@ PPViewFreight::~PPViewFreight()
 //
 //
 class FreightFiltDialog : public TDialog {
+	DECL_DIALOG_DATA(FreightFilt);
 public:
 	FreightFiltDialog() : TDialog(DLG_FRGHTFLT)
 	{
@@ -93,19 +94,96 @@ public:
 		SetupCalPeriod(CTLCAL_FRGHTFLT_SHIPMPERIOD, CTL_FRGHTFLT_SHIPMPERIOD);
 		SetupCalPeriod(CTLCAL_FRGHTFLT_ARRVLPERIOD, CTL_FRGHTFLT_ARRVLPERIOD);
 	}
-	int    setDTS(const FreightFilt *);
-	int    getDTS(FreightFilt *);
+	DECL_DIALOG_SETDTS()
+	{
+		Data = *pData;
+		ushort v = 0;
+		PPIDArray op_list;
+		PPIDArray gen_op_list;
+		PPOprKind op_rec;
+		PPID   acc_sheet_id = 0;
+		PPID   op_id = 0;
+		SetPeriodInput(this, CTL_FRGHTFLT_PERIOD, &Data.BillPeriod);
+		SetPeriodInput(this, CTL_FRGHTFLT_SHIPMPERIOD, &Data.ShipmPeriod);
+		SetPeriodInput(this, CTL_FRGHTFLT_ARRVLPERIOD, &Data.ArrvlPeriod);
+		for(op_id = 0; EnumOperations(/*PPOPT_GOODSEXPEND*/0, &op_id, &op_rec) > 0;)
+			if(op_rec.Flags & OPKF_FREIGHT)
+				op_list.add(op_id);
+		for(op_id = 0; EnumOperations(PPOPT_GENERIC, &op_id, 0) > 0;) {
+			gen_op_list.clear();
+			if(GetGenericOpList(op_id, &gen_op_list))
+				for(uint i = 0; i < gen_op_list.getCount(); i++)
+					if(op_list.lsearch(gen_op_list.get(i))) {
+						op_list.add(op_id);
+						break;
+					}
+		}
+		SetupOprKindCombo(this, CTLSEL_FRGHTFLT_OP, Data.OpID, 0, &op_list, OPKLF_OPLIST);
+		GetOpCommonAccSheet(Data.OpID, &acc_sheet_id, 0);
+		setupAccSheet(acc_sheet_id);
+		SetupPPObjCombo(this, CTLSEL_FRGHTFLT_LOC, PPOBJ_LOCATION, Data.LocID, 0);
+		SetupPPObjCombo(this, CTLSEL_FRGHTFLT_SHIP, PPOBJ_TRANSPORT, Data.ShipID, 0);
+		SetupPPObjCombo(this, CTLSEL_FRGHTFLT_PORT, PPOBJ_WORLD, Data.PortID, OLW_CANSELUPLEVEL|OLW_WORDSELECTOR,
+			PPObjWorld::MakeExtraParam(WORLDOBJ_CITY|WORLDOBJ_CITYAREA, 0, 0)); // @v10.7.8 OLW_WORDSELECTOR
+		AddClusterAssoc(CTL_FRGHTFLT_ORDER,  0, PPViewFreight::OrdByBillDate);
+		AddClusterAssoc(CTL_FRGHTFLT_ORDER, -1, PPViewFreight::OrdByDefault);
+		AddClusterAssoc(CTL_FRGHTFLT_ORDER,  1, PPViewFreight::OrdByArrivalDate);
+		AddClusterAssoc(CTL_FRGHTFLT_ORDER,  2, PPViewFreight::OrdByDlvrAddr);
+		AddClusterAssoc(CTL_FRGHTFLT_ORDER,  3, PPViewFreight::OrdByPortName);
+		SetClusterData(CTL_FRGHTFLT_ORDER, Data.Order);
+		{
+			long   f = Data.Flags;
+			if(f & FreightFilt::fUnshippedOnly)
+				f &= ~FreightFilt::fShippedOnly;
+			if(f & FreightFilt::fShippedOnly)
+				f &= ~FreightFilt::fUnshippedOnly;
+			DisableClusterItem(CTL_FRGHTFLT_FLAGS, 0, BIN(f & FreightFilt::fShippedOnly));
+			DisableClusterItem(CTL_FRGHTFLT_FLAGS, 1, BIN(f & FreightFilt::fUnshippedOnly));
+			Data.Flags = f;
+		}
+		AddClusterAssoc(CTL_FRGHTFLT_FLAGS, 0, FreightFilt::fUnshippedOnly);
+		AddClusterAssoc(CTL_FRGHTFLT_FLAGS, 1, FreightFilt::fShippedOnly);
+		AddClusterAssoc(CTL_FRGHTFLT_FLAGS, 2, FreightFilt::fFillLaggageFields);
+		SetClusterData(CTL_FRGHTFLT_FLAGS, Data.Flags);
+
+		v = 0;
+		SetupPPObjCombo(this, CTLSEL_FRGHTFLT_CAPTAIN, PPOBJ_PERSON, Data.CaptainID, 0, reinterpret_cast<void *>(PPPRK_CAPTAIN));
+		disableCtrl(CTL_FRGHTFLT_CARGOPAR, (Data.OpID == 0));
+		SETFLAG(v, 0x01, (Data.Flags & FreightFilt::fUseCargoParam) && Data.OpID);
+		setCtrlData(CTL_FRGHTFLT_CARGOPAR, &v);
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		uint   sel = 0;
+		ushort v = 0;
+		THROW(GetPeriodInput(this, sel = CTL_FRGHTFLT_PERIOD, &Data.BillPeriod));
+		THROW(GetPeriodInput(this, sel = CTL_FRGHTFLT_SHIPMPERIOD, &Data.ShipmPeriod));
+		THROW(GetPeriodInput(this, sel = CTL_FRGHTFLT_ARRVLPERIOD, &Data.ArrvlPeriod));
+		getCtrlData(CTLSEL_FRGHTFLT_OP, &Data.OpID);
+		getCtrlData(CTLSEL_FRGHTFLT_OBJECT, &Data.ObjectID);
+		getCtrlData(CTLSEL_FRGHTFLT_LOC, &Data.LocID);
+		getCtrlData(CTLSEL_FRGHTFLT_SHIP, &Data.ShipID);
+		getCtrlData(CTLSEL_FRGHTFLT_PORT, &Data.PortID);
+		getCtrlData(CTLSEL_FRGHTFLT_CAPTAIN, &Data.CaptainID); // AHTOXA
+		GetClusterData(CTL_FRGHTFLT_ORDER, &Data.Order);
+		GetClusterData(CTL_FRGHTFLT_FLAGS, &Data.Flags);
+		v = getCtrlUInt16(CTL_FRGHTFLT_CARGOPAR);
+		SETFLAG(Data.Flags, FreightFilt::fUseCargoParam, (v & 0x01) && Data.OpID);
+		ASSIGN_PTR(pData, Data);
+		CATCHZOKPPERRBYDLG
+		return ok;
+	}
 private:
 	DECL_HANDLE_EVENT;
 	void   setupAccSheet(PPID accSheetID);
-
-	FreightFilt Data;
 };
 
 IMPL_HANDLE_EVENT(FreightFiltDialog)
 {
 	TDialog::handleEvent(event);
-	if(event.isCmd(cmTags)) { // @v10.3.11
+	if(event.isCmd(cmTags)) {
 		SETIFZ(Data.P_TagF, new TagFilt());
 		if(!Data.P_TagF)
 			PPError(PPERR_NOMEM);
@@ -160,90 +238,6 @@ void FreightFiltDialog::setupAccSheet(PPID accSheetID)
 	}
 }
 
-int FreightFiltDialog::setDTS(const FreightFilt * pData)
-{
-	Data = *pData;
-
-	ushort v = 0;
-	PPIDArray op_list;
-	PPIDArray gen_op_list;
-	PPOprKind op_rec;
-	PPID   acc_sheet_id = 0;
-	PPID   op_id = 0;
-	SetPeriodInput(this, CTL_FRGHTFLT_PERIOD, &Data.BillPeriod);
-	SetPeriodInput(this, CTL_FRGHTFLT_SHIPMPERIOD, &Data.ShipmPeriod);
-	SetPeriodInput(this, CTL_FRGHTFLT_ARRVLPERIOD, &Data.ArrvlPeriod);
-	for(op_id = 0; EnumOperations(/*PPOPT_GOODSEXPEND*/0, &op_id, &op_rec) > 0;)
-		if(op_rec.Flags & OPKF_FREIGHT)
-			op_list.add(op_id);
-	for(op_id = 0; EnumOperations(PPOPT_GENERIC, &op_id, 0) > 0;) {
-		gen_op_list.clear();
-		if(GetGenericOpList(op_id, &gen_op_list))
-			for(uint i = 0; i < gen_op_list.getCount(); i++)
-				if(op_list.lsearch(gen_op_list.get(i))) {
-					op_list.add(op_id);
-					break;
-				}
-	}
-	SetupOprKindCombo(this, CTLSEL_FRGHTFLT_OP, Data.OpID, 0, &op_list, OPKLF_OPLIST);
-	GetOpCommonAccSheet(Data.OpID, &acc_sheet_id, 0);
-	setupAccSheet(acc_sheet_id);
-	SetupPPObjCombo(this, CTLSEL_FRGHTFLT_LOC, PPOBJ_LOCATION, Data.LocID, 0);
-	SetupPPObjCombo(this, CTLSEL_FRGHTFLT_SHIP, PPOBJ_TRANSPORT, Data.ShipID, 0);
-	SetupPPObjCombo(this, CTLSEL_FRGHTFLT_PORT, PPOBJ_WORLD, Data.PortID, OLW_CANSELUPLEVEL|OLW_WORDSELECTOR,
-		PPObjWorld::MakeExtraParam(WORLDOBJ_CITY|WORLDOBJ_CITYAREA, 0, 0)); // @v10.7.8 OLW_WORDSELECTOR
-	AddClusterAssoc(CTL_FRGHTFLT_ORDER,  0, PPViewFreight::OrdByBillDate);
-	AddClusterAssoc(CTL_FRGHTFLT_ORDER, -1, PPViewFreight::OrdByDefault);
-	AddClusterAssoc(CTL_FRGHTFLT_ORDER,  1, PPViewFreight::OrdByArrivalDate);
-	AddClusterAssoc(CTL_FRGHTFLT_ORDER,  2, PPViewFreight::OrdByDlvrAddr);
-	AddClusterAssoc(CTL_FRGHTFLT_ORDER,  3, PPViewFreight::OrdByPortName);
-	SetClusterData(CTL_FRGHTFLT_ORDER, Data.Order);
-	{
-		long   f = Data.Flags;
-		if(f & FreightFilt::fUnshippedOnly)
-			f &= ~FreightFilt::fShippedOnly;
-		if(f & FreightFilt::fShippedOnly)
-			f &= ~FreightFilt::fUnshippedOnly;
-		DisableClusterItem(CTL_FRGHTFLT_FLAGS, 0, BIN(f & FreightFilt::fShippedOnly));
-		DisableClusterItem(CTL_FRGHTFLT_FLAGS, 1, BIN(f & FreightFilt::fUnshippedOnly));
-		Data.Flags = f;
-	}
-	AddClusterAssoc(CTL_FRGHTFLT_FLAGS, 0, FreightFilt::fUnshippedOnly);
-	AddClusterAssoc(CTL_FRGHTFLT_FLAGS, 1, FreightFilt::fShippedOnly);
-	AddClusterAssoc(CTL_FRGHTFLT_FLAGS, 2, FreightFilt::fFillLaggageFields);
-	SetClusterData(CTL_FRGHTFLT_FLAGS, Data.Flags);
-
-	v = 0;
-	SetupPPObjCombo(this, CTLSEL_FRGHTFLT_CAPTAIN, PPOBJ_PERSON, Data.CaptainID, 0, reinterpret_cast<void *>(PPPRK_CAPTAIN));
-	disableCtrl(CTL_FRGHTFLT_CARGOPAR, (Data.OpID == 0));
-	SETFLAG(v, 0x01, (Data.Flags & FreightFilt::fUseCargoParam) && Data.OpID);
-	setCtrlData(CTL_FRGHTFLT_CARGOPAR, &v);
-	return 1;
-}
-
-int FreightFiltDialog::getDTS(FreightFilt * pData)
-{
-	int    ok = 1;
-	uint   sel = 0;
-	ushort v = 0;
-	THROW(GetPeriodInput(this, sel = CTL_FRGHTFLT_PERIOD, &Data.BillPeriod));
-	THROW(GetPeriodInput(this, sel = CTL_FRGHTFLT_SHIPMPERIOD, &Data.ShipmPeriod));
-	THROW(GetPeriodInput(this, sel = CTL_FRGHTFLT_ARRVLPERIOD, &Data.ArrvlPeriod));
-	getCtrlData(CTLSEL_FRGHTFLT_OP, &Data.OpID);
-	getCtrlData(CTLSEL_FRGHTFLT_OBJECT, &Data.ObjectID);
-	getCtrlData(CTLSEL_FRGHTFLT_LOC, &Data.LocID);
-	getCtrlData(CTLSEL_FRGHTFLT_SHIP, &Data.ShipID);
-	getCtrlData(CTLSEL_FRGHTFLT_PORT, &Data.PortID);
-	getCtrlData(CTLSEL_FRGHTFLT_CAPTAIN, &Data.CaptainID); // AHTOXA
-	GetClusterData(CTL_FRGHTFLT_ORDER, &Data.Order);
-	GetClusterData(CTL_FRGHTFLT_FLAGS, &Data.Flags);
-	v = getCtrlUInt16(CTL_FRGHTFLT_CARGOPAR);
-	SETFLAG(Data.Flags, FreightFilt::fUseCargoParam, (v & 0x01) && Data.OpID);
-	ASSIGN_PTR(pData, Data);
-	CATCHZOKPPERRBYDLG
-	return ok;
-}
-
 int PPViewFreight::EditBaseFilt(PPBaseFilt * pFilt)
 {
 	if(!Filt.IsA(pFilt))
@@ -274,12 +268,10 @@ int PPViewFreight::Init_(const PPBaseFilt * pFilt)
 			bill_filt.LocList.Add(Filt.LocID);
 			bill_filt.OpID = Filt.OpID;
 			bill_filt.ObjectID = Filt.ObjectID;
-			// @v10.3.11 {
 			if(Filt.P_TagF) {
 				ZDELETE(bill_filt.P_TagF);
 				bill_filt.P_TagF = new TagFilt(*Filt.P_TagF);
 			}
-			// } @v10.3.11 
 			if(!(Filt.Flags & FreightFilt::fUseCargoParam)) // AHTOXA
 				bill_filt.Flags |= BillFilt::fFreightedOnly;
 			THROW(v_bill.Init_(&bill_filt));
@@ -348,7 +340,8 @@ int PPViewFreight::Init_(const PPBaseFilt * pFilt)
 int PPViewFreight::FillTempTableRec(const BillTbl::Rec * pBillRec, TempFreightTbl::Rec * pRec)
 {
 	int    ok = -1;
-	int    is_freight = 0, is_cargo = 0;
+	int    is_freight = 0;
+	int    is_cargo = 0;
 	BillTotalData btd;
 	PPBillPacket pack;
 	SString temp_buf;
@@ -359,7 +352,7 @@ int PPViewFreight::FillTempTableRec(const BillTbl::Rec * pBillRec, TempFreightTb
 			is_freight = 1;
 		else if(Filt.Flags & FreightFilt::fUseCargoParam)
 			if(P_BObj->ExtractPacket(pBillRec->ID, &pack) > 0) {
-				pack.CalcTotal(&btd, 0);
+				pack.CalcTotal(btd, 0);
 				is_cargo = BIN(btd.Brutto > 0.0 || btd.Volume > 0.0 || btd.PackCount > 0.0);
 			}
 		if((is_freight || is_cargo) && freight.CheckForFilt(Filt)) {
@@ -398,7 +391,7 @@ int PPViewFreight::FillTempTableRec(const BillTbl::Rec * pBillRec, TempFreightTb
 			else {
 				if(Filt.Flags & FreightFilt::fFillLaggageFields) {
 					if(P_BObj->ExtractPacket(pBillRec->ID, &pack) > 0) {
-						pack.CalcTotal(&btd, 0);
+						pack.CalcTotal(btd, 0);
 						pRec->Brutto = btd.Brutto;
 						pRec->Volume = btd.Volume;
 						pRec->PackCount = btd.PackCount;
@@ -442,8 +435,7 @@ int PPViewFreight::UpdateTempTableRec(PPID billID)
 int PPViewFreight::InitIteration(IterOrder order)
 {
 	int    ok = 1, idx = 0;
-	// @v10.6.8 char   k[MAXKEYLEN];
-	BtrDbKey k_; // @v10.6.8 
+	BtrDbKey k_;
 	PPInitIterCounter(Counter, P_TmpTbl);
 	switch(order) {
 		case OrdByDefault: idx = 0; break;
@@ -456,7 +448,6 @@ int PPViewFreight::InitIteration(IterOrder order)
 	BExtQuery::ZDelete(&P_IterQuery);
 	THROW_MEM(P_IterQuery = new BExtQuery(P_TmpTbl, idx));
 	P_IterQuery->selectAll();
-	// @v10.6.8 @ctr memzero(k, sizeof(k));
 	THROW(P_IterQuery->initIteration(0, k_, spFirst));
 	CATCHZOK
 	return ok;
@@ -582,8 +573,7 @@ DBQuery * PPViewFreight::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 void PPViewFreight::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	if(pBrw && Filt.LocID == 0) {
-		// @v9.0.2 pBrw->InsColumnWord(1, PPWORD_WAREHOUSE, 13, 0, 0, 0);
-		pBrw->InsColumn(1, "@warehouse", 13, 0, 0, 0); // @v9.0.2
+		pBrw->InsColumn(1, "@warehouse", 13, 0, 0, 0);
 	}
 }
 
@@ -608,10 +598,10 @@ int PPViewFreight::Print(const void *)
 	return Helper_Print(((Filt.LocID == 0) ? REPORT_FREIGHTLAGGLOC : REPORT_FREIGHTLAGG), Filt.Order);
 }
 
-int PPViewFreight::PrintBill(PPID billID/* @v10.0.0, int addCashSummator*/)
+int PPViewFreight::PrintBill(PPID billID)
 {
 	PPViewBill b_v;
-	return b_v.PrintBill(billID/* @v10.0.0, addCashSummator*/);
+	return b_v.PrintBill(billID);
 }
 
 int PPViewFreight::PrintBillList()
@@ -734,13 +724,12 @@ int PPViewFreight::UpdateFeatures()
 	dlg->SetClusterData(CTL_UPDFREIGHT_FLAGS, _flags); // @v11.2.10
 	if(ExecView(dlg) == cmOK) {
 		ship_id = dlg->getCtrlLong(CTLSEL_UPDFREIGHT_TR);
-		captain_id = dlg->getCtrlLong(CTLSEL_UPDFREIGHT_CAPT); // @v10.0.11
+		captain_id = dlg->getCtrlLong(CTLSEL_UPDFREIGHT_CAPT);
         issue_date = dlg->getCtrlDate(CTL_UPDFREIGHT_ISSDT);
         arrival_date = dlg->getCtrlDate(CTL_UPDFREIGHT_ARRDT);
         shipm_flag_mode = dlg->GetClusterData(CTL_UPDFREIGHT_SHPF);
 		dlg->GetClusterData(CTL_UPDFREIGHT_FLAGS, &_flags); // @v11.2.10
-        if(ship_id || captain_id || checkdate(issue_date) || checkdate(arrival_date) || oneof2(shipm_flag_mode, 0, 1) || 
-			(_flags & fSetPortOfDischargeByTrunkPt)) {
+        if(ship_id || captain_id || checkdate(issue_date) || checkdate(arrival_date) || oneof2(shipm_flag_mode, 0, 1) || (_flags & fSetPortOfDischargeByTrunkPt)) {
 			PPIDArray bill_list;
 			PPWaitStart();
 			{
@@ -851,8 +840,7 @@ int PPViewFreight::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser 
 					ok = 1;
 				break;
 			case PPVCMD_EDITBILLFREIGHT: ok = P_BObj->EditBillFreight(id); break;
-			case PPVCMD_PRINTBILL: PrintBill(id/* @v10.0.0, 0*/); break;
-			// @v10.0.0 case PPVCMD_PRINTCHECK: PrintBill(id, 1); break;
+			case PPVCMD_PRINTBILL: PrintBill(id); break;
 			case PPVCMD_PRINTBILLLIST: ok = PrintBillList(); break;
 			case PPVCMD_PRINTALLBILLS: ok = PrintAllBills(); break;
 			case PPVCMD_PRINTBILLINFOLIST: ok = PrintBillInfoList(); break;

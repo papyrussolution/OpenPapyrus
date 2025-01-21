@@ -1,5 +1,5 @@
 // BILLDLG.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -4094,9 +4094,11 @@ int PPObjBill::EditLotExtData(PPID lotID)
 	ReceiptTbl::Rec lot_rec;
 	LotQCertDialog * dlg = 0;
 	if(lotID && trfr->Rcpt.Search(lotID, &lot_rec) > 0) {
-		int    valid_data = 0, is_inherited_clb = 0;
+		int    valid_data = 0;
+		bool   is_inherited_clb = false;
 		LotQCertData lqcd;
-		SString org_clb, org_serial;
+		SString org_clb;
+		SString org_serial;
 		GetClbNumberByLot(lotID, &is_inherited_clb, org_clb);
 		GetSerialNumberByLot(lotID, org_serial, 0);
 		THROW(CheckDialogPtr(&(dlg = new LotQCertDialog(this))));
@@ -4148,6 +4150,7 @@ int PPObjBill::EditLotExtData(PPID lotID)
 // LotInfo
 //
 class LotInfoDialog : public TDialog {
+	DECL_DIALOG_DATA(ReceiptTbl::Rec);
 public:
 	LotInfoDialog(ReceiptTbl::Rec * pRec, int _canEdit) : TDialog(DLG_LOTINFO), P_BObj(BillObj), CanEdit(_canEdit)
 	{
@@ -4159,14 +4162,82 @@ public:
 		Chain.add(pRec->ID);
 		setDTS(pRec);
 	}
-	int    setDTS(const ReceiptTbl::Rec *);
-	int    getDTS(ReceiptTbl::Rec *);
+	DECL_DIALOG_SETDTS()
+	{
+		int    s;
+		RVALUEPTR(Data, pData);
+		setCtrlLong(CTLSEL_LOTINFO_LOC, Data.LocID);
+		SetupPPObjCombo(this, CTLSEL_LOTINFO_GOODS, PPOBJ_GOODS, Data.GoodsID, OLW_LOADDEFONOPEN);
+		if(P_BObj->CheckRights(BILLOPRT_ACCSSUPPL, 1)) {
+			const  PPID temp_id = getCtrlLong(CTLSEL_LOTINFO_SUPPL);
+			if(temp_id != Data.SupplID)
+				setCtrlLong(CTLSEL_LOTINFO_SUPPL, Data.SupplID);
+		}
+		{
+			QCertCtrlGroup::Rec qc_rec(Data.QCertID);
+			setGroupData(GRP_QCERT, &qc_rec);
+		}
+		setCtrlLong(CTLSEL_LOTINFO_INTAXGRP, Data.InTaxGrpID);
+		setCtrlLong(CTL_LOTINFO_ID,       Data.ID);
+		setCtrlReal(CTL_LOTINFO_QTTY,     Data.Quantity);
+		setCtrlReal(CTL_LOTINFO_REST,     Data.Rest);
+		setCtrlReal(CTL_LOTINFO_PHREST,   Data.WtRest);
+		setCtrlReal(CTL_LOTINFO_UPP,      Data.UnitPerPack);
+		setCtrlReal(CTL_LOTINFO_COST,     P_BObj->CheckRights(BILLRT_ACCSCOST) ? Data.Cost : 0.0);
+		setCtrlData(CTL_LOTINFO_PRICE,    &Data.Price);
+		setCtrlDate(CTL_LOTINFO_CLOSEDT, (Data.CloseDate == MAXDATE) ? ZERODATE : Data.CloseDate);
+		setCtrlUInt16(CTL_LOTINFO_CLOSED, BIN(Data.Closed));
+		disableCtrl(CTL_LOTINFO_ID, 1);
+		if(!CanEdit) {
+			disableCtrls(1, CTLSEL_LOTINFO_LOC, CTLSEL_LOTINFO_GOODS, CTLSEL_LOTINFO_SUPPL,
+				CTLSEL_LOTINFO_QCERT, CTL_LOTINFO_QTTY, CTL_LOTINFO_REST, CTL_LOTINFO_UPP,
+				CTL_LOTINFO_COST, CTL_LOTINFO_PRICE, CTL_LOTINFO_CLOSEDT, CTL_LOTINFO_CLOSED, 0);
+			enableCommand(cmOK, 0);
+		}
+		s = BIN(Chain.getCount() > 1);
+		showCtrl(STDCTL_BACKBUTTON, s);
+		enableCommand(cmOK, !s);
+		enableCommand(cmPrevLot, (Data.PrevLotID != 0));
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		ushort v;
+		LDATE  dt;
+		Data.LocID = getCtrlLong(CTLSEL_LOTINFO_LOC);
+		Data.GoodsID = getCtrlLong(CTLSEL_LOTINFO_GOODS);
+		if(P_BObj->CheckRights(BILLOPRT_ACCSSUPPL, 1))
+			Data.SupplID = getCtrlLong(CTLSEL_LOTINFO_SUPPL);
+		{
+			QCertCtrlGroup::Rec qc_rec;
+			getGroupData(GRP_QCERT, &qc_rec);
+			Data.QCertID = qc_rec.QCertID;
+		}
+		getCtrlData(CTLSEL_LOTINFO_INTAXGRP, &Data.InTaxGrpID);
+		getCtrlData(CTL_LOTINFO_ID,    &Data.ID);
+		getCtrlData(CTL_LOTINFO_QTTY,  &Data.Quantity);
+		getCtrlData(CTL_LOTINFO_REST,  &Data.Rest);
+		{
+			double ph_rest = Data.WtRest;
+			if(getCtrlData(CTL_LOTINFO_REST,  &ph_rest))
+				Data.WtRest = (float)ph_rest;
+		}
+		getCtrlData(CTL_LOTINFO_UPP,   &Data.UnitPerPack);
+		if(P_BObj->CheckRights(BILLRT_ACCSCOST))
+			getCtrlData(CTL_LOTINFO_COST, &Data.Cost);
+		getCtrlData(CTL_LOTINFO_PRICE, &Data.Price);
+		getCtrlData(CTL_LOTINFO_CLOSEDT, &dt);
+		Data.CloseDate = NZOR(dt, MAXDATE);
+		if(getCtrlData(CTL_LOTINFO_CLOSED, &v))
+			Data.Closed = BIN(v);
+		ASSIGN_PTR(pData, Data);
+		return 1;
+	}
 private:
 	DECL_HANDLE_EVENT;
 	void   setupLinkedLot(int prev);
 
 	PPObjBill * P_BObj;
-	ReceiptTbl::Rec Data;
 	int    CanEdit;
 	PPIDArray Chain;
 };
@@ -4195,79 +4266,6 @@ void LotInfoDialog::setupLinkedLot(int prev)
 		else
 			PPError();
 	}
-}
-
-int LotInfoDialog::setDTS(const ReceiptTbl::Rec * pRec)
-{
-	int    s;
-	Data = *pRec;
-	setCtrlLong(CTLSEL_LOTINFO_LOC, Data.LocID);
-	SetupPPObjCombo(this, CTLSEL_LOTINFO_GOODS, PPOBJ_GOODS, Data.GoodsID, OLW_LOADDEFONOPEN);
-	if(P_BObj->CheckRights(BILLOPRT_ACCSSUPPL, 1)) {
-		const  PPID temp_id = getCtrlLong(CTLSEL_LOTINFO_SUPPL);
-		if(temp_id != Data.SupplID)
-			setCtrlLong(CTLSEL_LOTINFO_SUPPL, Data.SupplID);
-	}
-	{
-		QCertCtrlGroup::Rec qc_rec(Data.QCertID);
-		setGroupData(GRP_QCERT, &qc_rec);
-	}
-	setCtrlLong(CTLSEL_LOTINFO_INTAXGRP, Data.InTaxGrpID);
-	setCtrlLong(CTL_LOTINFO_ID,       Data.ID);
-	setCtrlReal(CTL_LOTINFO_QTTY,     Data.Quantity);
-	setCtrlReal(CTL_LOTINFO_REST,     Data.Rest);
-	setCtrlReal(CTL_LOTINFO_PHREST,   Data.WtRest);
-	setCtrlReal(CTL_LOTINFO_UPP,      Data.UnitPerPack);
-	setCtrlReal(CTL_LOTINFO_COST,     P_BObj->CheckRights(BILLRT_ACCSCOST) ? Data.Cost : 0.0);
-	setCtrlData(CTL_LOTINFO_PRICE,    &Data.Price);
-	setCtrlDate(CTL_LOTINFO_CLOSEDT, (Data.CloseDate == MAXDATE) ? ZERODATE : Data.CloseDate);
-	setCtrlUInt16(CTL_LOTINFO_CLOSED, BIN(Data.Closed));
-	disableCtrl(CTL_LOTINFO_ID, 1);
-	if(!CanEdit) {
-		disableCtrls(1, CTLSEL_LOTINFO_LOC, CTLSEL_LOTINFO_GOODS, CTLSEL_LOTINFO_SUPPL,
-			CTLSEL_LOTINFO_QCERT, CTL_LOTINFO_QTTY, CTL_LOTINFO_REST, CTL_LOTINFO_UPP,
-			CTL_LOTINFO_COST, CTL_LOTINFO_PRICE, CTL_LOTINFO_CLOSEDT, CTL_LOTINFO_CLOSED, 0);
-		enableCommand(cmOK, 0);
-	}
-	s = BIN(Chain.getCount() > 1);
-	showCtrl(STDCTL_BACKBUTTON, s);
-	enableCommand(cmOK, !s);
-	enableCommand(cmPrevLot, (Data.PrevLotID != 0));
-	return 1;
-}
-
-int LotInfoDialog::getDTS(ReceiptTbl::Rec * pRec)
-{
-	ushort v;
-	LDATE  dt;
-	Data.LocID = getCtrlLong(CTLSEL_LOTINFO_LOC);
-	Data.GoodsID = getCtrlLong(CTLSEL_LOTINFO_GOODS);
-	if(P_BObj->CheckRights(BILLOPRT_ACCSSUPPL, 1))
-		Data.SupplID = getCtrlLong(CTLSEL_LOTINFO_SUPPL);
-	{
-		QCertCtrlGroup::Rec qc_rec;
-		getGroupData(GRP_QCERT, &qc_rec);
-		Data.QCertID = qc_rec.QCertID;
-	}
-	getCtrlData(CTLSEL_LOTINFO_INTAXGRP, &Data.InTaxGrpID);
-	getCtrlData(CTL_LOTINFO_ID,    &Data.ID);
-	getCtrlData(CTL_LOTINFO_QTTY,  &Data.Quantity);
-	getCtrlData(CTL_LOTINFO_REST,  &Data.Rest);
-	{
-		double ph_rest = Data.WtRest;
-		if(getCtrlData(CTL_LOTINFO_REST,  &ph_rest))
-			Data.WtRest = (float)ph_rest;
-	}
-	getCtrlData(CTL_LOTINFO_UPP,   &Data.UnitPerPack);
-	if(P_BObj->CheckRights(BILLRT_ACCSCOST))
-		getCtrlData(CTL_LOTINFO_COST, &Data.Cost);
-	getCtrlData(CTL_LOTINFO_PRICE, &Data.Price);
-	getCtrlData(CTL_LOTINFO_CLOSEDT, &dt);
-	Data.CloseDate = NZOR(dt, MAXDATE);
-	if(getCtrlData(CTL_LOTINFO_CLOSED, &v))
-		Data.Closed = BIN(v);
-	ASSIGN_PTR(pRec, Data);
-	return 1;
 }
 
 IMPL_HANDLE_EVENT(LotInfoDialog)

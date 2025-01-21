@@ -102,6 +102,7 @@ int PPViewPerson::Init_(const PPBaseFilt * pFilt)
 	NewCliList.Clear();
 	StrPool.ClearS();
 	ZDELETE(P_ClientActivityStateList); // @v12.2.2
+	PsnObj.DirtyConfig(); // @v12.2.4
 	// @v12.2.3 {
 	{
 		LDATE actual_date = checkdate(Filt.ClientActivityEvalDate) ? Filt.ClientActivityEvalDate : now_date;
@@ -516,7 +517,7 @@ int PPViewPerson::OpenClientDir(PPID PersonId)
 		if(ok) {
 			ok = 0;
 			TCHAR full_path_to_expl[MAX_PATH];
-			PTR32(full_path_to_expl)[0] = 0;
+			full_path_to_expl[0] = 0;
 			if(GetWindowsDirectory(full_path_to_expl, sizeof(full_path_to_expl))) {
 				SString final_path;
 				final_path = SUcSwitch(full_path_to_expl);
@@ -2115,6 +2116,15 @@ int PPViewPerson::EditBaseFilt(PPBaseFilt * pFilt)
 			if(event.isCmd(cmAdvOptions)) {
 				EditRegFilt(&Data);
 			}
+			else if(event.isCmd(cmClientActivityConfig)) { // @v12.2.4
+				PPPersonConfig psn_cfg;
+				PPObjPerson::ReadConfig(&psn_cfg);
+				if(PPObjPerson::EditClientAcitivityConfig(psn_cfg) > 0) {
+					if(PPObjPerson::WriteConfig(&psn_cfg, 1)) {
+						PsnObj.DirtyConfig();
+					}
+				}
+			}
 			else if(event.isClusterClk(CTL_PSNFLT_FLAGS)) {
 				if(!CluFlagsLock_) {
 					CluFlagsLock_ = 1;
@@ -2223,6 +2233,7 @@ int PPViewPerson::EditBaseFilt(PPBaseFilt * pFilt)
 				disableCtrl(CTL_PSNFLT_CASDT, true);
 				disableCtrl(CTL_PSNFLT_NEWCLIPERIOD, true);
 				disableCtrl(CTL_PSNFLT_NEWCLIONLY, true);
+				enableCommand(cmClientActivityConfig, false); // @v12.2.4
 			}
 			else {
 				DisableClusterItem(CTL_PSNFLT_FLAGS, 5, false);
@@ -2230,6 +2241,7 @@ int PPViewPerson::EditBaseFilt(PPBaseFilt * pFilt)
 				disableCtrl(CTL_PSNFLT_CASDT, disable_sub_cas_ctrls);
 				disableCtrl(CTL_PSNFLT_NEWCLIPERIOD, disable_sub_cas_ctrls);
 				disableCtrl(CTL_PSNFLT_NEWCLIONLY, disable_sub_cas_ctrls);
+				enableCommand(cmClientActivityConfig, !disable_sub_cas_ctrls); // @v12.2.4
 				{
 					bool disable_newclionly_flag = true;
 					if(!disable_sub_cas_ctrls) {
@@ -2516,11 +2528,13 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 				pBrw->InsColumn(-1, "@clientactivity_eventcount",    6, 0, MKSFMTD(0, 0, NMBF_NOZERO), 0);
 				pBrw->InsColumn(-1, "@clientactivity_gapdaysavg",    7, 0, MKSFMTD(0, 1, NMBF_NOZERO), 0);
 				pBrw->InsColumn(-1, "@clientactivity_gapdaysstddev", 8, 0, MKSFMTD(0, 1, NMBF_NOZERO), 0);
+				pBrw->InsColumn(-1, "delay-days", 10, 0, MKSFMTD(0, 0, NMBF_NOZERO), 0); // @v12.2.4
+				pBrw->InsColumn(-1, "delay-sd",   11, 0, MKSFMTD(0, 3, NMBF_NOZERO), 0); // @v12.2.4
 				pBrw->InsColumn(-1, "@clientactivity_state",         9, 0, 0, 0);
 				{
 					BroGroup grp;
 					grp.First = column_idx;
-					grp.Count = 4;
+					grp.Count = 6;
 					grp.Height = 1;
 					grp.P_Text = newStr(PPLoadStringS("clientactivity", temp_buf));
 					p_def->AddColumnGroup(&grp);
@@ -2880,10 +2894,13 @@ DBQuery * PPViewPerson::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 							DBE    dbe_cas_evntcount;
 							DBE    dbe_cas_gapdaysavg;
 							DBE    dbe_cas_gapdaysstddev;
+							DBE    dbe_cas_cdd;  // @v12.2.4
+							DBE    dbe_cas_cdsd; // @v12.2.4
 							DBE    dbe_ca_state;
 							{
 								dbe_cas_evntcount.init();
 								dbe_cas_evntcount.push(p->ID);
+								dbe_cas_evntcount.push(dbconst(Filt.ClientActivityEvalDate));
 								dbe_cas_evntcount.push(dbconst(PPObjPerson::casiEventCount));
 								dbe_cas_evntcount.push(static_cast<DBFunc>(PPDbqFuncPool::IdClientActivityStatisticsIndicator));
 								q->addField(dbe_cas_evntcount); // #6
@@ -2891,6 +2908,7 @@ DBQuery * PPViewPerson::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 							{
 								dbe_cas_gapdaysavg.init();
 								dbe_cas_gapdaysavg.push(p->ID);
+								dbe_cas_gapdaysavg.push(dbconst(Filt.ClientActivityEvalDate));
 								dbe_cas_gapdaysavg.push(dbconst(PPObjPerson::casiGapDaysAvg));
 								dbe_cas_gapdaysavg.push(static_cast<DBFunc>(PPDbqFuncPool::IdClientActivityStatisticsIndicator));
 								q->addField(dbe_cas_gapdaysavg); // #7
@@ -2898,6 +2916,7 @@ DBQuery * PPViewPerson::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 							{
 								dbe_cas_gapdaysstddev.init();
 								dbe_cas_gapdaysstddev.push(p->ID);
+								dbe_cas_gapdaysstddev.push(dbconst(Filt.ClientActivityEvalDate));
 								dbe_cas_gapdaysstddev.push(dbconst(PPObjPerson::casiGapDaysStdDev));
 								dbe_cas_gapdaysstddev.push(static_cast<DBFunc>(PPDbqFuncPool::IdClientActivityStatisticsIndicator));
 								q->addField(dbe_cas_gapdaysstddev); // #8
@@ -2911,6 +2930,24 @@ DBQuery * PPViewPerson::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 								dbe_ca_state.push(static_cast<DBFunc>(PPDbqFuncPool::IdClientActivityState));
 								q->addField(dbe_ca_state); // #9
 							}
+							// @v12.2.4 {
+							{
+								dbe_cas_cdd.init();
+								dbe_cas_cdd.push(p->ID);
+								dbe_cas_cdd.push(dbconst(Filt.ClientActivityEvalDate));
+								dbe_cas_cdd.push(dbconst(PPObjPerson::casiCurrentDelayDays));
+								dbe_cas_cdd.push(static_cast<DBFunc>(PPDbqFuncPool::IdClientActivityStatisticsIndicator));
+								q->addField(dbe_cas_cdd); // #10
+							}
+							{
+								dbe_cas_cdsd.init();
+								dbe_cas_cdsd.push(p->ID);
+								dbe_cas_cdsd.push(dbconst(Filt.ClientActivityEvalDate));
+								dbe_cas_cdsd.push(dbconst(PPObjPerson::casiCurrentDelaySd));
+								dbe_cas_cdsd.push(static_cast<DBFunc>(PPDbqFuncPool::IdClientActivityStatisticsIndicator));
+								q->addField(dbe_cas_cdsd); // #11
+							}
+							// } @v12.2.4
 						}
 						// } @v12.2.2 
 						q->from(tbl_l[0], tbl_l[1], tbl_l[2], tbl_l[3], tbl_l[4], tbl_l[5], 0L);

@@ -688,7 +688,6 @@ int BrowserWindow::LoadResource(uint rezID, void * pData, int dataKind, uint uOp
 							ToolbarList tb_list;
 							if(::LoadToolbar(&rez, TV_EXPTOOLBAR, toolbar_id, &tb_list))
 								setupToolbar(&tb_list);
-							//fseek(rez.getStream(), sav_pos, SEEK_SET);
 							rez.Seek(sav_pos, SEEK_SET);
 						}
 						break;
@@ -728,17 +727,6 @@ int BrowserWindow::LoadResource(uint rezID, void * pData, int dataKind, uint uOp
 	CATCHZOK
 	return 1;
 }
-
-/* @v11.0.0 (replaced with TWindow::LoadToolbarResource) int BrowserWindow::LoadToolbar(uint toolbarId)
-{
-	int    ok = 1;
-	ToolbarList tb_list;
-	THROW(P_SlRez);
-	THROW(::LoadToolbar(P_SlRez, TV_EXPTOOLBAR, toolbarId, &tb_list));
-	setupToolbar(&tb_list);
-	CATCHZOK
-	return ok;
-}*/
 
 DECL_CMPFUNC(_PcharNoCase);
 
@@ -1308,9 +1296,9 @@ void BrowserWindow::WMHCreate()
 	}
 	RestoreUserSettings();
 	SetupColumnsWith();
-	if(Toolbar.getItemsCount()) {
+	if(ToolbarL.getItemsCount()) {
 		P_Toolbar = new TToolbar(H(), TBS_NOMOVE);
-		P_Toolbar->Init(ToolbarID, &Toolbar);
+		P_Toolbar->Init(ToolbarID, &ToolbarL);
 		if(P_Toolbar->IsValid()) {
 			RECT tbr;
 			::GetWindowRect(P_Toolbar->H(), &tbr);

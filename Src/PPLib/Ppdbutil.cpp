@@ -1,5 +1,5 @@
 // PPDBUTIL.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -180,6 +180,14 @@ PPBackupScen & PPBackupScen::Z()
 	Flags = 0;
 	MaxCopies = 1U;
 	return *this;
+}
+
+bool PPBackupScen::NormalizeValue_MaxCopies()
+{
+	const bool ok = ValidateValue_MaxCopies();
+	if(!ok)
+		MaxCopies = 1;
+	return ok;
 }
 
 int PPBackupScen::ToStr(SString & rBuf) const
@@ -2528,8 +2536,7 @@ int DBMaintenance(PPDbEntrySet2 * pDbes, int autoMode)
 			   	_DoAutoBackup(pDbes, ppb, 1, 0);
 				reply = cmCancel;
 			}
-			else if(reply == cmDbMonitor) {
-				// TestMonitor();
+			else if(reply == cmDbMonitor) { // @nonimplemented and @obsolete
 				reply = cmCancel;
 			}
 			else {

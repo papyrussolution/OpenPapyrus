@@ -3,52 +3,6 @@
 // @codepage windows-1251
 // Part of project Papyrus
 //
-// @v10.5.0 TBBM_REFRESHVIEW-->PPDV_REFRESH01
-// @v10.5.0 TBBM_SIGM-->PPDV_SIGMA02
-// @v10.5.0 TBBM_INSERT-->PPDV_ADDFILE02
-// @v10.5.0 TBBM_EDIT-->PPDV_EDITFILE02
-// @v10.5.0 TBBM_DELETE-->PPDV_DELETEFILE02
-// @v10.5.0 TBBM_LINS-->PPDV_LINS01
-// @v10.5.0 TBBM_FILTER-->PPDV_FILTER01
-// @v10.5.0 TBBM_BROWSE-->PPDV_LINS02
-// @v10.5.0 TBBM_PRINT-->PPDV_PRINTER01
-// @v10.5.0 TBBM_TAGS-->PPDV_TAGS01
-// @v10.5.0 TBBM_NOICON-->PPDV_NOICON
-// @v10.5.1 TBBM_BASKET-->PPDV_SHOPPINGCART01
-// @v10.5.3 TBBM_SENDOBJ-->PPDV_SYNC01
-// @v10.5.3 TBBM_SYSJ-->PPDV_SYSJOURNAL
-// @v10.5.3 TBBM_COMPARE-->PPDV_COMPARE01
-// @v10.5.3 TBBM_EXPORT-->PPDV_EXPORT01
-// @v10.5.3 TBBM_GOODSRET-->PPDV_REFUND01
-// @v10.5.4 TBBM_DELETEALL-->PPDV_DELETEALL02
-// @v10.5.5 TBBM_HAMMER_-->PPDV_REPAIR02
-// @v10.5.5 TBBM_SCARD-->PPDV_CARD03
-// @v10.5.5 TBBM_UNITE-->PPDV_MERGE01
-// @v10.5.6 TBBM_COPYBYSAMPLE-->PPDV_CREATEBYEXAMPLE01
-// @v10.5.6 TBBM_BILLS-->PPDV_DOCUMENT_PL02
-// @v10.5.6 TBBM_MATRIX-->PPDV_MATRIX01
-// @v10.5.6 TBBM_LINK-->PPDV_LINK01
-// @v10.5.6 TBBM_PLOT-->PPDV_PLOT01
-// @v10.7.8 TBBM_ACCBILLS-->PPDV_DOCUMENTS_ACC
-// @v10.7.8 TBBM_GOODSBILLS-->PPDV_DOCUMENTS_GOODS
-// @v10.7.8 TBBM_ORDERBILLS-->PPDV_DOCUMENTS_ORDER
-// @v10.7.8 TBBM_INVENTORY-->PPDV_DOCUMENTS_INVENTORY
-// @v10.7.8 TBBM_DRAFTBILLS-->PPDV_DOCUMENTS_DRAFT
-// @v10.7.8 TBBM_OPLIST-->PPDV_OPLIST
-// @v10.7.8 TBBM_LOTS-->PPDV_LOTS
-// @v10.7.8 TBBM_ORDLOTS-->PPDV_ORDLOTS
-// @v10.7.8 TBBM_GOODSREST-->PPDV_GOODSREST
-// @v10.7.8 TBBM_TEST-->PPDV_TEST01
-// @v10.7.11 TBBM_ATURNLIST2-->PPDV_ATURNLIST
-// @v10.7.11 TBBM_ACCANLZ-->PPDV_ACCANLZ
-// @v10.7.11 TBBM_PANE-->PPDV_PANE
-// @v10.7.11 TBBM_PRICELIST-->PPDV_PRICELIST01
-// @v10.7.11 TBBM_TRFRANLZ-->PPDV_TRFRANLZ
-// @v10.8.0  TBBM_SAVEAS-->PPDV_SAVEAS03
-// @v10.8.0  TBBM_SAVE-->PPDV_SAVE03
-// @v10.8.0  TBBM_OPEN-->PPDV_OPEN03
-// @v10.8.1  TBBM_UNIFYPRICE-->PPDV_UNIFYPRICE02
-// @v10.8.1  ICON_UNIFYGOODSPRICE-->PPDV_UNIFYPRICE02
 // @v11.0.0  TBBM_PERCENT-->PPDV_PERCENT
 // @v11.0.0  TBBM_GOODS-->PPDV_WARESINGLE01
 // @v11.0.0  TBBM_GOODSVIEW2-->PPDV_WAREMULTI01
@@ -72,9 +26,9 @@ declare command TB_CBX_SELECTED // выбор строки из комбо-бокса. Комбик рисуется 
 declare command GRAPH           // kbCtrlN
 declare command MOUSEHOVER               // Курсор мыши задержался в одном месте на определенное время.
 declare command REFRESHBYPERIOD          // При установленном в броузере периоде обновления, в PPView передается команда, когда этот период истекает.
-declare command SEARCHNEXT               // @v8.1.6
-declare command SETUPSARTREINDICATORS    // @v10.2.0 @internal
-declare command USERSORT                 // @v10.6.4 @internal Вызывается базовым классом PPViewBrowser в ответ на cmSort для информирования порожденного класса о том, что надо отсортировать данные
+declare command SEARCHNEXT               // 
+declare command SETUPSARTREINDICATORS    // @internal
+declare command USERSORT                 // @internal Вызывается базовым классом PPViewBrowser в ответ на cmSort для информирования порожденного класса о том, что надо отсортировать данные
 declare command FOREIGNFOCUCNOTIFICATION // @v11.1.12 Вызывается базовым классом PPViewBrowser в ответ на cmNotifyForeignFocus
 declare command QUICKTAGEDIT             // @v11.2.8  Вызывается базовым классом PPViewBrowser в ответ на нажатие '/' и следом горячей клавиши редактирования тега
 //
@@ -358,8 +312,8 @@ toolbar MAIN TB_GLOBAL {
 	cmGoodsOper,        "@{cmd_goodsoper}",         TBBM_GOODSANLZ
 	cmTrfrAnalyze,      "@{view_trfranlz}",         PPDV_TRFRANLZ
 	separator
-	cmEventsForCurrentUser, "@{cmd_events}",        PPDV_SIGNAL01           // @v10.9.1
-	cmOpenTextFile,     "@{cmd_opentextfile}",      PPDV_FILEDOCUMENTEDIT01 // @v10.9.1 TBBM_OPENTEXTFILE-->PPDV_FILEDOCUMENTEDIT01
+	cmEventsForCurrentUser, "@{cmd_events}",        PPDV_SIGNAL01
+	cmOpenTextFile,     "@{cmd_opentextfile}",      PPDV_FILEDOCUMENTEDIT01
 
 }
 
@@ -384,10 +338,7 @@ toolbar export ACCBILL TB_FIRST_TOOLBAR {
 	CHNGFLAGS        :  kbShiftF3,  TBBM_CHGFLAGS,          "@{doupdateflags}\tShift-F3"
 	SETWLABEL        :  kbF8,       TBBM_MARK,              "@{dowhitelabel}\tF8"
 	separator
-	PAYMENT          :  kbF5,       TBBM_PAYMENT,         "@{linkdocument_pl}\tF5" // @v10.3.5
-	// @v10.3.5 PAYMENT          :  kbF5,       TBBM_PAYMENT,         "Оплаты по документу\tF5"
-	// @v10.3.5 RECKON           :  kbF6,       TBBM_RECKON,          "Зачеты по документу\tF6"
-	// @v10.3.5 RENTA            :  kbShiftF5,  TBBM_RENTA,           "Начисления по ренте\tShift-F5"
+	PAYMENT          :  kbF5,       TBBM_PAYMENT,         "@{linkdocument_pl}\tF5"
 	//GOODSRET         :  kbCtrlF5,   PPDV_REFUND01,      "@{doreturnbybill}\tCtrl-F5"
 	RECKONPAYM       :  kbCtrlP,    TBBM_RECKONPAYM,      "@{doreckonpaym}\tCtrl-P"
 	RECKONDEBT       :  kbCtrlE,    TBBM_RECKONDEBT,      "@{doreckondebt}\tCtrl-E"
@@ -399,26 +350,20 @@ toolbar export ACCBILL TB_FIRST_TOOLBAR {
 	//TRFRANLZ         :  kbCtrlT,    PPDV_TRFRANLZ,      "@{view_trfranlz}\tCtrl-T"
 	//ATTACHBILLTOORD  :  kbCtrlY,    PPDV_LINK01,        "Привязать документ к заказу\tCtrl-Y"
 	separator
-	TAGS             :  kbF6,       PPDV_TAGS01,          "@{tags}\tF6" // @v10.3.5
-	TAGSALL          :  kbAltG,     TBBM_TAGSALL,         "@{doupdatetags}\tAlt-G" // @v10.3.5 // @v11.1.9
+	TAGS             :  kbF6,       PPDV_TAGS01,          "@{tags}\tF6"
+	TAGSALL          :  kbAltG,     TBBM_TAGSALL,         "@{doupdatetags}\tAlt-G" // @v11.1.9
 	separator
 	PRINT            :  kbF7,       PPDV_PRINTER01,       "@{printcurrentdocument}\tF7"
 	PRINTLIST        :  kbAltF7,    TBBM_PRINTLIST,       "@{printselectionofdocuments}\tAlt-F7"
 	PRINTINFOLIST    :  kbShiftF7,  PPDV_NOICON,          hidden, "@{printselectionofdocumentsinfo}\tShift-F7"
 	POSPRINTBYBILL   :  kbCtrlZ,    TBBM_POSPRINT,        hidden, "@{printcheck_toposregistrar}\tCtrl-Z"
-	// @v10.0.0 PRINTZEROCHECK   :  kbAltMinus, PPDV_NOICON,          "@{printzerocheck}\tAlt-Minus"
 	PRINTALLBILLS    :  kbCtrlS,    PPDV_NOICON,          hidden,     "@{printeachdoc}\tCtrl-S"
-	// @v10.0.0 PRINTCHECK       :  kbCtrlF7,   PPDV_NOICON,          hidden, "@{printcheck}\tCtrl-F7"
-
 	separator
 	TOTAL            :  kbF9,       PPDV_SIGMA02,            "@{totals}\tF9"
-	// @v9.2.10 (объединено с TOTAL) TPIDTOTAL        :  kbCtrlF9,   PPDV_PERCENT,         "Расчет НДС по выборке\tCtrl-F9"
 	separator
 	TRANSMIT         :  kbCtrlH,    PPDV_SYNC01,            "@{dotransmit}\tCtrl-H"
 	TRANSMITCHARRY   :  kbCtrlB,    TBBM_SENDCHARRY,        "@{dotransmitcharry}\tCtrl-B"
 	EXPORT           :  kbCtrlR,    PPDV_EXPORT01,          "@{exportbills}\tCtrl-R"
-	//EXPORTTOEGAIS    :  kbCtrlF10,  PPDV_NOICON,          "Экспорт в @{brand_egais}\tCtrl-F10"
-	// @v9.2.10 (объединено с EXPORT) EXPORTBNKORDER   :  kbCtrlL,    PPDV_NOICON,          "Экспорт платежных поручений\tCtrl-L"
 	REFRESH          :  kbAltV,     PPDV_REFRESH01,     "@{refresh}\tAlt-V" // @v11.2.4
 	CHANGEFILT       :  kbCtrlV,    PPDV_FILTER01,      "@{filter}\tCtrl-V" // @v11.2.4
 	EDITMEMOS        :  kbCtrlM,    PPDV_NOICON,          hidden, "@{doeditmemolist}\tCtrl-M"
@@ -431,7 +376,7 @@ toolbar export DRAFTBILL TB_FIRST_TOOLBAR {
 	DELETEITEM       :  kbDel,      PPDV_DELETEFILE02,    "@{doremovebill}\tDelete"
 	DELETEALL        :  kbCtrlF8,   PPDV_DELETEALL02,     "@{doremoveall}\tCtrl-F8"
 	EDITBILLEXT      :  kbF4,       TBBM_EXTRAVIEW,       "@{bill_extension}\tF4"
-	EDITBILLFREIGHT  :  kbCtrlF4,   PPDV_FREIGHT02,       "@{freight}\tCtrl-F4" // @v10.7.3
+	EDITBILLFREIGHT  :  kbCtrlF4,   PPDV_FREIGHT02,       "@{freight}\tCtrl-F4"
 	ADDBYSCARD       :  kbF2,       TBBM_ADDBILLBYSCARD,  "@{doadddocumentbyscard}\tF2"
 	//EDITACKBILL      :  kbCtrlK,    PPDV_NOICON,        "@{doeditackbill}\tCtrl-K"
 	//DELACKBILL       :  kbCtrlD,    PPDV_NOICON,        "@{dodeleteackbill}\tCtrl-D"
@@ -446,8 +391,7 @@ toolbar export DRAFTBILL TB_FIRST_TOOLBAR {
 	CHNGFLAGS        :  kbShiftF3,  TBBM_CHGFLAGS,        "@{doupdateflags}\tShift-F3"
 	SETWLABEL        :  kbF8,       TBBM_MARK,            "@{dowhitelabel}\tF8"
 	separator
-	PAYMENT          :  kbF5,       TBBM_PAYMENT,         "@{linkdocument_pl}\tF5" // @v10.3.5
-	// @v10.3.5 PAYMENT          :  kbF5,       TBBM_PAYMENT,         "Оплаты по документу\tF5"
+	PAYMENT          :  kbF5,       TBBM_PAYMENT,         "@{linkdocument_pl}\tF5"
 	//RECKON           :  kbF6,       TBBM_RECKON,        "Зачеты по документу\tF6"
 	//RENTA              :  kbShiftF5,  TBBM_RENTA,       "@{shortagecoveragedocument_pl}\tShift-F5"
 	//GOODSRET         :  kbCtrlF5,   PPDV_REFUND01,      "@{doreturnbybill}\tCtrl-F5"
@@ -461,19 +405,16 @@ toolbar export DRAFTBILL TB_FIRST_TOOLBAR {
 	TRFRANLZ         :  kbCtrlT,    PPDV_TRFRANLZ,        "@{view_trfranlz}\tCtrl-T"
 	ATTACHBILLTOBILL :  kbCtrlY,    PPDV_LINK01,          "@{dolinkbilltoanother}\tCtrl-Y"
 	separator
-	TAGS             :  kbF6,    PPDV_TAGS01,            "@{tags}\tF6" // @v10.3.5
-	TAGSALL          :  kbAltG,  TBBM_TAGSALL,           "@{doupdatetags}\tAlt-G" // @v10.3.5 // @v11.1.9
+	TAGS             :  kbF6,    PPDV_TAGS01,            "@{tags}\tF6"
+	TAGSALL          :  kbAltG,  TBBM_TAGSALL,           "@{doupdatetags}\tAlt-G"
 	separator
 	PRINT            :  kbF7,       PPDV_PRINTER01,       "@{printcurrentdocument}\tF7"
 	PRINTLIST        :  kbAltF7,    TBBM_PRINTLIST,       "@{printselectionofdocuments}\tAlt-F7"
 	PRINTINFOLIST    :  kbShiftF7,  PPDV_NOICON,          hidden, "@{printselectionofdocumentsinfo}\tShift-F7"
 	POSPRINTBYBILL   :  kbCtrlZ,    TBBM_POSPRINT,        hidden, "@{printcheck_toposregistrar}\tCtrl-Z"
-	// @v10.0.0 PRINTZEROCHECK   :  kbAltMinus, PPDV_NOICON,          hidden, "@{printzerocheck}\tAlt-Minus"
 	PRINTALLBILLS    :  kbCtrlS,    PPDV_NOICON,          "@{printeachdoc}\tCtrl-S"
-	// @v10.0.0 PRINTCHECK       :  kbCtrlF7,   PPDV_NOICON,          hidden, "@{printcheck}\tCtrl-F7"
 	separator
 	TOTAL            :  kbF9,       PPDV_SIGMA02,            "@{totals}\tF9"
-	// @v9.2.10 (объединено с TOTAL) TPIDTOTAL        :  kbCtrlF9,   PPDV_PERCENT,         hidden, "Расчет НДС по выборке\tCtrl-F9"
 	separator
 	TRANSMIT         :  kbCtrlH,    PPDV_SYNC01,             "@{dotransmit}\tCtrl-H"
 	TRANSMITCHARRY   :  kbCtrlB,    TBBM_SENDCHARRY,         "@{dotransmitcharry}\tCtrl-B"
@@ -507,11 +448,7 @@ toolbar export ORDERBILL TB_FIRST_TOOLBAR {
 	CHNGFLAGS        :  kbShiftF3,  TBBM_CHGFLAGS,        "@{doupdateflags}\tShift-F3"
 	SETWLABEL        :  kbF8,       TBBM_MARK,            "@{dowhitelabel}\tF8"
 	separator
-	// @v10.3.5 PAYMENT          :  kbF5,       TBBM_PAYMENT,         "Оплаты по документу\tF5"
-	// @v10.3.5 RECKON           :  kbF6,       TBBM_RECKON,          "Зачеты по документу\tF6"
-	// @v10.3.5 RENTA            :  kbShiftF5,  TBBM_RENTA,           "Начисления по ренте\tShift-F5"
-	PAYMENT          :  kbF5,       TBBM_PAYMENT,         "@{linkdocument_pl}\tF5" // @v10.3.5
-	//GOODSRET         :  kbCtrlF5,   PPDV_REFUND01,      "@{doreturnbybill}\tCtrl-F5"
+	PAYMENT          :  kbF5,       TBBM_PAYMENT,         "@{linkdocument_pl}\tF5"
 	RECKONPAYM       :  kbCtrlP,    TBBM_RECKONPAYM,      "@{doreckonpaym}\tCtrl-P"
 	RECKONDEBT       :  kbCtrlE,    TBBM_RECKONDEBT,      "@{doreckondebt}\tCtrl-E"
 	COMPARE          :  kbCtrlC,    PPDV_COMPARE01,       "@{docomparedocuments}\tCtrl-C"
@@ -522,25 +459,20 @@ toolbar export ORDERBILL TB_FIRST_TOOLBAR {
 	TRFRANLZ         :  kbCtrlT,    PPDV_TRFRANLZ,        "@{view_trfranlz}\tCtrl-T"
 	ATTACHBILLTOBILL :  kbCtrlY,    PPDV_LINK01,          "@{dolinkbilltoanother}\tCtrl-Y"
 	separator
-	TAGS             :  kbF6,    PPDV_TAGS01,             "@{tags}\tF6" // @v10.3.5
-	TAGSALL          :  kbAltG,  TBBM_TAGSALL,            "@{doupdatetags}\tAlt-G" // @v10.3.5 // @v11.1.9
+	TAGS             :  kbF6,    PPDV_TAGS01,             "@{tags}\tF6"
+	TAGSALL          :  kbAltG,  TBBM_TAGSALL,            "@{doupdatetags}\tAlt-G" // @v11.1.9
 	separator
 	PRINT            :  kbF7,       PPDV_PRINTER01,       "@{printcurrentdocument}\tF7"
 	PRINTLIST        :  kbAltF7,    TBBM_PRINTLIST,       "@{printselectionofdocuments}\tAlt-F7"
 	PRINTINFOLIST    :  kbShiftF7,  PPDV_NOICON,          hidden, "@{printselectionofdocumentsinfo}\tShift-F7"
 	POSPRINTBYBILL   :  kbCtrlZ,    TBBM_POSPRINT,        hidden, "@{printcheck_toposregistrar}\tCtrl-Z"
-	// @v10.0.0 PRINTZEROCHECK   :  kbAltMinus, PPDV_NOICON,          hidden, "@{printzerocheck}\tAlt-Minus"
 	PRINTALLBILLS    :  kbCtrlS,    PPDV_NOICON,          "@{printeachdoc}\tCtrl-S"
-	// @v10.0.0 PRINTCHECK       :  kbCtrlF7,   PPDV_NOICON,          hidden, "@{printcheck}\tCtrl-F7"
 	separator
 	TOTAL            :  kbF9,       PPDV_SIGMA02,         "@{totals}\tF9"
-	// @v9.2.10 (объединено с TOTAL) TPIDTOTAL        :  kbCtrlF9,   PPDV_PERCENT,         hidden, "Расчет НДС по выборке\tCtrl-F9"
 	separator
 	TRANSMIT         :  kbCtrlH,    PPDV_SYNC01,          "@{dotransmit}\tCtrl-H"
 	TRANSMITCHARRY   :  kbCtrlB,    TBBM_SENDCHARRY,      "@{dotransmitcharry}\tCtrl-B"
 	EXPORT           :  kbCtrlR,    PPDV_EXPORT01,        "@{exportbills}\tCtrl-R"
-	// @v8.9.11 EXPORTTOEGAIS    :  kbCtrlF10,  PPDV_NOICON,          hidden, "Экспорт в @{brand_egais}\tCtrl-F10"
-	// @v9.2.10 (объединено с EXPORT) EXPORTBNKORDER   :  kbCtrlL,    PPDV_NOICON,          hidden, "Экспорт платежных поручений\tCtrl-L"
 	REFRESH          :  kbAltV,     PPDV_REFRESH01,     "@{refresh}\tAlt-V" // @v11.2.4
 	CHANGEFILT       :  kbCtrlV,    PPDV_FILTER01,      "@{filter}\tCtrl-V" // @v11.2.4
 	EDITMEMOS        :  kbCtrlM,    PPDV_NOICON,          hidden, "@{doeditmemolist}\tCtrl-M"
@@ -550,7 +482,7 @@ toolbar export INVENTBILL TB_FIRST_TOOLBAR {
 	EDITITEM         :  kbEnter,    PPDV_EDITFILE02,        "@{doeditdocument}\tEnter"
 	ADDITEM          :  kbIns,      PPDV_ADDFILE02,         "@{doadddocument}\tInsert"
 	ADDBYSAMPLE      :  kbAltF2,    PPDV_CREATEBYEXAMPLE01, "@{doaddbysample}\tAlt-F2"
-	WROFFINVENTORY   :  kbCtrlW,    TBBM_WROFFDRAFT,        "@{dowriteoffdocument}\tCtrl-W" // @v10.5.9
+	WROFFINVENTORY   :  kbCtrlW,    TBBM_WROFFDRAFT,        "@{dowriteoffdocument}\tCtrl-W"
 	DELETEITEM       :  kbDel,      PPDV_DELETEFILE02,      "@{doremovebill}\tDelete"
 	DELETEALL        :  kbCtrlF8,   PPDV_DELETEALL02,       "@{doremoveall}\tCtrl-F8"
 	EDITBILLEXT      :  kbF4,       TBBM_EXTRAVIEW,         "@{bill_extension}\tF4"
@@ -569,8 +501,8 @@ toolbar export INVENTBILL TB_FIRST_TOOLBAR {
 	VIEWOP           :  kbCtrlQ,    PPDV_OPLIST,            "@{oprkind}\tCtrl-Q"
 	UNITEBILLS       :  kbCtrlU,    PPDV_MERGE01,           "@{unite_docs}\tCtrl-U"
 	separator
-	TAGS             :  kbF6,    PPDV_TAGS01,               "@{tags}\tF6" // @v10.3.5
-	TAGSALL          :  kbAltG,  TBBM_TAGSALL,              "@{doupdatetags}\tAlt-G" // @v10.3.5 // @v11.1.9
+	TAGS             :  kbF6,    PPDV_TAGS01,               "@{tags}\tF6"
+	TAGSALL          :  kbAltG,  TBBM_TAGSALL,              "@{doupdatetags}\tAlt-G"
 	separator
 	PRINT            :  kbF7,       PPDV_PRINTER01,         "@{printcurrentdocument}\tF7"
 	PRINTLIST        :  kbAltF7,    TBBM_PRINTLIST,         "@{printselectionofdocuments}\tAlt-F7"
@@ -607,10 +539,7 @@ toolbar export GOODSBILL TB_FIRST_TOOLBAR {
 	CHNGFLAGS        :  kbShiftF3,  TBBM_CHGFLAGS,        "@{doupdateflags}\tShift-F3"
 	SETWLABEL        :  kbF8,       TBBM_MARK,            hidden, "@{dowhitelabel}\tF8"
 	separator
-	// @v10.3.5 PAYMENT          :  kbF5,       TBBM_PAYMENT,         "Оплаты по документу\tF5"
-	PAYMENT          :  kbF5,       TBBM_PAYMENT,         "@{linkdocument_pl}\tF5" // @v10.3.5
-	// @v10.3.5 RECKON           :  kbF6,       TBBM_RECKON,          "Зачеты по документу\tF6"
-	// @v10.3.5 RENTA            :  kbShiftF5,  TBBM_RENTA,           "Начисления по ренте\tShift-F5"
+	PAYMENT          :  kbF5,       TBBM_PAYMENT,         "@{linkdocument_pl}\tF5"
 	GOODSRET         :  kbCtrlF5,   PPDV_REFUND01,          "@{doreturnbybill}\tCtrl-F5"
 	RECKONPAYM       :  kbCtrlP,    TBBM_RECKONPAYM,        "@{doreckonpaym}\tCtrl-P"
 	RECKONDEBT       :  kbCtrlE,    TBBM_RECKONDEBT,        "@{doreckondebt}\tCtrl-E"
@@ -622,19 +551,16 @@ toolbar export GOODSBILL TB_FIRST_TOOLBAR {
 	TRFRANLZ         :  kbCtrlT,    PPDV_TRFRANLZ,          "@{view_trfranlz}\tCtrl-T"
 	ATTACHBILLTOBILL :  kbCtrlY,    PPDV_LINK01,            "@{dolinkbilltoanother}\tCtrl-Y"
 	separator
-	TAGS             :  kbF6,   PPDV_TAGS01,             "@{tags}\tF6" // @v10.3.5
-	TAGSALL          :  kbAltG, TBBM_TAGSALL,            "@{doupdatetags}\tAlt-G" // @v10.3.5 // @v11.1.9
+	TAGS             :  kbF6,   PPDV_TAGS01,             "@{tags}\tF6"
+	TAGSALL          :  kbAltG, TBBM_TAGSALL,            "@{doupdatetags}\tAlt-G"
 	separator
 	PRINT            :  kbF7,       PPDV_PRINTER01,       "@{printcurrentdocument}\tF7"
 	PRINTLIST        :  kbAltF7,    TBBM_PRINTLIST,       "@{printselectionofdocuments}\tAlt-F7"
 	PRINTINFOLIST    :  kbShiftF7,  PPDV_NOICON,          hidden, "@{printselectionofdocumentsinfo}\tShift-F7"
 	POSPRINTBYBILL   :  kbCtrlZ,    TBBM_POSPRINT,        hidden, "@{printcheck_toposregistrar}\tCtrl-Z"
-	// @v10.0.0 PRINTZEROCHECK   :  kbAltMinus, PPDV_NOICON,          hidden, "@{printzerocheck}\tAlt-Minus"
 	PRINTALLBILLS    :  kbCtrlS,    PPDV_NOICON,                      "@{printeachdoc}\tCtrl-S"
-	// @v10.0.0 PRINTCHECK       :  kbCtrlF7,   PPDV_NOICON,          "@{printcheck}\tCtrl-F7"
 	separator
 	TOTAL            :  kbF9,       PPDV_SIGMA02,            "@{totals}\tF9"
-	// @v9.2.10 (объединено с TOTAL) TPIDTOTAL        :  kbCtrlF9,   PPDV_PERCENT,         hidden, "Расчет НДС по выборке\tCtrl-F9"
 	TRANSMIT         :  kbCtrlH,    PPDV_SYNC01,         "@{dotransmit}\tCtrl-H"
 	TRANSMITCHARRY   :  kbCtrlB,    TBBM_SENDCHARRY,      hidden, "@{dotransmitcharry}\tCtrl-B"
 	EXPORT           :  kbCtrlR,    PPDV_EXPORT01,          "@{exportbills}\tCtrl-R"
@@ -1543,6 +1469,9 @@ browser COMPUTER north(100), 3, 0, "@{view_computer}", OWNER|GRID, 0
 {
 	"@id",              0, int32,        ALIGN_RIGHT, 10, BCO_USERPROC
 	"@appellation",     1, zstring(128), 0, 50, BCO_USERPROC
+	"@category",        2, zstring(48),  0, 15, BCO_USERPROC
+	"UUID",             3, zstring(48),  0, 10, BCO_USERPROC
+	"MAC-address",      4, zstring(20),  0, 10, BCO_USERPROC
 	toolbar TB_FIRST_TOOLBAR {
 		EDITITEM                : kbEnter, PPDV_EDITFILE02,   "@{edit}\tEnter"
 		ADDITEM                 : kbIns,   PPDV_ADDFILE02,    "@{add}\tInsert"
@@ -1552,6 +1481,7 @@ browser COMPUTER north(100), 3, 0, "@{view_computer}", OWNER|GRID, 0
 		SYSJ                    : kbCtrlJ, PPDV_SYSJOURNAL,   "@{view_sysjournal}\tCtrl-J"
 		separator
 		CHANGEFILT              : kbCtrlV, PPDV_FILTER01,     "@{filter}\tCtrl-V"
+		REFRESH                 : kbCtrlZ, PPDV_REFRESH01,    "@{refresh}\tCtrl-Z" // @v12.2.4
 	}
 }
 
@@ -6567,18 +6497,18 @@ browser VETISDOCUMENT north(100), 1, 0, "@{view_vetisdocument}", OWNER|GRID, 0
 {
 	"ID",                    0,  notype, 0,  5
 	"@releasedate",          9,  notype, 0, 10
-	"@number",              22,  notype, 0, 10 // @v10.5.11 20-->22
-	"@type",                14,  notype, 0, 10 // @v10.5.11 12-->14
-	"@status",              15,  notype, 0, 10 // @v10.5.11 13-->15
-	"@waybilldate_s",       16,  notype, 0, 10 // @v10.5.11 14-->16
-	"@waybillno_s",         17,  notype, 0, 15 // @v10.5.11 15-->17
-	"@sender",              20,  notype, 0, 30 // @v10.5.11 18-->20
-	"@recipient",           21,  notype, 0, 30 // @v10.5.11 19-->21
-	"@ware",                18,  notype, 0, 30 // @v10.5.11 16-->18
-	"@qtty",                19,  notype, NMBF_NOZERO, 10.3       // @v10.5.11 17-->19
-	"@rest",                23,  notype, NMBF_NOZERO, 10.3       // @v10.5.11 21-->23
-	"UUID",                 24,  notype, 0, 30  //@erik v10.4.11 // @v10.5.11 22-->24
-	"@form",                13,  notype, 0, 10  // @v10.5.11 11-->13
+	"@number",              22,  notype, 0, 10
+	"@type",                14,  notype, 0, 10
+	"@status",              15,  notype, 0, 10
+	"@waybilldate_s",       16,  notype, 0, 10
+	"@waybillno_s",         17,  notype, 0, 15
+	"@sender",              20,  notype, 0, 30
+	"@recipient",           21,  notype, 0, 30
+	"@ware",                18,  notype, 0, 30
+	"@qtty",                19,  notype, NMBF_NOZERO, 10.3
+	"@rest",                23,  notype, NMBF_NOZERO, 10.3
+	"UUID",                 24,  notype, 0, 30  //@erik
+	"@form",                13,  notype, 0, 10
 	toolbar TB_FIRST_TOOLBAR {
 		EDITITEM         : kbEnter,    PPDV_EDITFILE02,     "@{detail}\tEnter"
 		DELETEITEM       : kbDel,      PPDV_DELETEFILE02,   "@{doremovebill} (только для исходящих)\tDelete"

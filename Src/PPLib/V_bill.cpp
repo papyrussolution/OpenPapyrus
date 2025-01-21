@@ -2174,10 +2174,10 @@ int PPViewBill::CalcTotal(BillTotal * pTotal)
 	return ok;
 }
 
-int PPViewBill::CalcItemTotal(PPID billID, BillTotalData * pTotal)
+int PPViewBill::CalcItemTotal(PPID billID, BillTotalData & rTotal)
 {
 	PPBillPacket pack;
-	return (billID && P_BObj->ExtractPacket(billID, &pack) > 0) ? pack.CalcTotal(pTotal, BTC_CALCSALESTAXES) : -1;
+	return (billID && P_BObj->ExtractPacket(billID, &pack) > 0) ? pack.CalcTotal(rTotal, BTC_CALCSALESTAXES) : -1;
 }
 
 struct IterProcParam_CrTmpTbl {
@@ -5711,13 +5711,13 @@ int PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, const PPBi
 						if(p_item && p_item->P_ExpDll && p_item->P_ExpDll->IsInited()) {
 							b_e.BillParam.ImpExpParamDll = p_item->ParamDll;
 							if(!b_e.CheckBillsWasExported(p_item->P_ExpDll)) {
-								PTR32(errmsg_)[0] = 0;
+								errmsg_[0] = 0;
 								p_item->P_ExpDll->GetErrorMessage(errmsg_, sizeof(errmsg_));
 								PPSetError(PPERR_IMPEXP_DLL, msg_buf.Z().Cat(errmsg_).Transf(CTRANSF_OUTER_TO_INNER));
 								logger.LogLastError();
 							}
 							else if(!p_item->P_ExpDll->FinishImpExp()) {
-								PTR32(errmsg_)[0] = 0;
+								errmsg_[0] = 0;
 								p_item->P_ExpDll->GetErrorMessage(errmsg_, sizeof(errmsg_));
 								PPSetError(PPERR_IMPEXP_DLL, msg_buf.Z().Cat(errmsg_).Transf(CTRANSF_OUTER_TO_INNER));
 								logger.LogLastError();
@@ -5861,7 +5861,7 @@ int PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, const PPBi
 		if(dll_pos < static_cast<int>(exp_dll_coll.getCount())) {
 			ImpExpDll * p_ied = exp_dll_coll.at(dll_pos)->P_ExpDll;
 			if(p_ied && p_ied->IsInited()) {
-				PTR32(errmsg_)[0] = 0;
+				errmsg_[0] = 0;
 				p_ied->GetErrorMessage(errmsg_, sizeof(errmsg_));
 				PPSetError(PPERR_IMPEXP_DLL, msg_buf.Z().Cat(errmsg_).Transf(CTRANSF_OUTER_TO_INNER));
 			}
@@ -7234,7 +7234,7 @@ int PPALDD_GoodsBillBase::InitData(PPFilt & rFilt, long rsrv)
 		long   btc_flags = BTC_CALCOUTAMOUNTS;
 		SETFLAG(btc_flags, BTC_EXCLUDEVAT, exclude_vat);
 		SETFLAG(btc_flags, BTC_ONLYUNLIMGOODS, p_pack->ProcessFlags & PPBillPacket::pfPrintOnlyUnlimGoods);
-		p_pack->CalcTotal(&total_data, btc_flags);
+		p_pack->CalcTotal(total_data, btc_flags);
 	}
 	H.TotalGoodsLines = total_data.LinesCount;
 	H.TotalGoodsNames = total_data.GoodsCount;
@@ -7323,7 +7323,8 @@ int PPALDD_GoodsBillBase::NextIteration(PPIterID iterId)
 	SString temp_buf;
 	PPObjBill * p_bobj = BillObj;
 	ReceiptCore * p_rcpt = (p_bobj && p_bobj->trfr) ? &p_bobj->trfr->Rcpt : 0;
-	PPTransferItem * p_ti, temp_ti;
+	PPTransferItem * p_ti;
+	PPTransferItem temp_ti;
 	PPObjGoods goods_obj;
 	Goods2Tbl::Rec goods_rec;
 	PPObjQuotKind qk_obj;
@@ -7398,12 +7399,13 @@ int PPALDD_GoodsBillBase::NextIteration(PPIterID iterId)
 		GoodsToObjAssoc gto_assc(PPASS_GOODS2WAREPLACE, PPOBJ_LOCATION, 1);
 		gto_assc.Load();
 		temp_buf.Z();
-		if(gto_assc.GetListByGoods(goods_rec.ID, loc_list) > 0)
+		if(gto_assc.GetListByGoods(goods_rec.ID, loc_list) > 0) {
 			for(uint j = 0; temp_buf.IsEmpty() && j < loc_list.getCount(); j++) {
 				const  PPID loc_id = loc_list.get(j);
 				if(loc_obj.BelongTo(loc_id, p_pack->Rec.LocID, &temp_buf))
 					break;
 			}
+		}
 		temp_buf.CopyTo(I.GoodsGrpName, sizeof(I.GoodsGrpName));
 	}
 	I.LotID   = p_ti->LotID;
@@ -7422,7 +7424,7 @@ int PPALDD_GoodsBillBase::NextIteration(PPIterID iterId)
 		I.MainPrice = p_ti->NetPrice();
 	}
 	else {
-		tiamt = TIAMT_AMOUNT;
+		tiamt = /*TIAMT_AMOUNT*/GTaxVect::GetTaxNominalAmountType(p_pack->Rec);
 		I.MainPrice = p_ti->NetPrice();
 	}
 	I.ExtPrice     = ext_price;
@@ -7459,7 +7461,7 @@ int PPALDD_GoodsBillBase::NextIteration(PPIterID iterId)
 				const PPTransferItem & r_ti_local = p_pack->TI(pos_local);
 				const double qtty_local = fabs(r_ti_local.Qtty());
 				GTaxVect gtv;
-				gtv.CalcTI(r_ti_local, p_pack->Rec.OpID, tiamt, exclude_tax_flags);
+				gtv.CalcBPTI(*p_pack, r_ti_local, tiamt, exclude_tax_flags);
 				I.VATRate = gtv.GetTaxRate(GTAX_VAT, 0);
 				assert(i == 0 || I.VATRate == prev_vat_rate);
 				prev_vat_rate = I.VATRate;
@@ -7487,7 +7489,7 @@ int PPALDD_GoodsBillBase::NextIteration(PPIterID iterId)
 			const PPTransferItem & r_ti_local = *p_ti;
 			const double qtty_local = fabs(r_ti_local.Qtty());
 			GTaxVect gtv;
-			gtv.CalcTI(r_ti_local, p_pack->Rec.OpID, tiamt, exclude_tax_flags);
+			gtv.CalcBPTI(*p_pack, r_ti_local, tiamt, exclude_tax_flags);
 			I.VATRate = gtv.GetTaxRate(GTAX_VAT, 0);
 			I.VATSum  = gtv.GetValue(GTAXVF_VAT);
 			I.ExcRate = gtv.GetTaxRate(GTAX_EXCISE, 0);
@@ -7722,7 +7724,7 @@ int PPALDD_GoodsBillDispose::InitData(PPFilt & rFilt, long rsrv)
 	long   btc_flags = BTC_CALCOUTAMOUNTS;
 	SETFLAG(btc_flags, BTC_EXCLUDEVAT, exclude_vat);
 	SETFLAG(btc_flags, BTC_ONLYUNLIMGOODS, p_pack->ProcessFlags & PPBillPacket::pfPrintOnlyUnlimGoods);
-	p_pack->CalcTotal(&total_data, btc_flags);
+	p_pack->CalcTotal(total_data, btc_flags);
 	H.TotalGoodsLines = total_data.LinesCount;
 	H.TotalGoodsNames = total_data.GoodsCount;
 	H.TotalSum    = total_data.Amt;
@@ -7800,7 +7802,7 @@ int PPALDD_GoodsBillDispose::NextIteration(long iterId)
 		I.MainPrice = p_ti->NetPrice();
 	}
 	else {
-		tiamt = TIAMT_AMOUNT;
+		tiamt = /*TIAMT_AMOUNT*/GTaxVect::GetTaxNominalAmountType(p_pack->Rec);
 		I.MainPrice = p_ti->NetPrice();
 	}
 	I.ExtPrice     = ext_price;
@@ -8267,8 +8269,7 @@ int PPALDD_GoodsBillModif::InitData(PPFilt & rFilt, long rsrv)
 		H.CntragntID  = ObjectToPerson(p_pack->Rec.Object);
 		H.CntragntReq = H.CntragntID;
 	}
-	const  int accs_cost = BillObj->CheckRights(BILLRT_ACCSCOST);
-	long   exclude_tax_flags = GTAXVF_SALESTAX;
+	const  int  accs_cost = BillObj->CheckRights(BILLRT_ACCSCOST);
 	PPTransferItem * p_ti;
 	for(uint i = 0; p_pack->EnumTItems(&i, &p_ti);) {
 		double amount = 0.0;
@@ -8285,10 +8286,10 @@ int PPALDD_GoodsBillModif::InitData(PPFilt & rFilt, long rsrv)
 			amount = p_ti->NetPrice() * fabs(p_ti->Qtty());
 		}
 		else {
-			tiamt = TIAMT_AMOUNT;
+			tiamt = /*TIAMT_AMOUNT*/GTaxVect::GetTaxNominalAmountType(p_pack->Rec);
 			amount = fabs(p_ti->CalcAmount(0));
 		}
-		gtv.CalcTI(*p_ti, p_pack->Rec.OpID, tiamt, exclude_tax_flags);
+		gtv.CalcBPTI(*p_pack, *p_ti, tiamt, GTAXVF_SALESTAX);
 		vatsum    = gtv.GetValue(GTAXVF_VAT);
 		excisesum = gtv.GetValue(GTAXVF_EXCISE);
 		if(p_ti->Flags & PPTFR_COSTWOVAT)
@@ -8336,7 +8337,7 @@ int PPALDD_GoodsBillModif::NextIteration(PPIterID iterId)
 	IterProlog(iterId, 0);
 	{
 		PPBillPacket   * p_pack = static_cast<PPBillPacket *>(Extra[0].Ptr);
-		PPTransferItem * p_ti;
+		PPTransferItem * p_ti = 0;
 		GTaxVect gtv;
 		long   exclude_tax_flags = GTAXVF_SALESTAX;
 		int    tiamt;
@@ -8376,7 +8377,7 @@ int PPALDD_GoodsBillModif::NextIteration(PPIterID iterId)
 			I.MainPrice = p_ti->NetPrice();
 		}
 		else {
-			tiamt = TIAMT_AMOUNT;
+			tiamt = /*TIAMT_AMOUNT*/GTaxVect::GetTaxNominalAmountType(p_pack->Rec);
 			I.MainPrice = p_ti->NetPrice();
 		}
 		I.Qtty = p_ti->Qtty();
@@ -8384,7 +8385,7 @@ int PPALDD_GoodsBillModif::NextIteration(PPIterID iterId)
 		I.FullPack = 0;
 		if(p_ti->UnitPerPack > 0.0)
 			I.FullPack = ffloori(fabs(I.Qtty) / p_ti->UnitPerPack);
-		gtv.CalcTI(*p_ti, p_pack->Rec.OpID, tiamt, exclude_tax_flags);
+		gtv.CalcBPTI(*p_pack, *p_ti, tiamt, exclude_tax_flags);
 		I.VATRate = gtv.GetTaxRate(GTAX_VAT, 0);
 		I.VATSum  = gtv.GetValue(GTAXVF_VAT);
 		I.ExcRate = gtv.GetTaxRate(GTAX_EXCISE, 0);
@@ -8480,7 +8481,7 @@ int PPALDD_GoodsReval::InitData(PPFilt & rFilt, long rsrv)
 		long   btc_flags = BTC_CALCOUTAMOUNTS;
 		SETFLAG(btc_flags, BTC_EXCLUDEVAT, exclude_vat);
 		SETFLAG(btc_flags, BTC_ONLYUNLIMGOODS, p_pack->ProcessFlags & PPBillPacket::pfPrintOnlyUnlimGoods);
-		p_pack->CalcTotal(&total_data, btc_flags);
+		p_pack->CalcTotal(total_data, btc_flags);
 		H.TotalGoodsLines = total_data.LinesCount;
 		H.TotalGoodsNames = total_data.GoodsCount;
 		if(total_data.VatList.getCount() >= 1) {
@@ -8542,7 +8543,7 @@ int PPALDD_GoodsReval::NextIteration(PPIterID iterId)
 				LDATE tax_dt = p_ti->Date;
 				if(p_pack->OpTypeID == PPOPT_CORRECTION && p_pack->Rec.LinkBillID && BillObj->Fetch(p_pack->Rec.LinkBillID, &link_bill_rec) > 0)
 					tax_dt = link_bill_rec.Dt;
-				gobj.FetchTax(labs(p_ti->GoodsID), tax_dt, 0, &gtx_price);
+				gobj.FetchTaxEntry2(p_ti->GoodsID, 0/*lotID*/, 0/*taxPayerID*/, tax_dt, 0, &gtx_price);
 			}
 			if(p_ti->LotTaxGrpID) {
 				gobj.GTxObj.Fetch(p_ti->LotTaxGrpID, p_ti->LotDate, 0, &gtx_cost);
@@ -8827,7 +8828,7 @@ int PPALDD_CashOrder::InitData(PPFilt & rFilt, long rsrv)
 		long   btc_flags = BTC_CALCOUTAMOUNTS;
 		if(is_vat_exempt)
 			btc_flags |= BTC_EXCLUDEVAT;
-		p_tax_pack->CalcTotal(&total_data, btc_flags);
+		p_tax_pack->CalcTotal(total_data, btc_flags);
 		H.VAT = total_data.VAT * coeff;
 		if(total_data.VatList.getCount() >= 1) {
 			H.VATRate1 = total_data.VatList.at(0).Rate;
@@ -9052,7 +9053,7 @@ int PPALDD_ContentBList::InitData(PPFilt & rFilt, long rsrv)
 	BillTotalData total;
 	BillViewItem item;
 	for(p_v->InitIteration(PPViewBill::OrdByDefault); p_v->NextIteration(&item) > 0;)
-		p_v->CalcItemTotal(item.ID, &total);
+		p_v->CalcItemTotal(item.ID, total);
 	BillVatEntry * p_vat_entry;
 	for(uint i = 0; total.VatList.enumItems(&i, (void **)&p_vat_entry);) {
 		if(i == 1) {
@@ -9152,7 +9153,7 @@ int PPALDD_ContentBList::NextIteration(PPIterID iterId)
 				qtty = old_qtty = fabs(ti.Qtty());
 			}
 			GTaxVect gtv;
-			gtv.CalcTI(ti, item.OpID, TIAMT_AMOUNT);
+			gtv.CalcTI(ti, item.OpID, /*TIAMT_AMOUNT*/GTaxVect::GetTaxNominalAmountType(item));
 		   	I.VaTax    = gtv.GetTaxRate(GTAX_VAT, 0);
 			I.VatSum   = gtv.GetValue(GTAXVF_VAT);
 			I.ExTax    = gtv.GetTaxRate(GTAX_EXCISE, 0);
@@ -9250,22 +9251,6 @@ void PPALDD_ContentBList::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmS
 					SString & r_buf = SLS.AcquireRvlStr();
 					(r_buf = _ARG_STR(1)).Strip().ToLower().ReplaceStr("-", 0, 0).ReplaceStr("_", 0, 0).ReplaceStr(" ", 0, 0);
 					SString symb(r_buf);
-					/*
-	   					gtv.CalcTI(rTi, opID, TIAMT_PRICE);
-						item.PRate   = gtv.GetTaxRate(GTAX_VAT, 0);
-						item.Cost    = 0.0;
-						item.CVATSum = 0.0;
-	   					item.Price   = gtv.GetValue(GTAXVF_AFTERTAXES | GTAXVF_VAT | GTAXVF_EXCISE);
-						item.PVATSum = gtv.GetValue(GTAXVF_VAT);
-						THROW(Add(&item));
-						gtv.CalcTI(rTi, opID, TIAMT_COST, GTAXVF_VAT);
-						item.CRate   = gtv.GetTaxRate(GTAX_VAT, 0);
-						item.Cost    = gtv.GetValue(GTAXVF_AFTERTAXES | GTAXVF_VAT);
-						item.CVATSum = gtv.GetValue(GTAXVF_VAT);
-	   					item.Price   = 0.0;
-						item.PVATSum = 0.0;
-						THROW(Add(&item));
-					*/ 
 					const double qtty = r_ti.Qtty();
 					const double absqtty = fabs(r_ti.Qtty());
 					if(symb == "qtty" || symb == "quantity" || symb == "qty") {
@@ -9358,36 +9343,36 @@ void PPALDD_ContentBList::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmS
 					}
 					else if(symb == "costvatrate") { // ставка НДС в ценах поступления //
 						GTaxVect gtv;
-						gtv.CalcTI(r_ti, p_bp->Rec.OpID, TIAMT_COST, 0);
+						gtv.CalcBPTI(*p_bp, r_ti, TIAMT_COST);
 						result = gtv.GetTaxRate(GTAX_VAT, 0);
 					}
 					else if(symb == "costvat") { // величина НДС в цене поступления //
 						if(absqtty != 0.0) {
 							GTaxVect gtv;
-							gtv.CalcTI(r_ti, p_bp->Rec.OpID, TIAMT_COST, 0);
+							gtv.CalcBPTI(*p_bp, r_ti, TIAMT_COST);
 							result = fabs(gtv.GetValue(GTAXVF_VAT)) / absqtty;
 						}
 					}
 					else if(symb == "costvatsum") { // величина НДС в сумме поступления (в цене поступления, умноженной на количество)
 						GTaxVect gtv;
-						gtv.CalcTI(r_ti, p_bp->Rec.OpID, TIAMT_COST, 0);
+						gtv.CalcBPTI(*p_bp, r_ti, TIAMT_COST);
 						result = fabs(gtv.GetValue(GTAXVF_VAT));
 					}
 					else if(symb == "pricevatrate") {
 						GTaxVect gtv;
-						gtv.CalcTI(r_ti, p_bp->Rec.OpID, TIAMT_PRICE, 0);
+						gtv.CalcBPTI(*p_bp, r_ti, TIAMT_PRICE);
 						result = gtv.GetTaxRate(GTAX_VAT, 0);
 					}
 					else if(symb == "pricevat") {
 						if(absqtty != 0.0) {
 							GTaxVect gtv;
-							gtv.CalcTI(r_ti, p_bp->Rec.OpID, TIAMT_PRICE, 0);
+							gtv.CalcBPTI(*p_bp, r_ti, TIAMT_PRICE);
 							result = fabs(gtv.GetValue(GTAX_VAT)) / absqtty;
 						}
 					}
 					else if(symb == "pricevatsum") {
 						GTaxVect gtv;
-						gtv.CalcTI(r_ti, p_bp->Rec.OpID, TIAMT_PRICE, 0);
+						gtv.CalcBPTI(*p_bp, r_ti, TIAMT_PRICE);
 						result = fabs(gtv.GetValue(GTAX_VAT));
 					}
 				}

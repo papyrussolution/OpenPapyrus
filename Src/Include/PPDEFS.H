@@ -1463,6 +1463,8 @@
 	// ставки НДС 5% и 7% в России с 2025года).
 #define PPTAG_BILL_ORGORDERIDENT       126L // @v12.2.2 Оригинальный идентификатор документа заказа. Дополнительный код документа (не заказа), который идентифицирует
 	// оригинальный заказ покупателя, в соответствии с которым документ был создан.
+// @construction(potential) #define PPTAG_LOC_SPCTAXGROUP          127L // @v12.2.4 Специальная налоговая ставка склада при продаже товаров (инициировано необходимостью определять специальные
+	// ставки НДС 5% и 7% в России с 2025года).
 //
 // Зарезервированные идентификаторы глобальных учетных записей
 //
@@ -1680,8 +1682,8 @@
 #define PPEDIOP_EGAIS_WAYBILLACT_V3           67 // version 3 of PPEDIOP_EGAIS_WAYBILLACT
 #define PPEDIOP_EGAIS_ACTWRITEOFF_V3          68 //
 #define PPEDIOP_EGAIS_NOTIFY_WBVER3           69 // Уведомление сервера ЕГАИС об использовании версии 3 протокола обмена (то же, что и PPEDIOP_EGAIS_NOTIFY_WBVER2, но с небольшим изменением внутри).
-#define PPEDIOP_EGAIS_REQUESTREPEALAWO        70 // 
-#define PPEDIOP_EGAIS_QUERYRESENDDOC          71 // 
+#define PPEDIOP_EGAIS_REQUESTREPEALAWO        70 //
+#define PPEDIOP_EGAIS_QUERYRESENDDOC          71 //
 #define PPEDIOP_EGAIS_QUERYRESTBCODE          72 // Запрос марок по справке Б
 #define PPEDIOP_EGAIS_REPLYRESTBCODE          73 // Ответ на запрос марок по справке Б
 #define PPEDIOP_EGAIS_ACTFIXBARCODE           74 // ActFixBarCode Акт фиксации штрихкодов на балансе организации
@@ -1917,7 +1919,7 @@
 #define STDCTL_DIAGNOSTICS        163 // Кнопка "Диагностика"
 #define STDCTL_REPEATINGBUTTON    164 // @v11.0.4 Кнопка "Повторение"
 #define STDCTL_MAPONGEOLOCBUTTON  165 // @v11.6.2 Кнопка запуска функции открытия карты с координатами (cmExecMapOnGeoLoc)
-#define STDCTL_SINGLELISTBOX      166 // @v12.2.2 Список (SmartListBox) 
+#define STDCTL_SINGLELISTBOX      166 // @v12.2.2 Список (SmartListBox)
 
 #define cmPPAccSelected          1101 // Сообщение, посылаемое группой
 	// AcctCtrlGroup диалогу-владельцу когда пользователь выбрал новый счет. (AcctCtrlGroup*)InfoPtr
@@ -1999,7 +2001,7 @@
 #define cmTotal                  1177 //
 #define cmAutoFill               1178 // @v10.8.12 ранее была локальной относительно DLG_GDSLST (теперь используется и в других диалогах)
 #define cmCopyToClipboardSpc     1179 // Специальное копирование в буфер обмена
-#define cmConfigure              1180 // 
+#define cmConfigure              1180 //
 #define cmQueryToken             1181 //
 #define cmLayoutContainer        1182 //
 #define cmRepeating              1183 // Вызов диалога повторений задания //
@@ -2015,6 +2017,7 @@
 #define cmExecMapOnGeoLoc        1193 // @v11.6.2  Кнопка запускает функцию открытия карты с координатами, введенными в прикрепленном поле
 #define cmImageChanged           1194 // @v12.0.4  [evCommand] Событие генерируется группой управляющих элементов ImageBrowseCtrlGroup в ответ на изменение изображения и передается в родительский диалог.
 #define cmAutoConfigure          1195 // @v12.2.1
+#define cmClientActivityConfig   1196 // @v12.2.4 Кнопка, открывающая диалог редактирования параметров конфигурации анализа клиентской активностий
 //
 #define DLG_LOGIN                   1
 	#define CTL_LOGIN_NAME               (1 + WINDOWS_ID_BIAS)
@@ -8987,7 +8990,7 @@
 	#define CTL_ADDBILLFLT_LOC           (5 + WINDOWS_ID_BIAS)
 	#define CTLSEL_ADDBILLFLT_LOC        (6 + WINDOWS_ID_BIAS)
 	#define CTL_ADDBILLFLT_RESERVED      (7 + WINDOWS_ID_BIAS) // radio-button with reserved operations
-	#define CTL_ADDBILLFLT_FLAGS         (8 + WINDOWS_ID_BIAS) // 
+	#define CTL_ADDBILLFLT_FLAGS         (8 + WINDOWS_ID_BIAS) //
 #define DLG_CLIBNKFMTLIST        1017
 	#define cmCliBnkFmtListAssoc         101
 	#define CTL_CLIBNKFMTLIST_LIST       (1 + WINDOWS_ID_BIAS)
@@ -11676,7 +11679,7 @@
 	#define CTL_SUWB_LOGO                (4 + IMPEXP_CTL_BIAS)
 	#define CTL_SUWB_HINT                (5 + IMPEXP_CTL_BIAS)
 	#define CTL_SUWB_INFO                (6 + IMPEXP_CTL_BIAS)
-#define DLG_PRCRAPTRU             1455 // @v12.2.1 Параметры процессора PrcssrAptekaRu 
+#define DLG_PRCRAPTRU             1455 // @v12.2.1 Параметры процессора PrcssrAptekaRu
 	#define CTL_PRCRAPTRU_GUA            (1 + IMPEXP_CTL_BIAS)
 	#define CTLSEL_PRCRAPTRU_GUA         (2 + IMPEXP_CTL_BIAS)
 	#define CTL_PRCRAPTRU_RCPOP          (3 + IMPEXP_CTL_BIAS)
@@ -11694,7 +11697,7 @@
 	#define CTL_PRCRCLIACST_PK           (3 + IMPEXP_CTL_BIAS)
 	#define CTLSEL_PRCRCLIACST_PK        (4 + IMPEXP_CTL_BIAS)
 #define DLG_PERSONTOTAL_CA        1457 // @v12.2.2 Итоги по выборке персоналий со статистикой по текущему состоянию клиентской активности
-	
+
 // Win32 Dialog Identifiers
 //
 #define DLGW_PRINT               4090

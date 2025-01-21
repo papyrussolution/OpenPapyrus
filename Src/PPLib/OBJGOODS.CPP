@@ -1228,11 +1228,118 @@ int PPObjGoods::GetQttyRounding(PPID goodsID, double * pRounding)
 	return ok;
 }
 
-int PPObjGoods::FetchTax(PPID goodsID, LDATE dt, PPID opID, PPGoodsTaxEntry * pGtx)
+int PPObjGoods::FetchTax_(PPID goodsID, LDATE dt, PPID opID, PPGoodsTaxEntry * pGtx)
 {
+	const PPID goods_id = labs(goodsID);
+	const LDATE _date = (dt == ZERODATE) ? getcurdate_() : dt;
 	Goods2Tbl::Rec grec;
 	memzero(pGtx, sizeof(*pGtx));
-	return (Fetch(goodsID, &grec) > 0 && grec.TaxGrpID) ? GTxObj.Fetch(grec.TaxGrpID, dt, opID, pGtx) : -1;
+	return (Fetch(goods_id, &grec) > 0 && grec.TaxGrpID) ? GTxObj.Fetch(grec.TaxGrpID, _date, opID, pGtx) : -1;
+}
+
+int PPObjGoods::CombineTaxEntry(const PPGoodsTaxEntry & rGtx, PPID taxPayerPersonID, LDATE dt, PPID opID, PPGoodsTaxEntry * pResultGtx)
+{
+	int    ok = 1;
+	const  LDATE _date = (dt == ZERODATE) ? getcurdate_() : dt;
+	bool   is_taxpayer_vatfree = false;
+	bool   taxpayer_gtx_defined = false;
+	PPID   payer_tax_grp_id = 0;
+	PPGoodsTaxEntry result_gtx(rGtx);
+	if(!rGtx.TaxGrpID) {
+		ok = -1;
+	}
+	else {
+		if(result_gtx.VAT == 0) {
+			; // Товар не облагается НДС - стало быть нам не интересно каковы условия уплаты НДС налогоплательщиком - все равно НДС не будет.
+		}
+		else {
+			PPGoodsTaxEntry taxpayer_gtx;
+			if(taxPayerPersonID) {
+				SETIFZ(P_PsnObj, new PPObjPerson);
+				PersonTbl::Rec psn_rec;
+				if(P_PsnObj && P_PsnObj->Fetch(taxPayerPersonID, &psn_rec) > 0) {
+					if(psn_rec.Flags & PSNF_NOVATAX)
+						is_taxpayer_vatfree = true;
+				}
+				Reference * p_ref = PPRef;
+				if(p_ref) {
+					ObjTagItem tag_item;
+					if(p_ref->Ot.GetTag(PPOBJ_PERSON, taxPayerPersonID, PPTAG_PERSON_SPCTAXGROUP, &tag_item) > 0) {
+						int    _tax_grp_id = 0;
+						if(tag_item.GetInt(&_tax_grp_id) && GTxObj.FetchByID(_tax_grp_id, 0) > 0) {
+							payer_tax_grp_id = _tax_grp_id;
+						}
+					}
+				}
+			}
+			if(payer_tax_grp_id) {
+				if(GTxObj.Fetch(payer_tax_grp_id, _date, opID, &taxpayer_gtx) > 0) {
+					taxpayer_gtx_defined = true;
+				}
+			}
+			if(taxpayer_gtx_defined) {
+				if(taxpayer_gtx.Flags & GTAXF_SPCVAT) {
+					result_gtx.VAT = taxpayer_gtx.VAT;
+					result_gtx.Flags |= GTAXF_SPCVAT;
+				}
+			}
+			else if(is_taxpayer_vatfree) {
+				result_gtx.VAT = 0;
+				result_gtx.Flags |= GTAXF_SPCVAT;
+			}
+		}
+	}
+	ASSIGN_PTR(pResultGtx, result_gtx);
+	return ok;
+}
+
+int PPObjGoods::FetchTaxEntry2(PPID goodsID, PPID lotID, PPID taxPayerPsnID, LDATE dt, PPID opID, PPGoodsTaxEntry * pGtx)
+{
+	int    ok = -1;
+	const  PPID goods_id = labs(goodsID);
+	const  LDATE _date = (dt == ZERODATE) ? getcurdate_() : dt;
+	PPID   goods_tax_grp_id = 0;
+	PPID   lot_tax_grp_id = 0;
+	PPID   tax_payer_person_id = 0;
+	Goods2Tbl::Rec goods_rec;
+	PPGoodsTaxEntry goods_gtx;
+	PPGoodsTaxEntry result_gtx;
+	memzero(pGtx, sizeof(*pGtx));
+	if(Fetch(goods_id, &goods_rec) > 0 && goods_rec.TaxGrpID && GTxObj.FetchByID(goods_rec.TaxGrpID, 0) > 0) {
+		goods_tax_grp_id = goods_rec.TaxGrpID;
+	}
+	if(lotID) {
+		PPObjBill * p_bobj = BillObj;
+		if(p_bobj) {
+			ReceiptTbl::Rec lot_rec;
+			if(p_bobj->trfr->Rcpt.Search(lotID, &lot_rec) > 0) {
+				tax_payer_person_id = ObjectToPerson(lot_rec.SupplID, 0);
+				if(lot_rec.InTaxGrpID && GTxObj.FetchByID(lot_rec.InTaxGrpID, 0) > 0) {
+					lot_tax_grp_id = lot_rec.InTaxGrpID;
+				}
+			}
+		}
+	}
+	else { // Если задан ненулевой lotID то даже не пытаемся использовать taxPayerPsnID переданный в качестве параметра
+		if(taxPayerPsnID)
+			tax_payer_person_id = taxPayerPsnID;
+	}
+	{
+		bool goods_gtx_defined = false;
+		if(lot_tax_grp_id) {
+			if(GTxObj.Fetch(lot_tax_grp_id, _date, opID, &goods_gtx) > 0)
+				goods_gtx_defined = true;
+		}
+		else if(goods_tax_grp_id) {
+			if(GTxObj.Fetch(goods_tax_grp_id, _date, opID, &goods_gtx) > 0)
+				goods_gtx_defined = true;
+		}
+		if(goods_gtx_defined) {
+			if(CombineTaxEntry(goods_gtx, tax_payer_person_id, _date, opID, &result_gtx) > 0)
+				ok = 1;
+		}
+	}
+	return ok;
 }
 
 int PPObjGoods::FetchCls(PPID goodsID, Goods2Tbl::Rec * pRec, PPGdsClsPacket * pClsPack)
@@ -2184,7 +2291,7 @@ int PPObjGoods::MultTaxFactor(PPID goodsID, double * pVal)
 {
 	if(CConfig.Flags & CCFLG_USEGDSCLS) {
 		GoodsExtTbl::Rec gext_rec;
-		if(CheckFlag(goodsID, GF_TAXFACTOR) && P_Tbl->GetExt(labs(goodsID), &gext_rec) > 0 && gext_rec.TaxFactor > 0) {
+		if(CheckFlag(goodsID, GF_TAXFACTOR) && P_Tbl->GetExt(labs(goodsID), &gext_rec) > 0 && gext_rec.TaxFactor > 0.0) {
 			*pVal *= gext_rec.TaxFactor;
 			return 1;
 		}
@@ -2507,7 +2614,7 @@ int PPObjGoods::CheckForFilt(const GoodsFilt * pFilt, PPID id, long implFlags)
 		CFF_RET;
 	if(!pFilt->IdRange.CheckVal(rec.ID)) // @v11.8.3
 		CFF_RET;
-	if(pFilt->Flags & GoodsFilt::fWoBrand) { // @v10.6.8
+	if(pFilt->Flags & GoodsFilt::fWoBrand) {
 		if(rec.BrandID)
 			CFF_RET;
 	}
@@ -2528,7 +2635,7 @@ int PPObjGoods::CheckForFilt(const GoodsFilt * pFilt, PPID id, long implFlags)
 		CFF_RET;
 	if(pFilt->VatRate) {
 		PPGoodsTaxEntry gtx;
-		if(FetchTax(id, pFilt->VatDate, 0, &gtx) > 0) {
+		if(FetchTaxEntry2(id, 0/*lotID*/, 0/*taxPayerID*/, pFilt->VatDate, 0, &gtx) > 0) {
 			if(pFilt->VatRate != gtx.VAT)
 				CFF_RET;
 		}

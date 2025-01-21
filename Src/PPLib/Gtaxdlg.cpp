@@ -78,20 +78,20 @@ IMPL_HANDLE_EVENT(GoodsTaxDialog)
 int GoodsTaxDialog::setEntry(const PPGoodsTaxEntry * pEntry)
 {
 	Entry = *pEntry;
-	char   str[32];
+	SString temp_buf;
 	if(Entry.Flags & GTAXF_ENTRY) {
 		SetPeriodInput(this, CTL_GDSTAX_PERIOD, &Entry.Period);
 		SetupOprKindCombo(this, CTLSEL_GDSTAX_OP, Entry.OpID, 0, 0, 0);
 	}
-	setCtrlData(CTL_GDSTAX_VAT,     Entry.FormatVAT(str, sizeof(str)));
+	setCtrlString(CTL_GDSTAX_VAT, Entry.FormatVAT(temp_buf));
 	// @v12.2.3 {
 	AddClusterAssoc(CTL_GDSTAX_SPCVAT, 0, GTAXF_SPCVAT);
 	SetClusterData(CTL_GDSTAX_SPCVAT, Entry.Flags);
 	// } @v12.2.3 
-	setCtrlData(CTL_GDSTAX_EXCISE,  Entry.FormatExcise(str, sizeof(str)));
-	setCtrlData(CTL_GDSTAX_STAX,    Entry.FormatSTax(str, sizeof(str)));
-	GTxObj.FormatOrder(Entry.Order, Entry.UnionVect, str, sizeof(str));
-	setCtrlData(CTL_GDSTAX_ORDER, str);
+	setCtrlString(CTL_GDSTAX_EXCISE, Entry.FormatExcise(temp_buf));
+	setCtrlString(CTL_GDSTAX_STAX,   Entry.FormatSTax(temp_buf));
+	GTxObj.FormatOrder(Entry.Order, Entry.UnionVect, temp_buf);
+	setCtrlString(CTL_GDSTAX_ORDER, temp_buf);
 	return 1;
 }
 
@@ -182,19 +182,18 @@ IMPL_HANDLE_EVENT(GoodsTaxListDialog)
 
 int GoodsTaxListDialog::setupList()
 {
+	SString temp_buf;
+	StringSet ss(SLBColumnDelim);
 	for(uint i = 0; i < Data.GetCount(); i++) {
 		const PPGoodsTaxEntry & r_item = Data.Get(i);
-		StringSet ss(SLBColumnDelim);
 		char   sub[64];
+		ss.Z();
 		ss.add(periodfmt(&r_item.Period, sub));
-		if(r_item.OpID)
-			GetOpName(r_item.OpID, sub, sizeof(sub));
-		else
-			sub[0] = 0;
-		ss.add(sub);
-		ss.add(r_item.FormatExcise(sub, sizeof(sub)));
-		ss.add(r_item.FormatVAT(sub, sizeof(sub)));
-		ss.add(r_item.FormatSTax(sub, sizeof(sub)));
+		GetOpName(r_item.OpID, temp_buf);
+		ss.add(temp_buf);
+		ss.add(r_item.FormatExcise(temp_buf));
+		ss.add(r_item.FormatVAT(temp_buf));
+		ss.add(r_item.FormatSTax(temp_buf));
 		if(!addStringToList(i, ss.getBuf()))
 			return 0;
 	}

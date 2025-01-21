@@ -1,5 +1,5 @@
 // ACCTURN.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2024
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2024, 2025
 // @codepage UTF-8
 // @Kernel
 //
@@ -953,14 +953,6 @@ int AccTurnCore::_ProcessAcct(int side, PPID curID, const AcctID & rAcctId, PPID
 		THROW_PP(AccRel.data.Closed == 0, PPERR_ACCTCLOSED);
 	}
 	else {
-		// @v10.1.12 @debug {
-		/*
-		AcctRelTbl::Rec ex_rec;
-		THROW(r = AccRel.SearchNum(0, &acct, curID, &ex_rec));
-		if(r > 0) {
-		}
-		*/
-		// } @v10.1.12 
 		THROW(AccRel.OpenAcct(pAccRelID, &acct, curID, &rAcctId, kind));
 	}
 	CATCHZOK
@@ -1586,7 +1578,7 @@ int AccTurnCore::UpdateAccNum(PPID accID, int newAc, int newSb, int use_ta)
 				add_acc_pack = acc_pack;
 				add_acc_pack.Rec.ID = 0L;
 				add_acc_pack.Rec.A.Sb = 0;
-				add_acc_pack.Rec.OpenDate = getcurdate_(); // @v10.8.10 LConfig.OperDate-->getcurdate_()
+				add_acc_pack.Rec.OpenDate = getcurdate_();
 				add_acc_pack.Rec.Type     = acc_pack.Rec.Type;
 				vadd = 1;
 			}

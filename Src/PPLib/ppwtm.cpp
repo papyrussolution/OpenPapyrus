@@ -1,5 +1,5 @@
 // PPWTM.CPP
-// Copyright (c) A.Sobolev 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2024
+// Copyright (c) A.Sobolev 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2024, 2025
 //
 #include <pp.h>
 #pragma hdrstop
@@ -3379,7 +3379,7 @@ int TWhatmanBrowser::WMHCreate()
 	GetWindowRect(H(), &rc);
 	P_Toolbar = new TToolbar(H(), TBS_NOMOVE);
 	if(P_Toolbar && LoadToolbarResource(ToolbarID) > 0) {
-		P_Toolbar->Init(ToolbarID, &Toolbar);
+		P_Toolbar->Init(ToolbarID, &ToolbarL);
 		if(P_Toolbar->IsValid()) {
 			RECT tbr;
 			::GetWindowRect(P_Toolbar->H(), &tbr);

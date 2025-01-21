@@ -774,14 +774,15 @@ int PPDS_CrrBill::InitData(Ido op, void * /*dataPtr*/, long addedParam)
 				}
 				p_bobj->LoadClbList(&Data, 1);
 				Data.InitExtTIter(ETIEF_UNITEBYGOODS|ETIEF_DIFFBYQCERT|ETIEF_DIFFBYPACK|ETIEF_DIFFBYNETPRICE, 0, TiIter::ordByGoods);
-				PPTransferItem * p_ti;
-				for(uint i = 0; Data.EnumTItems(&i, &p_ti) > 0;)
-					if(p_ti->Flags & PPTFR_PRICEWOTAXES) {
+				for(uint tii = 0; tii < Data.GetTCount(); tii++) {
+					PPTransferItem & r_ti = Data.TI(tii);
+					if(r_ti.Flags & PPTFR_PRICEWOTAXES) {
 						GTaxVect gtv;
-						gtv.CalcTI(*p_ti, Data.Rec.OpID, TIAMT_PRICE);
-						p_ti->Price = R2(gtv.GetValue(GTAXVF_BEFORETAXES) / fabs(p_ti->Quantity_));
-						p_ti->Discount = 0.0;
+						gtv.CalcBPTI(Data, r_ti, TIAMT_PRICE);
+						r_ti.Price = R2(gtv.GetValue(GTAXVF_BEFORETAXES) / fabs(r_ti.Quantity_));
+						r_ti.Discount = 0.0;
 					}
+				}
 				ok = 1;
 			}
 			else

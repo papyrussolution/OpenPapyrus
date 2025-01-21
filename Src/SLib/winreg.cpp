@@ -1,5 +1,5 @@
 // WINREG.CPP
-// Copyright (c) A.Sobolev 2003, 2005, 2007, 2008, 2010, 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2024
+// Copyright (c) A.Sobolev 2003, 2005, 2007, 2008, 2010, 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -72,7 +72,7 @@ FARPROC FASTCALL SDynLibrary::GetProcAddr(const char * pProcName)
 	if(H) {
 		proc = ::GetProcAddress(H, pProcName);
 		if(!proc)
-			SLS.SetOsError(pProcName);
+			SLS.SetOsError(0, pProcName);
 	}
 	return proc;
 }
@@ -93,7 +93,7 @@ FARPROC STDCALL SDynLibrary::GetProcAddr(const char * pProcName, int unicodeSuff
 		else
 			proc = ::GetProcAddress(H, pProcName);
 		if(!proc)
-			SLS.SetOsError(pProcName);
+			SLS.SetOsError(0, pProcName);
 	}
 	return proc;
 }
@@ -226,12 +226,14 @@ WinRegKey::~WinRegKey()
 
 int WinRegKey::Delete(HKEY key, const char * pSubKey)
 {
-	return (SHDeleteKey(key, SUcSwitch(pSubKey)) == ERROR_SUCCESS) ? 1 : SLS.SetOsError(pSubKey); // @unicodeproblem
+	const int r = SHDeleteKey(key, SUcSwitch(pSubKey));
+	return (r == ERROR_SUCCESS) ? 1 : SLS.SetOsError(r, pSubKey);
 }
 
 int WinRegKey::DeleteValue(HKEY key, const char * pSubKey, const char * pValue)
 {
-	return (SHDeleteValue(key, SUcSwitch(pSubKey), SUcSwitch(pValue)) == ERROR_SUCCESS) ? 1 : SLS.SetOsError(pValue); // @unicodeproblem
+	const int r = SHDeleteValue(key, SUcSwitch(pSubKey), SUcSwitch(pValue));
+	return (r == ERROR_SUCCESS) ? 1 : SLS.SetOsError(r, pValue);
 }
 
 int WinRegKey::Open(HKEY key, const char * pSubKey, int readOnly, int onlyOpen)
@@ -240,10 +242,10 @@ int WinRegKey::Open(HKEY key, const char * pSubKey, int readOnly, int onlyOpen)
 	DWORD  dispos = 0;
 	Close();
 	if(onlyOpen)
-		r = RegOpenKeyEx(key, SUcSwitch(pSubKey), 0, readOnly ? KEY_READ : (KEY_READ|KEY_WRITE), &Key); // @unicodeproblem
+		r = RegOpenKeyEx(key, SUcSwitch(pSubKey), 0, readOnly ? KEY_READ : (KEY_READ|KEY_WRITE), &Key);
 	else
-		r = RegCreateKeyEx(key, SUcSwitch(pSubKey), 0, 0, REG_OPTION_NON_VOLATILE, readOnly ? KEY_READ : (KEY_READ|KEY_WRITE), NULL, &Key, &dispos); // @unicodeproblem
-	return (r == ERROR_SUCCESS) ? 1 : SLS.SetOsError(pSubKey);
+		r = RegCreateKeyEx(key, SUcSwitch(pSubKey), 0, 0, REG_OPTION_NON_VOLATILE, readOnly ? KEY_READ : (KEY_READ|KEY_WRITE), NULL, &Key, &dispos);
+	return (r == ERROR_SUCCESS) ? 1 : SLS.SetOsError(r, pSubKey);
 }
 
 int WinRegKey::Open(const char * pKey, int readOnly, int onlyOpen)
@@ -309,7 +311,7 @@ int WinRegKey::GetDWord(const char * pParam, uint32 * pVal)
 		}
 		else {
 			ASSIGN_PTR(pVal, 0);
-			ok = SLS.SetOsError(pParam);
+			ok = SLS.SetOsError(0, pParam);
 		}
 	}
 	else
@@ -324,7 +326,7 @@ int WinRegKey::GetDWord(const char * pParam, uint32 * pVal)
 	DWORD type = 0;
 	DWORD size = static_cast<DWORD>(bufLen);
 	LONG  r = RegQueryValueEx(Key, SUcSwitch(pParam), 0, &type, (LPBYTE)(pBuf), &size); // @unicodeproblem
-	return oneof2(r, ERROR_SUCCESS, ERROR_MORE_DATA) ? 1 : SLS.SetOsError(pParam);
+	return oneof2(r, ERROR_SUCCESS, ERROR_MORE_DATA) ? 1 : SLS.SetOsError(0, pParam);
 }*/
 
 int WinRegKey::GetString(const char * pParam, SString & rBuf)
@@ -344,7 +346,7 @@ int WinRegKey::GetString(const char * pParam, SString & rBuf)
 			if(oneof2(r, ERROR_SUCCESS, ERROR_MORE_DATA))
 				rBuf.CatN(SUcSwitch(static_cast<const TCHAR *>(temp_buf.vcptr())), size / sizeof(TCHAR));
 			else
-				ok = SLS.SetOsError(pParam);
+				ok = SLS.SetOsError(0, pParam);
 		}
 	}
 	return ok;
@@ -372,7 +374,7 @@ int WinRegKey::GetStringU(const char * pParam, SStringU & rBuf)
 				rBuf.CatN(static_cast<const wchar_t *>(temp_buf.vcptr()), size/sizeof(wchar_t));
 			}
 			else
-				ok = SLS.SetOsError(pParam);
+				ok = SLS.SetOsError(0, pParam);
 		}
 	}
 	return ok;
@@ -395,8 +397,8 @@ int WinRegKey::GetBinary(const char * pParam, SBuffer & rBuf)
 				rBuf.Write(tbuf.cptr(), size);
 			}
 			else 
-				ok = SLS.SetOsError(pParam);
-			//return oneof2(r, ERROR_SUCCESS, ERROR_MORE_DATA) ? 1 : SLS.SetOsError(pParam);
+				ok = SLS.SetOsError(0, pParam);
+			//return oneof2(r, ERROR_SUCCESS, ERROR_MORE_DATA) ? 1 : SLS.SetOsError(0, pParam);
 		}
 	}
 	else
@@ -412,7 +414,7 @@ int WinRegKey::GetBinary(const char * pParam, void * pBuf, size_t bufLen)
 	DWORD type = 0;
 	DWORD size = (DWORD)bufLen;
 	LONG  r = RegQueryValueEx(Key, SUcSwitch(pParam), 0, &type, static_cast<LPBYTE>(pBuf), &size);
-	return oneof2(r, ERROR_SUCCESS, ERROR_MORE_DATA) ? 1 : SLS.SetOsError(pParam);
+	return oneof2(r, ERROR_SUCCESS, ERROR_MORE_DATA) ? 1 : SLS.SetOsError(0, pParam);
 }
 
 int WinRegKey::GetRecSize(const char * pParam, size_t * pRecSize)
@@ -431,7 +433,7 @@ int WinRegKey::GetRecSize(const char * pParam, size_t * pRecSize)
 		return -1;
 	}
 	else
-		return SLS.SetOsError(pParam);
+		return SLS.SetOsError(0, pParam);
 }
 
 int WinRegKey::PutDWord(const char * pParam, uint32 val)
@@ -439,7 +441,7 @@ int WinRegKey::PutDWord(const char * pParam, uint32 val)
 	if(Key == 0)
 		return 0;
 	LONG   r = RegSetValueEx(Key, SUcSwitch(pParam), 0, REG_DWORD, reinterpret_cast<LPBYTE>(&val), sizeof(val));
-	return (r == ERROR_SUCCESS) ? 1 : SLS.SetOsError(pParam);
+	return (r == ERROR_SUCCESS) ? 1 : SLS.SetOsError(0, pParam);
 }
 
 int WinRegKey::PutString(const char * pParam, const char * pBuf)
@@ -450,7 +452,7 @@ int WinRegKey::PutString(const char * pParam, const char * pBuf)
 	DWORD  size_to_store = static_cast<DWORD>((sstrlen(pBuf) + 1) * sizeof(TCHAR));
 	LONG   r = RegSetValueEx(Key, SUcSwitch(pParam), 0, REG_SZ, reinterpret_cast<const BYTE *>(p_buf_to_store), size_to_store); // @v10.4.5 
 	// @v10.4.5 LONG   r = RegSetValueEx(Key, SUcSwitch(pParam), 0, REG_SZ, (LPBYTE)pBuf, (DWORD)(sstrlen(pBuf) + 1));
-	return (r == ERROR_SUCCESS) ? 1 : SLS.SetOsError(pParam);
+	return (r == ERROR_SUCCESS) ? 1 : SLS.SetOsError(0, pParam);
 }
 
 int WinRegKey::PutBinary(const char * pParam, const void * pBuf, size_t bufLen)
@@ -458,7 +460,7 @@ int WinRegKey::PutBinary(const char * pParam, const void * pBuf, size_t bufLen)
 	if(Key == 0)
 		return 0;
 	LONG   r = RegSetValueEx(Key, SUcSwitch(pParam), 0, REG_BINARY, static_cast<const uint8 *>(pBuf), (DWORD)bufLen);
-	return (r == ERROR_SUCCESS) ? 1 : SLS.SetOsError(pParam);
+	return (r == ERROR_SUCCESS) ? 1 : SLS.SetOsError(0, pParam);
 }
 
 int WinRegKey::PutValue(const char * pParam, const WinRegValue * pVal)
@@ -466,7 +468,7 @@ int WinRegKey::PutValue(const char * pParam, const WinRegValue * pVal)
 	if(Key == 0 || !pVal->GetType())
 		return 0;
 	LONG   r = RegSetValueEx(Key, SUcSwitch(pParam), 0, pVal->GetType(), reinterpret_cast<const uint8 *>(pVal->P_Buf), (DWORD)pVal->DataSize);
-	return (r == ERROR_SUCCESS) ? 1 : SLS.SetOsError(pParam);
+	return (r == ERROR_SUCCESS) ? 1 : SLS.SetOsError(0, pParam);
 }
 
 int WinRegKey::PutEnumeratedStrings(const StringSet & rSs, StrAssocArray * pResult)
@@ -528,7 +530,7 @@ int WinRegKey::EnumValues(uint * pIdx, SString * pParam, WinRegValue * pVal)
 		return 1;
 	}
 	else
-		return SLS.SetOsError();
+		return SLS.SetOsError(0, 0);
 }
 
 bool WinRegKey::EnumKeys(uint * pIdx, SString & rKey)

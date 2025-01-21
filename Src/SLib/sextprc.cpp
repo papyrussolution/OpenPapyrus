@@ -1,5 +1,5 @@
 // SEXTPRC.CPP
-// Copyright (c) A.Sobolev 2016, 2017, 2018, 2019, 2020, 2021, 2024
+// Copyright (c) A.Sobolev 2016, 2017, 2018, 2019, 2020, 2021, 2024, 2025
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -28,7 +28,6 @@ ExecVDosParam::ExecVDosParam() : Flags(0)
 int ExecVDos(const ExecVDosParam & rParam)
 {
 	int   ok = 1;
-	int   r = 0;
 	SString vdos_path;
 	SString startup_path = rParam.StartUpPath;
 	SString cmd_line;
@@ -110,13 +109,16 @@ int ExecVDos(const ExecVDosParam & rParam)
 		si.cb = sizeof(si);
 		MEMSZERO(pi);
 		{
-			STempBuffer cmd_line((exe_filename.Len()+16) * sizeof(TCHAR));
-			strnzcpy(static_cast<TCHAR *>(cmd_line.vptr()), SUcSwitch(exe_filename), cmd_line.GetSize());
-			r = ::CreateProcess(0, static_cast<TCHAR *>(cmd_line.vptr()), 0, 0, FALSE, 0, 0, SUcSwitch(vdos_path.cptr()), &si, &pi); // @unicodeproblem
-		}
-		if(!r) {
-			SLS.SetOsError(0);
-			CALLEXCEPT();
+			int   r = 0;
+			{
+				STempBuffer cmd_line((exe_filename.Len()+16) * sizeof(TCHAR));
+				strnzcpy(static_cast<TCHAR *>(cmd_line.vptr()), SUcSwitch(exe_filename), cmd_line.GetSize());
+				r = ::CreateProcess(0, static_cast<TCHAR *>(cmd_line.vptr()), 0, 0, FALSE, 0, 0, SUcSwitch(vdos_path.cptr()), &si, &pi); // @unicodeproblem
+			}
+			if(!r) {
+				SLS.SetOsError(0, 0);
+				CALLEXCEPT();
+			}
 		}
 		if(rParam.Flags & rParam.fWait)
 			WaitForSingleObject(pi.hProcess, INFINITE); // Wait until child process exits.

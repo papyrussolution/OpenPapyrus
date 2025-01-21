@@ -1,5 +1,5 @@
 // PDFVIEW.CPP
-// Copyright (c) A.Sobolev
+// Copyright (c) A.Sobolev 2024, 2025
 // @codepage UTF-8
 // @construction
 // Экспериментальный модуль для отображения pdf-документов
@@ -239,7 +239,7 @@ int PdfBrowser::WMHCreate()
 	GetWindowRect(H(), &rc);
 	P_Toolbar = new TToolbar(H(), TBS_NOMOVE);
 	if(P_Toolbar && LoadToolbarResource(ToolbarID) > 0) {
-		P_Toolbar->Init(ToolbarID, &Toolbar);
+		P_Toolbar->Init(ToolbarID, &ToolbarL);
 		if(P_Toolbar->IsValid()) {
 			RECT tbr;
 			::GetWindowRect(P_Toolbar->H(), &tbr);

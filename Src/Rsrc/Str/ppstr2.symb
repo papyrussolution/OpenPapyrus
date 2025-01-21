@@ -1,7 +1,7 @@
 
 [common]
 LastAutoGrpCode=1001
-LastSignatureCode=2147495004
+LastSignatureCode=2147495008
 LastAutoCodeList=1,12257;102,10177;103,10072;110,10000;111,12132;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10152;120,10005;1001,10000;121,10000;122,10000;123,10328;124,10387;125,10064
 
 [SignatureList]
@@ -665,6 +665,8 @@ validitytime=2147484206
 executiontime=2147493935
 datetime=2147484207
 daterange=2147484208
+daterange_from=2147495007
+daterange_to=2147495008
 calcperiod=2147494501
 turnovercalcperiod=2147494502
 daterange_begin=2147484209
@@ -3026,6 +3028,7 @@ cmd_goodscfg=2147486013
 cmd_goodsclass=2147486014
 cmd_goodsexpimpparams=2147486015
 cmd_goodsgroup=2147486016
+cmd_goodsgrprlztax=2147495005
 cmd_goodsgrprlz=2147486018
 cmd_goodsmov=2147486019
 cmd_goodsoper=2147486020
@@ -8405,6 +8408,7 @@ personfilt_serpattern=2147491030
 personfilt_srchstr_=2147491031
 personfilt_stafforg=2147491032
 personfilt_status=2147491033
+personfilt_clientactivityevaldate=2147495006
 updpersonlist=2147491034
 updpersonlist_action=2147491035
 updpersonlist_acnacqkind=2147491036

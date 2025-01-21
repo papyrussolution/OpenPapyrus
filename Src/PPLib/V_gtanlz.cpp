@@ -276,7 +276,7 @@ int PPViewGoodsTaxAnalyze::Init_(const PPBaseFilt * pFilt)
 			PPViewLot lot_view;
 			LotFilt lot_filt;
 			LotViewItem lot_item;
-			const LDATE upp_date = NZOR(Filt.Period.upp, getcurdate_()); // @v10.8.10 LConfig.OperDate-->getcurdate_()
+			const LDATE upp_date = NZOR(Filt.Period.upp, getcurdate_());
 			lot_filt.Period.Set(ZERODATE, upp_date);
 			lot_filt.LocList.Add(Filt.LocID);
 			lot_filt.GoodsGrpID = Filt.GoodsGrpID;
@@ -352,7 +352,7 @@ int PPViewGoodsTaxAnalyze::Init_(const PPBaseFilt * pFilt)
 							double stax = 0.0;
 							{
 								double tax_factor = 1.0;
-								const int vat_free = IsLotVATFree(lot_item);
+								const int   vat_free = IsLotVATFree(lot_item);
 								const LDATE org_date = lot_item.Dt;
 								if(lot_item.Flags & LOTF_COSTWOVAT) {
 									GObj.AdjCostToVat(lot_item.InTaxGrpID, goods_rec.TaxGrpID, org_date, tax_factor, &cost, 1, vat_free);

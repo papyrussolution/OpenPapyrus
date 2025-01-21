@@ -72,14 +72,6 @@ void BZ2_bz__AssertH__fail(int errcode)
 #endif // } @v11.7.11
 #endif
 
-/* @v10.7.12 (tested at slsess) static int bz_config_ok(void)
-{
-	if(sizeof(int)   != 4) return 0;
-	if(sizeof(short) != 2) return 0;
-	if(sizeof(char)  != 1) return 0;
-	return 1;
-}*/
-
 //static void * default_bzalloc(void * opaque, size_t items, size_t size) { return SAlloc::M(items * size); }
 //static void default_bzfree(void * opaque, void * addr) { SAlloc::F(addr); }
 
@@ -109,7 +101,6 @@ int BZ2_bzCompressInit(bz_stream* strm, int blockSize100k, int verbosity, int wo
 {
 	int32 n;
 	EState* s;
-	// @v10.7.12 (tested at slsess) if(!bz_config_ok()) return BZ_CONFIG_ERROR;
 	if(strm == NULL || blockSize100k < 1 || blockSize100k > 9 || workFactor < 0 || workFactor > 250)
 		return BZ_PARAM_ERROR;
 	if(workFactor == 0) workFactor = 30;
@@ -397,7 +388,6 @@ int BZ2_bzCompressEnd(bz_stream *strm)
 int BZ2_bzDecompressInit(bz_stream* strm, int verbosity, int small)
 {
 	DState* s;
-	// @v10.7.12 (tested at slsess) if(!bz_config_ok()) return BZ_CONFIG_ERROR;
 	if(strm == NULL) return BZ_PARAM_ERROR;
 	if(small != 0 && small != 1) return BZ_PARAM_ERROR;
 	if(verbosity < 0 || verbosity > 4) return BZ_PARAM_ERROR;

@@ -3294,8 +3294,9 @@ int FASTCALL GetOpBySymb(const char * pSymb, PPOprKind * pData)
 
 int FASTCALL GetOpName(PPID opID, SString & rBuf)
 {
+	rBuf.Z();
 	PPOprKind op_rec;
-	return (opID && GetOpData(opID, &op_rec)) ? ((rBuf = op_rec.Name), 1) : (rBuf.Z(), 0);
+	return (opID && GetOpData(opID, &op_rec)) ? ((rBuf = op_rec.Name), 1) : 0;
 }
 
 int FASTCALL GetOpName(PPID op, char * buf, size_t buflen)

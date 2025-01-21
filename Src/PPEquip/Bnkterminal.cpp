@@ -1,5 +1,5 @@
 // BNKTERMINAL.CPP
-// Copyright (c) A.Sobolev 2012, 2013, 2015, 2016, 2017, 2018
+// Copyright (c) A.Sobolev 2012, 2013, 2015, 2016, 2017, 2018, 2025
 //
 #include <pp.h>
 #pragma hdrstop
@@ -55,11 +55,11 @@ PPBnkTerminal::PPBnkTerminal(PPID bnkTermID, uint logNum, int port, const char *
 
 PPBnkTerminal::~PPBnkTerminal()
 {
-	PPSaveErrContext(); // @v10.1.3
+	PPSaveErrContext();
 	Disconnect();
 	Release();
 	ZDELETE(P_AbstrDvc);
-	PPRestoreErrContext(); // @v10.1.3
+	PPRestoreErrContext();
 }
 
 int PPBnkTerminal::IsInited() const { return BIN(State & stInited); }

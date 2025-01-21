@@ -1,6 +1,6 @@
 // TVIEW.CPP  Turbo Vision 1.0
 // Copyright (c) 1991 by Borland International
-// Adopted to SLIB by A.Sobolev 1995-2021, 2022, 2023, 2024
+// Adopted to SLIB by A.Sobolev 1995-2021, 2022, 2023, 2024, 2025
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -351,7 +351,7 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 		rBuf.Transf(CTRANSF_UTF8_TO_OUTER);
 	}
 	else {
-		ok = SLS.SetOsError();
+		ok = SLS.SetOsError(0, 0);
 	}
 #else
 	char   buf[256];
@@ -359,7 +359,7 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 		rBuf = buf;
 	}
 	else {
-		ok = SLS.SetOsError();
+		ok = SLS.SetOsError(0, 0);
 	}
 #endif // UNICODE
 	return ok;
@@ -514,10 +514,19 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 					{
 						SmartListBox * p_lb = static_cast<SmartListBox *>(pV);
 						pV->Parent = hw_parent;
-						hw = ::CreateWindowExW(WS_EX_CLIENTEDGE, _T("SysListView32"), 0, 
-							WS_CHILD|WS_BORDER|WS_TABSTOP|LVS_REPORT|LVS_SINGLESEL|LVS_SHOWSELALWAYS|LVS_NOSORTHEADER
-							/*|LBS_NOINTEGRALHEIGHT|LBS_WANTKEYBOARDINPUT*/, 
+						/*
+							"ListBox"
+							WS_CHILDWINDOW|WS_VISIBLE|WS_TABSTOP|LBS_NOTIFY|LBS_NOINTEGRALHEIGHT|LBS_WANTKEYBOARDINPUT
+							WS_EX_LEFT|WS_EX_LTRREADING|WS_EX_RIGHTSCROLLBAR|WS_EX_NOPARENTNOTIFY|WS_EX_CLIENTEDGE
+						*/ 
+						hw = ::CreateWindowExW(WS_EX_LEFT|WS_EX_LTRREADING|WS_EX_RIGHTSCROLLBAR|WS_EX_NOPARENTNOTIFY|WS_EX_CLIENTEDGE, _T("ListBox"), 0, 
+							WS_CHILD|WS_BORDER|WS_TABSTOP|WS_VISIBLE|LBS_NOTIFY|LBS_NOINTEGRALHEIGHT|LBS_WANTKEYBOARDINPUT,
 							pV->ViewOrigin.x, pV->ViewOrigin.y, pV->ViewSize.x, pV->ViewSize.y, hw_parent, (HMENU)ctl_id, TProgram::GetInst(), 0);
+						/*
+						hw = ::CreateWindowExW(WS_EX_CLIENTEDGE, _T("SysListView32"), 0, 
+							WS_CHILD|WS_BORDER|WS_TABSTOP|WS_VISIBLE|LVS_REPORT|LVS_SINGLESEL|LVS_SHOWSELALWAYS|LVS_NOSORTHEADER,
+							pV->ViewOrigin.x, pV->ViewOrigin.y, pV->ViewSize.x, pV->ViewSize.y, hw_parent, (HMENU)ctl_id, TProgram::GetInst(), 0);
+						*/
 						if(hw) {
 							TView::SetWindowUserData(hw, p_lb);
 						}

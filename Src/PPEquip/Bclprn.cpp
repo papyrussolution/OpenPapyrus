@@ -1,5 +1,5 @@
 // BCLPRN.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -19,7 +19,7 @@ PPBarcodePrinter2::PPBarcodePrinter2() : Tag(PPOBJ_BCODEPRINTER), ID(0), BcNarro
 void PPBarcodePrinter2::Normalyze()
 {
 	PortEx.CopyTo(Port, sizeof(Port));
-	SETFLAG(Flags, fPortEx, (PortEx.Len() >= (sizeof(Port)-1))); // @v10.8.0 @fix (sizeof(Port))-->(sizeof(Port)-1)
+	SETFLAG(Flags, fPortEx, (PortEx.Len() >= (sizeof(Port)-1)));
 }
 
 PPObjBarcodePrinter::PPObjBarcodePrinter(void * extraPtr) : PPObjReference(PPOBJ_BCODEPRINTER, extraPtr)
@@ -61,7 +61,7 @@ int PPObjBarcodePrinter::PutPacket(PPID * pID, const PPBarcodePrinter * pPack, i
 			THROW(P_Ref->AddItem(Obj, pID, pPack, 0));
 		}
 		if(*pID) {
-			const char * p = (pPack && pPack->Flags & PPBarcodePrinter::fPortEx) ? pPack->PortEx.cptr() : 0; // @v10.8.0 pPack->PortEx-->pPack->PortEx.cptr()
+			const char * p = (pPack && pPack->Flags & PPBarcodePrinter::fPortEx) ? pPack->PortEx.cptr() : 0;
 			THROW(P_Ref->PutPropVlrString(Obj, *pID, BCPPRP_PORTEX, p));
 		}
 		THROW(tra.Commit());
@@ -541,7 +541,7 @@ BarcodeFormatToken BarcodeLabel::NextToken(char ** ppLine, char * pBuf, size_t b
 				if(*s == '\\') {
 					s++;
 					if(oneof2(*s, 'X', 'x')) {
-						s++; // @v10.3.0 @fix *s++ --> s++
+						s++;
 						int    hc = 0;
 						if(ishex(*s)) {
 							hc += hex(*s);
@@ -1499,7 +1499,7 @@ int BarcodeLabelPrinter::Helper_PrintRgiCollection(const BarcodeLabelPrintParam 
 			THROW_SL(p_rgi);
 			const PPTransferItem * p_ti = &pPack->ConstTI(cur_pos);
 			int    r = 0;
-			if(p_ti->LotID && pPack->OpTypeID != PPOPT_GOODSORDER) { // @v10.5.10 (&& pPack->OpTypeID != PPOPT_GOODSORDER) для заказа те же правила, что и для драфт-документов
+			if(p_ti->LotID && pPack->OpTypeID != PPOPT_GOODSORDER) { // для заказа те же правила, что и для драфт-документов
 				PPID   lot_id = p_ti->LotID;
 				if(cor_loc_id && p_ti->BillID && p_ti->RByBill) {
 					TransferTbl::Rec trfr_rec;
@@ -1768,7 +1768,7 @@ int BarcodeLabelPrinter::PrintLabel(const char * pPort, const CommPortParams * p
 			cto.WriteTotalTimeoutConstant = 2000;
 			SetCommTimeouts(hdl, &cto);
 		}
-		SLS.SetOsError();
+		SLS.SetOsError(0, 0);
 	}
 	{
 		size_t offs = Buf.GetRdOffs();
@@ -1869,7 +1869,6 @@ int DatamaxLabelPrinter::PutDataEntry(const BarcodeLabelEntry * pEntry)
 		buf[i++] = '0' + sclamp(font_id, 1, 9); // @v11.2.11
 	}
 	else {
-		// @v10.9.10 {
 		{
 			//_BarCStdTab2[]
 			for(j = 0; j < SIZEOFARRAY(_BarCStdTab2); j++) {
@@ -1882,19 +1881,6 @@ int DatamaxLabelPrinter::PutDataEntry(const BarcodeLabelEntry * pEntry)
 				}
 			}
 		}
-		// } @v10.9.10 
-		/* @v10.9.10 
-		c = 0;
-		for(j = 0; j < SIZEOFARRAY(_BarCStdTab); j++) {
-			if(_BarCStdTab[j].Std == pEntry->BarcodeStd) {
-				c = (char)_BarCStdTab[j].Chr;
-				break;
-			}
-		}
-		if(c == 0)
-			return PPSetError(PPERR_BARCSTDNSUPPORT);
-		buf[i++] = c;
-		*/
 	}
 	if(pEntry->XMult >= 0 && pEntry->XMult < 10)
 		buf[i++] = '0' + pEntry->XMult; // Width multiplier

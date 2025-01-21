@@ -951,14 +951,12 @@ void ProjectPanel::popupMenuCmd(int cmdID)
 				NULL);
 	    }
 	    break;
-
 		//
 		// Toolbar menu commands
 		//
 		case IDM_PROJECT_NEWPROJECT:
 	    {
 		    HTREEITEM root = _treeView.getRoot();
-
 		    NativeLangSpeaker * pNativeSpeaker = (NppParameters::getInstance()).getNativeLangSpeaker();
 		    generic_string newProjectLabel = pNativeSpeaker->getAttrNameStr(PM_NEWPROJECTNAME, "ProjectManager", "NewProjectName");
 		    HTREEITEM addedItem = _treeView.addItem(newProjectLabel.c_str(),  root, INDEX_PROJECT);

@@ -1,5 +1,5 @@
 // SBRODEF.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -336,7 +336,7 @@ SString & BrowserDef::getFullText(const void * pRowData, int column, SString & r
 			}
 			if(r) {
 				char   dest_text[1024];
-				PTR32(dest_text)[0] = 0;
+				dest_text[0] = 0;
 				long   fmt = r_c.format;
 				SETSFMTLEN(fmt, 0);
 				sttostr(r_c.T, p_bin_data, fmt, dest_text);
@@ -419,7 +419,7 @@ char * BrowserDef::getMultiLinesText(long row, int column, char * pBuf, uint hei
 {
 	char   ptr[4096];
 	char   buf[4096];
-	PTR32(buf)[0] = 0;
+	buf[0] = 0;
 	const  char * p_src_data = static_cast<const char *>(getRow(row));
 	if(p_src_data && column >= 0 && column < getCountI()) {
 		const  BroColumn & c = at(column);

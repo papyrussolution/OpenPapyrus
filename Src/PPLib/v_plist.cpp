@@ -344,7 +344,7 @@ int PPViewPriceList::GetPriceByQuot(RecalcParamBlock * pRPB, PPID quotKindID, do
 			PPQuotKindPacket qk_pack;
 			PPGoodsTaxEntry gtx;
 			const  PPID op_id = (pRPB->QkObj.Fetch(quotKindID, &qk_pack) > 0) ? qk_pack.Rec.OpID : 0;
-			if(GObj.FetchTax(pRPB->GoodsID, getcurdate_(), op_id, &gtx) > 0) // @v12.2.3 LConfig.OperDate-->getcurdate_()
+			if(GObj.FetchTaxEntry2(pRPB->GoodsID, 0/*lotID*/, 0/*taxPayerID*/, ZERODATE, op_id, &gtx) > 0)
 				GObj.AdjPriceToTaxes(gtx.TaxGrpID, pRPB->TaxFactor, &price, 1);
 		}
 		done = 1;
@@ -1963,9 +1963,9 @@ int PPPriceListExporter::Export(const PriceListViewItem * pItem)
 		GObj.GetSingleBarcode(goods_rec.ID, 0, temp_buf);
 		STRNSCPY(sdr.Barcode, temp_buf);
 		{
-			PPGoodsTaxEntry tax_entry;
-			if(GObj.FetchTax(goods_rec.ID, getcurdate_(), 0, &tax_entry) > 0) {
-                sdr.VatRate = tax_entry.GetVatRate();
+			PPGoodsTaxEntry gtx;
+			if(GObj.FetchTaxEntry2(goods_rec.ID, 0/*lotID*/, 0/*taxPayerID*/, ZERODATE, 0, &gtx) > 0) {
+                sdr.VatRate = gtx.GetVatRate();
 			}
 		}
 		if(goods_rec.ManufID) {
