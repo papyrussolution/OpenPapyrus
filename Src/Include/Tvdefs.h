@@ -1,5 +1,5 @@
 // TVDEFS.H
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2016, 2017, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2016, 2017, 2019, 2020, 2021, 2022, 2023, 2025
 // @codepage UTF-8
 //
 #ifndef __TVDEFS_H
@@ -468,10 +468,6 @@
 #define noFrame          0x0010
 #define noViewer         0x0020
 #define noHistory        0x0040
-//
-// TWindow number constants
-//
-#define wnNoNumber            0
 //
 // TWindow palette entries
 //

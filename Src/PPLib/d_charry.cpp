@@ -3531,18 +3531,10 @@ int PPDS_CrrLocation::InitData(Ido op, void * dataPtr, long addedParam)
 							case DSF_CRRLOCATION_FULLADDR:
 								LocationCore::SetExField(&rec, LOCEXSTR_FULLADDR, LocationCore::GetExFieldS(&Data, LOCEXSTR_FULLADDR, temp_buf));
 								break;
-							case DSF_CRRLOCATION_FVATFREE:
-								SETFLAGBYSAMPLE(rec.Flags, LOCF_VATFREE, Data.Flags);
-								break;
-							case DSF_CRRLOCATION_FMANUALADDR:
-								SETFLAGBYSAMPLE(rec.Flags, LOCF_MANUALADDR, Data.Flags);
-								break;
-							case DSF_CRRLOCATION_FVOLUMEVAL:
-								SETFLAGBYSAMPLE(rec.Flags, LOCF_VOLUMEVAL, Data.Flags);
-								break;
-							case DSF_CRRLOCATION_FCOMPARABLE:
-								SETFLAGBYSAMPLE(rec.Flags, LOCF_COMPARABLE, Data.Flags);
-								break;
+							case DSF_CRRLOCATION_FVATFREE: SETFLAGBYSAMPLE(rec.Flags, LOCF_VATFREE, Data.Flags); break;
+							case DSF_CRRLOCATION_FMANUALADDR: SETFLAGBYSAMPLE(rec.Flags, LOCF_MANUALADDR, Data.Flags); break;
+							case DSF_CRRLOCATION_FVOLUMEVAL: SETFLAGBYSAMPLE(rec.Flags, LOCF_VOLUMEVAL, Data.Flags); break;
+							case DSF_CRRLOCATION_FCOMPARABLE: SETFLAGBYSAMPLE(rec.Flags, LOCF_COMPARABLE, Data.Flags); break;
 						}
 					}
 					ok = Obj.PutRecord(&id, &rec, 0);

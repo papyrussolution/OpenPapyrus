@@ -1,5 +1,5 @@
 // V_PSNEV.CPP
-// Copyright (c) A.Sobolev, A.Starodub 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2024
+// Copyright (c) A.Sobolev, A.Starodub 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2024, 2025
 // @ModuleDef(PPViewPersonEvent)
 //
 #include <pp.h>
@@ -7,10 +7,7 @@
 //
 //
 //
-long AverageEventTimePrcssr::Item::GetAverage() const
-{
-	return Count ? diffdatetimesec(LastEv, FirstEv) / Count : 0;
-}
+long AverageEventTimePrcssr::Item::GetAverage() const { return Count ? diffdatetimesec(LastEv, FirstEv) / Count : 0; }
 
 AverageEventTimePrcssr::AverageEventTimePrcssr()
 {
@@ -106,21 +103,17 @@ int PPViewPersonEvent::EditBaseFilt(PPBaseFilt * pBaseFilt)
 			SetPeriodInput(this, CTL_PSNEVFLT_PERIOD, &Data.Period);
 			{
 				PersonOpCtrlGroup::Rec op_rec(&Data.PsnOpList, Data.PrmrID, Data.ScndID);
-				// @v10.5.8 PersonOpCtrlGroup * p_grp = static_cast<PersonOpCtrlGroup *>(getGroup(GRP_PSNOP));
-				// @v10.5.8 CALLPTRMEMB(p_grp, setData(this, &op_rec));
-				setGroupData(ctlgroupPsnOp, &op_rec); // @v10.5.8
+				setGroupData(ctlgroupPsnOp, &op_rec);
 			}
 			SetupStringCombo(this, CTLSEL_PSNEVFLT_SUBST, PPTXT_SUBSTPSNEVLIST, Data.Sgpe);
 			SetupSubstDateCombo(this, CTLSEL_PSNEVFLT_SUBSTDT, Data.Sgd);
 			AddClusterAssoc(CTL_PSNEVFLT_FLAGS, 0, Data.fWithoutPair);
 			SetClusterData(CTL_PSNEVFLT_FLAGS, Data.Flags);
-			// @v10.8.12 {
 			SetupPPObjCombo(this, CTLSEL_PSNEVFLT_EPRMRREG, PPOBJ_REGISTERTYPE, Data.ExtPrmrPersonRegID, 0, 0);
 			{
 				ObjTagFilt ot_filt(PPOBJ_PERSON, ObjTagFilt::fOnlyTags);
 				SetupPPObjCombo(this, CTLSEL_PSNEVFLT_EPRMRTAG, PPOBJ_TAG, Data.ExtPrmrPersonTagID, 0, &ot_filt);
 			}
-			// } @v10.8.12
 			return 1;
 		}
 		DECL_DIALOG_GETDTS()
@@ -139,8 +132,8 @@ int PPViewPersonEvent::EditBaseFilt(PPBaseFilt * pBaseFilt)
 			getCtrlData(CTLSEL_PSNEVFLT_SUBST,   &Data.Sgpe);
 			getCtrlData(CTLSEL_PSNEVFLT_SUBSTDT, &Data.Sgd);
 			GetClusterData(CTL_PSNEVFLT_FLAGS, &Data.Flags);
-			getCtrlData(CTLSEL_PSNEVFLT_EPRMRREG, &Data.ExtPrmrPersonRegID); // @v10.8.12
-			getCtrlData(CTLSEL_PSNEVFLT_EPRMRTAG, &Data.ExtPrmrPersonTagID); // @v10.8.12
+			getCtrlData(CTLSEL_PSNEVFLT_EPRMRREG, &Data.ExtPrmrPersonRegID);
+			getCtrlData(CTLSEL_PSNEVFLT_EPRMRTAG, &Data.ExtPrmrPersonTagID);
 			ASSIGN_PTR(pData, Data);
 			return 1;
 		}
@@ -383,8 +376,8 @@ DBQuery * PPViewPersonEvent::CreateBrowserQuery(uint * pBrwId, SString * pSubTit
 	DBE    dbe_psn_scnd;
 	DBE    dbe_op;
 	DBE    dbe_avg_tm;
-	DBE    dbe_extreg; // @v10.8.12
-	DBE    dbe_exttag; // @v10.8.12
+	DBE    dbe_extreg;
+	DBE    dbe_exttag;
 	DBE    dbe_memo;   // @v11.1.12
 	if(P_TempGrpTbl) {
 		brw_id = BROWSER_PSNEVSUBST;

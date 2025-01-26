@@ -1237,13 +1237,10 @@ int PPObjGoods::FetchTax_(PPID goodsID, LDATE dt, PPID opID, PPGoodsTaxEntry * p
 	return (Fetch(goods_id, &grec) > 0 && grec.TaxGrpID) ? GTxObj.Fetch(grec.TaxGrpID, _date, opID, pGtx) : -1;
 }
 
-int PPObjGoods::CombineTaxEntry(const PPGoodsTaxEntry & rGtx, PPID taxPayerPersonID, LDATE dt, PPID opID, PPGoodsTaxEntry * pResultGtx)
+int PPObjGoods::CombineTaxEntry(const PPGoodsTaxEntry & rGtx, PPID taxPayerPersonID, PPID taxPayerLocID, LDATE dt, PPID opID, PPGoodsTaxEntry * pResultGtx)
 {
 	int    ok = 1;
 	const  LDATE _date = (dt == ZERODATE) ? getcurdate_() : dt;
-	bool   is_taxpayer_vatfree = false;
-	bool   taxpayer_gtx_defined = false;
-	PPID   payer_tax_grp_id = 0;
 	PPGoodsTaxEntry result_gtx(rGtx);
 	if(!rGtx.TaxGrpID) {
 		ok = -1;
@@ -1252,30 +1249,49 @@ int PPObjGoods::CombineTaxEntry(const PPGoodsTaxEntry & rGtx, PPID taxPayerPerso
 		if(result_gtx.VAT == 0) {
 			; // Товар не облагается НДС - стало быть нам не интересно каковы условия уплаты НДС налогоплательщиком - все равно НДС не будет.
 		}
-		else {
+		else if(taxPayerLocID || taxPayerPersonID) {
 			PPGoodsTaxEntry taxpayer_gtx;
-			if(taxPayerPersonID) {
-				SETIFZ(P_PsnObj, new PPObjPerson);
-				PersonTbl::Rec psn_rec;
-				if(P_PsnObj && P_PsnObj->Fetch(taxPayerPersonID, &psn_rec) > 0) {
-					if(psn_rec.Flags & PSNF_NOVATAX)
-						is_taxpayer_vatfree = true;
+			bool   is_taxpayer_vatfree = false;
+			bool   is_loc_vatfree = false; // is_loc_vatfree(true) имеет приоритет перед is_taxpayer_vatfree(true)
+			bool   taxpayer_gtx_defined = false;
+			PPID   payer_tax_grp_id = 0;
+			PPID   loc_tax_grp_id = 0; // Имеет приоритет перед payer_tax_grp_id
+			//
+			Reference * p_ref = PPRef;
+			ObjTagItem tag_item;
+			SETIFZ(P_PsnObj, new PPObjPerson);
+			if(P_PsnObj) {
+				if(taxPayerLocID) {
+					LocationTbl::Rec loc_rec;
+					if(P_PsnObj->LocObj.Fetch(taxPayerLocID, &loc_rec) > 0) {
+						if(loc_rec.Flags & LOCF_VATFREE)
+							is_loc_vatfree = true;
+						if(p_ref && p_ref->Ot.GetTag(PPOBJ_LOCATION, taxPayerLocID, PPTAG_LOC_SPCTAXGROUP, &tag_item) > 0) {
+							int    _tax_grp_id = 0;
+							if(tag_item.GetInt(&_tax_grp_id) && GTxObj.FetchByID(_tax_grp_id, 0) > 0)
+								loc_tax_grp_id = _tax_grp_id;
+						}
+					}
 				}
-				Reference * p_ref = PPRef;
-				if(p_ref) {
-					ObjTagItem tag_item;
-					if(p_ref->Ot.GetTag(PPOBJ_PERSON, taxPayerPersonID, PPTAG_PERSON_SPCTAXGROUP, &tag_item) > 0) {
-						int    _tax_grp_id = 0;
-						if(tag_item.GetInt(&_tax_grp_id) && GTxObj.FetchByID(_tax_grp_id, 0) > 0) {
-							payer_tax_grp_id = _tax_grp_id;
+				if(taxPayerPersonID) {
+					PersonTbl::Rec psn_rec;
+					if(P_PsnObj->Fetch(taxPayerPersonID, &psn_rec) > 0) {
+						if(psn_rec.Flags & PSNF_NOVATAX)
+							is_taxpayer_vatfree = true;
+						if(p_ref && p_ref->Ot.GetTag(PPOBJ_PERSON, taxPayerPersonID, PPTAG_PERSON_SPCTAXGROUP, &tag_item) > 0) {
+							int    _tax_grp_id = 0;
+							if(tag_item.GetInt(&_tax_grp_id) && GTxObj.FetchByID(_tax_grp_id, 0) > 0)
+								payer_tax_grp_id = _tax_grp_id;
 						}
 					}
 				}
 			}
-			if(payer_tax_grp_id) {
-				if(GTxObj.Fetch(payer_tax_grp_id, _date, opID, &taxpayer_gtx) > 0) {
-					taxpayer_gtx_defined = true;
-				}
+			//
+			if(loc_tax_grp_id && GTxObj.Fetch(loc_tax_grp_id, _date, opID, &taxpayer_gtx) > 0) {
+				taxpayer_gtx_defined = true;
+			}
+			else if(payer_tax_grp_id && GTxObj.Fetch(payer_tax_grp_id, _date, opID, &taxpayer_gtx) > 0) {
+				taxpayer_gtx_defined = true;
 			}
 			if(taxpayer_gtx_defined) {
 				if(taxpayer_gtx.Flags & GTAXF_SPCVAT) {
@@ -1283,9 +1299,15 @@ int PPObjGoods::CombineTaxEntry(const PPGoodsTaxEntry & rGtx, PPID taxPayerPerso
 					result_gtx.Flags |= GTAXF_SPCVAT;
 				}
 			}
-			else if(is_taxpayer_vatfree) {
-				result_gtx.VAT = 0;
-				result_gtx.Flags |= GTAXF_SPCVAT;
+			else {
+				if(is_loc_vatfree) {
+					result_gtx.VAT = 0;
+					result_gtx.Flags |= GTAXF_SPCVAT;
+				}
+				else if(is_taxpayer_vatfree) {
+					result_gtx.VAT = 0;
+					result_gtx.Flags |= GTAXF_SPCVAT;
+				}
 			}
 		}
 	}
@@ -1293,11 +1315,115 @@ int PPObjGoods::CombineTaxEntry(const PPGoodsTaxEntry & rGtx, PPID taxPayerPerso
 	return ok;
 }
 
+int PPObjGoods::FetchTaxEntry2_WithPayerAndWarehouse_ByTaxGroup(PPID goodsTaxGrpID, PPID taxPayerPsnID, PPID taxPayerWarehouseID, LDATE dt, PPID opID, PPGoodsTaxEntry * pGtx) // @v12.2.4
+{
+	int    ok = -1;
+	LDATE  _date = (dt == ZERODATE) ? getcurdate_() : dt;
+	PPID   goods_tax_grp_id = 0;
+	PPID   lot_tax_grp_id = 0;
+	PPID   tax_payer_person_id = taxPayerPsnID;
+	PPGoodsTaxEntry goods_gtx;
+	PPGoodsTaxEntry result_gtx;
+	memzero(pGtx, sizeof(*pGtx));
+	if(goodsTaxGrpID && GTxObj.FetchByID(goodsTaxGrpID, 0) > 0) {
+		goods_tax_grp_id = goodsTaxGrpID;
+	}
+	{
+		bool goods_gtx_defined = false;
+		if(lot_tax_grp_id) {
+			if(GTxObj.Fetch(lot_tax_grp_id, _date, opID, &goods_gtx) > 0)
+				goods_gtx_defined = true;
+		}
+		else if(goods_tax_grp_id) {
+			if(GTxObj.Fetch(goods_tax_grp_id, _date, opID, &goods_gtx) > 0)
+				goods_gtx_defined = true;
+		}
+		if(goods_gtx_defined) {
+			if(CombineTaxEntry(goods_gtx, tax_payer_person_id, taxPayerWarehouseID, _date, opID, &result_gtx) > 0)
+				ok = 1;
+		}
+	}
+	ASSIGN_PTR(pGtx, result_gtx);
+	return ok;
+}
+
+int PPObjGoods::FetchTaxEntry2_ByTaxGroups(PPID goodsTaxGrpID, PPID lotTaxGrpID, PPID taxPayerPsnID, LDATE dt, PPID opID, PPGoodsTaxEntry * pGtx) // @v12.2.4
+{
+	int    ok = -1;
+	LDATE  _date = (dt == ZERODATE) ? getcurdate_() : dt;
+	PPID   goods_tax_grp_id = 0;
+	PPID   lot_tax_grp_id = 0;
+	PPID   tax_payer_person_id = taxPayerPsnID;
+	PPGoodsTaxEntry goods_gtx;
+	PPGoodsTaxEntry result_gtx;
+	memzero(pGtx, sizeof(*pGtx));
+	if(goodsTaxGrpID && GTxObj.FetchByID(goodsTaxGrpID, 0) > 0) {
+		goods_tax_grp_id = goodsTaxGrpID;
+	}
+	if(lotTaxGrpID) {
+		if(GTxObj.FetchByID(lotTaxGrpID, 0) > 0) {
+			lot_tax_grp_id = lotTaxGrpID;
+		}
+	}
+	{
+		bool goods_gtx_defined = false;
+		if(lot_tax_grp_id) {
+			if(GTxObj.Fetch(lot_tax_grp_id, _date, opID, &goods_gtx) > 0)
+				goods_gtx_defined = true;
+		}
+		else if(goods_tax_grp_id) {
+			if(GTxObj.Fetch(goods_tax_grp_id, _date, opID, &goods_gtx) > 0)
+				goods_gtx_defined = true;
+		}
+		if(goods_gtx_defined) {
+			if(CombineTaxEntry(goods_gtx, tax_payer_person_id, 0/*taxPayerLocID*/, _date, opID, &result_gtx) > 0)
+				ok = 1;
+		}
+	}
+	ASSIGN_PTR(pGtx, result_gtx);
+	return ok;
+}
+
+int PPObjGoods::FetchTaxEntry2_WithPayerAndWarehouse(PPID goodsID, PPID taxPayerPsnID, PPID taxPayerWarehouseID, LDATE dt, PPID opID, PPGoodsTaxEntry * pGtx) // @v12.2.4
+{
+	int    ok = -1;
+	const  PPID goods_id = labs(goodsID);
+	LDATE  _date = (dt == ZERODATE) ? getcurdate_() : dt;
+	PPID   goods_tax_grp_id = 0;
+	PPID   lot_tax_grp_id = 0;
+	//PPID   tax_payer_person_id = 0;
+	PPID   tax_payer_loc_id = 0;
+	Goods2Tbl::Rec goods_rec;
+	PPGoodsTaxEntry goods_gtx;
+	PPGoodsTaxEntry result_gtx;
+	memzero(pGtx, sizeof(*pGtx));
+	if(Fetch(goods_id, &goods_rec) > 0 && goods_rec.TaxGrpID && GTxObj.FetchByID(goods_rec.TaxGrpID, 0) > 0) {
+		goods_tax_grp_id = goods_rec.TaxGrpID;
+	}
+	{
+		bool goods_gtx_defined = false;
+		if(lot_tax_grp_id) {
+			if(GTxObj.Fetch(lot_tax_grp_id, _date, opID, &goods_gtx) > 0)
+				goods_gtx_defined = true;
+		}
+		else if(goods_tax_grp_id) {
+			if(GTxObj.Fetch(goods_tax_grp_id, _date, opID, &goods_gtx) > 0)
+				goods_gtx_defined = true;
+		}
+		if(goods_gtx_defined) {
+			if(CombineTaxEntry(goods_gtx, taxPayerPsnID, taxPayerWarehouseID, _date, opID, &result_gtx) > 0)
+				ok = 1;
+		}
+	}
+	ASSIGN_PTR(pGtx, result_gtx);
+	return ok;
+}
+
 int PPObjGoods::FetchTaxEntry2(PPID goodsID, PPID lotID, PPID taxPayerPsnID, LDATE dt, PPID opID, PPGoodsTaxEntry * pGtx)
 {
 	int    ok = -1;
 	const  PPID goods_id = labs(goodsID);
-	const  LDATE _date = (dt == ZERODATE) ? getcurdate_() : dt;
+	LDATE  _date = (dt == ZERODATE) ? getcurdate_() : dt;
 	PPID   goods_tax_grp_id = 0;
 	PPID   lot_tax_grp_id = 0;
 	PPID   tax_payer_person_id = 0;
@@ -1313,6 +1439,7 @@ int PPObjGoods::FetchTaxEntry2(PPID goodsID, PPID lotID, PPID taxPayerPsnID, LDA
 		if(p_bobj) {
 			ReceiptTbl::Rec lot_rec;
 			if(p_bobj->trfr->Rcpt.Search(lotID, &lot_rec) > 0) {
+				_date = lot_rec.Dt;
 				tax_payer_person_id = ObjectToPerson(lot_rec.SupplID, 0);
 				if(lot_rec.InTaxGrpID && GTxObj.FetchByID(lot_rec.InTaxGrpID, 0) > 0) {
 					lot_tax_grp_id = lot_rec.InTaxGrpID;
@@ -1335,10 +1462,11 @@ int PPObjGoods::FetchTaxEntry2(PPID goodsID, PPID lotID, PPID taxPayerPsnID, LDA
 				goods_gtx_defined = true;
 		}
 		if(goods_gtx_defined) {
-			if(CombineTaxEntry(goods_gtx, tax_payer_person_id, _date, opID, &result_gtx) > 0)
+			if(CombineTaxEntry(goods_gtx, tax_payer_person_id, 0/*taxPayerLocID*/, _date, opID, &result_gtx) > 0)
 				ok = 1;
 		}
 	}
+	ASSIGN_PTR(pGtx, result_gtx);
 	return ok;
 }
 
@@ -1379,7 +1507,7 @@ void PPObjGoods::CalcCostVat(PPID lotTaxGrpID, PPID goodsTaxGrpID,
 }
 
 void PPObjGoods::Helper_AdjCostToVat(PPID lotTaxGrpID, PPID goodsTaxGrpID,
-	LDATE lotDate, double qtty, double * pCost /* In, Out */, double * pVatSum, int withOrWithout, int vatFreeSuppl, int roundPrec)
+	LDATE lotDate, double qtty, double * pCost/* In, Out */, double * pVatSum, int withOrWithout, int vatFreeSuppl, int roundPrec)
 {
 	double c = *pCost;
 	double vat_sum = 0.0;

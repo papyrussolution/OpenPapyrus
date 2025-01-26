@@ -2198,7 +2198,18 @@ char * FASTCALL newStr(const char * s)
 
 char * FASTCALL sstrcpy(char * pDest, const char * pSrc) { return strcpy(pDest, pSrc); }
 uchar * FASTCALL sstrcpy(uchar * pDest, const uchar * pSrc) { return reinterpret_cast<uchar *>(strcpy(reinterpret_cast<char *>(pDest), reinterpret_cast<const char *>(pSrc))); }
-wchar_t * FASTCALL sstrcpy(wchar_t * pDest, const wchar_t * pSrc) { return wcscpy(pDest, pSrc); }
+
+wchar_t * FASTCALL sstrcpy(wchar_t * pDest, const wchar_t * pSrc) 
+{ 
+	if(pDest) {
+		if(isempty(pSrc))
+			pDest[0] = 0;
+		else
+			wcscpy(pDest, pSrc); 
+	}
+	return pDest;
+}
+
 char * STDCALL strnzcpy(char * dest, const uchar * src, size_t maxlen) { return strnzcpy(dest, reinterpret_cast<const char *>(src), maxlen); }
 
 char * STDCALL strnzcpy(char * dest, const char * src, size_t maxlen)

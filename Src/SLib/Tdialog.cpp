@@ -1,6 +1,6 @@
 // TDIALOG.CPP  TurboVision 1.0
 // Copyright (c) 1991 by Borland International
-// Modified by A.Sobolev 1994, 1996-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Modified by A.Sobolev 1994, 1996-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 // Release for WIN32
 //
@@ -221,12 +221,11 @@ static void loadLocalMenu(TVRez & rez, TDialog * dlg)
 
 int (* getUserControl)(TVRez*, TDialog*) = 0;
 
-/*static*/int TDialog::LoadDialog(TVRez * rez, uint dialogID, TDialog * dlg, long flags)
+/*static*/int TDialog::LoadDialog(TVRez * pRez, uint dialogID, TDialog * dlg, long flags)
 {
+	int    ok = 1;
 	assert(dlg != 0);
-	if(rez == 0)
-		return 0;
-	uint   tag, cmd;
+	uint   cmd;
 	long   format;
 	TYPEID type;
 	uint   id;
@@ -235,7 +234,6 @@ int (* getUserControl)(TVRez*, TDialog*) = 0;
 	uint   help_ctx;
 	uint   options;
 	uint   temp_id;
-	TRect  r;
 	TView * p_view = 0;
 	TView * p_ctl = 0;
 	SString temp_buf;
@@ -245,10 +243,12 @@ int (* getUserControl)(TVRez*, TDialog*) = 0;
 	long   sz = 0L;
 	long   ofs = 0L;
 	StrAssocArray symb_list;
-	if(rez->findResource(dialogID, TV_DIALOG, &ofs, &sz)) {
-		r = rez->getRect();
-		rez->getString(buf);
-		rez->getString(symb, 0);
+	THROW(pRez);
+	THROW(pRez->findResource(dialogID, TV_DIALOG, &ofs, &sz));
+	{
+		TRect r = pRez->getRect();
+		pRez->getString(buf);
+		pRez->getString(symb, 0);
 		if(flags & ldfDL600_Cvt && symb.NotEmptyS()) {
 			// @v11.2.0 SETIFZ(dlg->P_SymbList, new StrAssocArray);
 			// @v11.2.0 CALLPTRMEMB(dlg->P_SymbList, Add(-1000, symb));
@@ -261,35 +261,37 @@ int (* getUserControl)(TVRez*, TDialog*) = 0;
 		else
 			dlg->setTitle(buf);
 		dlg->Id = dialogID;
-		while(rez->getStreamPos() < (ofs + sz)) {
-			tag = rez->getUINT();
+		while(pRez->getStreamPos() < (ofs + sz)) {
+			const uint tag = pRez->getUINT();
 			switch(tag) {
 				case TV_INPUTLINE:
-					r = rez->getRect();
-					id = rez->getUINT();
-					rez->getString(symb, 0);
-					type = rez->getType(0);
-					format = rez->getFormat(0);
-					calc_inputline_id = rez->getUINT();
-					calc_button_id = rez->getUINT();
-					help_ctx = rez->getUINT();
-					if(calc_inputline_id)
-						p_ctl = new TCalcInputLine(calc_inputline_id, calc_button_id, r, type, format);
-					else
-						p_ctl = new TInputLine(r, type, format);
-					dlg->InsertCtl(p_ctl, id, (flags & ldfDL600_Cvt) ? symb.cptr() : 0);
+					{
+						r = pRez->getRect();
+						id = pRez->getUINT();
+						pRez->getString(symb, 0);
+						type = pRez->getType(0);
+						format = pRez->getFormat(0);
+						calc_inputline_id = pRez->getUINT();
+						calc_button_id = pRez->getUINT();
+						help_ctx = pRez->getUINT();
+						if(calc_inputline_id)
+							p_ctl = new TCalcInputLine(calc_inputline_id, calc_button_id, r, type, format);
+						else
+							p_ctl = new TInputLine(r, type, format);
+						dlg->InsertCtl(p_ctl, id, (flags & ldfDL600_Cvt) ? symb.cptr() : 0);
+					}
 					break;
 				case TV_BUTTON:
 					{
-						r  = rez->getRect();
-						id = rez->getUINT();
-						rez->getString(symb, 0);
-						rez->getString(buf);
-						cmd = rez->getUINT();
-						rez->getString(cmd_symb, 0);
-						options = rez->getUINT();
-						help_ctx = rez->getUINT();
-						uint bmp_id = rez->getUINT();
+						r  = pRez->getRect();
+						id = pRez->getUINT();
+						pRez->getString(symb, 0);
+						pRez->getString(buf);
+						cmd = pRez->getUINT();
+						pRez->getString(cmd_symb, 0);
+						options = pRez->getUINT();
+						help_ctx = pRez->getUINT();
+						uint bmp_id = pRez->getUINT();
 						dlg->InsertCtl(new TButton(r, buf, cmd, options, bmp_id), id, (flags & ldfDL600_Cvt) ? symb.cptr() : 0);
 						if(flags & ldfDL600_Cvt && cmd_symb.NotEmptyS())
 							dlg->SetCtlSymb(cmd+100000, cmd_symb);
@@ -298,16 +300,16 @@ int (* getUserControl)(TVRez*, TDialog*) = 0;
 				case TV_CHECKBOXES:
 				case TV_RADIOBUTTONS:
 					{
-						r  = rez->getRect();
-						id = rez->getUINT();
-						rez->getString(symb, 0);
-						help_ctx = rez->getUINT();
+						r  = pRez->getRect();
+						id = pRez->getUINT();
+						pRez->getString(symb, 0);
+						help_ctx = pRez->getUINT();
 						TCluster * p_cluster = new TCluster(r, (tag == TV_CHECKBOXES) ? CHECKBOXES : RADIOBUTTONS, 0);
-						while(rez->getUINT() != TV_END) {
+						while(pRez->getUINT() != TV_END) {
 							assert(p_cluster->getNumItems() < 36);
-							//fseek(rez->getStream(), -((long)sizeof(uint16)), SEEK_CUR);
-							rez->Seek(-((long)sizeof(uint16)), SEEK_CUR);
-							p_cluster->addItem(-1, rez->getString(buf));
+							//fseek(pRez->getStream(), -((long)sizeof(uint16)), SEEK_CUR);
+							pRez->Seek(-((long)sizeof(uint16)), SEEK_CUR);
+							p_cluster->addItem(-1, pRez->getString(buf));
 						}
 						dlg->InsertCtl(p_cluster, id, (flags & ldfDL600_Cvt) ? symb.cptr() : 0);
 					}
@@ -315,41 +317,39 @@ int (* getUserControl)(TVRez*, TDialog*) = 0;
 				case TV_LISTBOX:
 					{
 						SString columns_buf;
-						r  = rez->getRect();
-						id = rez->getUINT();
-						rez->getString(symb, 0);
-						rez->getUINT();    // options
-						rez->getType(0);   // type
-						rez->getFormat(0); // format
-						help_ctx = rez->getUINT();
-						rez->getString(columns_buf, 0);
+						r  = pRez->getRect();
+						id = pRez->getUINT();
+						pRez->getString(symb, 0);
+						pRez->getUINT();    // options
+						pRez->getType(0);   // type
+						pRez->getFormat(0); // format
+						help_ctx = pRez->getUINT();
+						pRez->getString(columns_buf, 0);
 						{
-							const int is_tree_list = columns_buf.IsEqiAscii("TREELISTVIEW");
-							SmartListBox * p_lb = new SmartListBox(r, 0, is_tree_list);
-							if(p_lb) {
-								if(!is_tree_list)
-									p_lb->SetupColumns(columns_buf);
-								dlg->InsertCtl(p_lb, id, (flags & ldfDL600_Cvt) ? symb.cptr() : 0);
-							}
+							const bool is_tree_list = columns_buf.IsEqiAscii("TREELISTVIEW");
+							SmartListBox * p_lb = is_tree_list ? new SmartListBox(r, 0, is_tree_list) : new SmartListBox(r, 0, columns_buf);
+							dlg->InsertCtl(p_lb, id, (flags & ldfDL600_Cvt) ? symb.cptr() : 0);
 						}
 					}
 					break;
 				case TV_INFOPANE:
-					r = rez->getRect();
-					id = rez->getUINT();
-					rez->getString(symb, 0);
-					//dlg->InsertCtl(new TInfoPane(r), id, 0);
+					{
+						r = pRez->getRect();
+						id = pRez->getUINT();
+						pRez->getString(symb, 0);
+						//dlg->InsertCtl(new TInfoPane(r), id, 0);
+					}
 					break;
 				case TV_STATIC:
 					{
 						char columns_buf[256];
 						memzero(columns_buf, sizeof(columns_buf));
-						r = rez->getRect();
-						id = rez->getUINT();
-						rez->getString(symb, 0);
-						rez->getString(buf);
-                		rez->getString(columns_buf);
-						rez->getString(temp_buf.Z(), 0); // image_symbol
+						r = pRez->getRect();
+						id = pRez->getUINT();
+						pRez->getString(symb, 0);
+						pRez->getString(buf);
+                		pRez->getString(columns_buf);
+						pRez->getString(temp_buf.Z(), 0); // image_symbol
 						if(sstreqi_ascii(columns_buf, "IMAGEVIEW"))
 							p_ctl = new TImageView(r, temp_buf);
 						else
@@ -358,39 +358,41 @@ int (* getUserControl)(TVRez*, TDialog*) = 0;
 					dlg->InsertCtl(p_ctl, id, (flags & ldfDL600_Cvt) ? symb.cptr() : 0);
 					break;
 				case TV_LABEL:
-					r = rez->getRect();
-					id = rez->getUINT();
-					rez->getString(symb, 0);
-					rez->getString(buf);
-					p_view = dlg->getCtrlView(rez->getUINT());
-					if(p_view)
-						dlg->InsertCtl(new TLabel(r, buf, p_view), id, (flags & ldfDL600_Cvt) ? symb.cptr() : 0);
+					{
+						r = pRez->getRect();
+						id = pRez->getUINT();
+						pRez->getString(symb, 0);
+						pRez->getString(buf);
+						p_view = dlg->getCtrlView(pRez->getUINT());
+						if(p_view)
+							dlg->InsertCtl(new TLabel(r, buf, p_view), id, (flags & ldfDL600_Cvt) ? symb.cptr() : 0);
+					}
 					break;
 				case TV_COMBO:
-					r  = rez->getRect();
-					id = rez->getUINT();
-					rez->getString(symb, 0);
-					options  = rez->getUINT();
-					temp_id  = rez->getUINT();
-					help_ctx = rez->getUINT();
-					rez->getUINT(); // bmp_id == 0
-					p_view = dlg->getCtrlView(temp_id);
-					if(temp_id) {
-						ComboBox * combo = new ComboBox(r,  options, static_cast<TInputLine *>(p_view));
-						dlg->InsertCtl(combo, id, (flags & ldfDL600_Cvt) ? symb.cptr() : 0);
+					{
+						r  = pRez->getRect();
+						id = pRez->getUINT();
+						pRez->getString(symb, 0);
+						options  = pRez->getUINT();
+						temp_id  = pRez->getUINT();
+						help_ctx = pRez->getUINT();
+						pRez->getUINT(); // bmp_id == 0
+						p_view = dlg->getCtrlView(temp_id);
+						if(temp_id) {
+							ComboBox * combo = new ComboBox(r,  options, static_cast<TInputLine *>(p_view));
+							dlg->InsertCtl(combo, id, (flags & ldfDL600_Cvt) ? symb.cptr() : 0);
+						}
 					}
 					break;
 				case TV_LOCALMENU:
-					loadLocalMenu(*rez, dlg);
+					loadLocalMenu(*pRez, dlg);
 					break;
 				default:
-					if(getUserControl == 0 || getUserControl(rez, dlg) == 0)
+					if(getUserControl == 0 || getUserControl(pRez, dlg) == 0)
 						return 0;
 			}
 		}
 	}
-	else
-		return 0;
 	dlg->selectNext();
 	dlg->Id = dialogID;
 	//
@@ -399,20 +401,21 @@ int (* getUserControl)(TVRez*, TDialog*) = 0;
 	//
 	uint   num_flds = 0;
 	long   res_size = 0;
-	if(rez->findResource(TAB_HELP, PP_RCDATA, NULL, &res_size) > 0) {
+	if(pRez->findResource(TAB_HELP, PP_RCDATA, NULL, &res_size) > 0) {
 		num_flds = res_size / (sizeof(short) * 2);
 		for(uint i = 0; i < num_flds; i++) {
-			if(dlg->Id == rez->getUINT()) {
-				dlg->HelpCtx = rez->getUINT();
+			if(dlg->Id == pRez->getUINT()) {
+				dlg->HelpCtx = pRez->getUINT();
 				break;
 			}
-			rez->getUINT();
+			pRez->getUINT();
 		}
 	}
 	else
 		dlg->HelpCtx = 0;
 	// } @ Muxa
-	return 1;
+	CATCHZOK
+	return ok;
 }
 
 /*static*/int TDialog::GetSymbolBody(const char * pSymb, SString & rBodyBuf)
@@ -464,14 +467,97 @@ void TDialog::Helper_Constructor(uint resID, DialogPreProcFunc dlgPreFunc, void 
 		::ShowWindow(H(), SW_HIDE);
 		APPL->P_DeskTop->SetCurrentView(preserve_current, leaveSelect);
 	}
+	else if(co == coEmpty) {
+		//
+		// Этот блок в целом работает, но надо что-то делать с тем фактом, что WM_INITDIALOG будет вызван функцией
+		// CreateDialogIndirectParamW, что в свою очередь повлечет вызов handleEvent() с командой cmInit
+		// и вот этот вызов обратится к базовому классу (т.е. TDialog), а не к тому, в котором все должно быть,
+		// поскольку сейчас мы находимся в контсрукторе TDialog.
+		//
+		/*
+		typedef struct {
+			DWORD style;
+			DWORD dwExtendedStyle;
+			WORD  cdit;
+			short x;
+			short y;
+			short cx;
+			short cy;
+			// Далее следуют:
+			// z-string menu or (uint16)0x0000
+			// z-string window-class or (uint16)0x0000 or (uint16)0xffff and 'the ordinal value of a predefined system window class'
+			// z-string window-title or (uint16)0x0000
+			// if(style & DS_SETFONT) then uint16 fontPointSize and z-string font-type-face
+		} DLGTEMPLATE;
+		*/
+		SStringU menu;
+		SStringU wnd_cls;
+		SStringU title;
+		{
+			const SString & r_dlg_title = getTitle();
+			title.CopyFromMb_INNER(r_dlg_title.cptr(), r_dlg_title.Len());
+		}
+		bool   set_font = false;
+		// FONT 8, "MS Shell Dlg", 0, 0, 0x0
+		uint16 font_size = 8;
+		SStringU font_face(L"MS Shell Dlg");
+		size_t buf_size = sizeof(DLGTEMPLATE);
+		buf_size += ((menu.Len()+1) * sizeof(wchar_t));
+		buf_size += ((wnd_cls.Len()+1) * sizeof(wchar_t));
+		buf_size += ((title.Len()+1) * sizeof(wchar_t));
+		if(set_font) {
+			buf_size += (sizeof(uint16) + ((font_face.Len()+1) * sizeof(wchar_t)));
+		}
+		DLGTEMPLATE * p_dlgt = static_cast<DLGTEMPLATE *>(SAlloc::M(buf_size));
+		if(p_dlgt) {
+			size_t p = 0;
+			p_dlgt->style = (DS_MODALFRAME|DS_FIXEDSYS|WS_POPUP|WS_CAPTION|WS_SYSMENU);
+			p_dlgt->style |= WS_THICKFRAME;
+			if(set_font) {
+				p_dlgt->style |= DS_SETFONT;
+			}
+			p_dlgt->dwExtendedStyle = 0;
+			p_dlgt->cdit = 0;
+			p_dlgt->x = 0;
+			p_dlgt->y = 0;
+			p_dlgt->cx = 60;
+			p_dlgt->cy = 120;
+			//
+			p += sizeof(DLGTEMPLATE);
+			sstrcpy(reinterpret_cast<wchar_t *>(PTR8(p_dlgt)+p), menu);
+			p += ((menu.Len()+1) * sizeof(wchar_t));
+			sstrcpy(reinterpret_cast<wchar_t *>(PTR8(p_dlgt)+p), wnd_cls);
+			p += ((wnd_cls.Len()+1) * sizeof(wchar_t));
+			sstrcpy(reinterpret_cast<wchar_t *>(PTR8(p_dlgt)+p), title);
+			p += ((title.Len()+1) * sizeof(wchar_t));
+			if(set_font) {
+				*reinterpret_cast<uint16 *>(PTR8(p_dlgt)+p) = font_size;
+				p += sizeof(uint16);
+				sstrcpy(reinterpret_cast<wchar_t *>(PTR8(p_dlgt)+p), font_face);
+				p += ((font_face.Len()+1) * sizeof(wchar_t));
+			}
+			assert(p == buf_size);
+			HW = CreateDialogIndirectParamW(APPL->GetInst(), p_dlgt, APPL->H_TopOfStack, TDialog::DialogProc, reinterpret_cast<LPARAM>(this));
+			SAlloc::F(p_dlgt);
+		}
+	}
 }
 
-TDialog::TDialog(const TRect & bounds, const char *aTitle) : TWindow(bounds, aTitle, wnNoNumber)
-	{ Helper_Constructor(0, 0, 0, coNothing); }
-TDialog::TDialog(uint resID, DialogPreProcFunc dlgPreFunc, void * extraPtr) : TWindow(TRect(), 0, wnNoNumber)
+/* @v12.2.4 TDialog::TDialog(const TRect & rRect, const char * pTitle) : TWindow(rRect)
+{ 
+	setTitle(pTitle);
+	Helper_Constructor(0, 0, 0, coNothing); 
+}*/
+
+TDialog::TDialog(const char * pTitle, long wbCapability, ConstructorOption co) : TWindow(wbCapability) // @v12.2.4
+{
+	setTitle(pTitle);
+	Helper_Constructor(0, 0, 0, /*coNothing*/co); 
+}
+TDialog::TDialog(uint resID, DialogPreProcFunc dlgPreFunc, void * extraPtr) : TWindow(TRect())
 	{ Helper_Constructor(resID, dlgPreFunc, extraPtr, coNothing); }
-TDialog::TDialog(uint resID) : TWindow(TRect(), 0, wnNoNumber) { Helper_Constructor(resID, 0, 0, coNothing); }
-TDialog::TDialog(uint resID, ConstructorOption co) : TWindow(TRect(), 0, wnNoNumber) { Helper_Constructor(resID, 0, 0, co); }
+TDialog::TDialog(uint resID) : TWindow(TRect()) { Helper_Constructor(resID, 0, 0, coNothing); }
+TDialog::TDialog(uint resID, ConstructorOption co) : TWindow(TRect()) { Helper_Constructor(resID, 0, 0, co); }
 void TDialog::ToCascade() { DlgFlags |= fCascade; }
 bool FASTCALL TDialog::CheckFlag(long f) const { return LOGIC(DlgFlags & f); }
 

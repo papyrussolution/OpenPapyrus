@@ -307,10 +307,10 @@ static void directive(void)
 	}
 	s[k] = '\0';
 	for(sp = services; sp; sp = sp->next)
-		if(!strcmp(sp->ns, s))
+		if(strcmp(sp->ns, s) == 0)
 			break;
 	if(!sp) {	
-		sp = (Service*)emalloc(sizeof(Service));
+		sp = (Service *)emalloc(sizeof(Service));
 		sp->next = services;
 		sp->ns = s;
 		sp->name = NULL;

@@ -1,5 +1,5 @@
 // OBJCASHN.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -532,7 +532,7 @@ StrAssocArray * PPObjCashNode::MakeStrAssocList(void * extraPtr)
 	}
 	else {
 		SString title;
-		THROW(lw = new ListWindow(new StrAssocListBoxDef(p_ary, lbtDisposeData|lbtDblClkNotify), 0, 0));
+		THROW(lw = new ListWindow(new StrAssocListBoxDef(p_ary, lbtDisposeData|lbtDblClkNotify)));
 		lw->setTitle(PPLoadTextS(PPTXT_SELECTCASHNODE, title));
 		lw->ViewOptions |= (ofCenterX | ofCenterY);
 		while(!valid_data && ExecView(lw) == cmOK) {
@@ -1294,7 +1294,7 @@ int SelectPrinterFromWinPool(SString & rPrinter)
 	{
 		int    valid_data = 0;
 		SString title;
-		THROW(p_lw = new ListWindow(new StrAssocListBoxDef(p_list, lbtDisposeData|lbtDblClkNotify), 0, 0));
+		THROW(p_lw = new ListWindow(new StrAssocListBoxDef(p_list, lbtDisposeData|lbtDblClkNotify)));
 		THROW(PPLoadText(PPTXT_SELECTPRINTER, title));
 		p_lw->setTitle(title);
 		p_lw->ViewOptions |= (ofCenterX | ofCenterY);
@@ -2849,6 +2849,7 @@ public:
 		AddClusterAssoc(CTL_EQCFG_FLAGS2, 4, PPEquipConfig::fSkipPrintingZeroPrice);
 		AddClusterAssoc(CTL_EQCFG_FLAGS2, 5, PPEquipConfig::fAttachBillChecksToCSess);
 		AddClusterAssoc(CTL_EQCFG_FLAGS2, 6, PPEquipConfig::fDisableSellSpoiledSeries); // @v11.1.8
+		AddClusterAssoc(CTL_EQCFG_FLAGS2, 7, PPEquipConfig::fDontShowInfoPaneBeforXZRep); // @v12.2.4
 		SetClusterData(CTL_EQCFG_FLAGS2, Data.Flags);
 		// @v12.1.10 {
 		AddClusterAssoc(CTL_EQCFG_POSPAYMFLAGS, 0, PPEquipConfig::fUnifiedPayment);

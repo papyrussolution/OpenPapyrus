@@ -535,9 +535,9 @@ int EditXlsDbFileParam(ExcelDbFile::Param * pData)
 		SString temp_buf;
 		p_param = CreateInstance((temp_buf = rSdRec.Name).ToUpper(), flags);
 	}
-	CATCH
+	/* @v12.2.4 (unused) CATCH
 		ZDELETE(p_param);
-	ENDCATCH
+	ENDCATCH*/
 	return p_param;
 }
 

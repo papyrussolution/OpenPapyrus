@@ -7425,7 +7425,10 @@ int PPALDD_GoodsBillBase::NextIteration(PPIterID iterId)
 	}
 	else {
 		tiamt = /*TIAMT_AMOUNT*/GTaxVect::GetTaxNominalAmountType(p_pack->Rec);
-		I.MainPrice = p_ti->NetPrice();
+		if(tiamt == TIAMT_COST)
+			I.MainPrice = p_ti->Cost;
+		else
+			I.MainPrice = p_ti->NetPrice();
 	}
 	I.ExtPrice     = ext_price;
     if(oneof2(H.OprKindID, PPOPK_EDI_STOCK, PPOPK_EDI_SHOPCHARGEON)) // Для документа остатков количество должно быть со знаком "как он есть"

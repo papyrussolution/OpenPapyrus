@@ -1,5 +1,5 @@
 // OBJSTAFF.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 // Штатное расписание
 //
@@ -1247,7 +1247,7 @@ int PPObjStaffList::EditFixedStaffPost(PPID orgID)
 		ListWindow * p_lw = 0;
 		THROW_MEM(p_list);
 		THROW(sl_obj.MakePostStrAssocList(orgID, divID, staffID, p_list));
-		THROW_MEM(p_lw = new ListWindow(new StrAssocListBoxDef(p_list, lbtDisposeData|lbtDblClkNotify), 0, 0));
+		THROW_MEM(p_lw = new ListWindow(new StrAssocListBoxDef(p_list, lbtDisposeData|lbtDblClkNotify)));
 		p_combo->setListWindow(p_lw, id);
 		ok = 1;
 	}

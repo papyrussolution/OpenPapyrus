@@ -1964,6 +1964,7 @@ int PPPriceListExporter::Export(const PriceListViewItem * pItem)
 		STRNSCPY(sdr.Barcode, temp_buf);
 		{
 			PPGoodsTaxEntry gtx;
+			//int PPObjGoods::FetchTaxEntry2_WithPayerAndWarehouse(PPID goodsID, PPID taxPayerPsnID, PPID taxPayerWarehouseID, LDATE dt, PPID opID, PPGoodsTaxEntry * pGtx) // @v12.2.4
 			if(GObj.FetchTaxEntry2(goods_rec.ID, 0/*lotID*/, 0/*taxPayerID*/, ZERODATE, 0, &gtx) > 0) {
                 sdr.VatRate = gtx.GetVatRate();
 			}
@@ -2523,7 +2524,7 @@ static int ParsePriceListExportSpec(const char * pRowDef, const char * pVarStr, 
 		if(ss2.get(&j, row_name)) {
 			int    var_idx = -1;
 			if(row_name.NotEmptyS() && PPSearchSubStr(pVarStr, &var_idx, row_name, 1)) {
-				item.Var = (PriceListExportVarStr)var_idx;
+				item.Var = static_cast<PriceListExportVarStr>(var_idx);
 				if(ss2.get(&j, item.Title, sizeof(item.Title))) {
 					strip(item.Title);
 					SOemToChar(item.Title);
@@ -2610,7 +2611,8 @@ static int PutSylkHeader(const SArray * pSpec, SylkWriter & sw, int rowNo)
 
 int PPViewPriceList::Export()
 {
-	int    ok = 1, r;
+	int    ok = 1;
+	int    r;
 	PPPriceListExporter l_e;
 	THROW(r = l_e.Init(0));
 	if(r > 0) {

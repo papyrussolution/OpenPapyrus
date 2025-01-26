@@ -18,14 +18,11 @@ int ValueDlg::doDialog(POINT p, bool isRTL)
 	if(isRTL) {
 		DLGTEMPLATE * pMyDlgTemplate = NULL;
 		HGLOBAL hMyDlgTemplate = makeRTLResource(IDD_VALUE_DLG, &pMyDlgTemplate);
-		int result =
-		    static_cast<int32_t>(::DialogBoxIndirectParam(_hInst, pMyDlgTemplate, _hParent, dlgProc,
-		    reinterpret_cast<LPARAM>(this)));
+		int result = static_cast<int32_t>(::DialogBoxIndirectParam(_hInst, pMyDlgTemplate, _hParent, dlgProc, reinterpret_cast<LPARAM>(this)));
 		::GlobalFree(hMyDlgTemplate);
 		return result;
 	}
-	return static_cast<int32_t>(::DialogBoxParam(_hInst, MAKEINTRESOURCE(IDD_VALUE_DLG), _hParent, dlgProc,
-	       reinterpret_cast<LPARAM>(this)));
+	return static_cast<int32_t>(::DialogBoxParam(_hInst, MAKEINTRESOURCE(IDD_VALUE_DLG), _hParent, dlgProc, reinterpret_cast<LPARAM>(this)));
 }
 
 int ValueDlg::reSizeValueBox()
@@ -33,7 +30,6 @@ int ValueDlg::reSizeValueBox()
 	if(_nbNumber == DEFAULT_NB_NUMBER) return 0;
 	RECT rect;
 	POINT p;
-
 	HWND hEdit = ::GetDlgItem(_hSelf, IDC_VALUE_EDIT);
 
 	//get screen coordonnees (x,y)

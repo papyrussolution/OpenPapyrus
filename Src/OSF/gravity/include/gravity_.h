@@ -547,7 +547,7 @@ struct json_value {
 public:
 	inline json_value()
 	{
-		memzero(this, sizeof(json_value));
+		THISZERO();
 	}
 	inline const json_value & operator [](int index) const 
 	{

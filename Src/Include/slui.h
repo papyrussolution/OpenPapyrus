@@ -2675,10 +2675,33 @@ private:
 
 class TWindow : public TGroup {
 public:
+	//
+	// Опции Capability
+	//
+	enum {
+		wbcDrawBuffer      = 0x0001, // Окно использует буферизованную перерисовку
+		wbcLocalDragClient = 0x0002  // Окно является клиентом локального (в рамках процесса) обмена Drag'n'Drop
+	};
+	//
+	// Descr: Опции функции TWindowBase::Create
+	//
+	enum {
+		// @# coChild ^ coPopup
+		coChild     = 0x0001,
+		coPopup     = 0x0002,
+		coMDI       = 0x0004,
+		coScX       = 0x0008, // Окно создавать с горизонтальным скроллером
+		coScY       = 0x0010, // Окно создавать с вертикальным скроллером
+		coScXY      = (coScX|coScY),
+		coMaxSize   = 0x0020, // Окно создавать с максимальными размерами, допускаемыми родительским окном
+	};
+
 	static int IsMDIClientWindow(HWND);
 
-	TWindow(const TRect& bounds, const char * pTitle, short aNumber);
+	explicit TWindow(const TRect & rRect);
+	explicit TWindow(long wbCapability);
 	~TWindow();
+	long   GetWbCapability() const { return WbCapability; }
 	void   endModal(ushort command);
 	void * messageToCtrl(ushort ctl, ushort command, void * ptr);
 	TView * FASTCALL getCtrlView(ushort ctl);
@@ -2787,6 +2810,19 @@ public:
 	//
 	int    GetCtlSymb(uint id, SString & rBuf) const;
 	void   InvalidateLayoutRefList(const SUiLayout::RefCollection & rRedrawLoList, int erase);
+	bool   SetLayout(SUiLayout * pLo);
+	//
+	// Descr: Возвращает абстрактный указатель на объект LAYOUT, ассоциированный с окном this.
+	// Returns:
+	//   !0 - экземляр LAYOUT, ассоциированный с окном
+	//    0 - с окном не ассоциирован объект LAYOUT
+	//
+	SUiLayout * GetLayout();
+	void   EvaluateLayout(const TRect & rR);
+	//
+	// ARG(extraPtr IN): Дополнительные параметры, зависящие от типа управляющего элемента.
+	//
+	int    InsertCtlWithCorrespondingNativeItem(TView * pCtl, uint id, const char * pSymb, void * extraPtr);
 	//
 	//
 	HWND   PrevInStack;
@@ -2795,14 +2831,22 @@ public:
 protected:
 	static BOOL CALLBACK SetupCtrlTextProc(HWND hwnd, LPARAM lParam);
 	static int PassMsgToCtrl(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
+	static void __stdcall SetupLayoutItemFrame(SUiLayout * pItem, const SUiLayout::Result & rR);
 	//
 	// Descr: Вспомогательная функция, используемая при динамическом формировании диалога или окна (в т.ч. из ресурсов)
 	//
 	int    InsertCtl(TView * pCtl, uint id, const char * pSymb);
-	int    InsertCtlWithCorrespondingNativeItem(TView * pCtl, uint id, const char * pSymb);
 	int    SetCtlSymb(uint id, const char * pSymb);
 	TView * FASTCALL CtrlIdToView(long id) const;
 	int    RedirectDrawItemMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
+	//
+	// Descr: Присваивает экземаляру this элемент LAYOUT, на который указывает
+	//   абстрактный указатель pLayout.
+	//
+	void   SetupLayoutItem(void * pLayout);
+
+	SUiLayout * P_Lfc; // @v12.2.4 (moved from TWindowBase)
+	long   WbCapability; // @v12.2.4 (moved from TWindowBase)
 private:
 	void   STDCALL Helper_SetTitle(const char *, int setOrgTitle);
 	TButton * FASTCALL SearchButton(uint cmd);
@@ -2854,54 +2898,18 @@ public:
 		const  char * P_WndCls;
 		const  char * P_Title;
 	};
-	//
-	// Опции Capability
-	//
-	enum {
-		wbcDrawBuffer      = 0x0001, // Окно использует буферизованную перерисовку
-		wbcLocalDragClient = 0x0002  // Окно является клиентом локального (в рамках процесса) обмена Drag'n'Drop
-	};
-	//
-	// Descr: Опции функции TWindowBase::Create
-	//
-	enum {
-		// @# coChild ^ coPopup
-		coChild     = 0x0001,
-		coPopup     = 0x0002,
-		coMDI       = 0x0004,
-		coScX       = 0x0008, // Окно создавать с горизонтальным скроллером
-		coScY       = 0x0010, // Окно создавать с вертикальным скроллером
-		coScXY      = (coScX|coScY),
-		coMaxSize   = 0x0020, // Окно создавать с максимальными размерами, допускаемыми родительским окном
-	};
 
 	~TWindowBase();
-	long   GetWbCapability() const { return WbCapability; }
 	int    Create(void * hParentWnd, long createOptions);
 	int    AddChild(TWindowBase * pChildWindow, long createOptions, long zone);
-	int    AddChildWithLayout(TWindowBase * pChildWindow, long createOptions, void * pLayout); // @v10.9.3
-	//
-	// Descr: Возвращает абстрактный указатель на объект LAYOUT, ассоциированный с окном this.
-	// Returns:
-	//   !0 - экземляр LAYOUT, ассоциированный с окном
-	//    0 - с окном не ассоциирован объект LAYOUT
-	//
-	void * GetLayout();
+	int    AddChildWithLayout(TWindowBase * pChildWindow, long createOptions, void * pLayout);
 protected:
-	//
-	// Descr: Присваивает экземаляру this элемент LAYOUT, на который указывает
-	//   абстрактный указатель pLayout.
-	//
-	void   SetupLayoutItem(void * pLayout);
-protected:
-	static void __stdcall SetupLayoutItemFrame(SUiLayout * pItem, const SUiLayout::Result & rR); // @v10.9.3
-	static void Helper_Finalize(HWND hWnd, TBaseBrowserWindow * pView); // @v10.9.11
-	TWindowBase(LPCTSTR pWndClsName, int capability);
+	static void Helper_Finalize(HWND hWnd, TBaseBrowserWindow * pView);
+	TWindowBase(LPCTSTR pWndClsName, long wbCapability);
 	DECL_HANDLE_EVENT;
 	void   SetDefaultCursor();
-	void   EvaluateLayout(const TRect & rR);
 
-	SUiLayout * P_Lfc; // @v10.9.3 @construction
+	// @v12.2.4 (moved to TWindow) SUiLayout * P_Lfc;
 	SPaintToolBox Tb;
 private:
 	static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
@@ -2910,12 +2918,11 @@ private:
 
 	const  SString ClsName;     // Window class name
 	enum {
-		wbsMDI          = 0x0001,
+		wbsMDI                  = 0x0001,
 		wbsUserSettingsChanged  = 0x0002,
 		wbsMouseTrackRegistered = 0x0004
 	};
 	long   WbState;
-	long   WbCapability;
 	uint32 H_DrawBuf;
 };
 //
@@ -3601,18 +3608,18 @@ public:
 		fLarge = 0x0040, // Диалог увеличин в размерах для использования с TouchScreen
 		fExport        = 0x0080, // Экземпляр диалога создан для экспорта
 	};
-
+	enum ConstructorOption {
+		coNothing = 0,
+		coExport  = 1,
+		coEmpty   = 2, // @v12.2.4 Предписывает создавать пустое окно диалога (без указания ресурса описания диалога)
+	};
 	static  INT_PTR CALLBACK DialogProc(HWND, UINT, WPARAM, LPARAM);
 	static  void centerDlg(HWND);
 	int     SetCtrlToolTip(uint ctrlID, const char * pToolTipText);
-	TDialog(const TRect & bounds, const char * pTitle);
+	// @v12.2.4 TDialog(const TRect & rRect, const char * pTitle);
+	TDialog(const char * pTitle, long wbCapability, ConstructorOption co = coNothing); // @v12.2.4
 	TDialog(uint resID, DialogPreProcFunc, void * extraPtr);
 	explicit TDialog(uint resID);
-
-	enum ConstructorOption {
-		coNothing = 0,
-		coExport = 1
-	};
 	TDialog(uint resID, ConstructorOption); // special constructor.
 	~TDialog();
 	virtual int    TransmitData(int dir, void * pData);
@@ -4366,7 +4373,8 @@ public:
 		stOmitSearchByFirstChar      = 0x0040,  // Не обрабатывать ввод символа как сигнал к поиску
 	};
 	static bool IsValidS(const SmartListBox * pThis) { return (pThis && pThis->P_Def); }
-	SmartListBox(const TRect & rRect, ListBoxDef * pDef, int isTree = 0);
+	SmartListBox(const TRect & rRect, ListBoxDef * pDef, bool isTree);
+	SmartListBox(const TRect & rRect, ListBoxDef * pDef, const char * pColumnsDeclaration);
 	~SmartListBox();
 	void   FASTCALL setDef(ListBoxDef * pDef);
 	bool   Search_(const void * pattern, CompFunc fcmp, int srchMode);
@@ -4413,6 +4421,7 @@ public:
 	int    SearchColumnByIdent(long ident, uint * pPos) const;
 	int    RemoveColumn(int pos);
 	void   RemoveColumns();
+	uint   GetColumnsCount() const { return Columns.getCount(); }
 	int    SetupColumns(const char * pColsBuf);
 	bool   GetOrgColumnsDescr(SString & rBuf) const;
 	void   setHorzRange(int);
@@ -4423,7 +4432,6 @@ public:
 	int    removeItem(long pos);
 	void   freeAll();
 	void   FASTCALL focusItem(long item);
-	//int    SetupTreeWnd(void * hParent, long parentID); // @recursion
 	void   Scroll(short sbCmd, int value);
 	void   CreateScrollBar(int create);
 	void   SetScrollBarPos(long pos, LPARAM lParam);
@@ -4489,7 +4497,7 @@ class ListWindow : public TDialog {
 	friend class ComboBox;
 public:
 	ListWindow();
-	ListWindow(ListBoxDef * pDef, const char * pTitle, int);
+	explicit ListWindow(ListBoxDef * pDef);
 
 	DECL_HANDLE_EVENT;
 	void executeNM(HWND parent); // Немодальный диалог

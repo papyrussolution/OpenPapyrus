@@ -3134,6 +3134,7 @@ PPINIPARAM_CCLISTBYMARKBACKDAYS          "CcListByMarkBackDays" // @v12.0.5 Ко
 // @v9.4.12 @obsolete PPINIPARAM_SERVER_AT4                  "at4"
 PPINIPARAM_UNITECHZNCIGBLK10             "UniteChZnCigBlk10" // @v12.1.9 [config] CCFLG2_UNITECHZNCIGBLK10 При продаже 10 пачек сигарет одной позицией с одной chzn-маркой сигаретного блока
 	// в кассовом чеке заменять количество на 1, цену умножать на 10.
+PPINIPARAM_RESTRICTCHZNCIGPRICEASMRC     "RestrictChZnCigPriceAsMrc" // @v12.2.4 [congif]
 
 PPFILNAM_REPORT_INI            "report.ini"
 PPFILNAM_IMPORT_INI            "import.ini"
@@ -5964,7 +5965,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @lbt_auserlist                       "32,L,@user;9,R,Cеанc;3,L,S;17,L,MAC-адрес;30,L,@computer;20,L,Время входа;20,L,Продолжительность сеанса"  // DLG_AUSERSLST
 @lbt_chkpan                          "3,R,#;3,C,;70,L,@ware;16,L,@barcode;11,R,@price;10,R,@qtty;11,R,@amount;12,L,@series;9,R,@department;4,C,Q"   // DLG_CHKPAN
 @lbt_chkpan_ts                       "4,R,#;3,C,;60,L,@ware;12,R,@price;12,R,@qtty;12,R,@amount;10,R,@department;4,C,Q"                             // DLG_CHKPAN_TS
-@lbt_chkpanv                         "3,R,#;3,C,;44,L,@ware;16,L,@barcode;9,R,@price;8,R,@discount;8,R,@qtty;9,R,@amount;15,L,@series" // DLG_CHKPANV, DLG_CHKPANV_L
+@lbt_chkpanv                         "3,R,#;3,C,;44,L,@ware;16,L,@barcode;9,R,@price;8,R,@discount;8,R,@qtty;9,R,@amount;6,R,@vatrate;15,L,@series" // DLG_CHKPANV, DLG_CHKPANV_L // @v12.2.4 vatrate
 @lbt_objrights                       "50,L,@objects;9,L,@flags"                                 // DLG_RTCOMM
 @lbt_psnev_taglist                   "20,L,@tag;60,L,@va"                                       // DLG_PSNEVNT
 @lbt_accaggr                         "60,L,@account_genlist;6,L,@flags" // DLG_ACCAGGR
@@ -5986,7 +5987,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @lbt_selscardbyowner                 "50,L,@person;20,L,@card;22,L,@series;12,L,@validitydate"                                                // DLG_SCARDVIEW
 @lbt_scardmovlist                    "20,L,@card;20,L,@series;10,R,@rest;10,R,Сумма переноса"                                                 // DLG_SCARDVIEW
 @lbt_billamounts                     "38,L,@amounttype;8,L,@currency;20,R,@amount"                                                            // DLG_BILLTOTAL2
-@lbt_dlvrextflds                     "10,L,@id;35,L,@appellation;55,L,@value" // @v9.2.5
+@lbt_dlvrextflds                     "10,L,@id;35,L,@appellation;55,L,@value"
 @lbt_complexgoodslist                "80,L,@ware;20,R,@qtty;20,R,@price;20,R,Цена в комплексе;20,R,@amount" // DLG_COMPLDIN
 @lbt_complexgoodssubst               "80,L,@ware;20,R,@price"                                                                                 // DLG_COMPLDIN
 @lbt_cpselmod                        "80,L,@ware;12,R,@qtty;12,R,@price"                                                                      // DLG_CPSELMOD
@@ -8659,6 +8660,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @rtag_lot_mp_stocktimestamp               "Маркетплейс: время актуальности остатка"        // @v12.1.10
 @rtag_person_spctaxgroup                  "Специальная налоговая группа персоналии"        // @v12.1.12
 @rtag_bill_orgorderident                  "Оригинальный идентификатор документа заказа"    // @v12.2.2
+@rtag_loc_spctaxgroup                     "Специальная налоговая группа локации"           // @v12.2.4
 //
 // Зарезервированные типы регистрационных документов
 //
@@ -10908,6 +10910,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cfgequip_fattachbillcheckstocsess        "Привязывать чеки по документам к текущей сессии"
 @cfgequip_fdisablesellspoiledseries       "Запрет продажи бракованных серий"
 @cfgequip_fpreferbankingpayment           "Безналичная оплата - предпочтительная"
+@cfgequip_fdontshowinfopanebeforxzrep     "Не показывать инфо-панель перед снятием X- и Z-отчетов (construction)" // @v12.2.4
 @cfgequip_chkpanimpopid                   "Вид операции документов для импорта в кассовую панель"
 @cfgequip_chkpanimpbilltagid              "Тег документа, позволяющий импортировать документ в кассовую панель"
 @cfgequip_lookbackbillperiod              "Период выбора документов для импорта, @{days}"

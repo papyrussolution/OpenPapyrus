@@ -1882,11 +1882,6 @@
     <ClInclude Include="..\OSF\mupdf\source\fitz\unicodedata_db.h" />
     <ClInclude Include="..\OSF\mupdf\source\fitz\z-imp.h" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="libresources.vcxproj">
-      <Project>{52dcab29-c8ee-4422-954c-29afa6b33e22}</Project>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

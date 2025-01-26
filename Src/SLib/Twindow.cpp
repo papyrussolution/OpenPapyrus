@@ -333,10 +333,18 @@ int TWindow::RedirectDrawItemMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	return result;
 }
 
-TWindow::TWindow(const TRect & bounds, const char * pTitle, short aNumber) : 
-	TGroup(bounds), P_Lmp(0), HW(0), PrevInStack(0), Title(pTitle), P_SymbList(0), P_FontsAry(0)
+TWindow::TWindow(const TRect & rRect) : 
+	TGroup(rRect), WbCapability(0), P_Lmp(0), HW(0), PrevInStack(0), P_SymbList(0), P_FontsAry(0), P_Lfc(0)
 {
 	ViewOptions |= ofSelectable;
+}
+
+TWindow::TWindow(long wbCapability) : 
+	// Здесь мы применяем искусственно-непустой прямоугольник из-за того, что некоторые функции валидации могут воспринять 
+	// пустой прямоугольник как "сигнал бедствия" и отказаться работать дальше.
+	TGroup(TRect(0, 0, 0, 25)), WbCapability(wbCapability), P_Lmp(0), HW(0), PrevInStack(0), P_SymbList(0), P_FontsAry(0), P_Lfc(0)
+	
+{
 }
 
 TWindow::~TWindow()
@@ -355,6 +363,13 @@ TWindow::~TWindow()
 			::DeleteObject(*static_cast<HFONT *>(P_FontsAry->at(c)));
 		ZDELETE(P_FontsAry);
 	}
+	// @v12.2.4 (moved from TWindowBase::~TWindowBase()) {
+	if(P_Lfc && !(Sf & (sfOnDestroy|sfOnParentDestruction))) {
+		if(!P_Lfc->FatherKillMe())
+			delete P_Lfc;
+		P_Lfc = 0;
+	}
+	// } @v12.2.4
 }
 
 void TWindow::endModal(ushort command)
@@ -1112,7 +1127,7 @@ int TWindow::InsertCtl(TView * pCtl, uint id, const char * pSymb)
 	return ok;
 }
 
-int TWindow::InsertCtlWithCorrespondingNativeItem(TView * pCtl, uint id, const char * pSymb)
+int TWindow::InsertCtlWithCorrespondingNativeItem(TView * pCtl, uint id, const char * pSymb, void * extraPtr)
 {
 	int    ok = 0;
 	if(InsertCtl(pCtl, id, pSymb)) {
@@ -1120,6 +1135,52 @@ int TWindow::InsertCtlWithCorrespondingNativeItem(TView * pCtl, uint id, const c
 		ok = 1;
 	}
 	return ok;
+}
+
+bool TWindow::SetLayout(SUiLayout * pLo)
+{
+	if(P_Lfc) {
+		delete P_Lfc;
+	}
+	P_Lfc = pLo;
+	return true;
+}
+
+void TWindow::SetupLayoutItem(void * pLayout)
+{
+	if(pLayout) {
+		P_Lfc = static_cast<SUiLayout *>(pLayout);
+		P_Lfc->SetCallbacks(0, TWindowBase::SetupLayoutItemFrame, this);
+	}
+}
+
+SUiLayout * TWindow::GetLayout() { return P_Lfc; }
+
+void TWindow::EvaluateLayout(const TRect & rR)
+{
+	if(P_Lfc) {
+		SUiLayout::Param evp;
+		evp.ForceSize.x = static_cast<float>(rR.width());
+		evp.ForceSize.y = static_cast<float>(rR.height());
+		P_Lfc->Evaluate(&evp);
+	}
+}
+
+/*static*/void __stdcall TWindow::SetupLayoutItemFrame(SUiLayout * pItem, const SUiLayout::Result & rR)
+{
+	TView * p_view = static_cast<TView *>(SUiLayout::GetManagedPtr(pItem));
+	if(p_view) {
+		TRect b;
+		const FRect rbb = rR;
+		b.a = rbb.a;
+		b.b = rbb.b;
+		//b.a.x = static_cast<int16>(rbb.a.x);
+		//b.a.y = static_cast<int16>(rbb.a.y);
+		//b.b.x = static_cast<int16>(rbb.b.x);
+		//b.b.y = static_cast<int16>(rbb.b.x);
+		p_view->changeBounds(b);
+		//p_view->setBounds(b);
+	}
 }
 //
 //
@@ -1145,23 +1206,6 @@ static LPCTSTR P_SLibWindowBaseClsName = _T("SLibWindowBase");
 		return -1;
 }
 
-/*static*/void __stdcall TWindowBase::SetupLayoutItemFrame(SUiLayout * pItem, const SUiLayout::Result & rR)
-{
-	TView * p_view = static_cast<TView *>(SUiLayout::GetManagedPtr(pItem));
-	if(p_view) {
-		TRect b;
-		const FRect rbb = rR;
-		b.a = rbb.a;
-		b.b = rbb.b;
-		//b.a.x = static_cast<int16>(rbb.a.x);
-		//b.a.y = static_cast<int16>(rbb.a.y);
-		//b.b.x = static_cast<int16>(rbb.b.x);
-		//b.b.y = static_cast<int16>(rbb.b.x);
-		p_view->changeBounds(b);
-		//p_view->setBounds(b);
-	}
-}
-
 /*static*/void TWindowBase::Helper_Finalize(HWND hWnd, TBaseBrowserWindow * pView)
 {
 	if(pView) {
@@ -1176,8 +1220,8 @@ static LPCTSTR P_SLibWindowBaseClsName = _T("SLibWindowBase");
 	}
 }
 
-TWindowBase::TWindowBase(LPCTSTR pWndClsName, int capability) : ClsName(SUcSwitch(pWndClsName)), 
-	TWindow(TRect(), 0, 0), WbState(0), WbCapability(capability), H_DrawBuf(0), P_Lfc(0)
+TWindowBase::TWindowBase(LPCTSTR pWndClsName, long wbCapability) : ClsName(SUcSwitch(pWndClsName)), 
+	TWindow(wbCapability), WbState(0), H_DrawBuf(0)
 {
 }
 
@@ -1194,11 +1238,13 @@ TWindowBase::~TWindowBase()
 			Sf &= ~sfOnDestroy;
 		}
 	}
+	/* @v12.2.4 (moved to TWindow::~TWindow())
 	if(P_Lfc && !(Sf & (sfOnDestroy|sfOnParentDestruction))) {
 		if(!P_Lfc->FatherKillMe())
 			delete P_Lfc;
 		P_Lfc = 0;
 	}
+	*/
 }
 
 int TWindowBase::Create(void * hParentWnd, long createOptions)
@@ -1276,19 +1322,6 @@ int TWindowBase::AddChild(TWindowBase * pWin, long createOptions, long zone)
 	return ok;
 }
 
-void * TWindowBase::GetLayout()
-{
-	return P_Lfc;
-}
-
-void TWindowBase::SetupLayoutItem(void * pLayout)
-{
-	if(pLayout) {
-		P_Lfc = static_cast<SUiLayout *>(pLayout);
-		P_Lfc->SetCallbacks(0, TWindowBase::SetupLayoutItemFrame, this);
-	}
-}
-
 int TWindowBase::AddChildWithLayout(TWindowBase * pChildWindow, long createOptions, void * pLayout) 
 {
 	int    ok = 1;
@@ -1312,7 +1345,7 @@ IMPL_HANDLE_EVENT(TWindowBase)
 {
 	if(event.isCmd(cmExecute)) {
 		ushort last_command = 0;
-		SString buf = getTitle();
+		SString buf(getTitle());
 		buf.Transf(CTRANSF_INNER_TO_OUTER);
 		if(APPL->H_MainWnd) {
 			if(::IsIconic(APPL->H_MainWnd))
@@ -1332,6 +1365,10 @@ IMPL_HANDLE_EVENT(TWindowBase)
 			EndModalCmd = 0;
 			APPL->PopModalWindow(this, 0);
 		}
+		// @v12.2.4 {
+		//::DestroyWindow(H());
+		//HW = 0;
+		// } @v12.2.4 
 		clearEvent(event);
 		event.message.infoLong = last_command;
 	}
@@ -1362,16 +1399,6 @@ IMPL_HANDLE_EVENT(TWindowBase)
 				// Don't call clearEvent(event) there!
 			}
 		}
-	}
-}
-
-void TWindowBase::EvaluateLayout(const TRect & rR)
-{
-	if(P_Lfc) {
-		SUiLayout::Param evp;
-		evp.ForceSize.x = static_cast<float>(rR.width());
-		evp.ForceSize.y = static_cast<float>(rR.height());
-		P_Lfc->Evaluate(&evp);
 	}
 }
 

@@ -1,5 +1,5 @@
 // CHKPAN.CPP
-// Copyright (c) A.Sobolev 1998-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 1998-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 // Панель ввода кассовых чеков
 //
@@ -1115,7 +1115,7 @@ void CPosProcessor::GetTblOrderList(LDATE lastDate, TSVector <CCheckViewItem> & 
 //
 //
 //
-CPosProcessor::CPosProcessor(PPID cashNodeID, PPID checkID, CCheckPacket * pOuterPack, uint ctrFlags/*isTouchScreen*/, void * pDummy) : CashNodeID(cashNodeID),
+CPosProcessor::CPosProcessor(PPID cashNodeID, PPID checkID, CCheckPacket * pOuterPack, uint ctrFlags, void * pDummy) : CashNodeID(cashNodeID),
 	P_CcView(0), P_TSesObj(0), P_EgPrc(0), P_EgMas(0), P_CM(0), P_CM_EXT(0), P_CM_ALT(0), P_GTOA(0), P_ChkPack(pOuterPack), P_DivGrpList(0),
 	Flags(0), EgaisMode(0), ChZnPermissiveMode(0), ChZnGuaID(0), BonusMaxPart(1.0), OperRightsFlags(0), OrgOperRights(0), SuspCheckID(0), CheckID(checkID), AuthAgentID(0),
 	AbstractGoodsID(0), ExtCnLocID(0), ExtCashNodeID(0), AltRegisterID(0), TouchScreenID(0), ScaleID(0), CnPhnSvcID(0), UiFlags(0),
@@ -3396,10 +3396,9 @@ int CheckPaneDialog::PhnSvcConnect()
 }
 
 CheckPaneDialog::CheckPaneDialog(PPID cashNodeID, PPID checkID, CCheckPacket * pOuterPack, uint ctrFlags/*int isTouchScreen*/) :
-	TDialog(pOuterPack ? (/*isTouchScreen*/(ctrFlags & ctrfTouchScreen) ? DLG_CHKPANV_L : DLG_CHKPANV) : (/*isTouchScreen*/(ctrFlags & ctrfTouchScreen) ? DLG_CHKPAN_TS : DLG_CHKPAN),
-		/*isTouchScreen*/(ctrFlags & ctrfTouchScreen) ? CheckPaneDialog::SetLbxItemHight : 0, 
-		reinterpret_cast<void *>(cashNodeID)),
-	CPosProcessor(cashNodeID, checkID, pOuterPack, /*isTouchScreen*/ctrFlags, 0/*pDummy*/),
+	TDialog(pOuterPack ? ((ctrFlags & ctrfTouchScreen) ? DLG_CHKPANV_L : DLG_CHKPANV) : ((ctrFlags & ctrfTouchScreen) ? DLG_CHKPAN_TS : DLG_CHKPAN),
+		(ctrFlags & ctrfTouchScreen) ? CheckPaneDialog::SetLbxItemHight : 0, reinterpret_cast<void *>(cashNodeID)),
+	CPosProcessor(cashNodeID, checkID, pOuterPack, ctrFlags, 0/*pDummy*/),
 	PhnSvcTimer(1000), UhttImportTimer(180000), BarrierViolationCounter(0)/*@debug*/, ActiveListID(0), SelGoodsGrpID(0), AltGoodsGrpID(0),
 	GoodsListFontHeight(0), GoodsListEntryGap(0), P_PalmWaiter(0), P_UhttImporter(0), P_CDY(0), P_BNKTERM(0), P_PhnSvcClient(0)
 {
@@ -5164,7 +5163,7 @@ void SelCheckListDialog::Init(PPCashMachine * pCm)
 		ListWindow * p_lw = 0;
 		ComboBox   * p_cb = static_cast<ComboBox *>(getCtrlView(CTLSEL_SELCHECK_FORMAT));
 		if(p_cb && pCm && pCm->GetSlipFormatList(&FmtList, BIN(State & stSelectSlipFormat)) > 0) {
-			ListWindow * p_lw = new ListWindow(new StrAssocListBoxDef(&FmtList, /*lbtDisposeData |*/ lbtDblClkNotify), 0, 0);
+			ListWindow * p_lw = new ListWindow(new StrAssocListBoxDef(&FmtList, /*lbtDisposeData |*/ lbtDblClkNotify));
 			long   fmt_id = 0;
 			if(FmtList.getCount() == 1)
 				fmt_id = FmtList.Get(0).Id;
@@ -7357,7 +7356,7 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 			case cmMemo: BARRIER(EditMemo(0, 0)); break;
 			case cmSysInfo:
 				if(P_ChkPack) {
-					CCheckPacket pack = *P_ChkPack;
+					CCheckPacket pack(*P_ChkPack);
 					PPViewCCheck::EditCCheckSystemInfo(pack);
 				}
 				break;
@@ -8878,7 +8877,7 @@ int CheckPaneDialog::RemoveRow()
 //@lbt_chkpan    "3,R,#;3,C,;70,L,Товар;16,L,Штрихкод;11,R,Цена;10,R,Кол-во;11,R,Сумма;12,L,Серия;9,R,Отдел;4,C,Q" // DLG_CHKPAN
 //@lbt_chkpan_ts "4,R,#;3,C,;60,L,Товар;12,R,Цена;12,R,Кол-во;12,R,Сумма;10,R,Отдел;4,C,Q"                         // DLG_CHKPAN_TS
 //@lbt_chkpanv   "3,R,#;3,C,;40,L,Товар;16,L,Штрихкод;9,R,Цена;8,R,Скидка;8,R,Кол-во;9,R,Сумма;12,L,Серия"         // DLG_CHKPANV, DLG_CHKPANV_L
-
+// since @v12.2.4 @lbt_chkpanv "3,R,#;3,C,;44,L,@ware;16,L,@barcode;9,R,@price;8,R,@discount;8,R,@qtty;9,R,@amount;6,R,@vatrate;15,L,@series" // DLG_CHKPANV, DLG_CHKPANV_L // @v12.2.4 vatrate
 	SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_CHKPAN_LIST));
 	if(SmartListBox::IsValidS(p_list)) {
 		const long column_egais_ident = 100;
@@ -8886,49 +8885,61 @@ int CheckPaneDialog::RemoveRow()
 		ListBoxDef * p_def_ = p_list->P_Def;
 		long   cur = p_def_->_curItem();
 		uint   i;
-		int    do_show_egaismark = 0;
+		bool   do_show_egaismark = false;
 		p_list->freeAll();
 		StringSet ss(SLBColumnDelim);
 		/*
 		for(i = 0; !do_show_egaismark && P.enumItems(&i, (void **)&p_item);) {
 			if(p_item->EgaisMark[0] != 0)
-				do_show_egaismark = 1;
+				do_show_egaismark = true;
 		}
 		if(do_show_egaismark && !p_list->SearchColumnByIdent(column_egais_ident, 0)) {
 			p_list->AddColumn(-1, "@egaismark", 20, 0, column_egais_ident);
 		}
 		*/
+		SString temp_buf;
 		for(i = 0; P.enumItems(&i, (void **)&p_item);) {
 			ss.Z();
-			char   sub[256];
-			ss.add(itoa((int)i, sub, 10));
-			sub[0] = (p_item->Flags & cifIsPrinted) ? 'v' : ' ';
-			sub[1] = 0;
-			ss.add(sub);
+			//char   sub[256];
+			ss.add(temp_buf.Z().Cat(i));
+			ss.add(temp_buf.Z().CatChar((p_item->Flags & cifIsPrinted) ? 'v' : ' '));
 			{
-				sub[0] = 0;
-				uint   sp = 0;
+				temp_buf.Z();
 				if(p_item->Flags & cifModifier) {
-					sub[sp++] = '>';
-					const uint sc = 7;
-					memset(sub+sp, ' ', sc);
-					sp += sc;
+					temp_buf.CatChar('>').CatCharN(' ', 7);
 				}
-				strnzcpy(sub+sp, p_item->GoodsName, sizeof(sub)-sp);
-				ss.add(sub);
+				temp_buf.Cat(p_item->GoodsName);
+				ss.add(temp_buf);
 			}
 			if(!(Flags & fTouchScreen) || (Flags & fNoEdit))
 				ss.add(p_item->BarCode);
-			ss.add(realfmt(p_item->Price,    SFMT_MONEY, sub));
+			ss.add(temp_buf.Z().Cat(p_item->Price, SFMT_MONEY));
 			if(Flags & fNoEdit) {
-				ss.add(realfmt(p_item->Discount, MKSFMTD(0, 5, NMBF_NOTRAILZ), sub));
+				ss.add(temp_buf.Z().Cat(p_item->Discount, MKSFMTD(0, 5, NMBF_NOTRAILZ)));
 			}
-			ss.add(realfmt(p_item->Quantity, SFMT_QTTY, sub));
-			ss.add(realfmt(p_item->GetAmount(), SFMT_MONEY, sub));
+			ss.add(temp_buf.Z().Cat(p_item->Quantity, SFMT_QTTY));
+			ss.add(temp_buf.Z().Cat(p_item->GetAmount(), SFMT_MONEY));
+			// @v12.2.4 {
+			if(Flags & fNoEdit) {
+				CCheckLineTbl::Rec ccl_rec;
+				p_item->GetRec(ccl_rec, BIN(P_ChkPack->Rec.Flags & CCHKF_RETURN));
+				GTaxVect::EvalBlock eb(*P_ChkPack, ccl_rec, 0/*exclFlags*/);
+				GTaxVect gtv;
+				gtv.EvaluateTaxes(eb);
+				double vat_rate = gtv.GetTaxRate(GTAX_VAT, 0);				
+				ss.add(temp_buf.Z().Cat(vat_rate, MKSFMTD(0, 1, NMBF_NOTRAILZ)).CatChar('%'));
+			}
+			// } @v12.2.4 
 			if(!(Flags & fTouchScreen) || (Flags & fNoEdit))
 				ss.add(p_item->Serial);
-			ss.add(intfmt(p_item->Division, NMBF_NOZERO, sub));
-			ss.add(intfmt(p_item->Queue, NMBF_NOZERO, sub));
+			temp_buf.Z();
+			if(p_item->Division)
+				temp_buf.Cat(p_item->Division);
+			ss.add(temp_buf);
+			temp_buf.Z();
+			if(p_item->Queue)
+				temp_buf.Cat(p_item->Queue);
+			ss.add(temp_buf);
 			if(do_show_egaismark)
 				ss.add(p_item->EgaisMark);
 			if(!p_list->addItem(i, ss.getBuf())) {
@@ -8958,14 +8969,14 @@ int CheckPaneDialog::RemoveRow()
 		p_list->Draw_();
 		{
 			const CcTotal cct = CalcTotal();
-			SString buf;
-			setStaticText(CTL_CHKPAN_TOTAL, buf.Cat(cct.Amount, MKSFMTD(0, 2, NMBF_NOZERO)));
+			temp_buf.Z();
+			setStaticText(CTL_CHKPAN_TOTAL, temp_buf.Cat(cct.Amount, MKSFMTD(0, 2, NMBF_NOZERO)));
 			if(cct.Discount != 0.0) {
-				PPLoadStringS("discount", buf).Colon().Cat(cct.Discount, SFMT_MONEY);
+				PPLoadStringS("discount", temp_buf).Colon().Cat(cct.Discount, SFMT_MONEY);
 			}
 			else
-				buf.Z();
-			setStaticText(CTL_CHKPAN_DISCOUNT, buf);
+				temp_buf.Z();
+			setStaticText(CTL_CHKPAN_DISCOUNT, temp_buf);
 		}
 	}
 	SetupInfo(0);
@@ -9599,11 +9610,22 @@ int CheckPaneDialog::PreprocessGoodsSelection(const PPID goodsID, PPID locID, Pg
 												if(p_cle) {
 													//debug_mark = true;
 													// @v12.2.2 {
-													if(p_cle->Mrp > 0.0) {
-														rBlk.AllowedPriceRange.upp = p_cle->Mrp / 100.0;
-													}
-													if(p_cle->Smp > 0.0) {
-														rBlk.AllowedPriceRange.low = p_cle->Smp / 100.0;
+													if(gt_rec.ChZnProdType != GTCHZNPT_ALTTOBACCO) { // @v12.2.4 Для альтернативной табачной продукции ценовое ограничение не проверяем.
+														if(p_cle->Mrp > 0.0) {
+															rBlk.AllowedPriceRange.upp = p_cle->Mrp / 100.0;
+														}
+														if(p_cle->Smp > 0.0) {
+															rBlk.AllowedPriceRange.low = p_cle->Smp / 100.0;
+														}
+														// @v12.2.4 {
+														if(gt_rec.ChZnProdType != GTCHZNPT_TOBACCO) {
+															if(CConfig.Flags2 & CCFLG2_RESTRICTCHZNCIGPRICEASMRC) {
+																if(p_cle->Mrp > 0.0) {
+																	rBlk.AllowedPriceRange.SetVal(p_cle->Mrp);
+																}
+															}
+														}
+														// } @v12.2.4 
 													}
 													// } @v12.2.2 
 													if(p_cle->ErrorCode != 0) {
@@ -13020,7 +13042,7 @@ int CCheckPane(PPID cashNodeID, PPID chkID, const char * pInitLine, long flags)
 {
 	MemLeakTracer mlt;
 	int    ok = 1;
-	int    is_touch_screen = 0;
+	bool   is_touch_screen = false;
 	const  PPID sav_loc_id = LConfig.Location;
 	CCheckPacket pack;
 	CheckPaneDialog * dlg = 0;
@@ -13036,14 +13058,14 @@ int CCheckPane(PPID cashNodeID, PPID chkID, const char * pInitLine, long flags)
 			if(cn_obj.GetSync(cashNodeID, &scn) > 0) {
 				const  PPID ts_id = NZOR(scn.LocalTouchScrID, scn.TouchScreenID);
 				if(ts_id)
-					is_touch_screen = 1;
+					is_touch_screen = true;
 			}
 		}
 	}
 	if(chkID) {
 		THROW(sc_obj.P_CcTbl->LoadPacket(chkID, 0, &pack));
 	}
-	THROW(CheckDialogPtr(&(dlg = new CheckPaneDialog(cashNodeID, chkID, chkID ? &pack : 0, is_touch_screen))));
+	THROW(CheckDialogPtr(&(dlg = new CheckPaneDialog(cashNodeID, chkID, chkID ? &pack : 0, (is_touch_screen ? CheckPaneDialog::ctrfTouchScreen : 0)))));
 	if(pInitLine)
 		dlg->SetInput(pInitLine);
 	if(flags & cchkpanfOnce)

@@ -1,6 +1,6 @@
 // TPROGRAM.CPP  Turbo Vision 1.0
 // Copyright (c) 1991 by Borland International
-// Modified by A.Sobolev 1996, 1997, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Modified by A.Sobolev 1996, 1997, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -41,7 +41,7 @@ BOOL CALLBACK StatusWinDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
 	return CallWindowProc(p_view->PrevWindowProc, hWnd, uMsg, wParam, lParam);
 }
 
-TStatusWin::TStatusWin() : TWindow(TRect(1,1,50,20), 0, 1)
+TStatusWin::TStatusWin() : TWindow(TRect(1,1,50,20))
 {
 	HW = ::CreateWindowEx(WS_EX_TOPMOST, STATUSCLASSNAME, 0,
 		WS_CHILD|WS_VISIBLE|WS_CLIPSIBLINGS|SBT_TOOLTIPS, 0, 0, 0, 0,
@@ -490,14 +490,11 @@ int TProgram::GetStatusBarRect(RECT * pRect)
 	return P_Stw ? P_Stw->GetRect(pRect) : 0;
 }
 
-int TProgram::ClearStatusBar()
-	{ return P_Stw ? P_Stw->RemoveItem(-1) : 0; }
+int TProgram::ClearStatusBar() { return P_Stw ? P_Stw->RemoveItem(-1) : 0; }
 int TProgram::AddStatusBarItem(const char * pStr, long icon /* = 0 */, COLORREF color /*=0*/, uint cmd /*=0*/, COLORREF textColor /*=0*/)
 	{ return P_Stw ? P_Stw->AddItem(pStr, icon, color, cmd, textColor) : 0; }
-int TProgram::UpdateStatusBar()
-	{ return P_Stw ? P_Stw->Update() : 0; }
-void TProgram::SetupTreeWnd(HMENU hMenu, void * hP) // @v10.9.4 HTREEITEM-->(void *)
-	{ CALLPTRMEMB(P_TreeWnd, Setup(hMenu)); }
+int TProgram::UpdateStatusBar() { return P_Stw ? P_Stw->Update() : 0; }
+void TProgram::SetupTreeWnd(HMENU hMenu, void * hP) { CALLPTRMEMB(P_TreeWnd, Setup(hMenu)); }
 
 int TProgram::GetClientRect(RECT * pClientRC)
 {

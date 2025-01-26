@@ -3367,10 +3367,11 @@ TWhatmanBrowser::~TWhatmanBrowser()
 
 void TWhatmanBrowser::InitLayout()
 {
-	P_Lfc = new SUiLayout();
+	SUiLayout * p_lo = new SUiLayout();
 	SUiLayoutParam alb(DIREC_HORZ, 0, SUiLayoutParam::alignStretch);
-	P_Lfc->SetLayoutBlock(alb);
-	P_Lfc->SetCallbacks(0, TWindowBase::SetupLayoutItemFrame, this);
+	p_lo->SetLayoutBlock(alb);
+	p_lo->SetCallbacks(0, TWindowBase::SetupLayoutItemFrame, this);
+	SetLayout(p_lo);
 }
 
 int TWhatmanBrowser::WMHCreate()
@@ -3575,9 +3576,10 @@ int TWhatmanBrowser::WMHCreate()
 			FrameWindow() : TWindowBase(_T("SLibWindowBase"), 0)
 			{
 				SUiLayoutParam alb(DIREC_HORZ, 0, SUiLayoutParam::alignStretch);
-				P_Lfc = new SUiLayout();
-				P_Lfc->SetLayoutBlock(alb);
-				P_Lfc->SetCallbacks(0, TWindowBase::SetupLayoutItemFrame, this);
+				SUiLayout * p_lo = new SUiLayout();
+				p_lo->SetLayoutBlock(alb);
+				p_lo->SetCallbacks(0, TWindowBase::SetupLayoutItemFrame, this);
+				SetLayout(p_lo);
 			}
 		};
 		FrameWindow * p_frame_win = new FrameWindow;

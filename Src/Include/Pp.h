@@ -478,53 +478,6 @@ public:
 	static constexpr uint32 Signature_StyloQStoragePacket          = 0x11A52FB6U; // @v11.6.0 Сигнатура класса StyloQCore::StoragePacket
 	static constexpr uint32 Signature_StyloQPersonEventParam       = 0x230759EAU; // @v11.6.1 Сигнатура класса StyloQPersonEventParam
 	static constexpr long   Signature_LaunchAppParam               = 0x4c484150L; // 'LHAP'
-	//const uint32 Signature_DbDump;
-	//const uint32 Signature_VerHist;                      // Сигнатура файла истории обновления версий
-	//const uint32 Signature_PPObjSCard_Filt;              // Специальная сигнатура объекта PPObjSCard::Filt
-	//const uint32 Signature_PhoneServiceEventResponder;   // Сигнатура респондера событий телефонного сервиса
-	//const uint32 Signature_MqbEventResponder;            // Сигнатура респондера событий брокера сообщений
-	//const uint32 Signature_SysMaintenanceEventResponder; // Сигнатура респондера событий обслуживания системы
-	//const uint64 Signature_Quotation2_DumpHeader;        // Сигнатура дампа котировок = 0x7654321098fedcbaLL; // @persistent
-	//const uint32 Signature_PPView;                       // Сигнатура класса PPView 0x099A099BUL (former SIGN_PPVIEW)
-	//const uint32 Signature_PPThreadLocalArea;            // @v10.9.12 Сигнатура класса PPThreadLocalArea (former SIGN_PPTLA)
-	//const uint32 Signature_StqDbSymbToSvcIdMap;          // @v11.1.12 Сигнатура файла соответствий символов баз данных идентификаторам сервисов Stylo-Q
-	//const uint32 Signature_BillMultiPrintParam;          // @v11.2.0  Сигнатура класса BillMultiPrintParam
-	//const uint32 Signature_StyloQStoragePacket;          // @v11.6.0  Сигнатура класса StyloQCore::StoragePacket
-	//const uint32 Signature_StyloQPersonEventParam;       // @v11.6.2  Сигнатура класса StyloQCore::StoragePacket
-	//const long   Signature_LaunchAppParam;               //
-
-	//#define COMMON_DESKCMDASSOC 100000L
-	//const char * P_SubjectDbDiv;
-	//const char * P_SubjectOrder;
-	//const char * P_SubjectCharry;
-	//const char * P_BillNotePrefix_IntrExpnd; // "$INTREXPND" Специальный префикс примечания документа передаваемый через ЕГАИС для привязка документа внутренней передачи
-	//const char * P_MagicFileTransmit;        // "$#FILETRANSMITMAGIC#$" Префикс команды JobServer'а для передачи файлов
-	//const char * P_ObjMemoDelim;             // MemosDelim разделитель примечаний объектов
-	//const char * P_ObjMemo_UtmRejPfx;        // "UTM Rej" Префикс примечания документа для индикации сообщения об ошибке поступившего от ЕГАИС УТМ
-	//const char * P_ObjMemo_EgaisRejPfx;      // "EGAIS Rej" Префикс примечания документа для индикации сообщения об ошибке поступившего от ЕГАИС
-	//const char * P_ObjMemo_ChznRejPfx;       // "ChZn Rej" Префикс примечания документа для индикации сообщения об ошибке поступившего от честного знака
-	//const char * P_TagValRestrict_Empty;     // @v11.3.6 "#EMPTY"
-	//const char * P_TagValRestrict_Exist;     // @v11.3.6 "#EXIST"
-	//const char * P_TagValRestrict_List;      // @v11.3.6 "#LIST"
-	//const char * WrKey_PrefSettings;          // @v11.4.4 (replaced PPRegKeys) "Software\\Papyrus\\Pref"
-	//const char * WrKey_PrefBasketSelSettings; // @v11.4.4 (replaced PPRegKeys) "Software\\Papyrus\\Pref\\BasketSel"
-	//const char * WrKey_SysSettings;           // @v11.4.4 (replaced PPRegKeys) "Software\\Papyrus\\System"
-	//const char * WrKey_Sessions;              // @v11.4.4 (replaced PPRegKeys) "Software\\Papyrus\\Sessions"
-	//const char * WrKey_WsCtl;                // @v11.7.2 HKEY_LOCAL_MACHINE "Software\\Papyrus\\WsCtl"
-	//const char * WrParam_ViewQuotsAsListBox; // "ViewQuotsAsListBox" [1|0]
-	//const char * WrParam_BillAddFilesFolder; // "BillAddFilesFolder" string
-	//const char * WrParam_CalcPriceParam;     // "CalcPriceParam" string
-	//const char * WrParam_BinPath;            // "BinPath" string
-	//const char * WrParam_PhnSvcLocalUpChannelSymbol;   // "PhnSvcLocalChannelSymbol"
-	//const char * WrParam_PhnSvcLocalScanChannelSymbol; // "PhnSvcLocalScanChannelSymbol"
-	//const char * WrParam_DefaultWindowsPrinter;        // "DefaultWindowsPrinter"
-	//const char * WrParam_PersonAddImageFolder;         // "PersonAddImageFolder"
-	//const char * WrParam_UseDuplexPrinting;            // "UseDuplexPrinting"
-	//const char * WrParam_StoreLastSelectedPrinter;     // "StoreLastSelectedPrinter" // @v10.7.10
-	//const char * WrParam_LastSelectedPrinter;          // "LastSelectedPrinter" // @v10.7.10
-	//const char * WrParam_BillMultiplePrintCfg2;        // "BillMultiplePrintCfg2" // @v11.2.0
-	//const char * WrParam_StyloQLoclMachineUuid;        // @v11.2.3
-	//const char * WrParam_WsCtl_MachineUUID;            // "MachineUUID" @v11.7.2 
 	static constexpr const char * P_SubjectDbDiv = "$PpyDbDivTransmission$";
 	static constexpr const char * P_SubjectOrder = "$PpyOrderTransmission$";
 	static constexpr const char * P_SubjectCharry = "$PpyCharryTransmission$";
@@ -564,7 +517,7 @@ public:
 	static constexpr const char * FnExt_ORD    = ".ord";
 	static constexpr const char * DefSrvCmdTerm = "\xD\xA"; // @v11.8.6 Терминатор неструктурированных ответов job-server'а
 	// @v11.8.11 {
-	static constexpr uint PwSize_PHNSVC           = 64; // @v9.8.11 20-->64 // @attention изменение значения требует конвертации хранимого пароля
+	static constexpr uint PwSize_PHNSVC           = 64; // @attention изменение значения требует конвертации хранимого пароля
 	static constexpr uint PwSize_POP3_BEFORE11509 = 20; // @attention изменение значения требует конвертации хранимого пароля
 	static constexpr uint PwSize_POP3_2           = 32; // @attention изменение значения требует конвертации хранимого пароля
 	static constexpr uint PwSize_UHTT             = 20; // @attention изменение значения требует конвертации хранимого пароля
@@ -5309,36 +5262,39 @@ struct AccTurnParam {
 //
 //
 //
-#define CCFLG2_QUOT2               0x00000001L // БД использует 2-е поколение котировок
-#define CCFLG2_USESDONPURCHOP      0x00000002L // Проекция флага AGTF_USESDONPURCHOP в общем соглашении с поставщиками
-#define CCFLG2_INDEXEADDR          0x00000004L // Индексировать телефоны из персоналий и адресов
+#define CCFLG2_QUOT2                     0x00000001L // БД использует 2-е поколение котировок
+#define CCFLG2_USESDONPURCHOP            0x00000002L // Проекция флага AGTF_USESDONPURCHOP в общем соглашении с поставщиками
+#define CCFLG2_INDEXEADDR                0x00000004L // Индексировать телефоны из персоналий и адресов
 	// Если этот флаг включен, то в таблицу EAddr записываются все телефоны из создаваемых и изменяемых
 	// персоналий и адресов для ускоренного извлечения объектов, связанных с телефоном.
-#define CCFLG2_SYNCLOT             0x00000008L // Синхронизировать лоты
-#define CCFLG2_ADJCPANCCLINETRANS  0x00000010L // При преобразовании строки чека из кассовой панели в запись
+#define CCFLG2_SYNCLOT                   0x00000008L // Синхронизировать лоты
+#define CCFLG2_ADJCPANCCLINETRANS        0x00000010L // При преобразовании строки чека из кассовой панели в запись
 	// CCheckLine корректировать разницу за счет скидки. Функция CCheckItem::GetRec().
 	// Необходимость в установке пареметра может возникнуть при работе с товарами, которые продаются большими
 	// количествами и по ценам, имеющим более двух знаков после точки.
 	// Возможно, правило такой корректировки должно быть применено во всех случаях, однако, во
 	// избежании проблем с работающими инсталляциями, страхуемся вводом данного параметра.
-#define CCFLG2_USECCHECKEXTPAYM    0x00000020L // Использовать расширение оплат по чекам
-#define CCFLG2_DONTUSE3TIERGMTX    0x00000040L // Не использовать извлечение товарной матрицы с сервера при 3-tier режиме работы
-#define CCFLG2_USEOMTPAYMAMT       0x00000080L // Использовать включенную сумму оплаты по документам
-#define CCFLG2_USESARTREDB         0x00000100L // Использовать базу данных Sartre (экспериментальная опция)
-#define CCFLG2_USELOTXCODE         0x00000200L // Использовать дополнительные коды привязанные к строкам документов (ЕГАИС)
-#define CCFLG2_USELCR2             0x00000400L // Использовать 2-ю версию индексации остатков по лотам
-#define CCFLG2_USEVETIS            0x00000800L // @transient Использовать функционал ВЕТИС (Меркурий). Определяется динамически
+#define CCFLG2_USECCHECKEXTPAYM          0x00000020L // Использовать расширение оплат по чекам
+#define CCFLG2_DONTUSE3TIERGMTX          0x00000040L // Не использовать извлечение товарной матрицы с сервера при 3-tier режиме работы
+#define CCFLG2_USEOMTPAYMAMT             0x00000080L // Использовать включенную сумму оплаты по документам
+#define CCFLG2_USESARTREDB               0x00000100L // Использовать базу данных Sartre (экспериментальная опция)
+#define CCFLG2_USELOTXCODE               0x00000200L // Использовать дополнительные коды привязанные к строкам документов (ЕГАИС)
+#define CCFLG2_USELCR2                   0x00000400L // Использовать 2-ю версию индексации остатков по лотам
+#define CCFLG2_USEVETIS                  0x00000800L // @transient Использовать функционал ВЕТИС (Меркурий). Определяется динамически
 	// по установленным в конфигурации глобального обмена параметрам доступа к ВЕТИС.
-#define CCFLG2_USEHISTPERSON       0x00001000L // Вести историю изменения персоналий
-#define CCFLG2_USEHISTSCARD        0x00002000L // Вести историю изменения персональных карт
-#define CCFLG2_DEVELOPMENT         0x00004000L // Режим разработки - включаются дополнительные опции отображения и управления
-#define CCFLG2_VERIFYARTOLOCMETHS  0x00008000L // Отладочный флаг для верификации функций преобразования статей в склады и наоборот
-#define CCFLG2_HIDEINVENTORYSTOCK  0x00010000L // Флаг, предписывающий скрывать значения учетных остатков
+#define CCFLG2_USEHISTPERSON             0x00001000L // Вести историю изменения персоналий
+#define CCFLG2_USEHISTSCARD              0x00002000L // Вести историю изменения персональных карт
+#define CCFLG2_DEVELOPMENT               0x00004000L // Режим разработки - включаются дополнительные опции отображения и управления
+#define CCFLG2_VERIFYARTOLOCMETHS        0x00008000L // Отладочный флаг для верификации функций преобразования статей в склады и наоборот
+#define CCFLG2_HIDEINVENTORYSTOCK        0x00010000L // Флаг, предписывающий скрывать значения учетных остатков
 	// инициируются по параметру в pp.ini [config] PPINIPARAM_INVENTORYSTOCKVIEWRESTRICTION
-#define CCFLG2_UNITECHZNCIGBLK10   0x00020000L // @v12.1.9 @construction При продаже 10 пачек сигарет одной позицией с одной chzn-маркой сигаретного блока 
+#define CCFLG2_UNITECHZNCIGBLK10         0x00020000L // @v12.1.9 При продаже 10 пачек сигарет одной позицией с одной chzn-маркой сигаретного блока 
 	// в кассовом чеке заменять количество на 1, цену умножать на 10. 
 	// Инициируются по параметру в pp.ini [config] PPINIPARAM_UNITECHZNCIGBLK10
-#define CCFLG2_INHSUPPLTAXGRPINLOT 0x00040000L // @v12.2.1 Проекция флага AGTF_INHSUPPLTAXGRPINLOT в общем соглашении с поставщиками
+#define CCFLG2_INHSUPPLTAXGRPINLOT       0x00040000L // @v12.2.1 Проекция флага AGTF_INHSUPPLTAXGRPINLOT в общем соглашении с поставщиками
+#define CCFLG2_RESTRICTCHZNCIGPRICEASMRC 0x00080000L // @v12.2.4 Если при проверке марки chzn для сигарет через разрешительный режим честный знак 
+	// выдал максимальную розничную цену (МРЦ) то параметр RestrictChZnCigPriceAsMrc, установленный в 1, запретит продать товар иначе как по этой цене (никих ниже - строго МРЦ).
+	// Инициируются по параметру в pp.ini [config] PPINIPARAM_RESTRICTCHZNCIGPRICEASMRC
 //
 // Общие параметры конфигурации
 //
@@ -10205,8 +10161,7 @@ public:
 		pttCredit         = 7  // PTT_CREDIT         Оплата кредита (Оплата предмета расчета после его передачи с оплатой в кредит (оплата кредита))
 	};
 
-	//@erik v10.4.12{
-	enum SubjTermTag {
+	enum SubjTermTag { // @erik
 		sttUndef                  = 0, // STT_UNDEF
 		sttGood                   = 1, // STT_GOOD    о реализуемом товаре, за исключением подакцизного товара(наименование и иные сведения, описывающие товар)
 		sttExcisableGood          = 2, // STT_EXCISABLEGOOD    о реализуемом подакцизном товаре(наименование и иные сведения, описывающие товар)
@@ -10228,9 +10183,7 @@ public:
 		sttResortFee              = 18, // STT_RESORTFEE       о курортном сборе
 		sttDeposit                = 19, // STT_DEPOSIT  Залог
 	};
-    //  } @erik v10.4.12
-	//
-	//
+
 	enum { // @persistent
 		extssMemo               =  1, // @reserved Примечание
 		extssSign               =  2, // Строка подписи чека (ЕГАИС)
@@ -15094,39 +15047,40 @@ struct PPEquipConfig { // @persistent @store(PropertyTbl)
 	PPID   GetCashierTabNumberRegTypeID() const;
 
 	enum {
-		fCheckScaleInput           = 0x00000001, // Сканировать весы при вводе документов
-		fComplDeficit              = 0x00000002, // Компенсировать дефицит по кассовым сессиям за счет
+		fCheckScaleInput            = 0x00000001, // Сканировать весы при вводе документов
+		fComplDeficit               = 0x00000002, // Компенсировать дефицит по кассовым сессиям за счет
 			// комплектации недостающих товаров (для товаров, имеющих коплектуемую структуру)
-		fCloseSessTo10Level        = 0x00000004, // Закрывать кассовые сессии до 10-го уровня //
-		fIgnAcsReadyTags           = 0x00000008, // Не проверять признаки готовности асинхронных
+		fCloseSessTo10Level         = 0x00000004, // Закрывать кассовые сессии до 10-го уровня //
+		fIgnAcsReadyTags            = 0x00000008, // Не проверять признаки готовности асинхронных
 			// кассовых машин к экспорту данных из Papyrus'а. Если этот флаг установлен,
 			// то функция PPAsyncCashSession::OpenSession игнорирует результат вызова
 			// функции PPAsyncCashSession::IsReadyForExport (но все равно вызывает ее).
-		fIgnGenGoodsOnDeficit      = 0x00000010, // Не использовать обобщенные товары для компенсации дефицита по кассовым сессиям
-		fUseQuotAsPrice            = 0x00000020, // Для определения цены на товар с приоритетом
+		fIgnGenGoodsOnDeficit       = 0x00000010, // Не использовать обобщенные товары для компенсации дефицита по кассовым сессиям
+		fUseQuotAsPrice             = 0x00000020, // Для определения цены на товар с приоритетом
 			// используется базовая котировка. Если котировка для заданных условий не определена,
 			// тогда используется учетная цена реализации. Если этот флаг не установлен, то
 			// для определения цены всегда используется учетная цена реализации
-		fIntrPriceByRetailRules    = 0x00000040, // При формировании драфт-документа покрытия   //
+		fIntrPriceByRetailRules     = 0x00000040, // При формировании драфт-документа покрытия   //
 			// дефицита для другого склада, цену реализации рассчитывать по правилам определения //
 			// розничной цены продажи для своего склада.
-		fValidateChecksOnSessClose = 0x00000080, // При закрытии асинхронной кассовой сессии проверять чеки.
-		fWriteToChkOpJrnl          = 0x00000100, // Вести журнал чековых операций
-		fRecognizeCode             = 0x00000200, // В кассовой панели распознавать назначение кода.
-		fUnifiedPayment            = 0x00000400, // Унифицированный расчет в кассовой панели
-		fIgnoreNoDisGoodsTag       = 0x00000800, // В кассовой панели игнорировать признак товара "Без скидки"
-		fRestrictQttyByUnitRnd     = 0x00001000, // В кассовой панели ограничивать ввод количества
+		fValidateChecksOnSessClose  = 0x00000080, // При закрытии асинхронной кассовой сессии проверять чеки.
+		fWriteToChkOpJrnl           = 0x00000100, // Вести журнал чековых операций
+		fRecognizeCode              = 0x00000200, // В кассовой панели распознавать назначение кода.
+		fUnifiedPayment             = 0x00000400, // Унифицированный расчет в кассовой панели
+		fIgnoreNoDisGoodsTag        = 0x00000800, // В кассовой панели игнорировать признак товара "Без скидки"
+		fRestrictQttyByUnitRnd      = 0x00001000, // В кассовой панели ограничивать ввод количества
 			// признаком целочисленности единицы измерения и ее параметром точности округления //
-		fDisableManualSCardInput   = 0x00002000, // Запрет ввода номера дисконтной карты в ручную
-		fUncondAsyncBasePrice      = 0x00004000, // Безусловная базовая цена для асинхронных узлов
-		fDisableAdjWrOffAmount     = 0x00008000, // Запрет на корректировку суммы документов списания для уравнивания с кассовой сессией
-		fUnifiedPaymentCfmBank     = 0x00010000, // Дополнительное подтверждение для оплаты по банку после унифицированной панели оплаты
-		fAutosaveSyncChecks        = 0x00020000, // Автоматически сохранять синхронные чеки при каждом изменении
-		fWrOffPartStrucs           = 0x00040000, // При списании кассовых сессий досписывать частичные структуры
-		fSkipPrintingZeroPrice     = 0x00080000, // В кассовых чеках не печатать строки с нулевой суммой
-		fAttachBillChecksToCSess   = 0x00100000, // При проведении чеков по документам привязывать эти чеки к текущей кассовой сессии
-		fDisableSellSpoiledSeries  = 0x00200000, // @v11.1.8 Запрет выбора бракованной серии при продаже через кассовую панель
-		fPreferBankingPayment      = 0x00400000, // @v12.1.10 При интерактивном выборе способа оплаты предпочтительной считать оплату банковской картой (by-default)
+		fDisableManualSCardInput    = 0x00002000, // Запрет ввода номера дисконтной карты в ручную
+		fUncondAsyncBasePrice       = 0x00004000, // Безусловная базовая цена для асинхронных узлов
+		fDisableAdjWrOffAmount      = 0x00008000, // Запрет на корректировку суммы документов списания для уравнивания с кассовой сессией
+		fUnifiedPaymentCfmBank      = 0x00010000, // Дополнительное подтверждение для оплаты по банку после унифицированной панели оплаты
+		fAutosaveSyncChecks         = 0x00020000, // Автоматически сохранять синхронные чеки при каждом изменении
+		fWrOffPartStrucs            = 0x00040000, // При списании кассовых сессий досписывать частичные структуры
+		fSkipPrintingZeroPrice      = 0x00080000, // В кассовых чеках не печатать строки с нулевой суммой
+		fAttachBillChecksToCSess    = 0x00100000, // При проведении чеков по документам привязывать эти чеки к текущей кассовой сессии
+		fDisableSellSpoiledSeries   = 0x00200000, // @v11.1.8 Запрет выбора бракованной серии при продаже через кассовую панель
+		fPreferBankingPayment       = 0x00400000, // @v12.1.10 При интерактивном выборе способа оплаты предпочтительной считать оплату банковской картой (by-default)
+		fDontShowInfoPaneBeforXZRep = 0x00800000, // @v12.2.4 Не показывать информационную панель с отчетными суммами перед снятием Z- или X-отчета.
 	};
 	PPID   Tag;             // Const=PPOBJ_CONFIG
 	PPID   ID;              // Const=PPCFG_MAIN
@@ -24973,12 +24927,24 @@ private:
 
 class GTaxVect {
 public:
-	struct EvalBlock { // @v12.2.4
+	class EvalBlock { // @v12.2.4
+		friend class GTaxVect;
+	public:
 		EvalBlock();
-		EvalBlock(const PPBillPacket & rBPack, int tiIdx);
-		const PPBillPacket * P_BPack;
-		const PPTransferItem * P_Ti;
-		const PPGoodsTaxEntry * P_Gte; // Если P_Ti != 0 then ignored
+		EvalBlock(const PPBillPacket & rBPack, int tiIdx, int tiamt/*TIAMT_XXX*/, long exclFlags, int correctionFlag);
+		EvalBlock(const PPBillPacket & rBPack, const PPTransferItem & rTi, int tiamt/*TIAMT_XXX*/, long exclFlags, int correctionFlag);
+		EvalBlock(const PPTransferItem & rTi, PPID opID, int tiamt/*TIAMT_XXX*/, long exclFlags, int correctionFlag);
+		EvalBlock(const CCheckPacket & rCc, CCheckLineTbl::Rec & rCcRow, long exclFlags);
+	private:
+		PPID   GetMainOrgPersonID(const BillTbl::Rec * pBillRec) const;
+		PPID   GetSupplPersonID(const PPTransferItem * pTi) const;
+		const  PPTransferItem * GetTI() const;
+		PPID   GetLocID() const;
+		const  PPBillPacket * P_BPack;
+		const  PPTransferItem * P_Ti;
+		const  PPGoodsTaxEntry * P_Gte; // Если P_Ti != 0 then ignored
+		const  CCheckPacket * P_CcPack; //
+		const  CCheckLineTbl::Rec * P_CcRow;
 		int    TiIdx;          // Если P_Ti == 0 && P_BPack != 0 && TiIdx >= 0 && TiIdx < P_BPack->GetTCount(), то элемент PPTransferItem извлекается как P_BPack->ConstTI(TiIdx)
 		PPID   OpID;           // if P_BPack != 0 then ignored
 		int    TiAmt;          // TIAMT_XXX
@@ -24992,6 +24958,8 @@ public:
 	static int Test(PPID gtaxID);
 	static int GetTaxNominalAmountType(const BillTbl::Rec & rBillRec); // @v12.2.4
 	explicit GTaxVect(int roundPrec = 2);
+	bool   FASTCALL IsEq(const GTaxVect & rS) const;
+	GTaxVect & Z();
 	//
 	// Descr: Новый вариант централизованного расчета налогов. Возник из-за ввода тупой российской властью
 	//   специальных ставок НДС. 
@@ -25015,7 +24983,7 @@ private:
 	struct WareBlock {
 		WareBlock(PPObjGoods & rGObj, PPID goodsID, PPID lotID, long exclFlags);
 		PPID   GoodsID;
-		PPID   LotID;
+		PPID   LotID;      // Ид лота. Важно! Конструктор не пытается использовать этот ид для получения налоговой группы.
 		PPID   TaxGroupID; // Налоговая группа, принадлежащая товару (точно - не лоту lotID)
 		bool   IsFound;    // Признак того, что запись товара goodsID существует.
 		bool   IsAsset;    //
@@ -25027,9 +24995,10 @@ private:
 	void   CalcForward(int n, double amount);
 	void   CalcBackward(int n, double amount);
 	double CalcTaxValByBase(int idx, double base) const;
+	int    CalcTI_Implement(const PPTransferItem & rTi, PPID opID, int tiamt/*TIAMT_XXX*/, long exclFlags, int correctionFlag);
 
-	int    RoundPrec;
-	long   N;
+	const  int  RoundPrec;
+	const  long N;
 	long   AbsVect;
 	long   UnionVect;
 	long   OrderVect[8];
@@ -30493,6 +30462,17 @@ public:
 	//    0
 	//
 	int    FetchTaxEntry2(PPID goodsID, PPID lotID, PPID taxPayerPsnID, LDATE dt, PPID opID, PPGoodsTaxEntry * pGtx); // @v12.2.4
+	int    FetchTaxEntry2_WithPayerAndWarehouse(PPID goodsID, PPID taxPayerPsnID, PPID taxPayerWarehouseID, LDATE dt, PPID opID, PPGoodsTaxEntry * pGtx); // @v12.2.4
+	//
+	// Descr: Функция аналогичная FetchTaxEntry2 но с той разницей, что оперирует не идентификаторами товара и лота
+	//   для извлечения схем налогообложения, а использует непосредственно идентификаторы налоговых групп.
+	//   Следствием такой модификации является то, что в случае, если необходимо получить входящую налоговую схему (применительно
+	//   к поставке и поставщику), то taxPayerPsnID (если не нулевой) должен быть поставщиком, от которого поступил товар
+	//   (в случае FetchTaxEntry2 функция может самостоятельно идентифицировать поставщика по lotID), а dt должна
+	//   быть датой поставки (в случае FetchTaxEntry2 функция может самостоятельно определить дату поставки по lotID).
+	//
+	int    FetchTaxEntry2_ByTaxGroups(PPID goodsTaxGrpID, PPID lotTaxGrpID, PPID taxPayerPsnID, LDATE dt, PPID opID, PPGoodsTaxEntry * pGtx); // @v12.2.4
+	int    FetchTaxEntry2_WithPayerAndWarehouse_ByTaxGroup(PPID goodsTaxGrpID, PPID taxPayerPsnID, PPID taxPayerWarehouseID, LDATE dt, PPID opID, PPGoodsTaxEntry * pGtx); // @v12.2.4
 	int    FetchCls(PPID goodsID, Goods2Tbl::Rec * pRec, PPGdsClsPacket * pGcPack);
 	int    MultTaxFactor(PPID goodsID, double * pVal);
 	//
@@ -30736,7 +30716,7 @@ private:
 		PPID arID, LDATETIME actualDtm, double qtty, RetailGoodsInfo * pInfo, long flags);
 	int    Helper_SearchByBarcodeAdopt(const char * pCode, int mode, StringSet & rProcessedList, BarcodeTbl::Rec * pBcRec, Goods2Tbl::Rec * pGoodsRec);
 	bool   Helper_GetOriginalRawGoodsByStruc(PPID goodsID, const PPIDArray * pValidBcStdList, PPID * pOriginalGoodsID, SString * pValidCode); // @v12.0.5
-	int    CombineTaxEntry(const PPGoodsTaxEntry & rGtx, PPID taxPayerPersonID, LDATE dt, PPID opID, PPGoodsTaxEntry * pResultGtx);
+	int    CombineTaxEntry(const PPGoodsTaxEntry & rGtx, PPID taxPayerPersonID, PPID taxPayerLocID, LDATE dt, PPID opID, PPGoodsTaxEntry * pResultGtx);
 
 	PPGoodsConfig * P_Cfg;
 	SCtrLite Sctr;
@@ -41183,6 +41163,21 @@ public:
 		SString City;
 		SString Address;
 	};
+	struct ProductCategory {
+		ProductCategory();
+		ProductCategory & Z();
+		bool FromJsonObj(const SJson * pJs);
+
+		enum {
+			fVisible  = 0x0001,
+			fTopLevel = 0x0002
+		};
+		int64  ID;
+		int64  ParentID;
+		uint   Flags;
+		SString Name;
+		TSCollection <ProductCategory> SubjectList;
+	};
 	struct WareBase {
 		WareBase();
 		WareBase & Z();
@@ -41504,6 +41499,9 @@ public:
 	int   RequestDocumentsList();
 	int   UploadWare();
 	int   RequestWareList();
+	int   RequestProductCategoryList(TSCollection <ProductCategory> & rList);
+	int   RequestProductSubjectList(TSCollection <ProductCategory> & rList);
+	//methContentSubjectList,  // apiContent https://content-api.wildberries.ru/content/v2/object/all
 	// @v12.2.2 {
 	//
 	// Descr: Запрашивает список акций
@@ -41518,6 +41516,7 @@ public:
 	// } @v12.2.2 
 	//
 	int   RequestPromoCampaignList(TSCollection <Campaign> & rList); // @v12.2.3
+	int   RequestPromoCampaignListDetail(TSCollection <Campaign> & rList); // @v12.2.4
 	int   CreateWarehouse(PPID * pID, int64 outerId, const char * pOuterName, const char * pAddress, int use_ta);
 	const Warehouse * SearchWarehouseByName(const TSCollection <Warehouse> & rWhList, const char * pWhName, bool adoptive) const;
 	int   ResolveWarehouseByName(const TSCollection <Warehouse> & rWhList, const char * pWhName, PPID defaultID, PPID * pResultID, int use_ta);
@@ -41589,6 +41588,8 @@ private:
 		methAcceptanceReport, // apiAnalytics   https://seller-analytics-api.wildberries.ru/api/v1/analytics/acceptance-report
 		methGoodsPrices,      // apiDiscountsPrices https://discounts-prices-api.wildberries.ru/api/v2/list/goods/filter
 		methContentCardsList, // apiContent https://content-api.wildberries.ru/content/v2/get/cards/list
+		methContentCategoryList, // apiContent https://content-api.wildberries.ru/content/v2/object/parent/all
+		methContentSubjectList,  // apiContent https://content-api.wildberries.ru/content/v2/object/all
 		methBalance,          // apiAdvert https://advert-api.wildberries.ru/adv/v1/balance
 		methDocumentsList,    // apiDocuments https://documents-api.wildberries.ru/api/v1/documents/list 
 		methReturns,          // apiAnalytics   https://seller-analytics-api.wildberries.ru/api/v1/analytics/goods-return
@@ -41598,6 +41599,7 @@ private:
 		methPromotionsGoods,  // apiDpCalendar  https://dp-calendar-api.wildberries.ru/api/v1/calendar/promotions/nomenclatures
 		methPromotionsAddGoods, // apiDpCalendar  https://dp-calendar-api.wildberries.ru/api/v1/calendar/promotions/upload
 		methPromoCampaignCount, // apiAdvert https://advert-api.wildberries.ru/adv/v1/promotion/count
+		methPromoCampaignDetail, // apiAdvert https://advert-api.wildberries.ru/adv/v1/promotion/adverts
 	};
 	bool   MakeTargetUrl_(int meth, int * pReq/*SHttpProtocol::reqXXX*/, SString & rResult) const;
 	int    Helper_InitRequest(int meth, SString & rUrlBuf, StrStrAssocArray & rHdrFlds);
@@ -42705,7 +42707,7 @@ private:
 	enum {
 		stFiltArIsSupple = 0x0001 // Статья Filt.ArticleID является поставщиком
 	};
-	long   State;         // @v9.3.4
+	long   State;         // stXXX
 	PPID   NewGoodsGrpID; // Идентификатор последней группы, из которой добавляли новую строку
 public:
 	PriceListConfig Cfg; // Realy private. Used only from PPALDD_PriceListData
@@ -50431,9 +50433,6 @@ private:
 // @v11.8.4 #define ORDEXT            ".ord"
 // @v11.8.4 (unused) #define MAILHDREXT        ".mhd"
 #define SUBJSIZE          96L
-// @v10.5.4 replaced-with(PPConst::P_SubjectDbDiv)  #define SUBJECTDBDIV      "$PpyDbDivTransmission$"
-// @v10.5.4 replaced-with(PPConst::P_SubjectOrder)  #define SUBJECTORDER      "$PpyOrderTransmission$"
-// @v10.5.4 replaced-with(PPConst::P_SubjectCharry) #define SUBJECTCHARRY     "$PpyCharryTransmission$"
 #define SUBJECTFRONTOL    "ATOL_RMK_CHANGE_"
 #define MIN_INET_PSW_SIZE 1
 

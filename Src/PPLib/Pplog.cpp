@@ -62,8 +62,9 @@ private:
 	return ::RegisterClassEx(&wc);
 }
 
-LogListWindowSCI::LogListWindowSCI(TVMsgLog * pLog) : TWindow(TRect(0, 0, 100, 20), "LOG WINDOW", 0), SScEditorBase()
+LogListWindowSCI::LogListWindowSCI(TVMsgLog * pLog) : TWindow(TRect(0, 0, 100, 20)), SScEditorBase()
 {
+	setTitle("LOG WINDOW");
 	{
 		static int is_cls_reg = 0;
 		if(!is_cls_reg) {

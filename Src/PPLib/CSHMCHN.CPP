@@ -1,5 +1,5 @@
 // CSHMCHN.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025
 // @codepage UTF-8
 //
 // Механизм работы с кассовыми машинами
@@ -27,7 +27,7 @@ DECLARE_CMT(FRONTOL);
 DECLARE_CMT(ATOLDRV);
 DECLARE_CMT(SYNCCASH); // @vmiller
 DECLARE_CMT(SETSTART);
-DECLARE_CMT(DREAMKAS); // @v10.0.04
+DECLARE_CMT(DREAMKAS);
 //
 // Регистрация интерфейсов кассовых аппаратов
 //
@@ -43,7 +43,7 @@ struct CMRegEntry { // @flat
 	RegCashMachineFunc func;
 };
 
-typedef TSVector <CMRegEntry> CMRegArray; // @v10.0.04 TSArray-->TSVector
+typedef TSVector <CMRegEntry> CMRegArray;
 
 /*static*/int PPCashMachine::RegisterMachine(PPID cmt, RegCashMachineFunc func, bool _sync, bool _async)
 {
@@ -72,16 +72,16 @@ int PPCashMachine::SyncOrAsync(int cashID, int & rS)
 	PPGetFilePath(PPPATH_BIN, "ppdrv.ini", path_str);
 	PPIniFile ini_file(path_str);
 	local_pos_id = cashID - PPCMT_FIRST_DYN_DVC/*idx*/;
-	if(local_pos_id < 0) // @v10.0.04 (<=)-->(<)
+	if(local_pos_id < 0)
 		ok = -1;
 	else {
 		StringSet set;
 		THROW(ini_file.GetEntryList(PPINISECT_DRV_SYNCPOS, &set, 1));
 		sync_count = set.getCount();
 		THROW(ini_file.GetEntryList(PPINISECT_DRV_ASYNCPOS, &set, 1));
-		if(local_pos_id < (int)sync_count) // @v10.0.04 (<=)-->(<)
+		if(local_pos_id < static_cast<int>(sync_count))
 			rS = 1;
-		else if(local_pos_id > (int)set.getCount())
+		else if(local_pos_id > static_cast<int>(set.getCount()))
 			ok = -1;
 	}
 	CATCHZOK
@@ -109,14 +109,14 @@ int PPCashMachine::SyncOrAsync(int cashID, int & rS)
 		DYN_LINK_CMT(ATOLDRV);
 		DYN_LINK_CMT(SYNCCASH); // @vmiller
 		DYN_LINK_CMT(SETSTART);
-		DYN_LINK_CMT(DREAMKAS); // @v10.0.04
+		DYN_LINK_CMT(DREAMKAS);
 	}
 	CMRegArray * p_ary = static_cast<CMRegArray *>(P_RegData);
 	if(p_ary) {
 		// @vmiller {
 		if(PPCashMachine::SyncOrAsync(cmtID, s) > 0) {
 			if(s == 1) {
-				ASSIGN_PTR(pPos, 12); // Соответствует типу SYNCCASH // @v10.4.5 14-->12
+				ASSIGN_PTR(pPos, 12); // Соответствует типу SYNCCASH
 				return 1;
 			}
 		}
@@ -499,41 +499,6 @@ int PPCashMachine::SyncCloseSession()
 	return ok;
 }
 
-/* @v10.5.5 Перенесено в архивных целях из ppw.rc поскольку не используется //
-DLG_CASHDISP DIALOGEX 98, 8, 321, 242
-STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "@cashmachinestat"
-FONT 8, "MS Sans Serif", 0, 0, 0x0
-BEGIN
-    GROUPBOX        "",IDC_STATIC,5,0,150,90
-    LTEXT           "@cashmachinestat_begsum",4001,15,10,125,8
-    EDITTEXT        CTL_CASHDISP_BEGSUM,15,20,65,13,ES_AUTOHSCROLL
-    LTEXT           "@cashmachinestat_income",4002,15,35,130,8
-    EDITTEXT        CTL_CASHDISP_INCOME,15,45,65,13,ES_AUTOHSCROLL
-    GROUPBOX        "",IDC_STATIC,160,0,150,90
-    LTEXT           "@cashmachinestat_currentsum",4003,170,10,130,8
-    EDITTEXT        CTL_CASHDISP_CURSUM,170,20,65,13,ES_AUTOHSCROLL
-    LTEXT           "@cashmachinestat_cash",4009,170,35,125,8
-    EDITTEXT        CTL_CASHDISP_CASHSUM,170,45,65,13,ES_AUTOHSCROLL
-    LTEXT           "@difference",4010,170,60,125,8
-    EDITTEXT        CTL_CASHDISP_DIFF,170,70,65,13,ES_AUTOHSCROLL
-    GROUPBOX        "",IDC_STATIC,5,95,305,90
-    LTEXT           "Сумма наличных оплат",4004,10,105,140,8
-    EDITTEXT        CTL_CASHDISP_CASHAMT,10,115,65,13,ES_AUTOHSCROLL
-    LTEXT           "Сумма безнал оплат",4005,170,105,130,8
-    EDITTEXT        CTL_CASHDISP_BANKAMT,170,115,65,13,ES_AUTOHSCROLL
-    LTEXT           "@refundamount",4006,10,130,130,8
-    EDITTEXT        CTL_CASHDISP_RETAMT,10,140,65,13,ES_AUTOHSCROLL
-    LTEXT           "@discountamount",4007,170,130,130,8
-    EDITTEXT        CTL_CASHDISP_DSCNTAMT,170,140,65,13,ES_AUTOHSCROLL
-    LTEXT           "Сумма по кред картам",4008,10,155,135,8
-    EDITTEXT        CTL_CASHDISP_SCARDAMT,10,165,65,13,ES_AUTOHSCROLL
-    DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,175,220,60,13
-    PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,250,220,60,13
-    LTEXT           "@cashmachinestat_warn",IDC_STATIC,5,190,305,20
-END
-*/
-
 struct CashStat {
 	CashStat()
 	{
@@ -559,7 +524,6 @@ public:
 		setup();
 	}
 	void   setup();
-	// @v10.3.9 void   correct();
 private:
 	DECL_HANDLE_EVENT;
 	PPCashMachine * machine;
@@ -598,35 +562,9 @@ void CashStatDialog::setup()
 	setCtrlReadOnly(CTL_CASHDISP_RETAMT, 1);
 }
 
-/* @v10.3.9 void CashStatDialog::correct()
-{
-	double add = stat.BegSum + stat.Income - stat.Cash;
-	TDialog * dlg = new TDialog(DLG_CASHCORR);
-	THROW(CheckDialogPtr(&dlg));
-	dlg->setCtrlReal(CTL_CASHCORR_CURVAL, stat.Cash);
-	dlg->disableCtrl(CTL_CASHCORR_CURVAL, 1);
-	dlg->setCtrlReal(CTL_CASHCORR_ADD, add);
-	if(ExecView(dlg) == cmOK) {
-		dlg->getCtrlData(CTL_CASHCORR_ADD, &add);
-		if(add > 0.0) {
-			THROW(machine->SyncAddSummator(add));
-			stat.Cash += add;
-			setup();
-		}
-	}
-	CATCH
-		PPError();
-	ENDCATCH
-	delete dlg;
-}*/
-
 IMPL_HANDLE_EVENT(CashStatDialog)
 {
 	TDialog::handleEvent(event);
-	/* @v10.3.9 if(event.isKeyDown(kbF7) && stat.Cash >= 0) {
-		correct();
-		clearEvent(event);
-	}*/
 }
 
 int PPCashMachine::SyncViewSessionStat(long options)
@@ -635,68 +573,75 @@ int PPCashMachine::SyncViewSessionStat(long options)
 	CashStat stat;
 	double sum = 0.0;
 	const  PPConfig & r_cfg = LConfig;
-	PPID   save_cash_id = r_cfg.Cash;
-	PPID   save_loc_id  = r_cfg.Location;
-	SString font_face, msg_buf;
+	const  PPID preserve_cash_id = r_cfg.Cash;
+	const  PPID preserve_loc_id  = r_cfg.Location;
+	SString font_face;
+	SString msg_buf;
 	TDialog * dlg = 0;
-	THROW(GetSyncIntrf());
-	THROW(GetNode() > 0);
-	DS.SetCurCashNodeID(NodeID);
-	DS.SetLocation(NodeRec.LocID);
-	if(NodeRec.Flags & CASHF_CHKPAN) {
-		PPObjCSession cs_obj;
-		CSessionTbl::Rec cs_rec;
-		if(NodeRec.CurSessID && cs_obj.P_Tbl->Search(NodeRec.CurSessID, &cs_rec) > 0) {
-			CSessTotal cs_total;
-			long   _f = cs_obj.P_Tbl->GetCcGroupingFlags(cs_rec, 0);
-			_f |= CCheckCore::gglfUseFullCcPackets;
-			cs_obj.P_Cc->GetSessTotal(NodeRec.CurSessID, _f, &cs_total, 0);
-			stat.AmtCash   = cs_total.Amount - cs_total.BnkAmount - cs_total.CSCardAmount;
-			stat.AmtBank   = cs_total.BnkAmount;
-			stat.AmtSCard  = cs_total.CSCardAmount;
-			stat.Discount  = cs_total.Discount;
-			stat.AmtReturn = cs_total.RetAmount;
-			sum = cs_total.Amount;
+	PPObjCSession cs_obj;
+	// @v12.2.4 {
+	/* Надо разбираться можно ли вообще отключать эту панель даже опционально
+	if(options & (cssoCloseSession|cssoXReport)) {
+		const PPEquipConfig & r_eqcfg = cs_obj.P_Cc->GetEqCfg();
+		if(r_eqcfg.Flags & PPEquipConfig::fDontShowInfoPaneBeforXZRep) {
+			ok = cmOK;
 		}
-		if(sum == 0.0) {
-			SyncGetSummator(&sum);
-			SETMAX(sum, 0.0);
+	}*/
+	// } @v12.2.4
+	if(ok != cmOK) { 
+		THROW(GetSyncIntrf());
+		THROW(GetNode() > 0);
+		DS.SetCurCashNodeID(NodeID);
+		DS.SetLocation(NodeRec.LocID);
+		if(NodeRec.Flags & CASHF_CHKPAN) {
+			CSessionTbl::Rec cs_rec;
+			if(NodeRec.CurSessID && cs_obj.P_Tbl->Search(NodeRec.CurSessID, &cs_rec) > 0) {
+				CSessTotal cs_total;
+				long   _f = cs_obj.P_Tbl->GetCcGroupingFlags(cs_rec, 0);
+				_f |= CCheckCore::gglfUseFullCcPackets;
+				cs_obj.P_Cc->GetSessTotal(NodeRec.CurSessID, _f, &cs_total, 0);
+				stat.AmtCash   = cs_total.Amount - cs_total.BnkAmount - cs_total.CSCardAmount;
+				stat.AmtBank   = cs_total.BnkAmount;
+				stat.AmtSCard  = cs_total.CSCardAmount;
+				stat.Discount  = cs_total.Discount;
+				stat.AmtReturn = cs_total.RetAmount;
+				sum = cs_total.Amount;
+			}
+			if(sum == 0.0) {
+				SyncGetSummator(&sum);
+				SETMAX(sum, 0.0);
+			}
 		}
+		else {
+			BillTotal  btotal;
+			PPViewBill bview;
+			BillFilt   flt;
+			flt.Flags |= BillFilt::fCashOnly;
+			bview.Init_(&flt);
+			bview.CalcTotal(&btotal);
+			sum = btotal.Sum;
+		}
+		DS.SetCurCashNodeID(preserve_cash_id);
+		stat.Income  = sum;
+		stat.CashID  = NodeID;
+		THROW(SyncGetSummator(&stat.Cash));
+		THROW(CheckDialogPtr(&(dlg = new CashStatDialog(DLG_CASHDISP_WCFM, this, &stat))));
+		if(options & cssoCloseSession) {
+			PPGetSubStr(PPTXT_FONTFACE, PPFONT_IMPACT, font_face);
+			dlg->SetCtrlFont(CTL_CASHDISP_ST_TITLE, font_face, 20);
+			dlg->setStaticText(CTL_CASHDISP_ST_TITLE, PPLoadStringS("zreport", msg_buf));
+			dlg->setStaticText(CTL_CASHDISP_ST_INFO, PPLoadStringS("cashmachinestat_warn", msg_buf));
+		}
+		else if(options & cssoXReport) {
+			PPGetSubStr(PPTXT_FONTFACE, PPFONT_IMPACT, font_face);
+			dlg->SetCtrlFont(CTL_CASHDISP_ST_TITLE, font_face, 20);
+			dlg->setStaticText(CTL_CASHDISP_ST_TITLE, PPLoadStringS("xreport", msg_buf));
+		}
+		ok = ExecViewAndDestroy(dlg);
 	}
-	else {
-		BillTotal  btotal;
-		PPViewBill bview;
-		BillFilt   flt;
-		flt.Flags |= BillFilt::fCashOnly;
-		bview.Init_(&flt);
-		bview.CalcTotal(&btotal);
-		sum = btotal.Sum;
-	}
-	DS.SetCurCashNodeID(save_cash_id);
-	stat.Income  = sum;
-	stat.CashID  = NodeID;
-	THROW(SyncGetSummator(&stat.Cash));
-	THROW(CheckDialogPtr(&(dlg = new CashStatDialog(DLG_CASHDISP_WCFM, this, &stat))));
-	if(options & cssoCloseSession) {
-		PPGetSubStr(PPTXT_FONTFACE, PPFONT_IMPACT, font_face);
-		dlg->SetCtrlFont(CTL_CASHDISP_ST_TITLE, font_face, 20);
-		PPLoadString("zreport", msg_buf);
-		dlg->setStaticText(CTL_CASHDISP_ST_TITLE, msg_buf);
-		//
-		// @v10.5.5 PPLoadText(PPTXT_CSESSTOTAL_ZREP, msg_buf);
-		PPLoadString("cashmachinestat_warn", msg_buf); // @v10.5.5
-		dlg->setStaticText(CTL_CASHDISP_ST_INFO, msg_buf);
-	}
-	else if(options & cssoXReport) {
-		PPGetSubStr(PPTXT_FONTFACE, PPFONT_IMPACT, font_face);
-		dlg->SetCtrlFont(CTL_CASHDISP_ST_TITLE, font_face, 20);
-		PPLoadString("xreport", msg_buf);
-		dlg->setStaticText(CTL_CASHDISP_ST_TITLE, msg_buf);
-	}
-	ok = ExecViewAndDestroy(dlg);
 	CATCHZOKPPERR
-	DS.SetLocation(save_loc_id);
-	DS.SetCurCashNodeID(save_cash_id);
+	DS.SetLocation(preserve_loc_id);
+	DS.SetCurCashNodeID(preserve_cash_id);
 	return ok;
 }
 
@@ -953,12 +898,10 @@ int PPCashMachine::TestPrintCheck(CCheckPacket * pPack)
 					if(prn_total_sale) {
 						if(fiscal != 0.0) {
 							if(!pPack->GetCount()) {
-								// @v10.7.3 double _q = 1.0;
 								double _p = amt;
 								running_total += amt;
 							}
 							else /*if(fiscal != 0.0)*/ {
-								// @v10.7.3 double _q = 1.0;
 								double _p = fiscal;
 								running_total += fiscal;
 							}
@@ -1369,8 +1312,7 @@ int PPCashMachine::AsyncCloseSession(int asTempSess, DateRange * pPrd /*=0*/)
 			const  PPID child_cn_id = child_list.get(i);
 			PPCashNode child_node;
 			if(cn_obj.Fetch(child_cn_id, &child_node) > 0) {
-				// @v10.1.1 THROW_PP_S(PPCashMachine::IsAsyncCMT(child_node.CashType), PPERR_FUNCNACCEPTEDFORPOSNODE, cn_rec.Name);
-				if(PPCashMachine::IsAsyncCMT(child_node.CashType)) { // @v10.1.1
+				if(PPCashMachine::IsAsyncCMT(child_node.CashType)) {
 					loc_list.add(child_node.LocID);
 					cn_list.add(child_cn_id);
 				}
@@ -1453,7 +1395,7 @@ CSPanel::CSPanel(uint rezID, PPID aNodeID, char * nodeName, int fZReport) : TDia
 	enableCommand(cmCSClose, BIN(fZReport > 0 && (fZReport & fcspZReport)));
 	enableCommand(cmSCSZReportCopy, BIN(fZReport > 0 && (fZReport & fcspZRepCopy)));
 	enableCommand(cmSCSXReport, BIN(fZReport & fcspXReport));
-	enableCommand(cmSCSPrintCheckCopy, BIN(fZReport & fcspCheckCopy)); // @v10.9.6
+	enableCommand(cmSCSPrintCheckCopy, BIN(fZReport & fcspCheckCopy));
 	setCtrlData(CTL_CSPANEL_NODE, nodeName);
 	setCtrlReadOnly(CTL_CSPANEL_NODE, 1);
 }
@@ -1480,7 +1422,7 @@ IMPL_HANDLE_EVENT(CSPanel)
 		ushort c = TVCMD;
 		if(oneof14(c, cmCSOpen, cmCSClose, cmACSUpdate, cmCSViewCheckList, cmACSViewExcess, cmACSGetChecks,
 			cmSCSLock, cmSCSUnlock, cmSCSXReport, cmSCSIncasso, cmSCSZReportCopy, cmPosNodeQuery, cmSCSPrintCheckCopy,
-			cmSCSDrawerOpen)) { // @v10.9.6 cmSCSPrintCheckCopy @v11.6.9 cmSCSDrawerOpen
+			cmSCSDrawerOpen)) { // @v11.6.9 cmSCSDrawerOpen
 			if(IsInState(sfModal)) {
 				endModal(c);
 				return; // После endModal не следует обращаться к this
@@ -1798,8 +1740,7 @@ int ExecCSPanel(const CashNodePaneFilt * pFilt)
 						case cmCSOpen:          ok =  p_cm->AsyncOpenSession(0, 0);  break;
 						case cmACSUpdate:       ok =  p_cm->AsyncOpenSession(1, 0);  break;
 						case cmCSClose:
-							// @v10.1.1 ok =  p_cm->AsyncCloseSession(0, 0);
-							ok = PPCashMachine::AsyncCloseSession2(cn_id, 0); // @v10.1.1
+							ok = PPCashMachine::AsyncCloseSession2(cn_id, 0);
 							break;
 						case cmACSGetChecks:    ok =  p_cm->AsyncCloseSession(1, 0); break;
 						case cmCSViewCheckList: ok =  p_cm->AsyncBrowseCheckList();  break;

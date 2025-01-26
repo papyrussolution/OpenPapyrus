@@ -169,18 +169,41 @@ INT_PTR CALLBACK ListViewDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
 //
 //
 //
-SmartListBox::SmartListBox(const TRect & bounds, ListBoxDef * aDef, int isTreeList) : TView(bounds), Columns(sizeof(ColumnDescr)),
+SmartListBox::SmartListBox(const TRect & rRect, ListBoxDef * pDef, bool isTreeList) : TView(rRect), Columns(sizeof(ColumnDescr)),
 	State(0), SrchPatternPos(0), ColumnsSpcPos(0), P_Def(0), Range(0), ItemHeight(0), Top(0), HIML(0), SrchFunc(PTR_CMPFUNC(_PcharNoCase))
 {
 	SubSign = TV_SUBSIGN_LISTBOX;
 	StrPool.add("$"); // zero index - is empty string
 	SetTreeListState(isTreeList);
 	ViewOptions |= ofSelectable | ofFirstClick;
-	setDef(aDef);
+	setDef(pDef);
+}
+
+SmartListBox::SmartListBox(const TRect & rRect, ListBoxDef * pDef, const char * pColumnsDeclaration) : TView(rRect), Columns(sizeof(ColumnDescr)),
+	State(0), SrchPatternPos(0), ColumnsSpcPos(0), P_Def(0), Range(0), ItemHeight(0), Top(0), HIML(0), SrchFunc(PTR_CMPFUNC(_PcharNoCase))
+{
+	SubSign = TV_SUBSIGN_LISTBOX;
+	StrPool.add("$"); // zero index - is empty string
+	SetTreeListState(false);
+	ViewOptions |= ofSelectable | ofFirstClick;
+	setDef(pDef);
+	SetupColumns(pColumnsDeclaration); // @v12.2.4
 }
 
 SmartListBox::~SmartListBox()
 {
+	// @v12.2.4 {
+	{
+		const  HWND h_lb = getHandle();
+		if(IsWindow(h_lb)) {
+			const  uint cc = Columns.getCount();
+			if(cc)
+				ListView_DeleteAllItems(h_lb);
+			else
+				::SendMessageW(h_lb, LB_RESETCONTENT, 0, 0);
+		}
+	}
+	// } @v12.2.4 
 	RestoreOnDestruction();
 	delete P_Def;
 	if(HIML)
@@ -298,10 +321,10 @@ int SmartListBox::SetupColumns(const char * pColsBuf)
 				SETIFZ(width, default_column_width); // @v12.2.4
 				if(ss.get(&pos, citem)) {
 					switch(toupper(citem.Strip().C(0))) {
-						case 'L': format |= ALIGN_LEFT; break;
-						case 'R': format |= ALIGN_RIGHT; break;
-						case 'C': format |= ALIGN_CENTER; break;
-						default: format |= ALIGN_LEFT; break;
+						case 'L': format = ALIGN_LEFT; break;
+						case 'R': format = ALIGN_RIGHT; break;
+						case 'C': format = ALIGN_CENTER; break;
+						default: format = ALIGN_LEFT; break;
 					}
 					ss.get(&pos, title_buf);
 				}
@@ -1608,7 +1631,9 @@ IMPL_HANDLE_EVENT(SmartListBox)
 							HWND h = getHandle();
 							if(h) {
 								::SetWindowPos(h, 0, p_rc->a.x, p_rc->a.y, p_rc->width(), p_rc->height(), SWP_NOZORDER|SWP_NOCOPYBITS);
-								MoveScrollBar(1);
+								if(!IsMultiColumn()) {  // @v12.2.4
+									MoveScrollBar(1);
+								}
 								clearEvent(event);
 							}
 						}
@@ -1634,7 +1659,6 @@ void SmartListBox::Implement_Draw()
 	if(P_Def) {
 		int    auto_calc_column_sizes = auotocalccolszNominal;
 		if(State & stTreeList) {
-			//SetupTreeWnd(0, 0);
 			SetupTreeWnd2(0);
 			SelectTreeItem();
 		}
@@ -1840,7 +1864,7 @@ void SmartListBox::freeAll()
 //
 //
 //
-ListWindowSmartListBox::ListWindowSmartListBox(const TRect & r, ListBoxDef * d, int) : SmartListBox(r, d), combo(0) {}
+ListWindowSmartListBox::ListWindowSmartListBox(const TRect & r, ListBoxDef * d, int) : SmartListBox(r, d, false), combo(0) {}
 //
 //
 //

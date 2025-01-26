@@ -2905,7 +2905,7 @@ int RetailPriceExtractor::Init(PPID locID, const ExtQuotBlock * pEqBlk, PPID arI
 
 int RetailPriceExtractor::GetPrice(PPID goodsID, PPID forceBaseLotID, double qtty, RetailExtrItem * pItem)
 {
-	int    use_quot_cache = 1000; // @v8.2.7 1-->1000 // @v9.2.2 1000-->0 // @v9.3.1 0-->1000
+	int    use_quot_cache = 1000;
 	int    ok = -1;
 	Reference * p_ref = PPRef;
 	PPObjBill * p_bobj = BillObj;

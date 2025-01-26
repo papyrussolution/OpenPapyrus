@@ -1,41 +1,12 @@
 /*
         symbol2.c
-
         Symbol table handling, type analysis, and code generation.
-
    --------------------------------------------------------------------------------
    gSOAP XML Web services tools
    Copyright (C) 2000-2012, Robert van Engelen, Genivia Inc. All Rights Reserved.
    This part of the software is released under ONE of the following licenses:
    GPL OR Genivia's license for commercial use.
-   --------------------------------------------------------------------------------
-   GPL license.
-
-   This program is free software; you can redistribute it and/or modify it under
-   the terms of the GNU General Public License as published by the Free Software
-   Foundation; either version 2 of the License, or (at your option) any later
-   version.
-
-   This program is distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
-   PARTICULAR PURPOSE. See the GNU General Public License for more details.
-
-   You should have received a copy of the GNU General Public License along with
-   this program; if not, write to the Free Software Foundation, Inc., 59 Temple
-   Place, Suite 330, Boston, MA 02111-1307 USA
-
-   Author contact information:
-   engelen@genivia.com / engelen@acm.org
-
-   This program is released under the GPL with the additional exemption that
-   compiling, linking, and/or using OpenSSL is allowed.
-   --------------------------------------------------------------------------------
-   A commercial use license is available from Genivia, Inc., contact@genivia.com
-   --------------------------------------------------------------------------------
  */
-//
-// @v10.7.7 SOAP_FMAC2 soap_serialize_%s-->FASTCALL soap_serialize_%s
-//          SOAP_FMAC4 soap_serialize_%s
 //
 #include <slib.h>
 //#undef CONST // Используется как идент токена в синтаксическом анализе
@@ -458,19 +429,19 @@ static char * FASTCALL ns_qualifiedElement(const Tnode * typ)
 		s = prefix_of(typ->sym->name);
 	if(!s && typ->id)
 		s = prefix_of(typ->id->name);
-	if(!s)
-		return NULL;
-	for(sp = services; sp; sp = sp->next) {
-		if(sp->elementForm && !tagcmp(sp->ns, s)) {
-			if(sstreq(sp->elementForm, "qualified"))
-				return s;
-			return NULL;
+	if(s) {
+		for(sp = services; sp; sp = sp->next) {
+			if(sp->elementForm && !tagcmp(sp->ns, s)) {
+				if(sstreq(sp->elementForm, "qualified"))
+					return s;
+				return NULL;
+			}
 		}
+		for(sp = services; sp; sp = sp->next)
+			if(!tagcmp(sp->ns, s))
+				if(sp->style && sstreq(sp->style, "document"))
+					return s;
 	}
-	for(sp = services; sp; sp = sp->next)
-		if(!tagcmp(sp->ns, s))
-			if(sp->style && sstreq(sp->style, "document"))
-				return s;
 	return NULL;
 }
 
@@ -708,8 +679,17 @@ static int FASTCALL has_ns_t(const Tnode * typ)
 }
 
 static const char * strict_check() { return sflag ? "" : "(soap->mode & SOAP_XML_STRICT) && "; }
-char * ns_of(char *);
-int  eq_ns(char *, char *);
+
+static char * FASTCALL ns_of(char * name)
+{
+	Service * sp;
+	for(sp = services; sp; sp = sp->next)
+		if(has_ns_eq(sp->ns, name))
+			break;
+	return sp ? sp->URI : NULL;
+}
+
+static int FASTCALL eq_ns(char * s, char * t) { return ns_of(s) == ns_of(t); }
 
 static int has_offset(const Tnode * typ)
 {
@@ -842,7 +822,7 @@ void gen_object_code(FILE *, Table *, Symbol *, char *, char *, char *, char *, 
 void gen_method(FILE * fd, Table * table, Entry * method, int server);
 void gen_params(FILE * fd, Table * params, Entry * result, int flag);
 void gen_args(FILE * fd, Table * params, Entry * result, int flag);
-void gen_call_method(FILE * fd, Table * table, Entry * method, char * name);
+void gen_call_method(FILE * fd, Table * table, Entry * method, char * name, const SString & rCommonEndPointUrlVar);
 void gen_serve_method(FILE * fd, Table * table, Entry * param, char * name);
 void gen_data(char *, Table *, char *, char *, char *, char *, char *, char *);
 FILE * gen_env(char *, char *, int, Table *, char *, char *, char *, char *, char *, char *);
@@ -3262,45 +3242,39 @@ void gen_schema(FILE * fd, Table * t, char * ns1, char * ns, int all, int wsdl, 
 					if((m->mess&FAULT) && m->part && is_eq(m->part, p->sym->name))
 						break;
 			if(m) {
-				if((!has_ns(p->info.typ) && all) || has_ns_eq(ns, p->sym->name))        {
+				if((!has_ns(p->info.typ) && all) || has_ns_eq(ns, p->sym->name)) {
 					if(!uflag)
 						fprintf(fd, "  <!-- fault element and type -->\n");
-					fprintf(fd, "  <element name=\"%s\" type=\"%s\">\n", ns_remove(
-							p->sym->name), base_type(p->info.typ, ns1));
+					fprintf(fd, "  <element name=\"%s\" type=\"%s\">\n", ns_remove(p->sym->name), base_type(p->info.typ, ns1));
 					gen_type_documentation(fd, p, ns);
 					fprintf(fd, "  </element>\n");
 				}
 			}
 			if(p->info.typ->ref && is_binary(p->info.typ)) {
-				if((!has_ns(p->info.typ) &&
-				    all) ||
-				   has_ns_eq(ns, p->sym->name))                                                 {
-					if(is_attachment(p->info.typ))
-					{
+				if((!has_ns(p->info.typ) && all) || has_ns_eq(ns, p->sym->name)) {
+					if(is_attachment(p->info.typ)) {
 						fprintf(fd, "  <complexType name=\"%s\">", ns_remove(p->sym->name));
 						gen_type_documentation(fd, p, ns);
-						fprintf(
-							fd,
-							"   <simpleContent>\n    <extension base=\"xsd:base64Binary\">\n");
+						fprintf(fd, "   <simpleContent>\n    <extension base=\"xsd:base64Binary\">\n");
 						if(!eflag)
-							fprintf(
-								fd,
-								"     <attribute name=\"href\" type=\"xsd:anyURI\" use=\"optional\"/>\n");
+							fprintf(fd, "     <attribute name=\"href\" type=\"xsd:anyURI\" use=\"optional\"/>\n");
 						gen_schema_attributes(fd, p->info.typ, ns, ns1);
 						fprintf(fd, "    </extension>\n   </simpleContent>\n  </complexType>\n");
 					}
 					else {
 						fprintf(fd, "  <simpleType name=\"%s\">", ns_remove(p->sym->name));
-					      gen_type_documentation(fd, p, ns);
-					      fprintf(fd, "   <restriction base=\"xsd:base64Binary\">\n");
-					      if(p->info.typ->maxLength > 0 && p->info.typ->minLength == p->info.typ->maxLength)
-						      fprintf(fd, "    <length value=\"" SOAP_LONG_FORMAT "\"/>\n", p->info.typ->minLength);
-					      else {
-							  if(p->info.typ->minLength > 0)
-							    fprintf(fd, "    <minLength value=\"" SOAP_LONG_FORMAT "\"/>\n", p->info.typ->minLength);
-						    if(p->info.typ->maxLength > 0)
-							    fprintf(fd, "    <maxLength value=\"" SOAP_LONG_FORMAT "\"/>\n", p->info.typ->maxLength); }
-					      fprintf(fd, "   </restriction>\n  </simpleType>\n"); }
+						gen_type_documentation(fd, p, ns);
+						fprintf(fd, "   <restriction base=\"xsd:base64Binary\">\n");
+						if(p->info.typ->maxLength > 0 && p->info.typ->minLength == p->info.typ->maxLength)
+							fprintf(fd, "    <length value=\"" SOAP_LONG_FORMAT "\"/>\n", p->info.typ->minLength);
+						else {
+							if(p->info.typ->minLength > 0)
+								fprintf(fd, "    <minLength value=\"" SOAP_LONG_FORMAT "\"/>\n", p->info.typ->minLength);
+							if(p->info.typ->maxLength > 0)
+								fprintf(fd, "    <maxLength value=\"" SOAP_LONG_FORMAT "\"/>\n", p->info.typ->maxLength); 
+						}
+						fprintf(fd, "   </restriction>\n  </simpleType>\n"); 
+					}
 				}
 			}
 			else if(p->info.typ->ref && !is_transient(p->info.typ) && is_primclass(p->info.typ)) {
@@ -3323,10 +3297,10 @@ void gen_schema(FILE * fd, Table * t, char * ns1, char * ns, int all, int wsdl, 
 						}
 						else {
 							fprintf(fd, "  <complexType name=\"%s\">", ns_remove(p->sym->name));
-						      gen_type_documentation(fd, p, ns);
-						      fprintf(fd, "   <complexContent>\n    <extension base=\"%s\">\n", wsdl_type(q->info.typ, ns1));
-						      gen_schema_attributes(fd, p->info.typ, ns, ns1);
-						      fprintf(fd, "    </extension>\n   </complexContent>\n  </complexType>\n"); 
+							gen_type_documentation(fd, p, ns);
+							fprintf(fd, "   <complexContent>\n    <extension base=\"%s\">\n", wsdl_type(q->info.typ, ns1));
+							gen_schema_attributes(fd, p->info.typ, ns, ns1);
+							fprintf(fd, "    </extension>\n   </complexContent>\n  </complexType>\n"); 
 						}
 					}
 				}
@@ -4312,9 +4286,35 @@ void gen_proxy_code(FILE * fd, Table * table, Symbol * ns, char * name, char * U
 	fprintf(fd, "\nvoid %s::soap_print_fault(FILE *fd) { ::soap_print_fault(%s, fd); }", name, soap);
 	fprintf(fd, "\n\n#ifndef WITH_LEAN\n#ifndef WITH_COMPAT\nvoid %s::soap_stream_fault(std::ostream & os) { ::soap_stream_fault(%s, os); }\n#endif", name, soap);
 	fprintf(fd, "\n\nchar * %s::soap_sprint_fault(char * buf, size_t len) { return ::soap_sprint_fault(%s, buf, len); }\n#endif", name, soap);
-	for(method = table->list; method; method = method->next)
-		if(method->info.typ->type == Tfun && !(method->info.sto&Sextern) && !is_imported(method->info.typ) && has_ns_eq(ns->name, method->sym->name))
-			gen_call_method(fd, table, method, name);
+	{
+		// @v12.2.4 {
+		SString common_endpoint_url;
+		SString common_endpoint_url_var;
+		{
+			uint service_count = 0;
+			bool are_svc_url_same = true;
+			for(const Service * sp = services; sp; sp = sp->next) {
+				if(service_count == 0) {
+					common_endpoint_url = sp->URL;
+				}
+				else if(common_endpoint_url != sp->URL) {
+					are_svc_url_same = false;
+				}
+				service_count++;
+			}
+			if(!are_svc_url_same)
+				common_endpoint_url.Z();
+		}
+		if(common_endpoint_url.NotEmpty()) {
+			common_endpoint_url_var = "P_CommonEndPointUrl";
+			fprintf(fd, "\n\nstatic const char * %s = \"%s\";", common_endpoint_url_var.cptr(), common_endpoint_url.cptr());
+		}
+		// } @v12.2.4 
+		for(method = table->list; method; method = method->next) {
+			if(method->info.typ->type == Tfun && !(method->info.sto&Sextern) && !is_imported(method->info.typ) && has_ns_eq(ns->name, method->sym->name))
+				gen_call_method(fd, table, method, name, common_endpoint_url_var);
+		}
+	}
 	if(namespaceid)
 		fprintf(fd, "\n\n} // namespace %s\n", namespaceid);
 	fprintf(fd, "\n/* End of client proxy code */\n");
@@ -4494,7 +4494,7 @@ void gen_args(FILE * fd, Table * params, Entry * result, int flag)
 		fprintf(fd, "%s%s)", flag || params->list ? ", " : "", result->sym->name);
 }
 
-void gen_call_method(FILE * fd, Table * table, Entry * method, char * name)
+void gen_call_method(FILE * fd, Table * table, Entry * method, char * name, const SString & rCommonEndPointUrlVar)
 {
 	Service * sp;
 	Method * m;
@@ -4563,20 +4563,22 @@ void gen_call_method(FILE * fd, Table * table, Entry * method, char * name)
 	}
 	if(name)
 		fprintf(fd, "\n\tif(endpoint)\n\t\tsoap_endpoint = endpoint;");
-	if(sp && sp->URL) {
-		// @v9.8.8 fprintf(fd, "\n\tif(!soap_endpoint)\n\t\tsoap_endpoint = \"%s\";", sp->URL);
-		fprintf(fd, "\n\tSETIFZ(soap_endpoint, \"%s\");", sp->URL); // @v9.8.8
+	if(sp) {
+		if(rCommonEndPointUrlVar.NotEmpty()) {
+			fprintf(fd, "\n\tSETIFZQ(soap_endpoint, %s);", rCommonEndPointUrlVar.cptr()); // @v12.2.4
+		}
+		else if(sp->URL) {
+			fprintf(fd, "\n\tSETIFZQ(soap_endpoint, \"%s\");", sp->URL); // @v12.2.4 SETIFZ-->SETIFZQ
+		}
 	}
 	if(action) {
-		// @v9.8.8 fprintf(fd, "\n\tif(!soap_action)\n\t\tsoap_action = ");
-		fprintf(fd, "\n\tSETIFZ(soap_action, "); // @v9.8.8
+		fprintf(fd, "\n\tSETIFZQ(soap_action, "); // @v12.2.4 SETIFZ-->SETIFZQ
 		if(*action == '"')
-			fprintf(fd, "%s);", action); // @v9.8.8 ;"-->);"
+			fprintf(fd, "%s);", action);
 		else
-			fprintf(fd, "\"%s\");", action); // @v9.8.8 ;"-->);"
+			fprintf(fd, "\"%s\");", action);
 	}
-	if(!method_response_encoding)
-		method_response_encoding = method_encoding;
+	SETIFZQ(method_response_encoding, method_encoding);
 	if(sp && sp->URI && method_encoding) {
 		if(is_literal(method_encoding))
 			fprintf(fd, "\n\tsoap->encodingStyle = NULL;");
@@ -4587,8 +4589,7 @@ void gen_call_method(FILE * fd, Table * table, Entry * method, char * name)
 		fprintf(fd, "\n\tsoap->encodingStyle = NULL;");
 	for(param = params->list; param; param = param->next) {
 		if(param->info.typ->type == Tarray)
-			fprintf(fd, "\n\tmemcpy(soap_tmp_%s.%s, %s, sizeof(%s));", ident(method->sym->name),
-				ident(param->sym->name), ident(param->sym->name), c_type(param->info.typ));
+			fprintf(fd, "\n\tmemcpy(soap_tmp_%s.%s, %s, sizeof(%s));", ident(method->sym->name), ident(param->sym->name), ident(param->sym->name), c_type(param->info.typ));
 		else
 			fprintf(fd, "\n\tsoap_tmp_%s.%s = %s;", ident(method->sym->name), ident(param->sym->name), ident(param->sym->name));
 	}
@@ -5896,7 +5897,8 @@ char * emalloc(size_t n)
 
 void soap_serve(Table * table)
 {
-	Entry * method, * catch_method;
+	Entry * method;
+	Entry * catch_method;
 	if(!Cflag) {
 		fprintf(fserver, "\n\nSOAP_FMAC5 int SOAP_FMAC6 %s_serve(struct soap *soap)", nflag ? prefix : "soap");
 		fprintf(fserver, "\n{\n#ifndef WITH_FASTCGI\n\tunsigned int k = soap->max_keep_alive;\n#endif\n\tdo {\n\t");
@@ -5972,17 +5974,17 @@ void soap_serve(Table * table)
 				generate_proto(table, method);
 		banner(fheader, "Server-Side Skeletons to Invoke Service Operations");
 		fprintf(fheader, "\nSOAP_FMAC5 int SOAP_FMAC6 %s_serve(struct soap*);", nflag ? prefix : "soap");
-		fprintf(fheader, "\n\nSOAP_FMAC5 int SOAP_FMAC6 %s_serve_request(struct soap*);",
-			nflag ? prefix : "soap");
+		fprintf(fheader, "\n\nSOAP_FMAC5 int SOAP_FMAC6 %s_serve_request(struct soap*);", nflag ? prefix : "soap");
 		for(method = table->list; method; method = method->next)
 			if(method->info.typ->type == Tfun && !(method->info.sto&Sextern) && !is_imported(method->info.typ))
 				gen_serve_method(fserver, table, method, NULL);
 	}
 	if(!Sflag) {
 		banner(fheader, "Client-Side Call Stubs");
+		SString common_endpoint_url_var; // @v12.2.4
 		for(method = table->list; method; method = method->next)
 			if(method->info.typ->type == Tfun && !(method->info.sto&Sextern) && !is_imported(method->info.typ))
-				gen_call_method(fclient, table, method, NULL);
+				gen_call_method(fclient, table, method, NULL, common_endpoint_url_var);
 	}
 }
 
@@ -6255,22 +6257,6 @@ void FASTCALL needs_lang(const Entry * e)
 {
 	if(sstreq(e->sym->name, "SOAP_ENV__Text"))
 		fprintf(fout, "\n\tif(soap->lang)\n\t\tsoap_set_attr(soap, \"xml:lang\", soap->lang, 1);");
-}
-
-char * ns_of(char * name)
-{
-	Service * sp;
-	for(sp = services; sp; sp = sp->next)
-		if(has_ns_eq(sp->ns, name))
-			break;
-	if(sp)
-		return sp->URI;
-	return NULL;
-}
-
-int eq_ns(char * s, char * t)
-{
-	return ns_of(s) == ns_of(t);
 }
 
 static char * FASTCALL ns_add_overridden(const Table * t, const Entry * p, char * ns)

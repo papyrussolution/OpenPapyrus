@@ -8201,7 +8201,7 @@ int PPObjPerson::IdentifyClientActivityState(ClientActivityState & rParam)
 							rParam.State = ClientActivityState::stRegularTa;
 						}
 						rParam.CurrentDelayDays = delay_days;
-						rParam.CurrentDelaySd = delay_sd;
+						rParam.CurrentDelaySd = static_cast<double>(delay_sd);
 					}
 					else 
 						rParam.State = ClientActivityState::stNoData;

@@ -1779,21 +1779,7 @@ void TrfrItemDialog::setupVatSum()
 		if(qtty != 0.0) {
 			if(P_Pack) {
 				GTaxVect gtv;
-				int    tiamt = 0;
-				if(OpTypeID == PPOPT_GOODSRECEIPT)
-					tiamt = TIAMT_COST;
-				else {
-					PPOprKind op_rec;
-					GetOpData(P_Pack->Rec.OpID, &op_rec);
-					if(op_rec.Flags & OPKF_BUYING)
-						tiamt = TIAMT_COST;
-					else if(op_rec.Flags & OPKF_SELLING)
-						tiamt = TIAMT_PRICE;
-					else {
-						tiamt = TIAMT_PRICE; // Здесь, вероятно, нужны уточнения //
-					}
-				}
-				gtv.CalcBPTI(*P_Pack, Item, tiamt);
+				gtv.CalcBPTI(*P_Pack, Item, GTaxVect::GetTaxNominalAmountType(P_Pack->Rec));
 				vat_sum = gtv.GetValue(GTAXVF_VAT);
 				PPLoadString("vat", out_buf);
 				out_buf.CatDiv(':', 2).Cat(vat_sum, MKSFMTD(0, 4, 0));

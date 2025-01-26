@@ -1,5 +1,5 @@
 // CHECKFMT.CPP
-// Copyright (c) V.Nasonov, A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2024
+// Copyright (c) V.Nasonov, A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -22,7 +22,7 @@ SlipLineParam & SlipLineParam::Z()
 	Price = 0.0;
 	VatRate = 0.0;
 	PaymTermTag = CCheckPacket::pttUndef;
-	SbjTermTag = CCheckPacket::sttUndef;  // @erikH v10.4.12
+	SbjTermTag = CCheckPacket::sttUndef;  // @erikH
 	DivID = 0;
 	FontSize = 0;
 	PictCoord.Z();
@@ -1547,21 +1547,29 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 							pIter->GoodsID = cc_item.GoodsID;
 							// @v11.1.5 pIter->Ptt = CCheckPacket::pttUndef;
 							pIter->Ptt = (P_CcPack->PrintPtt >= 0 && P_CcPack->PrintPtt <= 7) ? (CCheckPacket::PaymentTermTag)P_CcPack->PrintPtt : CCheckPacket::pttUndef; // @v11.1.5
-							pIter->Stt = CCheckPacket::sttUndef; // @erikP v10.4.12
+							pIter->Stt = CCheckPacket::sttUndef; // @erikP
 							if(P_Od && P_Od->GObj.Fetch(pIter->GoodsID, &goods_rec) > 0) {
 								STRNSCPY(pIter->Text, goods_rec.Name);
 								P_Od->GObj.GetSingleBarcode(pIter->GoodsID, 0, temp_buf);
 								STRNSCPY(pIter->Code, temp_buf);
-								if(P_Od->GObj.FetchTaxEntry2(pIter->GoodsID, 0/*lotID*/, 0/*taxPayerID*/, P_CcPack->Rec.Dt, 0, &gtx) > 0)
-									pIter->VatRate = gtx.GetVatRate();
+								/* @v12.2.4 if(P_Od->GObj.FetchTaxEntry2(pIter->GoodsID, 0, 0, P_CcPack->Rec.Dt, 0, &gtx) > 0)
+									pIter->VatRate = gtx.GetVatRate(); */
+								// @v12.2.4 {
+								{
+									GTaxVect::EvalBlock eb(*P_CcPack, cc_item, 0/*exclFlags*/);
+									GTaxVect gtv;
+									gtv.EvaluateTaxes(eb);
+									pIter->VatRate = gtv.GetTaxRate(GTAX_VAT, 0);
+								}
+								// } @v12.2.4
 								if(goods_rec.GoodsTypeID && P_Od->GObj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0) {
 									chzn_product_type = gt_rec.ChZnProdType;
 									if(gt_rec.Flags & GTF_ADVANCECERT)
 										pIter->Ptt = CCheckPacket::pttAdvance;
-									//@erikL v10.4.12 {
+									//@erikL {
 									else if(gt_rec.Flags & GTF_UNLIMITED)
 										pIter->Stt = CCheckPacket::sttService;
-									// } @erik v10.4.12
+									// } @erik
 									// @v11.8.0 {
 									else if(gt_rec.Flags & GTF_EXCISEPROFORMA)
 										pIter->Stt = CCheckPacket::sttExcisableGood;

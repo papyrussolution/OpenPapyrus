@@ -638,7 +638,7 @@ int GoodsRestParam::AddLot(Transfer * pTrfr, const ReceiptTbl::Rec * pLotRec, do
 	const  bool retail_price  = LOGIC(Flags_ & fRetailPrice);
 	const  bool setcostwovat  = LOGIC(Flags_ & fCWoVat);
 	const  bool setpricewovat = LOGIC(Flags_ & fPWoVat);
-	if(costwovat || pricewotaxes || byquot_price || byquot_cost|| retail_price || setcostwovat || setpricewovat) { // @v10.6.6 setpricewovat
+	if(costwovat || pricewotaxes || byquot_price || byquot_cost|| retail_price || setcostwovat || setpricewovat) {
 		double tax_factor = 1.0;
 		PPObjGoods gobj;
 		if(retail_price) {

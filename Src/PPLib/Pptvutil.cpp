@@ -1720,7 +1720,7 @@ int STDCALL SetupStrAssocCombo(TWindow * dlg, uint ctlID, const StrAssocArray & 
 		}
 		else
 			*p_list = rList;
-		THROW_MEM(p_lw = new ListWindow(new StrAssocListBoxDef(p_list, options), 0, 0));
+		THROW_MEM(p_lw = new ListWindow(new StrAssocListBoxDef(p_list, options)));
 		p_cb->setListWindow(p_lw, initID);
 	}
 	CATCHZOK
@@ -2112,9 +2112,10 @@ int FileBrowseCtrlGroup::addPattern(uint strID)
 
 void FileBrowseCtrlGroup::setInitPath(const char * pInitPath)
 {
-	int      not_exist = 1;
-	SString  dir, fname;
-	const    int is_wild = IsWild(pInitPath);
+	SString  dir;
+	SString  fname;
+	const  bool is_wild = IsWild(pInitPath);
+	bool   is_exists = false;
 	if(is_wild) {
 		SplitPath(pInitPath, dir, fname);
 		InitDir = dir;
@@ -2122,10 +2123,12 @@ void FileBrowseCtrlGroup::setInitPath(const char * pInitPath)
 	}
 	else {
 		if(!isempty(pInitPath)) {
-			not_exist = access(pInitPath, 0);
-			if(not_exist) {
+			// @v12.2.4 not_exist = ::access(pInitPath, 0);
+			is_exists = fileExists(pInitPath); // @v12.2.4
+			if(!is_exists) {
 				SplitPath(pInitPath, dir, fname);
-				not_exist = access(dir, 0);
+				// @v12.2.4 not_exist = ::access(dir, 0);
+				is_exists = fileExists(dir); // @v12.2.4
 				fname.Z();
 			}
 			else if(Flags & fbcgfPath) {
@@ -2135,11 +2138,13 @@ void FileBrowseCtrlGroup::setInitPath(const char * pInitPath)
 			else
 				SplitPath(pInitPath, dir, fname);
 		}
-		if(not_exist && Data.FilePath[0]) {
-			not_exist = access(Data.FilePath, 0);
-			if(not_exist) {
+		if(!is_exists && Data.FilePath[0]) {
+			// @v12.2.4 not_exist = ::access(Data.FilePath, 0);
+			is_exists = fileExists(Data.FilePath); // @v12.2.4
+			if(!is_exists) {
 				SplitPath(Data.FilePath, dir, fname);
-				not_exist = access(dir, 0);
+				// @v12.2.4 not_exist = ::access(dir, 0);
+				is_exists = fileExists(dir); // @v12.2.4
 				fname.Z();
 			}
 			else if(Flags & fbcgfPath) {
@@ -2149,7 +2154,7 @@ void FileBrowseCtrlGroup::setInitPath(const char * pInitPath)
 			else
 				SplitPath(Data.FilePath, dir, fname);
 		}
-		if(not_exist) {
+		if(!is_exists) {
 			if(Flags)
 				PPGetPath((Flags & fbcgfLogFile) ? PPPATH_LOG : PPPATH_SYSROOT, dir);
 			else
@@ -3004,9 +3009,7 @@ int  AdvComboBoxSelDialog(const StrAssocArray & rAry, SString & rTitle, SString 
 static const float FixedCtrlHeight = 21.0f;
 // {75; 21}
 
-class ListSelectionDialog : public TWindowBase {
-	static constexpr uint CtlListGroupBox = 1001; // GroupBox вокруг списка
-	static constexpr float DefMargin = 4.0f;
+class ListSelectionDialog_Base {
 public:
 	enum {
 		fcedCreate = 0x0001, // Если установлен, то в окне есть кнопка [Create Item]
@@ -3023,62 +3026,10 @@ public:
 		SString ColumnDescription;
 	};
 
-	static int Exec(ListSelectionDialog * pView);
-	ListSelectionDialog(const Param & rParam, ListBoxDef * pDef) : 
-		P(rParam), TWindowBase(SUcSwitch(ListSelectionDialog::GetWindowTitle(rParam.Title)), wbcDrawBuffer),
-		LoExtraList(GetLayoutExtraVector()), P_Def(pDef)
-	{
-	}
+	static int Exec(TWindow * pView);
 protected:
-	DECL_HANDLE_EVENT
-	{
-		TWindowBase::handleEvent(event);
-		if(event.isKeyDown(kbEsc)) {
-			if(IsInState(sfModal)) {
-				EndModalCmd = cmCancel;
-				clearEvent(event);
-			}
-		}
-		else if(TVINFOPTR) {
-			if(event.isCmd(cmInit)) {
-				OnInit(static_cast<CreateBlock *>(TVINFOPTR));
-				// don't clearEvent
-			}
-			else if(event.isCmd(cmClose)) {
-				if(IsInState(sfModal)) {
-					EndModalCmd = cmCancel;
-					clearEvent(event);
-				}
-			}
-			else if(event.isCmd(cmPaint)) {
-				PaintEvent * p_blk = static_cast<PaintEvent *>(TVINFOPTR);
-				//CreateFont_();
-				if(oneof2(p_blk->PaintType, PaintEvent::tPaint, PaintEvent::tEraseBackground)) {
-					SPaintToolBox * p_tb = APPL->GetUiToolBox();
-					if(p_tb) {
-						if(GetWbCapability() & wbcDrawBuffer) {
-							// Если используется буферизованная отрисовка, то фон нужно перерисовать в любом случае а на событие PaintEvent::tEraseBackground
-							// не реагировать
-							if(p_blk->PaintType == PaintEvent::tPaint) {
-								TCanvas2 canv(*p_tb, static_cast<HDC>(p_blk->H_DeviceContext));
-								canv.Rect(p_blk->Rect, 0, TProgram::tbiListBkgBrush);
-								DrawLayout(canv, P_Lfc);
-							}
-						}
-						else {
-							TCanvas2 canv(*p_tb, static_cast<HDC>(p_blk->H_DeviceContext));
-							if(p_blk->PaintType == PaintEvent::tEraseBackground)
-								canv.Rect(p_blk->Rect, 0, TProgram::tbiListBkgBrush);
-							if(p_blk->PaintType == PaintEvent::tPaint)
-								DrawLayout(canv, P_Lfc);
-						}
-					}
-					clearEvent(event);
-				}
-			}
-		}
-	}
-private:
+	static constexpr uint CtlListGroupBox = 1001; // GroupBox вокруг списка
+	static constexpr float DefMargin = 4.0f;
 	enum {
 		loiFrame_Main,
 		loiFrame_List,
@@ -3089,6 +3040,7 @@ private:
 		int   Ident; // loiXXX
 		uint  Value;
 	};
+
 	static const char * GetWindowTitle(const char * pOuterTitle)
 	{
 		return isempty(pOuterTitle) ? "" : pOuterTitle;
@@ -3107,7 +3059,13 @@ private:
 		LEAVE_CRITICAL_SECTION
 		return vec;
 	}
-	void OnInit(CreateBlock * pBlk)
+	ListSelectionDialog_Base(const Param & rParam, ListBoxDef * pDef, TWindow * pTW) : P_TW(pTW), P(rParam), P_Def(pDef), LoExtraList(GetLayoutExtraVector())
+	{
+	}
+	~ListSelectionDialog_Base()
+	{
+	}
+	void OnInit2(TWindowBase::CreateBlock * pBlk)
 	{
 		{
 			const TRect _def_rect(0, 0, 40, 40);
@@ -3116,28 +3074,28 @@ private:
 			//TView::setFont(HW, font_face, 12);
 			{
 				TGroupBox * p_gb = new TGroupBox(_def_rect);
-				InsertCtlWithCorrespondingNativeItem(p_gb, CtlListGroupBox, 0);
+				P_TW->InsertCtlWithCorrespondingNativeItem(p_gb, CtlListGroupBox, 0, /*extraPtr*/0);
 			}
 			{
-				SmartListBox * p_lb = new SmartListBox(_def_rect, P_Def, 0/*isTreeList*/);
-				InsertCtlWithCorrespondingNativeItem(p_lb, STDCTL_SINGLELISTBOX, 0);
+				SmartListBox * p_lb = P.ColumnDescription.NotEmpty() ? new SmartListBox(_def_rect, P_Def, P.ColumnDescription) : new SmartListBox(_def_rect, P_Def, false/*isTreeList*/);
+				P_TW->InsertCtlWithCorrespondingNativeItem(p_lb, STDCTL_SINGLELISTBOX, 0, /*extraPtr*/0);
 				{
-					SetCtrlFont(STDCTL_SINGLELISTBOX, font_face, /*16*//*22*/12);
+					P_TW->SetCtrlFont(STDCTL_SINGLELISTBOX, font_face, /*16*//*22*/12);
 				}
 			}
 			if(P.Flags & (fcedCreate|fcedEdit|fcedDelete)) {
 				if(P.Flags & fcedCreate) {
-					InsertCtlWithCorrespondingNativeItem(new TButton(_def_rect, "@but_add", cmaInsert, 0, 0), STDCTL_INSBUTTON, 0);
+					P_TW->InsertCtlWithCorrespondingNativeItem(new TButton(_def_rect, "@but_add", cmaInsert, 0, 0), STDCTL_INSBUTTON, 0, /*extraPtr*/0);
 				}
 				if(P.Flags & fcedEdit) {
-					InsertCtlWithCorrespondingNativeItem(new TButton(_def_rect, "@but_edit", cmaEdit, 0, 0), STDCTL_EDITBUTTON, 0);
+					P_TW->InsertCtlWithCorrespondingNativeItem(new TButton(_def_rect, "@but_edit", cmaEdit, 0, 0), STDCTL_EDITBUTTON, 0, /*extraPtr*/0);
 				}
 				if(P.Flags & fcedDelete) {
-					InsertCtlWithCorrespondingNativeItem(new TButton(_def_rect, "@but_delete", cmaDelete, 0, 0), STDCTL_DELBUTTON, 0);
+					P_TW->InsertCtlWithCorrespondingNativeItem(new TButton(_def_rect, "@but_delete", cmaDelete, 0, 0), STDCTL_DELBUTTON, 0, /*extraPtr*/0);
 				}
 			}
-			InsertCtlWithCorrespondingNativeItem(new TButton(_def_rect, "@but_ok", cmOK, 0, 0), STDCTL_OKBUTTON, 0);
-			InsertCtlWithCorrespondingNativeItem(new TButton(_def_rect, "@but_cancel", cmCancel, 0, 0), STDCTL_CANCELBUTTON, 0);
+			P_TW->InsertCtlWithCorrespondingNativeItem(new TButton(_def_rect, "@but_ok", cmOK, 0, 0), STDCTL_OKBUTTON, 0, /*extraPtr*/0);
+			P_TW->InsertCtlWithCorrespondingNativeItem(new TButton(_def_rect, "@but_cancel", cmCancel, 0, 0), STDCTL_CANCELBUTTON, 0, /*extraPtr*/0);
 		}
 		{
 			class InnerBlock {
@@ -3157,7 +3115,7 @@ private:
 						}	
 					}
 				}
-				static void InsertButtonLayout(ListSelectionDialog * pMaster, SUiLayout * pLoParent, ushort ctlId, SUiLayoutParam & rP, float growFactor)
+				static void InsertButtonLayout(TWindow * pMaster, SUiLayout * pLoParent, ushort ctlId, SUiLayoutParam & rP, float growFactor)
 				{
 					TView * p = pMaster ? pMaster->getCtrlView(ctlId) : 0;
 					if(p) {
@@ -3166,7 +3124,7 @@ private:
 						p_lo_item->SetCallbacks(0, InnerBlock::SetupLayoutItemFrameProc, p);
 					}
 				}		
-				static SUiLayout * InsertCtrlLayout(ListSelectionDialog * pMaster, SUiLayout * pLoParent, ushort ctlId, SUiLayoutParam & rP, float growFactor)
+				static SUiLayout * InsertCtrlLayout(TWindow * pMaster, SUiLayout * pLoParent, ushort ctlId, SUiLayoutParam & rP, float growFactor)
 				{
 					SUiLayout * p_lo_item = 0;
 					TView * p = pMaster ? pMaster->getCtrlView(ctlId) : 0;
@@ -3211,7 +3169,7 @@ private:
 					alb.Margin.Set(DefMargin);
 					alb.Padding.a.y = 8.0f;
 					//alb.Padding.b.x += 20.0f;
-					p_lo_groupbox = InnerBlock::InsertCtrlLayout(this, p_lo_body, CtlListGroupBox, alb, 1.0f);
+					p_lo_groupbox = InnerBlock::InsertCtrlLayout(P_TW, p_lo_body, CtlListGroupBox, alb, 1.0f);
 				}
 				{
 					SUiLayoutParam alb;
@@ -3220,10 +3178,16 @@ private:
 					alb.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
 					alb.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
 					alb.Margin.Set(8.0f);
-					alb.Margin.b.x += 20.0f;
+					{					
+						TView * p = P_TW->getCtrlView(STDCTL_SINGLELISTBOX);
+						if(TView::IsSubSign(p, TV_SUBSIGN_LISTBOX)) {
+							if(!static_cast<SmartListBox *>(p)->IsMultiColumn()) // Припуск для скролл-бара не нужен для мультиколоночного списка
+								alb.Margin.b.x += 20.0f; 
+						}
+					}
 					//alb.Padding.Set(def_margin);
 					//alb.Padding.b.x += 20.0f;
-					InnerBlock::InsertCtrlLayout(this, NZOR(p_lo_groupbox, p_lo_body), STDCTL_SINGLELISTBOX, alb, 1.0f);
+					InnerBlock::InsertCtrlLayout(P_TW, NZOR(p_lo_groupbox, p_lo_body), STDCTL_SINGLELISTBOX, alb, 1.0f);
 				}
 				if(p_lo_groupbox) {
 					if(P.Flags & (fcedCreate|fcedEdit|fcedDelete)) {
@@ -3247,13 +3211,13 @@ private:
 							alb.Margin.Set(DefMargin);
 							alb.Padding.Set(DefMargin);
 							if(P.Flags & fcedCreate) {
-								InnerBlock::InsertButtonLayout(this, p_lo_ced_button_group, STDCTL_INSBUTTON, alb, 0.0f);
+								InnerBlock::InsertButtonLayout(P_TW, p_lo_ced_button_group, STDCTL_INSBUTTON, alb, 0.0f);
 							}
 							if(P.Flags & fcedEdit) {
-								InnerBlock::InsertButtonLayout(this, p_lo_ced_button_group, STDCTL_EDITBUTTON, alb, 0.0f);
+								InnerBlock::InsertButtonLayout(P_TW, p_lo_ced_button_group, STDCTL_EDITBUTTON, alb, 0.0f);
 							}
 							if(P.Flags & fcedDelete) {
-								InnerBlock::InsertButtonLayout(this, p_lo_ced_button_group, STDCTL_DELBUTTON, alb, 0.0f);
+								InnerBlock::InsertButtonLayout(P_TW, p_lo_ced_button_group, STDCTL_DELBUTTON, alb, 0.0f);
 							}							
 						}
 					}
@@ -3265,137 +3229,24 @@ private:
 					alb.SetFixedSizeY(FixedCtrlHeight);
 					alb.Margin.Set(DefMargin);
 					alb.Padding.Set(DefMargin);
-					InnerBlock::InsertButtonLayout(this, p_lo_footer, STDCTL_OKBUTTON, alb, 0.0f);
-					InnerBlock::InsertButtonLayout(this, p_lo_footer, STDCTL_CANCELBUTTON, alb, 0.0f);
+					InnerBlock::InsertButtonLayout(P_TW, p_lo_footer, STDCTL_OKBUTTON, alb, 0.0f);
+					InnerBlock::InsertButtonLayout(P_TW, p_lo_footer, STDCTL_CANCELBUTTON, alb, 0.0f);
 				}
 			}
-			P_Lfc = p_lo_result;
+			P_TW->SetLayout(p_lo_result);
 		}
-		EvaluateLayout(pBlk->Coord);
+		P_TW->EvaluateLayout(pBlk->Coord);
 	}
-	const  LayoutExtra * GetLayoutExtra(int ident, uint val) const;
+	const  ListSelectionDialog_Base::LayoutExtra * GetLayoutExtra(int ident, uint val) const;
 	void   DrawLayout(TCanvas2 & rCanv, const SUiLayout * pLo);
 	const  SVector LoExtraList;
 	Param  P;
 	ListBoxDef * P_Def;
+private:
+	TWindow * P_TW;
 };
 
-static ListBoxDef * Test_ListSelectionDialog_MakeTestData(bool multiColumn, bool treeView)
-{
-	ListBoxDef * p_result = 0;
-	//static const char * P_TestDataFile = "D:/Papyrus/Src/PPTEST/DATA/person.txt";
-	SString file_name;
-	PPGetPath(PPPATH_TESTROOT, file_name);
-	file_name.SetLastSlash().Cat("data").SetLastSlash().Cat("person.txt");
-	SFile f_in(file_name, SFile::mRead);
-	if(f_in.IsValid()) {
-		StrAssocArray * p_data = new StrAssocArray;
-		p_result = new StrAssocListBoxDef(p_data, lbtDisposeData|lbtDblClkNotify|lbtFocNotify);
-		//
-		uint   line_no = 0;
-		SString temp_buf;
-		SString line_buf;
-		StringSet ss(SLBColumnDelim);
-		while(f_in.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
-			line_no++;
-			if(line_no >= 8) { // В начале файла там какой-то мусор, который я поосторожничал убирать
-				ss.Z();
-				line_buf.Transf(CTRANSF_OUTER_TO_INNER);
-				line_buf.Tokenize("|", ss);
-				if(multiColumn) {
-					p_result->addItem(line_no, ss.getBuf());
-				}
-				else {
-					if(ss.get(0U, temp_buf)) {
-						p_result->addItem(line_no, temp_buf);
-					}
-				}
-			}
-		}
-	}
-	return p_result;
-}
-
-int Test_ListSelectionDialog()
-{
-	class __TestListSelectionDialog : public ListSelectionDialog {
-	public:
-		__TestListSelectionDialog(const ListSelectionDialog::Param & rParam, ListBoxDef * pDef) : ListSelectionDialog(rParam, pDef), P_Def(pDef)
-		{
-		}
-	private:
-		DECL_HANDLE_EVENT
-		{
-			/*if(event.isCmd(cmInit)) { // 
-				TView * p_view = getCtrlView(STDCTL_SINGLELISTBOX);
-				if(TView::IsSubSign(p_view, TV_SUBSIGN_LISTBOX)) {
-					SmartListBox * p_box = static_cast<SmartListBox *>(p_view);
-					p_box->setDef(P_Def);
-				}
-			}*/
-			ListSelectionDialog::handleEvent(event);
-			/*if(event.isCmd(cmInit)) {
-				TView * p_view = getCtrlView(STDCTL_SINGLELISTBOX);
-				if(TView::IsSubSign(p_view, TV_SUBSIGN_LISTBOX)) {
-					SmartListBox * p_box = static_cast<SmartListBox *>(p_view);
-					p_box->setDef(P_Def);
-					//p_box->onInitDialog(1);
-					//p_box->Draw_();
-	   				//p_box->focusItem(0);
-				}
-			}*/
-		}
-		ListBoxDef * P_Def;
-	};
-	
-	int    ok = 0;
-	TRect  b;
-	b.set(0, 0, 295, 440); 
-	ListBoxDef * p_lb_def = Test_ListSelectionDialog_MakeTestData(false/*multiColumn*/, false/*treeView*/);
-	if(p_lb_def) {
-		ListSelectionDialog::Param param;
-		param.Flags |= (ListSelectionDialog::fcedCreate|ListSelectionDialog::fcedEdit|ListSelectionDialog::fcedDelete|ListSelectionDialog::fOkCancel);
-		param.Title = "Test list selection dialog";
-		__TestListSelectionDialog * p_view = new __TestListSelectionDialog(param, p_lb_def);
-		if(p_view) {
-			p_view->setBounds(b);
-			ok = ListSelectionDialog::Exec(p_view);
-		}
-	}
-	return ok;
-}
-
-/*static*/int ListSelectionDialog::Exec(ListSelectionDialog * pView)
-{
-	int    ok = -1;
-	//ListSelectionDialog * p_win = 0;
-	if(pView) {
-		const UiDescription * p_uid = SLS.GetUiDescription();
-		const SUiLayout * p_lo = 0;
-		//TRect  b;
-		//b.set(0, 0, 295, 440); 
-		THROW(p_uid);
-		p_lo = p_uid->GetLayoutBySymbC("listdialog");
-		THROW(p_lo);
-		//p_win = new ListSelectionDialog("A title");
-		//THROW_MEM(p_win);
-		//pView->setBounds(b);
-		//p_win->setDTS(&rData);
-		ok = APPL->P_DeskTop->execView(pView);
-		if(ok > 0) {
-			//p_win->getDTS(&rData);
-		}
-	}
-	CATCHZOK
-	delete pView;
-	return ok;
-}
-
-ListSelectionDialog::LayoutExtra::LayoutExtra(int ident, uint value) : Ident(ident), Value(value)
-{
-}
-
-const ListSelectionDialog::LayoutExtra * ListSelectionDialog::GetLayoutExtra(int ident, uint val) const
+const ListSelectionDialog_Base::LayoutExtra * ListSelectionDialog_Base::GetLayoutExtra(int ident, uint val) const
 {
 	for(uint i = 0; i < LoExtraList.getCount(); i++) {
 		const LayoutExtra * p_item = static_cast<const LayoutExtra *>(LoExtraList.at(i));
@@ -3405,7 +3256,11 @@ const ListSelectionDialog::LayoutExtra * ListSelectionDialog::GetLayoutExtra(int
 	return 0;
 }
 
-void ListSelectionDialog::DrawLayout(TCanvas2 & rCanv, const SUiLayout * pLo)
+ListSelectionDialog_Base::LayoutExtra::LayoutExtra(int ident, uint value) : Ident(ident), Value(value)
+{
+}
+
+void ListSelectionDialog_Base::DrawLayout(TCanvas2 & rCanv, const SUiLayout * pLo)
 {
 	if(pLo) {
 		{
@@ -3482,6 +3337,271 @@ void ListSelectionDialog::DrawLayout(TCanvas2 & rCanv, const SUiLayout * pLo)
 	}
 }
 
+/*static*/int ListSelectionDialog_Base::Exec(TWindow * pView)
+{
+	int    ok = -1;
+	if(pView) {
+		const UiDescription * p_uid = SLS.GetUiDescription();
+		const SUiLayout * p_lo = 0;
+		THROW(p_uid);
+		p_lo = p_uid->GetLayoutBySymbC("listdialog");
+		THROW(p_lo);
+		ok = APPL->P_DeskTop->execView(pView);
+		if(ok > 0) {
+			//p_win->getDTS(&rData);
+		}
+	}
+	CATCHZOK
+	delete pView;
+	return ok;
+}
+
+class ListSelectionDialog : public ListSelectionDialog_Base, public TWindowBase {
+public:
+	ListSelectionDialog(const Param & rParam, ListBoxDef * pDef) : 
+		TWindowBase(SUcSwitch(ListSelectionDialog::GetWindowTitle(rParam.Title)), wbcDrawBuffer),
+		ListSelectionDialog_Base(rParam, pDef, static_cast<TWindow *>(this))
+	{
+	}
+	~ListSelectionDialog()
+	{
+	}
+protected:
+	DECL_HANDLE_EVENT
+	{
+		TWindowBase::handleEvent(event);
+		if(event.isKeyDown(kbEsc)) {
+			if(IsInState(sfModal)) {
+				EndModalCmd = cmCancel;
+				clearEvent(event);
+			}
+		}
+		else if(TVINFOPTR) {
+			if(event.isCmd(cmInit)) {
+				OnInit2(static_cast<TWindowBase::CreateBlock *>(TVINFOPTR));
+				// don't clearEvent
+			}
+			else if(event.isCmd(cmClose)) {
+				if(IsInState(sfModal)) {
+					EndModalCmd = cmCancel;
+					clearEvent(event);
+				}
+			}
+			else if(event.isCmd(cmOK) || event.isCmd(cmCancel)) {
+				if(IsInState(sfModal)) {
+					EndModalCmd = event.message.command;
+					clearEvent(event);
+				}
+				else if(event.message.command == cmCancel) {
+					close();
+					return; // Окно разрушено - делать в этой процедуре больше нечего!
+				}
+			}
+			else if(event.isCmd(cmPaint)) {
+				PaintEvent * p_blk = static_cast<PaintEvent *>(TVINFOPTR);
+				//CreateFont_();
+				if(oneof2(p_blk->PaintType, PaintEvent::tPaint, PaintEvent::tEraseBackground)) {
+					SPaintToolBox * p_tb = APPL->GetUiToolBox();
+					if(p_tb) {
+						if(GetWbCapability() & wbcDrawBuffer) {
+							// Если используется буферизованная отрисовка, то фон нужно перерисовать в любом случае а на событие PaintEvent::tEraseBackground
+							// не реагировать
+							if(p_blk->PaintType == PaintEvent::tPaint) {
+								TCanvas2 canv(*p_tb, static_cast<HDC>(p_blk->H_DeviceContext));
+								canv.Rect(p_blk->Rect, 0, TProgram::tbiListBkgBrush);
+								DrawLayout(canv, P_Lfc);
+							}
+						}
+						else {
+							TCanvas2 canv(*p_tb, static_cast<HDC>(p_blk->H_DeviceContext));
+							if(p_blk->PaintType == PaintEvent::tEraseBackground)
+								canv.Rect(p_blk->Rect, 0, TProgram::tbiListBkgBrush);
+							if(p_blk->PaintType == PaintEvent::tPaint)
+								DrawLayout(canv, P_Lfc);
+						}
+					}
+					clearEvent(event);
+				}
+			}
+		}
+	}
+};
+
+#if 1 // @construction {
+class ListSelectionDialog2 : public ListSelectionDialog_Base, public TDialog {
+public:
+	ListSelectionDialog2(const Param & rParam, ListBoxDef * pDef) : 
+		TDialog(ListSelectionDialog::GetWindowTitle(rParam.Title), wbcDrawBuffer, TDialog::coEmpty),
+		ListSelectionDialog_Base(rParam, pDef, static_cast<TWindow *>(this))
+	{
+	}
+	~ListSelectionDialog2()
+	{
+	}
+protected:
+	DECL_HANDLE_EVENT
+	{
+		TDialog::handleEvent(event);
+		if(event.isKeyDown(kbEsc)) {
+			if(IsInState(sfModal)) {
+				EndModalCmd = cmCancel;
+				clearEvent(event);
+			}
+		}
+		else if(TVINFOPTR) {
+			if(event.isCmd(cmInit)) {
+				OnInit2(static_cast<TWindowBase::CreateBlock *>(TVINFOPTR));
+				// don't clearEvent
+			}
+			else if(event.isCmd(cmClose)) {
+				if(IsInState(sfModal)) {
+					EndModalCmd = cmCancel;
+					clearEvent(event);
+				}
+			}
+			else if(event.isCmd(cmOK) || event.isCmd(cmCancel)) {
+				if(IsInState(sfModal)) {
+					EndModalCmd = event.message.command;
+					clearEvent(event);
+				}
+				else if(event.message.command == cmCancel) {
+					close();
+					return; // Окно разрушено - делать в этой процедуре больше нечего!
+				}
+			}
+			else if(event.isCmd(cmPaint)) {
+				PaintEvent * p_blk = static_cast<PaintEvent *>(TVINFOPTR);
+				//CreateFont_();
+				if(oneof2(p_blk->PaintType, PaintEvent::tPaint, PaintEvent::tEraseBackground)) {
+					SPaintToolBox * p_tb = APPL->GetUiToolBox();
+					if(p_tb) {
+						if(GetWbCapability() & wbcDrawBuffer) {
+							// Если используется буферизованная отрисовка, то фон нужно перерисовать в любом случае а на событие PaintEvent::tEraseBackground
+							// не реагировать
+							if(p_blk->PaintType == PaintEvent::tPaint) {
+								TCanvas2 canv(*p_tb, static_cast<HDC>(p_blk->H_DeviceContext));
+								canv.Rect(p_blk->Rect, 0, TProgram::tbiListBkgBrush);
+								DrawLayout(canv, P_Lfc);
+							}
+						}
+						else {
+							TCanvas2 canv(*p_tb, static_cast<HDC>(p_blk->H_DeviceContext));
+							if(p_blk->PaintType == PaintEvent::tEraseBackground)
+								canv.Rect(p_blk->Rect, 0, TProgram::tbiListBkgBrush);
+							if(p_blk->PaintType == PaintEvent::tPaint)
+								DrawLayout(canv, P_Lfc);
+						}
+					}
+					clearEvent(event);
+				}
+			}
+		}
+	}
+};
+#endif // } 0 @construction
+
+static ListBoxDef * Test_ListSelectionDialog_MakeTestData(bool multiColumn, bool treeView, SString & rListColumnsDefinition)
+{
+	rListColumnsDefinition.Z();
+	ListBoxDef * p_result = 0;
+	//static const char * P_TestDataFile = "D:/Papyrus/Src/PPTEST/DATA/person.txt";
+	SString file_name;
+	PPGetPath(PPPATH_TESTROOT, file_name);
+	file_name.SetLastSlash().Cat("data").SetLastSlash().Cat("person.txt");
+	SFile f_in(file_name, SFile::mRead);
+	if(f_in.IsValid()) {
+		StrAssocArray * p_data = new StrAssocArray;
+		p_result = new StrAssocListBoxDef(p_data, lbtDisposeData|lbtDblClkNotify|lbtFocNotify);
+		//
+		uint   line_no = 0;
+		SString temp_buf;
+		SString line_buf;
+		StringSet ss(SLBColumnDelim);
+		while(f_in.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
+			line_no++;
+			if(line_no >= 8) { // В начале файла там какой-то мусор, который я поосторожничал убирать
+				ss.Z();
+				line_buf.Transf(CTRANSF_OUTER_TO_INNER);
+				line_buf.Tokenize("|", ss);
+				if(multiColumn) {
+					p_result->addItem(line_no, ss.getBuf());
+				}
+				else {
+					if(ss.get(0U, temp_buf)) {
+						p_result->addItem(line_no, temp_buf);
+					}
+				}
+			}
+		}
+		if(multiColumn)
+			rListColumnsDefinition = "20,L,name;20,L,addr;10,L,zip";
+	}
+	return p_result;
+}
+
+int Test_ListSelectionDialog()
+{
+	class __TestListSelectionDialog : public ListSelectionDialog2 {
+	public:
+		__TestListSelectionDialog(const ListSelectionDialog::Param & rParam, ListBoxDef * pDef) : ListSelectionDialog2(rParam, pDef)
+		{
+		}
+		~__TestListSelectionDialog()
+		{
+		}
+	private:
+		DECL_HANDLE_EVENT
+		{
+			/*if(event.isCmd(cmInit)) { // 
+				TView * p_view = getCtrlView(STDCTL_SINGLELISTBOX);
+				if(TView::IsSubSign(p_view, TV_SUBSIGN_LISTBOX)) {
+					SmartListBox * p_box = static_cast<SmartListBox *>(p_view);
+					p_box->setDef(P_Def);
+				}
+			}*/
+			ListSelectionDialog2::handleEvent(event);
+			/*if(event.isCmd(cmInit)) {
+				TView * p_view = getCtrlView(STDCTL_SINGLELISTBOX);
+				if(TView::IsSubSign(p_view, TV_SUBSIGN_LISTBOX)) {
+					SmartListBox * p_box = static_cast<SmartListBox *>(p_view);
+					p_box->setDef(P_Def);
+					//p_box->onInitDialog(1);
+					//p_box->Draw_();
+	   				//p_box->focusItem(0);
+				}
+			}*/
+		}
+	};
+	
+	int    ok = 0;
+	// @debug {
+	{
+		static bool single = false;
+		if(!single) {
+			SLS.SaturateRvlStrPool(512);
+			SLS.SaturateRvlStrUPool(512);
+			single = true;
+		}
+	}
+	// } @debug 
+	{
+		MemLeakTracer mlt;
+		ListSelectionDialog::Param param;
+		TRect  b;
+		b.set(0, 0, 295, 440); 
+		ListBoxDef * p_lb_def = Test_ListSelectionDialog_MakeTestData(false/*multiColumn*/, false/*treeView*/, param.ColumnDescription);
+		if(p_lb_def) {
+			param.Flags |= (ListSelectionDialog::fcedCreate|ListSelectionDialog::fcedEdit|ListSelectionDialog::fcedDelete|ListSelectionDialog::fOkCancel);
+			param.Title = "Test list selection dialog";
+			__TestListSelectionDialog * p_view = new __TestListSelectionDialog(param, p_lb_def);
+			if(p_view) {
+				p_view->setBounds(b);
+				ok = ListSelectionDialog::Exec(p_view);
+			}
+		}
+	}
+	return ok;
+}
 // } @construction
 
 /*static*/int STDCALL ListBoxSelDialog::Run(StrAssocArray * pAry, const char * pTitle, PPID * pID/*, uint flags*/)

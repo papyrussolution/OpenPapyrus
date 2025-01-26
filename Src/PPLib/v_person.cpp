@@ -1760,7 +1760,7 @@ static int SetupExtRegCombo(TDialog * dlg, uint ctl, const PersonFilt * pFilt, u
 		ListBoxDef * def = 0;
 		THROW(p_ary = CreateExtRegList(pFilt, &id, flags));
 		THROW_MEM(def = new StdListBoxDef(p_ary, lbtDblClkNotify|lbtFocNotify|lbtDisposeData, MKSTYPE(S_ZSTRING, sizeof(ExtRegEntry))));
-		ListWindow * p_lw = new ListWindow(def, 0, 0);
+		ListWindow * p_lw = new ListWindow(def);
 		THROW_MEM(p_lw);
 		p_combo->setListWindow(p_lw);
 		if(id)

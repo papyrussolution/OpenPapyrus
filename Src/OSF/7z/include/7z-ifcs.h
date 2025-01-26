@@ -932,7 +932,7 @@ ARCHIVE_INTERFACE(IArchiveOpenSetSubArchiveName, 0x50) { STDMETHOD(SetSubArchive
    Some IInArchive handlers will work incorrectly in that case.
  */
 #ifdef _MSC_VER
-	#define MY_NO_THROW_DECL_ONLY throw()
+	#define MY_NO_THROW_DECL_ONLY /*throw()*/ // @sobolev @v12.2.4 throw()-->nothing
 #else
 	#define MY_NO_THROW_DECL_ONLY
 #endif
@@ -6273,7 +6273,7 @@ namespace NCompress {
 				Byte Decode(int &channelDelta, Byte delta);
 				void Init() 
 				{
-					memzero(this, sizeof(*this));
+					THISZERO();
 				}
 			};
 
@@ -6283,7 +6283,7 @@ namespace NCompress {
 			public:
 				void Init() 
 				{
-					memzero(this, sizeof(*this));
+					THISZERO();
 				}
 				Byte Decode(Byte delta)
 				{

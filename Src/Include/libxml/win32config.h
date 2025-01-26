@@ -48,11 +48,9 @@
    by MS and we can assume that their functions know more about their 
    oddities than we do. */
 #include <float.h>
-/* Bjorn Reese figured a quite nice construct for isinf() using the _fpclass
-   function. */
+// Bjorn Reese figured a quite nice construct for isinf() using the _fpclass function.
 #ifndef isinf
-#define isinf(d) ((_fpclass(d) == _FPCLASS_PINF) ? 1 \
-	: ((_fpclass(d) == _FPCLASS_NINF) ? -1 : 0))
+    #define isinf(d) ((_fpclass(d) == _FPCLASS_PINF) ? 1 : ((_fpclass(d) == _FPCLASS_NINF) ? -1 : 0))
 #endif
 /* _isnan(x) returns nonzero if (x == NaN) and zero otherwise. */
 #ifndef isnan

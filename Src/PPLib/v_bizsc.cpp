@@ -1,5 +1,5 @@
 // V_BIZSC.CPP
-// Copyright (c) A.Starodub 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Starodub 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2025
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -10,7 +10,7 @@
 //
 BizScValByTemplViewItem::BizScValByTemplViewItem() : Id(0), P_Vals(0)
 {
-	PTR32(Name)[0] = 0;
+	Name[0] = 0;
 }
 
 BizScValByTemplViewItem::~BizScValByTemplViewItem()
@@ -144,7 +144,7 @@ int PPBizScTemplPacket::GetCellListInclEmpty(long colId, long rowId, TSVector <P
 int PPBizScTemplPacket::GetCellList(PPID colId, PPID rowId, TSVector <PPBizScTemplCell> * pCells)
 {
 	int    ok = -1;
-	uint count = Cells.getCount();
+	uint   count = Cells.getCount();
 	CALLPTRMEMB(pCells, freeAll());
 	for(uint i = 0; i < count; i++) {
 		PPBizScTemplCell & r_cell = Cells.at(i);
@@ -158,8 +158,8 @@ int PPBizScTemplPacket::GetCellList(PPID colId, PPID rowId, TSVector <PPBizScTem
 
 int PPBizScTemplPacket::GetRow(PPID rowId, uint * pPos, PPBizScTemplRow * pRow)
 {
-	int  ok = -1;
-	uint pos = 0;
+	int    ok = -1;
+	uint   pos = 0;
 	if(rowId && Rows.lsearch(&rowId, &pos, CMPF_LONG)) {
 		ASSIGN_PTR(pPos, pos);
 		ASSIGN_PTR(pRow, Rows.at(pos));
@@ -189,7 +189,7 @@ int PPBizScTemplPacket::RemoveRow(PPID rowId)
 	int  ok = 1;
 	uint pos = 0;
 	if(GetRow(rowId, &pos, 0) > 0) {
-		PPID row_id = Rows.at(pos).Id;
+		const PPID row_id = Rows.at(pos).Id;
 		Rows.atFree(pos);
 		for(long i = Cells.getCount() - 1; i >= 0; i--) {
 			if(Cells.at(i).RowId == row_id)
@@ -204,7 +204,7 @@ int PPBizScTemplPacket::AddCell(uint * pPos, PPBizScTemplCell * pCell)
 {
 	int    ok = -1;
 	if(pCell) {
-		uint count = Cells.getCount();
+		const uint count = Cells.getCount();
 		PPID new_id = 0L;
 		for(uint i = 0; i < count; i++)
 			new_id = MAX(new_id, Cells.at(i).Id);
@@ -246,12 +246,13 @@ int PPBizScTemplPacket::CalcValues(long colId, long rowId, BizScoreCore * pBizSc
 		if(GetCellListInclEmpty(colId, row.Id, &cell_list) > 0 && cell_list.getCount()) {
 			DL2_Resolver resolver;
 			PPBizScTemplCell * p_cell = 0;
+			SString str_val;
+			SString formula;
 			for(uint c = 0; cell_list.enumItems(&c, (void **)&p_cell) > 0;) {
-				PPID score_id = 0L;
-				SString str_val, formula;
 				PPBizScTemplCol col;
 				MEMSZERO(col);
-				score_id = p_cell->BizScId;
+				str_val.Z();
+				const PPID score_id = p_cell->BizScId;
 				formula = p_cell->Formula;
 				GetCol(p_cell->ColId, 0, &col);
 				if(score_id) {
@@ -266,11 +267,10 @@ int PPBizScTemplPacket::CalcValues(long colId, long rowId, BizScoreCore * pBizSc
 					k0.ObjID      = MAXLONG;
 					q.select(pBizScTbl->ScoreID, pBizScTbl->Val, pBizScTbl->Dt, pBizScTbl->Tm, pBizScTbl->ActualDate, pBizScTbl->Str, 0L).where(pBizScTbl->UserID == LConfig.UserID && pBizScTbl->ScoreID == score_id);
 					for(q.initIteration(false, &k0, spLe); q.nextIteration() > 0;) {
-						if(period.CheckDate(pBizScTbl->data.ActualDate) > 0) {
+						if(period.CheckDate(pBizScTbl->data.ActualDate)) {
 							BizScoreTbl::Rec rec;
 							pBizScTbl->copyBufTo(&rec);
-							str_val = rec.Str;
-							str_val.Cat(rec.Val);
+							(str_val = rec.Str).Cat(rec.Val);
 							break;
 						}
 					}

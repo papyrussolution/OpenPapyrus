@@ -193,6 +193,76 @@ bool PPMarketplaceInterface_Wildberries::Warehouse::FromJsonObj(const SJson * pJ
 	return ok;
 }
 
+PPMarketplaceInterface_Wildberries::ProductCategory::ProductCategory() : ID(0), ParentID(0), Flags(0)
+{
+}
+
+PPMarketplaceInterface_Wildberries::ProductCategory & PPMarketplaceInterface_Wildberries::ProductCategory::Z()
+{
+	ID = 0;
+	ParentID = 0;
+	Flags = 0;
+	Name.Z();
+	SubjectList.clear();
+	return *this;
+}
+
+bool PPMarketplaceInterface_Wildberries::ProductCategory::FromJsonObj(const SJson * pJs)
+{
+	Z();
+	bool   ok = false;
+	if(pJs && pJs->Type == SJson::tOBJECT) {
+		enum {
+			ocfName         = 0x0001,
+			ocfSubjectName  = 0x0002,
+			ocfParentName   = 0x0004,
+			ocfID           = 0x0008,
+			ocfSubjectID    = 0x0010,
+			ocfParentID     = 0x0020,
+			ocfIsVisible    = 0x0040,
+		};
+
+		uint occured_field = 0;
+		for(const SJson * p_cur = pJs->P_Child; p_cur; p_cur = p_cur->P_Next) {
+			if(p_cur->Text.IsEqiAscii("name")) {
+				(Name = p_cur->P_Child->Text).Unescape();
+				occured_field |= ocfName;
+			}
+			else if(p_cur->Text.IsEqiAscii("subjectName")) {
+				(Name = p_cur->P_Child->Text).Unescape();
+				occured_field |= ocfSubjectName;
+			}
+			else if(p_cur->Text.IsEqiAscii("parentName")) {
+				occured_field |= ocfParentName;
+			}
+			else if(p_cur->Text.IsEqiAscii("id")) {
+				ID = p_cur->P_Child->Text.ToInt64();
+				occured_field |= ocfID;
+			}
+			else if(p_cur->Text.IsEqiAscii("subjectID")) {
+				ID = p_cur->P_Child->Text.ToInt64();
+				occured_field |= ocfSubjectID;
+			}
+			else if(p_cur->Text.IsEqiAscii("parentID")) {
+				ParentID = p_cur->P_Child->Text.ToInt64();
+				occured_field |= ocfParentID;
+			}
+			else if(p_cur->Text.IsEqiAscii("isVisible")) {
+				occured_field |= ocfIsVisible;
+				if(SJson::IsTrue(p_cur->P_Child)) {
+					Flags |= fVisible;
+				}
+				else {
+					Flags &= ~fVisible;
+				}
+			}
+		}
+		if(ID > 0 && !Name.IsEmpty())
+			ok = true;
+	}
+	return ok;
+}
+
 PPMarketplaceInterface_Wildberries::WareBase::WareBase() : ID(0)
 {
 }
@@ -216,19 +286,19 @@ bool PPMarketplaceInterface_Wildberries::WareBase::FromJsonObj(const SJson * pJs
 	if(pJs && pJs->Type == SJson::tOBJECT) {
 		for(const SJson * p_cur = pJs->P_Child; p_cur; p_cur = p_cur->P_Next) {
 			if(p_cur->Text.IsEqiAscii("supplierArticle"))
-				SupplArticle = p_cur->P_Child->Text;
+				(SupplArticle = p_cur->P_Child->Text).Unescape();
 			else if(p_cur->Text.IsEqiAscii("nmId"))
 				ID = p_cur->P_Child->Text.ToInt64();
 			else if(p_cur->Text.IsEqiAscii("barcode"))
-				Barcode = p_cur->P_Child->Text;
+				(Barcode = p_cur->P_Child->Text).Unescape();
 			else if(p_cur->Text.IsEqiAscii("category"))
-				Category = p_cur->P_Child->Text;
+				(Category = p_cur->P_Child->Text).Unescape();
 			else if(p_cur->Text.IsEqiAscii("subject"))
-				Name = p_cur->P_Child->Text;
+				(Name = p_cur->P_Child->Text).Unescape();
 			else if(p_cur->Text.IsEqiAscii("brand"))
-				Brand = p_cur->P_Child->Text;
+				(Brand = p_cur->P_Child->Text).Unescape();
 			else if(p_cur->Text.IsEqiAscii("techSize"))
-				TechSize = p_cur->P_Child->Text;
+				(TechSize = p_cur->P_Child->Text).Unescape();
 		}
 		ok = true;
 	}
@@ -1179,6 +1249,170 @@ int PPMarketplaceInterface_Wildberries::RequestWarehouseList2(TSCollection <Ware
 	return Helper_RequestWarehouseList(methWarehouses2, rList, 0);
 }
 
+int PPMarketplaceInterface_Wildberries::RequestProductCategoryList(TSCollection <ProductCategory> & rList)
+{
+	rList.clear();
+	int    ok = 1;
+	SJson * p_js_reply = 0;
+	SString temp_buf;
+	SString url_buf;
+	StrStrAssocArray hdr_flds;
+	THROW(Helper_InitRequest(methContentCategoryList, url_buf, hdr_flds));
+	{
+		ScURL c;
+		SString reply_buf;
+		SBuffer ack_buf;
+		SFile wr_stream(ack_buf, SFile::mWrite);
+		THROW_SL(c.SetupDefaultSslOptions(0, SSystem::sslDefault, 0));
+		url_buf.CatChar('?').CatEq("locale", "ru");
+		Lth.Log("req", url_buf, temp_buf.Z());
+		THROW_SL(c.HttpGet(url_buf, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, &wr_stream));
+		{
+			SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
+			if(p_ack_buf) {
+				reply_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
+				Lth.Log("rep", 0, reply_buf);
+				{
+					p_js_reply = SJson::Parse(reply_buf);
+					if(SJson::IsObject(p_js_reply)) {
+						for(const SJson * p_cur = p_js_reply->P_Child; p_cur; p_cur = p_cur->P_Next) {
+							if(p_cur->Text.IsEqiAscii("data")) {
+								if(SJson::IsArray(p_cur->P_Child)) {
+									for(const SJson * p_js_item = p_cur->P_Child->P_Child; p_js_item; p_js_item = p_js_item->P_Next) {
+										if(SJson::IsObject(p_js_item)) {
+											uint   new_item_pos = 0;
+											ProductCategory * p_new_item = rList.CreateNewItem(&new_item_pos);
+											if(p_new_item) {
+												if(p_new_item->FromJsonObj(p_js_item)) {
+													p_new_item->Flags |= ProductCategory::fTopLevel;
+												}
+												else {
+													rList.atFree(new_item_pos);
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	CATCHZOK
+	delete p_js_reply;
+	return ok;
+}
+
+int PPMarketplaceInterface_Wildberries::RequestProductSubjectList(TSCollection <ProductCategory> & rList)
+{
+	// В этой функции rList очищать нельзя - рассчитываем, что в нем перечислены группы верхнего уровня, полученные
+	// вызовом RequestProductCategoryList()
+	int    ok = 1;
+	SJson * p_js_reply = 0;
+	SString temp_buf;
+	SString url_buf;
+	SString reply_buf;
+	StrStrAssocArray hdr_flds;
+	THROW(Helper_InitRequest(methContentSubjectList, url_buf, hdr_flds));
+	{
+		ScURL c;
+		THROW_SL(c.SetupDefaultSslOptions(0, SSystem::sslDefault, 0));
+		/*
+			Query Parameters:
+			----------------
+			name	string
+			Example: name=Socks
+			Search by product name (any supported language)
+
+			limit	integer
+			Example: limit=1000
+			Number of search results, maximum 1,000
+
+			locale	string
+			Example: locale=en
+			Response language (ru, en, zh)
+
+			offset	integer
+			Example: offset=5000
+			How many results to skip
+
+			parentID	integer
+			Example: parentID=1000
+			Parent category ID
+		*/ 
+		const SString preserve_url_buf(url_buf);
+		bool do_more = false;
+		uint req_limit = 1000;
+		uint req_offset = 0;
+		do {
+			SBuffer ack_buf;
+			SFile wr_stream(ack_buf, SFile::mWrite);
+			uint accepted_count = 0; // Количество элементов, которое вернул сервер. Это число понадобиться чтобы указать req_offset на следующей итерации.
+			url_buf = preserve_url_buf;
+			url_buf.CatChar('?').CatEq("locale", "ru").CatChar('&').CatEq("limit", req_limit).CatChar('&').CatEq("offset", req_offset);
+			Lth.Log("req", url_buf, temp_buf.Z());
+			THROW_SL(c.HttpGet(url_buf, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, &wr_stream));
+			{
+				SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
+				if(p_ack_buf) {
+					reply_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
+					Lth.Log("rep", 0, reply_buf);
+					{
+						ZDELETE(p_js_reply);
+						p_js_reply = SJson::Parse(reply_buf);
+						if(SJson::IsObject(p_js_reply)) {
+							for(const SJson * p_cur = p_js_reply->P_Child; p_cur; p_cur = p_cur->P_Next) {
+								if(p_cur->Text.IsEqiAscii("data")) {
+									if(SJson::IsArray(p_cur->P_Child)) {
+										for(const SJson * p_js_item = p_cur->P_Child->P_Child; p_js_item; p_js_item = p_js_item->P_Next) {
+											accepted_count++;
+											if(SJson::IsObject(p_js_item)) {
+												ProductCategory * p_item = new ProductCategory;
+												if(p_item) {
+													if(p_item->FromJsonObj(p_js_item)) {
+														if(p_item->ParentID) {
+															for(uint i = 0; p_item && i < rList.getCount(); i++) {
+																ProductCategory * p = rList.at(i);
+																if(p && p->ID == p_item->ParentID) {
+																	p->SubjectList.insert(p_item);
+																	p_item = 0;
+																}
+															}
+														}
+														if(p_item) {
+															// Не удалось найти родительский элемент группы (subject) - придется вставить в список как есть.
+															rList.insert(p_item);
+															p_item = 0;
+														}
+													}
+													else {
+														delete p_item;
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+				if(accepted_count >= req_limit) {
+					req_offset += accepted_count;
+					do_more = true;
+				}
+				else 
+					do_more = false;
+			}
+		} while(do_more);
+	}
+	CATCHZOK
+	delete p_js_reply;
+	return ok;	
+}
+
 int PPMarketplaceInterface_Wildberries::RequestWareList()
 {
 	int    ok = 1;
@@ -1959,6 +2193,142 @@ int PPMarketplaceInterface_Wildberries::AddWareListToPromotion()
 	return ok;
 }
 
+int PPMarketplaceInterface_Wildberries::RequestPromoCampaignListDetail(TSCollection <Campaign> & rList) // @v12.2.4
+{
+	int    ok = 1;
+	SJson * p_js_reply = 0;
+	SString temp_buf;
+	SString req_buf;
+	const LDATETIME now_dtm = getcurdatetime_();
+	SString url_buf;
+	StrStrAssocArray hdr_flds;
+	if(!rList.getCount()) {
+		ok = -1;
+	}
+	else {
+		THROW(Helper_InitRequest(methPromoCampaignDetail, url_buf, hdr_flds));
+		{
+			SJson json_req(SJson::tARRAY);
+			for(uint i = 0; i < rList.getCount(); i++) {
+				const Campaign * p_item = rList.at(i);
+				if(p_item && p_item->ID != 0) {
+					SJson * p_js_item = new SJson(SJson::tNUMBER);
+					if(p_js_item) {
+						//p_js_item->InsertInt64()
+						json_req.InsertChild(SJson::CreateInt64(p_item->ID));
+					}
+				}
+			}
+			THROW_SL(json_req.ToStr(req_buf));
+		}
+		{
+			ScURL c;
+			SString reply_buf;
+			SBuffer ack_buf;
+			SFile wr_stream(ack_buf, SFile::mWrite);
+			InetUrl url(url_buf);
+			THROW_SL(c.SetupDefaultSslOptions(0, SSystem::sslDefault, 0));
+			Lth.Log("req", url_buf, temp_buf.Z());
+			THROW_SL(c.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, req_buf, &wr_stream));
+			{
+				SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
+				if(p_ack_buf) {
+					reply_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
+					Lth.Log("rep", 0, reply_buf);
+					{
+						p_js_reply = SJson::Parse(reply_buf);
+						if(SJson::IsObject(p_js_reply)) {
+							for(const SJson * p_cur = p_js_reply->P_Child; p_cur; p_cur = p_cur->P_Next) {
+								if(p_cur->Text.IsEqiAscii("adverts")) {
+									if(SJson::IsArray(p_cur->P_Child)) {
+										for(const SJson * p_js_item = p_cur->P_Child->P_Child; p_js_item; p_js_item = p_js_item->P_Next) {
+											if(SJson::IsObject(p_js_item)) {
+												int   _type = 0;
+												int   _status = 0;
+												int   _count = 0;
+												TSVector <uint> new_item_pos_list;
+												for(const SJson * p_ag_cur = p_js_item->P_Child; p_ag_cur; p_ag_cur = p_ag_cur->P_Next) {
+													if(p_ag_cur->Text.IsEqiAscii("type")) {
+														if(SJson::IsNumber(p_ag_cur->P_Child)) {
+															_type = p_ag_cur->P_Child->Text.ToLong();
+														}
+													}
+													else if(p_ag_cur->Text.IsEqiAscii("status")) {
+														if(SJson::IsNumber(p_ag_cur->P_Child)) {
+															_status = p_ag_cur->P_Child->Text.ToLong();
+														}
+													}
+													else if(p_ag_cur->Text.IsEqiAscii("count")) {
+														if(SJson::IsNumber(p_ag_cur->P_Child)) {
+															_count = p_ag_cur->P_Child->Text.ToLong();
+														}
+													}
+													else if(p_ag_cur->Text.IsEqiAscii("advert_list")) {
+														if(SJson::IsArray(p_ag_cur->P_Child)) {
+															for(const SJson * p_ag_item = p_ag_cur->P_Child->P_Child; p_ag_item; p_ag_item = p_ag_item->P_Next) {
+																if(SJson::IsObject(p_ag_item)) {
+																	int64 _id = 0;
+																	LDATETIME _cdtm(ZERODATETIME);
+																	for(const SJson * p_agi_cur = p_ag_item->P_Child; p_agi_cur; p_agi_cur = p_agi_cur->P_Next) {
+																		if(p_agi_cur->Text.IsEqiAscii("advertId")) {
+																			if(SJson::IsNumber(p_agi_cur->P_Child)) {
+																				_id = p_agi_cur->P_Child->Text.ToInt64();
+																			}
+																		}
+																		else if(p_agi_cur->Text.IsEqiAscii("changeTime")) {
+																			if(SJson::IsString(p_agi_cur->P_Child)) {
+																				strtodatetime(p_agi_cur->P_Child->Text, &_cdtm, DATF_ISO8601, 0);
+																			}
+																		}
+																	}
+																	if(_id) {
+																		uint new_item_pos = 0;
+																		Campaign * p_new_item = rList.CreateNewItem(&new_item_pos);
+																		if(p_new_item) {
+																			new_item_pos_list.insert(&new_item_pos);
+																			p_new_item->ID = _id;
+																			p_new_item->ChangeDtm = _cdtm;
+																			p_new_item->Status = _status;
+																			p_new_item->Type = _type;
+																		}
+																	}
+																}
+															}
+														}
+													}
+												}
+												//
+												// Следующий цикл - страховка на случай, если массив элементов advert_list будет предшествовать
+												// одному из элементов "type", "status". Я знаю, что это - маловероятно, но и не такое встречал.
+												//
+												for(uint nipidx = 0; nipidx < new_item_pos_list.getCount(); nipidx++) {
+													const uint new_item_pos = new_item_pos_list.at(nipidx);
+													Campaign * p_item = rList.at(new_item_pos);
+													if(p_item) {
+														p_item->Status = _status;
+														p_item->Type = _type;
+													}
+												}
+											}
+										}
+									}
+								}
+								else if(p_cur->Text.IsEqiAscii("all")) {
+									// integer
+									// Это - просто общее число элементов в ответе. Игнорируем.
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	CATCHZOK
+	delete p_js_reply;
+	return ok;
+}
+
 int PPMarketplaceInterface_Wildberries::RequestPromoCampaignList(TSCollection <Campaign> & rList) // @v12.2.3
 {
 	rList.freeAll();
@@ -2019,7 +2389,7 @@ int PPMarketplaceInterface_Wildberries::RequestPromoCampaignList(TSCollection <C
 																for(const SJson * p_agi_cur = p_ag_item->P_Child; p_agi_cur; p_agi_cur = p_agi_cur->P_Next) {
 																	if(p_agi_cur->Text.IsEqiAscii("advertId")) {
 																		if(SJson::IsNumber(p_agi_cur->P_Child)) {
-																			_id = p_ag_cur->P_Child->Text.ToInt64();
+																			_id = p_agi_cur->P_Child->Text.ToInt64();
 																		}
 																	}
 																	else if(p_agi_cur->Text.IsEqiAscii("changeTime")) {
@@ -2062,6 +2432,7 @@ int PPMarketplaceInterface_Wildberries::RequestPromoCampaignList(TSCollection <C
 							}
 							else if(p_cur->Text.IsEqiAscii("all")) {
 								// integer
+								// Это - просто общее число элементов в ответе. Игнорируем.
 							}
 						}
 					}
@@ -2691,6 +3062,8 @@ bool PPMarketplaceInterface_Wildberries::MakeTargetUrl_(int meth, int * pReq/*SH
 		{ methAcceptanceReport, apiAnalytics, SHttpProtocol::reqGet, "api/v1/analytics/acceptance-report" },
 		{ methGoodsPrices, apiDiscountsPrices, SHttpProtocol::reqGet, "api/v2/list/goods/filter" },
 		{ methContentCardsList, apiContent, SHttpProtocol::reqPost, "content/v2/get/cards/list" },
+		{ methContentCategoryList, apiContent, SHttpProtocol::reqGet, "content/v2/object/parent/all" }, // @v12.2.4
+		{ methContentSubjectList, apiContent, SHttpProtocol::reqGet, "content/v2/object/all" }, // @v12.2.4
 		{ methBalance, apiAdvert, SHttpProtocol::reqGet, "adv/v1/balance" },
 		{ methDocumentsList, apiDocuments, SHttpProtocol::reqGet, "api/v1/documents/list" },
 		{ methReturns, apiAnalytics, SHttpProtocol::reqGet, "api/v1/analytics/goods-return" },
@@ -2699,6 +3072,7 @@ bool PPMarketplaceInterface_Wildberries::MakeTargetUrl_(int meth, int * pReq/*SH
 		{ methPromotionsGoods, apiDpCalendar, SHttpProtocol::reqGet, "api/v1/calendar/promotions/nomenclatures" },
 		{ methPromotionsAddGoods, apiDpCalendar, SHttpProtocol::reqPost, "api/v1/calendar/promotions/upload" },
 		{ methPromoCampaignCount, apiAdvert, SHttpProtocol::reqGet, "adv/v1/promotion/count" },
+		{ methPromoCampaignDetail, apiAdvert, SHttpProtocol::reqPost, "adv/v1/promotion/adverts" },
 	};
 	//https://content-api.wildberries.ru/content/v2/cards/upload
 	//https://discounts-prices-api.wildberries.ru/api/v2/upload/task
@@ -4163,90 +4537,6 @@ int PPMarketplaceInterface_Wildberries::ImportFinancialTransactions()
 	ENDCATCH
 	return ok;
 }
-
-int TestMarketplace()
-{
-	class TestMarketplaceDialog : public TDialog {
-	public:
-		TestMarketplaceDialog() : TDialog(DLG_TESTMRKTPLC)
-		{
-		}
-	};
-	int    ok = -1;
-	bool   do_test = false;
-	PPID   gua_id = 0;
-	SString param_buf;
-	TestMarketplaceDialog * dlg = new TestMarketplaceDialog();
-	if(CheckDialogPtr(&dlg)) {
-		SetupPPObjCombo(dlg, CTLSEL_TESTMRKTPLC_GUA, PPOBJ_GLOBALUSERACC, gua_id, 0);
-		dlg->setCtrlString(CTL_TESTMRKTPLC_TEXT, param_buf);
-		if(ExecView(dlg) == cmOK) {
-			dlg->getCtrlData(CTLSEL_TESTMRKTPLC_GUA, &gua_id);
-			dlg->getCtrlString(CTL_TESTMRKTPLC_TEXT, param_buf);
-			do_test = true;
-		}
-	}
-	if(do_test) {
-		PPID   mp_psn_id = 0;
-		//PPLogger logger;
-		PrcssrMarketplaceInterchange prc;
-		MarketplaceInterchangeFilt filt;
-		filt.GuaID = gua_id;
-		if(prc.Init(&filt)) {
-			PPMarketplaceInterface * p_ifc = prc.GetIfc();
-			if(p_ifc) {
-				PPMarketplaceInterface_Wildberries * p_ifc_wb = static_cast<PPMarketplaceInterface_Wildberries *>(p_ifc);
-				const int gmppr = p_ifc_wb->GetMarketplacePerson(&mp_psn_id, 1);
-				TSCollection <PPMarketplaceInterface_Wildberries::Warehouse> wh_list2;
-				TSCollection <PPMarketplaceInterface_Wildberries::Stock> stock_list;
-				//TSCollection <PPMarketplaceInterface_Wildberries::Sale> sale_list;
-				//TSCollection <PPMarketplaceInterface_Wildberries::Sale> order_list;
-				//TSCollection <PPMarketplaceInterface_Wildberries::Income> income_list;
-				TSCollection <PPMarketplaceInterface_Wildberries::SalesRepDbpEntry> sales_rep_dbp_list;
-				TSCollection <PPMarketplaceInterface_Wildberries::Promotion> promo_list;
-				TSCollection <PPMarketplaceInterface_Wildberries::Campaign> campaign_list;
-
-				int r = 0;
-				r = p_ifc_wb->RequestPromoCampaignList(campaign_list); // @v12.2.3
-				r = p_ifc_wb->RequestPromotionList(promo_list); // @v12.2.2
-				r = p_ifc_wb->RequestPromotionDetail(promo_list); // @v12.2.2
-				{
-					TSCollection <PPMarketplaceInterface_Wildberries::WareOnPromotion> ware_on_promo_list;
-					r = p_ifc_wb->RequestPromotionWareList(/*actionId*/805, true, ware_on_promo_list);
-				}
-				r = p_ifc_wb->RequestReturns();
-				r = p_ifc_wb->RequestWarehouseList2(wh_list2);
-				r = p_ifc_wb->RequestDocumentsList();
-				r = p_ifc_wb->RequestBalance();
-				r = p_ifc_wb->RequestWareList();
-				//
-				DateRange period;
-				period.SetPredefined(PREDEFPRD_LASTMONTH, ZERODATE);
-				r = p_ifc_wb->ImportReceipts();
-				r = p_ifc_wb->ImportOrders();
-				r = p_ifc_wb->ImportSales();
-				//r = p_ifc_wb->RequestWarehouseList(wh_list);
-				r = p_ifc_wb->RequestAcceptanceReport(period);
-				r = p_ifc_wb->RequestSupplies();
-				//r = p_ifc_wb->RequestIncomes(income_list);
-				r = p_ifc_wb->RequestCommission();
-				r = p_ifc_wb->RequestStocks(stock_list);
-				//r = p_ifc_wb->RequestOrders(order_list);
-				//r = p_ifc_wb->RequestSales(sale_list);
-				r = p_ifc_wb->RequestGoodsPrices();
-				{
-					//period.SetPredefined(PREDEFPRD_LASTMONTH, ZERODATE);
-					//period.low.encode(1, 5, 2024);
-					//period.upp = getcurdate_();
-					//r = p_ifc_wb->RequestSalesReportDetailedByPeriod(period, sales_rep_dbp_list);
-					r = p_ifc_wb->ImportFinancialTransactions();
-				}
-			}
-		}
-	}
-	delete dlg;
-	return ok;
-}
 //
 //
 //
@@ -5123,3 +5413,116 @@ xxx Фотосессии, руб
 	Обратная логистика, %
 	Ср.логистика на 1 ед. товара, руб
 */
+
+int TestMarketplace()
+{
+	class TestMarketplaceDialog : public TDialog {
+	public:
+		TestMarketplaceDialog() : TDialog(DLG_TESTMRKTPLC)
+		{
+		}
+	};
+	int    ok = -1;
+	bool   do_test = false;
+	PPID   gua_id = 0;
+	SString temp_buf;
+	SString param_buf;
+	TestMarketplaceDialog * dlg = new TestMarketplaceDialog();
+	if(CheckDialogPtr(&dlg)) {
+		SetupPPObjCombo(dlg, CTLSEL_TESTMRKTPLC_GUA, PPOBJ_GLOBALUSERACC, gua_id, 0);
+		dlg->setCtrlString(CTL_TESTMRKTPLC_TEXT, param_buf);
+		if(ExecView(dlg) == cmOK) {
+			dlg->getCtrlData(CTLSEL_TESTMRKTPLC_GUA, &gua_id);
+			dlg->getCtrlString(CTL_TESTMRKTPLC_TEXT, param_buf);
+			do_test = true;
+		}
+	}
+	if(do_test) {
+		PPID   mp_psn_id = 0;
+		//PPLogger logger;
+		PrcssrMarketplaceInterchange prc;
+		MarketplaceInterchangeFilt filt;
+		filt.GuaID = gua_id;
+		if(prc.Init(&filt)) {
+			PPMarketplaceInterface * p_ifc = prc.GetIfc();
+			if(p_ifc) {
+				PPMarketplaceInterface_Wildberries * p_ifc_wb = static_cast<PPMarketplaceInterface_Wildberries *>(p_ifc);
+				const int gmppr = p_ifc_wb->GetMarketplacePerson(&mp_psn_id, 1);
+				TSCollection <PPMarketplaceInterface_Wildberries::Warehouse> wh_list2;
+				TSCollection <PPMarketplaceInterface_Wildberries::Stock> stock_list;
+				//TSCollection <PPMarketplaceInterface_Wildberries::Sale> sale_list;
+				//TSCollection <PPMarketplaceInterface_Wildberries::Sale> order_list;
+				//TSCollection <PPMarketplaceInterface_Wildberries::Income> income_list;
+				TSCollection <PPMarketplaceInterface_Wildberries::SalesRepDbpEntry> sales_rep_dbp_list;
+				TSCollection <PPMarketplaceInterface_Wildberries::Promotion> promo_list;
+				TSCollection <PPMarketplaceInterface_Wildberries::Campaign> campaign_list;
+				TSCollection <PPMarketplaceInterface_Wildberries::ProductCategory> product_category_list;
+
+				int r = 0;
+				{
+					r = p_ifc_wb->RequestProductCategoryList(product_category_list);
+					r = p_ifc_wb->RequestProductSubjectList(product_category_list);
+					if(product_category_list.getCount()) {
+						PPGetFilePath(PPPATH_OUT, "wb_category_list.txt", temp_buf);
+						SFile f_out(temp_buf, SFile::mWrite);
+						if(f_out.IsValid()) {
+							for(uint i = 0; i < product_category_list.getCount(); i++) {
+								const PPMarketplaceInterface_Wildberries::ProductCategory * p_cat = product_category_list.at(i);
+								if(p_cat) {
+									temp_buf.Z().Cat(p_cat->ID).Tab().Cat(p_cat->Name).CR();
+									f_out.WriteLine(temp_buf);
+									if(p_cat->SubjectList.getCount()) {
+										for(uint subjidx = 0; subjidx < p_cat->SubjectList.getCount(); subjidx++) {
+											const PPMarketplaceInterface_Wildberries::ProductCategory * p_subj = p_cat->SubjectList.at(subjidx);
+											if(p_subj) {
+												temp_buf.Z().Tab().Cat(p_subj->ID).Tab().Cat(p_subj->Name).CR();
+												f_out.WriteLine(temp_buf);
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+				r = p_ifc_wb->RequestWareList();
+				r = p_ifc_wb->RequestPromoCampaignList(campaign_list); // @v12.2.3
+				r = p_ifc_wb->RequestPromoCampaignListDetail(campaign_list); // @v12.2.4
+				r = p_ifc_wb->RequestPromotionList(promo_list); // @v12.2.2
+				r = p_ifc_wb->RequestPromotionDetail(promo_list); // @v12.2.2
+				{
+					TSCollection <PPMarketplaceInterface_Wildberries::WareOnPromotion> ware_on_promo_list;
+					r = p_ifc_wb->RequestPromotionWareList(/*actionId*/805, true, ware_on_promo_list);
+				}
+				r = p_ifc_wb->RequestReturns();
+				r = p_ifc_wb->RequestWarehouseList2(wh_list2);
+				r = p_ifc_wb->RequestDocumentsList();
+				r = p_ifc_wb->RequestBalance();
+				//
+				DateRange period;
+				period.SetPredefined(PREDEFPRD_LASTMONTH, ZERODATE);
+				r = p_ifc_wb->ImportReceipts();
+				r = p_ifc_wb->ImportOrders();
+				r = p_ifc_wb->ImportSales();
+				//r = p_ifc_wb->RequestWarehouseList(wh_list);
+				r = p_ifc_wb->RequestAcceptanceReport(period);
+				r = p_ifc_wb->RequestSupplies();
+				//r = p_ifc_wb->RequestIncomes(income_list);
+				r = p_ifc_wb->RequestCommission();
+				r = p_ifc_wb->RequestStocks(stock_list);
+				//r = p_ifc_wb->RequestOrders(order_list);
+				//r = p_ifc_wb->RequestSales(sale_list);
+				r = p_ifc_wb->RequestGoodsPrices();
+				{
+					//period.SetPredefined(PREDEFPRD_LASTMONTH, ZERODATE);
+					//period.low.encode(1, 5, 2024);
+					//period.upp = getcurdate_();
+					//r = p_ifc_wb->RequestSalesReportDetailedByPeriod(period, sales_rep_dbp_list);
+					r = p_ifc_wb->ImportFinancialTransactions();
+				}
+			}
+		}
+	}
+	delete dlg;
+	return ok;
+}

@@ -13454,6 +13454,7 @@ struct SJson {
 	static SJson * CreateObj(); // { return new SJson(tOBJECT); }
 	static SJson * CreateArr(); // { return new SJson(tARRAY); }
 	static SJson * CreateString(const char * pText);
+	static SJson * CreateInt64(int64 value);
 	static SJson * FASTCALL Parse(const char * pText);
 	static SJson * FASTCALL ParseFile(const char * pFileName);
 	static bool FASTCALL IsObject(const SJson * pN) { return (pN && pN->Type == SJson::tOBJECT); }

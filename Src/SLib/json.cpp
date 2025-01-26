@@ -10,7 +10,7 @@
 // Free Software Foundation, Inc.,
 // 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
-// Adopted to SLIB by A.Sobolev 2010-2021, 2022
+// Adopted to SLIB by A.Sobolev 2010-2021, 2022, 2024, 2025
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -134,6 +134,13 @@ static rstring_code FASTCALL rcs_catc(RcString * pre, const char c)
 {
 	SJson * p_result = new SJson(tSTRING);
 	p_result->Text = pText;
+	return p_result;
+}
+
+/*static*/SJson * SJson::CreateInt64(int64 value)
+{
+	SJson * p_result = new SJson(tNUMBER);
+	p_result->Text.Cat(value);
 	return p_result;
 }
 

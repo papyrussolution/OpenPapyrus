@@ -2443,7 +2443,7 @@ DCHAR_T * VASNPRINTF(DCHAR_T * resultbuf, size_t * lengthp,
 									errno = EILSEQ;
 									return NULL;
 								}
-								if(precision < count)
+								if(static_cast<int>(precision) < count)
 									break;
 								arg_end++;
 								characters += count;
@@ -4699,10 +4699,8 @@ DCHAR_T * VASNPRINTF(DCHAR_T * resultbuf, size_t * lengthp,
 						   bytes that snprintf() has produced or would have
 						   produced.  */
 						if(count >= 0) {
-							/* Verify that snprintf() has NUL-terminated its
-							   result.  */
-							if(count < maxlen
-							    && ((TCHAR_T*)(result + length)) [count] != '\0')
+							/* Verify that snprintf() has NUL-terminated its result.  */
+							if(count < static_cast<int>(maxlen) && ((TCHAR_T*)(result + length)) [count] != '\0')
 								abort();
 							/* Portability hack.  */
 							if(retcount > count)

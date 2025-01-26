@@ -3907,7 +3907,7 @@ void PPBillPacket::SetTotalDiscount(double dis, int pctdis, int rmvexcise)
 						if(rmvexcise || qr) {
 							double rate = 0.0;
 							if(!empty_toggle) {
-								gobj.FetchTaxEntry2(ti->GoodsID, 0/*lotID*/, 0/*taxPayerID*/, ti->Date, Rec.OpID, &gtx);
+								gobj.FetchTaxEntry2(ti->GoodsID, 0/*lotID*/, 0/*taxPayerID*/, ti->Date, Rec.OpID, &gtx); // SALES_TAX
 								rate = fdiv100i(gtx.SalesTax); // @divtax
 								if(!rmvexcise)
 									AddSalesTax(ti, rate, 1);
@@ -4003,7 +4003,7 @@ void PPBillPacket::SetTotalDiscount(double dis, int pctdis, int rmvexcise)
 				for(i = 0; EnumTItems(&i, &ti);) {
 					if(!(ti->Flags & PPTFR_PCKG)) {
 						if(rmvexcise && !empty_toggle) {
-							gobj.FetchTaxEntry2(ti->GoodsID, 0/*lotID*/, 0/*taxPayerID*/, ti->Date, Rec.OpID, &gtx);
+							gobj.FetchTaxEntry2(ti->GoodsID, 0/*lotID*/, 0/*taxPayerID*/, ti->Date, Rec.OpID, &gtx); // SALES_TAX
 							AddSalesTax(ti, fdiv100i(gtx.SalesTax), 0);
 						}
 						SETFLAG(ti->Flags, PPTFR_RMVEXCISE, rmvexcise);
@@ -4040,7 +4040,7 @@ void PPBillPacket::SetTotalDiscount(double dis, int pctdis, int rmvexcise)
 						if(rmvexcise || qr) {
 							double rate = 0.0;
 							if(!empty_toggle) {
-								gobj.FetchTaxEntry2(ti->GoodsID, 0/*lotID*/, 0/*taxPayerID*/, ti->Date, Rec.OpID, &gtx);
+								gobj.FetchTaxEntry2(ti->GoodsID, 0/*lotID*/, 0/*taxPayerID*/, ti->Date, Rec.OpID, &gtx); // SALES_TAX
 								rate = fdiv100i(gtx.SalesTax); // @divtax
 							}
 							if(!rmvexcise) {
@@ -4144,7 +4144,7 @@ void PPBillPacket::SetTotalDiscount(double dis, int pctdis, int rmvexcise)
 				for(i = 0; EnumTItems(&i, &ti);)
 					if(!(ti->Flags & PPTFR_PCKG)) {
 						if(rmvexcise && !empty_toggle) {
-							gobj.FetchTaxEntry2(ti->GoodsID, 0/*lotID*/, 0/*taxPayerID*/, ti->Date, Rec.OpID, &gtx);
+							gobj.FetchTaxEntry2(ti->GoodsID, 0/*lotID*/, 0/*taxPayerID*/, ti->Date, Rec.OpID, &gtx); // SALES_TAX
 							AddSalesTax(ti, fdiv100i(gtx.SalesTax), 0);
 						}
 						SETFLAG(ti->Flags, PPTFR_RMVEXCISE, rmvexcise);
@@ -5957,11 +5957,12 @@ int PPBillPacket::SumAmounts(AmtList * pList, int fromDB)
 		SETFLAG(ProcessFlags, pfHasExtCost, (total_data.Flags & BillTotalData::fExtCost));
 		pList->Put(&total_data.Amounts, 1, 1);
 		if(btb_flags & BTC_CALCSALESTAXES) {
-			if(total_data.CVAT != 0.0 && OpTypeID == PPOPT_GOODSRECEIPT && Rec.Object)
+			if(total_data.CVAT != 0.0 && OpTypeID == PPOPT_GOODSRECEIPT && Rec.Object) {
 				if(IsSupplVATFree(Rec.Object) > 0 || PPObjLocation::CheckWarehouseFlags(Rec.LocID, LOCF_VATFREE)) {
 					total_data.CVAT = 0.0;
 					pList->Put(PPAMT_CVAT, 0L/*@curID*/, 0, 1, 1);
 				}
+			}
 		}
 		// @v11.6.6 {
 		if(op_rec.OpTypeID == PPOPT_ACCTURN && op_rec.ExtFlags & OPKFX_ACCAUTOVAT) {

@@ -1981,10 +1981,9 @@ namespace NArchive {
 
 		CInArchive::CCdInfo::CCdInfo()
 		{
-			memzero(this, sizeof(*this)); 
+			THISZERO();
 			IsFromEcd64 = false;
 		}
-
 		bool CInArchive::CCdInfo::IsEmptyArc() const
 		{
 			return (ThisDisk == 0 && CdDisk == 0 && NumEntries_in_ThisDisk == 0 && NumEntries == 0 && Size == 0 && Offset == 0); // test it

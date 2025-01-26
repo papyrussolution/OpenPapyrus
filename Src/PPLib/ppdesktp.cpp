@@ -1,5 +1,5 @@
 // PPDESKTP.CPP
-// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -385,7 +385,7 @@ static LRESULT CALLBACK EditDlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
 	return CallWindowProc(prev_window_proc, hWnd, uMsg, wParam, lParam);
 }
 
-PPBizScoreWindow::PPBizScoreWindow(HWND hParentWnd) : TWindow(TRect(1,1,50,20), 0, 1), HParentWnd(hParentWnd), ActualDt(ZERODATE), Dtm(ZERODATETIME)
+PPBizScoreWindow::PPBizScoreWindow(HWND hParentWnd) : TWindow(TRect(1,1,50,20)), HParentWnd(hParentWnd), ActualDt(ZERODATE), Dtm(ZERODATETIME)
 {
 }
 
@@ -577,7 +577,7 @@ int PPBizScoreWindow::DoCommand(SPoint2S p)
 //
 // PPDesktop
 //
-PPDesktop::PPDesktop() : TWindow(TRect(1,1,50,20), 0, 1), IconSize(0), IconGap(0), HwndTT(0), P_ActiveDesktop(0), State(0), HBizScoreWnd(0),
+PPDesktop::PPDesktop() : TWindow(TRect(1,1,50,20)), IconSize(0), IconGap(0), HwndTT(0), P_ActiveDesktop(0), State(0), HBizScoreWnd(0),
 	P_ScObj(0), P_GObj(0), P_PsnObj(0)
 {
 	// @v11.9.4 {
