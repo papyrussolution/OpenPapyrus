@@ -595,20 +595,16 @@ static bool MBCSSingleAddFromUnicode(MBCSData * mbcsData, const uint8_t * bytes,
 			}
 		}
 		newTop = newBlock+MBCS_STAGE_2_BLOCK_SIZE;
-
 		if(newTop>MBCS_MAX_STAGE_2_TOP) {
 			slfprintf_stderr("error: too many stage 2 entries at U+%04x<->0x%02x\n", (int)c, b);
 			return FALSE;
 		}
-
 		/*
-		 * each stage 2 block contains 64 16-bit words:
-		 * 6 code point bits 9..4 with 1 stage 3 index
+		 * each stage 2 block contains 64 16-bit words: 6 code point bits 9..4 with 1 stage 3 index
 		 */
 		mbcsData->stage1[idx] = (uint16_t)newBlock;
 		mbcsData->stage2Top = newTop;
 	}
-
 	/* inspect stage 2 */
 	idx = mbcsData->stage1[idx]+nextOffset;
 	if(mbcsData->utf8Friendly && c<=SBCS_UTF8_MAX) {
@@ -630,7 +626,6 @@ static bool MBCSSingleAddFromUnicode(MBCSData * mbcsData, const uint8_t * bytes,
 			}
 		}
 		newTop = newBlock+blockSize;
-
 		if(newTop>MBCS_STAGE_3_SBCS_SIZE) {
 			slfprintf_stderr("error: too many code points at U+%04x<->0x%02x\n", (int)c, b);
 			return FALSE;
@@ -643,7 +638,6 @@ static bool MBCSSingleAddFromUnicode(MBCSData * mbcsData, const uint8_t * bytes,
 		}
 		mbcsData->stage3Top = newTop; /* ==newBlock */
 	}
-
 	/* write the codepage entry into stage 3 and get the previous entry */
 	p = stage3+mbcsData->stage2Single[idx]+nextOffset;
 	old = *p;
@@ -656,12 +650,10 @@ static bool MBCSSingleAddFromUnicode(MBCSData * mbcsData, const uint8_t * bytes,
 	else {
 		*p = (uint16_t)(0x800|b);
 	}
-
 	/* check that this Unicode code point was still unassigned */
 	if(old>=0x100) {
 		if(flag>=0) {
-			slfprintf_stderr("error: duplicate Unicode code point at U+%04x<->0x%02x see 0x%02x\n",
-			    (int)c, b, old&0xff);
+			slfprintf_stderr("error: duplicate Unicode code point at U+%04x<->0x%02x see 0x%02x\n", (int)c, b, old&0xff);
 			return FALSE;
 		}
 		else if(VERBOSE) {
@@ -670,32 +662,23 @@ static bool MBCSSingleAddFromUnicode(MBCSData * mbcsData, const uint8_t * bytes,
 		}
 		/* continue after the above warning if the precision of the mapping is unspecified */
 	}
-
 	return TRUE;
 }
 
-static bool MBCSAddFromUnicode(MBCSData * mbcsData,
-    const uint8_t * bytes, int32_t length,
-    UChar32 c,
-    int8_t flag) {
+static bool MBCSAddFromUnicode(MBCSData * mbcsData, const uint8_t * bytes, int32_t length, UChar32 c, int8_t flag) 
+{
 	char buffer[10];
 	const uint8_t * pb;
 	uint8_t * stage3, * p;
 	uint32_t idx, b, old, stage3Index;
 	int32_t maxCharLength;
-
 	uint32_t blockSize, newTop, i, nextOffset, newBlock, min, overlap, maxOverlap;
-
 	maxCharLength = mbcsData->ucm->states.maxCharLength;
-
-	if(mbcsData->ucm->states.outputType==MBCS_OUTPUT_2_SISO &&
-	    (!IGNORE_SISO_CHECK && (*bytes==0xe || *bytes==0xf))
-	    ) {
+	if(mbcsData->ucm->states.outputType==MBCS_OUTPUT_2_SISO && (!IGNORE_SISO_CHECK && (*bytes==0xe || *bytes==0xf))) {
 		slfprintf_stderr("error: illegal mapping to SI or SO for SI/SO codepage: U+%04x<->0x%s\n",
 		    (int)c, printBytes(buffer, bytes, length));
 		return FALSE;
 	}
-
 	if(flag==1 && length==1 && *bytes==0) {
 		slfprintf_stderr("error: unable to encode a |1 fallback from U+%04x to 0x%02x\n",
 		    (int)c, *bytes);
@@ -768,21 +751,15 @@ static bool MBCSAddFromUnicode(MBCSData * mbcsData,
 			 * because of the indexing granularity in stage 2.
 			 */
 			maxOverlap = (nextOffset&~(MBCS_STAGE_3_GRANULARITY-1))*maxCharLength;
-			for(overlap = 0;
-			    overlap<maxOverlap && stage3[newBlock-overlap-1]==0;
-			    ++overlap) {
+			for(overlap = 0; overlap<maxOverlap && stage3[newBlock-overlap-1]==0; ++overlap) {
 			}
-
 			overlap = (overlap/MBCS_STAGE_3_GRANULARITY)/maxCharLength;
 			overlap = (overlap*MBCS_STAGE_3_GRANULARITY)*maxCharLength;
-
 			newBlock -= overlap;
 		}
 		newTop = newBlock+blockSize;
-
 		if(newTop>MBCS_STAGE_3_MBCS_SIZE*(uint32_t)maxCharLength) {
-			slfprintf_stderr("error: too many code points at U+%04x<->0x%s\n",
-			    (int)c, printBytes(buffer, bytes, length));
+			slfprintf_stderr("error: too many code points at U+%04x<->0x%s\n", (int)c, printBytes(buffer, bytes, length));
 			return FALSE;
 		}
 		/* each block has 16*maxCharLength bytes */
@@ -793,9 +770,7 @@ static bool MBCSAddFromUnicode(MBCSData * mbcsData,
 		}
 		mbcsData->stage3Top = newTop; /* ==newBlock */
 	}
-
 	stage3Index = MBCS_STAGE_3_GRANULARITY*(uint32_t)(uint16_t)mbcsData->stage2[idx];
-
 	/* Build an alternate, UTF-8-friendly stage table as well. */
 	if(mbcsData->utf8Friendly && c<=mbcsData->utf8Max) {
 		/* Overflow for uint16_t entries in stageUTF8? */
@@ -828,9 +803,7 @@ static bool MBCSAddFromUnicode(MBCSData * mbcsData,
 			mbcsData->stageUTF8[c>>MBCS_UTF8_STAGE_SHIFT] = (uint16_t)stage3Index;
 		}
 	}
-
 	/* write the codepage bytes into stage 3 and get the previous bytes */
-
 	/* assemble the bytes into a single integer */
 	pb = bytes;
 	b = 0;
@@ -849,7 +822,6 @@ static bool MBCSAddFromUnicode(MBCSData * mbcsData,
 		    b = (b<<8)|*pb++;
 		    break;
 	}
-
 	old = 0;
 	p = stage3+(stage3Index+nextOffset)*maxCharLength;
 	switch(maxCharLength) {
@@ -873,32 +845,26 @@ static bool MBCSAddFromUnicode(MBCSData * mbcsData,
 		    /* will never occur */
 		    break;
 	}
-
 	/* check that this Unicode code point was still unassigned */
 	if((mbcsData->stage2[idx+(nextOffset>>MBCS_STAGE_2_SHIFT)]&(1UL<<(16+(c&0xf))))!=0 || old!=0) {
 		if(flag>=0) {
-			slfprintf_stderr("error: duplicate Unicode code point at U+%04x<->0x%s see 0x%02x\n",
-			    (int)c, printBytes(buffer, bytes, length), (int)old);
+			slfprintf_stderr("error: duplicate Unicode code point at U+%04x<->0x%s see 0x%02x\n", (int)c, printBytes(buffer, bytes, length), (int)old);
 			return FALSE;
 		}
 		else if(VERBOSE) {
-			slfprintf_stderr("duplicate Unicode code point at U+%04x<->0x%s see 0x%02x\n",
-			    (int)c, printBytes(buffer, bytes, length), (int)old);
+			slfprintf_stderr("duplicate Unicode code point at U+%04x<->0x%s see 0x%02x\n", (int)c, printBytes(buffer, bytes, length), (int)old);
 		}
-		/* continue after the above warning if the precision of the mapping is
-		   unspecified */
+		/* continue after the above warning if the precision of the mapping is unspecified */
 	}
 	if(flag<=0) {
 		/* set the roundtrip flag */
 		mbcsData->stage2[idx+(nextOffset>>4)] |= (1UL<<(16+(c&0xf)));
 	}
-
 	return TRUE;
 }
 
-U_CFUNC bool MBCSOkForBaseFromUnicode(const MBCSData * mbcsData,
-    const uint8_t * bytes, int32_t length,
-    UChar32 c, int8_t flag) {
+U_CFUNC bool MBCSOkForBaseFromUnicode(const MBCSData * mbcsData, const uint8_t * bytes, int32_t length, UChar32 c, int8_t flag) 
+{
 	/*
 	 * A 1:1 mapping does not fit into the MBCS base table's fromUnicode table under
 	 * the following conditions:
@@ -909,13 +875,10 @@ U_CFUNC bool MBCSOkForBaseFromUnicode(const MBCSData * mbcsData,
 	 *
 	 * Some of these tests are redundant with ucm_mappingType().
 	 */
-	if((flag==2 && length==1) ||
-	    (flag==1 && bytes[0]==0) || /* testing length==1 would be redundant with the next test */
-	    (flag<=1 && length>1 && bytes[0]==0)
-	    ) {
+	if((flag==2 && length==1) || (flag==1 && bytes[0]==0) || /* testing length==1 would be redundant with the next test */
+	    (flag<=1 && length>1 && bytes[0]==0)) {
 		return FALSE;
 	}
-
 	/*
 	 * Additional restrictions for UTF-8-friendly fromUnicode tables,
 	 * for code points up to the maximum optimized one:
@@ -926,7 +889,6 @@ U_CFUNC bool MBCSOkForBaseFromUnicode(const MBCSData * mbcsData,
 	if(mbcsData->utf8Friendly && flag<=1 && c<=mbcsData->utf8Max && (bytes[0]==0 || flag==1)) {
 		return FALSE;
 	}
-
 	/*
 	 * If we omit the fromUnicode data, we can only store roundtrips there
 	 * because only they are recoverable from the toUnicode data.
@@ -935,14 +897,14 @@ U_CFUNC bool MBCSOkForBaseFromUnicode(const MBCSData * mbcsData,
 	if(mbcsData->omitFromU && flag!=0) {
 		return FALSE;
 	}
-
 	/* All other mappings do fit into the base table. */
 	return TRUE;
 }
 
 U_CDECL_BEGIN
 /* we can assume that the table only contains 1:1 mappings with <=4 bytes each */
-static bool MBCSAddTable(NewConverter * cnvData, UCMTable * table, UConverterStaticData * staticData) {
+static bool MBCSAddTable(NewConverter * cnvData, UCMTable * table, UConverterStaticData * staticData) 
+{
 	MBCSData * mbcsData;
 	UCMapping * m;
 	UChar32 c;

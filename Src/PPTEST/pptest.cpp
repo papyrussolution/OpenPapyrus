@@ -1812,6 +1812,46 @@ static void Test_LibPhoneNumber()
 
 //void TestPow10Tab(); // prototype(dconvstr.c)
 
+static int TestTransferFileToFtp() // @v12.2.5 проверка отправки файла с длинным именем на ftp. Пользователи утверждают, что с этим есть проблемы.
+{
+	int    ok = 1;
+	const  char * p_src_file_path = "D:/Papyrus/__TEMP__/ON_NSCHFDOPPRMARK_2BM-100100183632--2015091610525162883960000000_2BM-100100910817-20121218104345889223900000000_20250127_32013858-FEB4-49DC-8B6F-5D5B5CEDE240.xml";
+	const  char * p_ftp_acc_symb = "Rekish-Prodgrupp";
+	PPID   ftp_acc_id = 0;
+	if(fileExists(p_src_file_path)) {
+		PPObjInternetAccount ia_obj;
+		if(ia_obj.SearchBySymb(p_ftp_acc_symb, &ftp_acc_id, 0) > 0) {
+			PPInternetAccount2 ia_pack;
+			if(ia_obj.Get(ftp_acc_id, &ia_pack) > 0 && ia_pack.Flags & PPInternetAccount2::fFtpAccount) {
+				SString ftp_path;
+				SString naked_file_name;
+				{
+					SFsPath ps(p_src_file_path);
+					ps.Merge(SFsPath::fNam|SFsPath::fExt, naked_file_name);
+					ia_pack.GetExtField(FTPAEXSTR_HOST, ftp_path);
+				}
+				{
+					SUniformFileTransmParam param;
+					SString accs_name;
+					char   pwd[256];
+					(param.SrcPath = p_src_file_path).Transf(CTRANSF_OUTER_TO_UTF8);
+					SFsPath::NormalizePath(ftp_path, SFsPath::npfSlash|SFsPath::npfKeepCase, param.DestPath);
+					param.Flags = 0;
+					param.Format = SFileFormat::Unkn;
+					ia_pack.GetExtField(FTPAEXSTR_USER, accs_name);
+					ia_pack.GetPassword_(pwd, sizeof(pwd), FTPAEXSTR_PASSWORD);
+					param.AccsName.EncodeUrl(accs_name, 0);
+					param.AccsPassword.EncodeUrl(pwd, 0);
+					memzero(pwd, sizeof(pwd));
+					if(param.Run(0, 0))
+						ok = 1;
+				}
+			}
+		}
+	}
+	return ok;
+}
+
 int DoConstructionTest()
 {
 	int    ok = -1;
@@ -1884,6 +1924,7 @@ int DoConstructionTest()
 		}
 	}
 #endif // } 0
+	//TestTransferFileToFtp();
 	Test_ListSelectionDialog();
 	//SentencePieceExperiments();
 	//TestGtinStruc();

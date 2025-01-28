@@ -871,8 +871,7 @@ int PPJobSession::MailNotify(const char * pTmpLogFileName)
 				line_count++;
 			}
 			msg_buf.Transf(CTRANSF_OUTER_TO_UTF8);
-			// @v9.9.4 mail_msg.SetField(SMailMessage::fldText, msg_buf);
-			mail_msg.AttachContent(0, SFileFormat::Txt, cpUTF8, msg_buf, msg_buf.Len()); // @v9.9.4
+			mail_msg.AttachContent(0, SFileFormat::Txt, cpUTF8, msg_buf, msg_buf.Len());
 		}
 		if(!(Job.Flags & Job.fSkipEmptyNotification) || line_count) {
 			SString subscribed_list_buff, addr_line;
@@ -899,8 +898,7 @@ int PPJobSession::MailNotify(const char * pTmpLogFileName)
 					}
 					mail_msg.SetField(SMailMessage::fldTo, addr_line);
 					mail_counter.Init(1);
-					// @v9.8.11  if(!PPMailSmtp::Send(inet_acc, mail_msg, SendMailCallback, mail_counter))
-					if(!PPSendEmail(inet_acc, mail_msg, SendMailCallback, mail_counter)) // @v9.8.11
+					if(!PPSendEmail(inet_acc, mail_msg, SendMailCallback, mail_counter))
 						PPError();
 				}
 			}

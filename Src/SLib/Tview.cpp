@@ -67,7 +67,7 @@
 /*static*/void * FASTCALL TView::messageKeyDown(TView * pReceiver, uint keyCode)
 {
 	void * p_ret = 0;
-	if(pReceiver) {
+	if(pReceiver && pReceiver->IsConsistent()) { // @v12.2.5 (&& pReceiver->IsConsistent())
 		TEvent event;
 		event.what = TEvent::evKeyDown;
 		event.keyDown.keyCode = keyCode;
@@ -617,7 +617,19 @@ bool TView::IsConsistent() const
 {
 	bool   ok = true;
 	__try {
-		ok = (Sign == SIGN_TVIEW);
+		if(Sign == SIGN_TVIEW) {
+			// @v12.2.5 {
+			const void * vptr = *(const void **)(this);
+			if(vptr == 0 || vptr == reinterpret_cast<const void *>(0x04U))
+				ok = false;
+			else if(sizeof(void *) == 4 && vptr == reinterpret_cast<const void *>(0xddddddddU))
+				ok = false;
+			else if(sizeof(void *) == 8 && vptr == reinterpret_cast<const void *>(0xddddddddddddddddULL))
+				ok = false;
+			// } @v12.2.5
+		}
+		else
+			ok = false;
 	}
 	__except(1) {
 		ok = false;

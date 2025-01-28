@@ -3455,7 +3455,16 @@ int SUniformFileTransmParam::Run(SDataMoveProgressProc pf, void * extraPtr)
 				AddS(local_path_src, &ri.SrcPathP);
 				AddS(local_path_src, &ri.RmvSrcCookieP);
 			}
-			if(oneof3(prot_dest, InetUrl::protFtp, InetUrl::protFtps, InetUrl::protTFtp)) {
+			if(prot_dest == InetUrl::protFile) { // @v12.2.5
+				SFsPath ps_dest(path_dest);
+				SFsPath ps_src(local_path_src);
+				ps_dest.Nam = ps_src.Nam;
+				ps_dest.Ext = ps_src.Ext;
+				SString local_path_dest;
+				ps_dest.Merge(&ps_src, SFsPath::fNam|SFsPath::fExt, local_path_dest);
+				SCopyFile(local_path_src, local_path_dest, /*SDataMoveProgressProc*/0, /*shareMode*/0, /*pExtra*/0);
+			}
+			else if(oneof3(prot_dest, InetUrl::protFtp, InetUrl::protFtps, InetUrl::protTFtp)) {
 				ScURL curl;
                 if(AccsName.NotEmpty()) {
                     url_dest.SetComponent(InetUrl::cUserName, AccsName);

@@ -9610,37 +9610,42 @@ int CheckPaneDialog::PreprocessGoodsSelection(const PPID goodsID, PPID locID, Pg
 												if(p_cle) {
 													//debug_mark = true;
 													// @v12.2.2 {
+													const double _mrp = R2(p_cle->Mrp / 100.0);
+													const double _smp = R2(p_cle->Smp / 100.0);
 													if(gt_rec.ChZnProdType != GTCHZNPT_ALTTOBACCO) { // @v12.2.4 Для альтернативной табачной продукции ценовое ограничение не проверяем.
-														if(p_cle->Mrp > 0.0) {
-															rBlk.AllowedPriceRange.upp = p_cle->Mrp / 100.0;
+														if(_mrp > 0.0) {
+															rBlk.AllowedPriceRange.upp = _mrp;
 														}
-														if(p_cle->Smp > 0.0) {
-															rBlk.AllowedPriceRange.low = p_cle->Smp / 100.0;
+														if(_smp > 0.0) {
+															rBlk.AllowedPriceRange.low = _smp;
 														}
 														// @v12.2.4 {
-														if(gt_rec.ChZnProdType != GTCHZNPT_TOBACCO) {
+														if(gt_rec.ChZnProdType == GTCHZNPT_TOBACCO) { // @v12.2.5 @fix (!=)-->(==)
 															if(CConfig.Flags2 & CCFLG2_RESTRICTCHZNCIGPRICEASMRC) {
-																if(p_cle->Mrp > 0.0) {
-																	rBlk.AllowedPriceRange.SetVal(p_cle->Mrp);
+																if(_mrp > 0.0) {
+																	rBlk.AllowedPriceRange.SetVal(_mrp);
 																}
 															}
 														}
 														// } @v12.2.4 
 													}
 													// } @v12.2.2 
-													if(p_cle->ErrorCode != 0) {
-														ok = MessageError(PPERR_CHZNMARKPMFAULT, chzn_mark, eomBeep|eomStatusLine);
-													}
-													else if(p_cle->Flags & PPChZnPrcssr::PermissiveModeInterface::CodeStatus::fSold) {
-														ok = MessageError(PPERR_CHZNMARKPMFAULT_SOLD, chzn_mark, eomBeep|eomStatusLine);
-													}
-													else if(checkdate(p_cle->ExpiryDtm.d) && now_dtm.d >= p_cle->ExpiryDtm.d) { // @v12.1.1
-														ok = MessageError(PPERR_CHZNMARKPMFAULT_EXPIRY, chzn_mark, eomBeep|eomStatusLine);
-													}
-													else { // @v12.1.1
-														// OK
-														rBlk.ChZnPm_ReqId = check_code_list.ReqId;
-														rBlk.ChZnPm_ReqTimestamp = check_code_list.ReqTimestamp;
+													{
+														int    local_err_code = 0;
+														if(p_cle->ErrorCode != 0)
+															local_err_code = PPERR_CHZNMARKPMFAULT;
+														else if(p_cle->Flags & PPChZnPrcssr::PermissiveModeInterface::CodeStatus::fSold)
+															local_err_code = PPERR_CHZNMARKPMFAULT_SOLD;
+														else if(checkdate(p_cle->ExpiryDtm.d) && now_dtm.d >= p_cle->ExpiryDtm.d) // @v12.1.1
+															local_err_code = PPERR_CHZNMARKPMFAULT_EXPIRY;
+														if(local_err_code) {
+															ok = MessageError(local_err_code, chzn_mark, eomBeep|eomStatusLine);
+														}
+														else { // @v12.1.1
+															// OK
+															rBlk.ChZnPm_ReqId = check_code_list.ReqId;
+															rBlk.ChZnPm_ReqTimestamp = check_code_list.ReqTimestamp;
+														}
 													}
 												}
 											}

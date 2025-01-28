@@ -3541,9 +3541,11 @@ static ListBoxDef * Test_ListSelectionDialog_MakeTestData(bool multiColumn, bool
 
 int Test_ListSelectionDialog()
 {
-	class __TestListSelectionDialog : public ListSelectionDialog2 {
+	#define LIST_SELECTION_DIALOG_BASE_CLASS ListSelectionDialog
+
+	class __TestListSelectionDialog : public LIST_SELECTION_DIALOG_BASE_CLASS {
 	public:
-		__TestListSelectionDialog(const ListSelectionDialog::Param & rParam, ListBoxDef * pDef) : ListSelectionDialog2(rParam, pDef)
+		__TestListSelectionDialog(const ListSelectionDialog::Param & rParam, ListBoxDef * pDef) : LIST_SELECTION_DIALOG_BASE_CLASS(rParam, pDef)
 		{
 		}
 		~__TestListSelectionDialog()
@@ -3552,24 +3554,7 @@ int Test_ListSelectionDialog()
 	private:
 		DECL_HANDLE_EVENT
 		{
-			/*if(event.isCmd(cmInit)) { // 
-				TView * p_view = getCtrlView(STDCTL_SINGLELISTBOX);
-				if(TView::IsSubSign(p_view, TV_SUBSIGN_LISTBOX)) {
-					SmartListBox * p_box = static_cast<SmartListBox *>(p_view);
-					p_box->setDef(P_Def);
-				}
-			}*/
-			ListSelectionDialog2::handleEvent(event);
-			/*if(event.isCmd(cmInit)) {
-				TView * p_view = getCtrlView(STDCTL_SINGLELISTBOX);
-				if(TView::IsSubSign(p_view, TV_SUBSIGN_LISTBOX)) {
-					SmartListBox * p_box = static_cast<SmartListBox *>(p_view);
-					p_box->setDef(P_Def);
-					//p_box->onInitDialog(1);
-					//p_box->Draw_();
-	   				//p_box->focusItem(0);
-				}
-			}*/
+			LIST_SELECTION_DIALOG_BASE_CLASS::handleEvent(event);
 		}
 	};
 	

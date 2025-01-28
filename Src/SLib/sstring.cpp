@@ -1652,14 +1652,11 @@ SString & FASTCALL SString::CopyFromOleStr(const BSTR s)
 
 SString & SString::Z()
 {
-	/* @v12.2.4 (это - детский сад: на работает такая оптимизация. и не оптимизация это вовсе) //
-	// Функция вызывается экстремально часто. Потому максимально оптимизирована.
-	//
-	if(Size >= sizeof(uint32) || Alloc(sizeof(uint32))) { // 4 байта быстрее обнуляются, чем 1 поэтому требуем минимальную длину - 4 символа (4 байта)
-		*PTR32(P_Buf) = 0;
+	if(Size >= sizeof(uint32) || Alloc(sizeof(uint32))) {
+		P_Buf[0] = 0;
 		L = 1;
 	}
-	else*/if(P_Buf) {
+	else if(P_Buf) {
 		P_Buf[0] = 0;
 		L = 1;
 	}

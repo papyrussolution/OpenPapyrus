@@ -12006,6 +12006,48 @@ public:
 		xmlFreeTextWriter(p_x);
 		return ok;
 	}
+	// @todo Унифицировать TrasmitFiles с другими классами этого модуля.
+	int    TransmitFiles(const StringSet & rFileNameSet) // @v12.2.4
+	{
+		int    ok = -1;
+		SString temp_buf;
+		SString msg_buf;
+		SString file_name;
+		SString remote_addr;
+		SString accs_name;
+		SString accs_passw;
+		SString dest_root;
+		SUniformFileTransmParam uftp;
+		Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssRemoteAddr, remote_addr);
+		Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssAccsName, accs_name);
+		Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssAccsPassw, accs_passw);
+		if(remote_addr.NotEmptyS()) {
+			dest_root = remote_addr;
+			for(uint ssp = 0; rFileNameSet.get(&ssp, file_name);) {
+				if(fileExists(file_name)) {
+					SFsPath ps(file_name);
+					uftp.SrcPath = file_name;
+					{
+						uftp.DestPath = dest_root;
+						uftp.AccsName = accs_name;
+						uftp.AccsPassword = accs_passw;
+						PPLoadTextS(PPTXT_SENDSUPPLIXDATA, msg_buf).CatDiv(':', 2).Cat(ArName).CatDiv('-', 1).Cat(uftp.DestPath);
+						if(uftp.Run(0, 0)) {
+							PPLoadTextS(PPTXT_SUPPLIXDATASENT, msg_buf).CatDiv(':', 2).Cat(ArName).CatDiv('-', 1).Cat(uftp.DestPath);
+							ok = 1;
+						}
+						else {
+							ok = PPSetError(PPERR_SLIB);
+							PPGetLastErrorMessage(1, temp_buf);
+							PPLoadTextS(PPTXT_SENDSUPPLIXDATAFAULT, msg_buf).CatDiv(':', 2).Cat(temp_buf);
+						}
+						R_Logger.Log(msg_buf);
+					}
+				}
+			}
+		}
+		return ok;
+	}
 private:
 	SString & FASTCALL Helper_GetToken(long tokId)
 	{
@@ -13706,6 +13748,11 @@ int PrcssrSupplInterchange::Run()
 			}
 			if(actions & SupplInterchangeFilt::opExportClients) {
 				cli.SendClients(ss_file_name);
+			}
+			if(!(r_eb.P.Flags & SupplInterchangeFilt::fTestMode)) {
+				if(ss_file_name.getCount()) {
+					cli.TransmitFiles(ss_file_name);
+				}
 			}
 		}
 		else if(temp_buf.IsEqiAscii("OSTANKINO")) { // @v11.9.7

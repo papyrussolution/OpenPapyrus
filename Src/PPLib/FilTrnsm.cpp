@@ -1,5 +1,5 @@
 // FILTRNSM.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 // Передача объектов между разделами БД
 //
@@ -865,7 +865,6 @@ int PutTransmitFiles(PPID dbDivID, long trnsmFlags)
 				THROW(PackTransmitFiles(&fep, 1));
 			}
 			// } AHTOXA
-			// @v10.5.4 {
 			if(dbdiv_pack.Rec.Flags & DBDIVF_MQBEXCHANGE) {
 				PPMqbClient mqc;
 				SString data_domain;
@@ -905,21 +904,20 @@ int PutTransmitFiles(PPID dbDivID, long trnsmFlags)
 							}
 						}
 					}
-					BackupTransmittedFiles(fep, trnsmFlags); // @v10.7.5
-					RemoveTransmittedFiles(fep, trnsmFlags); // @v10.7.5
+					BackupTransmittedFiles(fep, trnsmFlags);
+					RemoveTransmittedFiles(fep, trnsmFlags);
 				}
 			}
-			// } @v10.5.4 
 			if(IsEmailAddr(dest)) {
-				BackupTransmittedFiles(fep, trnsmFlags); // @v10.7.5
+				BackupTransmittedFiles(fep, trnsmFlags);
 				THROW(PutFilesToEmail(&fep, 0, dest, PPConst::P_SubjectDbDiv, trnsmFlags));
 			}
 			else if(IsFtpAddr(dest)) {
-				BackupTransmittedFiles(fep, trnsmFlags); // @v10.7.5
+				BackupTransmittedFiles(fep, trnsmFlags);
 				THROW(PutFilesToFtp(&fep, 0, dest, trnsmFlags));
 			}
-			else if(dest.NotEmpty()) { // @v10.6.8 if(dest.NotEmpty())
-				BackupTransmittedFiles(fep, trnsmFlags); // @v10.7.5
+			else if(dest.NotEmpty()) {
+				BackupTransmittedFiles(fep, trnsmFlags);
 				THROW(PutFilesToDiskPath(&fep, dest, trnsmFlags));
 			}
 		}

@@ -343,7 +343,6 @@ TWindow::TWindow(long wbCapability) :
 	// Здесь мы применяем искусственно-непустой прямоугольник из-за того, что некоторые функции валидации могут воспринять 
 	// пустой прямоугольник как "сигнал бедствия" и отказаться работать дальше.
 	TGroup(TRect(0, 0, 0, 25)), WbCapability(wbCapability), P_Lmp(0), HW(0), PrevInStack(0), P_SymbList(0), P_FontsAry(0), P_Lfc(0)
-	
 {
 }
 

@@ -782,56 +782,6 @@ int PPImpExpParam::GetFilesFromSource(const char * pUrl, StringSet & rList, PPLo
 		PPInternetAccount ia_pack;
 		const int urlpr = url.Parse(pUrl);
 		const int url_prot = (urlpr > 0) ? url.GetProtocol() : 0;
-#if 0 // @v11.0.8 {
-		if(url_prot <= 0 || url_prot == InetUrl::protFile) {
-			SString path;
-			SString file_name;
-			SFsPath ps;
-			if(url_prot == InetUrl::protFile) {
-				url.GetComponent(InetUrl::cPath, 0, file_name);
-			}
-			else if(pUrl)
-				file_name = pUrl;
-			else {
-				ps.Split(FileName);
-				ps.Merge(SFsPath::fNam|SFsPath::fExt, file_name);
-			}
-			ps.Split(file_name);
-			ps.Merge(SFsPath::fNam|SFsPath::fExt, wildcard);
-			ps.Merge(SFsPath::fDrv|SFsPath::fDir, path);
-			// @todo obsolete block. must be refactored {
-			if(ia_obj.Get(InetAccID, &ia_pack) > 0 && ia_pack.Flags & PPInternetAccount::fFtpAccount) {
-				StrAssocArray file_list;
-				SString ftp_path;
-				ia_pack.GetExtField(FTPAEXSTR_HOST, ftp_path);
-				ftp_path.SetLastSlash();
-				//
-				WinInetFTP ftp;
-				THROW(ftp.Init());
-				THROW(ftp.Connect(&ia_pack));
-				THROW(ftp.GetFileList(ftp_path, &file_list, /*file_name*/wildcard));
-				for(uint i = 0; i < file_list.getCount(); i++) {
-					StrAssocArray::Item item = file_list.Get(i);
-					//SFsPath::NormalizePath((temp_buf = ftp_path).Cat(item.Txt), SFsPath::npfSlash|SFsPath::npfKeepCase, file_name);
-					(file_name = ftp_path).Cat(item.Txt);
-					PPGetFilePath(PPPATH_IN, item.Txt, temp_buf);
-					THROW(ftp.SafeGet(temp_buf, file_name, 1, 0, pLogger));
-					rList.add(temp_buf);
-					ok = 1;
-				}
-			}
-			// } @todo obsolete block. must be refactored
-			if(ok < 0) {
-				SFileEntryPool fep;
-				fep.Scan(path, wildcard, 0);
-				for(uint i = 0; i < fep.GetCount(); i++) {
-					if(fep.Get(i, 0, &temp_buf))
-						rList.add(temp_buf);
-				}
-			}
-		}
-		else 
-#endif // } @v11.0.8
 		{
 			SString pw_buf;
 			SUniformFileTransmParam uftp;

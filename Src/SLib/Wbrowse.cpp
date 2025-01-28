@@ -290,8 +290,7 @@ int TBaseBrowserWindow::Insert()
 	return ret;
 }
 
-uint TBaseBrowserWindow::GetResID() const
-	{ return ResourceID; }
+uint TBaseBrowserWindow::GetResID() const { return ResourceID; }
 
 void TBaseBrowserWindow::SetResID(uint res)
 {
@@ -875,7 +874,7 @@ int BrowserWindow::ChangeResource(uint resID, DBQuery * pQuery, int force)
 			ZDELETE(P_Toolbar);
 		}
 		setupToolbar(0);
-		SearchPattern = 0;
+		SearchPattern.Z();
 		__Init();
 		RezID = ResourceID = resID;
 		P_Header = 0;
@@ -901,7 +900,7 @@ int BrowserWindow::ChangeResource(uint resID, SArray * pAry, int force)
 			ZDELETE(P_Toolbar);
 		}
 		setupToolbar(0);
-		SearchPattern = 0;
+		SearchPattern.Z();
 		__Init();
 		RezID = ResourceID = resID;
 		P_Header = 0;
@@ -2569,16 +2568,6 @@ HWND FASTCALL GetNextBrowser(HWND hw, int reverse)
 	return hw;
 }
 
-/*
-HWND GetNextBrowser(HWND hw)
-{
-	for(HWND hb = hw; (hb = GetWindow(hb, GW_HWNDNEXT)) != 0;)
-		if(hb != hw && IsBrowserWindow(hb))
-			return hb;
-	return hw;
-}
-*/
-
 /*static*/LRESULT CALLBACK BrowserWindow::BrowserWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	int    i;
@@ -2891,7 +2880,7 @@ HWND GetNextBrowser(HWND hw)
 			PostMessage(hWnd, WM_USER+101, wParam, lParam);
 			return 0;
 		case WM_USER+101:
-			if(p_view) {
+			if(p_view && p_view->IsConsistent()) { // @v12.2.5 (&& p_view->IsConsistent())
 				if(HIWORD(wParam) == 0) {
 					TView::messageKeyDown(p_view, LOWORD(wParam));
 				}

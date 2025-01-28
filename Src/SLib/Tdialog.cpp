@@ -472,7 +472,7 @@ void TDialog::Helper_Constructor(uint resID, DialogPreProcFunc dlgPreFunc, void 
 		// Этот блок в целом работает, но надо что-то делать с тем фактом, что WM_INITDIALOG будет вызван функцией
 		// CreateDialogIndirectParamW, что в свою очередь повлечет вызов handleEvent() с командой cmInit
 		// и вот этот вызов обратится к базовому классу (т.е. TDialog), а не к тому, в котором все должно быть,
-		// поскольку сейчас мы находимся в контсрукторе TDialog.
+		// поскольку сейчас мы находимся в конструкторе TDialog.
 		//
 		/*
 		typedef struct {
