@@ -5295,6 +5295,8 @@ struct AccTurnParam {
 #define CCFLG2_RESTRICTCHZNCIGPRICEASMRC 0x00080000L // @v12.2.4 Если при проверке марки chzn для сигарет через разрешительный режим честный знак 
 	// выдал максимальную розничную цену (МРЦ) то параметр RestrictChZnCigPriceAsMrc, установленный в 1, запретит продать товар иначе как по этой цене (никих ниже - строго МРЦ).
 	// Инициируются по параметру в pp.ini [config] PPINIPARAM_RESTRICTCHZNCIGPRICEASMRC
+#define CCFLG2_RESTRICTCHZNPMPRICE       0x00100000L // @v12.2.5 Верифицировать границы цены, полученные при проверке марки честный знак через разрешительный режим.
+	// Инициируются по параметру в pp.ini [config] PPINIPARAM_RESTRICTCHZNPMPRICE
 //
 // Общие параметры конфигурации
 //
@@ -5516,12 +5518,12 @@ private:
 #define PPSCMD_GETARTICLEBYPERSON     10109 //
 #define PPSCMD_GETPERSONBYARTICLE     10110 //
 #define PPSCMD_LOGLOCKSTACK           10111 // Отладочная команда приводящая к выводу стека блокировок всех потоков в журнал debug.log
-#define PPSCMD_SETTIMESERIES          10112 // @v10.2.3
-#define PPSCMD_GETREQQUOTES           10113 // @v10.2.4
-#define PPSCMD_SETTIMESERIESPROP      10114 // @v10.2.5
-#define PPSCMD_SETTIMESERIESSTKENV    10115 // @v10.2.10
-#define PPSCMD_TIMESERIESTANOTIFY     10116 // @v10.3.11
-#define PPSCMD_GETCOMMONMQSCONFIG     10117 // @v10.5.9
+#define PPSCMD_SETTIMESERIES          10112 //
+#define PPSCMD_GETREQQUOTES           10113 //
+#define PPSCMD_SETTIMESERIESPROP      10114 //
+#define PPSCMD_SETTIMESERIESSTKENV    10115 //
+#define PPSCMD_TIMESERIESTANOTIFY     10116 //
+#define PPSCMD_GETCOMMONMQSCONFIG     10117 //
 #define PPSCMD_SQ_ACQUAINTANCE        10118 // @v11.0.10 Инициирующее сообщение от клиента сервису для установки контакта. Клиент еще не "знаком" с сервисом.
 #define PPSCMD_SQ_SESSION             10119 // @v11.0.10
 #define PPSCMD_SQ_SRPREGISTER         10120 // @v11.0.10 Регистрация по SRP-протоколу
@@ -8577,7 +8579,7 @@ public:
 		not_repl_remove   = 0x0020, // PPObject::ReplaceObj не удалять объединяемый объект
 		not_objnotify     = 0x0040  // Удалять объект без посылки сообщений другим объектам (без проверки ссылочной целостности)
 	};
-	virtual int    RemoveObjV(PPID id, ObjCollection * pObjColl, uint options, void * pExtraParam);
+	virtual int RemoveObjV(PPID id, ObjCollection * pObjColl, uint options, void * pExtraParam);
 		// @>>PPObject::Search
 		// @>>PPObject::DeleteObj
 	//
@@ -8588,7 +8590,7 @@ public:
 	//   файле методом Search. В случае ошибки, DeleteObj должна установить
 	//   PPErrCode. Никаких сообщений на экран выдавать не должна.
 	//
-	virtual int    DeleteObj(PPID id); // @<<PPObject::Remove
+	virtual int DeleteObj(PPID id); // @<<PPObject::Remove
 	//
 	// Descr: Очищает элемент с идентификатором id в кэше
 	//   Общая реализация обрабатывает этот вызов, обращаясь к централизованному
@@ -17070,6 +17072,10 @@ public:
 	static PPID    Helper_GetTag(PPID objType, PPID objID, const char * pTagSymb);
 	static PPID    Helper_GetTagByID(PPID objType, PPID objID, PPID tagID);
 	static int     RecoverLostUnifiedLinks();
+	//
+	// Descr: Удаляет теги, принадлежащие несуществующим объектам данных.
+	//
+	static int     RecoverHungedUpTags(); // @v12.2.5
 	explicit PPObjTag(void * extraPtr = 0);
 	~PPObjTag();
 	virtual int  Edit(PPID *, void * extraPtr);
@@ -21453,6 +21459,8 @@ public:
 		double AmtVat20;   // Сумма налога по ставке 20%
 		double AmtVat18;   // Сумма налога по ставке 18%
 		double AmtVat10;   // Сумма налога по ставке 10%
+		double AmtVat07;   // @v12.2.5 Сумма налога по ставке 7%
+		double AmtVat05;   // @v12.2.5 Сумма налога по ставке 5%
 		double AmtVat00;   // Сумма расчета по ставке 0%
 		double AmtNoVat;   // Сумма расчета без налога
 		double VatRate;    // Единственная ставка НДС. Если VatRate != 0, тогда AmtVat18, AmtVat10, AmtVat00 и AmtNoVat игнорируются
@@ -24812,6 +24820,12 @@ int LoadGoodsStruc(const PPGoodsStruc::Ident & rIdent, PPGoodsStruc * pGs);
 #define GTAXF_NOLOTEXCISE 0x0010L // При расчете входящих налогов (на лот) акциз исключать
 #define GTAXF_SPCVAT      0x0020L // @v12.2.3 Специальная ставка НДС. Применяется к конкретному налогоплательщику независимо от того, 
 	// по какой ставке облагается товар. В общем, это - та хрень, которую вводят в России с 2025 года (5% и 7%)
+#define GTAXF_GENERALVAT  0x0040L // @v12.2.5 Если налоговая схема принадлежит персоналии или локации, то установка
+	// этого флага означает, что персоналия либо локация находится на общей схеме уплаты НДС. То есть, ставка НДС
+	// в этом случае берется из товара.
+	// Флаг необходим для того, чтобы была возможность определить схему налогообложения, зависящую от периода в 
+	// течении которого налогоплательщик платит НДС на общих основаниях (если в соседних периодах у него специальный режим).
+	// @#(GTAXF_SPCVAT^GTAXF_GENERALVAT)
 
 struct PPGoodsTaxEntry { // @flat
 	static const PPGoodsTaxEntry & GetVatFreeEntry()
@@ -26850,10 +26864,10 @@ public:
 	explicit PPObjPerson(void * extraPtr = 0);
 	explicit PPObjPerson(SCtrLite); // @v12.2.4 private-->public
 	~PPObjPerson();
-	virtual int    Browse(void * extraPtr);
-	virtual int    Edit(PPID * pID, void * extraPtr);
-	virtual int    Search(PPID id, void * b = 0);
-	virtual int    RemoveObjV(PPID id, ObjCollection * pObjColl, uint options, void * pExtraParam);
+	virtual int Browse(void * extraPtr);
+	virtual int Edit(PPID * pID, void * extraPtr);
+	virtual int Search(PPID id, void * b = 0);
+	virtual int RemoveObjV(PPID id, ObjCollection * pObjColl, uint options, void * pExtraParam);
 	int    IsPacketEq(const PPPersonPacket & rS1, const PPPersonPacket & rS2, long flags);
 
 	struct EditBlock {
@@ -41248,6 +41262,8 @@ public:
 		int    Type;
 		int    Status;
 		LDATETIME ChangeDtm;
+		//
+		DateRange ReqPeriod; // Вспомогательное поле, позволяющее задать период запроса статистики по кампании
 	};
 	struct Stock {
 		Stock();
@@ -41487,6 +41503,7 @@ public:
 	int   RequestWarehouseList(TSCollection <Warehouse> & rList);
 	int   RequestWarehouseList2(TSCollection <Warehouse> & rList);
 	int   RequestGoodsPrices();
+	int   RequestGoodsSizes(int64 wbGoodsID);
 	int   RequestIncomes(TSCollection <Income> & rList);
 	int   RequestStocks(TSCollection <Stock> & rList);
 	int   RequestOrders(TSCollection <Sale> & rList);
@@ -41516,7 +41533,8 @@ public:
 	// } @v12.2.2 
 	//
 	int   RequestPromoCampaignList(TSCollection <Campaign> & rList); // @v12.2.3
-	int   RequestPromoCampaignListDetail(TSCollection <Campaign> & rList); // @v12.2.4
+	int   RequestPromoCampaignListDetail(TSCollection <Campaign> & rList); // @v12.2.4 
+	int   RequestPromoCampaignListStatistics(const DateRange * pCommonReqPeriod, TSCollection <Campaign> & rList); // @v12.2.5 @construction
 	int   CreateWarehouse(PPID * pID, int64 outerId, const char * pOuterName, const char * pAddress, int use_ta);
 	const Warehouse * SearchWarehouseByName(const TSCollection <Warehouse> & rWhList, const char * pWhName, bool adoptive) const;
 	int   ResolveWarehouseByName(const TSCollection <Warehouse> & rWhList, const char * pWhName, PPID defaultID, PPID * pResultID, int use_ta);
@@ -41587,6 +41605,7 @@ private:
 		methSupplyOrders,     // apiMarketplace https://marketplace-api.wildberries.ru/api/v3/supplies/{supplyId}/orders Получить сборочные задания в поставке
 		methAcceptanceReport, // apiAnalytics   https://seller-analytics-api.wildberries.ru/api/v1/analytics/acceptance-report
 		methGoodsPrices,      // apiDiscountsPrices https://discounts-prices-api.wildberries.ru/api/v2/list/goods/filter
+		methGoodsSizes,       // apiDiscountsPrices https://discounts-prices-api.wildberries.ru/api/v2/list/goods/size/nm
 		methContentCardsList, // apiContent https://content-api.wildberries.ru/content/v2/get/cards/list
 		methContentCategoryList, // apiContent https://content-api.wildberries.ru/content/v2/object/parent/all
 		methContentSubjectList,  // apiContent https://content-api.wildberries.ru/content/v2/object/all
@@ -41600,6 +41619,7 @@ private:
 		methPromotionsAddGoods, // apiDpCalendar  https://dp-calendar-api.wildberries.ru/api/v1/calendar/promotions/upload
 		methPromoCampaignCount, // apiAdvert https://advert-api.wildberries.ru/adv/v1/promotion/count
 		methPromoCampaignDetail, // apiAdvert https://advert-api.wildberries.ru/adv/v1/promotion/adverts
+		methPromoCampaignsStatistics, // apiAdvert https://advert-api.wildberries.ru/adv/v2/fullstats
 	};
 	bool   MakeTargetUrl_(int meth, int * pReq/*SHttpProtocol::reqXXX*/, SString & rResult) const;
 	int    Helper_InitRequest(int meth, SString & rUrlBuf, StrStrAssocArray & rHdrFlds);

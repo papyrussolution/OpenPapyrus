@@ -277,16 +277,13 @@ void fz_format_string(fz_context * ctx, void * user, void (*emit)(fz_context * c
 	int64_t i64;
 	const char * str;
 	size_t bits;
-
 	out.ctx = ctx;
 	out.user = user;
 	out.emit = emit;
-
 	while((c = *fmt++) != 0) {
 		if(c == '%') {
 			s = 0;
 			z = ' ';
-
 			/* flags */
 			while((c = *fmt++) != 0) {
 				/* plus sign */
@@ -304,7 +301,6 @@ void fz_format_string(fz_context * ctx, void * user, void (*emit)(fz_context * c
 			}
 			if(!c)
 				break;
-
 			/* width */
 			w = 0;
 			if(c == '*') {
@@ -340,7 +336,6 @@ void fz_format_string(fz_context * ctx, void * user, void (*emit)(fz_context * c
 			}
 			if(!c)
 				break;
-
 			/* lengths */
 			bits = 0;
 			if(c == 'l') {
@@ -361,7 +356,6 @@ void fz_format_string(fz_context * ctx, void * user, void (*emit)(fz_context * c
 				if(!c)
 					break;
 			}
-
 			switch(c) {
 				default:
 				    fmtputc(&out, '%');
@@ -370,7 +364,6 @@ void fz_format_string(fz_context * ctx, void * user, void (*emit)(fz_context * c
 				case '%':
 				    fmtputc(&out, '%');
 				    break;
-
 				case 'M':
 			    {
 				    fz_matrix * matrix = va_arg(args, fz_matrix*);
@@ -398,7 +391,6 @@ void fz_format_string(fz_context * ctx, void * user, void (*emit)(fz_context * c
 				    fmtfloat(&out, point->y);
 			    }
 			    break;
-
 				case 'C': /* unicode char */
 				    c = va_arg(args, int);
 				    if(c < 128)
@@ -414,7 +406,6 @@ void fz_format_string(fz_context * ctx, void * user, void (*emit)(fz_context * c
 				    c = va_arg(args, int);
 				    fmtputc(&out, c);
 				    break;
-
 				case 'e':
 				    fmtfloat_e(&out, va_arg(args, double), w, p);
 				    break;

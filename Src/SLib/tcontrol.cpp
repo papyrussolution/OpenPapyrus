@@ -862,13 +862,11 @@ IMPL_HANDLE_EVENT(TInputLine)
 	if(event.isCmd(cmDraw)) {
 		Implement_Draw();
 	}
-	// @v10.7.7 {
 	else if(event.isCmd(cmNotifyCommit)) {
 		if(P_OuterWordSelBlk) {
 			P_OuterWordSelBlk->OnAcceptInput(Data, 0);
 		}
 	}
-	// } @v10.7.7 
 	else if(event.isCmd(cmSetBounds)) { // @v11.2.0
 		const TRect * p_rc = static_cast<const TRect *>(TVINFOPTR);
 		HWND h = getHandle();
@@ -1096,9 +1094,9 @@ int TCluster::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 					SetupText(0);
 					RECT  rc_temp;
 					::GetWindowRect(hw_cluster, &rc_temp);
-					const  TRect rc_cluster = rc_temp;
+					const  TRect rc_cluster(rc_temp);
 					::GetWindowRect(hw_parent, &rc_temp);
-					const  TRect  rc_parent = rc_temp;
+					const  TRect  rc_parent(rc_temp);
 					TRect  rc_prev; // Координаты предыдущего элемента
 					int    dispersion_left = 0; // Разброс left-координат
 					int    dispersion_top = 0;  // Разброс top-координат
@@ -1111,7 +1109,7 @@ int TCluster::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 							items_count++;
 							{
 								::GetWindowRect(h_wnd, &rc_temp);
-								TRect rc_item = rc_temp;
+								TRect rc_item(rc_temp);
 								if(i > 0) {
 									dispersion_left = MAX(dispersion_left, abs(rc_item.a.x - rc_prev.a.x));
 									dispersion_top  = MAX(dispersion_top,  abs(rc_item.a.y - rc_prev.a.y));
@@ -1145,7 +1143,7 @@ int TCluster::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 							if(h_wnd) {
 								int    y_offs = 0;
 								::GetWindowRect(h_wnd, &rc_temp);
-								TRect rc_item = rc_temp;
+								TRect rc_item(rc_temp);
 								if(!i)
 									first_left = rc_item.a.x;
 								else {
@@ -1826,7 +1824,7 @@ void ComboBox::freeAll()
 				::BeginPaint(hWnd, &ps);
 				RECT rc;
 				::GetClientRect(hWnd, &rc);
-				const  TRect rect_elem_i = rc;
+				const  TRect rect_elem_i(rc);
 				APPL->InitUiToolBox();
 				SPaintToolBox * p_tb = APPL->GetUiToolBox();
 				if(p_tb) {

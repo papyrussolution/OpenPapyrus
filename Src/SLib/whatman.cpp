@@ -1,5 +1,5 @@
 // WHATMAN.CPP
-// Copyright (c) A.Sobolev 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -521,7 +521,7 @@ void TWhatman::Clear()
 {
 	ObjList.freeAll();
 	CurObjPos = -1;
-	SelArea.set(0, 0, 0, 0);
+	SelArea.Z();
 }
 
 TWindow * TWhatman::GetOwnerWindow() const { return P_Wnd; }
@@ -739,7 +739,7 @@ static void __stdcall FlexSetupProc_WhatmanFig(SUiLayout * pItem, const SUiLayou
 			fr.a.y += parent_frame.a.y;
 			fr.b.y += parent_frame.a.y;
 		}
-		p_obj->SetBounds(r.set(fr));
+		p_obj->SetBounds(r.Set(fr));
 	}
 }
 
@@ -796,7 +796,7 @@ int TWhatman::ArrangeObjects2(const LongArray * pObjPosList, const TArrangeParam
 					}
 					if(p_obj->GetTextLayout(tlo, TWhatmanObject::gtloQueryForArrangeObject) > 0) {
 						TRect text_bounds;
-						text_bounds.set(tlo.GetBounds());
+						text_bounds.Set(tlo.GetBounds());
 						p_lo_text = p_lo_item->InsertItem();
 						if(p_lo_text) {
 							SUiLayoutParam alb_lo_text;
@@ -1242,7 +1242,7 @@ int TWhatman::SetupMultSelBySelArea()
 		const TWhatmanObject * p_obj = ObjList.at(i);
 		if(p_obj) {
 			TRect b, isr;
-			if(sr.Intersect(b.set(p_obj->Bounds), &isr) > 0) {
+			if(sr.Intersect(b.Set(p_obj->Bounds), &isr) > 0) {
 				if(AddMultSelObject(i) > 0)
 					ok = 1;
 			}
@@ -1388,7 +1388,7 @@ int TWhatman::SetSelArea(SPoint2S p, int mode)
 {
 	int    ok = 1;
 	if(mode == 0)
-		SelArea.set(0, 0, 0, 0);
+		SelArea.Z();
 	else if(mode == 1)
 		SelArea.a = SelArea.b = p;
 	else if(mode == 2) {
@@ -1693,7 +1693,7 @@ int FASTCALL TWhatman::InvalidateObjScope(const TWhatmanObject * pObj)
 		ob.b = TransformPointToScreen(ob.b);
 		if(GetObjTextLayout(pObj, tlo, TWhatmanObject::gtloBoundsOnly) > 0) {
 			SRegion rgn(ob);
-			rgn.Add(ob.set(tlo.GetBounds()), SCOMBINE_OR);
+			rgn.Add(ob.Set(tlo.GetBounds()), SCOMBINE_OR);
 			P_Wnd->invalidateRegion(rgn, /*true*/false);
 		}
 		else

@@ -301,14 +301,12 @@ char * pdf_new_utf8_from_pdf_string(fz_context * ctx, const char * ssrcptr, size
 				*dstptr++ = srcptr[i++];
 		}
 	}
-
 	/* Detect UTF-8 strings that aren't marked with a BOM */
 	else if(is_valid_utf8(srcptr, srcptr + srclen)) {
 		dst = (char *)Memento_label(fz_malloc(ctx, srclen + 1), "utf8_from_guess");
 		memcpy(dst, srcptr, srclen);
 		dstptr = dst + srclen;
 	}
-
 	/* PDFDocEncoding */
 	else {
 		for(i = 0; i < srclen; i++)

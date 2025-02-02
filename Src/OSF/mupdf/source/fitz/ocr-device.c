@@ -444,14 +444,11 @@ static void flush_word(fz_context * ctx, fz_ocr_device * ocr)
 	ocr->char_len = 0;
 }
 
-static void char_callback(fz_context * ctx, void * arg, int unicode,
-    const char * font_name,
-    const int * line_bbox, const int * word_bbox,
-    const int * char_bbox, int pointsize)
+static void char_callback(fz_context * ctx, void * arg, int unicode, const char * font_name,
+    const int * line_bbox, const int * word_bbox, const int * char_bbox, int pointsize)
 {
 	fz_ocr_device * ocr = (fz_ocr_device*)arg;
 	fz_rect bbox = { word_bbox[0]-1, word_bbox[1]-1, word_bbox[2]+1, word_bbox[3]+1 };
-
 	if(unicode == 'b') {
 		fz_device * device = fz_new_draw_device(ctx, fz_identity, ocr->pixmap);
 		fz_path * path = fz_new_path(ctx);

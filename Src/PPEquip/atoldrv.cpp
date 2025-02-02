@@ -1675,11 +1675,12 @@ SJson * SCS_ATOLDRV::MakeJson_CCheck(OfdFactors & rOfdf, CCheckPacket * pPack, u
 				SJson * p_inner = SJson::CreateArr();
 				for(P_SlipFmt->InitIteration(pPack); P_SlipFmt->NextIteration(line_buf, &sl_param) > 0;) {
 					if(sl_param.Flags & SlipLineParam::fRegFiscal) {
+						// @v12.2.5 цена теперь округляется до 5 знаков после точки, а количество - до 6
 						const  double _q = sl_param.Qtty;
 						const  double _p = fabs(sl_param.Price);
 						running_total += (_q * _p);
-						const double pq = R3(_q);
-						const double pp = R2(_p);
+						const double pq = R6(_q);
+						const double pp = R5(_p);
 						debug_log_buf.CatChar('[').CatEq("QTY", pq).Space().CatEq("PRICE", pp, MKSFMTD(0, 10, 0)).CatChar(']');
 
 						SJson * p_js_item = SJson::CreateObj();
@@ -1688,7 +1689,7 @@ SJson * SCS_ATOLDRV::MakeJson_CCheck(OfdFactors & rOfdf, CCheckPacket * pPack, u
 							(temp_buf = sl_param.Text).Strip().SetIfEmpty("WARE").Transf(CTRANSF_INNER_TO_UTF8).Escape();
 							p_js_item->InsertString("name", temp_buf);
 						}
-						p_js_item->InsertDouble("price", pp, MKSFMTD_020);
+						p_js_item->InsertDouble("price", pp, MKSFMTD(0, 5, NMBF_OMITEPS));
 						p_js_item->InsertDouble("quantity", pq, MKSFMTD(0, 6, NMBF_OMITEPS));
 						p_js_item->InsertDouble("amount", pp * pq, MKSFMTD_020);
 						p_js_item->InsertDouble("infoDiscountAmount", 0.0, MKSFMTD(0, 1, 0));
@@ -1845,6 +1846,12 @@ SJson * SCS_ATOLDRV::MakeJson_CCheck(OfdFactors & rOfdf, CCheckPacket * pPack, u
 									p_tax_type = "vat20";
 								else if(vatrate == 10.0)
 									p_tax_type = "vat10";
+								// @v12.2.5 {
+								else if(vatrate == 7.0)
+									p_tax_type = "vat7";
+								else if(vatrate == 5.0)
+									p_tax_type = "vat5";
+								// } @v12.2.5 
 								else if(vatrate == 0.0)
 									p_tax_type = "vat0";
 								else

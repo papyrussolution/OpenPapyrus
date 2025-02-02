@@ -1169,16 +1169,7 @@ void TWindow::EvaluateLayout(const TRect & rR)
 {
 	TView * p_view = static_cast<TView *>(SUiLayout::GetManagedPtr(pItem));
 	if(p_view) {
-		TRect b;
-		const FRect rbb = rR;
-		b.a = rbb.a;
-		b.b = rbb.b;
-		//b.a.x = static_cast<int16>(rbb.a.x);
-		//b.a.y = static_cast<int16>(rbb.a.y);
-		//b.b.x = static_cast<int16>(rbb.b.x);
-		//b.b.y = static_cast<int16>(rbb.b.x);
-		p_view->changeBounds(b);
-		//p_view->setBounds(b);
+		p_view->changeBounds(TRect(rR));
 	}
 }
 //
@@ -1475,6 +1466,27 @@ PaintEvent::PaintEvent() : PaintType(0), H_DeviceContext(0), Flags(0)
 	Rect.Z();
 }
 
+/*static*/int TView::Helper_SendCmSizeAsReplyOnWmSize(TView * pV, WPARAM wParam, LPARAM lParam)
+{
+	int   result = -1;
+	if(pV) {
+		SizeEvent se;
+		switch(wParam) {
+			case SIZE_MAXHIDE:   se.ResizeType = SizeEvent::tMaxHide;   break;
+			case SIZE_MAXIMIZED: se.ResizeType = SizeEvent::tMaximized; break;
+			case SIZE_MAXSHOW:   se.ResizeType = SizeEvent::tMaxShow;   break;
+			case SIZE_MINIMIZED: se.ResizeType = SizeEvent::tMinimized; break;
+			case SIZE_RESTORED:  se.ResizeType = SizeEvent::tRestored;  break;
+			default: se.ResizeType = 0; break;
+		}
+		se.PrevSize = pV->ViewSize;
+		pV->ViewSize = se.NewSize.setwparam(lParam);
+		if(TView::messageCommand(pV, cmSize, &se))
+			result = 0;
+	}
+	return result;
+}
+
 /*static*/LRESULT CALLBACK TWindowBase::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	TWindowBase * p_view = static_cast<TWindowBase *>(TView::GetWindowUserData(hWnd));
@@ -1586,21 +1598,8 @@ PaintEvent::PaintEvent() : PaintType(0), H_DeviceContext(0), Flags(0)
 			}
 			break;
 		case WM_SIZE:
-			{
-				SizeEvent se;
-				switch(wParam) {
-					case SIZE_MAXHIDE:   se.ResizeType = SizeEvent::tMaxHide;   break;
-					case SIZE_MAXIMIZED: se.ResizeType = SizeEvent::tMaximized; break;
-					case SIZE_MAXSHOW:   se.ResizeType = SizeEvent::tMaxShow;   break;
-					case SIZE_MINIMIZED: se.ResizeType = SizeEvent::tMinimized; break;
-					case SIZE_RESTORED:  se.ResizeType = SizeEvent::tRestored;  break;
-					default: se.ResizeType = 0; break;
-				}
-				se.PrevSize = p_view->ViewSize;
-				p_view->ViewSize = se.NewSize.setwparam(lParam);
-				if(TView::messageCommand(p_view, cmSize, &se))
-					return 0;
-			}
+			if(!TView::Helper_SendCmSizeAsReplyOnWmSize(p_view, wParam, lParam))
+				return 0;
 			break;
 		case WM_MOVE:
 			{

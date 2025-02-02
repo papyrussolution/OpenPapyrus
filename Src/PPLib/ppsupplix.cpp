@@ -11853,6 +11853,36 @@ public:
 		CATCHZOK
 		return ok;
 	}
+	DateRange & MakeReportPeriod(DateRange & rPeriod) const
+	{
+		/*
+			Требования Царицыно по поводу периода выгрузки данных:
+			Выгружайте данные по продажам за последние 10 дней.
+			Если текущий день месяца больше 4 и меньше 10, то выгружайте данные с 1-го дня месяца по текущий день минус один. 
+			Т.е. например, если сегодня 3 февраля, то выгружайте данные за период с 24 января по 2 февраля. 
+			А если сегодня 4 февраля, то выгружайте данные за период с 1 по 3 февраля.
+
+			(my comment: если верить примеру, то, вероятно, имеется в ввиду (больше или равно 4), а не (больше 4) равно как (меньше или равно 10), а не (меньше 10)
+
+			Так надо из-за того, что 4 числа у нас закрывают месяц, и нельзя менять данные за прошлый месяц.
+		*/ 
+		if(P.ExpPeriod.IsZero()) {
+			const LDATE now_dt = getcurdate_();
+			const int now_day = now_dt.day();
+			rPeriod.upp = plusdate(now_dt, -1);
+			if(now_day >= 4 && now_day <= 10) {
+				rPeriod.low = encodedate(1, now_dt.month(), now_dt.year());
+			}
+			else {
+				rPeriod.low = plusdate(now_dt, -10);
+			}
+		}
+		else {
+			rPeriod = P.ExpPeriod;
+			SETIFZ(rPeriod.low, encodedate(1, 1, 2022));
+		}
+		return rPeriod;
+	}
 	int    SendSales(StringSet & rSsFileName)
 	{
 		int    ok = -1;
@@ -11873,12 +11903,14 @@ public:
 			}
 		}
 		{
+			DateRange report_period;
+			MakeReportPeriod(report_period);
 			SXml::WDoc _doc(p_x, cpUTF8);
 			SXml::WNode n_o(p_x, Helper_GetToken(PPHSC_RU_SALE_PL)); 
 			n_o.PutAttrib(Helper_GetToken(PPHSC_RU_DISTRIBNAME), GetCliAbbr(temp_buf));
 			n_o.PutAttrib(Helper_GetToken(PPHSC_RU_GENERATED), temp_buf.Z().Cat(getcurdatetime_(), DATF_ISO8601CENT, 0));
-			n_o.PutAttrib(Helper_GetToken(PPHSC_RU_DATERANGE_LO), temp_buf.Z().Cat(P.ExpPeriod.low, DATF_GERMANCENT));
-			n_o.PutAttrib(Helper_GetToken(PPHSC_RU_DATERANGE_UP), temp_buf.Z().Cat(P.ExpPeriod.upp, DATF_GERMANCENT));
+			n_o.PutAttrib(Helper_GetToken(PPHSC_RU_DATERANGE_LO), temp_buf.Z().Cat(report_period.low, DATF_GERMANCENT));
+			n_o.PutAttrib(Helper_GetToken(PPHSC_RU_DATERANGE_UP), temp_buf.Z().Cat(report_period.upp, DATF_GERMANCENT));
 			for(uint billidx = 0; billidx < bill_list.getCount(); billidx++) {
 				const BillPacket * p_pack = bill_list.at(billidx);
 				if(p_pack) {
@@ -11956,6 +11988,8 @@ public:
 		out_file_name.SetLastSlash().Cat(temp_buf);
 		THROW(p_x = xmlNewTextWriterFilename(out_file_name, 0));
 		{
+			DateRange report_period;
+			MakeReportPeriod(report_period);
 			SString _cli_code;
 			GetCliCode(_cli_code);
 			SXml::WDoc _doc(p_x, cpUTF8);
@@ -11963,8 +11997,8 @@ public:
 			//<Контрагенты ИмяДистрибутора="XXI Век" generated="2022-06-23T13:13:04" ДатаНач="14.06.2022" ДатаКон="23.06.2022">
 			n_o.PutAttrib(Helper_GetToken(PPHSC_RU_DISTRIBNAME), GetCliAbbr(temp_buf));
 			n_o.PutAttrib(Helper_GetToken(PPHSC_RU_GENERATED), temp_buf.Z().Cat(getcurdatetime_(), DATF_ISO8601CENT, 0));
-			n_o.PutAttrib(Helper_GetToken(PPHSC_RU_DATERANGE_LO), temp_buf.Z().Cat(P.ExpPeriod.low, DATF_GERMANCENT));
-			n_o.PutAttrib(Helper_GetToken(PPHSC_RU_DATERANGE_UP), temp_buf.Z().Cat(P.ExpPeriod.upp, DATF_GERMANCENT));
+			n_o.PutAttrib(Helper_GetToken(PPHSC_RU_DATERANGE_LO), temp_buf.Z().Cat(report_period.low, DATF_GERMANCENT));
+			n_o.PutAttrib(Helper_GetToken(PPHSC_RU_DATERANGE_UP), temp_buf.Z().Cat(report_period.upp, DATF_GERMANCENT));
 			for(uint cliidx = 0; cliidx < ClientList.getCount(); cliidx++) {
 				const ClientEntry * p_cli_entry = ClientList.at(cliidx);
 				if(p_cli_entry) {
@@ -12413,8 +12447,7 @@ private:
 								b_filt.OpID = local_op_id;
 								//b_filt.LocList = P.LocList;
 								b_filt.LocList.SetSingle(locID);
-								b_filt.Period = P.ExpPeriod;
-								SETIFZ(b_filt.Period.low, encodedate(1, 1, 2022));
+								MakeReportPeriod(b_filt.Period);
 								THROW(b_view.Init_(&b_filt));
 								for(b_view.InitIteration(PPViewBill::OrdByDefault); b_view.NextIteration(&view_item) > 0;) {
 									if(!Helper_MakeBillEntry(suppl_doc_type, view_item.ID, 0, rGoodsList, rList))
@@ -12424,25 +12457,6 @@ private:
 							}
 						}
 					}
-					/*{
-						PPLoadText(PPTXT_WAIT_GETTINGBILLLIST, msg_buf);
-						BillFilt b_filt;
-						PPViewBill b_view;
-						BillViewItem view_item;
-						PPBillPacket pack;
-						b_filt.OpID = opID;
-						//b_filt.LocList = P.LocList;
-						b_filt.LocList.SetSingle(locID);
-						b_filt.Period = P.ExpPeriod;
-						SETIFZ(b_filt.Period.low, encodedate(1, 1, 2022));
-						THROW(b_view.Init_(&b_filt));
-						for(b_view.InitIteration(PPViewBill::OrdByDefault); b_view.NextIteration(&view_item) > 0;) {
-							int    suppl_doc_type = 1;
-							if(!Helper_MakeBillEntry(suppl_doc_type, view_item.ID, 0, rGoodsList, rList))
-								R_Logger.LogLastError();
-							PPWaitPercent(b_view.GetCounter(), msg_buf);
-						}
-					}*/
 					ok = 1;
 				}
 			}

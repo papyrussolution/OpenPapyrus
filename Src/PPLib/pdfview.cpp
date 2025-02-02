@@ -386,8 +386,8 @@ int PdfBrowser::WMHCreate()
 			if(lParam && p_view) {
 				HWND hw = p_view->P_Toolbar ? p_view->P_Toolbar->H() : 0;
 				if(IsWindowVisible(hw)) {
-					MoveWindow(hw, 0, 0, LOWORD(lParam), p_view->ToolBarWidth, 0);
-					TView::messageCommand(p_view, cmResize);
+					::MoveWindow(hw, 0, 0, LOWORD(lParam), p_view->ToolBarWidth, 0);
+					TView::messageCommand(p_view, cmResize); // must be cmSize
 				}
 				//p_view->Resize();
 			}

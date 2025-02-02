@@ -4141,6 +4141,14 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 						r_cc.Flags2 &= ~CCFLG2_RESTRICTCHZNCIGPRICEASMRC;
 				}
 				// } @v12.2.4 
+				// @v12.2.5 {
+				{
+					if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_RESTRICTCHZNPMPRICE, &(iv = 0)) > 0 && iv == 1)
+						r_cc.Flags2 |= CCFLG2_RESTRICTCHZNPMPRICE;
+					else
+						r_cc.Flags2 &= ~CCFLG2_RESTRICTCHZNPMPRICE;
+				}
+				// } @v12.2.5
 				{
 					//#define CCFLG2_HIDEINVENTORYSTOCK  0x00010000L // @v10.9.12 Флаг, предписывающий скрывать значения учетных остатков
 						// инициируются по параметру в pp.ini [config] PPINIPARAM_INVENTORYSTOCKVIEWRESTRICTION

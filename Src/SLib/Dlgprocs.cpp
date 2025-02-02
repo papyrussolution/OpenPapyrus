@@ -124,7 +124,22 @@ void TDialog::RemoveUnusedControls()
 				p_dlg = reinterpret_cast<TDialog *>(lParam);
 				p_dlg->HW = hwndDlg;
 				const bool export_mode = p_dlg->CheckFlag(TDialog::fExport);
-				TView::messageCommand(p_dlg, cmInit);
+				{
+					CreateBlock cr_blk;
+					MEMSZERO(cr_blk);
+					RECT cr;
+					::GetClientRect(hwndDlg, &cr);
+					cr_blk.Coord = cr;
+					cr_blk.Param = p_dlg;
+					cr_blk.H_Process = 0;
+					cr_blk.Style = 0;
+					cr_blk.ExStyle = 0;
+					cr_blk.H_Parent = 0;
+					cr_blk.H_Menu = 0;
+					cr_blk.P_WndCls = 0;
+					cr_blk.P_Title = 0;
+					TView::messageCommand(p_dlg, cmInit, &cr_blk);
+				}
 				if(!export_mode) // @v11.0.4
 					SetupCtrlTextProc(p_dlg->H(), 0);
 				p_dlg->RemoveUnusedControls();
@@ -346,12 +361,27 @@ void TDialog::RemoveUnusedControls()
 		case WM_ACTIVATE:
 			return TRUE;
 		case WM_SIZE:
+			p_dlg = static_cast<TDialog *>(TView::GetWindowUserData(hwndDlg));
+			if(p_dlg) {
+				/* @v12.2.5 
+				event.what = TEvent::evCommand;
+				event.message.command = cmResize; // must be cmSize
+				event.message.infoPtr = 0;
+				p_dlg->handleEvent(event);
+				APPL->DrawControl(hwndDlg, uMsg, wParam, lParam);
+				*/
+				// @v12.2.5 {
+				if(!TView::Helper_SendCmSizeAsReplyOnWmSize(p_dlg, wParam, lParam))
+					return 0;
+				// } @v12.2.5
+			}
+			break;
 		case WM_SIZING:
 			p_dlg = static_cast<TDialog *>(TView::GetWindowUserData(hwndDlg));
 			if(p_dlg) {
 				event.what = TEvent::evCommand;
 				event.message.command = cmResize;
-				event.message.infoPtr = (uMsg == WM_SIZING) ? reinterpret_cast<void *>(lParam) : 0;
+				event.message.infoPtr = reinterpret_cast<void *>(lParam);
 				p_dlg->handleEvent(event);
 				APPL->DrawControl(hwndDlg, uMsg, wParam, lParam);
 			}

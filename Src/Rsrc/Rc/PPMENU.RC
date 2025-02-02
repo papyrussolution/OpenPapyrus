@@ -1,5 +1,5 @@
 // MENU.RC
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2018, 2019, 2020, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2018, 2019, 2020, 2022, 2023, 2024, 2025
 // Part of project Papyrus
 // Описание ресурсов меню для проекта Papyrus
 //
@@ -57,7 +57,7 @@
 		MENUITEM "@cmd_correcttrfrintrunite"						cmCorrectTrfrIntrUnite
 		MENUITEM "@cmd_correctccheckline01"							cmCorrectCCheckLine01
 		MENUITEM "@cmd_recoverlostunifiedlinks"						cmRecoverLostUnifiedLinks
-		MENUITEM "@cmd_correctzerodebtdimrefs"                      cmCorrectZeroDebtDimRefs // @v10.2.8
+		MENUITEM "@cmd_correctzerodebtdimrefs"                      cmCorrectZeroDebtDimRefs
 	}
 	POPUP "@cmdpu_other" {
 		MENUITEM "@cmd_selfsync"									cmSelfSync
@@ -548,9 +548,10 @@
 			MENUITEM "@cmd_checkgstrucrecursion",           cmCheckGStrucRecursion
 			MENUITEM "@cmd_correctcurrest",                 cmCorrectCurRest
 			MENUITEM "@cmd_correctworldobj",                cmCorrectWorldObjNIA
+			MENUITEM "@cmd_recoverhungeduptags",            cmRecoverHungedUpTags // @v12.2.5
 		}
 		MENUITEM SEPARATOR
-		MENUITEM "@cmd_jobpool"								cmJobPool
+		MENUITEM "@cmd_jobpool",                            cmJobPool
 		MENUITEM "@cmd_fillpredictsalestbl",				cmFillPredictSalesTbl
 		MENUITEM "@cmd_testpredictsalestbl",				cmTestPredictSalesTbl
 		MENUITEM "@cmd_deletetmpfiles",						cmDeleteTmpFiles

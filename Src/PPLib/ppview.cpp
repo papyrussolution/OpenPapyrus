@@ -2881,19 +2881,6 @@ IMPL_HANDLE_EVENT(PPViewBrowser)
 			}
 		}
 		if(!skip_inherited_processing) {
-			/* @v10.3.1
-			if(event.isCmd(cmExecute)) {
-				const int  r = P_View ? P_View->OnExecBrowser(this) : -1;
-				if(r >= 0) {
-					clearEvent(event);
-					event.message.infoLong = r;
-					return;
-				}
-				else {
-					; // Управление передается базовому классу
-				}
-			}
-			*/
 			BrowserWindow::handleEvent(event);
 		}
 		if(!P_View || !P_View->IsConsistent() || (!this || !this->IsConsistent()))
@@ -2952,7 +2939,8 @@ IMPL_HANDLE_EVENT(PPViewBrowser)
 				case cmCBSelected:
 					r = P_View->ProcessCommand(PPVCMD_TB_CBX_SELECTED, p_row, this);
 					break;
-				case cmResize:
+				// @v12.2.5 case cmResize:
+				case cmSize: // @v12.2.5
 					if(P_InputLine && P_ComboBox) {
 						RECT rect;
 						if(GetToolbarComboRect(&rect) > 0) {

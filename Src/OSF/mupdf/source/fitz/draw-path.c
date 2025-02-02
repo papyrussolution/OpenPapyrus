@@ -238,45 +238,31 @@ static const fz_path_walker flatten_proc =
 	flatten_rectto
 };
 
-int fz_flatten_fill_path(fz_context * ctx,
-    fz_rasterizer * rast,
-    const fz_path * path,
-    fz_matrix ctm,
-    float flatness,
-    const fz_irect * scissor,
-    fz_irect * bbox)
+int fz_flatten_fill_path(fz_context * ctx, fz_rasterizer * rast, const fz_path * path,
+    fz_matrix ctm, float flatness, const fz_irect * scissor, fz_irect * bbox)
 {
 	flatten_arg arg;
-
 	if(fz_reset_rasterizer(ctx, rast, *scissor)) {
 		arg.rast = rast;
 		arg.ctm = ctm;
 		arg.flatness = flatness;
 		arg.b.x = arg.b.y = arg.c.x = arg.c.y = 0;
-
 		fz_walk_path(ctx, path, &flatten_proc, &arg);
 		if(arg.c.x != arg.b.x || arg.c.y != arg.b.y)
 			line(ctx, rast, ctm, arg.c.x, arg.c.y, arg.b.x, arg.b.y);
-
 		fz_gap_rasterizer(ctx, rast);
-
 		fz_postindex_rasterizer(ctx, rast);
 	}
-
 	arg.rast = rast;
 	arg.ctm = ctm;
 	arg.flatness = flatness;
 	arg.b.x = arg.b.y = arg.c.x = arg.c.y = 0;
-
 	fz_walk_path(ctx, path, &flatten_proc, &arg);
 	if(arg.c.x != arg.b.x || arg.c.y != arg.b.y)
 		line(ctx, rast, ctm, arg.c.x, arg.c.y, arg.b.x, arg.b.y);
-
 	fz_gap_rasterizer(ctx, rast);
-
 	if(!bbox)
 		return 0;
-
 	*bbox = fz_bound_rasterizer(ctx, rast);
 	return fz_is_empty_irect(fz_intersect_irect(*bbox, *scissor));
 }
@@ -321,7 +307,6 @@ static void fz_add_line(fz_context * ctx, sctx * s, float x0, float y0, float x1
 	float ty0 = s->ctm.b * x0 + s->ctm.d * y0 + s->ctm.f;
 	float tx1 = s->ctm.a * x1 + s->ctm.c * y1 + s->ctm.e;
 	float ty1 = s->ctm.b * x1 + s->ctm.d * y1 + s->ctm.f;
-
 	fz_insert_rasterizer(ctx, s->rast, tx0, ty0, tx1, ty1, rev);
 }
 
@@ -377,14 +362,12 @@ static void fz_add_vert_rect(fz_context * ctx, sctx * s, float x0, float y0, flo
 
 static void fz_add_arc(fz_context * ctx, sctx * s, float xc, float yc, float x0, float y0, float x1, float y1, int rev)
 {
-	float th0, th1, r;
-	float theta;
 	float ox, oy, nx, ny;
 	int n, i;
-	r = fabsf(s->linewidth);
-	theta = 2 * SMathConst::Sqrt2_f * sqrtf(s->flatness / r);
-	th0 = atan2f(y0, x0);
-	th1 = atan2f(y1, x1);
+	float r = fabsf(s->linewidth);
+	float theta = 2 * SMathConst::Sqrt2_f * sqrtf(s->flatness / r);
+	float th0 = atan2f(y0, x0);
+	float th1 = atan2f(y1, x1);
 	if(r > 0) {
 		if(th0 < th1)
 			th0 += SMathConst::Pi_f * 2;
@@ -406,7 +389,6 @@ static void fz_add_arc(fz_context * ctx, sctx * s, float xc, float yc, float x0,
 			ox = nx;
 			oy = ny;
 		}
-
 		fz_add_line(ctx, s, xc + x0, yc + y0, xc + ox, yc + oy, rev);
 	}
 	else {
@@ -420,7 +402,6 @@ static void fz_add_arc(fz_context * ctx, sctx * s, float xc, float yc, float x0,
 			ox = nx;
 			oy = ny;
 		}
-
 		fz_add_line(ctx, s, xc + ox, yc + oy, xc + x1, yc + y1, rev);
 	}
 }

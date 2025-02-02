@@ -492,21 +492,15 @@ void fz_print_stext_page_as_json(fz_context * ctx, fz_output * out, fz_stext_pag
 }
 
 /* Plain text */
-
 void fz_print_stext_page_as_text(fz_context * ctx, fz_output * out, fz_stext_page * page)
 {
-	fz_stext_block * block;
-	fz_stext_line * line;
-	fz_stext_char * ch;
-	char utf[10];
-	int i, n;
-
-	for(block = page->first_block; block; block = block->next) {
+	for(fz_stext_block * block = page->first_block; block; block = block->next) {
 		if(block->type == FZ_STEXT_BLOCK_TEXT) {
-			for(line = block->u.t.first_line; line; line = line->next) {
-				for(ch = line->first_char; ch; ch = ch->next) {
-					n = fz_runetochar(utf, ch->c);
-					for(i = 0; i < n; i++)
+			for(fz_stext_line * line = block->u.t.first_line; line; line = line->next) {
+				for(fz_stext_char * ch = line->first_char; ch; ch = ch->next) {
+					char utf[16];
+					const int n = fz_runetochar(utf, ch->c);
+					for(int i = 0; i < n; i++)
 						fz_write_byte(ctx, out, utf[i]);
 				}
 				fz_write_string(ctx, out, "\n");
@@ -538,14 +532,11 @@ typedef struct {
 static fz_device * text_begin_page(fz_context * ctx, fz_document_writer * wri_, fz_rect mediabox)
 {
 	fz_text_writer * wri = (fz_text_writer*)wri_;
-
 	if(wri->page) {
 		fz_drop_stext_page(ctx, wri->page);
 		wri->page = NULL;
 	}
-
 	wri->number++;
-
 	wri->page = fz_new_stext_page(ctx, mediabox);
 	return fz_new_stext_device(ctx, wri->page, &wri->opts);
 }
@@ -553,12 +544,9 @@ static fz_device * text_begin_page(fz_context * ctx, fz_document_writer * wri_, 
 static void text_end_page(fz_context * ctx, fz_document_writer * wri_, fz_device * dev)
 {
 	fz_text_writer * wri = (fz_text_writer*)wri_;
-
-	fz_try(ctx)
-	{
+	fz_try(ctx) {
 		fz_close_device(ctx, dev);
-		switch(wri->format)
-		{
+		switch(wri->format) {
 			default:
 			case FZ_FORMAT_TEXT:
 			    fz_print_stext_page_as_text(ctx, wri->out, wri->page);
@@ -579,8 +567,7 @@ static void text_end_page(fz_context * ctx, fz_document_writer * wri_, fz_device
 			    break;
 		}
 	}
-	fz_always(ctx)
-	{
+	fz_always(ctx) {
 		fz_drop_device(ctx, dev);
 		fz_drop_stext_page(ctx, wri->page);
 		wri->page = NULL;
@@ -592,20 +579,11 @@ static void text_end_page(fz_context * ctx, fz_document_writer * wri_, fz_device
 static void text_close_writer(fz_context * ctx, fz_document_writer * wri_)
 {
 	fz_text_writer * wri = (fz_text_writer*)wri_;
-	switch(wri->format)
-	{
-		case FZ_FORMAT_HTML:
-		    fz_print_stext_trailer_as_html(ctx, wri->out);
-		    break;
-		case FZ_FORMAT_XHTML:
-		    fz_print_stext_trailer_as_xhtml(ctx, wri->out);
-		    break;
-		case FZ_FORMAT_STEXT_XML:
-		    fz_write_string(ctx, wri->out, "</document>\n");
-		    break;
-		case FZ_FORMAT_STEXT_JSON:
-		    fz_write_string(ctx, wri->out, "]\n");
-		    break;
+	switch(wri->format) {
+		case FZ_FORMAT_HTML: fz_print_stext_trailer_as_html(ctx, wri->out); break;
+		case FZ_FORMAT_XHTML: fz_print_stext_trailer_as_xhtml(ctx, wri->out); break;
+		case FZ_FORMAT_STEXT_XML: fz_write_string(ctx, wri->out, "</document>\n"); break;
+		case FZ_FORMAT_STEXT_JSON: fz_write_string(ctx, wri->out, "]\n"); break;
 	}
 	fz_close_output(ctx, wri->out);
 }
@@ -619,13 +597,9 @@ static void text_drop_writer(fz_context * ctx, fz_document_writer * wri_)
 
 fz_document_writer * fz_new_text_writer_with_output(fz_context * ctx, const char * format, fz_output * out, const char * options)
 {
-	fz_text_writer * wri;
-
-	wri = fz_new_derived_document_writer(ctx, fz_text_writer, text_begin_page, text_end_page, text_close_writer, text_drop_writer);
-	fz_try(ctx)
-	{
+	fz_text_writer * wri = fz_new_derived_document_writer(ctx, fz_text_writer, text_begin_page, text_end_page, text_close_writer, text_drop_writer);
+	fz_try(ctx) {
 		fz_parse_stext_options(ctx, &wri->opts, options);
-
 		wri->format = FZ_FORMAT_TEXT;
 		if(sstreq(format, "text"))
 			wri->format = FZ_FORMAT_TEXT;

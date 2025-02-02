@@ -1681,8 +1681,7 @@ static void pdf_write_widget_appearance(fz_context * ctx, pdf_annot * annot, fz_
 static void pdf_write_appearance(fz_context * ctx, pdf_annot * annot, fz_buffer * buf,
     fz_rect * rect, fz_rect * bbox, fz_matrix * matrix, pdf_obj ** res)
 {
-	switch(pdf_annot_type(ctx, annot))
-	{
+	switch(pdf_annot_type(ctx, annot)) {
 		default:
 		    fz_throw(ctx, FZ_ERROR_GENERIC, "cannot create appearance stream for %s annotations",
 			pdf_dict_get_name(ctx, annot->obj, PDF_NAME(Subtype)));
@@ -1765,19 +1764,16 @@ static void pdf_write_appearance(fz_context * ctx, pdf_annot * annot, fz_buffer 
 }
 
 static pdf_obj * draw_push_button(fz_context * ctx, pdf_annot * annot, fz_rect bbox, fz_matrix matrix, float w, float h,
-    const char * caption, const char * font, float size, float color[3],
-    int down)
+    const char * caption, const char * font, float size, float color[3], int down)
 {
 	pdf_obj * ap, * res = NULL;
-	fz_buffer * buf;
 	float bc[3] = { 0, 0, 0 };
 	float bg[3] = { 0.8f, 0.8f, 0.8f };
 	float hi[3], sh[3];
 	int has_bg, has_bc;
 	float b;
 	int i;
-
-	buf = fz_new_buffer(ctx, 1024);
+	fz_buffer * buf = fz_new_buffer(ctx, 1024);
 	fz_var(res);
 	fz_try(ctx)
 	{

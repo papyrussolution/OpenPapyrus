@@ -775,39 +775,22 @@ void DarkModeSubDlg::move2CtrlLeft(int ctrlID, HWND handle2Move, int handle2Move
 INT_PTR CALLBACK DarkModeSubDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam)
 {
 	UNREFERENCED_PARAMETER(lParam);
-
-	NppParameters& nppParam = NppParameters::getInstance();
-	NppGUI& nppGUI = nppParam.getNppGUI();
-	switch(message)
-	{
+	NppParameters & nppParam = NppParameters::getInstance();
+	NppGUI & nppGUI = nppParam.getNppGUI();
+	switch(message) {
 		case WM_INITDIALOG:
 	    {
 		    ::SendDlgItemMessage(_hSelf, IDC_CHECK_DARKMODE_ENABLE, BM_SETCHECK, nppGUI._darkmode._isEnabled, 0);
 
 		    int id = IDC_RADIO_DARKMODE_BLACK;
-		    switch(nppGUI._darkmode._colorTone)
-		    {
-			    case NppDarkMode::redTone:
-				id = IDC_RADIO_DARKMODE_RED;
-				break;
-			    case NppDarkMode::greenTone:
-				id = IDC_RADIO_DARKMODE_GREEN;
-				break;
-			    case NppDarkMode::blueTone:
-				id = IDC_RADIO_DARKMODE_BLUE;
-				break;
-			    case NppDarkMode::purpleTone:
-				id = IDC_RADIO_DARKMODE_PURPLE;
-				break;
-			    case NppDarkMode::cyanTone:
-				id = IDC_RADIO_DARKMODE_CYAN;
-				break;
-			    case NppDarkMode::oliveTone:
-				id = IDC_RADIO_DARKMODE_OLIVE;
-				break;
-			    case NppDarkMode::customizedTone:
-				id = IDC_RADIO_DARKMODE_CUSTOMIZED;
-				break;
+		    switch(nppGUI._darkmode._colorTone) {
+			    case NppDarkMode::redTone: id = IDC_RADIO_DARKMODE_RED; break;
+			    case NppDarkMode::greenTone: id = IDC_RADIO_DARKMODE_GREEN; break;
+			    case NppDarkMode::blueTone: id = IDC_RADIO_DARKMODE_BLUE; break;
+			    case NppDarkMode::purpleTone: id = IDC_RADIO_DARKMODE_PURPLE; break;
+			    case NppDarkMode::cyanTone: id = IDC_RADIO_DARKMODE_CYAN; break;
+			    case NppDarkMode::oliveTone: id = IDC_RADIO_DARKMODE_OLIVE; break;
+			    case NppDarkMode::customizedTone: id = IDC_RADIO_DARKMODE_CUSTOMIZED; break;
 		    }
 		    ::SendDlgItemMessage(_hSelf, id, BM_SETCHECK, TRUE, 0);
 
@@ -837,19 +820,11 @@ INT_PTR CALLBACK DarkModeSubDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM
 		    int cpDynamicalWidth = NppParameters::getInstance()._dpiManager.scaleX(25);
 		    int cpDynamicalHeight = NppParameters::getInstance()._dpiManager.scaleY(25);
 
-		    move2CtrlLeft(IDD_CUSTOMIZED_COLOR1_STATIC, _pPureBackgroundColorPicker->getHSelf(), cpDynamicalWidth,
-			cpDynamicalHeight);
-		    move2CtrlLeft(IDD_CUSTOMIZED_COLOR2_STATIC, _pHotBackgroundColorPicker->getHSelf(), cpDynamicalWidth,
-			cpDynamicalHeight);
-		    move2CtrlLeft(IDD_CUSTOMIZED_COLOR3_STATIC,
-			_pSofterBackgroundColorPicker->getHSelf(),
-			cpDynamicalWidth,
-			cpDynamicalHeight);
+		    move2CtrlLeft(IDD_CUSTOMIZED_COLOR1_STATIC, _pPureBackgroundColorPicker->getHSelf(), cpDynamicalWidth, cpDynamicalHeight);
+		    move2CtrlLeft(IDD_CUSTOMIZED_COLOR2_STATIC, _pHotBackgroundColorPicker->getHSelf(), cpDynamicalWidth, cpDynamicalHeight);
+		    move2CtrlLeft(IDD_CUSTOMIZED_COLOR3_STATIC, _pSofterBackgroundColorPicker->getHSelf(), cpDynamicalWidth, cpDynamicalHeight);
 		    move2CtrlLeft(IDD_CUSTOMIZED_COLOR4_STATIC, _pBackgroundColorPicker->getHSelf(), cpDynamicalWidth, cpDynamicalHeight);
-		    move2CtrlLeft(IDD_CUSTOMIZED_COLOR5_STATIC,
-			_pErrorBackgroundColorPicker->getHSelf(),
-			cpDynamicalWidth,
-			cpDynamicalHeight);
+		    move2CtrlLeft(IDD_CUSTOMIZED_COLOR5_STATIC, _pErrorBackgroundColorPicker->getHSelf(), cpDynamicalWidth, cpDynamicalHeight);
 		    move2CtrlLeft(IDD_CUSTOMIZED_COLOR6_STATIC, _pTextColorPicker->getHSelf(), cpDynamicalWidth, cpDynamicalHeight);
 		    move2CtrlLeft(IDD_CUSTOMIZED_COLOR7_STATIC, _pDarkerTextColorPicker->getHSelf(), cpDynamicalWidth, cpDynamicalHeight);
 		    move2CtrlLeft(IDD_CUSTOMIZED_COLOR8_STATIC, _pDisabledTextColorPicker->getHSelf(), cpDynamicalWidth, cpDynamicalHeight);
@@ -866,7 +841,6 @@ INT_PTR CALLBACK DarkModeSubDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM
 		    _pDisabledTextColorPicker->display();
 		    _pEdgeColorPicker->display();
 		    _pLinkColorPicker->display();
-
 		    ::EnableWindow(::GetDlgItem(_hSelf, IDC_RADIO_DARKMODE_BLACK), nppGUI._darkmode._isEnabled);
 		    ::EnableWindow(::GetDlgItem(_hSelf, IDC_RADIO_DARKMODE_RED), nppGUI._darkmode._isEnabled);
 		    ::EnableWindow(::GetDlgItem(_hSelf, IDC_RADIO_DARKMODE_GREEN), nppGUI._darkmode._isEnabled);
@@ -875,29 +849,20 @@ INT_PTR CALLBACK DarkModeSubDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM
 		    ::EnableWindow(::GetDlgItem(_hSelf, IDC_RADIO_DARKMODE_CYAN), nppGUI._darkmode._isEnabled);
 		    ::EnableWindow(::GetDlgItem(_hSelf, IDC_RADIO_DARKMODE_OLIVE), nppGUI._darkmode._isEnabled);
 		    ::EnableWindow(::GetDlgItem(_hSelf, IDC_RADIO_DARKMODE_CUSTOMIZED), nppGUI._darkmode._isEnabled);
-
 		    enableCustomizedColorCtrls(nppGUI._darkmode._isEnabled && id == IDC_RADIO_DARKMODE_CUSTOMIZED);
-
 		    return TRUE;
 	    }
-
 		case WM_CTLCOLORDLG:
 		case WM_CTLCOLORSTATIC:
-	    {
 		    if(NppDarkMode::isEnabled()) {
 			    return NppDarkMode::onCtlColorDarker(reinterpret_cast<HDC>(wParam));
 		    }
 		    break;
-	    }
-
 		case WM_PRINTCLIENT:
-	    {
 		    if(NppDarkMode::isEnabled()) {
 			    return TRUE;
 		    }
 		    break;
-	    }
-
 		case WM_DESTROY:
 	    {
 		    _pBackgroundColorPicker->destroy();
@@ -922,14 +887,12 @@ INT_PTR CALLBACK DarkModeSubDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM
 		    delete _pEdgeColorPicker;
 		    delete _pLinkColorPicker;
 	    }
-
 		case WM_COMMAND:
 	    {
 		    bool changed = false;
 		    bool forceRefresh = false;
 		    bool doEnableCustomizedColorCtrls = false;
-		    switch(wParam)
-		    {
+		    switch(wParam) {
 			    case IDC_CHECK_DARKMODE_ENABLE:
 			{
 				bool enableDarkMode = isCheckedOrNot(static_cast<int>(wParam));

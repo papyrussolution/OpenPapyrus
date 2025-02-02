@@ -5114,8 +5114,7 @@ struct SVerT { // @persistent Size=4
 	bool   IsEmpty() const { return (!V && !R); }
 	SVerT & Z()
 	{
-		V = 0;
-		R = 0;
+		V = R = 0;
 		return *this;
 	}
 	int    Get(int *, int *, int *) const;
@@ -12805,7 +12804,7 @@ private:
 	int    FindNext();
 	void   Close();
 
-	wchar_t InitPath[ALIGNSIZE(MAX_PATH, 2)]; // @v10.8.0 MAX_PATH-->ALIGNSIZE(MAX_PATH, 2) // @v11.6.0 char-->wchar_t
+	wchar_t InitPath[ALIGNSIZE(MAX_PATH, 2)]; // @v11.6.0 char-->wchar_t
 	int    InitFlag;
 	int    EnumDir;
 	SIntHandle H; // @v11.8.9
@@ -15131,8 +15130,9 @@ public:
 	TRect();
 	TRect(int ax, int ay, int bx, int by);
 	TRect(SPoint2S p1, SPoint2S p2);
-	TRect(SPoint2S sz);
-	TRect(const RECT &);
+	explicit TRect(SPoint2S sz);
+	explicit TRect(const RECT &);
+	explicit TRect(const FRect & rR, int roundOption = frtorrNearest);
 	TRect & FASTCALL operator = (const RECT &);
 	TRect & FASTCALL operator = (SPoint2S p);
 	bool   IsEmpty() const;
@@ -15180,8 +15180,17 @@ public:
 	int    width() const;
 	int    height() const;
 	TRect & Z();
-	TRect & set(int x1, int y1, int x2, int y2);
-	TRect & set(const FRect & rR);
+	TRect & Set(int x1, int y1, int x2, int y2);
+	//
+	// Descr: Варианты округления при преобразовании FRect -> TRect
+	//
+	enum {
+		frtorrNearest = 0, // Все компоненты FRect округляются до ближайшего целого
+		frtorrCollapse, // Нижние границы округляются в большую сторону, верхние - в меньшую
+		frtorrExpand,   // Нижние границы округляются в меньшую сторону, верхние - в большую
+	};
+
+	TRect & Set(const FRect & rR, int roundOption = frtorrNearest);
 	TRect & FASTCALL setwidth(const TRect & rR);
 	TRect & FASTCALL setheight(const TRect & rR);
 	TRect & setwidthrel(int p, int w);

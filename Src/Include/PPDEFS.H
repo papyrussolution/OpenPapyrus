@@ -11697,6 +11697,10 @@
 	#define CTL_PRCRCLIACST_PK           (3 + IMPEXP_CTL_BIAS)
 	#define CTLSEL_PRCRCLIACST_PK        (4 + IMPEXP_CTL_BIAS)
 #define DLG_PERSONTOTAL_CA        1457 // @v12.2.2 Итоги по выборке персоналий со статистикой по текущему состоянию клиентской активности
+#define DLG_CORHUPTAGS            1458 // @v12.2.5 Корректировка висячих тегов
+	#define CTL_CORHUPTAGS_LOG           (1 + WINDOWS_ID_BIAS)
+	#define CTL_CORHUPTAGS_FLAGS         (2 + WINDOWS_ID_BIAS)
+	#define CTLBRW_CORHUPTAGS_LOG        (3 + WINDOWS_ID_BIAS)
 
 // Win32 Dialog Identifiers
 //

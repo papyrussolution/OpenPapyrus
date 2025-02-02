@@ -626,16 +626,10 @@ static cairo_status_t _cairo_ps_surface_emit_type3_font_subset(cairo_ps_surface_
 	    "/FontMatrix [1 0 0 -1 0 0] def\n"
 	    "/Encoding 256 array def\n"
 	    "0 1 255 { Encoding exch /.notdef put } for\n");
-
-	type3_surface = _cairo_type3_glyph_surface_create(font_subset->scaled_font,
-		NULL,
-		_cairo_ps_emit_imagemask,
-		surface->font_subsets,
-		TRUE);
+	type3_surface = _cairo_type3_glyph_surface_create(font_subset->scaled_font, NULL, _cairo_ps_emit_imagemask, surface->font_subsets, TRUE);
 	status = type3_surface->status;
 	if(UNLIKELY(status))
 		return status;
-
 	for(i = 0; i < font_subset->num_glyphs; i++) {
 		if(font_subset->glyph_names) {
 			_cairo_output_stream_printf(surface->final_stream, "Encoding %d /%s put\n", i, font_subset->glyph_names[i]);
@@ -647,11 +641,7 @@ static cairo_status_t _cairo_ps_surface_emit_type3_font_subset(cairo_ps_surface_
 	_cairo_output_stream_printf(surface->final_stream, "/Glyphs [\n");
 	for(i = 0; i < font_subset->num_glyphs; i++) {
 		_cairo_output_stream_printf(surface->final_stream, "    { %% %d\n", i);
-		status = _cairo_type3_glyph_surface_emit_glyph(type3_surface,
-			surface->final_stream,
-			font_subset->glyphs[i],
-			&bbox,
-			&width);
+		status = _cairo_type3_glyph_surface_emit_glyph(type3_surface, surface->final_stream, font_subset->glyphs[i], &bbox, &width);
 		if(UNLIKELY(status))
 			break;
 		_cairo_output_stream_printf(surface->final_stream, "    }\n");
@@ -676,7 +666,6 @@ static cairo_status_t _cairo_ps_surface_emit_type3_font_subset(cairo_ps_surface_
 	cairo_surface_destroy(type3_surface);
 	if(UNLIKELY(status))
 		return status;
-
 	_cairo_output_stream_printf(surface->final_stream,
 	    "] def\n"
 	    "/FontBBox [%f %f %f %f] def\n"

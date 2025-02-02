@@ -899,6 +899,7 @@ int PPApp::processCommand(uint cmd)
 		// @v12.2.2 case cmCvtQCert:           ConvertLandQCertToLotTag(); break;
 		case cmCorrectCCheckLine01:     CCheckCore().CorrectCCLineProblem01(); break;
 		case cmRecoverLostUnifiedLinks: PPObjTag::RecoverLostUnifiedLinks(); break;
+		case cmRecoverHungedUpTags:     PPObjTag::RecoverHungedUpTags(); break; // @v12.2.5
 		case cmBuildLocalDL600:         BuildLocalDL600(); break;
 		case cmValidateXml:             PPValidateXml(); break;
 		case cmDumpData:                DoDbDump(0); break;

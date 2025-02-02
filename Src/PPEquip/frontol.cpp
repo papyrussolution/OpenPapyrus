@@ -1,5 +1,5 @@
 // FRONTOL.CPP
-// Copyright (c) V.Nasonov 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) V.Nasonov 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 // Интерфейс (асинхронный) к драйверу "Атол"
 //
@@ -1425,7 +1425,6 @@ int ACS_FRONTOL::ConvertWareList(const char * pImpPath)
 					goods_id = def_goods_id;
 				else {
 					Goods2Tbl::Rec goods_rec;
-					// @v10.8.5 {
 					if(!UseAltImport) {
 						if(goods_obj.Search(goods_id, &goods_rec) > 0) {
 							;
@@ -1447,7 +1446,6 @@ int ACS_FRONTOL::ConvertWareList(const char * pImpPath)
 							}
 						}
 					}
-					// } @v10.8.5
 					else { // UseAltImport
 						buf.Divide('|', arcode, goods_name);
 						if(!goods_name.NotEmptyS())

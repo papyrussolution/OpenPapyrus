@@ -6,6 +6,41 @@
 
 class GoodsTaxDialog : public TDialog {
 	DECL_DIALOG_DATA(PPGoodsTaxPacket);
+	enum VatRateType {
+		vrtSimple  = 1,
+		vrtSpecial = 2,
+		vrtGeneral = 3
+	};
+	long FlagsToVatRateType(long flags)
+	{
+		long vrt = vrtSimple;
+		const long _f = flags & (GTAXF_SPCVAT|GTAXF_GENERALVAT);
+		if(_f == (GTAXF_SPCVAT|GTAXF_GENERALVAT) || _f == 0)
+			vrt = vrtSimple;
+		else if(_f == GTAXF_SPCVAT)
+			vrt = vrtSpecial;
+		else if(_f == GTAXF_GENERALVAT)
+			vrt = vrtGeneral;
+		else {
+			assert(0); // @unreachable
+		}
+		assert(oneof3(vrt, vrtSimple, vrtSpecial, vrtGeneral));
+		return vrt;
+	}
+	void VatRateTypeToFlags(long vrt, long & rFlags)
+	{
+		rFlags &= ~(GTAXF_SPCVAT|GTAXF_GENERALVAT); 
+		switch(vrt)	{
+			case vrtSimple: 
+				break;
+			case vrtSpecial: 
+				rFlags |= GTAXF_SPCVAT; 
+				break;
+			case vrtGeneral: 
+				rFlags |= GTAXF_GENERALVAT; 
+				break;
+		}
+	}
 public:
 	GoodsTaxDialog(uint dlgID) : TDialog(dlgID)
 	{
@@ -24,7 +59,7 @@ public:
 		AddClusterAssoc(CTL_GDSTAX_NOLOTEXCISE, 0, GTAXF_NOLOTEXCISE);
 		SetClusterData(CTL_GDSTAX_NOLOTEXCISE, Data.Rec.Flags);
 		Data.Rec.ToEntry(&gtx);
-		return setEntry(&gtx);
+		return SetEntry(&gtx);
 	}
 	DECL_DIALOG_GETDTS()
 	{
@@ -36,7 +71,7 @@ public:
 			GTxObj.GetDefaultName(&Data.Rec, Data.Rec.Name, sizeof(Data.Rec.Name));
 		if(Data.Rec.ID == 0)
 			getCtrlData(CTL_GDSTAX_ID, &Data.Rec.ID);
-		if(getEntry(&gtx)) {
+		if(GetEntry(&gtx)) {
 			Data.Rec.FromEntry(&gtx);
 			GetClusterData(CTL_GDSTAX_FLAGS, &Data.Rec.Flags);
 			GetClusterData(CTL_GDSTAX_NOLOTEXCISE, &Data.Rec.Flags);
@@ -47,35 +82,37 @@ public:
 			ok = 0;
 		return ok;
 	}
-	int    setEntry(const PPGoodsTaxEntry *);
-	int    getEntry(PPGoodsTaxEntry *);
+	int    SetEntry(const PPGoodsTaxEntry *);
+	int    GetEntry(PPGoodsTaxEntry *);
 private:
-	DECL_HANDLE_EVENT;
-	void   editList();
+	DECL_HANDLE_EVENT
+	{
+		ushort v;
+		TDialog::handleEvent(event);
+		if(TVCOMMAND) {
+			if(TVCMD == cmGoodsTaxList) {
+				getCtrlData(CTL_GDSTAX_FLAGS, &(v = 0));
+				if(v & 0x01)
+					EditList();
+				clearEvent(event);
+			}
+			else if(event.isClusterClk(CTL_GDSTAX_FLAGS)) {
+				getCtrlData(CTL_GDSTAX_FLAGS, &(v = 0));
+				enableCommand(cmGoodsTaxList, BIN(v & 0x01));
+				clearEvent(event);
+			}
+			else if(event.isClusterClk(CTL_GDSTAX_SPCVAT)) {
+				const long vrt = GetClusterData(CTL_GDSTAX_SPCVAT);
+				disableCtrl(CTL_GDSTAX_VAT, vrt == vrtGeneral);
+			}
+		}
+	}
+	void   EditList();
 	PPGoodsTaxEntry Entry;
 	PPObjGoodsTax GTxObj;
 };
 
-IMPL_HANDLE_EVENT(GoodsTaxDialog)
-{
-	ushort v;
-	TDialog::handleEvent(event);
-	if(TVCOMMAND) {
-		if(TVCMD == cmGoodsTaxList) {
-			getCtrlData(CTL_GDSTAX_FLAGS, &(v = 0));
-			if(v & 0x01)
-				editList();
-			clearEvent(event);
-		}
-		else if(event.isClusterClk(CTL_GDSTAX_FLAGS)) {
-			getCtrlData(CTL_GDSTAX_FLAGS, &(v = 0));
-			enableCommand(cmGoodsTaxList, BIN(v & 0x01));
-			clearEvent(event);
-		}
-	}
-}
-
-int GoodsTaxDialog::setEntry(const PPGoodsTaxEntry * pEntry)
+int GoodsTaxDialog::SetEntry(const PPGoodsTaxEntry * pEntry)
 {
 	Entry = *pEntry;
 	SString temp_buf;
@@ -85,8 +122,15 @@ int GoodsTaxDialog::setEntry(const PPGoodsTaxEntry * pEntry)
 	}
 	setCtrlString(CTL_GDSTAX_VAT, Entry.FormatVAT(temp_buf));
 	// @v12.2.3 {
-	AddClusterAssoc(CTL_GDSTAX_SPCVAT, 0, GTAXF_SPCVAT);
-	SetClusterData(CTL_GDSTAX_SPCVAT, Entry.Flags);
+	{
+		//GTAXF_SPCVAT
+		AddClusterAssocDef(CTL_GDSTAX_SPCVAT, 0, vrtSimple);
+		AddClusterAssoc(CTL_GDSTAX_SPCVAT, 1, vrtSpecial);
+		AddClusterAssoc(CTL_GDSTAX_SPCVAT, 2, vrtGeneral);
+		const long vrt = FlagsToVatRateType(Entry.Flags);
+		SetClusterData(CTL_GDSTAX_SPCVAT, vrt);
+		disableCtrl(CTL_GDSTAX_VAT, vrt == vrtGeneral);
+	}
 	// } @v12.2.3 
 	setCtrlString(CTL_GDSTAX_EXCISE, Entry.FormatExcise(temp_buf));
 	setCtrlString(CTL_GDSTAX_STAX,   Entry.FormatSTax(temp_buf));
@@ -95,7 +139,7 @@ int GoodsTaxDialog::setEntry(const PPGoodsTaxEntry * pEntry)
 	return 1;
 }
 
-int GoodsTaxDialog::getEntry(PPGoodsTaxEntry * pEntry)
+int GoodsTaxDialog::GetEntry(PPGoodsTaxEntry * pEntry)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -107,7 +151,12 @@ int GoodsTaxDialog::getEntry(PPGoodsTaxEntry * pEntry)
 	getCtrlString(CTL_GDSTAX_VAT, temp_buf);
 	rv = temp_buf.ToReal();
 	Entry.VAT = R0i(rv * 100L);
-	GetClusterData(CTL_GDSTAX_SPCVAT, &Entry.Flags); // @v12.2.3
+	// @v12.2.5 {
+	{
+		const long vrt = GetClusterData(CTL_GDSTAX_SPCVAT);
+		VatRateTypeToFlags(vrt, Entry.Flags);
+	}
+	// } @v12.2.5 
 	Entry.Flags &= ~GTAXF_ABSEXCISE;
 	getCtrlString(CTL_GDSTAX_EXCISE, temp_buf);
 	if(temp_buf.NotEmptyS()) {
@@ -215,11 +264,11 @@ int GoodsTaxListDialog::editItemDialog(int pos, PPGoodsTaxEntry * pEntry)
 	int    ok = -1;
 	GoodsTaxDialog * dlg = new GoodsTaxDialog(DLG_GDSTAXENTRY);
 	if(CheckDialogPtrErr(&dlg)) {
-		dlg->setEntry(pEntry);
+		dlg->SetEntry(pEntry);
 		dlg->setCtrlData(CTL_GDSTAX_NAME, Data.Rec.Name);
 		dlg->disableCtrl(CTL_GDSTAX_NAME, 1);
 		for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;)
-			if(dlg->getEntry(pEntry) && Data.PutEntry(pos, pEntry))
+			if(dlg->GetEntry(pEntry) && Data.PutEntry(pos, pEntry))
 				ok = valid_data = 1;
 			else
 				PPError();
@@ -267,7 +316,7 @@ int GoodsTaxListDialog::editItem(long pos, long)
 	return ok;
 }
 
-void GoodsTaxDialog::editList()
+void GoodsTaxDialog::EditList()
 {
 	GoodsTaxListDialog * dlg = new GoodsTaxListDialog();
 	if(CheckDialogPtrErr(&dlg)) {

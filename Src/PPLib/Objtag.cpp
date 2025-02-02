@@ -148,10 +148,7 @@ TagFilt & FASTCALL TagFilt::operator = (const TagFilt & rS)
 	return *this;
 }
 
-bool TagFilt::IsEmpty() const
-{
-	return !TagsRestrict.getCount();
-}
+bool TagFilt::IsEmpty() const { return !TagsRestrict.getCount(); }
 
 static int CheckTagItemForRawRestriction(const ObjTagItem * pTagItem, const char * pRawRestrictionString, SColor & rClr)
 {
@@ -1488,6 +1485,133 @@ int PPObjTag::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, Obj
 	return ok;
 }
 
+static int EditRecoverHungedUpTagsParam(SString & rLogFileName, long * pFlags)
+{
+	int    ok = -1;
+	SString log_fname;
+	long   flags = 0;
+	RVALUEPTR(flags, pFlags);
+	TDialog * dlg = new TDialog(DLG_CORHUPTAGS);
+	THROW(CheckDialogPtr(&dlg));
+	FileBrowseCtrlGroup::Setup(dlg, CTLBRW_CORHUPTAGS_LOG, CTL_CORHUPTAGS_LOG, 1, 0, 0, FileBrowseCtrlGroup::fbcgfLogFile);
+	PPGetFileName(PPFILNAM_HUNGEDUPTAGSERR_LOG, log_fname);
+	dlg->setCtrlString(CTL_CORHUPTAGS_LOG, log_fname);
+	dlg->AddClusterAssoc(CTL_CORHUPTAGS_FLAGS, 0, 0x0001);
+	dlg->SetClusterData(CTL_CORHUPTAGS_FLAGS, flags);
+	if(ExecView(dlg) == cmOK) {
+		dlg->getCtrlString(CTL_CORHUPTAGS_LOG, log_fname);
+		dlg->GetClusterData(CTL_CORHUPTAGS_FLAGS, &flags);
+		ok = 1;
+	}
+	CATCHZOKPPERR
+	rLogFileName = log_fname;
+	ASSIGN_PTR(pFlags, flags);
+	delete dlg;
+	return ok;
+}
+
+/*static*/int PPObjTag::RecoverHungedUpTags() // @v12.2.5
+{
+	int    ok = -1;
+	Reference * p_ref = PPRef;
+	PPLogger logger;
+	SString temp_buf;
+	SString msg_buf;
+	SString wait_msg_buf;
+	SString log_file_name;
+	long   flags = 0; // 0x0001 - do correct errors
+	if(p_ref) {
+		if(EditRecoverHungedUpTagsParam(log_file_name, &flags) > 0) {
+			ok = 1;
+			PPWait(1);
+			uint   recs_count = 0;
+			ObjTagCore & r_ot = p_ref->Ot;
+			ObjTagTbl::Key0 k0;
+			PPIDArray obj_type_list;
+			DbTableStat dbstat;
+			r_ot.GetFileStat(0, &dbstat);
+			{
+				PPID   prev_obj_type = 0;
+				MEMSZERO(k0);
+				// PPTXT_SCANDBTABLE "Сканирование таблицы данных '%s'" // @v12.2.5
+				PPLoadText(PPTXT_SCANDBTABLE, temp_buf);
+				wait_msg_buf.Printf(temp_buf, r_ot.GetTableName());
+				BExtQuery q(&r_ot, 0);
+				q.selectAll();
+				for(q.initIteration(false, &k0); q.nextIteration() > 0;) {
+					ObjTagTbl::Rec rec;
+					r_ot.copyBufTo(&rec);
+					if(rec.ObjType != prev_obj_type) {
+						obj_type_list.add(rec.ObjType);
+						prev_obj_type = rec.ObjType;
+					}
+					recs_count++;
+					PPWaitPercent(static_cast<ulong>(recs_count), static_cast<ulong>(dbstat.NumRecs), wait_msg_buf);
+				}
+			}
+			if(recs_count && obj_type_list.getCount()) {
+				obj_type_list.sortAndUndup();
+				IterCounter ic;
+				ic.SetTotal(recs_count);
+				PPObjIDArray oid_list_for_hanged_up_tags;
+				for(uint otidx = 0; otidx < obj_type_list.getCount(); otidx++) {
+					const PPID obj_type = obj_type_list.get(otidx);
+					PPObject * p_obj = GetPPObject(obj_type, 0);
+					if(!p_obj) {
+						// @todo @err
+					}
+					else {
+						MEMSZERO(k0);
+						k0.ObjType = obj_type;
+						if(r_ot.search(0, &k0, spGe) && r_ot.data.ObjType == obj_type) {
+							//PPTXT_SEARCHINGUNGEDUPRECS          "Поиск висячих записей" // @v12.2.5
+							PPLoadText(PPTXT_SEARCHINGUNGEDUPRECS, wait_msg_buf);
+							do {
+								ObjTagTbl::Rec rec;
+								r_ot.copyBufTo(&rec);
+								const PPID obj_id = rec.ObjID;
+								if(p_obj->Search(obj_id, 0) > 0) {
+									; // ok
+								}
+								else {
+									oid_list_for_hanged_up_tags.Add(obj_type, obj_id);
+									{
+										//PPTXT_HANGEDUPTAG "Обнаружен висячий тег '@tag', принадлежавший несуществующему объекту {'@objtitle', @int}"
+										PPFormatT(PPTXT_HUNGEDUPTAG, &msg_buf, rec.TagID, obj_type, obj_id);
+										logger.Log(msg_buf);
+									}
+								}
+								ic.Increment();
+								PPWaitPercent(ic, wait_msg_buf);
+							} while(r_ot.search(0, &k0, spNext) && r_ot.data.ObjType == obj_type);
+						}
+						ZDELETE(p_obj);
+					}
+				}
+				if(oid_list_for_hanged_up_tags.getCount() && (flags & 0x0001)) {
+					oid_list_for_hanged_up_tags.SortAndUndup();
+					PPTransaction tra(1);
+					THROW(tra);
+					for(uint i = 0; i < oid_list_for_hanged_up_tags.getCount(); i++) {
+						const PPObjID oid = oid_list_for_hanged_up_tags.at(i);
+						THROW(r_ot.PutList(oid.Obj, oid.Id, 0, 0));
+					}
+					THROW(tra.Commit());
+					ok = 2;
+				}
+			}
+		}
+	}
+	CATCH
+		logger.LogLastError();
+		ok = 0;
+	ENDCATCH
+	if(log_file_name.NotEmpty())
+		logger.Save(log_file_name, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
+	PPWait(0);
+	return ok;
+}
+
 /*static*/int PPObjTag::RecoverLostUnifiedLinks()
 {
 	int    ok = -1;
@@ -1496,7 +1620,9 @@ int PPObjTag::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, Obj
 	StrAssocArray * p_tags_list = 0;
 	SysJournal * p_sj = DS.GetTLA().P_SysJ;
 	if(p_sj && p_ref) {
-		SString msg_buf, fmt_buf, temp_buf;
+		SString temp_buf;
+		SString msg_buf;
+		SString fmt_buf;
 		PPObjTag tag_obj;
 		ObjTagFilt ot_filt(0, ObjTagFilt::fOnlyTags|ObjTagFilt::fAnyObjects);
 		p_tags_list = tag_obj.MakeStrAssocList(&ot_filt);
@@ -1523,7 +1649,7 @@ int PPObjTag::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, Obj
 									int r = p_ref->GetItem(tag.TagEnumID, rec.IntVal, &ref_rec);
 									THROW(r);
 									if(r < 0) {
-										// PPTXT_TAGHANGEDLINK         "Обнаружена висячая ссылка в теге '@tag' на объект {'@objtitle', @int}"
+										// PPTXT_TAGHANGEDLINK "Обнаружена висячая ссылка в теге '@tag' на объект {'@objtitle', @int}"
 										PPFormatT(PPTXT_TAGHANGEDLINK, &msg_buf, tag_id, tag.TagEnumID, rec.IntVal);
 										PPID   subst_id = 0;
 										if(p_sj->GetLastObjUnifyEvent(tag.TagEnumID, rec.IntVal, &subst_id, 0) > 0) {

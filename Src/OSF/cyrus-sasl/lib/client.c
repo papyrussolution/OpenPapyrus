@@ -980,7 +980,6 @@ sasl_string_list_t * _sasl_client_mechs(void)
 static void _sasl_print_mechanism(client_sasl_mechanism_t * m, sasl_info_callback_stage_t stage, void * rock __attribute__((unused)))
 {
 	char delimiter;
-
 	if(stage == SASL_INFO_LIST_START) {
 		printf("List of client plugins follows\n");
 		return;
@@ -988,21 +987,12 @@ static void _sasl_print_mechanism(client_sasl_mechanism_t * m, sasl_info_callbac
 	else if(stage == SASL_INFO_LIST_END) {
 		return;
 	}
-
-	/* Process the mechanism */
-	printf("Plugin \"%s\" ", m->plugname);
-
-	/* There is no delay loading for client side plugins */
-	printf("[loaded]");
-
+	printf("Plugin \"%s\" ", m->plugname); /* Process the mechanism */
+	printf("[loaded]"); /* There is no delay loading for client side plugins */
 	printf(", \tAPI version: %d\n", m->version);
 	if(m->plug) {
-		printf("\tSASL mechanism: %s, best SSF: %d\n",
-		    m->plug->mech_name,
-		    m->plug->max_ssf);
-
+		printf("\tSASL mechanism: %s, best SSF: %d\n", m->plug->mech_name, m->plug->max_ssf);
 		printf("\tsecurity flags:");
-
 		delimiter = ' ';
 		if(m->plug->security_flags & SASL_SEC_NOANONYMOUS) {
 			printf("%cNO_ANONYMOUS", delimiter);

@@ -3022,6 +3022,7 @@ public:
 		{
 		}
 		uint   Flags; // ListSelectionDialog::fXXX
+		TRect  Bounds;
 		SString Title;
 		SString ColumnDescription;
 	};
@@ -3077,11 +3078,12 @@ protected:
 				P_TW->InsertCtlWithCorrespondingNativeItem(p_gb, CtlListGroupBox, 0, /*extraPtr*/0);
 			}
 			{
-				SmartListBox * p_lb = P.ColumnDescription.NotEmpty() ? new SmartListBox(_def_rect, P_Def, P.ColumnDescription) : new SmartListBox(_def_rect, P_Def, false/*isTreeList*/);
+				SmartListBox * p_lb = P.ColumnDescription.NotEmpty() ? new SmartListBox(_def_rect, P_Def, P.ColumnDescription) : new SmartListBox(_def_rect, P_Def, P_Def->_isTreeList());
 				P_TW->InsertCtlWithCorrespondingNativeItem(p_lb, STDCTL_SINGLELISTBOX, 0, /*extraPtr*/0);
 				{
 					P_TW->SetCtrlFont(STDCTL_SINGLELISTBOX, font_face, /*16*//*22*/12);
 				}
+				//p_lb->Draw_();
 			}
 			if(P.Flags & (fcedCreate|fcedEdit|fcedDelete)) {
 				if(P.Flags & fcedCreate) {
@@ -3104,15 +3106,8 @@ protected:
 				{
 					if(pItem) {
 						TView * p = static_cast<TView *>(SUiLayout::GetManagedPtr(pItem));
-						if(p) {
-							FRect frame = pItem->GetFrameAdjustedToParent();
-							TRect b;
-							b.a.x = static_cast<int16>(R0i(frame.a.x));
-							b.a.y = static_cast<int16>(R0i(frame.a.y));
-							b.b.x = static_cast<int16>(R0i(frame.b.x));
-							b.b.y = static_cast<int16>(R0i(frame.b.y));
-							p->changeBounds(b);
-						}	
+						if(p)
+							p->changeBounds(TRect(pItem->GetFrameAdjustedToParent()));
 					}
 				}
 				static void InsertButtonLayout(TWindow * pMaster, SUiLayout * pLoParent, ushort ctlId, SUiLayoutParam & rP, float growFactor)
@@ -3181,7 +3176,8 @@ protected:
 					{					
 						TView * p = P_TW->getCtrlView(STDCTL_SINGLELISTBOX);
 						if(TView::IsSubSign(p, TV_SUBSIGN_LISTBOX)) {
-							if(!static_cast<SmartListBox *>(p)->IsMultiColumn()) // Припуск для скролл-бара не нужен для мультиколоночного списка
+							const SmartListBox * p_lb = static_cast<SmartListBox *>(p);
+							if(!p_lb->IsMultiColumn() && !p_lb->IsTreeList()) // Припуск для скролл-бара не нужен для мультиколоночного списка и для treeview
 								alb.Margin.b.x += 20.0f; 
 						}
 					}
@@ -3427,13 +3423,16 @@ protected:
 	}
 };
 
-#if 1 // @construction {
 class ListSelectionDialog2 : public ListSelectionDialog_Base, public TDialog {
 public:
 	ListSelectionDialog2(const Param & rParam, ListBoxDef * pDef) : 
 		TDialog(ListSelectionDialog::GetWindowTitle(rParam.Title), wbcDrawBuffer, TDialog::coEmpty),
 		ListSelectionDialog_Base(rParam, pDef, static_cast<TWindow *>(this))
 	{
+		if(!rParam.Bounds.IsEmpty()) {
+			TDialog::setBounds(rParam.Bounds);
+		}
+		TDialog::BuildEmptyWindow();
 	}
 	~ListSelectionDialog2()
 	{
@@ -3441,6 +3440,11 @@ public:
 protected:
 	DECL_HANDLE_EVENT
 	{
+		if(event.isCmd(cmInit)) {
+			if(TVINFOPTR)
+				OnInit2(static_cast<TWindowBase::CreateBlock *>(TVINFOPTR));
+			// don't clearEvent
+		}
 		TDialog::handleEvent(event);
 		if(event.isKeyDown(kbEsc)) {
 			if(IsInState(sfModal)) {
@@ -3449,11 +3453,7 @@ protected:
 			}
 		}
 		else if(TVINFOPTR) {
-			if(event.isCmd(cmInit)) {
-				OnInit2(static_cast<TWindowBase::CreateBlock *>(TVINFOPTR));
-				// don't clearEvent
-			}
-			else if(event.isCmd(cmClose)) {
+			if(event.isCmd(cmClose)) {
 				if(IsInState(sfModal)) {
 					EndModalCmd = cmCancel;
 					clearEvent(event);
@@ -3498,50 +3498,58 @@ protected:
 		}
 	}
 };
-#endif // } 0 @construction
 
 static ListBoxDef * Test_ListSelectionDialog_MakeTestData(bool multiColumn, bool treeView, SString & rListColumnsDefinition)
 {
 	rListColumnsDefinition.Z();
 	ListBoxDef * p_result = 0;
-	//static const char * P_TestDataFile = "D:/Papyrus/Src/PPTEST/DATA/person.txt";
-	SString file_name;
-	PPGetPath(PPPATH_TESTROOT, file_name);
-	file_name.SetLastSlash().Cat("data").SetLastSlash().Cat("person.txt");
-	SFile f_in(file_name, SFile::mRead);
-	if(f_in.IsValid()) {
-		StrAssocArray * p_data = new StrAssocArray;
-		p_result = new StrAssocListBoxDef(p_data, lbtDisposeData|lbtDblClkNotify|lbtFocNotify);
-		//
-		uint   line_no = 0;
-		SString temp_buf;
-		SString line_buf;
-		StringSet ss(SLBColumnDelim);
-		while(f_in.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
-			line_no++;
-			if(line_no >= 8) { // В начале файла там какой-то мусор, который я поосторожничал убирать
-				ss.Z();
-				line_buf.Transf(CTRANSF_OUTER_TO_INNER);
-				line_buf.Tokenize("|", ss);
-				if(multiColumn) {
-					p_result->addItem(line_no, ss.getBuf());
-				}
-				else {
-					if(ss.get(0U, temp_buf)) {
-						p_result->addItem(line_no, temp_buf);
+	if(treeView) {
+		PPObjGoodsGroup gg_obj;
+		StrAssocArray * p_list = gg_obj.MakeStrAssocList(0);
+		if(p_list) {
+			p_result = new StdTreeListBoxDef(p_list, lbtDblClkNotify|lbtFocNotify|lbtSelNotify|lbtDisposeData, MKSTYPE(S_ZSTRING, 128));
+		}
+	}
+	else {
+		//static const char * P_TestDataFile = "D:/Papyrus/Src/PPTEST/DATA/person.txt";
+		SString file_name;
+		PPGetPath(PPPATH_TESTROOT, file_name);
+		file_name.SetLastSlash().Cat("data").SetLastSlash().Cat("person.txt");
+		SFile f_in(file_name, SFile::mRead);
+		if(f_in.IsValid()) {
+			StrAssocArray * p_data = new StrAssocArray;
+			p_result = new StrAssocListBoxDef(p_data, lbtDisposeData|lbtDblClkNotify|lbtFocNotify);
+			//
+			uint   line_no = 0;
+			SString temp_buf;
+			SString line_buf;
+			StringSet ss(SLBColumnDelim);
+			while(f_in.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
+				line_no++;
+				if(line_no >= 8) { // В начале файла там какой-то мусор, который я поосторожничал убирать
+					ss.Z();
+					line_buf.Transf(CTRANSF_OUTER_TO_INNER);
+					line_buf.Tokenize("|", ss);
+					if(multiColumn) {
+						p_result->addItem(line_no, ss.getBuf());
+					}
+					else {
+						if(ss.get(0U, temp_buf)) {
+							p_result->addItem(line_no, temp_buf);
+						}
 					}
 				}
 			}
+			if(multiColumn)
+				rListColumnsDefinition = "20,L,name;20,L,addr;10,L,zip";
 		}
-		if(multiColumn)
-			rListColumnsDefinition = "20,L,name;20,L,addr;10,L,zip";
 	}
 	return p_result;
 }
 
 int Test_ListSelectionDialog()
 {
-	#define LIST_SELECTION_DIALOG_BASE_CLASS ListSelectionDialog
+	#define LIST_SELECTION_DIALOG_BASE_CLASS ListSelectionDialog2
 
 	class __TestListSelectionDialog : public LIST_SELECTION_DIALOG_BASE_CLASS {
 	public:
@@ -3572,15 +3580,13 @@ int Test_ListSelectionDialog()
 	{
 		MemLeakTracer mlt;
 		ListSelectionDialog::Param param;
-		TRect  b;
-		b.set(0, 0, 295, 440); 
-		ListBoxDef * p_lb_def = Test_ListSelectionDialog_MakeTestData(false/*multiColumn*/, false/*treeView*/, param.ColumnDescription);
+		param.Bounds.Set(0, 0, 295, 440); 
+		ListBoxDef * p_lb_def = Test_ListSelectionDialog_MakeTestData(false/*multiColumn*/, true/*treeView*/, param.ColumnDescription);
 		if(p_lb_def) {
 			param.Flags |= (ListSelectionDialog::fcedCreate|ListSelectionDialog::fcedEdit|ListSelectionDialog::fcedDelete|ListSelectionDialog::fOkCancel);
 			param.Title = "Test list selection dialog";
 			__TestListSelectionDialog * p_view = new __TestListSelectionDialog(param, p_lb_def);
 			if(p_view) {
-				p_view->setBounds(b);
 				ok = ListSelectionDialog::Exec(p_view);
 			}
 		}
@@ -3653,9 +3659,9 @@ public:
 		AddClusterAssoc(CTL_UICFG_FLAGS,  8, UserInterfaceSettings::fBasketItemFocusPckg);
 		AddClusterAssoc(CTL_UICFG_FLAGS,  9, UserInterfaceSettings::fOldModifSignSelection);
 		AddClusterAssoc(CTL_UICFG_FLAGS, 10, UserInterfaceSettings::fExtGoodsSelMainName);
-		AddClusterAssoc(CTL_UICFG_FLAGS, 11, UserInterfaceSettings::fExtGoodsSelHideGenerics); // @v10.7.7
-		AddClusterAssoc(CTL_UICFG_FLAGS, 12, UserInterfaceSettings::fPollVoipService); // @v10.7.7 11-->12
-		AddClusterAssoc(CTL_UICFG_FLAGS, 13, UserInterfaceSettings::fStringHistoryDisabled); // @v10.7.9
+		AddClusterAssoc(CTL_UICFG_FLAGS, 11, UserInterfaceSettings::fExtGoodsSelHideGenerics);
+		AddClusterAssoc(CTL_UICFG_FLAGS, 12, UserInterfaceSettings::fPollVoipService);
+		AddClusterAssoc(CTL_UICFG_FLAGS, 13, UserInterfaceSettings::fStringHistoryDisabled);
 		AddClusterAssoc(CTL_UICFG_FLAGS, 14, UserInterfaceSettings::fDateTimePickerBefore1124); // @v11.2.6
 		INVERSEFLAG(Data.Flags, UserInterfaceSettings::fDontExitBrowserByEsc);
 		SetClusterData(CTL_UICFG_FLAGS, Data.Flags);
@@ -3688,7 +3694,6 @@ public:
 		getCtrlData(CTL_UICFG_LISTELEMCOUNT, &Data.ListElemCount);
 		GetClusterData(CTL_UICFG_FLAGS, &Data.Flags);
 		INVERSEFLAG(Data.Flags, UserInterfaceSettings::fDontExitBrowserByEsc);
-		// @v10.3.0 {
 		{
 			const long t = GetClusterData(CTL_UICFG_MULTBILLPRINT);
 			Data.Flags &= ~(UserInterfaceSettings::fEnalbeBillMultiPrint | UserInterfaceSettings::fDisableBillMultiPrint);
@@ -3697,7 +3702,6 @@ public:
 			else if(t & UserInterfaceSettings::fDisableBillMultiPrint)
 				Data.Flags |= UserInterfaceSettings::fDisableBillMultiPrint;
 		}
-		// } @v10.3.0
 		getCtrlString(CTL_UICFG_SPCINPDRV, Data.SpecialInputDeviceSymb);
 		ASSIGN_PTR(pData, Data);
 		return 1;
@@ -6633,7 +6637,7 @@ void TimePickerDialog::DrawHoursRect(TCanvas * pCanv)
 
 		pCanv->SelectObjectAndPush(Ptb.Get(penBlue));
 		pCanv->SelectObjectAndPush(Ptb.Get(brWhiteRect));
-		draw_rect.set(x1, y1, x2, y2);
+		draw_rect.Set(x1, y1, x2, y2);
 		pCanv->Rectangle(draw_rect);
 		pCanv->PopObject();
 		pCanv->PopObject();
@@ -6679,7 +6683,7 @@ void TimePickerDialog::DrawMinutsRect(TCanvas * pCanv)
 		const long y2 = m2_rect.b.y + 3;
 		pCanv->SelectObjectAndPush(Ptb.Get(penBlue));
 		pCanv->SelectObjectAndPush(Ptb.Get(brWhiteRect));
-		draw_rect.set(x1, y1, x2, y2);
+		draw_rect.Set(x1, y1, x2, y2);
 		pCanv->Rectangle(draw_rect);
 		pCanv->PopObjectN(2);
 

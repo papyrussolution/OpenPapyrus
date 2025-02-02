@@ -1510,6 +1510,59 @@ int PPMarketplaceInterface_Wildberries::RequestWareList()
 	return ok;
 }
 
+int PPMarketplaceInterface_Wildberries::RequestGoodsSizes(int64 wbGoodsID)
+{
+	//rList.freeAll();
+	int    ok = 1;
+	SJson * p_js_reply = 0;
+	SString temp_buf;
+	SString url_buf;
+	StrStrAssocArray hdr_flds;
+	if(wbGoodsID > 0) {
+		THROW(Helper_InitRequest(methGoodsSizes, url_buf, hdr_flds));
+		{
+			ScURL c;
+			SString reply_buf;
+			SBuffer ack_buf;
+			SFile wr_stream(ack_buf, SFile::mWrite);
+			THROW_SL(c.SetupDefaultSslOptions(0, SSystem::sslDefault, 0));
+			url_buf.CatChar('?').CatEq("nmID", wbGoodsID).CatChar('&').CatEq("limit", 1000).CatChar('&').CatEq("offset", 0);
+			Lth.Log("req", url_buf, temp_buf.Z());
+			THROW_SL(c.HttpGet(url_buf, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, &wr_stream));
+			{
+				SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
+				if(p_ack_buf) {
+					reply_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
+					Lth.Log("rep", 0, reply_buf);
+					{
+						p_js_reply = SJson::Parse(reply_buf);
+						if(SJson::IsArray(p_js_reply)) {
+							for(const SJson * p_js_item = p_js_reply->P_Child; p_js_item; p_js_item = p_js_item->P_Next) {
+								if(SJson::IsObject(p_js_item)) {
+									/*
+									uint   new_item_pos = 0;
+									Warehouse * p_new_item = rList.CreateNewItem(&new_item_pos);
+									if(p_new_item) {
+										if(!p_new_item->FromJsonObj(p_js_item)) {
+											rList.atFree(new_item_pos);
+										}
+									}
+									*/
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	else
+		ok = -1;
+	CATCHZOK
+	delete p_js_reply;
+	return ok;
+}
+
 int PPMarketplaceInterface_Wildberries::RequestGoodsPrices()
 {
 	//rList.freeAll();
@@ -2190,6 +2243,77 @@ int PPMarketplaceInterface_Wildberries::RequestPromotionWareList(int64 actionId,
 int PPMarketplaceInterface_Wildberries::AddWareListToPromotion()
 {
 	int    ok = -1;
+	return ok;
+}
+
+int PPMarketplaceInterface_Wildberries::RequestPromoCampaignListStatistics(const DateRange * pCommonReqPeriod, TSCollection <Campaign> & rList) // @v12.2.5 @construction
+{
+	int    ok = 1;
+	SJson * p_js_reply = 0;
+	SString temp_buf;
+	SString req_buf;
+	const LDATETIME now_dtm = getcurdatetime_();
+	SString url_buf;
+	StrStrAssocArray hdr_flds;
+	if(!rList.getCount()) {
+		ok = -1;
+	}
+	else {
+		bool is_there_dateranges = false;
+		if(pCommonReqPeriod && !pCommonReqPeriod->IsZero()) {
+			is_there_dateranges = true;
+		}
+		else {
+			for(uint i = 0; !is_there_dateranges && i < rList.getCount(); i++) {
+				const Campaign * p_item = rList.at(i);
+				if(p_item && !p_item->ReqPeriod.IsZero())
+					is_there_dateranges = true;
+			}
+		}
+		THROW(Helper_InitRequest(methPromoCampaignsStatistics, url_buf, hdr_flds));
+		{
+			SJson json_req(SJson::tARRAY);
+			for(uint i = 0; i < rList.getCount(); i++) {
+				const Campaign * p_item = rList.at(i);
+				if(p_item && p_item->ID != 0) {
+					SJson * p_js_item = new SJson(SJson::tNUMBER);
+					if(p_js_item) {
+						//p_js_item->InsertInt64()
+						json_req.InsertChild(SJson::CreateInt64(p_item->ID));
+					}
+				}
+			}
+			THROW_SL(json_req.ToStr(req_buf));
+		}
+		{
+			ScURL c;
+			SString reply_buf;
+			SBuffer ack_buf;
+			SFile wr_stream(ack_buf, SFile::mWrite);
+			InetUrl url(url_buf);
+			THROW_SL(c.SetupDefaultSslOptions(0, SSystem::sslDefault, 0));
+			url_buf.CatChar('?').Cat("interval");
+			Lth.Log("req", url_buf, temp_buf.Z());
+			THROW_SL(c.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, req_buf, &wr_stream));
+			{
+				SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
+				if(p_ack_buf) {
+					reply_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
+					Lth.Log("rep", 0, reply_buf);
+					{
+						p_js_reply = SJson::Parse(reply_buf);
+						if(SJson::IsArray(p_js_reply)) {
+							for(const SJson * p_cur = p_js_reply->P_Child; p_cur; p_cur = p_cur->P_Next) {
+								;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	CATCHZOK
+	delete p_js_reply;
 	return ok;
 }
 
@@ -3061,6 +3185,7 @@ bool PPMarketplaceInterface_Wildberries::MakeTargetUrl_(int meth, int * pReq/*SH
 		{ methSupplyOrders, apiMarketplace, SHttpProtocol::reqGet, "api/v3/supplies" }, // /{supplyId}/orders
 		{ methAcceptanceReport, apiAnalytics, SHttpProtocol::reqGet, "api/v1/analytics/acceptance-report" },
 		{ methGoodsPrices, apiDiscountsPrices, SHttpProtocol::reqGet, "api/v2/list/goods/filter" },
+		{ methGoodsSizes,  apiDiscountsPrices, SHttpProtocol::reqGet, "api/v2/list/goods/size/nm" }, // @v12.2.5
 		{ methContentCardsList, apiContent, SHttpProtocol::reqPost, "content/v2/get/cards/list" },
 		{ methContentCategoryList, apiContent, SHttpProtocol::reqGet, "content/v2/object/parent/all" }, // @v12.2.4
 		{ methContentSubjectList, apiContent, SHttpProtocol::reqGet, "content/v2/object/all" }, // @v12.2.4
@@ -3073,6 +3198,7 @@ bool PPMarketplaceInterface_Wildberries::MakeTargetUrl_(int meth, int * pReq/*SH
 		{ methPromotionsAddGoods, apiDpCalendar, SHttpProtocol::reqPost, "api/v1/calendar/promotions/upload" },
 		{ methPromoCampaignCount, apiAdvert, SHttpProtocol::reqGet, "adv/v1/promotion/count" },
 		{ methPromoCampaignDetail, apiAdvert, SHttpProtocol::reqPost, "adv/v1/promotion/adverts" },
+		{ methPromoCampaignsStatistics, apiAdvert, SHttpProtocol::reqPost, "adv/v2/fullstats" },
 	};
 	//https://content-api.wildberries.ru/content/v2/cards/upload
 	//https://discounts-prices-api.wildberries.ru/api/v2/upload/task
@@ -5485,6 +5611,8 @@ int TestMarketplace()
 						}
 					}
 				}
+				r = p_ifc_wb->RequestGoodsPrices();
+				r = p_ifc_wb->RequestGoodsSizes(245313051);
 				r = p_ifc_wb->RequestWareList();
 				r = p_ifc_wb->RequestPromoCampaignList(campaign_list); // @v12.2.3
 				r = p_ifc_wb->RequestPromoCampaignListDetail(campaign_list); // @v12.2.4
@@ -5512,7 +5640,6 @@ int TestMarketplace()
 				r = p_ifc_wb->RequestStocks(stock_list);
 				//r = p_ifc_wb->RequestOrders(order_list);
 				//r = p_ifc_wb->RequestSales(sale_list);
-				r = p_ifc_wb->RequestGoodsPrices();
 				{
 					//period.SetPredefined(PREDEFPRD_LASTMONTH, ZERODATE);
 					//period.low.encode(1, 5, 2024);

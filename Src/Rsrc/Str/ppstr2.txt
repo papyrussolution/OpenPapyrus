@@ -1979,10 +1979,10 @@ PPERR_APNCORR_N_INV                 "Номер корреспондирующе
 PPERR_APNCORR_N_DUP                 "Номер корреспондирующего кассового узла должен быть уникальным"
 PPERR_APNCORR_UUID_DUP              "UUID корреспондирующего кассового узла должен быть уникальным"
 PPERR_ALCRETAILPROHIBTIME           "Розничная продажа алкоголя в это время запрещена (%s)"
-PPERR_CHZNMARKPMFAULT               "Ошибка валидации марки '%s' разрешительным режимом честный знак"
-PPERR_CHZNMARKPMFAULT_SOLD          "Ошибка валидации марки '%s' разрешительным режимом честный знак - марка уже была продана"
-PPERR_CHZNMARKPMFAULT_EXPIRY        "Ошибка валидации марки '%s' разрешительным режимом честный знак - срок годности товара истек"
-PPERR_B2CCCVT_CHZNMARKPMFAULT       "Ошибка валидации одной или нескольких марок разрешительным режимом честный знак при конвертации документа в кассовый чек"
+PPERR_CHZNMARKPMFAULT               "Ошибка валидации марки '%s' разрешительным режимом @{brand_chzn}"
+PPERR_CHZNMARKPMFAULT_SOLD          "Ошибка валидации марки '%s' разрешительным режимом @{brand_chzn} - марка уже была продана"
+PPERR_CHZNMARKPMFAULT_EXPIRY        "Ошибка валидации марки '%s' разрешительным режимом @{brand_chzn} - срок годности товара истек"
+PPERR_B2CCCVT_CHZNMARKPMFAULT       "Ошибка валидации одной или нескольких марок разрешительным режимом @{brand_chzn} при конвертации документа в кассовый чек"
 //
 // Decl Struc Parsing
 //
@@ -3118,7 +3118,7 @@ PPINIPARAM_PATH_CRYPTOPRO_BAD            "ctyptopro" // [path] путь до к�
 PPINIPARAM_PATH_CRYPTOPRO                "cryptopro" // [path] путь до каталога с исполняемыми файлами Крипто-Про
 PPINIPARAM_VERIFYARTOLOCMETHODS          "verifyartolocmethods" // [config] Отладочный параметр для верификации функций преобразования статей в склады и наоборот
 PPINIPARAM_STRINGHISTORYUSAGE            "stringhistoryusage"   // [config] Использование истории ввода строк (0 - disabled, 1 - enabled, -1 - by UI config)
-PPINIPARAM_EXPCHZNGTINSER                "expchzngtinser"       // [config] Экспортировать марку честный знак как GTIN+SERIAL без остальной части
+PPINIPARAM_EXPCHZNGTINSER                "expchzngtinser"       // [config] Экспортировать марку @{brand_chzn} как GTIN+SERIAL без остальной части
 PPINIPARAM_EXPNALOGRUPLAINADDR           "expnalogruplainaddr"  // @v11.5.11 [config] Экспортировать в форматах nalog.ru простой адрес без разбивки по элементам
 PPINIPARAM_INVENTORYSTOCKVIEWRESTRICTION "inventorystockviewrestriction" // [config] Список пользователей (по именам), которым недоступен просмотр учетного остатка в строках инвентаризации
 PPINIPARAM_PAPERLESSCHEQUE               "paperlesscheque" // @v11.3.7 [config] Разрешение на использование функции безбумажной печати чеков
@@ -3134,7 +3134,8 @@ PPINIPARAM_CCLISTBYMARKBACKDAYS          "CcListByMarkBackDays" // @v12.0.5 Ко
 // @v9.4.12 @obsolete PPINIPARAM_SERVER_AT4                  "at4"
 PPINIPARAM_UNITECHZNCIGBLK10             "UniteChZnCigBlk10" // @v12.1.9 [config] CCFLG2_UNITECHZNCIGBLK10 При продаже 10 пачек сигарет одной позицией с одной chzn-маркой сигаретного блока
 	// в кассовом чеке заменять количество на 1, цену умножать на 10.
-PPINIPARAM_RESTRICTCHZNCIGPRICEASMRC     "RestrictChZnCigPriceAsMrc" // @v12.2.4 [congif]
+PPINIPARAM_RESTRICTCHZNPMPRICE           "RestrictChZnPmPrice"       // @v12.2.5 [config]
+PPINIPARAM_RESTRICTCHZNCIGPRICEASMRC     "RestrictChZnCigPriceAsMrc" // @v12.2.4 [config]
 
 PPFILNAM_REPORT_INI            "report.ini"
 PPFILNAM_IMPORT_INI            "import.ini"
@@ -3187,6 +3188,7 @@ PPFILNAM_CHZN_LOG              "chzn.log" // Журнал сообщений п�
 PPFILNAM_ABSACCOUNTS_LOG       "absacct.log"
 PPFILNAM_IE_CASH_LOG           "ie_cash.log"
 PPFILNAM_CURRESTERR_LOG        "curresterr.log"
+PPFILNAM_HUNGEDUPTAGSERR_LOG   "hungeduptagserr.log" // @v12.2.5
 PPFILNAM_USERPROFILE_LOG       "userprofile.log"
 PPFILNAM_AUTOTRANSL_LOG        "autotranslate.log"
 PPFILNAM_RECOVER_LOG           "dbrepair.log"
@@ -4657,6 +4659,9 @@ PPTXT_CACHEDQUOTCONFLICT            "Кэшированное извлечени
 PPTXT_INVSCOPCHECKLINK              "Чек '@zstr', на который ссылается операция по карте '@scard' не содержит ссылку на эту карту"
 PPTXT_INVSCOPSIGN                   "Неверный знак операции, ссылающейся на чек '@zstr', по карте '@scard'"
 PPTXT_TAGHANGEDLINK                 "Обнаружена висячая ссылка в теге '@tag' на объект {'@objtitle', @int}"
+PPTXT_HUNGEDUPTAG                   "Обнаружен висячий тег '@tag', принадлежавший несуществующему объекту {'@objtitle', @int}" // @v12.2.5
+PPTXT_SCANDBTABLE                   "Сканирование таблицы данных '%s'" // @v12.2.5
+PPTXT_SEARCHINGUNGEDUPRECS          "Поиск висячих записей" // @v12.2.5
 PPTXT_UHTTEXPGOODS_REFS             "В выборке @int товаров, @int из них сопоставлено с @{brand_uhtt}"
 PPTXT_UHTTEXPGOODS_EMPTY            "Пустая выборка товаров"
 PPTXT_UHTTEXPLOC_FOUND              "На сервере @{brand_uhtt} адрес '@zstr' найден по коду"
@@ -8642,7 +8647,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @rtag_lotacceptance                       "Результат приемки строки документа" // @v11.7.0
 @rtag_prcuuid                             "UUID процессора" // @v11.7.2
 @rtag_billlinkccheckuuid                  "UUID связанного кассового чека" // @v11.8.8
-@rtag_chzndisposalrsn                     "Причина выбытия марки честный знак" // @v11.8.12
+@rtag_chzndisposalrsn                     "Причина выбытия марки @{brand_chzn}" // @v11.8.12
 @rtag_personchznpmtoken                   "ЧЕСТНЫЙ ЗНАК токен разрешительного режима"  // @v11.9.11
 @rtag_personchznpmhost                    "ЧЕСТНЫЙ ЗНАК хост разрешительного режима"  // @v11.9.12
 @rtag_computeruuid                        "UUID компьютера" // @v12.0.0
@@ -9019,6 +9024,12 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cmd_correctworldobj                      "Корректировка географических объектов (не интерактивная)"
 @cmd_correctzeroqcertrefs  		          "Обнуление висячих ссылок на сертификаты в лотах"
 @cmd_correctzerodebtdimrefs               "Обнуление висячих ссылок на долговые размерности" // @v10.2.8
+@cmd_recover_v242 				          "Корректировка проблемы @v2.4.2"
+@cmd_recoverabsenceaccounts 	          "Восстановление отсутствующих счетов"
+@cmd_recoverabsencebills 		          "Восстановление отсутствующих документов"
+@cmd_recoverabsenceprjtaskperson          "Восстановление отсутствующих персоналий в задачах"
+@cmd_recoverlostunifiedlinks 	          "Корректировка потерянных в результате объединения объектов ссылок в тегах"
+@cmd_recoverhungeduptags 	              "Корректировка висячих тегов"
 @cmd_country               		          "Государства"
 @cmd_createdraftbysupplorder	          "Формирование документов на основе заказа поставщику"
 @cmd_createglobaluseracc 		          "Регистрация пользователя в глобальной базе"
@@ -9202,11 +9213,6 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cmd_recalclotcurrest 			          "Пересчет текущих остатков по лотам"
 @cmd_receivecharry 				          "Принять объекты Charry"
 @cmd_receivepackets 			          "Принять почту"
-@cmd_recover_v242 				          "Корректировка проблемы @v2.4.2"
-@cmd_recoverabsenceaccounts 	          "Восстановление отсутствующих счетов"
-@cmd_recoverabsencebills 		          "Восстановление отсутствующих документов"
-@cmd_recoverabsenceprjtaskperson          "Восстановление отсутствующих персоналий в задачах"
-@cmd_recoverlostunifiedlinks 	          "Корректировка потерянных в результате объединения объектов ссылок в тегах"
 @cmd_registercomserver 			          "Регистрация/Де-регистрация COM-сервера"
 @cmd_registertype 				          "Типы регистрационных документов"
 @cmd_registration 				          "@{registration}"
@@ -9376,7 +9382,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cmd_swprogramcategory                    "@{swprogramcategory_pl}"
 @cmd_computer                             "@{managedcomputer_pl}"
 @cmd_computercategory                     "@{computercategory_pl}"
-@cmd_checkchznmark                        "Проверка марки честный знак"
+@cmd_checkchznmark                        "Проверка марки @{brand_chzn}"
 @cmd_rawmaterials                         "@{rawmaterial_pl}"
 @cmd_testmarketplace                      "Тестирование интерфейса с маркетплейсами"
 @cmd_marketplaceinterchange               "Обмен данными с маркетплейсом"
@@ -10457,7 +10463,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @ccextss_sign                              "Сигнатура чека"
 @ccextss_egaisurl                          "URL @{brand_egais}"
 @ccextss_remoteprocessingta                "@{remotetransactionid}"
-@ccextss_chznprocessingtag                 "Тег процессинга честный знак"
+@ccextss_chznprocessingtag                 "Тег процессинга @{brand_chzn}"
 @ccextss_buyerinn                          "ИНН покупателя"
 @ccextss_buyername                         "Имя покупателя"
 @ccextss_buyerphone                        "Телефон покупателя"
@@ -12082,7 +12088,13 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @goodstax_flags                           "@{flags}"
 @goodstax_gtaxf_nolotexcise               "Не распространять акциз на приходные операции"
 @goodstax_gtaxf_uselist                   "Расширенный список"
+@goodstax_gtaxf_vatratetype               "Тип ставки НДС" // @v12.2.5 generic
 @goodstax_gtaxf_spcvat                    "Специальная ставка НДС" // @v12.2.3
+@goodstax_gtaxf_spcvat_s                  "Специальная" // @v12.2.3
+@goodstax_gtaxf_generalvat                "Общая ставка НДС" // @v12.2.5
+@goodstax_gtaxf_generalvat_s              "Общая" // @v12.2.5
+@goodstax_gtaxf_simplevat                 "Обыкновенная ставка НДС" // @v12.2.5 generic
+@goodstax_gtaxf_simplevat_s               "Обыкновенная" // @v12.2.5 generic
 @goodstax_id                              "@{id}"
 @goodstax_name                            "@{appellation}"
 @goodstax_order                           "Порядок расчета"

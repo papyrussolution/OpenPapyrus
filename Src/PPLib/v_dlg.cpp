@@ -1,5 +1,5 @@
 // V_DLG.CPP
-// Copyright (c) A.Sobolev 2011, 2016, 2018, 2019, 2020, 2021, 2024
+// Copyright (c) A.Sobolev 2011, 2016, 2018, 2019, 2020, 2021, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -720,9 +720,6 @@ int EditDialogSpec(DlContext * pCtx, uint dlgId)
 		};
 		FrameWindow() : TWindowBase(_T("SLibWindowBase"), 0)
 		{
-			// @v10.9.3 SRectLayout::Item li;
-			// @v10.9.3 Layout_Obsolete.Add(zoneLeft, li.SetLeft(20, 1));
-			// @v10.9.3 Layout_Obsolete.Add(zoneCenter, li.SetCenter());
 		}
 	};
 	int    ok = -1;

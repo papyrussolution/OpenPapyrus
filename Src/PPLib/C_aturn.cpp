@@ -1,5 +1,5 @@
 // C_ATURN.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2005, 2006, 2007, 2016, 2019, 2022
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2005, 2006, 2007, 2016, 2019, 2022, 2025
 // @codepage UTF-8
 // Процедуры корректировки бухгалтерских проводок
 //
@@ -31,7 +31,8 @@ int CorrectAccTurnRest()
 {
 	int    ok = -1;
 	ushort v;
-	SString log_file_name, acc_buf;
+	SString log_file_name;
+	SString acc_buf;
 	CorrectAccturnRestParam param;
 	param.Correct = 1;
 	TDialog * dlg = new TDialog(DLG_CORCREST);
@@ -133,6 +134,6 @@ int CorrectAccturn()
 	}
 	CATCHZOKPPERR
 	param.Logger.Save(log_fname, 0);
-	delete dlg; // @v10.5.8 @fix
+	delete dlg;
 	return ok;
 }

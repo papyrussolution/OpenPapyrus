@@ -519,7 +519,13 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 							WS_CHILDWINDOW|WS_VISIBLE|WS_TABSTOP|LBS_NOTIFY|LBS_NOINTEGRALHEIGHT|LBS_WANTKEYBOARDINPUT
 							WS_EX_LEFT|WS_EX_LTRREADING|WS_EX_RIGHTSCROLLBAR|WS_EX_NOPARENTNOTIFY|WS_EX_CLIENTEDGE
 						*/ 
-						if(p_lb->GetColumnsCount()) {
+						if(p_lb->IsTreeList()) {
+							hw = ::CreateWindowExW(WS_EX_CLIENTEDGE, _T("SysTreeView32"), 0, 
+								WS_CHILD|WS_BORDER|WS_TABSTOP|WS_VISIBLE|TVS_HASBUTTONS|TVS_HASLINES|TVS_LINESATROOT|
+								TVS_SHOWSELALWAYS|TVS_DISABLEDRAGDROP,
+								pV->ViewOrigin.x, pV->ViewOrigin.y, pV->ViewSize.x, pV->ViewSize.y, hw_parent, (HMENU)ctl_id, TProgram::GetInst(), 0);
+						}
+						else if(p_lb->GetColumnsCount()) {
 							hw = ::CreateWindowExW(WS_EX_CLIENTEDGE, _T("SysListView32"), 0, 
 								WS_CHILD|WS_BORDER|WS_TABSTOP|WS_VISIBLE|LVS_REPORT|LVS_SINGLESEL|LVS_SHOWSELALWAYS|LVS_NOSORTHEADER,
 								pV->ViewOrigin.x, pV->ViewOrigin.y, pV->ViewSize.x, pV->ViewSize.y, hw_parent, (HMENU)ctl_id, TProgram::GetInst(), 0);

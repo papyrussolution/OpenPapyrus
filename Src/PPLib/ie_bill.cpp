@@ -7326,7 +7326,12 @@ int DocNalogRu_Generator::WriteInvoiceItems(const PPBillImpExpParam & rParam, co
 								gts.GetToken(GtinStruc::fldSerial, &chzn_serial_buf);
 								gts.GetToken(GtinStruc::fldPriceRuTobacco, &chzn_price_buf);
 								if(chzn_gtin14_buf.NotEmpty() && chzn_serial_buf.NotEmpty() && chzn_price_buf.NotEmpty()) {
-									temp_buf.Z().Cat(chzn_gtin14_buf).Cat(chzn_serial_buf).Cat(chzn_price_buf);
+									// @v12.2.5 temp_buf.Z().Cat(chzn_gtin14_buf).Cat(chzn_serial_buf).Cat(chzn_price_buf);
+									// @v12.2.5 {
+									// Начиная с 1 февраля 2025 года не надо передавать МРЦ в марке честный знак
+									temp_buf.Z().Cat(chzn_gtin14_buf).Cat(chzn_serial_buf);
+									// МРЦ более не нужен temp_buf.Cat(chzn_price_buf);
+									// } @v12.2.5 
 									n_marks.PutInner(GetToken_Ansi(PPHSC_RU_WAREIDENT_KIZ), EncText(temp_buf)); // @v11.9.6 @fix temp_buf-->EncText(temp_buf)
 									is_mark_accepted = true;
 								}
@@ -7383,9 +7388,10 @@ int DocNalogRu_Generator::WriteInvoiceItems(const PPBillImpExpParam & rParam, co
 										gts.GetToken(GtinStruc::fldPrice, &chzn_price_buf);
 										if(chzn_gtin14_buf.NotEmpty() && chzn_serial_buf.NotEmpty()) {
 											temp_buf.Z().Cat("01").Cat(chzn_gtin14_buf).Cat("21").Cat(chzn_serial_buf);
+											/* @v12.2.5 Начиная с 1 февраля 2025 года не надо передавать МРЦ в марке честный знак
 											if(chzn_price_buf.NotEmpty()) {
 												temp_buf.Cat("8005").Cat(chzn_price_buf);
-											}
+											}*/
 										}
 										n_marks.PutInner(GetToken_Ansi(PPHSC_RU_WAREIDENT_PACKCODE), EncText(temp_buf));
 									}

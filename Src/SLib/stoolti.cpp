@@ -131,7 +131,7 @@ static BOOL CALLBACK CloseTooltipWnd2(HWND hwnd, LPARAM lParam)
 				if(p_fig) {
 					RECT rc;
 					::GetClientRect(hWnd, &rc);
-					const  TRect rect_elem_i = rc;
+					const  TRect rect_elem_i(rc);
 					const  FRect rect_elem = rc;
 					FRect pic_bounds = rect_elem;
 					APPL->InitUiToolBox();

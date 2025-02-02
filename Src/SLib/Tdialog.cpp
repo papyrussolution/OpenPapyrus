@@ -434,46 +434,12 @@ int (* getUserControl)(TVRez*, TDialog*) = 0;
 	return ok;
 }
 
-void TDialog::Helper_Constructor(uint resID, DialogPreProcFunc dlgPreFunc, void * extraPtr, ConstructorOption co)
+int TDialog::BuildEmptyWindow() // @v12.2.5
 {
-	SubSign = TV_SUBSIGN_DIALOG;
-	P_PrevData = 0;
-	GrpCount = 0;
-	PP_Groups = 0;
-	DlgFlags = fCentered;
-	SETFLAG(DlgFlags, fLarge, SLS.CheckUiFlag(sluifUseLargeDialogs));
-	resourceID = resID;
-	P_Frame  = 0;
-	HW = 0;
-	ToolTipsWnd = 0;
-	MEMSZERO(ResizedRect);
-	MEMSZERO(ToResizeRect);
-	DefInputLine  = 0;
-	if(resID) {
-		if(co == coExport)
-			DlgFlags |= fExport;
-		TDialog::LoadDialog(P_SlRez, resID, this, (co == coExport) ? ldfDL600_Cvt : 0);
-		if(dlgPreFunc)
-			dlgPreFunc(this, extraPtr);
-		//
-		// @v4.2.5
-		// Операция по сохранению текущего окна необходима из-за того, что при создании
-		// диалога указатель APPL->P_DeskTop->P_Current обнуляется. Это, как правило не страшно,
-		// но делает неработоспособными некоторые функции (например, не срабатывает функция //
-		// TView::messageCommand(APPL->P_DeskTop, cmGetFocusedNumber, &c); в калькуляторе).
-		//
-		TView * preserve_current = APPL->P_DeskTop->GetCurrentView();
-		HW = APPL->CreateDlg(resourceID, APPL->H_TopOfStack, TDialog::DialogProc, reinterpret_cast<LPARAM>(this));
-		::ShowWindow(H(), SW_HIDE);
-		APPL->P_DeskTop->SetCurrentView(preserve_current, leaveSelect);
-	}
-	else if(co == coEmpty) {
-		//
-		// Этот блок в целом работает, но надо что-то делать с тем фактом, что WM_INITDIALOG будет вызван функцией
-		// CreateDialogIndirectParamW, что в свою очередь повлечет вызов handleEvent() с командой cmInit
-		// и вот этот вызов обратится к базовому классу (т.е. TDialog), а не к тому, в котором все должно быть,
-		// поскольку сейчас мы находимся в конструкторе TDialog.
-		//
+	int    ok = 0;
+	if(HW)
+		ok = -1;
+	else {
 		/*
 		typedef struct {
 			DWORD style;
@@ -518,10 +484,10 @@ void TDialog::Helper_Constructor(uint resID, DialogPreProcFunc dlgPreFunc, void 
 			}
 			p_dlgt->dwExtendedStyle = 0;
 			p_dlgt->cdit = 0;
-			p_dlgt->x = 0;
-			p_dlgt->y = 0;
-			p_dlgt->cx = 60;
-			p_dlgt->cy = 120;
+			p_dlgt->x = ViewOrigin.x;
+			p_dlgt->y = ViewOrigin.y;
+			p_dlgt->cx = (ViewSize.x > 0) ? ViewSize.x : 60;
+			p_dlgt->cy = (ViewSize.y > 0) ? ViewSize.y : 120;
 			//
 			p += sizeof(DLGTEMPLATE);
 			sstrcpy(reinterpret_cast<wchar_t *>(PTR8(p_dlgt)+p), menu);
@@ -539,7 +505,48 @@ void TDialog::Helper_Constructor(uint resID, DialogPreProcFunc dlgPreFunc, void 
 			assert(p == buf_size);
 			HW = CreateDialogIndirectParamW(APPL->GetInst(), p_dlgt, APPL->H_TopOfStack, TDialog::DialogProc, reinterpret_cast<LPARAM>(this));
 			SAlloc::F(p_dlgt);
+			if(HW)
+				ok = 1;
 		}
+	}
+	return ok;
+}
+
+void TDialog::Helper_Constructor(uint resID, DialogPreProcFunc dlgPreFunc, void * extraPtr, ConstructorOption co)
+{
+	SubSign = TV_SUBSIGN_DIALOG;
+	P_PrevData = 0;
+	GrpCount = 0;
+	PP_Groups = 0;
+	DlgFlags = fCentered;
+	SETFLAG(DlgFlags, fLarge, SLS.CheckUiFlag(sluifUseLargeDialogs));
+	resourceID = resID;
+	P_Frame  = 0;
+	HW = 0;
+	ToolTipsWnd = 0;
+	MEMSZERO(ResizedRect);
+	MEMSZERO(ToResizeRect);
+	DefInputLine  = 0;
+	if(resID) {
+		if(co == coExport)
+			DlgFlags |= fExport;
+		TDialog::LoadDialog(P_SlRez, resID, this, (co == coExport) ? ldfDL600_Cvt : 0);
+		if(dlgPreFunc)
+			dlgPreFunc(this, extraPtr);
+		//
+		// @v4.2.5
+		// Операция по сохранению текущего окна необходима из-за того, что при создании
+		// диалога указатель APPL->P_DeskTop->P_Current обнуляется. Это, как правило не страшно,
+		// но делает неработоспособными некоторые функции (например, не срабатывает функция //
+		// TView::messageCommand(APPL->P_DeskTop, cmGetFocusedNumber, &c); в калькуляторе).
+		//
+		TView * preserve_current = APPL->P_DeskTop->GetCurrentView();
+		HW = APPL->CreateDlg(resourceID, APPL->H_TopOfStack, TDialog::DialogProc, reinterpret_cast<LPARAM>(this));
+		::ShowWindow(H(), SW_HIDE);
+		APPL->P_DeskTop->SetCurrentView(preserve_current, leaveSelect);
+	}
+	else if(co == coEmpty) {
+		// Порожденный класс должен вызывать BuildEmptyWindow()
 	}
 }
 
@@ -751,6 +758,19 @@ IMPL_HANDLE_EVENT(TDialog)
 							MEMSZERO(ToResizeRect);
 							DlgFlags &= ~fMouseResizing;
 							clearEvent(event);
+						}
+						break;
+					case cmSize: // @v12.2.5
+						{
+							//SizeEvent * p_se = static_cast<SizeEvent *>(TVINFOPTR);
+							const TRect cr = getClientRect();
+							if(P_Lfc && !P_Lfc->GetParent()) {
+								P_Lfc->GetLayoutBlock().SetFixedSize(cr);
+								P_Lfc->Evaluate(0);
+							}
+							invalidateAll(true);
+							::UpdateWindow(H());
+							// Don't call clearEvent(event) there!
 						}
 						break;
 				}

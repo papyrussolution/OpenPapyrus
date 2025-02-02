@@ -9609,27 +9609,29 @@ int CheckPaneDialog::PreprocessGoodsSelection(const PPID goodsID, PPID locID, Pg
 												const PPChZnPrcssr::PermissiveModeInterface::CodeStatus * p_cle = check_code_list.at(i);
 												if(p_cle) {
 													//debug_mark = true;
-													// @v12.2.2 {
-													const double _mrp = R2(p_cle->Mrp / 100.0);
-													const double _smp = R2(p_cle->Smp / 100.0);
-													if(gt_rec.ChZnProdType != GTCHZNPT_ALTTOBACCO) { // @v12.2.4 Для альтернативной табачной продукции ценовое ограничение не проверяем.
-														if(_mrp > 0.0) {
-															rBlk.AllowedPriceRange.upp = _mrp;
-														}
-														if(_smp > 0.0) {
-															rBlk.AllowedPriceRange.low = _smp;
-														}
-														// @v12.2.4 {
-														if(gt_rec.ChZnProdType == GTCHZNPT_TOBACCO) { // @v12.2.5 @fix (!=)-->(==)
-															if(CConfig.Flags2 & CCFLG2_RESTRICTCHZNCIGPRICEASMRC) {
-																if(_mrp > 0.0) {
-																	rBlk.AllowedPriceRange.SetVal(_mrp);
+													if(CConfig.Flags2 & CCFLG2_RESTRICTCHZNPMPRICE) { // @v12.2.5
+														// @v12.2.2 {
+														const double _mrp = R2(p_cle->Mrp / 100.0);
+														const double _smp = R2(p_cle->Smp / 100.0);
+														if(gt_rec.ChZnProdType != GTCHZNPT_ALTTOBACCO) { // @v12.2.4 Для альтернативной табачной продукции ценовое ограничение не проверяем.
+															if(_mrp > 0.0) {
+																rBlk.AllowedPriceRange.upp = _mrp;
+															}
+															if(_smp > 0.0) {
+																rBlk.AllowedPriceRange.low = _smp;
+															}
+															// @v12.2.4 {
+															if(gt_rec.ChZnProdType == GTCHZNPT_TOBACCO) { // @v12.2.5 @fix (!=)-->(==)
+																if(CConfig.Flags2 & CCFLG2_RESTRICTCHZNCIGPRICEASMRC) {
+																	if(_mrp > 0.0) {
+																		rBlk.AllowedPriceRange.SetVal(_mrp);
+																	}
 																}
 															}
+															// } @v12.2.4 
 														}
-														// } @v12.2.4 
+														// } @v12.2.2 
 													}
-													// } @v12.2.2 
 													{
 														int    local_err_code = 0;
 														if(p_cle->ErrorCode != 0)

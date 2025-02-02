@@ -94,7 +94,7 @@ void fz_format_output_path(fz_context *ctx, char *path, size_t size, const char 
 	Eliminates multiple and trailing slashes, interprets "." and
 	"..". Overwrites the string in place.
 */
-char *fz_cleanname(char *name);
+char * fz_cleanname(char *name);
 
 /**
 	Resolve a path to an absolute file name.
@@ -122,15 +122,14 @@ enum {
 
 	Returns the number of bytes consumed.
 */
-int fz_chartorune(int *rune, const char *str);
+int FASTCALL fz_chartorune(int *rune, const char *str);
 /**
 	UTF8 encode a rune to a sequence of chars.
 	str: Pointer to a place to put the UTF8 encoded character.
 	rune: Pointer to a 'rune'.
 	Returns the number of bytes the rune took to output.
 */
-int fz_runetochar(char *str, int rune);
-
+int FASTCALL fz_runetochar(char *str, int rune);
 /**
 	Count how many chars are required to represent a rune.
 
@@ -139,8 +138,7 @@ int fz_runetochar(char *str, int rune);
 	Returns the number of bytes required to represent this run in
 	UTF8.
 */
-int fz_runelen(int rune);
-
+int FASTCALL fz_runelen(int rune);
 /**
 	Count how many runes the UTF-8 encoded string
 	consists of.
@@ -149,8 +147,7 @@ int fz_runelen(int rune);
 
 	Returns the number of runes in the string.
 */
-int fz_utflen(const char *s);
-
+int FASTCALL fz_utflen(const char *s);
 /**
 	Locale-independent decimal to binary conversion. On overflow
 	return (-)INFINITY and set errno to ERANGE. On underflow return
@@ -158,9 +155,7 @@ int fz_utflen(const char *s);
 	"NAN", "INF" or "INFINITY".
 */
 float fz_strtof(const char *s, char **es);
-
 int fz_grisu(float f, char *s, int *exp);
-
 /**
 	Check and parse string into page ranges:
 		( ','? ([0-9]+|'N') ( '-' ([0-9]+|N) )? )+

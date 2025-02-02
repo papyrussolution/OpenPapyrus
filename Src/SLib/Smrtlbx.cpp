@@ -185,7 +185,7 @@ SmartListBox::SmartListBox(const TRect & rRect, ListBoxDef * pDef, const char * 
 	SubSign = TV_SUBSIGN_LISTBOX;
 	StrPool.add("$"); // zero index - is empty string
 	SetTreeListState(false);
-	ViewOptions |= ofSelectable | ofFirstClick;
+	ViewOptions |= ofSelectable|ofFirstClick;
 	setDef(pDef);
 	SetupColumns(pColumnsDeclaration); // @v12.2.4
 }
@@ -534,7 +534,7 @@ void SmartListBox::onInitDialog(int useScrollBar)
 	DLGPROC dlg_proc = 0;
 	// @v11.2.4 {
 	if(Parent) {
-		long   exstyle = TView::SGetWindowExStyle(Parent);
+		const long exstyle = TView::SGetWindowExStyle(Parent);
 		if(exstyle & WS_EX_COMPOSITED)
 			TView::SetWindowProp(Parent, GWL_EXSTYLE, (exstyle & ~WS_EX_COMPOSITED));
 	}
@@ -967,8 +967,8 @@ int SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 			break;
 		case WM_MOUSEWHEEL:
 			{
-				short delta = static_cast<short>(HIWORD(wParam));
-				int   scroll_code = (delta > 0) ? SB_LINEUP : SB_LINEDOWN;
+				const short delta = static_cast<short>(HIWORD(wParam));
+				const int scroll_code = (delta > 0) ? SB_LINEUP : SB_LINEDOWN;
 				for(int i = 0; i < 3; i++)
 					Scroll(scroll_code, 0);
 			}
@@ -1254,10 +1254,10 @@ void SmartListBox::Scroll(short Code, int value)
 	}
 }
 
-int SmartListBox::SetTreeListState(int yes)
+bool SmartListBox::SetTreeListState(bool yes)
 {
 	SETFLAG(State, stTreeList, yes);
-	return BIN(yes);
+	return yes;
 }
 
 void   SmartListBox::SetOwnerDrawState() { State |= stOwnerDraw; }
@@ -1629,11 +1629,16 @@ IMPL_HANDLE_EVENT(SmartListBox)
 						{
 							const TRect * p_rc = static_cast<const TRect *>(TVINFOPTR);
 							HWND h = getHandle();
-							if(h) {
+							if(p_rc && h) {
 								::SetWindowPos(h, 0, p_rc->a.x, p_rc->a.y, p_rc->width(), p_rc->height(), SWP_NOZORDER|SWP_NOCOPYBITS);
-								if(!IsMultiColumn()) {  // @v12.2.4
+								// @v12.2.5 {
+								if(IsMultiColumn()) {  
+									CalculateColumnsWidth(auotocalccolszNominal);
+								}
+								else if(!IsTreeList()) {
 									MoveScrollBar(1);
 								}
+								// } @v12.2.5 
 								clearEvent(event);
 							}
 						}
@@ -1645,17 +1650,87 @@ IMPL_HANDLE_EVENT(SmartListBox)
 	}
 }
 
+void SmartListBox::CalculateColumnsWidth(int autoCalcVariant/*auotocalccolszXXX*/)
+{
+	const  HWND h_lb = getHandle();
+	const  uint cc = Columns.getCount();
+	if(h_lb && cc) {
+		long   first_item = 0;
+		SString temp_buf;
+		SString cell_buf;
+		StringSet ss(SLBColumnDelim);
+		const long  last_item = P_Def->GetRecsCount();
+		if(autoCalcVariant/*&& first_item < last_item*/) {
+			LongArray column_text_size_list;
+			if(autoCalcVariant == auotocalccolszNominal) {
+				for(uint cidx = 0; cidx < cc; cidx++) {
+					const ColumnDescr * p_hdr_item = static_cast<const ColumnDescr *>(Columns.at(cidx));
+					column_text_size_list.add(NZOR(p_hdr_item->Width, 4));
+				}
+			}
+			else {
+				for(uint cidx = 0; cidx < cc; cidx++) {
+					long   max_sw = 50; // minimal=4
+					const ColumnDescr * p_hdr_item = static_cast<const ColumnDescr *>(Columns.at(cidx));
+					StrPool.get(p_hdr_item->TitlePos, cell_buf);
+					cell_buf.Transf(CTRANSF_INNER_TO_OUTER);
+					int sw = ListView_GetStringWidth(h_lb, SUcSwitch(cell_buf.cptr()));
+					SETMAX(max_sw, sw);
+					for(long i = 0, item = first_item; i < last_item; i++, item++) {
+						P_Def->getText(item, temp_buf);
+						{
+							ss.setBuf(temp_buf);
+							cell_buf.Z();
+							for(uint k = 0, pos = 0; k <= cidx; k++)
+								ss.get(&pos, cell_buf);
+							cell_buf.Transf(CTRANSF_INNER_TO_OUTER);
+						}
+						int sw = ListView_GetStringWidth(h_lb, SUcSwitch(cell_buf.cptr()));
+						SETMAX(max_sw, sw);
+					}
+					column_text_size_list.add(max_sw);
+				}
+			}
+			assert(column_text_size_list.getCount() == cc);
+			{
+				RECT view_rect;
+				::GetClientRect(h_lb, &view_rect);
+				const int vscroll_width = GetSystemMetrics(SM_CXVSCROLL);
+				const float szy = 20.0f; // any positive value 
+				SUiLayout layout;
+				SUiLayoutParam alb(DIREC_HORZ, SUiLayoutParam::alignStart, 0);
+				alb.SetFixedSizeX(static_cast<float>(view_rect.right - view_rect.left - vscroll_width));
+				alb.SetFixedSizeY(szy);
+				layout.SetLayoutBlock(alb);
+				{
+					for(uint cidx = 0; cidx < cc; cidx++) {
+						SUiLayoutParam alb_c;
+						alb_c.SetVariableSizeX(SUiLayoutParam::szUndef, 0.0f);
+						alb_c.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
+						float _w = static_cast<float>(column_text_size_list.get(cidx));
+						if(autoCalcVariant == auotocalccolszLogContent)
+							_w = logf(_w);
+						alb_c.GrowFactor = _w;
+						SUiLayout * p_lo = layout.InsertItem();
+						p_lo->SetLayoutBlock(alb_c);
+					}
+					layout.Evaluate(0);
+					assert(layout.GetChildrenCount() == cc);
+				}
+				{
+					for(uint cidx = 0; cidx < cc; cidx++) {
+						const SUiLayout * p_lo = layout.GetChildC(cidx);
+						const FRect lo_frame = p_lo->GetFrame();
+						ListView_SetColumnWidth(h_lb, cidx, static_cast<int>(lo_frame.Width()));
+					}
+				}
+			}
+		}
+	}
+}
+
 void SmartListBox::Implement_Draw()
 {
-	//
-	// Descr: Варианты автоматического расчета ширины колонок 
-	//
-	enum {
-		auotocalccolszNo = 0, // Нет
-		auotocalccolszNominal    = 1, // Пропорционально номинальным значениям ширины (заданным в ресурсе)
-		auotocalccolszContent    = 2, // Пропорционально содержимому колонок
-		auotocalccolszLogContent = 3, // Пропорционально логарифму содержимого колонок
-	};
 	if(P_Def) {
 		int    auto_calc_column_sizes = auotocalccolszNominal;
 		if(State & stTreeList) {
@@ -1665,7 +1740,8 @@ void SmartListBox::Implement_Draw()
 		else {
 			long   i;
 			long   item;
-			SString buf, cell_buf;
+			SString buf;
+			SString cell_buf;
 			buf.Space().Z();
 			cell_buf.Space().Z();
 			const  HWND h_lb = getHandle();
@@ -1689,72 +1765,7 @@ void SmartListBox::Implement_Draw()
 				StringSet ss(SLBColumnDelim);
 				if(cc) {
 					last_item  = P_Def->GetRecsCount();
-					if(auto_calc_column_sizes/*&& first_item < last_item*/) {
-						LongArray column_text_size_list;
-						if(auto_calc_column_sizes == auotocalccolszNominal) {
-							for(uint cidx = 0; cidx < cc; cidx++) {
-								const ColumnDescr * p_hdr_item = static_cast<const ColumnDescr *>(Columns.at(cidx));
-								column_text_size_list.add(NZOR(p_hdr_item->Width, 4));
-							}
-						}
-						else {
-							for(uint cidx = 0; cidx < cc; cidx++) {
-								long   max_sw = 50; // minimal=4
-								const ColumnDescr * p_hdr_item = static_cast<const ColumnDescr *>(Columns.at(cidx));
-								StrPool.get(p_hdr_item->TitlePos, cell_buf);
-								cell_buf.Transf(CTRANSF_INNER_TO_OUTER);
-								int sw = ListView_GetStringWidth(h_lb, SUcSwitch(cell_buf.cptr()));
-								SETMAX(max_sw, sw);
-								for(i = 0, item = first_item; i < last_item; i++, item++) {
-									P_Def->getText(item, buf);
-									{
-										ss.setBuf(buf);
-										cell_buf.Z();
-										for(uint k = 0, pos = 0; k <= cidx; k++)
-											ss.get(&pos, cell_buf);
-										cell_buf.Transf(CTRANSF_INNER_TO_OUTER);
-									}
-									int sw = ListView_GetStringWidth(h_lb, SUcSwitch(cell_buf.cptr()));
-									SETMAX(max_sw, sw);
-								}
-								column_text_size_list.add(max_sw);
-							}
-						}
-						assert(column_text_size_list.getCount() == cc);
-						{
-							RECT view_rect;
-							::GetClientRect(h_lb, &view_rect);
-							const int vscroll_width = GetSystemMetrics(SM_CXVSCROLL);
-							const float szy = 20.0f; // any positive value 
-							SUiLayout layout;
-							SUiLayoutParam alb(DIREC_HORZ, SUiLayoutParam::alignStart, 0);
-							alb.SetFixedSizeX(static_cast<float>(view_rect.right - view_rect.left - vscroll_width));
-							alb.SetFixedSizeY(szy);
-							layout.SetLayoutBlock(alb);
-							{
-								for(uint cidx = 0; cidx < cc; cidx++) {
-									SUiLayoutParam alb_c;
-									alb_c.SetVariableSizeX(SUiLayoutParam::szUndef, 0.0f);
-									alb_c.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
-									float _w = static_cast<float>(column_text_size_list.get(cidx));
-									if(auto_calc_column_sizes == auotocalccolszLogContent)
-										_w = logf(_w);
-									alb_c.GrowFactor = _w;
-									SUiLayout * p_lo = layout.InsertItem();
-									p_lo->SetLayoutBlock(alb_c);
-								}
-								layout.Evaluate(0);
-								assert(layout.GetChildrenCount() == cc);
-							}
-							{
-								for(uint cidx = 0; cidx < cc; cidx++) {
-									const SUiLayout * p_lo = layout.GetChildC(cidx);
-									const FRect lo_frame = p_lo->GetFrame();
-									ListView_SetColumnWidth(h_lb, cidx, static_cast<int>(lo_frame.Width()));
-								}
-							}
-						}
-					}
+					CalculateColumnsWidth(auto_calc_column_sizes);
 				}
 				/*else if(P_Def->_isSolid()) { // @v11.4.5
 					//first_item = P_Def->_topItem();

@@ -177,7 +177,7 @@ int PPCashMachine::SyncOrAsync(int cashID, int & rS)
 }
 
 PPCashMachine::FiscalCorrection::FiscalCorrection() : AmtCash(0.0), AmtBank(0.0), AmtPrepay(0.0), AmtPostpay(0.0),
-	AmtVat20(0.0), AmtVat18(0.0), AmtVat10(0.0), AmtVat00(0.0), AmtNoVat(0.0), VatRate(0.0), Dt(ZERODATE), Flags(0)
+	AmtVat20(0.0), AmtVat18(0.0), AmtVat10(0.0), AmtVat07(0.0), AmtVat05(0.0), AmtVat00(0.0), AmtNoVat(0.0), VatRate(0.0), Dt(ZERODATE), Flags(0)
 {
 }
 
@@ -206,6 +206,7 @@ PPID PPCashMachine::GetCurSessID()
 const PPCashNode & PPCashMachine::GetNodeData() const { return NodeRec; }
 bool  PPCashMachine::IsValid() const { return LOGIC(Valid); }
 void  PPCashMachine::SetParentNode(PPID parentNodeID) { ParentNodeID = parentNodeID; }
+int   PPCashMachine::GetAsyncIntrf() { return SETIFZ(P_AsyncIntrf, AsyncInterface()) ? 1 : PPSetError(PPERR_ASYNCCSNOTSUPP); }
 
 int PPCashMachine::GetSyncIntrf()
 {
@@ -218,11 +219,6 @@ int PPCashMachine::GetSyncIntrf()
 			ok = 0;
 	}
 	return ok;
-}
-
-int PPCashMachine::GetAsyncIntrf()
-{
-	return SETIFZ(P_AsyncIntrf, AsyncInterface()) ? 1 : PPSetError(PPERR_ASYNCCSNOTSUPP);
 }
 //
 // Синхронные методы
@@ -397,10 +393,7 @@ int CSessionCore::SearchSuperCandidate(PPID nodeID, const LDATETIME & rDtm, PPID
 	return ok;
 }
 
-int PPCashMachine::SyncDiagnose(StringSet * pSs)
-{
-	return GetSyncIntrf() ? P_SyncIntrf->Diagnostics(pSs) : 0;
-}
+int PPCashMachine::SyncDiagnose(StringSet * pSs) { return GetSyncIntrf() ? P_SyncIntrf->Diagnostics(pSs) : 0; }
 
 int PPCashMachine::SyncCloseSession()
 {
@@ -760,11 +753,8 @@ int PPCashMachine::SyncBrowseCheckList(const char * pCheckPanInitStr, long check
 	return ok;
 }
 
-int PPCashMachine::SyncGetSummator(double * pSum)
-	{ return (GetSyncIntrf() && P_SyncIntrf->GetSummator(pSum)); }
-
-int PPCashMachine::SyncGetDeviceTime(LDATETIME * pDtm)
-	{ return (GetSyncIntrf() && P_SyncIntrf->GetDeviceTime(pDtm)); }
+int PPCashMachine::SyncGetSummator(double * pSum) { return (GetSyncIntrf() && P_SyncIntrf->GetSummator(pSum)); }
+int PPCashMachine::SyncGetDeviceTime(LDATETIME * pDtm) { return (GetSyncIntrf() && P_SyncIntrf->GetDeviceTime(pDtm)); }
 
 int PPCashMachine::SyncSetPrintErrCode(int retCode, int updateNode)
 {

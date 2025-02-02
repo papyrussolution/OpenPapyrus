@@ -2512,6 +2512,7 @@ public:
 	HWND   Parent;
 	WNDPROC PrevWindowProc;
 protected:
+	static int Helper_SendCmSizeAsReplyOnWmSize(TView * pV, WPARAM wParam, LPARAM lParam);
 	int    HandleKeyboardEvent(WPARAM wParam, int isPpyCodeType = 0);
 	//
 	// Descr: Эта функция должна вызываться наследуемыми классами в деструкторе
@@ -2694,6 +2695,21 @@ public:
 		coScY       = 0x0010, // Окно создавать с вертикальным скроллером
 		coScXY      = (coScX|coScY),
 		coMaxSize   = 0x0020, // Окно создавать с максимальными размерами, допускаемыми родительским окном
+	};
+	//
+	// Descr: Структура, указатель на которую передается с сообщением cmInit
+	//   // @v12.2.5 moved from TWindowBase to TWindow // следующий текст более не актуален (только для экземпляров, порожденных от TWindowBase).
+	//
+	struct CreateBlock {
+		void * H_Process;
+		void * H_Parent;
+		void * H_Menu;
+		TRect  Coord;
+		uint32 Style;
+		uint32 ExStyle;
+		void * Param;
+		const  char * P_WndCls;
+		const  char * P_Title;
 	};
 
 	static int IsMDIClientWindow(HWND);
@@ -2883,22 +2899,6 @@ private:
 class TWindowBase : public TWindow {
 public:
 	static int RegWindowClass(int iconId);
-	//
-	// Descr: Структура, указатель на которую передается с сообщением cmInit
-	//   (только для экземпляров, порожденных от TWindowBase).
-	//
-	struct CreateBlock {
-		void * H_Process;
-		void * H_Parent;
-		void * H_Menu;
-		TRect  Coord;
-		uint32 Style;
-		uint32 ExStyle;
-		void * Param;
-		const  char * P_WndCls;
-		const  char * P_Title;
-	};
-
 	~TWindowBase();
 	int    Create(void * hParentWnd, long createOptions);
 	int    AddChild(TWindowBase * pChildWindow, long createOptions, long zone);
@@ -3605,7 +3605,7 @@ public:
 		fCascade       = 0x0008,
 		fResizeable    = 0x0010,
 		fMouseResizing = 0x0020,
-		fLarge = 0x0040, // Диалог увеличин в размерах для использования с TouchScreen
+		fLarge         = 0x0040, // Диалог увеличин в размерах для использования с TouchScreen
 		fExport        = 0x0080, // Экземпляр диалога создан для экспорта
 	};
 	enum ConstructorOption {
@@ -3732,6 +3732,7 @@ protected:
 	int    LinkCtrlsToDlgBorders(long ctrlResizeFlags, ...);
 	int    ResizeDlgToRect(const RECT * pRect);
 	int    ResizeDlgToFullScreen();
+	int    BuildEmptyWindow(); // @v12.2.5
 
 	UserSettings Settings;
 	long   DlgFlags;
@@ -4441,7 +4442,7 @@ public:
 	//   1 Состояние установлено
 	//   0 Состояние снято
 	//
-	int    SetTreeListState(int yes);
+	bool   SetTreeListState(bool yes);
 	void   SetOwnerDrawState();
 	void   SetLBLnkToUISrchState();
 	//
@@ -4468,6 +4469,17 @@ private:
 	void   Helper_InsertColumn(uint pos);
 	void   Helper_ClearTreeWnd();
 	int    SetupTreeWnd2(void * pParent);
+	//
+	// Descr: Варианты автоматического расчета ширины колонок 
+	//
+	enum {
+		auotocalccolszNo = 0, // Нет
+		auotocalccolszNominal    = 1, // Пропорционально номинальным значениям ширины (заданным в ресурсе)
+		auotocalccolszContent    = 2, // Пропорционально содержимому колонок
+		auotocalccolszLogContent = 3, // Пропорционально логарифму содержимого колонок
+	};
+
+	void   CalculateColumnsWidth(int variant /*auotocalccolszXXX*/);
 
 	struct ColumnDescr {
 		uint   Width;

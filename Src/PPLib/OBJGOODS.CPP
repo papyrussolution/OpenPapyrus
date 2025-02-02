@@ -1298,6 +1298,9 @@ int PPObjGoods::CombineTaxEntry(const PPGoodsTaxEntry & rGtx, PPID taxPayerPerso
 					result_gtx.VAT = taxpayer_gtx.VAT;
 					result_gtx.Flags |= GTAXF_SPCVAT;
 				}
+				else if(taxpayer_gtx.Flags & GTAXF_GENERALVAT) { // @v12.2.5
+					;
+				}
 			}
 			else {
 				if(is_loc_vatfree) {

@@ -1694,15 +1694,9 @@ static cairo_int_status_t _cairo_pdf_surface_close_group(cairo_pdf_surface_t * s
 	surface->output = surface->group_stream.old_output;
 	_cairo_pdf_operators_set_stream(&surface->pdf_operators, surface->output);
 	surface->group_stream.active = FALSE;
-	_cairo_pdf_surface_write_memory_stream(surface,
-	    surface->group_stream.mem_stream,
-	    surface->group_stream.resource,
-	    &surface->resources,
-	    surface->group_stream.is_knockout,
-	    &surface->group_stream.bbox);
-	if(group)
-		*group = surface->group_stream.resource;
-
+	_cairo_pdf_surface_write_memory_stream(surface, surface->group_stream.mem_stream, surface->group_stream.resource,
+	    &surface->resources, surface->group_stream.is_knockout, &surface->group_stream.bbox);
+	ASSIGN_PTR(group, surface->group_stream.resource);
 	status2 = _cairo_output_stream_destroy(surface->group_stream.mem_stream);
 	if(status == CAIRO_INT_STATUS_SUCCESS)
 		status = status2;
@@ -1711,11 +1705,7 @@ static cairo_int_status_t _cairo_pdf_surface_close_group(cairo_pdf_surface_t * s
 	return status;
 }
 
-static cairo_int_status_t _cairo_pdf_surface_open_content_stream(cairo_pdf_surface_t * surface,
-    const cairo_box_double_t * bbox,
-    cairo_pdf_resource_t * resource,
-    boolint is_form,
-    boolint is_group)
+static cairo_int_status_t _cairo_pdf_surface_open_content_stream(cairo_pdf_surface_t * surface, const cairo_box_double_t * bbox, cairo_pdf_resource_t * resource, boolint is_form, boolint is_group)
 {
 	cairo_int_status_t status;
 	assert(surface->pdf_stream.active == FALSE);
@@ -1726,10 +1716,7 @@ static cairo_int_status_t _cairo_pdf_surface_open_content_stream(cairo_pdf_surfa
 	if(is_form) {
 		assert(bbox != NULL);
 		if(is_group) {
-			status =
-			    _cairo_pdf_surface_open_stream(surface,
-				resource,
-				surface->compress_content,
+			status = _cairo_pdf_surface_open_stream(surface, resource, surface->compress_content,
 				"   /Type /XObject\n"
 				"   /Subtype /Form\n"
 				"   /BBox [ %f %f %f %f ]\n"
@@ -2798,7 +2785,6 @@ static cairo_int_status_t _cairo_pdf_surface_emit_recording_surface(cairo_pdf_su
 	surface->paginated_mode = CAIRO_PAGINATED_MODE_RENDER;
 	_cairo_pdf_group_resources_clear(&surface->resources);
 	_get_bbox_from_extents(extents, &bbox);
-
 	/* We can optimize away the transparency group allowing the viewer
 	 * to replay the group in place when:
 	 *  - ca/CA when painting this groups is 1.0 (need_transp_group is FALSE),
@@ -2809,20 +2795,13 @@ static cairo_int_status_t _cairo_pdf_surface_emit_recording_surface(cairo_pdf_su
 	    !(pdf_source->hash_entry->Oprtr == CAIRO_OPERATOR_OVER &&
 	    _cairo_recording_surface_has_only_bilevel_alpha(recording) &&
 	    _cairo_recording_surface_has_only_op_over(recording));
-
-	status = _cairo_pdf_surface_open_content_stream(surface,
-		&bbox,
-		&pdf_source->hash_entry->surface_res,
-		TRUE,
-		transparency_group);
+	status = _cairo_pdf_surface_open_content_stream(surface, &bbox, &pdf_source->hash_entry->surface_res, TRUE, transparency_group);
 	if(UNLIKELY(status))
 		goto err;
-
 	if(source->content == CAIRO_CONTENT_COLOR) {
 		status = _cairo_pdf_surface_add_alpha(surface, 1.0, &alpha);
 		if(UNLIKELY(status))
 			goto err;
-
 		_cairo_output_stream_printf(surface->output,
 		    "q /a%d gs 0 0 0 rg %d %d %d %d re f Q\n",
 		    alpha,
@@ -5363,32 +5342,18 @@ static cairo_int_status_t _cairo_pdf_surface_emit_type3_font_subset(cairo_pdf_su
 		SAlloc::F(widths);
 		return type3_surface->status;
 	}
-
-	_cairo_type3_glyph_surface_set_font_subsets_callback(type3_surface,
-	    _cairo_pdf_surface_add_font,
-	    surface);
-
+	_cairo_type3_glyph_surface_set_font_subsets_callback(type3_surface, _cairo_pdf_surface_add_font, surface);
 	for(i = 0; i < font_subset->num_glyphs; i++) {
-		status = _cairo_pdf_surface_open_stream(surface,
-			NULL,
-			surface->compress_content,
-			NULL);
+		status = _cairo_pdf_surface_open_stream(surface, NULL, surface->compress_content, NULL);
 		if(UNLIKELY(status))
 			break;
-
 		glyphs[i] = surface->pdf_stream.self;
-		status = _cairo_type3_glyph_surface_emit_glyph(type3_surface,
-			surface->output,
-			font_subset->glyphs[i],
-			&bbox,
-			&widths[i]);
+		status = _cairo_type3_glyph_surface_emit_glyph(type3_surface, surface->output, font_subset->glyphs[i], &bbox, &widths[i]);
 		if(UNLIKELY(status))
 			break;
-
 		status = _cairo_pdf_surface_close_stream(surface);
 		if(UNLIKELY(status))
 			break;
-
 		if(!i) {
 			font_bbox.p1.x = bbox.p1.x;
 			font_bbox.p1.y = bbox.p1.y;
@@ -5412,14 +5377,12 @@ static cairo_int_status_t _cairo_pdf_surface_emit_type3_font_subset(cairo_pdf_su
 		SAlloc::F(widths);
 		return status;
 	}
-
 	encoding = _cairo_pdf_surface_new_object(surface);
 	if(encoding.id == 0) {
 		SAlloc::F(glyphs);
 		SAlloc::F(widths);
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	}
-
 	_cairo_output_stream_printf(surface->output,
 	    "%d 0 obj\n"
 	    "<< /Type /Encoding\n"

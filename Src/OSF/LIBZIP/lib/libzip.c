@@ -2731,12 +2731,12 @@ int64 _zip_cdir_write(zip_t * za, const zip_filelist_t * filelist, uint64 surviv
 	return (int64)size;
 }
 
-zip_dirent_t * _zip_dirent_clone(const zip_dirent_t * sde)
+zip_dirent_t * _zip_dirent_clone(const zip_dirent_t * pSde)
 {
 	zip_dirent_t * tde = (zip_dirent_t*)SAlloc::M(sizeof(*tde));
 	if(tde) {
-		if(sde)
-			memcpy(tde, sde, sizeof(*sde));
+		if(pSde)
+			memcpy(tde, pSde, sizeof(*pSde));
 		else
 			_zip_dirent_init(tde);
 		tde->changed = 0;

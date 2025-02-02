@@ -1,5 +1,5 @@
 // PROCESSR.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -879,7 +879,8 @@ int PPObjProcessor::DeleteObj(PPID id)
 			if(SearchAnyRef(PPOBJ_PROCESSOR, id, &branch_id) > 0)
 				return RetRefsExistsErr(Obj, branch_id);
 		}
-		return RemoveByID(P_Tbl, id, 0);
+		// @v12.2.5 return RemoveByID(P_Tbl, id, 0);
+		return PutPacket(&id, 0, 0); // @v12.2.5
 	}
 	else
 		return 0;

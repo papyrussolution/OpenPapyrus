@@ -1985,13 +1985,25 @@ int PPBillPacket::SetupObject(PPID arID, SetupObjectBlock & rRet)
 	rRet.Z();
 	ProcessFlags &= ~(pfRestrictByArCodes | pfSubCostOnSubPartStr);
 	LAssocArray rglist;
+	const bool getopdata_result = (GetOpData(Rec.OpID, &op_rec) > 0); // @v12.0.8
+	THROW(!arID || getopdata_result);
 	if(arID) {
 		PPObjArticle ar_obj;
 		ArticleTbl::Rec ar_rec;
 		PPID   acs_id = 0;
-		THROW(GetOpData(Rec.OpID, &op_rec) > 0); // @v12.0.8
 		THROW(ar_obj.Search(arID, &ar_rec) > 0);
-		THROW_PP_S(ar_rec.AccSheetID == op_rec.AccSheetID, PPERR_ARDONTBELONGOPACS, ar_rec.Name); // @v12.0.8
+		// @v12.2.5 THROW_PP_S(ar_rec.AccSheetID == op_rec.AccSheetID, PPERR_ARDONTBELONGOPACS, ar_rec.Name); // @v12.0.8
+		// @v12.2.5 {
+		if(ar_rec.AccSheetID != op_rec.AccSheetID) {
+			bool local_err = true;
+			if(!op_rec.AccSheetID && op_rec.LinkOpID) {
+				PPOprKind link_op_rec;
+				if(GetOpData(op_rec.LinkOpID, &link_op_rec) > 0 && link_op_rec.AccSheetID == ar_rec.AccSheetID)
+					local_err = false;
+			}
+			THROW_PP_S(!local_err, PPERR_ARDONTBELONGOPACS, ar_rec.Name);
+		}
+		// } @v12.2.5 
 		const  int    agt_kind = PPObjArticle::GetAgreementKind(&ar_rec);
 		rRet.PsnID = ObjectToPerson(arID, &acs_id);
 		rRet.Name = ar_rec.Name;
@@ -2035,8 +2047,7 @@ int PPBillPacket::SetupObject(PPID arID, SetupObjectBlock & rRet)
 		}
 		else {
 			if(Rec.Flags & BILLF_GEXPEND || oneof2(OpTypeID, PPOPT_GOODSORDER, PPOPT_DRAFTEXPEND)) {
-				PPOprKind op_rec;
-				const  bool ignore_stop = ((rRet.Flags & SetupObjectBlock::fEnableStop) || (GetOpData(Rec.OpID, &op_rec) > 0 && op_rec.ExtFlags & OPKFX_IGNORECLISTOP));
+				const  bool ignore_stop = ((rRet.Flags & SetupObjectBlock::fEnableStop) || (getopdata_result && op_rec.ExtFlags & OPKFX_IGNORECLISTOP));
 				if(!ignore_stop) {
 					int    is_stopped = -1;
 					SString stop_err_addedmsg;

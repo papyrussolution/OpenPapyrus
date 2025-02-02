@@ -612,17 +612,14 @@ fz_font * fz_new_font_from_buffer(fz_context * ctx, const char * name, fz_buffer
 	    (float)face->bbox.yMin / face->units_per_EM,
 	    (float)face->bbox.xMax / face->units_per_EM,
 	    (float)face->bbox.yMax / face->units_per_EM);
-
 	font->flags.is_mono = !!(face->face_flags & FT_FACE_FLAG_FIXED_WIDTH);
 	font->flags.is_serif = 1;
 	font->flags.is_bold = !!(face->style_flags & FT_STYLE_FLAG_BOLD);
 	font->flags.is_italic = !!(face->style_flags & FT_STYLE_FLAG_ITALIC);
-
 	if(FT_IS_SFNT(face)) {
 		os2 = (TT_OS2 *)FT_Get_Sfnt_Table(face, FT_SFNT_OS2);
 		if(os2)
 			font->flags.is_serif = !(os2->sFamilyClass & 2048); /* Class 8 is sans-serif */
-
 		FT_Sfnt_Table_Info(face, 0, NULL, &n);
 		for(i = 0; i < n; ++i) {
 			FT_Sfnt_Table_Info(face, i, &tag, &size);
@@ -630,7 +627,6 @@ fz_font * fz_new_font_from_buffer(fz_context * ctx, const char * name, fz_buffer
 				font->flags.has_opentype = 1;
 		}
 	}
-
 	if(name) {
 		if(!font->flags.is_bold) {
 			if(strstr(name, "Semibold")) font->flags.is_bold = 1;

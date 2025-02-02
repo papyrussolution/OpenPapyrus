@@ -1363,14 +1363,14 @@ static int EditExtDevices(PPSyncCashNode * pData)
 			AddClusterAssoc(CTL_EXTDEV_CHZNPM, 2, PPSyncCashNode::chznpmStrict);
 			SetClusterData(CTL_EXTDEV_CHZNPM, Data.ChZnPermissiveMode);
 			// } @v11.9.12 
-			AddClusterAssoc(CTL_EXTDEV_CHKEGMUNIQ, 0, CASHFX_CHECKEGAISMUNIQ); // @v10.1.1
-			AddClusterAssoc(CTL_EXTDEV_CHKEGMUNIQ, 1, CASHFX_BNKSLIPAFTERRCPT); // @v10.9.11
+			AddClusterAssoc(CTL_EXTDEV_CHKEGMUNIQ, 0, CASHFX_CHECKEGAISMUNIQ);
+			AddClusterAssoc(CTL_EXTDEV_CHKEGMUNIQ, 1, CASHFX_BNKSLIPAFTERRCPT);
 			AddClusterAssoc(CTL_EXTDEV_CHKEGMUNIQ, 2, CASHFX_SYNCOPENSESSSOFT); // @v11.4.7
-			SetClusterData(CTL_EXTDEV_CHKEGMUNIQ, Data.ExtFlags); // @v10.1.1
+			SetClusterData(CTL_EXTDEV_CHKEGMUNIQ, Data.ExtFlags);
 			Data.GetPropString(ACN_EXTSTR_FLD_IMPFILES, temp_buf);
 			setCtrlString(CTL_EXTDEV_HOSTICURL, temp_buf);
-			Data.DrvVerToStr(temp_buf); // @v10.0.03
-			setCtrlString(CTL_EXTDEV_DRVVER, temp_buf); // @v10.0.03
+			Data.DrvVerToStr(temp_buf);
+			setCtrlString(CTL_EXTDEV_DRVVER, temp_buf);
 			return 1;
 		}
 		DECL_DIALOG_GETDTS()

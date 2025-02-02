@@ -475,7 +475,7 @@
 #define cmConvertWorkbook813           581 // Конвертация рабочих книг
 #define cmWorkbookCfg                  582 // Конфигурация рабочих книг
 #define cmConvertLatexToHtml           583 // Команда конвертации документации (только для внутреннего использования)
-#define cmRecoverLostUnifiedLinks      584 // Корректировка потерянных в результате объединения объектов, ссылок в т'гах
+#define cmRecoverLostUnifiedLinks      584 // Корректировка потерянных в результате объединения объектов, ссылок в тегах
 #define cmGenerateKeywordSeq           585 // Генерация последовательностей ключевых слов (тест)
 #define cmTestUhttGetLocByPhone        586 // Тест SOAP-функции получения списка адресов по номеру телефона // @v10.5.12 @unused
 #define cmTestUhttGetQuotByLoc         587 // Тест SOAP-функции получения списка котировок по коду локации  // @v10.5.12 @unused
@@ -558,5 +558,6 @@
 #define cmSetupGlbSvcWb                664 // @v12.2.0 Настройка интеграции с Wildberries
 #define cmAptekaRuInterchange          665 // @v12.2.1 Обмен данными с сервисом Apteka.Ru
 #define cmGatherClientActivityStat     666 // @v12.2.2 Сбор статистики по активности клиентов
+#define cmRecoverHungedUpTags          667 // @v12.2.5 Корректировка (удаление) висячих тегов (то есть тех, чьи объекты отсутствуют)
 
 #endif /* __PPMENU_H */

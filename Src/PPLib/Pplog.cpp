@@ -240,10 +240,13 @@ void LogListWindowSCI::Resize()
 	if(HwndSci != 0) {
 		RECT rc;
 		::GetWindowRect(H(), &rc);
-		if(::IsWindowVisible(APPL->H_ShortcutsWnd)) {
-			RECT sh_rect;
-			::GetWindowRect(APPL->H_ShortcutsWnd, &sh_rect);
-			rc.bottom -= sh_rect.bottom - sh_rect.top;
+		{
+			HWND h_shcw = APPL->H_ShortcutsWnd;
+			if(::IsWindowVisible(h_shcw)) {
+				RECT sh_rect;
+				::GetWindowRect(h_shcw, &sh_rect);
+				rc.bottom -= sh_rect.bottom - sh_rect.top;
+			}
 		}
 		const int sb_width = 12;
 		::MoveWindow(HwndSci, 0, ToolBarWidth, rc.right - rc.left - sb_width, rc.bottom - rc.top - sb_width, 1);
@@ -374,8 +377,8 @@ void LogListWindowSCI::Resize()
 					toolbar_height = tbr.bottom - tbr.top;
 				}
 				if(IsWindowVisible(hw)) {
-					MoveWindow(hw, 0, 0, LOWORD(lParam), toolbar_height, 0);
-					TView::messageCommand(p_view, cmResize);
+					::MoveWindow(hw, 0, 0, LOWORD(lParam), toolbar_height, 0);
+					TView::messageCommand(p_view, cmResize); // must be cmSize
 				}
 				p_view->Resize();
 				if(!IsIconic(APPL->H_MainWnd))

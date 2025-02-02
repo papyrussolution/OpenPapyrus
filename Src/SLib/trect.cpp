@@ -1,5 +1,5 @@
 // TRECT.CPP
-// ..2007, 2008, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// ..2007, 2008, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2025
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -795,6 +795,11 @@ TRect::TRect(const RECT & rS)
 	b.Set(rS.right, rS.bottom);
 }
 
+TRect::TRect(const FRect & rR, int roundOption/*=frtorrNearest*/)
+{
+	Set(rR, roundOption);
+}
+
 TRect & FASTCALL TRect::operator = (const RECT & rS)
 {
 	a.Set(rS.left, rS.top);
@@ -831,17 +836,36 @@ TRect & TRect::Z()
 	return *this;
 }
 
-TRect & TRect::set(int x1, int y1, int x2, int y2)
+TRect & TRect::Set(int x1, int y1, int x2, int y2)
 {
 	a.Set(x1, y1);
 	b.Set(x2, y2);
 	return *this;
 }
 
-TRect & TRect::set(const FRect & rR)
+TRect & TRect::Set(const FRect & rR, int roundOption)
 {
-	a.Set(ffloori(rR.a.x), ffloori(rR.a.y));
-	b.Set(fceili(rR.b.x), fceili(rR.b.y));
+	switch(roundOption) {
+		case frtorrCollapse: // Нижние границы округляются в большую сторону, верхние - в меньшую
+			a.x = static_cast<int16>(fceili(rR.a.x));
+			a.y = static_cast<int16>(fceili(rR.a.y));
+			b.x = static_cast<int16>(ffloori(rR.b.x));
+			b.y = static_cast<int16>(ffloori(rR.b.y));
+			break;
+		case frtorrExpand: // Нижние границы округляются в меньшую сторону, верхние - в большую
+			a.x = static_cast<int16>(ffloori(rR.a.x));
+			a.y = static_cast<int16>(ffloori(rR.a.y));
+			b.x = static_cast<int16>(fceili(rR.b.x));
+			b.y = static_cast<int16>(fceili(rR.b.y));
+			break;
+		// (this is a default case) case frtorrNearest: // Все компоненты FRect округляются до ближайшего целого
+		default:
+			a.x = static_cast<int16>(R0i(rR.a.x));
+			a.y = static_cast<int16>(R0i(rR.a.y));
+			b.x = static_cast<int16>(R0i(rR.b.x));
+			b.y = static_cast<int16>(R0i(rR.b.y));
+			break;
+	}
 	return *this;
 }
 

@@ -908,8 +908,6 @@ int PPBillPacket::ConvertToCheck2(const ConvertToCCheckParam & rParam, CCheckPac
 	int    ok = -1;
 	const  LDATETIME now_dtm = getcurdatetime_();
 	SString temp_buf;
-	//PPCashMachine * p_cm = 0;
-	//CCheckCore * p_cc = 0;
 	CCheckPacket cp;
 	PPObjCashNode cn_obj;
 	PPSyncCashNode cn_rec;
@@ -919,13 +917,11 @@ int PPBillPacket::ConvertToCheck2(const ConvertToCCheckParam & rParam, CCheckPac
 	const  PPID prepay_goods_id = (r_ccfg.PrepayInvoiceGoodsID && goods_obj.Fetch(r_ccfg.PrepayInvoiceGoodsID, &prepay_goods_rec) > 0) ? prepay_goods_rec.ID : 0;
 	const  bool is_return = oneof3(OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_GOODSRETURN, PPOPT_DRAFTRECEIPT);
 	THROW(rParam.PosNodeID && cn_obj.GetSync(rParam.PosNodeID, &cn_rec) > 0);
-	//THROW(p_cm = PPCashMachine::CreateInstance(rParam.PosNodeID));
-	//THROW(p_cm->SyncAllowPrint());
 	{
 		const  PPID cur_sess_id = cn_rec.CurSessID;
 		PPID   bill_person_id = 0;
 		PPPersonPacket psn_pack;
-		//P_OpObj->GetPacket(bill_rec.OpID, &op_pack); // @erik v10.5.9
+		//P_OpObj->GetPacket(bill_rec.OpID, &op_pack); // @erik
 		if(Rec.Object) {
 			PPObjPerson psn_obj;
 			bill_person_id = ObjectToPerson(Rec.Object, 0);
@@ -1555,7 +1551,11 @@ int PPObjBill::PosPrintByBill(PPID billID)
 									else if(fc.VatRate == 18.0)
 										fc.AmtVat18 = _amount;
 									else if(fc.VatRate == 10.0)
-										fc.AmtVat18 = _amount;
+										fc.AmtVat10 = _amount; // @v12.2.5 @fix fc.AmtVat18-->fc.AmtVat10
+									else if(fc.VatRate == 7.0) // @v12.2.5
+										fc.AmtVat07 = _amount; 
+									else if(fc.VatRate == 5.0) // @v12.2.5
+										fc.AmtVat05 = _amount; 
 									else if(fc.VatRate == 0.0)
 										fc.AmtVat00 = _amount;
 									else // @default
@@ -1573,7 +1573,7 @@ int PPObjBill::PosPrintByBill(PPID billID)
 					PPWaitStart();
 					TSCollection <SCompoundError> err_list; // @v12.1.6
 					param.Flags_ |= PPBillPacket::ConvertToCCheckParam::fDoChZnPm; // @v12.1.6
-					const int ctcr = pack.ConvertToCheck2(param, &cp, &err_list);
+					const int ctcr = pack.ConvertToCheck2(param, &cp, &err_list); // @todo @20250129 В функции ConvertToCheck2 надо поработать над сходимостью суммы чека с суммой оплаты.
 					if(ctcr > 0) {
 						{
 							long  code = 1;

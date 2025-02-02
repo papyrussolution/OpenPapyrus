@@ -663,25 +663,15 @@ struct fz_font {
 	void *t3doc; /* a pdf_document for the callback */
 	void (*t3run)(fz_context *ctx, void *doc, void *resources, fz_buffer *contents, struct fz_device *dev, fz_matrix ctm, void *gstate, fz_default_colorspaces *default_cs);
 	void (*t3freeres)(fz_context *ctx, void *doc, void *resources);
-
 	fz_rect bbox;	/* font bbox is used only for t3 fonts */
-
 	int glyph_count;
-
-	/* per glyph bounding box cache */
-	fz_rect *bbox_table;
-
+	fz_rect * bbox_table; /* per glyph bounding box cache */
 	/* substitute metrics */
 	int width_count;
 	short width_default; /* in 1000 units */
 	short *width_table; /* in 1000 units */
-
-	/* cached glyph metrics */
-	float *advance_cache;
-
-	/* cached encoding lookup */
-	uint16_t *encoding_cache[256];
-
+	float *advance_cache; /* cached glyph metrics */
+	uint16_t *encoding_cache[256]; /* cached encoding lookup */
 	/* cached md5sum for caching */
 	int has_digest;
 	uchar digest[16];

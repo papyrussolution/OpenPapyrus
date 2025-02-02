@@ -1,5 +1,5 @@
 // CRCSHSRV.CPP
-// Copyright (c) V.Nasonov, A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) V.Nasonov, A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 // Интерфейс (асинхронный) к драйверу кассового сервера (ООО Кристалл Сервис)
 //
@@ -135,7 +135,6 @@ private:
 	int    GetSeparatedFileSet(int filTyp);
 	int    CreateSCardPaymTbl();
 	int    PrepareImpFileName(int filTyp, int subStrId, const char * pPath, int sigNum);
-	//int    PrepareImpFileName(int filTyp, const char * pName, const char * pPath, int sigNum);
 	int    PrepareImpFileNameV10(int filTyp, const char * pName, const char * pPath);
 	SString & MakeQueryBuf(LDATE dt, SString & rBuf) const;
 	SString & MakeQueryBufV10(LDATE dt, SString & rBuf, int isZRep) const;
@@ -344,7 +343,7 @@ static int PrepareDscntCodeBiasList(LAssocArray * pAry)
 		PPID  qk_id = qk_list.Get(i).Id;
 		PPID  dc_bias = qk_id % 127;
 		while(bias_ary.SearchByVal(dc_bias, &key, &pos)) {
-			dc_bias = (dc_bias + 1) % 127; // @v5.8.2 (qk_id+1)-->(dc_bias+1)
+			dc_bias = (dc_bias + 1) % 127;
 			//dc_bias = (qk_id+1) % 127; // @test
 		}
 		THROW_SL(bias_ary.Add(qk_id, dc_bias, 0));
@@ -1886,7 +1885,6 @@ int ACS_CRCSHSRV::ExportData__(int updOnly)
 				// } Группа товаров 1-5
 			}
 			dbfrG.put(10, gi.Price);	                                  // Цена товара
-			// @v6.7.8 dbfrG.put(11, fpow10i(-3));                        // Мерность товара
 			dbfrG.put(11, gi.Precision);                                  // Мерность товара
 			dbfrG.put(12, (cn_data.Flags & CASHF_EXPDIVN) ? gi.DivN : 1); // Номер секции
 			dbfrG.put(13,  gi.ID);                                        // ID ограничения на скидку
@@ -2427,8 +2425,7 @@ int ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 						double quot = gi.QuotList.Get(scard_quot_ary.at(i).Val);
 						if(quot > 0.0) {
 							dscnt_sum = gi.Price - quot;
-							// @v5.3.12 Следующая строка комментируется из-за того, что она препятствует
-							// загрузке цен по картам, которые равны базовой цене.
+							// Следующая строка комментируется из-за того, что она препятствует загрузке цен по картам, которые равны базовой цене.
 							// if(use_dscnt_code == 0)
 								is_there_quot = 1;
 						}
@@ -2441,7 +2438,7 @@ int ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 						DbfRecord dbfrD(p_out_tbl_dscnt);
 						dbfrD.put(1, ltoa(gi.ID, tempbuf, 10));
 						dbfrD.put(2, scard_quot_ary.at(i).Key); // Категория карты (ID серии карт)
-						dbfrD.put(3, dscnt_sum);        // Сумма скидки
+						dbfrD.put(3, dscnt_sum); // Сумма скидки
 						next_fld = 4;
 						if(use_dscnt_code)
 							if(use_new_dscnt_code_alg)
@@ -2504,7 +2501,7 @@ int ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 				dbfrB.put(1, ltoa(gi.ID, tempbuf, 10));
 				dbfrB.put(2, gi.BarCode);
 				dbfrB.put(3, gi.UnitPerPack);
-				dbfrB.put(4, (cn_data.Flags & CASHF_EXPDIVN) ? gi.DivN : 1); // @v6.7.10 Номер секции
+				dbfrB.put(4, (cn_data.Flags & CASHF_EXPDIVN) ? gi.DivN : 1); // Номер секции
 				THROW_PP(p_out_tbl_barcode->appendRec(&dbfrB), PPERR_DBFWRFAULT);
 			}
 	   		prev_goods_id = gi.ID;
@@ -2623,19 +2620,6 @@ int ACS_CRCSHSRV::PrepareImpFileName(int filTyp, int subStrId, const char * pPat
 	CATCHZOK
 	return ok;
 }
-
-/*int ACS_CRCSHSRV::PrepareImpFileName(int filTyp, const char * pName, const char * pPath, int sigNum)
-{
-	SString sig_num_file;
-	PathRpt[filTyp] = pName;
-	// } @v8.9.11 {
-	SFsPath::ReplacePath(PathRpt[filTyp], pPath, 1);
-	sig_num_file.Cat(sigNum).DotCat("txt");
-	(PathQue[filTyp] = pPath).SetLastSlash().Cat(sig_num_file);
-	// } @v8.9.11
-	// @v8.9.11 strcat(setLastSlash(STRNSCPY(PathQue[filTyp], pPath)), replaceExt(itoa(sigNum, sig_num_file, 10), "txt", 1));
-	return 1;
-}*/
 
 int ACS_CRCSHSRV::PrepareImpFileNameV10(int filTyp, const char * pName, const char * pPath)
 {
@@ -2879,13 +2863,8 @@ int ACS_CRCSHSRV::GetSessionData(int * pSessCount, int * pIsForwardSess, DateRan
 		THROW(PrepareImpFileName(filTypChkHeads, PPFILNAM_CS_CHKHEADS_DBF, acn.ImpFiles, 6));
 		THROW(PrepareImpFileName(filTypChkRows,  PPFILNAM_CS_CHKROWS_DBF,  acn.ImpFiles, 7));
 		THROW(PrepareImpFileName(filTypChkDscnt, PPFILNAM_CS_CHKDSCNT_DBF, acn.ImpFiles, 9));
-/*#ifndef NDEBUG
-		THROW(PrepareImpFileNameV10(filTypChkXml,   "chks.xml", acn.ImpFiles));
-		THROW(PrepareImpFileNameV10(filTypZRepXml,  "zrep.xml",  acn.ImpFiles));
-#else*/
 		THROW(PrepareImpFileNameV10(filTypChkXml,   "purchases.xml", acn.ImpFiles));
 		THROW(PrepareImpFileNameV10(filTypZRepXml,  "zreports.xml",  acn.ImpFiles));
-//#endif
 		THROW(PPGetFileName(PPFILNAM_CS_WAIT, PathFlag));
 		SFsPath::ReplacePath(PathFlag, acn.ImpFiles, 1);
 		THROW(PPGetFileName(PPFILNAM_CASHIERS_TXT, PathCshrs));
@@ -4666,3 +4645,116 @@ void ACS_CRCSHSRV::CleanUpSession()
 		}
 	}
 }
+//
+// @v12.2.5 
+// Descr: Специальный модуль, реализующий шлюз между древней-предревней системой управления розничным магазином Кристалл и 
+//   кассовым модулем Set-Retail.
+//
+class Cristal2SetRetailGateway {
+public:
+	//
+	// Descr: Элемент данных, импортируемый из системы Кристалл.
+	//   Здесь будут товары, группы товаров, дисконтные карты и, вероятно, еще что-то.
+	//
+	struct ErpEntry { // @flat
+		ErpEntry() : Dummy(0)
+		{
+		}
+		uint32 Dummy;
+	};
+	Cristal2SetRetailGateway()
+	{
+	}
+	~Cristal2SetRetailGateway()
+	{
+	}
+	//
+	// Descr: Импортирует текстовые файлы, подготовленные системой Кристалл.
+	//   Файлы в кодировке cp866, разделители полей '|'.
+	//
+	int    CristalImport(const char * pPathUtf8, TSVector <ErpEntry> & rList)
+	{
+		int    ok = -1;
+		SString temp_buf;
+		SString src_path(pPathUtf8);
+		if(src_path.NotEmptyS()) {
+			StringSet ss;
+			SString src_file;
+			SString src_file_template;
+			(src_file_template = src_path).SetLastSlash().Cat("*.txt");
+			SFile::ReadLineCsvContext csv_ctx('|');
+			SDirEntry sde;
+			for(SDirec sd(src_file_template); sd.Next(&sde) > 0;) {
+				if(sde.IsFile()) {
+					(src_file = src_path).SetLastSlash().Cat(sde.GetNameUtf8(temp_buf));
+					SFile f_in(src_file, SFile::mRead);
+					uint   bad_lines_count = 0;
+					if(f_in.IsValid()) {
+						while(f_in.ReadLineCsv(csv_ctx, ss) > 0) {
+							if(ss.getCount()) {
+//1       3                                5       6        9                11  12                                                    20                21                                23    24 25 26       
+//+|4004 |Приправа д/рыбы с лимон 25Кота|1|125.00 |20|0|шт.|9001414019290|23|87 |Специи               |0|0.00|1.000|0|1.000|0.00|1.000|Приправа для рыбы|с лимоном 25г."Котани"         |0|0.000|0 |22|0   | |
+//+|16491|Капуста Кимчи 340г Лукашинские|1|145.00 |20|0|с/б|4607936772184|10|149|Остальные консервы   |0|0.00|1.000|0|1.000|0.00|1.000|Капуста "Кимчи"|340г "Лукашинские"               |0|0.000|0 |1 |0   | |
+//+|85728|Сырок гл.Ростаг.м.ш.ван.6*25г |2|327.00 |10|0|шт.|4660043858776|54|262|Сырки глазированные  |0|0.00|1.000|0|1.000|0.00|1.000|Сырок гл."Росмтагрокомпл|екс" 15% в мол.шок.с ван|0|0.000|0 |1 |MILK|1|931||1|
+//+|87835|Масса тв.Ростагрок.23% изюм100|2|143.00 |10|0|шт.|4660043858936|54|256|Масса творожная      |0|0.00|1.000|0|1.000|0.00|1.000|Масса творожная особая"Р|остагрокомплекс"23% 100г|0|0.000|0 |1 |MILK|1|931||1|
+//+|37047|Водка Архангел.Сев.выд 0,5 40%|2|390.00 |20|0|бут|4601775003478|31|113|Водка отеч.          |0|0.00|1.000|0|1.000|0.00|1.000|Водка "Архангельская|Север.выдержка" 0,5л 40%    |0|0.500|40|1 |713 | |
+//+|22533|Коньяк Армянский 10л 0,5л змея|2|1151.00|20|0|п/у|4850036870711|31|117|Коньяк,бренди импорт.|0|0.00|1.000|0|1.000|0.00|1.000|Коньяк "Армянский"|10лет 0,5л 40% змея           |0|0.500|0 |52|799 | |
+//+|11966|Вино Страккали Примит.к.п/с750|2|1050.00|20|0|бут|8000475009661|31|112|Вина натуральные имп.|0|0.00|1.000|0|1.000|0.00|1.000|Вино "Страккали Примитив|о" к.п/сух.0,75л 14%    |0|0.750|0 |10|0   | |
+// 
+// Далее следует непонятный мне формат. Что это за данные?
+//+|16|207|74064|Пряники "Ржаные"|"Воронежская КК Дон"|394.00|23|60|3|
+								uint fld_no = 0;
+								for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
+									fld_no++;
+									switch(fld_no) {
+										case 1: break;
+										case 2: break;
+										case 3: // goodsname
+											break;
+										case 4: break;
+										case 5: // price
+											break;
+										case 6: // vat rate
+											break;
+										case 7: break;
+										case 8: // uom name
+											break;
+										case 9: // barcode
+											break;
+										case 10: break;
+										case 11: // ?goodsgroup id
+											break;
+										case 12: // goodsgroup name
+											break;
+										case 13: break;
+										case 14: break;
+										case 15: break;
+										case 16: break;
+										case 17: break;
+										case 18: break;
+										case 19: break;
+										case 20: // goodsname line1
+											break;
+										case 21: // goodsname line2
+											break;
+										case 22: break;
+										case 23: // Alc volume (liter)
+											break;
+										case 24: // Alc proof (vol%) Обнаружил для водки и коньяка. Для вина нет крепости.
+											break;
+										case 25: break;
+										case 26: // chzn product type
+											// MILK,
+											break;
+										case 27: break;
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		return ok;
+	}
+};

@@ -1921,7 +1921,7 @@ int TProgram::DrawButton2(HWND hwnd, DRAWITEMSTRUCT * pDi)
 		item_state = tbisFocus;
 	const long style = TView::SGetWindowStyle(pDi->hwndItem);
 	long   text_out_fmt = /*DT_SINGLELINE|*/DT_VCENTER|DT_EXTERNALLEADING|DT_END_ELLIPSIS;
-	const  TRect rect_elem = pDi->rcItem;
+	const  TRect rect_elem(pDi->rcItem);
 	RECT   out_r = pDi->rcItem;
 	//COLORREF brush_color = RGB(0xDC, 0xD9, 0xD1);
 	//COLORREF pen_color = _GetAssetColor(_assetCtrlBorderColor);
@@ -2024,7 +2024,7 @@ int TProgram::DrawButton2(HWND hwnd, DRAWITEMSTRUCT * pDi)
 					text_h = (out_r.bottom - out_r.top) / height;
 					SplitBuf(canv, text_buf, out_r.right - out_r.left, text_h);
 					StringSet ss('\n', text_buf);
-					rect_text.set(out_r.left, out_r.top, out_r.right, height);
+					rect_text.Set(out_r.left, out_r.top, out_r.right, height);
 					for(uint i = 0; ss.get(&i, text_buf); rect_text.move(0, height)) {
 						canv.DrawText_(rect_text, text_buf, text_out_fmt);
 					}
@@ -2091,7 +2091,7 @@ int TProgram::DrawButton3(HWND hwnd, DRAWITEMSTRUCT * pDi)
 	} */
 	const long style = TView::SGetWindowStyle(pDi->hwndItem);
 	long   text_out_fmt = /*DT_SINGLELINE|*/DT_VCENTER|DT_EXTERNALLEADING|DT_END_ELLIPSIS;
-	const  TRect rect_elem_i = pDi->rcItem;
+	const  TRect rect_elem_i(pDi->rcItem);
 	const  FRect rect_elem = pDi->rcItem;
 	RECT   out_r = pDi->rcItem;
 	//COLORREF brush_color = RGB(0xDC, 0xD9, 0xD1);
@@ -2464,7 +2464,7 @@ int TProgram::DrawInputLine3(HWND hwnd, DRAWITEMSTRUCT * pDi)
 	else if(pDi->itemAction == ODA_FOCUS || (pDi->itemState & ODS_FOCUS))
 		item_state = tbisFocus;
 	const  long style = TView::SGetWindowStyle(pDi->hwndItem);
-	const  TRect rect_elem_i = pDi->rcItem;
+	const  TRect rect_elem_i(pDi->rcItem);
 	const  FRect rect_elem = pDi->rcItem;
 	{
 		SPaintToolBox * p_tb = GetUiToolBox();

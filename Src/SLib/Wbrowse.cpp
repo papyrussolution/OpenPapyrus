@@ -2642,7 +2642,11 @@ HWND FASTCALL GetNextBrowser(HWND hw, int reverse)
 				HWND hw = p_view->P_Toolbar ? p_view->P_Toolbar->H() : 0;
 				if(::IsWindowVisible(hw)) {
 					::MoveWindow(hw, 0, 0, LOWORD(lParam), p_view->ToolBarWidth, 0);
-					TView::messageCommand(p_view, cmResize);
+					// @v12.2.5 TView::messageCommand(p_view, cmResize); // must be cmSize
+					// @v12.2.5 {
+					if(!TView::Helper_SendCmSizeAsReplyOnWmSize(p_view, wParam, lParam))
+						return 0;
+					// } @v12.2.5 
 				}
 			}
 			break;

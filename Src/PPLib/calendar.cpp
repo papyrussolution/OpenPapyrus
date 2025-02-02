@@ -1,5 +1,5 @@
 // CALENDAR.CPP
-// Copyright (c) A.Fedotkov, A.Sobolev, A.Starodub 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Fedotkov, A.Sobolev, A.Starodub 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1949,13 +1949,7 @@ void SCalendarPicker::CreateLayout(LDATE selectedDate)
 			if(pItem) {
 				TView * p = static_cast<TView *>(SUiLayout::GetManagedPtr(pItem));
 				if(p) {
-					FRect frame = pItem->GetFrameAdjustedToParent();
-					TRect b;
-					b.a.x = static_cast<int16>(R0i(frame.a.x));
-					b.a.y = static_cast<int16>(R0i(frame.a.y));
-					b.b.x = static_cast<int16>(R0i(frame.b.x));
-					b.b.y = static_cast<int16>(R0i(frame.b.y));
-					p->changeBounds(b);
+					p->changeBounds(TRect(pItem->GetFrameAdjustedToParent()));
 				}	
 			}
 		}
@@ -3213,9 +3207,9 @@ IMPL_HANDLE_EVENT(SCalendarPicker)
 	int    ok = -1;
 	TRect  b;
 	switch(kind) {
-		case SCalendarPicker::kDate: b.set(0, 0, 295, 340); break;
-		case SCalendarPicker::kPeriod: b.set(0, 0, 295, 440); break;
-		case SCalendarPicker::kTime: b.set(0, 0, 452, 306); break;
+		case SCalendarPicker::kDate: b.Set(0, 0, 295, 340); break;
+		case SCalendarPicker::kPeriod: b.Set(0, 0, 295, 440); break;
+		case SCalendarPicker::kTime: b.Set(0, 0, 452, 306); break;
 	}
 	SCalendarPicker * p_win = new SCalendarPicker(kind);
 	THROW_MEM(p_win);
@@ -3242,11 +3236,11 @@ IMPL_HANDLE_EVENT(SCalendarPicker)
 			blk.Dtm = getcurdatetime_();
 			switch(kind) {
 				case SCalendarPicker::kDate: 
-					b.set(0, 0, 295, 340);
+					b.Set(0, 0, 295, 340);
 					blk.Dtm.d = pParentDlg->getCtrlDate(inputCtlId);
 					break;
 				case SCalendarPicker::kPeriod: 
-					b.set(0, 0, 295, 440); 
+					b.Set(0, 0, 295, 440); 
 					GetPeriodInput(pParentDlg, inputCtlId, &blk.Period);
 					if(checkdate(blk.Period.low))
 						blk.Dtm.d = blk.Period.low;
@@ -3254,7 +3248,7 @@ IMPL_HANDLE_EVENT(SCalendarPicker)
 						blk.Dtm.d = blk.Period.upp;
 					break;
 				case SCalendarPicker::kTime: 
-					b.set(0, 0, 452, 306); 
+					b.Set(0, 0, 452, 306); 
 					blk.Dtm.t = pParentDlg->getCtrlTime(inputCtlId);
 					break;
 				default:

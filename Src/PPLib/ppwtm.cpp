@@ -2728,9 +2728,9 @@ IMPL_HANDLE_EVENT(PPWhatmanWindow)
 			}
 			else {
 				if(p_se->NewSize.x > p_se->PrevSize.x)
-					invalidateRect(b.set(p_se->PrevSize.x, 0, ViewSize.x, ViewSize.y), true);
+					invalidateRect(b.Set(p_se->PrevSize.x, 0, ViewSize.x, ViewSize.y), true);
 				if(p_se->NewSize.y > p_se->PrevSize.y)
-					invalidateRect(b.set(0, p_se->PrevSize.y, ViewSize.x, ViewSize.y), true);
+					invalidateRect(b.Set(0, p_se->PrevSize.y, ViewSize.x, ViewSize.y), true);
 			}
 			{
 				{
@@ -3306,7 +3306,7 @@ int PPWhatmanWindow::InsertDlScopeView(DlContext & rCtx, const DlScope * pParent
 		}
 		else {
 			TRect bounds;
-			bounds.set(50, 50, 450, 450);
+			bounds.Set(50, 50, 450, 450);
 			p_obj->SetBounds(bounds);
 		}
 		if(rCtx.GetConstData(pS->GetConst(DlScope::cuifLayoutBlock), c_buf, sizeof(c_buf))) {
@@ -3522,21 +3522,8 @@ int TWhatmanBrowser::WMHCreate()
 			return 0;
 		case WM_SIZE:
 			p_view = static_cast<TWhatmanBrowser *>(TView::GetWindowUserData(hWnd));
-			{ // ƒалее - полна€ копи€ обработки такого событи€ из TWindowBase::WndProc
-				SizeEvent se;
-				switch(wParam) {
-					case SIZE_MAXHIDE:   se.ResizeType = SizeEvent::tMaxHide;   break;
-					case SIZE_MAXIMIZED: se.ResizeType = SizeEvent::tMaximized; break;
-					case SIZE_MAXSHOW:   se.ResizeType = SizeEvent::tMaxShow;   break;
-					case SIZE_MINIMIZED: se.ResizeType = SizeEvent::tMinimized; break;
-					case SIZE_RESTORED:  se.ResizeType = SizeEvent::tRestored;  break;
-					default: se.ResizeType = 0; break;
-				}
-				se.PrevSize = p_view->ViewSize;
-				p_view->ViewSize = se.NewSize.setwparam(lParam);
-				if(TView::messageCommand(p_view, cmSize, &se))
-					return 0;
-			}
+			if(!TView::Helper_SendCmSizeAsReplyOnWmSize(p_view, wParam, lParam))
+				return 0;
 			break;
 	}
 	return DefWindowProc(hWnd, message, wParam, lParam);

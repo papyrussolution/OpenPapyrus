@@ -85,20 +85,11 @@ static int keyword_in_list(const char * name, const char ** list, int n)
 	return 0;
 }
 
-static int is_bold_from_font_weight(const char * weight)
-{
-	return sstreq(weight, "bold") || sstreq(weight, "bolder") || atoi(weight) > 400;
-}
-
-static int is_italic_from_font_style(const char * style)
-{
-	return sstreq(style, "italic") || sstreq(style, "oblique");
-}
-
+static int is_bold_from_font_weight(const char * weight) { return sstreq(weight, "bold") || sstreq(weight, "bolder") || atoi(weight) > 400; }
+static int is_italic_from_font_style(const char * style) { return sstreq(style, "italic") || sstreq(style, "oblique"); }
 /*
  * Compute specificity
  */
-
 static int count_condition_ids(fz_css_condition * cond)
 {
 	int n = 0;
@@ -174,11 +165,9 @@ static int selector_specificity(fz_css_selector * sel, int important)
 	int d = count_selector_names(sel);
 	return important * 1000 + b * 100 + c * 10 + d;
 }
-
 /*
  * Selector matching
  */
-
 static int match_att_exists_condition(fz_xml * node, const char * key)
 {
 	const char * s = fz_xml_att(node, key);
@@ -213,7 +202,6 @@ static int match_condition(fz_css_condition * cond, fz_xml * node)
 {
 	if(!cond)
 		return 1;
-
 	switch(cond->type) {
 		default: return 0;
 		case ':': return 0; /* don't support pseudo-classes */
@@ -224,7 +212,6 @@ static int match_condition(fz_css_condition * cond, fz_xml * node)
 		case '~': if(!match_att_has_condition(node, cond->key, cond->val)) return 0; break;
 		case '|': if(!match_att_is_condition(node, cond->key, cond->val)) return 0; break;
 	}
-
 	return match_condition(cond->next, node);
 }
 
@@ -274,24 +261,19 @@ static int match_selector(fz_css_selector * sel, fz_xml * node)
 				return 0;
 		}
 	}
-
 	if(sel->name) {
 		if(!fz_xml_is_tag(node, sel->name))
 			return 0;
 	}
-
 	if(sel->cond) {
 		if(!match_condition(sel->cond, node))
 			return 0;
 	}
-
 	return 1;
 }
-
 /*
  * Annotating nodes with properties and expanding shorthand forms.
  */
-
 static int count_values(fz_css_value * value)
 {
 	int n = 0;
@@ -302,41 +284,34 @@ static int count_values(fz_css_value * value)
 	return n;
 }
 
-static void add_property(fz_css_match * match, int name, fz_css_value * value, int spec);
+static void STDCALL add_property(fz_css_match * match, int name, fz_css_value * value, int spec);
 
-static void add_shorthand_trbl(fz_css_match * match, fz_css_value * value, int spec,
-    int name_t, int name_r, int name_b, int name_l)
+static void add_shorthand_trbl(fz_css_match * match, fz_css_value * value, int spec, int name_t, int name_r, int name_b, int name_l)
 {
 	int n = count_values(value);
-
 	if(n == 1) {
 		add_property(match, name_t, value, spec);
 		add_property(match, name_r, value, spec);
 		add_property(match, name_b, value, spec);
 		add_property(match, name_l, value, spec);
 	}
-
 	if(n == 2) {
 		fz_css_value * a = value;
 		fz_css_value * b = value->next;
-
 		add_property(match, name_t, a, spec);
 		add_property(match, name_r, b, spec);
 		add_property(match, name_b, a, spec);
 		add_property(match, name_l, b, spec);
 	}
-
 	if(n == 3) {
 		fz_css_value * a = value;
 		fz_css_value * b = value->next;
 		fz_css_value * c = value->next->next;
-
 		add_property(match, name_t, a, spec);
 		add_property(match, name_r, b, spec);
 		add_property(match, name_b, c, spec);
 		add_property(match, name_l, b, spec);
 	}
-
 	if(n == 4) {
 		fz_css_value * a = value;
 		fz_css_value * b = value->next;
@@ -449,48 +424,24 @@ static void add_shorthand_list_style(fz_css_match * match, fz_css_value * value,
 	}
 }
 
-static void add_property(fz_css_match * match, int name, fz_css_value * value, int spec)
+static void STDCALL add_property(fz_css_match * match, int name, fz_css_value * value, int spec)
 {
 	/* shorthand expansions: */
-	switch(name)
-	{
-		case PRO_MARGIN:
-		    add_shorthand_margin(match, value, spec);
-		    return;
-		case PRO_PADDING:
-		    add_shorthand_padding(match, value, spec);
-		    return;
-		case PRO_BORDER_WIDTH:
-		    add_shorthand_border_width(match, value, spec);
-		    return;
-		case PRO_BORDER_COLOR:
-		    add_shorthand_border_color(match, value, spec);
-		    return;
-		case PRO_BORDER_STYLE:
-		    add_shorthand_border_style(match, value, spec);
-		    return;
-		case PRO_BORDER:
-		    add_shorthand_border(match, value, spec, 1, 1, 1, 1);
-		    return;
-		case PRO_BORDER_TOP:
-		    add_shorthand_border(match, value, spec, 1, 0, 0, 0);
-		    return;
-		case PRO_BORDER_RIGHT:
-		    add_shorthand_border(match, value, spec, 0, 1, 0, 0);
-		    return;
-		case PRO_BORDER_BOTTOM:
-		    add_shorthand_border(match, value, spec, 0, 0, 1, 0);
-		    return;
-		case PRO_BORDER_LEFT:
-		    add_shorthand_border(match, value, spec, 0, 0, 0, 1);
-		    return;
-		case PRO_LIST_STYLE:
-		    add_shorthand_list_style(match, value, spec);
-		    return;
+	switch(name) {
+		case PRO_MARGIN: add_shorthand_margin(match, value, spec); return;
+		case PRO_PADDING: add_shorthand_padding(match, value, spec); return;
+		case PRO_BORDER_WIDTH: add_shorthand_border_width(match, value, spec); return;
+		case PRO_BORDER_COLOR: add_shorthand_border_color(match, value, spec); return;
+		case PRO_BORDER_STYLE: add_shorthand_border_style(match, value, spec); return;
+		case PRO_BORDER: add_shorthand_border(match, value, spec, 1, 1, 1, 1); return;
+		case PRO_BORDER_TOP: add_shorthand_border(match, value, spec, 1, 0, 0, 0); return;
+		case PRO_BORDER_RIGHT: add_shorthand_border(match, value, spec, 0, 1, 0, 0); return;
+		case PRO_BORDER_BOTTOM: add_shorthand_border(match, value, spec, 0, 0, 1, 0); return;
+		case PRO_BORDER_LEFT: add_shorthand_border(match, value, spec, 0, 0, 0, 1); return;
+		case PRO_LIST_STYLE: add_shorthand_list_style(match, value, spec); return;
 		    /* TODO: font */
 		    /* TODO: background */
 	}
-
 	if(name < NUM_PROPERTIES && match->spec[name] <= spec) {
 		match->value[name] = value;
 		match->spec[name] = spec;
@@ -504,7 +455,6 @@ void fz_match_css(fz_context * ctx, fz_css_match * match, fz_css_match * up, fz_
 	fz_css_property * prop;
 	const char * s;
 	int i;
-
 	match->up = up;
 	for(i = 0; i < NUM_PROPERTIES; ++i) {
 		match->spec[i] = -1;
@@ -549,13 +499,11 @@ void fz_match_css_at_page(fz_context * ctx, fz_css_match * match, fz_css * css)
 	fz_css_selector * sel;
 	fz_css_property * prop;
 	int i;
-
 	match->up = NULL;
 	for(i = 0; i < NUM_PROPERTIES; ++i) {
 		match->spec[i] = -1;
 		match->value[i] = NULL;
 	}
-
 	for(rule = css->rule; rule; rule = rule->next) {
 		sel = rule->selector;
 		while(sel) {
@@ -577,7 +525,6 @@ void fz_add_css_font_face(fz_context * ctx, fz_html_font_set * set, fz_archive *
 	fz_buffer * buf = NULL;
 	int is_bold, is_italic, is_small_caps;
 	char path[2048];
-
 	const char * family = "serif";
 	const char * weight = "normal";
 	const char * style = "normal";
@@ -604,19 +551,13 @@ void fz_add_css_font_face(fz_context * ctx, fz_html_font_set * set, fz_archive *
 	fz_strlcat(path, src, sizeof path);
 	fz_urldecode(path);
 	fz_cleanname(path);
-
 	for(custom = set->custom; custom; custom = custom->next)
-		if(sstreq(custom->src, path) && sstreq(custom->family, family) &&
-		    custom->is_bold == is_bold &&
-		    custom->is_italic == is_italic &&
-		    custom->is_small_caps == is_small_caps)
+		if(sstreq(custom->src, path) && sstreq(custom->family, family) && custom->is_bold == is_bold &&
+		    custom->is_italic == is_italic && custom->is_small_caps == is_small_caps)
 			return; /* already loaded */
-
 	fz_var(buf);
 	fz_var(font);
-
-	fz_try(ctx)
-	{
+	fz_try(ctx) {
 		if(fz_has_archive_entry(ctx, zip, path))
 			buf = fz_read_archive_entry(ctx, zip, path);
 		else

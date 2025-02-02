@@ -246,7 +246,6 @@ char * fz_cleanname(char * name)
 				p++, q++;
 		}
 	}
-
 	if(q == name)  /* empty string is really "." */
 		*q++ = '.';
 	*q = '\0';
@@ -285,13 +284,12 @@ enum {
 	Bad = Runeerror,
 };
 
-int fz_chartorune(int * rune, const char * str)
+int FASTCALL fz_chartorune(int * rune, const char * str)
 {
 	int c, c1, c2, c3;
 	int l;
 	/*
-	 * one character sequence
-	 *	00000-0007F => T1
+	 * one character sequence 00000-0007F => T1
 	 */
 	c = *(const uchar*)str;
 	if(c < Tx) {
@@ -299,8 +297,7 @@ int fz_chartorune(int * rune, const char * str)
 		return 1;
 	}
 	/*
-	 * two character sequence
-	 *	0080-07FF => T2 Tx
+	 * two character sequence 0080-07FF => T2 Tx
 	 */
 	c1 = *(const uchar*)(str+1) ^ Tx;
 	if(c1 & Testx)
@@ -315,8 +312,7 @@ int fz_chartorune(int * rune, const char * str)
 		return 2;
 	}
 	/*
-	 * three character sequence
-	 *	0800-FFFF => T3 Tx Tx
+	 * three character sequence 0800-FFFF => T3 Tx Tx
 	 */
 	c2 = *(const uchar*)(str+2) ^ Tx;
 	if(c2 & Testx)
@@ -329,8 +325,7 @@ int fz_chartorune(int * rune, const char * str)
 		return 3;
 	}
 	/*
-	 * four character sequence (21-bit value)
-	 *	10000-1FFFFF => T4 Tx Tx Tx
+	 * four character sequence (21-bit value) 10000-1FFFFF => T4 Tx Tx Tx
 	 */
 	c3 = *(const uchar*)(str+3) ^ Tx;
 	if(c3 & Testx)
@@ -354,21 +349,19 @@ bad:
 	return 1;
 }
 
-int fz_runetochar(char * str, int rune)
+int FASTCALL fz_runetochar(char * str, int rune)
 {
 	/* Runes are signed, so convert to unsigned for range check. */
 	uint c = (uint)rune;
 	/*
-	 * one character sequence
-	 *	00000-0007F => 00-7F
+	 * one character sequence 00000-0007F => 00-7F
 	 */
 	if(c <= Rune1) {
 		str[0] = c;
 		return 1;
 	}
 	/*
-	 * two character sequence
-	 *	0080-07FF => T2 Tx
+	 * two character sequence 0080-07FF => T2 Tx
 	 */
 	if(c <= Rune2) {
 		str[0] = T2 | (c >> 1*Bitx);
@@ -384,8 +377,7 @@ int fz_runetochar(char * str, int rune)
 	if(c > Runemax)
 		c = Runeerror;
 	/*
-	 * three character sequence
-	 *	0800-FFFF => T3 Tx Tx
+	 * three character sequence 0800-FFFF => T3 Tx Tx
 	 */
 	if(c <= Rune3) {
 		str[0] = T3 | (c >> 2*Bitx);
@@ -394,8 +386,7 @@ int fz_runetochar(char * str, int rune)
 		return 3;
 	}
 	/*
-	 * four character sequence (21-bit value)
-	 *	10000-1FFFFF => T4 Tx Tx Tx
+	 * four character sequence (21-bit value) 10000-1FFFFF => T4 Tx Tx Tx
 	 */
 	str[0] = T4 | (c >> 3*Bitx);
 	str[1] = Tx | ((c >> 2*Bitx) & Maskx);
@@ -404,13 +395,13 @@ int fz_runetochar(char * str, int rune)
 	return 4;
 }
 
-int fz_runelen(int c)
+int FASTCALL fz_runelen(int c)
 {
 	char str[10];
 	return fz_runetochar(str, c);
 }
 
-int fz_utflen(const char * s)
+int FASTCALL fz_utflen(const char * s)
 {
 	int c, rune;
 	int n = 0;
