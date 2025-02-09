@@ -804,7 +804,7 @@ int ssl3_enc(SSL * s, SSL3_RECORD * inrecs, size_t n_recs, int sending,
 			 */
 			memzero(&rec->input[rec->length], i);
 			rec->length += i;
-			rec->input[l - 1] = (unsigned char)(i - 1);
+			rec->input[l - 1] = (uchar)(i - 1);
 		}
 
 		if(!sending) {
@@ -998,10 +998,10 @@ int tls1_enc(SSL * s, SSL3_RECORD * recs, size_t n_recs, int sending,
 				}
 
 				buf[ctr][8] = recs[ctr].type;
-				buf[ctr][9] = (unsigned char)(s->version >> 8);
-				buf[ctr][10] = (unsigned char)(s->version);
-				buf[ctr][11] = (unsigned char)(recs[ctr].length >> 8);
-				buf[ctr][12] = (unsigned char)(recs[ctr].length & 0xff);
+				buf[ctr][9] = (uchar)(s->version >> 8);
+				buf[ctr][10] = (uchar)(s->version);
+				buf[ctr][11] = (uchar)(recs[ctr].length >> 8);
+				buf[ctr][12] = (uchar)(recs[ctr].length & 0xff);
 				pad = EVP_CIPHER_CTX_ctrl(ds, EVP_CTRL_AEAD_TLS1_AAD,
 					EVP_AEAD_TLS1_AAD_LEN, buf[ctr]);
 				if(pad <= 0) {
@@ -1028,7 +1028,7 @@ int tls1_enc(SSL * s, SSL3_RECORD * recs, size_t n_recs, int sending,
 					return 0;
 				}
 				/* we need to add 'padnum' padding bytes of value padval */
-				padval = (unsigned char)(padnum - 1);
+				padval = (uchar)(padnum - 1);
 				for(loop = reclen[ctr]; loop < reclen[ctr] + padnum; loop++)
 					recs[ctr].input[loop] = padval;
 				reclen[ctr] += padnum;
@@ -1274,8 +1274,8 @@ int n_ssl3_mac(SSL * ssl, SSL3_RECORD * rec, uchar * md, int sending)
 		memcpy(header + j, seq, 8);
 		j += 8;
 		header[j++] = rec->type;
-		header[j++] = (unsigned char)(rec->length >> 8);
-		header[j++] = (unsigned char)(rec->length & 0xff);
+		header[j++] = (uchar)(rec->length >> 8);
+		header[j++] = (uchar)(rec->length & 0xff);
 
 		/* Final param == is SSLv3 */
 		if(ssl3_cbc_digest_record(EVP_MD_CTX_get0_md(hash),
@@ -1379,10 +1379,10 @@ int tls1_mac(SSL * ssl, SSL3_RECORD * rec, uchar * md, int sending)
 		memcpy(header, seq, 8);
 
 	header[8] = rec->type;
-	header[9] = (unsigned char)(ssl->version >> 8);
-	header[10] = (unsigned char)(ssl->version);
-	header[11] = (unsigned char)(rec->length >> 8);
-	header[12] = (unsigned char)(rec->length & 0xff);
+	header[9] = (uchar)(ssl->version >> 8);
+	header[10] = (uchar)(ssl->version);
+	header[11] = (uchar)(rec->length >> 8);
+	header[12] = (uchar)(rec->length & 0xff);
 
 	if(!sending && !SSL_READ_ETM(ssl)
 	    && EVP_CIPHER_CTX_get_mode(ssl->enc_read_ctx) == EVP_CIPH_CBC_MODE

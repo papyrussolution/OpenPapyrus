@@ -1,5 +1,5 @@
 // PPAPPO.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -9,7 +9,7 @@
 //
 // @prototype {
 //
-int ExportDialogs(const char * pFileName);
+// @v12.2.6 @unused(replaced with ExportDialogs2) int ExportDialogs(const char * pFileName);
 int ExportDialogs2(const char * pFileName); // @v11.0.5
 int TestAddressRecognition();
 int SelfBuild();
@@ -482,15 +482,15 @@ int PPApp::processCommand(uint cmd)
 		case cmRFIDDevice:           ShowObjects(PPOBJ_RFIDDEVICE, 0);        break;
 		case cmDebtDim:              ShowObjects(PPOBJ_DEBTDIM, 0);           break;
 		case cmEventToken:           ShowObjects(PPOBJ_EVENTTOKEN, 0);        break;
-		case cmEventSubscription:    ShowObjects(PPOBJ_EVENTSUBSCRIPTION, 0); break; // @v10.8.9
+		case cmEventSubscription:    ShowObjects(PPOBJ_EVENTSUBSCRIPTION, 0); break;
 		case cmPhoneService:         ShowObjects(PPOBJ_PHONESERVICE, 0);      break;
 		case cmGenericDevice:        ShowObjects(PPOBJ_GENERICDEVICE, 0);     break;
 		case cmCafeTable:            ShowObjects(PPOBJ_CAFETABLE, 0);         break;
 		case cmEdiProvider:          ShowObjects(PPOBJ_EDIPROVIDER, 0);       break;
-		case cmTimeSeries:           ShowObjects(PPOBJ_TIMESERIES,  0);       break; // @v10.2.3
-		case cmTssModel:             ShowObjects(PPOBJ_TSSMODEL,    0);       break; // @v10.7.4
-		case cmFreightPackageType:   ShowObjects(PPOBJ_FREIGHTPACKAGETYPE, 0); break; // @v10.4.1
-		case cmTaxSystemKind:        ShowObjects(PPOBJ_TAXSYSTEMKIND, 0);     break; // @v10.6.0
+		case cmTimeSeries:           ShowObjects(PPOBJ_TIMESERIES,  0);       break;
+		case cmTssModel:             ShowObjects(PPOBJ_TSSMODEL,    0);       break;
+		case cmFreightPackageType:   ShowObjects(PPOBJ_FREIGHTPACKAGETYPE, 0); break;
+		case cmTaxSystemKind:        ShowObjects(PPOBJ_TAXSYSTEMKIND, 0);     break;
 		case cmSwProgramCategory:    ShowObjects(PPOBJ_SWPROGRAMCATEGORY, 0); break; // @v11.9.12
 		case cmComputerCategory:     ShowObjects(PPOBJ_COMPUTERCATEGORY, 0);  break; // @v12.0.1
 		case cmRawMaterials:         ShowObjects(PPOBJ_RAWMATERIAL, 0);       break; // @v12.0.10
@@ -560,11 +560,11 @@ int PPApp::processCommand(uint cmd)
 		case cmGoodsRest:            PPView::Execute(PPVIEW_GOODSREST,       0, PPView::exefModeless, 0); break;
 		case cmGetPrognosis:         PPView::Execute(PPVIEW_GOODSREST,       0, PPView::exefModeless, reinterpret_cast<void *>(1)); break;
 		case cmViewPhnSvcMonitor:    PPView::Execute(PPVIEW_PHNSVCMONITOR,   0, PPView::exefModeless, 0); break;
-		case cmVetisDocument:        PPView::Execute(PPVIEW_VETISDOCUMENT,   0, PPView::exefModeless, 0); break; // @v10.0.12
-		case cmQuoteReqAnalyze:      PPView::Execute(PPVIEW_QUOTEREQANALYZE, 0, PPView::exefModeless, 0); break; // @v10.5.7
-		case cmVetisInterchange:     PPViewVetisDocument::RunInterchangeProcess(0); break; // @v10.1.2
-		case cmEvents:               PPView::Execute(PPVIEW_EVENT,           0, PPView::exefModeless, 0); break; // @v10.8.9
-		case cmUserMenu:             PPView::Execute(PPVIEW_USERMENU,        0, PPView::exefModeless, 0); break; // @v10.9.3
+		case cmVetisDocument:        PPView::Execute(PPVIEW_VETISDOCUMENT,   0, PPView::exefModeless, 0); break;
+		case cmQuoteReqAnalyze:      PPView::Execute(PPVIEW_QUOTEREQANALYZE, 0, PPView::exefModeless, 0); break;
+		case cmVetisInterchange:     PPViewVetisDocument::RunInterchangeProcess(0); break;
+		case cmEvents:               PPView::Execute(PPVIEW_EVENT,           0, PPView::exefModeless, 0); break;
+		case cmUserMenu:             PPView::Execute(PPVIEW_USERMENU,        0, PPView::exefModeless, 0); break;
 		case cmAlcoDeclRu:           PPView::Execute(PPVIEW_ALCODECLRU,      0, PPView::exefModeless, 0); break; // @v11.0.5
 		case cmStyloQBindery:        PPView::Execute(PPVIEW_STYLOQBINDERY,   0, PPView::exefModeless, 0); break; // @v11.1.7
 		case cmStyloQCommands:       PPView::Execute(PPVIEW_STYLOQCOMMAND,   0, PPView::exefModeless, 0); break; // @v11.1.9
@@ -667,7 +667,8 @@ int PPApp::processCommand(uint cmd)
 		case cmPrjTask_ByReminder:   ViewPrjTask_ByReminder();        break;
 		case cmMaintainPrjTask:      MaintainPrjTask();               break;
 		case cmGotoSite:             TProgram::GotoSite();            break;
-		//case cmGotoVK:               GotoVK();                        break; //@erikTEMP v10.7.7 		case cmOpenPhonePane:        OpenPhonePane();                 break; // @v10.5.8
+		//case cmGotoVK:               GotoVK();                        break; //@erikTEMP v10.7.7 		
+		case cmOpenPhonePane:        OpenPhonePane();                 break; // @v10.5.8
 		case cmViewNewVersionList:   PPUhttClient::ViewNewVerList(1); break;
 		case cmViewQuots:            ViewQuot(0);                     break;
 		case cmTech:                 ViewTech(0);                     break;

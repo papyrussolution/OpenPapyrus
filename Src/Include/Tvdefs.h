@@ -11,7 +11,7 @@
 //  mnemonic names for the ASCII control codes.  They cannot be used
 //  to define menu hotkeys, etc., which require scan codes.
 //
-#define kbNone           0x0000 // @v10.9.0 неопределенная клавиша
+#define kbNone           0x0000 // неопределенная клавиша
 #define kbCtrlA          0x0001
 #define kbCtrlB          0x0002
 #define kbCtrlC          0x0003
@@ -299,7 +299,7 @@
 //
 #define cmPrint             141 // evCommand
 #define cmDraw              142 // replacement for virtual TView::draw()
-#define cmSort              143 // @v10.6.3 Посылается объекту BrowserWindow базовым классом для реализации сортировки
+#define cmSort              143 // Посылается объекту BrowserWindow базовым классом для реализации сортировки
 //
 //  TListViewer messages
 //
@@ -331,11 +331,11 @@
 #define cmExecute                91 // evCommand Команда, замещающая вызов виртуальной функции PPView::execute
 	// TEvent::message::infoLong возвращает код команды, которой завершился модульный цикл
 #define cmImageDblClk            92 // На StaticText пользователь дважды щелкнул левой кнопкой мыши
-#define cmModalPostCreate        93 // @v10.3.1 Посылается экземпляру TView после "физического" создания окна
+#define cmModalPostCreate        93 // Посылается экземпляру TView после "физического" создания окна
 	// (рекурсивно из функции обработки событий базового экземпляра, создающей "физического" окно)
-#define cmSetItemSelected        94 // @v10.3.4 Сообщение посылается для того, чтобы класс отреагировал на факт выбора пользователем визуального элемента
-#define cmIsItemSelected         95 // @v10.3.4 Сообщение посылается для получения информации является ли заданный элемент выбранным
-#define cmNotifyCommit           96 // @v10.7.7 Сообщение посылается всем управляющим элементам группы в ответ на команду cmOK
+#define cmSetItemSelected        94 // Сообщение посылается для того, чтобы класс отреагировал на факт выбора пользователем визуального элемента
+#define cmIsItemSelected         95 // Сообщение посылается для получения информации является ли заданный элемент выбранным
+#define cmNotifyCommit           96 // Сообщение посылается всем управляющим элементам группы в ответ на команду cmOK
 #define cmNotifyForeignFocus     97 // @v11.1.12 Сообщение посылается окну для извещения о том, что в другом окне изменился фокус данных (не путать с фокусом мыши)
 	// С командой передается блок типа ForeignFocusEvent (slui.h)
 //
@@ -397,7 +397,7 @@
 #define sfOnDestroy           0x00010000 // Объект находится в состоянии разрушения. Флаг устанавливается оконной процедурой
 	// при обработке сообщения WM_DESTROY и необходим для предотвращения зацикливания при попытке оконной процедуры разрушить
 	// объект TView чтобы деструктор TView не пытался в свою очередь разрушить окно.
-#define sfCloseMe             0x00020000 // @v10.0.02 Специальный флаг, устанавливаемый экземпляром окна, чтобы управляющий
+#define sfCloseMe             0x00020000 // Специальный флаг, устанавливаемый экземпляром окна, чтобы управляющий
 	// модуль уничтожил это окно (сообщением cmClose) как только увидит этот флаг и посчитает это удобным.
 	// Резон: иногда, если окно пытается послать себе такое сообщение, оно разрушается в не правильный момент, вызывае исключение.
 #define sfOnParentDestruction 0x00040000 // @v11.0.0 Объект уничтожается своим родителем (в цикле TGroup)
@@ -494,7 +494,7 @@
 #define mfAll            0x1000
 #define mfDefaultYes     0x2000        // (Win32 mfConf only) Yes button by default
 #define mfLargeBox       0x4000        // Show large MsgBox
-#define mfNoFocus        0x8000        // @v10.0.04 Выводить окно без явного фокуса (дабы Enter не приводил к закрытию)
+#define mfNoFocus        0x8000        // Выводить окно без явного фокуса (дабы Enter не приводил к закрытию)
 #define mfYesNo          (mfYes|mfNo)
 #define mfYesNoCancel    (mfYes|mfNo|mfCancel)
 #define mfOKCancel       (mfOK|mfCancel)

@@ -860,7 +860,7 @@ int PPViewOpGrouping::Detail(const void * pHdr, PPViewBrowser * pBrw)
 				}
 				SETFLAG(bill_flt.Flags, BillFilt::fLabelOnly, Filt.Flags & OpGroupingFilt::fLabelOnly);
 				bill_flt.Flags |= BillFilt::fAllCurrencies;
-				ViewGoodsBills(&bill_flt, 1);
+				ViewGoodsBills(&bill_flt, true/*modeless*/);
 				return 1;
 			}
 			else /*if(Filt.GoodsID)*/ {

@@ -4326,15 +4326,14 @@ int SPaintToolBox::CreateBrush(int ident, int style, SColor c, int32 hatch, int 
 	return ident;
 }
 
-int SPaintToolBox::CreateFont_(int ident, const char * pFace, int height, int flags)
+int SPaintToolBox::CreateFont_(int ident, const SFontDescr & rFd) // @v12.2.6
 {
 	SPaintObj * p_obj = 0;
 	if(!ident) {
-		SFontDescr fd(pFace, height, flags);
 		const uint co = getCount();
 		for(uint i = 0; !ident && i < co; i++) {
 			const SPaintObj::Font * p_font = at(i).GetFont();
-			if(p_font && p_font->IsEq(fd))
+			if(p_font && p_font->IsEq(rFd))
 				ident = at(i).GetId();
 		}
 		if(!ident) {
@@ -4345,12 +4344,19 @@ int SPaintToolBox::CreateFont_(int ident, const char * pFace, int height, int fl
 	else {
 		THROW(p_obj = CreateObj(ident));
 	}
-	if(p_obj)
-		THROW(p_obj->CreateFont_(pFace, height, flags));
+	if(p_obj) {
+		THROW(p_obj->CreateFont_(rFd.Face, rFd.Size, rFd.Flags));
+	}
 	CATCH
 		ident = 0;
 	ENDCATCH
 	return ident;
+}
+
+int SPaintToolBox::CreateFont_(int ident, const char * pFace, int height, int flags)
+{
+	SFontDescr fd(pFace, height, flags);
+	return CreateFont_(ident, fd);
 }
 
 SPaintObj::Para * SPaintToolBox::GetParagraph(int ident)

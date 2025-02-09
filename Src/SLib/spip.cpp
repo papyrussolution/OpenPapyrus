@@ -1,5 +1,5 @@
 // SPIP.CPP
-// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2012, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2024
+// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2012, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2024, 2025
 // Program Interface Paradigm
 //
 #include <slib-internal.h>
@@ -9,7 +9,7 @@
 //uuid(52D5E7CA-F613-4333-A04E-125DE29D715F)
 //uuid(52D5E7CAF6134333A04E125DE29D715F)
 
-const S_GUID ZEROGUID; // @v10.9.3
+const S_GUID ZEROGUID;
 
 S_GUID_Base & FASTCALL S_GUID_Base::Init(REFIID rIID)
 {

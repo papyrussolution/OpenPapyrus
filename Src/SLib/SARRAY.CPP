@@ -464,31 +464,19 @@ int SVectorBase::Helper_Cmp(const void * i1, const void * i2, CompFunc fcmp, voi
 
 static int substFCMP(const void * i1, const void * i2)
 {
-#ifndef _WIN32_WCE
 	SlThreadLocalArea & tla = SLS.GetTLA();
 	return (tla.SAry_PtrContainer ?
 		tla.SAry_OrgFCMP(*static_cast<const void * const *>(i1), *static_cast<void * const *>(i2), tla.SAry_SortExtraData) :
 		tla.SAry_OrgFCMP(i1, i2, tla.SAry_SortExtraData));
-#else
-	return (SAry_PtrContainer ?
-		SAry_OrgFCMP(*(void **)i1, *(void **)i2, SAry_SortExtraData) :
-		SAry_OrgFCMP(i1, i2, SAry_SortExtraData));
-#endif
 }
 
 void SVectorBase::sort(CompFunc fcmp, void * pExtraData /*=0*/)
 {
 	if(count > 1) {
-#ifndef _WIN32_WCE
 		SlThreadLocalArea & tla = SLS.GetTLA();
 		tla.SAry_PtrContainer  = (VFlags & aryPtrContainer);
 		tla.SAry_OrgFCMP       = fcmp;
 		tla.SAry_SortExtraData = pExtraData;
-#else
-		SAry_PtrContainer  = (VFlags & aryPtrContainer);
-		SAry_OrgFCMP       = fcmp;
-		SAry_SortExtraData = pExtraData;
-#endif
 		qsort(P_VData, count, isize, substFCMP);
 	}
 	VFlags |= arySorted;
@@ -1385,8 +1373,6 @@ void SArray::freeAll()
 	return sum;
 }*/
 
-#ifndef _WIN32_WCE // {
-
 int SArray::Write(SFile & rFile, long) const
 {
 	int    ok = 1;
@@ -1441,7 +1427,6 @@ int SArray::Read(SFile & rFile, long)
 	ENDCATCH
 	return ok;
 }
-#endif // } _WIN32_WCE
 //
 //
 //
@@ -2106,8 +2091,6 @@ void RPairArray::SortByY()
 {
 	sort(PTR_CMPFUNC(RPairY));
 }
-
-#ifndef _WIN32_WCE // {
 //
 //
 //
@@ -2176,8 +2159,6 @@ int UUIDAssocArray::GetMaxKey(long * pMaxKey, uint * pPos) const
 	}
 	return ok;
 }
-
-#endif // } _WIN32_WCE
 //
 //
 //
@@ -3100,8 +3081,6 @@ int FASTCALL StrAssocArray::Read(SBuffer & rBuf, long o)
 	return ok;
 }
 
-#ifndef _WIN32_WCE // {
-
 int StrAssocArray::Write(SFile & rFile, long o) const
 {
 	int    ok = 1;
@@ -3121,8 +3100,6 @@ int StrAssocArray::Read(SFile & rFile, long o)
 	CATCHZOK
 	return ok;
 }
-
-#endif // } _WIN32_WCE
 //
 // @construction {
 //

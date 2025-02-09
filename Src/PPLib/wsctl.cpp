@@ -169,7 +169,7 @@ int WsCtl_SelfIdentityBlock::GetOwnIdentifiers()
 	if(ok > 0) {
 		SString msg_buf;
 		msg_buf.Z().Cat("WSCTL own-uuid").CatDiv(':', 2).Cat(Uuid, S_GUID::fmtIDL);
-		PPLogMessage("wsctl-debug.log", msg_buf, LOGMSGF_TIME|LOGMSGF_COMP|LOGMSGF_SLSSESSGUID);
+		PPLogMessage(PPFILNAM_WSCTL_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_COMP|LOGMSGF_SLSSESSGUID);
 	}
 	return ok;
 }
@@ -1043,13 +1043,30 @@ int WsCtlSrvBlock::SearchPrcByWsCtlUuid(const S_GUID & rWsCtlUuid, PPID * pPrcID
 	CALLPTRMEMB(pPrcNameUtf8, Z());
 	if(!!rWsCtlUuid) {
 		Reference * p_ref = PPRef;
+		ProcessorTbl::Rec prc_rec;
 		PPIDArray prc_list;
+		SString dup_prc_id_list;
 		p_ref->Ot.SearchObjectsByGuid(PPOBJ_PROCESSOR, PPTAG_PRC_UUID, rWsCtlUuid, &prc_list);
+		if(prc_list.getCount() > 1) {
+			uint i = prc_list.getCount();
+			do {
+				const PPID prc_id = prc_list.get(--i);
+				if(TSesObj.PrcObj.Search(prc_id, &prc_rec) > 0) {
+					dup_prc_id_list.CatDivIfNotEmpty(',', 2).Cat(prc_id);
+				}
+				else {
+					prc_list.atFree(i);
+				}
+			} while(i);
+		}
 		THROW_PP_S(prc_list.getCount(), PPERR_WSCTL_PRCBYUUIDNFOUND, SLS.AcquireRvlStr().Cat(rWsCtlUuid, S_GUID::fmtIDL));
-		THROW_PP_S(prc_list.getCount() == 1, PPERR_WSCTL_DUPPRCUUID, SLS.AcquireRvlStr().Cat(rWsCtlUuid, S_GUID::fmtIDL));
+		if(prc_list.getCount() > 1) {
+			SString & r_msg_buf = SLS.AcquireRvlStr();
+			r_msg_buf.Cat(rWsCtlUuid, S_GUID::fmtIDL).CatDiv('-', 1).Cat(dup_prc_id_list);
+			CALLEXCEPT_PP_S(PPERR_WSCTL_DUPPRCUUID, r_msg_buf);
+		}
 		{
 			const  PPID prc_id = prc_list.get(0);
-			ProcessorTbl::Rec prc_rec;
 			// @v12.2.4 THROW(TSesObj.PrcObj.Fetch(prc_id, &prc_rec) > 0);
 			THROW(TSesObj.GetPrc(prc_id, &prc_rec, 1, 1) > 0); // @v12.2.4 
 			ASSIGN_PTR(pPrcID, prc_id);

@@ -53,11 +53,11 @@ typedef struct {
 	void * provctx;
 	EVP_MAC_CTX * macctx;    /* H(x) = HMAC_hash OR H(x) = KMAC */
 	PROV_DIGEST digest;      /* H(x) = hash(x) */
-	unsigned char * secret;
+	uchar * secret;
 	size_t secret_len;
-	unsigned char * info;
+	uchar * info;
 	size_t info_len;
-	unsigned char * salt;
+	uchar * salt;
 	size_t salt_len;
 	size_t out_len; /* optional KMAC parameter */
 } KDF_SSKDF;
@@ -67,7 +67,7 @@ typedef struct {
 #define SSKDF_KMAC256_DEFAULT_SALT_SIZE (136 - 4)
 
 /* KMAC uses a Customisation string of 'KDF' */
-static const unsigned char kmac_custom_str[] = { 0x4B, 0x44, 0x46 };
+static const uchar kmac_custom_str[] = { 0x4B, 0x44, 0x46 };
 
 static OSSL_FUNC_kdf_newctx_fn sskdf_new;
 static OSSL_FUNC_kdf_freectx_fn sskdf_free;
@@ -100,33 +100,24 @@ static int SSKDF_hash_kdm(const EVP_MD * kdf_md,
 	unsigned char mac[EVP_MAX_MD_SIZE];
 	unsigned char * out = derived_key;
 	EVP_MD_CTX * ctx = NULL, * ctx_init = NULL;
-
-	if(z_len > SSKDF_MAX_INLEN || info_len > SSKDF_MAX_INLEN
-	    || derived_key_len > SSKDF_MAX_INLEN
-	    || derived_key_len == 0)
+	if(z_len > SSKDF_MAX_INLEN || info_len > SSKDF_MAX_INLEN || derived_key_len > SSKDF_MAX_INLEN || derived_key_len == 0)
 		return 0;
-
 	hlen = EVP_MD_get_size(kdf_md);
 	if(hlen <= 0)
 		return 0;
 	out_len = (size_t)hlen;
-
 	ctx = EVP_MD_CTX_create();
 	ctx_init = EVP_MD_CTX_create();
 	if(!ctx || ctx_init == NULL)
 		goto end;
-
 	if(!EVP_DigestInit(ctx_init, kdf_md))
 		goto end;
-
 	for(counter = 1;; counter++) {
-		c[0] = (unsigned char)((counter >> 24) & 0xff);
-		c[1] = (unsigned char)((counter >> 16) & 0xff);
-		c[2] = (unsigned char)((counter >> 8) & 0xff);
-		c[3] = (unsigned char)(counter & 0xff);
-
-		if(!(EVP_MD_CTX_copy_ex(ctx, ctx_init)
-		    && (append_ctr || EVP_DigestUpdate(ctx, c, sizeof(c)))
+		c[0] = (uchar)((counter >> 24) & 0xff);
+		c[1] = (uchar)((counter >> 16) & 0xff);
+		c[2] = (uchar)((counter >> 8) & 0xff);
+		c[3] = (uchar)(counter & 0xff);
+		if(!(EVP_MD_CTX_copy_ex(ctx, ctx_init) && (append_ctr || EVP_DigestUpdate(ctx, c, sizeof(c)))
 		    && EVP_DigestUpdate(ctx, z, z_len)
 		    && (!append_ctr || EVP_DigestUpdate(ctx, c, sizeof(c)))
 		    && EVP_DigestUpdate(ctx, info, info_len)))
@@ -154,47 +145,31 @@ end:
 	return ret;
 }
 
-static int kmac_init(EVP_MAC_CTX * ctx, const unsigned char * custom,
-    size_t custom_len, size_t kmac_out_len,
-    size_t derived_key_len, unsigned char ** out)
+static int kmac_init(EVP_MAC_CTX * ctx, const uchar * custom, size_t custom_len, size_t kmac_out_len, size_t derived_key_len, uchar ** out)
 {
 	OSSL_PARAM params[2];
-
 	/* Only KMAC has custom data - so return if not KMAC */
 	if(custom == NULL)
 		return 1;
-
-	params[0] = OSSL_PARAM_construct_octet_string(OSSL_MAC_PARAM_CUSTOM,
-		(void*)custom, custom_len);
+	params[0] = OSSL_PARAM_construct_octet_string(OSSL_MAC_PARAM_CUSTOM, (void*)custom, custom_len);
 	params[1] = OSSL_PARAM_construct_end();
-
 	if(!EVP_MAC_CTX_set_params(ctx, params))
 		return 0;
-
 	/* By default only do one iteration if kmac_out_len is not specified */
 	if(kmac_out_len == 0)
 		kmac_out_len = derived_key_len;
 	/* otherwise check the size is valid */
-	else if(!(kmac_out_len == derived_key_len
-	    || kmac_out_len == 20
-	    || kmac_out_len == 28
-	    || kmac_out_len == 32
-	    || kmac_out_len == 48
-	    || kmac_out_len == 64))
+	else if(!(kmac_out_len == derived_key_len || kmac_out_len == 20 || kmac_out_len == 28 || kmac_out_len == 32 || kmac_out_len == 48 || kmac_out_len == 64))
 		return 0;
-
-	params[0] = OSSL_PARAM_construct_size_t(OSSL_MAC_PARAM_SIZE,
-		&kmac_out_len);
-
+	params[0] = OSSL_PARAM_construct_size_t(OSSL_MAC_PARAM_SIZE, &kmac_out_len);
 	if(EVP_MAC_CTX_set_params(ctx, params) <= 0)
 		return 0;
-
 	/*
 	 * For kmac the output buffer can be larger than EVP_MAX_MD_SIZE: so
 	 * alloc a buffer for this case.
 	 */
 	if(kmac_out_len > EVP_MAX_MD_SIZE) {
-		*out = (unsigned char *)OPENSSL_zalloc(kmac_out_len);
+		*out = (uchar *)OPENSSL_zalloc(kmac_out_len);
 		if(*out == NULL)
 			return 0;
 	}
@@ -207,27 +182,20 @@ static int kmac_init(EVP_MAC_CTX * ctx, const unsigned char * custom,
  *     H(x) = HMAC-hash(salt, x) OR
  *     H(x) = KMAC#(salt, x, outbits, CustomString='KDF')
  */
-static int SSKDF_mac_kdm(EVP_MAC_CTX * ctx_init,
-    const unsigned char * kmac_custom,
-    size_t kmac_custom_len, size_t kmac_out_len,
-    const unsigned char * salt, size_t salt_len,
-    const unsigned char * z, size_t z_len,
-    const unsigned char * info, size_t info_len,
-    unsigned char * derived_key, size_t derived_key_len)
+static int SSKDF_mac_kdm(EVP_MAC_CTX * ctx_init, const uchar * kmac_custom, size_t kmac_custom_len, size_t kmac_out_len,
+    const uchar * salt, size_t salt_len, const uchar * z, size_t z_len, const uchar * info, size_t info_len,
+    uchar * derived_key, size_t derived_key_len)
 {
 	int ret = 0;
 	size_t counter, out_len, len;
-	unsigned char c[4];
-	unsigned char mac_buf[EVP_MAX_MD_SIZE];
-	unsigned char * out = derived_key;
+	uchar c[4];
+	uchar mac_buf[EVP_MAX_MD_SIZE];
+	uchar * out = derived_key;
 	EVP_MAC_CTX * ctx = NULL;
-	unsigned char * mac = mac_buf, * kmac_buffer = NULL;
-
-	if(z_len > SSKDF_MAX_INLEN || info_len > SSKDF_MAX_INLEN
-	    || derived_key_len > SSKDF_MAX_INLEN
-	    || derived_key_len == 0)
+	uchar * mac = mac_buf;
+	uchar * kmac_buffer = NULL;
+	if(z_len > SSKDF_MAX_INLEN || info_len > SSKDF_MAX_INLEN || derived_key_len > SSKDF_MAX_INLEN || derived_key_len == 0)
 		return 0;
-
 	if(!kmac_init(ctx_init, kmac_custom, kmac_custom_len, kmac_out_len,
 	    derived_key_len, &kmac_buffer))
 		goto end;
@@ -241,18 +209,13 @@ static int SSKDF_mac_kdm(EVP_MAC_CTX * ctx_init,
 	if(out_len <= 0 || (mac == mac_buf && out_len > sizeof(mac_buf)))
 		goto end;
 	len = derived_key_len;
-
 	for(counter = 1;; counter++) {
-		c[0] = (unsigned char)((counter >> 24) & 0xff);
-		c[1] = (unsigned char)((counter >> 16) & 0xff);
-		c[2] = (unsigned char)((counter >> 8) & 0xff);
-		c[3] = (unsigned char)(counter & 0xff);
-
+		c[0] = (uchar)((counter >> 24) & 0xff);
+		c[1] = (uchar)((counter >> 16) & 0xff);
+		c[2] = (uchar)((counter >> 8) & 0xff);
+		c[3] = (uchar)(counter & 0xff);
 		ctx = EVP_MAC_CTX_dup(ctx_init);
-		if(!(ctx != NULL
-		    && EVP_MAC_update(ctx, c, sizeof(c))
-		    && EVP_MAC_update(ctx, z, z_len)
-		    && EVP_MAC_update(ctx, info, info_len)))
+		if(!(ctx != NULL && EVP_MAC_update(ctx, c, sizeof(c)) && EVP_MAC_update(ctx, z, z_len) && EVP_MAC_update(ctx, info, info_len)))
 			goto end;
 		if(len >= out_len) {
 			if(!EVP_MAC_final(ctx, out, NULL, len))
@@ -386,7 +349,7 @@ static int sskdf_derive(void * vctx, unsigned char * key, size_t keylen,
 		}
 		/* If no salt is set then use a default_salt of zeros */
 		if(ctx->salt == NULL || ctx->salt_len <= 0) {
-			ctx->salt = (unsigned char *)OPENSSL_zalloc(default_salt_len);
+			ctx->salt = (uchar *)OPENSSL_zalloc(default_salt_len);
 			if(ctx->salt == NULL) {
 				ERR_raise(ERR_LIB_PROV, ERR_R_MALLOC_FAILURE);
 				return 0;

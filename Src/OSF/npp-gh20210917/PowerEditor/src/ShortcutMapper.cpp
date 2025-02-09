@@ -64,7 +64,6 @@ void ShortcutMapper::getClientRect(RECT & rc) const
 	int btnH = btnRect.bottom - btnRect.top;
 	int paddingBottom = btnH;
 	rc.bottom -= btnH + filterH + infoH + paddingBottom;
-
 	rc.left += NppParameters::getInstance()._dpiManager.scaleX(5);
 	rc.right -= NppParameters::getInstance()._dpiManager.scaleX(5);
 }
@@ -73,24 +72,13 @@ generic_string ShortcutMapper::getTabString(size_t i) const
 {
 	if(i >= _nbTab)
 		return TEXT("");
-
 	NativeLangSpeaker* nativeLangSpeaker = NppParameters::getInstance().getNativeLangSpeaker();
-	switch(i)
-	{
-		case 1:
-		    return nativeLangSpeaker->getShortcutMapperLangStr("MacrosTab", TEXT("Macros"));
-
-		case 2:
-		    return nativeLangSpeaker->getShortcutMapperLangStr("RunCommandsTab", TEXT("Run commands"));
-
-		case 3:
-		    return nativeLangSpeaker->getShortcutMapperLangStr("PluginCommandsTab", TEXT("Plugin commands"));
-
-		case 4:
-		    return nativeLangSpeaker->getShortcutMapperLangStr("ScintillaCommandsTab", TEXT("Scintilla commands"));
-
-		default: //0
-		    return nativeLangSpeaker->getShortcutMapperLangStr("MainMenuTab", TEXT("Main menu"));
+	switch(i) {
+		case 1: return nativeLangSpeaker->getShortcutMapperLangStr("MacrosTab", TEXT("Macros"));
+		case 2: return nativeLangSpeaker->getShortcutMapperLangStr("RunCommandsTab", TEXT("Run commands"));
+		case 3: return nativeLangSpeaker->getShortcutMapperLangStr("PluginCommandsTab", TEXT("Plugin commands"));
+		case 4: return nativeLangSpeaker->getShortcutMapperLangStr("ScintillaCommandsTab", TEXT("Scintilla commands"));
+		default: /*0*/ return nativeLangSpeaker->getShortcutMapperLangStr("MainMenuTab", TEXT("Main menu"));
 	}
 }
 
@@ -98,41 +86,28 @@ void ShortcutMapper::initBabyGrid()
 {
 	RECT rect;
 	getClientRect(rect);
-
 	_lastHomeRow.resize(5, 1);
 	_lastCursorRow.resize(5, 1);
-
 	_hGridFonts.resize(MAX_GRID_FONTS);
-	_hGridFonts.at(GFONT_HEADER) = ::CreateFont(
-		NppParameters::getInstance()._dpiManager.scaleY(18), 0, 0, 0, FW_BOLD,
-		FALSE, FALSE, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH,
-		TEXT("MS Shell Dlg"));
-	_hGridFonts.at(GFONT_ROWS) = ::CreateFont(
-		NppParameters::getInstance()._dpiManager.scaleY(16), 0, 0, 0, FW_NORMAL,
-		FALSE, FALSE, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH,
-		TEXT("MS Shell Dlg"));
-
+	_hGridFonts.at(GFONT_HEADER) = ::CreateFont(NppParameters::getInstance()._dpiManager.scaleY(18), 0, 0, 0, FW_BOLD,
+		FALSE, FALSE, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH, TEXT("MS Shell Dlg"));
+	_hGridFonts.at(GFONT_ROWS) = ::CreateFont(NppParameters::getInstance()._dpiManager.scaleY(16), 0, 0, 0, FW_NORMAL,
+		FALSE, FALSE, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH, TEXT("MS Shell Dlg"));
 	_babygrid.init(_hInst, _hSelf, IDD_BABYGRID_ID1);
-
 	_babygrid.setHeaderFont(_hGridFonts.at(GFONT_HEADER));
 	_babygrid.setRowFont(_hGridFonts.at(GFONT_ROWS));
-
 	_babygrid.reSizeToWH(rect);
 	_babygrid.hideCursor();
 	_babygrid.makeColAutoWidth(true);
 	_babygrid.setAutoRow(true);
 	_babygrid.setColsNumbered(false);
-	_babygrid.setColWidth(0, NppParameters::getInstance()._dpiManager.scaleX(30));  // Force the first col to be
-	                                                                                // small, others col will be
-	                                                                                // automatically sized
+	_babygrid.setColWidth(0, NppParameters::getInstance()._dpiManager.scaleX(30));  // Force the first col to be small, others col will be automatically sized
 	_babygrid.setHeaderHeight(NppParameters::getInstance()._dpiManager.scaleY(21));
 	_babygrid.setRowHeight(NppParameters::getInstance()._dpiManager.scaleY(21));
-
 	_babygrid.setHighlightColorNoFocus(RGB(200, 200, 210));
 	_babygrid.setProtectColor(RGB(255, 130, 120));
 	_babygrid.setHighlightColorProtect(RGB(244, 10, 20));
 	_babygrid.setHighlightColorProtectNoFocus(RGB(230, 194, 190));
-
 	NativeLangSpeaker* nativeLangSpeaker = NppParameters::getInstance().getNativeLangSpeaker();
 	nativeLangSpeaker->changeDlgLang(_hSelf, "ShortcutMapper");
 	_conflictInfoOk = nativeLangSpeaker->getShortcutMapperLangStr("ConflictInfoOk", TEXT("No shortcut conflicts for this item."));

@@ -1,5 +1,5 @@
 // BTRV.CPP
-// Copyright (c) A. Sobolev 1994-1999, 2001, 2003, 2009, 2010, 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2022, 2024
+// Copyright (c) A. Sobolev 1994-1999, 2001, 2003, 2009, 2010, 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2022, 2024, 2025
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -365,10 +365,12 @@ static BTBLID getUniqueKey(DBTable * tbl, BTBLID idx)
 int DbDict_Btrieve::CreateTableSpec(DBTable * pTbl)
 {
 	// EXCEPTVAR(BtrError);
-	int    ok = 1, ta = 0;
+	int    ok = 1;
+	int    ta = 0;
 	uint   i;
 	union {
-		int _t, j;
+		int _t;
+		int j;
 	};
 	long   tbl_id = 0;
 	BNFieldList & fl = pTbl->fields;
@@ -471,7 +473,8 @@ int DbDict_Btrieve::DropTableSpec(const char * pTblName, DbTableStat * pStat)
 {
 	int    ok = 1;
 	long   tbl_id = 0;
-	int    i, t = 0;
+	int    i;
+	int    t = 0;
 	DbTableStat stat;
 	Btrieve::StartTransaction(1);
 	t = 1;
@@ -643,8 +646,8 @@ int DbDict_Btrieve::getFieldList(BTBLID tblID, BNFieldList * fields)
 		int16  siz;
 		char   dec;
 	};
-	const int  numRecs = 32;
-	const uint bsize = sizeof(BExtResultHeader) + numRecs * (sizeof(_XFR) + sizeof(BExtResultItem));
+	const int  num_recs = 32;
+	const uint bsize = sizeof(BExtResultHeader) + num_recs * (sizeof(_XFR) + sizeof(BExtResultItem));
 	char   s[MAXFIELDNAME];
 	int16  key = tblID;
 	int    r;
@@ -653,7 +656,7 @@ int DbDict_Btrieve::getFieldList(BTBLID tblID, BNFieldList * fields)
 	memzero(s, sizeof(s));
 	THROW(IsValid() && tblID);
 	THROW_V(xfield.search(1, &key, spEq), BE_FNFOUND);
-	makeFldListQuery(tblID, numRecs);
+	makeFldListQuery(tblID, num_recs);
 	THROW_V(q = static_cast<char *>(SAlloc::M(bsize)), BE_NOMEM);
 	xfield.setDataBuf(q, bsize);
 	do {
@@ -667,7 +670,7 @@ int DbDict_Btrieve::getFieldList(BTBLID tblID, BNFieldList * fields)
 			fields->addField(/*s*/d->name, MKSTYPED(Btr2SLibType(d->typ), d->siz, d->dec), d->id);
 		}
 		flq.h.signature = EG_sign;
-	} while(count == numRecs);
+	} while(count == num_recs);
 	r = 1;
 	CATCH
 		r = 0;

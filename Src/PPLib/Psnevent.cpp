@@ -1653,10 +1653,7 @@ int PsnEventDialog::editItem(long pos, long id)
 	return ok;
 }
 
-int PsnEventDialog::delItem(long pos, long id)
-{
-	return id ? Pack.TagL.PutItem(id, 0) : 0;
-}
+int PsnEventDialog::delItem(long pos, long id) { return id ? Pack.TagL.PutItem(id, 0) : 0; }
 
 void PsnEventDialog::editRegister()
 {
@@ -1709,7 +1706,6 @@ void PsnEventDialog::postVK()
 		SString Message;
 		SString LinkFilePath;
 	};
-	// @v10.9.4 {
 	VkInterface ifc;
 	if(ifc.Setup(0, 0)) {
 		SString message_buf;
@@ -1726,41 +1722,6 @@ void PsnEventDialog::postVK()
 			ExecViewAndDestroy(dlg);
 		}		
 	}
-	// } @v10.9.4 
-	/* @v10.9.4
-	{
-		SString temp_buf;
-		PPObjGlobalUserAcc gua_obj;
-		PPGlobalUserAcc gua_rec;
-		PPGlobalUserAccPacket gua_pack;
-		PPObjTag tag;
-		PPID vk_grp_tag_id, vk_page_tag_id;
-
-		VkStruct data;
-		tag.FetchBySymb("SMGRPID", &vk_grp_tag_id);
-		tag.FetchBySymb("SMPAGEID", &vk_page_tag_id);
-		gua_obj.SearchBySymb("vk_acc", 0, &gua_rec);
-		if(gua_obj.GetPacket(gua_rec.ID, &gua_pack)>0) {
-			if(gua_pack.GetAccessKey(data.Token) > 0) {
-				if(gua_pack.TagL.GetItemStr(vk_page_tag_id, data.PageId.Z())>0) {
-					if(gua_pack.TagL.GetItemStr(vk_grp_tag_id, data.GroupId.Z())>0) {
-						getCtrlString(CTL_PSNEVNT_MEMO, data.TxtMsg);
-						ImageBrowseCtrlGroup::Rec rec;
-						if(getGroupData(ctlgroupIBG, &rec)) {
-							data.LinkFilePath = rec.Path;
-							data.LinkFileType = 1;
-						}
-						PostWallVkDlg * dlg = new PostWallVkDlg();
-						dlg->setDTS(&data);
-						if(CheckDialogPtrErr(&dlg)) {
-							ExecViewAndDestroy(dlg);
-						}
-					}
-				}
-			}
-		}
-	}
-	*/
 }
 
 IMPL_HANDLE_EVENT(PsnEventDialog)

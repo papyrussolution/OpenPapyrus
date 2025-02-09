@@ -1,10 +1,158 @@
 // OBJREG.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2014, 2016, 2017, 2018, 2019, 2020, 2024
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2014, 2016, 2017, 2018, 2019, 2020, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
+//
+// @construction {
+//
+#define USE_EXPERIMENTAL_LAYOUTEDDIALOG  // @v12.2.6 @construction 
 
+class RegisterListDialog2 : public LayoutedListDialog {
+	LayoutedListDialog_Base::Param GetListParam()
+	{
+		LayoutedListDialog_Base::Param p;
+		p.Bounds.Set(0, 0, 420, 160);
+		p.Flags = LayoutedListDialog_Base::fcedCED|LayoutedListDialog_Base::fHeaderStaticText;
+		p.ColumnDescription = "@lbt_reglist";
+		return p;
+	}
+public:
+	RegisterListDialog2(PPPersonPacket * pPsnPack, PPID eventID) :
+		LayoutedListDialog(GetListParam(), new StrAssocListBoxDef(new StrAssocArray(), lbtDisposeData|lbtDblClkNotify|lbtFocNotify)), 
+		P_PsnPack(0), P_LocPack(0), P_Data(&StubData)
+	{
+		if(pPsnPack) {
+			P_PsnPack = pPsnPack;
+			P_Data = &pPsnPack->Regs;
+			{
+				SString title_buf;
+				GetObjectTitle(PPOBJ_PERSON, title_buf).CatDiv(':', 2).Cat(P_PsnPack->Rec.Name);
+				setCtrlString(/*CTL_REGLST_LINKOBJTEXT*/STDCTL_HEADERSTATICTEXT, title_buf);
+			}
+		}
+		else
+			Oid.Set(PPOBJ_PERSON, 0);
+		EventID  = eventID;
+		updateList(-1);
+	}
+	RegisterListDialog2(PPLocationPacket * pLocPack) :
+		LayoutedListDialog(GetListParam(), new StrAssocListBoxDef(new StrAssocArray(), lbtDisposeData|lbtDblClkNotify|lbtFocNotify)), 
+		P_PsnPack(0), P_LocPack(0), P_Data(&StubData)
+	{
+		if(pLocPack) {
+			Oid.Set(PPOBJ_LOCATION, pLocPack->ID);
+			P_LocPack = pLocPack;
+			P_Data = &pLocPack->Regs;
+			{
+				SString title_buf;
+				SString name_buf;
+				name_buf = P_LocPack->Name;
+				if(!name_buf.NotEmptyS())
+					name_buf = P_LocPack->Code;
+				if(!name_buf.NotEmptyS()) {
+					LocationCore::GetAddress(*P_LocPack, 0, name_buf);
+				}
+				GetObjectTitle(PPOBJ_LOCATION, title_buf).CatDiv(':', 2).Cat(name_buf);
+				setCtrlString(/*CTL_REGLST_LINKOBJTEXT*/STDCTL_HEADERSTATICTEXT, title_buf);
+			}
+		}
+		else
+			Oid.Set(PPOBJ_LOCATION, 0);
+		EventID  = 0;
+		updateList(-1);
+	}
+private:
+	virtual int setupList()
+	{
+		int    ok = 1;
+		PPObjRegisterType rt_obj;
+		PPRegisterType    rtrec;
+		SString temp_buf;
+		StringSet ss(SLBColumnDelim);
+		for(uint i = 0; i < P_Data->getCount(); i++) {
+			const RegisterTbl::Rec & r_reg_rec = P_Data->at(i);
+			if(r_reg_rec.RegTypeID != PPREGT_BANKACCOUNT) {
+				ss.Z();
+				if(rt_obj.Fetch(r_reg_rec.RegTypeID, &rtrec) <= 0)
+					ltoa(r_reg_rec.RegTypeID, rtrec.Name, 10);
+				ss.add(rtrec.Name);
+				ss.add(r_reg_rec.Serial);
+				if(r_reg_rec.RegTypeID == PPREGT_TAXSYSTEM) {
+					GetObjectName(PPOBJ_TAXSYSTEMKIND, r_reg_rec.ExtID, temp_buf);
+					ss.add(temp_buf);
+				}
+				else
+					ss.add(r_reg_rec.Num);
+				ss.add(temp_buf.Z().Cat(r_reg_rec.Dt));
+				ss.add(temp_buf.Z().Cat(r_reg_rec.Expiry));
+				THROW(addStringToList(i+1, ss.getBuf()));
+			}
+		}
+		CATCHZOK
+		return ok;
+	}
+	int Helper_EditItem(RegisterTbl::Rec & rRec)
+	{
+		return P_LocPack ? RObj.EditDialog(&rRec, P_Data, P_LocPack) : RObj.EditDialog(&rRec, P_Data, P_PsnPack);
+	}
+	virtual int addItem(long * pPos, long * pID)
+	{
+		int    ok = -1;
+		if(RObj.CheckRights(PPR_INS)) {
+			RegisterTbl::Rec rec;
+			PPObjRegister::InitPacket(&rec, 0, Oid, 0);
+			rec.PsnEventID = EventID;
+			while(ok < 0 && Helper_EditItem(rec) > 0)
+				if(RObj.CheckUnique(rec.RegTypeID, P_Data))
+					if(P_Data->insert(&rec)) {
+						const uint new_pos = P_Data->getCount()-1;
+						ASSIGN_PTR(pPos, new_pos);
+						ASSIGN_PTR(pID, new_pos+1);
+						ok = 1;
+					}
+					else
+						ok = PPSetErrorSLib();
+				else
+					PPError();
+		}
+		else
+			ok = PPErrorZ();
+		return ok;
+	}
+	virtual int editItem(long pos, long id)
+	{
+		int    ok = -1;
+		if(id > 0 && id <= P_Data->getCountI())
+			ok = Helper_EditItem(P_Data->at((uint)(id-1)));
+		return ok;
+	}
+	virtual int delItem(long pos, long id)
+	{
+		int    ok = -1;
+		if(id > 0 && id <= P_Data->getCountI()) {
+			THROW(!P_Data->at((uint)(id-1)).ID || RObj.CheckRights(PPR_DEL));
+			if(CONFIRM(PPCFM_DELETE)) {
+				P_Data->atFree((uint)(id-1));
+				ok = 1;
+			}
+		}
+		CATCHZOKPPERR
+		return ok;
+	}
+
+	PPObjRegister RObj;
+	PPObjID Oid;
+	PPID   EventID;
+	RegisterArray StubData;
+	RegisterArray * P_Data;
+	PPPersonPacket * P_PsnPack;
+	PPLocationPacket * P_LocPack;
+};
+//
+// } @construction
+//
 TLP_IMPL(PPObjRegister, RegisterCore, P_Tbl);
 
 /*static*/int PPObjRegister::InitPacket(RegisterTbl::Rec * pRec, PPID regTypeID, PPObjID oid, const char * pNumber)
@@ -225,17 +373,15 @@ int PPObjRegister::Helper_EditDialog(RegisterTbl::Rec * pRec, const RegisterArra
 			tr.Run(temp_buf, nta.Z(), &nts); 
 			//
 			if(Data.RegTypeID == PPREGT_TPID) {
-				// @v10.8.1 ValidCode = SCalcCheckDigit(SCHKDIGALG_RUINN|SCHKDIGALG_TEST, temp_buf, temp_buf.Len());
-				ValidCode = (nta.Has(SNTOK_RU_INN) > 0.0f); // @v10.8.1 
+				ValidCode = (nta.Has(SNTOK_RU_INN) > 0.0f);
 			}
-			else if(Data.RegTypeID == PPREGT_KPP) { // @v10.8.2
+			else if(Data.RegTypeID == PPREGT_KPP) {
 				ValidCode = (nta.Has(SNTOK_RU_KPP) > 0.0f);
 			}
 			else if(Data.RegTypeID == PPREGT_OKPO) {
-				// @v10.8.1 ValidCode = CheckOKPO(temp_buf);
-				ValidCode = (nta.Has(SNTOK_RU_OKPO) > 0.0f); // @v10.8.1 
+				ValidCode = (nta.Has(SNTOK_RU_OKPO) > 0.0f);
 			}
-			else if(Data.RegTypeID == PPREGT_BIC) { // @v10.8.2
+			else if(Data.RegTypeID == PPREGT_BIC) {
 				ValidCode = (nta.Has(SNTOK_RU_BIC) > 0.0f); 
 			}
 			else if(Data.RegTypeID == PPREGT_BNKCORRACC) {
@@ -505,8 +651,7 @@ public:
 			P_Data = &pPsnPack->Regs;
 			{
 				SString title_buf;
-				GetObjectTitle(PPOBJ_PERSON, title_buf);
-				title_buf.CatDiv(':', 2).Cat(P_PsnPack->Rec.Name);
+				GetObjectTitle(PPOBJ_PERSON, title_buf).CatDiv(':', 2).Cat(P_PsnPack->Rec.Name);
 				setCtrlString(CTL_REGLST_LINKOBJTEXT, title_buf);
 			}
 		}
@@ -522,15 +667,14 @@ public:
 			P_LocPack = pLocPack;
 			P_Data = &pLocPack->Regs;
 			{
-				SString title_buf, name_buf;
-				GetObjectTitle(PPOBJ_LOCATION, title_buf);
-				name_buf = P_LocPack->Name;
+				SString title_buf;
+				SString name_buf(P_LocPack->Name);
 				if(!name_buf.NotEmptyS())
 					name_buf = P_LocPack->Code;
 				if(!name_buf.NotEmptyS()) {
 					LocationCore::GetAddress(*P_LocPack, 0, name_buf);
 				}
-				title_buf.CatDiv(':', 2).Cat(name_buf);
+				GetObjectTitle(PPOBJ_LOCATION, title_buf).CatDiv(':', 2).Cat(name_buf);
 				setCtrlString(CTL_REGLST_LINKOBJTEXT, title_buf);
 			}
 		}
@@ -629,13 +773,21 @@ private:
 
 int PPObjRegister::EditList(PPPersonPacket * pPsnPack, PPID psnEventID)
 {
+#ifdef USE_EXPERIMENTAL_LAYOUTEDDIALOG
+	RegisterListDialog2 * dlg = new RegisterListDialog2(pPsnPack, psnEventID);
+#else
 	RegisterListDialog * dlg = new RegisterListDialog(pPsnPack, psnEventID);
+#endif
 	return CheckDialogPtrErr(&dlg) ? ((ExecViewAndDestroy(dlg) == cmOK) ? 1 : -1) : 0;
 }
 
 int PPObjRegister::EditList(PPLocationPacket * pLocPack)
 {
+#ifdef USE_EXPERIMENTAL_LAYOUTEDDIALOG
+	RegisterListDialog2 * dlg = new RegisterListDialog2(pLocPack);
+#else
 	RegisterListDialog * dlg = new RegisterListDialog(pLocPack);
+#endif
 	return CheckDialogPtrErr(&dlg) ? ((ExecViewAndDestroy(dlg) == cmOK) ? 1 : -1) : 0;
 }
 
@@ -850,7 +1002,7 @@ private:
 	}
 	// @v10.9.9 {
 	// Попытка реализовать ручное изменение порядка следования счетов оказалась неудачной:
-	// в базе данных регистры, хранящие данные о счетах игнорируют это изменение порядка при одновлении 
+	// в базе данных регистры, хранящие данные о счетах игнорируют это изменение порядка при обновлении 
 	// списка записей. В конструкторе мы запретили кнопки Up и Donw, сам же код пока оставим - может пригодится.
 	//
 	virtual int moveItem(long pos, long id, int up)
@@ -1091,7 +1243,7 @@ public:
 		LDATE  Expiry;
 		long   Flags;
 	};
-	RegisterCache() : ObjCacheHash(PPOBJ_REGISTER, sizeof(RegisterData), (512*1024), 4)
+	RegisterCache() : ObjCacheHash(PPOBJ_REGISTER, sizeof(RegisterData), SKILOBYTE(512), 4)
 	{
 	}
 private:

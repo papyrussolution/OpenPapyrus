@@ -26,8 +26,8 @@ static int chacha_poly1305_tls_init(PROV_CIPHER_CTX * bctx, unsigned char * aad,
 		if(len < POLY1305_BLOCK_SIZE)
 			return 0;
 		len -= POLY1305_BLOCK_SIZE; /* discount attached tag */
-		aad[EVP_AEAD_TLS1_AAD_LEN - 2] = (unsigned char)(len >> 8);
-		aad[EVP_AEAD_TLS1_AAD_LEN - 1] = (unsigned char)len;
+		aad[EVP_AEAD_TLS1_AAD_LEN - 2] = (uchar)(len >> 8);
+		aad[EVP_AEAD_TLS1_AAD_LEN - 1] = (uchar)len;
 	}
 	ctx->tls_payload_length = len;
 	/* merge record sequence number as per RFC7905 */
@@ -202,23 +202,23 @@ static int chacha20_poly1305_tls_cipher(PROV_CIPHER_CTX * bctx, unsigned char * 
 		memcpy(ctr, (unsigned char *)&ctx->len, POLY1305_BLOCK_SIZE);
 	}
 	else {
-		ctr[0]  = (unsigned char)(ctx->len.aad);
-		ctr[1]  = (unsigned char)(ctx->len.aad>>8);
-		ctr[2]  = (unsigned char)(ctx->len.aad>>16);
-		ctr[3]  = (unsigned char)(ctx->len.aad>>24);
-		ctr[4]  = (unsigned char)(ctx->len.aad>>32);
-		ctr[5]  = (unsigned char)(ctx->len.aad>>40);
-		ctr[6]  = (unsigned char)(ctx->len.aad>>48);
-		ctr[7]  = (unsigned char)(ctx->len.aad>>56);
+		ctr[0]  = (uchar)(ctx->len.aad);
+		ctr[1]  = (uchar)(ctx->len.aad>>8);
+		ctr[2]  = (uchar)(ctx->len.aad>>16);
+		ctr[3]  = (uchar)(ctx->len.aad>>24);
+		ctr[4]  = (uchar)(ctx->len.aad>>32);
+		ctr[5]  = (uchar)(ctx->len.aad>>40);
+		ctr[6]  = (uchar)(ctx->len.aad>>48);
+		ctr[7]  = (uchar)(ctx->len.aad>>56);
 
-		ctr[8]  = (unsigned char)(ctx->len.text);
-		ctr[9]  = (unsigned char)(ctx->len.text>>8);
-		ctr[10] = (unsigned char)(ctx->len.text>>16);
-		ctr[11] = (unsigned char)(ctx->len.text>>24);
-		ctr[12] = (unsigned char)(ctx->len.text>>32);
-		ctr[13] = (unsigned char)(ctx->len.text>>40);
-		ctr[14] = (unsigned char)(ctx->len.text>>48);
-		ctr[15] = (unsigned char)(ctx->len.text>>56);
+		ctr[8]  = (uchar)(ctx->len.text);
+		ctr[9]  = (uchar)(ctx->len.text>>8);
+		ctr[10] = (uchar)(ctx->len.text>>16);
+		ctr[11] = (uchar)(ctx->len.text>>24);
+		ctr[12] = (uchar)(ctx->len.text>>32);
+		ctr[13] = (uchar)(ctx->len.text>>40);
+		ctr[14] = (uchar)(ctx->len.text>>48);
+		ctr[15] = (uchar)(ctx->len.text>>56);
 	}
 	tohash_len += POLY1305_BLOCK_SIZE;
 
@@ -338,22 +338,22 @@ static int chacha20_poly1305_aead_cipher(PROV_CIPHER_CTX * bctx,
 			    POLY1305_BLOCK_SIZE);
 		}
 		else {
-			temp[0]  = (unsigned char)(ctx->len.aad);
-			temp[1]  = (unsigned char)(ctx->len.aad>>8);
-			temp[2]  = (unsigned char)(ctx->len.aad>>16);
-			temp[3]  = (unsigned char)(ctx->len.aad>>24);
-			temp[4]  = (unsigned char)(ctx->len.aad>>32);
-			temp[5]  = (unsigned char)(ctx->len.aad>>40);
-			temp[6]  = (unsigned char)(ctx->len.aad>>48);
-			temp[7]  = (unsigned char)(ctx->len.aad>>56);
-			temp[8]  = (unsigned char)(ctx->len.text);
-			temp[9]  = (unsigned char)(ctx->len.text>>8);
-			temp[10] = (unsigned char)(ctx->len.text>>16);
-			temp[11] = (unsigned char)(ctx->len.text>>24);
-			temp[12] = (unsigned char)(ctx->len.text>>32);
-			temp[13] = (unsigned char)(ctx->len.text>>40);
-			temp[14] = (unsigned char)(ctx->len.text>>48);
-			temp[15] = (unsigned char)(ctx->len.text>>56);
+			temp[0]  = (uchar)(ctx->len.aad);
+			temp[1]  = (uchar)(ctx->len.aad>>8);
+			temp[2]  = (uchar)(ctx->len.aad>>16);
+			temp[3]  = (uchar)(ctx->len.aad>>24);
+			temp[4]  = (uchar)(ctx->len.aad>>32);
+			temp[5]  = (uchar)(ctx->len.aad>>40);
+			temp[6]  = (uchar)(ctx->len.aad>>48);
+			temp[7]  = (uchar)(ctx->len.aad>>56);
+			temp[8]  = (uchar)(ctx->len.text);
+			temp[9]  = (uchar)(ctx->len.text>>8);
+			temp[10] = (uchar)(ctx->len.text>>16);
+			temp[11] = (uchar)(ctx->len.text>>24);
+			temp[12] = (uchar)(ctx->len.text>>32);
+			temp[13] = (uchar)(ctx->len.text>>40);
+			temp[14] = (uchar)(ctx->len.text>>48);
+			temp[15] = (uchar)(ctx->len.text>>56);
 			Poly1305_Update(poly, temp, POLY1305_BLOCK_SIZE);
 		}
 		Poly1305_Final(poly, bctx->enc ? ctx->tag : temp);

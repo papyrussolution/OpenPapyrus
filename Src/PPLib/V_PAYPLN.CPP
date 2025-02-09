@@ -1,5 +1,5 @@
 // V_PAYPLN.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2024
+// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2024, 2025
 // @codepage UTF-8
 // Plan of Payments View
 //
@@ -623,15 +623,15 @@ int PPViewPaymPlan::GetBillList(PPID objID, LDATE dt, ObjIdListFilt * pBillList,
 int PPViewPaymPlan::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = -1;
-	LDATE dt = ZERODATE;
-	PPID  obj_id = 0L;
+	LDATE  dt = ZERODATE;
+	PPID   obj_id = 0L;
 	const  BrwHdr * p_hdr = static_cast<const BrwHdr *>(pHdr);
 	BillFilt flt;
 	GetEditIds(p_hdr, &dt, &obj_id, (pBrw) ? pBrw->GetCurColumn() : 0);
 	flt.List.InitEmpty();
 	THROW(GetBillList(obj_id, dt, &flt.List, 0, BIN(P_Ct != 0)));
 	flt.Flags |= (BillFilt::fShowDebt|BillFilt::fPaymNeeded);
-	ViewGoodsBills(&flt, 1);
+	ViewGoodsBills(&flt, true/*modeless*/);
 	CATCHZOKPPERR
 	return ok;
 }

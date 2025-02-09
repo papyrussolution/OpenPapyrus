@@ -394,16 +394,13 @@ void TWindow::close()
 		delete this;
 }
 
-static bool searchItem(TView * v, void * ptr)
-{
-	return LOGIC(v->TestId(*static_cast<const ushort *>(ptr)));
-}
+static bool searchItem(TView * v, void * ptr) { return v->TestId(*static_cast<const ushort *>(ptr)); }
 
-TView * FASTCALL TWindow::getCtrlView(ushort ctlID)
+const TView * FASTCALL TWindow::getCtrlViewC(ushort ctlID) const
 {
 	// Функция вызывается очень часто потому ради скорости исполнения развернута {
 	if(ctlID) {
-		TView * p_temp = P_Last;
+		const TView * p_temp = P_Last;
 		if(p_temp) {
 			const TView * p_term = P_Last;
 			do {
@@ -419,6 +416,8 @@ TView * FASTCALL TWindow::getCtrlView(ushort ctlID)
 	}
 	return 0;
 }
+
+TView * FASTCALL TWindow::getCtrlView(ushort ctlID) { return const_cast<TView *>(getCtrlViewC(ctlID)); }
 
 TView * FASTCALL TWindow::getCtrlByHandle(HWND h)
 {

@@ -41,7 +41,7 @@ static OSSL_FUNC_rand_verify_zeroization_fn drbg_hash_verify_zeroization;
 
 /* Determine what seedlen to use based on the block length */
 #define MAX_BLOCKLEN_USING_SMALL_SEEDLEN (256/8)
-#define INBYTE_IGNORE ((unsigned char)0xFF)
+#define INBYTE_IGNORE ((uchar)0xFF)
 
 typedef struct rand_drbg_hash_st {
 	PROV_DIGEST digest;
@@ -84,10 +84,10 @@ static int hash_df(PROV_DRBG * drbg, unsigned char * out,
 	/* (Step 3) counter = 1 (tmp[0] is the 8 bit counter) */
 	tmp[tmp_sz++] = 1;
 	/* tmp[1..4] is the fixed 32 bit no_of_bits_to_return */
-	tmp[tmp_sz++] = (unsigned char)((num_bits_returned >> 24) & 0xff);
-	tmp[tmp_sz++] = (unsigned char)((num_bits_returned >> 16) & 0xff);
-	tmp[tmp_sz++] = (unsigned char)((num_bits_returned >> 8) & 0xff);
-	tmp[tmp_sz++] = (unsigned char)(num_bits_returned & 0xff);
+	tmp[tmp_sz++] = (uchar)((num_bits_returned >> 24) & 0xff);
+	tmp[tmp_sz++] = (uchar)((num_bits_returned >> 16) & 0xff);
+	tmp[tmp_sz++] = (uchar)((num_bits_returned >> 8) & 0xff);
+	tmp[tmp_sz++] = (uchar)(num_bits_returned & 0xff);
 	/* Tack the additional input byte onto the end of tmp if it exists */
 	if(inbyte != INBYTE_IGNORE)
 		tmp[tmp_sz++] = inbyte;
@@ -155,8 +155,8 @@ static int add_bytes(PROV_DRBG * drbg, unsigned char * dst,
 
 	for(i = inlen; i > 0; i--, d--, add--) {
 		result = *d + *add + carry;
-		carry = (unsigned char)(result >> 8);
-		*d = (unsigned char)(result & 0xff);
+		carry = (uchar)(result >> 8);
+		*d = (uchar)(result & 0xff);
 	}
 
 	if(carry != 0) {
@@ -328,10 +328,10 @@ static int drbg_hash_generate(PROV_DRBG * drbg,
 	unsigned char counter[4];
 	int reseed_counter = drbg->generate_counter;
 
-	counter[0] = (unsigned char)((reseed_counter >> 24) & 0xff);
-	counter[1] = (unsigned char)((reseed_counter >> 16) & 0xff);
-	counter[2] = (unsigned char)((reseed_counter >> 8) & 0xff);
-	counter[3] = (unsigned char)(reseed_counter & 0xff);
+	counter[0] = (uchar)((reseed_counter >> 24) & 0xff);
+	counter[1] = (uchar)((reseed_counter >> 16) & 0xff);
+	counter[2] = (uchar)((reseed_counter >> 8) & 0xff);
+	counter[3] = (uchar)(reseed_counter & 0xff);
 
 	return hash->ctx != NULL
 	       && (adin == NULL

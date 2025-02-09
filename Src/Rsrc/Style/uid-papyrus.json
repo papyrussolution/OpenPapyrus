@@ -9,6 +9,13 @@
 		"font_smoothing_type": "cleartype",
 		"font_smoothing_contrast": 1600
 	},
+	"font_list": [
+		{
+			"symb": "ControlFont",
+			"face": "Verdana",
+			"size": 11
+		}
+	],
 	"colorset_list": [
 		{
 			"symb": "gridscheme_01",
@@ -104,8 +111,9 @@
 			"shrinkfactor": 1,
 			"children": [
 				{
+					"flags": "horizontal",
 					"symb": "listdialog_header",
-					"size": "100%, 64",
+					"size": "100%, 80",
 					"alignitems": "stretch",
 					"alignself": "auto",
 					"gravityx": "center",

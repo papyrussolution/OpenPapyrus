@@ -10421,7 +10421,7 @@ int PPObjBill::CreateNewInteractive(CreateNewInteractive_Param * pP)
 					bill_flt.Period.SetDate(bill_rec.Dt);
 					bill_flt.Sel = id;
 					BillFilt::FiltExtraParam p(0, bill_flt.Bbt);
-					PPView::Execute(PPVIEW_BILL, &bill_flt, GetModelessStatus(), &p);
+					PPView::Execute(PPVIEW_BILL, &bill_flt, (GetModelessStatus() ? PPView::exefModeless : 0), &p);
 				}
 			}
 			DS.SetLocation(save_loc_id);

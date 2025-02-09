@@ -1,5 +1,5 @@
 // STYPE.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 2003, 2004, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2019, 2020, 2022, 2023, 2024
+// Copyright (c) Sobolev A. 1995, 1996, 2003, 2004, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2019, 2020, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -30,7 +30,18 @@ DataType & FASTCALL stype(TYPEID t, DataType * pT)
 }
 
 int    FASTCALL btnumber(int bt) { return oneof3(bt, BTS_INT, BTS_REAL, BTS_INT64_); }
-uint32 FASTCALL stsize(TYPEID t) { DataType _t; return stype(t, &_t).size(); }
+
+uint32 FASTCALL stsize(TYPEID t) 
+{ 
+	if(GETSTYPE(t) == S_LVAR) { // @v12.2.6 аварийный случай - для этого типа у нас нет манипулятора (и не будет, ибо экзотика)
+		return GETSSIZE(t);
+	}
+	else {
+		DataType _t; 
+		return stype(t, &_t).size(); 
+	}
+}
+
 int    FASTCALL stcomp(TYPEID t, const void * i1, const void * i2) { DataType _t; return stype(t, &_t).comp(i1, i2); }
 char * FASTCALL sttostr(TYPEID t, const void * d, long f, char * b) { DataType _t; return stype(t, &_t).tostr(d, f, b); }
 int    FASTCALL stfromstr(TYPEID t, void * d, long f, const char * b) { DataType _t; return stype(t, &_t).fromstr(d, f, b); }
@@ -353,7 +364,7 @@ TYPEID FASTCALL IsSTypeName(SStrScan & rScan)
 //   0 - c++
 //   1 - DL600
 //
-SString & GetBinaryTypeString(TYPEID typ, int style, SString & rBuf, const char * pFldName, size_t indent)
+SString & GetBinaryTypeString(TYPEID typ, int style, SString & rBuf, const char * pFldName, uint indent)
 {
 	rBuf.Z();
 	size_t sz = stsize(typ);
@@ -484,6 +495,10 @@ SString & GetBinaryTypeString(TYPEID typ, int style, SString & rBuf, const char 
 			break;
 		case S_UUID_:
 			type_text = "S_GUID";
+			break;
+		case S_LVAR: // @v12.2.6 исключительный случай. Этот тип практически не применяется. Сейчас он понадобился для ситуативной цели.
+			type_text = "LVAR";
+			dim = sz;
 			break;
 		default:
 			type_text = "unknown";

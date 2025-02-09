@@ -1,5 +1,5 @@
 // SLPORT.H
-// Copyright (c) A.Sobolev 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 // Этот заголовочный файл призван унифицировать большинство макроопределений и деклараций, реализующих портируемость
 // компиляции между платформами и компиляторами.
@@ -10,7 +10,7 @@
 //
 #ifndef __SLPORT_H // {
 #define __SLPORT_H
-//#include <cxx_detect.h> // @v10.9.0
+//#include <cxx_detect.h>
 	//
 	// CXX_DETECT - C++ Compiler and Features Detection
 	// Dual licensed under PUBLIC DOMAIN (UNLICENSE) and ZLIB. (choose the one that you prefer and is valid in your country)
@@ -1068,7 +1068,7 @@
 	#define HAVE_STRSTR 1 /* Define to 1 if you have the `strstr' function. */
 	#define HAVE_STRTOL 1 // Define to 1 if you have the `strtol' function
 	#define HAVE_STRTOUL 1 // Define to 1 if you have the `strtoul' function
-	/* #undef HAVE_STRTOULL */ /* Define to 1 if you have the `strtoull' function. */
+	#define HAVE_STRTOULL 1 // Define to 1 if you have the `strtoull' function // @v12.2.6
 	/* #undef HAVE_SYS_TIME_H */ /* Define to 1 if you have the <sys/time.h> header file. */
 	#define HAVE_SYS_TYPES_H 1 /* Define to 1 if you have the <sys/types.h> header file. */
 	/* #undef HAVE_UNISTD_H */ /* Define to 1 if you have the <unistd.h> header file. */
@@ -1330,11 +1330,13 @@
 	/* #undef HAVE_UTIMES */ /* Define to 1 if you have the `utimes' function. */
 	/* #undef HAVE_UTIME_H */ /* Define to 1 if you have the <utime.h> header file. */
 	/* #undef HAVE_VFORK */ /* Define to 1 if you have the `vfork' function. */
+	#define HAVE_ISBLANK   1 // Define to 1 if you have the `isblank' function // @v12.2.6
 	#define HAVE_SNPRINTF  1 // Define to 1 if you have the `snprintf' function
 	#define HAVE_VFPRINTF  1
 	#define HAVE_VPRINTF   1 // Define to 1 if you have the `vprintf' function
 	#define HAVE_VASPRINTF 1
 	#define HAVE_SPRINTF_L 1
+	#define HAVE_VSNPRINTF 1 // Define to 1 if you have the `vsnprintf' function // @v12.2.6
 	#define HAVE_WCHAR_H 1 /* Define to 1 if you have the <wchar.h> header file. */
 	#define HAVE_WCHAR_T 1 /* Define to 1 if the system has the type `wchar_t'. */
 	/* #undef HAVE_WCRTOMB */ /* Define to 1 if you have the `wcrtomb' function. */

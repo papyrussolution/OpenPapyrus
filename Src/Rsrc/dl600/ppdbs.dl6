@@ -2028,8 +2028,8 @@ table Project {         // size=384+128=512
 	autolong   ID;      // @id
 	long   Kind;        // PPPRJK_XXX {Project, Phase, ProjectTemplate, PhaseTemplate}
 	long   ParentID;    // ->Project.ID Родительский проект
-	string Name[128];   // Наименование проекта/фазы // @v6.2.2 [48]-->[128]
-	string Code[24];    // Код проекта/фазы          // @v6.2.2 [16]-->[24]
+	string Name[128];   // Наименование проекта/фазы
+	string Code[24];    // Код проекта/фазы
 	date   Dt;          // Дата создания проекта
 	date   BeginDt;     // Дата начала работ по проекту
 	date   EstFinishDt; // Предполагаемая дата завершения работ по проекту
@@ -2039,10 +2039,10 @@ table Project {         // size=384+128=512
 	long   TemplateID;  // ->Project (Kind = XxxTemplate) Шаблон проекта/фазы (прецедент)
 	long   Status;      // PPPRJSTS_XXX Состояние проекта/фазы {Active, Non-Active, Archived}
 	long   Flags;       // @flags
-	long   BillOpID;    // @v5.4.8 Операция разноски документов
+	long   BillOpID;    // Операция разноски документов
 	raw    Reserve[44]; // @reserve
-	// @v10.7.2 string Descr[256];  // Краткое описание проекта/фазы // @v6.2.2 [224]-->[256]
-	// @v10.7.2 note   Memo[1024];  // @v6.2.2 [128]-->[1024]
+	// @v10.7.2 string Descr[256];  // Краткое описание проекта/фазы
+	// @v10.7.2 note   Memo[1024];
 index:
 	ID (unique);
 	ParentID, Name (unique mod);
@@ -3193,12 +3193,12 @@ table Cr_Sale {
 	double  Quant;         // * Quantity
 	lstring Operation[2];  // * Код операции
 	date    DateOperation; // * Дата операции
-	double  Price;         // * Цена (руб)
-	lstring Store[7];      // Склад
-	long    Ck_Number;     // * Номер чека
-	double  Ck_Curs;       // Курс валюты
-	lstring Ck_CurAbr[4];  // Аббревиатура валюты
-	double  Ck_Disg;       // Скидка на покупку в рублях
+	double  Price;         // * Цена (руб)               // 22
+	lstring Store[7];      // Склад                      // 29
+	long    Ck_Number;     // * Номер чека               // 31
+	double  Ck_Curs;       // Курс валюты                // 39
+	lstring Ck_CurAbr[4];  // Аббревиатура валюты        // 43
+	double  Ck_Disg;       // Скидка на покупку в рублях //
 	double  Ck_Disc;       // * Скидка на чек в рублях
 	double  Quant_S;       //
 	int16   GrCode;        // Код группы товара

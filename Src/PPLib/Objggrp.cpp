@@ -1,5 +1,5 @@
 // OBJGGRP.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -853,10 +853,7 @@ int GoodsGroupView::editItem(long, long id)
 	return (r == cmOK) ? 1 : ((r == 0) ? 0 : -1);
 }
 
-int GoodsGroupView::delItem(long, long id)
-{
-	return id ? GGObj.RemoveObjV(id, 0, PPObject::rmv_default, 0) : -1;
-}
+int GoodsGroupView::delItem(long, long id) { return id ? GGObj.RemoveObjV(id, 0, PPObject::rmv_default, 0) : -1; }
 
 void GoodsGroupView::updateList(PPID id)
 {

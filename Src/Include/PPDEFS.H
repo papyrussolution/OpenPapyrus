@@ -523,7 +523,7 @@
 	#define PPOPK_EDI_SHOPCHARGEON      15L // Драфт-операция перемещения остатков со склада на регистр 2 ЕГАИС
 	#define PPOPK_EDI_ACTCHARGEONSHOP   16L // Постановка лотов на баланс торгового зала в ЕГАИС (регистр 2)
 	#define PPOPK_EDI_WRITEOFFSHOP      17L // Списание с баланса торгового зала в ЕГАИС (регистр 2)
-		// @v10.3.5 Если документ содержит специальную метку, то это - автоматическое списание реализации по акцизным маркам
+		// Если документ содержит специальную метку, то это - автоматическое списание реализации по акцизным маркам
 	#define PPOPK_EDI_ORDERRSP          18L // Драфт-операция подтверждения заказа, переденного в EDI
 	#define PPOPK_EDI_WROFFWITHMARKS    19L // Драфт-операция списание с остатков ЕГАИС акцизных марок
 	#define PPOPK_EDI_CHARGEONWITHMARKS 20L // Драфт-операция постановки на баланс маркированной продукции
@@ -1920,6 +1920,7 @@
 #define STDCTL_REPEATINGBUTTON    164 // @v11.0.4 Кнопка "Повторение"
 #define STDCTL_MAPONGEOLOCBUTTON  165 // @v11.6.2 Кнопка запуска функции открытия карты с координатами (cmExecMapOnGeoLoc)
 #define STDCTL_SINGLELISTBOX      166 // @v12.2.2 Список (SmartListBox)
+#define STDCTL_HEADERSTATICTEXT   167 // @v12.2.5 Статический текст (TStaticText) в заголовочной части окна.
 
 #define cmPPAccSelected          1101 // Сообщение, посылаемое группой
 	// AcctCtrlGroup диалогу-владельцу когда пользователь выбрал новый счет. (AcctCtrlGroup*)InfoPtr

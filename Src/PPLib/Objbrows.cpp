@@ -298,9 +298,96 @@ int PPObjListWindow::Transmit(PPID)
 	return ok;
 }
 //
+// 
+// 
+PPListDialogBaseInterface::PPListDialogBaseInterface()
+{
+}
+	
+PPListDialogBaseInterface::~PPListDialogBaseInterface()
+{
+}
+
+/*virtual*/SmartListBox * PPListDialogBaseInterface::GetListBoxCtl() const { return 0; }
+/*virtual*/int PPListDialogBaseInterface::setupList() { return -1; }
+/*virtual*/int PPListDialogBaseInterface::addItem(long *, long *) { return -1; }
+/*virtual*/int PPListDialogBaseInterface::editItem(long, long) { return -1; }
+/*virtual*/int PPListDialogBaseInterface::delItem(long, long) { return -1; }
+/*virtual*/int PPListDialogBaseInterface::moveItem(long pos, long id, int up) { return -1; }
+/*virtual*/int PPListDialogBaseInterface::sendItem(long, long) { return -1; }
+
+int PPListDialogBaseInterface::getCurItem(long * pPos, long * pID) const
+{
+	SmartListBox * p_box = GetListBoxCtl();
+	if(SmartListBox::IsValidS(p_box)) {
+		long   i = 0;
+		p_box->getCurID(&i);
+		ASSIGN_PTR(pPos, p_box->P_Def->_curItem());
+		ASSIGN_PTR(pID, i);
+		return 1;
+	}
+	else
+		return 0;
+}
+
+int PPListDialogBaseInterface::getCurString(SString & rBuf) const
+{
+	SmartListBox * p_box = GetListBoxCtl();
+	if(SmartListBox::IsValidS(p_box)) {
+		p_box->getCurString(rBuf);
+		return 1;
+	}
+	else
+		return 0;
+}
+
+int PPListDialogBaseInterface::getText(long itemN /* 0.. */, SString & rBuf)
+{
+	SmartListBox * p_box = GetListBoxCtl();
+	return SmartListBox::IsValidS(p_box) ? p_box->getText(itemN, rBuf) : 0;
+}
+
+int PPListDialogBaseInterface::getSelection(long * pID) { return getCurItem(0, pID); }
+
+int PPListDialogBaseInterface::addStringToList(long itemId, const char * pText) 
+{ 
+	SmartListBox * p_box = GetListBoxCtl();
+	return (!p_box || !p_box->addItem(itemId, pText)) ? PPSetErrorSLib() : 1; 
+}
+
+void PPListDialogBaseInterface::updateList(long pos)
+{
+	SmartListBox * p_box = GetListBoxCtl();
+	if(p_box) {
+		const long sav_pos = p_box->P_Def ? p_box->P_Def->_curItem() : 0;
+		p_box->freeAll();
+		if(setupList()) {
+			p_box->Draw_();
+	   		p_box->focusItem((pos < 0) ? sav_pos : pos);
+		}
+		else
+			PPError();
+	}
+}
+	
+void PPListDialogBaseInterface::updateListById(long id)
+{
+	SmartListBox * p_box = GetListBoxCtl();
+	if(p_box) {
+		const long sav_pos = p_box->P_Def ? p_box->P_Def->_curItem() : 0;
+		p_box->freeAll();
+		if(setupList()) {
+			p_box->Draw_();
+			p_box->Search_(&id, 0, srchFirst|lbSrchByID);
+		}
+		else
+			PPError();
+	}
+}
+//
 // PPListDialog
 //
-PPListDialog::PPListDialog(uint rezID, uint aCtlList, long flags) : TDialog(rezID), CtlList(aCtlList), ContextMenuID(0), Options(0)
+PPListDialog::PPListDialog(uint rezID, uint aCtlList, long flags) : PPListDialogBaseInterface(), TDialog(rezID), CtlList(aCtlList), ContextMenuID(0), Options(0)
 {
 	if(flags & fOnDblClkOk)
 		Options |= oOnDblClkOk;
@@ -468,79 +555,6 @@ IMPL_HANDLE_EVENT(PPListDialog)
 		return;
 	clearEvent(event);
 }
-
-int PPListDialog::getSelection(long * pID)
-	{ return getCurItem(0, pID); }
-int PPListDialog::addStringToList(long itemId, const char * pText)
-	{ return (!P_Box || !P_Box->addItem(itemId, pText)) ? PPSetErrorSLib() : 1; }
-
-void PPListDialog::updateList(long pos)
-{
-	SmartListBox * p_box = P_Box;
-	if(p_box) {
-		const long sav_pos = p_box->P_Def ? p_box->P_Def->_curItem() : 0;
-		p_box->freeAll();
-		if(setupList()) {
-			p_box->Draw_();
-	   		p_box->focusItem((pos < 0) ? sav_pos : pos);
-		}
-		else
-			PPError();
-	}
-}
-
-void PPListDialog::updateListById(long pos)
-{
-	SmartListBox * p_box = P_Box;
-	if(p_box) {
-		const long sav_pos = p_box->P_Def ? p_box->P_Def->_curItem() : 0;
-		p_box->freeAll();
-		if(setupList()) {
-			p_box->Draw_();
-			p_box->Search_(&pos, 0, srchFirst|lbSrchByID);
-		}
-		else
-			PPError();
-	}
-}
-
-int PPListDialog::getCurItem(long * pPos, long * pID) const
-{
-	SmartListBox * p_box = P_Box;
-	if(SmartListBox::IsValidS(p_box)) {
-		long   i = 0;
-		p_box->getCurID(&i);
-		ASSIGN_PTR(pPos, p_box->P_Def->_curItem());
-		ASSIGN_PTR(pID, i);
-		return 1;
-	}
-	else
-		return 0;
-}
-
-int PPListDialog::getCurString(SString & rBuf) const
-{
-	SmartListBox * p_box = P_Box;
-	if(SmartListBox::IsValidS(p_box)) {
-		p_box->getCurString(rBuf);
-		return 1;
-	}
-	else
-		return 0;
-}
-
-int PPListDialog::getText(long itemN /* 0.. */, SString & rBuf)
-{
-	SmartListBox * p_box = P_Box;
-	return SmartListBox::IsValidS(p_box) ? p_box->getText(itemN, rBuf) : 0;
-}
-
-int PPListDialog::setupList() { return -1; }
-int PPListDialog::addItem(long *, long *) { return -1; }
-int PPListDialog::editItem(long, long) { return -1; }
-int PPListDialog::delItem(long, long) { return -1; }
-int PPListDialog::moveItem(long pos, long id, int up) { return -1; }
-int PPListDialog::sendItem(long, long) { return -1; }
 //
 // ObjRestrictListDialog
 //

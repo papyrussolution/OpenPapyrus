@@ -776,51 +776,36 @@ std::mutex findOps_mutex;
 
 INT_PTR CALLBACK FindReplaceDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam)
 {
-	switch(message)
-	{
+	switch(message) {
 		case WM_GETMINMAXINFO:
-	    {
-		    MINMAXINFO* mmi = reinterpret_cast<MINMAXINFO*>(lParam);
-		    mmi->ptMinTrackSize.y = _initialWindowRect.bottom;
-		    mmi->ptMinTrackSize.x = _initialWindowRect.right;
-		    mmi->ptMaxTrackSize.y = _initialWindowRect.bottom;
-		    return 0;
-	    }
-
+			{
+				MINMAXINFO* mmi = reinterpret_cast<MINMAXINFO*>(lParam);
+				mmi->ptMinTrackSize.y = _initialWindowRect.bottom;
+				mmi->ptMinTrackSize.x = _initialWindowRect.right;
+				mmi->ptMaxTrackSize.y = _initialWindowRect.bottom;
+			}
+			return 0;
 		case WM_SIZE:
-	    {
 		    resizeDialogElements(LOWORD(lParam));
 		    return TRUE;
-	    }
-
 		case WM_CTLCOLOREDIT:
-	    {
 		    if(NppDarkMode::isEnabled()) {
 			    return NppDarkMode::onCtlColorSofter(reinterpret_cast<HDC>(wParam));
 		    }
 		    break;
-	    }
-
 		case WM_CTLCOLORLISTBOX:
 		case WM_CTLCOLORDLG:
 		case WM_CTLCOLORSTATIC:
-	    {
 		    if(NppDarkMode::isEnabled()) {
 			    return NppDarkMode::onCtlColorDarker(reinterpret_cast<HDC>(wParam));
 		    }
 		    break;
-	    }
-
 		case WM_PRINTCLIENT:
-	    {
 		    if(NppDarkMode::isEnabled()) {
 			    return TRUE;
 		    }
 		    break;
-	    }
-
 		case WM_ERASEBKGND:
-	    {
 		    if(NppDarkMode::isEnabled()) {
 			    RECT rc = { 0 };
 			    getClientRect(rc);
@@ -828,36 +813,28 @@ INT_PTR CALLBACK FindReplaceDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM
 			    return TRUE;
 		    }
 		    break;
-	    }
-
 		case NPPM_INTERNAL_REFRESHDARKMODE:
-	    {
-		    NppDarkMode::setDarkTooltips(_shiftTrickUpTip, NppDarkMode::ToolTipsType::tooltip);
-		    NppDarkMode::setDarkTooltips(_2ButtonsTip, NppDarkMode::ToolTipsType::tooltip);
-		    NppDarkMode::setDarkTooltips(_filterTip, NppDarkMode::ToolTipsType::tooltip);
-
-		    if(_statusbarTooltipWnd) {
-			    NppDarkMode::setDarkTooltips(_statusbarTooltipWnd, NppDarkMode::ToolTipsType::tooltip);
-		    }
-
-		    HWND finder = getHFindResults();
-		    if(finder) {
-			    NppDarkMode::setDarkScrollBar(finder);
-		    }
-
-		    NppDarkMode::autoThemeChildControls(_hSelf);
-		    return TRUE;
-	    }
-
+			{
+				NppDarkMode::setDarkTooltips(_shiftTrickUpTip, NppDarkMode::ToolTipsType::tooltip);
+				NppDarkMode::setDarkTooltips(_2ButtonsTip, NppDarkMode::ToolTipsType::tooltip);
+				NppDarkMode::setDarkTooltips(_filterTip, NppDarkMode::ToolTipsType::tooltip);
+				if(_statusbarTooltipWnd) {
+					NppDarkMode::setDarkTooltips(_statusbarTooltipWnd, NppDarkMode::ToolTipsType::tooltip);
+				}
+				HWND finder = getHFindResults();
+				if(finder) {
+					NppDarkMode::setDarkScrollBar(finder);
+				}
+				NppDarkMode::autoThemeChildControls(_hSelf);
+				return TRUE;
+			}
 		case WM_INITDIALOG:
 	    {
 		    NppDarkMode::autoSubclassAndThemeChildControls(_hSelf);
-
 		    HWND hFindCombo = ::GetDlgItem(_hSelf, IDFINDWHAT);
 		    HWND hReplaceCombo = ::GetDlgItem(_hSelf, IDREPLACEWITH);
 		    HWND hFiltersCombo = ::GetDlgItem(_hSelf, IDD_FINDINFILES_FILTERS_COMBO);
 		    HWND hDirCombo = ::GetDlgItem(_hSelf, IDD_FINDINFILES_DIR_COMBO);
-
 		    // Change handler of edit element in the comboboxes to support Ctrl+Backspace
 		    COMBOBOXINFO cbinfo = { sizeof(COMBOBOXINFO) };
 		    GetComboBoxInfo(hFindCombo, &cbinfo);
@@ -878,29 +855,21 @@ INT_PTR CALLBACK FindReplaceDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM
 		    if((NppParameters::getInstance()).getNppGUI()._monospacedFontFindDlg) {
 			    const TCHAR* fontName = _T("Courier New");
 			    const long nFontSize = 8;
-
 			    HDC hdc = GetDC(_hSelf);
-
 			    LOGFONT logFont = { 0 };
 			    logFont.lfHeight = -MulDiv(nFontSize, GetDeviceCaps(hdc, LOGPIXELSY), 72);
 			    _tcscpy_s(logFont.lfFaceName, fontName);
-
 			    _hMonospaceFont = CreateFontIndirect(&logFont);
-
 			    ReleaseDC(_hSelf, hdc);
-
 			    SendMessage(hFindCombo, WM_SETFONT, (WPARAM)_hMonospaceFont, MAKELPARAM(true, 0));
 			    SendMessage(hReplaceCombo, WM_SETFONT, (WPARAM)_hMonospaceFont, MAKELPARAM(true, 0));
 			    SendMessage(hFiltersCombo, WM_SETFONT, (WPARAM)_hMonospaceFont, MAKELPARAM(true, 0));
 			    SendMessage(hDirCombo, WM_SETFONT, (WPARAM)_hMonospaceFont, MAKELPARAM(true, 0));
 		    }
-
 		    RECT arc;
 		    ::GetWindowRect(::GetDlgItem(_hSelf, IDCANCEL), &arc);
-		    _markClosePos.bottom = _findInFilesClosePos.bottom = _replaceClosePos.bottom = _findClosePos.bottom = arc.bottom -
-				    arc.top;
+		    _markClosePos.bottom = _findInFilesClosePos.bottom = _replaceClosePos.bottom = _findClosePos.bottom = arc.bottom - arc.top;
 		    _markClosePos.right = _findInFilesClosePos.right = _replaceClosePos.right = _findClosePos.right = arc.right - arc.left;
-
 		    POINT p;
 		    p.x = arc.left;
 		    p.y = arc.top;

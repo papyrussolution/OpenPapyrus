@@ -293,10 +293,10 @@ static int x942kdf_hash_kdm(const EVP_MD * kdf_md,
 
 	for(counter = 1;; counter++) {
 		/* updating the ctr modifies 4 bytes in the 'other' buffer */
-		ctr[0] = (unsigned char)((counter >> 24) & 0xff);
-		ctr[1] = (unsigned char)((counter >> 16) & 0xff);
-		ctr[2] = (unsigned char)((counter >> 8) & 0xff);
-		ctr[3] = (unsigned char)(counter & 0xff);
+		ctr[0] = (uchar)((counter >> 24) & 0xff);
+		ctr[1] = (uchar)((counter >> 16) & 0xff);
+		ctr[2] = (uchar)((counter >> 8) & 0xff);
+		ctr[3] = (uchar)(counter & 0xff);
 
 		if(!EVP_MD_CTX_copy_ex(ctx, ctx_init)
 		    || !EVP_DigestUpdate(ctx, z, z_len)

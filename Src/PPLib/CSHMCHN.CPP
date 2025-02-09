@@ -740,7 +740,7 @@ int PPCashMachine::SyncBrowseCheckList(const char * pCheckPanInitStr, long check
 				flt.Flags |= BillFilt::fCashOnly;
 				if(deny_ops)
 					flt.Flags |= (BillFilt::fDenyAdd|BillFilt::fDenyUpdate|BillFilt::fDenyRemove);
-				THROW(ViewGoodsBills(&flt, 0));
+				THROW(ViewGoodsBills(&flt, false/*modeless*/));
 			}
 		}
 	}

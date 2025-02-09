@@ -1,5 +1,5 @@
 // Dll для работы с банковским терминалом INGENICO по протоколу SPDH (банк ВТБ)
-// @codepage UTF-8 // @v10.4.5
+// @codepage UTF-8
 //
 #pragma hdrstop
 #include <ppdrvapi.h>

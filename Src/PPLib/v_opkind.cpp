@@ -1,5 +1,5 @@
 // V_OPKIND.CPP
-// Copyright (c) A.Starodub 2004, 2006, 2007, 2008, 2009, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2024
+// Copyright (c) A.Starodub 2004, 2006, 2007, 2008, 2009, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2024, 2025
 //
 #include <pp.h>
 #pragma hdrstop
@@ -505,7 +505,7 @@ int PPViewOprKind::ViewBills(PPID opID)
 		flt.OpID = opID;
 		{
 			BillFilt::FiltExtraParam p(0, flt.Bbt);
-			PPView::Execute(PPVIEW_BILL, &flt, GetModelessStatus(), &p);
+			PPView::Execute(PPVIEW_BILL, &flt, (GetModelessStatus() ? PPView::exefModeless : 0), &p);
 		}
 	}
 	return -1;

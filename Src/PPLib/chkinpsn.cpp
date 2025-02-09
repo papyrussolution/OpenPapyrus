@@ -1,5 +1,5 @@
 // CHKINPSN.CPP
-// Copyright (c) A.Sobolev 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024
+// Copyright (c) A.Sobolev 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1405,10 +1405,7 @@ int CheckInPersonListDialog::editItem(long pos, long id)
 	return ok;
 }
 
-int CheckInPersonListDialog::delItem(long pos, long id)
-{
-	return Data.RemoveItem(static_cast<uint>(pos)) ? 1 : -1;
-}
+int CheckInPersonListDialog::delItem(long pos, long id) { return Data.RemoveItem(static_cast<uint>(pos)) ? 1 : -1; }
 
 int EditCheckInPersonList(const PPCheckInPersonConfig * pCfg, PPCheckInPersonArray * pData) { DIALOG_PROC_BODY_P1(CheckInPersonListDialog, pCfg, pData); }
 //

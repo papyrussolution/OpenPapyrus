@@ -104,7 +104,7 @@
 		#include <unistd.h>
 	#endif
 	#include <process.h>
-#endif
+#endif // !RC_INVOKED
 #ifdef _WIN32
 	#ifndef __WIN32__
 		#define __WIN32__ 1 // (__WIN32__)-->(__WIN32__ 1)
@@ -3264,7 +3264,7 @@ private:
     uint8  D[8];
 };
 
-#if !defined(RC_INVOKED) /* { */
+#ifndef RC_INVOKED /* { */
 
 struct STypEx { // @persistent @size=16
 	DECL_INVARIANT_C();
@@ -3375,7 +3375,7 @@ void   RegisterBIST();
 // Returns:
 //   rBuf
 //
-SString & GetBinaryTypeString(TYPEID typ, int style, SString & rBuf, const char * pFldName = 0, size_t indent = 0);
+SString & GetBinaryTypeString(TYPEID typ, int style, SString & rBuf, const char * pFldName = 0, uint indent = 0);
 //
 // Флаги представления строки базового типа
 //
@@ -3398,8 +3398,6 @@ TYPEID FASTCALL IsSTypeName(SStrScan & rScan);
 // User-defined types support
 //
 void FASTCALL RegisterSType(TYPEID, const DataType *);
-
-#endif /* } !RC_INVOKED */
 //
 // } @ModuleDecl(SType)
 //
@@ -5889,7 +5887,7 @@ struct SCompoundError {
 //
 struct BNField {
 	uint   size() const { return stsize(T); }
-	bool   IsEq(const BNField & rS, int nameAndTypeOnly = 0) const;
+	bool   IsEq(const BNField & rS, bool nameAndTypeOnly = false) const;
 	int    getValue(const void * pDataBuf, void * pValBuf, size_t * pSize) const;
 	int    setValue(void * pDataBuf, const void * pValBuf) const;
 	int    putValueToString(const void * pDataBuf, char * pBuf) const;
@@ -5911,12 +5909,12 @@ public:
 	~BNFieldList();
 	BNFieldList & FASTCALL operator = (const BNFieldList &);
 	int    FASTCALL copy(const BNFieldList *);
-	bool   IsEq(const BNFieldList & rS, int nameAndTypeOnly = 0) const;
+	bool   IsEq(const BNFieldList & rS, bool nameAndTypeOnly = false) const;
 	BNFieldList & Z();
 	int    addField(const char * pName, TYPEID type, int id = UNDEF);
 	int    FASTCALL addField(const BNField &);
-	int    getFieldPosition(int fldId, uint * pPos) const;
-	const  BNField & getField(uint, int byPosition = 1) const;
+	bool   getFieldPosition(int fldId, uint * pPos) const;
+	const  BNField & getField(uint, bool byPosition = true) const;
 	const  BNField & getField(const char * pName, uint * pPos = 0) const;
 	const  BNField & FASTCALL operator[](uint i) const { return getField(i); }
 	uint   getCount() const { return count; }
@@ -7630,7 +7628,7 @@ int    SCalcCheckDigit(int alg, const char * pInput, size_t inputLen);
 char * FASTCALL SUpceToUpca(const char * pUpce, char * pUpca);
 int    FASTCALL SCalcBarcodeCheckDigitL(const char * pBarcode, size_t len);
 
-#endif // } _WIN32_WCE
+#endif // } RC_INVOKED
 
 void IdeaEncrypt(const char * password, void * buf, size_t len);
 void IdeaDecrypt(const char * password, void * buf, size_t len);
@@ -10488,8 +10486,6 @@ private:
 	SStringU DelimU; // Для входящего потока в UTF-формате список разделителей должен быть в Unicode-формате
 };
 //
-#ifndef _WIN32_WCE // {
-//
 //
 //
 class SSystem {
@@ -11016,8 +11012,8 @@ public:
 
 		FirstUser        = 10000
 	};
-	struct CsvSinffingResult {
-		CsvSinffingResult() : FieldDivisor(0), Flags(0), SnTokSeq_Common(0), SnTokSeq_First(0)
+	struct CsvSniffingResult {
+		CsvSniffingResult() : FieldDivisor(0), Flags(0), SnTokSeq_Common(0), SnTokSeq_First(0)
 		{
 		}
 		enum {
@@ -11534,8 +11530,6 @@ public:
 	};
 	SDataChunkStat();
 };
-
-#endif // } _WIN32_WCE
 //
 // CRegExp
 //
@@ -16046,8 +16040,6 @@ private:
 //
 // Descr: Управление Ini-файлами
 //
-#ifndef _WIN32_WCE // {
-
 class SIniFile {
 public:
 	explicit SIniFile(const char * pFileName, int fcreate = 0, int winCoding = 0, int useIniBuf = 0);
@@ -16221,8 +16213,6 @@ private:
 	long   Flags;
 	SFile  F;
 };
-
-#ifndef _WIN32_WCE // {
 //
 // Descr: Вспомогательный класс для генерации C++ кода
 //
@@ -16284,8 +16274,6 @@ private:
 	uint   Indent;
 	SString TempBuf; // @allocreuse
 };
-
-#endif // } !_WIN32_WCE
 //
 //
 //
@@ -16336,8 +16324,6 @@ private:
 	int    ScreenDpiX;
 	int    ScreenDpiY;
 };
-
-#ifndef _WIN32_WCE // {
 
 int    SCheckSystemCredentials(const char * pDomain, const char * pUserName, const char * pPw);
 //
@@ -17488,13 +17474,9 @@ public:
 protected:
 	virtual void Startup();
 };
-
-#endif // } _WIN32_WCE
 //
 //
 //
-#ifndef _WIN32_WCE
-
 struct SGlobalSecureConfig {
 	SGlobalSecureConfig();
 	bool   IsEmpty() const;
@@ -18749,20 +18731,6 @@ private:
 	SString PropAttrib;
 	SFile * P_Stream;
 };
-
-#else // }{
-
-extern int SLibError;
-extern int BinDateFmt;
-extern int TxtDateFmt;
-extern int DefaultYear;
-extern int DefaultMonth;
-
-extern CompFunc SAry_OrgFCMP;
-extern int    SAry_PtrContainer;
-extern long   SAry_SortExtraData;
-
-#endif // } _WIN32_WCE
 //
 // Descr: Структура географических координат, выраженных широтой и долготой (double).
 //

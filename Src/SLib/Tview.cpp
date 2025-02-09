@@ -470,6 +470,25 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 			}
 		}
 		if(hw_parent) {
+			struct LocalSetupFontBlock {
+				LocalSetupFontBlock() : H_Wnd(0), DoSetupFont(false)
+				{
+				}
+				void   Set(HWND h)
+				{
+					if(h) {
+						H_Wnd = h;
+						DoSetupFont = true;
+					}
+					else {
+						H_Wnd = 0;
+						DoSetupFont = false;
+					}
+				}
+				HWND   H_Wnd;
+				bool   DoSetupFont;
+			};
+			LocalSetupFontBlock setup_font_blk;
 			uint ctl_id = pV->GetId();
 			switch(pV->GetSubSign()) {
 				case TV_SUBSIGN_GROUPBOX: // @v12.2.3
@@ -497,14 +516,7 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 							HWND hw_il = ::CreateWindowEx(0, _T("EDIT"), 0, style, p_il->ViewOrigin.x,
 								p_il->ViewOrigin.y, p_il->ViewSize.x, p_il->ViewSize.y, hw_parent, (HMENU)p_il->GetId(), TProgram::GetInst(), 0);
 							if(hw_il) {
-								SPaintToolBox * p_tb = APPL->GetUiToolBox();
-								if(p_tb) {
-									SPaintObj::Font * p_f = p_tb->GetFont(SDrawContext(static_cast<HDC>(0)), TProgram::tbiControlFont);
-									if(p_f) {
-										HFONT f = static_cast<HFONT>(*p_f);
-										::SendMessageW(hw_il, WM_SETFONT, reinterpret_cast<WPARAM>(f), TRUE);
-									}
-								}
+								setup_font_blk.Set(hw_il);
 								TView::SetWindowUserData(hw_il, p_il);
 							}
 						}
@@ -570,14 +582,7 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 						hw = ::CreateWindowExW(0, L"EDIT", 0, style, pV->ViewOrigin.x,
 							pV->ViewOrigin.y, pV->ViewSize.x, pV->ViewSize.y, hw_parent, (HMENU)ctl_id, TProgram::GetInst(), 0);
 						if(hw) {
-							SPaintToolBox * p_tb = APPL->GetUiToolBox();
-							if(p_tb) {
-								SPaintObj::Font * p_f = p_tb->GetFont(SDrawContext(static_cast<HDC>(0)), TProgram::tbiControlFont);
-								if(p_f) {
-									HFONT f = static_cast<HFONT>(*p_f);
-									::SendMessageW(hw, WM_SETFONT, reinterpret_cast<WPARAM>(f), TRUE);
-								}
-							}
+							setup_font_blk.Set(hw);
 							TView::SetWindowUserData(hw, p_cv);
 						}
 					}
@@ -586,29 +591,44 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 					{
 						TLabel * p_cv = static_cast<TLabel *>(pV);
 						pV->Parent = hw_parent;
-						DWORD  style = WS_VISIBLE|WS_CHILD|WS_CLIPSIBLINGS;
+						const DWORD  style = WS_VISIBLE|WS_CHILD|WS_CLIPSIBLINGS;
 						hw = ::CreateWindowExW(0, L"STATIC", 0, style, pV->ViewOrigin.x,
 							pV->ViewOrigin.y, pV->ViewSize.x, pV->ViewSize.y, hw_parent, (HMENU)ctl_id, TProgram::GetInst(), 0);
 						if(hw) {
-							SString temp_buf;
+							//SString temp_buf;
 							TView::SetWindowUserData(hw, p_cv);
 							//p_cv->setFont()
 							TView::SSetWindowText(hw, p_cv->GetRawText());
 							//::SendMessageW(hw, WM_SETTEXT, 0, reinterpret_cast<LPARAM>(SUcSwitch(p_cv->getText(temp_buf))));
-							SPaintToolBox * p_tb = APPL->GetUiToolBox();
-							if(p_tb) {
-								SPaintObj::Font * p_f = p_tb->GetFont(SDrawContext(static_cast<HDC>(0)), TProgram::tbiControlFont);
-								if(p_f) {
-									HFONT f = static_cast<HFONT>(*p_f);
-									::SendMessageW(hw, WM_SETFONT, reinterpret_cast<WPARAM>(f), TRUE);
-								}
-							}
+							setup_font_blk.Set(hw);
 							SetupWindowCtrlTextProc(hw, 0);
 						}
 					}
 					break;
 				case TV_SUBSIGN_STATIC:
+					{
+						TStaticText * p_st = static_cast<TStaticText *>(pV);
+						pV->Parent = hw_parent;
+						const DWORD  style = WS_VISIBLE|WS_CHILD|WS_CLIPSIBLINGS|SS_LEFT;
+						const DWORD  ex_style = WS_EX_STATICEDGE;
+						hw = ::CreateWindowExW(ex_style, L"STATIC", 0, style, pV->ViewOrigin.x,
+							pV->ViewOrigin.y, pV->ViewSize.x, pV->ViewSize.y, hw_parent, (HMENU)ctl_id, TProgram::GetInst(), 0);						
+						if(hw) {
+							setup_font_blk.Set(hw);
+							TView::SetWindowUserData(hw, p_st);
+						}
+					}
 					break;
+			}
+			if(setup_font_blk.DoSetupFont) {
+				SPaintToolBox * p_tb = APPL->GetUiToolBox();
+				if(p_tb) {
+					SPaintObj::Font * p_f = p_tb->GetFont(SDrawContext(static_cast<HDC>(0)), TProgram::tbiControlFont);
+					if(p_f) {
+						HFONT f = static_cast<HFONT>(*p_f);
+						::SendMessageW(setup_font_blk.H_Wnd, WM_SETFONT, reinterpret_cast<WPARAM>(f), TRUE);
+					}
+				}
 			}
 		}
 		if(hw) {

@@ -5,7 +5,6 @@
 // 
 #include <slib-internal.h>
 #pragma hdrstop
-// @v10.6.5 #include "save.h"
 /*
  * The XML predefined entities.
  */

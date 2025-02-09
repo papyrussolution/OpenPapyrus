@@ -3591,12 +3591,10 @@ int PPViewGoods::Export(const PPGoodsImpExpParam * pExpCfg)
 			THROW(g_e.ExportPacket(&gpack, item.Barcode));
 			PPWaitPercent(GetCounter());
 		}
-		// @v10.9.6 {
 		if(g_e.P_IEGoods) {
 			g_e.P_IEGoods->CloseFile();
 			g_e.P_IEGoods->GetParam().DistributeFile(/*&logger*/0);
 		}
-		// } @v10.9.6
 		PPWaitStop();
 	}
 	CATCHZOKPPERR

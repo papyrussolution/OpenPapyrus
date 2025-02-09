@@ -671,7 +671,7 @@ static int common_get_params(void * key, OSSL_PARAM params[], int sm2)
 	if((p = OSSL_PARAM_locate(params,
 	    OSSL_PKEY_PARAM_ENCODED_PUBLIC_KEY)) != NULL) {
 		p->return_size = EC_POINT_point2oct(EC_KEY_get0_group((EC_KEY *)key), EC_KEY_get0_public_key((EC_KEY *)key),
-			POINT_CONVERSION_UNCOMPRESSED, (unsigned char *)p->data, p->return_size, bnctx);
+			POINT_CONVERSION_UNCOMPRESSED, (uchar *)p->data, p->return_size, bnctx);
 		if(p->return_size == 0)
 			goto err;
 	}
@@ -984,7 +984,7 @@ static int ec_gen_set_template(void * genctx, void * templ)
 			goto err;                                                              \
 		OPENSSL_free(val);                                                         \
 		len = p->data_size;                                                        \
-		val = (unsigned char *)OPENSSL_memdup(p->data, p->data_size);                               \
+		val = (uchar *)OPENSSL_memdup(p->data, p->data_size);                               \
 		if(val == NULL)                                                           \
 			goto err;                                                              \
 	}

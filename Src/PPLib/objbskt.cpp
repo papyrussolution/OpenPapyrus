@@ -71,15 +71,10 @@ struct PPGoodsBasketItem { // @#{sizeof(PPGoodsBasketItem) == sizeof(ObjAssocTbl
 };
 
 #ifdef _DEBUG // {
-
-static class LocalAssertion_PPObjGoodsBasket {
-public:
-	LocalAssertion_PPObjGoodsBasket()
-	{
-		STATIC_ASSERT(sizeof(PPGoodsBasketItem) == sizeof(ObjAssocTbl::Rec));
-	}
-} Inst_LocalAssertion_PPObjGoodsBasket;
-
+	static class LocalAssertion_PPObjGoodsBasket {
+	public:
+		LocalAssertion_PPObjGoodsBasket() { STATIC_ASSERT(sizeof(PPGoodsBasketItem) == sizeof(ObjAssocTbl::Rec)); }
+	} Inst_LocalAssertion_PPObjGoodsBasket;
 #endif // } _DEBUG
 //
 // PPBasketPacket
@@ -99,7 +94,7 @@ void PPBasketPacket::Init()
 	Head.ID  = Head.Num = Head.Flags = 0;
 	Head.Tag = PPOBJ_GOODSBASKET;
 	Head.User = LConfig.UserID;
-	PTR32(Head.Name)[0] = 0;
+	Head.Name[0] = 0;
 	Head.SupplID = 0;
 	GoodsID = 0;
 	Lots.freeAll();
@@ -277,6 +272,34 @@ PPObjGoodsBasket::PPObjGoodsBasket(void * extraPtr) : PPObjReference(PPOBJ_GOODS
 	return ok;
 }
 
+/*static*/ILTI & PPObjGoodsBasket::ObjAssocRecToBasketEntry(const ObjAssocTbl::Rec & rSrcRec, ILTI & rDest)
+{
+	const PPGoodsBasketItem & r_gbi = *reinterpret_cast<const PPGoodsBasketItem *>(&rSrcRec);
+	rDest.GoodsID     = r_gbi.ItemGoodsID;
+	rDest.Flags       = r_gbi.Flags;
+	rDest.Quantity    = r_gbi.Quantity;
+	rDest.Rest        = r_gbi.Quantity;
+	rDest.Price       = r_gbi.Price;
+	rDest.UnitPerPack = r_gbi.UnitPerPack;
+	rDest.Expiry      = r_gbi.Expiry;
+	rDest.BillID      = static_cast<PPID>(r_gbi.Num);
+	return rDest;
+}
+
+/*static*/void PPObjGoodsBasket::BasketEntryToObjAssocRec(const ILTI & rSrc, long internalNum, bool dontResetDestRecBefore, ObjAssocTbl::Rec & rDestRec)
+{
+	PPGoodsBasketItem & r_gbi = *reinterpret_cast<PPGoodsBasketItem *>(&rDestRec);
+	if(!dontResetDestRecBefore)
+		MEMSZERO(r_gbi);
+	r_gbi.ItemGoodsID = rSrc.GoodsID;
+	r_gbi.Flags       = rSrc.Flags;
+	r_gbi.Quantity    = rSrc.Quantity;
+	r_gbi.Price       = rSrc.Price;
+	r_gbi.UnitPerPack = rSrc.UnitPerPack;
+	r_gbi.Expiry      = rSrc.Expiry;
+	r_gbi.Num = internalNum;
+}
+
 int PPObjGoodsBasket::GetPacket(PPID id, PPBasketPacket * pData, long options)
 {
 	int    ok = 1;
@@ -286,7 +309,7 @@ int PPObjGoodsBasket::GetPacket(PPID id, PPBasketPacket * pData, long options)
 	}
 	else {
 		PPGoodsBasket gb;
-		PPGoodsBasketItem gbi;
+		ObjAssocTbl::Rec item_rec;
 		THROW(P_Ref->GetItem(Obj, id, &gb) > 0);
 		pData->destroy();
 		pData->Head.Tag     = gb.Tag;
@@ -301,16 +324,9 @@ int PPObjGoodsBasket::GetPacket(PPID id, PPBasketPacket * pData, long options)
 		int    new_load_method = 1; // Проверено: этот метод быстрее
 		if(new_load_method) {
 			PROFILE_START
-			for(SEnum en = P_Ref->Assc.Enum(PPASS_GOODSBASKET, gb.ID, 0); en.Next(&gbi) > 0;) {
-				ILTI   item;
-				item.GoodsID     = gbi.ItemGoodsID;
-				item.Flags       = gbi.Flags;
-				item.Quantity    = gbi.Quantity;
-				item.Rest        = gbi.Quantity;
-				item.Price       = gbi.Price;
-				item.UnitPerPack = gbi.UnitPerPack;
-				item.Expiry      = gbi.Expiry;
-				item.BillID      = static_cast<PPID>(gbi.Num);
+			for(SEnum en = P_Ref->Assc.Enum(PPASS_GOODSBASKET, gb.ID, 0); en.Next(&item_rec) > 0;) {
+				ILTI item;
+				PPObjGoodsBasket::ObjAssocRecToBasketEntry(item_rec, item);
 				THROW_SL(pData->Lots.insert(&item));
 			}
 			PROFILE_END
@@ -318,16 +334,9 @@ int PPObjGoodsBasket::GetPacket(PPID id, PPBasketPacket * pData, long options)
 		else {
 			PROFILE_START
 			PPID   scnd_id = -MAXLONG;
-			while(P_Ref->Assc.EnumByPrmr(PPASS_GOODSBASKET, gb.ID, &scnd_id, reinterpret_cast<ObjAssocTbl::Rec *>(&gbi)) > 0) {
-				ILTI   item;
-				item.GoodsID     = gbi.ItemGoodsID;
-				item.Flags       = gbi.Flags;
-				item.Quantity    = gbi.Quantity;
-				item.Rest        = gbi.Quantity;
-				item.Price       = gbi.Price;
-				item.UnitPerPack = gbi.UnitPerPack;
-				item.Expiry      = gbi.Expiry;
-				item.BillID      = static_cast<PPID>(gbi.Num);
+			while(P_Ref->Assc.EnumByPrmr(PPASS_GOODSBASKET, gb.ID, &scnd_id, &item_rec) > 0) {
+				ILTI item;
+				PPObjGoodsBasket::ObjAssocRecToBasketEntry(item_rec, item);
 				THROW_SL(pData->Lots.insert(&item));
 			}
 			PROFILE_END
@@ -373,16 +382,9 @@ int PPObjGoodsBasket::PutPacket(PPID * pID, PPBasketPacket * pData, int use_ta)
 				else {
 					ILTI * pi;
 					for(i = 0; pData->Lots.enumItems(&i, (void **)&pi);) {
-						PPGoodsBasketItem gbi;
-						MEMSZERO(gbi);
-						gbi.ItemGoodsID = pi->GoodsID;
-						gbi.Flags       = pi->Flags;
-						gbi.Quantity    = pi->Quantity;
-						gbi.Price       = pi->Price;
-						gbi.UnitPerPack = pi->UnitPerPack;
-						gbi.Expiry      = pi->Expiry;
-						gbi.Num = i;
-						THROW_SL(items.insert(&gbi));
+						ObjAssocTbl::Rec dest_rec;
+						PPObjGoodsBasket::BasketEntryToObjAssocRec(*pi, i, false/*dontResetDestRecBefore*/, dest_rec);
+						THROW_SL(items.insert(&dest_rec));
 					}
 					PPGoodsBasket head;
 					MEMSZERO(head);
@@ -524,8 +526,36 @@ StrAssocArray * PPObjGoodsBasket::MakeStrAssocList(void * extraPtr)
 					if(r_item.Val == _id) {
 						if(P_Ref->Assc.Search(PPASS_GOODSBASKET, r_item.Key, r_item.Val, &assc_rec) > 0) {
 							if(assc_rec.AsscType == PPASS_GOODSBASKET && assc_rec.PrmrObjID == r_item.Key && assc_rec.ScndObjID == r_item.Val) { // @paranoic
-								assc_rec.ScndObjID = replacer_id;
-								THROW(P_Ref->Assc.Update(assc_rec.ID, &assc_rec, 0));
+								// @v12.2.6 assc_rec.ScndObjID = replacer_id;
+								// @v12.2.6 THROW(P_Ref->Assc.Update(assc_rec.ID, &assc_rec, 0));
+								// @v12.2.6 {
+								PPGoodsBasket2 basket_rec;
+								if(Search(r_item.Key, &basket_rec) > 0) {
+									ObjAssocTbl::Rec dest_item_rec;
+									if(P_Ref->Assc.Search(PPASS_GOODSBASKET, r_item.Key, replacer_id, &dest_item_rec) > 0) { // Элемент корзины с таким товаром уже существует
+										// Удаляем запись корзины, соответствующую объединяемому товару
+										THROW(P_Ref->Assc.Remove(PPASS_GOODSBASKET, r_item.Key, r_item.Val, 0));
+										{
+											// Теперь в элемент корзины с объединяющим товаров добавляем количество из объединяемого элемента и меняем запись.
+											ILTI dest_item;
+											ILTI src_item;
+											PPObjGoodsBasket::ObjAssocRecToBasketEntry(dest_item_rec, dest_item);
+											PPObjGoodsBasket::ObjAssocRecToBasketEntry(assc_rec, src_item);
+											dest_item.Quantity += src_item.Quantity;
+											dest_item.Rest += src_item.Rest;
+											PPObjGoodsBasket::BasketEntryToObjAssocRec(dest_item, dest_item_rec.InnerNum, true/*dontResetDestRecBefore*/, dest_item_rec);
+											THROW(P_Ref->Assc.Update(dest_item_rec.ID, &dest_item_rec, 0));
+										}
+									}
+									else {
+										assc_rec.ScndObjID = replacer_id;
+										THROW(P_Ref->Assc.Update(assc_rec.ID, &assc_rec, 0));
+									}
+								}
+								else {
+									THROW(P_Ref->Assc.Remove(PPASS_GOODSBASKET, r_item.Key, r_item.Val, 0));
+								}
+								// } @v12.2.6 
 							}
 						}
 					}
@@ -1639,8 +1669,8 @@ public:
 			AddClusterAssoc(CTL_GBTRUC_FLAGS, 1, GBASKF_SORTITEMS);
 			SetClusterData(CTL_GBTRUC_FLAGS, R_Data.Pack.Head.Flags);
 			setCtrlUInt16(CTL_GBTRUC_PRIVATE, BIN(R_Data.Pack.Head.Flags & GBASKF_PRIVATE));
-			DisableClusterItem(CTL_GBTRUC_FLAGS, 0, oneof2(R_Data.Pack.Head.ID, PPGDSBSK_ACNUPD, PPGDSBSK_ACNRMV)); // @v10.6.8
-			DisableClusterItem(CTL_GBTRUC_PRIVATE, 0, oneof2(R_Data.Pack.Head.ID, PPGDSBSK_ACNUPD, PPGDSBSK_ACNRMV)); // @v10.6.8
+			DisableClusterItem(CTL_GBTRUC_FLAGS, 0, oneof2(R_Data.Pack.Head.ID, PPGDSBSK_ACNUPD, PPGDSBSK_ACNRMV));
+			DisableClusterItem(CTL_GBTRUC_PRIVATE, 0, oneof2(R_Data.Pack.Head.ID, PPGDSBSK_ACNUPD, PPGDSBSK_ACNRMV));
 		}
 		else
 			SetupPPObjCombo(this, CTLSEL_GBTRUC_BASKET, PPOBJ_GOODSBASKET, R_Data.Pack.Head.ID, OLW_LOADDEFONOPEN, 0);
@@ -1675,11 +1705,9 @@ public:
 		}
 		if(ok) {
 			R_Data.Pack.Head.SupplID = getCtrlLong(CTLSEL_GBTRUC_SUPPL);
-			// @v10.6.8 {
 			if(oneof2(R_Data.Pack.Head.ID, PPGDSBSK_ACNUPD, PPGDSBSK_ACNRMV)) {
 				R_Data.Pack.Head.Flags &= ~(GBASKF_DEFAULT|GBASKF_PRIVATE);
 			}
-			// } @v10.6.8 
 		}
 		return ok;
 	}
@@ -1810,7 +1838,7 @@ int GBDialog::addItem(long * pPos, long * pID)
 {
 	int    ok = -1, r = 0;
 	SString msg_buf;
-	long   egsd_flags = ExtGoodsSelDialog::GetDefaultFlags(); // @v10.7.7
+	long   egsd_flags = ExtGoodsSelDialog::GetDefaultFlags();
 	SETIFZ(P_EGSDlg, new ExtGoodsSelDialog(0, 0, egsd_flags));
 	if(CheckDialogPtrErr(&P_EGSDlg)) {
 		while(ExecView(P_EGSDlg) == cmOK) {
@@ -2260,9 +2288,9 @@ int PPObjBill::ConvertBasket(const PPBasketPacket & rBasket, PPBillPacket * pPac
 			ilti.Cost  = 0.0;
 			ilti.Price = 0.0;
 			if(p_link_ti)
-				ilti.Cost = R5(p_link_ti->Cost); // @v10.8.0 R2-->R5
+				ilti.Cost = R5(p_link_ti->Cost);
 			else if(param.RuleCost == Basket2BillParam::costFromBasket)
-				ilti.Cost = R5(p_item->Price); // @v10.8.0 R2-->R5
+				ilti.Cost = R5(p_item->Price);
 			else if(param.RuleCost == Basket2BillParam::costFromLastLot)
 				ilti.Cost = R5(lot_rec.Cost);
 

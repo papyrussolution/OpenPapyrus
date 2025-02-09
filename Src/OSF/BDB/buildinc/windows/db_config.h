@@ -208,7 +208,7 @@
 #ifndef HAVE_SMALLBUILD
 	#define HAVE_VERIFY 1 // Define to 1 if building access method verification support.
 #endif
-#define HAVE_VSNPRINTF 1 // Define to 1 if you have the `vsnprintf' function.
+// @v12.2.6 (slport.h) #define HAVE_VSNPRINTF 1 // Define to 1 if you have the `vsnprintf' function.
 // #undef HAVE_VXWORKS // Define to 1 if building VxWorks.
 // #undef HAVE_YIELD // Define to 1 if you have the `yield' function.
 #define HAVE__FSTATI64 1 // Define to 1 if you have the `_fstati64' function.

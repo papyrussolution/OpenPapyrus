@@ -1,5 +1,5 @@
 // DL600.H
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2010, 2011, 2015, 2016б 2017, 2018, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2010, 2011, 2015, 2016б 2017, 2018, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #ifndef __DL600_H
@@ -7,7 +7,6 @@
 #include <slib.h>
 #include <db.h>
 #include <slui.h>
-// @v10.9.4 (inlined in slib.h) #include <json.h> // @Muxa
 //
 //
 //
@@ -363,26 +362,6 @@ public:
 		cuifFont,         // string
 		cuifStaticEdge,   // int8 // deprecated in favor of cuifFlags
 		cuifLayoutType,   // int8 @construction
-		//
-		//cuifLayoutFlags,          // @v10.9.12 uint32
-		//cuifLayoutSzkX,           // @v10.9.12 SUiLayoutParam::szXXX Опции расчета размера по оси X
-		//cuifLayoutSzkY,           // @v10.9.12 SUiLayoutParam::szXXX Опции расчета размера по оси Y
-		//cuifLayoutUOM,            // @v10.9.12 int32 
-		//cuifLayoutSize,           // @v10.9.12 SPoint2F
-		//cuifLayoutJustifyContent, // @v10.9.12 uint16 SUiLayoutParam::alignXXX Выравнивание внутренних элементов вдоль основной оси
-		//cuifLayoutAlignContent,   // @v10.9.12 uint16 SUiLayoutParam::alignXXX Выравнивание внутренних элементов по кросс-оси
-		//cuifLayoutAlignItems,     // @v10.9.12 uint16 SUiLayoutParam::alignXXX
-		//cuifLayoutAlignSelf,      // @v10.9.12 uint16 SUiLayoutParam::alignXXX
-		//cuifLayoutGravityX,       // @v10.9.12 uint16 Gravity of this entry by X-axis. 0 || SIDE_LEFT || SIDE_RIGHT || SIDE_CENTER
-		//cuifLayoutGravityY,       // @v10.9.12 uint16 Gravity of this entry by Y-axis. 0 || SIDE_TOP || SIDE_BOTTOM || SIDE_CENTER 
-		//cuifLayoutOrder,          // @v10.9.12 int32  Порядковый номер элемента в линейном ряду потомков одного родителя //
-		//cuifLayoutNominalBB,      // @v10.9.12 FRect  Номинальные границы элемента. Заданы или нет определяется флагами fNominalDefL, fNominalDefT, fNominalDefR, fNominalDefB
-		//cuifLayoutPadding,        // @v10.9.12 FRect Внешние поля элемента
-		//cuifLayoutMargin,         // @v10.9.12 FRect Внутренние поля 
-		//cuifLayoutGrowFactor,     // @v10.9.12 float Доля от размера всех элементов контейнера по продольной оси (определяемой флагами fContainerRow и fContainerCol)
-		//cuifLayoutShrinkFactor,   // @v10.9.12 float
-		//cuifLayoutBasis,          // @v10.9.12 float
-		//cuifLayoutAspectRatio,    // @v10.9.12 float Отношение высоты к ширине. Используется в случае, если одна из размерностей не определена
 		cuifViewTabStop,          // @v11.0.4 bool // deprecated in favor of cuifFlags
 		cuifLayoutBlock,          // @v11.0.5 SUiLayoutParam
 		cuifFlags,                // @v11.0.4 UiItemKind::fXXX 
@@ -582,10 +561,8 @@ private:
 	LongArray * P_DbIdxSegFlags; // Список флагов сегментов индекса таблицы базы данных (только для kDbIndex)
 	SBaseBuffer FixDataBuf;      // @transient Буфер записи для фиксированных полей (не формул)
 		// Экземпляр класса DlScope не владеет указателем FixDataBuf.P_Buf, по-этому деструктор не вызывает FixDataBuf.Destroy()
-// @v10.8.4 #ifdef DL600C // {
 	TSVector <CfItem> TempCfList;
 	DLSYMBID LastLocalId;
-// @v10.8.4 #endif
 };
 //
 //
@@ -638,8 +615,8 @@ struct CtmToken {
 		char * S;
 		S_GUID_Base Uuid;
 		SColorBase Color; // @v11.0.4
-		int    I2[2]; // @v10.9.1
-		int    I4[4]; // @v10.9.1
+		int    I2[2];
+		int    I4[4];
 		UiCoord UIC; // @v11.0.4
 		UiRelPoint PT; // @v11.0.4
 		UiRelRect Rect; // @v11.0.4
@@ -909,9 +886,9 @@ public:
 		cfBinOnly       = 0x0002, // Создавать только бинарные файлы (не генерировать .H, .CPP и прочие файлы для разработки)
 		cfSQL           = 0x0004, // Генерировать SQL-скрипт для создания таблиц базы данных
 		cfOracle        = 0x0008, // Генерировать SQL-скрипт специфичный для ORACLE для создания таблиц базы данных
-		cfGravity       = 0x0010, // @v10.8.2 Генерировать gravity интерфейсы
-		cfMySQL         = 0x0020, // @v10.9.1 Генерировать SQL-скрипт специфичный для MySQL для создания таблиц базы данных
-		cfSqLite        = 0x0040, // @v10.9.1 Генерировать SQL-скрипт специфичный для SqLite для создания таблиц базы данных
+		cfGravity       = 0x0010, // Генерировать gravity интерфейсы
+		cfMySQL         = 0x0020, // Генерировать SQL-скрипт специфичный для MySQL для создания таблиц базы данных
+		cfSqLite        = 0x0040, // Генерировать SQL-скрипт специфичный для SqLite для создания таблиц базы данных
 		cfStyloQAndroid = 0x0080, // @v11.1.2 Генерировать модули для проекта StyloQ Android (если другие опции это предполагают)
 		cfSkipBtrDict   = 0x0100, // @v11.9.4 Не создавать словарь btrieve
 	};
@@ -1055,9 +1032,7 @@ public:
 	int    GetDbTableSpecList(StrAssocArray * pList) const;
 	int    Test_ReWr_Code(const DlContext & rPattern);
 	int    GetDialogList(StrAssocArray * pList) const;
-// @v10.8.4 #ifdef DL600C // {
 	UUIDAssocArray TempUuidList; // @transient Временный список GUID'ов используемый при компиляции
-// @v10.8.4 #endif
 	int    Test();
 private:
 	DlScope * Helper_GetScope(DLSYMBID id, const DlScope * pScope, int kind) const;
@@ -1125,10 +1100,10 @@ private:
 		ffCPP_Imp,     // Реализация в CPP-файле
 		ffCPP_VTbl,    // Элемент таблицы виртуальных функций в CPP-файле
 		ffCPP_CallImp, // Вызов реализации из интерфейсной функции
-		ffH_GravityIface,   // @v10.8.6 Прототип интерфейса Gravity в H-файле
-		ffH_GravityImp,     // @v10.8.6 Прототип реализации интерфейса Gravity в H-файле
-		ffCPP_GravityIface, // @v10.8.6 Реализация интефейса Gravity в CPP-файле
-		ffCPP_GravityImp,   // @v10.8.6 Реализация Gravity в CPP-файле
+		ffH_GravityIface,   // Прототип интерфейса Gravity в H-файле
+		ffH_GravityImp,     // Прототип реализации интерфейса Gravity в H-файле
+		ffCPP_GravityIface, // Реализация интефейса Gravity в CPP-файле
+		ffCPP_GravityImp,   // Реализация Gravity в CPP-файле
 	};
 	int    Write_Func(Generator_CPP & gen, const DlFunc & rFunc, int format, const char * pForward = 0);
 	int    Write_C_ImplInterfaceFunc(Generator_CPP & gen, const SString & rClsName, DlFunc & rFunc, long cflags);
@@ -1308,8 +1283,8 @@ public:
 				// Возникновение флага обусловлено тем, что CrystalReports не требует для печати
 				// файлов словарей. Однако, они необходимы для формирования и редактирования отчетов в дизайнере.
 			fDontWriteXmlDTD   = 0x0010, // Не формировать DTD в XML-файле
-			fDontWriteXmlTypes = 0x0020, // @v7.1.9 Не формировать зону типов в XML-файле
-			fCompressXml       = 0x0040, // @v10.6.0 Сжимать создаваемый XML-файл
+			fDontWriteXmlTypes = 0x0020, // Не формировать зону типов в XML-файле
+			fCompressXml       = 0x0040, // Сжимать создаваемый XML-файл
 			fJsonStQStyle      = 0x0080  // @v11.2.0 При выводе в JSON-формате применять новую структуру (в рамках работы над проектом StyloQ)
 		};
 		PPFilt * P_F;
@@ -1374,7 +1349,7 @@ protected:
 	int    SortIdx; // PPALDD compatibility
 	SV_Uint32 IterList; // Массив идентификаторов (DLSYMBID) областей видимости, соответствующих
 		// итераторам. Функция GetIterID возвращает индекс+1 [1..] в этом массиве.
-	ExtData2 * Extra; // @v10.9.9 ExtData-->ExtData2
+	ExtData2 * Extra;
 private:
 	int    InitScope(const DlScope * pScope, int topLevel); // @recursion @<<DlRtm::DlRtm
 };
@@ -1605,13 +1580,13 @@ private:
 #define IFACE_METHOD_EPILOG /*TRACE_FUNC();*/ return __tp->Epilog()
 #define IMCI(func) __tp->func
 
-int Use001(); // @v5.4.5, чтобы линковались модули с коклассами
+int Use001(); // чтобы линковались модули с коклассами
 //
 // Макроопределения, используемые для описания таблиц баз данных //
 //
 #define DBTABLE_CONSTRUCTOR(tbl, firstField) \
 	tbl##Tbl::tbl##Tbl(const char * pFileName/*, int openMode*/) : DBTable(#tbl, pFileName, &firstField, &data, /*openMode*/omNormal) {}\
-	tbl##Tbl::Rec::Rec() { THISZERO(); } // @v10.6.4
+	tbl##Tbl::Rec::Rec() { THISZERO(); }
 
 #ifdef DL600C // {
 //

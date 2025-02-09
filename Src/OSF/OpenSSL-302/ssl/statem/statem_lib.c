@@ -2154,7 +2154,7 @@ int create_synthetic_message_hash(SSL * s, const uchar * hashval, size_t hashlen
 
 	/* Inject the synthetic message_hash message */
 	msghdr[0] = SSL3_MT_MESSAGE_HASH;
-	msghdr[SSL3_HM_HEADER_LENGTH - 1] = (unsigned char)hashlen;
+	msghdr[SSL3_HM_HEADER_LENGTH - 1] = (uchar)hashlen;
 	if(!ssl3_finish_mac(s, msghdr, SSL3_HM_HEADER_LENGTH)
 	    || !ssl3_finish_mac(s, hashval, hashlen)) {
 		/* SSLfatal() already called */

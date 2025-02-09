@@ -387,7 +387,7 @@ int PPServerCmd::ParseLine(const SString & rLine, long flags)
 		{ PPHS_EXPTARIFFTA              , /*"EXPTARIFFTA",*/               tExpTariffTA,             PPSCMD_EXPTARIFFTA,           cmdfNeedAuth },
 		{ PPHS_SENDSMS                  , /*"SENDSMS",*/                   tSendSMS,                 PPSCMD_SENDSMS,               cmdfNeedAuth },
 		{ PPHS_RESETCACHE               , /*"RESETCACHE",*/                tResetCache,              PPSCMD_RESETCACHE,            cmdfNeedAuth },
-		{ PPHS_LOGLOCKSTACK             , /*"LOGLOCKSTACK",*/              tLogLockStack,            PPSCMD_LOGLOCKSTACK,          0            }, // @v9.8.1
+		{ PPHS_LOGLOCKSTACK             , /*"LOGLOCKSTACK",*/              tLogLockStack,            PPSCMD_LOGLOCKSTACK,          0            },
 		{ PPHS_CPOSINIT                 , /*"CPOSINIT",*/                  tCPosProcessorCommand,    PPSCMD_POS_INIT,              cmdfNeedAuth },
 		{ PPHS_CPOSRELEASE              , /*"CPOSRELEASE",*/               tCPosProcessorCommand,    PPSCMD_POS_RELEASE,           cmdfNeedAuth },
 		{ PPHS_CPOSGETCTABLELIST        , /*"CPOSGETCTABLELIST",*/         tCPosProcessorCommand,    PPSCMD_POS_GETCTABLELIST,     cmdfNeedAuth },
@@ -422,11 +422,11 @@ int PPServerCmd::ParseLine(const SString & rLine, long flags)
 		{ PPHS_QUERYNATURALTOKEN        , /*"QUERYNATURALTOKEN",*/         tQueryNaturalToken,       PPSCMD_QUERYNATURALTOKEN,     cmdfNeedAuth },
 		{ PPHS_GETARTICLEBYPERSON       , /*"GETARTICLEBYPERSON",*/        tGetArticleByPerson,      PPSCMD_GETARTICLEBYPERSON,    cmdfNeedAuth },
 		{ PPHS_GETPERSONBYARTICLE       , /*"GETPERSONBYARTICLE",*/        tGetPersonByArticle,      PPSCMD_GETPERSONBYARTICLE,    cmdfNeedAuth },
-		{ PPHS_SETTIMESERIES            , /*"settimeseries",*/             tSetTimeSeries,           PPSCMD_SETTIMESERIES,         cmdfNeedAuth }, // @v10.2.3
-		{ PPHS_GETREQQUOTES             , /*"getreqquotes",*/              tGetReqQuotes,            PPSCMD_GETREQQUOTES,          cmdfNeedAuth }, // @v10.2.4
-		{ PPHS_SETTIMESERIESPROP        , /*"settimeseriesprop",*/         tSetTimeSeriesProp,       PPSCMD_SETTIMESERIESPROP,     cmdfNeedAuth }, // @v10.2.5
-		{ PPHS_SETTIMESERIESSTKENV      , /*"settimeseriesstkenv",*/       tSetTimeSeriesStkEnv,     PPSCMD_SETTIMESERIESSTKENV,   cmdfNeedAuth }, // @v10.2.10
-		{ PPHS_GETCOMMONMQSCONFIG       , /*"getcommonmqsconfig",*/        tGetCommonMqsConfig,      PPSCMD_GETCOMMONMQSCONFIG,    cmdfNeedAuth }, // @v10.5.9
+		{ PPHS_SETTIMESERIES            , /*"settimeseries",*/             tSetTimeSeries,           PPSCMD_SETTIMESERIES,         cmdfNeedAuth },
+		{ PPHS_GETREQQUOTES             , /*"getreqquotes",*/              tGetReqQuotes,            PPSCMD_GETREQQUOTES,          cmdfNeedAuth },
+		{ PPHS_SETTIMESERIESPROP        , /*"settimeseriesprop",*/         tSetTimeSeriesProp,       PPSCMD_SETTIMESERIESPROP,     cmdfNeedAuth },
+		{ PPHS_SETTIMESERIESSTKENV      , /*"settimeseriesstkenv",*/       tSetTimeSeriesStkEnv,     PPSCMD_SETTIMESERIESSTKENV,   cmdfNeedAuth },
+		{ PPHS_GETCOMMONMQSCONFIG       , /*"getcommonmqsconfig",*/        tGetCommonMqsConfig,      PPSCMD_GETCOMMONMQSCONFIG,    cmdfNeedAuth },
 		{ PPHS_EXECJOBIMM               ,                                  tExecJobImm,              PPSCMD_EXECJOBIMM,                       0 }, // @v11.3.9
 		{ PPHS_GETDBINFO                ,                                  tGetDbInfo,               PPSCMD_GETDBINFO,                        0 }, // @v12.0.6
 	};
@@ -2510,9 +2510,13 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 	int    disable_err_reply = 0;
 	int    r = 0;
 	SJson * p_js_param = 0;
-	SString reply_buf, temp_buf, name, db_symb;
+	SString temp_buf;
+	SString reply_buf;
+	SString name;
+	SString db_symb;
+	const  int32 __cmd =  pEv->GetH().Type;
 	THROW(rReply.StartWriting());
-	switch(pEv->GetH().Type) {
+	switch(__cmd) {
 		//
 		// Эти команды обрабатываются порожденными классами {
 		//
@@ -2526,11 +2530,11 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 		case PPSCMD_PUTNEXTFILEPART:
 		case PPSCMD_TEST:
 		case PPSCMD_GETDISPLAYINFO:
-		case PPSCMD_SETTIMESERIES: // @v10.2.4
-		case PPSCMD_GETREQQUOTES: // @v10.2.4
-		case PPSCMD_SETTIMESERIESPROP: // @v10.2.5
-		case PPSCMD_SETTIMESERIESSTKENV: // @v10.2.10
-		case PPSCMD_TIMESERIESTANOTIFY: // @v10.4.0
+		case PPSCMD_SETTIMESERIES:
+		case PPSCMD_GETREQQUOTES:
+		case PPSCMD_SETTIMESERIESPROP:
+		case PPSCMD_SETTIMESERIESSTKENV:
+		case PPSCMD_TIMESERIESTANOTIFY:
 			ok = cmdretUnprocessed;
 			break;
 		// }

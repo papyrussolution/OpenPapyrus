@@ -66,9 +66,7 @@
 #define ConvertDaysToMilliseconds(DAYS) ((DAYS) * (SlConst::SecsPerDay * 1000))
 #define ConvertDaysToMicroseconds(DAYS) ((DAYS) * (SlConst::SecsPerDay * 1000000LL))
 
-#ifndef _WIN32_WCE
-	#define USE_DF_CLARION
-#endif
+#define USE_DF_CLARION
 
 const LDATE ZERODATE = {0L};
 const LDATE MAXDATE  = {MAXLONG};
@@ -549,13 +547,11 @@ void STDCALL _decodedate(int * day, int * mon, int * year, const void * pBuf, in
 	char   tmp[64];
 	switch(format) {
 		case DF_BTRIEVE: static_cast<const LDATE *>(pBuf)->decode(day, mon, year); break;
-#ifndef _WIN32_WCE
 		case DF_DOS:
 			*day  = static_cast<const SDosDate *>(pBuf)->da_day;
 			*mon  = static_cast<const SDosDate *>(pBuf)->da_mon;
 			*year = static_cast<const SDosDate *>(pBuf)->da_year;
 			break;
-#endif
 		case DF_FAT:
 			*year = (PTR32C(pBuf)[0] >> 9) + 1980;
 			*mon  = (PTR32C(pBuf)[0] >> 5) & 0x000f;
@@ -800,8 +796,6 @@ int FASTCALL checktime(LTIME tm)
 		return 1;
 }
 
-#ifndef _WIN32_WCE // {
-
 LTIME::operator OleDate() const
 {
 	LDATETIME dtm;
@@ -830,8 +824,6 @@ LTIME LTIME::encode(int h, int m, int s, int ms)
 	*this = encodetime(h, m, s, ms / 10);
 	return *this;
 }
-
-#endif // }
 
 long FASTCALL LTIME::settotalsec(long s)
 {

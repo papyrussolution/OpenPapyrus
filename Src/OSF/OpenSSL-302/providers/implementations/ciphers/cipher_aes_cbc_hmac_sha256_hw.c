@@ -519,9 +519,9 @@ static int aesni_cbc_hmac_sha256_cipher(PROV_CIPHER_CTX * vctx, unsigned char * 
 			bitlen = BSWAP4(bitlen);
 #else
 			mac.c[0] = 0;
-			mac.c[1] = (unsigned char)(bitlen >> 16);
-			mac.c[2] = (unsigned char)(bitlen >> 8);
-			mac.c[3] = (unsigned char)bitlen;
+			mac.c[1] = (uchar)(bitlen >> 16);
+			mac.c[2] = (uchar)(bitlen >> 8);
+			mac.c[3] = (uchar)bitlen;
 			bitlen = mac.u[0];
 #endif /* BSWAP */
 
@@ -539,7 +539,7 @@ static int aesni_cbc_hmac_sha256_cipher(PROV_CIPHER_CTX * vctx, unsigned char * 
 				mask = (j - inp_len) >> (sizeof(j) * 8 - 8);
 				c &= mask;
 				c |= 0x80 & ~mask & ~((inp_len - j) >> (sizeof(j) * 8 - 8));
-				data->c[res++] = (unsigned char)c;
+				data->c[res++] = (uchar)c;
 
 				if(res != SHA256_CBLOCK)
 					continue;
@@ -604,10 +604,10 @@ static int aesni_cbc_hmac_sha256_cipher(PROV_CIPHER_CTX * vctx, unsigned char * 
 #else
 			for(i = 0; i < 8; i++) {
 				res = pmac->u[i];
-				pmac->c[4 * i + 0] = (unsigned char)(res >> 24);
-				pmac->c[4 * i + 1] = (unsigned char)(res >> 16);
-				pmac->c[4 * i + 2] = (unsigned char)(res >> 8);
-				pmac->c[4 * i + 3] = (unsigned char)res;
+				pmac->c[4 * i + 0] = (uchar)(res >> 24);
+				pmac->c[4 * i + 1] = (uchar)(res >> 16);
+				pmac->c[4 * i + 2] = (uchar)(res >> 8);
+				pmac->c[4 * i + 3] = (uchar)res;
 			}
 #endif /* BSWAP */
 			len += SHA256_DIGEST_LENGTH;

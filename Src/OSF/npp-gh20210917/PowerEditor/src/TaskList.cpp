@@ -82,17 +82,14 @@ RECT TaskList::adjustSize()
 			maxwidth = width;
 		_rc.bottom += rc.bottom - rc.top;
 	}
-
 	_rc.right = maxwidth + imgWidth + leftMarge;
 	ListView_SetColumnWidth(_hSelf, 0, _rc.right);
 	::SendMessage(_hSelf, WM_SETFONT, reinterpret_cast<WPARAM>(_hFont), 0);
-
 	//if the tasklist exceeds the height of the display, leave some space at the bottom
 	if(_rc.bottom > ::GetSystemMetrics(SM_CYSCREEN) - 120) {
 		_rc.bottom = ::GetSystemMetrics(SM_CYSCREEN) - 120;
 	}
 	reSizeTo(_rc);
-
 	// Task List's border is 1px smaller than ::GetSystemMetrics(SM_CYFRAME) returns
 	_rc.bottom += (::GetSystemMetrics(SM_CYFRAME) - 1) * 2;
 	return _rc;
@@ -104,19 +101,8 @@ void TaskList::setFont(const TCHAR * fontName, int fontSize)
 		::DeleteObject(_hFont);
 	if(_hFontSelected)
 		::DeleteObject(_hFontSelected);
-
-	_hFont = ::CreateFont(fontSize, 0, 0, 0,
-		FW_NORMAL,
-		0, 0, 0, 0,
-		0, 0, 0, 0,
-		fontName);
-
-	_hFontSelected = ::CreateFont(fontSize, 0, 0, 0,
-		FW_BOLD,
-		0, 0, 0, 0,
-		0, 0, 0, 0,
-		fontName);
-
+	_hFont = ::CreateFont(fontSize, 0, 0, 0, FW_NORMAL, 0, 0, 0, 0, 0, 0, 0, 0, fontName);
+	_hFontSelected = ::CreateFont(fontSize, 0, 0, 0, FW_BOLD, 0, 0, 0, 0, 0, 0, 0, 0, fontName);
 	if(_hFont)
 		::SendMessage(_hSelf, WM_SETFONT, reinterpret_cast<WPARAM>(_hFont), 0);
 }

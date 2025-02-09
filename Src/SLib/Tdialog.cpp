@@ -463,9 +463,9 @@ int TDialog::BuildEmptyWindow() // @v12.2.5
 			const SString & r_dlg_title = getTitle();
 			title.CopyFromMb_INNER(r_dlg_title.cptr(), r_dlg_title.Len());
 		}
-		bool   set_font = false;
+		bool   set_font = true;
 		// FONT 8, "MS Shell Dlg", 0, 0, 0x0
-		uint16 font_size = 8;
+		uint16 font_size = 10;
 		SStringU font_face(L"MS Shell Dlg");
 		size_t buf_size = sizeof(DLGTEMPLATE);
 		buf_size += ((menu.Len()+1) * sizeof(wchar_t));
@@ -478,7 +478,7 @@ int TDialog::BuildEmptyWindow() // @v12.2.5
 		if(p_dlgt) {
 			size_t p = 0;
 			p_dlgt->style = (DS_MODALFRAME|DS_FIXEDSYS|WS_POPUP|WS_CAPTION|WS_SYSMENU);
-			p_dlgt->style |= WS_THICKFRAME;
+			p_dlgt->style |= WS_THICKFRAME/*==WS_SIZEBOX*/;
 			if(set_font) {
 				p_dlgt->style |= DS_SETFONT;
 			}

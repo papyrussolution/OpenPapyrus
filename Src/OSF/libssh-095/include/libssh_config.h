@@ -61,7 +61,7 @@
 #define HAVE_SNPRINTF 1 /* Define to 1 if you have the `snprintf' function. */
 #define HAVE__SNPRINTF 1 /* Define to 1 if you have the `_snprintf' function. */
 #define HAVE__SNPRINTF_S 1 /* Define to 1 if you have the `_snprintf_s' function. */
-#define HAVE_VSNPRINTF 1 /* Define to 1 if you have the `vsnprintf' function. */
+// @v12.2.6 (slport.h) #define HAVE_VSNPRINTF 1 /* Define to 1 if you have the `vsnprintf' function. */
 #define HAVE__VSNPRINTF 1 /* Define to 1 if you have the `_vsnprintf' function. */
 #define HAVE__VSNPRINTF_S 1 /* Define to 1 if you have the `_vsnprintf_s' function. */
 #define HAVE_ISBLANK 1 /* Define to 1 if you have the `isblank' function. */
@@ -74,7 +74,7 @@
 //#define HAVE_CLOCK_GETTIME 1 // Define to 1 if you have the `clock_gettime' function. 
 //#define HAVE_NTOHLL 1 // Define to 1 if you have the `ntohll' function. 
 //#define HAVE_HTONLL 1 // Define to 1 if you have the `htonll' function. 
-#define HAVE_STRTOULL 1 /* Define to 1 if you have the `strtoull' function. */
+// @v12.2.6 (slport.h) #define HAVE_STRTOULL 1 /* Define to 1 if you have the `strtoull' function. */
 #define HAVE___STRTOULL 1 /* Define to 1 if you have the `__strtoull' function. */
 #define HAVE__STRTOUI64 1 /* Define to 1 if you have the `_strtoui64' function. */
 //#define HAVE_GLOB 1 // Define to 1 if you have the `glob' function. 

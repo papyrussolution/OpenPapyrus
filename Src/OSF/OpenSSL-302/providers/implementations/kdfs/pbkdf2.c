@@ -314,10 +314,10 @@ static int pbkdf2_derive(const char * pass, size_t passlen,
 		 * We are unlikely to ever use more than 256 blocks (5120 bits!) but
 		 * just in case...
 		 */
-		itmp[0] = (unsigned char)((i >> 24) & 0xff);
-		itmp[1] = (unsigned char)((i >> 16) & 0xff);
-		itmp[2] = (unsigned char)((i >> 8) & 0xff);
-		itmp[3] = (unsigned char)(i & 0xff);
+		itmp[0] = (uchar)((i >> 24) & 0xff);
+		itmp[1] = (uchar)((i >> 16) & 0xff);
+		itmp[2] = (uchar)((i >> 8) & 0xff);
+		itmp[3] = (uchar)(i & 0xff);
 		if(!HMAC_CTX_copy(hctx, hctx_tpl))
 			goto err;
 		if(!HMAC_Update(hctx, salt, saltlen)

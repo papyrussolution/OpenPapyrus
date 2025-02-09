@@ -1648,8 +1648,7 @@ void DrawButton(_In_ DRAWITEMSTRUCT* DrawItemStruct, _In_ BUTTON Button)
 	SIZE StringSizeInPixels = { 0 };
 	const UINT16 ButtonWidth = (UINT16)(Button.Rectangle.right - Button.Rectangle.left);
 	HFONT ButtonFont = NULL;
-	ButtonFont = CreateFontW(-12, 0, 0, 0, FW_NORMAL, 0, 0, 0, ANSI_CHARSET,
-		OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH, L"Segoe UI");
+	ButtonFont = CreateFontW(-12, 0, 0, 0, FW_NORMAL, 0, 0, 0, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH, L"Segoe UI");
 	SelectObject(DrawItemStruct->hDC, ButtonFont);
 	SetDCBrushColor(DrawItemStruct->hDC, GetSysColor(COLOR_BTNFACE));
 	SelectObject(DrawItemStruct->hDC, GetStockObject(DC_BRUSH));

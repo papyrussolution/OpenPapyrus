@@ -1,5 +1,5 @@
 // GCT.CPP
-// Copyright (c) A.Sobolev, A.Starodub 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024
+// Copyright (c) A.Sobolev, A.Starodub 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025
 // @codepage UTF-8
 // Построение перекрестной отчетности по товарным операциям
 //
@@ -371,15 +371,16 @@ int PPViewGoodsTrnovr::Print()
 
 int ViewGoodsTurnover(long)
 {
-	int    ok = 1, view_in_use = 0;
-	int    modeless = GetModelessStatus();
+	int    ok = 1;
+	int    view_in_use = 0;
+	const  bool modeless = GetModelessStatus();
 	GCTFilt flt;
 	PPViewGoodsTrnovr * p_v = new PPViewGoodsTrnovr;
 	BrowserWindow * p_prev_win = modeless ? PPFindLastBrowser() : 0;
 	if(p_prev_win)
 		flt = *static_cast<const GoodsTrnovrBrowser *>(p_prev_win)->P_View->GetFilt();
 	else
-		flt.Period.SetDate(getcurdate_()); // @v10.8.10 LConfig.OperDate-->getcurdate_()
+		flt.Period.SetDate(getcurdate_());
 	while(p_v->EditFilt(&flt) > 0) {
 		PPWaitStart();
 		flt.Flags |= static_cast<uint>(OPG_IGNOREZERO);

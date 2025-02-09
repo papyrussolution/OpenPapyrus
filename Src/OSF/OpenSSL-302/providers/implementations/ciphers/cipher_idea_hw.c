@@ -27,14 +27,13 @@ static int cipher_hw_idea_initkey(PROV_CIPHER_CTX * ctx, const unsigned char * k
 		IDEA_KEY_SCHEDULE tmp;
 		IDEA_set_encrypt_key(key, &tmp);
 		IDEA_set_decrypt_key(&tmp, ks);
-		OPENSSL_cleanse((unsigned char *)&tmp, sizeof(IDEA_KEY_SCHEDULE));
+		OPENSSL_cleanse((uchar *)&tmp, sizeof(IDEA_KEY_SCHEDULE));
 	}
 	return 1;
 }
 
 #define PROV_CIPHER_HW_idea_mode_ex(mode, UCMODE, fname)                      \
-	IMPLEMENT_CIPHER_HW_ ## UCMODE(mode, idea, PROV_IDEA_CTX, IDEA_KEY_SCHEDULE,     \
-	    fname)                                            \
+	IMPLEMENT_CIPHER_HW_ ## UCMODE(mode, idea, PROV_IDEA_CTX, IDEA_KEY_SCHEDULE, fname) \
 	static const PROV_CIPHER_HW idea_ ## mode = {                                    \
 		cipher_hw_idea_initkey,                                                    \
 		cipher_hw_idea_ ## mode ## _cipher                                             \

@@ -1,5 +1,5 @@
 // UI.CPP
-// Copyright (c) A.Sobolev 2011, 2016, 2018, 2020, 2023, 2024
+// Copyright (c) A.Sobolev 2011, 2016, 2018, 2020, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -1772,9 +1772,22 @@ const SFontSource * UiDescription::GetFontSourceC(const char * pSymb) const
 	const SFontSource * p_result = 0;
 	if(!isempty(pSymb)) {
 		for(uint i = 0; !p_result && i < FontList.getCount(); i++) {
-			const SFontSource * p_fs = FontList.at(i);
-			if(p_fs && p_fs->Face.IsEqiAscii(pSymb))
-				p_result = p_fs;
+			const SFontSource * p_item = FontList.at(i);
+			if(p_item && p_item->Face.IsEqiAscii(pSymb))
+				p_result = p_item;
+		}
+	}
+	return p_result;
+}
+
+const SFontDescr * UiDescription::GetFontDescrC(const char * pSymb) const
+{
+	const SFontDescr * p_result = 0;
+	if(!isempty(pSymb)) {
+		for(uint i = 0; !p_result && i < FontDescrList.getCount(); i++) {
+			const SFontDescr * p_item = FontDescrList.at(i);
+			if(p_item && p_item->Symb.IsEqiAscii(pSymb))
+				p_result = p_item;
 		}
 	}
 	return p_result;

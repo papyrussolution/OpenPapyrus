@@ -1,5 +1,5 @@
 // DBF.CPP
-// Copyright (c) A. Sobolev 1993-2001, 2003, 2004, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2024
+// Copyright (c) A. Sobolev 1993-2001, 2003, 2004, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2024, 2025
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -93,8 +93,6 @@ DbfRecord & DbfRecord::Z()
 	return *this;
 }
 
-#ifndef _WIN32_WCE // {
-
 int DbfRecord::put(const SdRecord & rRec)
 {
 	int    ok = 1;
@@ -124,8 +122,6 @@ int DbfRecord::get(SdRecord & rRec) const
 	return ok;
 }
 
-#endif // } !_WIN32_WCE
-
 int DbfRecord::getFieldName(uint fldN, char * pFldName, size_t bufLen) const
 {
 	return P_Tbl ? P_Tbl->getFieldName(fldN, pFldName, bufLen) : 0;
@@ -149,7 +145,6 @@ int FASTCALL DbfRecord::getFieldType(uint fldN, int * pType)
 	}
 }
 
-#ifndef _WIN32_WCE // @v5.1.7 AHTOXA
 int DbfRecord::put(int fldN, TYPEID typ, const void * pData)
 {
 	char   temp_buf[256];
@@ -184,7 +179,6 @@ int DbfRecord::put(int fldN, TYPEID typ, const void * pData)
 	}
 	return 1;
 }
-#endif
 
 int DbfRecord::put(int fld, const char * data)
 {

@@ -1,5 +1,5 @@
 // SETSTART.CPP
-// Copyright (c) A.Sobolev 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 // Интерфейс (асинхронный) к драйверу SetStart (аналогичен ФРОНТОЛ'у)
 //
@@ -186,7 +186,7 @@ int ACS_SETSTART::ExportData(int updOnly)
 		for(PPID ser_id = 0; scs_obj.EnumItems(&ser_id, &ser_rec) > 0;) {
 			if(ser_rec.GetType() == scstDiscount || (ser_rec.GetType() == scstCredit && CrdCardAsDsc)) {
 				AsyncCashSCardInfo info;
-				scard_series_list.add(ser_id); // @v9.4.1
+				scard_series_list.add(ser_id);
 				THROW(scs_obj.GetPacket(ser_id, &scs_pack) > 0);
 				THROW_SL(scard_quot_list.Add(ser_rec.ID, ser_rec.QuotKindID_s, 0));
 				/* @v10.7.0 for(iter.Init(&scs_pack); iter.Next(&info) > 0;) {
@@ -614,7 +614,6 @@ int ACS_SETSTART::ExportData(int updOnly)
 					fputs(f_str, p_file);
 				}
 			}
-			// @9.4.1 {
 			const long default_scheme_id = 999999L;
 			fputs((f_str = "$$$ADDSETTINGS").CR(), p_file);
 			fputs((f_str = "InternalDefaultSchmRecID").Semicol().Cat(default_scheme_id).CR(), p_file);
@@ -696,118 +695,6 @@ int ACS_SETSTART::ExportData(int updOnly)
 					}
 				}
 			}
-			// } @9.4.1
-#if 0 // @v9.4.1 {
-			if(!SkipExportingDiscountSchemes && used_retail_quot.getCountVal(1)) {
-				long   dscnt_code = 0;
-				PPQuotKind qk_rec;
-				SString card_code_low, card_code_upp;
-				if(!updOnly) {
-					fputs((f_str = "$$$DELETEALLAUTODISCSCHMS").CR(), p_file);
-				}
-				fputs((f_str = "$$$ADDAUTODISCSCHMS").CR(), p_file);
-				for(i = 0; i < retail_quot_list.getCount(); i++) {
-					const  PPID qk_id = retail_quot_list.get(i);
-					if(used_retail_quot.get(i) && qk_obj.Fetch(qk_id, &qk_rec) > 0) {
-						f_str.Z().Cat(qk_id).Semicol();                     // #1 - код схемы внутренней авт.скидки
-						f_str.Cat(qk_rec.Name).Transf(CTRANSF_INNER_TO_OUTER).CatCharN(';', 2);     // #2 - наименование схемы, #3 - не используется //
-						f_str.CatChar('0').Semicol();                         // #4 - тип операции объединения (0 - не объединять)
-						THROW_PP(fprintf(p_file, p_format, f_str.cptr()) > 0, PPERR_EXPFILEWRITEFAULT);
-					}
-				}
-				if(!updOnly) {
-					fputs((f_str = "$$$DELETEALLAUTODISCCONDS").CR(), p_file);
-				}
-				fputs((f_str = "$$$ADDAUTODISCCONDS").CR(), p_file);
-				for(i = 0; i < goods_dis_list.getCount(); i++) {
-					const AtolGoodsDiscountEntry & r_ent = goods_dis_list.at(i);
-					PPID   sc_ser_id = 0;
-					if(r_ent.QuotKindID)
-						scard_quot_list.SearchByVal(r_ent.QuotKindID, &sc_ser_id, 0);
-					TimeRange tmr;
-					f_str.Z();
-					// Для Сет-Старт default-scheme = default_scheme_id
-					f_str.Cat(NZOR(r_ent.QuotKindID, default_scheme_id)).Semicol(); // #1 - код схемы внутренней авт.скидки
-					f_str.Cat(++dscnt_code).Semicol();                    // #2 - код скидки
-					                                                      // #3 - наименование скидки (код карты) {
-					temp_buf.Z();
-					if(qk_obj.Fetch(r_ent.QuotKindID, &qk_rec) > 0)
-						temp_buf.Cat(qk_rec.Name);
-					else {
-						qk_rec.ID = 0;
-						temp_buf.Cat("EXT DISCOUNT");
-					}
-					f_str.Cat(temp_buf).Semicol();
-					// } #3 - наименование скидки (код карты)
-					f_str.Cat(temp_buf).Semicol();                           // #4 - текст для чека
-					f_str.Cat((r_ent.AbsDiscount > 0.0) ? 1 : 3).Semicol();  // #5 - тип скидки
-					f_str.Cat(fabs(r_ent.AbsDiscount)).Semicol();            // #6 - значение скидки
-					//
-					// #7-#8 Период действия цены
-					//
-					if(qk_rec.ID && !qk_rec.Period.IsZero()) {
-						f_str.Cat(qk_rec.Period.low, DATF_GERMANCENT).Semicol();
-						f_str.Cat(qk_rec.Period.upp, DATF_GERMANCENT).Semicol();
-					}
-					else
-						f_str.CatCharN(';', 2);
-					f_str.Semicol();                                         // #9 reserve
-					//
-					//                                                       #10-#11 время начала и окончания действия скидки
-					//
-					if(qk_rec.ID && qk_rec.GetTimeRange(tmr))
-						f_str.Cat(tmr.low, TIMF_HMS).Semicol().Cat(tmr.upp, TIMF_HMS).Semicol();
-					else
-						f_str.CatCharN(';', 2);
-					f_str.Semicol(); // #12 reserve
-					//
-					//                                                       #13 - #24 - не используем
-					//
-					temp_buf.Z().CatCharN(';', 2).CatChar('0').Semicol();
-					f_str.Cat(temp_buf);
-					f_str.Cat(temp_buf);
-					f_str.Cat(temp_buf);
-					f_str.Cat(temp_buf);
-					//
-					//                                                       #24, #26 Диапазон номеров карт
-					//
-					if(sc_ser_id) {
-						if(scs_obj.GetCodeRange(sc_ser_id, card_code_low, card_code_upp) > 0) {
-							f_str.Cat(card_code_low).Semicol();
-							f_str.Cat(card_code_upp).Semicol();
-						}
-						else {
-							f_str.Cat(1L).Semicol();
-							f_str.Cat(9L).Semicol();
-						}
-					}
-					else
-						f_str.Semicol().Semicol();
-					f_str.CatChar('0').Semicol();                         // #27 - reserve
-					//
-					//
-					//
-					f_str.Semicol();                    // #28
-					f_str.Semicol();                    // #29
-					f_str.Semicol();                    // #30
-					f_str.Semicol();                    // #31
-					f_str.Semicol();                    // #32
-					f_str.Semicol();                    // #33
-					f_str.Cat(r_ent.GoodsID).Semicol(); // #34 - ИД товара
-					f_str.Semicol();                    // #35
-					f_str.Semicol();                    // #36
-					f_str.Semicol();                    // #37
-					f_str.Semicol();                    // #38
-					f_str.Semicol();                    // #39
-					f_str.Semicol();                    // #40
-					f_str.Semicol();                    // #41
-					f_str.Semicol();                    // #42
-					f_str.Semicol();                    // #43
-					f_str.Semicol();                    // #44
-					THROW_PP(fprintf(p_file, p_format, f_str.Transf(CTRANSF_INNER_TO_OUTER).cptr()) > 0, PPERR_EXPFILEWRITEFAULT);
-				}
-			}
-#endif // } @v9.4.1
 		}
 	}
 	SFile::ZClose(&p_file);
@@ -960,8 +847,6 @@ int ACS_SETSTART::ImportFiles()
 					dtm.SetFar();
 					SString firstf_path;
 					SDirEntry sde;
-					// @v9.4.10 dtm.d = MAXLONG;
-					// @v9.4.10 dtm.t = MAXLONG;
 					(temp_path = temp_dir.SetLastSlash()).Cat(p_prefix).Cat("?????.txt");
 					for(SDirec sd(temp_path); sd.Next(&sde) > 0;) {
 						LDATETIME iter_dtm;
@@ -1357,7 +1242,6 @@ int ACS_SETSTART::ConvertWareList(const char * pImpPath)
 									THROW(goods_obj.P_Tbl->SetArCode(goods_id, 0, arcode, 0));
 								}
 							}
-							// @v9.4.10 {
 							if(goods_obj.Fetch(goods_id, &goods_rec) > 0) {
 								; // ok
 							}
@@ -1373,7 +1257,6 @@ int ACS_SETSTART::ConvertWareList(const char * pImpPath)
 								else
 									goods_id = 0;
 							}
-							// @v9.4.10 {
 						}
 						qtty = (P_TmpCcTbl->data.Flags & CCHKF_RETURN) ? -fabs(qtty) : fabs(qtty);
 						if(op_type == FRONTOL_OPTYPE_STORNO) {

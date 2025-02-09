@@ -42,7 +42,7 @@ int __db_zero_fill(ENV * env, DB_FH * fhp)
 		return 0;
 	/* Get a large buffer if we're writing lots of data. */
  #undef  ZF_LARGE_WRITE
- #define ZF_LARGE_WRITE  (64*1024)
+ #define ZF_LARGE_WRITE  SKILOBYTE(64)
 	if((ret = __os_calloc(env, 1, ZF_LARGE_WRITE, &bp)) != 0)
 		return ret;
 	blen = ZF_LARGE_WRITE;

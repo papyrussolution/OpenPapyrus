@@ -3768,7 +3768,7 @@ int PPViewGoodsOpAnalyze::ViewDetail(PPViewBrowser * pBrw, PPID rowIdent, PPID l
 								if(!skip) {
 									bill_filt.Bbt = bbtOrderBills;
 									BillFilt::FiltExtraParam p(0, bill_filt.Bbt);
-									PPView::Execute(PPVIEW_BILL, &bill_filt, GetModelessStatus(), &p);
+									PPView::Execute(PPVIEW_BILL, &bill_filt, (GetModelessStatus() ? PPView::exefModeless : 0), &p);
 								}
 							}
 							break;
@@ -3790,7 +3790,7 @@ int PPViewGoodsOpAnalyze::ViewDetail(PPViewBrowser * pBrw, PPID rowIdent, PPID l
 								if(!skip) {
 									bill_filt.Bbt = bbtGoodsBills;
 									BillFilt::FiltExtraParam p(0, bill_filt.Bbt);
-									PPView::Execute(PPVIEW_BILL, &bill_filt, GetModelessStatus(), &p);
+									PPView::Execute(PPVIEW_BILL, &bill_filt, (GetModelessStatus() ? PPView::exefModeless : 0), &p);
 								}
 							}
 							break;
@@ -3813,7 +3813,7 @@ int PPViewGoodsOpAnalyze::ViewDetail(PPViewBrowser * pBrw, PPID rowIdent, PPID l
 								if(!skip) {
 									bill_filt.Bbt = bbtOrderBills;
 									BillFilt::FiltExtraParam p(0, bill_filt.Bbt);
-									PPView::Execute(PPVIEW_BILL, &bill_filt, GetModelessStatus(), &p);
+									PPView::Execute(PPVIEW_BILL, &bill_filt, (GetModelessStatus() ? PPView::exefModeless : 0), &p);
 								}
 							}
 							break;
@@ -3844,7 +3844,7 @@ int PPViewGoodsOpAnalyze::ViewDetail(PPViewBrowser * pBrw, PPID rowIdent, PPID l
 								if(!skip) {
 									bill_filt.Bbt = bbtGoodsBills;
 									BillFilt::FiltExtraParam p(0, bill_filt.Bbt);
-									PPView::Execute(PPVIEW_BILL, &bill_filt, GetModelessStatus(), &p);
+									PPView::Execute(PPVIEW_BILL, &bill_filt, (GetModelessStatus() ? PPView::exefModeless : 0), &p);
 								}
 							}
 							break;
@@ -3992,16 +3992,17 @@ void PPViewGoodsOpAnalyze::ViewTotal()
 							}
 						}
 						{
+							static const long expenses_indicator_list[] = { PPBZSI_SALECOST, PPBZSI_FREIGHT, PPBZSI_MPPROMOTION, PPBZSI_MPACCEPTANCE, PPBZSI_MPSTORAGE };
 							double value = 0.0;
 							//
 							double earnings = 0.0;
 							double expenses = 0.0;
 							double temp_val = 0.0;
 							Total.IndicatorVect.Get(PPBZSI_MPSELLERSPART, &earnings);
-							Total.IndicatorVect.Get(PPBZSI_SALECOST, &temp_val);
-							expenses += temp_val;
-							Total.IndicatorVect.Get(PPBZSI_FREIGHT, &temp_val);
-							expenses += temp_val;
+							for(uint eiidx = 0; eiidx < SIZEOFARRAY(expenses_indicator_list); eiidx++) {
+								Total.IndicatorVect.Get(expenses_indicator_list[eiidx], &temp_val);
+								expenses += temp_val;
+							}
 							value = earnings - expenses;
 							//
 							{

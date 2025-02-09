@@ -136,13 +136,13 @@ int i2d_SSL_SESSION(const SSL_SESSION * in, uchar ** pp)
 		l = in->cipher_id;
 	else
 		l = in->cipher->id;
-	cipher_data[0] = ((unsigned char)(l >> 8L)) & 0xff;
-	cipher_data[1] = ((unsigned char)(l)) & 0xff;
+	cipher_data[0] = ((uchar)(l >> 8L)) & 0xff;
+	cipher_data[1] = ((uchar)(l)) & 0xff;
 	ssl_session_oinit(&as.cipher, &cipher, cipher_data, 2);
 
 #ifndef OPENSSL_NO_COMP
 	if(in->compress_meth) {
-		comp_id_data = (unsigned char)in->compress_meth;
+		comp_id_data = (uchar)in->compress_meth;
 		ssl_session_oinit(&as.comp_id, &comp_id, &comp_id_data, 1);
 	}
 #endif

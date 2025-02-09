@@ -459,7 +459,7 @@ static int setup_tbuf(PROV_RSA_CTX * ctx)
 {
 	if(ctx->tbuf)
 		return 1;
-	if((ctx->tbuf = (unsigned char *)OPENSSL_malloc(RSA_size(ctx->rsa))) == NULL) {
+	if((ctx->tbuf = (uchar *)OPENSSL_malloc(RSA_size(ctx->rsa))) == NULL) {
 		ERR_raise(ERR_LIB_PROV, ERR_R_MALLOC_FAILURE);
 		return 0;
 	}

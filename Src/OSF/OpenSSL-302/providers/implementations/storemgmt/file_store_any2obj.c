@@ -121,7 +121,7 @@ static int msblob2obj_decode(void * provctx, OSSL_CORE_BIO * cin, int selection,
 		goto next;
 
 	ERR_set_mark();
-	p = (unsigned char *)&mem->data[0];
+	p = (uchar *)&mem->data[0];
 	ok = ossl_do_blob_header(&p, 16, &magic, &bitlen, &isdss, &ispub) > 0;
 	ERR_pop_to_mark();
 	if(!ok)
@@ -179,7 +179,7 @@ static int pvk2obj_decode(void * provctx, OSSL_CORE_BIO * cin, int selection,
 		goto next;
 
 	ERR_set_mark();
-	p = (unsigned char *)&mem->data[0];
+	p = (uchar *)&mem->data[0];
 	ok = ossl_do_PVK_header(&p, 24, 0, &saltlen, &keylen) > 0;
 	ERR_pop_to_mark();
 	if(!ok)

@@ -2285,9 +2285,9 @@ int SSL_get_shared_sigalgs(SSL * s, int idx, int * psign, int * phash, int * psi
 	if(psignhash)
 		*psignhash = shsigalgs->sigandhash;
 	if(rsig)
-		*rsig = (unsigned char)(shsigalgs->sigalg & 0xff);
+		*rsig = (uchar)(shsigalgs->sigalg & 0xff);
 	if(rhash)
-		*rhash = (unsigned char)((shsigalgs->sigalg >> 8) & 0xff);
+		*rhash = (uchar)((shsigalgs->sigalg >> 8) & 0xff);
 	return (int)s->shared_sigalgslen;
 }
 

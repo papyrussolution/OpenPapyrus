@@ -36,7 +36,7 @@ size_t ossl_prov_acquire_entropy_from_tsc(RAND_POOL * pool)
 	int i;
 	if((OPENSSL_ia32cap_P[0] & (1 << 4)) != 0) {
 		for(i = 0; i < TSC_READ_COUNT; i++) {
-			c = (unsigned char)(OPENSSL_rdtsc() & 0xFF);
+			c = (uchar)(OPENSSL_rdtsc() & 0xFF);
 			ossl_rand_pool_add(pool, &c, 1, 4);
 		}
 	}

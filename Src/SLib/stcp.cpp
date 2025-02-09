@@ -1,5 +1,5 @@
 // STCP.CPP
-// Copyright (c) A.Sobolev 2005, 2007, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 2005, 2007, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -559,7 +559,6 @@ int TcpServer::ExecSession(TcpSocket & rSock, InetAddr & rAddr)
 int TcpServer::Run()
 {
 	int    ok = 1;
-#ifndef _WIN32_WCE
 	SString msg_buf, temp_buf;
 	THROW(Bind(/*Addr*/Sle.A));
 	THROW(Listen());
@@ -583,7 +582,6 @@ int TcpServer::Run()
 	SLS.LogMessage(0, "TcpServer stopped correctly");
 #endif
 	CATCHZOK
-#endif // } _WIN32_WCE
 	return ok;
 }
 //

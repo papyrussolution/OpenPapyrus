@@ -7,7 +7,7 @@
 
 static const long Current_PPNamedFilt_Ver = 3;
 
-PPNamedFilt::PPNamedFilt() : ID(0), Ver(Current_PPNamedFilt_Ver), ViewID(0), Flags(0) //@erik ver 0-->1 // @v10.5.3 ver 1-->2
+PPNamedFilt::PPNamedFilt() : ID(0), Ver(Current_PPNamedFilt_Ver), ViewID(0), Flags(0)
 {
 	memzero(Reserve, sizeof(Reserve));
 }
@@ -386,7 +386,7 @@ int PPNamedFiltMngr::GetResourceLists(bool includeSpecialItems, StrAssocArray * 
 					THROW_SL(pSymbList->Add(rsc_id, symb));
 				}
 				if(pTextList) {
-					PPExpandString(text, CTRANSF_UTF8_TO_INNER); // @v10.1.6
+					PPExpandString(text, CTRANSF_UTF8_TO_INNER);
 					THROW_SL(pTextList->Add(rsc_id, text));
 				}
 			}
@@ -668,7 +668,7 @@ public:
 		//
 		SetupStrAssocCombo(this, CTLSEL_FILTITEM_CMD, CmdTextList, view_id, 0);
 		AddClusterAssoc(CTL_FILTITEM_FLAGS, 0, PPNamedFilt::fDontWriteXmlDTD);
-		AddClusterAssoc(CTL_FILTITEM_FLAGS, 1, PPNamedFilt::fCompressXml); // @v10.6.0
+		AddClusterAssoc(CTL_FILTITEM_FLAGS, 1, PPNamedFilt::fCompressXml);
 		SetClusterData(CTL_FILTITEM_FLAGS, Data.Flags);
 		return ok;
 	}
@@ -1641,8 +1641,5 @@ int MobileClmnValListDialog::editItem(long pos, long id)
 //
 // Descr: Обрабатывает удаление
 //
-int MobileClmnValListDialog::delItem(long pos, long id)
-{
-	return Data.RemoveEntryByPos(pos);
-}
+int MobileClmnValListDialog::delItem(long pos, long id) { return Data.RemoveEntryByPos(pos); }
 //@erik

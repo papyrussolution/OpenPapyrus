@@ -591,6 +591,17 @@
 									"gravityy": "center",
 									"growfactor": 1,
 									"shrinkfactor": 1
+								},
+								{
+									"id": 10031,
+									"symb": "computersysinfo",
+									"size": "100%, undef",
+									"alignitems": "stretch",
+									"alignself": "end",
+									"gravityx": "center",
+									"gravityy": "center",
+									"growfactor": 1,
+									"shrinkfactor": 1
 								}
 							]
 						},

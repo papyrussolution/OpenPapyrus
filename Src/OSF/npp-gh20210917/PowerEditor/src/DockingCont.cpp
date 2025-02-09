@@ -449,22 +449,14 @@ void DockingCont::drawCaptionItem(DRAWITEMSTRUCT * pDrawItemStruct)
 		// to make ellipsis working
 		rc.right        = rc.bottom - rc.top;
 		rc.bottom       += 14;
-
-		hFont = ::CreateFont(12, 0, 90 * 10, 0,
-			FW_NORMAL, FALSE, FALSE, FALSE,
-			ANSI_CHARSET, OUT_DEFAULT_PRECIS,
-			CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
-			DEFAULT_PITCH | FF_ROMAN,
-			TEXT("MS Shell Dlg"));
-
+		hFont = ::CreateFont(12, 0, 90 * 10, 0, FW_NORMAL, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
+			CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_ROMAN, TEXT("MS Shell Dlg"));
 		hOldFont = (HFONT)::SelectObject(hDc, hFont);
 		::DrawText(hDc, _pszCaption.c_str(), length, &rc, DT_BOTTOM | DT_SINGLELINE | DT_END_ELLIPSIS | DT_NOPREFIX);
-
 		// calculate text size and if its trankated...
 		SIZE size    = {0};
 		GetTextExtentPoint32(hDc, _pszCaption.c_str(), length, &size);
 		_bCaptionTT = (((rc.bottom - rc.top) < size.cy) ? TRUE : FALSE);
-
 		::SelectObject(hDc, hOldFont);
 		::DeleteObject(hFont);
 	}

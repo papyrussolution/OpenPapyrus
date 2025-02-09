@@ -35,7 +35,7 @@
 #include "curl_memory.h"
 #include "memdebug.h"
 
-#define H1_MAX_URL_LEN   (8*1024)
+#define H1_MAX_URL_LEN SKILOBYTE(8)
 
 void Curl_h1_req_parse_init(struct h1_req_parser * parser, size_t max_line_len)
 {

@@ -103,9 +103,8 @@ static int scrypt_set_membuf(unsigned char ** buffer, size_t * buflen,
 	OPENSSL_clear_free(*buffer, *buflen);
 	*buffer = NULL;
 	*buflen = 0;
-
 	if(p->data_size == 0) {
-		if((*buffer = (unsigned char *)OPENSSL_malloc(1)) == NULL) {
+		if((*buffer = (uchar *)OPENSSL_malloc(1)) == NULL) {
 			ERR_raise(ERR_LIB_PROV, ERR_R_MALLOC_FAILURE);
 			return 0;
 		}
@@ -448,21 +447,17 @@ static int scrypt_alg(const char * pass, size_t passlen,
 		ERR_raise(ERR_LIB_EVP, EVP_R_MEMORY_LIMIT_EXCEEDED);
 		return 0;
 	}
-
 	/* Check that the maximum memory doesn't exceed a size_t limits */
 	if(maxmem > SIZE_MAX)
 		maxmem = SIZE_MAX;
-
 	if(Blen + Vlen > maxmem) {
 		ERR_raise(ERR_LIB_EVP, EVP_R_MEMORY_LIMIT_EXCEEDED);
 		return 0;
 	}
-
 	/* If no key return to indicate parameters are OK */
 	if(!key)
 		return 1;
-
-	B = (unsigned char *)OPENSSL_malloc((size_t)(Blen + Vlen));
+	B = (uchar *)OPENSSL_malloc((size_t)(Blen + Vlen));
 	if(B == NULL) {
 		ERR_raise(ERR_LIB_EVP, ERR_R_MALLOC_FAILURE);
 		return 0;

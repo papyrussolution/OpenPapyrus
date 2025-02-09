@@ -2641,17 +2641,13 @@ LRESULT CALLBACK GridProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		    hInst = lpcs->hInstance;
 		    BG_GridIndex = AddGrid(GetMenu(hWnd));
 		    if(CountGrids()==1) {
-			    hfontbody = CreateFont(16, 0, 0, 0, 100, FALSE, FALSE, FALSE, DEFAULT_CHARSET,
-				    OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, 0, 0, TEXT("MS Shell Dlg"));
-			    hfontheader = CreateFont(18, 0, 0, 0, FW_HEAVY, FALSE, FALSE, FALSE, DEFAULT_CHARSET,
-				    OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, 0, 0, TEXT("MS Shell Dlg"));
-			    hfonttitle = CreateFont(20, 0, 0, 0, FW_HEAVY, FALSE, FALSE, FALSE, DEFAULT_CHARSET,
-				    OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, 0, 0, TEXT("MS Shell Dlg"));
+			    hfontbody = CreateFont(16, 0, 0, 0, 100, FALSE, FALSE, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, 0, 0, TEXT("MS Shell Dlg"));
+			    hfontheader = CreateFont(18, 0, 0, 0, FW_HEAVY, FALSE, FALSE, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, 0, 0, TEXT("MS Shell Dlg"));
+			    hfonttitle = CreateFont(20, 0, 0, 0, FW_HEAVY, FALSE, FALSE, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, 0, 0, TEXT("MS Shell Dlg"));
 		    }
 		    if((BG_GridIndex >= 0)&&(BG_GridIndex < MAX_GRIDS)) { // if you aren't over the MAX_GRIDS limit, add a grid
 			    BGHS[BG_GridIndex].gridmenu = GetMenu(hWnd);
-			    BGHS[BG_GridIndex].hlist1 = CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("LISTBOX"), TEXT(""),
-				    WS_CHILD|LBS_STANDARD, 50, 150, 200, 100, hWnd, NULL, hInst, NULL);
+			    BGHS[BG_GridIndex].hlist1 = CreateWindowEx(WS_EX_CLIENTEDGE, TEXT("LISTBOX"), TEXT(""), WS_CHILD|LBS_STANDARD, 50, 150, 200, 100, hWnd, NULL, hInst, NULL);
 			    BGHS[BG_GridIndex].hfont = hfontbody;
 			    BGHS[BG_GridIndex].htitlefont = hfonttitle;
 			    BGHS[BG_GridIndex].hcolumnheadingfont = hfontheader;

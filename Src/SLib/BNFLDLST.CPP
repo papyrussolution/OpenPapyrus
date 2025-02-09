@@ -1,10 +1,10 @@
 // BNFLDLST.CPP
-// Copyright (c) Sobolev A. 1995, 2003, 2004, 2007, 2008, 2009, 2010, 2013, 2015, 2016, 2017, 2019, 2021, 2022, 2024
+// Copyright (c) Sobolev A. 1995, 2003, 2004, 2007, 2008, 2009, 2010, 2013, 2015, 2016, 2017, 2019, 2021, 2022, 2024, 2025
 //
 #include <slib-internal.h>
 #pragma hdrstop
 
-bool BNField::IsEq(const BNField & rS, int nameAndTypeOnly) const
+bool BNField::IsEq(const BNField & rS, bool nameAndTypeOnly) const
 {
 	if(T != rS.T)
 		return false;
@@ -75,7 +75,7 @@ BNFieldList & BNFieldList::Z()
 	return *this;
 }
 
-bool BNFieldList::IsEq(const BNFieldList & rS, int nameAndTypeOnly) const
+bool BNFieldList::IsEq(const BNFieldList & rS, bool nameAndTypeOnly) const
 {
 	if(count != rS.count)
 		return false;
@@ -122,11 +122,12 @@ int BNFieldList::addField(const char * pName, TYPEID type, int id)
 	fld.T  = type;
 	fld.Id = (id == (int)UNDEF) ? count : id;
 	if(id == (int)UNDEF) {
-		for(int i = count; i < 4096; i++)
+		for(int i = count; i < 4096; i++) {
 			if(!getFieldPosition(i, 0)) {
 				fld.Id = i;
 				break;
 			}
+		}
 	}
 	else if(!getFieldPosition(id, 0))
 		fld.Id = id;
@@ -160,34 +161,40 @@ int BNFieldList::setFieldId(uint fldNo, int fldId)
 		return 0;
 }
 
-const BNField & BNFieldList::getField(uint id, int byPosition) const
+const BNField & BNFieldList::getField(uint id, bool byPosition) const
 {
-	if(byPosition)
+	if(byPosition) {
 		return (id < count) ? fields[id] : *reinterpret_cast<BNField *>(0);
-	else
-		for(uint i = 0; i < count; i++)
+	}
+	else {
+		for(uint i = 0; i < count; i++) {
 			if(fields[i].Id == id)
 				return fields[i];
+		}
+	}
 	return *reinterpret_cast<BNField *>(0);
 }
 
-int BNFieldList::getFieldPosition(int id, uint * pPos) const
+bool BNFieldList::getFieldPosition(int id, uint * pPos) const
 {
-	for(uint i = 0; i < count; i++)
+	bool   ok = false;
+	for(uint i = 0; !ok && i < count; i++) {
 		if(fields[i].Id == id) {
 			ASSIGN_PTR(pPos, i);
-			return 1;
+			ok = true;
 		}
-	return 0;
+	}
+	return ok;
 }
 
 const BNField & BNFieldList::getField(const char * pName, uint * pPos) const
 {
-	for(uint i = 0; i < count; i++)
+	for(uint i = 0; i < count; i++) {
 		if(stricmp(fields[i].Name, pName) == 0) {
 			ASSIGN_PTR(pPos, i);
 			return fields[i];
 		}
+	}
 	return *reinterpret_cast<BNField *>(0);
 }
 

@@ -1123,7 +1123,7 @@ int GenerateGoodsBills()
 	if(ok > 0) {
 		BillFilt filt;
 		filt.Period.low = filt.Period.upp = r_lcfg.OperDate;
-		ViewGoodsBills(&filt, 1);
+		ViewGoodsBills(&filt, true/*modeless*/);
 	}
 	return ok;
 }	// } turistti change @v5.3.9
@@ -1779,7 +1779,8 @@ int  Test_StyloQInvitation();
 int  Test_StrAssocTree();
 int  Test_Fts();
 //int  Test_ReadUed(const char * pFileName);
-int  Test_ListSelectionDialog();
+int  Test_LayoutedListDialog();
+int  Test_Cristal2SetRetailGateway();
 int  ImportYYE(const char * pSrcPath);
 int  ImportSpecial(const char * pPath);
 int  ReformatRazoomnick(const char * pFileName);
@@ -1925,7 +1926,9 @@ int DoConstructionTest()
 	}
 #endif // } 0
 	//TestTransferFileToFtp();
-	Test_ListSelectionDialog();
+	//VkInterface::Test();
+	//Test_Cristal2SetRetailGateway();
+	Test_LayoutedListDialog();
 	//SentencePieceExperiments();
 	//TestGtinStruc();
 	//PPChZnPrcssr::Test();

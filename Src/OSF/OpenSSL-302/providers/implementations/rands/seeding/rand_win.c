@@ -135,7 +135,7 @@ int ossl_pool_add_nonce_data(RAND_POOL * pool)
 	data.pid = GetCurrentProcessId();
 	data.tid = GetCurrentThreadId();
 	GetSystemTimeAsFileTime(&data.time);
-	return ossl_rand_pool_add(pool, (unsigned char *)&data, sizeof(data), 0);
+	return ossl_rand_pool_add(pool, (uchar *)&data, sizeof(data), 0);
 }
 
 int ossl_rand_pool_add_additional_data(RAND_POOL * pool)
@@ -152,7 +152,7 @@ int ossl_rand_pool_add_additional_data(RAND_POOL * pool)
 	 */
 	data.tid = GetCurrentThreadId();
 	QueryPerformanceCounter(&data.time);
-	return ossl_rand_pool_add(pool, (unsigned char *)&data, sizeof(data), 0);
+	return ossl_rand_pool_add(pool, (uchar *)&data, sizeof(data), 0);
 }
 
 int ossl_rand_pool_init(void)

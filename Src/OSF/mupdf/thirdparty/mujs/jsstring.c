@@ -23,7 +23,7 @@ int js_runeat(js_State * J, const char * s, int i)
 {
 	Rune rune = EOF;
 	while(i-- >= 0) {
-		rune = *(unsigned char *)s;
+		rune = *(uchar *)s;
 		if(rune < Runeself) {
 			if(rune == 0)
 				return EOF;
@@ -39,7 +39,7 @@ const char * js_utfidxtoptr(const char * s, int i)
 {
 	Rune rune;
 	while(i-- > 0) {
-		rune = *(unsigned char *)s;
+		rune = *(uchar *)s;
 		if(rune < Runeself) {
 			if(rune == 0)
 				return NULL;
@@ -56,7 +56,7 @@ int js_utfptrtoidx(const char * s, const char * p)
 	Rune rune;
 	int i = 0;
 	while(s < p) {
-		if(*(unsigned char *)s < Runeself)
+		if(*(uchar *)s < Runeself)
 			++s;
 		else
 			s += chartorune(&rune, s);
@@ -117,30 +117,27 @@ static void Sp_charCodeAt(js_State * J)
 
 static void Sp_concat(js_State * J)
 {
-	int i, top = js_gettop(J);
-	int n;
-	char * volatile out;
-	const char * s;
-	if(top == 1)
-		return;
-	s = checkstring(J, 0);
-	n = strlen(s);
-	out = (char * volatile)js_malloc(J, n + 1);
-	strcpy(out, s);
-	if(js_try(J)) {
+	const int top = js_gettop(J);
+	int i;
+	if(top != 1) {
+		const char * s = checkstring(J, 0);
+		size_t n = sstrlen(s);
+		char * volatile out = (char *)js_malloc(J, n + 1);
+		strcpy(out, s);
+		if(js_try(J)) {
+			js_free(J, out);
+			js_throw(J);
+		}
+		for(i = 1; i < top; ++i) {
+			s = js_tostring(J, i);
+			n += strlen(s);
+			out = (char *)js_realloc(J, out, n + 1);
+			strcat(out, s);
+		}
+		js_pushstring(J, out);
+		js_endtry(J);
 		js_free(J, out);
-		js_throw(J);
 	}
-	for(i = 1; i < top; ++i) {
-		s = js_tostring(J, i);
-		n += strlen(s);
-		out = (char * volatile)js_realloc(J, out, n + 1);
-		strcat(out, s);
-	}
-
-	js_pushstring(J, out);
-	js_endtry(J);
-	js_free(J, out);
 }
 
 static void Sp_indexOf(js_State * J)
@@ -148,7 +145,7 @@ static void Sp_indexOf(js_State * J)
 	const char * haystack = checkstring(J, 0);
 	const char * needle = js_tostring(J, 1);
 	int pos = js_tointeger(J, 2);
-	int len = strlen(needle);
+	uint len = sstrlen(needle);
 	int k = 0;
 	Rune rune;
 	while(*haystack) {

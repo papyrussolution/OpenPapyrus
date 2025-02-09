@@ -3382,6 +3382,7 @@ PPFILNAM_EDI_LOG               "edi.log" // @v12.0.2 В этом файле со
 PPFILNAM_MRKTPLCWBTALK_LOG     "mpwb-talk.log" // @v12.1.0
 PPFILNAM_APTEKARUTALK_LOG      "aptekaru-talk.log" // @v12.2.1
 PPFILNAM_MRKTPLC_LOG           "markteplace.log" // @v12.2.1
+PPFILNAM_WSCTL_LOG             "wsctl.log" // @v12.2.6
 
 #!} // dont_translate
 

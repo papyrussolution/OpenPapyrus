@@ -496,8 +496,8 @@ int ssl3_write_bytes(SSL * s, int type, const void * buf_, size_t len, size_t * 
 
 			memcpy(aad, s->rlayer.write_sequence, 8);
 			aad[8] = type;
-			aad[9] = (unsigned char)(s->version >> 8);
-			aad[10] = (unsigned char)(s->version);
+			aad[9] = (uchar)(s->version >> 8);
+			aad[10] = (uchar)(s->version);
 			aad[11] = 0;
 			aad[12] = 0;
 			mb_param.out = NULL;

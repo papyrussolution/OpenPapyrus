@@ -217,7 +217,7 @@ __owur static int ctr_df(PROV_DRBG_CTR * ctr,
 	*p++ = 0;
 	*p++ = 0;
 	*p++ = 0;
-	*p = (unsigned char)((ctr->keylen + 16) & 0xff);
+	*p = (uchar)((ctr->keylen + 16) & 0xff);
 	ctr->bltmp_pos = 8;
 	if(!ctr_BCC_update(ctr, in1, in1len)
 	    || !ctr_BCC_update(ctr, in2, in2len)

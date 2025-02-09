@@ -318,30 +318,24 @@ static void * sm2sig_dupctx(void * vpsm2ctx)
 	dstctx->ec = NULL;
 	dstctx->md = NULL;
 	dstctx->mdctx = NULL;
-
 	if(srcctx->ec != NULL && !EC_KEY_up_ref(srcctx->ec))
 		goto err;
 	dstctx->ec = srcctx->ec;
-
 	if(srcctx->md != NULL && !EVP_MD_up_ref(srcctx->md))
 		goto err;
 	dstctx->md = srcctx->md;
-
 	if(srcctx->mdctx != NULL) {
 		dstctx->mdctx = EVP_MD_CTX_new();
-		if(dstctx->mdctx == NULL
-		    || !EVP_MD_CTX_copy_ex(dstctx->mdctx, srcctx->mdctx))
+		if(dstctx->mdctx == NULL || !EVP_MD_CTX_copy_ex(dstctx->mdctx, srcctx->mdctx))
 			goto err;
 	}
-
 	if(srcctx->id != NULL) {
-		dstctx->id = (unsigned char *)OPENSSL_malloc(srcctx->id_len);
+		dstctx->id = (uchar *)OPENSSL_malloc(srcctx->id_len);
 		if(dstctx->id == NULL)
 			goto err;
 		dstctx->id_len = srcctx->id_len;
 		memcpy(dstctx->id, srcctx->id, srcctx->id_len);
 	}
-
 	return dstctx;
 err:
 	sm2sig_freectx(dstctx);
@@ -399,7 +393,7 @@ static int sm2sig_set_ctx_params(void * vpsm2ctx, const OSSL_PARAM params[])
 		if(!OSSL_PARAM_get_octet_string(p, &tmp_id, 0, &tmp_idlen))
 			return 0;
 		OPENSSL_free(psm2ctx->id);
-		psm2ctx->id = (unsigned char *)tmp_id;
+		psm2ctx->id = (uchar *)tmp_id;
 		psm2ctx->id_len = tmp_idlen;
 	}
 	/*

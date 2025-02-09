@@ -104,7 +104,7 @@ int ossl_ccm_set_ctx_params(void * vctx, const OSSL_PARAM params[])
 			ERR_raise(ERR_LIB_PROV, PROV_R_FAILED_TO_GET_PARAMETER);
 			return 0;
 		}
-		sz = ccm_tls_init(ctx, (unsigned char *)p->data, p->data_size);
+		sz = ccm_tls_init(ctx, (uchar *)p->data, p->data_size);
 		if(sz == 0) {
 			ERR_raise(ERR_LIB_PROV, PROV_R_INVALID_DATA);
 			return 0;
@@ -117,7 +117,7 @@ int ossl_ccm_set_ctx_params(void * vctx, const OSSL_PARAM params[])
 			ERR_raise(ERR_LIB_PROV, PROV_R_FAILED_TO_GET_PARAMETER);
 			return 0;
 		}
-		if(ccm_tls_iv_set_fixed(ctx, (unsigned char *)p->data, p->data_size) == 0) {
+		if(ccm_tls_iv_set_fixed(ctx, (uchar *)p->data, p->data_size) == 0) {
 			ERR_raise(ERR_LIB_PROV, PROV_R_INVALID_IV_LENGTH);
 			return 0;
 		}
@@ -188,7 +188,7 @@ int ossl_ccm_get_ctx_params(void * vctx, OSSL_PARAM params[])
 			ERR_raise(ERR_LIB_PROV, PROV_R_FAILED_TO_SET_PARAMETER);
 			return 0;
 		}
-		if(!ctx->hw->gettag(ctx, (unsigned char *)p->data, p->data_size))
+		if(!ctx->hw->gettag(ctx, (uchar *)p->data, p->data_size))
 			return 0;
 		ctx->tag_set = 0;
 		ctx->iv_set = 0;
@@ -314,8 +314,7 @@ static int ccm_tls_cipher(PROV_CCM_CTX * ctx, unsigned char * out, size_t * padl
 		olen = len + EVP_CCM_TLS_EXPLICIT_IV_LEN + ctx->m;
 	}
 	else {
-		if(!ctx->hw->auth_decrypt(ctx, in, out, len,
-		    (unsigned char *)in + len, ctx->m))
+		if(!ctx->hw->auth_decrypt(ctx, in, out, len, (uchar *)in + len, ctx->m))
 			goto err;
 		olen = len;
 	}

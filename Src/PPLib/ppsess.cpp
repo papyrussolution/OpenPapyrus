@@ -1976,8 +1976,6 @@ static void InitTest()
 	STATIC_ASSERT(sizeof(PPBankAccount) == sizeof(RegisterTbl::Rec));
 	REF_TEST_RECSIZE(PPObjectTag);
 	REF_TEST_RECSIZE(PPSecur);
-	REF_TEST_RECSIZE(PPSecur);
-	REF_TEST_RECSIZE(PPSecur);
 	REF_TEST_RECSIZE(PPBarcodeStruc);
 	REF_TEST_RECSIZE(PPUnit);
 	REF_TEST_RECSIZE(PPNamedObjAssoc);
@@ -2476,23 +2474,14 @@ int PPSession::Init(long flags, HINSTANCE hInst, const char * pUiDescriptionFile
 			UiToolBox_.SetPen(TProgram::tbiButtonPen_F, SPaintObj::psSolid, 1, SColor(0x47, 0x47, 0x3D));
 			UiToolBox_.SetPen(TProgram::tbiButtonPen_F+TProgram::tbisFocus,  SPaintObj::psSolid, 1, SColor(0x15, 0x20, 0xEA));
 			UiToolBox_.SetPen(TProgram::tbiButtonPen_F+TProgram::tbisSelect, SPaintObj::psSolid, 1, SColor(0x15, 0x20, 0xEA));
-			// @v11.2.3 {
 			{
-				UiToolBox_.CreateFont_(TProgram::tbiControlFont, "Verdana", 11, 0); // ! Не использовать "MS Sans Serif"
-				/*
-				HFONT hf = 0;
-				{
-					LOGFONT lf;
-					MEMSZERO(lf);
-					lf.lfCharSet = DEFAULT_CHARSET;
-					lf.lfHeight  = 9;
-					STRNSCPY(lf.lfFaceName, _T("MS Sans Serif"));
-					hf = ::CreateFontIndirect(&lf);
+				const SFontDescr * p_fd = p_uid ? p_uid->GetFontDescrC("ControlFont") : 0;
+				if(p_fd) {
+					UiToolBox_.CreateFont_(TProgram::tbiControlFont, *p_fd);
 				}
-				if(hf) {
-					UiToolBox_.SetFont(tbiControlFont, hf);
+				else {
+					UiToolBox_.CreateFont_(TProgram::tbiControlFont, "Verdana", 11, 0); // ! Не использовать "MS Sans Serif"
 				}
-				*/
 			}
 		}
 	}

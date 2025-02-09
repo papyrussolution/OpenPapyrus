@@ -1337,8 +1337,6 @@ int SString::Tokenize(const char * pDelimChrSet, StringSet & rResult) const
 	return ok;
 }
 
-#ifndef _WIN32_WCE // {
-
 int SString::Search(const SSrchPattern * pBlk, size_t startPos, size_t * pPos) const
 {
 	return (pBlk && startPos < Len()) ? pBlk->Search(P_Buf, startPos, Len(), pPos) : 0;
@@ -1379,8 +1377,6 @@ int SString::Search(const char * pPattern, size_t startPos, int ignoreCase, size
 	}
 	return ok;
 }
-
-#endif // }
 
 int SString::Divide(int divChr, SString & rLeft, SString & rRight) const
 {
@@ -1615,7 +1611,6 @@ BSTR FASTCALL SString::CopyToOleStr(BSTR * pBuf) const
 	WCHAR * p_wname = (wbuflen > SIZEOFARRAY(wname_stk_buf)) ? static_cast<WCHAR *>(SAlloc::M(wbuflen * sizeof(WCHAR))) : wname_stk_buf;
 	if(p_wname) {
 		p_wname[0] = 0;
-#ifndef _WIN32_WCE // {
 		if(pBuf) {
 			if(*pBuf)
 				SysFreeString(*pBuf);
@@ -1623,7 +1618,6 @@ BSTR FASTCALL SString::CopyToOleStr(BSTR * pBuf) const
 			p_wname[wbuflen-1] = 0;
 			*pBuf = SysAllocString(p_wname);
 		}
-#endif // } _WIN32_WCE
 	}
 	if(p_wname != wname_stk_buf)
 		SAlloc::F(p_wname);
@@ -1632,7 +1626,6 @@ BSTR FASTCALL SString::CopyToOleStr(BSTR * pBuf) const
 
 SString & FASTCALL SString::CopyFromOleStr(const BSTR s)
 {
-#ifndef _WIN32_WCE // {
 	size_t len = SysStringLen(s);
 	size_t new_len = len+1;
 	if(Alloc(new_len)) {
@@ -1646,7 +1639,6 @@ SString & FASTCALL SString::CopyFromOleStr(const BSTR s)
 			L = 1;
 		}
 	}
-#endif // } _WIN32_WCE
 	return *this;
 }
 
@@ -2994,8 +2986,6 @@ SString & FASTCALL SString::Cat(ulong i)
 	return Cat(ultoa(i, temp_buf, 10));
 }
 
-#ifndef _WIN32_WCE // {
-
 SString & SString::Cat(int64 i)
 {
 	char   temp_buf[512];
@@ -3007,7 +2997,6 @@ SString & SString::Cat(uint64 i)
 	char   temp_buf[512];
 	return Cat(_ui64toa(i, temp_buf, 10));
 }
-#endif // } _WIN32_WCE
 
 SString & FASTCALL SString::Cat(int i)
 {

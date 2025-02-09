@@ -898,10 +898,7 @@ int ClientActivityDetectionListDialog::editItem(long pos, long id)
 	return (pos >= 0 && pos < Data.ClientActivityDetectionList.getCountI()) ? Edit(&Data.ClientActivityDetectionList.at(pos), str) : -1;
 }
 
-int ClientActivityDetectionListDialog::delItem(long pos, long id)
-{
-	return Data.ClientActivityDetectionList.atFree(pos);
-}
+int ClientActivityDetectionListDialog::delItem(long pos, long id) { return Data.ClientActivityDetectionList.atFree(pos); }
 
 int ClientActivityDetectionListDialog::setupList()
 {

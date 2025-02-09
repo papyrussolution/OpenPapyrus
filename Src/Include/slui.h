@@ -397,11 +397,11 @@ int operator != (const TCommandSet& tc1, const TCommandSet& tc2);
 #define IMPL_HANDLE_EVENT(cls) void FASTCALL cls::handleEvent(TEvent & event)
 #define EVENT_BARRIER(f) if(!EventBarrier()) { f; EventBarrier(1); }
 
-#define DECL_DIALOG_DATA(typ) typedef typ DlgDataType; DlgDataType Data // @v10.5.8
-#define DECL_DIALOG_SETDTS() int setDTS(const DlgDataType * pData)      // @v10.5.8
-#define DECL_DIALOG_GETDTS() int getDTS(DlgDataType * pData)            // @v10.5.8
-#define IMPL_DIALOG_SETDTS(cls) int cls::setDTS(const DlgDataType * pData)      // @v10.9.4
-#define IMPL_DIALOG_GETDTS(cls) int cls::getDTS(DlgDataType * pData)            // @v10.9.4
+#define DECL_DIALOG_DATA(typ) typedef typ DlgDataType; DlgDataType Data
+#define DECL_DIALOG_SETDTS() int setDTS(const DlgDataType * pData)
+#define DECL_DIALOG_GETDTS() int getDTS(DlgDataType * pData)
+#define IMPL_DIALOG_SETDTS(cls) int cls::setDTS(const DlgDataType * pData)
+#define IMPL_DIALOG_GETDTS(cls) int cls::getDTS(DlgDataType * pData)
 //
 // Descr: Контейнер для GDI-объектов. Удобен тем, что "бесконечное" количество предварительно
 // созданных хандлеров можно затолкать в этот контейнер, а при рисовании манипулировать
@@ -409,24 +409,7 @@ int operator != (const TCommandSet& tc1, const TCommandSet& tc2);
 // требуемого GDI-хандлера.
 // Элементы в контейнере хранятся упорядоченно, по-этому, время извлечения очень мало.
 // При разрушении контейнера все GDI-объекты, занесенные в него разрушаются.
-//
-#ifdef _WIN32_WCE
-#define PS_DOT           3
-#define PS_DASHDOT       4
-#define PS_DASHDOTDOT    5
-#define PS_INSIDEFRAME   7
-
-#define BS_HATCHED       3
-#define BS_DIBPATTERN    5
-#define BS_DIBPATTERNPT  6
-
-#define HS_HORIZONTAL    1
-#define HS_VERTICAL      2
-#define HS_FDIAGONAL     3
-#define HS_BDIAGONAL     4
-#define HS_CROSS         5
-#define HS_DIAGCROSS     6
-#endif // } _WIN32_WCE
+// -------------------
 //
 // @construction {
 // Универсальный (очень на это надеюсь) механизм управления скроллированием в одном измерении
@@ -1361,6 +1344,7 @@ public:
 	SColor GetColorR(const SColorSet * pColorSet, const char * pColorSymb, const SColor defaultC) const;
 	int    GetColor(const char * pColorSetSymb, const char * pColorSymb, SColor & rC) const;
 	const  SFontSource * GetFontSourceC(const char * pSymb) const;
+	const  SFontDescr * GetFontDescrC(const char * pSymb) const;
 	const  SUiLayout * GetLayoutBySymbC(const char * pSymb) const;
 	SUiLayout * GetLayoutBySymb(const char * pSymb);
 	const  SUiLayout * GetLayoutByIdC(int id) const;
@@ -1859,6 +1843,7 @@ public:
 	int    CreatePen(int ident, int style, float width, SColor c);
 	int    CreateBrush(int ident, int style, SColor c, int32 hatch, int patternId = 0);
 	int    CreateFont_(int ident, const char * pFace, int height, int flags);
+	int    CreateFont_(int ident, const SFontDescr & rFd); // @v12.2.6
 	int    CreateGradientLinear(int ident, const FRect &);
 	int    CreateGradientRadial(int ident, const FShape::Circle &);
 	int    AddGradientStop(int ident, float off, SColor c);
@@ -2721,6 +2706,7 @@ public:
 	void   endModal(ushort command);
 	void * messageToCtrl(ushort ctl, ushort command, void * ptr);
 	TView * FASTCALL getCtrlView(ushort ctl);
+	const TView * FASTCALL getCtrlViewC(ushort ctl) const;
 	TView * FASTCALL getCtrlByHandle(HWND h);
 	HWND   H() const { return this ? HW : static_cast<HWND>(0); }
 	HWND   FASTCALL getCtrlHandle(ushort ctlID);
@@ -3640,9 +3626,7 @@ public:
 	long   getVirtButtonID(uint ctlID);
 	int    SaveUserSettings();
 	int    RestoreUserSettings();
-#ifndef _WIN32_WCE // {
 	void   SetDlgTrackingSize(MINMAXINFO * pMinMaxInfo);
-#endif // } _WIN32_WCE
 	//int    SetRealRangeInput(uint ctlID, const RealRange *);
 	//int    GetRealRangeInput(uint ctlID, RealRange *);
 	//int    SetPeriodInput(uint ctlID, const DateRange *);
@@ -4007,7 +3991,7 @@ private:
 
 class TStaticText : public TView {
 public:
-	explicit TStaticText(const TRect & bounds, const char * pText = 0);
+	explicit TStaticText(const TRect & rBounds, const char * pText = 0);
 	const SString & GetRawText() const { return Text; }
 	//
 	// Descr: Возвращает текст, ассоциированный с native-элементом,
@@ -4018,6 +4002,7 @@ public:
 	SString & getText(SString & rBuf) const;
 	int    setText(const char *);
 protected:
+	DECL_HANDLE_EVENT; // @v12.2.5
 	virtual int handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 	SString Text;

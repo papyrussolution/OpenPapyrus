@@ -1,5 +1,5 @@
 // STEXT.CPP
-// Copyright (c) A.Sobolev 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 // Преобразование символов и строк, и другие текстовые функции
 //
@@ -2532,11 +2532,7 @@ int SplitBuf(HDC hdc, SString & aBuf, size_t maxStrSize, size_t maxStrsCount)
 		size_t dots_size = 0;
 		SIZE   size;
 		memzero(ret_buf, sizeof(ret_buf));
-#ifdef _WIN32_WCE // {
-		GetTextExtentPoint32(hdc, (const ushort*)".", 1, &size);
-#else
 		GetTextExtentPoint32(hdc, _T("."), 1, &size);
-#endif // } _WIN32_WCE
 		dots_size = size.cx * 3;
 		for(size_t strs_count = 0; strs_count < maxStrsCount; strs_count++) {
 			int    is_last_str = BIN(strs_count >= maxStrsCount - 1);
@@ -2549,11 +2545,7 @@ int SplitBuf(HDC hdc, SString & aBuf, size_t maxStrSize, size_t maxStrsCount)
 				}
 				if(is_last_str)
 					dots_pos = word_size + (dots_size <= maxStrSize) ? dest_pos : dots_pos;
-#ifdef _WIN32_WCE // {
-				GetTextExtentPoint32(hdc, &aBuf[src_pos], 1, &size);
-#else
 				GetTextExtentPoint32(hdc, SUcSwitch(&aBuf[src_pos]), 1, &size); // @unicodeproblem
-#endif // } _WIN32_WCE
 				word_size += size.cx;
 				if(word_size <= maxStrSize) {
 					ret_buf[dest_pos] = aBuf.C(src_pos);

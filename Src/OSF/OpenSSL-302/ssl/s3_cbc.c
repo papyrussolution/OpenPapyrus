@@ -30,26 +30,26 @@ char ssl3_cbc_record_digest_supported(const EVP_MD_CTX * ctx);
 int  ssl3_cbc_digest_record(const EVP_MD * md, unsigned char * md_out, size_t * md_out_size, const unsigned char * header,
     const unsigned char * data, size_t data_size, size_t data_plus_mac_plus_padding_size, const unsigned char * mac_secret, size_t mac_secret_length, char is_sslv3);
 
-#define l2n(l, c)        (*((c)++) = (unsigned char)(((l)>>24)&0xff), \
-	*((c)++) = (unsigned char)(((l)>>16)&0xff), \
-	*((c)++) = (unsigned char)(((l)>> 8)&0xff), \
-	*((c)++) = (unsigned char)(((l)    )&0xff))
+#define l2n(l, c)        (*((c)++) = (uchar)(((l)>>24)&0xff), \
+	*((c)++) = (uchar)(((l)>>16)&0xff), \
+	*((c)++) = (uchar)(((l)>> 8)&0xff), \
+	*((c)++) = (uchar)(((l)    )&0xff))
 
-#define l2n6(l, c)       (*((c)++) = (unsigned char)(((l)>>40)&0xff), \
-	*((c)++) = (unsigned char)(((l)>>32)&0xff), \
-	*((c)++) = (unsigned char)(((l)>>24)&0xff), \
-	*((c)++) = (unsigned char)(((l)>>16)&0xff), \
-	*((c)++) = (unsigned char)(((l)>> 8)&0xff), \
-	*((c)++) = (unsigned char)(((l)    )&0xff))
+#define l2n6(l, c)       (*((c)++) = (uchar)(((l)>>40)&0xff), \
+	*((c)++) = (uchar)(((l)>>32)&0xff), \
+	*((c)++) = (uchar)(((l)>>24)&0xff), \
+	*((c)++) = (uchar)(((l)>>16)&0xff), \
+	*((c)++) = (uchar)(((l)>> 8)&0xff), \
+	*((c)++) = (uchar)(((l)    )&0xff))
 
-#define l2n8(l, c)       (*((c)++) = (unsigned char)(((l)>>56)&0xff), \
-	*((c)++) = (unsigned char)(((l)>>48)&0xff), \
-	*((c)++) = (unsigned char)(((l)>>40)&0xff), \
-	*((c)++) = (unsigned char)(((l)>>32)&0xff), \
-	*((c)++) = (unsigned char)(((l)>>24)&0xff), \
-	*((c)++) = (unsigned char)(((l)>>16)&0xff), \
-	*((c)++) = (unsigned char)(((l)>> 8)&0xff), \
-	*((c)++) = (unsigned char)(((l)    )&0xff))
+#define l2n8(l, c)       (*((c)++) = (uchar)(((l)>>56)&0xff), \
+	*((c)++) = (uchar)(((l)>>48)&0xff), \
+	*((c)++) = (uchar)(((l)>>40)&0xff), \
+	*((c)++) = (uchar)(((l)>>32)&0xff), \
+	*((c)++) = (uchar)(((l)>>24)&0xff), \
+	*((c)++) = (uchar)(((l)>>16)&0xff), \
+	*((c)++) = (uchar)(((l)>> 8)&0xff), \
+	*((c)++) = (uchar)(((l)    )&0xff))
 
 /*
  * MAX_HASH_BIT_COUNT_BYTES is the maximum number of bytes in the hash's
@@ -70,10 +70,10 @@ int  ssl3_cbc_digest_record(const EVP_MD * md, unsigned char * md_out, size_t * 
  * little-endian order. The value of p is advanced by four.
  */
 #define u32toLE(n, p) \
-	(*((p)++) = (unsigned char)(n), \
-	*((p)++) = (unsigned char)(n>>8), \
-	*((p)++) = (unsigned char)(n>>16), \
-	*((p)++) = (unsigned char)(n>>24))
+	(*((p)++) = (uchar)(n), \
+	*((p)++) = (uchar)(n>>8), \
+	*((p)++) = (uchar)(n>>16), \
+	*((p)++) = (uchar)(n>>24))
 
 /*
  * These functions serialize the state of a hash and thus perform the
@@ -357,17 +357,17 @@ int ssl3_cbc_digest_record(const EVP_MD * md, unsigned char * md_out, size_t * m
 	}
 	if(length_is_big_endian) {
 		memzero(length_bytes, md_length_size - 4);
-		length_bytes[md_length_size - 4] = (unsigned char)(bits >> 24);
-		length_bytes[md_length_size - 3] = (unsigned char)(bits >> 16);
-		length_bytes[md_length_size - 2] = (unsigned char)(bits >> 8);
-		length_bytes[md_length_size - 1] = (unsigned char)bits;
+		length_bytes[md_length_size - 4] = (uchar)(bits >> 24);
+		length_bytes[md_length_size - 3] = (uchar)(bits >> 16);
+		length_bytes[md_length_size - 2] = (uchar)(bits >> 8);
+		length_bytes[md_length_size - 1] = (uchar)bits;
 	}
 	else {
 		memzero(length_bytes, md_length_size);
-		length_bytes[md_length_size - 5] = (unsigned char)(bits >> 24);
-		length_bytes[md_length_size - 6] = (unsigned char)(bits >> 16);
-		length_bytes[md_length_size - 7] = (unsigned char)(bits >> 8);
-		length_bytes[md_length_size - 8] = (unsigned char)bits;
+		length_bytes[md_length_size - 5] = (uchar)(bits >> 24);
+		length_bytes[md_length_size - 6] = (uchar)(bits >> 16);
+		length_bytes[md_length_size - 7] = (uchar)(bits >> 8);
+		length_bytes[md_length_size - 8] = (uchar)bits;
 	}
 
 	if(k > 0) {

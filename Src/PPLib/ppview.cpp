@@ -541,7 +541,7 @@ int PPGetObjViewFiltMapping_Filt(int filtId, PPID * pObjType, int * pViewId)
 {
 	int    ok = 1;
 	int    view_in_use = 0;
-	const  int modeless = GetModelessStatus(BIN(flags & exefModeless));
+	const  bool modeless = GetModelessStatus(LOGIC(flags & exefModeless));
 	PPViewBrowser * p_prev_win = 0;
 	PPBaseFilt * p_flt = 0;
 	PPView * p_v = 0;

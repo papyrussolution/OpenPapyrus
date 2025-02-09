@@ -1,5 +1,5 @@
 // V_ARTCL.CPP
-// A.Starodub, A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024
+// A.Starodub, A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025
 // @codepage UTF-8
 // Реализация контроллера анализ данных PPViewArticle
 //
@@ -813,7 +813,7 @@ int PPViewArticle::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser 
 					bill_flt.ObjectID   = id;
 					bill_flt.Bbt        = bbtRealTypes;
 					bill_flt.Flags      = BillFilt::fSetupNewBill;
-					::ViewGoodsBills(&bill_flt, 1);
+					::ViewGoodsBills(&bill_flt, true/*modeless*/);
 				}
 				break;
 			case PPVCMD_VIEWGOODS:

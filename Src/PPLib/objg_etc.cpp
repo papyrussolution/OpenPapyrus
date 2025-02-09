@@ -508,10 +508,7 @@ int GoodsValRestrDialog::editItem(long pos, long id)
 	return ok;
 }
 
-int GoodsValRestrDialog::delItem(long pos, long id)
-{
-	return Data.RemoveBillArRestr(id) ? 1 : -1;
-}
+int GoodsValRestrDialog::delItem(long pos, long id) { return Data.RemoveBillArRestr(id) ? 1 : -1; }
 
 /*static*/int PPObjGoodsValRestr::TestFormula(const char * pFormula)
 {

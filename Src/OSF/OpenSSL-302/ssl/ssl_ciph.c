@@ -1016,7 +1016,7 @@ static int ssl_cipher_process_rulestr(const char * rule_str, CIPHER_ORDER ** hea
 #ifndef CHARSET_EBCDIC
 			while(((ch >= 'A') && (ch <= 'Z')) || ((ch >= '0') && (ch <= '9')) || ((ch >= 'a') && (ch <= 'z')) || (ch == '-') || (ch == '.') || (ch == '='))
 #else
-			while(isalnum((unsigned char)ch) || (ch == '-') || (ch == '.') || (ch == '='))
+			while(isalnum((uchar)ch) || (ch == '-') || (ch == '.') || (ch == '='))
 #endif
 			{
 				ch = *(++l);

@@ -7,7 +7,7 @@
 //
 // @ModuleDef(PPViewFreight)
 //
-IMPLEMENT_PPFILT_FACTORY(Freight); FreightFilt::FreightFilt() : PPBaseFilt(PPFILT_FREIGHT, 0, 1), P_TagF(0) // @v10.3.11 ver 0-->1
+IMPLEMENT_PPFILT_FACTORY(Freight); FreightFilt::FreightFilt() : PPBaseFilt(PPFILT_FREIGHT, 0, 1), P_TagF(0)
 {
 	SetFlatChunk(offsetof(FreightFilt, ReserveStart),
 		offsetof(FreightFilt, Reserve)-offsetof(FreightFilt, ReserveStart)+sizeof(Reserve));

@@ -107,7 +107,6 @@ int PPObjAccount::PutPacket(PPID * pID, PPAccountPacket * pPack, int use_ta)
 			}
 			THROW(StoreItem(Obj, new_id, &pPack->Rec, 0));
 			new_id = pPack->Rec.ID;
-			// @v10.2.12 @fix pPack->Rec.ID = new_id;
 			ASSIGN_PTR(pID, new_id);
 			if(pPack->Rec.CurID == 0 && pPack->CurList.getCount()) {
 				for(i = 0; i < pPack->CurList.getCount(); i++) {

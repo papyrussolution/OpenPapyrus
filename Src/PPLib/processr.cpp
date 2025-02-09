@@ -903,9 +903,13 @@ int PPObjProcessor::PutPacket(PPID * pID, PPProcessorPacket * pPack, int use_ta)
 				//
 				// Удаление пакета
 				//
+				THROW(p_ref->RemoveProperty(Obj, *pID, 0, 0)); // @v12.2.6
 				THROW(p_ref->Ot.PutList(Obj, *pID, 0, 0)); // @v11.7.2
-				THROW(RemoveObjV(*pID, 0, 0, 0));
+				THROW(RemoveSync(*pID)); // @v12.2.6
+				// @v12.2.6 THROW(RemoveObjV(*pID, 0, 0, 0)); // @v12.2.6 здесь рекурсия //
+				THROW(RemoveByID(P_Tbl, *pID, 0)); // @v12.2.6
 				THROW(PutExtention(*pID, 0, 0));
+				//log_action_id = PPACN_OBJRMV;
 				Dirty(*pID);
 			}
 			else {

@@ -1,5 +1,5 @@
 // GOODSDLG.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 // Диалог редактирования товара
 //
@@ -474,7 +474,7 @@ int GoodsFiltCtrlGroup::IsGroupSelectionDisabled() const
 
 void GoodsFiltCtrlGroup::SetupCtrls(TDialog * pDlg)
 {
-	const int by_filt = Filt.IsEmpty() ? 0 : 1;
+	const bool by_filt = !Filt.IsEmpty();
 	pDlg->disableCtrl(CtlselGoods, by_filt);
 	pDlg->disableCtrl(CtlselGoodsGrp, BIN(DisableGroupSelection || by_filt));
 	if(by_filt) {
@@ -492,9 +492,9 @@ void GoodsFiltCtrlGroup::SetupCtrls(TDialog * pDlg)
 
 int GoodsFiltCtrlGroup::EditFilt(TDialog * pDlg)
 {
-	int    prev_by_filt = Filt.IsEmpty() ? 0 : 1;
+	const bool prev_by_filt = !Filt.IsEmpty();
 	if(GoodsFilterDialog(&Filt) > 0) {
-		int    by_filt = Filt.IsEmpty() ? 0 : 1;
+		const bool by_filt = !Filt.IsEmpty();
 		if(by_filt || prev_by_filt) {
 			pDlg->setCtrlLong(CtlselGoods, 0);
 			pDlg->setCtrlLong(CtlselGoodsGrp, 0);
@@ -553,8 +553,10 @@ static int _EditBarcodeItem(BarcodeTbl::Rec * pRec, PPID goodsGrpID)
 		}
 		DECL_DIALOG_GETDTS()
 		{
-			int    ok = 1, sel = 0;
-			SString barcode, mark_buf;
+			int    ok = 1;
+			int    sel = 0;
+			SString barcode;
+			SString mark_buf;
 			getCtrlString(sel = CTL_BARCODE_CODE, barcode); // Data.Code
 			THROW_PP(barcode.NotEmptyS(), PPERR_BARCODENEEDED);
 			if(PrcssrAlcReport::IsEgaisMark(barcode, &mark_buf)) {
@@ -585,9 +587,10 @@ static int _EditBarcodeItem(BarcodeTbl::Rec * pRec, PPID goodsGrpID)
 	private:
 		DECL_HANDLE_EVENT
 		{
-			SString code, mark_buf;
+			SString code;
 			if(event.isCmd(cmOK)) {
 				BarcodeTbl::Rec  bc_rec;
+				SString mark_buf;
 				getCtrlString(CTL_BARCODE_CODE, code);
 				if(PrcssrAlcReport::IsEgaisMark(code, &mark_buf)) {
 					PrcssrAlcReport::EgaisMarkBlock emb;
@@ -618,7 +621,7 @@ static int _EditBarcodeItem(BarcodeTbl::Rec * pRec, PPID goodsGrpID)
 			}
 			else if(event.isCmd(cmInputUpdated) && event.isCtlEvent(CTL_BARCODE_CODE)) {
 				getCtrlString(CTL_BARCODE_CODE, code);
-				uint len = (uint)code.Len();
+				const uint len = static_cast<uint>(code.Len());
 				setStaticText(CTL_BARCODE_LEN, code.Z().Cat(len));
 			}
 			else
@@ -641,8 +644,7 @@ public:
 	{
 		if(GoodsID) {
 			SString goods_name;
-			GetGoodsName(GoodsID, goods_name);
-			setStaticText(CTL_BARCODELIST_GOODS, goods_name);
+			setStaticText(CTL_BARCODELIST_GOODS, GetGoodsName(GoodsID, goods_name));
 		}
 		Data.copy(*pData);
 		updateList(0);
@@ -971,10 +973,7 @@ int ArGoodsCodeListDialog::moveItem(long pos, long id, int up)
 	return ok;
 }
 
-int ArGoodsCodeListDialog::delItem(long pos, long id)
-{
-	return Data.atFree(static_cast<uint>(pos)) ? 1 : -1;
-}
+int ArGoodsCodeListDialog::delItem(long pos, long id) { return Data.atFree(static_cast<uint>(pos)) ? 1 : -1; }
 
 int PPObjGoods::EditArCode(PPID goodsID, PPID arID, int ownCode)
 {

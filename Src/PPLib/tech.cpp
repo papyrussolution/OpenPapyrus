@@ -1,5 +1,5 @@
 // TECH.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -2099,40 +2099,7 @@ int PPViewTech::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * p
 	return ok;
 }
 
-int ViewTech(const TechFilt * pFilt) { return PPView::Execute(PPVIEW_TECH, pFilt, 1, 0); }
-
-#if 0 // {
-int ViewTech(const TechFilt * pFilt)
-{
-	int    ok = 1, view_in_use = 0, r = -1;
-	int    modeless = GetModelessStatus();
-	PPViewBrowser * p_prev_win = 0;
-	TechFilt flt;
-	PPViewTech * p_v = new PPViewTech;
-	if(modeless)
-		p_prev_win = static_cast<PPViewBrowser *>(PPFindLastBrowser());
-	if(pFilt)
-		flt = *pFilt;
-	else if(p_prev_win)
-		flt = *((PPViewTech *)(p_prev_win->P_View))->GetFilt();
-	else
-		flt.Init();
-	while(pFilt || (r = p_v->EditFilt(&flt)) > 0) {
-		THROW(p_v->Init(&flt));
-		PPCloseBrowser(p_prev_win);
-		THROW(p_v->Browse(modeless));
-		if(modeless || pFilt) {
-			view_in_use = 1;
-			break;
-		}
-	}
-	THROW(r);
-	CATCHZOKPPERR
-	if(!modeless || !ok || !view_in_use)
-		delete p_v;
-	return ok;
-}
-#endif // } 0
+int ViewTech(const TechFilt * pFilt) { return PPView::Execute(PPVIEW_TECH, pFilt, PPView::exefModeless, 0); }
 //
 // Implementation of PPALDD_Tech
 //

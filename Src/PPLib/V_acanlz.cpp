@@ -1,5 +1,5 @@
 // V_ACANLZ.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -2001,7 +2001,7 @@ int PPViewAccAnlz::GetBrwHdr(const void * pRow, BrwHdr * pHdr) const
 							BillFilt flt;
 							flt.Period = Filt.Period;
 							flt.ObjectID = suppl_id;
-							ViewGoodsBills(&flt, 1);
+							ViewGoodsBills(&flt, true/*modeless*/);
 						}
 					}
 				}
@@ -2318,7 +2318,10 @@ static int SelectPrintingAccSheetTrnovr(int * pWhat, LDATE * pExpiry, uint * pFl
 //
 //
 //
-int ViewAccAnlz(const AccAnlzFilt * pFilt, AccAnlzKind aak) { return PPView::Execute(PPVIEW_ACCANLZ, pFilt, GetModelessStatus(), reinterpret_cast<void *>(aak)); }
+int ViewAccAnlz(const AccAnlzFilt * pFilt, AccAnlzKind aak) 
+{ 
+	return PPView::Execute(PPVIEW_ACCANLZ, pFilt, (GetModelessStatus() ? PPView::exefModeless : 0), reinterpret_cast<void *>(aak)); 
+}
 //
 // Implementation of PPALDD_Account
 //

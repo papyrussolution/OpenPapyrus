@@ -303,7 +303,7 @@ int WhatmanObjectUiCtrl::CreateTextLayout(SPaintToolBox & rTb, STextLayout & rTl
 		}
 		if(TidFont) {
 			int    tool_text_pen_id = rTb.CreateColor(0, SColor(SClrBlack));
-			int    tool_text_brush_id = 0; // @v10.2.2 SPaintToolBox::rbr3DFace-->0
+			int    tool_text_brush_id = 0;
 			int    tid_cs = rTb.CreateCStyle(0, TidFont, tool_text_pen_id, tool_text_brush_id);
 			SParaDescr pd;
 			if(adj == ADJ_CENTER)

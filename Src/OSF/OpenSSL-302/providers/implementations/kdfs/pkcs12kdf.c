@@ -68,16 +68,16 @@ static int pkcs12kdf_derive(const unsigned char * pass, size_t passlen,
 	}
 	u = (size_t)ui;
 	v = (size_t)vi;
-	D = (unsigned char *)OPENSSL_malloc(v);
-	Ai = (unsigned char *)OPENSSL_malloc(u);
-	B = (unsigned char *)OPENSSL_malloc(v + 1);
+	D = (uchar *)OPENSSL_malloc(v);
+	Ai = (uchar *)OPENSSL_malloc(u);
+	B = (uchar *)OPENSSL_malloc(v + 1);
 	Slen = v * ((saltlen + v - 1) / v);
 	if(passlen != 0)
 		Plen = v * ((passlen + v - 1) / v);
 	else
 		Plen = 0;
 	Ilen = Slen + Plen;
-	I = (unsigned char *)OPENSSL_malloc(Ilen);
+	I = (uchar *)OPENSSL_malloc(Ilen);
 	if(D == NULL || Ai == NULL || B == NULL || I == NULL) {
 		ERR_raise(ERR_LIB_PROV, ERR_R_MALLOC_FAILURE);
 		goto end;
@@ -118,7 +118,7 @@ static int pkcs12kdf_derive(const unsigned char * pass, size_t passlen,
 			for(k = v; k > 0;) {
 				k--;
 				c += Ij[k] + B[k];
-				Ij[k] = (unsigned char)c;
+				Ij[k] = (uchar)c;
 				c >>= 8;
 			}
 		}
@@ -169,20 +169,17 @@ static void kdf_pkcs12_reset(void * vctx)
 {
 	KDF_PKCS12 * ctx = (KDF_PKCS12*)vctx;
 	void * provctx = ctx->provctx;
-
 	kdf_pkcs12_cleanup(ctx);
 	ctx->provctx = provctx;
 }
 
-static int pkcs12kdf_set_membuf(unsigned char ** buffer, size_t * buflen,
-    const OSSL_PARAM * p)
+static int pkcs12kdf_set_membuf(unsigned char ** buffer, size_t * buflen, const OSSL_PARAM * p)
 {
 	OPENSSL_clear_free(*buffer, *buflen);
 	*buffer = NULL;
 	*buflen = 0;
-
 	if(p->data_size == 0) {
-		if((*buffer = (unsigned char *)OPENSSL_malloc(1)) == NULL) {
+		if((*buffer = (uchar *)OPENSSL_malloc(1)) == NULL) {
 			ERR_raise(ERR_LIB_PROV, ERR_R_MALLOC_FAILURE);
 			return 0;
 		}
@@ -194,15 +191,12 @@ static int pkcs12kdf_set_membuf(unsigned char ** buffer, size_t * buflen,
 	return 1;
 }
 
-static int kdf_pkcs12_derive(void * vctx, unsigned char * key, size_t keylen,
-    const OSSL_PARAM params[])
+static int kdf_pkcs12_derive(void * vctx, unsigned char * key, size_t keylen, const OSSL_PARAM params[])
 {
 	KDF_PKCS12 * ctx = (KDF_PKCS12*)vctx;
 	const EVP_MD * md;
-
 	if(!ossl_prov_is_running() || !kdf_pkcs12_set_ctx_params(ctx, params))
 		return 0;
-
 	if(ctx->pass == NULL) {
 		ERR_raise(ERR_LIB_PROV, PROV_R_MISSING_PASS);
 		return 0;

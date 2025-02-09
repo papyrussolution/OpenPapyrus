@@ -1,11 +1,9 @@
 // HASHTAB.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2025
 // @codepage UTF-8
 //
 #include <slib-internal.h>
 #pragma hdrstop
-
-//@v10.5.6 uint32 FASTCALL DJBHash(const void * pData, size_t len);     // @prototype
 
 HashTableBase::HashTableBase(size_t sz) : P_Tab(0), Flags(0), AddCount(0), CollCount(0), MaxTail(0)
 {
@@ -508,7 +506,7 @@ bool SymbHashTable::Search(const char * pSymb, uint * pVal, uint * pPos) const
 		size_t h  = Hash(pSymb);
 		const  Entry & r_entry = P_Tab[h];
 		if(r_entry.Count > 0) {
-			SString & r_temp_buf = SLS.AcquireRvlStr(); // @v10.0.02
+			SString & r_temp_buf = SLS.AcquireRvlStr();
 			uint   pos = static_cast<uint>(r_entry.Val.Key);
 			if(NamePool.get(pos, r_temp_buf) && r_temp_buf.IsEq(pSymb)) {
 				ASSIGN_PTR(pVal, r_entry.Val.Val);
@@ -758,7 +756,7 @@ GuidHashTable::GuidHashTable(size_t sz, int useAssoc) : HashTableBase(sz)
 	SETFLAG(Flags, fUseAssoc, useAssoc);
 }
 
-GuidHashTable::GuidHashTable(const GuidHashTable & rS) : HashTableBase(rS), Pool(rS.Pool) // @v10.3.4
+GuidHashTable::GuidHashTable(const GuidHashTable & rS) : HashTableBase(rS), Pool(rS.Pool)
 {
 }
 

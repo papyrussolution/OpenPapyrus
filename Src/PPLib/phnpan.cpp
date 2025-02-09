@@ -1,5 +1,5 @@
 // PHNPAN.CPP
-// Copyright (c) A.Sobolev 2018, 2019, 2020, 2021, 2023, 2024
+// Copyright (c) A.Sobolev 2018, 2019, 2020, 2021, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -41,7 +41,6 @@ public:
 		PPID   SCardID;  // Персональная карта ассоциированная с выбранным номером звонящего
 		PPID   LocID;    // Локация ассоциированная с выбранным номером звонящего
 	};
-	// @v10.5.8 movedto(PPApp::FindPhonePaneDialog()) static PhonePaneDialog * FindAnalogue(const char * pChannel);
 	PhonePaneDialog(PhoneServiceEventResponder * pPSER, const PhonePaneDialog::State * pSt);
 	~PhonePaneDialog();
 	int    SetupInfo();
@@ -58,7 +57,7 @@ private:
 				acnPersonalEvent,
 				acnPrjTask,
 				acnCcOrder,
-				acnViewPrcBusy // @v10.5.9
+				acnViewPrcBusy
 			};
 			Param() : ExtSelector(0), Action(acnUndef), PersonID(0), SCardID(0), LocID(0)
 			{
@@ -438,17 +437,6 @@ private:
 	};
 };
 
-//static
-/* @v10.5.8 (moved to PPApp::FindPhonePaneDialog()) PhonePaneDialog * PhonePaneDialog::FindAnalogue(const char * pChannel)
-{
-	const long res_id = DLG_PHNCPANE;
-	for(TView * p = APPL->P_DeskTop->GetFirstView(); p != 0; p = p->nextView()) {
-		if(p->IsConsistent() && p->GetSubSign() == TV_SUBSIGN_DIALOG && static_cast<const TDialog *>(p)->resourceID == res_id)
-			return static_cast<PhonePaneDialog *>(p);
-	}
-	return 0;
-}*/
-
 PhonePaneDialog::PhonePaneDialog(PhoneServiceEventResponder * pPSER, const PhonePaneDialog::State * pSt) :
 	TDialog(DLG_PHNCPANE), P_PSER(pPSER), P_Box(0), P_PhnSvcCli(0), ChnlStatusReqTmr(1000)
 {
@@ -490,7 +478,7 @@ int PhonePaneDialog::SetupInfo()
 	else {
 		temp_buf.CatDivIfNotEmpty(';', 2).Cat("DOWN");
 	}
-	setCtrlString(CTL_PHNCPANE_ST_INFO, temp_buf); // @v10.7.9 @fix setStaticText-->setCtrlString
+	setCtrlString(CTL_PHNCPANE_ST_INFO, temp_buf);
 	if(S.Status != PhnSvcChannelStatus::stUp) {
 		showCtrl(CTL_PHNCPANE_AUTOCLOSE, 1);
 		if(!S.SinceDown) {
@@ -678,7 +666,7 @@ IMPL_HANDLE_EVENT(PhonePaneDialog)
 	else if(event.isCmd(cmNewContact)) {
 		NewContact();
 	}
-	else if(event.isCmd(cmEditContact)) { // @v10.5.5
+	else if(event.isCmd(cmEditContact)) {
 		if(S.PersonID) {
 			PsnObj.Edit(&S.PersonID, 0);
 		}
@@ -692,7 +680,7 @@ IMPL_HANDLE_EVENT(PhonePaneDialog)
 	else if(event.isCmd(cmPhnCPaneAction)) {
 		DoAction();
 	}
-	else if(event.isCmd(cmMinimizeWindow)) { // @v10.5.5
+	else if(event.isCmd(cmMinimizeWindow)) {
 		::ShowWindow(H(), SW_MINIMIZE);
 	}
 	else if(event.isCmd(cmLBDblClk)) {
@@ -1067,7 +1055,6 @@ void PhonePaneDialog::ShowList(int mode, int onInit)
 					}
 				}
 			}
-			// @v10.5.8 {
 			else if(S.PersonID) {
 				PPIDArray sc_list;
 				ScObj.P_Tbl->GetListByPerson(S.PersonID, 0, &sc_list);
@@ -1100,7 +1087,6 @@ void PhonePaneDialog::ShowList(int mode, int onInit)
 					}
 				}
 			}
-			// } @v10.5.8 
 		}
 		else if(mode == State::lmLocCCheck) {
 			// columns:
@@ -1242,8 +1228,7 @@ int OpenPhonePane()
 int ShowPhoneCallPane(PhoneServiceEventResponder * pPSER, const PhonePaneDialog::State * pSt)
 {
 	int    ok = 1;
-	// @v10.5.8 PhonePaneDialog * p_prev_dlg = PhonePaneDialog::FindAnalogue("");
-	PhonePaneDialog * p_prev_dlg = static_cast<PhonePaneDialog *>(static_cast<PPApp *>(APPL)->FindPhonePaneDialog()); // @v10.5.8 
+	PhonePaneDialog * p_prev_dlg = static_cast<PhonePaneDialog *>(static_cast<PPApp *>(APPL)->FindPhonePaneDialog());
 	if(p_prev_dlg) {
 		p_prev_dlg->Setup(pPSER, pSt);
 		ok = 2;
@@ -1257,8 +1242,6 @@ int ShowPhoneCallPane(PhoneServiceEventResponder * pPSER, const PhonePaneDialog:
 	}
 	return ok;
 }
-
-// @v10.6.1 (moved to PPConst) static const uint32 PhoneServiceEventResponder_Signature = 0x5A6B7C8E;
 
 bool PhoneServiceEventResponder::IsConsistent() const { return (Signature == PPConst::Signature_PhoneServiceEventResponder); }
 
@@ -1471,11 +1454,10 @@ int PPViewPhnSvcMonitor::Update()
 {
 	int    ok = -1;
 	if(P_Cli) {
-		ENTER_CRITICAL_SECTION // @v10.5.9
+		ENTER_CRITICAL_SECTION
 		if(!P_Cli->GetChannelStatus(0, List)) {
 			for(uint tn = 0; tn < 3; tn++) {
-				if(CreatePhnSvcClient() && P_Cli) { // @v10.5.9 (&& P_Cli) вероятна reenterability
-					// @v10.5.9 assert(P_Cli);
+				if(CreatePhnSvcClient() && P_Cli) {
 					P_Cli->GetChannelStatus(0, List);
 					break;
 				}
@@ -1508,7 +1490,7 @@ int PPViewPhnSvcMonitor::Update()
 				}
 			}
 		}
-		LEAVE_CRITICAL_SECTION // @v10.5.9
+		LEAVE_CRITICAL_SECTION
 	}
 	else
 		List.Z();
@@ -1547,8 +1529,7 @@ int PPViewPhnSvcMonitor::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 				case 5: pBlk->Set(TempStatusEntry.TimeToHungUp); break; // TimeToHungUp
 				case 6: pBlk->Set(TempStatusEntry.CallerId); break; // CallerId
 				case 7: // CallerName
-					// @v10.0.01 pBlk->Set(TempStatusEntry.CallerIdName.Transf(CTRANSF_UTF8_TO_INNER));
-					pBlk->Set(TempStatusEntry.IdentifiedCallerName); // @v10.0.01
+					pBlk->Set(TempStatusEntry.IdentifiedCallerName);
 					break;
 				case 8: pBlk->Set(TempStatusEntry.ConnectedLineNum); break; // ConnectedLineNum
 				case 9: pBlk->Set(TempStatusEntry.ConnectedLineName.Transf(CTRANSF_UTF8_TO_INNER)); break; // ConnectedLineName

@@ -4110,7 +4110,7 @@ int PPViewBill::AttachBillToOrder(PPID billID)
 					flt.Sel = LastSelID;
 			}
 		}
-		if(ViewGoodsBills(&flt, 1) > 0) {
+		if(ViewGoodsBills(&flt, true/*modeless*/) > 0) {
 			PPID   order_bill_id = flt.Sel;
 			LastSelID = flt.Sel;
 			PPBillPacket pack, ord_pack;
@@ -4231,7 +4231,7 @@ int PPViewBill::AttachBillToDraft(PPID billID, const BrowserWindow * pBrw)
 					if(LastSelID && bill_list.lsearch(LastSelID)) {
 						flt.Sel = LastSelID;
 					}
-					if(ViewGoodsBills(&flt, 1) > 0) {
+					if(ViewGoodsBills(&flt, true/*modeless*/) > 0) {
 						PPID   draft_bill_id = flt.Sel;
 						LastSelID = flt.Sel;
 						{
@@ -6856,12 +6856,12 @@ int PPViewBill::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBro
 //
 //
 //
-int STDCALL ViewGoodsBills(BillFilt * pFilt, int asModeless)
+int STDCALL ViewGoodsBills(BillFilt * pFilt, bool asModeless)
 {
 	int    ok = -1;
 	int    r = 0;
 	int    view_in_use = 0;
-	int    modeless = GetModelessStatus(asModeless);
+	bool   modeless = GetModelessStatus(asModeless);
 	PPView * p_v = 0;
 	PPBaseFilt * p_flt = 0;
     PPViewBrowser * p_prev_win = 0;
@@ -6879,7 +6879,7 @@ int STDCALL ViewGoodsBills(BillFilt * pFilt, int asModeless)
 	while(pFilt || p_v->EditBaseFilt(p_flt) > 0) {
 		PPWaitStart();
 		if(static_cast<const BillFilt *>(p_flt)->Flags & BillFilt::fAsSelector)
-			modeless = 0;
+			modeless = false;
 		THROW(p_v->Init_(p_flt));
 		PPCloseBrowser(p_prev_win);
 		THROW(r = p_v->Browse(modeless));
@@ -6942,7 +6942,7 @@ int STDCALL BrowseBills(BrowseBillsType bbt)
 	THROW(PPCheckDatabaseChain());
 	{
 		BillFilt::FiltExtraParam p(1, bbt);
-		ok = PPView::Execute(PPVIEW_BILL, 0, GetModelessStatus(), &p);
+		ok = PPView::Execute(PPVIEW_BILL, 0, (GetModelessStatus() ? PPView::exefModeless : 0), &p);
 	}
 	CATCHZOKPPERR
 	return ok;

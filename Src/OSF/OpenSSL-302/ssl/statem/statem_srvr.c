@@ -3889,7 +3889,7 @@ int tls_construct_new_session_ticket(SSL * s, WPACKET * pkt)
 
 		nonce = s->next_ticket_nonce;
 		for(i = TICKET_NONCE_SIZE; i > 0; i--) {
-			tick_nonce[i - 1] = (unsigned char)(nonce & 0xff);
+			tick_nonce[i - 1] = (uchar)(nonce & 0xff);
 			nonce >>= 8;
 		}
 
@@ -4026,7 +4026,7 @@ MSG_PROCESS_RETURN tls_process_next_proto(SSL * s, PACKET * pkt)
 		return MSG_PROCESS_ERROR;
 	}
 
-	s->ext.npn_len = (unsigned char)next_proto_len;
+	s->ext.npn_len = (uchar)next_proto_len;
 
 	return MSG_PROCESS_CONTINUE_READING;
 }

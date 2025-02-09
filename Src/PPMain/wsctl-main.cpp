@@ -232,6 +232,7 @@ public:
 		loidAdminCtrlGroup            = 10028, // Область администраторского экрана с кнопками команд
 		loidRegistrationBlock         = 10029, // @v11.9.10 Блок диалога регистрации
 		loidComputerName              = 10030, // @v12.2.1 Область располагается под loidLogo и отображает наименование компьютера
+		loidComputerSysInfo           = 10031, // @v12.2.6 Область располагается под loidComputerName и отображает системные данные (имя пользователя etc)
 		//
 		loidStartProgramEntry         = 20000  // Стартовый идентификатор для иконок выбора программ. Первый layout идентифицируется как (loidStartProgramEntry+1)
 	};
@@ -937,6 +938,12 @@ private:
 				}
 			}
 		}
+		{
+			ImGuiWindowByLayout wbl(pLoParent, loidComputerSysInfo, "##ComputerSysInfo", viewFlags|ImGuiWindowFlags_NoBackground);
+			if(wbl.IsValid()) {
+				ImGui::Text("computer sys info (construction)");
+			}
+		}
 		return result;
 	}
 	//
@@ -1437,6 +1444,7 @@ WsCtl_ImGuiSceneBlock::DServerError & WsCtl_ImGuiSceneBlock::DServerError::Setup
 {
 	_Status = PPErrCode;
 	PPGetLastErrorMessage(1, _Message);
+	PPLogMessage(PPFILNAM_WSCTL_LOG, _Message, LOGMSGF_TIME|LOGMSGF_COMP|LOGMSGF_SLSSESSGUID|LOGMSGF_UTF8); // @v12.2.6 must be before _Message.Transf(CTRANSF_INNER_TO_UTF8)
 	_Message.Transf(CTRANSF_INNER_TO_UTF8);
 	return *this;
 }

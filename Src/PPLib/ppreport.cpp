@@ -2453,7 +2453,7 @@ int VerifyCrpt(const char * pRptPath, const char * pDataPath)
 			PELogOnInfo logon_info;
 			MEMSZERO(logon_info);
 			logon_info.StructSize = PE_SIZEOF_LOGON_INFO;
-			(buf = pDataPath).SetLastSlash().Cat("file.ddf");
+			(buf = pDataPath).SetLastSlash().Cat(BDictionary::DdfTableFileName);
 			buf.CopyTo(logon_info.ServerName, PE_SERVERNAME_LEN);
 			(buf = pDataPath).SetLastSlash().Cat("head.btr");
 			buf.CopyTo(logon_info.DatabaseName, PE_DATABASENAME_LEN);

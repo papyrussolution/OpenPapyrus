@@ -4512,7 +4512,7 @@ int BillItemBrowser::selectOrder()
 		//flt.LocID  = P_Pack->Rec.Location;
 		flt.Ft_ClosedOrder = -1;
 		flt.Flags   |= (BillFilt::fAsSelector | BillFilt::fOrderOnly);
-		if((r = ViewGoodsBills(&flt, 0)) > 0)
+		if((r = ViewGoodsBills(&flt, false/*modeless*/)) > 0)
 			return ((OrderBillID = flt.Sel), 1);
 		else
 			return r ? -1 : 0;

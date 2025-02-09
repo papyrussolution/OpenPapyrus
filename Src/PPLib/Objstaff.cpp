@@ -50,7 +50,7 @@ int FASTCALL StaffAmtEntry::IsEq(const StaffAmtEntry & rS) const
 //
 //
 //
-StaffAmtList::StaffAmtList() : TSVector <StaffAmtEntry>() // @v9.8.6 TSArray-->TSVector
+StaffAmtList::StaffAmtList() : TSVector <StaffAmtEntry>()
 {
 }
 
@@ -146,7 +146,7 @@ int StaffAmtList::Put(uint pos, const StaffAmtEntry * pItem)
 //
 //
 //
-PersonPostArray::PersonPostArray() : TSVector <PersonPostTbl::Rec> () // @v9.8.4 TSArray-->TSVector
+PersonPostArray::PersonPostArray() : TSVector <PersonPostTbl::Rec> ()
 {
 }
 
@@ -758,8 +758,7 @@ private:
 		if(event.isCmd(cmAmounts)) {
 			if(SlObj.CheckRights(PPObjStaffList::rtReadAmounts)) {
 				SString word;
-				// @v9.2.7 PPGetWord(PPWORD_STAFFAMTLIST, 0, word);
-				PPLoadString("staffamount_pl", word); // @v9.2.7
+				PPLoadString("staffamount_pl", word);
 				EditStaffAmtList(&Data.Amounts, word, SlObj.CheckRights(PPObjStaffList::rtModAmounts));
 			}
 			clearEvent(event);
@@ -867,8 +866,7 @@ int PPObjStaffList::EditAmounts(PPID id)
 	THROW(GetPacket(id, &pack) > 0);
 	{
 		SString word;
-		// @v9.2.7 PPGetWord(PPWORD_STAFFAMTLIST, 0, word);
-		PPLoadString("staffamount_pl", word); // @v9.2.7
+		PPLoadString("staffamount_pl", word);
 		while(ok < 0 && EditStaffAmtList(&pack.Amounts, word, CheckRights(PPObjStaffList::rtModAmounts)) > 0) {
 			if(PutPacket(&id, &pack, 1))
 				ok = 1;
@@ -888,8 +886,7 @@ int PPObjStaffList::EditPostAmounts(PPID id)
 	THROW(GetPostPacket(id, &pack) > 0);
 	{
 		SString word;
-		// @v9.2.7 PPGetWord(PPWORD_STAFFAMTLIST, 0, word);
-		PPLoadString("staffamount_pl", word); // @v9.2.7
+		PPLoadString("staffamount_pl", word);
 		while(ok < 0 && EditStaffAmtList(&pack.Amounts, word, CheckRights(PPObjStaffList::rtModAmounts)) > 0)
 			if(PutPostPacket(&id, &pack, 1))
 				ok = 1;
@@ -930,8 +927,7 @@ IMPL_HANDLE_EVENT(PersonPostDialog)
 	if(event.isCmd(cmAmounts)) {
 		if(SlObj.CheckRights(PPObjStaffList::rtReadAmounts)) {
 			SString word;
-			// @v9.2.7 PPGetWord(PPWORD_STAFFAMTLIST, 0, word);
-			PPLoadString("staffamount_pl", word); // @v9.2.7
+			PPLoadString("staffamount_pl", word);
 			EditStaffAmtList(&Data.Amounts, word, SlObj.CheckRights(PPObjStaffList::rtModAmounts));
 		}
 	}

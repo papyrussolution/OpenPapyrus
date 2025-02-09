@@ -445,11 +445,11 @@ static int right_encode(unsigned char * out, size_t out_max_len, size_t * out_le
 
 	/* MSB's are at the start of the bytes array */
 	for(i = len - 1; i >= 0; --i) {
-		out[i] = (unsigned char)(bits & 0xFF);
+		out[i] = (uchar)(bits & 0xFF);
 		bits >>= 8;
 	}
 	/* Tack the length onto the end */
-	out[len] = (unsigned char)len;
+	out[len] = (uchar)len;
 
 	/* The Returned length includes the tacked on byte */
 	*out_len = len + 1;
@@ -481,7 +481,7 @@ static int encode_string(unsigned char * out, size_t out_max_len, size_t * out_l
 			return 0;
 		}
 
-		out[0] = (unsigned char)len;
+		out[0] = (uchar)len;
 		for(i = len; i > 0; --i) {
 			out[i] = (bits & 0xFF);
 			bits >>= 8;
@@ -523,7 +523,7 @@ static int bytepad(unsigned char * out, size_t * out_len,
 
 	/* Left encoded w */
 	*p++ = 1;
-	*p++ = (unsigned char)w;
+	*p++ = (uchar)w;
 	/* || in1 */
 	memcpy(p, in1, in1_len);
 	p += in1_len;

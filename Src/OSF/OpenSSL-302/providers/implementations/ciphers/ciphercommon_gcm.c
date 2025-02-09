@@ -175,10 +175,7 @@ int ossl_gcm_get_ctx_params(void * vctx, OSSL_PARAM params[])
 	p = OSSL_PARAM_locate(params, OSSL_CIPHER_PARAM_AEAD_TAG);
 	if(p) {
 		sz = p->data_size;
-		if(sz == 0
-		    || sz > EVP_GCM_TLS_TAG_LEN
-		    || !ctx->enc
-		    || ctx->taglen == UNINITIALISED_SIZET) {
+		if(sz == 0 || sz > EVP_GCM_TLS_TAG_LEN || !ctx->enc || ctx->taglen == UNINITIALISED_SIZET) {
 			ERR_raise(ERR_LIB_PROV, PROV_R_INVALID_TAG);
 			return 0;
 		}
@@ -189,9 +186,7 @@ int ossl_gcm_get_ctx_params(void * vctx, OSSL_PARAM params[])
 	}
 	p = OSSL_PARAM_locate(params, OSSL_CIPHER_PARAM_AEAD_TLS1_GET_IV_GEN);
 	if(p) {
-		if(p->data == NULL
-		    || p->data_type != OSSL_PARAM_OCTET_STRING
-		    || !getivgen(ctx, (unsigned char *)p->data, p->data_size))
+		if(p->data == NULL || p->data_type != OSSL_PARAM_OCTET_STRING || !getivgen(ctx, (uchar *)p->data, p->data_size))
 			return 0;
 	}
 	return 1;
@@ -238,7 +233,7 @@ int ossl_gcm_set_ctx_params(void * vctx, const OSSL_PARAM params[])
 			ERR_raise(ERR_LIB_PROV, PROV_R_FAILED_TO_GET_PARAMETER);
 			return 0;
 		}
-		sz = gcm_tls_init(ctx, (unsigned char *)p->data, p->data_size);
+		sz = gcm_tls_init(ctx, (uchar *)p->data, p->data_size);
 		if(sz == 0) {
 			ERR_raise(ERR_LIB_PROV, PROV_R_INVALID_AAD);
 			return 0;
@@ -252,14 +247,14 @@ int ossl_gcm_set_ctx_params(void * vctx, const OSSL_PARAM params[])
 			ERR_raise(ERR_LIB_PROV, PROV_R_FAILED_TO_GET_PARAMETER);
 			return 0;
 		}
-		if(gcm_tls_iv_set_fixed(ctx, (unsigned char *)p->data, p->data_size) == 0) {
+		if(gcm_tls_iv_set_fixed(ctx, (uchar *)p->data, p->data_size) == 0) {
 			ERR_raise(ERR_LIB_PROV, PROV_R_FAILED_TO_GET_PARAMETER);
 			return 0;
 		}
 	}
 	p = OSSL_PARAM_locate_const(params, OSSL_CIPHER_PARAM_AEAD_TLS1_SET_IV_INV);
 	if(p) {
-		if(p->data == NULL || p->data_type != OSSL_PARAM_OCTET_STRING || !setivinv(ctx, (unsigned char *)p->data, p->data_size))
+		if(p->data == NULL || p->data_type != OSSL_PARAM_OCTET_STRING || !setivinv(ctx, (uchar *)p->data, p->data_size))
 			return 0;
 	}
 	return 1;
@@ -501,7 +496,7 @@ static int gcm_tls_cipher(PROV_GCM_CTX * ctx, unsigned char * out, size_t * padl
 	in += EVP_GCM_TLS_EXPLICIT_IV_LEN;
 	out += EVP_GCM_TLS_EXPLICIT_IV_LEN;
 	len -= EVP_GCM_TLS_EXPLICIT_IV_LEN + EVP_GCM_TLS_TAG_LEN;
-	tag = ctx->enc ? out + len : (unsigned char *)in + len;
+	tag = ctx->enc ? out + len : (uchar *)in + len;
 	if(!ctx->hw->oneshot(ctx, ctx->buf, ctx->tls_aad_len, in, len, out, tag,
 	    EVP_GCM_TLS_TAG_LEN)) {
 		if(!ctx->enc)

@@ -33536,7 +33536,7 @@ public:
 //
 #define BORTF_NORECALCAMOUNTS     0x0001L // Don't recalc bill's amounts
 #define BORTF_RECALCTRFRS         0x0002L // Recalc transfer items (imply !BORTF_NORECALCAMOUNTS)
-#define BORTF_IGNOREOPRTLIST      0x0004L // @v9.8.3 При изменении пакета документа в нем устанавливается флаг PPBillPacket::pfIgnoreOpRtList
+#define BORTF_IGNOREOPRTLIST      0x0004L // При изменении пакета документа в нем устанавливается флаг PPBillPacket::pfIgnoreOpRtList
 //
 //
 //
@@ -34545,7 +34545,7 @@ public:
 			int    MaxExpiry;
 			double Debt;
 		};
-		TSVector <DimItem> DebtDimList; // Список сумм задолженности, ассоциированных с долговыми размерностями // @v9.8.4 TSArray-->TSVect
+		TSVector <DimItem> DebtDimList; // Список сумм задолженности, ассоциированных с долговыми размерностями //
 	};
 	//
 	// (pPeriod == 0) -> (pPeriod->low == 0 && pPeriod->upp == 0)
@@ -37261,7 +37261,7 @@ public:
 	int    GetListByGoods(PPID goodsID, PPIDArray * pList);
 	int    GetListByGoodsStruc(PPID goodsStrucID, PPIDArray * pList); // @v11.7.6
 	int    GetToolingCondition(PPID id, SString & rFormula);
-	int    SelectTooling(PPID prcID, PPID goodsID, PPID prevGoodsID, TSVector <TechTbl::Rec> * pList); // @v9.8.4 TSArray-->TSVect
+	int    SelectTooling(PPID prcID, PPID goodsID, PPID prevGoodsID, TSVector <TechTbl::Rec> * pList);
 	int    CreateAutoTech(PPID prcID, PPID goodsID, PPID * pTechID, int use_ta);
 	int    SearchAutoForGoodsCreation(PPID prcID, PPID * pGoodsGrpID);
 	int    ChangeOrderN(PPID techID, int sow, int use_ta);
@@ -37817,7 +37817,7 @@ public:
 		PPID   LocID;      // IN  Склад, для которого запрашивается выбор по коду. Это поле используется //
 			// только в том случае, если InTSesID == 0.
 		int16  CodeType;   // OUT {1 - goods code, 2 - serial code by lot, 3 - serial code by TSessLine}
-		uint16 Reserve;    // @v9.8.4 @alignment
+		uint16 Reserve;    // @alignment
 		PPID   OutTSesID;  // OUT Сессия, создавшая код Serial (CodeType == 3)
 		PPID   GoodsID;    // OUT Товар, соответствующий коду Serial
 		PPID   LotID;      // OUT Лот, соответствующий коду Serial (CodeType == 2)
@@ -37912,7 +37912,7 @@ public:
 	// Descr: Создает рабочую сессию по процессору pPrcRec и привязанную к документу pBillRec.
 	//
 	int    CreateOnlineByLinkBill(PPID * pSessID, const ProcessorTbl::Rec * pPrcRec, const BillTbl::Rec * pBillRec);
-	int    GetRgi(PPID goodsID, double qtty, const TSessionTbl::Rec & rTSesRec, long extRgiFlags, RetailGoodsInfo & rRgi); // @v9.9.7
+	int    GetRgi(PPID goodsID, double qtty, const TSessionTbl::Rec & rTSesRec, long extRgiFlags, RetailGoodsInfo & rRgi);
 	//
 	// Descr: Разносит скидку discount по строкам сессии с одновременным изменением результирующей
 	//   суммы в записи сессии.
@@ -38628,7 +38628,6 @@ struct ObjTransmitParam {
 		fRecoverTransmission     = 0x0002, // Специальный флаг, указывающий на то, что пакет передачи содержит
 			// восстановительные данные для раздела-получателя //
 		//
-		// @v9.7.2
 		// В подавляющем большинстве случаев объекты передаются выборкой. Однако, иногда,
 		// по-умолчанию передача осуществляется только для выбранного объекта (например, в кассовых сессиях).
 		// Для ручного переопределения такого поведения применяются следущие 2 флага.
@@ -38696,8 +38695,8 @@ struct BillTransmitParam : public PPBaseFilt {
 	enum {
 		fLabelOnly = 0x0001
 	};
-	uint8  ReserveStart[28];     // @anchor // @v9.0.8 [32]-->[28]
-	PPID   ArID;                 // @v9.0.8 Контрагент по документам
+	uint8  ReserveStart[28];     // @anchor
+	PPID   ArID;                 // Контрагент по документам
 	DateRange Period;            //
 	PPID   OpID;                 //
 	PPID   ToOpID;               // Преобразовывать OpID в ToOpID
@@ -39213,7 +39212,7 @@ private:
 
 	enum {
 		stUseGoodsList   = 0x0001,
-		stThereAreDrafts = 0x0002, // @v9.4.1 Среди видов операций для анализа присутствуют драфт-операции
+		stThereAreDrafts = 0x0002, // Среди видов операций для анализа присутствуют драфт-операции
 		stThereAreOrders = 0x0004,
 		stOnlyDrafts     = 0x0008,
 		stOnlyOrders     = 0x0010
@@ -39802,9 +39801,9 @@ public:
 		ordByDiffPrice
 	};
 
-	uint8  ReserveStart[20]; // @anchor // @v9.9.0 [36]-->[20]
-	LDATETIME LhSingleEvDtm; // @v9.9.0 Если единственный ид в LhBillList - ид сохраненной версии документа, то здесь - момент изменения/удаления
-	LDATETIME RhSingleEvDtm; // @v9.9.0 Если единственный ид в RhBillList - ид сохраненной версии документа, то здесь - момент изменения/удаления
+	uint8  ReserveStart[20]; // @anchor
+	LDATETIME LhSingleEvDtm; // Если единственный ид в LhBillList - ид сохраненной версии документа, то здесь - момент изменения/удаления
+	LDATETIME RhSingleEvDtm; // Если единственный ид в RhBillList - ид сохраненной версии документа, то здесь - момент изменения/удаления
 	long   Flags;
 	long   Order;
 	int    WhatBillIsHistory;
@@ -39938,7 +39937,7 @@ private:
 	StrAssocArray TextPool;
 	GoodsSubstList    Gsl;
 	PPObjBill::SubstParam Bsp; // Параметр подстановки по документам
-	PPBillPacket * P_OuterPack; // @v9.9.12 @notowned Поставляемый из-вне пакет документа, соджержащий строки в поле P_OuterPack->InvList
+	PPBillPacket * P_OuterPack; // @notowned Поставляемый из-вне пакет документа, соджержащий строки в поле P_OuterPack->InvList
 };
 //
 // @moduledecl(PPViewQuoteReq)
@@ -41211,11 +41210,12 @@ public:
 		}
 		int64  ID;           // Ид товара 
 		uint64 UedCurrency;  // Валюта (в json - в формате ISO 4217)
-		bool   InAction;     // Участвует в акции: true — да, false — нет
 		double Price;        // Текущая розничная цена
 		double Discount;     // Текущая скидка
 		double PlanPrice;    // Плановая цена (цена во время акции)
 		double PlanDiscount; // Рекомендуемая скидка для участия в акции
+		bool   InAction;     // Участвует в акции: true — да, false — нет
+		uint8  Reseve[3];
 	};
 	struct Promotion {
 		struct RangingItem { // @flat
@@ -41255,15 +41255,81 @@ public:
 		TSVector <RangingItem> RangingList; // 
 	};
 	struct Campaign {
-		Campaign() : ID(0), Type(0), Status(0), ChangeDtm(ZERODATETIME)
-		{
-		}
+		Campaign();
+
 		int64  ID;
-		int    Type;
-		int    Status;
+		int    Type; // Тип кампании:
+			// 4 - campaign in catalog (deprecated type)
+			// 5 - campaign in content (deprecated type)
+			// 6 - campaign in search (deprecated type)
+			// 7 - campaign in recommendations on the main page (deprecated type)
+			// 8 - automatic campaign 
+			// 9 - Auction 
+		int    Status; // Статус кампании:
+			// -1 - the campaign is in the process of being deleted
+			// 4 - ready to be launched
+			// 7 - campaign completed
+			// 8 - declined
+			// 9 - displays are ongoing
+			// 11 - campaign is paused.
+			//   Campaign in the process of deletion. The status means that the campaign has been deleted and will disappear 
+			// from the method's response within 3-10 minutes.  
 		LDATETIME ChangeDtm;
 		//
 		DateRange ReqPeriod; // Вспомогательное поле, позволяющее задать период запроса статистики по кампании
+	};
+	struct CampaignStatisticsUnit { // @flat
+		CampaignStatisticsUnit();
+		CampaignStatisticsUnit & Z();
+		bool   FromJsonObj(const SJson * pJs);
+
+		uint   ViewCount;   // "views"
+		uint   ClickCount;  // "clicks" Number of clicks.
+		uint   Atbs;        // "atbs" Number of products added to the basket.
+		uint   OrderCount;  // "orders" Orders number.
+		uint   Shks;        // "shks" Number of ordered products, pcs.
+		double CRate;       // "cr" CR(conversion rate) is the ratio of the number of orders to the total number of visits to the campaign.
+		double Ctr;         // "ctr" Clickability metric. The ratio of clicks to displays. Expressed as a percentage For all days, across all WB articles and platforms.
+		double Cpc;         // "cpc" Average cost per click, ₽.
+		double CostAmount;  // "sum" Expenses, ₽.
+		double OrderAmount; // "sum_price" Orders amount, ₽
+	};
+	struct CampaignStatistics_Ware {
+		CampaignStatistics_Ware();
+		CampaignStatistics_Ware & Z();
+		bool   FromJsonObj(const SJson * pJs);
+
+		int64  WareId; // "nmId"
+		SString WareName; // "name"
+		CampaignStatisticsUnit S;
+	};
+	struct CampaignStatistics_App {
+		CampaignStatistics_App();
+		CampaignStatistics_App & Z();
+		bool   FromJsonObj(const SJson * pJs);
+
+		int    AppType; // Platform type (0 - undef, 1 - website, 32 - Android, 64 - IOS)
+		CampaignStatisticsUnit S;
+		TSCollection <CampaignStatistics_Ware> SList_Ware;
+	};
+	struct CampaignStatistics_Day {
+		CampaignStatistics_Day();
+		CampaignStatistics_Day & Z();
+		bool   FromJsonObj(const SJson * pJs);
+
+		LDATE Dt;
+		CampaignStatisticsUnit S; // total for the whole period
+		TSCollection <CampaignStatistics_App> SList_App;
+	};
+	struct CampaignStatistics_Adv {
+		CampaignStatistics_Adv();
+		CampaignStatistics_Adv & Z();
+		bool   FromJsonObj(const SJson * pJs);
+
+		int64  AdvertId;
+		DateRange Period; // "interval"
+		CampaignStatisticsUnit S; // total for the whole period
+		TSCollection <CampaignStatistics_Day> SList_Day;
 	};
 	struct Stock {
 		Stock();
@@ -41534,7 +41600,7 @@ public:
 	//
 	int   RequestPromoCampaignList(TSCollection <Campaign> & rList); // @v12.2.3
 	int   RequestPromoCampaignListDetail(TSCollection <Campaign> & rList); // @v12.2.4 
-	int   RequestPromoCampaignListStatistics(const DateRange * pCommonReqPeriod, TSCollection <Campaign> & rList); // @v12.2.5 @construction
+	int   RequestPromoCampaignListStatistics(const DateRange * pCommonReqPeriod, const TSCollection <Campaign> & rList, TSCollection <CampaignStatistics_Adv> & rResult); // @v12.2.5 @construction
 	int   CreateWarehouse(PPID * pID, int64 outerId, const char * pOuterName, const char * pAddress, int use_ta);
 	const Warehouse * SearchWarehouseByName(const TSCollection <Warehouse> & rWhList, const char * pWhName, bool adoptive) const;
 	int   ResolveWarehouseByName(const TSCollection <Warehouse> & rWhList, const char * pWhName, PPID defaultID, PPID * pResultID, int use_ta);
@@ -41891,7 +41957,6 @@ public:
 	uint   CalcMethod;       // GoodsRestParam::pcmXXX
 	long   Flags;            //
 	int    AmtType;          // 0 - в обеих ценах, 1 - поступления, 2 - реализации
-	// @v9.5.8 (заменено на Flags2 с соблюдением бинарной совместимости) int    CalcPrognosis;    // если 1, то вычисляем прогноз иначе - нет
 	long   Flags2;           // GoodsRestFilt::f2XXX
 	DateRange PrgnPeriod;    // период прогноза
 	LDATE  Date;             //
@@ -42924,7 +42989,7 @@ private:
 		double _AvgPaym;       // Средняя оплата по табуляторам без учета нулевых значений
 		AmtList DbtList;
 		AmtList PaymList;
-		AmtList ExpiryDebtList; // @v9.1.8 Компонент для учета общей суммы просроченного долга
+		AmtList ExpiryDebtList; // Компонент для учета общей суммы просроченного долга
 		AmtList RDbtList;
 		AmtList RcknList;
 		// Следующие два поля используются если (Filt.Flags & DebtTrnovrFilt::fCalcTotalDebt)
@@ -43015,7 +43080,7 @@ private:
 	const int UseOmtPaymAmt;        // = BIN(CConfig.Flags2 & CCFLG2_USEOMTPAYMAMT)
 	DebtTrnovrFilt  Filt;           // @viewstatefilt
 	PPIDArray PayableOpList;        // @!Init_() Список операций, требующих оплаты для таблицы Filt.AccSheetID. // @viewstate
-	PPIDArray GoodsList;            // @v9.5.1 @!Init_() Список товаров, ограничивающих отчет
+	PPIDArray GoodsList;            // @!Init_() Список товаров, ограничивающих отчет
 	DebtTrnovrTotal Total;          // @viewstate
 	PPObjBill * P_BObj;             //
 	PPObjPerson PsnObj;             //
@@ -43025,7 +43090,7 @@ private:
 	DebtTrnovrViewItem IterCurItem; //
 	// PayableBillList * IterBillList; // @viewstate
 	PPIDArray * P_IterBillList;     //
-	LAssocArray * P_DebtDimAgentList; // @v9.1.4 Блок, реализующий быструю идентификацию принадлежности документа долговой размерности
+	LAssocArray * P_DebtDimAgentList; // Блок, реализующий быструю идентификацию принадлежности документа долговой размерности
 	TempSellTrnovrTbl * P_TempTbl;  // @viewstatetable
 	LAssocArray DlvrAddrList;       // @viewstate
 	int    IsDlvrAddrListInited;    // @viewstate
@@ -44005,7 +44070,7 @@ struct BillStatFunc { // @flat
 	long   AvgLines;  // Среднее количество строк в док-тах с таким типом операции
 };
 
-typedef TSVector <BillStatFunc> BillStatArray; // @v9.8.4 TSArray-->TSVect
+typedef TSVector <BillStatFunc> BillStatArray;
 
 class PPViewOpGrouping : public PPView {
 public:
@@ -44297,7 +44362,6 @@ public:
 		ordByAmount
 	};
 	static int EditCreateDraftParam(CSessCrDraftParam * pParam);
-	// @v9.7.10 static int CreateDraft(const CSessCrDraftParam * pParam);
 
 	PPViewCSess();
 	~PPViewCSess();
@@ -44444,9 +44508,9 @@ public:
 		gDlvrAddr,        // Группировать по адресу доставки
 		gGoodsSCSer,      // Группировка по товару и серии карт
 		gAmountNGoods,    //
-		gAgentGoodsSCSer, // @v9.6.6 Группировать по агентам, товарам и сериям карт
-		gGoodsDateSerial, // @v10.2.6 Группировать по товару/дате/серийному номеру
-		gGoodsCard,       // @erik v10.5.2 Группировка по товару и картам
+		gAgentGoodsSCSer, // Группировать по агентам, товарам и сериям карт
+		gGoodsDateSerial, // Группировать по товару/дате/серийному номеру
+		gGoodsCard,       // @erik Группировка по товару и картам
 		gLnMark           // @v11.9.1 Группировать по маркам в строках чеков
 	};
 	enum {
@@ -45059,7 +45123,7 @@ struct TrfrAnlzTotal {
 	double SaldoAmt;       // Суммарное сальдо в номинальных ценах
 	double PVat;           // Сумма НДС в ценах реализации
 	double Brutto;         // Масса брутто товарных позиций в отчете
-	double ExtValue[2];    // @v9.7.5 Дополнительные показатели, определяемые специальными опциями фильтра
+	double ExtValue[2];    // Дополнительные показатели, определяемые специальными опциями фильтра
 };
 
 struct AlcReportParam {
@@ -45672,9 +45736,9 @@ struct SCardSelPrcssrParam { // @persistent
 	enum {
 		fSetClosed     = 0x0001,
 		fZeroDiscount  = 0x0002, // Если установлен, но по всем картам скидку требуется обнулить
-		fZeroExpiry    = 0x0004, // @v9.6.2 Пустое значение даты истечения срока действия
-		fUhttSync      = 0x0008, // @v10.1.4 Синхронизировать (некоторые атрибуты) с сервисом Universe-HTT
-		fAppendEan13CD = 0x0010  // @v10.1.6 Дополнить недостающей контрольной цифрой EAN-13
+		fZeroExpiry    = 0x0004, // Пустое значение даты истечения срока действия
+		fUhttSync      = 0x0008, // Синхронизировать (некоторые атрибуты) с сервисом Universe-HTT
+		fAppendEan13CD = 0x0010  // Дополнить недостающей контрольной цифрой EAN-13
 	};
 	SCardSelPrcssrParam();
 	bool   IsEmpty() const;
@@ -46069,6 +46133,8 @@ public:
 	int    Transfer(PPID);
 private:
 	static  void SetAddLockErrInfo(PPID mutexID);
+	static  ILTI & ObjAssocRecToBasketEntry(const ObjAssocTbl::Rec & rSrcRec, ILTI & rDest);
+	static  void BasketEntryToObjAssocRec(const ILTI & rSrc, long internalNum, bool dontResetDestRecBefore, ObjAssocTbl::Rec & rDestRec);
 	virtual StrAssocArray * MakeStrAssocList(void * extraPtr); // @v11.4.1
 	virtual void FASTCALL Destroy(PPObjPack * pPack);
 	virtual int HandleMsg(int, PPID, PPID, void * extraPtr); // @v11.4.0
@@ -50480,7 +50546,6 @@ public:
 	const  char * ReadLine();
 	const  SMailMessage & GetHeader() const { return Msg; }
 	int    SaveAttachment(const char * pAttachName, const char * pDestPath);
-	// @v9.9.0 int SaveOrder(const char * pDestPath);
 private:
 	int    ReadHeader();
 	int    ReadDisposition(SMailMessage & rMsg, SMailMessage::ContentDispositionBlock * pD);
@@ -50534,8 +50599,6 @@ public:
 	int    GetMsg(long msgN, SMailMessage *, const char * pFileName, MailCallbackProc, const IterCounter & msgCounter); // cmd RETR
 	int    DeleteMsg(long msgN);                                   // cmd DELE
 	int    SaveAttachment(const char * pMsgFileName, const char * pAttachName, const char * pDestPath);
-	// @v9.9.0 int    SaveOrder(const char * pMsgFileName, const char * pDestPath);
-	// int    IsLogged() { return Logged; }
 protected:
 	virtual int FinalizeServerUrl(InetUrl & rUrl);
 private:
@@ -50543,26 +50606,6 @@ private:
 	int    ProcessMsgHeaderLine(const char * pLine, SMailMessage * pMsg);
 	//int    Logged;
 };
-
-#if 0 // @v9.8.11 (obsolete) {
-class PPMailSmtp : public PPMail {
-public:
-	static int Send(const PPInternetAccount & rAcc, SMailMessage & rMsg, MailCallbackProc cbProc, const IterCounter & rMsgCounter);
-
-	PPMailSmtp(const PPInternetAccount *);
-	~PPMailSmtp();
-	int    CheckSmtpReply(const char * pReply);
-	int    Auth();                                                 // cmd AUTH
-protected:
-	virtual int FinalizeServerUrl(InetUrl & rUrl);
-private:
-	int    SendCmd(long cmd, const char * pAddedInfo, SString & rReplyBuf);
-	int    SendMsgToFile(SMailMessage * pMsg, SString & rFileName);
-	int    SendMsgFromFile(SMailMessage *, const char *, MailCallbackProc, const IterCounter &);
-	int    TransmitFile(const char * pFileName, MailCallbackProc, const IterCounter &);
-	int    MakeMessageID(SString & rBuf);
-};
-#endif // } @v9.8.11 (obsolete)
 
 int SendMailWithAttach(const char * pSubj, const char * pPath, const char * pLetter, const char * pMail, PPID accountID);
 int SendMail(const char * pSubj, const char * pLetter, const char * pMail, PPID mailAccId, SStrCollection * pFilesList, PPLogger * pLogger);
@@ -50789,26 +50832,26 @@ private:
 		GoodsBlock();
 		PPID   ParentBlkP;
 		long   InnerId;
-		long   GoodsFlags;   // @v9.8.6
-		long   SpecialFlags; // @v9.8.12 Специальные флаги, определяющие признаки товаров,
+		long   GoodsFlags;   //
+		long   SpecialFlags; // Специальные флаги, определяющие признаки товаров,
 			// не характерные для собственно товара (что-то определяется типом, что-то классом, что-то конфигурациями).
-		uint   UnitBlkP;     // @v9.8.6
-		uint   PhUnitBlkP;   // @v9.8.6
-		double PhUPerU;      // @v9.8.6
+		uint   UnitBlkP;     //
+		uint   PhUnitBlkP;   //
+		double PhUPerU;      //
 		double Price;
 		double Rest;
-		long   AlcoProof;    // @v9.8.12 @fixedpoint2 Для алкоголя - крепость в %об
-		long   VatRate;      // @v9.8.12 @fixedpoint2 Ставка НДС в процентах
-		long   SalesTaxRate; // @v9.8.12 @fixedpoint2 Ставка налога с продаж в процентах
+		long   AlcoProof;    // @fixedpoint2 Для алкоголя - крепость в %об
+		long   VatRate;      // @fixedpoint2 Ставка НДС в процентах
+		long   SalesTaxRate; // @fixedpoint2 Ставка налога с продаж в процентах
 		//
 		// Следующие 2 ИД необходимы на этапе разрешения элемента товара. На одной фазе они
 		// приобретают временные значения, ссылающиеся на специальные контейнеры, затем -
 		// становятся идентификаторами в акцептируемой БД.
 		//
-		long   TaxGrpID;     // @v9.8.12
-		long   GoodsTypeID;  // @v9.8.12
-		uint   AlcoRuCatP;   // @v9.9.0 Код категории алкогольной продукции по версии РАР РФ
-		long   ChZnProdType; // @v10.7.3 (goodstype)
+		long   TaxGrpID;     //
+		long   GoodsTypeID;  //
+		uint   AlcoRuCatP;   // Код категории алкогольной продукции по версии РАР РФ
+		long   ChZnProdType; // (goodstype)
 	};
 	struct GoodsGroupBlock : public ObjectBlock { // @flat
 		GoodsGroupBlock();
@@ -50840,19 +50883,18 @@ private:
 		SCardBlock();
 		uint   CodeP;
 		uint   OwnerBlkP;
-		uint   SeriesBlkP; // @v9.8.7
-		uint   PhoneP;     // @v10.6.3
+		uint   SeriesBlkP;
+		uint   PhoneP;
 		double Discount;
-		double FixedBonus; // @v10.5.7
+		double FixedBonus;
 	};
 	struct CSessionBlock : public ObjectBlock { // @flat
 		CSessionBlock();
-        // @v10.3.2 @fix long   ID;
         long   Code;
         uint   PosBlkP;
         LDATETIME Dtm;
 	};
-	struct AddressBlock : public ObjectBlock { // @flat @v10.7.5
+	struct AddressBlock : public ObjectBlock { // @flat
 		AddressBlock();
 		S_GUID Uuid;  // Проецируется в базу данных как тег PPTAG_LOC_UUID
 		uint   CCheckBlkP; // Ссылка на чек, которому принадлежит
@@ -51590,7 +51632,7 @@ public:
 		signGroup = 0x5D07F9A1,
 		signRow   = 0x5D07F9A2
 	};
-	uint32 Sign; // @v9.9.5 Подпись экземпляра
+	uint32 Sign; // Подпись экземпляра
 public:*/
 	uint16 EntryType;
 	uint16 Flags;
@@ -52698,7 +52740,7 @@ public:
 		fReplace      = 0x0002,
 		fSignal       = 0x0004,
 		fDebug        = 0x0008,
-		fNnClassifier = 0x0010  // @v9.2.7 @construction Нейронный классификатор товаров
+		fNnClassifier = 0x0010  // @construction Нейронный классификатор товаров
 	};
 	enum {
 		otiName = 1
@@ -54910,28 +54952,17 @@ private:
 //
 //
 //
-class PPListDialog : public TDialog {
+class PPListDialogBaseInterface {
 public:
-	//
-	// Descr: Флаги конструктора
-	//
-	enum {
-		fOnDblClkOk            = 0x0001, // При двойном щелчке, если выбран элемент списка завершать работу диалога как по cmOK
-		fOmitSearchByFirstChar = 0x0002, // Не выводить окно поиска в ответ на нажатие символьной клавиши
-		fOwnerDraw             = 0x0004, // Если установлен, то конструктор вызывает SetOwnerDrawState()
-		fMultiselect           = 0x0008  // @v11.4.3 Допускается множественный выбор в списке
-	};
-	PPListDialog(uint rezID, uint aCtlList, long flags = 0);
 	int    addStringToList(long id, const char * pText);
 	int    getSelection(long * pID);
-	void   updateList(long pos);
-	void   updateListById(long id);
 protected:
-	DECL_HANDLE_EVENT;
+	PPListDialogBaseInterface();
+	virtual ~PPListDialogBaseInterface();
 	virtual int  setupList();
-	virtual int  addItem(long * pPos, long * pID); // @<<PPListDialog::_addItem (reply on cmaInsert)
-	virtual int  editItem(long pos, long id); // @<<PPListDialog::_editItem (reply on cmaEdit or cmLBDblClk)
-	virtual int  delItem(long pos, long id); // @<<PPListDialog::_delItem (reply on cmaDelete)
+	virtual int  addItem(long * pPos, long * pID);
+	virtual int  editItem(long pos, long id);
+	virtual int  delItem(long pos, long id);
 	virtual int  sendItem(long pos, long id);
 	//
 	// Descr: Должна переместить элемент в позиции pos и идентификатором id вверх или вниз по списку.
@@ -54944,10 +54975,98 @@ protected:
 	//        не являющихся ошибочными (не куда или нечего перемещать).
 	//   0  - ошибка
 	//
-	virtual int moveItem(long pos, long id, int up);
+	virtual int  moveItem(long pos, long id, int up);
+	virtual SmartListBox * GetListBoxCtl() const;
+	//
 	int    getCurItem(long * pPos, long * pID) const;
 	int    getCurString(SString & rBuf) const;
 	int    getText(long itemN /* 0.. */, SString & rBuf);
+	void   updateList(long pos);
+	void   updateListById(long id);
+};
+//
+// Descr: Базовая реализация эксперименталных диалоговых окон для работы со списками данных, реализованных посредством layout'ов
+// 
+class LayoutedListDialog_Base : public PPListDialogBaseInterface {
+public:
+	enum {
+		fcedCreate        = 0x0001, // Если установлен, то в окне есть кнопка [Create Item]
+		fcedEdit          = 0x0002, // Если установлен, то в окне есть кнопка [Edit Item]
+		fcedDelete        = 0x0004, // Если установлен, то в окне есть кнопка [Delete Item]
+		fcedCED           = fcedCreate|fcedEdit|fcedDelete,
+		fOkCancel         = 0x0008, // Если установлен, то в окне есть кнопки [ok] && [cancel], иначе только [close]
+		fHeaderStaticText = 0x0010, // В заголовочной части окна отобразить статический текст
+	};
+	struct Param {
+		Param() : Flags(0)
+		{
+		}
+		Param(const TRect & rBounds, uint flags) : Bounds(rBounds), Flags(flags)
+		{
+		}
+		uint   Flags; // LayoutedListDialog_Base::fXXX
+		TRect  Bounds;
+		SString Title;
+		SString ColumnDescription;
+	};
+
+	static int Exec(TWindow * pView);
+protected:
+	static constexpr uint CtlListGroupBox = 1001; // GroupBox вокруг списка
+	static constexpr float DefMargin = 4.0f;
+	static const char * GetWindowTitle(const char * pOuterTitle);
+	LayoutedListDialog_Base(const Param & rParam, ListBoxDef * pDef, TWindow * pTW);
+	~LayoutedListDialog_Base();
+	void   OnInit2(TWindowBase::CreateBlock * pBlk);
+	void   DrawLayout(TCanvas2 & rCanv, const SUiLayout * pLo);
+	virtual SmartListBox * GetListBoxCtl() const;
+	Param  P;
+private:
+	enum {
+		lldsDefBailed = 0x0001 // P_Def__ передан экземпляру SmartListBox, стало быть разрушать P_Def__ в деструкторе нельзя!
+	};
+	uint    LldState;
+	ListBoxDef * P_Def__;
+	TWindow * P_TW;
+};
+//
+// Descr: Экспериментальная реализация окна со списком данных, реализованного посредством layout'ов
+//
+class LayoutedListWindow : public LayoutedListDialog_Base, public TWindowBase {
+public:
+	LayoutedListWindow(const Param & rParam, ListBoxDef * pDef);
+	~LayoutedListWindow();
+protected:
+	DECL_HANDLE_EVENT;
+};
+//
+// Descr: Экспериментальная реализация диалога со списком данных, реализованного посредством layout'ов
+//
+class LayoutedListDialog : public LayoutedListDialog_Base, public TDialog {
+public:
+	LayoutedListDialog(const Param & rParam, ListBoxDef * pDef);
+	~LayoutedListDialog();
+protected:
+	DECL_HANDLE_EVENT;
+};
+//
+//
+//
+class PPListDialog : public TDialog, public PPListDialogBaseInterface {
+public:
+	//
+	// Descr: Флаги конструктора
+	//
+	enum {
+		fOnDblClkOk            = 0x0001, // При двойном щелчке, если выбран элемент списка завершать работу диалога как по cmOK
+		fOmitSearchByFirstChar = 0x0002, // Не выводить окно поиска в ответ на нажатие символьной клавиши
+		fOwnerDraw             = 0x0004, // Если установлен, то конструктор вызывает SetOwnerDrawState()
+		fMultiselect           = 0x0008  // @v11.4.3 Допускается множественный выбор в списке
+	};
+	PPListDialog(uint rezID, uint aCtlList, long flags = 0);
+protected:
+	DECL_HANDLE_EVENT;
+	virtual SmartListBox * GetListBoxCtl() const { return P_Box; }
 
 	uint   CtlList;
 	uint   ContextMenuID;
@@ -59351,11 +59470,12 @@ public:
 		const SString & rHash, const SString & rCropData, const SString & rCropHash, SString & rOutput);
 	int    Photos_SaveWallPhoto(/*const VkStruct &rVkStruct,*/const SString & rPhoto, const SString & rServer, const SString & rHash, SString & rOutput);
 	int    Wall_Post(/*const VkStruct &rVkStruct,*/const SString & rMessage, const SString & rVkPhotoName, SString & rOutput);
-	int    PhotoToReq(SString &rUrl, const SString &rImgPath, SString &rOutput, const char * rDataName);
+	int    PhotoToReq(const SString & rUrlBuf, const SString &rImgPath, SString &rOutput, const char * rDataName);
 	int    ParseUploadServer(const SString & rJson, SString & rUploadOut);
 	int    Photos_GetMarketUploadServer(/*const VkStruct &rVkStruct,*/const uint mainPhotoFlag, SString & rOutput);
 	int    Photos_GetWallUploadServer(/*const VkStruct &rVkStruct,*/SString & rOutput);
 	//int    ParceGoodsItemList(const SString & rJsonStr, LongArray & rList) const;
+	int    PublishImage(const char * pImgPat); // @v12.2.6 @construction
 
 	enum {
 		usrScopeNotify   = 0x00000001,
@@ -59400,6 +59520,11 @@ public:
 	};
 
 	const ErrorResponse & GetLastResponseError() const;
+	//
+	// @v12.2.6
+	// Descr: Процедура для отработки различных техник и сценариев.
+	//
+	static int Test();
 private:
 	int    GetRequest(const SString & rUrl, SString & rOutput, int mflags);
 	int    ReadError(const SJson * pJs, ErrorResponse & rErr) const;
@@ -60193,7 +60318,7 @@ ushort FASTCALL ExecView(TWindow *);
 ushort FASTCALL ExecViewAndDestroy(TWindow * pView);
 ushort STDCALL  CheckExecAndDestroyDialog(TDialog * pDlg, int genErrMsg, int toCascade);
 ushort FASTCALL ExecView(TBaseBrowserWindow * v);
-int    FASTCALL GetModelessStatus(int outerModeless = 1);
+bool   FASTCALL GetModelessStatus(bool outerModeless = true);
 void   FASTCALL DisableOKButton(TDialog *);
 int    STDCALL  SetupPhoneButton(TDialog * pDlg, uint inputCtlId, uint btnCmd);
 int    STDCALL SetupGeoLocButton(TDialog * pDlg, uint inputCtlId, uint btnCmd); // @v11.6.2 @construction
@@ -60286,7 +60411,6 @@ int    BillFilterDialog(uint rezID, BillFilt *, const char * addText = 0);
 int    BillFilterDialog(uint rezID, BillFilt *, TDialog ** d, const char * addText = 0);
 int    ViewStatus();
 int    ViewPredictSales(PredictSalesFilt *);
-// @v9.5.9 int    ViewPrognosis();
 void   STDCALL SetPeriodInput(TDialog *, uint fldID, const DateRange *);
 int    STDCALL GetPeriodInput(TDialog *, uint fldID, DateRange *);
 int    STDCALL GetPeriodInput(TDialog * dlg, uint fldID, DateRange * pPeriod, long strtoperiodFlags);
@@ -60329,7 +60453,7 @@ int    STDCALL PrintGoodsBill(PPBillPacket * pPack);
 //   случае - приходный.
 //
 int    STDCALL PrintCashOrder(PPBillPacket *, int pay_rcv, int prnflags = 0);
-int    STDCALL ViewGoodsBills(BillFilt *, int modeless);
+int    STDCALL ViewGoodsBills(BillFilt *, bool modeless);
 int    STDCALL BrowseBills(BrowseBillsType);
 int    STDCALL ViewBillsByPool(PPID poolType, PPID poolOwnerID);
 int    STDCALL ViewOpersByLot(PPID id, int withZeroLotID);

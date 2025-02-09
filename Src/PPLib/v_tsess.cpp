@@ -2079,8 +2079,9 @@ int PPViewTSession::GetSelectorListItem(long handler, PPUhttStoreSelDescr::Entry
 
 int ViewTSessLine(const TSessLineFilt * pFilt)
 {
-	int    ok = 1, view_in_use = 0;
-	int    modeless = GetModelessStatus();
+	int    ok = 1;
+	int    view_in_use = 0;
+	const  bool modeless = GetModelessStatus();
 	TSessLineFilt flt;
 	PPViewTSessLine * p_v = new PPViewTSessLine;
 	PPViewBrowser * p_prev_win = modeless ? static_cast<PPViewBrowser *>(PPFindLastBrowser()) : 0;

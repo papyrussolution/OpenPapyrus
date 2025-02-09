@@ -3892,7 +3892,7 @@ int SFileFormat::IdentifyMime(const char * pMime)
 	Register(Json,       mtApplication, "json", "json", "T{");
 	Register(Json,       "json", "T[");
 	Register(Pbxproj,    "pbxproj", 0);
-	Register(Gravity,    "gravity", 0); // @v10.8.2
+	Register(Gravity,    "gravity", 0);
 	Register(PapyruDbDivXchg, mtApplication, "x-papyrus", "pps", "50504F53");
 	Register(CodeBlocks_Cbp,  mtApplication, "xml",   "cbp", "T<?xml"); // @v10.9.9 Code::Blocks Project File
 	Register(M4,              mtText,        "plain", "m4", 0); // @v10.9.9 m4 macroporcessor
@@ -3904,7 +3904,7 @@ class CsvSniffer {
 public:
 	CsvSniffer();
 	~CsvSniffer();
-	int    Run(const char * pFileName, SFileFormat::CsvSinffingResult & rR);
+	int    Run(const char * pFileName, SFileFormat::CsvSniffingResult & rR);
 };
 
 CsvSniffer::CsvSniffer()
@@ -3915,7 +3915,7 @@ CsvSniffer::~CsvSniffer()
 {
 }
 
-int CsvSniffer::Run(const char * pFileName, SFileFormat::CsvSinffingResult & rR) // @construction
+int CsvSniffer::Run(const char * pFileName, SFileFormat::CsvSniffingResult & rR) // @construction
 {
 	rR.FieldDivisor = 0;
 	int    ok = -1;

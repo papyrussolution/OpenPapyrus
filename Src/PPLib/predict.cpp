@@ -1,6 +1,6 @@
 // PREDICT.CPP
-// Copyright (c) A.Starodub 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2023, 2024
-// @codepage UTF-8 // @v10.6.8
+// Copyright (c) A.Starodub 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2023, 2024, 2025
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -177,9 +177,16 @@ Predictor::EvalParam & Predictor::EvalParam::Set(const ObjIdListFilt * pLocList,
 //
 int Predictor::Predict_(const EvalParam & rParam, double * pVal, PredictSalesStat * pStat, int * pCanTrust)
 {
-	int    ok = 1, result = 0, r, can_trust = 0;
-	double predict_qtty = 0.0, model_qtty = 0.0, proto_qtty = 0.0, total_qtty = 0.0;
-	DateRange period, model_period;
+	int    ok = 1;
+	int    result = 0;
+	int    r;
+	int    can_trust = 0;
+	double predict_qtty = 0.0;
+	double model_qtty = 0.0;
+	double proto_qtty = 0.0;
+	double total_qtty = 0.0;
+	DateRange period;
+	DateRange model_period;
 	PredictSalesStat pss(0, 0);
 	//
 	ObjIdListFilt inner_loc_list;

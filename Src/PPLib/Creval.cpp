@@ -1,5 +1,5 @@
 // CREVAL.CPP
-// Copyright (c) A.Sobolev 2000-2002, 2003, 2004, 2006, 2007, 2008, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2000-2002, 2003, 2004, 2006, 2007, 2008, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2025
 // @codepage UTF-8
 // Валютная переоценка
 //
@@ -243,10 +243,7 @@ int CRevalDialog::addItem(long * pPos, long * pID)
 	return ok;
 }
 
-int CRevalDialog::delItem(long pos, long /*id*/)
-{
-	return Data.AccList.atFree(static_cast<uint>(pos)) ? 1 : -1;
-}
+int CRevalDialog::delItem(long pos, long /*id*/) { return Data.AccList.atFree(static_cast<uint>(pos)) ? 1 : -1; }
 
 int EditCRevalParam(CurRevalParam * pData) { DIALOG_PROC_BODY(CRevalDialog, pData); }
 
@@ -314,13 +311,14 @@ int GetCurRevalConfig(CurRevalParam * pData)
 int CurReval()
 {
 	int    ok = -1;
+	PPObjBill * p_bobj = BillObj;
 	CurRevalParam param;
 	GetCurRevalConfig(&param);
-	param.Dt = getcurdate_(); // @v10.8.10 LConfig.OperDate-->getcurdate_()
+	param.Dt = getcurdate_();
 	param.LocID = LConfig.Location;
 	while(ok <= 0 && EditCRevalParam(&param) > 0) {
 		PutCurRevalConfig(&param, 1);
-		if(BillObj->atobj->P_Tbl->RevalCurRests(&param))
+		if(p_bobj->atobj->P_Tbl->RevalCurRests(&param))
 			ok = 1;
 		else
 			ok = PPErrorZ();

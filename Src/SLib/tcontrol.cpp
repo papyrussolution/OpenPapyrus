@@ -7,9 +7,10 @@
 //
 // TStaticText
 //
-TStaticText::TStaticText(const TRect & bounds, const char * pText) : TView(bounds), Text(pText)
+TStaticText::TStaticText(const TRect & rBounds, const char * pText) : TView(rBounds), Text(pText)
 {
 	SubSign = TV_SUBSIGN_STATIC;
+	ViewOptions |= (ofPreProcess|ofPostProcess); // @v12.2.6 ???
 	Text.ShiftLeftChr(3);
 }
 
@@ -21,6 +22,19 @@ int TStaticText::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	}
 	else
 		return 0;
+}
+
+IMPL_HANDLE_EVENT(TStaticText)
+{
+	TView::handleEvent(event);
+	if(event.isCmd(cmSetBounds)) {
+		const TRect * p_rc = static_cast<const TRect *>(TVINFOPTR);
+		HWND h = getHandle();
+		if(h) {
+			::SetWindowPos(h, 0, p_rc->a.x, p_rc->a.y, p_rc->width(), p_rc->height(), SWP_NOZORDER|SWP_NOCOPYBITS);
+			clearEvent(event);
+		}
+	}
 }
 
 SString & TStaticText::getText(SString & rBuf) const
@@ -422,7 +436,6 @@ void TInputLine::InputStat::CheckIn()
 				const long _style = TView::SGetWindowStyle(hWnd);
 				const bool _ml = LOGIC(_style & ES_MULTILINE);
 				const int _k = wParam;
-				// @v10.7.7 {
 				if(_k == VK_DOWN) {
 					if(p_view->P_WordSel) {
 						if(p_view->IsWsVisible())
@@ -436,7 +449,6 @@ void TInputLine::InputStat::CheckIn()
 				}
 				else if(p_view->IsWsVisible() && _k == VK_RETURN) {
 				}
-				// } @v10.7.7 
 				if((_k >= VK_F1 && _k <= VK_F12) || (!_ml && oneof6(_k, VK_ADD, VK_SUBTRACT, VK_DOWN, VK_UP, VK_PRIOR, VK_NEXT)) ||
 					((p_view->GetCombo() || p_view->HasWordSelector()) && _k == VK_DELETE) ||
 					(_k == VK_RETURN && (0x8000 & GetKeyState(VK_CONTROL)))) {

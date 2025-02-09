@@ -2310,7 +2310,7 @@ public:
 	static const char * DdfIndexFileName;
 
 	static BDictionary * CreateBtrDictInstance(const char * pPath);
-	BDictionary(const char * pPath, const char * pDataPath = 0, const char * pTempPath = 0);
+	explicit BDictionary(const char * pPath, const char * pDataPath = 0, const char * pTempPath = 0);
 	~BDictionary();
 	virtual int GetDatabaseState(uint * pStateFlags);
 	virtual SString & MakeFileName_(const char * pTblName, SString & rBuf);

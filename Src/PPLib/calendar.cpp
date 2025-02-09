@@ -523,8 +523,7 @@ void TDateCalendar::OnPaint(HWND hWnd)
 	// Print Year's bar
 	//
 	hf1 = static_cast<HFONT>(GetStockObject(ANSI_VAR_FONT));
-	hf = CreateFont(IsLarge ? 24 : 8, 0, 0, 0, FW_NORMAL, 0, 0, 0, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
-		DEFAULT_QUALITY, DEFAULT_PITCH | FW_DONTCARE, _T("MS Sans Serif"));
+	hf = CreateFont(IsLarge ? 24 : 8, 0, 0, 0, FW_NORMAL, 0, 0, 0, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FW_DONTCARE, _T("MS Sans Serif"));
 	SelectObject(hdc, hf);
 	y_bl = Left;
 	GetClientRect(c_hWnd, &c_r);

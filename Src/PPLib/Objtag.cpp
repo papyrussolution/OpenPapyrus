@@ -2802,10 +2802,7 @@ int TagValListDialog::editItem(long pos, long id)
 	return ok;
 }
 
-int TagValListDialog::delItem(long, long id)
-{
-	return id ? Data.PutItem(id, 0) : 0;
-}
+int TagValListDialog::delItem(long, long id) { return id ? Data.PutItem(id, 0) : 0; }
 
 int EditObjTagValList(ObjTagList * pList, const PPIDArray * pAllowedTags)
 {

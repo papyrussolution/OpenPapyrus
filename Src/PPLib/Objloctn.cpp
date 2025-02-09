@@ -48,7 +48,7 @@ private:
 	PPFiasReference * P_T; // @notowned
 };
 
-FiasAddrCache::FiasAddrCache() : ObjCacheHash(PPOBJ_FIAS, sizeof(Data), 16*1024*1024, 8), P_T(0)
+FiasAddrCache::FiasAddrCache() : ObjCacheHash(PPOBJ_FIAS, sizeof(Data), SMEGABYTE(16), 8), P_T(0)
 {
 }
 
@@ -3064,10 +3064,7 @@ int DivisionView::editItem(long, long id)
 		return -1;
 }
 
-int DivisionView::delItem(long, long id)
-{
-	return (id && LocObj.RemoveObjV(id, 0, PPObject::rmv_default, 0)) ? 1 : -1;
-}
+int DivisionView::delItem(long, long id) { return (id && LocObj.RemoveObjV(id, 0, PPObject::rmv_default, 0)) ? 1 : -1; }
 
 void DivisionView::viewStaffList()
 {

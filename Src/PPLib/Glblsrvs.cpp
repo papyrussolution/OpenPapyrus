@@ -146,7 +146,7 @@ VkInterface::MarketWareItem::MarketWareItem(const PPObjGoods::ExportToGlbSvcItem
 {
 }
 
-VkInterface::VkInterface() : ProtoVer(5, 107, 0), Lth(PPFILNAM_VKTALK_LOG), LastRequestClk(0)
+VkInterface::VkInterface() : ProtoVer(5, 131, 0)/*@v12.2.6 (5.105-->5.131)*/, Lth(PPFILNAM_VKTALK_LOG), LastRequestClk(0)
 {
 	PPVersionInfo vi = DS.GetVersionInfo();
 	vi.GetTextAttrib(vi.taiVkAppIdent, AppIdent);
@@ -465,7 +465,7 @@ int  VkInterface::Photos_SaveMarketPhoto(/*const VkStruct &rVkStruct,*/const SSt
 	url.Z().Cat(P_VKMethodUrlBase).SetLastDSlash().Cat("photos.saveMarketPhoto").CatChar('?')
 		.CatEq("group_id", /*rVkStruct.GroupId*/Ib.GroupId).CatChar('&')
 		.CatEq("access_token", /*rVkStruct.Token*/Ib.CliAccsKey).CatChar('&');
-	AppendParamProtoVer(url)/*.CatEq("v", "5.107")*/.CatChar('&')
+	AppendParamProtoVer(url).CatChar('&')
 		.CatEq("photo", rImage).CatChar('&')
 		.CatEq("server", rServer).CatChar('&')
 		.CatEq("hash", rHash).CatChar('&')
@@ -508,6 +508,48 @@ int VkInterface::Wall_Post(const SString & rMessage, const SString & rVkPhotoNam
 		.CatEq("message", temp_buf);
 	THROW(GetRequest(url, rOutput, ScURL::mfDontVerifySslPeer));
 	CATCHZOK;
+	return ok;
+}
+
+int VkInterface::PublishImage(const char * pImgPath) // @v12.2.6 @construction
+{
+	int    ok = -1;
+	//market.getProductPhotoUploadServer
+	SString url_buf;
+	SString upload_url;
+	SString reply_buf;
+	url_buf.Z().Cat(P_VKMethodUrlBase).SetLastDSlash().Cat("market.getProductPhotoUploadServer");
+	url_buf.CatChar('?').
+	CatEq("access_token", Ib.CliAccsKey).CatChar('&').CatEq("group_id", Ib.GroupId);
+	AppendParamProtoVer(url_buf.CatChar('&'));
+	THROW(GetRequest(url_buf, reply_buf, ScURL::mfDontVerifySslPeer));
+	{
+		if(reply_buf.NotEmpty()) {
+			SJson * p_js_reply = SJson::Parse(reply_buf);
+			if(SJson::IsObject(p_js_reply)) {
+				for(const SJson * p_cur = p_js_reply->P_Child; p_cur; p_cur = p_cur->P_Next) {
+					if(p_cur->Text.IsEqiAscii("response")) {
+						if(SJson::IsObject(p_cur->P_Child)) {
+							for(const SJson * p_cur2 = p_cur->P_Child->P_Child; p_cur2; p_cur2 = p_cur2->P_Next) {
+								if(p_cur2->Text.IsEqiAscii("upload_url")) {
+									(upload_url = p_cur2->P_Child->Text).Unescape();
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	if(upload_url.NotEmpty()) {
+		SString img_path;
+		SFsPath::NormalizePath(pImgPath, SFsPath::npfCompensateDotDot|SFsPath::npfSlash, img_path);
+		if(fileExists(img_path)) {
+			reply_buf.Z();
+			int r = PhotoToReq(upload_url, img_path, reply_buf, 0/*pDataName*/);
+		}
+	}
+	CATCHZOK
 	return ok;
 }
 
@@ -711,27 +753,42 @@ int VkInterface::Market_Get(long offs, long maxItems, TSCollection <MarketWareIt
 	return ok;
 } 
 
-int  VkInterface::PhotoToReq(SString & rUrl, const SString & rImgPath, SString & rOutput, const char * rDataName)
+int VkInterface::PhotoToReq(const SString & rUrlBuf, const SString & rImgPath, SString & rOutput, const char * pDataName)
 {
 	rOutput.Z();
 	int    ok = 1;
 	SString temp_buf;
-	InetUrl url(rUrl);
+	InetUrl url(rUrlBuf);
 	SBuffer ack_buf;
 	SFile wr_stream(ack_buf.Z(), SFile::mWrite);
 	ScURL c;
 	ScURL::HttpForm hf;
 	SBuffer * p_ack_buf = 0;
-	hf.AddContentFile(rImgPath, "multipart/form-data", rDataName);
-	Lth.Log("req", rUrl, temp_buf = "multipart");
-	c.HttpPost(url, ScURL::mfVerbose|ScURL::mfDontVerifySslPeer, hf, &wr_stream);
-	p_ack_buf = static_cast<SBuffer *>(wr_stream);
-	if(p_ack_buf) {
-		rOutput.CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
-		Lth.Log("rep", 0, rOutput);
+	//hf.AddContentFile(rImgPath, "multipart/form-data", pDataName);
+	{
+		SFileFormat ff;
+		const int ffr = ff.Identify(rImgPath);
+		if(oneof2(ffr, 2, 3) && oneof3(ff, SFileFormat::Jpeg, SFileFormat::Png, SFileFormat::Gif)) {
+			SFileFormat::GetMime(ff, temp_buf);
+			//ps.Split(local_path_src);
+			//ps.Merge(SFsPath::fNam|SFsPath::fExt, temp_fname);
+			hf.AddContentFile(rImgPath, temp_buf, pDataName);
+		}
+		else {
+			ok = 0; // not supported image file
+		}
 	}
-	else
-		ok = 0;
+	if(ok) {
+		Lth.Log("req", rUrlBuf, (temp_buf = "multipart/form-data").CatDiv(':', 0).Cat(rImgPath));
+		c.HttpPost(url, ScURL::mfVerbose|ScURL::mfDontVerifySslPeer, hf, &wr_stream);
+		p_ack_buf = static_cast<SBuffer *>(wr_stream);
+		if(p_ack_buf) {
+			rOutput.CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
+			Lth.Log("rep", 0, rOutput);
+		}
+		else
+			ok = 0;
+	}
 	return ok;
 }
 
@@ -759,6 +816,26 @@ int VkInterface::GetRequest(const SString & rUrl, SString & rOutput, int mflags)
 	rOutput.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
 	Lth.Log("rep", 0, rOutput);
 	CATCHZOK
+	return ok;
+}
+
+/*static*/int VkInterface::Test() // @v12.2.6
+{
+	int    ok = -1;
+	const  PPID service_ident = PPGLS_VK;
+	VkInterface ifc; // Test
+	PPObjGlobalUserAcc gua_obj;
+	PPIDArray gua_id_list;
+	SString img_path;
+	PPGetPath(PPPATH_TESTROOT, img_path);
+	img_path.SetLastSlash().Cat("data").SetLastSlash().Cat("test20.png");
+	gua_obj.GetListByServiceIdent(service_ident, &gua_id_list);
+	PPID   gua_id = gua_id_list.getSingle();
+	if(gua_id) {
+		if(ifc.Setup(gua_id, ifc.sfInitStoreAttributes)) {
+			ifc.PublishImage(img_path);
+		}
+	}
 	return ok;
 }
 

@@ -2498,10 +2498,7 @@ int DebtDimDialog::editItem(long pos, long id)
 	return -1;
 }
 
-int DebtDimDialog::delItem(long pos, long id)
-{
-	return Data.AgentList.Remove(id, 0);
-}
+int DebtDimDialog::delItem(long pos, long id) { return Data.AgentList.Remove(id, 0); }
 
 int PPObjDebtDim::Edit(PPID * pID, void * extraPtr)
 {

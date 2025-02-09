@@ -554,8 +554,8 @@ static int dtls1_reassemble_fragment(SSL * s, const struct hm_header_st * msg_hd
 	}
 	/* Try to find item in queue */
 	memzero(seq64be, sizeof(seq64be));
-	seq64be[6] = (unsigned char)(msg_hdr->seq >> 8);
-	seq64be[7] = (unsigned char)msg_hdr->seq;
+	seq64be[6] = (uchar)(msg_hdr->seq >> 8);
+	seq64be[7] = (uchar)msg_hdr->seq;
 	item = pqueue_find(s->d1->buffered_messages, seq64be);
 	if(item == NULL) {
 		frag = dtls1_hm_fragment_new(msg_hdr->msg_len, 1);
@@ -655,8 +655,8 @@ static int dtls1_process_out_of_seq_message(SSL * s, const struct hm_header_st *
 		goto err;
 	/* Try to find item in queue, to prevent duplicate entries */
 	memzero(seq64be, sizeof(seq64be));
-	seq64be[6] = (unsigned char)(msg_hdr->seq >> 8);
-	seq64be[7] = (unsigned char)msg_hdr->seq;
+	seq64be[6] = (uchar)(msg_hdr->seq >> 8);
+	seq64be[7] = (uchar)msg_hdr->seq;
 	item = pqueue_find(s->d1->buffered_messages, seq64be);
 
 	/*
@@ -1069,14 +1069,13 @@ int dtls1_buffer_message(SSL * s, int is_ccs)
 	frag->msg_header.saved_retransmit_state.session = s->session;
 	frag->msg_header.saved_retransmit_state.epoch = DTLS_RECORD_LAYER_get_w_epoch(&s->rlayer);
 	memzero(seq64be, sizeof(seq64be));
-	seq64be[6] = (unsigned char)(dtls1_get_queue_priority(frag->msg_header.seq, frag->msg_header.is_ccs) >> 8);
-	seq64be[7] = (unsigned char)(dtls1_get_queue_priority(frag->msg_header.seq, frag->msg_header.is_ccs));
+	seq64be[6] = (uchar)(dtls1_get_queue_priority(frag->msg_header.seq, frag->msg_header.is_ccs) >> 8);
+	seq64be[7] = (uchar)(dtls1_get_queue_priority(frag->msg_header.seq, frag->msg_header.is_ccs));
 	item = pitem_new(seq64be, frag);
 	if(item == NULL) {
 		dtls1_hm_fragment_free(frag);
 		return 0;
 	}
-
 	pqueue_insert(s->d1->sent_messages, item);
 	return 1;
 }
@@ -1087,67 +1086,49 @@ int dtls1_retransmit_message(SSL * s, unsigned short seq, int * found)
 	/* XDTLS: for now assuming that read/writes are blocking */
 	pitem * item;
 	hm_fragment * frag;
-	unsigned long header_length;
-	unsigned char seq64be[8];
+	ulong header_length;
+	uchar seq64be[8];
 	struct dtls1_retransmit_state saved_state;
 	/* XDTLS:  the requested message ought to be found, otherwise error */
 	memzero(seq64be, sizeof(seq64be));
-	seq64be[6] = (unsigned char)(seq >> 8);
-	seq64be[7] = (unsigned char)seq;
+	seq64be[6] = (uchar)(seq >> 8);
+	seq64be[7] = (uchar)seq;
 	item = pqueue_find(s->d1->sent_messages, seq64be);
 	if(item == NULL) {
 		SSLfatal(s, SSL_AD_INTERNAL_ERROR, ERR_R_INTERNAL_ERROR);
 		*found = 0;
 		return 0;
 	}
-
 	*found = 1;
 	frag = (hm_fragment*)item->data;
-
 	if(frag->msg_header.is_ccs)
 		header_length = DTLS1_CCS_HEADER_LENGTH;
 	else
 		header_length = DTLS1_HM_HEADER_LENGTH;
-
-	memcpy(s->init_buf->data, frag->fragment,
-	    frag->msg_header.msg_len + header_length);
+	memcpy(s->init_buf->data, frag->fragment, frag->msg_header.msg_len + header_length);
 	s->init_num = frag->msg_header.msg_len + header_length;
-
-	dtls1_set_message_header_int(s, frag->msg_header.type,
-	    frag->msg_header.msg_len,
-	    frag->msg_header.seq, 0,
-	    frag->msg_header.frag_len);
-
+	dtls1_set_message_header_int(s, frag->msg_header.type, frag->msg_header.msg_len, frag->msg_header.seq, 0, frag->msg_header.frag_len);
 	/* save current state */
 	saved_state.enc_write_ctx = s->enc_write_ctx;
 	saved_state.write_hash = s->write_hash;
 	saved_state.compress = s->compress;
 	saved_state.session = s->session;
 	saved_state.epoch = DTLS_RECORD_LAYER_get_w_epoch(&s->rlayer);
-
 	s->d1->retransmitting = 1;
-
 	/* restore state in which the message was originally sent */
 	s->enc_write_ctx = frag->msg_header.saved_retransmit_state.enc_write_ctx;
 	s->write_hash = frag->msg_header.saved_retransmit_state.write_hash;
 	s->compress = frag->msg_header.saved_retransmit_state.compress;
 	s->session = frag->msg_header.saved_retransmit_state.session;
-	DTLS_RECORD_LAYER_set_saved_w_epoch(&s->rlayer,
-	    frag->msg_header.
-	    saved_retransmit_state.epoch);
-
-	ret = dtls1_do_write(s, frag->msg_header.is_ccs ?
-		SSL3_RT_CHANGE_CIPHER_SPEC : SSL3_RT_HANDSHAKE);
-
+	DTLS_RECORD_LAYER_set_saved_w_epoch(&s->rlayer, frag->msg_header.saved_retransmit_state.epoch);
+	ret = dtls1_do_write(s, frag->msg_header.is_ccs ? SSL3_RT_CHANGE_CIPHER_SPEC : SSL3_RT_HANDSHAKE);
 	/* restore current state */
 	s->enc_write_ctx = saved_state.enc_write_ctx;
 	s->write_hash = saved_state.write_hash;
 	s->compress = saved_state.compress;
 	s->session = saved_state.session;
 	DTLS_RECORD_LAYER_set_saved_w_epoch(&s->rlayer, saved_state.epoch);
-
 	s->d1->retransmitting = 0;
-
 	(void)BIO_flush(s->wbio);
 	return ret;
 }

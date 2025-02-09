@@ -3845,10 +3845,7 @@ int PaymPlanDialog::editItem(long pos, long id)
 	return ok;
 }
 
-int PaymPlanDialog::delItem(long pos, long id)
-{
-	return Data.atFree(static_cast<uint>(pos)) ? 1 : -1;
-}
+int PaymPlanDialog::delItem(long pos, long id) { return Data.atFree(static_cast<uint>(pos)) ? 1 : -1; }
 
 int EditPaymPlan(const PPBillPacket * pPack, PayPlanArray * pData) { DIALOG_PROC_BODY_P1(PaymPlanDialog, pPack, pData); }
 //

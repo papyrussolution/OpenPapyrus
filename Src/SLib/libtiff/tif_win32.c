@@ -211,9 +211,9 @@ static void _tiffUnmapProc(thandle_t fd, void* base, toff_t size)
  * Note that TIFFFdOpen and TIFFOpen recognise the character 'u' in the mode
  * string, which forces the file to be opened unmapped.
  */
-TIFF*TIFFFdOpen(int ifd, const char* name, const char* mode)
+TIFF * TIFFFdOpen(int ifd, const char* name, const char* mode)
 {
-	TIFF* tif;
+	TIFF * tif;
 	int fSuppressMap;
 	int m;
 	fSuppressMap = 0;
@@ -234,16 +234,15 @@ TIFF*TIFFFdOpen(int ifd, const char* name, const char* mode)
 }
 
 #ifndef _WIN32_WCE
-
 /*
  * Open a TIFF file for read/writing.
  */
-TIFF*TIFFOpen(const char* name, const char* mode)
+TIFF * TIFFOpen(const char* name, const char* mode)
 {
 	static const char module[] = "TIFFOpen";
 	thandle_t fd;
 	DWORD dwMode;
-	TIFF* tif;
+	TIFF * tif;
 	int m = _TIFFgetMode(mode, module);
 	switch(m) {
 		case O_RDONLY:                  dwMode = OPEN_EXISTING; break;
@@ -259,17 +258,15 @@ TIFF*TIFFOpen(const char* name, const char* mode)
 		TIFFErrorExt(0, module, "%s: Cannot open", name);
 		return ((TIFF *)0);
 	}
-
 	tif = TIFFFdOpen((int)fd, name, mode);   /* FIXME: WIN64 cast from pointer to int warning */
 	if(!tif)
 		CloseHandle(fd);
 	return tif;
 }
-
 /*
  * Open a TIFF file with a Unicode filename, for read/writing.
  */
-TIFF*TIFFOpenW(const wchar_t* name, const char* mode)
+TIFF * TIFFOpenW(const wchar_t* name, const char* mode)
 {
 	static const char module[] = "TIFFOpenW";
 	thandle_t fd;
