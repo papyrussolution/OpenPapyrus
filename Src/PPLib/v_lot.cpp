@@ -1550,7 +1550,7 @@ int PPViewLot::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pB
 				{
 					const  PPID obj_type = PPOBJ_LOT;
 					ObjTagList common_tag_list;
-					common_tag_list.ObjType = obj_type;
+					common_tag_list.Oid.Obj = obj_type;
 					int   update_mode = ObjTagList::mumAdd;
 					if(EditObjTagValUpdateList(&common_tag_list, 0, &update_mode) > 0 && common_tag_list.GetCount()) {
 						LotViewItem item;

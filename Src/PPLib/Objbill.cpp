@@ -6953,7 +6953,7 @@ int PPObjBill::LoadClbList(PPBillPacket * pPack, int force)
 			}
 		}
 	}
-	pPack->BTagL.Destroy();
+	pPack->BTagL.Z();
 	THROW(GetTagList(pPack->Rec.ID, &pPack->BTagL));
 	CATCHZOK
 	delete p_tag_obj;
@@ -7124,7 +7124,7 @@ int PPObjBill::Helper_StoreClbList(PPBillPacket * pPack)
 							} while(j);
 						}
 						else
-							mirror_tag_list.Destroy();
+							mirror_tag_list.Z();
 						if(p_tag_list) {
 							for(uint j = 0; j < p_tag_list->GetCount(); j++) {
                                 const ObjTagItem * p_item = p_tag_list->GetItemByPos(j);
@@ -9143,7 +9143,7 @@ int PPObjBill::Helper_ExtractPacket(PPID id, PPBillPacket * pPack, uint fl, cons
 		// Эти функции вызываются в pPack->LoadClbList, однако при (fl & BPLD_SKIPTRFR)
 		// LoadClbList не вызывается, потому приходится делать это здесь.
 		//
-		pPack->BTagL.Destroy();
+		pPack->BTagL.Z();
 		THROW(GetTagList(pPack->Rec.ID, &pPack->BTagL));
 	}
 	else {
@@ -9156,13 +9156,13 @@ int PPObjBill::Helper_ExtractPacket(PPID id, PPBillPacket * pPack, uint fl, cons
 			}
 		}
 		else {
-			int    is_there_shadow_bill = 0; // @debug
+			bool   is_there_shadow_bill = false; // @debug
 			DateIter diter;
 			trfr->LoadItems(*pPack, pGoodsList);
 			THROW(LoadPckgList(pPack));
 			THROW(LoadClbList(pPack, BIN(fl & BPLD_FORCESERIALS)));
 			while((r = P_Tbl->EnumLinks(id, &diter, BLNK_SHADOW)) > 0) {
-				is_there_shadow_bill = 1; // @debug
+				is_there_shadow_bill = true; // @debug
 				THROW(ExtractPacket(P_Tbl->data.ID, &shadow));
 				for(i = 0; shadow.EnumTItems(&i, &p_ti);) {
 					p_ti->OrdLotID = p_ti->BillID; // @ordlotid

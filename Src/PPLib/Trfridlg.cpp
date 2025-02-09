@@ -934,7 +934,7 @@ IMPL_HANDLE_EVENT(TrfrItemDialog)
 						RVALUEPTR(tag_list, p_list);
 						if(InheritedLotTagList.GetCount())
 							tag_list.Merge(InheritedLotTagList, ObjTagList::mumAdd);
-						tag_list.ObjType = PPOBJ_LOT;
+						tag_list.Oid.Obj = PPOBJ_LOT;
 						if(EditObjTagValList(&tag_list, 0) > 0) {
 							P_Pack->LTagL.Set(ItemNo, &tag_list);
 							setupPriceLimit();
@@ -953,7 +953,7 @@ IMPL_HANDLE_EVENT(TrfrItemDialog)
 							RVALUEPTR(tag_list, p_list);
 							if(InheritedLotTagList.GetCount())
 								tag_list.Merge(InheritedLotTagList, ObjTagList::mumAdd);
-							tag_list.ObjType = PPOBJ_LOT;
+							tag_list.Oid.Obj = PPOBJ_LOT;
 							const ObjTagItem * p_dim_tagitem = tag_list.GetItem(PPTAG_LOT_DIMENSIONS);
 							ObjTagItem dim_tagitem;
 							if(!RVALUEPTR(dim_tagitem, p_dim_tagitem)) {
@@ -1394,7 +1394,7 @@ int TrfrItemDialog::replyGoodsSelection(int recurse)
 	ReceiptTbl::Rec lot_rec;
 	LotArray lot_list;
 	uint   lot_idx = 0;
-	InheritedLotTagList.Destroy();
+	InheritedLotTagList.Z();
 	Rest = 0.0;
 	Item.Flags &= ~PPTFR_AUTOCOMPL;
 	getCtrlData(CTLSEL_LOT_GOODS, &Item.GoodsID);

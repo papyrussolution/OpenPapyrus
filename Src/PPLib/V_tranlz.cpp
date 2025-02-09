@@ -2618,7 +2618,7 @@ int PPViewTrfrAnlz::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser
 						else if(ppvCmd == PPVCMD_TAGSALL) {
 							int    update_mode = ObjTagList::mumAdd;
 							ObjTagList common_tag_list;
-							common_tag_list.ObjType = obj_type;
+							common_tag_list.Oid.Obj = obj_type;
 							PPIDArray id_list;
 							TrfrAnlzViewItem item;
 							Reference * p_ref = PPRef;

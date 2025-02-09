@@ -450,7 +450,7 @@ TSessionPacket & TSessionPacket::Z()
 	MEMSZERO(Rec);
 	CiList.Init(PPCheckInPersonItem::kTSession, 0);
 	Lines.clear();
-	TagL.Destroy();
+	TagL.Z();
 	Ext.Z();
 	// SMemo.Z(); // @v11.0.4
 	return *this;

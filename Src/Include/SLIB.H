@@ -13978,7 +13978,7 @@ private:
 	enum {
 		fDynBins   = 0x0001,
 		fDeviation = 0x0002,
-		fEven      = 0x0004  // Четная гистограмма отклонений о среднего.
+		fEven      = 0x0004  // Четная гистограмма отклонений от среднего.
 	};
 	long   Flags;
 	RAssocArray BinList;

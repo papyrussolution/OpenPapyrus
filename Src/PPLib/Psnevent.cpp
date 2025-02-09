@@ -177,7 +177,7 @@ void PPPsnEventPacket::Destroy()
 	MEMSZERO(Rec);
 	MEMSZERO(Reg);
 	SMemo.Z();
-	TagL.Destroy();
+	TagL.Z();
 	LinkFiles.Clear();
 	Otb.Z();
 }
@@ -185,8 +185,7 @@ void PPPsnEventPacket::Destroy()
 void FASTCALL PPPsnEventPacket::Init(PPID op)
 {
 	Destroy();
-	TagL.ObjType = PPOBJ_PERSONEVENT;
-	TagL.ObjID   = 0;
+	TagL.Oid.Set(PPOBJ_PERSONEVENT, 0);
 	Rec.OpID = op;
 	getcurdatetime(&Rec.Dt, &Rec.Tm);
 	LinkFiles.Clear();
@@ -1634,7 +1633,7 @@ int PsnEventDialog::addItem(long * pPos, long * pID)
 {
 	int    ok = -1;
 	ObjTagItem item;
-	if(EditObjTagItem(Pack.TagL.ObjType, Pack.TagL.ObjID, &item, 0) > 0) {
+	if(EditObjTagItem(Pack.TagL.Oid.Obj, Pack.TagL.Oid.Id, &item, 0) > 0) {
 		Pack.TagL.PutItem(item.TagID, &item);
 		ASSIGN_PTR(pPos, Pack.TagL.GetCount());
 		ASSIGN_PTR(pID, item.TagID);
@@ -1648,7 +1647,7 @@ int PsnEventDialog::editItem(long pos, long id)
 	int    ok = -1;
 	const  ObjTagItem * p_item = Pack.TagL.GetItemByPos(static_cast<uint>(pos));
    	if(p_item && p_item->TagID == id)
-		if(EditObjTagItem(Pack.TagL.ObjType, Pack.TagL.ObjID, const_cast<ObjTagItem *>(p_item), 0) > 0) // @badcast
+		if(EditObjTagItem(Pack.TagL.Oid.Obj, Pack.TagL.Oid.Id, const_cast<ObjTagItem *>(p_item), 0) > 0) // @badcast
 			ok = 1;
 	return ok;
 }

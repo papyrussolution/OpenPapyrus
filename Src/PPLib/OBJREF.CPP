@@ -2019,7 +2019,7 @@ PPGlobalUserAccPacket::PPGlobalUserAccPacket() : PPExtStrContainer()
 PPGlobalUserAccPacket & PPGlobalUserAccPacket::Z()
 {
 	MEMSZERO(Rec);
-	TagL.Destroy();
+	TagL.Z();
 	PPExtStrContainer::Z(); // @v11.9.9
 	return *this;
 }
@@ -2223,7 +2223,7 @@ int PPObjGlobalUserAcc::GetPacket(PPID id, PPGlobalUserAccPacket * pPack)
 {
 	int    ok = Search(id, &pPack->Rec);
 	if(ok > 0) {
-		pPack->TagL.Destroy();
+		pPack->TagL.Z();
 		THROW(P_Ref->Ot.GetList(Obj, id, &pPack->TagL));
 		// @v11.9.9 {
 		{
@@ -2429,7 +2429,7 @@ private:
 			PasswordDialog(0, Data.Rec.Password, sizeof(Data.Rec.Password), 3, 0);
 		}
 		else if(event.isCmd(cmTags)) {
-			Data.TagL.ObjType = PPOBJ_GLOBALUSERACC;
+			Data.TagL.Oid.Obj = PPOBJ_GLOBALUSERACC;
 			EditObjTagValList(&Data.TagL, 0);
 		}
 		else if(event.isCmd(cmGuaExtList)) {
@@ -3080,7 +3080,7 @@ int FASTCALL PPUhttStorePacket::IsEq(const PPUhttStorePacket & rS) const
 void PPUhttStorePacket::destroy()
 {
 	MEMSZERO(Rec);
-	TagL.Destroy();
+	TagL.Z();
 	Sd.Destroy();
 }
 
@@ -3186,7 +3186,7 @@ private:
 	{
 		PPListDialog::handleEvent(event);
 		if(event.isCmd(cmTags)) {
-			Data.TagL.ObjType = PPOBJ_UHTTSTORE;
+			Data.TagL.Oid.Obj = PPOBJ_UHTTSTORE;
 			EditObjTagValList(&Data.TagL, 0);
 		}
 		else if(event.isCbSelected(CTLSEL_UHTTSTORE_PSN)) {
@@ -3527,7 +3527,7 @@ int PPObjUhttStore::GetPacket(PPID id, PPUhttStorePacket * pPack)
 	int    ok = Search(id, &pPack->Rec);
 	if(ok > 0) {
 		SBuffer sd_buf;
-		pPack->TagL.Destroy();
+		pPack->TagL.Z();
 		pPack->Sd.Destroy();
 		THROW(P_Ref->Ot.GetList(Obj, id, &pPack->TagL));
 		THROW(P_Ref->GetPropSBuffer(Obj, id, UHTTSPRP_SELECTORS, sd_buf));
@@ -4474,7 +4474,7 @@ bool FASTCALL PPRawMaterialPacket::IsEq(const PPRawMaterialPacket & rS) const
 PPRawMaterialPacket & PPRawMaterialPacket::Z()
 {
 	MEMSZERO(Rec);
-	TagL.Destroy();
+	TagL.Z();
 	return *this;
 }
 
@@ -4545,7 +4545,7 @@ int PPObjRawMaterial::GetPacket(PPID id, PPRawMaterialPacket * pPack)
 {
 	int    ok = Search(id, &pPack->Rec);
 	if(ok > 0) {
-		pPack->TagL.Destroy();
+		pPack->TagL.Z();
 		THROW(P_Ref->Ot.GetList(Obj, id, &pPack->TagL));
 		ok = 1;
 	}
@@ -4585,8 +4585,7 @@ int PPObjRawMaterial::GetPacket(PPID id, PPRawMaterialPacket * pPack)
 		{
 			TDialog::handleEvent(event);
 			if(event.isCmd(cmTags)) {
-				Data.TagL.ObjType = PPOBJ_RAWMATERIAL;
-				Data.TagL.ObjID = Data.Rec.ID;
+				Data.TagL.Oid.Set(PPOBJ_RAWMATERIAL, Data.Rec.ID);
 				EditObjTagValList(&Data.TagL, 0);
 				clearEvent(event);
 			}

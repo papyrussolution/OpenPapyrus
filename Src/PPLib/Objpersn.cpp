@@ -7027,6 +7027,7 @@ int FASTCALL GetPersonName(PPID id, SString & rBuf)
 //
 //
 //
+#if 0 // @v12.2.6 (замещено более общим функционалом анализа клиентской активности) {
 PPNewContragentDetectionBlock::PPNewContragentDetectionBlock() : P_PeObj(0), P_ArObj(0), P_ScObj(0), State(0)
 {
 	PPObjPerson::ReadConfig(&PsnCfg);
@@ -7220,6 +7221,7 @@ int PPNewContragentDetectionBlock::IsNewArticle(PPID arID, const DateRange & rPe
 	const  PPID psn_id = ObjectToPerson(arID, 0);
 	return IsNewPerson(ObjectToPerson(arID, 0), rPeriod);
 }
+#endif // } 0 @v12.2.6 (замещено более общим функционалом анализа клиентской активности)
 //
 // Implementation of PPALDD_PersonAttributes
 //
@@ -8198,7 +8200,7 @@ int PPObjPerson::IdentifyClientActivityState(ClientActivityState & rParam)
 							rParam.State = ClientActivityState::stRegularTa;
 						}
 						rParam.CurrentDelayDays = delay_days;
-						rParam.CurrentDelaySd = static_cast<double>(delay_sd);
+						rParam.CurrentDelaySd = static_cast<float>(delay_sd);
 					}
 					else 
 						rParam.State = ClientActivityState::stNoData;
@@ -8474,13 +8476,41 @@ int PrcssrClientActivityStatistics::Run()
 								f_out.WriteLine(temp_buf.Z().Tab().CatEq("date-count", test_total_entry.DateCount).CR());
 								f_out.WriteLine(temp_buf.Z().Tab().CatEq("gap-days-average", test_total_entry.GapDaysAvg, MKSFMTD(0, 3, 0)).CR());
 								f_out.WriteLine(temp_buf.Z().Tab().CatEq("gap-days-stddev", test_total_entry.GapDaysStdDev, MKSFMTD(0, 3, 0)).CR());
-								temp_buf.Z().Tab().Cat("date-list").CatDiv(':', 0);
-								for(uint i = 0; i < test_date_list.getCount(); i++) {
-									const LDATE dt = plusdate(test_total_entry.FirstEventDt, test_date_list.at(i));
-									temp_buf.Space().Cat(dt, DATF_ISO8601CENT);
+								{
+									temp_buf.Z().Tab().Cat("date-list").CatDiv(':', 0);
+									for(uint i = 0; i < test_date_list.getCount(); i++) {
+										const LDATE dt = plusdate(test_total_entry.FirstEventDt, test_date_list.at(i));
+										temp_buf.Space().Cat(dt, DATF_ISO8601CENT);
+									}
+									f_out.WriteLine(temp_buf.CR());
 								}
-								temp_buf.CR();
-								f_out.WriteLine(temp_buf);
+								// @v12.2.6 {
+								{
+									StatBase date_gap_stat;
+									temp_buf.Z().Tab().Cat("date-gap-list").CatDiv(':', 0);
+									for(uint i = 0; i < test_date_list.getCount(); i++) {
+										if(i) {
+											const LDATE prev_dt = plusdate(test_total_entry.FirstEventDt, test_date_list.at(i-1));
+											const LDATE dt = plusdate(test_total_entry.FirstEventDt, test_date_list.at(i));
+											long _gap = diffdate(dt, prev_dt);
+											assert(_gap > 0);
+											temp_buf.Space().Cat(_gap);
+											date_gap_stat.Step(static_cast<double>(_gap));
+										}
+									}
+									f_out.WriteLine(temp_buf.CR());
+									//
+									date_gap_stat.Finish();
+									double _gap_days_avg = date_gap_stat.GetExp();
+									double _gap_days_stddev = date_gap_stat.GetStdDev();
+									if(_gap_days_avg != test_total_entry.GapDaysAvg) {
+										read_stat_err_count++;
+									}
+									if(_gap_days_stddev != test_total_entry.GapDaysStdDev) {
+										read_stat_err_count++;
+									}
+								}
+								// } @v12.2.6 
 							}
 						}
 						else {

@@ -1724,7 +1724,7 @@ IMPL_HANDLE_EVENT(ProcessorDialog)
 		}
 	}
 	else if(event.isCmd(cmTags)) { // @v11.7.2
-		Data.TagL.ObjType = PPOBJ_PROCESSOR;
+		Data.TagL.Oid.Obj = PPOBJ_PROCESSOR;
 		EditObjTagValList(&Data.TagL, 0);
 	}
 	else if(event.isCmd(cmPrcExt)) {

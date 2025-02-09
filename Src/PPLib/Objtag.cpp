@@ -2691,13 +2691,13 @@ public:
 	int    setDTS(const DataBlock * pData)
 	{
 		Data = pData->List;
-		if(Data.ObjType) {
+		if(Data.Oid.Obj) {
 			SString obj_buf;
-			if(Data.ObjID) {
-				GetObjectName(Data.ObjType, Data.ObjID, obj_buf);
+			if(Data.Oid.Id) {
+				GetObjectName(Data.Oid.Obj, Data.Oid.Id, obj_buf);
 			}
 			if(!obj_buf.NotEmptyS()) {
-				GetObjectTitle(Data.ObjType, obj_buf);
+				GetObjectTitle(Data.Oid.Obj, obj_buf);
 			}
 			setStaticText(CTL_TAGVALVIEW_OBJ, obj_buf);
 		}
@@ -2783,7 +2783,7 @@ int TagValListDialog::addItem(long * pPos, long * pID)
 {
 	int    ok = -1;
 	ObjTagItem item;
-	if(EditObjTagItem(Data.ObjType, Data.ObjID, &item, P_AllowedTags) > 0) {
+	if(EditObjTagItem(Data.Oid.Obj, Data.Oid.Id, &item, P_AllowedTags) > 0) {
 		Data.PutItem(item.TagID, &item);
 		ASSIGN_PTR(pPos, Data.GetCount());
 		ASSIGN_PTR(pID, item.TagID);
@@ -2797,7 +2797,7 @@ int TagValListDialog::editItem(long pos, long id)
 	int    ok = -1;
 	const  ObjTagItem * p_item = Data.GetItemByPos(static_cast<uint>(pos));
    	if(p_item && p_item->TagID == id)
-		if(EditObjTagItem(Data.ObjType, Data.ObjID, const_cast<ObjTagItem *>(p_item), P_AllowedTags) > 0) // @badcast
+		if(EditObjTagItem(Data.Oid.Obj, Data.Oid.Id, const_cast<ObjTagItem *>(p_item), P_AllowedTags) > 0) // @badcast
 			ok = 1;
 	return ok;
 }
@@ -2861,8 +2861,7 @@ int EditObjTagValList(PPID objType, PPID objID, const PPIDArray * pAllowedTags)
 	Reference * p_ref = PPRef;
 	ObjTagList list;
 	THROW(p_ref->Ot.GetList(objType, objID, &list));
-	list.ObjType = objType;
-	list.ObjID = objID;
+	list.Oid.Set(objType, objID);
 	if(EditObjTagValList(&list, pAllowedTags) > 0)
 		THROW(p_ref->Ot.PutList(objType, objID, &list, 1));
 	CATCHZOKPPERR

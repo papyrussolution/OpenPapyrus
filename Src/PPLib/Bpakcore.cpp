@@ -652,7 +652,7 @@ void PPBill::BaseDestroy()
 	LTagL.Release();
 	XcL.Release();
 	_VXcL.Release();
-	BTagL.Destroy();
+	BTagL.Z();
 	Ver = DS.GetVersion();
 }
 
@@ -929,7 +929,7 @@ int  PPLotTagContainer::GetString(PPID tagID, int rowIdx, SString & rBuf) const 
 /*virtual*/void FASTCALL PPLotTagContainer::freeItem(void * pItem)
 {
 	if(pItem)
-		static_cast<Item *>(pItem)->List.Destroy();
+		static_cast<Item *>(pItem)->List.Z();
 }
 
 ObjTagList * FASTCALL PPLotTagContainer::Get(int rowIdx) const
@@ -985,7 +985,7 @@ int PPLotTagContainer::Set(int rowIdx, const ObjTagList * pItem)
 		if(pItem) {
 			Item * p_item = static_cast<Item *>(at(pos));
 			p_item->List = *pItem;
-			p_item->List.ObjType = PPOBJ_LOT;
+			p_item->List.Oid.Obj = PPOBJ_LOT;
 			p_item->RowIdx = rowIdx;
 		}
 		else {
@@ -1001,7 +1001,7 @@ int PPLotTagContainer::Set(int rowIdx, const ObjTagList * pItem)
 		insert(&new_item);
 		Item * p_item = static_cast<Item *>(at(getCount()-1));
 		p_item->List = *pItem;
-		p_item->List.ObjType = PPOBJ_LOT;
+		p_item->List.Oid.Obj = PPOBJ_LOT;
 		p_item->RowIdx = rowIdx;
 	}
 	else

@@ -2735,8 +2735,8 @@ int PPBillImporter::ReadRows(PPImpExp * pImpExp, int mode/*linkByLastInsBill*/, 
 				brow_.GoodsID = goods_id;
 				ObjTagList row_tag_list;
 				ObjTagList bill_tag_list;
-				row_tag_list.ObjType = PPOBJ_LOT;
-				bill_tag_list.ObjType = PPOBJ_BILL;
+				row_tag_list.Oid.Obj = PPOBJ_LOT;
+				bill_tag_list.Oid.Obj = PPOBJ_BILL;
 				if(dyn_rec.GetCount()) {
 					for(uint j = 0; j < dyn_rec.GetCount(); j++) {
 						ProcessDynField(dyn_rec, j, pImpExp->GetParam(), bill_tag_list, row_tag_list);
@@ -3629,7 +3629,7 @@ int PPBillImporter::Import(int useTa)
 									bool  tag_list_updated = false;
 									ObjTagList * p_tag_list = pack.LTagL.Get(ti_idx);
 									if(!RVALUEPTR(tag_list, p_tag_list))
-										tag_list.Destroy();
+										tag_list.Z();
 									PPTransferItem & r_ti = pack.TI(ti_idx);
 									if(r_ti.GoodsID == r_row.GoodsID) {
 										if(alc_cat_lot_tag_id && r_row.AlcoCatCode[0]) {
@@ -3908,7 +3908,7 @@ int PPBillImporter::Import(int useTa)
 										new_item_pos = pack.GetTCount()-1;
 										ObjTagList * p_tag_list = TagC.Get(r_row.LineId);
 										if(!RVALUEPTR(tag_list, p_tag_list))
-											tag_list.Destroy();
+											tag_list.Z();
 										tag_item.Init(mnf_lot_tag_id);
 										//tag_item.TagDataType = OTTYP_OBJLINK;
 										tag_item.SetInt(tag_item.TagID, manuf_id);
@@ -3923,7 +3923,7 @@ int PPBillImporter::Import(int useTa)
 									new_item_pos = pack.GetTCount()-1;
 									ObjTagList * p_tag_list = TagC.Get(r_row.LineId);
 									if(!RVALUEPTR(tag_list, p_tag_list))
-										tag_list.Destroy();
+										tag_list.Z();
 									tag_item.Init(BillParam.ImpExpParamDll.GoodsKindTagID);
 									tag_item.TagDataType = OTTYP_NUMBER;
 									tag_item.SetInt(tag_item.TagID, r_row.GoodKindCode);

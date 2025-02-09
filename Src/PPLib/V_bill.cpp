@@ -6773,7 +6773,7 @@ int PPViewBill::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBro
 					const  PPID obj_type = PPOBJ_BILL;
 					int    update_mode = ObjTagList::mumAdd;
 					ObjTagList common_tag_list;
-					common_tag_list.ObjType = obj_type;
+					common_tag_list.Oid.Obj = obj_type;
 					if(EditObjTagValUpdateList(&common_tag_list, 0, &update_mode) > 0 && common_tag_list.GetCount()) {
 						BillViewItem item;
 						ObjTagCore & r_ot = PPRef->Ot;

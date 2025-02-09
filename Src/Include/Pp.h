@@ -3470,6 +3470,7 @@ public:
 	ObjTagList(const ObjTagList & s);
 	~ObjTagList();
 	ObjTagList & FASTCALL operator = (const ObjTagList & s);
+	ObjTagList & Z();
 	uint   GetCount() const;
 	int    FASTCALL IsEq(const ObjTagList & rS) const;
 	//
@@ -3524,14 +3525,12 @@ public:
 	// Descr: Объединяет список тегов this со списком rSrc.
 	//
 	int    Merge(const ObjTagList & rSrc, int updateMode);
-	void   Destroy();
 	int    Write__(SBuffer & rBuf) const; // @todo(eliminate)
 	int    Read__(SBuffer & rBuf);        // @todo(eliminate)
 	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 	int    ProcessObjRefs(PPObjIDArray * ary, int replace);
 
-	PPID   ObjType;
-	PPID   ObjID;
+	PPObjID  Oid;
 protected:
 	virtual void FASTCALL freeItem(void *);
 };
@@ -28769,6 +28768,7 @@ private:
 
 int ViewPersonInfoBySCard(const char * pCode);
 
+/* @v12.2.6 замещено более общим функционалом анализа клиентской активности
 class PPNewContragentDetectionBlock {
 public:
 	PPNewContragentDetectionBlock();
@@ -28791,7 +28791,7 @@ private:
 	PPObjPersonEvent * P_PeObj;
 	PPObjArticle * P_ArObj;
 	PPObjSCard * P_ScObj;
-};
+};*/
 //
 // @ModuleDecl(PPObjArticle)
 //
@@ -41827,11 +41827,6 @@ public:
 		LDATE Dt;
 		PPObjID Oid;
 	};
-	/*struct Param {
-		Param();
-		DateRange Period;
-		PPID   PersonKindID;
-	};*/
 	PrcssrClientActivityStatistics();
 	int    InitParam(PrcssrClientActivityStatisticsFilt * pParam);
 	int    Init(const PrcssrClientActivityStatisticsFilt * pParam);
@@ -47182,10 +47177,12 @@ struct PPProjectConfig { // @persistent @store(PropertyTbl) @size=90
 //
 // Виды записей таблицы ProjectTbl (Kind)
 //
-#define PPPRJK_PROJECT       1L // Проект
-#define PPPRJK_PHASE         2L // Фаза
-#define PPPRJK_PRJTEMPLATE   3L // Шаблон проекта
-#define PPPRJK_PHSTEMPLATE   4L // Шаблон фазы
+#define PPPRJK_PROJECT              1L // Проект
+#define PPPRJK_PHASE                2L // Фаза
+#define PPPRJK_PRJTEMPLATE          3L // Шаблон проекта
+#define PPPRJK_PHSTEMPLATE          4L // Шаблон фазы
+#define PPPRJK_GLBSVCPROMOCAMPAIGN  5L // @v12.2.6 Промо-кампания, осуществляемая на внешнем глобальном сервисе (маркетплейс, поисковый сервис, etc) 
+	// Инициирующая задача - учет промо-кампаний на маркетплейсе
 //
 // Статусы проектов
 //
@@ -47193,13 +47190,14 @@ struct PPProjectConfig { // @persistent @store(PropertyTbl) @size=90
 #define PPPRJSTS_NONACTIVE   2L // Проект/фаза завершен
 #define PPPRJSTS_ARCHIVED    3L // Архивированный проект (только для проектов)
 
-class PPProjectPacket { // @v10.7.2
+class PPProjectPacket {
 public:
 	PPProjectPacket();
 	PPProjectPacket & Z();
 	ProjectTbl::Rec Rec;
 	SString SDescr;
 	SString SMemo;
+	ObjTagList TagL;        // @v12.2.6 Список тегов
 };
 
 class PPObjProject : public PPObject {
@@ -47223,9 +47221,9 @@ public:
 	SString & GetItemDescr(PPID id, SString & rBuf);
 	SString & GetItemMemo(PPID id, SString & rBuf);
 	int    PutPacket(PPID * pID, PPProjectPacket * pPack, int use_ta);
-	int    GetPacket(PPID id, PPProjectPacket * pPack); // @v10.7.2
-	int    SerializePacket(int dir, PPProjectPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx); // @v10.7.2
-	int    InitPacket(PPProjectPacket * pPack, int kind /* PPPRJK_XXX */, PPID parentID, int use_ta); // @v10.7.2
+	int    GetPacket(PPID id, PPProjectPacket * pPack);
+	int    SerializePacket(int dir, PPProjectPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx);
+	int    InitPacket(PPProjectPacket * pPack, int kind /* PPPRJK_XXX */, PPID parentID, int use_ta);
 	int    GetFullName(PPID id, SString & rBuf);
 private:
 	virtual const char * GetNamePtr();

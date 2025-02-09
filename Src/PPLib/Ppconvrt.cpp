@@ -1,5 +1,5 @@
 // PPCONVRT.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2024
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2024, 2025
 // @codepage UTF-8
 // Конвертация файлов данных при изменениях версий
 //
@@ -5951,7 +5951,7 @@ public:
 	void destroy()
 	{
 		MEMSZERO(Rec);
-		TagL.Destroy();
+		TagL.Z();
 		F.Clear();
 	}
 
@@ -6002,7 +6002,7 @@ int PPObjWorkbook_Pre813::GetPacket(PPID id, PPWorkbookPacket_Pre813 * pPack)
 {
 	int    ok = Search(id, &pPack->Rec);
 	if(ok > 0) {
-		pPack->TagL.Destroy();
+		pPack->TagL.Z();
 		pPack->F.Clear();
 		THROW(P_Ref->Ot.GetList(Obj, id, &pPack->TagL));
 		ok = 1;

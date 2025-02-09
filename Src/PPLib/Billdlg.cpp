@@ -288,7 +288,7 @@ public:
 	{
 		if(pTagList) {
 			TagL = *pTagList;
-			TagL.ObjType = PPOBJ_BILL;
+			TagL.Oid.Obj = PPOBJ_BILL;
 			IsTagList = 1;
 		}
 		enableCommand(cmTags, IsTagList);
@@ -2020,7 +2020,7 @@ IMPL_HANDLE_EVENT(BillDialog)
 				}
 				break;
 			case cmTags:
-				P_Pack->BTagL.ObjType = PPOBJ_BILL;
+				P_Pack->BTagL.Oid.Obj = PPOBJ_BILL;
 				if(EditObjTagValList(&P_Pack->BTagL, 0) > 0) {
 					if(PayDateBase > PPClientAgreement::pdbTagBias && !P_Pack->Rec.ID) {
 						P_Pack->SetupDefaultPayDate(PaymTerm, PayDateBase);

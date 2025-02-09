@@ -1,5 +1,5 @@
 // INVENTRY.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2024
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2024, 2025
 // @codepage UTF-8
 //
 // Инвентаризация //
@@ -210,12 +210,10 @@ IMPL_HANDLE_EVENT(InventoryDialog)
 			case cmFilteredDetail: editItems(1); break;
 			case cmInvWriteOff:    writeOff();   break;
 			case cmInvRollback:    rollbackWritingOff(); break;
-			// @erikB v10.4.13 {
-			case cmTags:
-				P_Data->BTagL.ObjType = PPOBJ_BILL;
+			case cmTags: // @erik
+				P_Data->BTagL.Oid.Obj = PPOBJ_BILL;
 				EditObjTagValList(&P_Data->BTagL, 0);
 				break;
-			// } @erik 
 			default: return;
 		}
 	else if(TVKEYDOWN) {

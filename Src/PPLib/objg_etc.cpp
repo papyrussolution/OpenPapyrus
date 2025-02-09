@@ -1031,7 +1031,7 @@ PPComputerPacket & PPComputerPacket::Z()
 {
 	Rec.Z();
 	LinkFiles.Clear();
-	TagL.Destroy();
+	TagL.Z();
 	return *this;
 }
 
@@ -1373,7 +1373,7 @@ private:
 	{
 		TDialog::handleEvent(event);
 		if(event.isCmd(cmTags)) {
-			Data.TagL.ObjType = PPOBJ_COMPUTER;
+			Data.TagL.Oid.Obj = PPOBJ_COMPUTER;
 			if(EditObjTagValList(&Data.TagL, 0) > 0) {
 				const ObjTagItem * p_tag_item = Data.TagL.GetItem(PPTAG_COMPUTER_GUID);
 				S_GUID uuid;
@@ -1767,7 +1767,7 @@ PPSwProgramPacket & PPSwProgramPacket::Z()
 {
 	Rec.Z();
 	LinkFiles.Clear();
-	TagL.Destroy();
+	TagL.Z();
 	CategoryName_.Z(); // @v12.0.4
 	return *this;
 }
@@ -1852,7 +1852,7 @@ private:
 	{
 		TDialog::handleEvent(event);
 		if(event.isCmd(cmTags)) {
-			Data.TagL.ObjType = PPOBJ_SWPROGRAM;
+			Data.TagL.Oid.Obj = PPOBJ_SWPROGRAM;
 			EditObjTagValList(&Data.TagL, 0);
 			clearEvent(event);
 		}

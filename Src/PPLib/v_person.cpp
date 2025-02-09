@@ -94,7 +94,7 @@ int PPViewPerson::Init_(const PPBaseFilt * pFilt)
 	SString msg_buf;
 	SString temp_buf;
 	LocationTbl::Rec loc_rec;
-	PPNewContragentDetectionBlock ncd_blk;
+	// @v12.2.6 замещено более общим функционалом анализа клиентской активности PPNewContragentDetectionBlock ncd_blk;
 	THROW(Helper_InitBaseFilt(pFilt));
 	BExtQuery::ZDelete(&P_IterQuery);
 	ZDELETE(P_TempPsn);
@@ -105,7 +105,7 @@ int PPViewPerson::Init_(const PPBaseFilt * pFilt)
 	PsnObj.DirtyConfig(); // @v12.2.4
 	// @v12.2.3 {
 	{
-		LDATE actual_date = checkdate(Filt.ClientActivityEvalDate) ? Filt.ClientActivityEvalDate : now_date;
+		const LDATE actual_date = checkdate(Filt.ClientActivityEvalDate) ? Filt.ClientActivityEvalDate : now_date;
 		assert(checkdate(actual_date));
 		Filt.ClientActivityEvalDate = actual_date;
 		Filt.NewCliPeriod.Actualize(actual_date);
@@ -4082,4 +4082,56 @@ int PPALDD_SupplNameList::InitData(PPFilt & rFilt, long rsrv)
 		}
 	}
 	return ok;
+}
+
+static void DrawClientActivityStatistics(PPID psnID) // @v12.2.6 @construction
+{
+	PPObjPerson psn_obj;
+	PPObjPerson::ClientActivityStatistics cas;
+	TSVector <uint16> date_list_;
+	SString temp_buf;
+	int    ok = psn_obj.ReadClientActivityStatistics(psnID, cas, &date_list_);
+	if(ok > 0) {
+		if(date_list_.getCount() >= 7) {
+			StatBase date_gap_stat;
+			LongArray gap_list;
+			SHistogram hg;
+			hg.SetupDynamic(0.0, 1.0);
+			for(uint i = 0; i < date_list_.getCount(); i++) {
+				if(i) {
+					const LDATE prev_dt = plusdate(cas.FirstEventDt, date_list_.at(i-1));
+					const LDATE dt = plusdate(cas.FirstEventDt, date_list_.at(i));
+					long _gap = diffdate(dt, prev_dt);
+					assert(_gap > 0);
+					gap_list.add(_gap);
+					date_gap_stat.Step(static_cast<double>(_gap));
+					hg.Put(static_cast<double>(_gap));
+				}
+			}
+			//
+			date_gap_stat.Finish();
+			double _gap_days_avg = date_gap_stat.GetExp();
+			double _gap_days_stddev = date_gap_stat.GetStdDev();
+			{
+				Generator_GnuPlot plot(0);
+				Generator_GnuPlot::PlotParam param;
+				param.Flags |= Generator_GnuPlot::PlotParam::fHistogram;
+				plot.Preamble();
+				plot.SetGrid();
+				plot.SetStyleFill("solid");
+				plot.Plot(&param);
+				plot.StartData(1);
+				for(uint hi = 0; hi < hg.GetResultCount(); hi++) {
+					SHistogram::Result hr;
+					hg.GetResult(hi, &hr);
+					temp_buf.Z().Cat(hr.Low, MKSFMTD(0, 0, 0));
+					plot.PutData(temp_buf, 1); // #1
+					plot.PutData(hr.Count);    // #2
+					plot.PutEOR();
+				}
+				plot.PutEndOfData();
+				ok = plot.Run();
+			}
+		}
+	}
 }

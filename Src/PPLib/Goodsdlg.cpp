@@ -2403,7 +2403,7 @@ IMPL_HANDLE_EVENT(GoodsDialog)
 					GObj.EditQuotations(Data.Rec.ID, 0, -1L, 0, PPQuot::clsSupplDeal);
 				break;
 			case cmTags:
-				Data.TagL.ObjType = PPOBJ_GOODS;
+				Data.TagL.Oid.Obj = PPOBJ_GOODS;
 				EditObjTagValList(&Data.TagL, 0);
 				break;
 			case cmSearchUHTT:

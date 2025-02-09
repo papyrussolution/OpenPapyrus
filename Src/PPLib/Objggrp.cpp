@@ -1442,7 +1442,7 @@ PPTransportPacket::PPTransportPacket()
 PPTransportPacket & PPTransportPacket::Z()
 {
 	MEMSZERO(Rec);
-	TagL.Destroy();
+	TagL.Z();
 	return *this;
 }
 	
@@ -1659,7 +1659,7 @@ private:
 	{
 		TDialog::handleEvent(event);
 		if(event.isCmd(cmTags)) {
-			Data.TagL.ObjType = PPOBJ_TRANSPORT;
+			Data.TagL.Oid.Obj = PPOBJ_TRANSPORT;
 			EditObjTagValList(&Data.TagL, 0);
 			clearEvent(event);			
 		}
@@ -1917,7 +1917,6 @@ bool BrandFilt::IsEmpty() const { return (!Flags && SrchStr.IsEmpty() && ParentL
 
 PPBrandPacket::PPBrandPacket() : LinkFiles(PPOBJ_BRAND)
 {
-	// @v10.4.10 (ctrs will do it) Init();
 }
 
 PPBrandPacket::~PPBrandPacket()
@@ -1928,7 +1927,7 @@ PPBrandPacket::~PPBrandPacket()
 void PPBrandPacket::Init()
 {
 	LinkFiles.Clear();
-	TagL.Destroy(); // @v11.2.12
+	TagL.Z(); // @v11.2.12
 }
 
 bool FASTCALL PPBrandPacket::IsEq(const PPBrandPacket & rS) const { return (Rec.IsEq(rS.Rec) && TagL.IsEq(rS.TagL)); }
@@ -2248,7 +2247,7 @@ private:
 	{
 		TDialog::handleEvent(event);
 		if(event.isCmd(cmTags)) {
-			Data.TagL.ObjType = PPOBJ_BRAND;
+			Data.TagL.Oid.Obj = PPOBJ_BRAND;
 			EditObjTagValList(&Data.TagL, 0);
 			clearEvent(event);
 		}

@@ -729,7 +729,7 @@ PPPersonPacket & PPPersonPacket::Z()
 	DlvrLocList.freeAll();
 	ZDELETE(P_SCardPack);
 	LinkFiles.Clear();
-	TagL.Destroy();
+	TagL.Z();
 	UpdFlags = 0;
 	SelectedLocPos = 0;
 	return *this;

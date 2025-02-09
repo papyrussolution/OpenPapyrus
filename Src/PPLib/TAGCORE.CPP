@@ -1,5 +1,5 @@
 // TAGCORE.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000-2002, 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 1998, 1999, 2000-2002, 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 // @Kernel
 // Теги объектов
@@ -760,7 +760,7 @@ int ObjTagItem::Read__(SBuffer & rBuf)
 //
 //
 //
-ObjTagList::ObjTagList() : SArray(sizeof(ObjTagItem), /*8,*/aryDataOwner|aryEachItem), ObjType(0), ObjID(0)
+ObjTagList::ObjTagList() : SArray(sizeof(ObjTagItem), /*8,*/aryDataOwner|aryEachItem)
 {
 }
 //
@@ -909,8 +909,7 @@ int FASTCALL ObjTagList::Copy(const ObjTagList & src)
 {
 	const ObjTagItem * p_item;
 	freeAll();
-	ObjType = src.ObjType;
-	ObjID   = src.ObjID;
+	Oid = src.Oid;
 	for(uint i = 0; (p_item = src.EnumItems(&i)) != 0;) {
 		ObjTagItem item2(*p_item);
 		insert(&item2);
@@ -965,16 +964,17 @@ int ObjTagList::Merge(const ObjTagList & src, int updateMode)
 	return ok;
 }
 
-void ObjTagList::Destroy()
+ObjTagList & ObjTagList::Z()
 {
 	freeAll();
+	return *this;
 }
 
 int ObjTagList::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	if(dir < 0)
-		Destroy();
+		Z();
 	int32  c = (int32)getCount();
 	THROW_SL(pSCtx->Serialize(dir, c, rBuf));
 	for(int32 i = 0; i < c; i++) {
@@ -1007,7 +1007,7 @@ int ObjTagList::Write__(SBuffer & rBuf) const
 
 int ObjTagList::Read__(SBuffer & rBuf)
 {
-	Destroy();
+	Z();
 	long   c = 0;
 	rBuf.Read(c);
 	for(uint i = 0; i < (uint)c; i++) {
@@ -1198,12 +1198,12 @@ int ObjTagCore::PutListExcl(PPID objType, PPID objID, const ObjTagList * pList, 
 	uint   pos = 0;
 	const  ObjTagItem * p_item = 0;
 	const  ObjTagItem * p_org_item = 0;
-	const  int is_list = BIN(pList && pList->GetCount());
-	const  int is_excl_list = BIN(pExclList && pExclList->getCount());
+	const  bool is_list = (pList && pList->GetCount());
+	const  bool is_excl_list = (pExclList && pExclList->getCount());
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
-		if(!is_excl_list && !is_list) { // @v8.9.2 (|| !pList->GetCount()) ради ускорения
+		if(!is_excl_list && !is_list) {
 			THROW(RemoveTag(objType, objID, 0, 0));
 		}
 		else {

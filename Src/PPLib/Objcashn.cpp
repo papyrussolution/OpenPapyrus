@@ -1933,7 +1933,7 @@ IMPL_HANDLE_EVENT(SyncCashNodeCfgDialog)
 	else if(event.isCmd(cmRounding))
 		editRoundParam();
 	else if(event.isCmd(cmTags)) {
-		Data.TagL.ObjType = PPOBJ_CASHNODE;
+		Data.TagL.Oid.Obj = PPOBJ_CASHNODE;
 		EditObjTagValList(&Data.TagL, 0);
 	}
 	else if(event.isClusterClk(CTL_CASHN_FLAGS))
@@ -2297,7 +2297,7 @@ IMPL_HANDLE_EVENT(AsyncCashNodeDialog)
 		// @v9.1.3 EditCSessImpExpParams(1);
 	}
 	else if(event.isCmd(cmTags)) {
-		P_Data->TagL.ObjType = PPOBJ_CASHNODE;
+		P_Data->TagL.Oid.Obj = PPOBJ_CASHNODE;
 		EditObjTagValList(&P_Data->TagL, 0);
 	}
 	else if(event.isClusterClk(CTL_CASHN_FLAGS)) {

@@ -1,5 +1,5 @@
 // WORKBOOK.CPP
-// Copyright (c) Petroglif 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) Petroglif 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 // Модуль управления рабочими книгами (произвольный контент, как правило, предназначенный для отображения в web-browser'е
 //
@@ -180,7 +180,7 @@ int FASTCALL PPWorkbookPacket::IsEq(const PPWorkbookPacket & rS) const
 void PPWorkbookPacket::destroy()
 {
 	MEMSZERO(Rec);
-	TagL.Destroy();
+	TagL.Z();
 	F.Clear();
 	ExtString.Z();
 }
@@ -768,7 +768,7 @@ private:
 			Data.TagL.PutItemStrNE(PPTAG_WORKBOOK_KWLOC, temp_buf.Strip());
 			getCtrlString(CTL_WORKBOOK_KEYWORDS, temp_buf.Z());
 			Data.TagL.PutItemStrNE(PPTAG_WORKBOOK_KEYWORDS, temp_buf.Strip());
-			Data.TagL.ObjType = PPOBJ_WORKBOOK;
+			Data.TagL.Oid.Obj = PPOBJ_WORKBOOK;
 			EditObjTagValList(&Data.TagL, 0);
 			if(getCtrlView(CTL_WORKBOOK_KWSYN)) {
 				const ObjTagItem * p_tag = Data.TagL.GetItem(PPTAG_WORKBOOK_KWSYN);
@@ -1338,7 +1338,7 @@ int PPObjWorkbook::PutPacket(PPID * pID, PPWorkbookPacket * pPack, int use_ta)
 
 int PPObjWorkbook::GetPacket(PPID id, PPWorkbookPacket * pPack)
 {
-	pPack->TagL.Destroy();
+	pPack->TagL.Z();
 	pPack->F.Clear();
 	pPack->ExtString.Z();
 	int    ok = -1;

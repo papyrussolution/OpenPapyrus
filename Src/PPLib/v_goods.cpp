@@ -4149,7 +4149,7 @@ int PPViewGoods::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * 
 					const  PPID obj_type = PPOBJ_GOODS;
 					int    update_mode = ObjTagList::mumAdd;
 					ObjTagList common_tag_list;
-					common_tag_list.ObjType = obj_type;
+					common_tag_list.Oid.Obj = obj_type;
 					if(EditObjTagValUpdateList(&common_tag_list, 0, &update_mode) > 0 && common_tag_list.GetCount()) {
 						GoodsViewItem item;
 						ObjTagCore & r_ot = PPRef->Ot;

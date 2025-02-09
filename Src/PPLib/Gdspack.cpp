@@ -1,5 +1,5 @@
 // GDSPACK.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2024
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2024, 2025
 // @codepage UTF-8
 // Пакет товара и сопутствующие объекты (PPGoodsPacket, PPGdsClsProp, PPGdsClsDim, PPGdsClsPacket, etc)
 //
@@ -37,9 +37,9 @@ PPGoodsPacket & PPGoodsPacket::Z()
 	ZDELETE(P_Quots);
 	ZDELETE(P_Gled);
 	LinkFiles.Clear();
-	TagL.Destroy();
+	TagL.Z();
 	GenericList.Set(0);
-	GS.Init(); // @v10.3.8 @fix
+	GS.Init();
 	return *this;
 }
 

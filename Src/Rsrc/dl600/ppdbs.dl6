@@ -2033,7 +2033,7 @@ table Project {         // size=384+128=512
 	date   Dt;          // Дата создания проекта
 	date   BeginDt;     // Дата начала работ по проекту
 	date   EstFinishDt; // Предполагаемая дата завершения работ по проекту
-	date   FinishDt;    // Фактическая дата  завершения работ по проекту
+	date   FinishDt;    // Фактическая дата завершения работ по проекту
 	long   MngrID;      // ->Person.ID
 	long   ClientID;    // ->Person.ID
 	long   TemplateID;  // ->Project (Kind = XxxTemplate) Шаблон проекта/фазы (прецедент)

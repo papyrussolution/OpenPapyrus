@@ -2475,13 +2475,9 @@ int PPSession::Init(long flags, HINSTANCE hInst, const char * pUiDescriptionFile
 			UiToolBox_.SetPen(TProgram::tbiButtonPen_F+TProgram::tbisFocus,  SPaintObj::psSolid, 1, SColor(0x15, 0x20, 0xEA));
 			UiToolBox_.SetPen(TProgram::tbiButtonPen_F+TProgram::tbisSelect, SPaintObj::psSolid, 1, SColor(0x15, 0x20, 0xEA));
 			{
+				SFontDescr fd_default("Verdana", 11, 0); // ! Не использовать "MS Sans Serif"
 				const SFontDescr * p_fd = p_uid ? p_uid->GetFontDescrC("ControlFont") : 0;
-				if(p_fd) {
-					UiToolBox_.CreateFont_(TProgram::tbiControlFont, *p_fd);
-				}
-				else {
-					UiToolBox_.CreateFont_(TProgram::tbiControlFont, "Verdana", 11, 0); // ! Не использовать "MS Sans Serif"
-				}
+				UiToolBox_.CreateFont_(TProgram::tbiControlFont, p_fd ? *p_fd : fd_default);
 			}
 		}
 	}

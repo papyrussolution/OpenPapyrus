@@ -1,5 +1,5 @@
 // STYLOQ_PRCCMD.CPP
-// Copyright (c) A.Sobolev 2022, 2023, 2024
+// Copyright (c) A.Sobolev 2022, 2023, 2024, 2025
 //
 #include <pp.h>
 #pragma hdrstop
@@ -1272,7 +1272,7 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 																	a.SrcOid.Set(PPOBJ_STYLOQBINDERY, rCliPack.Rec.ID);
 																ObjTagList * p_ti_tag_list = p_bpack->LTagL.Get(tiidx);
 																if(!RVALUEPTR(tag_list, p_ti_tag_list))
-																	tag_list.Destroy();
+																	tag_list.Z();
 																if(a.ToStr(temp_buf)) {
 																	tag_item.SetStr(PPTAG_LOT_ACCEPTANCE, temp_buf);
 																	tag_list.PutItem(PPTAG_LOT_ACCEPTANCE, &tag_item);

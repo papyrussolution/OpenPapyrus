@@ -183,7 +183,7 @@ PPCountryBlock & PPCountryBlock::Z()
 PPLocationPacket::PPLocationPacket() : ObjTagContainerHelper(TagL, PPOBJ_LOCATION, PPTAG_LOC_UUID)
 {
 	memzero(static_cast<LocationTbl::Rec *>(this), sizeof(LocationTbl::Rec));
-	TagL.ObjType = PPOBJ_LOCATION;
+	TagL.Oid.Obj = PPOBJ_LOCATION;
 }
 
 PPLocationPacket::PPLocationPacket(const PPLocationPacket & rS) : ObjTagContainerHelper(rS)
@@ -204,8 +204,8 @@ void PPLocationPacket::destroy()
 {
 	memzero(static_cast<LocationTbl::Rec *>(this), sizeof(LocationTbl::Rec));
 	Regs.freeAll();
-	TagL.Destroy();
-	TagL.ObjType = PPOBJ_LOCATION;
+	TagL.Z();
+	TagL.Oid.Obj = PPOBJ_LOCATION;
 	WarehouseList.Z();
 }
 
@@ -1867,7 +1867,7 @@ IMPL_HANDLE_EVENT(LocationDialog)
 		reg_obj.EditList(&Data);
 	}
 	else if(event.isCmd(cmLocTags)) {
-		Data.TagL.ObjID = Data.ID;
+		Data.TagL.Oid.Id = Data.ID;
 		EditObjTagValList(&Data.TagL, 0);
 	}
 	else if(event.isCmd(cmTest)) {

@@ -1471,7 +1471,7 @@ int ILBillPacket::Load__(PPID billID, long flags, PPID cvtToOpID /*=0*/)
 	if(p_bobj->P_LotXcT) {
 		THROW(p_bobj->P_LotXcT->GetContainer(billID, XcL));
 	}
-	BTagL.Destroy();
+	BTagL.Z();
 	THROW(p_bobj->GetTagList(billID, &BTagL));
 	CATCHZOK
 	return ok;
