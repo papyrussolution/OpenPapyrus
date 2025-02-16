@@ -1393,7 +1393,7 @@ extern int _db_open_peak;  // Пиковое количество открыты
 union DBRowId { // @persistent size=32
 public:
 	DBRowId();
-	int    IsLong() const;
+	bool   IsLong() const;
 	operator RECORDNUMBER() const;
 	DBRowId & FASTCALL operator = (RECORDNUMBER n);
 	void   SetZero();

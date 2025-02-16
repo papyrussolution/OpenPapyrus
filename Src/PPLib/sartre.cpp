@@ -1,5 +1,5 @@
 // SARTR.CPP
-// Copyright (c) A.Sobolev 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -354,15 +354,15 @@ static SrWfToken __Tokens[] = {
 	{ SRWG_CLASS,  SRWC_PREFIX,             "PREFIX" },
 	{ SRWG_CLASS,  SRWC_AFFIX,              "AFFIX" },
 	{ SRWG_CLASS,  SRWC_SKELETON,           "SKEL" },
-	// { SRWG_CLASS,  SRWC_PRONOUNREFL,        "PRONOUNREFL" }, // @v9.2.0 Возвратное местоимение (reflexive pronoun)
-	{ SRWG_CLASS,  SRWC_POSSESSIVEGROUP,    "POSSGRP" }, // @v9.2.0 possessive group (english)
+	// { SRWG_CLASS,  SRWC_PRONOUNREFL,        "PRONOUNREFL" }, // Возвратное местоимение (reflexive pronoun)
+	{ SRWG_CLASS,  SRWC_POSSESSIVEGROUP,    "POSSGRP" }, // possessive group (english)
 
 	{ SRWG_PROPERNAME, SRPROPN_PERSONNAME,  "PERSN" },
 	{ SRWG_PROPERNAME, SRPROPN_FAMILYNAME,  "FAMN"  },
 	{ SRWG_PROPERNAME, SRPROPN_PATRONYMIC,  "PATRN" },
 	{ SRWG_PROPERNAME, SRPROPN_ZOONAME,     "ZOON"  },
 	{ SRWG_PROPERNAME, SRPROPN_ORG,         "ORG"   },
-	{ SRWG_PROPERNAME, SRPROPN_GEO,         "GEO"   }, // @v9.2.0
+	{ SRWG_PROPERNAME, SRPROPN_GEO,         "GEO"   },
 
 	{ SRWG_ABBR,       SRABBR_ABBR,         "ABBR"  },
 	{ SRWG_ABBR,       SRABBR_NARROW,       "NARR"  },
@@ -396,12 +396,12 @@ static SrWfToken __Tokens[] = {
 	{ SRWG_CASE,    SRCASE_PREPOSITIONAL2,  "PREP2" },
 	{ SRWG_CASE,    SRCASE_VOCATIVE,        "VOC"   },
 	{ SRWG_CASE,    SRCASE_ADNUM,           "ADNUM" },
-	{ SRWG_CASE,    SRCASE_OBJECTIVE,       "OBJCTV" }, // @v9.2.0 Объектный падеж (в английском)
+	{ SRWG_CASE,    SRCASE_OBJECTIVE,       "OBJCTV" }, // Объектный падеж (в английском)
 
 	{ SRWG_TENSE,   SRTENSE_PRESENT,        "PRES" },
 	{ SRWG_TENSE,   SRTENSE_PAST,           "PAST" },
 	{ SRWG_TENSE,   SRTENSE_FUTURE,         "FUTU" },
-	{ SRWG_TENSE,   SRTENSE_PASTPARTICIPLE, "PASTPART" }, // @v9.2.0 Прошедшее время дополнительная форма (English: Past Participle)
+	{ SRWG_TENSE,   SRTENSE_PASTPARTICIPLE, "PASTPART" }, // Прошедшее время дополнительная форма (English: Past Participle)
 
 	{ SRWG_PERSON,  SRPERSON_FIRST,         "P1" },
 	{ SRWG_PERSON,  SRPERSON_SECOND,        "P2" },
@@ -440,7 +440,7 @@ static SrWfToken __Tokens[] = {
 	{ SRWG_ADJCAT,  SRADJCAT_QUALIT,        "ADJQUAL" },
 	{ SRWG_ADJCAT,  SRADJCAT_RELATIVE,      "ADJREL"  },
 	{ SRWG_ADJCAT,  SRADJCAT_POSSESSIVE,    "ADJPOSS" },
-	{ SRWG_ADJCAT,  SRADJCAT_NATION,        "ADJNAT"  }, // @v9.1.12
+	{ SRWG_ADJCAT,  SRADJCAT_NATION,        "ADJNAT"  },
 
 	{ SRWG_ADJCMP,  SRADJCMP_COMPARATIVE,   "COMP" },
 	{ SRWG_ADJCMP,  SRADJCMP_SUPERLATIVE,   "SUPR" },
@@ -452,21 +452,21 @@ static SrWfToken __Tokens[] = {
 	{ SRWG_INVARIABLE,  1,                  "INVAR" },
 	{ SRWG_LOCAT,       1,                  "LOC"   },
 	{ SRWG_ERROR,       1,                  "ERR"   },
-	{ SRWG_TOBE,        1,                  "TOBE"  }, // @v9.2.0
-	{ SRWG_QUEST,       1,                  "QUEST" }, // @v9.2.0 (Не знаю в какую категорию занести) Вопросительная форма слова
-	{ SRWG_MODAL,       1,                  "MODAL" }, // @v9.2.0 (Не знаю в какую категорию занести) Модальный глагол
+	{ SRWG_TOBE,        1,                  "TOBE"  },
+	{ SRWG_QUEST,       1,                  "QUEST" }, // (Не знаю в какую категорию занести) Вопросительная форма слова
+	{ SRWG_MODAL,       1,                  "MODAL" }, // (Не знаю в какую категорию занести) Модальный глагол
 
-	{ SRWG_POSSESSIVE,  1,                  "POSSTAG"  }, // @v9.2.0
-	{ SRWG_PREDICATIVE, 1,                  "PREDICAT" }, // @v9.2.0
+	{ SRWG_POSSESSIVE,  1,                  "POSSTAG"  },
+	{ SRWG_PREDICATIVE, 1,                  "PREDICAT" },
 
-	{ SRWG_PRONOUN, SRPRON_REFL,            "PNREFL" }, // @v9.2.0 Возвратное местоимение (reflexive pronoun) [self]
-	{ SRWG_PRONOUN, SRPRON_DEMONSTR,        "PNDEM"  }, // @v9.2.0 Указательное местоимение (pronomina demonstrativa) [one]
-	{ SRWG_PRONOUN, SRPRON_PERSONAL,        "PNPERS" }, // @v9.2.0 Персональное местоимение
+	{ SRWG_PRONOUN, SRPRON_REFL,            "PNREFL" }, // Возвратное местоимение (reflexive pronoun) [self]
+	{ SRWG_PRONOUN, SRPRON_DEMONSTR,        "PNDEM"  }, // Указательное местоимение (pronomina demonstrativa) [one]
+	{ SRWG_PRONOUN, SRPRON_PERSONAL,        "PNPERS" }, // Персональное местоимение
 
-	{ SRWG_COUNTAB, SRCTB_UNCOUNTABLE,      "NUNCNT" }, // @v9.2.0 неисчисляемое существительное;
+	{ SRWG_COUNTAB, SRCTB_UNCOUNTABLE,      "NUNCNT" }, // неисчисляемое существительное;
 		// (Неисчисляемое существительное обозначает объекты, которые обычно нельзя пересчитать. Неисчисляемые существительные
 		// не имеют формы множественного числа. Им не нужны неопределенные артикли, например ...an area of outstanding natural beauty.)
-	{ SRWG_COUNTAB, SRCTB_MASS,             "NMASS"  }, // @v9.2.0 mass-существительные соединяют в себе поведение исчисляемых и неисчисляемых
+	{ SRWG_COUNTAB, SRCTB_MASS,             "NMASS"  }, // mass-существительные соединяют в себе поведение исчисляемых и неисчисляемых
 		// существительных. Они используются как неисчисляемые, чтобы обозначить субстанцию, а как исчисляемые - чтобы обозначить марку или тип:
 		// Rinse in cold water to remove any remaining detergent...Wash it in hot water with a good detergent ... We used several different
 		// detergents in our stain-removal tests. Other examples of mass nouns are: shampoo, butter, bleach. pl - множественное число;

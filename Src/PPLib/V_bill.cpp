@@ -4931,10 +4931,82 @@ int PPViewBill::PrintAllBills()
 {
 	int    ok = -1;
 	int    is_packet = 0;
-	PPID   op_type_id = Filt.OpID ? GetOpType(Filt.OpID) : 0;
+	const  PPID op_type_id = Filt.OpID ? GetOpType(Filt.OpID) : 0;
 	SVector * p_rpt_ary = 0;
 	long   out_prn_flags = 0;
-	if(!oneof3(op_type_id, 0, PPOPT_POOL, PPOPT_GENERIC) && (op_type_id != PPOPT_PAYMENT || CheckOpPrnFlags(Filt.OpID, OPKF_PRT_INVOICE))) {
+	bool   skip = false;
+	int    msg_id = 0;
+	//PPTXT_PRNALLBILLS_NOFLTOP              "Печать всех первичных документов выборки доступна лишь при выборе вида операции в фильтре"
+	//PPTXT_PRNALLBILLS_FLTOPISPOOL          "Печать всех первичных документов выборки не доступна для выборки пулов документов"
+	//PPTXT_PRNALLBILLS_FLTOPISPAYMWOINVCOPT "Печать всех первичных документов выборки оплат доступна только если вид операции имеет флаг 'Печатать счет-фактуру'"
+	//PPTXT_PRNALLBILLS_FLTOPGEN_NOCOMMOPTYP "Печать всех первичных документов выборки по обобщенной операции не доступна если в списке есть документы разных типов операции"
+	//PPTXT_PRNALLBILLS_FLTOPGEN_NOCOMMACS   "Печать всех первичных документов выборки по обобщенной операции не доступна если в обобщении есть разные таблицы статей"
+	if(!op_type_id) {
+		msg_id = PPTXT_PRNALLBILLS_NOFLTOP;
+		skip = true;
+	}
+	else if(op_type_id == PPOPT_POOL) {
+		msg_id = PPTXT_PRNALLBILLS_FLTOPISPOOL;
+		skip = true;
+	}
+	else if(op_type_id == PPOPT_PAYMENT) {
+		if(!CheckOpPrnFlags(Filt.OpID, OPKF_PRT_INVOICE)) {
+			msg_id = PPTXT_PRNALLBILLS_FLTOPISPAYMWOINVCOPT;
+			skip = true;
+		}
+	}
+	else if(op_type_id == PPOPT_GENERIC) {
+		// @v12.2.6 @exploration {
+		// @todo Добавить опцию в конфигурацию, которая позволяла бы такой трюк
+		PPID   common_op_type_id = 0;
+		PPID   common_acs_id = -1;
+		BillViewItem item;
+		PPIDArray op_list;
+		for(InitIteration(OrdByDefault); NextIteration(&item) > 0;) {
+			op_list.add(item.OpID);
+		}
+		if(op_list.getCount()) {
+			op_list.sortAndUndup();
+			{
+				for(uint opi = 0; common_op_type_id >= 0 && opi < op_list.getCount(); opi++) {
+					const PPID iter_op_id = op_list.get(opi);
+					PPOprKind2 op_rec;
+					const PPID iter_op_type_id = GetOpType(iter_op_id, &op_rec);
+					if(iter_op_type_id <= 0)
+						common_op_type_id = -1;
+					else if(!common_op_type_id)
+						common_op_type_id = iter_op_type_id;
+					else if(common_op_type_id != iter_op_type_id)
+						common_op_type_id = -1;
+					//
+					if(common_acs_id < 0) {
+						common_acs_id = op_rec.AccSheetID;
+					}
+					else if(common_acs_id != op_rec.AccSheetID)
+						common_op_type_id = -1;
+				}
+			}
+		}
+		if(common_op_type_id <= 0) {
+			msg_id = PPTXT_PRNALLBILLS_FLTOPGEN_NOCOMMOPTYP;
+			skip = true;
+		}
+		else if(common_acs_id < 0) {
+			msg_id = PPTXT_PRNALLBILLS_FLTOPGEN_NOCOMMACS;
+			skip = true;
+		}
+		// } @v12.2.6 
+	}
+	// @v12.2.6 if(!oneof3(op_type_id, 0, PPOPT_POOL, PPOPT_GENERIC) && (op_type_id != PPOPT_PAYMENT || CheckOpPrnFlags(Filt.OpID, OPKF_PRT_INVOICE))) {
+	// @todo Если skip, то вывести сообщение о том, что нельзя массово отпечатать доки
+	if(skip) {
+		if(msg_id) {
+			SString msg_buf;
+			PPLoadText(msg_id, msg_buf);
+			PPOutputMessage(msg_buf, mfInfo|mfOK);
+		}
+	}
+	else { // @v12.2.6
 		int    out_amt_type = 0;
 		uint   count = 0;
 		PPBillPacket pack;
@@ -5478,17 +5550,59 @@ int PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, const PPBi
 						}
 						PPWaitPercent(_idx+1, bill_id_list.getCount());
 					}
-					if(inet_acc_id && inet_addr_list.getCount() && result_file_list.getCount()) {
-						for(uint ai = 0; ai < inet_addr_list.getCount(); ai++) {
-							(temp_buf = inet_addr_list.Get(ai).Txt).Strip();
-							if(IsByEmailAddrByContext(temp_buf)) {
-								;
+					// @todo @v12.2.6 Отправить файлы на ftp (или еще куда)
+					if(result_file_list.getCount()) {
+						PPObjInternetAccount ia_obj;
+						PPInternetAccount2 ia_pack;
+						// @v12.2.6 {
+						if(b_e.BillParam.InetAccID && ia_obj.Get(b_e.BillParam.InetAccID, &ia_pack) > 0 && ia_pack.Flags & PPInternetAccount::fFtpAccount) {
+							SString ftp_path;
+							SString naked_file_name;
+							SString accs_name;
+							for(uint rflp = 0; result_file_list.get(&rflp, temp_buf);) {
+								ftp_path.Z();
+								naked_file_name.Z();
+								accs_name.Z();
+								{
+									SFsPath ps(temp_buf);
+									ps.Merge(SFsPath::fNam|SFsPath::fExt, naked_file_name);
+									ia_pack.GetExtField(FTPAEXSTR_HOST, ftp_path);
+								}
+								{
+									SUniformFileTransmParam param;
+									char   pwd[256];
+									(param.SrcPath = temp_buf).Transf(CTRANSF_OUTER_TO_UTF8);
+									SFsPath::NormalizePath(ftp_path, SFsPath::npfSlash|SFsPath::npfKeepCase, param.DestPath);
+									param.Flags = 0;
+									param.Format = SFileFormat::Unkn;
+									ia_pack.GetExtField(FTPAEXSTR_USER, accs_name);
+									ia_pack.GetPassword_(pwd, sizeof(pwd), FTPAEXSTR_PASSWORD);
+									param.AccsName.EncodeUrl(accs_name, 0);
+									param.AccsPassword.EncodeUrl(pwd, 0);
+									memzero(pwd, sizeof(pwd));
+									if(param.Run(0, 0)) {
+										; // @todo @succ
+									}
+									else {
+										logger.LogLastError();
+									}
+									accs_name.Obfuscate();
+								}
 							}
-							else
-								email_buf.CatDivIfNotEmpty(',', 0).Cat(temp_buf);
 						}
-						if(email_buf.NotEmptyS() && !PutFilesToEmail2(&result_file_list, inet_acc_id, email_buf, mail_subj, 0))
-							logger.LogLastError();
+						// } @v12.2.6 
+						if(inet_acc_id && inet_addr_list.getCount()) {
+							for(uint ai = 0; ai < inet_addr_list.getCount(); ai++) {
+								(temp_buf = inet_addr_list.Get(ai).Txt).Strip();
+								if(IsByEmailAddrByContext(temp_buf)) {
+									;
+								}
+								else
+									email_buf.CatDivIfNotEmpty(',', 0).Cat(temp_buf);
+							}
+							if(email_buf.NotEmptyS() && !PutFilesToEmail2(&result_file_list, inet_acc_id, email_buf, mail_subj, 0))
+								logger.LogLastError();
+						}
 					}
 					PPWaitStop();
 				}

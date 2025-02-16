@@ -733,7 +733,7 @@ int TVMsgLog::ShowLogWnd(const char * pTitle)
 			TRect rect(0, 15, 80, 23);
 			P_LWnd = new LogListWindowSCI(this); // @todo invalid size 512 (> 255)
 			APPL->P_DeskTop->Insert_(P_LWnd);
-			::ShowWindow(P_LWnd->HW, SW_SHOW);
+			::ShowWindow(P_LWnd->H(), SW_SHOW);
 			//P_LWnd->Refresh(GetVisCount());
 		}
 	}

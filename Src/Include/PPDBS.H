@@ -5209,42 +5209,45 @@ public:
 		Rec();
 		Rec & Clear();
 		int32  ID;
-		char   Code[24];
-		int16  LineType_;
-		int16  LineSubType;
-		int16  Excluded;
-		uint16 Reserve;
 		LDATE  Dt;
+		char   Code[48];
+		LDATE  CBillDt;
+		char   CBillCode[48];
+		char   TaxOpCode[8];
 		int32  LineNo;
 		LDATE  InvcDt;
 		LDATE  PaymDt;
 		LDATE  RcptDt;
-		int32  Object;
-		int32  Object2;
-		int32  Link;
+		int32  ArID;
+		int32  Ar2ID;
+		int32  LinkBillID;
 		int32  OpID;
 		int32  LocID;
 		int32  Flags;
-		char   Amount[8];  // money[8.2]
-		char   Excise[8];  // money[8.2]
-		char   VAT0[8];    // money[8.2]
-		char   Export[8];  // money[8.2]
-		char   VAT1[8];    // money[8.2]
-		char   SVAT1[8];   // money[8.2]
-		char   VAT2[8];    // money[8.2]
-		char   SVAT2[8];   // money[8.2]
-		char   VAT3[8];    // money[8.2]
-		char   SVAT3[8];   // money[8.2]
-		LDATE  CBillDt;
-		char   CBillCode[24];
-		char   TaxOpCode[8];
-		uint8  Reserve2[72]; // raw
+		double Amount;
+		double Excise;
+		double VAT0;
+		double Export;
+		double VAT1;
+		double SVAT1;
+		double VAT2;
+		double SVAT2;
+		double VAT3;
+		double SVAT3;
+		double VAT4;
+		double SVAT4;
+		double VAT5;
+		double SVAT5;
+		int16  LineType_;
+		int16  LineSubType;
+		int16  Excluded;
+		uint8  Reserve2[50]; // raw
 	} data;
 	struct Key0 {
 		int32  ID;
 	};
 	struct Key1 {
-		int32  Link;
+		int32  LinkBillID;
 		int16  LineType_;
 		LDATE  Dt;
 		int32  LineNo;
@@ -5261,7 +5264,7 @@ public:
 		int16  LineSubType;
 	};
 	struct Key4 {
-		int32  Object;
+		int32  ArID;
 		LDATE  Dt;
 		int32  LineNo;
 	};
@@ -5270,23 +5273,22 @@ public:
 		LDATE  PaymDt;
 	};
 	struct Key6 {
-		int32  Object;
+		int32  ArID;
 		LDATE  PaymDt;
 	};
 	DBField ID;
-	DBField Code;
-	DBField LineType_;
-	DBField LineSubType;
-	DBField Excluded;
-	DBField Reserve;
 	DBField Dt;
+	DBField Code;
+	DBField CBillDt;
+	DBField CBillCode;
+	DBField TaxOpCode;
 	DBField LineNo;
 	DBField InvcDt;
 	DBField PaymDt;
 	DBField RcptDt;
-	DBField Object;
-	DBField Object2;
-	DBField Link;
+	DBField ArID;
+	DBField Ar2ID;
+	DBField LinkBillID;
 	DBField OpID;
 	DBField LocID;
 	DBField Flags;
@@ -5300,9 +5302,13 @@ public:
 	DBField SVAT2;
 	DBField VAT3;
 	DBField SVAT3;
-	DBField CBillDt;
-	DBField CBillCode;
-	DBField TaxOpCode;
+	DBField VAT4;
+	DBField SVAT4;
+	DBField VAT5;
+	DBField SVAT5;
+	DBField LineType_;
+	DBField LineSubType;
+	DBField Excluded;
 	DBField Reserve2;
 };
 #pragma pack(pop)
@@ -5561,45 +5567,6 @@ public:
 	DBField SysVer;
 	DBField Size;
 	DBField Data;
-};
-#pragma pack(pop)
-
-#pragma pack(push)
-#pragma pack(1)
-class SysProfilerTbl : public DBTable {
-public:
-	SysProfilerTbl(const char * pFileName = 0);
-
-	struct Rec {
-		Rec();
-		Rec & Clear();
-		LDATE  StartDt;
-		LTIME  StartTm;
-		LDATE  FinDt;
-		LTIME  FinTm;
-		int32  Cont;
-		int32  UserID;
-		int16  Action;
-		int16  Status;
-	} data;
-	struct Key0 {
-		LDATE  StartDt;
-		LTIME  StartTm;
-		int16  Status;
-	};
-	struct Key1 {
-		int16  Action;
-		LDATE  StartDt;
-		LTIME  StartTm;
-	};
-	DBField StartDt;
-	DBField StartTm;
-	DBField FinDt;
-	DBField FinTm;
-	DBField Cont;
-	DBField UserID;
-	DBField Action;
-	DBField Status;
 };
 #pragma pack(pop)
 

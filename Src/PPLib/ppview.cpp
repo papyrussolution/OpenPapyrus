@@ -2667,7 +2667,7 @@ int PPViewBrowser::GetToolbarComboRect(RECT * pRect)
 	return ok;
 }
 
-/*static int CreateComboBoxComplex(uint cbOptions, uint maxTextLen, TGroup * pOwner, TInputLine ** ppInp, ComboBox ** pCb)
+/*static int CreateComboBoxComplex(uint cbOptions, uint maxTextLen, TViewGroup * pOwner, TInputLine ** ppInp, ComboBox ** pCb)
 {
 	int    ok = 1;
 	TRect  r;

@@ -595,65 +595,48 @@ CURLFORMcode curl_formadd(struct curl_httppost ** httppost, struct curl_httppost
  *
  * @unittest: 1308
  */
-int curl_formget(struct curl_httppost * form, void * arg,
-    curl_formget_callback append)
+int curl_formget(struct curl_httppost * form, void * arg, curl_formget_callback append)
 {
 	CURLcode result;
 	curl_mimepart toppart;
-
 	Curl_mime_initpart(&toppart); /* default form is empty */
 	result = Curl_getformdata(NULL, &toppart, form, NULL);
 	if(!result)
-		result = Curl_mime_prepare_headers(NULL, &toppart, "multipart/form-data",
-			NULL, MIMESTRATEGY_FORM);
-
+		result = Curl_mime_prepare_headers(NULL, &toppart, "multipart/form-data", NULL, MIMESTRATEGY_FORM);
 	while(!result) {
 		char buffer[8192];
 		size_t nread = Curl_mime_read(buffer, 1, sizeof(buffer), &toppart);
-
 		if(!nread)
 			break;
-
 		if(nread > sizeof(buffer) || append(arg, buffer, nread) != nread) {
 			result = CURLE_READ_ERROR;
 			if(nread == CURL_READFUNC_ABORT)
 				result = CURLE_ABORTED_BY_CALLBACK;
 		}
 	}
-
 	Curl_mime_cleanpart(&toppart);
 	return (int)result;
 }
-
 /*
- * curl_formfree() is an external function to free up a whole form post
- * chain
+ * curl_formfree() is an external function to free up a whole form post chain
  */
 void curl_formfree(struct curl_httppost * form)
 {
-	struct curl_httppost * next;
-
-	if(!form)
-		/* no form to free, just get out of this */
-		return;
-
-	do {
-		next = form->next; /* the following form line */
-
-		/* recurse to sub-contents */
-		curl_formfree(form->more);
-
-		if(!(form->flags & HTTPPOST_PTRNAME))
-			SAlloc::F(form->name); /* free the name */
-		if(!(form->flags &
-		    (HTTPPOST_PTRCONTENTS|HTTPPOST_BUFFER|HTTPPOST_CALLBACK))
-		    )
-			SAlloc::F(form->contents); /* free the contents */
-		SAlloc::F(form->contenttype); /* free the content type */
-		SAlloc::F(form->showfilename); /* free the faked file name */
-		SAlloc::F(form); /* free the struct */
-		form = next;
-	} while(form); /* continue */
+	if(form) {
+		do {
+			struct curl_httppost * next = form->next; /* the following form line */
+			/* recurse to sub-contents */
+			curl_formfree(form->more);
+			if(!(form->flags & HTTPPOST_PTRNAME))
+				SAlloc::F(form->name); /* free the name */
+			if(!(form->flags & (HTTPPOST_PTRCONTENTS|HTTPPOST_BUFFER|HTTPPOST_CALLBACK)))
+				SAlloc::F(form->contents); /* free the contents */
+			SAlloc::F(form->contenttype); /* free the content type */
+			SAlloc::F(form->showfilename); /* free the faked file name */
+			SAlloc::F(form); /* free the struct */
+			form = next;
+		} while(form); /* continue */
+	}
 }
 
 /* Set mime part name, taking care of non null-terminated name string. */

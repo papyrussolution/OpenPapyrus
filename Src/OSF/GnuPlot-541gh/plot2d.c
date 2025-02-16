@@ -1152,7 +1152,7 @@ int GnuPlot::CheckOrAddBoxplotFactor(curve_points * pPlot, const char * pString,
 		// Remove the trailing garbage, quotes etc. from the string 
 		char * trimmed_string = DfParseStringField(pString);
 		if(!isempty(trimmed_string)) {
-			bool is_new = FALSE;
+			bool   is_new = false;
 			prev_label = pPlot->labels;
 			if(!prev_label)
 				IntError(NO_CARET, "boxplot labels not initialized");
@@ -1163,7 +1163,7 @@ int GnuPlot::CheckOrAddBoxplotFactor(curve_points * pPlot, const char * pString,
 				// If we are keeping a sorted list, test against current entry (insertion sort).
 				if(Gg.boxplot_opts.sort_factors) {
 					if(strcmp(trimmed_string, label->text) < 0) {
-						is_new = TRUE;
+						is_new = true;
 						break;
 					}
 				}

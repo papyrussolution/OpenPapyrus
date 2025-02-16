@@ -697,18 +697,21 @@ Error:
 	}
 }
 
-WebPDemuxer* WebPDemuxInternal(const WebPData* data, int allow_partial,
-    WebPDemuxState* state, int version) {
+WebPDemuxer* WebPDemuxInternal(const WebPData* data, int allow_partial, WebPDemuxState* state, int version) 
+{
 	const ChunkParser* parser;
 	int partial;
 	ParseStatus status = PARSE_ERROR;
 	MemBuffer mem;
 	WebPDemuxer* dmux;
-	if(state) *state = WEBP_DEMUX_PARSE_ERROR;
-	if(WEBP_ABI_IS_INCOMPATIBLE(version, WEBP_DEMUX_ABI_VERSION)) return NULL;
-	if(data == NULL || data->bytes == NULL || data->size == 0) return NULL;
-
-	if(!InitMemBuffer(&mem, data->bytes, data->size)) return NULL;
+	if(state) 
+		*state = WEBP_DEMUX_PARSE_ERROR;
+	if(WEBP_ABI_IS_INCOMPATIBLE(version, WEBP_DEMUX_ABI_VERSION)) 
+		return NULL;
+	if(data == NULL || data->bytes == NULL || data->size == 0) 
+		return NULL;
+	if(!InitMemBuffer(&mem, data->bytes, data->size)) 
+		return NULL;
 	status = ReadHeader(&mem);
 	if(status != PARSE_OK) {
 		// If parsing of the webp file header fails attempt to handle a raw
@@ -716,7 +719,8 @@ WebPDemuxer* WebPDemuxInternal(const WebPData* data, int allow_partial,
 		if(status == PARSE_ERROR) {
 			status = CreateRawImageDemuxer(&mem, &dmux);
 			if(status == PARSE_OK) {
-				if(state) *state = WEBP_DEMUX_DONE;
+				if(state) 
+					*state = WEBP_DEMUX_DONE;
 				return dmux;
 			}
 		}
@@ -725,26 +729,30 @@ WebPDemuxer* WebPDemuxInternal(const WebPData* data, int allow_partial,
 		}
 		return NULL;
 	}
-
 	partial = (mem.buf_size_ < mem.riff_end_);
-	if(!allow_partial && partial) return NULL;
-
+	if(!allow_partial && partial) 
+		return NULL;
 	dmux = (WebPDemuxer*)WebPSafeCalloc(1ULL, sizeof(*dmux));
-	if(dmux == NULL) return NULL;
+	if(dmux == NULL) 
+		return NULL;
 	InitDemux(dmux, &mem);
-
 	status = PARSE_ERROR;
 	for(parser = kMasterChunks; parser->parse; ++parser) {
 		if(!memcmp(parser->id, GetBuffer(&dmux->mem_), TAG_SIZE)) {
 			status = parser->parse(dmux);
-			if(status == PARSE_OK) dmux->state_ = WEBP_DEMUX_DONE;
-			if(status == PARSE_NEED_MORE_DATA && !partial) status = PARSE_ERROR;
-			if(status != PARSE_ERROR && !parser->valid(dmux)) status = PARSE_ERROR;
-			if(status == PARSE_ERROR) dmux->state_ = WEBP_DEMUX_PARSE_ERROR;
+			if(status == PARSE_OK) 
+				dmux->state_ = WEBP_DEMUX_DONE;
+			if(status == PARSE_NEED_MORE_DATA && !partial) 
+				status = PARSE_ERROR;
+			if(status != PARSE_ERROR && !parser->valid(dmux)) 
+				status = PARSE_ERROR;
+			if(status == PARSE_ERROR) 
+				dmux->state_ = WEBP_DEMUX_PARSE_ERROR;
 			break;
 		}
 	}
-	if(state) *state = dmux->state_;
+	if(state) 
+		*state = dmux->state_;
 	if(status == PARSE_ERROR) {
 		WebPDemuxDelete(dmux);
 		return NULL;

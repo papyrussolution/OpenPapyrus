@@ -338,7 +338,7 @@ static int SelectForm(int interactive, long opPrnFlags, PPID arID, uint * pAmtTy
 	PPObjArticle ar_obj;
 	TDialog * dlg = 0;
 	if(pAmtTypes == 0) {
-		// @v10.3.0 Теперь используется (с приоритетом) интерфейсная настройка для разрешения/запрета множественной печати
+		// Интерфейсная настройка для разрешения/запрета множественной печати имеет приоритет перед флагом BCF_ALLOWMULTIPRINT конфигурации документов
 		bool   allow_mult_print = false;
 		const  UserInterfaceSettings uis = APPL->GetUiSettings();
 		// @v11.2.6 const int uis_r = uis.Restore();
@@ -615,12 +615,10 @@ int STDCALL Helper_PrintGoodsBill(PPBillPacket * pPack, SVector ** ppAry, long *
 {
 	int    ok = 1;
 	long   out_prn_flags = DEREFPTRORZ(pOutPrnFlags); // BillMultiPrintParam::fXXX
-	//int    div_copies_flag = 0;
 	int    num_div_copies = 1;
 	int    num_copies = 1;
 	int    i;
 	int    j;
-	//const  int prn_no_ask = BIN(ppAry && *ppAry && printingNoAsk);
 	uint   c;
 	uint   alt_rpt_id = 0;
 	uint   amt_types = 0;
@@ -825,8 +823,7 @@ int STDCALL Helper_PrintGoodsBill(PPBillPacket * pPack, SVector ** ppAry, long *
 				if(rpt_ids.getCount() > 1 || /*printingNoAsk*/!interactive)
 					env.PrnFlags |= SReport::PrintingNoAsk;
 				if(/*div_copies_flag*/out_prn_flags & BillMultiPrintParam::fMakeOutCopies) {
-					// @v10.8.7 for(uint i = 0; i < rpt_ids.getCount(); i++) { SETMAX(num_div_copies, static_cast<long>(rpt_ids.at(i).NumCopies)); }
-					SForEachVectorItem(rpt_ids, i) { SETMAX(num_div_copies, static_cast<long>(rpt_ids.at(i).NumCopies)); } // @v10.8.7 
+					SForEachVectorItem(rpt_ids, i) { SETMAX(num_div_copies, static_cast<long>(rpt_ids.at(i).NumCopies)); }
 				}
 				copy_rpt_ids = rpt_ids;
 				for(i = 0; i < num_div_copies; i++) {

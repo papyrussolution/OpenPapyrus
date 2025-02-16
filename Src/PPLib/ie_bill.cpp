@@ -2161,7 +2161,7 @@ int PPBillImporter::RunUhttImport()
 						if(cn_obj.Search(PosNodeID, &cn_rec) > 0) {
 							CCheckPacket cc_pack;
 							cc_pack.Rec.PosNodeID = PosNodeID;
-							// @v8.4.7 @fix (отложенный чек не должен быть привязан к сессии) cc_pack.Rec.SessID = cn_rec.CurSessID;
+							cc_pack.Rec.SessID = 0/*cn_rec.CurSessID*/; // Отложенный чек не должен быть привязан к сессии //
 							cc_pack.Rec.Dt = p_uhtt_pack->Dtm;
 							cc_pack.Rec.Tm = p_uhtt_pack->Dtm;
 							SETIFZ(cc_pack.Rec.Dt, getcurdate_());
@@ -2760,7 +2760,7 @@ int PPBillImporter::ReadRows(PPImpExp * pImpExp, int mode/*linkByLastInsBill*/, 
 			PPWaitPercent(i + 1, count);
 	}
 	if(mode == 2) {
-		// @v8.7.1 BillsRows.sort(PTR_CMPFUNC(Sdr_BRow));
+		;
 	}
 	else {
 		BillsRows.sort(PTR_CMPFUNC(Sdr_BRow_ID));
@@ -5851,7 +5851,7 @@ int PPBillExporter::PutPacket(PPBillPacket * pPack, int sessId /*=0*/, ImpExpDll
 	int    ok = -1;
 	int    obj_id = 0;
 	int    use_dll = 0;
-	const  int use_ar_code = BIN(pPack->Rec.Object && (CConfig.Flags & CCFLG_USEARGOODSCODE));
+	const  bool use_ar_code = (pPack->Rec.Object && (CConfig.Flags & CCFLG_USEARGOODSCODE));
 	PPObjWorld world_obj;
 	SString temp_buf, err_msg;
 	Sdr_Bill bill;
@@ -7284,7 +7284,7 @@ int DocNalogRu_Generator::WriteInvoiceItems(const PPBillImpExpParam & rParam, co
 			n_e.PutAttrib(GetToken_Ansi(PPHSC_RU_WAREARTICLE), temp_buf.Z().Cat(goods_id)); // @v11.5.10 Собственный идентификатор (по специальной просьбе)
 			if(!correction) { // @v11.7.10 (Для корректировки не нужно)
 				const bool is_there_extcodes = (rBp.XcL.Get(item_idx+1, 0, ext_codes_set) > 0 && ext_codes_set.GetCount());
-				if(oneof2(chzn_prod_type, GTCHZNPT_MILK, GTCHZNPT_WATER) && !is_there_extcodes) {
+				if(oneof3(chzn_prod_type, GTCHZNPT_MILK, GTCHZNPT_WATER, GTCHZNPT_SOFTDRINKS) && !is_there_extcodes) {
 					if(barcode_for_marking.NotEmpty()) {
 						assert(barcode_for_marking.Len() < 14);
 						if(chzn_prod_type == GTCHZNPT_MILK && is_weighted_ware) { // @v11.9.7
@@ -7919,7 +7919,7 @@ int DocNalogRu_Generator::WriteOrgInfo(const char * pScopeXmlTag, PPID personID,
 			}
 		}
 		{
-			// @v10.1.5 поменял местами MainLoc и RLoc (приоритет у MainLoc)
+			// Приоритет у MainLoc перед RLoc
 			if(!(flags & woifAddrLoc_KppOnly) && loc_pack.ID && loc_pack.ID == addrLocID)
 				WriteAddress(loc_pack, region_code, PPHSC_RU_ADDRESS);
 			else if(psn_pack.Rec.MainLoc && PsnObj.LocObj.GetPacket(psn_pack.Rec.MainLoc, &loc_pack) > 0)
@@ -7965,9 +7965,9 @@ int DocNalogRu_Generator::GetAgreementParams(/*PPID arID*/const PPBillPacket & r
 		if(agt_kind == 1) {
 			PPClientAgreement cli_agt;
 			if(ArObj.GetClientAgreement(ar_id, cli_agt, 0) > 0) {
-				// @v11.2.0 if(!isempty(cli_agt.Code2)) { // @v10.2.9 Code-->Code2
+				// @v11.2.0 if(!isempty(cli_agt.Code2)) {
 				if(cli_agt.Code_.NotEmpty()) { // @v11.2.0 // @v11.2.1 @fix IsEmpty-->NotEmpty
-					// @v11.2.0 rAgtCode = cli_agt.Code2; // @v10.2.9 Code-->Code2
+					// @v11.2.0 rAgtCode = cli_agt.Code2;
 					rAgtCode = cli_agt.Code_; // @v11.2.0
 					if(checkdate(cli_agt.BegDt))
 						rAgtDate = cli_agt.BegDt;
@@ -8401,8 +8401,7 @@ int DocNalogRu_WriteBillBlock::Do_Invoice2(SString & rResultFileName)
 							n_11.PutAttrib(GetToken(PPHSC_RU_DATEOFBASISFORWARETRANSFER), EncText(temp_buf));
 						}
 						else {
-							// @v10.6.12 temp_buf = g.GetToken_Ansi(PPHSC_RU_ABSENCE);
-							temp_buf = GetToken(PPHSC_RU_NODOCOFBASISFORWARETRANSFER); // @v10.6.12
+							temp_buf = GetToken(PPHSC_RU_NODOCOFBASISFORWARETRANSFER);
 							n_11.PutAttrib(GetToken(PPHSC_RU_NAMEOFBASISFORWARETRANSFER), temp_buf);
 						}
 						// @v11.0.2 {
@@ -8430,7 +8429,7 @@ int DocNalogRu_WriteBillBlock::Do_Invoice2(SString & rResultFileName)
 			G.Underwriter(0);
 		}
 		G.EndDocument();
-		rResultFileName = _Hi.FileName; // @v10.9.8
+		rResultFileName = _Hi.FileName;
 	}
 	CATCHZOK
 	return ok;
@@ -8492,7 +8491,7 @@ int DocNalogRu_WriteBillBlock::Do_CorrInvoice(SString & rResultFileName)
 						shipper_loc_id = R_Bp.Rec.LocID;
 					}
 				}
-				G.WriteOrgInfo(GetToken(PPHSC_RU_SELLERINFO), shipper_psn_id, /*shipper_loc_id*/0, R_Bp.Rec.Dt, 0); // @v10.8.7 shipper_loc_id-->0
+				G.WriteOrgInfo(GetToken(PPHSC_RU_SELLERINFO), shipper_psn_id, /*shipper_loc_id*/0, R_Bp.Rec.Dt, 0);
 				{
 					PPID   _buyer_person_id = 0;
 					PPIDArray rel_list;
@@ -8593,7 +8592,7 @@ int DocNalogRu_WriteBillBlock::Do_Invoice(SString & rResultFileName)
 						}
 					}
 				}
-				G.WriteOrgInfo(GetToken(PPHSC_RU_SELLERINFO), shipper_psn_id, /*shipper_loc_id*/0, R_Bp.Rec.Dt, 0); // @v10.8.7 shipper_loc_id-->0
+				G.WriteOrgInfo(GetToken(PPHSC_RU_SELLERINFO), shipper_psn_id, /*shipper_loc_id*/0, R_Bp.Rec.Dt, 0);
 				{
 					// @v11.4.12 {
 					PPID   _buyer_person_id = 0;
@@ -8751,7 +8750,7 @@ int DocNalogRu_WriteBillBlock::Do_UPD(SString & rResultFileName)
 					G.PsnObj.GetRegNumber(shipper_psn_id, PPREGT_GLN, consignor_gln);
 				}
 				// } @v11.7.4 
-				G.WriteOrgInfo(GetToken(PPHSC_RU_SELLERINFO), shipper_psn_id, /*shipper_loc_id*/0, R_Bp.Rec.Dt, 0); // @v10.8.7 shipper_loc_id-->0
+				G.WriteOrgInfo(GetToken(PPHSC_RU_SELLERINFO), shipper_psn_id, /*shipper_loc_id*/0, R_Bp.Rec.Dt, 0);
 				{
 					// @v11.4.12 {
 					PPID   _buyer_person_id = 0;

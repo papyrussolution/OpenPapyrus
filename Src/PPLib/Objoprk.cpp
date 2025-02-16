@@ -1452,19 +1452,19 @@ void OprKindDialog::setup()
 	SetupPPObjCombo(this, CTLSEL_OPRKIND_ACCSHEET, PPOBJ_ACCSHEET, P_Data->Rec.AccSheetID, OLW_CANINSERT, 0);
 	SetupPPObjCombo(this, CTLSEL_OPRKIND_ACCSHEET2, PPOBJ_ACCSHEET, P_Data->Rec.AccSheet2ID, OLW_CANINSERT, 0);
 	if(op_type_id == PPOPT_CORRECTION) {
-		types.addzlist(PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, 0L); // @v9.4.3 PPOPT_GOODSEXPEND
+		types.addzlist(PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, 0L);
 	}
-	else if(op_type_id == PPOPT_DRAFTQUOTREQ) { // @v10.5.8
+	else if(op_type_id == PPOPT_DRAFTQUOTREQ) {
 		types.addzlist(PPOPT_DRAFTQUOTREQ, 0L);
 	}
-	else if(oneof3(op_type_id, PPOPT_DRAFTEXPEND, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTTRANSIT)) { // @v10.5.8
+	else if(oneof3(op_type_id, PPOPT_DRAFTEXPEND, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTTRANSIT)) {
 		; // nothing
 	}
 	else {
 		types.addzlist(PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, 0L);
 		if(op_type_id == PPOPT_PAYMENT) {
 			types.addzlist(PPOPT_ACCTURN, PPOPT_CHARGE, PPOPT_GOODSACK, PPOPT_POOL, PPOPT_GOODSORDER, PPOPT_DRAFTRECEIPT,
-				PPOPT_DRAFTEXPEND, PPOPT_CORRECTION, 0L); // @v10.3.2 PPOPT_CORRECTION
+				PPOPT_DRAFTEXPEND, PPOPT_CORRECTION, 0L);
 		}
 		else if(op_type_id == PPOPT_CHARGE)
 			types.add(PPOPT_ACCTURN);
@@ -1479,10 +1479,10 @@ void OprKindDialog::setup()
 		if(op_type_id == PPOPT_DRAFTRECEIPT)
 			types.addzlist(PPOPT_GOODSRECEIPT, PPOPT_GOODSMODIF, PPOPT_GOODSORDER, PPOPT_DRAFTRECEIPT, 0L);
 		else if(op_type_id == PPOPT_DRAFTEXPEND)
-			types.addzlist(PPOPT_GOODSEXPEND, PPOPT_GOODSMODIF, PPOPT_GOODSORDER, PPOPT_DRAFTEXPEND, PPOPT_DRAFTRECEIPT, 0L); // @v8.6.2 PPOPT_DRAFTRECEIPT
+			types.addzlist(PPOPT_GOODSEXPEND, PPOPT_GOODSMODIF, PPOPT_GOODSORDER, PPOPT_DRAFTEXPEND, PPOPT_DRAFTRECEIPT, 0L);
 		if(P_Data->Rec.SubType == OPSUBT_TRADEPLAN)
 			types.add(PPOPT_GENERIC);
-		types.add(PPOPT_ACCTURN); // @v9.7.10
+		types.add(PPOPT_ACCTURN);
 		SetupOprKindCombo(this, CTLSEL_OPRKIND_WROFFOP, opex_rec.WrOffOpID, 0, &types, 0);
 		setupAccSheet(CTLSEL_OPRKIND_WROFFOP, CTLSEL_OPRKIND_WROFFOBJ, opex_rec.WrOffObjID);
 		types.freeAll();
@@ -1495,7 +1495,7 @@ void OprKindDialog::setup()
 		AddClusterAssoc(CTL_OPRKIND_DRFTOPTION, 3, DROXF_DONTINHEXPIRY);
 		AddClusterAssoc(CTL_OPRKIND_DRFTOPTION, 4, DROXF_MULTWROFF);
 		AddClusterAssoc(CTL_OPRKIND_DRFTOPTION, 5, DROXF_MULTDRFTWROFF);
-		AddClusterAssoc(CTL_OPRKIND_DRFTOPTION, 6, DROXF_SELSUPPLONCOMPL); // @v9.1.12
+		AddClusterAssoc(CTL_OPRKIND_DRFTOPTION, 6, DROXF_SELSUPPLONCOMPL);
 		SetClusterData(CTL_OPRKIND_DRFTOPTION, opex_rec.Flags);
 	}
 	enableCommand(cmOprKindExt, op_type_id == PPOPT_ACCTURN && P_Data->Rec.SubType == OPSUBT_DEBTINVENT);
@@ -1554,7 +1554,7 @@ static void MakeOpTypeListForGeneric(PPIDArray & rList)
 	rList.clear();
 	rList.addzlist(PPOPT_ACCTURN, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_GOODSRETURN,
 		PPOPT_GOODSREVAL, PPOPT_GOODSORDER, PPOPT_GOODSMODIF, PPOPT_GOODSACK, PPOPT_PAYMENT,
-		PPOPT_CHARGE, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_CORRECTION, PPOPT_DRAFTQUOTREQ, 0L); // @v10.5.7 PPOPT_DRAFTQUOTREQ
+		PPOPT_CHARGE, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_CORRECTION, PPOPT_DRAFTQUOTREQ, 0L);
 }
 
 static int AddGenOpItems(ObjRestrictArray & rList)
@@ -1632,22 +1632,8 @@ static int EditGenOpItem(ObjRestrictItem * pItem)
 void OprKindDialog::addGenOp()
 {
 	if(IsGeneric && P_ListBox) {
-		/* @v9.8.6
-		ObjRestrictItem item;
-		MEMSZERO(item);
-		while(EditGenOpItem(&item) > 0)
-			if(P_Data->P_GenList->CheckUniqueID(item.ObjID)) {
-				P_Data->P_GenList->insert(&item);
-				updateList();
-				return;
-			}
-			else
-				PPError(PPERR_DUPGENOPITEM, 0);
-		*/
-		// @v9.8.6 {
 		if(AddGenOpItems(*P_Data->P_GenList) > 0)
 			updateList();
-		// } @v9.8.6
 	}
 }
 
@@ -2302,7 +2288,7 @@ int OpListDialog::editItem(long /*pos*/, long id)
 {
 	if(P_Box) {
 		int    r = 0;
-		int    is_new = (id == 0);
+		const  bool is_new = (id == 0);
 		PPObjOprKind op_obj;
 		if((r = op_obj.Edit(&id, 0, 0)) == cmCancel)
 			r = -1;

@@ -87,7 +87,7 @@ int DebtTrnovrTotal::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx
 //
 // DebtTrnovrFilt
 //
-IMPLEMENT_PPFILT_FACTORY(DebtTrnovr); DebtTrnovrFilt::DebtTrnovrFilt() : PPBaseFilt(PPFILT_DEBTTRNOVR, 0, 2) // @v9.1.4 ver 1-->2
+IMPLEMENT_PPFILT_FACTORY(DebtTrnovr); DebtTrnovrFilt::DebtTrnovrFilt() : PPBaseFilt(PPFILT_DEBTTRNOVR, 0, 2/*ver*/)
 {
 #define _S_ DebtTrnovrFilt
 	SetFlatChunk(offsetof(_S_, ReserveStart), offsetof(_S_, LocIDList)-offsetof(_S_, ReserveStart));
@@ -493,7 +493,7 @@ int PPViewDebtTrnovr::SetupRecVals(PPID curID, long tabID, const DebtEntry * pEn
 	double rdebt = 0.0, rpaym = 0.0, reckon = 0.0, tdebt = 0.0;
 	const  double sell = R2(pEntry->DbtList.Get(tabID, curID));
 	const  double paym = R2(pEntry->PaymList.Get(tabID, curID));
-	const  double expiry_debt = R2(pEntry->ExpiryDebtList.Get(tabID, curID)); // @v9.1.8
+	const  double expiry_debt = R2(pEntry->ExpiryDebtList.Get(tabID, curID));
 	double debt = R2(sell - paym);
 	if(Filt.Flags & DebtTrnovrFilt::fCalcTotalDebt) {
 		const double total_sell = R2(pEntry->TotalDbtList.Get(tabID, curID));
@@ -505,7 +505,7 @@ int PPViewDebtTrnovr::SetupRecVals(PPID curID, long tabID, const DebtEntry * pEn
 	pRec->Sell    += sell;
 	pRec->Payment += paym;
 	pRec->Debt    += debt;
-	pRec->ExpiryDebt += expiry_debt; // @v9.1.8
+	pRec->ExpiryDebt += expiry_debt;
 	if(Filt.Flags & DebtTrnovrFilt::fExtended) {
 		rpaym  = R2(pEntry->RDbtList.Get(tabID, curID));
 		reckon = R2(pEntry->RcknList.Get(tabID, curID));
@@ -530,7 +530,7 @@ int PPViewDebtTrnovr::SetupRecVals(PPID curID, long tabID, const DebtEntry * pEn
 			Total.Reckon.Add(0L, curID, reckon, 0);
 			Total.RDebt.Add(0L,  curID, rdebt,  0);
 			Total.TDebt.Add(0L,  curID, tdebt,  0);
-			Total.ExpiryDebt.Add(0L, curID, expiry_debt); // @v9.1.8
+			Total.ExpiryDebt.Add(0L, curID, expiry_debt);
 		}
 		pRec->AvgPaym = pEntry->_AvgPaym;
 		ok = 1;
@@ -1480,7 +1480,7 @@ void PPViewDebtTrnovr::InitViewItem(const TempSellTrnovrTbl::Rec * pRec, DebtTrn
 	pItem->Debit     = pRec->Sell;
 	pItem->Credit    = pRec->Payment;
 	pItem->Debt      = pRec->Debt;
-	pItem->ExpiryDebt = pRec->ExpiryDebt; // @v9.1.8
+	pItem->ExpiryDebt = pRec->ExpiryDebt;
 	pItem->RPaym     = pRec->RPaym;
 	pItem->Reckon    = pRec->Reckon;
 	pItem->RDebt     = pRec->RDebt;
@@ -1586,7 +1586,7 @@ public:
 		AddClusterAssoc(CTL_SLLTOFLT_FLAGS, 4, DebtTrnovrFilt::fInclZeroDebt);
 		AddClusterAssoc(CTL_SLLTOFLT_FLAGS, 5, DebtTrnovrFilt::fDeliveryAddr);
 		AddClusterAssoc(CTL_SLLTOFLT_FLAGS, 6, DebtTrnovrFilt::fSkipPassive);
-		AddClusterAssoc(CTL_SLLTOFLT_FLAGS, 7, DebtTrnovrFilt::fShowExpiryDebt); // @v9.2.3
+		AddClusterAssoc(CTL_SLLTOFLT_FLAGS, 7, DebtTrnovrFilt::fShowExpiryDebt);
 		SetClusterData(CTL_SLLTOFLT_FLAGS, Data.Flags);
 		AddClusterAssocDef(CTL_SLLTOFLT_ORDER, 0, PPViewDebtTrnovr::OrdByArticleName);
 		AddClusterAssoc(CTL_SLLTOFLT_ORDER, 1, PPViewDebtTrnovr::OrdByDebit);
@@ -2302,9 +2302,8 @@ void PPViewDebtTrnovr::PreprocessBrowser(PPViewBrowser * pBrw)
 				pBrw->InsColumn(2, "@currency", fld_no, 0, 0, 0);
 			}
 			fld_no = (Filt.Flags & DebtTrnovrFilt::fExtended) ? 13 : 9;
-			fld_no = (Filt.Flags & DebtTrnovrFilt::fExtended) ? 14 : 10; // @v9.1.5
-			// @v9.0.2 pBrw->InsColumnWord(-1, PPWORD_STOP, fld_no, 0, MKSFMTD(0, 0, ALIGN_CENTER), 0);
-			pBrw->InsColumn(-1, "@stop", fld_no, 0, MKSFMTD(0, 0, ALIGN_CENTER), 0); // @v9.0.2
+			fld_no = (Filt.Flags & DebtTrnovrFilt::fExtended) ? 14 : 10;
+			pBrw->InsColumn(-1, "@stop", fld_no, 0, MKSFMTD(0, 0, ALIGN_CENTER), 0);
 			if(Filt.CycleKind) {
 				fld_no = 2; //(Filt.Flags & DebtTrnovrFilt::fExtended) ? 13 : 9;
 				pBrw->InsColumn(2, "@cycle", fld_no, 0, 0, 0);
@@ -2382,7 +2381,7 @@ DBQuery * PPViewDebtTrnovr::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 		else {
 			q->addField(tbl->ID);      // #11 : #15 @stub
 		}
-		q->addField(tbl->ExpiryDebt);  // #12 : #16 // @v9.1.8
+		q->addField(tbl->ExpiryDebt);  // #12 : #16
 		if(Filt.InitOrder == OrdByDebit)
 			q->orderBy(tbl->CurID, tbl->Sell, 0L);
 		else if(Filt.InitOrder == OrdByDebt)
@@ -3802,11 +3801,9 @@ int PrcssrDebtRate::Run()
 				for(SEnum en = dd_obj.P_Ref->Enum(PPOBJ_DEBTDIM, Reference::eoIdName); en.Next(&dd_rec) > 0;)
 					debt_dim_list.add(dd_rec.ID);
 			}
-			// @v9.8.12 {
 			DateRange period;
 			period = Cfg.Period;
 			period.Actualize(ZERODATE);
-			// } @v9.8.12
 			THROW(op_obj.GetPayableOpList(P.AccSheetID, &op_list));
 			THROW(ArObj.P_Tbl->GetListBySheet(P.AccSheetID, &ar_list, 0));
 			for(i = 0; i < ar_list.getCount(); i++) {
@@ -3825,7 +3822,7 @@ int PrcssrDebtRate::Run()
 						dim_set_stop_list.clear();
 						if(r < 0 && P.Flags & Param::fReportAgtAbsence)
 							logger.LogString(PPTXT_ARHASNTAGREEMENT, ar_rec.Name);
-						p_bobj->CalcClientDebt(ar_id, &period, update_stop_debtdim, blk.Z()); // @v9.8.12 0-->&period
+						p_bobj->CalcClientDebt(ar_id, &period, update_stop_debtdim, blk.Z());
 						if(blk.Debt > 0.0) {
 							if(blk.MaxExpiry > P.Gandicap || P.Flags & Param::fAllowForMaxCredit && agt_rec.MaxCredit > 0.0 || update_stop_debtdim) {
 								AmtList amt_list, paym_list;
@@ -4373,7 +4370,7 @@ int PPViewDebtorStat::ViewGraph(const PPViewBrowser * pBrw)
 	PPDebtorStatArray list;
 	Generator_GnuPlot plot(0);
 	Generator_GnuPlot::PlotParam param;
-	TSVector <SPoint3R> matrix; // @v9.8.4 TSArray-->TSVector
+	TSVector <SPoint3R> matrix;
 	PPDebtorStatArray::Total total;
 	if(col == 8) { // sigm factor
 		if(Tbl.GetList(Filt.AccSheetID, list) > 0) {

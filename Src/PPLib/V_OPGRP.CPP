@@ -474,7 +474,7 @@ double PPViewOpGrouping::GetStatItem(int stat, PPID opID, int sign, uint si, con
 IMPL_CMPFUNC(OpGroupingViewItem, i1, i2) 
 	{ RET_CMPCASCADE3(static_cast<const OpGroupingViewItem *>(i1), static_cast<const OpGroupingViewItem *>(i2), Dt, OpID, Sign); }
 
-int PPViewOpGrouping::CreateStatList(LAssocArray * pOpList, TSVector <OpGroupingViewItem> * pItemList, TSCollection <OpGroupingStatEntry> * pStatList) // @v9.8.4 TSArray-->TSVector
+int PPViewOpGrouping::CreateStatList(LAssocArray * pOpList, TSVector <OpGroupingViewItem> * pItemList, TSCollection <OpGroupingStatEntry> * pStatList)
 {
 	int    ok = -1;
 	if(CycleList.getCount()) {

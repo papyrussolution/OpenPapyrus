@@ -1733,6 +1733,7 @@ static const SIntToSymbTabEntry ChZnPtList[] = {
 	{ GTCHZNPT_ANTISEPTIC, "antiseptic" },
 	{ GTCHZNPT_MEDICALDEVICES, "medicaldevices" }, // @v12.1.2
 	{ GTCHZNPT_SOFTDRINKS, "softdrinks" }, // @v12.1.10
+	{ GTCHZNPT_NONALCBEER, "nonalcbeer" }, // @v12.2.6
 };
 
 int PPPosProtocol::WriteGoodsInfo(WriteBlock & rB, const char * pScopeXmlTag, const AsyncCashGoodsInfo & rInfo, const PPQuotArray * pQList)
@@ -5608,7 +5609,7 @@ int PPPosProtocol::ExportPosSession(const PPIDArray & rSessList, PPID srcPosNode
 	return ok;
 }
 
-/*static*/int PPPosProtocol::EditPosQuery(TSVector <PPPosProtocol::QueryBlock> & rQList) // @v9.8.4 TSArray-->TSVector
+/*static*/int PPPosProtocol::EditPosQuery(TSVector <PPPosProtocol::QueryBlock> & rQList)
 {
 	enum {
 		qvLastSession = 1,

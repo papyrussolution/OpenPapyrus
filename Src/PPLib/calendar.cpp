@@ -1918,17 +1918,9 @@ void SCalendarPicker::CreateFont_()
 			log_font.lfHeight = 8;
 			hf = ::CreateFontIndirect(&log_font);
 		}
-		LOGFONT f;
-		if(hf && ::GetObject(hf, sizeof(f), &f)) {
-			SPaintToolBox * p_tb = APPL->GetUiToolBox();
-			if(p_tb) {
-				SFontDescr fd(0, 0, 0);
-				f.lfHeight = 12;
-				fd.SetLogFont(&f);
-				//fd.Size = (int16)MulDiv(fd.Size, 72, GetDeviceCaps(canv, LOGPIXELSY));
-				FontId = p_tb->CreateFont_(0, fd.Face, fd.Size, fd.Flags);
-			}
-		}
+		SPaintToolBox * p_tb = APPL->GetUiToolBox();
+		if(p_tb)
+			FontId = p_tb->CreateFont_(0, hf, 12);
 	}
 }
 

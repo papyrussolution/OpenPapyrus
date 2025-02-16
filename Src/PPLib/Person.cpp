@@ -414,7 +414,7 @@ int PersonRelTypeDialog::delItem(long pos, long /*id*/)
 int PPObjPersonRelType::Edit(PPID * pID, void * extraPtr)
 {
 	int    ok = -1, valid_data = 0, r = cmCancel;
-	const  int  is_new = (*pID == 0);
+	const  bool is_new = (*pID == 0);
 	PersonRelTypeDialog * dlg = 0;
 	PPPersonRelTypePacket pack;
 	THROW(CheckRightsModByID(pID));

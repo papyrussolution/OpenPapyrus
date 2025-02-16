@@ -1,5 +1,5 @@
 // WSCTL.CPP
-// Copyright (c) A.Sobolev 2023, 2024
+// Copyright (c) A.Sobolev 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1528,9 +1528,17 @@ int WsCtlSrvBlock::Registration(RegistrationBlock & rBlk)
 		PPEAddr::Phone::NormalizeStr(rBlk.Phone, 0, temp_buf);
 		PsnObj.LocObj.P_Tbl->SearchPhoneObjList(temp_buf, 0, oid_list_by_phone);
 		if(oid_list_by_phone.getCount()) {
-			; // @todo Надо что-то сделать если телефон уже есть в базе данных
+			CALLEXCEPT_PP_S(PPERR_WSCTL_CLIPHONEREGISTERED, rBlk.Phone);
 		}
 		else {
+			{
+				PersonTbl::Rec ex_rec;
+				PPIDArray kind_list;
+				kind_list.add(scs_rec.PersonKindID);
+				if(PsnObj.SearchFirstByName(rBlk.Name, &kind_list, 0/*exclID*/, &ex_rec) > 0) {
+					CALLEXCEPT_PP_S(PPERR_WSCTL_CLINAMEREGISTERED, rBlk.Name);
+				}
+			}
 			PPPersonPacket psn_pack;
 			PPSCardPacket sc_pack;
 			PPObjPerson::EditBlock _eb;
@@ -1554,7 +1562,6 @@ int WsCtlSrvBlock::Registration(RegistrationBlock & rBlk)
 				rBlk.SCardID = sc_id;
 				rBlk.Status = 1;
 			}
-
 		}
 	}
 	CATCH

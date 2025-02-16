@@ -5590,15 +5590,13 @@ static void ShowDemoWindowInputs()
 		// Display mouse cursors
 		IMGUI_DEMO_MARKER("Inputs & Focus/Mouse Cursors");
 		if(ImGui::TreeNode("Mouse Cursors")) {
-			const char* mouse_cursors_names[] = { "Arrow", "TextInput", "ResizeAll", "ResizeNS", "ResizeEW", "ResizeNESW", "ResizeNWSE", "Hand", "NotAllowed" };
+			const char * mouse_cursors_names[] = { "Arrow", "TextInput", "ResizeAll", "ResizeNS", "ResizeEW", "ResizeNESW", "ResizeNWSE", "Hand", "NotAllowed" };
 			assert(SIZEOFARRAYi(mouse_cursors_names) == ImGuiMouseCursor_COUNT);
-
 			ImGuiMouseCursor current = ImGui::GetMouseCursor();
 			ImGui::Text("Current mouse cursor = %d: %s", current, mouse_cursors_names[current]);
 			ImGui::BeginDisabled(true);
 			ImGui::CheckboxFlags("io.BackendFlags: HasMouseCursors", &io.BackendFlags, ImGuiBackendFlags_HasMouseCursors);
 			ImGui::EndDisabled();
-
 			ImGui::Text("Hover to see mouse cursors:");
 			ImGui::SameLine(); HelpMarker(
 				"Your application can render a different mouse cursor based on what ImGui::GetMouseCursor() returns. "

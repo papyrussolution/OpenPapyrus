@@ -57,7 +57,7 @@ public:
 	void   Sort();
 private:
 	CompFunc TextCmpProc;
-	TSVector <uint> SPosList; // @v9.8.4 TSArray-->TSVector
+	TSVector <uint> SPosList;
 };
 
 class SFSortChunkInfo {

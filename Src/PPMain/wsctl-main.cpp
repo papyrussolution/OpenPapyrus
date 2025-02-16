@@ -247,14 +247,16 @@ public:
 		DbInfo & Z()
 		{
 			Uuid.Z();
+			Server.Z();
 			Symb.Z();
 			Ver.Z();
 			MainOrgID = 0;
 			return *this;
 		}
-		S_GUID Uuid; // GUID базы данных
-		SString Symb; // Символ базы данных
-		SVerT  Ver; // Версия сервера Papyrus
+		S_GUID Uuid;      // GUID базы данных
+		SString Server;   // @v12.2.6
+		SString Symb;     // Символ базы данных
+		SVerT  Ver;       // Версия сервера Papyrus
 		PPID   MainOrgID; // @v12.1.11 Идентификатор персоналии главной организации 
 	};
 	struct QuotKindEntry {
@@ -697,7 +699,8 @@ private:
 			reqidQueryComputerCategoryList = (PPSCMD___LASTIDENTIFIER + 1),
 		};
 		WsCtl_CliSession(const WsCtl_Config & rJsP, WsCtl_ImGuiSceneBlock::State * pSt, WsCtlReqQueue * pQ);
-		static int Connect(PPJobSrvClient & rCli, const WsCtl_Config & rCfg, DbInfo * pDbInfo);
+		static int  Connect(PPJobSrvClient & rCli, const WsCtl_Config & rCfg, DbInfo * pDbInfo);
+		static bool Connect(PPJobSrvClient & rCli, const WsCtl_Config & rCfg, WsCtl_ImGuiSceneBlock::State & rSt); // Более высокоуровневая, чем Connect(PPJobSrvClient &, const WsCtl_Config &, DbInfo *)
 		virtual void Run();
 	private:
 		virtual void Startup();
@@ -908,11 +911,11 @@ private:
 	int    ScreenItem_Logo(SUiLayout * pLoParent, int viewFlags) // loidLogo
 	{
 		int    result = 0;
+		DConnectionStatus conn_status;
+		St.D_ConnStatus.GetData(conn_status);
 		{
 			ImGuiWindowByLayout wbl(pLoParent, loidLogo, "##Logo", viewFlags|ImGuiWindowFlags_NoBackground);
 			if(wbl.IsValid()) {
-				DConnectionStatus conn_status;
-				St.D_ConnStatus.GetData(conn_status);
 				if(conn_status.Dbi.MainOrgID) {
 					void * p_texture = QueryImageTextureByOid(PPObjID(PPOBJ_PERSON, conn_status.Dbi.MainOrgID), 0);
 					if(p_texture) {
@@ -941,7 +944,11 @@ private:
 		{
 			ImGuiWindowByLayout wbl(pLoParent, loidComputerSysInfo, "##ComputerSysInfo", viewFlags|ImGuiWindowFlags_NoBackground);
 			if(wbl.IsValid()) {
-				ImGui::Text("computer sys info (construction)");
+				SString temp_buf;
+				ImGuiObjStack stk;
+				PushFontEntry(stk, "FontSecondary");
+				SSystem::GetUserName_(temp_buf);
+				ImGui::Text(SLS.AcquireRvlStr().Z().Cat("User").CatDiv(':', 2).Cat(temp_buf).Space().Cat("Server").CatDiv(':', 2).Cat(conn_status.Dbi.Server));
 			}
 		}
 		return result;
@@ -1738,13 +1745,7 @@ WsCtl_ImGuiSceneBlock::WsCtl_CliSession::WsCtl_CliSession(const WsCtl_Config & r
 
 	PPJobSrvClient cli;
 	PPJobSrvReply reply;
-	{
-		DConnectionStatus srv_conn_status;
-		srv_conn_status.S = WsCtl_ImGuiSceneBlock::WsCtl_CliSession::Connect(cli, JsP, &srv_conn_status.Dbi);
-		if(!srv_conn_status.S)
-			srv_conn_status.SetupByLastError();
-		P_St->D_ConnStatus.SetData(srv_conn_status);
-	}
+	const bool connr = WsCtl_ImGuiSceneBlock::WsCtl_CliSession::Connect(cli, JsP, *P_St);
 	for(int stop = 0; !stop;) {
 		int    h_count = 0;
 		int    evidx_stop = -1;
@@ -1785,11 +1786,7 @@ WsCtl_ImGuiSceneBlock::WsCtl_CliSession::WsCtl_CliSession(const WsCtl_Config & r
 			}
 			if(single_ev_count) {
 				if(!(cli.GetState() & PPJobSrvClient::stConnected)) {
-					DConnectionStatus srv_conn_status;
-					srv_conn_status.S = WsCtl_ImGuiSceneBlock::WsCtl_CliSession::Connect(cli, JsP, &srv_conn_status.Dbi);
-					if(!srv_conn_status.S)
-						srv_conn_status.SetupByLastError();
-					P_St->D_ConnStatus.SetData(srv_conn_status);
+					const bool connr = WsCtl_ImGuiSceneBlock::WsCtl_CliSession::Connect(cli, JsP, *P_St);
 				}
 				/*if(srv_conn_r > 0) {
 							
@@ -1812,15 +1809,33 @@ WsCtl_ImGuiSceneBlock::WsCtl_CliSession::WsCtl_CliSession(const WsCtl_Config & r
 	SignalStartup();
 }
 
+/*static*/bool WsCtl_ImGuiSceneBlock::WsCtl_CliSession::Connect(PPJobSrvClient & rCli, const WsCtl_Config & rCfg, WsCtl_ImGuiSceneBlock::State & rSt)
+{
+	bool    ok = false;
+	DConnectionStatus srv_conn_status;
+	srv_conn_status.S = WsCtl_ImGuiSceneBlock::WsCtl_CliSession::Connect(rCli, rCfg, &srv_conn_status.Dbi);
+	if(srv_conn_status.S) {
+		ok = true;
+	}
+	else {
+		srv_conn_status.SetupByLastError();
+	}
+	rSt.D_ConnStatus.SetData(srv_conn_status);
+	return ok;
+}
+
 /*static*/int WsCtl_ImGuiSceneBlock::WsCtl_CliSession::Connect(PPJobSrvClient & rCli, const WsCtl_Config & rCfg, DbInfo * pDbInfo)
 {
 	int    ok = 1;
 	SString temp_buf;
+	if(pDbInfo) {
+		pDbInfo->Z();
+		pDbInfo->Server = rCfg.Server;
+	}
 	THROW(rCli.Connect(/*JsP*/rCfg.Server, /*JsP*/rCfg.Port));
 	if(/*JsP*/rCfg.DbSymb.NotEmpty() && /*JsP*/rCfg.User.NotEmpty()) {
 		THROW(rCli.Login(/*JsP*/rCfg.DbSymb, /*JsP*/rCfg.User, /*JsP*/rCfg.Password));
 		if(pDbInfo) {
-			pDbInfo->Z();
 			PPJobSrvReply reply;
 			if(rCli.ExecSrvCmd("GETDBINFO", PPConst::DefSrvCmdTerm, reply) && reply.StartReading(&temp_buf)) {
 				if(reply.CheckRepError()) {
@@ -2064,7 +2079,6 @@ void WsCtl_ImGuiSceneBlock::WsCtl_CliSession::SendRequest(PPJobSrvClient & rCli,
 			break;
 		case PPSCMD_WSCTL_REGISTRATION: // @v11.9.10
 			if(P_St) {
-				bool   data_settled = false; // Признак того, что данные в блоке состояния инициализированы 
 				WsCtl_ImGuiSceneBlock::DRegistration st_data;
 				WsCtl_ImGuiSceneBlock::DPrc st_prc;
 				P_St->D_Prc.GetData(st_prc); 
@@ -2098,9 +2112,6 @@ void WsCtl_ImGuiSceneBlock::WsCtl_CliSession::SendRequest(PPJobSrvClient & rCli,
 							if(SJson::IsNumber(p_c)) {
 								st_data.PersonID = p_c->Text.ToLong();
 							}
-							st_data.State = 0;
-							P_St->D_Reg.SetData(st_data);
-							data_settled = true; 
 						}
 						else {
 							PPSetErrorSLib();
@@ -2108,11 +2119,15 @@ void WsCtl_ImGuiSceneBlock::WsCtl_CliSession::SendRequest(PPJobSrvClient & rCli,
 						}
 						ZDELETE(p_js_obj);
 					}
-					else
+					else {
 						st_data.SetupByLastError();
+					}
 				}
-				else
+				else {
 					st_data.SetupByLastError();
+				}
+				st_data.State = 0;
+				P_St->D_Reg.SetData(st_data);
 			}
 			break;
 		case PPSCMD_WSCTL_AUTH:
@@ -3140,35 +3155,10 @@ int WsCtl_ImGuiSceneBlock::QueryProgramList2(WsCtl_ProgramCollection & rPgmL, Ws
 	THROW(JsP.Server.NotEmpty());
 	{
 		const S_GUID ws_uuid(St.SidBlk.Uuid);
-		//SString cache_path;
 		PPJobSrvClient cli;
 		PPJobSrvReply reply;
-		DConnectionStatus srv_conn_status;
-		//THROW(WsCtlApp::GetLocalCachePath(cache_path));
-		{
-			// @debug St.D_ConnStatus.GetData(srv_conn_status);
-			// @v12.2.1 {
-			{
-				srv_conn_status.S = WsCtl_ImGuiSceneBlock::WsCtl_CliSession::Connect(cli, JsP, &srv_conn_status.Dbi);
-				if(!srv_conn_status.S)
-					srv_conn_status.SetupByLastError();
-				St.D_ConnStatus.SetData(srv_conn_status);
-			}
-			// } @v12.2.1 
-			/* @v12.2.1 
-			{
-				THROW(cli.Connect(JsP.Server, JsP.Port));
-				if(JsP.DbSymb.NotEmpty() && JsP.User.NotEmpty()) {
-					THROW(cli.Login(JsP.DbSymb, JsP.User, JsP.Password));
-					srv_conn_status.S = 1;
-				}
-			}
-			if(!srv_conn_status.S)
-				srv_conn_status.SetupByLastError();
-			St.D_ConnStatus.SetData(srv_conn_status);
-			*/
-		}
-		if(srv_conn_status.S) {
+		const bool connr = WsCtl_ImGuiSceneBlock::WsCtl_CliSession::Connect(cli, JsP, St);
+		if(connr) {
 			{
 				PPJobSrvCmd cmd;
 				cmd.StartWriting(PPSCMD_WSCTL_QUERYPGMLIST);
@@ -3213,9 +3203,7 @@ int WsCtl_ImGuiSceneBlock::QueryProgramList2(WsCtl_ProgramCollection & rPgmL, Ws
 			}
 		}
 	}
-	CATCH
-		ok = 0;
-	ENDCATCH
+	CATCHZOK
 	return ok;
 }
 
@@ -3500,6 +3488,10 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 								}
 								PPLoadStringUtf8("registration", r_temp_buf);
 								if(ImGui::Button2(r_temp_buf, /*ButtonSize_Std*/sz, ImGuiButtonFlags_NoShadow)) {
+									// @v12.2.6 { устанавливаем пустые данные дабы экран регистрации не перегонял нас в режим авторизации
+									DRegistration data_reg;
+									St.D_Reg.SetData(data_reg);
+									// } @v12.2.6 
 									SetScreenId(screenRegistration);
 								}
 								GImGui->Style.FrameBorderSize = preserve_fbs;

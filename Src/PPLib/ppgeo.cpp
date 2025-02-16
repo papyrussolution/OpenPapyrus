@@ -1,5 +1,5 @@
 // PPGEO.CPP
-// Copyright (c) A.Sobolev 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2023
+// Copyright (c) A.Sobolev 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2023, 2025
 //
 #include <pp.h>
 #pragma hdrstop
@@ -1355,7 +1355,7 @@ int GeoTrackCore::PutItem(const PPGeoTrackItem & rItem, int use_ta)
 	return ok;
 }
 
-int GeoTrackCore::PutChunk(const TSVector <PPGeoTrackItem> & rList, int use_ta) // @v9.8.4 TSArray-->TSVector
+int GeoTrackCore::PutChunk(const TSVector <PPGeoTrackItem> & rList, int use_ta)
 {
 	int    ok = -1;
 	const  uint _c = rList.getCount();

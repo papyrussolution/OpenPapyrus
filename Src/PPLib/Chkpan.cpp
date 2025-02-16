@@ -3642,58 +3642,6 @@ int CheckPaneDialog::SetupState(int st)
 
 void CheckPaneDialog::EnableBeep(int enbl) { SETFLAG(Flags, fDisableBeep, !enbl); }
 
-int FASTCALL CheckPaneDialog::valid(ushort command)
-{
-	int    r = 1;
-	Flags |= fSuspSleepTimeout;
-	const int prev_state = GetState();
-	const  PPID prev_agent_id = P.GetAgentID(1);
-	if(command == cmCancel && !(Flags & fNoEdit)) {
-		r = 0;
-		if(GetInput())
-			ClearInput(0);
-		else if(ResetCurrentLine() > 0)
-			;
-		else if((Flags & fTouchScreen) && LastCtrlID == CTL_CHKPAN_LIST)
-			RemoveRow();
-		else if(P.getCount()) {
-			if(OperRightsFlags & orfEscCheck) {
-				if(PPMessage(mfConf|mfYesNo, PPCFM_CLEARCHECK) == cmYes) {
-					AcceptCheckToBeCleared();
-					ClearCheck();
-					if(CConfig.Flags & CCFLG_DEBUG) {
-						CCheckPacket pack;
-						if(SuspCheckID)
-							GetCc().LoadPacket(SuspCheckID, 0, &pack);
-						else {
-							InitCashMachine();
-							pack.Rec.SessID = P_CM ? P_CM->GetCurSessID() : 0;
-							pack.Rec.PosNodeID = CashNodeID;
-							pack.Rec.Flags |= (CCHKF_SYNC | CCHKF_NOTUSED);
-							Helper_InitCcPacket(&pack, 0, 0, 0);
-						}
-						GetCc().WriteCCheckLogFile(&pack, 0, CCheckCore::logCleared, 1);
-					}
-				}
-			}
-			else
-				PPMessage(mfInfo|mfOK, PPINF_CHKPAN_TURNCHECK);
-		}
-		else if(P.OrderCheckID) {
-			ClearCheck();
-		}
-		else if((UiFlags & uifCloseWOAsk) || PPMessage(mfConf|mfYesNo, PPCFM_CLOSECCHKPANE) == cmYes)
-			r = 1;
-	}
-	else
-		r = TDialog::valid(command);
-	if(GetState() != prev_state || P.GetAgentID(1) != prev_agent_id)
-		setupHint();
-	Flags &= ~fSuspSleepTimeout;
-	IdleClock = clock();
-	return r;
-}
-
 /*virtual*/int CheckPaneDialog::AcceptCheck(PPID * pCcID, const CcAmountList * pPl, PPID altPosNodeID, double cash, int mode /* accmXXX */)
 {
 	int    ok = CPosProcessor::AcceptCheck(pCcID, pPl, altPosNodeID, cash, mode /*suspended*/);
@@ -6774,12 +6722,80 @@ int CheckPaneDialog::SelectGuestCount(int tableCode, long * pGuestCount)
 	return ok;
 }
 
+//int FASTCALL CheckPaneDialog::valid(ushort command) // @cmValidateCommand
+bool CheckPaneDialog::ValidateCommand(TEvent & rEv)
+{
+	bool   r = true;
+	assert(rEv.isCmd(cmValidateCommand));
+	if(rEv.isCmd(cmValidateCommand)) {
+		const  long cmd = rEv.message.infoLong;
+		Flags |= fSuspSleepTimeout;
+		const  int prev_state = GetState();
+		const  PPID prev_agent_id = P.GetAgentID(1);
+		if(cmd == cmCancel && !(Flags & fNoEdit)) {
+			r = false;
+			if(GetInput())
+				ClearInput(0);
+			else if(ResetCurrentLine() > 0)
+				;
+			else if((Flags & fTouchScreen) && LastCtrlID == CTL_CHKPAN_LIST)
+				RemoveRow();
+			else if(P.getCount()) {
+				if(OperRightsFlags & orfEscCheck) {
+					if(PPMessage(mfConf|mfYesNo, PPCFM_CLEARCHECK) == cmYes) {
+						AcceptCheckToBeCleared();
+						ClearCheck();
+						if(CConfig.Flags & CCFLG_DEBUG) {
+							CCheckPacket pack;
+							if(SuspCheckID)
+								GetCc().LoadPacket(SuspCheckID, 0, &pack);
+							else {
+								InitCashMachine();
+								pack.Rec.SessID = P_CM ? P_CM->GetCurSessID() : 0;
+								pack.Rec.PosNodeID = CashNodeID;
+								pack.Rec.Flags |= (CCHKF_SYNC|CCHKF_NOTUSED);
+								Helper_InitCcPacket(&pack, 0, 0, 0);
+							}
+							GetCc().WriteCCheckLogFile(&pack, 0, CCheckCore::logCleared, 1);
+						}
+					}
+				}
+				else
+					PPMessage(mfInfo|mfOK, PPINF_CHKPAN_TURNCHECK);
+			}
+			else if(P.OrderCheckID) {
+				ClearCheck();
+			}
+			else if((UiFlags & uifCloseWOAsk) || PPMessage(mfConf|mfYesNo, PPCFM_CLOSECCHKPANE) == cmYes)
+				r = true;
+		}
+		else {
+			//r = TDialog::valid(cmd);
+			TDialog::handleEvent(rEv);
+			if(rEv.isCleared())
+				r = false;
+		}
+		if(GetState() != prev_state || P.GetAgentID(1) != prev_agent_id)
+			setupHint();
+		Flags &= ~fSuspSleepTimeout;
+		IdleClock = clock();
+	}
+	return r;
+}
+
 IMPL_HANDLE_EVENT(CheckPaneDialog)
 {
-	const int  prev_state = GetState();
+	const  int  prev_state = GetState();
 	const  PPID prev_agent_id = P.GetAgentID(1);
 	if(TVCOMMAND) {
-		if(TVCMD == cmInputUpdated)
+		if(TVCMD == cmValidateCommand) { // @v12.2.6
+			if(!ValidateCommand(event)) {
+				if(!event.isCleared())
+					clearEvent(event);
+			}
+			return; // Функция ValidateCommand все сделала (включая обработку классами высшей иерархии)
+		}
+		else if(TVCMD == cmInputUpdated)
 			IdleClock = clock(); // Не обрабатываем это сообщение, а лишь прерываем таймаут засыпания //
 		else if(TVCMD == cmModalPostCreate) {
 			if(!(Flags & fNoEdit) && CnExtFlags & CASHFX_NOTIFYEQPTIMEMISM) {
@@ -12488,20 +12504,18 @@ int CPosProcessor::Print(int noAsk, const PPLocPrinter2 * pLocPrn, uint rptId)
 		env.ContextSymb = CnSymb;
 		env.PrnFlags = noAsk ? SReport::PrintingNoAsk : 0;
 		if(CnFlags & CASHF_UNIFYGDSTOPRINT) {
-			//
-			// @v8.6.9 Добавлена обработка запрета объединения позиций, имеющих модификаторы
-			//
 			CCheckItem * p_item = 0;
 			CCheckItemArray to_print_items;
 			for(uint i = 0; P.enumItems(&i, (void **)&p_item);) {
-				int    has_modifier = BIN(i < P.getCount() && P.at(i).Flags & cifModifier);
-				int    _found = 0;
+				// Позиции, имеющие модификаторы, объединять нельзя //
+				const  bool has_modifier = (i < P.getCount() && P.at(i).Flags & cifModifier);
+				bool   _found = false;
 				if(!has_modifier) {
 					for(uint p = 0; !_found && to_print_items.lsearch(&p_item->GoodsID, &p, CMPF_LONG); p++) {
 						CCheckItem & r_ci = to_print_items.at(p);
 						if(!(r_ci.Flags & cifHasModifier)) {
 							r_ci.Quantity += p_item->Quantity;
-							_found = 1;
+							_found = true;
 						}
 					}
 				}

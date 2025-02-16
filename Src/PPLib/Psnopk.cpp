@@ -647,13 +647,13 @@ long PPObjPsnOpKind::GetLevel(PPID id)
 	return ok;
 }
 
-/*virtual*/int  PPObjPsnOpKind::ValidateSelection(PPID id, uint olwFlags, void * extraPtr)
+/*virtual*/bool PPObjPsnOpKind::ValidateSelection(PPID id, uint olwFlags, void * extraPtr)
 {
-	int    ok = 0;
+	bool   ok = false;
 	PPPsnOpKind rec;
 	if(Search(id, &rec) > 0) {
 		if((olwFlags & OLW_CANSELUPLEVEL) || !(rec.Flags & POKF_GROUP))
-			ok = 1;
+			ok = true;
 	}
 	return ok;
 }

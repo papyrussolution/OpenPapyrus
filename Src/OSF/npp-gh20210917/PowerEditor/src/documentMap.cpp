@@ -450,57 +450,38 @@ INT_PTR CALLBACK ViewZoneDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM lP
 		case WM_INITDIALOG:
 	    {
 		    _viewZoneCanvas = ::GetDlgItem(_hSelf, IDC_VIEWZONECANVAS);
-		    if(NULL != _viewZoneCanvas) {
+		    if(_viewZoneCanvas) {
 			    ::SetWindowLongPtr(_viewZoneCanvas, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
-			    _canvasDefaultProc =
-				reinterpret_cast<WNDPROC>(::SetWindowLongPtr(_viewZoneCanvas, GWLP_WNDPROC,
-				reinterpret_cast<LONG_PTR>(canvasStaticProc)));
+			    _canvasDefaultProc = reinterpret_cast<WNDPROC>(::SetWindowLongPtr(_viewZoneCanvas, GWLP_WNDPROC,
+					reinterpret_cast<LONG_PTR>(canvasStaticProc)));
 			    return TRUE;
 		    }
 		    break;
 	    }
-
 		case WM_LBUTTONDOWN:
-	    {
 		    ::SendMessage(_hParent, DOCUMENTMAP_MOUSECLICKED, wParam, lParam);
 		    break;
-	    }
-
 		case WM_MOUSEMOVE:
-	    {
 		    if(wParam & MK_LBUTTON)
 			    ::SendMessage(_hParent, DOCUMENTMAP_MOUSECLICKED, wParam, lParam);
 		    break;
-	    }
-
 		case WM_DRAWITEM:
-	    {
 		    drawPreviewZone((DRAWITEMSTRUCT*)lParam);
 		    return TRUE;
-	    }
-
 		case WM_SIZE:
-	    {
-		    if(NULL != _viewZoneCanvas) {
+		    if(_viewZoneCanvas) {
 			    int width = LOWORD(lParam);
 			    int height = HIWORD(lParam);
 			    ::MoveWindow(_viewZoneCanvas, 0, 0, width, height, TRUE);
 		    }
 		    break;
-	    }
-
 		case WM_MOUSEWHEEL:
-	    {
 		    //Have to perform the scroll first, because the first/last line do not get updated untill after the
 		    // scroll has been parsed
 		    ::SendMessage(_hParent, DOCUMENTMAP_MOUSEWHEEL, wParam, lParam);
 		    return TRUE;
-	    }
-
 		case WM_DESTROY:
-	    {
 		    return TRUE;
-	    }
 	}
 	return FALSE;
 }

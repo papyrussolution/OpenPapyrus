@@ -6455,7 +6455,6 @@ int PPObjBill::Helper_GetPayoutPartOfLot(PPID lotID, PplBlock & rBlk, double * p
 			else {
 				BillTbl::Rec exp_rec, paym_rec/*, rckn_rec*/;
 				if(Fetch(org_lot_rec.BillID, &exp_rec) > 0) {
-					// @v9.0.6 {
 					const int    is_modif = BIN(GetOpType(exp_rec.OpID) == PPOPT_GOODSMODIF);
 					const double _camt = is_modif ? fabs(org_lot_rec.Cost * org_lot_rec.Quantity) : exp_rec.Amount;
 					rBlk.NominalAmount = _camt;
@@ -6500,15 +6499,11 @@ int PPObjBill::Helper_GetPayoutPartOfLot(PPID lotID, PplBlock & rBlk, double * p
 							}
 						}
 						else {
-							// @v7.3.0 @debug Проверка влияния ошибки на результат rBlk.AddPaym(exp_rec); // @v7.2.10 paym_rec-->exp_rec (defect)
-							// @v9.0.6 rBlk.AddPaym(paym_rec); // @v7.3.0 @debug Проверка влияния ошибки на результат
-							// @v9.0.6 {
 							MEMSZERO(paym_rec);
 							paym_rec.OpID = exp_rec.OpID;
 							paym_rec.Amount = rBlk.NominalAmount;
 							paym_rec.Dt = exp_rec.Dt;
 							rBlk.AddPaym(paym_rec);
-							// } @v9.0.6
 						}
 						ok = (non_org || is_modif) ? 2 : 1;
 					}
@@ -6863,7 +6858,7 @@ int PPObjBill::LoadClbList(PPBillPacket * pPack, int force)
 				if(r_ti.LotID) {
 					if(r_ti.IsReceipt() || force || is_intrexpnd) {
 						ObjTagList tag_list;
-						GetTagListByLot(r_ti.LotID, 0/*skipReserveTags*/, &tag_list); // @v9.8.11 skipReserved 1-->0
+						GetTagListByLot(r_ti.LotID, 0/*skipReserveTags*/, &tag_list);
 						pPack->LTagL.Set(row_idx, tag_list.GetCount() ? &tag_list : 0);
 					}
 					if(is_intrexpnd && trfr->SearchByBill(r_ti.BillID, 1, r_ti.RByBill, 0) > 0) {

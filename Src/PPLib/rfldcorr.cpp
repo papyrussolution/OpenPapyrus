@@ -992,7 +992,7 @@ int PPImpExpParam::GetFilesFromSource(const char * pUrl, StringSet & rList, PPLo
 int PPImpExpParam::DistributeFile(PPLogger * pLogger)
 {
 	int    ok = -1;
-	if(!Direction /*export*/ && InetAccID && fileExists(FileName)) { // @v11.1.10 поверка fileExists перенесена наверх ибо она "дешевле" чем последующие условия //
+	if(!Direction /*export*/ && InetAccID && fileExists(FileName)) { // @v11.1.10 проверка fileExists перенесена наверх ибо она "дешевле" чем последующие условия //
 		PPObjInternetAccount ia_obj;
 		PPInternetAccount2 ia_pack;
 		if(ia_obj.Get(InetAccID, &ia_pack) > 0 && ia_pack.Flags & PPInternetAccount::fFtpAccount) {

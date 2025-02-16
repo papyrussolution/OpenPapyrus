@@ -836,13 +836,13 @@ int PPObjBill::TurnInventory(PPBillPacket * pPack, int use_ta)
 {
 	int    ok = -1;
 	PPID   id = pPack->Rec.ID;
-	const  int is_new = BIN(id == 0);
+	const  bool is_new = (id == 0);
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		if((ok = P_Tbl->Edit(&id, pPack, 0)) > 0) {
 			pPack->Rec.ID = id;
-			THROW(SetTagList(pPack->Rec.ID, &pPack->BTagL, 0)); // @v10.5.0
+			THROW(SetTagList(pPack->Rec.ID, &pPack->BTagL, 0));
 			if(is_new)
 				DS.LogAction(PPACN_INVENTTURN, PPOBJ_BILL, id, 0, 0);
 		}

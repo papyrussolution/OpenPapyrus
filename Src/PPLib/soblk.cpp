@@ -2352,7 +2352,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 					THROW_PP(P_DtGrF, PPERR_EMPTYPPOBJECT);
 					THROW_PP(P_DtGrF->GoodsID, PPERR_CMDSEL_ARGABS_GOODS);
 					{
-						TSVector <UhttGoodsRestVal> r_list; // @v9.8.11 TSArray-->TSVector
+						TSVector <UhttGoodsRestVal> r_list;
 						PPID   rest_op_id = 0;
 						PPID   order_op_id = 0;
 						PPOprKind op_rec;

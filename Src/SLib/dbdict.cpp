@@ -1,5 +1,5 @@
 // DBDICT.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -155,7 +155,7 @@ BDictionary::BDictionary(int btrDict, const char * pPath) : DbProvider(new DbDic
 	DBFileSpec * p_h = new DBFileSpec; // разрушается функцией Btrieve::CreateTable
 	memzero(p_h, sizeof(*p_h));
 	p_h->PageSize = pTbl->PageSize;
-	p_h->RecSize = pTbl->fields.getRecSize();
+	p_h->RecSize = pTbl->fields.CalculateRecSize();
 	p_h->Flags   = pTbl->flags;
 	for(uint i = 0; i < pTbl->indexes.getNumKeys(); i++) {
 		BNKey k = pTbl->indexes.getKey(i);

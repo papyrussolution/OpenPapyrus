@@ -1,5 +1,5 @@
 // DBSQL-MYSQL.CPP
-// Copyright (c) A.Sobolev 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2020, 2021, 2022, 2023, 2025
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -270,7 +270,7 @@ int SMySqlDbProvider::GetFileStat(const char * pFileName, long reqItems, DbTable
 {
 	pTbl->fileName = NZOR(pFileName, pTbl->tableName);
 	pTbl->OpenedFileName = pTbl->fileName;
-	pTbl->FixRecSize = pTbl->fields.getRecSize();
+	pTbl->FixRecSize = pTbl->fields.CalculateRecSize();
 	return 1;
 }
 

@@ -1,5 +1,5 @@
 // OBJEVENT.CPP
-// Copyright (c) A.Sobolev 2020, 2021, 2022, 2024
+// Copyright (c) A.Sobolev 2020, 2021, 2022, 2024, 2025
 //
 #include <pp.h>
 #pragma hdrstop
@@ -121,7 +121,7 @@ int PPObjEventSubscription::PutPacket(PPID * pID, PPEventSubscriptionPacket * pP
 {
 	int    ok = 1;
 	PPID   _id = DEREFPTRORZ(pID);
-	const  int is_new = (_id == 0);
+	const  bool is_new = (_id == 0);
 	const  int is_removing = BIN(*pID != 0 && pPack == 0);
 	PPID   hid = 0;
 	SBuffer sbuf;

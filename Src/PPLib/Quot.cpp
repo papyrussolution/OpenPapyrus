@@ -1,5 +1,5 @@
 // QUOT.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -390,10 +390,8 @@ int QuotUpdDialog::editAdvOptions()
 				SetupOprKindCombo(this, CTLSEL_QUOTUPDA_OP, Data.RegisterOpID, 0, &op_type_list, 0);
 			}
 			setCtrlData(CTL_QUOTUPDA_QUOT,    &Data.AdvOptQuot);
-			// @v9.1.0 {
 			AddClusterAssoc(CTL_QUOTUPDA_FLAGS, 0, QuotUpdFilt::fSetupDatedSamples);
 			SetClusterData(CTL_QUOTUPDA_FLAGS, Data.Flags);
-			// } @v9.1.0
 			SetupPPObjCombo(this, CTLSEL_QUOTUPDA_ACTION, PPOBJ_ACTION, 0, 0);
 			if(Data.EventList.GetCount() > 1) {
 				SetComboBoxListText(this, CTLSEL_QUOTUPDA_ACTION);
@@ -412,7 +410,7 @@ int QuotUpdDialog::editAdvOptions()
 			getCtrlData(CTL_QUOTUPDA_KIND, &Data.AdvOptQuotKindID);
 			getCtrlData(CTL_QUOTUPDA_LOC,  &Data.AdvOptLocID);
 			getCtrlData(CTL_QUOTUPDA_QUOT, &Data.AdvOptQuot);
-			GetClusterData(CTL_QUOTUPDA_FLAGS, &Data.Flags); // @v9.1.0
+			GetClusterData(CTL_QUOTUPDA_FLAGS, &Data.Flags);
 			getCtrlData(CTLSEL_QUOTUPDA_OP, &Data.RegisterOpID);
 			getCtrlData(CTLSEL_QUOTUPDA_TOKEN, &Data.EvTokID);
 			if(Data.EventList.GetCount() <= 1) {

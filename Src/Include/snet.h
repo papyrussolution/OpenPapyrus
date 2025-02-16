@@ -597,7 +597,8 @@ public:
 
 	static int  FASTCALL GetHeaderTitle(int hdr, SString & rTitle);
 	static int  FASTCALL GetHeaderId(const char * pTitle);
-	static int  FASTCALL SetHeaderField(StrStrAssocArray & rFldList, int titleId, const char * pValue);
+	static int  SetHeaderField(StrStrAssocArray & rFldList, int titleId, const char * pValue);
+	static bool IsThereHeaderField(const StrStrAssocArray & rFldList, int titleId, SString * pValue);
 	static uint FASTCALL PutHeaderFieldsIntoString(const StrStrAssocArray & rFldList, SString & rBuf);
 	static int  FASTCALL ParseAuth(const char * pAuthParam, Auth & rResult);
 };
@@ -834,18 +835,22 @@ public:
 			tArray,
 			tContentHeader
 		};
-		HttpForm();
+		HttpForm(ScURL & rC);
 		~HttpForm();
         //int    Add(int tagId, void * pData);
         int    AddContentFile(const char * pFileName, const char * pContentType, const char * pContentName);
+		const  SString & GetContentType() const { return ContentType; }
 	private:
+		ScURL & R_C;
+		SString ContentType; // @v12.2.6
 		void * FH;
 		void * LH;
+		void * P_CMime; // @v12.2.6 curl_mime
 	};
     ScURL();
     ~ScURL();
-	int    operator !() const { return (H == 0); }
-
+	bool   operator !() const { return (H == 0); }
+	void * GetHandle() { return H; }
 	enum {
 		authServer = 1
 	};
@@ -863,7 +868,7 @@ public:
 
     int    HttpPost(const char * pUrl, int mflags, HttpForm & rForm, SFile * pReplyStream);
     int    HttpPost(const char * pUrl, int mflags, const StrStrAssocArray * pFields, SFile * pReplyStream);
-	int    HttpPost(const InetUrl & rUrl, int mflags, HttpForm & rForm, SFile * pReplyStream);
+	int    HttpPost(const InetUrl & rUrl, int mflags, const StrStrAssocArray * pHttpHeaderFields, HttpForm & rForm, SFile * pReplyStream);
 	int    HttpPost(const InetUrl & rUrl, int mflags, const StrStrAssocArray * pHttpHeaderFields, const char * pBody, SFile * pReplyStream);
 	int    HttpPut(const InetUrl & rUrl, int mflags, const StrStrAssocArray * pHttpHeaderFields, const char * pBody, SFile * pReplyStream);
     int    HttpGet(const char * pUrl, int mflags, SFile * pReplyStream);
@@ -904,6 +909,7 @@ private:
 	int    SetupCbProgress(SDataMoveProgressInfo * pProgress);
 	void   CleanCbRW();
 	int    SetCommonOptions(int mflags, int bufferSize, const char * pUserAgent);
+	int    SetHttpFormOptions(HttpForm & rF);
 	int    Execute();
 
 	struct InnerUrlInfo {

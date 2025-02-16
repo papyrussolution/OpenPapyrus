@@ -10,7 +10,7 @@
 #include <db.h>
 
 class  TView;
-class  TGroup;
+class  TViewGroup;
 class  TWindow;
 class  TDialog;
 class  TButton;
@@ -341,14 +341,15 @@ struct TEvent {
 	TEvent & setCmd(uint msg, TView * pInfoView);
 	TEvent & setWinCmd(uint uMsg, WPARAM wParam, LPARAM lParam);
 	uint getCtlID() const;
-	int  FASTCALL isCmd(uint cmd) const;
-	int  FASTCALL isKeyDown(uint keyCode) const;
-	int  FASTCALL isCtlEvent(uint ctlID) const;
-	int  FASTCALL isCbSelected(uint ctlID) const;
-	int  FASTCALL isClusterClk(uint ctlID) const;
-	int  FASTCALL wasFocusChanged(uint ctlID) const;
-	int  wasFocusChanged2(uint ctl01, uint ctl02) const;
-	int  wasFocusChanged3(uint ctl01, uint ctl02, uint ctl03) const;
+	bool FASTCALL isCmd(uint cmd) const;
+	bool FASTCALL isKeyDown(uint keyCode) const;
+	bool FASTCALL isCtlEvent(uint ctlID) const;
+	bool FASTCALL isCbSelected(uint ctlID) const;
+	bool FASTCALL isClusterClk(uint ctlID) const;
+	bool FASTCALL wasFocusChanged(uint ctlID) const;
+	bool wasFocusChanged2(uint ctl01, uint ctl02) const;
+	bool wasFocusChanged3(uint ctl01, uint ctl02, uint ctl03) const;
+	bool isCleared() const { return (what == evNothing && message.infoPtr != 0); } // @v12.2.6
 };
 
 #define TVEVENT     event.what
@@ -1844,6 +1845,11 @@ public:
 	int    CreateBrush(int ident, int style, SColor c, int32 hatch, int patternId = 0);
 	int    CreateFont_(int ident, const char * pFace, int height, int flags);
 	int    CreateFont_(int ident, const SFontDescr & rFd); // @v12.2.6
+	//
+	// Descr: Создает экземпляр шрифта по образцу системного хандлера hFont.
+	//   Если overrideHeight > 0, то переопределяет логический размер шрифта.
+	//
+	int    CreateFont_(int ident, HFONT hFont, int overrideHeight); // @v12.2.6
 	int    CreateGradientLinear(int ident, const FRect &);
 	int    CreateGradientRadial(int ident, const FShape::Circle &);
 	int    AddGradientStop(int ident, float off, SColor c);
@@ -2335,12 +2341,10 @@ private:
 
 class TView {
 public:
-	//static void * message(TView * pReceiver, uint what, uint command);
-	//static void * message(TView * pReceiver, uint what, uint command, void * pInfoPtr);
 	static void * FASTCALL messageCommand(TView * pReceiver, uint command);
-	static void * FASTCALL messageCommand(TView * pReceiver, uint command, void * pInfoPtr);
+	static void * STDCALL  messageCommand(TView * pReceiver, uint command, void * pInfoPtr);
 	static void * FASTCALL messageBroadcast(TView * pReceiver, uint command);
-	static void * FASTCALL messageBroadcast(TView * pReceiver, uint command, void * pInfoPtr);
+	static void * STDCALL  messageBroadcast(TView * pReceiver, uint command, void * pInfoPtr);
 	static void * FASTCALL messageKeyDown(TView * pReceiver, uint keyCode);
 	static HFONT setFont(HWND hWnd, const char * pFontName, int height);
 	//
@@ -2359,10 +2363,10 @@ public:
 	static int  FASTCALL SGetWindowText(HWND hWnd, SString & rBuf);
 	static int  FASTCALL SSetWindowText(HWND hWnd, const char * pText);
 	//
-	// Descr: Специализированный метод, вызывающий для всех элементов группы TGroup
+	// Descr: Специализированный метод, вызывающий для всех элементов группы TViewGroup
 	//   метод P_WordSelBlk->OnAcceptInput()
 	//
-	static void CallOnAcceptInputForWordSelExtraBlocks(TGroup * pG);
+	static void CallOnAcceptInputForWordSelExtraBlocks(TViewGroup * pG);
 	//
 	// Descr: перебирает дочерние окна родительского окна hWnd и
 	//   выполняет подстановку шаблонизированных текстовых строк
@@ -2394,7 +2398,7 @@ public:
 	explicit TView(const TRect & bounds);
 	TView();
 	virtual ~TView();
-	virtual int    FASTCALL valid(ushort command);
+	// @v12.2.6 virtual int    FASTCALL valid(ushort command);
 	//
 	// Descr: Метод, используемый для передачи (извлечения) данных в (из)
 	//   экземпляр объекта. Кроме того, метод реализует возрат размера данных объекта.
@@ -2410,6 +2414,7 @@ public:
 	void   setCommands(const TCommandSet & commands);
 	void   setBounds(const TRect & bounds);
 	void   changeBounds(const TRect & bounds);
+	bool   IsCommandValid(ushort command); // @v12.2.6
 	uint   getHelpCtx();
 	TView & SetId(uint id);
 	uint   GetId() const;
@@ -2493,7 +2498,7 @@ public:
 	SPoint2S ViewOrigin;
 	uint32 ViewOptions;
 	TView  * P_Next;
-	TGroup * P_Owner;
+	TViewGroup * P_Owner;
 	HWND   Parent;
 	WNDPROC PrevWindowProc;
 protected:
@@ -2523,15 +2528,15 @@ protected:
 	TCommandSet * P_CmdSet;
 };
 
-class TGroup : public TView {
+class TViewGroup : public TView {
 public:
-	explicit TGroup(const TRect & bounds);
-	~TGroup();
+	explicit TViewGroup(const TRect & bounds);
+	~TViewGroup();
 	DECL_HANDLE_EVENT;
 	virtual void   Insert_(TView *p);
 	virtual void   setState(uint aState, bool enable);
 	virtual int    TransmitData(int dir, void * pData);
-	virtual int    FASTCALL valid(ushort command);
+	// @v12.2.6 virtual int    FASTCALL valid(ushort command);
 	ushort FASTCALL execView(TWindow * p);
 	void   insertView(TView * p, TView * pTarget);
 	void   FASTCALL remove(TView * p);
@@ -2548,6 +2553,7 @@ public:
 	bool   FASTCALL isCurrCtlID(uint ctlID) const;
 	void   SetCurrentView(TView * p, selectMode mode);
 protected:
+	bool   ValidateCommand(TEvent & rEv); // @v12.2.6 @non-virtual
 	TView * P_Current;
 	TView * P_Last;
 	enum {
@@ -2659,14 +2665,16 @@ private:
 	TSVector <Item> L;
 };
 
-class TWindow : public TGroup {
+class TWindow : public TViewGroup {
 public:
 	//
 	// Опции Capability
 	//
 	enum {
-		wbcDrawBuffer      = 0x0001, // Окно использует буферизованную перерисовку
-		wbcLocalDragClient = 0x0002  // Окно является клиентом локального (в рамках процесса) обмена Drag'n'Drop
+		wbcDrawBuffer         = 0x0001, // Окно использует буферизованную перерисовку
+		wbcLocalDragClient    = 0x0002, // Окно является клиентом локального (в рамках процесса) обмена Drag'n'Drop
+		wbcStorableUserParams = 0x0004, // @v12.2.6 Если флаг установлен, то при пользовательском изменении ряда параметров (e.g. координаты и размер)
+			// эти параметры сохраняются в persistent-хранилище.
 	};
 	//
 	// Descr: Опции функции TWindowBase::Create
@@ -2751,8 +2759,8 @@ public:
 	//
 	int    setSmartListBoxOption(uint ctlID, uint option);
 	void   FASTCALL drawCtrl(ushort ctlID);
-	void   showCtrl(ushort ctl, int s /* 1 - show, 0 - hide */);
-	void   showButton(uint cmd, int s /* 1 - show, 0 - hide */);
+	void   showCtrl(ushort ctl, int s/*1 - show, 0 - hide*/);
+	void   showButton(uint cmd, int s/*1 - show, 0 - hide*/);
 	int    setButtonText(uint cmd, const char * pText);
 	int    setButtonBitmap(uint cmd, uint bmpID);
 	void   FASTCALL setTitle(const char *);
@@ -2763,7 +2771,7 @@ public:
 	const  SString & getTitle() const;
 	void   close();
 	DECL_HANDLE_EVENT;
-	virtual void setState(uint aState, bool enable);
+	virtual void   setState(uint aState, bool enable);
 	int    translateKeyCode(ushort keyCode, uint * pCmd) const;
 	void   setupToolbar(const ToolbarList * pToolBar);
 	//
@@ -2825,11 +2833,21 @@ public:
 	// ARG(extraPtr IN): Дополнительные параметры, зависящие от типа управляющего элемента.
 	//
 	int    InsertCtlWithCorrespondingNativeItem(TView * pCtl, uint id, const char * pSymb, void * extraPtr);
+	HWND   GetPrevInStackWindowHandle() const { return PrevInStack; }
+	void   SetPrevInStackWindowHandle(HWND h) { PrevInStack = h; }
 	//
 	//
-	HWND   PrevInStack;
-	HWND   HW; // hWnd;
-	ToolbarList ToolbarL; // @v12.2.4 Toolbar-->ToolbarL
+	//
+	struct StorableUserParams { // @v12.2.6
+		StorableUserParams();
+		StorableUserParams & Z();
+		bool   IsEmpty() const { return (Origin.IsZero() && Size.IsZero()); }
+		bool   FromJsonObj(const SJson * pJs);
+		SJson * ToJsonObj() const;
+
+		SPoint2I Origin;
+		SPoint2I Size;
+	};
 protected:
 	static BOOL CALLBACK SetupCtrlTextProc(HWND hwnd, LPARAM lParam);
 	static int PassMsgToCtrl(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
@@ -2842,13 +2860,24 @@ protected:
 	TView * FASTCALL CtrlIdToView(long id) const;
 	int    RedirectDrawItemMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 	//
-	// Descr: Присваивает экземаляру this элемент LAYOUT, на который указывает
-	//   абстрактный указатель pLayout.
+	// Descr: Присваивает экземаляру this элемент LAYOUT, на который указывает указатель pLayout.
 	//
-	void   SetupLayoutItem(void * pLayout);
-
-	SUiLayout * P_Lfc; // @v12.2.4 (moved from TWindowBase)
-	long   WbCapability; // @v12.2.4 (moved from TWindowBase)
+	void   SetupLayoutItem(SUiLayout * pLayout);
+	// @v12.2.6 {
+	//
+	// Descr: Фиксирует (если необходимо) размер и позицию окна, установленные пользователем.
+	//
+	int    ReckonUserPosition(const TRect & rRect);
+	int    StoreUserParams();
+	int    RestoreUserParams();
+	void   SetStorableUserParamsSymb(const char * pSymb);
+	const  StorableUserParams * GetStorableUserParams() const { return P_StUsrP; } 
+	// } @v12.2.6 
+	HWND   PrevInStack;
+	HWND   HW;
+	ToolbarList ToolbarL; // @v12.2.4 Toolbar-->ToolbarL
+	SUiLayout * P_Lfc;    // @v12.2.4 (moved from TWindowBase)
+	long   WbCapability;  // @v12.2.4 (moved from TWindowBase)
 private:
 	void   STDCALL Helper_SetTitle(const char *, int setOrgTitle);
 	TButton * FASTCALL SearchButton(uint cmd);
@@ -2875,9 +2904,11 @@ private:
 	SString OrgTitle; // Этот заголовок устанавливается функцией setTitle(..., 1)
 		// для того, чтобы в дальнейшем можно было использовать определенное в нем
 		// форматирование функцией setSubTitle
+	SString StorableUserParamsSymb; // @v12.2.6 Символ, идентифицирующий сохраняемые пользовательские параметры окна во внешнем хранилище.
 	LocalMenuPool * P_Lmp;
 	StrAssocArray * P_SymbList; // Специальный контейнер для хранения соответствий идентификаторов элементов и их символов.
 	SVector * P_FontsAry;
+	StorableUserParams * P_StUsrP; // @v12.2.6 Сохраняемые пользовательские параметры окна. Применяются если (WbCapability & wbcStorableUserParams).
 };
 //
 //
@@ -2888,7 +2919,7 @@ public:
 	~TWindowBase();
 	int    Create(void * hParentWnd, long createOptions);
 	int    AddChild(TWindowBase * pChildWindow, long createOptions, long zone);
-	int    AddChildWithLayout(TWindowBase * pChildWindow, long createOptions, void * pLayout);
+	int    AddChildWithLayout(TWindowBase * pChildWindow, long createOptions, SUiLayout * pLayout);
 protected:
 	static void Helper_Finalize(HWND hWnd, TBaseBrowserWindow * pView);
 	TWindowBase(LPCTSTR pWndClsName, long wbCapability);
@@ -3609,7 +3640,7 @@ public:
 	TDialog(uint resID, ConstructorOption); // special constructor.
 	~TDialog();
 	virtual int    TransmitData(int dir, void * pData);
-	virtual int    FASTCALL valid(ushort command);
+	// @v12.2.6 virtual int    FASTCALL valid(ushort command);
 	//
 	// Descr: Запускает немодальное окно диалога
 	//
@@ -3717,6 +3748,7 @@ protected:
 	int    ResizeDlgToRect(const RECT * pRect);
 	int    ResizeDlgToFullScreen();
 	int    BuildEmptyWindow(); // @v12.2.5
+	bool   ValidateCommand(TEvent & rEv); // @v12.2.6
 
 	UserSettings Settings;
 	long   DlgFlags;
@@ -4710,8 +4742,8 @@ public:
 	HWND   H() const;
 	HWND   GetToolbarHWND() const;
 	uint   getItemsCount() const;
-	const  ToolbarItem & getItem(uint idx/* 0.. */) const;
-	const  ToolbarItem & getItemByID(uint /* 0.. */);
+	const  ToolbarItem & getItem(uint idx/*[0..]*/) const;
+	const  ToolbarItem & getItemByID(uint id/*[0..]*/);
 	int    Init(uint res = 0, uint type = 0);
 	int    Init(const ToolbarList *);
 	int    Init(uint cmdID, ToolbarList * pList);
@@ -4815,11 +4847,11 @@ public:
 		fExtGoodsSelMainName      = 0x00002000, // В списке расширенного выбора товара всегда показывать полные наименования товаров
 			// Эта опция потенциально способно ускорить выборку поскольку не будет вынуждать программу лишний раз обращаться к записи товара
 			// когда сокращенное наименование не совпадает с полным (see PPObjGoods::_Selector2()).
-		fEnalbeBillMultiPrint     = 0x00004000, // @v10.3.0 Локальная установка флага PPBillConfig::Flags BCF_ALLOWMULTIPRINT
-		fDisableBillMultiPrint    = 0x00008000, // @v10.3.0 Локальное отключение флага PPBillConfig::Flags BCF_ALLOWMULTIPRINT
+		fEnalbeBillMultiPrint     = 0x00004000, // Локальная установка флага PPBillConfig::Flags BCF_ALLOWMULTIPRINT
+		fDisableBillMultiPrint    = 0x00008000, // Локальное отключение флага PPBillConfig::Flags BCF_ALLOWMULTIPRINT
 			// If (fEnalbeBillMultiPrint ^ fDisableBillMultiPrint), то применяется общая конфигурация PPBillConfig
-		fExtGoodsSelHideGenerics  = 0x00010000, // @v10.7.7 В списке расширенного выбора товара не показывать обобщенные товары
-		fStringHistoryDisabled    = 0x00020000, // @v10.7.9 Запрет на использоватеня StringHistory (может быть проигнорирова при настройке более высокого уровня)
+		fExtGoodsSelHideGenerics  = 0x00010000, // В списке расширенного выбора товара не показывать обобщенные товары
+		fStringHistoryDisabled    = 0x00020000, // Запрет на использоватеня StringHistory (может быть проигнорирова при настройке более высокого уровня)
 		fDateTimePickerBefore1124 = 0x00040000  // @v11.2.6 Использовать старые (до v11.2.4) виджеты подбора даты/периода/времени 
 	};
 	enum {
@@ -4949,7 +4981,7 @@ private:
 #define CTL_SHORTCUTS_ITEMS 1014
 #define SPEC_TITLEWND_ID    (1200 + 100)
 
-class TProgram : public TGroup {
+class TProgram : public TViewGroup {
 public:
 	enum {
 		wndtypNone = 0,
@@ -5065,8 +5097,8 @@ public:
         tbiButtonBrush_F    = 50, // Идентификатор для Fancy-интерфейса (более развиваться не будет)
         tbiButtonPen_F      = 60, // Идентификатор для Fancy-интерфейса (более развиваться не будет)
 		//
-		tbiBlackPen = 70,
-		tbiWhitePen = 71,
+		tbiBlackPen         = 70,
+		tbiWhitePen         = 71,
 		//
 		tbiInvalInpBrush    = 80, // Кисть для индикации недопустимого ввода данных
 		tbiInvalInp2Brush   = 81, // Кисть для индикации недопустимого ввода данных (вариант 2)
@@ -5090,7 +5122,7 @@ public:
 	const SDrawFigure * LoadDrawFigureById(uint id, TWhatmanToolArray::Item * pInfo) const;
 
 	static TProgram * application;   // @global
-	TGroup   * P_DeskTop;
+	TViewGroup * P_DeskTop;
 	TWindow  * P_TopView;
 	TToolbar * P_Toolbar;
 	HWND   H_MainWnd;

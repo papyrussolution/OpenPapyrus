@@ -1,5 +1,5 @@
 // PPDBS.DL6
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 // Database structures
 //
@@ -2842,7 +2842,7 @@ file:
 // Предназначена для формирования отчетности по НДС
 // для предоставления в налоговую службу.
 //
-table VATBook {            // size=160
+/* @v12.2.6 table VATBook {            // size=268
 	autolong  ID;          // @id
 	string Code[24];       // Номер счета-фактуры или документа. v4.4.2 [10]-->[24]
 	int16  LineType_;      // Тип строки (PPVTB_SELL = 1 | PPVTB_BUY = 2 | PPVTB_SIMPLELEDGER [PPOBJ.H])
@@ -2882,6 +2882,55 @@ index:
 	Object, Dt, LineNo (unique mod);
 	LineType_, PaymDt (dup mod);
 	Object, PaymDt (dup mod);
+file:
+	"vatbook.btr";
+	balanced;
+	access=1;
+}*/
+
+table VATBook {            // @v12.2.6 size=324
+	autolong  ID;          // @id
+	date   Dt;             // Дата документа
+	string Code[48];       // Номер счета-фактуры или документа. v4.4.2 [10]-->[24] // @v12.2.6 [24]-->[48]
+	date   CBillDt;        // @v7.3.11 Дата корректирующего документа
+	string CBillCode[48];  // @v7.3.11 Номер корректирующего документа // @v12.2.6 [24]-->[48]
+	string TaxOpCode[8];   // @v8.5.11 Код номера операции для налоговой декларации
+	long   LineNo;         // Номер строки за дату
+	date   InvcDt;         // Дата поступления счета-фактуры
+	date   PaymDt;         // Дата оплаты счета-фактуры
+	date   RcptDt;         // Дата поступления/отгрузки товара
+	long   ArID;           // ->Article.ID Контрагент по документу         // Object-->ArID
+	long   Ar2ID;          // ->Article.ID Дополнительная статья документа // Object2->Ar2ID
+	long   LinkBillID;     // ->Bill.ID    Связанный документ (может быть 0) // @v12.2.6 Link-->LinkBillID
+	long   OpID;           // ->Ref(PPOBJ_OPRKIND), = Bill(Link).OprKind
+	long   LocID;          // ->Location.ID Склад, к которому относится запись
+	long   Flags;          // Флаги
+	double Amount;         // Номинальная сумма                        | (PPVTB_SIMPLELEDGER) Доход
+	double Excise;         // Сумма акциза                             | (PPVTB_SIMPLELEDGER) Доход для налогообложения //
+	double VAT0;           // Сумма со ставкой НДС = 0%                | (PPVTB_SIMPLELEDGER) Расход
+	double Export;         // Сумма экспортной части сделки (НДС = 0%) | (PPVTB_SIMPLELEDGER) Расход для налогообложения //
+	double VAT1;           // Сумма по 1-й ставке НДС (без НДС)
+	double SVAT1;          // Сумма НДС по 1-й ставке
+	double VAT2;           // Сумма по 2-й ставке НДС (без НДС)
+	double SVAT2;          // Сумма НДС по 2-й ставке
+	double VAT3;           // Сумма по переходной ставке НДС (без НДС)
+	double SVAT3;          // Сумма НДС по переходной ставке
+	double VAT4;           // @v12.2.6
+	double SVAT4;          // @v12.2.6
+	double VAT5;           // @v12.2.6
+	double SVAT5;          // @v12.2.6
+	int16  LineType_;      // Тип строки (PPVTB_SELL = 1 | PPVTB_BUY = 2 | PPVTB_SIMPLELEDGER [PPOBJ.H])
+	int16  LineSubType;    // @v7.2.8 Подтип строки (для случаев, когда запись по одному документу должна разбиваться на несколько).
+	int16  Excluded;       // Исключенная запись
+	raw    Reserve2[50];   // @v7.3.11 @reserve // @v12.2.6 [72]-->[50] (48 + 2байта для выравнивания предыдущего поля)
+index:
+	ID (unique);
+	LinkBillID, LineType_, Dt, LineNo, LineSubType (unique mod); // three last segs added since @v3.11.2
+	Dt, LineNo (unique mod);
+	LineType_, Dt, LineNo, LineSubType (unique mod);
+	ArID, Dt, LineNo (unique mod);
+	LineType_, PaymDt (dup mod);
+	ArID, PaymDt (dup mod);
 file:
 	"vatbook.btr";
 	balanced;
@@ -3063,24 +3112,6 @@ file:
 }
 */
 //
-// @construction
-//
-table SysProfiler {
-	date   StartDt;
-	time   StartTm;
-	date   FinDt;
-	time   FinTm;
-	long   Cont;           // Время выполнения (sec)
-	long   UserID;
-	int16  Action;
-	int16  Status;
-index:
-	StartDt, StartTm, Status (dup mod);
-	Action, StartDt, StartTm (dup mod);
-file:
-	"sp.btr";
-}
-//
 // Таблицы для интерфейса с кассовым модулем Кристалл-УКМ
 //
 table Cr_PosLoad {
@@ -3188,6 +3219,39 @@ index:
 file:
 	"zreport.btr";
 }
+
+/*
+table Cr_Sale2 { // В рамках проекта 'Кристалл-SetRetail-gateway'
+	int32 NSmena;
+	double PriceNSP;
+	double SumNSP;
+	double SumNDS;
+	double Summa;
+	time Times;
+	double NDSx2;
+	double NDSx1;
+	lstring BestB[11];
+	lstring Seria[11];
+	double Ck_Disc;
+	double Ck_Disg;
+	lstring Ck_CurAbr[4];
+	double Ck_Curs;
+	int32 Ck_Number;
+	lstring Store[7];
+	double Price;
+	date DateOperation;
+	double Contr_Cost;
+	lstring Contr_Code[8];
+	int32 Ck_Card;
+	int32 Cash_Code;
+	lstring Cassir[11];
+	int32 Code;
+	int16 GrCode;
+	double Quant_S;
+	lstring Operation[2];
+	double Quant;
+}
+*/
 
 table Cr_Sale {
 	double  Quant;         // * Quantity

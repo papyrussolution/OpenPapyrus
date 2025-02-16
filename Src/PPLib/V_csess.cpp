@@ -1291,7 +1291,7 @@ int PPObjDraftCreateRule::AddBySample(PPID * pID, PPID sampleID)
 	int    r = cmCancel;
 	int    valid_data = 0;
 	ushort v = 0;
-	int    is_new = (*pID == 0);
+	const bool is_new = (*pID == 0);
 	DraftCreateRuleDialog * p_dlg = 0;
 	TDialog * p_what_dlg = 0;
 	PPDfCreateRulePacket pack;

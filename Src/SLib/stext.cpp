@@ -679,10 +679,7 @@ int FASTCALL RecognizeLinguaSymb(const char * pSymb, int word)
 				const size_t code_len = sstrlen(p_code);
 				if(temp_buf.HasPrefix(p_code) && code_len > max_found_len) {
 					const char nextc = temp_buf.C(code_len);
-					//
-					// @v9.1.8 Дополнительное ограничение: следующий символ не должен быть латинской буквой.
-					//
-					if(!((nextc >= 'a' && nextc <= 'z') || (nextc >= 'A' && nextc <= 'Z'))) {
+					if(!isasciialpha(nextc)) { // следующий символ не должен быть латинской буквой.
 						max_found_len = code_len;
 						ret_ident = P_LinguaIdentList[i].Id;
 					}
@@ -1380,7 +1377,7 @@ SCodepageIdent & FASTCALL SCodepageIdent::operator = (SCodepage cp)
 int SCodepageIdent::FromStr(const char * pStr)
 {
 	int    ok = 0;
-	SString & r_inp_buf = SLS.AcquireRvlStr(); // @v9.9.4
+	SString & r_inp_buf = SLS.AcquireRvlStr();
 	(r_inp_buf = pStr).Strip();
 	for(uint i = 0; !ok && i < SIZEOFARRAY(__SCpL); i++) {
 		const SCpEntry & r_entry = __SCpL[i];

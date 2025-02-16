@@ -4326,6 +4326,22 @@ int SPaintToolBox::CreateBrush(int ident, int style, SColor c, int32 hatch, int 
 	return ident;
 }
 
+int SPaintToolBox::CreateFont_(int ident, HFONT hFont, int overrideHeight) // @v12.2.6
+{
+	int   result = 0;
+	if(hFont) {
+		LOGFONT f;
+		if(::GetObject(hFont, sizeof(f), &f)) {
+			SFontDescr fd(0, 0, 0);
+			if(overrideHeight > 0)
+				f.lfHeight = overrideHeight;
+			fd.SetLogFont(&f);
+			result = CreateFont_(ident, fd);
+		}
+	}
+	return result;
+}
+
 int SPaintToolBox::CreateFont_(int ident, const SFontDescr & rFd) // @v12.2.6
 {
 	SPaintObj * p_obj = 0;

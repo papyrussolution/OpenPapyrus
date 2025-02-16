@@ -830,8 +830,8 @@ int PPObjUnit::UniteMaxLike()
 			p_list->SortByID();
 			PPLoadText(PPTXT_UNITELIKEUNITS, msg);
 			{
-				PPTransaction tra(1); // @v9.8.6
-				THROW(tra); // @v9.8.6
+				PPTransaction tra(1);
+				THROW(tra);
 				for(uint i = 0; i < p_list->getCount(); i++) {
 					PPID   id = p_list->Get(i).Id;
 					PPID   like_id = 0;
@@ -844,7 +844,7 @@ int PPObjUnit::UniteMaxLike()
 					}
 					PPWaitPercent(i, p_list->getCount() - 1, msg);
 				}
-				THROW(tra.Commit()); // @v9.8.6
+				THROW(tra.Commit());
 			}
 		}
 	}
@@ -1394,7 +1394,7 @@ int PPObjELinkKind::Edit(PPID * pID, void * extraPtr)
 	else
 		MEMSZERO(rec);
 	dlg->setCtrlData(CTL_ELNKK_NAME, rec.Name);
-	dlg->setCtrlData(CTL_ELNKK_SYMB, rec.Symb); // @v9.9.11
+	dlg->setCtrlData(CTL_ELNKK_SYMB, rec.Symb);
 	dlg->setCtrlData(CTL_ELNKK_ID,   &rec.ID);
 	if(rec.ID || !PPMaster)
 		dlg->disableCtrl(CTL_ELNKK_ID, 1);
@@ -1403,13 +1403,13 @@ int PPObjELinkKind::Edit(PPID * pID, void * extraPtr)
 	dlg->AddClusterAssoc(CTL_ELNKK_TYPE, 2, ELNKRT_PAGER);
 	dlg->AddClusterAssoc(CTL_ELNKK_TYPE, 3, ELNKRT_EMAIL);
 	dlg->AddClusterAssoc(CTL_ELNKK_TYPE, 4, ELNKRT_WEBADDR);
-	dlg->AddClusterAssoc(CTL_ELNKK_TYPE, 5, ELNKRT_INTERNALEXTEN); // @v9.9.11
-	dlg->AddClusterAssocDef(CTL_ELNKK_TYPE, 6, ELNKRT_UNKNOWN); // @v9.9.11 5-->6
+	dlg->AddClusterAssoc(CTL_ELNKK_TYPE, 5, ELNKRT_INTERNALEXTEN);
+	dlg->AddClusterAssocDef(CTL_ELNKK_TYPE, 6, ELNKRT_UNKNOWN);
 	dlg->SetClusterData(CTL_ELNKK_TYPE, rec.Type);
 	dlg->setCtrlUInt16(CTL_ELNKK_FLAGS, BIN(rec.Flags & ELNKF_PREF));
 	while(!valid_data && (r = ExecView(dlg)) == cmOK) {
 		dlg->getCtrlData(CTL_ELNKK_NAME, rec.Name);
-		dlg->getCtrlData(CTL_ELNKK_SYMB, rec.Symb); // @v9.9.11
+		dlg->getCtrlData(CTL_ELNKK_SYMB, rec.Symb);
 		if(!CheckName(rec.ID, rec.Name, 1))
 			PPErrorByDialog(dlg, CTL_ELNKK_NAME);
 		else if(!P_Ref->CheckUniqueSymb(Obj, rec.ID, rec.Symb, offsetof(ReferenceTbl::Rec, Symb))) {
@@ -2143,7 +2143,7 @@ int PPObjGlobalUserAcc::PutPacket(PPID * pID, PPGlobalUserAccPacket * pPack, int
 {
 	int    ok = 1;
 	PPID   _id = DEREFPTRORZ(pID);
-	const  int is_new = (_id == 0);
+	const  bool is_new = (_id == 0);
 	const  int is_removing = BIN(_id != 0 && pPack == 0);
 	PPID   hid = 0;
 	SString ext_buffer;
@@ -3463,7 +3463,7 @@ int PPObjUhttStore::PutPacket(PPID * pID, PPUhttStorePacket * pPack, int use_ta)
 {
 	int    ok = 1;
 	PPID   _id = DEREFPTRORZ(pID);
-	const  int is_new = (_id == 0);
+	const  bool is_new = (_id == 0);
 	const  int is_removing = BIN(_id != 0 && pPack == 0);
 	PPID   hid = 0;
 	PPUhttStorePacket org_pack;

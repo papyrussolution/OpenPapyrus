@@ -402,8 +402,6 @@ static int __partition_setup_keys(DBC * dbc, DB_PARTITION * part, const DBMETA *
 	void * dp;
 	COMPQUIET(dd, 0);
 	COMPQUIET(ds, 0);
-	// @v9.6.4 (ctr) memzero(&data, sizeof(data));
-	// @v9.6.4 (ctr) memzero(&key, sizeof(key));
 	DB * dbp = dbc->dbp;
 	ENV * env = dbp->env;
 	// Need to just read the main database. 

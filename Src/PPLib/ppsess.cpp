@@ -3709,7 +3709,6 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 						// ------
 						// @v4.7.7 Convert4108();
 						// [Перенесено в Convert6202()] // @v5.5.1 THROW(Convert4208());
-						// @v5.5.1 THROW(Convert4402());
 						// @v5.5.1 THROW(Convert4405());
 						// @v5.6.8 THROW(Convert4515());
 						// @v6.3.3 THROW(Convert4707());
@@ -3740,9 +3739,8 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 						// @v8.6.1 THROW(Convert6407()); // @v6.4.7
 						// @v8.6.1 THROW(Convert6611()); // @v6.6.11
 						// @v7.6.01 THROW(Convert6708()); // @v6.7.8
-						// @v7.3.11 Конвертация перенесена в Convert7311() THROW(Convert7208()); // @v7.2.8
 						THROW(Convert7305()); // @v7.3.5
-						THROW(Convert7311()); // @v7.3.11
+						// @v12.2.6 THROW(Convert7311()); // @v7.3.11
 						// @v11.1.12 moved to PPCvtTech11112 THROW(Convert7506()); // @v7.5.6
 						THROW(Convert7601()); // @v7.6.1
 						// @v9.4.0 (Перенесено в Convert9400) THROW(Convert7702()); // @v7.7.2
@@ -3770,6 +3768,7 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 						THROW(Convert11200()); // @v11.2.0 Соглашения с клиентами
 						THROW(Convert12000()); // @v12.0.0 Регистры (увеличились длины серии и номера регистра)
 						THROW(Convert12005()); // @v12.0.5 SCardOp
+						THROW(Convert12207()); // @v12.2.7 VATBook
 						{
 							PPVerHistory verh;
 							PPVerHistory::Info vh_info;

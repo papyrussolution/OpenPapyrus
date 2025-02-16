@@ -55,8 +55,6 @@ void ListWindow::executeNM(HWND parent)
 
 void FASTCALL ListWindow::setDef(ListBoxDef * pDef)
 {
-	int    found = 0;
-	TView * p_next = 0;
 	P_Def = pDef;
 	if(P_Def) {
 		UserInterfaceSettings uiset;
@@ -70,11 +68,13 @@ void FASTCALL ListWindow::setDef(ListBoxDef * pDef)
 	}
 	if(P_Lb) {
 		TView * p = GetFirstView();
+		TView * p_next = 0;
+		bool   found = false;
 		do {
 			if(p->TestId(P_Lb->GetId())) {
 				p_next = p->P_Next;
 				remove(p);
-				found = 1;
+				found = true;
 			}
 		} while(!found && p && (p = p->P_Next) != 0);
 		P_Lb->SetId(IsTreeList() ? CTL_TREELBX_TREELIST : CTL_LBX_LIST);
@@ -150,7 +150,7 @@ IMPL_HANDLE_EVENT(ListWindow)
 					::TranslateMessage(&msg);
 					::DispatchMessage(&msg);
 				}
-				if(EndModalCmd && APPL->TestWindowForEndModal(this) && !valid(EndModalCmd))
+				if(EndModalCmd && APPL->TestWindowForEndModal(this) && !IsCommandValid(EndModalCmd))
 					EndModalCmd = 0;
 			} while(!EndModalCmd);
 			APPL->PopModalWindow(this, 0);
@@ -555,7 +555,7 @@ IMPL_HANDLE_EVENT(WordSelector)
 						::TranslateMessage(&msg);
 						::DispatchMessage(&msg);
 					}
-					if(EndModalCmd && APPL->TestWindowForEndModal(this) && !valid(EndModalCmd))
+					if(EndModalCmd && APPL->TestWindowForEndModal(this) && !IsCommandValid(EndModalCmd))
 						EndModalCmd = 0;
 				} while(!EndModalCmd);
 				last_cmd = EndModalCmd;

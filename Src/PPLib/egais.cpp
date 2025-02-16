@@ -1,5 +1,5 @@
 // EGAIS.CPP
-// Copyright (c) A.Sobolev 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 // Интеграция с системой EGAIS
 //
@@ -615,7 +615,7 @@ int PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, bool hor
 	LongArray marked_pos_list;    // Список позиций чека, содержащих маркированный алкоголь (номера позиций [1..])
 	LongArray nonmarked_pos_list; // Список позиций чека, содержащих не маркированный алкоголь (номера позиций [1..])
 	PrcssrAlcReport::GoodsItem agi;
-	SString url;
+	SString url_buf;
 	{
 		for(uint i = 0; i < rPack.GetCount(); i++) {
 			const CCheckLineTbl::Rec & r_item = rPack.GetLineC(i);
@@ -640,7 +640,7 @@ int PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, bool hor
 		PPSyncCashNode cn_pack;
         THROW(cn_obj.GetSync(rPack.Rec.PosNodeID, &cn_pack) > 0);
         const  PPID loc_id = NZOR(locID, cn_pack.LocID); // Переданный параметром locID имеет приоритет перед cn_pack.LocID
-		THROW(GetURL(loc_id, url));
+		THROW(GetURL(loc_id, url_buf));
 		THROW(GetDebugPath(loc_id, temp_path));
 		THROW(GetTemporaryFileName(temp_path, "cc", "EGH", file_name));
 		THROW(GetFSRARID(loc_id, fsrar_ident, &main_org_id));
@@ -967,20 +967,20 @@ int PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, bool hor
 		else {
 			ScURL c;
 			SString req;
-			url.RmvLastSlash().Slash().Cat("xml");
+			url_buf.RmvLastSlash().Slash().Cat("xml");
 			if(horecaAutoWo) { // @v12.1.1
-				url.CatChar('?').CatEq("type", "ChequeV4");
+				url_buf.CatChar('?').CatEq("type", "ChequeV4");
 			}
 			else if(Cfg.E.Flags & Config::fEgaisVer4Fmt) { // @v11.0.11
-				url.CatChar('?').CatEq("type", "ChequeV3"); // Это - не ошибка! Версия протокола 4, а версия чеков 3
+				url_buf.CatChar('?').CatEq("type", "ChequeV3"); // Это - не ошибка! Версия протокола 4, а версия чеков 3
 			}
 			SFile wr_stream(ack_buf, SFile::mWrite);
-			ScURL::HttpForm hf;
+			ScURL::HttpForm hf(c);
 			{
 				SFileFormat::GetMime(SFileFormat::Xml, temp_buf);
 				hf.AddContentFile(file_name, temp_buf, "xml_file");
 			}
-			THROW_SL(c.HttpPost(url, 0, hf, &wr_stream));
+			THROW_SL(c.HttpPost(url_buf, 0, hf, &wr_stream));
 			{
 				//LogSended(rPack);
 				SBuffer * p_wr_buffer = static_cast<SBuffer *>(wr_stream);
@@ -1032,11 +1032,12 @@ int PPEgaisProcessor::PutQuery(PPEgaisProcessor::Packet & rPack, PPID locID, con
 {
 	rAck.Clear();
     int    ok = 1;
-	SString file_name, temp_buf;
+	SString temp_buf;
+	SString file_name;
 	SString temp_path;
 	SBuffer ack_buf;
-	SString url;
-	THROW(GetURL(locID, url));
+	SString url_buf;
+	THROW(GetURL(locID, url_buf));
 	THROW(GetDebugPath(locID, temp_path));
 	THROW(GetTemporaryFileName(temp_path, pUrlSuffix, "EGQ", file_name));
 	THROW(Write(rPack, locID, file_name));
@@ -1046,16 +1047,16 @@ int PPEgaisProcessor::PutQuery(PPEgaisProcessor::Packet & rPack, PPID locID, con
 	else {
 		ScURL c;
 		SString req;
-		url.RmvLastSlash().Slash().Cat("opt").Slash().Cat("in");
+		url_buf.RmvLastSlash().Slash().Cat("opt").Slash().Cat("in");
 		if(!isempty(pUrlSuffix))
-			url.Slash().Cat(pUrlSuffix);
+			url_buf.Slash().Cat(pUrlSuffix);
 		SFile wr_stream(ack_buf, SFile::mWrite);
-		ScURL::HttpForm hf;
+		ScURL::HttpForm hf(c);
 		{
 			SFileFormat::GetMime(SFileFormat::Xml, temp_buf);
 			hf.AddContentFile(file_name, temp_buf, "xml_file");
 		}
-		THROW_SL(c.HttpPost(url, 0, hf, &wr_stream));
+		THROW_SL(c.HttpPost(url_buf, 0, hf, &wr_stream));
 		LogSended(rPack);
 		{
 			SBuffer * p_wr_buffer = static_cast<SBuffer *>(wr_stream);
@@ -1964,9 +1965,9 @@ void PPEgaisProcessor::SetUtmEntry(PPID locID, const UtmEntry * pEntry, const Da
 	if(P_UtmEntry) {
 		PPID   main_org_id = 0;
 		SString fsrar_id;
-		SString url;
+		SString url_buf;
 		SString msg_buf, temp_buf;
-		GetURL(locID, url);
+		GetURL(locID, url_buf);
 		GetFSRARID(locID, fsrar_id, &main_org_id);
 		GetPersonName(main_org_id, temp_buf);
 		msg_buf.Cat(temp_buf).CatDiv('-', 1);
@@ -1974,7 +1975,7 @@ void PPEgaisProcessor::SetUtmEntry(PPID locID, const UtmEntry * pEntry, const Da
 			GetLocationName(locID, temp_buf);
 			msg_buf.Cat(temp_buf).CatDiv('-', 1);
 		}
-		msg_buf.Cat(url).CatDiv('-', 1);
+		msg_buf.Cat(url_buf).CatDiv('-', 1);
 		msg_buf.Cat(fsrar_id);
 		if(pPeriod && !pPeriod->IsZero()) {
 			msg_buf.CatDiv('-', 1).Cat(*pPeriod, 1);
@@ -1989,17 +1990,17 @@ int PPEgaisProcessor::GetUtmList(PPID locID, TSVector <UtmEntry> & rList)
 	int    ok = -1;
 	Reference * p_ref = PPRef;
 	SString fsrar_id;
-	SString url;
+	SString url_buf;
 	PPIDArray main_psn_list;
 	PPID   main_org_id = GetMainOrgID();
 	if(locID && main_org_id) {
 		p_ref->Ot.GetTagStr(PPOBJ_LOCATION, locID, PPTAG_LOC_FSRARID, fsrar_id);
-		p_ref->Ot.GetTagStr(PPOBJ_LOCATION, locID, PPTAG_LOC_EGAISSRVURL, url);
-		if(fsrar_id.NotEmptyS() && url.NotEmptyS()) {
+		p_ref->Ot.GetTagStr(PPOBJ_LOCATION, locID, PPTAG_LOC_EGAISSRVURL, url_buf);
+		if(fsrar_id.NotEmptyS() && url_buf.NotEmptyS()) {
 			UtmEntry new_entry;
 			new_entry.Flags |= UtmEntry::fDefault;
 			new_entry.MainOrgID = main_org_id;
-			STRNSCPY(new_entry.Url, url);
+			STRNSCPY(new_entry.Url, url_buf);
 			STRNSCPY(new_entry.FSRARID, fsrar_id);
 			THROW_SL(rList.insert(&new_entry));
 			ok = 3;
@@ -2024,11 +2025,11 @@ int PPEgaisProcessor::GetUtmList(PPID locID, TSVector <UtmEntry> & rList)
 			for(uint i = 0; i < main_psn_list.getCount(); i++) {
 				const  PPID psn_id = main_psn_list.get(i);
 				p_ref->Ot.GetTagStr(PPOBJ_PERSON, psn_id, PPTAG_PERSON_FSRARID, fsrar_id);
-				p_ref->Ot.GetTagStr(PPOBJ_PERSON, psn_id, PPTAG_PERSON_EGAISSRVURL, url);
-				if(fsrar_id.NotEmptyS() && url.NotEmptyS()) {
+				p_ref->Ot.GetTagStr(PPOBJ_PERSON, psn_id, PPTAG_PERSON_EGAISSRVURL, url_buf);
+				if(fsrar_id.NotEmptyS() && url_buf.NotEmptyS()) {
 					UtmEntry new_entry;
 					new_entry.MainOrgID = psn_id;
-					STRNSCPY(new_entry.Url, url);
+					STRNSCPY(new_entry.Url, url_buf);
 					STRNSCPY(new_entry.FSRARID, fsrar_id);
 					THROW_SL(rList.insert(&new_entry));
 					ok = 2;
@@ -2037,14 +2038,14 @@ int PPEgaisProcessor::GetUtmList(PPID locID, TSVector <UtmEntry> & rList)
 		}
 		if(!rList.getCount()) {
 			fsrar_id = 0;
-			url = 0;
-			THROW(GetURL(locID, url));
+			url_buf.Z();
+			THROW(GetURL(locID, url_buf));
 			THROW(GetFSRARID(locID, fsrar_id, &main_org_id));
 			{
 				UtmEntry new_entry;
 				new_entry.Flags |= UtmEntry::fDefault;
 				new_entry.MainOrgID = main_org_id;
-				STRNSCPY(new_entry.Url, url);
+				STRNSCPY(new_entry.Url, url_buf);
 				STRNSCPY(new_entry.FSRARID, fsrar_id);
 				THROW_SL(rList.insert(&new_entry));
 				ok = 1;

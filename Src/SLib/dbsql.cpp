@@ -1,5 +1,5 @@
 // DBSQL.CPP
-// Copyright (c) A.Sobolev 2008, 2009, 2010, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2008, 2009, 2010, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2025
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -1661,7 +1661,7 @@ int SOraDbProvider::Implement_Open(DBTable * pTbl, const char * pFileName, int o
 {
 	pTbl->fileName = NZOR(pFileName, pTbl->tableName);
 	pTbl->OpenedFileName = pTbl->fileName;
-	pTbl->FixRecSize = pTbl->fields.getRecSize();
+	pTbl->FixRecSize = pTbl->fields.CalculateRecSize();
 	return 1;
 }
 

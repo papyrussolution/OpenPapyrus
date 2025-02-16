@@ -1,5 +1,5 @@
 // V_ATURN.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2024
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2024, 2025
 //
 #include <pp.h>
 #pragma hdrstop
@@ -319,7 +319,7 @@ int PPViewAccturn::CreateGrouping()
 			return ok;
 		}
 	private:
-		TSVector <ACGREC> List; // @v9.8.4 TSArray-->TSVector
+		TSVector <ACGREC> List;
 		StrAssocArray NameList;
 		long   LastNameIdx;
 		SString TempBuf; // @allocreuse
@@ -676,8 +676,8 @@ void PPViewAccturn::FormatCycle(LDATE dt, char * pBuf, size_t bufLen)
 			WLDialog::handleEvent(event);
 			if(event.isCmd(cmClusterClk)) {
 				if(event.isCtlEvent(CTL_ATFLT_GRPACO) || event.isCtlEvent(CTL_ATFLT_LASTONLY)) {
-					ushort v_grpaco   = getCtrlUInt16(CTL_ATFLT_GRPACO);
-					ushort v_lastonly = getCtrlUInt16(CTL_ATFLT_LASTONLY);
+					const ushort v_grpaco   = getCtrlUInt16(CTL_ATFLT_GRPACO);
+					const ushort v_lastonly = getCtrlUInt16(CTL_ATFLT_LASTONLY);
 					disableCtrls((v_grpaco == 0 || (v_lastonly & 0x01)), CTLSEL_ATFLT_CYCLE, CTL_ATFLT_NUMCYCLES, 0);
 				}
 				clearEvent(event);
@@ -695,9 +695,8 @@ void PPViewAccturn::FormatCycle(LDATE dt, char * pBuf, size_t bufLen)
 			pBrw->ViewSize.y = 8;
 		}
 		if((Filt.Flags & (AccturnFilt::fAllCurrencies|AccturnFilt::fLastOnly)) && !Filt.GrpAco) {
-			int col = 0;
 			BrowserDef * p_def = pBrw->getDef();
-			col = p_def ? p_def->getCount() - 2 : -1;
+			const int col = p_def ? (p_def->getCountI()-2) : -1;
 			if(col > 0)
 				pBrw->InsColumn(col, "@currency", /*12*/8, 0, MKSFMT(6, 0), 0);
 		}

@@ -347,7 +347,6 @@
 			MENUITEM "@cmd_receivecharry",					cmReceiveCharry
 			MENUITEM "@cmd_mailcharryfiles",				cmMailCharryFiles
 			MENUITEM SEPARATOR
-			// @v9.7.10 @obsolete MENUITEM "@cmd_importcurrlist",					cmImportCurrList
 			MENUITEM "@cmd_importposrefs",                  cmImportPosRefs
 			MENUITEM SEPARATOR
 			// @v9.2.1 MENUITEM "@cmd_supplgoodsimport",				cmSupplGoodsImport

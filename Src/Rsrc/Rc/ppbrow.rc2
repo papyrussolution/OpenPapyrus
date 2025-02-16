@@ -26,7 +26,7 @@ declare command TB_CBX_SELECTED // выбор строки из комбо-бокса. Комбик рисуется 
 declare command GRAPH           // kbCtrlN
 declare command MOUSEHOVER               // Курсор мыши задержался в одном месте на определенное время.
 declare command REFRESHBYPERIOD          // При установленном в броузере периоде обновления, в PPView передается команда, когда этот период истекает.
-declare command SEARCHNEXT               // 
+declare command SEARCHNEXT               //
 declare command SETUPSARTREINDICATORS    // @internal
 declare command USERSORT                 // @internal Вызывается базовым классом PPViewBrowser в ответ на cmSort для информирования порожденного класса о том, что надо отсортировать данные
 declare command FOREIGNFOCUCNOTIFICATION // @v11.1.12 Вызывается базовым классом PPViewBrowser в ответ на cmNotifyForeignFocus
@@ -696,6 +696,7 @@ toolbar export PERSON TB_FIRST_TOOLBAR {
 	separator
 	CHANGEFILT     : kbCtrlV,     PPDV_FILTER01,        "@{filter}\tCtrl-V"
 	CREATEAUTHFILE : kbCtrlZ,     PPDV_NOICON,          "Создание файла авторизации\tCtrl-Z"
+	GRAPH          : kbCtrlN,     PPDV_PLOT01,          hidden, "@{plot}\tCtrl-N" // @v12.2.6 @construction
 }
 
 toolbar export ACCOUNT TB_FIRST_TOOLBAR {
@@ -6874,7 +6875,7 @@ cmd ReceiveCharry         { "@{cmd_receivecharry}"                         none 
 cmd MailCharryFiles       { "@{cmd_mailcharryfiles}"                       none                  none cmMailCharryFiles }
 cmd ViewObjSync           { "@{cmd_viewobjsync}"                           none                  none cmViewObjSync view = ObjSync }
 cmd AnalyzeObjSyncCmp     { "@{cmd_analyzeobjsynccmp}"                     none                  none cmAnalyzeObjSyncCmp view = ObjSyncCmp }
-cmd ImportCurrList        { "@{cmd_importcurrlist} (obsolete)"             none                  none cmImportCurrList }
+cmd ImportCurrList        { "@{cmd_importcurrlist} (obsolete)"             none                  none cmImportCurrList } // @obsolete
 cmd CorrectAccrelArRefs   { "@{cmd_correctaccrelarrefs}"                   none                  none cmCorrectAccrelArRefs }
 cmd CorrectAccTurnRest    { "@{cmd_correctaccturnrest}"                    none                  none cmCorrectAccTurnRest }
 cmd RecalcBillTurns       { "@{cmd_recalcbillturns}"                       none                  none cmRecalcBillTurns }

@@ -705,6 +705,34 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, bool goodsIdAsArticle, 
 								AddCheckDigToBarcode(bc.Code);
 								if(r_cur_entry.Flags_ & AsyncCashGoodsInfo::fGMarkedType) {
 									const char * p_mark_type = 0;
+									/*
+										FOOTWEAR    Обувь
+										TOBACCO    Табак
+										LIGHT_INDUSTRY    Легкая промышленность
+										MILK    Молоко
+										PERFUMES    Парфюмерия
+										PHOTO    Фототехника
+										TYRES    Шины/диски
+										JEWELRY    Ювелирные изделия
+										WATER    Маркированная бутилированная вода
+										BICYCLES    Велосипеды
+										WHEELCHAIRS    Кресла-коляски
+										DIETARYSUP    БАДы (биологически-активные добавки)
+										ANTISEPTIC    Антисептики
+										DRAFT_BEER    Разливное пиво
+										BEER    Бутылочное или баночное пиво
+										MEDICAL_DEVICES    Медицинские изделия
+										WATER_AND_BEVERAGES    Безалкогольные напитки
+										CAVIAR     Икра осетровых и лососевых рыб (штучный товар)
+										DRAFT_CAVIAR    Икра осетровых и лососевых рыб (фасованный товар)
+										PET_FOOD    Корма для животных
+										OIL    Растительные масла
+										CANNED_FOOD    Консервированные продукты
+										NONALCOHOLIC_BEER    Безалкогольное пиво
+										VETERINARY_DRUGS    Ветеринарные препараты
+										REHABILITATION_MEANS    Технические средства реабилитации
+										DRAFT_BEVERAGES    Разливные безалкогольные напитки
+									*/ 
 									switch(r_cur_entry.ChZnProdType) {
 										case GTCHZNPT_SHOE: p_mark_type = "FOOTWEAR"; break;
 										case GTCHZNPT_TEXTILE: p_mark_type = "LIGHT_INDUSTRY"; break;
@@ -718,6 +746,8 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, bool goodsIdAsArticle, 
 										case GTCHZNPT_ANTISEPTIC: p_mark_type = "ANTISEPTIC"; break; // @v12.0.5
 										case GTCHZNPT_MEDICALDEVICES: p_mark_type = "MEDICAL_DEVICES"; break; // @v12.1.2
 										case GTCHZNPT_SOFTDRINKS: p_mark_type = "WATER_AND_BEVERAGES"; break; // @v12.1.10
+										case GTCHZNPT_NONALCBEER: p_mark_type = "NONALCOHOLIC_BEER"; break; // @v12.2.6 
+										case GTCHZNPT_DIETARYSUPPLEMENT: p_mark_type = "DIETARYSUP"; break; // @v12.2.6
 									}
 									if(p_mark_type)
 										p_writer->PutElement("mark-type", p_mark_type);
@@ -5061,12 +5091,39 @@ static void Cristal2SetRetailGateway_CSessDictionaryOutput(const char * pDictPat
 						dict.GetTableInfo(tbl_id, &tstat);
 						if(dict.LoadTableSpec(&tbl, p_tbl_name)) {
 							line_buf.Z().Cat(tbl.GetName());
-							line_buf.Tab().CatEq("recsize", tbl.getRecSize()).CR();
 							const BNFieldList & r_fld_list = tbl.GetFields();
-							for(uint fi = 0; fi < r_fld_list.getCount(); fi++) {
-								const BNField & r_fld = r_fld_list.getField(fi, true);
-								GetBinaryTypeString(r_fld.T, 1, temp_buf, r_fld.Name, 0);
-								line_buf.Tab().Cat(temp_buf).CR();
+							const BNKeyList & r_idx_list = tbl.GetIndices();
+							line_buf.Tab().CatEq("recsize", /*tbl.getRecSize()*/r_fld_list.CalculateRecSize()).CR();
+							{
+								for(uint fi = 0; fi < r_fld_list.getCount(); fi++) {
+									const BNField & r_fld = r_fld_list.getField(fi, true);
+									GetBinaryTypeString(r_fld.T, 1, temp_buf, r_fld.Name, 0);
+									line_buf.Tab().Cat(temp_buf).CR();
+								}
+							}
+							{
+								SString index_buf;
+								for(uint ii = 0; ii < r_idx_list.getNumKeys(); ii++) {
+									BNKey k = r_idx_list.getKey(ii);
+									index_buf.Z();
+									for(int si = 0; si < k.getNumSeg(); si++) {
+										const int fldid = k.getFieldID(si);
+										const int segf = k.getFlags(si);
+										uint fld_pos = 0;
+										if(r_fld_list.getFieldPosition(fldid, &fld_pos)) {
+											const BNField & r_fld = r_fld_list.getField(fld_pos, true);
+											index_buf.Space().Cat(r_fld.Name);
+										}
+										else if(fldid < r_fld_list.getCount()) {
+											const BNField & r_fld = r_fld_list.getField(fldid, true);
+											index_buf.Space().Cat(r_fld.Name);
+										}
+										else {
+											index_buf.Space().Cat("undef_field").CatChar('#').Cat(fldid);
+										}
+									}
+									line_buf.Tab().Cat(index_buf).CR();
+								}
 							}
 							f_out.WriteLine(line_buf);
 						}
@@ -5081,7 +5138,8 @@ int Test_Cristal2SetRetailGateway()
 {
 	int    ok = 1;
 	const  char * p_src_path = "D:/Papyrus/__TEMP__/tallin";
-	const  char * p_dict_path = "D:/Papyrus/__TEMP__/tallin/PAPIRUS/ccdict";
+	//const  char * p_dict_path = "D:/Papyrus/__TEMP__/tallin/PAPIRUS/ccdict";
+	const  char * p_dict_path = "D:/Papyrus/__TEMP__/tallin/13022025/dict";
 	SString log_file_path;
 	SString dict_info_file_path;
 	Cristal2SetRetailGateway g;

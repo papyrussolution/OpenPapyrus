@@ -1,5 +1,5 @@
 // REGISTER.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2014, 2015, 2016, 2019, 2020, 2022, 2024
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2014, 2015, 2016, 2019, 2020, 2022, 2024, 2025
 // @codepage UTF-8
 // @Kernel
 //
@@ -150,7 +150,7 @@ int RegisterArray::SelectRegister(PPID regTyp, LDATE dt, uint * pPos, RegisterTb
 {
 	int    ok = srrNothing;
 	int    optimal_pos = -1;
-	TSVector <_RegCandidItem> candid_list; // @v9.8.4 TSArray-->TSVector
+	TSVector <_RegCandidItem> candid_list;
 	for(uint i = 0; ok == srrNothing && i < getCount(); i++) {
 		const RegisterTbl::Rec & r_reg = at(i);
 		if(r_reg.RegTypeID == regTyp) {
@@ -260,7 +260,7 @@ int RegisterArray::GetListByType(PPID regTyp, LDATE dt, RegisterArray * pList) c
 	return ok;
 }
 
-int RegisterArray::GetBankAccountList(TSVector <PPBankAccount> * pList) const // @v9.8.6 TSArray-->TSVector
+int RegisterArray::GetBankAccountList(TSVector <PPBankAccount> * pList) const
 {
 	const  LDATE dt = ZERODATE;
 	int    ok = -1;

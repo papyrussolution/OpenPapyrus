@@ -113,39 +113,53 @@ PPObjListWindow::~PPObjListWindow()
 	delete P_Obj;
 }
 
-int FASTCALL PPObjListWindow::valid(ushort command)
+//int FASTCALL PPObjListWindow::valid(ushort command) // @cmValidateCommand
+bool PPObjListWindow::ValidateCommand(TEvent & rEv)
 {
-	if(command == cmOK) {
-		PPID   id;
-		int    r = 1;
-		PPObject * p_obj = P_Obj;
-		ListWindowSmartListBox * p_lb = P_Lb;
-		if(!getResult(&id))
-			id = 0;
-		if(p_lb->IsTreeList()) {
-			r = static_cast<const StdTreeListBoxDef *>(p_lb->P_Def)->HasChildren(id);
-			r = BIN(r && (Flags & OLW_CANSELUPLEVEL) || !r);
-			if(r)
-				r = p_obj->ValidateSelection(id, Flags, ExtraPtr);
-		}
-		else if(p_obj)
-			r = p_obj->ValidateSelection(id, Flags, ExtraPtr);
-		if(r <= 0 && p_obj) {
-			if(r < 0) {
-				// @v11.1.10 p_obj->UpdateSelector(p_lb->def, 0, ExtraPtr);
-				p_obj->Selector(p_lb->P_Def, 0, ExtraPtr); // @v11.1.10
-				p_lb->setRange(p_lb->P_Def->GetRecsCount());
-				p_lb->Draw_();
+	bool   ok = true;
+	assert(rEv.isCmd(cmValidateCommand));
+	if(rEv.isCmd(cmValidateCommand)) {
+		const long cmd = rEv.message.infoLong;
+		if(cmd == cmOK) {
+			bool   r = true;
+			PPObject * p_obj = P_Obj;
+			ListWindowSmartListBox * p_lb = P_Lb;
+			PPID   id;
+			if(!getResult(&id))
+				id = 0;
+			if(p_lb->IsTreeList()) {
+				const bool has_children = static_cast<const StdTreeListBoxDef *>(p_lb->P_Def)->HasChildren(id);
+				r = (!has_children || (Flags & OLW_CANSELUPLEVEL));
+				if(r)
+					r = p_obj->ValidateSelection(id, Flags, ExtraPtr);
 			}
-			return 0;
+			else if(p_obj)
+				r = p_obj->ValidateSelection(id, Flags, ExtraPtr);
+			if(!r) {
+				if(p_obj) {
+					/* @v12.2.6 (закомментировал, поскольку судя по условию этот участок никогда не выполнялся - но есть иррациональные сомнения) if(r < 0) {
+						// @v11.1.10 p_obj->UpdateSelector(p_lb->def, 0, ExtraPtr);
+						p_obj->Selector(p_lb->P_Def, 0, ExtraPtr); // @v11.1.10
+						p_lb->setRange(p_lb->P_Def->GetRecsCount());
+						p_lb->Draw_();
+					}*/
+				}
+				TView::clearEvent(rEv);
+				ok = false;
+			}
 		}
+		if(ok)
+			ok = TDialog::ValidateCommand(rEv);
 	}
-	return ListWindow::valid(command);
+	return ok;
 }
 
 IMPL_HANDLE_EVENT(PPObjListWindow)
 {
-	if(DefaultCmd) {
+	if(event.isCmd(cmValidateCommand)) {
+		ValidateCommand(event);
+	}
+	else if(DefaultCmd) {
 		if(event.isCmd(cmLBDblClk))
 			TVCMD = DefaultCmd;
 		else if(TVKEYDOWN && TVKEY == kbEnter) {

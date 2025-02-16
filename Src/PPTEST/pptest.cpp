@@ -1926,9 +1926,9 @@ int DoConstructionTest()
 	}
 #endif // } 0
 	//TestTransferFileToFtp();
-	//VkInterface::Test();
+	VkInterface::Test();
 	//Test_Cristal2SetRetailGateway();
-	Test_LayoutedListDialog();
+	//Test_LayoutedListDialog();
 	//SentencePieceExperiments();
 	//TestGtinStruc();
 	//PPChZnPrcssr::Test();

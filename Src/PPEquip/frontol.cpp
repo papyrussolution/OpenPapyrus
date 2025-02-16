@@ -648,14 +648,14 @@ int ACS_FRONTOL::ExportData(int updOnly)
 								// @v11.0.9 {
 								int mark_type = 0;
 								switch(gds_info.ChZnProdType) {
-									case GTCHZNPT_SHOE: mark_type = 5; break;
-									case GTCHZNPT_TEXTILE: mark_type = 11; break;
-									case GTCHZNPT_CARTIRE: mark_type = 10; break;
-									case GTCHZNPT_PERFUMERY: mark_type = 9; break;
-									case GTCHZNPT_TOBACCO: mark_type = 4; break; 
-									case GTCHZNPT_ALTTOBACCO: mark_type = 12; break; // @v11.9.0 // @v11.9.2 4-->12
-									case GTCHZNPT_MEDICINE: mark_type = 3; break;
 									case GTCHZNPT_FUR: mark_type = 2; break;
+									case GTCHZNPT_MEDICINE: mark_type = 3; break;
+									case GTCHZNPT_TOBACCO: mark_type = 4; break; 
+									case GTCHZNPT_SHOE: mark_type = 5; break;
+									case GTCHZNPT_PERFUMERY: mark_type = 9; break;
+									case GTCHZNPT_CARTIRE: mark_type = 10; break;
+									case GTCHZNPT_TEXTILE: mark_type = 11; break;
+									case GTCHZNPT_ALTTOBACCO: mark_type = 12; break; // @v11.9.0 // @v11.9.2 4-->12
 									case GTCHZNPT_MILK: mark_type = 13; break; // @v11.3.5
 									case GTCHZNPT_WATER: mark_type = 15; break; // @v11.5.6
 									case GTCHZNPT_BEER: mark_type = 17; break; // @v12.0.3
@@ -665,11 +665,44 @@ int ACS_FRONTOL::ExportData(int updOnly)
 									case GTCHZNPT_ANTISEPTIC: mark_type = 20; break; // @v12.0.5
 									case GTCHZNPT_MEDICALDEVICES: mark_type = 21; break; // @v12.1.2
 									case GTCHZNPT_SOFTDRINKS: mark_type = 23; break; // @v12.1.10
+									case GTCHZNPT_NONALCBEER: mark_type = 25; break; // @v12.2.6 
 									default:
 										if(gds_info.ChZnProdType)
 											mark_type = 7; // 7–иная маркированная продукция
 										break;
 								}
+								/*
+									0 – обычный товар;
+									• 1 – алкогольная продукция;
+									• 2 – изделия из меха;
+									• 3 – лекарственные препараты;
+									• 4 – табачная продукция;
+									• 5 – обувь;
+									• 6 – лотерея;
+									• 7 – иная маркированная продукция;
+									• 8 – фототовары;
+									• 9 – парфюмерная продукция;
+									• 10 – шины;
+									• 11 – товары легкой промышленности;
+									• 12 – альтернативная табачная продукция;
+									• 13 – молочная продукция;
+									• 14 – ювелирные изделия;
+									• 15 – вода;
+									• 16 – никотиносодержащая продукция;
+									• 17 – фасованное пиво;
+									• 18 – разливное пиво;
+									• 19 – БАДы;
+									• 20 – антисептики;
+									• 21 – медицинские изделия;
+									• 22 – кресла-коляски;
+									• 23 – безалкогольные напитки;
+									• 24 – средства реабилитации;
+									• 25 – безалкогольное пиво;
+									• 26 – икра осетровых и лососевых рыб;
+									• 27 – велосипеды;
+									• 28 – ветеринарные препараты;
+									• 101 — табачная продукция (Казахстан).
+								*/ 
 								// } @v11.0.9 
 								if(mark_type)
 									tail.Cat(mark_type); // #55 Признак алкогольной продукции

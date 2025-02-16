@@ -2782,6 +2782,8 @@ struct LDATETIME {
 	bool   operator !() const;
 	bool   FASTCALL operator == (const LDATETIME & s) const;
 	bool   FASTCALL operator != (const LDATETIME & s) const;
+	bool   FASTCALL operator < (const LDATETIME & s) const;
+	bool   FASTCALL operator > (const LDATETIME & s) const;
 	operator LDATE () const { return d; }
 	operator OleDate() const;
 	LDATETIME FASTCALL operator = (OleDate);
@@ -5918,7 +5920,7 @@ public:
 	const  BNField & getField(const char * pName, uint * pPos = 0) const;
 	const  BNField & FASTCALL operator[](uint i) const { return getField(i); }
 	uint   getCount() const { return count; }
-	RECORDSIZE getRecSize() const;
+	RECORDSIZE CalculateRecSize() const;
 	int    setFieldId(uint fldNo /* 0..(count-1) */, int fldId);
 	int    IsEqualRecords(const void * pRec1, const void * pRec2, LongArray * pNeqFldList = 0) const;
 	//
@@ -9492,7 +9494,7 @@ public:
 	bool   FASTCALL IsEq(const StrStrAssocArray & src) const;
 	uint   getCount() const;
 	SStrToStrAssoc FASTCALL at(uint pos) const;
-	int    Search(const char * pKey, SString * pVal, uint * pPos) const;
+	bool   Search(const char * pKey, SString * pVal, uint * pPos) const;
 	int    Add(const char * pKey, const char * pVal, int replaceDup = 1);
 	int    Remove(const char * pKey);
 protected:
@@ -10756,7 +10758,7 @@ public:
 	};
 
 	static bool   GetUserHandle(/*Settings*/WinUserBlock & rSettings, uint flags, BOOL & bLoadedProfile, PROFILEINFO & rProfile, HANDLE hCmdPipe);
-	static bool   GetUserName_(SString & rBuf);
+	static bool   GetUserName_(SString & rBufUtf8);
 	static bool   GetAccountNameInfo(const char * pAccName, AccountInfo & rInfo);
 	//
 	// Descr: Типы вызова функции Logon().
@@ -15077,6 +15079,7 @@ public:
 	operator POINT & ();
 	//operator POINT() const;
 	SPoint2I & Z();
+	bool   IsZero() const { return (x == 0 && y == 0); }
 	int    x;
 	int    y;
 };

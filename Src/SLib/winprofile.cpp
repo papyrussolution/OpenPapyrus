@@ -330,13 +330,14 @@ static SPtrHandle DuplicateAccessToken(SPtrHandle & rH, LPCSTR file, int line)
 	return true;
 }
 
-/*static*/bool SSystem::GetUserName_(SString & rBuf)
+/*static*/bool SSystem::GetUserName_(SString & rBufUtf8)
 {
+	rBufUtf8.Z();
 	bool    ok = false;
 	wchar_t _buf[256];
 	DWORD buf_len = SIZEOFARRAY(_buf);
 	if(::GetUserNameW(_buf, &buf_len)) {
-		ok = rBuf.CopyUtf8FromUnicode(_buf, sstrlen(_buf), 1);
+		ok = rBufUtf8.CopyUtf8FromUnicode(_buf, sstrlen(_buf), 1);
 	}
 	return ok;
 }

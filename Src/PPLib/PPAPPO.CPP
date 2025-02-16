@@ -810,7 +810,6 @@ int PPApp::processCommand(uint cmd)
 		case cmMailCharryFiles:       SendCharryFiles();                 break;
 		case cmAnalyzeObjSyncCmp:     AnalyzeObjSyncCmp(1);              break;
 		case cmCalcGoodsSaldo:        ProcessGoodsSaldo();               break;
-		// @v9.7.10 @obsolete case cmImportCurrList:        ImportCurrencyList();              break;
 		// @v12.0.5 @unused case cmSupplGoodsImport:      SupplGoodsImport();                break;
 		case cmSupplInterchange:      DoSupplInterchange(0);             break;
 		case cmAddressBook:           ViewAddressBook();                 break;
@@ -822,21 +821,16 @@ int PPApp::processCommand(uint cmd)
 		case cmViewLogs:              ViewLogs();                        break;
 		case cmPrcPane:               ExecPrcPane(0);                    break;
 		case cmRemoveZeroLinkCCLines: RemoveZeroLinkCCLines();           break;
-		// @obsolete since @v10.9.3 case cmEditDesktops:          EditCommandGroup(0, ZEROGUID, cmdgrpcDesktop); break;
 		case cmSelDesktop:
 			if(SelectCommandGroup(DS.GetTLA().Lc.DesktopUuid_, 0, 0, cmdgrpcDesktop, false, 0)) {
 				PPDesktop::Open(/*LConfig.DesktopID*/LConfig.DesktopUuid_, 0/*createIfZero*/);
 			}
 			break;
-		// @obsolete since @v10.9.3 case cmEditMenus: EditCommandGroup(0, ZEROGUID, cmdgrpcMenu); break;
-		// @v10.9.3 (obsolete) case cmEditMenusFromFile:     EditMenusFromFile();             break;
 		case cmEditWhatman:           PPWhatmanWindow::Edit(0, 0);     break;
 		case cmBillExpImpParams:      EditBillImpExpParams(1);         break;
 		case cmBRowExpImpParams:      EditBillImpExpParams(0);         break;
 		case cmPriceListExpImpParams: EditPriceListImpExpParams();     break;
-		case cmCashSessExpImpParams:
-			// @v9.1.3 EditCSessImpExpParams();
-			break;
+		case cmCashSessExpImpParams:  /*@v9.1.3 EditCSessImpExpParams();*/ break;
 		case cmExpImpParamsInventory: EditInventoryImpExpParams();     break;
 		case cmGoodsExpImpParams:     EditGoodsImpExpParams();         break;
 		case cmImpExpListConfig:      EditImpExpConfigs();             break;
@@ -923,17 +917,11 @@ int PPApp::processCommand(uint cmd)
 		case cmConvertLatexToHtml:      PPTex2Html(); break;
 		case cmConvertVersionToHtml:    PPVer2Html(); break;
 		// @underconstruction case cmGenerateGoodsBills:   GenerateGoodsBills(); break;
-		// @v3.7.2 case cmConvert229:           Convert229();         break;
-		// @v3.7.2 case cmConvert253:           Convert253();         break;
-		// @v3.7.2 case cmConvert270:           Convert270();         break;
-		// @v3.7.2 case cmConvert300:           Convert300();         break;
-		// @v4.4.2 case cmConvert301:           Convert301();         break;
 		// @v4.4.2 case cmConvert329:           Convert329();         break;
 		// @v4.4.5 case cmConvert3512:          Convert3512();        break;
 		// @v9.0.4 case cmConvert372:           Convert372();                    break;
 		// @v9.0.4 case cmConvert400:           Convert400();                    break;
 		// @v9.0.4 case cmConvert31102:         Convert31102();                  break;
-		case cmConvert4402:          Convert4402();                   break;
 		case cmConvert4405:          Convert4405();                   break;
 		case cmConvert4707:          Convert4707();                   break;
 		case cmConvert4805:          Convert4805();                   break;

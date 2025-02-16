@@ -1052,7 +1052,7 @@ void GnuPlot::SetDashType()
 	custom_dashtype_def * new_dashtype = NULL;
 	custom_dashtype_def * prev_dashtype = NULL;
 	int    tag;
-	int    is_new = FALSE;
+	bool   is_new = false;
 	Pgm.Shift();
 	// get tag 
 	if(Pgm.EndOfCommand() || ((tag = IntExpression()) <= 0))
@@ -1073,11 +1073,11 @@ void GnuPlot::SetDashType()
 		new_dashtype->next = this_dashtype;
 		new_dashtype->dashtype = loc_dt;
 		this_dashtype = new_dashtype;
-		is_new = TRUE;
+		is_new = true;
 	}
 	if(Pgm.AlmostEqualsCur("def$ault")) {
 		DeleteDashType(prev_dashtype, this_dashtype);
-		is_new = FALSE;
+		is_new = false;
 		Pgm.Shift();
 	}
 	else {

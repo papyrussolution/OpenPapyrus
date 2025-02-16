@@ -1,5 +1,5 @@
 // COMDISP.H
-// Copyright (c) V.Nasonov, A.Starodub 2003, 2004, 2006, 2007, 2013, 2017, 2018, 2019, 2020, 2021, 2023, 2024
+// Copyright (c) V.Nasonov, A.Starodub 2003, 2004, 2006, 2007, 2013, 2017, 2018, 2019, 2020, 2021, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #ifndef __COMDISP_H // {
@@ -69,7 +69,7 @@ private:
 	void   SetErrCode();
 	SString ProgIdent; // Для сообщений об ошибках
 	IDispatch * P_Disp;
-	TSVector <DispIDEntry> DispIDAry; // @v10.1.3 TSArray-->TSVector
+	TSVector <DispIDEntry> DispIDAry;
 	SArray * P_ParamsAry;
 	HRESULT HRes;
 };

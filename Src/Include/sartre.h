@@ -1,5 +1,5 @@
 // SARTRE.H
-// Copyright (c) A.Sobolev 2011, 2012, 2016, 2017, 2018, 2020, 2022, 2023
+// Copyright (c) A.Sobolev 2011, 2012, 2016, 2017, 2018, 2020, 2022, 2023, 2025
 // @codepage UTF-8
 //
 /*
@@ -358,7 +358,7 @@ struct SrWordAssoc { // @flat
 	int32  AccentModelID;  // @todo Модель ударений
 	int32  PrefixID;       //
 	int32  AffixModelID;   // @todo Аффиксная модель для проверки правописания
-	NGID   AbbrExpID;      // @v9.8.12 NGram, развертывающая аббревиатуру
+	NGID   AbbrExpID;      // NGram, развертывающая аббревиатуру
 };
 //
 // {id;word}
@@ -461,7 +461,7 @@ public:
 	int    Add(SrNGram & rNGram);
 	int    Search(NGID id, SrNGram * pNGram);
 	int    Search(const SrNGram & rNGram, NGID * pID);
-	int    SearchByPrefix(const SrNGram & rNGram, TSVector <NGID> & rList); // @v9.8.4 TSArray-->TSVect
+	int    SearchByPrefix(const SrNGram & rNGram, TSVector <NGID> & rList);
 	int    SerializeRecBuf(int dir, SrNGram * pRec, SBuffer & rBuf);
 private:
 	long   SeqID;
@@ -713,13 +713,13 @@ public:
 	enum {
 		inpFlexiaModel = 1,
 		inpMySpell,
-		inpFirstnames, // @v9.7.8
-		inpSurnames,   // @v9.7.8
+		inpFirstnames,
+		inpSurnames,
 	};
 	enum {
 		fldAncodeFileName = 1,
 		fldFlexiaModelFileName,
-		fldSingleFileName // @v9.7.8
+		fldSingleFileName
 	};
 	enum {
 		fTest = 0x0001
@@ -747,7 +747,7 @@ struct SrWordInfo { // @flat
 	int32  FormID;     // SrGrammarTbl.ID Идентификатор словоформы найденного слова
 	// Для того, чтобы получить итоговое описание словоформы необходимо сцепить словоформы BaseFormID и FormID
 	int32  WaID;       // Идентификатор дескриптивной ассоциации слова
-	NGID   AbbrExpID;  // @v9.8.12 SrNGramTbl.ID Расшифровка аббревиатуры
+	NGID   AbbrExpID;  // SrNGramTbl.ID Расшифровка аббревиатуры
 	double Score;      // Величина сопоставления данной грамматической формы с требуемой (при преобразовании слова)
 };
 

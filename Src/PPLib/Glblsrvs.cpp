@@ -28,8 +28,8 @@ void PPGlobalServiceLogTalkingHelper::Log(const char * pPrefix, const char * pTa
 	}
 }
 
-static SString P_VKUrlBase("https://api.vk.com");
-static SString P_VKMethodUrlBase("https://api.vk.com/method");
+// @v12.2.6 static SString P_VKUrlBase("https://api.vk.com");
+static const char * P_VKMethodUrlBase = "https://api.vk.com/method";
 //static const char * P_VKAppId = "7685698"; // "7402217"; // Идентификатор приложения (аргумент client_id в запросах)
 
 VkInterface::ErrorResponse::ErrorResponse() : Code(0)
@@ -40,6 +40,90 @@ VkInterface::ErrorResponse & VkInterface::ErrorResponse::Z()
 {
 	Code = 0;
 	Message.Z();
+	return *this;
+}
+
+int VkInterface::ErrorResponse::FromJsonObj(const SJson * pJs) // @v12.2.6
+{
+	Z();
+	int    ok = -1;
+	if(SJson::IsObject(pJs)) {
+		bool is_error = false;
+		// {"error":"ERR_UPLOAD_BAD_IMAGE_SIZE: market photo min size 400x400","bwact":"do_add","server":532236,"_sig":"c808663daa0ad9ed3df608cb24226234"}
+		for(const SJson * p_cur = pJs->P_Child; p_cur; p_cur = p_cur->P_Next) {
+			if(p_cur->Text.IsEqiAscii("error")) {
+				is_error = true;
+				if(p_cur->P_Child) {
+					if(p_cur->P_Child->Type == SJson::tSTRING) {
+						(Message = p_cur->P_Child->Text).Unescape();
+					}
+					else if(p_cur->P_Child->Type == SJson::tOBJECT) { 
+						for(const SJson * p_response = p_cur->P_Child->P_Child; p_response; p_response = p_response->P_Next) {
+							if(p_response->P_Child) {
+								if(p_response->Text.IsEqiAscii("error_code")) {
+									Code = p_response->P_Child->Text.ToLong();
+								}
+								else if(p_response->Text.IsEqiAscii("error_msg")) {
+									Message = p_response->P_Child->Text.Unescape();
+								}
+							}
+						}
+					}
+				}
+			}
+			else if(is_error) { // "error" was occured
+				// Image upload error tags
+				if(p_cur->Text.IsEqiAscii("bwact")) {
+					;
+				}
+				else if(p_cur->Text.IsEqiAscii("server")) {
+					;
+				}
+				else if(p_cur->Text.IsEqiAscii("_sig")) {
+					;
+				}
+			}
+		}
+		if(is_error)
+			ok = 1;
+	}
+	else
+		ok = 0;
+	return ok;
+}
+
+VkInterface::ImageReplyMeta::ImageReplyMeta()
+{
+}
+		
+VkInterface::ImageReplyMeta & VkInterface::ImageReplyMeta::Z()
+{
+	Size.Z();
+	Kid.Z();
+	return *this;
+}
+
+VkInterface::PostImageReply::PostImageReply() : UserId(0), GroupId(0), AlbumId(0), AppId(0)
+{
+}
+		
+VkInterface::PostImageReply & VkInterface::PostImageReply::Z()
+{
+	UserId = 0;
+	GroupId = 0;
+	AlbumId = 0;
+	AppId = 0;
+	Sha.Z();
+	Secret.Z();
+	Hash.Z();
+	Server.Z();
+	RequestId.Z();
+	Photo.Z();
+	CropData.Z();
+	CropHash.Z();
+	Meta.Z();
+	Err.Z();
+	OriginalReplyText.Z();
 	return *this;
 }
 
@@ -232,38 +316,50 @@ int VkInterface::Setup(PPID guaID, uint flags)
 int VkInterface::WallPost(const SString & rMessage, const SString & rLinkFilePath, SString & rOutput)
 {
 	int    ok = 1;
+	SString reply_buf;
 	SString temp_buf;
 	SString upload_url;
-	SString photo, server, hash, id, owner_id;
+	//SString photo;
+	//SString server;
+	//SString hash;
+	PostImageReply reply;
 	SJson * p_json_doc = 0;
 	THROW(Photos_GetWallUploadServer(upload_url));
 	{
-		THROW(PhotoToReq(upload_url, rLinkFilePath, temp_buf, "photo"));
-		THROW_SL(p_json_doc = SJson::Parse(temp_buf.cptr()));
-		THROW(ReadError(p_json_doc, LastErrResp) < 0);
-		for(const SJson * p_cur = p_json_doc; p_cur; p_cur = p_cur->P_Next) {
-			if(p_cur->Type == SJson::tOBJECT) {
-				for(const SJson * p_obj = p_cur->P_Child; p_obj; p_obj = p_obj->P_Next) {
-					if(p_obj->Text.IsEqiAscii("server")) {
-						THROW(p_obj->P_Child)
-						server = p_obj->P_Child->Text;
-					}
-					else if(p_obj->Text.IsEqiAscii("photo")) {
-						THROW(p_obj->P_Child)
-						photo = p_obj->P_Child->Text.Unescape();
-					}
-					else if(p_obj->Text.IsEqiAscii("hash")) {
-						THROW(p_obj->P_Child);
-						hash = p_obj->P_Child->Text;
+		THROW(PhotoToReq(upload_url, rLinkFilePath, reply, "photo"));
+		//THROW_SL(p_json_doc = SJson::Parse(reply_buf.cptr()));
+		//if(reply.Err.Code)
+		if(LastErrResp.FromJsonObj(p_json_doc) > 0) {
+			; // @err
+		}
+		else {
+			/*
+			for(const SJson * p_cur = p_json_doc; p_cur; p_cur = p_cur->P_Next) {
+				if(p_cur->Type == SJson::tOBJECT) {
+					for(const SJson * p_obj = p_cur->P_Child; p_obj; p_obj = p_obj->P_Next) {
+						if(p_obj->Text.IsEqiAscii("server")) {
+							THROW(p_obj->P_Child)
+							server = p_obj->P_Child->Text;
+						}
+						else if(p_obj->Text.IsEqiAscii("photo")) {
+							THROW(p_obj->P_Child)
+							photo = p_obj->P_Child->Text.Unescape();
+						}
+						else if(p_obj->Text.IsEqiAscii("hash")) {
+							THROW(p_obj->P_Child);
+							hash = p_obj->P_Child->Text;
+						}
 					}
 				}
-			}
+			}*/
 		}
 		ZDELETE(p_json_doc);
 	}
 	{
-		THROW(Photos_SaveWallPhoto(photo, server, hash, temp_buf.Z()));
-		THROW_SL(p_json_doc = SJson::Parse(temp_buf.cptr()));
+		SString id;
+		SString owner_id;
+		THROW(Photos_SaveWallPhoto(reply.Photo, reply.Server, reply.Hash, reply_buf));
+		THROW_SL(p_json_doc = SJson::Parse(reply_buf));
 		for(const SJson * p_cur = p_json_doc; p_cur; p_cur = p_cur->P_Next) {
 			if(p_cur->Type==SJson::tOBJECT) {
 				for(const SJson * p_obj = p_cur->P_Child; p_obj; p_obj = p_obj->P_Next) {
@@ -284,10 +380,10 @@ int VkInterface::WallPost(const SString & rMessage, const SString & rLinkFilePat
 			}
 		}
 		ZDELETE(p_json_doc);
-	}
-	if(id.Len() > 0 && owner_id.Len() > 0) {
-		photo.Z().Cat("photo").Cat(owner_id).CatChar('_').Cat(id);
-		THROW(Wall_Post(rMessage, photo, temp_buf));
+		if(id.Len() && owner_id.Len()) {
+			temp_buf.Z().Cat("photo").Cat(owner_id).CatChar('_').Cat(id);
+			THROW(Wall_Post(rMessage, temp_buf, reply_buf));
+		}
 	}
 	CATCHZOK;
 	ZDELETE(p_json_doc);
@@ -297,43 +393,54 @@ int VkInterface::WallPost(const SString & rMessage, const SString & rLinkFilePat
 int VkInterface::PutWareToMarket(const MarketWareItem & rItem, MarketWareItem & rResultItem)
 {
 	int    ok = 1;
-	SString temp_buf;
+	SString reply_buf;
 	SString upload_url;
-	SString photo;
-	SString server;
-	SString hash;
-	SString crop_data;
-	SString crop_hash;
-	SString photo_id;
+	//SString photo_id;
 	SJson * p_json_doc = 0;
+	PostImageReply post_img_reply;
+	// @v12.2.7 {
+	int64   photo_id = 0;
+	if(PublishImage(VkInterface::ccatMarketProductPhoto, rItem.ImgPath, &photo_id) > 0) {
+		;
+	}
+	else {
+		photo_id = 0;
+	}
+	// } @v12.2.7 
+#if 0 // @v12.2.7 {
 	{
 		THROW(Photos_GetMarketUploadServer(/*rVkStruct,*/1, upload_url));
-		THROW(PhotoToReq(upload_url, rItem.ImgPath, temp_buf, "file"));
-		THROW_SL(p_json_doc = SJson::Parse(temp_buf.cptr()));
-		THROW(ReadError(p_json_doc, LastErrResp) < 0);
-		for(const SJson * p_cur = p_json_doc; p_cur; p_cur = p_cur->P_Next) {
-			if(p_cur->Type == SJson::tOBJECT) {
-				for(const SJson * p_obj = p_cur->P_Child; p_obj; p_obj = p_obj->P_Next) {
-					if(p_obj->P_Child) {
-						if(p_obj->Text.IsEqiAscii("server"))
-							server = p_obj->P_Child->Text;
-						else if(p_obj->Text.IsEqiAscii("photo"))
-							photo = p_obj->P_Child->Text.Unescape();
-						else if(p_obj->Text.IsEqiAscii("hash"))
-							hash = p_obj->P_Child->Text;
-						else if(p_obj->Text.IsEqiAscii("crop_data"))
-							crop_data = p_obj->P_Child->Text.Unescape();
-						else if(p_obj->Text.IsEqiAscii("crop_hash"))
-							crop_hash = p_obj->P_Child->Text;
+		THROW(PhotoToReq(upload_url, rItem.ImgPath, post_img_reply, "file"));
+		//THROW_SL(p_json_doc = SJson::Parse(temp_buf));
+		//THROW(ReadError(p_json_doc, LastErrResp) < 0);
+		if(LastErrResp.FromJsonObj(p_json_doc) > 0) {
+			; // @err
+		}
+		else {
+			/*for(const SJson * p_cur = p_json_doc; p_cur; p_cur = p_cur->P_Next) {
+				if(p_cur->Type == SJson::tOBJECT) {
+					for(const SJson * p_obj = p_cur->P_Child; p_obj; p_obj = p_obj->P_Next) {
+						if(p_obj->P_Child) {
+							if(p_obj->Text.IsEqiAscii("server"))
+								server = p_obj->P_Child->Text;
+							else if(p_obj->Text.IsEqiAscii("photo"))
+								photo = p_obj->P_Child->Text.Unescape();
+							else if(p_obj->Text.IsEqiAscii("hash"))
+								hash = p_obj->P_Child->Text;
+							else if(p_obj->Text.IsEqiAscii("crop_data"))
+								crop_data = p_obj->P_Child->Text.Unescape();
+							else if(p_obj->Text.IsEqiAscii("crop_hash"))
+								crop_hash = p_obj->P_Child->Text;
+						}
 					}
 				}
-			}
+			}*/
 		}
 		ZDELETE(p_json_doc);
 	}
 	{
-		THROW(Photos_SaveMarketPhoto(photo, server, hash, crop_data, crop_hash, temp_buf));
-		THROW_SL(p_json_doc = SJson::Parse(temp_buf.cptr()));
+		THROW(Photos_SaveMarketPhoto(post_img_reply.Photo, post_img_reply.Server, post_img_reply.Hash, post_img_reply.CropData, post_img_reply.CropHash, reply_buf));
+		THROW_SL(p_json_doc = SJson::Parse(reply_buf));
 		for(const SJson * p_cur = p_json_doc; p_cur; p_cur = p_cur->P_Next) {
 			if(p_cur->Type == SJson::tOBJECT) {
 				for(const SJson * p_obj = p_cur->P_Child; p_obj; p_obj = p_obj->P_Next) {
@@ -352,38 +459,45 @@ int VkInterface::PutWareToMarket(const MarketWareItem & rItem, MarketWareItem & 
 		}
 		ZDELETE(p_json_doc);
 	}
+#endif // } 0 @v12.2.7
 	{
-		SString name, descr;
+		SString name;
+		SString descr;
 		bool   test_item_not_found_error = false;
 		(name = rItem.Name).Transf(CTRANSF_INNER_TO_UTF8).ToUrl();
 		(descr = rItem.Description).Transf(CTRANSF_INNER_TO_UTF8).ToUrl();
-		SString url(P_VKMethodUrlBase);
+		SString url_buf(P_VKMethodUrlBase);
 		if(rItem.OuterId > 0) {
-			url.SetLastDSlash().Cat("market.edit").CatChar('?').CatEq("item_id", rItem.OuterId).CatChar('&');
+			url_buf.SetLastDSlash().Cat("market.edit").CatChar('?').CatEq("item_id", rItem.OuterId).CatChar('&');
 		}
 		else {
-			url.SetLastDSlash().Cat("market.add").CatChar('?');
+			url_buf.SetLastDSlash().Cat("market.add").CatChar('?');
 		}
-		url.CatEq("owner_id", SString("-").Cat(/*rVkStruct.GroupId*/Ib.GroupId)).CatChar('&')
+		url_buf.CatEq("owner_id", SString("-").Cat(/*rVkStruct.GroupId*/Ib.GroupId)).CatChar('&')
 			.CatEq("access_token", Ib.CliAccsKey).CatChar('&');
-			AppendParamProtoVer(url).CatChar('&')
+			AppendParamProtoVer(url_buf).CatChar('&')
 			.CatEq("name", name).CatChar('&')
 			.CatEq("category_id", /*catId*/1100LL).CatChar('&')
 			.CatEq("price", rItem.Price, MKSFMTD_020).CatChar('&')
 			.CatEq("main_photo_id", photo_id).CatChar('&')
 			.CatEq("description", descr);
-		THROW(GetRequest(url, temp_buf, ScURL::mfDontVerifySslPeer));
-		THROW_SL(p_json_doc = SJson::Parse(temp_buf.cptr()));
-		THROW(ReadError(p_json_doc, LastErrResp) < 0);
-		for(const SJson * p_cur = p_json_doc; p_cur; p_cur = p_cur->P_Next) {
-			if(p_cur->Type == SJson::tOBJECT) {
-				for(const SJson * p_obj = p_cur->P_Child; p_obj; p_obj = p_obj->P_Next) {
-					if(p_obj->Text.IsEqiAscii("response")) {
-						const SJson * p_response_node = p_obj->P_Child;
-						if(p_response_node->P_Child) {
-							for(const SJson * p_response_item = p_response_node->P_Child; p_response_item; p_response_item = p_response_item->P_Next) {
-								if(p_response_item->Text.IsEqiAscii("market_item_id")) {
-									rResultItem.OuterId = p_response_item->P_Child->Text.ToInt64();
+		THROW(GetRequest(url_buf, reply_buf, ScURL::mfDontVerifySslPeer));
+		THROW_SL(p_json_doc = SJson::Parse(reply_buf));
+		//THROW(ReadError(p_json_doc, LastErrResp) < 0);
+		if(LastErrResp.FromJsonObj(p_json_doc) > 0) {
+			; // @err
+		}
+		else {
+			for(const SJson * p_cur = p_json_doc; p_cur; p_cur = p_cur->P_Next) {
+				if(p_cur->Type == SJson::tOBJECT) {
+					for(const SJson * p_obj = p_cur->P_Child; p_obj; p_obj = p_obj->P_Next) {
+						if(p_obj->Text.IsEqiAscii("response")) {
+							const SJson * p_response_node = p_obj->P_Child;
+							if(p_response_node->P_Child) {
+								for(const SJson * p_response_item = p_response_node->P_Child; p_response_item; p_response_item = p_response_item->P_Next) {
+									if(p_response_item->Text.IsEqiAscii("market_item_id")) {
+										rResultItem.OuterId = p_response_item->P_Child->Text.ToInt64();
+									}
 								}
 							}
 						}
@@ -423,7 +537,7 @@ int VkInterface::ParseUploadServer(const SString & rJson, SString & rUploadOut)
 	return ok;
 }
 
-int  VkInterface::Photos_GetWallUploadServer(SString & rOutput)
+int VkInterface::Photos_GetWallUploadServer(SString & rOutput)
 {
 	rOutput.Z();
 	int    ok = 1;
@@ -439,7 +553,7 @@ int  VkInterface::Photos_GetWallUploadServer(SString & rOutput)
 	return ok;
 }
 
-int  VkInterface::Photos_GetMarketUploadServer(const uint mainPhotoFlag, SString & rOutput)
+int VkInterface::Photos_GetMarketUploadServer(const uint mainPhotoFlag, SString & rOutput)
 {
 	rOutput.Z();
 	int    ok = 1;
@@ -511,19 +625,30 @@ int VkInterface::Wall_Post(const SString & rMessage, const SString & rVkPhotoNam
 	return ok;
 }
 
-int VkInterface::PublishImage(const char * pImgPath) // @v12.2.6 @construction
+bool VkInterface::GetUploadServerUrl(int vkContentCategory, SString & rBuf) // @v12.2.6
 {
-	int    ok = -1;
-	//market.getProductPhotoUploadServer
-	SString url_buf;
-	SString upload_url;
-	SString reply_buf;
-	url_buf.Z().Cat(P_VKMethodUrlBase).SetLastDSlash().Cat("market.getProductPhotoUploadServer");
-	url_buf.CatChar('?').
-	CatEq("access_token", Ib.CliAccsKey).CatChar('&').CatEq("group_id", Ib.GroupId);
-	AppendParamProtoVer(url_buf.CatChar('&'));
-	THROW(GetRequest(url_buf, reply_buf, ScURL::mfDontVerifySslPeer));
-	{
+	rBuf.Z();
+	bool   ok = false;
+	static const SIntToSymbTabEntry query_url_list[] = {
+		{ ccatMarketProductPhoto, "market.getProductPhotoUploadServer" },
+		{ ccatPhotos, "photos.getUploadServer" },
+		{ ccatPhotosWall, "photos.getWallUploadServer" },
+		{ ccatPhotosOwner, "photos.getOwnerPhotoUploadServer" },
+		{ ccatPhotosMessages, "photos.getMessagesUploadServer" },
+		{ ccatPhotosChat, "photos.getChatUploadServer" },
+		{ ccatPhotosMarketAlbum, "photos.getMarketAlbumUploadServer" }
+	};
+	const char * p_query_url = SIntToSymbTab_GetSymbPtr(query_url_list, SIZEOFARRAY(query_url_list), vkContentCategory);
+	if(!p_query_url) {
+		; // @todo @err
+	}
+	else {
+		SString reply_buf;
+		SString url_buf(P_VKMethodUrlBase);
+		url_buf.SetLastDSlash().Cat(p_query_url);
+		url_buf.CatChar('?').CatEq("access_token", Ib.CliAccsKey).CatChar('&').CatEq("group_id", Ib.GroupId);
+		AppendParamProtoVer(url_buf.CatChar('&'));
+		THROW(GetRequest(url_buf, reply_buf, ScURL::mfDontVerifySslPeer));
 		if(reply_buf.NotEmpty()) {
 			SJson * p_js_reply = SJson::Parse(reply_buf);
 			if(SJson::IsObject(p_js_reply)) {
@@ -532,7 +657,8 @@ int VkInterface::PublishImage(const char * pImgPath) // @v12.2.6 @construction
 						if(SJson::IsObject(p_cur->P_Child)) {
 							for(const SJson * p_cur2 = p_cur->P_Child->P_Child; p_cur2; p_cur2 = p_cur2->P_Next) {
 								if(p_cur2->Text.IsEqiAscii("upload_url")) {
-									(upload_url = p_cur2->P_Child->Text).Unescape();
+									(rBuf = p_cur2->P_Child->Text).Unescape();
+									ok = true;
 								}
 							}
 						}
@@ -541,23 +667,143 @@ int VkInterface::PublishImage(const char * pImgPath) // @v12.2.6 @construction
 			}
 		}
 	}
-	if(upload_url.NotEmpty()) {
-		SString img_path;
-		SFsPath::NormalizePath(pImgPath, SFsPath::npfCompensateDotDot|SFsPath::npfSlash, img_path);
-		if(fileExists(img_path)) {
-			reply_buf.Z();
-			int r = PhotoToReq(upload_url, img_path, reply_buf, 0/*pDataName*/);
-		}
-	}
 	CATCHZOK
 	return ok;
 }
 
-int VkInterface::ReadError(const SJson * pJs, ErrorResponse & rErr) const
+int VkInterface::SaveProductPhoto(const PostImageReply & rPIR, int64 * pPhotoId)
+{
+	int    ok = -1;
+	int64  photo_id = 0;
+	SString temp_buf;
+	SString reply_buf;
+	SString url_buf(P_VKMethodUrlBase);
+	url_buf.SetLastDSlash().Cat("market.saveProductPhoto");
+	(temp_buf = rPIR.OriginalReplyText)/*.Escape()*/;
+	url_buf.CatChar('?').CatEq("upload_response", temp_buf).CatChar('&').
+	CatEq("access_token", Ib.CliAccsKey);
+	AppendParamProtoVer(url_buf.CatChar('&'));
+	THROW(GetRequest(url_buf, reply_buf, ScURL::mfDontVerifySslPeer));
+	if(reply_buf.NotEmpty()) {
+		SJson * p_js_reply = SJson::Parse(reply_buf);
+		if(SJson::IsObject(p_js_reply)) {
+			/*
+				{
+					"response": {
+						"photo_id": 457239017,
+						"photo": {
+							"album_id": -53,
+							"date": 1739632103,
+							"id": 457239017,
+							"owner_id": -224529551,
+							"sizes": [
+								{
+									"height": 75,
+									"type": "s",
+									"width": 59,
+									"url": "https://sun9-77.userapi.com/s/v1/ig2/quhs9NrY2MTk5YP1rl59G8xc0_feYM5cN95olst6bBTfSn7DOtZ9Zxtdkuii0oT9ahLrOp5rjN6ntGwZa9NnMjAy.jpg?quality=95&as=32x41,48x61,72x92,108x138,160x204,240x306,360x459,464x591&from=bu&cs=59x75"
+								},
+								{
+									"height": 130,
+									"type": "m",
+									"width": 102,
+									"url": "https://sun9-77.userapi.com/s/v1/ig2/quhs9NrY2MTk5YP1rl59G8xc0_feYM5cN95olst6bBTfSn7DOtZ9Zxtdkuii0oT9ahLrOp5rjN6ntGwZa9NnMjAy.jpg?quality=95&as=32x41,48x61,72x92,108x138,160x204,240x306,360x459,464x591&from=bu&cs=102x130"
+								},
+								{
+									"height": 591,
+									"type": "x",
+									"width": 464,
+									"url": "https://sun9-77.userapi.com/s/v1/ig2/quhs9NrY2MTk5YP1rl59G8xc0_feYM5cN95olst6bBTfSn7DOtZ9Zxtdkuii0oT9ahLrOp5rjN6ntGwZa9NnMjAy.jpg?quality=95&as=32x41,48x61,72x92,108x138,160x204,240x306,360x459,464x591&from=bu&cs=464x591"
+								},
+								{
+									"height": 166,
+									"type": "o",
+									"width": 130,
+									"url": "https://sun9-77.userapi.com/s/v1/ig2/quhs9NrY2MTk5YP1rl59G8xc0_feYM5cN95olst6bBTfSn7DOtZ9Zxtdkuii0oT9ahLrOp5rjN6ntGwZa9NnMjAy.jpg?quality=95&as=32x41,48x61,72x92,108x138,160x204,240x306,360x459,464x591&from=bu&cs=130x166"
+								},
+								{
+									"height": 255,
+									"type": "p",
+									"width": 200,
+									"url": "https://sun9-77.userapi.com/s/v1/ig2/quhs9NrY2MTk5YP1rl59G8xc0_feYM5cN95olst6bBTfSn7DOtZ9Zxtdkuii0oT9ahLrOp5rjN6ntGwZa9NnMjAy.jpg?quality=95&as=32x41,48x61,72x92,108x138,160x204,240x306,360x459,464x591&from=bu&cs=200x255"
+								},
+								{
+									"height": 408,
+									"type": "q",
+									"width": 320,
+									"url": "https://sun9-77.userapi.com/s/v1/ig2/quhs9NrY2MTk5YP1rl59G8xc0_feYM5cN95olst6bBTfSn7DOtZ9Zxtdkuii0oT9ahLrOp5rjN6ntGwZa9NnMjAy.jpg?quality=95&as=32x41,48x61,72x92,108x138,160x204,240x306,360x459,464x591&from=bu&cs=320x408"
+								},
+								{
+									"height": 591,
+									"type": "r",
+									"width": 464,
+									"url": "https://sun9-77.userapi.com/s/v1/ig2/quhs9NrY2MTk5YP1rl59G8xc0_feYM5cN95olst6bBTfSn7DOtZ9Zxtdkuii0oT9ahLrOp5rjN6ntGwZa9NnMjAy.jpg?quality=95&as=32x41,48x61,72x92,108x138,160x204,240x306,360x459,464x591&from=bu&cs=464x591"
+								}
+							],
+							"text": "",
+							"user_id": 100,
+							"web_view_token": "6e9162d423aba03774",
+							"has_tags": false,
+							"orig_photo": {
+								"height": 591,
+								"type": "base",
+								"url": "https://sun9-77.userapi.com/s/v1/ig2/quhs9NrY2MTk5YP1rl59G8xc0_feYM5cN95olst6bBTfSn7DOtZ9Zxtdkuii0oT9ahLrOp5rjN6ntGwZa9NnMjAy.jpg?quality=95&as=32x41,48x61,72x92,108x138,160x204,240x306,360x459,464x591&from=bu",
+								"width": 464
+							}
+						}
+					}
+				}
+			*/
+			for(const SJson * p_cur = p_js_reply->P_Child; p_cur; p_cur = p_cur->P_Next) {
+				if(p_cur->Text.IsEqiAscii("response")) {
+					if(SJson::IsObject(p_cur->P_Child)) {
+						for(const SJson * p_cur2 = p_cur->P_Child->P_Child; p_cur2; p_cur2 = p_cur2->P_Next) {
+							if(p_cur2->Text.IsEqiAscii("photo_id")) {
+								photo_id = p_cur2->P_Child->Text.ToInt64();
+								ok = 1;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	CATCHZOK
+	ASSIGN_PTR(pPhotoId, photo_id);
+	return ok;
+}
+
+int VkInterface::PublishImage(int vkContentCategory, const char * pImgPath, int64 * pResultPhotoId) // @v12.2.6 @construction
+{
+	int    ok = -1;
+	int64  photo_id = 0;
+	SString upload_url;
+	SString img_path;
+	PostImageReply post_img_reply;
+	SFsPath::NormalizePath(pImgPath, SFsPath::npfCompensateDotDot|SFsPath::npfSlash, img_path);
+	if(fileExists(img_path)) {
+		if(GetUploadServerUrl(vkContentCategory, upload_url)) {
+			assert(upload_url.NotEmpty());
+			if(upload_url.NotEmpty()) {
+				int r = PhotoToReq(upload_url, img_path, post_img_reply, "file");
+				if(r > 0) {
+					if(SaveProductPhoto(post_img_reply, &photo_id) > 0) {
+						assert(photo_id != 0);
+					}
+				}
+			}
+		}
+	}
+	//CATCHZOK
+	ASSIGN_PTR(pResultPhotoId, photo_id);
+	return ok;
+}
+
+int VkInterface::ReadError_(const SJson * pJs, ErrorResponse & rErr) const
 {
 	// {"error":"ERR_UPLOAD_BAD_IMAGE_SIZE: market photo min size 400x400","bwact":"do_add","server":532236,"_sig":"c808663daa0ad9ed3df608cb24226234"}
 	int    ok = -1;
-	const  SJson * p_cur = pJs;
+	const SJson * p_cur = pJs;
 	if(SJson::IsObject(p_cur)) {
 		for(p_cur = p_cur->P_Child; p_cur; p_cur = p_cur->P_Next) {
 			if(p_cur->Text.IsEqiAscii("error")) {
@@ -725,7 +971,8 @@ int VkInterface::Market_Get(long offs, long maxItems, TSCollection <MarketWareIt
 	{
 		long item_id = 0; 
 		THROW_SL(p_json_doc = SJson::Parse(temp_buf.cptr()));
-		if(ReadError(p_json_doc, LastErrResp) > 0) {
+		//if(ReadError(p_json_doc, LastErrResp) > 0) {
+		if(LastErrResp.FromJsonObj(p_json_doc) > 0) {
 			ok = 0;
 		}
 		else { 
@@ -753,26 +1000,27 @@ int VkInterface::Market_Get(long offs, long maxItems, TSCollection <MarketWareIt
 	return ok;
 } 
 
-int VkInterface::PhotoToReq(const SString & rUrlBuf, const SString & rImgPath, SString & rOutput, const char * pDataName)
+int VkInterface::PhotoToReq(const SString & rUrlBuf, const SString & rImgPath, PostImageReply & rReply, const char * pDataName)
 {
-	rOutput.Z();
 	int    ok = 1;
 	SString temp_buf;
+	SString reply_buf;
 	InetUrl url(rUrlBuf);
 	SBuffer ack_buf;
 	SFile wr_stream(ack_buf.Z(), SFile::mWrite);
 	ScURL c;
-	ScURL::HttpForm hf;
+	ScURL::HttpForm hf(c);
 	SBuffer * p_ack_buf = 0;
 	//hf.AddContentFile(rImgPath, "multipart/form-data", pDataName);
 	{
 		SFileFormat ff;
 		const int ffr = ff.Identify(rImgPath);
 		if(oneof2(ffr, 2, 3) && oneof3(ff, SFileFormat::Jpeg, SFileFormat::Png, SFileFormat::Gif)) {
-			SFileFormat::GetMime(ff, temp_buf);
+			//SFileFormat::GetMime(ff, temp_buf);
 			//ps.Split(local_path_src);
 			//ps.Merge(SFsPath::fNam|SFsPath::fExt, temp_fname);
-			hf.AddContentFile(rImgPath, temp_buf, pDataName);
+			if(!hf.AddContentFile(rImgPath, "multipart/form-data", pDataName))
+				ok = 0;
 		}
 		else {
 			ok = 0; // not supported image file
@@ -780,20 +1028,81 @@ int VkInterface::PhotoToReq(const SString & rUrlBuf, const SString & rImgPath, S
 	}
 	if(ok) {
 		Lth.Log("req", rUrlBuf, (temp_buf = "multipart/form-data").CatDiv(':', 0).Cat(rImgPath));
-		c.HttpPost(url, ScURL::mfVerbose|ScURL::mfDontVerifySslPeer, hf, &wr_stream);
+		c.HttpPost(url, ScURL::mfVerbose|ScURL::mfDontVerifySslPeer, 0, hf, &wr_stream);
 		p_ack_buf = static_cast<SBuffer *>(wr_stream);
 		if(p_ack_buf) {
-			rOutput.CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
-			Lth.Log("rep", 0, rOutput);
+			reply_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
+			Lth.Log("rep", 0, reply_buf);
+			// @construction
+			rReply.OriginalReplyText = reply_buf;
+			SJson * p_js_reply = SJson::Parse(reply_buf);
+			if(rReply.Err.FromJsonObj(p_js_reply) > 0) {
+				; // @err
+			}
+			else {
+				if(SJson::IsObject(p_js_reply)) {
+					for(const SJson * p_cur = p_js_reply->P_Child; p_cur; p_cur = p_cur->P_Next) {
+						if(p_cur->Text.IsEqiAscii("sha")) {
+							(rReply.Sha = p_cur->P_Child->Text).Unescape();
+						}
+						else if(p_cur->Text.IsEqiAscii("secret")) {
+							(rReply.Secret = p_cur->P_Child->Text).Unescape();
+						}
+						else if(p_cur->Text.IsEqiAscii("meta")) {
+							if(SJson::IsObject(p_cur->P_Child)) {
+								for(const SJson * p_cur2 = p_cur->P_Child->P_Child; p_cur2; p_cur2 = p_cur2->P_Next) {
+									if(p_cur2->Text.IsEqiAscii("height")) {
+										rReply.Meta.Size.y = p_cur2->P_Child->Text.ToLong();
+									}
+									else if(p_cur2->Text.IsEqiAscii("width")) {
+										rReply.Meta.Size.x = p_cur2->P_Child->Text.ToLong();
+									}
+									else if(p_cur2->Text.IsEqiAscii("kid")) {
+										(rReply.Meta.Kid = p_cur2->P_Child->Text).Unescape();
+									}
+								}
+							}
+						}
+						else if(p_cur->Text.IsEqiAscii("hash")) {
+							(rReply.Hash = p_cur->P_Child->Text).Unescape();
+						}
+						else if(p_cur->Text.IsEqiAscii("server")) {
+							(rReply.Server = p_cur->P_Child->Text).Unescape();
+						}
+						else if(p_cur->Text.IsEqiAscii("user_id")) {
+							rReply.UserId = p_cur->P_Child->Text.ToInt64();
+						}
+						else if(p_cur->Text.IsEqiAscii("group_id")) {
+							rReply.GroupId = p_cur->P_Child->Text.ToInt64();
+						}
+						else if(p_cur->Text.IsEqiAscii("request_id")) {
+							(rReply.RequestId = p_cur->P_Child->Text).Unescape();
+						}
+						else if(p_cur->Text.IsEqiAscii("album_id")) {
+							rReply.AlbumId = p_cur->P_Child->Text.ToInt64();
+						}
+						else if(p_cur->Text.IsEqiAscii("app_id")) {
+							rReply.AppId = p_cur->P_Child->Text.ToInt64();
+						}
+						else if(p_cur->Text.IsEqiAscii("photo"))
+							(rReply.Photo = p_cur->P_Child->Text).Unescape();
+						else if(p_cur->Text.IsEqiAscii("crop_data"))
+							(rReply.CropData = p_cur->P_Child->Text).Unescape();
+						else if(p_cur->Text.IsEqiAscii("crop_hash"))
+							(rReply.CropHash = p_cur->P_Child->Text).Unescape();
+					}
+				}
+				else
+					ok = 0;
+			}
 		}
-		else
-			ok = 0;
 	}
 	return ok;
 }
 
 int VkInterface::GetRequest(const SString & rUrl, SString & rOutput, int mflags)
 {
+	rOutput.Z();
 	const  uint max_request_per_sec = 3;
 	int    ok = 1;
 	SString temp_buf;
@@ -822,18 +1131,19 @@ int VkInterface::GetRequest(const SString & rUrl, SString & rOutput, int mflags)
 /*static*/int VkInterface::Test() // @v12.2.6
 {
 	int    ok = -1;
+	int64  photo_id = 0;
 	const  PPID service_ident = PPGLS_VK;
 	VkInterface ifc; // Test
 	PPObjGlobalUserAcc gua_obj;
 	PPIDArray gua_id_list;
 	SString img_path;
 	PPGetPath(PPPATH_TESTROOT, img_path);
-	img_path.SetLastSlash().Cat("data").SetLastSlash().Cat("test20.png");
+	img_path.SetLastSlash().Cat("data").SetLastSlash().Cat("test10.jpg");
 	gua_obj.GetListByServiceIdent(service_ident, &gua_id_list);
 	PPID   gua_id = gua_id_list.getSingle();
 	if(gua_id) {
 		if(ifc.Setup(gua_id, ifc.sfInitStoreAttributes)) {
-			ifc.PublishImage(img_path);
+			ifc.PublishImage(VkInterface::ccatMarketProductPhoto, img_path, &photo_id);
 		}
 	}
 	return ok;

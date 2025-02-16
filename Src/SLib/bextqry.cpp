@@ -1,5 +1,5 @@
 // BEXTQRY.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2004, 2006, 2007, 2008, 2009, 2010, 2013, 2015, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2004, 2006, 2007, 2008, 2009, 2010, 2013, 2015, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2025
 // @codepage UTF-8
 // Интерфейс к расширенным операциям поиска Btrieve
 //
@@ -307,9 +307,8 @@ int BExtQuery::search_first(const char * pInitKey, int initSpMode, int spMode)
 			}
 			else {
 				//
-				// Здесь нельзя использовать tbl->fields.getRecSize() поскольку
-				// эта функция возвращает размер записи без полей переменной длины
-				// и без NOTE-полей.
+				// Здесь нельзя использовать tbl->fields.CalculateRecSize() поскольку
+				// эта функция возвращает размер записи без полей переменной длины и без NOTE-полей.
 				//
 				for(uint i = 0; i < P_Tbl->GetFields().getCount(); i++)
 					RecSize += P_Tbl->GetFields()[i].size();
@@ -356,7 +355,7 @@ int BExtQuery::search_first(const char * pInitKey, int initSpMode, int spMode)
 		}
 		else {
 			p_item = reinterpret_cast<BExtTailItem *>(p_tail + 1);
-			p_item->fldLen = P_Tbl->GetFields().getRecSize();
+			p_item->fldLen = P_Tbl->GetFields().CalculateRecSize();
 			p_item->fldOfs = 0;
 			RecSize += p_item->fldLen;
 		}

@@ -299,7 +299,7 @@ int WhatmanObjectUiCtrl::CreateTextLayout(SPaintToolBox & rTb, STextLayout & rTl
 			temp_buf.SetIfEmpty("MS Sans Serif(8)");
 			SFontDescr fd(0, 0, 0);
 			fd.FromStr(temp_buf);
-			TidFont = rTb.CreateFont_(0, fd.Face, fd.Size, fd.Flags);
+			TidFont = rTb.CreateFont_(0, fd);
 		}
 		if(TidFont) {
 			int    tool_text_pen_id = rTb.CreateColor(0, SColor(SClrBlack));

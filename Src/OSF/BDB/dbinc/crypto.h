@@ -50,26 +50,24 @@ struct __db_cipher {
 	void	*data;			/* Algorithm-specific information */
 
 #define	CIPHER_AES	1		/* AES algorithm */
-	uint8	alg;		/* Algorithm used - See above */
-	uint8	spare[3];	/* Spares */
+	uint8  alg;		/* Algorithm used - See above */
+	uint8  spare[3];	/* Spares */
 
 #define	CIPHER_ANY	0x00000001	/* Only for DB_CIPHER */
-	uint32	flags;		/* Other flags */
+	uint32 flags;		/* Other flags */
 };
 
 #ifdef HAVE_CRYPTO
 
-// @v9.5.5 #include "crypto/rijndael/rijndael-api-fst.h"
-#include "crypto/rijndael-api-fst.h" // @v9.5.5
-
+#include "crypto/rijndael-api-fst.h"
 /*
  * Shared ciphering structure
  * No mutex needed because all information is read-only after creation.
  */
 typedef struct __cipher {
-	roff_t		passwd;		/* Offset to shared passwd */
-	size_t		passwd_len;	/* Length of passwd */
-	uint32	flags;		/* Algorithm used - see above */
+	roff_t passwd;		/* Offset to shared passwd */
+	size_t passwd_len;	/* Length of passwd */
+	uint32 flags;		/* Algorithm used - see above */
 } CIPHER;
 
 #define	DB_AES_KEYLEN	128	/* AES key length */

@@ -1,5 +1,5 @@
 // V_SSTAT.CPP
-// Copyright (c) A.Starodub, A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024
+// Copyright (c) A.Starodub, A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -74,11 +74,8 @@ PPViewSStat::~PPViewSStat()
 	DBRemoveTempFiles();
 }
 
-// @v11.4.4 #define GRP_CYCLE     1
-// @v11.4.4 #define GRP_GOODSFILT 2
-// @v11.4.4 #define GRP_LOC       3
-
 class SStatOrderFiltDialog : public TDialog {
+	DECL_DIALOG_DATA(SStatFilt);
 	enum {
 		ctlgroupCycle     = 1,
 		ctlgroupGoodsFilt = 2,
@@ -97,9 +94,9 @@ public:
 			SetCtrlBitmap(CTL_SSTATFLT_MTX_IND, BM_MATRIX);
 		}
 	}
-	int    setDTS(const SStatFilt * pData)
+	DECL_DIALOG_SETDTS()
 	{
-		Data = *pData;
+		RVALUEPTR(Data, pData);
 		int    ok = 1;
 		int    disable_arcode_usage = 0;
 		ushort v;
@@ -147,7 +144,7 @@ public:
 		setCtrlUInt16(CTL_SSTATFLT_ARCODEUSAGE, v);
 		return ok;
 	}
-	int    getDTS(SStatFilt * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
 		uint   sel_id = 0;
@@ -189,14 +186,14 @@ public:
 	}
 private:
 	class SStatOrderFiltExtDialog : public TDialog {
+		DECL_DIALOG_DATA(SStatFilt);
 	public:
 		SStatOrderFiltExtDialog() : TDialog(DLG_SSTATORDFLTEXT)
 		{
 		}
-		int    setDTS(const SStatFilt * pData)
+		DECL_DIALOG_SETDTS()
 		{
-			Data = *pData;
-
+			RVALUEPTR(Data, pData);
 			int    ok = 1;
 			setCtrlUInt16(CTL_SSTATFLT_OVERRCFG, BIN(Data.Flags & SStatFilt::fOverrideCfgParams));
 
@@ -226,7 +223,7 @@ private:
 			SetupCtrls();
 			return ok;
 		}
-		int    getDTS(SStatFilt * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
 			uint   sel = 0;
@@ -263,8 +260,6 @@ private:
 				CTL_SSTATFLT_METHOD, CTL_SSTATFLT_USEPCKG, CTL_SSTATFLT_ROUNDPCKG,
 				CTL_SSTATFLT_TRUST, CTL_SSTATFLT_P, CTL_SSTATFLT_CFLAGS, CTL_SSTATFLT_PMIN, 0);
 		}
-
-		SStatFilt Data;
 	};
 	DECL_HANDLE_EVENT
 	{
@@ -274,7 +269,6 @@ private:
 			clearEvent(event);
 		}
 	}
-	SStatFilt Data;
 	PPPredictConfig PrCfg;
 };
 
@@ -710,10 +704,8 @@ double __CalcOrderQuantity(
 {
 	double order = 0.0;
 	if(calcWithoutStat)
-		order = (minStockQtty > 0.0) ? (minStockQtty - rest) : 0; // @v9.1.1 (min_stock_qtty)-->(min_stock_qtty > 0.0)
+		order = (minStockQtty > 0.0) ? (minStockQtty - rest) : 0.0;
 	else if(minStockAsMinOrder && minStockDays <= 0) {
-		// @v9.1.1 order = (prediction > minStockQtty) ? (prediction - rest) : (minStockQtty - rest);
-		// @v9.1.1 {
 		if(prediction > minStockQtty) {
 			order = prediction - rest;
 			if(useInsurStock && minStockQtty > 0.0)
@@ -722,7 +714,6 @@ double __CalcOrderQuantity(
 		else {
 			order = minStockQtty - rest;
 		}
-		// } @v9.1.1
 	}
 	else {
 		// @v11.1.1 {
@@ -923,11 +914,11 @@ int PPViewSStat::CreateTempTable(int use_ta)
 							//
 							min_stock_qtty = 0.0;
 						}
-						period.low = NZOR(Filt.RestDate, getcurdate_()); // @v10.8.10 LConfig.OperDate-->getcurdate_()
+						period.low = NZOR(Filt.RestDate, getcurdate_());
 						period.upp = plusdate(period.low, add_days);
 						ep.Set(&Filt.LocList, item.GoodsID, period);
 						ep.LoadUpDate = Filt.Period.upp;
-						if(predictor.Predict_(ep, &prediction, 0, &can_trust) <= 0 && (use_matrix || minstock_as_minorder)) // @v9.1.1 (|| minstock_as_minorder)
+						if(predictor.Predict_(ep, &prediction, 0, &can_trust) <= 0 && (use_matrix || minstock_as_minorder))
 							calc_ord_wo_stat = 1;
 					}
 					else {
@@ -1496,10 +1487,9 @@ int PPViewSStat::ViewCreatedBills()
 {
 	int    ok = -1;
 	if(CreatedBillList.getCount()) {
-		// @v10.2.11 (unused) PPViewBill view;
 		BillFilt filt;
 		filt.List.Set(&CreatedBillList);
-		filt.Flags |= BillFilt::fBillListOnly; // @v10.2.11
+		filt.Flags |= BillFilt::fBillListOnly;
 		PPView::Execute(PPVIEW_BILL, &filt, 1, 0);
 	}
 	return ok;

@@ -1271,14 +1271,11 @@ int32 DL6ICLS_PPFtp::Connect(SFtpAccount * pAcct)
 		temp_buf.CopyFromOleStr(pAcct->User);
 		acct.SetExtField(FTPAEXSTR_USER, temp_buf);
 		temp_buf.CopyFromOleStr(pAcct->Password);
-		// @v9.9.6 acct.SetPassword(temp_buf);
-		// @v9.9.6 {
 		{
 			SString pw_buf;
 			Reference::Helper_EncodeOtherPw(0, temp_buf, 48, pw_buf);
 			acct.SetExtField(MAEXSTR_RCVPASSWORD, pw_buf);
 		}
-		// } @v9.9.6
 		temp_buf.Z().Cat((pAcct->Port) ? pAcct->Port : 21L);
 		acct.SetExtField(FTPAEXSTR_PORT, temp_buf);
 		acct.Flags = pAcct->Flags;
@@ -2031,7 +2028,7 @@ IPapyrusView * DL6ICLS_PPSession::CreateView(PpyViewIdent viewID)
 		case ppvOpGrouping:  p_cls_name = "PPViewOpGrouping";     break;
 		case ppvDebtTrnovr:  p_cls_name = "PPViewDebtTrnovr";     break;
 		case ppvLotOp:       p_cls_name = "PPViewLotOp";          break;
-		case ppvGoodsStruc:  p_cls_name = "PPViewGoodsStruc";     break; // @v9.9.10
+		case ppvGoodsStruc:  p_cls_name = "PPViewGoodsStruc";     break;
 		default:
 			msg_buf.Z().Cat(viewID);
 			break;
@@ -2154,7 +2151,7 @@ static INT_PTR CALLBACK LoginDialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, 
 					x  = (parent_rect.right - parent_rect.left) / 2 - (rect.right - rect.left) / 2;
 					::MoveWindow(hwndDlg, x, y, rect.right - rect.left, rect.bottom - rect.top, 0);
 				}
-				TView::PreprocessWindowCtrlText(hwndDlg); // @v9.1.1
+				TView::PreprocessWindowCtrlText(hwndDlg);
 				p_param = reinterpret_cast<LoginDialogParam *>(lParam);
 				if(p_param) {
 					TView::SetWindowUserData(hwndDlg, p_param);
@@ -4206,11 +4203,9 @@ IStrAssocList * DL6ICLS_PPObjGoodsGroup::GetGGroupsFromAltGrp(long altGrpID)
 				}
 			}
 		}
-		// @v9.5.0 {
 		else {
 			p_obj->P_Tbl->GetGroupTerminalList(altGrpID, &grp_list, 0);
 		}
-		// } @v9.5.0
 		if(grp_list.getCount()) {
 			p_list = new StrAssocArray;
 			if(p_list) {
@@ -4364,11 +4359,8 @@ SString & DL6ICLS_PPObjLocation::GetName(int32 id)
 
 IStrAssocList* DL6ICLS_PPObjLocation::GetSelector(int32 extraParam)
 {
-	// @v9.2.5 {
 	PPObjPerson * p_obj = static_cast<PPObjPerson *>(ExtraPtr);
 	IStrAssocList * p = p_obj ? reinterpret_cast<IStrAssocList *>(GetPPObjIStrAssocList(this, (PPObject *)&p_obj->LocObj, reinterpret_cast<void *>(extraParam))) : 0;
-	// } @v9.2.5
-	// @v9.2.5 IStrAssocList * p = reinterpret_cast<IStrAssocList *>(GetPPObjIStrAssocList(this, static_cast<PPObject *>(ExtraPtr), extraParam);
 	SetAppError(BIN(p));
 	return p;
 }
@@ -6400,7 +6392,7 @@ int32 DL6ICLS_PPObjBill::CalcGoodsRest(SPpyGoodsRestBlock* pBlk)
         gp.GoodsID = pBlk->GoodsID;
         gp.SupplID = pBlk->SupplID;
         gp.AgentID = pBlk->AgentID;
-		gp.Flags_ &= ~GoodsRestParam::fCostByQuot; // @v9.5.8
+		gp.Flags_ &= ~GoodsRestParam::fCostByQuot;
         if(pBlk->QuotKindID) {
 			gp.Flags_ |= GoodsRestParam::fPriceByQuot;
 			gp.QuotKindID = pBlk->QuotKindID;
@@ -8392,15 +8384,15 @@ int32 DL6ICLS_PPViewGoodsRest::NextIteration(PPYVIEWITEM item)
 		FLD(SupplOrder);
 		FLD(SubstAsscCount);
 		FLD(DraftRcpt);
-		FLD(SStatSales); // @v9.9.2
-		FLD(LastSellDate); // @v9.9.2
-		FLD(Expiry); // @v9.9.2
-		FLD(LotID); // @v9.9.2
+		FLD(SStatSales);
+		FLD(LastSellDate);
+		FLD(Expiry);
+		FLD(LotID);
 #undef FLD
-		(temp_buf = inner_item.GoodsGrpName).CopyToOleStr(&p_item->GoodsGrpName); // @v8.1.3 inner_item.P_GoodsGrpName-->inner_item.GoodsGrpName
+		(temp_buf = inner_item.GoodsGrpName).CopyToOleStr(&p_item->GoodsGrpName);
 		(temp_buf = inner_item.GoodsName).CopyToOleStr(&p_item->GoodsName);
 		(temp_buf = inner_item.UnitName).CopyToOleStr(&p_item->UnitName);
-		(temp_buf = inner_item.Serial).CopyToOleStr(&p_item->Serial); // @v9.9.2
+		(temp_buf = inner_item.Serial).CopyToOleStr(&p_item->Serial);
 		ok = 1;
 	}
 	return ok;
@@ -10721,8 +10713,7 @@ static void FillSCardSeriesRec(const PPSCardSeries * pInner, SPpyO_SCardSeries *
 
 	(temp_buf = pInner->Name).CopyToOleStr(&pOuter->Name);
 	(temp_buf = pInner->Symb).CopyToOleStr(&pOuter->Symb);
-	// @v9.8.9 (temp_buf = pInner->CodeTempl).CopyToOleStr(&pOuter->CodeTempl);
-	temp_buf.Z().CopyToOleStr(&pOuter->CodeTempl); // @v9.8.9
+	temp_buf.Z().CopyToOleStr(&pOuter->CodeTempl);
 #undef FLD
 }
 

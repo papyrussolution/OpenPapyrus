@@ -2043,7 +2043,7 @@ int  PPObjProcessor::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCo
 				p_pack->Rec.PrinterID = 0;
 				p_pack->Rec.WrOffGenOpID = 0;
 			}
-			const int    is_new = BIN(*pID == 0);
+			const bool is_new = (*pID == 0);
 			int     r = PutPacket(pID, p_pack, 1);
 			if(!r) {
 				pCtx->OutputAcceptObjErrMsg(Obj, p_pack->Rec.ID, p_pack->Rec.Name);

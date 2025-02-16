@@ -129,32 +129,8 @@ int FASTCALL SVectorBase::expand(uint numNewRecs)
 	return ok;
 }
 
-/*
-int FASTCALL SVectorBase::expand(uint numNewRecs)
-{
-	int    ok = 1;
-	uint   new_count = count + numNewRecs;
-	if(new_count > Limit) {
-		const size_t _is = (size_t)isize;
-		// @v9.1.1 const uint _delta = (delta > 0) ? (uint)delta : 8;
-		const  uint _delta = CalcArrayDelta(isize); // @v9.1.1
-		uint   new_limit = ((new_count + (_delta - 1)) / _delta) * _delta;
-		void * ptr = SAlloc::R(data, new_limit * _is);
-		if(ptr) {
-			memzero(PTR8(ptr) + count * _is, (new_limit - count) * _is); // @v9.8.1
-			data = (uint8 *)ptr;
-			Limit = new_limit;
-		}
-		else
-			ok = 0;
-	}
-	return ok;
-}
-*/
-
 int SVectorBase::Shrink()
 {
-	// @v10.7.3 {
 	int    ok = -1;
 	if(!count) {
 		ZFREE(P_VData);
@@ -177,7 +153,6 @@ int SVectorBase::Shrink()
 		}
 	}
 	return ok;
-	// } @v10.7.3 
 }
 
 void * SVectorBase::atPut(uint idx, const void * pItem)
@@ -3794,9 +3769,9 @@ SStrToStrAssoc FASTCALL StrStrAssocArray::at(uint pos) const
 	return item;
 }
 
-int StrStrAssocArray::Search(const char * pKey, SString * pVal, uint * pPos) const
+bool StrStrAssocArray::Search(const char * pKey, SString * pVal, uint * pPos) const
 {
-	int    ok = 0;
+	bool   ok = false;
 	if(!isempty(pKey)) {
 		const SString pattern_buf(pKey);
 		SString temp_buf;
@@ -3808,7 +3783,7 @@ int StrStrAssocArray::Search(const char * pKey, SString * pVal, uint * pPos) con
 				if(pVal) {
 					GetS(r_item.Val, *pVal);
 				}
-				ok = 1;
+				ok = true;
 			}
 		}
 	}

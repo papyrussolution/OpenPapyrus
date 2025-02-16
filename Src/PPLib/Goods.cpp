@@ -838,7 +838,7 @@ int GoodsCore::GetStockExt(PPID id, GoodsStockExt * pData, int useCache /*=0*/)
 			// }
 			pData->Brutto   = p_strg->Brutto;
 			pData->PckgDim  = p_strg->PckgDim;
-			pData->NettBruttCoeff = p_strg->NettBruttCoeff; // @v9.8.12
+			pData->NettBruttCoeff = p_strg->NettBruttCoeff;
 			pData->Package  = (SIEEE754::IsValid(p_strg->Package) && p_strg->Package > 0) ? R6(p_strg->Package) : 0;
 			pData->ExpiryPeriod = p_strg->ExpiryPeriod;
 			pData->GseFlags      = p_strg->GseFlags;
@@ -853,11 +853,6 @@ int GoodsCore::GetStockExt(PPID id, GoodsStockExt * pData, int useCache /*=0*/)
 					pData->MinStockList.at(i).Val = (SIEEE754::IsValid(min_stock) && min_stock > 0) ? R6(min_stock) : 0;
 				}
 			}
-			/* @v9.5.10
-			double zero_loc_min_stock = (SIEEE754::IsValid(p_strg->MinStock) && p_strg->MinStock > 0) ? R6(p_strg->MinStock) : 0;
-			if(zero_loc_min_stock)
-				pData->SetMinStock(0, zero_loc_min_stock);
-			*/
 		}
 	}
 	CATCHZOK
@@ -2755,7 +2750,7 @@ private:
 };
 
 GoodsCache::GoodsCache() : ObjCacheHash(PPOBJ_GOODS, sizeof(Data),
-	// @v11.0.4 (DS.CheckExtFlag(ECF_SYSSERVICE) ? (8*1024*1024) : (2*1024U*1024U)), // @v9.0.8 (1024U*1024U)-->(2*1024U*1024U)
+	// @v11.0.4 (DS.CheckExtFlag(ECF_SYSSERVICE) ? (8*1024*1024) : (2*1024U*1024U)),
 	// @v11.0.4 (DS.CheckExtFlag(ECF_SYSSERVICE) ? 16 : 12)),
 	SMEGABYTE(8), 16), // @v11.0.4
 	FullGoodsList(DS.CheckExtFlag(ECF_FULLGOODSCACHE)), P_Bc2dSpec(0), P_ObjTkn(0)
@@ -3451,9 +3446,7 @@ int GoodsCore::SearchByExt(const GoodsExtTbl::Rec * pExtRec, PPID * pGoodsID, Go
 			ok = 1;
 		}
 		else {
-			// @v9.4.9 PPObject::SetLastErrObj(PPOBJ_GOODS, goods_id);
-			// @v9.4.9 ok = PPSetError(PPERR_BL_EXT2GOODS);
-			ok = PPSetObjError(PPERR_BL_EXT2GOODS, PPOBJ_GOODS, goods_id); // @v9.4.9
+			ok = PPSetObjError(PPERR_BL_EXT2GOODS, PPOBJ_GOODS, goods_id);
 		}
 	}
 	else

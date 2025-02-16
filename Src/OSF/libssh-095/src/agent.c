@@ -38,9 +38,7 @@
 #include <arpa/inet.h>
 
 /* macro to check for "agent failure" message */
-#define agent_failed(x) \
-	(((x) == SSH_AGENT_FAILURE) || ((x) == SSH_COM_AGENT2_FAILURE) || \
-	((x) == SSH2_AGENT_FAILURE))
+#define agent_failed(x) (((x) == SSH_AGENT_FAILURE) || ((x) == SSH_COM_AGENT2_FAILURE) || ((x) == SSH2_AGENT_FAILURE))
 
 static size_t atomicio(struct ssh_agent_struct * agent, void * buf, size_t n, int do_read) 
 {

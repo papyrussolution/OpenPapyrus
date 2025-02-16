@@ -1594,7 +1594,7 @@ int  PPObjTech::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext
 			else if(*pID && Search(*pID, &same_rec) > 0) {
 				same_id = *pID;
 			}
-			const int is_new = BIN(*pID == 0);
+			const bool is_new = (*pID == 0);
 			int    r = PutPacket(pID, p_pack, 1);
 			if(!r) {
 				pCtx->OutputAcceptObjErrMsg(Obj, p_pack->Rec.ID, p_pack->Rec.Code);

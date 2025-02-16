@@ -5,10 +5,9 @@
  */
 #ifndef _DB_INT_H_
 #define	_DB_INT_H_
-
-/*******************************************************
- * Berkeley DB ANSI/POSIX include files.
- *******************************************************/
+// 
+// Berkeley DB ANSI/POSIX include files.
+// 
 #ifdef HAVE_SYSTEM_INCLUDE_FILES
 	#include <sys/types.h>
 	#ifdef DIAG_MVCC
@@ -887,7 +886,7 @@ inline int FASTCALL _BdbLogCompare(const DB_LSN * pLsn0, const DB_LSN * pLsn1)
 #include "dbinc/clock.h"
 #include "dbinc/debug.h"
 #include "dbinc/region.h"
-#include "dbinc/log.h" // @v9.5.5
+#include "dbinc/log.h"
 #include "dbinc_auto/env_ext.h"
 #include "dbinc/atomic.h"
 #include "dbinc/mutex.h"
@@ -898,15 +897,13 @@ inline int FASTCALL _BdbLogCompare(const DB_LSN * pLsn0, const DB_LSN * pLsn1)
 #include "dbinc/os.h"
 #include "dbinc_auto/clib_ext.h"
 #include "dbinc_auto/common_ext.h"
-#include "dbinc/db_page.h" // @v9.5.5
-#include "dbinc/lock.h" // @v9.5.5
-#include "dbinc/mp.h" // @v9.5.5
-#include "dbinc/crypto.h" // @v9.5.5
-#include "dbinc/btree.h" // @v9.5.5
-#include "dbinc/hash.h" // @v9.5.5
-#include "dbinc/heap.h" // @v9.5.5
-//
-//#include "dbinc/partition.h" // @v9.5.5
+#include "dbinc/db_page.h"
+#include "dbinc/lock.h"
+#include "dbinc/mp.h"
+#include "dbinc/crypto.h"
+#include "dbinc/btree.h"
+#include "dbinc/hash.h"
+#include "dbinc/heap.h"
 //
 #if defined(__cplusplus)
 extern "C" {
@@ -947,12 +944,10 @@ typedef struct __part_internal {
 }
 #endif
 //
-#include "dbinc/db_swap.h" // @v9.5.5
-#include "dbinc/hmac.h" // @v9.5.5
-#include "dbinc/fop.h" // @v9.5.5
-#include "dbinc/qam.h" // @v9.5.5
-//
-//#include "dbinc/db_dispatch.h" // @v9.5.5
+#include "dbinc/db_swap.h"
+#include "dbinc/hmac.h"
+#include "dbinc/fop.h"
+#include "dbinc/qam.h"
 //
 #if defined(__cplusplus)
 extern "C" {
@@ -1012,10 +1007,8 @@ struct __db_txnlist {
 }
 #endif
 //
-#include "dbinc/db_am.h" // @v9.5.5
-#include "dbinc/txn.h" // @v9.5.5
-//
-//#include "dbinc/log_verify.h" // @v9.6.2
+#include "dbinc/db_am.h"
+#include "dbinc/txn.h"
 //
 // Log verification handle, such a handle is shared among all verification 
 // functions during one verification process. 
@@ -1158,8 +1151,6 @@ struct __ckp_verify_params {
 #define IS_DBREG_CLOSE(opcode) oneof2(opcode, DBREG_CLOSE, DBREG_RCLOSE)
 
 #define IS_LOG_VRFY_SUPPORTED(version) ((version) == DB_LOGVERSION)
-//
-//#include "dbinc/db_verify.h" // @v9.5.5
 //
 // Structures and macros for the storage and retrieval of all information
 // needed for inter-page verification of a database.

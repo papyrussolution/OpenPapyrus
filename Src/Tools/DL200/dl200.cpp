@@ -1,5 +1,5 @@
 // DL200.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2004, 2007, 2008, 2009, 2010, 2011, 2012, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024
+// Copyright (c) A.Sobolev 2002, 2003, 2004, 2007, 2008, 2009, 2010, 2011, 2012, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025
 //
 #include <pp.h>
 #pragma hdrstop
@@ -341,7 +341,7 @@ DL2_Entry & FASTCALL DL2_Entry::operator = (const DL2_Entry & s)
 
 void DL2_Entry::destroy()
 {
-	if(oneof3(EntryType, DL2ENT_DATA, DL2ENT_GROUP, DL2ENT_ROW)) { // @v9.9.5
+	if(oneof3(EntryType, DL2ENT_DATA, DL2ENT_GROUP, DL2ENT_ROW)) {
 		Name[0] = 0;
 		ZDELETE(P_Descript);
 	}
@@ -350,7 +350,7 @@ void DL2_Entry::destroy()
 int DL2_Entry::Write(DL2_Storage * pStrg) const
 {
 	int    ok = 1;
-	if(oneof3(EntryType, DL2ENT_DATA, DL2ENT_GROUP, DL2ENT_ROW)) { // @v9.9.5
+	if(oneof3(EntryType, DL2ENT_DATA, DL2ENT_GROUP, DL2ENT_ROW)) {
 		uint32 l, t = (uint32)EntryType;
 		FILE * f = pStrg->P_Stream;
 		uint32 offs = (uint32)ftell(f);
@@ -383,7 +383,7 @@ int DL2_Entry::Write(DL2_Storage * pStrg) const
 int DL2_Entry::Read(FILE * pStream)
 {
 	int    ok = 1;
-	if(oneof3(EntryType, DL2ENT_DATA, DL2ENT_GROUP, DL2ENT_ROW)) { // @v9.9.5
+	if(oneof3(EntryType, DL2ENT_DATA, DL2ENT_GROUP, DL2ENT_ROW)) {
 		uint32 t, l, dest_type = EntryType;
 		destroy();
 		THROW_PP(fread(&t, sizeof(t), 1, pStream) == 1, PPERR_DL200_READFAULT);
@@ -405,7 +405,7 @@ int DL2_Entry::Read(FILE * pStream)
 
 int DL2_Entry::Print(FILE * pStream) const
 {
-	if(oneof3(EntryType, DL2ENT_DATA, DL2ENT_GROUP, DL2ENT_ROW)) { // @v9.9.5
+	if(oneof3(EntryType, DL2ENT_DATA, DL2ENT_GROUP, DL2ENT_ROW)) {
 		SString temp_buf;
 		switch(EntryType) {
 			case DL2ENT_ROW:   temp_buf = "ROW";   break;

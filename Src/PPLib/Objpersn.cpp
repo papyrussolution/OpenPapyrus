@@ -638,7 +638,7 @@ int ExtFieldsDialog::Edit(SStringTag * pItem)
 		}
 	};
 	int    ok = -1;
-	const  int is_new = BIN(Data.Search(pItem->Id, 0) <= 0);
+	const  bool is_new = (Data.Search(pItem->Id, 0) <= 0);
 	SString title;
 	ExtFldCfgDialog * p_dlg = new ExtFldCfgDialog(is_new);
 	if(CheckDialogPtrErr(&p_dlg) > 0) {
@@ -844,7 +844,7 @@ int ClientActivityDetectionListDialog::Edit(PPPersonConfig::ClientActivityDetect
 		if((Data.ClientActivityDetectionList.at(i).Oi.Id == pItem->Oi.Id) && ((Data.ClientActivityDetectionList.at(i).Oi.Obj == pItem->Oi.Obj)))
 			item_found = 1;
 	}
-	const int is_new = BIN(!item_found && Data.ClientActivityDetectionList.getCount());
+	const bool is_new = (!item_found && Data.ClientActivityDetectionList.getCount());
 	NewPersMarksFieldDialog * p_dlg = new NewPersMarksFieldDialog(is_new);
 	if(CheckDialogPtrErr(&p_dlg) > 0) {
 		p_dlg->setDTS(pItem);
@@ -3126,7 +3126,7 @@ int PPObjPerson::GetBankData(PPID id, PPBank * pData)
 		RegisterArray regs;
 		pData->ID = id;
 		STRNSCPY(pData->Name, bnk_rec.Name);
-		GetRegList(id, &regs, 1/*useInheritence*/); // @v9.2.1 useInheritence 0-->1
+		GetRegList(id, &regs, 1/*useInheritence*/);
 		regs.GetRegNumber(PPREGT_BIC, temp_buf);
 		STRNSCPY(pData->BIC, temp_buf);
 		regs.GetRegNumber(PPREGT_BNKCORRACC, temp_buf);
@@ -3195,7 +3195,9 @@ int PPObjPerson::UpdateAddress(PPID * pLocID, PPLocationPacket * pLocPack)
 /*virtual*/int PPObjPerson::RemoveObjV(PPID id, ObjCollection * pObjColl, uint options, void * pExtraParam)
 {
 	// @v10.9.1 Значительная переработка с целью удалить сначала статьи, связанные с персоналией id
+	// @v12.2.6 @fix Не выдавалось сообщение об ошибке
 	int    ok = -1;
+	const  uint org_options = options; // @v12.2.6
 	SETFLAG(options, not_addtolog, 1);
 	if(!(options & user_request) || PPMessage(mfConf|mfYes|mfCancel, PPCFM_DELETE) == cmYes) {
 		options &= ~user_request;
@@ -3222,7 +3224,14 @@ int PPObjPerson::UpdateAddress(PPID * pLocID, PPLocationPacket * pLocPack)
 			ok = 1;
 		}
 	}
-	CATCHZOK
+	// @v12.2.6 CATCHZOK
+	// @v12.2.6 {
+	CATCH
+		if(org_options & PPObject::user_request)
+			PPError();
+		ok = 0;
+	ENDCATCH
+	// } @v12.2.6 
 	return ok;
 }
 
@@ -3258,8 +3267,8 @@ int PPObjPerson::PutPacket(PPID * pID, PPPersonPacket * pPack, int use_ta)
 	int    is_in_db_mism_owner_loc = 0;
 	uint   i;
 	PPID   id = DEREFPTRORZ(pID);
-	const  int is_new = BIN(pPack && !id);
-	const  int do_index_phones = BIN(CConfig.Flags2 & CCFLG2_INDEXEADDR);
+	const  bool is_new = (pPack && !id);
+	const  bool do_index_phones = LOGIC(CConfig.Flags2 & CCFLG2_INDEXEADDR);
 	PPID   action = 0;
 	PPID   dirty_id = 0;
 	SString temp_buf;
@@ -5855,7 +5864,7 @@ int PPObjPerson::ExtEdit(PPID * pID, void * extraPtr)
 	int    ok = 1;
 	int    valid_data = 0;
 	int    r = cmCancel;
-	int    is_new = (*pID == 0);
+	const bool is_new = (*pID == 0);
 	MainOrg2Dialog * mainorg2_dlg = 0;
 	PPPersonPacket info;
 	THROW(CheckRightsModByID(pID));
@@ -6452,7 +6461,7 @@ int PPObjPerson::IndexPhones(PPLogger * pLogger, int use_ta)
 					const PPELink & r_item = ela.at(i);
 					if(elk_obj.Fetch(r_item.KindID, &elk_rec) > 0) {
 						if(elk_rec.Type == ELNKRT_PHONE) {
-							(temp_buf = r_item.Addr).Transf(CTRANSF_INNER_TO_UTF8).Utf8ToLower(); // @v9.9.11
+							(temp_buf = r_item.Addr).Transf(CTRANSF_INNER_TO_UTF8).Utf8ToLower();
 							PPEAddr::Phone::NormalizeStr(temp_buf, 0, phone);
 							if(phone.Len() >= 5) {
 								if(city_prefix.Len()) {
@@ -6469,7 +6478,7 @@ int PPObjPerson::IndexPhones(PPLogger * pLogger, int use_ta)
 							}
 						}
 						else if(elk_rec.Type == ELNKRT_INTERNALEXTEN) {
-							(temp_buf = r_item.Addr).Transf(CTRANSF_INNER_TO_UTF8).Utf8ToLower(); // @v9.9.11
+							(temp_buf = r_item.Addr).Transf(CTRANSF_INNER_TO_UTF8).Utf8ToLower();
 							PPEAddr::Phone::NormalizeStr(temp_buf, 0, phone);
 							if(phone.Len() > 1 && phone.Len() < 5) {
 								if(!LocObj.P_Tbl->IndexPhone(phone, &objid, 0, 0)) {
@@ -8269,7 +8278,7 @@ static IMPL_CMPFUNC(PrcssrClientActivityStatistics_DetailedEntry, i1, i2)
 {
 	const PrcssrClientActivityStatistics::DetailedEntry * p1 = static_cast<const PrcssrClientActivityStatistics::DetailedEntry *>(i1);
 	const PrcssrClientActivityStatistics::DetailedEntry * p2 = static_cast<const PrcssrClientActivityStatistics::DetailedEntry *>(i2);
-	RET_CMPCASCADE3(p1, p2, Dt, Oid.Obj, Oid.Id);
+	RET_CMPCASCADE3(p1, p2, Dtm, Oid.Obj, Oid.Id);
 }
 
 TSVector <PrcssrClientActivityStatistics::DetailedEntry> & PrcssrClientActivityStatistics::SortDetailedEntryList(TSVector <DetailedEntry> & rList)
@@ -8289,26 +8298,26 @@ int PrcssrClientActivityStatistics::EvaluateStorableStat(PPID personID, const TS
 	StatBase date_gap_stat;
 	for(uint i = 0; i < rSrcList.getCount(); i++) {
 		const DetailedEntry & r_src_entry = rSrcList.at(i);
-		assert(checkdate(r_src_entry.Dt));
-		assert(r_src_entry.Dt >= prev_date);
-		if(checkdate(r_src_entry.Dt)) {
+		assert(checkdate(r_src_entry.Dtm.d));
+		assert(r_src_entry.Dtm.d >= prev_date);
+		if(checkdate(r_src_entry.Dtm.d)) {
 			if(prev_date == ZERODATE) {
-				rTotalEntry.FirstEventDt = r_src_entry.Dt;
+				rTotalEntry.FirstEventDt = r_src_entry.Dtm.d;
 			}
 			rTotalEntry.EventCount++;
-			if(r_src_entry.Dt != prev_date) {
+			if(r_src_entry.Dtm.d != prev_date) {
 				rTotalEntry.DateCount++;
 				assert(checkdate(rTotalEntry.FirstEventDt));
-				long dd = diffdate(r_src_entry.Dt, rTotalEntry.FirstEventDt);
+				long dd = diffdate(r_src_entry.Dtm.d, rTotalEntry.FirstEventDt);
 				assert(dd < USHRT_MAX);
 				uint16 dd16 = static_cast<uint16>(dd);
 				rDateList.insert(&dd16);
 				if(prev_date != ZERODATE) {
-					long dgap = diffdate(r_src_entry.Dt, prev_date);
+					long dgap = diffdate(r_src_entry.Dtm.d, prev_date);
 					date_gap_stat.Step(static_cast<double>(dgap));
 				}
 			}
-			prev_date = r_src_entry.Dt;
+			prev_date = r_src_entry.Dtm.d;
 		}
 	}
 	if(checkdate(prev_date)) {
@@ -8538,11 +8547,30 @@ int PrcssrClientActivityStatistics::Implement_ScanDetailedActivityListForSingleP
 	int    ok = -1;
 	PPViewBill * p_local_bill_view = 0;
 	if(PsnCfg.ClientActivityDetectionList.getCount()) {
+		PPIDArray op_list;
+		PPIDArray psn_op_list;
+		PPIDArray scs_list;
+		DateRange _period(P.Period);
 		for(uint i = 0; i < PsnCfg.ClientActivityDetectionList.getCount(); i++) {
 			const PPPersonConfig::ClientActivityDetectionItem & r_item = PsnCfg.ClientActivityDetectionList.at(i);
 			if(r_item.Oi.Obj == PPOBJ_OPRKIND) {
-				PPIDArray op_list;
-				PPObjOprKind::ExpandOp(r_item.Oi.Id, op_list);
+				PPIDArray local_op_list;
+				PPObjOprKind::ExpandOp(r_item.Oi.Id, local_op_list);
+				op_list.add(&local_op_list);
+			}
+			else if(r_item.Oi.Obj == PPOBJ_PERSONOPKIND) {
+				// @todo
+				psn_op_list.add(r_item.Oi.Id);
+			}
+			else if(r_item.Oi.Obj == PPOBJ_SCARDSERIES) {
+				// @todo
+				scs_list.add(r_item.Oi.Id);
+			}
+		}
+		{
+			if(op_list.getCount()) {
+				op_list.sortAndUndup();
+				// Все обобщенные операции в op_list уже развернуты (see above)
 				for(uint opidx = 0; opidx < op_list.getCount(); opidx++) {
 					const PPID op_id = op_list.get(opidx);
 					PPOprKind op_rec;
@@ -8560,14 +8588,12 @@ int PrcssrClientActivityStatistics::Implement_ScanDetailedActivityListForSingleP
 								BillFilt _filt;
 								_filt.ObjectID = ar_id;
 								_filt.OpID = op_rec.ID;
-								_filt.Period = P.Period;
+								_filt.Period = _period;
 								_filt.Flags |= (BillFilt::fNoTempTable|BillFilt::fIgnoreRtPeriod);
 								if(p_view->Init_(&_filt)) {
 									BillViewItem view_item;
 									for(p_view->InitIteration(PPViewBill::OrdByDate); p_view->NextIteration(&view_item) > 0;) {
-										DetailedEntry new_entry;
-										new_entry.Dt = view_item.Dt;
-										new_entry.Oid.Set(PPOBJ_BILL, view_item.ID);
+										DetailedEntry new_entry(PPObjID(PPOBJ_BILL, view_item.ID), view_item.Dt);
 										rList.insert(&new_entry);
 									}
 								}
@@ -8576,11 +8602,72 @@ int PrcssrClientActivityStatistics::Implement_ScanDetailedActivityListForSingleP
 					}
 				}
 			}
-			else if(r_item.Oi.Obj == PPOBJ_PERSONOPKIND) {
-				// @todo
+			if(psn_op_list.getCount()) {
+				psn_op_list.sortAndUndup();
+				PersonEventTbl::Rec pe_rec;
+				for(SEnum en = PeObj.P_Tbl->EnumByPerson(personID, &_period); en.Next(&pe_rec) > 0;) {
+					if(psn_op_list.bsearch(pe_rec.OpID)) {
+						DetailedEntry new_entry(PPObjID(PeObj.Obj, pe_rec.ID), pe_rec.Dt);
+						rList.insert(&new_entry);						
+					}
+				}
 			}
-			else if(r_item.Oi.Obj == PPOBJ_SCARDSERIES) {
-				// @todo
+			if(scs_list.getCount()) {
+				scs_list.sortAndUndup();
+				PPObjSCardSeries scs_obj;
+				for(uint scsi = 0; scsi < scs_list.getCount(); scsi++) {
+					const PPID scs_id = scs_list.get(scsi);
+					PPSCardSeries scs_rec;
+					if(scs_obj.Fetch(scs_id, &scs_rec) > 0) {
+						PPIDArray sc_list;
+						switch(scs_rec.GetType()) {
+							case scstCredit: 
+							case scstBonus: 
+								{
+									constexpr long _f = SCardCore::OpBlock::fFreezing | SCardCore::OpBlock::fLeveling;
+									ScObj.P_Tbl->GetListByPerson(personID, scs_id, &sc_list);
+									for(uint si = 0; si < sc_list.getCount(); si++) {
+										const PPID sc_id = sc_list.get(si);
+										SCardOpTbl::Rec sco_rec;
+										for(LDATETIME dtm = ZERODATETIME; ScObj.P_Tbl->EnumOpByCard(sc_id, &dtm, &sco_rec) > 0;) {
+											const LDATE _dt = sco_rec.Dt;
+											if(!(sco_rec.Flags & _f) && _period.CheckDate(_dt)) {
+												if(sco_rec.Amount < 0.0) { // нас интересуют только операции расхода, поскольку только они и формируют нашу прибыль
+													/* Трудность обнаружилась - у операции по карте нет своего ObjID'а
+													DetailedEntry new_entry;
+													new_entry.Dt = _dt;
+													new_entry.Oid.Set(ScObj.Obj, sco_rec.ID);
+													rList.insert(&new_entry);
+													*/
+												}
+											}
+										}
+
+									}
+								}
+								break;
+							case scstDiscount:
+								{
+									ScObj.P_Tbl->GetListByPerson(personID, scs_id, &sc_list);
+									CCheckCore * p_cc = ScObj.P_CcTbl;
+									for(uint si = 0; si < sc_list.getCount(); si++) {
+										const PPID sc_id = sc_list.get(si);
+										CCheckTbl::Key4 k4;
+										MEMSZERO(k4);
+										k4.SCardID = sc_id;
+										if(p_cc->search(4, &k4, spGe) && p_cc->data.SCardID == sc_id) do {
+											const LDATE _dt = p_cc->data.Dt;
+											if(_period.CheckDate(_dt)) {
+												DetailedEntry new_entry(PPObjID(PPOBJ_CCHECK, p_cc->data.ID), _dt);
+												rList.insert(&new_entry);												
+											}
+										} while(p_cc->search(4, &k4, spNext) && p_cc->data.SCardID == sc_id);
+									}
+								}
+								break;
+						}
+					}
+				}
 			}
 		}
 	}

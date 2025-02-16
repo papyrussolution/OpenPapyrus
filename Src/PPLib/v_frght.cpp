@@ -839,10 +839,10 @@ int PPViewFreight::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser 
 				if(UpdateFeatures() > 0)
 					ok = 1;
 				break;
-			case PPVCMD_EDITBILLFREIGHT: ok = P_BObj->EditBillFreight(id); break;
-			case PPVCMD_PRINTBILL: PrintBill(id); break;
-			case PPVCMD_PRINTBILLLIST: ok = PrintBillList(); break;
-			case PPVCMD_PRINTALLBILLS: ok = PrintAllBills(); break;
+			case PPVCMD_EDITBILLFREIGHT:   ok = P_BObj->EditBillFreight(id); break;
+			case PPVCMD_PRINTBILL:         PrintBill(id); break;
+			case PPVCMD_PRINTBILLLIST:     ok = PrintBillList(); break;
+			case PPVCMD_PRINTALLBILLS:     ok = PrintAllBills(); break;
 			case PPVCMD_PRINTBILLINFOLIST: ok = PrintBillInfoList(); break;
 			case PPVCMD_EXPORT:
 				ok = -1;

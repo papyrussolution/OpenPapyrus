@@ -5169,17 +5169,10 @@ void PPALDD_Goods::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & 
             SFsPath ps_dest(dest_file_path);
             SFsPath ps_src(org_file_path);
             ps_dest.Nam = ps_src.Nam;
-            /* @v9.1.1
-            if(P_Ep && P_Ep->OutputFormat == SFileFormat::Latex)
-				ps_dest.Ext.Z();
-			else
-				ps_dest.Ext = ps_src.Ext;
-			*/
-			ps_dest.Ext = ps_src.Ext; // @v9.1.1
+			ps_dest.Ext = ps_src.Ext;
             ps_dest.Merge(dest_file_name);
             SCopyFile(org_file_path, dest_file_name, 0, 0, 0);
             //
-            // @v9.1.1 {
             // Для latex результирующее имя файла должно быть без расширения
             // (в то время как сам файл расширение иметь должен)
             //
@@ -5187,7 +5180,6 @@ void PPALDD_Goods::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & 
 				ps_dest.Ext.Z();
 				ps_dest.Merge(dest_file_name);
             }
-            // }
             if(rel) {
 				SFsPath::GetRelativePath(dest_file_path, 0, dest_file_name, 0, stub);
             }

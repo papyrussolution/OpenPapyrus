@@ -4131,7 +4131,7 @@ int PPObjGoods::AcceptPacket(PPID * pID, PPGoodsPacket * pPack, bool updQuotsByT
 		ok = AcceptQuot(*pID, pPack, false, pCtx);
 	}
 	else {
-		const  int is_new = BIN(!*pID);
+		const  bool is_new = (!*pID);
 		int    unchanged = 0;
 		RemoveDupBarcodes(pPack, pCtx);
 		RemoveDupArCodes(pPack, pCtx);
@@ -4651,10 +4651,8 @@ double PPObjGoods::CalcLikeness(const Goods2Tbl::Rec * pRec1, const Goods2Tbl::R
 	return rate;
 }
 
-int PPObjGoods::GetTagList(PPID goodsID, ObjTagList * pTagList)
-	{ return PPRef->Ot.GetList(Obj, goodsID, pTagList); }
-int PPObjGoods::SetTagList(PPID goodsID, const ObjTagList * pTagList, int use_ta)
-	{ return PPRef->Ot.PutList(Obj, goodsID, pTagList, use_ta); }
+int PPObjGoods::GetTagList(PPID goodsID, ObjTagList * pTagList) { return PPRef->Ot.GetList(Obj, goodsID, pTagList); }
+int PPObjGoods::SetTagList(PPID goodsID, const ObjTagList * pTagList, int use_ta) { return PPRef->Ot.PutList(Obj, goodsID, pTagList, use_ta); }
 
 PPObjGoodsInfo::PPObjGoodsInfo(void * extraPtr) : PPObjReference(PPOBJ_GOODSINFO, extraPtr)
 {
@@ -4665,7 +4663,7 @@ int PPObjGoodsInfo::Edit(PPID * pID, void * extraPtr)
 	int    ok = cmCancel;
 	int    valid_data = 0;
 	ushort v = 0;
-	int    is_new = (*pID == 0);
+	const bool is_new = (*pID == 0);
 	TDialog * dlg = 0;
 	PPGoodsInfo2 rec;
 	MEMSZERO(rec);

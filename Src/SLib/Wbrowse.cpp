@@ -828,7 +828,7 @@ void BrowserWindow::AdjustCursorsForHdr()
 
 void BrowserWindow::Insert_(TView *p)
 {
-	TGroup::Insert_(p);
+	TViewGroup::Insert_(p);
 	P_Header = p;
 	P_Def->setViewHight((CliSz.y - CapOffs) / YCell - p->ViewSize.y - 1);
 }

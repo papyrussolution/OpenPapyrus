@@ -2726,12 +2726,8 @@ int Transfer::UpdateItem(PPTransferItem * ti, int16 & rRByBill, int reverse, lon
 			}
 			THROW(SearchByBill(ti->BillID, 0, _rbb, 0) > 0);
 			data.LotID = ti->LotID;
-			//
-			// @v9.0.12 Из-за изменения техники каскадной модификации лотов это присвоение необходимо
-			//
 			if(rec.Flags & PPTFR_RECEIPT)
 				data.GoodsID = ti->GoodsID;
-			//
 			data.Dt    = ti->Date;
 			if(upd_oprno)
 				data.OprNo = upd_oprno;

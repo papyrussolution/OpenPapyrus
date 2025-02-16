@@ -1,5 +1,5 @@
 // PPSMS.CPP
-// Copyright (c) V.Miller 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) V.Miller 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 //
 #include <slib.h>
 #include <pp.h>
@@ -234,50 +234,6 @@ void StConfig::Clear()
 	ReconnectTimeout = 0;
 	ReconnectTriesNum = 0;
 }
-
-#if 0 // @v9.5.12 (emitted) {
-int StConfig::SetConfig_(const char * pHost, uint port, const char * pSystemId, const char * pLogin,
-	const char * pPassword, const char * pSystemType, uint sourceAddressTon, uint sourceAddressNpi, uint destAddressTon, uint destAddressNpi, uint dataCoding, const char * pFrom, uint splitLongMsg)
-{
-	int    ok = 1;
-	SString from;
-	THROW_PP(!isempty(pHost), PPERR_SMS_HOSTNEEDED);
-	THROW_PP(!isempty(pSystemId), PPERR_SMS_SYSTEMIDNEEDED);
-	THROW_PP(!isempty(pPassword), PPERR_SMS_PASSWNEEDED);
-	THROW_PP(port != 0, PPERR_SMS_INVPORT);
-	THROW_PP(sstrlen(pSystemId) < MAX_SYSTEM_ID_LEN, PPERR_SMS_SYSTEMIDERRLEN);
-	THROW_PP(sstrlen(pPassword) < MAX_PASSWORD_LEN, PPERR_SMS_PASSWERRLEN);
-	THROW_PP(sstrlen(pSystemType) < MAX_SYSTEM_TYPE_LEN, PPERR_SMS_SYSTYPEERRLEN);
-	// Параметры VALIDITY_PERIOD и SCHEDULE_DELIVERY_TIME могут иметь длину 1 или 17
-	THROW_PP((sstrlen(VALIDITY_PERIOD) < MAX_DATE_LEN) && !((sstrlen(VALIDITY_PERIOD) > 0) && (sstrlen(VALIDITY_PERIOD) < MAX_DATE_LEN - 1)), PPERR_SMS_VALIDPERIODERRLEN);
-	THROW_PP((sstrlen(SCHEDULE_DELIVERY_TIME) < MAX_DATE_LEN) && !((sstrlen(SCHEDULE_DELIVERY_TIME) > 0) && (sstrlen(SCHEDULE_DELIVERY_TIME) < MAX_DATE_LEN - 1)), PPERR_SMS_DELIVTIMEERRLEN);
-	THROW_PP(AddressRange.Len() < MAX_ADDR_RANGE_LEN, PPERR_SMS_ADDRRANGEERRLEN);
-	Host.Z().Cat(pHost);
-	Port = port;
-	SystemId.Z().Cat(pSystemId);
-	Login.Z().Cat(pLogin);
-	Password.Z().Cat(pPassword);
-	SystemType.Z().Cat(pSystemType);
-	SourceAddressTon = sourceAddressTon;
-	SourceAddressNpi = sourceAddressNpi;
-	DestAddressTon = destAddressTon;
-	DestAddressNpi = destAddressNpi;
-	DataCoding = dataCoding;
-	// @vmiller comment
-	//if(isempty(pFrom)) {
-	//	GetMainOrgName(From.Trim(MAX_ADDR_LEN - 1));
-	//}
-	//else
-		From.Z().Cat(pFrom);
-	if(!PPObjSmsAccount::VerifyString(From, 0)) {
-		From = "";
-		THROW_PP(0, PPERR_SMS_FROMMUSTBELATIN);
-	}
-	SplitLongMsg = splitLongMsg;
-	CATCHZOK;
-	return ok;
-}
-#endif // } 0 @v9.5.12 (emitted)
 //
 //
 //
@@ -1703,57 +1659,11 @@ void SmsClient::DecodeDeliverSm(int sequenceNumber, void * pPduBody, size_t body
 		AddStatusCode(dest_addr, SMS_REJECTED, error);
 }
 
-/* @v9.5.12 (emitted) int SmsClient::SendDeliverSmResp(int sequenceNumber)
-{
-	SmsProtocolBuf protocol_buf(_byteswap_ulong(DELIVER_SM_RESP), 0, _byteswap_ulong(sequenceNumber));
-	protocol_buf.AddUInt8(0);
-	protocol_buf.Finish();
-	return Send(protocol_buf, 1);
-}*/
-
 void SmsClient::DisconnectSocket()
 {
-	// @v10.2.8 {
 	ClientSocket.Disconnect();
 	ConnectionState = SMPP_SOCKET_DISCONNECTED;
-	// } @v10.2.8
-	/* @v10.2.8 if(ClientSocket != INVALID_SOCKET) {
-		ConnectionState = SMPP_SOCKET_DISCONNECTED;
-		shutdown(ClientSocket, 2);
-		closesocket(ClientSocket);
-		ClientSocket = INVALID_SOCKET;
-	}*/
 }
-
-/* @v9.5.12 (emitted) int SmsClient::SendEnquireLink(int sequenceNumber)
-{
-	int    ok = 1;
-	SString err_msg;
-	SmsProtocolBuf protocol_buf(_byteswap_ulong(ENQUIRE_LINK), 0, _byteswap_ulong(sequenceNumber));
-	protocol_buf.Finish();
-	THROW(Send(protocol_buf, 1));
-	{
-		int    r = Receive(ENQLINQ_RECEIVE_TIMEOUT);
-		if(!r) {
-			uint   reconnection_try_nums = 0;
-			while(!(r = TryToReconnect(reconnection_try_nums)) && reconnection_try_nums < Config.ReconnectTriesNum)
-				continue;
-			THROW(r);
-			r = Receive(ENQLINQ_RECEIVE_TIMEOUT);
-		}
-		THROW(r);
-	}
-	{
-		int    cmd_status = SMResults.GetResult(SMResults.EnquireLinkResult);
-		if(cmd_status != ESME_ROK) {
-			GetSmscErrorText(cmd_status, err_msg);
-			PPSetError(PPERR_SMS_ENQLINKERROR, err_msg.Transf(CTRANSF_OUTER_TO_INNER));
-			ok = 0;
-		}
-	}
-	CATCHZOK;
-	return ok;
-}*/
 
 int SmsClient::SendGenericNack(int sequenceNumber, int commandStatus)
 {
@@ -2103,46 +2013,6 @@ int SmsClient::SendSms_(const char * pFrom, const char * pTo, const char * pText
     return ok;
 }
 
-/* @v9.5.12 (emitted) int SmsClient::SendEnquireLinkResp(int sequenceNumber)
-{
-	SmsProtocolBuf protocol_buf(_byteswap_ulong(ENQUIRE_LINK_RESP), 0, _byteswap_ulong(sequenceNumber));
-	protocol_buf.Finish();
-	return Send(protocol_buf, 1);
-}*/
-
-/*int SmsClient::IsConnected() const
-{
-	return BIN(ConnectionState == SMPP_BINDED);
-}*/
-
-/* @v9.5.11
-int SmsClient::GetStatusCode(SString & rDestNum, SString & rStatus, size_t pos) const
-{
-	int    ok = 0;
-	SString status_msg;
-	if((pos < StatusCodesArr.getCount()) && StatusCodesArr.getCount()) {
-		StatusCodesArr.Get(pos, status_msg);
-		status_msg.Divide(';', rDestNum, rStatus);
-		ok = 1;
-	}
-	return ok;
-}
-*/
-
-/* @v9.5.11
-int SmsClient::GetErrorSubmit(SString & rDestNum, SString & rErrText, size_t pos) const
-{
-	int    ok = 0;
-	SString err_msg;
-	if(pos < ErrorSubmitArr.getCount()) {
-		ErrorSubmitArr.Get(pos, err_msg);
-		err_msg.Divide(';', rDestNum = 0, rErrText = 0);
-		ok = 1;
-	}
-	return ok;
-}
-*/
-
 int SmsClient::SendSms(const char * pTo, const char * pText, SString & rStatus)
 {
 	int    ok = 1;
@@ -2208,16 +2078,6 @@ int SmsClient::SendSms(const char * pTo, const char * pText, SString & rStatus)
 				}
 			}
 			{
-				/* @v9.5.11
-				pos = 0;
-				while(GetErrorSubmit(dest_num = 0, status_text = 0, pos)) {
-					if(rStatus.NotEmpty())
-						rStatus.Comma();
-					rStatus.Cat(status_text);
-					pos++;
-				}
-				*/
-				// @v9.5.11 {
 				for(uint pos = 0; pos < ErrorSubmitArr.getCount(); pos++) {
 					dest_num.Z();
 					status_text.Z();
@@ -2228,7 +2088,6 @@ int SmsClient::SendSms(const char * pTo, const char * pText, SString & rStatus)
 						rStatus.Comma();
 					rStatus.Cat(status_text);
 				}
-				// } @v9.5.11
 			}
 		}
 	}
@@ -2381,7 +2240,7 @@ int SmsClient::SmsRelease_()
 	if(ConnectionState == SMPP_BINDED) {
 		SString status_msg;
 		{
-			SDelay(100); // @v9.6.4 500-->100
+			SDelay(100);
 			/*THROW(*/Unbind()/*)*/; // @todo разобраться с ошибками в Unbind()
 			DisconnectSocket();
 		}
@@ -2410,11 +2269,7 @@ int SmsClient::SendingSms_(PPID personID, const char * pPhone, const char * pTex
 					long  diff_sec = diffdatetimesec(now_dtm, moment);
 					if(diff_sec <= psn_cfg.SendSmsSamePersonTimeout) {
 						if(P_Logger) {
-							/* @v9.5.6
-							PPLoadText(PPTXT_SMSNOTSENDED_TIMEOUT, temp_buf);
-							PPFormat(temp_buf, &msg_buf, personID, psn_cfg.SendSmsSamePersonTimeout);
-							*/
-							PPFormatT(PPTXT_SMSNOTSENDED_TIMEOUT, &msg_buf, personID, psn_cfg.SendSmsSamePersonTimeout); // @v9.5.6
+							PPFormatT(PPTXT_SMSNOTSENDED_TIMEOUT, &msg_buf, personID, psn_cfg.SendSmsSamePersonTimeout);
 							P_Logger->Log(msg_buf);
 						}
 						ok = -1;

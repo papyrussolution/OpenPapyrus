@@ -1356,7 +1356,7 @@ int BillItemBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 				case 0: // Номер строки
 					if(is_total)
 						ok = 0;
-					else if(/*PPMaster*/ 1 /* @v8.9.8 && (CConfig.Flags & CCFLG_DEBUG)*/) // @v9.0.0 PPMaster-->1
+					else if(/*PPMaster*/1)
 						pBlk->Set((int32)p_item->RByBill);
 					else
 						pBlk->Set((int32)(p_item->Pos+1));
@@ -3298,15 +3298,8 @@ private:
 							}
 							if(code_buf.NotEmpty()) {
 								if(FontId <= 0) {
-									HFONT  hf = reinterpret_cast<HFONT>(SendMessage(p_draw_item->H_Item, WM_GETFONT, 0, 0));
-									LOGFONT f;
-									if(hf && ::GetObject(hf, sizeof(f), &f)) {
-										SFontDescr fd(0, 0, 0);
-										f.lfHeight = 12;
-										fd.SetLogFont(&f);
-										//fd.Size = (int16)MulDiv(fd.Size, 72, GetDeviceCaps(canv, LOGPIXELSY));
-										FontId = p_tb->CreateFont_(0, fd.Face, fd.Size, fd.Flags);
-									}
+									HFONT  hf = reinterpret_cast<HFONT>(::SendMessage(p_draw_item->H_Item, WM_GETFONT, 0, 0));
+									FontId = p_tb->CreateFont_(0, hf, 12);
 								}
 								if(FontId) {
 									SDrawContext dctx = canv;

@@ -1,20 +1,13 @@
 // PPYIDATA.CPP
-// Copyright (c) A.Starodub, A.Sobolev 2003, 2005, 2006, 2007, 2008, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023
+// Copyright (c) A.Starodub, A.Sobolev 2003, 2005, 2006, 2007, 2008, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
-// @v9.6.2 (moved to pp.h) #include <ppidata.h>
-// @v9.6.3 #include <idea.h>
 
 #define PPDWNLDATA_MAXTAGVALSIZE   256
 #define PPDWNLDATA_MAXTAGSIZE      64
 #define PPDWNLDATA_MAXTAGNAMESSIZE 2048
-
-//static const char WinInetDLLPath[] = "wininet.dll";
-
-// @v8.6.1 закомментировано ради удобства навигации в Code:Blocks #ifdef __WIN32__
-// @v8.6.1 #endif // __WIN32__
 //
 // PpyInetDataPrcssr
 //
@@ -24,21 +17,8 @@ static void SetInetError(HMODULE handle)
 	const  int err_code = PPErrCode;
 	if(oneof2(err_code, PPERR_RCVFROMINET, PPERR_INETCONN) && handle != 0) {
 		SString msg_buf;
-		//TCHAR  buf[256];
-		//uint32 iec = 0;
-		//uint32 buf_len = sizeof(buf);
-		//PTR32(buf)[0] = 0;
-		//if(os_err_code == ERROR_INTERNET_EXTENDED_ERROR) {
-			//::InternetGetLastResponseInfo(&iec, buf, &buf_len); // @unicodeproblem
-		//}
-		//else {
-			//::FormatMessage(FORMAT_MESSAGE_FROM_HMODULE|FORMAT_MESSAGE_IGNORE_INSERTS, handle, os_err_code, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), buf, buf_len, 0); // @unicodeproblem
-		//}
-		//(msg_buf = SUcSwitch(buf)).Chomp().ToOem();
-		// @v10.3.11 {
 		SSystem::SFormatMessage(os_err_code, msg_buf);
 		msg_buf.Chomp().Transf(CTRANSF_OUTER_TO_INNER);
-		// } @v10.3.11 
 		PPSetAddedMsgString(msg_buf);
 	}
 }
@@ -56,8 +36,6 @@ PpyInetDataPrcssr::~PpyInetDataPrcssr()
 	Uninit();
 #endif // __WIN32__
 }
-
-// @v8.6.1 закомментировано ради удобства навигации в Code:Blocks #ifdef __WIN32__
 
 int PpyInetDataPrcssr::Init()
 {
@@ -91,308 +69,6 @@ void PpyInetDataPrcssr::Uninit()
 	InetSession = 0;
 	MEMSZERO(IConnCfg);
 }
-
-#if 0 // @v9.7.10 @obsolete {
-//
-// Currency List
-//
-typedef TSArray <PPCurrency> CurrencyArray;
-
-//
-// Tag parser
-//
-class XTagParser {
-public:
-	XTagParser();
-	~XTagParser();
-
-	int    Run(const char * pFileName);
-protected:
-	enum {
-		tokEOF = -1,
-		tokErr = 0,
-		tokChar,
-		tokTag,
-		tokEndTag
-	};
-	virtual int ProcessTag(const char * pTag, long) = 0;
-	//
-	// Returns tokXXX
-	//
-	int    GetToken(const char * pCurTag, char * pTagBuf, size_t bufLen);
-private:
-	char   FileName[MAX_PATH];
-	FILE * P_Stream;
-};
-
-XTagParser::XTagParser()
-{
-	FileName[0] = 0;
-	P_Stream = 0;
-}
-
-XTagParser::~XTagParser()
-{
-	SFile::ZClose(&P_Stream);
-}
-
-int XTagParser::GetToken(const char * pCurTag, char * pTagBuf, size_t bufLen)
-{
-	int tok = tokErr;
-	if(P_Stream) {
-		size_t i = 0;
-		char c = fgetc(P_Stream);
-		if(c == '<') {
-			while((c = fgetc(P_Stream)) != EOF && c != '>') {
-				if(!bufLen || i < bufLen) {
-					pTagBuf[i] = c;
-				}
-				i++;
-			}
-			if(!bufLen || i < bufLen) {
-				pTagBuf[i] = '\0';
-			}
-			if(c == '>') {
-				if(pTagBuf[0] == '/') {
-					char *p_c = pTagBuf;
-					p_c++;
-					if(!pCurTag || strcmp(pCurTag, p_c)) {
-						i = 0;
-						tok = tokErr;
-					}
-					else
-						tok = tokEndTag;
-				}
-				else if(pCurTag && !strcmp(pCurTag, pTagBuf))
-					tok = tokErr;
-				else
-					tok = tokTag;
-			}
-			else {
-				i = 0;
-				tok = tokErr;
-			}
-		}
-		else if(c != EOF) {
-			pTagBuf[0] = c;
-			i = 1;
-			tok = tokChar;
-		}
-		else
-			tok = tokEOF;
-		if(!bufLen || i < bufLen) {
-			pTagBuf[i] = '\0';
-		}
-	}
-	return (tok == tokErr) ? (tok, SLibError = SLERR_INVFORMAT) : tok;
-}
-
-int XTagParser::Run(const char * pFileName)
-{
-	int tok = tokErr;
-	char tag_buf[64];
-	if(pFileName && (P_Stream = fopen(pFileName, "r")) != NULL) {
-		STRNSCPY(FileName, pFileName);
-		while((tok = GetToken(0, tag_buf, sizeof(tag_buf))) != tokEOF && tok != tokErr) {
-			if(tok == tokTag) {
-				if(ProcessTag(tag_buf, 0) == tokErr) {
-					tok = tokErr;
-					break;
-				}
-			}
-		}
-	}
-	else
-		SLibError = SLERR_OPENFAULT;
-	if(P_Stream) {
-		fclose(P_Stream);
-		P_Stream = 0;
-	}
-	FileName[0] = 0;
-	return (tok == tokErr) ? 0 : 1;
-}
-
-class CurrListTagParser : XTagParser {
-public:
-	CurrListTagParser();
-	~CurrListTagParser();
-	int    ProcessNext(CurrencyArray * pCurrAry, const char * pPath);
-protected:
-	virtual int ProcessTag(const char * pTag, long);
-private:
-	int    SaveTagVal(const char * pTag);
-	CurrencyArray CurrAry;
-	PPCurrency CurrItem;
-	PPIDArray ParentTags;
-	SString TagValBuf;
-	SString TagNamesStr;
-};
-
-CurrListTagParser::CurrListTagParser()
-{
-	PPLoadText(PPTXT_CURRLISTTAGNAMES, TagNamesStr);
-	MEMSZERO(CurrItem);
-	CurrAry.freeAll();
-}
-
-CurrListTagParser::~CurrListTagParser()
-{
-}
-
-int CurrListTagParser::ProcessNext(CurrencyArray * pCurrAry, const char * pPath)
-{
-	int    r = -1;
-	CurrAry.freeAll();
-	ParentTags.freeAll();
-	return ((r = Run(pPath)) > 0 && pCurrAry) ? (pCurrAry->copy(CurrAry), r) : r;
-}
-
-int CurrListTagParser::ProcessTag(const char * pTag, long)
-{
-	int    tok = tokErr;
-	char   tag_buf[64];
-	while((tok = GetToken(pTag, tag_buf, sizeof(tag_buf))) != tokEOF && tok != tokEndTag && tok != tokErr) {
-		if(tok == tokTag) {
-			int    tag_idx = -1;
-			PPSearchSubStr(TagNamesStr, &tag_idx, pTag, 0);
-			ParentTags.add(tag_idx);
-			TagValBuf = 0;
-			if(ProcessTag(tag_buf, 0) == tokErr) { // @recursion
-				tok = tokErr;
-				break;
-			}
-			ParentTags.atFree(ParentTags.getCount() - 1);
-		}
-		else if(tag_buf[0] != '\n' && tag_buf[0] != '\r' && tag_buf[0] != '\0')
-			TagValBuf.CatChar(tag_buf[0]);
-	}
-	if(tok != tokErr) {
-		if(!SaveTagVal(pTag))
-			tok = tokErr;
-	}
-	return tok;
-}
-
-int CurrListTagParser::SaveTagVal(const char * pTag)
-{
-	int    ok = 1;
-	int    tag_idx = 0;
-	uint   pt_last_i = ParentTags.getCount();
-	int    parent_ok = ((pt_last_i > 0 && ParentTags.at(pt_last_i - 1) == PPCURRLTAGNAM_CURRLIST) ||
-		(pt_last_i > 1 && ParentTags.at(pt_last_i - 2) == PPCURRLTAGNAM_CURRLIST));
-	char   buf[PPDWNLDATA_MAXTAGVALSIZE];
-	STRNSCPY(buf, TagValBuf);
-	if(parent_ok) {
-		if(PPSearchSubStr(TagNamesStr, &tag_idx, pTag, 0) > 0) {
-			switch(tag_idx) {
-				case PPCURRLTAGNAM_ITEM:
-					CurrAry.insert(&CurrItem);
-					MEMSZERO(CurrItem);
-					break;
-				case PPCURRLTAGNAM_ID:
-					if(!strtolong(buf, &CurrItem.ID))
-						ok = 0;
-					break;
-				case PPCURRLTAGNAM_NAME:
-					STRNSCPY(CurrItem.Name, buf);
-					break;
-				case PPCURRLTAGNAM_DIGITCODE:
-					if(!strtolong(buf, &CurrItem.Code))
-						ok = 0;
-					break;
-				case PPCURRLTAGNAM_MNEMONICCODE:
-					STRNSCPY(CurrItem.Symb, buf);
-					break;
-				default:
-					ok = -1;
-			}
-		}
-		else
-			ok = 0;
-	}
-	return ok ? ok : (SLibError = SLERR_INVFORMAT, ok);
-}
-
-int PpyInetDataPrcssr::ImportCurrencyList(ulong * pAcceptedRows, int use_ta)
-{
-	int    ok = 1;
-	char   filename[/*MAXFILE*/260];
-	char   url[256];
-	SString path;
-	uint   i = 0, items_count = 0;
-	ulong  accepted_rows = 0;
-	PPID   cur_id = 0;
-	CurrencyArray curr_list;
-	CurrListTagParser parser;
-	PPCurrency currency;
-	PPObjCurrency cur_obj;
-	{
-		PPTransaction tra(use_ta);
-		THROW(tra);
-		PPGetSubStr(PPTXT_XMLFILNAMES, PPXMLFILNAM_CURRLIST, filename, sizeof(filename));
-		sprintf(url, ((IConnCfg.URLDir[sstrlen(IConnCfg.URLDir) - 1] == '/') ? "%s%s" : "%s/%s"), IConnCfg.URLDir, filename);
-		PPWaitStart();
-		PPWaitMsg(PPSTR_TEXT, PPTXT_DWNLPPYDATA, filename);
-		PPGetFilePath(PPPATH_IN, filename, path);
-		THROW(DownloadData(url, path));
-		PPWaitMsg(PPSTR_TEXT, PPTXT_PARSEXMLFILE, filename);
-		THROW_PP(parser.ProcessNext(&curr_list, path), PPERR_SLIB);
-		items_count = curr_list.getCount();
-		for(i = 0; i < items_count; i++) {
-			int found_like_curr = 0;
-			PPCurrency currency1;
-			currency = curr_list.at(i);
-			for(cur_id = 0; cur_obj.EnumItems(&cur_id, &currency1) > 0;) {
-				if(strcmpi(currency.Symb, currency1.Symb) == 0 || currency.Code == currency1.Code) {
-					found_like_curr = 1;
-					break;
-				}
-			}
-			if(!found_like_curr) {
-				currency.ID = 0;
-				THROW(cur_obj.AddItem(&currency.ID, &currency, 0));
-				accepted_rows++;
-			}
-			PPWaitPercent(i + 1, items_count);
-		}
-		THROW(tra.Commit());
-		ASSIGN_PTR(pAcceptedRows, accepted_rows);
-	}
-	CATCHZOK
-	PPWaitStop();
-	return ok;
-}
-
-int PpyInetDataPrcssr::DownloadData(const char * pURL, const char * pPath)
-{
-	int    ok = -1;
-	char   buf[512];
-	ulong  num_read_bytes = 0;
-	FILE * p_xml_file = 0;
-	HINTERNET h_inet_file = NULL;
-	if(pPath && pURL) {
-		PPSetAddedMsgString(pPath);
-		THROW_PP((p_xml_file = fopen(pPath, "wb")) != NULL, PPERR_CANTOPENFILE);
-		THROW_PP((h_inet_file = InternetOpenUrl(InetSession, pURL, NULL, 0,
-			INTERNET_FLAG_IGNORE_CERT_CN_INVALID | INTERNET_FLAG_IGNORE_CERT_DATE_INVALID, 0)) != NULL, PPERR_RCVFROMINET); // @unicodeproblem
-		do {
-			memzero(buf, sizeof(buf));
-			THROW_PP(InternetReadFile(h_inet_file, buf, sizeof(buf), &num_read_bytes), PPERR_RCVFROMINET);
-			if(num_read_bytes > 0)
-				fwrite(buf, num_read_bytes, 1, p_xml_file);
-		} while(num_read_bytes > 0);
-		ok = 1;
-	}
-	CATCH
-		SetInetError();
-		ok = 0;
-	ENDCATCH
-	SFile::ZClose(&p_xml_file);
-	if(h_inet_file != NULL)
-		InternetCloseHandle(h_inet_file);
-	return ok;
-}
-#endif // } @v9.7.10 @obsolete 
 
 void PpyInetDataPrcssr::SetInetError()
 {
@@ -602,7 +278,8 @@ static SString & GetFileName(const char * pPath, SString & rFile)
 
 int WinInetFTP::SafeGet(const char * pLocalPath, const char * pFTPPath, int checkDtTm, PercentFunc pf, PPLogger * pLogger)
 {
-	int    r = 0, reinit = 1;
+	int    r = 0;
+	int    reinit = 1;
 	SString buf;
 	if(Exists(pFTPPath)) {
 		int tries = IConnCfg.MaxTries > 0 ? IConnCfg.MaxTries : FTP_MAXTRIES;
@@ -627,8 +304,7 @@ int WinInetFTP::SafeGet(const char * pLocalPath, const char * pFTPPath, int chec
 		else if(!r) {
 			SString add_buf;
 			PPGetLastErrorMessage(1, buf);
-			// @v9.4.12 PPGetWord(PPWORD_ERROR, 0, add_buf);
-			PPLoadString("error", add_buf); // @v9.4.12
+			PPLoadString("error", add_buf);
 			buf = add_buf.Space().Cat(buf);
 			pLogger->Log(buf);
 		}
@@ -665,8 +341,7 @@ int WinInetFTP::SafePut(const char * pLocalPath, const char * pFTPPath, int chec
 		else if(!r) {
 			SString add_buf;
 			PPGetLastErrorMessage(1, buf);
-			// @v9.4.12 PPGetWord(PPWORD_ERROR, 0, add_buf);
-			PPLoadString("error", add_buf); // @v9.4.12
+			PPLoadString("error", add_buf);
 			buf = add_buf.Space().Cat(buf);
 			pLogger->Log(buf);
 		}
@@ -1036,8 +711,6 @@ int WinInetFTP::CreateDir(const char * pDir)
 	return ok;
 }
 
-// @v8.6.1 #endif // __WIN32__
-
 /*static*/int PpyInetDataPrcssr::EditCfg()
 {
 	class InetConnConfigDialog : public TDialog {
@@ -1084,26 +757,27 @@ int WinInetFTP::CreateDir(const char * pDir)
 	};
 	int    ok = -1;
 	int    valid_data = 0;
-	int    is_new = 0;
 	InetConnConfigDialog * p_dlg = new InetConnConfigDialog();
 	PPInetConnConfig cfg;
 	THROW(CheckCfgRights(PPCFGOBJ_INETCONN, PPR_READ, 0));
-	MEMSZERO(cfg);
-	is_new = GetCfg(&cfg);
-	THROW(CheckDialogPtrErr(&p_dlg));
-	p_dlg->setDTS(&cfg);
-	while(!valid_data && ExecView(p_dlg) == cmOK) {
-		THROW(CheckCfgRights(PPCFGOBJ_INETCONN, PPR_MOD, 0));
-		if(p_dlg->getDTS(&cfg) > 0) {
-			if(PutCfg(&cfg, 1)) {
-				valid_data = 1;
-				ok = 1;
+	{
+		MEMSZERO(cfg);
+		const bool is_new = (GetCfg(&cfg) <= 0);
+		THROW(CheckDialogPtrErr(&p_dlg));
+		p_dlg->setDTS(&cfg);
+		while(!valid_data && ExecView(p_dlg) == cmOK) {
+			THROW(CheckCfgRights(PPCFGOBJ_INETCONN, PPR_MOD, 0));
+			if(p_dlg->getDTS(&cfg) > 0) {
+				if(PutCfg(&cfg, 1)) {
+					valid_data = 1;
+					ok = 1;
+				}
+				else
+					PPError();
 			}
 			else
 				PPError();
 		}
-		else
-			PPError();
 	}
 	CATCHZOKPPERR
 	delete p_dlg;
@@ -1139,23 +813,3 @@ int WinInetFTP::CreateDir(const char * pDir)
 	CATCHZOK
 	return ok;
 }
-//
-//
-//
-/* @v9.7.10 @obsolete int ImportCurrencyList()
-{
-	int    ok = -1;
-	ulong  accepted_rows = 0;
-	char   str_accepted_rows[10];
-	PpyInetDataPrcssr prcssr;
-
-	memzero(str_accepted_rows, sizeof(str_accepted_rows));
-	THROW(prcssr.Init());
-	THROW(prcssr.ImportCurrencyList(&accepted_rows, 1));
-	ok = 1;
-	CATCHZOKPPERR
-	prcssr.Uninit();
-	ltoa(accepted_rows, str_accepted_rows, 10);
-	PPMessage(mfInfo | mfOK, PPINF_RCVCURRSCOUNT, str_accepted_rows);
-	return ok;
-}*/

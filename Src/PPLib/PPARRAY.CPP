@@ -25,12 +25,12 @@ bool PPCycleFilt::operator !() const { return (Cycle == 0); }
 //
 // PPCycleArray
 //
-PPCycleArray::PPCycleArray() : TSVector <DateRange> (), Cycle(0), NumCycles(0) // @v9.8.4 TSArray-->TSVector
+PPCycleArray::PPCycleArray() : TSVector <DateRange> (), Cycle(0), NumCycles(0)
 {
 	Period.Z();
 }
 
-PPCycleArray::PPCycleArray(LDATE beg, LDATE end, int cycle, int numCycles) : TSVector <DateRange> () // @v9.8.4 TSArray-->TSVector
+PPCycleArray::PPCycleArray(LDATE beg, LDATE end, int cycle, int numCycles) : TSVector <DateRange> ()
 {
 	init(beg, end, cycle, numCycles);
 }

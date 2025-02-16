@@ -1183,9 +1183,7 @@ typedef enum {
 	CURLOPT(CURLOPT_HTTPHEADER, CURLOPTTYPE_SLISTPOINT, 23),
 
 	/* This points to a linked list of post entries, struct curl_httppost */
-	CURLOPTDEPRECATED(CURLOPT_HTTPPOST, CURLOPTTYPE_OBJECTPOINT, 24,
-	    7.56 .0, "Use CURLOPT_MIMEPOST"),
-
+	CURLOPTDEPRECATED(CURLOPT_HTTPPOST, CURLOPTTYPE_OBJECTPOINT, 24, 7.56 .0, "Use CURLOPT_MIMEPOST"),
 	/* name of the file keeping your private SSL-certificate */
 	CURLOPT(CURLOPT_SSLCERT, CURLOPTTYPE_STRINGPOINT, 25),
 
@@ -2341,8 +2339,7 @@ enum CURL_TLSAUTH {
 #define CURL_REDIR_POST_301 1
 #define CURL_REDIR_POST_302 2
 #define CURL_REDIR_POST_303 4
-#define CURL_REDIR_POST_ALL \
-	(CURL_REDIR_POST_301|CURL_REDIR_POST_302|CURL_REDIR_POST_303)
+#define CURL_REDIR_POST_ALL (CURL_REDIR_POST_301|CURL_REDIR_POST_302|CURL_REDIR_POST_303)
 
 typedef enum {
 	CURL_TIMECOND_NONE,
@@ -2395,7 +2392,7 @@ CURL_EXTERN void curl_mime_free(curl_mime * mime);
  * Append a new empty part to the given mime context and return a handle to
  * the created part.
  */
-CURL_EXTERN curl_mimepart *curl_mime_addpart(curl_mime * mime);
+CURL_EXTERN curl_mimepart * curl_mime_addpart(curl_mime * mime);
 
 /*
  * NAME curl_mime_name()
@@ -2413,9 +2410,7 @@ CURL_EXTERN CURLcode curl_mime_name(curl_mimepart * part, const char * name);
  *
  * Set mime part remote file name.
  */
-CURL_EXTERN CURLcode curl_mime_filename(curl_mimepart * part,
-    const char * filename);
-
+CURL_EXTERN CURLcode curl_mime_filename(curl_mimepart * part, const char * filename);
 /*
  * NAME curl_mime_type()
  *
@@ -2424,7 +2419,6 @@ CURL_EXTERN CURLcode curl_mime_filename(curl_mimepart * part,
  * Set mime part type.
  */
 CURL_EXTERN CURLcode curl_mime_type(curl_mimepart * part, const char * mimetype);
-
 /*
  * NAME curl_mime_encoder()
  *
@@ -2432,9 +2426,7 @@ CURL_EXTERN CURLcode curl_mime_type(curl_mimepart * part, const char * mimetype)
  *
  * Set mime data transfer encoder.
  */
-CURL_EXTERN CURLcode curl_mime_encoder(curl_mimepart * part,
-    const char * encoding);
-
+CURL_EXTERN CURLcode curl_mime_encoder(curl_mimepart * part, const char * encoding);
 /*
  * NAME curl_mime_data()
  *
@@ -2442,9 +2434,7 @@ CURL_EXTERN CURLcode curl_mime_encoder(curl_mimepart * part,
  *
  * Set mime part data source from memory data,
  */
-CURL_EXTERN CURLcode curl_mime_data(curl_mimepart * part,
-    const char * data, size_t datasize);
-
+CURL_EXTERN CURLcode curl_mime_data(curl_mimepart * part, const char * data, size_t datasize);
 /*
  * NAME curl_mime_filedata()
  *
@@ -2452,9 +2442,7 @@ CURL_EXTERN CURLcode curl_mime_data(curl_mimepart * part,
  *
  * Set mime part data source from named file.
  */
-CURL_EXTERN CURLcode curl_mime_filedata(curl_mimepart * part,
-    const char * filename);
-
+CURL_EXTERN CURLcode curl_mime_filedata(curl_mimepart * part, const char * filename);
 /*
  * NAME curl_mime_data_cb()
  *
@@ -2462,13 +2450,7 @@ CURL_EXTERN CURLcode curl_mime_filedata(curl_mimepart * part,
  *
  * Set mime part data source from callback function.
  */
-CURL_EXTERN CURLcode curl_mime_data_cb(curl_mimepart * part,
-    curl_off_t datasize,
-    curl_read_callback readfunc,
-    curl_seek_callback seekfunc,
-    curl_free_callback freefunc,
-    void * arg);
-
+CURL_EXTERN CURLcode curl_mime_data_cb(curl_mimepart * part, curl_off_t datasize, curl_read_callback readfunc, curl_seek_callback seekfunc, curl_free_callback freefunc, void * arg);
 /*
  * NAME curl_mime_subparts()
  *
@@ -2476,8 +2458,7 @@ CURL_EXTERN CURLcode curl_mime_data_cb(curl_mimepart * part,
  *
  * Set mime part data source from subparts.
  */
-CURL_EXTERN CURLcode curl_mime_subparts(curl_mimepart * part,
-    curl_mime * subparts);
+CURL_EXTERN CURLcode curl_mime_subparts(curl_mimepart * part, curl_mime * subparts);
 /*
  * NAME curl_mime_headers()
  *
@@ -2485,9 +2466,7 @@ CURL_EXTERN CURLcode curl_mime_subparts(curl_mimepart * part,
  *
  * Set mime part headers.
  */
-CURL_EXTERN CURLcode curl_mime_headers(curl_mimepart * part,
-    struct curl_slist * headers,
-    int take_ownership);
+CURL_EXTERN CURLcode curl_mime_headers(curl_mimepart * part, struct curl_slist * headers, int take_ownership);
 
 typedef enum {
 	/********* the first one is unused ************/
@@ -2566,11 +2545,7 @@ typedef enum {
  * adds one part that together construct a full post. Then use
  * CURLOPT_HTTPPOST to send it off to libcurl.
  */
-CURL_EXTERN CURLFORMcode CURL_DEPRECATED(7.56 .0, "Use curl_mime_init()")
-curl_formadd(struct curl_httppost ** httppost,
-    struct curl_httppost ** last_post,
-    ...);
-
+CURL_EXTERN CURLFORMcode CURL_DEPRECATED(7.56 .0, "Use curl_mime_init()") curl_formadd(struct curl_httppost ** httppost, struct curl_httppost ** last_post, ...);
 /*
  * callback function for curl_formget()
  * The void *arg pointer will be the one passed as second argument to
@@ -2579,9 +2554,7 @@ curl_formadd(struct curl_httppost ** httppost,
  * Should return the buffer length passed to it as the argument "len" on
  *   success.
  */
-typedef size_t (*curl_formget_callback)(void * arg, const char * buf,
-    size_t len);
-
+typedef size_t (*curl_formget_callback)(void * arg, const char * buf, size_t len);
 /*
  * NAME curl_formget()
  *
@@ -2592,9 +2565,7 @@ typedef size_t (*curl_formget_callback)(void * arg, const char * buf,
  * the curl_formget_callback function.
  * Returns 0 on success.
  */
-CURL_EXTERN int CURL_DEPRECATED(7.56 .0, "")
-curl_formget(struct curl_httppost * form, void * arg,
-    curl_formget_callback append);
+CURL_EXTERN int CURL_DEPRECATED(7.56 .0, "") curl_formget(struct curl_httppost * form, void * arg, curl_formget_callback append);
 /*
  * NAME curl_formfree()
  *
@@ -2602,9 +2573,7 @@ curl_formget(struct curl_httppost * form, void * arg,
  *
  * Free a multipart formpost previously built with curl_formadd().
  */
-CURL_EXTERN void CURL_DEPRECATED(7.56 .0, "Use curl_mime_free()")
-curl_formfree(struct curl_httppost * form);
-
+CURL_EXTERN void CURL_DEPRECATED(7.56 .0, "Use curl_mime_free()") curl_formfree(struct curl_httppost * form);
 /*
  * NAME curl_getenv()
  *

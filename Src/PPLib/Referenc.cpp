@@ -1,5 +1,5 @@
 // REFERENC.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 // @Kernel
 //
@@ -1374,7 +1374,6 @@ int PPRights::Get(PPID securType, PPID securID, int ignoreCheckSum)
 {
 	int    ok = 1, r;
 	Reference * p_ref = PPRef;
-	// @v10.3.0 (never used) size_t sz = 1024;
 	ulong  chksum = 0;
 	ObjRestrictArray temp_orlist;
 	THROW(r = ReadRights(securType, securID, ignoreCheckSum));
@@ -1387,11 +1386,10 @@ int PPRights::Get(PPID securType, PPID securID, int ignoreCheckSum)
 			// права по объектам, которые не определены на заданном уровне (Рекурсия)
 			//
 			Reference2Tbl::Rec this_secur_rec;
-			if(p_ref->GetItem(securType, securID, &this_secur_rec) > 0) { // @v10.6.7
+			if(p_ref->GetItem(securType, securID, &this_secur_rec) > 0) {
 				PPRights temp;
-				PPID   prev_type = (P_Rt->SecurObj == PPOBJ_USRGRP) ? PPOBJ_CONFIG : PPOBJ_USRGRP;
-				// @v10.6.7 PPID   prev_id   = reinterpret_cast<const PPSecur *>(&p_ref->data)->ParentID;
-				PPID   prev_id = reinterpret_cast<const PPSecur *>(&this_secur_rec)->ParentID; // @v10.6.7 
+				const  PPID prev_type = (P_Rt->SecurObj == PPOBJ_USRGRP) ? PPOBJ_CONFIG : PPOBJ_USRGRP;
+				const  PPID prev_id = reinterpret_cast<const PPSecur *>(&this_secur_rec)->ParentID;
 				THROW(temp.Get(prev_type, prev_id, ignoreCheckSum)); // @recursion
 				for(uint s = 0; s < temp.P_Rt->ORTailSize;) {
 					const ObjRights * o = reinterpret_cast<const ObjRights *>(PTR8(temp.P_Rt + 1) + s);
@@ -2048,13 +2046,6 @@ PPSecurPacket & FASTCALL PPSecurPacket::operator = (const PPSecurPacket & rS)
 //
 // PPPrinterCfg
 //
-//static const char * RpUseDuplexPrinting = "UseDuplexPrinting";
-//static const char * RpStoreLastSelectedPrinter = "StoreLastSelectedPrinter"; // @v10.7.10
-//static const char * RpLastSelectedPrinter = "LastSelectedPrinter"; // @v10.7.10
-		//WrParam_UseDuplexPrinting("UseDuplexPrinting"),
-		//WrParam_StoreLastSelectedPrinter("StoreLastSelectedPrinter"),
-		//WrParam_LastSelectedPrinter("LastSelectedPrinter")
-
 int PPGetPrinterCfg(PPID obj, PPID id, PPPrinterCfg * pCfg)
 {
 	int    ok = 1;
@@ -2089,7 +2080,7 @@ int PPSetPrinterCfg(PPID obj, PPID id, PPPrinterCfg * pCfg)
 	{
 		WinRegKey reg_key(HKEY_CURRENT_USER, PPConst::WrKey_SysSettings, 0);
 		reg_key.PutDWord(PPConst::WrParam_UseDuplexPrinting, BIN(pCfg->Flags & PPPrinterCfg::fUseDuplexPrinting));
-		reg_key.PutDWord(PPConst::WrParam_StoreLastSelectedPrinter, BIN(pCfg->Flags & PPPrinterCfg::fStoreLastSelPrn)); // @v10.7.10 
+		reg_key.PutDWord(PPConst::WrParam_StoreLastSelectedPrinter, BIN(pCfg->Flags & PPPrinterCfg::fStoreLastSelPrn));
 	}
 	if(obj == 0 && id == 0) {
 		obj = PPOBJ_USR;
@@ -2202,7 +2193,7 @@ int UuidRefCore::GetUuid(const S_GUID & rUuid, long * pID, int options, int use_
 	return ok;
 }
 
-int UuidRefCore::PutChunk(const TSVector <S_GUID> & rChunk, uint maxCount, int use_ta) // @v9.8.4 TSArray-->TSVector
+int UuidRefCore::PutChunk(const TSVector <S_GUID> & rChunk, uint maxCount, int use_ta)
 {
 	int    ok = 1;
 	const  uint cc = rChunk.getCount();
@@ -2438,7 +2429,7 @@ int TextRefCore::SearchText(const TextRefIdent & rI, const wchar_t * pText, Text
 	return ok;
 }
 
-int TextRefCore::SearchTextByPrefix(const TextRefIdent & rI, const wchar_t * pPrefix, TSVector <TextRefIdent> * pList) // @v9.8.4 TSArray-->TSVector
+int TextRefCore::SearchTextByPrefix(const TextRefIdent & rI, const wchar_t * pPrefix, TSVector <TextRefIdent> * pList)
 {
 	int    ok = -1;
 	const size_t len = sstrlen(pPrefix);
@@ -2468,7 +2459,7 @@ int TextRefCore::SearchTextByPrefix(const TextRefIdent & rI, const wchar_t * pPr
 	return ok;
 }
 
-int TextRefCore::SearchSelfRefTextByPrefix(const wchar_t * pPrefix, TSVector <TextRefIdent> * pList) // @v9.8.4 TSArray-->TSVector
+int TextRefCore::SearchSelfRefTextByPrefix(const wchar_t * pPrefix, TSVector <TextRefIdent> * pList)
 {
 	TextRefIdent ident(PPOBJ_SELFREFTEXT, 0, PPTRPROP_DEFAULT);
 	return SearchTextByPrefix(ident, pPrefix, pList);
@@ -2561,7 +2552,7 @@ int FASTCALL UnxTextRefCore::PostprocessRead(SStringU & rBuf)
 	int    ok = 1;
 	SBuffer temp_buf;
 	readLobData(VT, temp_buf);
-	destroyLobData(VT); // @v10.2.11 @fix
+	destroyLobData(VT);
 	const size_t actual_size = temp_buf.GetAvailableSize();
 	rBuf.CopyFromUtf8(static_cast<const char *>(temp_buf.GetBuf(0)), actual_size);
 	return ok;
@@ -2618,7 +2609,7 @@ int UnxTextRefCore::Search(const TextRefIdent & rI, STimeSeries & rTs)
 			SSerializeContext sctx;
 			SBuffer temp_buf;
 			readLobData(VT, temp_buf);
-			destroyLobData(VT); // @v10.2.11 @fix
+			destroyLobData(VT);
 			const size_t actual_size = temp_buf.GetAvailableSize();
 			const size_t cs_size = SSerializeContext::GetCompressPrefix(0);
 			if(actual_size > cs_size && SSerializeContext::IsCompressPrefix(temp_buf.GetBuf(temp_buf.GetRdOffs()))) {
@@ -2728,7 +2719,7 @@ int UnxTextRefCore::SetText(const TextRefIdent & rI, const char * pText, int use
 	int    ok = -1;
 	const  size_t src_len = sstrlen(pText);
 	if(src_len) {
-		SStringU & r_temp_buf = SLS.AcquireRvlStrU(); // @v10.5.6 @revolver
+		SStringU & r_temp_buf = SLS.AcquireRvlStrU();
 		r_temp_buf.CopyFromUtf8(pText, src_len);
 		ok = SetText(rI, r_temp_buf, use_ta);
 	}
@@ -2744,8 +2735,6 @@ int UnxTextRefCore::SetText(const TextRefIdent & rI, const wchar_t * pText, int 
 	// с версии 9.0.0 в записях хранится не "сырой" unicode, а utf8 (ради экономии пространства и производительности).
 	// При этом интерфейсные функции по-прежнему оперируют форматом unicode (для совместимости с TextRefCore).
 	//
-
-	// @v9.0.0 const  size_t tl = sstrlen(pText) * sizeof(wchar_t);
     int    ok = 1;
 	SString utf_buf;
     SStringU _t;
@@ -2757,27 +2746,27 @@ int UnxTextRefCore::SetText(const TextRefIdent & rI, const wchar_t * pText, int 
     	_t = pText;
         _t.CopyToUtf8(utf_buf, 1);
     }
-	const  size_t tl = utf_buf.Len(); // @v9.0.0
+	const  size_t tl = utf_buf.Len();
     {
     	PPTransaction tra(use_ta);
     	THROW(tra);
 		if(Search(rI, _t) > 0) {
 			if(tl == 0) {
-				THROW_DB(rereadForUpdate(0, 0)); // @v9.0.5 @fix index 1-->0
+				THROW_DB(rereadForUpdate(0, 0));
 				THROW_DB(deleteRec()); // @sfu
 			}
 			else if(_t.IsEq(pText)) {
 				ok = -1;
 			}
 			else {
-				THROW_DB(rereadForUpdate(0, 0)); // @v9.0.5 @fix index 1-->0
+				THROW_DB(rereadForUpdate(0, 0));
 				{
 					assert(tl); // Ранее мы проверили длину текста на 0
 					THROW(writeLobData(VT, utf_buf.cptr(), tl));
 					data.Size = static_cast<long>(tl);
 				}
 				THROW_DB(updateRec()); // @sfu
-				destroyLobData(VT); // @v10.2.11 @fix
+				destroyLobData(VT);
 			}
 		}
 		else if(tl == 0) {
@@ -2795,7 +2784,7 @@ int UnxTextRefCore::SetText(const TextRefIdent & rI, const wchar_t * pText, int 
 				data.Size = static_cast<long>(tl);
 			}
 			THROW_DB(insertRec());
-			destroyLobData(VT); // @v10.2.11 @fix
+			destroyLobData(VT);
 		}
 		THROW(tra.Commit());
     }
@@ -2824,7 +2813,7 @@ int UnxTextRefCore::SetTimeSeries(const TextRefIdent & rI, STimeSeries * pTs, in
 			THROW_SL(compr.CompressBlock(sbuf.GetBuf(0), sbuf.GetAvailableSize(), cbuf, 0, 0));
 		}
 		else {
-			cbuf = sbuf; // @v10.3.1 @fix
+			cbuf = sbuf;
 		}
     }
 	const  size_t tl = cbuf.GetAvailableSize();
@@ -2849,7 +2838,7 @@ int UnxTextRefCore::SetTimeSeries(const TextRefIdent & rI, STimeSeries * pTs, in
 					data.Size = static_cast<long>(tl);
 				}
 				THROW_DB(updateRec()); // @sfu
-				destroyLobData(VT); // @v10.2.11 @fix
+				destroyLobData(VT);
 			}
 		}
 		else if(tl == 0) {
@@ -2867,7 +2856,7 @@ int UnxTextRefCore::SetTimeSeries(const TextRefIdent & rI, STimeSeries * pTs, in
 				data.Size = (long)tl;
 			}
 			THROW_DB(insertRec());
-			destroyLobData(VT); // @v10.2.11 @fix
+			destroyLobData(VT);
 		}
 		THROW(tra.Commit());
     }

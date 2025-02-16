@@ -458,7 +458,6 @@ int PPServerCmd::ParseLine(const SString & rLine, long flags)
 		}
 	}
 	// @v8.7.4 (Не уверен, но похоже эта строка генерирует неприятные побочные эффекты) THROW(!(cmd_flags & cmdfNeedAuth) || DS.GetConstTLA().IsAuth());
-	// @v9.0.10 THROW_PP(!(cmd_flags & cmdfNeedAuth) || (flags & plfLoggedIn), PPERR_NOTLOGGEDIN); // @v9.0.9
 	switch(tok) {
 		case tNoArg:
 			break;
@@ -2491,7 +2490,7 @@ int PPWorkerSession::FinishReceivingFile(const PPJobSrvReply::TransmitFileBlock 
 		}
 	}
 	else if(rBlk.TransmType == rBlk.ttWorkbookContent) {
-        if(oneof2(rBlk.ObjType, PPOBJ_WORKBOOK, PPOBJ_WORKBOOK_PRE813)) { // @v10.7.0 PPOBJ_WORKBOOK_PRE813
+        if(oneof2(rBlk.ObjType, PPOBJ_WORKBOOK, PPOBJ_WORKBOOK_PRE813)) {
             PPObjWorkbook wb_obj;
             WorkbookTbl::Rec wb_rec;
 			ObjLinkFiles lf(rBlk.ObjType);
@@ -2756,7 +2755,7 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 					// Все последующие аргументы - дополнительные параметры, используемые при разборе tddo-файла
 					//
 					// while(PPGetExtStrData(++fld_n, pEv->Params, temp_buf) > 0) {
-					while(pEv->GetParam(++fld_n, temp_buf) > 0) { // @v9.8.0
+					while(pEv->GetParam(++fld_n, temp_buf) > 0) {
 						ext_param_list.add(temp_buf);
 					}
 					THROW(Tddo::LoadFile(name, temp_buf));
@@ -4040,7 +4039,7 @@ PPServerSession::CmdRet PPServerSession::ReceiveFile(int verb, const char * pPar
 			PPMakeTempFileName("oimg", file_ext, 0, file_path);
 		}
 		else if(blk.TransmType == blk.ttWorkbookContent) {
-			THROW_PP_S(oneof2(blk.ObjType, PPOBJ_WORKBOOK, PPOBJ_WORKBOOK_PRE813), PPERR_JOBSRV_OBJTYPENOTSUPP, temp_buf.Z().Cat(blk.ObjType)); // @v10.3.0 @fix (blk.ObjType = PPOBJ_WORKBOOK)-->(blk.ObjType == PPOBJ_WORKBOOK)
+			THROW_PP_S(oneof2(blk.ObjType, PPOBJ_WORKBOOK, PPOBJ_WORKBOOK_PRE813), PPERR_JOBSRV_OBJTYPENOTSUPP, temp_buf.Z().Cat(blk.ObjType));
 			m |= SFile::mBinary;
 			PPMakeTempFileName("wbc", file_ext, 0, file_path);
 		}

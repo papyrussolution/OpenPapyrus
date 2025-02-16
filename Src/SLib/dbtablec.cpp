@@ -8,10 +8,7 @@
 //
 //
 //
-DBTable * FASTCALL _GetTable(int handle)
-{
-	return DBS.GetTLA().GetTableEntry(handle);
-}
+DBTable * FASTCALL _GetTable(int handle) { return DBS.GetTLA().GetTableEntry(handle); }
 //
 //
 // static members of DBTable {
@@ -28,15 +25,9 @@ DBRowId::DBRowId()
 	memzero(S, sizeof(S));
 }
 
-int DBRowId::IsLong() const
-{
-	return BIN(PTR32C(S)[0] && PTR32C(S)[1]);
-}
+bool DBRowId::IsLong() const { return (PTR32C(S)[0] && PTR32C(S)[1]); }
 
-DBRowId::operator RECORDNUMBER() const
-{
-	return B;
-}
+DBRowId::operator RECORDNUMBER() const { return B; }
 
 DBRowId & FASTCALL DBRowId::operator = (RECORDNUMBER n)
 {
@@ -387,14 +378,15 @@ DBTable::DBTable(const char * pTblName, const char * pFileName, void * pFlds, vo
 	Init(pDbP);
 	RECORDSIZE s = 0;
 	if(open(pTblName, pFileName, om)) {
-		if(pFlds)
+		if(pFlds) {
 			for(int16 i = fields.getCount() - 1; i >= 0; i--) {
 				static_cast<_DBField *>(pFlds)[i].hTbl = handle;
 				static_cast<_DBField *>(pFlds)[i].hFld = i;
 				s += (RECORDSIZE)stsize(fields[i].T);
 			}
+		}
 		if(pData)
-			setDataBuf(pData, NZOR(s, fields.getRecSize()));
+			setDataBuf(pData, NZOR(s, fields.CalculateRecSize()));
 	}
 }
 
@@ -576,7 +568,7 @@ int DBTable::putRecToString(SString & rBuf, int withFieldNames)
 int DBTable::allocOwnBuffer(int size)
 {
 	int    ok = 1;
-	const  RECORDSIZE rec_size = (size < 0) ? fields.getRecSize() : static_cast<RECORDSIZE>(size);
+	const  RECORDSIZE rec_size = (size < 0) ? fields.CalculateRecSize() : static_cast<RECORDSIZE>(size);
 	if(State & sOwnDataBuf) {
 		ZFREE(P_DBuf);
 	}

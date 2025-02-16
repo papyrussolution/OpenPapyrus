@@ -1335,14 +1335,12 @@ public:
 				ParentID = p_filt->Parent;
 			}
 			else if(p_filt->LocType == LOCTYP_WAREHOUSE) {
-				// @v9.2.5 PPLoadText(PPTXT_TITLE_WAREHOUSEVIEW, title_);
-				PPLoadString("warehouse_pl", title_); // @v9.2.5
+				PPLoadString("warehouse_pl", title_);
 				setTitle(title_);
 			}
 		}
 		else {
-			// @v9.2.5 PPLoadText(PPTXT_TITLE_WAREHOUSEVIEW, title_);
-			PPLoadString("warehouse_pl", title_); // @v9.2.5
+			PPLoadString("warehouse_pl", title_);
 			setTitle(title_);
 		}
 	}

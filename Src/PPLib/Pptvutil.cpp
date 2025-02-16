@@ -3349,9 +3349,11 @@ IMPL_HANDLE_EVENT(LayoutedListWindow)
 }
 
 LayoutedListDialog::LayoutedListDialog(const Param & rParam, ListBoxDef * pDef) : 
-	TDialog(LayoutedListDialog_Base::GetWindowTitle(rParam.Title), wbcDrawBuffer, TDialog::coEmpty),
+	TDialog(LayoutedListDialog_Base::GetWindowTitle(rParam.Title), wbcDrawBuffer|wbcStorableUserParams, TDialog::coEmpty),
 	LayoutedListDialog_Base(rParam, pDef, static_cast<TWindow *>(this))
 {
+	if(rParam.Symb.NotEmpty())
+		SetStorableUserParamsSymb(rParam.Symb);
 	if(!rParam.Bounds.IsEmpty()) {
 		TDialog::setBounds(rParam.Bounds);
 	}
@@ -3604,6 +3606,7 @@ int Test_LayoutedListDialog()
 	{
 		MemLeakTracer mlt;
 		LayoutedListDialog_Base::Param param;
+		param.Symb = "Test_LayoutedListDialog";
 		param.Bounds.Set(0, 0, 295, 300); 
 		ListBoxDef * p_lb_def = Test_LayoutedListDialog_MakeTestData(false/*multiColumn*/, true/*treeView*/, param.ColumnDescription);
 		if(p_lb_def) {

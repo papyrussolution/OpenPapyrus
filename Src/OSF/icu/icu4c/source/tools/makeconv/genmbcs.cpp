@@ -350,25 +350,20 @@ static int32_t removeFallback(MBCSData * mbcsData, uint32_t offset) {
  * 0 (FALSE) this is a precise mapping
  * -1        the precision of this mapping is not specified
  */
-static bool MBCSAddToUnicode(MBCSData * mbcsData,
-    const uint8_t * bytes, int32_t length,
-    UChar32 c,
-    int8_t flag) {
+static bool MBCSAddToUnicode(MBCSData * mbcsData, const uint8_t * bytes, int32_t length, UChar32 c, int8_t flag) 
+{
 	char buffer[10];
 	uint32_t offset = 0;
 	int32_t i = 0, entry, old;
 	uint8_t state = 0;
-
 	if(mbcsData->ucm->states.countStates==0) {
 		slfprintf_stderr("error: there is no state information!\n");
 		return FALSE;
 	}
-
 	/* for SI/SO (like EBCDIC-stateful), double-byte sequences start in state 1 */
 	if(length==2 && mbcsData->ucm->states.outputType==MBCS_OUTPUT_2_SISO) {
 		state = 1;
 	}
-
 	/*
 	 * Walk down the state table like in conversion,
 	 * much like getNextUChar().
@@ -393,16 +388,13 @@ static bool MBCSAddToUnicode(MBCSData * mbcsData,
 			}
 			switch(MBCS_ENTRY_FINAL_ACTION(entry)) {
 				case MBCS_STATE_ILLEGAL:
-				    slfprintf_stderr("error: byte sequence ends in illegal state at U+%04x<->0x%s\n",
-					(int)c, printBytes(buffer, bytes, length));
+				    slfprintf_stderr("error: byte sequence ends in illegal state at U+%04x<->0x%s\n", (int)c, printBytes(buffer, bytes, length));
 				    return FALSE;
 				case MBCS_STATE_CHANGE_ONLY:
-				    slfprintf_stderr("error: byte sequence ends in state-change-only at U+%04x<->0x%s\n",
-					(int)c, printBytes(buffer, bytes, length));
+				    slfprintf_stderr("error: byte sequence ends in state-change-only at U+%04x<->0x%s\n", (int)c, printBytes(buffer, bytes, length));
 				    return FALSE;
 				case MBCS_STATE_UNASSIGNED:
-				    slfprintf_stderr("error: byte sequence ends in unassigned state at U+%04x<->0x%s\n",
-					(int)c, printBytes(buffer, bytes, length));
+				    slfprintf_stderr("error: byte sequence ends in unassigned state at U+%04x<->0x%s\n", (int)c, printBytes(buffer, bytes, length));
 				    return FALSE;
 				case MBCS_STATE_FALLBACK_DIRECT_16:
 				case MBCS_STATE_VALID_DIRECT_16:
@@ -411,21 +403,18 @@ static bool MBCSAddToUnicode(MBCSData * mbcsData,
 				    if(MBCS_ENTRY_SET_STATE(entry, 0)!=MBCS_ENTRY_FINAL(0, MBCS_STATE_VALID_DIRECT_16, 0xfffe)) {
 					    /* the "direct" action's value is not "valid-direct-16-unassigned" any more
 					       */
-					    if(MBCS_ENTRY_FINAL_ACTION(entry)==MBCS_STATE_VALID_DIRECT_16 ||
-						MBCS_ENTRY_FINAL_ACTION(entry)==MBCS_STATE_FALLBACK_DIRECT_16) {
+					    if(MBCS_ENTRY_FINAL_ACTION(entry)==MBCS_STATE_VALID_DIRECT_16 || MBCS_ENTRY_FINAL_ACTION(entry)==MBCS_STATE_FALLBACK_DIRECT_16) {
 						    old = MBCS_ENTRY_FINAL_VALUE(entry);
 					    }
 					    else {
 						    old = 0x10000+MBCS_ENTRY_FINAL_VALUE(entry);
 					    }
 					    if(flag>=0) {
-						    slfprintf_stderr("error: duplicate codepage byte sequence at U+%04x<->0x%s see U+%04x\n",
-							(int)c, printBytes(buffer, bytes, length), (int)old);
+						    slfprintf_stderr("error: duplicate codepage byte sequence at U+%04x<->0x%s see U+%04x\n", (int)c, printBytes(buffer, bytes, length), (int)old);
 						    return FALSE;
 					    }
 					    else if(VERBOSE) {
-						    slfprintf_stderr("duplicate codepage byte sequence at U+%04x<->0x%s see U+%04x\n",
-							(int)c, printBytes(buffer, bytes, length), (int)old);
+						    slfprintf_stderr("duplicate codepage byte sequence at U+%04x<->0x%s see U+%04x\n", (int)c, printBytes(buffer, bytes, length), (int)old);
 					    }
 					    /*
 					  * Continue after the above warning
@@ -433,10 +422,7 @@ static bool MBCSAddToUnicode(MBCSData * mbcsData,
 					     */
 				    }
 				    /* reassign the correct action code */
-				    entry =
-					MBCS_ENTRY_FINAL_SET_ACTION(entry,
-					    (MBCS_STATE_VALID_DIRECT_16+(flag==3 ? 2 : 0)+(c>=0x10000 ? 1 : 0)));
-
+				    entry = MBCS_ENTRY_FINAL_SET_ACTION(entry, (MBCS_STATE_VALID_DIRECT_16+(flag==3 ? 2 : 0)+(c>=0x10000 ? 1 : 0)));
 				    /* put the code point into bits 22..7 for BMP, c-0x10000 into 26..7 for others */
 				    if(c<=0xffff) {
 					    entry = MBCS_ENTRY_FINAL_SET_VALUE(entry, c);
@@ -1344,18 +1330,12 @@ static void MBCSPostprocess(MBCSData * mbcsData, const UConverterStaticData * /*
 			compactStage2(mbcsData);
 		}
 	}
-
 	if(VERBOSE) {
 		/*uint32_t c, i1, i2, i2Limit, i3;*/
-
-		printf("fromUnicode number of uint%s_t in stage 2: 0x%lx=%lu\n",
-		    maxCharLength==1 ? "16" : "32",
-		    (unsigned long)mbcsData->stage2Top,
-		    (unsigned long)mbcsData->stage2Top);
-		printf("fromUnicode number of %d-byte stage 3 mapping entries: 0x%lx=%lu\n",
-		    (int)stage3Width,
-		    (unsigned long)mbcsData->stage3Top/stage3Width,
-		    (unsigned long)mbcsData->stage3Top/stage3Width);
+		printf("fromUnicode number of uint%s_t in stage 2: 0x%lx=%lu\n", maxCharLength==1 ? "16" : "32",
+		    (unsigned long)mbcsData->stage2Top, (unsigned long)mbcsData->stage2Top);
+		printf("fromUnicode number of %d-byte stage 3 mapping entries: 0x%lx=%lu\n", (int)stage3Width,
+		    (unsigned long)mbcsData->stage3Top/stage3Width, (unsigned long)mbcsData->stage3Top/stage3Width);
 #if 0
 		c = 0;
 		for(i1 = 0; i1<MBCS_STAGE_1_SIZE; ++i1) {
@@ -1376,10 +1356,7 @@ static void MBCSPostprocess(MBCSData * mbcsData, const UConverterStaticData * /*
 					continue;
 				}
 				printf("U+%04lx i1=0x%02lx i2=0x%04lx i3=0x%04lx\n",
-				    (unsigned long)c,
-				    (unsigned long)i1,
-				    (unsigned long)i2,
-				    (unsigned long)i3);
+				    (unsigned long)c, (unsigned long)i1, (unsigned long)i2, (unsigned long)i3);
 				c += MBCS_STAGE_3_BLOCK_SIZE;
 			}
 		}
@@ -1388,16 +1365,14 @@ static void MBCSPostprocess(MBCSData * mbcsData, const UConverterStaticData * /*
 }
 
 U_CDECL_BEGIN
-static uint32_t MBCSWrite(NewConverter * cnvData, const UConverterStaticData * staticData,
-    UNewDataMemory * pData, int32_t tableType) {
+static uint32_t MBCSWrite(NewConverter * cnvData, const UConverterStaticData * staticData, UNewDataMemory * pData, int32_t tableType) 
+{
 	MBCSData * mbcsData = (MBCSData*)cnvData;
 	uint32_t stage2Start, stage2Length;
 	uint32_t top, stageUTF8Length = 0;
 	int32_t i, stage1Top;
 	uint32_t headerLength;
-
 	_MBCSHeader header = UCNV_MBCS_HEADER_INITIALIZER;
-
 	stage2Length = mbcsData->stage2Top;
 	if(mbcsData->omitFromU) {
 		/* find how much of stage2 can be omitted */

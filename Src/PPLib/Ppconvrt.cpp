@@ -16,7 +16,8 @@ int ConvertCipher(const char * pDbSymb, const char * pMasterPassword, const char
 	int    ok = 1;
 	int    is_dict_opened = 0;
 	SString temp_buf;
-	SString src_pw_buf, dest_pw_buf;
+	SString src_pw_buf;
+	SString dest_pw_buf;
 	THROW_PP_S(!isempty(pDbSymb), PPERR_INVPARAM_EXT, __FUNCTION__"/pDbSymb");
 	THROW(fileExists(pSrcIniFileName));
 	THROW(fileExists(pDestIniFileName));
@@ -77,7 +78,6 @@ int ConvertCipher(const char * pDbSymb, const char * pMasterPassword, const char
 						for(PPID phs_id = 0; p_ref->EnumItems(PPOBJ_PHONESERVICE, &phs_id, &phs_rec) > 0;) {
 							if(p_ref->GetPropVlrString(PPOBJ_PHONESERVICE, phs_id, PHNSVCPRP_TAIL, temp_buf) > 0) {
 								PPGetExtStrData(PHNSVCEXSTR_PASSWORD, temp_buf, src_pw_buf);
-								// @v9.8.12 20-->64
 								Reference::Helper_DecodeOtherPw(ppb_src.DefPassword, src_pw_buf, /*PHNSVC_PW_SIZE*/64, dest_pw_buf);
 								Reference::Helper_EncodeOtherPw(ppb_dest.DefPassword, dest_pw_buf, /*PHNSVC_PW_SIZE*/64, src_pw_buf);
 								PPPutExtStrData(PHNSVCEXSTR_PASSWORD, temp_buf, src_pw_buf);
@@ -349,893 +349,6 @@ int PPTableConversion::Convert()
 //
 //
 //
-class PPCvtReceipt229 : public PPTableConversion {
-public:
-	DBTable * CreateTableInstance(int * needConversion)
-	{
-		DBTable * tbl = new ReceiptTbl;
-		if(!tbl)
-			PPSetErrorNoMem();
-		else if(needConversion) {
-			RECORDSIZE recsz = tbl->getRecSize();
-			if(recsz < sizeof(ReceiptTbl::Rec))
-				*needConversion = 1;
-			else
-				*needConversion = 0;
-		}
-		return tbl;
-	}
-	int ConvertRec(DBTable * tbl, void * rec, int * /*pNewRecLen*/)
-	{
-		ReceiptTbl::Rec * data = static_cast<ReceiptTbl::Rec *>(tbl->getDataBuf());
-		memcpy(data, rec, sizeof(ReceiptTbl::Rec) - sizeof(LDATE));
-		data->Expiry = ZERODATE;
-		return 1;
-	}
-};
-
-int Convert229()
-{
-	int    ok = 1;
-	PPWaitStart();
-	ZDELETE(BillObj);
-	PPCvtReceipt229 cvt;
-	ok = cvt.Convert() ? 1 : PPErrorZ();
-	BillObj = new PPObjBill(0);
-	PPWaitStop();
-	return ok;
-}
-//
-//
-//
-class PPCvtVATBook253 : public PPTableConversion {
-public:
-	virtual DBTable * CreateTableInstance(int * needConversion)
-	{
-		DBTable * tbl = new VATBookTbl;
-		if(!tbl)
-			PPSetErrorNoMem();
-		else if(needConversion) {
-			int16  num_keys;
-			tbl->getNumKeys(&num_keys);
-			*needConversion = BIN(num_keys < 7);
-		}
-		return tbl;
-	}
-	virtual int ConvertRec(DBTable * tbl, void * rec, int * /*pNewRecLen*/)
-	{
-		VATBookTbl::Rec * data = static_cast<VATBookTbl::Rec *>(tbl->getDataBuf());
-		memcpy(data, rec, sizeof(VATBookTbl::Rec));
-		return 1;
-	}
-};
-
-int Convert253()
-{
-	int    ok = 1;
-	PPWaitStart();
-	PPCvtVATBook253 cvt;
-	ok = cvt.Convert() ? 1 : PPErrorZ();
-	PPWaitStop();
-	return ok;
-}
-//
-// GoodsConvertion 2.7.0
-//
-class GoodsConvertion270 {
-public:
-	GoodsConvertion270() : GrpIdBias(1000L)
-	{
-	}
-	int Convert();
-private:
-	int ConvertGroups();
-	int ConvertGoods();
-	int ConvertGoodsRec(GoodsTbl::Rec *, Goods2Tbl::Rec *);
-	int ConvertGroupRec(GoodsGroupTbl::Rec *, Goods2Tbl::Rec *, BarcodeTbl::Rec *);
-	int CheckDupName(PPID gknd, char * name, size_t buflen);
-
-	long          GrpIdBias;
-	GoodsCore     G2Tbl;
-	GoodsTbl      GTbl;
-	GoodsGroupTbl GGTbl;
-	PPObjGoodsTax GtxObj;
-	ObjSyncTbl    SyncTbl;
-};
-
-int GoodsConvertion270::CheckDupName(PPID gknd, char * name, size_t buflen)
-{
-	char name_buf[64];
-	STRNSCPY(name_buf, name);
-	for(int i = 0; G2Tbl.SearchByName(gknd, name_buf, 0, 0) > 0;)
-		sprintf(name_buf, "%s #%d", name, ++i);
-	strnzcpy(name, name_buf, buflen);
-	return 1;
-}
-
-int GoodsConvertion270::ConvertGroups()
-{
-	int    ok = 1;
-	RECORDNUMBER num_recs = 0, count = 0;
-	GGTbl.getNumRecs(&num_recs);
-	if(GGTbl.step(spFirst))
-		do {
-			Goods2Tbl::Rec g2rec;
-			BarcodeTbl::Rec bcrec;
-			PPID old_id = GGTbl.data.ID;
-			PPID new_id = 0;
-			if(ConvertGroupRec(&GGTbl.data, &g2rec, &bcrec) > 0) {
-				new_id = g2rec.ID;
-				CheckDupName(PPGDSK_GROUP, g2rec.Name, sizeof(g2rec.Name));
-				THROW_DB(G2Tbl.insertRecBuf(&g2rec));
-				if(bcrec.Code[0]) {
-					BarcodeArray bclist;
-					THROW_SL(bclist.insert(&bcrec));
-					THROW(G2Tbl.UpdateBarcodes(new_id, &bclist, 0));
-				}
-				if(g2rec.Flags & GF_ALTGROUP) {
-					PPID   scnd = 0;
-					GoodsFilt gfilt;
-					ObjAssocTbl::Rec assc_rec;
-					while(PPRef->Assc.EnumByPrmr(PPASS_ALTGOODSGRP, old_id, &scnd, &assc_rec) > 0) {
-						assc_rec.PrmrObjID = new_id;
-						THROW(PPRef->Assc.Update(assc_rec.ID, &assc_rec, 0));
-					}
-					if(gfilt.ReadFromProp(PPOBJ_GOODSGROUP, old_id, GGPRP_GOODSFLT) > 0) {
-						gfilt.WriteToProp(PPOBJ_GOODSGROUP, new_id, GGPRP_GOODSFLT);
-						gfilt.Clear();
-						gfilt.WriteToProp(PPOBJ_GOODSGROUP, old_id, GGPRP_GOODSFLT);
-					}
-				}
-			}
-			PPWaitPercent(++count, num_recs);
-		} while(GGTbl.step(spNext));
-	{
-		PPScale scale_rec;
-		PPObjScale scale_obj;
-		for(PPID scale_id = 0; scale_obj.EnumItems(&scale_id, &scale_rec) > 0;)
-			if(scale_rec.AltGoodsGrp) {
-				scale_rec.AltGoodsGrp += GrpIdBias;
-				THROW(scale_obj.UpdateItem(scale_id, &scale_rec));
-			}
-	}
-	{
-		// Удаление синхронизации групп товаров
-		ObjSyncTbl::Key0 k;
-		MEMSZERO(k);
-		k.ObjType = PPOBJ_GOODSGROUP;
-		while(SyncTbl.search(0, &k, spGt) && SyncTbl.data.ObjType == PPOBJ_GOODSGROUP) {
-			THROW_DB(SyncTbl.deleteRec());
-		}
-	}
-	CATCHZOK
-	return ok;
-}
-
-int GoodsConvertion270::ConvertGoods()
-{
-	int    ok = 1;
-	RECORDNUMBER num_recs = 0, count = 0;
-	GTbl.getNumRecs(&num_recs);
-	if(GTbl.step(spFirst)) do {
-		Goods2Tbl::Rec g2rec;
-		if(ConvertGoodsRec(&GTbl.data, &g2rec) > 0) {
-			CheckDupName(PPGDSK_GOODS, g2rec.Name, sizeof(g2rec.Name));
-			THROW_DB(G2Tbl.insertRecBuf(&g2rec));
-		}
-		PPWaitPercent(++count, num_recs);
-	} while(GTbl.step(spNext));
-	THROW_DB(BTROKORNFOUND);
-	CATCHZOK
-	return ok;
-}
-
-int GoodsConvertion270::ConvertGroupRec(GoodsGroupTbl::Rec * grec, Goods2Tbl::Rec * g2rec, BarcodeTbl::Rec * bcrec)
-{
-	int    ok = 1;
-	char   buf[64];
-	memzero(g2rec, sizeof(Goods2Tbl::Rec));
-	g2rec->ID  = grec->ID + GrpIdBias;
-	g2rec->Kind        = PPGDSK_GROUP;
-	g2rec->ParentID    = grec->PrevLevelID ? (grec->PrevLevelID + GrpIdBias) : 0;
-	g2rec->GoodsTypeID = grec->GoodsType;
-	g2rec->UnitID      = grec->Unit;
-	g2rec->PhUnitID    = grec->PhUnit;
-	if(grec->AltGrp)
-		g2rec->Flags |= GF_ALTGROUP;
-	if(grec->HasBranch)
-		g2rec->Flags |= GF_FOLDER;
-	STRNSCPY(buf, grec->Name);
-	buf[sizeof(grec->Name)-1] = 0;
-	STRNSCPY(g2rec->Name, strip(buf));
-	memzero(bcrec, sizeof(BarcodeTbl::Rec));
-	bcrec->GoodsID = g2rec->ID;
-	if(*strip(grec->Code)) {
-		bcrec->Qtty    = 1;
-		bcrec->Code[0] = '@';
-		strnzcpy(bcrec->Code + 1, grec->Code, sizeof(bcrec->Code) - 1);
-	}
-	if(grec->VATax != 0 || grec->Excise != 0) {
-   	    PPID gtax_id = 0;
-		GtxObj.GetByScheme(&gtax_id, grec->VATax, 0, grec->Excise, 0, 0/*use_ta*/);
-	   	g2rec->TaxGrpID = gtax_id;
-	}
-	return ok;
-}
-
-int GoodsConvertion270::ConvertGoodsRec(GoodsTbl::Rec * grec, Goods2Tbl::Rec * g2rec)
-{
-	int    ok = 1;
-	char   buf[64];
-	memzero(g2rec, sizeof(Goods2Tbl::Rec));
-	g2rec->ID  = grec->ID;
-	g2rec->Kind        = PPGDSK_GOODS;
-	g2rec->ParentID    = grec->Grp ? (grec->Grp + GrpIdBias) : 0;
-	g2rec->GoodsTypeID = grec->GoodsType;
-	g2rec->UnitID      = grec->Unit;
-	g2rec->PhUnitID    = grec->PhUnit;
-	g2rec->PhUPerU     = grec->PhUPerU;
-	g2rec->ManufID     = grec->Producer;
-	g2rec->StrucID     = grec->StrucID;
-	g2rec->Flags       = (grec->Flags & (GF_GENERIC));
-	STRNSCPY(buf, grec->Name);
-	buf[sizeof(grec->Name)-1] = 0;
-	STRNSCPY(g2rec->Name, strip(buf));
-	STRNSCPY(buf, grec->Abbr);
-	buf[sizeof(grec->Abbr)-1] = 0;
-	STRNSCPY(g2rec->Abbr, strip(buf));
-	if((grec->VATax != 0 || (grec->Flags & GF_ZVAT)) || (grec->Excise != 0 || (grec->Flags & GF_ZEXCISE))) {
-		PPID gtax_id = 0;
-		int  abs_excise = 0;
-		double excise = 0, sales_tax = 0;
-		if(grec->Flags & GF_ABSEXCISE) {
-			abs_excise = 1;
-			excise = grec->Excise;
-		}
-		else
-			sales_tax = grec->Excise;
-		GtxObj.GetByScheme(&gtax_id, grec->VATax, excise, sales_tax, (abs_excise ? GTAXF_ABSEXCISE : 0), 0/*use_ta*/);
-		g2rec->TaxGrpID = gtax_id;
-	}
-	return ok;
-}
-
-int GoodsConvertion270::Convert()
-{
-	int    ok = 1, ta = 0;
-	PPID   k = MAXLONG;
-	PPWaitStart();
-	THROW(PPStartTransaction(&ta, 1));
-	if(GTbl.search(0, &k, spLt))
-		GrpIdBias = (k + 1000L) - (k % 1000L);
-	else
-		GrpIdBias = 1000L;
-	THROW_DB(BTROKORNFOUND);
-	THROW(ConvertGroups());
-	THROW(ConvertGoods());
-	THROW(PPCommitWork(&ta));
-	PPWaitStop();
-	CATCH
-		PPRollbackWork(&ta);
-		ok = PPErrorZ();
-	ENDCATCH
-	return ok;
-}
-
-int Convert270()
-{
-	GoodsConvertion270 gc270;
-	return gc270.Convert();
-}
-//
-//
-//
-class PPCvtAccount290 : public PPTableConversion {
-public:
-	virtual DBTable * CreateTableInstance(int * needConversion)
-	{
-		DBTable * tbl = new AccountTbl;
-		if(!tbl)
-			PPSetErrorNoMem();
-		else if(needConversion) {
-			RECORDSIZE recsz = tbl->getRecSize();
-			*needConversion = BIN(recsz > sizeof(PPAccount));
-		}
-		return tbl;
-	}
-	virtual int ConvertRec(DBTable * tbl, void * rec, int *)
-	{
-		PPAccount * data = static_cast<PPAccount *>(tbl->getDataBuf());
-		OldAccountTbl::Rec * old_rec = (OldAccountTbl::Rec *)rec;
-		tbl->clearDataBuf();
-		data->ID    = old_rec->ID;
-		data->Ac    = old_rec->Ac;
-		data->Sb    = old_rec->Sb;
-		data->CurID = 0;
-		data->AccSheetID = old_rec->AccSheet;
-		data->OpenDate   = old_rec->OpenDate;
-		// @v3.1.11 data->User       = old_rec->User;
-		data->Kind       = old_rec->Kind;
-		data->Flags      = old_rec->Flags;
-		STRNSCPY(data->Name, old_rec->Name);
-		data->Limit = MONEYTOLDBL(old_rec->Limit);
-		data->Overdraft = MONEYTOLDBL(old_rec->Overdraft);
-		data->AccessLevel = old_rec->AccessLevel;
-		return 1;
-	}
-};
-//
-//
-//
-class PPCvtAcctRel290 : public PPTableConversion {
-public:
-	virtual DBTable * CreateTableInstance(int * needConversion)
-	{
-		DBTable * tbl = new AcctRelTbl;
-		if(!tbl)
-			PPSetErrorNoMem();
-		else if(needConversion) {
-			RECORDSIZE recsz = tbl->getRecSize();
-			*needConversion = BIN(recsz > sizeof(AcctRelTbl::Rec));
-		}
-		return tbl;
-	}
-	virtual int ConvertRec(DBTable * tbl, void * rec, int *)
-	{
-		AcctRelTbl::Rec * data = static_cast<AcctRelTbl::Rec *>(tbl->getDataBuf());
-		OldAcctRelTbl::Rec * old_rec = (OldAcctRelTbl::Rec *)rec;
-		tbl->clearDataBuf();
-		data->ID  = old_rec->ID;
-		data->AccID       = old_rec->AccID;
-		data->ArticleID   = old_rec->Article;
-		data->CurID       = 0;
-		data->Ac  = old_rec->Ac;
-		data->Sb  = old_rec->Sb;
-		data->Ar  = old_rec->Ar;
-		data->Kind        = old_rec->Kind;
-		data->Closed      = old_rec->Closed;
-		data->Flags       = old_rec->Flags;
-		data->BankAccID   = old_rec->BankAcc;
-		data->AccessLevel = old_rec->AccessLevel;
-		return 1;
-	}
-};
-
-class PPCvtBalance290 : public PPTableConversion {
-public:
-	virtual DBTable * CreateTableInstance(int * needConversion)
-	{
-		DBTable * tbl = new BalanceTbl;
-		if(!tbl)
-			PPSetErrorNoMem();
-		else if(needConversion) {
-			RECORDSIZE recsz = tbl->getRecSize();
-			*needConversion = BIN(recsz > sizeof(BalanceTbl::Rec));
-		}
-		return tbl;
-	}
-	virtual int ConvertRec(DBTable * tbl, void * rec, int *)
-	{
-		BalanceTbl::Rec * data = static_cast<BalanceTbl::Rec *>(tbl->getDataBuf());
-		OldBalanceTbl::Rec * old_rec = (OldBalanceTbl::Rec *)rec;
-		tbl->clearDataBuf();
-		data->Dt    = old_rec->Dt;
-		data->AccID = old_rec->Bal;
-		MONEYTOMONEY(old_rec->DbtRest, data->DbtRest);
-		MONEYTOMONEY(old_rec->CrdRest, data->CrdRest);
-		return 1;
-	}
-};
-
-class PPCvtBill290 : public PPTableConversion {
-public:
-	virtual DBTable * CreateTableInstance(int * needConversion)
-	{
-		DBTable * tbl = new BillTbl;
-		if(!tbl)
-			PPSetErrorNoMem();
-		else if(needConversion) {
-			RECORDSIZE recsz = tbl->getRecSize();
-			*needConversion = BIN(recsz < (sizeof(BillTbl::Rec) - sizeof( ((BillTbl::Rec*)0)->Memo)));
-		}
-		return tbl;
-	}
-	virtual int ConvertRec(DBTable * tbl, void * rec, int * pNewRecLen)
-	{
-		BillTbl::Rec    * data = static_cast<BillTbl::Rec *>(tbl->getDataBuf());
-		OldBillTbl::Rec * old_rec = (OldBillTbl::Rec *)rec;
-		tbl->clearDataBuf();
-		data->ID = old_rec->ID;
-		memcpy(data->Code, old_rec->Code, sizeof(data->Code));
-		data->Dt       = old_rec->Dt;
-		data->BillNo   = old_rec->BillNo;
-		data->OprKind  = old_rec->OprKind;
-		data->UserID   = old_rec->User;
-		data->Location = old_rec->Location;
-		data->Object   = old_rec->Object;
-		data->Object2  = 0;
-		data->CurID    = 0;
-		data->CRate    = 1;
-		memcpy(data->Amount, old_rec->Amount, sizeof(data->Amount));
-		data->LinkBillID  = old_rec->LinkBill;
-		data->Flags       = old_rec->Flags;
-		data->AccessLevel = old_rec->AccessLevel;
-		STRNSCPY(data->Memo, strip(old_rec->Memo));
-		*pNewRecLen = -1;
-		return 1;
-	}
-};
-
-class PPCvtBillAmount290 : public PPTableConversion {
-public:
-	virtual DBTable * CreateTableInstance(int * needConversion)
-	{
-		DBTable * tbl = new BillAmountTbl;
-		if(!tbl)
-			PPSetErrorNoMem();
-		else if(needConversion) {
-			RECORDSIZE recsz = tbl->getRecSize();
-			*needConversion = BIN(recsz < sizeof(BillAmountTbl::Rec));
-		}
-		return tbl;
-	}
-	virtual int ConvertRec(DBTable * tbl, void * rec, int *)
-	{
-		BillAmountTbl::Rec * data = static_cast<BillAmountTbl::Rec *>(tbl->getDataBuf());
-		const OldBillAmountTbl::Rec * old_rec = static_cast<const OldBillAmountTbl::Rec *>(rec);
-		tbl->clearDataBuf();
-		data->BillID    = old_rec->BillID;
-		data->AmtTypeID = old_rec->AmtType;
-		data->CurID     = 0;
-		//memcpy(data->Amount, old_rec->Amount, sizeof(data->Amount));
-		data->Amount = MONEYTOLDBL(old_rec->Amount);
-		return 1;
-	}
-};
-
-class PPCvtArticle290 : public PPTableConversion {
-public:
-	virtual DBTable * CreateTableInstance(int * needConversion)
-	{
-		DBTable * tbl = new ArticleTbl;
-		if(!tbl)
-			PPSetErrorNoMem();
-		else if(needConversion) {
-			RECORDSIZE recsz = tbl->getRecSize();
-			*needConversion = BIN(recsz < sizeof(ArticleTbl::Rec));
-		}
-		return tbl;
-	}
-	virtual int ConvertRec(DBTable * tbl, void * rec, int * /*pNewRecLen*/)
-	{
-		ArticleTbl::Rec * p_data = (ArticleTbl::Rec*)tbl->getDataBuf();
-		memcpy(p_data, rec, sizeof(ArticleTbl::Rec) - 14);
-		p_data->Closed = 0;
-		p_data->Flags = 0;
-		memzero(p_data->Reserve2, sizeof(p_data->Reserve2));
-		return 1;
-	}
-};
-//
-//
-//
-class PPCvtReceipt300 : public PPTableConversion {
-public:
-	virtual DBTable * CreateTableInstance(int * needConversion)
-	{
-		DBTable * tbl = new ReceiptTbl;
-		if(!tbl)
-			PPSetErrorNoMem();
-		else if(needConversion) {
-			RECORDSIZE recsz = tbl->getRecSize();
-			*needConversion = BIN(recsz < sizeof(ReceiptTbl::Rec));
-		}
-		return tbl;
-	}
-	virtual int ConvertRec(DBTable * tbl, void * rec, int *)
-	{
-		ReceiptTbl::Rec * data = (ReceiptTbl::Rec*)tbl->getDataBuf();
-		ReceiptTbl::Rec * old_rec = (ReceiptTbl::Rec *)rec;
-		tbl->clearDataBuf();
-		memcpy(data, old_rec, sizeof(ReceiptTbl::Rec) - 8);
-		return 1;
-	}
-};
-//
-//
-//
-class PPCvtTransfer300 : public PPTableConversion {
-public:
-	virtual DBTable * CreateTableInstance(int * needConversion)
-	{
-		DBTable * tbl = new TransferTbl;
-		if(!tbl)
-			PPSetErrorNoMem();
-		else if(needConversion) {
-			RECORDSIZE recsz = tbl->getRecSize();
-			*needConversion = BIN(recsz < sizeof(TransferTbl::Rec));
-		}
-		return tbl;
-	}
-	virtual int ConvertRec(DBTable * tbl, void * rec, int *)
-	{
-		TransferTbl::Rec * data = (TransferTbl::Rec*)tbl->getDataBuf();
-		TransferTbl::Rec * old_rec = (TransferTbl::Rec *)rec;
-		tbl->clearDataBuf();
-		memcpy(data, old_rec, sizeof(TransferTbl::Rec) - 12);
-		return 1;
-	}
-};
-//
-//
-//
-int PPObjFormula::GetBefore290(PPID id, char * pName, char * pBuf, size_t buflen)
-{
-	struct _Formula {
-		PPID Tag;      // Const = PPOBJ_FORMULA
-		PPID ID;       // -> Ref (ObjType = PPOBJ_FORMULA)
-		PPID PropID;   // Const = 1
-		long TailSize;
-		// char [PROPRECFIXSIZE - 16 + TailSize]
-	};
-	int    ok = 1;
-	union {
-		_Formula * form;
-		char * bform;
-	};
-	size_t sz = PROPRECFIXSIZE;
-	ReferenceTbl::Rec ref_rec;
-	pBuf[0] = 0;
-	if(id == 0) {
-		THROW(ref->SearchName(Obj, &id, pName, &ref_rec) > 0);
-	}
-	else {
-		THROW(Search(id, &ref_rec) > 0);
-	}
-	strnzcpy(pName, strip(ref_rec.ObjName), /*PP_SYMBLEN*/32); // @v12.2.2 PP_SYMBLEN-->32 (in order to eliminate macro-constant)
-	THROW_MEM(bform = static_cast<char *>(SAlloc::C(1, sz)));
-	THROW(ref->GetProp(Obj, id, 1, form, sz) > 0);
-	if((PROPRECFIXSIZE + form->TailSize) > sz) {
-		sz = PROPRECFIXSIZE + (size_t)form->TailSize;
-		THROW_MEM(bform = static_cast<char *>(SAlloc::R(bform, sz)));
-		THROW(ref->GetProp(PPOBJ_FORMULA, id, 1, form, sz));
-	}
-	strnzcpy(pBuf, reinterpret_cast<const char *>(form + 1), buflen);
-	strip(pBuf);
-	CATCHZOK
-	SAlloc::F(bform);
-	return ok;
-}
-
-static int ConvertFormula290()
-{
-	int    ok = 1;
-	PPObjFormula frmobj;
-	for(PPID id = 0; frmobj.EnumItems(&id) > 0;) {
-		char name[48], form[256];
-		THROW(frmobj.GetBefore290(id, name, form, sizeof(form)) > 0);
-		THROW(frmobj.Put(&id, name, form, 1));
-	}
-	CATCHZOK
-	return ok;
-}
-
-int PPObjDBDiv::GetBefore290(PPID id, DBDivPack * pack)
-{
-	const size_t LLC_LIMIT ((PROPRECFIXSIZE - 14) / sizeof(PPID)); // 17
-	const size_t ALS_LIMIT ((PROPRECFIXSIZE - 14) / sizeof(char)); // 70
-
-	struct LocListBuf { // 84
-		PPID   Tag;          //
-		PPID   ID;           //
-		PPID   Prop;         //
-		int16  Count;        // Количество элементов в кластере
-		PPID   Items[LLC_LIMIT];
-	};
-	struct AccListBuf { // 84
-		PPID   Tag;          //
-		PPID   ID;           //
-		PPID   Prop;         //
-		int16  Size;         // Длина строки в байтах
-		char   Str[ALS_LIMIT];
-	};
-	int ok = 1, r;
-	uint i, sz;
-	union {
-		LocListBuf * buf;
-		AccListBuf * alb;
-	};
-	buf = 0;
-	THROW(PPRef->GetItem(PPOBJ_DBDIV, id, &pack->Rec) > 0);
-	pack->LocList.freeAll();
-	sz = PROPRECFIXSIZE;
-	THROW_MEM(buf = (LocListBuf*)SAlloc::M(sz));
-	if((r = PPRef->GetProp(PPOBJ_DBDIV, id, DBDPRP_LOCLIST, buf, sz)) > 0) {
-		if(buf->Count > LLC_LIMIT) {
-			sz += (buf->Count - LLC_LIMIT) * sizeof(PPID);
-			THROW_MEM(buf = (LocListBuf*)SAlloc::R(buf, sz));
-			THROW(PPRef->GetProp(PPOBJ_DBDIV, id, DBDPRP_LOCLIST, buf, sz) > 0);
-		}
-		for(i = 0; i < (uint)buf->Count; i++) {
-			THROW_SL(pack->LocList.insert(&buf->Items[i]));
-		}
-	}
-	ZFREE(buf);
-	THROW(r);
-	memzero(pack->AccList, sizeof(pack->AccList));
-	sz = PROPRECFIXSIZE;
-	THROW_MEM(alb = (AccListBuf*)SAlloc::M(sz));
-	if((r = PPRef->GetProp(PPOBJ_DBDIV, id, DBDPRP_ACCLIST, alb, sz)) > 0) {
-		if(alb->Size > ALS_LIMIT) {
-			sz += (alb->Size - ALS_LIMIT);
-			THROW_MEM(alb = (AccListBuf*)SAlloc::R(alb, sz));
-			THROW(PPRef->GetProp(PPOBJ_DBDIV, id, DBDPRP_ACCLIST, alb, sz) > 0);
-		}
-		STRNSCPY(pack->AccList, alb->Str);
-	}
-	ZFREE(alb);
-	THROW(r);
-	CATCH
-		ok = 0;
-		pack->LocList.freeAll();
-		pack->AccList[0] = 0;
-	ENDCATCH
-	SAlloc::F(buf);
-	return ok;
-}
-
-static int ConvertDBDiv290()
-{
-	int    ok = 1;
-	PPObjDBDiv dbdivobj;
-	for(PPID id = 0; dbdivobj.EnumItems(&id) > 0;) {
-		DBDivPack pack;
-		THROW(dbdivobj.GetBefore290(id, &pack) > 0);
-		THROW(dbdivobj.Put(&id, &pack, 1));
-	}
-	CATCHZOK
-	return ok;
-}
-//
-//
-//
-int Convert300()
-{
-	int    ok = 1;
-	PPWaitStart();
-	if(BillObj) {
-		ZDELETE(BillObj);
-	}
-#if 1
-	{
-		PPCvtAccount290 cvt_acct;
-		THROW(cvt_acct.Convert());
-	}
-	{
-		PPCvtArticle290 cvt_art;
-		THROW(cvt_art.Convert());
-	}
-	{
-		PPCvtAcctRel290 cvt_arel;
-		THROW(cvt_arel.Convert());
-	}
-	{
-		PPCvtBalance290 cvt_bal;
-		THROW(cvt_bal.Convert());
-	}
-	{
-		PPCvtBill290       cvt_bill;
-		PPCvtBillAmount290 cvt_ba;
-		THROW(cvt_bill.Convert());
-		THROW(cvt_ba.Convert());
-	}
-#endif
-	{
-		PPCvtReceipt300 cvt_rcpt;
-		THROW(cvt_rcpt.Convert());
-	}
-	{
-		PPCvtTransfer300 cvt_trfr;
-		THROW(cvt_trfr.Convert());
-	}
-#if 1
-	THROW(ConvertDBDiv290());
-	THROW(ConvertFormula290());
-#endif
-	PPWaitStop();
-	CATCHZOKPPERR
-	BillObj = new PPObjBill(0);
-	return ok;
-}
-//
-//
-//
-class CounterGrpList {
-public:
-	CounterGrpList() { count = 0; ptr = 0; }
-	~CounterGrpList() { SAlloc::F(ptr); }
-	int    SearchID(long id, int * pos);
-	int    Load();
-private:
-	int    GetNumGroups();
-	int    GetGroup(int);
-
-	int    count;
-	long * ptr;
-};
-//
-// Структура списка групп операций по счетчику:
-//
-//    Variable Part:
-//        long Count;
-//        long Items[Count];
-//
-// Группы неявно идентифицируются порядковым номером в списке (0..)
-//
-// sizeof(CntGrpCluster) == PROPRECFIXSIZE
-//
-#define ITEMS_PER_CLUSTER (PROPRECFIXSIZE / sizeof(long) - 4)
-
-struct CntGrpCluster {
-	PPID   Obj;
-	PPID   ObjID;
-	PPID   Prop;
-	long   Count;
-	long   Items[ITEMS_PER_CLUSTER];
-};
-
-int CounterGrpList::GetNumGroups()
-{
-	int c = 0;
-	if(ptr)
-		for(int i = 0; i < count; i += (int)(ptr[i] + 1), c++);
-	return c;
-}
-
-int CounterGrpList::GetGroup(int g)
-{
-	int i, c = 0;
-	if(ptr && count) {
-		for(i = 0; i < count && c < g; i += (int)(ptr[i] + 1), c++);
-		return (c == g) ? i : -1;
-	}
-	return -1;
-}
-
-int CounterGrpList::SearchID(long id, int * pos)
-{
-	for(int i = 0, ng = GetNumGroups(); i < ng; i++)
-		for(int j = 0, p = GetGroup(i); j < ptr[p]; j++)
-			if(ptr[p+j+1] == id) {
-				ASSIGN_PTR(pos, (p+j+1));
-				return i;
-			}
-	return -1;
-}
-
-int CounterGrpList::Load()
-{
-	PPID   p = 0;
-	CntGrpCluster clu;
-	count = 0;
-	while(PPRef->EnumProps(PPOBJ_COUNTGRP, PPCNT_ONE, &p, &clu, sizeof(clu)) > 0 && p <= 1)
-		if(p == 1 && clu.Count)
-			if((ptr = (long *)SAlloc::R(ptr, sizeof(long) * (count + (uint)clu.Count))) != 0) {
-				memcpy(ptr + count, clu.Items, sizeof(long) * (uint)clu.Count);
-				count += (int)clu.Count;
-			}
-			else
-				return PPSetErrorNoMem();
-	return 1;
-}
-
-struct PPOprKind_Before301 {
-	long   Tag;              // Const PPOBJ_OPRKIND
-	long   ID;
-	char   Name[42];
-	int16  Rank;             // @v2.9.10 Ранг операции (порядок сортировки)
-	long   Link;             // Связанный вид операции
-	char   CodeTemplate[16]; // Шаблон генерации кода документа
-	long   Counter;          // Номер последней операции по кодировке
-	long   Flags;            // OPKF_XXX
-	long   OprType;          // Тип операции PPOprType::ID
-	long   AccSheet;         // Связанная таблица аналитических статей
-};
-
-int Convert301()
-{
-	int    ok = 1, ta = 0;
-	PPObjOprKind opobj;
-	PPOprKind_Before301 op_rec_b301;
-	PPOprKind op_rec;
-	PPID   id;
-	int    need_conversion = 0;
-	for(id = 0; !need_conversion && opobj.EnumItems(&id, &op_rec) > 0;) {
-		// @v3.3.14 for(size_t i = 0; !need_conversion && i < sizeof(op_rec.Reserve); i++)
-		// @v3.9.0 if(op_rec.Reserve/* @v3.3.14 [i]*/ != 0)
-		if(op_rec.SubType != 0 /* @v3.9.0 */ && op_rec.OpTypeID != PPOPT_ACCTURN)
-			need_conversion = 1;
-	}
-	if(need_conversion) {
-		PPObjOpCounter opc_obj;
-		PPID   named_counter_array[64];
-		CounterGrpList grp_list;
-		memzero(named_counter_array, sizeof(named_counter_array));
-		THROW(grp_list.Load());
-		THROW(PPStartTransaction(&ta, 1));
-		for(id = 0; opobj.EnumItems(&id, &op_rec_b301) > 0;) {
-			PPID   cntr_id = 0;
-			char   memo_templ[128];
-			PropertyTbl::Rec prop_rec;
-			MEMSZERO(op_rec);
-			STRNSCPY(op_rec.Name, op_rec_b301.Name);
-			op_rec.Tag        = op_rec_b301.Tag;
-			op_rec.ID = op_rec_b301.ID;
-			op_rec.Rank       = op_rec_b301.Rank;
-			op_rec.LinkOpID   = op_rec_b301.Link;
-			op_rec.OpTypeID   = op_rec_b301.OprType;
-			op_rec.AccSheetID = op_rec_b301.AccSheet;
-
-			op_rec.Flags = op_rec_b301.Flags & (
-				OPKF_NEEDPAYMENT | OPKF_GRECEIPT | OPKF_GEXPEND | OPKF_BUYING |
-				OPKF_SELLING | OPKF_PROFITABLE | OPKF_ONORDER | OPKF_CALCSTAXES |
-				OPKF_AUTOWL | OPKF_USEPAYER | OPKF_EXTACCTURN | OPKF_EXTAMTLIST |
-				OPKF_RENT | OPKF_NEEDACK | OPKF_RECKON | OPKF_BANKING |
-				OPKF_PASSIVE | OPKF_CURTRANSIT);
-			op_rec.PrnFlags = op_rec_b301.Flags & (
-				OPKF_PRT_BUYING | OPKF_PRT_SELLING | OPKF_PRT_QCERT |
-				OPKF_PRT_NBILLN | OPKF_PRT_VATAX | OPKF_PRT_INVOICE |
-				OPKF_PRT_QCG | OPKF_PRT_SHRTORG | OPKF_PRT_CASHORD |
-				OPKF_PRT_SELPRICE | OPKF_PRT_NDISCNT | OPKF_PRT_LADING);
-			int cntr_grp_id = grp_list.SearchID(id, 0);
-			PPOpCounter opc_rec;
-			PPOpCounterPacket opc_pack;
-			if(cntr_grp_id >= 0) {
-				if(named_counter_array[cntr_grp_id]) {
-					cntr_id = named_counter_array[cntr_grp_id];
-				}
-				else {
-					MEMSZERO(opc_rec);
-					STRNSCPY(opc_rec.Name, op_rec_b301.Name);
-					STRNSCPY(opc_rec.CodeTemplate, op_rec_b301.CodeTemplate);
-					opc_rec.Counter = op_rec_b301.Counter;
-					opc_pack.Init(&opc_rec, 0);
-					THROW(opc_obj.SetItem(&cntr_id, &opc_pack, 0));
-					named_counter_array[cntr_grp_id] = cntr_id;
-				}
-			}
-			else {
-				MEMSZERO(opc_rec);
-				STRNSCPY(opc_rec.CodeTemplate, op_rec_b301.CodeTemplate);
-				opc_rec.Counter = op_rec_b301.Counter;
-				opc_rec.OwnerObjID = op_rec_b301.ID;
-				opc_pack.Init(&opc_rec, 0);
-				THROW(opc_obj.SetItem(&cntr_id, &opc_pack, 0));
-			}
-			op_rec.OpCounterID = cntr_id;
-			THROW(PPRef->UpdateItem(PPOBJ_OPRKIND, id, &op_rec));
-			if(PPRef->GetProp(PPOBJ_OPRKIND, id, OPKPRP_BILLMEMO, &prop_rec, sizeof(prop_rec)) > 0) {
-				STRNSCPY(memo_templ, prop_rec.Text);
-				THROW(PPRef->PutPropVlrString(PPOBJ_OPRKIND, id, OPKPRP_BILLMEMO, memo_templ));
-			}
-		}
-		//
-		// Removing old Counter Groups
-		//
-	   	THROW(PPRef->RemoveProp(PPOBJ_COUNTGRP, PPCNT_ONE, 0, 0));
-	   	THROW(PPRef->RemoveProp(PPOBJ_COUNTGRP, PPCNT_ONE, 1, 0));
-
-		THROW(PPCommitWork(&ta));
-	}
-	CATCH
-		PPRollbackWork(&ta);
-		ok = PPErrorZ();
-	ENDCATCH
-	return ok;
-}
-//
-//
-//
 class PPCvtSJ329 : public PPTableConversion {
 public:
 	virtual DBTable * CreateTableInstance(int * pNeedConversion)
@@ -1244,7 +357,7 @@ public:
 		if(!p_tbl)
 			PPSetErrorNoMem();
 		else if(pNeedConversion) {
-			RECORDSIZE recsz = p_tbl->getRecSize();
+			const RECORDSIZE recsz = p_tbl->getRecSize();
 			*pNeedConversion = (recsz == sizeof(SysJournalTbl::Rec)) ? 0 : 1;
 		}
 		return p_tbl;
@@ -1290,7 +403,7 @@ public:
 		if(!p_tbl)
 			PPSetErrorNoMem();
 		else if(pNeedConversion) {
-			RECORDSIZE recsz = p_tbl->getRecSize();
+			const RECORDSIZE recsz = p_tbl->getRecSize();
 			*pNeedConversion = (recsz == sizeof(RegisterTbl::Rec)) ? 0 : 1;
 		}
 		return p_tbl;
@@ -1337,7 +450,7 @@ public:
 		if(!p_tbl)
 			PPSetErrorNoMem();
 		else if(pNeedConversion) {
-			RECORDSIZE recsz = p_tbl->getRecSize();
+			const RECORDSIZE recsz = p_tbl->getRecSize();
 			*pNeedConversion = BIN(recsz < sizeof(CCheckTbl::Rec));
 		}
 		return p_tbl;
@@ -1386,7 +499,7 @@ public:
 		if(!p_tbl)
 			PPSetErrorNoMem();
 		else if(pNeedConversion) {
-			RECORDSIZE recsz = p_tbl->getRecSize();
+			const RECORDSIZE recsz = p_tbl->getRecSize();
 			*pNeedConversion = BIN(recsz < sizeof(PPAccount));
 		}
 		return p_tbl;
@@ -1512,7 +625,7 @@ public:
 		if(!tbl)
 			PPSetErrorNoMem();
 		else if(pNeedConversion) {
-			RECORDSIZE recsz = tbl->getRecSize();
+			const RECORDSIZE recsz = tbl->getRecSize();
 			if(recsz < (sizeof(BillTbl::Rec) - sizeof(((BillTbl::Rec*)0)->Memo)))
 				*pNeedConversion = 1;
 			else
@@ -1580,7 +693,7 @@ DBTable * PPCvtCCheckLine4108::CreateTableInstance(int * pNeedConversion)
 	if(!p_tbl)
 		PPSetErrorNoMem();
 	else if(pNeedConversion) {
-		RECORDSIZE recsz = p_tbl->getRecSize();
+		const RECORDSIZE recsz = p_tbl->getRecSize();
 		//
 		// В новом формате запись короче (28 байтов вместо 40)
 		//
@@ -1625,7 +738,7 @@ public:
 		if(!p_tbl)
 			PPSetErrorNoMem();
 		else if(pNeedConversion) {
-			RECORDSIZE recsz = p_tbl->getRecSize();
+			const RECORDSIZE recsz = p_tbl->getRecSize();
 			//
 			// В новом формате запись короче (48 байтов вместо 56)
 			//
@@ -1698,89 +811,6 @@ public:
 CONVERT_PROC(Convert4208, PPCvtAdvBillItem4208);
 
 #endif // } 0 @v6.2.2 Moved to PPCvtAdvBillItem6202
-//
-//
-//
-class PPCvtVatBook4402 : public PPTableConversion {
-public:
-	DBTable * CreateTableInstance(int * pNeedConversion);
-	int    ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen);
-};
-
-DBTable * PPCvtVatBook4402::CreateTableInstance(int * pNeedConversion)
-{
-	DBTable * p_tbl = new VATBookTbl;
-	if(!p_tbl)
-		PPSetErrorNoMem();
-	else if(pNeedConversion) {
-		//
-		// Сюда же перенесена проверка на конвертацию VATBook 3.11.2, которая упразднена
-		//
-		int    num_seg = 0;
-		DBIdxSpec * p_is = p_tbl->getIndexSpec(1, &num_seg);
-		RECORDSIZE recsz = p_tbl->getRecSize();
-		*pNeedConversion = BIN(recsz < sizeof(VATBookTbl::Rec) || (p_is && num_seg == 1));
-		SAlloc::F(p_is);
-	}
-	return p_tbl;
-}
-
-int PPCvtVatBook4402::ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRecLen*/)
-{
-	const struct OldRec {
-		long    ID;
-		char    Code[10];
-		long    LineType;
-		LDATE   Dt;
-		long    LineNo;
-		LDATE   InvcDt;
-		LDATE   PaymDt;
-		LDATE   RcptDt;
-		long    Object;
-		long    Link;
-		long    Flags;
-		char    Amount[8];
-		char    Excise[8];
-		char    VAT0[8];
-		char    Export[8];
-		char    VAT1[8];
-		char    SVAT1[8];
-		char    VAT2[8];
-		char    SVAT2[8];
-		short   Excluded;
-		long    OpID;
-		char    VAT3[8];
-	} * p_old_rec = static_cast<const OldRec *>(pRec);
-	VATBookTbl::Rec * p_data = static_cast<VATBookTbl::Rec *>(pTbl->getDataBuf());
-	memcpy(p_data, pRec, sizeof(VATBookTbl::Rec));
-
-	p_data->ID = p_old_rec->ID;
-	STRNSCPY(p_data->Code, p_old_rec->Code);
-	p_data->LineType_ = (int16)p_old_rec->LineType;
-	p_data->LineSubType = 0;
-	p_data->Dt = p_old_rec->Dt;
-	p_data->LineNo = p_old_rec->LineNo;
-	p_data->InvcDt = p_old_rec->InvcDt;
-	p_data->PaymDt = p_old_rec->PaymDt;
-	p_data->RcptDt = p_old_rec->RcptDt;
-	p_data->Object = p_old_rec->Object;
-	p_data->Link   = p_old_rec->Link;
-	p_data->Flags  = p_old_rec->Flags;
-	p_data->OpID   = p_old_rec->OpID;
-	p_data->Excluded  = p_old_rec->Excluded;
-	MONEYTOMONEY(p_old_rec->Amount, p_data->Amount);
-	MONEYTOMONEY(p_old_rec->Excise, p_data->Excise);
-	MONEYTOMONEY(p_old_rec->Export, p_data->Export);
-	MONEYTOMONEY(p_old_rec->VAT0, p_data->VAT0);
-	MONEYTOMONEY(p_old_rec->VAT1, p_data->VAT1);
-	MONEYTOMONEY(p_old_rec->SVAT1, p_data->SVAT1);
-	MONEYTOMONEY(p_old_rec->VAT2, p_data->VAT2);
-	MONEYTOMONEY(p_old_rec->SVAT2, p_data->SVAT2);
-	MONEYTOMONEY(p_old_rec->VAT3, p_data->VAT3);
-	return 1;
-}
-
-CONVERT_PROC(Convert4402, PPCvtVatBook4402);
 //
 //
 //
@@ -1887,7 +917,7 @@ DBTable * PPCvtPriceLine4405::CreateTableInstance(int * pNeedConversion)
 	if(!p_tbl)
 		PPSetErrorNoMem();
 	else if(pNeedConversion) {
-		RECORDSIZE recsz = p_tbl->getRecSize();
+		const RECORDSIZE recsz = p_tbl->getRecSize();
 		if(recsz < (sizeof(PriceLineTbl::Rec)-sizeof(((PriceLineTbl::Rec*)0)->Memo))) {
 			*pNeedConversion = 1;
 			_pre380format = BIN(recsz < 152);
@@ -1992,7 +1022,7 @@ public:
 		if(!p_tbl)
 			PPSetErrorNoMem();
 		else if(pNeedConversion) {
-			RECORDSIZE recsz = p_tbl->getRecSize();
+			const RECORDSIZE recsz = p_tbl->getRecSize();
 			if(recsz != sizeof(RegisterTbl::Rec))
 				*pNeedConversion = 1;
 			else {
@@ -2075,7 +1105,7 @@ DBTable * PPCvtHistBill4515::CreateTableInstance(int * pNeedConversion)
 	if(!p_tbl)
 		PPSetErrorNoMem();
 	else if(pNeedConversion) {
-		RECORDSIZE recsz = p_tbl->getRecSize();
+		const RECORDSIZE recsz = p_tbl->getRecSize();
 		*pNeedConversion = BIN(recsz < sizeof(HistBillTbl::Rec));
 	}
 	return p_tbl;
@@ -2139,7 +1169,7 @@ public:
 		if(!tbl)
 			PPSetErrorNoMem();
 		else if(pNeedConversion) {
-			RECORDSIZE recsz = tbl->getRecSize();
+			const RECORDSIZE recsz = tbl->getRecSize();
 			*pNeedConversion = BIN(recsz < sizeof(ReceiptTbl::Rec));
 		}
 		return tbl;
@@ -2253,7 +1283,7 @@ public:
 		if(!tbl)
 			PPSetErrorNoMem();
 		else if(pNeedConversion) {
-			RECORDSIZE recsz = tbl->getRecSize();
+			const RECORDSIZE recsz = tbl->getRecSize();
 			*pNeedConversion = BIN(recsz < sizeof(DlsObjTbl::Rec));
 		}
 		return tbl;
@@ -2292,7 +1322,7 @@ public:
 		if(!tbl)
 			PPSetErrorNoMem();
 		else if(pNeedConversion) {
-			RECORDSIZE recsz = tbl->getRecSize();
+			const RECORDSIZE recsz = tbl->getRecSize();
 			*pNeedConversion = BIN(recsz < (sizeof(BillTbl::Rec) - sizeof(((BillTbl::Rec*)0)->Memo)));
 		}
 		return tbl;
@@ -2352,7 +1382,7 @@ public:
 		if(!tbl)
 			PPSetErrorNoMem();
 		else if(pNeedConversion) {
-			RECORDSIZE recsz = tbl->getRecSize();
+			const RECORDSIZE recsz = tbl->getRecSize();
 			*pNeedConversion = BIN(recsz < sizeof(PayPlanTbl::Rec));
 		}
 		return tbl;
@@ -2387,7 +1417,7 @@ DBTable * PPCvtTransfer4911::CreateTableInstance(int * pNeedConversion)
 	if(!tbl)
 		PPSetErrorNoMem();
 	else if(pNeedConversion) {
-		RECORDSIZE recsz = tbl->getRecSize();
+		const RECORDSIZE recsz = tbl->getRecSize();
 		*pNeedConversion = BIN(recsz < sizeof(TransferTbl::Rec));
 	}
 	return tbl;
@@ -2997,7 +2027,7 @@ public:
 		if(!p_tbl)
 			PPSetErrorNoMem();
 		else if(pNeedConversion) {
-			RECORDSIZE recsz = p_tbl->getRecSize();
+			const RECORDSIZE recsz = p_tbl->getRecSize();
 			*pNeedConversion = BIN(recsz > sizeof(PersonPostTbl::Rec)); // Новый размер меньше предыдущего
 		}
 		return p_tbl;
@@ -3222,7 +2252,7 @@ public:
 		if(!tbl)
 			PPSetErrorNoMem();
 		else if(pNeedConversion) {
-			RECORDSIZE recsz = tbl->getRecSize();
+			const RECORDSIZE recsz = tbl->getRecSize();
 			if(recsz > sizeof(ObjSyncTbl::Rec))
 				*pNeedConversion = 1;
 			else
@@ -3797,7 +2827,7 @@ DBTable * PPCvtCGoodsLine5810::CreateTableInstance(int * pNeedConversion)
 	if(!tbl)
 		PPSetErrorNoMem();
 	else if(pNeedConversion) {
-		RECORDSIZE recsz = tbl->getRecSize();
+		const RECORDSIZE recsz = tbl->getRecSize();
 		if(recsz < sizeof(CGoodsLineTbl::Rec)) {
 			C4911 = BIN(recsz < 48);
 			*pNeedConversion = 1;
@@ -3879,7 +2909,7 @@ DBTable * PPCvtBankAccount5810::CreateTableInstance(int * pNeedConversion)
 	if(!tbl)
 		PPSetErrorNoMem();
 	else if(pNeedConversion) {
-		RECORDSIZE recsz = tbl->getRecSize();
+		const RECORDSIZE recsz = tbl->getRecSize();
 		*pNeedConversion = BIN(recsz < sizeof(BankAccount_Pre9004Tbl::Rec));
 	}
 	return tbl;
@@ -3944,7 +2974,7 @@ DBTable * PPCvtSpecSeries6109::CreateTableInstance(int * pNeedConversion)
 	if(!tbl)
 		PPSetError(PPERR_NOMEM);
 	else if(pNeedConversion) {
-		RECORDSIZE recsz = tbl->getRecSize();
+		const RECORDSIZE recsz = tbl->getRecSize();
 		*pNeedConversion = BIN(recsz < sizeof(SpecSeriesTbl::Rec));
 	}
 	return tbl;
@@ -5263,40 +4293,6 @@ int ConvertQuot720()
 //
 //
 //
-#if 0 // { Перенесено в PPCvtVatBook7311
-
-class PPCvtVatBook7208 : public PPTableConversion {
-public:
-	DBTable * CreateTableInstance(int * pNeedConversion)
-	{
-		DBTable * p_tbl = new VATBookTbl;
-		if(!p_tbl)
-			PPSetErrorNoMem();
-		else if(pNeedConversion) {
-			int    num_seg = 0;
-			DBIdxSpec * p_is = p_tbl->getIndexSpec(1, &num_seg);
-			*pNeedConversion = BIN(num_seg < 5);
-			SAlloc::F(p_is);
-		}
-		return p_tbl;
-	}
-	int    ConvertRec(DBTable * pNewTbl, void * pOldRec, int * /*pNewRecLen*/)
-	{
-		VATBookTbl::Rec * p_data = (VATBookTbl::Rec*)pNewTbl->getDataBuf();
-		memcpy(p_data, pOldRec, sizeof(VATBookTbl::Rec));
-		long * p_old_line_type = (long *)(&((VATBookTbl::Rec *)pOldRec)->LineType_);
-		p_data->LineType_ = (int16)*p_old_line_type;
-		p_data->LineSubType = 0;
-		return 1;
-	}
-};
-
-CONVERT_PROC(Convert7208, PPCvtVatBook7208);
-
-#endif // } 0 Перенесено в PPCvtVatBook7311
-//
-//
-//
 class PPCvtQuot2Rel7305 : public PPTableConversion {
 	virtual DBTable * CreateTableInstance(int * pNeedConversion)
 	{
@@ -5373,6 +4369,7 @@ int Convert7305()
 //
 //
 //
+#if 0 // @v12.2.6 {
 class PPCvtVatBook7311 : public PPTableConversion {
 public:
 	int    Pre7208;
@@ -5478,6 +4475,7 @@ public:
 };
 
 CONVERT_PROC(Convert7311, PPCvtVatBook7311);
+#endif // } 0 @v12.2.6 
 //
 //
 //
@@ -5594,8 +4592,7 @@ private:
 
 			p_data->AddrID = p_old_rec_7601->AddrID;
 			p_data->AddCrdCardID_unused = p_old_rec_7601->AddCrdCardID; // @v9.0.4 _unused
-			// @v10.6.8 p_data->AddCrdCardPaym_unused = p_old_rec_7601->AddCrdCardPaym; // @v9.0.4 _unused
-			p_data->CreationUserID = 0; // @v10.6.8
+			p_data->CreationUserID = 0;
 			p_data->LinkCheckID = p_old_rec_7601->LinkCheckID;
 			p_data->EndOrdDtm = p_old_rec_7601->EndOrdDtm;
 			if(!p_old_rec_7601->StartOrdDtm) {
@@ -5629,76 +4626,6 @@ private:
 };
 
 CONVERT_PROC(Convert7601, PPCvtCCheckExt7601);
-//
-//
-//
-#if 0 // @v9.4.0 перенесено в PPCvtSCard9400 {
-
-class PPCvtSCard7702 : public PPTableConversion {
-	virtual DBTable * CreateTableInstance(int * pNeedConversion)
-	{
-		SCardTbl * p_tbl = new SCardTbl;
-		if(!p_tbl)
-			PPSetErrorNoMem();
-		else if(pNeedConversion) {
-			DbTableStat stat;
-			p_tbl->GetFileStat(-1, &stat);
-			if(stat.FixRecSize < sizeof(SCardTbl::Rec)) {
-				*pNeedConversion = 1;
-			}
-			else {
-				*pNeedConversion = 0;
-			}
-		}
-		return p_tbl;
-	}
-	virtual int ConvertRec(DBTable * pNewTbl, void * pOldRec, int * pNewRecLen)
-	{
-		struct SCard_Before7702 {  // size=104
-			long   ID;
-			char   Code[24];
-			char   Password[8];
-			long   SeriesID;
-			long   PersonID;
-			long   Flags;
-			LDATE  Dt;
-			LDATE  Expiry;
-			long   PDis;
-			long   AutoGoodsID;
-			double MaxCredit;
-			double Turnover;
-			double Rest;
-			double InTrnovr;
-			LTIME  UsageTmStart;
-			LTIME  UsageTmEnd;
-		};
-		STATIC_ASSERT(sizeof(SCard_Before7702)==104);
-		SCardTbl::Rec * p_data = (SCardTbl::Rec*)pNewTbl->getDataBuf();
-		SCard_Before7702 * p_old_rec = (SCard_Before7702 *)pOldRec;
-		memzero(p_data, sizeof(*p_data));
-		p_data->ID = p_old_rec->ID;
-		p_data->SeriesID = p_old_rec->SeriesID;
-		p_data->PersonID = p_old_rec->PersonID;
-		p_data->Flags = p_old_rec->Flags;
-		p_data->Dt = p_old_rec->Dt;
-		p_data->Expiry = p_old_rec->Expiry;
-		p_data->PDis = p_old_rec->PDis;
-		p_data->AutoGoodsID = p_old_rec->AutoGoodsID;
-		p_data->MaxCredit = p_old_rec->MaxCredit;
-		p_data->Turnover = p_old_rec->Turnover;
-		p_data->Rest = p_old_rec->Rest;
-		p_data->InTrnovr = p_old_rec->InTrnovr;
-		p_data->UsageTmStart = p_old_rec->UsageTmStart;
-		p_data->UsageTmEnd = p_old_rec->UsageTmEnd;
-		STRNSCPY(p_data->Code, p_old_rec->Code);
-		STRNSCPY(p_data->Password, p_old_rec->Password);
-		return 1;
-	}
-};
-
-CONVERT_PROC(Convert7702, PPCvtSCard7702);
-
-#endif // } @v9.4.0
 //
 //
 //
@@ -5776,7 +4703,7 @@ public:
 		if(!p_tbl)
 			PPSetErrorNoMem();
 		else if(pNeedConversion) {
-			RECORDSIZE recsz = p_tbl->getRecSize();
+			const RECORDSIZE recsz = p_tbl->getRecSize();
 			*pNeedConversion = BIN(recsz < sizeof(SCardOpTbl::Rec));
 		}
 		return p_tbl;
@@ -5869,7 +4796,7 @@ public:
 		if(!p_tbl)
 			PPSetErrorNoMem();
 		else if(pNeedConversion) {
-			RECORDSIZE recsz = p_tbl->getRecSize();
+			const RECORDSIZE recsz = p_tbl->getRecSize();
 			*pNeedConversion = BIN(recsz < sizeof(CheckOpJrnlTbl::Rec));
 		}
 		return p_tbl;
@@ -6119,34 +5046,6 @@ int ConvertWorkbook813()
 //
 //
 //
-#if 0 // @v8.3.6 Конвертация совмещена с PPCvtRegister8306 {
-class PPCvtRegister8203 : public PPTableConversion {
-public:
-	virtual DBTable * CreateTableInstance(int * pNeedConversion)
-	{
-		DBTable * p_tbl = new RegisterTbl;
-		if(!p_tbl)
-			PPSetErrorNoMem();
-		else if(pNeedConversion) {
-			int16  num_keys;
-			p_tbl->getNumKeys(&num_keys);
-			*pNeedConversion = BIN(num_keys < 5);
-		}
-		return p_tbl;
-	}
-	virtual int ConvertRec(DBTable * pNewTbl, void * pOldRec, int * /*pNewRecLen*/)
-	{
-		RegisterTbl::Rec * p_data = (RegisterTbl::Rec*)pNewTbl->getDataBuf();
-		memcpy(p_data, pOldRec, sizeof(RegisterTbl::Rec));
-		return 1;
-	}
-};
-
-CONVERT_PROC(Convert8203, PPCvtRegister8203);
-#endif // } 0 @v8.3.6 Конвертация совмещена с PPCvtRegister8306
-//
-//
-//
 class PPCvtBarcode8800 : public PPTableConversion {
 public:
 	DBTable * CreateTableInstance(int * pNeedConversion);
@@ -6159,7 +5058,7 @@ DBTable * PPCvtBarcode8800::CreateTableInstance(int * pNeedConversion)
 	if(!p_tbl)
 		PPSetErrorNoMem();
 	else if(pNeedConversion) {
-		RECORDSIZE recsz = p_tbl->getRecSize();
+		const RECORDSIZE recsz = p_tbl->getRecSize();
 		*pNeedConversion = BIN(recsz < sizeof(BarcodeTbl::Rec)); // Новый размер =38 bytes
 	}
 	return p_tbl;
@@ -6196,7 +5095,7 @@ DBTable * PPCvtArGoodsCode8800::CreateTableInstance(int * pNeedConversion)
 	if(!p_tbl)
 		PPSetErrorNoMem();
 	else if(pNeedConversion) {
-		RECORDSIZE recsz = p_tbl->getRecSize();
+		const RECORDSIZE recsz = p_tbl->getRecSize();
 		*pNeedConversion = BIN(recsz < sizeof(ArGoodsCodeTbl::Rec)); // Новый размер =38 bytes
 	}
 	return p_tbl;
@@ -6245,7 +5144,7 @@ public:
 		if(!p_tbl)
 			PPSetErrorNoMem();
 		else if(pNeedConversion) {
-			RECORDSIZE recsz = p_tbl->getRecSize();
+			const RECORDSIZE recsz = p_tbl->getRecSize();
 			*pNeedConversion = BIN(recsz > (sizeof(CpTransfTbl::Rec) - sizeof(((CpTransfTbl::Rec*)0)->Tail)));
 		}
 		return p_tbl;
@@ -6315,7 +5214,6 @@ static int ConvertStaffList9003()
 {
 	int    ok = 1;
 	int    db_locked = 0;
-	// @v10.3.0 (never used) int    need_conversion = 0;
 	DBTable * p_tbl = 0;
 	DbProvider * p_db = CurDict;
 	SString path;
@@ -6608,7 +5506,7 @@ public:
 		if(!p_tbl)
 			PPSetErrorNoMem();
 		else if(pNeedConversion) {
-			RECORDSIZE recsz = p_tbl->getRecSize();
+			const RECORDSIZE recsz = p_tbl->getRecSize();
 			*pNeedConversion = BIN(recsz < sizeof(CCheckPaymTbl::Rec)); // Новый размер =38 bytes
 		}
 		return p_tbl;
@@ -6661,7 +5559,7 @@ public:
 		if(!p_tbl)
 			PPSetErrorNoMem();
 		else if(pNeedConversion) {
-			RECORDSIZE recsz = p_tbl->getRecSize();
+			const RECORDSIZE recsz = p_tbl->getRecSize();
 			*pNeedConversion = BIN(recsz != sizeof(GoodsDebtTbl::Rec));
 		}
 		return p_tbl;
@@ -6702,7 +5600,7 @@ public:
 		if(!p_tbl)
 			PPSetErrorNoMem();
 		else if(pNeedConversion) {
-			RECORDSIZE recsz = p_tbl->getRecSize();
+			const RECORDSIZE recsz = p_tbl->getRecSize();
 			*pNeedConversion = BIN(recsz < sizeof(EgaisProductTbl::Rec));
 		}
 		return p_tbl;
@@ -6878,45 +5776,12 @@ CONVERT_PROC(Convert9400, PPCvtSCard9400);
 //
 //
 //
-#if 0 // @v10.0.12 {
-class PPCvtLotExtCode9811 : public PPTableConversion {
-public:
-	virtual DBTable * CreateTableInstance(int * pNeedConversion)
-	{
-		DBTable * p_tbl = new LotExtCodeTbl;
-		if(!p_tbl)
-			PPSetErrorNoMem();
-		else if(pNeedConversion) {
-			RECORDSIZE recsz = p_tbl->getRecSize();
-			*pNeedConversion = BIN(recsz != sizeof(LotExtCodeTbl::Rec));
-		}
-		return p_tbl;
-	}
-	virtual int ConvertRec(DBTable * pNewTbl, void * pOldRec, int * /*pNewRecLen*/)
-	{
-		struct LotExtCodeRec_Before9811 {
-			long   LotID;
-			char   Code[96];
-		};
-		LotExtCodeTbl::Rec * p_data = (LotExtCodeTbl::Rec *)pNewTbl->getDataBuf();
-		LotExtCodeRec_Before9811 * p_old_rec = (LotExtCodeRec_Before9811 *)pOldRec;
-		memzero(p_data, sizeof(*p_data));
-		p_data->LotID = p_old_rec->LotID;
-		STRNSCPY(p_data->Code, p_old_rec->Code);
-		return 1;
-	}
-};
-#endif // } @v10.0.12
-
 int Convert9811()
 {
 	int    ok = 1;
 	SysJournal * p_sj = 0;
 	PPWaitStart();
 	{
-		// @v10.0.12 PPCvtLotExtCode9811 cvt;
-		// @v10.0.12 int r = cvt.Convert();
-		// @v10.0.12 THROW(r);
 		{
 			//
 			// Необходимо зафиксировать в системном журнале событие,
@@ -6939,66 +5804,6 @@ int Convert9811()
 	ZDELETE(p_sj);
 	return ok;
 }
-//
-//
-//
-#if 0 // @v10.2.9 {
-class PPCvtLotExtCode10012 : public PPTableConversion {
-private:
-	int   Before9811;
-	struct LotExtCodeRec_Before9811 {
-		long   LotID;
-		char   Code[96];
-	};
-	struct LotExtCodeRec_Before10012 {
-		long   LotID;
-		long   BillID;
-		int16  RByBill;
-		int16  Sign;
-		char   Code[80];
-	};
-public:
-	PPCvtLotExtCode10012() : PPTableConversion(), Before9811(0)
-	{
-	}
-	virtual DBTable * CreateTableInstance(int * pNeedConversion)
-	{
-		DBTable * p_tbl = new LotExtCodeTbl;
-		if(!p_tbl)
-			PPSetErrorNoMem();
-		else if(pNeedConversion) {
-			RECORDSIZE recsz = p_tbl->getRecSize();
-			if(recsz == sizeof(LotExtCodeRec_Before9811))
-				Before9811 = 1;
-			*pNeedConversion = BIN(recsz < sizeof(LotExtCodeTbl::Rec));
-		}
-		return p_tbl;
-	}
-	virtual int ConvertRec(DBTable * pNewTbl, void * pOldRec, int * /*pNewRecLen*/)
-	{
-		LotExtCodeTbl::Rec * p_data = (LotExtCodeTbl::Rec *)pNewTbl->getDataBuf();
-		if(Before9811) {
-			LotExtCodeTbl::Rec * p_data = (LotExtCodeTbl::Rec *)pNewTbl->getDataBuf();
-			LotExtCodeRec_Before9811 * p_old_rec = (LotExtCodeRec_Before9811 *)pOldRec;
-			memzero(p_data, sizeof(*p_data));
-			p_data->LotID = p_old_rec->LotID;
-			STRNSCPY(p_data->Code, p_old_rec->Code);
-		}
-		else {
-			LotExtCodeRec_Before10012 * p_old_rec = (LotExtCodeRec_Before10012 *)pOldRec;
-			memzero(p_data, sizeof(*p_data));
-			p_data->LotID = p_old_rec->LotID;
-			p_data->BillID = p_old_rec->BillID;
-			p_data->RByBill = p_old_rec->RByBill;
-			p_data->Sign = p_old_rec->Sign;
-			STRNSCPY(p_data->Code, p_old_rec->Code);
-		}
-		return 1;
-	}
-};
-
-CONVERT_PROC(Convert10012, PPCvtLotExtCode10012);
-#endif // } 0 @v10.2.9
 //
 //
 //
@@ -7034,7 +5839,7 @@ public:
 		if(!p_tbl)
 			PPSetErrorNoMem();
 		else if(pNeedConversion) {
-			RECORDSIZE recsz = p_tbl->getRecSize();
+			const RECORDSIZE recsz = p_tbl->getRecSize();
 			if(recsz == sizeof(LotExtCodeRec_Before9811))
 				Before9811 = 1;
 			else if(recsz == sizeof(LotExtCodeRec_Before10012))
@@ -7734,7 +6539,7 @@ public:
 		if(!p_tbl)
 			PPSetErrorNoMem();
 		else if(pNeedConversion) {
-			RECORDSIZE recsz = p_tbl->getRecSize();
+			const RECORDSIZE recsz = p_tbl->getRecSize();
 			*pNeedConversion = BIN(recsz < sizeof(EgaisRefATbl::Rec));
 		}
 		return p_tbl;
@@ -7794,7 +6599,7 @@ public:
 		if(!p_tbl)
 			PPSetErrorNoMem();
 		else if(pNeedConversion) {
-			RECORDSIZE recsz = p_tbl->getRecSize();
+			const RECORDSIZE recsz = p_tbl->getRecSize();
 			*pNeedConversion = BIN(recsz < sizeof(TSessionTbl::Rec));
 		}
 		return p_tbl;
@@ -7882,7 +6687,7 @@ public:
 		if(!p_tbl)
 			PPSetErrorNoMem();
 		else if(pNeedConversion) {
-			RECORDSIZE recsz = p_tbl->getRecSize();
+			const RECORDSIZE recsz = p_tbl->getRecSize();
 			*pNeedConversion = BIN(recsz < sizeof(TSessLineTbl::Rec));
 		}
 		return p_tbl;
@@ -8248,7 +7053,7 @@ public:
 			PPSetErrorNoMem();
 		else if(pNeedConversion) {
 			int16  num_keys = 0;
-			const RECORDSIZE recsz = p_tbl->getRecSize();
+			const  RECORDSIZE recsz = p_tbl->getRecSize();
 			p_tbl->getNumKeys(&num_keys);
 			if(num_keys < 6)
 				RecFmt = recfmtBefore7506;
@@ -8580,7 +7385,7 @@ public:
 		else if(pNeedConversion) {
 			int16  num_keys;
 			p_tbl->getNumKeys(&num_keys);
-			RECORDSIZE recsz = p_tbl->getRecSize();
+			const RECORDSIZE recsz = p_tbl->getRecSize();
 			*pNeedConversion = BIN(recsz < sizeof(RegisterTbl::Rec) || num_keys < 5);
 		}
 		return p_tbl;
@@ -8682,7 +7487,7 @@ public:
 		else if(pNeedConversion) {
 			int16  num_keys;
 			p_tbl->getNumKeys(&num_keys);
-			RECORDSIZE recsz = p_tbl->getRecSize();
+			const RECORDSIZE recsz = p_tbl->getRecSize();
 			if(recsz < sizeof(RegisterTblRec_Before12000) || num_keys < 5) {
 				RecFmt = recfmtBefore8306;
 				*pNeedConversion = 1;
@@ -8754,7 +7559,7 @@ public:
 		if(!p_tbl)
 			PPSetErrorNoMem();
 		else if(pNeedConversion) {
-			RECORDSIZE recsz = p_tbl->getRecSize();
+			const RECORDSIZE recsz = p_tbl->getRecSize();
 			int16  num_keys;
 			p_tbl->getNumKeys(&num_keys);
 			*pNeedConversion = BIN(num_keys > 2 || recsz < sizeof(SCardOpTbl::Rec)); // @v12.0.8 Совмещена конвертация 7.7.12 с этой // @v12.2.0 @fix (num_keys < 5)-->(num_keys > 2)
@@ -8804,3 +7609,100 @@ public:
 };
 
 CONVERT_PROC(Convert12005, PPCvtSCardOp12005);
+//
+//
+//
+class PPCvtVATBook12207 : public PPTableConversion {
+public:
+	struct VATBookRec_Before12207 {
+		int32  ID;
+		char   Code[24];
+		int16  LineType_;
+		int16  LineSubType;
+		int16  Excluded;
+		uint16 Reserve;
+		LDATE  Dt;
+		int32  LineNo;
+		LDATE  InvcDt;
+		LDATE  PaymDt;
+		LDATE  RcptDt;
+		int32  Object;
+		int32  Object2;
+		int32  Link;
+		int32  OpID;
+		int32  LocID;
+		int32  Flags;
+		char   Amount[8];  // money[8.2]
+		char   Excise[8];  // money[8.2]
+		char   VAT0[8];    // money[8.2]
+		char   Export[8];  // money[8.2]
+		char   VAT1[8];    // money[8.2]
+		char   SVAT1[8];   // money[8.2]
+		char   VAT2[8];    // money[8.2]
+		char   SVAT2[8];   // money[8.2]
+		char   VAT3[8];    // money[8.2]
+		char   SVAT3[8];   // money[8.2]
+		LDATE  CBillDt;
+		char   CBillCode[24];
+		char   TaxOpCode[8];
+		uint8  Reserve2[72]; // raw
+	};
+	DBTable * CreateTableInstance(int * pNeedConversion)
+	{
+		DBTable * p_tbl = new VATBookTbl;
+		if(!p_tbl)
+			PPSetErrorNoMem();
+		else if(pNeedConversion) {
+			DbTableStat stat;
+			p_tbl->GetFileStat(-1, &stat);
+			if(stat.FixRecSize < sizeof(VATBookTbl::Rec)) {
+				*pNeedConversion = 1;
+			}
+			else
+				*pNeedConversion = 0;
+		}
+		return p_tbl;
+	}
+	int ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRecLen*/)
+	{
+		const VATBookRec_Before12207 * p_old_rec = static_cast<const VATBookRec_Before12207 *>(pRec);
+		VATBookTbl::Rec * p_data = static_cast<VATBookTbl::Rec *>(pTbl->getDataBuf());
+		memzero(p_data, sizeof(*p_data));
+#define CPYFLD(f)    p_data->f = p_old_rec->f
+		CPYFLD(ID);
+		CPYFLD(LineType_);
+		CPYFLD(LineSubType);
+		CPYFLD(Excluded);
+		CPYFLD(Dt);
+		CPYFLD(LineNo);
+		CPYFLD(InvcDt);
+		CPYFLD(PaymDt);
+		CPYFLD(RcptDt);
+		CPYFLD(OpID);
+		CPYFLD(LocID);
+		CPYFLD(Flags);
+		CPYFLD(CBillDt);
+#undef CPYFLD
+		p_data->ArID = p_old_rec->Object;
+		p_data->Ar2ID = p_old_rec->Object2;
+		p_data->LinkBillID = p_old_rec->Link;
+		STRNSCPY(p_data->Code, p_old_rec->Code);
+		STRNSCPY(p_data->CBillCode, p_old_rec->CBillCode);
+		STRNSCPY(p_data->TaxOpCode, p_old_rec->TaxOpCode);
+		p_data->Amount = MONEYTOLDBL(p_old_rec->Amount);
+		p_data->Excise = MONEYTOLDBL(p_old_rec->Excise);
+		p_data->VAT0 = MONEYTOLDBL(p_old_rec->VAT0);
+		p_data->Export = MONEYTOLDBL(p_old_rec->Export);
+		p_data->VAT1 = MONEYTOLDBL(p_old_rec->VAT1);
+		p_data->SVAT1 = MONEYTOLDBL(p_old_rec->SVAT1);
+		p_data->VAT2 = MONEYTOLDBL(p_old_rec->VAT2);
+		p_data->SVAT2 = MONEYTOLDBL(p_old_rec->SVAT2);
+		p_data->VAT3 = MONEYTOLDBL(p_old_rec->VAT3);
+		p_data->SVAT3 = MONEYTOLDBL(p_old_rec->SVAT3);
+		p_old_rec->Reserve;
+		p_old_rec->Reserve2;
+		return 1;
+	}
+};
+
+CONVERT_PROC(Convert12207, PPCvtVATBook12207);

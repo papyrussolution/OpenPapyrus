@@ -7,6 +7,87 @@
 #include <charry.h>
 #include <ppsoapclient.h>
 
+static void DrawClientActivityStatistics(PPID psnID) // @v12.2.6 @construction
+{
+	PPObjPerson psn_obj;
+	PPObjPerson::ClientActivityStatistics cas;
+	TSVector <uint16> date_list_;
+	SString temp_buf;
+	int    ok = psn_obj.ReadClientActivityStatistics(psnID, cas, &date_list_);
+	// gnuplot line: set arrow from 4.5, graph 0 to 4.5, graph 3 nohead
+	if(ok > 0) {
+		if(date_list_.getCount() >= 7) {
+			StatBase date_gap_stat;
+			LongArray gap_list;
+			SHistogram hg;
+			hg.SetupDynamic(0.0, 1.0);
+			for(uint i = 0; i < date_list_.getCount(); i++) {
+				if(i) {
+					const LDATE prev_dt = plusdate(cas.FirstEventDt, date_list_.at(i-1));
+					const LDATE dt = plusdate(cas.FirstEventDt, date_list_.at(i));
+					long _gap = diffdate(dt, prev_dt);
+					assert(_gap > 0);
+					gap_list.add(_gap);
+					date_gap_stat.Step(static_cast<double>(_gap));
+					hg.Put(static_cast<double>(_gap));
+				}
+			}
+			//
+			date_gap_stat.Finish();
+			double _gap_days_avg = date_gap_stat.GetExp();
+			double _gap_days_stddev = date_gap_stat.GetStdDev();
+			{
+				Generator_GnuPlot plot(0);
+				Generator_GnuPlot::PlotParam param;
+				param.Flags |= Generator_GnuPlot::PlotParam::fHistogram;
+				plot.StartData(0/*putLegend*/);
+				param.Legend.Add(2, "value");
+				for(uint hi = 0; hi < hg.GetResultCount(); hi++) {
+					SHistogram::Result hr;
+					hg.GetResult(hi, &hr);
+					temp_buf.Z().Cat(hr.Low, MKSFMTD(0, 0, 0));
+					plot.PutData(temp_buf, 1); // #1
+					plot.PutData(hr.Count);    // #2
+					plot.PutEOR();
+				}
+				plot.PutEndOfData();
+				plot.Preamble();
+				plot.SetGrid();
+				plot.SetStyleFill("solid");
+				{
+					const double avg = cas.GapDaysAvg-1.0;
+					const double left_stddev = avg-cas.GapDaysStdDev;
+					const double right_stddev = avg+cas.GapDaysStdDev;
+					{
+						Generator_GnuPlot::Coord from_x(avg);
+						Generator_GnuPlot::Coord from_y(Generator_GnuPlot::Coord::csGraph, 0.0);
+						Generator_GnuPlot::Coord to_x(avg);
+						Generator_GnuPlot::Coord to_y(Generator_GnuPlot::Coord::csGraph, 1.0);
+						plot.SetArrow(from_x, from_y, to_x, to_y, Generator_GnuPlot::arrhNoHead);
+					}
+					{
+						Generator_GnuPlot::Coord from_x(left_stddev);
+						Generator_GnuPlot::Coord from_y(Generator_GnuPlot::Coord::csGraph, 0.0);
+						Generator_GnuPlot::Coord to_x(left_stddev);
+						Generator_GnuPlot::Coord to_y(Generator_GnuPlot::Coord::csGraph, 1.0);
+						plot.SetArrow(from_x, from_y, to_x, to_y, Generator_GnuPlot::arrhNoHead);
+					}
+					{
+						Generator_GnuPlot::Coord from_x(right_stddev);
+						Generator_GnuPlot::Coord from_y(Generator_GnuPlot::Coord::csGraph, 0.0);
+						Generator_GnuPlot::Coord to_x(right_stddev);
+						Generator_GnuPlot::Coord to_y(Generator_GnuPlot::Coord::csGraph, 1.0);
+						plot.SetArrow(from_x, from_y, to_x, to_y, Generator_GnuPlot::arrhNoHead);
+					}
+				}
+				plot.Plot(&param);
+				ok = plot.Run();
+				// set arrow from 0.5, graph 0 to 0.5, graph 3 nohead
+			}
+		}
+	}
+}
+
 int ViewPersonInfoBySCard(const char * pCode)
 {
 	int    ok = -1;
@@ -3316,6 +3397,12 @@ int PPViewPerson::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser *
 	int ok = PPView::ProcessCommand(ppvCmd, &hdr, pBrw);
 	if(ok == -2) {
 		switch(ppvCmd) {
+			case PPVCMD_GRAPH: // @v12.2.6 @construction
+				if(Filt.Flags & PersonFilt::fCliActivityStats) {
+					if(hdr.ID)
+						DrawClientActivityStatistics(hdr.ID);
+				}
+				break;
 			case PPVCMD_ADDITEM:
 				{
 					PPID id = 0;
@@ -3626,21 +3713,22 @@ int PPViewPerson::CreateAuthFile(PPID psnId)
 int PPViewPerson::GetSmsLists(StrAssocArray & rPsnList, StrAssocArray & rPhoneList, uint what /*=0*/)
 {
 	long   i = 0;
- 	SString buf, phone;
+ 	SString temp_buf;
+	SString phone;
 	PersonViewItem item;
  	for(InitIteration(); NextIteration(&item) > 0;) {
 		PPELinkArray elink_list;
 		if(PersonCore::GetELinks(item.ID, elink_list) > 0) {
 			if(what > 0)
-				elink_list.GetPhones(1, phone = 0, ELNKRT_EMAIL);
+				elink_list.GetPhones(1, phone, ELNKRT_EMAIL);
 			else {
-				elink_list.GetItem(PPELK_MOBILE, phone.Z());
+				elink_list.GetItem(PPELK_MOBILE, phone);
 				if(phone.IsEmpty())
-					elink_list.GetItem(PPELK_WORKPHONE, phone.Z());
+					elink_list.GetItem(PPELK_WORKPHONE, phone);
 			}
  			if(phone.NotEmpty()) {
- 				buf.Z().Cat(item.ID);
- 				rPsnList.Add(i, buf);
+ 				temp_buf.Z().Cat(item.ID);
+ 				rPsnList.Add(i, temp_buf);
 				rPhoneList.Add((what > 0) ? item.ID : i, phone);
  				i++;
  			}
@@ -4082,56 +4170,4 @@ int PPALDD_SupplNameList::InitData(PPFilt & rFilt, long rsrv)
 		}
 	}
 	return ok;
-}
-
-static void DrawClientActivityStatistics(PPID psnID) // @v12.2.6 @construction
-{
-	PPObjPerson psn_obj;
-	PPObjPerson::ClientActivityStatistics cas;
-	TSVector <uint16> date_list_;
-	SString temp_buf;
-	int    ok = psn_obj.ReadClientActivityStatistics(psnID, cas, &date_list_);
-	if(ok > 0) {
-		if(date_list_.getCount() >= 7) {
-			StatBase date_gap_stat;
-			LongArray gap_list;
-			SHistogram hg;
-			hg.SetupDynamic(0.0, 1.0);
-			for(uint i = 0; i < date_list_.getCount(); i++) {
-				if(i) {
-					const LDATE prev_dt = plusdate(cas.FirstEventDt, date_list_.at(i-1));
-					const LDATE dt = plusdate(cas.FirstEventDt, date_list_.at(i));
-					long _gap = diffdate(dt, prev_dt);
-					assert(_gap > 0);
-					gap_list.add(_gap);
-					date_gap_stat.Step(static_cast<double>(_gap));
-					hg.Put(static_cast<double>(_gap));
-				}
-			}
-			//
-			date_gap_stat.Finish();
-			double _gap_days_avg = date_gap_stat.GetExp();
-			double _gap_days_stddev = date_gap_stat.GetStdDev();
-			{
-				Generator_GnuPlot plot(0);
-				Generator_GnuPlot::PlotParam param;
-				param.Flags |= Generator_GnuPlot::PlotParam::fHistogram;
-				plot.Preamble();
-				plot.SetGrid();
-				plot.SetStyleFill("solid");
-				plot.Plot(&param);
-				plot.StartData(1);
-				for(uint hi = 0; hi < hg.GetResultCount(); hi++) {
-					SHistogram::Result hr;
-					hg.GetResult(hi, &hr);
-					temp_buf.Z().Cat(hr.Low, MKSFMTD(0, 0, 0));
-					plot.PutData(temp_buf, 1); // #1
-					plot.PutData(hr.Count);    // #2
-					plot.PutEOR();
-				}
-				plot.PutEndOfData();
-				ok = plot.Run();
-			}
-		}
-	}
 }

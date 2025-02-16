@@ -161,11 +161,7 @@ bool FormattedValueStringBuilderImpl::nextPositionImpl(ConstrainedFieldPosition&
 				if(cfpos.matchesField(UFIELD_CATEGORY_LIST, ULISTFMT_ELEMENT_FIELD)) {
 					fieldStart = i - fString.fZero - spanIndices[static_cast<ptrdiff_t>(si)].length;
 					int32_t end = fieldStart + spanIndices[static_cast<ptrdiff_t>(si)].length;
-					cfpos.setState(
-						UFIELD_CATEGORY_LIST,
-						ULISTFMT_ELEMENT_FIELD,
-						fieldStart,
-						end);
+					cfpos.setState(UFIELD_CATEGORY_LIST, ULISTFMT_ELEMENT_FIELD, fieldStart, end);
 					return true;
 				}
 				else {
@@ -225,11 +221,7 @@ bool FormattedValueStringBuilderImpl::nextPositionImpl(ConstrainedFieldPosition&
 				if(cfpos.matchesField(UFIELD_CATEGORY_LIST, ULISTFMT_ELEMENT_FIELD)) {
 					fieldStart = i - fString.fZero;
 					int32_t end = fieldStart + length;
-					cfpos.setState(
-						UFIELD_CATEGORY_LIST,
-						ULISTFMT_ELEMENT_FIELD,
-						fieldStart,
-						end);
+					cfpos.setState(UFIELD_CATEGORY_LIST, ULISTFMT_ELEMENT_FIELD, fieldStart, end);
 					return true;
 				}
 				else {

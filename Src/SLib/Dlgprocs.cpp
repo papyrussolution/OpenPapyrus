@@ -96,7 +96,7 @@ void TDialog::RemoveUnusedControls()
 			else {
 				TView * p_to_remove_view = v;
 				v = v->prev();
-				TGroup::remove(p_to_remove_view);
+				TViewGroup::remove(p_to_remove_view);
 				delete p_to_remove_view;
 				if(v == P_Last)
 					return;
@@ -178,10 +178,10 @@ void TDialog::RemoveUnusedControls()
 				if(v) do {
 					if(v->TestId(prev_id)) {
 						TView::messageBroadcast(p_dlg, cmReleasedFocus, v);
-		 				if(!(p_dlg->MsgLockFlags & TGroup::fLockMsgChangedFocus)) {
-							p_dlg->MsgLockFlags |= TGroup::fLockMsgChangedFocus;
+		 				if(!(p_dlg->MsgLockFlags & TViewGroup::fLockMsgChangedFocus)) {
+							p_dlg->MsgLockFlags |= TViewGroup::fLockMsgChangedFocus;
 							TView::messageBroadcast(p_dlg, cmChangedFocus, v);
-							p_dlg->MsgLockFlags &= ~TGroup::fLockMsgChangedFocus;
+							p_dlg->MsgLockFlags &= ~TViewGroup::fLockMsgChangedFocus;
 						}
 						break;
 					}

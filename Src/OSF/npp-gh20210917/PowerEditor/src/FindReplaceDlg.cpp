@@ -609,19 +609,15 @@ void FindInFinderDlg::writeOptions()
 
 INT_PTR CALLBACK FindInFinderDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM /*lParam*/)
 {
-	switch(message)
-	{
+	switch(message) {
 		case WM_INITDIALOG:
 	    {
 		    NativeLangSpeaker * pNativeSpeaker = (NppParameters::getInstance()).getNativeLangSpeaker();
 		    pNativeSpeaker->changeDlgLang(_hSelf, "FindInFinder");
-
 		    NppDarkMode::autoSubclassAndThemeChildControls(_hSelf);
-
 		    initFromOptions();
 	    }
 		    return TRUE;
-
 		case WM_CTLCOLOREDIT:
 	    {
 		    if(NppDarkMode::isEnabled()) {
@@ -629,7 +625,6 @@ INT_PTR CALLBACK FindInFinderDlg::run_dlgProc(UINT message, WPARAM wParam, LPARA
 		    }
 		    break;
 	    }
-
 		case WM_CTLCOLORLISTBOX:
 		case WM_CTLCOLORDLG:
 		case WM_CTLCOLORSTATIC:
@@ -639,7 +634,6 @@ INT_PTR CALLBACK FindInFinderDlg::run_dlgProc(UINT message, WPARAM wParam, LPARA
 		    }
 		    break;
 	    }
-
 		case WM_PRINTCLIENT:
 	    {
 		    if(NppDarkMode::isEnabled()) {
@@ -647,7 +641,6 @@ INT_PTR CALLBACK FindInFinderDlg::run_dlgProc(UINT message, WPARAM wParam, LPARA
 		    }
 		    break;
 	    }
-
 		case WM_ERASEBKGND:
 	    {
 		    if(NppDarkMode::isEnabled()) {
@@ -658,23 +651,17 @@ INT_PTR CALLBACK FindInFinderDlg::run_dlgProc(UINT message, WPARAM wParam, LPARA
 		    }
 		    break;
 	    }
-
 		case NPPM_INTERNAL_REFRESHDARKMODE:
 	    {
 		    NppDarkMode::autoThemeChildControls(_hSelf);
 		    return TRUE;
 	    }
-
 		case WM_COMMAND:
 	    {
-		    switch(LOWORD(wParam))
-		    {
+		    switch(LOWORD(wParam)) {
 			    case IDCANCEL:
-			{
-				::EndDialog(_hSelf, -1);
-				return TRUE;
-			}
-
+					::EndDialog(_hSelf, -1);
+					return TRUE;
 			    case IDOK:
 			{
 				writeOptions();
@@ -735,11 +722,9 @@ void FindReplaceDlg::resizeDialogElements(LONG newWidth)
 	};
 
 	const UINT flags = SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOACTIVATE | SWP_NOCOPYBITS;
-
 	auto newDeltaWidth = newWidth - _initialClientWidth;
 	auto addWidth = newDeltaWidth - _deltaWidth;
 	_deltaWidth = newDeltaWidth;
-
 	RECT rc;
 	for(int id : resizeWindowIDs) {
 		HWND resizeHwnd = ::GetDlgItem(_hSelf, id);
@@ -749,19 +734,15 @@ void FindReplaceDlg::resizeDialogElements(LONG newWidth)
 		// present and clear it manually after resize.
 		DWORD endSelection = 0;
 		SendMessage(resizeHwnd, CB_GETEDITSEL, 0, (LPARAM)&endSelection);
-
 		::SetWindowPos(resizeHwnd, NULL, 0, 0, rc.right + addWidth, rc.bottom, SWP_NOMOVE | flags);
-
 		if(endSelection == 0) {
 			SendMessage(resizeHwnd, CB_SETEDITSEL, 0, 0);
 		}
 	}
-
 	for(int moveWndID : moveWindowIDs) {
 		HWND moveHwnd = GetDlgItem(_hSelf, moveWndID);
 		::GetWindowRect(moveHwnd, &rc);
 		::MapWindowPoints(NULL, _hSelf, (LPPOINT)&rc, 2);
-
 		::SetWindowPos(moveHwnd, NULL, rc.left + addWidth, rc.top, 0, 0, SWP_NOSIZE | flags);
 	}
 
@@ -942,13 +923,9 @@ INT_PTR CALLBACK FindReplaceDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM
 	    }
 
 		case WM_DRAWITEM:
-	    {
 		    drawItem((DRAWITEMSTRUCT*)lParam);
 		    return TRUE;
-	    }
-
 		case WM_HSCROLL:
-	    {
 		    if(reinterpret_cast<HWND>(lParam) == ::GetDlgItem(_hSelf, IDC_PERCENTAGE_SLIDER)) {
 			    int percent = static_cast<int32_t>(::SendDlgItemMessage(_hSelf, IDC_PERCENTAGE_SLIDER, TBM_GETPOS, 0, 0));
 			    FindHistory & findHistory = (NppParameters::getInstance()).getFindHistory();
@@ -958,8 +935,6 @@ INT_PTR CALLBACK FindReplaceDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM
 			    }
 		    }
 		    return TRUE;
-	    }
-
 		case WM_NOTIFY:
 	    {
 		    NMHDR * nmhdr = (NMHDR*)lParam;
@@ -1031,10 +1006,8 @@ INT_PTR CALLBACK FindReplaceDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM
 		    enableProjectCheckmarks();
 		    return TRUE;
 	    }
-
 		case NPPM_MODELESSDIALOG:
 		    return ::SendMessage(_hParent, NPPM_MODELESSDIALOG, wParam, lParam);
-
 		case WM_COMMAND:
 	    {
 		    bool isMacroRecording = (::SendMessage(_hParent, WM_GETCURRENTMACROSTATUS, 0, 0) == MACRO_RECORDING_IN_PROGRESS);

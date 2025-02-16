@@ -1116,9 +1116,9 @@ void TProgram::HandleWindowNcCalcSize(/*struct window * data,*/WPARAM wParam, LP
 		case WM_TIMER:
 		case WM_ENTERIDLE:
 			{
-				TGroup * targets[] = { APPL->P_DeskTop, APPL };
+				TViewGroup * targets[] = { APPL->P_DeskTop, APPL };
 				for(uint i = 0; i < SIZEOFARRAY(targets); i++) {
-					TGroup * p_tgt = targets[i];
+					TViewGroup * p_tgt = targets[i];
 					TView::messageBroadcast(p_tgt, cmIdle);
 					//
 					// Далее следует специальный цикл, призванный закрыть те окна, которые об этом
@@ -1206,7 +1206,7 @@ void TProgram::NotifyFrame(int post)
 
 // Public variables
 
-TProgram::TProgram(HINSTANCE hInst, const char * pAppSymb, const char * pAppTitle, uint ctrflags) : TGroup(TRect()),
+TProgram::TProgram(HINSTANCE hInst, const char * pAppSymb, const char * pAppTitle, uint ctrflags) : TViewGroup(TRect()),
 	State(0), H_MainWnd(0), H_FrameWnd(0), H_CloseWnd(0), H_LogWnd(0), H_Desktop(0), H_ShortcutsWnd(0),
 	H_TopOfStack(0), H_Accel(0), P_Stw(0), P_DeskTop(0), P_TopView(0), P_Toolbar(0), P_TreeWnd(0), AppSymbol(pAppSymb)
 {
@@ -1219,7 +1219,7 @@ TProgram::TProgram(HINSTANCE hInst, const char * pAppSymb, const char * pAppTitl
 		setState(sfBorderless, true);
 	// } @v11.6.7 
 	ViewOptions = 0;
-	P_DeskTop = new TGroup(TRect());
+	P_DeskTop = new TViewGroup(TRect());
 	application = this;
 	H_Icon = ::LoadIconW(hInstance, MAKEINTRESOURCEW(ICON_MAIN_P2));
 	//
@@ -1275,7 +1275,7 @@ HWND TProgram::GetFrameWindow() const
 
 IMPL_HANDLE_EVENT(TProgram)
 {
-	TGroup::handleEvent(event);
+	TViewGroup::handleEvent(event);
 	if(event.what == TEvent::evCommand && event.message.command == cmQuit) {
 		::DestroyWindow(H_MainWnd);
 		clearEvent(event);
@@ -1323,7 +1323,7 @@ TRect TProgram::MakeCenterRect(int width, int height) const
 
 TView * TProgram::validView(TView * p)
 {
-	if(p && !p->valid(cmValid)) {
+	if(p && !p->IsCommandValid(cmValid)) {
 		ZDELETE(p);
 	}
 	return p;
@@ -2405,17 +2405,8 @@ int TProgram::DrawButton3(HWND hwnd, DRAWITEMSTRUCT * pDi)
 			}
 			else if(draw_text) {
 				HFONT  hf = reinterpret_cast<HFONT>(::SendMessageW(pDi->hwndItem, WM_GETFONT, 0, 0));
-				if(!hf)
-					hf = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
-				int    temp_font_id = 0;
-				if(hf) {
-					LOGFONT f;
-					if(::GetObject(hf, sizeof(f), &f)) {
-						SFontDescr fd(0, 0, 0);
-						fd.SetLogFont(&f);
-						temp_font_id = p_tb->CreateFont_(0, fd.Face, fd.Size, fd.Flags);
-					}
-				}
+				SETIFZQ(hf, (HFONT)::GetStockObject(DEFAULT_GUI_FONT));
+				int    temp_font_id = p_tb->CreateFont_(0, hf, 0);
 				if(temp_font_id) {
 					STextLayout tlo;
 					SDrawContext dctx = canv;

@@ -1,5 +1,5 @@
 // SCARD.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2004, 2006, 2007, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 2002, 2003, 2004, 2006, 2007, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 // @Kernel
 //
@@ -900,7 +900,7 @@ int SCardCore::PutOpBlk(const OpBlock & rBlk, TSVector <UpdateRestNotifyEntry> *
 	return ok;
 }
 
-int SCardCore::PutOpRec(const SCardOpTbl::Rec * pRec, TSVector <UpdateRestNotifyEntry> * pNotifyList, int use_ta) // @v9.8.4 TSArray-->TSVector
+int SCardCore::PutOpRec(const SCardOpTbl::Rec * pRec, TSVector <UpdateRestNotifyEntry> * pNotifyList, int use_ta)
 {
 	int    ok = 1, new_op = -1, r = -1;
 	double rest;

@@ -56,7 +56,7 @@ struct IterProcParam_ProcessPeriod {
 	//
 	ObjIdListFilt * P_BillList; // @notowned
 	RPairArray    * P_PaymList; // @notowned
-	TSVector <BillPaymItem> BillPaymList; // Список учтенных платежей по документам // @v9.8.4 TSArray-->TSVector
+	TSVector <BillPaymItem> BillPaymList; // Список учтенных платежей по документам
 	PPID   FiltObjID;
 };
 

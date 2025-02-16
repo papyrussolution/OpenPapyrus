@@ -560,11 +560,7 @@ int PPTagEnumList::Write(int use_ta)
 	return /*0; */ new PPObjTagListWindow(this, flags, extraPtr);
 }
 //
-//
-//
 // DLG_TAGENUMVIEW, CTL_TAGENUMVIEW_LIST, 48
-//
-//
 //
 static int SelectObjTagType(PPObjectTag * pData, const ObjTagFilt * pObjTagF)
 {
@@ -575,8 +571,9 @@ static int SelectObjTagType(PPObjectTag * pData, const ObjTagFilt * pObjTagF)
 		{
 			RVALUEPTR(Filt, pObjTagF);
 			TagObjTypeList.addzlist(PPOBJ_PERSON, PPOBJ_GOODS, PPOBJ_BILL, PPOBJ_LOT, PPOBJ_WORKBOOK,
-				PPOBJ_LOCATION, PPOBJ_GLOBALUSERACC, PPOBJ_UHTTSTORE, PPOBJ_CASHNODE, PPOBJ_TRANSPORT, PPOBJ_BRAND, PPOBJ_PROCESSOR, 0); 
-			// @v11.2.12 PPOBJ_TRANSPORT, PPOBJ_BRAND // @v11.7.2 PPOBJ_PROCESSOR
+				PPOBJ_LOCATION, PPOBJ_GLOBALUSERACC, PPOBJ_UHTTSTORE, PPOBJ_CASHNODE, PPOBJ_TRANSPORT, PPOBJ_BRAND, PPOBJ_PROCESSOR, 
+				PPOBJ_PROJECT, 0); 
+			// @v11.2.12 PPOBJ_TRANSPORT, PPOBJ_BRAND // @v11.7.2 PPOBJ_PROCESSOR // @v12.2.6 PPOBJ_PROJECT
 		}
 		DECL_DIALOG_SETDTS()
 		{
@@ -2109,7 +2106,7 @@ private:
 int TagFiltDialog::EditItem(long * pPos)
 {
 	int    ok = -1;
-	const  int  is_new = (*pPos >= 0) ? 0 : 1;
+	const  bool is_new = (*pPos < 0);
 	uint   pos = is_new ? -1 : static_cast<uint>(*pPos);
 	SelTagDialogData item(is_new ? 0 : &Data.TagsRestrict.Get(pos));
 	SelTagDialog * p_dlg = 0;
@@ -2683,7 +2680,7 @@ public:
 		const PPIDArray * P_AllowedTags;
 		int    UpdateMode;
 	};
-	explicit TagValListDialog(uint dlgId) : PPListDialog(dlgId/*DLG_TAGVALVIEW*/, CTL_TAGVALVIEW_LIST), P_AllowedTags(0), UpdateMode(0)
+	explicit TagValListDialog(uint dlgId) : PPListDialog(dlgId, CTL_TAGVALVIEW_LIST), P_AllowedTags(0), UpdateMode(0)
 	{
 		if(SmartListBox::IsValidS(P_Box))
 			P_Box->P_Def->SetOption(lbtFocNotify, 1);
@@ -2745,64 +2742,58 @@ public:
 		return ok;
 	}
 private:
-	virtual int  setupList();
-	virtual int  addItem(long * pos, long * id);
-	virtual int  editItem(long pos, long id);
-	virtual int  delItem(long pos, long id);
+	virtual int  setupList()
+	{
+		PPObjectTag tag;
+		SString buf;
+		StringSet ss(SLBColumnDelim);
+		const  ObjTagItem * p_item;
+		for(uint i = 0; (p_item = Data.EnumItems(&i)) != 0;) {
+			ss.Z();
+			buf.Z();
+			if(TagObj.Fetch(p_item->TagID, &tag) > 0)
+				buf = tag.Name;
+			else
+				buf.Cat(p_item->TagID);
+			ss.add(buf);
+			TagObj.GetCurrTagVal(p_item, buf.Z());
+			ss.add(buf);
+			if(!addStringToList(p_item->TagID, ss.getBuf()))
+				return 0;
+		}
+		return 1;
+	}
+	virtual int  addItem(long * pPos, long * pID)
+	{
+		int    ok = -1;
+		ObjTagItem item;
+		if(EditObjTagItem(Data.Oid.Obj, Data.Oid.Id, &item, P_AllowedTags) > 0) {
+			Data.PutItem(item.TagID, &item);
+			ASSIGN_PTR(pPos, Data.GetCount());
+			ASSIGN_PTR(pID, item.TagID);
+			ok = 1;
+		}
+		return ok;
+	}
+	virtual int  editItem(long pos, long id)
+	{
+		int    ok = -1;
+		const  ObjTagItem * p_item = Data.GetItemByPos(static_cast<uint>(pos));
+   		if(p_item && p_item->TagID == id)
+			if(EditObjTagItem(Data.Oid.Obj, Data.Oid.Id, const_cast<ObjTagItem *>(p_item), P_AllowedTags) > 0) // @badcast
+				ok = 1;
+		return ok;
+	}
+	virtual int  delItem(long pos, long id)
+	{ 
+		return id ? Data.PutItem(id, 0) : 0; 
+	}
 
 	const PPIDArray * P_AllowedTags;
 	PPObjTag    TagObj;
 	ObjTagList  Data;
 	int    UpdateMode;
 };
-
-int TagValListDialog::setupList()
-{
-	PPObjTag    objtag;
-	PPObjectTag tag;
-	SString buf;
-	StringSet ss(SLBColumnDelim);
-	const  ObjTagItem * p_item;
-	for(uint i = 0; (p_item = Data.EnumItems(&i)) != 0;) {
-		ss.Z();
-		buf.Z();
-		if(objtag.Fetch(p_item->TagID, &tag) > 0)
-			buf = tag.Name;
-		else
-			buf.Cat(p_item->TagID);
-		ss.add(buf);
-		TagObj.GetCurrTagVal(p_item, buf.Z());
-		ss.add(buf);
-		if(!addStringToList(p_item->TagID, ss.getBuf()))
-			return 0;
-	}
-	return 1;
-}
-
-int TagValListDialog::addItem(long * pPos, long * pID)
-{
-	int    ok = -1;
-	ObjTagItem item;
-	if(EditObjTagItem(Data.Oid.Obj, Data.Oid.Id, &item, P_AllowedTags) > 0) {
-		Data.PutItem(item.TagID, &item);
-		ASSIGN_PTR(pPos, Data.GetCount());
-		ASSIGN_PTR(pID, item.TagID);
-		ok = 1;
-	}
-	return ok;
-}
-
-int TagValListDialog::editItem(long pos, long id)
-{
-	int    ok = -1;
-	const  ObjTagItem * p_item = Data.GetItemByPos(static_cast<uint>(pos));
-   	if(p_item && p_item->TagID == id)
-		if(EditObjTagItem(Data.Oid.Obj, Data.Oid.Id, const_cast<ObjTagItem *>(p_item), P_AllowedTags) > 0) // @badcast
-			ok = 1;
-	return ok;
-}
-
-int TagValListDialog::delItem(long, long id) { return id ? Data.PutItem(id, 0) : 0; }
 
 int EditObjTagValList(ObjTagList * pList, const PPIDArray * pAllowedTags)
 {

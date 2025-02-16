@@ -1,5 +1,5 @@
 // DRAFTWOF.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2013, 2015, 2016, 2017, 2019, 2020, 2024
+// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2013, 2015, 2016, 2017, 2019, 2020, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -394,7 +394,7 @@ IMPLEMENT_PPFILT_FACTORY(PrcssrWrOffDraft); PrcssrWrOffDraftFilt::PrcssrWrOffDra
 	SetFlatChunk(offsetof(PrcssrWrOffDraftFilt, ReserveStart),
 		offsetof(PrcssrWrOffDraftFilt, MrpTabName)-offsetof(PrcssrWrOffDraftFilt, ReserveStart));
 	SetBranchSString(offsetof(PrcssrWrOffDraftFilt, MrpTabName));
-	SetBranchSVector(offsetof(PrcssrWrOffDraftFilt, CSessList)); // @v9.8.4 SetBranchSArray-->SetBranchSVector
+	SetBranchSVector(offsetof(PrcssrWrOffDraftFilt, CSessList));
 	Init(1, 0);
 }
 
@@ -430,7 +430,7 @@ int PrcssrWrOffDraft::InitParam(PrcssrWrOffDraftFilt * pP)
 	if(pP) {
 		PPObjLocation loc_obj;
 		pP->Init(1, 0);
-		pP->Period.SetDate(getcurdate_()); // @v10.8.10 LConfig.OperDate-->getcurdate_()
+		pP->Period.SetDate(getcurdate_());
 		pP->DwoID = DwoObj.GetSingle();
 		pP->PoolLocID = loc_obj.GetSingleWarehouse();
 	}
@@ -468,9 +468,8 @@ public:
 		AddClusterAssoc(CTL_DWOFILT_FLAGS, 0, PrcssrWrOffDraftFilt::fCreateMrpTab);
 		SetClusterData(CTL_DWOFILT_FLAGS, Data.Flags);
 		setCtrlString(CTL_DWOFILT_MRPNAME, Data.MrpTabName);
-		SetManufTimeParam(); // @v10.5.12
+		SetManufTimeParam();
 		SetupSetManufTimeParams(0);
-		// } @v10.5.12 
 		return 1;
 	}
 	DECL_DIALOG_GETDTS()
@@ -483,7 +482,7 @@ public:
 		getCtrlData(CTLSEL_DWOFILT_LOC, &Data.PoolLocID);
 		GetClusterData(CTL_DWOFILT_FLAGS, &Data.Flags);
 		getCtrlString(CTL_DWOFILT_MRPNAME, Data.MrpTabName);
-		GetManufTimeParam(); // @v10.5.12 
+		GetManufTimeParam();
 		ASSIGN_PTR(pData, Data);
 		CATCHZOKPPERRBYDLG
 		return ok;
@@ -946,12 +945,10 @@ int PrcssrWrOffDraft::Run()
 		else if(dwo_pack.Rec.Flags & DWOF_USEMRPTAB) {
 			PUGL   pugl;
 			THROW(WriteOffMrp(&dwo_pack, &pugl));
-			// @v9.6.7 {
 			if(pugl.getCount()) {
 				Logger.LogString(PPTXT_TOTALDRAFTWROFFDEFICIT, 0);
 				pugl.Log(&Logger); 
 			}
-			// } @v9.6.7 
 			ok = 1;
 		}
 		else {

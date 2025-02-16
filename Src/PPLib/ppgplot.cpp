@@ -1,5 +1,5 @@
 // PPGPLOT.CPP
-// Copyright (c) A.Sobolev 2008, 2011, 2014, 2016, 2017, 2018, 2020
+// Copyright (c) A.Sobolev 2008, 2011, 2014, 2016, 2017, 2018, 2020, 2025
 //
 #include <pp.h>
 #pragma hdrstop
@@ -390,6 +390,32 @@ int Generator_GnuPlot::SetStyleFill(const char * pFillStyle)
 	return PutLine();
 }
 
+int Generator_GnuPlot::SetArrow(const Coord & rFromX, const Coord & rFromY, const Coord & rToX, const Coord & rToY, int head/*arrhXXX*/)
+{
+	int    ok = -1;
+	//set arrow from 0.5, graph 0 to 0.5, graph 3 nohead
+	Set().Cat("arrow").Space();
+	LineBuf.Cat("from").Space();
+	Coordinate(rFromX).CatDiv(',', 2);
+	Coordinate(rFromY).Space();
+	LineBuf.Cat("to").Space();
+	Coordinate(rToX).CatDiv(',', 2);
+	Coordinate(rToY).Space();
+	{
+		const char * p_head = 0;
+		switch(head) {
+			case arrhNoHead: p_head = "nohead"; break;
+			case arrhHead: p_head = "head"; break;
+			case arrhBackhead: p_head = "backhead"; break;
+			case arrhTwoHeads: p_head = "heads"; break;
+		}
+		LineBuf.Cat(p_head);
+	}
+	LineBuf.CR();
+	ok = PutLine();
+	return ok;
+}
+
 SString & Generator_GnuPlot::Font(const StyleFont & rFont)
 {
 	LineBuf.Cat("font").Space().CatChar('\"').Cat(rFont.Face);
@@ -408,6 +434,20 @@ SString & Generator_GnuPlot::Font(const StyleFont & rFont)
 SString & Generator_GnuPlot::Color(COLORREF c)
 {
 	return ColorToStr(c, LineBuf);
+}
+
+SString & Generator_GnuPlot::Coordinate(const Coord & rC)
+{
+	switch(rC.CS) {
+		case Coord::csUndef:
+			break;
+		case Coord::csFirst: LineBuf.Cat("first").Space(); break;
+		case Coord::csSecond: LineBuf.Cat("second").Space(); break;
+		case Coord::csGraph: LineBuf.Cat("graph").Space(); break;
+		case Coord::csScreen: LineBuf.Cat("screen").Space(); break;
+		case Coord::csChar: LineBuf.Cat("character").Space(); break;
+	}
+	return LineBuf.Cat(rC.V, MKSFMTD(0, 5, NMBF_NOTRAILZ));
 }
 
 int Generator_GnuPlot::UnsetTics(int axis)
@@ -674,10 +714,10 @@ int Generator_GnuPlot::Plot(const PlotParam * pParam)
 {
 	// plot '-' using 1:2 title "Фигня всякая" w lines
 	LineBuf.Z();
-	SString data_file_name, temp_buf;
+	SString temp_buf;
+	SString data_file_name;
 	if(Items.getCount()) {
-		if(pParam)
-			Param = *pParam;
+		RVALUEPTR(Param, pParam);
 		if(Param.Flags & PlotParam::fStereo)
 			LineBuf.CatChar('s');
 		LineBuf.Cat("plot").Space();

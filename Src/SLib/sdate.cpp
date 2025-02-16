@@ -1173,7 +1173,7 @@ LDATETIME & FASTCALL LDATETIME::SetNs100(int64 ns100Tm) // @v11.8.11
 
 LDATETIME & FASTCALL LDATETIME::SetTimeT(time_t _tm)
 {
-	const struct tm * p_temp_tm = localtime(&_tm); // @v10.0.08 gmtime-->localtime
+	const struct tm * p_temp_tm = localtime(&_tm);
 	if(p_temp_tm) {
 		d.encode(p_temp_tm->tm_mday, p_temp_tm->tm_mon+1, p_temp_tm->tm_year + 1900);
 		t = encodetime(p_temp_tm->tm_hour, p_temp_tm->tm_min, p_temp_tm->tm_sec, 0);
@@ -1210,6 +1210,8 @@ int  LDATETIME::Set(const char * pText, long datf, long timf) { return strtodate
 bool LDATETIME::operator !() const { return (d == ZERODATE && t == ZEROTIME); }
 bool FASTCALL LDATETIME::operator == (const LDATETIME & s) const { return (d == s.d && t == s.t); }
 bool FASTCALL LDATETIME::operator != (const LDATETIME & s) const { return (d != s.d || t != s.t); }
+bool FASTCALL LDATETIME::operator < (const LDATETIME & s) const { return (cmp(*this, s) < 0); } // @v12.2.7
+bool FASTCALL LDATETIME::operator > (const LDATETIME & s) const { return (cmp(*this, s) > 0); } // @v12.2.7
 
 #ifndef _WIN32_WCE // {
 

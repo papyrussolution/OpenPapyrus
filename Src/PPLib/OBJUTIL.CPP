@@ -901,10 +901,7 @@ ListBoxDef * PPObject::Selector(ListBoxDef * pOrgDef, long flags, void * extraPt
 	return ok;
 }*/
 
-int PPObject::ValidateSelection(PPID, uint olwFlags, void * extraPtr)
-{
-	return 1;
-}
+/*virtual*/bool PPObject::ValidateSelection(PPID, uint olwFlags, void * extraPtr) { return true; }
 
 void FASTCALL PPObject::Dirty(PPID id)
 {

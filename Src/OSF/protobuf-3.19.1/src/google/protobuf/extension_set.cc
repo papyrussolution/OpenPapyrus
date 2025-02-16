@@ -982,7 +982,7 @@ void ExtensionSet::InternalExtensionMergeFrom(const MessageLite* extendee, int n
 {
 	if(other_extension.is_repeated) {
 		Extension* extension;
-		bool is_new = MaybeNewExtension(number, other_extension.descriptor, &extension);
+		bool   is_new = MaybeNewExtension(number, other_extension.descriptor, &extension);
 		if(is_new) {
 			// Extension did not already exist in set.
 			extension->type = other_extension.type;
@@ -1063,7 +1063,7 @@ void ExtensionSet::InternalExtensionMergeFrom(const MessageLite* extendee, int n
 				    break;
 				case WireFormatLite::CPPTYPE_MESSAGE: {
 				    Extension* extension;
-				    bool is_new = MaybeNewExtension(number, other_extension.descriptor, &extension);
+				    bool   is_new = MaybeNewExtension(number, other_extension.descriptor, &extension);
 				    if(is_new) {
 					    extension->type = other_extension.type;
 					    extension->is_packed = other_extension.is_packed;

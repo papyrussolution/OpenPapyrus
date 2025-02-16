@@ -1,5 +1,5 @@
 // PALMEXCH.CPP
-// ..2009, 2010, 2012, 2015, 2016, 2018, 2019, 2020, 2021, 2022, 2023
+// ..2009, 2010, 2012, 2015, 2016, 2018, 2019, 2020, 2021, 2022, 2023, 2025
 //
 #pragma hdrstop
 #ifndef __GENERIC_MAIN_CONDUIT__
@@ -893,7 +893,7 @@ static int AddCompressedRec(SyncTable * pTbl, uint32 ver, size_t bufSize, uint8 
 //
 //
 //
-int SCDBObject::ExportIndex(PROGRESSFN pFn, const char * pDbName, SVector * pAry, CompFunc cf) // @v9.8.4 TSArray-->TSVector
+int SCDBObject::ExportIndex(PROGRESSFN pFn, const char * pDbName, SVector * pAry, CompFunc cf)
 {
 	int    ok = 1;
 	if(pDbName && pAry) {
@@ -923,7 +923,7 @@ int SCDBObject::ExportIndex(PROGRESSFN pFn, const char * pDbName, SVector * pAry
 	return ok;
 }
 
-int SCDBObject::ExportIndexes(PROGRESSFN pFn, SVector * pAry) // @v9.8.4 TSArray-->TSVector
+int SCDBObject::ExportIndexes(PROGRESSFN pFn, SVector * pAry)
 {
 	int    ok = -1;
 	uint   count = 0;

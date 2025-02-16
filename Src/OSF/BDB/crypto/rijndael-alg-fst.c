@@ -26,10 +26,7 @@
 #include "db_config.h"
 #include "db_int.h"
 #pragma hdrstop
-#include "crypto/rijndael-alg-fst.h" // @v9.5.5
-
-// @v10.3.8 replacement constants (uint)0x99999999-->0x99999999U
-
+#include "crypto/rijndael-alg-fst.h"
 /*
    Te0[x] = S [x].[02, 01, 01, 03];
    Te1[x] = S [x].[03, 02, 01, 01];

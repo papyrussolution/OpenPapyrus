@@ -1,5 +1,5 @@
 // REPTDLG.CPP
-// Copyright (c) A.Sobolev 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2016, 2017, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2016, 2017, 2019, 2020, 2021, 2022, 2025
 //
 #include <pp.h>
 #pragma hdrstop
@@ -206,7 +206,6 @@ private:
 			return;
 		clearEvent(event);
 	}
-	virtual int FASTCALL valid(ushort);
 	int    Helper_GetData();
 
 	DateRepeating Data;
@@ -244,36 +243,6 @@ int RepMonthlyDialog::Helper_GetData()
 	}
 	Data.GetMonthlyPeriod(&MonthCount, &MonthNo);
 	return ok;
-}
-
-int FASTCALL RepMonthlyDialog::valid(ushort cmd)
-{
-#if 0 // @v6.5.9 {
-	if(cmd == cmOK) {
-		getData(0);
-		if(Data.Dtl.MY.NumPrd <= 0 || Data.Dtl.MY.NumPrd > 100)
-			return (PPErrCode = PPERR_USERINPUT, 0);
-		if(Data.RepeatKind != 1 && Data.RepeatKind != 2)
-			return (PPErrCode = PPERR_USERINPUT, 0);
-		if(Data.RepeatKind == 1) {
-			if(Data.Dtl.ME.DayOfMonth < 1 || Data.Dtl.ME.DayOfMonth > 31) {
-				selectCtrl(CTL_REPEATING_DTLMD);
-				return (PPErrCode = PPERR_USERINPUT, 0);
-			}
-		}
-		else {
-			if(Data.Dtl.MY.DayOfWeek < 1 || Data.Dtl.MY.DayOfWeek > 7) {
-				selectCtrl(CTLSEL_REPEATING_DTLWD);
-				return (PPErrCode = PPERR_USERINPUT, 0);
-			}
-			if(Data.Dtl.MY.WeekNo < 1 || Data.Dtl.MY.WeekNo > 5) {
-				selectCtrl(CTLSEL_REPEATING_DTLWN);
-				return (PPErrCode = PPERR_USERINPUT, 0);
-			}
-		}
-	}
-#endif // } 0 @v6.5.9
-	return 1;
 }
 //
 //
@@ -327,58 +296,61 @@ public:
 		return s;
 	}
 private:
-	DECL_HANDLE_EVENT;
-	virtual int FASTCALL valid(ushort);
+	//virtual int FASTCALL valid(ushort cmd) // @cmValidateCommand
+	bool ValidateCommand(long cmd)
+	{
+		int    ok = 1;
+		uint   sel = 0;
+		if(cmd == cmOK) {
+			TransmitData(-1, 0);
+			THROW_PP(oneof2(Data.RepeatKind, 1, 2), PPERR_USERINPUT);
+			if(Data.RepeatKind == 1) {
+				sel = CTL_REPEATING_DTLMD;
+				THROW_PP(Data.Dtl.AE.DayOfMonth >= 1 && Data.Dtl.AE.DayOfMonth <= 31, PPERR_USERINPUT);
+			}
+			else {
+				sel = CTLSEL_REPEATING_DTLWD;
+				THROW_PP(Data.Dtl.AY.DayOfWeek >= 1 && Data.Dtl.AY.DayOfWeek <= 7, PPERR_USERINPUT);
+				sel = CTLSEL_REPEATING_DTLWN;
+				THROW_PP(Data.Dtl.AY.WeekNo >= 1 && Data.Dtl.AY.WeekNo <= 5, PPERR_USERINPUT);
+			}
+		}
+		CATCHZOKPPERRBYDLG
+		return ok;
+	}
+	DECL_HANDLE_EVENT
+	{
+		if(event.isCmd(cmValidateCommand)) { // @v12.2.6
+			const long validated_command = event.message.infoLong;
+			if(!ValidateCommand(validated_command)) {
+				clearEvent(event);
+			}
+		}
+		TDialog::handleEvent(event);
+		if(event.isCmd(cmClusterClk)) {
+			long   kind = 0;
+			GetClusterData(CTL_REPEATING_KIND, &kind);
+			if(kind != PrevKind) {
+				Data.Init(Data.Prd, kind, ZERODATE);
+				if(kind == 1) {
+					setCtrlData(CTL_REPEATING_DTLMD, &Data.Dtl.AE.DayOfMonth);
+					disableCtrls(0, CTL_REPEATING_DTLMD, 0);
+					disableCtrls(1, CTLSEL_REPEATING_DTLWN, CTLSEL_REPEATING_DTLWD, 0);
+				}
+				else {
+					SetupStringCombo(this, CTLSEL_REPEATING_DTLWN,  PPTXT_WEEKNO,   Data.Dtl.AY.WeekNo);
+					SetupStringCombo(this, CTLSEL_REPEATING_DTLWD,  PPTXT_WEEKDAYS, Data.Dtl.AY.DayOfWeek);
+					disableCtrls(1, CTL_REPEATING_DTLMD, 0);
+					disableCtrls(0, CTLSEL_REPEATING_DTLWN, CTLSEL_REPEATING_DTLWD, 0);
+				}
+				PrevKind = kind;
+			}
+			clearEvent(event);
+		}
+	}
 	DateRepeating Data;
 	long   PrevKind;
 };
-
-IMPL_HANDLE_EVENT(RepAnnDialog)
-{
-	TDialog::handleEvent(event);
-	if(event.isCmd(cmClusterClk)) {
-		long   kind = 0;
-		GetClusterData(CTL_REPEATING_KIND, &kind);
-		if(kind != PrevKind) {
-			Data.Init(Data.Prd, kind, ZERODATE);
-			if(kind == 1) {
-				setCtrlData(CTL_REPEATING_DTLMD, &Data.Dtl.AE.DayOfMonth);
-				disableCtrls(0, CTL_REPEATING_DTLMD, 0);
-				disableCtrls(1, CTLSEL_REPEATING_DTLWN, CTLSEL_REPEATING_DTLWD, 0);
-			}
-			else {
-				SetupStringCombo(this, CTLSEL_REPEATING_DTLWN,  PPTXT_WEEKNO,   Data.Dtl.AY.WeekNo);
-				SetupStringCombo(this, CTLSEL_REPEATING_DTLWD,  PPTXT_WEEKDAYS, Data.Dtl.AY.DayOfWeek);
-				disableCtrls(1, CTL_REPEATING_DTLMD, 0);
-				disableCtrls(0, CTLSEL_REPEATING_DTLWN, CTLSEL_REPEATING_DTLWD, 0);
-			}
-			PrevKind = kind;
-		}
-		clearEvent(event);
-	}
-}
-
-int FASTCALL RepAnnDialog::valid(ushort cmd)
-{
-	int    ok = 1;
-	uint   sel = 0;
-	if(cmd == cmOK) {
-		TransmitData(-1, 0);
-		THROW_PP(oneof2(Data.RepeatKind, 1, 2), PPERR_USERINPUT);
-		if(Data.RepeatKind == 1) {
-			sel = CTL_REPEATING_DTLMD;
-			THROW_PP(Data.Dtl.AE.DayOfMonth >= 1 && Data.Dtl.AE.DayOfMonth <= 31, PPERR_USERINPUT);
-		}
-		else {
-			sel = CTLSEL_REPEATING_DTLWD;
-			THROW_PP(Data.Dtl.AY.DayOfWeek >= 1 && Data.Dtl.AY.DayOfWeek <= 7, PPERR_USERINPUT);
-			sel = CTLSEL_REPEATING_DTLWN;
-			THROW_PP(Data.Dtl.AY.WeekNo >= 1 && Data.Dtl.AY.WeekNo <= 5, PPERR_USERINPUT);
-		}
-	}
-	CATCHZOKPPERRBYDLG
-	return ok;
-}
 //
 //
 //
@@ -418,22 +390,37 @@ public:
 		return s;
 	}
 private:
-	virtual int FASTCALL valid(ushort);
+	/* @v12.2.6 virtual int FASTCALL RepAfterPrdDialog::valid(ushort cmd)
+	{
+		if(cmd == cmOK) {
+			TransmitData(-1, 0);
+			if(Data.Dtl.RA.NumPrd == 0) {
+				selectCtrl(CTL_REPEATING_NUMPRD);
+				return PPSetError(PPERR_USERINPUT);
+			}
+		}
+		return 1;
+	}*/
+	DECL_HANDLE_EVENT
+	{
+		if(event.isCmd(cmValidateCommand)) {
+			const long cmd = event.message.infoLong;
+			bool  local_ok = true;
+			if(cmd == cmOK) {
+				TransmitData(-1, 0);
+				if(Data.Dtl.RA.NumPrd == 0) {
+					selectCtrl(CTL_REPEATING_NUMPRD);
+					PPSetError(PPERR_USERINPUT);
+					clearEvent(event);
+					local_ok = false;
+				}
+			}
+		}
+		TDialog::handleEvent(event);
+	}
 	DateRepeating Data;
 	long   PrevKind;
 };
-
-int FASTCALL RepAfterPrdDialog::valid(ushort cmd)
-{
-	if(cmd == cmOK) {
-		TransmitData(-1, 0);
-		if(Data.Dtl.RA.NumPrd == 0) {
-			selectCtrl(CTL_REPEATING_NUMPRD);
-			return PPSetError(PPERR_USERINPUT);
-		}
-	}
-	return 1;
-}
 //
 //
 //
@@ -591,7 +578,7 @@ int RepeatingDialog::getDTS(DateRepeating * pData)
 	GetClusterData(CTL_REPEATING_PRD, &temp_long);
 	P_Data->Prd = static_cast<int16>(temp_long);
 	if(P_ChildDlg)
-		if(P_ChildDlg->valid(cmOK))
+		if(P_ChildDlg->IsCommandValid(cmOK))
 			P_ChildDlg->TransmitData(-1, P_Data);
 		else
 			ok = PPErrorZ();

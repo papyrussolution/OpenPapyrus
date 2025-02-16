@@ -1,5 +1,5 @@
 // BILL.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025
 // @codepage UTF-8
 // @Kernel
 //
@@ -32,7 +32,7 @@
 /*static*/double BillCore::GetQttyEpsilon()
 {
 	const int eps = CConfig.IltiCvtQttyEpsilon;
-	return checkirange(eps, 1, 10000) ? (1.0E-7 * static_cast<double>(eps)) : 1.0E-7; // @v8.1.11 (eps <= 1000)-->(eps <= 10000) // @v9.3.10 (: 1.0E-6)-->(: 1.0E-7)
+	return checkirange(eps, 1, 10000) ? (1.0E-7 * static_cast<double>(eps)) : 1.0E-7;
 }
 
 /*static*/int FASTCALL BillCore::GetRecadvStatus(const BillTbl::Rec & rRec)
@@ -671,7 +671,7 @@ void BillCore::_PrepareWriting(const BillTbl::Rec * pRec)
 int BillCore::EditRec(PPID * pID, BillTbl::Rec * pRec, int use_ta)
 {
 	int    ok = 1;
-	const  int is_new = (*pID == 0);
+	const  bool is_new = (*pID == 0);
 	uint   i;
 	long   billno;
 	THROW_PP(pRec->LocID != 0, PPERR_ZEROBILLLOC);

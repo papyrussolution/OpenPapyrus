@@ -20,7 +20,7 @@
 	return p_ret;
 }
 
-/*static*/void * FASTCALL TView::messageCommand(TView * pReceiver, uint command, void * pInfoPtr)
+/*static*/void * STDCALL TView::messageCommand(TView * pReceiver, uint command, void * pInfoPtr)
 {
 	void * p_ret = 0;
 	if(pReceiver) {
@@ -49,7 +49,7 @@
 	return p_ret;
 }
 
-/*static*/void * FASTCALL TView::messageBroadcast(TView * pReceiver, uint command, void * pInfoPtr)
+/*static*/void * STDCALL TView::messageBroadcast(TView * pReceiver, uint command, void * pInfoPtr)
 {
 	void * p_ret = 0;
 	if(pReceiver) {
@@ -436,7 +436,7 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 	return new_font;
 }
 
-/*static*/void TView::CallOnAcceptInputForWordSelExtraBlocks(TGroup * pG)
+/*static*/void TView::CallOnAcceptInputForWordSelExtraBlocks(TViewGroup * pG)
 {
 	if(pG) {
 		TView * p_temp = pG->GetLastView();
@@ -727,13 +727,14 @@ void STDCALL TView::enableCommands(const TCommandSet & cmds, bool toEnable)
 		P_CmdSet->enableAll();
 	}
 	if(P_CmdSet) {
-		if(!(Sf & sfCmdSetChanged))
+		if(!(Sf & sfCmdSetChanged)) {
 			if(toEnable) {
 				SETFLAG(Sf, sfCmdSetChanged, (*P_CmdSet & cmds) != cmds);
 			}
 			else {
 				SETFLAG(Sf, sfCmdSetChanged, !(*P_CmdSet & cmds).IsEmpty());
 			}
+		}
 		P_CmdSet->enableCmd(cmds, toEnable);
 		if(Sf & sfCmdSetChanged) {
 			TView::messageBroadcast(this, cmCommandSetChanged);
@@ -749,13 +750,14 @@ void STDCALL TView::enableCommand(ushort cmd, bool toEnable)
 		P_CmdSet->enableAll();
 	}
 	if(P_CmdSet) {
-		if(!(Sf & sfCmdSetChanged))
+		if(!(Sf & sfCmdSetChanged)) {
 			if(P_CmdSet->has(cmd)) {
 				SETFLAG(Sf, sfCmdSetChanged, !toEnable);
 			}
 			else {
 				SETFLAG(Sf, sfCmdSetChanged, toEnable);
 			}
+		}
 		P_CmdSet->enableCmd(cmd, toEnable);
 		if(Sf & sfCmdSetChanged) {
 			TView::messageBroadcast(this, cmCommandSetChanged);
@@ -785,7 +787,7 @@ void TView::setCommands(const TCommandSet & cmds)
 void TView::ResetOwnerCurrent()
 {
 	if(P_Owner && P_Owner->IsCurrentView(this))
-		P_Owner->SetCurrentView(0, TGroup::normalSelect);
+		P_Owner->SetCurrentView(0, TViewGroup::normalSelect);
 }
 
 TView & TView::SetId(uint id)
@@ -800,7 +802,7 @@ bool   FASTCALL TView::TestId(uint id) const { return (this && IsConsistent() &&
 bool   FASTCALL TView::IsInState(uint s) const { return ((Sf & s) == s); }
 void * FASTCALL TView::MessageCommandToOwner(uint command) { return P_Owner ? TView::messageCommand(P_Owner, command, this) : 0; }
 HWND   TView::getHandle() const { return GetDlgItem(Parent, Id); }
-int    FASTCALL TView::valid(ushort) { return 1; }
+// @v12.2.6 int    FASTCALL TView::valid(ushort) { return 1; } // @cmValidateCommand
 
 uint TView::getHelpCtx()
 {
@@ -825,6 +827,9 @@ IMPL_HANDLE_EVENT(TView)
 		uint * p = static_cast<uint *>(event.message.infoPtr);
 		ASSIGN_PTR(p, HelpCtx);
 		clearEvent(event);
+	}
+	else if(event.isCmd(cmValidateCommand)) { // @v12.2.6
+		return; // Все команды по умолчанию валидны.
 	}
 	else if(TVKEYDOWN) {
 		if(TVKEY == kbF1) {
@@ -869,6 +874,16 @@ TView * TView::TopView()
 			p = p->P_Owner;
 	}
 	return p;
+}
+
+bool TView::IsCommandValid(ushort command) // @v12.2.6
+{
+	bool   ok = true;
+	TEvent ev;
+	ev.setCmd(cmValidateCommand, 0);
+	ev.message.infoLong = command;
+	handleEvent(ev);
+	return !ev.isCleared();
 }
 
 void TView::changeBounds(const TRect & rBounds)
@@ -1445,33 +1460,25 @@ TEvent & TEvent::setWinCmd(uint uMsg, WPARAM wParam, LPARAM lParam)
 }
 
 uint TEvent::getCtlID() const { return message.infoView->GetId(); }
-int FASTCALL TEvent::isCtlEvent(uint ctlID) const { return message.infoView->TestId(ctlID); }
-int FASTCALL TEvent::isCmd(uint cmd) const { return (what == evCommand && message.command == cmd); }
-int FASTCALL TEvent::isKeyDown(uint keyCode) const { return (what == evKeyDown && keyDown.keyCode == keyCode); }
-int FASTCALL TEvent::isCbSelected(uint ctlID) const { return (what == evCommand && message.command == cmCBSelected && message.infoView->TestId(ctlID)); }
-int FASTCALL TEvent::isClusterClk(uint ctlID) const { return (what == evCommand && message.command == cmClusterClk && message.infoView->TestId(ctlID)); }
-int FASTCALL TEvent::wasFocusChanged(uint ctlID) const { return BIN(what == evBroadcast && message.command == cmChangedFocus && message.infoView->TestId(ctlID)); }
-
-int TEvent::wasFocusChanged2(uint ctl01, uint ctl02) const
-{
-	return BIN(what == evBroadcast && message.command == cmChangedFocus &&
-		(message.infoView->TestId(ctl01) || message.infoView->TestId(ctl02)));
-}
-
-int TEvent::wasFocusChanged3(uint ctl01, uint ctl02, uint ctl03) const
-{
-	return BIN(what == evBroadcast && message.command == cmChangedFocus &&
-		(message.infoView->TestId(ctl01) || message.infoView->TestId(ctl02) || message.infoView->TestId(ctl03)));
-}
+bool FASTCALL TEvent::isCtlEvent(uint ctlID) const { return message.infoView->TestId(ctlID); }
+bool FASTCALL TEvent::isCmd(uint cmd) const { return (what == evCommand && message.command == cmd); }
+bool FASTCALL TEvent::isKeyDown(uint keyCode) const { return (what == evKeyDown && keyDown.keyCode == keyCode); }
+bool FASTCALL TEvent::isCbSelected(uint ctlID) const { return (what == evCommand && message.command == cmCBSelected && message.infoView->TestId(ctlID)); }
+bool FASTCALL TEvent::isClusterClk(uint ctlID) const { return (what == evCommand && message.command == cmClusterClk && message.infoView->TestId(ctlID)); }
+bool FASTCALL TEvent::wasFocusChanged(uint ctlID) const { return (what == evBroadcast && message.command == cmChangedFocus && message.infoView->TestId(ctlID)); }
+bool TEvent::wasFocusChanged2(uint ctl01, uint ctl02) const
+	{ return (what == evBroadcast && message.command == cmChangedFocus && (message.infoView->TestId(ctl01) || message.infoView->TestId(ctl02))); }
+bool TEvent::wasFocusChanged3(uint ctl01, uint ctl02, uint ctl03) const
+	{ return (what == evBroadcast && message.command == cmChangedFocus && (message.infoView->TestId(ctl01) || message.infoView->TestId(ctl02) || message.infoView->TestId(ctl03))); }
 //
 //
 //
-TGroup::TGroup(const TRect & bounds) : TView(bounds), P_Last(0), P_Current(0), MsgLockFlags(0)
+TViewGroup::TViewGroup(const TRect & bounds) : TView(bounds), P_Last(0), P_Current(0), MsgLockFlags(0)
 {
 	ViewOptions |= ofSelectable;
 }
 
-TGroup::~TGroup()
+TViewGroup::~TViewGroup()
 {
 	TView * p = P_Last;
 	if(p) do {
@@ -1487,7 +1494,7 @@ TGroup::~TGroup()
 	P_Current = 0;
 }
 
-void TGroup::forEach(void (*func)(TView*, void *), void *args)
+void TViewGroup::forEach(void (*func)(TView*, void *), void *args)
 {
 	TView * p_term = P_Last;
 	TView * p_temp = P_Last;
@@ -1497,7 +1504,7 @@ void TGroup::forEach(void (*func)(TView*, void *), void *args)
 	} while(p_temp != p_term);
 }
 
-void TGroup::removeView(TView * p)
+void TViewGroup::removeView(TView * p)
 {
 	if(P_Last) {
 		TView * t = P_Last;
@@ -1516,10 +1523,10 @@ void TGroup::removeView(TView * p)
 
 static void addSubviewDataSize(TView * p, void * pSize)
 {
-	*static_cast<int *>(pSize) += static_cast<TGroup *>(p)->TransmitData(0, 0);
+	*static_cast<int *>(pSize) += static_cast<TViewGroup *>(p)->TransmitData(0, 0);
 }
 
-int TGroup::TransmitData(int dir, void * pData)
+int TViewGroup::TransmitData(int dir, void * pData)
 {
 	int    s = 0;
 	if(dir == 0) {
@@ -1535,7 +1542,7 @@ int TGroup::TransmitData(int dir, void * pData)
 	return s;
 }
 
-void FASTCALL TGroup::remove(TView * p)
+void FASTCALL TViewGroup::remove(TView * p)
 {
 	if(p) {
 		removeView(p);
@@ -1544,12 +1551,12 @@ void FASTCALL TGroup::remove(TView * p)
 	}
 }
 
-ushort FASTCALL TGroup::execView(TWindow * p)
+ushort FASTCALL TViewGroup::execView(TWindow * p)
 {
 	ushort retval = cmCancel;
 	if(p) {
 		const uint32 save_options = p->ViewOptions;
-		TGroup  * save_owner = p->P_Owner;
+		const TViewGroup * p_save_owner = p->P_Owner;
 		TWindow * save_top_view = APPL->P_TopView;
 		TView   * save_current = P_Current;
 		TCommandSet save_commands;
@@ -1559,14 +1566,14 @@ ushort FASTCALL TGroup::execView(TWindow * p)
 		p->setState(sfModal, true);
 		SetCurrentView(p, enterSelect);
 		// @v11.2.5 ::SetFocus(p->H()); // @v11.2.4
-		if(save_owner == 0)
+		if(!p_save_owner)
 			Insert_(p);
 		{
 			TEvent event;
 			p->handleEvent(event.setCmd(cmExecute, 0));
 			retval = (event.what == TEvent::evNothing) ? static_cast<ushort>(event.message.infoLong) : 0;
 		}
-		if(save_owner == 0)
+		if(!p_save_owner)
 			remove(p);
 		SetCurrentView(save_current, leaveSelect);
 		p->setState(sfModal, false);
@@ -1577,14 +1584,9 @@ ushort FASTCALL TGroup::execView(TWindow * p)
 	return retval;
 }
 
-TView * TGroup::GetFirstView() const
-{
-	return P_Last ? P_Last->P_Next : 0;
-}
-
 struct handleStruct {
 	TEvent * event;
-	TGroup * grp;
+	TViewGroup * grp;
 	TView::phaseType phase;
 };
 
@@ -1608,9 +1610,51 @@ static void doHandleEvent(TView * p, void * s)
 	}
 }
 
-IMPL_HANDLE_EVENT(TGroup)
+bool TViewGroup::ValidateCommand(TEvent & rEv) // @v12.2.6 non-virtual
 {
-	if(event.isCmd(cmExecute)) {
+	bool   ok = true;
+	assert(rEv.isCmd(cmValidateCommand));
+	if(rEv.isCmd(cmValidateCommand)) {
+		const long _cmd = rEv.message.infoLong;
+		TView * p_term = P_Last;
+		TView * p_temp = P_Last;
+		if(p_temp) do {
+			p_temp = p_temp->P_Next;
+			if(p_temp) {
+				p_temp->handleEvent(rEv);
+				if(rEv.isCleared())
+					ok = false;
+				/*if(!p_temp->valid(command)) {
+					ok = false;
+				}*/
+			}
+			else
+				break;
+		} while(ok && p_temp != p_term);
+	}
+	return ok;
+}
+
+/* @v12.2.6 int FASTCALL TViewGroup::valid(ushort command) // @cmValidateCommand
+{
+	int    ok = 1;
+	TView * p_term = P_Last;
+	TView * p_temp = P_Last;
+	if(p_temp) do {
+		p_temp = p_temp->P_Next;
+		if(!p_temp->valid(command)) {
+			ok = 0;
+		}
+	} while(ok && p_temp != p_term);
+	return ok;
+}*/
+
+IMPL_HANDLE_EVENT(TViewGroup)
+{
+	if(event.isCmd(cmValidateCommand)) {
+		ValidateCommand(event);
+	}
+	else if(event.isCmd(cmExecute)) {
 		clearEvent(event);
 		event.message.infoLong = 0;
 	}
@@ -1639,18 +1683,13 @@ IMPL_HANDLE_EVENT(TGroup)
 	}
 }
 
-void TGroup::Insert_(TView * p)
-{
-	insertBefore(p, GetFirstView());
-}
-
-void TGroup::insertBefore(TView * p, TView * pTarget)
+void TViewGroup::insertBefore(TView * p, TView * pTarget)
 {
 	if(p && !p->P_Owner && (!pTarget || pTarget->P_Owner == this))
 		insertView(p, pTarget);
 }
 
-void TGroup::insertView(TView * p, TView * Target)
+void TViewGroup::insertView(TView * p, TView * Target)
 {
 	p->P_Owner = this;
 	if(Target) {
@@ -1669,13 +1708,13 @@ void TGroup::insertView(TView * p, TView * Target)
 	}
 }
 
-void TGroup::redraw()
+void TViewGroup::redraw()
 {
 	for(TView * p = GetFirstView(); p != 0; p = p->nextView())
 		p->Draw_();
 }
 
-void TGroup::selectNext(/*Boolean forwards*/ /*false*/)
+void TViewGroup::selectNext(/*Boolean forwards*/ /*false*/)
 {
 	if(P_Current) {
 		TView * p = P_Current;
@@ -1686,7 +1725,7 @@ void TGroup::selectNext(/*Boolean forwards*/ /*false*/)
 	}
 }
 
-void TGroup::SetCurrentView(TView * p, selectMode mode)
+void TViewGroup::SetCurrentView(TView * p, selectMode mode)
 {
 	if(P_Current != p || mode == forceSelect) {
 		TView * p_save_current = P_Current;
@@ -1709,15 +1748,15 @@ void TGroup::SetCurrentView(TView * p, selectMode mode)
 				}
 			}
 		}
-		if(!(MsgLockFlags & TGroup::fLockMsgChangedFocus)) {
-			MsgLockFlags |= TGroup::fLockMsgChangedFocus;
+		if(!(MsgLockFlags & TViewGroup::fLockMsgChangedFocus)) {
+			MsgLockFlags |= TViewGroup::fLockMsgChangedFocus;
 			TView::messageBroadcast(this, cmChangedFocus, p_save_current);
-			MsgLockFlags &= ~TGroup::fLockMsgChangedFocus;
+			MsgLockFlags &= ~TViewGroup::fLockMsgChangedFocus;
 		}
 	}
 }
 
-void TGroup::setState(uint aState, bool enable)
+void TViewGroup::setState(uint aState, bool enable)
 {
 	TView::setState(aState, enable);
 	if(aState & sfActive) {
@@ -1732,20 +1771,8 @@ void TGroup::setState(uint aState, bool enable)
 		P_Current->setState(sfFocused, enable);
 }
 
-int FASTCALL TGroup::valid(ushort command)
-{
-	int    ok = 1;
-	TView * p_term = P_Last;
-	TView * p_temp = P_Last;
-	if(p_temp) do {
-		p_temp = p_temp->P_Next;
-		if(!p_temp->valid(command)) {
-			ok = 0;
-		}
-	} while(ok && p_temp != p_term);
-	return ok;
-}
-
-uint TGroup::GetCurrId() const { return P_Current ? P_Current->GetId() : 0; }
-bool FASTCALL TGroup::IsCurrentView(const TView * pV) const { return (pV && P_Current == pV); }
-bool FASTCALL TGroup::isCurrCtlID(uint ctlID) const { return (P_Current && P_Current->TestId(ctlID)); }
+TView * TViewGroup::GetFirstView() const { return P_Last ? P_Last->P_Next : 0; }
+void TViewGroup::Insert_(TView * p) { insertBefore(p, GetFirstView()); }
+uint TViewGroup::GetCurrId() const { return P_Current ? P_Current->GetId() : 0; }
+bool FASTCALL TViewGroup::IsCurrentView(const TView * pV) const { return (pV && P_Current == pV); }
+bool FASTCALL TViewGroup::isCurrCtlID(uint ctlID) const { return (P_Current && P_Current->TestId(ctlID)); }

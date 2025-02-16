@@ -263,6 +263,73 @@ int ToolbarList::moveItem(uint pos, int up)
 //
 //
 //
+TWindow::StorableUserParams::StorableUserParams()
+{
+}
+
+TWindow::StorableUserParams & TWindow::StorableUserParams::Z()
+{
+	Origin.Z();
+	Size.Z();
+	return *this;
+}
+
+static constexpr uint32 TWindow_StorableUserParams_Signature = 0x6A253569;
+
+bool TWindow::StorableUserParams::FromJsonObj(const SJson * pJs)
+{
+	bool   ok = false;
+	Z();
+	if(SJson::IsObject(pJs)) {
+		uint32 signature = 0;
+		for(const SJson * p_cur = pJs->P_Child; p_cur; p_cur = p_cur->P_Next) {
+			if(p_cur->Text.IsEqiAscii("signature")) {
+				signature = p_cur->P_Child->Text.ToULong();
+			}
+			else if(p_cur->Text.IsEqiAscii("orgx")) {
+				Origin.x = p_cur->P_Child->Text.ToLong();
+			}
+			else if(p_cur->Text.IsEqiAscii("orgy")) {
+				Origin.y = p_cur->P_Child->Text.ToLong();
+			}
+			else if(p_cur->Text.IsEqiAscii("szx")) {
+				Size.x = p_cur->P_Child->Text.ToLong();
+			}
+			else if(p_cur->Text.IsEqiAscii("szy")) {
+				Size.y = p_cur->P_Child->Text.ToLong();
+			}
+		}
+		if(signature == TWindow_StorableUserParams_Signature) {
+			ok = true;
+		}
+		else {
+			Z();
+		}
+	}
+	return ok;
+}
+		
+SJson * TWindow::StorableUserParams::ToJsonObj() const
+{
+	SJson * p_result = SJson::CreateObj();
+	if(p_result) {
+		p_result->InsertUInt("signature", TWindow_StorableUserParams_Signature);
+		if(!IsEmpty()) {
+			if(!Origin.IsZero()) {
+				p_result->InsertInt("orgx", Origin.x);
+				p_result->InsertInt("orgy", Origin.y);
+			}
+			if(!Size.IsZero()) {
+				p_result->InsertInt("szx", Size.x);
+				p_result->InsertInt("szy", Size.y);
+			}
+		}
+	}
+	return p_result;
+}
+//
+//
+//
 /*static*/int TWindow::IsMDIClientWindow(HWND h)
 {
 	SString cls_name;
@@ -334,7 +401,7 @@ int TWindow::RedirectDrawItemMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 }
 
 TWindow::TWindow(const TRect & rRect) : 
-	TGroup(rRect), WbCapability(0), P_Lmp(0), HW(0), PrevInStack(0), P_SymbList(0), P_FontsAry(0), P_Lfc(0)
+	TViewGroup(rRect), WbCapability(0), P_Lmp(0), HW(0), PrevInStack(0), P_SymbList(0), P_FontsAry(0), P_Lfc(0), P_StUsrP(0)
 {
 	ViewOptions |= ofSelectable;
 }
@@ -342,7 +409,7 @@ TWindow::TWindow(const TRect & rRect) :
 TWindow::TWindow(long wbCapability) : 
 	// Здесь мы применяем искусственно-непустой прямоугольник из-за того, что некоторые функции валидации могут воспринять 
 	// пустой прямоугольник как "сигнал бедствия" и отказаться работать дальше.
-	TGroup(TRect(0, 0, 0, 25)), WbCapability(wbCapability), P_Lmp(0), HW(0), PrevInStack(0), P_SymbList(0), P_FontsAry(0), P_Lfc(0)
+	TViewGroup(TRect(0, 0, 0, 25)), WbCapability(wbCapability), P_Lmp(0), HW(0), PrevInStack(0), P_SymbList(0), P_FontsAry(0), P_Lfc(0), P_StUsrP(0)
 {
 }
 
@@ -369,6 +436,7 @@ TWindow::~TWindow()
 		P_Lfc = 0;
 	}
 	// } @v12.2.4
+	delete P_StUsrP; // @v12.2.6
 }
 
 void TWindow::endModal(ushort command)
@@ -390,7 +458,7 @@ int TWindow::AddLocalMenuItem(uint ctrlId, uint buttonId, long keyCode, const ch
 
 void TWindow::close()
 {
-	if(valid(cmClose))
+	if(IsCommandValid(cmClose))
 		delete this;
 }
 
@@ -965,7 +1033,7 @@ HWND TWindow::showToolbar()
 
 IMPL_HANDLE_EVENT(TWindow)
 {
-	TGroup::handleEvent(event);
+	TViewGroup::handleEvent(event);
 	if(event.isCmd(cmClose)) {
 		if(!TVINFOPTR || TVINFOPTR == this || TVINFOVIEW->P_Owner == this) {
 			if(IsInState(sfModal))
@@ -991,7 +1059,7 @@ IMPL_HANDLE_EVENT(TWindow)
 
 void TWindow::setState(uint aState, bool enable)
 {
-	TGroup::setState(aState, enable);
+	TViewGroup::setState(aState, enable);
 	if(aState & sfSelected)
 		setState(sfActive, enable); // @recursion
 }
@@ -1144,10 +1212,10 @@ bool TWindow::SetLayout(SUiLayout * pLo)
 	return true;
 }
 
-void TWindow::SetupLayoutItem(void * pLayout)
+void TWindow::SetupLayoutItem(SUiLayout * pLayout)
 {
 	if(pLayout) {
-		P_Lfc = static_cast<SUiLayout *>(pLayout);
+		P_Lfc = pLayout;
 		P_Lfc->SetCallbacks(0, TWindowBase::SetupLayoutItemFrame, this);
 	}
 }
@@ -1170,6 +1238,77 @@ void TWindow::EvaluateLayout(const TRect & rR)
 	if(p_view) {
 		p_view->changeBounds(TRect(rR));
 	}
+}
+
+void TWindow::SetStorableUserParamsSymb(const char * pSymb) // @v12.2.6
+{
+	StorableUserParamsSymb = pSymb;
+}
+
+static const char * P_StorableUserParams_SubKey = "Software\\Papyrus\\UI\\StorableUserParams";
+
+int TWindow::StoreUserParams() // @v12.2.6
+{
+	int    ok = -1;
+	if(StorableUserParamsSymb.NotEmpty()) {
+		SJson * p_js = P_StUsrP->ToJsonObj();
+		if(p_js) {
+			SString js_buf;
+			p_js->ToStr(js_buf);
+			{
+				WinRegKey reg_key(HKEY_CURRENT_USER, P_StorableUserParams_SubKey, 0/*read-only*/);
+				if(reg_key.IsValid()) {
+					ok = reg_key.PutString(StorableUserParamsSymb, js_buf);
+				}
+			}
+			ZDELETE(p_js);
+		}
+	}
+	return ok;
+}
+
+int TWindow::RestoreUserParams() // @v12.2.6
+{
+	int    ok = -1;
+	if(StorableUserParamsSymb.NotEmpty()) {
+		WinRegKey reg_key(HKEY_CURRENT_USER, P_StorableUserParams_SubKey, 1/*read-only*/);
+		if(reg_key.IsValid()) {
+			SString js_buf;
+			if(reg_key.GetString(StorableUserParamsSymb, js_buf) && js_buf.NotEmptyS()) {
+				SJson * p_js = SJson::Parse(js_buf);
+				if(p_js) {
+					StorableUserParams params;
+					if(params.FromJsonObj(p_js)) {
+						if(!P_StUsrP) {
+							P_StUsrP = new StorableUserParams(params);
+							if(P_StUsrP)
+								ok = 1;
+						}
+						else {
+							*P_StUsrP = params;
+							ok = 1;
+						}
+					}
+					ZDELETE(p_js);
+				}
+			}
+		}
+	}
+	return ok;
+}
+
+int TWindow::ReckonUserPosition(const TRect & rRect) // @v12.2.6
+{
+	int    ok = -1;
+	if(WbCapability & wbcStorableUserParams) {
+		if(!P_StUsrP)
+			P_StUsrP = new StorableUserParams();
+		P_StUsrP->Origin.Set(rRect.a.x, rRect.a.y);
+		P_StUsrP->Size.Set(rRect.width(), rRect.height());
+		if(StoreUserParams() > 0)
+			ok = 1;
+	}
+	return ok;
 }
 //
 //
@@ -1311,7 +1450,7 @@ int TWindowBase::AddChild(TWindowBase * pWin, long createOptions, long zone)
 	return ok;
 }
 
-int TWindowBase::AddChildWithLayout(TWindowBase * pChildWindow, long createOptions, void * pLayout) 
+int TWindowBase::AddChildWithLayout(TWindowBase * pChildWindow, long createOptions, SUiLayout * pLayout) 
 {
 	int    ok = 1;
 	if(pChildWindow) {
@@ -1383,6 +1522,11 @@ IMPL_HANDLE_EVENT(TWindowBase)
 					P_Lfc->GetLayoutBlock().SetFixedSize(cr);
 					P_Lfc->Evaluate(0);
 				}
+				// @v12.2.6 {
+				if(WbCapability & wbcStorableUserParams) {
+					ReckonUserPosition(getRect());
+				}
+				// } @v12.2.6 
 				invalidateAll(true);
 				::UpdateWindow(H());
 				// Don't call clearEvent(event) there!

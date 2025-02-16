@@ -1256,9 +1256,9 @@ int PPObjWorkbook::PutPacket(PPID * pID, PPWorkbookPacket * pPack, int use_ta)
 	PPID   _id = DEREFPTRORZ(pID);
 	PPID   hid = 0;
 	PPID   acn_id = 0;
-	const  int is_new = (_id == 0 && pPack);
-	const  int is_edit = (_id && pPack);
-	const  int is_removing = (_id && pPack == 0);
+	const  bool is_new = (_id == 0 && pPack);
+	const  bool is_edit = (_id && pPack);
+	const  bool is_removing = (_id && pPack == 0);
 	SString ext_string;
 	PPWorkbookPacket org_pack;
 	Reference * p_ref = PPRef;

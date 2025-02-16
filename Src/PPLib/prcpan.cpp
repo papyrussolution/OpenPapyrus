@@ -53,7 +53,8 @@ private:
 		double PackQtty;   // Количество упаковок
 	};
 	DECL_HANDLE_EVENT;
-	virtual int FASTCALL valid(ushort command);
+	//virtual int FASTCALL valid(ushort command);
+	bool   ValidateCommand(TEvent & rEv);
 	int    isRestState() const { return BIN(oneof3(State, sREST, sREST_SERIAL_NOQTTY, sREST_SERIAL_QTTY)); }
 	int    setupProcessor(PPID prcID, int init);
 	void   updateStatus(int forceUpdate);
@@ -223,42 +224,6 @@ PrcPaneDialog::PrcPaneDialog() : TDialog(DLG_PRCPAN), State(sUNDEF), NewGoodsGrp
 	SetCtrlFont(CTL_PRCPAN_TOTALQTTY, font_face, 32);
 	SetCtrlFont(CTL_PRCPAN_TOTALPACK, font_face, 32);
 	PPLoadText(PPTXT_PRCPAN_IDLECONT, IdleContText);
-}
-
-int FASTCALL PrcPaneDialog::valid(ushort command)
-{
-	int    r = 1;
-	int    prev_state = State;
-	if(command == cmCancel) {
-		if(State == sREST) {
-			State = sEMPTY_SESS;
-			clearPanel();
-			r = 0;
-		}
-		else if(State == sREST_SERIAL_NOQTTY) {
-			State = sGOODS_NOQTTY;
-			clearPanel();
-			r = 0;
-		}
-		else if(State == sREST_SERIAL_QTTY) {
-			State = sGOODS_QTTY;
-			clearPanel();
-			r = 0;
-		}
-		else if(E.GoodsID) {
-			clearPanel();
-			r = 0;
-		}
-		else if(PPMessage(mfConf|mfYesNo, PPCFM_CLOSEPRCPANE) == cmYes)
-			r = 1;
-		else
-			r = 0;
-	}
-	else
-		r = TDialog::valid(command);
-	if(State != prev_state)
-		setupHint();
-	return r;
 }
 
 int PrcPaneDialog::setupProcessor(PPID prcID, int init)
@@ -650,14 +615,59 @@ void PrcPaneDialog::ProcessEnter()
 	}
 }
 
+// @v12.2.6 int FASTCALL PrcPaneDialog::valid(ushort command) // @cmValidateCommand 
+bool PrcPaneDialog::ValidateCommand(TEvent & rEv)
+{
+	assert(rEv.isCmd(cmValidateCommand));
+	bool   ok = true;
+	if(rEv.isCmd(cmValidateCommand)) {
+		const  long cmd = rEv.message.infoLong;
+		const  int  prev_state = State;
+		if(cmd == cmCancel) {
+			if(State == sREST) {
+				State = sEMPTY_SESS;
+				clearPanel();
+				ok = false;
+			}
+			else if(State == sREST_SERIAL_NOQTTY) {
+				State = sGOODS_NOQTTY;
+				clearPanel();
+				ok = false;
+			}
+			else if(State == sREST_SERIAL_QTTY) {
+				State = sGOODS_QTTY;
+				clearPanel();
+				ok = false;
+			}
+			else if(E.GoodsID) {
+				clearPanel();
+				ok = false;
+			}
+			else if(PPMessage(mfConf|mfYesNo, PPCFM_CLOSEPRCPANE) == cmYes)
+				ok = true;
+			else
+				ok = false;
+			if(!ok) {
+				TView::clearEvent(rEv);
+			}
+		}
+		else
+			ok = TDialog::ValidateCommand(rEv);
+		if(State != prev_state)
+			setupHint();
+	}
+	return ok;
+}
+
 IMPL_HANDLE_EVENT(PrcPaneDialog)
 {
 	int    prev_state = State;
-	if(TVCOMMAND) {
-		if(TVCMD == cmOK) {
-			ProcessEnter();
-			clearEvent(event);
-		}
+	if(event.isCmd(cmValidateCommand)) {
+		ValidateCommand(event);
+	}
+	else if(event.isCmd(cmOK)) {
+		ProcessEnter();
+		clearEvent(event);
 	}
 	TDialog::handleEvent(event);
 	if(TVBROADCAST) {

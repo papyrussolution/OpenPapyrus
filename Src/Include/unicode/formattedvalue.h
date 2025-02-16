@@ -157,10 +157,7 @@ public:
 	 * @return The current iteration context from {@link #setInt64IterationContext}.
 	 * @stable ICU 64
 	 */
-	inline int64_t getInt64IterationContext() const {
-		return fContext;
-	}
-
+	inline int64_t getInt64IterationContext() const { return fContext; }
 	/**
 	 * Sets an int64 that FormattedValue implementations may use for storage.
 	 *
@@ -197,11 +194,7 @@ public:
 	 * @param limit The new exclusive end index.
 	 * @stable ICU 64
 	 */
-	void setState(int32_t category,
-	    int32_t field,
-	    int32_t start,
-	    int32_t limit);
-
+	void setState(int32_t category, int32_t field, int32_t start, int32_t limit);
 private:
 	int64_t fContext = 0LL;
 	int32_t fField = 0;

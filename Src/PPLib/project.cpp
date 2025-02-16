@@ -36,7 +36,7 @@ static int PPObjProject_WriteConfig(PPProjectConfig * pCfg, PPOpCounterPacket * 
 {
 	int    ok = 1;
 	int    ta = 0;
-	int    is_new = 1;
+	bool   is_new = true;
 	Reference * p_ref = PPRef;
 	PPObjOpCounter opc_obj;
 	PPProjectConfig prev_cfg;
@@ -44,7 +44,7 @@ static int PPObjProject_WriteConfig(PPProjectConfig * pCfg, PPOpCounterPacket * 
 		PPTransaction tra(1);
 		THROW(tra);
 		if(p_ref->GetPropMainConfig(PPPRP_PROJECTCFG, &prev_cfg, sizeof(prev_cfg)) > 0)
-			is_new = 0;
+			is_new = false;
 		THROW(PutCounter(&pCfg->PrjCntrID, &opc_obj, pPrjCntr));
 		THROW(PutCounter(&pCfg->PhaseCntrID, &opc_obj, pPhsCntr));
 		THROW(PutCounter(&pCfg->TaskCntrID, &opc_obj, pTodoCntr));
@@ -327,11 +327,13 @@ int PPObjProject::GetPacket(PPID id, PPProjectPacket * pPack)
 		if(Search(id, &pPack->Rec) > 0) {
 			GetItemDescr(id, pPack->SDescr);
 			GetItemMemo(id, pPack->SMemo);
+			p_ref->Ot.GetList(Obj, id, &pPack->TagL); // @v12.2.6
 			ok = 1;
 		}
 	}
-	else
+	else {
 		ok = Search(id, 0);
+	}
 	return ok;
 }
 
@@ -347,15 +349,18 @@ int PPObjProject::PutPacket(PPID * pID, PPProjectPacket * pPack, int use_ta)
 		if(pPack) {
 			if(*pID) {
 				THROW(UpdateByID(P_Tbl, Obj, *pID, &pPack->Rec, 0));
+				THROW(p_ref->Ot.PutList(Obj, *pID, &pPack->TagL, 0)); // @v12.2.6
 				acn_id = PPACN_OBJUPD;
 			}
 			else {
 				THROW(AddObjRecByID(P_Tbl, Obj, pID, &pPack->Rec, 0));
+				THROW(p_ref->Ot.PutList(Obj, *pID, &pPack->TagL, 0)); // @v12.2.6
 				acn_id = PPACN_OBJADD;
 			}
 		}
 		else if(*pID) {
 			THROW(RemoveByID(P_Tbl, *pID, 0));
+			THROW(p_ref->Ot.PutList(Obj, *pID, 0, 0)); // @v12.2.6
 			acn_id = PPACN_OBJRMV;
 		}
 		{
@@ -379,6 +384,7 @@ int PPObjProject::PutPacket(PPID * pID, PPProjectPacket * pPack, int use_ta)
 
 int PPObjProject::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
 {
+	// @v12.2.6 @dbd_exchange @todo TagL
 	int    ok = 1;
 	PPProjectPacket * p_pack = new PPProjectPacket;
 	THROW_MEM(p_pack);
@@ -397,6 +403,7 @@ int PPObjProject::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext *
 
 int PPObjProject::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx) // @srlz
 {
+	// @v12.2.6 @dbd_exchange @todo TagL
 	int    ok = 1;
 	PPProjectPacket * p_pack = 0;
 	THROW(p && p->Data);
@@ -419,6 +426,7 @@ int PPObjProject::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmConte
 
 int PPObjProject::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
 {
+	// @v12.2.6 @dbd_exchange @todo TagL
 	int    ok = 1;
 	THROW(p && p->Data);
 	{
@@ -524,6 +532,16 @@ public:
 		getCtrlData(CTLSEL_PRJ_BILLOP, &Data.Rec.BillOpID);
 		ASSIGN_PTR(pData, Data);
 		return ok;
+	}
+private:
+	DECL_HANDLE_EVENT
+	{
+		TDialog::handleEvent(event);
+		if(event.isCmd(cmTags)) { // @v12.2.6
+			Data.TagL.Oid.Obj = PPOBJ_PROJECT;
+			EditObjTagValList(&Data.TagL, 0);
+			clearEvent(event);
+		}
 	}
 };
 //
@@ -2806,9 +2824,11 @@ int PPObjPrjTask::Edit(PPID * pID, void * extraPtr)
 	const  long extra_param = reinterpret_cast<long>(extraPtr);
 	int    ok = cmCancel;
 	int    r = 0;
-	int    is_new = 0;
+	bool   is_new = false;
 	int    task_finished = 0;
-	PPID   prev_employer = 0, parent_prj = 0, client = 0;
+	PPID   prev_employer = 0;
+	PPID   parent_prj = 0;
+	PPID   client = 0;
 	PPID   employer = 0;
 	PPPrjTaskPacket pack;
 	THROW(CheckRightsModByID(pID));
@@ -2825,7 +2845,7 @@ int PPObjPrjTask::Edit(PPID * pID, void * extraPtr)
 			parent_prj = extra_param & ~(PRJTASKBIAS_CLIENT|PRJTASKBIAS_EMPLOYER|PRJTASKBIAS_TEMPLATE);
 		int    kind = (extra_param & PRJTASKBIAS_TEMPLATE) ? TODOKIND_TEMPLATE : TODOKIND_TASK;
 		InitPacket(&pack, kind, parent_prj, client, employer, 1);
-		is_new = 1;
+		is_new = true;
 	}
 	task_finished = BIN(pack.Rec.Status == TODOSTTS_COMPLETED && pack.Rec.FinishDt != ZERODATE);
 	while(ok != cmOK && (r = EditDialog(&pack)) > 0) {
@@ -3022,7 +3042,7 @@ struct LostPrjTPersonItem { // @flat
 	long   Flags;
 };
 
-typedef TSVector <LostPrjTPersonItem> LostPrjTPersonArray; // @v9.8.4 TSArray-->TSVector
+typedef TSVector <LostPrjTPersonItem> LostPrjTPersonArray;
 
 class RestoreLostPrjTPersonDlg : public PPListDialog {
 	DECL_DIALOG_DATA(LostPrjTPersonArray);

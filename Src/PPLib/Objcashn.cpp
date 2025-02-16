@@ -276,8 +276,8 @@ struct __PosNodeExt {       // @persistent
 	PPID   Tag;             // Const = PPOBJ_CASHNODE
 	PPID   CashNodeID;      // ИД кассового узла
 	PPID   Prop;            // Const = CNPRP_EXTRA
-	uint8  Reserve[56];     // @reserve @v9.7.5 [60]-->[56]
-	int32  ScfFlags;        // @v9.7.5
+	uint8  Reserve[56];     // @reserve
+	int32  ScfFlags;        //
 	uint16 ScfDaysPeriod;       // Параметр фильтрации отложенных чеков
 	int16  ScfDlvrItemsShowTag; // Параметр фильтрации отложенных чеков
 	uint16 BonusMaxPart;    //

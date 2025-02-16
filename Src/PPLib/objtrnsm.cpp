@@ -15,29 +15,6 @@ SVerT PPSession::GetMinCompatVersion() const
 	//   версию системы, с которой пакеты паредачи данных могут быть приняты.
 	//
 	static const SVerT __MinCompatVer(12, 0, 0);
-		// @v6.4.7  6.2.2-->6.4.7
-		// @v7.0.0  6.4.7-->6.9.10
-		// @v7.0.7  6.9.10-->7.0.7
-		// @v7.2.0  7.0.7-->7.2.0
-		// @v7.2.7  7.2.0-->7.2.7
-		// @v7.3.5  7.2.7-->7.3.5
-		// @v7.5.11 7.3.5-->7.5.11
-		// @v7.6.1  7.5.11-->7.6.1
-		// @v7.7.2  7.6.1-->7.7.2
-		// @v7.7.12 7.7.2-->7.7.12
-		// @v8.0.3  7.7.12-->8.0.3
-		// @v8.2.3  8.0.3-->8.2.3
-		// @v8.3.6  8.2.3-->8.3.6
-		// @v8.5.0  8.3.6-->8.5.0
-		// @v8.8.0  8.5.0-->8.8.0
-		// @v9.0.4  8.8.0-->9.0.4
-		// @v9.4.0  9.0.4-->9.4.0
-		// @v9.8.9  9.4.0-->9.8.9
-		// @v9.8.11 9.8.9-->9.8.11
-		// @v10.1.6 9.8.11-->10.1.6
-		// @v10.2.9 10.1.6-->10.2.9
-		// @v10.7.2 10.2.9-->10.7.2
-		// @v10.9.2 10.7.2-->10.9.2
 		// @v11.0.4 10.9.2-->11.0.4
 		// @v11.1.12 11.0.4-->11.1.12
 		// @v11.2.0 11.1.12-->11.2.0
@@ -1080,7 +1057,7 @@ PPObjectTransmit::PacketStat::PacketStat() : Items(sizeof(PPObjectTransmit::Inde
 	return rBuf.SetLastSlash().Cat("SYNCQUE").SetLastSlash();
 }
 
-int PPObjectTransmit::Helper_PushObjectsToQueue(const PPObjectTransmit::Header & rHdr, long sysFileId, const TSVector <ObjSyncQueueTbl::Rec> & rList, int use_ta) // @v9.8.6 TSArray-->TSVector
+int PPObjectTransmit::Helper_PushObjectsToQueue(const PPObjectTransmit::Header & rHdr, long sysFileId, const TSVector <ObjSyncQueueTbl::Rec> & rList, int use_ta)
 {
 	int    ok = 1;
 	SString msg_buf;
@@ -1216,8 +1193,8 @@ int PPObjectTransmit::PushObjectsToQueue(PPObjectTransmit::Header & rHdr, const 
 				sys_file.Close();
 			}
 			PPLoadText(PPTXT_DBDE_SYNCQSETFILE, wait_fmt_buf);
-			PPWaitMsg((msg_buf = wait_fmt_buf).CatDiv(':', 2).Cat(pInFileName)); // @v8.5.5
-			if(!P_Queue->AddFileRecord(&sys_file_id, fi, use_ta)) { // @v9.8.3 use_ta: 0-->use_ta
+			PPWaitMsg((msg_buf = wait_fmt_buf).CatDiv(':', 2).Cat(pInFileName));
+			if(!P_Queue->AddFileRecord(&sys_file_id, fi, use_ta)) {
 				PPLoadText(PPTXT_LOG_ERRINSFILESYNCQUEUE, fmt_buf);
 				PPGetLastErrorMessage(1, err_msg);
 				Ctx.OutReceivingMsg(msg_buf.Printf(fmt_buf, pInFileName, err_msg.cptr()));
@@ -1349,7 +1326,7 @@ int PPObjectTransmit::RestoreFromStream(const char * pInFileName, FILE * stream,
 			ok = -1;
 	}
 	CATCH
-		Ctx.P_Logger->LogLastError(); // @v9.9.8
+		Ctx.P_Logger->LogLastError();
 		ok = 0;
 	ENDCATCH
 	SAlloc::F(p_temp_buf);
@@ -2478,7 +2455,7 @@ int BillTransmitParam::Edit() { DIALOG_PROC_BODY(BillTransDialog, this); }
 			int    is_suit = 1;
 			if((flt.OpID && flt.Ar2ID) && br.Object2 != flt.Ar2ID)
 				is_suit = 0;
-			else if((flt.OpID && flt.ArID) && br.Object != flt.ArID) // @v9.0.8
+			else if((flt.OpID && flt.ArID) && br.Object != flt.ArID)
 				is_suit = 0;
 			else if((flt.Flags & BillTransmitParam::fLabelOnly) && !(br.Flags & BILLF_WHITELABEL))
 				is_suit = 0;
@@ -2966,8 +2943,7 @@ int PPObjectTransmit::StartReceivingPacket(const char * pFileName, const void * 
 			Ctx.OutReceivingMsg(msg_buf.Printf(buf, temp_buf.Z().CatDotTriplet(mj, mn, r).cptr()));
 			ok = -1;
 		}
-		// @v9.8.11 __MinCompatVer.Get(&mj, &mn, &r);
-		DS.GetMinCompatVersion().Get(&mj, &mn, &r); // @v9.8.11
+		DS.GetMinCompatVersion().Get(&mj, &mn, &r);
 		if(p_hdr->SwVer.IsLt(mj, mn, r)) {
 			PPLoadText(PPTXT_RCVPACKETREJSRCVER, buf);
 			Ctx.OutReceivingMsg(msg_buf.Printf(buf, temp_buf.Z().CatDotTriplet(mj, mn, r).cptr()));
@@ -3086,7 +3062,7 @@ int PPObjectTransmit::GetPrivateObjSyncData(PPID objType, PPCommSyncID commID, P
 							if(param.Flags & ObjReceiveParam::fSyncCmp) {
 								if(hdr.PacketType == PPOT_SYNCCMP) {
 									THROW(ot.StartReceivingPacket(fe.Name, &hdr));
-									if(ot.RestoreFromStream(file_path, ot.P_InStream, pParam->P_SyncCmpTbl)) { // @v9.9.8 THROW-->if() (RestoreFromStream outputs error in log)
+									if(ot.RestoreFromStream(file_path, ot.P_InStream, pParam->P_SyncCmpTbl)) {
 										THROW_MEM(p_fname = newStr(file_path));
 										THROW_SL(flist.insert(p_fname));
 										do_accept_src_uuid = 1;
@@ -3097,7 +3073,7 @@ int PPObjectTransmit::GetPrivateObjSyncData(PPID objType, PPCommSyncID commID, P
 								if(hdr.PacketType == PPOT_OBJ) {
 									THROW(r = ot.StartReceivingPacket(fe.Name, &hdr));
 									if(r > 0) {
-										if(ot.RestoreFromStream(file_path, ot.P_InStream, 0)) { // @v9.9.8 THROW-->if() (RestoreFromStream outputs error in log)
+										if(ot.RestoreFromStream(file_path, ot.P_InStream, 0)) {
 											is_received = 1;
 											do_accept_src_uuid = 1;
 										}

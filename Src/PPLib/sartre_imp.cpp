@@ -1,5 +1,5 @@
 // SARTRE_IMP.CPP
-// Copyright (c) A.Sobolev 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -813,7 +813,7 @@ int SrDatabase::ImportFlexiaModel(const SrImportParam & rParam)
 				// Наконец, импортируем основы слов с правилами преобразования //
 				//
 				if(fm_file.ReadLine(line_buf)) {
-					TSVector <SrWordAssoc> test_wa_list; // @v9.8.4 TSArray-->TSVector
+					TSVector <SrWordAssoc> test_wa_list;
 					long   lm_count = line_buf.ToLong();
 					THROW(lm_count > 0);
 					for(long i = 0; i < lm_count; i++) {
@@ -1689,7 +1689,7 @@ int SrConceptParser::Run(const char * pFileName)
 	int    ok = 1;
 	int    finish = 0;
 	int    lang_id = 0;
-	TSVector <SrWordInfo> word_info; // @v9.8.4 TSArray-->TSVector
+	TSVector <SrWordInfo> word_info;
 	SString temp_buf, ident_buf;
 	SString msg_buf;
 	SrWordForm wf;
@@ -2247,13 +2247,13 @@ private:
 		}
 		return ok;
 	}
-	TSVector <InnerEntry> L; // @v9.8.6 TSArray-->TSVector
+	TSVector <InnerEntry> L;
 };
 
 int PrcssrSartre::ImportHumanNames(SrDatabase & rDb, const char * pSrcFileName, const char * pLinguaSymb, int properNameType, int specialProcessing)
 {
 	int    ok = 1;
-	const  uint max_items_per_tx = 512; // @v10.0.08 128-->512
+	const  uint max_items_per_tx = 512;
 	BDbTransaction * p_ta = 0;
 	SString temp_buf;
 	SString msg_buf;
@@ -4697,7 +4697,7 @@ int SrSyntaxRuleSet::ParseExpression(SStrScan & rScan, ExprStack & rS, int until
 			SString tok_buf;
 			ExprItem op_item(kOp);
 			op_item.Op = opOneof;
-			TSVector <ExprItem> arg_list; // @v9.8.6 TSArray-->TSVector
+			TSVector <ExprItem> arg_list;
 			//
 			// Чтобы аргументы в стеке были в том же порядке, в каком их перечислили, сначала
 			// вставим их во временный массив arg_list а потом из этого массива задом-на-перед

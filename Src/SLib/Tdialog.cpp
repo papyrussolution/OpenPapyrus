@@ -143,7 +143,7 @@ int TProgram::PushModalWindow(TWindow * pV, HWND h)
 			// } @debug
 		}
 #endif
-		pV->PrevInStack = H_TopOfStack;
+		pV->SetPrevInStackWindowHandle(H_TopOfStack);
 		H_TopOfStack = h;
 		ModalStack.push(h);
 		ok = 1;
@@ -176,19 +176,19 @@ int TProgram::PopModalWindow(TWindow * pV, HWND * pH)
 		// } @debug
 #endif
 		void * p_prev = ModalStack.SStack::peek();
-		H_TopOfStack = pV->PrevInStack;
-		EnableWindow(pV->PrevInStack, 1);
+		H_TopOfStack = pV->GetPrevInStackWindowHandle();
+		EnableWindow(pV->GetPrevInStackWindowHandle(), 1);
 		if(p_prev) {
 			HWND   h_prev = *static_cast<HWND *>(p_prev);
 #if TV_DEBUG_STACK
 			// @debug {
-			if(h_prev != pV->PrevInStack) {
+			if(h_prev != pV->GetPrevInStackWindowHandle()) {
 				SString msg_buf, temp_buf;
 				MakeModalStackDebugText(temp_buf);
 				(msg_buf = "Modal window stack order violation (h_prev != pV->PrevInStack)").CatDiv(':', 2).Cat(temp_buf);
 				SLS.LogMessage(0, msg_buf);
 			}
-			assert(h_prev == pV->PrevInStack);
+			assert(h_prev == pV->GetPrevInStackWindowHandle());
 			// } @debug
 #endif
 			SetForegroundWindow(h_prev);
@@ -634,9 +634,46 @@ CtrlGroup * FASTCALL TDialog::getGroup(ushort grpID)
 	return 0;
 }
 
+// @v12.2.6 int FASTCALL TDialog::valid(ushort command) // @cmValidateCommand
+bool TDialog::ValidateCommand(TEvent & rEv) // @v12.2.6
+{
+	bool   ok = true;
+	assert(rEv.isCmd(cmValidateCommand));
+	if(rEv.isCmd(cmValidateCommand)) {
+		const long cmd = rEv.message.infoLong;
+		if(cmd == cmCancel) {
+			;
+		}
+		else {
+			if(cmd == cmValid) {
+				if(ViewSize.IsZero())
+					ok = false;
+			}
+			if(ok) {
+				ok = TViewGroup::ValidateCommand(rEv);
+			}
+		}
+	}
+	return ok;
+}
+
 IMPL_HANDLE_EVENT(TDialog)
 {
-	if(event.isCmd(cmExecute)) {
+	if(event.isCmd(cmValidateCommand)) { // @v12.2.6
+		const  long validated_cmd = event.message.infoLong;
+		bool   local_ok = true;
+		if(validated_cmd == cmValid) {
+			if(ViewSize.IsZero())
+				local_ok = false;
+		}
+		if(local_ok) {
+			local_ok = TViewGroup::ValidateCommand(event);
+			assert(local_ok || event.isCleared());
+		}
+		else
+			clearEvent(event);
+	}
+	else if(event.isCmd(cmExecute)) {
 		ushort retval = 0;
 		if(H()) {
 			bool is_list_win = false;
@@ -646,6 +683,13 @@ IMPL_HANDLE_EVENT(TDialog)
 				InitRect = getRect();
 				TView::messageCommand(this, cmSetupResizeParams);
 				APPL->SetWindowViewByKind(H(), TProgram::wndtypDialog);
+				// @v12.2.6 {
+				if(RestoreUserParams() > 0) {
+					const StorableUserParams * p_sup = GetStorableUserParams();
+					if(p_sup)
+						::SetWindowPos(H(), HWND_TOP, p_sup->Origin.x, p_sup->Origin.y, p_sup->Size.x, p_sup->Size.y, SWP_SHOWWINDOW);
+				}
+				// } @v12.2.6 
 				::ShowWindow(H(), SW_SHOW);
 				::SetForegroundWindow(H());
 				::SetActiveWindow(H());
@@ -668,7 +712,7 @@ IMPL_HANDLE_EVENT(TDialog)
 						}
 					}
 					if(EndModalCmd) {
-						if(APPL->TestWindowForEndModal(this) && valid(EndModalCmd))
+						if(APPL->TestWindowForEndModal(this) && IsCommandValid(EndModalCmd))
 							break;
 						else
 							EndModalCmd = 0;
@@ -768,6 +812,11 @@ IMPL_HANDLE_EVENT(TDialog)
 								P_Lfc->GetLayoutBlock().SetFixedSize(cr);
 								P_Lfc->Evaluate(0);
 							}
+							// @v12.2.6 {
+							if(WbCapability & wbcStorableUserParams) {
+								ReckonUserPosition(getRect());
+							}
+							// } @v12.2.6 
 							invalidateAll(true);
 							::UpdateWindow(H());
 							// Don't call clearEvent(event) there!
@@ -781,17 +830,6 @@ IMPL_HANDLE_EVENT(TDialog)
 				PP_Groups[i]->handleEvent(this, event);
 		}
 	}
-}
-
-int FASTCALL TDialog::valid(ushort command)
-{
-	if(command == cmCancel)
-		return 1;
-	else if(command == cmValid) {
-		if((ViewSize.x | ViewSize.y) == 0)
-			return 0;
-	}
-	return TGroup::valid(command);
 }
 
 int TDialog::TransmitData(int dir, void * pData)

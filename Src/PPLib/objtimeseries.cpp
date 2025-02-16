@@ -713,7 +713,7 @@ int PPObjTssModel::PutPacket(PPID * pID, PPTssModelPacket * pPack, int use_ta)
 {
 	int    ok = 1;
 	PPID   _id = DEREFPTRORZ(pID);
-	const  int is_new = (_id == 0);
+	const  bool is_new = (_id == 0);
 	const  int is_removing = BIN(*pID != 0 && pPack == 0);
 	PPID   hid = 0;
 	PPTssModelPacket org_pack;
@@ -1418,7 +1418,7 @@ int PPObjTimeSeries::PutPacket(PPID * pID, PPTimeSeriesPacket * pPack, int use_t
 {
 	int    ok = 1;
 	PPID   _id = DEREFPTRORZ(pID);
-	const  int is_new = (_id == 0);
+	const  bool is_new = (_id == 0);
 	const  int is_removing = BIN(*pID != 0 && pPack == 0);
 	PPID   hid = 0;
 	PPTimeSeriesPacket org_pack;

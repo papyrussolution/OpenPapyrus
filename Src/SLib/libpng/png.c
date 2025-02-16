@@ -546,7 +546,6 @@ void PNGAPI png_save_int_32(png_bytep buf, int32_t i)
  */
 int PNGAPI png_convert_to_rfc1123_buffer(char out[29], png_const_timep ptime)
 {
-	// @v9.7.10 static const char short_months[12][4] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 	if(!out)
 		return 0;
 	if(ptime->year > 9999 /* RFC1123 limitation */ || ptime->month == 0 || ptime->month > 12 || ptime->day == 0 || ptime->day > 31 ||
@@ -562,8 +561,7 @@ int PNGAPI png_convert_to_rfc1123_buffer(char out[29], png_const_timep ptime)
 
 		APPEND_NUMBER(PNG_NUMBER_FORMAT_u, (uint)ptime->day);
 		APPEND(' ');
-		// @v9.7.10 APPEND_STRING(short_months[(ptime->month - 1)]);
-		APPEND_STRING(STextConst::Get(STextConst::cMon_En_Sh, (ptime->month - 1))); // @v9.7.10 
+		APPEND_STRING(STextConst::Get(STextConst::cMon_En_Sh, (ptime->month - 1)));
 		APPEND(' ');
 		APPEND_NUMBER(PNG_NUMBER_FORMAT_u, ptime->year);
 		APPEND(' ');

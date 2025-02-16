@@ -1127,21 +1127,21 @@ int PPObjWorld::GetChildList(PPID id, PPIDArray * pChildList, PPIDArray * pStack
 	return ok;
 }
 
-int PPObjWorld::ValidateSelection(PPID id, uint olwFlags, void * extraPtr)
+/*virtual*/bool PPObjWorld::ValidateSelection(PPID id, uint olwFlags, void * extraPtr)
 {
-	int    ok = 0;
+	bool   ok = false;
 	WorldTbl::Rec rec;
 	if(Search(id, &rec) > 0) {
 		SelFilt sf;
 		ConvertExtraParam(extraPtr, &sf);
 		if(sf.KindFlags) {
 			if(sf.KindFlags & (1L << (rec.Kind-1)))
-				ok = 1;
+				ok = true;
 			else if(olwFlags & OLW_CANSELUPLEVEL)
-				ok = 1;
+				ok = true;
 		}
 		else
-			ok = 1;
+			ok = true;
 	}
 	return ok;
 }

@@ -586,7 +586,7 @@ int FASTCALL PPJob::Write(SBuffer & rBuf)
 {
 	int    ok = 1;
 	long   flags = (Flags | fV579);
-	Ver = 1; // @v9.2.4 0-->1
+	Ver = 1;
 	THROW(rBuf.Write(ID));
 	THROW(rBuf.Write(Name));
 	THROW(rBuf.Write(DbSymb));
@@ -598,10 +598,10 @@ int FASTCALL PPJob::Write(SBuffer & rBuf)
 	THROW(rBuf.Write(Ver));
 	THROW(rBuf.Write(NextJobID));
 	THROW(rBuf.Write(Symb, sizeof(Symb)));
-	THROW(rBuf.Write(EmailAccID)); // @v9.2.3
-	THROW(rBuf.Write(ScheduleBeforeTime)); // @v9.2.11 (за счет резерва)
+	THROW(rBuf.Write(EmailAccID));
+	THROW(rBuf.Write(ScheduleBeforeTime));
 	THROW(rBuf.Write(Reserve, sizeof(Reserve)));
-	THROW(rBuf.Write(ExtString)); // @v9.2.3
+	THROW(rBuf.Write(ExtString));
 	THROW(rBuf.Write(Param));
 	CATCH
 		ok = PPSetErrorSLib();
@@ -624,15 +624,13 @@ int FASTCALL PPJob::Read(SBuffer & rBuf)
 		THROW(rBuf.Read(Ver));
 		THROW(rBuf.Read(NextJobID));
 		THROW(rBuf.Read(Symb, sizeof(Symb)));
-		THROW(rBuf.Read(EmailAccID)); // @v9.2.3
-		THROW(rBuf.Read(ScheduleBeforeTime)); // @v9.2.11 (за счет резерва)
+		THROW(rBuf.Read(EmailAccID));
+		THROW(rBuf.Read(ScheduleBeforeTime));
 		THROW(rBuf.Read(Reserve, sizeof(Reserve)));
 	}
-	// @v9.2.3 {
 	if(Ver >= 1) {
 		THROW(rBuf.Read(ExtString));
 	}
-	// } @v9.2.3
 	THROW(rBuf.Read(Param))
 	CATCH
 		ok = PPSetErrorSLib();
@@ -3118,7 +3116,7 @@ int RFIDDevPrcssr::Run()
 								double amount = 0;
 								ScObj.P_Tbl->GetRest(sc_rec.ID, ZERODATE, &amount);
 								if((amount - price) > 0.0) {
-									TSVector <SCardCore::UpdateRestNotifyEntry> urn_list; // @v9.8.4 TSArray-->TSVector
+									TSVector <SCardCore::UpdateRestNotifyEntry> urn_list;
 									SCardCore::OpBlock op_blk;
 									op_blk.SCardID = sc_rec.ID;
 									op_blk.PrevRest = amount;

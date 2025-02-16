@@ -551,6 +551,7 @@ int ACS_SETSTART::ExportData(int updOnly)
 									case GTCHZNPT_ANTISEPTIC: _mark_type = 20; break; // @v12.0.5
 									case GTCHZNPT_MEDICALDEVICES: _mark_type = 21; break; // @v12.1.2
 									case GTCHZNPT_SOFTDRINKS: _mark_type = 23; break; // @v12.1.10
+									case GTCHZNPT_NONALCBEER: _mark_type = 25; break; // @v12.2.6 (значение - из документации фронтол)
 									default:
 										if(!_mark_type && gds_info.ChZnProdType) // (!_mark_type): значение может быть выставлено выше в блоке if(goods_iter.GetAlcoGoodsExtension(gds_info.ID, 0, agi) > 0) {}
 											_mark_type = 7; // 7–иная маркированная продукция

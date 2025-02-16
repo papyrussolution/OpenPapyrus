@@ -2367,18 +2367,14 @@ CURLcode Curl_http_body(struct Curl_easy * data, struct connectdata * conn,
 #ifndef CURL_DISABLE_MIME
 	if(data->state.mimepost) {
 		const char * cthdr = Curl_checkheaders(data, STRCONST("Content-Type"));
-
 		/* Read and seek body only. */
 		data->state.mimepost->flags |= MIME_BODY_ONLY;
-
 		/* Prepare the mime structure headers & set content type. */
-
 		if(cthdr)
 			for(cthdr += 13; *cthdr == ' '; cthdr++)
 				;
 		else if(data->state.mimepost->kind == MIMEKIND_MULTIPART)
 			cthdr = "multipart/form-data";
-
 		curl_mime_headers(data->state.mimepost, data->set.headers, 0);
 		result = Curl_mime_prepare_headers(data, data->state.mimepost, cthdr,
 			NULL, MIMESTRATEGY_FORM);
@@ -2390,20 +2386,14 @@ CURLcode Curl_http_body(struct Curl_easy * data, struct connectdata * conn,
 		http->postsize = Curl_mime_size(data->state.mimepost);
 	}
 #endif
-
 	ptr = Curl_checkheaders(data, STRCONST("Transfer-Encoding"));
 	if(ptr) {
 		/* Some kind of TE is requested, check if 'chunked' is chosen */
-		data->req.upload_chunky =
-		    Curl_compareheader(ptr,
-			STRCONST("Transfer-Encoding:"), STRCONST("chunked"));
+		data->req.upload_chunky = Curl_compareheader(ptr, STRCONST("Transfer-Encoding:"), STRCONST("chunked"));
 	}
 	else {
-		if((conn->handler->protocol & PROTO_FAMILY_HTTP) &&
-		    (((httpreq == HTTPREQ_POST_MIME || httpreq == HTTPREQ_POST_FORM) &&
-		    http->postsize < 0) ||
-		    ((data->state.upload || httpreq == HTTPREQ_POST) &&
-		    data->state.infilesize == -1))) {
+		if((conn->handler->protocol & PROTO_FAMILY_HTTP) && (((httpreq == HTTPREQ_POST_MIME || httpreq == HTTPREQ_POST_FORM) &&
+		    http->postsize < 0) || ((data->state.upload || httpreq == HTTPREQ_POST) && data->state.infilesize == -1))) {
 			if(conn->bits.authneg)
 				/* don't enable chunked during auth neg */
 				;
@@ -2421,15 +2411,13 @@ CURLcode Curl_http_body(struct Curl_easy * data, struct connectdata * conn,
 			/* else, no chunky upload */
 			data->req.upload_chunky = FALSE;
 		}
-
 		if(data->req.upload_chunky)
 			*tep = "Transfer-Encoding: chunked\r\n";
 	}
 	return result;
 }
 
-CURLcode Curl_http_bodysend(struct Curl_easy * data, struct connectdata * conn,
-    struct dynbuf * r, Curl_HttpReq httpreq)
+CURLcode Curl_http_bodysend(struct Curl_easy * data, struct connectdata * conn, struct dynbuf * r, Curl_HttpReq httpreq)
 {
 #ifndef USE_HYPER
 	/* Hyper always handles the body separately */

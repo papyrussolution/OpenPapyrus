@@ -4709,8 +4709,7 @@ void NppParameters::feedGUIParameters(TiXmlNode * node)
 			_nppGUI._darkmode._isEnabled = parseYesNoBoolAttribute(TEXT("enable"));
 
 			int i;
-			const TCHAR * val;
-			val = element->Attribute(TEXT("colorTone"), &i);
+			const TCHAR * val = element->Attribute(TEXT("colorTone"), &i);
 			if(val)
 				_nppGUI._darkmode._colorTone = static_cast<NppDarkMode::ColorTone>(i);
 			val = element->Attribute(TEXT("customColorTop"), &i);

@@ -1021,37 +1021,22 @@ void DockingCont::onSize()
 	RECT rcTemp = {0};
 	UINT iItemCnt = static_cast<int32_t>(::SendMessage(_hContTab, TCM_GETITEMCOUNT, 0, 0));
 	UINT iTabOff = 0;
-
 	getClientRect(rc);
-
 	if(iItemCnt >= 1) {
 		// resize to docked window
 		int tabDpiDynamicalHeight = NppParameters::getInstance()._dpiManager.scaleY(16) + 8;
 		if(_isFloating == false) {
 			// draw caption
 			if(_isTopCaption == TRUE) {
-				::SetWindowPos(_hCaption,
-				    NULL,
-				    rc.left,
-				    rc.top,
-				    rc.right,
-				    _captionHeightDynamic,
-				    SWP_NOZORDER | SWP_NOACTIVATE);
+				::SetWindowPos(_hCaption, NULL, rc.left, rc.top, rc.right, _captionHeightDynamic, SWP_NOZORDER|SWP_NOACTIVATE);
 				rc.top += _captionHeightDynamic;
 				rc.bottom -= _captionHeightDynamic;
 			}
 			else {
-				::SetWindowPos(_hCaption,
-				    NULL,
-				    rc.left,
-				    rc.top,
-				    _captionHeightDynamic,
-				    rc.bottom,
-				    SWP_NOZORDER | SWP_NOACTIVATE);
+				::SetWindowPos(_hCaption, NULL, rc.left, rc.top, _captionHeightDynamic, rc.bottom, SWP_NOZORDER|SWP_NOACTIVATE);
 				rc.left += _captionHeightDynamic;
 				rc.right -= _captionHeightDynamic;
 			}
-
 			if(iItemCnt >= 2) {
 				// resize tab and plugin control if tabs exceeds one
 				// resize tab
@@ -1059,12 +1044,8 @@ void DockingCont::onSize()
 				rcTemp.top = (rcTemp.bottom + rcTemp.top) - (tabDpiDynamicalHeight + _captionGapDynamic);
 				rcTemp.bottom   = tabDpiDynamicalHeight;
 				iTabOff         = tabDpiDynamicalHeight;
-
-				::SetWindowPos(_hContTab, NULL,
-				    rcTemp.left, rcTemp.top, rcTemp.right, rcTemp.bottom,
-				    SWP_NOZORDER | SWP_SHOWWINDOW |  SWP_NOACTIVATE);
+				::SetWindowPos(_hContTab, NULL, rcTemp.left, rcTemp.top, rcTemp.right, rcTemp.bottom, SWP_NOZORDER | SWP_SHOWWINDOW |  SWP_NOACTIVATE);
 			}
-
 			// resize client area for plugin
 			rcTemp = rc;
 			if(_isTopCaption == TRUE) {
@@ -1095,35 +1076,22 @@ void DockingCont::onSize()
 				rcTemp = rc;
 				rcTemp.top = rcTemp.bottom - (tabDpiDynamicalHeight + _captionGapDynamic);
 				rcTemp.bottom = tabDpiDynamicalHeight;
-
-				::SetWindowPos(_hContTab, NULL,
-				    rcTemp.left, rcTemp.top, rcTemp.right, rcTemp.bottom,
-				    SWP_NOZORDER | SWP_SHOWWINDOW);
+				::SetWindowPos(_hContTab, NULL, rcTemp.left, rcTemp.top, rcTemp.right, rcTemp.bottom, SWP_NOZORDER | SWP_SHOWWINDOW);
 			}
-
 			// resize client area for plugin
 			rcTemp = rc;
 			rcTemp.bottom -= ((iItemCnt == 1) ? 0 : tabDpiDynamicalHeight);
-
-			::SetWindowPos(::GetDlgItem(_hSelf, IDC_CLIENT_TAB), NULL,
-			    rcTemp.left, rcTemp.top, rcTemp.right, rcTemp.bottom,
-			    SWP_NOZORDER | SWP_NOACTIVATE);
+			::SetWindowPos(::GetDlgItem(_hSelf, IDC_CLIENT_TAB), NULL, rcTemp.left, rcTemp.top, rcTemp.right, rcTemp.bottom, SWP_NOZORDER | SWP_NOACTIVATE);
 		}
-
 		// get active item data
 		size_t iItemCnt2 = static_cast<size_t>(::SendMessage(_hContTab, TCM_GETITEMCOUNT, 0, 0));
-
 		// resize visible plugin windows
 		for(size_t iItem = 0; iItem < iItemCnt2; ++iItem) {
 			tcItem.mask     = TCIF_PARAM;
 			::SendMessage(_hContTab, TCM_GETITEM, iItem, reinterpret_cast<LPARAM>(&tcItem));
 			if(!tcItem.lParam)
 				continue;
-
-			::SetWindowPos(((tTbData*)tcItem.lParam)->hClient, NULL,
-			    0, 0, rcTemp.right, rcTemp.bottom,
-			    SWP_NOZORDER);
-
+			::SetWindowPos(((tTbData*)tcItem.lParam)->hClient, NULL, 0, 0, rcTemp.right, rcTemp.bottom, SWP_NOZORDER);
 			// Notify switch in
 			NMHDR nmhdr;
 			nmhdr.code      = DMN_FLOATDROPPED;

@@ -1813,7 +1813,7 @@ int PPObjTSession::CalcToolingTiming(const TSessionTbl::Rec * pRec, long * pTimi
 	if(GetPrevSession(*pRec, &prev_sess_rec) > 0 && TecObj.Fetch(pRec->TechID, &tec_rec) > 0 &&
 		TecObj.Fetch(prev_sess_rec.TechID, &prev_tec_rec) > 0) {
 		//if(tec_rec.GoodsID != prev_tec_rec.GoodsID) {
-			TSVector <TechTbl::Rec> t_list; // @v9.8.4 TSArray-->TSVect
+			TSVector <TechTbl::Rec> t_list;
 			if(TecObj.SelectTooling(pRec->PrcID, tec_rec.GoodsID, prev_tec_rec.GoodsID, &t_list) > 0)
 				for(uint i = 0; i < t_list.getCount(); i++) {
 					timing += t_list.at(i).Duration;
@@ -5066,7 +5066,7 @@ int PPObjTSession::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCont
 				same_id = *pID;
 				p_pack->Rec.Num = 0;
 			}
-			const int is_new = BIN(*pID == 0);
+			const bool is_new = (*pID == 0);
 			int    r = PutPacket(pID, p_pack, 1);
 			if(!r) {
 				SString name_buf;

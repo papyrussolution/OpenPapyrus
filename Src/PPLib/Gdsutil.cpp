@@ -1,5 +1,5 @@
 // GDSUTIL.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 // Утилиты для работы с товарами
 //
@@ -372,10 +372,8 @@ int PPObjGoods::GenerateScaleBarcode(PPID goodsID, PPID scaleID, SString & rCode
 		PPObjScale sc_obj;
 		PPScalePacket sc_pack;
 		if(sc_obj.Fetch(scaleID, &sc_pack) > 0 && sc_pack.Rec.AltGoodsGrp && sc_pack.Rec.IsValidBcPrefix()) {
-			//ObjAssocTbl::Rec assc_rec;
-			// @v9.2.2 if(PPRef->Assc.Search(PPASS_ALTGOODSGRP, sc_rec.AltGoodsGrp, goodsID, &assc_rec) > 0) {
 			long    inner_num = 0;
-			if(P_Tbl->GetGoodsCodeInAltGrp(goodsID, sc_pack.Rec.AltGoodsGrp, &inner_num) > 0) { // @v9.2.2
+			if(P_Tbl->GetGoodsCodeInAltGrp(goodsID, sc_pack.Rec.AltGoodsGrp, &inner_num) > 0) {
 				rCode.Cat(sc_pack.Rec.BcPrefix);
 				rCode.CatLongZ(/*assc_rec.InnerNum*/inner_num, (rCode.Len() == 3) ? 3 : 4);
 				if(rCode.Len() == 6) {
@@ -800,8 +798,7 @@ int PPObjGoods::SearchGListByStruc(PPID strucID, bool expandGenerics, PPIDArray 
 	return ok;
 }
 
-int PPObjGoods::Helper_WriteConfig(const PPGoodsConfig * pCfg, const SString * pGoodsExTitles,
-	PPOpCounterPacket * pOwnAcCntr, int rebuild, int use_ta)
+int PPObjGoods::Helper_WriteConfig(const PPGoodsConfig * pCfg, const SString * pGoodsExTitles, PPOpCounterPacket * pOwnAcCntr, int rebuild, int use_ta)
 {
 	int    ok = 1;
 	Reference * p_ref = PPRef;
@@ -2769,10 +2766,8 @@ int PPObjGoods::UpdateFlags(PPID goodsID, long setF, long resetF, int use_ta)
 				DS.LogAction(PPACN_OBJUPD, Obj, goodsID, 0, 0);
 				if((old_f & GF_NODISCOUNT) && (!(rec.Flags & GF_NODISCOUNT)))
 					DS.LogAction(PPACN_GOODSNODISRMVD, Obj, goodsID, 0, 0);
-				// @v9.5.0 {
 				if(!(old_f & GF_PASSIV) && (rec.Flags & GF_PASSIV))
 					DS.LogAction(PPACN_GOODSPASSVSET, Obj, goodsID, 0, 0);
-				// } @v9.5.0
 				ok = 1;
 			}
 		}
