@@ -184,10 +184,7 @@ PPViewGoodsToObjAssoc::~PPViewGoodsToObjAssoc()
 	}
 }
 
-int PPViewGoodsToObjAssoc::EditBaseFilt(PPBaseFilt * pFilt)
-{
-	return 1;
-}
+int PPViewGoodsToObjAssoc::EditBaseFilt(PPBaseFilt * pFilt) { return 1; }
 
 PPBaseFilt * PPViewGoodsToObjAssoc::CreateFilt(const void * extraPtr) const
 {

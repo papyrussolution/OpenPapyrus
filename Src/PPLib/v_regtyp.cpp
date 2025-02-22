@@ -1,5 +1,5 @@
 // V_REGTYP.CPP
-// Copyright (c) A.Starodub 2010, 2013, 2015, 2016, 2018, 2020, 2021, 2024
+// Copyright (c) A.Starodub 2010, 2013, 2015, 2016, 2018, 2020, 2021, 2024, 2025
 // @codepage UTF-8
 //
 // Типы регистрационных документов 
@@ -240,7 +240,7 @@ int PPViewRegisterType::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBro
 						filt.RegTypeID = id;
 						filt.EmptyAttrib = EA_NOEMPTY;
 						if(rt_rec.PersonKindID)
-							filt.Kind = rt_rec.PersonKindID;
+							filt.PersonKindID = rt_rec.PersonKindID;
 						ViewPerson(&filt);
 					}
 				}

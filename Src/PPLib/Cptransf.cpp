@@ -1,5 +1,5 @@
 // CPTRANSF.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2024
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2024, 2025
 // @codepage UTF-8
 // @Kernel
 //
@@ -19,7 +19,8 @@ CpTransfCore::CpTransfCore() : CpTransfTbl()
 /*static*/int FASTCALL CpTransfCore::PutExt__(CpTransfTbl::Rec & rRec, const CpTrfrExt * pExt)
 {
 	int    ok = 1;
-	SString ext_buf, temp_buf;
+	SString temp_buf;
+	SString ext_buf;
     PPPutExtStrData(CPTFREXSTR_SERIAL, ext_buf, (temp_buf = pExt ? pExt->PartNo : 0).Strip());
     PPPutExtStrData(CPTFREXSTR_CLB, ext_buf, (temp_buf = pExt ? pExt->Clb : 0).Strip());
     if(pExt) {
@@ -713,7 +714,7 @@ int PPObjBill::Helper_WrOffDrft_Acct(WrOffDraftBlock & rBlk, int use_ta)
 	{
 		// @v11.1.12 p_pack->Rec.Memo[0] = 0;
 		p_pack->SMemo.Z(); // @v11.1.12
-		THROW(p_pack->InitAmounts(0));
+		p_pack->InitAmounts();
 		p_pack->Rec.Amount = rBlk.SrcDraftPack.Rec.Amount;
 		p_pack->Amounts = rBlk.SrcDraftPack.Amounts;
 		p_pack->Rec.Flags |= BILLF_FIXEDAMOUNTS;
@@ -836,7 +837,7 @@ int PPObjBill::Helper_WrOffDrft_ExpDrftRcp(WrOffDraftBlock & rBlk, int use_ta)
 	if(ok > 0) {
 		// @v11.1.12 p_pack->Rec.Memo[0] = 0;
 		p_pack->SMemo.Z(); // @v11.1.12
-		THROW(p_pack->InitAmounts(0));
+		p_pack->InitAmounts();
 		p_pack->Amounts = rBlk.SrcDraftPack.Amounts;
 		p_pack->Rec.Flags |= BILLF_FIXEDAMOUNTS;
 		rBlk.ResultList.insert(p_pack);

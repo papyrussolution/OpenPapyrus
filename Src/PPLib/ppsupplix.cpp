@@ -5944,7 +5944,7 @@ int SapEfes::PrepareDebtsData(TSCollection <SapEfesDebtReportEntry> & rList, TSC
 				PPBillPacket pack;
 				const double org_amount = bill_item.Amount;
 				if(org_amount > 0.0 && P_BObj->ExtractPacketWithRestriction(bill_id, &pack, 0, GetGoodsList()) > 0) {
-					pack.InitAmounts(0);
+					pack.InitAmounts();
 					double paym = 0.0;
 					if(pack.Rec.Amount > 0.0) {
 						const  PPID ar_id = pack.Rec.Object;

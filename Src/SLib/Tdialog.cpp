@@ -668,10 +668,11 @@ IMPL_HANDLE_EVENT(TDialog)
 		}
 		if(local_ok) {
 			local_ok = TViewGroup::ValidateCommand(event);
-			assert(local_ok || event.isCleared());
+			assert(local_ok || event.isCommandValidationFailed());
 		}
-		else
-			clearEvent(event);
+		else {
+			NegativeReplyOnValidateCommand(event);
+		}
 	}
 	else if(event.isCmd(cmExecute)) {
 		ushort retval = 0;

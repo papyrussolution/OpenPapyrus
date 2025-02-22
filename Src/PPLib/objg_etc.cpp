@@ -1522,10 +1522,7 @@ PPViewComputer::~PPViewComputer()
 	return ok;
 }
 	
-/*virtual*/int PPViewComputer::EditBaseFilt(PPBaseFilt * pBaseFilt)
-{
-	return -1; // @stub
-}
+/*virtual*/int PPViewComputer::EditBaseFilt(PPBaseFilt * pBaseFilt) { return -1; } // @stub
 	
 int PPViewComputer::InitIteration()
 {
@@ -2388,16 +2385,8 @@ PPViewSwProgram::~PPViewSwProgram()
 	return ok;
 }
 	
-/*virtual*/int PPViewSwProgram::EditBaseFilt(PPBaseFilt * pBaseFilt)
-{
-	int    ok = -1;
-	return ok;
-}
-	
-int PPViewSwProgram::InitIteration()
-{
-	return MakeList();
-}
+/*virtual*/int PPViewSwProgram::EditBaseFilt(PPBaseFilt * pBaseFilt) { return -1; } // @stub
+int PPViewSwProgram::InitIteration() { return MakeList(); }
 	
 int FASTCALL PPViewSwProgram::NextIteration(SwProgramViewItem * pItem)
 {

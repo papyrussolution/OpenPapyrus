@@ -1,5 +1,5 @@
 // CLIBNK2.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 // Модуль формирования данных для передачи в системы клиент-банк
 //
@@ -469,7 +469,7 @@ static int TurnBankImportPacket(const Assoc * pAssoc, BankStmntItem * pItem, PPI
 		PPTransaction tra(1);
 		THROW(tra);
 		amt_list.Put(PPAMT_MAIN, pack.Rec.CurID, fabs(pItem->Amount), 0, 1);
-		pack.InitAmounts(&amt_list);
+		pack.InitAmounts(amt_list);
 		THROW(p_bobj->FillTurnList(&pack));
 		THROW(p_bobj->TurnPacket(&pack, 0));
 		pItem->MakeDescrText(temp_buf).Quot('(', ')');

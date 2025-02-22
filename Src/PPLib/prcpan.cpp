@@ -648,7 +648,7 @@ bool PrcPaneDialog::ValidateCommand(TEvent & rEv)
 			else
 				ok = false;
 			if(!ok) {
-				TView::clearEvent(rEv);
+				NegativeReplyOnValidateCommand(rEv);
 			}
 		}
 		else

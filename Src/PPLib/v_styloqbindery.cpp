@@ -1,5 +1,5 @@
 // V_STYLOQBINDERY.CPP
-// Copyright (c) A.Sobolev 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -579,11 +579,7 @@ int PPViewStyloQCommand::MakeList(PPViewBrowser * pBrw)
 	return ok;
 }
 
-/*virtual*/int PPViewStyloQCommand::EditBaseFilt(PPBaseFilt * pBaseFilt)
-{
-	int    ok = -1;
-	return ok;
-}
+/*virtual*/int PPViewStyloQCommand::EditBaseFilt(PPBaseFilt * pBaseFilt) { return -1; } // @stub
 
 /*virtual*/SArray * PPViewStyloQCommand::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
 {

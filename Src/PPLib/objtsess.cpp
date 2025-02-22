@@ -3667,7 +3667,7 @@ int PPObjTSession::ConvertWrOffDeficit(PPID sessID, PPID locID, const PUGL * pDf
 			for(i = 0; i < pack_list.getCount(); i++) {
 				PPBillPacket * p_pack = pack_list.at(i);
 				if(p_pack) {
-					THROW(p_pack->InitAmounts(0));
+					p_pack->InitAmounts();
 					if(p_pack->Rec.ID) {
 						THROW(p_bobj->UpdatePacket(p_pack, 0));
 						rLogger.LogAcceptMsg(PPOBJ_BILL, p_pack->Rec.ID, 1);

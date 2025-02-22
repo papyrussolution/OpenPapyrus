@@ -197,15 +197,14 @@ int ReportFiltDlg::getDTS(ReportFilt * pData)
 	return ok;
 }
 
-/*virtual*/int PPViewReport::EditBaseFilt(PPBaseFilt * pFilt)
-{
-	DIALOG_PROC_BODY_P1ERR(ReportFiltDlg, this, static_cast<ReportFilt *>(pFilt));
-}
+/*virtual*/int PPViewReport::EditBaseFilt(PPBaseFilt * pFilt) { DIALOG_PROC_BODY_P1ERR(ReportFiltDlg, this, static_cast<ReportFilt *>(pFilt)); }
 
 int PPViewReport::InitIteration()
 {
-	int    ok  = 1, idx = 0;
-	void * k = 0, * k_ = 0;
+	int    ok  = 1;
+	int    idx = 0;
+	void * k = 0;
+	void * k_ = 0;
 	union {
 		TempReportTbl::Key1 k1;
 		TempReportTbl::Key2 k2;

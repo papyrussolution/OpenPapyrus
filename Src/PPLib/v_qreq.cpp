@@ -1,5 +1,5 @@
 // V_QREQ.CPP
-// Copyright (c) A.Sobolev 2019, 2020, 2021, 2023
+// Copyright (c) A.Sobolev 2019, 2020, 2021, 2023, 2025
 // @codepage UTF-8
 //
 // @moduledef(PPViewQuoteReqAnalyze) Анализ котировочных запросов
@@ -246,11 +246,7 @@ int PPViewQuoteReqAnalyze::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	DIALOG_PROC_BODY(QuoteReqFiltDialog, p_filt);
 }
 
-int PPViewQuoteReqAnalyze::InitIteration()
-{
-	int    ok = -1;
-	return ok;
-}
+int PPViewQuoteReqAnalyze::InitIteration() { return -1; }
 
 int FASTCALL PPViewQuoteReqAnalyze::NextIteration(QuoteReqAnalyzeViewItem * pItem)
 {
@@ -366,7 +362,7 @@ int PPViewQuoteReqAnalyze::CreateLinkedRequest(PPID leadBillID, int leadRbb)
 					}
 					p_ti->Lbr.ID = leadBillID;
 					p_ti->Lbr.RByBill = leadRbb;
-					THROW(seq_bpack.InitAmounts(0));
+					seq_bpack.InitAmounts();
 					THROW(P_BObj->TurnPacket(&seq_bpack, 1));
 					CreateList(0, 0); // @todo Список надо перестроить только по одному документу
 					ok = 1;

@@ -3437,7 +3437,7 @@ int FASTCALL IsSellingOp(PPID opID)
 	if(opID) {
 		PPOprKind op_rec;
 		GetOpData(opID, &op_rec);
-		long   s = (op_rec.Flags & OPKF_SELLING);
+		const long s = (op_rec.Flags & OPKF_SELLING);
 		ret = (s ^ (op_rec.Flags & OPKF_BUYING)) ? BIN(s) : _IsSellingOp(opID);
 	}
 	return ret;

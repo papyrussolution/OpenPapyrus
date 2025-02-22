@@ -2898,7 +2898,6 @@ IMPL_HANDLE_EVENT(ReplPrsnDialog)
 	return ok;
 }
 
-
 int PPObjPerson::GetExtName(PPID id, SString & rBuf)
 {
 	int    r = PPRef->GetPropVlrString(Obj, id, PSNPRP_EXTSTRDATA, rBuf);
@@ -2950,15 +2949,8 @@ int PPObjPerson::GetRelPersonList(PPID personID, PPID relTypeID, int reverse,
 	return ok;
 }
 
-int PPObjPerson::GetStaffAmtList(PPID id, StaffAmtList * pList)
-{
-	return PPRef->GetPropArray(Obj, id, SLPPRP_AMTLIST, pList);
-}
-
-int PPObjPerson::PutStaffAmtList(PPID id, const StaffAmtList * pList)
-{
-	return PPRef->PutPropArray(Obj, id, SLPPRP_AMTLIST, pList, 0);
-}
+int PPObjPerson::GetStaffAmtList(PPID id, StaffAmtList * pList) { return PPRef->GetPropArray(Obj, id, SLPPRP_AMTLIST, pList); }
+int PPObjPerson::PutStaffAmtList(PPID id, const StaffAmtList * pList) { return PPRef->PutPropArray(Obj, id, SLPPRP_AMTLIST, pList, 0); }
 
 int PPObjPerson::GetPersonListByCategory(PPID catID, PPID kindID, PPIDArray & rList)
 {
@@ -2979,7 +2971,7 @@ int PPObjPerson::GetPersonListByCategory(PPID catID, PPID kindID, PPIDArray & rL
 		if(kindID) {
 			uint c = rList.getCount();
 			if(c) do {
-				PPID   id = rList.get(--c);
+				const PPID id = rList.get(--c);
 				if(!p_t->IsBelongsToKind(id, kindID)) {
 					rList.atFree(c);
 				}
@@ -3016,7 +3008,7 @@ int PPObjPerson::GetPersonListByDlvrLoc(PPID dlvrLocID, PPIDArray & rList)
 int PPObjPerson::GetDlvrLocList(PPID personID, PPIDArray * pList)
 {
 	LongArray temp_list;
-	int    r = PPRef->GetPropArray(Obj, personID, PSNPRP_DLVRLOCLIST, &temp_list);
+	const int r = PPRef->GetPropArray(Obj, personID, PSNPRP_DLVRLOCLIST, &temp_list);
 	for(uint i = 0; i < temp_list.getCount(); i++) {
 		const  PPID loc_id = temp_list.get(i);
 		uint pos = i+1;
@@ -3089,18 +3081,19 @@ int PPObjPerson::GetSingleBnkAcct(PPID personID, PPID bankID, PPID * pBnkAcctID,
 	PPBankAccount pref_ba_rec;
 	RegObj.GetBankAccountList(personID, &bacc_list);
 	if(bacc_list.getCount()) {
-		int    found = 0, pref_found = 0;
+		bool   found = false;
+		bool   pref_found = false;
 		int    pref_idx = -1;
 		for(uint i = 0; !found && i < bacc_list.getCount(); i++) {
 			PPBankAccount & r_rec = bacc_list.at(i);
 			if(pBnkAcctID && *pBnkAcctID && r_rec.ID == *pBnkAcctID) {
 				pref_idx = static_cast<int>(i);
-				found = 1;
+				found = true;
 			}
 			else if(!bankID || r_rec.BankID == bankID) {
 				if(!pref_found && r_rec.Flags & /*BACCTF_PREFERRED*/PREGF_BACC_PREFERRED) {
 					pref_idx = static_cast<int>(i);
-					pref_found = 1;
+					pref_found = true;
 				}
 				else if(pref_idx < 0)
 					pref_idx = static_cast<int>(i);
@@ -3143,7 +3136,7 @@ int PPObjPerson::GetBankData(PPID id, PPBank * pData)
 
 int PPObjPerson::AddBankSimple(PPID * pID, const PPBank * pData, int use_ta)
 {
-	int    ok = 1, r;
+	int    ok = 1;
 	PPID   id = 0;
 	PPObjWorld w_obj;
 	PPPersonPacket pack;
@@ -3159,11 +3152,14 @@ int PPObjPerson::AddBankSimple(PPID * pID, const PPBank * pData, int use_ta)
 		{
 			PPTransaction tra(use_ta);
 			THROW(tra);
-			THROW(r = SearchMaxLike(&pack, &id, 0, PPREGT_BIC));
-			if(r < 0) {
-				if(pData->City[0])
-					THROW(w_obj.AddSimple(&pack.Loc.CityID, WORLDOBJ_CITY, pData->City, 0, 0));
-				THROW(PutPacket(&(id = 0), &pack, 0));
+			{
+				const int r = SearchMaxLike(&pack, &id, 0, PPREGT_BIC);
+				THROW(r);
+				if(r < 0) {
+					if(pData->City[0])
+						THROW(w_obj.AddSimple(&pack.Loc.CityID, WORLDOBJ_CITY, pData->City, 0, 0));
+					THROW(PutPacket(&(id = 0), &pack, 0));
+				}
 			}
 			THROW(tra.Commit());
 		}
@@ -8276,18 +8272,18 @@ int PrcssrClientActivityStatistics::EditParam(PrcssrClientActivityStatisticsFilt
 
 static IMPL_CMPFUNC(PrcssrClientActivityStatistics_DetailedEntry, i1, i2)
 {
-	const PrcssrClientActivityStatistics::DetailedEntry * p1 = static_cast<const PrcssrClientActivityStatistics::DetailedEntry *>(i1);
-	const PrcssrClientActivityStatistics::DetailedEntry * p2 = static_cast<const PrcssrClientActivityStatistics::DetailedEntry *>(i2);
+	const ClientActivityDetailedEntry * p1 = static_cast<const ClientActivityDetailedEntry *>(i1);
+	const ClientActivityDetailedEntry * p2 = static_cast<const ClientActivityDetailedEntry *>(i2);
 	RET_CMPCASCADE3(p1, p2, Dtm, Oid.Obj, Oid.Id);
 }
 
-TSVector <PrcssrClientActivityStatistics::DetailedEntry> & PrcssrClientActivityStatistics::SortDetailedEntryList(TSVector <DetailedEntry> & rList)
+TSVector <ClientActivityDetailedEntry> & PrcssrClientActivityStatistics::SortDetailedEntryList(TSVector <ClientActivityDetailedEntry> & rList)
 {
 	rList.sort2(PTR_CMPFUNC(PrcssrClientActivityStatistics_DetailedEntry));
 	return rList;
 }
 
-int PrcssrClientActivityStatistics::EvaluateStorableStat(PPID personID, const TSVector <DetailedEntry> & rSrcList, 
+int PrcssrClientActivityStatistics::EvaluateStorableStat(PPID personID, const TSVector <ClientActivityDetailedEntry> & rSrcList, 
 	PPObjPerson::ClientActivityStatistics & rTotalEntry, TSVector <uint16> & rDateList)
 {
 	int   ok = -1;
@@ -8297,7 +8293,7 @@ int PrcssrClientActivityStatistics::EvaluateStorableStat(PPID personID, const TS
 	LDATE prev_date = ZERODATE;
 	StatBase date_gap_stat;
 	for(uint i = 0; i < rSrcList.getCount(); i++) {
-		const DetailedEntry & r_src_entry = rSrcList.at(i);
+		const ClientActivityDetailedEntry & r_src_entry = rSrcList.at(i);
 		assert(checkdate(r_src_entry.Dtm.d));
 		assert(r_src_entry.Dtm.d >= prev_date);
 		if(checkdate(r_src_entry.Dtm.d)) {
@@ -8443,7 +8439,7 @@ int PrcssrClientActivityStatistics::Run()
 	if(PsnCfg.ClientActivityDetectionList.getCount()) {
 		PPViewPerson _view;
 		PersonFilt _filt;
-		_filt.Kind = P.PersonKindID;
+		_filt.PersonKindID = P.PersonKindID;
 		PPWait(1);
 		if(_view.Init_(&_filt)) {
 			PersonViewItem view_item;
@@ -8456,7 +8452,7 @@ int PrcssrClientActivityStatistics::Run()
 			for(_view.InitIteration(); _view.NextIteration(&view_item) > 0;) {
 				PPWaitPercent(_view.GetCounter(), view_item.Name);
 				const PPID person_id = view_item.ID;
-				TSVector <DetailedEntry> dlist;
+				TSVector <ClientActivityDetailedEntry> dlist;
 				Implement_ScanDetailedActivityListForSinglePerson(&bill_view, person_id, dlist);
 				if(dlist.getCount()) {
 					PPObjPerson::ClientActivityStatistics total_entry;
@@ -8541,7 +8537,7 @@ int PrcssrClientActivityStatistics::Run()
 	return ok;
 }
 
-int PrcssrClientActivityStatistics::Implement_ScanDetailedActivityListForSinglePerson(PPViewBill * pBillV, PPID personID, TSVector <DetailedEntry> & rList)
+int PrcssrClientActivityStatistics::Implement_ScanDetailedActivityListForSinglePerson(PPViewBill * pBillV, PPID personID, TSVector <ClientActivityDetailedEntry> & rList)
 {
 	rList.clear();
 	int    ok = -1;
@@ -8593,7 +8589,7 @@ int PrcssrClientActivityStatistics::Implement_ScanDetailedActivityListForSingleP
 								if(p_view->Init_(&_filt)) {
 									BillViewItem view_item;
 									for(p_view->InitIteration(PPViewBill::OrdByDate); p_view->NextIteration(&view_item) > 0;) {
-										DetailedEntry new_entry(PPObjID(PPOBJ_BILL, view_item.ID), view_item.Dt);
+										ClientActivityDetailedEntry new_entry(PPObjID(PPOBJ_BILL, view_item.ID), view_item.Dt);
 										rList.insert(&new_entry);
 									}
 								}
@@ -8607,7 +8603,7 @@ int PrcssrClientActivityStatistics::Implement_ScanDetailedActivityListForSingleP
 				PersonEventTbl::Rec pe_rec;
 				for(SEnum en = PeObj.P_Tbl->EnumByPerson(personID, &_period); en.Next(&pe_rec) > 0;) {
 					if(psn_op_list.bsearch(pe_rec.OpID)) {
-						DetailedEntry new_entry(PPObjID(PeObj.Obj, pe_rec.ID), pe_rec.Dt);
+						ClientActivityDetailedEntry new_entry(PPObjID(PeObj.Obj, pe_rec.ID), pe_rec.Dt);
 						rList.insert(&new_entry);						
 					}
 				}
@@ -8633,12 +8629,12 @@ int PrcssrClientActivityStatistics::Implement_ScanDetailedActivityListForSingleP
 											const LDATE _dt = sco_rec.Dt;
 											if(!(sco_rec.Flags & _f) && _period.CheckDate(_dt)) {
 												if(sco_rec.Amount < 0.0) { // нас интересуют только операции расхода, поскольку только они и формируют нашу прибыль
-													/* Трудность обнаружилась - у операции по карте нет своего ObjID'а
-													DetailedEntry new_entry;
-													new_entry.Dt = _dt;
-													new_entry.Oid.Set(ScObj.Obj, sco_rec.ID);
+													// Трудность обнаружилась - у операции по карте нет своего ObjID'а. Транзакцию идентифицируем 
+													// объектом карты и моментом времени операции по карте.
+													ClientActivityDetailedEntry new_entry;
+													new_entry.Dtm.Set(_dt, sco_rec.Tm);
+													new_entry.Oid.Set(ScObj.Obj, sc_id);
 													rList.insert(&new_entry);
-													*/
 												}
 											}
 										}
@@ -8658,7 +8654,7 @@ int PrcssrClientActivityStatistics::Implement_ScanDetailedActivityListForSingleP
 										if(p_cc->search(4, &k4, spGe) && p_cc->data.SCardID == sc_id) do {
 											const LDATE _dt = p_cc->data.Dt;
 											if(_period.CheckDate(_dt)) {
-												DetailedEntry new_entry(PPObjID(PPOBJ_CCHECK, p_cc->data.ID), _dt);
+												ClientActivityDetailedEntry new_entry(PPObjID(PPOBJ_CCHECK, p_cc->data.ID), _dt);
 												rList.insert(&new_entry);												
 											}
 										} while(p_cc->search(4, &k4, spNext) && p_cc->data.SCardID == sc_id);
@@ -8677,7 +8673,7 @@ int PrcssrClientActivityStatistics::Implement_ScanDetailedActivityListForSingleP
 	return ok;
 }
 	
-int PrcssrClientActivityStatistics::ScanDetailedActivityListForSinglePerson(PPID personID, TSVector <DetailedEntry> & rList)
+int PrcssrClientActivityStatistics::ScanDetailedActivityListForSinglePerson(PPID personID, TSVector <ClientActivityDetailedEntry> & rList)
 {
 	return Implement_ScanDetailedActivityListForSinglePerson(0, personID, rList);
 }
@@ -8696,3 +8692,4 @@ int GatherClientActivityStatistics()
 	}
 	return ok;
 }
+

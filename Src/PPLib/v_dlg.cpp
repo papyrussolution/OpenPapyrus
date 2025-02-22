@@ -29,10 +29,7 @@ PPViewDialog::~PPViewDialog()
 {
 }
 
-int PPViewDialog::EditBaseFilt(PPBaseFilt * pBaseFilt)
-{
-	return 1;
-}
+int PPViewDialog::EditBaseFilt(PPBaseFilt * pBaseFilt) { return 1; }
 
 int PPViewDialog::Init_(const PPBaseFilt * pBaseFilt)
 {

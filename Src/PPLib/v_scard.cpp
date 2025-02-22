@@ -3446,7 +3446,6 @@ PPViewUhttSCardOp::PPViewUhttSCardOp() : PPView(0, &Filt, PPVIEW_UHTTSCARDOP, im
 
 PPViewUhttSCardOp::~PPViewUhttSCardOp()
 {
-	// @v10.9.1 (redundunt) List.freeAll();
 }
 
 int PPViewUhttSCardOp::Init_(const PPBaseFilt * pFilt)

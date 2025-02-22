@@ -1,5 +1,5 @@
 // SOBLK.CPP
-// Copyright (c) A.Sobolev 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -24,21 +24,21 @@ public:
 		oSCardDeposit,
 		oSCardWithdraw,
 		oGtaCheckIn,
-		oBillCreate,                // @v7.4.12
-		oBillAddLine,               // @v7.4.12
-		oBillFinish,                // @v7.4.12
-		oDraftTransitGoodsRest,     // @v7.6.0
-		oSetPersonRel,              // @v7.6.1
-		oGetPersonRel,              // @v7.6.1
-		oDraftTransitGoodsRestList, // @v7.6.4
-		oSetObjectTag,              // @v7.7.0
-		oIncObjectTag,              // @v7.7.0
-		oDecObjectTag,              // @v7.7.0
-		oGetObjectTag,              // @v7.7.0
-		oGetGoodsMatrix,            // @v8.1.9
-		oGetTSessPlaceStatus,       // @v8.7.8
-		oTSessCipCheckIn,           // @v8.8.2
-		oTSessCipCancel,            // @v8.8.2
+		oBillCreate,
+		oBillAddLine,
+		oBillFinish,
+		oDraftTransitGoodsRest,
+		oSetPersonRel,
+		oGetPersonRel,
+		oDraftTransitGoodsRestList,
+		oSetObjectTag,
+		oIncObjectTag,
+		oDecObjectTag,
+		oGetObjectTag,
+		oGetGoodsMatrix,
+		oGetTSessPlaceStatus,
+		oTSessCipCheckIn,
+		oTSessCipCancel,
 	};
 	//
 	// Критерии
@@ -73,7 +73,7 @@ public:
 		cMatrix,
 		cMatrixLoc,
 		cPassive,
-		cGeneric, // @v10.7.7
+		cGeneric,
 		cAndFlags,
 		cNotFlags,
 		cPeriod,
@@ -131,8 +131,7 @@ public:
 		cTSession,  //
 		cPinCode,   //
 		cCip,       //
-
-		cGeoTracking // @v10.1.5
+		cGeoTracking
 	};
 	//
 	// Подкритерии
@@ -5371,9 +5370,9 @@ int Backend_SelectObjectBlock::CheckInCriterion(int criterion, int subcriterion,
 							P_PsnF->Flags |= PersonFilt::fPrecName;
 							break;
 						case cSubName: P_PsnF->PutExtssData(PersonFilt::extssNameText, rArg); break;
-						case cKind: THROW(ResolveCrit_PersonKind(subcriterion, rArg, &P_PsnF->Kind)); break;
+						case cKind: THROW(ResolveCrit_PersonKind(subcriterion, rArg, &P_PsnF->PersonKindID)); break;
 						case cStatus: THROW(ResolveCrit_PersonStatus(subcriterion, rArg, &P_PsnF->Status)); break;
-						case cCategory: THROW(ResolveCrit_PersonCat(subcriterion, rArg, &P_PsnF->Category)); break;
+						case cCategory: THROW(ResolveCrit_PersonCat(subcriterion, rArg, &P_PsnF->PersonCategoryID)); break;
 						case cRegister:
 							SETIFZ(P_PsnF->P_RegF, new RegisterFilt);
 							{
@@ -5389,11 +5388,11 @@ int Backend_SelectObjectBlock::CheckInCriterion(int criterion, int subcriterion,
 								switch(subcriterion) {
 									case 0:
 									case scDef:
-										THROW_PP(P_PsnF->Kind, PPERR_CMDSEL_UNDEFPSNKFORDEFREG);
+										THROW_PP(P_PsnF->PersonKindID, PPERR_CMDSEL_UNDEFPSNKFORDEFREG);
 										{
 											PPObjPersonKind pk_obj;
 											PPPersonKind2 pk_rec;
-											THROW_PP(pk_obj.Fetch(P_PsnF->Kind, &pk_rec) > 0 && pk_rec.CodeRegTypeID, PPERR_CMDSEL_PSNKHASNTSRCHREGT);
+											THROW_PP(pk_obj.Fetch(P_PsnF->PersonKindID, &pk_rec) > 0 && pk_rec.CodeRegTypeID, PPERR_CMDSEL_PSNKHASNTSRCHREGT);
 											P_PsnF->P_RegF->RegTypeID = pk_rec.CodeRegTypeID;
 										}
 										break;

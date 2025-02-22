@@ -1589,10 +1589,7 @@ PPViewUserMenu::~PPViewUserMenu()
 	return ok;
 }
 
-/*virtual*/int PPViewUserMenu::EditBaseFilt(PPBaseFilt * pBaseFilt)
-{
-	return -1;
-}
+/*virtual*/int PPViewUserMenu::EditBaseFilt(PPBaseFilt * pBaseFilt) { return -1; } // @stub
 
 int PPViewUserMenu::CmpSortIndexItems(PPViewBrowser * pBrw, const BrwItem * pItem1, const BrwItem * pItem2)
 {

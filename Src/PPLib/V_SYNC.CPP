@@ -1,5 +1,5 @@
 // V_SYNC.CPP
-// Copyright (c) A.Sobolev 2001-2003, 2006, 2007, 2008, 2009, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2024
+// Copyright (c) A.Sobolev 2001-2003, 2006, 2007, 2008, 2009, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2024, 2025
 //
 #include <pp.h>
 #pragma hdrstop
@@ -20,15 +20,8 @@ int ObjSyncFilt::Init(int fullyDestroy, long extraData)
 	return 1;
 }
 
-int ObjSyncFilt::Write(SBuffer & rBuf, long f) const
-{
-	return (PPBaseFilt::Write(rBuf, f) && rBuf.Write(&ObjIDList, 0) && rBuf.Write(&CommIDList, 0)) ? 1 : 0;
-}
-
-int ObjSyncFilt::Read(SBuffer & rBuf, long f)
-{
-	return (PPBaseFilt::Read(rBuf, f) && rBuf.Read(&ObjIDList, 0) && rBuf.Read(&CommIDList, 0)) ? 1 : 0;
-}
+int ObjSyncFilt::Write(SBuffer & rBuf, long f) const { return BIN(PPBaseFilt::Write(rBuf, f) && rBuf.Write(&ObjIDList, 0) && rBuf.Write(&CommIDList, 0)); }
+int ObjSyncFilt::Read(SBuffer & rBuf, long f) { return BIN(PPBaseFilt::Read(rBuf, f) && rBuf.Read(&ObjIDList, 0) && rBuf.Read(&CommIDList, 0)); }
 
 int ObjSyncFilt::Copy(const PPBaseFilt * pS, int deep)
 {
@@ -828,10 +821,7 @@ PPViewObjSyncQueue::~PPViewObjSyncQueue()
 {
 }
 
-int PPViewObjSyncQueue::EditBaseFilt(PPBaseFilt * pFilt)
-{
-	return Filt.IsA(pFilt) ? 1 : PPErrorZ();
-}
+int PPViewObjSyncQueue::EditBaseFilt(PPBaseFilt * pFilt) { return Filt.IsA(pFilt) ? 1 : PPErrorZ(); }
 
 int PPViewObjSyncQueue::Init_(const PPBaseFilt * pFilt)
 {

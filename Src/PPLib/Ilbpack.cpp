@@ -1444,10 +1444,10 @@ int ILBillPacket::Load__(PPID billID, long flags, PPID cvtToOpID /*=0*/)
 			//
 			if(!cvt_to_opid)
 				p_bobj->P_Tbl->GetListOfOrdersByLading(billID, OrderBillList);
-			THROW(bpack.InitAmounts((int)0));
+			bpack.InitAmounts();
 			if(Rec.Flags & BILLF_FIXEDAMOUNTS) {
 				if(cvt_to_opid) {
-					THROW(bpack.SumAmounts(&Amounts));
+					bpack.SumAmounts(Amounts);
 				}
 				else {
 					THROW(p_bobj->P_Tbl->GetAmountList(billID, &Amounts));
@@ -1833,7 +1833,7 @@ int ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLevel, Ob
 				if(p_ae->AmtTypeID != PPAMT_PAYMENT)
 					rPack.Amounts.Put(p_ae, 1, 1);
 		}
-		THROW(rPack.InitAmounts(0));
+		rPack.InitAmounts();
 		rPack.Pays.copy(Pays);
 		if(_update) {
 			for(i = 0; i < rPack.Pays.getCount(); i++) {
@@ -2787,7 +2787,7 @@ int PPObjBill::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext 
 							assert(bp.Rec.ID == *pID);
 							bp.ProcessFlags |= PPBillPacket::pfForeignSync;
 							SETMAX(bp.Rec.LastRByBill, p_pack->Rec.LastRByBill);
-							THROW(bp.InitAmounts(0));
+							bp.InitAmounts();
 							THROW(FillTurnList(&bp));
 							if(trace_sync_lot) {
 								__Debug_TraceLotSync(*p_pack, &bp, msg_buf);
@@ -2849,7 +2849,7 @@ int PPObjBill::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext 
 						err_id = bp.Rec.ID;
 						PPObjBill::MakeCodeString(&bp.Rec, 0, err_bill_code);
 						if(to_turn) {
-							THROW(bp.InitAmounts(0));
+							bp.InitAmounts();
 							THROW(FillTurnList(&bp))
 							THROW(r = UpdatePacket(&bp, 0));
 							if(r > 0)

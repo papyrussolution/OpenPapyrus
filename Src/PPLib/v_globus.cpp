@@ -39,10 +39,7 @@ TempGlobUserAccTbl::Rec & PPViewGlobalUserAcc::MakeTempEntry(const PPGlobalUserA
 	return rTempRec;
 }
 
-/*virtual*/int PPViewGlobalUserAcc::EditBaseFilt(PPBaseFilt *)
-{
-	return 1;
-}
+/*virtual*/int PPViewGlobalUserAcc::EditBaseFilt(PPBaseFilt *) { return 1; } // @stub
 
 PP_CREATE_TEMP_FILE_PROC(CreateTempFile, TempGlobUserAcc);
 

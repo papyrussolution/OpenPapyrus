@@ -285,24 +285,22 @@ SString & STDCALL MakeTempFileName(const char * pDir, const char * pPrefix, cons
 {
 	char   prefix[128];
 	char   ext[128];
-	size_t prefix_len = 0;
 	long   start = DEREFPTROR(pStart, 1);
-	if(pPrefix)
-		prefix_len = sstrlen(strnzcpy(prefix, pPrefix, 20));
-	else
-		PTR32(prefix)[0] = 0;
+	strnzcpy(prefix, pPrefix, 20);
+	const  size_t prefix_len = sstrlen(prefix);
 	const uint nd = (prefix_len <= 6) ? (8-prefix_len) : 4;
-	if(pExt)
+	if(pExt) {
 		if(pExt[0] == '.')
 			strnzcpy(ext, pExt+1, sizeof(ext));
 		else
 			strnzcpy(ext, pExt, sizeof(ext));
+	}
 	else
 		ext[0] = 0;
 	for(rBuf.Z(); rBuf.IsEmpty() && start < 9999999L;) {
 		if(pDir)
 			(rBuf = pDir).Strip().SetLastSlash();
-		rBuf.Cat(prefix).CatLongZ(start++, nd).Dot().Cat(ext); // @v9.9.12 (8-prefix_len)-->nd
+		rBuf.Cat(prefix).CatLongZ(start++, nd).Dot().Cat(ext);
 		if(fileExists(rBuf))
 			rBuf.Z();
 	}

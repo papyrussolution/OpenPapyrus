@@ -423,6 +423,7 @@
 			MENUITEM "@cmd_paymplan",						cmPaymPlan
 			MENUITEM "@cmd_debtorstat",						cmDebtorStat
 		}
+		MENUITEM "@cmd_clientactivity",                     cmClientActivity // @v12.2.8
 		MENUITEM "@cmd_freight",							cmFreight
 		MENUITEM SEPARATOR
 		MENUITEM "@cmd_goodsturnover",						cmGoodsTurnover

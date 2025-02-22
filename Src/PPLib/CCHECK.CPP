@@ -7,6 +7,82 @@
 #pragma hdrstop
 #include <ppsoapclient.h>
 
+/* @v12.2.8 (replaced with CCheckExtSsList[].Id) static const int ccpack_textext_ident_list[] = { 
+	CCheckPacket::extssMemo, 
+	CCheckPacket::extssSign, 
+	CCheckPacket::extssEgaisUrl, 
+	CCheckPacket::extssRemoteProcessingTa,
+	CCheckPacket::extssChZnProcessingTag,  // @v11.0.1
+	CCheckPacket::extssBuyerINN,           // @v11.0.4 ИНН покупателя (при формировании чека по документу)
+	CCheckPacket::extssBuyerName,          // @v11.0.4 Наименование покупателя (при формировании чека по документу)
+	CCheckPacket::extssBuyerPhone,         // @v11.0.4 Телефон покупателя //
+	CCheckPacket::extssBuyerEMail,         // @v11.3.6 
+	CCheckPacket::extssUuid,               // @v11.5.2
+	CCheckPacket::extssPrescrDate,         // @v11.7.12 Дата медицинского рецепта
+	CCheckPacket::extssPrescrSerial,       // @v11.7.12 Серия медицинского рецепта
+	CCheckPacket::extssPrescrNumber,       // @v11.7.12 Номер медицинского рецепта
+	CCheckPacket::extssEgaisProcessingTag, // @v11.8.2
+	CCheckPacket::extssSourceSymb,         // @v11.8.5 Символ внешнего источника происхождения чека
+	CCheckPacket::extssOuterIdent,         // @v11.8.5 Идентификатор чека во внешнем источнике
+	CCheckPacket::extssOuterExtTag,        // @v11.8.5
+	CCheckPacket::extssLinkBillUuid,       // @v11.8.8
+};*/
+
+static const SIntToSymbTabEntry CCheckExtSsList[] = {
+	{ CCheckPacket::extssMemo,               "Memo" },
+	{ CCheckPacket::extssSign,               "Sign" },
+	{ CCheckPacket::extssEgaisUrl,           "EgaisUrl" },
+	{ CCheckPacket::extssRemoteProcessingTa, "RemoteProcessingTa" },
+	{ CCheckPacket::extssChZnProcessingTag,  "ChZnProcessingTag" },
+	{ CCheckPacket::extssBuyerINN,           "BuyerINN" },
+	{ CCheckPacket::extssBuyerName,          "BuyerName" },
+	{ CCheckPacket::extssBuyerPhone,         "BuyerPhone" },
+	{ CCheckPacket::extssBuyerEMail,         "BuyerEMail" },
+	{ CCheckPacket::extssUuid,               "Uuid" },
+	{ CCheckPacket::extssPrescrDate,         "PrescrDate" },
+	{ CCheckPacket::extssPrescrSerial,       "PrescrSerial" },
+	{ CCheckPacket::extssPrescrNumber,       "PrescrNumber" },
+	{ CCheckPacket::extssEgaisProcessingTag, "EgaisProcessingTag" },
+	{ CCheckPacket::extssSourceSymb,         "SourceSymb" },
+	{ CCheckPacket::extssOuterIdent,         "OuterIdent" },
+	{ CCheckPacket::extssOuterExtTag,        "OuterExtTag" },
+	{ CCheckPacket::extssLinkBillUuid,       "LinkBillUuid" },
+	{ CCheckPacket::extssFiscalSign,         "FiscalSign" }, // @v12.2.8
+};
+
+static const SIntToSymbTabEntry CCheckExtNameSymbList[] = {
+	{ CCheckPacket::extssMemo,               "ccextss_memo" },
+	{ CCheckPacket::extssSign,               "ccextss_sign" },
+	{ CCheckPacket::extssEgaisUrl,           "ccextss_egaisurl" },
+	{ CCheckPacket::extssRemoteProcessingTa, "ccextss_remoteprocessingta" },
+	{ CCheckPacket::extssChZnProcessingTag,  "ccextss_chznprocessingtag" },
+	{ CCheckPacket::extssBuyerINN,           "ccextss_buyerinn" },
+	{ CCheckPacket::extssBuyerName,          "ccextss_buyername" },
+	{ CCheckPacket::extssBuyerPhone,         "ccextss_buyerphone" },
+	{ CCheckPacket::extssBuyerEMail,         "ccextss_buyeremail" },
+	{ CCheckPacket::extssUuid,               "ccextss_uuid" },
+	{ CCheckPacket::extssPrescrDate,         "ccextss_prescrdate" },
+	{ CCheckPacket::extssPrescrSerial,       "ccextss_prescrserial" },
+	{ CCheckPacket::extssPrescrNumber,       "ccextss_prescrnumber" },
+	{ CCheckPacket::extssEgaisProcessingTag, "ccextss_egaisprocessingtag" },
+	{ CCheckPacket::extssSourceSymb,         "ccextss_sourcesymb" },
+	{ CCheckPacket::extssOuterIdent,         "ccextss_outerident" },
+	{ CCheckPacket::extssOuterExtTag,        "ccextss_outerexttag" },
+	{ CCheckPacket::extssLinkBillUuid,       "ccextss_linkbilluuid" },
+	{ CCheckPacket::extssFiscalSign,         "ccextss_fiscalsign" }, // @v12.2.8
+};
+
+/*static*/const SIntToSymbTabEntry * CCheckPacket::GetExtssNameSymbTab(uint * pTabEntryCount)
+{
+	ASSIGN_PTR(pTabEntryCount, SIZEOFARRAY(CCheckExtNameSymbList));
+	return CCheckExtNameSymbList;
+}
+
+/*static*/int CCheckPacket::GetExtssMnemonic(int extss, SString & rBuf)
+	{ return SIntToSymbTab_GetSymb(CCheckExtSsList, sizeof(CCheckExtSsList), extss, rBuf); }
+/*static*/int CCheckPacket::RecognizeExtssMnemonic(const char * pSymb)
+	{ return SIntToSymbTab_GetId(CCheckExtSsList, sizeof(CCheckExtSsList), pSymb); }
+
 static bool DoCCheckTextLog() { return LOGIC(CConfig.Flags & (CCFLG_DEBUG|CCFLG_LOGCCHECK)); }
 
 //#define DECL_INVARIANT_C()    int InvariantC(SInvariantParam * pInvP) const
@@ -481,7 +557,7 @@ CCheckItem & FASTCALL CCheckItem::operator = (const CCheckLineExtTbl::Rec & rS)
 	return *this;
 }
 
-void CCheckItem::GetRec(CCheckLineTbl::Rec & rRec, int ret) const
+void CCheckItem::GetRec(CCheckLineTbl::Rec & rRec, bool isReturn) const
 {
 	MEMSZERO(rRec);
 	rRec.RByCheck = RByCheck; // @v11.5.8
@@ -489,7 +565,7 @@ void CCheckItem::GetRec(CCheckLineTbl::Rec & rRec, int ret) const
 	if(Flags & cifIsPrinted)
 		rRec.DivID += CHECK_LINE_IS_PRINTED_BIAS;
 	rRec.GoodsID  = GoodsID;
-	rRec.Quantity = ret ? -fabs(Quantity) : fabs(Quantity);
+	rRec.Quantity = isReturn ? -fabs(Quantity) : fabs(Quantity);
 	if(Flags & cifQuotedByGift && BeforeGiftPrice > 0.0) {
 		rRec.Price = dbltointmny(BeforeGiftPrice);
 		rRec.Dscnt = (BeforeGiftPrice - Price);
@@ -499,7 +575,7 @@ void CCheckItem::GetRec(CCheckLineTbl::Rec & rRec, int ret) const
 		rRec.Price = dbltointmny(Price);
 		rRec.Dscnt = Discount;
 		const double tamt = R5(intmnytodbl(rRec.Price) - rRec.Dscnt);
-		if(tamt != amount /* @v8.2.3 && (CConfig.Flags2 & CCFLG2_ADJCPANCCLINETRANS)*/)
+		if(tamt != amount)
 			rRec.Dscnt += (tamt - amount);
 	}
 }
@@ -765,32 +841,6 @@ IMPL_INVARIANT_C(CCheckPacket)
 	S_ASSERT_P(!(Rec.Flags & CCHKF_CLOSEDORDER) || (Rec.Flags & (CCHKF_ORDER|CCHKF_DELIVERY)), pInvP);
 	S_INVARIANT_EPILOG(pInvP);
 }
-
-static const SIntToSymbTabEntry CCheckExtSsList[] = {
-	{ CCheckPacket::extssMemo,               "Memo" },
-	{ CCheckPacket::extssSign,               "Sign" },
-	{ CCheckPacket::extssEgaisUrl,           "EgaisUrl" },
-	{ CCheckPacket::extssRemoteProcessingTa, "RemoteProcessingTa" },
-	{ CCheckPacket::extssChZnProcessingTag,  "ChZnProcessingTag" },
-	{ CCheckPacket::extssBuyerINN,           "BuyerINN" },
-	{ CCheckPacket::extssBuyerName,          "BuyerName" },
-	{ CCheckPacket::extssBuyerPhone,         "BuyerPhone" },
-	{ CCheckPacket::extssBuyerEMail,         "BuyerEMail" },
-	{ CCheckPacket::extssUuid,               "Uuid" },
-	{ CCheckPacket::extssPrescrDate,         "PrescrDate" },
-	{ CCheckPacket::extssPrescrSerial,       "PrescrSerial" },
-	{ CCheckPacket::extssPrescrNumber,       "PrescrNumber" },
-	{ CCheckPacket::extssEgaisProcessingTag, "EgaisProcessingTag" },
-	{ CCheckPacket::extssSourceSymb,         "SourceSymb" },
-	{ CCheckPacket::extssOuterIdent,         "OuterIdent" },
-	{ CCheckPacket::extssOuterExtTag,        "OuterExtTag" },
-	{ CCheckPacket::extssLinkBillUuid,       "LinkBillUuid" },
-};
-
-/*static*/int CCheckPacket::GetExtssMnemonic(int extss, SString & rBuf)
-	{ return SIntToSymbTab_GetSymb(CCheckExtSsList, sizeof(CCheckExtSsList), extss, rBuf); }
-/*static*/int CCheckPacket::RecognizeExtssMnemonic(const char * pSymb)
-	{ return SIntToSymbTab_GetId(CCheckExtSsList, sizeof(CCheckExtSsList), pSymb); }
 
 CCheckPacket::CCheckPacket() : UpdFlags(0), PrintPtt(pttUndef), PctDis(0), Discount(0.0), _Cash(0.0), _OrdPrepay(0.0), P_DlvrAddr(0), P_Stirb(0), P_PpChZnCodeResultList(0)
 {
@@ -1127,34 +1177,13 @@ bool CCheckPacket::SearchLine(int rByCheck, uint * pPos) const
 	return Items_.lsearch(&rbc, pPos, PTR_CMPFUNC(int16), offsetof(CCheckLineTbl::Rec, RByCheck));
 }
 
-static const int ccpack_textext_ident_list[] = { 
-	CCheckPacket::extssMemo, 
-	CCheckPacket::extssSign, 
-	CCheckPacket::extssEgaisUrl, 
-	CCheckPacket::extssRemoteProcessingTa,
-	CCheckPacket::extssChZnProcessingTag,  // @v11.0.1
-	CCheckPacket::extssBuyerINN,           // @v11.0.4 ИНН покупателя (при формировании чека по документу)
-	CCheckPacket::extssBuyerName,          // @v11.0.4 Наименование покупателя (при формировании чека по документу)
-	CCheckPacket::extssBuyerPhone,         // @v11.0.4 Телефон покупателя //
-	CCheckPacket::extssBuyerEMail,         // @v11.3.6 
-	CCheckPacket::extssUuid,               // @v11.5.2
-	CCheckPacket::extssPrescrDate,         // @v11.7.12 Дата медицинского рецепта
-	CCheckPacket::extssPrescrSerial,       // @v11.7.12 Серия медицинского рецепта
-	CCheckPacket::extssPrescrNumber,       // @v11.7.12 Номер медицинского рецепта
-	CCheckPacket::extssEgaisProcessingTag, // @v11.8.2
-	CCheckPacket::extssSourceSymb,         // @v11.8.5 Символ внешнего источника происхождения чека
-	CCheckPacket::extssOuterIdent,         // @v11.8.5 Идентификатор чека во внешнем источнике
-	CCheckPacket::extssOuterExtTag,        // @v11.8.5
-	CCheckPacket::extssLinkBillUuid,       // @v11.8.8
-};
-
 int CCheckPacket::PackTextExt(SString & rResult) const
 {
 	rResult.Z();
 	int    ok = -1;
 	SString temp_buf;
-	for(uint i = 0; i < SIZEOFARRAY(ccpack_textext_ident_list); i++) {
-		const int fld_id = ccpack_textext_ident_list[i];
+	for(uint i = 0; i < SIZEOFARRAY(CCheckExtSsList); i++) {
+		const int fld_id = CCheckExtSsList[i].Id;
 		assert(fld_id > 0 && fld_id < 100);
 		if(fld_id > 0 && fld_id < 100) {
 			GetExtStrData(fld_id, temp_buf);
@@ -1174,8 +1203,8 @@ int CCheckPacket::PackTextExt(SString & rResult) const
 	int    ok = -1;
 	SString temp_buf;
 	rDest.Z();
-	for(uint i = 0; i < SIZEOFARRAY(ccpack_textext_ident_list); i++) {
-		const int fld_id = ccpack_textext_ident_list[i];
+	for(uint i = 0; i < SIZEOFARRAY(CCheckExtSsList); i++) {
+		const int fld_id = CCheckExtSsList[i].Id;
 		assert(fld_id > 0 && fld_id < 100);
 		if(fld_id > 0 && fld_id < 100) {
 			rSrc.GetExtStrData(fld_id, temp_buf);
@@ -1238,8 +1267,8 @@ int CCheckPacket::Helper_PackLineTextExt(SString & rResult) const
 				ok = 1;
 			}
 			else {
-				for(uint j = 0; j < SIZEOFARRAY(ccpack_textext_ident_list); j++) {
-					if(fld_id == ccpack_textext_ident_list[j]) {
+				for(uint j = 0; j < SIZEOFARRAY(CCheckExtSsList); j++) {
+					if(fld_id == CCheckExtSsList[j].Id) {
 						CALLPTRMEMB(pSc, PutExtStrData(fld_id, temp_buf));
 						ok = 1;
 						break;
@@ -1474,7 +1503,7 @@ int CCheckPacket::InsertItem(const CCheckItem & rItem)
 {
 	int    ok = 1;
 	CCheckLineTbl::Rec rec;
-	rItem.GetRec(rec, BIN(Rec.Flags & CCHKF_RETURN));
+	rItem.GetRec(rec, LOGIC(Rec.Flags & CCHKF_RETURN));
 	THROW_SL(Items_.insert(&rec));
 	{
 		const int idx = static_cast<int>(Items_.getCount());
@@ -2965,7 +2994,7 @@ int CCheckCore::UpdateCheck(CCheckPacket * pPack, int use_ta)
 						SETFLAG(lx_rec.Flags, le.fModifier, le.Flags & le.fModifier);
 						SETFLAG(lx_rec.Flags, le.fPartOfComplex, le.Flags & le.fPartOfComplex);
 						SETFLAG(lx_rec.Flags, le.fQuotedByGift,  le.Flags & le.fQuotedByGift);
-						SETFLAG(lx_rec.Flags, le.fFixedPrice,  le.Flags & le.fFixedPrice); // @v10.1.7
+						SETFLAG(lx_rec.Flags, le.fFixedPrice,  le.Flags & le.fFixedPrice);
 						THROW_DB(P_LnExt->insertRecBuf(&lx_rec));
 						ufp_factor += 1.0;
 					}
@@ -2975,8 +3004,7 @@ int CCheckCore::UpdateCheck(CCheckPacket * pPack, int use_ta)
 		}
 		{
 			SString text_buf;
-			// @v10.3.9 pPack->PackLineTextExt(text_buf);
-			pPack->PackTextExt(text_buf); // @v10.3.9
+			pPack->PackTextExt(text_buf);
 			if(text_buf.NotEmptyS()) {
 				THROW(PPRef->UtrC.SetText(TextRefIdent(PPOBJ_CCHECK, id, PPTRPROP_CC_LNEXT), text_buf.Transf(CTRANSF_INNER_TO_UTF8), 0));
 			}
@@ -5302,7 +5330,7 @@ int CSessGrouping::ConvertDeficit(PPID sessID, PPID locID, CSessTotal * pTotal)
 			for(i = 0; i < pack_list.getCount(); i++) {
 				PPBillPacket * p_pack = pack_list.at(i);
 				if(p_pack) {
-					THROW(p_pack->InitAmounts(0));
+					p_pack->InitAmounts();
 					if(p_pack->Rec.ID) {
 						THROW(p_bobj->UpdatePacket(p_pack, 0));
 						Logger.LogAcceptMsg(PPOBJ_BILL, p_pack->Rec.ID, 1);
@@ -5379,7 +5407,7 @@ int CSessGrouping::Convert(PPID sessID, PPID locID, const void * pData, CSessTot
 						if(r_ti.Qtty() != 0.0) {
 							double adj = to_adj_amt / fabs(r_ti.Qtty());
 							r_ti.Discount -= adj;
-							THROW(adj_pack.InitAmounts());
+							adj_pack.InitAmounts();
 							THROW(p_bobj->FillTurnList(&adj_pack));
 							adj_pack.ProcessFlags |= PPBillPacket::pfIgnoreStatusRestr;
 							THROW(p_bobj->UpdatePacket(&adj_pack, 0));
@@ -5499,7 +5527,7 @@ int CSessGrouping::TurnAccBill(PPID sessID, PPID locID, int use_ta) // @v11.0.4
 				// Что бы при ручном редактировании не снесли рассчитанные суммы зафиксируем их.
 				//
 				pack.Rec.Flags |= BILLF_FIXEDAMOUNTS;
-				THROW(pack.InitAmounts());
+				pack.InitAmounts();
 				THROW(p_bobj->FillTurnList(&pack));
 				if(is_new_bill) {
 					// @v11.0.5 {
@@ -5629,7 +5657,7 @@ int CSessGrouping::ConvertToBills(PPID sessID, PPID locID, const char * pMsg, ui
 				// Что бы при ручном редактировании не снесли рассчитанные суммы зафиксируем их.
 				//
 				pack.Rec.Flags |= BILLF_FIXEDAMOUNTS;
-				THROW(pack.InitAmounts());
+				pack.InitAmounts();
 				THROW(p_bobj->FillTurnList(&pack));
 				if(is_new_bill) {
 					THROW(p_bobj->TurnPacket(&pack, 0));
@@ -5712,7 +5740,7 @@ int CSessGrouping::ConvertTempSessToBills(const PPIDArray * pSessList, PPID locI
 							}
 						}
 					}
-					THROW(pack.InitAmounts(0));
+					pack.InitAmounts();
 					pack.ProcessFlags |= PPBillPacket::pfViewPercentOnTurn;
 					THROW(p_bobj->TurnPacket(&pack, 0));
 					Logger.LogAcceptMsg(PPOBJ_BILL, pack.Rec.ID, 0);

@@ -206,9 +206,9 @@ PPBaseFilt * PPViewDebtTrnovr::CreateFilt(const void * extraPtr) const
 	if(PPView::CreateFiltInstance(PPFILT_DEBTTRNOVR, reinterpret_cast<PPBaseFilt **>(&p_filt))) {
 		p_filt->Sgb.Reset();
 		p_filt->Sgb.S = SubstGrpBill::sgbObject;
-		if(extraPtr == 0)
+		if(reinterpret_cast<long>(extraPtr) == 0)
 			p_filt->AccSheetID = GetSellAccSheet();
-		else if((reinterpret_cast<long>(extraPtr)) == 1)
+		else if(reinterpret_cast<long>(extraPtr) == 1)
 			p_filt->AccSheetID = GetSupplAccSheet();
 		p_filt->Flags |= DebtTrnovrFilt::fSkipPassive;
 	}
@@ -311,7 +311,7 @@ int PPViewDebtTrnovr::CheckBillRec(const BillTbl::Rec * pRec, const PPIDArray * 
 
 int PPViewDebtTrnovr::GetPayableBillList_(const PPIDArray * pOpList, PPID arID, PPID curID, PayableBillList * pList)
 {
-	const LDATE current_date = NZOR(Filt.PaymPeriod.upp, getcurdate_()); // @v10.8.10 LConfig.OperDate-->getcurdate_()
+	const  LDATE current_date = NZOR(Filt.PaymPeriod.upp, getcurdate_());
 	int    ok = 1;
 	int    skip = 0;
 	if(Filt.CityID) {
@@ -1147,7 +1147,7 @@ int PPViewDebtTrnovr::PreprocessBill(const BillTbl::Rec & rRec, const ProcessBlo
 		if(rRec.Amount != 0.0) {
 			PPBillPacket bp;
 			if(P_BObj->ExtractPacketWithRestriction(rRec.ID, &bp, 0, &GoodsList) > 0) {
-				bp.InitAmounts(0);
+				bp.InitAmounts();
 				__part = bp.Rec.Amount / rRec.Amount;
 			}
 		}

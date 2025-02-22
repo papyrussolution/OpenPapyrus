@@ -967,12 +967,7 @@ PPViewBizScTempl::~PPViewBizScTempl()
 	delete P_TempTbl;
 }
 
-int PPViewBizScTempl::EditBaseFilt(PPBaseFilt * pFilt)
-{
-	int    ok = -1;
-	ok = 1;
-	return ok;
-}
+int PPViewBizScTempl::EditBaseFilt(PPBaseFilt * pFilt) { return 1; } // @stub
 
 void PPViewBizScTempl::MakeTempRec(const PPBizScTempl * pInRec, TempBizScTemplTbl::Rec * pOutRec)
 {
@@ -1173,10 +1168,7 @@ public:
 	}
 };
 
-int PPViewBizScValByTempl::EditBaseFilt(PPBaseFilt * pFilt)
-{
-	DIALOG_PROC_BODYERR(BizScValByTemplFiltDialog, static_cast<BizScValByTemplFilt *>(pFilt));
-}
+int PPViewBizScValByTempl::EditBaseFilt(PPBaseFilt * pFilt) { DIALOG_PROC_BODYERR(BizScValByTemplFiltDialog, static_cast<BizScValByTemplFilt *>(pFilt)); }
 
 int PPViewBizScValByTempl::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {

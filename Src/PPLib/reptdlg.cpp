@@ -323,7 +323,7 @@ private:
 		if(event.isCmd(cmValidateCommand)) { // @v12.2.6
 			const long validated_command = event.message.infoLong;
 			if(!ValidateCommand(validated_command)) {
-				clearEvent(event);
+				NegativeReplyOnValidateCommand(event);
 			}
 		}
 		TDialog::handleEvent(event);
@@ -411,7 +411,7 @@ private:
 				if(Data.Dtl.RA.NumPrd == 0) {
 					selectCtrl(CTL_REPEATING_NUMPRD);
 					PPSetError(PPERR_USERINPUT);
-					clearEvent(event);
+					NegativeReplyOnValidateCommand(event);
 					local_ok = false;
 				}
 			}

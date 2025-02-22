@@ -350,6 +350,7 @@ struct TEvent {
 	bool wasFocusChanged2(uint ctl01, uint ctl02) const;
 	bool wasFocusChanged3(uint ctl01, uint ctl02, uint ctl03) const;
 	bool isCleared() const { return (what == evNothing && message.infoPtr != 0); } // @v12.2.6
+	bool isCommandValidationFailed() const { return (what == evNothing && message.command == cmValidateCommand && message.infoPtr != 0); }
 };
 
 #define TVEVENT     event.what
@@ -2446,6 +2447,7 @@ public:
 	//
 	void   Show(int doShow);
 	void   FASTCALL clearEvent(TEvent & event);
+	void   FASTCALL NegativeReplyOnValidateCommand(TEvent & event);
 	HWND   getHandle() const;
 	void   select();
 	//
@@ -2469,7 +2471,7 @@ public:
 	int    OnDestroy(HWND);
 	void   SendToParent(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	void   SetWordSelBlock(WordSel_ExtraBlock *);
-	int    HasWordSelector() const { return BIN(P_WordSelBlk); }
+	bool   HasWordSelector() const { return LOGIC(P_WordSelBlk); }
 	//
 	// Descr: Только для применения в функции TWindow::getCtrlView
 	//

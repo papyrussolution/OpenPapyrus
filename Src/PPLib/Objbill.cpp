@@ -2025,7 +2025,7 @@ int PPObjBill::AddExpendByOrder(PPID * pBillID, PPID sampleBillID, const SelAddB
 					for(uint bpidx = 0; bpidx < rcpt_bpack_list.getCount(); bpidx++) {
 						PPBillPacket * p_rcpt_bpack_to_turn = rcpt_bpack_list.at(bpidx);
 						if(p_rcpt_bpack_to_turn && p_rcpt_bpack_to_turn->GetTCount()) {
-							THROW(p_rcpt_bpack_to_turn->InitAmounts());
+							p_rcpt_bpack_to_turn->InitAmounts();
 							THROW(FillTurnList(p_rcpt_bpack_to_turn));
 							THROW(TurnPacket(p_rcpt_bpack_to_turn, 1)); 
 						}
@@ -2061,7 +2061,7 @@ int PPObjBill::AddExpendByOrder(PPID * pBillID, PPID sampleBillID, const SelAddB
 				}
 			}
 			if(pParam->Flags & pParam->fNonInteractive) {
-				THROW(pack.InitAmounts());
+				pack.InitAmounts();
 				THROW(FillTurnList(&pack));
 				THROW(TurnPacket(&pack, 1)); 
 			}
@@ -2511,6 +2511,7 @@ int PPObjBill::EditGoodsBill(PPID id, const EditParam * pExtraParam)
 		ok = EditInventory(&pack, 0);
 	}
 	else {
+		pack.ProcessFlags |= PPBillPacket::pfDetectModificDetails; // @v12.2.8 @debug
 		while((ok = ::EditGoodsBill(&pack, egbf)) == cmOK) {
 			THROW(CheckRights(PPR_MOD));
 			if(CheckModificationAfterLoading(pack)) {
@@ -2759,7 +2760,7 @@ int PPObjBill::EditAccTurn(PPID id)
 		flags = ATTF_TO_ATDF(att_list.at(0).Flags);
 	flags |= (ATDF_DSBLDACC | ATDF_DSBLDART | ATDF_DSBLCACC | ATDF_DSBLCART);
 	THROW(r = EditGenericAccTurn(&pack, flags));
-	if(r == cmOK && (memcmp(&pack.Turns.at(0), &at, sizeof(at)) || !pack.Amounts.IsEq(&org_amt_list) || pack.Rec.LocID != org_loc_id ||
+	if(r == cmOK && (memcmp(&pack.Turns.at(0), &at, sizeof(at)) || !pack.Amounts.IsEq(org_amt_list) || pack.Rec.LocID != org_loc_id ||
 		org_mem != pack.SMemo)) { // @v11.1.12 (org_mem.Cmp(pack.Rec.Memo, 0) != 0)--->(org_mem != pack.SMemo)
 		THROW(UpdatePacket(&pack, 1));
 	}
@@ -5219,7 +5220,7 @@ int PPObjBill::AutoCalcPrices(PPBillPacket * pPack, int interactive, int * pIsMo
 					}
 				}
 				if(is_modif)
-					THROW(pPack->InitAmounts(0));
+					pPack->InitAmounts();
 				ok = 1;
 			}
 		}
@@ -7384,7 +7385,7 @@ int PPObjBill::ProcessACPacket(PPBillPacket * pack)
 	int    ok = 1;
 	if(pack->P_ACPack && pack->P_ACPack->GetTCount()) {
 		pack->P_ACPack->SetQuantitySign(-1);
-		THROW(pack->P_ACPack->InitAmounts(0));
+		pack->P_ACPack->InitAmounts();
 		THROW(FillTurnList(pack->P_ACPack));
 		THROW(TurnPacket(pack->P_ACPack, 0));
 	}
@@ -9278,7 +9279,7 @@ int PPObjBill::RecalcTurns(PPID id, long flags, int use_ta)
 			else
 				pack.Rec.Flags |= BILLF_NOLOADTRFR;
 			if(!(flags & BORTF_NORECALCAMOUNTS) && pack.IsGoodsDetail())
-				THROW(pack.InitAmounts(0));
+				pack.InitAmounts();
 			THROW(FillTurnList(&pack));
 			THROW(UpdatePacket(&pack, use_ta));
 		}
@@ -9528,10 +9529,10 @@ int PPObjBill::__TurnPacket(PPBillPacket * pPack, PPIDArray * pList, int skipEmp
 		if(oneof2(pPack->OpTypeID, PPOPT_ACCTURN, PPOPT_PAYMENT)) {
 			AmtList amt_list;
 			amt_list.Put(PPAMT_MAIN, pPack->Rec.CurID, fabs(pPack->Rec.Amount), 0, 1);
-			THROW(pPack->InitAmounts(&amt_list));
+			pPack->InitAmounts(amt_list);
 		}
 		else {
-			THROW(pPack->InitAmounts(0));
+			pPack->InitAmounts();
 		}
 		THROW(FillTurnList(pPack));
 		THROW(TurnPacket(pPack, use_ta));

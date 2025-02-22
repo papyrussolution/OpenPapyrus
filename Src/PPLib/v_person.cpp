@@ -36,15 +36,19 @@ static void DrawClientActivityStatistics(PPID psnID) // @v12.2.6 @construction
 			date_gap_stat.Finish();
 			double _gap_days_avg = date_gap_stat.GetExp();
 			double _gap_days_stddev = date_gap_stat.GetStdDev();
+			RealRange range_x;
+			range_x.low = DBL_MAX;
+			range_x.upp = -DBL_MAX;
 			{
 				Generator_GnuPlot plot(0);
 				Generator_GnuPlot::PlotParam param;
 				param.Flags |= Generator_GnuPlot::PlotParam::fHistogram;
 				plot.StartData(0/*putLegend*/);
-				param.Legend.Add(2, "value");
+				param.Legend.Add(1, "value");
 				for(uint hi = 0; hi < hg.GetResultCount(); hi++) {
 					SHistogram::Result hr;
 					hg.GetResult(hi, &hr);
+					range_x.SetupMinMax(hr.Low);
 					temp_buf.Z().Cat(hr.Low, MKSFMTD(0, 0, 0));
 					plot.PutData(temp_buf, 1); // #1
 					plot.PutData(hr.Count);    // #2
@@ -55,31 +59,34 @@ static void DrawClientActivityStatistics(PPID psnID) // @v12.2.6 @construction
 				plot.SetGrid();
 				plot.SetStyleFill("solid");
 				{
-					const double avg = cas.GapDaysAvg-1.0;
+					const double avg = cas.GapDaysAvg;
 					const double left_stddev = avg-cas.GapDaysStdDev;
 					const double right_stddev = avg+cas.GapDaysStdDev;
+					range_x.SetupMinMax(left_stddev);
+					range_x.SetupMinMax(right_stddev);
 					{
-						Generator_GnuPlot::Coord from_x(avg);
+						Generator_GnuPlot::Coord from_x(Generator_GnuPlot::Coord::csFirst, avg);
 						Generator_GnuPlot::Coord from_y(Generator_GnuPlot::Coord::csGraph, 0.0);
-						Generator_GnuPlot::Coord to_x(avg);
+						Generator_GnuPlot::Coord to_x(Generator_GnuPlot::Coord::csFirst, avg);
 						Generator_GnuPlot::Coord to_y(Generator_GnuPlot::Coord::csGraph, 1.0);
 						plot.SetArrow(from_x, from_y, to_x, to_y, Generator_GnuPlot::arrhNoHead);
 					}
 					{
-						Generator_GnuPlot::Coord from_x(left_stddev);
+						Generator_GnuPlot::Coord from_x(Generator_GnuPlot::Coord::csFirst, left_stddev);
 						Generator_GnuPlot::Coord from_y(Generator_GnuPlot::Coord::csGraph, 0.0);
-						Generator_GnuPlot::Coord to_x(left_stddev);
+						Generator_GnuPlot::Coord to_x(Generator_GnuPlot::Coord::csFirst, left_stddev);
 						Generator_GnuPlot::Coord to_y(Generator_GnuPlot::Coord::csGraph, 1.0);
 						plot.SetArrow(from_x, from_y, to_x, to_y, Generator_GnuPlot::arrhNoHead);
 					}
 					{
-						Generator_GnuPlot::Coord from_x(right_stddev);
+						Generator_GnuPlot::Coord from_x(Generator_GnuPlot::Coord::csFirst, right_stddev);
 						Generator_GnuPlot::Coord from_y(Generator_GnuPlot::Coord::csGraph, 0.0);
-						Generator_GnuPlot::Coord to_x(right_stddev);
+						Generator_GnuPlot::Coord to_x(Generator_GnuPlot::Coord::csFirst, right_stddev);
 						Generator_GnuPlot::Coord to_y(Generator_GnuPlot::Coord::csGraph, 1.0);
 						plot.SetArrow(from_x, from_y, to_x, to_y, Generator_GnuPlot::arrhNoHead);
 					}
 				}
+				plot.SetAxisRange(Generator_GnuPlot::axX, range_x.low-1.0, range_x.upp+1.0);
 				plot.Plot(&param);
 				ok = plot.Run();
 				// set arrow from 0.5, graph 0 to 0.5, graph 3 nohead
@@ -166,7 +173,19 @@ bool PPViewPerson::IsTempTblNeeded()
 	return yes;
 }
 
-int PPViewPerson::Init_(const PPBaseFilt * pFilt)
+/*virtual*/PPBaseFilt * PPViewPerson::CreateFilt(const void * extraPtr) const
+{
+	PersonFilt * p_filt = 0;
+	if(PPView::CreateFiltInstance(PPFILT_PERSON, reinterpret_cast<PPBaseFilt **>(&p_filt))) {
+		int speciality = reinterpret_cast<int>(extraPtr);
+		if(speciality == PersonFilt::spcClientActivityStats) {
+			p_filt->Flags |= PersonFilt::fCliActivityStats;
+		}
+	}
+	return static_cast<PPBaseFilt *>(p_filt);	
+}
+
+/*virtual*/int PPViewPerson::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
 	const  int use_ta = 1;
@@ -303,13 +322,13 @@ int PPViewPerson::Init_(const PPBaseFilt * pFilt)
 						use_list = 1;
 					}
 				}
-				if(Filt.Kind) {
+				if(Filt.PersonKindID) {
 					local_list.clear();
 					PersonKindTbl::Key0 k0, k0_;
 					MEMSZERO(k0);
-					k0.KindID = Filt.Kind;
+					k0.KindID = Filt.PersonKindID;
 					BExtQuery kq(kt, 0);
-					kq.select(kt->PersonID, 0L).where(kt->KindID == Filt.Kind);
+					kq.select(kt->PersonID, 0L).where(kt->KindID == Filt.PersonKindID);
 					k0_ = k0;
 					cntr.Init(kq.countIterations(0, &k0_, spGe));
 					for(kq.initIteration(false, &k0, spGe); kq.nextIteration() > 0; cntr.Increment()) {
@@ -325,13 +344,13 @@ int PPViewPerson::Init_(const PPBaseFilt * pFilt)
 				}
 				if(use_list) {
 					Filt.GetExtssData(PersonFilt::extssNameText, srch_buf);
-					if(Filt.Category || Filt.Status || srch_buf.NotEmptyS()) {
+					if(Filt.PersonCategoryID || Filt.Status || srch_buf.NotEmptyS()) {
 						local_list.clear();
 						for(uint i = 0; i < id_list.getCount(); i++) {
 							const  PPID id = id_list.get(i);
 							PersonTbl::Rec rec;
 							if(PsnObj.Fetch(id, &rec) > 0) {
-								if((!Filt.Category || rec.CatID == Filt.Category) && (!Filt.Status || rec.Status == Filt.Status)) {
+								if((!Filt.PersonCategoryID || rec.CatID == Filt.PersonCategoryID) && (!Filt.Status || rec.Status == Filt.Status)) {
 									if(srch_buf.NotEmptyS()) {
 										if(Filt.Flags & PersonFilt::fPrecName) {
 											if(srch_buf.CmpNC(rec.Name) == 0)
@@ -361,20 +380,20 @@ int PPViewPerson::Init_(const PPBaseFilt * pFilt)
 					if(srch_buf.NotEmptyS() && Filt.Flags & PersonFilt::fPrecName) {
 						srch_buf.CopyTo(k.k1.Name, sizeof(k.k1.Name));
 						if(pt->search(1, &k, spEq)) do {
-							if((!Filt.Category || pt->data.CatID == Filt.Category) && (!Filt.Status || pt->data.Status == Filt.Status)) {
+							if((!Filt.PersonCategoryID || pt->data.CatID == Filt.PersonCategoryID) && (!Filt.Status || pt->data.Status == Filt.Status)) {
 								local_list.add(pt->data.ID);
 							}
 						} while(pt->search(1, &k, spNext) && srch_buf.CmpNC(pt->data.Name) == 0);
 					}
 					else {
-						BExtQuery pq(pt, Filt.Category ? 2 : 0);
+						BExtQuery pq(pt, Filt.PersonCategoryID ? 2 : 0);
 						DBQ * dbq = 0;
 						pq.select(pt->ID, pt->Name, pt->Status, pt->MainLoc, pt->Flags, pt->RLoc, 0L);
-						dbq = ppcheckfiltid(dbq, pt->CatID, Filt.Category);
+						dbq = ppcheckfiltid(dbq, pt->CatID, Filt.PersonCategoryID);
 						dbq = ppcheckfiltid(dbq, pt->Status, Filt.Status);
 						pq.where(*dbq);
-						if(Filt.Category) {
-							k.k2.CatID = Filt.Category;
+						if(Filt.PersonCategoryID) {
+							k.k2.CatID = Filt.PersonCategoryID;
 						}
 						k_ = k;
 						cntr.Init(pq.countIterations(0, &k_, spGe));
@@ -540,8 +559,8 @@ int PPViewPerson::UpdateHungedAddr(PPID addrID)
 /*virtual*/void * PPViewPerson::GetEditExtraParam()
 {
 	void * p_result = 0;
-	if(Filt.Kind) {
-		p_result = reinterpret_cast<void *>(Filt.Kind);
+	if(Filt.PersonKindID) {
+		p_result = reinterpret_cast<void *>(Filt.PersonKindID);
 	}
 	return p_result;
 }
@@ -550,7 +569,7 @@ int PPViewPerson::AddItem(PPID * pID)
 {
 	int    ok = -1;
 	PPID   id = 0;
-	if(PsnObj.Edit(&id, reinterpret_cast<void *>(Filt.Kind)) == cmOK) {
+	if(PsnObj.Edit(&id, reinterpret_cast<void *>(Filt.PersonKindID)) == cmOK) {
 		AddTempRec(id, 0, 1);
 		ASSIGN_PTR(pID, id);
 		ok = 1;
@@ -561,7 +580,7 @@ int PPViewPerson::AddItem(PPID * pID)
 int PPViewPerson::EditItem(PPID id)
 {
 	int    ok = -1;
-	if(PsnObj.Edit(&id, reinterpret_cast<void *>(Filt.Kind)) == cmOK) {
+	if(PsnObj.Edit(&id, reinterpret_cast<void *>(Filt.PersonKindID)) == cmOK) {
 		EditTempRec(id, 1);
 		ok = 1;
 	}
@@ -1017,7 +1036,7 @@ void PPViewPerson::ViewTotal()
 int PPViewPerson::ViewTasks(PPID id)
 {
 	if(id) {
-		int    is_client = (Filt.Kind == PPPRK_CLIENT) ? 1 : (Filt.Kind == PPPRK_EMPL) ? 0 : -1; // -1 - undef kind
+		int    is_client = (Filt.PersonKindID == PPPRK_CLIENT) ? 1 : (Filt.PersonKindID == PPPRK_EMPL) ? 0 : -1; // -1 - undef kind
 		if(is_client < 0) {
 			PPPerson  psn_pack;
 			if(PsnObj.P_Tbl->Get(id, &psn_pack) > 0 && psn_pack.Kinds.lsearch(PPPRK_EMPL))
@@ -1172,7 +1191,7 @@ int PPViewPerson::CheckIDForFilt(PPID id, const PersonTbl::Rec * pRec)
 			ok = 0;
 		else if((Filt.Flags & PersonFilt::fHasImages) && !(pRec->Flags & PSNF_HASIMAGES))
 			ok = 0;
-		else if(!CheckFiltID(Filt.Category, pRec->CatID))
+		else if(!CheckFiltID(Filt.PersonCategoryID, pRec->CatID))
 			ok = 0;
 		else if(!CheckFiltID(Filt.PersonID, pRec->ID))
 			ok = 0;
@@ -1658,12 +1677,12 @@ int PPViewPerson::InitPersonIteration()
 	int    ok = 1;
 	PersonTbl * pt = PsnObj.P_Tbl;
 	PersonKindTbl * kt = & PsnObj.P_Tbl->Kind;
-	if(Filt.Kind) {
+	if(Filt.PersonKindID) {
 		PersonKindTbl::Key0 k0, k0_;
 		MEMSZERO(k0);
-		k0.KindID = Filt.Kind;
+		k0.KindID = Filt.PersonKindID;
 		THROW_MEM(P_IterQuery = new BExtQuery(kt, 0));
-		P_IterQuery->select(kt->PersonID, 0L).where(kt->KindID == Filt.Kind);
+		P_IterQuery->select(kt->PersonID, 0L).where(kt->KindID == Filt.PersonKindID);
 		Counter.Init(P_IterQuery->countIterations(0, &(k0_ = k0), spGe));
 		P_IterQuery->initIteration(false, &k0, spGe);
 	}
@@ -1717,7 +1736,7 @@ int FASTCALL PPViewPerson::NextIteration(PersonViewItem * pItem)
 				}
 			}
 			else {
-				const PPID id = Filt.Kind ? PsnObj.P_Tbl->Kind.data.PersonID : PsnObj.P_Tbl->data.ID;
+				const PPID id = Filt.PersonKindID ? PsnObj.P_Tbl->Kind.data.PersonID : PsnObj.P_Tbl->data.ID;
 				if(PsnObj.Search(id, &item) > 0 && CheckIDForFilt(id, &item))
 					ok = 1;
 			}
@@ -1766,7 +1785,7 @@ static SArray * CreateExtRegList(const PersonFilt * pFilt, PPID * pAttrID, uint 
 						suitable = true;
 				}
 				else {
-					if(!pFilt->Kind || oneof2(rt_rec.PersonKindID, 0, pFilt->Kind)) {
+					if(!pFilt->PersonKindID || oneof2(rt_rec.PersonKindID, 0, pFilt->PersonKindID)) {
 						const long xst = CheckXORFlags(rt_rec.Flags, REGTF_PRIVATE, REGTF_LEGAL);
 						suitable = (!pFilt->Status || !xst || ((pFilt->Status == PPPRS_PRIVATE) ? (xst & REGTF_PRIVATE) : (xst & REGTF_LEGAL)));
 					}
@@ -1895,7 +1914,7 @@ int GetExtRegListIds(PPID psnKindID, PPID statusID, PPIDArray * pList)
 	PersonFilt filt;
 	SArray * p_list = 0;
 	ExtRegEntry * p_entry;
-	filt.Kind   = psnKindID;
+	filt.PersonKindID = psnKindID;
 	filt.Status = statusID;
 	THROW(p_list = CreateExtRegList(&filt, 0, sercfRegsOnly));
 	for(c = 0; p_list->enumItems(&c, (void **)&p_entry) > 0;) {
@@ -1938,7 +1957,7 @@ void PersonFilt::Setup()
 bool PersonFilt::IsEmpty() const
 {
 	bool   yes = true;
-	if(Kind || Category || Status || CityID || (P_RegF && !P_RegF->IsEmpty()) ||
+	if(PersonKindID || PersonCategoryID || Status || CityID || (P_RegF && !P_RegF->IsEmpty()) ||
 		Flags & fVatFree || StaffDivID || StaffOrgID || List.GetCount() || (P_TagF && !P_TagF->IsEmpty()) || (P_SjF && !P_SjF->IsEmpty()))
 		yes = false;
 	else {
@@ -2003,8 +2022,8 @@ int PersonFilt::PutExtssData(int fldID, const char * pBuf) { return PPPutExtStrD
 				Init(1, 0);
 			}
 			uint8  ReserveStart[32];  // @anchor
-			PPID   Kind;
-			PPID   Category;
+			PPID   PersonKindID;
+			PPID   PersonCategoryID;
 			PPID   Status;
 			PPID   CityID;
 			int    AttribType;
@@ -2022,8 +2041,8 @@ int PersonFilt::PutExtssData(int fldID, const char * pBuf) { return PPPutExtStrD
 		THROW(fv0.Read(rBuf, 0));
 		memzero(ReserveStart, sizeof(ReserveStart));
 #define CPYFLD(f) f = fv0.f
-		CPYFLD(Kind);
-		CPYFLD(Category);
+		CPYFLD(PersonKindID);
+		CPYFLD(PersonCategoryID);
 		CPYFLD(Status);
 		CPYFLD(CityID);
 		CPYFLD(AttribType);
@@ -2103,42 +2122,161 @@ static int EditRegFilt(PersonFilt * pFilt)
 //
 //
 //
-int PPViewPerson::EditBaseFilt(PPBaseFilt * pFilt)
-{
-	class PersonFiltDialog : public TDialog {
-		DECL_DIALOG_DATA(PersonFilt);
-	public:
-		PersonFiltDialog() : TDialog(DLG_PSNFLT), CluFlagsLock_(0)
+class PersonFiltDialog : public TDialog {
+	DECL_DIALOG_DATA(PersonFilt);
+public:
+	PersonFiltDialog(uint rezID) : TDialog(NZOR(rezID, DLG_PSNFLT)), CluFlagsLock_(0)
+	{
+		IsThereCasDetectionList = LOGIC(PsnObj.GetConfig().ClientActivityDetectionList.getCount());
+		SetupCalDate(CTLCAL_PSNFLT_CASDT, CTL_PSNFLT_CASDT); // @v12.2.2
+		SetupCalPeriod(CTLCAL_PSNFLT_NEWCLIPERIOD, CTL_PSNFLT_NEWCLIPERIOD);
+		enableCommand(cmAdvOptions, 1);
+	}
+	DECL_DIALOG_SETDTS()
+	{
+		RVALUEPTR(Data, pData);
+		SString temp_buf;
+		SetupPPObjCombo(this, CTLSEL_PSNFLT_CITY, PPOBJ_WORLD, Data.CityID, OLW_CANSELUPLEVEL|OLW_WORDSELECTOR, 0);
+		SetupPPObjCombo(this, CTLSEL_PSNFLT_KIND, PPOBJ_PERSONKIND, Data.PersonKindID, 0, 0);
+		SetupPPObjCombo(this, CTLSEL_PSNFLT_CATEGORY, PPOBJ_PRSNCATEGORY, Data.PersonCategoryID, 0, 0);
+		SetupPPObjCombo(this, CTLSEL_PSNFLT_STATUS, PPOBJ_PRSNSTATUS, Data.Status, 0, 0);
+		SetupExtRegCombo(this, CTLSEL_PSNFLT_ATTR, &Data, (Data.Flags & PersonFilt::fLocTagF) ? sercfLocAttrs : 0);
+		if(Data.GetAttribType())
+			setCtrlData(CTL_PSNFLT_EMPTY, &Data.EmptyAttrib);
+		else
+			disableCtrl(CTL_PSNFLT_EMPTY, 1);
+		Data.GetExtssData(PersonFilt::extssNameText, temp_buf);
+		setCtrlString(CTL_PSNFLT_NAMESTR, temp_buf);
+		SetupWordSelector(CTL_PSNFLT_NAMESTR, new TextHistorySelExtra("personfilt-nametext-common"), 0, 2, WordSel_ExtraBlock::fFreeText);
+		setCtrlUInt16(CTL_PSNFLT_VATFREE, BIN(Data.Flags & PersonFilt::fVatFree));
+		AddClusterAssoc(CTL_PSNFLT_FLAGS, 0, PersonFilt::fTagsCrsstab);
+		AddClusterAssoc(CTL_PSNFLT_FLAGS, 1, PersonFilt::fHasImages);
+		AddClusterAssoc(CTL_PSNFLT_FLAGS, 2, PersonFilt::fShowHangedAddr);
+		AddClusterAssoc(CTL_PSNFLT_FLAGS, 3, PersonFilt::fLocTagF);
+		AddClusterAssoc(CTL_PSNFLT_FLAGS, 4, PersonFilt::fShowFiasRcgn);
+		AddClusterAssoc(CTL_PSNFLT_FLAGS, 5, PersonFilt::fCliActivityStats); // @v12.2.2
+		SetClusterData(CTL_PSNFLT_FLAGS, Data.Flags);
+		DisableClusterItem(CTL_PSNFLT_FLAGS, 2, Data.GetAttribType() != PPPSNATTR_ALLADDR);
+		// @v12.1.10 DisableClusterItem(CTL_PSNFLT_FLAGS, 3, !Data.IsLocAttr());
 		{
-			IsThereCasDetectionList = LOGIC(PsnObj.GetConfig().ClientActivityDetectionList.getCount());
-			SetupCalDate(CTLCAL_PSNFLT_CASDT, CTL_PSNFLT_CASDT); // @v12.2.2
-			SetupCalPeriod(CTLCAL_PSNFLT_NEWCLIPERIOD, CTL_PSNFLT_NEWCLIPERIOD);
-			enableCommand(cmAdvOptions, 1);
+			PPLocationConfig loc_cfg;
+			PPObjLocation::FetchConfig(&loc_cfg);
+			DisableClusterItem(CTL_PSNFLT_FLAGS, 4, !(loc_cfg.Flags & PPLocationConfig::fUseFias) || !Data.IsLocAttr());
 		}
-		DECL_DIALOG_SETDTS()
+		setCtrlData(CTL_PSNFLT_CASDT, &Data.ClientActivityEvalDate); // @v12.2.2
+		SetPeriodInput(this, CTL_PSNFLT_NEWCLIPERIOD, &Data.NewCliPeriod);
+		// @v12.2.2 AddClusterAssoc(CTL_PSNFLT_NEWCLIONLY, 0, PersonFilt::fNewClientsOnly);
+		// @v12.2.2 SetClusterData(CTL_PSNFLT_NEWCLIONLY, Data.Flags);
+		// @v12.2.2 {
 		{
-			RVALUEPTR(Data, pData);
-			SString temp_buf;
-			SetupPPObjCombo(this, CTLSEL_PSNFLT_CITY, PPOBJ_WORLD, Data.CityID, OLW_CANSELUPLEVEL|OLW_WORDSELECTOR, 0);
-			SetupPPObjCombo(this, CTLSEL_PSNFLT_KIND, PPOBJ_PERSONKIND, Data.Kind, 0, 0);
-			SetupPPObjCombo(this, CTLSEL_PSNFLT_CATEGORY, PPOBJ_PRSNCATEGORY, Data.Category, 0, 0);
-			SetupPPObjCombo(this, CTLSEL_PSNFLT_STATUS, PPOBJ_PRSNSTATUS, Data.Status, 0, 0);
+			AddClusterAssoc(CTL_PSNFLT_NEWCLIONLY, 0, (1 << PPObjPerson::ClientActivityState::stUndef));
+			AddClusterAssoc(CTL_PSNFLT_NEWCLIONLY, 1, (1 << PPObjPerson::ClientActivityState::stNoData));
+			AddClusterAssoc(CTL_PSNFLT_NEWCLIONLY, 2, (1 << PPObjPerson::ClientActivityState::stRegularTa));
+			AddClusterAssoc(CTL_PSNFLT_NEWCLIONLY, 3, (1 << PPObjPerson::ClientActivityState::stDelayedTa));
+			AddClusterAssoc(CTL_PSNFLT_NEWCLIONLY, 4, (1 << PPObjPerson::ClientActivityState::stHopelesslyDelayedTa));
+			AddClusterAssoc(CTL_PSNFLT_NEWCLIONLY, 5, PPObjPerson::ClientActivityState::stfNewClient);
+			SetClusterData(CTL_PSNFLT_NEWCLIONLY, Data.ClientActivityStateFlags);
+		}
+		SetupCtrls();
+		// } @v12.2.2 
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		SString temp_buf;
+		getCtrlData(CTLSEL_PSNFLT_CITY, &Data.CityID);
+		getCtrlData(CTLSEL_PSNFLT_KIND, &Data.PersonKindID);
+		getCtrlData(CTLSEL_PSNFLT_CATEGORY, &Data.PersonCategoryID);
+		getCtrlData(CTLSEL_PSNFLT_STATUS, &Data.Status);
+		{
+			int    attr_type = 0;
+			GetExtRegData(this, CTLSEL_PSNFLT_ATTR, &attr_type, &Data.RegTypeID);
+			Data.SetAttribType(attr_type);
+		}
+		getCtrlData(CTL_PSNFLT_EMPTY, &Data.EmptyAttrib);
+		getCtrlString(CTL_PSNFLT_NAMESTR, temp_buf.Z());
+		Data.PutExtssData(PersonFilt::extssNameText, temp_buf);
+		SETFLAG(Data.Flags, PersonFilt::fVatFree, getCtrlUInt16(CTL_PSNFLT_VATFREE));
+		GetClusterData(CTL_PSNFLT_FLAGS, &Data.Flags);
+		if(IsThereCasDetectionList) {
+			getCtrlData(CTL_PSNFLT_CASDT, &Data.ClientActivityEvalDate); // @v12.2.2
+			GetPeriodInput(this, CTL_PSNFLT_NEWCLIPERIOD, &Data.NewCliPeriod);
+			// @v12.2.2 GetClusterData(CTL_PSNFLT_NEWCLIONLY, &Data.Flags);
+			Data.ClientActivityStateFlags = static_cast<uint16>(GetClusterData(CTL_PSNFLT_NEWCLIONLY)); // @v12.2.2 
+		}
+		ASSIGN_PTR(pData, Data);
+		return 1;
+	}
+private:
+	DECL_HANDLE_EVENT
+	{
+		TDialog::handleEvent(event);
+		if(event.isCmd(cmAdvOptions)) {
+			EditRegFilt(&Data);
+		}
+		else if(event.isCmd(cmClientActivityConfig)) { // @v12.2.4
+			PPPersonConfig psn_cfg;
+			PPObjPerson::ReadConfig(&psn_cfg);
+			if(PPObjPerson::EditClientAcitivityConfig(psn_cfg) > 0) {
+				if(PPObjPerson::WriteConfig(&psn_cfg, 1)) {
+					PsnObj.DirtyConfig();
+				}
+			}
+		}
+		else if(event.isClusterClk(CTL_PSNFLT_FLAGS)) {
+			if(!CluFlagsLock_) {
+				CluFlagsLock_ = 1;
+				const long preserve_flags = Data.Flags;
+				GetClusterData(CTL_PSNFLT_FLAGS, &Data.Flags);
+				if((Data.Flags & PersonFilt::fLocTagF) != (preserve_flags & PersonFilt::fLocTagF)) {
+					SetupExtRegCombo(this, CTLSEL_PSNFLT_ATTR, &Data, (Data.Flags & PersonFilt::fLocTagF) ? sercfLocAttrs : 0); // @v12.1.10
+					if(Data.P_TagF && !Data.P_TagF->IsEmpty()) {
+						if(CONFIRM(PPCFM_PSNFLTTAGFRESET)) {
+							ZDELETE(Data.P_TagF);
+						}
+						else {
+							SETFLAGBYSAMPLE(Data.Flags, PersonFilt::fLocTagF, preserve_flags);
+							SetClusterData(CTL_PSNFLT_FLAGS, Data.Flags);
+						}
+					}
+				}
+				CluFlagsLock_ = 0;
+				SetupCtrls(); // @v12.2.2
+			}
+		}
+		else if(event.isCmd(cmCBSelected)) {
+			const long preserve_attr = Data.GetAttribType();
+			const long preserve_regtypeid = Data.RegTypeID;
+			const bool preserve_loc_attr = Data.IsLocAttr();
+			int    do_rollback = 0;
+			getDTS(0);
+			if(preserve_loc_attr != Data.IsLocAttr() && (Data.P_TagF && !Data.P_TagF->IsEmpty())) {
+                const bool c1 = (Data.Flags & PersonFilt::fLocTagF && !Data.IsLocAttr());
+				const bool c2 = false; //(!(Data.Flags & PersonFilt::fLocTagF) && Data.IsLocAttr());
+				if(c1 || c2) {
+					if(CONFIRM(PPCFM_PSNFLTTAGFRESET)) {
+						ZDELETE(Data.P_TagF);
+					}
+					else
+						do_rollback = 1;
+				}
+			}
+			if(do_rollback) {
+				Data.SetAttribType(preserve_attr);
+				Data.RegTypeID = preserve_regtypeid;
+			}
 			SetupExtRegCombo(this, CTLSEL_PSNFLT_ATTR, &Data, (Data.Flags & PersonFilt::fLocTagF) ? sercfLocAttrs : 0);
-			if(Data.GetAttribType())
-				setCtrlData(CTL_PSNFLT_EMPTY, &Data.EmptyAttrib);
-			else
+			{
+				int    attr_type = 0;
+				GetExtRegData(this, CTLSEL_PSNFLT_ATTR, &attr_type, &Data.RegTypeID);
+				Data.SetAttribType(attr_type);
+			}
+			if(!Data.GetAttribType()) {
+				setCtrlUInt16(CTL_PSNFLT_EMPTY, 0);
 				disableCtrl(CTL_PSNFLT_EMPTY, 1);
-			Data.GetExtssData(PersonFilt::extssNameText, temp_buf);
-			setCtrlString(CTL_PSNFLT_NAMESTR, temp_buf);
-			SetupWordSelector(CTL_PSNFLT_NAMESTR, new TextHistorySelExtra("personfilt-nametext-common"), 0, 2, WordSel_ExtraBlock::fFreeText);
-			setCtrlUInt16(CTL_PSNFLT_VATFREE, BIN(Data.Flags & PersonFilt::fVatFree));
-			AddClusterAssoc(CTL_PSNFLT_FLAGS, 0, PersonFilt::fTagsCrsstab);
-			AddClusterAssoc(CTL_PSNFLT_FLAGS, 1, PersonFilt::fHasImages);
-			AddClusterAssoc(CTL_PSNFLT_FLAGS, 2, PersonFilt::fShowHangedAddr);
-			AddClusterAssoc(CTL_PSNFLT_FLAGS, 3, PersonFilt::fLocTagF);
-			AddClusterAssoc(CTL_PSNFLT_FLAGS, 4, PersonFilt::fShowFiasRcgn);
-			AddClusterAssoc(CTL_PSNFLT_FLAGS, 5, PersonFilt::fCliActivityStats); // @v12.2.2
-			SetClusterData(CTL_PSNFLT_FLAGS, Data.Flags);
+			}
+			else
+				disableCtrl(CTL_PSNFLT_EMPTY, 0);
 			DisableClusterItem(CTL_PSNFLT_FLAGS, 2, Data.GetAttribType() != PPPSNATTR_ALLADDR);
 			// @v12.1.10 DisableClusterItem(CTL_PSNFLT_FLAGS, 3, !Data.IsLocAttr());
 			{
@@ -2146,200 +2284,88 @@ int PPViewPerson::EditBaseFilt(PPBaseFilt * pFilt)
 				PPObjLocation::FetchConfig(&loc_cfg);
 				DisableClusterItem(CTL_PSNFLT_FLAGS, 4, !(loc_cfg.Flags & PPLocationConfig::fUseFias) || !Data.IsLocAttr());
 			}
-			setCtrlData(CTL_PSNFLT_CASDT, &Data.ClientActivityEvalDate); // @v12.2.2
-			SetPeriodInput(this, CTL_PSNFLT_NEWCLIPERIOD, &Data.NewCliPeriod);
-			// @v12.2.2 AddClusterAssoc(CTL_PSNFLT_NEWCLIONLY, 0, PersonFilt::fNewClientsOnly);
-			// @v12.2.2 SetClusterData(CTL_PSNFLT_NEWCLIONLY, Data.Flags);
-			// @v12.2.2 {
-			{
-				AddClusterAssoc(CTL_PSNFLT_NEWCLIONLY, 0, (1 << PPObjPerson::ClientActivityState::stUndef));
-				AddClusterAssoc(CTL_PSNFLT_NEWCLIONLY, 1, (1 << PPObjPerson::ClientActivityState::stNoData));
-				AddClusterAssoc(CTL_PSNFLT_NEWCLIONLY, 2, (1 << PPObjPerson::ClientActivityState::stRegularTa));
-				AddClusterAssoc(CTL_PSNFLT_NEWCLIONLY, 3, (1 << PPObjPerson::ClientActivityState::stDelayedTa));
-				AddClusterAssoc(CTL_PSNFLT_NEWCLIONLY, 4, (1 << PPObjPerson::ClientActivityState::stHopelesslyDelayedTa));
-				AddClusterAssoc(CTL_PSNFLT_NEWCLIONLY, 5, PPObjPerson::ClientActivityState::stfNewClient);
-				SetClusterData(CTL_PSNFLT_NEWCLIONLY, Data.ClientActivityStateFlags);
-			}
-			SetupCtrls();
-			// } @v12.2.2 
-			return 1;
 		}
-		DECL_DIALOG_GETDTS()
-		{
-			SString temp_buf;
-			getCtrlData(CTLSEL_PSNFLT_CITY, &Data.CityID);
-			getCtrlData(CTLSEL_PSNFLT_KIND, &Data.Kind);
-			getCtrlData(CTLSEL_PSNFLT_CATEGORY, &Data.Category);
-			getCtrlData(CTLSEL_PSNFLT_STATUS, &Data.Status);
-			{
-				int    attr_type = 0;
-				GetExtRegData(this, CTLSEL_PSNFLT_ATTR, &attr_type, &Data.RegTypeID);
-				Data.SetAttribType(attr_type);
-			}
-			getCtrlData(CTL_PSNFLT_EMPTY, &Data.EmptyAttrib);
-			getCtrlString(CTL_PSNFLT_NAMESTR, temp_buf.Z());
-			Data.PutExtssData(PersonFilt::extssNameText, temp_buf);
-			SETFLAG(Data.Flags, PersonFilt::fVatFree, getCtrlUInt16(CTL_PSNFLT_VATFREE));
+		else if(event.isCmd(cmTags)) {
 			GetClusterData(CTL_PSNFLT_FLAGS, &Data.Flags);
-			if(IsThereCasDetectionList) {
-				getCtrlData(CTL_PSNFLT_CASDT, &Data.ClientActivityEvalDate); // @v12.2.2
-				GetPeriodInput(this, CTL_PSNFLT_NEWCLIPERIOD, &Data.NewCliPeriod);
-				// @v12.2.2 GetClusterData(CTL_PSNFLT_NEWCLIONLY, &Data.Flags);
-				Data.ClientActivityStateFlags = static_cast<uint16>(GetClusterData(CTL_PSNFLT_NEWCLIONLY)); // @v12.2.2 
-			}
-			ASSIGN_PTR(pData, Data);
-			return 1;
+			const  PPID tag_obj_type = (Data.Flags & PersonFilt::fLocTagF) ? PPOBJ_LOCATION : PPOBJ_PERSON;
+			if(!SETIFZ(Data.P_TagF, new TagFilt()))
+				PPError(PPERR_NOMEM);
+			else if(!EditTagFilt(tag_obj_type, Data.P_TagF))
+				PPError();
+			if(Data.P_TagF->IsEmpty())
+				ZDELETE(Data.P_TagF);
 		}
-	private:
-		DECL_HANDLE_EVENT
-		{
-			TDialog::handleEvent(event);
-			if(event.isCmd(cmAdvOptions)) {
-				EditRegFilt(&Data);
+		else if(event.isCmd(cmSysjFilt2)) {
+			SysJournalFilt sj_filt;
+			RVALUEPTR(sj_filt, Data.P_SjF);
+			sj_filt.ObjType = PPOBJ_PERSON;
+			if(EditSysjFilt2(&sj_filt) > 0) {
+				SETIFZ(Data.P_SjF, new SysJournalFilt);
+				ASSIGN_PTR(Data.P_SjF, sj_filt);
 			}
-			else if(event.isCmd(cmClientActivityConfig)) { // @v12.2.4
-				PPPersonConfig psn_cfg;
-				PPObjPerson::ReadConfig(&psn_cfg);
-				if(PPObjPerson::EditClientAcitivityConfig(psn_cfg) > 0) {
-					if(PPObjPerson::WriteConfig(&psn_cfg, 1)) {
-						PsnObj.DirtyConfig();
-					}
-				}
-			}
-			else if(event.isClusterClk(CTL_PSNFLT_FLAGS)) {
-				if(!CluFlagsLock_) {
-					CluFlagsLock_ = 1;
-					const long preserve_flags = Data.Flags;
-					GetClusterData(CTL_PSNFLT_FLAGS, &Data.Flags);
-					if((Data.Flags & PersonFilt::fLocTagF) != (preserve_flags & PersonFilt::fLocTagF)) {
-						SetupExtRegCombo(this, CTLSEL_PSNFLT_ATTR, &Data, (Data.Flags & PersonFilt::fLocTagF) ? sercfLocAttrs : 0); // @v12.1.10
-						if(Data.P_TagF && !Data.P_TagF->IsEmpty()) {
-							if(CONFIRM(PPCFM_PSNFLTTAGFRESET)) {
-								ZDELETE(Data.P_TagF);
-							}
-							else {
-								SETFLAGBYSAMPLE(Data.Flags, PersonFilt::fLocTagF, preserve_flags);
-								SetClusterData(CTL_PSNFLT_FLAGS, Data.Flags);
-							}
-						}
-					}
-					CluFlagsLock_ = 0;
-					SetupCtrls(); // @v12.2.2
-				}
-			}
-			else if(event.isCmd(cmCBSelected)) {
-				const long preserve_attr = Data.GetAttribType();
-				const long preserve_regtypeid = Data.RegTypeID;
-				const bool preserve_loc_attr = Data.IsLocAttr();
-				int    do_rollback = 0;
-				getDTS(0);
-				if(preserve_loc_attr != Data.IsLocAttr() && (Data.P_TagF && !Data.P_TagF->IsEmpty())) {
-                    const bool c1 = (Data.Flags & PersonFilt::fLocTagF && !Data.IsLocAttr());
-					const bool c2 = false; //(!(Data.Flags & PersonFilt::fLocTagF) && Data.IsLocAttr());
-					if(c1 || c2) {
-						if(CONFIRM(PPCFM_PSNFLTTAGFRESET)) {
-							ZDELETE(Data.P_TagF);
-						}
-						else
-							do_rollback = 1;
-					}
-				}
-				if(do_rollback) {
-					Data.SetAttribType(preserve_attr);
-					Data.RegTypeID = preserve_regtypeid;
-				}
-				SetupExtRegCombo(this, CTLSEL_PSNFLT_ATTR, &Data, (Data.Flags & PersonFilt::fLocTagF) ? sercfLocAttrs : 0);
-				{
-					int    attr_type = 0;
-					GetExtRegData(this, CTLSEL_PSNFLT_ATTR, &attr_type, &Data.RegTypeID);
-					Data.SetAttribType(attr_type);
-				}
-				if(!Data.GetAttribType()) {
-					setCtrlUInt16(CTL_PSNFLT_EMPTY, 0);
-					disableCtrl(CTL_PSNFLT_EMPTY, 1);
+			if(Data.P_SjF) {
+				//
+				// Функция SysJournalFilt::IsEmpty считает фильтр, в котором установлен ObjType не пустым. В данном случае это - не верно.
+				//
+				Data.P_SjF->ObjType = 0;
+				if(Data.P_SjF->IsEmpty()) {
+					ZDELETE(Data.P_SjF);
 				}
 				else
-					disableCtrl(CTL_PSNFLT_EMPTY, 0);
-				DisableClusterItem(CTL_PSNFLT_FLAGS, 2, Data.GetAttribType() != PPPSNATTR_ALLADDR);
-				// @v12.1.10 DisableClusterItem(CTL_PSNFLT_FLAGS, 3, !Data.IsLocAttr());
-				{
-					PPLocationConfig loc_cfg;
-					PPObjLocation::FetchConfig(&loc_cfg);
-					DisableClusterItem(CTL_PSNFLT_FLAGS, 4, !(loc_cfg.Flags & PPLocationConfig::fUseFias) || !Data.IsLocAttr());
-				}
-			}
-			else if(event.isCmd(cmTags)) {
-				GetClusterData(CTL_PSNFLT_FLAGS, &Data.Flags);
-				const  PPID tag_obj_type = (Data.Flags & PersonFilt::fLocTagF) ? PPOBJ_LOCATION : PPOBJ_PERSON;
-				if(!SETIFZ(Data.P_TagF, new TagFilt()))
-					PPError(PPERR_NOMEM);
-				else if(!EditTagFilt(tag_obj_type, Data.P_TagF))
-					PPError();
-				if(Data.P_TagF->IsEmpty())
-					ZDELETE(Data.P_TagF);
-			}
-			else if(event.isCmd(cmSysjFilt2)) {
-				SysJournalFilt sj_filt;
-				RVALUEPTR(sj_filt, Data.P_SjF);
-				sj_filt.ObjType = PPOBJ_PERSON;
-				if(EditSysjFilt2(&sj_filt) > 0) {
-					SETIFZ(Data.P_SjF, new SysJournalFilt);
-					ASSIGN_PTR(Data.P_SjF, sj_filt);
-				}
-				if(Data.P_SjF) {
-					//
-					// Функция SysJournalFilt::IsEmpty считает фильтр, в котором установлен ObjType не пустым. В данном случае это - не верно.
-					//
-					Data.P_SjF->ObjType = 0;
-					if(Data.P_SjF->IsEmpty()) {
-						ZDELETE(Data.P_SjF);
-					}
-					else
-						Data.P_SjF->ObjType = PPOBJ_PERSON;
-				}
-			}
-			else if(event.isCmd(cmInputUpdated) && event.isCtlEvent(CTL_PSNFLT_NEWCLIPERIOD)) {
-				if(IsThereCasDetectionList) {
-					SetupCtrls();
-				}
-			}
-			else
-				return;
-			clearEvent(event);
-		}
-		void   SetupCtrls()
-		{
-			if(!IsThereCasDetectionList) {
-				DisableClusterItem(CTL_PSNFLT_FLAGS, 5, true);
-				disableCtrl(CTL_PSNFLT_CASDT, true);
-				disableCtrl(CTL_PSNFLT_NEWCLIPERIOD, true);
-				disableCtrl(CTL_PSNFLT_NEWCLIONLY, true);
-				enableCommand(cmClientActivityConfig, false); // @v12.2.4
-			}
-			else {
-				DisableClusterItem(CTL_PSNFLT_FLAGS, 5, false);
-				bool disable_sub_cas_ctrls = !(Data.Flags & PersonFilt::fCliActivityStats);
-				disableCtrl(CTL_PSNFLT_CASDT, disable_sub_cas_ctrls);
-				disableCtrl(CTL_PSNFLT_NEWCLIPERIOD, disable_sub_cas_ctrls);
-				disableCtrl(CTL_PSNFLT_NEWCLIONLY, disable_sub_cas_ctrls);
-				enableCommand(cmClientActivityConfig, !disable_sub_cas_ctrls); // @v12.2.4
-				{
-					bool disable_newclionly_flag = true;
-					if(!disable_sub_cas_ctrls) {
-						DateRange temp_period;
-						temp_period.Z();
-						GetPeriodInput(this, CTL_PSNFLT_NEWCLIPERIOD, &temp_period);
-						disable_newclionly_flag = temp_period.IsZero();
-					}
-					DisableClusterItem(CTL_PSNFLT_NEWCLIONLY, 5, disable_newclionly_flag);
-				}
+					Data.P_SjF->ObjType = PPOBJ_PERSON;
 			}
 		}
-		int    CluFlagsLock_;
-		PPObjPerson PsnObj;
-		bool   IsThereCasDetectionList;
-	};
-	DIALOG_PROC_BODY(PersonFiltDialog, static_cast<PersonFilt *>(pFilt));
+		else if(event.isCmd(cmInputUpdated) && event.isCtlEvent(CTL_PSNFLT_NEWCLIPERIOD)) {
+			if(IsThereCasDetectionList) {
+				SetupCtrls();
+			}
+		}
+		else
+			return;
+		clearEvent(event);
+	}
+	void   SetupCtrls()
+	{
+		if(!IsThereCasDetectionList) {
+			DisableClusterItem(CTL_PSNFLT_FLAGS, 5, true);
+			disableCtrl(CTL_PSNFLT_CASDT, true);
+			disableCtrl(CTL_PSNFLT_NEWCLIPERIOD, true);
+			disableCtrl(CTL_PSNFLT_NEWCLIONLY, true);
+			enableCommand(cmClientActivityConfig, false); // @v12.2.4
+		}
+		else {
+			DisableClusterItem(CTL_PSNFLT_FLAGS, 5, false);
+			bool disable_sub_cas_ctrls = !(Data.Flags & PersonFilt::fCliActivityStats);
+			disableCtrl(CTL_PSNFLT_CASDT, disable_sub_cas_ctrls);
+			disableCtrl(CTL_PSNFLT_NEWCLIPERIOD, disable_sub_cas_ctrls);
+			disableCtrl(CTL_PSNFLT_NEWCLIONLY, disable_sub_cas_ctrls);
+			enableCommand(cmClientActivityConfig, !disable_sub_cas_ctrls); // @v12.2.4
+			{
+				bool disable_newclionly_flag = true;
+				if(!disable_sub_cas_ctrls) {
+					DateRange temp_period;
+					temp_period.Z();
+					GetPeriodInput(this, CTL_PSNFLT_NEWCLIPERIOD, &temp_period);
+					disable_newclionly_flag = temp_period.IsZero();
+				}
+				DisableClusterItem(CTL_PSNFLT_NEWCLIONLY, 5, disable_newclionly_flag);
+			}
+		}
+	}
+	int    CluFlagsLock_;
+	PPObjPerson PsnObj;
+	bool   IsThereCasDetectionList;
+};
+
+int PPViewPerson::EditBaseFilt(PPBaseFilt * pFilt)
+{
+	PersonFilt * p_filt = static_cast<PersonFilt *>(pFilt);
+	if(p_filt) {
+		uint   dlg_id = (p_filt->Flags & PersonFilt::fCliActivityStats) ? DLG_CLIACTFILT : DLG_PSNFLT;
+		DIALOG_PROC_BODY_P1(PersonFiltDialog, dlg_id, p_filt);
+	}
+	else
+		return 0;
 }
 //
 //
@@ -2352,7 +2378,7 @@ int PPViewPerson::CreateLikenessTable()
 
 int PPViewPerson::OnExecBrowser(PPViewBrowser * pBrw)
 {
-	pBrw->SetupToolbarCombo(PPOBJ_PERSONKIND, Filt.Kind, 0, 0);
+	pBrw->SetupToolbarCombo(PPOBJ_PERSONKIND, Filt.PersonKindID, 0, 0);
 	return -1;
 }
 
@@ -2701,6 +2727,8 @@ DBQuery * PPViewPerson::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	SString title_buf;
 	if(P_Ct)
 		brw_id = BROWSER_PERSONCT;
+	else if(Filt.Flags & PersonFilt::fCliActivityStats) // @v12.2.8
+		brw_id = BROWSER_CLIACTIVITY;
 	else if(Filt.GetAttribType() == PPPSNATTR_STANDALONEADDR)
 		brw_id = BROWSER_PERSONATTR_STDALNADDR;
 	else if(oneof4(Filt.GetLocAttribType(), PPPSNATTR_ALLADDR, PPPSNATTR_DLVRADDR, PPPSNATTR_HANGEDADDR, PPPSNATTR_DUPDLVRADDR))
@@ -2719,8 +2747,8 @@ DBQuery * PPViewPerson::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		brw_id = BROWSER_PERSONCT;
 	else
 		brw_id = BROWSER_PERSON;
-	if(Filt.Kind)
-		GetObjectName(PPOBJ_PERSONKIND, Filt.Kind, title_buf);
+	if(Filt.PersonKindID)
+		GetObjectName(PPOBJ_PERSONKIND, Filt.PersonKindID, title_buf);
 	if(Filt.GetAttribType()) {
 		title_buf.CatDivIfNotEmpty('-', 1);
 		PPID   reg_id = Filt.RegTypeID;
@@ -2772,14 +2800,14 @@ DBQuery * PPViewPerson::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		}
 		else {
 			THROW(CheckTblPtr(p = new PersonTbl));
-			if(Filt.Kind) {
+			if(Filt.PersonKindID) {
 				THROW(CheckTblPtr(k = new PersonKindTbl));
-				dbq = & (k->KindID == Filt.Kind && p->ID == k->PersonID);
+				dbq = & (k->KindID == Filt.PersonKindID && p->ID == k->PersonID);
 				tbl_l[tbl_count++] = k;
 			}
 			tbl_l[tbl_count++] = p;
 			dbq = ppcheckfiltid(dbq, p->Status, Filt.Status);
-			dbq = ppcheckfiltid(dbq, p->CatID, Filt.Category);
+			dbq = ppcheckfiltid(dbq, p->CatID, Filt.PersonCategoryID);
 			dbq = ppcheckflag(dbq, p->Flags, PSNF_NOVATAX, BIN(Filt.Flags & PersonFilt::fVatFree));
 			dbq = ppcheckflag(dbq, p->Flags, PSNF_HASIMAGES, BIN(Filt.Flags & PersonFilt::fHasImages));
 			dbq = ppcheckfiltid(dbq, p->ID, Filt.PersonID);
@@ -3403,6 +3431,15 @@ int PPViewPerson::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser *
 						DrawClientActivityStatistics(hdr.ID);
 				}
 				break;
+			case PPVCMD_CLIACTIVITYDETAILS:
+				if(Filt.Flags & PersonFilt::fCliActivityStats) {
+					if(hdr.ID) {
+						ClientActivityDetailsFilt filt;
+						filt.PersonID = hdr.ID;
+						PPView::Execute(PPVIEW_CLIENTACTIVITYDETAILS, &filt, 0, 0);
+					}
+				}
+				break;
 			case PPVCMD_ADDITEM:
 				{
 					PPID id = 0;
@@ -3483,14 +3520,14 @@ int PPViewPerson::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser *
 					ok = EditRegs(hdr.ID, loc_id, 1);
 				}
 				break;
-			case PPVCMD_DLVRADDREXFLDS:
+			/* @v12.2.8 case PPVCMD_DLVRADDREXFLDS:
 				if(Filt.IsLocAttr()) {
 					const PPID loc_id = static_cast<PPID>(pHdr ? PTR32C(pHdr)[1] : 0);
 					if(loc_id)
 						if((ok = EditDlvrAddrExtFlds(loc_id)) == 0)
 							PPError();
 				}
-				break;
+				break;*/
 			case PPVCMD_RELATIONS:
 			case PPVCMD_REVERSEREL:
 				{
@@ -3540,7 +3577,7 @@ int PPViewPerson::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser *
 						ok = PPObjPerson::ReplaceDlvrAddr(loc_id);
 				}
 				else
-					ok = PPObjPerson::ReplacePerson(hdr.ID, Filt.Kind);
+					ok = PPObjPerson::ReplacePerson(hdr.ID, Filt.PersonKindID);
 				break;
 			case PPVCMD_ARTICLES:
 				if(hdr.ID) {
@@ -3568,8 +3605,8 @@ int PPViewPerson::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser *
 				{
 					ok = -1;
 					PPID psn_kind = 0;
-					if(pBrw && pBrw->GetToolbarComboData(&psn_kind) && Filt.Kind != psn_kind) {
-						Filt.Kind = psn_kind;
+					if(pBrw && pBrw->GetToolbarComboData(&psn_kind) && Filt.PersonKindID != psn_kind) {
+						Filt.PersonKindID = psn_kind;
 						ok = ChangeFilt(1, pBrw);
 					}
 				}
@@ -3752,14 +3789,14 @@ int EditMainOrg()
 	PersonTbl::Rec psn_rec;
 	MEMSZERO(cfg);
 	THROW(GetCommConfig(&cfg));
-	flt.Kind = PPPRK_MAIN;
+	flt.PersonKindID = PPPRK_MAIN;
 	if(cfg.MainOrgID > 0 && psn_obj.P_Tbl->Search(cfg.MainOrgID) > 0)
 		id = cfg.MainOrgID;
 	else if(psn_obj.P_Tbl->SearchMainOrg(&psn_rec) > 0)
 		id = psn_rec.ID;		//get id;
 	cfg.MainOrgID = id;
 	THROW(SetCommConfig(&cfg, 1));
-	if(psn_obj.ExtEdit(&id, reinterpret_cast<void *>(flt.Kind)) == cmOK) {
+	if(psn_obj.ExtEdit(&id, reinterpret_cast<void *>(flt.PersonKindID)) == cmOK) {
 		THROW(GetCommConfig(&cfg));
 		cfg.MainOrgID = id;
 		THROW(SetCommConfig(&cfg, 1));
@@ -3954,7 +3991,7 @@ PPALDD_DESTRUCTOR(PersonList) { Destroy(); }
 int PPALDD_PersonList::InitData(PPFilt & rFilt, long rsrv)
 {
 	INIT_PPVIEW_ALDD_DATA_U(Person, rsrv);
-	H.PsnKindID  = p_filt->Kind;
+	H.PsnKindID  = p_filt->PersonKindID;
 	H.StatusID   = p_filt->Status;
 	H.CountryID  = 0;
 	H.CityID     = p_filt->CityID;
@@ -4170,4 +4207,184 @@ int PPALDD_SupplNameList::InitData(PPFilt & rFilt, long rsrv)
 		}
 	}
 	return ok;
+}
+//
+//
+//
+IMPLEMENT_PPFILT_FACTORY(ClientActivityDetails); ClientActivityDetailsFilt::ClientActivityDetailsFilt() : PPBaseFilt(PPFILT_CLIENTACTIVITYDETAILS, 0, 1)
+{
+	SetFlatChunk(offsetof(ClientActivityDetailsFilt, ReserveStart), offsetof(ClientActivityDetailsFilt, ReserveEnd) - offsetof(ClientActivityDetailsFilt, ReserveStart));
+	Init(1, 0);
+}
+
+PPViewClientActivityDetails::PPViewClientActivityDetails() : PPView(0, &Filt, PPVIEW_CLIENTACTIVITYDETAILS, PPView::implBrowseArray, 0), P_DsList(0)
+{
+}
+
+PPViewClientActivityDetails::~PPViewClientActivityDetails()
+{
+	delete P_DsList;
+}
+
+/*virtual*/int PPViewClientActivityDetails::Init_(const PPBaseFilt * pBaseFilt)
+{
+	int    ok = 1;
+	THROW(Helper_InitBaseFilt(pBaseFilt));
+	BExtQuery::ZDelete(&P_IterQuery);
+	Counter.Init();
+	IList.clear();
+	if(Filt.PersonID) {
+		PrcssrClientActivityStatistics prcssr;
+		prcssr.ScanDetailedActivityListForSinglePerson(Filt.PersonID, IList);
+	}
+	CATCHZOK
+	return ok;
+}
+
+int PPViewClientActivityDetails::InitIteration()
+{
+	int    ok = 1;
+	if(P_DsList) {
+		Counter.Init(P_DsList->getCount());
+	}
+	else
+		ok = -1;
+	return ok;
+}
+	
+int FASTCALL PPViewClientActivityDetails::NextIteration(ClientActivityDetailsViewItem * pItem)
+{
+	int    ok = -1;
+	if(P_DsList) {
+		for(; ok < 0 && Counter < P_DsList->getCount(); Counter.Increment()) {
+			if(pItem) {
+				const BrwItem & r_item = P_DsList->at(Counter);
+				// @todo
+			}
+			else
+				ok = 1;
+		}
+	}
+	return ok;
+}
+
+int PPViewClientActivityDetails::MakeList()
+{
+	int    ok = 1;
+	PPObjBill * p_bobj = BillObj;
+	PPIDArray result_list;
+	SString temp_buf;
+	SString obj_buf;
+	if(P_DsList)
+		P_DsList->clear();
+	else
+		P_DsList = new TSArray <BrwItem>();
+	for(uint i = 0; i < IList.getCount(); i++) {
+		const ClientActivityDetailedEntry & r_item = IList.at(i);
+		BrwItem new_item;
+		new_item.Oid = r_item.Oid;
+		new_item.Dtm = r_item.Dtm;
+		temp_buf.Z();
+		obj_buf.Z();
+		switch(r_item.Oid.Obj) {
+			case PPOBJ_BILL:
+				{
+					BillTbl::Rec bill_rec;
+					if(p_bobj->Fetch(r_item.Oid.Id, &bill_rec) > 0) {
+						PPObjBill::MakeCodeString(&bill_rec, PPObjBill::mcsAddOpName, temp_buf);
+						obj_buf.Cat("Bill").CatDiv(':', 2).Cat(temp_buf);
+					}
+					else {
+						obj_buf.Cat("Bill").Space().CatChar('#').Cat(r_item.Oid.Id);
+					}
+				}
+				break;
+			case PPOBJ_SCARD:
+				{
+					SCardCore::OpBlock op_blk;
+					SCardTbl::Rec sc_rec;
+					if(ScObj.Fetch(r_item.Oid.Id, &sc_rec) > 0 && ScObj.P_Tbl->GetOp(r_item.Oid.Id, r_item.Dtm, &op_blk) > 0) {
+						obj_buf.Cat("SCard").CatDiv(':', 2).Cat(sc_rec.Code).Space().Cat(r_item.Dtm, DATF_ISO8601CENT, 0).Space().Cat(op_blk.Amount, MKSFMTD(0, 2, 0));
+					}
+					else {
+						obj_buf.Cat("SCardOp").Space().CatChar('#').Cat(r_item.Oid.Id).Space().Cat(r_item.Dtm, DATF_ISO8601CENT, 0);
+					}
+				}
+				break;
+			case PPOBJ_CCHECK:
+				{
+					CCheckCore * p_cc = ScObj.P_CcTbl;
+					CCheckTbl::Rec cc_rec;
+					if(p_cc && p_cc->Search(r_item.Oid.Id, &cc_rec) > 0) {
+						CCheckCore::MakeCodeString(&cc_rec, 0, temp_buf);
+						obj_buf.Cat("CCheck").CatDiv(':', 2).Cat(temp_buf);
+					}
+					else {
+						obj_buf.Cat("CCheck").Space().CatChar('#').Cat(r_item.Oid.Id);
+					}
+				}
+				break;
+			case PPOBJ_PERSONEVENT:
+				{
+					PersonEventTbl::Rec pe_rec;
+					if(PeObj.Search(r_item.Oid.Id, &pe_rec) > 0) {
+						PeObj.MakeCodeString(&pe_rec, temp_buf);
+						obj_buf.Cat("PersonEvent").CatDiv(':', 2).Cat(temp_buf);
+					}
+					else {
+						obj_buf.Cat("PersonEvent").Space().CatChar('#').Cat(r_item.Oid.Id);
+					}
+				}
+				break;
+		}
+		STRNSCPY(new_item.TransactionName, obj_buf);
+		P_DsList->insert(&new_item);
+	}
+	//CATCHZOK
+	CALLPTRMEMB(P_DsList, setPointer(0));
+	return ok;
+}
+
+int PPViewClientActivityDetails::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
+{
+	int    ok = 0;
+	if(pBlk->P_SrcData && pBlk->P_DestData) {
+		ok = 1;
+		const  BrwItem * p_item = static_cast<const BrwItem *>(pBlk->P_SrcData);
+		int    r = 0;
+		switch(pBlk->ColumnN) {
+			case 0: 
+				pBlk->Set(p_item->Dtm.d);
+				break;
+			case 1: 
+				pBlk->Set(p_item->TransactionName);
+				break;
+		}
+	}
+	return ok;
+}
+
+/*static*/int FASTCALL PPViewClientActivityDetails::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
+{
+	PPViewClientActivityDetails * p_v = static_cast<PPViewClientActivityDetails *>(pBlk->ExtraPtr);
+	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;
+}
+
+/*virtual*/void PPViewClientActivityDetails::PreprocessBrowser(PPViewBrowser * pBrw)
+{
+	if(pBrw) {
+		pBrw->SetDefUserProc(PPViewClientActivityDetails::GetDataForBrowser, this);
+	}
+}
+
+/*virtual*/SArray * PPViewClientActivityDetails::CreateBrowserArray(uint * pBrwId, SString * pSubTitle) // @construction
+{
+	TSArray <BrwItem> * p_array = 0;
+	THROW(MakeList());
+	p_array = new TSArray <BrwItem>(*P_DsList);
+	CATCH
+		ZDELETE(P_DsList);
+	ENDCATCH
+	ASSIGN_PTR(pBrwId, BROWSER_CLIACTIVITYDETAILS);
+	return p_array;
 }

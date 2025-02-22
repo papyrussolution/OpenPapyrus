@@ -1,5 +1,5 @@
 // C_BILL.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2009, 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2024
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2009, 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2024, 2025
 // @codepage UTF-8
 // Корректировка документов
 //
@@ -178,14 +178,18 @@ int PPObjBill::CheckAmounts(PPID id, PPLogger & rLogger)
 	double ramt;
 	AmtList al;
 	PPBillPacket pack;
-	THROW(ExtractPacketWithFlags(id, &pack, BPLD_SKIPTRFR) > 0);
-	if(pack.Rec.OpID && !oneof3(pack.OpTypeID, PPOPT_ACCTURN, PPOPT_PAYMENT, PPOPT_INVENTORY)) {
+	BillTbl::Rec bill_rec;
+	// @v12.2.8 THROW(ExtractPacketWithFlags(id, &pack, BPLD_SKIPTRFR) > 0);
+	THROW(Search(id, &bill_rec) > 0); // @v12.2.8
+	const PPID op_type_id = GetOpType(bill_rec.OpID);
+	if(bill_rec.OpID && !oneof3(op_type_id, PPOPT_ACCTURN, PPOPT_PAYMENT, PPOPT_INVENTORY)) {
 		SString log_buf;
 		SString fmt_buf;
 		SString bill_buf;
 		SString amt_buf;
+		THROW(ExtractPacketWithFlags(id, &pack, /*@v12.2.8 BPLD_SKIPTRFR*/0) > 0); // @v12.2.8 
 		pack.Rec.Flags |= BILLF_NOLOADTRFR;
-		THROW(pack.SumAmounts(&al, 1));
+		pack.SumAmounts(al); // @v12.2.8 fromDB 1-->0
 		for(uint i = 0; i < al.getCount(); i++) {
 			const  PPID t = al.at(i).AmtTypeID;
 			bamt = R2(pack.Amounts.Get(t, 0L/*@curID*/));
@@ -329,7 +333,7 @@ int RecalcBillTurns(int checkAmounts)
 								}
 							}
 							if(do_update && !checkAmounts) {
-								THROW(bpack.InitAmounts());
+								bpack.InitAmounts();
 								THROW(p_bobj->FillTurnList(&bpack));
 								THROW(p_bobj->UpdatePacket(&bpack, 0));
 							}

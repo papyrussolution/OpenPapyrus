@@ -1,9 +1,9 @@
-// UED-ID.H
-// version: 36
-// sha256: 30e57f6807209c82ededb4610622268085372e2295a608dc2a01fc98fa6e8173
+// UED-ID-TEMP.H
+// version: 37
+// sha256: 5391a581dbc91aba56dc357cd0e52b2df4fb185c596a9898defd1021444d321e
 //
-#ifndef __UED_ID_H
-#define __UED_ID_H
+#ifndef __UED_ID_TEMP_H
+#define __UED_ID_TEMP_H
 
 #define UED_META_META                                0x100000001ULL
 #define UED_META_PREDEFVALUE                         0x100000002ULL
@@ -3612,6 +3612,26 @@
 #define UED_META_IMPEXP                              0x100000084ULL
 	#define UED_IMPEXP_IMPORT                            0x8400000001ULL
 	#define UED_IMPEXP_EXPORT                            0x8400000002ULL
+#define UED_META_RUCHZNPRODTYPE                      0x100000085ULL
+	#define UED_RUCHZNPRODTYPE_FUR                       0x8500000001ULL
+	#define UED_RUCHZNPRODTYPE_TOBACCO                   0x8500000002ULL
+	#define UED_RUCHZNPRODTYPE_SHOE                      0x8500000003ULL
+	#define UED_RUCHZNPRODTYPE_MEDICINE                  0x8500000004ULL
+	#define UED_RUCHZNPRODTYPE_CARTIRE                   0x8500000005ULL
+	#define UED_RUCHZNPRODTYPE_TEXTILE                   0x8500000006ULL
+	#define UED_RUCHZNPRODTYPE_PERFUMERY                 0x8500000007ULL
+	#define UED_RUCHZNPRODTYPE_MILK                      0x8500000008ULL
+	#define UED_RUCHZNPRODTYPE_JEWELRY                   0x8500000009ULL
+	#define UED_RUCHZNPRODTYPE_WATER                     0x850000000aULL
+	#define UED_RUCHZNPRODTYPE_ALTTOBACCO                0x850000000bULL
+	#define UED_RUCHZNPRODTYPE_DRAFTBEER                 0x850000000cULL
+	#define UED_RUCHZNPRODTYPE_DIETARYSUPPLEMENT         0x850000000dULL
+	#define UED_RUCHZNPRODTYPE_BEER                      0x850000000eULL
+	#define UED_RUCHZNPRODTYPE_ANTISEPTIC                0x850000000fULL
+	#define UED_RUCHZNPRODTYPE_MEDICALDEVICES            0x8500000010ULL
+	#define UED_RUCHZNPRODTYPE_SOFTDRINKS                0x8500000011ULL
+	#define UED_RUCHZNPRODTYPE_NONALCBEER                0x8500000012ULL
+	#define UED_RUCHZNPRODTYPE_DRAFTBEER_AWR             0x85000003f4ULL
 #define UED_META_NLWCLS                              0x100000101ULL
 	#define UED_NLWCLS_ALPHA                             0x10100000001ULL
 	#define UED_NLWCLS_DIGIT                             0x10100000002ULL
@@ -3693,4 +3713,4 @@
 #define UED_META_INTEGER                             0x197000000ULL
 #define UED_META_DECIMAL                             0x198000000ULL
 
-#endif // __UED_ID_H
+#endif // __UED_ID_TEMP_H

@@ -4929,7 +4929,8 @@ struct _SelCheck {
 	{
 	}
 	enum {
-		fUnfinished = 0x0001 // Структура возвращает неотпечатанный чек
+		fUnfinished = 0x0001, // Структура возвращает неотпечатанный чек
+		fCorrection = 0x0002, // @v12.2.8 Была выбрана операция коррекции чека (из пары возврат/коррекция)
 	};
 	PPID    CheckID;
 	PPID    BillID; // @v11.8.8
@@ -4939,13 +4940,19 @@ struct _SelCheck {
 
 class SelCheckListDialog : public PPListDialog {
 public:
+	enum { // @v12.2.8
+		opUndef      = 0,
+		opReturn     = 1, 
+		opCorrection = 2,
+	};
 	struct AddedParam {
 		AddedParam(PPID nodeID, long tableCode, PPID agentID, long rights) : NodeID(nodeID), TableCode(tableCode), AgentID(agentID), Rights(rights), Flags(0)
 		{
 		}
 		enum {
-			fAllowReturns = 0x0001,
-			fUnfinished   = 0x0002 // Выбор неотпечатанных чеков
+			fAllowReturns          = 0x0001,
+			fUnfinished            = 0x0002, // Выбор неотпечатанных чеков
+			fRetOrCorrSelection    = 0x0004, // @v12.2.8 Допускается переключение установки операции (возврат или коррекция) по выбранному чеку
 		};
 		PPID   NodeID;
 		long   TableCode;
@@ -4987,6 +4994,8 @@ private:
 	PPID   LastTopID/*LastChkID*/; // Последний активный идентификатор объекта (чека или документа) в основном списке
 	long   LastChkNo;
 	LDATE  LastDate;
+	long   LastOp; // @v12.2.8 opXXX
+	long   Op; // @v12.2.8 opXXX
 
 	enum {
 		stTblOrders        = 0x0001,
@@ -5005,6 +5014,7 @@ private:
 
 void SelCheckListDialog::Helper_Constructor(CPosProcessor * pSrv, const AddedParam * pAddParam)
 {
+	Op = opUndef;
 	P_Srv = pSrv;
 	assert(P_Srv);
 	P_Cto = 0;
@@ -5022,6 +5032,18 @@ void SelCheckListDialog::Helper_Constructor(CPosProcessor * pSrv, const AddedPar
 	else if(P_AddParam && P_AddParam->Flags & AddedParam::fUnfinished) {
 		State |= stSelectUnfinished;
 	}
+	// @v12.2.8 {
+	if(P_AddParam && (P_AddParam->Flags & AddedParam::fRetOrCorrSelection)) {
+		if(Op == opUndef)
+			Op = opReturn;
+		AddClusterAssocDef(CTL_SELCHECK_OP, 0, opReturn);
+		AddClusterAssocDef(CTL_SELCHECK_OP, 1, opCorrection);
+		SetClusterData(CTL_SELCHECK_OP, Op);
+	}
+	else {
+		showCtrl(CTL_SELCHECK_OP, false);
+	}
+	// } @v12.2.8 
 	AddClusterAssoc(CTL_SELCHECK_UNFC, 0, stSelectUnfinished);
 	SetClusterData(CTL_SELCHECK_UNFC, State);
 }
@@ -5094,6 +5116,7 @@ void SelCheckListDialog::Init(PPCashMachine * pCm)
 	FmtList.Z();
 	LastChkNo = -1;
 	LastTopID = 0;
+	LastOp = opUndef; // @v12.2.8
 	State &= ~(stInputUpdated | stListUpdated);
 	if(State & stSelectBill) {
 		if(P_Box) {
@@ -5172,10 +5195,17 @@ int SelCheckListDialog::getDTS(_SelCheck * pSelCheck)
 		sel = 0;
 		THROW_PP(ChkList.getCount() || (State & stSelectFormat), PPERR_CHECKNOTFOUND);
 		getCurItem(0, &sel_chk.CheckID);
-		if(sel_chk.CheckID && State & stSelectUnfinished) {
-			CCheckTbl::Rec cc_rec;
-			if(P_Srv->GetCc().Search(sel_chk.CheckID, &cc_rec) > 0)
-				sel_chk.Flags |= _SelCheck::fUnfinished;
+		if(sel_chk.CheckID) {
+			// @v12.2.8 {
+			if(Op == opCorrection) {
+				sel_chk.Flags |= _SelCheck::fCorrection;
+			}
+			// } @v12.2.8
+			if(State & stSelectUnfinished) {
+				CCheckTbl::Rec cc_rec;
+				if(P_Srv->GetCc().Search(sel_chk.CheckID, &cc_rec) > 0)
+					sel_chk.Flags |= _SelCheck::fUnfinished;
+			}
 		}
 	}
 	CATCHZOKPPERRBYDLG
@@ -5239,6 +5269,7 @@ int SelCheckListDialog::getDTS(_SelCheck * pSelCheck)
 /*virtual*/int SelCheckListDialog::setupList()
 {
 	int    ok = -1;
+	CCheckCore & r_cc = P_Srv->GetCc();
 	SString temp_buf;
 	StringSet ss(SLBColumnDelim);
 	if(State & stSelectBill) {
@@ -5288,35 +5319,49 @@ int SelCheckListDialog::getDTS(_SelCheck * pSelCheck)
 				if(!checkdate(dt))
 					dt = unprinted_only ? getcurdate_() : ZERODATE;
 				if(chk_no || dt) {
-					if(chk_no != LastChkNo || diffdate(dt, LastDate)) {
+					if(chk_no != LastChkNo || diffdate(dt, LastDate) || Op != LastOp) {
 						TSVector <CCheckTbl::Rec> temp_list;
-						CCheckTbl::Rec * p_rec;
-						THROW(P_Srv->GetCc().SearchByDateAndCode(chk_no, dt, unprinted_only, &temp_list));
+						StrAssocArray cc_fld_list;
+						PPExtStrContainer sc;
+						THROW(r_cc.SearchByDateAndCode(chk_no, dt, unprinted_only, &temp_list));
 						{
-							for(uint i = 0; temp_list.enumItems(&i, (void **)&p_rec);) {
-								const double cc_amt = MONEYTOLDBL(p_rec->Amount);
-								int   do_remove = 0;
-								if(p_rec->Flags & CCHKF_SKIP)
-									do_remove = 1;
-								else if(P_AddParam && P_AddParam->NodeID && p_rec->PosNodeID != P_AddParam->NodeID)
-									do_remove = 1;
+							uint i = temp_list.getCount();
+							if(i) do {
+								CCheckTbl::Rec & r_rec = temp_list.at(--i);
+								const double cc_amt = MONEYTOLDBL(r_rec.Amount);
+								bool  do_remove = false;
+								if(r_rec.Flags & CCHKF_SKIP)
+									do_remove = true;
+								else if(P_AddParam && P_AddParam->NodeID && r_rec.PosNodeID != P_AddParam->NodeID)
+									do_remove = true;
 								else if(cc_amt == 0.0)
-									do_remove = 1;
-								else if(cc_amt < 0) {
-									do_remove = BIN(!(P_AddParam && P_AddParam->Flags & P_AddParam->fAllowReturns));
+									do_remove = true;
+								else if(cc_amt < 0.0) {
+									do_remove = !(P_AddParam && P_AddParam->Flags & P_AddParam->fAllowReturns);
+								}
+								if(!do_remove && Op == opCorrection) { 
+									PPRef->UtrC.GetText(TextRefIdent(PPOBJ_CCHECK, r_rec.ID, PPTRPROP_CC_LNEXT), temp_buf);
+									temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+									CCheckPacket::Helper_UnpackTextExt(temp_buf, &sc, &cc_fld_list);
+									if(sc.GetExtStrData(CCheckPacket::extssFiscalSign, temp_buf) > 0) {
+										;
+									}
+									else
+										do_remove = true;
 								}
 								if(do_remove)
-									temp_list.atFree(--i);
-							}
+									temp_list.atFree(i);
+							} while(i);
 						}
 						{
 							ChkList.clear();
-							for(uint i = 0; temp_list.enumItems(&i, (void **)&p_rec);) {
+							for(uint i = 0; i < temp_list.getCount(); i++) {
+								const CCheckTbl::Rec & r_rec = temp_list.at(i);
 								CCheckViewItem item;
-								*static_cast<CCheckTbl::Rec *>(&item) = *p_rec;
+								*static_cast<CCheckTbl::Rec *>(&item) = r_rec;
 								if(item.Flags & CCHKF_EXT) {
 									CCheckExtTbl::Rec ext_rec;
-									if(P_Srv->GetCc().GetExt(p_rec->ID, &ext_rec) > 0) {
+									if(r_cc.GetExt(r_rec.ID, &ext_rec) > 0) {
 										item.TableCode  = ext_rec.TableNo;
 										item.GuestCount = ext_rec.GuestCount;
 										item.AgentID    = ext_rec.SalerID;
@@ -5337,6 +5382,7 @@ int SelCheckListDialog::getDTS(_SelCheck * pSelCheck)
 				}
 				LastChkNo = chk_no;
 				LastDate  = dt;
+				LastOp = Op; // @v12.2.8
 			}
 		}
 		if(ChkList.getCount()) {
@@ -5386,7 +5432,7 @@ int SelCheckListDialog::getDTS(_SelCheck * pSelCheck)
 					SCardTbl::Rec sc_rec;
 					scard_no.Z();
 					scard_psn.Z();
-					P_Srv->GetCc().GetExt(r_chk_rec.ID, &ext_chk_rec);
+					r_cc.GetExt(r_chk_rec.ID, &ext_chk_rec);
 					{
 						temp_buf.Z();
 						if(r_chk_rec.TableCode)
@@ -5407,7 +5453,7 @@ int SelCheckListDialog::getDTS(_SelCheck * pSelCheck)
 					{
 						CCheckPacket chk_pack;
 						temp_buf.Z();
-						if(P_Srv->GetCc().LoadPacket(r_chk_rec.ID, 0, &chk_pack) > 0) {
+						if(r_cc.LoadPacket(r_chk_rec.ID, 0, &chk_pack) > 0) {
 							if(chk_pack.GetCount()) {
 								const CCheckLineTbl::Rec & cclr = chk_pack.GetLineC(0);
 								temp_buf.Cat(intmnytodbl(cclr.Price));
@@ -5431,7 +5477,8 @@ int SelCheckListDialog::getDTS(_SelCheck * pSelCheck)
 int SelCheckListDialog::SetupItemList()
 {
 	int    ok = -1;
-	SString sub, memo_buf;
+	SString sub;
+	SString memo_buf;
 	int    memo_has_addr = 0;
 	SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_SELCHECK_ITEMLIST));
 	if(p_list) {
@@ -5882,8 +5929,16 @@ IMPL_HANDLE_EVENT(SelCheckListDialog)
 			if(unfc != org_unfc) {
 				LastChkNo = -1;
 				LastDate = ZERODATE;
+				LastOp = opUndef; // @v12.2.8
 				if(!unfc && State & stOuterList)
 					ChkList = PreserveOuterChkList;
+				updateList(-1);
+			}
+		}
+		else if(event.isClusterClk(CTL_SELCHECK_OP)) { // @v12.2.8
+			const long preserve_op = Op;
+			GetClusterData(CTL_SELCHECK_OP, &Op);
+			if(Op != preserve_op) {
 				updateList(-1);
 			}
 		}
@@ -5906,7 +5961,8 @@ IMPL_HANDLE_EVENT(SelCheckListDialog)
 			}
 		}
 		else if(TVCMD == cmaEdit) {
-			long pos = -1, id = -1;
+			long pos = -1;
+			long id = -1;
 			getCurItem(&pos, &id);
 			if(editItem(pos, id) > 0) {
 				P_Srv->GetTblOrderList(LastDate, ChkList);
@@ -5914,7 +5970,8 @@ IMPL_HANDLE_EVENT(SelCheckListDialog)
 			}
 		}
 		else if(TVCMD == cmaDelete) {
-			long pos = -1, id = -1;
+			long pos = -1;
+			long id = -1;
 			getCurItem(&pos, &id);
 			if(delItem(pos, id) > 0)
 				updateList(-1);
@@ -6772,7 +6829,7 @@ bool CheckPaneDialog::ValidateCommand(TEvent & rEv)
 		else {
 			//r = TDialog::valid(cmd);
 			TDialog::handleEvent(rEv);
-			if(rEv.isCleared())
+			if(rEv.isCommandValidationFailed())
 				r = false;
 		}
 		if(GetState() != prev_state || P.GetAgentID(1) != prev_agent_id)
@@ -6790,7 +6847,7 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 	if(TVCOMMAND) {
 		if(TVCMD == cmValidateCommand) { // @v12.2.6
 			if(!ValidateCommand(event)) {
-				if(!event.isCleared())
+				if(!event.isCommandValidationFailed())
 					clearEvent(event);
 			}
 			return; // Функция ValidateCommand все сделала (включая обработку классами высшей иерархии)
@@ -8098,18 +8155,24 @@ int CheckPaneDialog::SelectBill(PPID * pBillID, const char * pTitle) // @v11.8.7
 	return ok;
 }
 
-int CheckPaneDialog::SelectCheck(PPID * pChkID, SString * pSelFormat, const char * pTitle, long flags)
+//int CheckPaneDialog::SelectCheck(PPID * pChkID, const char * pTitle, long flags, SString * pSelFormat, int * pSelectedOp)
+int CheckPaneDialog::SelectCheck(const char * pTitle, long flags, SelectCheckResult & rResult)
 {
+	// Если flags == 0, то полагаем, что выбираем чек для возврата или (начиная с релиза @v12.2.8) чек, который необходимо скорректировать (отпечатать чек коррекции)
 	int    ok = -1;
 	_SelCheck  sch;
 	Flags |= fSuspSleepTimeout;
 	SelCheckListDialog::AddedParam param(((flags & scfThisNodeOnly) ? CashNodeID : 0), P.TableCode, P.GetAgentID(), OperRightsFlags);
-	if(flags & scfAllowReturns)
+	if(flags == 0) {
+		param.Flags |= param.fRetOrCorrSelection;
+	}
+	else if(flags & scfAllowReturns)
 		param.Flags |= param.fAllowReturns;
-	RVALUEPTR(param.FormatName, pSelFormat);
+	param.FormatName = rResult.Format;
 	InitCashMachine();
 	const uint dlg_id = (DlgFlags & fLarge) ? DLG_SELCHECK_L : DLG_SELCHECK;
-	SelCheckListDialog * dlg = new SelCheckListDialog(dlg_id, (pSelFormat ? ((flags & scfSelSlipDocForm) ? 1 : -1) : 0), P_CM, this, &param);
+	const int  select_format_arg = (flags & scfSelSlipDocFormat) ? 1 : ((flags & scfSelFormat) ? -1 : 0);
+	SelCheckListDialog * dlg = new SelCheckListDialog(dlg_id, select_format_arg, P_CM, this, &param);
 	if(CheckDialogPtrErr(&dlg)) {
 		if(!isempty(pTitle))
 			dlg->setTitle(pTitle);
@@ -8119,8 +8182,11 @@ int CheckPaneDialog::SelectCheck(PPID * pChkID, SString * pSelFormat, const char
 	}
 	else
 		ok = 0;
-	ASSIGN_PTR(pChkID, sch.CheckID);
-	ASSIGN_PTR(pSelFormat, sch.SelFormat);
+	rResult.CcID = sch.CheckID;
+	rResult.Format = sch.SelFormat;
+	if(param.Flags & param.fRetOrCorrSelection) {
+		rResult.Op = (sch.Flags & _SelCheck::fCorrection) ? 2 : 1;
+	}
 	delete dlg;
 	Flags &= ~fSuspSleepTimeout;
 	return ok;
@@ -8381,10 +8447,10 @@ void CheckPaneDialog::setupRetCheck(int ret)
 			if(ret) {
 				CCheckPacket  chk_pack;
 				if(!oneof2(GetState(), sLISTSEL_EMPTYBUF, sLISTSEL_BUF)) {
-					PPID   chk_id = 0;
-					PPLoadString("selectccheck_forrefund", temp_buf);
-					if(SelectCheck(&chk_id, 0, temp_buf/*pTitle*/, 0) > 0) {
-						GetCc().LoadPacket(chk_id, 0, &SelPack);
+					SelectCheckResult sccr;
+					PPLoadString("selectccheck_forrefundorcorr", temp_buf);
+					if(SelectCheck(temp_buf, 0, sccr) > 0) {
+						GetCc().LoadPacket(sccr.CcID, 0, &SelPack);
 						//chk_pack.PPExtStrContainer::Copy(SelPack); // @v11.8.2
 						chk_pack.CopyLines(SelPack);
 						if(SelPack.Rec.SCardID)
@@ -8648,10 +8714,14 @@ int CPosProcessor::Helper_PrintRemovedRow(const CCheckItem & rItem)
 {
 	int   ok = -1;
 	if(rItem.Flags & cifIsPrinted) {
-		const int do_debug_log = BIN(CConfig.Flags & CCFLG_DEBUG);
+		const bool do_debug_log = LOGIC(CConfig.Flags & CCFLG_DEBUG);
 		SStrCollection debug_rep_list;
-		SString msg_buf, chk_code, prn_name;
-		SString buf_prn, buf_ulp, buf_errprn;
+		SString msg_buf;
+		SString chk_code;
+		SString prn_name;
+		SString buf_prn;
+		SString buf_ulp;
+		SString buf_errprn;
 		if(do_debug_log) {
 			PPLoadText(PPTXT_LOG_CHKPAN_PRINTING, buf_prn);
 			PPLoadText(PPTXT_LOG_CHKPAN_UNDEFPRN, buf_ulp);
@@ -8723,7 +8793,7 @@ int CPosProcessor::Helper_RemoveRow(long rowNo, const CCheckItem & rItem)
 			pack.Rec.Flags |= (CCHKF_SYNC | CCHKF_NOTUSED);
 		}
 		Helper_InitCcPacket(&pack, 0, 0, 0);
-		rItem.GetRec(line_rec, BIN(pack.Rec.Flags & CCHKF_RETURN));
+		rItem.GetRec(line_rec, LOGIC(pack.Rec.Flags & CCHKF_RETURN));
 		line_rec.CheckID = pack.Rec.ID;
 		GetCc().WriteCCheckLogFile(&pack, &line_rec, CCheckCore::logRowCleared, 1);
 	}
@@ -8938,7 +9008,7 @@ int CheckPaneDialog::RemoveRow()
 			// @v12.2.4 {
 			if(Flags & fNoEdit) {
 				CCheckLineTbl::Rec ccl_rec;
-				p_item->GetRec(ccl_rec, BIN(P_ChkPack->Rec.Flags & CCHKF_RETURN));
+				p_item->GetRec(ccl_rec, LOGIC(P_ChkPack->Rec.Flags & CCHKF_RETURN));
 				GTaxVect::EvalBlock eb(*P_ChkPack, ccl_rec, 0/*exclFlags*/);
 				GTaxVect gtv;
 				gtv.EvaluateTaxes(eb);
@@ -12398,24 +12468,25 @@ int CheckPaneDialog::GetLastCheckPacket(PPID nodeID, PPID sessID, CCheckPacket *
 int CheckPaneDialog::PrintCheckCopy()
 {
 	int     ok = -1;
-	PPID    chk_id = 0;
-	SString format_name("CCheckCopy");
+	//PPID    chk_id = 0;
 	SString title_buf;
+	SelectCheckResult sccr;
+	sccr.Format = "CCheckCopy";
 	THROW_PP(OperRightsFlags & orfCopyCheck, PPERR_NORIGHTS);
 	PPLoadString("selectccheck_forcopy", title_buf);
-	if(IsState(sEMPTYLIST_EMPTYBUF) && SelectCheck(&chk_id, &format_name, title_buf, scfThisNodeOnly|scfAllowReturns) > 0) {
+	if(IsState(sEMPTYLIST_EMPTYBUF) && SelectCheck(title_buf, scfSelFormat|scfThisNodeOnly|scfAllowReturns, sccr) > 0) {
 		CCheckPacket   pack, ext_pack;
 		THROW(InitCashMachine());
-		if(chk_id) {
+		if(sccr.CcID) {
 			int  r = -1;
-			THROW(r = GetCc().LoadPacket(chk_id, 0, &pack));
+			THROW(r = GetCc().LoadPacket(sccr.CcID, 0, &pack));
 			if(r > 0) {
 				PPCashNode     cn_rec;
 				if(P_CM_EXT && pack.Rec.PosNodeID && CnObj.Fetch(pack.Rec.PosNodeID, &cn_rec) > 0 && cn_rec.LocID == ExtCnLocID) {
-					THROW(P_CM_EXT->SyncPrintCheckCopy(&pack, format_name));
+					THROW(P_CM_EXT->SyncPrintCheckCopy(&pack, sccr.Format));
 				}
 				else {
-					THROW(P_CM->SyncPrintCheckCopy(&pack, format_name));
+					THROW(P_CM->SyncPrintCheckCopy(&pack, sccr.Format));
 				}
 				ok = 1;
 			}
@@ -12428,10 +12499,12 @@ int CheckPaneDialog::PrintCheckCopy()
 				LDATETIME  ext_pack_dttm;
 				pack_dttm.Set(pack.Rec.Dt, pack.Rec.Tm);
 				ext_pack_dttm.Set(ext_pack.Rec.Dt, ext_pack.Rec.Tm);
-				if(cmp(pack_dttm, ext_pack_dttm) >= 0)
-					THROW(P_CM->SyncPrintCheckCopy(&pack, format_name));
-				if(cmp(pack_dttm, ext_pack_dttm) <= 0)
-					THROW(P_CM_EXT->SyncPrintCheckCopy(&ext_pack, format_name));
+				if(cmp(pack_dttm, ext_pack_dttm) >= 0) {
+					THROW(P_CM->SyncPrintCheckCopy(&pack, sccr.Format));
+				}
+				if(cmp(pack_dttm, ext_pack_dttm) <= 0) {
+					THROW(P_CM_EXT->SyncPrintCheckCopy(&ext_pack, sccr.Format));
+				}
 				ok = 1;
 			}
 		}
@@ -12443,24 +12516,22 @@ int CheckPaneDialog::PrintCheckCopy()
 int CheckPaneDialog::PrintSlipDocument()
 {
 	int     ok = -1;
-	SString format_name;
 	SString title_buf;
 	if(oneof2(GetState(), sEMPTYLIST_EMPTYBUF, sLIST_EMPTYBUF) && CashNodeID) {
-		PPID    chk_id = 0;
+		SelectCheckResult sccr;
 		if(IsState(sLIST_EMPTYBUF)) {
 			StrAssocArray fmt_list;
 			THROW(InitCashMachine());
 			if(P_CM->GetSlipFormatList(&fmt_list, 1) > 0) {
 				if(fmt_list.getCount() == 1)
-					format_name = fmt_list.Get(0).Txt;
+					sccr.Format = fmt_list.Get(0).Txt;
 				//
 				// @todo Вероятно, необходимо вызвать ошибку, если fmt_list.getCount() == 0
-				//
 				//
 			}
 		}
 		PPLoadString("selectccheck_forslip", title_buf);
-		if(format_name.NotEmpty() || SelectCheck(&chk_id, &format_name, title_buf, scfSelSlipDocForm|scfThisNodeOnly|scfAllowReturns) > 0) {
+		if(sccr.Format.NotEmpty() || SelectCheck(title_buf, scfSelSlipDocFormat|scfThisNodeOnly|scfAllowReturns, sccr) > 0) {
 			int   r = -1;
 			CCheckPacket  pack;
 			THROW(InitCashMachine());
@@ -12474,13 +12545,15 @@ int CheckPaneDialog::PrintSlipDocument()
 				r = 1; // Если значение оставается меньше нуля документ не печатается
 			}
 			else {
-				if(chk_id)
-					THROW(r = GetCc().LoadPacket(chk_id, 0, &pack));
+				if(sccr.CcID) {
+					THROW(r = GetCc().LoadPacket(sccr.CcID, 0, &pack));
+				}
 				if(r < 0)
 					r = GetLastCheckPacket(P_CM->GetNodeData().ID, P_CM->GetCurSessID(), &pack);
 			}
-			if(r > 0)
-				THROW(ok = P_CM->SyncPrintSlipDocument(&pack, format_name));
+			if(r > 0) {
+				THROW(ok = P_CM->SyncPrintSlipDocument(&pack, sccr.Format));
+			}
 		}
 	}
 	CATCHZOKPPERR

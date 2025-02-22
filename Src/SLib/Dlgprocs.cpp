@@ -233,7 +233,8 @@ void TDialog::RemoveUnusedControls()
 							}
 						}
 						v = p_dlg->CtrlIdToView(CLUSTER_ID(low));
-						CALLPTRMEMB(v, handleWindowsMessage(uMsg, wParam, lParam));
+						if(v && v->IsConsistent())
+							v->handleWindowsMessage(uMsg, wParam, lParam);
 					}
 				}
 				else

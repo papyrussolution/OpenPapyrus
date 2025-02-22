@@ -2290,11 +2290,11 @@ void BillItemBrowser::addItem_(int fromOrder, TIDlgInitData * pInitData, int sig
 				THROW(PostprocessModifItemAdding(r_ti, pos, sign, LOGIC(pInitData && pInitData->Flags & TIDIF_RECURUNROLLMODIF)/*recursive*/));
 			}
 			if(P_Pack->ProcessFlags & PPBillPacket::pfHasExtCost)
-				P_Pack->InitAmounts(0);
+				P_Pack->InitAmounts();
 			else if(P_Pack->UsesDistribCost()) {
 				Goods2Tbl::Rec goods_rec;
 				if(GObj.Fetch(r_ti.GoodsID, &goods_rec) > 0 && goods_rec.Flags & GF_ODD) {
-					P_Pack->InitAmounts(0);
+					P_Pack->InitAmounts();
 				}
 			}
 			State |= stIsModified;
@@ -2448,7 +2448,7 @@ void BillItemBrowser::editItem()
 					if(P_Pack->OpTypeID == PPOPT_GOODSMODIF)
 						P_Pack->CalcModifCost();
 					if(P_Pack->ProcessFlags & PPBillPacket::pfHasExtCost)
-						P_Pack->InitAmounts(0);
+						P_Pack->InitAmounts();
 					update(pos_cur);
 					UpdatePriceDevList(c, 0);
 				}
@@ -2550,7 +2550,7 @@ void BillItemBrowser::delItem()
 			if(P_Pack->OpTypeID == PPOPT_GOODSMODIF)
 				P_Pack->CalcModifCost();
 			if(P_Pack->ProcessFlags & PPBillPacket::pfHasExtCost)
-				P_Pack->InitAmounts(0);
+				P_Pack->InitAmounts();
 			update(cur_view_pos);
 			THROW(UpdatePriceDevList(c, -1));
 			ProblemsList.Remove(c);
@@ -4288,7 +4288,7 @@ IMPL_HANDLE_EVENT(BillItemBrowser)
 					if(TVCHR == kbCtrlT) {
 						if(!EventBarrier()) {
 							BillTotalData btd;
-							P_Pack->InitAmounts(0);
+							P_Pack->InitAmounts();
 							P_Pack->CalcTotal(btd, 0);
 							btd.Amounts.copy(P_Pack->Amounts);
 							if(!P_BObj->CheckRights(BILLRT_ACCSCOST))

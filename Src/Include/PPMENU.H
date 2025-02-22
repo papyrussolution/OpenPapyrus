@@ -440,7 +440,7 @@
 #define cmSpecSeries                   547 // Специальные серии лотов (применяется для идентификации 'недопустимых' серий лекарств)
 #define cmPhoneService                 548 // Справочник телефонных сервисов
 #define cmImportPhoneList              549 // Импорт телефонного справочника
-#define cmEditSmsAcc                   550 // 
+#define cmEditSmsAcc                   550 //
 #define cmIndexPhones                  551 // Индексация телефонов из персоналий и из адресов.
 // @v12.2.2 #define cmCvtQCert                     552 // Конвертация сертификатов качества в теги лотов (для лэнда)
 #define cmGtaJournal                   553 // Просмотр журнала тарифицируемых операций глобальных аккаунтов
@@ -559,5 +559,6 @@
 #define cmAptekaRuInterchange          665 // @v12.2.1 Обмен данными с сервисом Apteka.Ru
 #define cmGatherClientActivityStat     666 // @v12.2.2 Сбор статистики по активности клиентов
 #define cmRecoverHungedUpTags          667 // @v12.2.5 Корректировка (удаление) висячих тегов (то есть тех, чьи объекты отсутствуют)
+#define cmClientActivity               668 // @v12.2.8 Анализ клиентской активности
 
 #endif /* __PPMENU_H */

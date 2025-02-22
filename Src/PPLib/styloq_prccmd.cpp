@@ -1394,7 +1394,7 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 								}
 							}
 							if(p_bpack->Rec.ID) {
-								THROW(p_bpack->InitAmounts(0));
+								p_bpack->InitAmounts();
 								THROW(p_bobj->FillTurnList(p_bpack));
 								THROW(p_bobj->UpdatePacket(p_bpack, 0));
 							}

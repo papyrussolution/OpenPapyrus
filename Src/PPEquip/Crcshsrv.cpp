@@ -4239,7 +4239,9 @@ int ACS_CRCSHSRV::QueryFile(int filTyp, const char * pQueryBuf, LDATE queryDate)
 	int    ok = 1;
 	uint   pos;
 	DbfTable * p_qtbl = 0;
-	SString  query_buf(pQueryBuf), file_name, rmv_file_name;
+	SString query_buf(pQueryBuf);
+	SString file_name;
+	SString rmv_file_name;
 	FILE * p_f = 0;
 	SFile::Remove(PathQue[filTyp]);
 	if(Options & oUseAltImport) {
@@ -4388,7 +4390,8 @@ int XmlZRepReader::Next(ZRep * pItem)
 int ACS_CRCSHSRV::ImportZRepList(SVector * pZRepList, bool useLocalFiles)
 {
 	int    ok = -1, r = 1;
-	LDATE  oper_date, end = ChkRepPeriod.upp;
+	LDATE  oper_date;
+	LDATE  end = ChkRepPeriod.upp;
 	SString query_buf;
 	SETIFZ(end, plusdate(getcurdate_(), 2));
 	DbfTable * p_dbftz  = 0;
@@ -4517,18 +4520,20 @@ void ACS_CRCSHSRV::Backup(const char * pPrefix, const char * pPath)
 {
 	const long _max_copies = 10L; //#define MAX_COPIES 10L
 	long   start = 1L;
-	SString backup_dir, dest_path;
+	SString backup_dir;
+	SString dest_path;
 	SString prefix(pPrefix);
 	prefix.Strip().Trim(4);
 	SFsPath sp(pPath);
-	SString ext = sp.Ext;
+	SString ext(sp.Ext);
 	sp.Merge(SFsPath::fDrv|SFsPath::fDir, backup_dir);
 	backup_dir.Cat("backup").SetLastSlash();
 	SFile::CreateDir(backup_dir);
-	dest_path = MakeTempFileName(backup_dir, prefix, ext, &start, dest_path);
+	MakeTempFileName(backup_dir, prefix, ext, &start, dest_path);
 	if(start > (_max_copies + 1)) {
 		const size_t pfx_len = prefix.Len();
-		SString prev_path, path;
+		SString prev_path;
+		SString path;
 		for(long i = 1; i < _max_copies; i++) {
 			(path = backup_dir).Cat(prefix).CatLongZ(i, (int)(8 - pfx_len)).Dot().Cat(ext);
 			(prev_path = backup_dir).Cat(prefix).CatLongZ(i + 1, int(8 - pfx_len)).Dot().Cat(ext);
@@ -4537,7 +4542,7 @@ void ACS_CRCSHSRV::Backup(const char * pPrefix, const char * pPath)
 		}
 		(dest_path = backup_dir).Cat(prefix).CatLongZ(_max_copies, (int)(8 - pfx_len)).Dot().Cat(ext);
 		SFile::Remove(dest_path);
-		dest_path = MakeTempFileName(backup_dir, prefix, ext, &(start = 10), dest_path);
+		MakeTempFileName(backup_dir, prefix, ext, &(start = 10), dest_path);
 	}
 	SCopyFile(pPath, dest_path, 0, FILE_SHARE_READ, 0);
 }
@@ -4550,7 +4555,6 @@ int ACS_CRCSHSRV::ImportSession(int)
 	SString wait_msg_tmpl;
 	SString wait_msg;
 	SString query_buf;
-	LDATE  oper_date;
 	LDATE  end = ChkRepPeriod.upp;
 	SVector zrep_list(sizeof(ZRep));
 	SETIFZ(end, plusdate(getcurdate_(), 2));
@@ -4566,7 +4570,7 @@ int ACS_CRCSHSRV::ImportSession(int)
 		SString data_dir;
 		SString data_path;
 		AcceptedCheckList.freeAll();
-		for(oper_date = ChkRepPeriod.low; use_local_files || r > 0 && oper_date <= end; oper_date = plusdate(oper_date, 1)) {
+		for(LDATE oper_date = ChkRepPeriod.low; use_local_files || r > 0 && oper_date <= end; oper_date = plusdate(oper_date, 1)) {
 			char   date_buf[32];
 			wait_msg.Printf(wait_msg_tmpl, datefmt(&oper_date, DATF_DMY, date_buf));
 			if(ModuleVer == 10) {

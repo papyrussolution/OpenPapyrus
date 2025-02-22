@@ -1,5 +1,5 @@
 // PAYMENT.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2024
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -212,10 +212,7 @@ PPBaseFilt * PPViewLinkedBill::CreateFilt(const void * extraPtr) const
 	return p_filt;
 }
 
-int PPViewLinkedBill::EditBaseFilt(PPBaseFilt * pBaseFilt)
-{
-	return 1;
-}
+int PPViewLinkedBill::EditBaseFilt(PPBaseFilt * pBaseFilt) { return 1; }
 
 int PPViewLinkedBill::Init_(const PPBaseFilt * pBaseFilt)
 {
@@ -894,8 +891,8 @@ int PPObjBill::Reckon(PPID paymBillID, PPID debtBillID, PPID reckonOpID, PPID * 
 				al.Put(PPAMT_CRATE, cur_id, crate, 0, 0);
 			}
 			SubstMemo(&pack);
-			THROW(pack.SumAmounts(&al));
-			THROW(pack.InitAmounts(&al));
+			pack.SumAmounts(al);
+			pack.InitAmounts(al);
 			THROW(FillTurnList(&pack));
 			THROW(TurnPacket(&pack, 0));
 			ASSIGN_PTR(pReckonBillID, pack.Rec.ID);

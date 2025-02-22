@@ -3833,11 +3833,9 @@ public:
 			disableCtrls(1, CTL_CCHECKINFO_ID, CTL_CCHECKINFO_USERID, CTL_CCHECKINFO_AMOUNT, CTL_CCHECKINFO_DSCNT, 0);
 			CanModif = true;
 		}
-		else {
-			disableCtrls(1, CTL_CCHECKINFO_ID, CTL_CCHECKINFO_CODE, CTL_CCHECKINFO_CASHCODE,
-				CTL_CCHECKINFO_USERID, CTL_CCHECKINFO_SESSID, CTL_CCHECKINFO_DATE,
-				CTL_CCHECKINFO_TIME, CTL_CCHECKINFO_AMOUNT, CTL_CCHECKINFO_DSCNT, 0);
-		}
+		disableCtrls(!CanModif, CTL_CCHECKINFO_ID, CTL_CCHECKINFO_CODE, CTL_CCHECKINFO_CASHCODE,
+			CTL_CCHECKINFO_USERID, CTL_CCHECKINFO_SESSID, CTL_CCHECKINFO_DATE,
+			CTL_CCHECKINFO_TIME, CTL_CCHECKINFO_AMOUNT, CTL_CCHECKINFO_DSCNT, 0);
 		enableCommand(cmPrint, FiscalPrintintgEnabled());
 		if(ScObj.Search(Data.Rec.SCardID, &sc_rec) > 0)
 			STRNSCPY(scard_no, sc_rec.Code);
@@ -3931,11 +3929,18 @@ public:
 				setCtrlString(CTL_CCHECKINFO_EADDR, phone);
 		}
 		// } @v11.3.6 
+		// @v12.2.8 {
+		{
+			Data.GetExtStrData(CCheckPacket::extssFiscalSign, temp_buf);
+			setCtrlString(CTL_CCHECKINFO_FSCLSIGN, temp_buf);
+		}
+		// } @v12.2.8 
 		return ok;
 	}
 	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
+		SString temp_buf;
 		long   flags = Data.Rec.Flags;
 		PPID   card_id = Data.Rec.SCardID;
 		char   scard_no[32];
@@ -3964,6 +3969,17 @@ public:
 				getCtrlData(CTL_CCHECKINFO_DATE,     &Data.Rec.Dt);
 				getCtrlData(CTL_CCHECKINFO_TIME,     &Data.Rec.Tm);
 				ok |= 0x0002;
+			}
+			{
+				// @v12.2.8 {
+				SString org_fiscal_sign;
+				Data.GetExtStrData(CCheckPacket::extssFiscalSign, org_fiscal_sign);
+				getCtrlString(CTL_CCHECKINFO_FSCLSIGN, temp_buf);
+				if(temp_buf != org_fiscal_sign) {
+					Data.PutExtStrData(CCheckPacket::extssFiscalSign, temp_buf);
+					ok |= 0x0010;
+				}
+				// } @v12.2.8 
 			}
 			if(flags != Data.Rec.Flags) {
 				Data.Rec.Flags = flags;
@@ -4015,77 +4031,10 @@ private:
 	}
 	int    ViewExtList()
 	{
-		static const SIntToSymbTabEntry ext_list[] = {
-			{ CCheckPacket::extssMemo,               "ccextss_memo" },
-			{ CCheckPacket::extssSign,               "ccextss_sign" },
-			{ CCheckPacket::extssEgaisUrl,           "ccextss_egaisurl" },
-			{ CCheckPacket::extssRemoteProcessingTa, "ccextss_remoteprocessingta" },
-			{ CCheckPacket::extssChZnProcessingTag,  "ccextss_chznprocessingtag" },
-			{ CCheckPacket::extssBuyerINN,           "ccextss_buyerinn" },
-			{ CCheckPacket::extssBuyerName,          "ccextss_buyername" },
-			{ CCheckPacket::extssBuyerPhone,         "ccextss_buyerphone" },
-			{ CCheckPacket::extssBuyerEMail,         "ccextss_buyeremail" },
-			{ CCheckPacket::extssUuid,               "ccextss_uuid" },
-			{ CCheckPacket::extssPrescrDate,         "ccextss_prescrdate" },
-			{ CCheckPacket::extssPrescrSerial,       "ccextss_prescrserial" },
-			{ CCheckPacket::extssPrescrNumber,       "ccextss_prescrnumber" },
-			{ CCheckPacket::extssEgaisProcessingTag, "ccextss_egaisprocessingtag" },
-			{ CCheckPacket::extssSourceSymb,         "ccextss_sourcesymb" },
-			{ CCheckPacket::extssOuterIdent,         "ccextss_outerident" },
-			{ CCheckPacket::extssOuterExtTag,        "ccextss_outerexttag" },
-			{ CCheckPacket::extssLinkBillUuid,       "ccextss_linkbilluuid" },
-		};
-		/*
-		class CcExtListDialog : public PPListDialog {
-			const CCheckPacket & R_Data;
-		public:
-			CcExtListDialog(const CCheckPacket & rData) : PPListDialog(DLG_CCEXTLIST, CTL_CCEXTLIST_LIST), R_Data(rData)
-			{
-				updateList(0);
-			}
-		private:
-			virtual int  setupList()
-			{
-				StringSet ss(SLBColumnDelim);
-				static const SIntToSymbTabEntry ext_list[] = {
-					{ CCheckPacket::extssMemo,               "ccextss_memo" },
-					{ CCheckPacket::extssSign,               "ccextss_sign" },
-					{ CCheckPacket::extssEgaisUrl,           "ccextss_egaisurl" },
-					{ CCheckPacket::extssRemoteProcessingTa, "ccextss_remoteprocessingta" },
-					{ CCheckPacket::extssChZnProcessingTag,  "ccextss_chznprocessingtag" },
-					{ CCheckPacket::extssBuyerINN,           "ccextss_buyerinn" },
-					{ CCheckPacket::extssBuyerName,          "ccextss_buyername" },
-					{ CCheckPacket::extssBuyerPhone,         "ccextss_buyerphone" },
-					{ CCheckPacket::extssBuyerEMail,         "ccextss_buyeremail" },
-					{ CCheckPacket::extssUuid,               "ccextss_uuid" },
-					{ CCheckPacket::extssPrescrDate,         "ccextss_prescrdate" },
-					{ CCheckPacket::extssPrescrSerial,       "ccextss_prescrserial" },
-					{ CCheckPacket::extssPrescrNumber,       "ccextss_prescrnumber" },
-					{ CCheckPacket::extssEgaisProcessingTag, "ccextss_egaisprocessingtag" },
-					{ CCheckPacket::extssSourceSymb,         "ccextss_sourcesymb" },
-					{ CCheckPacket::extssOuterIdent,         "ccextss_outerident" },
-					{ CCheckPacket::extssOuterExtTag,        "ccextss_outerexttag" },
-					{ CCheckPacket::extssLinkBillUuid,       "ccextss_linkbilluuid" },
-				};
-				SString temp_buf;
-				SString title_buf;
-				for(uint i = 0; i < SIZEOFARRAY(ext_list); i++) {
-					const int fld_id = ext_list[i].Id;
-					if(R_Data.GetExtStrData(fld_id, temp_buf) > 0) {
-						ss.Z();
-						PPLoadString(ext_list[i].P_Symb, title_buf);
-						ss.add(title_buf);
-						ss.add(temp_buf);
-						addStringToList(fld_id, ss.getBuf());
-					}
-				}
-				return 1;
-			}
-		};*/
-
 		int    ok = -1;
-		//CcExtListDialog * dlg = new CcExtListDialog(Data);
-		ExtStrContainerListDialog * dlg = new ExtStrContainerListDialog(DLG_CCEXTLIST, CTL_CCEXTLIST_LIST, 0, true, ext_list, SIZEOFARRAY(ext_list));
+		uint   tab_count = 0;
+		const SIntToSymbTabEntry * p_tab = CCheckPacket::GetExtssNameSymbTab(&tab_count);
+		ExtStrContainerListDialog * dlg = new ExtStrContainerListDialog(DLG_CCEXTLIST, CTL_CCEXTLIST_LIST, 0, true, p_tab, tab_count);
 		if(CheckDialogPtrErr(&dlg)) {
 			dlg->setDTS(&Data);
 			ExecViewAndDestroy(dlg);
@@ -4141,6 +4090,18 @@ int PPViewCCheck::EditCCheckSystemInfo(CCheckPacket & rPack)
 				dlg->getCtrlData(CTL_CCHECKINFO_TIME,     &rPack.Rec.Tm);
 				ok |= 0x0002;
 			}
+			{
+				// @v12.2.8 {
+				SString fiscal_sign;
+				SString org_fiscal_sign;
+				rPack.GetExtStrData(CCheckPacket::extssFiscalSign, org_fiscal_sign);
+				dlg->getCtrlString(CTL_CCHECKINFO_FSCLSIGN, fiscal_sign);
+				if(fiscal_sign != org_fiscal_sign) {
+					rPack.PutExtStrData(CCheckPacket::extssFiscalSign, fiscal_sign);
+					ok |= 0x0010;
+				}
+				// } @v12.2.8 
+			}
 			if(flags != rPack.Rec.Flags) {
 				rPack.Rec.Flags = flags;
 				ok |= 0x0004;
@@ -4161,6 +4122,7 @@ int PPViewCCheck::EditCCheckSystemInfo(CCheckPacket & rPack)
 int PPViewCCheck::EditItemInfo(PPID id)
 {
 	int    ok = -1;
+	Reference * p_ref = PPRef;
 	TDialog * dlg = 0;
 	if(!Filt.Grp) {
 		CCheckPacket pack, org_pack;
@@ -4186,6 +4148,13 @@ int PPViewCCheck::EditItemInfo(PPID id)
 				if(dr & 0x0008) {
 					THROW(P_CC->UpdateSCard(id, pack.Rec.SCardID, 0));
 				}
+				// @v12.2.8 {
+				if(dr & 0x0010) {
+					SString new_cctext;
+					pack.PackTextExt(new_cctext);
+					THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_CCHECK, pack.Rec.ID, PPTRPROP_CC_LNEXT), new_cctext.Transf(CTRANSF_INNER_TO_UTF8), 0));
+				}
+				// } @v12.2.8 
 				THROW(tra.Commit());
 			}
 		}

@@ -789,6 +789,7 @@ int VkInterface::PublishImage(int vkContentCategory, const char * pImgPath, int6
 				if(r > 0) {
 					if(SaveProductPhoto(post_img_reply, &photo_id) > 0) {
 						assert(photo_id != 0);
+						ok = 1;
 					}
 				}
 			}

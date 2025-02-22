@@ -1423,10 +1423,7 @@ PPBaseFilt * PPViewPhnSvcMonitor::CreateFilt(const void * extraPtr) const
 	return p_filt;
 }
 
-int PPViewPhnSvcMonitor::EditBaseFilt(PPBaseFilt * pBaseFilt)
-{
-	return 1;
-}
+int PPViewPhnSvcMonitor::EditBaseFilt(PPBaseFilt * pBaseFilt) { return 1; }
 
 int PPViewPhnSvcMonitor::CreatePhnSvcClient()
 {

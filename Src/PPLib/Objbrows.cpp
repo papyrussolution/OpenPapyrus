@@ -144,7 +144,7 @@ bool PPObjListWindow::ValidateCommand(TEvent & rEv)
 						p_lb->Draw_();
 					}*/
 				}
-				TView::clearEvent(rEv);
+				TView::NegativeReplyOnValidateCommand(rEv);
 				ok = false;
 			}
 		}

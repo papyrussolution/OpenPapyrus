@@ -503,7 +503,8 @@ int PPApp::processCommand(uint cmd)
 		case cmUhttStoreTag:         ShowTags_(PPOBJ_UHTTSTORE);              break;
 		case cmObjTagAllObj:         ShowTags_(0);                            break;
 		case cmAccArticle:           PPView::Execute(PPVIEW_ARTICLE,         0, PPView::exefModeless, 0); break;
-		case cmPerson:               PPView::Execute(PPVIEW_PERSON,          0, PPView::exefModeless, 0); break;
+		case cmPerson:               PPView::Execute(PPVIEW_PERSON,          0, PPView::exefModeless, reinterpret_cast<void *>(PersonFilt::spcGeneral)); break;
+		case cmClientActivity:       PPView::Execute(PPVIEW_PERSON,          0, PPView::exefModeless, reinterpret_cast<void *>(PersonFilt::spcClientActivityStats)); break; // @v12.2.8
 		case cmPersonRel:            PPView::Execute(PPVIEW_PERSONREL,       0, PPView::exefModeless, 0); break;
 		case cmStaff:                PPView::Execute(PPVIEW_STAFFPOST,       0, PPView::exefModeless, 0); break;
 		case cmViewSalary:           PPView::Execute(PPVIEW_SALARY,          0, PPView::exefModeless, 0); break;

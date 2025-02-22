@@ -844,7 +844,7 @@ PPLogger::PPLogger(long flags) : Flags(flags), P_Log(0)
 
 PPLogger::~PPLogger()
 {
-	TVMsgLog::Delete_(static_cast<TVMsgLog *>(P_Log), BIN(CS_SERVER));
+	TVMsgLog::Delete_(static_cast<TVMsgLog *>(P_Log), DS.CheckExtFlag(ECF_SYSSERVICE));
 }
 
 void PPLogger::Clear()

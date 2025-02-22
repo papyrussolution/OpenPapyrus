@@ -7665,7 +7665,7 @@ private:
 	long   State;
 	long   ExtFlags_;      // ECF_XXX
 	mutable SMtLock ExtFlagsLck;   // Блокировка доступа к ExtFlags
-	SMtLock ExtCfgDbLock;  // @v10.7.7 Блокировка доступа к P_ExtCfgDb
+	SMtLock ExtCfgDbLock;  // Блокировка доступа к P_ExtCfgDb
 	//
 	DbLocalCacheMng CMng;  // Менеджер локальных по отношению к базе данных объектных кэшей
 	PPAdviseList AdvList;  // Подписка на извещения о событиях.
@@ -7767,7 +7767,7 @@ extern PPSession DS;
 #define PPRef     (DS.GetTLA().P_Ref)
 #define PPMaster  (DS.LCfg().State & CFGST_MASTER)
 #define ObjRts    (DS.GetConstTLA().Rights)
-#define CS_SERVER (DS.CheckExtFlag(ECF_SYSSERVICE))
+// @v12.2.8 #define CS_SERVER (DS.CheckExtFlag(ECF_SYSSERVICE))
 // @v10.1.4 #define CS_CLIENT (DS.CheckExtFlag(ECF_CLIENT))
 
 void   PPSaveErrContext();
@@ -9821,7 +9821,7 @@ public:
 	bool   Search(PPID amtTypeID, PPID curID, uint * pPos) const;
 	bool   FASTCALL HasAmtTypeID(PPID amtTypeID) const;
 	bool   FASTCALL HasVatSum(const TaxAmountIDs * pTai) const;
-	bool   FASTCALL IsEq(const AmtList *) const;
+	bool   FASTCALL IsEq(const AmtList &) const;
 	//
 	// Descr: возвращает список валют, для которых существует
 	//   сумма amtTypeID в списке сумм. Если amtTypeID < 0, то возвращаетс
@@ -9994,7 +9994,7 @@ struct CCheckItem { // @transient
 	CCheckItem & FASTCALL operator = (const CCheckItem & rS);
 	CCheckItem & FASTCALL operator = (const CCheckLineTbl::Rec & rS);
 	CCheckItem & FASTCALL operator = (const CCheckLineExtTbl::Rec & rS);
-	void   GetRec(CCheckLineTbl::Rec & rRec, int ret) const;
+	void   GetRec(CCheckLineTbl::Rec & rRec, bool isReturn) const;
 	int    GetRec(CCheckLineExtTbl::Rec & rRec) const;
 	int    SplitByQtty(double restQtty, CCheckItem & rNewItem);
 	double NetPrice() const;
@@ -10206,8 +10206,14 @@ public:
 		extssOuterExtTag        = 17, // @v11.8.5 Дополнительный текстовый тег, поступивший из внешнего источника.
 			// Как правило, система трактовать такой тег формальным образом не способна.
 		extssLinkBillUuid       = 18, // @v11.8.8 UUID документа, по которому сформирован чек 
-		// @attention: После вставки очередного элемента в enum добавьте этот элемент в ccpack_textext_ident_list (ccheck.cpp). 
+		extssFiscalSign         = 19, // @v12.2.8 Фискальный признак чека, присваиваемый ему в ОФД. На текущий момент предполагается, 
+			// что этот признак будет по необходимости устанавливаться в чеке в ручную, поскольку механизма автоматического получения //
+			// этого признака нет.
+		// @attention: После вставки очередного элемента в enum добавьте этот элемент в 
+		//   таблицы CCheckExtSsList и CCheckExtNameSymbList ccheck.cpp). 
 		//   Иначе этот атрибут не будет сохраняться в чеке.
+
+		// @todo Фискальный признак чека
 	};
 	//
 	// Descr: Идентификаторы текстовых расширений строк чека
@@ -10284,7 +10290,7 @@ public:
 	//
 	DECL_INVARIANT_C();
 	//
-	// Descr: Функция, обеспечивающая централизованный механиз распаковки текстовых расширений чека и его строк.
+	// Descr: Функция, обеспечивающая централизованный механизм распаковки текстовых расширений чека и его строк.
 	//
 	static int  Helper_UnpackTextExt(const SString & rBuf, PPExtStrContainer * pSc, StrAssocArray * pList);
 	static int  Helper_SetLineTextExt(int pos /*[1..]*/, int lnextId, StrAssocArray & rList, const char * pText);
@@ -10294,6 +10300,7 @@ public:
 	static int  SetPrescription(PPExtStrContainer & rEss, const Prescription & rP);
 	static int  GetExtssMnemonic(int extss, SString & rBuf);
 	static int  RecognizeExtssMnemonic(const char * pSymb);
+	static const SIntToSymbTabEntry * GetExtssNameSymbTab(uint * pTabEntryCount);
 
 	CCheckPacket();
 	CCheckPacket(const CCheckPacket & rS);
@@ -11626,6 +11633,13 @@ struct PPCurTransit {      // @transient
 //
 //
 struct BillVatEntry {
+	BillVatEntry() : Rate(0.0), VatSum(0.0), BaseAmount(0.0), AmountByVat(0.0)
+	{
+	}
+	bool   FASTCALL IsEq(const BillVatEntry & rS) const
+	{
+		return (Rate == rS.Rate && VatSum == rS.VatSum && BaseAmount == rS.BaseAmount && AmountByVat == rS.AmountByVat);
+	}
 	double Rate;
 	double VatSum;      // Сумма НДС
 	double BaseAmount;  // Сумма налогооблагаемой базы (без НДС)
@@ -11637,6 +11651,7 @@ struct BillVatEntry {
 class BillVatArray : public TSVector <BillVatEntry> {
 public:
 	BillVatArray();
+	bool   IsEq(const BillVatArray & rS) const;
 	int    Add(double rate, double sum, double base, double amtByVat);
 	const  BillVatEntry * GetByRate(double rate) const;
 };
@@ -11660,6 +11675,7 @@ struct BillTotalData {
 	};
 	BillTotalData();
 	BillTotalData & Z();
+	bool   IsEq(const BillTotalData & rS) const;
 
 	long   LinesCount;
 	long   GoodsCount;
@@ -11679,7 +11695,7 @@ struct BillTotalData {
 	double STax;           // Налог с продаж
 	double CSTax;          // Налог с продаж в ценах поступления //
 
-	AmtList      Amounts;  // @anchor
+	AmtList Amounts;       // @anchor
 	BillVatArray VatList;
 	BillVatArray CostVatList;  //
 	BillVatArray PriceVatList; //
@@ -12117,17 +12133,17 @@ public:
 	// Descr: Факторы различий строк пакетов при сравнении
 	//
 	enum {
-		tidfQtty       = 0x0002, // Отличается количество
-		tidfCost       = 0x0004, // Отличается цена поступления
-		tidfPrice      = 0x0008, // Отличается учетная цена реализации
-		tidfNetPrice   = 0x0010, // Отличается чистая цена (Price-Discount)
-		tidfThisAbsent = 0x0020, // В пакете this отсутствует строка, соответствующая строке в other
+		tidfQtty               = 0x0002, // Отличается количество
+		tidfCost               = 0x0004, // Отличается цена поступления
+		tidfPrice              = 0x0008, // Отличается учетная цена реализации
+		tidfNetPrice           = 0x0010, // Отличается чистая цена (Price-Discount)
+		tidfThisAbsent         = 0x0020, // В пакете this отсутствует строка, соответствующая строке в other
 		tidfOtherAbsent        = 0x0040, // В пакете other отсутствует строка, соответствующая строке в this
 		tidfRByBillPrec        = 0x0080, // Сравнение документов осуществляется с точностью до номера строки
 			// (имеется в виду внутренний идентификатор позиции RByBill)
 		tidfIgnoreGoods        = 0x0100, // Игнорировать отличие товаров в сравниваемых строках
 		tidfStrictEgaisCodeTag = 0x0200, // Сопоставлять код ЕГАИС в теге лота
-		tidfIgnoreSign = 0x0400  // При сопоставлении игнорировать знаки операци (приход/расход)
+		tidfIgnoreSign         = 0x0400  // При сопоставлении игнорировать знаки операци (приход/расход)
 	};
 	struct TiDifferenceItem {
 		TiDifferenceItem(long flags, const LongArray * pThisPList, const LongArray * pOtherPList);
@@ -12176,9 +12192,10 @@ public:
 	//   Скидка в этом случае рассчитывается на сумму без налога с продаж.
 	//
 	void   SetTotalDiscount(double dis, int pctdis, int rmvexcise);
-	int    SumAmounts(AmtList *, int fromDB = 0);
-	int    FASTCALL InitAmounts(const AmtList *);
-	int    FASTCALL InitAmounts(int fromDB = 0);
+	void   SumAmounts(AmtList & rList);
+	void   SumAmounts_ComparingWithOrgPack(AmtList & rList, const PPBillPacket * pOrgPack, int * pFirstDiffRowN);
+	void   FASTCALL InitAmounts(const AmtList &);
+	void   FASTCALL InitAmounts();
 	//
 	// Descr: Идентифицирует долговую размерность, которой принадлежи документ.
 	//   Идентификатор размерности возвращается по указателю pDebtDimID.
@@ -12200,14 +12217,14 @@ public:
 	// Descr: Опции функции CheckGoodsForRestrictions()
 	//
 	enum {
-		cgrfAll      = 0xffffffff, // Полная проверка
-		cgrfObject   = 0x00000001, // Проверять по статье документа
-		cgrfObject2  = 0x00000002, // Проверять по дополнительной статье документа
-		cgrfMatrix   = 0x00000004, // Проверять соответствие товарной матрице
+		cgrfAll              = 0xffffffff, // Полная проверка
+		cgrfObject           = 0x00000001, // Проверять по статье документа
+		cgrfObject2          = 0x00000002, // Проверять по дополнительной статье документа
+		cgrfMatrix           = 0x00000004, // Проверять соответствие товарной матрице
 		cgrfGoodsGrpRestrict = 0x00000008, // Проверять соответствие ограничению пользователя по товарным группам
 		cgrfShipmControl     = 0x00000010, // Проверять на согласованность с предыдущими отгрузками/возвратами
 		cgrfModifCmplmnry    = 0x00000020, // Проверять на комплементарность товаров в документе модификации
-		cgrfQtty     = 0x00000040  // Проверять критерии в которых фигурирует количество товара
+		cgrfQtty             = 0x00000040  // Проверять критерии в которых фигурирует количество товара
 	};
 	struct CgrRetBlock {
 		CgrRetBlock();
@@ -12422,16 +12439,16 @@ public:
 	// Descr: Флаги обработки документа
 	//
 	enum { // @transient
-		pfHasVirtualTI  = 0x00000001, // Пакет содержит виртуальные товарные строки
+		pfHasVirtualTI          = 0x00000001, // Пакет содержит виртуальные товарные строки
 		pfPrintOnlyUnlimGoods   = 0x00000002, // Вывод на печать только нелимитируемых товаров
-		pfPrintPLabel   = 0x00000004, // Печатать ценник
+		pfPrintPLabel           = 0x00000004, // Печатать ценник
 		pfPrintQCertList        = 0x00000008, // Серификаты к документу печатать списком "для каждого товара - все серитфикаты"
 		pfViewPercentOnTurn     = 0x00000010, // Показывать проценты при проведении документа
 		pfErrOnTiLoading        = 0x00000020, // Признак ошибки загрузки товарных строк документа
 			// Устанавливается функцией Transfer::LoadItems
 		pfPrintTareSaldo        = 0x00000040, // Печатать сальдо по отгрузке тары
-		pfAllGoodsUnlim = 0x00000080, // @*PPBillPacket::CalcTotal() Все товары в документе - нелимитированные
-		pfHasExtCost    = 0x00000100, // @*PPBillPacket::SumAmounts() Товарный документ содержит
+		pfAllGoodsUnlim         = 0x00000080, // @*PPBillPacket::CalcTotal() Все товары в документе - нелимитированные
+		pfHasExtCost            = 0x00000100, // @*PPBillPacket::SumAmounts() Товарный документ содержит
 			// распределенную себестоимость. Флаг используется при редактировании строк документа с целью быстро
 			// определить необходимость пересчета себестоимости.
 		pfPrintChangedPriceOnly = 0x00000200, // Печать только тех товаров, цены на которые изменились в сравнении с последним лотом
@@ -12440,15 +12457,17 @@ public:
 		pfSubCostOnSubPartStr   = 0x00000800, // При распределении частичной структуры, вычитающей количество
 			// из основного товара, уменьшать себестоимость документа.
 			// @seealso AGTF_SUBCOSTONSUBPARTSTR
-		pfChargeSCard   = 0x00001000, // С документом связана карта и есть сумма, по которую
+		pfChargeSCard           = 0x00001000, // С документом связана карта и есть сумма, по которую
 			// необходимо начислить на кредитную карту.
-		pfForeignSync   = 0x00002000, // Пакет создан в рамках приема данных из другого раздела
+		pfForeignSync           = 0x00002000, // Пакет создан в рамках приема данных из другого раздела
 		pfIgnoreStatusRestr     = 0x00004000, // При изменении документа игнорировать ограничения статуса
-		pfForceRByBill  = 0x00008000, // Для новых строк документа использовать тот RByBill, который указан (не обнулять)
+		pfForceRByBill          = 0x00008000, // Для новых строк документа использовать тот RByBill, который указан (не обнулять)
 		pfUpdateProhibited      = 0x00020000, // Проведение этого пакета функцией PPObjBill::UpdatePacket запрещено (например, по причене не полной загрузки).
 		pfIgnoreOpRtList        = 0x00040000, // При изменении документа игнорировать ограничения списка доступных операций.
 			// Флаг устанавливается при рекурсивном вызове PPObjBill::UpdatePacket
-		pfZombie        = 0x00080000, // Документ восстановлен из истории версий (прямое изменение запрещено)
+		pfZombie                = 0x00080000, // Документ восстановлен из истории версий (прямое изменение запрещено)
+		pfDetectModificDetails  = 0x00100000, // @v12.2.8 При редактировании пакета программа (всего лишь) пытается четко локализовать отличия редактированного
+			// пакета от оригинального.
 	};
 	long   ProcessFlags;       // @transient
 	PPLinkFilesArray LnkFiles;
@@ -12479,6 +12498,7 @@ private:
 	int    MergeTI(PPTransferItem * pItem, int idx, long flags, LongArray & rTotalMergeList, LongArray * pMergePosList);
 	int    Helper_DistributeExtCost(double extCostSum, int alg);
 	int    DistributeExtCost();
+	void   Implement_SumAmounts(AmtList & rList, const PPBillPacket * pOrgPack, int * pFirstDiffRowN);
 
 	PPTrfrArray Lots;
 	TiIter * P_Iter;
@@ -15269,10 +15289,11 @@ public:
 #define CCHKF_TOREPRINT    0x00002000L // Флаг, устанавливаемый на чек, который не был правильно отпечатан и выбран для перепечатки.
 	// При таком выборе чек получает флаги (CCHKF_SUSPENDED|CCHKF_TOREPRINT) после завершения перепечатки остается только флаг CCHKF_TOREPRINT.
 #define CCHKF_PAPERLESS    0x00004000L // @v11.3.6 Кассовый регистратор не должен печатать бумажный чек по этой записи
+#define CCHKF_CORRECTION   0x00008000L // @v12.2.8 Чек коррекции. Исключает CCHKF_RETURN.
 #define CCHKF_SYNC         0x00010000L // Чек сформирован синхронной сессией
 #define CCHKF_NOTUSED      0x00020000L // Чек не просуммирован в таблице CGoodsLine
 #define CCHKF_PRINTED      0x00040000L // Чек был отпечатан (пробит на ККМ)
-#define CCHKF_RETURN       0x00080000L // Чек возврата
+#define CCHKF_RETURN       0x00080000L // Чек возврата. Исключает CCHKF_CORRECTION.
 #define CCHKF_ZCHECK       0x00100000L // Чек Z-отчета (для некоторых кассовых аппаратов)
 #define CCHKF_TEMPSESS     0x00200000L // @transient Чек создан по временной сессии
 #define CCHKF_TRANSMIT     0x00400000L // @transient Признак перемещения чека из другого раздела БД
@@ -28581,6 +28602,13 @@ private:
 
 #pragma pack(push, 1)
 struct PersonFilt : public PPBaseFilt {
+	//
+	// Descr: Специализация экземпляра
+	//
+	enum {
+		spcGeneral = 0,         // Общее назначение
+		spcClientActivityStats  // Статистика клиентской активности
+	};
 	enum {
 		fExtEdit          = 0x0002, // @unused Отдельный диалог редактирования главной организации
 		fVatFree          = 0x0004, // Свободен от НДС
@@ -28636,8 +28664,8 @@ struct PersonFilt : public PPBaseFilt {
 		// Если ClientActivityStateFlags == 0, то это эквивалентно отсутствию ограничений (так же как и значение 0xffff)
 	uint16 GenderFlags;       // (1 << GENDER_XXX)
 	DateRange NewCliPeriod;   // Период идентификации нового клиента
-	PPID   Kind;              //
-	PPID   Category;          //
+	PPID   PersonKindID;      //
+	PPID   PersonCategoryID;  //
 	PPID   Status;            //
 	PPID   CityID;            //
 private:
@@ -28677,6 +28705,7 @@ public:
 	~PPViewPerson();
 	virtual int  ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	virtual int  EditBaseFilt(PPBaseFilt *);
+	virtual PPBaseFilt * CreateFilt(const void * extraPtr) const;
 	virtual int  Init_(const PPBaseFilt * pBaseFilt);
 	virtual void ViewTotal();
 	int    InitIteration();
@@ -28775,6 +28804,26 @@ private:
 	PPObjArticle * P_ArObj;
 	PPObjSCard * P_ScObj;
 };*/
+//
+//
+//
+struct ClientActivityDetailedEntry { // @flat @transient
+	ClientActivityDetailedEntry() : Dtm(ZERODATETIME)
+	{
+	}
+	ClientActivityDetailedEntry(PPObjID oid, LDATE dt) : Dtm(ZERODATETIME), Oid(oid)
+	{
+		Dtm.d = dt;
+	}
+	ClientActivityDetailedEntry(PPObjID oid, LDATETIME dtm) : Dtm(dtm), Oid(oid)
+	{
+	}
+	LDATETIME Dtm; // Дата/время нужны (по крайней мере) из-за того, что операцию по карте однозначно по дате не идентифицировать.
+	//
+	// Если Oid.Obj == PPOBJ_SCARD, то подразумеваемая транзакции - операции по этой карте на момент Dtm.
+	//
+	PPObjID Oid;
+};
 //
 // @ModuleDecl(PPObjArticle)
 //
@@ -41788,28 +41837,16 @@ public:
 
 class PrcssrClientActivityStatistics { // @v12.2.2
 public:
-	struct DetailedEntry { // @flat @transient
-		//LDATE Dt;
-		DetailedEntry() : Dtm(ZERODATETIME)
-		{
-		}
-		DetailedEntry(PPObjID oid, LDATE dt) : Dtm(ZERODATETIME), Oid(oid)
-		{
-			Dtm.d = dt;
-		}
-		LDATETIME Dtm; // Дата/время нужны (по крайней мере) из-за того, что операцию по карте однозначно по дате не идентифицировать.
-		PPObjID Oid;
-	};
 	PrcssrClientActivityStatistics();
 	int    InitParam(PrcssrClientActivityStatisticsFilt * pParam);
 	int    Init(const PrcssrClientActivityStatisticsFilt * pParam);
 	int    EditParam(PrcssrClientActivityStatisticsFilt * pData);
 	int    Run();
-	int    ScanDetailedActivityListForSinglePerson(PPID personID, TSVector <DetailedEntry> & rList);
+	int    ScanDetailedActivityListForSinglePerson(PPID personID, TSVector <ClientActivityDetailedEntry> & rList);
 private:
-	TSVector <DetailedEntry> & SortDetailedEntryList(TSVector <DetailedEntry> & rList);
-	int    Implement_ScanDetailedActivityListForSinglePerson(PPViewBill * pBillV, PPID personID, TSVector <DetailedEntry> & rList);
-	int    EvaluateStorableStat(PPID personID, const TSVector <DetailedEntry> & rSrcList, PPObjPerson::ClientActivityStatistics & rTotalEntry, TSVector <uint16> & rDateList);
+	TSVector <ClientActivityDetailedEntry> & SortDetailedEntryList(TSVector <ClientActivityDetailedEntry> & rList);
+	int    Implement_ScanDetailedActivityListForSinglePerson(PPViewBill * pBillV, PPID personID, TSVector <ClientActivityDetailedEntry> & rList);
+	int    EvaluateStorableStat(PPID personID, const TSVector <ClientActivityDetailedEntry> & rSrcList, PPObjPerson::ClientActivityStatistics & rTotalEntry, TSVector <uint16> & rDateList);
 	PPObjPerson PsnObj;
 	PPObjArticle ArObj;
 	PPPersonConfig PsnCfg;
@@ -43930,7 +43967,7 @@ private:
 	// @v11.0.3 int    ProcessOp(uint, const PPIDArray *, const PPIDArray * pNegOpList,
 		// @v11.0.3 const AutoBuildFilt *, int byPayment, PPObjBill::PplBlock * pEbfBlk, PPID mainAmtTypeID);
 	int    ProcessOp2(const OpEntryVector & rList, uint listIdx, const OpEntryVector * pNegList, const AutoBuildFilt *, int byPayment, PPObjBill::PplBlock * pEbfBlk);
-	int    _SetVATParams(VATBookTbl::Rec *, const BVATAccmArray *, double scale, int selling, int slUseCostVatAddendum);
+	int    _SetVATParams(VATBookTbl::Rec *, const BVATAccmArray *, double scale, bool isSelling, int slUseCostVatAddendum);
 	int    CheckBillRec(const AutoBuildFilt *, const BillTbl::Rec *);
 	int    RemoveZeroBillLinks(int use_ta);
 	void   ConvertOpList(const VATBCfg & rCfg, PPIDArray & rList);
@@ -50234,6 +50271,51 @@ private:
 // } @vmiller
 //
 //
+//
+//
+struct ClientActivityDetailsFilt : public PPBaseFilt {
+	ClientActivityDetailsFilt();
+	char   ReserveStart[32];
+	PPID   PersonID;
+	DateRange Period;
+	long   Flags;
+	long   ReserveEnd; // @anchor
+};
+
+struct ClientActivityDetailsViewItem {
+	ClientActivityDetailsViewItem() : Dtm(ZERODATETIME), Amount(0.0), Flags(0)
+	{
+		TransactionName[0] = 0;
+	}
+	PPObjID Oid;
+	LDATETIME Dtm;
+	char   TransactionName[128];
+	double Amount;
+	long   Flags;
+};
+
+class PPViewClientActivityDetails : public PPView {
+public:
+	typedef ClientActivityDetailsViewItem BrwItem;
+
+	PPViewClientActivityDetails();
+	~PPViewClientActivityDetails();
+	virtual int   Init_(const PPBaseFilt * pBaseFilt);
+	int    InitIteration();
+	int    FASTCALL NextIteration(ClientActivityDetailsViewItem * pItem);
+	int    _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
+	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
+private:
+	virtual SArray  * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
+	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
+	int    MakeList();
+	ClientActivityDetailsFilt Filt;
+	TSVector <ClientActivityDetailedEntry> IList; // "Сырые" данные детализации, полученные в функции Init_()
+	TSArray <BrwItem> * P_DsList;
+	PPObjSCard ScObj;
+	PPObjPersonEvent PeObj;
+};
+//
 // PPViewUserProfile
 //
 typedef TempUserProfileTbl::Rec UserProfileViewItem;
@@ -51878,6 +51960,10 @@ public:
 	void   AddPckg(const PPTransferItem *);
 	void   FASTCALL Add(const PPAdvBillItemList::Item &);
 	void   Finish(/*const PPBillPacket * pPack*/);
+	//
+	// Descr: Сравнивает this->R_Data с rS.R_Data. Если они эквивалентны (R_Data.IsEq(rS.R_Data)) то возвращает true.
+	//
+	bool   FASTCALL IsResultEq(const BillTotalBlock & rS) const;
 private:
 	void   SetupStdAmount(PPID stdAmtID, PPID altAmtID, double stdAmount, double altAmount, long replaceStdAmount, int in_out);
 	void   SetupStdAmount(PPID stdAmtID, double stdAmount, int in_out);
@@ -51887,7 +51973,7 @@ private:
 		stAllGoodsUnlimUndef = 0x0004,
 		stExtCost    = 0x0008
 	};
-	int    OutAmtType;
+	const  int OutAmtType;
 	// @v12.2.4 (replaced with R_BPack.Rec.OpID) PPID   OpID;
 	PPID   GoodsTypeID;
 	PPID   DynGoodsTypeForSupplAgent; // ==PPCommConfig::DynGoodsTypeForSupplAgent
@@ -55041,7 +55127,7 @@ private:
 //
 // Descr: Экспериментальная реализация окна со списком данных, реализованного посредством layout'ов
 //
-class LayoutedListWindow : public LayoutedListDialog_Base, public TWindowBase {
+class LayoutedListWindow : public TWindowBase, public LayoutedListDialog_Base {
 public:
 	LayoutedListWindow(const Param & rParam, ListBoxDef * pDef);
 	~LayoutedListWindow();
@@ -55051,7 +55137,9 @@ protected:
 //
 // Descr: Экспериментальная реализация диалога со списком данных, реализованного посредством layout'ов
 //
-class LayoutedListDialog : public LayoutedListDialog_Base, public TDialog {
+class LayoutedListDialog : public TDialog, public LayoutedListDialog_Base { 
+	// @attention Первое наследование должно быть от TDialog(TView) иначе - будут вылеты сеансов на вызове виртуального метода TView::handleWindowsMessage
+	// (я не понимаю как это - debug норм, release сбоит)
 public:
 	LayoutedListDialog(const Param & rParam, ListBoxDef * pDef);
 	~LayoutedListDialog();
@@ -56113,7 +56201,7 @@ protected:
 	enum {
 		fNoEdit             = 0x00000001, // Запрет на редактирование чеков
 		fError              = 0x00000002, // В строке статуса выводится сообщение об ошибке. Текст сообщения хранится в буфере ErrMsgBuf
-		fRetCheck           = 0x00000004, // Признак ввода чека возврата
+		fRetCheck           = 0x00000004, // Признак ввода чека возврата. Исключает fCorrection.
 		fPctDis             = 0x00000008, // Скидка указана в процентах
 		fBankingPayment     = 0x00000010, // Чек оплачивается банковской кредитной картой
 		fWaitOnSCard        = 0x00000020, // Ожидание ввода дисконтной карты
@@ -56144,6 +56232,7 @@ protected:
 			// дублирует флаг fSCardBonus с небольшим нюансом. Если остаток на карте нулевой, то fSCardBonus не выставляется,
 			// а fSCardBonusReal - устанавливается. Такое раздвоение необходимо что бы разным образом обрабатывать начисление
 			// бонуса и использование бонуса для оплаты.
+		fCorrection         = 0x80000000  // @v12.2.8 Признак ввода чека коррекции. Исключает fRetCheck.
 	};
 	enum {
 		uifCloseWOAsk = 0x0001, // Закрывать кассовую панель без подтверждения PPCFM_CLOSECCHKPANE
@@ -56289,13 +56378,24 @@ private:
 	int    PrintCheckCopy();
 	int    PrintSlipDocument();
 	void   PrintBankingSlip(int afterReceipt, const SString & rSlipBuf);
-
+	//
+	// Descr: Флаги функции SelectCheck()
+	//
 	enum {
-		scfSelSlipDocForm = 0x0001,
-		scfThisNodeOnly   = 0x0002,
-		scfAllowReturns   = 0x0004
+		scfSelFormat        = 0x0001, // @v12.2.8
+		scfSelSlipDocFormat = 0x0002, // 
+		scfThisNodeOnly     = 0x0004, //
+		scfAllowReturns     = 0x0008, // Допускается выбор чеков возврата
 	};
-	int    SelectCheck(PPID * pChkID, SString * pSelFormat, const char * pTitle, long flags);
+	struct SelectCheckResult {
+		SelectCheckResult() : CcID(0), Op(0)
+		{
+		}
+		PPID   CcID; // Ид чека
+		int    Op;   // Выбранная операция с чеком: 0 - undef (по контексту), 1 - возврат, 2 - коррекция //
+		SString Format;
+	};
+	int    SelectCheck(const char * pTitle, long flags, SelectCheckResult & rResult);
 	int    SelectBill(PPID * pBillID, const char * pTitle); // @v11.8.7
 	int    UpdateGList(int updGoodsList, PPID selGroupID);
 	int    PreprocessGoodsSelection(PPID goodsID, PPID locID, PgsBlock & rBlk);

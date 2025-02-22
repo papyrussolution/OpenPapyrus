@@ -1471,6 +1471,168 @@ int SCS_ATOLDRV::ExecOper(uint id)
 	return ok;
 }
 
+/*
+Чек коррекции:
+Пример:
+
+type": "sellCorrection",
+	"taxationType": "osn",
+	"electronically": true,
+	"ignoreNonFiscalPrintErrors": false,
+	"correctionType": "self",
+	"correctionBaseDate": "2017.07.25",
+	"correctionBaseNumber": "1175",
+	"operator": {
+		"name": "Иванов",
+		"vatin": "123654789507"
+	},
+	"clientInfo": {
+		"emailOrPhone": "+79161234567"
+	},
+	"items": [
+		{
+			"type": "position",
+			"name": "Бананы",
+			"price": 73.15,
+			"quantity": 1.0,
+			"amount": 73.15,
+			"infoDiscountAmount": 0.0,
+			"department": 1,
+			"measurementUnit": "кг",
+			"paymentMethod": "advance",
+			"paymentObject": "commodity",
+			"nomenclatureCode": "MTIzNDEyMzQ1Njc4MTIzNDU2Nzg5MDEyMzQ1Njc4OTA=",
+			"tax": { "type": "vat20" },
+			"agentInfo": {
+				"agents": ["payingAgent", "bankPayingAgent"],
+				"payingAgent": { "operation": "Оплата", "phones": ["+79161112233"] },
+				"receivePaymentsOperator": { "phones": ["+79163331122"] },
+				"moneyTransferOperator": {
+					"phones": ["+79162223311"],
+					"name": "Оператор перевода",
+					"address": "Улица Оператора Перевода, д.1",
+					"vatin": "321456987121"
+				}
+			},
+			"supplierInfo": { "phones": ["+79175555555"], "name": "Поставщик", "vatin": "956839506500" }
+		},
+		{
+			"type": "position",
+			"name": "Шуба",
+			"price": 51.25,
+			"quantity": 2.0,
+			"amount": 102.50,
+			"department": 1,
+			"paymentMethod": "fullPayment",
+			"paymentObject": "commodity",
+			"nomenclatureCode": "MTIzNDEyMzQ1Njc4MTIzNDU2Nzg5MDEyMzQ1Njc4OTA=",
+			"tax": { "type": "vat10" }
+		},
+		{
+			"type": "position",
+			"name": "Пряники",
+			"price": 64.25,
+			"quantity": 2.0,
+			"amount": 128.50,
+			"infoDiscountAmount": 6.0,
+			"department": 1,
+			"measurementUnit": "шт.",
+			"paymentMethod": "fullPrepayment",
+			"paymentObject": "commodity",
+			"tax": { "type": "vat10" }
+		},
+		{
+			"type": "position",
+			"name": "Батон нарезной",
+			"price": 38.15,
+			"quantity": 1.0,
+			"amount": 38.15,
+			"department": 1,
+			"measurementUnit": "шт.",
+			"paymentMethod": "fullPrepayment",
+			"paymentObject": "commodity",
+			"tax": { "type": "10" }
+		},
+		{
+			"type": "position",
+			"name": "Кефир",
+			"price": 48.45,
+			"quantity": 1.0,
+			"amount": 48.45,
+			"department": 1,
+			"measurementUnit": "шт.",
+			"paymentMethod": "fullPrepayment",
+			"paymentObject": "excise",
+			"tax": { "type": "vat0" }
+		}
+	],
+	"payments": [ { "type": "electronically", "sum": 390.70 } ],
+	"total": 390.7
+}
+
+При работе по ФФД ≥ 1.1 чеки коррекции имеют вид, аналогичный обычным чекам, но с добавлением информации о коррекции: тип, описание, дата документа основания и номер документа основания.
+Описание задания Параметр 	Описание 	Тип 	Возможные значения 	Обязательность
+type 	Тип задания 	string 	sellCorrection - чек коррекции прихода
+buyCorrection - чек коррекции расхода
+sellReturnCorrection - чек коррекции возврата прихода (ФФД ≥ 1.1)
+buyReturnCorrection - чек коррекции возврата расхода (ФФД ≥ 1.1) 	+
+ignoreNonFiscalPrintErrors 	Игнорировать ошибки при печати нефискальных элементов из items 	bool 		
+operator 	Оператор (кассир) 	object 		
+correctionType 	Тип коррекции (тег 1173) 	string 	self - самостоятельно
+instruction - по предписанию 	
+correctionBaseDate 	Дата совершения корректируемого расчета (тег 1178) 	string 	Формат - yyyy.mm.dd 	
+correctionBaseNumber	Номер предписания налогового органа (тег 1179) 	string 		
+electronically 	Электронный чек 	bool 	true - электронный чек
+false - печатный чек 	по умолчанию - false
+taxationType 	Система налогообложения 	string 	osn - общая
+usnIncome - упрощенная (Доход)
+usnIncomeOutcome - упрощенная (Доход минус Расход)
+esn - единый сельскохозяйственный налог
+patent - патентная 	можно не передавать, если ККТ зарегистрирована с единственной СНО
+paymentsPlace 	Место проведения расчета (тег 1187) 	string 		
+paymentsAddress 	Адрес расчётов (тег 1009) 	string 		+ для ФФД ≥ 1.2
+machineNumber 	Номер автомата (тег 1036) 	string 		
+clientInfo 	Данные покупателя 	object 		
+companyInfo 	Данные продавца 	object 		
+agentInfo 	Данные агента 	object 		
+supplierInfo 	Данные поставщика 	object 		
+items 	Элементы документа 	object[] 		+
+payments 	Оплаты 	object[] 		+
+taxes 	Налоги на чек 	object[] 		
+total 	Итог чека 	number 	Может отличаться от суммы позиций на значение, равное копейкам чека.
+Если не задан - высчитывается автоматически из суммы всех позиций	
+preItems 	Элементы для печати до документа 	object[] 	Используются только элементы с типами:
+text
+barcode
+pictureFromMemory
+pixels 	
+postItems 	Элементы для печати после документа 	object[] 	Используются только элементы с типами:
+text
+barcode
+pictureFromMemory
+pixels 	
+customParameters 	Пользовательские параметры 	object[] 		
+
+    Пример ответа на чек коррекции
+
+{
+  "fiscalParams" : {
+     "fiscalDocumentDateTime" : "2018-03-06T13:52:00+03:00",
+     "fiscalDocumentNumber" : 49,
+     "fiscalDocumentSign" : "2403680979",
+     "fiscalReceiptNumber" : 12,
+     "fnNumber" : "9999078900000961",
+     "registrationNumber" : "0000000001002292",
+     "shiftNumber" : 11,
+     "total" : 2000.0,
+     "fnsUrl": "www.nalog.gov.ru"
+  },
+  "warnings": {
+     "notPrinted": true
+  }
+}
+*/ 
+
 SJson * SCS_ATOLDRV::MakeJson_CCheck(OfdFactors & rOfdf, CCheckPacket * pPack, uint flags) // @v11.3.1 @construction
 {
 	/*

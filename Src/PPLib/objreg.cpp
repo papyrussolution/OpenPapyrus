@@ -7,7 +7,7 @@
 //
 //
 //
-#define USE_EXPERIMENTAL_LAYOUTEDDIALOG  // @v12.2.6 @construction 
+/*// @v12.2.8 (стали жаловаться, что диалог выбивает)*/#define USE_EXPERIMENTAL_LAYOUTEDDIALOG  // @v12.2.6 @construction 
 
 #ifdef USE_EXPERIMENTAL_LAYOUTEDDIALOG
 class RegisterListDialog2 : public LayoutedListDialog {

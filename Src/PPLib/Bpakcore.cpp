@@ -48,19 +48,19 @@ bool FASTCALL AmtList::HasVatSum(const TaxAmountIDs * pTai) const
 	return yes;
 }
 
-bool FASTCALL AmtList::IsEq(const AmtList * pS) const
+bool FASTCALL AmtList::IsEq(const AmtList & rS) const
 {
-	bool   ok = (getCount() == pS->getCount());
+	bool   ok = (getCount() == rS.getCount());
 	if(ok) {
 		AmtEntry * p_e1, * p_e2;
 		LongArray saw_list;
 		for(uint i = 0; ok && enumItems(&i, (void **)&p_e1);) {
-			int found = 0;
-			for(uint j = 0; !found && pS->enumItems(&j, (void **)&p_e2);) {
+			bool   found = false;
+			for(uint j = 0; !found && rS.enumItems(&j, (void **)&p_e2);) {
 				const long p = static_cast<long>(j);
 				if(!saw_list.lsearch(p) && p_e1->IsEq(*p_e2)) {
 					saw_list.add(p);
-					found = 1;
+					found = true;
 				}
 			}
 			if(!found)
@@ -669,7 +669,7 @@ int FASTCALL PPBill::IsEq(const PPBill & rS) const
 	if(yes) {
 		if(SMemo != rS.SMemo) // @v11.1.12
 			yes = 0;
-		else if(!Amounts.IsEq(&rS.Amounts))
+		else if(!Amounts.IsEq(rS.Amounts))
 			yes = 0;
 		else if(!Pays.IsEq(rS.Pays))
 			yes = 0;
@@ -4215,8 +4215,7 @@ int PPBillPacket::Helper_DistributeExtCost(double extCostSum, int alg)
 		double max_price = 0.0;
 		double part_sum  = 0.0;
 		double rest      = extCostSum;
-		RAssocArray distr_list; // Список значений, пропорционально которым
-			// распределяется стоимость между строками документа.
+		RAssocArray distr_list; // Список значений, пропорционально которым распределяется стоимость между строками документа.
 		PPObjGoods goods_obj;
 		Goods2Tbl::Rec goods_rec;
 		for(i = 0; EnumTItems(&i, &p_ti);) {
@@ -4291,7 +4290,7 @@ int PPBillPacket::Helper_DistributeExtCost(double extCostSum, int alg)
 	return ok;
 }
 
-int FASTCALL PPBillPacket::InitAmounts(const AmtList * pList)
+void FASTCALL PPBillPacket::InitAmounts(const AmtList & rList)
 {
 	if(!(Rec.Flags & BILLF_FIXEDAMOUNTS)) {
 		PPIDArray op_type_list; // Список типов операций, для которых следует
@@ -4300,28 +4299,31 @@ int FASTCALL PPBillPacket::InitAmounts(const AmtList * pList)
 			PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, 0L);
 		const int subop = GetOpSubType(Rec.OpID);
 		PPObjAmountType amtt_obj;
-		for(int i = Amounts.getCount() - 1; i >= 0; i--) {
-			const  PPID atyp = Amounts.at(i).AmtTypeID;
-			// Вычищаем все рассчитываемые суммы
-			int   skip_amt = 0;
-			if(oneof4(atyp, PPAMT_PAYMENT, PPAMT_PCTDIS, PPAMT_MANDIS, PPAMT_CRATE))
-				skip_amt = 1;
-			else if(OpTypeID == PPOPT_ACCTURN && subop == OPSUBT_POSCORRECTION && oneof3(atyp, PPAMT_CS_CASH, PPAMT_CS_BANK, PPAMT_CS_CSCARD))
-				skip_amt = 1;
-			if(!skip_amt) {
-				PPAmountType2 amtt_rec;
-				if(amtt_obj.Fetch(atyp, &amtt_rec) > 0) {
-					if(amtt_rec.Flags & PPAmountType::fManual)
+		{
+			uint   i = Amounts.getCount();
+			if(i) do {
+				const  PPID atyp = Amounts.at(--i).AmtTypeID;
+				// Вычищаем все рассчитываемые суммы
+				bool   skip_amt = false;
+				if(oneof4(atyp, PPAMT_PAYMENT, PPAMT_PCTDIS, PPAMT_MANDIS, PPAMT_CRATE))
+					skip_amt = true;
+				else if(OpTypeID == PPOPT_ACCTURN && subop == OPSUBT_POSCORRECTION && oneof3(atyp, PPAMT_CS_CASH, PPAMT_CS_BANK, PPAMT_CS_CSCARD))
+					skip_amt = true;
+				if(!skip_amt) {
+					PPAmountType2 amtt_rec;
+					if(amtt_obj.Fetch(atyp, &amtt_rec) > 0 && (amtt_rec.Flags & PPAmountType::fManual)) {
 						if(!(amtt_rec.Flags & PPAmountType::fTax) || !op_type_list.lsearch(OpTypeID))
-							continue;
+							skip_amt = true;
+					}
+					if(!skip_amt)
+						Amounts.atFree(i);
 				}
-				Amounts.atFree(i);
-			}
+			} while(i);
 		}
 		uint   pos = 0;
-		if(pList->Search(PPAMT_MAIN, Rec.CurID, &pos))
-			Rec.Amount = BR2(pList->at(pos).Amt);
-		Amounts.Put(pList, 1, 1);
+		if(rList.Search(PPAMT_MAIN, Rec.CurID, &pos))
+			Rec.Amount = BR2(rList.at(pos).Amt);
+		Amounts.Put(&rList, 1, 1);
 		DistributeExtCost();
 	}
 	{
@@ -4330,7 +4332,7 @@ int FASTCALL PPBillPacket::InitAmounts(const AmtList * pList)
 		// из-за того, что номинальная сумма документа должна рассчитываться исходя //
 		// из уже сформированного списка сумм документа.
 		//
-		int    do_calc_amount = (Rec.Flags & BILLF_FIXEDAMOUNTS) ? 0 : 1;
+		bool   do_calc_amount = !(Rec.Flags & BILLF_FIXEDAMOUNTS);
 		SString amt_formula;
 		PPObjOprKind op_obj;
 		int    r = op_obj.GetExtStrData(Rec.OpID, OPKEXSTR_AMTFORMULA, amt_formula);
@@ -4338,7 +4340,7 @@ int FASTCALL PPBillPacket::InitAmounts(const AmtList * pList)
 			const char * p_ignfix = "ignfix";
 			if(amt_formula.HasPrefixIAscii(p_ignfix)) {
 				amt_formula.ShiftLeft(sstrlen(p_ignfix));
-				do_calc_amount = 1;
+				do_calc_amount = true;
 			}
 			if(do_calc_amount && amt_formula.NotEmptyS()) {
 				double main_amt = 0.0;
@@ -4349,16 +4351,14 @@ int FASTCALL PPBillPacket::InitAmounts(const AmtList * pList)
 			}
 		}
 	}
-	return 1;
 }
 
-int FASTCALL PPBillPacket::InitAmounts(int fromDB)
+void FASTCALL PPBillPacket::InitAmounts()
 {
 	AmtList al;
 	if(!(Rec.Flags & BILLF_FIXEDAMOUNTS))
-		if(!SumAmounts(&al, fromDB))
-			return 0;
-	return InitAmounts(&al);
+		SumAmounts(al);
+	InitAmounts(al);
 }
 
 bool PPBillPacket::SearchGoods(PPID goodsID, uint * pPos) const
@@ -5481,8 +5481,60 @@ BillTotalData & BillTotalData::Z()
 	return *this;
 }
 
+bool BillTotalData::IsEq(const BillTotalData & rS) const // @v12.2.8 @construction
+{
+	bool   eq = true;
+	#define F(f) if(f != rS.f) return false;
+	F(LinesCount);
+	F(GoodsCount);
+	F(Flags);
+	F(UnitsCount);
+	F(PhUnitsCount);
+	F(PackCount);
+	F(Brutto);
+	F(Volume);
+	F(Amt);
+	F(CurAmt);
+	F(VAT);
+	F(CVAT);
+	F(PVAT);
+	F(Excise);
+	F(CExcise);
+	F(STax);
+	F(CSTax);
+	if(!Amounts.IsEq(rS.Amounts))
+		eq = false;
+	else if(!VatList.IsEq(rS.VatList))
+		eq = false;
+	else if(!CostVatList.IsEq(rS.CostVatList))
+		eq = false;
+	else if(!PriceVatList.IsEq(rS.PriceVatList))
+		eq = false;
+	return eq;
+}
+
 BillVatArray::BillVatArray() : TSVector <BillVatEntry>()
 {
+}
+
+bool BillVatArray::IsEq(const BillVatArray & rS) const
+{
+	bool   eq = true;
+	const  uint _c = getCount();
+	if(_c != rS.getCount())
+		eq = false;
+	else {
+		for(uint i = 0; eq && i < _c; i++) {
+			const BillVatEntry & r_entry = at(i);
+			const BillVatEntry * p_other_entry = rS.GetByRate(r_entry.Rate);
+			if(!p_other_entry)
+				eq = false;
+			else if(!p_other_entry->IsEq(r_entry)) {
+				eq = false;
+			}
+		}
+	}
+	return eq;
 }
 
 const BillVatEntry * BillVatArray::GetByRate(double rate) const
@@ -5518,8 +5570,8 @@ int BillVatArray::Add(double rate, double sum, double base, double amtByVat)
 	return ok;
 }
 
-BillTotalBlock::BillTotalBlock(BillTotalData & rData, /*PPID opID*/const PPBillPacket & rBPack, PPID goodsTypeID, int outAmtType, long flags) :
-	State(0), R_Data(rData), /*OpID(opID)*/R_BPack(rBPack), GoodsTypeID(goodsTypeID), OutAmtType(outAmtType), Flags(flags)
+BillTotalBlock::BillTotalBlock(BillTotalData & rData, const PPBillPacket & rBPack, PPID goodsTypeID, int outAmtType, long flags) :
+	State(0), R_Data(rData), R_BPack(rBPack), GoodsTypeID(goodsTypeID), OutAmtType(outAmtType), Flags(flags)
 {
 	SETFLAG(State, stSelling, BIN(IsSellingOp(R_BPack.Rec.OpID) > 0));
 	State |= stAllGoodsUnlimUndef;
@@ -5538,9 +5590,12 @@ void BillTotalBlock::AddPckg(const PPTransferItem * /*pTI*/)
 	R_Data.PackCount++;
 }
 
+bool FASTCALL BillTotalBlock::IsResultEq(const BillTotalBlock & rS) const { return R_Data.IsEq(rS.R_Data); }
+
 void BillTotalBlock::SetupStdAmount(PPID stdAmtID, PPID altAmtID, double stdAmount, double altAmount, long replaceStdAmount, int in_out)
 {
-	PPID   in_id = 0, out_id = 0;
+	PPID   in_id = 0;
+	PPID   out_id = 0;
 	if(altAmtID && altAmtID != stdAmtID) {
 		R_Data.Amounts.Add(altAmtID, 0L/*@curID*/, altAmount, 1);
 		if(in_out && ATObj.FetchCompl(altAmtID, &in_id, &out_id) > 0) {
@@ -5926,11 +5981,14 @@ int PPBillPacket::CalcTotal(BillTotalData & rTotal, long btcFlags)
 	return CalcTotal(rTotal, 0, btcFlags);
 }
 
-int PPBillPacket::SumAmounts(AmtList * pList, int fromDB)
+void PPBillPacket::Implement_SumAmounts(AmtList & rList, const PPBillPacket * pOrgPack, int * pFirstDiffRowN)
 {
 	uint   i;
+	int    first_diff_row_n = -1;
 	long   btb_flags = 0;
+	BillTotalBlock * p_btb_orgpack = 0;
 	BillTotalData total_data;
+	BillTotalData total_data_orgpack;
 	// @v11.6.6 {
 	PPOprKind op_rec;
 	if(Rec.OpID && GetOpData(Rec.OpID, &op_rec)) {
@@ -5942,11 +6000,21 @@ int PPBillPacket::SumAmounts(AmtList * pList, int fromDB)
 		btb_flags |= BTC_CALCSALESTAXES;*/
 	{
 		BillTotalBlock btb(total_data, *this, 0, 0, btb_flags);
-		if(GetOpType(Rec.OpID) == PPOPT_ACCTURN) {
-			for(i = 0; i < AdvList.GetCount(); i++)
-				btb.Add(AdvList.Get(i));
+		if(pOrgPack) {
+			p_btb_orgpack = new BillTotalBlock(total_data_orgpack, *pOrgPack, 0, 0, btb_flags);
 		}
-		if(fromDB) {
+		if(GetOpType(Rec.OpID) == PPOPT_ACCTURN) {
+			for(i = 0; i < AdvList.GetCount(); i++) {
+				btb.Add(AdvList.Get(i));
+				if(pOrgPack && first_diff_row_n < 0) {
+					p_btb_orgpack->Add(AdvList.Get(i));
+					if(!btb.IsResultEq(*p_btb_orgpack)) {
+						first_diff_row_n = static_cast<int>(i);
+					}
+				}
+			}
+		}
+		/* @v12.2.8 if(fromDB) {
 			PPTransferItem ti;
 			int    r;
 			int    r_by_bill = 0;
@@ -5957,27 +6025,41 @@ int PPBillPacket::SumAmounts(AmtList * pList, int fromDB)
 			if(!r)
 				return 0;
 		}
-		else {
+		else*/
+		{
 			for(uint tii = 0; tii < GetTCount(); tii++) {
 				PPTransferItem & r_ti = TI(tii);
-				if(!(r_ti.Flags & PPTFR_PCKG))
+				if(!(r_ti.Flags & PPTFR_PCKG)) {
 					btb.Add(r_ti);
+					if(pOrgPack && first_diff_row_n < 0 && tii < pOrgPack->GetTCount()) {
+						p_btb_orgpack->Add(pOrgPack->TI(tii));
+						if(!btb.IsResultEq(*p_btb_orgpack)) {
+							first_diff_row_n = static_cast<int>(1000+tii);
+						}
+					}
+				}
 			}
 		}
 		btb.Finish();
+		if(p_btb_orgpack) {
+			p_btb_orgpack->Finish();
+			if(!btb.IsResultEq(*p_btb_orgpack)) {
+				first_diff_row_n = 1000000;
+			}
+		}
 		SETFLAG(ProcessFlags, pfHasExtCost, (total_data.Flags & BillTotalData::fExtCost));
-		pList->Put(&total_data.Amounts, 1, 1);
+		rList.Put(&total_data.Amounts, 1, 1);
 		if(btb_flags & BTC_CALCSALESTAXES) {
 			if(total_data.CVAT != 0.0 && OpTypeID == PPOPT_GOODSRECEIPT && Rec.Object) {
 				if(IsSupplVATFree(Rec.Object) > 0 || PPObjLocation::CheckWarehouseFlags(Rec.LocID, LOCF_VATFREE)) {
 					total_data.CVAT = 0.0;
-					pList->Put(PPAMT_CVAT, 0L/*@curID*/, 0, 1, 1);
+					rList.Put(PPAMT_CVAT, 0L/*@curID*/, 0, 1, 1);
 				}
 			}
 		}
 		// @v11.6.6 {
 		if(op_rec.OpTypeID == PPOPT_ACCTURN && op_rec.ExtFlags & OPKFX_ACCAUTOVAT) {
-			const double nominal_amount = pList->Get(PPAMT_MAIN, 0L/*@curID*/);
+			const double nominal_amount = rList.Get(PPAMT_MAIN, 0L/*@curID*/);
 			if(nominal_amount != 0.0) {
 				PPID  virtual_goods_id = CConfig.PrepayInvoiceGoodsID;
 				if(virtual_goods_id) {
@@ -5996,7 +6078,7 @@ int PPBillPacket::SumAmounts(AmtList * pList, int fromDB)
 						if(vat_rate_idx > 0) {
 							if(def_vat_rate > 0.0 && def_vat_rate <= 40.0) {
 								double vat_amount = nominal_amount * SalesTaxMult(def_vat_rate);
-								pList->Put(tais.VatAmtID[vat_rate_idx-1], 0L/*@curID*/, vat_amount, 1, 1);
+								rList.Put(tais.VatAmtID[vat_rate_idx-1], 0L/*@curID*/, vat_amount, 1, 1);
 							}
 						}
 					}
@@ -6006,9 +6088,20 @@ int PPBillPacket::SumAmounts(AmtList * pList, int fromDB)
 		// } @v11.6.6 
 	}
 	if(P_Freight)
-		pList->Add(PPAMT_FREIGHT, 0, P_Freight->Cost);
-	pList->Put(PPAMT_MAIN, Rec.CurID, (Rec.CurID ? total_data.CurAmt : total_data.Amt), 0, 0);
-	return 1;
+		rList.Add(PPAMT_FREIGHT, 0, P_Freight->Cost);
+	rList.Put(PPAMT_MAIN, Rec.CurID, (Rec.CurID ? total_data.CurAmt : total_data.Amt), 0, 0);
+	delete p_btb_orgpack;
+	ASSIGN_PTR(pFirstDiffRowN, first_diff_row_n);
+}
+
+void PPBillPacket::SumAmounts(AmtList & rList)
+{
+	Implement_SumAmounts(rList, 0, 0);
+}
+
+void PPBillPacket::SumAmounts_ComparingWithOrgPack(AmtList & rList, const PPBillPacket * pOrgPack, int * pFirstDiffRowN)
+{
+	Implement_SumAmounts(rList, pOrgPack, pFirstDiffRowN);
 }
 
 int PPBillPacket::GetDebtDim(PPID * pDebtDimID) const

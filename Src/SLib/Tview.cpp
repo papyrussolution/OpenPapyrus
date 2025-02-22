@@ -814,6 +814,14 @@ uint TView::getHelpCtx()
 void FASTCALL TView::clearEvent(TEvent & event)
 {
 	event.what = TEvent::evNothing;
+	event.message.command = 0; // @v12.2.8
+	event.message.infoPtr = this;
+}
+
+void FASTCALL TView::NegativeReplyOnValidateCommand(TEvent & event) // @v12.2.8
+{
+	event.what = TEvent::evNothing;
+	event.message.command = cmValidateCommand;
 	event.message.infoPtr = this;
 }
 
@@ -883,7 +891,7 @@ bool TView::IsCommandValid(ushort command) // @v12.2.6
 	ev.setCmd(cmValidateCommand, 0);
 	ev.message.infoLong = command;
 	handleEvent(ev);
-	return !ev.isCleared();
+	return !ev.isCommandValidationFailed();
 }
 
 void TView::changeBounds(const TRect & rBounds)
@@ -1622,7 +1630,7 @@ bool TViewGroup::ValidateCommand(TEvent & rEv) // @v12.2.6 non-virtual
 			p_temp = p_temp->P_Next;
 			if(p_temp) {
 				p_temp->handleEvent(rEv);
-				if(rEv.isCleared())
+				if(rEv.isCommandValidationFailed())
 					ok = false;
 				/*if(!p_temp->valid(command)) {
 					ok = false;

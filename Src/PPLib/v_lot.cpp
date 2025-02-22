@@ -7,9 +7,9 @@
 //
 // @ModuleDef(PPViewLot)
 //
-LotFilt::FiltExtraParam::FiltExtraParam(int kind) : Kind(kind)
-{
-	assert(oneof2(Kind, kRegular, kOrders));
+LotFilt::FiltExtraParam::FiltExtraParam(int kind) : Kind(kind) 
+{ 
+	assert(oneof2(Kind, kRegular, kOrders)); 
 }
 
 int LotFilt::InitInstance()
@@ -1105,7 +1105,7 @@ int PPViewLot::EditLot(PPID id)
 		PPWaitStart();
 		if(del) {
 			THROW(billp.RemoveRow(pos));
-			THROW(billp.InitAmounts());
+			billp.InitAmounts();
 			THROW(P_BObj->FillTurnList(&billp));
 			THROW(P_BObj->UpdatePacket(&billp, 1))
 		}
@@ -1114,7 +1114,7 @@ int PPViewLot::EditLot(PPID id)
    			p_ti->Price = price;
 			p_ti->Cost  = cost;
 			p_ti->UnitPerPack = upp;
-			THROW(billp.InitAmounts());
+			billp.InitAmounts();
 			THROW(P_BObj->FillTurnList(&billp));
 			THROW(P_BObj->UpdatePacket(&billp, 1))
 		}
@@ -3551,10 +3551,7 @@ PPBaseFilt * PPViewLotExtCode::CreateFilt(const void * extraPtr) const
 	return p_filt;
 }
 
-int PPViewLotExtCode::EditBaseFilt(PPBaseFilt * pFilt)
-{
-	return -1;
-}
+int PPViewLotExtCode::EditBaseFilt(PPBaseFilt * pFilt) { return -1; }
 
 int PPViewLotExtCode::GetRec(const void * pHdr, LotExtCodeTbl::Rec & rRec)
 {

@@ -2416,7 +2416,7 @@ public:
 		RVALUEPTR(PsnScndKindRec, pPsnScndKindRec);
 		if(pInputPrompt)
 			setLabelText(CTL_SELPERSONC_CODEINP, pInputPrompt);
-		showCtrl(CTLSEL_SELPERSONC_SCARD, 0); // @v9.1.3
+		showCtrl(CTLSEL_SELPERSONC_SCARD, 0);
 	}
 	int    setDTS(const Rec *);
 	int    getDTS(Rec *);
@@ -2447,13 +2447,13 @@ void SelectPersonByCodeDialog::SetupCtrls()
 		RegisterTbl::Rec reg_rec;
 		PsnObj.GetRegister(psn_id, PsnKindRec.CodeRegTypeID, &reg_rec);
 		code = reg_rec.Num;
-		showCtrl(CTLSEL_SELPERSONC_SCARD, 1); // @v9.1.3
+		showCtrl(CTLSEL_SELPERSONC_SCARD, 1);
 		PPObjSCard::Filt sc_filt;
 		sc_filt.OwnerID = psn_id;
 		SetupPPObjCombo(this, CTLSEL_SELPERSONC_SCARD, PPOBJ_SCARD, Data.SCardID, 0, &sc_filt);
 	}
 	else
-		showCtrl(CTLSEL_SELPERSONC_SCARD, 0); // @v9.1.3
+		showCtrl(CTLSEL_SELPERSONC_SCARD, 0);
 	disableCtrl(CTL_SELPERSONC_CODEINP, psn_id);
 	setCtrlString(CTL_SELPERSONC_CODEINP, code);
 }

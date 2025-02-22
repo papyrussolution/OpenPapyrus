@@ -671,7 +671,7 @@ toolbar export PERSON TB_FIRST_TOOLBAR {
 	EVENTS         : kbF3,        TBBM_PSNEVENTS,       "@{personevent_pl}\tF3"
 	REGISTERS      : kbF5,        TBBM_REGISTER,        "@{register_pl}\tF5"
 	CURREG         : kbCtrlF5,    TBBM_CURPERSONATTR,   "Текущий регистр\tCtrl-F5"
-	DLVRADDREXFLDS : kbCtrlF9,    PPDV_NOICON,          "@{daddressextfield_pl}"
+	// @v12.2.8 DLVRADDREXFLDS : kbCtrlF9,    PPDV_NOICON,          "@{daddressextfield_pl}"
 	AMOUNTS        : kbShiftF5,   TBBM_AMOUNTS,         "Штатные суммы работодателя\tShift-F5"
 	RELATIONS      : kbF6,        TBBM_PERSONRELLIST,   "@{relation_pl}\tF6"
 	REVERSEREL     : kbShiftF6,   TBBM_PERSONRELLIST_R, "@{personrellist_reverse}\tShift-F6"
@@ -697,6 +697,7 @@ toolbar export PERSON TB_FIRST_TOOLBAR {
 	CHANGEFILT     : kbCtrlV,     PPDV_FILTER01,        "@{filter}\tCtrl-V"
 	CREATEAUTHFILE : kbCtrlZ,     PPDV_NOICON,          "Создание файла авторизации\tCtrl-Z"
 	GRAPH          : kbCtrlN,     PPDV_PLOT01,          hidden, "@{plot}\tCtrl-N" // @v12.2.6 @construction
+	CLIACTIVITYDETAILS : kbF8,    PPDV_NOICON,          hidden, "@{view_clientactivitydetails}\tF8" // @v12.2.8 @construction
 }
 
 toolbar export ACCOUNT TB_FIRST_TOOLBAR {
@@ -1151,7 +1152,7 @@ browser PERSONATTR_STDALNADDR north(100), 1, 0, "@{autonomousaddress_pl}", OWNER
 		separator
 		VIEWCCHECKS    : kbF3,        TBBM_CCHECKS,         "@{check_pl}\tF3"
 		VIEWSCARDS     : kbCtrlS,     PPDV_CARD03,          "@{view_scard}\tCtrl-S"
-		DLVRADDREXFLDS : kbCtrlF9,    PPDV_NOICON,          "@{daddressextfield_pl}"
+		// @v12.2.8 DLVRADDREXFLDS : kbCtrlF9,    PPDV_NOICON,          "@{daddressextfield_pl}"
 		RMVHANGEDITEMS : kbCtrlX,     PPDV_NOICON,  hidden, "@{doremovehangaddr}\tCtrl-X"
 		PRINT          : kbF7,        PPDV_PRINTER01,       "@{print}\tF7"
 		SYSJ           : kbCtrlJ,     PPDV_SYSJOURNAL,      "@{view_sysjournal}\tCtrl-J"
@@ -1184,6 +1185,60 @@ browser PERSONREL north(100), 1, 0, "@{personrelation_pl}", OWNER|GRID, 0
 		separator
 		PRINT         : kbF7,     PPDV_PRINTER01,    "@{print}\tF7"
 	}
+}
+
+browser CLIACTIVITY north(100), 1, 1, "@{view_clientactivity}", OWNER|GRID, 0
+{
+	"@id",       0, notype, 0,  4
+	"@name",     1, notype, 0, 30
+	"@status",   2, notype, 0, 10
+	"@category", 3, notype, 0, 10
+	"@memo",     4, notype, 0, 40
+	toolbar TB_FIRST_TOOLBAR {
+		EDITITEM       : kbEnter,     PPDV_EDITFILE02,      "@{edit}\tEnter"
+		ADDITEM        : kbIns,       PPDV_ADDFILE02,       "@{add}\tInsert"
+		DELETEITEM     : kbDel,       PPDV_DELETEFILE02,    "@{delete}\tDelete"
+		//DELETEALL      : kbCtrlF8,    PPDV_DELETEALL02,     "@{doremoveall}\tCtrl-F8"
+		separator
+		CLIACTIVITYDETAILS : kbF8,    PPDV_NOICON,          "@{view_clientactivitydetails}\tF8" // @v12.2.8 @construction
+		TAGS           : kbF2,        PPDV_TAGS01,          "@{tags}\tF2"
+		EVENTS         : kbF3,        TBBM_PSNEVENTS,       "@{personevent_pl}\tF3"
+		REGISTERS      : kbF5,        TBBM_REGISTER,        "@{register_pl}\tF5"
+		//CURREG         : kbCtrlF5,    TBBM_CURPERSONATTR,   "Текущий регистр\tCtrl-F5"
+		// @v12.2.8 DLVRADDREXFLDS : kbCtrlF9,    PPDV_NOICON,          "@{daddressextfield_pl}"
+		//AMOUNTS        : kbShiftF5,   TBBM_AMOUNTS,         "Штатные суммы работодателя\tShift-F5"
+		RELATIONS      : kbF6,        TBBM_PERSONRELLIST,   "@{relation_pl}\tF6"
+		REVERSEREL     : kbShiftF6,   TBBM_PERSONRELLIST_R, "@{personrellist_reverse}\tShift-F6"
+		ADDREL         : kbCtrlF6,    TBBM_ADDPERSONREL,    "@{doaddpersonrelation}\tCtrl-F6"
+		//RMVHANGEDITEMS : kbCtrlX,     PPDV_NOICON,  hidden, "@{doremovehangaddr}\tCtrl-X"
+		PRINT          : kbF7,        PPDV_PRINTER01,       "@{print}\tF7"
+		SYSJ           : kbCtrlJ,     PPDV_SYSJOURNAL,      "@{view_sysjournal}\tCtrl-J"
+		//TRANSMIT       : kbCtrlH,     PPDV_SYNC01,          "@{dotransmit}\tCtrl-H"
+		//TRANSMKIND     : kbCtrlB,     PPDV_NOICON,          "@{dotransmitpersonkindlist}\tCtrl-B"
+		//EXPORTVCARD    : kbCtrlD,     PPDV_NOICON,          "@{dotransmitperson_vcard}\tCtrl-D"
+		FOLDER         : kbF4,        TBBM_FOLDER,          "Папка клиента\tF4"
+		ARTICLES       : kbCtrlA,     PPDV_NOICON,          "@{cmd_accarticle}\tCtrl-A"
+		TASKS          : kbCtrlT,     TBBM_PRJTASK,         "Просмотр задач по персоналии\tCtrl-T"
+		VIEWSCARDS     : kbCtrlS,     PPDV_CARD03,          "@{view_scard}\tCtrl-S"
+		UNITEOBJ       : kbCtrlU,     PPDV_MERGE01,         "@{unite_persons}\tCtrl-U"
+		//EDITFIXSTAFF   : kbCtrlQ,     PPDV_NOICON,          "@{doeditfixedstaff}\tCtrl-Q"
+		//STAFFCAL       : kbCtrlE,     TBBM_STAFFCAL,        "@{view_staffcal}\tCtrl-E"
+		//TRANSPOWNER    : kbCtrlG,     TBBM_TRANSPORT,       "@{doshowownedvehicles}\tCtrl-R"
+		TOTAL          : kbF9,        PPDV_SIGMA02,         "@{totals}\tF9"
+		//DORECOVER      : kbCtrlR,     PPDV_REPAIR02,        "@{verificationandrecovery}\tCtrl-R"
+		SENDSMS	       : kbCtrlM,	  PPDV_NOICON,          "@{dosendsms}\tCtrl-M"
+		separator
+		CHANGEFILT     : kbCtrlV,     PPDV_FILTER01,        "@{filter}\tCtrl-V"
+		//CREATEAUTHFILE : kbCtrlZ,     PPDV_NOICON,          "Создание файла авторизации\tCtrl-Z"
+		GRAPH          : kbCtrlN,     PPDV_PLOT01,          "@{plot}\tCtrl-N" // @v12.2.6 @construction
+	}
+}
+
+browser CLIACTIVITYDETAILS south(73), 1, 0, "@{view_clientactivitydetails} {%s}", OWNER|GRID, 0 // @v12.2.8
+{
+	"@date",           0, date,         0, 10, BCO_USERPROC
+	"@event",          1, zstring(128), 0, 30, BCO_USERPROC
+	//toolbar
 }
 
 browser ARTICLE north(100), 1, 0, "@{view_article} {%s}", OWNER|GRID, 0
@@ -7242,6 +7297,7 @@ view   Computer  { "@{view_computer}" } // @v12.0.0
 filter MarketplaceInterchange    { "@{filter_marketplaceinterchange}" } // @v12.1.3
 filter PrcssrAptekaRu            { "@{filter_prcssraptekaru}" } // @v12.2.1
 filter PrcssrClientActivityStatistics { "@{filter_prcssrclientactivitystatistics}" } // @v12.2.2
+view   ClientActivityDetails { "@{view_clientactivitydetails}" } // @v12.2.8
 //
 // lastviewfilter ATTENTION: put new VIEWS and FILTERS before this line!
 //

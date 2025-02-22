@@ -201,8 +201,8 @@ IMPL_HANDLE_EVENT(AccTurnDialog)
 			double nominal_amount = 0.0;
 			AmtList  al;
 			getDTS(0);
-			P_Pack->InitAmounts(0);
-			P_Pack->SumAmounts(&al, 0); // @v12.1.4 @fix 0-->&al
+			P_Pack->InitAmounts();
+			P_Pack->SumAmounts(al); // @v12.1.4 @fix 0-->&al
 			// } @v11.6.6 
 			EditBillTaxes(&P_Pack->Amounts, getCtrlReal(CTL_ATURN_AMOUNT));
 		}
@@ -598,17 +598,14 @@ public:
 	friend int EditGoodsBill(PPBillPacket * pPack, long egbFlags);
 
 	BillDialog(uint dlgID, PPBillPacket *, int isEdit);
+	~BillDialog();
 	int    setDTS(PPBillPacket *);
 	//
 	// Если onCancel != 0, то функция getDTS вызывает checkCreditOverflow //
 	//
 	int    getDTS(int onCancel);
-	bool   IsModified()
-	{
-		if(!(Flags & fModified))
-			getDTS(1);
-		return LOGIC(Flags & fModified);
-	}
+	bool   IsModified();
+	
 	uint   PrnForm;
 private:
 	DECL_HANDLE_EVENT;
@@ -622,7 +619,11 @@ private:
 	int    editItems();
 	int    editPaymOrder(int forceUpdateRcvr);
 	int    EditFreight();
-	int    calcAmounts(double * _amt);
+	//
+	// Returns:
+	//   Номинальная сумма документа
+	//
+	double CalcAmounts();
 	void   SetupInfoText(); // CTL_BILL_ST_SCARD
 	void   setupDebtText();
 	void   setupByCntragnt();
@@ -672,6 +673,7 @@ private:
 	PPObjSCard ScObj; // @v11.7.7
 	PPObjBill    * P_BObj;
 	PPBillPacket * P_Pack;
+	PPBillPacket * P_OrgPack; // @v12.2.8 Инициализируется оригинальным пакетом в конструкторе если P_Pack->ProcessFlags & pfDetectModificDetails
 	BillTbl::Rec Pattern;
 	SString   PatternMemo; // @v11.1.12
 	PPIDArray ExtAmtIDList;
@@ -764,7 +766,8 @@ int EditGoodsBill(PPBillPacket * pPack, long egbFlags)
 	}
 	else {
 		THROW(dlg_id = GetBillDialogID(pPack, &prn_form));
-		THROW(CheckDialogPtr(&(dlg = new BillDialog(dlg_id, pPack, (egbFlags & PPObjBill::efEdit)/*options >= 1*/))));
+		dlg = new BillDialog(dlg_id, pPack, (egbFlags & PPObjBill::efEdit)/*options >= 1*/);
+		THROW(CheckDialogPtr(&dlg));
 		dlg->PrnForm = prn_form;
 		THROW(dlg->setDTS(pPack));
 		if(egbFlags & PPObjBill::efEdit && egbFlags & PPObjBill::efForceModify/*options == 2*/)
@@ -798,12 +801,17 @@ int EditGoodsBill(PPBillPacket * pPack, long egbFlags)
 }
 
 BillDialog::BillDialog(uint dlgID, PPBillPacket * pPack, int isEdit) : PPListDialog(dlgID, CTL_BILL_LNKFILELIST), P_BObj(BillObj),
-	P_Pack(pPack), CurrDebt(0.0), Flags(0), PaymTerm(-1), PayDateBase(0)
+	P_Pack(pPack), P_OrgPack(0), CurrDebt(0.0), Flags(0), PaymTerm(-1), PayDateBase(0)
 {
 	SETFLAG(Flags, fEditMode, isEdit);
-	const int is_cash = BIN(P_Pack->Rec.Flags & BILLF_CASH);
+	const bool is_cash = LOGIC(P_Pack->Rec.Flags & BILLF_CASH);
 	PPObjOprKind op_obj;
 	PPOprKind  op_rec;
+	// @v12.2.8 {
+	if(P_Pack->ProcessFlags & PPBillPacket::pfDetectModificDetails) {
+		P_OrgPack = new PPBillPacket(*P_Pack);
+	}
+	// } @v12.2.8 
 	GetOpData(P_Pack->Rec.OpID, &op_rec);
 	Ptb.SetBrush(brushIllPaymDate, SPaintObj::bsSolid, GetColorRef(SClrCoral), 0);
 	Ptb.SetBrush(brushSynced, SPaintObj::bsSolid, GetColorRef(SClrLightsteelblue), 0);
@@ -867,6 +875,11 @@ BillDialog::BillDialog(uint dlgID, PPBillPacket * pPack, int isEdit) : PPListDia
 		SETFLAG(Flags, fCheckAgreement, (acs_obj.Fetch(op_rec.AccSheetID, &acs_rec) > 0 && (acs_rec.Flags & (ACSHF_USECLIAGT|ACSHF_USESUPPLAGT))));
 	}
 	setSmartListBoxOption(CTL_BILL_LNKFILELIST, lbtExtMenu);
+}
+
+BillDialog::~BillDialog()
+{
+	delete P_OrgPack;
 }
 
 void BillDialog::SetupAgreementButton()
@@ -1799,7 +1812,6 @@ int BillDialog::EditFreight()
 IMPL_HANDLE_EVENT(BillDialog)
 {
 	PPID   id;
-	double tmp;
 	LDATE  dt;
 	if(event.isCmd(cmExecute)) {
 		if(P_Pack->Rec.Flags & BILLF_CASH && !(Flags & fEditMode))
@@ -1807,7 +1819,7 @@ IMPL_HANDLE_EVENT(BillDialog)
 		// Далее управление передается базовому классу
 	}
 	else if(event.isCmd(cmOK))
-		calcAmounts(&tmp);
+		CalcAmounts();
 	if(!(TVKEYDOWN && TVKEY == KB_CTRLENTER)) {
 		//
 		// Функция PPListDialog::handleEvent обрабатывает F11 как cmOK.
@@ -1818,7 +1830,7 @@ IMPL_HANDLE_EVENT(BillDialog)
 	if(event.isClusterClk(CTL_BILL_TTLDISCOUNT)) {
 		if(getCtrlUInt16(CTL_BILL_TTLDISCOUNT))
 			setCtrlLong(CTL_BILL_DISCOUNT, 0);
-		calcAmounts(&tmp);
+		CalcAmounts();
 	}
 	else if(event.isCbSelected(CTLSEL_BILL_OBJECT))
 		ReplyCntragntSelection(0);
@@ -1924,10 +1936,7 @@ IMPL_HANDLE_EVENT(BillDialog)
 				break;
 			case cmBillTaxes:       
 				{
-					// @v11.6.6 {
-					double nominal_amount = 0.0;
-					calcAmounts(&nominal_amount);
-					// } @v11.6.6 
+					const double nominal_amount = CalcAmounts();
 					EditBillTaxes(&P_Pack->Amounts, /*getCtrlReal(CTL_BILL_AMOUNT)*/nominal_amount); 
 				}
 				break;
@@ -1985,8 +1994,7 @@ IMPL_HANDLE_EVENT(BillDialog)
 									r = 0;
 								}
 								else {
-									double amt = 0.0;
-									calcAmounts(&amt);
+									const double amt = CalcAmounts();
 									if(!checkCreditOverflow(amt)) {
 										P_Pack->Ext.AgentID = prev_agent_id;
 										r = 0;
@@ -2073,7 +2081,7 @@ IMPL_HANDLE_EVENT(BillDialog)
 	else if(TVBROADCAST) {
 		if(TVCMD == cmChangedFocus) {
 			if(event.isCtlEvent(CTL_BILL_DISCOUNT))
-				calcAmounts(&tmp);
+				CalcAmounts();
 			else if(P_Pack->Rec.Flags & BILLF_ADVANCEREP && P_Pack->P_AdvRep) {
 				uint ctl_id = event.getCtlID();
 				if(oneof3(ctl_id, CTL_BILL_ADV_RCPAMT1, CTL_BILL_ADV_RCPAMT2, CTL_BILL_ADV_INREST))
@@ -2103,10 +2111,13 @@ IMPL_HANDLE_EVENT(BillDialog)
 						case CTL_BILL_ADV_INREST: calcAdvanceRepRest(); break;
 						case CTL_BILL_DUEDATE:    calcDate(ctl_id); break;
 						case CTL_BILL_AMOUNT:
-							if(getCtrlData(CTL_BILL_DEBTSUM, &tmp)) {
-								TView * p_view = getCtrlView(CTL_BILL_AMOUNT);
-								if(p_view && !p_view->IsInState(sfDisabled))
-									setCtrlData(CTL_BILL_AMOUNT, &tmp);
+							{
+								double debt = 0.0;
+								if(getCtrlData(CTL_BILL_DEBTSUM, &debt)) {
+									TView * p_view = getCtrlView(CTL_BILL_AMOUNT);
+									if(p_view && !p_view->IsInState(sfDisabled))
+										setCtrlData(CTL_BILL_AMOUNT, &debt);
+								}
 							}
 							break;
 						case CTLSEL_BILL_OBJECT:
@@ -2324,7 +2335,7 @@ void BillDialog::ReplyCntragntSelection(int force)
 					setDiscount(dis, v);
 					setCtrlUInt16(CTL_BILL_TTLDISCOUNT, v);
 					SetupDiscountCtrls();
-					calcAmounts(&dis);
+					CalcAmounts();
 				}
 				if(client_id && (CliAgt.MaxCredit > 0.0 || P_BObj->Cfg.Flags & BCF_WARNMATCLIDEBT) && !(CliAgt.Flags & AGTF_DONTCALCDEBTINBILL)) {
 					int * p_has_matured_debt = (P_BObj->Cfg.Flags & BCF_WARNMATCLIDEBT) ? &has_matured_debt : 0;
@@ -2827,21 +2838,22 @@ int BillDialog::setDTS(PPBillPacket * pPack)
 	return ok;
 }
 
-int BillDialog::calcAmounts(double * pAmount)
+double BillDialog::CalcAmounts()
 {
-	int      ok = 1;
-	int      rmvexcise = 0;
-	double   amt = 0.0;
+	double result_amount = 0.0;
+	int    rmvexcise = 0;
+	int    first_diff_row_n = -1; // @debug
 	TView  * vw  = 0;
-	AmtList  al;
-	ushort   v = getCtrlUInt16(CTL_BILL_TTLDISCOUNT);
+	AmtList amt_list;
+	AmtList amt_list_org_pack;
+	ushort v = getCtrlUInt16(CTL_BILL_TTLDISCOUNT);
 	SetupDiscountCtrls();
 	if(v) {
 		P_Pack->Rec.Flags |= BILLF_TOTALDISCOUNT;
 		int   _pctdis = BIN(Flags & fPctDis);
-		getDiscount(&amt, &_pctdis, &rmvexcise);
+		getDiscount(&result_amount, &_pctdis, &rmvexcise);
 		SETFLAG(Flags, fPctDis, _pctdis);
-		P_Pack->SetTotalDiscount(amt, _pctdis, rmvexcise);
+		P_Pack->SetTotalDiscount(result_amount, _pctdis, rmvexcise);
 	}
 	else {
 		Flags &= ~fPctDis;
@@ -2851,30 +2863,48 @@ int BillDialog::calcAmounts(double * pAmount)
 		}
 	}
 	if(!P_Pack->IsGoodsDetail() && !CheckOpFlags(P_Pack->Rec.OpID, OPKF_ADVACC)) {
-		if(getCtrlData(CTL_BILL_AMOUNT, &amt))
-			al.Put(PPAMT_MAIN, P_Pack->Rec.CurID, amt, 0, 0);
+		if(getCtrlData(CTL_BILL_AMOUNT, &result_amount))
+			amt_list.Put(PPAMT_MAIN, P_Pack->Rec.CurID, result_amount, 0, 0);
 	}
-	THROW(P_Pack->SumAmounts(&al));
+	// @v12.2.8 @debug {
+	#if 0
+	if(P_OrgPack) {
+		TSCollection <PPBillPacket::TiDifferenceItem> diff_list;
+		P_Pack->CompareTI(*P_OrgPack, 0/*tidFlags*/, 0/*filtGrpID*/, diff_list);
+	}
+	#endif // } 0
+	// } @v12.2.8
+	//double _org_pack_amt = 0.0;
+	//double _this_pack_amt = 0.0;
+	//double _this_al_amt = 0.0;
+	//double _org_pack_al_amt = 0.0;
+	P_Pack->SumAmounts(amt_list);
+	if(P_OrgPack) {
+		P_OrgPack->SumAmounts(amt_list_org_pack);
+		//P_Pack->SumAmounts_ComparingWithOrgPack(amt_list, P_OrgPack, &first_diff_row_n);
+		//_this_al_amt = amt_list.Get(PPAMT_MAIN, 0);
+		//_org_pack_al_amt = amt_list_org_pack.Get(PPAMT_MAIN, 0);
+		//_this_pack_amt = P_Pack->Amounts.Get(PPAMT_MAIN, 0);
+		//_org_pack_amt = P_OrgPack->Amounts.Get(PPAMT_MAIN, 0);
+	}
 	if(!(P_Pack->Rec.Flags & BILLF_TOTALDISCOUNT)) {
-		al.Get(PPAMT_DISCOUNT, P_Pack->Rec.CurID, &amt);
-		setDiscount(amt, 0);
+		amt_list.Get(PPAMT_DISCOUNT, P_Pack->Rec.CurID, &result_amount);
+		setDiscount(result_amount, 0);
 	}
-	THROW(P_Pack->InitAmounts(&al));
-	al.Get(PPAMT_MAIN, P_Pack->Rec.CurID, &amt);
+	P_Pack->InitAmounts(amt_list);
+	if(P_OrgPack) {
+		P_OrgPack->InitAmounts(amt_list_org_pack);
+	}
+	amt_list.Get(PPAMT_MAIN, P_Pack->Rec.CurID, &result_amount);
 	if(P_Pack->Rec.Flags & BILLF_ADVANCEREP && P_Pack->P_AdvRep)
-		P_Pack->P_AdvRep->ExpAmount = amt;
+		P_Pack->P_AdvRep->ExpAmount = result_amount;
 	if((vw = getCtrlView(CTL_BILL_AMOUNT)) != 0 && vw->IsInState(sfDisabled))
-		setCtrlReal(CTL_BILL_AMOUNT, amt);
+		setCtrlReal(CTL_BILL_AMOUNT, result_amount);
 	if((vw = getCtrlView(CTL_BILL_ADV_TOUT)) != 0 && vw->IsInState(sfDisabled)) {
-		setCtrlReal(CTL_BILL_ADV_TOUT, amt);
+		setCtrlReal(CTL_BILL_ADV_TOUT, result_amount);
 		setupAdvanceRepTotal(P_Pack->P_AdvRep);
 	}
-	CATCH
-		amt = 0.0;
-		ok = 0;
-	ENDCATCH
-	ASSIGN_PTR(pAmount, amt);
-	return ok;
+	return result_amount;
 }
 
 double BillDialog::getCurrentDebt(PPID debtDimID) const
@@ -3023,6 +3053,13 @@ bool BillDialog::GetDateAndDueDate()
 	return ok;
 }
 
+bool BillDialog::IsModified()
+{
+	if(!(Flags & fModified))
+		getDTS(1);
+	return LOGIC(Flags & fModified);
+}
+
 int BillDialog::getDTS(int onCancel)
 {
 	int    ok = 1;
@@ -3064,7 +3101,7 @@ int BillDialog::getDTS(int onCancel)
 	getCtrlData(CTLSEL_BILL_OBJECT, &P_Pack->Rec.Object);
 	getCtrlData(CTLSEL_BILL_OBJ2,   &P_Pack->Rec.Object2);
 	getCtrlData(CTLSEL_BILL_PAYER,  &P_Pack->Ext.PayerID);
-	THROW(calcAmounts(&amt));
+	amt = CalcAmounts();
 	if(!onCancel)
 		THROW(checkCreditOverflow(amt));
 	if(P_Pack->OpTypeID == PPOPT_GOODSORDER)
@@ -3085,8 +3122,9 @@ int BillDialog::getDTS(int onCancel)
 		getCtrlData(CTL_BILL_MAXDSCNT, &P_Pack->P_Agt->MaxDscnt);
 		getCtrlData(CTL_BILL_PAYPERIOD, &P_Pack->P_Agt->DefPayPeriod);
 	}
-	if(P_Pack->Rec.Flags & BILLF_ADVANCEREP && P_Pack->P_AdvRep)
+	if(P_Pack->Rec.Flags & BILLF_ADVANCEREP && P_Pack->P_AdvRep) {
 		THROW(getAdvanceRepData(P_Pack->P_AdvRep));
+	}
 	intr = IsIntrOp(P_Pack->Rec.OpID);
 	if(!intr && P_Pack->IsDraft()) {
 		PPDraftOpEx doe;
@@ -3094,8 +3132,8 @@ int BillDialog::getDTS(int onCancel)
 			intr = IsIntrOp(doe.WrOffOpID);
 	}
 	if(intr) {
-		PPID   prim_sheet_id    = LConfig.LocAccSheetID;
-		PPID   foreign_sheet_id = P_Pack->AccSheetID;
+		const PPID prim_sheet_id    = LConfig.LocAccSheetID;
+		const PPID foreign_sheet_id = P_Pack->AccSheetID;
 		THROW_PP(P_Pack->Rec.Object || intr != INTREXPND, PPERR_INTRDESTNEEDED);
 		if(prim_sheet_id && prim_sheet_id == foreign_sheet_id) {
 			const  PPID prim_obj_id = PPObjLocation::WarehouseToObj(P_Pack->Rec.LocID);
@@ -3116,7 +3154,7 @@ int BillDialog::getDTS(int onCancel)
 	}
 	if(getCtrlView(CTL_BILL_EDIACKRESP)) {
         if(P_Pack->Rec.Flags2 & (BILLF2_EDI_ACCP|BILLF2_EDI_DECL)) {
-        	int recadv_conf_status = GetClusterData(CTL_BILL_EDIACKRESP);
+        	const int recadv_conf_status = GetClusterData(CTL_BILL_EDIACKRESP);
             BillCore::SetRecadvConfStatus(recadv_conf_status, P_Pack->Rec);
         }
 	}
@@ -3142,17 +3180,16 @@ int BillDialog::getDTS(int onCancel)
 int BillDialog::editItems()
 {
 	int    r = -1;
-	double tmp = 0.0;
 	if(P_Pack->OpTypeID == PPOPT_ACCTURN) {
 		if(CheckOpFlags(P_Pack->Rec.OpID, OPKF_ADVACC)) {
 			ViewAdvBillDetails(P_Pack, P_BObj);
-			calcAmounts(&tmp);
+			CalcAmounts();
 			r = 1;
 		}
 	}
 	else {
 		getCurGroupData();
-		calcAmounts(&tmp);
+		CalcAmounts();
 		getCtrlData(CTLSEL_BILL_OBJECT, &P_Pack->Rec.Object);
 		if(P_Pack->Rec.Object == 0) {
 			if(P_Pack->OpTypeID == PPOPT_GOODSRECEIPT && P_Pack->AccSheetID == GetSupplAccSheet() && P_Pack->GetTCount() == 0) {
@@ -3182,7 +3219,7 @@ int BillDialog::editItems()
 			}
 			if((r = ViewBillDetails(P_Pack, BIN(Flags & fEditMode), P_BObj)) > 0) {
 				Flags |= fModified;
-				calcAmounts(&tmp);
+				CalcAmounts();
 			}
 		}
 	}

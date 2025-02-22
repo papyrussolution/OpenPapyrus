@@ -2350,7 +2350,7 @@ int RecoverTransfer()
 				p_pack = pack_list.at(i);
 				if(p_pack) {
 					p_pack->Rec.Dt = first_date;
-					THROW(p_pack->InitAmounts(0));
+					p_pack->InitAmounts();
 					DS.GetTLA().Cc.Flags |= CCFLG_TRFR_DONTRECALCREVAL;
 					THROW(BillObj->TurnPacket(p_pack, 0));
 					logger.LogAcceptMsg(PPOBJ_BILL, p_pack->Rec.ID, 0);

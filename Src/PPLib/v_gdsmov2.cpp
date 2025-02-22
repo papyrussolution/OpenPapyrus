@@ -1,5 +1,5 @@
 // V_GDSMOV2.CPP
-// Copyright (c) A.Starodub 2011, 2015, 2016, 2018, 2019, 2020, 2020, 2021, 2024
+// Copyright (c) A.Starodub 2011, 2015, 2016, 2018, 2019, 2020, 2020, 2021, 2024, 2025
 //
 #include <pp.h>
 #pragma hdrstop
@@ -22,10 +22,7 @@ PPBaseFilt * PPViewGoodsMov2::CreateFilt(const void * extraPtr) const
 	return p_filt;
 }
 
-/*virtual*/int PPViewGoodsMov2::EditBaseFilt(PPBaseFilt * pFilt)
-{
-	DIALOG_PROC_BODY(GoodsMovFiltDialog, static_cast<GoodsMovFilt *>(pFilt));
-}
+/*virtual*/int PPViewGoodsMov2::EditBaseFilt(PPBaseFilt * pFilt) { DIALOG_PROC_BODY(GoodsMovFiltDialog, static_cast<GoodsMovFilt *>(pFilt)); }
 
 /*virtual*/void PPViewGoodsMov2::GetTabTitle(long opID, SString & rBuf)
 {

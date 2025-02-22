@@ -3837,30 +3837,36 @@
 	#define CTL_VATBOOK_OBJ              (6 + WINDOWS_ID_BIAS)
 	#define CTLSEL_VATBOOK_OBJ           (7 + WINDOWS_ID_BIAS)
 	#define CTL_VATBOOK_AMT              (8 + WINDOWS_ID_BIAS)
-	#define CTL_VATBOOK_VAT0             (9 + WINDOWS_ID_BIAS)
-	#define CTL_VATBOOK_VAT1             (10 + WINDOWS_ID_BIAS)
-	#define CTL_VATBOOK_VAT2             (11 + WINDOWS_ID_BIAS)
-	#define CTL_VATBOOK_VAT3             (12 + WINDOWS_ID_BIAS)
-	#define CTL_VATBOOK_SVAT1            (13 + WINDOWS_ID_BIAS)
-	#define CTL_VATBOOK_SVAT2            (14 + WINDOWS_ID_BIAS)
-	#define CTL_VATBOOK_SVAT3            (15 + WINDOWS_ID_BIAS)
-	#define CTL_VATBOOK_EXP              (16 + WINDOWS_ID_BIAS)
-	#define CTL_VATBOOK_FRAME            (17 + WINDOWS_ID_BIAS)
-	#define CTL_VATBOOK_FLAGS            (18 + WINDOWS_ID_BIAS)
-	#define CTL_VATBOOK_TVAT1            (19 + WINDOWS_ID_BIAS) // StaticText
-	#define CTL_VATBOOK_TVAT2            (20 + WINDOWS_ID_BIAS) // StaticText
-	#define CTL_VATBOOK_TVAT3            (21 + WINDOWS_ID_BIAS) // StaticText
-	#define CTLCAL_VATBOOK_DT            (22 + WINDOWS_ID_BIAS) // @alena
-	#define CTLCAL_VATBOOK_INVCDT        (23 + WINDOWS_ID_BIAS) // @alena
-	#define CTLCAL_VATBOOK_PAYMDT        (24 + WINDOWS_ID_BIAS) // @alena
-	#define CTLCAL_VATBOOK_RCPTDT        (25 + WINDOWS_ID_BIAS) // @alena
-	#define CTLCAL_VATBOOK_DT2           (26 + WINDOWS_ID_BIAS) // @alena
-	#define CTL_VATBOOK_LOC              (27 + WINDOWS_ID_BIAS)
-	#define CTLSEL_VATBOOK_LOC           (28 + WINDOWS_ID_BIAS)
-	#define CTL_VATBOOK_CBILLDT          (29 + WINDOWS_ID_BIAS)
-	#define CTLCAL_VATBOOK_CBILLDT       (30 + WINDOWS_ID_BIAS)
-	#define CTL_VATBOOK_CBILLCODE        (31 + WINDOWS_ID_BIAS)
-	#define CTL_VATBOOK_TAXOPCODE        (32 + WINDOWS_ID_BIAS)
+	#define CTLCAL_VATBOOK_DT            (9 + WINDOWS_ID_BIAS) // @alena
+	#define CTLCAL_VATBOOK_INVCDT        (10 + WINDOWS_ID_BIAS) // @alena
+	#define CTLCAL_VATBOOK_PAYMDT        (11 + WINDOWS_ID_BIAS) // @alena
+	#define CTLCAL_VATBOOK_RCPTDT        (12 + WINDOWS_ID_BIAS) // @alena
+	#define CTLCAL_VATBOOK_DT2           (13 + WINDOWS_ID_BIAS) // @alena
+	#define CTL_VATBOOK_LOC              (14 + WINDOWS_ID_BIAS)
+	#define CTLSEL_VATBOOK_LOC           (15 + WINDOWS_ID_BIAS)
+	#define CTL_VATBOOK_CBILLDT          (16 + WINDOWS_ID_BIAS)
+	#define CTLCAL_VATBOOK_CBILLDT       (17 + WINDOWS_ID_BIAS)
+	#define CTL_VATBOOK_CBILLCODE        (18 + WINDOWS_ID_BIAS)
+	#define CTL_VATBOOK_TAXOPCODE        (19 + WINDOWS_ID_BIAS)
+	#define CTL_VATBOOK_EXP              (20 + WINDOWS_ID_BIAS)
+	#define CTL_VATBOOK_FRAME            (21 + WINDOWS_ID_BIAS)
+	#define CTL_VATBOOK_FLAGS            (22 + WINDOWS_ID_BIAS)
+	#define CTL_VATBOOK_VAT0             (31 + WINDOWS_ID_BIAS) // @anchor ident
+	#define CTL_VATBOOK_VAT1             (32 + WINDOWS_ID_BIAS)
+	#define CTL_VATBOOK_VAT2             (33 + WINDOWS_ID_BIAS)
+	#define CTL_VATBOOK_VAT3             (34 + WINDOWS_ID_BIAS)
+	#define CTL_VATBOOK_VAT4             (35 + WINDOWS_ID_BIAS)
+	#define CTL_VATBOOK_VAT5             (36 + WINDOWS_ID_BIAS)
+	#define CTL_VATBOOK_SVAT1            (41 + WINDOWS_ID_BIAS) // @anchor ident
+	#define CTL_VATBOOK_SVAT2            (42 + WINDOWS_ID_BIAS)
+	#define CTL_VATBOOK_SVAT3            (43 + WINDOWS_ID_BIAS)
+	#define CTL_VATBOOK_SVAT4            (44 + WINDOWS_ID_BIAS)
+	#define CTL_VATBOOK_SVAT5            (45 + WINDOWS_ID_BIAS)
+	#define CTL_VATBOOK_TVAT1            (51 + WINDOWS_ID_BIAS) // @anchor ident StaticText
+	#define CTL_VATBOOK_TVAT2            (52 + WINDOWS_ID_BIAS) // StaticText
+	#define CTL_VATBOOK_TVAT3            (53 + WINDOWS_ID_BIAS) // StaticText
+	#define CTL_VATBOOK_TVAT4            (54 + WINDOWS_ID_BIAS) // StaticText
+	#define CTL_VATBOOK_TVAT5            (55 + WINDOWS_ID_BIAS) // StaticText
 #define DLG_VATBFLT               268 // Фильтр по книге продаж/покупок
 #define DLG_VATBWHAT              269 // Выбор книги продаж либо покупок
 	#define CTL_VATBFLT_WHAT             (1 + WINDOWS_ID_BIAS)
@@ -6666,6 +6672,7 @@
 	#define CTL_CCHECKINFO_RPRCTAID      (20 + WINDOWS_ID_BIAS) // remote-processing-transation-id
 	#define CTL_CCHECKINFO_EADDR         (21 + WINDOWS_ID_BIAS) // @v11.3.6 Электронный адрес покупателя //
 	#define CTL_CCHECKINFO_UUID          (22 + WINDOWS_ID_BIAS) // @v11.5.8
+	#define CTL_CCHECKINFO_FSCLSIGN      (23 + WINDOWS_ID_BIAS) // @v12.2.8 Фискальный признак чека
 #define DLG_PSNRELTYPE            638 // Тип связи между персоналиями
 	#define CTL_PSNRELTYPE_NAME          (1 + WINDOWS_ID_BIAS)
 	#define CTL_PSNRELTYPE_ID            (2 + WINDOWS_ID_BIAS)
@@ -7926,6 +7933,7 @@
 	#define CTLCAL_SELCHECK_FLTDATE   (9 + WINDOWS_ID_BIAS)
 	#define CTL_SELCHECK_MEMO         (10 + WINDOWS_ID_BIAS)
 	#define CTL_SELCHECK_UNFC         (11 + WINDOWS_ID_BIAS) // check-box for selection unfinished checks
+	#define CTL_SELCHECK_OP           (12 + WINDOWS_ID_BIAS) // @v12.2.8 Выбор операции, которую надо осуществить по выбранному чеку (возврат/коррекция)
 #define DLG_SSAUTODIS            847
 	#define CTL_SSAUTODIS_SSER        (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_SSAUTODIS_SSER     (2 + WINDOWS_ID_BIAS)
@@ -11702,6 +11710,7 @@
 	#define CTL_CORHUPTAGS_LOG           (1 + WINDOWS_ID_BIAS)
 	#define CTL_CORHUPTAGS_FLAGS         (2 + WINDOWS_ID_BIAS)
 	#define CTLBRW_CORHUPTAGS_LOG        (3 + WINDOWS_ID_BIAS)
+#define DLG_CLIACTFILT            1459 // Фильтр по персоналиям (специализация - анализ клиентской активности). Управляющие элементы: CTL_PSNFLT_XXX
 
 // Win32 Dialog Identifiers
 //

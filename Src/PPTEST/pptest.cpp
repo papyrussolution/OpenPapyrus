@@ -1093,7 +1093,7 @@ int GenerateGoodsBills()
 							//добавление товарной строки
 							ilti.Setup(goods_id, sign, qtty, cost, price);
 							BillObj->ConvertILTI(&ilti, &bpack, 0, 0, 0);
-							THROW(bpack.InitAmounts());
+							bpack.InitAmounts();
 						}
 						//добавление документа
 						THROW(BillObj->TurnPacket(&bpack, 0));

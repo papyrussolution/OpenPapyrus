@@ -1,5 +1,5 @@
 // V_BCMP.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017, 2019, 2020, 2022, 2024
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017, 2019, 2020, 2022, 2024, 2025
 //
 #include <pp.h>
 #pragma hdrstop
@@ -180,7 +180,7 @@ int PPViewGoodsBillCmp::PutBillToTempTable(PPID billID, int side /* 1 - lh, 2 - 
 				long   vv = 0;
 				THROW(p_ovc->Search(billID, &oid, &vv, &buf) > 0);
 				THROW(BillObj->SerializePacket__(-1, &pack, buf, &r_sctx));
-				pack.ProcessFlags |= (PPBillPacket::pfZombie | PPBillPacket::pfUpdateProhibited); // @v9.9.12
+				pack.ProcessFlags |= (PPBillPacket::pfZombie | PPBillPacket::pfUpdateProhibited);
 				r = 1;
 			}
 		}

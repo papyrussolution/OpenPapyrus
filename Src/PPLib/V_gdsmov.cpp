@@ -1,5 +1,5 @@
 // V_GDSMOV.CPP
-// Copyright (c) A.Sobolev, A.Starodub 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024
+// Copyright (c) A.Sobolev, A.Starodub 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025
 //
 #include <pp.h>
 #pragma hdrstop
@@ -155,10 +155,7 @@ int GoodsMovFiltDialog::getDTS(GoodsMovFilt * pData)
 	return ok;
 }
 
-/*virtual*/int PPViewGoodsMov::EditBaseFilt(PPBaseFilt * pFilt)
-{
-	DIALOG_PROC_BODY(GoodsMovFiltDialog, static_cast<GoodsMovFilt *>(pFilt));
-}
+/*virtual*/int PPViewGoodsMov::EditBaseFilt(PPBaseFilt * pFilt) { DIALOG_PROC_BODY(GoodsMovFiltDialog, static_cast<GoodsMovFilt *>(pFilt)); }
 
 PP_CREATE_TEMP_FILE_PROC(CreateTempFile, TempGoodsMov);
 PP_CREATE_TEMP_FILE_PROC(CreateTempFile2, TempGoodsMov2);

@@ -313,7 +313,7 @@ int PPViewSysJournal::Init_(const PPBaseFilt * pFilt)
 										PPBillPacket pack;
 										PPObjBill * p_bobj = static_cast<PPObjBill *>(ppobj);
 										if(p_bobj->SerializePacket__(-1, &pack, ov_buf, &r_sctx)) {
-											pack.ProcessFlags |= (PPBillPacket::pfZombie|PPBillPacket::pfUpdateProhibited); // @v9.9.12
+											pack.ProcessFlags |= (PPBillPacket::pfZombie|PPBillPacket::pfUpdateProhibited);
 											PPObjBill::MakeCodeString(&pack.Rec, PPObjBill::mcsAddObjName|PPObjBill::mcsAddOpName, temp_buf);
 											if(r_rec.Action == PPACN_RMVBILL)
 												ev_entry.Flags |= ev_entry.fAmtDn;
@@ -329,7 +329,7 @@ int PPViewSysJournal::Init_(const PPBaseFilt * pFilt)
 													ov_buf.Z();
 													if(p_ovc->Search(next_rec.Extra, &next_ev_entry, &vv, &ov_buf) > 0 && ev_entry.IsEq(next_rec.ObjType, next_rec.ObjID)) {
 														if(p_bobj->SerializePacket__(-1, &next_pack, ov_buf, &r_sctx)) {
-															next_pack.ProcessFlags |= (PPBillPacket::pfZombie | PPBillPacket::pfUpdateProhibited); // @v9.9.12
+															next_pack.ProcessFlags |= (PPBillPacket::pfZombie | PPBillPacket::pfUpdateProhibited);
 															next_bill_rec = next_pack.Rec;
 														}
 													}

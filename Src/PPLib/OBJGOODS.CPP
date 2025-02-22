@@ -543,7 +543,7 @@ int PPObjGoods::ValidatePacket(const PPGoodsPacket * pPack)
 			THROW_PP(temp_buf.NotEmptyS(), PPERR_ABBRNEEDED);
 			THROW_PP(pPack->Rec.UnitID, PPERR_UNITNEEDED);
 			THROW_PP(!pPack->Rec.PhUnitID || (pPack->Rec.PhUPerU > 0.0 && pPack->Rec.PhUPerU != HUGE_VAL), PPERR_INVALIDPHUPERU);
-			THROW_PP_S(pPack->Rec.ParentID, PPERR_GOODSGROUPNEEDED, temp_buf); // @v10.3.6 THROW_PP-->THROW_PP_S(..,temp_buf)
+			THROW_PP_S(pPack->Rec.ParentID, PPERR_GOODSGROUPNEEDED, temp_buf);
 		}
 		THROW_PP(!pPack->Rec.ID || pPack->Rec.ID != pPack->Rec.ParentID, PPERR_GOODSGRPLOOP);
 		if(pPack->Rec.ParentID) {
@@ -942,7 +942,7 @@ int PPObjGoods::PutPacket(PPID * pID, PPGoodsPacket * pPack, int use_ta)
 							// Флаг прав доступа GOODSRT_UPDTAXGRP определяется только для //
 							// объекта PPOBJ_GOODS, но распространяется так же и на        //
 							// объект PPOBJ_GOODSGROUP                                     //
-							PPObjGoods goods_obj(SConstructorLite); // @v10.0.0 SConstructorLite
+							PPObjGoods goods_obj(SConstructorLite);
 							THROW_PP_S(goods_obj.CheckRights(GOODSRT_UPDTAXGRP), PPERR_NRT_GOODS_UPDTAXGRP, pPack->Rec.Name);
 						}
 					}
@@ -950,7 +950,7 @@ int PPObjGoods::PutPacket(PPID * pID, PPGoodsPacket * pPack, int use_ta)
 						// Флаг прав доступа GOODSRT_UPDGTYPE определяется только для //
 						// объекта PPOBJ_GOODS, но распространяется так же и на        //
 						// объект PPOBJ_GOODSGROUP                                     //
-						PPObjGoods goods_obj(SConstructorLite); // @v10.0.0 SConstructorLite
+						PPObjGoods goods_obj(SConstructorLite);
 						THROW_PP_S(goods_obj.CheckRights(GOODSRT_UPDGTYPE), PPERR_NRT_GOODS_UPDGTYPE, pPack->Rec.Name);
 					}
 				}
@@ -1098,12 +1098,10 @@ int PPObjGoods::PutPacket(PPID * pID, PPGoodsPacket * pPack, int use_ta)
 						// } @v9.5.0
 						if(pPack->Rec.TaxGrpID != org_rec.TaxGrpID)
 							DS.LogAction(PPACN_GOODSVATGRPCHD, Obj, *pID, org_rec.TaxGrpID, 0);
-						// @v10.2.1 {
 						if(!org_rec.StrucID && pPack->Rec.StrucID)
 							DS.LogAction(PPACN_GSTRUCATTACHED, Obj, *pID, pPack->Rec.StrucID, 0);
 						else if(org_rec.StrucID && !pPack->Rec.StrucID)
 							DS.LogAction(PPACN_GSTRUCDETACHED, Obj, *pID, org_rec.StrucID, 0);
-						// } @v10.2.1
 					}
 				}
 			}
@@ -1853,7 +1851,6 @@ PPID GoodsSubstList::SubstAlcoCategory(PPID goodsID)
 	if(P_Arp == 0) {
 		P_Arp = new PrcssrAlcReport;
 		if(P_Arp) {
-			// @v10.0.06 @fix поменял местами SetConfig и Init
 			P_Arp->SetConfig(0);
 			P_Arp->Init();
 		}
@@ -2596,7 +2593,7 @@ int PPObjGoods::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 	return ok;
 }
 //
-// @v10.7.9 Удалено использование TaggedStringArray
+//
 //
 int PPObjGoods::SupplyAddingToAltGrp(PPID id, int use_ta)
 {
@@ -2646,53 +2643,6 @@ int PPObjGoods::SupplyAddingToAltGrp(PPID id, int use_ta)
 	return ok;
 }
 
-#if 0 // @v10.7.9 {
-int PPObjGoods::SupplyAddingToAltGrp(PPID id, int use_ta)
-{
-	int    ok = 1;
-	int    all = BIN(GetConfig().Flags & GCF_ADDTOALTGRPWITHOUTMSG);
-	if(!IsGeneric(id)) {
-		TaggedStringArray grp_txt_list;
-		PPIDArray grp_list;
-		GoodsFilt grp_filt;
-		P_Tbl->GetGroupTerminalList(0, &grp_list, 0);
-		for(uint i = 0; i < grp_list.getCount(); i++) {
-			Goods2Tbl::Rec grp_rec;
-			const  PPID grp_id = grp_list.get(i);
-			if(Fetch(grp_id, &grp_rec) > 0 && grp_rec.Flags & GF_ALTGROUP && !(grp_rec.Flags & (GF_TEMPALTGRP_|GF_DYNAMIC))) {
-				if(P_Tbl->GetGroupFilt(grp_id, &grp_filt) > 0) {
-					if(!grp_filt.IsEmpty() && CheckForFilt(&grp_filt, id)) {
-						TaggedString item;
-						item.Id = grp_id;
-						STRNSCPY(item.Txt, grp_rec.Name);
-						grp_txt_list.insert(&item);
-					}
-				}
-			}
-		}
-		if(grp_txt_list.getCount() > 0 && !all) {
-			TaggedStringArray sel_list;
-			ListToListAryData grp_data(0, &grp_txt_list, &sel_list);
-			grp_data.TitleStrID = PPTXT_SELALTGOODSGRPS;
-			if(ListToListAryDialog(&grp_data) > 0)
-				grp_txt_list.copy(sel_list);
-			else
-				grp_txt_list.freeAll();
-		}
-		if(grp_txt_list.getCount()) {
-			PPTransaction tra(use_ta);
-			THROW(tra);
-			for(uint i = 0; i < grp_txt_list.getCount(); i++) {
-				THROW(AssignGoodsToAltGrp(id, grp_txt_list.at(i).Id, 0, 0));
-			}
-			THROW(tra.Commit());
-		}
-	}
-	CATCHZOKPPERR
-	return ok;
-}
-#endif // } 0
-
 int PPObjGoods::GetManufCountry(PPID goodsID, const Goods2Tbl::Rec * pRec, PPID * pCountryID, PPCountryBlock * pBlk)
 {
 	Goods2Tbl::Rec rec;
@@ -2729,7 +2679,7 @@ int PPObjGoods::CheckForFilt(const GoodsFilt * pFilt, PPID id, long implFlags)
 		CFF_RET;
 	if(pFilt->Flags & GoodsFilt::fPassiveOnly && !(rec.Flags & GF_PASSIV))
 		CFF_RET;
-	if(pFilt->Flags & GoodsFilt::fHideGeneric && rec.Flags & GF_GENERIC) // @v10.7.7
+	if(pFilt->Flags & GoodsFilt::fHideGeneric && rec.Flags & GF_GENERIC)
 		CFF_RET;
 	if(pFilt->Flags & GoodsFilt::fGenGoodsOnly && !(rec.Flags & GF_GENERIC))
 		CFF_RET;
@@ -2811,7 +2761,7 @@ int PPObjGoods::CheckForFilt(const GoodsFilt * pFilt, PPID id, long implFlags)
 			CFF_RET;
 	}
 	{
-		SString & r_temp_buf = SLS.AcquireRvlStr(); // @v10.5.11 revolver
+		SString & r_temp_buf = SLS.AcquireRvlStr();
 		pFilt->GetExtssData(pFilt->extssNameText, r_temp_buf);
 		if(r_temp_buf.NotEmptyS() && !ExtStrSrch(rec.Name, r_temp_buf, 0))
 			CFF_RET;
@@ -3074,7 +3024,7 @@ ListBoxDef * PPObjGoods::_Selector2(ListBoxDef * pDef, long parentID, long optio
 		SETIFZ(p_array, new StrAssocArray);
 		THROW_MEM(p_array);
 		for(q.initIteration(false, &k_, spGe); q.nextIteration() > 0;) {
-			if(!(Kind == PPGDSK_TRANSPORT && p_tbl->data.Flags & GF_PASSIV)) { // @v10.2.4
+			if(!(Kind == PPGDSK_TRANSPORT && p_tbl->data.Flags & GF_PASSIV)) {
 				THROW_SL(p_array->AddFast(p_tbl->data.ID, p_tbl->data.Name));
 			}
 		}
@@ -3100,10 +3050,8 @@ ListBoxDef * PPObjGoods::_Selector2(ListBoxDef * pDef, long parentID, long optio
 			}
 			if(dont_sel_passive)
 				q.Cat("PASSIVE").CatParStr("no").Space();
-			// @v10.7.7 {
 			if(dont_sel_generic)
 				q.Cat("GENERIC").CatParStr("no").Space();
-			// } @v10.7.7 
 			q.Cat("LOCATION").CatParStr(loc_id).Space();
 			q.Cat("FORMAT").DotCat("BIN").CatParStr(static_cast<const char *>(0));
 			PPJobSrvReply reply;
@@ -3125,10 +3073,8 @@ ListBoxDef * PPObjGoods::_Selector2(ListBoxDef * pDef, long parentID, long optio
 				gf.BrandList.Add(brand);
 			if(dont_sel_passive)
 				gf.Flags |= GoodsFilt::fHidePassive;
-			// @v10.7.7 {
 			if(dont_sel_generic)
 				gf.Flags |= GoodsFilt::fHideGeneric;
-			// } @v10.7.7 
 			THROW_MEM(p_array);
 			if(exist_only)
 				gf.Flags |= GoodsFilt::fActualOnly;
@@ -3157,10 +3103,8 @@ ListBoxDef * PPObjGoods::_Selector2(ListBoxDef * pDef, long parentID, long optio
 		if(Kind == PPGDSK_GOODS) {
 			if(dont_sel_passive)
 				dbq = &(*dbq && (t->Flags & GF_PASSIV) == 0L); // @memleak
-			// @v10.7.7 {
 			if(dont_sel_generic)
 				dbq = &(*dbq && (t->Flags & GF_GENERIC) == 0L); // @memleak
-			// } @v10.7.7 
 		}
 		p_q = & select(t->ID, ((options & selfByName) ? t->Name : t->Abbr), 0L).from(t, 0L);
 		p_q->where(*dbq).orderBy(t->Kind, ((options & selfByName) ? t->Name : t->Abbr), 0L);
@@ -3983,21 +3927,7 @@ int PPObjGoods::SerializePacket(int dir, PPGoodsPacket * pPack, SBuffer & rBuf, 
 			PPQuot item;
 			if(dir > 0)
 				item = quot_list.at(i);
-			/* @v10.0.05
-			THROW_SL(pSCtx->Serialize(dir, item.ID, rBuf));
-			THROW_SL(pSCtx->Serialize(dir, item.ArID, rBuf));
-			THROW_SL(pSCtx->Serialize(dir, item.GoodsID, rBuf));
-			THROW_SL(pSCtx->Serialize(dir, item.LocID, rBuf));
-			THROW_SL(pSCtx->Serialize(dir, item.Kind, rBuf));
-			THROW_SL(pSCtx->Serialize(dir, item.CurID, rBuf));
-			THROW_SL(pSCtx->Serialize(dir, item.Flags, rBuf));
-			THROW_SL(pSCtx->Serialize(dir, item.MinQtty, rBuf));
-			THROW_SL(pSCtx->Serialize(dir, item.Quot, rBuf));
-			THROW_SL(pSCtx->Serialize(dir, item.Dtm, rBuf));
-			THROW_SL(pSCtx->Serialize(dir, item.Period.low,  rBuf));
-			THROW_SL(pSCtx->Serialize(dir, item.Period.upp,  rBuf));
-			*/
-			THROW(item.Serialize(dir, rBuf, pSCtx)); // @v10.0.05
+			THROW(item.Serialize(dir, rBuf, pSCtx));
 			if(dir < 0) {
 				item.ID = 0;
 				THROW_SL(quot_list.insert(&item));
@@ -4771,7 +4701,7 @@ int UhttIndexPersons(uint setSz, PPID personKindID, const SString & rOutPath)
 		PPObjPerson psn_obj;
 		PPIDArray addr_list, local_addr_list;
 		PersonFilt filt;
-		filt.Kind = personKindID;
+		filt.PersonKindID = personKindID;
 		THROW(psn_view.Init_(&filt));
 		for(psn_view.InitIteration(); psn_view.NextIteration(&psn_item) > 0;) {
 			local_addr_list.clear();

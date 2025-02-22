@@ -2302,9 +2302,10 @@ SString & CDECL PPFormatS(int textGroup, int textCode, SString * pBuf, ...)
 
 int WaitForExists(const char * pPath, int whileExists /* = 1 */, int notifyTimeout /* = 5000 */)
 {
-	int    ok = 1, stop = 0;
+	int    ok = 1;
+	int    stop = 0;
 	if(pPath) {
-		int exists = fileExists(pPath) ? 1 : 0;
+		const bool exists = fileExists(pPath);
 		if((exists && whileExists) || (!exists && !whileExists)) {
 			DirChangeNotification * p_dc_notify = 0;
 			SString path(pPath);
@@ -2339,9 +2340,9 @@ int WaitForExists(const char * pPath, int whileExists /* = 1 */, int notifyTimeo
 
 int WaitNewFile(const char * pDir, SString & rFile, int notifyTimeout /* =5000 */)
 {
-	int    ok = 1, stop = 0;
+	int    ok = 1;
+	int    stop = 0;
 	if(pDir) {
-		// @v10.3.0 (never used) int exists = 0;
 		LDATETIME beg_dtm;
 		SString path;
 		DirChangeNotification * p_dc_notify = 0;
