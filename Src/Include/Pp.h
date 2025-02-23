@@ -10131,11 +10131,11 @@ public:
 		uint8  Flags;      // @flags
 		uint8  Reserve[2]; // @alignment
 	};
-	struct BueryEAddr_ { // @v11.8.11
-		BueryEAddr_();
-		BueryEAddr_(const BueryEAddr_ & rS);
-		BueryEAddr_ & FASTCALL operator = (const BueryEAddr_ & rS);
-		BueryEAddr_ & Z();
+	struct BuersEAddr_ { // @v11.8.11
+		BuersEAddr_();
+		BuersEAddr_(const BuersEAddr_ & rS);
+		BuersEAddr_ & FASTCALL operator = (const BuersEAddr_ & rS);
+		BuersEAddr_ & Z();
 		bool   IsEmpty() const;
 		int    SetEMail(const char * pEAddr);
 		int    SetPhone(const char * pEAddr);
@@ -12329,7 +12329,7 @@ public:
 		long   Flags_;  //@erik v10.5.9
 		// @v11.8.11 int    BuyersEAddrType; // @v11.3.7 (0|SNTOK_EMAIL|SNTOK_PHONE)
 		// @v11.8.11 SString BuyersEAddr; // @v11.3.7
-		CCheckPacket::BueryEAddr_ EAddr;  // @v11.8.11 Электронный адрес покупателя (email or phone)
+		CCheckPacket::BuersEAddr_ EAddr;  // @v11.8.11 Электронный адрес покупателя (email or phone)
 	};
 	//
 	// Descr: Преобразует пакет товарного документа в пакет кассового чека.
@@ -21197,7 +21197,7 @@ public:
 	//
 	// Descr: Параметры фильтрации отложенных чеков в кассовой панели
 	//
-	struct SuspCheckFilt {
+	struct SuspCheckFilt { // @flat
 		SuspCheckFilt();
 		bool   IsEmpty() const;
 		enum {
@@ -33468,7 +33468,8 @@ struct BVATAccm { // @flat
 
 class BVATAccmArray : public TSVector <BVATAccm> {
 public:
-	BVATAccmArray(uint aFlags = 0);
+	explicit BVATAccmArray(uint aFlags = 0);
+	BVATAccmArray(const BVATAccmArray & rS);
 	int    CalcBill(PPID);
 	int    CalcBill(const PPBillPacket *);
 	void   Scale_(double part, int useRounding);
@@ -43967,7 +43968,7 @@ private:
 	// @v11.0.3 int    ProcessOp(uint, const PPIDArray *, const PPIDArray * pNegOpList,
 		// @v11.0.3 const AutoBuildFilt *, int byPayment, PPObjBill::PplBlock * pEbfBlk, PPID mainAmtTypeID);
 	int    ProcessOp2(const OpEntryVector & rList, uint listIdx, const OpEntryVector * pNegList, const AutoBuildFilt *, int byPayment, PPObjBill::PplBlock * pEbfBlk);
-	int    _SetVATParams(VATBookTbl::Rec *, const BVATAccmArray *, double scale, bool isSelling, int slUseCostVatAddendum);
+	int    _SetVATParams(VATBookTbl::Rec *, const BVATAccmArray & rVatArray, double scale, bool isSelling, int slUseCostVatAddendum);
 	int    CheckBillRec(const AutoBuildFilt *, const BillTbl::Rec *);
 	int    RemoveZeroBillLinks(int use_ta);
 	void   ConvertOpList(const VATBCfg & rCfg, PPIDArray & rList);
@@ -43985,6 +43986,7 @@ private:
 	//
 	PPObjGoods * P_GObj;
 	PPObjPerson PsnObj;
+	PPObjAmountType AmtTObj;
 	VatBookViewItem InnerItem;
 	SArray * P_ClbList;       // items char[VBV_CLB_ITEM_SIZE]
 	uint   ClbListIterPos;
@@ -50285,11 +50287,15 @@ struct ClientActivityDetailsFilt : public PPBaseFilt {
 struct ClientActivityDetailsViewItem {
 	ClientActivityDetailsViewItem() : Dtm(ZERODATETIME), Amount(0.0), Flags(0)
 	{
-		TransactionName[0] = 0;
+		TransactionOp[0] = 0;
+		TransactionCode[0] = 0;
+		TransactionEtc[0] = 0;
 	}
 	PPObjID Oid;
 	LDATETIME Dtm;
-	char   TransactionName[128];
+	char   TransactionOp[48];
+	char   TransactionCode[48];
+	char   TransactionEtc[128];
 	double Amount;
 	long   Flags;
 };
@@ -55676,7 +55682,7 @@ struct PosPaymentBlock {
 		fPreferCashlessPayment   = 0x0020, // @v12.1.10 IN Безналичная оплата является более предпочтительной, нежели наличная (сложная проекция PPEquipConfig::fPreferBankingPayment)
 	};
 	long   Flags;        // @v11.3.6
-	CCheckPacket::BueryEAddr_ EAddr;  // Электронный адрес покупателя (email or phone)
+	CCheckPacket::BuersEAddr_ EAddr;  // Электронный адрес покупателя (email or phone)
 	CcAmountList CcPl;
 private:
 	double Total;          // Итоговая сумма чека     @*CPosProcessor::GetTotal())
@@ -55981,7 +55987,7 @@ protected:
 	virtual void   SetupInfo(const char * pErrMsg);
 	virtual void   SetupRowData(int calcRest);
 	virtual int    Implement_AcceptCheckOnEquipment(const CcAmountList * pPl, AcceptCheckProcessBlock & rB);
-	virtual int    NotifyGift(PPID giftID, const SaGiftArray::Gift * pGift);
+	virtual void   NotifyGift(PPID giftID, const SaGiftArray::Gift * pGift);
 	virtual void   SetPrintedFlag(int set);
 	int    InitCashMachine();
 	bool   InitCcView();
@@ -56176,7 +56182,6 @@ protected:
 		uint16 GuestCount;       // Количество гостей за столом
 		uint8  Reserve;          // @alignment
 		bool   Paperless;        // @v11.3.6 Признак того, что регистрация должна осуществляться без печати бумажного чека
-		// @v11.8.11 int    BuyersEAddrType;  // @v11.3.6 Тип электронного адреса покупателя BuyersEAddr (0 || SNTOK_PHONE || SNTOK_EMAIL)
 		PPID   OrderCheckID;     // Чек заказа, к которому привязан данный чек
 		PPID   OrgUserID;        // Пользователь, создавший оригинальный чек (до первого отложения/восстановления)
 		LAssocArray GiftAssoc;   // Список ассоциаций {gift_pos; used_by_gift_pos}
@@ -56185,18 +56190,21 @@ protected:
 		ExtCcData Eccd;          //
 		SaModif CurModifList;    // Список выбранных модификаторов для текущей позиции
 		CcAmountList AmL;        // Список оплат по чеку
-		// @v11.8.11 SString BuyersEAddr;  // @v11.3.6 Электронный адрес покупателя (email or phone)
-		CCheckPacket::BueryEAddr_ EAddr;   // @v11.8.11 Электронный адрес покупателя (email or phone)
+		CCheckPacket::BuersEAddr_ EAddr; // Электронный адрес покупателя (email or phone)
 		// @v11.8.11 CCheckPacket::Prescription Prescr; // @v11.7.12
 	};
-	struct RetBlock {
-		RetBlock();
-		RetBlock & Z();
+	//
+	// Descr: Блок, обеспечивающий информацию о связанном чеке для операций возврата и корректировки
+	//
+	struct LinkBlock {
+		LinkBlock();
+		LinkBlock & Z();
 
-		PPID   SellCheckID;
-		double SellCheckAmount;
-		double SellCheckCredit;
-		CcAmountList AmL;        // Список оплат чека, по которому осуществляется возврат
+		int    _Op; // @v12.2.8 0 - undef, 1 - return, 2 - correction
+		PPID   _CcID;     // Ид чека, по которому осуществляется возврат или корректировка
+		double _CcAmount; //
+		double _CcCredit; //
+		CcAmountList AmL; // Список оплат чека, по которому осуществляется возврат
 	};
 	enum {
 		fNoEdit             = 0x00000001, // Запрет на редактирование чеков
@@ -56278,6 +56286,7 @@ protected:
 		// Если (CnExtFlags & CASHFX_ABSTRGOODSALLOWED), то равно PPGoodsConfig::DefGoodsID, в противном случае - 0.
 	PPObjID OuterOi;         // Внешний объект, к которому привязывается чек.
 	LDATETIME LastGrpListUpdTime;     // Время последнего обновления списка групп товаров
+	S_GUID SessUUID;
 	PPGenCashNode::RoundParam R__;      // Параметры округления //
 	PPSyncCashNode::SuspCheckFilt Scf;
 	SString CnName;          // Наименование кассового узла
@@ -56293,7 +56302,7 @@ protected:
 	Packet P;
 	CCheckPacket SelPack;  // Чек, выбранный в качестве образца при возврате или при перепечатке незавершенного чека
 	RAssocArray  SelLines; // Строки чека, относящиеся к образцу, выбранному при возврате
-	RetBlock Rb;
+	LinkBlock Rb;
 	PPObjGoods GObj;
 	PPObjSCard ScObj;
 	PPObjArticle ArObj;
@@ -56312,7 +56321,6 @@ protected:
 	PPViewCCheck * P_CcView;
 	PPEgaisProcessor * P_EgPrc;
 	EgaisMarkAutoSelector * P_EgMas; // @v12.0.12
-	S_GUID SessUUID;
 	LAssocArray SpcTrtScsList; // Список серий карт со специальной трактовкой
 };
 
@@ -56338,7 +56346,7 @@ private:
 	virtual int  SetupState(int st);
 	virtual void SetupInfo(const char * pErrMsg);
 	virtual int  Implement_AcceptCheckOnEquipment(const CcAmountList * pPl, AcceptCheckProcessBlock & rB);
-	virtual int  NotifyGift(PPID giftID, const SaGiftArray::Gift * pGift);
+	virtual void NotifyGift(PPID giftID, const SaGiftArray::Gift * pGift);
 	virtual void ClearRow();
 	virtual void SetupRowData(int calcRest);
 	virtual void SetPrintedFlag(int set);
@@ -56369,9 +56377,9 @@ private:
 	void   AcceptManualDiscount();
 	int    LoadCheck(const CCheckPacket *, int makeRetCheck, bool dontShow);
 	int    SetupOrder(PPID ordCheckID);
-	void   setupRetCheck(int ret);
+	void   SetupRetCheck(bool ret);
 	void   setupHint();
-	int    GetInput();
+	bool   GetInput();
 	void   ClearInput(int selectOnly);
 	int    SelectGuestCount(int tableCode, long * pGuestCount);
 	void   ProcessEnter(int selectInput);

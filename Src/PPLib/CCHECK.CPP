@@ -664,31 +664,31 @@ int CCheckItem::SplitByQtty(double restQtty, CCheckItem & rNewItem)
 //
 // CCheckPacket
 //
-CCheckPacket::BueryEAddr_::BueryEAddr_() : AddrType(0)
+CCheckPacket::BuersEAddr_::BuersEAddr_() : AddrType(0)
 {
 }
 
-CCheckPacket::BueryEAddr_::BueryEAddr_(const BueryEAddr_ & rS) : AddrType(rS.AddrType), EAddr(rS.EAddr)
+CCheckPacket::BuersEAddr_::BuersEAddr_(const BuersEAddr_ & rS) : AddrType(rS.AddrType), EAddr(rS.EAddr)
 {
 }
 
-CCheckPacket::BueryEAddr_ & FASTCALL CCheckPacket::BueryEAddr_::operator = (const BueryEAddr_ & rS)
+CCheckPacket::BuersEAddr_ & FASTCALL CCheckPacket::BuersEAddr_::operator = (const BuersEAddr_ & rS)
 {
 	AddrType = rS.AddrType;
 	EAddr = rS.EAddr;
 	return *this;
 }
 		
-CCheckPacket::BueryEAddr_ & CCheckPacket::BueryEAddr_::Z()
+CCheckPacket::BuersEAddr_ & CCheckPacket::BuersEAddr_::Z()
 {
 	AddrType = 0;
 	EAddr.Z();
 	return *this;
 }
 
-bool CCheckPacket::BueryEAddr_::IsEmpty() const { return !(EAddr.NotEmpty() && oneof2(AddrType, SNTOK_EMAIL, SNTOK_PHONE)); }
+bool CCheckPacket::BuersEAddr_::IsEmpty() const { return !(EAddr.NotEmpty() && oneof2(AddrType, SNTOK_EMAIL, SNTOK_PHONE)); }
 
-int CCheckPacket::BueryEAddr_::SetEMail(const char * pEAddr)
+int CCheckPacket::BuersEAddr_::SetEMail(const char * pEAddr)
 {
 	int    ok = 1;
 	if(isempty(pEAddr)) {
@@ -704,7 +704,7 @@ int CCheckPacket::BueryEAddr_::SetEMail(const char * pEAddr)
 	return ok;
 }
 
-int CCheckPacket::BueryEAddr_::SetPhone(const char * pEAddr)
+int CCheckPacket::BuersEAddr_::SetPhone(const char * pEAddr)
 {
 	int    ok = 1;
 	if(isempty(pEAddr)) {
@@ -720,7 +720,7 @@ int CCheckPacket::BueryEAddr_::SetPhone(const char * pEAddr)
 	return ok;
 }
 
-int CCheckPacket::BueryEAddr_::GetEMail(SString & rBuf) const
+int CCheckPacket::BuersEAddr_::GetEMail(SString & rBuf) const
 {
 	rBuf.Z();
 	int    ok = 0;
@@ -731,7 +731,7 @@ int CCheckPacket::BueryEAddr_::GetEMail(SString & rBuf) const
 	return ok;
 }
 
-int CCheckPacket::BueryEAddr_::GetPhone(SString & rBuf) const
+int CCheckPacket::BuersEAddr_::GetPhone(SString & rBuf) const
 {
 	rBuf.Z();
 	int    ok = 0;

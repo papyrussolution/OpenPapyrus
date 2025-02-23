@@ -7375,20 +7375,31 @@ static BOOL CALLBACK GetChildWindowsList(HWND hWnd, LPARAM lp)
 	return TRUE;
 }
 
-static int TakeInCountCtrl(HWND hWnd, const TSVector <HWND> & rCtrlList, LongArray & rSeenPosList)
+static bool TakeInCountCtrl(HWND hWnd, const TSVector <HWND> & rCtrlList, LongArray & rSeenPosList)
 {
-	for(uint i = 0; i < rCtrlList.getCount(); i++)
+	for(uint i = 0; i < rCtrlList.getCount(); i++) {
 		if(rCtrlList.at(i) == hWnd) {
 			rSeenPosList.addUnique(i);
-			return 1;
+			return true;
 		}
-	return 0;
+	}
+	return false;
 }
 
 static SString & _RectToLine(const RECT & rRect, SString & rBuf)
 {
 	return rBuf.CatChar('(').Cat(rRect.left).CatDiv(',', 2).Cat(rRect.top).CatDiv(',', 2).
 		Cat(rRect.right).CatDiv(',', 2).Cat(rRect.bottom).CatChar(')');
+}
+
+static SString & _BBox(const RECT & rRect, SString & rBuf)
+{
+	//rBuf.Cat("bbox").CatDiv(':', 2);
+	//return _RectToLine(rRect, rBuf);
+	//
+	rBuf.Cat("origin").CatDiv(':', 2).CatChar('(').Cat(rRect.left).CatDiv(',', 2).Cat(rRect.top).CatChar(')').Space();
+	rBuf.Cat("size").CatDiv(':', 2).CatChar('(').Cat(rRect.right-rRect.left).CatDiv(',', 2).Cat(rRect.bottom-rRect.top).CatChar(')').Space();
+	return rBuf;
 }
 
 static SString & PreprocessCtrlText(const SString & rSrcText, SString & rResult)
@@ -7407,388 +7418,6 @@ static SString & PreprocessCtrlText(const SString & rSrcText, SString & rResult)
 	rResult.ReplaceStr("&", "", 0);
 	return rResult;
 }
-
-#if 0 // @v12.2.6 @unused(replaced with ExportDialogs2)
-int ExportDialogs(const char * pFileName)
-{
-	int    ok = 1;
-	uint   res_id = 0;
-	ulong  res_pos = 0;
-	SString line_buf;
-	SString symb;
-	SString temp_buf;
-	SString ctl_text;
-	SString ctl_text_processed;
-	SString label_text;
-	SString text_line_buf; // Буфер вывода строк из диалогов
-	SString cls_name;
-	SString dlg_title_buf;
-	SString dlg_symb_body;
-	TDialog * dlg = 0;
-	StrAssocArray prop_list;
-	TSVector <HWND> child_list;
-	LongArray seen_pos_list;
-	SFile  f_out(pFileName, SFile::mWrite);
-	{
-		SFsPath ps(pFileName);
-		ps.Nam.CatChar('-').Cat("text");
-		ps.Ext = "tsv";
-		ps.Merge(temp_buf);
-	}
-	SFile f_out_text(temp_buf, SFile::mWrite);
-	{
-		SFsPath ps(pFileName);
-		ps.Nam.CatChar('-').Cat("manual");
-		ps.Ext = "tex";
-		ps.Merge(temp_buf);
-	}
-	SFile f_out_manual(temp_buf, SFile::mWrite);
-	while(P_SlRez->enumResources(TV_DIALOG, &res_id, &res_pos) > 0) {
-		prop_list.Z();
-		WINDOWINFO wi;
-		dlg = new TDialog(res_id, TDialog::coExport);
-		if(CheckDialogPtr(&dlg)) {
-			//char   text_buf[1024];
-			seen_pos_list.Z();
-			dlg_symb_body.Z();
-			child_list.clear();
-			prop_list.Z();
-			dlg->GetCtlSymb(-1000, symb);
-			if(symb.IsEmpty()) {
-				dlg_symb_body.Z().Cat(dlg->GetId());
-				symb.Z().Cat("DLG").CatChar('_').Cat(dlg_symb_body);
-			}
-			else
-				TDialog::GetSymbolBody(symb, dlg_symb_body);
-			TView::SGetWindowText(dlg->H(), dlg_title_buf);
-			{
-				text_line_buf.Z().Cat(symb).Tab().Cat(dlg_title_buf).CR();
-				f_out_text.WriteLine(text_line_buf);
-			}
-			line_buf.Z().CR().Cat("dialog").Space().Cat(symb).Space().CatQStr(dlg_title_buf);
-			if(GetWindowInfo(dlg->H(), &wi))
-				_RectToLine(wi.rcWindow, line_buf.Space());
-			{
-				HFONT h_f = reinterpret_cast<HFONT>(::SendMessage(dlg->H(), WM_GETFONT, 0, 0));
-				if(h_f) {
-					temp_buf.Z();
-					LOGFONT f;
-					if(::GetObject(h_f, sizeof(f), &f)) {
-						SFontDescr fd(0, 0, 0);
-						fd.SetLogFont(&f);
-						fd.Size = (int16)MulDiv(fd.Size, 72, GetDeviceCaps(SLS.GetTLA().GetFontDC(), LOGPIXELSY));
-						if(!fd.Face.IsEqiAscii("MS Sans Serif") || fd.Size != 8 || fd.Flags || fd.Weight != 0.0f) {
-							fd.ToStr(temp_buf, 0);
-						}
-					}
-					if(temp_buf.NotEmptyS()) {
-						prop_list.Add(DlScope::cuifFont, temp_buf.Quot('\"', '\"'));
-					}
-				}
-			}
-			DlScope::PropListToLine(prop_list, 1, line_buf).CR();
-			line_buf.CatChar('{').CR();
-			f_out.WriteLine(line_buf);
-			{
-				// %topic(DLG_BILLSTATUS)
-                line_buf.Z().Cat("%topic").CatParStr(dlg_symb_body).CR();
-                f_out_manual.WriteLine(line_buf);
-                // \ppypict{dlg-billstatus}{Диалог редактирования статуса документов}
-                PreprocessCtrlText(dlg_title_buf, ctl_text_processed);
-                (temp_buf = dlg_symb_body).ReplaceStr("_", "-", 0).ToLower();
-                line_buf.Z().BSlash().Cat("ppypict").CatChar('{').Cat(temp_buf).CatChar('}');
-				line_buf.CatChar('{').Cat(ctl_text_processed).CatChar('}').CR();
-				f_out_manual.WriteLine(line_buf);
-				// \begin{description}
-				line_buf.Z().BSlash().Cat("begin").CatChar('{').Cat("description").CatChar('}').CR();
-				f_out_manual.WriteLine(line_buf);
-			}
-			if(EnumChildWindows(dlg->H(), GetChildWindowsList, reinterpret_cast<LPARAM>(&child_list))) {
-				for(uint i = 0; i < child_list.getCount(); i++) {
-					if(!seen_pos_list.lsearch((long)i)) {
-						prop_list.Z();
-						line_buf.Z();
-						label_text.Z();
-						const HWND h = child_list.at(i);
-						int   ctl_id = GetDlgCtrlID(h);
-						if(GetWindowInfo(h, &wi)) {
-							TView::SGetWindowText(h, ctl_text);
-							ctl_text.ReplaceStr("\n", 0, 0);
-							TView * p_view = dlg->getCtrlView(ctl_id);
-							if(!p_view && ctl_id > 4096) {
-								ctl_id -= 4096;
-								p_view = dlg->getCtrlView(ctl_id);
-							}
-							symb = 0; //p_view ? p_view->GetSymb() : 0;
-							dlg->GetCtlSymb(ctl_id, symb);
-							if(symb.IsEmpty())
-								symb.Cat(ctl_id);
-							TLabel * p_label = dlg->getCtlLabel(ctl_id);
-							RECT   label_rect;
-							if(p_label) {
-								WINDOWINFO label_wi;
-								if(GetWindowInfo(p_label->getHandle(), &label_wi)) {
-									TView::SGetWindowText(p_label->getHandle(), label_text);
-									label_text.ReplaceStr("\n", 0, 0);
-									label_rect = label_wi.rcWindow;
-									if(label_text.NotEmpty()) {
-										text_line_buf.Z().Cat(symb).Tab().Cat(label_text).CR();
-										f_out_text.WriteLine(text_line_buf);
-									}
-								}
-								else
-									p_label = 0;
-							}
-							else if(ctl_text.NotEmpty() && symb != "0" && symb.ToLong() == 0) {
-								text_line_buf.Z().Cat(symb).Tab().Cat(ctl_text).CR();
-								f_out_text.WriteLine(text_line_buf);
-							}
-							TView::SGetWindowClassName(h, cls_name);
-							if(cls_name.IsEqiAscii("Edit")) {
-								if(TView::IsSubSign(p_view, TV_SUBSIGN_INPUTLINE)) {
-									TInputLine * p_il = static_cast<TInputLine *>(p_view);
-									if(p_label)
-										ctl_text = label_text;
-									ComboBox * p_cb = p_il->GetCombo();
-									if(p_cb) {
-										// T_COMBOBOX T_IDENT T_CONST_STR uirectopt uictrl_type uictrl_properties ';'
-										HWND   h_combo = p_cb->getHandle();
-										WINDOWINFO wi_combo;
-										if(GetWindowInfo(h_combo, &wi_combo)) {
-											dlg->GetCtlSymb(p_cb->GetId(), symb);
-											line_buf.Tab().Cat("combobox").Space().Cat(symb).Space().CatQStr(ctl_text);
-											_RectToLine(wi.rcWindow, line_buf.Space());
-											if(p_label) {
-												_RectToLine(label_rect, temp_buf.Z());
-												prop_list.Add(DlScope::cuifLabelRect, temp_buf);
-											}
-											DlScope::PropListToLine(prop_list, 2, line_buf).Semicol().CR();
-											f_out.WriteLine(line_buf);
-											TakeInCountCtrl(h_combo, child_list, seen_pos_list);
-										}
-										{
-											// \item[\dlgcombo{Счетчик}]
-											PreprocessCtrlText(ctl_text, ctl_text_processed);
-											line_buf.Z().Tab().BSlash().Cat("item").CatChar('[').BSlash().Cat("dlgcombo").
-												CatChar('{').Cat(ctl_text_processed).CatChar('}').CatChar(']').CR().CR();
-											f_out_manual.WriteLine(line_buf);
-										}
-									}
-									else {
-										if(wi.dwStyle & ES_READONLY) {
-											prop_list.Add(DlScope::cuifReadOnly, temp_buf.Z());
-										}
-										line_buf.Tab().Cat("input").Space().Cat(symb).Space().CatQStr(ctl_text);
-										_RectToLine(wi.rcWindow, line_buf.Space());
-										GetBinaryTypeString(p_il->getType(), 1, temp_buf, "", 0);
-										if(temp_buf.Cmp("unknown", 0) == 0) {
-											(temp_buf = "string").CatBrackStr("48");
-										}
-										line_buf.Space().Cat(temp_buf);
-										if(p_label) {
-											_RectToLine(label_rect, temp_buf.Z());
-											prop_list.Add(DlScope::cuifLabelRect, temp_buf);
-										}
-										DlScope::PropListToLine(prop_list, 2, line_buf).Semicol().CR();
-										f_out.WriteLine(line_buf);
-										{
-											// \item[Наименование]
-											PreprocessCtrlText(ctl_text, ctl_text_processed);
-											line_buf.Z().Tab().BSlash().Cat("item").CatBrackStr(ctl_text_processed).CR().CR();
-											f_out_manual.WriteLine(line_buf);
-										}
-									}
-									if(p_label)
-										TakeInCountCtrl(p_label->getHandle(), child_list, seen_pos_list);
-									TakeInCountCtrl(h, child_list, seen_pos_list);
-								}
-							}
-							else if(cls_name.IsEqiAscii("Button")) {
-								const int bt = (wi.dwStyle & BS_TYPEMASK);
-								if(oneof2(bt, BS_CHECKBOX, BS_AUTOCHECKBOX)) {
-									if(TView::IsSubSign(p_view, TV_SUBSIGN_CLUSTER)) {
-										line_buf.Tab().Cat("checkbox").Space().Cat(symb).Space().CatQStr(ctl_text);
-										_RectToLine(wi.rcWindow, line_buf.Space()).Semicol().CR();
-										f_out.WriteLine(line_buf);
-										TakeInCountCtrl(h, child_list, seen_pos_list);
-									}
-								}
-								else if(oneof2(bt, BS_RADIOBUTTON, BS_AUTORADIOBUTTON)) {
-								}
-								else if(bt == BS_GROUPBOX) {
-									if(TView::IsSubSign(p_view, TV_SUBSIGN_CLUSTER)) {
-										TCluster * p_clu = static_cast<TCluster *>(p_view);
-										const char * p_kind = 0;
-										if(p_clu->getKind() == RADIOBUTTONS) {
-											p_kind = "radiocluster";
-											{
-												// \item[\dlgradioc{Сортировать по}]
-												PreprocessCtrlText(ctl_text, ctl_text_processed);
-												line_buf.Z().Tab().BSlash().Cat("item").CatChar('[').BSlash().Cat("dlgradioc").
-													CatChar('{').Cat(ctl_text_processed).CatChar('}').CatChar(']').CR().CR();
-												f_out_manual.WriteLine(line_buf);
-											}
-										}
-										else if(p_clu->getKind() == CHECKBOXES) {
-											p_kind = "checkcluster";
-										}
-										if(p_kind) {
-											line_buf.Z().Tab().Cat(p_kind).Space().Cat(symb).Space().CatQStr(ctl_text);
-											_RectToLine(wi.rcWindow, line_buf.Space());
-											line_buf.Space().CatChar('{').CR();
-											f_out.WriteLine(line_buf);
-											//
-											for(uint j = 0; j < p_clu->getNumItems(); j++) {
-												int    button_id = MAKE_BUTTON_ID(ctl_id, j+1);
-												HWND   h_item = GetDlgItem(dlg->H(), button_id);
-												if(h_item) {
-													WINDOWINFO wi_item;
-													if(GetWindowInfo(h_item, &wi_item)) {
-														TView::SGetWindowText(h_item, temp_buf);
-														line_buf.Z().Tab(2).CatQStr(temp_buf);
-														_RectToLine(wi_item.rcWindow, line_buf.Space());
-														line_buf.Semicol().CR();
-														f_out.WriteLine(line_buf);
-														if(temp_buf.NotEmpty()) {
-															text_line_buf.Z().Cat(symb).Tab().Cat(temp_buf).CR();
-															f_out_text.WriteLine(text_line_buf);
-															{
-																if(p_clu->getKind() == RADIOBUTTONS) {
-																	// \item[\dlgradioc{Сортировать по}]
-																	PreprocessCtrlText(temp_buf, ctl_text_processed);
-																	line_buf.Z().Tab(2).BSlash().Cat("item").CatChar('[').BSlash().Cat("dlgradioi").
-																		CatChar('{').Cat(ctl_text_processed).CatChar('}').CatChar(']').CR().CR();
-																	f_out_manual.WriteLine(line_buf);
-																}
-																else if(p_clu->getKind() == CHECKBOXES) {
-																	// \dlgflag{Просмотр}
-																	PreprocessCtrlText(temp_buf, ctl_text_processed);
-																	line_buf.Z().Tab(2).BSlash().Cat("dlgflag").CatChar('{').Cat(ctl_text_processed).CatChar('}').CR().CR();
-																	f_out_manual.WriteLine(line_buf);
-																}
-															}
-														}
-													}
-												}
-												TakeInCountCtrl(h_item, child_list, seen_pos_list);
-											}
-											//
-											line_buf.Z().Tab().CatChar('}').CR();
-											f_out.WriteLine(line_buf);
-										}
-										TakeInCountCtrl(h, child_list, seen_pos_list);
-									}
-									else {
-										//T_FRAME T_IDENT T_CONST_STR uirectopt uictrl_properties ';'
-										line_buf.Tab().Cat("framebox").Space().CatQStr(ctl_text);
-										_RectToLine(wi.rcWindow, line_buf.Space());
-										line_buf.Semicol().CR();
-										f_out.WriteLine(line_buf);
-										TakeInCountCtrl(h, child_list, seen_pos_list);
-									}
-								}
-								else if(oneof2(bt, BS_PUSHBUTTON, BS_DEFPUSHBUTTON)) {
-									//T_BUTTON T_IDENT T_CONST_STR uirectopt T_IDENT uictrl_properties ';'
-									if(TView::IsSubSign(p_view, TV_SUBSIGN_BUTTON)) {
-										TButton * p_button = static_cast<TButton *>(p_view);
-										uint   cmd_id = p_button->GetCommand();
-										temp_buf.Z();
-										if(cmd_id)
-											dlg->GetCtlSymb(cmd_id+100000, temp_buf);
-										else
-											temp_buf = "cmNone";
-										size_t offs = 0;
-										if(temp_buf.HasPrefix("cma"))
-											offs = 3;
-										else if(temp_buf.HasPrefix("cm"))
-											offs = 2;
-										if(symb.ToLong() != 0) {
-											symb.Z().Cat("CTL").CatChar('_').Cat("CMD").CatChar('_').Cat(temp_buf+offs).ToUpper();
-										}
-										line_buf.Tab().Cat("button").Space().Cat(symb).Space().CatQStr(ctl_text);
-										_RectToLine(wi.rcWindow, line_buf.Space());
-										line_buf.Space().Cat(temp_buf);
-										line_buf.Semicol().CR();
-										f_out.WriteLine(line_buf);
-										TakeInCountCtrl(h, child_list, seen_pos_list);
-									}
-								}
-							}
-							else if(cls_name.IsEqiAscii("Static")) {
-								//
-								// Этикетки (TLabel) пропускаем (они обрабатываются объектами, которым принадлежат)
-								//
-								if(!TView::IsSubSign(p_view, TV_SUBSIGN_LABEL)) {
-									if(wi.dwExStyle & WS_EX_STATICEDGE) {
-										prop_list.Add(DlScope::cuifStaticEdge, temp_buf.Z());
-									}
-									if(!TView::IsSubSign(p_view, TV_SUBSIGN_STATIC))
-										symb.Z();
-									else if(symb.ToLong())
-										symb.Z().Cat("CTL").CatChar('_').Cat(dlg_symb_body).CatChar('_').Cat("ST").CatChar('_').CatLongZ(symb.ToLong(), 3);
-									line_buf.Tab().Cat("statictext").Space();
-									if(symb.NotEmpty())
-										line_buf.Cat(symb).Space();
-									line_buf.CatQStr(ctl_text);
-									_RectToLine(wi.rcWindow, line_buf.Space());
-									DlScope::PropListToLine(prop_list, 2, line_buf).Semicol().CR();
-									f_out.WriteLine(line_buf);
-									TakeInCountCtrl(h, child_list, seen_pos_list);
-								}
-							}
-							else if(cls_name.IsEqiAscii("SysListView32") || cls_name.IsEqiAscii("ListBox")) {
-								if(TView::IsSubSign(p_view, TV_SUBSIGN_LISTBOX)) {
-									SmartListBox * p_list = static_cast<SmartListBox *>(p_view);
-									if(p_label)
-										ctl_text = label_text;
-									line_buf.Tab().Cat("listbox").Space().Cat(symb).Space().CatQStr(ctl_text);
-									_RectToLine(wi.rcWindow, line_buf.Space());
-									p_list->GetOrgColumnsDescr(temp_buf);
-									if(temp_buf.NotEmptyS())
-										line_buf.Space().Cat("columns").Space().CatQStr(temp_buf);
-									line_buf.Semicol().CR();
-									f_out.WriteLine(line_buf);
-									TakeInCountCtrl(h, child_list, seen_pos_list);
-								}
-							}
-							else if(cls_name.IsEqiAscii("SysTreeView32")) {
-								// T_TREELISTBOX T_IDENT T_CONST_STR uirectopt uictrl_properties
-								if(TView::IsSubSign(p_view, TV_SUBSIGN_LISTBOX)) {
-									SmartListBox * p_list = static_cast<SmartListBox *>(p_view);
-									if(p_label)
-										ctl_text = label_text;
-									line_buf.Tab().Cat("treelistbox").Space().Cat(symb).Space().CatQStr(ctl_text);
-									_RectToLine(wi.rcWindow, line_buf.Space());
-									line_buf.Semicol().CR();
-									f_out.WriteLine(line_buf);
-									TakeInCountCtrl(h, child_list, seen_pos_list);
-								}
-							}
-							else {
-								line_buf = cls_name;
-								line_buf.Z();
-							}
-						}
-					}
-				}
-			}
-			line_buf.Z().CatChar('}').CR();
-			f_out.WriteLine(line_buf);
-			{
-				// \end{description}
-				line_buf.Z().BSlash().Cat("end").CatChar('{').Cat("description").CatChar('}').CR().CR();
-				f_out_manual.WriteLine(line_buf);
-				// %endtopic
-                line_buf.Z().Cat("%endtopic").CR().CR();
-                f_out_manual.WriteLine(line_buf);
-			}
-		}
-		ZDELETE(dlg);
-	}
-	delete dlg;
-	return ok;
-}
-#endif // } 0 @v12.2.6 @unused(replaced with ExportDialogs2)
 
 int ExportDialogs2(const char * pFileName)
 {
@@ -7851,8 +7480,7 @@ int ExportDialogs2(const char * pFileName)
 				line_buf.Cat("title").CatDiv(':', 2).CatQStr((temp_buf = dlg_title_buf).Transf(CTRANSF_OUTER_TO_UTF8));
 				INITWINAPISTRUCT(wi);
 				if(GetWindowInfo(dlg->H(), &wi)) {
-					line_buf.Space().Cat("bbox").CatDiv(':', 2);
-					_RectToLine(wi.rcWindow, line_buf);
+					_BBox(wi.rcWindow, line_buf.Space());
 				}
 				{
 					HFONT h_f = reinterpret_cast<HFONT>(::SendMessage(dlg->H(), WM_GETFONT, 0, 0));
@@ -7951,8 +7579,7 @@ int ExportDialogs2(const char * pFileName)
 											dlg->GetCtlSymb(p_cb->GetId(), symb);
 											line_buf.Tab().Cat("combobox").Space().Cat(symb).Space().CatChar('[');
 											line_buf.Cat("label").CatDiv(':', 2).CatQStr((temp_buf = ctl_text).Transf(CTRANSF_OUTER_TO_UTF8));
-											line_buf.Space().Cat("bbox").CatDiv(':', 2);
-											_RectToLine(wi.rcWindow, line_buf.Space());
+											_BBox(wi.rcWindow, line_buf.Space());
 											if(p_label) {
 												line_buf.Space().Cat("labelbbox").CatDiv(':', 2);
 												_RectToLine(label_rect, line_buf);
@@ -7977,8 +7604,7 @@ int ExportDialogs2(const char * pFileName)
 											prop_list.Add(DlScope::cuifReadOnly, temp_buf.Z());
 										}*/
 										line_buf.Tab().Cat("input").Space().Cat(symb).Space().CatChar('[');
-										line_buf.Cat("bbox").CatDiv(':', 2);
-										_RectToLine(wi.rcWindow, line_buf);
+										_BBox(wi.rcWindow, line_buf);
 										if(ctl_text.NotEmpty())
 											line_buf.Space().Cat("label").CatDiv(':', 2).CatQStr((temp_buf = ctl_text).Transf(CTRANSF_OUTER_TO_UTF8));
 										if(wi.dwStyle & WS_TABSTOP)
@@ -8029,8 +7655,7 @@ int ExportDialogs2(const char * pFileName)
 											line_buf.Space().Cat("tabstop");
 										if(wi.dwStyle & WS_DISABLED)
 											line_buf.Space().Cat("disabled");
-										line_buf.Space().Cat("bbox").CatDiv(':', 2);
-										_RectToLine(wi.rcWindow, line_buf);
+										_BBox(wi.rcWindow, line_buf.Space());
 										line_buf.CatChar(']').Semicol();
 										f_out.WriteLine(line_buf.CR());
 										TakeInCountCtrl(h, child_list, seen_pos_list);
@@ -8059,8 +7684,7 @@ int ExportDialogs2(const char * pFileName)
 											line_buf.Z().Tab().Cat(p_kind).Space().Cat(symb).Space().CatChar('[');
 											if(ctl_text.NotEmpty())
 												line_buf.Cat("title").CatDiv(':', 2).CatQStr((temp_buf = ctl_text).Transf(CTRANSF_OUTER_TO_UTF8)).Space();
-											line_buf.Cat("bbox").CatDiv(':', 2);
-											_RectToLine(wi.rcWindow, line_buf);
+											_BBox(wi.rcWindow, line_buf);
 											line_buf.CatChar(']');
 											line_buf.Space().CatChar('{');
 											f_out.WriteLine(line_buf.CR());
@@ -8077,15 +7701,13 @@ int ExportDialogs2(const char * pFileName)
 														if(p_clu->getKind() == RADIOBUTTONS) {
 															line_buf.Z().Tab(2).Cat("radiobutton").Space().CatChar('[');
 															line_buf.Cat("title").CatDiv(':', 2).CatQStr((temp_buf = item_title_buf).Transf(CTRANSF_OUTER_TO_UTF8));
-															line_buf.Space().Cat("bbox").CatDiv(':', 2);
-															_RectToLine(wi_item.rcWindow, line_buf);
+															_BBox(wi_item.rcWindow, line_buf.Space());
 															line_buf.CatChar(']').Semicol();
 														}
 														else if(p_clu->getKind() == CHECKBOXES) {
 															line_buf.Z().Tab(2).Cat("checkbox").Space().CatChar('[');
 															line_buf.Cat("title").CatDiv(':', 2).CatQStr((temp_buf = item_title_buf).Transf(CTRANSF_OUTER_TO_UTF8));
-															line_buf.Space().Cat("bbox").CatDiv(':', 2);
-															_RectToLine(wi_item.rcWindow, line_buf);
+															_BBox(wi_item.rcWindow, line_buf.Space());
 															line_buf.CatChar(']').Semicol();
 														}
 														f_out.WriteLine(line_buf.CR());
@@ -8123,8 +7745,7 @@ int ExportDialogs2(const char * pFileName)
 										line_buf.Tab().Cat("framebox").Space().CatChar('[');
 										if(ctl_text.NotEmpty())
 											line_buf.Cat("title").CatDiv(':', 2).CatQStr((temp_buf = ctl_text).Transf(CTRANSF_OUTER_TO_UTF8)).Space();
-										line_buf.Cat("bbox").CatDiv(':', 2);
-										_RectToLine(wi.rcWindow, line_buf);
+										_BBox(wi.rcWindow, line_buf);
 										line_buf.CatChar(']').Semicol();
 										f_out.WriteLine(line_buf.CR());
 										TakeInCountCtrl(h, child_list, seen_pos_list);
@@ -8156,8 +7777,7 @@ int ExportDialogs2(const char * pFileName)
 											line_buf.Space().Cat("disabled");
 										if(bt == BS_DEFPUSHBUTTON)
 											line_buf.Space().Cat("defaultitem");
-										line_buf.Space().Cat("bbox").CatDiv(':', 2);
-										_RectToLine(wi.rcWindow, line_buf);
+										_BBox(wi.rcWindow, line_buf.Space());
 										line_buf.Space().Cat("command").CatDiv(':', 2).Cat(cmd_buf);
 										line_buf.CatChar(']');
 										line_buf.Semicol();
@@ -8185,8 +7805,7 @@ int ExportDialogs2(const char * pFileName)
 									if(ctl_text.NotEmpty()) {
 										line_buf.Cat("title").CatDiv(':', 2).CatQStr((temp_buf = ctl_text).Transf(CTRANSF_OUTER_TO_UTF8)).Space();
 									}
-									line_buf.Cat("bbox").CatDiv(':', 2);
-									_RectToLine(wi.rcWindow, line_buf);
+									_BBox(wi.rcWindow, line_buf);
 									if(is_image) {
 										TImageView * p_iv = static_cast<TImageView *>(p_view);
 										if(p_iv->GetFigSymb().NotEmpty()) {
@@ -8212,8 +7831,7 @@ int ExportDialogs2(const char * pFileName)
 									if(ctl_text.NotEmpty()) {
 										line_buf.Cat("title").CatDiv(':', 2).CatQStr((temp_buf = ctl_text).Transf(CTRANSF_OUTER_TO_UTF8)).Space();
 									}
-									line_buf.Cat("bbox").CatDiv(':', 2);
-									_RectToLine(wi.rcWindow, line_buf);
+									_BBox(wi.rcWindow, line_buf);
 									p_list->GetOrgColumnsDescr(temp_buf);
 									if(temp_buf.NotEmptyS()) {
 										line_buf.Space().Cat("columns").CatDiv(':', 2).CatQStr(temp_buf);
@@ -8233,8 +7851,7 @@ int ExportDialogs2(const char * pFileName)
 									line_buf.Tab().Cat("treelistbox").Space().Cat(symb).Space().CatChar('[');
 									if(ctl_text.NotEmpty())
 										line_buf.Cat("title").CatDiv(':', 2).CatQStr((temp_buf = ctl_text).Transf(CTRANSF_OUTER_TO_UTF8)).Space();
-									line_buf.Cat("bbox").CatDiv(':', 2);
-									_RectToLine(wi.rcWindow, line_buf);
+									_BBox(wi.rcWindow, line_buf);
 									line_buf.CatChar(']');
 									line_buf.Semicol();
 									f_out.WriteLine(line_buf.CR());

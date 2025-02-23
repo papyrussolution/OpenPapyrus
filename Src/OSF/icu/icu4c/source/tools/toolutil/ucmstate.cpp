@@ -871,30 +871,22 @@ static void compactToUnicode2(UCMStates * states,
  * <0 there are assignments in unicodeCodeUnits[]
  * 0  no use of unicodeCodeUnits[]
  */
-static int32_t findUnassigned(UCMStates * states,
-    uint16_t * unicodeCodeUnits,
-    _MBCSToUFallback * toUFallbacks, int32_t countToUFallbacks,
-    int32_t state, int32_t offset, uint32_t b) {
+static int32_t findUnassigned(UCMStates * states, uint16_t * unicodeCodeUnits, _MBCSToUFallback * toUFallbacks, int32_t countToUFallbacks,
+    int32_t state, int32_t offset, uint32_t b) 
+{
 	int32_t i, entry, savings, localSavings, belowSavings;
-	bool haveAssigned;
-
+	bool haveAssigned = false;
 	localSavings = belowSavings = 0;
-	haveAssigned = FALSE;
 	for(i = 0; i<256; ++i) {
 		entry = states->stateTable[state][i];
 		if(MBCS_ENTRY_IS_TRANSITION(entry)) {
-			savings = findUnassigned(states,
-				unicodeCodeUnits,
-				toUFallbacks, countToUFallbacks,
-				MBCS_ENTRY_TRANSITION_STATE(entry),
-				offset+MBCS_ENTRY_TRANSITION_OFFSET(entry),
-				(b<<8)|(uint32_t)i);
+			savings = findUnassigned(states, unicodeCodeUnits, toUFallbacks, countToUFallbacks, MBCS_ENTRY_TRANSITION_STATE(entry),
+				offset+MBCS_ENTRY_TRANSITION_OFFSET(entry), (b<<8)|(uint32_t)i);
 			if(savings<0) {
 				haveAssigned = TRUE;
 			}
 			else if(savings>0) {
-				printf("    all-unassigned sequences from prefix 0x%02lx state %ld use %ld bytes\n",
-				    (unsigned long)((b<<8)|i), (long)state, (long)savings);
+				printf("    all-unassigned sequences from prefix 0x%02lx state %ld use %ld bytes\n", (unsigned long)((b<<8)|i), (long)state, (long)savings);
 				belowSavings += savings;
 			}
 		}

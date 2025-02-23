@@ -1238,6 +1238,9 @@ browser CLIACTIVITYDETAILS south(73), 1, 0, "@{view_clientactivitydetails} {%s}"
 {
 	"@date",           0, date,         0, 10, BCO_USERPROC
 	"@event",          1, zstring(128), 0, 30, BCO_USERPROC
+	"@op",             2, zstring(48),  0, 20, BCO_USERPROC
+	"@number",         3, zstring(48),  0, 20, BCO_USERPROC
+	"@addinfo",        4, zstring(64),  0, 20, BCO_USERPROC
 	//toolbar
 }
 

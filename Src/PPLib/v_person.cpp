@@ -2154,7 +2154,7 @@ public:
 		AddClusterAssoc(CTL_PSNFLT_FLAGS, 2, PersonFilt::fShowHangedAddr);
 		AddClusterAssoc(CTL_PSNFLT_FLAGS, 3, PersonFilt::fLocTagF);
 		AddClusterAssoc(CTL_PSNFLT_FLAGS, 4, PersonFilt::fShowFiasRcgn);
-		AddClusterAssoc(CTL_PSNFLT_FLAGS, 5, PersonFilt::fCliActivityStats); // @v12.2.2
+		// @v12.2.8 AddClusterAssoc(CTL_PSNFLT_FLAGS, 5, PersonFilt::fCliActivityStats); // @v12.2.2
 		SetClusterData(CTL_PSNFLT_FLAGS, Data.Flags);
 		DisableClusterItem(CTL_PSNFLT_FLAGS, 2, Data.GetAttribType() != PPPSNATTR_ALLADDR);
 		// @v12.1.10 DisableClusterItem(CTL_PSNFLT_FLAGS, 3, !Data.IsLocAttr());
@@ -2327,14 +2327,14 @@ private:
 	void   SetupCtrls()
 	{
 		if(!IsThereCasDetectionList) {
-			DisableClusterItem(CTL_PSNFLT_FLAGS, 5, true);
+			// @v12.2.8 DisableClusterItem(CTL_PSNFLT_FLAGS, 5, true);
 			disableCtrl(CTL_PSNFLT_CASDT, true);
 			disableCtrl(CTL_PSNFLT_NEWCLIPERIOD, true);
 			disableCtrl(CTL_PSNFLT_NEWCLIONLY, true);
 			enableCommand(cmClientActivityConfig, false); // @v12.2.4
 		}
 		else {
-			DisableClusterItem(CTL_PSNFLT_FLAGS, 5, false);
+			// @v12.2.8 DisableClusterItem(CTL_PSNFLT_FLAGS, 5, false);
 			bool disable_sub_cas_ctrls = !(Data.Flags & PersonFilt::fCliActivityStats);
 			disableCtrl(CTL_PSNFLT_CASDT, disable_sub_cas_ctrls);
 			disableCtrl(CTL_PSNFLT_NEWCLIPERIOD, disable_sub_cas_ctrls);
@@ -4275,10 +4275,21 @@ int PPViewClientActivityDetails::MakeList()
 	PPIDArray result_list;
 	SString temp_buf;
 	SString obj_buf;
+	SString event_buf;
+	SString code_buf;
+	SString op_buf;
+	SString etc_buf;
 	if(P_DsList)
 		P_DsList->clear();
 	else
 		P_DsList = new TSArray <BrwItem>();
+	/*
+		"@date",           0, date,         0, 10, BCO_USERPROC
+		"@event",          1, zstring(128), 0, 30, BCO_USERPROC
+		"@op",             2, zstring(48),  0, 20, BCO_USERPROC
+		"@number",         3, zstring(48),  0, 20, BCO_USERPROC
+		"@addinfo",        4, zstring(64),  0, 20, BCO_USERPROC
+	*/ 
 	for(uint i = 0; i < IList.getCount(); i++) {
 		const ClientActivityDetailedEntry & r_item = IList.at(i);
 		BrwItem new_item;
@@ -4286,58 +4297,106 @@ int PPViewClientActivityDetails::MakeList()
 		new_item.Dtm = r_item.Dtm;
 		temp_buf.Z();
 		obj_buf.Z();
+		event_buf.Z();
+		code_buf.Z();
+		op_buf.Z();
+		etc_buf.Z();
 		switch(r_item.Oid.Obj) {
 			case PPOBJ_BILL:
 				{
+					PPLoadString("document", event_buf);
+					//
 					BillTbl::Rec bill_rec;
 					if(p_bobj->Fetch(r_item.Oid.Id, &bill_rec) > 0) {
-						PPObjBill::MakeCodeString(&bill_rec, PPObjBill::mcsAddOpName, temp_buf);
-						obj_buf.Cat("Bill").CatDiv(':', 2).Cat(temp_buf);
+						code_buf = bill_rec.Code;
+						//PPObjBill::MakeCodeString(&bill_rec, PPObjBill::mcsAddOpName, temp_buf);
+						//obj_buf.Cat("Bill").CatDiv(':', 2).Cat(temp_buf);
+						PPOprKind op_rec;
+						GetOpData(bill_rec.OpID, &op_rec);
+						op_buf = op_rec.Name;
 					}
 					else {
-						obj_buf.Cat("Bill").Space().CatChar('#').Cat(r_item.Oid.Id);
+						code_buf.CatChar('#').Cat(r_item.Oid.Id);
 					}
 				}
 				break;
 			case PPOBJ_SCARD:
 				{
+					PPLoadString("scard", event_buf);
+					//
 					SCardCore::OpBlock op_blk;
 					SCardTbl::Rec sc_rec;
 					if(ScObj.Fetch(r_item.Oid.Id, &sc_rec) > 0 && ScObj.P_Tbl->GetOp(r_item.Oid.Id, r_item.Dtm, &op_blk) > 0) {
-						obj_buf.Cat("SCard").CatDiv(':', 2).Cat(sc_rec.Code).Space().Cat(r_item.Dtm, DATF_ISO8601CENT, 0).Space().Cat(op_blk.Amount, MKSFMTD(0, 2, 0));
+						code_buf = sc_rec.Code;
+						//obj_buf.Cat("SCard").CatDiv(':', 2).Cat(sc_rec.Code).Space().Cat(r_item.Dtm, DATF_ISO8601CENT, 0).Space().Cat(op_blk.Amount, MKSFMTD(0, 2, 0));
+						if(op_blk.Flags & SCardCore::OpBlock::fFreezing)
+							op_buf = "freezing";
+						else if(op_blk.Flags & SCardCore::OpBlock::fLeveling)
+							op_buf = "leveling";
+						else if(op_blk.Amount > 0.0) {
+							PPLoadString("incoming", op_buf);
+						}
+						else if(op_blk.Amount < 0.0) {
+							PPLoadString("expend", op_buf);
+						}
 					}
 					else {
-						obj_buf.Cat("SCardOp").Space().CatChar('#').Cat(r_item.Oid.Id).Space().Cat(r_item.Dtm, DATF_ISO8601CENT, 0);
+						code_buf.CatChar('#').Cat(r_item.Oid.Id).Space().Cat(r_item.Dtm, DATF_ISO8601CENT, 0);
 					}
 				}
 				break;
 			case PPOBJ_CCHECK:
 				{
+					PPLoadString("poscheck", event_buf);
+					//
 					CCheckCore * p_cc = ScObj.P_CcTbl;
 					CCheckTbl::Rec cc_rec;
 					if(p_cc && p_cc->Search(r_item.Oid.Id, &cc_rec) > 0) {
-						CCheckCore::MakeCodeString(&cc_rec, 0, temp_buf);
-						obj_buf.Cat("CCheck").CatDiv(':', 2).Cat(temp_buf);
+						code_buf.Cat(cc_rec.Code);
+						if(cc_rec.Flags & CCHKF_RETURN) {
+							PPLoadString("return", op_buf);
+						}
+						else {
+							PPLoadString("selling", op_buf);
+						}
+						//CCheckCore::MakeCodeString(&cc_rec, 0, temp_buf);
+						//obj_buf.Cat("CCheck").CatDiv(':', 2).Cat(temp_buf);
 					}
 					else {
-						obj_buf.Cat("CCheck").Space().CatChar('#').Cat(r_item.Oid.Id);
+						code_buf.CatChar('#').Cat(r_item.Oid.Id);
+						//obj_buf.Cat("CCheck").Space().CatChar('#').Cat(r_item.Oid.Id);
 					}
 				}
 				break;
 			case PPOBJ_PERSONEVENT:
 				{
+					PPLoadString("personevent", event_buf);
+					//
 					PersonEventTbl::Rec pe_rec;
 					if(PeObj.Search(r_item.Oid.Id, &pe_rec) > 0) {
-						PeObj.MakeCodeString(&pe_rec, temp_buf);
-						obj_buf.Cat("PersonEvent").CatDiv(':', 2).Cat(temp_buf);
+						code_buf.CatChar('#').Cat(r_item.Oid.Id).CatDiv('-', 0).Cat(pe_rec.Dt, DATF_ISO8601CENT).Space().Cat(pe_rec.Tm, TIMF_HMS);
+						//PeObj.MakeCodeString(&pe_rec, temp_buf);
+						{
+							PPObjPsnOpKind pok_obj;
+							PPPsnOpKind pok_rec;
+							if(pok_obj.Search(pe_rec.OpID, &pok_rec) > 0)
+								op_buf = pok_rec.Name;
+							else
+								op_buf.CatChar('#').Cat(pe_rec.OpID);
+						}
+						//obj_buf.Cat("PersonEvent").CatDiv(':', 2).Cat(temp_buf);
 					}
 					else {
-						obj_buf.Cat("PersonEvent").Space().CatChar('#').Cat(r_item.Oid.Id);
+						code_buf.CatChar('#').Cat(r_item.Oid.Id);
+						//obj_buf.Cat("PersonEvent").Space().CatChar('#').Cat(r_item.Oid.Id);
 					}
 				}
 				break;
 		}
-		STRNSCPY(new_item.TransactionName, obj_buf);
+		STRNSCPY(new_item.TransactionOp, op_buf);
+		STRNSCPY(new_item.TransactionCode, code_buf);
+		STRNSCPY(new_item.TransactionEtc, etc_buf);
+		//STRNSCPY(new_item.TransactionName, obj_buf);
 		P_DsList->insert(&new_item);
 	}
 	//CATCHZOK
@@ -4352,12 +4411,46 @@ int PPViewClientActivityDetails::_GetDataForBrowser(SBrowserDataProcBlock * pBlk
 		ok = 1;
 		const  BrwItem * p_item = static_cast<const BrwItem *>(pBlk->P_SrcData);
 		int    r = 0;
+		/*
+			"@date",           0, date,         0, 10, BCO_USERPROC
+			"@event",          1, zstring(128), 0, 30, BCO_USERPROC
+			"@op",             2, zstring(48),  0, 20, BCO_USERPROC
+			"@number",         3, zstring(48),  0, 20, BCO_USERPROC
+			"@addinfo",        4, zstring(64),  0, 20, BCO_USERPROC
+		*/ 
 		switch(pBlk->ColumnN) {
-			case 0: 
+			case 0: // date
 				pBlk->Set(p_item->Dtm.d);
 				break;
-			case 1: 
-				pBlk->Set(p_item->TransactionName);
+			case 1: // event
+				{
+					switch(p_item->Oid.Obj) {
+						case PPOBJ_BILL:
+							pBlk->Set(PPLoadStringS("document", SLS.AcquireRvlStr()));
+							break;
+						case PPOBJ_SCARD:
+							pBlk->Set(PPLoadStringS("scard", SLS.AcquireRvlStr()));
+							break;
+						case PPOBJ_CCHECK:
+							pBlk->Set(PPLoadStringS("poscheck", SLS.AcquireRvlStr()));
+							break;
+						case PPOBJ_PERSONEVENT:
+							pBlk->Set(PPLoadStringS("personevent", SLS.AcquireRvlStr()));
+							break;
+						default:
+							pBlk->Set("unexpected-event-source-object");
+							break;							
+					}
+				}
+				break;
+			case 2: // op
+				pBlk->Set(p_item->TransactionOp);
+				break;
+			case 3: // code 
+				pBlk->Set(p_item->TransactionCode);
+				break;
+			case 4: // etc
+				pBlk->Set(p_item->TransactionEtc);
 				break;
 		}
 	}
@@ -4382,6 +4475,12 @@ int PPViewClientActivityDetails::_GetDataForBrowser(SBrowserDataProcBlock * pBlk
 	TSArray <BrwItem> * p_array = 0;
 	THROW(MakeList());
 	p_array = new TSArray <BrwItem>(*P_DsList);
+	if(pSubTitle) {
+		PersonTbl::Rec psn_rec;
+		if(Filt.PersonID && PeObj.PsnObj.Search(Filt.PersonID, &psn_rec) > 0) {
+			*pSubTitle = psn_rec.Name;
+		}
+	}
 	CATCH
 		ZDELETE(P_DsList);
 	ENDCATCH

@@ -1355,8 +1355,7 @@ static void MBCSPostprocess(MBCSData * mbcsData, const UConverterStaticData * /*
 					c += MBCS_STAGE_3_BLOCK_SIZE;
 					continue;
 				}
-				printf("U+%04lx i1=0x%02lx i2=0x%04lx i3=0x%04lx\n",
-				    (unsigned long)c, (unsigned long)i1, (unsigned long)i2, (unsigned long)i3);
+				printf("U+%04lx i1=0x%02lx i2=0x%04lx i3=0x%04lx\n", (unsigned long)c, (unsigned long)i1, (unsigned long)i2, (unsigned long)i3);
 				c += MBCS_STAGE_3_BLOCK_SIZE;
 			}
 		}

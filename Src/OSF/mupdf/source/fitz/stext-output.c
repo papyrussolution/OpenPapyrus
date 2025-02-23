@@ -416,14 +416,11 @@ void fz_print_stext_page_as_json(fz_context * ctx, fz_output * out, fz_stext_pag
 	fz_stext_block * block;
 	fz_stext_line * line;
 	fz_stext_char * ch;
-
 	fz_write_printf(ctx, out, "{%q:[", "blocks");
-
 	for(block = page->first_block; block; block = block->next) {
 		if(block != page->first_block)
 			fz_write_string(ctx, out, ",");
-		switch(block->type)
-		{
+		switch(block->type) {
 			case FZ_STEXT_BLOCK_TEXT:
 			    fz_write_printf(ctx, out, "{%q:%q,", "type", "text");
 			    fz_write_printf(ctx, out, "%q:{", "bbox");
@@ -432,7 +429,6 @@ void fz_print_stext_page_as_json(fz_context * ctx, fz_output * out, fz_stext_pag
 			    fz_write_printf(ctx, out, "%q:%d,", "w", (int)((block->bbox.x1 - block->bbox.x0) * scale));
 			    fz_write_printf(ctx, out, "%q:%d},", "h", (int)((block->bbox.y1 - block->bbox.y0) * scale));
 			    fz_write_printf(ctx, out, "%q:[", "lines");
-
 			    for(line = block->u.t.first_line; line; line = line->next) {
 				    if(line != block->u.t.first_line)
 					    fz_write_string(ctx, out, ",");
@@ -615,11 +611,8 @@ fz_document_writer * fz_new_text_writer_with_output(fz_context * ctx, const char
 			wri->format = FZ_FORMAT_STEXT_JSON;
 			wri->opts.flags |= FZ_STEXT_PRESERVE_SPANS;
 		}
-
 		wri->out = out;
-
-		switch(wri->format)
-		{
+		switch(wri->format) {
 			case FZ_FORMAT_HTML:
 			    fz_print_stext_header_as_html(ctx, wri->out);
 			    break;
@@ -635,12 +628,10 @@ fz_document_writer * fz_new_text_writer_with_output(fz_context * ctx, const char
 			    break;
 		}
 	}
-	fz_catch(ctx)
-	{
+	fz_catch(ctx) {
 		fz_free(ctx, wri);
 		fz_rethrow(ctx);
 	}
-
 	return (fz_document_writer*)wri;
 }
 
@@ -650,8 +641,7 @@ fz_document_writer * fz_new_text_writer(fz_context * ctx, const char * format, c
 	fz_document_writer * wri = NULL;
 	fz_try(ctx)
 	wri = fz_new_text_writer_with_output(ctx, format, out, options);
-	fz_catch(ctx)
-	{
+	fz_catch(ctx) {
 		fz_drop_output(ctx, out);
 		fz_rethrow(ctx);
 	}

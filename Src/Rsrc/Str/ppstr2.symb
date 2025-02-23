@@ -1,7 +1,7 @@
 
 [common]
 LastAutoGrpCode=1001
-LastSignatureCode=2147495023
+LastSignatureCode=2147495028
 LastAutoCodeList=1,12259;102,10177;103,10072;110,10000;111,12144;112,10000;119,10000;114,10006;7,10000;4,10000;6,10000;342,10000;118,10152;120,10005;1001,10000;121,10000;122,10000;123,10328;124,10387;125,10064
 
 [SignatureList]
@@ -875,6 +875,7 @@ quotes=2147484357
 basequote=2147484358
 quotkind_undef=2147494713
 gmarkedware=2147484359
+addinfo=2147495024
 addwareinfo=2147484360
 pallet=2147484361
 pallettype=2147484362
@@ -1174,6 +1175,7 @@ discountpctg=2147484581
 goodspricewotaxes=2147484582
 transaction=2147484583
 remotetransactionid=2147484584
+amountname=2147495028
 amounttype=2147484585
 amount=2147484586
 amount_pl=2147484587
@@ -11346,6 +11348,9 @@ marketplaceconfig_returnop=2147494937
 marketplaceconfig_transfertompop=2147494871
 marketplaceconfig_compensatedlostop=2147494970
 marketplaceconfig_flags=2147494872
+billitemspcgenfunc_doselect=2147495025
+billitemspcgenfunc_serial=2147495026
+billitemspcgenfunc_egaismarksforstock=2147495027
 rtag_dimentions=2147485655
 rtag_locfreightpackage=2147485683
 dl2score_subnetprice=2147486965

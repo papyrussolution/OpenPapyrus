@@ -22585,16 +22585,13 @@ int SQLITE_CDECL wmain(int argc, wchar_t ** wargv){
 			sqlite3_snprintf(sizeof(data.rowSeparator), data.rowSeparator, SEP_Row);
 		}
 		else if(strcmp(z, "-separator")==0) {
-			sqlite3_snprintf(sizeof(data.colSeparator), data.colSeparator,
-			    "%s", cmdline_option_value(argc, argv, ++i));
+			sqlite3_snprintf(sizeof(data.colSeparator), data.colSeparator, "%s", cmdline_option_value(argc, argv, ++i));
 		}
 		else if(strcmp(z, "-newline")==0) {
-			sqlite3_snprintf(sizeof(data.rowSeparator), data.rowSeparator,
-			    "%s", cmdline_option_value(argc, argv, ++i));
+			sqlite3_snprintf(sizeof(data.rowSeparator), data.rowSeparator, "%s", cmdline_option_value(argc, argv, ++i));
 		}
 		else if(strcmp(z, "-nullvalue")==0) {
-			sqlite3_snprintf(sizeof(data.nullValue), data.nullValue,
-			    "%s", cmdline_option_value(argc, argv, ++i));
+			sqlite3_snprintf(sizeof(data.nullValue), data.nullValue, "%s", cmdline_option_value(argc, argv, ++i));
 		}
 		else if(strcmp(z, "-header")==0) {
 			data.showHeader = 1;

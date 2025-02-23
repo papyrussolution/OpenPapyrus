@@ -573,15 +573,16 @@ CPosProcessor::ExtCcData & CPosProcessor::ExtCcData::Z()
 //
 //
 //
-CPosProcessor::RetBlock::RetBlock() : SellCheckID(0), SellCheckAmount(0.0), SellCheckCredit(0.0)
+CPosProcessor::LinkBlock::LinkBlock() : _Op(0), _CcID(0), _CcAmount(0.0), _CcCredit(0.0)
 {
 }
 
-CPosProcessor::RetBlock & CPosProcessor::RetBlock::Z()
+CPosProcessor::LinkBlock & CPosProcessor::LinkBlock::Z()
 {
-	SellCheckID = 0;
-	SellCheckAmount = 0.0;
-	SellCheckCredit = 0.0;
+	_Op = 0;
+	_CcID = 0;
+	_CcAmount = 0.0;
+	_CcCredit = 0.0;
 	AmL.Z();
 	return *this;
 }
@@ -674,7 +675,7 @@ int    FASTCALL CPosProcessor::NextIteration(CCheckItem * pItem) { return P.Next
 /*virtual*/int  CPosProcessor::ConfirmMessage(int msgId, const char * pAddedMsg, int defaultResponse) { return defaultResponse; }
 /*virtual*/int  CPosProcessor::CDispCommand(int cmd, int iVal, double rv1, double rv2) { return -1; }
 /*virtual*/int  CPosProcessor::Implement_AcceptCheckOnEquipment(const CcAmountList * pPl, AcceptCheckProcessBlock & rB) { return 1; }
-/*virtual*/int  CPosProcessor::NotifyGift(PPID giftID, const SaGiftArray::Gift * pGift) { return -1; }
+/*virtual*/void CPosProcessor::NotifyGift(PPID giftID, const SaGiftArray::Gift * pGift) {}
 /*virtual*/void CPosProcessor::SetPrintedFlag(int set) { SETFLAG(Flags, fPrinted, set); }
 /*virtual*/void CPosProcessor::SetupInfo(const char * pErrMsg) {}
 /*virtual*/void CPosProcessor::OnUpdateList(int goBottom) {}
@@ -683,13 +684,13 @@ int CPosProcessor::MsgToDisp_Add(const char * pMsg)
 {
 	int    ok = -1;
 	if(!isempty(pMsg)) {
-		int    dup = 0;
+		bool   dup = false;
 		SString temp_buf;
 		SString msg_buf(pMsg);
 		msg_buf.Chomp().Strip();
 		for(uint sp = 0; !dup && MsgToDisp.get(&sp, temp_buf);) {
 			if(temp_buf.CmpNC(msg_buf) == 0)
-				dup = 1;
+				dup = true;
 		}
 		if(!dup)
 			ok = MsgToDisp.add(pMsg) ? 1 : PPSetErrorSLib();
@@ -1685,7 +1686,7 @@ int CPosProcessor::CalcRestByCrdCard_(int checkCurItem)
 		if(F(fRetCheck)) {
 			if(Flags & fRetByCredit) {
 				const CcTotal cct = CalcTotal();
-				const double credit_part = fdivnz(Rb.SellCheckCredit, Rb.SellCheckAmount);
+				const double credit_part = fdivnz(Rb._CcCredit, Rb._CcAmount);
 				const double ret_by_credit = cct.Amount * credit_part;
 				if(ret_by_credit < 0.0 && ret_by_credit > cct.Amount)
 					CSt.AdditionalPayment = R2(cct.Amount - ret_by_credit);
@@ -7310,7 +7311,7 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 				}
 				break;
 			case cmQuantity:      BARRIER(AcceptQuantity()); break;
-			case cmRetCheck:      BARRIER(setupRetCheck(F(fRetCheck) ? 0 : 1)); break;
+			case cmRetCheck:      BARRIER(SetupRetCheck(!F(fRetCheck))); break;
 			case cmSelSCard:      BARRIER(AcceptSCard(0, 0, (Flags & fWaitOnSCard) ? ascfFromInput : ascfExtPane)); break;
 			case cmChkPanSuspend: BARRIER(SuspendCheck()); break;
 			case cmToLocPrinters: BARRIER(PrintToLocalPrinters(-1, false/*ignoreNonZeroAgentReq*/)); break;
@@ -7328,8 +7329,8 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 						// Выбор количества гостей за столом (P.GuestCount)
 						//
 						if(P.TableCode) {
-							int    is_input = GetInput();
 							long   guest_count = 0;
+							const  bool is_input = GetInput();
 							if(!is_input) {
 								if(SelectGuestCount(P.TableCode, &guest_count) > 0) {
 									P.GuestCount = (uint16)guest_count;
@@ -7497,7 +7498,7 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 			case kbF3:      BARRIER(AcceptSCard(0, 0, (Flags & fWaitOnSCard) ? ascfFromInput : ascfExtPane)); break;
 			case kbF4:      BARRIER(SelectGoods__(AbstractGoodsID ? sgmAbstractSale : sgmByPrice)); break;
 			case kbF5:      BARRIER(SetupRowByScale()); break;
-			case kbCtrlF5:  BARRIER(setupRetCheck(F(fRetCheck) ? 0 : 1)); break;
+			case kbCtrlF5:  BARRIER(SetupRetCheck(!F(fRetCheck))); break;
 			case kbF6:      BARRIER(AcceptQuantity()); break;
 			case kbF7:      BARRIER(PrintCheckCopy()); break;
 			case kbCtrlF7:  BARRIER(PrintSlipDocument()); break;
@@ -7824,16 +7825,17 @@ int CheckPaneDialog::UpdateGList(int updGoodsList, PPID selGroupID)
 {
 	int    ok = 1;
 	if(Flags & fTouchScreen && !oneof2(GetState(), sLISTSEL_EMPTYBUF, sLISTSEL_BUF)) {
-		SString  grp_name, temp_buf;
+		SString temp_buf;
+		SString grp_name;
 		if(updGoodsList) {
 			selGroupID = NZOR(selGroupID, SelGoodsGrpID);
 			ListBoxDef   * p_def = 0;
 			SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_CHKPAN_GDSLIST));
 			StrAssocArray * p_ts_ary = 0;
 			if(updGoodsList == -2) {
-				int    is_input = GetInput();
 				double price = 0.0;
 				PPGetSubStr(PPTXT_CHKPAN_INFO, PPCHKPAN_SELBYPRICE, grp_name);
+				bool   is_input = GetInput();
 				if(!is_input) {
 					showInputLineCalc(this, CTL_CHKPAN_INPUT);
 					is_input = GetInput();
@@ -8410,7 +8412,7 @@ int CheckPaneDialog::SelectTable()
 			}
 		}
 		else {
-			int    is_input = GetInput();
+			bool   is_input = GetInput();
 			if(!is_input) {
 				showInputLineCalc(this, CTL_CHKPAN_INPUT);
 				is_input = GetInput();
@@ -8429,7 +8431,7 @@ int CheckPaneDialog::SelectTable()
 	return ok;
 }
 
-void CheckPaneDialog::setupRetCheck(int ret)
+void CheckPaneDialog::SetupRetCheck(bool ret)
 {
 	SString temp_buf;
 	Flags |= fSuspSleepTimeout;
@@ -8443,7 +8445,7 @@ void CheckPaneDialog::setupRetCheck(int ret)
 				SETFLAG(Flags, fRetCheck, ret);
 			}
 			else if(F(fRetCheck))
-				ret = 1;
+				ret = true;
 			if(ret) {
 				CCheckPacket  chk_pack;
 				if(!oneof2(GetState(), sLISTSEL_EMPTYBUF, sLISTSEL_BUF)) {
@@ -8451,7 +8453,6 @@ void CheckPaneDialog::setupRetCheck(int ret)
 					PPLoadString("selectccheck_forrefundorcorr", temp_buf);
 					if(SelectCheck(temp_buf, 0, sccr) > 0) {
 						GetCc().LoadPacket(sccr.CcID, 0, &SelPack);
-						//chk_pack.PPExtStrContainer::Copy(SelPack); // @v11.8.2
 						chk_pack.CopyLines(SelPack);
 						if(SelPack.Rec.SCardID)
 							AcceptSCard(SelPack.Rec.SCardID, 0, ascfIgnoreRights);
@@ -8469,7 +8470,7 @@ void CheckPaneDialog::setupRetCheck(int ret)
 							chk_pack.InsertItem(line.GoodsID, rest_qtty_, intmnytodbl(line.Price), line.Dscnt);
 					}
 				}
-				if(chk_pack.GetCount() > 0) {
+				if(chk_pack.GetCount()) {
 					const long  lc_flags = DS.GetTLA().Lc.Flags;
 					chk_pack.Rec = SelPack.Rec;
 					ushort r = CheckExecAndDestroyDialog(new CheckPaneDialog(0, 0, &chk_pack, BIN(Flags & fTouchScreen)), 1, 0);
@@ -8488,7 +8489,6 @@ void CheckPaneDialog::setupRetCheck(int ret)
 							Goods2Tbl::Rec goods_rec;
 							const CCheckLineTbl::Rec & cclr = chk_pack.GetLineC(0);
 							CCheckItem & r_cur_item = P.GetCur();
-							//const int cur_item_idx = P.CurPos; // @v11.8.2
 							r_cur_item.GoodsID = cclr.GoodsID;
 							if(GObj.Fetch(r_cur_item.GoodsID, &goods_rec) > 0) {
 								STRNSCPY(r_cur_item.GoodsName, goods_rec.Name);
@@ -8519,17 +8519,17 @@ void CheckPaneDialog::setupRetCheck(int ret)
 						}
 						{
 							Rb.AmL = SelPack.AL();
-							Rb.SellCheckID = chk_pack.Rec.ID;
+							Rb._CcID = chk_pack.Rec.ID;
 							if(Rb.AmL.getCount()) {
-								Rb.SellCheckAmount = Rb.AmL.GetTotal();
-								Rb.SellCheckCredit = Rb.AmL.Get(CCAMTTYP_CRDCARD);
-								assert(MONEYTOLDBL(SelPack.Rec.Amount) == Rb.SellCheckAmount); // @paranoic
+								Rb._CcAmount = Rb.AmL.GetTotal();
+								Rb._CcCredit = Rb.AmL.Get(CCAMTTYP_CRDCARD);
+								assert(MONEYTOLDBL(SelPack.Rec.Amount) == Rb._CcAmount); // @paranoic
 							}
 							else {
-								Rb.SellCheckAmount = MONEYTOLDBL(chk_pack.Rec.Amount);
-								Rb.SellCheckCredit = 0.0;
+								Rb._CcAmount = MONEYTOLDBL(chk_pack.Rec.Amount);
+								Rb._CcCredit = 0.0;
 							}
-							if(Rb.SellCheckCredit > 0.0 && Rb.SellCheckAmount > 0.0)
+							if(Rb._CcCredit > 0.0 && Rb._CcAmount > 0.0)
 								Flags |= fRetByCredit;
 						}
 						if(crcc_arg >= 0)
@@ -9819,7 +9819,7 @@ void FASTCALL CheckPaneDialog::SelectGoods__(int mode)
 							Ptb.SetBrush(brOdd,     SPaintObj::psSolid, Ptb.GetColor(clrOdd), 0);
 							Ptb.SetBrush(brUnsel,   SPaintObj::psSolid, Ptb.GetColor(clrUnsel), 0);
 							{
-		 						SString temp_buf;
+								SString temp_buf;
 								LOGFONT log_font;
 								MEMSZERO(log_font);
 								log_font.lfCharSet = DEFAULT_CHARSET;
@@ -9897,7 +9897,7 @@ void FASTCALL CheckPaneDialog::SelectGoods__(int mode)
 	}
 	else if(oneof2(GetState(), sLISTSEL_EMPTYBUF, sLISTSEL_BUF)) {
 		if(mode == sgmNormal)
-			setupRetCheck(1);
+			SetupRetCheck(true);
 		else
 			ClearInput(0);
 	}
@@ -9930,10 +9930,8 @@ void FASTCALL CheckPaneDialog::SelectGoods__(int mode)
 		SETIFZ(P_EGSDlg, new ExtGoodsSelDialog(GetCashOp(), 0, egsd_flags));
 		if(CheckDialogPtrErr(&P_EGSDlg)) {
 			PPWaitStart();
-			SString temp_buf;
-			const int inp_not_empty = GetInput();
-			if(inp_not_empty) {
-				temp_buf = Input;
+			if(GetInput()) {
+				SString temp_buf(Input);
 				if(mode == sgmByPrice && temp_buf.ToReal() != 0.0)
 					P_EGSDlg->setSelectionByPrice(R2(temp_buf.ToReal()));
 				else {
@@ -10090,7 +10088,7 @@ int CheckPaneDialog::VerifyQuantity(PPID goodsID, double & rQtty, int adjustQtty
 void CheckPaneDialog::AcceptQuantity()
 {
 	int    ok = -1;
-	int    is_input = 0;
+	bool   is_input = false;
 	const  PPID goods_id = P.HasCur() ? P.GetCur().GoodsID : 0;
 	if(goods_id) {
 		SString temp_buf;
@@ -10104,7 +10102,7 @@ void CheckPaneDialog::AcceptQuantity()
 			while(r == 0 && !(Flags & fNotUseScale)) {
 				r = GetDataFromScale(0, &qtty);
 				if(r > 0)
-					is_input = 1;
+					is_input = true;
 				else if(!r && PPMessage(mfConf|mfYesNo, PPCFM_SCALENOTREADY) != cmYes)
 					Flags |= fNotUseScale;
 			}
@@ -10172,18 +10170,22 @@ void CheckPaneDialog::AcceptQuantity()
 			}
 		}
 	}
-	if(is_input != 2) // При установке внешнего значение ввод очищать не следует
-		ClearInput(0);
+	{
+		// @v12.2.8 (судя по коду is_input никогда не принимает значение 2) if(is_input != 2) // При установке внешнего значение ввод очищать не следует
+		{
+			ClearInput(0);
+		}
+	}
 }
 
 void CheckPaneDialog::AcceptDivision()
 {
-	int    is_input = GetInput();
+	bool   is_input = GetInput();
 	if(!is_input) {
 		showInputLineCalc(this, CTL_CHKPAN_INPUT);
 		is_input = GetInput();
 	}
-	if(P.HasCur() && P.GetCur().GoodsID && is_input && Input.IsDec()) {
+	if(is_input && P.HasCur() && P.GetCur().GoodsID && Input.IsDec()) {
 		long  div = Input.ToLong();
 		if(div > 0 && div < 1000) {
 			P.GetCur().Division = static_cast<int16>(div);
@@ -11424,7 +11426,7 @@ void CheckPaneDialog::AcceptSCard(PPID scardID, const SCardSpecialTreatment::Ide
 					//
 					// Выбор карты по коду, введенному в строке ввода
 					//
-					if(GetInput() > 0) {
+					if(GetInput()) {
 						PPIDArray sc_id_list;
 						int    err_code = 0;
 						if(ScObj.SearchCodeExt(Input, &SpcTrtScsList, sc_id_list, scp_rb_list) > 0) {
@@ -11774,7 +11776,7 @@ void CheckPaneDialog::SetSCard(const char * pStr)
 	UiFlags &= ~uifAutoInput; // @trick (see above)
 }
 
-int CheckPaneDialog::GetInput()
+bool CheckPaneDialog::GetInput()
 {
 	UiFlags &= ~uifAutoInput;
 	getCtrlString(CTL_CHKPAN_INPUT, Input);
@@ -11797,9 +11799,10 @@ void CheckPaneDialog::SetInput(const char * pStr)
 	ProcessEnter(1);
 }
 
-/*virtual*/int CheckPaneDialog::NotifyGift(PPID giftID, const SaGiftArray::Gift * pGift)
+/*virtual*/void CheckPaneDialog::NotifyGift(PPID giftID, const SaGiftArray::Gift * pGift)
 {
-	SString msg_buf, fmt_buf, goods_name;
+	SString msg_buf;
+	SString goods_name;
 	if(giftID > 0) {
 		Flags |= fPresent;
 		PPLoadString("gift", msg_buf);
@@ -11814,6 +11817,7 @@ void CheckPaneDialog::SetInput(const char * pStr)
 		if(pGift->Pot.Name.NotEmpty()) {
 			SMessageWindow * p_win = new SMessageWindow;
 			if(p_win) {
+				SString fmt_buf;
 				GetGoodsName(pGift->Pot.GoodsID, goods_name);
 				// PPTXT_CHKPAN_GIFTNOT    "Для получения подарка '%s'\nосталось купить товар '%s'";
 				// PPTXT_CHKPAN_GIFTNOTAMT "Для получения подарка '%s'\nосталось купить товар '%s' на сумму %.2lf";
@@ -11824,7 +11828,6 @@ void CheckPaneDialog::SetInput(const char * pStr)
 			}
 		}
 	}
-	return 1;
 }
 
 int CPosProcessor::AddGiftSaleItem(TSVector <SaSaleItem> & rList, const CCheckItem & rItem) const
@@ -12319,7 +12322,7 @@ int CPosProcessor::AcceptRow(PPID giftID)
 {
 	CPosProcessor::ClearCheck();
 	ClearRow();
-	setupRetCheck(0);
+	SetupRetCheck(false);
 }
 
 int CheckPaneDialog::TestCheck(CheckPaymMethod paymMethod)
@@ -13245,7 +13248,7 @@ private:
 	int    SetupLots(PPID goodsID);
 	int    SetupInfo();
 	int    PrintLabel();
-	int    GetInput();
+	bool   GetInput();
 	void   ClearInput();
 	void   UpdateGList(int updGdsList);
 	int    ProcessGoodsSelection();
@@ -13414,7 +13417,7 @@ void InfoKioskDialog::ResetButtonToTextStyle(uint ctrlID)
 	TView::SetWindowProp(::GetDlgItem(H(), ctrlID), GWL_STYLE, style);
 }
 
-int InfoKioskDialog::GetInput()
+bool InfoKioskDialog::GetInput()
 {
 	getCtrlString(CTL_INFKIOSK_INPUT, Input);
 	return Input.NotEmptyS();
@@ -13650,9 +13653,10 @@ int InfoKioskDialog::SelectSCard()
 int InfoKioskDialog::SelectGoods(SearchParam srch)
 {
 	int    ok = -1;
-	PPID   goods_id = 0, ggrp_id = 0;
+	PPID   goods_id = 0;
+	PPID   ggrp_id = 0;
 	double qtty = 0.0;
-	SString  buf;
+	SString buf;
 	ExtGoodsSelDialog * dlg = 0;
 	if(GetInput() || srch == srchByNone) {
 		PPSetAddedMsgString(Input);
@@ -13710,7 +13714,10 @@ int InfoKioskDialog::SelectGoods(SearchParam srch)
 int InfoKioskDialog::SetupGoods(PPID goodsID, double qtty)
 {
 	int    ok = -1;
-	SString image, word, code, buf;
+	SString image;
+	SString word;
+	SString code;
+	SString buf;
 	SString line_buf;
 	PPGoodsPacket pack;
 	St.Z();

@@ -27,6 +27,10 @@ BVATAccmArray::BVATAccmArray(uint aFlags) : TSVector <BVATAccm> (), Flags(aFlags
 {
 }
 
+BVATAccmArray::BVATAccmArray(const BVATAccmArray & rS) : TSVector <BVATAccm>(rS), Flags(rS.Flags)
+{
+}
+
 int BVATAccmArray::Add(const BVATAccm * pItem, int dontRound)
 {
 	int    ok = 1;

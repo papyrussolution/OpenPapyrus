@@ -1285,13 +1285,13 @@ int PPLoadCommonUnits(TSVector <CommonUnit> * pList)
 
 class TextFieldAnalyzer {
 public:
-	struct RetBlock {
+	struct ResultBlock {
 		uint   LexCount;
 		SString ProcessedText;
 	};
 	TextFieldAnalyzer();
 	~TextFieldAnalyzer();
-	int    Process(const char * pText, RetBlock * pBlk);
+	int    Process(const char * pText, ResultBlock * pBlk);
 
 	SymbHashTable Words;
 	RAssocArray WordCounter;
@@ -1389,7 +1389,7 @@ int FASTCALL TextFieldAnalyzer::ScanLex(SString & rBuf)
 	return lex;
 }
 
-int TextFieldAnalyzer::Process(const char * pText, RetBlock * pRetBlk)
+int TextFieldAnalyzer::Process(const char * pText, ResultBlock * pRetBlk)
 {
 	// "бесплатно!,бесплатно,беспл"
 	int    ok = 1;
@@ -2079,7 +2079,9 @@ int PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 {
 	const  size_t max_nm_len = sizeof(static_cast<const Goods2Tbl::Rec *>(0)->Name)-1;
 
-	int    ok = 1, r = 0, codetohex = 0;
+	int    ok = 1;
+	int    r = 0;
+	int    codetohex = 0;
 	int    err_barcode = 0;
 	IterCounter cntr;
 	SString file_name;
@@ -2091,7 +2093,7 @@ int PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 	SString msg_buf;
 	SString ini_file_name;
 	SString goods_name;
-	TextFieldAnalyzer::RetBlock txt_blk[2];
+	TextFieldAnalyzer::ResultBlock txt_blk[2];
 	const  uint sect = PPINISECT_IMP_GOODS;
 	BarcodeTbl::Rec barcode_rec;
 	PPObjGoodsClass gc_obj;
