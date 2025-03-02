@@ -573,10 +573,10 @@ void GnuPlot::GridNonGridData(GpSurfacePoints * pPlot)
 			// Honor requested x and y limits 
 			// Historical note: This code was not in 4.0 or 4.2. It imperfectly 
 			// restores the clipping behaviour of version 3.7 and earlier. 
-			if((x < AxS[AxS.Idx_X].min && !(AxS[AxS.Idx_X].autoscale & AUTOSCALE_MIN)) || 
-				(x > AxS[AxS.Idx_X].max && !(AxS[AxS.Idx_X].autoscale & AUTOSCALE_MAX)) || 
-				(y < AxS[AxS.Idx_Y].min && !(AxS[AxS.Idx_Y].autoscale & AUTOSCALE_MIN)) || 
-				(y > AxS[AxS.Idx_Y].max && !(AxS[AxS.Idx_Y].autoscale & AUTOSCALE_MAX)))
+			if((x < AxS[AxS.Idx_X].Range.low && !(AxS[AxS.Idx_X].autoscale & AUTOSCALE_MIN)) || 
+				(x > AxS[AxS.Idx_X].Range.upp && !(AxS[AxS.Idx_X].autoscale & AUTOSCALE_MAX)) || 
+				(y < AxS[AxS.Idx_Y].Range.low && !(AxS[AxS.Idx_Y].autoscale & AUTOSCALE_MIN)) || 
+				(y > AxS[AxS.Idx_Y].Range.upp && !(AxS[AxS.Idx_Y].autoscale & AUTOSCALE_MAX)))
 				points->type = OUTRANGE;
 
 			if(_Plt.dgrid3d_mode != DGRID3D_SPLINES && !_Plt.dgrid3d_kdensity) {
@@ -1319,8 +1319,8 @@ void GnuPlot::Eval3DPlots(GpTermEntry * pTerm)
 			// Note: we must allow both for '+', which uses SAMPLE_AXIS, and '++', which uses U_AXIS and V_AXIS
 			u_sample_range_token = ParseRange(SAMPLE_AXIS);
 			if(u_sample_range_token != 0) {
-				AxS[U_AXIS].min = AxS[SAMPLE_AXIS].min;
-				AxS[U_AXIS].max = AxS[SAMPLE_AXIS].max;
+				AxS[U_AXIS].Range.low = AxS[SAMPLE_AXIS].Range.low;
+				AxS[U_AXIS].Range.upp = AxS[SAMPLE_AXIS].Range.upp;
 				AxS[U_AXIS].autoscale = AxS[SAMPLE_AXIS].autoscale;
 				AxS[U_AXIS].SAMPLE_INTERVAL = AxS[SAMPLE_AXIS].SAMPLE_INTERVAL;
 			}
@@ -1371,16 +1371,16 @@ void GnuPlot::Eval3DPlots(GpTermEntry * pTerm)
 					    IntErrorCurToken("previous parametric function not fully specified");
 				    if(!some_data_files) {
 					    if(AxS[FIRST_X_AXIS].autoscale & AUTOSCALE_MIN) {
-						    AxS[FIRST_X_AXIS].min = VERYLARGE;
+						    AxS[FIRST_X_AXIS].Range.low = VERYLARGE;
 					    }
 					    if(AxS[FIRST_X_AXIS].autoscale & AUTOSCALE_MAX) {
-						    AxS[FIRST_X_AXIS].max = -VERYLARGE;
+						    AxS[FIRST_X_AXIS].Range.upp = -VERYLARGE;
 					    }
 					    if(AxS[FIRST_Y_AXIS].autoscale & AUTOSCALE_MIN) {
-						    AxS[FIRST_Y_AXIS].min = VERYLARGE;
+						    AxS[FIRST_Y_AXIS].Range.low = VERYLARGE;
 					    }
 					    if(AxS[FIRST_Y_AXIS].autoscale & AUTOSCALE_MAX) {
-						    AxS[FIRST_Y_AXIS].max = -VERYLARGE;
+						    AxS[FIRST_Y_AXIS].Range.upp = -VERYLARGE;
 					    }
 					    some_data_files = TRUE;
 				    }
@@ -1886,10 +1886,10 @@ void GnuPlot::Eval3DPlots(GpTermEntry * pTerm)
 				// Plot-type specific range-fiddling 
 				if(!AxS[FIRST_Z_AXIS].log && (p_plot_->plot_style == IMPULSES || p_plot_->plot_style == BOXES)) {
 					if(AxS[FIRST_Z_AXIS].autoscale & AUTOSCALE_MIN) {
-						SETMIN(AxS[FIRST_Z_AXIS].min, 0.0);
+						SETMIN(AxS[FIRST_Z_AXIS].Range.low, 0.0);
 					}
 					if(AxS[FIRST_Z_AXIS].autoscale & AUTOSCALE_MAX) {
-						SETMAX(AxS[FIRST_Z_AXIS].max, 0.0);
+						SETMAX(AxS[FIRST_Z_AXIS].Range.upp, 0.0);
 					}
 				}
 				/*}}} */
@@ -2003,26 +2003,26 @@ SKIPPED_EMPTY_FILE:
 		if(Gg.Parametric && !some_data_files) {
 			// parametric fn can still change x/y range 
 			if(AxS[FIRST_X_AXIS].autoscale & AUTOSCALE_MIN)
-				AxS[FIRST_X_AXIS].min = VERYLARGE;
+				AxS[FIRST_X_AXIS].Range.low = VERYLARGE;
 			if(AxS[FIRST_X_AXIS].autoscale & AUTOSCALE_MAX)
-				AxS[FIRST_X_AXIS].max = -VERYLARGE;
+				AxS[FIRST_X_AXIS].Range.upp = -VERYLARGE;
 			if(AxS[FIRST_Y_AXIS].autoscale & AUTOSCALE_MIN)
-				AxS[FIRST_Y_AXIS].min = VERYLARGE;
+				AxS[FIRST_Y_AXIS].Range.low = VERYLARGE;
 			if(AxS[FIRST_Y_AXIS].autoscale & AUTOSCALE_MAX)
-				AxS[FIRST_Y_AXIS].max = -VERYLARGE;
+				AxS[FIRST_Y_AXIS].Range.upp = -VERYLARGE;
 		}
 		/*{{{  figure ranges, restricting logscale limits to be positive */
-		u_min = AxisLogValueChecked(u_axis, AxS[u_axis].min, "x range");
-		u_max = AxisLogValueChecked(u_axis, AxS[u_axis].max, "x range");
+		u_min = AxisLogValueChecked(u_axis, AxS[u_axis].Range.low, "x range");
+		u_max = AxisLogValueChecked(u_axis, AxS[u_axis].Range.upp, "x range");
 		if(AxS[u_axis].IsNonLinear()) {
-			u_min = AxS[u_axis].linked_to_primary->min;
-			u_max = AxS[u_axis].linked_to_primary->max;
+			u_min = AxS[u_axis].linked_to_primary->Range.low;
+			u_max = AxS[u_axis].linked_to_primary->Range.upp;
 		}
-		v_min = AxisLogValueChecked(v_axis, AxS[v_axis].min, "y range");
-		v_max = AxisLogValueChecked(v_axis, AxS[v_axis].max, "y range");
+		v_min = AxisLogValueChecked(v_axis, AxS[v_axis].Range.low, "y range");
+		v_max = AxisLogValueChecked(v_axis, AxS[v_axis].Range.upp, "y range");
 		if(AxS[v_axis].IsNonLinear()) {
-			v_min = AxS[v_axis].linked_to_primary->min;
-			v_max = AxS[v_axis].linked_to_primary->max;
+			v_min = AxS[v_axis].linked_to_primary->Range.low;
+			v_max = AxS[v_axis].linked_to_primary->Range.upp;
 		}
 		/*}}} */
 		if(Gg.Samples1 < 2 || Gg.Samples2 < 2 || Gg.IsoSamples1 < 2 || Gg.IsoSamples2 < 2) {

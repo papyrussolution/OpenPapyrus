@@ -1093,9 +1093,9 @@ void GnuPlot::SavePRange(FILE * fp, const GpAxis & rAx)
 	if(rAx.set_autoscale && fp == stderr) {
 		// add current (hidden) range as comments 
 		fputs("  # (currently [", fp);
-		SaveNumOrTimeInput(fp, rAx.min, &rAx);
+		SaveNumOrTimeInput(fp, rAx.Range.low, &rAx);
 		putc(':', fp);
-		SaveNumOrTimeInput(fp, rAx.max, &rAx);
+		SaveNumOrTimeInput(fp, rAx.Range.upp, &rAx);
 		fputs("] )\n", fp);
 	}
 	else

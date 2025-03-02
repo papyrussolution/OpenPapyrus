@@ -987,7 +987,7 @@ int IterProc_CrtTmpATTbl(AccTurnTbl::Rec * pRec, void * extraPtr)
 			trec.Ar       = bill_rec.OpID;
 			trec.AccRelID = bill_rec.OpID;
 			GetOpName(bill_rec.OpID, temp_buf);
-			temp_buf.CopyTo(trec.Name, sizeof(trec.Name));
+			STRNSCPY(trec.Name, temp_buf);
 		}
 	}
 	else if(p.Filt->CorAco == AccAnlzFilt::aafgByLoc) {
@@ -995,7 +995,7 @@ int IterProc_CrtTmpATTbl(AccTurnTbl::Rec * pRec, void * extraPtr)
 			trec.Ar       = bill_rec.LocID;
 			trec.AccRelID = bill_rec.LocID;
 			GetLocationName(bill_rec.LocID, temp_buf);
-			temp_buf.CopyTo(trec.Name, sizeof(trec.Name));
+			STRNSCPY(trec.Name, temp_buf);
 		}
 	}
 	else if(p.Filt->CorAco == AccAnlzFilt::aafgByExtObj) {
@@ -1003,7 +1003,7 @@ int IterProc_CrtTmpATTbl(AccTurnTbl::Rec * pRec, void * extraPtr)
 			trec.Ar       = bill_rec.Object2;
 			trec.AccRelID = bill_rec.Object2;
 			GetArticleName(bill_rec.Object2, temp_buf);
-			temp_buf.CopyTo(trec.Name, sizeof(trec.Name));
+			STRNSCPY(trec.Name, temp_buf);
 		}
 	}
 	else if(p.Filt->CorAco == AccAnlzFilt::aafgByAgent) {
@@ -1014,7 +1014,7 @@ int IterProc_CrtTmpATTbl(AccTurnTbl::Rec * pRec, void * extraPtr)
 		trec.Ar       = agent_id;
 		trec.AccRelID = agent_id;
 		GetArticleName(agent_id, temp_buf);
-		temp_buf.CopyTo(trec.Name, sizeof(trec.Name));
+		STRNSCPY(trec.Name, temp_buf);
 	}
 	else {
 		trec.AccRelID = pRec->CorrAcc;
@@ -1036,8 +1036,8 @@ int IterProc_CrtTmpATTbl(AccTurnTbl::Rec * pRec, void * extraPtr)
 						trec.AccRelID = arel_rec.AccID;
 						trec.Ar = 0;
 					}
-					GetAcctName((Acct*)&trec.Ac, trec.CurID, 0, temp_buf);
-					temp_buf.CopyTo(trec.Name, sizeof(trec.Name));
+					GetAcctName(reinterpret_cast<const Acct *>(&trec.Ac), trec.CurID, 0, temp_buf);
+					STRNSCPY(trec.Name, temp_buf);
 				}
 			}
 		}

@@ -572,11 +572,11 @@ bool GpAxisSet::ValidateData(double v, AXIS_INDEX ax) const
 	// These are flag bits, not constants!!! 
 	if((AxArray[ax].autoscale & AUTOSCALE_BOTH) == AUTOSCALE_BOTH) 
 		return true;
-	else if(((AxArray[ax].autoscale & AUTOSCALE_BOTH) == AUTOSCALE_MIN) && (v <= AxArray[ax].max))
+	else if(((AxArray[ax].autoscale & AUTOSCALE_BOTH) == AUTOSCALE_MIN) && (v <= AxArray[ax].Range.upp))
 		return true;
-	else if(((AxArray[ax].autoscale & AUTOSCALE_BOTH) == AUTOSCALE_MAX) && (v >= AxArray[ax].min))
+	else if(((AxArray[ax].autoscale & AUTOSCALE_BOTH) == AUTOSCALE_MAX) && (v >= AxArray[ax].Range.low))
 		return true;
-	else if(((AxArray[ax].autoscale & AUTOSCALE_BOTH) == AUTOSCALE_NONE) && ((v <= AxArray[ax].max) && (v >= AxArray[ax].min)))
+	else if(((AxArray[ax].autoscale & AUTOSCALE_BOTH) == AUTOSCALE_NONE) && ((v <= AxArray[ax].Range.upp) && (v >= AxArray[ax].Range.low)))
 		return true;
 	else
 		return false;

@@ -309,13 +309,14 @@ int PPObjQuotKind::Classify(PPID id, int * pCls)
 int PPObjQuotKind::MakeReserved(long flags)
 {
 	int    ok = 1;
-	uint   num_recs, i;
-	SString name, symb;
+	uint   num_recs;
+	SString name;
+	SString symb;
 	TVRez * p_rez = P_SlRez;
 	THROW_PP(p_rez, PPERR_RESFAULT);
 	THROW_PP(p_rez->findResource(ROD_QUOTKIND, PP_RCDATA), PPERR_RESFAULT);
 	THROW_PP(num_recs = p_rez->getUINT(), PPERR_RESFAULT);
-	for(i = 0; i < num_recs; i++) {
+	for(uint i = 0; i < num_recs; i++) {
 		PPQuotKindPacket pack;
 		PPQuotKind temp_rec;
 		const PPID id = p_rez->getLONG();
@@ -323,7 +324,7 @@ int PPObjQuotKind::MakeReserved(long flags)
 		PPExpandString(name, CTRANSF_UTF8_TO_INNER);
 		p_rez->getString(symb, 2);
 		pack.Rec.ID = id;
-		name.CopyTo(pack.Rec.Name, sizeof(pack.Rec.Name));
+		STRNSCPY(pack.Rec.Name, name);
 		symb.CopyTo(pack.Rec.Symb, sizeof(pack.Rec.Symb));
 		if(id && Search(id, &temp_rec) <= 0 && SearchBySymb(symb, 0, &temp_rec) <= 0) {
 			//

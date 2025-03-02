@@ -1064,8 +1064,9 @@ uint  CCheckPacket::GetCount() const { return Items_.getCount(); }
 const CCheckLineTbl::Rec & FASTCALL CCheckPacket::GetLineC(uint pos) const { return Items_.at(pos); }
 CCheckLineTbl::Rec & FASTCALL CCheckPacket::GetLine(uint pos) { return Items_.at(pos); }
 
-int CCheckPacket::EnumLines(uint * pPos, CCheckLineTbl::Rec * pItem, SString * pSerial) const
+bool CCheckPacket::EnumLines(uint * pPos, CCheckLineTbl::Rec * pItem, SString * pSerial) const
 {
+	bool    result = false;
 	CCheckLineTbl::Rec * p_item;
 	if(Items_.enumItems(pPos, (void **)&p_item)) {
 		ASSIGN_PTR(pItem, *p_item);
@@ -1073,14 +1074,14 @@ int CCheckPacket::EnumLines(uint * pPos, CCheckLineTbl::Rec * pItem, SString * p
 			// *Pos была увеличена на 1 функцией enumItems()
 			GetLineTextExt(*pPos, CCheckPacket::lnextSerial, *pSerial);
 		}
-		return 1;
+		result = true;
 	}
-	else
-		return 0;
+	return result;
 }
 
-int CCheckPacket::EnumLines(uint * pPos, CCheckItem * pItem) const
+bool CCheckPacket::EnumLines(uint * pPos, CCheckItem * pItem) const
 {
+	bool   result = false;
 	CCheckLineTbl::Rec * p_item;
 	if(Items_.enumItems(pPos, (void **)&p_item)) {
 		if(pItem) {
@@ -1126,10 +1127,9 @@ int CCheckPacket::EnumLines(uint * pPos, CCheckItem * pItem) const
 				SETFLAG(pItem->Flags, cifFixedPrice,    r_le.Flags & r_le.fFixedPrice);
 			}
 		}
-		return 1;
+		result = true;
 	}
-	else
-		return 0;
+	return result;
 }
 
 void CCheckPacket::InitLineIteration()

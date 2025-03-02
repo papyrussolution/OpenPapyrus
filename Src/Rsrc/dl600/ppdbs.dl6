@@ -2345,7 +2345,10 @@ table CCheckExt {          // size=20
 	long   AddCrdCardID_unused;   // @v6.8.0 Дополнительная кредитная карта, с которой оплачивается покупка // @v9.0.4 @unused
 	// @v10.6.8 long   AddCrdCardPaym_unused; // @v6.8.0 0.01 Сумма, оплаченная по дополнительной кредитной карте // @v9.0.4 @unused
 	long   CreationUserID; // @v10.6.8 (insteed AddCrdCardPaym_unused) -->User.ID Пользователь, создавший чек
-	long   LinkCheckID;    // @v6.7.8 -->CCheck.ID Ссылка на связанный чек
+	long   LinkCheckID;    // @v6.7.8 -->CCheck.ID Ссылка на связанный чек.
+		// Дополнение спецификации начиная с версии @v12.2.9:
+		//   -- для чека возврата (CCheckTbl::Rec::Flags & CCHKF_RETURN) LinkCheckID - ид чека, по которому сделан возврат
+		//   -- для чека коррекции (CCheckTbl::Rec::Flags & CCHKF_CORRECTION) LinkCheckID - ид чека, по которому сделана коррекция
 	datetime StartOrdDtm;  // @v6.7.8 Для чека заказа: время начала обслуживания //
 	datetime EndOrdDtm;    // @v6.7.8 Для чека заказа: время завершения обслуживания //
 	datetime CreationDtm;  // @v7.6.1 Время создания чека

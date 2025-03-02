@@ -168,23 +168,23 @@ void GnuPlot::MousePosToGraphPosReal(SPoint2I pt, double * x, double * y, double
 		pt.x -= _3DBlk.axis3d_o_x;
 		pt.y -= _3DBlk.axis3d_o_y;
 		if(abs(_3DBlk.axis3d_x_dx) > abs(_3DBlk.axis3d_x_dy)) {
-			*x = AxS[FIRST_X_AXIS].min + ((double)pt.x) / _3DBlk.axis3d_x_dx * AxS[FIRST_X_AXIS].GetRange();
+			*x = AxS[FIRST_X_AXIS].Range.low + ((double)pt.x) / _3DBlk.axis3d_x_dx * AxS[FIRST_X_AXIS].GetRange();
 		}
 		else if(_3DBlk.axis3d_x_dy != 0) {
-			*x = AxS[FIRST_X_AXIS].min + ((double)pt.y) / _3DBlk.axis3d_x_dy * AxS[FIRST_X_AXIS].GetRange();
+			*x = AxS[FIRST_X_AXIS].Range.low + ((double)pt.y) / _3DBlk.axis3d_x_dy * AxS[FIRST_X_AXIS].GetRange();
 		}
 		else {
 			// both diffs are zero (x axis points into the screen 
 			*x = VERYLARGE;
 		}
 		if(abs(_3DBlk.axis3d_y_dx) > abs(_3DBlk.axis3d_y_dy)) {
-			*y = AxS[FIRST_Y_AXIS].min + ((double)pt.x) / _3DBlk.axis3d_y_dx * AxS[FIRST_Y_AXIS].GetRange();
+			*y = AxS[FIRST_Y_AXIS].Range.low + ((double)pt.x) / _3DBlk.axis3d_y_dx * AxS[FIRST_Y_AXIS].GetRange();
 		}
 		else if(_3DBlk.axis3d_y_dy != 0) {
 			if(_3DBlk.splot_map)
-				*y = AxS[FIRST_Y_AXIS].max + ((double)pt.y) / _3DBlk.axis3d_y_dy * (AxS[FIRST_Y_AXIS].min - AxS[FIRST_Y_AXIS].max);
+				*y = AxS[FIRST_Y_AXIS].Range.upp + ((double)pt.y) / _3DBlk.axis3d_y_dy * (AxS[FIRST_Y_AXIS].Range.low - AxS[FIRST_Y_AXIS].Range.upp);
 			else
-				*y = AxS[FIRST_Y_AXIS].min + ((double)pt.y) / _3DBlk.axis3d_y_dy * (AxS[FIRST_Y_AXIS].GetRange());
+				*y = AxS[FIRST_Y_AXIS].Range.low + ((double)pt.y) / _3DBlk.axis3d_y_dy * (AxS[FIRST_Y_AXIS].GetRange());
 		}
 		else {
 			// both diffs are zero (y axis points into the screen 
@@ -292,7 +292,7 @@ char * GnuPlot::GetAnnotateString(char * s, double x, double y, int mode, char *
 		if(xrange) {
 			char format[0xff] = "/";
 			strcat(format, mouse_setting.fmt);
-			sprintf(s, format, (x - AxS[FIRST_X_AXIS].min) / xrange);
+			sprintf(s, format, (x - AxS[FIRST_X_AXIS].Range.low) / xrange);
 		}
 		else {
 			sprintf(s, "/(undefined)");
@@ -302,7 +302,7 @@ char * GnuPlot::GetAnnotateString(char * s, double x, double y, int mode, char *
 			char format[0xff] = ", ";
 			strcat(format, mouse_setting.fmt);
 			strcat(format, "/");
-			sprintf(s, format, (y - AxS[FIRST_Y_AXIS].min) / yrange);
+			sprintf(s, format, (y - AxS[FIRST_Y_AXIS].Range.low) / yrange);
 		}
 		else {
 			sprintf(s, ", (undefined)/");
@@ -321,7 +321,7 @@ char * GnuPlot::GetAnnotateString(char * s, double x, double y, int mode, char *
 		if(theta > 180.0)
 			theta = theta - 360.0;
 		if(AxS.__R().IsNonLinear())
-			r = EvalLinkFunction(&AxS.__R(), x/cos(phi) + AxS.__R().linked_to_primary->min);
+			r = EvalLinkFunction(&AxS.__R(), x/cos(phi) + AxS.__R().linked_to_primary->Range.low);
 		else if(AxS.__R().log)
 			r = rmin + x/cos(phi);
 		else if(Gg.InvertedRaxis)
@@ -593,14 +593,14 @@ void GnuPlot::DoZoom(double xmin, double ymin, double x2min, double y2min, doubl
 	//SET_AXIS(SECOND_X_AXIS, x2, max, > -VERYLARGE);
 	//SET_AXIS(SECOND_Y_AXIS, y2, max, > -VERYLARGE);
 //#undef SET_AXIS
-	z->_Min.x  = (AxS[FIRST_X_AXIS].min  < VERYLARGE)  ? xmin  : AxS[FIRST_X_AXIS].min;
-	z->_Min.y  = (AxS[FIRST_Y_AXIS].min  < VERYLARGE)  ? ymin  : AxS[FIRST_Y_AXIS].min;
-	z->_2Min.x = (AxS[SECOND_X_AXIS].min < VERYLARGE)  ? x2min : AxS[SECOND_X_AXIS].min;
-	z->_2Min.y = (AxS[SECOND_Y_AXIS].min < VERYLARGE)  ? y2min : AxS[SECOND_Y_AXIS].min;
-	z->_Max.x  = (AxS[FIRST_X_AXIS].max  > -VERYLARGE) ? xmax  : AxS[FIRST_X_AXIS].max;
-	z->_Max.y  = (AxS[FIRST_Y_AXIS].max  > -VERYLARGE) ? ymax  : AxS[FIRST_Y_AXIS].max;
-	z->_2Max.x = (AxS[SECOND_X_AXIS].max > -VERYLARGE) ? x2max : AxS[SECOND_X_AXIS].max;
-	z->_2Max.y = (AxS[SECOND_Y_AXIS].max > -VERYLARGE) ? y2max : AxS[SECOND_Y_AXIS].max;
+	z->_Min.x  = (AxS[FIRST_X_AXIS].Range.low  < VERYLARGE)  ? xmin  : AxS[FIRST_X_AXIS].Range.low;
+	z->_Min.y  = (AxS[FIRST_Y_AXIS].Range.low  < VERYLARGE)  ? ymin  : AxS[FIRST_Y_AXIS].Range.low;
+	z->_2Min.x = (AxS[SECOND_X_AXIS].Range.low < VERYLARGE)  ? x2min : AxS[SECOND_X_AXIS].Range.low;
+	z->_2Min.y = (AxS[SECOND_Y_AXIS].Range.low < VERYLARGE)  ? y2min : AxS[SECOND_Y_AXIS].Range.low;
+	z->_Max.x  = (AxS[FIRST_X_AXIS].Range.upp  > -VERYLARGE) ? xmax  : AxS[FIRST_X_AXIS].Range.upp;
+	z->_Max.y  = (AxS[FIRST_Y_AXIS].Range.upp  > -VERYLARGE) ? ymax  : AxS[FIRST_Y_AXIS].Range.upp;
+	z->_2Max.x = (AxS[SECOND_X_AXIS].Range.upp > -VERYLARGE) ? x2max : AxS[SECOND_X_AXIS].Range.upp;
+	z->_2Max.y = (AxS[SECOND_Y_AXIS].Range.upp > -VERYLARGE) ? y2max : AxS[SECOND_Y_AXIS].Range.upp;
 	ApplyZoom(GPT.P_Term, z);
 }
 
@@ -1337,7 +1337,7 @@ void GnuPlot::ChangeAzimuth(GpTermEntry * pTerm, int x)
 //int is_mouse_outside_plot(void)
 int GnuPlot::IsMouseOutsidePlot()
 {
-#define CHECK_AXIS_OUTSIDE(v, idx) (AxS[idx].min < VERYLARGE && AxS[idx].max > -VERYLARGE && (((v) < AxS[idx].min && (v) < AxS[idx].max) || ((v) > AxS[idx].min && (v) > AxS[idx].max)))
+#define CHECK_AXIS_OUTSIDE(v, idx) (AxS[idx].Range.low < VERYLARGE && AxS[idx].Range.upp > -VERYLARGE && (((v) < AxS[idx].Range.low && (v) < AxS[idx].Range.upp) || ((v) > AxS[idx].Range.low && (v) > AxS[idx].Range.upp)))
 	return CHECK_AXIS_OUTSIDE(_Mse.RealPos.x, FIRST_X_AXIS) || CHECK_AXIS_OUTSIDE(_Mse.RealPos.y, FIRST_Y_AXIS) || CHECK_AXIS_OUTSIDE(_Mse.RealPos2.x, SECOND_X_AXIS) || CHECK_AXIS_OUTSIDE(_Mse.RealPos2.y, SECOND_Y_AXIS);
 #undef CHECK_AXIS_OUTSIDE
 }
@@ -1349,8 +1349,8 @@ double GnuPlot::Rescale(int axIdx, double w1, double w2)
 {
 	double newlimit;
 	GpAxis * p_ax = &AxS[axIdx];
-	double axmin = p_ax->min;
-	double axmax = p_ax->max;
+	double axmin = p_ax->Range.low;
+	double axmax = p_ax->Range.upp;
 	if(p_ax->IsNonLinear()) {
 		axmin = EvalLinkFunction(p_ax->linked_to_primary, axmin);
 		axmax = EvalLinkFunction(p_ax->linked_to_primary, axmax);
@@ -1416,8 +1416,8 @@ void GnuPlot::RescaleAroundMouse(double * pNewMin, double * pNewMax, int axIdx, 
 {
 	GpAxis * p_ax = &AxS[axIdx];
 	GpAxis * p_ax_primary = p_ax->linked_to_primary;
-	double axmin = p_ax->min;
-	double axmax = p_ax->max;
+	double axmin = p_ax->Range.low;
+	double axmax = p_ax->Range.upp;
 	if(p_ax->IsNonLinear()) {
 		axmin = EvalLinkFunction(p_ax_primary, axmin);
 		axmax = EvalLinkFunction(p_ax_primary, axmax);

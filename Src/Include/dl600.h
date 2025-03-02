@@ -581,6 +581,7 @@ struct CtmToken {
 		acBoundingBox,
 		acLayoutItemSizeEntry,
 		acLayoutItemSize,
+		acBoundingBoxOrigin, // @v12.2.9
 	};
 	void   Init();
 	void   Destroy();

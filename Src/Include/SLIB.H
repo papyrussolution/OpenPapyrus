@@ -3617,6 +3617,8 @@ struct RealRange { // @persistent @flat @noctr @novtbl @size=16
 	// Descr: Устанавливает диапазон [middle-delta..middle+delta]
 	//
 	RealRange & SetMiddle(double middle, double delta);
+	double GetMin() const { return MIN(low, upp); }
+	double GetMax() const { return MAX(low, upp); }
 	double GetMiddle() const;
 	int    FASTCALL Intersect(const RealRange & rTest, RealRange * pResult) const;
 
@@ -15321,7 +15323,7 @@ struct UiCoord { // @noctr
 		dfContent = 0x0020  // @v11.0.4 Только для размера: он определяется содержимым
 	};
 	void   Set(float v, int f);
-	void   Reset();
+	UiCoord & Z();
 	bool   IsEmpty() const;
 
 	float  Val;   // @v11.0.4 int16-->float
@@ -15337,7 +15339,7 @@ struct UiRelPoint { // @noctr
 };
 
 struct UiRelRect { // @noctr
-	void   Reset();
+	UiRelRect & Z();
 	bool   IsEmpty() const;
 	UiRelRect & FASTCALL Set(const TRect & rR);
 

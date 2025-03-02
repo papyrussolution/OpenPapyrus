@@ -78,9 +78,9 @@
 	#define DBFS_CRCS_GRPQTTYDSC_EXPORT  1047   // DBF экспорт в Кристалл-Кассовый сервер
 	#define DBFS_CRCS_SALESGGRP_EXPORT   1048   // DBF экспорт в Кристалл-Кассовый сервер
 	#define DBFS_CRCS_SALESGGRPI_EXPORT  1049   // DBF экспорт в Кристалл-Кассовый сервер
-	#define DBFS_CRCS_GOODSDIS_EXPORT    1050   // @v7.0.6 DBF экспорт в Кристалл-Кассовый сервер
-	#define DBFS_CRCS_GOODSGRPDIS_EXPORT 1051   // @v7.0.6 DBF экспорт в Кристалл-Кассовый сервер
-	#define DBFS_CRCS_SIGNAL_ALL_EXPORT  1052   // @v9.2.1 Сигнальный DBF-файл для Set Retail 5
+	#define DBFS_CRCS_GOODSDIS_EXPORT    1050   // DBF экспорт в Кристалл-Кассовый сервер
+	#define DBFS_CRCS_GOODSGRPDIS_EXPORT 1051   // DBF экспорт в Кристалл-Кассовый сервер
+	#define DBFS_CRCS_SIGNAL_ALL_EXPORT  1052   // Сигнальный DBF-файл для Set Retail 5
 	#define CACLFUNC_DESCR            1101   // Описание встроенных функций калькулятора
 	#define TAB_UNITS                 1102   // Единицы измерения (см. UNIT_XXX) //
 	#define TAB_HELP                  1103   // Таблица соответствий идентификаторов тем Help'а и идентификаторов
@@ -270,14 +270,13 @@
 #define PPPATH_PACK          16 // Каталог хранения некоторых файлов, распространяемых с дистрибутивом
 #define PPPATH_DOC           17 // Каталог хранения документации на систему
 #define PPPATH_SPII          18 // Каталог обмена между мобильными устройствами и JobServer'ом
-#define PPPATH_SARTREDB      19 // @v9.7.8 Путь к базе данных проекта Sartre
-#define PPPATH_WORKSPACE     20 // @v9.8.2 Путь к каталогу рабочего пространства (туда перенесем все конфигруационные и прочие файлы,
+#define PPPATH_SARTREDB      19 // Путь к базе данных проекта Sartre
+#define PPPATH_WORKSPACE     20 // Путь к каталогу рабочего пространства (туда перенесем все конфигруационные и прочие файлы,
 	// не относящиеся к дистрибутиву, из BIN
-#define PPPATH_TESTROOT      21 // @v9.8.3 (только для отладки и тестирования) корневой каталог тестовых данных
-#define PPPATH_REPORTDATA    22 // @v9.8.9 [system]PPINIPARAM_REPORTDATAPATH
+#define PPPATH_TESTROOT      21 // (только для отладки и тестирования) корневой каталог тестовых данных
+#define PPPATH_REPORTDATA    22 // [system]PPINIPARAM_REPORTDATAPATH
 #define PPPATH_UID           23 // @v11.9.3 Путь к каталогу с json-описаниями пользовательского интерфейса
 #define PPPATH_SRCROOT       24 // @v11.9.4 (только для отладки и тестирования) корневой каталог исходных кодов системы
-// @v9.8.2 (@unused) #define PPPATH_LAST          20L  // Последний из путей
 #define PPPRP_PATHS          20L  //
 #define PPPRP_PRINTER        21L  // Принтер
 #define PPPRP_CFGPRIVATE     22L  // Частная конфигурация пользователя //
@@ -440,7 +439,7 @@
 	#define PPPRK_SHIPOWNER     13L // Владельцы транспортных средств
 	#define PPPRK_VESSELSAGENT  14L // Транспортные брокеры
 	#define PPPRK_CAPTAIN       15L // Командиры транспортных средств
-	#define PPPRK_DTO           16L // @v9.8.0 Операторы передачи данных
+	#define PPPRK_DTO           16L // Организации-операторы передачи данных
 	#define PPPRK_MARKETPLACE   17L // @v12.0.12 Маркетплейсы
 
 #define PPOBJ_PRSNSTATUS          9L  // $ Юридические статусы персоналий
@@ -609,7 +608,7 @@
 	#define CNPRP_TOUCHSCREEN    7L  // TouchScreen        - obsolete
 	#define CNPRP_EXTDEVICES     8L  // Дополнительные устройства
 	#define CNPRP_CTBLLIST       9L  // Список номеров столов
-	#define CNPRP_APNCORRLIST   10L  // @v9.6.5 Список корреспондирующих кассовых узлов (Async)
+	#define CNPRP_APNCORRLIST   10L  // Список корреспондирующих кассовых узлов (Async)
 #define PPOBJ_ACTION             18L  // # События, регистрируемые в системном журнале *
 	// Текстовые строки, соответствующие событиям содержатся в группе [PPSTR_ACTION=112]
 	// со значениями, равными приведенным ниже символам.
@@ -1023,7 +1022,7 @@
 #define PPOBJ_EDIPROVIDER	     74L // Провайдеры EDI-обмена
 	#define EDIPRVPRP_EXTSTRING       1L // Текстовые данные пакета
 #define PPOBJ_USREXCLRIGHTS      75L // Исключения для пользовательских прав доступа при некоторых действиях
-#define PPOBJ_STAFFLIST2         76L // @v9.0.3 Штатное расписание (2-я версия объекта - записи перемещены из
+#define PPOBJ_STAFFLIST2         76L // Штатное расписание (2-я версия объекта - записи перемещены из
 	// специализированной таблицы StaffList в Reference
 #define PPOBJ_ACCOUNT2           77L // Бухгалтерские счета (балансовые) (2-я версия объекта - записи перемещены из
 	// специализированной таблицы Account в Reference
@@ -1465,6 +1464,7 @@
 	// оригинальный заказ покупателя, в соответствии с которым документ был создан.
 #define PPTAG_LOC_SPCTAXGROUP          127L // @v12.2.4 Специальная налоговая ставка склада при продаже товаров (инициировано необходимостью определять специальные
 	// ставки НДС 5% и 7% в России с 2025года).
+#define PPTAG_POSNODE_TEST             128L // @v12.2.9 Признак тестовой конфигурации кассового узла. Строка. Трактуется так как вздумается в целях разработки.
 //
 // Зарезервированные идентификаторы глобальных учетных записей
 //
@@ -1510,7 +1510,7 @@
 #define PPBCPT_ZEBRA         1L // Zebra
 #define PPBCPT_DATAMAX       2L // Datamax Corporation
 #define PPBCPT_ELTRON        3L // Zebra-Eltron (EPL2)
-#define PPBCPT_WINDOWS       4L // @v9.6.6 Стандартный Windows-принтер с отчетов из CrystalReports
+#define PPBCPT_WINDOWS       4L // Стандартный Windows-принтер с отчетов из CrystalReports
 //
 // Типы электронных весов (@v3.0.0)
 // Наименования типов хранятся в ресурсах строк в группе PPTXT_SCLT.
@@ -5926,7 +5926,6 @@
 	#define CTL_SCARDSER_BONCGRP         (19 + WINDOWS_ID_BIAS)
 	#define CTLSEL_SCARDSER_BONCGRP      (20 + WINDOWS_ID_BIAS)
 	#define CTL_SCARDSER_SYMB            (21 + WINDOWS_ID_BIAS)
-	// @v9.5.5 replacedby(STDCTL_QKLISTBUTTON) #define CTL_SCARDSER_QKLIST          (22 + WINDOWS_ID_BIAS)
 	#define CTL_SCARDSER_BONER           (23 + WINDOWS_ID_BIAS)
 	#define CTL_SCARDSER_BONERVAL        (24 + WINDOWS_ID_BIAS)
 	#define CTL_SCARDSER_USAGETM         (25 + WINDOWS_ID_BIAS)
@@ -6673,6 +6672,7 @@
 	#define CTL_CCHECKINFO_EADDR         (21 + WINDOWS_ID_BIAS) // @v11.3.6 Электронный адрес покупателя //
 	#define CTL_CCHECKINFO_UUID          (22 + WINDOWS_ID_BIAS) // @v11.5.8
 	#define CTL_CCHECKINFO_FSCLSIGN      (23 + WINDOWS_ID_BIAS) // @v12.2.8 Фискальный признак чека
+	#define CTL_CCHECKINFO_OP            (24 + WINDOWS_ID_BIAS) // @v12.2.9 Операция чека (general|return|correction|invalid)
 #define DLG_PSNRELTYPE            638 // Тип связи между персоналиями
 	#define CTL_PSNRELTYPE_NAME          (1 + WINDOWS_ID_BIAS)
 	#define CTL_PSNRELTYPE_ID            (2 + WINDOWS_ID_BIAS)
@@ -10448,6 +10448,8 @@
 	#define CTL_NEWCLNT_CRITCADS       (3 + WINDOWS_ID_BIAS) // @v12.2.2 CriticalCliActivityDelaySigm
 	#define CTL_NEWCLNT_HLCADD         (4 + WINDOWS_ID_BIAS) // @v12.2.2 HopelessCliActivityDelayDays
 	#define CTL_NEWCLNT_HLCADS         (5 + WINDOWS_ID_BIAS) // @v12.2.2 HopelessCliActivityDelaySigm
+	#define CTL_NEWCLNT_PSNKIND        (6 + WINDOWS_ID_BIAS) // @v12.2.9
+	#define CTLSEL_NEWCLNT_PSNKIND     (7 + WINDOWS_ID_BIAS) // @v12.2.9
 #define DLG_NEWCNTCF              1260
 	#define CTL_NEWCNTCF_OPTYPE        (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_NEWCNTCF_OPTYPE     (2 + WINDOWS_ID_BIAS)
@@ -12103,6 +12105,7 @@
 	#define PPCHKPAN_SESSISCLOSED                  5 // Кассовая сессия закрыта
 	#define PPCHKPAN_CTBLORDER                     6 // Заказ стола
 	#define PPCHKPAN_CTBLORDERCANCELED             7 // Отмененный заказ стола
+	#define PPCHKPAN_CORRECTION                    8 // @v12.2.9 Чек коррекции
 #define PPTXT_LOGSNAMES                   446 // Файлы логов и их названия
 	#define PPLOGNAM_ERROR              0
 	#define PPLOGNAM_ERRMSG             1
@@ -12206,7 +12209,7 @@
 	#define IMPEXPPARAM_BILH_FLAGS          1
 	#define IMPEXPPARAM_BILH_SRCHCODE1      2
 	#define IMPEXPPARAM_BILH_SRCHCODE2      3
-	#define IMPEXPPARAM_BILH_PREDEFFMT      4 // @v9.7.8
+	#define IMPEXPPARAM_BILH_PREDEFFMT      4
 	#define IMPEXPPARAM_BILH_FIXTAG         5 // @v11.5.6
 	#define IMPEXPPARAM_BILH_OUTERFORMATVER 6 // @v11.6.5
 #define PPTXT_BALTIKA_DOCTYPES                  636

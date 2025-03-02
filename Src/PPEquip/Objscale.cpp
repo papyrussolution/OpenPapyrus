@@ -1,5 +1,5 @@
 // OBJSCALE.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1059,7 +1059,7 @@ int CommLP15::GetData(int * pGdsNo, double * pWeight)
 		size_t pos = 0;
 		SString buf, temp_buf;
 		uint8 r0 = 0;
-		THROW(SetConnection()); // @v9.0.0
+		THROW(SetConnection());
 		r0 = (uint8)0x05;
 		THROW_PP(PutChr(r0, 1, 1), PPERR_SCALE_NOSYNC); // Посылаем запрос к весам на установку соединения (0x05)
 		THROW_PP(r0 = GetChr(), PPERR_SCALE_NOSYNC); // Получаем ответ весов
@@ -1955,7 +1955,7 @@ int COMMassaKVPN::SendPLU(const ScalePLU * pScalePLU)
 		(goods_name = pScalePLU->GoodsName);
 		SETIFZ(wght_prefix, 20 + pScalePLU->Barcode / 100000);
 		expiry_minutes = (expiry > cur_dt) ? diffdate(expiry, cur_dt) : 0; // * 24 * 60;
-		ss.setBuf(pScalePLU->AddMsgBuf, sstrlen(pScalePLU->AddMsgBuf)+1); // @v9.6.0 @fix (+1)
+		ss.setBuf(pScalePLU->AddMsgBuf, sstrlen(pScalePLU->AddMsgBuf)+1);
 
 		if(P_DbfTbl) {
 			DbfRecord dbf_rec(P_DbfTbl);
@@ -4048,7 +4048,7 @@ $$$RPL
 		StringSet ext_lines;
 		line_buf.Cat("<D").Space();
         line_buf.Cat(pScalePLU->GoodsID).Semicol();                    // #1
-		temp_buf.Cat(pScalePLU->Barcode); // @v9.8.12 (temp_buf = pScalePLU->Barcode)-->(temp_buf.Cat(pScalePLU->Barcode))
+		temp_buf.Cat(pScalePLU->Barcode);
 		if(temp_buf.Len() > 5)
 			temp_buf.ShiftLeft(temp_buf.Len() - 5);
         line_buf.Cat(temp_buf).Semicol();                    // #2
@@ -4319,8 +4319,7 @@ void ScaleDialog::ReplyScaleTypeSelection(PPID scaleTypeID)
 			sys_btn_text = DefSysBtnText;
 		sys_btn_text.Transf(CTRANSF_INNER_TO_OUTER);
 		p_sys_btn->Title = sys_btn_text;
-		// @v9.1.5 SendDlgItemMessage(H(), CTL_SCALE_SYSBTN, WM_SETTEXT, 0, (LPARAM)(const char *)p_sys_btn->Title);
-		TView::SSetWindowText(GetDlgItem(H(), CTL_SCALE_SYSBTN), p_sys_btn->Title); // @v9.1.5
+		TView::SSetWindowText(GetDlgItem(H(), CTL_SCALE_SYSBTN), p_sys_btn->Title);
 	}
 }
 

@@ -734,7 +734,8 @@ int SCS_SHTRIHFRF::LineFeed(int lineCount, int useReceiptRibbon, int useJournalR
 
 static void WriteLogFile_PageWidthOver(const char * pFormatName)
 {
-	SString msg_fmt, msg;
+	SString msg_fmt;
+	SString msg;
 	msg.Printf(PPLoadTextS(PPTXT_SLIPFMT_WIDTHOVER, msg_fmt), pFormatName);
 	PPLogMessage(PPFILNAM_SHTRIH_LOG, msg, LOGMSGF_TIME|LOGMSGF_USER);
 }
@@ -1145,7 +1146,7 @@ int SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 		}
 		if(!is_format) {
 			CCheckLineTbl::Rec ccl;
-			for(uint pos = 0; pPack->EnumLines(&pos, &ccl) > 0;) {
+			for(uint pos = 0; pPack->EnumLines(&pos, &ccl);) {
 				const int division = (ccl.DivID >= CHECK_LINE_IS_PRINTED_BIAS) ? ccl.DivID - CHECK_LINE_IS_PRINTED_BIAS : ccl.DivID;
 				// Наименование товара
 				GetGoodsName(ccl.GoodsID, temp_buf);
@@ -1609,7 +1610,7 @@ int SCS_SHTRIHFRF::PrintCheckCopy(const CCheckPacket * pPack, const char * pForm
 			THROW(SetFR(StringForPrinting, temp_buf));
 		}
 		THROW(ExecFR(PrintString));
-		for(pos = 0; pPack->EnumLines(&pos, &ccl) > 0;) {
+		for(pos = 0; pPack->EnumLines(&pos, &ccl);) {
 			double  price = intmnytodbl(ccl.Price) - ccl.Dscnt;
 			double  qtty  = R3(fabs(ccl.Quantity));
 			GetGoodsName(ccl.GoodsID, prn_str);

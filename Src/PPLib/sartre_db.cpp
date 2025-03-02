@@ -1,5 +1,5 @@
 // SARTRE_DB.CPP
-// Copyright (c) A.Sobolev 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -456,14 +456,11 @@ int SrNGramTbl::Add(SrNGram & rRec)
 	int64 __id = 0;
 	THROW_DB(P_Db->GetSequence(SeqID, &__id));
 	rRec.ID = __id;
-	// @v9.9.2 key_buf = __id;
-	// @v9.9.2 {
 	{
 		uint8  _key[16];
 		size_t _key_sz = sshrinkuint64(__id, _key);
 		key_buf.Set(_key, _key_sz);
 	}
-	// } @v9.9.2
 	THROW(SerializeRecBuf(+1, &rRec, rec_buf));
 	data_buf = rec_buf;
 	THROW_DB(InsertRec(key_buf, data_buf));
@@ -500,7 +497,7 @@ int SrNGramTbl::Search(NGID id, SrNGram * pRec)
 				assert(temp_id == id);
 			}
 			// } @v9.9.9 @paranoic
-			pRec->ID = id; // @v9.7.11 @fix
+			pRec->ID = id;
 		}
 		ok = 1;
 	}
@@ -529,7 +526,7 @@ int SrNGramTbl::Search(const SrNGram & rKey, NGID * pID)
 	return ok;
 }
 
-int SrNGramTbl::SearchByPrefix(const SrNGram & rKey, TSVector <NGID> & rList) // @v9.8.4 TSArray-->TSVect
+int SrNGramTbl::SearchByPrefix(const SrNGram & rKey, TSVector <NGID> & rList)
 {
 	int    ok = -1;
 	const  LongArray & r_key_list = rKey.WordIdList;
@@ -543,7 +540,7 @@ int SrNGramTbl::SearchByPrefix(const SrNGram & rKey, TSVector <NGID> & rList) //
 		if(curs.Search(key_buf, data_buf, spGe)) {
 			do {
 				data_buf.Get(rec_buf);
-				THROW(SerializeRecBuf(-1, &rec, rec_buf)); // @v9.7.11 @fix +1-->-1
+				THROW(SerializeRecBuf(-1, &rec, rec_buf));
 				if(rec.WordIdList.getCount() >= key_count) {
 					int    eq_prefix = 1;
 					for(uint i = 0; eq_prefix && i < key_count; i++) {
@@ -1456,7 +1453,7 @@ int SrDatabase::Open(const char * pDbPath, long flags)
 	//cfg.LogSubDir = "LOG";
 	cfg.Flags |= (cfg.fLogNoSync|cfg.fLogAutoRemove/*|cfg.fLogInMemory*/); // @v9.6.6 // @v10.0.01 /*cfg.fLogNoSync*/
 	//
-	Flags |= (flags & (oReadOnly|oWriteStatOnClose|oExclusive)); // @v9.7.11
+	Flags |= (flags & (oReadOnly|oWriteStatOnClose|oExclusive));
 	//
 	Close();
 	{
@@ -1850,7 +1847,7 @@ int SrDatabase::GetBaseWordInfo(LEXID wordID, LEXID pfxID, LEXID afxID, TSVector
 						ii.BaseFormID = r_wa.BaseFormID;
 						ii.FormID = wf_list.get(j);
 						ii.WaID = r_wa.ID;
-						ii.AbbrExpID = r_wa.AbbrExpID; // @v9.8.12
+						ii.AbbrExpID = r_wa.AbbrExpID;
 						rInfo.insert(&ii);
 						ok = 1;
 					}

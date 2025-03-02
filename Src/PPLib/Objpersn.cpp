@@ -406,11 +406,12 @@ struct Storage_PPPersonConfig { // @persistent @store(PropertyTbl)
 	SVerT  Ver;               // Версия системы, создавшей запись
 	long   SendSmsSamePersonTimeout;
 	TimeRange SmsProhibitedTr; // 
-	uint16 CriticalCliActivityDelayDays; // @v12.2.2 @construction Критическая задержка активности клиента в днях.
-	uint16 HopelessCliActivityDelayDays; // @v12.2.2 @construction Безнадежная задержка активности клиента в днях.
-	float  CriticalCliActivityDelaySigm; // @v12.2.2 @construction Критическая задержка активности клиента в сигмах (стандартных отклонениях от средней периодичности).
-	float  HopelessCliActivityDelaySigm; // @v12.2.2 @construction Безнадежная задержка активности клиента в сигмах (стандартных отклонениях от средней периодичности).
-	char   Reserve[20];        // @v12.2.2 [32]-->[20]
+	uint16 CriticalCliActivityDelayDays; // @v12.2.2 Критическая задержка активности клиента в днях.
+	uint16 HopelessCliActivityDelayDays; // @v12.2.2 Безнадежная задержка активности клиента в днях.
+	float  CriticalCliActivityDelaySigm; // @v12.2.2 Критическая задержка активности клиента в сигмах (стандартных отклонениях от средней периодичности).
+	float  HopelessCliActivityDelaySigm; // @v12.2.2 Безнадежная задержка активности клиента в сигмах (стандартных отклонениях от средней периодичности).
+	PPID   CliActivityPsnKindID; // @v12.2.9 Вид персоналии (по умолчанию), по которому анализируется клиентская активность
+	char   Reserve[16];        // @v12.2.2 [32]-->[20] // @v12.2.9 [20]-->[16]
 	long   Reserve1[2];
 	//char   ExtString[];
 	//TSArray <PPPersonConfig::ClientActivityDetectionItem> ClientActivityDetectionList; // @vmiller
@@ -458,6 +459,7 @@ struct Storage_PPPersonConfig { // @persistent @store(PropertyTbl)
 			p_cfg->HopelessCliActivityDelayDays = pCfg->HopelessCliActivityDelayDays; // @v12.2.2
 			p_cfg->CriticalCliActivityDelaySigm = pCfg->CriticalCliActivityDelaySigm; // @v12.2.2
 			p_cfg->HopelessCliActivityDelaySigm = pCfg->HopelessCliActivityDelaySigm; // @v12.2.2
+			p_cfg->CliActivityPsnKindID         = pCfg->CliActivityPsnKindID; // @v12.2.9
 			if(ext_size) {
 				size_t pos = 0;
 				char * p_buf = reinterpret_cast<char *>(p_cfg+1);
@@ -503,8 +505,10 @@ struct Storage_PPPersonConfig { // @persistent @store(PropertyTbl)
 /*static*/int FASTCALL PPObjPerson::ReadConfig(PPPersonConfig * pCfg)
 {
 	const  long prop_cfg_id = PPPRP_PERSONCFG;
-	int    ok = -1, r;
+	int    ok = -1;
+	int    r;
 	Reference * p_ref = PPRef;
+	SString temp_buf;
 	size_t sz = sizeof(Storage_PPPersonConfig) + 256;
 	Storage_PPPersonConfig * p_cfg = static_cast<Storage_PPPersonConfig *>(SAlloc::M(sz));
 	THROW_MEM(p_cfg);
@@ -527,6 +531,7 @@ struct Storage_PPPersonConfig { // @persistent @store(PropertyTbl)
 		pCfg->HopelessCliActivityDelayDays = p_cfg->HopelessCliActivityDelayDays; // @v12.2.2
 		pCfg->CriticalCliActivityDelaySigm = p_cfg->CriticalCliActivityDelaySigm; // @v12.2.2
 		pCfg->HopelessCliActivityDelaySigm = p_cfg->HopelessCliActivityDelaySigm; // @v12.2.2
+		pCfg->CliActivityPsnKindID         = p_cfg->CliActivityPsnKindID; // @v12.2.9
 		if(p_cfg->StrPosTopFolder)
 			pCfg->TopFolder = reinterpret_cast<const char *>(p_cfg+1) + p_cfg->StrPosTopFolder;
 		else
@@ -535,7 +540,6 @@ struct Storage_PPPersonConfig { // @persistent @store(PropertyTbl)
 			size_t buf_size = 0;
 			WinRegKey reg_key(HKEY_CURRENT_USER, PPConst::WrKey_SysSettings, 1);
 			if(reg_key.GetRecSize(PPConst::WrParam_PersonAddImageFolder, &buf_size) > 0 && buf_size > 0) {
-				SString temp_buf;
 				reg_key.GetString(PPConst::WrParam_PersonAddImageFolder, temp_buf);
 				pCfg->AddImageFolder = temp_buf;
 			}
@@ -543,7 +547,6 @@ struct Storage_PPPersonConfig { // @persistent @store(PropertyTbl)
 		ok = 1;
 	}
 	else {
-		SString symb;
 		pCfg->Flags = 0;
 		pCfg->TradeLicRegTypeID = 0;
 		pCfg->TopFolder = 0;
@@ -551,13 +554,13 @@ struct Storage_PPPersonConfig { // @persistent @store(PropertyTbl)
 		// Для совместимости со старыми версиями извлекаем некоторые значения из pp.ini
 		//
 		PPIniFile ini_file;
-		if(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_TRADELIC, symb)) {
+		if(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_TRADELIC, temp_buf.Z())) {
 			PPID   rt_id = 0;
-			if(PPObjRegisterType::GetByCode(symb, &rt_id) > 0)
+			if(PPObjRegisterType::GetByCode(temp_buf, &rt_id) > 0)
 				pCfg->TradeLicRegTypeID = rt_id;
 		}
-		if(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_PERSONFOLDER, symb))
-			pCfg->TopFolder = symb;
+		if(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_PERSONFOLDER, temp_buf.Z()))
+			pCfg->TopFolder = temp_buf;
 		pCfg->Flags |= PPPersonConfig::fSyncByName;
 		ok = -1;
 	}
@@ -731,6 +734,7 @@ public:
 		if(!RVALUEPTR(Data, pData))
 			Data.ClientActivityDetectionList.clear();
 		updateList(-1);
+		SetupPPObjCombo(this, CTLSEL_NEWCLNT_PSNKIND, PPOBJ_PERSONKIND, Data.CliActivityPsnKindID, 0); // @v12.2.9
 		// @v12.2.2 {
 		setCtrlData(CTL_NEWCLNT_CRITCADD, &Data.CriticalCliActivityDelayDays);
 		setCtrlData(CTL_NEWCLNT_CRITCADS, &Data.CriticalCliActivityDelaySigm);
@@ -741,6 +745,7 @@ public:
 	}
 	DECL_DIALOG_GETDTS()
 	{
+		getCtrlData(CTLSEL_NEWCLNT_PSNKIND, &Data.CliActivityPsnKindID); // @v12.2.9
 		// @v12.2.2 {
 		getCtrlData(CTL_NEWCLNT_CRITCADD, &Data.CriticalCliActivityDelayDays);
 		getCtrlData(CTL_NEWCLNT_CRITCADS, &Data.CriticalCliActivityDelaySigm);

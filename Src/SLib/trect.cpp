@@ -1787,11 +1787,12 @@ void UiCoord::Set(float v, int f)
 	Reserve = 0;
 }
 
-void UiCoord::Reset()
+UiCoord & UiCoord::Z()
 {
-	Val = 0;
+	Val = 0.0f;
 	Flags = 0;
 	Reserve = 0;
+	return *this;
 }
 
 bool UiCoord::IsEmpty() const { return (Val == 0.0f && Flags == 0); }
@@ -1810,12 +1811,13 @@ UiRelRect & FASTCALL UiRelRect::Set(const TRect & rR)
 	return *this;
 }
 
-void UiRelRect::Reset()
+UiRelRect & UiRelRect::Z()
 {
-	L.X.Reset();
-	L.Y.Reset();
-	R.X.Reset();
-	R.Y.Reset();
+	L.X.Z();
+	L.Y.Z();
+	R.X.Z();
+	R.Y.Z();
+	return *this;
 }
 
 bool UiRelRect::IsEmpty() const { return (L.X.IsEmpty() && L.Y.IsEmpty() && R.X.IsEmpty() && R.Y.IsEmpty()); }

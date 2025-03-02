@@ -3215,7 +3215,7 @@ int PPViewCCheck::AddGoodsToBasket(PPID checkID)
 		THROW(r = GetBasketByDialog(&param, 0));
 		if(r > 0) {
 			CCheckLineTbl::Rec ccl_rec;
-			for(uint pos = 0; pack.EnumLines(&pos, &ccl_rec, 0) > 0;) {
+			for(uint pos = 0; pack.EnumLines(&pos, &ccl_rec, 0);) {
 				ILTI   ilti;
 				ilti.GoodsID  = ccl_rec.GoodsID;
 				ilti.Quantity = fabs(ccl_rec.Quantity);
@@ -3510,7 +3510,7 @@ int PPViewCCheck::ExportToChZn() // @v11.0.1
 		bool suitable = false;
 		if(P_CC->LoadPacket(item.ID, 0, p_temp_cc_pack) > 0) {
 			CCheckItem ccitem;
-			for(uint i = 0; !suitable && p_temp_cc_pack->EnumLines(&i, &ccitem) > 0;) {
+			for(uint i = 0; !suitable && p_temp_cc_pack->EnumLines(&i, &ccitem);) {
 				if(p_temp_cc_pack->GetLineTextExt(i, CCheckPacket::lnextChZnMark, temp_buf) > 0 && temp_buf.NotEmptyS()) {
 					GtinStruc gts;
 					if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0)) > 0)
@@ -3846,6 +3846,24 @@ public:
 		SetupArCombo(this, CTLSEL_CCHECKINFO_AGENT, Data.Ext.SalerID, OLW_LOADDEFONOPEN, GetAgentAccSheet(), sacfDisableIfZeroSheet);
 		setCtrlLong(CTL_CCHECKINFO_TABLE, Data.Ext.TableNo);
 		setCtrlLong(CTL_CCHECKINFO_LINKID, Data.Ext.LinkCheckID);
+		{
+			temp_buf.Z();
+			if(Data.Rec.Flags & CCHKF_CORRECTION) {
+				if(Data.Rec.Flags & CCHKF_RETURN) {
+					temp_buf = "Invalid state";
+				}
+				else {
+					PPLoadString("correction", temp_buf);
+				}
+			}
+			else if(Data.Rec.Flags & CCHKF_RETURN) {
+				PPLoadString("return", temp_buf);
+			}
+			else {
+				PPLoadString("selling", temp_buf);
+			}
+			setCtrlString(CTL_CCHECKINFO_OP, temp_buf);
+		}
 		AddClusterAssoc(CTL_CCHECKINFO_FLAGS,  0, CCHKF_SYNC);
 		AddClusterAssoc(CTL_CCHECKINFO_FLAGS,  1, CCHKF_NOTUSED);
 		AddClusterAssoc(CTL_CCHECKINFO_FLAGS,  2, CCHKF_PRINTED);

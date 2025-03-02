@@ -53,8 +53,8 @@ void GnuPlot::GetArrow(GpTermEntry * pTerm, arrow_def * pArrow, double * pSx, do
 
 void GnuPlot::PlaceGrid(GpTermEntry * pTerm, int layer)
 {
-	int save_lgrid = AxS.grid_lp.l_type;
-	int save_mgrid = AxS.mgrid_lp.l_type;
+	const int save_lgrid = AxS.grid_lp.l_type;
+	const int save_mgrid = AxS.mgrid_lp.l_type;
 	BoundingBox * clip_save = V.P_ClipArea;
 	TermApplyLpProperties(pTerm, &Gg.border_lp); /* border linetype */
 	Gr.LargestPolarCircle = 0.0;
@@ -107,7 +107,7 @@ void GnuPlot::PlaceGrid(GpTermEntry * pTerm, int layer)
 		pTerm->Layer_(TERM_LAYER_BEGIN_GRID);
 		TermApplyLpProperties(pTerm, &AxS.grid_lp);
 		if(Gr.LargestPolarCircle <= 0.0)
-			Gr.LargestPolarCircle = PolarRadius(AxS.__R().max);
+			Gr.LargestPolarCircle = PolarRadius(AxS.__R().Range.upp);
 		for(theta = 0; theta < 6.29; theta += AxS.polar_grid_angle) {
 			int x = MapiX(Gr.LargestPolarCircle * cos(theta));
 			int y = MapiY(Gr.LargestPolarCircle * sin(theta));
@@ -119,7 +119,7 @@ void GnuPlot::PlaceGrid(GpTermEntry * pTerm, int layer)
 	if(AxS.Theta().ticmode) {
 		TermApplyLpProperties(pTerm, &Gg.border_lp);
 		if(Gr.LargestPolarCircle <= 0.0)
-			Gr.LargestPolarCircle = PolarRadius(AxS.__R().max);
+			Gr.LargestPolarCircle = PolarRadius(AxS.__R().Range.upp);
 		CopyOrInventFormatString(&AxS.Theta());
 		GenTics(pTerm, &AxS.Theta(), &GnuPlot::TTickCallback);
 		pTerm->SetTextAngle_(0);
@@ -135,16 +135,17 @@ void GnuPlot::PlaceArrows(GpTermEntry * pTerm, int layer)
 	BoundingBox * clip_save = V.P_ClipArea;
 	// Allow arrows to run off the plot, so long as they are still on the canvas 
 	V.P_ClipArea = pTerm->CheckFlag(TERM_CAN_CLIP) ? NULL : &V.BbCanvas;
-	for(arrow_def * this_arrow = Gg.P_FirstArrow; this_arrow; this_arrow = this_arrow->next) {
-		double dsx = 0, dsy = 0, dex = 0, dey = 0;
-		if(this_arrow->arrow_properties.layer != layer)
-			continue;
-		if(this_arrow->type == arrow_end_undefined)
-			continue;
-		GetArrow(pTerm, this_arrow, &dsx, &dsy, &dex, &dey);
-		TermApplyLpProperties(pTerm, &this_arrow->arrow_properties.lp_properties);
-		ApplyHeadProperties(pTerm, &this_arrow->arrow_properties);
-		DrawClipArrow(pTerm, dsx, dsy, dex, dey, this_arrow->arrow_properties.head);
+	for(arrow_def * p_arrow = Gg.P_FirstArrow; p_arrow; p_arrow = p_arrow->next) {
+		if(p_arrow->arrow_properties.layer == layer && p_arrow->type != arrow_end_undefined) {
+			double dsx = 0.0;
+			double dsy = 0.0;
+			double dex = 0.0;
+			double dey = 0.0;
+			GetArrow(pTerm, p_arrow, &dsx, &dsy, &dex, &dey);
+			TermApplyLpProperties(pTerm, &p_arrow->arrow_properties.lp_properties);
+			ApplyHeadProperties(pTerm, &p_arrow->arrow_properties);
+			DrawClipArrow(pTerm, dsx, dsy, dex, dey, p_arrow->arrow_properties.head);
+		}
 	}
 	TermApplyLpProperties(pTerm, &Gg.border_lp);
 	V.P_ClipArea = clip_save;
@@ -373,13 +374,13 @@ void GnuPlot::AdjustOffsets()
 				AdjustNonlinearOffset(&AxS.__Y());
 			}
 			else {
-				if(AxS.__Y().min < AxS.__Y().max) {
-					AxS.__Y().min -= b;
-					AxS.__Y().max += t;
+				if(AxS.__Y().Range.low < AxS.__Y().Range.upp) {
+					AxS.__Y().Range.low -= b;
+					AxS.__Y().Range.upp += t;
 				}
 				else {
-					AxS.__Y().max -= b;
-					AxS.__Y().min += t;
+					AxS.__Y().Range.upp -= b;
+					AxS.__Y().Range.low += t;
 				}
 			}
 		}
@@ -388,19 +389,19 @@ void GnuPlot::AdjustOffsets()
 				AdjustNonlinearOffset(&AxS.__X());
 			}
 			else {
-				if(AxS.__X().min < AxS.__X().max) {
-					AxS.__X().min -= l;
-					AxS.__X().max += r;
+				if(AxS.__X().Range.low < AxS.__X().Range.upp) {
+					AxS.__X().Range.low -= l;
+					AxS.__X().Range.upp += r;
 				}
 				else {
-					AxS.__X().max -= l;
-					AxS.__X().min += r;
+					AxS.__X().Range.upp -= l;
+					AxS.__X().Range.low += r;
 				}
 			}
 		}
-		if(AxS.__X().min == AxS.__X().max)
+		if(AxS.__X().Range.low == AxS.__X().Range.upp)
 			IntError(NO_CARET, "x_min should not equal x_max!");
-		if(AxS.__Y().min == AxS.__Y().max)
+		if(AxS.__Y().Range.low == AxS.__Y().Range.upp)
 			IntError(NO_CARET, "y_min should not equal y_max!");
 		if(AxS[FIRST_X_AXIS].linked_to_secondary)
 			CloneLinkedAxes(&AxS[FIRST_X_AXIS], &AxS[SECOND_X_AXIS]);
@@ -430,10 +431,10 @@ void GnuPlot::AdjustNonlinearOffset(GpAxis * pAxSecondary)
 		offset1 = Gr.BOff.y;
 		offset2 = Gr.TOff.y;
 	}
-	p_ax_primary->min -= range * offset1;
-	p_ax_primary->max += range * offset2;
-	pAxSecondary->min = EvalLinkFunction(pAxSecondary, p_ax_primary->min);
-	pAxSecondary->max = EvalLinkFunction(pAxSecondary, p_ax_primary->max);
+	p_ax_primary->Range.low -= range * offset1;
+	p_ax_primary->Range.upp += range * offset2;
+	pAxSecondary->Range.low = EvalLinkFunction(pAxSecondary, p_ax_primary->Range.low);
+	pAxSecondary->Range.upp = EvalLinkFunction(pAxSecondary, p_ax_primary->Range.upp);
 }
 
 void GnuPlot::DoPlot(GpTermEntry * pTerm, curve_points * plots, int pcount)
@@ -1183,13 +1184,13 @@ void GnuPlot::PlotSteps(GpTermEntry * pTerm, curve_points * plot)
 	// EAM April 2011:  Default to lines only, but allow filled boxes 
 	if((plot->plot_style & PLOT_STYLE_HAS_FILL) && pTerm->fillbox) {
 		style = style_from_fill(&plot->fill_properties);
-		double ey = AxS.__Y().log ? AxS.__Y().min : AxS.__Y().ClipToRange(0.0);
+		double ey = AxS.__Y().log ? AxS.__Y().Range.low : AxS.__Y().ClipToRange(0.0);
 		y0 = MapiY(ey);
 	}
-	xleft  = MapiX(AxS.__X().min);
-	xright = MapiX(AxS.__X().max);
-	ybot   = MapiY(AxS.__Y().min);
-	ytop   = MapiY(AxS.__Y().max);
+	xleft  = MapiX(AxS.__X().Range.low);
+	xright = MapiX(AxS.__X().Range.upp);
+	ybot   = MapiY(AxS.__Y().Range.low);
+	ytop   = MapiY(AxS.__Y().Range.upp);
 	for(i = 0; i < plot->p_count; i++) {
 		xprev = x; yprev = y;
 		switch(plot->points[i].type) {
@@ -1313,7 +1314,7 @@ void GnuPlot::PlotHiSteps(GpTermEntry * pTerm, curve_points * pPlot)
 	// HBB 20010625: log y axis must treat 0.0 as -infinity.
 	// Define the correct y position for the histogram's baseline.
 	if(AxS.__Y().log)
-		y_null = MIN(AxS.__Y().min, AxS.__Y().max);
+		y_null = MIN(AxS.__Y().Range.low, AxS.__Y().Range.upp);
 	else
 		y_null = 0.0;
 	x = (3.0 * pPlot->points[gl[0]].Pt.x - pPlot->points[gl[1]].Pt.x) / 2.0;
@@ -1393,7 +1394,7 @@ void GnuPlot::PlotBars(GpTermEntry * pTerm, curve_points * plot)
 			ylowM  = MapiY(ylow);
 			// This can happen if the y errorbar on a log-scaled Y goes negative 
 			if(plot->points[i].ylow == -VERYLARGE)
-				ylowM = MapiY(MIN(AxS.__Y().min, AxS.__Y().max));
+				ylowM = MapiY(MIN(AxS.__Y().Range.low, AxS.__Y().Range.upp));
 			// find low and high points of bar, and check xrange 
 			xhigh = plot->points[i].xhigh;
 			xlow  = plot->points[i].xlow;
@@ -1483,7 +1484,7 @@ void GnuPlot::PlotBars(GpTermEntry * pTerm, curve_points * plot)
 			xlowM  = MapiX(xlow);
 			/* This can happen if the x errorbar on a log-scaled X goes negative */
 			if(plot->points[i].xlow == -VERYLARGE)
-				xlowM = MapiX(MIN(AxS.__X().min, AxS.__X().max));
+				xlowM = MapiX(MIN(AxS.__X().Range.low, AxS.__X().Range.upp));
 			// Check for variable color - June 2010 
 			CheckForVariableColor(pTerm, plot, &plot->varcolor[i]);
 			// Error bars can now have their own line style 
@@ -1641,10 +1642,10 @@ void GnuPlot::PlotBoxes(GpTermEntry * pTerm, curve_points * plot, int xaxis_y)
 							dyt += Gr.P_StackHeight[stack].ylow;
 							Gr.P_StackHeight[stack].ylow += plot->points[i].Pt.y;
 						}
-						if((AxS.__Y().min < AxS.__Y().max && dyb < AxS.__Y().min) || (AxS.__Y().max < AxS.__Y().min && dyb > AxS.__Y().min))
-							dyb = AxS.__Y().min;
-						if((AxS.__Y().min < AxS.__Y().max && dyb > AxS.__Y().max) || (AxS.__Y().max < AxS.__Y().min && dyb < AxS.__Y().max))
-							dyb = AxS.__Y().max;
+						if((AxS.__Y().Range.low < AxS.__Y().Range.upp && dyb < AxS.__Y().Range.low) || (AxS.__Y().Range.upp < AxS.__Y().Range.low && dyb > AxS.__Y().Range.low))
+							dyb = AxS.__Y().Range.low;
+						if((AxS.__Y().Range.low < AxS.__Y().Range.upp && dyb > AxS.__Y().Range.upp) || (AxS.__Y().Range.upp < AxS.__Y().Range.low && dyb < AxS.__Y().Range.upp))
+							dyb = AxS.__Y().Range.upp;
 						break;
 					    case HT_CLUSTERED:
 					    case HT_ERRORBARS:
@@ -1656,14 +1657,14 @@ void GnuPlot::PlotBoxes(GpTermEntry * pTerm, curve_points * plot, int xaxis_y)
 			    dxr = AxS.__X().ClipToRange(dxr);
 			    dxl = AxS.__X().ClipToRange(dxl);
 			    // Entire box is out of range on x 
-			    if(dxr == dxl && (dxr == AxS.__X().min || dxr == AxS.__X().max))
+			    if(dxr == dxl && (dxr == AxS.__X().Range.low || dxr == AxS.__X().Range.upp))
 				    break;
 			    xl = MapiX(dxl);
 			    xr = MapiX(dxr);
 			    yt = MapiY(dyt);
 			    yb = xaxis_y;
 			    // Entire box is out of range on y 
-			    if(yb == yt && (dyt == AxS.__Y().min || dyt == AxS.__Y().max))
+			    if(yb == yt && (dyt == AxS.__Y().Range.low || dyt == AxS.__Y().Range.upp))
 				    break;
 			    if(plot->plot_style == HISTOGRAMS && oneof2(Gg.histogram_opts.type, HT_STACKED_IN_LAYERS, HT_STACKED_IN_TOWERS))
 				    yb = MapiY(dyb);
@@ -2061,17 +2062,17 @@ void GnuPlot::PlotFBars(GpTermEntry * pTerm, curve_points * pPlot)
 		// compute the plot position of yhigh 
 		if(high_inrange)
 			yhighM = MapiY(yhigh);
-		else if(samesign(yhigh - AxS.__Y().max, AxS.__Y().GetRange()))
-			yhighM = MapiY(AxS.__Y().max);
+		else if(samesign(yhigh - AxS.__Y().Range.upp, AxS.__Y().GetRange()))
+			yhighM = MapiY(AxS.__Y().Range.upp);
 		else
-			yhighM = MapiY(AxS.__Y().min);
+			yhighM = MapiY(AxS.__Y().Range.low);
 		// compute the plot position of ylow 
 		if(low_inrange)
 			ylowM = MapiY(ylow);
-		else if(samesign(ylow - AxS.__Y().max, AxS.__Y().GetRange()))
-			ylowM = MapiY(AxS.__Y().max);
+		else if(samesign(ylow - AxS.__Y().Range.upp, AxS.__Y().GetRange()))
+			ylowM = MapiY(AxS.__Y().Range.upp);
 		else
-			ylowM = MapiY(AxS.__Y().min);
+			ylowM = MapiY(AxS.__Y().Range.low);
 		if(!high_inrange && !low_inrange && ylowM == yhighM)
 			// both out of range on the same side 
 			continue;
@@ -2132,17 +2133,17 @@ void GnuPlot::PlotCBars(GpTermEntry * pTerm, curve_points * pPlot)
 		// compute the pPlot position of yhigh 
 		if(high_inrange)
 			yhighM = MapiY(yhigh);
-		else if(samesign(yhigh - AxS[AxS.Idx_Y].max, AxS[AxS.Idx_Y].GetRange()))
-			yhighM = MapiY(AxS[AxS.Idx_Y].max);
+		else if(samesign(yhigh - AxS[AxS.Idx_Y].Range.upp, AxS[AxS.Idx_Y].GetRange()))
+			yhighM = MapiY(AxS[AxS.Idx_Y].Range.upp);
 		else
-			yhighM = MapiY(AxS[AxS.Idx_Y].min);
+			yhighM = MapiY(AxS[AxS.Idx_Y].Range.low);
 		// compute the pPlot position of ylow 
 		if(low_inrange)
 			ylowM = MapiY(ylow);
-		else if(samesign(ylow - AxS[AxS.Idx_Y].max, AxS[AxS.Idx_Y].GetRange()))
-			ylowM = MapiY(AxS[AxS.Idx_Y].max);
+		else if(samesign(ylow - AxS[AxS.Idx_Y].Range.upp, AxS[AxS.Idx_Y].GetRange()))
+			ylowM = MapiY(AxS[AxS.Idx_Y].Range.upp);
 		else
-			ylowM = MapiY(AxS[AxS.Idx_Y].min);
+			ylowM = MapiY(AxS[AxS.Idx_Y].Range.low);
 		if(!high_inrange && !low_inrange && ylowM == yhighM)
 			// both out of range on the same side 
 			continue;
@@ -2404,7 +2405,7 @@ void GnuPlot::PlotSpiderPlot(GpTermEntry * pTerm, curve_points * pPlot)
 					// stored values are axis number, unscaled R 
 					GpAxis * this_axis = &AxS.Parallel(thisplot->AxIdx_P-1);
 					const double theta = SMathConst::PiDiv2 - (thisplot->points[i].Pt.x - 1.0) * SMathConst::Pi2 / n_spokes;
-					const double r = (thisplot->points[i].Pt.y - this_axis->min) / this_axis->GetRange();
+					const double r = (thisplot->points[i].Pt.y - this_axis->Range.low) / this_axis->GetRange();
 					PolarToXY(theta, r, &x, &y, false);
 					corners[thisplot->AxIdx_P-1].Set(MapiX(x), MapiY(y));
 				}
@@ -3091,7 +3092,7 @@ void GnuPlot::PlotBorder(GpTermEntry * pTerm)
 	}
 	if(border_complete)
 		closepath(pTerm);
-	// Polar border.  FIXME: Should this be limited to known AxS.__R().max? 
+	// Polar border.  FIXME: Should this be limited to known AxS.__R().Range.upp? 
 	if((Gg.draw_border & 0x1000) != 0) {
 		lp_style_type polar_border = Gg.border_lp;
 		BoundingBox * clip_save = V.P_ClipArea;
@@ -3100,7 +3101,7 @@ void GnuPlot::PlotBorder(GpTermEntry * pTerm)
 		polar_border.l_width = polar_border.l_width / 2.;
 		TermApplyLpProperties(pTerm, &polar_border);
 		if(Gr.LargestPolarCircle <= 0.0)
-			Gr.LargestPolarCircle = PolarRadius(AxS.__R().max);
+			Gr.LargestPolarCircle = PolarRadius(AxS.__R().Range.upp);
 		DrawPolarCircle(pTerm, Gr.LargestPolarCircle);
 		V.P_ClipArea = clip_save;
 	}
@@ -3175,7 +3176,7 @@ void GnuPlot::PlaceRAxis(GpTermEntry * pTerm)
 		x0   = MapiX(PolarRadius(AxS.__R().set_max));
 	}
 	else {
-		double rightend = (AxS.__R().autoscale & AUTOSCALE_MAX) ? AxS.__R().max : AxS.__R().set_max;
+		double rightend = (AxS.__R().autoscale & AUTOSCALE_MAX) ? AxS.__R().Range.upp : AxS.__R().set_max;
 		xend = MapiX(rightend - AxS.__R().set_min);
 		x0 = MapiX(0);
 	}
@@ -3841,13 +3842,13 @@ void GnuPlot::ProcessImage(GpTermEntry * pTerm, const void * plot, t_procimg_act
 		// Also use generic code if the pixels are of unequal size, e.g. log scale 
 		if(AxS.__X().log || AxS.__Y().log)
 			fallback = true;
-		view_port_x[0] = (AxS.__X().set_autoscale & AUTOSCALE_MIN) ? AxS.__X().min : AxS.__X().set_min;
-		view_port_x[1] = (AxS.__X().set_autoscale & AUTOSCALE_MAX) ? AxS.__X().max : AxS.__X().set_max;
-		view_port_y[0] = (AxS.__Y().set_autoscale & AUTOSCALE_MIN) ? AxS.__Y().min : AxS.__Y().set_min;
-		view_port_y[1] = (AxS.__Y().set_autoscale & AUTOSCALE_MAX) ? AxS.__Y().max : AxS.__Y().set_max;
+		view_port_x[0] = (AxS.__X().set_autoscale & AUTOSCALE_MIN) ? AxS.__X().Range.low : AxS.__X().set_min;
+		view_port_x[1] = (AxS.__X().set_autoscale & AUTOSCALE_MAX) ? AxS.__X().Range.upp : AxS.__X().set_max;
+		view_port_y[0] = (AxS.__Y().set_autoscale & AUTOSCALE_MIN) ? AxS.__Y().Range.low : AxS.__Y().set_min;
+		view_port_y[1] = (AxS.__Y().set_autoscale & AUTOSCALE_MAX) ? AxS.__Y().Range.upp : AxS.__Y().set_max;
 		if(project_points) {
-			view_port_z[0] = (AxS.__Z().set_autoscale & AUTOSCALE_MIN) ? AxS.__Z().min : AxS.__Z().set_min;
-			view_port_z[1] = (AxS.__Z().set_autoscale & AUTOSCALE_MAX) ? AxS.__Z().max : AxS.__Z().set_max;
+			view_port_z[0] = (AxS.__Z().set_autoscale & AUTOSCALE_MIN) ? AxS.__Z().Range.low : AxS.__Z().set_min;
+			view_port_z[1] = (AxS.__Z().set_autoscale & AUTOSCALE_MAX) ? AxS.__Z().Range.upp : AxS.__Z().set_max;
 		}
 		if(rectangular_image && pTerm->image && !fallback) {
 			// There are eight ways that a valid pixel grid can be entered.  Use table
@@ -4277,7 +4278,7 @@ void GnuPlot::PlaceSpiderPlotAxes(GpTermEntry * pTerm, const curve_points * pFir
 
 void GnuPlot::SpiderTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, const char * text, int ticlevel, const lp_style_type & rGrid, ticmark * userlabels)
 {
-	const  double fraction = (place - pAx->min) / pAx->GetRange();
+	const  double fraction = (place - pAx->Range.low) / pAx->GetRange();
 	if(fraction > 0.0) {
 		const double tic_x = fraction * (Gr.Spoke1.x - Gr.Spoke0.x);
 		const double tic_y = fraction * (Gr.Spoke1.y - Gr.Spoke0.y);

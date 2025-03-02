@@ -1807,11 +1807,11 @@ void GnuPlot::RefreshRequest(GpTermEntry * pTerm)
 			if((this_axis->set_autoscale & AUTOSCALE_MIN) && (this_axis->writeback_min < VERYLARGE))
 				this_axis->set_min = this_axis->writeback_min;
 			else
-				this_axis->min = this_axis->set_min;
+				this_axis->Range.low = this_axis->set_min;
 			if((this_axis->set_autoscale & AUTOSCALE_MAX) && (this_axis->writeback_max > -VERYLARGE))
 				this_axis->set_max = this_axis->writeback_max;
 			else
-				this_axis->max = this_axis->set_max;
+				this_axis->Range.upp = this_axis->set_max;
 			if(this_axis->linked_to_secondary)
 				CloneLinkedAxes(this_axis, this_axis->linked_to_secondary);
 			else if(this_axis->linked_to_primary) {

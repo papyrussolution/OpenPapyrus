@@ -291,10 +291,8 @@ int PPViewPriceList::SetGoodsPrice(const RecalcParamBlock * pRPB, PPID quotKindI
 			THROW(PPRef->GetPropVlrString(PPOBJ_GOODS, ident.GoodsID, GDSPRP_EXTSTRDATA, line_buf));
 			PPGetExtStrData((int)Cfg.ExtFldMemoSubst, line_buf, memo);
 		}
-		if(!Filt.Sgg /* @v9.2.2 (GetGoodsCodeInAltGrp все проверит) && Filt.GoodsGrpID && GObj.IsAltGroup(Filt.GoodsGrpID) > 0*/) {
-			/* @v9.2.2 if(PPRef->Assc.Search(PPASS_ALTGOODSGRP, Filt.GoodsGrpID, pRPB->GoodsID) > 0)
-				gds_code = PPRef->Assc.data.InnerNum; */
-			GObj.P_Tbl->GetGoodsCodeInAltGrp(pRPB->GoodsID, Filt.GoodsGrpID, &gds_code); // @v9.2.2
+		if(!Filt.Sgg) {
+			GObj.P_Tbl->GetGoodsCodeInAltGrp(pRPB->GoodsID, Filt.GoodsGrpID, &gds_code);
 		}
 		if(Tbl.SearchGoodsLine(&ident, &pline_rec) > 0) {
 			pline_rec.UnitPerPack = unitsPerPack;
@@ -908,7 +906,6 @@ int PPViewPriceList::Init_(const PPBaseFilt * pBaseFilt)
 {
 	int    ok = 1;
 	THROW(Helper_InitBaseFilt(pBaseFilt));
-	// @v9.3.4 {
 	{
 		State = 0;
 		if(Filt.ArticleID) {
@@ -917,7 +914,6 @@ int PPViewPriceList::Init_(const PPBaseFilt * pBaseFilt)
 				State |= stFiltArIsSupple;
 		}
 	}
-	// } @v9.3.4
 	if(!Filt.GoodsIDList.GetCount()) {
 		THROW(Tbl.Search(Filt.PListID) > 0);
 		BExtQuery::ZDelete(&P_IterQuery);
@@ -1062,10 +1058,7 @@ int PPViewPriceList::NextIterationByList(PriceListViewItem * pItem)
 			pItem->AddPrice3    = 0;
 			pItem->Expiry       = ZERODATE;
 			pItem->GoodsGrpName_ = IterGrpName_;
-			/* @v9.2.2 if(Filt.GoodsGrpID && GObj.IsAltGroup(Filt.GoodsGrpID) > 0)
-				if(PPRef->Assc.Search(PPASS_ALTGOODSGRP, Filt.GoodsGrpID, goods_id) > 0)
-					pItem->GoodsCode = PPRef->Assc.data.InnerNum; */
-			GObj.P_Tbl->GetGoodsCodeInAltGrp(goods_id, Filt.GoodsGrpID, &pItem->GoodsCode); // @v9.2.2
+			GObj.P_Tbl->GetGoodsCodeInAltGrp(goods_id, Filt.GoodsGrpID, &pItem->GoodsCode);
 			pItem->GoodsName_ = goods_rec.Name;
 			GetLastQCertID(pItem->GoodsID, Filt.Dt, &pItem->QCertID);
 		}
@@ -1855,11 +1848,8 @@ int PPViewPriceList::AddLine(PriceLineIdent * pIdent)
 		if(dlg->getDTS(&rec)) {
 			valid_data = 1;
 			rec.Rest = GetRest(rec.GoodsID);
-			/* @v9.2.2 if(!Filt.Sgg && Filt.GoodsGrpID && GObj.IsAltGroup(Filt.GoodsGrpID) > 0)
-				if(PPRef->Assc.Search(PPASS_ALTGOODSGRP, Filt.GoodsGrpID, rec.GoodsID) > 0)
-					rec.GoodsCode = PPRef->Assc.data.InnerNum; */
 			if(!Filt.Sgg)
-				GObj.P_Tbl->GetGoodsCodeInAltGrp(rec.GoodsID, Filt.GoodsGrpID, &rec.GoodsCode); // @v9.2.2
+				GObj.P_Tbl->GetGoodsCodeInAltGrp(rec.GoodsID, Filt.GoodsGrpID, &rec.GoodsCode);
 			THROW(SubstGoods(rec.GoodsID, &rec.GoodsID, rec.Name, sizeof(rec.Name)));
 			if(Tbl.AddLine(rec.ListID, &rec, pIdent, BIN(Filt.Sgg), 1)) {
 				UpdateTempTbl(pIdent);

@@ -103,7 +103,7 @@ public:
 		ZDELETE(P_Pib);
 		THROW_MEM(P_Pib = new PPPosProtocol::ProcessInputBlock(this));
 		P_Pib->PosNodeID = NodeID;
-		P_Pib->Flags |= (P_Pib->fStoreReadBlocks|P_Pib->fBackupProcessed|P_Pib->fRemoveProcessed|P_Pib->fProcessSessions); // @v9.9.12 P_Pib->fProcessSessions
+		P_Pib->Flags |= (P_Pib->fStoreReadBlocks|P_Pib->fBackupProcessed|P_Pib->fRemoveProcessed|P_Pib->fProcessSessions);
 		int    pir = Pp.ProcessInput(*P_Pib);
 		THROW(pir);
 		if(P_Pib->SessionCount) {
@@ -1825,7 +1825,6 @@ int PPPosProtocol::WriteGoodsInfo(WriteBlock & rB, const char * pScopeXmlTag, co
 			LotArray lbp_lot_list; // Список лотов с отличными от rInfo.Price ценами
 			const long lbpp = CsObj.GetEqCfg().LookBackPricePeriod;
 			if(use_lookbackprices && lbpp) {
-				// @v9.9.0 (unused) const double base_price = rInfo.Price;
 				const LDATE cd = getcurdate_();
 				const LDATE stop_date = plusdate(cd, -lbpp);
 				RealArray list_of_diffprices;
@@ -2024,7 +2023,6 @@ int PPPosProtocol::StartWriting(const char * pFileName, PPPosProtocol::WriteBloc
 	xmlTextWriterSetIndentTab(rB.P_Xw);
 	THROW_MEM(rB.P_Xd = new SXml::WDoc(rB.P_Xw, cpUTF8));
 	rB.P_Root = new SXml::WNode(rB.P_Xw, "PapyrusAsyncPosInterchange");
-	// @v9.9.12 {
 	{
 		SXml::WNode w_s(rB.P_Xw, "file");
 		rB.FileUUID.ToStr(S_GUID::fmtIDL, temp_buf);
@@ -2033,7 +2031,6 @@ int PPPosProtocol::StartWriting(const char * pFileName, PPPosProtocol::WriteBloc
 		temp_buf.Z().Cat(rB.FileDtm, DATF_ISO8601CENT, 0);
 		w_s.PutInner("timestamp", temp_buf);
 	}
-	// } @v9.9.12
 	CATCHZOK
 	return ok;
 }
@@ -2921,7 +2918,7 @@ int PPPosProtocol::EndElement(const char * pName)
 					case obSCardSeries: Helper_AddStringToPool(&static_cast<SCardSeriesBlock *>(p_item)->NameP); break;
 					case obSCard: break;
 					case obQuotKind: Helper_AddStringToPool(&static_cast<QuotKindBlock *>(p_item)->NameP); break;
-					case obUnit: Helper_AddStringToPool(&static_cast<UnitBlock *>(p_item)->NameP); break; // @v9.8.6
+					case obUnit: Helper_AddStringToPool(&static_cast<UnitBlock *>(p_item)->NameP); break;
 				}
 				break;
 			case PPHS_NODISCOUNT:
@@ -4802,7 +4799,7 @@ int PPPosProtocol::SaxParseFile(const char * pFileName, int preprocess, int sile
 	THROW_LXML(RdB.P_SaxCtx->wellFormed, RdB.P_SaxCtx);
 	THROW(RdB.P_SaxCtx->errNo == 0);
 	THROW(!(RdB.State & RdB.stError));
-	// (Нельзя сортировать - позиции важны!) RdB.SortRefList(); // @v9.8.2
+	// (Нельзя сортировать - позиции важны!) RdB.SortRefList();
 	CATCHZOK
 	if(RdB.P_SaxCtx) {
 		RdB.P_SaxCtx->sax = 0;
@@ -5114,7 +5111,7 @@ int PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 			(done_plus_xml_suffix = p_done_suffix).DotCat("ppyp");
 			uint   prev_ssp_pos = 0;
 			for(uint ssp_pos = prev_ssp_pos; ss_paths.get(&ssp_pos, in_path); prev_ssp_pos = ssp_pos) {
-				// @v10.0.07 @01 ReadPosProtocolFileProcessedList(in_path, processed_file_list); // @v9.9.12
+				// @v10.0.07 @01 ReadPosProtocolFileProcessedList(in_path, processed_file_list);
 				if(SFile::IsDir(in_path)) {
 					(temp_buf = in_path).SetLastSlash().Cat(p_base_name).CatChar('*').DotCat("ppyp");
 					for(SDirec sd(temp_buf, 0); sd.Next(&de) > 0;) {

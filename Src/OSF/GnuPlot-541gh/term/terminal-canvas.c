@@ -587,8 +587,8 @@ TERM_PUBLIC void CANVAS_text(GpTermEntry_Static * pThis)
 			fprintf(GPT.P_GpOutFile, "gnuplot.plot_logaxis_r = %d;\n", p_gp->AxS[POLAR_AXIS].log ? 1 : 0);
 		if(p_gp->AxS[FIRST_X_AXIS].datatype == DT_TIMEDATE) {
 			// May need to reconstruct time to millisecond precision 
-			fprintf(GPT.P_GpOutFile, "gnuplot.plot_axis_xmin = %.3f;\n", p_gp->AxS[FIRST_X_AXIS].min);
-			fprintf(GPT.P_GpOutFile, "gnuplot.plot_axis_xmax = %.3f;\n", p_gp->AxS[FIRST_X_AXIS].max);
+			fprintf(GPT.P_GpOutFile, "gnuplot.plot_axis_xmin = %.3f;\n", p_gp->AxS[FIRST_X_AXIS].Range.low);
+			fprintf(GPT.P_GpOutFile, "gnuplot.plot_axis_xmax = %.3f;\n", p_gp->AxS[FIRST_X_AXIS].Range.upp);
 			fprintf(GPT.P_GpOutFile, "gnuplot.plot_timeaxis_x = \"%s\";\n", (mouse_alt_string) ? mouse_alt_string : (mouse_mode == 4) ? "Date" : (mouse_mode == 5) ? "Time" : "DateTime");
 		}
 		else if(p_gp->AxS[FIRST_X_AXIS].datatype == DT_DMS) {

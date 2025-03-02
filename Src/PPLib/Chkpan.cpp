@@ -237,12 +237,13 @@ CPosProcessor::Packet & CPosProcessor::Packet::Z()
 	GiftAssoc.clear();
 	// @v11.8.11 Prescr.Z();
 	PPExtStrContainer::Z(); // @v11.8.11
+	Lb_.Z(); // @v12.2.9
 	return *this;
 }
 
 void CPosProcessor::Packet::ClearCur()
 {
-	CurPos = -1;
+	CurCcItemPos = -1;
 	MEMSZERO(Cur);
 	CurModifList.clear();
 	Rest = 0.0;
@@ -270,7 +271,8 @@ int CPosProcessor::Packet::ClearGift()
 }
 
 PPID FASTCALL CPosProcessor::Packet::GetAgentID(int actual) const { return actual ? AgentID__ : NZOR(OrgAgentID, AgentID__); }
-int  CPosProcessor::Packet::HasCur() const { return BIN(CurPos >= 0); }
+bool CPosProcessor::Packet::HasCur() const { return (CurCcItemPos >= 0); }
+bool CPosProcessor::Packet::IsCurValid() const { return (CurCcItemPos >= 0 && CurCcItemPos < getCountI()); }
 void CPosProcessor::Packet::SetRest(double rest) { Rest = rest; }
 
 double CPosProcessor::Packet::GetGoodsQtty(PPID goodsID) const
@@ -290,7 +292,7 @@ static void FASTCALL CatCharByFlag(long val, long flag, int chr, SString & rBuf,
 		rBuf.CatChar(chr);
 }
 
-int CheckPaneDialog::LoadCheck(const CCheckPacket * pPack, int makeRetCheck, bool dontShow)
+int CheckPaneDialog::LoadCheck(const CCheckPacket * pPack, bool makeRetCheck, bool dontShow)
 {
 	if(pPack) {
 		Goods2Tbl::Rec goods_rec;
@@ -355,8 +357,8 @@ int CheckPaneDialog::LoadCheck(const CCheckPacket * pPack, int makeRetCheck, boo
 
 void FASTCALL CPosProcessor::Packet::SetupCCheckPacket(CCheckPacket * pPack, const CardState & rCSt, bool isExtCc) const
 {
-	SString temp_buf;
 	if(pPack) {
+		SString temp_buf;
 		pPack->Rec.SCardID = rCSt.GetID();
 		pPack->SetSCardSpecialTreatmentIdentifyReplyBlock(&rCSt.CSTRB);
 		if(OrgUserID) {
@@ -368,7 +370,16 @@ void FASTCALL CPosProcessor::Packet::SetupCCheckPacket(CCheckPacket * pPack, con
 		pPack->Ext.SalerID = GetAgentID(0);
 		pPack->Ext.TableNo = TableCode;
 		pPack->Ext.GuestCount = GuestCount;
-		pPack->Ext.LinkCheckID = (pPack->Rec.Flags & CCHKF_SKIP) ? 0 : OrderCheckID;
+		// @v12.2.9 pPack->Ext.LinkCheckID = (pPack->Rec.Flags & CCHKF_SKIP) ? 0 : OrderCheckID;
+		// @v12.2.9 {
+		if(pPack->Rec.Flags & (CCHKF_RETURN|CCHKF_CORRECTION)) {
+			pPack->Ext.LinkCheckID = Lb_._CcID;
+		}
+		else if(pPack->Rec.Flags & CCHKF_SKIP)
+			pPack->Ext.LinkCheckID = 0;
+		else 
+			pPack->Ext.LinkCheckID = OrderCheckID;
+		// } @v12.2.9 
 		pPack->Ext.CreationDtm = Eccd.InitDtm;
 		pPack->Ext.CreationUserID = Eccd.InitUserID;
 		if(!isExtCc)
@@ -573,17 +584,18 @@ CPosProcessor::ExtCcData & CPosProcessor::ExtCcData::Z()
 //
 //
 //
-CPosProcessor::LinkBlock::LinkBlock() : _Op(0), _CcID(0), _CcAmount(0.0), _CcCredit(0.0)
+CPosProcessor::LinkBlock::LinkBlock() : _Op(opGeneral), _CcID(0), _CcAmount(0.0), _CcCredit(0.0)
 {
 }
 
 CPosProcessor::LinkBlock & CPosProcessor::LinkBlock::Z()
 {
-	_Op = 0;
+	_Op = opGeneral;
 	_CcID = 0;
 	_CcAmount = 0.0;
 	_CcCredit = 0.0;
 	AmL.Z();
+	FiscalTag.Z();
 	return *this;
 }
 //
@@ -989,7 +1001,7 @@ int CPosProcessor::ExportCurrentState(SString & rBuf) const
 						SXml::WNode(p_writer, "CTableID", temp_buf.Z().Cat(P.TableCode));
 						PUTNODE_F(GuestCount);
 						PUTNODE_F(OrderCheckID);
-						PUTNODE_F(CurPos);
+						PUTNODE_F(CurCcItemPos);
 						SXml::WNode(p_writer, "Rest", temp_buf.Z().Cat(P.GetRest()));
 						SXml::WNode(p_writer, "AgentID", temp_buf.Z().Cat(P.GetAgentID()));
 						#undef PUTNODE_F
@@ -1545,11 +1557,11 @@ double CPosProcessor::CalcCurrentRest(PPID goodsID, bool checkInputBuffer)
 	return rest;
 }
 
-/*virtual*/void CPosProcessor::SetupRowData(int calcRest)
+/*virtual*/void CPosProcessor::SetupRowData(bool doCalcRest)
 {
 	const CCheckItem & r_item = P.GetCur();
 	SetupState(oneof2(GetState(), sLISTSEL_EMPTYBUF, sLISTSEL_BUF) ? sLISTSEL_BUF : (P.getCount() ? sLIST_BUF : sEMPTYLIST_BUF));
-	if(calcRest) {
+	if(doCalcRest) {
 		// @v11.8.3 Если опции кассового узла не предписывают отображение остатка, то (наверное) и расчитывать не стоит. 
 		// Расчет остатков иногда может быть долгим.
 		P.SetRest((CnFlags & CASHF_SHOWREST) ? CalcCurrentRest(r_item.GoodsID, false/*checkInputBuffer*/) : 0.0);
@@ -1625,28 +1637,26 @@ int CPosProcessor::SetupItem(PPID goodsID, double qtty, double price)
 	r_item.Price    = 10;
 	r_item.Discount = 0.0;
 	P.insert(&r_item);
-	P.CurPos = P.getCount();
+	P.CurCcItemPos = P.getCount();
 	return 1;
 }
 */
 int CPosProcessor::OpenSession(LDATE * pDt, int ifClosed)
 {
 	int    ok = 0;
-	int    r = 0;
-	int    r_ext = 0;
-	int    open = 0;
+	bool   is_openend = false;
 	THROW(InitCashMachine());
 	if(ifClosed) {
 		PPCashNode cn_rec;
 		CnObj.Search(CashNodeID, &cn_rec);
 		if(cn_rec.Flags & CASHF_DAYCLOSED || !cn_rec.CurDate || ((cn_rec.Flags & CASHF_CHKPAN) && !cn_rec.CurSessID))
-			open = 1;
+			is_openend = true;
 	}
 	else
-		open = 1;
-	if(open) {
-		if(P_CM)
-			r = P_CM->SyncOpenSession(pDt);
+		is_openend = true;
+	if(is_openend) {
+		int    r_ext = 0;
+		const  int r = P_CM ? P_CM->SyncOpenSession(pDt) : 0;
 		if(P_CM_EXT) {
 			if(P_CM_EXT->GetNodeData().CashType == PPCMT_PAPYRUS) {
 				if(r > 0) {
@@ -1683,10 +1693,10 @@ int CPosProcessor::CalcRestByCrdCard_(int checkCurItem)
 	Flags &= ~(fSCardCredit|fSCardBonus|fSCardBonusReal);
 	if(ScObj.Search(CSt.GetID(), &sc_rec) > 0 && scs_obj.Fetch(sc_rec.SeriesID, &scs_rec) > 0 && (scs_rec.Flags & (SCRDSF_CREDIT|SCRDSF_BONUS))) {
 		const int scst = scs_rec.GetType();
-		if(F(fRetCheck)) {
+		if(IsCurrentOp(opReturn)) {
 			if(Flags & fRetByCredit) {
 				const CcTotal cct = CalcTotal();
-				const double credit_part = fdivnz(Rb._CcCredit, Rb._CcAmount);
+				const double credit_part = fdivnz(P.Lb_._CcCredit, P.Lb_._CcAmount);
 				const double ret_by_credit = cct.Amount * credit_part;
 				if(ret_by_credit < 0.0 && ret_by_credit > cct.Amount)
 					CSt.AdditionalPayment = R2(cct.Amount - ret_by_credit);
@@ -2337,14 +2347,14 @@ double CPosProcessor::CalcCreditCharge(const CCheckPacket * pPack, const CCheckP
 						}
 						else {
 							for(i = 0; P.enumItems(&i, (void **)&p_item);) {
-								p_item->GetRec(ccl_rec, F(fRetCheck));
+								p_item->GetRec(ccl_rec, IsCurrentOp(opReturn));
 								charge += CalcSCardOpBonusAmount(ccl_rec, bonus_goods_grp_id, &nca);
 								non_crd_amt += nca;
 								bonus_charge_amt += CalcSCardOpBonusAmount(ccl_rec, bonus_charge_grp_id, 0);
 							}
 						}
 						if(pCurItem) {
-							pCurItem->GetRec(ccl_rec, F(fRetCheck));
+							pCurItem->GetRec(ccl_rec, IsCurrentOp(opReturn));
 							charge += CalcSCardOpBonusAmount(ccl_rec, bonus_goods_grp_id, &nca);
 							non_crd_amt += nca;
 							bonus_charge_amt += CalcSCardOpBonusAmount(ccl_rec, bonus_charge_grp_id, 0);
@@ -2370,13 +2380,13 @@ double CPosProcessor::CalcCreditCharge(const CCheckPacket * pPack, const CCheckP
 					}
 					else {
 						for(i = 0; P.enumItems(&i, (void **)&p_item);) {
-							p_item->GetRec(ccl_rec, F(fRetCheck));
+							p_item->GetRec(ccl_rec, IsCurrentOp(opReturn));
 							charge += CalcSCardOpAmount(ccl_rec, charge_goods_id, crd_goods_grp_id, &nca);
 							non_crd_amt += nca;
 						}
 					}
 					if(pCurItem) {
-						pCurItem->GetRec(ccl_rec, F(fRetCheck));
+						pCurItem->GetRec(ccl_rec, IsCurrentOp(opReturn));
 						charge += CalcSCardOpAmount(ccl_rec, charge_goods_id, crd_goods_grp_id, &nca);
 						non_crd_amt += nca;
 					}
@@ -2403,11 +2413,18 @@ double CPosProcessor::CalcCreditCharge(const CCheckPacket * pPack, const CCheckP
 int CPosProcessor::Helper_InitCcPacket(CCheckPacket * pPack, CCheckPacket * pExtPack, const CcAmountList * pCcPl, long options)
 {
 	int    ok = 1;
-	if(F(fRetCheck)) {
-		if(pPack)
-			pPack->Rec.Flags |= CCHKF_RETURN;
-		if(pExtPack)
-			pExtPack->Rec.Flags |= CCHKF_RETURN;
+	{
+		long   sf = 0;
+		if(IsCurrentOp(opReturn))
+			sf = CCHKF_RETURN;
+		else if(IsCurrentOp(opCorrection))
+			sf = CCHKF_CORRECTION;
+		if(sf) {
+			if(pPack)
+				pPack->Rec.Flags |= sf;
+			if(pExtPack)
+				pExtPack->Rec.Flags |= sf;
+		}
 	}
 	const CcTotal cct_debug = CalcTotal(); // @debug
 	CcTotal cct;
@@ -2588,9 +2605,16 @@ int CPosProcessor::AutosaveCheck()
 				epb.Pack = *P_ChkPack;
 		}
 		else {
-			if(F(fRetCheck)) {
-				THROW_PP(OperRightsFlags & orfReturns, PPERR_NORIGHTS);
-				epb.Pack.Rec.Flags |= CCHKF_RETURN;
+			// @v12.2.9 {
+			if(IsCurrentOp(opCorrection)) {
+				THROW_PP(OperRightsFlags & orfReturns, PPERR_NORIGHTS); // @todo Возможно, здесь нужен новый флаг прав доступа
+				epb.Pack.Rec.Flags |= CCHKF_CORRECTION;
+			}
+			else { // } @v12.2.9 
+				if(IsCurrentOp(opReturn)) {
+					THROW_PP(OperRightsFlags & orfReturns, PPERR_NORIGHTS);
+					epb.Pack.Rec.Flags |= CCHKF_RETURN;
+				}
 			}
 			if(pPl && pPl->Get(CCAMTTYP_BANK) != 0.0) {
 				THROW_PP(OperRightsFlags & orfBanking, PPERR_NORIGHTS);
@@ -2928,7 +2952,7 @@ int CPosProcessor::AutosaveCheck()
 /*virtual*/void CPosProcessor::ClearRow()
 {
 	P.ClearCur();
-	SetupRowData(0);
+	SetupRowData(false/*doCalcRest*/);
 	SetupState(oneof2(GetState(), sLISTSEL_EMPTYBUF, sLISTSEL_BUF) ? sLISTSEL_EMPTYBUF : (P.getCount() ? sLIST_EMPTYBUF : sEMPTYLIST_EMPTYBUF));
 }
 
@@ -3173,7 +3197,7 @@ int CPosProcessor::StoreCheck(CCheckPacket * pPack, CCheckPacket * pExtPack, int
 					}
 				}
 				else {
-					if(F(fRetCheck)) {
+					if(IsCurrentOp(opReturn)) {
 						//
 						// Одновременная проверка на fRetCheck и fRetByCredit - параноидальная, но береженого - Бог бережет.
 						//
@@ -3288,7 +3312,7 @@ int CPosProcessor::StoreCheck(CCheckPacket * pPack, CCheckPacket * pExtPack, int
 					chk_item.GoodsID = item.GoodsID;
 					STRNSCPY(chk_item.GoodsName, rgi.Name);
 					STRNSCPY(chk_item.BarCode,   rgi.BarCode);
-					chk_item.Quantity = R6((dlg->Flags & fRetCheck) ? -fabs(item.Qtty) : fabs(item.Qtty));
+					chk_item.Quantity = R6((dlg->IsCurrentOp(opReturn)) ? -fabs(item.Qtty) : fabs(item.Qtty));
 					chk_item.Price    = price;
 					chk_item.Discount = 0.0;
 					dlg->P.insert(&chk_item);
@@ -3660,15 +3684,15 @@ void CheckPaneDialog::EnableBeep(int enbl) { SETFLAG(Flags, fDisableBeep, !enbl)
 int CheckPaneDialog::SuspendCheck()
 {
 	int    ok = -1;
-	const int  prev_state = GetState();
+	const  int  prev_state = GetState();
 	const  PPID prev_agent_id = P.GetAgentID(1);
-	PPID   cc_id = 0;
 	if(IsState(sEMPTYLIST_EMPTYBUF)) {
 		SelectSuspendedCheck();
 	}
 	else if(IsState(sLIST_EMPTYBUF)) {
 		if(OperRightsFlags & orfSuspCheck) {
-			CcTotal cct = CalcTotal();
+			PPID   cc_id = 0;
+			const CcTotal cct = CalcTotal();
 			CDispCommand(cdispcmdClear, 0, 0.0, 0.0);
 			CDispCommand(cdispcmdTotal, 0, cct.Amount, 0.0);
 			if(cct.Discount != 0.0)
@@ -3776,10 +3800,13 @@ void CheckPaneDialog::AddFromBasket()
 void CheckPaneDialog::ViewStoragePlaces(PPID goodsId)
 {
 	if(CheckID <= 0/* @v11.7.11 && CnSpeciality == PPCashNode::spApteka*/) {
-		PPID   goods_id = goodsId ? goodsId : (P.HasCur() ? P.GetCur().GoodsID : 0);
+		const PPID goods_id = NZOR(goodsId, (P.HasCur() ? P.GetCur().GoodsID : 0));
 		if(goods_id) {
-			PPID   assc = PPASS_GOODS2WAREPLACE;
-			SString out_msg, loc_name, tag_name, tag_value; //@erik v10.4.9{add tag_value}
+			const PPID assc = PPASS_GOODS2WAREPLACE;
+			SString out_msg;
+			SString loc_name;
+			SString tag_name;
+			SString tag_value; //@erik v10.4.9
 			{
 				GoodsToObjAssoc gtoa(assc, PPOBJ_LOCATION);
 				if(gtoa.IsValid() && gtoa.Load()) {
@@ -3800,7 +3827,7 @@ void CheckPaneDialog::ViewStoragePlaces(PPID goodsId)
 				for(uint pos = 0; !found && (p_item = tag_list.EnumItems(&pos));) {
 					PPObjTagPacket tag_pack;
 					if(obj_tag.GetPacket(p_item->TagID, &tag_pack) > 0 && tag_pack.Rec.Flags & OTF_NOTICEINCASHPANE) {
-						p_item -> GetStr(tag_value); //@erik v10.4.10
+						p_item->GetStr(tag_value); //@erik v10.4.10
 						tag_name = tag_pack.Rec.Name;
 						found = 1;
 					}
@@ -3835,10 +3862,7 @@ void CheckPaneDialog::ViewStoragePlaces(PPID goodsId)
 int CheckPaneDialog::SetupOrder(PPID ordCheckID)
 {
 	int    ok = 1;
-	if(ordCheckID == 0) {
-		P.OrderCheckID = 0;
-	}
-	else {
+	if(ordCheckID) {
 		SString cc_text;
 		CCheckPacket cc_pack;
 		THROW(GetCc().LoadPacket(ordCheckID, 0, &cc_pack) > 0);
@@ -3850,6 +3874,9 @@ int CheckPaneDialog::SetupOrder(PPID ordCheckID)
 		P.TableCode = cc_pack.Ext.TableNo;
 		if(cc_pack.Rec.SCardID)
 			AcceptSCard(cc_pack.Rec.SCardID, 0, ascfIgnoreRights);
+	}
+	else {
+		P.OrderCheckID = 0;
 	}
 	SetupInfo(0);
 	CATCH
@@ -3908,12 +3935,12 @@ int CPosProcessor::CalculatePaymentList(PosPaymentBlock & rBlk, int interactive)
 	if(ok > 0) {
 		assert(oneof4(rBlk.Kind, cpmUndef, cpmCash, cpmBank, cpmIncorpCrd));
 		SETFLAG(rBlk.Flags, PosPaymentBlock::fPreferCashlessPayment, prefer_banking_payment); // @v12.1.10
-		if(F(fRetCheck) && Rb.AmL.GetTotal() != 0.0) {
+		if(IsCurrentOp(opReturn) && P.Lb_.AmL.GetTotal() != 0.0) {
 			//
 			// Если возврат осуществляется по чеку со сложными суммами, то масштабируем список
 			// до суммы возврата и (изменив флаг) используем для расчета.
 			//
-			rBlk.CcPl = Rb.AmL;
+			rBlk.CcPl = P.Lb_.AmL;
 			rBlk.CcPl.InvertSign();
 			rBlk.CcPl.ScaleTo(-fabs(rBlk.GetTotal()));
 			rBlk.Kind = cpmUndef;
@@ -4244,7 +4271,8 @@ static void FASTCALL InformCashNoteAndDelivery(HWND hParentWnd, const PosPayment
 		if(cash_amount == 0.0)
 			cash_amount = rBlk.AmtToPaym;
 		SString temp_buf;
-		SString msg_buf, words;
+		SString msg_buf;
+		SString words;
 		PPLoadText(PPTXT_CUSTDISP_WORDS, words);
 		PPGetSubStr(words, PPCDY_TOTAL, temp_buf);
 		msg_buf.Cat(temp_buf).Space().Cat(cash_amount, SFMT_MONEY).CR();
@@ -4268,7 +4296,7 @@ void CheckPaneDialog::PrintBankingSlip(int afterReceipt, const SString & rSlipBu
 void CheckPaneDialog::ProcessEnter(int selectInput)
 {
 	const int  prev_state = GetState();
-	const  PPID prev_agent_id = P.GetAgentID(1);
+	const PPID prev_agent_id = P.GetAgentID(1);
 	SString temp_buf;
 	if(selectInput)
 		selectCtrl(CTL_CHKPAN_INPUT);
@@ -4282,7 +4310,7 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 			SString ss_code;
 			CCheckPacket::BarcodeIdentStruc bis;
 			if(Input.HasPrefixIAscii("TBL")) {
-				int    table_no = Input.ShiftLeft(3).ToLong();
+				const  int table_no = Input.ShiftLeft(3).ToLong();
 				long   guest_count = 0;
 				if(CnExtFlags & CASHFX_INPGUESTCFTBL)
 					SelectGuestCount(table_no, &guest_count);
@@ -4342,7 +4370,7 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 					MessageError(PPERR_CHKPAN_CANTRESTORESUSPNE, 0, eomBeep|eomStatusLine);
 			}
 			else if(Input.HasPrefixIAscii("DIV")) {
-				int    div = Input.ShiftLeft(3).ToLong();
+				const int div = Input.ShiftLeft(3).ToLong();
 				if(P.HasCur() && P.GetCur().GoodsID && (div > 0 && div < 1000)) {
 					P.GetCur().Division = static_cast<int16>(div);
 					SetupInfo(0);
@@ -4350,7 +4378,7 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 				ClearInput(0);
 			}
 			else if(Input.HasPrefixIAscii("TSN")) {
-				const  PPID sess_id = Input.ShiftLeft(3).ToLong();
+				const PPID sess_id = Input.ShiftLeft(3).ToLong();
 				LoadTSession(sess_id);
 				ClearInput(0);
 			}
@@ -4941,11 +4969,6 @@ struct _SelCheck {
 
 class SelCheckListDialog : public PPListDialog {
 public:
-	enum { // @v12.2.8
-		opUndef      = 0,
-		opReturn     = 1, 
-		opCorrection = 2,
-	};
 	struct AddedParam {
 		AddedParam(PPID nodeID, long tableCode, PPID agentID, long rights) : NodeID(nodeID), TableCode(tableCode), AgentID(agentID), Rights(rights), Flags(0)
 		{
@@ -4987,6 +5010,7 @@ private:
 
 	CPosProcessor * P_Srv;
 	PPObjGoods GObj;
+	PPObjLocation LocObj;
 	CTableOrder * P_Cto;
 	StrAssocArray FmtList;
 	TSVector <CCheckViewItem> ChkList;
@@ -4995,8 +5019,8 @@ private:
 	PPID   LastTopID/*LastChkID*/; // Последний активный идентификатор объекта (чека или документа) в основном списке
 	long   LastChkNo;
 	LDATE  LastDate;
-	long   LastOp; // @v12.2.8 opXXX
-	long   Op; // @v12.2.8 opXXX
+	long   LastOp; // @v12.2.8 CPosProcessor::opXXX
+	long   Op; // @v12.2.8 CPosProcessor::opXXX
 
 	enum {
 		stTblOrders        = 0x0001,
@@ -5015,7 +5039,7 @@ private:
 
 void SelCheckListDialog::Helper_Constructor(CPosProcessor * pSrv, const AddedParam * pAddParam)
 {
-	Op = opUndef;
+	Op = CPosProcessor::opGeneral;
 	P_Srv = pSrv;
 	assert(P_Srv);
 	P_Cto = 0;
@@ -5035,10 +5059,10 @@ void SelCheckListDialog::Helper_Constructor(CPosProcessor * pSrv, const AddedPar
 	}
 	// @v12.2.8 {
 	if(P_AddParam && (P_AddParam->Flags & AddedParam::fRetOrCorrSelection)) {
-		if(Op == opUndef)
-			Op = opReturn;
-		AddClusterAssocDef(CTL_SELCHECK_OP, 0, opReturn);
-		AddClusterAssocDef(CTL_SELCHECK_OP, 1, opCorrection);
+		if(Op == CPosProcessor::opGeneral)
+			Op = CPosProcessor::opReturn;
+		AddClusterAssocDef(CTL_SELCHECK_OP, 0, CPosProcessor::opReturn);
+		AddClusterAssocDef(CTL_SELCHECK_OP, 1, CPosProcessor::opCorrection);
 		SetClusterData(CTL_SELCHECK_OP, Op);
 	}
 	else {
@@ -5117,7 +5141,7 @@ void SelCheckListDialog::Init(PPCashMachine * pCm)
 	FmtList.Z();
 	LastChkNo = -1;
 	LastTopID = 0;
-	LastOp = opUndef; // @v12.2.8
+	LastOp = CPosProcessor::opGeneral; // @v12.2.8
 	State &= ~(stInputUpdated | stListUpdated);
 	if(State & stSelectBill) {
 		if(P_Box) {
@@ -5198,7 +5222,7 @@ int SelCheckListDialog::getDTS(_SelCheck * pSelCheck)
 		getCurItem(0, &sel_chk.CheckID);
 		if(sel_chk.CheckID) {
 			// @v12.2.8 {
-			if(Op == opCorrection) {
+			if(Op == CPosProcessor::opCorrection) {
 				sel_chk.Flags |= _SelCheck::fCorrection;
 			}
 			// } @v12.2.8
@@ -5340,7 +5364,7 @@ int SelCheckListDialog::getDTS(_SelCheck * pSelCheck)
 								else if(cc_amt < 0.0) {
 									do_remove = !(P_AddParam && P_AddParam->Flags & P_AddParam->fAllowReturns);
 								}
-								if(!do_remove && Op == opCorrection) { 
+								if(!do_remove && Op == CPosProcessor::opCorrection) { 
 									PPRef->UtrC.GetText(TextRefIdent(PPOBJ_CCHECK, r_rec.ID, PPTRPROP_CC_LNEXT), temp_buf);
 									temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 									CCheckPacket::Helper_UnpackTextExt(temp_buf, &sc, &cc_fld_list);
@@ -5523,9 +5547,8 @@ int SelCheckListDialog::SetupItemList()
 				if(_top_id && P_Srv->GetCc().LoadPacket(_top_id, 0, &pack) > 0) {
 					memo_buf.Z();
 					if(pack.Ext.AddrID) {
-						PPObjLocation loc_obj;
 						LocationTbl::Rec loc_rec;
-						if(loc_obj.Search(pack.Ext.AddrID, &loc_rec) > 0) {
+						if(LocObj.Search(pack.Ext.AddrID, &loc_rec) > 0) {
 							memo_buf.Cat(LocationCore::GetExFieldS(&loc_rec, LOCEXSTR_PHONE, sub));
 							if(LocationCore::GetExFieldS(&loc_rec, LOCEXSTR_SHORTADDR, sub).NotEmptyS())
 								memo_buf.CatDivIfNotEmpty(',', 2).Cat(sub);
@@ -5539,9 +5562,9 @@ int SelCheckListDialog::SetupItemList()
 						memo_buf = pack.Ext.Memo;
 					for(uint i = 0; i < pack.GetCount(); i++) {
 						ss.Z();
-						const  CCheckLineTbl::Rec & cclr = pack.GetLineC(i);
-						double price = intmnytodbl(cclr.Price);
-						double sum = R2(cclr.Quantity * (price - cclr.Dscnt));
+						const CCheckLineTbl::Rec & cclr = pack.GetLineC(i);
+						const double price = intmnytodbl(cclr.Price);
+						const double sum = R2(cclr.Quantity * (price - cclr.Dscnt));
 						GetGoodsName(cclr.GoodsID, sub);
 						ss.add(sub);
 						ss.add(sub.Z().Cat(price, SFMT_MONEY));
@@ -5724,7 +5747,7 @@ int SelCheckListDialog::SplitCheck()
 				SString serial;
 				CCheckLineTbl::Rec chk_item;
 				THROW_PP(!P_AddParam || !(pack.Rec.Flags & CCHKF_PREPRINT) || P_AddParam->Rights & CheckPaneDialog::orfChgPrintedCheck, PPERR_NORIGHTS);
-				for(uint pos = 0; pack.EnumLines(&pos, &chk_item, &serial) > 0;) {
+				for(uint pos = 0; pack.EnumLines(&pos, &chk_item, &serial);) {
 					SplitSuspCheckDialog::ListItem item;
 					MEMSZERO(item);
 					item.LineNo   = pos;
@@ -5851,7 +5874,7 @@ int SelCheckListDialog::UniteChecks()
 					THROW(r_cc.LoadPacket(check2.CheckID, 0, &pack2));
 					pack1._Cash        += pack2._Cash;
 					SETIFZ(pack1.PctDis, pack2.PctDis);
-					for(pos = 0; pack2.EnumLines(&pos, &chk_item, &serial) > 0;) {
+					for(pos = 0; pack2.EnumLines(&pos, &chk_item, &serial);) {
 						THROW(pack1.InsertItem_(&chk_item, serial));
 					}
 					THROW(r_cc.RemovePacket(check2.CheckID, 0));
@@ -5930,7 +5953,7 @@ IMPL_HANDLE_EVENT(SelCheckListDialog)
 			if(unfc != org_unfc) {
 				LastChkNo = -1;
 				LastDate = ZERODATE;
-				LastOp = opUndef; // @v12.2.8
+				LastOp = CPosProcessor::opGeneral; // @v12.2.8
 				if(!unfc && State & stOuterList)
 					ChkList = PreserveOuterChkList;
 				updateList(-1);
@@ -6826,6 +6849,10 @@ bool CheckPaneDialog::ValidateCommand(TEvent & rEv)
 			}
 			else if((UiFlags & uifCloseWOAsk) || PPMessage(mfConf|mfYesNo, PPCFM_CLOSECCHKPANE) == cmYes)
 				r = true;
+			// @v12.2.9 @fix {
+			if(!r)
+				NegativeReplyOnValidateCommand(rEv);
+			// } @v12.2.9
 		}
 		else {
 			//r = TDialog::valid(cmd);
@@ -7311,7 +7338,10 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 				}
 				break;
 			case cmQuantity:      BARRIER(AcceptQuantity()); break;
-			case cmRetCheck:      BARRIER(SetupRetCheck(!F(fRetCheck))); break;
+			case cmRetCheck:      
+				// @v12.2.9 BARRIER(SetupRetCheck(!F(fRetCheck))); 
+				BARRIER(SetupRetCheck(!(IsCurrentOp(opReturn) || IsCurrentOp(opCorrection)))); // @v12.2.9
+				break;
 			case cmSelSCard:      BARRIER(AcceptSCard(0, 0, (Flags & fWaitOnSCard) ? ascfFromInput : ascfExtPane)); break;
 			case cmChkPanSuspend: BARRIER(SuspendCheck()); break;
 			case cmToLocPrinters: BARRIER(PrintToLocalPrinters(-1, false/*ignoreNonZeroAgentReq*/)); break;
@@ -7397,7 +7427,7 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 											bill_uuid.ToStr(S_GUID::fmtIDL, temp_buf);
 											ccpack.PutExtStrData(CCheckPacket::extssLinkBillUuid, temp_buf);
 										}
-										LoadCheck(&ccpack, 0, false);
+										LoadCheck(&ccpack, false/*makeRetCheck*/, false);
 									}
 								}
 							}
@@ -7407,7 +7437,7 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 						if(IsState(sEMPTYLIST_EMPTYBUF)) {
 							SelCheckListDialog::AddedParam param(0, P.TableCode, P.GetAgentID(), OperRightsFlags);
 							const uint dlg_id = (DlgFlags & fLarge) ? DLG_ORDERCHECKS_L : DLG_ORDERCHECKS;
-							SelCheckListDialog * dlg = new SelCheckListDialog(dlg_id, (TSVector <CCheckViewItem> *)0, 0, this, &param);
+							SelCheckListDialog * dlg = new SelCheckListDialog(dlg_id, static_cast<TSVector <CCheckViewItem> *>(0), 0, this, &param);
 							if(CheckDialogPtrErr(&dlg)) {
 								if(ExecView(dlg) == cmNewCheck) {
 									_SelCheck sc;
@@ -7498,7 +7528,10 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 			case kbF3:      BARRIER(AcceptSCard(0, 0, (Flags & fWaitOnSCard) ? ascfFromInput : ascfExtPane)); break;
 			case kbF4:      BARRIER(SelectGoods__(AbstractGoodsID ? sgmAbstractSale : sgmByPrice)); break;
 			case kbF5:      BARRIER(SetupRowByScale()); break;
-			case kbCtrlF5:  BARRIER(SetupRetCheck(!F(fRetCheck))); break;
+			case kbCtrlF5:  
+				// @v12.2.9 BARRIER(SetupRetCheck(!F(fRetCheck))); 
+				BARRIER(SetupRetCheck(!(IsCurrentOp(opReturn) || IsCurrentOp(opCorrection)))); // @v12.2.9
+				break;
 			case kbF6:      BARRIER(AcceptQuantity()); break;
 			case kbF7:      BARRIER(PrintCheckCopy()); break;
 			case kbCtrlF7:  BARRIER(PrintSlipDocument()); break;
@@ -8243,7 +8276,13 @@ int CPosProcessor::RestoreSuspendedCheck(PPID ccID, CCheckPacket * pPack, int un
 			P.OrgUserID = cc_pack.Rec.UserID;
 		SetupState(sLIST_EMPTYBUF);
 	}
-	SETFLAG(Flags, fRetCheck, cc_pack.Rec.Flags & CCHKF_RETURN);
+	// @v12.2.9 SETFLAG(Flags, fRetCheck, cc_pack.Rec.Flags & CCHKF_RETURN);
+	// @v12.2.9 {
+	if(cc_pack.Rec.Flags & CCHKF_CORRECTION)
+		SetCurrentOp(opCorrection);
+	else if(cc_pack.Rec.Flags & CCHKF_RETURN)
+		SetCurrentOp(opReturn);
+	// } @v12.2.9 
 	SetPrintedFlag(cc_pack.Rec.Flags & CCHKF_PREPRINT);
 	if(!unfinishedForReprinting) {
 		Flags  |= fWaitOnSCard;
@@ -8418,7 +8457,7 @@ int CheckPaneDialog::SelectTable()
 				is_input = GetInput();
 			}
 			if(is_input) {
-				int    table_no = Input.ToLong();
+				const  int table_no = Input.ToLong();
 				long   guest_count = 0;
 				if(CnExtFlags & CASHFX_INPGUESTCFTBL)
 					SelectGuestCount(table_no, &guest_count);
@@ -8430,125 +8469,183 @@ int CheckPaneDialog::SelectTable()
 	}
 	return ok;
 }
-
+//
+// Descr: Устанвливает либо сбрасывает состояние ввода возвратного или корректирующего чека
+//
 void CheckPaneDialog::SetupRetCheck(bool ret)
 {
 	SString temp_buf;
 	Flags |= fSuspSleepTimeout;
-	if(!ret) {
-		Rb.Z();
-	}
-	Flags &= ~fRetByCredit;
-	if((!P.HasCur() && !P.getCount()) || oneof2(GetState(), sLISTSEL_EMPTYBUF, sLISTSEL_BUF)) {
-		if(OperRightsFlags & orfReturns) {
-			if(!P.HasCur() && !P.getCount()) {
-				SETFLAG(Flags, fRetCheck, ret);
-			}
-			else if(F(fRetCheck))
-				ret = true;
-			if(ret) {
-				CCheckPacket  chk_pack;
-				if(!oneof2(GetState(), sLISTSEL_EMPTYBUF, sLISTSEL_BUF)) {
-					SelectCheckResult sccr;
-					PPLoadString("selectccheck_forrefundorcorr", temp_buf);
-					if(SelectCheck(temp_buf, 0, sccr) > 0) {
-						GetCc().LoadPacket(sccr.CcID, 0, &SelPack);
-						chk_pack.CopyLines(SelPack);
-						if(SelPack.Rec.SCardID)
-							AcceptSCard(SelPack.Rec.SCardID, 0, ascfIgnoreRights);
-						else
-							CSt.SetID(0, 0);
-						Flags &= ~fWaitOnSCard;
-					}
-				}
-				else {
-					CCheckLineTbl::Rec line;
-					for(uint i = 0; SelPack.EnumLines(&i, &line);) {
-						double sel_qtty = 0.0;
-						const double rest_qtty_ = SelLines.Search(i, &sel_qtty, 0) ? (line.Quantity-sel_qtty) : line.Quantity;
-						if(rest_qtty_ != 0.0)
-							chk_pack.InsertItem(line.GoodsID, rest_qtty_, intmnytodbl(line.Price), line.Dscnt);
-					}
-				}
-				if(chk_pack.GetCount()) {
-					const long  lc_flags = DS.GetTLA().Lc.Flags;
-					chk_pack.Rec = SelPack.Rec;
-					ushort r = CheckExecAndDestroyDialog(new CheckPaneDialog(0, 0, &chk_pack, BIN(Flags & fTouchScreen)), 1, 0);
-					if(r) {
-						int    crcc_arg = -1; // Аргумент последующего вызова функции CalcRestByCrdCard_ (-1 - не вызывать)
-						if(r == cmaAll) {
-							LoadCheck(&chk_pack, 1, false);
-							SelLines.freeAll();
-							CCheckLineTbl::Rec line;
-							for(uint i = 0; SelPack.EnumLines(&i, &line);)
-								SelLines.Add(i, line.Quantity);
-							SetupState(sLISTSEL_EMPTYBUF);
-							crcc_arg = 0;
-						}
-						else if(r == cmOK) {
-							Goods2Tbl::Rec goods_rec;
-							const CCheckLineTbl::Rec & cclr = chk_pack.GetLineC(0);
-							CCheckItem & r_cur_item = P.GetCur();
-							r_cur_item.GoodsID = cclr.GoodsID;
-							if(GObj.Fetch(r_cur_item.GoodsID, &goods_rec) > 0) {
-								STRNSCPY(r_cur_item.GoodsName, goods_rec.Name);
-								GObj.FetchSingleBarcode(r_cur_item.GoodsID, temp_buf.Z());
-								temp_buf.CopyTo(r_cur_item.BarCode, sizeof(r_cur_item.BarCode));
-							}
-							else
-								r_cur_item.GoodsName[0] = r_cur_item.BarCode[0] = 0;
-							r_cur_item.Quantity = -fabs(cclr.Quantity);
-							r_cur_item.Price    = intmnytodbl(cclr.Price);
-							r_cur_item.Discount = cclr.Dscnt;
-							chk_pack.GetLineTextExt(1, CCheckPacket::lnextEgaisMark, temp_buf);
-							STRNSCPY(r_cur_item.EgaisMark, temp_buf);
-							chk_pack.GetLineTextExt(1, CCheckPacket::lnextSerial, temp_buf);
-							STRNSCPY(r_cur_item.Serial, temp_buf);
-							// @v11.3.6 {
-							chk_pack.GetLineTextExt(1, CCheckPacket::lnextChZnSerial, temp_buf);
-							STRNSCPY(r_cur_item.ChZnSerial, temp_buf);
-							chk_pack.GetLineTextExt(1, CCheckPacket::lnextChZnGtin, temp_buf);
-							STRNSCPY(r_cur_item.ChZnGtin, temp_buf);
-							chk_pack.GetLineTextExt(1, CCheckPacket::lnextChZnMark, temp_buf);
-							STRNSCPY(r_cur_item.ChZnMark, temp_buf);
-							// } @v11.3.6 
-							P.CurPos = P.getCount();
-							SetupRowData(1);
-							SetupState(sLISTSEL_BUF);
-							crcc_arg = 1;
-						}
-						{
-							Rb.AmL = SelPack.AL();
-							Rb._CcID = chk_pack.Rec.ID;
-							if(Rb.AmL.getCount()) {
-								Rb._CcAmount = Rb.AmL.GetTotal();
-								Rb._CcCredit = Rb.AmL.Get(CCAMTTYP_CRDCARD);
-								assert(MONEYTOLDBL(SelPack.Rec.Amount) == Rb._CcAmount); // @paranoic
-							}
-							else {
-								Rb._CcAmount = MONEYTOLDBL(chk_pack.Rec.Amount);
-								Rb._CcCredit = 0.0;
-							}
-							if(Rb._CcCredit > 0.0 && Rb._CcAmount > 0.0)
-								Flags |= fRetByCredit;
-						}
-						if(crcc_arg >= 0)
-							CalcRestByCrdCard_(crcc_arg);
-					}
-					DS.SetLCfgFlags(lc_flags);
-				}
-			}
-			else if(!F(fRetCheck)) {
+	{
+		const bool is_pane_empty = (!P.HasCur() && !P.getCount());
+		Flags &= ~fRetByCredit;
+		if(!ret) {
+			if(is_pane_empty) {
+				P.Lb_.Z();
+				SetCurrentOp(opGeneral);
+				//
 				SelPack.ClearLines();
 				SelLines.clear();
 				SetupState(sEMPTYLIST_EMPTYBUF);
 				CSt.Z();
+				SetupInfo(0);
 			}
-			SetupInfo(0);
-			ClearInput(0);
 		}
-		else if(ret)
-			PPError(PPERR_NORIGHTS);
+		else {
+			if(is_pane_empty || oneof2(GetState(), sLISTSEL_EMPTYBUF, sLISTSEL_BUF)) {
+				if(!(OperRightsFlags & orfReturns)) {
+					PPError(PPERR_NORIGHTS);
+				}
+				else {
+					int    selected_op = opGeneral;
+					PPID   selected_cc_id = 0;
+					/*if(is_pane_empty) {
+						// @v12.2.9 SETFLAG(Flags, fRetCheck, ret);
+						// @v12.2.9 {
+						if(!ret) {
+							SetCurrentOp(opGeneral);
+						}
+						// } @v12.2.9 
+					}
+					else if(IsCurrentOp(opReturn) || IsCurrentOp(opCorrection)) {
+						ret = true;
+					}
+					if(ret)*/
+					{
+						selected_op = opReturn;
+						CCheckPacket chk_pack;
+						CCheckLineTbl::Rec line_rec;
+						if(!oneof2(GetState(), sLISTSEL_EMPTYBUF, sLISTSEL_BUF)) {
+							SelectCheckResult sccr;
+							if(SelectCheck(PPLoadStringS("selectccheck_forrefundorcorr", temp_buf), 0, sccr) > 0) {
+								selected_op = sccr.Op;
+								selected_cc_id = sccr.CcID;
+								GetCc().LoadPacket(sccr.CcID, 0, &SelPack);
+								chk_pack.CopyLines(SelPack);
+								if(SelPack.Rec.SCardID)
+									AcceptSCard(SelPack.Rec.SCardID, 0, ascfIgnoreRights);
+								else
+									CSt.SetID(0, 0);
+								Flags &= ~fWaitOnSCard;
+							}
+						}
+						else {
+							for(uint i = 0; SelPack.EnumLines(&i, &line_rec);) {
+								double sel_qtty = 0.0;
+								const double rest_qtty_ = SelLines.Search(i, &sel_qtty, 0) ? (line_rec.Quantity-sel_qtty) : line_rec.Quantity;
+								if(rest_qtty_ != 0.0)
+									chk_pack.InsertItem(line_rec.GoodsID, rest_qtty_, intmnytodbl(line_rec.Price), line_rec.Dscnt);
+							}
+						}
+						SetCurrentOp(selected_op); // @v12.2.9
+						if(chk_pack.GetCount()) {
+							const long lc_flags = DS.GetTLA().Lc.Flags;
+							if(selected_op == opReturn) {
+								chk_pack.Rec = SelPack.Rec;
+								ushort r = CheckExecAndDestroyDialog(new CheckPaneDialog(0, 0, &chk_pack, (Flags & fTouchScreen)), 1, 0);
+								if(r) {
+									int    crcc_arg = -1; // Аргумент последующего вызова функции CalcRestByCrdCard_ (-1 - не вызывать)
+									if(r == cmaAll) {
+										LoadCheck(&chk_pack, true/*makeRetCheck*/, false);
+										SelLines.freeAll();
+										for(uint i = 0; SelPack.EnumLines(&i, &line_rec);)
+											SelLines.Add(i, line_rec.Quantity);
+										SetupState(sLISTSEL_EMPTYBUF);
+										crcc_arg = 0;
+									}
+									else if(r == cmOK) {
+										Goods2Tbl::Rec goods_rec;
+										const CCheckLineTbl::Rec & cclr = chk_pack.GetLineC(0);
+										CCheckItem & r_cur_item = P.GetCur();
+										r_cur_item.GoodsID = cclr.GoodsID;
+										if(GObj.Fetch(r_cur_item.GoodsID, &goods_rec) > 0) {
+											STRNSCPY(r_cur_item.GoodsName, goods_rec.Name);
+											GObj.FetchSingleBarcode(r_cur_item.GoodsID, temp_buf);
+											STRNSCPY(r_cur_item.BarCode, temp_buf);
+										}
+										else
+											r_cur_item.GoodsName[0] = r_cur_item.BarCode[0] = 0;
+										r_cur_item.Quantity = -fabs(cclr.Quantity);
+										r_cur_item.Price    = intmnytodbl(cclr.Price);
+										r_cur_item.Discount = cclr.Dscnt;
+										chk_pack.GetLineTextExt(1, CCheckPacket::lnextEgaisMark, temp_buf);
+										STRNSCPY(r_cur_item.EgaisMark, temp_buf);
+										chk_pack.GetLineTextExt(1, CCheckPacket::lnextSerial, temp_buf);
+										STRNSCPY(r_cur_item.Serial, temp_buf);
+										// @v11.3.6 {
+										chk_pack.GetLineTextExt(1, CCheckPacket::lnextChZnSerial, temp_buf);
+										STRNSCPY(r_cur_item.ChZnSerial, temp_buf);
+										chk_pack.GetLineTextExt(1, CCheckPacket::lnextChZnGtin, temp_buf);
+										STRNSCPY(r_cur_item.ChZnGtin, temp_buf);
+										chk_pack.GetLineTextExt(1, CCheckPacket::lnextChZnMark, temp_buf);
+										STRNSCPY(r_cur_item.ChZnMark, temp_buf);
+										// } @v11.3.6 
+										P.CurCcItemPos = P.getCount();
+										SetupRowData(true/*doCalcRest*/);
+										SetupState(sLISTSEL_BUF);
+										crcc_arg = 1;
+									}
+									{
+										P.Lb_._Op = selected_op;
+										P.Lb_.AmL = SelPack.AL();
+										P.Lb_._CcID = chk_pack.Rec.ID;
+										if(P.Lb_.AmL.getCount()) {
+											P.Lb_._CcAmount = P.Lb_.AmL.GetTotal();
+											P.Lb_._CcCredit = P.Lb_.AmL.Get(CCAMTTYP_CRDCARD);
+											assert(MONEYTOLDBL(SelPack.Rec.Amount) == P.Lb_._CcAmount); // @paranoic
+										}
+										else {
+											P.Lb_._CcAmount = MONEYTOLDBL(chk_pack.Rec.Amount);
+											P.Lb_._CcCredit = 0.0;
+										}
+										if(P.Lb_._CcCredit > 0.0 && P.Lb_._CcAmount > 0.0)
+											Flags |= fRetByCredit;
+									}
+									if(crcc_arg >= 0)
+										CalcRestByCrdCard_(crcc_arg);
+								}
+							}
+							// @v12.2.9 {
+							else if(selected_op == opCorrection) {
+								LoadCheck(&chk_pack, false/*makeRetCheck*/, false);
+								SelLines.freeAll();
+								for(uint i = 0; SelPack.EnumLines(&i, &line_rec);)
+									SelLines.Add(i, line_rec.Quantity);
+								SetupState(sLISTSEL_EMPTYBUF);
+								{
+									P.Lb_._Op = selected_op;
+									P.Lb_.AmL = SelPack.AL();
+									P.Lb_._CcID = selected_cc_id;
+									if(P.Lb_.AmL.getCount()) {
+										P.Lb_._CcAmount = P.Lb_.AmL.GetTotal();
+										P.Lb_._CcCredit = P.Lb_.AmL.Get(CCAMTTYP_CRDCARD);
+										assert(MONEYTOLDBL(SelPack.Rec.Amount) == P.Lb_._CcAmount); // @paranoic
+									}
+									else {
+										P.Lb_._CcAmount = MONEYTOLDBL(chk_pack.Rec.Amount);
+										P.Lb_._CcCredit = 0.0;
+									}
+									/*
+									if(P.Lb_._CcCredit > 0.0 && P.Lb_._CcAmount > 0.0)
+										Flags |= fRetByCredit;
+									*/
+								}
+							}
+							// } @v12.2.9 
+							DS.SetLCfgFlags(lc_flags);
+						}
+					}
+					/*else if(!F(fRetCheck)) {
+						SelPack.ClearLines();
+						SelLines.clear();
+						SetupState(sEMPTYLIST_EMPTYBUF);
+						CSt.Z();
+					}*/
+					SetupInfo(0);
+					ClearInput(0);
+				}
+			}
+		}
 	}
 	Flags &= ~fSuspSleepTimeout;
 }
@@ -8566,7 +8663,20 @@ void CheckPaneDialog::SetupInfo(const char * pErrMsg)
 		Flags &= ~fError;
 		if(F(fOnlyReports))
 			PPGetSubStr(PPTXT_CHKPAN_INFO, PPCHKPAN_SESSISCLOSED, buf);
-		else if(F(fRetCheck))
+		// @v12.2.9 {
+		else if(IsCurrentOp(opCorrection)) {
+			PPGetSubStr(PPTXT_CHKPAN_INFO, PPCHKPAN_CORRECTION, buf);
+			if(P.Lb_._CcID) {
+				CCheckCore & r_cc = GetCc();
+				CCheckTbl::Rec cc_rec;
+				if(r_cc.Search(P.Lb_._CcID, &cc_rec) > 0) {
+					CCheckCore::MakeCodeString(&cc_rec, 0/*options*/, temp_buf);
+					buf.Space().Cat("->").Space().Cat(temp_buf);
+				}
+			}
+		}
+		// } @v12.2.9 
+		else if(IsCurrentOp(opReturn))
 			PPGetSubStr(PPTXT_CHKPAN_INFO, PPCHKPAN_RETCHECK, buf);
 		else if(F(fSelByPrice))
 			PPGetSubStr(PPTXT_CHKPAN_INFO, PPCHKPAN_SELBYPRICE, buf);
@@ -8588,7 +8698,7 @@ void CheckPaneDialog::SetupInfo(const char * pErrMsg)
 				buf.Cat(PPLoadStringS("card", temp_buf)).Space().Cat(sc_rec.Code).Space();
 				if(CSt.Flags & CSt.fUhtt)
 					buf.CatParStr("UHTT").Space();
-				if(F(fRetCheck)) {
+				if(IsCurrentOp(opReturn)) {
 					if(F(fRetByCredit) && CSt.AdditionalPayment) {
 						PPLoadString("addpayment", temp_buf);
 						buf.Cat(temp_buf).Space().Cat(CSt.AdditionalPayment, SFMT_MONEY);
@@ -8898,14 +9008,14 @@ int CPosProcessor::Backend_RemoveRow(int rowNo)
 				ok = 1;
 			}
 			if(!P.getCount()) {
-				int  prev_state = GetState();
+				const int  prev_state = GetState();
 				if(IsState(sLIST_EMPTYBUF)) {
 					SetupState(sEMPTYLIST_EMPTYBUF);
-					P.CurPos = -1;
+					P.CurCcItemPos = -1;
 				}
 				else if(IsState(sLIST_BUF)) {
 					SetupState(sEMPTYLIST_BUF);
-					P.CurPos = 0;
+					P.CurCcItemPos = 0;
 				}
 				/* @interactive
 				if(GetState() != prev_state)
@@ -8939,14 +9049,14 @@ int CheckPaneDialog::RemoveRow()
 					ok = 1;
 				}
 				if(!P.getCount()) {
-					int  prev_state = GetState();
+					const int  prev_state = GetState();
 					if(IsState(sLIST_EMPTYBUF)) {
 						SetupState(sEMPTYLIST_EMPTYBUF);
-						P.CurPos = -1;
+						P.CurCcItemPos = -1;
 					}
 					else if(IsState(sLIST_BUF)) {
 						SetupState(sEMPTYLIST_BUF);
-						P.CurPos = 0;
+						P.CurCcItemPos = 0;
 					}
 					if(GetState() != prev_state)
 						setupHint();
@@ -9138,7 +9248,7 @@ int CheckPaneDialog::RemoveRow()
 			case cdispcmdTotalDiscount: ok = P_CDY->SetDiscount(rv1, rv2); break;
 			case cdispcmdChange: ok = (P_CDY->ClearDisplay() && P_CDY->SetChange(rv1, rv2)); break;
 			case cdispcmdCurrentItem:
-				if(P.CurPos < P.getCountI() && P.HasCur()) {
+				if(P.IsCurValid()) {
 					P_CDY->ClearDisplay();
 					if(P_CDY->SetGoodsName(P.GetCur().GoodsName)) {
 						SDelay(50);
@@ -9151,7 +9261,7 @@ int CheckPaneDialog::RemoveRow()
 					ok = -1;
 				break;
 			case cdispcmdCurrentGiftItem:
-				if(P.CurPos < P.getCountI() && P.HasCur()) {
+				if(P.IsCurValid()) {
 					P_CDY->ClearDisplay();
 					if(P_CDY->SetGoodsName(P.GetCur().GoodsName)) {
 						SDelay(50);
@@ -9522,12 +9632,12 @@ int CheckPaneDialog::PreprocessGoodsSelection(const PPID goodsID, PPID locID, Pg
 						}
 					}
 					if(ok > 0) {
-						const bool skip_unprinted_checks = LOGIC(CnFlags & CASHF_SKIPUNPRINTEDCHECKS); // @v12.0.11
-						int   is_mark_processed = 0;
+						const  bool skip_unprinted_checks = LOGIC(CnFlags & CASHF_SKIPUNPRINTEDCHECKS); // @v12.0.11
+						bool   is_mark_processed = false;
 						if(oneof3(EgaisMode, 1, 2, 3) && P_EgPrc && P_EgPrc->IsAlcGoods(goodsID)) {
 							PrcssrAlcReport::GoodsItem agi;
 							if(P_EgPrc->PreprocessGoodsItem(goodsID, 0, 0, 0, agi) && agi.StatusFlags & agi.stMarkWanted) {
-								is_mark_processed = 1;
+								is_mark_processed = true;
 								const TimeRange & r_rsat = P_EgPrc->GetConfig().E.RtlSaleAllwTime;
 								if(!r_rsat.IsZero() && !r_rsat.Check(getcurtime_())) {
 									ok = MessageError(PPERR_ALCRETAILPROHIBTIME, r_rsat.ToStr(TIMF_HM, temp_buf), eomBeep|eomStatusLine);
@@ -9882,12 +9992,12 @@ void FASTCALL CheckPaneDialog::SelectGoods__(int mode)
 							if(dlg->getSelection(&idx) && idx > 0 && idx <= mlist.getCountI()) {
 								const SaModifEntry & r_entry = mlist.at(idx-1);
 								P.CurModifList.insert(&r_entry);
-								SetupRowData(1);
+								SetupRowData(true/*doCalcRest*/);
 							}
 						}
 						else if(cmd == cmClear) {
 							P.CurModifList.freeAll();
-							SetupRowData(1);
+							SetupRowData(true/*doCalcRest*/);
 						}
 					}
 					ZDELETE(dlg);
@@ -10152,10 +10262,10 @@ void CheckPaneDialog::AcceptQuantity()
 							r_cur.Price = rgi.Price;
 					}
 					//
-					if(F(fRetCheck)) {
+					if(IsCurrentOp(opReturn)) {
 						r_cur.Quantity = -r_cur.Quantity;
 						r_cur.PhQtty   = -r_cur.PhQtty;
-						SetupRowData(0);
+						SetupRowData(false/*doCalcRest*/);
 						ok = 1;
 					}
 					else if(!CalcRestByCrdCard_(1)) {
@@ -10163,7 +10273,7 @@ void CheckPaneDialog::AcceptQuantity()
 						ok = 0;
 					}
 					else {
-						SetupRowData(0);
+						SetupRowData(false/*doCalcRest*/);
 						ok = 1;
 					}
 				}
@@ -10186,10 +10296,10 @@ void CheckPaneDialog::AcceptDivision()
 		is_input = GetInput();
 	}
 	if(is_input && P.HasCur() && P.GetCur().GoodsID && Input.IsDec()) {
-		long  div = Input.ToLong();
+		const long div = Input.ToLong();
 		if(div > 0 && div < 1000) {
 			P.GetCur().Division = static_cast<int16>(div);
-			SetupRowData(0);
+			SetupRowData(false/*doCalcRest*/);
 		}
 	}
 	ClearInput(0);
@@ -10217,7 +10327,7 @@ int CheckPaneDialog::AcceptRowDiscount()
 					P.GetCur().Price = price - discount;
 					P.GetCur().Flags |= cifFixedPrice;
 					Flags &= ~fWaitOnSCard;
-					SetupRowData(1);
+					SetupRowData(true/*doCalcRest*/);
 					{
 						CCheckLineTbl::Rec row;
 						row.CheckID  = SelPack.Rec.ID;
@@ -11541,7 +11651,7 @@ void CheckPaneDialog::AcceptSCard(PPID scardID, const SCardSpecialTreatment::Ide
 	}
 }
 
-/*virtual*/void CheckPaneDialog::SetupRowData(int calcRest)
+/*virtual*/void CheckPaneDialog::SetupRowData(bool doCalcRest)
 {
 	const CCheckItem & r_item = P.GetCurC();
 	SString temp_buf;
@@ -11562,8 +11672,41 @@ void CheckPaneDialog::AcceptSCard(PPID scardID, const SCardSpecialTreatment::Ide
 	setCtrlString(CTL_CHKPAN_QTTY, buf);
 	setCtrlReal(CTL_CHKPAN_PRICE, r_item.Price);
 	setCtrlReal(CTL_CHKPAN_SUM,   sum);
-	CPosProcessor::SetupRowData(calcRest);
+	CPosProcessor::SetupRowData(doCalcRest);
 	ViewStoragePlaces(0);
+}
+
+int CPosProcessor::GetCurrentOp() const // @v12.2.9 
+{
+	int   op = opGeneral;
+	assert(!(F(fCorrection) && F(fRetCheck))); // Если одновременно установлены флаги fCorrection и fRetCheck значит мы где-то ошились в определении состояния //
+	if(F(fCorrection))
+		op = opCorrection;
+	else if(F(fRetCheck))
+		op = opReturn;
+	else
+		op = opGeneral;
+	return op;
+}
+
+bool CPosProcessor::IsCurrentOp(int op) const { return (GetCurrentOp() == op); } // @v12.2.9 
+
+int CPosProcessor::SetCurrentOp(int op) // @v12.2.9
+{
+	assert(oneof3(op, opCorrection, opReturn, opGeneral));
+	if(op == opCorrection) {
+		SETFLAG(Flags, fCorrection, true);
+		SETFLAG(Flags, fRetCheck, false);
+	}
+	else if(op == opReturn) {
+		SETFLAG(Flags, fCorrection, false);
+		SETFLAG(Flags, fRetCheck, true);
+	}
+	else {
+		SETFLAG(Flags, fCorrection, false);
+		SETFLAG(Flags, fRetCheck, false);
+	}
+	return 1;
 }
 
 int CPosProcessor::Helper_GetPriceRestrictions_ByFormula(SString & rFormula, const CCheckItem & rCi, double & rBound) const
@@ -11690,7 +11833,7 @@ int CPosProcessor::SetupNewRow(PPID goodsID, PgsBlock & rBlk, PPID giftID/*=0*/)
 						r_item.GoodsID = rgi.ID;
 						STRNSCPY(r_item.GoodsName, rgi.Name);
 						STRNSCPY(r_item.BarCode,   rgi.BarCode);
-						r_item.Quantity = R6(F(fRetCheck) ? -fabs(rBlk.Qtty) : fabs(rBlk.Qtty));
+						r_item.Quantity = R6((IsCurrentOp(opReturn)) ? -fabs(rBlk.Qtty) : fabs(rBlk.Qtty));
 						r_item.Price    = price;
 						r_item.Discount = 0.0;
 						if(is_abstract || look_back_price)
@@ -11715,13 +11858,11 @@ int CPosProcessor::SetupNewRow(PPID goodsID, PgsBlock & rBlk, PPID giftID/*=0*/)
 						if(!rBlk.AllowedPriceRange.CheckValEps(r_item.Price, 1E-7)) {
 							const RealRange & r_range = rBlk.AllowedPriceRange;
 							if(r_range.low > 0.0 && r_item.Price < r_range.low) {
-								SString & r_nam_buf = SLS.AcquireRvlStr();
-								temp_buf.Z().Cat(r_range.low, SFMT_MONEY).Space().Cat(GetGoodsName(goodsID, r_nam_buf));
+								temp_buf.Z().Cat(r_range.low, SFMT_MONEY).Space().Cat(GetGoodsName(goodsID, SLS.AcquireRvlStr()));
 								ok = MessageError(PPERR_PRICERESTRLOW, temp_buf, eomStatusLine|eomBeep);
 							}
 							else if(r_range.upp > 0.0 && r_item.Price > r_range.upp) {
-								SString & r_nam_buf = SLS.AcquireRvlStr();
-								temp_buf.Z().Cat(r_range.upp, SFMT_MONEY).Space().Cat(GetGoodsName(goodsID, r_nam_buf));
+								temp_buf.Z().Cat(r_range.upp, SFMT_MONEY).Space().Cat(GetGoodsName(goodsID, SLS.AcquireRvlStr()));
 								ok = MessageError(PPERR_PRICERESTRUPP, temp_buf, eomStatusLine|eomBeep);
 							}
 						} // } @v12.2.2 
@@ -11729,9 +11870,9 @@ int CPosProcessor::SetupNewRow(PPID goodsID, PgsBlock & rBlk, PPID giftID/*=0*/)
 							ok = MessageError(-1, 0, eomStatusLine|eomBeep);
 						}
 						if(ok) {
-							P.CurPos = P.getCount();
+							P.CurCcItemPos = P.getCount();
 							if(CalcRestByCrdCard_(1)) {
-								SetupRowData(1);
+								SetupRowData(true/*doCalcRest*/);
 							}
 							else {
 								ClearRow();
@@ -12231,8 +12372,8 @@ int CPosProcessor::AcceptRow(PPID giftID)
 	int    ok = 1;
 	CPosProcessor_MsgToDisp_Frame mdf(this);
 	Flags |= fSuspSleepTimeout;
-	if(P.CurPos == P.getCountI()) {
-		RAssocArray sl_ary = SelLines;
+	if(P.CurCcItemPos == P.getCountI()) {
+		RAssocArray sl_ary(SelLines);
 		if(Flags & fForceDivision && P.GetCur().Division == 0) {
 			ok = MessageError(PPERR_POSDIVISIONNEEDED, 0, eomBeep|eomStatusLine);
 		}
@@ -12287,16 +12428,16 @@ int CPosProcessor::AcceptRow(PPID giftID)
 		}
 	}
 	// Это условие никогда не выполняется //
-	else if(P.CurPos < P.getCountI() && P.HasCur()) {
+	else if(P.IsCurValid()) {
 		assert(0);
-		P.at(P.CurPos) = P.GetCurC();
+		P.at(P.CurCcItemPos) = P.GetCurC();
 		SetupDiscount(0);
 		OnUpdateList(0);
 	}
 	if(ok) {
 		CDispCommand(giftID ? cdispcmdCurrentGiftItem : cdispcmdCurrentItem, 0, 0.0, 0.0);
 		ClearRow();
-		if(!F(fRetCheck) && !giftID) {
+		if(!IsCurrentOp(opReturn) && !IsCurrentOp(opCorrection) && !giftID) {
 			if(ProcessGift() > 0) {
 				CalcRestByCrdCard_(0); // Предыдущий вызов (@01) не учел подарочную скидку
 			}
@@ -12703,8 +12844,13 @@ int CPosProcessor::PrintToLocalPrinters(int selPrnType, bool ignoreNonZeroAgentR
 			if(to_local_prn > 0) {
 				const bool do_debug_log = LOGIC(CConfig.Flags & CCFLG_DEBUG);
 				SStrCollection debug_rep_list;
-				SString msg_buf, chk_code, prn_name;
-				SString buf_ap, buf_prn, buf_ulp, buf_errprn;
+				SString msg_buf;
+				SString chk_code;
+				SString prn_name;
+				SString buf_ap;
+				SString buf_prn;
+				SString buf_ulp;
+				SString buf_errprn;
 				if(do_debug_log) {
 					PPLoadText(PPTXT_LOG_CHKPAN_ALLREADYPRN, buf_ap);
 					PPLoadText(PPTXT_LOG_CHKPAN_PRINTING, buf_prn);

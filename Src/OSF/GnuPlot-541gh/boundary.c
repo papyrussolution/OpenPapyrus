@@ -240,7 +240,7 @@ void GnuPlot::Boundary(GpTermEntry * pTerm, const curve_points * pPlots, int cou
 		/* the tests in axis_output_tics(), and assumes FIRST_Y_AXIS.       */
 		if(!AxS[FIRST_Y_AXIS].InRange(0.0))
 			shift_labels_to_border = TRUE;
-		if(0.05 > fabs(AxS[FIRST_Y_AXIS].min / AxS[FIRST_Y_AXIS].GetRange()))
+		if(0.05 > fabs(AxS[FIRST_Y_AXIS].Range.low / AxS[FIRST_Y_AXIS].GetRange()))
 			shift_labels_to_border = TRUE;
 	}
 	if((AxS[FIRST_X_AXIS].ticmode & TICS_ON_BORDER) || shift_labels_to_border) {
@@ -323,7 +323,7 @@ void GnuPlot::Boundary(GpTermEntry * pTerm, const curve_points * pPlots, int cou
 		//        the tests in axis_output_tics(), and assumes FIRST_X_AXIS.       
 		if(!AxS[FIRST_X_AXIS].InRange(0.0))
 			shift_labels_to_border = TRUE;
-		if(0.1 > fabs(AxS[FIRST_X_AXIS].min / AxS[FIRST_X_AXIS].GetRange()))
+		if(0.1 > fabs(AxS[FIRST_X_AXIS].Range.low / AxS[FIRST_X_AXIS].GetRange()))
 			shift_labels_to_border = TRUE;
 	}
 	if((AxS[FIRST_Y_AXIS].ticmode & TICS_ON_BORDER) || shift_labels_to_border) {
@@ -459,10 +459,10 @@ void GnuPlot::Boundary(GpTermEntry * pTerm, const curve_points * pPlots, int cou
 	// Make sure that if polar grid is shown on a cartesian axis plot
 	// the rtics match up with the primary x tics.                    
 	if(AxS.__R().ticmode && (Gg.Polar || AxS.raxis)) {
-		if(AxS.__R().BadRange() || (!Gg.Polar && AxS.__R().min != 0)) {
-			SetExplicitRange(&AxS.__R(), 0.0, AxS.__X().max);
-			AxS.__R().min = 0;
-			AxS.__R().max = AxS[FIRST_X_AXIS].max;
+		if(AxS.__R().BadRange() || (!Gg.Polar && AxS.__R().Range.low != 0)) {
+			SetExplicitRange(&AxS.__R(), 0.0, AxS.__X().Range.upp);
+			AxS.__R().Range.low = 0.0;
+			AxS.__R().Range.upp = AxS[FIRST_X_AXIS].Range.upp;
 			IntWarn(NO_CARET, "resetting rrange");
 		}
 		SetupTics(&AxS[POLAR_AXIS], 10);
@@ -1209,7 +1209,7 @@ void GnuPlot::DrawTitles(GpTermEntry * pTerm)
 	// RLABEL 
 	if(AxS[POLAR_AXIS].label.text) {
 		// This assumes we always have a horizontal R axis 
-		const int x = MapiX(PolarRadius(AxS.__R().max) / 2.0);
+		const int x = MapiX(PolarRadius(AxS.__R().Range.upp) / 2.0);
 		const int y = MapiY(0.0) + pTerm->CV();
 		WriteLabel(pTerm, x, y, &(AxS[POLAR_AXIS].label));
 		ResetTextColor(pTerm, &(AxS[POLAR_AXIS].label.textcolor));

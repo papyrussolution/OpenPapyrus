@@ -675,7 +675,7 @@ TERM_PUBLIC void TK_move(GpTermEntry_Static * pThis, uint x, uint y)
 static double TkRealValue(GpTermEntry_Static * pThis, double value, int axIdx) 
 {
 	const GpAxis & r_ax = pThis->P_Gp->AxS[axIdx];
-	return (r_ax.log) ? pow(r_ax.base, r_ax.min + value*(r_ax.GetRange())) : r_ax.min + value*(r_ax.GetRange());
+	return (r_ax.log) ? pow(r_ax.base, r_ax.Range.low + value*(r_ax.GetRange())) : r_ax.Range.low + value*(r_ax.GetRange());
 }
 
 static double TkValueX(GpTermEntry_Static * pThis, double value)
@@ -1662,8 +1662,8 @@ TERM_PUBLIC void TK_text(GpTermEntry_Static * pThis)
 	if(!p_gp->Gg.Is3DPlot)
 		fprintf(GPT.P_GpOutFile, tk_info_procs[tk_script_language],
 		    p_gp->V.BbPlot.xleft, p_gp->V.BbPlot.xright, TK_YMAX - p_gp->V.BbPlot.ytop, TK_YMAX - p_gp->V.BbPlot.ybot,
-		    p_gp->AxS[FIRST_X_AXIS].min,  p_gp->AxS[FIRST_X_AXIS].max, p_gp->AxS[FIRST_Y_AXIS].min,  p_gp->AxS[FIRST_Y_AXIS].max,
-		    p_gp->AxS[SECOND_X_AXIS].min, p_gp->AxS[SECOND_X_AXIS].max, p_gp->AxS[SECOND_Y_AXIS].min, p_gp->AxS[SECOND_Y_AXIS].max);
+		    p_gp->AxS[FIRST_X_AXIS].Range.low,  p_gp->AxS[FIRST_X_AXIS].Range.upp, p_gp->AxS[FIRST_Y_AXIS].Range.low,  p_gp->AxS[FIRST_Y_AXIS].Range.upp,
+		    p_gp->AxS[SECOND_X_AXIS].Range.low, p_gp->AxS[SECOND_X_AXIS].Range.upp, p_gp->AxS[SECOND_Y_AXIS].Range.low, p_gp->AxS[SECOND_Y_AXIS].Range.upp);
 	if(tk_interactive)
 		fputs(tk_gnuplot_xy[tk_script_language], GPT.P_GpOutFile);
 	if(tk_standalone && (tk_script_language != TK_LANG_REXX))

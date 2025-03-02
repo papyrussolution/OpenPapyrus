@@ -154,7 +154,7 @@ int PPSyncCashSession::PreprocessCCheckForOfd12(const OfdFactors & rOfdf, CCheck
 		bool is_there_chzn_marks = false;
 		bool is_there_simplified_draftbeer = false;
 		{
-			for(uint pos = 0; !is_there_chzn_marks && !is_there_simplified_draftbeer && pPack->EnumLines(&pos, &ccl) > 0;) {
+			for(uint pos = 0; !is_there_chzn_marks && !is_there_simplified_draftbeer && pPack->EnumLines(&pos, &ccl);) {
 				if(PPSyncCashSession::IsSimplifiedDraftBeerPosition(NodeID, ccl.GoodsID) && goods_obj.GetSimplifiedDraftBeerBarcode(ccl.GoodsID, temp_buf)) { // @v11.9.3
 					is_there_simplified_draftbeer = true;
 				}
@@ -176,7 +176,7 @@ int PPSyncCashSession::PreprocessCCheckForOfd12(const OfdFactors & rOfdf, CCheck
 				pczcr_pre = PreprocessChZnCode(ppchzcopInit, chzn_code, 1.0, 0/*uomId*/, 0, chzn_pp_result);
 			}
 			if(pczcr_pre != 0) {
-				for(uint pos = 0; pPack->EnumLines(&pos, &ccl) > 0;) {
+				for(uint pos = 0; pPack->EnumLines(&pos, &ccl);) {
 					Goods2Tbl::Rec goods_rec;
 					uint  uom_fragm = 0;
 					if(goods_obj.Fetch(ccl.GoodsID, &goods_rec) > 0) {
@@ -325,6 +325,389 @@ int PPSyncCashSession::CompleteSession(PPID sessID)
 	CATCHZOK
 	PPWaitStop();
 	return ok;
+}
+
+/*static*/SJson * PPSyncCashSession::AtolDrv_MakeJson_CCheck(const OfdFactors & rOfdf, const CCheckPacket * pPack, PPSlipFormatter * pSf, uint flags)
+{
+	SJson * p_result = 0;
+	if(pPack) {
+		CCheckPacket::Prescription prescr;
+		SString temp_buf;
+		SString chzn_sid;
+		SString debug_log_buf;
+		PPID   tax_sys_id = 0;
+		const  double amt = fabs(R2(MONEYTOLDBL(pPack->Rec.Amount)));
+		double sum = fabs(pPack->_Cash);
+		double running_total = 0.0;
+		const  bool is_vat_free = (CnObj.IsVatFree(SCn.ID) > 0);
+		const  bool is_correction = LOGIC(pPack->Rec.Flags & CCHKF_CORRECTION);
+		double real_fiscal = 0.0;
+		double real_nonfiscal = 0.0;
+		pPack->HasNonFiscalAmount(&real_fiscal, &real_nonfiscal);
+		const double _fiscal = (PPConst::Flags & PPConst::fDoSeparateNonFiscalCcItems) ? real_fiscal : (real_fiscal + real_nonfiscal);
+		const CcAmountList & r_al = pPack->AL_Const();
+		const bool   is_al = (r_al.getCount() > 0);
+		const double amt_bnk = is_al ? r_al.Get(CCAMTTYP_BANK) : ((pPack->Rec.Flags & CCHKF_BANKING) ? _fiscal : 0.0);
+		const double amt_cash = (PPConst::Flags & PPConst::fDoSeparateNonFiscalCcItems) ? (_fiscal - amt_bnk) : (is_al ? r_al.Get(CCAMTTYP_CASH) : (_fiscal - amt_bnk));
+		const double amt_ccrd = is_al ? r_al.Get(CCAMTTYP_CRDCARD) : (real_fiscal + real_nonfiscal - _fiscal);
+		// @v11.8.1 {
+		if(SCn.LocID)
+			PPRef->Ot.GetTagStr(PPOBJ_LOCATION, SCn.LocID, PPTAG_LOC_CHZNCODE, chzn_sid);
+		// } @v11.8.1 
+		pPack->GetPrescription(prescr);
+		CnObj.GetTaxSystem(SCn.ID, pPack->Rec.Dt, &tax_sys_id);
+		p_result = SJson::CreateObj();
+		{
+			const char * p_type_str = 0;
+			if(is_correction)
+				p_type_str = "sellCorrection";
+			else if(pPack->Rec.Flags & CCHKF_RETURN)
+				p_type_str = "sellReturn";
+			else
+				p_type_str = "sell";
+			assert(!isempty(p_type_str));
+			p_result->InsertString("type", p_type_str);
+		}
+		{
+			const char * p_atol_taxsys_symb = 0;
+			switch(tax_sys_id) {
+				case TAXSYSK_GENERAL:           p_atol_taxsys_symb = "osn"; break;
+				case TAXSYSK_SIMPLIFIED:        p_atol_taxsys_symb = "usnIncome"; break;
+				case TAXSYSK_SIMPLIFIED_PROFIT: p_atol_taxsys_symb = "usnIncomeOutcome"; break;
+				case TAXSYSK_PATENT:            p_atol_taxsys_symb = "patent"; break;
+				case TAXSYSK_IMPUTED:           p_atol_taxsys_symb = "envd"; break;
+				case TAXSYSK_SINGLEAGRICULT:    p_atol_taxsys_symb = "esn"; break;
+			}
+			if(p_atol_taxsys_symb)
+				p_result->InsertString("taxationType", p_atol_taxsys_symb);
+		}
+		p_result->InsertBool("ignoreNonFiscalPrintErrors", false);
+		if(is_correction) {
+			LDATE   link_cc_date = ZERODATE;
+			SString link_cc_fiscal_tag;
+			if(pPack->Ext.LinkCheckID) {
+				PPObjCSession cs_obj;
+				CCheckCore * p_cc = cs_obj.P_Cc;
+				if(p_cc) {
+					CCheckPacket link_cc_pack;
+					if(p_cc->LoadPacket(pPack->Ext.LinkCheckID, 0, &link_cc_pack) > 0) {
+						link_cc_date = link_cc_pack.Rec.Dt;
+						link_cc_pack.GetExtStrData(CCheckPacket::extssFiscalSign, link_cc_fiscal_tag);
+					}
+				}
+			}
+			p_result->InsertString("correctionType", "self");
+			if(checkdate(link_cc_date))
+				p_result->InsertString("correctionBaseDate", temp_buf.Z().Cat(link_cc_date, DATF_ANSI|DATF_CENTURY));
+			if(link_cc_fiscal_tag.NotEmpty())
+				p_result->InsertString("correctionBaseNumber", link_cc_fiscal_tag);
+			/*
+			"correctionType": "self",
+			"correctionBaseDate": "2017.07.25",
+			"correctionBaseNumber": "1175",
+			*/
+		}
+		{
+			SJson * p_inner = SJson::CreateObj();
+			PPSyncCashSession::GetCurrentUserName(temp_buf);
+			p_inner->InsertString("name", temp_buf.Transf(CTRANSF_INNER_TO_UTF8));
+			p_result->Insert("operator", p_inner);
+		}
+		// @v11.3.10 {
+		{
+			SJson * p_inner = 0; // SJson::CreateObj(); // clientInfo
+			bool paperless = false;
+			SString buyers_email;
+			SString buyers_phone;
+			pPack->GetExtStrData(CCheckPacket::extssBuyerEMail, buyers_email);
+			pPack->GetExtStrData(CCheckPacket::extssBuyerPhone, buyers_phone);
+			if(buyers_email.NotEmpty()) {
+				paperless = LOGIC(pPack->Rec.Flags & CCHKF_PAPERLESS);
+				SETIFZQ(p_inner, SJson::CreateObj());
+				p_inner->InsertString("emailOrPhone", buyers_email);
+			}
+			else if(buyers_phone.NotEmpty()) {
+				paperless = LOGIC(pPack->Rec.Flags & CCHKF_PAPERLESS);
+				SETIFZQ(p_inner, SJson::CreateObj());
+				p_inner->InsertString("emailOrPhone", buyers_phone);
+			}
+			else
+				paperless = false;
+			if(paperless) {
+				//electronically
+				p_result->InsertBool("electronically", true);
+				//P_Fptr10->SetParamBoolProc(fph, LIBFPTR_PARAM_RECEIPT_ELECTRONICALLY, paperless);
+			}
+			p_result->InsertNz("clientInfo", p_inner);
+		}
+		// } @v11.3.10 
+		PPSlipFormatter * p_sf = pSf;
+		if(p_sf) {
+			int r;
+			SString line_buf;
+			SlipDocCommonParam sdc_param;
+			const SString format_name("CCheck");
+			SlipLineParam sl_param;
+			bool   prn_total_sale = true;
+			THROW(r = p_sf->Init(format_name, &sdc_param));
+			if(r > 0) {
+				SJson * p_inner = SJson::CreateArr();
+				for(p_sf->InitIteration(pPack); p_sf->NextIteration(line_buf, &sl_param) > 0;) {
+					if(sl_param.Flags & SlipLineParam::fRegFiscal) {
+						// @v12.2.5 цена теперь округляется до 5 знаков после точки, а количество - до 6
+						const  double _q = sl_param.Qtty;
+						const  double _p = fabs(sl_param.Price);
+						running_total += (_q * _p);
+						const double pq = R6(_q);
+						const double pp = R5(_p);
+						debug_log_buf.CatChar('[').CatEq("QTY", pq).Space().CatEq("PRICE", pp, MKSFMTD(0, 10, 0)).CatChar(']');
+
+						SJson * p_js_item = SJson::CreateObj();
+						p_js_item->InsertString("type", "position");
+						{
+							(temp_buf = sl_param.Text).Strip().SetIfEmpty("WARE").Transf(CTRANSF_INNER_TO_UTF8).Escape();
+							p_js_item->InsertString("name", temp_buf);
+						}
+						p_js_item->InsertDouble("price", pp, MKSFMTD(0, 5, NMBF_OMITEPS));
+						p_js_item->InsertDouble("quantity", pq, MKSFMTD(0, 6, NMBF_OMITEPS));
+						p_js_item->InsertDouble("amount", pp * pq, MKSFMTD_020);
+						p_js_item->InsertDouble("infoDiscountAmount", 0.0, MKSFMTD(0, 1, 0));
+						p_js_item->InsertInt("department", inrangeordefault(sl_param.DivID, 0, 16, 0));
+						p_js_item->InsertString("measurementUnit", "piece"); // @v11.9.1
+						// @v12.2.2 p_js_item->InsertString("paymentMethod", ""); // "advance" etc
+						// @v12.2.2 {
+						if(sl_param.PaymTermTag != CCheckPacket::pttUndef) {
+							/*
+								fullPrepayment - предоплата 100%
+								prepayment - предоплата
+								advance - аванс
+								fullPayment - полный расчет
+								partialPayment - частичный расчет и кредит
+								credit - передача в кредит
+								creditPayment - оплата кредита 
+							*/ 
+							const char * p_paymmeth = "";
+							switch(sl_param.PaymTermTag) {
+								case CCheckPacket::pttFullPrepay: p_paymmeth = "fullPrepayment"; break; // 1. Предоплата 100%
+								case CCheckPacket::pttPrepay: p_paymmeth = "prepayment"; break; // 2. Частичная предоплата
+								case CCheckPacket::pttAdvance: p_paymmeth = "advance"; break; // 3. Аванс
+								case CCheckPacket::pttFullPayment: p_paymmeth = "fullPayment"; break; // 4. Полный расчет
+								case CCheckPacket::pttPartial: p_paymmeth = "partialPayment"; break; // 5. Частичный расчет и кредит
+								case CCheckPacket::pttCreditHandOver: p_paymmeth = "credit"; break; // 6. Передача в кредит
+								case CCheckPacket::pttCredit: p_paymmeth = "creditPayment"; break; // 7. Оплата кредита
+							}
+							if(p_paymmeth) {
+								//THROW(SetFR(PaymentTypeSign, paym_type_sign));
+								p_js_item->InsertString("paymentMethod", p_paymmeth); // "advance" etc
+							}
+						}
+						// } @v12.2.2 
+						p_js_item->InsertString("paymentObject", ""); // "commodity" etc
+						if(sl_param.ChZnProductType && /*sl_param.ChZnGTIN.NotEmpty() && sl_param.ChZnSerial.NotEmpty()*/sl_param.ChZnCode.NotEmpty()) {
+							if(rOfdf.IsOfdVerGe12()) {
+								if(sl_param.PpChZnR.LineIdx > 0) {
+									//p_js_item->InsertString("measurementUnit", "");
+									/*
+										struct PreprocessChZnCodeResult { // @flat
+											PreprocessChZnCodeResult();
+											PreprocessChZnCodeResult & Z();
+											uint   LineIdx;          // [1..] Индекс строки в чеке
+											int    CheckResult;      // tag 2106 Результат проверки КМ в ФН (ofdtag-2106)
+												// Номер бита Состояние бита в зависимости от результата проверки КМ и статуса товара
+												// 0 "0" - код маркировки не был проверен ФН и (или) ОИСМ
+												//   "1" - код маркировки проверен
+												// 1 "0" - результат проверки КП КМ отрицательный или код маркировки не был проверен
+												//   "1" - результат проверки КП КМ положительный
+												// 2 "0" - сведения о статусе товара от ОИСМ не получены
+												//   "1" - проверка статуса ОИСМ выполнена
+												// 3 "0" - от ОИСМ получены сведения, что планируемый статус товара некорректен или сведения о статусе товара от ОИСМ не получены
+												//   "1" - от ОИСМ получены сведения, что планируемый статус товара корректен
+												// 4 "0" - результат проверки КП КМ и статуса товара сформирован ККТ, работающей в режиме передачи данных
+												//   "1" - результат проверки КП КМ сформирован ККТ, работающей в автономном режиме
+												//
+											int    Reason;           // Причина того, что КМ не проверен в ФН
+												// 0 - КМ проверен в ФН;
+												// 1 - КМ данного типа не подлежит проверке в ФН;
+												// 2 - ФН не содержит ключ проверки кода проверки этого КМ;
+												// 3 - переданный код маркировки не соответствует заданному формату (проверка невозможна, так как отсутствуют теги 91 и/или 92 или их формат неверный, согласно GS1)
+												// 4 - внутренняя ошибка в ФН при проверке этого КМ.
+											int    ProcessingResult; // tag 2005 Результаты обработки запроса (ofdtag-2005)
+												// Номер бита Состояние бита в зависимости от результата проверки КМ и статуса товара
+												// 1 "0" - результат проверки КП КМ отрицательный
+												//   "1" - результат проверки КП КМ положительный
+												// 3 "0" - статус товара некорректен (если реквизит "ответ ОИСМ о статусе товара" (ofdtag-2109) принимает значение "2" или "3")
+												//   "1" - статус товара корректен (если реквизит "ответ ОИСМ о статусе товара" (ofdtag-2109) принимает значение "1")
+												// 0, 2    Заполняются единицами
+												// 4 - 7   Заполняются нулями
+											int    ProcessingCode;   // tag 2105 Код обработки запроса (ofdtag-2105)
+												// 0 Запрос имеет корректный формат, в том числе корректный формат кода маркировки
+												// 1 Запрос имеет некорректный формат
+												// 2 Указанный в запросе код маркировки имеет некорректный формат (не распознан)
+											int    Status;           // tag 2109 Сведения о статусе товара (ofdtag-2109)
+												// 1 Планируемый статус товара корректен
+												// 2 Планируемый статус товара некорректен
+												// 3 Оборот товара приостановлен
+										};
+									*/
+									if(!!sl_param.ChZnPm_ReqId && sl_param.ChZnPm_ReqTimestamp) {
+										SJson * p_js_indi_array = SJson::CreateArr();
+										{
+											SJson * p_js_indi = SJson::CreateObj();
+											p_js_indi->InsertString("date", "2022.03.26");
+											temp_buf.Z();
+											if(sl_param.ChZnProductType == 4)
+												temp_buf.Cat("020");
+											else if(oneof2(sl_param.ChZnProductType, 12, 1012))
+												temp_buf.Cat("030");
+											else
+												temp_buf.Cat("030");
+											p_js_indi->InsertString("fois", temp_buf);
+											p_js_indi->InsertString("number", "477");
+											temp_buf.Z().CatEq("UUID", sl_param.ChZnPm_ReqId, S_GUID::fmtIDL|S_GUID::fmtLower).CatChar('&').
+												CatEq("Time", sl_param.ChZnPm_ReqTimestamp);
+											p_js_indi->InsertString("industryAttribute", temp_buf);
+											p_js_indi_array->InsertChild(p_js_indi);
+										}
+										p_js_item->Insert("industryInfo", p_js_indi_array);
+									}
+									{
+										SJson * p_js_imcparams = SJson::CreateObj();
+										p_js_imcparams->InsertString("imcType", "auto");
+										temp_buf.EncodeMime64(sl_param.ChZnCode.cptr(), sl_param.ChZnCode.Len());
+										p_js_imcparams->InsertString("imc", temp_buf); // mark ofdtag-2000
+										p_js_imcparams->InsertInt("itemEstimatedStatus", (pPack->Rec.Flags & CCHKF_RETURN) ? 2 : 1);
+										p_js_imcparams->InsertInt("imcModeProcessing", 0); // ofdtag-2102
+										//p_js_imcparams->InsertString("itemFractionalAmount", ""); // ofdtag-1291
+										// @v11.8.12 {
+										if(sl_param.ChZnProductType == GTCHZNPT_MEDICINE) {
+											if(_q > 0.0 && _q < 1.0 && sl_param.UomFragm > 0) {
+												double ip = 0.0;
+												double nmrtr = 0.0;
+												double dnmntr = 0.0;
+												if(fsplitintofractions(_q, sl_param.UomFragm, 1E-5, &ip, &nmrtr, &dnmntr)) {
+													temp_buf.Z().Cat(R0i(nmrtr)).Slash().Cat(R0i(dnmntr)).CatChar('&');
+													p_js_imcparams->InsertString("itemFractionalAmount", temp_buf); // ofdtag-1291
+												}
+											}
+										}
+										// } @v11.8.12 
+										{
+											SJson * p_js_checkresult = SJson::CreateObj();
+											p_js_checkresult->InsertBool("imcCheckFlag", LOGIC(sl_param.PpChZnR.CheckResult & (1<<0)));
+											p_js_checkresult->InsertBool("imcCheckResult", LOGIC(sl_param.PpChZnR.CheckResult & (1<<1)));
+											p_js_checkresult->InsertBool("imcStatusInfo", LOGIC(sl_param.PpChZnR.CheckResult & (1<<2)));
+											p_js_checkresult->InsertBool("imcEstimatedStatusCorrect", LOGIC(sl_param.PpChZnR.CheckResult & (1<<3)));
+											p_js_checkresult->InsertBool("ecrStandAloneFlag", LOGIC(sl_param.PpChZnR.CheckResult & (1<<4))); 
+											p_js_imcparams->Insert("itemInfoCheckResult", p_js_checkresult); // ofdtag-2106
+										}
+										p_js_imcparams->InsertInt("itemQuantity", 1); // ofdtag-1023
+										p_js_imcparams->InsertString("itemUnits", "piece"); // ofdtag-2108 
+										//
+										p_js_item->Insert("imcParams", p_js_imcparams);
+									}
+								}
+							}
+							else {
+								//uint8 fptr10_mark_buf[512];
+								//int   mark_buf_data_len = 0;
+								p_js_item->InsertString("nomenclatureCode", (temp_buf = sl_param.ChZnCode).Escape()); // chzn mark
+							}
+						}
+						{
+							const char * p_tax_type = 0;
+							if(is_vat_free)
+								p_tax_type = "none";
+							else {
+								const double vatrate = fabs(sl_param.VatRate);
+								if(vatrate == 18.0)
+									p_tax_type = "vat18";
+								else if(vatrate == 20.0)
+									p_tax_type = "vat20";
+								else if(vatrate == 10.0)
+									p_tax_type = "vat10";
+								// @v12.2.5 {
+								else if(vatrate == 7.0)
+									p_tax_type = "vat7";
+								else if(vatrate == 5.0)
+									p_tax_type = "vat5";
+								// } @v12.2.5 
+								else if(vatrate == 0.0)
+									p_tax_type = "vat0";
+								else
+									p_tax_type = "vat20"; // @default
+							}
+							SJson * p_js_tax = SJson::CreateObj();
+							p_js_tax->InsertString("type", p_tax_type); // "vat18" etc
+							p_js_item->Insert("tax", p_js_tax);
+						}
+						{
+							SJson * p_js_agentinfo = SJson::CreateObj();
+							p_js_item->Insert("agentInfo", p_js_agentinfo);
+						}
+						{
+							SJson * p_js_supplinfo = SJson::CreateObj();
+							p_js_item->Insert("supplierInfo", p_js_supplinfo);
+						}
+						p_inner->InsertChild(p_js_item);
+						prn_total_sale = false;
+					}
+					else if(sl_param.Kind == sl_param.lkBarcode) {
+						;
+					}
+					else if(sl_param.Kind == sl_param.lkSignBarcode) {
+						;
+					}
+					else { // Просто текст
+						SJson * p_js_item = SJson::CreateObj();
+						p_js_item->InsertString("type", "text");
+						p_js_item->InsertString("text", line_buf.Transf(CTRANSF_OUTER_TO_UTF8).Escape());
+						p_js_item->InsertString("alignment", "left");
+						p_js_item->InsertInt("font", 0);
+						p_js_item->InsertBool("doubleWidth", false);
+						p_js_item->InsertBool("doubleHeight", false);
+						p_inner->InsertChild(p_js_item);
+					}
+				}
+				p_result->Insert("items", p_inner);
+				if(!feqeps(running_total, sum, 1E-5))
+					sum = running_total;
+				{
+					SJson * p_paym_list = SJson::CreateArr();
+					{
+						const double __amt_bnk = R2(fabs(amt_bnk));
+						const double __amt_ccrd = R2(fabs(amt_ccrd));
+						const double __amt_cash = R2(fabs(sum - __amt_bnk - __amt_ccrd));
+						debug_log_buf.Space().CatEq("PAYMBANK", __amt_bnk, MKSFMTD(0, 10, 0)).
+							Space().CatEq("PAYMCASH", __amt_cash, MKSFMTD(0, 10, 0)).
+							Space().CatEq("PAYMCRDCARD", __amt_ccrd, MKSFMTD(0, 10, 0));
+						if(__amt_cash > 0.0) {
+							SJson * p_paym_item = SJson::CreateObj();
+							p_paym_item->InsertString("type", "cash");
+							p_paym_item->InsertDouble("sum", __amt_cash, MKSFMTD_020);
+							p_paym_list->InsertChild(p_paym_item);
+						}
+						if(__amt_bnk > 0.0) {
+							SJson * p_paym_item = SJson::CreateObj();
+							p_paym_item->InsertString("type", "electronically");
+							p_paym_item->InsertDouble("sum", __amt_bnk, MKSFMTD_020);
+							p_paym_list->InsertChild(p_paym_item);
+						}
+						if(__amt_ccrd > 0.0) {
+							SJson * p_paym_item = SJson::CreateObj();
+							p_paym_item->InsertString("type", "other");
+							p_paym_item->InsertDouble("sum", __amt_ccrd, MKSFMTD_020);
+							p_paym_list->InsertChild(p_paym_item);
+						}
+					}
+					p_result->Insert("payments", p_paym_list);
+				}
+			}
+		}
+	}
+	CATCH
+		ZDELETE(p_result);
+	ENDCATCH
+	return p_result;
 }
 //
 // PPAsyncCashSession

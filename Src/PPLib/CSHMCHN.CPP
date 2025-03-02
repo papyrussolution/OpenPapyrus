@@ -844,7 +844,7 @@ int PPCashMachine::TestPrintCheck(CCheckPacket * pPack)
 						CatEq("Amount", MONEYTOLDBL(pPack->Rec.Amount)).CatDiv(';', 2).
 						CatEq("Discount", MONEYTOLDBL(pPack->Rec.Discount), _mfmt).CR();
 					out_buf.Tab().Cat("Lines").Space().CatChar('{').CR();
-					for(uint i = 0; pPack->EnumLines(&i, &line_rec, &serial) > 0;) {
+					for(uint i = 0; pPack->EnumLines(&i, &line_rec, &serial);) {
 						double amt = pPack->GetItemAmount(line_rec);
 						running_total += amt;
 						{
@@ -984,7 +984,7 @@ int PPCashMachine::SyncPrintCheck(CCheckPacket * pCcPack, int addSummator)
 					PPChZnPrcssr::PermissiveModeInterface::CodeStatusCollection check_code_list;
 					PPObjGoods goods_obj;
 					CCheckLineTbl::Rec ccl;
-					for(uint pos = 0; pCcPack->EnumLines(&pos, &ccl) > 0;) {
+					for(uint pos = 0; pCcPack->EnumLines(&pos, &ccl);) {
 						Goods2Tbl::Rec goods_rec;
 						if(goods_obj.Fetch(ccl.GoodsID, &goods_rec) > 0) {
 							if(pCcPack->GetLineTextExt(pos, CCheckPacket::lnextChZnMark, temp_buf) > 0 && temp_buf.NotEmptyS()) {

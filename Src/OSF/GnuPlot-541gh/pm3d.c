@@ -87,16 +87,16 @@ static double rms4(double x1, double x2, double x3, double x4)
 double GnuPlot::Cb2Gray(double cb)
 {
 	const GpAxis * p_ax_cb = &AxS.__CB();
-	if(cb <= p_ax_cb->min)
+	if(cb <= p_ax_cb->Range.low)
 		return (SmPltt.Positive == SMPAL_POSITIVE) ? 0 : 1;
-	else if(cb >= p_ax_cb->max)
+	else if(cb >= p_ax_cb->Range.upp)
 		return (SmPltt.Positive == SMPAL_POSITIVE) ? 1 : 0;
 	else {
 		if(p_ax_cb->IsNonLinear()) {
 			p_ax_cb = p_ax_cb->linked_to_primary;
 			cb = EvalLinkFunction(p_ax_cb, cb);
 		}
-		cb = (cb - p_ax_cb->min) / p_ax_cb->GetRange();
+		cb = (cb - p_ax_cb->Range.low) / p_ax_cb->GetRange();
 		return (SmPltt.Positive == SMPAL_POSITIVE) ? cb : 1-cb;
 	}
 }
@@ -603,7 +603,7 @@ void GnuPlot::Pm3DPlot(GpTermEntry * pTerm, GpSurfacePoints * pPlot, int at_whic
 						if(isnan(avgC))
 							continue;
 						// Option to not drawn quadrangles with cb out of range 
-						if(_Pm3D.pm3d.no_clipcb && (avgC > AxS.__CB().max || avgC < AxS.__CB().min))
+						if(_Pm3D.pm3d.no_clipcb && (avgC > AxS.__CB().Range.upp || avgC < AxS.__CB().Range.low))
 							continue;
 						if(_Pm3D.color_from_rgbvar) /* we were given an RGB color */
 							gray = avgC;
@@ -760,7 +760,7 @@ void GnuPlot::Pm3DPlot(GpTermEntry * pTerm, GpSurfacePoints * pPlot, int at_whic
 							}
 							else {
 								// clip if out of range 
-								if(_Pm3D.pm3d.no_clipcb && (avgC < AxS.__CB().min || avgC > AxS.__CB().max))
+								if(_Pm3D.pm3d.no_clipcb && (avgC < AxS.__CB().Range.low || avgC > AxS.__CB().Range.upp))
 									continue;
 								// transform z value to gray, i.e. to interval [0,1] 
 								gray = Cb2Gray(avgC);
@@ -1333,8 +1333,8 @@ int GnuPlot::ClipFilledPolygon(const gpdPoint * pInpts, gpdPoint * pOutpts, int 
 	int nover = 0;
 	int nunder = 0;
 	double fraction;
-	double zmin = AxS[FIRST_Z_AXIS].min;
-	double zmax = AxS[FIRST_Z_AXIS].max;
+	double zmin = AxS[FIRST_Z_AXIS].Range.low;
+	double zmax = AxS[FIRST_Z_AXIS].Range.upp;
 	// classify inrange/outrange vertices 
 	static int * outrange = NULL;
 	static int maxvert = 0;

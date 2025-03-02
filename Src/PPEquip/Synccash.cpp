@@ -190,7 +190,8 @@ REGISTER_CMT(SYNCCASH, true, false);
 
 static void WriteLogFile_PageWidthOver(const char * pFormatName)
 {
-	SString msg_fmt, msg;
+	SString msg_fmt;
+	SString msg;
 	PPLogMessage(PPFILNAM_SHTRIH_LOG, msg.Printf(PPLoadTextS(PPTXT_SLIPFMT_WIDTHOVER, msg_fmt), pFormatName), LOGMSGF_TIME|LOGMSGF_USER);
 }
 
@@ -992,7 +993,7 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 		}
 		if(!is_format) {
 			CCheckLineTbl::Rec ccl;
-			for(uint pos = 0; pPack->EnumLines(&pos, &ccl) > 0;) {
+			for(uint pos = 0; pPack->EnumLines(&pos, &ccl);) {
 				int  division = (ccl.DivID >= CHECK_LINE_IS_PRINTED_BIAS) ? ccl.DivID - CHECK_LINE_IS_PRINTED_BIAS : ccl.DivID;
 				// Наименование товара
 				GetGoodsName(ccl.GoodsID, buf);
@@ -1366,22 +1367,18 @@ int SCS_SYNCCASH::PrintCheckCopy(const CCheckPacket * pPack, const char * pForma
 		SString word_buf;
 		CCheckLineTbl::Rec ccl;
 		Arr_In.Z();
-		// @v10.4.9 {
 		PPLoadText(PPTXT_CCFMT_CHKCOPY, word_buf); // КОПИЯ ЧЕКА
 		word_buf.Transf(CTRANSF_INNER_TO_OUTER);
-		// } @v10.4.9
 		THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, word_buf));
 		THROW(ExecPrintOper(DVCCMD_PRINTTEXT, Arr_In, Arr_Out));
 		Arr_In.Z();
-		// @v10.4.9 {
 		PPLoadText((flags & PRNCHK_RETURN) ? PPTXT_CCFMT_RETURN : PPTXT_CCFMT_SALE, word_buf); // "ВОЗВРАТ ПРОДАЖИ" : "ПРОДАЖА"
 		word_buf.Transf(CTRANSF_INNER_TO_OUTER);
-		// } @v10.4.9
 		THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, word_buf));
 		THROW(ExecPrintOper(DVCCMD_PRINTTEXT, Arr_In, Arr_Out));
-		for(pos = 0; pPack->EnumLines(&pos, &ccl) > 0;) {
-			double  price = intmnytodbl(ccl.Price) - ccl.Dscnt;
-			double  qtty  = R3(fabs(ccl.Quantity));
+		for(pos = 0; pPack->EnumLines(&pos, &ccl);) {
+			const double price = intmnytodbl(ccl.Price) - ccl.Dscnt;
+			const double qtty  = R3(fabs(ccl.Quantity));
 			GetGoodsName(ccl.GoodsID, prn_str);
 			CutLongTail(prn_str.Transf(CTRANSF_INNER_TO_OUTER));
 			Arr_In.Z();
@@ -1403,10 +1400,8 @@ int SCS_SYNCCASH::PrintCheckCopy(const CCheckPacket * pPack, const char * pForma
 		THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, prn_str.Z().CatCharN('=', CheckStrLen)));
 		THROW(ExecPrintOper(DVCCMD_PRINTTEXT, Arr_In, Arr_Out));
 		temp_buf.Z().CatEq(0, fabs(MONEYTOLDBL(pPack->Rec.Amount)), SFMT_MONEY);
-		// @v10.4.9 {
 		PPLoadText(PPTXT_CCFMT_TOTAL, word_buf); // ИТОГ
 		word_buf.Transf(CTRANSF_INNER_TO_OUTER);
-		// } @v10.4.9
 		prn_str = word_buf; // @cstr #12
 		prn_str.CatCharN(' ', CheckStrLen / 2 - prn_str.Len() - temp_buf.Len()).Cat(temp_buf);
 		Arr_In.Z();
@@ -1562,11 +1557,12 @@ int SCS_SYNCCASH::PrintSlipDoc(const CCheckPacket * pPack, const char * pFormatN
 					}
 					print_head_lines = 0;
 				}
-				else if(fill_head_lines)
+				else if(fill_head_lines) {
 					if(str_num < (int)sdc_param.HeadLines)
 						head_lines.add(line_buf);
 					else
 						fill_head_lines = 0;
+				}
 				Arr_In.Z();
 				THROW(ArrAdd(Arr_In, DVCPARAM_STRNUM, ++str_num));
 				THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, line_buf));
@@ -1603,7 +1599,7 @@ int SCS_SYNCCASH::PrintSlipDoc(const CCheckPacket * pPack, const char * pFormatN
 
 int SCS_SYNCCASH::PrintZReportCopy(const CSessInfo * pInfo)
 {
-	int  ok = -1;
+	int    ok = -1;
 	ResCode = RESCODE_NO_ERROR;
 	ErrCode = SYNCPRN_ERROR_AFTER_PRINT;
 	THROW_INVARG(pInfo);

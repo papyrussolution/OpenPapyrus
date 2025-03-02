@@ -454,12 +454,10 @@ int PrcPaneDialog::setupPrice(double price)
 	E.Price = (price > 0) ? R5(price) : 0;
 	if(E.Price > 0) {
 		SString temp_buf;
-		// @v9.1.4 PPGetWord(PPWORD_PRICE, 0, temp_buf);
-		PPLoadString("price", temp_buf); // @v9.1.4
+		PPLoadString("price", temp_buf);
 		temp_buf.CatDiv(':', 2).Cat(E.Price, MKSFMTD(0, 2, NMBF_NOZERO));
 		setStaticText(CTL_PRCPAN_ST_PRICE, temp_buf);
-		// @v10.5.12 PPGetWord(PPWORD_SUM, 0, temp_buf);
-		PPLoadString("amount", temp_buf); // @v10.5.12
+		PPLoadString("amount", temp_buf);
 		temp_buf.CatDiv(':', 2).Cat(E.Price * E.Qtty, MKSFMTD(0, 2, NMBF_NOZERO));
 		setStaticText(CTL_PRCPAN_ST_SUM, temp_buf);
 		ok = 1;

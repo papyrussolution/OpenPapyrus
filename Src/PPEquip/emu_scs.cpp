@@ -315,28 +315,45 @@ int SCS_SYNCSYM::SendToPrinter(PrnLinesArray * pPrnLines)
 /*virtual*/int SCS_SYNCSYM::PrintCheck(CCheckPacket * pPack, uint flags)
 {
 	int     ok = 1;
-	if(PrinterPort.Len()) {
-		SString buf;
-		THROW_INVARG(pPack);
-		if(pPack->GetCount() == 0)
-			ok = -1;
-		else {
-			double amt = fabs(R2(MONEYTOLDBL(pPack->Rec.Amount)));
-			double sum = fabs(pPack->_Cash) + 0.001;
-			double running_total = 0.0;
-			SlipDocCommonParam sdc_param;
-			if(P_SlipFmt) {
-				int      r = 0;
-				SString  line_buf;
-				const SString  format_name((flags & PRNCHK_RETURN) ? "CCheckRet" : "CCheck");
-				SlipLineParam sl_param;
+	THROW_INVARG(pPack);
+	if(pPack->GetCount() == 0)
+		ok = -1;
+	else {
+		double amt = fabs(R2(MONEYTOLDBL(pPack->Rec.Amount)));
+		double sum = fabs(pPack->_Cash) + 0.001;
+		double running_total = 0.0;
+		SlipDocCommonParam sdc_param;
+		if(P_SlipFmt) {
+			int      r = 0;
+			SString temp_buf;
+			SString  line_buf;
+			const SString format_name((flags & PRNCHK_RETURN) ? "CCheckRet" : "CCheck");
+			SlipLineParam sl_param;
+			// @v12.2.9 {
+			if(PPRef->Ot.GetTagStr(PPOBJ_CASHNODE, SCn.ID, PPTAG_POSNODE_TEST, temp_buf) > 0) {
+				OfdFactors ofdf;
+				GetOfdFactors(ofdf);
+				SJson * p_js = AtolDrv_MakeJson_CCheck(ofdf, pPack, P_SlipFmt, 0/*flags*/);
+				if(p_js) {
+					SString file_name;
+					(temp_buf = "posnode_debug_ccheck").CatChar('_').CatChar('#').Cat(SCn.ID).Dot().Cat("txt");
+					PPGetFilePath(PPPATH_OUT, temp_buf, file_name);
+					if(p_js->ToStr(temp_buf)) {
+						SFile f_out(file_name, SFile::mAppend);
+						if(f_out.IsValid()) {
+							f_out.WriteLine(temp_buf.CR());
+						}
+					}
+					ZDELETE(p_js);
+				}
+			} // } @v12.2.9
+			else if(PrinterPort.Len()) {
+				PrnLinesArray prn_list;
+				TextOutput = sdc_param.TextOutput; // @vmiller
+				SETIFZ(pPack->Rec.Dt, getcurdate_());
+				SETIFZ(pPack->Rec.Tm, getcurtime_());
 				THROW(r = P_SlipFmt->Init(format_name, &sdc_param));
 				if(r > 0) {
-					SString buf;
-					PrnLinesArray prn_list;
-					TextOutput = sdc_param.TextOutput; // @vmiller
-					SETIFZ(pPack->Rec.Dt, getcurdate_());
-					SETIFZ(pPack->Rec.Tm, getcurtime_());
 					for(P_SlipFmt->InitIteration(pPack); P_SlipFmt->NextIteration(line_buf, &sl_param) > 0;) {
 						if(sl_param.Flags & SlipLineParam::fRegFiscal) {
 							double _q = sl_param.Qtty;
@@ -350,12 +367,12 @@ int SCS_SYNCSYM::SendToPrinter(PrnLinesArray * pPrnLines)
 							p_prn_ls->Param = sl_param;
 						}
 					}
-					buf.Z().Dot();
+					temp_buf.Z().Dot();
 					sl_param.Z();
 					{
 						PrnLineStruc * p_prn_ls = prn_list.CreateNewItem();
 						THROW_SL(p_prn_ls);
-						p_prn_ls->PrnBuf = buf;
+						p_prn_ls->PrnBuf = temp_buf;
 						p_prn_ls->Param  = sl_param;
 					}
 					SendToPrinter(&prn_list);

@@ -2767,11 +2767,6 @@ description for teststring
 #!}
 //
 #!{ // dont_translate
-/* @v9.0.5
-133 "path;dbname;backup;system;recover;config;person;goodsgroup;goods;\
-quot;plist;client-bank;bank;server;specserial;country;scard;suppl;drivemapping;\
-imp@kladr_status;imp@kladr_street;imp@kladr;pos_host;SyncPOS;AsyncPOS;Scale;CustomDisplay;BnkTerminal;globalsecure;Toggle;Reader"
-*/
 //
 // Символы секций INI-файлов
 // note: Не менять, не переводить, подстановки не применять!
@@ -3130,10 +3125,6 @@ PPINIPARAM_BLINDLOGINMODE                "blindloginmode" // @v11.3.12 [config] 
 PPINIPARAM_DISABLESTQQRLOGIN             "disablestqqrlogin" // @v11.6.9 [config] Запрет авторизации по QR-коду через Stylo-Q
 PPINIPARAM_STYLOQSVCLOGGING              "StyloQSvcLoggin"   // @v11.9.2 [config]
 PPINIPARAM_CCLISTBYMARKBACKDAYS          "CcListByMarkBackDays" // @v12.0.5 Количество дней для отсчета назад от текущей даты для поиска марок в чеках
-// @v9.4.12 @obsolete PPINIPARAM_SERVER_AT                   "at"
-// @v9.4.12 @obsolete PPINIPARAM_SERVER_AT2                  "at2"
-// @v9.4.12 @obsolete PPINIPARAM_SERVER_AT3                  "at3"
-// @v9.4.12 @obsolete PPINIPARAM_SERVER_AT4                  "at4"
 PPINIPARAM_UNITECHZNCIGBLK10             "UniteChZnCigBlk10" // @v12.1.9 [config] CCFLG2_UNITECHZNCIGBLK10 При продаже 10 пачек сигарет одной позицией с одной chzn-маркой сигаретного блока
 	// в кассовом чеке заменять количество на 1, цену умножать на 10.
 PPINIPARAM_RESTRICTCHZNPMPRICE           "RestrictChZnPmPrice"       // @v12.2.5 [config]
@@ -3400,12 +3391,7 @@ PPFILNAM_WSCTL_LOG             "wsctl.log" // @v12.2.6
 201 /!/ "Microsoft Internet Explorer;Netscape Communicator;Opera"
 205 "@{altgroup};@{structure};@{generalization}"
 206 /!/ "filename;codepage;format;bankcode;impexp;header;end;parvaldiv;CliBnkFlags;PaymMethodTransl"
-/* @v9.5.2 (unused)
-207 /!/ "Empty;BillID;Date;Code;Sequence;Purpose;Amount;PayerID;PayerName;PayerINN;PayerBankAcc;PayerBankName;\
-	PayerBankCode;PayerBankCorr;ReceiverID;ReceiverName;ReceiverINN;ReceiverBankAcc;ReceiverBankName;\
-	ReceiverBankCode;ReceiverBankCorr;TaxPayerKPP;TaxReceiverKPP;TaxPayerStatus;TaxClass;OKATO;TaxReason;TaxPeriod;TaxDocNumber;\
-	TaxDocDate;TaxPaymType;VatSum;PurposePlusVat;CorrName;CorrBIC;CorrINN;CorrPersonID;PaymMethod"
-*/
+
 PPWORD_TOTAL               "Итого:"
 PPWORD_REST_IN             "Остаток в ценах"
 PPWORD_COST                "Поступления"
@@ -3476,7 +3462,7 @@ PPWORD_AVGSKUCOUNT         "SKU (ср)"
 	Обслуживание истории загрузки оборудования;Обслуживание истории загрузки оборудования закончено;\
 	Обслуживание MRP таблиц;Обслуживание MRP таблиц закончено;\
 	@{removingtempaltgroups};Удаление временных альтернативных товарных групп закончено"
-418 "@{return};Введите номер карты;@{selection_goodsbyprice};@{selection_group};@{selling};Кассовая сессия закрыта;@{tablebooking};@{tablebooking} (@{canceled})"
+418 "@{return};Введите номер карты;@{selection_goodsbyprice};@{selection_group};@{selling};Кассовая сессия закрыта;@{tablebooking};@{tablebooking} (@{canceled});Чек коррекции"
 446 "1,Ошибки,pperror.log;2,Ошибки выводимые на экран,pperrmsg.log;3,Информация,ppinfo.log;4,Создание/восстановление резервной копии,backup.log;\
 	5,Формирование таблицы продаж,psales.log;6,Загрузка на весы,scale.log;7,Получение почты,dbxrecv.log;\
 	8,Корректировка балансов,balance.log;9,Корректировка лотов,loterr.log;10,Корректировка поставщиков лотов,lotsuppl.err;\
@@ -3486,8 +3472,6 @@ PPWORD_AVGSKUCOUNT         "SKU (ср)"
 	18,Профилирование,profile.log;19,Печать на штрих,shtrih.log;20,История версий,verhist.log;21,Отладка,debug.log;\
 	22,CBadReck,cbadreck.log;23,@{csession},ccheck.log"
 455 /!/ "MS Sans Serif;Impact;Times New Roman;Arial;Arial Cyr"
-// @v10.9.2 515 /!/ "ppyggrps;ppygoods;ppybcods;ppyqknds;ppyquots;ppycards;ppycsess;ppycchks;ppycclns"
-// @v9.4.3 564 "@{objtype}"
 565 /!/ "@mainorg;@mainorgaddr;@mainorginn;@mainorgokpo;@director;@accountant;@dbname;@dbsymb"
 579 "@{selection_file};@{selection_directory}"
 619 "@{object};@{extobject};@{oprkind};@{warehouse};@{currency};@{linkdocument}"
@@ -3592,9 +3576,6 @@ PPTXT_ACSCLS_TESTCHECKS            "Тестирование чеков"
 PPTXT_CMT                          "6,Эмулятор (синхронный);19,@{posnode_group};10,Кассовый сервер Кристалл Сет;11,Штрих-ФР;5,СуперМаг УКМ;14,Papyrus;16,Штрих-М-ФР-К;\
 	17,Фронтол;18,@{brand_atoldriver};21,@{posnode_distrib};22,Set Start;9,Кристалл УКМ;12,@{brand_atol};15,@{brand_atol} без АТОЛ-CARD;2,Електроника-92-Аквариус-Ф;\
 	1,ОКА-500.1;3,Unused;8,Unused;4,ЭКР-4110Ф;13,Unused;20,Unused;7,Петрович (Ладога-Ф, Електроника-92, ЭКР-3102Ф);501,Дрим Кас"
-// @v9.5.1 13,Кристалл-АЗС-->13,Unused
-// @v10.4.5 3,АМС-100Ф-->3,Unused
-// @v10.4.5 8,АМС-200Ф-->8,Unused
 PPTXT_BCPT /!/                         "1,ZEBRA;2,DATAMAX;3,ELTRON;4,WINDOWS"
 PPTXT_SCLT                             "1,CAS Electronics;2,Масса-К;3,Mettler Toledo;4,Кассовый сервер Кристалл;5,Весовой терминал ТВ;6,DIGI;7,Bizerba;8,Штрих-Принт;9,CAS CL5000J;10,Группа весов;11,Экспорт в файл;12,Штрих PC200 CE"
 PPTXT_VANTYPE                          "1,Замороженный;2,Охлажденный;3,Охлаждаемый;4,Вентилируемый"
@@ -4603,7 +4584,7 @@ PPTXT_CVT7708_SJROBJTYPEEXCSHRT     "@{conversion} SjRsrv 7.7.8: значени�
 PPTXT_CHKPAN_HINT01                 "Товар по коду  = @{code} + Enter"
 PPTXT_CHKPAN_HINT02                 "Товар по наименованию  = F2"
 PPTXT_CHKPAN_HINT03                 "Товар по цене  = @{price} + F4"
-PPTXT_CHKPAN_HINT04                 "Режим возврата товара  = Ctrl-F5"
+PPTXT_CHKPAN_HINT04                 "Режим возврата либо коррекции  = Ctrl-F5"
 PPTXT_CHKPAN_HINT05                 "Закрыть панель = Escape"
 PPTXT_CHKPAN_HINT06                 "Внести количество      = @{qtty} + F6 или @{qtty} *"
 PPTXT_CHKPAN_HINT07                 "Внести строку в список = Enter"
@@ -5700,7 +5681,7 @@ PPSSYM_FORMAT "int64;int;hex;real;sstr;zstr;date;time;datetime;person;goods;unit
 1015 "Неверный указатель"
 1016 "Btrieve уже инициализирован"
 1017 "Не найден файл WBTRVRES.DLL"
-1021 "The MicroKernel failed to initialize" // @v9.9.11
+1021 "The MicroKernel failed to initialize"
 
 2001 "@{err_nomem}"
 2002 "Недопустимая опция"
@@ -5930,7 +5911,7 @@ DVCPARAM_PTT_PARTIAL           "PTT_PARTIAL"        // Частичный рас
 DVCPARAM_PTT_CREDITHANDOVER    "PTT_CREDITHANDOVER" // Передача в кредит (Передача предмета расчета без его оплаты в момент его передачи с последующей оплатой в кредит)
 DVCPARAM_PTT_CREDIT            "PTT_CREDIT"         // Оплата кредита (Оплата предмета расчета после его передачи с оплатой в кредит (оплата кредита))
 //@erik{ v10.4.12
-DVCPARAM_STT_UNDEF             "STT_UNDEF""          //
+DVCPARAM_STT_UNDEF             "STT_UNDEF"           //
 DVCPARAM_STT_GOOD              "STT_GOOD"            // о реализуемом товаре, за исключением подакцизного товара(наименование и иные сведения, описывающие товар)
 DVCPARAM_STT_EXCISABLEGOOD     "STT_EXCISABLEGOOD"   // о реализуемом подакцизном товаре(наименование и иные сведения, описывающие товар)
 DVCPARAM_STT_EXECUTABLEWORK    "STT_EXECUTABLEWORK"  // о выполняемой работе(наименование и иные сведения, описывающие работу)

@@ -36,10 +36,10 @@
 void FASTCALL GpAxis::AutoscaleOnePoint(double x)
 {
 	if(!(range_flags & RANGE_IS_REVERSED)) {
-		if(set_autoscale & AUTOSCALE_MIN && x < min)
-			min = x;
-		if(set_autoscale & AUTOSCALE_MAX && x > max)
-			max = x;
+		if(set_autoscale & AUTOSCALE_MIN && x < Range.low)
+			Range.low = x;
+		if(set_autoscale & AUTOSCALE_MAX && x > Range.upp)
+			Range.upp = x;
 	}
 }
 // 
@@ -126,15 +126,17 @@ void GnuPlot::CheckAxisLogLimits(const GpAxis * pAx, double min, double max)
 
 void axis_invert_if_requested(GpAxis * pAx)
 {
-	if(((pAx->range_flags & RANGE_IS_REVERSED)) && (pAx->autoscale != 0))
-		reorder_if_necessary(pAx->max, pAx->min); // NB: The whole point of this is that we want max < min !!! 
+	if(((pAx->range_flags & RANGE_IS_REVERSED)) && (pAx->autoscale != 0)) {
+		reorder_if_necessary(pAx->Range.upp, pAx->Range.low); // NB: The whole point of this is that we want max < min !!! 
+	}
 }
 
 void GpAxis::Init(bool resetAutoscale)
 {
 	autoscale = set_autoscale;
-	min = (resetAutoscale && (set_autoscale & AUTOSCALE_MIN)) ?  VERYLARGE : set_min;
-	max = (resetAutoscale && (set_autoscale & AUTOSCALE_MAX)) ? -VERYLARGE : set_max;
+	//min = (resetAutoscale && (set_autoscale & AUTOSCALE_MIN)) ?  VERYLARGE : set_min;
+	//max = (resetAutoscale && (set_autoscale & AUTOSCALE_MAX)) ? -VERYLARGE : set_max;
+	Range.Set(((resetAutoscale && (set_autoscale & AUTOSCALE_MIN)) ?  VERYLARGE : set_min), (resetAutoscale && (set_autoscale & AUTOSCALE_MAX)) ? -VERYLARGE : set_max);
 	data_min =  VERYLARGE;
 	data_max = -VERYLARGE;
 }
@@ -143,7 +145,7 @@ void FASTCALL GnuPlot::CheckAxisRange(AXIS_INDEX idx)
 {
 	GpAxis & r_ax = AxS[idx];
 	axis_invert_if_requested(&r_ax);
-	CheckAxisLogLimits(&r_ax, r_ax.min, r_ax.max);
+	CheckAxisLogLimits(&r_ax, r_ax.Range.low, r_ax.Range.upp);
 }
 
 double GnuPlot::AxisLogValueChecked(AXIS_INDEX axis, double coord, const char * pWhat)
@@ -172,8 +174,8 @@ const char * FASTCALL axis_name(AXIS_INDEX axis)
 void FASTCALL GpAxisSet::InitSampleRange(const GpAxis * pAxis, enum PLOT_TYPE plot_type)
 {
 	AxArray[SAMPLE_AXIS].range_flags = 0;
-	AxArray[SAMPLE_AXIS].min = pAxis->min;
-	AxArray[SAMPLE_AXIS].max = pAxis->max;
+	AxArray[SAMPLE_AXIS].Range.low = pAxis->Range.low;
+	AxArray[SAMPLE_AXIS].Range.upp = pAxis->Range.upp;
 	AxArray[SAMPLE_AXIS].set_min = pAxis->set_min;
 	AxArray[SAMPLE_AXIS].set_max = pAxis->set_max;
 	AxArray[SAMPLE_AXIS].datatype = pAxis->datatype;
@@ -221,21 +223,21 @@ void GpAxisSet::ExtendParallelAxis(int paxis)
 // 
 bool GpAxis::BadRange() const
 {
-	if(isnan(this->min) || isnan(this->max))
+	if(isnan(this->Range.low) || isnan(this->Range.upp))
 		return true;
 #ifdef isinf
-	if(isinf(axis->min) || isinf(axis->max))
+	if(isinf(axis->Range.low) || isinf(axis->Range.upp))
 		return TRUE;
 #endif
-	return (this->max == -VERYLARGE || this->min == VERYLARGE) ? true : false;
+	return (this->Range.upp == -VERYLARGE || this->Range.low == VERYLARGE) ? true : false;
 }
 
 void GpAxis::FlipProjection()
 {
-	SExchange(&min, &max);
+	SExchange(&Range.low, &Range.upp);
 	if(linked_to_primary) {
 		GpAxis * p_ax = linked_to_primary;
-		SExchange(&p_ax->min, &p_ax->max);
+		SExchange(&p_ax->Range.low, &p_ax->Range.upp);
 	}
 }
 /* {{{ axis_checked_extend_empty_range() */
@@ -313,8 +315,8 @@ void GnuPlot::AxisCheckedExtendEmptyRange(AXIS_INDEX axis, const char * mesg)
 #define FIXUP_RANGE__WIDEN_ZERO_ABS     1.0
 	// widen [nonzero:nonzero] by -/+ this relative amount 
 #define FIXUP_RANGE__WIDEN_NONZERO_REL  0.01
-	double dmin = p_this_axis->min;
-	double dmax = p_this_axis->max;
+	double dmin = p_this_axis->Range.low;
+	double dmax = p_this_axis->Range.upp;
 	// pass msg == NULL if for some reason you trust the axis range 
 	if(mesg && p_this_axis->BadRange())
 		IntErrorCurToken(mesg);
@@ -327,11 +329,11 @@ void GnuPlot::AxisCheckedExtendEmptyRange(AXIS_INDEX axis, const char * mesg)
 				fprintf(stderr, "Warning: empty %s range [%g:%g], ", axis_name(axis), dmin, dmax);
 			// HBB 20010525: correctly handle single-ended autoscaling, too: 
 			if(p_this_axis->autoscale & AUTOSCALE_MIN)
-				p_this_axis->min -= widen;
+				p_this_axis->Range.low -= widen;
 			if(p_this_axis->autoscale & AUTOSCALE_MAX)
-				p_this_axis->max += widen;
+				p_this_axis->Range.upp += widen;
 			if(!(axis == FIRST_Z_AXIS && !mesg)) /* set view map */
-				fprintf(stderr, "adjusting to [%g:%g]\n", p_this_axis->min, p_this_axis->max);
+				fprintf(stderr, "adjusting to [%g:%g]\n", p_this_axis->Range.low, p_this_axis->Range.upp);
 		}
 		else {
 			// user has explicitly set the range (to something empty) 
@@ -482,8 +484,8 @@ char * GnuPlot::CopyOrInventFormatString(GpAxis * pAx)
 		strnzcpy(tempfmt, pAx->formatstring, sizeof(tempfmt));
 		// Ensure enough precision to distinguish tics 
 		if(sstreq(tempfmt, DEF_FORMAT)) {
-			const double axmin = pAx->min;
-			const double axmax = pAx->max;
+			const double axmin = pAx->Range.low;
+			const double axmax = pAx->Range.upp;
 			int precision = fceili(-log10(MIN(fabs(axmax-axmin), fabs(axmin))));
 			// FIXME: Does horrible things for large value of precision 
 			// FIXME: Didn't I have a better patch for this? 
@@ -494,8 +496,8 @@ char * GnuPlot::CopyOrInventFormatString(GpAxis * pAx)
 		return pAx->ticfmt;
 	}
 	// Else, have to invent an output format string. 
-	GGmTime(&t_min, TimeTicJust(pAx->timelevel, pAx->min));
-	GGmTime(&t_max, TimeTicJust(pAx->timelevel, pAx->max));
+	GGmTime(&t_min, TimeTicJust(pAx->timelevel, pAx->Range.low));
+	GGmTime(&t_max, TimeTicJust(pAx->timelevel, pAx->Range.upp));
 	if(t_max.tm_year == t_min.tm_year && t_max.tm_yday == t_min.tm_yday) {
 		// same day, skip date 
 		if(t_max.tm_hour != t_min.tm_hour) {
@@ -693,7 +695,7 @@ static double quantize_time_tics(GpAxis * pAx, double tic, double xr, int guide)
 // 
 double GnuPlot::MakeTics(GpAxis * pAx, int guide)
 {
-	double xr = fabs(pAx->min - pAx->max);
+	double xr = fabs(pAx->Range.low - pAx->Range.upp);
 	if(xr == 0.0)
 		return 1.0; // Anything will do, since we'll never use it 
 	else {
@@ -744,11 +746,11 @@ void GnuPlot::SetupTics(GpAxis * pAx, int max)
 	// in the macro STORE_AND_UPDATE_RANGE() of axis.h
 	if(pAx->autoscale & AUTOSCALE_MIN) {
 		if(pAx->MinConstraint & CONSTRAINT_UPPER)
-			SETMIN(pAx->min, pAx->min_ub);
+			SETMIN(pAx->Range.low, pAx->min_ub);
 	}
 	if(pAx->autoscale & AUTOSCALE_MAX) {
 		if(pAx->MaxConstraint & CONSTRAINT_LOWER)
-			SETMAX(pAx->max, pAx->max_lb);
+			SETMAX(pAx->Range.upp, pAx->max_lb);
 	}
 	// HBB 20000506: if no tics required for pAx axis, do
 	// nothing. This used to be done exactly before each call of setup_tics, anyway... 
@@ -775,14 +777,14 @@ void GnuPlot::SetupTics(GpAxis * pAx, int max)
 			else pAx->timelevel = TIMELEVEL_SECONDS;
 		}
 		if(autoextend_min) {
-			pAx->min = RoundOutward(pAx, !(pAx->min < pAx->max), pAx->min);
-			if(pAx->MinConstraint & CONSTRAINT_LOWER && pAx->min < pAx->min_lb)
-				pAx->min = pAx->min_lb;
+			pAx->Range.low = RoundOutward(pAx, !(pAx->Range.low < pAx->Range.upp), pAx->Range.low);
+			if(pAx->MinConstraint & CONSTRAINT_LOWER && pAx->Range.low < pAx->min_lb)
+				pAx->Range.low = pAx->min_lb;
 		}
 		if(autoextend_max) {
-			pAx->max = RoundOutward(pAx, pAx->min < pAx->max, pAx->max);
-			if(pAx->MaxConstraint & CONSTRAINT_UPPER && pAx->max > pAx->max_ub)
-				pAx->max = pAx->max_ub;
+			pAx->Range.upp = RoundOutward(pAx, pAx->Range.low < pAx->Range.upp, pAx->Range.upp);
+			if(pAx->MaxConstraint & CONSTRAINT_UPPER && pAx->Range.upp > pAx->max_ub)
+				pAx->Range.upp = pAx->max_ub;
 		}
 		// Set up ticfmt. If necessary (time axis, but not time/date output format),
 		// make up a formatstring that suits the range of data 
@@ -813,7 +815,7 @@ void GnuPlot::GenTics(GpTermEntry * pTerm, GpAxis * pThis, GpTicCallback cbFunc)
 		mgrd.l_type = LT_NODRAW;
 	// EAM FIXME - This really shouldn't happen, but it triggers for instance 
 	// if x2tics or y2tics are autoscaled but there is no corresponding data. 
-	if(pThis->min >= VERYLARGE || pThis->max <= -VERYLARGE)
+	if(pThis->Range.low >= VERYLARGE || pThis->Range.upp <= -VERYLARGE)
 		return;
 	// user-defined tic entries
 	// We place them exactly where requested.
@@ -821,15 +823,15 @@ void GnuPlot::GenTics(GpTermEntry * pTerm, GpAxis * pThis, GpTicCallback cbFunc)
 	if(def->def.user) {
 		ticmark * mark = def->def.user;
 		double uncertain = pThis->GetRange() / 10.0;
-		//double internal_min = pThis->min - SIGNIF * uncertain;
-		//double internal_max = pThis->max + SIGNIF * uncertain;
+		//double internal_min = pThis->Range.low - SIGNIF * uncertain;
+		//double internal_max = pThis->Range.upp + SIGNIF * uncertain;
 		RealRange internal_range;
-		internal_range.Set(pThis->min - SIGNIF * uncertain, pThis->max + SIGNIF * uncertain);
+		internal_range.Set(pThis->Range.low - SIGNIF * uncertain, pThis->Range.upp + SIGNIF * uncertain);
 		// polar labels always +ve, and if rmin has been set, they are relative to rmin.
 		if(Gg.Polar && pThis->index == POLAR_AXIS) {
-			//internal_min = AxS.__X().min - SIGNIF * uncertain;
-			//internal_max = AxS.__X().max + SIGNIF * uncertain;
-			internal_range.Set(AxS.__X().min - SIGNIF * uncertain, AxS.__X().max + SIGNIF * uncertain);
+			//internal_min = AxS.__X().Range.low - SIGNIF * uncertain;
+			//internal_max = AxS.__X().Range.upp + SIGNIF * uncertain;
+			internal_range.Set(AxS.__X().Range.low - SIGNIF * uncertain, AxS.__X().Range.upp + SIGNIF * uncertain);
 		}
 		for(mark = def->def.user; mark; mark = mark->next) {
 			char label[MAX_ID_LEN]; /* Scratch space to construct a label */
@@ -897,8 +899,8 @@ void GnuPlot::GenTics(GpTermEntry * pTerm, GpAxis * pThis, GpTicCallback cbFunc)
 		double ministart = 0.0; // internal or user - depends on step 
 		double ministep  = 1.0; //
 		double miniend   = 1.0; //
-		double lmin = pThis->min;
-		double lmax = pThis->max;
+		double lmin = pThis->Range.low;
+		double lmax = pThis->Range.upp;
 		reorder_if_necessary(lmin, lmax);
 		/* {{{  choose start, step and end */
 		switch(def->type) {
@@ -914,7 +916,7 @@ void GnuPlot::GenTics(GpTermEntry * pTerm, GpAxis * pThis, GpTicCallback cbFunc)
 					    // This tries to emulate earlier gnuplot versions in handling set log y; set ytics 10
 					    if(start <= 0) {
 						    start = step;
-						    while(start > pThis->linked_to_primary->min)
+						    while(start > pThis->linked_to_primary->Range.low)
 							    start -= step;
 					    }
 					    else {
@@ -922,8 +924,8 @@ void GnuPlot::GenTics(GpTermEntry * pTerm, GpAxis * pThis, GpTicCallback cbFunc)
 					    }
 					    step  = EvalLinkFunction(pThis->linked_to_primary, step);
 					    end   = EvalLinkFunction(pThis->linked_to_primary, end);
-					    lmin = pThis->linked_to_primary->min;
-					    lmax = pThis->linked_to_primary->max;
+					    lmin = pThis->linked_to_primary->Range.low;
+					    lmax = pThis->linked_to_primary->Range.upp;
 				    }
 			    }
 			    else {
@@ -938,8 +940,8 @@ void GnuPlot::GenTics(GpTermEntry * pTerm, GpAxis * pThis, GpTicCallback cbFunc)
 			    break;
 			case TIC_COMPUTED:
 			    if(pThis->IsNonLinear()) {
-				    lmin = pThis->linked_to_primary->min;
-				    lmax = pThis->linked_to_primary->max;
+				    lmin = pThis->linked_to_primary->Range.low;
+				    lmax = pThis->linked_to_primary->Range.upp;
 				    reorder_if_necessary(lmin, lmax);
 				    pThis->ticstep = MakeTics(pThis->linked_to_primary, 20);
 				    // It may be that we _always_ want ticstep = 1.0 
@@ -1370,11 +1372,11 @@ bool GnuPlot::AxisPositionZeroAxis(AXIS_INDEX axis)
 	GpAxis * p_ax = &AxS[axis];
 	// NB: This is the only place that axis->term_zero is set. 
 	//     So it is important to reach here before plotting.   
-	if((p_ax->min > 0.0 && p_ax->max > 0.0) || p_ax->log) {
-		p_ax->term_zero = (p_ax->max < p_ax->min) ? p_ax->term_upper : p_ax->term_lower;
+	if((p_ax->Range.low > 0.0 && p_ax->Range.upp > 0.0) || p_ax->log) {
+		p_ax->term_zero = (p_ax->Range.upp < p_ax->Range.low) ? p_ax->term_upper : p_ax->term_lower;
 	}
-	else if(p_ax->min < 0.0 && p_ax->max < 0.0) {
-		p_ax->term_zero = (p_ax->max < p_ax->min) ? p_ax->term_lower : p_ax->term_upper;
+	else if(p_ax->Range.low < 0.0 && p_ax->Range.upp < 0.0) {
+		p_ax->term_zero = (p_ax->Range.upp < p_ax->Range.low) ? p_ax->term_lower : p_ax->term_upper;
 	}
 	else {
 		p_ax->term_zero = AxS[axis].MapI(0.0);
@@ -1618,8 +1620,8 @@ void GnuPlot::SaveWritebackAllAxes()
 {
 	for(int axis = 0; axis < AXIS_ARRAY_SIZE; axis++) {
 		if(AxS[axis].range_flags & RANGE_WRITEBACK) {
-			AxS[axis].writeback_min = AxS[axis].min;
-			AxS[axis].writeback_max = AxS[axis].max;
+			AxS[axis].writeback_min = AxS[axis].Range.low;
+			AxS[axis].writeback_max = AxS[axis].Range.upp;
 		}
 	}
 }
@@ -1628,8 +1630,8 @@ void GnuPlot::CheckAxisReversed(AXIS_INDEX axIdx)
 {
 	GpAxis * p_ax = &AxS[axIdx];
 	if(((p_ax->autoscale & AUTOSCALE_BOTH) == AUTOSCALE_NONE) && (p_ax->set_max < p_ax->set_min)) {
-		p_ax->min = p_ax->set_min;
-		p_ax->max = p_ax->set_max;
+		p_ax->Range.low = p_ax->set_min;
+		p_ax->Range.upp = p_ax->set_max;
 	}
 }
 
@@ -1652,16 +1654,16 @@ void GnuPlot::SetCbMinMax()
 {
 	GpAxis & r_cb_ax = AxS.__CB();
 	if(r_cb_ax.set_autoscale & AUTOSCALE_MIN) {
-		if(r_cb_ax.min >= VERYLARGE)
-			r_cb_ax.min = AxS.__Z().min;
+		if(r_cb_ax.Range.low >= VERYLARGE)
+			r_cb_ax.Range.low = AxS.__Z().Range.low;
 	}
-	r_cb_ax.min = AxisLogValueChecked(COLOR_AXIS, r_cb_ax.min, "color axis");
+	r_cb_ax.Range.low = AxisLogValueChecked(COLOR_AXIS, r_cb_ax.Range.low, "color axis");
 	if(r_cb_ax.set_autoscale & AUTOSCALE_MAX) {
-		if(r_cb_ax.max <= -VERYLARGE)
-			r_cb_ax.max = AxS.__Z().max;
+		if(r_cb_ax.Range.upp <= -VERYLARGE)
+			r_cb_ax.Range.upp = AxS.__Z().Range.upp;
 	}
-	r_cb_ax.max = AxisLogValueChecked(COLOR_AXIS, r_cb_ax.max, "color axis");
-	SExchangeForOrder(&r_cb_ax.min, &r_cb_ax.max);
+	r_cb_ax.Range.upp = AxisLogValueChecked(COLOR_AXIS, r_cb_ax.Range.upp, "color axis");
+	SExchangeForOrder(&r_cb_ax.Range.low, &r_cb_ax.Range.upp);
 	if(r_cb_ax.linked_to_primary)
 		CloneLinkedAxes(&r_cb_ax, r_cb_ax.linked_to_primary);
 }
@@ -1669,24 +1671,24 @@ void GnuPlot::SetCbMinMax()
 void GpAxisSet::SaveAutoscaledRanges(const GpAxis * pAxX, const GpAxis * pAxY)
 {
 	if(pAxX) {
-		SaveAutoscaledRangeX.low = pAxX->min;
-		SaveAutoscaledRangeX.upp = pAxX->max;
+		SaveAutoscaledRangeX.low = pAxX->Range.low;
+		SaveAutoscaledRangeX.upp = pAxX->Range.upp;
 	}
 	if(pAxY) {
-		SaveAutoscaledRangeY.low = pAxY->min;
-		SaveAutoscaledRangeY.upp = pAxY->max;
+		SaveAutoscaledRangeY.low = pAxY->Range.low;
+		SaveAutoscaledRangeY.upp = pAxY->Range.upp;
 	}
 }
 
 void GpAxisSet::RestoreAutoscaledRanges(GpAxis * pAxX, GpAxis * pAxY) const
 {
 	if(pAxX) {
-		pAxX->min = SaveAutoscaledRangeX.low;
-		pAxX->max = SaveAutoscaledRangeX.upp;
+		pAxX->Range.low = SaveAutoscaledRangeX.low;
+		pAxX->Range.upp = SaveAutoscaledRangeX.upp;
 	}
 	if(pAxY) {
-		pAxY->min = SaveAutoscaledRangeY.low;
-		pAxY->max = SaveAutoscaledRangeY.upp;
+		pAxY->Range.low = SaveAutoscaledRangeY.low;
+		pAxY->Range.upp = SaveAutoscaledRangeY.upp;
 	}
 }
 
@@ -1934,7 +1936,7 @@ void GnuPlot::GStrDMS(char * pLabel, char * pFormat, double value)
 }
 // 
 // Accepts a range of the form [MIN:MAX] or [var=MIN:MAX]
-// Loads new limiting values into axis->min axis->max
+// Loads new limiting values into axis->Range.low axis->Range.upp
 // Returns
 //   0 = no range spec present
 //   -1 = range spec with no attached variable name
@@ -1959,7 +1961,7 @@ int GnuPlot::ParseRange(AXIS_INDEX axisIdx)
 			Pgm.Shift();
 			Pgm.Shift();
 		}
-		this_axis->autoscale = LoadRange(this_axis, &this_axis->min, &this_axis->max, this_axis->autoscale);
+		this_axis->autoscale = LoadRange(this_axis, &this_axis->Range.low, &this_axis->Range.upp, this_axis->autoscale);
 		// Nonlinear axis - find the linear range equivalent 
 		if(this_axis->linked_to_primary) {
 			GpAxis * primary = this_axis->linked_to_primary;
@@ -2010,8 +2012,8 @@ void GnuPlot::CloneLinkedAxes(GpAxis * pAx1, GpAxis * pAx2)
 	inverse_function_sanity_check:
 		pAx2->set_min = EvalLinkFunction(pAx2, pAx1->set_min);
 		pAx2->set_max = EvalLinkFunction(pAx2, pAx1->set_max);
-		pAx2->min = EvalLinkFunction(pAx2, pAx1->min);
-		pAx2->max = EvalLinkFunction(pAx2, pAx1->max);
+		pAx2->Range.low = EvalLinkFunction(pAx2, pAx1->Range.low);
+		pAx2->Range.upp = EvalLinkFunction(pAx2, pAx1->Range.upp);
 		// 
 		// Confirm that the inverse mapping actually works, at least at the endpoints.
 		// 
@@ -2143,16 +2145,16 @@ void GnuPlot::ExtendPrimaryTicRange(GpAxis * pAx)
 	GpAxis * primary = pAx->linked_to_primary;
 	if(pAx->ticdef.logscaling) {
 		// This can happen on "refresh" if the axis was unused 
-		if(primary->min >= VERYLARGE || primary->max <= -VERYLARGE)
+		if(primary->Range.low >= VERYLARGE || primary->Range.upp <= -VERYLARGE)
 			return;
 		// NB: "zero" is the minimum non-zero value from "set zero" 
-		if((primary->autoscale & AUTOSCALE_MIN) || fabs(primary->min - floor(primary->min)) < Gg.Zero) {
-			primary->min = floor(primary->min);
-			pAx->min = EvalLinkFunction(pAx, primary->min);
+		if((primary->autoscale & AUTOSCALE_MIN) || fabs(primary->Range.low - floor(primary->Range.low)) < Gg.Zero) {
+			primary->Range.low = floor(primary->Range.low);
+			pAx->Range.low = EvalLinkFunction(pAx, primary->Range.low);
 		}
-		if((primary->autoscale & AUTOSCALE_MAX) || fabs(primary->max - ceil(primary->max)) < Gg.Zero) {
-			primary->max = ceil(primary->max);
-			pAx->max = EvalLinkFunction(pAx, primary->max);
+		if((primary->autoscale & AUTOSCALE_MAX) || fabs(primary->Range.upp - ceil(primary->Range.upp)) < Gg.Zero) {
+			primary->Range.upp = ceil(primary->Range.upp);
+			pAx->Range.upp = EvalLinkFunction(pAx, primary->Range.upp);
 		}
 	}
 }
@@ -2166,8 +2168,8 @@ void GnuPlot::UpdatePrimaryAxisRange(GpAxis * pAxSecondary)
 	GpAxis * p_ax_primary = pAxSecondary->linked_to_primary;
 	if(p_ax_primary) {
 		// nonlinear axis (secondary is visible; primary is hidden) 
-		p_ax_primary->min = EvalLinkFunction(p_ax_primary, pAxSecondary->min);
-		p_ax_primary->max = EvalLinkFunction(p_ax_primary, pAxSecondary->max);
+		p_ax_primary->Range.low = EvalLinkFunction(p_ax_primary, pAxSecondary->Range.low);
+		p_ax_primary->Range.upp = EvalLinkFunction(p_ax_primary, pAxSecondary->Range.upp);
 		p_ax_primary->data_min = EvalLinkFunction(p_ax_primary, pAxSecondary->data_min);
 		p_ax_primary->data_max = EvalLinkFunction(p_ax_primary, pAxSecondary->data_max);
 	}
@@ -2180,8 +2182,8 @@ void GnuPlot::UpdateSecondaryAxisRange(GpAxis * pAxPrimary)
 {
 	GpAxis * p_ax_secondary = pAxPrimary->linked_to_secondary;
 	if(p_ax_secondary) {
-		p_ax_secondary->min = EvalLinkFunction(p_ax_secondary, pAxPrimary->min);
-		p_ax_secondary->max = EvalLinkFunction(p_ax_secondary, pAxPrimary->max);
+		p_ax_secondary->Range.low = EvalLinkFunction(p_ax_secondary, pAxPrimary->Range.low);
+		p_ax_secondary->Range.upp = EvalLinkFunction(p_ax_secondary, pAxPrimary->Range.upp);
 		p_ax_secondary->data_min = EvalLinkFunction(p_ax_secondary, pAxPrimary->data_min);
 		p_ax_secondary->data_max = EvalLinkFunction(p_ax_secondary, pAxPrimary->data_max);
 	}
@@ -2205,8 +2207,8 @@ void GnuPlot::ReconcileLinkedAxes(GpAxis * pAxPrimary, GpAxis * pAxSecondary)
 		store_and_update_range(&dummy, max_2_into_1, &inrange, pAxPrimary, FALSE);
 		(void)dummy; // Otherwise the compiler complains about an unused variable 
 		// Take the result back the other way to update pAxSecondary 
-		pAxSecondary->min = EvalLinkFunction(pAxSecondary, pAxPrimary->min);
-		pAxSecondary->max = EvalLinkFunction(pAxSecondary, pAxPrimary->max);
+		pAxSecondary->Range.low = EvalLinkFunction(pAxSecondary, pAxPrimary->Range.low);
+		pAxSecondary->Range.upp = EvalLinkFunction(pAxSecondary, pAxPrimary->Range.upp);
 	}
 }
 // 
@@ -2259,7 +2261,7 @@ coord_type GnuPlot::PolarToXY(double theta, double r, double * x, double * y, bo
 	coord_type status = INRANGE;
 	// NB: Range checks from multiple original sites are consolidated here.
 	// They were not all identical but I hope this version is close enough.
-	// One caller (parametric fixup) did GnuPlot::AxS.__R().max range checks
+	// One caller (parametric fixup) did GnuPlot::AxS.__R().Range.upp range checks
 	// against fabs(r) rather than r.  Does that matter?  Did something break?
 	if(update) {
 		if(Gg.InvertedRaxis) {
@@ -2267,19 +2269,19 @@ coord_type GnuPlot::PolarToXY(double theta, double r, double * x, double * y, bo
 				status = OUTRANGE;
 		}
 		else {
-			if(r < AxS.__R().min) {
+			if(r < AxS.__R().Range.low) {
 				if(AxS.__R().autoscale & AUTOSCALE_MIN)
-					AxS.__R().min = 0.0;
-				else if(AxS.__R().min < 0.0)
+					AxS.__R().Range.low = 0.0;
+				else if(AxS.__R().Range.low < 0.0)
 					status = OUTRANGE;
-				else if(r < 0 && -r > AxS.__R().max)
+				else if(r < 0 && -r > AxS.__R().Range.upp)
 					status = OUTRANGE;
 				else if(r >= 0)
 					status = OUTRANGE;
 			}
-			if(r > AxS.__R().max) {
+			if(r > AxS.__R().Range.upp) {
 				if(AxS.__R().autoscale & AUTOSCALE_MAX)
-					AxS.__R().max = (AxS.__R().MaxConstraint & CONSTRAINT_UPPER && (AxS.__R().max_ub < r)) ? AxS.__R().max_ub : r;
+					AxS.__R().Range.upp = (AxS.__R().MaxConstraint & CONSTRAINT_UPPER && (AxS.__R().max_ub < r)) ? AxS.__R().max_ub : r;
 				else
 					status = OUTRANGE;
 			}
@@ -2290,7 +2292,7 @@ coord_type GnuPlot::PolarToXY(double theta, double r, double * x, double * y, bo
 		if(AxS.__R().log && r <= 0)
 			r = fgetnan();
 		else
-			r = EvalLinkFunction(shadow, r) - shadow->min;
+			r = EvalLinkFunction(shadow, r) - shadow->Range.low;
 	}
 	else if(Gg.InvertedRaxis) {
 		r = AxS.__R().set_min - r;
@@ -2298,14 +2300,14 @@ coord_type GnuPlot::PolarToXY(double theta, double r, double * x, double * y, bo
 	else if((AxS.__R().autoscale & AUTOSCALE_MIN)) {
 		; /* Leave it */
 	}
-	else if(r >= AxS.__R().min) {
+	else if(r >= AxS.__R().Range.low) {
 		// We store internally as if plotting r(theta) - rmin 
-		r = r - AxS.__R().min;
+		r = r - AxS.__R().Range.low;
 	}
-	else if(r < -AxS.__R().min) {
-		// If (r < AxS.__R().min < 0) we already flagged OUTRANGE above 
-		// That leaves the case (r < 0 && AxS.__R().min >= 0) 
-		r = r + AxS.__R().min;
+	else if(r < -AxS.__R().Range.low) {
+		// If (r < AxS.__R().Range.low < 0) we already flagged OUTRANGE above 
+		// That leaves the case (r < 0 && AxS.__R().Range.low >= 0) 
+		r = r + AxS.__R().Range.low;
 	}
 	else {
 		*x = fgetnan();
@@ -2320,7 +2322,7 @@ coord_type GnuPlot::PolarToXY(double theta, double r, double * x, double * y, bo
 }
 // 
 // converts polar coordinate r into a magnitude on x
-// allowing for GnuPlot::AxS.__R().min != 0, axis inversion, nonlinearity, etc.
+// allowing for GnuPlot::AxS.__R().Range.low != 0, axis inversion, nonlinearity, etc.
 // 
 double GnuPlot::PolarRadius(double r)
 {
@@ -2335,7 +2337,7 @@ double GnuPlot::PolarRadius(double r)
 void dump_axis_range(GpAxis * axis)
 {
 	if(axis) {
-		fprintf(stderr, "    %10.10s axis min/max %10g %10g data_min/max %10g %10g\n", axis_name((AXIS_INDEX)axis->index), axis->min, axis->max, axis->data_min, axis->data_max);
+		fprintf(stderr, "    %10.10s axis min/max %10g %10g data_min/max %10g %10g\n", axis_name((AXIS_INDEX)axis->index), axis->Range.low, axis->Range.upp, axis->data_min, axis->data_max);
 		fprintf(stderr, "                set_min/max %10g %10g \t link:\t %s\n", axis->set_min, axis->set_max, axis->linked_to_primary ? axis_name((AXIS_INDEX)axis->linked_to_primary->index) : "none");
 	}
 }
@@ -2368,34 +2370,34 @@ coord_type store_and_update_range(double * pStore, double curval, coord_type * p
 		else if(*pType != INRANGE)
 			return (coord_type)0; /* don't set y range if x is outrange, for example */
 		else {
-			if((curval < pAx->min) && ((curval <= pAx->max) || (pAx->max == -VERYLARGE))) {
+			if((curval < pAx->Range.low) && ((curval <= pAx->Range.upp) || (pAx->Range.upp == -VERYLARGE))) {
 				if(pAx->autoscale & AUTOSCALE_MIN) {
-					pAx->min = curval;
+					pAx->Range.low = curval;
 					if(pAx->MinConstraint & CONSTRAINT_LOWER) {
 						if(pAx->min_lb > curval) {
-							pAx->min = pAx->min_lb;
+							pAx->Range.low = pAx->min_lb;
 							*pType = OUTRANGE;
 							return OUTRANGE;
 						}
 					}
 				}
-				else if(curval != pAx->max) {
+				else if(curval != pAx->Range.upp) {
 					*pType = OUTRANGE;
 					return OUTRANGE;
 				}
 			}
-			if(curval > pAx->max && (curval >= pAx->min || pAx->min == VERYLARGE)) {
+			if(curval > pAx->Range.upp && (curval >= pAx->Range.low || pAx->Range.low == VERYLARGE)) {
 				if(pAx->autoscale & AUTOSCALE_MAX) {
-					pAx->max = curval;
+					pAx->Range.upp = curval;
 					if(pAx->MaxConstraint & CONSTRAINT_UPPER) {
 						if(pAx->max_ub < curval) {
-							pAx->max = pAx->max_ub;
+							pAx->Range.upp = pAx->max_ub;
 							*pType = OUTRANGE;
 							return OUTRANGE;
 						}
 					}
 				}
-				else if(curval != pAx->min) {
+				else if(curval != pAx->Range.low) {
 					*pType = OUTRANGE;
 				}
 			}
@@ -2419,9 +2421,9 @@ coord_type store_and_update_range(double * pStore, double curval, coord_type * p
 /*void FASTCALL autoscale_one_point(GpAxis * axis, double x)
 {
 	if(!(axis->range_flags & RANGE_IS_REVERSED)) {
-		if(axis->set_autoscale & AUTOSCALE_MIN && x < axis->min)
-			axis->min = x;
-		if(axis->set_autoscale & AUTOSCALE_MAX && x > axis->max)
-			axis->max = x;
+		if(axis->set_autoscale & AUTOSCALE_MIN && x < axis->Range.low)
+			axis->Range.low = x;
+		if(axis->set_autoscale & AUTOSCALE_MAX && x > axis->Range.upp)
+			axis->Range.upp = x;
 	}
 }*/

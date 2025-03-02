@@ -1,9 +1,9 @@
-// UED-ID-TEMP.H
+// UED-ID.H
 // version: 37
 // sha256: 5391a581dbc91aba56dc357cd0e52b2df4fb185c596a9898defd1021444d321e
 //
-#ifndef __UED_ID_TEMP_H
-#define __UED_ID_TEMP_H
+#ifndef __UED_ID_H
+#define __UED_ID_H
 
 #define UED_META_META                                0x100000001ULL
 #define UED_META_PREDEFVALUE                         0x100000002ULL
@@ -3713,4 +3713,4 @@
 #define UED_META_INTEGER                             0x197000000ULL
 #define UED_META_DECIMAL                             0x198000000ULL
 
-#endif // __UED_ID_TEMP_H
+#endif // __UED_ID_H

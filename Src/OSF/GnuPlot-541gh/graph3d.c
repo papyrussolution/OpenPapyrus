@@ -238,7 +238,7 @@ void GnuPlot::Boundary3D(GpTermEntry * pTerm, const GpSurfacePoints * plots, int
 		}
 	}
 	_3DBlk.xyscaler = sqrt(_3DBlk.Scaler.x * _3DBlk.Scaler.y); // For anything that really wants to be the same on x and y 
-	_3DBlk.radius_scaler = _3DBlk.Scaler.x * _3DBlk.SurfaceScale / (AxS.__X().max - AxS.__X().min); // This one is used to scale circles in 3D plots 
+	_3DBlk.radius_scaler = _3DBlk.Scaler.x * _3DBlk.SurfaceScale / (AxS.__X().Range.upp - AxS.__X().Range.low); // This one is used to scale circles in 3D plots 
 	// Set default clipping 
 	if(_3DBlk.splot_map)
 		V.P_ClipArea = &V.BbPlot;
@@ -375,32 +375,32 @@ void GnuPlot::Do3DPlot(GpTermEntry * pTerm, GpSurfacePoints * plots, int pcount/
 	if(AxS.__Z().IsNonLinear()) {
 		if(_3DBlk.xyplane.absolute) {
 			if(primary_z->log && _3DBlk.xyplane.z <= 0)
-				_3DBlk.BaseZ1 = EvalLinkFunction(primary_z, AxS.__Z().min);
+				_3DBlk.BaseZ1 = EvalLinkFunction(primary_z, AxS.__Z().Range.low);
 			else
 				_3DBlk.BaseZ1 = EvalLinkFunction(primary_z, _3DBlk.xyplane.z);
 		}
 		else
-			_3DBlk.BaseZ1 = primary_z->min - (primary_z->GetRange() * _3DBlk.xyplane.z);
+			_3DBlk.BaseZ1 = primary_z->Range.low - (primary_z->GetRange() * _3DBlk.xyplane.z);
 		_3DBlk.base_z = EvalLinkFunction(&AxS.__Z(), _3DBlk.BaseZ1);
 	}
 	else {
-		_3DBlk.BaseZ1 = _3DBlk.xyplane.absolute ? _3DBlk.xyplane.z : (primary_z->min - (primary_z->GetRange() * _3DBlk.xyplane.z));
+		_3DBlk.BaseZ1 = _3DBlk.xyplane.absolute ? _3DBlk.xyplane.z : (primary_z->Range.low - (primary_z->GetRange() * _3DBlk.xyplane.z));
 		_3DBlk.base_z = _3DBlk.BaseZ1;
 	}
 	// If we are to draw some portion of the xyplane make sure zmin is updated properly. 
 	if(AxS.__X().ticmode || AxS.__Y().ticmode || Gg.draw_border & 0x00F) {
-		if(primary_z->min > primary_z->max) {
-			_3DBlk.floor_z1 = MAX(primary_z->min, _3DBlk.BaseZ1);
-			_3DBlk.CeilingZ1 = MIN(primary_z->max, _3DBlk.BaseZ1);
+		if(primary_z->Range.low > primary_z->Range.upp) {
+			_3DBlk.floor_z1 = MAX(primary_z->Range.low, _3DBlk.BaseZ1);
+			_3DBlk.CeilingZ1 = MIN(primary_z->Range.upp, _3DBlk.BaseZ1);
 		}
 		else {
-			_3DBlk.floor_z1 = MIN(primary_z->min, _3DBlk.BaseZ1);
-			_3DBlk.CeilingZ1 = MAX(primary_z->max, _3DBlk.BaseZ1);
+			_3DBlk.floor_z1 = MIN(primary_z->Range.low, _3DBlk.BaseZ1);
+			_3DBlk.CeilingZ1 = MAX(primary_z->Range.upp, _3DBlk.BaseZ1);
 		}
 	}
 	else {
-		_3DBlk.floor_z1 = primary_z->min;
-		_3DBlk.CeilingZ1 = primary_z->max;
+		_3DBlk.floor_z1 = primary_z->Range.low;
+		_3DBlk.CeilingZ1 = primary_z->Range.upp;
 	}
 	if(AxS.__Z().IsNonLinear()) {
 		_3DBlk.floor_z = EvalLinkFunction(&AxS.__Z(), _3DBlk.floor_z1);
@@ -410,11 +410,11 @@ void GnuPlot::Do3DPlot(GpTermEntry * pTerm, GpSurfacePoints * plots, int pcount/
 		_3DBlk.floor_z = _3DBlk.floor_z1;
 		_3DBlk.ceiling_z = _3DBlk.CeilingZ1;
 	}
-	if(AxS.__X().min == AxS.__X().max)
+	if(AxS.__X().Range.low == AxS.__X().Range.upp)
 		IntError(NO_CARET, "x_min3d should not equal x_max3d!");
-	if(AxS.__Y().min == AxS.__Y().max)
+	if(AxS.__Y().Range.low == AxS.__Y().Range.upp)
 		IntError(NO_CARET, "y_min3d should not equal y_max3d!");
-	if(AxS.__Z().min == AxS.__Z().max)
+	if(AxS.__Z().Range.low == AxS.__Z().Range.upp)
 		IntError(NO_CARET, "z_min3d should not equal z_max3d!");
 	// Special case projections of the xz or yz plane 
 	// Place x or y axis to the left of the plot 
@@ -476,8 +476,8 @@ void GnuPlot::Do3DPlot(GpTermEntry * pTerm, GpSurfacePoints * plots, int pcount/
 		GpAxis * p_ax_x = &AxS[FIRST_X_AXIS];
 		GpAxis * p_ax_y = &AxS[FIRST_Y_AXIS];
 		int xl, xr, yb, yt;
-		Map3D_XY(p_ax_x->min, p_ax_y->min, 0.0, &xl, &yb);
-		Map3D_XY(p_ax_x->max, p_ax_y->max, 0.0, &xr, &yt);
+		Map3D_XY(p_ax_x->Range.low, p_ax_y->Range.low, 0.0, &xl, &yb);
+		Map3D_XY(p_ax_x->Range.upp, p_ax_y->Range.upp, 0.0, &xr, &yt);
 		axis_set_scale_and_range(p_ax_x, xl, xr);
 		axis_set_scale_and_range(p_ax_y, yb, yt);
 	}
@@ -512,8 +512,8 @@ void GnuPlot::Do3DPlot(GpTermEntry * pTerm, GpSurfacePoints * plots, int pcount/
 	// FIXME:  Wasn't this already done in boundary3d?            
 	if(_3DBlk.splot_map) {
 		int map_x1, map_y1, map_x2, map_y2;
-		Map3D_XY(AxS.__X().min, AxS.__Y().min, _3DBlk.base_z, &map_x1, &map_y1);
-		Map3D_XY(AxS.__X().max, AxS.__Y().max, _3DBlk.base_z, &map_x2, &map_y2);
+		Map3D_XY(AxS.__X().Range.low, AxS.__Y().Range.low, _3DBlk.base_z, &map_x1, &map_y1);
+		Map3D_XY(AxS.__X().Range.upp, AxS.__Y().Range.upp, _3DBlk.base_z, &map_x2, &map_y2);
 		V.BbPlot.xleft = map_x1;
 		V.BbPlot.xright = map_x2;
 		V.BbPlot.ybot = map_y2;
@@ -543,8 +543,8 @@ void GnuPlot::Do3DPlot(GpTermEntry * pTerm, GpSurfacePoints * plots, int pcount/
 				tics_len = (int)pTerm->MulTicV(AxS.__X().ticscale * (AxS.__X().TicIn ? -1 : 1));
 				SETMAX(tics_len, 0); // take care only about upward tics 
 			}
-			Map3D_XY(AxS.__X().min, AxS.__Y().min, _3DBlk.base_z, &map_x1, &map_y1);
-			Map3D_XY(AxS.__X().max, AxS.__Y().max, _3DBlk.base_z, &map_x2, &map_y2);
+			Map3D_XY(AxS.__X().Range.low, AxS.__Y().Range.low, _3DBlk.base_z, &map_x1, &map_y1);
+			Map3D_XY(AxS.__X().Range.upp, AxS.__Y().Range.upp, _3DBlk.base_z, &map_x2, &map_y2);
 			// Distance between the title base line and graph top line or the upper part of
 			// tics is as given by character height: 
 			_pt.Set((map_x1 + map_x2) / 2, static_cast<int>(map_y1 + tics_len + (_3DBlk.TitleLin + 0.5) * pTerm->CV()));
@@ -556,7 +556,7 @@ void GnuPlot::Do3DPlot(GpTermEntry * pTerm, GpSurfacePoints * plots, int pcount/
 	}
 	// PLACE TIMELABEL 
 	if(Gg.LblTime.text) {
-		DoTimeLabel(pTerm, SPoint2I(pTerm->CV(), Gg.TimeLabelBottom ? static_cast<int>(V.Offset.y * AxS.__Y().max + pTerm->CV()) : (V.BbPlot.ytop - pTerm->CV())));
+		DoTimeLabel(pTerm, SPoint2I(pTerm->CV(), Gg.TimeLabelBottom ? static_cast<int>(V.Offset.y * AxS.__Y().Range.upp + pTerm->CV()) : (V.BbPlot.ytop - pTerm->CV())));
 	}
 	// Add 'back' color box 
 	if(replot_mode != AXIS_ONLY_ROTATE && _3DBlk.CanPm3D && IsPlotWithColorbox() && Gg.ColorBox.layer == LAYER_BACK)
@@ -1067,11 +1067,11 @@ SECOND_KEY_PASS:
 	// finally, store the 2d projection of the x and y axis, to enable zooming by mouse 
 	{
 		int x, y;
-		Map3D_XY(AxS.__X().min, AxS.__Y().min, _3DBlk.base_z, &_3DBlk.axis3d_o_x, &_3DBlk.axis3d_o_y);
-		Map3D_XY(AxS.__X().max, AxS.__Y().min, _3DBlk.base_z, &x, &y);
+		Map3D_XY(AxS.__X().Range.low, AxS.__Y().Range.low, _3DBlk.base_z, &_3DBlk.axis3d_o_x, &_3DBlk.axis3d_o_y);
+		Map3D_XY(AxS.__X().Range.upp, AxS.__Y().Range.low, _3DBlk.base_z, &x, &y);
 		_3DBlk.axis3d_x_dx = x - _3DBlk.axis3d_o_x;
 		_3DBlk.axis3d_x_dy = y - _3DBlk.axis3d_o_y;
-		Map3D_XY(AxS.__X().min, AxS.__Y().max, _3DBlk.base_z, &x, &y);
+		Map3D_XY(AxS.__X().Range.low, AxS.__Y().Range.upp, _3DBlk.base_z, &x, &y);
 		_3DBlk.axis3d_y_dx = x - _3DBlk.axis3d_o_x;
 		_3DBlk.axis3d_y_dy = y - _3DBlk.axis3d_o_y;
 	}
@@ -1123,23 +1123,23 @@ void GnuPlot::Plot3DImpulses(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 				    if(AxS.__Z().InRange(0.0)) {
 					    // zero point is INRANGE 
 					    Map3D_XY(points[i].Pt.GetXY(), 0.0, &xx0, &yy0);
-					    // must cross z = AxS.__Z().min or AxS.__Z().max limits 
-					    if(inrange(AxS.__Z().min, 0.0, points[i].Pt.z) && AxS.__Z().min != 0.0 && AxS.__Z().min != points[i].Pt.z) {
-						    Map3D_XY(points[i].Pt.GetXY(), AxS.__Z().min, &x, &y);
+					    // must cross z = AxS.__Z().Range.low or AxS.__Z().Range.upp limits 
+					    if(inrange(AxS.__Z().Range.low, 0.0, points[i].Pt.z) && AxS.__Z().Range.low != 0.0 && AxS.__Z().Range.low != points[i].Pt.z) {
+						    Map3D_XY(points[i].Pt.GetXY(), AxS.__Z().Range.low, &x, &y);
 					    }
 					    else {
-						    Map3D_XY(points[i].Pt.GetXY(), AxS.__Z().max, &x, &y);
+						    Map3D_XY(points[i].Pt.GetXY(), AxS.__Z().Range.upp, &x, &y);
 					    }
 				    }
 				    else {
 					    // zero point is also OUTRANGE 
-					    if(inrange(AxS.__Z().min, 0.0, points[i].Pt.z) && inrange(AxS.__Z().max, 0.0, points[i].Pt.z)) {
-						    // crosses z = AxS.__Z().min or AxS.__Z().max limits 
-						    Map3D_XY(points[i].Pt.GetXY(), AxS.__Z().max, &x, &y);
-						    Map3D_XY(points[i].Pt.GetXY(), AxS.__Z().min, &xx0, &yy0);
+					    if(inrange(AxS.__Z().Range.low, 0.0, points[i].Pt.z) && inrange(AxS.__Z().Range.upp, 0.0, points[i].Pt.z)) {
+						    // crosses z = AxS.__Z().Range.low or AxS.__Z().Range.upp limits 
+						    Map3D_XY(points[i].Pt.GetXY(), AxS.__Z().Range.upp, &x, &y);
+						    Map3D_XY(points[i].Pt.GetXY(), AxS.__Z().Range.low, &xx0, &yy0);
 					    }
 					    else {
-						    // doesn't cross z = AxS.__Z().min or AxS.__Z().max limits 
+						    // doesn't cross z = AxS.__Z().Range.low or AxS.__Z().Range.upp limits 
 						    break;
 					    }
 				    }
@@ -1598,8 +1598,8 @@ void GnuPlot::Cntr3DLabels(GpTermEntry * pTerm, const gnuplot_contours * cntr, c
 // map xmin | xmax to 0 | 1 and same for y
 // 0.1 avoids any rounding errors
 // 
-#define MAP_HEIGHT_X(x) (((x)-AxS.__X().min)/(AxS.__X().GetRange()) > 0.9 ? 1 : 0)
-#define MAP_HEIGHT_Y(y) (((y)-AxS.__Y().min)/(AxS.__Y().GetRange()) > 0.9 ? 1 : 0)
+#define MAP_HEIGHT_X(x) (((x)-AxS.__X().Range.low)/(AxS.__X().GetRange()) > 0.9 ? 1 : 0)
+#define MAP_HEIGHT_Y(y) (((y)-AxS.__Y().Range.low)/(AxS.__Y().GetRange()) > 0.9 ? 1 : 0)
 // 
 // if point is at corner, update height[][] and depth[][]
 // we are still assuming that extremes of surfaces are at corners,
@@ -1609,7 +1609,7 @@ void GnuPlot::CheckCornerHeight(GpCoordinate * p, double height[2][2], double de
 {
 	if(p->type == INRANGE) {
 		// FIXME HBB 20010121: don't compare 'zero' to data values in absolute terms. 
-		if((fabs(p->Pt.x - AxS.__X().min) < Gg.Zero || fabs(p->Pt.x - AxS.__X().max) < Gg.Zero) && (fabs(p->Pt.y - AxS.__Y().min) < Gg.Zero || fabs(p->Pt.y - AxS.__Y().max) < Gg.Zero)) {
+		if((fabs(p->Pt.x - AxS.__X().Range.low) < Gg.Zero || fabs(p->Pt.x - AxS.__X().Range.upp) < Gg.Zero) && (fabs(p->Pt.y - AxS.__Y().Range.low) < Gg.Zero || fabs(p->Pt.y - AxS.__Y().Range.upp) < Gg.Zero)) {
 			int x = MAP_HEIGHT_X(p->Pt.x);
 			int y = MAP_HEIGHT_Y(p->Pt.y);
 			SETMAX(height[x][y], p->Pt.z);
@@ -1624,28 +1624,28 @@ void GnuPlot::Setup3DBoxCorners()
 {
 	int quadrant = static_cast<int>(_3DBlk.SurfaceRotZ / 90.0f);
 	if((quadrant + 1) & 2) {
-		_3DBlk.ZAxisX   = AxS.__X().max;
-		_3DBlk.Right.x  = AxS.__X().min;
-		_3DBlk.Back.y   = AxS.__Y().min;
-		_3DBlk.Front.y  = AxS.__Y().max;
+		_3DBlk.ZAxisX   = AxS.__X().Range.upp;
+		_3DBlk.Right.x  = AxS.__X().Range.low;
+		_3DBlk.Back.y   = AxS.__Y().Range.low;
+		_3DBlk.Front.y  = AxS.__Y().Range.upp;
 	}
 	else {
-		_3DBlk.ZAxisX   = AxS.__X().min;
-		_3DBlk.Right.x  = AxS.__X().max;
-		_3DBlk.Back.y   = AxS.__Y().max;
-		_3DBlk.Front.y  = AxS.__Y().min;
+		_3DBlk.ZAxisX   = AxS.__X().Range.low;
+		_3DBlk.Right.x  = AxS.__X().Range.upp;
+		_3DBlk.Back.y   = AxS.__Y().Range.upp;
+		_3DBlk.Front.y  = AxS.__Y().Range.low;
 	}
 	if(quadrant & 2) {
-		_3DBlk.ZAxisY   = AxS.__Y().max;
-		_3DBlk.Right.y  = AxS.__Y().min;
-		_3DBlk.Back.x   = AxS.__X().max;
-		_3DBlk.Front.x  = AxS.__X().min;
+		_3DBlk.ZAxisY   = AxS.__Y().Range.upp;
+		_3DBlk.Right.y  = AxS.__Y().Range.low;
+		_3DBlk.Back.x   = AxS.__X().Range.upp;
+		_3DBlk.Front.x  = AxS.__X().Range.low;
 	}
 	else {
-		_3DBlk.ZAxisY   = AxS.__Y().min;
-		_3DBlk.Right.y  = AxS.__Y().max;
-		_3DBlk.Back.x   = AxS.__X().min;
-		_3DBlk.Front.x  = AxS.__X().max;
+		_3DBlk.ZAxisY   = AxS.__Y().Range.low;
+		_3DBlk.Right.y  = AxS.__Y().Range.upp;
+		_3DBlk.Back.x   = AxS.__X().Range.low;
+		_3DBlk.Front.x  = AxS.__X().Range.upp;
 	}
 	quadrant = static_cast<int>(_3DBlk.SurfaceRotX / 90.0f);
 	if((quadrant & 2) && !_3DBlk.splot_map) {
@@ -1710,24 +1710,24 @@ void GnuPlot::Draw3DGraphBox(GpTermEntry * pTerm, const GpSurfacePoints * pPlot,
 			TermApplyLpProperties(pTerm, &Gg.border_lp);
 			if((Gg.draw_border & 15) == 15)
 				newpath(pTerm);
-			Map3D_XY(0.0, yaxis->min, zaxis->min, &x, &y);
+			Map3D_XY(0.0, yaxis->Range.low, zaxis->Range.low, &x, &y);
 			ClipMove(x, y);
-			Map3D_XY(0.0, yaxis->max, zaxis->min, &x, &y);
+			Map3D_XY(0.0, yaxis->Range.upp, zaxis->Range.low, &x, &y);
 			if(Gg.draw_border & 8)
 				ClipVector(pTerm, x, y);
 			else
 				ClipMove(x, y);
-			Map3D_XY(0.0, yaxis->max, zaxis->max, &x, &y);
+			Map3D_XY(0.0, yaxis->Range.upp, zaxis->Range.upp, &x, &y);
 			if(Gg.draw_border & 4)
 				ClipVector(pTerm, x, y);
 			else
 				ClipMove(x, y);
-			Map3D_XY(0.0, yaxis->min, zaxis->max, &x, &y);
+			Map3D_XY(0.0, yaxis->Range.low, zaxis->Range.upp, &x, &y);
 			if(Gg.draw_border & 2)
 				ClipVector(pTerm, x, y);
 			else
 				ClipMove(x, y);
-			Map3D_XY(0.0, yaxis->min, zaxis->min, &x, &y);
+			Map3D_XY(0.0, yaxis->Range.low, zaxis->Range.low, &x, &y);
 			if(Gg.draw_border & 1)
 				ClipVector(pTerm, x, y);
 			else
@@ -1743,24 +1743,24 @@ void GnuPlot::Draw3DGraphBox(GpTermEntry * pTerm, const GpSurfacePoints * pPlot,
 			TermApplyLpProperties(pTerm, &Gg.border_lp);
 			if((Gg.draw_border & 15) == 15)
 				newpath(pTerm);
-			Map3D_XY(xaxis->min, 0.0, zaxis->min, &x, &y);
+			Map3D_XY(xaxis->Range.low, 0.0, zaxis->Range.low, &x, &y);
 			ClipMove(x, y);
-			Map3D_XY(xaxis->max, 0.0, zaxis->min, &x, &y);
+			Map3D_XY(xaxis->Range.upp, 0.0, zaxis->Range.low, &x, &y);
 			if(Gg.draw_border & 2)
 				ClipVector(pTerm, x, y);
 			else
 				ClipMove(x, y);
-			Map3D_XY(xaxis->max, 0.0, zaxis->max, &x, &y);
+			Map3D_XY(xaxis->Range.upp, 0.0, zaxis->Range.upp, &x, &y);
 			if(Gg.draw_border & 4)
 				ClipVector(pTerm, x, y);
 			else
 				ClipMove(x, y);
-			Map3D_XY(xaxis->min, 0.0, zaxis->max, &x, &y);
+			Map3D_XY(xaxis->Range.low, 0.0, zaxis->Range.upp, &x, &y);
 			if(Gg.draw_border & 8)
 				ClipVector(pTerm, x, y);
 			else
 				ClipMove(x, y);
-			Map3D_XY(xaxis->min, 0.0, zaxis->min, &x, &y);
+			Map3D_XY(xaxis->Range.low, 0.0, zaxis->Range.low, &x, &y);
 			if(Gg.draw_border & 1)
 				ClipVector(pTerm, x, y);
 			else
@@ -1919,21 +1919,21 @@ void GnuPlot::Draw3DGraphBox(GpTermEntry * pTerm, const GpSurfacePoints * pPlot,
 	// x axis 
 	if((AxS.__X().ticmode || AxS.__X().label.text) && !_3DBlk.YzPlane) {
 		GpVertex v0, v1;
-		double other_end = AxS.__Y().min + AxS.__Y().max - _3DBlk.XAxisY;
+		double other_end = AxS.__Y().Range.low + AxS.__Y().Range.upp - _3DBlk.XAxisY;
 		double mid_x;
 		if(AxS.__X().IsNonLinear()) {
 			const GpAxis * primary = AxS.__X().linked_to_primary;
-			mid_x = (primary->max + primary->min) / 2.;
+			mid_x = (primary->Range.upp + primary->Range.low) / 2.;
 			mid_x = EvalLinkFunction(&AxS.__X(), mid_x);
 		}
 		else {
-			mid_x = (AxS.__X().max + AxS.__X().min) / 2.;
+			mid_x = (AxS.__X().Range.upp + AxS.__X().Range.low) / 2.;
 		}
 		Map3D_XYZ(mid_x, _3DBlk.XAxisY, _3DBlk.base_z, &v0);
 		Map3D_XYZ(mid_x, other_end,     _3DBlk.base_z, &v1);
 		// Unusual case: 2D projection of the xz plane 
 		if(!_3DBlk.splot_map && _3DBlk.XzPlane)
-			Map3D_XYZ(mid_x, _3DBlk.XAxisY, AxS.__Z().max+AxS.__Z().min-_3DBlk.base_z, &v1);
+			Map3D_XYZ(mid_x, _3DBlk.XAxisY, AxS.__Z().Range.upp+AxS.__Z().Range.low-_3DBlk.base_z, &v1);
 		//tic_unitx = (v1.x - v0.x) / xyscaler;
 		//tic_unity = (v1.y - v0.y) / xyscaler;
 		//tic_unitz = (v1.z - v0.z) / xyscaler;
@@ -1961,8 +1961,8 @@ void GnuPlot::Draw3DGraphBox(GpTermEntry * pTerm, const GpSurfacePoints * pPlot,
 				else { // usual 3d set view ... 
 					if(AxS.__X().label.tag == ROTATE_IN_3D_LABEL_TAG) {
 						double ang, angx0, angx1, angy0, angy1;
-						Map3D_XY_double(AxS.__X().min, _3DBlk.XAxisY, _3DBlk.base_z, &angx0, &angy0);
-						Map3D_XY_double(AxS.__X().max, _3DBlk.XAxisY, _3DBlk.base_z, &angx1, &angy1);
+						Map3D_XY_double(AxS.__X().Range.low, _3DBlk.XAxisY, _3DBlk.base_z, &angx0, &angy0);
+						Map3D_XY_double(AxS.__X().Range.upp, _3DBlk.XAxisY, _3DBlk.base_z, &angx1, &angy1);
 						ang = atan2(angy1-angy0, angx1-angx0) / SMathConst::PiDiv180;
 						if(ang < -90) 
 							ang += 180;
@@ -2003,21 +2003,21 @@ void GnuPlot::Draw3DGraphBox(GpTermEntry * pTerm, const GpSurfacePoints * pPlot,
 	// y axis 
 	if((AxS.__Y().ticmode || AxS.__Y().label.text) && !_3DBlk.XzPlane) {
 		GpVertex v0, v1;
-		double other_end = AxS.__X().min + AxS.__X().max - _3DBlk.YAxisX;
+		double other_end = AxS.__X().Range.low + AxS.__X().Range.upp - _3DBlk.YAxisX;
 		double mid_y;
 		if(AxS.__Y().IsNonLinear()) {
 			GpAxis * primary = AxS.__Y().linked_to_primary;
-			mid_y = (primary->max + primary->min) / 2.;
+			mid_y = (primary->Range.upp + primary->Range.low) / 2.;
 			mid_y = EvalLinkFunction(&AxS.__Y(), mid_y);
 		}
 		else {
-			mid_y = (AxS.__Y().max + AxS.__Y().min) / 2.;
+			mid_y = (AxS.__Y().Range.upp + AxS.__Y().Range.low) / 2.;
 		}
 		Map3D_XYZ(_3DBlk.YAxisX, mid_y, _3DBlk.base_z, &v0);
 		Map3D_XYZ(other_end,     mid_y, _3DBlk.base_z, &v1);
 		// Unusual case: 2D projection of the yz plane 
 		if(!_3DBlk.splot_map && _3DBlk.YzPlane)
-			Map3D_XYZ(_3DBlk.YAxisX, mid_y, AxS.__Z().max+AxS.__Z().min-_3DBlk.base_z, &v1);
+			Map3D_XYZ(_3DBlk.YAxisX, mid_y, AxS.__Z().Range.upp+AxS.__Z().Range.low-_3DBlk.base_z, &v1);
 		//_3DBlk.TicUnit.x = (v1.x - v0.x) / xyscaler;
 		//_3DBlk.TicUnit.y = (v1.y - v0.y) / xyscaler;
 		//_3DBlk.TicUnit.z = (v1.z - v0.z) / xyscaler;
@@ -2054,8 +2054,8 @@ void GnuPlot::Draw3DGraphBox(GpTermEntry * pTerm, const GpSurfacePoints * pPlot,
 				else { // usual 3d set view ...
 					if(AxS.__Y().label.tag == ROTATE_IN_3D_LABEL_TAG) {
 						double ang, angx0, angx1, angy0, angy1;
-						Map3D_XY_double(_3DBlk.YAxisX, AxS.__Y().min, _3DBlk.base_z, &angx0, &angy0);
-						Map3D_XY_double(_3DBlk.YAxisX, AxS.__Y().max, _3DBlk.base_z, &angx1, &angy1);
+						Map3D_XY_double(_3DBlk.YAxisX, AxS.__Y().Range.low, _3DBlk.base_z, &angx0, &angy0);
+						Map3D_XY_double(_3DBlk.YAxisX, AxS.__Y().Range.upp, _3DBlk.base_z, &angx1, &angy1);
 						ang = atan2(angy1-angy0, angx1-angx0) / SMathConst::PiDiv180;
 						if(ang < -90) 
 							ang += 180;
@@ -2107,23 +2107,23 @@ void GnuPlot::Draw3DGraphBox(GpTermEntry * pTerm, const GpSurfacePoints * pPlot,
 	if(AxS.__Y().zeroaxis && !AxS.__X().log && AxS.__X().InRange(0.0)) {
 		GpVertex v1, v2;
 		// line through x=0 
-		Map3D_XYZ(0.0, AxS.__Y().min, _3DBlk.base_z, &v1);
-		Map3D_XYZ(0.0, AxS.__Y().max, _3DBlk.base_z, &v2);
+		Map3D_XYZ(0.0, AxS.__Y().Range.low, _3DBlk.base_z, &v1);
+		Map3D_XYZ(0.0, AxS.__Y().Range.upp, _3DBlk.base_z, &v2);
 		Draw3DLine(pTerm, &v1, &v2, AxS.__Y().zeroaxis);
 	}
 	if(AxS.__Z().zeroaxis && !AxS.__X().log && AxS.__X().InRange(0.0)) {
 		GpVertex v1, v2;
 		// line through x=0 y=0 
-		Map3D_XYZ(0.0, 0.0, AxS.__Z().min, &v1);
-		Map3D_XYZ(0.0, 0.0, AxS.__Z().max, &v2);
+		Map3D_XYZ(0.0, 0.0, AxS.__Z().Range.low, &v1);
+		Map3D_XYZ(0.0, 0.0, AxS.__Z().Range.upp, &v2);
 		Draw3DLine(pTerm, &v1, &v2, AxS.__Z().zeroaxis);
 	}
 	if((AxS.__X().zeroaxis) && !AxS.__Y().log && AxS.__Y().InRange(0.0)) {
 		GpVertex v1, v2;
 		TermApplyLpProperties(pTerm, AxS.__X().zeroaxis);
 		// line through y=0 
-		Map3D_XYZ(AxS.__X().min, 0.0, _3DBlk.base_z, &v1);
-		Map3D_XYZ(AxS.__X().max, 0.0, _3DBlk.base_z, &v2);
+		Map3D_XYZ(AxS.__X().Range.low, 0.0, _3DBlk.base_z, &v1);
+		Map3D_XYZ(AxS.__X().Range.upp, 0.0, _3DBlk.base_z, &v2);
 		Draw3DLine(pTerm, &v1, &v2, AxS.__X().zeroaxis);
 	}
 	// PLACE ZLABEL - along the middle grid Z axis - eh ? 
@@ -2131,11 +2131,11 @@ void GnuPlot::Draw3DGraphBox(GpTermEntry * pTerm, const GpSurfacePoints * pPlot,
 		GpVertex v1;
 		double mid_z;
 		if(AxS.__Z().IsNonLinear()) {
-			mid_z = (AxS.__Z().linked_to_primary->max + AxS.__Z().linked_to_primary->min) / 2.;
+			mid_z = (AxS.__Z().linked_to_primary->Range.upp + AxS.__Z().linked_to_primary->Range.low) / 2.;
 			mid_z = EvalLinkFunction(&AxS.__Z(), mid_z);
 		}
 		else
-			mid_z = (AxS.__Z().max + AxS.__Z().min) / 2.0;
+			mid_z = (AxS.__Z().Range.upp + AxS.__Z().Range.low) / 2.0;
 		if(AxS.__Z().ticmode & TICS_ON_AXIS) {
 			Map3D_XYZ(0, 0, mid_z, &v1);
 			TERMCOORD(&v1, x, y);
@@ -2151,8 +2151,8 @@ void GnuPlot::Draw3DGraphBox(GpTermEntry * pTerm, const GpSurfacePoints * pPlot,
 		}
 		if(AxS.__Z().label.tag == ROTATE_IN_3D_LABEL_TAG) {
 			double ang, angx0, angx1, angy0, angy1;
-			Map3D_XY_double(_3DBlk.ZAxisX, _3DBlk.ZAxisY, AxS.__Z().min, &angx0, &angy0);
-			Map3D_XY_double(_3DBlk.ZAxisX, _3DBlk.ZAxisY, AxS.__Z().max, &angx1, &angy1);
+			Map3D_XY_double(_3DBlk.ZAxisX, _3DBlk.ZAxisY, AxS.__Z().Range.low, &angx0, &angy0);
+			Map3D_XY_double(_3DBlk.ZAxisX, _3DBlk.ZAxisY, AxS.__Z().Range.upp, &angx1, &angy1);
 			ang = atan2(angy1-angy0, angx1-angx0) / SMathConst::PiDiv180;
 			if(ang < -90) 
 				ang += 180;
@@ -2168,7 +2168,7 @@ void GnuPlot::Draw3DGraphBox(GpTermEntry * pTerm, const GpSurfacePoints * pPlot,
 void GnuPlot::XTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, const char * text, int ticlevel, const lp_style_type & rGrid/* linetype or -2 for none */, ticmark * userlabels)
 {
 	double scale = tic_scale(ticlevel, pAx) * (pAx->TicIn ? 1 : -1);
-	double other_end = AxS.__Y().min + AxS.__Y().max - _3DBlk.XAxisY;
+	double other_end = AxS.__Y().Range.low + AxS.__Y().Range.upp - _3DBlk.XAxisY;
 	GpVertex v1, v2, v3, v4;
 	// Draw full-length grid line 
 	Map3D_XYZ(place, _3DBlk.XAxisY, _3DBlk.base_z, &v1);
@@ -2184,7 +2184,7 @@ void GnuPlot::XTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, con
 		GpVertex v4, v5;
 		double which_face = (_3DBlk.SurfaceRotX > 90.0f && _3DBlk.SurfaceRotX < 270.0f) ? _3DBlk.XAxisY : other_end;
 		pTerm->Layer_(TERM_LAYER_BEGIN_GRID);
-		Map3D_XYZ(place, which_face, AxS.__Z().min, &v4);
+		Map3D_XYZ(place, which_face, AxS.__Z().Range.low, &v4);
 		Map3D_XYZ(place, which_face, _3DBlk.ceiling_z, &v5);
 		Draw3DLine(pTerm, &v4, &v5, const_cast<lp_style_type *>(&rGrid)); // @badcast
 		pTerm->Layer_(TERM_LAYER_END_GRID);
@@ -2207,7 +2207,7 @@ void GnuPlot::XTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, con
 	// Draw top tic mark 
 	if((pAx->index == SECOND_X_AXIS) || (pAx->index == FIRST_X_AXIS && (pAx->ticmode & TICS_MIRROR))) {
 		if(_3DBlk.xz_projection)
-			Map3D_XYZ(place, other_end, AxS.__Z().max, &v3);
+			Map3D_XYZ(place, other_end, AxS.__Z().Range.upp, &v3);
 		else
 			Map3D_XYZ(place, other_end, _3DBlk.base_z, &v3);
 		v4.x = v3.x - pTerm->MulTicV(_3DBlk.TicUnit.x * scale);
@@ -2225,7 +2225,7 @@ void GnuPlot::XTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, con
 		// Skip label if we've already written a user-specified one here 
 #define MINIMUM_SEPARATION 0.001
 		while(userlabels) {
-			if(fabs((place - userlabels->position) / (AxS.__X().max - AxS.__X().min)) <= MINIMUM_SEPARATION) {
+			if(fabs((place - userlabels->position) / (AxS.__X().Range.upp - AxS.__X().Range.low)) <= MINIMUM_SEPARATION) {
 				text = NULL;
 				break;
 			}
@@ -2278,7 +2278,7 @@ void GnuPlot::XTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, con
 void GnuPlot::YTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, const char * text, int ticlevel, const lp_style_type & rGrid, ticmark * userlabels)
 {
 	double scale = tic_scale(ticlevel, pAx) * (pAx->TicIn ? 1 : -1);
-	double other_end = AxS.__X().min + AxS.__X().max - _3DBlk.YAxisX;
+	double other_end = AxS.__X().Range.low + AxS.__X().Range.upp - _3DBlk.YAxisX;
 	GpVertex v1, v2, v3, v4;
 	// Draw full-length grid line 
 	Map3D_XYZ(_3DBlk.YAxisX, place, _3DBlk.base_z, &v1);
@@ -2293,7 +2293,7 @@ void GnuPlot::YTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, con
 		GpVertex v4, v5;
 		double which_face = (_3DBlk.SurfaceRotX > 90.0f && _3DBlk.SurfaceRotX < 270.0f) ? _3DBlk.YAxisX : other_end;
 		pTerm->Layer_(TERM_LAYER_BEGIN_GRID);
-		Map3D_XYZ(which_face, place, AxS.__Z().min, &v4);
+		Map3D_XYZ(which_face, place, AxS.__Z().Range.low, &v4);
 		Map3D_XYZ(which_face, place, _3DBlk.ceiling_z, &v5);
 		Draw3DLine(pTerm, &v4, &v5, const_cast<lp_style_type *>(&rGrid)); // @badcast
 		pTerm->Layer_(TERM_LAYER_END_GRID);
@@ -2316,7 +2316,7 @@ void GnuPlot::YTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, con
 	// Draw right tic mark 
 	if((pAx->index == SECOND_Y_AXIS) || (pAx->index == FIRST_Y_AXIS && (pAx->ticmode & TICS_MIRROR))) {
 		if(_3DBlk.yz_projection)
-			Map3D_XYZ(other_end, place, AxS.__Z().min, &v3);
+			Map3D_XYZ(other_end, place, AxS.__Z().Range.low, &v3);
 		else
 			Map3D_XYZ(other_end, place, _3DBlk.base_z, &v3);
 		v4.x = v3.x - pTerm->MulTicH(_3DBlk.TicUnit.x * scale);
@@ -2488,12 +2488,12 @@ int GnuPlot::Map3DGetPosition(const GpTermEntry * pTerm, GpPosition * pPos, cons
 		    break;
 		case graph:
 		    if(_3DBlk.xz_projection && flat && !_3DBlk.in_3d_polygon)
-			    *zpos = AxS.__Z().min + *xpos * AxS.__Z().GetRange();
+			    *zpos = AxS.__Z().Range.low + *xpos * AxS.__Z().GetRange();
 		    else if(_3DBlk.yz_projection && flat && !_3DBlk.in_3d_polygon)
 			    // Why is the direction inverted? 
-			    *zpos = AxS.__Z().max + *xpos * (AxS.__Z().min - AxS.__Z().max);
+			    *zpos = AxS.__Z().Range.upp + *xpos * (AxS.__Z().Range.low - AxS.__Z().Range.upp);
 		    else
-			    *xpos = AxS.__X().min + *xpos * AxS.__X().GetRange();
+			    *xpos = AxS.__X().Range.low + *xpos * AxS.__X().GetRange();
 		    plot_coords = TRUE;
 		    break;
 		case screen:
@@ -2520,11 +2520,11 @@ int GnuPlot::Map3DGetPosition(const GpTermEntry * pTerm, GpPosition * pPos, cons
 		    break;
 		case graph:
 		    if(_3DBlk.xz_projection && flat && !_3DBlk.in_3d_polygon)
-			    *xpos = AxS.__X().min + *ypos * AxS.__X().GetRange();
+			    *xpos = AxS.__X().Range.low + *ypos * AxS.__X().GetRange();
 		    else if(_3DBlk.splot_map)
-			    *ypos = AxS.__Y().max - *ypos * AxS.__Y().GetRange();
+			    *ypos = AxS.__Y().Range.upp - *ypos * AxS.__Y().GetRange();
 		    else
-			    *ypos = AxS.__Y().min + *ypos * AxS.__Y().GetRange();
+			    *ypos = AxS.__Y().Range.low + *ypos * AxS.__Y().GetRange();
 		    plot_coords = TRUE;
 		    break;
 		case screen:
@@ -2552,7 +2552,7 @@ int GnuPlot::Map3DGetPosition(const GpTermEntry * pTerm, GpPosition * pPos, cons
 		    if((_3DBlk.xz_projection || _3DBlk.yz_projection) && flat && !_3DBlk.in_3d_polygon)
 			    ; // already received "x" fraction 
 		    else
-			    *zpos = AxS.__Z().min + *zpos * AxS.__Z().GetRange();
+			    *zpos = AxS.__Z().Range.low + *zpos * AxS.__Z().GetRange();
 		    plot_coords = TRUE;
 		    break;
 		case screen:
@@ -2609,15 +2609,15 @@ void GnuPlot::Map3DPositionRDouble(const GpTermEntry * pTerm, GpPosition * pPos,
 {
 	double xpos = pPos->x;
 	double ypos = pPos->y;
-	double zpos = _3DBlk.splot_map ? AxS.__Z().min : pPos->z;
+	double zpos = _3DBlk.splot_map ? AxS.__Z().Range.low : pPos->z;
 	// startpoint in graph coordinates 
 	if(Map3DGetPosition(pTerm, pPos, what, &xpos, &ypos, &zpos) == 0) {
 		int xoriginlocal;
 		int yoriginlocal;
 		Map3D_XY_double(xpos, ypos, zpos, xx, yy);
-		xpos = (pPos->scalex == graph) ? AxS.__X().min : 0.0;
-		ypos = (pPos->scaley == graph) ? (_3DBlk.splot_map ? AxS.__Y().max : AxS.__Y().min) : 0.0;
-		zpos = (pPos->scalez == graph) ? AxS.__Z().min : (_3DBlk.splot_map ? AxS.__Z().min : 0.0);
+		xpos = (pPos->scalex == graph) ? AxS.__X().Range.low : 0.0;
+		ypos = (pPos->scaley == graph) ? (_3DBlk.splot_map ? AxS.__Y().Range.upp : AxS.__Y().Range.low) : 0.0;
+		zpos = (pPos->scalez == graph) ? AxS.__Z().Range.low : (_3DBlk.splot_map ? AxS.__Z().Range.low : 0.0);
 		Map3D_XY(xpos, ypos, zpos, &xoriginlocal, &yoriginlocal);
 		*xx -= xoriginlocal;
 		*yy -= yoriginlocal;
@@ -2770,8 +2770,8 @@ void GnuPlot::KeySampleLinePm3D(GpTermEntry * pTerm, GpSurfacePoints * pPlot, in
 		double cbmin, cbmax;
 		get_surface_cbminmax(pPlot, &cbmin, &cbmax);
 		if(cbmin <= cbmax) { // splot 1/0, for example 
-			cbmin = MAX(cbmin, AxS.__CB().min);
-			cbmax = MIN(cbmax, AxS.__CB().max);
+			cbmin = MAX(cbmin, AxS.__CB().Range.low);
+			cbmax = MIN(cbmax, AxS.__CB().Range.upp);
 			gray_from = Cb2Gray(cbmin);
 			gray_to = Cb2Gray(cbmax);
 			gray_step = (gray_to - gray_from)/steps;
@@ -2818,8 +2818,8 @@ void GnuPlot::KeySamplePointPm3D(GpTermEntry * pTerm, GpSurfacePoints * pPlot, i
 		double cbmin, cbmax;
 		get_surface_cbminmax(pPlot, &cbmin, &cbmax);
 		if(cbmin <= cbmax) { // splot 1/0, for example 
-			cbmin = MAX(cbmin, AxS.__CB().min);
-			cbmax = MIN(cbmax, AxS.__CB().max);
+			cbmin = MAX(cbmin, AxS.__CB().Range.low);
+			cbmax = MIN(cbmax, AxS.__CB().Range.upp);
 			gray_from = Cb2Gray(cbmin);
 			gray_to = Cb2Gray(cbmax);
 			gray_step = (gray_to - gray_from)/steps;
@@ -2968,7 +2968,7 @@ void GnuPlot::Plot3DBoxes(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 				const GpAxis & r_ax_x = AxS.__X();
 				const GpAxis & r_ax_y = AxS.__Y();
 				// Box is out of range on y 
-				if((dyl > r_ax_y.min && dyl > r_ax_y.max) || (dyl < r_ax_y.min && dyl < r_ax_y.max))
+				if((dyl > r_ax_y.Range.low && dyl > r_ax_y.Range.upp) || (dyl < r_ax_y.Range.low && dyl < r_ax_y.Range.upp))
 					continue;
 				if(_Plt.boxdepth != 0.0) {
 					if(r_ax_y.log) {
@@ -2988,7 +2988,7 @@ void GnuPlot::Plot3DBoxes(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 				dxl = r_ax_x.ClipToRange(dxl);
 				dxh = r_ax_x.ClipToRange(dxh);
 				// Entire box is out of range on x 
-				if(dxl == dxh && (dxl == r_ax_x.min || dxl == r_ax_x.max))
+				if(dxl == dxh && (dxl == r_ax_x.Range.low || dxl == r_ax_x.Range.upp))
 					continue;
 				double zbase = AxS.__Z().ClipToRange(0.0); // box base 
 				// Copy variable color value into pPlot header for pm3d_add_quadrangle 
@@ -3333,13 +3333,13 @@ void GnuPlot::Plot3DBoxErrorBars(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 						dzh = AxS.__Z().ClipToRange(dzh);
 						dz  = AxS.__Z().ClipToRange(dz);
 						// Entire box is out of range 
-						if(dxl == dxh && (dxl == AxS.__X().min || dxl == AxS.__X().max))
+						if(dxl == dxh && (dxl == AxS.__X().Range.low || dxl == AxS.__X().Range.upp))
 							continue;
 						if(pass == 1) {
 							// Variable color 
 							Check3DForVariableColor(pTerm, pPlot, &points[i]);
 							// Draw box 
-							Map3D_XY(dxl, dy, AxS.__Z().min, &x0, &y0);
+							Map3D_XY(dxl, dy, AxS.__Z().Range.low, &x0, &y0);
 							Map3D_XY(dxh, dy, dz, &x1, &y1);
 							pTerm->FillBox_(style, x0, MIN(y0, y1), (x1-x0), abs(y1-y0));
 							// Draw border 
@@ -3358,9 +3358,9 @@ void GnuPlot::Plot3DBoxErrorBars(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 						if(pass == 2) {
 							int vl, vh;
 							// conservative clipping 
-							if((AxS.__X().min < AxS.__X().max) && (dx <= AxS.__X().min || dx >= AxS.__X().max))
+							if((AxS.__X().Range.low < AxS.__X().Range.upp) && (dx <= AxS.__X().Range.low || dx >= AxS.__X().Range.upp))
 								continue;
-							if((AxS.__X().min > AxS.__X().max) && (dx <= AxS.__X().max || dx >= AxS.__X().min))
+							if((AxS.__X().Range.low > AxS.__X().Range.upp) && (dx <= AxS.__X().Range.upp || dx >= AxS.__X().Range.low))
 								continue;
 							// Draw error bars 
 							Map3D_XY(dxl, dy,  dz, &x0, &vl);

@@ -10331,8 +10331,8 @@ public:
 	int    PackTextExt(SString & rResult) const;
 	CCheckLineTbl::Rec & FASTCALL GetLine(uint pos);
 	const  CCheckLineTbl::Rec & FASTCALL GetLineC(uint pos) const;
-	int    EnumLines(uint * pPos, CCheckLineTbl::Rec * pItem, SString * pSerial = 0) const;
-	int    EnumLines(uint * pPos, CCheckItem * pItem) const;
+	bool   EnumLines(uint * pPos, CCheckLineTbl::Rec * pItem, SString * pSerial = 0) const;
+	bool   EnumLines(uint * pPos, CCheckItem * pItem) const;
 	void   InitLineIteration();
 	int    NextLineIteration(CCheckLineTbl::Rec * pItem, SString * pSerial = 0);
 	int    RemoveLine_(uint pos);
@@ -22352,6 +22352,11 @@ public:
 	int     PreprocessCCheckForOfd12(const OfdFactors & rOfdf, CCheckPacket * pPack);
 	const PPSyncCashNode & GetPosNode() const { return SCn; } // @v11.9.12
 protected:
+	//
+	// Descr: Функция формирования json чека в формате atol-driver. Вынес эту функцию
+	//   из класса SCS_ATOLDRV в целях тестирования.
+	//
+	SJson * AtolDrv_MakeJson_CCheck(const OfdFactors & rOfdf, const CCheckPacket * pPack, PPSlipFormatter * pSf, uint flags);
 	enum {
 		stError = 0x0001
 	};
@@ -26671,10 +26676,11 @@ struct PPPersonConfig { // @transient (для сохранения проеци�
 	// 
 	// Понятие безнадежной задержки активности клиента подразумевает детекцию факта невозможности вернуть клиента.
 	// 
-	uint16 CriticalCliActivityDelayDays; // @v12.2.2 @construction Критическая задержка активности клиента в днях.
-	uint16 HopelessCliActivityDelayDays; // @v12.2.2 @construction Безнадежная задержка активности клиента в днях.
-	float  CriticalCliActivityDelaySigm; // @v12.2.2 @construction Критическая задержка активности клиента в сигмах (стандартных отклонениях от средней периодичности).
-	float  HopelessCliActivityDelaySigm; // @v12.2.2 @construction Безнадежная задержка активности клиента в сигмах (стандартных отклонениях от средней периодичности).
+	uint16 CriticalCliActivityDelayDays; // @v12.2.2 Критическая задержка активности клиента в днях.
+	uint16 HopelessCliActivityDelayDays; // @v12.2.2 Безнадежная задержка активности клиента в днях.
+	float  CriticalCliActivityDelaySigm; // @v12.2.2 Критическая задержка активности клиента в сигмах (стандартных отклонениях от средней периодичности).
+	float  HopelessCliActivityDelaySigm; // @v12.2.2 Безнадежная задержка активности клиента в сигмах (стандартных отклонениях от средней периодичности).
+	PPID   CliActivityPsnKindID;  // @v12.2.9 Вид персоналии (по умолчанию), по которому анализируется клиентская активность
 	TimeRange SmsProhibitedTr;    // Диапазон времени, в течении которого запрещено отсылать SMS-сообщения (ночь, очевидно)
 	SString TopFolder;            // @anchor
 	SString AddImageFolder;       // Папка из которой будут автоматически прикрепляться файлы к персоналиям. хранится в реестре
@@ -52186,7 +52192,8 @@ public:
 		axZ,
 		axX2,
 		axY2,
-		axZ2
+		axZ2,
+		axCB,
 	};
 	struct PlotParam {
 		PlotParam();
@@ -52252,6 +52259,17 @@ public:
 	int    SetTitle(const char *);
 	int    SetAxisTitle(int axis, const char *);
 	int    SetAxisRange(int axis, double lo, double hi);
+
+	enum {
+		autoscaleDefault = 0, 
+		autoscaleMin,
+		autoscaleMax,
+		autoscaleFixMin,
+		autoscaleFixMax,
+		autoscaleFix,
+	};
+
+	int    SetAxisAutoscale(int axis, int option = autoscaleDefault/*autoscaleXXX*/);
 	int    UnsetTics(int axis);
 	int    SetTics(int axis, const StyleTics * pStyle);
 	int    SetTicsInc(int axis, double inc);
@@ -55721,6 +55739,15 @@ public:
 		sTABLE              = 9  // Режим ввода кода стола
 	};
 	//
+	// Descr: Операция текущего чека
+	//
+	enum { // @v12.2.9
+		//opUndef      = -1, // Не определено
+		opGeneral    = 0,  // Что-то общее (продажа скорее всего, но черт его знает что там еще может быть). Возможна трактовка как необпределенная операция.
+		opReturn     = 1,  // Возврат
+		opCorrection = 2,  // Коррекция
+	};
+	//
 	// Descr: Операционные права кассира
 	//
 	enum OperRights {
@@ -55985,7 +56012,7 @@ protected:
 	};
 	virtual int    SetupState(int st);
 	virtual void   SetupInfo(const char * pErrMsg);
-	virtual void   SetupRowData(int calcRest);
+	virtual void   SetupRowData(bool doCalcRest);
 	virtual int    Implement_AcceptCheckOnEquipment(const CcAmountList * pPl, AcceptCheckProcessBlock & rB);
 	virtual void   NotifyGift(PPID giftID, const SaGiftArray::Gift * pGift);
 	virtual void   SetPrintedFlag(int set);
@@ -56067,6 +56094,17 @@ protected:
 	void   MsgToDisp_Clear();
 	int    MsgToDisp_Add(const char * pMsg);
 	virtual int MsgToDisp_Show();
+	//
+	// Descr: Возвращает операцию текущего чека. То есть один из вариантов enum opXXX
+	//
+	int    GetCurrentOp() const; // @v12.2.9 
+	bool   IsCurrentOp(int op) const; // @v12.2.9 
+	//
+	// Descr: Устанавливает операцию текущего чека.
+	//    Оооочень осторожно пользоваться - вся эта хрень в процессе разработки из-за необходимости отработать чеки коррекции.
+	// ARG(op IN): Одно из значений CPosProcessor::opXXX
+	//
+	int    SetCurrentOp(int op); // @v12.2.9
 	
 	struct GrpListItem { // @flat
 		GrpListItem();
@@ -56139,7 +56177,20 @@ protected:
 		double Discount;
 		double SettledAbsolutDiscount;
 	};
+	//
+	// Descr: Блок, обеспечивающий информацию о связанном чеке для операций возврата и корректировки
+	//
+	struct LinkBlock {
+		LinkBlock();
+		LinkBlock & Z();
 
+		int    _Op;       // @v12.2.8 CPosProcessor::opXXX
+		PPID   _CcID;     // Ид чека, по которому осуществляется возврат или корректировка
+		double _CcAmount; //
+		double _CcCredit; //
+		CcAmountList AmL; // Список оплат чека, по которому осуществляется возврат
+		SString FiscalTag; // @v12.2.9 Фискальный признак для чека коррекции (_Op == opCorrection)
+	};
 	struct Packet : public CCheckItemArray, public PPExtStrContainer { // @v11.8.11 (public PPExtStrContainer)
 	public:
 		friend int CPosProcessor::SetupAgent(PPID agentID, int asAuthAgent);
@@ -56149,7 +56200,8 @@ protected:
 		Packet & Z();
 		void   ClearCur();
 		int    ClearGift();
-		int    HasCur() const;
+		bool   HasCur() const;
+		bool   IsCurValid() const;
 		PPID   FASTCALL GetAgentID(int actual = 0) const;
 		double GetGoodsQtty(PPID goodsID) const;
 		//
@@ -56169,7 +56221,10 @@ protected:
 		int    InitIteration();
 		int    FASTCALL NextIteration(CCheckItem * pItem);
 
-		int    CurPos; // Текущая позиция чека
+		int    CurCcItemPos; // Текущая позиция чека. 
+			// Если (== -1), то нет выбранной позиции и буфер ввода пустой.
+			// Если (CurCcItemPos == getCountI()), то в буфере ввода есть данные
+			// Если (CurCcItemPos >= 0 && CurCcItemPos < getCountI()), то текущая позиция указывает на одну из акцептированных строк текущего чека.
 	private:
 		CCheckItem Cur;
 		double Rest;   // Остаток товара, выбранного в буфере
@@ -56192,19 +56247,7 @@ protected:
 		CcAmountList AmL;        // Список оплат по чеку
 		CCheckPacket::BuersEAddr_ EAddr; // Электронный адрес покупателя (email or phone)
 		// @v11.8.11 CCheckPacket::Prescription Prescr; // @v11.7.12
-	};
-	//
-	// Descr: Блок, обеспечивающий информацию о связанном чеке для операций возврата и корректировки
-	//
-	struct LinkBlock {
-		LinkBlock();
-		LinkBlock & Z();
-
-		int    _Op; // @v12.2.8 0 - undef, 1 - return, 2 - correction
-		PPID   _CcID;     // Ид чека, по которому осуществляется возврат или корректировка
-		double _CcAmount; //
-		double _CcCredit; //
-		CcAmountList AmL; // Список оплат чека, по которому осуществляется возврат
+		LinkBlock Lb_; // @v12.2.9 moved from head class CPosProcessor
 	};
 	enum {
 		fNoEdit             = 0x00000001, // Запрет на редактирование чеков
@@ -56254,6 +56297,7 @@ protected:
 			// Например, сканером штрихкодов. Признак устанавливается и снимается функцией GetInput на основе
 			// анализа среднего времени между вводом символов. Если ввод осущствлялся методом PASTE, то флаг не устанавливается.
 	};
+
 	const  PPID CashNodeID;  // @*CheckPaneDialog::CheckPaneDialog
 	PPID   ExtCashNodeID;    // @*CheckPaneDialog::CheckPaneDialog
 	PPID   AltRegisterID;    // @*CheckPaneDialog::CheckPaneDialog
@@ -56301,8 +56345,8 @@ protected:
 	StringSet MsgToDisp;     // Список текстовых сообщений, которые следует отобразить
 	Packet P;
 	CCheckPacket SelPack;  // Чек, выбранный в качестве образца при возврате или при перепечатке незавершенного чека
-	RAssocArray  SelLines; // Строки чека, относящиеся к образцу, выбранному при возврате
-	LinkBlock Rb;
+	RAssocArray  SelLines; // Строки чека, относящиеся к образцу, выбранному при возврате либо коррекции
+	// @v12.2.9 (moved to Packet) LinkBlock Lb_;
 	PPObjGoods GObj;
 	PPObjSCard ScObj;
 	PPObjArticle ArObj;
@@ -56348,7 +56392,7 @@ private:
 	virtual int  Implement_AcceptCheckOnEquipment(const CcAmountList * pPl, AcceptCheckProcessBlock & rB);
 	virtual void NotifyGift(PPID giftID, const SaGiftArray::Gift * pGift);
 	virtual void ClearRow();
-	virtual void SetupRowData(int calcRest);
+	virtual void SetupRowData(bool doCalcRest);
 	virtual void SetPrintedFlag(int set);
 	virtual int  MessageError(int errCode, const char * pAddedMsg, long outputMode);
 	virtual int  ConfirmMessage(int msgId, const char * pAddedMsg, int defaultResponse);
@@ -56375,7 +56419,7 @@ private:
 	int    VerifyQuantity(PPID goodsID, double & rQtty, int adjustQtty, const CCheckItem * pCurItem, bool checkInputBuffer); // @v11.0.3 checkInputBuffer
 	void   AcceptSCard(PPID scardID, const SCardSpecialTreatment::IdentifyReplyBlock * pStirb, uint ascf);
 	void   AcceptManualDiscount();
-	int    LoadCheck(const CCheckPacket *, int makeRetCheck, bool dontShow);
+	int    LoadCheck(const CCheckPacket *, bool makeRetCheck, bool dontShow);
 	int    SetupOrder(PPID ordCheckID);
 	void   SetupRetCheck(bool ret);
 	void   setupHint();

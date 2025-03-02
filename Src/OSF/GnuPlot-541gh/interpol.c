@@ -187,8 +187,8 @@ void GnuPlot::DoKDensity(curve_points * cp, int firstPoint/* where to start in p
 	AxS.Idx_Y = cp->AxIdx_Y;
 	if(AxS.__X().log)
 		IntWarn(NO_CARET, "kdensity components are Gaussian on x, not log(x)");
-	const double sxmin = AxS.__X().min;
-	const double sxmax = AxS.__X().max;
+	const double sxmin = AxS.__X().Range.low;
+	const double sxmax = AxS.__X().Range.upp;
 	const double step = (sxmax - sxmin) / (Gg.Samples1 - 1);
 	stats_kdensity(cp, firstPoint, num_points);
 	for(int i = 0; i < Gg.Samples1; i++) {
@@ -634,8 +634,8 @@ void GnuPlot::DoCubic(curve_points * pPlot/* still contains old plot->points */,
 	xstart = this_points[0].x;
 	xend = this_points[num_points-1].x;
 #else
-	xstart = MAX(this_points[0].Pt.x, AxS.__X().min);
-	xend   = MIN(this_points[num_points-1].Pt.x, AxS.__X().max);
+	xstart = MAX(this_points[0].Pt.x, AxS.__X().Range.low);
+	xend   = MIN(this_points[num_points-1].Pt.x, AxS.__X().Range.upp);
 	if(xstart >= xend) {
 		// This entire segment lies outside the current x range. 
 		for(i = 0; i < Gg.Samples1; i++)
@@ -939,10 +939,10 @@ void GnuPlot::CpImplode(curve_points * pCp)
 				// that the range is given in 'input' coordinates.
 				pCp->points[j].type = INRANGE;
 				if(!all_inrange) {
-					if(((x < AxS.__X().min) && !(AxS.__X().autoscale & AUTOSCALE_MIN))
-					   || ((x > AxS.__X().max) && !(AxS.__X().autoscale & AUTOSCALE_MAX))
-					   || ((y < AxS.__Y().min) && !(AxS.__Y().autoscale & AUTOSCALE_MIN))
-					   || ((y > AxS.__Y().max) && !(AxS.__Y().autoscale & AUTOSCALE_MAX)))
+					if(((x < AxS.__X().Range.low) && !(AxS.__X().autoscale & AUTOSCALE_MIN))
+					   || ((x > AxS.__X().Range.upp) && !(AxS.__X().autoscale & AUTOSCALE_MAX))
+					   || ((y < AxS.__Y().Range.low) && !(AxS.__Y().autoscale & AUTOSCALE_MIN))
+					   || ((y > AxS.__Y().Range.upp) && !(AxS.__Y().autoscale & AUTOSCALE_MAX)))
 						pCp->points[j].type = OUTRANGE;
 				}
 				j++; // next valid entry 
@@ -981,8 +981,8 @@ void GnuPlot::McsInterp(curve_points * pPlot)
 	int Nsamp = (Gg.Samples1 > 2*N) ? Gg.Samples1 : 2*N;
 	int Ntot = N + Nsamp;
 	GpCoordinate * new_points = (GpCoordinate *)SAlloc::M((Ntot) * sizeof(GpCoordinate));
-	double xstart = MAX(p[0].Pt.x,   AxS.__X().min);
-	double xend   = MIN(p[N-1].Pt.x, AxS.__X().max);
+	double xstart = MAX(p[0].Pt.x,   AxS.__X().Range.low);
+	double xend   = MIN(p[N-1].Pt.x, AxS.__X().Range.upp);
 	double xstep = (xend - xstart) / (Nsamp - 1);
 	// Load output x coords for sampling 
 	for(i = 0; i<N; i++)
@@ -1060,8 +1060,8 @@ void GnuPlot::McsInterp(curve_points * pPlot)
 				y = p[j].Pt.y + p[j].C1 * diff + p[j].C2 * diff * diff + p[j].C3 * diff * diff * diff;
 			}
 		}
-		xstart = AxS.__X().min;
-		xend = AxS.__X().max;
+		xstart = AxS.__X().Range.low;
+		xend = AxS.__X().Range.upp;
 		if(inrange(x, xstart, xend))
 			new_points[i].type = INRANGE;
 		else
@@ -1151,10 +1151,10 @@ void GnuPlot::MakeBins(curve_points * pPlot, int nbins, double binlow, double bi
 		}
 	}
 	if(xaxis->autoscale & AUTOSCALE_MIN) {
-		SETMIN(xaxis->min, bottom);
+		SETMIN(xaxis->Range.low, bottom);
 	}
 	if(xaxis->autoscale & AUTOSCALE_MAX) {
-		SETMAX(xaxis->max, top);
+		SETMAX(xaxis->Range.upp, top);
 	}
 	/* Replace the original data with one entry per bin.
 	 * new x = midpoint of bin
@@ -1181,10 +1181,10 @@ void GnuPlot::MakeBins(curve_points * pPlot, int nbins, double binlow, double bi
 		FPRINTF((stderr, "bin[%d] %g %g\n", i, pPlot->points[i].x, pPlot->points[i].y));
 	}
 	if(yaxis->autoscale & AUTOSCALE_MIN) {
-		SETMIN(yaxis->min, 0.0);
+		SETMIN(yaxis->Range.low, 0.0);
 	}
 	if(yaxis->autoscale & AUTOSCALE_MAX) {
-		SETMAX(yaxis->max, ymax);
+		SETMAX(yaxis->Range.upp, ymax);
 	}
 	// Recheck range on y 
 	for(i = 0; i<nbins; i++)

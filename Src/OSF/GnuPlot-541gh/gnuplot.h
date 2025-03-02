@@ -2696,7 +2696,7 @@ enum t_timelevel {
 
 struct GpAxis {
 	GpAxis() : autoscale(AUTOSCALE_BOTH), set_autoscale(AUTOSCALE_BOTH), range_flags(0), 
-		min(-10.0), max(10.0), set_min(-10.0), set_max(10.0), writeback_min(-10.0), writeback_max(10.0), data_min(0.0), data_max(0.0),
+		/*min(-10.0), max(10.0),*/set_min(-10.0), set_max(10.0), writeback_min(-10.0), writeback_max(10.0), data_min(0.0), data_max(0.0),
 		MinConstraint(CONSTRAINT_NONE), MaxConstraint(CONSTRAINT_NONE), min_lb(0.0), min_ub(0.0), max_lb(0.0), max_ub(0.0),
 		term_lower(0), term_upper(0), term_scale(0.0), term_zero(0), log(false), base(0.0), log_base(0.0),
 		linked_to_primary(0), linked_to_secondary(0), link_udf(0), ticmode(NO_TICS), /*ticdef @ctr*/tic_rotate(0), tic_pos(CENTRE),
@@ -2704,14 +2704,15 @@ struct GpAxis {
 		ticscale(1.0), miniticscale(0.5), ticstep(0.0), TicIn(true), datatype(DT_NORMAL), tictype(DT_NORMAL),
 		formatstring(0), ticfmt(0), timelevel((t_timelevel)(0)), index(0), manual_justify(false), zeroaxis(0), paxis_x(0.0)
 	{
+		Range.Set(-10.0, 10.0);
 	}
 	void   Init(bool resetAutoscale);
 	//#define inrange(z, min, max) (((min)<(max)) ? (((z)>=(min)) && ((z)<=(max))) : (((z)>=(max)) && ((z)<=(min))))
-	bool   InRange(double v) const { return ((min<max) ? ((v>=min) && (v<=max)) : ((v>=max) && (v<=min))); }
-	double GetActualMin() const { return MIN(max, min); }
-	double GetActualMax() const { return MAX(max, min); }
-	double GetRange() const { return (max - min); }
-	double ClipToRange(double v) const { return sclampx(v, min, max); }
+	bool   InRange(double v) const { return /*((min < max) ? ((v>=min) && (v<=max)) : ((v>=max) && (v<=min)))*/Range.CheckX(v); }
+	double GetActualMin() const { return /*MIN(max, min)*/Range.GetMin(); }
+	double GetActualMax() const { return /*MAX(max, min)*/Range.GetMax(); }
+	double GetRange() const { return /*(max - min)*/Range.GetDistance(); }
+	double ClipToRange(double v) const { return /*sclampx(v, min, max)*/Range.Clip(v); }
 	static void UnsetLabelOrTitle(text_label * pLabel);
 	//#define axis_map_toint(x) static_cast<int>((x) + 0.5)
 	static int MapRealToInt(double x) { return static_cast<int>((x) + 0.5); }
@@ -2722,10 +2723,16 @@ struct GpAxis {
 	bool   IsNonLinear() const { return (linked_to_primary && link_udf->at); }
 	bool   BadRange() const;
 	//#define axis_map_double(axis, variable) ((axis)->term_lower + ((variable) - (axis)->min) * (axis)->term_scale)
-	double Map(double var) const { return (term_lower + (var - min) * term_scale); }
-	int    MapI(double var) const { return static_cast<int>((term_lower + (var - min) * term_scale) + 0.5); }
+	double Map(double var) const 
+	{ 
+		return (term_lower + (var - /*min*/Range.low) * term_scale); 
+	}
+	int    MapI(double var) const 
+	{ 
+		return static_cast<int>((term_lower + (var - /*min*/Range.low) * term_scale) + 0.5); 
+	}
 	//#define axis_mapback(axis, pos) (((double)(pos) - (axis)->term_lower)/(axis)->term_scale + (axis)->min)
-	double MapBack(int var) const { return (((double)(var) - term_lower)/term_scale + min); }
+	double MapBack(int var) const { return (((double)(var) - term_lower)/term_scale + /*min*/Range.low); }
 	void   FlipProjection();
 	// range of this axis 
 	t_autoscale autoscale;     // Which end(s) are autoscaled? */
@@ -2735,9 +2742,10 @@ struct GpAxis {
 #define RANGE_WRITEBACK   1
 #define RANGE_SAMPLED     2
 #define RANGE_IS_REVERSED 4
-	double min; /* 'transient' axis extremal values */
-	double max;
-	double set_min; /* set/show 'permanent' values */
+	RealRange Range; // 
+	// @v12.2.9 (replaced with Range.low) double min; // 'transient' axis extremal values 
+	// @v12.2.9 (replaced with Range.upp) double max;
+	double set_min; // set/show 'permanent' values 
 	double set_max;
 	double writeback_min; /* ULIG's writeback implementation */
 	double writeback_max;

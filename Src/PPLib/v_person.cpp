@@ -86,7 +86,8 @@ static void DrawClientActivityStatistics(PPID psnID) // @v12.2.6 @construction
 						plot.SetArrow(from_x, from_y, to_x, to_y, Generator_GnuPlot::arrhNoHead);
 					}
 				}
-				plot.SetAxisRange(Generator_GnuPlot::axX, range_x.low-1.0, range_x.upp+1.0);
+				// plot.SetAxisRange(Generator_GnuPlot::axX, range_x.low-1.0, range_x.upp+1.0);
+				plot.SetAxisAutoscale(Generator_GnuPlot::axX);
 				plot.Plot(&param);
 				ok = plot.Run();
 				// set arrow from 0.5, graph 0 to 0.5, graph 3 nohead
@@ -2137,7 +2138,16 @@ public:
 		RVALUEPTR(Data, pData);
 		SString temp_buf;
 		SetupPPObjCombo(this, CTLSEL_PSNFLT_CITY, PPOBJ_WORLD, Data.CityID, OLW_CANSELUPLEVEL|OLW_WORDSELECTOR, 0);
-		SetupPPObjCombo(this, CTLSEL_PSNFLT_KIND, PPOBJ_PERSONKIND, Data.PersonKindID, 0, 0);
+		{
+			// @v12.2.9 {
+			if(!Data.PersonKindID && Data.Flags & PersonFilt::fCliActivityStats) {
+				PPPersonConfig psn_cfg;
+				PPObjPerson::ReadConfig(&psn_cfg);
+				Data.PersonKindID = psn_cfg.CliActivityPsnKindID;
+			}
+			// } @v12.2.9 
+			SetupPPObjCombo(this, CTLSEL_PSNFLT_KIND, PPOBJ_PERSONKIND, Data.PersonKindID, 0, 0);
+		}
 		SetupPPObjCombo(this, CTLSEL_PSNFLT_CATEGORY, PPOBJ_PRSNCATEGORY, Data.PersonCategoryID, 0, 0);
 		SetupPPObjCombo(this, CTLSEL_PSNFLT_STATUS, PPOBJ_PRSNSTATUS, Data.Status, 0, 0);
 		SetupExtRegCombo(this, CTLSEL_PSNFLT_ATTR, &Data, (Data.Flags & PersonFilt::fLocTagF) ? sercfLocAttrs : 0);

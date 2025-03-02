@@ -576,6 +576,8 @@ SString & Generator_GnuPlot::AxisLetter(int axis)
 		LineBuf.Cat("y2");
 	else if(axis == axZ2)
 		LineBuf.Cat("z2");
+	else if(axis == axCB)
+		LineBuf.Cat("cb");
 	else
 		LineBuf.CatChar('?');
 	return LineBuf;
@@ -604,6 +606,40 @@ int Generator_GnuPlot::SetAxisRange(int axis, double lo, double hi)
 	}
 	else
 		return 0;
+}
+
+int Generator_GnuPlot::SetAxisAutoscale(int axis, int option/*autoscaleXXX*/)
+{
+	int    ok = 1;
+	//axX, axY, axZ, axX2, axY2, axZ2, axCB,
+	if(oneof6(axis, axX, axY, axZ, axCB, axX2, axY2)) {
+		Set().Cat("autoscale").Space();
+		AxisLetter(axis);
+		switch(option) {
+			case autoscaleDefault:
+				break;
+			case autoscaleMin:
+				LineBuf.Space().Cat("min");
+				break;
+			case autoscaleMax:
+				LineBuf.Space().Cat("max");
+				break;
+			case autoscaleFixMin:
+				LineBuf.Space().Cat("fixmin");
+				break;
+			case autoscaleFixMax:
+				LineBuf.Space().Cat("fixmax");
+				break;
+			case autoscaleFix:
+				LineBuf.Space().Cat("fix");
+				break;
+		}
+		LineBuf.CR();
+		ok = PutLine();
+	}
+	else
+		ok = 0;
+	return ok;
 }
 
 int Generator_GnuPlot::DeclareLineStyle(long idx, const PPGpStyle * pStyle)
@@ -792,21 +828,26 @@ int Generator_GnuPlot::Plot(const PlotParam * pParam)
 int Generator_GnuPlot::Run()
 {
 	int    ok = 1;
-	SString q_file_name, cmd_line;
+	SString q_file_name;
+	SString cmd_line;
 	SString file_name(GetName());
 	(q_file_name = file_name).Quot('\"', '\"');
 	LineBuf.Z().Cat("pause").Space().Cat(100000).CR();
 	PutLine();
 	Close();
 	// @construction {
+	/*
+	bool done = false;
 	{
 		// HKEY_CLASSES_ROOT\gnuplot\shell\open\command
 		SString gp_reg_cmd;
 		WinRegKey reg_key(HKEY_CLASSES_ROOT, "gnuplot\\shell\\open\\command", 1);
 		if(reg_key.GetString(0, gp_reg_cmd) > 0) {
-
+			done = false;
+			gp_reg_cmd.ReplaceStr("\"%1\"", q_file_name, 1);
 		}
 	}
+	*/
 	// } @construction 
 	PPGetFilePath(PPPATH_BIN, "ppgplot.exe", cmd_line);
 	spawnl(_P_NOWAIT, cmd_line.cptr(), cmd_line.cptr(), q_file_name.cptr(), 0);

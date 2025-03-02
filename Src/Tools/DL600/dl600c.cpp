@@ -1,5 +1,5 @@
 // DL600C.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 // Compile-time DL600 modules
 //
@@ -543,7 +543,8 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 		occfWantReturn   = 0x0800,
 		occfPassword     = 0x1000,
 		occfDefault      = 0x2000,
-		occfFigureSymb   = 0x4000  
+		occfFigureSymb   = 0x4000,
+		occfBBoxOrigin   = 0x8000, // @v12.2.9
 	};
 	enum {
 		occsLeft         = 0x0001,
@@ -891,11 +892,22 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 				}
 				else if(prop_key == "bbox") {
 					THROW(p_prop->Value.Code == CtmToken::acBoundingBox); // @err invalid bbox value
-					if(!(occurence_flags & occfBBox)) { // @err dup feature
+					if(!(occurence_flags & (occfBBox|occfBBoxOrigin))) { // @err dup feature
 						alb.Nominal.a.Set(p_prop->Value.U.Rect.L.X.Val, p_prop->Value.U.Rect.L.Y.Val);
 						alb.Nominal.b.Set(p_prop->Value.U.Rect.R.X.Val, p_prop->Value.U.Rect.R.Y.Val);
 						occurence_flags |= occfBBox;
 					}
+				}
+				else if(prop_key == "origin") { // @v12.2.9
+					THROW(p_prop->Value.Code == CtmToken::acBoundingBoxOrigin); // @err invalid bbox value
+					if(!(occurence_flags & (occfBBox|occfBBoxOrigin))) { // @err dup feature
+						alb.Nominal.a.Set(p_prop->Value.U.Rect.L.X.Val, p_prop->Value.U.Rect.L.Y.Val);
+						//alb.Nominal.b.Set(p_prop->Value.U.Rect.R.X.Val, p_prop->Value.U.Rect.R.Y.Val);
+						occurence_flags |= occfBBoxOrigin;
+					}
+				}
+				else if(prop_key == "size") { // @v12.2.9
+					// @todo
 				}
 				else if(prop_key == "variable") {
 					if(var_ident.IsEmpty()) { // @err dup feature
@@ -1829,7 +1841,7 @@ int DlContext::Write_DialogReverse()
 				int    skip_line_finish = 0;
 				uint32 kind = 0;
 				UiRelRect rect;
-				rect.Reset();
+				rect.Z();
 				prop_list.Z();
 				line_buf.Z().CatChar('\t');
 				if(GetConstData(p_scope->GetFldConst(ctrl.ID, DlScope::cuifViewKind), c_buf, sizeof(c_buf)))
@@ -1886,7 +1898,7 @@ int DlContext::Write_DialogReverse()
 							f_out.WriteLine(line_buf);
 							for(uint k = 0; p_inner_scope->EnumFields(&k, &ctrl_item);) {
 								line_buf.Z().CatCharN('\t', 2);
-								rect.Reset();
+								rect.Z();
 								if(GetConstData(p_inner_scope->GetFldConst(ctrl_item.ID, DlScope::cuifCtrlRect), c_buf, sizeof(c_buf)))
 									rect = *reinterpret_cast<const UiRelRect *>(c_buf);
 								text_buf.Z();
@@ -4723,6 +4735,18 @@ int DlContext::Compile(const char * pInFileName, const char * pDictPath, const c
 			gen.Wr_IfDef(h_once_macro, 1);
 			gen.Wr_Define(h_once_macro, 0);
 			gen.WriteBlancLine();
+			// @v12.2.9 {
+			if(Sc.GetFirstChildByKind(DlScope::kUiView, 1)) {
+				scope_id_list.freeAll();
+				Sc.GetChildList(DlScope::kUiView, 1, &scope_id_list);				
+				for(i = 0; i < scope_id_list.getCount(); i++) {
+					const DlScope * p_scope = GetScope(scope_id_list.at(i), 0);
+					if(p_scope) {
+						temp_buf.Z().Cat(p_scope->GetId());
+					}
+				}
+			}
+			// } @v12.2.9 
 			if(Sc.GetFirstChildByKind(DlScope::kUiDialog, 1)) {
 				SString symb;
 				DLSYMBID ss_id = 0;

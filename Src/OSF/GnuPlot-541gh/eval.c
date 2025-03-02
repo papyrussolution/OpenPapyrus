@@ -1227,13 +1227,13 @@ void GnuPlot::SetGpValAxisSthDouble(const char * pPrefix, AXIS_INDEX axIdx, cons
 void GnuPlot::FillGpValAxis(AXIS_INDEX axIdx)
 {
 	const char * prefix = "GPVAL";
-	const GpAxis * ap = &AxS[axIdx];
-	SetGpValAxisSthDouble(prefix, axIdx, "MIN", ap->min);
-	SetGpValAxisSthDouble(prefix, axIdx, "MAX", ap->max);
-	SetGpValAxisSthDouble(prefix, axIdx, "LOG", ap->base);
+	const GpAxis * p_ax = &AxS[axIdx];
+	SetGpValAxisSthDouble(prefix, axIdx, "MIN", p_ax->Range.low);
+	SetGpValAxisSthDouble(prefix, axIdx, "MAX", p_ax->Range.upp);
+	SetGpValAxisSthDouble(prefix, axIdx, "LOG", p_ax->base);
 	if(axIdx < POLAR_AXIS) {
-		SetGpValAxisSthDouble("GPVAL_DATA", axIdx, "MIN", ap->data_min);
-		SetGpValAxisSthDouble("GPVAL_DATA", axIdx, "MAX", ap->data_max);
+		SetGpValAxisSthDouble("GPVAL_DATA", axIdx, "MIN", p_ax->data_min);
+		SetGpValAxisSthDouble("GPVAL_DATA", axIdx, "MAX", p_ax->data_max);
 	}
 }
 // 
@@ -1313,8 +1313,8 @@ void GnuPlot::UpdateGpvalVariables(GpTermEntry * pTerm, int context)
 		FillGpValAxis(T_AXIS);
 		FillGpValAxis(U_AXIS);
 		FillGpValAxis(V_AXIS);
-		Ev.FillGpValFoat("GPVAL_R_MIN", AxS.__R().min);
-		Ev.FillGpValFoat("GPVAL_R_MAX", AxS.__R().max);
+		Ev.FillGpValFoat("GPVAL_R_MIN", AxS.__R().Range.low);
+		Ev.FillGpValFoat("GPVAL_R_MAX", AxS.__R().Range.upp);
 		Ev.FillGpValFoat("GPVAL_R_LOG", AxS.__R().base);
 		UpdatePlotBounds(pTerm);
 		Ev.FillGpValInteger("GPVAL_PLOT", Gg.Is3DPlot ? 0 : 1);

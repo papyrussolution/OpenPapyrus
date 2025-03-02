@@ -181,8 +181,7 @@ int PPViewGoodsMov2::Init_(const PPBaseFilt * pFilt)
 				P_Ct->AddInheritedFixField(p_tbl->GoodsName);
 				P_Ct->AddInheritedFixField(p_tbl->Barcode);
 				P_Ct->SetSortIdx("GoodsName", 0);
-				// @v9.1.4 PPGetWord(PPWORD_QTTY, 0, title);
-				PPLoadString("qtty", title); // @v9.1.4
+				PPLoadString("qtty", title);
 				P_Ct->AddAggrField(p_tbl->Qtty, Crosstab::afSum, title, MKSFMTD(0, 3, NMBF_NOZERO));
 				if(Filt.PriceKind == GoodsMovFilt::prkCost)
 					p_price_fld = &p_tbl->Cost;
@@ -190,8 +189,7 @@ int PPViewGoodsMov2::Init_(const PPBaseFilt * pFilt)
 					p_price_fld = &p_tbl->Amount;
 				else
 					p_price_fld = &p_tbl->Price;
-				// @v10.5.12 PPGetWord(PPWORD_SUM, 0, title.Z());
-				PPLoadString("amount", title); // @v10.5.12
+				PPLoadString("amount", title);
 				P_Ct->AddAggrField(*p_price_fld, Crosstab::afSum, title, MKSFMTD(8, 2, NMBF_NOZERO));
 				total_list.Add(p_tbl->Qtty);
 				total_list.Add(*p_price_fld);

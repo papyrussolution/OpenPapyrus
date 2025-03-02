@@ -7405,7 +7405,7 @@ public:
 			LDATE  Expiry;
 			long   UniqCntr;
 			long   Flags;
-			long   ExtID; // @v9.0.4 Reserve-->ExtID
+			long   ExtID;
 		};
 		#pragma pack(pop)
 		RegisterTbl::Rec * p_data = static_cast<RegisterTbl::Rec *>(pNewTbl->getDataBuf());

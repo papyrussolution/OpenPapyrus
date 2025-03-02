@@ -1071,8 +1071,8 @@ void GnuPlot::UnsetPolar()
 	// Clear and reinitialize THETA axis structure 
 	AxS.Theta().UnsetTics();
 	unset_minitics(&AxS.Theta());
-	AxS.Theta().min = 0.;
-	AxS.Theta().max = 360.;
+	AxS.Theta().Range.low = 0.0;
+	AxS.Theta().Range.upp = 360.0;
 	AxS.Theta().ticdef = default_axis_ticdef;
 	AxS.Theta().index = THETA_index;
 	FREEANDASSIGN(AxS.Theta().formatstring, sstrdup(DEF_FORMAT));

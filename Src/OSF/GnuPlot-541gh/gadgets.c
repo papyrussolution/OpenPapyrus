@@ -669,7 +669,7 @@ void GnuPlot::ApplyPm3DColor(GpTermEntry * pTerm, const t_colorspec * tc)
 				break;
 			case TC_CB:
 				if(AxS.__CB().log)
-					cbval = (tc->value <= 0) ? AxS.__CB().min : tc->value;
+					cbval = (tc->value <= 0) ? AxS.__CB().Range.low : tc->value;
 				else
 					cbval = tc->value;
 				set_color(pTerm, Cb2Gray(cbval));

@@ -1252,19 +1252,19 @@ void GnuPlot::FitCommand()
 	fit_zaxis->Init(true);
 	for(i = 0; i < MAX_NUM_VAR+1; i++)
 		dummy_token[i] = -1;
-	range_min[0] = fit_xaxis->min;
-	range_max[0] = fit_xaxis->max;
+	range_min[0] = fit_xaxis->Range.low;
+	range_max[0] = fit_xaxis->Range.upp;
 	range_autoscale[0] = fit_xaxis->autoscale;
-	range_min[1] = fit_yaxis->min;
-	range_max[1] = fit_yaxis->max;
+	range_min[1] = fit_yaxis->Range.low;
+	range_max[1] = fit_yaxis->Range.upp;
 	range_autoscale[1] = fit_yaxis->autoscale;
 	for(i = 2; i < MAX_NUM_VAR; i++) {
 		range_min[i] = VERYLARGE;
 		range_max[i] = -VERYLARGE;
 		range_autoscale[i] = AUTOSCALE_BOTH;
 	}
-	range_min[iz] = fit_zaxis->min;
-	range_max[iz] = fit_zaxis->max;
+	range_min[iz] = fit_zaxis->Range.low;
+	range_max[iz] = fit_zaxis->Range.upp;
 	range_autoscale[iz] = fit_zaxis->autoscale;
 	num_ranges = 0;
 	while(Pgm.EqualsCur("[")) {
@@ -1274,8 +1274,8 @@ void GnuPlot::FitCommand()
 		scratch_axis->Init(true);
 		scratch_axis->linked_to_primary = NULL;
 		dummy_token[num_ranges] = ParseRange((AXIS_INDEX)scratch_axis->index);
-		range_min[num_ranges] = scratch_axis->min;
-		range_max[num_ranges] = scratch_axis->max;
+		range_min[num_ranges] = scratch_axis->Range.low;
+		range_max[num_ranges] = scratch_axis->Range.upp;
 		range_autoscale[num_ranges] = scratch_axis->autoscale;
 		num_ranges++;
 	}
@@ -1644,11 +1644,11 @@ out_of_range:
 			if(AxS[FIRST_Z_AXIS].autoscale & AUTOSCALE_MIN)
 				printf("*:");
 			else
-				printf("%g:", AxS[FIRST_Z_AXIS].min);
+				printf("%g:", AxS[FIRST_Z_AXIS].Range.low);
 			if(AxS[FIRST_Z_AXIS].autoscale & AUTOSCALE_MAX)
 				printf("*]\n");
 			else
-				printf("%g]\n", AxS[FIRST_Z_AXIS].max);
+				printf("%g]\n", AxS[FIRST_Z_AXIS].Range.upp);
 		}
 		Eex("No data to fit");
 	}

@@ -1092,10 +1092,8 @@ int PPObjGoods::PutPacket(PPID * pID, PPGoodsPacket * pPack, int use_ta)
 					else {
 						if((org_rec.Flags & GF_NODISCOUNT) && (!(pPack->Rec.Flags & GF_NODISCOUNT)))
 							DS.LogAction(PPACN_GOODSNODISRMVD, Obj, *pID, 0, 0);
-						// @v9.5.0 {
 						if(!(org_rec.Flags & GF_PASSIV) && (pPack->Rec.Flags & GF_PASSIV))
 							DS.LogAction(PPACN_GOODSPASSVSET, Obj, *pID, 0, 0);
-						// } @v9.5.0
 						if(pPack->Rec.TaxGrpID != org_rec.TaxGrpID)
 							DS.LogAction(PPACN_GOODSVATGRPCHD, Obj, *pID, org_rec.TaxGrpID, 0);
 						if(!org_rec.StrucID && pPack->Rec.StrucID)
@@ -1681,8 +1679,7 @@ int GoodsSubstList::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 	THROW_SL(pCtx->Serialize(dir, SaveAssoc, rBuf));
 	THROW_SL(pCtx->Serialize(dir, &List, rBuf));
 	THROW(AsscList.Serialize(dir, rBuf, pCtx));
-	// @v9.8.10 THROW(StrPool.Serialize(dir, rBuf, pCtx));
-	THROW(SerializeS(dir, rBuf, pCtx)); // @v9.8.10
+	THROW(SerializeS(dir, rBuf, pCtx));
 	CATCHZOK
 	return ok;
 }
@@ -1730,8 +1727,7 @@ int GoodsSubstList::AddItem(const GoodsSubstItem & rItem, const AssocItem & rAss
 		id = item.ID = ((List.getCount() + 1) | GOODSSUBSTMASK);
 		if(item.P_Text) {
 			uint text_pos = 0;
-			// @v9.8.10 StrPool.add(item.P_Text, &text_pos);
-			AddS(item.P_Text, &text_pos); // @v9.8.10
+			AddS(item.P_Text, &text_pos);
 			item.StrP = text_pos;
 		}
 		else
@@ -1751,8 +1747,7 @@ int GoodsSubstList::GetItem(PPID id, GoodsSubstItem * pItem) const
 		if(pItem) {
 			*pItem = List.at(pos);
 			if(pItem->StrP) {
-				// @v9.8.10 pItem->P_Text = StrPool.getBuf() + pItem->StrP;
-				pItem->P_Text = Pool.getBuf() + pItem->StrP; // @v9.8.10
+				pItem->P_Text = Pool.getBuf() + pItem->StrP;
 			}
 			else
 				pItem->P_Text = 0;

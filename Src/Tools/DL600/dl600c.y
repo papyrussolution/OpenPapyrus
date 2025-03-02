@@ -221,6 +221,7 @@ int CallbackCompress(long, long, const char *, int)
 %type <propsheet> brak_prop_sheet // @v10.9.3
 %type <token>     layout_item_size_entry // @v11.0.4 U.UIC
 %type <token>     bounding_box_val // @v11.0.4
+%type <token>     bounding_box_origin // @v12.2.9
 %type <token>     propval // @v11.0.4
 
 %nonassoc IFXS
@@ -1006,6 +1007,18 @@ bounding_box_val : '(' real_or_int_const optional_divider_comma_space real_or_in
 	ZapToken4($2, $4, $6, $8);
 }
 
+/* @v12.2.9 */
+bounding_box_origin : '(' real_or_int_const optional_divider_comma_space real_or_int_const ')' 
+{
+	$$.Create(CtmToken::acBoundingBoxOrigin);
+	$$.U.Rect.L.X.Set($2.GetFloat(0), UiCoord::dfAbs);
+	$$.U.Rect.L.Y.Set($4.GetFloat(0), UiCoord::dfAbs);
+	//$$.U.Rect.R.X.Set($6.GetFloat(0), UiCoord::dfAbs);
+	//$$.U.Rect.R.Y.Set($8.GetFloat(0), UiCoord::dfAbs);
+	//ZapToken4($2, $4, $6, $8);
+	ZapToken2($2, $4);
+}
+
 /*
 properties:
 	BOUNDINGBOX := ( left top right bottom )
@@ -1073,6 +1086,7 @@ propval : T_CONST_INT { $$ = $1; }
 | T_CONST_STR { $$ = $1; } 
 | layout_item_size_entry { $$ = $1; } 
 | bounding_box_val { $$ = $1; }
+| bounding_box_origin { $$ = $1; }
 
 brak_prop_entry : T_IDENT ':' propval
 {

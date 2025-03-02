@@ -215,7 +215,7 @@ int PPObjWorld::ImportCountry(int use_ta)
 								else {
 									PPWorldPacket pack;
 									pack.Rec.Kind = WORLDOBJ_COUNTRY;
-									name.CopyTo(pack.Rec.Name, sizeof(pack.Rec.Name));
+									STRNSCPY(pack.Rec.Name, name);
 									code.CopyTo(pack.Rec.Code, sizeof(pack.Rec.Code));
 									code_a2.CopyTo(pack.Rec.Abbr, sizeof(pack.Rec.Abbr));
 									THROW(PutPacket(&id, &pack, 0));
@@ -2291,7 +2291,7 @@ int ImportBanks()
 							city.Strip();
 							rec.get(fldn_name, name);
 							if(name.NotEmptyS())
-								name.CopyTo(pack.Rec.Name, sizeof(pack.Rec.Name));
+								STRNSCPY(pack.Rec.Name, name);
 							rec.get(fldn_corracc, corracc);
 							if(corracc.NotEmptyS())
 								pack.AddRegister(PPREGT_BNKCORRACC, corracc, 1);
@@ -2307,7 +2307,7 @@ int ImportBanks()
 									if(addr.IsEmpty() || addr.CmpNC(city) == 0) {
 										THROW(w_obj.AddSimple(&pack.Loc.CityID, WORLDOBJ_CITY, city, 0, 0));
 										LocationCore::SetExField(&pack.Loc, LOCEXSTR_SHORTADDR, addr.Z());
-										name.CopyTo(pack.Rec.Name, sizeof(pack.Rec.Name));
+										STRNSCPY(pack.Rec.Name, name);
 										if(corracc.NotEmpty()) {
 											if(!pack.AddRegister(PPREGT_BNKCORRACC, corracc, 1)) {
 												logger.LogLastError();
@@ -3385,7 +3385,7 @@ int PrcssrPersonImport::Run()
 					}
 #endif // } 0
 				}
-				name.CopyTo(pack.Rec.Name, sizeof(pack.Rec.Name));
+				STRNSCPY(pack.Rec.Name, name);
 				temp_buf = rec.ExtName;
 				if(temp_buf.NotEmptyS() && temp_buf.CmpNC(pack.Rec.Name) != 0)
 					pack.SetExtName(temp_buf);

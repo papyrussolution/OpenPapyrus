@@ -1012,11 +1012,11 @@ void GnuPlot::Store2DPoint(curve_points * pPlot, int i/* point number */,
 			theta_axis->data_min = theta;
 		if(theta > theta_axis->data_max)
 			theta_axis->data_max = theta;
-		if(theta < theta_axis->min && (theta <= theta_axis->max || theta_axis->max == -VERYLARGE)) {
+		if(theta < theta_axis->Range.low && (theta <= theta_axis->Range.upp || theta_axis->Range.upp == -VERYLARGE)) {
 			if((theta_axis->autoscale & AUTOSCALE_MAX) == 0)
 				excluded_range = TRUE;
 		}
-		if(theta > theta_axis->max && (theta >= theta_axis->min || theta_axis->min == VERYLARGE)) {
+		if(theta > theta_axis->Range.upp && (theta >= theta_axis->Range.low || theta_axis->Range.low == VERYLARGE)) {
 			if((theta_axis->autoscale & AUTOSCALE_MIN) == 0)
 				excluded_range = TRUE;
 		}
@@ -1215,7 +1215,7 @@ void GnuPlot::BoxRangeFiddling(const curve_points * pPlot)
 					xlow = pPlot->points[0].Pt.x - V.BoxWidth;
 				else
 					xlow = pPlot->points[0].Pt.x - (pPlot->points[1].Pt.x - pPlot->points[0].Pt.x) / 2.0;
-				SETMIN(AxS[pPlot->AxIdx_X].min, xlow);
+				SETMIN(AxS[pPlot->AxIdx_X].Range.low, xlow);
 			}
 		}
 		if(AxS[pPlot->AxIdx_X].autoscale & AUTOSCALE_MAX) {
@@ -1225,7 +1225,7 @@ void GnuPlot::BoxRangeFiddling(const curve_points * pPlot)
 					xhigh = pPlot->points[i].Pt.x + V.BoxWidth;
 				else
 					xhigh = pPlot->points[i].Pt.x + (pPlot->points[i].Pt.x - pPlot->points[i-1].Pt.x) / 2.0;
-				SETMAX(AxS[pPlot->AxIdx_X].max, xhigh);
+				SETMAX(AxS[pPlot->AxIdx_X].Range.upp, xhigh);
 			}
 		}
 	}
@@ -1262,18 +1262,18 @@ void GnuPlot::BoxPlotRangeFiddling(GpTermEntry * pTerm, curve_points * pPlot)
 		if(extra_width < 0)
 			extra_width = -extra_width;
 		if(AxS[pPlot->AxIdx_X].autoscale & AUTOSCALE_MIN) {
-			if(AxS[pPlot->AxIdx_X].min >= pPlot->points[0].Pt.x)
-				AxS[pPlot->AxIdx_X].min -= 1.5 * extra_width;
-			else if(AxS[pPlot->AxIdx_X].min >= pPlot->points[0].Pt.x - extra_width)
-				AxS[pPlot->AxIdx_X].min -= 1 * extra_width;
+			if(AxS[pPlot->AxIdx_X].Range.low >= pPlot->points[0].Pt.x)
+				AxS[pPlot->AxIdx_X].Range.low -= 1.5 * extra_width;
+			else if(AxS[pPlot->AxIdx_X].Range.low >= pPlot->points[0].Pt.x - extra_width)
+				AxS[pPlot->AxIdx_X].Range.low -= 1 * extra_width;
 		}
 		if(AxS[pPlot->AxIdx_X].autoscale & AUTOSCALE_MAX) {
 			const double nfactors = MAX(0, pPlot->boxplot_factors - 1);
 			const double plot_max = pPlot->points[0].Pt.x + nfactors * Gg.boxplot_opts.separation;
-			if(AxS[pPlot->AxIdx_X].max <= plot_max)
-				AxS[pPlot->AxIdx_X].max = plot_max + 1.5 * extra_width;
-			else if(AxS[pPlot->AxIdx_X].max <= plot_max + extra_width)
-				AxS[pPlot->AxIdx_X].max += extra_width;
+			if(AxS[pPlot->AxIdx_X].Range.upp <= plot_max)
+				AxS[pPlot->AxIdx_X].Range.upp = plot_max + 1.5 * extra_width;
+			else if(AxS[pPlot->AxIdx_X].Range.upp <= plot_max + extra_width)
+				AxS[pPlot->AxIdx_X].Range.upp += extra_width;
 		}
 	}
 }
@@ -1314,10 +1314,10 @@ void GnuPlot::HistogramRangeFiddling(curve_points * pPlot)
 							_Plt.stackheight[i].yhigh += pPlot->points[i].Pt.y;
 						else
 							_Plt.stackheight[i].ylow += pPlot->points[i].Pt.y;
-						if(AxS[pPlot->AxIdx_Y].max < _Plt.stackheight[i].yhigh)
-							AxS[pPlot->AxIdx_Y].max = _Plt.stackheight[i].yhigh;
-						if(AxS[pPlot->AxIdx_Y].min > _Plt.stackheight[i].ylow)
-							AxS[pPlot->AxIdx_Y].min = _Plt.stackheight[i].ylow;
+						if(AxS[pPlot->AxIdx_Y].Range.upp < _Plt.stackheight[i].yhigh)
+							AxS[pPlot->AxIdx_Y].Range.upp = _Plt.stackheight[i].yhigh;
+						if(AxS[pPlot->AxIdx_Y].Range.low > _Plt.stackheight[i].ylow)
+							AxS[pPlot->AxIdx_Y].Range.low = _Plt.stackheight[i].ylow;
 					}
 			    }
 		    }
@@ -1328,8 +1328,8 @@ void GnuPlot::HistogramRangeFiddling(curve_points * pPlot)
 			    break;
 		    if(AxS[FIRST_X_AXIS].autoscale & AUTOSCALE_MIN) {
 			    xlow = pPlot->histogram->start - 1.0;
-			    if(AxS[FIRST_X_AXIS].min > xlow)
-				    AxS[FIRST_X_AXIS].min = xlow;
+			    if(AxS[FIRST_X_AXIS].Range.low > xlow)
+				    AxS[FIRST_X_AXIS].Range.low = xlow;
 		    }
 		    if(AxS[FIRST_X_AXIS].autoscale & AUTOSCALE_MAX) {
 			    // FIXME - why did we increment p_count on UNDEFINED points? 
@@ -1340,8 +1340,8 @@ void GnuPlot::HistogramRangeFiddling(curve_points * pPlot)
 			    }
 			    xhigh = pPlot->points[pPlot->p_count-1].Pt.x;
 			    xhigh += pPlot->histogram->start + 1.0;
-			    if(AxS[FIRST_X_AXIS].max < xhigh)
-				    AxS[FIRST_X_AXIS].max = xhigh;
+			    if(AxS[FIRST_X_AXIS].Range.upp < xhigh)
+				    AxS[FIRST_X_AXIS].Range.upp = xhigh;
 		    }
 		    break;
 		case HT_STACKED_IN_TOWERS:
@@ -1350,13 +1350,13 @@ void GnuPlot::HistogramRangeFiddling(curve_points * pPlot)
 		    if(AxS[FIRST_X_AXIS].set_autoscale) {
 			    if((AxS[FIRST_X_AXIS].set_autoscale & AUTOSCALE_MIN)) {
 				    xlow = -1.0;
-				    if(AxS[FIRST_X_AXIS].min > xlow)
-					    AxS[FIRST_X_AXIS].min = xlow;
+				    if(AxS[FIRST_X_AXIS].Range.low > xlow)
+					    AxS[FIRST_X_AXIS].Range.low = xlow;
 			    }
 			    xhigh = pPlot->histogram_sequence;
 			    xhigh += pPlot->histogram->start + 1.0;
-			    if(AxS[FIRST_X_AXIS].max != xhigh)
-				    AxS[FIRST_X_AXIS].max  = xhigh;
+			    if(AxS[FIRST_X_AXIS].Range.upp != xhigh)
+				    AxS[FIRST_X_AXIS].Range.upp  = xhigh;
 		    }
 		    if(AxS[FIRST_Y_AXIS].set_autoscale) {
 			    double ylow, yhigh;
@@ -1368,11 +1368,11 @@ void GnuPlot::HistogramRangeFiddling(curve_points * pPlot)
 						    ylow += pPlot->points[i].Pt.y;
 				    }
 			    if(AxS[FIRST_Y_AXIS].set_autoscale & AUTOSCALE_MAX)
-				    if(AxS[pPlot->AxIdx_Y].max < yhigh)
-					    AxS[pPlot->AxIdx_Y].max = yhigh;
+				    if(AxS[pPlot->AxIdx_Y].Range.upp < yhigh)
+					    AxS[pPlot->AxIdx_Y].Range.upp = yhigh;
 			    if(AxS[FIRST_Y_AXIS].set_autoscale & AUTOSCALE_MIN)
-				    if(AxS[pPlot->AxIdx_Y].min > ylow)
-					    AxS[pPlot->AxIdx_Y].min = ylow;
+				    if(AxS[pPlot->AxIdx_Y].Range.low > ylow)
+					    AxS[pPlot->AxIdx_Y].Range.low = ylow;
 		    }
 		    break;
 	}
@@ -1387,16 +1387,16 @@ void GnuPlot::HistogramRangeFiddling(curve_points * pPlot)
 void GnuPlot::PolarRangeFiddling(const curve_points * pPlot)
 {
 	if(AxS[POLAR_AXIS].set_autoscale & AUTOSCALE_MAX) {
-		const double plotmax_x = MAX(AxS[pPlot->AxIdx_X].max, -AxS[pPlot->AxIdx_X].min);
-		const double plotmax_y = MAX(AxS[pPlot->AxIdx_Y].max, -AxS[pPlot->AxIdx_Y].min);
+		const double plotmax_x = MAX(AxS[pPlot->AxIdx_X].Range.upp, -AxS[pPlot->AxIdx_X].Range.low);
+		const double plotmax_y = MAX(AxS[pPlot->AxIdx_Y].Range.upp, -AxS[pPlot->AxIdx_Y].Range.low);
 		const double plotmax = MAX(plotmax_x, plotmax_y);
 		if((AxS[pPlot->AxIdx_X].set_autoscale & AUTOSCALE_BOTH) == AUTOSCALE_BOTH) {
-			AxS[pPlot->AxIdx_X].max = plotmax;
-			AxS[pPlot->AxIdx_X].min = -plotmax;
+			AxS[pPlot->AxIdx_X].Range.upp = plotmax;
+			AxS[pPlot->AxIdx_X].Range.low = -plotmax;
 		}
 		if((AxS[pPlot->AxIdx_Y].set_autoscale & AUTOSCALE_BOTH) == AUTOSCALE_BOTH) {
-			AxS[pPlot->AxIdx_Y].max = plotmax;
-			AxS[pPlot->AxIdx_Y].min = -plotmax;
+			AxS[pPlot->AxIdx_Y].Range.upp = plotmax;
+			AxS[pPlot->AxIdx_Y].Range.low = -plotmax;
 		}
 	}
 }
@@ -1409,12 +1409,12 @@ void GnuPlot::ImpulseRangeFiddling(const curve_points * pPlot)
 	if(AxS[pPlot->AxIdx_Y].log)
 		return;
 	if(AxS[pPlot->AxIdx_Y].autoscale & AUTOSCALE_MIN) {
-		if(AxS[pPlot->AxIdx_Y].min > 0)
-			AxS[pPlot->AxIdx_Y].min = 0;
+		if(AxS[pPlot->AxIdx_Y].Range.low > 0)
+			AxS[pPlot->AxIdx_Y].Range.low = 0;
 	}
 	if(AxS[pPlot->AxIdx_Y].autoscale & AUTOSCALE_MAX) {
-		if(AxS[pPlot->AxIdx_Y].max < 0)
-			AxS[pPlot->AxIdx_Y].max = 0;
+		if(AxS[pPlot->AxIdx_Y].Range.upp < 0)
+			AxS[pPlot->AxIdx_Y].Range.upp = 0;
 	}
 }
 //
@@ -1436,10 +1436,10 @@ void GnuPlot::ParallelRangeFiddling(const curve_points * pPlot)
 	// The normal y axis is not used by parallel plots, so if no 
 	// range is established then we get lots of warning messages 
 	if(num_parallelplots > 0) {
-		if(AxS[FIRST_Y_AXIS].min == VERYLARGE)
-			AxS[FIRST_Y_AXIS].min = 0.0;
-		if(AxS[FIRST_Y_AXIS].max == -VERYLARGE)
-			AxS[FIRST_Y_AXIS].max = 1.0;
+		if(AxS[FIRST_Y_AXIS].Range.low == VERYLARGE)
+			AxS[FIRST_Y_AXIS].Range.low = 0.0;
+		if(AxS[FIRST_Y_AXIS].Range.upp == -VERYLARGE)
+			AxS[FIRST_Y_AXIS].Range.upp = 1.0;
 	}
 }
 //
@@ -1453,13 +1453,13 @@ void GnuPlot::SpiderPlotRangeFiddling(curve_points * plot)
 			// The normal x and y axes are not used by spider plots, so if no 
 			// range is established then we get lots of warning messages 
 			if(AxS[plot->AxIdx_X].autoscale & AUTOSCALE_MIN)
-				AxS[FIRST_X_AXIS].min = -1.0;
+				AxS[FIRST_X_AXIS].Range.low = -1.0;
 			if(AxS[plot->AxIdx_X].autoscale & AUTOSCALE_MAX)
-				AxS[FIRST_X_AXIS].max =  1.0;
+				AxS[FIRST_X_AXIS].Range.upp =  1.0;
 			if(AxS[plot->AxIdx_Y].autoscale & AUTOSCALE_MIN)
-				AxS[FIRST_Y_AXIS].min = -1.0;
+				AxS[FIRST_Y_AXIS].Range.low = -1.0;
 			if(AxS[plot->AxIdx_Y].autoscale & AUTOSCALE_MAX)
-				AxS[FIRST_Y_AXIS].max =  1.0;
+				AxS[FIRST_Y_AXIS].Range.upp =  1.0;
 			return;
 		}
 		plot = plot->next;
@@ -1720,8 +1720,8 @@ void GnuPlot::EvalPlots(GpTermEntry * pTerm)
 				AxS[SAMPLE_AXIS].range_flags |= RANGE_SAMPLED;
 				// If the sample was specifically on u we need to check v also 
 				if(Pgm.Equals(sample_range_token, "u")) {
-					AxS[U_AXIS].min = AxS[SAMPLE_AXIS].min;
-					AxS[U_AXIS].max = AxS[SAMPLE_AXIS].max;
+					AxS[U_AXIS].Range.low = AxS[SAMPLE_AXIS].Range.low;
+					AxS[U_AXIS].Range.upp = AxS[SAMPLE_AXIS].Range.upp;
 					AxS[U_AXIS].autoscale = AxS[SAMPLE_AXIS].autoscale;
 					AxS[U_AXIS].SAMPLE_INTERVAL = AxS[SAMPLE_AXIS].SAMPLE_INTERVAL;
 					AxS[U_AXIS].range_flags = AxS[SAMPLE_AXIS].range_flags;
@@ -1835,8 +1835,8 @@ void GnuPlot::EvalPlots(GpTermEntry * pTerm)
 						Pgm.Shift();
 						if(!ParseRange(SAMPLE_AXIS))
 							IntErrorCurToken("incomplete bin range");
-						binlow  = AxS[SAMPLE_AXIS].min;
-						binhigh = AxS[SAMPLE_AXIS].max;
+						binlow  = AxS[SAMPLE_AXIS].Range.low;
+						binhigh = AxS[SAMPLE_AXIS].Range.upp;
 					}
 					binwidth = -1;
 					if(Pgm.EqualsCur("binwidth")) {
@@ -2354,9 +2354,9 @@ void GnuPlot::EvalPlots(GpTermEntry * pTerm)
 				if(!(uses_axis[AxS.Idx_X] & USES_AXIS_FOR_DATA) && AxS.__X().autoscale) {
 					GpAxis * scaling_axis = &AxS[p_plot->AxIdx_X];
 					if(scaling_axis->autoscale & AUTOSCALE_MIN)
-						scaling_axis->min = VERYLARGE;
+						scaling_axis->Range.low = VERYLARGE;
 					if(scaling_axis->autoscale & AUTOSCALE_MAX)
-						scaling_axis->max = -VERYLARGE;
+						scaling_axis->Range.upp = -VERYLARGE;
 				}
 				if(AxS.__X().datatype == DT_TIMEDATE) {
 					if(specs < 2)
@@ -2567,9 +2567,9 @@ SKIPPED_EMPTY_FILE:
 		 * Or we could give up and fall through to "x range invalid".
 		 */
 		if((some_functions || some_tables) && uses_axis[FIRST_X_AXIS])
-			if(AxS[FIRST_X_AXIS].max == -VERYLARGE || AxS[FIRST_X_AXIS].min == VERYLARGE) {
-				AxS[FIRST_X_AXIS].min = -10;
-				AxS[FIRST_X_AXIS].max = 10;
+			if(AxS[FIRST_X_AXIS].Range.upp == -VERYLARGE || AxS[FIRST_X_AXIS].Range.low == VERYLARGE) {
+				AxS[FIRST_X_AXIS].Range.low = -10;
+				AxS[FIRST_X_AXIS].Range.upp = 10;
 			}
 		if(uses_axis[FIRST_X_AXIS] & USES_AXIS_FOR_DATA) {
 			AxisCheckedExtendEmptyRange(FIRST_X_AXIS, "x range is invalid"); // check that x1min -> x1max is not too small 
@@ -2585,9 +2585,9 @@ SKIPPED_EMPTY_FILE:
 			}
 			else {
 				if(AxS[SECOND_X_AXIS].autoscale & AUTOSCALE_MIN)
-					AxS[SECOND_X_AXIS].min = AxS[FIRST_X_AXIS].min;
+					AxS[SECOND_X_AXIS].Range.low = AxS[FIRST_X_AXIS].Range.low;
 				if(AxS[SECOND_X_AXIS].autoscale & AUTOSCALE_MAX)
-					AxS[SECOND_X_AXIS].max = AxS[FIRST_X_AXIS].max;
+					AxS[SECOND_X_AXIS].Range.upp = AxS[FIRST_X_AXIS].Range.upp;
 			}
 		}
 	}
@@ -2598,20 +2598,20 @@ SKIPPED_EMPTY_FILE:
 			if(!(uses_axis[FIRST_X_AXIS] & USES_AXIS_FOR_DATA)) {
 				// these have not yet been set to full width 
 				if(AxS[FIRST_X_AXIS].autoscale & AUTOSCALE_MIN)
-					AxS[FIRST_X_AXIS].min = VERYLARGE;
+					AxS[FIRST_X_AXIS].Range.low = VERYLARGE;
 				if(AxS[FIRST_X_AXIS].autoscale & AUTOSCALE_MAX)
-					AxS[FIRST_X_AXIS].max = -VERYLARGE;
+					AxS[FIRST_X_AXIS].Range.upp = -VERYLARGE;
 			}
 			if(!(uses_axis[SECOND_X_AXIS] & USES_AXIS_FOR_DATA)) {
 				if(AxS[SECOND_X_AXIS].autoscale & AUTOSCALE_MIN)
-					AxS[SECOND_X_AXIS].min = VERYLARGE;
+					AxS[SECOND_X_AXIS].Range.low = VERYLARGE;
 				if(AxS[SECOND_X_AXIS].autoscale & AUTOSCALE_MAX)
-					AxS[SECOND_X_AXIS].max = -VERYLARGE;
+					AxS[SECOND_X_AXIS].Range.upp = -VERYLARGE;
 			}
 		}
 		if(Gg.Parametric || Gg.Polar) {
-			t_min = AxS[T_AXIS].min;
-			t_max = AxS[T_AXIS].max;
+			t_min = AxS[T_AXIS].Range.low;
+			t_max = AxS[T_AXIS].Range.upp;
 			t_step = (t_max - t_min) / (Gg.Samples1 - 1);
 		}
 		// else we'll do it on each plot (see below) 
@@ -2679,8 +2679,8 @@ SKIPPED_EMPTY_FILE:
 						IntWarn(NO_CARET, "'with table' requires a data source not a pure function");
 					_Plt.Plot2D_Func.at = at_ptr;
 					if(!Gg.Parametric && !Gg.Polar) {
-						t_min = AxS[SAMPLE_AXIS].min;
-						t_max = AxS[SAMPLE_AXIS].max;
+						t_min = AxS[SAMPLE_AXIS].Range.low;
+						t_max = AxS[SAMPLE_AXIS].Range.upp;
 						if(AxS[SAMPLE_AXIS].linked_to_primary) {
 							GpAxis * primary = AxS[SAMPLE_AXIS].linked_to_primary;
 							if(primary->log && !(t_min > 0 && t_max > 0))
@@ -2884,7 +2884,7 @@ come_here_if_undefined:
 		ReconcileLinkedAxes(primary, secondary);
 	}
 	if(uses_axis[FIRST_X_AXIS]) {
-		if(AxS[FIRST_X_AXIS].max == -VERYLARGE || AxS[FIRST_X_AXIS].min == VERYLARGE)
+		if(AxS[FIRST_X_AXIS].Range.upp == -VERYLARGE || AxS[FIRST_X_AXIS].Range.low == VERYLARGE)
 			IntError(NO_CARET, "all points undefined!");
 		CheckAxisRange(FIRST_X_AXIS);
 	}
@@ -2892,7 +2892,7 @@ come_here_if_undefined:
 		assert(uses_axis[SECOND_X_AXIS]);
 	}
 	if(uses_axis[SECOND_X_AXIS]) {
-		if(AxS[SECOND_X_AXIS].max == -VERYLARGE || AxS[SECOND_X_AXIS].min == VERYLARGE)
+		if(AxS[SECOND_X_AXIS].Range.upp == -VERYLARGE || AxS[SECOND_X_AXIS].Range.low == VERYLARGE)
 			IntError(NO_CARET, "all points undefined!");
 		CheckAxisRange(SECOND_X_AXIS);
 	}
@@ -2947,7 +2947,7 @@ come_here_if_undefined:
 	}
 	else {
 		DoPlot(pTerm, _Plt.P_FirstPlot, plot_num);
-		/* after do_plot(), AxS[].min and .max
+		/* after do_plot(), AxS[].Range.low and .Range.upp
 		 * contain the plotting range actually used (rounded
 		 * to tic marks, not only the min/max data values)
 		 *  --> save them now for writeback if requested
@@ -3007,7 +3007,7 @@ void GnuPlot::ParametricFixup(curve_points * pStartPlot, int * pPlotNum)
 					const double r = yp->points[i].Pt.y;
 					const double t = xp->points[i].Pt.y;
 					// Convert from polar to cartesian coordinate and check ranges */
-					// Note: The old in-line conversion checked AxS.__R().max against fabs(r).
+					// Note: The old in-line conversion checked AxS.__R().Range.upp against fabs(r).
 					// That's not what PolarToXY() is currently doing.
 					if(PolarToXY(t, r, &x, &y, TRUE) == OUTRANGE)
 						yp->points[i].type = OUTRANGE;

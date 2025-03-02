@@ -4568,21 +4568,21 @@ char * GnuPlot::DfGeneratePseudodata()
 		if(_Df.df_pseudorecord == 0) {
 			t_step = 0;
 			if(AxS[SAMPLE_AXIS].range_flags & RANGE_SAMPLED) {
-				t_range.Set(AxS[SAMPLE_AXIS].min, AxS[SAMPLE_AXIS].max);
+				t_range.Set(AxS[SAMPLE_AXIS].Range.low, AxS[SAMPLE_AXIS].Range.upp);
 				t_step = AxS[SAMPLE_AXIS].SAMPLE_INTERVAL;
 			}
 			else if(Gg.Parametric || Gg.Polar) {
-				t_range.Set(AxS[T_AXIS].min, AxS[T_AXIS].max);
+				t_range.Set(AxS[T_AXIS].Range.low, AxS[T_AXIS].Range.upp);
 			}
 			else if(AxS[T_AXIS].autoscale == AUTOSCALE_NONE) {
-				t_range.Set(AxS[T_AXIS].min, AxS[T_AXIS].max);
+				t_range.Set(AxS[T_AXIS].Range.low, AxS[T_AXIS].Range.upp);
 			}
 			else {
-				if(AxS[FIRST_X_AXIS].max == -VERYLARGE)
-					AxS[FIRST_X_AXIS].max = 10;
-				if(AxS[FIRST_X_AXIS].min == VERYLARGE)
-					AxS[FIRST_X_AXIS].min = -10;
-				t_range.Set(AxS.__X().min, AxS.__X().max);
+				if(AxS[FIRST_X_AXIS].Range.upp == -VERYLARGE)
+					AxS[FIRST_X_AXIS].Range.upp = 10;
+				if(AxS[FIRST_X_AXIS].Range.low == VERYLARGE)
+					AxS[FIRST_X_AXIS].Range.low = -10;
+				t_range.Set(AxS.__X().Range.low, AxS.__X().Range.upp);
 			}
 			if(AxS[SAMPLE_AXIS].range_flags & RANGE_SAMPLED) {
 				; // Nothing special 
@@ -4654,23 +4654,23 @@ char * GnuPlot::DfGeneratePseudodata()
 			if(Gg.Samples1 < 2 || Gg.Samples2 < 2 || Gg.IsoSamples1 < 2 || Gg.IsoSamples2 < 2)
 				IntError(NO_CARET, "samples or iso_samples < 2. Must be at least 2.");
 			if(Gg.Parametric) {
-				u_range.Set(AxS[U_AXIS].min, AxS[U_AXIS].max);
-				v_range.Set(AxS[V_AXIS].min, AxS[V_AXIS].max);
+				u_range.Set(AxS[U_AXIS].Range.low, AxS[U_AXIS].Range.upp);
+				v_range.Set(AxS[V_AXIS].Range.low, AxS[V_AXIS].Range.upp);
 			}
 			else {
 				AxisCheckedExtendEmptyRange(u_axis, "u range is invalid");
 				AxisCheckedExtendEmptyRange(v_axis, "v range is invalid");
 				if(AxS[u_axis].IsNonLinear()) {
-					u_range.Set(AxS[u_axis].linked_to_primary->min, AxS[u_axis].linked_to_primary->max);
+					u_range.Set(AxS[u_axis].linked_to_primary->Range.low, AxS[u_axis].linked_to_primary->Range.upp);
 				}
 				else {
-					u_range.Set(AxS[u_axis].min, AxS[u_axis].max);
+					u_range.Set(AxS[u_axis].Range.low, AxS[u_axis].Range.upp);
 				}
 				if(AxS[v_axis].IsNonLinear()) {
-					v_range.Set(AxS[v_axis].linked_to_primary->min, AxS[v_axis].linked_to_primary->max);
+					v_range.Set(AxS[v_axis].linked_to_primary->Range.low, AxS[v_axis].linked_to_primary->Range.upp);
 				}
 				else {
-					v_range.Set(AxS[v_axis].min, AxS[v_axis].max);
+					v_range.Set(AxS[v_axis].Range.low, AxS[v_axis].Range.upp);
 				}
 			}
 			if((AxS[u_axis].range_flags & RANGE_SAMPLED) && (AxS[u_axis].SAMPLE_INTERVAL != 0)) {

@@ -1,5 +1,5 @@
 // PPTEX2HTML.CPP
-// Copyright (c) A.Sobolev 2014, 2015, 2016, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 2014, 2015, 2016, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 //
 #include <pp.h>
 #pragma hdrstop
@@ -1049,12 +1049,12 @@ int PPTex2HtmlPrcssr::ResolvePict(const char * pOrgSymb, const char * pName, uin
 										do {
 											suffix.Z().Space().CatChar('#').Cat(++uc);
 											wb_name = wb_pack.Rec.Name;
-											size_t sum_len = wb_name.Len() + suffix.Len();
+											const size_t sum_len = wb_name.Len() + suffix.Len();
 											if(sum_len > max_nm_len)
 												wb_name.Trim(max_nm_len-suffix.Len());
 											wb_name.Cat(suffix);
 										} while(WbObj.SearchByName(wb_name, &dup_id, 0) > 0 && dup_id != wb_pack.Rec.ID);
-										wb_name.CopyTo(wb_pack.Rec.Name, sizeof(wb_pack.Rec.Name));
+										STRNSCPY(wb_pack.Rec.Name, wb_name);
 									}
 								}
                                 wb_pack.Rec.Type = PPWBTYP_MEDIA;
@@ -1572,7 +1572,7 @@ int PPTex2HtmlPrcssr::InitOutput(SFile * pOut, const char * pPartLabel, const ch
 			}
 			wb_pack.Rec.ParentID = P.ParentWbID;
 			wb_pack.Rec.Rank = chapterNo;
-			wb_name.CopyTo(wb_pack.Rec.Name, sizeof(wb_pack.Rec.Name));
+			STRNSCPY(wb_pack.Rec.Name, wb_name);
 			SCharToOem(wb_pack.Rec.Name);
 			{
 				PPID   dup_id = 0;
@@ -1589,7 +1589,7 @@ int PPTex2HtmlPrcssr::InitOutput(SFile * pOut, const char * pPartLabel, const ch
 							wb_name.Trim(max_nm_len-suffix.Len());
 						wb_name.Cat(suffix);
 					} while(WbObj.SearchByName(wb_name, &dup_id, 0) > 0 && dup_id != wb_pack.Rec.ID);
-					wb_name.CopyTo(wb_pack.Rec.Name, sizeof(wb_pack.Rec.Name));
+					STRNSCPY(wb_pack.Rec.Name, wb_name);
 				}
 			}
 			if(!wb_pack.Rec.Symb[0]) {
@@ -2238,7 +2238,7 @@ PPID PPVer2HtmlPrcssr::AttachEntryToWorkbook(const VersionEntry * pEntry, const 
 			PPLoadText(PPTXT_HTMLPPVERALLTITLE, wb_name);
 		}
 		wb_symb.CopyTo(wb_pack.Rec.Symb, sizeof(wb_pack.Rec.Symb));
-		wb_name.CopyTo(wb_pack.Rec.Name, sizeof(wb_pack.Rec.Name));
+		STRNSCPY(wb_pack.Rec.Name, wb_name);
 		{
 			PPID   dup_id = 0;
 			if(rWbObj.SearchByName(wb_pack.Rec.Name, &dup_id, 0) > 0 && dup_id != wb_pack.Rec.ID) {
@@ -2254,7 +2254,7 @@ PPID PPVer2HtmlPrcssr::AttachEntryToWorkbook(const VersionEntry * pEntry, const 
 						wb_name.Trim(max_nm_len-suffix.Len());
 					wb_name.Cat(suffix);
 				} while(rWbObj.SearchByName(wb_name, &dup_id, 0) > 0 && dup_id != wb_pack.Rec.ID);
-				wb_name.CopyTo(wb_pack.Rec.Name, sizeof(wb_pack.Rec.Name));
+				STRNSCPY(wb_pack.Rec.Name, wb_name);
 			}
 		}
 		wb_pack.Rec.Type = PPWBTYP_PAGE;

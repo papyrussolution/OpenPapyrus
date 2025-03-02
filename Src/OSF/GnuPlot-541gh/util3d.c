@@ -306,12 +306,12 @@ bool GnuPlot::TwoEdge3DIntersect(const GpCoordinate * p0, const GpCoordinate * p
 			oz = z;
 		}
 		/* check actually passes through the 3D graph volume */
-		if(ix > AxS[FIRST_X_AXIS].max && IN_AXIS_RANGE(iy, FIRST_Y_AXIS) && IN_AXIS_RANGE(iz, FIRST_Z_AXIS)) {
-			lx[0] = AxS[FIRST_X_AXIS].min;
+		if(ix > AxS[FIRST_X_AXIS].Range.upp && IN_AXIS_RANGE(iy, FIRST_Y_AXIS) && IN_AXIS_RANGE(iz, FIRST_Z_AXIS)) {
+			lx[0] = AxS[FIRST_X_AXIS].Range.low;
 			ly[0] = iy;
 			lz[0] = iz;
 
-			lx[1] = AxS[FIRST_X_AXIS].max;
+			lx[1] = AxS[FIRST_X_AXIS].Range.upp;
 			ly[1] = iy;
 			lz[1] = iz;
 
@@ -335,12 +335,12 @@ bool GnuPlot::TwoEdge3DIntersect(const GpCoordinate * p0, const GpCoordinate * p
 			oz = z;
 		}
 		/* check actually passes through the 3D graph volume */
-		if(iy > AxS[FIRST_Y_AXIS].max && IN_AXIS_RANGE(ix, FIRST_X_AXIS) && IN_AXIS_RANGE(iz, FIRST_Z_AXIS)) {
+		if(iy > AxS[FIRST_Y_AXIS].Range.upp && IN_AXIS_RANGE(ix, FIRST_X_AXIS) && IN_AXIS_RANGE(iz, FIRST_Z_AXIS)) {
 			lx[0] = ix;
-			ly[0] = AxS[FIRST_Y_AXIS].min;
+			ly[0] = AxS[FIRST_Y_AXIS].Range.low;
 			lz[0] = iz;
 			lx[1] = ix;
-			ly[1] = AxS[FIRST_Y_AXIS].max;
+			ly[1] = AxS[FIRST_Y_AXIS].Range.upp;
 			lz[1] = iz;
 			return TRUE;
 		}
@@ -362,14 +362,14 @@ bool GnuPlot::TwoEdge3DIntersect(const GpCoordinate * p0, const GpCoordinate * p
 			oz = z;
 		}
 		/* check actually passes through the 3D graph volume */
-		if(iz > AxS[FIRST_Z_AXIS].max && IN_AXIS_RANGE(ix, FIRST_X_AXIS) && IN_AXIS_RANGE(iy, FIRST_Y_AXIS)) {
+		if(iz > AxS[FIRST_Z_AXIS].Range.upp && IN_AXIS_RANGE(ix, FIRST_X_AXIS) && IN_AXIS_RANGE(iy, FIRST_Y_AXIS)) {
 			lx[0] = ix;
 			ly[0] = iy;
-			lz[0] = AxS[FIRST_Z_AXIS].min;
+			lz[0] = AxS[FIRST_Z_AXIS].Range.low;
 
 			lx[1] = ix;
 			ly[1] = iy;
-			lz[1] = AxS[FIRST_Z_AXIS].max;
+			lz[1] = AxS[FIRST_Z_AXIS].Range.upp;
 
 			return TRUE;
 		}
@@ -382,14 +382,14 @@ bool GnuPlot::TwoEdge3DIntersect(const GpCoordinate * p0, const GpCoordinate * p
 	 */
 
 	/* test z coord first --- most surface OUTRANGE points generated
-	 * between AxS[FIRST_Z_AXIS].min and baseplane (i.e. when
+	 * between AxS[FIRST_Z_AXIS].Range.low and baseplane (i.e. when
 	 * ticslevel is non-zero)
 	 */
-	if(MAX(iz, oz) < AxS[FIRST_Z_AXIS].min || MIN(iz, oz) > AxS[FIRST_Z_AXIS].max)
+	if(MAX(iz, oz) < AxS[FIRST_Z_AXIS].Range.low || MIN(iz, oz) > AxS[FIRST_Z_AXIS].Range.upp)
 		return FALSE;
-	if(MAX(ix, ox) < AxS[FIRST_X_AXIS].min || MIN(ix, ox) > AxS[FIRST_X_AXIS].max)
+	if(MAX(ix, ox) < AxS[FIRST_X_AXIS].Range.low || MIN(ix, ox) > AxS[FIRST_X_AXIS].Range.upp)
 		return FALSE;
-	if(MAX(iy, oy) < AxS[FIRST_Y_AXIS].min || MIN(iy, oy) > AxS[FIRST_Y_AXIS].max)
+	if(MAX(iy, oy) < AxS[FIRST_Y_AXIS].Range.low || MIN(iy, oy) > AxS[FIRST_Y_AXIS].Range.upp)
 		return FALSE;
 	// 
 	// Special horizontal/vertical, etc. cases are checked and
@@ -419,14 +419,14 @@ bool GnuPlot::TwoEdge3DIntersect(const GpCoordinate * p0, const GpCoordinate * p
 			if(!IN_AXIS_RANGE(ix, FIRST_X_AXIS) || !IN_AXIS_RANGE(iy, FIRST_Y_AXIS)) {
 				return FALSE;
 			}
-			if(inrange(AxS[FIRST_Z_AXIS].min, iz, oz)) {
+			if(inrange(AxS[FIRST_Z_AXIS].Range.low, iz, oz)) {
 				lx[0] = ix;
 				ly[0] = iy;
-				lz[0] = AxS[FIRST_Z_AXIS].min;
+				lz[0] = AxS[FIRST_Z_AXIS].Range.low;
 
 				lx[1] = ix;
 				ly[1] = iy;
-				lz[1] = AxS[FIRST_Z_AXIS].max;
+				lz[1] = AxS[FIRST_Z_AXIS].Range.upp;
 
 				return TRUE;
 			}
@@ -438,13 +438,13 @@ bool GnuPlot::TwoEdge3DIntersect(const GpCoordinate * p0, const GpCoordinate * p
 			if(!IN_AXIS_RANGE(ix, FIRST_X_AXIS) || !IN_AXIS_RANGE(iz, FIRST_Z_AXIS)) {
 				return FALSE;
 			}
-			if(inrange(AxS[FIRST_Y_AXIS].min, iy, oy)) {
+			if(inrange(AxS[FIRST_Y_AXIS].Range.low, iy, oy)) {
 				lx[0] = ix;
-				ly[0] = AxS[FIRST_Y_AXIS].min;
+				ly[0] = AxS[FIRST_Y_AXIS].Range.low;
 				lz[0] = iz;
 
 				lx[1] = ix;
-				ly[1] = AxS[FIRST_Y_AXIS].max;
+				ly[1] = AxS[FIRST_Y_AXIS].Range.upp;
 				lz[1] = iz;
 
 				return TRUE;
@@ -457,16 +457,16 @@ bool GnuPlot::TwoEdge3DIntersect(const GpCoordinate * p0, const GpCoordinate * p
 		if(!IN_AXIS_RANGE(ox, FIRST_X_AXIS))
 			return FALSE;
 
-		t[0] = (AxS[FIRST_Y_AXIS].min - iy) / (oy - iy);
-		t[1] = (AxS[FIRST_Y_AXIS].max - iy) / (oy - iy);
+		t[0] = (AxS[FIRST_Y_AXIS].Range.low - iy) / (oy - iy);
+		t[1] = (AxS[FIRST_Y_AXIS].Range.upp - iy) / (oy - iy);
 
 		if(t[0] > t[1]) {
 			swap = t[0];
 			t[0] = t[1];
 			t[1] = swap;
 		}
-		t[2] = (AxS[FIRST_Z_AXIS].min - iz) / (oz - iz);
-		t[3] = (AxS[FIRST_Z_AXIS].max - iz) / (oz - iz);
+		t[2] = (AxS[FIRST_Z_AXIS].Range.low - iz) / (oz - iz);
+		t[3] = (AxS[FIRST_Z_AXIS].Range.upp - iz) / (oz - iz);
 
 		if(t[2] > t[3]) {
 			swap = t[2];
@@ -499,12 +499,12 @@ bool GnuPlot::TwoEdge3DIntersect(const GpCoordinate * p0, const GpCoordinate * p
 			if(!IN_AXIS_RANGE(iy, FIRST_Y_AXIS) || !IN_AXIS_RANGE(iz, FIRST_Z_AXIS)) {
 				return FALSE;
 			}
-			if(inrange(AxS[FIRST_X_AXIS].min, ix, ox)) {
-				lx[0] = AxS[FIRST_X_AXIS].min;
+			if(inrange(AxS[FIRST_X_AXIS].Range.low, ix, ox)) {
+				lx[0] = AxS[FIRST_X_AXIS].Range.low;
 				ly[0] = iy;
 				lz[0] = iz;
 
-				lx[1] = AxS[FIRST_X_AXIS].max;
+				lx[1] = AxS[FIRST_X_AXIS].Range.upp;
 				ly[1] = iy;
 				lz[1] = iz;
 
@@ -517,15 +517,15 @@ bool GnuPlot::TwoEdge3DIntersect(const GpCoordinate * p0, const GpCoordinate * p
 
 		if(!IN_AXIS_RANGE(oy, FIRST_Y_AXIS))
 			return FALSE;
-		t[0] = (AxS[FIRST_X_AXIS].min - ix) / (ox - ix);
-		t[1] = (AxS[FIRST_X_AXIS].max - ix) / (ox - ix);
+		t[0] = (AxS[FIRST_X_AXIS].Range.low - ix) / (ox - ix);
+		t[1] = (AxS[FIRST_X_AXIS].Range.upp - ix) / (ox - ix);
 		if(t[0] > t[1]) {
 			swap = t[0];
 			t[0] = t[1];
 			t[1] = swap;
 		}
-		t[2] = (AxS[FIRST_Z_AXIS].min - iz) / (oz - iz);
-		t[3] = (AxS[FIRST_Z_AXIS].max - iz) / (oz - iz);
+		t[2] = (AxS[FIRST_Z_AXIS].Range.low - iz) / (oz - iz);
+		t[3] = (AxS[FIRST_Z_AXIS].Range.upp - iz) / (oz - iz);
 		if(t[2] > t[3]) {
 			swap = t[2];
 			t[2] = t[3];
@@ -556,16 +556,16 @@ bool GnuPlot::TwoEdge3DIntersect(const GpCoordinate * p0, const GpCoordinate * p
 		/* nasty 2D slanted line in an xy plane */
 		if(!IN_AXIS_RANGE(oz, FIRST_Z_AXIS))
 			return FALSE;
-		t[0] = (AxS[FIRST_X_AXIS].min - ix) / (ox - ix);
-		t[1] = (AxS[FIRST_X_AXIS].max - ix) / (ox - ix);
+		t[0] = (AxS[FIRST_X_AXIS].Range.low - ix) / (ox - ix);
+		t[1] = (AxS[FIRST_X_AXIS].Range.upp - ix) / (ox - ix);
 
 		if(t[0] > t[1]) {
 			swap = t[0];
 			t[0] = t[1];
 			t[1] = swap;
 		}
-		t[2] = (AxS[FIRST_Y_AXIS].min - iy) / (oy - iy);
-		t[3] = (AxS[FIRST_Y_AXIS].max - iy) / (oy - iy);
+		t[2] = (AxS[FIRST_Y_AXIS].Range.low - iy) / (oy - iy);
+		t[3] = (AxS[FIRST_Y_AXIS].Range.upp - iy) / (oy - iy);
 
 		if(t[2] > t[3]) {
 			swap = t[2];
@@ -605,24 +605,24 @@ bool GnuPlot::TwoEdge3DIntersect(const GpCoordinate * p0, const GpCoordinate * p
 	   diff_z = (oz - iz);
 	 */
 
-	t[0] = (AxS[FIRST_X_AXIS].min - ix) / (ox - ix);
-	t[1] = (AxS[FIRST_X_AXIS].max - ix) / (ox - ix);
+	t[0] = (AxS[FIRST_X_AXIS].Range.low - ix) / (ox - ix);
+	t[1] = (AxS[FIRST_X_AXIS].Range.upp - ix) / (ox - ix);
 
 	if(t[0] > t[1]) {
 		swap = t[0];
 		t[0] = t[1];
 		t[1] = swap;
 	}
-	t[2] = (AxS[FIRST_Y_AXIS].min - iy) / (oy - iy);
-	t[3] = (AxS[FIRST_Y_AXIS].max - iy) / (oy - iy);
+	t[2] = (AxS[FIRST_Y_AXIS].Range.low - iy) / (oy - iy);
+	t[3] = (AxS[FIRST_Y_AXIS].Range.upp - iy) / (oy - iy);
 
 	if(t[2] > t[3]) {
 		swap = t[2];
 		t[2] = t[3];
 		t[3] = swap;
 	}
-	t[4] = (iz == oz) ? 0.0 : (AxS[FIRST_Z_AXIS].min - iz) / (oz - iz);
-	t[5] = (iz == oz) ? 1.0 : (AxS[FIRST_Z_AXIS].max - iz) / (oz - iz);
+	t[4] = (iz == oz) ? 0.0 : (AxS[FIRST_Z_AXIS].Range.low - iz) / (oz - iz);
+	t[5] = (iz == oz) ? 1.0 : (AxS[FIRST_Z_AXIS].Range.upp - iz) / (oz - iz);
 
 	if(t[4] > t[5]) {
 		swap = t[4];
@@ -661,7 +661,7 @@ double GnuPlot::MapX3D(double x)
 		xaxis = xaxis->linked_to_primary;
 		x = EvalLinkFunction(xaxis, x);
 	}
-	return ((x - xaxis->min) * _3DBlk.Scale3D.x + _3DBlk.Center3D.x - 1.0);
+	return ((x - xaxis->Range.low) * _3DBlk.Scale3D.x + _3DBlk.Center3D.x - 1.0);
 }
 
 double GnuPlot::MapY3D(double y)
@@ -671,7 +671,7 @@ double GnuPlot::MapY3D(double y)
 		yaxis = yaxis->linked_to_primary;
 		y = EvalLinkFunction(yaxis, y);
 	}
-	return ((y - yaxis->min) * _3DBlk.Scale3D.y + _3DBlk.Center3D.y - 1.0);
+	return ((y - yaxis->Range.low) * _3DBlk.Scale3D.y + _3DBlk.Center3D.y - 1.0);
 }
 
 double GnuPlot::MapZ3D(double z)

@@ -1,5 +1,5 @@
 // SHTRIHMF.CPP
-// Copyright (c) A.Starodub 2009, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Starodub 2009, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage windows-1251
 // Интерфейс (асинхронный) к драйверу "Штрих-М-ФР-К"
 //
@@ -892,7 +892,7 @@ int ACS_SHTRIHMFRK::ConvertWareList(const char * pImpPath, int numSmena)
 							}
 							THROW(SetTempCheckAmounts(chk_id, /*chk_amt*/total_amount, chk_dis));
 						}
-						for(uint chk_pos = 0; check_pack.EnumLines(&chk_pos, &cchkl_rec) > 0;) {
+						for(uint chk_pos = 0; check_pack.EnumLines(&chk_pos, &cchkl_rec);) {
 							TempCCheckLineTbl::Rec ccl_rec;
 							ccl_rec.CheckID   = chk_id;
 							ccl_rec.CheckCode = chk_no;

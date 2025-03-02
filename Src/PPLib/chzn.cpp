@@ -1416,7 +1416,7 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 						{
 							SXml::WNode sn(rX, "sales");
 							CCheckItem ccitem;
-							for(uint i = 0; p_ccp->EnumLines(&i, &ccitem) > 0;) {
+							for(uint i = 0; p_ccp->EnumLines(&i, &ccitem);) {
 								// @v11.9.9 {
 								long  local_chzn_prod_type = 0;
 								if(goods_obj.Fetch(ccitem.GoodsID, &goods_rec) > 0 && goods_rec.GoodsTypeID && goods_obj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0)

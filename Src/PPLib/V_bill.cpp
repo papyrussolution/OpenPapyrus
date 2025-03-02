@@ -5474,7 +5474,8 @@ int PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, const PPBi
 										}
 										// @v11.8.3 {
 										if(GObj.Fetch(goods_id, &goods_rec) > 0 && goods_rec.GoodsTypeID) {
-											if(GObj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0 && oneof2(gt_rec.ChZnProdType, GTCHZNPT_MILK, GTCHZNPT_WATER)) {
+											// @v12.2.9 GTCHZNPT_SOFTDRINKS
+											if(GObj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0 && oneof3(gt_rec.ChZnProdType, GTCHZNPT_MILK, GTCHZNPT_WATER, GTCHZNPT_SOFTDRINKS)) {
 												GObj.P_Tbl->ReadBarcodes(goods_id, bc_list);
 												temp_buf.Z();
 												for(uint bcidx = 0; !pack_has_marks && bcidx < bc_list.getCount(); bcidx++) {

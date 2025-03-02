@@ -1,5 +1,5 @@
 // PALM.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -2688,7 +2688,7 @@ int PutGoods(DbfRecord * pRec, AndroidXmlWriter * pWriter)
 		SString buf;
 		pRec->get(1,  rec.ID);
 		pRec->get(2,  buf);
-		buf.CopyTo(rec.Name, sizeof(rec.Name));
+		STRNSCPY(rec.Name, buf);
 		pRec->get(3,  buf);
 		buf.CopyTo(rec.Barcode, sizeof(rec.Barcode));
 		pRec->get(4,  rec.Pack);
@@ -2745,7 +2745,7 @@ int PutGoodsGrp(DbfRecord * pRec, AndroidXmlWriter * pWriter)
 		pRec->get(1,  rec.ID);
 		pRec->get(2,  rec.ParentID);
 		pRec->get(3,  buf);
-		buf.CopyTo(rec.Name, sizeof(rec.Name));
+		STRNSCPY(rec.Name, buf);
 		pWriter->PutElement("_id",      rec.ID);
 		pWriter->PutElement("ParentID", rec.ParentID);
 		pWriter->PutElement("Name",     rec.Name);
@@ -2763,7 +2763,7 @@ int PutClients(DbfRecord * pRec, AndroidXmlWriter * pWriter)
 		Sdr_PalmClient rec;
 		pRec->get(1,  rec.ID);
 		pRec->get(2,  buf);
-		buf.CopyTo(rec.Name, sizeof(rec.Name));
+		STRNSCPY(rec.Name, buf);
 		pRec->get(3,  buf);
 		buf.CopyTo(rec.Code, sizeof(rec.Code));
 		pRec->get(4,  buf);
@@ -2814,7 +2814,7 @@ int PutQuotKind(DbfRecord * pRec, AndroidXmlWriter * pWriter)
 		Sdr_PalmQuotKind rec;
 		pRec->get(1,  rec.ID);
 		pRec->get(3,  buf);
-		buf.CopyTo(rec.Name, sizeof(rec.Name));
+		STRNSCPY(rec.Name, buf);
 		pWriter->PutElement("_id",  rec.ID);
 		pWriter->PutElement("Name", rec.Name);
 		ok = 1;
@@ -2881,7 +2881,7 @@ int PutWarehouse(DbfRecord * pRec, AndroidXmlWriter * pWriter)
 		Sdr_PalmWarehouse rec;
 		pRec->get(1,  rec.ID);
 		pRec->get(2,  buf);
-		buf.CopyTo(rec.Name, sizeof(rec.Name));
+		STRNSCPY(rec.Name, buf);
 		pWriter->PutElement("_id",        rec.ID);
 		pWriter->PutElement("Name",       rec.Name);
 		pWriter->PutElement("Latitude",   rec.Latitude);

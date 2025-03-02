@@ -6204,7 +6204,7 @@ int ResolveGoodsDialog::CreateGoods(long id, PPID goodsGrpID, int editAfterAdd)
 		THROW(GObj.InitPacket(&pack, gpkndGoods, 0, 0, Data.at(id).Barcode));
 		pack.Rec.UnitID   = GoodsCfg.DefUnitID;
 		pack.Rec.ParentID = goodsGrpID;
-		name.CopyTo(pack.Rec.Name, sizeof(pack.Rec.Name));
+		STRNSCPY(pack.Rec.Name, name);
 		name.CopyTo(pack.Rec.Abbr, sizeof(pack.Rec.Abbr));
 		if(r_item.ArID && r_item.ArCode[0] && (CConfig.Flags & CCFLG_USEARGOODSCODE)) {
 			PPObjArticle ar_obj;
@@ -7607,18 +7607,20 @@ int ExportDialogs2(const char * pFileName)
 										_BBox(wi.rcWindow, line_buf);
 										if(ctl_text.NotEmpty())
 											line_buf.Space().Cat("label").CatDiv(':', 2).CatQStr((temp_buf = ctl_text).Transf(CTRANSF_OUTER_TO_UTF8));
-										if(wi.dwStyle & WS_TABSTOP)
-											line_buf.Space().Cat("tabstop");
-										if(wi.dwStyle & WS_DISABLED)
-											line_buf.Space().Cat("disabled");
-										if(wi.dwStyle & ES_READONLY)
-											line_buf.Space().Cat("readonly");
-										if(wi.dwStyle & ES_PASSWORD)
-											line_buf.Space().Cat("password");
-										if(wi.dwStyle & ES_MULTILINE)
-											line_buf.Space().Cat("multiline");
-										if(wi.dwStyle & ES_WANTRETURN)
-											line_buf.Space().Cat("wantreturn");
+										{
+											static constexpr SIntToSymbTabEntry ws_symb_list[] = {
+												{ WS_TABSTOP, "tabstop" },
+												{ WS_DISABLED, "disabled" },
+												{ ES_READONLY, "readonly" },
+												{ ES_PASSWORD, "password" },
+												{ ES_MULTILINE, "multiline" },
+												{ ES_WANTRETURN, "wantreturn" },
+											};
+											for(uint i = 0; i < SIZEOFARRAY(ws_symb_list); i++) {
+												if(wi.dwStyle & ws_symb_list[i].Id)
+													line_buf.Space().Cat(ws_symb_list[i].P_Symb);
+											}
+										}
 										if(p_label) {
 											line_buf.Space().Cat("labelbbox").CatDiv(':', 2);
 											_RectToLine(label_rect, line_buf);

@@ -148,7 +148,7 @@ void WhatmanObjectUiCtrl::Init()
 	P_LinkObj = 0;
 	TidFont = 0;
 	TidWindowFrame = 0;
-	Rect.Reset();
+	Rect.Z();
 }
 
 WhatmanObjectUiCtrl::WhatmanObjectUiCtrl() : TWhatmanObject("UiCtrl")
@@ -633,7 +633,7 @@ int WhatmanObjectUiCtrl::HandleCommand(int cmd, void * pExt)
 					else if(oneof2(UiKind, DlScope::ckInput, DlScope::ckCombobox)) {
 						if(UiText.NotEmpty()) {
 							UiRelRect urr;
-							urr.Reset();
+							urr.Z();
 							if(P_DlCtx->GetConstData(P_Scope->GetFldConst(F.ID, DlScope::cuifLabelRect), c_buf, sizeof(c_buf)))
 								urr = *reinterpret_cast<const UiRelRect *>(c_buf);
 							if(urr.IsEmpty()) {

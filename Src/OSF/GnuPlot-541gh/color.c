@@ -536,10 +536,10 @@ void GnuPlot::CbTickCallback(GpTermEntry * pTerm, GpAxis * pAx, double place, co
 	if(pAx->linked_to_primary) {
 		const GpAxis * primary = pAx->linked_to_primary;
 		place = EvalLinkFunction(primary, place);
-		cb_place = (place - primary->min) / primary->GetRange();
+		cb_place = (place - primary->Range.low) / primary->GetRange();
 	}
 	else
-		cb_place = (place - pAx->min) / pAx->GetRange();
+		cb_place = (place - pAx->Range.low) / pAx->GetRange();
 	// calculate tic position 
 	if(Gg.ColorBox.rotation == 'h') {
 		x1 = x2 = static_cast<uint>(Gg.ColorBox.bounds.xleft + cb_place * (Gg.ColorBox.bounds.xright - Gg.ColorBox.bounds.xleft));
@@ -831,7 +831,7 @@ void GnuPlot::F_Palette(union argument * arg)
 	uint rgb;
 	Pop(&result);
 	double z = Real(&result);
-	if((AxS.__CB().set_autoscale & AUTOSCALE_BOTH) && (fabs(AxS.__CB().min) >= VERYLARGE || fabs(AxS.__CB().max) >= VERYLARGE))
+	if((AxS.__CB().set_autoscale & AUTOSCALE_BOTH) && (fabs(AxS.__CB().Range.low) >= VERYLARGE || fabs(AxS.__CB().Range.upp) >= VERYLARGE))
 		IntError(NO_CARET, "palette(z) requires known cbrange");
 	Rgb255MaxColorsFromGray(Cb2Gray(z), &color);
 	rgb = (uint)color.r << 16 | (uint)color.g << 8 | (uint)color.b;
@@ -905,7 +905,7 @@ uint GnuPlot::RgbFromColorspec(t_colorspec * tc)
 		    cbval = Cb2Gray(tc->value);
 		    break;
 		case TC_CB:
-		    cbval = (AxS.__CB().log && tc->value <= 0) ? AxS.__CB().min : tc->value;
+		    cbval = (AxS.__CB().log && tc->value <= 0) ? AxS.__CB().Range.low : tc->value;
 		    cbval = Cb2Gray(cbval);
 		    break;
 		case TC_FRAC:

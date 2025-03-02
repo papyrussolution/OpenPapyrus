@@ -910,7 +910,7 @@ void GnuPlot::BuildNetworks(GpSurfacePoints * pPlots, int pcount)
 							    /* set second vertex to the low end of zrange */
 								{
 									coordval remember_z = points[i].Pt.z;
-									points[i].Pt.z = AxS[FIRST_Z_AXIS].min;
+									points[i].Pt.z = AxS[FIRST_Z_AXIS].Range.low;
 									basevertex = StoreVertex(points + i, lp, color_from_column);
 									points[i].Pt.z = remember_z;
 								}
@@ -1058,7 +1058,7 @@ void GnuPlot::BuildNetworks(GpSurfacePoints * pPlots, int pcount)
 					    // set second vertex to the low end of zrange 
 					    {
 						    coordval remember_z = points[i].Pt.z;
-						    points[i].Pt.z = (this_plot->plot_style == IMPULSES) ? 0.0 : AxS[FIRST_Z_AXIS].min;
+						    points[i].Pt.z = (this_plot->plot_style == IMPULSES) ? 0.0 : AxS[FIRST_Z_AXIS].Range.low;
 						    basevertex = StoreVertex(points + i, lp, color_from_column);
 						    points[i].Pt.z = remember_z;
 					    }
