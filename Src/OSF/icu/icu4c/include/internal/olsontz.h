@@ -125,7 +125,7 @@ public:
 	/**
 	 * Returns true if the two TimeZone objects are equal.
 	 */
-	virtual bool operator ==(const TimeZone& other) const override;
+	virtual bool operator == (const TimeZone& other) const override;
 	/**
 	 * TimeZone API.
 	 */

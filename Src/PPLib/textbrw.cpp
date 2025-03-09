@@ -10,7 +10,7 @@
 //
 //
 //
-const int MARK_BOOKMARK   = 24;
+const int MARK_BOOKMARK           = 24;
 const int MARK_HIDELINESBEGIN     = 23;
 const int MARK_HIDELINESEND       = 22;
 const int MARK_HIDELINESUNDERLINE = 21;
@@ -923,7 +923,7 @@ STextBrowser::~STextBrowser()
 		FileClose();
 		if(OrgScintillaWndProc) {
 			TView::SetWindowProp(HwndSci, GWLP_WNDPROC, OrgScintillaWndProc);
-			TView::SetWindowProp(HwndSci, GWLP_USERDATA, (void *)0);
+			TView::SetWindowProp(HwndSci, GWLP_USERDATA, nullptr);
 		}
 		DestroyWindow(HwndSci);
 	}
@@ -1559,7 +1559,7 @@ int SKeyAccelerator::Set(const KeyDownCommand & rK, int cmd)
 		switch(msg) {
 			case WM_DESTROY:
 				TView::SetWindowProp(p_this->HwndSci, GWLP_WNDPROC, p_this->OrgScintillaWndProc);
-				TView::SetWindowProp(p_this->HwndSci, GWLP_USERDATA, (void *)0);
+				TView::SetWindowProp(p_this->HwndSci, GWLP_USERDATA, nullptr);
 				return ::CallWindowProc(p_this->OrgScintillaWndProc, hwnd, msg, wParam, lParam);
 			case WM_CHAR:
 				if(p_this->SysState & p_this->sstLastKeyDownConsumed)

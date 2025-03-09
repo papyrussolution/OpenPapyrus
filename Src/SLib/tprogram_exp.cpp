@@ -1,5 +1,5 @@
 // TPROGRAM_EXP.CPP
-// Copyright (c) A.Sobolev 2016, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2016, 2018, 2019, 2020, 2021, 2025
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -12,7 +12,6 @@ TBaseBrowserWindow * TProgram::FindBrowser(uint resID, int kind, const char * pF
 		hw = GetNextWindow(hw, GW_HWNDNEXT);
 	if(hw == APPL->H_Desktop)
 		hw = GetNextWindow(hw, GW_HWNDNEXT);
-
 	uint   res_id = resID;
 	uint   res_offs = 0;
 	if(kind == 1) // STimeChunkBrowser
@@ -33,7 +32,7 @@ TBaseBrowserWindow * TProgram::FindBrowser(uint resID, int kind, const char * pF
 	while(hw) {
 		if(hw != APPL->H_Desktop) {
 			brw = static_cast<TBaseBrowserWindow *>(TView::GetWindowUserData(hw));
-			if(brw) {
+			if(brw && static_cast<void *>(brw) != static_cast<void *>(APPL)) { // @v12.2.10 static_cast<void *>(brw) != static_cast<void *>(APPL)
 				const long _r = brw->GetResID();
 				if(kind == 3 && _r >= TBaseBrowserWindow::IdBiasTextBrowser) {
 					if(static_cast<STextBrowser *>(brw)->CmpFileName(pFileName) == 0)

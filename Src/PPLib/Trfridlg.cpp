@@ -2190,7 +2190,7 @@ int TrfrItemDialog::CheckPrice()
 {
 	int    ok = 1;
 	SString msg;
-	const PPCommConfig & r_ccfg = CConfig;
+	const  PPCommConfig & r_ccfg = CConfig;
 	if(OpTypeID == PPOPT_GOODSRECEIPT || (P_Pack->Rec.OpID == r_ccfg.DraftRcptOp && r_ccfg.Flags2 & CCFLG2_USESDONPURCHOP)) {
 		int    ret = Sd.CheckCost(Item.Cost);
 		if(!ret) {

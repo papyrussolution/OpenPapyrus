@@ -221,7 +221,7 @@ int CallbackCompress(long, long, const char *, int)
 %type <propsheet> brak_prop_sheet // @v10.9.3
 %type <token>     layout_item_size_entry // @v11.0.4 U.UIC
 %type <token>     bounding_box_val // @v11.0.4
-%type <token>     bounding_box_origin // @v12.2.9
+%type <token>     bounding_box_pair // @v12.2.9
 %type <token>     propval // @v11.0.4
 
 %nonassoc IFXS
@@ -1008,9 +1008,9 @@ bounding_box_val : '(' real_or_int_const optional_divider_comma_space real_or_in
 }
 
 /* @v12.2.9 */
-bounding_box_origin : '(' real_or_int_const optional_divider_comma_space real_or_int_const ')' 
+bounding_box_pair : '(' real_or_int_const optional_divider_comma_space real_or_int_const ')' 
 {
-	$$.Create(CtmToken::acBoundingBoxOrigin);
+	$$.Create(CtmToken::acBoundingBoxPair);
 	$$.U.Rect.L.X.Set($2.GetFloat(0), UiCoord::dfAbs);
 	$$.U.Rect.L.Y.Set($4.GetFloat(0), UiCoord::dfAbs);
 	//$$.U.Rect.R.X.Set($6.GetFloat(0), UiCoord::dfAbs);
@@ -1086,7 +1086,7 @@ propval : T_CONST_INT { $$ = $1; }
 | T_CONST_STR { $$ = $1; } 
 | layout_item_size_entry { $$ = $1; } 
 | bounding_box_val { $$ = $1; }
-| bounding_box_origin { $$ = $1; }
+| bounding_box_pair { $$ = $1; }
 
 brak_prop_entry : T_IDENT ':' propval
 {
@@ -1141,7 +1141,13 @@ view_decl_prefix : T_VIEW { $$.Copy($1); ZapToken($1); }
 // 
 view_decl_head : view_decl_prefix brak_prop_sheet uictrl_type_opt 
 {
-	DLSYMBID scope_id = DCtx.EnterViewScope(0); // view {
+	DLSYMBID scope_id = 0;
+	if($1.Code == T_DIALOG) {
+		scope_id = DCtx.EnterViewScope(0); // dialog {
+	}
+	else {
+		scope_id = DCtx.EnterViewScope(0); // view {
+	}
 	if(!scope_id)
 		DCtx.Error();
 	else {
@@ -1152,7 +1158,13 @@ view_decl_head : view_decl_prefix brak_prop_sheet uictrl_type_opt
 } | view_decl_prefix T_IDENT brak_prop_sheet uictrl_type_opt 
 {
 	SString name($2.U.S);
-	DLSYMBID scope_id = DCtx.EnterViewScope(name); // view {
+	DLSYMBID scope_id = 0;
+	if($1.Code == T_DIALOG) {
+		scope_id = DCtx.EnterViewScope(name); // dialog {
+	}
+	else {
+		scope_id = DCtx.EnterViewScope(name); // view {
+	}
 	if(!scope_id)
 		DCtx.Error();
 	else {

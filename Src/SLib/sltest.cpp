@@ -794,12 +794,12 @@ int STestSuite::Run(const char * pIniFileName)
 							if(p_case->Run(0)) {
 								++succ;
 								if(Flags & fConsole)
-									slfprintf_stderr(temp_buf.Z().Tab(2).Cat("[OK]").CR());
+									slfprintf_stderr(temp_buf.Z().Tab_(2).Cat("[OK]").CR());
 							}
 							else {
 								++fail;
 								if(Flags & fConsole)
-									slfprintf_stderr(temp_buf.Z().Tab(2).Cat("[FAIL]").CR());
+									slfprintf_stderr(temp_buf.Z().Tab_(2).Cat("[FAIL]").CR());
 							}
 						} while(--c);
 						tm_finish = getprofiletime(thr_id);

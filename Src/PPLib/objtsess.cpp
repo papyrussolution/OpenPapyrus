@@ -2966,7 +2966,7 @@ int PPObjTSession::EvaluateLineQuantity(PPID sessID, PPID techID, const TSessLin
 		if(TecObj.GetGoodsStrucList(techID, 1, &gs, &tgs_list)) {
 			int    sign = 0;
 			SString formula;
-			if(tgs_list.SearchGoods(pRec->GoodsID, &sign, &formula) > 0) {
+			if(tgs_list.SearchGoods_(pRec->GoodsID, &sign, &formula)) {
 				if(formula.NotEmptyS()) {
 					double v = 0.0;
 					{
@@ -3033,7 +3033,7 @@ int PPObjTSession::SetupLineGoods(TSessLineTbl::Rec * pRec, PPID goodsID, const 
 		if(TecObj.Fetch(tses_rec.TechID, &tec_rec) > 0 && tec_rec.Flags & TECF_RECOMPLMAINGOODS)
 			is_recompl_tec = 1;
 		THROW(TecObj.GetGoodsStrucList(tses_rec.TechID, 1, 0, &tgs_list));
-		if(tgs_list.SearchGoods(goodsID, &sign, 0) > 0) {
+		if(tgs_list.SearchGoods_(goodsID, &sign, 0)) {
 			pRec->GoodsID = goodsID;
 			pRec->Sign    = sign;
 			if(sign > 0) {

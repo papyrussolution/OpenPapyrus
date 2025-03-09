@@ -1159,7 +1159,7 @@ bool   FASTCALL SString::IsEqNC(const SString & rS) const { return (CmpNC(rS) ==
 bool   FASTCALL SString::IsEqNC(const char * pS) const { return (CmpNC(pS) == 0); }
 int    SString::Last() const { return (L > 1) ? P_Buf[L-2] : 0; }
 bool   SString::NotEmptyS() { return Strip().NotEmpty(); }
-SString & FASTCALL SString::Tab(uint c) { return (oneof2(c, 1, 0) || c > 1000) ? CatChar('\t') : CatCharN('\t', c); }
+SString & FASTCALL SString::Tab_(uint c) { return (oneof2(c, 1, 0) || c > 1000) ? CatChar('\t') : CatCharN('\t', c); }
 SString & SString::Tab()     { return CatChar('\t'); }
 SString & SString::Space()   { return CatChar(' ');  }
 SString & SString::Dot()     { return CatChar('.');  }

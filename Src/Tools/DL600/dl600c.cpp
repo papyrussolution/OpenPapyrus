@@ -114,18 +114,17 @@ double CtmToken::GetDouble(uint * pCastFlags) const
 {
 	uint   cast_flags = STCASTF_NORMAL;
 	double result = 0.0;
-	if(Code == T_CONST_REAL)
-		result = U.FD;
-	else if(Code == T_CONST_INT)
-		result = U.I;
-	else if(Code == CtmToken::acLayoutItemSizeEntry) {
-		result = U.UIC.Val;
-		if(!(U.UIC.Flags & UiCoord::dfAbs)) {
-			cast_flags |= STCASTF_POT_LOSS;
-		}
+	switch(Code) {
+		case T_CONST_REAL: result = U.FD; break;
+		case T_CONST_INT: result = U.I; break;
+		case CtmToken::acLayoutItemSizeEntry:
+			result = U.UIC.Val;
+			if(!(U.UIC.Flags & UiCoord::dfAbs)) {
+				cast_flags |= STCASTF_POT_LOSS;
+			}
+			break;
+		default: cast_flags = STCASTF_UNDEF; break;
 	}
-	else
-		cast_flags = STCASTF_UNDEF;
 	ASSIGN_PTR(pCastFlags, cast_flags);
 	return result;
 }
@@ -134,20 +133,20 @@ float  CtmToken::GetFloat(uint * pCastFlags) const
 {
 	uint   cast_flags = STCASTF_NORMAL;
 	float  result = 0.0f;
-	if(Code == T_CONST_REAL)
-		result = static_cast<float>(U.FD);
-	else if(Code == T_CONST_INT) {
-		cast_flags |= STCASTF_POT_LOSS;
-		result = static_cast<float>(U.I);
-	}
-	else if(Code == CtmToken::acLayoutItemSizeEntry) {
-		result = U.UIC.Val;
-		if(!(U.UIC.Flags & UiCoord::dfAbs)) {
+	switch(Code) {
+		case T_CONST_REAL: result = static_cast<float>(U.FD); break;
+		case T_CONST_INT:
 			cast_flags |= STCASTF_POT_LOSS;
-		}
+			result = static_cast<float>(U.I);
+			break;
+		case CtmToken::acLayoutItemSizeEntry:
+			result = U.UIC.Val;
+			if(!(U.UIC.Flags & UiCoord::dfAbs)) {
+				cast_flags |= STCASTF_POT_LOSS;
+			}
+			break;
+		default: cast_flags = STCASTF_UNDEF; break;
 	}
-	else
-		cast_flags = STCASTF_UNDEF;
 	ASSIGN_PTR(pCastFlags, cast_flags);
 	return result;
 }
@@ -156,19 +155,18 @@ int CtmToken::GetInt(uint * pCastFlags) const
 {
 	uint   cast_flags = STCASTF_NORMAL;
 	int    result = 0;
-	if(Code == T_CONST_REAL) {
-		cast_flags |= STCASTF_POT_LOSS;
-		result = static_cast<int>(U.FD);
+	switch(Code) {
+		case T_CONST_REAL:
+			cast_flags |= STCASTF_POT_LOSS;
+			result = static_cast<int>(U.FD);
+			break;
+		case T_CONST_INT: result = U.I; break;
+		case CtmToken::acLayoutItemSizeEntry:
+			result = static_cast<int>(U.UIC.Val);
+			cast_flags |= STCASTF_POT_LOSS;
+			break;
+		default: cast_flags = STCASTF_UNDEF; break;
 	}
-	else if(Code == T_CONST_INT) {
-		result = U.I;
-	}
-	else if(Code == CtmToken::acLayoutItemSizeEntry) {
-		result = static_cast<int>(U.UIC.Val);
-		cast_flags |= STCASTF_POT_LOSS;
-	}
-	else
-		cast_flags = STCASTF_UNDEF;
 	ASSIGN_PTR(pCastFlags, cast_flags);
 	return result;
 }
@@ -529,22 +527,25 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 	// Следующие флаги устанавливаются в переменной occurence_flags для индикации факта, что
 	// свойство уже присутствует в списке.
 	enum {
-		occfNoWrap       = 0x0001,
-		occfBBox         = 0x0002,
-		occfGrowFactor   = 0x0004,
-		occfShrinkFactor = 0x0008,
-		occfReadOnly     = 0x0010,
-		occfStaticEdge   = 0x0020,
-		occfTabStop      = 0x0040,
-		occfDisabled     = 0x0080,
-		occfHidden       = 0x0100,
-		occfLabelBBox    = 0x0200,
-		occfMultiLine    = 0x0400,
-		occfWantReturn   = 0x0800,
-		occfPassword     = 0x1000,
-		occfDefault      = 0x2000,
-		occfFigureSymb   = 0x4000,
-		occfBBoxOrigin   = 0x8000, // @v12.2.9
+		occfNoWrap       = 0x00000001,
+		occfBBox         = 0x00000002,
+		occfGrowFactor   = 0x00000004,
+		occfShrinkFactor = 0x00000008,
+		occfReadOnly     = 0x00000010,
+		occfStaticEdge   = 0x00000020,
+		occfTabStop      = 0x00000040,
+		occfDisabled     = 0x00000080,
+		occfHidden       = 0x00000100,
+		occfLabelBBox    = 0x00000200,
+		occfMultiLine    = 0x00000400,
+		occfWantReturn   = 0x00000800,
+		occfPassword     = 0x00001000,
+		occfDefault      = 0x00002000,
+		occfFigureSymb   = 0x00004000,
+		occfBBoxOrigin   = 0x00008000, // @v12.2.9
+		occfBBoxSize     = 0x00010000, // @v12.2.10
+		occfWidth        = 0x00020000, // @v12.2.10
+		occfHeight       = 0x00040000, // @v12.2.10
 	};
 	enum {
 		occsLeft         = 0x0001,
@@ -557,6 +558,7 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 	uint   occurence_padding = 0; // occsXXX
 	uint   control_flags = 0; // UiItemKind::fXXX
 	uint   label_relation = SOW_UNKN; 
+	bool   debug_mark = false; // @debug
 	//
 	struct ControlFlagEntry {
 		uint   Flag;
@@ -785,6 +787,7 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 							alb.SetFixedSizeY(p_prop->Value.U.UIC.Val);
 						}
 					}
+					occurence_flags |= occfHeight;
 				}
 				else if(prop_key == "width") {
 					THROW(p_prop->Value.Code == CtmToken::acLayoutItemSizeEntry); // @err invalid width value
@@ -802,6 +805,7 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 							alb.SetFixedSizeX(p_prop->Value.U.UIC.Val);
 						}
 					}
+					occurence_flags |= occfWidth;
 				}
 				else if(prop_key == "margin") {
 					THROW(p_prop->Value.Code == CtmToken::acBoundingBox); // @err invalid margin value
@@ -899,15 +903,39 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 					}
 				}
 				else if(prop_key == "origin") { // @v12.2.9
-					THROW(p_prop->Value.Code == CtmToken::acBoundingBoxOrigin); // @err invalid bbox value
+					THROW(p_prop->Value.Code == CtmToken::acBoundingBoxPair); // @err invalid bbox value
 					if(!(occurence_flags & (occfBBox|occfBBoxOrigin))) { // @err dup feature
-						alb.Nominal.a.Set(p_prop->Value.U.Rect.L.X.Val, p_prop->Value.U.Rect.L.Y.Val);
-						//alb.Nominal.b.Set(p_prop->Value.U.Rect.R.X.Val, p_prop->Value.U.Rect.R.Y.Val);
+						const float local_x = p_prop->Value.U.Rect.L.X.Val;
+						const float local_y = p_prop->Value.U.Rect.L.Y.Val;
+						if(alb.Nominal.IsEmpty()) {
+							alb.Nominal.a.Set(local_x, local_y);
+						}
+						else {
+							const float w = alb.Nominal.Width();
+							const float h = alb.Nominal.Height();
+							alb.Nominal.a.x = local_x;
+							alb.Nominal.a.y = local_y;
+							alb.Nominal.b.x = local_x + w;
+							alb.Nominal.b.y = local_y + h;
+						}
 						occurence_flags |= occfBBoxOrigin;
 					}
 				}
 				else if(prop_key == "size") { // @v12.2.9
 					// @todo
+					// acLayoutItemSize
+					THROW(p_prop->Value.Code == CtmToken::acBoundingBoxPair); // @err invalid bbox value
+					if(!(occurence_flags & (occfBBox|occfBBoxSize))) { // @err dup feature
+						const float local_x = p_prop->Value.U.Rect.L.X.Val;
+						const float local_y = p_prop->Value.U.Rect.L.Y.Val;
+						alb.Nominal.b.x = alb.Nominal.a.x + local_x;
+						alb.Nominal.b.y = alb.Nominal.a.y + local_y;
+						//
+						alb.SetFixedSizeX(local_x);
+						alb.SetFixedSizeY(local_y);
+						occurence_flags |= occfBBoxSize;
+					}
+					debug_mark = true;
 				}
 				else if(prop_key == "variable") {
 					if(var_ident.IsEmpty()) { // @err dup feature
@@ -1039,8 +1067,14 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 	}
 	if(pViewKind) {
 		if(pViewKind->IsIdent() || pViewKind->IsString()) {
-			uint32 view_kind = 0;
 			prop_val = pViewKind->U.S;
+			// @v12.2.10 {
+			uint32 view_kind = UiItemKind::GetIdBySymb(prop_val);
+			if(!view_kind) {
+				; // @error invalid view kind
+			}
+			// } @v12.2.10 
+			/* @v12.2.10
 			if(prop_val.IsEqiAscii("view")) {
 				view_kind = UiItemKind::kGenericView;
 			}
@@ -1085,9 +1119,32 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 			}
 			else {
 				// @error invalid view kind
-			}
+			}*/
 			{
 				SETIFZ(view_kind, UiItemKind::kGenericView);
+				CtmExprConst c;
+				THROW(AddConst(view_kind, &c));
+				p_scope->AddConst(DlScope::cuifViewKind, c, 1);
+			}
+		}
+		else {
+			uint32 view_kind = 0;
+			switch(pViewKind->Code) {
+				case T_DIALOG: view_kind = UiItemKind::kDialog; break;
+				case T_INPUT: view_kind = UiItemKind::kInput; break;
+				case T_STATICTEXT: view_kind = UiItemKind::kStatic; break;
+				case T_IMAGEVIEW: view_kind = UiItemKind::kImageView; break;
+				case T_FRAMEBOX: view_kind = UiItemKind::kFrame; break;
+				case T_COMBOBOX: view_kind = UiItemKind::kCombobox; break;
+				case T_BUTTON: view_kind = UiItemKind::kPushbutton; break;
+				case T_CHECKBOX: view_kind = UiItemKind::kCheckbox; break;
+				case T_CHECKBOXCLUSTER: view_kind = UiItemKind::kCheckCluster; break;
+				case T_RADIOCLUSTER: view_kind = UiItemKind::kRadioCluster; break;
+				case T_RADIOBUTTON: view_kind = UiItemKind::kRadiobutton; break;
+				case T_LISTBOX: view_kind = UiItemKind::kListbox; break;
+				case T_TREELISTBOX: view_kind = UiItemKind::kTreeListbox; break;
+			}
+			if(view_kind) {
 				CtmExprConst c;
 				THROW(AddConst(view_kind, &c));
 				p_scope->AddConst(DlScope::cuifViewKind, c, 1);
@@ -1437,7 +1494,7 @@ uint DlContext::AddUiCtrl(int kind, const CtmToken & rSymb, const CtmToken & rTe
 		ss_r = GetUiSymbSeries(rSymb.U.S, symb_ser, &ss_id);
 		if(p_dlg_scope->GetConst(DlScope::cuifSymbSeries, &c_ss)) {
 			char   s_buf[256];
-			PTR32(s_buf)[0] = 0;
+			s_buf[0] = 0;
 			GetConstData(c_ss, s_buf, sizeof(s_buf));
 			dlg_symb_ser = s_buf;
 			THROW(dlg_ss_id = CreateSymb(symb_ser, '$', 0));
@@ -1754,20 +1811,20 @@ int DlContext::Write_Scope(int indent, SFile & rOutFile, const DlScope & rScope)
 	SString fld_buf;
 	SdbField fld;
 	for(i = 0; rScope.EnumFields(&i, &fld);) {
-		fld_buf.Z().CatCharN('\t', indent+1).Cat(fld.Name).CatDiv(';', 2).CatEq("size", (long)fld.T.GetBinSize()).CR();
+		fld_buf.Z().Tab_(indent+1).Cat(fld.Name).CatDiv(';', 2).CatEq("size", (long)fld.T.GetBinSize()).CR();
 		rOutFile.WriteLine(fld_buf);
 	}
 	for(i = 0; rScope.EnumChilds(&i, &p_child);)
 		if(p_child)
 			Write_Scope(indent+1, rOutFile, *p_child); // @recursion
 		else
-			rOutFile.WriteLine(line.Z().CatCharN('\t', indent+1).Cat("null").CR());
+			rOutFile.WriteLine(line.Z().Tab_(indent+1).Cat("null").CR());
 	{
 		DlFunc func;
 		SString func_name;
 		for(i = 0; rScope.GetFuncByPos(i, &func); i++) {
 			Format_Func(func, 0, func_name);
-			line.Z().CatCharN('\t', indent+1).Cat(func_name).CR();
+			line.Z().Tab_(indent+1).Cat(func_name).CR();
 			rOutFile.WriteLine(line);
 		}
 	}
@@ -1809,7 +1866,11 @@ int DlContext::Write_DialogReverse()
 	}
 	char   c_buf[1024]; // Буфер для извлечения констант
 	SFile f_out(out_file_name, SFile::mWrite);
-	SString line_buf, temp_buf, text_buf, cmd_buf, type_buf;
+	SString line_buf;
+	SString temp_buf;
+	SString text_buf;
+	SString cmd_buf;
+	SString type_buf;
 	LongArray scope_id_list;
 	StrAssocArray prop_list;
 	SdbField ctrl, ctrl_item;
@@ -3011,78 +3072,84 @@ DLSYMBID DlContext::EnterScope(uint scopeKind, const char * pName, DLSYMBID scop
 	return id;
 }
 
-DLSYMBID DlContext::EnterViewScope(const char * pSymb)
+DLSYMBID DlContext::Helper_EnterViewScope(uint scopeKind, const char * pSymb)
 {
-	const uint scope_kind = DlScope::kUiView;
-	// @fixme AddStructType(symb_id) в случае view не нужно (или нужно?)
 	DLSYMBID id = 0;
-	DlScope * p_cur_scope = GetCurScope();
-	assert(p_cur_scope); // Не может такого быть, что нет текущей области: значит мы вызывали функцию откуда-то не от туда.
-	if(p_cur_scope) {
-		DLSYMBID symb_id = 0;
-		SString name_;
-		if(isempty(pSymb)) {
-			S_GUID uuid;
-			uuid.Generate();
-			uuid.ToStr(S_GUID::fmtPlain, name_); // automatic generated ident
-			const int ssr = SearchSymb(name_, '^', &symb_id);
-			assert(!ssr); // Если ssr != то нам удалось найти дубликат GUID'а: можно ползти на кладбище - в этом чертовом мире делать больше нечего
-			if(!ssr) {
-				symb_id = CreateSymb(name_, '^', 0);
-				THROW(symb_id);
-			}
-			else {
-				SetError(PPERR_DL6_CLASSEXISTS, name_);
-				CALLEXCEPT();
-			}
-		}
-		else {
-			const DlScope * p_top_view_scope = 0;
-			const DlScope * p_par = p_cur_scope;
-			if(p_par->GetKind() == scope_kind) {
-				do {
-					p_top_view_scope = p_par;
-					p_par = p_par->GetOwner();
-				} while(p_par && p_par->GetKind() == scope_kind);
-			}
-			if(p_top_view_scope) {
-				//
-				// Если родительская область вида DlScope::kUiView существует, то проверяем уникальность
-				// символа только внутри нее.
-				//
-				DLSYMBID local_par_id = 0;
-				if(!p_top_view_scope->SearchByName_Const(scope_kind, pSymb, &local_par_id)) {
-					if(!SearchSymb(pSymb, '^', &symb_id)) {
-						symb_id = CreateSymb(pSymb, '^', 0);
-						THROW(symb_id);
-					}					
-				}
-				else {
-					CALLEXCEPT(); // @todo err
-				}
-			}
-			else {
-				//
-				// Если родительская область вида DlScope::kUiView не существует, значит мы создаем топовую
-				// область такого вида. Стало быть символ должет быть уникальным "насквозь".
-				//
-				if(!SearchSymb(pSymb, '^', &symb_id)) {
-					symb_id = CreateSymb(pSymb, '^', 0);
+	assert(oneof2(scopeKind, DlScope::kUiView, DlScope::kUiDialog));
+	if(oneof2(scopeKind, DlScope::kUiView, DlScope::kUiDialog)) {
+		const uint scope_kind = scopeKind;
+		// @fixme AddStructType(symb_id) в случае view не нужно (или нужно?)
+		DlScope * p_cur_scope = GetCurScope();
+		assert(p_cur_scope); // Не может такого быть, что нет текущей области: значит мы вызывали функцию откуда-то не от туда.
+		if(p_cur_scope) {
+			DLSYMBID symb_id = 0;
+			SString name_;
+			if(isempty(pSymb)) {
+				S_GUID uuid;
+				uuid.Generate();
+				uuid.ToStr(S_GUID::fmtPlain, name_); // automatic generated ident
+				const int ssr = SearchSymb(name_, '^', &symb_id);
+				assert(!ssr); // Если ssr != то нам удалось найти дубликат GUID'а: можно ползти на кладбище - в этом чертовом мире делать больше нечего
+				if(!ssr) {
+					symb_id = CreateSymb(name_, '^', 0);
 					THROW(symb_id);
 				}
 				else {
-					SetError(PPERR_DL6_CLASSEXISTS, pSymb);
+					SetError(PPERR_DL6_CLASSEXISTS, name_);
 					CALLEXCEPT();
 				}
 			}
+			else {
+				const DlScope * p_top_view_scope = 0;
+				const DlScope * p_par = p_cur_scope;
+				if(p_par->GetKind() == scope_kind) {
+					do {
+						p_top_view_scope = p_par;
+						p_par = p_par->GetOwner();
+					} while(p_par && p_par->GetKind() == scope_kind);
+				}
+				if(p_top_view_scope) {
+					//
+					// Если родительская область вида DlScope::kUiView существует, то проверяем уникальность
+					// символа только внутри нее.
+					//
+					DLSYMBID local_par_id = 0;
+					if(!p_top_view_scope->SearchByName_Const(scope_kind, pSymb, &local_par_id)) {
+						if(!SearchSymb(pSymb, '^', &symb_id)) {
+							symb_id = CreateSymb(pSymb, '^', 0);
+							THROW(symb_id);
+						}					
+					}
+					else {
+						CALLEXCEPT(); // @todo err
+					}
+				}
+				else {
+					//
+					// Если родительская область вида DlScope::kUiView не существует, значит мы создаем топовую
+					// область такого вида. Стало быть символ должет быть уникальным "насквозь".
+					//
+					if(!SearchSymb(pSymb, '^', &symb_id)) {
+						symb_id = CreateSymb(pSymb, '^', 0);
+						THROW(symb_id);
+					}
+					else {
+						SetError(PPERR_DL6_CLASSEXISTS, pSymb);
+						CALLEXCEPT();
+					}
+				}
+			}
+			id = EnterScope(scope_kind, name_, symb_id, 0);  // view {
 		}
-		id = EnterScope(scope_kind, name_, symb_id, 0);  // view {
 	}
 	CATCH
 		id = 0;
 	ENDCATCH
 	return id;
 }
+
+DLSYMBID DlContext::EnterViewScope(const char * pSymb) { return Helper_EnterViewScope(DlScope::kUiView, pSymb); }
+DLSYMBID DlContext::EnterDialogScope(const char * pSymb) { return Helper_EnterViewScope(DlScope::kUiDialog, pSymb); }
 
 int DlContext::LeaveScope()
 {
@@ -4443,7 +4510,6 @@ int DlContext::Write_C_ImplFile(Generator_CPP & gen, const DlScope & rScope, lon
 //
 int DlContext::Write_Code()
 {
-	// CtmConstList AddConst
 	int    ok = 1;
 	if(fileExists(BinFileName))
 		::remove(BinFileName);
@@ -4455,11 +4521,11 @@ int DlContext::Write_Code()
 	SString symb;
 	THROW(outf.Write(&hdr, sizeof(hdr)));
 	//
-	for(Tab.InitIteration(&hti); Tab.NextIteration(&hti, &symb_id, 0, &symb) > 0;) {
+	for(Ht.InitIteration(&hti); Ht.NextIteration(&hti, &symb_id, 0, &symb) > 0;) {
 		THROW(buf.Write(&symb_id, sizeof(symb_id)));
 		THROW(buf.Write(symb));
 	}
-	symb_id = 0xffffffffU;
+	symb_id = _FFFF32;
 	symb = "<<EOT>>";
 	THROW(buf.Write(&symb_id, sizeof(symb_id)));
 	THROW(buf.Write(symb));
@@ -4678,6 +4744,54 @@ int DlContext::CreateDbDictionary(const char * pDictPath, const char * pDataPath
 
 #define DL600C_RELEASE_DEBUG
 
+int DlContext::Write_UiView(const DlScope * pScope, uint indentTabCount, SString & rOutBuf)
+{
+	int    ok = 1;
+	bool   debug_mark = false; // @debug
+	if(pScope) {
+		SString temp_buf;
+		uint8 c_buf[1024];
+		DlScope::GetKindSymb(pScope->GetKind(), temp_buf);
+		if(indentTabCount)
+			rOutBuf.Tab_(indentTabCount);
+		rOutBuf.CatChar('#').Cat(pScope->GetId()).Space().Cat(temp_buf);
+		{
+			uint32 vk = 0;
+			CtmExprConst c_vk = pScope->GetConst(DlScope::cuifViewKind);
+			if(!!c_vk) {
+				if(GetConstData(c_vk, c_buf, sizeof(c_buf))) {
+					vk = *reinterpret_cast<const uint32 *>(c_buf);
+				}
+			}
+			if(vk) {
+				rOutBuf.Space();
+				UiItemKind::GetSymbById(vk, temp_buf);
+				rOutBuf.Space().Cat(temp_buf);
+			}
+		}
+		{
+			CtmExprConst c_lb = pScope->GetConst(DlScope::cuifLayoutBlock);
+			if(!!c_lb) {
+				if(GetConstData(c_lb, c_buf, sizeof(c_buf))) {
+					const SUiLayoutParam * p_lp = reinterpret_cast<const SUiLayoutParam *>(c_buf);
+					debug_mark = true;
+				}
+			}
+		}
+		rOutBuf.CR();
+		{
+			const DlScopeList & r_sl = pScope->GetChildList();
+			for(uint sli = 0; sli < r_sl.getCount(); sli++) {
+				const DlScope * p_s = r_sl.at(sli);
+				Write_UiView(p_s, indentTabCount+1, rOutBuf); // @recursion
+			}
+		}
+	}
+	else
+		ok = -1;
+	return ok;
+}
+
 int DlContext::Compile(const char * pInFileName, const char * pDictPath, const char * pDataPath, long cflags)
 {
 	extern FILE * yyin;
@@ -4736,13 +4850,28 @@ int DlContext::Compile(const char * pInFileName, const char * pDictPath, const c
 			gen.Wr_Define(h_once_macro, 0);
 			gen.WriteBlancLine();
 			// @v12.2.9 {
+			LongArray file_sc_list;
+			Sc.GetChildList(DlScope::kFile, 1, &file_sc_list);
 			if(Sc.GetFirstChildByKind(DlScope::kUiView, 1)) {
-				scope_id_list.freeAll();
-				Sc.GetChildList(DlScope::kUiView, 1, &scope_id_list);				
-				for(i = 0; i < scope_id_list.getCount(); i++) {
-					const DlScope * p_scope = GetScope(scope_id_list.at(i), 0);
-					if(p_scope) {
-						temp_buf.Z().Cat(p_scope->GetId());
+				SFsPath ps;
+				ps.Split(InFileName);
+				ps.Nam.CatChar('-').Cat("out");
+				ps.Ext = "txt";
+				ps.Merge(temp_buf);
+				SFile f_view_out(temp_buf, SFile::mWrite);
+				for(uint fscidx = 0; fscidx < file_sc_list.getCount(); fscidx++) {
+					const long file_scope_id = file_sc_list.get(fscidx);
+					const DlScope * p_file_scope = GetScope(file_scope_id, 0);
+					if(p_file_scope) {
+						scope_id_list.freeAll();
+						p_file_scope->GetChildList(DlScope::kUiView, /*1*/0/*recursive*/, &scope_id_list);
+						for(i = 0; i < scope_id_list.getCount(); i++) {
+							const DlScope * p_scope = GetScope(scope_id_list.at(i), 0);
+							line_buf.Z();
+							if(Write_UiView(p_scope, 0, line_buf) > 0) {
+								f_view_out.WriteLine(line_buf.CR());
+							}
+						}
 					}
 				}
 			}

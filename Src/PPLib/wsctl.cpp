@@ -1695,6 +1695,7 @@ int WsCtlSrvBlock::SendClientPolicy(SString & rResult)
 		p_js->ToStr(rResult);
 	}
 	CATCHZOK
+	delete p_js; // @v12.2.10 @fix
 	return ok;
 }
 
@@ -1703,8 +1704,8 @@ int WsCtlSrvBlock::SendProgramList(bool mock, SString & rResult)
 	rResult.Z();
 	int    ok = -1;
 	SJson * p_js = 0;
-	SString temp_buf;
 	if(mock) {
+		SString temp_buf;
 		PPGetPath(PPPATH_WORKSPACE, temp_buf);
 		temp_buf.SetLastSlash().Cat("wsctl").SetLastSlash().Cat("wsctl-program.json");
 		p_js = SJson::ParseFile(temp_buf);
@@ -1717,15 +1718,15 @@ int WsCtlSrvBlock::SendProgramList(bool mock, SString & rResult)
 	}
 	else {
 		PPObjSwProgram pgm_obj;
-		SJson * p_js = pgm_obj.ExportToJson(0/*pImgPath*/);
+		p_js = pgm_obj.ExportToJson(0/*pImgPath*/);
 		if(p_js) {
 			if(p_js->ToStr(rResult)) {
 				ok = 1;
 			}
-			ZDELETE(p_js);
 		}
 	}
 	CATCHZOK
+	ZDELETE(p_js);
 	return ok;	
 }
 //

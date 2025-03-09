@@ -39,7 +39,7 @@ int MemHeapTracer::CalcStat(Stat * pStat)
 	_HEAPINFO blk;
 	int    r = 0;
 	blk._pentry = NULL;
-	while((r = _heapwalk(&blk)) == _HEAPOK)
+	while((r = _heapwalk(&blk)) == _HEAPOK) {
 		if(blk._useflag == _USEDENTRY) {
 			pStat->UsedBlockCount++;
 			pStat->UsedSize += blk._size;
@@ -48,6 +48,7 @@ int MemHeapTracer::CalcStat(Stat * pStat)
 			pStat->UnusedBlockCount++;
 			pStat->UnusedSize += blk._size;
 		}
+	}
 	return oneof3(r, _HEAPBADPTR, _HEAPBADBEGIN, _HEAPBADNODE) ? 0 : 1;
 }
 //

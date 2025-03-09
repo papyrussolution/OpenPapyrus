@@ -2178,7 +2178,7 @@ bool SrUedContainer_Ct::GenerateSourceDecl_Java(const char * pFileName, uint ver
 							assert(max_symb_len >= def_symb.Len());
 							def_symb.CatCharN(' ', (max_symb_len+1)-def_symb.Len());
 							def_value.Z().Cat("0x").CatHex(r_be_inner.Id).Cat("L");
-							temp_buf.Z().Tab(2).Cat("public static final long").Space().Cat(def_symb).Eq().Space().Cat(def_value).Semicol().CR();
+							temp_buf.Z().Tab_(2).Cat("public static final long").Space().Cat(def_symb).Eq().Space().Cat(def_value).Semicol().CR();
 							genf.WriteLine(temp_buf);
 						}
 					}

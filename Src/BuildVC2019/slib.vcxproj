@@ -2083,6 +2083,9 @@
     <ClCompile Include="..\SLib\sdecimal.cpp" />
     <ClCompile Include="..\SLib\sdrecord.cpp" />
     <ClCompile Include="..\SLib\sfilestorage.cpp" />
+    <ClCompile Include="..\SLib\simplecpp\main.cpp" />
+    <ClCompile Include="..\SLib\simplecpp\simplecpp.cpp" />
+    <ClCompile Include="..\SLib\simplecpp\test.cpp" />
     <ClCompile Include="..\SLib\slrecmgr.cpp" />
     <ClCompile Include="..\SLib\sltabs.cpp" />
     <ClCompile Include="..\SLib\smemchr.cpp" />
@@ -4635,6 +4638,7 @@
     <ClInclude Include="..\SLib\mimalloc\mimalloc-override.h" />
     <ClInclude Include="..\SLib\mimalloc\mimalloc-types.h" />
     <ClInclude Include="..\SLib\mimalloc\mimalloc.h" />
+    <ClInclude Include="..\SLib\simplecpp\simplecpp.h" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\OSF\ASMLIB\cachesize64.asm">

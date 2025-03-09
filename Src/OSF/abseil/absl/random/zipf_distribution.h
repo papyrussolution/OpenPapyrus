@@ -49,7 +49,7 @@ public:
 		result_type k() const { return k_; }
 		double q() const { return q_; }
 		double v() const { return v_; }
-		friend bool operator ==(const param_type& a, const param_type& b) { return a.k_ == b.k_ && a.q_ == b.q_ && a.v_ == b.v_; }
+		friend bool operator == (const param_type& a, const param_type& b) { return a.k_ == b.k_ && a.q_ == b.q_ && a.v_ == b.v_; }
 		friend bool operator != (const param_type& a, const param_type& b) { return !(a == b); }
 private:
 		friend class zipf_distribution;
@@ -91,7 +91,7 @@ private:
 	void param(const param_type& p) { param_ = p; }
 	result_type(min)() const { return 0; }
 	result_type(max)() const { return k(); }
-	friend bool operator ==(const zipf_distribution& a, const zipf_distribution& b) 
+	friend bool operator == (const zipf_distribution& a, const zipf_distribution& b) 
 	{
 		return a.param_ == b.param_;
 	}

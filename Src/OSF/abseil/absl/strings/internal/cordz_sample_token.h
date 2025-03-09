@@ -60,7 +60,7 @@ public:
 
 		Iterator& operator++();
 		Iterator operator++(int);
-		friend bool operator ==(const Iterator& lhs, const Iterator& rhs);
+		friend bool operator == (const Iterator& lhs, const Iterator& rhs);
 		friend bool operator !=(const Iterator& lhs, const Iterator& rhs);
 		reference operator*() const;
 		pointer operator->() const;

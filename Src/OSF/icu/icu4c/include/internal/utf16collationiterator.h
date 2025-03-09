@@ -33,7 +33,7 @@ public:
 	}
 	UTF16CollationIterator(const UTF16CollationIterator &other, const char16_t * newText);
 	virtual ~UTF16CollationIterator();
-	virtual bool operator ==(const CollationIterator &other) const override;
+	virtual bool operator == (const CollationIterator &other) const override;
 	virtual void resetToOffset(int32_t newOffset) override;
 	virtual int32_t getOffset() const override;
 	void setText(const char16_t * s, const char16_t * lim) 
@@ -70,7 +70,7 @@ public:
 	}
 	FCDUTF16CollationIterator(const FCDUTF16CollationIterator &other, const char16_t * newText);
 	virtual ~FCDUTF16CollationIterator();
-	virtual bool operator ==(const CollationIterator &other) const override;
+	virtual bool operator == (const CollationIterator &other) const override;
 	virtual void resetToOffset(int32_t newOffset) override;
 	virtual int32_t getOffset() const override;
 	virtual UChar32 nextCodePoint(UErrorCode & errorCode) override;

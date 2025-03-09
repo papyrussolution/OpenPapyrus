@@ -3999,13 +3999,13 @@ void PPViewGoods::Test_EgaisMarkAutoSelector(PPID goodsID)
 								if(p_te) {
 									GetGoodsName(p_te->GoodsID, temp_buf);
 									temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
-									line_buf.Z().Tab(2).Cat(temp_buf).Space().CatEq("lotid", p_te->LotID).Space().Cat(p_te->LotDate, DATF_ISO8601).Space().CatEq("qty", p_te->Qtty, MKSFMTD(0, 3, 0));
+									line_buf.Z().Tab_(2).Cat(temp_buf).Space().CatEq("lotid", p_te->LotID).Space().Cat(p_te->LotDate, DATF_ISO8601).Space().CatEq("qty", p_te->Qtty, MKSFMTD(0, 3, 0));
 									f_out.WriteLine(line_buf.CR());
 									if(p_te->ML.getCount()) {
 										for(uint mlidx = 0; mlidx < p_te->ML.getCount(); mlidx++) {
 											const EgaisMarkAutoSelector::_MarkEntry * p_me = p_te->ML.at(mlidx);
 											if(p_me) {
-												line_buf.Z().Tab(3).Cat(p_me->Mark).Space().Cat(p_me->Rest, MKSFMTD(0, 3, 0));
+												line_buf.Z().Tab_(3).Cat(p_me->Mark).Space().Cat(p_me->Rest, MKSFMTD(0, 3, 0));
 												f_out.WriteLine(line_buf.CR());
 											}
 										}
@@ -4013,7 +4013,7 @@ void PPViewGoods::Test_EgaisMarkAutoSelector(PPID goodsID)
 								}
 							}
 							/*for(uint ssp = 0; p_entry->SsMark.get(&ssp, temp_buf);) {
-								line_buf.Z().Tab(2).Cat(temp_buf);
+								line_buf.Z().Tab_(2).Cat(temp_buf);
 								f_out.WriteLine(line_buf.CR());
 							}*/
 						}

@@ -423,8 +423,8 @@ int DBTable::Debug_Output(SString & rBuf) const
 		CAT_FLD_HEX((long)indexes[i].getFlags(), rBuf.Tab()).CR();
 		CAT_FLD(indexes[i].getNumSeg(), rBuf.Tab()).CR();
 		for(int j = 0; j < indexes[i].getNumSeg(); j++) {
-			CAT_FLD(indexes[i].getFieldID(j), rBuf.Tab(2)).CR();
-			CAT_FLD_HEX((long)indexes[i].getFlags(j), rBuf.Tab(2)).CR();
+			CAT_FLD(indexes[i].getFieldID(j), rBuf.Tab_(2)).CR();
+			CAT_FLD_HEX((long)indexes[i].getFlags(j), rBuf.Tab_(2)).CR();
 		}
 	}
 	return ok;

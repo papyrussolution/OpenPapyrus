@@ -865,6 +865,15 @@
       <Filter>fnv-hash</Filter>
     </ClCompile>
     <ClCompile Include="..\SLib\slrecmgr.cpp" />
+    <ClCompile Include="..\SLib\simplecpp\main.cpp">
+      <Filter>SimpleCPP</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\simplecpp\simplecpp.cpp">
+      <Filter>SimpleCPP</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\simplecpp\test.cpp">
+      <Filter>SimpleCPP</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\json.h">
@@ -1004,6 +1013,9 @@
     </ClInclude>
     <ClInclude Include="..\SLib\fnv-503\fnv.h">
       <Filter>fnv-hash</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SLib\simplecpp\simplecpp.h">
+      <Filter>SimpleCPP</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1266,6 +1278,9 @@
     </Filter>
     <Filter Include="fnv-hash">
       <UniqueIdentifier>{f05471ff-4d12-45e2-a0a8-535bf2cf7a63}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SimpleCPP">
+      <UniqueIdentifier>{dc3e8b7d-501f-4182-85c2-5512dcf7f829}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

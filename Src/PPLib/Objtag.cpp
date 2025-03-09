@@ -824,15 +824,15 @@ int SelfbuildStaffForManual_ReservedObjTagList()
 				line_buf.Tab().BSlash().Cat("item").CatBrackStr(tag_name).CR();
 				line_buf.CR();
 				PPLoadString("id", temp_buf);
-				line_buf.Tab(2).CatEq(temp_buf.Transf(CTRANSF_INNER_TO_OUTER), id).CR();
+				line_buf.Tab_(2).CatEq(temp_buf.Transf(CTRANSF_INNER_TO_OUTER), id).CR();
 				PPLoadString("symbol", temp_buf);
-				line_buf.Tab(2).CatCharN('\\', 2).Cat(temp_buf.Transf(CTRANSF_INNER_TO_OUTER)).CatDiv('=', 1).
+				line_buf.Tab_(2).CatCharN('\\', 2).Cat(temp_buf.Transf(CTRANSF_INNER_TO_OUTER)).CatDiv('=', 1).
 					BSlash().Cat("ppyrsrv").CatChar('{').Cat(tag_symb).CatChar('}').CR();
 				PPLoadString("objtype", temp_buf);
-				line_buf.Tab(2).CatCharN('\\', 2).Cat(temp_buf.Transf(CTRANSF_INNER_TO_OUTER)).CatDiv('=', 1).
+				line_buf.Tab_(2).CatCharN('\\', 2).Cat(temp_buf.Transf(CTRANSF_INNER_TO_OUTER)).CatDiv('=', 1).
 					BSlash().Cat("ppyrsrv").CatChar('{').Cat(obj_type_symb).CatChar('}').CR();
 				PPLoadString("tagtype", temp_buf);
-				line_buf.Tab(2).CatCharN('\\', 2).Cat(temp_buf.Transf(CTRANSF_INNER_TO_OUTER)).CatDiv('=', 1).
+				line_buf.Tab_(2).CatCharN('\\', 2).Cat(temp_buf.Transf(CTRANSF_INNER_TO_OUTER)).CatDiv('=', 1).
 					BSlash().Cat("ppyrsrv").CatChar('{').Cat(data_type_symb).CatChar('}').CR();
 				doc_file.WriteLine(line_buf);
 			}

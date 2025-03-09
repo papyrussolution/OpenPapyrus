@@ -1,5 +1,5 @@
 // SSTACK.CPP
-// Copyright (c) Sobolev A. 1995..2000, 2002, 2003, 2007, 2008, 2010, 2016, 2017, 2019, 2020, 2021
+// Copyright (c) Sobolev A. 1995..2000, 2002, 2003, 2007, 2008, 2010, 2016, 2017, 2019, 2020, 2021, 2025
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -14,8 +14,8 @@
 SStack::SStack(uint itemSize, uint o) : SArray(itemSize, o)
 {
 	pointer = 0;
-	if(VFlags & aryRing/* && delta*/) {
-		// @v9.8.4 expand(/*delta*/32);
+	if(VFlags & aryRing) {
+		;
 	}
 }
 
@@ -67,7 +67,7 @@ void * SStack::pop()
 		return at(pointer);
 	}
 	else
-		return (SLibError = SLERR_ARYZEROCOUNT, (void *)0);
+		return (SLibError = SLERR_ARYZEROCOUNT, nullptr);
 }
 
 int FASTCALL SStack::pop(void * pItem)
@@ -103,7 +103,7 @@ void * SStack::peek() const
 		return at(Limit-1);
 	}
 	else
-		return (SLibError = SLERR_ARYZEROCOUNT, reinterpret_cast<void *>(0));
+		return (SLibError = SLERR_ARYZEROCOUNT, nullptr);
 }
 //
 //

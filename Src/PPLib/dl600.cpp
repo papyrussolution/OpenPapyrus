@@ -1,5 +1,5 @@
 // DL600.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 //
 #include <pp.h>
 #pragma hdrstop
@@ -287,10 +287,7 @@ CtmExprConst & CtmExprConst::Init()
 	return *this;
 }
 
-int CtmExprConst::operator !() const
-{
-	return (TypeId == 0);
-}
+bool CtmExprConst::operator !() const { return (TypeId == 0); }
 //
 //
 //
@@ -1500,7 +1497,7 @@ _skip_switch:
 	#undef CTONLY
 }
 
-DlContext::DlContext(int toCompile) : Tab(8192, 1), ScopeStack(sizeof(DLSYMBID)), Sc(0, DlScope::kGlobal, "global", 0),
+DlContext::DlContext(int toCompile) : Ht(8192, 1), ScopeStack(sizeof(DLSYMBID)), Sc(0, DlScope::kGlobal, "global", 0),
 	LastSymbId(0), UniqCntr(0), CurScopeID(0), Flags(0), P_M(0)
 {
 	F_Dot.Z();
@@ -1559,7 +1556,7 @@ DlContext::DlContext(int toCompile) : Tab(8192, 1), ScopeStack(sizeof(DLSYMBID))
 
 DLSYMBID DlContext::GetNewSymbID()
 {
-	SETIFZ(LastSymbId, Tab.GetMaxVal());
+	SETIFZ(LastSymbId, Ht.GetMaxVal());
 	return ++LastSymbId;
 }
 
@@ -1579,7 +1576,7 @@ DLSYMBID DlContext::Helper_CreateSymb(const char * pSymb, DLSYMBID newId, int pr
 		if(qualif.NotEmpty())
 			name.CatChar('@').Cat(qualif);
 	}
-	if(Tab.Search(name, &id, 0)) {
+	if(Ht.Search(name, &id, 0)) {
 		if(flags & crsymfErrorOnDup) {
 			SetError(PPERR_DL6_DUPSYMB, name);
 			id = 0;
@@ -1587,21 +1584,21 @@ DLSYMBID DlContext::Helper_CreateSymb(const char * pSymb, DLSYMBID newId, int pr
 	}
 	else {
 		if(newId) {
-			if(Tab.GetByAssoc(newId, temp_buf)) {
+			if(Ht.GetByAssoc(newId, temp_buf)) {
 				SString msg_buf;
 				msg_buf.Cat(newId).Space().CatChar('(').Cat(temp_buf).Cat("-->").Cat(pSymb);
 				SetError(PPERR_DL6_SYMBIDBUSY, msg_buf);
 			}
 			else {
 				id = newId;
-				Tab.Add(name, id, 0);
+				Ht.Add(name, id, 0);
 			}
 		}
 		else {
 			do {
 				id = GetNewSymbID();
-			} while(Tab.GetByAssoc(id, temp_buf));
-			Tab.Add(name, id, 0);
+			} while(Ht.GetByAssoc(id, temp_buf));
+			Ht.Add(name, id, 0);
 		}
 	}
 	return id;
@@ -2460,7 +2457,7 @@ int FASTCALL DlContext::GetRefFunc(CtmFunc * pF)
 int DlContext::GetSymb(DLSYMBID id, SString & rBuf, int prefix) const
 {
 	int    ok = 1;
-	if(Tab.GetByAssoc(id, rBuf)) {
+	if(Ht.GetByAssoc(id, rBuf)) {
 		if(prefix)
 			if(rBuf.C(0) == prefix)
 				rBuf.ShiftLeft(1);
@@ -2482,7 +2479,7 @@ int DlContext::SearchSymb(const char * pSymb, int prefix, DLSYMBID * pID) const
 	if(prefix)
 		temp_buf.CatChar(prefix);
 	temp_buf.Cat(pSymb);
-	if(!Tab.Search(temp_buf, &id, 0))
+	if(!Ht.Search(temp_buf, &id, 0))
 		ok = SetError(PPERR_DL6_SYMBNFOUND, temp_buf);
 	else
 		ASSIGN_PTR(pID, id);
@@ -2762,7 +2759,7 @@ int DlContext::Format_TypeEntry(const TypeEntry & rEntry, SString & rBuf)
 	int    ok = 1;
 	TypeEntry te;
 	SString line, name;
-	if(!Tab.GetByAssoc(rEntry.SymbID, name))
+	if(!Ht.GetByAssoc(rEntry.SymbID, name))
 		name = "noname";
 	line.CatEq(name, (long)rEntry.SymbID).CatDiv(':', 1);
 	//
@@ -3062,7 +3059,7 @@ int DlContext::Read_Code()
 				eot = 1;
 			}
 			else {
-				THROW(Tab.Add(symb, symb_id, 0));
+				THROW(Ht.Add(symb, symb_id, 0));
 			}
 		} while(!eot);
 		THROW(ConstList.Read(&buf));
@@ -3078,7 +3075,7 @@ int DlContext::Read_Code()
 int DlContext::Test_ReWr_Code(const DlContext & rPattern)
 {
 	int    ok = 1;
-	THROW(Tab.Test_Cmp(rPattern.Tab));
+	THROW(Ht.Test_Cmp(rPattern.Ht));
 	THROW(ConstList.Test_Cmp(rPattern.ConstList));
 	THROW(TypeList.IsEq(rPattern.TypeList));
 	THROW(UuidList.IsEq(rPattern.UuidList));
@@ -3102,11 +3099,13 @@ int DlContext::SetError(int errCode, const char * pAddedMsg) const
 int DlContext::Error(int errCode, const char * pAddedInfo, long flags /* erfXXX */)
 {
 #ifdef DL600C // {
-	struct MsgEntry {
+	// @v12.2.10 (struct MsgEntry) replaced with SIntToSymbTabEntry
+	/*struct MsgEntry {
 		uint   Id;
 		const  char * P_Msg;
-	};
-	MsgEntry msg_list[] = {
+	};*/
+	/*MsgEntry*/
+	SIntToSymbTabEntry msg_list[] = {
 		{PPERR_NOMEM,                 "Недостаточно памяти"},
 		{PPERR_DL6_DATASTRUCEXISTS,   "Структура данных %s уже определена"},
 		{PPERR_DL6_DATASTRUCIDNFOUND, "Идентификатор структуры данных %s не найден"},
@@ -3161,10 +3160,10 @@ int DlContext::Error(int errCode, const char * pAddedInfo, long flags /* erfXXX 
 		{PPERR_DL6_INVCONSTDESCR,     "Недопустимый дескриптор константы" }
 	};
 	SETIFZ(errCode, LastError);
-	const char * p_msg = 0;
-	for(uint i = 0; i < sizeof(msg_list) / sizeof(msg_list[0]); i++)
+	const char * p_msg = SIntToSymbTab_GetSymbPtr(msg_list, SIZEOFARRAY(msg_list), errCode);
+	/* @v12.2.9 for(uint i = 0; i < SIZEOFARRAY(msg_list); i++)
 		if(msg_list[i].Id == errCode)
-			p_msg = msg_list[i].P_Msg;
+			p_msg = msg_list[i].P_Msg;*/
 	SString msg_buf, temp_buf;
 	SString added_info(NZOR(pAddedInfo, AddedMsgString.cptr()));
 	if(added_info.IsEmpty())

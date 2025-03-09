@@ -66,7 +66,7 @@ int Generator_CPP::Wr_Indent()
 SString & Generator_CPP::CatIndent(SString & rBuf)
 {
 	if(Indent)
-		rBuf.Tab(Indent);
+		rBuf.Tab_(Indent);
 	return rBuf;
 }
 

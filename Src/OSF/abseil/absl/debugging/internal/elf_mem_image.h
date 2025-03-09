@@ -70,7 +70,7 @@ public:
 		const SymbolInfo &operator*() const;
 		SymbolIterator& operator++();
 		bool operator !=(const SymbolIterator &rhs) const;
-		bool operator ==(const SymbolIterator &rhs) const;
+		bool operator == (const SymbolIterator &rhs) const;
 private:
 		SymbolIterator(const void * const image, int index);
 		void Update(int incr);

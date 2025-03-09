@@ -180,7 +180,7 @@ static uint lang_hash(const void * key)
 struct hb_language_item_t {
 	struct hb_language_item_t * next;
 	hb_language_t lang;
-	bool operator ==(const char * s) const
+	bool operator == (const char * s) const
 	{
 		return lang_equal(lang, s);
 	}

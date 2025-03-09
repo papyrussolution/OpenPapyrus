@@ -102,7 +102,7 @@ public:
 		append(suffix);
 		return *this;
 	}
-	bool operator ==(const TiXmlString & compare) const;
+	bool operator == (const TiXmlString & compare) const;
 	bool operator <(const TiXmlString & compare) const;
 	bool operator >(const TiXmlString & compare) const;
 

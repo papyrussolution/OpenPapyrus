@@ -28,7 +28,7 @@ public:
 	ScriptSet();
 	ScriptSet(const ScriptSet &other);
 	~ScriptSet();
-	bool operator ==(const ScriptSet &other) const;
+	bool operator == (const ScriptSet &other) const;
 	bool operator !=(const ScriptSet &other) const { return !(*this == other); }
 	ScriptSet & operator =(const ScriptSet &other);
 	bool      test(UScriptCode script, UErrorCode & status) const;

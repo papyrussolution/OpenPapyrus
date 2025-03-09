@@ -189,6 +189,7 @@ int FASTCALL StatusWinChange(int onLogon /*=0*/, long timer/*=-1*/)
 			gr_userobj = ::GetGuiResources(GetCurrentProcess(), GR_USEROBJECTS);
 			//end turistti
 #ifndef NDEBUG
+			/* @v12.2.10
 			{
 				MemHeapTracer mht;
 				MemHeapTracer::Stat mht_stat;
@@ -207,6 +208,7 @@ int FASTCALL StatusWinChange(int onLogon /*=0*/, long timer/*=-1*/)
 					p_app->AddStatusBarItem("Heap Corrupted");
 				}
 			}
+			*/
 #endif
 		}
 		if(CConfig.Flags & CCFLG_3TIER) {
@@ -2918,17 +2920,17 @@ int PPSession::OpenDictionary2(DbLoginBlock * pBlk, long flags)
 int PPSession::SetupConfigByOps()
 {
 	int    ok = 1;
-	int    missingnoupdrestopflag = 0;
+	bool   missingnoupdrestopflag = false;
 	PPObjOprKind op_obj;
 	PPOprKind op_rec;
-	PPCommConfig & cc = GetTLA().Cc;
+	PPCommConfig & r_cc = GetTLA().Cc;
 	for(PPID op_id = 0; EnumOperations(0, &op_id, &op_rec) > 0;) {
-		if(!(cc.Flags & CCFLG_USENOUPDRESTOPFLAG) && op_rec.Flags & OPKF_NOUPDLOTREST)
-			missingnoupdrestopflag = 1;
+		if(!(r_cc.Flags & CCFLG_USENOUPDRESTOPFLAG) && op_rec.Flags & OPKF_NOUPDLOTREST)
+			missingnoupdrestopflag = true;
 		if(op_rec.OpTypeID == PPOPT_ACCTURN && op_rec.Flags & OPKF_ADVACC)
-			cc.Flags |= CCFLG_USEADVBILLITEMS;
+			r_cc.Flags |= CCFLG_USEADVBILLITEMS;
 		if(oneof3(op_rec.OpTypeID, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTQUOTREQ))
-			cc.Flags |= CCFLG_USEDRAFTBILL;
+			r_cc.Flags |= CCFLG_USEDRAFTBILL;
 	}
 	if(missingnoupdrestopflag)
 		PPMessage(mfInfo, PPINF_MISSINGNOUPDRESTOPFLAG);
@@ -2937,8 +2939,10 @@ int PPSession::SetupConfigByOps()
 
 int PPSession::FetchConfig(PPID obj, PPID objID, PPConfig * pCfg)
 {
-	int    ok = 1, r;
-	PPConfig tmp, global;
+	int    ok = 1;
+	int    r;
+	PPConfig tmp;
+	PPConfig global;
 	Reference * p_ref = GetTLA().P_Ref;
 	if(objID == 0) {
 		objID = DEFCFG_USERID;

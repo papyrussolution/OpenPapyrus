@@ -310,7 +310,7 @@ static int UnwindImpl(void ** result, int * sizes, int max_depth, int skip_count
 	size_t stack_high = std::numeric_limits<size_t>::max() - sizeof(void *);
 
 	while(fp && n < max_depth) {
-		if(*(fp + 1) == reinterpret_cast<void *>(0)) {
+		if(*(fp + 1) == nullptr) {
 			// In 64-bit code, we often see a frame that
 			// points to itself and has a return address of 0.
 			break;

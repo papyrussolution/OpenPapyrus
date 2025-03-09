@@ -363,7 +363,7 @@ int PPCashMachine::_SyncCloseBill(int ret, int use_ta)
 
 /*static*/long CSessionCore::GetUnitingPeriodSec()
 {
-	const PPCommConfig & r_ccfg = CConfig;
+	const  PPCommConfig & r_ccfg = CConfig;
 	return ((r_ccfg.CSessUnitingPeriod > 0) ? r_ccfg.CSessUnitingPeriod : (60*12)) * 60;
 }
 
@@ -852,7 +852,7 @@ int PPCashMachine::TestPrintCheck(CCheckPacket * pPack)
 							const double ds = line_rec.Dscnt * line_rec.Quantity;
 							cc_amount = R2(cc_amount + s - ds);
 						}
-						out_buf.Tab(2).CatLongZ(line_rec.GoodsID, 5).Tab().
+						out_buf.Tab_(2).CatLongZ(line_rec.GoodsID, 5).Tab().
 							Cat(line_rec.Quantity, _mfmt).Tab().
 							Cat(intmnytodbl(line_rec.Price), _mfmt).Tab().
 							Cat(line_rec.Dscnt, _mfmt).Tab().
@@ -868,7 +868,7 @@ int PPCashMachine::TestPrintCheck(CCheckPacket * pPack)
 					running_total = 0.0;
 					out_buf.Tab().CatEq("format", format_name).CatChar('{').CR();
 					if(sdc_param.PageWidth > 36)
-						out_buf.Tab(2).Cat("PageWidthOverflow").CatDiv(':', 2).Cat(sdc_param.PageWidth).CatChar('>').Cat(36).CR();
+						out_buf.Tab_(2).Cat("PageWidthOverflow").CatDiv(':', 2).Cat(sdc_param.PageWidth).CatChar('>').Cat(36).CR();
 					for(p_formatter->InitIteration(pPack); p_formatter->NextIteration(line_buf, &sl_param) > 0;) {
 						line_buf.Transf(CTRANSF_OUTER_TO_INNER);
 						if(sl_param.Flags & SlipLineParam::fRegFiscal) {
@@ -876,13 +876,13 @@ int PPCashMachine::TestPrintCheck(CCheckPacket * pPack)
 							double _p = sl_param.Price;
 							running_total += (_q * _p);
 							prn_total_sale = 0;
-							out_buf.Tab(2).CatEq("Quantity", _q, _mfmt).Tab().
+							out_buf.Tab_(2).CatEq("Quantity", _q, _mfmt).Tab().
 								CatEq("Price", _p, _mfmt).Tab().
 								CatEq("RunningTotal", running_total, _mfmt).Tab().
 								CatEq("Line", line_buf).CR();
 						}
 						else {
-							out_buf.Tab(2).CatEq("Line", line_buf).CR();
+							out_buf.Tab_(2).CatEq("Line", line_buf).CR();
 						}
 					}
 					if(prn_total_sale) {
@@ -907,7 +907,7 @@ int PPCashMachine::TestPrintCheck(CCheckPacket * pPack)
 				}
 				else {
 					// Ошибка инициализации формата чека
-					out_buf.Tab(2).Cat("Error in format").Space().Cat(format_name).CR();
+					out_buf.Tab_(2).Cat("Error in format").Space().Cat(format_name).CR();
 				}
 				if(running_total > sum)
 					sum = running_total;

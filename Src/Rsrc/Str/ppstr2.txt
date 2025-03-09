@@ -8398,6 +8398,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 //
 // Наименования видов объектов пользовательского интерфейса
 //
+@ui_view                                  "Виджет"
 @ui_dialog                                "Диалог"
 @ui_input                                 "Поле ввода"
 @ui_static                                "@{text}"
@@ -8409,6 +8410,9 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @ui_listbox                               "@{list}"
 @ui_treelistbox                           "Иерархический список"
 @ui_frame                                 "Рамка"
+@ui_label                                 "Текстовая метка"
+@ui_radiobutton                           "Радиокнопка"
+@ui_imageview                             "Изображение"
 //
 // Стандартные цвета
 //

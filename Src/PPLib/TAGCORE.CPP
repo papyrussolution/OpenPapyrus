@@ -525,8 +525,8 @@ ObjTagItem & FASTCALL ObjTagItem::operator = (const ObjTagItem & rS)
 	return *this;
 }
 
-int FASTCALL ObjTagItem::operator == (const ObjTagItem & a) const { return (Cmp(a) == 0); }
-int FASTCALL ObjTagItem::operator != (const ObjTagItem & a) const { return (Cmp(a) != 0); }
+bool FASTCALL ObjTagItem::operator == (const ObjTagItem & a) const { return (Cmp(a) == 0); }
+bool FASTCALL ObjTagItem::operator != (const ObjTagItem & a) const { return (Cmp(a) != 0); }
 
 int ObjTagItem::Put(PPID objType, PPID objID, long tagByObj, ObjTagTbl::Rec * pRec) const
 {

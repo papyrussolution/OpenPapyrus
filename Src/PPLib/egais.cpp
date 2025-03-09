@@ -1424,7 +1424,7 @@ static const SIntToSymbTabEntry _EgaisWayBillTypes[] = {
 	{ PPEgaisProcessor::wbtRetToMe, "WBReturnToMe" }
 };
 
-/*static*/int FASTCALL PPEgaisProcessor::GetWayBillTypeText(int wbType, SString & rBuf)
+/*static*/bool FASTCALL PPEgaisProcessor::GetWayBillTypeText(int wbType, SString & rBuf)
 	{ return SIntToSymbTab_GetSymb(_EgaisWayBillTypes, SIZEOFARRAY(_EgaisWayBillTypes), wbType, rBuf); }
 int FASTCALL PPEgaisProcessor::RecognizeWayBillTypeText(const char * pText)
 	{ return SIntToSymbTab_GetId(_EgaisWayBillTypes, SIZEOFARRAY(_EgaisWayBillTypes), pText); }

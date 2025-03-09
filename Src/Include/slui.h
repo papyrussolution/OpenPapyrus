@@ -110,7 +110,7 @@ struct KeyDownCommand { // @flat @noctr @size=4
 	};
 	//KeyDownCommand();
 	KeyDownCommand & Z();
-	int    FASTCALL operator == (const KeyDownCommand & rS) const { return (State == rS.State && Code == rS.Code); }
+	bool   FASTCALL operator == (const KeyDownCommand & rS) const { return (State == rS.State && Code == rS.Code); }
 	operator long() const { return *reinterpret_cast<const long *>(this); }
 	int    GetKeyName(SString & rBuf, int onlySpecKeys = 0) const;
 	int    SetKeyName(const char * pStr, uint * pLen);
@@ -382,8 +382,8 @@ public:
 	TCommandSet & operator |= (const TCommandSet&);
 	friend TCommandSet operator & (const TCommandSet&, const TCommandSet&);
 	friend TCommandSet operator | (const TCommandSet&, const TCommandSet&);
-	friend int operator == (const TCommandSet& tc1, const TCommandSet& tc2);
-	friend int operator != (const TCommandSet& tc1, const TCommandSet& tc2);
+	friend bool operator == (const TCommandSet& tc1, const TCommandSet& tc2);
+	friend bool operator != (const TCommandSet& tc1, const TCommandSet& tc2);
 private:
 	int    loc(int);
 	int    mask(int);
@@ -391,7 +391,7 @@ private:
 	uint32 cmds[64];
 };
 
-int operator != (const TCommandSet& tc1, const TCommandSet& tc2);
+bool operator != (const TCommandSet& tc1, const TCommandSet& tc2);
 
 // regex: (virtual)*[ \t]+void[ \t]+handleEvent\([ \t]*TEvent[ \t]*&[^)]*\)
 #define DECL_HANDLE_EVENT      virtual void FASTCALL handleEvent(TEvent & event)
@@ -1543,7 +1543,7 @@ public:
 		Brush();
 		Brush(const Brush & rS);
 		Brush & FASTCALL operator = (const Brush &);
-		int    FASTCALL operator == (const Brush &) const;
+		bool   FASTCALL operator == (const Brush &) const;
 		void   FASTCALL Copy(const Brush & rS);
 		bool   FASTCALL IsEq(const Brush & rS) const;
 		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
@@ -1597,7 +1597,7 @@ public:
 
 		explicit Gradient(int kind = kLinear, int units = uUserSpace);
 		Gradient & operator = (const Gradient & rS);
-		int    operator == (const Gradient &) const;
+		bool   operator == (const Gradient &) const;
 		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 		int    SetPrototype(const Gradient & rS);
 		int    SetLinearCoord(int coord, float val, int pct);
@@ -3556,23 +3556,23 @@ struct UiItemKind { // @transient
 	// Attention: @persistent
 	//
 	enum { // @persistent
-		kUnkn = 0,        // Неопределенный
-		kDialog = 1,      // @anchor Диалог
-		kInput = 2,       // Поле ввода
-		kStatic,          // Статический текст
-		kPushbutton,      // Кнопка
-		kCheckbox,        // Одиночный флаг
-		kRadioCluster,    // Кластер переключателей
-		kCheckCluster,    // Кластер флагов
-		kCombobox,        // Комбо-бокс
-		kListbox,         // Список (возможно, многоколоночный)
-		kTreeListbox,     // Древовидный список
-		kFrame,           // Рамка
-		kLabel,           // Текстовая этикетка, привязанная к другому элементу
-		kRadiobutton,     // Радиокнопка (применяется только как связанный с kRadioCluster элемент)
-		kGenericView,     // Обобщенный элемент view
-		kImageView,       // @v11.0.6 Изображение
-		kCount,           // @anchor Специальный элемент, равный количеству видов
+		kUnkn         =  0, // Неопределенный
+		kDialog       =  1, // @anchor Диалог
+		kInput        =  2, // Поле ввода
+		kStatic       =  3, // Статический текст
+		kPushbutton   =  4, // Кнопка
+		kCheckbox     =  5, // Одиночный флаг
+		kRadioCluster =  6, // Кластер переключателей
+		kCheckCluster =  7, // Кластер флагов
+		kCombobox     =  8, // Комбо-бокс
+		kListbox      =  9, // Список (возможно, многоколоночный)
+		kTreeListbox  = 10, // Древовидный список
+		kFrame        = 11, // Рамка
+		kLabel        = 12, // Текстовая этикетка, привязанная к другому элементу
+		kRadiobutton  = 13, // Радиокнопка (применяется только как связанный с kRadioCluster элемент)
+		kGenericView  = 14, // Обобщенный элемент view
+		kImageView    = 15, // @v11.0.6 Изображение
+		kCount,             // @anchor Специальный элемент, равный количеству видов
 	};
 	//
 	// Descr: Битовые поля, используемые для представления булевых свойств элементов UI.
@@ -3592,6 +3592,7 @@ struct UiItemKind { // @transient
 
 	static int  GetTextList(StrAssocArray & rList);
 	static int  GetIdBySymb(const char * pSymb);
+	static bool GetSymbById(int id, SString & rBuf);
 	explicit UiItemKind(int kind = kUnkn);
 	int    Init(int kind);
 

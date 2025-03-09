@@ -1,6 +1,6 @@
 // © 2018 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-
+//
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -30,7 +30,8 @@ LocalizedNumberFormatterAsFormat::LocalizedNumberFormatterAsFormat(const Localiz
 
 LocalizedNumberFormatterAsFormat::~LocalizedNumberFormatterAsFormat() = default;
 
-bool LocalizedNumberFormatterAsFormat::operator == (const Format& other) const {
+bool LocalizedNumberFormatterAsFormat::operator == (const Format& other) const 
+{
 	auto* _other = dynamic_cast<const LocalizedNumberFormatterAsFormat*>(&other);
 	if(_other == nullptr) {
 		return false;
@@ -72,8 +73,8 @@ UnicodeString & LocalizedNumberFormatterAsFormat::format(const Formattable& obj,
 }
 
 UnicodeString & LocalizedNumberFormatterAsFormat::format(const Formattable& obj, UnicodeString & appendTo,
-    FieldPositionIterator* posIter,
-    UErrorCode & status) const {
+    FieldPositionIterator* posIter, UErrorCode & status) const 
+{
 	if(U_FAILURE(status)) {
 		return appendTo;
 	}
@@ -94,19 +95,18 @@ UnicodeString & LocalizedNumberFormatterAsFormat::format(const Formattable& obj,
 	return appendTo;
 }
 
-void LocalizedNumberFormatterAsFormat::parseObject(const UnicodeString &, Formattable&,
-    ParsePosition& parse_pos) const {
+void LocalizedNumberFormatterAsFormat::parseObject(const UnicodeString &, Formattable&, ParsePosition& parse_pos) const 
+{
 	// Not supported.
 	parse_pos.setErrorIndex(0);
 }
 
-const LocalizedNumberFormatter& LocalizedNumberFormatterAsFormat::getNumberFormatter() const {
-	return fFormatter;
-}
+const LocalizedNumberFormatter& LocalizedNumberFormatterAsFormat::getNumberFormatter() const { return fFormatter; }
 
 // Definitions of public API methods (put here for dependency disentanglement)
 
-Format* LocalizedNumberFormatter::toFormat(UErrorCode & status) const {
+Format* LocalizedNumberFormatter::toFormat(UErrorCode & status) const 
+{
 	if(U_FAILURE(status)) {
 		return nullptr;
 	}

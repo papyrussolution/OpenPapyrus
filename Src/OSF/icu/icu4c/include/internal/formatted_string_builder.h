@@ -61,7 +61,7 @@ public:
 		inline int32_t getField() const;
 		inline bool isNumeric() const;
 		inline bool isUndefined() const;
-		inline bool operator ==(const Field& other) const;
+		inline bool operator == (const Field& other) const;
 		inline bool operator !=(const Field& other) const;
 	};
 	FormattedStringBuilder & operator =(const FormattedStringBuilder &other);

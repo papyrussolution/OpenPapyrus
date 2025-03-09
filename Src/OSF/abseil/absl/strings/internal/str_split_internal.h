@@ -138,7 +138,7 @@ public:
 		return old;
 	}
 
-	friend bool operator ==(const SplitIterator& a, const SplitIterator& b) {
+	friend bool operator == (const SplitIterator& a, const SplitIterator& b) {
 		return a.state_ == b.state_ && a.pos_ == b.pos_;
 	}
 

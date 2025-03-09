@@ -36,7 +36,7 @@ public:
 	/**
 	 * Equals operator.
 	 */
-	bool operator ==(const Format& other) const U_OVERRIDE;
+	bool operator == (const Format& other) const U_OVERRIDE;
 	/**
 	 * Creates a copy of this object.
 	 */

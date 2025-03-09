@@ -1,11 +1,7 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *******************************************************************************
- * Copyright (C) 2007-2016, International Business Machines Corporation and
- * others. All Rights Reserved.
- *******************************************************************************
- */
+// Copyright (C) 2007-2016, International Business Machines Corporation and others. All Rights Reserved.
+//
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -122,11 +118,10 @@ RelativeDateFormat::~RelativeDateFormat()
 #endif
 }
 
-RelativeDateFormat* RelativeDateFormat::clone() const {
-	return new RelativeDateFormat(*this);
-}
+RelativeDateFormat* RelativeDateFormat::clone() const { return new RelativeDateFormat(*this); }
 
-bool RelativeDateFormat::operator == (const Format& other) const {
+bool RelativeDateFormat::operator == (const Format& other) const 
+{
 	if(DateFormat::operator == (other)) {
 		// The DateFormat::operator== check for fCapitalizationContext equality above
 		//   is sufficient to check equality of all derived context-related data.

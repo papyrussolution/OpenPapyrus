@@ -8937,6 +8937,7 @@ reportstub BillInfo			{ dl600data=BillInfo,			"@{billspecialinfo}"}
 reportstub PUGL				{ dl600data=PUGL,				"@{pugl}"}
 reportstub BarcodeLabelList { dl600data=BarcodeLabelList,   "Товарные этикетки со штрихкодами" }
 reportstub GeoTracking      { dl600data=GeoTracking,        "@{view_geotracking}" } // @v10.1.5
+reportstub ClientActivity   { dl600data=ClientActivity,     "@{view_clientactivity}" } // @v12.2.10
 //
 // -------------- Описание меню, привязываемых к управляющим элементам диалогов
 //

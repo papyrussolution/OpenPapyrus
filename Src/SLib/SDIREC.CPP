@@ -1,5 +1,5 @@
 // SDIREC.CPP
-// Copyright (c) A.Sobolev 1999-2001, 2002, 2009, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 1999-2001, 2002, 2009, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2023, 2024, 2025
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -750,9 +750,9 @@ int SDirecDiffPool::Helper_MakeReport(const TSCollection <Entry> & rL, uint inde
 	SString line_buf;
 	SString temp_buf;
 	if(indent == 0) {
-		rSs.add(line_buf.Z().Tab(indent).Cat("left").CatDiv(':', 2).Cat(DirLeft));
-		rSs.add(line_buf.Z().Tab(indent).Cat("right").CatDiv(':', 2).Cat(DirRight));
-		rSs.add(line_buf.Z().Tab(indent).Cat("result").CatDiv(':', 2).Cat(Result));
+		rSs.add(line_buf.Z().Tab_(indent).Cat("left").CatDiv(':', 2).Cat(DirLeft));
+		rSs.add(line_buf.Z().Tab_(indent).Cat("right").CatDiv(':', 2).Cat(DirRight));
+		rSs.add(line_buf.Z().Tab_(indent).Cat("result").CatDiv(':', 2).Cat(Result));
 		if(Result == 0) {
 			; // @todo report error
 		}
@@ -786,7 +786,7 @@ int SDirecDiffPool::Helper_MakeReport(const TSCollection <Entry> & rL, uint inde
 			if(p_entry->Kind & kDiffSubDir) {
 				temp_buf.CatDivIfNotEmpty(' ', 0).Cat("subdirs-are-different");
 			}
-			rSs.add(line_buf.Z().Tab(indent).Cat(p_entry->Name).CatDiv(':', 2).Cat(temp_buf));
+			rSs.add(line_buf.Z().Tab_(indent).Cat(p_entry->Name).CatDiv(':', 2).Cat(temp_buf));
 			if(p_entry->P_RecurDir && p_entry->P_RecurDir->getCount()) {
 				Helper_MakeReport(*p_entry->P_RecurDir, indent+1, rSs); // @recursion
 			}

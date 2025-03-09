@@ -66,7 +66,7 @@ public:
 		result_type(min)() const { return min_; }
 		result_type(max)() const { return max_; }
 		result_type base() const { return base_; }
-		friend bool operator ==(const param_type& a, const param_type& b) 
+		friend bool operator == (const param_type& a, const param_type& b) 
 		{
 			return a.min_ == b.min_ && a.max_ == b.max_ && a.base_ == b.base_;
 		}
@@ -132,7 +132,7 @@ private:
 		param_ = p;
 	}
 
-	friend bool operator ==(const log_uniform_int_distribution& a,
+	friend bool operator == (const log_uniform_int_distribution& a,
 	    const log_uniform_int_distribution& b) {
 		return a.param_ == b.param_;
 	}

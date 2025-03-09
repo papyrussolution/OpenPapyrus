@@ -4839,6 +4839,7 @@ struct Sdr_FiasRawAddrObj {
 #define REPORT_PUGL                                  1258
 #define REPORT_BARCODELABELLIST                      1259
 #define REPORT_GEOTRACKING                           1260
+#define REPORT_CLIENTACTIVITY                        1261
 //
 // CTRLMENU definitions
 //

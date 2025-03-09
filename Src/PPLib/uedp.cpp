@@ -26,12 +26,12 @@ int main(int argc, const char * argv[])
 		SString help_buf;
 		help_buf.Cat("Usage").CatDiv(':', 2).Cat(argv[0]).Space().Cat("[options]").Space().Cat("source-file-name").CR();
 		help_buf.Cat("options").CatDiv(':', 2).CR();
-		help_buf.Tab().Cat("-tol").Tab(3).Cat("tolerant mode").CR();
-		help_buf.Tab().Cat("-out").Tab(3).Cat("output-path").CR();
-		help_buf.Tab().Cat("-rtpath").Tab(3).Cat("runtime output-path").CR();
-		help_buf.Tab().Cat("-cpath").Tab(3).Cat("c-definitions-path").CR();
-		help_buf.Tab().Cat("-javapath").Tab(2).Cat("java-definitions-path").CR();
-		help_buf.Tab().Cat("-forceupdatepldecl").Tab(1).Cat("force update programming language output even if source file unchanged").CR();
+		help_buf.Tab().Cat("-tol").Tab_(3).Cat("tolerant mode").CR();
+		help_buf.Tab().Cat("-out").Tab_(3).Cat("output-path").CR();
+		help_buf.Tab().Cat("-rtpath").Tab_(3).Cat("runtime output-path").CR();
+		help_buf.Tab().Cat("-cpath").Tab_(3).Cat("c-definitions-path").CR();
+		help_buf.Tab().Cat("-javapath").Tab_(2).Cat("java-definitions-path").CR();
+		help_buf.Tab().Cat("-forceupdatepldecl").Tab_(1).Cat("force update programming language output even if source file unchanged").CR();
 		fprintf(stdout, help_buf.cptr());
 		result = 1;
 	}

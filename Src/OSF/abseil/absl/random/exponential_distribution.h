@@ -31,7 +31,7 @@ public:
 		result_type lambda() const {
 			return lambda_;
 		}
-		friend bool operator ==(const param_type& a, const param_type& b) {
+		friend bool operator == (const param_type& a, const param_type& b) {
 			return a.lambda_ == b.lambda_;
 		}
 		friend bool operator != (const param_type& a, const param_type& b) {
@@ -69,7 +69,7 @@ private:
 	result_type(min)() const { return 0; }
 	result_type(max)() const { return std::numeric_limits<result_type>::infinity(); }
 	result_type lambda() const { return param_.lambda(); }
-	friend bool operator ==(const exponential_distribution& a, const exponential_distribution& b) 
+	friend bool operator == (const exponential_distribution& a, const exponential_distribution& b) 
 	{
 		return a.param_ == b.param_;
 	}

@@ -850,6 +850,15 @@
       <Filter>fnv-hash</Filter>
     </ClCompile>
     <ClCompile Include="..\SLib\slrecmgr.cpp" />
+    <ClCompile Include="..\SLib\simplecpp\main.cpp">
+      <Filter>SimpleCPP</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\simplecpp\simplecpp.cpp">
+      <Filter>SimpleCPP</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SLib\simplecpp\test.cpp">
+      <Filter>SimpleCPP</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\Slib.h">
@@ -1134,6 +1143,9 @@
     <ClInclude Include="..\SLib\libxml\libxml.h">
       <Filter>Header\libxml</Filter>
     </ClInclude>
+    <ClInclude Include="..\SLib\simplecpp\simplecpp.h">
+      <Filter>SimpleCPP</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\Osf\Asmlib\cachesize32.asm">
@@ -1392,6 +1404,9 @@
     </Filter>
     <Filter Include="fnv-hash">
       <UniqueIdentifier>{a95b6670-7816-4af2-88de-3c8556d1fc86}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SimpleCPP">
+      <UniqueIdentifier>{f27e110d-7899-4fac-9d9e-0b8273305e04}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

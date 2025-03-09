@@ -2122,7 +2122,7 @@ int PPBillPacket::SetupObject(PPID arID, SetupObjectBlock & rRet)
 		if(GetTCount()) {
 			PPObjGoods goods_obj;
 			const int invp_act = DS.GetTLA().InvalidSupplDealQuotAction;
-			const PPCommConfig & r_ccfg = CConfig;
+			const  PPCommConfig & r_ccfg = CConfig;
 			for(uint i = 0; i < GetTCount(); i++) {
 				const PPTransferItem & r_ti = ConstTI(i);
 				THROW(CheckGoodsForRestrictions(static_cast<int>(i), r_ti.GoodsID, TISIGN_UNDEF, r_ti.Qtty(), cgrfObject, 0));
@@ -3831,7 +3831,7 @@ int PPBillPacket::GetQuotExt(const PPTransferItem & rTi, double * pPrice)
 
 static void AddSalesTax(PPTransferItem * pTI, double rate, int plus)
 {
-	const PPCommConfig & r_ccfg = CConfig;
+	const  PPCommConfig & r_ccfg = CConfig;
 	if(!(r_ccfg.Flags & CCFLG_TGGLEXCSNPRICE) && !(pTI->Flags & PPTFR_PRICEWOTAXES)) {
 		const double net_price_rate = ((pTI->Flags & PPTFR_ORDER) ? pTI->Price : pTI->NetPrice()) * rate;
 		double add_dis = 0.0;
@@ -4624,7 +4624,7 @@ int PPBillPacket::CheckLargeBill(int genWarn) const
 			is_max_items = 1;
 	}
 	else {
-		const PPCommConfig & r_ccfg = CConfig;
+		const  PPCommConfig & r_ccfg = CConfig;
 		const uint max_items = (r_ccfg.MaxGoodsBillLines > 0) ? r_ccfg.MaxGoodsBillLines : 300;
 		if(GetTCount() > max_items || (P_ACPack && P_ACPack->GetTCount() > max_items))
 			is_max_items = 1;

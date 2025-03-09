@@ -189,7 +189,7 @@ public:
 	std::string description() const;
 
 	// Relational operators.
-	friend bool operator ==(time_zone lhs, time_zone rhs) {
+	friend bool operator == (time_zone lhs, time_zone rhs) {
 		return &lhs.effective_impl() == &rhs.effective_impl();
 	}
 

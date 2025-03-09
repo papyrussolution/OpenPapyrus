@@ -912,7 +912,7 @@ int json_format_string(const char * pText, SString & rBuf)
 				rBuf.CatChar('[').CR();
 				line_no++;
 				if(indentation)
-					rBuf.Tab(indentation);
+					rBuf.Tab_(indentation);
 				pos++;
 				break;
 			case ']':
@@ -921,7 +921,7 @@ int json_format_string(const char * pText, SString & rBuf)
 				rBuf.CR();
 				line_no++;
 				if(indentation)
-					rBuf.Tab(indentation);
+					rBuf.Tab_(indentation);
 				rBuf.CatChar(']');
 				pos++;
 				break;
@@ -931,7 +931,7 @@ int json_format_string(const char * pText, SString & rBuf)
 				rBuf.CatChar('{').CR();
 				line_no++;
 				if(indentation)
-					rBuf.Tab(indentation);
+					rBuf.Tab_(indentation);
 				pos++;
 				break;
 			case '}':
@@ -940,7 +940,7 @@ int json_format_string(const char * pText, SString & rBuf)
 				rBuf.CR();
 				line_no++;
 				if(indentation)
-					rBuf.Tab(indentation);
+					rBuf.Tab_(indentation);
 				rBuf.CatChar('}');
 				pos++;
 				break;
@@ -952,7 +952,7 @@ int json_format_string(const char * pText, SString & rBuf)
 				rBuf.Comma().CR();
 				line_no++;
 				if(indentation)
-					rBuf.Tab(indentation);
+					rBuf.Tab_(indentation);
 				pos++;
 				break;
 			case '\"':	// open string

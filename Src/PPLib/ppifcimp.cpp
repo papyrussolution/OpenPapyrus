@@ -2071,7 +2071,7 @@ int32 DL6ICLS_PPSession::GetStatusInfo(SPpySessionInfo* pInfo)
 		pInfo->MainOrgID = GetMainOrgID();
 		{
 			r_tla.InitMainOrgData(0);
-			const PPCommConfig & r_ccfg = CConfig;
+			const  PPCommConfig & r_ccfg = CConfig;
 			pInfo->MainOrgDirector   = r_ccfg.MainOrgDirector_;
 			pInfo->MainOrgAccountant = r_ccfg.MainOrgAccountant_;
 		}

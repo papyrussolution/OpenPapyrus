@@ -99,9 +99,9 @@ int SelfbuildStaffForManual_UserProfileFuncList()
 			line_buf.CR();
 
 			PPLoadString("id", temp_buf);
-			line_buf.Tab(2).CatEq(temp_buf.Transf(CTRANSF_INNER_TO_OUTER), r_entry.FuncId).CR();
+			line_buf.Tab_(2).CatEq(temp_buf.Transf(CTRANSF_INNER_TO_OUTER), r_entry.FuncId).CR();
 			if(r_entry.Flags & r_entry.fAccumulate) {
-				line_buf.Tab(2).Cat("accumulative").CR();
+				line_buf.Tab_(2).Cat("accumulative").CR();
 			}
 			doc_file.WriteLine(line_buf);
 		}

@@ -6790,7 +6790,7 @@ int PrcssrOsm::Run()
                         if(line_no) {
 							if(tag_key != prev_tag_key) {
 								out_buf.Cat(prev_tag_key).Tab().Cat(prev_tag_val).Tab().Cat(val_count).CRB();
-								out_buf.Cat(prev_tag_key).Tab(2).Cat(key_count).CRB();
+								out_buf.Cat(prev_tag_key).Tab_(2).Cat(key_count).CRB();
 								key_count = 0;
 								val_count = 0;
 							}
@@ -6811,7 +6811,7 @@ int PrcssrOsm::Run()
                     }
 					if(line_no) {
 						out_buf.Cat(prev_tag_key).Tab().Cat(prev_tag_val).Tab().Cat(val_count).CRB();
-						out_buf.Cat(prev_tag_key).Tab(2).Cat(key_count).CRB();
+						out_buf.Cat(prev_tag_key).Tab_(2).Cat(key_count).CRB();
 						f_out.WriteLine(out_buf);
 						out_buf.Z();
 					}

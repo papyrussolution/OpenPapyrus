@@ -9185,7 +9185,7 @@ int PPObjBill::Helper_ExtractPacket(PPID id, PPBillPacket * pPack, uint fl, cons
 					// На второй итерации, если с учетом количества ничего не вышло (мало ли какие сбои случаются),
 					// устанавливаем соответствие без учета количества
 					//
-					for(j = 0; /* @v9.3.10 !corr_item_founded &&*/ pPack->SearchGoods(labs(p_ti->GoodsID), &j); j++) {
+					for(j = 0; pPack->SearchGoods(labs(p_ti->GoodsID), &j); j++) {
 						PPTransferItem & r_loc_ti = pPack->TI(j);
 						if(r_loc_ti.Flags & PPTFR_ONORDER && r_loc_ti.OrdLotID == 0) {
 							r_loc_ti.OrdLotID = p_ti->LotID;
@@ -10250,7 +10250,7 @@ private:
 			PPOprKind enum_opk_rec;
 			if(predefOp) {
 				bbt = -1;
-				const PPCommConfig & r_ccfg = CConfig;
+				const  PPCommConfig & r_ccfg = CConfig;
 				switch(predefOp) {
 					case DlgDataType::poUndef:
 						break;

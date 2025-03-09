@@ -85,9 +85,9 @@ public:
 	/// Is this a unigram?
 	bool unigram() const { return offset == 0; }
 	const Xapian::Utf8Iterator& get_utf8iterator() const { return it; }
-	bool operator ==(const CJKNgramIterator& other) const {
-		// We only really care about comparisons where one or other is an end
-		// iterator.
+	bool operator == (const CJKNgramIterator& other) const 
+	{
+		// We only really care about comparisons where one or other is an end iterator.
 		return current_token.empty() && other.current_token.empty();
 	}
 	bool operator !=(const CJKNgramIterator& other) const { return !(*this == other); }
@@ -103,37 +103,23 @@ class CJKWordIterator {
 #pragma GCC diagnostic ignored "-Wold-style-cast"
 	static const int32_t done = UBRK_DONE;
 #pragma GCC diagnostic pop
-
 	icu::BreakIterator * brk;
-
 public:
 	CJKWordIterator(const char * ptr, size_t len);
-
-	explicit CJKWordIterator(const std::string &s)
-		: CJKWordIterator(s.data(), s.size()) {
+	explicit CJKWordIterator(const std::string &s) : CJKWordIterator(s.data(), s.size()) 
+	{
 	}
-
-	CJKWordIterator()
-		: p(done), brk(NULL) {
+	CJKWordIterator() : p(done), brk(NULL) 
+	{
 	}
-
-	~CJKWordIterator() {
+	~CJKWordIterator() 
+	{
 		delete brk;
 	}
-
-	const std::string & operator*() const {
-		return current_token;
-	}
-
+	const std::string & operator*() const { return current_token; }
 	CJKWordIterator & operator++();
-
-	bool operator ==(const CJKWordIterator & other) const {
-		return p == other.p;
-	}
-
-	bool operator !=(const CJKWordIterator & other) const {
-		return !(*this == other);
-	}
+	bool operator == (const CJKWordIterator & other) const { return p == other.p; }
+	bool operator !=(const CJKWordIterator & other) const { return !(*this == other); }
 };
 
 #endif

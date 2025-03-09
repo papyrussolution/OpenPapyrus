@@ -66,7 +66,7 @@ public:
 		}
 		const std::vector <double>& probabilities() const { return p_; }
 		size_t n() const { return p_.size() - 1; }
-		friend bool operator ==(const param_type& a, const param_type& b) { return a.probabilities() == b.probabilities(); }
+		friend bool operator == (const param_type& a, const param_type& b) { return a.probabilities() == b.probabilities(); }
 		friend bool operator !=(const param_type& a, const param_type& b) { return !(a == b); }
 private:
 		friend class discrete_distribution;
@@ -107,7 +107,7 @@ private:
 	// NOTE [rand.dist.sample.discrete] returns a std::vector <double> not a
 	// const std::vector <double>&.
 	const std::vector <double>& probabilities() const { return param_.probabilities(); }
-	friend bool operator ==(const discrete_distribution& a, const discrete_distribution& b) { return a.param_ == b.param_; }
+	friend bool operator == (const discrete_distribution& a, const discrete_distribution& b) { return a.param_ == b.param_; }
 	friend bool operator !=(const discrete_distribution& a, const discrete_distribution& b) { return a.param_ != b.param_; }
 private:
 	param_type param_;

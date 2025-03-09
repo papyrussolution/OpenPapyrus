@@ -8103,7 +8103,7 @@ int PPObjTimeSeries::TrendEntry::Analyze(const PPTssModelPacket & rTssModel, SSt
 		const double median = temp_real_list.at(temp_real_list.getCount() / 2);
 		const double median_2 = temp_real_list.at(temp_real_list.getCount() / 4);
 		const double median_3 = temp_real_list.at(3 * temp_real_list.getCount() / 4);
-		rOutBuf.Tab(2).Cat("error-list").CatDiv(':', 2).CR().Tab(3).
+		rOutBuf.Tab_(2).Cat("error-list").CatDiv(':', 2).CR().Tab_(3).
 			CatEq("count", errl_stat.GetCount()).Space().
 			CatEq("min", errl_stat.GetMin(), MKSFMTD(0, 6, 0)).Space().
 			CatEq("max", errl_stat.GetMax(), MKSFMTD(0, 6, 0)).Space().
@@ -8117,7 +8117,7 @@ int PPObjTimeSeries::TrendEntry::Analyze(const PPTssModelPacket & rTssModel, SSt
 			CatEq("median (1/4)/avg", median_2/errl_stat.GetExp(), MKSFMTD(0, 3, 0)).Space().
 			CatEq("median (3/4)/avg", median_3/errl_stat.GetExp(), MKSFMTD(0, 3, 0));
 		if(!(rTssModel.Rec.Flags & PPTssModel::fTrendErrLimitAsMedianPart) && model_err_limit_ > 0.0) {
-			rOutBuf.CR().Tab(3).CatEq("init_trend_err_limit", model_err_limit_, MKSFMTD(0, 3, 0)).Space();
+			rOutBuf.CR().Tab_(3).CatEq("init_trend_err_limit", model_err_limit_, MKSFMTD(0, 3, 0)).Space();
 			const double b = errl_stat.GetExp() * model_err_limit_;
 			uint  err_lim_pos = 0;
 			uint _cp = temp_real_list.getCount();
@@ -8131,7 +8131,7 @@ int PPObjTimeSeries::TrendEntry::Analyze(const PPTssModelPacket & rTssModel, SSt
 			rOutBuf.CatEq("err_lim_part", fdivui(err_lim_pos, temp_real_list.getCount()), MKSFMTD(0, 3, 0));
 		}
 		if((rTssModel.Rec.Flags & PPTssModel::fTrendErrLimitAsMedianPart) && model_err_limit_ > 0.0 && model_err_limit_ <= 1.0) {
-			rOutBuf.CR().Tab(3).CatEq("partitial_trend_err_limit", model_err_limit_, MKSFMTD(0, 3, 0)).Space();
+			rOutBuf.CR().Tab_(3).CatEq("partitial_trend_err_limit", model_err_limit_, MKSFMTD(0, 3, 0)).Space();
 			uint lim_pos = static_cast<uint>(R0i(model_err_limit_ * static_cast<double>(temp_real_list.getCount())));
 			if(lim_pos >= 0 && lim_pos < temp_real_list.getCount()) {
 				double err_limit_by_pel = temp_real_list.at(lim_pos) / errl_stat.GetExp();
@@ -8383,11 +8383,9 @@ int PrcssrTsStrategyAnalyze::TryStrategyContainer(const PPObjTimeSeries::Config 
 												Tab().Cat(r_dli.TmR.Finish, DATF_ISO8601CENT, 0).
 												Tab().Cat(r_dli.Result, MKSFMTD(0, 5, NMBF_FORCEPOS)).
 												Tab().Cat(r_dli.TrendErrRel, MKSFMTD(0, 4, 0));
-											if(r_s.MainFrameSize) // @v10.8.5
+											if(r_s.MainFrameSize)
 												msg_buf.Tab().Cat(r_dli.MainTrendErrRel, MKSFMTD(0, 4, 0));
-												// @10.8.5 Tab().Cat(r_dli.LocalDeviation, MKSFMTD(0, 4, 0)).
-												// @10.8.5 Tab().Cat(r_dli.LocalDeviation2, MKSFMTD(0, 4, 0)).
-											msg_buf.Tab().CatChar('{').Cat(r_dli.Clearance, MKSFMTD(0, 1, 0)).CatChar('}'); // @v10.8.5
+											msg_buf.Tab().CatChar('{').Cat(r_dli.Clearance, MKSFMTD(0, 1, 0)).CatChar('}');
 											msg_buf.Tab().Cat(temp_buf);
 											f_out.WriteLine(msg_buf.CR());
 										}
@@ -8490,9 +8488,7 @@ int PrcssrTsStrategyAnalyze::OutputTryStrategyContainerResult(TryStrategyContain
 					Tab().Cat(r_dli.Result, MKSFMTD(0, 5, NMBF_FORCEPOS)).
 					Tab().Cat(r_dli.TrendErrRel, MKSFMTD(0, 4, 0));
 					if(r_dli.MainTrendErrRel > 0.0)
-						msg_buf.Tab().Cat(r_dli.MainTrendErrRel, MKSFMTD(0, 4, 0)); // @v10.6.12
-					// @v10.8.9 Tab().Cat(r_dli.LocalDeviation, MKSFMTD(0, 4, 0)). // @v10.7.1
-					// @v10.8.9 Tab().Cat(r_dli.LocalDeviation2, MKSFMTD(0, 4, 0)). // @v10.7.1
+						msg_buf.Tab().Cat(r_dli.MainTrendErrRel, MKSFMTD(0, 4, 0));
 					msg_buf.Tab().Cat(temp_buf);
 				f_out.WriteLine(msg_buf.CR());
 			}
@@ -9472,7 +9468,7 @@ int TestTsDensityMap() // @debug
 										knn_result_buf.Space();
 									knn_result_buf.Cat(r_knn_entry.WinCount);
 									knn_win_count += r_knn_entry.WinCount;
-									line_buf.Z().Tab(2).Cat(knn_list.at(j).Val, MKSFMTD_050).Space().Cat(dmap.EntryToStr(&r_knn_entry, 0, temp_buf));
+									line_buf.Z().Tab_(2).Cat(knn_list.at(j).Val, MKSFMTD_050).Space().Cat(dmap.EntryToStr(&r_knn_entry, 0, temp_buf));
 									f_out_knn.WriteLine(line_buf.CR());
 								}
 								if(knn_win_count == (K-1)) {

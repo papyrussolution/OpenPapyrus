@@ -2561,6 +2561,7 @@ int PiritEquip::RunCheck(int opertype)
 				}
 				else if(Check.ChZnGTIN.NotEmpty() && (Check.ChZnSerial.NotEmpty() || Check.ChZnPartN.NotEmpty())) {
 					in_data.Z();
+					// @todo Заменить числовые константы на GTCHZNPT_XXX
 					switch(Check.ChZnProdType) {
 						case 1: product_type_bytes = 0x5246; break; // GTCHZNPT_FUR 
 						case 2: product_type_bytes = 0x444D; break; // GTCHZNPT_TOBACCO

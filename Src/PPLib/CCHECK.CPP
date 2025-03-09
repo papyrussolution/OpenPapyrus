@@ -78,7 +78,7 @@ static const SIntToSymbTabEntry CCheckExtNameSymbList[] = {
 	return CCheckExtNameSymbList;
 }
 
-/*static*/int CCheckPacket::GetExtssMnemonic(int extss, SString & rBuf)
+/*static*/bool CCheckPacket::GetExtssMnemonic(int extss, SString & rBuf)
 	{ return SIntToSymbTab_GetSymb(CCheckExtSsList, sizeof(CCheckExtSsList), extss, rBuf); }
 /*static*/int CCheckPacket::RecognizeExtssMnemonic(const char * pSymb)
 	{ return SIntToSymbTab_GetId(CCheckExtSsList, sizeof(CCheckExtSsList), pSymb); }
@@ -1891,7 +1891,7 @@ CCheckCore::ListByMarkEntry::ListByMarkEntry() : OrgLotID(0), OrgLotDate(ZERODAT
 
 CCheckCore::CCheckCore() : CCheckTbl(), P_ChkOpJrnl(0)
 {
-	const PPCommConfig & r_ccfg = CConfig;
+	const  PPCommConfig & r_ccfg = CConfig;
 	P_Ext = (r_ccfg.Flags & CCFLG_USECCHECKEXT) ? new CCheckExtTbl : 0;
 	P_LnExt = (r_ccfg.Flags & CCFLG_USECCHECKLINEEXT) ? new CCheckLineExtTbl : 0;
 	{

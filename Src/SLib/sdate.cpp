@@ -1860,14 +1860,11 @@ IMPL_CMPFUNC(STimeChunk, i1, i2)
 //
 //
 //
-/*static*/int FASTCALL DateRepeating::IsValidPrd(int prd)
-	{ return oneof6(prd, PRD_DAY, PRD_WEEK, PRD_MONTH, PRD_QUART, PRD_SEMIAN, PRD_ANNUAL); }
-static inline int FASTCALL DateRepeating_IsEqual(const DateRepeating & rS1, const DateRepeating & rS2)
+/*static*/bool FASTCALL DateRepeating::IsValidPrd(int prd) { return oneof6(prd, PRD_DAY, PRD_WEEK, PRD_MONTH, PRD_QUART, PRD_SEMIAN, PRD_ANNUAL); }
+static inline bool FASTCALL DateRepeating_IsEqual(const DateRepeating & rS1, const DateRepeating & rS2)
 	{ return (rS1.Prd == rS2.Prd && rS1.RepeatKind == rS2.RepeatKind && *PTR32C(&rS1.Dtl) == *PTR32C(&rS2.Dtl)); }
-int FASTCALL DateRepeating::operator == (const DateRepeating & rS) const
-	{ return DateRepeating_IsEqual(*this, rS); }
-int FASTCALL DateRepeating::operator != (const DateRepeating & rS) const
-	{ return !DateRepeating_IsEqual(*this, rS); }
+bool FASTCALL DateRepeating::operator == (const DateRepeating & rS) const { return DateRepeating_IsEqual(*this, rS); }
+bool FASTCALL DateRepeating::operator != (const DateRepeating & rS) const { return !DateRepeating_IsEqual(*this, rS); }
 
 int DateRepeating::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 {

@@ -1,17 +1,17 @@
 // TAB.CPP
-// Copyright (c) Sobolev A. 1995-2000, 2003, 2010, 2013, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2024
+// Copyright (c) Sobolev A. 1995-2000, 2003, 2010, 2013, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2024, 2025
 //
 #include <slib-internal.h>
 #pragma hdrstop
 
-int STDCALL SIntToSymbTab_GetSymb(const SIntToSymbTabEntry * pTab, size_t tabSize, int id, SString & rSymb)
+bool STDCALL SIntToSymbTab_GetSymb(const SIntToSymbTabEntry * pTab, size_t tabSize, int id, SString & rSymb)
 {
 	rSymb.Z();
-	int    ok = 0;
+	bool   ok = false;
 	for(uint i = 0; !ok && i < tabSize; i++) {
 		if(pTab[i].Id == id) {
 			rSymb = pTab[i].P_Symb;
-			ok = 1;
+			ok = true;
 		}
 	}
 	return ok;

@@ -101,7 +101,7 @@ public:
 	 * @return length()
 	 */
 	int32_t extract(char * dest, int32_t capacity, UErrorCode & errorCode) const;
-	bool operator ==(StringPiece other) const { return len == other.length() && (len == 0 || memcmp(data(), other.data(), len) == 0); }
+	bool operator == (StringPiece other) const { return len == other.length() && (len == 0 || memcmp(data(), other.data(), len) == 0); }
 	bool operator !=(StringPiece other) const { return !operator ==(other); }
 	/** @return last index of c, or -1 if c is not in this string */
 	int32_t lastIndexOf(char c) const;

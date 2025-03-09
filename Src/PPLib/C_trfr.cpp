@@ -1051,7 +1051,7 @@ int Transfer::CheckLot(PPID lotID, const ReceiptTbl::Rec * pRec, long flags, PPL
 	if(lotID) {
 		PPObjBill * p_bobj = BillObj;
 		Reference * p_ref = PPRef;
-		const PPCommConfig & r_ccfg = CConfig;
+		const  PPCommConfig & r_ccfg = CConfig;
 		ReceiptTbl::Rec rec;
 		Goods2Tbl::Rec goods_rec; // Запись товара, к которому привязан лот
 		SString serial_buf;
@@ -1772,7 +1772,7 @@ int Transfer::RecalcLcr()
 {
 	int    ok = 1;
 	int    inner_tbl = 0;
-	const PPCommConfig & r_ccfg = CConfig;
+	const  PPCommConfig & r_ccfg = CConfig;
 	const LDATE start_date = checkdate(r_ccfg.LcrUsageSince) ? r_ccfg.LcrUsageSince : ZERODATE;
 	if(r_ccfg.Flags2 & CCFLG2_USELCR2) {
 		LotCurRest2Tbl * p_tbl = P_Lcr2T;

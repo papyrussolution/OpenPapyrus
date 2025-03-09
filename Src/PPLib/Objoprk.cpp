@@ -3540,7 +3540,7 @@ int FASTCALL GetOpCommonAccSheet(PPID opID, PPID * pAccSheetID, PPID * pAccSheet
 
 PPID GetCashOp()
 {
-	const PPCommConfig & r_ccfg = CConfig;
+	const  PPCommConfig & r_ccfg = CConfig;
 	return NZOR(r_ccfg.RetailOp, PPOPK_RETAIL);
 }
 

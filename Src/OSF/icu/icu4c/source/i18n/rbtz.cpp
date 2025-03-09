@@ -73,7 +73,8 @@ RuleBasedTimeZone::~RuleBasedTimeZone() {
 	deleteRules();
 }
 
-RuleBasedTimeZone&RuleBasedTimeZone::operator = (const RuleBasedTimeZone& right) {
+RuleBasedTimeZone&RuleBasedTimeZone::operator = (const RuleBasedTimeZone& right) 
+{
 	if(*this != right) {
 		BasicTimeZone::operator = (right);
 		deleteRules();
@@ -86,7 +87,8 @@ RuleBasedTimeZone&RuleBasedTimeZone::operator = (const RuleBasedTimeZone& right)
 	return *this;
 }
 
-bool RuleBasedTimeZone::operator == (const TimeZone& that) const {
+bool RuleBasedTimeZone::operator == (const TimeZone& that) const 
+{
 	if(this == &that) {
 		return true;
 	}

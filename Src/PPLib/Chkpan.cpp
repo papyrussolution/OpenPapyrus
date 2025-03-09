@@ -1974,7 +1974,7 @@ int CPosProcessor::Helper_PreprocessDiscountLoop(int mode, void * pBlk)
 			long    qdrf = 0;
 			if(r_blk.P_Scst->QueryDiscount(&r_blk.ScstCb, scst_dbl, &qdrf, &addendum_msg_list.Z()) > 0) {
 				for(i = 0; i < scst_dbl.getCount(); i++) {
-					SCardSpecialTreatment::DiscountBlock & r_db = scst_dbl.at(i);
+					const SCardSpecialTreatment::DiscountBlock & r_db = scst_dbl.at(i);
 					p_item = &P.at(r_db.RowN-1);
 					if(isempty(p_item->RemoteProcessingTa)) {
 						p_item->Discount = 0.0;

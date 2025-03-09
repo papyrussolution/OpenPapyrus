@@ -45,9 +45,9 @@ int TGSArray::GetGoodsList(PPIDArray * pList) const
 	return ok;
 }
 
-int TGSArray::SearchGoods(PPID goodsID, int * pSign, SString * pFormula) const
+bool TGSArray::SearchGoods_(PPID goodsID, int * pSign, SString * pFormula) const
 {
-	int    ok = -1;
+	bool   ok = false;
 	uint   pos = 0;
 	CALLPTRMEMB(pFormula, Z());
 	if(lsearch(&goodsID, &pos, CMPF_LONG)) {
@@ -56,13 +56,13 @@ int TGSArray::SearchGoods(PPID goodsID, int * pSign, SString * pFormula) const
 		if(pFormula) {
 			GetS(p_item->FormulaP, *pFormula);
 		}
-		ok = 1;
+		ok = true;
 	}
 	else {
 		PPObjGoods goods_obj;
 		Goods2Tbl::Rec goods_rec;
 		PPIDArray generic_list;
-		for(uint i = 0; ok < 0 && i < getCount(); i++) {
+		for(uint i = 0; !ok && i < getCount(); i++) {
 			const Item * p_item = static_cast<const Item *>(at(i));
 			if(goods_obj.Fetch(p_item->GoodsID, &goods_rec) > 0 && goods_rec.Flags & GF_GENERIC) {
 				generic_list.Z();
@@ -71,7 +71,7 @@ int TGSArray::SearchGoods(PPID goodsID, int * pSign, SString * pFormula) const
 					ASSIGN_PTR(pSign, p_item->Sign);
 					if(pFormula)
 						GetS(p_item->FormulaP, *pFormula);
-					ok = 1;						
+					ok = true;
 				}
 			}
 		}

@@ -2922,10 +2922,10 @@ struct STimeChunk {
 //
 class DateRepeating { // @persistent @noctr @novtbl @size=8
 public:
-	static int FASTCALL IsValidPrd(int prd);
+	static bool FASTCALL IsValidPrd(int prd);
 
-	int    FASTCALL operator == (const DateRepeating & rS) const;
-	int    FASTCALL operator != (const DateRepeating & rS) const;
+	bool   FASTCALL operator == (const DateRepeating & rS) const;
+	bool   FASTCALL operator != (const DateRepeating & rS) const;
 	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 	int    Init(int prd, int kind = 1, LDATE = ZERODATE);
 	int    Next_(LDATE startDate, LDATE * pNextDate) const; // @obsolete use DateRepIterator
@@ -3503,8 +3503,8 @@ struct SSzChunk { // @flat @noctr @novtbl
 	SSzChunk & Z();
 	SSzChunk & Set(int begin, int len);
 	SSzChunk & SetRange(int begin, int end);
-	int    operator !() const;
-	int    operator == (const SSzChunk & rS) const;
+	bool   operator !() const;
+	bool   FASTCALL operator == (const SSzChunk & rS) const;
 	int    GetEnd() const;
 	bool   IsEmpty() const;
 
@@ -4521,7 +4521,7 @@ public:
 	SString & FASTCALL CatBrackStr(const char * pStr);
 	SString & FASTCALL CatChar(int chr);
 	SString & Space();   // @>>CatChar(' ')
-	SString & FASTCALL Tab(uint c); // @>>CatChar('\t')
+	SString & FASTCALL Tab_(uint c); // @>>CatChar('\t')
 	SString & Tab();       // @>>CatChar('\t')
 	SString & Dot();     // @>>CatChar('.')
 	SString & Comma();   // @>>CatChar(',')
@@ -7943,10 +7943,10 @@ struct SIntToSymbTabEntry {
 // Descr: Ищет в таблице pTab (размером tabSize элементов) первый элемент, имеющий значение
 //   (Id == id) и в буфере rSymb возвращает значение соответствующего символа (SIntToSymbTabEntry::P_Symb).
 // Returns:
-//   >0 - искомый элемент найден
-//   0  - искомый элемент не найден (к аргументу rSymb применен метод SString::Z())
+//   true - искомый элемент найден
+//   false - искомый элемент не найден (к аргументу rSymb применен метод SString::Z())
 //
-int    STDCALL SIntToSymbTab_GetSymb(const SIntToSymbTabEntry * pTab, size_t tabSize, int id, SString & rSymb);
+bool   STDCALL SIntToSymbTab_GetSymb(const SIntToSymbTabEntry * pTab, size_t tabSize, int id, SString & rSymb);
 //
 // Descr: Ищет в таблице pTab (размером tabSize элементов) первый элемент, имеющий значение
 //   (Id == id) и возвращает указатель на соответствующий символ (SIntToSymbTabEntry::P_Symb).
@@ -9055,7 +9055,7 @@ public:
 	LLAssocArray();
 	LLAssocArray(const LLAssocArray &);
 	LLAssocArray & FASTCALL operator = (const LLAssocArray &);
-	int    FASTCALL operator == (const LLAssocArray &) const;
+	bool   FASTCALL operator == (const LLAssocArray &) const;
 	//
 	// Returns:
 	//   0  - в массиве уже есть элемент с идентификатором id
@@ -11028,15 +11028,15 @@ public:
 		uint32 SnTokSeq_Common; // flags SNTOKSEQ_FFFF общие для всех строк
 		uint32 SnTokSeq_First;  // flags SNTOKSEQ_FFFF для первой строки
 	};
-	static int FASTCALL Register(int id, int mimeType, const char * pMimeSubtype, const char * pExt, const char * pSign);
-	static int FASTCALL Register(int id, const char * pExt, const char * pSign);
-	static int Register();
-	static int IdentifyContentTransferEnc(const char * pCte);
-	static int IdentifyMimeType(const char * pMimeType);
-	static int GetMimeTypeName(int mimeType, SString & rBuf);
-	static int GetMime(int id, SString & rMime);
-	static int GetExt(int id, SString & rExt);
-	static int GetContentTransferEncName(int cte, SString & rBuf);
+	static int  FASTCALL Register(int id, int mimeType, const char * pMimeSubtype, const char * pExt, const char * pSign);
+	static int  FASTCALL Register(int id, const char * pExt, const char * pSign);
+	static int  Register();
+	static int  IdentifyContentTransferEnc(const char * pCte);
+	static int  IdentifyMimeType(const char * pMimeType);
+	static bool GetMimeTypeName(int mimeType, SString & rBuf);
+	static int  GetMime(int id, SString & rMime);
+	static int  GetExt(int id, SString & rExt);
+	static int  GetContentTransferEncName(int cte, SString & rBuf);
 
 	SFileFormat();
 	SFileFormat(int f); // no explicit
@@ -11289,8 +11289,8 @@ private:
 public:
 	struct MapEntry {
 		MapEntry();
-		int    FASTCALL operator == (const MapEntry & rS) const;
-		int    FASTCALL operator != (const MapEntry & rS) const;
+		bool   FASTCALL operator == (const MapEntry & rS) const;
+		bool   FASTCALL operator != (const MapEntry & rS) const;
 		int    FASTCALL Cmp(const MapEntry & rS) const;
 
 		uint8  B[4]; // от B[0] до B[3] в порядке следования символов в строке
@@ -18765,10 +18765,10 @@ public:
 	double GetLon() const;
 	long   GetIntLat() const;
 	long   GetIntLon() const;
-	int    FASTCALL operator == (const SGeoPosLL_Int & rS) const;
-	int    FASTCALL operator != (const SGeoPosLL_Int & rS) const;
-	int    FASTCALL operator == (const SGeoPosLL & rS) const;
-	int    FASTCALL operator != (const SGeoPosLL & rS) const;
+	bool   FASTCALL operator == (const SGeoPosLL_Int & rS) const;
+	bool   FASTCALL operator != (const SGeoPosLL_Int & rS) const;
+	bool   FASTCALL operator == (const SGeoPosLL & rS) const;
+	bool   FASTCALL operator != (const SGeoPosLL & rS) const;
 	int    FASTCALL Cmp(const SGeoPosLL_Int & rS) const;
 	int    FASTCALL Cmp(const SGeoPosLL & rS) const;
 	int    Set(double lat, double lon);
@@ -19120,7 +19120,7 @@ struct UsbBasicDescrSt {
 	UsbBasicDescrSt();
 	UsbBasicDescrSt(const UsbBasicDescrSt & rSrc);
 	UsbBasicDescrSt & Z();
-	int    operator == (const UsbBasicDescrSt & s) const;
+	bool   FASTCALL operator == (const UsbBasicDescrSt & s) const;
 
 	SUsbDevice * P_Parent; // @notowned
 	SString Pid; // Совпадает с Pid родителя

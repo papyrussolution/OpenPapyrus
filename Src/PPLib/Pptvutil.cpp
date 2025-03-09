@@ -7701,13 +7701,13 @@ int ExportDialogs2(const char * pFileName)
 														SString item_title_buf;
 														TView::SGetWindowText(h_item, item_title_buf);
 														if(p_clu->getKind() == RADIOBUTTONS) {
-															line_buf.Z().Tab(2).Cat("radiobutton").Space().CatChar('[');
+															line_buf.Z().Tab_(2).Cat("radiobutton").Space().CatChar('[');
 															line_buf.Cat("title").CatDiv(':', 2).CatQStr((temp_buf = item_title_buf).Transf(CTRANSF_OUTER_TO_UTF8));
 															_BBox(wi_item.rcWindow, line_buf.Space());
 															line_buf.CatChar(']').Semicol();
 														}
 														else if(p_clu->getKind() == CHECKBOXES) {
-															line_buf.Z().Tab(2).Cat("checkbox").Space().CatChar('[');
+															line_buf.Z().Tab_(2).Cat("checkbox").Space().CatChar('[');
 															line_buf.Cat("title").CatDiv(':', 2).CatQStr((temp_buf = item_title_buf).Transf(CTRANSF_OUTER_TO_UTF8));
 															_BBox(wi_item.rcWindow, line_buf.Space());
 															line_buf.CatChar(']').Semicol();
@@ -7720,14 +7720,14 @@ int ExportDialogs2(const char * pFileName)
 																if(p_clu->getKind() == RADIOBUTTONS) {
 																	// \item[\dlgradioc{Сортировать по}]
 																	PreprocessCtrlText(item_title_buf, ctl_text_processed);
-																	line_buf.Z().Tab(2).BSlash().Cat("item").CatChar('[').BSlash().Cat("dlgradioi").
+																	line_buf.Z().Tab_(2).BSlash().Cat("item").CatChar('[').BSlash().Cat("dlgradioi").
 																		CatChar('{').Cat(ctl_text_processed).CatChar('}').CatChar(']').CR().CR();
 																	f_out_manual.WriteLine(line_buf);
 																}
 																else if(p_clu->getKind() == CHECKBOXES) {
 																	// \dlgflag{Просмотр}
 																	PreprocessCtrlText(item_title_buf, ctl_text_processed);
-																	line_buf.Z().Tab(2).BSlash().Cat("dlgflag").CatChar('{').Cat(ctl_text_processed).CatChar('}').CR().CR();
+																	line_buf.Z().Tab_(2).BSlash().Cat("dlgflag").CatChar('{').Cat(ctl_text_processed).CatChar('}').CR().CR();
 																	f_out_manual.WriteLine(line_buf);
 																}
 															}

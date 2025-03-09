@@ -41,7 +41,7 @@ public:
 	static void makeRules(UnicodeString & definition, NFRuleSet* ruleSet, const NFRule* predecessor, const RuleBasedNumberFormat* rbnf, NFRuleList& ruleList, UErrorCode & status);
 	NFRule(const RuleBasedNumberFormat* rbnf, const UnicodeString & ruleText, UErrorCode & status);
 	~NFRule();
-	bool operator ==(const NFRule& rhs) const;
+	bool operator == (const NFRule& rhs) const;
 	bool operator !=(const NFRule& rhs) const { return !operator ==(rhs); }
 	ERuleType getType() const { return (ERuleType)(baseValue <= kNoBase ? (ERuleType)baseValue : kOtherRule); }
 	void setType(ERuleType ruleType) { baseValue = (int32_t)ruleType; }

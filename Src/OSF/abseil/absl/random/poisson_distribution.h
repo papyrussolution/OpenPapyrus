@@ -45,7 +45,7 @@ public:
 		using distribution_type = poisson_distribution;
 		explicit param_type(double mean = 1.0);
 		double mean() const { return mean_; }
-		friend bool operator ==(const param_type& a, const param_type& b) { return a.mean_ == b.mean_; }
+		friend bool operator == (const param_type& a, const param_type& b) { return a.mean_ == b.mean_; }
 		friend bool operator !=(const param_type& a, const param_type& b) { return !(a == b); }
 private:
 		friend class poisson_distribution;
@@ -81,7 +81,7 @@ private:
 	result_type(min)() const { return 0; }
 	result_type(max)() const { return (std::numeric_limits<result_type>::max)(); }
 	double mean() const { return param_.mean(); }
-	friend bool operator ==(const poisson_distribution& a, const poisson_distribution& b) { return a.param_ == b.param_; }
+	friend bool operator == (const poisson_distribution& a, const poisson_distribution& b) { return a.param_ == b.param_; }
 	friend bool operator !=(const poisson_distribution& a, const poisson_distribution& b) { return a.param_ != b.param_; }
 private:
 	param_type param_;

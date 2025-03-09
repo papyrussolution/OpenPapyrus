@@ -595,9 +595,9 @@ public:
 		SString Password;
 	};
 
-	static int  FASTCALL GetHeaderTitle(int hdr, SString & rTitle);
+	static bool FASTCALL GetHeaderTitle(int hdr, SString & rTitle);
 	static int  FASTCALL GetHeaderId(const char * pTitle);
-	static int  SetHeaderField(StrStrAssocArray & rFldList, int titleId, const char * pValue);
+	static bool SetHeaderField(StrStrAssocArray & rFldList, int titleId, const char * pValue);
 	static bool IsThereHeaderField(const StrStrAssocArray & rFldList, int titleId, SString * pValue);
 	static uint FASTCALL PutHeaderFieldsIntoString(const StrStrAssocArray & rFldList, SString & rBuf);
 	static int  FASTCALL ParseAuth(const char * pAuthParam, Auth & rResult);

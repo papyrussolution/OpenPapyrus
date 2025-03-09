@@ -195,10 +195,10 @@ double SGeoPosLL_Int::GetLat() const { return Lat ? (((double)Lat) / IntGeoCoord
 double SGeoPosLL_Int::GetLon() const { return Lon ? (((double)Lon) / IntGeoCoordScale) : 0.0; }
 long SGeoPosLL_Int::GetIntLat() const { return Lat; }
 long SGeoPosLL_Int::GetIntLon() const { return Lon; }
-int FASTCALL SGeoPosLL_Int::operator == (const SGeoPosLL_Int & rS) const { return BIN(Cmp(rS) == 0); }
-int FASTCALL SGeoPosLL_Int::operator != (const SGeoPosLL_Int & rS) const { return BIN(Cmp(rS) != 0); }
-int FASTCALL SGeoPosLL_Int::operator == (const SGeoPosLL & rS) const { return BIN(Cmp(rS) == 0); }
-int FASTCALL SGeoPosLL_Int::operator != (const SGeoPosLL & rS) const { return BIN(Cmp(rS) != 0); }
+bool FASTCALL SGeoPosLL_Int::operator == (const SGeoPosLL_Int & rS) const { return (Cmp(rS) == 0); }
+bool FASTCALL SGeoPosLL_Int::operator != (const SGeoPosLL_Int & rS) const { return (Cmp(rS) != 0); }
+bool FASTCALL SGeoPosLL_Int::operator == (const SGeoPosLL & rS) const { return (Cmp(rS) == 0); }
+bool FASTCALL SGeoPosLL_Int::operator != (const SGeoPosLL & rS) const { return (Cmp(rS) != 0); }
 
 int FASTCALL SGeoPosLL_Int::Cmp(const SGeoPosLL_Int & rS) const
 {

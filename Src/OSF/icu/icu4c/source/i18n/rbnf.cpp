@@ -48,17 +48,17 @@ class LocalizationInfo : public UMemory {
 protected:
 	virtual ~LocalizationInfo();
 	uint32_t refcount;
-
 public:
-	LocalizationInfo() : refcount(0) {
+	LocalizationInfo() : refcount(0) 
+	{
 	}
-
-	LocalizationInfo* ref() {
+	LocalizationInfo* ref() 
+	{
 		++refcount;
 		return this;
 	}
-
-	LocalizationInfo* unref() {
+	LocalizationInfo* unref() 
+	{
 		if(refcount && --refcount == 0) {
 			delete this;
 		}
@@ -66,16 +66,12 @@ public:
 	}
 
 	virtual bool operator == (const LocalizationInfo* rhs) const;
-	inline bool operator != (const LocalizationInfo* rhs) const {
-		return !operator == (rhs);
-	}
-
+	inline bool operator != (const LocalizationInfo* rhs) const { return !operator == (rhs); }
 	virtual int32_t getNumberOfRuleSets() const = 0;
 	virtual const char16_t * getRuleSetName(int32_t index) const = 0;
 	virtual int32_t getNumberOfDisplayLocales() const = 0;
 	virtual const char16_t * getLocaleName(int32_t index) const = 0;
 	virtual const char16_t * getDisplayName(int32_t localeIndex, int32_t ruleIndex) const = 0;
-
 	virtual int32_t indexForLocale(const char16_t * locale) const;
 	virtual int32_t indexForRuleSet(const char16_t * ruleset) const;
 

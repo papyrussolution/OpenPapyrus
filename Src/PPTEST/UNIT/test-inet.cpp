@@ -1,5 +1,5 @@
 // TEST-INET.CPP
-// Copyright (c) A.Sobolev 2023, 2024
+// Copyright (c) A.Sobolev 2023, 2024, 2025
 //
 #include <pp.h>
 #pragma hdrstop
@@ -53,46 +53,46 @@ int SMailMessage::DebugOutput_Boundary(const Boundary & rB, uint tab, SString & 
 {
 	SString temp_buf;
 	temp_buf.Z().Cat(rB.LineNo_Start).Dot().Dot().Cat(rB.LineNo_Finish);
-	rBuf.Tab(tab).Cat("boundary").Space().CatEq("lines", temp_buf).CR();
+	rBuf.Tab_(tab).Cat("boundary").Space().CatEq("lines", temp_buf).CR();
 	GetS(rB.Ct.MimeP, temp_buf);
-	rBuf.Tab(tab+1).CatEq("ct:mime", temp_buf).CR();
+	rBuf.Tab_(tab+1).CatEq("ct:mime", temp_buf).CR();
 	GetS(rB.Ct.TypeP, temp_buf);
-	rBuf.Tab(tab+1).CatEq("ct:type", temp_buf).CR();
+	rBuf.Tab_(tab+1).CatEq("ct:type", temp_buf).CR();
 	GetS(rB.Ct.NameP, temp_buf);
-	rBuf.Tab(tab+1).CatEq("ct:name", temp_buf).CR();
+	rBuf.Tab_(tab+1).CatEq("ct:name", temp_buf).CR();
 	GetS(rB.Ct.BoundaryP, temp_buf);
-	rBuf.Tab(tab+1).CatEq("ct:boundaryid", temp_buf).CR();
+	rBuf.Tab_(tab+1).CatEq("ct:boundaryid", temp_buf).CR();
 	rB.Ct.Cp.ToStr(SCodepageIdent::fmtDefault, temp_buf);
-	rBuf.Tab(tab+1).CatEq("ct:cp", temp_buf).CR();
+	rBuf.Tab_(tab+1).CatEq("ct:cp", temp_buf).CR();
 	//
-	rBuf.Tab(tab+1).CatEq("cd:type", (long)rB.Cd.Type).CR();
+	rBuf.Tab_(tab+1).CatEq("cd:type", (long)rB.Cd.Type).CR();
 	GetS(rB.Cd.NameP, temp_buf);
-	rBuf.Tab(tab+1).CatEq("cd:name", temp_buf).CR();
+	rBuf.Tab_(tab+1).CatEq("cd:name", temp_buf).CR();
 	GetS(rB.Cd.FileNameP, temp_buf);
-	rBuf.Tab(tab+1).CatEq("cd:filename", temp_buf).CR();
+	rBuf.Tab_(tab+1).CatEq("cd:filename", temp_buf).CR();
 	if(rB.Cd.Size != 0)
-		rBuf.Tab(tab+1).CatEq("cd:size", rB.Cd.Size).CR();
+		rBuf.Tab_(tab+1).CatEq("cd:size", rB.Cd.Size).CR();
 	if(!!rB.Cd.CrDtm) {
 		temp_buf.Z().Cat(rB.Cd.CrDtm, DATF_ISO8601CENT, 0);
-		rBuf.Tab(tab+1).CatEq("cd:crdtm", rB.Cd.Size).CR();
+		rBuf.Tab_(tab+1).CatEq("cd:crdtm", rB.Cd.Size).CR();
 	}
 	if(!!rB.Cd.ModifDtm) {
 		temp_buf.Z().Cat(rB.Cd.ModifDtm, DATF_ISO8601CENT, 0);
-		rBuf.Tab(tab+1).CatEq("cd:modifdtm", rB.Cd.Size).CR();
+		rBuf.Tab_(tab+1).CatEq("cd:modifdtm", rB.Cd.Size).CR();
 	}
 	if(!!rB.Cd.RdDtm) {
 		temp_buf.Z().Cat(rB.Cd.RdDtm, DATF_ISO8601CENT, 0);
-		rBuf.Tab(tab+1).CatEq("cd:readdtm", rB.Cd.Size).CR();
+		rBuf.Tab_(tab+1).CatEq("cd:readdtm", rB.Cd.Size).CR();
 	}
-	rBuf.Tab(tab+1).CatEq("contenttypeenc", (long)rB.ContentTransfEnc).CR();
-	rBuf.Tab(tab+1).CatEq("datasize", rB.Data.GetAvailableSize()).CR();
+	rBuf.Tab_(tab+1).CatEq("contenttypeenc", (long)rB.ContentTransfEnc).CR();
+	rBuf.Tab_(tab+1).CatEq("datasize", rB.Data.GetAvailableSize()).CR();
 	for(uint i = 0; i < rB.Children.getCount(); i++) {
 		const Boundary * p_b = rB.Children.at(i);
 		if(p_b) {
 			DebugOutput_Boundary(*p_b, tab+1, rBuf); // @recursion
 		}
 		else {
-			rBuf.Tab(tab+2).Cat("zeroptr child boundary").CR();
+			rBuf.Tab_(tab+2).Cat("zeroptr child boundary").CR();
 		}
 	}
 	return 1;

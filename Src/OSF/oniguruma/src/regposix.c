@@ -136,7 +136,7 @@ static int onig2posix_error_code(int code)
 	int r, len;
 	OnigSyntaxType* syntax = OnigDefaultSyntax;
 	OnigOptionType options;
-	reg->onig = (void *)0;
+	reg->onig = 0;
 	if((posix_options & REG_EXTENDED) == 0)
 		syntax = ONIG_SYNTAX_POSIX_BASIC;
 	options = syntax->options;
@@ -207,7 +207,7 @@ static int onig2posix_error_code(int code)
 /*extern*/void onig_posix_regfree(onig_posix_regex_t* reg)
 {
 	onig_free(ONIG_C(reg));
-	reg->onig = (void *)0;
+	reg->onig = 0;
 }
 
 /*extern*/void onig_posix_reg_set_encoding(int mb_code)

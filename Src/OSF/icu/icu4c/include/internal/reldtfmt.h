@@ -52,7 +52,7 @@ public:
 	 * @return         true if the given Format objects are semantically equal.
 	 * @internal ICU 3.8
 	 */
-	virtual bool operator ==(const Format& other) const override;
+	virtual bool operator == (const Format& other) const override;
 
 	using DateFormat::format;
 	/**

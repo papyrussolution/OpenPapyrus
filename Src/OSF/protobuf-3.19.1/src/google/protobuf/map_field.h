@@ -155,7 +155,8 @@ public:
 		return false;
 	}
 
-	bool operator == (const MapKey& other) const {
+	bool operator == (const MapKey& other) const 
+	{
 		if(type_ != other.type_) {
 			// To be consistent with operator<, we don't allow this either.
 			GOOGLE_LOG(FATAL) << "Unsupported: type mismatch";

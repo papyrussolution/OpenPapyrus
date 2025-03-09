@@ -43,27 +43,45 @@ static void DrawClientActivityStatistics(PPID psnID) // @v12.2.6 @construction
 				Generator_GnuPlot plot(0);
 				Generator_GnuPlot::PlotParam param;
 				param.Flags |= Generator_GnuPlot::PlotParam::fHistogram;
-				plot.StartData(0/*putLegend*/);
-				param.Legend.Add(1, "value");
-				for(uint hi = 0; hi < hg.GetResultCount(); hi++) {
-					SHistogram::Result hr;
-					hg.GetResult(hi, &hr);
-					range_x.SetupMinMax(hr.Low);
-					temp_buf.Z().Cat(hr.Low, MKSFMTD(0, 0, 0));
-					plot.PutData(temp_buf, 1); // #1
-					plot.PutData(hr.Count);    // #2
-					plot.PutEOR();
+				const double avg = cas.GapDaysAvg;
+				const double left_stddev = avg-cas.GapDaysStdDev;
+				const double right_stddev = avg+cas.GapDaysStdDev;
+				range_x.SetupMinMax(left_stddev);
+				range_x.SetupMinMax(right_stddev);
+				{
+					for(uint hi = 0; hi < hg.GetResultCount(); hi++) {
+						SHistogram::Result hr;
+						hg.GetResult(hi, &hr);
+						range_x.SetupMinMax(hr.Low);
+					}
 				}
-				plot.PutEndOfData();
+				//plot.SetAxisRange(Generator_GnuPlot::axX, range_x.low-1.0, range_x.upp+1.0);
+				plot.SetAxisAutoscale(Generator_GnuPlot::axX);
+				param.Legend.Add(2, "value");
+				{
+					plot.StartData(0/*putLegend*/);
+					for(uint hi = 0; hi < hg.GetResultCount(); hi++) {
+						SHistogram::Result hr;
+						hg.GetResult(hi, &hr);
+						range_x.SetupMinMax(hr.Low);
+						temp_buf.Z().Cat(hr.Low, MKSFMTD(0, 0, 0));
+						plot.PutData(temp_buf, 1); // #1
+						plot.PutData(hr.Count);    // #2
+						plot.PutEOR();
+					}
+					plot.PutEndOfData();
+				}
 				plot.Preamble();
 				plot.SetGrid();
 				plot.SetStyleFill("solid");
+				/*{
+					PPGpPlotItem item(plot.GetDataFileName(), "abc009", PPGpPlotItem::sHistograms);
+					item.Style.SetLine(GetColorRef(SClrBlue), 3);
+					item.AddDataIndex(1);
+					item.AddDataIndex(2);
+					plot.AddPlotItem(item);
+				}*/
 				{
-					const double avg = cas.GapDaysAvg;
-					const double left_stddev = avg-cas.GapDaysStdDev;
-					const double right_stddev = avg+cas.GapDaysStdDev;
-					range_x.SetupMinMax(left_stddev);
-					range_x.SetupMinMax(right_stddev);
 					{
 						Generator_GnuPlot::Coord from_x(Generator_GnuPlot::Coord::csFirst, avg);
 						Generator_GnuPlot::Coord from_y(Generator_GnuPlot::Coord::csGraph, 0.0);
@@ -86,8 +104,6 @@ static void DrawClientActivityStatistics(PPID psnID) // @v12.2.6 @construction
 						plot.SetArrow(from_x, from_y, to_x, to_y, Generator_GnuPlot::arrhNoHead);
 					}
 				}
-				// plot.SetAxisRange(Generator_GnuPlot::axX, range_x.low-1.0, range_x.upp+1.0);
-				plot.SetAxisAutoscale(Generator_GnuPlot::axX);
 				plot.Plot(&param);
 				ok = plot.Run();
 				// set arrow from 0.5, graph 0 to 0.5, graph 3 nohead
@@ -138,7 +154,8 @@ int ViewPersonInfoBySCard(const char * pCode)
 //
 //
 PPViewPerson::PPViewPerson() : PPView(&PsnObj, &Filt, PPVIEW_PERSON, implUseQuickTagEditFunc, 0), 
-	DefaultTagID(0), P_TempPsn(0), P_Fr(0), P_ClientActivityStateList(0) // @v11.2.8 0-->&PsnObj; implUseQuickTagEditFunc
+	DefaultTagID(0), P_TempPsn(0), P_Fr(0)
+	// @v12.2.10 , P_ClientActivityStateList(0) // @v11.2.8 0-->&PsnObj; implUseQuickTagEditFunc
 {
 }
 
@@ -146,7 +163,7 @@ PPViewPerson::~PPViewPerson()
 {
 	delete P_TempPsn;
 	delete P_Fr;
-	delete P_ClientActivityStateList; // @v12.2.2
+	// @v12.2.10 delete P_ClientActivityStateList; // @v12.2.2
 }
 
 PP_CREATE_TEMP_FILE_PROC(CreateTempPersonFile, TempPerson);
@@ -200,9 +217,10 @@ bool PPViewPerson::IsTempTblNeeded()
 	BExtQuery::ZDelete(&P_IterQuery);
 	ZDELETE(P_TempPsn);
 	ZDELETE(P_Ct);
-	NewCliList.Clear();
+	// @v12.2.10 NewCliList.Clear();
 	StrPool.ClearS();
-	ZDELETE(P_ClientActivityStateList); // @v12.2.2
+	// @v12.2.10 ZDELETE(P_ClientActivityStateList); // @v12.2.2
+	ExtList.clear(); // @v12.2.10
 	PsnObj.DirtyConfig(); // @v12.2.4
 	// @v12.2.3 {
 	{
@@ -491,11 +509,11 @@ bool PPViewPerson::IsTempTblNeeded()
 	}*/
 	// @v12.2.2 {
 	if(Filt.Flags & PersonFilt::fCliActivityStats) {
-		assert(P_ClientActivityStateList == 0); // @see top of function
+		// @v12.2.10 assert(P_ClientActivityStateList == 0); // @see top of function
 		PersonViewItem item;
 		PPWaitStart();
 		LAssocArray local_client_activity_state_list;
-		for(InitIteration(); NextIteration(&item) > 0;) {
+		for(InitIteration(); Helper_NextIteration(nifOmitCliActivityFlags, &item) > 0;) {
 			PPObjPerson::ClientActivityState cas;
 			cas.PersonID = item.ID;
 			cas.ActualDate = Filt.ClientActivityEvalDate;
@@ -508,7 +526,19 @@ bool PPViewPerson::IsTempTblNeeded()
 		// Отложенная инициализация P_ClientActivityStateList из-за того, что метод NextIteration фильтрует
 		// записи опираясь на P_ClientActivityStateList.
 		//
-		THROW_MEM(P_ClientActivityStateList = new LAssocArray(local_client_activity_state_list));
+		// @v12.2.10 THROW_MEM(P_ClientActivityStateList = new LAssocArray(local_client_activity_state_list));
+		// @v12.2.10 {
+		{
+			for(uint i = 0; i < local_client_activity_state_list.getCount(); i++) {
+				const LAssoc & r_item = local_client_activity_state_list.at(i);
+				uint idx = 0;
+				ExtEntry * p_entry = SearchExtEntryForUpdate(r_item.Key, &idx);
+				if(p_entry) {
+					p_entry->ClientActivityState = static_cast<uint>(r_item.Val);
+				}
+			}
+		}
+		// } @v12.2.10 
 		PPWaitStop();		
 	}
 	// } @v12.2.2 
@@ -994,7 +1024,7 @@ int PPViewPerson::DeleteItem(PPID id)
 
 void PPViewPerson::ViewTotal()
 {
-	uint   dlg_id = P_ClientActivityStateList ? DLG_PERSONTOTAL_CA : DLG_PERSONTOTAL;
+	uint   dlg_id = /*P_ClientActivityStateList*/(Filt.Flags & PersonFilt::fCliActivityStats) ? DLG_PERSONTOTAL_CA : DLG_PERSONTOTAL;
 	TDialog * dlg = new TDialog(dlg_id);
 	if(CheckDialogPtrErr(&dlg)) {
 		long   count = 0;
@@ -1007,10 +1037,13 @@ void PPViewPerson::ViewTotal()
 		PPWaitStart();
 		for(InitIteration(); NextIteration(&item) > 0;) {
 			count++;
-			if(P_ClientActivityStateList) {
+			/*if(P_ClientActivityStateList)*/{
 				uint   pos = 0;
-				if(P_ClientActivityStateList->Search(item.ID, &pos)) {
-					const long state = P_ClientActivityStateList->at(pos).Val;
+				const ExtEntry * p_ext_entry = SearchExtEntry(item.ID);
+				//if(P_ClientActivityStateList->Search(item.ID, &pos)) {
+				if(p_ext_entry) {
+					// @v12.2.10 const long state = P_ClientActivityStateList->at(pos).Val;
+					const uint state = p_ext_entry->ClientActivityState; // @v12.2.10
 					switch(state & ~PPObjPerson::ClientActivityState::stfNewClient) {
 						case PPObjPerson::ClientActivityState::stNoData: cas_nodata++; break;
 						case PPObjPerson::ClientActivityState::stDelayedTa: cas_delayed++; break;
@@ -1180,7 +1213,7 @@ int PPViewPerson::Transmit(PPID id, int transmitKind)
 	return ok;
 }
 
-int PPViewPerson::CheckIDForFilt(PPID id, const PersonTbl::Rec * pRec)
+int PPViewPerson::Helper_CheckIDForFilt(PPID id, uint flags, const PersonTbl::Rec * pRec)
 {
 	int    ok = 1;
 	PersonTbl::Rec _rec;
@@ -1197,7 +1230,7 @@ int PPViewPerson::CheckIDForFilt(PPID id, const PersonTbl::Rec * pRec)
 		else if(!CheckFiltID(Filt.PersonID, pRec->ID))
 			ok = 0;
 		else {
-			const bool local_ok = PPViewPerson::CheckClientActivityState(id, Filt.ClientActivityStateFlags, P_ClientActivityStateList); // @v12.2.2
+			const bool local_ok = (flags & nifOmitCliActivityFlags) ? true : PPViewPerson::CheckClientActivityState(id, Filt.ClientActivityStateFlags, /*P_ClientActivityStateList*/&ExtList); // @v12.2.2
 			if(!local_ok)
 				ok = 0;
 			else {
@@ -1232,6 +1265,11 @@ int PPViewPerson::CheckIDForFilt(PPID id, const PersonTbl::Rec * pRec)
 	else
 		ok = 0;
 	return ok;
+}
+
+int PPViewPerson::CheckIDForFilt(PPID id, const PersonTbl::Rec * pRec)
+{
+	return Helper_CheckIDForFilt(id, 0, pRec);
 }
 
 int PPViewPerson::CreateAddrRec(PPID addrID, const LocationTbl::Rec * pLocRec, const char * pAddrKindText, PsnAttrViewItem * pItem)
@@ -1716,12 +1754,14 @@ int PPViewPerson::InitIteration()
 	return ok;
 }
 
-int FASTCALL PPViewPerson::NextIteration(PersonViewItem * pItem)
+int PPViewPerson::Helper_NextIteration(uint flags, PersonViewItem * pItem)
 {
 	int    ok = -1;
 	PersonViewItem item;
-	if(P_IterQuery)
-		while(ok < 0 && P_IterQuery->nextIteration() > 0) {// AHTOXA
+	MEMSZERO(item); // @v12.2.9
+	if(P_IterQuery) {
+		while(ok < 0 && P_IterQuery->nextIteration() > 0) { // AHTOXA
+			PPID   person_id = 0;
 			if(P_TempPsn) {
 				if(oneof2(Filt.GetAttribType(), PPPSNATTR_HANGEDADDR, PPPSNATTR_STANDALONEADDR)) {
 					const  PPID loc_id = P_TempPsn->data.TabID;
@@ -1731,21 +1771,46 @@ int FASTCALL PPViewPerson::NextIteration(PersonViewItem * pItem)
 						ok = 1;
 					}
 				}
-				else if(PsnObj.Search(P_TempPsn->data.ID, &item) > 0) {
+				else if(PsnObj.Search(person_id, &item) > 0) {
+					person_id = P_TempPsn->data.ID;
 					item.AttrItem = P_TempPsn->data;
 					ok = 1;
 				}
 			}
 			else {
-				const PPID id = Filt.PersonKindID ? PsnObj.P_Tbl->Kind.data.PersonID : PsnObj.P_Tbl->data.ID;
-				if(PsnObj.Search(id, &item) > 0 && CheckIDForFilt(id, &item))
+				person_id = Filt.PersonKindID ? PsnObj.P_Tbl->Kind.data.PersonID : PsnObj.P_Tbl->data.ID;
+				if(PsnObj.Search(person_id, &item) > 0 && Helper_CheckIDForFilt(person_id, flags, &item))
 					ok = 1;
 			}
+			// @v12.2.10 {
+			if(ok > 0 && person_id && (Filt.Flags & PersonFilt::fCliActivityStats)) {
+				PPObjPerson::ClientActivityStatistics cas;
+				if(PsnObj.FetchCas(person_id, &cas) > 0) {
+					PPObjPerson::ClientActivityState st;
+					st.PersonID = person_id;
+					st.ActualDate = Filt.ClientActivityEvalDate;
+					st.NewCliPeriod = Filt.NewCliPeriod;
+					PsnObj.IdentifyClientActivityState(st);
+
+					item.CaEventCount = cas.EventCount;
+					item.CaGapDaysAvg = cas.GapDaysAvg;
+					item.CaGapDaysStdDev = cas.GapDaysStdDev;
+					item.CaDelayDays = st.CurrentDelayDays;
+					item.CaDelaySd = st.CurrentDelaySd;
+
+					item.CaActivityState = (st.State & ~PPObjPerson::ClientActivityState::stfNewClient);
+					item.CaIsNew = BIN(st.State & PPObjPerson::ClientActivityState::stfNewClient);
+				}
+			}
+			// } @v12.2.10 
 			Counter.Increment();
 		}
+	}
 	ASSIGN_PTR(pItem, item);
-	return ok;
+	return ok;	
 }
+
+int FASTCALL PPViewPerson::NextIteration(PersonViewItem * pItem) { return Helper_NextIteration(0, pItem); }
 //
 // ExtRegCombo
 //
@@ -2426,10 +2491,7 @@ int FASTCALL PPViewPerson::HasImage(const void * pData)
 	return BIN(flags & PSNF_HASIMAGES);
 }
 
-int FASTCALL PPViewPerson::IsNewCliPerson(PPID id) const
-{
-	return NewCliList.Has(id);
-}
+// @v12.2.10 int FASTCALL PPViewPerson::IsNewCliPerson(PPID id) const { return NewCliList.Has(id); }
 
 SString & FASTCALL PPViewPerson::GetFromStrPool(uint strP, SString & rBuf) const
 {
@@ -2462,10 +2524,14 @@ SString & FASTCALL PPViewPerson::GetFromStrPool(uint strP, SString & rBuf) const
 					ok = 1;
 				}*/
 				else if(r_col.OrgOffs == 1) { // name
-					if(p_view->P_ClientActivityStateList) {
+					//if(p_view->P_ClientActivityStateList) {
+					if(p_view->Filt.Flags & PersonFilt::fCliActivityStats) {
 						uint caslp = 0;
-						if(p_view->P_ClientActivityStateList->Search(p_hdr->ID, &caslp)) {
-							const long state = p_view->P_ClientActivityStateList->at(caslp).Val;
+						const ExtEntry * p_ext_entry = p_view->SearchExtEntry(p_hdr->ID);
+						//if(p_view->P_ClientActivityStateList->Search(p_hdr->ID, &caslp)) {
+						if(p_ext_entry) {
+							//const long state = p_view->P_ClientActivityStateList->at(caslp).Val;
+							const uint state = p_ext_entry->ClientActivityState;
 							switch(state & ~PPObjPerson::ClientActivityState::stfNewClient) {
 								case PPObjPerson::ClientActivityState::stDelayedTa:
 									ok = pCellStyle->SetLeftBottomCornerColor(GetColorRef(SClrRed));
@@ -2672,16 +2738,59 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 	}
 }
 
-/*static*/bool PPViewPerson::CheckClientActivityState(PPID personID, long filtFlags, const LAssocArray * pClientActivityStateList)
+PPViewPerson::ExtEntry * PPViewPerson::SearchExtEntryForUpdate(PPID id, uint * pIdx)
+{
+	PPViewPerson::ExtEntry * p_result = 0;
+	uint   idx = 0;
+	if(id) {
+		if(ExtList.lsearch(&id, &idx, CMPF_LONG)) {
+			p_result = &ExtList.at(idx);
+		}
+		else {
+			PPViewPerson::ExtEntry new_entry;
+			new_entry.ID = id;
+			if(ExtList.insert(&new_entry)) {
+				assert(ExtList.getCount());
+				idx = ExtList.getCount()-1;
+				p_result = &ExtList.at(idx);
+			}
+		}
+	}
+	ASSIGN_PTR(pIdx, idx);
+	return p_result;
+}
+
+/*static*/const PPViewPerson::ExtEntry * FASTCALL PPViewPerson::Implement_SearchExtEntry(const TSVector <PPViewPerson::ExtEntry> * pExtList, PPID id)
+{
+	const PPViewPerson::ExtEntry * p_result = 0;
+	if(pExtList) {
+		uint   idx = 0;
+		if(pExtList->lsearch(&id, &idx, CMPF_LONG)) {
+			p_result = &pExtList->at(idx);
+		}
+	}
+	return p_result;
+}
+	
+const PPViewPerson::ExtEntry * FASTCALL PPViewPerson::SearchExtEntry(PPID id) const
+{
+	return PPViewPerson::Implement_SearchExtEntry(&ExtList, id);
+}
+
+///*static*/bool PPViewPerson::CheckClientActivityState(PPID personID, long filtFlags, const LAssocArray * pClientActivityStateList)
+/*static*/bool PPViewPerson::CheckClientActivityState(PPID personID, long filtFlags, const TSVector <PPViewPerson::ExtEntry> * pExtList)
 {
 	bool   ok = false;
 	//const  PPID   person_id = static_cast<long>(params[0].lval);
 	//const  PPID   filt_flags = static_cast<long>(params[1].lval);
 	//const  LAssocArray * p_clientactivitystatelist = reinterpret_cast<const LAssocArray *>(params[2].ptrval);
-	if(filtFlags && (filtFlags & 0xffff) != 0xffff && pClientActivityStateList) {
+	if(filtFlags && (filtFlags & 0xffff) != 0xffff && /*pClientActivityStateList*/pExtList) {
 		uint caslp = 0;
-		if(pClientActivityStateList->Search(personID, &caslp)) {
-			const long state = pClientActivityStateList->at(caslp).Val;
+		const ExtEntry * p_ext_entry = Implement_SearchExtEntry(pExtList, personID);
+		//if(pClientActivityStateList->Search(personID, &caslp)) {
+		if(p_ext_entry) {
+			//const long state = pClientActivityStateList->at(caslp).Val;
+			const uint state = p_ext_entry->ClientActivityState;
 			switch(state & ~PPObjPerson::ClientActivityState::stfNewClient) {
 				case PPObjPerson::ClientActivityState::stNoData:
 					if(filtFlags & (1 << PPObjPerson::ClientActivityState::stNoData))
@@ -2719,8 +2828,9 @@ static IMPL_DBE_PROC(dbqf_person_check_clientactivitystatus_iip)
 {
 	const  PPID   person_id = static_cast<long>(params[0].lval);
 	const  PPID   filt_flags = static_cast<long>(params[1].lval);
-	const  LAssocArray * p_clientactivitystatelist = reinterpret_cast<const LAssocArray *>(params[2].ptrval);
-	bool   ok = PPViewPerson::CheckClientActivityState(person_id, filt_flags, p_clientactivitystatelist);
+	// @v12.2.10 const  LAssocArray * p_clientactivitystatelist = reinterpret_cast<const LAssocArray *>(params[2].ptrval);
+	const  TSVector <PPViewPerson::ExtEntry> * p_ext_list = reinterpret_cast<const  TSVector <PPViewPerson::ExtEntry> *>(params[2].ptrval);
+	bool   ok = PPViewPerson::CheckClientActivityState(person_id, filt_flags, /*p_clientactivitystatelist*/p_ext_list);
 	result->init(static_cast<long>(ok));
 }
 
@@ -2836,13 +2946,16 @@ DBQuery * PPViewPerson::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 				}
 			}
 		}
-		if(Filt.ClientActivityStateFlags && (Filt.ClientActivityStateFlags & 0xffff) != 0xffff && P_ClientActivityStateList) {
-			dbe_check_clientactivitystate.init();
-			dbe_check_clientactivitystate.push(p->ID);
-			dbe_check_clientactivitystate.push(dbconst(static_cast<long>(Filt.ClientActivityStateFlags)));
-			dbe_check_clientactivitystate.push(dbconst(static_cast<const void *>(P_ClientActivityStateList)));
-			dbe_check_clientactivitystate.push(static_cast<DBFunc>(DynFuncCheckClientActivityStatus));
-			dbq = &(*dbq && dbe_check_clientactivitystate == 1L);
+		if(Filt.Flags & PersonFilt::fCliActivityStats) {
+			if(Filt.ClientActivityStateFlags && (Filt.ClientActivityStateFlags & 0xffff) != 0xffff/*&& P_ClientActivityStateList*/) {
+				dbe_check_clientactivitystate.init();
+				dbe_check_clientactivitystate.push(p->ID);
+				dbe_check_clientactivitystate.push(dbconst(static_cast<long>(Filt.ClientActivityStateFlags)));
+				// @v12.2.10 dbe_check_clientactivitystate.push(dbconst(static_cast<const void *>(P_ClientActivityStateList)));
+				dbe_check_clientactivitystate.push(dbconst(static_cast<const void *>(&ExtList))); // @v12.2.10
+				dbe_check_clientactivitystate.push(static_cast<DBFunc>(DynFuncCheckClientActivityStatus));
+				dbq = &(*dbq && dbe_check_clientactivitystate == 1L);
+			}
 		}
 		if(Filt.Flags & PersonFilt::fLocTagF && Filt.GetAttribType()) { // @v12.1.11
 			PPDbqFuncPool::InitObjNameFunc(dbe_city, PPDbqFuncPool::IdObjNameWorld,  tmp_pt->CityID);
@@ -3794,10 +3907,9 @@ int EditMainOrg()
 	int    ok = -1;
 	PersonFilt flt;
 	PPObjPerson psn_obj;
-	PPCommConfig cfg;
 	PPID   id = 0;
 	PersonTbl::Rec psn_rec;
-	MEMSZERO(cfg);
+	PPCommConfig cfg;
 	THROW(GetCommConfig(&cfg));
 	flt.PersonKindID = PPPRK_MAIN;
 	if(cfg.MainOrgID > 0 && psn_obj.P_Tbl->Search(cfg.MainOrgID) > 0)
@@ -3821,18 +3933,23 @@ int EditMainOrg()
 int PPViewPerson::Print(const void *)
 {
 	int    rpt_id = 0;
-	switch(Filt.GetAttribType()) {
-		case PPPSNATTR_BNKACCT: rpt_id = REPORT_PSNATTRBNKACCT; break;
-		case PPPSNATTR_PHONEADDR: rpt_id = REPORT_PSNATTRPHONEADDR; break;
-		case PPPSNATTR_EMAIL:     rpt_id = REPORT_PSNATTREMAIL; break;
-		case PPPSNATTR_REGISTER: rpt_id = REPORT_PSNATTRREGISTER; break;
-		case PPPSNATTR_TAG: rpt_id = REPORT_PSNATTRTAG; break;
-		case PPPSNATTR_ALLADDR:
-		case PPPSNATTR_HANGEDADDR:
-		case PPPSNATTR_DLVRADDR:
-		case PPPSNATTR_DUPDLVRADDR:
-		case PPPSNATTR_STANDALONEADDR: rpt_id = REPORT_PSNATTRADDR; break;
-		default: rpt_id = REPORT_PERSONLIST; break;
+	if(Filt.Flags & PersonFilt::fCliActivityStats) {
+		rpt_id = REPORT_CLIENTACTIVITY;
+	}
+	else {
+		switch(Filt.GetAttribType()) {
+			case PPPSNATTR_BNKACCT: rpt_id = REPORT_PSNATTRBNKACCT; break;
+			case PPPSNATTR_PHONEADDR: rpt_id = REPORT_PSNATTRPHONEADDR; break;
+			case PPPSNATTR_EMAIL:     rpt_id = REPORT_PSNATTREMAIL; break;
+			case PPPSNATTR_REGISTER: rpt_id = REPORT_PSNATTRREGISTER; break;
+			case PPPSNATTR_TAG: rpt_id = REPORT_PSNATTRTAG; break;
+			case PPPSNATTR_ALLADDR:
+			case PPPSNATTR_HANGEDADDR:
+			case PPPSNATTR_DLVRADDR:
+			case PPPSNATTR_DUPDLVRADDR:
+			case PPPSNATTR_STANDALONEADDR: rpt_id = REPORT_PSNATTRADDR; break;
+			default: rpt_id = REPORT_PERSONLIST; break;
+		}
 	}
 	return PPAlddPrint(rpt_id, PView(this), 0);
 }
@@ -4042,6 +4159,93 @@ int PPALDD_PersonList::NextIteration(PPIterID iterId)
 }
 
 void PPALDD_PersonList::Destroy() { DESTROY_PPVIEW_ALDD(Person); }
+
+#if 1 // @construction {
+//
+// Implementation of PPALDD_ClientActivity
+//
+PPALDD_CONSTRUCTOR(ClientActivity)
+{
+	InitFixData(rscDefHdr, &H, sizeof(H));
+	InitFixData(rscDefIter, &I, sizeof(I));
+}
+
+PPALDD_DESTRUCTOR(ClientActivity)
+{
+	Destroy();
+}
+
+int PPALDD_ClientActivity::InitData(PPFilt & rFilt, long rsrv)
+{
+	INIT_PPVIEW_ALDD_DATA_U(Person, rsrv);
+	H.KindID = p_filt->PersonKindID;
+	H.EvalDate = p_filt->ClientActivityEvalDate;
+	H.NewCliBeg = p_filt->NewCliPeriod.low;
+	H.NewCliEnd = p_filt->NewCliPeriod.upp;
+	return DlRtm::InitData(rFilt, rsrv);
+}
+
+int PPALDD_ClientActivity::InitIteration(long iterId, int sortId, long/*rsrv*/)
+{
+	INIT_PPVIEW_ALDD_ITER(Person);
+}
+
+int PPALDD_ClientActivity::NextIteration(long iterId)
+{
+	START_PPVIEW_ALDD_ITER(Person);
+	const  PersonFilt * p_filt = static_cast<const PersonFilt *>(p_v->GetBaseFilt());
+	/*
+		link Person PersonID;
+		Name   = PersonID.Name;
+		long   EventCount;            // Общее количество событий
+		double GapDaysAvg;            // Средняя задержка в днях между событиями
+		double GapDaysStdDev;         // Стандартное отклонение задержки между событиями в днях
+		long   DelayDays;             // Текущая задержка от последнего события в днях
+		double DelaySd;               // Текущая задержка от последнего события в стандартных отклонениях
+		int16  IsNew;                 // Если клиент новый, то 1 иначе 0
+		int16  Reserve;               // @alignment
+		long   ActivityState;
+		char   ActivityStateText[48];
+		char   Phone[128];            //
+	*/
+	I.PersonID = item.ID;
+	I.EventCount = item.CaEventCount;
+	I.GapDaysAvg = item.CaGapDaysAvg;
+	I.GapDaysStdDev = item.CaGapDaysStdDev;
+	I.DelayDays = item.CaDelayDays;
+	I.DelaySd = item.CaDelaySd;
+	I.IsNew = item.CaIsNew;
+	I.ActivityState = item.CaActivityState;
+	{
+		SString & r_temp_buf = SLS.AcquireRvlStr();
+		PPObjPerson::ClientActivityState::GetStateText(item.CaActivityState, r_temp_buf);
+		STRNSCPY(I.ActivityStateText, r_temp_buf);
+	}
+	/*
+	if(p_filt) {
+		if(oneof3(p_filt->GetAttribType(), PPPSNATTR_ALLADDR, PPPSNATTR_DLVRADDR, PPPSNATTR_DUPDLVRADDR)) {
+			I.AddrID = item.AttrItem.TabID;
+		}
+	}
+	{
+		SString temp_buf;
+		STRNSCPY(I.Phone,    p_v->GetFromStrPool(item.AttrItem.PhoneP, temp_buf));
+		STRNSCPY(I.Address,  p_v->GetFromStrPool(item.AttrItem.AddressP, temp_buf));
+		STRNSCPY(I.RAddress, p_v->GetFromStrPool(item.AttrItem.RAddressP, temp_buf));
+		STRNSCPY(I.BnkName,  p_v->GetFromStrPool(item.AttrItem.BnkNameP, temp_buf));
+		STRNSCPY(I.BnkAcct,  p_v->GetFromStrPool(item.AttrItem.BnkAcctP, temp_buf));
+		STRNSCPY(I.Serial,   p_v->GetFromStrPool(item.AttrItem.RegSerialP, temp_buf));
+		STRNSCPY(I.Number,   item.AttrItem.RegNumber);
+	}
+	I.InitDate = item.AttrItem.RegInitDate;
+	I.Expiry   = item.AttrItem.RegExpiry;
+	*/
+	FINISH_PPVIEW_ALDD_ITER();
+}
+
+void PPALDD_ClientActivity::Destroy() { DESTROY_PPVIEW_ALDD(Person); }
+
+#endif // } 0 @construction
 //
 // Implementation of PPALDD_World
 //

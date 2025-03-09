@@ -2278,14 +2278,12 @@ int PPViewPriceList::SendPListInXmlFormat()
 	uint   i = 0;
 	SString temp_buf;
 	PPID * p_item = 0, id = 0;
-	PPCommConfig cfg;
 	PersonTbl::Rec psn_rec;
 	SellerInfo s_i;
 	PPPersonPacket psn_pack;
 	PPObjWorld w_obj;
 	WorldTbl::Rec w_rec;
 	MEMSZERO(s_i);
-	MEMSZERO(cfg);
 	THROW(ini_file.IsValid());
 	ReadPriceListConfig(&plist_cfg);
 	PPLoadText(PPTXT_PLISTTOALBATROS, msg_buf);
@@ -2301,11 +2299,14 @@ int PPViewPriceList::SendPListInXmlFormat()
 	ini_file.Get(PPINISECT_SYSTEM, PPINIPARAM_ALBATROS_SELLERNAME, temp_buf);
 	XMLReplaceSpecSymb(temp_buf, 0);
 	temp_buf.CopyTo(s_i.SellerName, sizeof(s_i.SellerName));
-	THROW(GetCommConfig(&cfg));
-	if(cfg.MainOrgID > 0 && pobj.P_Tbl->Search(cfg.MainOrgID) > 0)
-		id = cfg.MainOrgID;
-	else if(pobj.P_Tbl->SearchMainOrg(&psn_rec) > 0)
-		id = psn_rec.ID;
+	{
+		PPCommConfig cfg;
+		THROW(GetCommConfig(&cfg));
+		if(cfg.MainOrgID > 0 && pobj.P_Tbl->Search(cfg.MainOrgID) > 0)
+			id = cfg.MainOrgID;
+		else if(pobj.P_Tbl->SearchMainOrg(&psn_rec) > 0)
+			id = psn_rec.ID;
+	}
 	if(id > 0) {
 		THROW(pobj.GetPacket(id, &psn_pack, 0) > 0);
 		if(w_obj.Fetch(psn_pack.Loc.CityID, &w_rec) > 0) {

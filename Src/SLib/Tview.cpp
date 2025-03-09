@@ -80,12 +80,13 @@
 //
 //
 //
-TCommandSet::TCommandSet()
-	{ resetbitstring(cmds, sizeof(cmds)); }
-int TCommandSet::has(int cmd) const
-	{ return getbit32(cmds, sizeof(cmds), cmd); }
-void TCommandSet::enableAll()
-	{ memset(cmds, 0xff, sizeof(cmds)); }
+TCommandSet::TCommandSet() 
+{ 
+	resetbitstring(cmds, sizeof(cmds)); 
+}
+
+int  TCommandSet::has(int cmd) const { return getbit32(cmds, sizeof(cmds), cmd); }
+void TCommandSet::enableAll() { memset(cmds, 0xff, sizeof(cmds)); }
 
 void TCommandSet::enableCmd(int cmd, bool toEnable)
 {
@@ -127,10 +128,7 @@ TCommandSet operator & (const TCommandSet & tc1, const TCommandSet & tc2)
 	return temp;
 }
 
-TCommandSet operator | (const TCommandSet& tc1, const TCommandSet& tc2)
-{
-	return (TCommandSet(tc1) |= tc2);
-}
+TCommandSet operator | (const TCommandSet& tc1, const TCommandSet& tc2) { return (TCommandSet(tc1) |= tc2); }
 
 bool TCommandSet::IsEmpty() const
 {
@@ -140,18 +138,14 @@ bool TCommandSet::IsEmpty() const
 	return true;
 }
 
-int operator == (const TCommandSet& tc1, const TCommandSet& tc2)
-{
-	return (memcmp(tc1.cmds, tc2.cmds, sizeof(tc1.cmds)) == 0);
-}
-
+bool operator == (const TCommandSet& tc1, const TCommandSet& tc2) { return (memcmp(tc1.cmds, tc2.cmds, sizeof(tc1.cmds)) == 0); }
+bool operator != (const TCommandSet& tc1, const TCommandSet& tc2) { return !operator == (tc1, tc2); }
 void TCommandSet::operator += (int cmd) { enableCmd(cmd, 1);  }
 void TCommandSet::operator -= (int cmd) { enableCmd(cmd, 0); }
 void TCommandSet::operator += (const TCommandSet & tc) { enableCmd(tc, 1); }
 void TCommandSet::operator -= (const TCommandSet & tc) { enableCmd(tc, 0); }
 int  TCommandSet::loc(int cmd) { return (cmd >> 3); }
 int  TCommandSet::mask(int cmd) { return (1 << (cmd & 0x07)); }
-int  operator != (const TCommandSet& tc1, const TCommandSet& tc2) { return !operator == (tc1, tc2); }
 //
 //
 //
@@ -239,10 +233,7 @@ TView::EvBarrier::~EvBarrier()
 		P_V->EventBarrier(1);
 }
 
-bool TView::EvBarrier::operator !() const
-{
-	return (Busy != 0);
-}
+bool TView::EvBarrier::operator !() const { return (Busy != 0); }
 
 #define SIGN_TVIEW 0x09990999UL
 

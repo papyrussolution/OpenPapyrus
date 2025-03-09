@@ -1544,7 +1544,7 @@ int PPBillImpExpBaseProcessBlock::Select(int import)
 				SetClusterData(CTL_IEBILLSEL_FLAGS, P_Data->Flags);
 				DisableClusterItem(CTL_IEBILLSEL_FLAGS, 2, !(P_Data->Flags & PPBillImpExpBaseProcessBlock::fEgaisImpExp));
 				if(P_Data->Flags & PPBillImpExpBaseProcessBlock::fChZnImpExp) {
-					SetupPPObjCombo(this, CTLSEL_IEBILLSEL_GUA, PPOBJ_GLOBALUSERACC, P_Data->GuaID, 0, reinterpret_cast<void *>(0));
+					SetupPPObjCombo(this, CTLSEL_IEBILLSEL_GUA, PPOBJ_GLOBALUSERACC, P_Data->GuaID, 0, nullptr);
 				}
 			}
 			else {
@@ -1712,7 +1712,7 @@ int PPBillImpExpBaseProcessBlock::Select(int import)
 						SetupStrAssocCombo(this, CTLSEL_IEBILLSEL_BILL, HdrList, id, 0);
 					}
 					else if(P_Data->Flags & PPBillImpExpBaseProcessBlock::fChZnImpExp) {
-						SetupPPObjCombo(this, CTLSEL_IEBILLSEL_GUA, PPOBJ_GLOBALUSERACC, P_Data->GuaID, 0, reinterpret_cast<void *>(0));
+						SetupPPObjCombo(this, CTLSEL_IEBILLSEL_GUA, PPOBJ_GLOBALUSERACC, P_Data->GuaID, 0, nullptr);
 					}
 					else {
 						HdrList.Z();
@@ -6740,8 +6740,9 @@ DocNalogRu_Generator::File::File(DocNalogRu_Generator & rG, const FileInfo & rHi
 		{
 			if(rHi.FileFormatVer.NotEmpty())
 				temp_buf = rHi.FileFormatVer;
-			else
-				temp_buf = "5.01";
+			else {
+				temp_buf = "5.02"; // @v12.2.10 "5.01"-->"5.02"
+			}
 			N.PutAttrib(rG.GetToken_Ansi(PPHSC_RU_VERFORM)/*"ВерсФорм"*/, temp_buf);
 		}
 		{
@@ -8963,8 +8964,8 @@ int WriteBill_ExportMarks(const PPBillImpExpParam & rParam, const PPBillPacket &
 	for(uint tidx = 0; tidx < item_count; tidx++) {
 		const PPTransferItem & r_ti = rBp.ConstTI(tidx);
 		GetGoodsName(r_ti.GoodsID, name_buf);
-		output.Tab(1).CatChar('[').Cat(r_ti.RByBill).CatChar(']').Space().Cat(name_buf.Transf(CTRANSF_INNER_TO_OUTER)).CatDiv(',', 2).Cat("Qtty").CatDiv(':', 2).Cat(r_ti.Qtty()).CR();
-		output.Tab(2).Cat("FSRARINFA").CatDiv(':', 2);
+		output.Tab_(1).CatChar('[').Cat(r_ti.RByBill).CatChar(']').Space().Cat(name_buf.Transf(CTRANSF_INNER_TO_OUTER)).CatDiv(',', 2).Cat("Qtty").CatDiv(':', 2).Cat(r_ti.Qtty()).CR();
+		output.Tab_(2).Cat("FSRARINFA").CatDiv(':', 2);
 		if(rBp.LTagL.GetTagStr(tidx, PPTAG_LOT_FSRARINFA, temp_buf.Z()) <= 0)
 			temp_buf = "none";
 		output.Cat(temp_buf).Semicol();
@@ -8988,14 +8989,14 @@ int WriteBill_ExportMarks(const PPBillImpExpParam & rParam, const PPBillPacket &
 				if(msentry.Flags & PPLotExtCodeContainer::fBox) {
 					ms.GetByBoxID(msentry.BoxID, ss);
 					for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
-						output.Tab(2).Cat(temp_buf).CR();
+						output.Tab_(2).Cat(temp_buf).CR();
 					}
 				}
 			}
 		}
 		ms.GetByBoxID(0, ss);
 		for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
-			output.Tab(2).Cat(temp_buf).CR();
+			output.Tab_(2).Cat(temp_buf).CR();
 		}
 	}
 	{

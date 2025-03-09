@@ -103,7 +103,7 @@ struct U_I18N_API CollationSettings : public SharedObject {
 	}
 	CollationSettings(const CollationSettings &other);
 	virtual ~CollationSettings();
-	bool operator ==(const CollationSettings &other) const;
+	bool operator == (const CollationSettings &other) const;
 	inline bool operator !=(const CollationSettings &other) const { return !operator ==(other); }
 	int32_t hashCode() const;
 	void resetReordering();

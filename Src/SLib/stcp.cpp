@@ -1980,15 +1980,15 @@ static const SIntToSymbTabEntry HttpHeaderTitles[] = {
 	{ SHttpProtocol::hdrXApiKey, "X-API-KEY" }, // @v11.9.11
 };
 
-/*static*/int FASTCALL SHttpProtocol::GetHeaderTitle(int hdr, SString & rTitle)
+/*static*/bool FASTCALL SHttpProtocol::GetHeaderTitle(int hdr, SString & rTitle)
 	{ return SIntToSymbTab_GetSymb(HttpHeaderTitles, SIZEOFARRAY(HttpHeaderTitles), hdr, rTitle); }
 /*static*/int FASTCALL SHttpProtocol::GetHeaderId(const char * pTitle)
 	{ return SIntToSymbTab_GetId(HttpHeaderTitles, SIZEOFARRAY(HttpHeaderTitles), pTitle); }
 
-/*static*/int SHttpProtocol::SetHeaderField(StrStrAssocArray & rFldList, int titleId, const char * pValue)
+/*static*/bool SHttpProtocol::SetHeaderField(StrStrAssocArray & rFldList, int titleId, const char * pValue)
 {
 	SString & r_temp_buf = SLS.AcquireRvlStr();
-	int    ok = GetHeaderTitle(titleId, r_temp_buf);
+	bool   ok = GetHeaderTitle(titleId, r_temp_buf);
 	if(ok)
 		rFldList.Add(r_temp_buf, pValue);
 	return ok;
@@ -2399,8 +2399,8 @@ int ScURL::SetupCbProgress(SDataMoveProgressInfo * pProgress)
 		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_NOPROGRESS, 0)));
 	}
 	else {
-		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_XFERINFOFUNCTION, (void *)0)));
-		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_XFERINFODATA, (void *)0)));
+		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_XFERINFOFUNCTION, nullptr)));
+		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_XFERINFODATA, nullptr)));
 		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_NOPROGRESS, 1)));
 	}
 	CATCHZOK

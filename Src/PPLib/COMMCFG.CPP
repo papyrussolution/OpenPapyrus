@@ -77,7 +77,7 @@ int CommCfgDialog::editSysParams()
 		SysParamsDialog() : TDialog(DLG_CCFGSYS)
 		{
 		}
-		int    setDTS(const PPCommConfig * pData)
+		int    setDTS(const  PPCommConfig * pData)
 		{
 			RVALUEPTR(Data, pData);
 			setCtrlData(CTL_CCFGSYS_MAXGBLINES, &Data.MaxGoodsBillLines);

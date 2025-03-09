@@ -19,19 +19,23 @@ ScriptSet::ScriptSet()
 	memzero(bits, sizeof(bits));
 }
 
-ScriptSet::~ScriptSet() {
+ScriptSet::~ScriptSet() 
+{
 }
 
-ScriptSet::ScriptSet(const ScriptSet &other) {
+ScriptSet::ScriptSet(const ScriptSet &other) 
+{
 	*this = other;
 }
 
-ScriptSet & ScriptSet::operator = (const ScriptSet &other) {
+ScriptSet & ScriptSet::operator = (const ScriptSet &other) 
+{
 	memcpy(bits, other.bits, sizeof(bits));
 	return *this;
 }
 
-bool ScriptSet::operator ==(const ScriptSet &other) const {
+bool ScriptSet::operator ==(const ScriptSet &other) const 
+{
 	for(uint32_t i = 0; i<SIZEOFARRAYi(bits); i++) {
 		if(bits[i] != other.bits[i]) {
 			return false;
@@ -40,7 +44,8 @@ bool ScriptSet::operator ==(const ScriptSet &other) const {
 	return true;
 }
 
-bool ScriptSet::test(UScriptCode script, UErrorCode & status) const {
+bool ScriptSet::test(UScriptCode script, UErrorCode & status) const 
+{
 	if(U_FAILURE(status)) {
 		return FALSE;
 	}
@@ -53,7 +58,8 @@ bool ScriptSet::test(UScriptCode script, UErrorCode & status) const {
 	return ((bits[index] & bit) != 0);
 }
 
-ScriptSet &ScriptSet::set(UScriptCode script, UErrorCode & status) {
+ScriptSet &ScriptSet::set(UScriptCode script, UErrorCode & status) 
+{
 	if(U_FAILURE(status)) {
 		return *this;
 	}
@@ -67,7 +73,8 @@ ScriptSet &ScriptSet::set(UScriptCode script, UErrorCode & status) {
 	return *this;
 }
 
-ScriptSet &ScriptSet::reset(UScriptCode script, UErrorCode & status) {
+ScriptSet &ScriptSet::reset(UScriptCode script, UErrorCode & status) 
+{
 	if(U_FAILURE(status)) {
 		return *this;
 	}

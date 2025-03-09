@@ -155,7 +155,7 @@ public:
 	void   init(const RBBIDataHeader * data, UErrorCode & status);
 	RBBIDataWrapper      * addReference();
 	void   removeReference();
-	bool operator ==(const RBBIDataWrapper &other) const;
+	bool operator == (const RBBIDataWrapper &other) const;
 	int32_t hashCode();
 	const UnicodeString  &getRuleSourceString() const;
 	void   printData();

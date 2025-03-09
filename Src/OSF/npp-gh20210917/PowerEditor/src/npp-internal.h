@@ -1313,7 +1313,7 @@ struct PluginDlgDockingInfo final {
 		_internalID(id), _currContainer(curr), _prevContainer(prev), _isVisible(isVis), _name(pluginName)
 	{
 	}
-	bool operator ==(const PluginDlgDockingInfo& rhs) const
+	bool operator == (const PluginDlgDockingInfo& rhs) const
 	{
 		return _internalID == rhs._internalID and _name == rhs._name;
 	}
@@ -1505,7 +1505,7 @@ public:
 	generic_string toString() const; // Return Notepad++ date format : YYYYMMDD
 	bool operator <(const NppDate & compare) const;
 	bool operator >(const NppDate & compare) const;
-	bool operator ==(const NppDate & compare) const;
+	bool operator == (const NppDate & compare) const;
 	bool operator !=(const NppDate & compare) const;
 private:
 	ulong _year  = 2008;
@@ -5982,7 +5982,7 @@ struct Version {
 	int compareTo(const Version& v2c) const;
 	bool operator <(const Version& v2c) const { return compareTo(v2c) == -1; }
 	bool operator >(const Version& v2c) const { return compareTo(v2c) == 1; }
-	bool operator ==(const Version& v2c) const { return compareTo(v2c) == 0; }
+	bool operator == (const Version& v2c) const { return compareTo(v2c) == 0; }
 	bool operator !=(const Version& v2c) const { return compareTo(v2c) != 0; }
 };
 

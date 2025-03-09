@@ -29,7 +29,7 @@ public:
 	void setBestFractionRule(int32_t originalIndex, NFRule * newRule, bool rememberRule);
 	void makeIntoFractionRuleSet() { fIsFractionRuleSet = true; }
 	~NFRuleSet();
-	bool operator ==(const NFRuleSet& rhs) const;
+	bool operator == (const NFRuleSet& rhs) const;
 	bool operator !=(const NFRuleSet& rhs) const { return !operator ==(rhs); }
 	bool isPublic() const { return fIsPublic; }
 	bool isParseable() const { return fIsParseable; }

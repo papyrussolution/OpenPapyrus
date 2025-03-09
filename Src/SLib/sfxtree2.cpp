@@ -1426,7 +1426,7 @@ void SSuffixTree::OutputNode(uint nodeP, uint tabs, long flags, SString & rBuf) 
 {
 	const Node * p_node = GetNode(nodeP);
 	if(tabs)
-		rBuf.Tab(tabs);
+		rBuf.Tab_(tabs);
 	if(p_node) {
 		rBuf.CatEq("node", nodeP).CatDiv(':', 2);
 		{
@@ -1437,7 +1437,7 @@ void SSuffixTree::OutputNode(uint nodeP, uint tabs, long flags, SString & rBuf) 
 					rBuf.CR();
 					for(uint i = 0; i < ec; i++) {
 						const uint edge_p = p_hub->Get(i);
-						rBuf.Tab(tabs+1);
+						rBuf.Tab_(tabs+1);
 						OutputEdge(edge_p, flags, rBuf);
 						const Edge * p_edge = GetEdge(edge_p);
 						if(p_edge) {

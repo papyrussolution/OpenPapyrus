@@ -228,11 +228,12 @@ int ToolbarList::enumItems(uint * pIdx, ToolbarItem * pItem)
 
 int ToolbarList::searchKeyCode(ushort keyCode, uint * pIdx) const
 {
-	for(uint i = 0; i < getCount(); i++)
+	for(uint i = 0; i < getCount(); i++) {
 		if(getItem(i).KeyCode == keyCode) {
 			ASSIGN_PTR(pIdx, i);
 			return 1;
 		}
+	}
 	ASSIGN_PTR(pIdx, 0);
 	return 0;
 }
@@ -1728,7 +1729,7 @@ PaintEvent::PaintEvent() : PaintType(0), H_DeviceContext(0), Flags(0)
 					APPL->P_DeskTop->remove(p_view);
 					if(!(p_view->Sf & sfOnDestroy)) {
 						delete p_view;
-						TView::SetWindowUserData(hWnd, (void *)0);
+						TView::SetWindowUserData(hWnd, nullptr);
 					}
 				}
 			}

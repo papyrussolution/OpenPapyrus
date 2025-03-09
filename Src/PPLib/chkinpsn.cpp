@@ -237,9 +237,9 @@ int PPCheckInPersonItem::SetStatus(int status)
 	return ok;
 }
 
-int FASTCALL PPCheckInPersonItem::IsEq(const PPCheckInPersonItem & rS, long options) const
+bool FASTCALL PPCheckInPersonItem::IsEq(const PPCheckInPersonItem & rS, long options) const
 {
-	int    ok = 1;
+	bool   ok = true;
 	#define FLDEQ(f) (f==rS.f)
 	THROW(FLDEQ(Kind));
 	THROW(FLDEQ(PrmrID));
@@ -264,10 +264,7 @@ int FASTCALL PPCheckInPersonItem::IsEq(const PPCheckInPersonItem & rS, long opti
 	return ok;
 }
 
-int FASTCALL PPCheckInPersonItem::operator == (const PPCheckInPersonItem & rS) const
-{
-	return IsEq(rS, 0);
-}
+bool FASTCALL PPCheckInPersonItem::operator == (const PPCheckInPersonItem & rS) const { return IsEq(rS, 0); }
 //
 //
 //

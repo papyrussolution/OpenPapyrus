@@ -4986,7 +4986,7 @@ int iSalesPepsi::SendInvoices()
 								line_buf.Cat(temp_buf.Transf(CTRANSF_INNER_TO_OUTER)).Tab();
 							}
 							else {
-								line_buf.Tab(3);
+								line_buf.Tab_(3);
 							}
 						}
 						line_buf.Cat(p_bill_item->AgentCode).Tab(); // 10	Код агента 1С	не заполняется для приходного документа

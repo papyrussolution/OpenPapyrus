@@ -64,7 +64,7 @@ public:
 	 */
 	virtual char *writeDescription(char * buffer, int32_t bufSize) const = 0;
 
-	friend inline bool operator ==(const CacheKeyBase& lhs,
+	friend inline bool operator == (const CacheKeyBase& lhs,
 	    const CacheKeyBase& rhs) {
 		return lhs.equals(rhs);
 	}
@@ -144,7 +144,7 @@ public:
 		return (int32_t)(37u * (uint32_t)CacheKey<T>::hashCode() + (uint32_t)fLoc.hashCode());
 	}
 
-	inline bool operator ==(const LocaleCacheKey<T> &other) const {
+	inline bool operator == (const LocaleCacheKey<T> &other) const {
 		return fLoc == other.fLoc;
 	}
 

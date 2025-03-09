@@ -285,19 +285,10 @@ public:
 	// Comparison operators.
 	// These return whether two scoped_ptr refer to the same object, not just to
 	// two different but equal objects.
-	bool operator == (const element_type* p) const {
-		return impl_.get() == p;
-	}
-
-	bool operator != (const element_type* p) const {
-		return impl_.get() != p;
-	}
-
+	bool operator == (const element_type* p) const { return impl_.get() == p; }
+	bool operator != (const element_type* p) const { return impl_.get() != p; }
 	// Swap two scoped pointers.
-	void swap(scoped_ptr& p2) {
-		impl_.swap(p2.impl_);
-	}
-
+	void swap(scoped_ptr& p2) { impl_.swap(p2.impl_); }
 	// Release a pointer.
 	// The return value is the current pointer held by this object.
 	// If this object holds a NULL pointer, the return value is NULL.

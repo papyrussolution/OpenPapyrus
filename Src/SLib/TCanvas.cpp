@@ -1848,10 +1848,7 @@ SPaintObj::Brush::Brush(const Brush & rS) : Base(rS), S(rS.S), Hatch(rS.Hatch), 
 {
 }
 
-int FASTCALL SPaintObj::Brush::operator == (const Brush & rS) const
-{
-	return IsEq(rS);
-}
+bool FASTCALL SPaintObj::Brush::operator == (const Brush & rS) const { return IsEq(rS); }
 
 bool FASTCALL SPaintObj::Brush::IsEq(const Brush & rS) const
 {

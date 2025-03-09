@@ -92,7 +92,7 @@ public:
 #endif
 private:
 	RBBINode & operator =(const RBBINode &other);  // No defs.
-	bool operator ==(const RBBINode &other);      // Private, so these functions won't accidentally be used.
+	bool operator == (const RBBINode &other);      // Private, so these functions won't accidentally be used.
 
 #ifdef RBBI_DEBUG
 public:

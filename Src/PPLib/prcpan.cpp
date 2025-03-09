@@ -55,7 +55,7 @@ private:
 	DECL_HANDLE_EVENT;
 	//virtual int FASTCALL valid(ushort command);
 	bool   ValidateCommand(TEvent & rEv);
-	int    isRestState() const { return BIN(oneof3(State, sREST, sREST_SERIAL_NOQTTY, sREST_SERIAL_QTTY)); }
+	bool   isRestState() const { return oneof3(State, sREST, sREST_SERIAL_NOQTTY, sREST_SERIAL_QTTY); }
 	int    setupProcessor(PPID prcID, int init);
 	void   updateStatus(int forceUpdate);
 	void   showMessage(int msgKind, int msgCode, const char * pAddMsg);
@@ -451,15 +451,11 @@ int PrcPaneDialog::processBill(const char * pInp)
 int PrcPaneDialog::setupPrice(double price)
 {
 	int    ok = -1;
+	SString temp_buf;
 	E.Price = (price > 0) ? R5(price) : 0;
 	if(E.Price > 0) {
-		SString temp_buf;
-		PPLoadString("price", temp_buf);
-		temp_buf.CatDiv(':', 2).Cat(E.Price, MKSFMTD(0, 2, NMBF_NOZERO));
-		setStaticText(CTL_PRCPAN_ST_PRICE, temp_buf);
-		PPLoadString("amount", temp_buf);
-		temp_buf.CatDiv(':', 2).Cat(E.Price * E.Qtty, MKSFMTD(0, 2, NMBF_NOZERO));
-		setStaticText(CTL_PRCPAN_ST_SUM, temp_buf);
+		setStaticText(CTL_PRCPAN_ST_PRICE, PPLoadStringS("price", temp_buf).CatDiv(':', 2).Cat(E.Price, MKSFMTD(0, 2, NMBF_NOZERO)));
+		setStaticText(CTL_PRCPAN_ST_SUM, PPLoadStringS("amount", temp_buf).CatDiv(':', 2).Cat(E.Price * E.Qtty, MKSFMTD(0, 2, NMBF_NOZERO)));
 		ok = 1;
 	}
 	else {
@@ -469,20 +465,20 @@ int PrcPaneDialog::setupPrice(double price)
 	return ok;
 }
 
-static int IsRuTextEq(const SString & rText, const char * pPatternUtf8)
+static bool IsRuTextEq(const SString & rText, const char * pPatternUtf8)
 {
+	bool    ok = false;
 	SString & r_temp_buf = SLS.AcquireRvlStr();
 	if((r_temp_buf = rText).Transf(CTRANSF_INNER_TO_UTF8).IsEq(pPatternUtf8))
-		return 1;
+		ok = true;
 	else if((r_temp_buf = rText).Transf(CTRANSF_OUTER_TO_UTF8).IsEq(pPatternUtf8))
-		return 1;
-	else
-		return 0;
+		ok = true;
+	return ok;
 }
 
 void PrcPaneDialog::ProcessEnter()
 {
-	int    prev_state = State;
+	const int prev_state = State;
 	SString temp_buf;
 	setCtrlString(CTL_PRCPAN_INFO, temp_buf.Z());
 	if(State == sIDLE) {
@@ -531,7 +527,7 @@ void PrcPaneDialog::ProcessEnter()
 			selectGoods(2);
 		}
 		else {
-			SString tb = Input;
+			SString tb(Input);
 			tb.ToUpper();
 			const char * p_ru_stop = "СТОП";
 			const char * p_ru_ost = "ОСТ";
@@ -865,7 +861,7 @@ void PrcPaneDialog::setupSign()
 void PrcPaneDialog::setupGoods(PPID goodsID)
 {
 	int    ok = 1;
-	double qtty = 0;
+	double qtty = 0.0;
 	int    qtty_in_pack = 0;
 	E.TSessID = H.SessID;
 	E.GoodsID = 0;
@@ -893,14 +889,14 @@ void PrcPaneDialog::setupGoods(PPID goodsID)
 			else
 				op_id = H.PrcRec.WrOffOpID;
 			if(op_id) {
-				PPID   op_type_id = GetOpType(op_id);
+				const PPID op_type_id = GetOpType(op_id);
 				if(oneof2(op_type_id, PPOPT_GOODSRECEIPT, PPOPT_DRAFTRECEIPT))
 					sign = +1;
 				else if(oneof3(op_type_id, PPOPT_GOODSEXPEND, PPOPT_DRAFTEXPEND, PPOPT_GOODSORDER))
 					sign = -1;
 			}
 			if(sign == 0) {
-				if(TgsList.SearchGoods(E.GoodsID, &sign, 0) > 0)
+				if(TgsList.SearchGoods_(E.GoodsID, &sign, 0))
 					E.Sign = sign;
 			}
 			else

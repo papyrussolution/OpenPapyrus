@@ -318,8 +318,7 @@ void LogListWindowSCI::Resize()
 				p_view->ResetOwnerCurrent();
 				if(!p_view->IsInState(sfModal)) {
 					APPL->P_DeskTop->remove(p_view);
-					// @v10.9.11 Поменял порядок следующих двух операторов
-					TView::SetWindowProp(hWnd, GWLP_USERDATA, reinterpret_cast<void *>(0));
+					TView::SetWindowProp(hWnd, GWLP_USERDATA, nullptr);
 					delete p_view;
 				}
 				if(!IsIconic(APPL->H_MainWnd))

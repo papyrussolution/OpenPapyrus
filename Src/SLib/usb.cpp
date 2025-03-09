@@ -98,9 +98,9 @@ UsbBasicDescrSt & UsbBasicDescrSt::Z()
 	return *this;
 }
 
-int UsbBasicDescrSt::operator == (const UsbBasicDescrSt & s) const
+bool FASTCALL UsbBasicDescrSt::operator == (const UsbBasicDescrSt & s) const
 {
-	return BIN(Vid.CmpNC(s.Vid) == 0 && Pid.CmpNC(s.Pid) == 0 && SerialNumber.CmpNC(s.SerialNumber) == 0);
+	return (Vid.CmpNC(s.Vid) == 0 && Pid.CmpNC(s.Pid) == 0 && SerialNumber.CmpNC(s.SerialNumber) == 0);
 }
 
 SUsbDevice::SUsbDevice() : DevClass(0), OutputReportByteLength(0), IntputReportByteLength(0), Handle(INVALID_HANDLE_VALUE), Event(INVALID_HANDLE_VALUE)

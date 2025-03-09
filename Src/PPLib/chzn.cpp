@@ -4424,7 +4424,7 @@ private:
 										{ PPChZnPrcssr::PermissiveModeInterface::CodeStatus::fGrayZone, "gray-zone" },
 									};
 									for(uint i = 0; i < SIZEOFARRAY(chzn_pm_flags); i++) {
-										rInfoBuf.CRB().Tab(2).Cat(chzn_pm_flags[i].P_Symb).CatDiv(':', 2).Cat(STextConst::GetBool(p_result_cle->Flags & chzn_pm_flags[i].Id));
+										rInfoBuf.CRB().Tab_(2).Cat(chzn_pm_flags[i].P_Symb).CatDiv(':', 2).Cat(STextConst::GetBool(p_result_cle->Flags & chzn_pm_flags[i].Id));
 									}
 								}
 								// } @v12.1.11 

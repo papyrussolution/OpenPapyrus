@@ -1375,7 +1375,7 @@ int uncompress2(Byte * dest, uLongf * destLen, const Byte * source, uLong * sour
 	stream.avail_in = 0;
 	stream.zalloc = (alloc_func)0;
 	stream.zfree = (free_func)0;
-	stream.opaque = (void *)0;
+	stream.opaque = 0;
 	err = inflateInit(&stream);
 	if(err != Z_OK) 
 		return err;
@@ -1695,7 +1695,7 @@ int compress2(Byte * dest, uLongf * destLen, const Byte * source, uLong sourceLe
 	*destLen = 0;
 	stream.zalloc = (alloc_func)0;
 	stream.zfree = (free_func)0;
-	stream.opaque = (void *)0;
+	stream.opaque = 0;
 	err = deflateInit(&stream, level);
 	if(err != Z_OK) 
 		return err;
@@ -3341,7 +3341,7 @@ int inflateBackInit_(z_streamp strm, int windowBits, uchar  * window, const char
 		return Z_STREAM_ERROR;
 #else
 		strm->zalloc = zcalloc;
-		strm->opaque = (void *)0;
+		strm->opaque = 0;
 #endif
 	}
 	if(strm->zfree == (free_func)0)
@@ -4157,7 +4157,7 @@ int deflateInit2_(z_streamp strm, int level, int method, int windowBits, int mem
 		return Z_STREAM_ERROR;
 #else
 		strm->zalloc = zcalloc;
-		strm->opaque = (void *)0;
+		strm->opaque = 0;
 #endif
 	}
 	if(strm->zfree == (free_func)0)
@@ -7299,7 +7299,7 @@ int inflateInit2_(z_streamp strm, int windowBits, const char * version, int stre
 		return Z_STREAM_ERROR;
 #else
 		strm->zalloc = zcalloc;
-		strm->opaque = (void *)0;
+		strm->opaque = 0;
 #endif
 	}
 	if(strm->zfree == (free_func)0)

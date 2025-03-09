@@ -1700,15 +1700,15 @@ LLAssocArray & FASTCALL LLAssocArray::operator = (const LLAssocArray & s)
 	return *this;
 }
 
-int FASTCALL LLAssocArray::operator == (const LLAssocArray & s) const
+bool FASTCALL LLAssocArray::operator == (const LLAssocArray & s) const
 {
-	int    ok = 1;
+	bool   ok = true;
 	if(count != s.count)
-		ok = 0;
+		ok = false;
 	else {
 		for(uint i = 0; ok && i < count; i++)
 			if(!(at(i) == s.at(i)))
-				ok = 0;
+				ok = false;
 	}
 	return ok;
 }

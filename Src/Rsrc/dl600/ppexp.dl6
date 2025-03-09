@@ -471,8 +471,7 @@ data RegisterType {
 	key    ID;                     // @id
 	string Name[48];               // @name
 	string Symb[20];               // Символ для ссылок из формул и т.д.
-	link   PersonKind KindID;      // Вид персоналии, к которой и только к
-		// которой может относиться этот регистр. Если 0, то к любому виду.
+	link   PersonKind KindID;      // Вид персоналии, к которой и только к которой может относиться этот регистр. Если 0, то к любому виду.
 	link   PersonKind RegOrgKindID; // Вид регистрирующей организации
 	long   Flags;                  // Флаги
 }
@@ -6216,6 +6215,34 @@ data PersonListAddr : PersonList {
 		AddrFullText = AddrID.GetLongAddr();
 		AddrPhone = AddrID.Phone;
 		AddrContact = AddrID.Contact;
+	}
+}
+//
+// @v12.2.10
+// Анализ клиентской активности
+//
+data ClientActivity {
+	declare "Destroy"
+
+	link   Global       Glb;
+	link   PersonKind KindID;      // Вид персоналии, по которой фильтруется отчет
+	date   EvalDate;               // Опорная дата для анализа состояния клиентов в соответствии со статистикой их активности. Если ZERODATE, то - текущая дата.
+	date   NewCliBeg;              // Дата начала периода идентификации новых клиентов
+	date   NewCliEnd;	           // Дата окончания периода идентификации новых клиентов
+
+	iteration {
+		link Person PersonID;
+		Name   = PersonID.Name;
+		long   EventCount;            // Общее количество событий
+		double GapDaysAvg;            // Средняя задержка в днях между событиями
+		double GapDaysStdDev;         // Стандартное отклонение задержки между событиями в днях
+		long   DelayDays;             // Текущая задержка от последнего события в днях
+		double DelaySd;               // Текущая задержка от последнего события в стандартных отклонениях
+		int16  IsNew;                 // Если клиент новый, то 1 иначе 0
+		int16  Reserve;               // @alignment
+		long   ActivityState;
+		string ActivityStateText[48];
+		string Phone[128];            //
 	}
 }
 //

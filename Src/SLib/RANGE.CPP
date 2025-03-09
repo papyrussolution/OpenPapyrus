@@ -162,9 +162,9 @@ SSzChunk & SSzChunk::SetRange(int begin, int end)
 	return *this;
 }
 
-int SSzChunk::operator !() const { return (Len <= 0); }
-int SSzChunk::operator == (const SSzChunk & rS) const { return (Begin == rS.Begin && Len == rS.Len); }
-int SSzChunk::GetEnd() const { return (Begin+Len-1); }
+bool SSzChunk::operator !() const { return (Len <= 0); }
+bool FASTCALL SSzChunk::operator == (const SSzChunk & rS) const { return (Begin == rS.Begin && Len == rS.Len); }
+int  SSzChunk::GetEnd() const { return (Begin+Len-1); }
 bool SSzChunk::IsEmpty() const { return (Len <= 0); }
 //
 //

@@ -348,6 +348,23 @@ bool PPObjPerson::ClientActivityStatistics::IsDetermined() const
 	return (PersonID > 0 && EventCount && checkdate(FirstEventDt) && checkdate(LastEventDt));
 }
 
+/*static*/bool PPObjPerson::ClientActivityState::GetStateText(uint state, SString & rBuf)
+{
+	rBuf.Z();
+	bool    ok = false;
+	const char * p_text_sign = 0;
+	switch(state & ~stfNewClient) {
+		case stUndef: p_text_sign = "clientactivity_state_undef"; break;
+		case stNoData: p_text_sign = "clientactivity_state_nodata"; break;
+		case stRegularTa: p_text_sign = "clientactivity_state_regularta"; break;
+		case stDelayedTa: p_text_sign = "clientactivity_state_delayedta"; break;
+		case stHopelesslyDelayedTa: p_text_sign = "clientactivity_state_hldelayedta"; break;
+	}
+	if(PPLoadString(p_text_sign, rBuf) > 0)
+		ok = true;
+	return ok;
+}
+
 PPObjPerson::ClientActivityState::ClientActivityState() : PersonID(0), ActualDate(ZERODATE), State(stUndef), CurrentDelayDays(0), CurrentDelaySd(0.0f)
 {
 	NewCliPeriod.Z();
@@ -5571,13 +5588,22 @@ int MainOrg2Dialog::setDTS()
 
 int MainOrg2Dialog::getDTS()
 {
-	int    ok = 1, i, bnk_pos = -1, tel_pos = -1;
-	int    c_pos = -1, i_pos = -1, b_pos = -1, find_acc = 0;
+	int    ok = 1;
+	int    i;
+	int    bnk_pos = -1;
+	int    tel_pos = -1;
+	int    c_pos = -1;
+	int    i_pos = -1;
+	int    b_pos = -1;
+	int    find_acc = 0;
 	uint   sel = 0;
-	long   acc_type = 0, bnk_id = 0;
-	char   buf[128], corr[128], bic[128], inn[128];
+	long   acc_type = 0;
+	long   bnk_id = 0;
+	char   buf[128];
+	char   corr[128];
+	char   bic[128];
+	char   inn[128];
 	SString temp_buf;
-	PPCommConfig cfg;
 	PPPersonPacket bnk_pack;
 	PPObjRegister reg_obj;
 	// get status
@@ -5614,22 +5640,24 @@ int MainOrg2Dialog::getDTS()
 	THROW_PP(!bnk_id || *strip(buf), PPERR_ACCNEEDED);
 	{
 		// Не менять порядок просмотра всех расчетных счетов (должен быть от последнего к первому)
-		int   ba_done = 0;
-		i = P_Pack->Regs.getCount();
-		if(i) do {
-			const RegisterTbl::Rec & r_reg_rec = P_Pack->Regs.at(--i);
-			if(r_reg_rec.RegTypeID == PPREGT_BANKACCOUNT) {
-				PPBankAccount ba(r_reg_rec);
-				if(ba.AccType == PPBAC_CURRENT) {
-					if(ba.BankID == bnk_id) {
-						bnk_pos = i;
-						find_acc = 1;
-						if(sstreq(ba.Acct, buf))
-							ba_done = 1; // @exit
+		{
+			bool   ba_done = false;
+			i = P_Pack->Regs.getCount();
+			if(i) do {
+				const RegisterTbl::Rec & r_reg_rec = P_Pack->Regs.at(--i);
+				if(r_reg_rec.RegTypeID == PPREGT_BANKACCOUNT) {
+					PPBankAccount ba(r_reg_rec);
+					if(ba.AccType == PPBAC_CURRENT) {
+						if(ba.BankID == bnk_id) {
+							bnk_pos = i;
+							find_acc = 1;
+							if(sstreq(ba.Acct, buf))
+								ba_done = true; // @exit
+						}
 					}
 				}
-			}
-		} while(!ba_done && i);
+			} while(!ba_done && i);
+		}
 		if(bnk_id) {
 			if(PrefPos > -1)
 				P_Pack->Regs.at(PrefPos).Flags &= ~PREGF_BACC_PREFERRED/*BACCTF_PREFERRED*/;
@@ -5703,11 +5731,12 @@ int MainOrg2Dialog::getDTS()
 		else if(bnk_pack.Regs.at(i).RegTypeID == PPREGT_BIC && b_pos<0)
 			b_pos = i;
 	}
-	for(i = 0; i < P_Pack->Regs.getCountI(); i++)
+	for(i = 0; i < P_Pack->Regs.getCountI(); i++) {
 		if(P_Pack->Regs.at(i).RegTypeID == PPREGT_TPID && i_pos < 0) {
 			i_pos = i;
 			break;
 		}
+	}
 	memzero(corr, sizeof(corr));
 	memzero(bic,  sizeof(bic));
 	memzero(inn,  sizeof(inn));
@@ -5764,12 +5793,13 @@ int MainOrg2Dialog::getDTS()
 	// Get INN, CorrAcc and BicAcc
 
 	// Get Director and Accountant
-	THROW(GetCommConfig(&cfg));
-	getCtrlData(CTLSEL_MAINORG2_DIRECTOR, &cfg.MainOrgDirector_);
-	getCtrlData(CTLSEL_MAINORG2_ACCTNT, &cfg.MainOrgAccountant_);
-	THROW(SetCommConfig(&cfg, 1));
-	// Get Director and Accountant
-
+	{
+		PPCommConfig cfg;
+		THROW(GetCommConfig(&cfg));
+		getCtrlData(CTLSEL_MAINORG2_DIRECTOR, &cfg.MainOrgDirector_);
+		getCtrlData(CTLSEL_MAINORG2_ACCTNT, &cfg.MainOrgAccountant_);
+		THROW(SetCommConfig(&cfg, 1));
+	}
 	// Get Memo
 	// @v11.1.12 getCtrlData(CTL_MAINORG2_MEMO, P_Pack->Rec.Memo);
 	// @v11.1.12 strip(P_Pack->Rec.Memo);
@@ -5778,7 +5808,7 @@ int MainOrg2Dialog::getDTS()
 	// Get Memo
 
 	// Get Phone
-	memzero(buf, sizeof(buf));
+	buf[0] = 0;
 	getCtrlData(CTL_MAINORG2_PHONE, buf);
 	for(i = P_Pack->ELA.getCount(); i > 0; i--) {
 		const  PPID kind_id = P_Pack->ELA.at(i-1).KindID;
@@ -5789,11 +5819,12 @@ int MainOrg2Dialog::getDTS()
 			break;
 		}
 	}
-	if(tel_pos > -1)
+	if(tel_pos > -1) {
 		if(*strip(buf) == 0)
 			P_Pack->ELA.atFree(tel_pos);
 		else
 			STRNSCPY(P_Pack->ELA.at(tel_pos).Addr, buf);
+	}
 	else if(*strip(buf))
 		P_Pack->ELA.AddItem(PPELK_WORKPHONE, buf);
 	// Get Phone
@@ -7965,7 +7996,7 @@ int PPALDD_Global::InitData(PPFilt & rFilt, long rsrv)
 			H.IsPrivateEnt = BIN(psn_rec.Status == PPPRS_FREE);
 		{
 			DS.GetTLA().InitMainOrgData(0);
-			const PPCommConfig & r_ccfg = CConfig;
+			const  PPCommConfig & r_ccfg = CConfig;
 			if(psnobj.Fetch(r_ccfg.MainOrgDirector_, &psn_rec) > 0)
 				STRNSCPY(H.Director, psn_rec.Name);
 			if(psnobj.Fetch(r_ccfg.MainOrgAccountant_, &psn_rec) > 0)

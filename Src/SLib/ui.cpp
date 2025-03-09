@@ -482,14 +482,55 @@ int SScroller::Bottom()
 //
 //
 //
+static const SIntToSymbTabEntry UiItemKind_SymbList[] = { // @v12.2.10
+	{ UiItemKind::kUnkn, "unknown" },
+	{ UiItemKind::kDialog, "dialog" },
+	{ UiItemKind::kInput, "input" },
+	{ UiItemKind::kStatic, "statictext" },
+	{ UiItemKind::kPushbutton, "button" },
+	{ UiItemKind::kCheckbox, "checkbox" },
+	{ UiItemKind::kRadioCluster, "radiocluster" },
+	{ UiItemKind::kCheckCluster, "checkboxcluster" },
+	{ UiItemKind::kCombobox, "combobox" },
+	{ UiItemKind::kListbox, "listbox" },
+	{ UiItemKind::kTreeListbox, "treelistbox" },
+	{ UiItemKind::kFrame, "framebox" },
+	{ UiItemKind::kLabel, "label" },
+	{ UiItemKind::kRadiobutton, "radiobutton" },
+	{ UiItemKind::kGenericView, "view" },
+	{ UiItemKind::kImageView, "imageview" },
+};
+
+static const SIntToSymbTabEntry UiItemKind_TextSignList[] = { // @v12.2.10
+	{ UiItemKind::kUnkn, "" },
+	{ UiItemKind::kDialog, "ui_dialog" },
+	{ UiItemKind::kInput, "ui_input" },
+	{ UiItemKind::kStatic, "ui_static" },
+	{ UiItemKind::kPushbutton, "ui_pushbutton" },
+	{ UiItemKind::kCheckbox, "ui_checkbox" },
+	{ UiItemKind::kRadioCluster, "ui_radiocluster" },
+	{ UiItemKind::kCheckCluster, "ui_checkcluster" },
+	{ UiItemKind::kCombobox, "ui_combobox" },
+	{ UiItemKind::kListbox, "ui_listbox" },
+	{ UiItemKind::kTreeListbox, "ui_treelistbox" },
+	{ UiItemKind::kFrame, "ui_frame" },
+	{ UiItemKind::kLabel, "ui_label" },
+	{ UiItemKind::kRadiobutton, "ui_radiobutton" },
+	{ UiItemKind::kGenericView, "ui_view" },
+	{ UiItemKind::kImageView, "ui_imageview" },
+};
+
 /*static*/int UiItemKind::GetTextList(StrAssocArray & rList)
 {
 	int    ok = 1;
 	rList.Z();
-	UiItemKind item;
+	SString temp_buf;
 	for(int i = kDialog; i < kCount; i++) {
-		if(item.Init(i)) {
-			rList.Add(i, item.Text);
+		const char * p_sign = SIntToSymbTab_GetSymbPtr(UiItemKind_TextSignList, SIZEOFARRAY(UiItemKind_TextSignList), i);
+		if(p_sign) {
+			SLS.LoadString_(p_sign, temp_buf);
+			if(temp_buf.NotEmpty())
+				rList.Add(i, temp_buf);
 		}
 	}
 	return ok;
@@ -497,13 +538,20 @@ int SScroller::Bottom()
 
 /*static*/int UiItemKind::GetIdBySymb(const char * pSymb)
 {
+	return SIntToSymbTab_GetId(UiItemKind_SymbList, SIZEOFARRAY(UiItemKind_SymbList), pSymb); // @v12.2.10
+	/* @v12.2.10
 	int    id = 0;
 	UiItemKind item;
 	for(int i = kDialog; !id && i < kCount; i++) {
 		if(item.Init(i) && item.Symb.Cmp(pSymb, 0) == 0)
 			id = i;
 	}
-	return id;
+	return id;*/
+}
+
+/*static*/bool UiItemKind::GetSymbById(int id, SString & rBuf)
+{
+	return SIntToSymbTab_GetSymb(UiItemKind_SymbList, SIZEOFARRAY(UiItemKind_SymbList), id, rBuf);
 }
 
 UiItemKind::UiItemKind(int kind)
@@ -548,7 +596,7 @@ int UiItemKind::Init(int kind)
 			break;
 		case kCheckCluster:
 			p_text_sign = "ui_checkcluster";
-			Symb = "checkcluster";
+			Symb = "checkboxcluster"; // @v12.2.10 checkcluster-->checkboxcluster
 			break;
 		case kCombobox:
 			p_text_sign = "ui_combobox";

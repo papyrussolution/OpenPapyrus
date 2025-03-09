@@ -8,7 +8,7 @@
 
 Transfer::Transfer() : TransferTbl(), __DontCheckQttyInUpdateTransferItem__(0), P_LcrT(0), P_Lcr2T(0)
 {
-	const PPCommConfig & r_ccfg = CConfig;
+	const  PPCommConfig & r_ccfg = CConfig;
 	const int lcrusage = r_ccfg.LcrUsage;
 	if(oneof2(lcrusage, 1, 2)) {
 		if(r_ccfg.Flags2 & CCFLG2_USELCR2)
@@ -2332,7 +2332,7 @@ int Transfer::Helper_RecalcLotCRest2(PPID lotID, BExtInsert * pBei, int forceReb
 int Transfer::GetLcrList(LDATE dt, UintHashTable * pLotList, RAssocArray * pRestList)
 {
 	int    ok = 1;
-	const PPCommConfig & r_ccfg = CConfig;
+	const  PPCommConfig & r_ccfg = CConfig;
 	if(dt && dt >= r_ccfg.LcrUsageSince) {
 		if(P_Lcr2T) {
 			const int16 dti = WorkDate::ShrinkDate(dt);

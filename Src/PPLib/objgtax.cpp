@@ -691,7 +691,7 @@ GTaxVect::WareBlock::WareBlock(PPObjGoods & rGObj, PPID goodsID, PPID lotID, lon
 	Goods2Tbl::Rec goods_rec;
 	if(rGObj.Fetch(GoodsID, &goods_rec) > 0) {
 		IsFound = true;
-		const PPCommConfig & r_ccfg = CConfig;
+		const  PPCommConfig & r_ccfg = CConfig;
 		if(goods_rec.Flags & GF_ASSETS)
 			IsAsset = true;
 		TaxGroupID = goods_rec.TaxGrpID;

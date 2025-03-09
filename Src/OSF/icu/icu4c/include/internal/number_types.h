@@ -273,7 +273,8 @@ public:
 		fNull = false;
 	}
 
-	NullableValue<T>& operator =(const NullableValue<T>& other) {
+	NullableValue<T>& operator =(const NullableValue<T>& other) 
+	{
 		fNull = other.fNull;
 		if(!fNull) {
 			fValue = other.fValue;
@@ -281,41 +282,37 @@ public:
 		return *this;
 	}
 
-	NullableValue<T>& operator =(const T& other) {
+	NullableValue<T>& operator =(const T& other) 
+	{
 		fValue = other;
 		fNull = false;
 		return *this;
 	}
 
-	bool operator ==(const NullableValue& other) const {
+	bool operator == (const NullableValue& other) const 
+	{
 		// "fValue == other.fValue" returns bool, not bool (causes compiler warnings)
 		return fNull ? other.fNull : (other.fNull ? false : static_cast<bool>(fValue == other.fValue));
 	}
 
-	void nullify() {
+	void nullify() 
+	{
 		// TODO: It might be nice to call the destructor here.
 		fNull = true;
 	}
 
-	bool isNull() const {
-		return fNull;
-	}
+	bool isNull() const { return fNull; }
 
-	T get(UErrorCode & status) const {
+	T get(UErrorCode & status) const 
+	{
 		if(fNull) {
 			status = U_UNDEFINED_VARIABLE;
 		}
 		return fValue;
 	}
 
-	T getNoError() const {
-		return fValue;
-	}
-
-	T getOrDefault(T defaultValue) const {
-		return fNull ? defaultValue : fValue;
-	}
-
+	T getNoError() const { return fValue; }
+	T getOrDefault(T defaultValue) const { return fNull ? defaultValue : fValue; }
 private:
 	bool fNull;
 	T fValue;

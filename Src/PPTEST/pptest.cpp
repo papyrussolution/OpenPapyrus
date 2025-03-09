@@ -12,6 +12,68 @@
 //#define TEST_REGEXP
 //#define TEST_DL600
 
+#include <..\slib\simplecpp\simplecpp.h>
+
+static int PreprocessHFile()
+{
+	int    ok = 1;
+	simplecpp::DUI dui;
+	SString temp_buf;
+	SString dump_buf;
+	SFsPath ps(__FILE__);
+	ps.Dir.SetLastSlash().Cat("..\\include");
+	ps.Nam = "ppdefs";
+	ps.Ext = "h";
+	SString input_h_file_name;
+	ps.Merge(input_h_file_name);
+	dui.includes.push_back(input_h_file_name.cptr());
+	ps.Merge(SFsPath::fDrv|SFsPath::fDir, temp_buf);
+	dui.includePaths.push_back(temp_buf.RmvLastSlash().cptr());
+	dui.removeComments = true;
+
+	SString code_buf;
+	simplecpp::OutputList output_list;
+	/*
+	static simplecpp::TokenList makeTokenList(const char code[], std::size_t size, std::vector<std::string> &filenames, const std::string &filename = std::string(), simplecpp::OutputList * outputList = nullptr)
+	{
+		std::istringstream istr(std::string(code, size));
+		return simplecpp::TokenList(istr, filenames, filename, outputList);
+	}
+	*/
+	//static std::string preprocess(const char code[], const simplecpp::DUI &dui, simplecpp::OutputList * outputList)
+	{
+		code_buf = "#include <ppdefs.h>\nint a = CTL_CSPANEL_CSESSCLOSE;\n";
+
+		std::vector<std::string> files;
+		std::map<std::string, simplecpp::TokenList*> filedata;
+		//simplecpp::TokenList tokens = makeTokenList(code, files);
+		simplecpp::TokenList tokens(code_buf.cptr(), code_buf.Len(), files);
+		tokens.removeComments();
+		simplecpp::TokenList tokens2(files);
+		simplecpp::preprocess(tokens2, tokens, files, filedata, dui, &output_list);
+		std::string dump = tokens2.stringify();
+		dump_buf.CatN(dump.data(), dump.length());
+	}
+	std::string input_h_file_name__(input_h_file_name);
+	std::vector<std::string> __file_names;
+	simplecpp::TokenList output(input_h_file_name__, __file_names, &output_list);
+
+	//std::vector<std::string> files;
+	simplecpp::TokenList rawtokens(input_h_file_name__, __file_names, &output_list);
+	rawtokens.removeComments();
+	{
+		std::string dump = output.stringify();
+		dump_buf.CatN(dump.data(), dump.length());
+	}
+	{
+		std::map<std::string, simplecpp::TokenList *> filedata;
+		std::list<simplecpp::MacroUsage> macro_usage;
+		std::list<simplecpp::IfCond> if_cond;
+		simplecpp::preprocess(output, rawtokens, __file_names, filedata, dui, &output_list, &macro_usage, &if_cond);
+	}
+	return ok;
+}
+
 #if 0 // @construction {
 class SConsole {
 public:
@@ -1229,7 +1291,7 @@ static void PrintGumboNode(const GumboNode * pN, uint tabN, uint flags, SFile & 
 		if(pN->type == GUMBO_NODE_DOCUMENT) {
 			const GumboDocument & r_doc = pN->v.document;
 			if(!(flags & pgnfTextOnly)) {
-				rTempBuf.Z().Tab(tabN).CatEq("doc", r_doc.name);
+				rTempBuf.Z().Tab_(tabN).CatEq("doc", r_doc.name);
 				rF.WriteLine(rTempBuf.CR());
 			}
 			for(uint i = 0; i < r_doc.children.length; i++) {
@@ -1252,18 +1314,18 @@ static void PrintGumboNode(const GumboNode * pN, uint tabN, uint flags, SFile & 
 		    }
 			if(!(flags & pgnfSkipScript) || !tag_buf.IsEqiAscii("script")) {
 				if(!(flags & pgnfTextOnly)) {
-					rTempBuf.Z().Tab(tabN).CatEq("element", tag_buf);
+					rTempBuf.Z().Tab_(tabN).CatEq("element", tag_buf);
 					rF.WriteLine(rTempBuf.CR());
 				}
 				//
 				if(r_el.attributes.length) {
 					if(!(flags & pgnfTextOnly) && !(flags & pgnfTagsOnly)) {
-						rTempBuf.Z().Tab(tabN).Cat("attributes").Colon();
+						rTempBuf.Z().Tab_(tabN).Cat("attributes").Colon();
 						rF.WriteLine(rTempBuf.CR());
 						for(uint i = 0; i < r_el.attributes.length; i++) {
 							GumboAttribute * p_attr = static_cast<GumboAttribute *>(r_el.attributes.data[i]);
 							if(p_attr) {
-								rTempBuf.Z().Tab(tabN+1).CatEq(p_attr->name, p_attr->value);
+								rTempBuf.Z().Tab_(tabN+1).CatEq(p_attr->name, p_attr->value);
 								rF.WriteLine(rTempBuf.CR());
 							}
 						}
@@ -1271,7 +1333,7 @@ static void PrintGumboNode(const GumboNode * pN, uint tabN, uint flags, SFile & 
 				}
 				if(r_el.children.length) {
 					if(!(flags & pgnfTextOnly) && !(flags & pgnfTagsOnly)) {
-						rTempBuf.Z().Tab(tabN).Cat("children").Colon();
+						rTempBuf.Z().Tab_(tabN).Cat("children").Colon();
 						rF.WriteLine(rTempBuf.CR());
 					}
 					for(uint i = 0; i < r_el.children.length; i++) {
@@ -1285,11 +1347,11 @@ static void PrintGumboNode(const GumboNode * pN, uint tabN, uint flags, SFile & 
 			const GumboText & r_t = pN->v.text;
 			tag_buf = r_t.text;
 			if(IsTextContainsSpacesOnly(tag_buf) && !(flags & pgnfSkipEmptyText)) {
-				rTempBuf.Z().Tab(tabN+1).Cat("text").CatDiv(':', 2).Cat("(spaces)");
+				rTempBuf.Z().Tab_(tabN+1).Cat("text").CatDiv(':', 2).Cat("(spaces)");
 			}
 			else {
 				PreprocessText(tag_buf);
-				rTempBuf.Z().Tab(tabN+1).Cat("text").CatDiv(':', 2).Cat(tag_buf);
+				rTempBuf.Z().Tab_(tabN+1).Cat("text").CatDiv(':', 2).Cat(tag_buf);
 			}
 			rF.WriteLine(rTempBuf.CR());
 		}
@@ -1925,8 +1987,9 @@ int DoConstructionTest()
 		}
 	}
 #endif // } 0
+	PreprocessHFile();
 	//TestTransferFileToFtp();
-	VkInterface::Test();
+	//VkInterface::Test();
 	//Test_Cristal2SetRetailGateway();
 	//Test_LayoutedListDialog();
 	//SentencePieceExperiments();

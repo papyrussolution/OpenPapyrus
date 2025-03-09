@@ -77,7 +77,7 @@ public:
 		result_type mean() const { return mean_; }
 		// Returns the deviation distribution parameter.  The default value is 1.0.
 		result_type stddev() const { return stddev_; }
-		friend bool operator ==(const param_type& a, const param_type& b) { return a.mean_ == b.mean_ && a.stddev_ == b.stddev_; }
+		friend bool operator == (const param_type& a, const param_type& b) { return a.mean_ == b.mean_ && a.stddev_ == b.stddev_; }
 		friend bool operator != (const param_type& a, const param_type& b) { return !(a == b); }
 private:
 		result_type mean_;
@@ -109,7 +109,7 @@ private:
 	result_type(max)() const { return std::numeric_limits<result_type>::infinity(); }
 	result_type mean() const { return param_.mean(); }
 	result_type stddev() const { return param_.stddev(); }
-	friend bool operator ==(const gaussian_distribution& a, const gaussian_distribution& b) { return a.param_ == b.param_; }
+	friend bool operator == (const gaussian_distribution& a, const gaussian_distribution& b) { return a.param_ == b.param_; }
 	friend bool operator != (const gaussian_distribution& a, const gaussian_distribution& b) { return a.param_ != b.param_; }
 private:
 	param_type param_;

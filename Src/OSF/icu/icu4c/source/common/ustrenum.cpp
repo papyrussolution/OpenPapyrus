@@ -104,15 +104,8 @@ UnicodeString * StringEnumeration::setChars(const char * s, int32_t length, UErr
 	return NULL;
 }
 
-bool StringEnumeration::operator == (const StringEnumeration &that) const 
-{
-	return typeid(*this) == typeid(that);
-}
-
-bool StringEnumeration::operator != (const StringEnumeration &that) const 
-{
-	return !operator == (that);
-}
+bool StringEnumeration::operator == (const StringEnumeration &that) const { return typeid(*this) == typeid(that); }
+bool StringEnumeration::operator != (const StringEnumeration &that) const { return !operator == (that); }
 
 // UStringEnumeration implementation --------------------------------------- ***
 

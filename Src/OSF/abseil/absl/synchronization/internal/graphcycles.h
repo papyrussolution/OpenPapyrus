@@ -36,7 +36,7 @@ namespace synchronization_internal {
 // Opaque identifier for a graph node.
 struct GraphId {
 	uint64_t handle;
-	bool operator ==(const GraphId& x) const { return handle == x.handle; }
+	bool operator == (const GraphId& x) const { return handle == x.handle; }
 	bool operator !=(const GraphId& x) const { return handle != x.handle; }
 };
 

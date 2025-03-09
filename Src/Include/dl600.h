@@ -198,7 +198,7 @@ private:
 //
 struct CtmExprConst { // @flat
 	CtmExprConst & Init();
-	int    operator !() const;
+	bool   operator !() const;
 
 	DLSYMBID TypeId;   // Тип константы
 	union {
@@ -390,22 +390,23 @@ public:
 		};
 	};
 	enum {
-		ckInput = UiItemKind::kInput,
-		ckStatic = UiItemKind::kStatic,
-		ckPushbutton = UiItemKind::kPushbutton,
-		ckCheckbox = UiItemKind::kCheckbox,
+		ckInput        = UiItemKind::kInput,
+		ckStatic       = UiItemKind::kStatic,
+		ckPushbutton   = UiItemKind::kPushbutton,
+		ckCheckbox     = UiItemKind::kCheckbox,
 		ckRadioCluster = UiItemKind::kRadioCluster,
 		ckCheckCluster = UiItemKind::kCheckCluster,
-		ckCombobox = UiItemKind::kCombobox,
-		ckListbox = UiItemKind::kListbox,
-		ckTreeListbox = UiItemKind::kTreeListbox,
-		ckFrame = UiItemKind::kFrame,
-		ckRadiobutton = UiItemKind::kRadiobutton,
-		ckLabel = UiItemKind::kLabel
+		ckCombobox     = UiItemKind::kCombobox,
+		ckListbox      = UiItemKind::kListbox,
+		ckTreeListbox  = UiItemKind::kTreeListbox,
+		ckFrame        = UiItemKind::kFrame,
+		ckRadiobutton  = UiItemKind::kRadiobutton,
+		ckLabel        = UiItemKind::kLabel
 	};
 
 	static int FASTCALL ResolvePropName(const char * pName);
 	static int FASTCALL GetPropSymb(int propId, SString & rSymb);
+	static int FASTCALL GetKindSymb(int kind, SString & rSymb); // @v12.2.10
 	static SString & PropListToLine(const StrAssocArray & rPropList, uint tabCount, SString & rBuf);
 
 	DlScope(DLSYMBID id, uint kind, const char * pName, int prototype);
@@ -581,7 +582,7 @@ struct CtmToken {
 		acBoundingBox,
 		acLayoutItemSizeEntry,
 		acLayoutItemSize,
-		acBoundingBoxOrigin, // @v12.2.9
+		acBoundingBoxPair, // @v12.2.9
 	};
 	void   Init();
 	void   Destroy();
@@ -922,6 +923,7 @@ public:
 	//   же является вложенной).
 	//
 	DLSYMBID EnterViewScope(const char * pSymb);
+	DLSYMBID EnterDialogScope(const char * pSymb);
 	int    PushScope();
 	int    PopScope();
 	int    CompleteExportDataStruc();
@@ -1060,6 +1062,7 @@ private:
 	int    ProcessQuestArgList(const DlFunc & rFunc, CtmExpr * pExpr, const LongArray & rCvtPosList);
 	void   InitFileNames(const char * pInFileName);
 	int    Helper_LoadDbTableSpec(const DlScope *, DBTable * pTbl, int format) const;
+	DLSYMBID Helper_EnterViewScope(uint scopeKind, const char * pSymb);
 	//
 	// Descr: Форматы вывода наименований классов
 	//
@@ -1090,6 +1093,7 @@ private:
 	int    Write_C_AutoImplFile(Generator_CPP & gen, const DlScope & rScope, StringSet & rSs, long cflags); // @recursion
 	int    Write_WSDL_File(const char * pFileName, const DlScope & rScope);
 	int    Write_DialogReverse();
+	int    Write_UiView(const DlScope * pScope, uint indentTabCount, SString & rOutBuf);
 	//
 	// } Compile-time
 	//
@@ -1117,7 +1121,7 @@ private:
 	int    FormatVar(CtmVar v, SString & rBuf) const;
 	enum {
 		fctfSourceOutput  = 0x0001, // Форматировать тип для вывода в C++
-		fctfIDL   = 0x0002, // Форматировать тип для вывода в IDL
+		fctfIDL           = 0x0002, // Форматировать тип для вывода в IDL
 		fctfIfaceImpl     = 0x0004, // Форматировать тип для функций реализации интерфейсов
 		fctfInstance      = 0x0008, // Форматирование для экземпляров типов. Основное отличие -
 			// строки представлены не ссылками, а собственно экземплярами (SString вместо SString&)
@@ -1144,7 +1148,7 @@ private:
 	LAssocArray AdjRetTypeProcList; // Compile-time
 	DLSYMBID LastSymbId;
 	long   UniqCntr;                // Сквозной (в пределах компилируемого файла) счетчик, используемый для формирования уникальный значений
-	SymbHashTable Tab;              //
+	SymbHashTable Ht/*Tab*/;
 	StringSet CurDeclList;
 	CtmConstList ConstList;         // @persistent
 	TSVector <TypeEntry> TypeList;  // @persistent

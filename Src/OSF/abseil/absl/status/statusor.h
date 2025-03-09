@@ -604,7 +604,7 @@ private:
 // operator == ()
 //
 // This operator checks the equality of two `absl::StatusOr<T>` objects.
-template <typename T> bool operator ==(const StatusOr<T>& lhs, const StatusOr<T>& rhs) 
+template <typename T> bool operator == (const StatusOr<T>& lhs, const StatusOr<T>& rhs) 
 {
 	if(lhs.ok() && rhs.ok()) return *lhs == *rhs;
 	return lhs.status() == rhs.status();

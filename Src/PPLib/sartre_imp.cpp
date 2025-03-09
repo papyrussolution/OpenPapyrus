@@ -876,7 +876,7 @@ int SrDatabase::ImportFlexiaModel(const SrImportParam & rParam)
 								P_WaT->Search(wa.WordID, test_wa_list);
 								for(uint j = 0; j < test_wa_list.getCount(); j++) {
 									const SrWordAssoc & r_wa = test_wa_list.at(j);
-									line_buf.Z().Cat(word_buf).Tab(2).Cat(r_wa.ToStr(temp_buf)).CR();
+									line_buf.Z().Cat(word_buf).Tab_(2).Cat(r_wa.ToStr(temp_buf)).CR();
 									test_out_file.WriteLine(line_buf);
 								}
 							}

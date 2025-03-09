@@ -3644,7 +3644,7 @@ static const SIntToSymbTabEntry MimeTypeNameList[] = {
 
 /*static*/int SFileFormat::IdentifyMimeType(const char * pMimeType)
 	{ return SIntToSymbTab_GetId(MimeTypeNameList, SIZEOFARRAY(MimeTypeNameList), pMimeType); }
-/*static*/int SFileFormat::GetMimeTypeName(int mimeType, SString & rBuf)
+/*static*/bool SFileFormat::GetMimeTypeName(int mimeType, SString & rBuf)
 	{ return SIntToSymbTab_GetSymb(MimeTypeNameList, SIZEOFARRAY(MimeTypeNameList), mimeType, rBuf); }
 
 /*static*/int SFileFormat::GetMime(int id, SString & rMime)

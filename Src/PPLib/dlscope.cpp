@@ -736,6 +736,37 @@ int DlScope::GetFldConst(uint fldID, COption id, CtmExprConst * pConst) const
 	return ok;
 }
 
+static const SIntToSymbTabEntry DlScopeKindAssocList[] = {
+		{ DlScope::kGlobal, "global" },
+		{ DlScope::kNamespace, "namespace" },
+		{ DlScope::kFile, "file" },
+		{ DlScope::kClass, "class" },
+		{ DlScope::kFunc, "func" },
+		{ DlScope::kLocal, "local" },
+		{ DlScope::kExpData, "expdata" },
+		{ DlScope::kExpDataHdr, "expdatahdr" },
+		{ DlScope::kExpDataIter, "expdataiter" },
+		{ DlScope::kArgList, "arglist" },
+		{ DlScope::kInterface, "interface" },
+		{ DlScope::kEnum, "enum" },
+		{ DlScope::kStruct, "struct" },
+		{ DlScope::kIClass, "iclass" },
+		{ DlScope::kLibrary, "library" },
+		{ DlScope::kTypedefPool, "typedefpool" },
+		{ DlScope::kDbTable, "dbtable" },
+		{ DlScope::kDbIndex, "dbindex" },
+		{ DlScope::kUiDialog, "uidialog" },
+		{ DlScope::kUiZone, "uizone" },
+		{ DlScope::kUiCtrl, "uictrl" },
+		{ DlScope::kUiView, "uiview" },
+		{ DlScope::kHandler, "handler" }
+};
+
+/*static*/int FASTCALL DlScope::GetKindSymb(int kind, SString & rSymb) // @v12.2.10
+{
+	return SIntToSymbTab_GetSymb(DlScopeKindAssocList, SIZEOFARRAY(DlScopeKindAssocList), kind, rSymb);
+}
+
 static const SIntToSymbTabEntry DlScopePropIdAssocList[] = {
 	{ DlScope::cuifLabelRect,  "labelrect" },
 	{ DlScope::cuifReadOnly,   "readonly" },
@@ -763,18 +794,18 @@ static const SIntToSymbTabEntry DlScopePropIdAssocList[] = {
 {
 	if(rPropList.getCount()) {
 		SString prop_symb, prop_val;
-		rBuf.CR().Tab(tabCount).Cat("property").Space().CatChar('{').CR();
+		rBuf.CR().Tab_(tabCount).Cat("property").Space().CatChar('{').CR();
 		for(uint i = 0; i < rPropList.getCount(); i++) {
 			StrAssocArray::Item prop = rPropList.Get(i);
 			if(DlScope::GetPropSymb(prop.Id, prop_symb)) {
 				prop_val = prop.Txt;
-				rBuf.Tab(tabCount+1).Cat(prop_symb);
+				rBuf.Tab_(tabCount+1).Cat(prop_symb);
 				if(prop_val.NotEmptyS())
 					rBuf.Eq().Cat(prop_val);
 				rBuf.CR();
 			}
 		}
-		rBuf.Tab(tabCount).CatChar('}');
+		rBuf.Tab_(tabCount).CatChar('}');
 	}
 	return rBuf;
 }

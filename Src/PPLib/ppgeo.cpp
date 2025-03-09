@@ -938,48 +938,23 @@ PPOsm::NPoint::NPoint() : ID(0)
 {
 }
 
-int FASTCALL PPOsm::NPoint::IsEq(const PPOsm::NPoint & rS) const
-{
-	return BIN(ID == rS.ID && C == rS.C);
-}
-
-int FASTCALL PPOsm::NPoint::operator == (const PPOsm::NPoint & rS) const
-{
-	return IsEq(rS);
-}
-
-int FASTCALL PPOsm::NPoint::operator != (const PPOsm::NPoint & rS) const
-{
-	return BIN(!IsEq(rS));
-}
+bool FASTCALL PPOsm::NPoint::IsEq(const PPOsm::NPoint & rS) const { return (ID == rS.ID && C == rS.C); }
+bool FASTCALL PPOsm::NPoint::operator == (const PPOsm::NPoint & rS) const { return IsEq(rS); }
+bool FASTCALL PPOsm::NPoint::operator != (const PPOsm::NPoint & rS) const { return !IsEq(rS); }
 
 PPOsm::Node::Node() : NPoint()
 {
 }
 
-int FASTCALL PPOsm::Node::IsEq(const Node & rS) const
-{
-	return BIN(NPoint::IsEq(rS) && T.V == rS.T.V);
-}
-
-int FASTCALL PPOsm::Node::operator == (const Node & rS) const
-{
-	return IsEq(rS);
-}
-
-int FASTCALL PPOsm::Node::operator != (const Node & rS) const
-{
-	return BIN(!IsEq(rS));
-}
+bool FASTCALL PPOsm::Node::IsEq(const Node & rS) const { return (NPoint::IsEq(rS) && T.V == rS.T.V); }
+bool FASTCALL PPOsm::Node::operator == (const Node & rS) const { return IsEq(rS); }
+bool FASTCALL PPOsm::Node::operator != (const Node & rS) const { return !IsEq(rS); }
 
 PPOsm::NodeRefs::NodeRefs()
 {
 }
 
-int FASTCALL PPOsm::NodeRefs::IsEq(const NodeRefs & rS) const
-{
-	return BIN(WayRefs == rS.WayRefs && RelRefs == rS.RelRefs);
-}
+bool FASTCALL PPOsm::NodeRefs::IsEq(const NodeRefs & rS) const { return (WayRefs == rS.WayRefs && RelRefs == rS.RelRefs); }
 
 int PPOsm::NodeRefs::AddWayRef(uint64 nodeID, uint64 wayID)
 {
@@ -1020,9 +995,9 @@ void PPOsm::Way::Clear()
 	NodeRefs.clear();
 }
 
-int FASTCALL PPOsm::Way::IsEq(const Way & rS) const
+bool FASTCALL PPOsm::Way::IsEq(const Way & rS) const
 {
-    int    ok = 1;
+    bool   ok = true;
     THROW(ID == rS.ID);
     THROW(T.V == rS.T.V);
     THROW(NodeRefs == rS.NodeRefs);
@@ -1030,15 +1005,8 @@ int FASTCALL PPOsm::Way::IsEq(const Way & rS) const
     return ok;
 }
 
-int FASTCALL PPOsm::Way::operator == (const Way & rS) const
-{
-	return IsEq(rS);
-}
-
-int FASTCALL PPOsm::Way::operator != (const Way & rS) const
-{
-	return BIN(!IsEq(rS));
-}
+bool FASTCALL PPOsm::Way::operator == (const Way & rS) const { return IsEq(rS); }
+bool FASTCALL PPOsm::Way::operator != (const Way & rS) const { return !IsEq(rS); }
 
 PPOsm::RelMember::RelMember() : RefID(0), TypeSymbID(0), RoleSymbID(0)
 {

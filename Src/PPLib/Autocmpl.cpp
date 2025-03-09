@@ -144,12 +144,13 @@ void FASTCALL PUGL::SetHeader(const BillTbl::Rec * pBillRec)
 int PUGL::SearchGoods(PPID goodsID, uint * pPos, PUGI * pItem) const
 {
 	PUGI * p_item;
-	for(uint i = 0; enumItems(&i, (void **)&p_item);)
+	for(uint i = 0; enumItems(&i, (void **)&p_item);) {
 		if(p_item->GoodsID == goodsID) {
 			ASSIGN_PTR(pItem, *p_item);
 			ASSIGN_PTR(pPos, i-1);
 			return 1;
 		}
+	}
 	return 0;
 }
 
@@ -1268,7 +1269,7 @@ int PPBillPacket::InitACPacket()
 {
 	int    ok = 1;
 	PPOprKind op_rec;
-	const PPCommConfig & r_ccfg = CConfig;
+	const  PPCommConfig & r_ccfg = CConfig;
 	THROW_PP(r_ccfg.AutoComplOp, PPERR_UNDEFAUTOCOMPLOP);
 	THROW_PP(GetOpData(r_ccfg.AutoComplOp, &op_rec) > 0, PPERR_UNDEFAUTOCOMPLOP);
 	THROW_PP(op_rec.OpTypeID == PPOPT_GOODSMODIF, PPERR_INVAUTOCOMPLOP);

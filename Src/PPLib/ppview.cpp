@@ -908,7 +908,7 @@ void PPBaseFilt::PutSggMembToBuf(SubstGrpGoods sgg, const char * pMembName, SStr
 	};
 #undef __ITEM
 	SString & r_temp_buf = SLS.AcquireRvlStr();
-	if(SIntToSymbTab_GetSymb(SggStrucList, SIZEOFARRAY(SggStrucList), sgg, r_temp_buf) > 0)
+	if(SIntToSymbTab_GetSymb(SggStrucList, SIZEOFARRAY(SggStrucList), sgg, r_temp_buf))
 		PutMembToBuf(r_temp_buf, pMembName, rBuf);
 	/* @v11.3.1 for(uint i = 0; i < SIZEOFARRAY(SggStrucList); i++)
 		if(SggStrucList[i].SggID == sgg) {
@@ -935,7 +935,7 @@ void PPBaseFilt::PutSgpMembToBuf(SubstGrpPerson sgp, const char * pMembName, SSt
 	};
 #undef __ITEM
 	SString & r_temp_buf = SLS.AcquireRvlStr();
-	if(SIntToSymbTab_GetSymb(SgpStrucList, SIZEOFARRAY(SgpStrucList), sgp, r_temp_buf) > 0)
+	if(SIntToSymbTab_GetSymb(SgpStrucList, SIZEOFARRAY(SgpStrucList), sgp, r_temp_buf))
 		PutMembToBuf(r_temp_buf, pMembName, rBuf);
 	/* @v11.3.1 for(uint i = 0; i < SIZEOFARRAY(SgpStrucList); i++)
 		if(SgpStrucList[i].SgpID == sgp) {
@@ -959,7 +959,7 @@ void PPBaseFilt::PutSgdMembToBuf(SubstGrpDate sgd, const char * pMembName, SStri
 	};
 #undef __ITEM
 	SString & r_temp_buf = SLS.AcquireRvlStr();
-	if(SIntToSymbTab_GetSymb(SgdStrucList, SIZEOFARRAY(SgdStrucList), sgd, r_temp_buf) > 0)
+	if(SIntToSymbTab_GetSymb(SgdStrucList, SIZEOFARRAY(SgdStrucList), sgd, r_temp_buf))
 		PutMembToBuf(r_temp_buf, pMembName, rBuf);
 	/* @v11.3.1 for(uint i = 0; i < SIZEOFARRAY(SgdStrucList); i++)
 		if(SgdStrucList[i].SgpID == sgd) {
@@ -1450,7 +1450,7 @@ PPView::~PPView()
 }
 
 bool   PPView::IsConsistent() const { return (Sign == PPConst::Signature_PPView); }
-const  PPBaseFilt * PPView::GetBaseFilt() const { return P_F ? P_F : (PPSetError(PPERR_BASEFILTUNSUPPORTED), 0); }
+const  PPBaseFilt * PPView::GetBaseFilt() const { return P_F ? P_F : (PPSetError(PPERR_BASEFILTUNSUPPORTED), nullptr); }
 
 int FASTCALL PPView::Helper_InitBaseFilt(const PPBaseFilt * pFilt)
 {

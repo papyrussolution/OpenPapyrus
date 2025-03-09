@@ -5118,7 +5118,7 @@ static void Cristal2SetRetailGateway_CSessDictionaryOutput(const char * pDictPat
 											const BNField & r_fld = r_fld_list.getField(fld_pos, true);
 											index_buf.Space().Cat(r_fld.Name);
 										}
-										else if(fldid < r_fld_list.getCount()) {
+										else if(fldid < static_cast<int>(r_fld_list.getCount())) {
 											const BNField & r_fld = r_fld_list.getField(fldid, true);
 											index_buf.Space().Cat(r_fld.Name);
 										}

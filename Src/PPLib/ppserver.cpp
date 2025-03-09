@@ -3918,7 +3918,7 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 				}
 			}
 			break;
-		case PPSCMD_WSCTL_QUERYPOLICY: // @v11.7.12 @construction
+		case PPSCMD_WSCTL_QUERYPOLICY: // @v11.7.12
 			THROW_PP(State_PPws & stLoggedIn, PPERR_NOTLOGGEDIN);
 			SETIFZQ(P_WsCtlBlk, new WsCtlSrvBlock());
 			if(P_WsCtlBlk->SendClientPolicy(temp_buf)) {
@@ -3926,7 +3926,7 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 				ok = cmdretOK;				
 			}
 			break;
-		case PPSCMD_WSCTL_QUERYPGMLIST: // @v11.8.5 @construction
+		case PPSCMD_WSCTL_QUERYPGMLIST: // @v11.8.5
 			THROW_PP(State_PPws & stLoggedIn, PPERR_NOTLOGGEDIN);
 			SETIFZQ(P_WsCtlBlk, new WsCtlSrvBlock());
 			if(P_WsCtlBlk->SendProgramList(false/*mock*/, temp_buf)) {

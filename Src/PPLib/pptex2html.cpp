@@ -2305,22 +2305,22 @@ int PPVer2HtmlPrcssr::Output(const char * pOutputFileName, const char * pImgPath
 					entry_buf.Z();
 					entry_buf.Cat(line_buf.Z().Tab().CatTagBrace("thead", 0).CR());
 					entry_buf.Cat(line_buf.Z().Tab().CatTagBrace("tr", 0).CR());
-						entry_buf.Cat(line_buf.Z().Tab(2).CatTagBrace("td", 0).CR());
-							entry_buf.Cat(line_buf.Z().Tab(3).Cat(p_entry->Ver.ToStr(temp_buf.Z())).CR());
-						entry_buf.Cat(line_buf.Z().Tab(2).CatTagBrace("td", 1).CR());
-						entry_buf.Cat(line_buf.Z().Tab(2).CatTagBrace("td", 0).CR());
-							entry_buf.Cat(line_buf.Z().Tab(3).Cat(p_entry->Dt, DATF_DMY|DATF_CENTURY).CR());
-						entry_buf.Cat(line_buf.Z().Tab(2).CatTagBrace("td", 1).CR());
-						entry_buf.Cat(line_buf.Z().Tab(2).CatTagBrace("td", 0).CR());
+						entry_buf.Cat(line_buf.Z().Tab_(2).CatTagBrace("td", 0).CR());
+							entry_buf.Cat(line_buf.Z().Tab_(3).Cat(p_entry->Ver.ToStr(temp_buf.Z())).CR());
+						entry_buf.Cat(line_buf.Z().Tab_(2).CatTagBrace("td", 1).CR());
+						entry_buf.Cat(line_buf.Z().Tab_(2).CatTagBrace("td", 0).CR());
+							entry_buf.Cat(line_buf.Z().Tab_(3).Cat(p_entry->Dt, DATF_DMY|DATF_CENTURY).CR());
+						entry_buf.Cat(line_buf.Z().Tab_(2).CatTagBrace("td", 1).CR());
+						entry_buf.Cat(line_buf.Z().Tab_(2).CatTagBrace("td", 0).CR());
 							// empty
-						entry_buf.Cat(line_buf.Z().Tab(2).CatTagBrace("td", 1).CR());
+						entry_buf.Cat(line_buf.Z().Tab_(2).CatTagBrace("td", 1).CR());
 					entry_buf.Cat(line_buf.Z().Tab().CatTagBrace("tr", 1).CR());
 					entry_buf.Cat(line_buf.Z().Tab().CatTagBrace("thead", 1).CR());
 					//
 					entry_buf.Cat(line_buf.Z().Tab().CatTagBrace("tbody", 0).CR());
 					for(Paragraph * p_para = p_entry->P_Body; p_para; p_para = p_para->P_Next) {
 						entry_buf.Cat(line_buf.Z().Tab().CatTagBrace("tr", 0).CR());
-						entry_buf.Cat(line_buf.Z().Tab(2).CatTagBrace("td", 0).CR());
+						entry_buf.Cat(line_buf.Z().Tab_(2).CatTagBrace("td", 0).CR());
 							line_buf.Z();
 							if(p_para->Type == p_para->tRegular) {
 								if(p_para->Flags & p_para->fExclam) {
@@ -2356,16 +2356,16 @@ int PPVer2HtmlPrcssr::Output(const char * pOutputFileName, const char * pImgPath
 								line_buf.Cat("$INVALID$");
 							}
 							entry_buf.Cat(line_buf.CR());
-						entry_buf.Cat(line_buf.Z().Tab(2).CatTagBrace("td", 1).CR());
-						entry_buf.Cat(line_buf.Z().Tab(2).CatTagBrace("td", 0).CR());
-							line_buf.Z().Tab(3).CatTagBrace("p", 0);
+						entry_buf.Cat(line_buf.Z().Tab_(2).CatTagBrace("td", 1).CR());
+						entry_buf.Cat(line_buf.Z().Tab_(2).CatTagBrace("td", 0).CR());
+							line_buf.Z().Tab_(3).CatTagBrace("p", 0);
 							if(p_para->Topic.NotEmpty()) {
 								line_buf.Cat(p_para->Topic);
 							}
 							line_buf.CatTagBrace("p", 1);
 							entry_buf.Cat(line_buf.CR());
-						entry_buf.Cat(line_buf.Z().Tab(2).CatTagBrace("td", 1).CR());
-						entry_buf.Cat(line_buf.Z().Tab(2).CatTagBrace("td", 0).CR());
+						entry_buf.Cat(line_buf.Z().Tab_(2).CatTagBrace("td", 1).CR());
+						entry_buf.Cat(line_buf.Z().Tab_(2).CatTagBrace("td", 0).CR());
 						{
 							Paragraph * p_next = 0;
 							do {
@@ -2374,24 +2374,24 @@ int PPVer2HtmlPrcssr::Output(const char * pOutputFileName, const char * pImgPath
 								p_next = p_para->P_Next;
 								if(p_para->Flags & Paragraph::fListItem) {
 									Paragraph * p_li_next = 0;
-									entry_buf.Cat(line_buf.Z().Tab(3).CatTagBrace("ul", 0).CR());
+									entry_buf.Cat(line_buf.Z().Tab_(3).CatTagBrace("ul", 0).CR());
 									do {
 										if(p_li_next)
 											p_para = p_li_next;
 										p_next = p_li_next = p_para->P_Next;
-										entry_buf.Cat(line_buf.Z().Tab(4).CatTagBrace("li", 0).CR());
-										line_buf.Z().Tab(5).CatTagBrace("p", 0);
+										entry_buf.Cat(line_buf.Z().Tab_(4).CatTagBrace("li", 0).CR());
+										line_buf.Z().Tab_(5).CatTagBrace("p", 0);
 										if(p_para->Text.NotEmpty()) {
 											line_buf.Cat((temp_buf = p_para->Text).ReplaceSpecSymb(SFileFormat::Html));
 										}
 										line_buf.CatTagBrace("p", 1);
 										entry_buf.Cat(line_buf.CR());
-										entry_buf.Cat(line_buf.Z().Tab(4).CatTagBrace("li", 1).CR());
+										entry_buf.Cat(line_buf.Z().Tab_(4).CatTagBrace("li", 1).CR());
 									} while(p_li_next && p_li_next->Type == Paragraph::tContinuation && p_li_next->Flags & Paragraph::fListItem);
-									entry_buf.Cat(line_buf.Z().Tab(3).CatTagBrace("ul", 1).CR());
+									entry_buf.Cat(line_buf.Z().Tab_(3).CatTagBrace("ul", 1).CR());
 								}
 								else {
-									line_buf.Z().Tab(3).CatTagBrace("p", 0);
+									line_buf.Z().Tab_(3).CatTagBrace("p", 0);
 									if(p_para->Text.NotEmpty()) {
 										line_buf.Cat((temp_buf = p_para->Text).ReplaceSpecSymb(SFileFormat::Html));
 									}
@@ -2400,7 +2400,7 @@ int PPVer2HtmlPrcssr::Output(const char * pOutputFileName, const char * pImgPath
 								}
 							} while(p_next && p_next->Type == Paragraph::tContinuation);
 						}
-						entry_buf.Cat(line_buf.Z().Tab(2).CatTagBrace("td", 1).CR());
+						entry_buf.Cat(line_buf.Z().Tab_(2).CatTagBrace("td", 1).CR());
 						entry_buf.Cat(line_buf.Z().Tab().CatTagBrace("tr", 1).CR());
 					}
 					entry_buf.Cat(line_buf.Z().Tab().CatTagBrace("tbody", 1).CR());

@@ -3091,9 +3091,9 @@ static int PThr4wTest_RwLock6()
 	pthread_t wrt1;
 	pthread_t wrt2;
 	pthread_t rdt;
-	void * wr1Result = (void *)0;
-	void * wr2Result = (void *)0;
-	void * rdResult = (void *)0;
+	void * wr1Result = nullptr;
+	void * wr2Result = nullptr;
+	void * rdResult = nullptr;
 	bankAccount = 0;
 	PTHR4W_TEST_ASSERT(pthread_create(&wrt1, NULL, InnerBlock::wrfunc, NULL) == 0);
 	Sleep(50);
@@ -3150,10 +3150,10 @@ static int PThr4wTest_RwLock6t()
 	pthread_t wrt2;
 	pthread_t rdt1;
 	pthread_t rdt2;
-	void * wr1Result = (void *)0;
-	void * wr2Result = (void *)0;
-	void * rd1Result = (void *)0;
-	void * rd2Result = (void *)0;
+	void * wr1Result = nullptr;
+	void * wr2Result = nullptr;
+	void * rd1Result = nullptr;
+	void * rd2Result = nullptr;
 	bankAccount = 0;
 	PTHR4W_TEST_ASSERT(pthread_create(&wrt1, NULL, InnerBlock::wrfunc, NULL) == 0);
 	Sleep(500);
@@ -3211,9 +3211,9 @@ static int PThr4wTest_RwLock6t2()
 	pthread_t wrt1;
 	pthread_t wrt2;
 	pthread_t rdt;
-	void * wr1Result = (void *)0;
-	void * wr2Result = (void *)0;
-	void * rdResult = (void *)0;
+	void * wr1Result = nullptr;
+	void * wr2Result = nullptr;
+	void * rdResult = nullptr;
 	pthread_win32_getabstime_np(&abstime, &reltime);
 	bankAccount = 0;
 	PTHR4W_TEST_ASSERT(pthread_create(&wrt1, NULL, InnerBlock::wrfunc, (void *)(size_t)1) == 0);
@@ -4848,7 +4848,7 @@ static int PThr4wTest_Spin3()
 	wasHere = 0;
 	PTHR4W_TEST_ASSERT(pthread_spin_init(&spin, PTHREAD_PROCESS_PRIVATE) == 0);
 	PTHR4W_TEST_ASSERT(pthread_spin_lock(&spin) == 0);
-	PTHR4W_TEST_ASSERT(pthread_create(&t, NULL, InnerBlock::unlocker, (void *)0) == 0);
+	PTHR4W_TEST_ASSERT(pthread_create(&t, NULL, InnerBlock::unlocker, nullptr) == 0);
 	PTHR4W_TEST_ASSERT(pthread_join(t, NULL) == 0);
 	// 
 	// Our spinlocks don't record the owner thread so any thread can unlock the spinlock,
@@ -4909,7 +4909,7 @@ static int PThr4wTest_Spin4()
 static int PThr4wTest_Exit1()
 {
 	// A simple test first. 
-	pthread_exit((void *)0);
+	pthread_exit(nullptr);
 	return 1; // Not reached 
 }
 
@@ -7115,7 +7115,7 @@ static int PThr4wTest_CondVar11()
 	int i, j;
 	for(i = 0; i < SIZEOFARRAY(cv); i++) {
 		/* Traverse the list before every init of a CV. */
-		PTHR4W_TEST_ASSERT(pthread_timechange_handler_np(NULL) == (void *)0);
+		PTHR4W_TEST_ASSERT(pthread_timechange_handler_np(NULL) == nullptr);
 		PTHR4W_TEST_ASSERT(pthread_cond_init(&cv[i], NULL) == 0);
 	}
 	j = SIZEOFARRAY(cv);
@@ -7126,7 +7126,7 @@ static int PThr4wTest_CondVar11()
 			j--;
 			PTHR4W_TEST_ASSERT(pthread_cond_destroy(&cv[i]) == 0);
 			/* Traverse the list every time we remove a CV. */
-			PTHR4W_TEST_ASSERT(pthread_timechange_handler_np(NULL) == (void *)0);
+			PTHR4W_TEST_ASSERT(pthread_timechange_handler_np(NULL) == nullptr);
 		}
 	} while(j > 0);
 	return 0;
@@ -8859,8 +8859,8 @@ static int PThr4wTest_Exception1()
 	SetErrorMode(dwMode | SEM_NOGPFAULTERRORBOX);
 	PTHR4W_TEST_ASSERT((mt = pthread_self()).p != NULL);
 	for(i = 0; i < NUMTHREADS; i++) {
-		PTHR4W_TEST_ASSERT(pthread_create(&et[i], NULL, InnerBlock::exceptionedThread, (void *)0) == 0);
-		PTHR4W_TEST_ASSERT(pthread_create(&ct[i], NULL, InnerBlock::canceledThread, NULL) == 0);
+		PTHR4W_TEST_ASSERT(pthread_create(&et[i], NULL, InnerBlock::exceptionedThread, nullptr) == 0);
+		PTHR4W_TEST_ASSERT(pthread_create(&ct[i], NULL, InnerBlock::canceledThread, nullptr) == 0);
 	}
 	/*
 	 * Code to control or manipulate child threads should probably go here.

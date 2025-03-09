@@ -661,18 +661,18 @@ SLTEST_R(utf8_h)
 		SLCHECK_EQ(106U, utf8len(utf8cat(utf8cat(cat, data), data)));
 	}
 	SLCHECK_EQ(data + 21, utf8str(data, _Cmp));
-	SLCHECK_EQ((void *)0, utf8str(data, "test"));
+	SLCHECK_EQ(nullptr, utf8str(data, "test"));
 	SLCHECK_EQ(data, utf8str(data, ""));
 	SLCHECK_EQ(haystack + 2, utf8str(haystack, needle));
-	SLCHECK_EQ((void *)0, utf8str(haystack, endfailneedle));
+	SLCHECK_EQ(nullptr, utf8str(haystack, endfailneedle));
 	SLCHECK_EQ(data + 21, utf8casestr(data, _Cmp));
-	SLCHECK_EQ((void *)0, utf8casestr(data, "test"));
+	SLCHECK_EQ(nullptr, utf8casestr(data, "test"));
 	SLCHECK_EQ(data, utf8casestr(data, ""));
 	SLCHECK_EQ(haystack + 2, utf8casestr(haystack, needle));
-	SLCHECK_EQ((void *)0, utf8casestr(haystack, endfailneedle));
+	SLCHECK_EQ(nullptr, utf8casestr(haystack, endfailneedle));
 	SLCHECK_EQ(lowersStr, utf8casestr(lowersStr, uppersStr));
 	SLCHECK_EQ(data + 21, utf8chr(data, 0x3bc));
-	SLCHECK_EQ(NULL, utf8chr(data, 0x20ac));
+	SLCHECK_EQ(nullptr, utf8chr(data, 0x20ac));
 	SLCHECK_EQ(data + 104, utf8chr(data, '\0'));
 	SLCHECK_EQ(data + 12, utf8chr(data, 0x20));
 	{

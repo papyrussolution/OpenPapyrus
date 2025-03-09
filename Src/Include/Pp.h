@@ -3193,8 +3193,8 @@ public:
 			// Если запись оба объекта анонимные, то PersonID не сравниваются.
 			// Если одна запись анонимная, а другая - нет, то записи разные.
 	};
-	int    FASTCALL IsEq(const PPCheckInPersonItem & rS, long options) const;
-	int    FASTCALL operator == (const PPCheckInPersonItem & rS) const;
+	bool   FASTCALL IsEq(const PPCheckInPersonItem & rS, long options) const;
+	bool   FASTCALL operator == (const PPCheckInPersonItem & rS) const;
 
 	struct Total {
 		Total();
@@ -3444,8 +3444,8 @@ public:
 	int    IsZeroVal() const;
 	int    IsWarnVal() const;
 	ObjTagItem & FASTCALL operator = (const ObjTagItem &);
-	int    FASTCALL operator == (const ObjTagItem & a) const;
-	int    FASTCALL operator != (const ObjTagItem & a) const;
+	bool   FASTCALL operator == (const ObjTagItem & a) const;
+	bool   FASTCALL operator != (const ObjTagItem & a) const;
 	int    Write__(SBuffer & rBuf) const; // @todo(eliminate)
 	int    Read__(SBuffer & rBuf);        // @todo(eliminate)
 	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
@@ -6367,12 +6367,12 @@ public:
 	//
 	enum {
 		eventresponderPhoneService   = 1, // респондер для событий телефонного сервиса
-		eventresponderMqb    = 2, // респондер для событий брокера сообщений
-		eventresponderSysMaintenance = 3  // @v10.6.0 респондер для событий evQuartz, изредка осуществляющий вызов функций системного обслуживания
+		eventresponderMqb            = 2, // респондер для событий брокера сообщений
+		eventresponderSysMaintenance = 3  // респондер для событий evQuartz, изредка осуществляющий вызов функций системного обслуживания
 	};
 
-	int    SetupEventResponder(int eventResponderId); // @v10.5.7
-	void   ReleaseEventResponder(int eventResponderId); // @v10.5.7
+	int    SetupEventResponder(int eventResponderId);
+	void   ReleaseEventResponder(int eventResponderId);
 	//
 	// Descr: До версии 8.6.1 некоторые атрибуты, связанные с текущим значением главной
 	//   организации инициализировались при открытии сессии (PPSession::Login).
@@ -6429,8 +6429,8 @@ private:
 	PPThread * P_AeqThrd;
 	SrDatabase * P_SrDb;
 	PhoneServiceEventResponder * P_PhnSvcEvRespr;
-	MqbEventResponder * P_MqbEvRespr; // @v10.5.7
-	SysMaintenanceEventResponder * P_SysMntnc; // @v10.6.1
+	MqbEventResponder * P_MqbEvRespr;
+	SysMaintenanceEventResponder * P_SysMntnc;
 public:
 	class WaitBlock {
 	public:
@@ -10298,7 +10298,7 @@ public:
 	static int  CopyExtStrContainer(PPExtStrContainer & rDest, const PPExtStrContainer & rSrc, uint flags);
 	static int  GetPrescription(const PPExtStrContainer & rEss, Prescription & rP);
 	static int  SetPrescription(PPExtStrContainer & rEss, const Prescription & rP);
-	static int  GetExtssMnemonic(int extss, SString & rBuf);
+	static bool GetExtssMnemonic(int extss, SString & rBuf);
 	static int  RecognizeExtssMnemonic(const char * pSymb);
 	static const SIntToSymbTabEntry * GetExtssNameSymbTab(uint * pTabEntryCount);
 
@@ -23883,7 +23883,7 @@ class PPWorkbookPacket {
 public:
 	PPWorkbookPacket();
 	~PPWorkbookPacket();
-	int    FASTCALL IsEq(const PPWorkbookPacket & rS) const;
+	bool   FASTCALL IsEq(const PPWorkbookPacket & rS) const;
 	void   destroy();
 	int    GetExtStrData(int fldID, SString & rBuf) const;
 	int    PutExtStrData(int fldID, const char * pBuf);
@@ -23935,7 +23935,7 @@ public:
 	~PPObjWorkbook();
 	virtual int Edit(PPID * pID, void * extraPtr);
 	virtual int Browse(void * extraPtr);
-	virtual int  Search(PPID id, void * b = 0);
+	virtual int Search(PPID id, void * b = 0);
 	int    SearchByName(const char * pName, PPID * pID, WorkbookTbl::Rec * pRec = 0);
 	int    SearchBySymb(const char * pSymb, PPID * pID, WorkbookTbl::Rec * pRec = 0);
 	int    SearchByLongSymb(const char * pLongSymb, PPID * pID, WorkbookTbl::Rec * pRec = 0);
@@ -27218,6 +27218,8 @@ public:
 	// Descr: Блок, определяющий значение статуса активности клиента (State), привязанного к параметрам, заданным здесь же.
 	//
 	struct ClientActivityState { // @v12.2.2
+		static bool GetStateText(uint state, SString & rBuf);
+
 		ClientActivityState();
 		//
 		// Значения статусов активности клиентов
@@ -28700,6 +28702,15 @@ struct PersonViewItem : public PersonTbl::Rec {
 	{
 	}
 	PsnAttrViewItem AttrItem;
+	//
+	long    CaEventCount;      // @v12.2.10
+	double  CaGapDaysAvg;      // @v12.2.10
+	double  CaGapDaysStdDev;   // @v12.2.10
+	long    CaDelayDays;       // @v12.2.10
+	double  CaDelaySd;         // @v12.2.10  
+	bool    CaIsNew;           // @v12.2.10
+	uint8   Reserve[3];        // @v12.2.10 @alignment
+	long    CaActivityState;   // @v12.2.10
 };
 
 class PPViewPerson : public PPView {
@@ -28715,7 +28726,7 @@ public:
 	virtual int  Init_(const PPBaseFilt * pBaseFilt);
 	virtual void ViewTotal();
 	int    InitIteration();
-	int    FASTCALL NextIteration(PersonViewItem *);
+	int    FASTCALL NextIteration(PersonViewItem * pViewItem);
 	int    AddItem(PPID * pID);
 	int    EditItem(PPID);
 	int    DeleteItem(PPID);
@@ -28736,13 +28747,35 @@ public:
 	void   GetTabTitle(long tabID, SString & rBuf) const;
 	int    GetSmsLists(StrAssocArray & rPsnList, StrAssocArray & rPhoneList, uint what = 0); // @vmiller
 	int    CreateAuthFile(PPID psnId);
-	int    FASTCALL IsNewCliPerson(PPID id) const;
+	// @v12.2.10 int    FASTCALL IsNewCliPerson(PPID id) const;
 	SString & FASTCALL GetFromStrPool(uint strP, SString & rBuf) const;
 	int    FASTCALL HasImage(const void * pData);
 	int    CheckIDForFilt(PPID id, const PersonTbl::Rec * pRec);
-
+	//
+	// Descr: Элемент с дополнительной информацией о персоналии
+	//
+	struct ExtEntry { // @v12.2.10
+		ExtEntry()
+		{
+			THISZERO();
+		}
+		PPID   ID; // Person.ID
+		uint   ClientActivityState;
+		uint   PhoneP;         // Ссылка на строку телефона
+		uint   EMailP;         // Ссылка на строку адреса электронной почты
+		uint   AddressP;       //
+		uint   RAddressP;      //
+		uint   BnkNameP;       // 
+		uint   BnkAcctP;       //
+		uint   RegSerialP;     //
+		uint   FiasAddrGuidP;  //
+		uint   FiasHouseGuidP; //
+		uint   AddrTypeP;      // Ссылка на строку наименования типа адреса (адрес доставки, юридически, реальный etc)
+	};
+	//
 	static int CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, PPViewBrowser * pBrw);
-	static bool CheckClientActivityState(PPID personID, long filtFlags, const LAssocArray * pClientActivityStateList);
+	// @v12.2.10 static bool CheckClientActivityState(PPID personID, long filtFlags, const LAssocArray * pClientActivityStateList);
+	static bool CheckClientActivityState(PPID personID, long filtFlags, const TSVector <ExtEntry> * pExtList);
 private:
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual int   OnExecBrowser(PPViewBrowser *);
@@ -28763,14 +28796,24 @@ private:
 	int    Recover();
 	int    Helper_InsertTempRec(const TempPersonTbl::Rec & rRec);
 	int    Helper_GetTagValue(PPObjID oid, PPID tagID, SString & rBuf);
+	
+	enum {
+		nifOmitCliActivityFlags = 0x0001,
+	};
+
+	int    Helper_NextIteration(uint flags, PersonViewItem * pViewItem);
+	int    Helper_CheckIDForFilt(PPID id, uint flags, const PersonTbl::Rec * pRec);
 	//
 	// Рассылка сообщений по email
 	//
 	int    SendMail(PPID mailAccId, const StrAssocArray * pMailList, PPLogger * pLogger);
 	int    ExportUhtt();
+	static const ExtEntry * FASTCALL Implement_SearchExtEntry(const TSVector <ExtEntry> * pExtList, PPID id);
+	const  ExtEntry * FASTCALL SearchExtEntry(PPID id) const;
+	ExtEntry * SearchExtEntryForUpdate(PPID id, uint * pIdx);
 
 	PPID   DefaultTagID;
-	UintHashTable NewCliList;
+	// @v12.2.10 UintHashTable NewCliList;
 	SStrGroup StrPool; // Пул строковых полей, на который ссылаются поля в TempPersonTbl
 	TempPersonTbl * P_TempPsn;
 	PersonFilt  Filt;
@@ -28779,7 +28822,8 @@ private:
 	PPObjTag   ObjTag;
 	PPObjWorld WObj;
 	PPFiasReference * P_Fr;
-	LAssocArray * P_ClientActivityStateList; // @v12.2.2
+	// @v12.2.10 LAssocArray * P_ClientActivityStateList; // @v12.2.2
+	TSVector <ExtEntry> ExtList; // @v12.2.10
 	//
 	static int DynFuncCheckClientActivityStatus; // @v12.2.2
 };
@@ -37186,10 +37230,10 @@ public:
 	//   Если исходная структура содержит обобщенные товары, то goodsID ищется также
 	//   среди элементов обобщения (в том числе динамического).
 	// Returns:
-	//   >0 - товар с идентификатором goodsID найден в контейнере
-	//   <0 - товар с идентификатором goodsID НЕ найден в контейнере
+	//   true - товар с идентификатором goodsID найден в контейнере
+	//   false - товар с идентификатором goodsID НЕ найден в контейнере
 	//
-	int    SearchGoods(PPID goodsID, int * pSign, SString * pFormula) const;
+	bool   SearchGoods_(PPID goodsID, int * pSign, SString * pFormula) const;
 	//
 	// Descr: Возвращает список идентификаторов товаров, включенных в контейнер.
 	//   Если встречается обобщенный товар, то вместо него в результирующий список попадают включенные в обобщение товары.
@@ -53075,9 +53119,9 @@ public:
 	//
     struct NPoint { // @flat
     	NPoint();
-		int    FASTCALL IsEq(const NPoint & rS) const;
-		int    FASTCALL operator == (const NPoint & rS) const;
-		int    FASTCALL operator != (const NPoint & rS) const;
+		bool   FASTCALL IsEq(const NPoint & rS) const;
+		bool   FASTCALL operator == (const NPoint & rS) const;
+		bool   FASTCALL operator != (const NPoint & rS) const;
 
     	uint64 ID;
 		SGeoPosLL_Int C;
@@ -53087,16 +53131,16 @@ public:
 	//
     struct Node : public NPoint { // @flat
     	Node();
-		int    FASTCALL IsEq(const Node & rS) const;
-		int    FASTCALL operator == (const Node & rS) const;
-		int    FASTCALL operator != (const Node & rS) const;
+		bool   FASTCALL IsEq(const Node & rS) const;
+		bool   FASTCALL operator == (const Node & rS) const;
+		bool   FASTCALL operator != (const Node & rS) const;
 
 		Tile   T;
     };
     class NodeRefs {
 	public:
 		NodeRefs();
-		int    FASTCALL IsEq(const NodeRefs & rS) const;
+		bool   FASTCALL IsEq(const NodeRefs & rS) const;
 		int    AddWayRef(uint64 nodeID, uint64 wayID);
 		int    AddRelRef(uint64 nodeID, uint64 relID);
 		void   Clear();
@@ -53108,9 +53152,9 @@ public:
     struct Way {
     	Way();
 		void   Clear();
-    	int    FASTCALL IsEq(const Way & rS) const;
-		int    FASTCALL operator == (const Way & rS) const;
-		int    FASTCALL operator != (const Way & rS) const;
+    	bool   FASTCALL IsEq(const Way & rS) const;
+		bool   FASTCALL operator == (const Way & rS) const;
+		bool   FASTCALL operator != (const Way & rS) const;
 
 		uint64 ID;
 		Tile   T;
@@ -58318,11 +58362,11 @@ public:
 		wbtRetToMe         // Возврат от контрагента ко мне
 	};
 
-	static int FASTCALL GetDocTypeTag(int docType, SString & rTag);
-    static int FASTCALL RecognizeDocTypeTag(const char * pTag);
-	static int FASTCALL GetWayBillTypeText(int wbType, SString & rBuf);
-	static int FASTCALL RecognizeWayBillTypeText(const char * pText);
-	static int EditInformAReg(InformAReg & rData);
+	static int  FASTCALL GetDocTypeTag(int docType, SString & rTag);
+    static int  FASTCALL RecognizeDocTypeTag(const char * pTag);
+	static bool FASTCALL GetWayBillTypeText(int wbType, SString & rBuf);
+	static int  FASTCALL RecognizeWayBillTypeText(const char * pText);
+	static int  EditInformAReg(InformAReg & rData);
 	//
 	// Descr: Вызывает диалог для ввода кода акцизной марки.
 	//
@@ -60180,7 +60224,7 @@ bool   FASTCALL IsLotVATFree(const ReceiptTbl::Rec & rLotRec);
 //
 int    GetSupplText(PPID suppl, SString & rBuf);
 int    FASTCALL GetCommConfig(PPCommConfig *);
-int    FASTCALL SetCommConfig(const PPCommConfig *, int use_ta);
+int    FASTCALL SetCommConfig(const  PPCommConfig *, int use_ta);
 //
 // Descr: вычисляет значение, на которое необходимо умножить сумму,
 //   облагаемую налогом с продаж или НДС, (сумма включает значение налога)

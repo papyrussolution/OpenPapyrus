@@ -146,9 +146,9 @@ PPWorkbookPacket::~PPWorkbookPacket()
 	destroy();
 }
 
-int FASTCALL PPWorkbookPacket::IsEq(const PPWorkbookPacket & rS) const
+bool FASTCALL PPWorkbookPacket::IsEq(const PPWorkbookPacket & rS) const
 {
-#define NRECFLD(f) if(Rec.f != rS.Rec.f) return 0
+#define NRECFLD(f) if(Rec.f != rS.Rec.f) return false
 	NRECFLD(ID);
 	NRECFLD(Type);
 	NRECFLD(Rank);
@@ -161,19 +161,19 @@ int FASTCALL PPWorkbookPacket::IsEq(const PPWorkbookPacket & rS) const
 	NRECFLD(Dt);
 	NRECFLD(Tm);
 	if(!sstreq(Rec.Name, rS.Rec.Name))
-		return 0;
+		return false;
 	else if(!sstreq(Rec.Symb, rS.Rec.Symb))
-		return 0;
+		return false;
 	else if(!sstreq(Rec.Version, rS.Rec.Version))
-		return 0;
+		return false;
 	else if(!TagL.IsEq(rS.TagL))
-		return 0;
+		return false;
 	else if(ExtString != rS.ExtString)
-		return 0;
+		return false;
 	else if(F.IsChanged(Rec.ID, 0L))
-		return 0;
+		return false;
 	else
-		return 1;
+		return true;
 #undef NRECFLD
 }
 
@@ -243,8 +243,8 @@ static IMPL_CMPFUNC(WorkbookIdByRank_Name, p1, p2)
 	int    si = 0;
 	PPObjWorkbook * p_obj = static_cast<PPObjWorkbook *>(pExtraData);
 	if(p_obj) {
-		const  PPID * p_id1 = static_cast<const  PPID *>(p1);
-		const  PPID * p_id2 = static_cast<const  PPID *>(p2);
+		const PPID * p_id1 = static_cast<const PPID *>(p1);
+		const PPID * p_id2 = static_cast<const PPID *>(p2);
 		WorkbookTbl::Rec rec1;
 		WorkbookTbl::Rec rec2;
 		if(p_obj->Fetch(*p_id1, &rec1) > 0 && p_obj->Fetch(*p_id2, &rec2) > 0) {
@@ -297,13 +297,13 @@ void PPObjWorkbook::SortIdListByRankAndName(LongArray & rList)
 		}
 	};
 	int    ok = -1;
-	int    is_new = 0;
+	bool   is_new = false;
 	WorkbookCfgDialog * dlg = new WorkbookCfgDialog;
 	PPObjOpCounter opc_obj;
 	WorkbookCfgDialog::Rec data;
 	THROW(CheckDialogPtr(&dlg));
 	THROW(CheckCfgRights(PPCFGOBJ_WORKBOOK, PPR_READ, 0));
-	is_new = ReadConfig(&data.Cfg);
+	is_new = (ReadConfig(&data.Cfg) <= 0);
 	SETIFZ(data.Cfg.SymbCntrID, PPOPCNTR_WORKBOOK);
 	opc_obj.GetPacket(data.Cfg.SymbCntrID, &data.Cntr);
 	dlg->setDTS(&data);

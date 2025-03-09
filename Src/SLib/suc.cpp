@@ -960,15 +960,8 @@ SCodepageMapPool::MapEntry::MapEntry() : U2(0)
 	B[0] = 0;
 }
 
-int FASTCALL SCodepageMapPool::MapEntry::operator == (const MapEntry & rS) const
-{
-	return BIN(Cmp(rS) == 0);
-}
-
-int FASTCALL SCodepageMapPool::MapEntry::operator != (const MapEntry & rS) const
-{
-	return BIN(Cmp(rS) != 0);
-}
+bool FASTCALL SCodepageMapPool::MapEntry::operator == (const MapEntry & rS) const { return (Cmp(rS) == 0); }
+bool FASTCALL SCodepageMapPool::MapEntry::operator != (const MapEntry & rS) const { return (Cmp(rS) != 0); }
 
 int FASTCALL SCodepageMapPool::MapEntry::Cmp(const MapEntry & rS) const
 {

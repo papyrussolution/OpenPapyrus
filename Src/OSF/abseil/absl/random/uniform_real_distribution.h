@@ -62,7 +62,7 @@ public:
 		}
 		result_type a() const { return lo_; }
 		result_type b() const { return hi_; }
-		friend bool operator ==(const param_type& a, const param_type& b) { return a.lo_ == b.lo_ && a.hi_ == b.hi_; }
+		friend bool operator == (const param_type& a, const param_type& b) { return a.lo_ == b.lo_ && a.hi_ == b.hi_; }
 		friend bool operator !=(const param_type& a, const param_type& b) { return !(a == b); }
 private:
 		friend class uniform_real_distribution;
@@ -100,7 +100,7 @@ private:
 	}
 	result_type(min)() const { return a(); }
 	result_type(max)() const { return b(); }
-	friend bool operator ==(const uniform_real_distribution& a, const uniform_real_distribution& b) 
+	friend bool operator == (const uniform_real_distribution& a, const uniform_real_distribution& b) 
 	{
 		return a.param_ == b.param_;
 	}
