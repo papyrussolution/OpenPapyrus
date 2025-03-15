@@ -4278,12 +4278,12 @@ private:
 							if(main_goods_liter_ratio > 0.0 && org_goods_liter_ratio > 0.0) {
 								base_unit_id = SUOM_LITER;
 								rBuf.CRB().Tab().Cat("phunit").Space().Cat("liter").Space().
-									CatEq("orgratio", org_goods_liter_ratio, MKSFMTD(0, 3, 0)).Space().CatEq("mainratio", main_goods_liter_ratio, MKSFMTD(0, 3, 0));
+									CatEq("orgratio", org_goods_liter_ratio, MKSFMTD_030).Space().CatEq("mainratio", main_goods_liter_ratio, MKSFMTD_030);
 							}
 							else if(main_goods_kg_ratio > 0.0 && org_goods_kg_ratio > 0.0) {
 								base_unit_id = SUOM_KILOGRAM;
 								rBuf.CRB().Tab().Cat("phunit").Space().Cat("kg").Space().
-									CatEq("orgratio", org_goods_liter_ratio, MKSFMTD(0, 3, 0)).Space().CatEq("mainratio", main_goods_liter_ratio, MKSFMTD(0, 3, 0));
+									CatEq("orgratio", org_goods_liter_ratio, MKSFMTD_030).Space().CatEq("mainratio", main_goods_liter_ratio, MKSFMTD_030);
 							}
 							//
 							PPObjBill * p_bobj = BillObj;
@@ -4330,7 +4330,7 @@ private:
 													STRNSCPY(unit_symb, "KG");
 												}
 												rBuf.CRB().Tab().Cat("mark").CatDiv(':', 2).Cat(p_lbm_entry->Mark).Space().
-													Cat("rest").CatDiv(':', 2).Cat(rest, MKSFMTD(0, 3, 0)).Cat(unit_symb);
+													Cat("rest").CatDiv(':', 2).Cat(rest, MKSFMTD_030).Cat(unit_symb);
 											}
 										}
 									}
@@ -4430,7 +4430,7 @@ private:
 								// } @v12.1.11 
 								rInfoBuf.CRB().Tab().Cat("ExpiryDtm").CatDiv(':', 2).Cat(p_result_cle->ExpiryDtm, DATF_ISO8601CENT, 0);
 								rInfoBuf.CRB().Tab().Cat("ProductionDtm").CatDiv(':', 2).Cat(p_result_cle->ProductionDtm, DATF_ISO8601CENT, 0);
-								rInfoBuf.CRB().Tab().Cat("Weight").CatDiv(':', 2).Cat(p_result_cle->Weight, MKSFMTD(0, 3, 0));
+								rInfoBuf.CRB().Tab().Cat("Weight").CatDiv(':', 2).Cat(p_result_cle->Weight, MKSFMTD_030);
 								rInfoBuf.CRB().Tab().Cat("PrVetDocument").CatDiv(':', 2).Cat(p_result_cle->PrVetDocument);
 								rInfoBuf.CRB().Tab().Cat("Message").CatDiv(':', 2).Cat(p_result_cle->Message);
 								rInfoBuf.CRB().Tab().Cat("ReqId").CatDiv(':', 2).Cat(p_result_cle->ReqId, S_GUID::fmtIDL);

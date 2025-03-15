@@ -1552,9 +1552,9 @@ int PPObjBill::PosPrintByBill(PPID billID)
 										fc.AmtVat18 = _amount;
 									else if(fc.VatRate == 10.0)
 										fc.AmtVat10 = _amount; // @v12.2.5 @fix fc.AmtVat18-->fc.AmtVat10
-									else if(fc.VatRate == 7.0) // @v12.2.5
+									else if(feqeps(fc.VatRate, 7.0, 1E-6)) // @v12.2.10
 										fc.AmtVat07 = _amount; 
-									else if(fc.VatRate == 5.0) // @v12.2.5
+									else if(feqeps(fc.VatRate, 5.0, 1E-6)) // @v12.2.10
 										fc.AmtVat05 = _amount; 
 									else if(fc.VatRate == 0.0)
 										fc.AmtVat00 = _amount;
@@ -2404,8 +2404,8 @@ int PPObjBill::AddGoodsBill(PPID * pBillID, const AddBlock * pBlk)
 	const  PPID preserve_loc = r_cfg.Location;
 
 	int    ok = 1;
-	int    r = 1, res = cmCancel;
-	PPID   op_type = 0;
+	int    r = 1;
+	int    res = cmCancel;
 	PPOprKind    op_rec;
 	PPBillPacket pack;
 	const AddBlock blk(pBlk);
@@ -2424,9 +2424,9 @@ int PPObjBill::AddGoodsBill(PPID * pBillID, const AddBlock * pBlk)
 	else {
 		PPID   loc_id = NZOR(blk.LocID, r_cfg.Location);
 		THROW_PP(blk.OpID > 0, PPERR_INVOPRKIND);
-		op_type = GetOpType(blk.OpID, &op_rec);
+		const  PPID op_type_id = GetOpType(blk.OpID, &op_rec);
 		while(r > 0 && !loc_id) {
-			if(op_type == PPOPT_ACCTURN && op_rec.DefLocID) {
+			if(op_type_id == PPOPT_ACCTURN && op_rec.DefLocID) {
 				loc_id = op_rec.DefLocID;
 			}
 			else {
@@ -2437,7 +2437,7 @@ int PPObjBill::AddGoodsBill(PPID * pBillID, const AddBlock * pBlk)
 		}
 		if(r > 0) {
 			DS.SetLocation(loc_id);
-			if(op_type == PPOPT_GOODSMODIF || (op_type == PPOPT_GOODSRECEIPT && op_rec.AccSheetID == 0)) {
+			if(op_type_id == PPOPT_GOODSMODIF || (op_type_id == PPOPT_GOODSRECEIPT && op_rec.AccSheetID == 0)) {
 				//
 				// Так как чаще всего при модификации товаров в
 				// образующихся лотах поставщиком выступает главная //
@@ -4481,7 +4481,7 @@ int PPObjBill::IsInfluenceToStock(PPID billID, PPID locID)
 	int    ok = -1;
 	BillTbl::Rec bill_rec;
 	if(Search(billID, &bill_rec) > 0) {
-		PPID   op_type_id = GetOpType(bill_rec.OpID);
+		const  PPID op_type_id = GetOpType(bill_rec.OpID);
 		if(oneof6(op_type_id, PPOPT_GOODSEXPEND, PPOPT_GOODSRECEIPT, PPOPT_GOODSREVAL, PPOPT_GOODSRETURN, PPOPT_GOODSMODIF, PPOPT_GOODSACK)) {
 			if(!locID || bill_rec.LocID == locID)
 				ok = 1;
@@ -6456,7 +6456,7 @@ int PPObjBill::Helper_GetPayoutPartOfLot(PPID lotID, PplBlock & rBlk, double * p
 			else {
 				BillTbl::Rec exp_rec, paym_rec/*, rckn_rec*/;
 				if(Fetch(org_lot_rec.BillID, &exp_rec) > 0) {
-					const int    is_modif = BIN(GetOpType(exp_rec.OpID) == PPOPT_GOODSMODIF);
+					const bool   is_modif = (GetOpType(exp_rec.OpID) == PPOPT_GOODSMODIF);
 					const double _camt = is_modif ? fabs(org_lot_rec.Cost * org_lot_rec.Quantity) : exp_rec.Amount;
 					rBlk.NominalAmount = _camt;
 					rBlk.Amount = _camt;
@@ -7870,8 +7870,7 @@ static int FASTCALL GetBillOpUserProfileFunc(PPID opID, int action)
 		}
 	}
 	else {
-		const  PPID op_type = GetOpType(opID);
-		switch(op_type) {
+		switch(GetOpType(opID)) {
 			case PPOPT_DRAFTRECEIPT:
 			case PPOPT_DRAFTEXPEND:
 			case PPOPT_DRAFTTRANSIT:

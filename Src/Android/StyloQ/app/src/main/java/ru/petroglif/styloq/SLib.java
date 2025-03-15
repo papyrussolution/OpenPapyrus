@@ -1640,6 +1640,8 @@ public class SLib {
 		// данных. Изначально событие введено для установки информации о состоянии сетевого подключения. //
 		// srcObj: символ данных, subj: объект, содержащий собственно данные для установки. ret(null)
 	public static final int EV_PAUSE                = 29; // @v12.2.2 Посылается в SlActivity функцией onPause
+	public static final int EV_BARCODERECEIVED      = 30; // @v12.2.10 Получен (из какого-то асинхронного источника ввода) штрихкод.
+		// arg(subj BusinessEntity.PreprocessBarcodeResult)
 	//
 	public static final int cmOK                    = 10; // Значение эквивалентно тому же в tvdefs.h
 	public static final int cmCancel                = 11; // Значение эквивалентно тому же в tvdefs.h
@@ -1754,6 +1756,9 @@ public class SLib {
 	static public int HiByte(int w) { return ((w >> 8) & 0x000000ff); }
 	static public int LoWord(int L) { return (L & 0x0000ffff); }
 	static public int HiWord(int L) { return ((L >> 16) & 0x0000ffff); }
+	static public int LoDWord(long L) { return (int)(L & 0xffffffffL); }
+	static public int HiDWord(long L) { return (int)(L >> 32); }
+
 	static public int MakeInt(int low, int high) { return ((low & 0x0000ffff) | ((high << 16) & 0xffff0000)); }
 	//
 	//
@@ -2500,7 +2505,21 @@ public class SLib {
 			yes = true;
 			for(int i = 0; yes && i < len; i++) {
 				final char c = s.charAt(i);
-				if(c < '0' || c > '9')
+				if(!(c >= '0' && c <= '9'))
+					yes = false;
+			}
+		}
+		return yes;
+	}
+	public static boolean IsHex(final String s)
+	{
+		boolean yes = false;
+		final int len = GetLen(s);
+		if(len > 0) {
+			yes = true;
+			for(int i = 0; yes && i < len; i++) {
+				final char c = s.charAt(i);
+				if(!(c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f'))
 					yes = false;
 			}
 		}

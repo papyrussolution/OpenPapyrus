@@ -2271,6 +2271,8 @@ class ppstr2 {
 	public static final int PPERR_APTEKARU_AUTHFAULT_NOGUA = 12255;
 	public static final int PPERR_APTEKARU_AUTHFAULT_INVATTRS = 12256;
 	public static final int PPERR_APTEKARU_AUTHFAULT = 12257;
+	public static final int PPERR_WSCTL_CLIPHONEREGISTERED = 12258;
+	public static final int PPERR_WSCTL_CLINAMEREGISTERED = 12259;
 	//
 	// .N.
 	//
@@ -4655,6 +4657,18 @@ class ppstr2 {
 	public static final int PPTXT_OPK_MP_TRANSFERTO = 12129;
 	public static final int PPFILNAM_MRKTPLC_LOG = 12130;
 	public static final int PPTXT_WAIT_GETTINGBILLLISTBYOP = 12132;
+	public static final int PPINIPARAM_RESTRICTCHZNCIGPRICEASMRC = 12133;
+	public static final int PPTXT_HUNGEDUPTAG = 12134;
+	public static final int PPTXT_SCANDBTABLE = 12135;
+	public static final int PPTXT_SEARCHINGUNGEDUPRECS = 12136;
+	public static final int PPFILNAM_HUNGEDUPTAGSERR_LOG = 12137;
+	public static final int PPINIPARAM_RESTRICTCHZNPMPRICE = 12138;
+	public static final int PPFILNAM_WSCTL_LOG = 12139;
+	public static final int PPTXT_PRNALLBILLS_NOFLTOP = 12140;
+	public static final int PPTXT_PRNALLBILLS_FLTOPISPOOL = 12141;
+	public static final int PPTXT_PRNALLBILLS_FLTOPISPAYMWOINVCOPT = 12142;
+	public static final int PPTXT_PRNALLBILLS_FLTOPGEN_NOCOMMOPTYP = 12143;
+	public static final int PPTXT_PRNALLBILLS_FLTOPGEN_NOCOMMACS = 12144;
 	//
 	// .N.
 	//
@@ -4816,6 +4830,8 @@ class ppstr2 {
 	public static final int DVCPARAM_UOMID = 10150;
 	public static final int DVCPARAM_CHZNPMREQID = 10151;
 	public static final int DVCPARAM_CHZNPMREQTIMESTAMP = 10152;
+	public static final int DVCPARAM_VATAMOUNT05 = 10153;
+	public static final int DVCPARAM_VATAMOUNT07 = 10154;
 	//
 	// .N.
 	//

@@ -904,7 +904,7 @@ IMPL_HANDLE_EVENT(TrfrItemDialog)
 								GetGoodsName(Item.GoodsID, item_info_buf);
 								double phupu = 0.0;
 								if(GObj.GetPhUPerU(Item.GoodsID, 0, &phupu) > 0 && phupu > 0.0) {
-									item_info_buf.Space().Cat(fabs(Item.Quantity_) * phupu, MKSFMTD(0, 3, 0));
+									item_info_buf.Space().Cat(fabs(Item.Quantity_) * phupu, MKSFMTD_030);
 								}
 								temp_buf.CatDiv('-', 1).Cat(item_info_buf);
 								vetis_view.SetOuterTitle(temp_buf);
@@ -3065,11 +3065,11 @@ SelLotBrowser::SelLotBrowser(PPObjBill * pBObj, SArray * pAry, uint pos, long fl
 				at_pos += 2;
 				if(Flags & fShowQtty) {
 					PPLoadString("qtty", temp_buf);
-					insertColumn(at_pos++, temp_buf, 14, T_DOUBLE, MKSFMTD(0, 3, 0), BCO_CAPRIGHT|BCO_USERPROC);
+					insertColumn(at_pos++, temp_buf, 14, T_DOUBLE, MKSFMTD_030, BCO_CAPRIGHT|BCO_USERPROC);
 				}
 				if(Flags & fShowPhQtty) {
 					PPLoadString("phqtty", temp_buf);
-					insertColumn(at_pos++, temp_buf, 15, T_DOUBLE, MKSFMTD(0, 3, 0), BCO_CAPRIGHT|BCO_USERPROC);
+					insertColumn(at_pos++, temp_buf, 15, T_DOUBLE, MKSFMTD_030, BCO_CAPRIGHT|BCO_USERPROC);
 				}
 			}
 		}

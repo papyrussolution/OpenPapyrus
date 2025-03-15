@@ -453,3 +453,117 @@ int SVerT::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 	CATCHZOK
 	return ok;
 }
+//
+//
+//
+bool SObjID_Base::IsZero() const { return (Obj == 0 && Id == 0); }
+
+SObjID_Base & SObjID_Base::Z()
+{
+	Obj = 0;
+	Id = 0;
+	return *this;
+}
+
+SObjID_Base SObjID_Base::Set(int32 objType, int32 objID)
+{
+	Obj = objType;
+	Id = objID;
+	return *this;
+}
+
+bool SObjID_Base::IsEq(int32 objType, int32 objID) const { return (Obj == objType && Id == objID); }
+bool FASTCALL SObjID_Base::operator == (SObjID_Base s) const { return (Obj == s.Obj && Id == s.Id); }
+bool FASTCALL SObjID_Base::operator != (SObjID_Base s) const { return (Obj != s.Obj || Id != s.Id); }
+
+
+double SObjID_Base::ToDouble() const { return ((Obj * 4.0E+9) + static_cast<double>(Id)); }
+
+bool SObjID_Base::FromDouble(double oid)
+{
+	Id = static_cast<long>(fmod(fabs(oid), 4.0E+9));
+	Obj = static_cast<long>(fabs(oid) / 4.0E+9);
+	return true;
+}
+
+SObjID_Base::operator double() const { return ToDouble(); }
+
+SObjID_Base & FASTCALL SObjID_Base::operator = (double oid)
+{
+	FromDouble(oid);
+	return *this;
+}
+
+/* @construction
+SString & FASTCALL SObjID_Base::ToStr(SString & rBuf) const
+{
+	rBuf.Z();
+	if(!DS.GetObjectTypeSymb(Obj, rBuf)) 
+		rBuf.Cat("Obj").CatChar('[').Cat(Obj).CatChar(']');
+	if(Id)
+		rBuf.CatChar('(').Cat(Id).CatChar(')');
+	return rBuf;
+}
+
+int FASTCALL SObjID_Base::FromStr(const char * pStr)
+{
+	int    ok = 0;
+	SStrScan scan(pStr);
+	SString temp_buf;
+	scan.Skip();
+	if(scan.GetIdent(temp_buf)) {
+		long   extra = 0;
+		PPID   lval = DS.GetObjectTypeBySymb(temp_buf, &extra);
+		if(lval) {
+			Obj = lval;
+			ok = 1;
+			scan.Skip();
+			if(scan[0] == '(') {
+				scan.Incr();
+				if(scan.GetNumber(temp_buf)) {
+					lval = temp_buf.ToLong();
+					scan.Skip();
+					if(scan[0] == ')') {
+						Id = lval;
+						ok = 2;
+					}
+				}
+			}
+		}
+	}
+	return ok;
+}*/
+
+SObjID::SObjID()
+{
+	Obj = 0;
+	Id = 0;
+}
+
+SObjID::SObjID(const SObjID_Base & rS)
+{
+	Obj = rS.Obj;
+	Id = rS.Id;
+}
+
+SObjID::SObjID(int32 objType, int32 objID)
+{
+	Obj = objType;
+	Id = objID;
+}
+
+SObjID & FASTCALL SObjID::operator = (const SObjID_Base & rS)
+{
+	Obj = rS.Obj;
+	Id = rS.Id;
+	return *this;
+}
+
+int SObjID::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx) // @v11.7.0
+{
+	int    ok = 1;
+	THROW(pSCtx->Serialize(dir, Obj, rBuf));
+	THROW(pSCtx->Serialize(dir, Id, rBuf));
+	CATCHZOK
+	return ok;	
+}

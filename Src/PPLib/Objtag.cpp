@@ -572,8 +572,8 @@ static int SelectObjTagType(PPObjectTag * pData, const ObjTagFilt * pObjTagF)
 			RVALUEPTR(Filt, pObjTagF);
 			TagObjTypeList.addzlist(PPOBJ_PERSON, PPOBJ_GOODS, PPOBJ_BILL, PPOBJ_LOT, PPOBJ_WORKBOOK,
 				PPOBJ_LOCATION, PPOBJ_GLOBALUSERACC, PPOBJ_UHTTSTORE, PPOBJ_CASHNODE, PPOBJ_TRANSPORT, PPOBJ_BRAND, PPOBJ_PROCESSOR, 
-				PPOBJ_PROJECT, 0); 
-			// @v11.2.12 PPOBJ_TRANSPORT, PPOBJ_BRAND // @v11.7.2 PPOBJ_PROCESSOR // @v12.2.6 PPOBJ_PROJECT
+				PPOBJ_PROJECT, PPOBJ_LOCATION, 0); 
+			// @v11.2.12 PPOBJ_TRANSPORT, PPOBJ_BRAND // @v11.7.2 PPOBJ_PROCESSOR // @v12.2.6 PPOBJ_PROJECT // @v12.2.10 PPOBJ_LOCATION
 		}
 		DECL_DIALOG_SETDTS()
 		{
@@ -644,8 +644,8 @@ static int SelectObjTagType(PPObjectTag * pData, const ObjTagFilt * pObjTagF)
 		void   SetupTagObjType()
 		{
 			LinkObjTypeList.addzlist(PPOBJ_QCERT, PPOBJ_PERSON, PPOBJ_QUOTKIND, PPOBJ_GLOBALUSERACC, 
-				PPOBJ_TAXSYSTEMKIND, PPOBJ_INTERNETACCOUNT, PPOBJ_TRANSPORT, PPOBJ_TAG, PPOBJ_WORLD, PPOBJ_ACCOUNT2, PPOBJ_GOODSTAX, 0); 
-			// @v11.2.9 PPOBJ_WORLD // @v12.1.3 PPOBJ_ACCOUNT2 // @v12.1.12 PPOBJ_GOODSTAX
+				PPOBJ_TAXSYSTEMKIND, PPOBJ_INTERNETACCOUNT, PPOBJ_TRANSPORT, PPOBJ_TAG, PPOBJ_WORLD, PPOBJ_ACCOUNT2, PPOBJ_GOODSTAX, PPOBJ_LOCATION, 0); 
+			// @v11.2.9 PPOBJ_WORLD // @v12.1.3 PPOBJ_ACCOUNT2 // @v12.1.12 PPOBJ_GOODSTAX // @v12.2.10 PPOBJ_LOCATION
 			P_ObjTypeList = &LinkObjTypeList;
 			DisableClusterItem(CTL_OBJTAG_TYPE, 7, BIN(!P_ObjTypeList));
 			SetupObjType();
@@ -666,6 +666,9 @@ static int SelectObjTagType(PPObjectTag * pData, const ObjTagFilt * pObjTagF)
 			int    dsbl = 0;
 			switch(obj_type) {
 				case PPOBJ_PERSON:
+				case PPOBJ_LOCATION: // @v12.2.10 при выборе локации доп объект так же вид персоналии,
+						// поскольку для этого случая предусмотрен специальный диалог, где сначала
+						// выбирают персоналию и потом - локацию, принадлежащую этой персоналии.
 					SetupPPObjCombo(this, CTLSEL_OBJTAG_OBJGRP, PPOBJ_PERSONKIND, Data.LinkObjGrp, OLW_CANINSERT, 0);
 					break;
 				case PPOBJ_GLOBALUSERACC:
@@ -1029,7 +1032,7 @@ int PPObjTag::Edit(PPID * pID, void * extraPtr)
 			ObjTagItem::GetTypeString(typ, Data.Rec.TagEnumID, typ_name_buf);
 			if(typ == OTTYP_OBJLINK) {
 				bool   dsbl = true;
-				if(Data.Rec.TagEnumID == PPOBJ_PERSON) {
+				if(oneof2(Data.Rec.TagEnumID, PPOBJ_PERSON, PPOBJ_LOCATION)) { // @v12.2.10 PPOBJ_LOCATION
 					dsbl = false;
 					SetupPPObjCombo(this, CTLSEL_OBJTAG_OBJGRP, PPOBJ_PERSONKIND, Data.Rec.LinkObjGrp, OLW_CANINSERT, 0);
 				}
@@ -2265,23 +2268,28 @@ TagDlgParam::TagDlgParam() : ObjType(0), ObjID(0), BoolDlgID(0), NmbDlgID(0), Ln
 {
 }
 
-int TagDlgParam::GetDlgID(long tagDataType, uint * pDlgID) const
+bool TagDlgParam::GetDlgID(/*long tagDataType*/const ObjTagItem & rTagItem, uint * pDlgID) const
 {
 	uint   rez_id = 0;
-	switch(tagDataType) {
+	switch(/*tagDataType*/rTagItem.TagDataType) {
 		case OTTYP_BOOL:      rez_id = BoolDlgID; break;
 		case OTTYP_STRING:    rez_id = StrDlgID;  break;
 		case OTTYP_NUMBER:    rez_id = NmbDlgID;  break;
 		case OTTYP_INT:       rez_id = IntDlgID;  break; // @v11.8.12
 		case OTTYP_ENUM:
-		case OTTYP_OBJLINK:   rez_id = LnkDlgID;  break;
+		case OTTYP_OBJLINK:
+			if(rTagItem.TagEnumID == PPOBJ_LOCATION)
+				rez_id = LnkPersonLocationDlgID; // @v12.2.10
+			else
+				rez_id = LnkDlgID;
+			break;
 		case OTTYP_DATE:      rez_id = DateDlgID; break;
 		case OTTYP_TIMESTAMP: rez_id = TimestampDlgID; break;
 		case OTTYP_GUID:      rez_id = GuidDlgID; break;
 		case OTTYP_IMAGE:     rez_id = ImgDlgID;  break;
 	}
 	ASSIGN_PTR(pDlgID, rez_id);
-	return BIN(rez_id);
+	return LOGIC(rez_id);
 }
 
 int TagDlgParam::SetDlgData(TDialog * dlg, const ObjTagItem * pItem)
@@ -2309,7 +2317,7 @@ int TagDlgParam::SetDlgData(TDialog * dlg, const ObjTagItem * pItem)
 			dlg->selectCtrl(ValBoolCtl);
 			break;
 		case OTTYP_STRING:
-			PTR32(val.s)[0] = 0;
+			val.s[0] = 0;
 			dlg->setCtrlData(ValStrCtl, STRNSCPY(val.s, pItem->Val.PStr));
 			dlg->selectCtrl(ValStrCtl);
 			break;
@@ -2331,6 +2339,49 @@ int TagDlgParam::SetDlgData(TDialog * dlg, const ObjTagItem * pItem)
 			else if(tag.TagEnumID == PPOBJ_ARTICLE) { // @v12.0.7
 				SetupArCombo(dlg, ValLnkCtl, pItem->Val.IntVal, OLW_CANINSERT, tag.LinkObjGrp, sacfDisableIfZeroSheet);
 			}
+			else if(tag.TagEnumID == PPOBJ_LOCATION) { // @v12.2.10
+				PPID   loc_id = pItem->Val.IntVal;
+				PPID   person_id = 0;
+				PPID   psn_kind_id = tag.LinkObjGrp;
+				if(psn_kind_id) {
+					PPObjPersonKind pk_obj;
+					PPPersonKind2 pk_rec;
+					if(pk_obj.Search(psn_kind_id, &pk_rec) > 0) {
+						;
+					}
+					else {
+						psn_kind_id = 0;
+					}
+				}
+				if(loc_id) {
+					PPObjLocation loc_obj;
+					LocationTbl::Rec loc_rec;
+					if(loc_obj.Search(loc_id, &loc_rec) > 0) {
+						if(loc_rec.OwnerID) {
+							PPObjPerson psn_obj;
+							PersonTbl::Rec psn_rec;
+							if(psn_obj.Search(loc_rec.OwnerID, &psn_rec) > 0) {
+								person_id = loc_rec.OwnerID;
+								if(psn_obj.P_Tbl->IsBelongsToKind(psn_rec.ID, psn_kind_id) > 0) {
+									;
+								}
+								else {
+									// Персоналия, к которой относится текущий адрес, на который ссылается тег
+									// не принадлежит виду персоналий определенному в теге.
+									// Черт его знает как на это реагировать. Но что-то придумать надо.
+								}
+							}
+						}
+					}
+				}
+				SetupPersonCombo(dlg, CTLSEL_TAGV_HOBJ1, person_id, 0, psn_kind_id, 0);
+				{
+					LocationFilt loc_flt;
+					loc_flt.LocType = LOCTYP_ADDRESS;
+					loc_flt.Owner = person_id;
+					SetupLocationCombo(dlg, ValLnkCtl, loc_id, OLW_CANINSERT, &loc_flt);
+				}
+			}
 			else {
 				SetupPPObjCombo(dlg, ValLnkCtl, tag.TagEnumID, pItem->Val.IntVal, OLW_CANINSERT, reinterpret_cast<void *>(tag.LinkObjGrp));
 			}
@@ -2349,12 +2400,12 @@ int TagDlgParam::SetDlgData(TDialog * dlg, const ObjTagItem * pItem)
 			dlg->selectCtrl(ValDateCtl);
 			break;
 		case OTTYP_GUID:
-			PTR32(val.s)[0] = 0;
+			val.s[0] = 0;
 			dlg->setCtrlData(ValGuidCtl, STRNSCPY(val.s, pItem->Val.PStr));
 			dlg->selectCtrl(ValGuidCtl);
 			break;
 		case OTTYP_IMAGE:
-			PTR32(val.s)[0];
+			val.s[0];
 			const SString path(pItem->Val.PStr);
 			ImageBrowseCtrlGroup::Rec grp_rec(&path);
 			if(dlg->getGroup(GRP_IMG) == 0)
@@ -2369,14 +2420,15 @@ int TagDlgParam::SetDlgData(TDialog * dlg, const ObjTagItem * pItem)
 int TagDlgParam::GetDlgData(TDialog * dlg, ObjTagItem * pItem)
 {
 	int    ok = 1;
-	long   typ = pItem->TagDataType;
+	const  long typ = pItem->TagDataType;
 	TagDlgVal val;
 	if(typ == OTTYP_BOOL) {
 		dlg->getCtrlData(ValBoolCtl, &val.b);
 		pItem->Val.IntVal = BIN(val.b);
 	}
 	else if(typ == OTTYP_STRING) {
-		SString temp_buf, mark_buf;
+		SString temp_buf;
+		SString mark_buf;
 		dlg->getCtrlString(ValStrCtl, temp_buf);
 		temp_buf.Strip();
 		if(pItem->TagID == PPTAG_LOT_FSRARLOTGOODSCODE) {
@@ -2495,10 +2547,32 @@ static int EditPosRights(ObjTagItem * pItem)
 int STDCALL EditObjTagItem(PPID objType, PPID objID, ObjTagItem * pItem, const PPIDArray * pAllowedTags)
 {
 	class TagValDialog : public TDialog {
+		DECL_DIALOG_DATA(ObjTagItem);
 	public:
-		TagValDialog(uint resID, const ObjTagItem * pItem, PPID objID) : TDialog(resID), ObjID(objID)
+		TagValDialog(uint resID, PPID objID, TagDlgParam & rTdp) : TDialog(resID), ObjID(objID), R_Tdp(rTdp)
 		{
-			RVALUEPTR(Item, pItem);
+		}
+		DECL_DIALOG_SETDTS()
+		{
+			int    ok = 1;
+			RVALUEPTR(Data, pData);
+			if(R_Tdp.SetDlgData(this, &Data)) {
+				;
+			}
+			else {
+				ok = 0;
+			}
+			return ok;
+		}
+		DECL_DIALOG_GETDTS()
+		{
+			int    ok = 1;
+			if(!R_Tdp.GetDlgData(this, &Data))
+				ok = 0;
+			else {
+				ASSIGN_PTR(pData, Data);
+			}
+			return ok;
 		}
 	private:
 		DECL_HANDLE_EVENT
@@ -2513,7 +2587,7 @@ int STDCALL EditObjTagItem(PPID objType, PPID objID, ObjTagItem * pItem, const P
 				if(ObjID) {
 					PPObjTag tag_obj;
 					PPObjectTag tag;
-					if(tag_obj.Fetch(Item.TagID, &tag) > 0 && tag.ObjTypeID) {
+					if(tag_obj.Fetch(Data.TagID, &tag) > 0 && tag.ObjTypeID) {
 						if(EditPPObj(tag.ObjTypeID, ObjID) > 0) {
 							SString obj_name;
 							if(GetObjectName(tag.ObjTypeID, ObjID, obj_name) > 0)
@@ -2522,14 +2596,29 @@ int STDCALL EditObjTagItem(PPID objType, PPID objID, ObjTagItem * pItem, const P
 					}
 				}
 			}
+			else if(event.isCbSelected(CTLSEL_TAGV_HOBJ1)) { // @v12.2.10
+				PPObjTag tag_obj;
+				PPObjectTag tag;
+				if(tag_obj.Fetch(Data.TagID, &tag) > 0) {
+					if(tag.TagDataType == OTTYP_OBJLINK && tag.TagEnumID == PPOBJ_LOCATION) {
+						PPID person_id = getCtrlLong(CTLSEL_TAGV_HOBJ1);
+						{
+							LocationFilt loc_flt;
+							loc_flt.LocType = LOCTYP_ADDRESS;
+							loc_flt.Owner = person_id;
+							SetupLocationCombo(this, R_Tdp.ValLnkCtl, 0, OLW_CANINSERT, &loc_flt);
+						}
+					}
+				}
+			}
 			else if(event.isKeyDown(kbF2)) {
 				const uint ctl_id = GetCurrId();
 				if(oneof2(ctl_id, CTL_TAGV_LINK, CTLSEL_TAGV_LINK)) {
 					ComboBox * p_combo = static_cast<ComboBox *>(getCtrlView(CTLSEL_TAGV_LINK));
-					if(p_combo && Item.TagDataType == OTTYP_OBJLINK) {
+					if(p_combo && Data.TagDataType == OTTYP_OBJLINK) {
 						PPObjTag tag_obj;
 						PPObjectTag tag;
-						if(tag_obj.Fetch(Item.TagID, &tag) > 0) {
+						if(tag_obj.Fetch(Data.TagID, &tag) > 0) {
 							if(tag.TagEnumID == PPOBJ_PERSON && tag.LinkObjGrp) {
 								PPObjPersonKind pk_obj;
 								PPPersonKind pk_rec;
@@ -2552,11 +2641,11 @@ int STDCALL EditObjTagItem(PPID objType, PPID objID, ObjTagItem * pItem, const P
 					}
 				}
 				else if(ctl_id == CTL_TAGV_STR) {
-					if(oneof7(Item.TagID, PPTAG_GUA_GOODSRIGHTS, PPTAG_GUA_PERSONRIGHTS,
+					if(oneof7(Data.TagID, PPTAG_GUA_GOODSRIGHTS, PPTAG_GUA_PERSONRIGHTS,
 						PPTAG_GUA_SCARDRIGHTS, PPTAG_GUA_FILESRIGHTS, PPTAG_GUA_SALOCRIGHTS, PPTAG_GUA_TSESSRIGHTS, PPTAG_GUA_PRCRIGHTS)) {
 						SString line_buf;
 						getCtrlString(CTL_TAGV_STR, line_buf);
-						if(PPGlobalAccRights::EditDialog(Item.TagID, line_buf) > 0) {
+						if(PPGlobalAccRights::EditDialog(Data.TagID, line_buf) > 0) {
 							setCtrlString(CTL_TAGV_STR, line_buf);
 						}
 					}
@@ -2567,7 +2656,7 @@ int STDCALL EditObjTagItem(PPID objType, PPID objID, ObjTagItem * pItem, const P
 			clearEvent(event);
 		}
 		const  PPID ObjID;
-		ObjTagItem Item;
+		TagDlgParam & R_Tdp; // @v12.2.10
 	};
 	int    ok = -1;
 	int    r;
@@ -2581,6 +2670,7 @@ int STDCALL EditObjTagItem(PPID objType, PPID objID, ObjTagItem * pItem, const P
 	param.StrDlgID   = DLG_TAGVSTR;
 	param.NmbDlgID   = DLG_TAGVNMB;
 	param.LnkDlgID   = DLG_TAGVLNK;
+	param.LnkPersonLocationDlgID = DLG_TAGVLOCLNK; // @v12.2.10
 	param.DateDlgID  = DLG_TAGVDATE;
 	param.TimestampDlgID = DLG_TAGVTIMESTAMP;
 	param.GuidDlgID  = DLG_TAGVGUID;
@@ -2659,11 +2749,13 @@ int STDCALL EditObjTagItem(PPID objType, PPID objID, ObjTagItem * pItem, const P
 		}
 	}
 	else {
-		param.GetDlgID(pItem->TagDataType, &dlg_id);
-		THROW(CheckDialogPtr(&(dlg = new TagValDialog(dlg_id, pItem, objID))));
-		THROW(param.SetDlgData(dlg, pItem));
+		param.GetDlgID(*pItem/*pItem->TagDataType*/, &dlg_id);
+		THROW(CheckDialogPtr(&(dlg = new TagValDialog(dlg_id, objID, param))));
+		// @v12.2.10 THROW(param.SetDlgData(dlg, pItem));
+		dlg->setDTS(pItem); // @v12.2.10 
 		while(!valid_data && (r = ExecView(dlg)) == cmOK)
-			if(param.GetDlgData(dlg, pItem))
+			// @v12.2.10 if(param.GetDlgData(dlg, pItem))
+			if(dlg->getDTS(pItem)) // @v12.2.10
 				ok = valid_data = 1;
 			else
 				PPError();

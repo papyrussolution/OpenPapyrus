@@ -999,13 +999,13 @@ int BillCore::EnumLinks(PPID id, DateIter * diter, uint blnk, BillTbl::Rec * pRe
 		BillTbl::Rec bill_rec;
 		if(blnk == BLNK_ALL)                                    break;
 		if(blnk & BLNK_SHADOW && data.OpID == 0)                break;
-		const  PPID op_type = GetOpType(data.OpID, &op_rec);
-		if(blnk & BLNK_PAYMENT && op_type == PPOPT_PAYMENT)     break;
-		if(blnk & BLNK_RETURN  && op_type == PPOPT_GOODSRETURN) break;
-		if(blnk & BLNK_CHARGE  && op_type == PPOPT_CHARGE)      break;
-		if(blnk & BLNK_ACK     && op_type == PPOPT_GOODSACK)    break;
-		if(blnk & BLNK_CORRECTION && op_type == PPOPT_CORRECTION)  break;
-		if(blnk & BLNK_CHARGEPAYM && op_type == PPOPT_CHARGE && op_rec.Flags & OPKF_CHARGENEGPAYM) break;
+		const PPID op_type_id = GetOpType(data.OpID, &op_rec);
+		if(blnk & BLNK_PAYMENT && op_type_id == PPOPT_PAYMENT)     break;
+		if(blnk & BLNK_RETURN  && op_type_id == PPOPT_GOODSRETURN) break;
+		if(blnk & BLNK_CHARGE  && op_type_id == PPOPT_CHARGE)      break;
+		if(blnk & BLNK_ACK     && op_type_id == PPOPT_GOODSACK)    break;
+		if(blnk & BLNK_CORRECTION && op_type_id == PPOPT_CORRECTION)  break;
+		if(blnk & BLNK_CHARGEPAYM && op_type_id == PPOPT_CHARGE && op_rec.Flags & OPKF_CHARGENEGPAYM) break;
 		if(blnk & BLNK_EDIRECADV && data.OpID == PPOPK_EDI_RECADV) break;
 		if(blnk & BLNK_WROFFDRAFT) {
 			if(BillObj->Fetch(id, &bill_rec) > 0 && IsDraftOp(bill_rec.OpID))

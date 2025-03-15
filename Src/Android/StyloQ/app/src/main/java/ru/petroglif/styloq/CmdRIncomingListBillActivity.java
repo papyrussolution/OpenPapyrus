@@ -47,6 +47,7 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 	private ScanDevice ScanDvc; // @v12.2.2
 	private ArrayList <Document.EditAction> DocEditActionList;
 	private ArrayList <BusinessEntity.CliDocStatus> DocStatusList;
+	private BarcodeScannerClipboardReader BSCReader; // @v12.2.10
 	enum ScanType {
 		Undef,
 		Veriy,
@@ -147,6 +148,7 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 		RefreshSvcDataPollTmr = null; // @v11.6.2
 		LastRefreshTime = 0; // @v11.6.4
 		DocsSharingEnabled = false; // @v11.9.0
+		BSCReader = null; // @v12.2.10
 	}
 	private void CreateTabList(boolean force)
 	{
@@ -931,6 +933,19 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 								RefreshSvcDataPollTmr.schedule(new TimerTask_RefreshSvcDataPoll(app_ctx, this), 1 * 60 * 1000, RefreshSvcDataPollPeriodMs);
 							}
 							// } @v11.6.2
+							// @v12.2.10 {
+							{
+								if((CPM.GetOwnCfgUserFlags() & StyloQConfig.userfClipboardBcScanner) != 0) {
+									if(BSCReader == null) {
+										BSCReader = new BarcodeScannerClipboardReader(app_ctx, this);
+									}
+									BSCReader.RegisterListener();
+								}
+								else {
+									BSCReader = null;
+								}
+							}
+							// } @v12.2.10
 						}
 					} catch(StyloQException exn) {
 						;
@@ -942,6 +957,11 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 					ScanDvc.stopScan ();
 					ScanDvc.setScanLaserMode (8);
 					ScanDvc.closeScan ();
+					// @v12.2.10 {
+					if(BSCReader != null) {
+						BSCReader.UnregisterListener();
+					}
+					// } @v12.2.10
 				}
 				break;
 			case SLib.EV_PAUSE: // @v12.2.2
@@ -954,6 +974,19 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 					IntentFilter filter = new IntentFilter();
 					filter.addAction(/*SCAN_ACTION*/"scan.rcv.message");
 					registerReceiver(BarcodeScanDeviceReceiver, filter);
+					// @v12.2.10 {
+					StyloQApp app_ctx = GetAppCtx();
+					if(app_ctx != null) {
+						if((CPM.GetOwnCfgUserFlags() & StyloQConfig.userfClipboardBcScanner) != 0) {
+							if(BSCReader == null) {
+								BSCReader = new BarcodeScannerClipboardReader(app_ctx, this);
+							}
+							BSCReader.RegisterListener();
+						}
+						else
+							BSCReader = null;
+					}
+					// } @v12.2.10
 				}
 				break;
 			case SLib.EV_TABSELECTED:
@@ -2122,6 +2155,12 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 						SLib.LDATETIME svc_dtm = CPM.GetSvcDataDtm();
 						result = svc_dtm;
 					}
+				}
+				break;
+			case SLib.EV_BARCODERECEIVED:
+				if(subj != null && subj instanceof BusinessEntity.PreprocessBarcodeResult) {
+					BusinessEntity.PreprocessBarcodeResult pbr = (BusinessEntity.PreprocessBarcodeResult)subj;
+					AcceptBarcodeInput(pbr.OriginalCode);
 				}
 				break;
 		}

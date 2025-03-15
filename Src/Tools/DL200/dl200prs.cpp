@@ -1165,9 +1165,9 @@ int PrcssrDL200::FinishOutput()
 	return 1;
 }
 
-int PrcssrDL200::InitParam(Param * p)
+int PrcssrDL200::InitParam(Param * pParam)
 {
-	memzero(p, sizeof(Param));
+	memzero(pParam, sizeof(*pParam));
 	return 1;
 }
 

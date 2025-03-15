@@ -48,6 +48,13 @@
             android:inputType="numberDecimal"
             android:hint="@{styloqprivconfig_notificationactualdays}" />
     </com.google.android.material.textfield.TextInputLayout>
+
+    <CheckBox android:id="@+id/CTL_PRIVCFG_CLIPBOARDBCSCANNER"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@{styloqprivconfig_clipboardbcscanner}"
+        />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

@@ -857,7 +857,7 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 							THROW_PP_S(gobj.Search(p_item->GoodsID, &goods_rec) > 0, PPERR_SQ_INDOCGOODSNFOUND, (temp_buf = doc_text).Space().
 								CatChar('[').CatEq("ln", i+1).Space().CatEq("GoodsID", p_item->GoodsID).CatChar(']'));
 							THROW_PP_S(p_item->Set.Qtty > 0.0, PPERR_SQ_INDOCINVQTTY, (temp_buf = doc_text).Space().
-								CatChar('[').CatEq("ln", i+1).Space().CatEq("Qtty", p_item->Set.Qtty, MKSFMTD(0, 3, 0)));
+								CatChar('[').CatEq("ln", i+1).Space().CatEq("Qtty", p_item->Set.Qtty, MKSFMTD_030));
 						}
 					}
 					{
@@ -1122,11 +1122,11 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 							// до этого сервис переслал клиенту, либо при создании документа клиентом, но в рамках спецификации,
 							// определенной сервисом.
 							THROW_PP_S(PPTransferItem::GetSign(svc_op_id, 0) < 0, PPERR_SQ_INDOCINVQTTY, (temp_buf = doc_text).Space().
-								CatChar('[').CatEq("ln", i+1).Space().CatEq("Qtty", p_item->Set.Qtty, MKSFMTD(0, 3, 0)));
+								CatChar('[').CatEq("ln", i+1).Space().CatEq("Qtty", p_item->Set.Qtty, MKSFMTD_030));
 						}
 						else {
 							THROW_PP_S(p_item->Set.Qtty > 0.0, PPERR_SQ_INDOCINVQTTY, (temp_buf = doc_text).Space().
-								CatChar('[').CatEq("ln", i+1).Space().CatEq("Qtty", p_item->Set.Qtty, MKSFMTD(0, 3, 0)));
+								CatChar('[').CatEq("ln", i+1).Space().CatEq("Qtty", p_item->Set.Qtty, MKSFMTD_030));
 						}
 					}
 				}

@@ -395,23 +395,35 @@ int SFileEntryPool::Add(const char * pPath, const char * pRemoteUrl, long flags)
 	return ok;
 }
 
-int SFileEntryPool::Helper_Scan(const char * pPath, const char * pWildcard, long flags)
+//int    Helper_Scan(const char * pPath, const StringSet & rSsWildcards, long flags);
+
+int SFileEntryPool::Helper_Scan(const char * pPath, /*const char * pWildcard*/const StringSet & rSsWildcards, long flags)
 {
 	int    ok = -1;
 	uint   non_ascii_count = 0; // @debug
 	assert(!isempty(pPath)); // Вызывающая функция обязана проверить это условие
 	SDirEntry fb;
 	SString temp_buf;
+	SString wildcard_buf;
 	const bool do_recursive = LOGIC(flags & scanfRecursive);
 	const bool reckon_dirs = LOGIC(flags & scanfReckonDirs); // @v11.8.10
+	const uint wildcard_count = rSsWildcards.getCount(); // @v12.2.10
 	temp_buf = pPath;
-	if(pWildcard) {
-		if(do_recursive || (flags & scanfReckonUpFolder)) {
+	{
+		SString single_wildcard;
+		if(wildcard_count == 1 && !do_recursive && !(flags & scanfReckonUpFolder)) {
+			rSsWildcards.get(0U, single_wildcard);
+		}
+		if(single_wildcard.NotEmpty())
+			temp_buf.SetLastSlash().Cat(single_wildcard);
+		else
+			temp_buf.SetLastSlash().Cat("*.*");
+		/*if(do_recursive || (flags & scanfReckonUpFolder) || wildcard_count != 1) {
 			temp_buf.SetLastSlash().Cat("*.*");
 		}
 		else {
 			temp_buf.SetLastSlash().Cat(pWildcard);
-		}
+		}*/
 	}
 	//scanfReckonDirs
 	for(SDirec sdirec(temp_buf, 0); sdirec.Next(&fb) > 0;) {
@@ -429,15 +441,28 @@ int SFileEntryPool::Helper_Scan(const char * pPath, const char * pWildcard, long
 		}
 		else if(!fb.IsSelf()) {
 			if(fb.IsFile()) {
-				if(isempty(pWildcard) || sstreq(pWildcard, "*.*") || SFile::WildcardMatch(pWildcard, fb.GetNameUtf8(temp_buf))) {
+				bool   is_suited = false;
+				if(!wildcard_count)
+					is_suited = true;
+				else {
+					for(uint ssp = 0; !is_suited && rSsWildcards.get(&ssp, wildcard_buf);) {
+						if(wildcard_buf.IsEmpty() || wildcard_buf == "*.*" || wildcard_buf == ".") {
+							is_suited = true;
+						}
+					}
+				}
+				if(is_suited) {
 					THROW(Add(pPath, fb, flags));	
 				}
+				/*if(isempty(pWildcard) || sstreq(pWildcard, "*.*") || SFile::WildcardMatch(pWildcard, fb.GetNameUtf8(temp_buf))) {
+					THROW(Add(pPath, fb, flags));	
+				}*/
 				ok = 1;
 			}
 			else if(fb.IsFolder()) {
 				if(do_recursive) {
 					fb.GetNameUtf8(pPath, temp_buf);
-					const int r = Helper_Scan(temp_buf, pWildcard, flags); // @recursion
+					const int r = Helper_Scan(temp_buf, rSsWildcards, flags); // @recursion
 					THROW(r);
 					if(r > 0)
 						ok = 1;
@@ -450,6 +475,29 @@ int SFileEntryPool::Helper_Scan(const char * pPath, const char * pWildcard, long
 		}
 	}
 	CATCHZOK
+	return ok;
+}
+
+int SFileEntryPool::Scan(const char * pPath, const StringSet & rSsWildcards, long flags) // @v12.2.10
+{
+	Z();
+	int    ok = -1;
+	if(!isempty(pPath)) {
+		SString & r_temp_buf = SLS.AcquireRvlStr();
+		r_temp_buf = pPath; // @v11.3.12 @fix
+		StringSet ss_wildcards(rSsWildcards);
+		if(ss_wildcards.getCount()) {
+			r_temp_buf.SetLastSlash();
+			SetInitPath(r_temp_buf);
+		}
+		else {
+			const SFsPath ps(pPath);
+			ps.Merge(~(SFsPath::fNam|SFsPath::fExt), r_temp_buf);
+			SetInitPath(r_temp_buf.SetLastSlash());
+			ss_wildcards.add("*.*");
+		}
+		ok = Helper_Scan(pPath, ss_wildcards, flags);
+	}
 	return ok;
 }
 
@@ -470,7 +518,11 @@ int SFileEntryPool::Scan(const char * pPath, const char * pWildcard, long flags)
 			SetInitPath(r_temp_buf.SetLastSlash());
 			pWildcard = "*.*"; // @v11.8.10
 		}
-		ok = Helper_Scan(pPath, pWildcard, flags);
+		{
+			StringSet ss_wildcards;
+			ss_wildcards.add(pWildcard);
+			ok = Helper_Scan(pPath, ss_wildcards, flags);
+		}
 	}
 	return ok;
 }

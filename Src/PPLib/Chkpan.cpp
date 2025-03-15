@@ -5059,11 +5059,17 @@ void SelCheckListDialog::Helper_Constructor(CPosProcessor * pSrv, const AddedPar
 	}
 	// @v12.2.8 {
 	if(P_AddParam && (P_AddParam->Flags & AddedParam::fRetOrCorrSelection)) {
-		if(Op == CPosProcessor::opGeneral)
+		const bool correctiona_enabled = false; // @v12.2.10 Пока блокируем возможность выбора коррекции - надо еще поработать над механизмами.
+		if(correctiona_enabled)
 			Op = CPosProcessor::opReturn;
+		else {
+			if(Op == CPosProcessor::opGeneral)
+				Op = CPosProcessor::opReturn;
+		}
 		AddClusterAssocDef(CTL_SELCHECK_OP, 0, CPosProcessor::opReturn);
 		AddClusterAssocDef(CTL_SELCHECK_OP, 1, CPosProcessor::opCorrection);
 		SetClusterData(CTL_SELCHECK_OP, Op);
+		DisableClusterItem(CTL_SELCHECK_OP, 1, !correctiona_enabled);
 	}
 	else {
 		showCtrl(CTL_SELCHECK_OP, false);
@@ -9966,7 +9972,7 @@ void FASTCALL CheckPaneDialog::SelectGoods__(int mode)
 								const SaModifEntry & r_entry = List.at(i);
 								GetGoodsName(r_entry.GoodsID, sub);
 								ss.add(sub);
-								ss.add(sub.Z().Cat(r_entry.Qtty, MKSFMTD(0, 3, 0)));
+								ss.add(sub.Z().Cat(r_entry.Qtty, MKSFMTD_030));
 								ss.add(sub.Z().Cat(r_entry.Price, SFMT_MONEY));
 								addStringToList(i+1, ss.getBuf());
 							}

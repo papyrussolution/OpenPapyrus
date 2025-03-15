@@ -1,5 +1,5 @@
 // TEST-UED.CPP
-// Copyright (c) A.Sobolev 2023, 2024
+// Copyright (c) A.Sobolev 2023, 2024, 2025
 // @codepage UTF-8
 // Тестирование технологии UED
 //
@@ -153,7 +153,7 @@ SLTEST_R(UED)
 			SLCHECK_EQ_TOL(gp_.Lat, gp.Lat, 1e-4);
 			SLCHECK_EQ_TOL(gp_.Lon, gp.Lon, 1e-4);
 			geo.Inverse(gp, gp_, &dist, 0, 0, 0, 0, 0, 0);
-			temp_buf.Z().CatEq("Distance", dist, MKSFMTD(0, 3, 0));
+			temp_buf.Z().CatEq("Distance", dist, MKSFMTD_030);
 			SetInfo(temp_buf);
 		}
 		{
@@ -191,7 +191,7 @@ SLTEST_R(UED)
 							SLCHECK_EQ_TOL(gp_.Lat, gp.Lat, 1e-5);
 							SLCHECK_EQ_TOL(gp_.Lon, gp.Lon, 1e-5);
 							geo.Inverse(gp, gp_, &dist, 0, 0, 0, 0, 0, 0);
-							temp_buf.Z().CatEq("Distance", dist, MKSFMTD(0, 3, 0));								
+							temp_buf.Z().CatEq("Distance", dist, MKSFMTD_030);								
 						}
 					}
 				}
@@ -306,6 +306,48 @@ SLTEST_R(UED)
 		java_path = out_path;
 		PPLogger logger(PPLogger::fStdErr);
 		int    r = ProcessUed(src_file_name, out_path, rt_out_path, c_path, java_path, flags, &logger);
+	}
+	{
+		//static uint64 SetRaw_Oid(SObjID oid);
+		//static bool   GetRaw_Oid(uint64 ued, SObjID & rOid);
+		static const SObjID oid_list[] = {
+			{ PPOBJ_GOODS, 0 },
+			{ PPOBJ_GOODS, 1 },
+			{ PPOBJ_GOODS, 0x7ffffffe },
+			{ PPOBJ_PERSON, 0 },
+			{ PPOBJ_PERSON, 1 },
+			{ PPOBJ_PERSON, 0x7ffffffe },
+			{ PPOBJ_LOCATION, 0 },
+			{ PPOBJ_LOCATION, 1 },
+			{ PPOBJ_LOCATION, 0x7ffffffe },
+			{ PPOBJ_BILL, 0 },
+			{ PPOBJ_BILL, 1 },
+			{ PPOBJ_BILL, 0x7ffffffe },
+			{ PPOBJ_LOT, 0 },
+			{ PPOBJ_LOT, 1 },
+			{ PPOBJ_LOT, 0x7ffffffe },
+		};
+		for(uint i = 0; i < SIZEOFARRAY(oid_list); i++) {
+			const SObjID & r_oid_pattern = oid_list[i];
+			SObjID oid;
+			const  uint64 ued = UED::SetRaw_Oid(r_oid_pattern);
+			SLCHECK_NZ(ued);
+			{
+				uint64 meta = 0;
+				switch(r_oid_pattern.Obj) {
+					case PPOBJ_GOODS: meta = UED_META_PRV_WARE; break;
+					case PPOBJ_PERSON: meta = UED_META_PRV_PERSON; break;
+					case PPOBJ_LOCATION: meta = UED_META_PRV_LOCATION; break;
+					case PPOBJ_BILL: meta = UED_META_PRV_DOC; break;
+					case PPOBJ_LOT: meta = UED_META_PRV_LOT; break;
+				}
+				if(meta) {
+					SLCHECK_EQ(UED::GetMeta(ued), meta);
+				}
+			}
+			SLCHECK_NZ(UED::GetRaw_Oid(ued, oid));
+			SLCHECK_EQ(oid, r_oid_pattern);
+		}
 	}
 	return CurrentStatus;
 }

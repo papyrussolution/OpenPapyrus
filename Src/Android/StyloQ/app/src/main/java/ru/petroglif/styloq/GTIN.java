@@ -1,5 +1,5 @@
 // GTIN.JAVA
-// Copyright (c) A.Sobolev 2022
+// Copyright (c) A.Sobolev 2022, 2025
 // Класс для разбора кодов GTIN (портирован из Papyrus)
 //
 package ru.petroglif.styloq;
@@ -790,7 +790,13 @@ public class GTIN {
 			if(len > 0) {
 				for(int ci = 0; ci < len; ci++) {
 					char c = code.charAt(ci);
-					if(c != 29)
+					if(ci == 0 && c == '\u00E8') { // @v12.2.10
+						; // skip
+					}
+					else if(c == 29) {
+						; // skip
+					}
+					else
 						result = result + c;
 				}
 			}

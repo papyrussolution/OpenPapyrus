@@ -2570,7 +2570,7 @@ int UnxTextRefCore::Search(const TextRefIdent & rI, SStringU & rBuf)
 	int    ok = 1;
 	if(rI.P == PPTRPROP_TIMESERIES) {
 		SString temp_buf;
-		rI.O.ToStr(temp_buf).CatDiv(';', 2).Cat(rI.P);
+		SObjID_ToStr(rI.O, temp_buf).CatDiv(';', 2).Cat(rI.P);
 		ok = PPSetError(PPERR_INVTXREFPROPVALUE, temp_buf);
 	}
 	else {
@@ -2595,7 +2595,7 @@ int UnxTextRefCore::Search(const TextRefIdent & rI, STimeSeries & rTs)
 	const  int16 prop = NZOR(rI.P, PPTRPROP_TIMESERIES);
 	if(prop != PPTRPROP_TIMESERIES) {
 		SString temp_buf;
-		rI.O.ToStr(temp_buf).CatDiv(';', 2).Cat(prop);
+		SObjID_ToStr(rI.O, temp_buf).CatDiv(';', 2).Cat(prop);
 		ok = PPSetError(PPERR_INVTXREFPROPVALUE, temp_buf);
 	}
 	else {

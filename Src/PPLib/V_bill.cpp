@@ -936,7 +936,7 @@ void BillFiltDialog::extraFilt()
 void BillFiltDialog::SetupLocationCombo()
 {
 	LocationCtrlGroup::Rec loc_rec(&Data.LocList);
-	PPID   op_type_id = GetOpType(Data.OpID, 0);
+	const  PPID op_type_id = GetOpType(Data.OpID, 0);
 	LocationCtrlGroup * p_cgrp = static_cast<LocationCtrlGroup *>(getGroup(ctlgroupLoc));
 	if(p_cgrp) {
 		if(op_type_id == PPOPT_DRAFTTRANSIT) {
@@ -8259,6 +8259,10 @@ void PPALDD_Bill::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & r
 		}
 		else
 			_RET_STR.Z();
+	}
+	else if(pF->Name == "?GetUedIdent") { // @v12.2.10
+		uint64 ued = UED::SetRaw_Oid(SObjID(PPOBJ_BILL, H.ID));
+		_RET_STR.Z().CatHexUpper(ued);
 	}
 }
 //

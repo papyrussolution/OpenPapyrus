@@ -1,5 +1,5 @@
 // PPMAIN.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2020, 2023, 2024
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2020, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -9,10 +9,10 @@
 //
 //
 //
-static int CheckExeLocking()
+static bool CheckExeLocking()
 {
 	SString name;
-	return fileExists(makeExecPathFileName("pplock", 0, name)) ? 0 : 1;
+	return !fileExists(makeExecPathFileName("pplock", 0, name));
 }
 
 #if defined(_PPSERVER) // {
@@ -59,7 +59,7 @@ static SString & FormatCmdHelp(SrvCmd cmd, SString & rBuf, int addTabs)
 	TranslateCmd(cmd, cmd_buf);
 	rBuf.Z().Tab().Cat("ppws").Space().Cat(cmd_buf).Space();
 	if(addTabs)
-		rBuf.Tab(addTabs);
+		rBuf.Tab_(addTabs);
 	return rBuf;
 }
 

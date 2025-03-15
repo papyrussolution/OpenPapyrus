@@ -595,8 +595,8 @@ private:
 
 void GoodsOpAnlzFiltDialog::SetupCtrls(long prevFlags)
 {
-	const  PPID op_type = GetOpType(Data.OpID);
-	const  bool enbl = (Data.OpGrpID != GoodsOpAnalyzeFilt::ogInOutAnalyze && !(Data.Flags & GoodsOpAnalyzeFilt::fIntrReval) && op_type != PPOPT_GOODSREVAL);
+	const  PPID op_type_id = GetOpType(Data.OpID);
+	const  bool enbl = (Data.OpGrpID != GoodsOpAnalyzeFilt::ogInOutAnalyze && !(Data.Flags & GoodsOpAnalyzeFilt::fIntrReval) && op_type_id != PPOPT_GOODSREVAL);
 	const  bool cmp_f = LOGIC(Data.Flags & GoodsOpAnalyzeFilt::fCompareWithReceipt);
 	bool   disable_abc = false;
 	ushort v = 0;
@@ -629,7 +629,7 @@ void GoodsOpAnlzFiltDialog::SetupCtrls(long prevFlags)
 	enableCommand(cmCompare, !Data.ABCAnlzGroup);
 	if(Data.ABCAnlzGroup)
 		Data.ZeroCompareItems();
-	DisableClusterItem(CTL_BILLFLT_FLAGS, 1, BIN(op_type != PPOPT_DRAFTRECEIPT));
+	DisableClusterItem(CTL_BILLFLT_FLAGS, 1, (op_type_id != PPOPT_DRAFTRECEIPT));
 	SetClusterData(CTL_BILLFLT_FLAGS, Data.Flags);
 }
 

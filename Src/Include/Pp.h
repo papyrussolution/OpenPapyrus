@@ -156,7 +156,7 @@
 
 #define DECL_REF_REC(rec)     struct rec##2; typedef rec##2 rec
 #define ReferenceTbl          Reference2Tbl
-#define REF_TEST_RECSIZE(rec) STATIC_ASSERT(sizeof(rec##_) == sizeof(Reference_Tbl::Rec) && sizeof(rec##2) == sizeof(Reference2Tbl::Rec));
+#define REF_TEST_RECSIZE(rec) STATIC_ASSERT(sizeof(rec##_) == sizeof(Reference_ObsoleteTbl::Rec) && sizeof(rec##2) == sizeof(Reference2Tbl::Rec));
 
 DECL_REF_REC(PPObjectTag);
 DECL_REF_REC(PPSecur);
@@ -2022,6 +2022,7 @@ int STDCALL PPLogMessage(uint fileId, uint strGroup, uint strId, long options);
 //
 //
 //
+#if 0 // @v12.2.10 replaced with SObjID_Base {
 class PPObjID_Base { // @flat @noctr @persistent
 public:
 	PPObjID_Base Set(PPID objType, PPID objID);
@@ -2044,7 +2045,9 @@ public:
 	PPID   Obj;
 	PPID   Id;
 };
+#endif // } 0 @v12.2.10 replaced with SObjID_Base
 
+#if 0 // @v12.2.10 replaced with SObjID {
 class PPObjID : public PPObjID_Base { // @flat @persistent
 public:
 	PPObjID();
@@ -2053,6 +2056,26 @@ public:
 	PPObjID & FASTCALL operator = (const PPObjID_Base & rS);
 	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx); // @v11.7.0
 };
+#endif // } 0 @v12.2.10 replaced with SObjID
+
+typedef SObjID_Base PPObjID_Base;
+typedef SObjID PPObjID;
+
+SString & SObjID_ToStr(const SObjID & rOid, SString & rBuf);
+int   SObjID_FromStr(const char * pStr, SObjID & rOid);
+
+/*class PPObjID : public SObjID {
+public:
+	PPObjID() : SObjID()
+	{
+	}
+	PPObjID(int32 objType, int32 objID) : SObjID(objType, objID)
+	{
+	}
+	SString & FASTCALL ToStr(SString & rBuf) const;
+	int    FASTCALL FromStr(const char * pStr);	
+};*/
+
 //
 // Descr: Специализированная структура, используемая для индексации наименований
 //   объектов данных в строковых пулах.
@@ -24964,6 +24987,7 @@ public:
 		PPID   GetSupplPersonID(const PPTransferItem * pTi) const;
 		const  PPTransferItem * GetTI() const;
 		PPID   GetLocID() const;
+		LDATE  GetOpDate();
 		const  PPBillPacket * P_BPack;
 		const  PPTransferItem * P_Ti;
 		const  PPGoodsTaxEntry * P_Gte; // Если P_Ti != 0 then ignored
@@ -41221,6 +41245,20 @@ private:
 class PPMarketplaceInterface_Wildberries : public PPMarketplaceInterface {
 	// кВВ - коэффициент вознаграждения Вайлдберриз
 public:
+	struct FaultStatusResult {
+		FaultStatusResult();
+		FaultStatusResult & Z();
+		bool   FromJson(const SJson * pJs);
+
+		int    Status;
+		LDATETIME Timestamp;
+		SString StatusText;
+		SString Title;
+		SString Detail;
+		SString Code;
+		SString ReqId;
+		SString Origin;
+	};
 	struct Warehouse {
 		Warehouse();
 		Warehouse & Z();
@@ -41631,18 +41669,18 @@ public:
 	// Короче говоря, сейчас будем закладываться на первый вариант (methWarehouses aka https://supplies-api.wildberries.ru/api/v1/warehouses)
 	// а дальше посмотрим.
 	//
-	int   RequestWarehouseList(TSCollection <Warehouse> & rList);
-	int   RequestWarehouseList2(TSCollection <Warehouse> & rList);
+	int   RequestWarehouseList(TSCollection <Warehouse> & rList, FaultStatusResult * pError);
+	int   RequestWarehouseList2(TSCollection <Warehouse> & rList, FaultStatusResult * pError);
 	int   RequestGoodsPrices();
 	int   RequestGoodsSizes(int64 wbGoodsID);
-	int   RequestIncomes(TSCollection <Income> & rList);
-	int   RequestStocks(TSCollection <Stock> & rList);
-	int   RequestOrders(TSCollection <Sale> & rList);
-	int   RequestSales(TSCollection <Sale> & rList);
+	int   RequestIncomes(TSCollection <Income> & rList, FaultStatusResult * pError);
+	int   RequestStocks(TSCollection <Stock> & rList, FaultStatusResult * pError);
+	int   RequestOrders(TSCollection <Sale> & rList, FaultStatusResult * pError);
+	int   RequestSales(TSCollection <Sale> & rList, FaultStatusResult * pError);
 	int   RequestSupplies();
 	int   RequestReturns();
 	int   RequestAcceptanceReport(const DateRange & rPeriod);
-	int   RequestSalesReportDetailedByPeriod(const DateRange & rPeriod, TSCollection <SalesRepDbpEntry> & rList);
+	int   RequestSalesReportDetailedByPeriod(const DateRange & rPeriod, TSCollection <SalesRepDbpEntry> & rList, FaultStatusResult * pError);
 	int   RequestBalance();
 	int   RequestDocumentsList();
 	int   UploadWare();
@@ -41678,7 +41716,7 @@ private:
 	int   GetLocalCachePath(SString & rBuf);
 	int   FetchWarehouseList(TSCollection <Warehouse> & rList);
 	int   ParseJson_WarehouseList(const SJson * pJs, TSCollection <Warehouse> & rList);
-	int   Helper_RequestWarehouseList(int meth/*methWarehouses||methWarehouses2*/, TSCollection <Warehouse> & rList, const char * pFileNameToStoreJson);
+	int   Helper_RequestWarehouseList(int meth/*methWarehouses||methWarehouses2*/, TSCollection <Warehouse> & rList, const char * pFileNameToStoreJson, FaultStatusResult * pError);
 	int   InsertReceiptItem(PPBillPacket & rPack, const char * pSerial, PPID goodsID, double qtty);
 	//
 	// Descr: 
@@ -55082,7 +55120,7 @@ private:
 
 struct TagDlgParam {
 	TagDlgParam();
-	int    GetDlgID(long tagDataType, uint * dlgCtl) const;
+	bool   GetDlgID(const ObjTagItem & rTagItem/*long tagDataType*/, uint * dlgCtl) const;
 	int    SetDlgData(TDialog *, const ObjTagItem *);
 	int    GetDlgData(TDialog *, ObjTagItem *);
 
@@ -55091,6 +55129,7 @@ struct TagDlgParam {
 	uint   BoolDlgID;
 	uint   NmbDlgID;
 	uint   LnkDlgID;
+	uint   LnkPersonLocationDlgID; // @v12.2.10 // По сути то же, что и LnkDlgID, но требует дополнительно выбора персоналии ибо без нее адрес выбрать затруднительно.
 	uint   StrDlgID;
 	uint   DateDlgID;
 	uint   TimestampDlgID;
@@ -60858,8 +60897,8 @@ public:
 			fBuildClient       = 0x0001,
 			fBuildServer       = 0x0002,
 			fBuildMtdll        = 0x0004,
-			fBuildDrv  = 0x0008,
-			fBuildSoap = 0x0010,
+			fBuildDrv          = 0x0008,
+			fBuildSoap         = 0x0010,
 			fBuildDistrib      = 0x0020,
 			fCopyToUhtt        = 0x0040,
 			fOpenSource        = 0x0080, // OpenSource-вариант сборки
@@ -60877,9 +60916,7 @@ public:
 		uint   XpConfigEntryIdx; // Индекс дополнительной конфигурации сборки для Windows-XP. 0 - undef
 		SString VerSuffix;       // Опциональный суффикс версии дистрибутива (например, PRE)
 		struct ConfigEntry {
-			ConfigEntry() : PrefMsvsVerMajor(0)
-			{
-			}
+			ConfigEntry();
 			SString Name;            // Наименование элемента конфигурации сборки
 			int    PrefMsvsVerMajor; // PPINIPARAM_PREFMSVSVER
 			SString RootPath;        // PPINIPARAM_BUILDROOT     Корневой каталог проекта
@@ -60908,6 +60945,45 @@ private:
 	int    Helper_Compile(const Param::ConfigEntry * pCfgEntry, int supplementalConfig, PPLogger & rLogger);
 
 	Param  P;
+};
+//
+// Descr: Функции обслуживания исходных кодов системы.
+//
+class PrcssrSourceCodeMaintainingFilt : public PPBaseFilt {
+public:
+	PrcssrSourceCodeMaintainingFilt();
+	PrcssrSourceCodeMaintainingFilt & FASTCALL operator = (const PrcssrSourceCodeMaintainingFilt & rS);
+
+    uint8  ReserveStart[128]; // @anchor
+	enum {
+		fParseWinRcForNativeText           = 0x0001,
+		fFindSourceCodeWithNotUtf8Encoding = 0x0002
+	};
+	long   Flags;
+	long   Reserve;          // @anchor	
+};
+
+class PrcssrSourceCodeMaintaining {
+public:
+	PrcssrSourceCodeMaintaining();
+	int	   Init(const PPBaseFilt * pBaseFilt);
+	int    InitParam(PPBaseFilt * pBaseFilt);
+	int    EditParam(PPBaseFilt * pBaseFilt);
+	int	   Run();
+private:
+	struct NoticedFileEntry {
+		NoticedFileEntry() : LineNo(0)
+		{
+		}
+		uint   LineNo; // 0 - undefined
+		SString FileName;
+	};
+	int    ParseWinRcForNativeText();
+	int    FindSourceCodeWithNotUtf8Encoding();
+
+	PrcssrSourceCodeMaintainingFilt P;
+	SString BuildRootPath;
+	SString SrcPath;
 };
 //
 // Descr: Класс, управляющий инфраструктурой тестирования сложных объектов в базе данных.
@@ -61367,6 +61443,7 @@ int    ExportEmailAccts(const PPIDArray * pMailAcctsList);
 int    DoSupplInterchange(SupplInterchangeFilt * pFilt);
 int    DoMarketplaceInterchange();
 int    DoAptekaRuInterchange(); // @v12.2.1
+int    DoSourceCodeMaintaining(const PrcssrSourceCodeMaintainingFilt * pFilt); // @v12.2.10
 int    GatherClientActivityStatistics(); // @v12.2.2 @construction
 int    EditPriceListImpExpParams();
 int    EditDebtLimList(PPClientAgreement & rCliAgt);

@@ -606,28 +606,6 @@ int SCS_SYNCCASH::PrintFiscalCorrection(const PPCashMachine::FiscalCorrection * 
 	Flags |= sfCheckOpened;
 	Arr_In.Z();
 	/*
-	struct FiscalCorrection {
-		FiscalCorrection();
-		enum {
-			fIncome    = 0x0001, // Приход денег (отрицательная коррекция). Если не стоит, то - расход.
-			fByPrecept = 0x0002  // Коррекция по предписанию
-		};
-		double AmtCash;    // @#{>=0} Сумма наличного платежа
-		double AmtBank;    // @#{>=0} Сумма электронного платежа
-		double AmtPrepay;  // @#{>=0} Сумма предоплатой
-		double AmtPostpay; // @#{>=0} Сумма постоплатой
-		double AmtVat18;   // Сумма налога по ставке 18%
-		double AmtVat10;   // Сумма налога по ставке 10%
-		double AmtVat00;   // Сумма расчета по ставке 0%
-		double AmtNoVat;   // Сумма расчета без налога
-		LDATE  Dt;         // Дата документа основания коррекции
-		long   Flags;      // @flags
-		SString Code;      // Номер документа основания коррекции
-		SString Reason;    // Основание коррекции
-		SString Operator;  // Имя оператора
-	};
-	*/
-	/*
 		"PAYMCASH"
 		"PAYMCARD"
 		"PREPAY"
@@ -647,20 +625,22 @@ int SCS_SYNCCASH::PrintFiscalCorrection(const PPCashMachine::FiscalCorrection * 
 	THROW(ArrAdd(Arr_In, DVCPARAM_PAYMCARD, pFc->AmtBank));
 	THROW(ArrAdd(Arr_In, DVCPARAM_CODE, pFc->Code));
 	THROW(ArrAdd(Arr_In, DVCPARAM_DATE, temp_buf.Z().Cat(pFc->Dt, DATF_ISO8601CENT)));
-	THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, (temp_buf = pFc->Reason).Transf(CTRANSF_INNER_TO_OUTER))); // @v10.4.10 Transf(CTRANSF_INNER_TO_OUTER)
+	THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, (temp_buf = pFc->Reason).Transf(CTRANSF_INNER_TO_OUTER)));
 	if(pFc->Flags & pFc->fVatFree) {
 		THROW(ArrAdd(Arr_In, DVCPARAM_VATFREE, 1));
 		THROW(ArrAdd(Arr_In, DVCPARAM_VATFREEAMOUNT, (pFc->AmtCash+pFc->AmtBank+pFc->AmtPrepay+pFc->AmtPostpay)));
 	}
 	else {
-		if(pFc->VatRate > 0) {
+		if(pFc->VatRate > 0.0) {
 			THROW(ArrAdd(Arr_In, DVCPARAM_VATRATE, pFc->VatRate));
 		}
 		else {
-			THROW(ArrAdd(Arr_In, DVCPARAM_VATAMOUNT20, fabs(pFc->AmtVat20))); // @v10.4.8
+			THROW(ArrAdd(Arr_In, DVCPARAM_VATAMOUNT20, fabs(pFc->AmtVat20)));
 			THROW(ArrAdd(Arr_In, DVCPARAM_VATAMOUNT18, fabs(pFc->AmtVat18)));
 			THROW(ArrAdd(Arr_In, DVCPARAM_VATAMOUNT10, fabs(pFc->AmtVat10)));
 			THROW(ArrAdd(Arr_In, DVCPARAM_VATAMOUNT00, fabs(pFc->AmtVat00)));
+			THROW(ArrAdd(Arr_In, DVCPARAM_VATAMOUNT05, fabs(pFc->AmtVat05))); // @v12.2.10
+			THROW(ArrAdd(Arr_In, DVCPARAM_VATAMOUNT07, fabs(pFc->AmtVat07))); // @v12.2.10
 			THROW(ArrAdd(Arr_In, DVCPARAM_VATFREEAMOUNT, fabs(pFc->AmtNoVat)));
 		}
 	}

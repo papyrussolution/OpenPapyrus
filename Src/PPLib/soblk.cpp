@@ -374,7 +374,7 @@ private:
 		struct Gta {
 			int    GtaOp;
 			PPID   GlobalUserID;
-			PPObjID_Base Oi; // @v10.8.12 PPObjID-->PPObjID_Base
+			PPObjID_Base Oi;
 			long   Count;
 			long   Duration;
 		};
@@ -1961,7 +1961,7 @@ int Backend_SelectObjectBlock::ProcessSelection_Goods(PPJobSrvReply & rResult)
 							p_jitem->InsertString("Name", (temp_buf = goods_rec.Name).Transf(CTRANSF_INNER_TO_OUTER).Escape());
 							p_jitem->InsertString("CurID", temp_buf.Z().Cat(iter_ext.CurID));
 							p_jitem->InsertString("Price", temp_buf.Z().Cat(iter_ext.Price, SFMT_MONEY));
-							p_jitem->InsertString("Rest", temp_buf.Z().Cat(iter_ext.Rest, MKSFMTD(0, 3, 0)));
+							p_jitem->InsertString("Rest", temp_buf.Z().Cat(iter_ext.Rest, MKSFMTD_030));
 							p_jitem->InsertString("PriceDt", temp_buf.Z().Cat(iter_ext.PriceDtm.d, DATF_DMY).Escape());
 							p_jitem->InsertString("PriceTm", temp_buf.Z().Cat(iter_ext.PriceDtm.t, TIMF_HM).Escape());
 							json_insert_child(p_jitem_list, p_jitem);

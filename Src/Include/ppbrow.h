@@ -1522,6 +1522,7 @@
 #define PPCMD_MARKETPLACEINTERCHANGE                1354
 #define PPCMD_APTEKARUINTERCHANGE                   1355
 #define PPCMD_GATHERCLIENTACTIVITYSTAT              1356
+#define PPCMD_SOURCECODEPROCESSING                  1357
 //
 // PPJOB definitions
 //
@@ -1941,6 +1942,7 @@
 #define PPVIEW_CLIENTACTIVITYDETAILS                 1380
 	#define PPFILT_CLIENTACTIVITYDETAILS                 1381
 	#define PPVIEWITEM_CLIENTACTIVITYDETAILS                 1382
+#define PPFILT_PRCSSRSOURCECODEMAINTAINING           1391
 //
 // RECORD definitions
 //

@@ -3033,7 +3033,7 @@ int PrcssrPersonImport::InitParam(Param * pParam)
 {
 	int    ok = -1;
 	if(pParam) {
-		pParam->CfgName = 0;
+		pParam->CfgName.Z();
 		ok = 1;
 	}
 	return ok;

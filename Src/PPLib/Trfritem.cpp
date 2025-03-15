@@ -294,8 +294,8 @@ int PPTransferItem::InitAccturnInvoice(const PPBillPacket * pPack)
 int PPTransferItem::SetSignFlags(PPID op, int forceSign)
 {
 	int    ok = 1;
-	const  long   f = (Flags & (PPTFR_PLUS | PPTFR_MINUS));
-	const  PPID   op_type_id = GetOpType(op);
+	const  long f = (Flags & (PPTFR_PLUS | PPTFR_MINUS));
+	const  PPID op_type_id = GetOpType(op);
 	if(op_type_id == PPOPT_GOODSMODIF) {
 		// Область использования параметра forceSign {
 		if(forceSign == TISIGN_UNDEF) {

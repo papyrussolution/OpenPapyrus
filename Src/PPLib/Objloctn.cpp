@@ -806,14 +806,16 @@ int PPObjLocation::Validate(LocationTbl::Rec * pRec, int /*chkRefs*/)
 
 int PPObjLocation::AddListItem(StrAssocArray * pList, const LocationTbl::Rec * pLocRec, long zeroParentId, PPIDArray * pRecurTrace)
 {
-	int    ok = 1, r;
+	int    ok = 1;
 	PPIDArray local_recur_trace;
 	if(pList->Search(pLocRec->ID))
 		ok = -1;
 	else {
 		PPID   par_id = pLocRec->ParentID;
 		LocationTbl::Rec par_rec;
+		SString text;
 		if(par_id && Fetch(par_id, &par_rec) > 0) {
+			int    r;
 			SETIFZ(pRecurTrace, &local_recur_trace);
 			THROW(r = pRecurTrace->addUnique(par_id));
 			//THROW_PP_S(r > 0, PPERR_LOCATIONRECUR, par_rec.Name);
@@ -828,7 +830,17 @@ int PPObjLocation::AddListItem(StrAssocArray * pList, const LocationTbl::Rec * p
 		}
 		else
 			par_id = zeroParentId;
-		THROW_SL(pList->AddFast(pLocRec->ID, par_id, pLocRec->Name));
+		text = pLocRec->Name;
+		// @v12.2.10 {
+		if(pLocRec->Type == LOCTYP_ADDRESS) {
+			SString addr_buf;
+			LocationCore::GetAddress(*pLocRec, 0, addr_buf);
+			if(addr_buf.NotEmpty()) {
+				text.CatDiv(':', 1).Cat(addr_buf);
+			}
+		}
+		// } @v12.2.10 
+		THROW_SL(pList->AddFast(pLocRec->ID, par_id, text));
 	}
 	CATCHZOK
 	return ok;

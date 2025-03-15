@@ -1077,7 +1077,7 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, bool goodsIdAsArticle, 
 					p_writer->AddAttrib("subject-type", p_subj_type);
 					p_writer->AddAttrib("subject-code", temp_buf.Z().Cat(r_entry->Barcode));
 					p_writer->AddAttrib("type", p_type);
-					p_writer->AddAttrib("value", temp_buf.Z().Cat(min_tobacco_price, MKSFMTD(0, 2, 0)));
+					p_writer->AddAttrib("value", temp_buf.Z().Cat(min_tobacco_price, MKSFMTD_020));
 					p_writer->PutElement("since-date", beg_dtm);
 					p_writer->PutElement("till-date", end_dtm);
 					p_writer->PutElement("since-time", beg_dtm.t);

@@ -1415,8 +1415,8 @@ int PPViewLot::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pB
 							double avg_rest = 0.0;
 							P_BObj->trfr->EvaluateAverageRestByLot(view_item.ID, Filt.Operation, &avg_rest);
 							if(view_item.BegRest != 0.0 || view_item.EndRest != 0.0 || avg_rest != 0.0) {
-								temp_buf.Z().CatEq("id", view_item.ID).Space().CatEq("b", view_item.BegRest, MKSFMTD(0, 3, 0)).Space().
-									CatEq("e", view_item.EndRest, MKSFMTD(0, 3, 0)).Space().CatEq("avg", avg_rest, MKSFMTD(0, 3, 0));
+								temp_buf.Z().CatEq("id", view_item.ID).Space().CatEq("b", view_item.BegRest, MKSFMTD_030).Space().
+									CatEq("e", view_item.EndRest, MKSFMTD_030).Space().CatEq("avg", avg_rest, MKSFMTD_030);
 								f_out.WriteLine(temp_buf.CR());
 							}
 						}

@@ -4718,6 +4718,7 @@
 #define DLG_TAGVGUID              1150
 #define DLG_TAGVIMG               1182
 #define DLG_TAGVTIMESTAMP         1204
+#define DLG_TAGVLOCLNK            1461 // @v12.2.10 Диалог значения тега, ссылающегося на адрес персоналии
 // Reserve                        350
 	#define cmGenerate            101
 	#define CTL_TAGV_OBJNAME             (1  + WINDOWS_ID_BIAS)
@@ -4734,6 +4735,10 @@
 	#define CTLTM_TAGV_TIME              (12 + WINDOWS_ID_BIAS)
 	#define CTL_TAGV_TAGID               (13 + WINDOWS_ID_BIAS) // @v11.5.12
 	#define CTL_TAGV_INT                 (14 + WINDOWS_ID_BIAS) // @v11.8.12
+	#define CTL_TAGV_HOBJ1               (15 + WINDOWS_ID_BIAS) // @v12.2.10
+	#define CTLSEL_TAGV_HOBJ1            (16 + WINDOWS_ID_BIAS) // @v12.2.10 Вспомогательный объект #1 для выбора ссылки 
+	#define CTL_TAGV_HOBJ2               (17 + WINDOWS_ID_BIAS) // @v12.2.10
+	#define CTLSEL_TAGV_HOBJ2            (18 + WINDOWS_ID_BIAS) // @v12.2.10 Вспомогательный объект #2 для выбора ссылки 
 #define DLG_TAGVALVIEW            351
 	#define CTL_TAGVALVIEW_LIST          (1 + WINDOWS_ID_BIAS)
 	#define CTL_TAGVALVIEW_OBJ           (2 + WINDOWS_ID_BIAS)
@@ -5181,16 +5186,22 @@
 	#define CTL_VATBOOKTOTAL_FRAME       (1 + WINDOWS_ID_BIAS)
 	#define CTL_VATBOOKTOTAL_COUNT       (2 + WINDOWS_ID_BIAS)
 	#define CTL_VATBOOKTOTAL_AMT         (3 + WINDOWS_ID_BIAS)
-	#define CTL_VATBOOKTOTAL_VAT0        (4 + WINDOWS_ID_BIAS)
-	#define CTL_VATBOOKTOTAL_VAT1        (5 + WINDOWS_ID_BIAS)
-	#define CTL_VATBOOKTOTAL_VAT2        (6 + WINDOWS_ID_BIAS)
-	#define CTL_VATBOOKTOTAL_VAT3        (7 + WINDOWS_ID_BIAS)
-	#define CTL_VATBOOKTOTAL_SVAT1       (8 + WINDOWS_ID_BIAS)
-	#define CTL_VATBOOKTOTAL_SVAT2       (9 + WINDOWS_ID_BIAS)
-	#define CTL_VATBOOKTOTAL_SVAT3       (10 + WINDOWS_ID_BIAS)
-	#define CTL_VATBOOKTOTAL_TVAT1       (11 + WINDOWS_ID_BIAS)
-	#define CTL_VATBOOKTOTAL_TVAT2       (12 + WINDOWS_ID_BIAS)
-	#define CTL_VATBOOKTOTAL_TVAT3       (13 + WINDOWS_ID_BIAS)
+	#define CTL_VATBOOKTOTAL_VAT0        (10 + WINDOWS_ID_BIAS)
+	#define CTL_VATBOOKTOTAL_VAT1        (11 + WINDOWS_ID_BIAS)
+	#define CTL_VATBOOKTOTAL_VAT2        (12 + WINDOWS_ID_BIAS)
+	#define CTL_VATBOOKTOTAL_VAT3        (13 + WINDOWS_ID_BIAS)
+	#define CTL_VATBOOKTOTAL_VAT4        (14 + WINDOWS_ID_BIAS)
+	#define CTL_VATBOOKTOTAL_VAT5        (15 + WINDOWS_ID_BIAS)
+	#define CTL_VATBOOKTOTAL_SVAT1       (21 + WINDOWS_ID_BIAS)
+	#define CTL_VATBOOKTOTAL_SVAT2       (22 + WINDOWS_ID_BIAS)
+	#define CTL_VATBOOKTOTAL_SVAT3       (23 + WINDOWS_ID_BIAS)
+	#define CTL_VATBOOKTOTAL_SVAT4       (24 + WINDOWS_ID_BIAS)
+	#define CTL_VATBOOKTOTAL_SVAT5       (25 + WINDOWS_ID_BIAS)
+	#define CTL_VATBOOKTOTAL_TVAT1       (31 + WINDOWS_ID_BIAS)
+	#define CTL_VATBOOKTOTAL_TVAT2       (32 + WINDOWS_ID_BIAS)
+	#define CTL_VATBOOKTOTAL_TVAT3       (33 + WINDOWS_ID_BIAS)
+	#define CTL_VATBOOKTOTAL_TVAT4       (34 + WINDOWS_ID_BIAS)
+	#define CTL_VATBOOKTOTAL_TVAT5       (35 + WINDOWS_ID_BIAS)
 #define DLG_SELPRNCHK             443 // Выбор при печати кассового чека
 	#define CTL_SELPRNCHK_WHAT           (1 + WINDOWS_ID_BIAS)
 #define DLG_CREVAL                444 // Валютная переоценка
@@ -11713,7 +11724,11 @@
 	#define CTL_CORHUPTAGS_FLAGS         (2 + WINDOWS_ID_BIAS)
 	#define CTLBRW_CORHUPTAGS_LOG        (3 + WINDOWS_ID_BIAS)
 #define DLG_CLIACTFILT            1459 // Фильтр по персоналиям (специализация - анализ клиентской активности). Управляющие элементы: CTL_PSNFLT_XXX
+#define DLG_PRCRSRCC              1460 // @v12.2.10 Параметры процессинга собственных исходных кодов проекта
+	#define CTL_PRCRSRCC_FLAGS           (1 + WINDOWS_ID_BIAS)
+// #define DLG_TAGVLOCLNK            1461 // occupied @v12.2.10 Диалог значения тега, ссылающегося на адрес персоналии
 
+//
 // Win32 Dialog Identifiers
 //
 #define DLGW_PRINT               4090

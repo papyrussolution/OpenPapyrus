@@ -1439,7 +1439,7 @@ EXPORT int SetExportObj(uint idSess, const char * pObjTypeSymb, void * pObjData,
 	xmlTextWriterSetIndentTab(P_ExportCls->P_XmlWriter);
 	// UTF-8 - по требованию провайдера
 	xmlTextWriterStartDocument(P_ExportCls->P_XmlWriter, 0, "UTF-8", 0);
-	P_ExportCls->Bill = *(Sdr_Bill *)pObjData;
+	P_ExportCls->Bill = *static_cast<const Sdr_Bill *>(pObjData);
 	P_ExportCls->Bill.GLN[13] = 0; // »бо иногда, видимо, по€вл€ютс€ здесь лишние символы
 	if(P_ExportCls->MessageType == msgOrder) {
 		THROW(P_ExportCls->OrderHeader())

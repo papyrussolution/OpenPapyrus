@@ -1367,7 +1367,7 @@ int PrcssrInvImport::InitParam(Param * pParam)
 		pParam->LocID = LConfig.Location;
 		pParam->OpID = GetSingleOp(PPOPT_INVENTORY);
 		pParam->Dt = getcurdate_();
-		pParam->CfgName = 0;
+		pParam->CfgName.Z();
 		ok = 1;
 	}
 	return ok;

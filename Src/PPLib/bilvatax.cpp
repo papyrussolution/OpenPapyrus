@@ -118,9 +118,8 @@ void BVATAccmArray::Scale_(double part, int useRounding)
 int BVATAccmArray::CalcBill(const PPBillPacket * pPack)
 {
 	int    ok = 1;
-	int    inited = 0;
-	uint   i;
-	PPID   op_type_id = GetOpType(pPack->Rec.OpID);
+	bool   inited = false;
+	const  PPID op_type_id = GetOpType(pPack->Rec.OpID);
 	//
 	// Условие (!pPack->GetTCount() && pPack->Rec.Flags & BILLF_BILLF_FIXEDAMOUNTS)
 	// введено для обработки документов консолидирующей передачи из других разделов.
@@ -131,18 +130,20 @@ int BVATAccmArray::CalcBill(const PPBillPacket * pPack)
 		AmtEntry * p_ae;
 		double amt = pPack->GetBaseAmount();
 		int    num_vat_rates = 0;
-		int    is_there_stax = 0;
-		for(i = 0; pPack->Amounts.enumItems(&i, (void **)&p_ae);) {
-			if(p_ae->Amt != 0.0 && amtt_obj.Fetch(p_ae->AmtTypeID, &amtt_rec) > 0)
-				if(amtt_rec.IsTax(GTAX_VAT))
-					num_vat_rates++;
-				else if(!is_there_stax && amtt_rec.IsTax(GTAX_SALES)) {
-					amt -= p_ae->Amt;
-					is_there_stax = 1;
-				}
+		bool   is_there_stax = false;
+		{
+			for(uint i = 0; pPack->Amounts.enumItems(&i, (void **)&p_ae);) {
+				if(p_ae->Amt != 0.0 && amtt_obj.Fetch(p_ae->AmtTypeID, &amtt_rec) > 0)
+					if(amtt_rec.IsTax(GTAX_VAT))
+						num_vat_rates++;
+					else if(!is_there_stax && amtt_rec.IsTax(GTAX_SALES)) {
+						amt -= p_ae->Amt;
+						is_there_stax = true;
+					}
+			}
 		}
 		if(num_vat_rates) {
-			for(i = 0; pPack->Amounts.enumItems(&i, (void **)&p_ae);) {
+			for(uint i = 0; pPack->Amounts.enumItems(&i, (void **)&p_ae);) {
 				if(p_ae->Amt != 0.0 && amtt_obj.Fetch(p_ae->AmtTypeID, &amtt_rec) > 0) {
 					if(amtt_rec.IsTax(GTAX_VAT)) {
 						BVATAccm item;
@@ -156,17 +157,17 @@ int BVATAccmArray::CalcBill(const PPBillPacket * pPack)
 							item.Cost    = item.Price   = a;
 						}
 						THROW(Add(&item));
-						inited = 1;
+						inited = true;
 					}
 				}
 			}
 		}
 	}
 	if(!inited) {
-		for(i = 0; i < pPack->GetTCount(); i++) {
+		for(uint i = 0; i < pPack->GetTCount(); i++) {
 			const PPTransferItem & r_ti = pPack->ConstTI(i);
 			THROW(Add(r_ti, pPack->Rec.OpID));
-			inited = 1;
+			inited = true;
 		}
 	}
 	ok = inited ? 1 : -1;

@@ -5078,7 +5078,7 @@ PPTXT_ACCSHEET_MP_AR_NAMES           "1,Комиссионное вознагр�
 
 // Наименование операций маркетплейса Wildberries представленные в отчетах выгружаемых через api. Нужны для идентификации операций поскольку числовых идентификаторов они почему-то не предусмотрели
 PPTXT_MPWB_NATIVEOPS                 "1,Возмещение издержек по перевозке/по складским операциям с товаром;2,Логистика;3,Пересчет платной приемки;4,Продажа;5,Удержание;6,Хранение;7,Коррекция логистики;\
-8,Корректировка эквайринга;9,Штраф;10,Возврат;11,Компенсация ущерба"
+8,Корректировка эквайринга;9,Штраф;10,Возврат;11,Компенсация ущерба;12,Возмещение за выдачу и возврат товаров на ПВЗ"
 PPTXT_MP_ORDERFORSALESITEMNFOUND     "Не удалось найти заказ, который закрывается документом продажи '%s'"
 
 PPTXT_MP_PROCESSING_RECEIPTS         "Маркетплейс: обработка приходов"
@@ -5819,8 +5819,8 @@ DVCCMD_PRINTSLIPDOC            "PRINTSLIPDOC"
 DVCCMD_CONTINUEPRINT           "CONTINUEPRINT"
 DVCCMD_GETECRSTATUS            "GETECRSTATUS"
 DVCCMD_SETLOGOTYPE             "SETLOGOTYPE"
-DVCCMD_CHECKCORRECTION         "CHECKCORRECTION" // @v10.0.0
-DVCCMD_GETDEVICETIME           "GETDEVICETIME" // @v10.8.1
+DVCCMD_CHECKCORRECTION         "CHECKCORRECTION"
+DVCCMD_GETDEVICETIME           "GETDEVICETIME"
 DVCCMD_TEST                    "TEST"
 DVCCMD_SOMETHING               "SOMETHING"
 DVCCMD_CLEARDISPLAY            "CLEARDISPLAY"
@@ -5832,7 +5832,7 @@ DVCCMD_OPEN                    "OPEN"
 DVCCMD_CLOSE                   "CLOSE"
 DVCCMD_LISTEN                  "LISTEN"
 DVCCMD_GETDATA                 "GETDATA"
-DVCCMD_CUT                     "CUT" // @v10.2.2
+DVCCMD_CUT                     "CUT"
 DVCCMD_DIAGNOSTICS             "DIAGNOSTICS" // @v11.1.9
 DVCCMD_PREPROCESSCHZNCODE      "PREPROCESSCHZNCODE" // @v11.1.10
 DVCCMD_ACCEPTCHZNCODE          "ACCEPTCHZNCODE" // @v11.1.11
@@ -5891,6 +5891,8 @@ DVCPARAM_VATAMOUNT18	       "VATAMOUNT18"
 DVCPARAM_VATAMOUNT10	       "VATAMOUNT10"
 DVCPARAM_VATAMOUNT00	       "VATAMOUNT00"
 DVCPARAM_VATAMOUNT20           "VATAMOUNT20"
+DVCPARAM_VATAMOUNT05	       "VATAMOUNT05" // @v12.2.10
+DVCPARAM_VATAMOUNT07	       "VATAMOUNT07" // @v12.2.10
 DVCPARAM_VATFREEAMOUNT	       "VATFREEAMOUNT"
 DVCPARAM_LOGGING               "LOGGING"        // @v11.5.0
 DVCPARAM_CHZNCODE              "CHZNCODE"       // Маркировка товара маркой честный знак
@@ -6185,6 +6187,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @rank                                "Ранг"
 @series                              "Серия"
 @version                             "Версия"
+@oldversion                          "Старая версия"
 @list                                "Список"
 @gender                              "Пол"
 @gender_male                         "Мужской"
@@ -8030,6 +8033,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @doutilizevetdoc                     "Погасить ветеринарный документ"
 @domakeoutgoingvetdocs               "Сформировать исходящие документы"
 @dotransmitoutgoingvetdocs           "Отправить запросы на подготовку исходящих документов"
+@forinternaluseonly                  "Только для внутреннего использования"
 
 @timechart                           "Временная диаграмма"
 @bizscore                            "Бизнес-показатель"
@@ -8794,7 +8798,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @view_amounttype                          "Типы сумм документов"
 @view_registertype                        "Типы регистрационных документов"
 @view_goodsmov                            "Движение товаров"
-@view_goodsmov_oldver                     "@{view_goodsmov} (старая версия)"
+@view_goodsmov_oldver                     "@{view_goodsmov} (@{oldversion})"
 @view_lotop                               "Операции по лоту"
 @view_inhlotop                            "Операции по порожденному лоту"
 @view_lotop_zerolots                      "Операции с нулевым лотом" // derivative of @view_lotop
@@ -8890,6 +8894,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @filter_styloqdocumentparam_fusehierarchgroups  "Использовать иерархические товарные группы"
 @filter_styloqdocumentparam_fhidestock          "Не отображать остатки на клиенте"
 @filter_styloqdocumentparam_fexppsnaddresses    "Экспортировать собственные адреса клиентов"
+@filter_prcssrsourcecodemaintaining             "Параметры процессинга исходных кодов проекта"
 
 @filter_styloqincominglistparam                 "Параметры входящих списков для Stylo-Q" // generic
 @filter_styloqincominglistorderparam            "Параметры входящих заказов для Stylo-Q"
@@ -9022,7 +9027,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cmd_correcttrfrrvrs       		          "Корректировка зеркальных товарных операций"
 @cmd_correctworldobj                      "Корректировка географических объектов (не интерактивная)"
 @cmd_correctzeroqcertrefs  		          "Обнуление висячих ссылок на сертификаты в лотах"
-@cmd_correctzerodebtdimrefs               "Обнуление висячих ссылок на долговые размерности" // @v10.2.8
+@cmd_correctzerodebtdimrefs               "Обнуление висячих ссылок на долговые размерности"
 @cmd_recover_v242 				          "Корректировка проблемы @v2.4.2"
 @cmd_recoverabsenceaccounts 	          "Восстановление отсутствующих счетов"
 @cmd_recoverabsencebills 		          "Восстановление отсутствующих документов"
@@ -9124,17 +9129,17 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cmd_importemailaccts 			          "Импорт учетных записей электронной почты"
 @cmd_importgoods 				          "Импорт товаров"
 @cmd_importgoodsgrp 			          "Импорт товарных групп"
-@cmd_importgoodsold 			          "Импорт товаров(old)"
+@cmd_importgoodsold 			          "Импорт товаров (@{oldversion})"
 @cmd_importinventory 			          "Импорт инвентаризации"
 @cmd_importkladr 				          "Импорт классификатора адресов (КЛАДР)"
 @cmd_importfias                           "Импорт справочника ФИАС"
 @cmd_importorders 				          "Принять заказы Albatros"
-@cmd_importperson 				          "Импорт персоналий (old)"
+@cmd_importperson 				          "Импорт персоналий (@{oldversion})"
 @cmd_importperson2 				          "Импорт персоналий"
 @cmd_importphonelist 			          "Импорт списка телефонов"
-@cmd_importquot 				          "Импорт котировок (old)"
+@cmd_importquot 				          "Импорт котировок (@{oldversion})"
 @cmd_importquot2 				          "Импорт котировок"
-@cmd_importscard 				          "Импорт персональных карт(old)"
+@cmd_importscard 				          "Импорт персональных карт (@{oldversion})"
 @cmd_importscard2 				          "Импорт персональных карт"
 @cmd_importspecseries 			          "Импорт специальных серий"
 @cmd_importsr25 				          "Импорт базовых товаров из базы данных SR25"
@@ -9365,8 +9370,9 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cmd_setupglbsvc_vk                       "Настройка интеграции с сервисом VK"
 @cmd_setupglbsvc_wb                       "Настройка интеграции с маркетплейсом @{brand_wildberries}"
 @cmd_usermenu                             "@{view_usermenu}"
-@cmd_convertlatextohtml                   "Конвертация LATEX-документации (только для внутреннего использования)"
-@cmd_convertversiontohtml                 "Конвертация version.txt (только для внутреннего использования)"
+@cmd_convertlatextohtml                   "Конвертация LATEX-документации (@{forinternaluseonly})"
+@cmd_convertversiontohtml                 "Конвертация version.txt (@{forinternaluseonly})"
+@cmd_sourcecodeprocessing                 "@{prcssrsourcecodemaintaining} (@{forinternaluseonly})" // @v12.2.10
 @cmd_exportgoodsrestuhtt                  "Экспорт цен и остатков в Universe-HTT"
 @cmd_processtsession                      "Обслуживание технологических сессий"
 @cmd_alcodeclru                           "@{view_alcodeclru}"
@@ -14868,6 +14874,10 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @prcssraptekaru_period                    "@{daterange}"
 @prcssraptekaru_ftest                     "Тестовый процессинг"
 
+@prcssrsourcecodemaintaining              "Процессинг исходных кодов проекта"
+@prcssrsourcecodemaintaining_fparsewinrcfornativetext            "Поиск native-текста в ppw.rc"
+@prcssrsourcecodemaintaining_ffindsourcecodewithnotutf8encoding  "Поиск файлов исходных кодов с не-utf кодировкой"
+
 @prcssrcliactivitystatistics              "Сбор статистики по активности клиентов" // @v12.2.2
 @prcssrcliactivitystatistics_period       "@{daterange}"
 @prcssrcliactivitystatistics_psnkind      "@{psnkind}"
@@ -17969,6 +17979,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @styloqprivconfig_preflang                    "Предпочтительный язык"
 @styloqprivconfig_defface                     "Лик для представления по умолчанию"
 @styloqprivconfig_notificationactualdays      "Период актуальности уведомлений в днях"
+@styloqprivconfig_clipboardbcscanner          "Коды от сканера штрихкодов получать через буфер обмена"
 
 @styloqconfig_userfnetworkdisabled            "Обмен с сервисом по сети запрещен" // @v12.0.11 Пользователь намеренно отключил функции сетевого обмена
 @styloqconfig_userfsvcarchived                "Архивированный сервис" // @v12.2.2  Сервис архивирован (более не используется)

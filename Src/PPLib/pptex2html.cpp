@@ -4,7 +4,7 @@
 #include <pp.h>
 #pragma hdrstop
 
-class PPTex2HtmlPrcssr {
+class PrcssrPPTex2Html {
 public:
 	struct Param : public PPBaseFilt {
 		Param();
@@ -34,8 +34,8 @@ public:
 	};
 	static int EditParam(Param * pParam);
 
-	PPTex2HtmlPrcssr();
-	~PPTex2HtmlPrcssr();
+	PrcssrPPTex2Html();
+	~PrcssrPPTex2Html();
 	int    SetParam(const Param * pParam);
 	int    Run();
 	int    Debug_Output(const char * pOutputFileName);
@@ -125,17 +125,17 @@ private:
 		_TexEnvItem() : P_StartBlk(0), P_ThEntry(0)
 		{
 		}
-		_TexEnvItem(const  PPTex2HtmlPrcssr::TextBlock * pStart, const _TexToHtmlEntry * pEntry) :
+		_TexEnvItem(const  PrcssrPPTex2Html::TextBlock * pStart, const _TexToHtmlEntry * pEntry) :
 			P_StartBlk(pStart), P_ThEntry(pEntry)
 		{
 		}
-		const  PPTex2HtmlPrcssr::TextBlock * P_StartBlk;
+		const  PrcssrPPTex2Html::TextBlock * P_StartBlk;
 		const  _TexToHtmlEntry * P_ThEntry;
 	};
 
 	class TexEnvStack : private TSStack <_TexEnvItem> {
 	public:
-		TexEnvStack(PPTex2HtmlPrcssr & rPrc) : TSStack <_TexEnvItem>(), R_Prc(rPrc)
+		TexEnvStack(PrcssrPPTex2Html & rPrc) : TSStack <_TexEnvItem>(), R_Prc(rPrc)
 		{
 		}
 		void   FASTCALL Push(const _TexEnvItem & t) 
@@ -182,7 +182,7 @@ private:
 		bool   CheckPointerBeforePop() const { return (getPointer() > 0); }
 	private:
 		SString DebugBuf;
-		PPTex2HtmlPrcssr & R_Prc;
+		PrcssrPPTex2Html & R_Prc;
 	};
 	//
 	// Descr: Флаги состояний вызова функции ReadText
@@ -193,7 +193,7 @@ private:
 	int    ReadText(long mode, long state, TextBlock * pBlk);
 	int    WriteText(SFile & rF, const SString & rLineBuf);
 	int    ReadCmd(TextBlock * pBlk);
-	int    Helper_Debug_OutputTextBlock(const PPTex2HtmlPrcssr::TextBlock * pBlk, SFile & rF, int noPrefix);
+	int    Helper_Debug_OutputTextBlock(const PrcssrPPTex2Html::TextBlock * pBlk, SFile & rF, int noPrefix);
 	int    Helper_PreprocessOutput(const TextBlock * pBlk, long flags, TexEnvStack & rEnvStack);
 	int    Helper_Output(SFile & rOut, const TextBlock * pBlk, long flags, TexEnvStack & rEnvStack);
 	int    InitOutput(SFile * pOut, const char * pPartLabel, const char * pPartText, uint chapterNo);
@@ -217,29 +217,29 @@ private:
 	SFile F_Debug;
 };
 
-PPTex2HtmlPrcssr::Param::Param() : PPBaseFilt(PPFILT_TEX2HTMLPARAM, 0, 0)
+PrcssrPPTex2Html::Param::Param() : PPBaseFilt(PPFILT_TEX2HTMLPARAM, 0, 0)
 {
 	SetFlatChunk(offsetof(Param, ReserveStart), offsetof(Param, ExtString)-offsetof(Param, ReserveStart));
 	SetBranchSString(offsetof(Param, ExtString));
 	Init(1, 0);
 }
 
-PPTex2HtmlPrcssr::Param & FASTCALL PPTex2HtmlPrcssr::Param::operator = (const PPTex2HtmlPrcssr::Param & rS)
+PrcssrPPTex2Html::Param & FASTCALL PrcssrPPTex2Html::Param::operator = (const PrcssrPPTex2Html::Param & rS)
 {
 	Copy(&rS, 1);
 	return *this;
 }
 
-int PPTex2HtmlPrcssr::Param::GetExtStrData(int fldID, SString & rBuf) const { return PPGetExtStrData(fldID, ExtString, rBuf); }
-int PPTex2HtmlPrcssr::Param::PutExtStrData(int fldID, const char * pBuf) { return PPPutExtStrData(fldID, ExtString, pBuf); }
+int PrcssrPPTex2Html::Param::GetExtStrData(int fldID, SString & rBuf) const { return PPGetExtStrData(fldID, ExtString, rBuf); }
+int PrcssrPPTex2Html::Param::PutExtStrData(int fldID, const char * pBuf) { return PPPutExtStrData(fldID, ExtString, pBuf); }
 //
 //
 //
-PPTex2HtmlPrcssr::TextBlock::TextBlock(int type, uint lineNo) : Type(type), Flags(0), P_ArgBrc(0), P_ArgBrk(0), P_Next(0), LineNo(lineNo)
+PrcssrPPTex2Html::TextBlock::TextBlock(int type, uint lineNo) : Type(type), Flags(0), P_ArgBrc(0), P_ArgBrk(0), P_Next(0), LineNo(lineNo)
 {
 }
 
-PPTex2HtmlPrcssr::TextBlock::~TextBlock()
+PrcssrPPTex2Html::TextBlock::~TextBlock()
 {
 	ZDELETE(P_ArgBrc);
 	ZDELETE(P_ArgBrk);
@@ -265,7 +265,7 @@ PPTex2HtmlPrcssr::TextBlock::~TextBlock()
 	}
 }
 
-const char * PPTex2HtmlPrcssr::TextBlock::GetInnerLabel() const
+const char * PrcssrPPTex2Html::TextBlock::GetInnerLabel() const
 {
 	const char * p_label = 0;
 	if(P_ArgBrc) {
@@ -276,27 +276,27 @@ const char * PPTex2HtmlPrcssr::TextBlock::GetInnerLabel() const
 	return p_label;
 }
 
-const char * PPTex2HtmlPrcssr::TextBlock::GetInnerText() const
+const char * PrcssrPPTex2Html::TextBlock::GetInnerText() const
 {
 	return P_ArgBrc ? P_ArgBrc->Text.cptr() : 0;
 }
 //
 //
 //
-PPTex2HtmlPrcssr::StateBlock::OutPart::OutPart() : ChapterNo(0), WbID(0)
+PrcssrPPTex2Html::StateBlock::OutPart::OutPart() : ChapterNo(0), WbID(0)
 {
 }
 
-PPTex2HtmlPrcssr::StateBlock::PictItem::PictItem() : WbID(0)
+PrcssrPPTex2Html::StateBlock::PictItem::PictItem() : WbID(0)
 {
 }
 
-PPTex2HtmlPrcssr::StateBlock::StateBlock() : ChapterNo(0), LineNo(0), InputSize(0)
+PrcssrPPTex2Html::StateBlock::StateBlock() : ChapterNo(0), LineNo(0), InputSize(0)
 {
 	InputBuffer.Init();
 }
 
-int PPTex2HtmlPrcssr::StateBlock::Init(size_t sz)
+int PrcssrPPTex2Html::StateBlock::Init(size_t sz)
 {
 	int    ok = 1;
 	ChapterNo = 0;
@@ -311,7 +311,7 @@ int PPTex2HtmlPrcssr::StateBlock::Init(size_t sz)
 	return ok;
 }
 
-int PPTex2HtmlPrcssr::StateBlock::ResetPreprocess()
+int PrcssrPPTex2Html::StateBlock::ResetPreprocess()
 {
 	int    ok = 1;
 	ChapterNo = 0;
@@ -322,38 +322,27 @@ int PPTex2HtmlPrcssr::StateBlock::ResetPreprocess()
 	return ok;
 }
 
-int FASTCALL PPTex2HtmlPrcssr::StateBlock::GetChr(uint _pos) const
-{
-	return (_pos < InputSize) ? InputBuffer.P_Buf[_pos] : 0;
-}
-
-int FASTCALL PPTex2HtmlPrcssr::StateBlock::GetCurChr() const
-{
-	return Scan[0];
-}
-
-uint PPTex2HtmlPrcssr::StateBlock::IsEol() const
-{
-	return Scan.IsEol(Eolf);
-}
+int FASTCALL PrcssrPPTex2Html::StateBlock::GetChr(uint _pos) const { return (_pos < InputSize) ? InputBuffer.P_Buf[_pos] : 0; }
+int FASTCALL PrcssrPPTex2Html::StateBlock::GetCurChr() const { return Scan[0]; }
+uint PrcssrPPTex2Html::StateBlock::IsEol() const { return Scan.IsEol(Eolf); }
 //
 //
 //
-PPTex2HtmlPrcssr::PPTex2HtmlPrcssr() : LastSymbId(0), P_Head(0)
+PrcssrPPTex2Html::PrcssrPPTex2Html() : LastSymbId(0), P_Head(0)
 {
 }
 
-PPTex2HtmlPrcssr::~PPTex2HtmlPrcssr()
+PrcssrPPTex2Html::~PrcssrPPTex2Html()
 {
 	delete P_Head;
 }
 
-int PPTex2HtmlPrcssr::SetParam(const Param * pParam)
+int PrcssrPPTex2Html::SetParam(const Param * pParam)
 {
 	return RVALUEPTR(P, pParam) ? 1 : -1;
 }
 
-int PPTex2HtmlPrcssr::WriteText(SFile & rF, const SString & rLineBuf)
+int PrcssrPPTex2Html::WriteText(SFile & rF, const SString & rLineBuf)
 {
     if(P.Flags & Param::fUtf8Codepage) {
 		SString & r_temp_buf = SLS.AcquireRvlStr();
@@ -364,7 +353,7 @@ int PPTex2HtmlPrcssr::WriteText(SFile & rF, const SString & rLineBuf)
 		return rF.WriteLine(rLineBuf) ? 1 : PPSetErrorSLib();
 }
 
-int PPTex2HtmlPrcssr::ReadText(long mode, long state, TextBlock * pText)
+int PrcssrPPTex2Html::ReadText(long mode, long state, TextBlock * pText)
 {
 	int    ok = -1;
 	const  size_t prev_offs = St.Scan.Offs;
@@ -600,7 +589,7 @@ int PPTex2HtmlPrcssr::ReadText(long mode, long state, TextBlock * pText)
 	return ok;
 }
 
-int PPTex2HtmlPrcssr::Helper_Debug_OutputTextBlock(const PPTex2HtmlPrcssr::TextBlock * pBlk, SFile & rF, int noPrefix)
+int PrcssrPPTex2Html::Helper_Debug_OutputTextBlock(const PrcssrPPTex2Html::TextBlock * pBlk, SFile & rF, int noPrefix)
 {
 	int    ok = 1;
 	SString line_buf;
@@ -656,14 +645,14 @@ int PPTex2HtmlPrcssr::Helper_Debug_OutputTextBlock(const PPTex2HtmlPrcssr::TextB
 	return ok;
 }
 
-void PPTex2HtmlPrcssr::Debug_Output_Internal(const SString & rBuf)
+void PrcssrPPTex2Html::Debug_Output_Internal(const SString & rBuf)
 {
 	if(F_Debug.IsValid() && rBuf.NotEmpty()) {
 		F_Debug.WriteLine(rBuf);
 	}
 }
 
-int PPTex2HtmlPrcssr::Debug_Output(const char * pOutputFileName)
+int PrcssrPPTex2Html::Debug_Output(const char * pOutputFileName)
 {
 	int    ok = 1;
 	if(P_Head) {
@@ -687,24 +676,24 @@ int PPTex2HtmlPrcssr::Debug_Output(const char * pOutputFileName)
 	return ok;
 }
 
-/*static*/PPTex2HtmlPrcssr::_TexToHtmlEntry PPTex2HtmlPrcssr::__TexToHtmlList[] = {
-	{ PPTex2HtmlPrcssr::_texEnv, "__default",   "p", 0 },
-	{ PPTex2HtmlPrcssr::_texEnv, "document",    "body", 0 },
-	{ PPTex2HtmlPrcssr::_texEnv, "itemize",     "dl", 0 },
-	{ PPTex2HtmlPrcssr::_texEnv, "description", "dl", 0 },
-	{ PPTex2HtmlPrcssr::_texEnv, "enumerate",   "ol", 0 },
-	{ PPTex2HtmlPrcssr::_texEnv, "Verbatim",    "pre", 0 },
-	{ PPTex2HtmlPrcssr::_texEnv, "lstlisting",  "pre", 0 }, // @v10.8.2
+/*static*/PrcssrPPTex2Html::_TexToHtmlEntry PrcssrPPTex2Html::__TexToHtmlList[] = {
+	{ PrcssrPPTex2Html::_texEnv, "__default",   "p", 0 },
+	{ PrcssrPPTex2Html::_texEnv, "document",    "body", 0 },
+	{ PrcssrPPTex2Html::_texEnv, "itemize",     "dl", 0 },
+	{ PrcssrPPTex2Html::_texEnv, "description", "dl", 0 },
+	{ PrcssrPPTex2Html::_texEnv, "enumerate",   "ol", 0 },
+	{ PrcssrPPTex2Html::_texEnv, "Verbatim",    "pre", 0 },
+	{ PrcssrPPTex2Html::_texEnv, "lstlisting",  "pre", 0 },
 
-	{ PPTex2HtmlPrcssr::_texCmd, "__default", "p", 0 },
-	{ PPTex2HtmlPrcssr::_texCmd, "chapter", "h1", _thfSuppressPara|_thfEndPara },
-	{ PPTex2HtmlPrcssr::_texCmd, "section", "h2", _thfSuppressPara|_thfEndPara },
-	{ PPTex2HtmlPrcssr::_texCmd, "subsection", "h3", _thfSuppressPara|_thfEndPara },
-	{ PPTex2HtmlPrcssr::_texCmd, "subsubsection", "h4", _thfSuppressPara|_thfEndPara },
-	{ PPTex2HtmlPrcssr::_texCmd, "paragraph", "h5", _thfSuppressPara|_thfEndPara }
+	{ PrcssrPPTex2Html::_texCmd, "__default", "p", 0 },
+	{ PrcssrPPTex2Html::_texCmd, "chapter", "h1", _thfSuppressPara|_thfEndPara },
+	{ PrcssrPPTex2Html::_texCmd, "section", "h2", _thfSuppressPara|_thfEndPara },
+	{ PrcssrPPTex2Html::_texCmd, "subsection", "h3", _thfSuppressPara|_thfEndPara },
+	{ PrcssrPPTex2Html::_texCmd, "subsubsection", "h4", _thfSuppressPara|_thfEndPara },
+	{ PrcssrPPTex2Html::_texCmd, "paragraph", "h5", _thfSuppressPara|_thfEndPara }
 };
 
-const PPTex2HtmlPrcssr::_TexToHtmlEntry * PPTex2HtmlPrcssr::SearchTexToHtmlEntry(int texType, const char * pTexSymb)
+const PrcssrPPTex2Html::_TexToHtmlEntry * PrcssrPPTex2Html::SearchTexToHtmlEntry(int texType, const char * pTexSymb)
 {
 	const _TexToHtmlEntry * p_entry = 0;
 	for(uint i = 0; !p_entry && i < SIZEOFARRAY(__TexToHtmlList); i++) {
@@ -715,7 +704,7 @@ const PPTex2HtmlPrcssr::_TexToHtmlEntry * PPTex2HtmlPrcssr::SearchTexToHtmlEntry
 	return p_entry;
 }
 
-int PPTex2HtmlPrcssr::Paragraph(SFile * pOut, int & rPara)
+int PrcssrPPTex2Html::Paragraph(SFile * pOut, int & rPara)
 {
 	int    ok = 1;
 	if(rPara) {
@@ -735,7 +724,7 @@ int PPTex2HtmlPrcssr::Paragraph(SFile * pOut, int & rPara)
 	return ok;
 }
 
-const char * PPTex2HtmlPrcssr::OutputFormulaItem(const char * pText, SString & rOutText, int brace)
+const char * PrcssrPPTex2Html::OutputFormulaItem(const char * pText, SString & rOutText, int brace)
 {
 	const char * p = pText;
 	if(p) {
@@ -773,7 +762,7 @@ const char * PPTex2HtmlPrcssr::OutputFormulaItem(const char * pText, SString & r
 	return p;
 }
 
-int PPTex2HtmlPrcssr::Helper_PreprocessOutput(const TextBlock * pBlk, long flags, TexEnvStack & rEnvStack)
+int PrcssrPPTex2Html::Helper_PreprocessOutput(const TextBlock * pBlk, long flags, TexEnvStack & rEnvStack)
 {
 	int    ok = 1;
 	int    paragraph = 0;   // Признак того, что был начат параграф
@@ -985,7 +974,7 @@ int PPTex2HtmlPrcssr::Helper_PreprocessOutput(const TextBlock * pBlk, long flags
 	return ok;
 }
 
-int PPTex2HtmlPrcssr::ResolvePict(const char * pOrgSymb, const char * pName, uint * pPicListPos, SString & rRef)
+int PrcssrPPTex2Html::ResolvePict(const char * pOrgSymb, const char * pName, uint * pPicListPos, SString & rRef)
 {
 	rRef.Z();
 
@@ -1114,7 +1103,7 @@ int PPTex2HtmlPrcssr::ResolvePict(const char * pOrgSymb, const char * pName, uin
 	return ok;
 }
 
-int PPTex2HtmlPrcssr::Helper_Output(SFile & rOut, const TextBlock * pBlk, long flags, TexEnvStack & rEnvStack)
+int PrcssrPPTex2Html::Helper_Output(SFile & rOut, const TextBlock * pBlk, long flags, TexEnvStack & rEnvStack)
 {
 	int    ok = 1;
 	int    paragraph = 0;   // Признак того, что был начат параграф
@@ -1475,7 +1464,7 @@ int PPTex2HtmlPrcssr::Helper_Output(SFile & rOut, const TextBlock * pBlk, long f
 	return ok;
 }
 
-int PPTex2HtmlPrcssr::OutputStyles(SFile & rOut)
+int PrcssrPPTex2Html::OutputStyles(SFile & rOut)
 {
 #if 0 // {
 	<style type="text/css">
@@ -1522,7 +1511,7 @@ int PPTex2HtmlPrcssr::OutputStyles(SFile & rOut)
 	return 1;
 }
 
-int PPTex2HtmlPrcssr::InitOutput(SFile * pOut, const char * pPartLabel, const char * pPartName, uint chapterNo)
+int PrcssrPPTex2Html::InitOutput(SFile * pOut, const char * pPartLabel, const char * pPartName, uint chapterNo)
 {
 	int    ok = 1;
 	StateBlock::OutPart * p_part = 0;
@@ -1627,7 +1616,7 @@ int PPTex2HtmlPrcssr::InitOutput(SFile * pOut, const char * pPartLabel, const ch
 	return ok;
 }
 
-int PPTex2HtmlPrcssr::Run()
+int PrcssrPPTex2Html::Run()
 {
 	ZDELETE(P_Head);
 
@@ -1726,7 +1715,7 @@ int PPTex2HtmlPrcssr::Run()
 }
 
 class Tex2HtmlParamDialog : public TDialog {
-	DECL_DIALOG_DATA(PPTex2HtmlPrcssr::Param);
+	DECL_DIALOG_DATA(PrcssrPPTex2Html::Param);
 public:
 	enum {
 		grpInput = 1,
@@ -1750,9 +1739,9 @@ public:
 		Data.GetExtStrData(Data.exsInputPictPath,  temp_buf); setCtrlString(CTL_TEX2HTM_INPICPATH, temp_buf);
 		Data.GetExtStrData(Data.exsOutputFileName, temp_buf); setCtrlString(CTL_TEX2HTM_OUTPATH, temp_buf);
 		Data.GetExtStrData(Data.exsOutputPictPath, temp_buf); setCtrlString(CTL_TEX2HTM_PICPATH, temp_buf);
-		AddClusterAssoc(CTL_TEX2HTM_FLAGS, 0, PPTex2HtmlPrcssr::Param::fDivideByChapter);
-		AddClusterAssoc(CTL_TEX2HTM_FLAGS, 1, PPTex2HtmlPrcssr::Param::fAttachToWorkbook);
-		AddClusterAssoc(CTL_TEX2HTM_FLAGS, 2, PPTex2HtmlPrcssr::Param::fUtf8Codepage);
+		AddClusterAssoc(CTL_TEX2HTM_FLAGS, 0, PrcssrPPTex2Html::Param::fDivideByChapter);
+		AddClusterAssoc(CTL_TEX2HTM_FLAGS, 1, PrcssrPPTex2Html::Param::fAttachToWorkbook);
+		AddClusterAssoc(CTL_TEX2HTM_FLAGS, 2, PrcssrPPTex2Html::Param::fUtf8Codepage);
 		SetClusterData(CTL_TEX2HTM_FLAGS, Data.Flags);
 
 		SetupPPObjCombo(this, CTLSEL_TEX2HTM_PARWB, PPOBJ_WORKBOOK, Data.ParentWbID, OLW_CANSELUPLEVEL, 0);
@@ -1761,7 +1750,7 @@ public:
 		Data.GetExtStrData(Data.exsWbPicLinkTemplate, temp_buf); setCtrlString(CTL_TEX2HTM_WBPICREFTMPL, temp_buf);
 		Data.GetExtStrData(Data.exsAnchorPrefix, temp_buf); setCtrlString(CTL_TEX2HTM_ANCHORPFX, temp_buf);
 
-		disableCtrls(!(Data.Flags & PPTex2HtmlPrcssr::Param::fAttachToWorkbook),
+		disableCtrls(!(Data.Flags & PrcssrPPTex2Html::Param::fAttachToWorkbook),
 			CTLSEL_TEX2HTM_PARWB, CTLSEL_TEX2HTM_PARPICWB, CTL_TEX2HTM_WBREFTMPL, CTL_TEX2HTM_WBPICREFTMPL, 0);
 		return ok;
 	}
@@ -1788,7 +1777,7 @@ private:
 		TDialog::handleEvent(event);
 		if(event.isClusterClk(CTL_TEX2HTM_FLAGS)) {
 			GetClusterData(CTL_TEX2HTM_FLAGS, &Data.Flags);
-			disableCtrls(!(Data.Flags & PPTex2HtmlPrcssr::Param::fAttachToWorkbook),
+			disableCtrls(!(Data.Flags & PrcssrPPTex2Html::Param::fAttachToWorkbook),
 				CTLSEL_TEX2HTM_PARWB, CTLSEL_TEX2HTM_PARPICWB, CTL_TEX2HTM_WBREFTMPL, CTL_TEX2HTM_WBPICREFTMPL, 0);
 		}
 		else
@@ -1797,22 +1786,22 @@ private:
 	}
 };
 
-/*static*/int PPTex2HtmlPrcssr::EditParam(PPTex2HtmlPrcssr::Param * pParam)
+/*static*/int PrcssrPPTex2Html::EditParam(PrcssrPPTex2Html::Param * pParam)
 {
-    return PPDialogProcBody <Tex2HtmlParamDialog, PPTex2HtmlPrcssr::Param> (pParam);
+    return PPDialogProcBody <Tex2HtmlParamDialog, PrcssrPPTex2Html::Param> (pParam);
 }
 
 int PPTex2Html()
 {
 	int    ok = 1;
-	PPTex2HtmlPrcssr::Param param;
-	PPTex2HtmlPrcssr prc;
+	PrcssrPPTex2Html::Param param;
+	PrcssrPPTex2Html prc;
 	SString file_name;
 	// file_name = "D:\\PAPYRUS\\ManWork\\LaTex\\ppmanual.tex";
 	//param.InputFileName = file_name;
 	//param.InputPictPath = "D:\\PAPYRUS\\ManWork\\pict\\png";
 	if(prc.EditParam(&param) > 0) {
-		//param.Flags |= PPTex2HtmlPrcssr::Param::fDivideByChapter;
+		//param.Flags |= PrcssrPPTex2Html::Param::fDivideByChapter;
 		param.GetExtStrData(param.exsInputFileName, file_name);
 		prc.SetParam(&param);
 		ok = prc.Run();
@@ -1833,8 +1822,8 @@ public:
 	{
 		int    ok = -1;
 		size_t sav_offs = 0;
-		PPTex2HtmlPrcssr prc;
-		PPTex2HtmlPrcssr::Param filt;
+		PrcssrPPTex2Html prc;
+		PrcssrPPTex2Html::Param filt;
 		THROW_INVARG(pParam);
         sav_offs = pParam->GetRdOffs();
 		filt.Read(*pParam, 0);
@@ -1855,9 +1844,9 @@ public:
 	{
 		int    ok = -1;
 		if(pParam) {
-			PPTex2HtmlPrcssr::Param filt;
+			PrcssrPPTex2Html::Param filt;
 			if(filt.Read(*pParam, 0)) {
-				PPTex2HtmlPrcssr prc;
+				PrcssrPPTex2Html prc;
 				prc.SetParam(&filt);
 				THROW(prc.Run());
 				ok = 1;
@@ -1872,7 +1861,7 @@ IMPLEMENT_CMD_HDL_FACTORY(CONVERTLATEXTOHTML);
 //
 //
 //
-class PPVer2HtmlPrcssr {
+class PrcssrPPVer2Html {
 public:
 	struct Param : public PPBaseFilt {
 		Param();
@@ -1898,8 +1887,8 @@ public:
 
 	static int EditParam(Param * pParam);
 
-	PPVer2HtmlPrcssr();
-	~PPVer2HtmlPrcssr();
+	PrcssrPPVer2Html();
+	~PrcssrPPVer2Html();
 	void    Destroy();
 	int     SetParam(const Param * pParam);
 	int     Run();
@@ -1957,7 +1946,7 @@ public:
 		}
 		SVerT Ver;
         LDATE  Dt;
-        PPVer2HtmlPrcssr::Paragraph * P_Body;
+        PrcssrPPVer2Html::Paragraph * P_Body;
 	};
 private:
 	int     AddParagraph(VersionEntry * pEntry, Paragraph * pPara)
@@ -2005,31 +1994,31 @@ private:
 
 IMPL_CMPFUNC(PPVer2HtmlPrcssr_VersionEntry, i1, i2)
 {
-    const LDATE d1 = static_cast<const PPVer2HtmlPrcssr::VersionEntry *>(i1)->Dt;
-    const LDATE d2 = static_cast<const PPVer2HtmlPrcssr::VersionEntry *>(i2)->Dt;
+    const LDATE d1 = static_cast<const PrcssrPPVer2Html::VersionEntry *>(i1)->Dt;
+    const LDATE d2 = static_cast<const PrcssrPPVer2Html::VersionEntry *>(i2)->Dt;
     return CMPSIGN(d2, d1); // Обратный порядок потому d2 идет перед d1
 }
 //
 //
 //
-PPVer2HtmlPrcssr::Param::Param() : PPBaseFilt(PPFILT_VER2HTMLPARAM, 0, 0)
+PrcssrPPVer2Html::Param::Param() : PPBaseFilt(PPFILT_VER2HTMLPARAM, 0, 0)
 {
 	SetFlatChunk(offsetof(Param, ReserveStart), offsetof(Param, ExtString)-offsetof(Param, ReserveStart));
 	SetBranchSString(offsetof(Param, ExtString));
 	Init(1, 0);
 }
 
-PPVer2HtmlPrcssr::Param & FASTCALL PPVer2HtmlPrcssr::Param::operator = (const PPVer2HtmlPrcssr::Param & rS)
+PrcssrPPVer2Html::Param & FASTCALL PrcssrPPVer2Html::Param::operator = (const PrcssrPPVer2Html::Param & rS)
 {
 	Copy(&rS, 1);
 	return *this;
 }
 
-int PPVer2HtmlPrcssr::Param::GetExtStrData(int fldID, SString & rBuf) const { return PPGetExtStrData(fldID, ExtString, rBuf); }
-int PPVer2HtmlPrcssr::Param::PutExtStrData(int fldID, const char * pBuf) { return PPPutExtStrData(fldID, ExtString, pBuf); }
+int PrcssrPPVer2Html::Param::GetExtStrData(int fldID, SString & rBuf) const { return PPGetExtStrData(fldID, ExtString, rBuf); }
+int PrcssrPPVer2Html::Param::PutExtStrData(int fldID, const char * pBuf) { return PPPutExtStrData(fldID, ExtString, pBuf); }
 
 class Ver2HtmlParamDialog : public TDialog {
-	DECL_DIALOG_DATA(PPVer2HtmlPrcssr::Param);
+	DECL_DIALOG_DATA(PrcssrPPVer2Html::Param);
 public:
 	enum {
 		grpInput = 1,
@@ -2052,15 +2041,15 @@ public:
 		Data.GetExtStrData(Data.exsInputFileName,  temp_buf); setCtrlString(CTL_VER2HTM_INFILE, temp_buf);
 		Data.GetExtStrData(Data.exsPictPath,  temp_buf); setCtrlString(CTL_VER2HTM_PICPATH, temp_buf);
 		Data.GetExtStrData(Data.exsOutputFileName, temp_buf); setCtrlString(CTL_VER2HTM_OUTPATH, temp_buf);
-		AddClusterAssoc(CTL_VER2HTM_FLAGS, 0, PPVer2HtmlPrcssr::Param::fDivide);
-		AddClusterAssoc(CTL_VER2HTM_FLAGS, 1, PPVer2HtmlPrcssr::Param::fAttachToWorkbook);
-		AddClusterAssoc(CTL_VER2HTM_FLAGS, 2, PPVer2HtmlPrcssr::Param::fUtf8Codepage);
+		AddClusterAssoc(CTL_VER2HTM_FLAGS, 0, PrcssrPPVer2Html::Param::fDivide);
+		AddClusterAssoc(CTL_VER2HTM_FLAGS, 1, PrcssrPPVer2Html::Param::fAttachToWorkbook);
+		AddClusterAssoc(CTL_VER2HTM_FLAGS, 2, PrcssrPPVer2Html::Param::fUtf8Codepage);
 		SetClusterData(CTL_VER2HTM_FLAGS, Data.Flags);
 
 		SetupPPObjCombo(this, CTLSEL_VER2HTM_PARWB, PPOBJ_WORKBOOK, Data.ParentWbID, OLW_CANSELUPLEVEL, 0);
 		Data.GetExtStrData(Data.exsWbCodePrefix, temp_buf); setCtrlString(CTL_VER2HTM_ANCHORPFX, temp_buf);
 
-		disableCtrls(!(Data.Flags & PPVer2HtmlPrcssr::Param::fAttachToWorkbook), CTLSEL_VER2HTM_PARWB, 0);
+		disableCtrls(!(Data.Flags & PrcssrPPVer2Html::Param::fAttachToWorkbook), CTLSEL_VER2HTM_PARWB, 0);
 		return ok;
 	}
 	DECL_DIALOG_GETDTS()
@@ -2082,7 +2071,7 @@ private:
 		TDialog::handleEvent(event);
 		if(event.isClusterClk(CTL_VER2HTM_FLAGS)) {
 			GetClusterData(CTL_VER2HTM_FLAGS, &Data.Flags);
-			disableCtrls(!(Data.Flags & PPVer2HtmlPrcssr::Param::fAttachToWorkbook), CTLSEL_VER2HTM_PARWB, 0);
+			disableCtrls(!(Data.Flags & PrcssrPPVer2Html::Param::fAttachToWorkbook), CTLSEL_VER2HTM_PARWB, 0);
 		}
 		else
 			return;
@@ -2090,12 +2079,12 @@ private:
 	}
 };
 
-/*static*/int PPVer2HtmlPrcssr::EditParam(PPVer2HtmlPrcssr::Param * pParam)
+/*static*/int PrcssrPPVer2Html::EditParam(PrcssrPPVer2Html::Param * pParam)
 {
-    return PPDialogProcBody <Ver2HtmlParamDialog, PPVer2HtmlPrcssr::Param> (pParam);
+    return PPDialogProcBody <Ver2HtmlParamDialog, PrcssrPPVer2Html::Param> (pParam);
 }
 
-PPVer2HtmlPrcssr::PPVer2HtmlPrcssr() : ReH_Ver(0), ReH_Para(0), ReH_ParaFix(0), ReH_ParaDev(0), ReH_ParaMan(0), ReH_Topic(0), ReH_ListItem(0)
+PrcssrPPVer2Html::PrcssrPPVer2Html() : ReH_Ver(0), ReH_Para(0), ReH_ParaFix(0), ReH_ParaDev(0), ReH_ParaMan(0), ReH_Topic(0), ReH_ListItem(0)
 {
 	Scan.RegisterRe("^[v]?[0-9][0-9]?\\.[0-9][0-9]?\\.[0-9][0-9]?", &ReH_Ver);
 	Scan.RegisterRe("^[!]?-[^\\-]", &ReH_Para);
@@ -2106,21 +2095,21 @@ PPVer2HtmlPrcssr::PPVer2HtmlPrcssr() : ReH_Ver(0), ReH_Para(0), ReH_ParaFix(0), 
 	Scan.RegisterRe("^\\{.*\\}", &ReH_Topic);
 }
 
-PPVer2HtmlPrcssr::~PPVer2HtmlPrcssr()
+PrcssrPPVer2Html::~PrcssrPPVer2Html()
 {
 }
 
-void PPVer2HtmlPrcssr::Destroy()
+void PrcssrPPVer2Html::Destroy()
 {
 	Entries.freeAll();
 }
 
-int PPVer2HtmlPrcssr::SetParam(const PPVer2HtmlPrcssr::Param * pParam)
+int PrcssrPPVer2Html::SetParam(const PrcssrPPVer2Html::Param * pParam)
 {
 	return RVALUEPTR(P, pParam) ? 1 : -1;
 }
 
-PPVer2HtmlPrcssr::VersionEntry * PPVer2HtmlPrcssr::ParseVerEntry(const SString & rLine)
+PrcssrPPVer2Html::VersionEntry * PrcssrPPVer2Html::ParseVerEntry(const SString & rLine)
 {
 	VersionEntry * p_entry = 0;
 	LDATE  dt = ZERODATE;
@@ -2143,7 +2132,7 @@ PPVer2HtmlPrcssr::VersionEntry * PPVer2HtmlPrcssr::ParseVerEntry(const SString &
 	return p_entry;
 }
 
-int PPVer2HtmlPrcssr::Debug_Output(const char * pOutputFileName)
+int PrcssrPPVer2Html::Debug_Output(const char * pOutputFileName)
 {
 	int    ok = 1;
 	SString line_buf, temp_buf;
@@ -2187,7 +2176,7 @@ static SString & MakeHtmlImg(const char * pPath, const char * pName, SString & r
 	return rBuf.Z().CatChar('<').Cat("img").Space().CatEqQ("src", img_file_name).CatChar('>');
 }
 
-PPID PPVer2HtmlPrcssr::AttachEntryToWorkbook(const VersionEntry * pEntry, const char * pFileName, int rank, PPID parentWbID, PPObjWorkbook & rWbObj)
+PPID PrcssrPPVer2Html::AttachEntryToWorkbook(const VersionEntry * pEntry, const char * pFileName, int rank, PPID parentWbID, PPObjWorkbook & rWbObj)
 {
 	PPID   wb_id = 0;
 	int    mj = 0, mn = 0, rz = 0;
@@ -2271,7 +2260,7 @@ PPID PPVer2HtmlPrcssr::AttachEntryToWorkbook(const VersionEntry * pEntry, const 
 	return wb_id;
 }
 
-int PPVer2HtmlPrcssr::Output(const char * pOutputFileName, const char * pImgPath)
+int PrcssrPPVer2Html::Output(const char * pOutputFileName, const char * pImgPath)
 {
 	/*
 		temp_buf.Z().CatQStr(line_buf);
@@ -2442,7 +2431,7 @@ int PPVer2HtmlPrcssr::Output(const char * pOutputFileName, const char * pImgPath
 	return ok;
 }
 
-int PPVer2HtmlPrcssr::Parse(const char * pSrcFileName)
+int PrcssrPPVer2Html::Parse(const char * pSrcFileName)
 {
     int    ok = 1;
     int    start_process = 0;
@@ -2542,7 +2531,7 @@ int PPVer2HtmlPrcssr::Parse(const char * pSrcFileName)
     return ok;
 }
 
-int PPVer2HtmlPrcssr::Run()
+int PrcssrPPVer2Html::Run()
 {
 	int    ok = 1;
 	SString file_name, out_file_name;
@@ -2581,8 +2570,8 @@ int PPVer2HtmlPrcssr::Run()
 int PPVer2Html()
 {
 	int    ok = 1;
-	PPVer2HtmlPrcssr::Param param;
-	PPVer2HtmlPrcssr prc;
+	PrcssrPPVer2Html::Param param;
+	PrcssrPPVer2Html prc;
 	//file_name = "d:\\papyrus\\src\\doc\\version.txt";
 	//pict_path = "..\\rsrc\\bitmap";
 	if(prc.EditParam(&param) > 0) {
@@ -2604,8 +2593,8 @@ public:
 	{
 		int    ok = -1;
 		size_t sav_offs = 0;
-		PPVer2HtmlPrcssr prc;
-		PPVer2HtmlPrcssr::Param filt;
+		PrcssrPPVer2Html prc;
+		PrcssrPPVer2Html::Param filt;
 		THROW_INVARG(pParam);
         sav_offs = pParam->GetRdOffs();
 		filt.Read(*pParam, 0);
@@ -2625,9 +2614,9 @@ public:
 	{
 		int    ok = -1;
 		if(pParam) {
-			PPVer2HtmlPrcssr::Param filt;
+			PrcssrPPVer2Html::Param filt;
 			if(filt.Read(*pParam, 0)) {
-				PPVer2HtmlPrcssr prc;
+				PrcssrPPVer2Html prc;
 				prc.SetParam(&filt);
 				THROW(prc.Run());
 				ok = 1;

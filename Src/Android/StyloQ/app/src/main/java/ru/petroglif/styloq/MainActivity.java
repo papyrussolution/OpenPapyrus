@@ -115,8 +115,7 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 						face_list.Set((int)raw_face_item.ID, raw_face_item.GetSimpleText(0));
 					}
 					{
-						int lang_id_list[] = {SLib.slangRU, SLib.slangEN,
-								SLib.slangDE, SLib.slangNL, SLib.slangPT, SLib.slangES};
+						int lang_id_list[] = {SLib.slangRU, SLib.slangEN, SLib.slangDE, SLib.slangNL, SLib.slangPT, SLib.slangES};
 						lang_list.Set(0, undef_text);
 						for(int i = 0; i < lang_id_list.length; i++) {
 							String lang_code = SLib.GetLinguaCode(lang_id_list[i]);
@@ -138,6 +137,12 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 						SLib.SetCtrlString(this, R.id.CTL_PRIVCFG_NOTIFICATIONACTIALDAYS, nad_txt);
 					}
 					// } @v11.7.4
+					// @v12.2.10 {
+					{
+						final int user_flags = SLib.satoi(_data.Get(StyloQConfig.tagUserFlags));
+						SLib.SetCheckboxState(this, R.id.CTL_PRIVCFG_CLIPBOARDBCSCANNER, (user_flags & StyloQConfig.userfClipboardBcScanner) != 0);
+					}
+					// } @v12.2.10
 				}
 			} catch(StyloQException exn) {
 				//e.printStackTrace();
@@ -191,6 +196,17 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 						_data.Set(StyloQConfig.tagNotificationActualDays, nad_txt);
 					}
 					// } @v11.7.4
+					// @v12.2.10 {
+					{
+						final boolean _f = SLib.GetCheckboxState(this, R.id.CTL_PRIVCFG_CLIPBOARDBCSCANNER);
+						int user_flags = SLib.satoi(_data.Get(StyloQConfig.tagUserFlags));
+						if(_f)
+							user_flags |= StyloQConfig.userfClipboardBcScanner;
+						else
+							user_flags &= ~StyloQConfig.userfClipboardBcScanner;
+						_data.Set(StyloQConfig.tagUserFlags, Integer.toString(user_flags));
+					}
+					// } @v12.2.10
 					result = Data;
 				} catch(StyloQException exn) {
 					//e.printStackTrace();
@@ -842,23 +858,23 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 		Object result = null;
 		switch(ev) {
 			case SLib.EV_CREATE:
-				setContentView(R.layout.activity_main);
-				SetupRecyclerListView(null, R.id.serviceListView, R.layout.li_service);
-				// @debug {
-				List <InputMethodInfo> im_list = null;
 				{
-					InputMethodManager ime_mgr = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-					if(ime_mgr != null) {
-						im_list = ime_mgr.getEnabledInputMethodList();
-						if(im_list != null) {
-
-						}
-					}
-				}
-				// } @debug
-				{
-					StyloQApp app_ctx = (StyloQApp)getApplication();
+					setContentView(R.layout.activity_main);
+					SetupRecyclerListView(null, R.id.serviceListView, R.layout.li_service);
+					StyloQApp app_ctx = (StyloQApp) getApplication();
 					if(app_ctx != null) {
+						// @debug {
+							/* List <InputMethodInfo> im_list = null;
+							{
+								InputMethodManager ime_mgr = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+								if(ime_mgr != null) {
+									im_list = ime_mgr.getEnabledInputMethodList();
+									if(im_list != null) {
+
+									}
+								}
+							}*/
+						// } @debug
 						//app_ctx.DisplayMetrics(); // @test
 						try {
 							StyloQDatabase db = app_ctx.GetDB();
@@ -869,7 +885,7 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 								SetupShowArchived_Button(); // @v12.2.2
 								// @v11.6.0 {
 								{
-									final String [] permission_list = {
+									final String[] permission_list = {
 											Manifest.permission.ACCESS_FINE_LOCATION,
 											//Manifest.permission.ACCESS_BACKGROUND_LOCATION,
 											Manifest.permission.ACCESS_COARSE_LOCATION

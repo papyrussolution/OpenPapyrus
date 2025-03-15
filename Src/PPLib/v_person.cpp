@@ -4542,7 +4542,7 @@ int PPViewClientActivityDetails::MakeList()
 					SCardTbl::Rec sc_rec;
 					if(ScObj.Fetch(r_item.Oid.Id, &sc_rec) > 0 && ScObj.P_Tbl->GetOp(r_item.Oid.Id, r_item.Dtm, &op_blk) > 0) {
 						code_buf = sc_rec.Code;
-						//obj_buf.Cat("SCard").CatDiv(':', 2).Cat(sc_rec.Code).Space().Cat(r_item.Dtm, DATF_ISO8601CENT, 0).Space().Cat(op_blk.Amount, MKSFMTD(0, 2, 0));
+						//obj_buf.Cat("SCard").CatDiv(':', 2).Cat(sc_rec.Code).Space().Cat(r_item.Dtm, DATF_ISO8601CENT, 0).Space().Cat(op_blk.Amount, MKSFMTD_020);
 						if(op_blk.Flags & SCardCore::OpBlock::fFreezing)
 							op_buf = "freezing";
 						else if(op_blk.Flags & SCardCore::OpBlock::fLeveling)

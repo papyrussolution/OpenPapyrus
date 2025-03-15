@@ -1,5 +1,5 @@
 // SALARY.CPP
-// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2024
+// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -186,7 +186,8 @@ int SalaryCore::GetObjectList(PPID objType, const DateRange & rPeriod, const Uin
 int SalaryCore::GetListByObject(PPID objType, PPID objID, const DateRange & rPeriod,
 	const UintHashTable * pIdList, PPIDArray * pList, double * pAmount)
 {
-	int    ok = -1, idx = -1;
+	int    ok = -1;
+	int    idx = -1;
 	union {
 		SalaryTbl::Key2 k2;
 		SalaryTbl::Key3 k3;
@@ -514,7 +515,8 @@ int PPViewSalary::UpdateTempRec(PPID id)
 
 int PPViewSalary::Init_(const PPBaseFilt * pFilt)
 {
-	int    ok = 1, use_ta = 1;
+	int    ok = 1;
+	int    use_ta = 1;
 	TempSalaryTbl * p_tbl = 0;
 	ZDELETE(P_TempTbl);
 	ZDELETE(P_Ct);

@@ -1,5 +1,5 @@
 // EXTGSEL.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023
+// Copyright (c) A.Sobolev 2001, 2002, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -467,7 +467,7 @@ void ExtGoodsSelDialog::updateList(int pos)
 	showCtrl(CTL_EXTGSEL_MTX_IND, 0);
 	if(P_List) {
 		ListBoxDef * p_def = 0;
-		PPID   op_type_id = GetOpType(OpID);
+		const  PPID op_type_id = GetOpType(OpID);
 		const  long preserve_pos = P_List->P_Def ? P_List->P_Def->_curItem() : 0;
 		PPID   grp   = getCtrlLong(CTLSEL_EXTGSEL_GGRP);
 		PPID   brand = getCtrlLong(CTLSEL_EXTGSEL_BRAND);

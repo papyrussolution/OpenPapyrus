@@ -915,8 +915,9 @@ int PPApp::processCommand(uint cmd)
 		case cmTestMqc:                 TestMqc();   break;
 		case cmTestMarketplace:         TestMarketplace(); break; // @v12.1.0
 		case cmCheckChZnMark:           PPChZnPrcssr::InteractiveCheck(); break; // @v12.0.4
-		case cmConvertLatexToHtml:      PPTex2Html(); break;
-		case cmConvertVersionToHtml:    PPVer2Html(); break;
+		case cmConvertLatexToHtml:      PPTex2Html(); break; // @internal
+		case cmConvertVersionToHtml:    PPVer2Html(); break; // @internal
+		case cmSourceCodeProcessing:    /*@todo*/ break; // @v12.2.10 @internal
 		// @underconstruction case cmGenerateGoodsBills:   GenerateGoodsBills(); break;
 		// @v4.4.2 case cmConvert329:           Convert329();         break;
 		// @v4.4.5 case cmConvert3512:          Convert3512();        break;
@@ -1835,7 +1836,7 @@ int PreprocessCmdLine()
 int ExecuteLuaScript(const char * pScriptText);
 int ExecuteLuaScriptFile(const char * pFileName);
 int ExportUhttForGitHub();
-int ParseWinRcForNativeText();
+// @v12.2.10 int ParseWinRcForNativeText();
 int DoCmdLineBackup(const char * pScenSymb, const char * pDbSymb);
 
 void PPApp::login(int processCmdLine)
@@ -2079,16 +2080,25 @@ void PPApp::login(int processCmdLine)
 					PPObjectTransmit::ReceivePackets(0);
 				if(PPSession::GetStartUpOption(PPSession::cmdlSyncPut, arg_buf))
 					PPObjectTransmit::TransmitBillsByDBDivList(0);
-				if(PPSession::GetStartUpOption(PPSession::cmdlUhttGoodsToGitHubExport, arg_buf)) { // @v10.1.6
+				if(PPSession::GetStartUpOption(PPSession::cmdlUhttGoodsToGitHubExport, arg_buf)) {
 					ExportUhttForGitHub();
 				}
 				{
 					PPID   _id  = 0;
 					if(PPSession::GetStartUpOption(PPSession::cmdlSelfBuild, arg_buf)) {
 						if(arg_buf.IsEqiAscii("parsewinrcfornativetext")) {
-							ParseWinRcForNativeText();
+							// @v12.2.10 ParseWinRcForNativeText();
+							// @v12.2.10 {
+							PrcssrSourceCodeMaintaining prc;
+							PrcssrSourceCodeMaintainingFilt param;
+							param.Flags |= PrcssrSourceCodeMaintainingFilt::fParseWinRcForNativeText;
+							if(prc.Init(&param))
+								prc.Run();
+							else
+								PPError();
+							// } @v12.2.10 
 						}
-						else if(arg_buf.IsEqiAscii("buildmanualstaff")) { // @v10.9.10
+						else if(arg_buf.IsEqiAscii("buildmanualstaff")) {
 							SelfbuildStaffForManual();
 						}
 						else

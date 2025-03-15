@@ -1317,6 +1317,8 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 				double Vat20Amt;
 				double Vat18Amt;
 				double Vat10Amt;
+				double Vat05Amt; // @v12.2.10
+				double Vat07Amt; // @v12.2.10
 				double Vat0Amt;
 				double VatFreeAmt;
 				double Vat18_118Amt;
@@ -1353,30 +1355,31 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 				if(param_val.IsEmpty() || param_val.IsEqiAscii("yes") || param_val.IsEqiAscii("true") || param_val == "1")
 					blk.IsVatFree = 1;
 			}
-			if(pb.Get("VATAMOUNT20", param_val) > 0) {
-				blk.Vat20Amt = R2(param_val.ToReal());
-				if(blk.Vat20Amt != 0.0)
-					is_there_vatamt = 1;
-			}
-			if(pb.Get("VATAMOUNT18", param_val) > 0) {
-				blk.Vat18Amt = R2(param_val.ToReal());
-				if(blk.Vat18Amt != 0.0)
-					is_there_vatamt = 1;
-			}
-			if(pb.Get("VATAMOUNT10", param_val) > 0) {
-				blk.Vat10Amt = R2(param_val.ToReal());
-				if(blk.Vat10Amt != 0.0)
-					is_there_vatamt = 1;
-			}
-			if(pb.Get("VATAMOUNT00", param_val) > 0 || pb.Get("VATAMOUNT0", param_val) > 0) {
-				blk.Vat0Amt = R2(param_val.ToReal());
-				if(blk.Vat0Amt != 0.0)
-					is_there_vatamt = 1;
-			}
-			if(pb.Get("VATFREEAMOUNT", param_val) > 0) {
-				blk.VatFreeAmt = R2(param_val.ToReal());
-				if(blk.VatFreeAmt != 0.0)
-					is_there_vatamt = 1;
+			{
+				struct VatAmtListEntry {
+					const char * P_Symb;
+					double * P_Var;
+				};
+				/*non-static*/const VatAmtListEntry vat_amt_list[] = {
+					{ "VATAMOUNT20", &blk.Vat20Amt },
+					{ "VATAMOUNT18", &blk.Vat18Amt },
+					{ "VATAMOUNT10", &blk.Vat10Amt },
+					{ "VATAMOUNT05", &blk.Vat05Amt },
+					{ "VATAMOUNT07", &blk.Vat07Amt },
+					{ "VATAMOUNT00", &blk.Vat0Amt },
+					{ "VATAMOUNT0",  &blk.Vat0Amt },
+					{ "VATFREEAMOUNT",  &blk.VatFreeAmt },
+				};
+				for(uint vli = 0; vli < SIZEOFARRAY(vat_amt_list); vli++) {
+					const VatAmtListEntry & r_entry = vat_amt_list[vli];
+					assert(!isempty(r_entry.P_Symb));
+					assert(r_entry.P_Var != 0);
+					if(pb.Get(r_entry.P_Symb, param_val) > 0) {
+						*r_entry.P_Var = R2(param_val.ToReal());
+						if(*r_entry.P_Var != 0.0)
+							is_there_vatamt = 1;
+					}
+				}
 			}
 			if(!is_there_vatamt) {
 				const double _amount = blk.BankAmt + blk.CashAmt;
@@ -1386,6 +1389,10 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 					blk.Vat18Amt = _amount;
 				else if(blk.VatRate == 10.0)
 					blk.Vat10Amt = _amount;
+				else if(feqeps(blk.VatRate, 5.0, 1E-6)) // @v12.2.10
+					blk.Vat05Amt = _amount;
+				else if(feqeps(blk.VatRate, 7.0, 1E-6)) // @v12.2.10
+					blk.Vat07Amt = _amount;
 				else if(blk.VatRate == 0.0)
 					blk.Vat0Amt = _amount;
 			}

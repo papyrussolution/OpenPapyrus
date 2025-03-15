@@ -3907,7 +3907,7 @@ int BillItemBrowser::SelectPrefSuppl(uint rowId)
 				ss.Z();
 				GetObjectName(PPOBJ_ARTICLE, r_item.Key, temp_buf);
 				ss.add(temp_buf);
-				ss.add(temp_buf.Z().Cat(r_item.Val, MKSFMTD(0, 2, 0)));
+				ss.add(temp_buf.Z().Cat(r_item.Val, MKSFMTD_020));
 				THROW(addStringToList(i+1, ss.getBuf()));
 			}
 			CATCHZOK
@@ -4071,8 +4071,8 @@ IMPL_HANDLE_EVENT(BillItemBrowser)
 			if(!(P_BObj->Cfg.Flags & BCF_DONTWARNDUPGOODS) && P_Pack->SearchGoods(grec.ID, &pos) && !CONFIRM(PPCFM_SAMEGOODSINPACK))
 				go(pos);
 			else {
-				const  PPID op_type = GetOpType(P_Pack->Rec.OpID);
-				const  int  skip_dlg = BIN((P_BObj->GetConfig().Flags & BCF_ADDAUTOQTTYBYBRCODE) && oneof2(op_type, PPOPT_GOODSEXPEND, PPOPT_GOODSRECEIPT));
+				const  PPID op_type_id = GetOpType(P_Pack->Rec.OpID);
+				const  bool skip_dlg = ((P_BObj->GetConfig().Flags & BCF_ADDAUTOQTTYBYBRCODE) && oneof2(op_type_id, PPOPT_GOODSEXPEND, PPOPT_GOODSRECEIPT));
 				TIDlgInitData tidi;
 				SETFLAG(tidi.Flags, TIDIF_AUTOQTTY, skip_dlg);
 				tidi.GoodsID  = grec.ID;

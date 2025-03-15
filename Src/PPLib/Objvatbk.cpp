@@ -1223,7 +1223,7 @@ int PPViewVatBook::LoadClbList(PPID billID)
 	BillTbl::Rec bill_rec;
 	CALLPTRMEMB(P_ClbList, freeAll());
 	while(billID && P_BObj->Search(billID, &bill_rec) > 0) {
-		PPID      op_type_id = GetOpType(bill_rec.OpID);
+		const PPID  op_type_id = GetOpType(bill_rec.OpID);
 		if(op_type_id == PPOPT_PAYMENT)
 			billID = bill_rec.LinkBillID;
 		else {
@@ -1317,7 +1317,8 @@ int PPViewVatBook::InitIteration()
 
 int FASTCALL PPViewVatBook::NextIteration(VatBookViewItem * pItem)
 {
-	char * p, clb_item[64];
+	char * p = 0;
+	char   clb_item[64];
 	if(P_IterQuery) {
 		if(P_ClbList && ClbListIterPos < P_ClbList->getCount()) {
 			STRNSCPY(clb_item, static_cast<const char *>(P_ClbList->at(ClbListIterPos)));
@@ -1417,13 +1418,19 @@ void PPViewVatBook::ViewTotal()
 			dlg->setCtrlData(CTL_VATBOOKTOTAL_VAT1, &Total.Vat1Amount);
 			dlg->setCtrlData(CTL_VATBOOKTOTAL_VAT2, &Total.Vat2Amount);
 			dlg->setCtrlData(CTL_VATBOOKTOTAL_VAT3, &Total.Vat3Amount);
+			dlg->setCtrlData(CTL_VATBOOKTOTAL_VAT4, &Total.Vat4Amount); // @v12.2.10
+			dlg->setCtrlData(CTL_VATBOOKTOTAL_VAT4, &Total.Vat5Amount); // @v12.2.10
 			dlg->setCtrlData(CTL_VATBOOKTOTAL_SVAT1, &Total.Vat1Sum);
 			dlg->setCtrlData(CTL_VATBOOKTOTAL_SVAT2, &Total.Vat2Sum);
 			dlg->setCtrlData(CTL_VATBOOKTOTAL_SVAT3, &Total.Vat3Sum);
+			dlg->setCtrlData(CTL_VATBOOKTOTAL_SVAT4, &Total.Vat4Sum); // @v12.2.10
+			dlg->setCtrlData(CTL_VATBOOKTOTAL_SVAT4, &Total.Vat5Sum); // @v12.2.10
 			SString rate_buf;
 			dlg->setStaticText(CTL_VATBOOKTOTAL_TVAT1, VatRateStr(PPObjVATBook::GetVatRate(0), rate_buf));
 			dlg->setStaticText(CTL_VATBOOKTOTAL_TVAT2, VatRateStr(PPObjVATBook::GetVatRate(1), rate_buf));
 			dlg->setStaticText(CTL_VATBOOKTOTAL_TVAT3, VatRateStr(PPObjVATBook::GetVatRate(2), rate_buf));
+			dlg->setStaticText(CTL_VATBOOKTOTAL_TVAT4, VatRateStr(PPObjVATBook::GetVatRate(3), rate_buf)); // @v12.2.10
+			dlg->setStaticText(CTL_VATBOOKTOTAL_TVAT5, VatRateStr(PPObjVATBook::GetVatRate(4), rate_buf)); // @v12.2.10
 		}
 		ExecViewAndDestroy(dlg);
 	}

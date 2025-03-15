@@ -1179,7 +1179,7 @@ struct cairo_surface_t;
 typedef struct _cairo cairo_t;
 typedef struct _cairo_font_face cairo_font_face_t;
 typedef struct _cairo_scaled_font cairo_scaled_font_t;
-struct Archive; // @v10.4.4 libarchive
+struct Archive; // libarchive
 class  S_GUID_Base;
 class  S_GUID;
 class  STokenRecognizer;
@@ -4563,6 +4563,7 @@ public:
 	SString & FASTCALL CatHex(uint64 val);
 	SString & FASTCALL CatHex(uint8 val);
 	SString & FASTCALL CatHexUpper(uint8 val);
+	SString & FASTCALL CatHexUpper(uint64 val);
 	SString & STDCALL  CatHex(const void * pBinary, size_t size);
 	//
 	// Descr: Конкатенация конструкции {"%d.%d.%d", ver, mjr, mnr}
@@ -5438,6 +5439,8 @@ int    FASTCALL strnicmp866(const char *, const char *, size_t);
 char * FASTCALL stristr866(const char *, const char *);
 char * FASTCALL strlwr866(char *);
 char * FASTCALL strupr866(char *);
+char * FASTCALL strupr_ascii(char *); // @v12.2.10
+char * FASTCALL strlwr_ascii(char *); // @v12.2.10
 int    FASTCALL __866_to_koi7(int);
 char * FASTCALL _s_866_to_koi7(char *);
 int    FASTCALL _koi8_to_866(int);
@@ -7068,6 +7071,40 @@ public:
 	explicit S_GUID(const char * pStr);
 	S_GUID & FASTCALL operator = (const S_GUID_Base & rS);
 };
+//
+//
+//
+class SObjID_Base { // @flat @noctr @persistent
+public:
+	SObjID_Base Set(int32 objType, int32 objID);
+	SObjID_Base & Z();
+	bool   IsZero() const;
+	bool   IsFullyDefined() const { return (Obj && Id); }
+	bool   IsEq(int32 objType, int32 objID) const;
+	bool   FASTCALL operator == (SObjID_Base s) const;
+	bool   FASTCALL operator != (SObjID_Base s) const;
+	double ToDouble() const;
+	bool   FromDouble(double oid);
+	operator double() const;
+	SObjID_Base & FASTCALL operator = (double);
+	//
+	// GOODS(1204)
+	//
+	//SString & FASTCALL ToStr(SString & rBuf) const;
+	//int    FASTCALL FromStr(const char * pStr);
+
+	int32  Obj;
+	int32  Id;
+};
+
+class SObjID : public SObjID_Base { // @flat @persistent
+public:
+	SObjID();
+	SObjID(const SObjID_Base & rS);
+	SObjID(int32 objType, int32 objID);
+	SObjID & FASTCALL operator = (const SObjID_Base & rS);
+	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx); // @v11.7.0
+}; 
 //
 // Descr: Инкапсуляция для Security IS (SID) Windows
 //
@@ -12943,6 +12980,7 @@ public:
 	//   0  - ошибка
 	//
 	int    Scan(const char * pPath, const char * pWildcard, long flags);
+	int    Scan(const char * pPath, const StringSet & rSsWildcards, long flags);
 	int    Add(const char * pPath, const SDirEntry & rDe, long flags);
 	//
 	// Descr: Вставляет в пул файл с полным путем pPath.
@@ -12983,7 +13021,8 @@ private:
 
 	void   ConvertEntry(const InnerEntry & rIEntry, Entry & rEntry) const;
 	int    Implement_Add(const char * pPath, const SDirEntry & rDe, const char * pRemoteUrl, long flags);
-	int    Helper_Scan(const char * pPath, const char * pWildcard, long flags);
+	//int    Helper_Scan(const char * pPath, const char * pWildcard, long flags);
+	int    Helper_Scan(const char * pPath, const StringSet & rSsWildcards, long flags);
 
     TSVector <InnerEntry> L;
     long   State;
@@ -19262,9 +19301,9 @@ public:
 	//   !0 - куча в порядке
 	//   0  - проблемы
 	//
-	static int Check();
+	static bool Check();
 	MemHeapTracer();
-	int    CalcStat(Stat * pSize);
+	bool   CalcStat(Stat * pSize);
 	int    Dump(const char * pFileName, long flags);
 };
 

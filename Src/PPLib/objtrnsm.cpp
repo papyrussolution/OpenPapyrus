@@ -757,7 +757,7 @@ int PPObjectTransmit::PutObjectToIndex(PPID objType, PPID objID, int updProtocol
 					if(need_send != NEED_SEND_NOOBJ) {
 						THROW(SETIFZ(p_obj, _GetObjectPtr(objType)));
 					}
-					send_log_msg.Z().Cat(DestDbDivID).Space().CatChar('{').Cat(oi.ToStr(temp_buf)).CatChar('}').Space().Cat(need_send).Space().
+					send_log_msg.Z().Cat(DestDbDivID).Space().CatChar('{').Cat(SObjID_ToStr(oi, temp_buf)).CatChar('}').Space().Cat(need_send).Space().
 						Cat(updProtocol).Space().Cat(innerUpdProtocol);
 					if(obj_name.NotEmpty())
 						temp_buf = obj_name;
@@ -2320,9 +2320,8 @@ private:
 void BillTransDialog::SetupCtrls()
 {
 	const  PPID op_id = getCtrlLong(CTLSEL_BTRAN_OP);
-	PPID   op_type = GetOpType(op_id);
-	const  int  disable = BIN(!op_id || ((op_type = GetOpType(op_id)) == PPOPT_GENERIC) ||
-		!oneof2(op_type, PPOPT_GOODSEXPEND, PPOPT_GOODSRECEIPT));
+	const  PPID op_type_id = GetOpType(op_id);
+	const  bool disable = !oneof2(op_type_id, PPOPT_GOODSEXPEND, PPOPT_GOODSRECEIPT);
 	disableCtrl(CTLSEL_BTRAN_TOOP, disable);
 	if(disable)
 		setCtrlLong(CTLSEL_BTRAN_TOOP, 0);

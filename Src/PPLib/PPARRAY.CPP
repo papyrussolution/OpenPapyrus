@@ -611,6 +611,8 @@ int ObjIdListFilt::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 //
 //
 //
+#if 0 // @v12.2.10 replaced with SObjID_Base and SObjID {
+
 bool PPObjID_Base::IsZero() const { return (Obj == 0 && Id == 0); }
 
 PPObjID_Base & PPObjID_Base::Z()
@@ -721,7 +723,88 @@ int PPObjID::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx) // @v
 	CATCHZOK
 	return ok;	
 }
+#endif // } 0 @v12.2.10 replaced with SObjID_Base and SObjID
 
+SString & SObjID_ToStr(const SObjID & rOid, SString & rBuf)
+{
+	rBuf.Z();
+	if(!DS.GetObjectTypeSymb(rOid.Obj, rBuf)) 
+		rBuf.Cat("Obj").CatChar('[').Cat(rOid.Obj).CatChar(']');
+	if(rOid.Id)
+		rBuf.CatChar('(').Cat(rOid.Id).CatChar(')');
+	return rBuf;
+}
+
+int SObjID_FromStr(const char * pStr, SObjID & rOid)
+{
+	rOid.Z(); // @v12.2.10
+	int    ok = 0;
+	SStrScan scan(pStr);
+	SString temp_buf;
+	scan.Skip();
+	if(scan.GetIdent(temp_buf)) {
+		long   extra = 0;
+		PPID   lval = DS.GetObjectTypeBySymb(temp_buf, &extra);
+		if(lval) {
+			rOid.Obj = lval;
+			ok = 1;
+			scan.Skip();
+			if(scan[0] == '(') {
+				scan.Incr();
+				if(scan.GetNumber(temp_buf)) {
+					lval = temp_buf.ToLong();
+					scan.Skip();
+					if(scan[0] == ')') {
+						rOid.Id = lval;
+						ok = 2;
+					}
+				}
+			}
+		}
+	}
+	return ok;
+}
+
+/*
+SString & FASTCALL PPObjID::ToStr(SString & rBuf) const
+{
+	rBuf.Z();
+	if(!DS.GetObjectTypeSymb(Obj, rBuf)) 
+		rBuf.Cat("Obj").CatChar('[').Cat(Obj).CatChar(']');
+	if(Id)
+		rBuf.CatChar('(').Cat(Id).CatChar(')');
+	return rBuf;
+}
+
+int FASTCALL PPObjID::FromStr(const char * pStr)
+{
+	int    ok = 0;
+	SStrScan scan(pStr);
+	SString temp_buf;
+	scan.Skip();
+	if(scan.GetIdent(temp_buf)) {
+		long   extra = 0;
+		PPID   lval = DS.GetObjectTypeBySymb(temp_buf, &extra);
+		if(lval) {
+			Obj = lval;
+			ok = 1;
+			scan.Skip();
+			if(scan[0] == '(') {
+				scan.Incr();
+				if(scan.GetNumber(temp_buf)) {
+					lval = temp_buf.ToLong();
+					scan.Skip();
+					if(scan[0] == ')') {
+						Id = lval;
+						ok = 2;
+					}
+				}
+			}
+		}
+	}
+	return ok;
+}
+*/
 PPObjNamePEntry::PPObjNamePEntry(PPID objType, PPID objID) : PPObjID(objType, objID), NameP(0)
 {
 }

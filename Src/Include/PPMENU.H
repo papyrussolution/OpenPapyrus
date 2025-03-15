@@ -560,5 +560,6 @@
 #define cmGatherClientActivityStat     666 // @v12.2.2 Сбор статистики по активности клиентов
 #define cmRecoverHungedUpTags          667 // @v12.2.5 Корректировка (удаление) висячих тегов (то есть тех, чьи объекты отсутствуют)
 #define cmClientActivity               668 // @v12.2.8 Анализ клиентской активности
+#define cmSourceCodeProcessing         669 // @v12.2.10 Процессинг исходных кодов проекта (internal)
 
 #endif /* __PPMENU_H */

@@ -12714,7 +12714,7 @@ int PPViewVetisDocument::MatchObject(const VetisDocumentTbl::Rec & rRec, int obj
 						{
 							// @v11.1.12 BillCore::GetCode(temp_buf = bp.Rec.Code);
 							temp_buf = bp.Rec.Code; // @v11.1.12 
-							(slp.Title = temp_buf).Space().Cat(bp.Rec.Dt, DATF_DMY).CatDiv('-', 1).Cat(rRec.Volume, MKSFMTD(0, 3, 0));
+							(slp.Title = temp_buf).Space().Cat(bp.Rec.Dt, DATF_DMY).CatDiv('-', 1).Cat(rRec.Volume, MKSFMTD_030);
 							if(VetisEntityCore::GetProductItemName(rRec.EntityID, rRec.ProductItemID, rRec.SubProductID, rRec.ProductID, temp_buf) > 0)
 								slp.Title.CatDiv('-', 1).Cat(temp_buf);
 						}
@@ -12839,7 +12839,7 @@ int PPViewVetisDocument::MatchObject(const VetisDocumentTbl::Rec & rRec, int obj
 										slp.Title.Cat(rRec.WayBillDate, DATF_DMY);
 									else if(checkdate(rRec.IssueDate))
 										slp.Title.Cat(rRec.IssueDate, DATF_DMY);
-									slp.Title.CatDiv('-', 1).Cat(rRec.Volume, MKSFMTD(0, 3, 0));
+									slp.Title.CatDiv('-', 1).Cat(rRec.Volume, MKSFMTD_030);
 									if(VetisEntityCore::GetProductItemName(rRec.EntityID, rRec.ProductItemID, rRec.SubProductID, rRec.ProductID, temp_buf) > 0)
 										slp.Title.CatDiv('-', 1).Cat(temp_buf);
 								}
@@ -13010,7 +13010,7 @@ int PPViewVetisDocument::MatchObject(const VetisDocumentTbl::Rec & rRec, int obj
 									brw_title.Cat(rRec.WayBillDate, DATF_DMY);
 								else if(checkdate(rRec.IssueDate))
 									brw_title.Cat(rRec.IssueDate, DATF_DMY);
-								brw_title.CatDiv('-', 1).Cat(rRec.Volume, MKSFMTD(0, 3, 0));
+								brw_title.CatDiv('-', 1).Cat(rRec.Volume, MKSFMTD_030);
 								if(VetisEntityCore::GetProductItemName(rRec.EntityID, rRec.ProductItemID, rRec.SubProductID, rRec.ProductID, temp_buf) > 0)
 									brw_title.CatDiv('-', 1).Cat(temp_buf);
 								bill_view.SetOuterTitle(brw_title);

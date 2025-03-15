@@ -9,49 +9,6 @@
 
 #pragma pack(push)
 #pragma pack(1)
-class Reference_Tbl : public DBTable {
-public:
-	Reference_Tbl(const char * pFileName = 0);
-
-	struct Rec {
-		Rec();
-		Rec & Clear();
-		int32  ObjType;
-		int32  ObjID;
-		char   ObjName[48];
-		char   AltText[20];
-		int32  Flags;
-		int32  Val1;
-		int32  Val2;
-	} data;
-	struct Key0 {
-		int32  ObjType;
-		int32  ObjID;
-	};
-	struct Key1 {
-		int32  ObjType;
-		char   ObjName[48];
-	};
-	struct Key2 {
-		int32  ObjType;
-		int32  Val1;
-	};
-	struct Key3 {
-		int32  ObjType;
-		int32  Val2;
-	};
-	DBField ObjType;
-	DBField ObjID;
-	DBField ObjName;
-	DBField AltText;
-	DBField Flags;
-	DBField Val1;
-	DBField Val2;
-};
-#pragma pack(pop)
-
-#pragma pack(push)
-#pragma pack(1)
 class Reference2Tbl : public DBTable {
 public:
 	Reference2Tbl(const char * pFileName = 0);
@@ -486,126 +443,6 @@ public:
 
 #pragma pack(push)
 #pragma pack(1)
-class CountryTbl : public DBTable {
-public:
-	CountryTbl(const char * pFileName = 0);
-
-	struct Rec {
-		Rec();
-		Rec & Clear();
-		int32  ID;
-		char   Name[30];
-		char   Abbr[10];
-		int32  Capital;
-		char   Phone[10];
-		int16  HasRegions;
-		uint8  Reserve[16]; // raw
-	} data;
-	struct Key0 {
-		int32  ID;
-	};
-	struct Key1 {
-		char   Name[30];
-	};
-	struct Key2 {
-		char   Abbr[10];
-	};
-	DBField ID;
-	DBField Name;
-	DBField Abbr;
-	DBField Capital;
-	DBField Phone;
-	DBField HasRegions;
-	DBField Reserve;
-};
-#pragma pack(pop)
-
-#pragma pack(push)
-#pragma pack(1)
-class RegionTbl : public DBTable {
-public:
-	RegionTbl(const char * pFileName = 0);
-
-	struct Rec {
-		Rec();
-		Rec & Clear();
-		int32  ID;
-		int32  Country;
-		char   Name[30];
-		char   Abbr[10];
-		int32  Capital;
-		char   Phone[10];
-	} data;
-	struct Key0 {
-		int32  ID;
-	};
-	struct Key1 {
-		int32  Country;
-		char   Name[30];
-	};
-	struct Key2 {
-		char   Name[30];
-	};
-	struct Key3 {
-		char   Abbr[10];
-	};
-	DBField ID;
-	DBField Country;
-	DBField Name;
-	DBField Abbr;
-	DBField Capital;
-	DBField Phone;
-};
-#pragma pack(pop)
-
-#pragma pack(push)
-#pragma pack(1)
-class CityTbl : public DBTable {
-public:
-	CityTbl(const char * pFileName = 0);
-
-	struct Rec {
-		Rec();
-		Rec & Clear();
-		int32  ID;
-		int32  Country;
-		int32  Region;
-		char   Name[30];
-		char   Abbr[10];
-		int32  Status;
-		char   Phone[10];
-	} data;
-	struct Key0 {
-		int32  ID;
-	};
-	struct Key1 {
-		int32  Region;
-		char   Name[30];
-	};
-	struct Key2 {
-		int32  Country;
-		char   Name[30];
-	};
-	struct Key3 {
-		char   Name[30];
-		int32  Region;
-	};
-	struct Key4 {
-		char   Abbr[10];
-		int32  Region;
-	};
-	DBField ID;
-	DBField Country;
-	DBField Region;
-	DBField Name;
-	DBField Abbr;
-	DBField Status;
-	DBField Phone;
-};
-#pragma pack(pop)
-
-#pragma pack(push)
-#pragma pack(1)
 class EAddrTbl : public DBTable {
 public:
 	EAddrTbl(const char * pFileName = 0);
@@ -977,45 +814,6 @@ public:
 
 #pragma pack(push)
 #pragma pack(1)
-class BankAccount_Pre9004Tbl : public DBTable {
-public:
-	BankAccount_Pre9004Tbl(const char * pFileName = 0);
-
-	struct Rec {
-		Rec();
-		Rec & Clear();
-		int32  ID;
-		int32  PersonID;
-		int32  BankID;
-		int32  AccType;
-		char   Acct[32];
-		LDATE  OpenDate;
-		int32  Flags;
-		int32  CorrAcc;
-		int32  CorrArt;
-	} data;
-	struct Key0 {
-		int32  ID;
-	};
-	struct Key1 {
-		int32  PersonID;
-		int32  BankID;
-		char   Acct[32];
-	};
-	DBField ID;
-	DBField PersonID;
-	DBField BankID;
-	DBField AccType;
-	DBField Acct;
-	DBField OpenDate;
-	DBField Flags;
-	DBField CorrAcc;
-	DBField CorrArt;
-};
-#pragma pack(pop)
-
-#pragma pack(push)
-#pragma pack(1)
 class PersonKindTbl : public DBTable {
 public:
 	PersonKindTbl(const char * pFileName = 0);
@@ -1165,57 +963,6 @@ public:
 	DBField Reserve;
 	DBField PrmrSCardID;
 	DBField ScndSCardID;
-};
-#pragma pack(pop)
-
-#pragma pack(push)
-#pragma pack(1)
-class StaffList_Pre9003Tbl : public DBTable {
-public:
-	StaffList_Pre9003Tbl(const char * pFileName = 0);
-
-	struct Rec {
-		Rec();
-		Rec & Clear();
-		int32  ID;
-		int32  OrgID;
-		int32  DivisionID;
-		char   Name[48];
-		int32  Rank;
-		int32  Flags;
-		int16  VacancyCount;
-		int16  VacancyBusy;
-		char   Salary[8];  // money[8.2]
-		int32  FixedStaff;
-		int32  ChargeGrpID;
-		uint8  Reserve[24]; // raw
-	} data;
-	struct Key0 {
-		int32  ID;
-	};
-	struct Key1 {
-		int32  OrgID;
-		int32  DivisionID;
-		char   Name[48];
-	};
-	struct Key2 {
-		int32  OrgID;
-		int32  DivisionID;
-		int32  Rank;
-		char   Name[48];
-	};
-	DBField ID;
-	DBField OrgID;
-	DBField DivisionID;
-	DBField Name;
-	DBField Rank;
-	DBField Flags;
-	DBField VacancyCount;
-	DBField VacancyBusy;
-	DBField Salary;
-	DBField FixedStaff;
-	DBField ChargeGrpID;
-	DBField Reserve;
 };
 #pragma pack(pop)
 
@@ -1574,36 +1321,6 @@ public:
 	DBField Rank;
 	DBField VanType;
 	DBField Reserve;
-};
-#pragma pack(pop)
-
-#pragma pack(push)
-#pragma pack(1)
-class HistGoodsTbl : public DBTable {
-public:
-	HistGoodsTbl(const char * pFileName = 0);
-
-	struct Rec {
-		Rec();
-		Rec & Clear();
-		int32  ID;
-		int32  GoodsID;
-		int32  Ver;
-		int32  Sz;
-		TSLob <2048> Data;
-	} data;
-	struct Key0 {
-		int32  ID;
-	};
-	struct Key1 {
-		int32  GoodsID;
-		int32  Ver;
-	};
-	DBField ID;
-	DBField GoodsID;
-	DBField Ver;
-	DBField Sz;
-	DBField Data;
 };
 #pragma pack(pop)
 
@@ -2138,102 +1855,6 @@ public:
 	DBField PaymAmount;
 	DBField AgtBillID;
 	DBField Reserve;
-};
-#pragma pack(pop)
-
-#pragma pack(push)
-#pragma pack(1)
-class HistBillTbl : public DBTable {
-public:
-	HistBillTbl(const char * pFileName = 0);
-
-	struct Rec {
-		Rec();
-		Rec & Clear();
-		int32  ID;
-		int32  InnerID;
-		int32  BillID;
-		int32  Ver;
-		char   Code[24];
-		LDATE  Dt;
-		int32  OpID;
-		int32  LocID;
-		int32  Object;
-		int32  Object2;
-		int32  CurID;
-		double CRate;
-		double Amount;
-		int32  LinkBillID;
-		int32  Flags;
-		int32  SCardID;
-		int32  PayerID;
-		int32  AgentID;
-		uint8  Reserve[16]; // raw
-	} data;
-	struct Key0 {
-		int32  ID;
-	};
-	struct Key1 {
-		int32  BillID;
-		int32  InnerID;
-		int32  Ver;
-	};
-	DBField ID;
-	DBField InnerID;
-	DBField BillID;
-	DBField Ver;
-	DBField Code;
-	DBField Dt;
-	DBField OpID;
-	DBField LocID;
-	DBField Object;
-	DBField Object2;
-	DBField CurID;
-	DBField CRate;
-	DBField Amount;
-	DBField LinkBillID;
-	DBField Flags;
-	DBField SCardID;
-	DBField PayerID;
-	DBField AgentID;
-	DBField Reserve;
-};
-#pragma pack(pop)
-
-#pragma pack(push)
-#pragma pack(1)
-class HistTrfrTbl : public DBTable {
-public:
-	HistTrfrTbl(const char * pFileName = 0);
-
-	struct Rec {
-		Rec();
-		Rec & Clear();
-		int32  HistBillID;
-		int32  OprNo;
-		int32  GoodsID;
-		double Quantity;
-		double Cost;
-		double Price;
-		double Discount;
-		int32  QCertID;
-		LDATE  Expiry;
-		int32  Flags;
-	} data;
-	struct Key0 {
-		int32  HistBillID;
-		int32  OprNo;
-	};
-	DBField HistBillID;
-	DBField OprNo;
-	DBField GoodsID;
-	DBField Quantity;
-	DBField Cost;
-	DBField Price;
-	DBField Discount;
-	DBField QCertID;
-	DBField Expiry;
-	DBField Flags;
 };
 #pragma pack(pop)
 
@@ -4750,29 +4371,6 @@ public:
 
 #pragma pack(push)
 #pragma pack(1)
-class CCurPriceTbl : public DBTable {
-public:
-	CCurPriceTbl(const char * pFileName = 0);
-
-	struct Rec {
-		Rec();
-		Rec & Clear();
-		int32  CashID;
-		int32  GoodsID;
-		char   Price[8];   // money[8.2]
-	} data;
-	struct Key0 {
-		int32  CashID;
-		int32  GoodsID;
-	};
-	DBField CashID;
-	DBField GoodsID;
-	DBField Price;
-};
-#pragma pack(pop)
-
-#pragma pack(push)
-#pragma pack(1)
 class DvcLoadingStatTbl : public DBTable {
 public:
 	DvcLoadingStatTbl(const char * pFileName = 0);
@@ -4957,65 +4555,6 @@ public:
 	DBField Closed;
 	DBField Flags;
 	DBField Reserve2;
-};
-#pragma pack(pop)
-
-#pragma pack(push)
-#pragma pack(1)
-class Account_Pre9004Tbl : public DBTable {
-public:
-	Account_Pre9004Tbl(const char * pFileName = 0);
-
-	struct Rec {
-		Rec();
-		Rec & Clear();
-		int32  ID;
-		int16  Ac;
-		int16  Sb;
-		char   Code[32];
-		int32  CurID;
-		char   Name[48];
-		int32  AccSheetID;
-		LDATE  OpenDate;
-		int16  Type;
-		int16  Kind;
-		int32  Flags;
-		double SaldoLimit;
-		double Overdraft;
-		LDATE  FRRL_Date;
-		int32  ParentID;
-		uint8  Reserve[12]; // raw
-	} data;
-	struct Key0 {
-		int32  ID;
-	};
-	struct Key1 {
-		int16  Ac;
-		int16  Sb;
-		int32  CurID;
-	};
-	struct Key2 {
-		char   Code[32];
-		int16  Ac;
-		int16  Sb;
-		int32  CurID;
-	};
-	DBField ID;
-	DBField Ac;
-	DBField Sb;
-	DBField Code;
-	DBField CurID;
-	DBField Name;
-	DBField AccSheetID;
-	DBField OpenDate;
-	DBField Type;
-	DBField Kind;
-	DBField Flags;
-	DBField SaldoLimit;
-	DBField Overdraft;
-	DBField FRRL_Date;
-	DBField ParentID;
-	DBField Reserve;
 };
 #pragma pack(pop)
 
@@ -7022,6 +6561,467 @@ public:
 	DBField Position;
 	DBField PositionBy;
 	DBField VT;
+};
+#pragma pack(pop)
+
+#pragma pack(push)
+#pragma pack(1)
+class Reference_ObsoleteTbl : public DBTable {
+public:
+	Reference_ObsoleteTbl(const char * pFileName = 0);
+
+	struct Rec {
+		Rec();
+		Rec & Clear();
+		int32  ObjType;
+		int32  ObjID;
+		char   ObjName[48];
+		char   AltText[20];
+		int32  Flags;
+		int32  Val1;
+		int32  Val2;
+	} data;
+	struct Key0 {
+		int32  ObjType;
+		int32  ObjID;
+	};
+	struct Key1 {
+		int32  ObjType;
+		char   ObjName[48];
+	};
+	struct Key2 {
+		int32  ObjType;
+		int32  Val1;
+	};
+	struct Key3 {
+		int32  ObjType;
+		int32  Val2;
+	};
+	DBField ObjType;
+	DBField ObjID;
+	DBField ObjName;
+	DBField AltText;
+	DBField Flags;
+	DBField Val1;
+	DBField Val2;
+};
+#pragma pack(pop)
+
+#pragma pack(push)
+#pragma pack(1)
+class Country_ObsoleteTbl : public DBTable {
+public:
+	Country_ObsoleteTbl(const char * pFileName = 0);
+
+	struct Rec {
+		Rec();
+		Rec & Clear();
+		int32  ID;
+		char   Name[30];
+		char   Abbr[10];
+		int32  Capital;
+		char   Phone[10];
+		int16  HasRegions;
+		uint8  Reserve[16]; // raw
+	} data;
+	struct Key0 {
+		int32  ID;
+	};
+	struct Key1 {
+		char   Name[30];
+	};
+	struct Key2 {
+		char   Abbr[10];
+	};
+	DBField ID;
+	DBField Name;
+	DBField Abbr;
+	DBField Capital;
+	DBField Phone;
+	DBField HasRegions;
+	DBField Reserve;
+};
+#pragma pack(pop)
+
+#pragma pack(push)
+#pragma pack(1)
+class Region_ObsoleteTbl : public DBTable {
+public:
+	Region_ObsoleteTbl(const char * pFileName = 0);
+
+	struct Rec {
+		Rec();
+		Rec & Clear();
+		int32  ID;
+		int32  Country;
+		char   Name[30];
+		char   Abbr[10];
+		int32  Capital;
+		char   Phone[10];
+	} data;
+	struct Key0 {
+		int32  ID;
+	};
+	struct Key1 {
+		int32  Country;
+		char   Name[30];
+	};
+	struct Key2 {
+		char   Name[30];
+	};
+	struct Key3 {
+		char   Abbr[10];
+	};
+	DBField ID;
+	DBField Country;
+	DBField Name;
+	DBField Abbr;
+	DBField Capital;
+	DBField Phone;
+};
+#pragma pack(pop)
+
+#pragma pack(push)
+#pragma pack(1)
+class City_ObsoleteTbl : public DBTable {
+public:
+	City_ObsoleteTbl(const char * pFileName = 0);
+
+	struct Rec {
+		Rec();
+		Rec & Clear();
+		int32  ID;
+		int32  Country;
+		int32  Region;
+		char   Name[30];
+		char   Abbr[10];
+		int32  Status;
+		char   Phone[10];
+	} data;
+	struct Key0 {
+		int32  ID;
+	};
+	struct Key1 {
+		int32  Region;
+		char   Name[30];
+	};
+	struct Key2 {
+		int32  Country;
+		char   Name[30];
+	};
+	struct Key3 {
+		char   Name[30];
+		int32  Region;
+	};
+	struct Key4 {
+		char   Abbr[10];
+		int32  Region;
+	};
+	DBField ID;
+	DBField Country;
+	DBField Region;
+	DBField Name;
+	DBField Abbr;
+	DBField Status;
+	DBField Phone;
+};
+#pragma pack(pop)
+
+#pragma pack(push)
+#pragma pack(1)
+class BankAccount_Pre9004Tbl : public DBTable {
+public:
+	BankAccount_Pre9004Tbl(const char * pFileName = 0);
+
+	struct Rec {
+		Rec();
+		Rec & Clear();
+		int32  ID;
+		int32  PersonID;
+		int32  BankID;
+		int32  AccType;
+		char   Acct[32];
+		LDATE  OpenDate;
+		int32  Flags;
+		int32  CorrAcc;
+		int32  CorrArt;
+	} data;
+	struct Key0 {
+		int32  ID;
+	};
+	struct Key1 {
+		int32  PersonID;
+		int32  BankID;
+		char   Acct[32];
+	};
+	DBField ID;
+	DBField PersonID;
+	DBField BankID;
+	DBField AccType;
+	DBField Acct;
+	DBField OpenDate;
+	DBField Flags;
+	DBField CorrAcc;
+	DBField CorrArt;
+};
+#pragma pack(pop)
+
+#pragma pack(push)
+#pragma pack(1)
+class StaffList_Pre9003Tbl : public DBTable {
+public:
+	StaffList_Pre9003Tbl(const char * pFileName = 0);
+
+	struct Rec {
+		Rec();
+		Rec & Clear();
+		int32  ID;
+		int32  OrgID;
+		int32  DivisionID;
+		char   Name[48];
+		int32  Rank;
+		int32  Flags;
+		int16  VacancyCount;
+		int16  VacancyBusy;
+		char   Salary[8];  // money[8.2]
+		int32  FixedStaff;
+		int32  ChargeGrpID;
+		uint8  Reserve[24]; // raw
+	} data;
+	struct Key0 {
+		int32  ID;
+	};
+	struct Key1 {
+		int32  OrgID;
+		int32  DivisionID;
+		char   Name[48];
+	};
+	struct Key2 {
+		int32  OrgID;
+		int32  DivisionID;
+		int32  Rank;
+		char   Name[48];
+	};
+	DBField ID;
+	DBField OrgID;
+	DBField DivisionID;
+	DBField Name;
+	DBField Rank;
+	DBField Flags;
+	DBField VacancyCount;
+	DBField VacancyBusy;
+	DBField Salary;
+	DBField FixedStaff;
+	DBField ChargeGrpID;
+	DBField Reserve;
+};
+#pragma pack(pop)
+
+#pragma pack(push)
+#pragma pack(1)
+class HistGoodsTbl : public DBTable {
+public:
+	HistGoodsTbl(const char * pFileName = 0);
+
+	struct Rec {
+		Rec();
+		Rec & Clear();
+		int32  ID;
+		int32  GoodsID;
+		int32  Ver;
+		int32  Sz;
+		TSLob <2048> Data;
+	} data;
+	struct Key0 {
+		int32  ID;
+	};
+	struct Key1 {
+		int32  GoodsID;
+		int32  Ver;
+	};
+	DBField ID;
+	DBField GoodsID;
+	DBField Ver;
+	DBField Sz;
+	DBField Data;
+};
+#pragma pack(pop)
+
+#pragma pack(push)
+#pragma pack(1)
+class HistBillTbl : public DBTable {
+public:
+	HistBillTbl(const char * pFileName = 0);
+
+	struct Rec {
+		Rec();
+		Rec & Clear();
+		int32  ID;
+		int32  InnerID;
+		int32  BillID;
+		int32  Ver;
+		char   Code[24];
+		LDATE  Dt;
+		int32  OpID;
+		int32  LocID;
+		int32  Object;
+		int32  Object2;
+		int32  CurID;
+		double CRate;
+		double Amount;
+		int32  LinkBillID;
+		int32  Flags;
+		int32  SCardID;
+		int32  PayerID;
+		int32  AgentID;
+		uint8  Reserve[16]; // raw
+	} data;
+	struct Key0 {
+		int32  ID;
+	};
+	struct Key1 {
+		int32  BillID;
+		int32  InnerID;
+		int32  Ver;
+	};
+	DBField ID;
+	DBField InnerID;
+	DBField BillID;
+	DBField Ver;
+	DBField Code;
+	DBField Dt;
+	DBField OpID;
+	DBField LocID;
+	DBField Object;
+	DBField Object2;
+	DBField CurID;
+	DBField CRate;
+	DBField Amount;
+	DBField LinkBillID;
+	DBField Flags;
+	DBField SCardID;
+	DBField PayerID;
+	DBField AgentID;
+	DBField Reserve;
+};
+#pragma pack(pop)
+
+#pragma pack(push)
+#pragma pack(1)
+class HistTrfrTbl : public DBTable {
+public:
+	HistTrfrTbl(const char * pFileName = 0);
+
+	struct Rec {
+		Rec();
+		Rec & Clear();
+		int32  HistBillID;
+		int32  OprNo;
+		int32  GoodsID;
+		double Quantity;
+		double Cost;
+		double Price;
+		double Discount;
+		int32  QCertID;
+		LDATE  Expiry;
+		int32  Flags;
+	} data;
+	struct Key0 {
+		int32  HistBillID;
+		int32  OprNo;
+	};
+	DBField HistBillID;
+	DBField OprNo;
+	DBField GoodsID;
+	DBField Quantity;
+	DBField Cost;
+	DBField Price;
+	DBField Discount;
+	DBField QCertID;
+	DBField Expiry;
+	DBField Flags;
+};
+#pragma pack(pop)
+
+#pragma pack(push)
+#pragma pack(1)
+class CCurPriceTbl : public DBTable {
+public:
+	CCurPriceTbl(const char * pFileName = 0);
+
+	struct Rec {
+		Rec();
+		Rec & Clear();
+		int32  CashID;
+		int32  GoodsID;
+		char   Price[8];   // money[8.2]
+	} data;
+	struct Key0 {
+		int32  CashID;
+		int32  GoodsID;
+	};
+	DBField CashID;
+	DBField GoodsID;
+	DBField Price;
+};
+#pragma pack(pop)
+
+#pragma pack(push)
+#pragma pack(1)
+class Account_Pre9004Tbl : public DBTable {
+public:
+	Account_Pre9004Tbl(const char * pFileName = 0);
+
+	struct Rec {
+		Rec();
+		Rec & Clear();
+		int32  ID;
+		int16  Ac;
+		int16  Sb;
+		char   Code[32];
+		int32  CurID;
+		char   Name[48];
+		int32  AccSheetID;
+		LDATE  OpenDate;
+		int16  Type;
+		int16  Kind;
+		int32  Flags;
+		double SaldoLimit;
+		double Overdraft;
+		LDATE  FRRL_Date;
+		int32  ParentID;
+		uint8  Reserve[12]; // raw
+	} data;
+	struct Key0 {
+		int32  ID;
+	};
+	struct Key1 {
+		int16  Ac;
+		int16  Sb;
+		int32  CurID;
+	};
+	struct Key2 {
+		char   Code[32];
+		int16  Ac;
+		int16  Sb;
+		int32  CurID;
+	};
+	DBField ID;
+	DBField Ac;
+	DBField Sb;
+	DBField Code;
+	DBField CurID;
+	DBField Name;
+	DBField AccSheetID;
+	DBField OpenDate;
+	DBField Type;
+	DBField Kind;
+	DBField Flags;
+	DBField SaldoLimit;
+	DBField Overdraft;
+	DBField FRRL_Date;
+	DBField ParentID;
+	DBField Reserve;
 };
 #pragma pack(pop)
 

@@ -184,8 +184,9 @@ int GnuPlot::GetData(curve_points * pPlot)
 {
 	int i /* num. points ! */, j;
 	int ngood;
-	int max_cols, min_cols; /* allowed range of column numbers */
-	GpCoordinate * cp;
+	int max_cols = 0;
+	int min_cols = 0; /* allowed range of column numbers */
+	GpCoordinate * cp = 0;
 	double v[MAXDATACOLS];
 	memzero(v, sizeof(v));
 	if(pPlot->varcolor == NULL) {
@@ -367,7 +368,7 @@ int GnuPlot::GetData(curve_points * pPlot)
 		    max_cols = 2;
 		    break;
 	}
-	/* Restictions on plots with "smooth" option */
+	// Restictions on plots with "smooth" option
 	switch(pPlot->plot_smooth) {
 		case SMOOTH_NONE:
 		    break;
@@ -394,10 +395,9 @@ int GnuPlot::GetData(curve_points * pPlot)
 			}
 		}
 	}
-	/* May 2013 - Treating timedata columns as strings allows
-	 * functions column(N) and column("HEADER") to work on time data.
-	 * Sep 2014: But the column count is wrong for HISTOGRAMS
-	 */
+	// May 2013 - Treating timedata columns as strings allows
+	// functions column(N) and column("HEADER") to work on time data.
+	// Sep 2014: But the column count is wrong for HISTOGRAMS
 	if(pPlot->plot_style != HISTOGRAMS) {
 		if(AxS[pPlot->AxIdx_X].datatype == DT_TIMEDATE)
 			ExpectString(1);
@@ -416,14 +416,12 @@ int GnuPlot::GetData(curve_points * pPlot)
 	_Df.df_warn_on_missing_columnheader = true;
 	while((j = DfReadLine(v, max_cols)) != DF_EOF) {
 		if(i >= pPlot->p_max) {
-			/* overflow about to occur. Extend size of points[]
-			 * array. Double the size, and add 1000 points, to avoid
-			 * needlessly small steps. */
+			// overflow about to occur. Extend size of points[] array. Double the size, and add 1000 points, to avoid needlessly small steps.
 			cp_extend(pPlot, i + i + 1000);
 		}
 		// Assume range is OK; we will check later 
 		pPlot->points[i].type = (j == 0) ? UNDEFINED : INRANGE;
-		/* First handle all the special cases (j <= 0) */
+		// First handle all the special cases (j <= 0) 
 		switch(j) {
 			case 0:
 			    DfClose();
@@ -434,9 +432,7 @@ int GnuPlot::GetData(curve_points * pPlot)
 			    fprintf(stderr, "plot2d.c:%d caught a complex value\n", __LINE__);
 			// @fallthrough to normal undefined case 
 			case DF_UNDEFINED:
-			    /* Version 5 - We are now trying to pass back all available info even
-			     * if one of the requested columns was missing or undefined.
-			     */
+			    // Version 5 - We are now trying to pass back all available info even if one of the requested columns was missing or undefined.
 			    pPlot->points[i].type = UNDEFINED;
 			    if(_Df.missing_val && sstreq(_Df.missing_val, "NaN")) {
 				    j = DF_MISSING;
@@ -465,13 +461,11 @@ int GnuPlot::GetData(curve_points * pPlot)
 			    }
 			    continue;
 			case DF_FIRST_BLANK:
-			    /* The binary input routines generate DF_FIRST_BLANK at the end
-			     * of scan lines, so that the data may be used for the isometric
-			     * splots.  Rather than turning that off inside the binary
-			     * reading routine based upon the plot mode, DF_FIRST_BLANK is
-			     * ignored for certain plot types requiring 3D coordinates in
-			     * MODE_PLOT.
-			     */
+			    // The binary input routines generate DF_FIRST_BLANK at the end
+			    // of scan lines, so that the data may be used for the isometric
+			    // splots.  Rather than turning that off inside the binary
+			    // reading routine based upon the plot mode, DF_FIRST_BLANK is
+			    // ignored for certain plot types requiring 3D coordinates in MODE_PLOT.
 			    if(pPlot->plot_style == IMAGE || pPlot->plot_style == RGBIMAGE || pPlot->plot_style == RGBA_IMAGE)
 				    continue;
 			    // make type of next point undefined, but recognizable 
@@ -562,7 +556,7 @@ int GnuPlot::GetData(curve_points * pPlot)
 			}
 			pPlot->varcolor[i] = v[--j];
 		}
-		/* Unusual special cases */
+		// Unusual special cases 
 		// In spiderplots the implicit "x coordinate" v[0] is really the axis number. 
 		// Add this at the front and shift all other using specs to the right.        
 		if(Gg.SpiderPlot) {
@@ -580,391 +574,389 @@ int GnuPlot::GetData(curve_points * pPlot)
 			}
 			j = 2;
 		}
-		/* May 2018:  The huge switch statement below is now organized by plot	*/
-		/* style.  Each plot style can have its own understanding of what the	*/
-		/* value in a particular field of the "using" specifier represents.	*/
-		/* E.g. the 3rd field might be z or radius or color.			*/
+		// May 2018:  The huge switch statement below is now organized by plot
+		// style.  Each plot style can have its own understanding of what the
+		// value in a particular field of the "using" specifier represents.
+		// E.g. the 3rd field might be z or radius or color.
 		switch(pPlot->plot_style) {
 			case LINES:
 			case DOTS:
 			case IMPULSES:
-		    { // x y [acspline weight] 
-			    coordval w; // only for (pPlot->plot_smooth == SMOOTH_ACSPLINES) 
-			    w = (j > 2) ? v[2] : 1.0;
-			    Store2DPoint(pPlot, i++, v[0], v[1], v[0], v[0], v[1], v[1], w);
-			    break;
-		    }
+				{ // x y [acspline weight] 
+					coordval w; // only for (pPlot->plot_smooth == SMOOTH_ACSPLINES) 
+					w = (j > 2) ? v[2] : 1.0;
+					Store2DPoint(pPlot, i++, v[0], v[1], v[0], v[0], v[1], v[1], w);
+				}
+				break;
 			case POINTSTYLE:
 			case LINESPOINTS:
-		    { /* x y {z} {var_ps} {var_pt} {lc variable} */
-			/* NB: assumes CRD_PTSIZE == xlow CRD_PTTYPE == xhigh CRD_PTCHAR == ylow */
-			    int var = 2; /* column number for next variable spec */
-			    coordval weight = (pPlot->plot_smooth == SMOOTH_ACSPLINES) ? v[2] : 1.0;
-			    coordval var_ps = pPlot->lp_properties.PtSize;
-			    coordval var_pt = pPlot->lp_properties.PtType;
-			    coordval var_char = 0;
-			    if(pPlot->plot_smooth == SMOOTH_ZSORT)
-				    weight = v[var++];
-			    if(var_pt == PT_VARIABLE) {
-				    if(isnan(v[var]) && _Df.df_tokens[var]) {
-					    strnzcpy((char *)(&var_char), _Df.df_tokens[var], sizeof(coordval));
-					    truncate_to_one_utf8_char((char *)(&var_char));
-				    }
-				    var_pt = v[var++];
-			    }
-			    if(var_ps == PTSZ_VARIABLE)
-				    var_ps = v[var++];
-			    if(var > j)
-				    IntError(NO_CARET, "Not enough using specs");
-			    if(var_pt < 0)
-				    var_pt = 0;
-			    Store2DPoint(pPlot, i++, v[0], v[1],
-				var_ps, var_pt, var_char, v[1], weight);
-			    break;
-		    }
+				{ /* x y {z} {var_ps} {var_pt} {lc variable} */
+				/* NB: assumes CRD_PTSIZE == xlow CRD_PTTYPE == xhigh CRD_PTCHAR == ylow */
+					int var = 2; /* column number for next variable spec */
+					coordval weight = (pPlot->plot_smooth == SMOOTH_ACSPLINES) ? v[2] : 1.0;
+					coordval var_ps = pPlot->lp_properties.PtSize;
+					coordval var_pt = pPlot->lp_properties.PtType;
+					coordval var_char = 0;
+					if(pPlot->plot_smooth == SMOOTH_ZSORT)
+						weight = v[var++];
+					if(var_pt == PT_VARIABLE) {
+						if(isnan(v[var]) && _Df.df_tokens[var]) {
+							strnzcpy((char *)(&var_char), _Df.df_tokens[var], sizeof(coordval));
+							truncate_to_one_utf8_char((char *)(&var_char));
+						}
+						var_pt = v[var++];
+					}
+					if(var_ps == PTSZ_VARIABLE)
+						var_ps = v[var++];
+					if(var > j)
+						IntError(NO_CARET, "Not enough using specs");
+					if(var_pt < 0)
+						var_pt = 0;
+					Store2DPoint(pPlot, i++, v[0], v[1],
+					var_ps, var_pt, var_char, v[1], weight);
+				}
+				break;
 			case LABELPOINTS:
-		    { /* x y string {rotate variable}
-				 *      {point {pt variable} {ps variable}}
-				 *      {tc|lc variable}
-				 */
-			    int var = 3; /* column number for next variable spec */
-			    coordval var_rotation = pPlot->labels->rotate;
-			    coordval var_ps = pPlot->labels->lp_properties.PtSize;
-			    coordval var_pt = pPlot->labels->lp_properties.PtType;
-			    if(pPlot->labels->tag == VARIABLE_ROTATE_LABEL_TAG)
-				    var_rotation = v[var++];
-			    if(var_pt == PT_VARIABLE)
-				    var_pt = v[var++];
-			    if(var_ps == PTSZ_VARIABLE)
-				    var_ps = v[var++];
-			    if(var > j)
-				    IntError(NO_CARET, "Not enough using specs");
-			    Store2DPoint(pPlot, i, v[0], v[1],
-				var_ps, var_pt, var_rotation, v[1], 0.0);
-			    // Allocate and fill in a text_label structure to match it 
-			    if(pPlot->points[i].type != UNDEFINED) {
-				    StoreLabel(GPT.P_Term, pPlot->labels, &(pPlot->points[i]), i, _Df.df_tokens[2], pPlot->varcolor ? pPlot->varcolor[i] : 0.0);
-			    }
-			    i++;
-			    break;
-		    }
+				{ /* x y string {rotate variable}
+					 *      {point {pt variable} {ps variable}}
+					 *      {tc|lc variable}
+					 */
+					int var = 3; /* column number for next variable spec */
+					coordval var_rotation = pPlot->labels->rotate;
+					coordval var_ps = pPlot->labels->lp_properties.PtSize;
+					coordval var_pt = pPlot->labels->lp_properties.PtType;
+					if(pPlot->labels->tag == VARIABLE_ROTATE_LABEL_TAG)
+						var_rotation = v[var++];
+					if(var_pt == PT_VARIABLE)
+						var_pt = v[var++];
+					if(var_ps == PTSZ_VARIABLE)
+						var_ps = v[var++];
+					if(var > j)
+						IntError(NO_CARET, "Not enough using specs");
+					Store2DPoint(pPlot, i, v[0], v[1],
+					var_ps, var_pt, var_rotation, v[1], 0.0);
+					// Allocate and fill in a text_label structure to match it 
+					if(pPlot->points[i].type != UNDEFINED) {
+						StoreLabel(GPT.P_Term, pPlot->labels, &(pPlot->points[i]), i, _Df.df_tokens[2], pPlot->varcolor ? pPlot->varcolor[i] : 0.0);
+					}
+					i++;
+				}
+				break;
 			case STEPS:
 			case FSTEPS:
 			case FILLSTEPS:
 			case HISTEPS:
-		    { /* x y */
-			    Store2DPoint(pPlot, i++, v[0], v[1], v[0], v[0], v[1], v[1], -1.0);
-			    break;
-		    }
+				{ /* x y */
+					Store2DPoint(pPlot, i++, v[0], v[1], v[0], v[0], v[1], v[1], -1.0);
+				}
+				break;
 			case CANDLESTICKS:
 			case FINANCEBARS:
-		    { /* x yopen ylow yhigh yclose [xhigh] */
-			    coordval yopen = v[1];
-			    coordval ylow = v[2];
-			    coordval yhigh = v[3];
-			    coordval yclose = v[4];
-			    coordval xlow = v[0];
-			    coordval xhigh = v[0];
-			    /* NB: plot_c_bars will set xhigh = xlow + 2*(x-xlow) */
-			    if(j > 5 && v[5] > 0)
-				    xlow = v[0] - v[5]/2.;
-			    Store2DPoint(pPlot, i++, v[0], yopen, xlow, xhigh, ylow, yhigh, yclose);
-			    break;
-		    }
+				{ /* x yopen ylow yhigh yclose [xhigh] */
+					coordval yopen = v[1];
+					coordval ylow = v[2];
+					coordval yhigh = v[3];
+					coordval yclose = v[4];
+					coordval xlow = v[0];
+					coordval xhigh = v[0];
+					/* NB: plot_c_bars will set xhigh = xlow + 2*(x-xlow) */
+					if(j > 5 && v[5] > 0)
+						xlow = v[0] - v[5]/2.;
+					Store2DPoint(pPlot, i++, v[0], yopen, xlow, xhigh, ylow, yhigh, yclose);
+				}
+				break;
 			case XERRORLINES:
 			case XERRORBARS:
-		    { /* x y xdelta   or    x y xlow xhigh */
-			    coordval xlow  = (j > 3) ? v[2] : v[0] - v[2];
-			    coordval xhigh = (j > 3) ? v[3] : v[0] + v[2];
-			    Store2DPoint(pPlot, i++, v[0], v[1], xlow, xhigh, v[1], v[1], 0.0);
-			    break;
-		    }
+				{ /* x y xdelta   or    x y xlow xhigh */
+					coordval xlow  = (j > 3) ? v[2] : v[0] - v[2];
+					coordval xhigh = (j > 3) ? v[3] : v[0] + v[2];
+					Store2DPoint(pPlot, i++, v[0], v[1], xlow, xhigh, v[1], v[1], 0.0);
+				}
+				break;
 			case YERRORLINES:
 			case YERRORBARS:
-		    { /* x y ydelta   or    x y ylow yhigh */
-			    coordval ylow  = (j > 3) ? v[2] : v[1] - v[2];
-			    coordval yhigh = (j > 3) ? v[3] : v[1] + v[2];
-			    Store2DPoint(pPlot, i++, v[0], v[1], v[0], v[0], ylow, yhigh, -1.0);
-			    break;
-		    }
+				{ /* x y ydelta   or    x y ylow yhigh */
+					coordval ylow  = (j > 3) ? v[2] : v[1] - v[2];
+					coordval yhigh = (j > 3) ? v[3] : v[1] + v[2];
+					Store2DPoint(pPlot, i++, v[0], v[1], v[0], v[0], ylow, yhigh, -1.0);
+				}
+				break;
 			case BOXERROR:
-		    { /* 3 columns:  x y ydelta
-				 * 4 columns:  x y ydelta xdelta     (if xdelta <=0 use boxwidth)
-				 * 5 columns:  x y ylow yhigh xdelta (if xdelta <=0 use boxwidth)
-				 * ==========
-				 * DEPRECATED
-				 * 4 columns:  x y ylow yhigh      (boxwidth == -2)
-				 */
-			    coordval xlow, xhigh, ylow, yhigh, width;
-			    if(j == 3) {
-				    xlow  = v[0];
-				    xhigh = v[0];
-				    ylow  = v[1] - v[2];
-				    yhigh = v[1] + v[2];
-				    width = -1.0;
-			    }
-			    else if(j == 4) {
-				    if(v[3] <= 0)
-					    v[3] = V.BoxWidth;
-				    xlow  = (V.BoxWidth == -2.0) ? v[0] : v[0] - v[3]/2.;
-				    xhigh = (V.BoxWidth == -2.0) ? v[0] : v[0] + v[3]/2.;
-				    ylow  = (V.BoxWidth == -2.0) ? v[2] : v[1] - v[2];
-				    yhigh = (V.BoxWidth == -2.0) ? v[3] : v[1] + v[2];
-				    width = (V.BoxWidth == -2.0) ? -1.0 : 0.0;
-			    }
-			    else {
-				    if(v[4] <= 0)
-					    v[4] = V.BoxWidth;
-				    xlow  = v[0] - v[4]/2.;
-				    xhigh = v[0] + v[4]/2.;
-				    ylow  = v[2];
-				    yhigh = v[3];
-				    width = 0.0;
-			    }
-			    Store2DPoint(pPlot, i++, v[0], v[1], xlow, xhigh, ylow, yhigh, width);
-			    break;
-		    }
+				{ /* 3 columns:  x y ydelta
+					 * 4 columns:  x y ydelta xdelta     (if xdelta <=0 use boxwidth)
+					 * 5 columns:  x y ylow yhigh xdelta (if xdelta <=0 use boxwidth)
+					 * ==========
+					 * DEPRECATED
+					 * 4 columns:  x y ylow yhigh      (boxwidth == -2)
+					 */
+					coordval xlow, xhigh, ylow, yhigh, width;
+					if(j == 3) {
+						xlow  = v[0];
+						xhigh = v[0];
+						ylow  = v[1] - v[2];
+						yhigh = v[1] + v[2];
+						width = -1.0;
+					}
+					else if(j == 4) {
+						if(v[3] <= 0)
+							v[3] = V.BoxWidth;
+						xlow  = (V.BoxWidth == -2.0) ? v[0] : v[0] - v[3]/2.;
+						xhigh = (V.BoxWidth == -2.0) ? v[0] : v[0] + v[3]/2.;
+						ylow  = (V.BoxWidth == -2.0) ? v[2] : v[1] - v[2];
+						yhigh = (V.BoxWidth == -2.0) ? v[3] : v[1] + v[2];
+						width = (V.BoxWidth == -2.0) ? -1.0 : 0.0;
+					}
+					else {
+						if(v[4] <= 0)
+							v[4] = V.BoxWidth;
+						xlow  = v[0] - v[4]/2.;
+						xhigh = v[0] + v[4]/2.;
+						ylow  = v[2];
+						yhigh = v[3];
+						width = 0.0;
+					}
+					Store2DPoint(pPlot, i++, v[0], v[1], xlow, xhigh, ylow, yhigh, width);
+				}
+				break;
 			case XYERRORLINES:
 			case XYERRORBARS:
 			case BOXXYERROR:
-		    { /* 4 columns: x y xdelta ydelta
-				 * 6 columns: x y xlow xhigh ylow yhigh
-				 */
-			    coordval xlow  = (j>5) ? v[2] : v[0] - v[2];
-			    coordval xhigh = (j>5) ? v[3] : v[0] + v[2];
-			    coordval ylow  = (j>5) ? v[4] : v[1] - v[3];
-			    coordval yhigh = (j>5) ? v[5] : v[1] + v[3];
-			    Store2DPoint(pPlot, i++, v[0], v[1], xlow, xhigh, ylow, yhigh, 0.0);
-			    if(j == 5)
-				    IntError(NO_CARET, "wrong number of columns for this plot style");
-			    break;
-		    }
+				{ /* 4 columns: x y xdelta ydelta
+					 * 6 columns: x y xlow xhigh ylow yhigh
+					 */
+					coordval xlow  = (j>5) ? v[2] : v[0] - v[2];
+					coordval xhigh = (j>5) ? v[3] : v[0] + v[2];
+					coordval ylow  = (j>5) ? v[4] : v[1] - v[3];
+					coordval yhigh = (j>5) ? v[5] : v[1] + v[3];
+					Store2DPoint(pPlot, i++, v[0], v[1], xlow, xhigh, ylow, yhigh, 0.0);
+					if(j == 5)
+						IntError(NO_CARET, "wrong number of columns for this plot style");
+				}
+				break;
 			case BOXES:
-		    { /* 2 columns: x y (width depends on "set boxwidth")
-				 * 3 columns: x y xdelta
-				 * 4 columns: x y xlow xhigh
-				 */
-			    coordval xlow  = v[0];
-			    coordval xhigh = v[0];
-			    coordval width = 0.0;
-			    double base = AxS[pPlot->AxIdx_X].base;
-			    if(j == 2) {
-				    /* For boxwidth auto, we cannot calculate xlow/xhigh yet since they
-				     * depend on both adjacent boxes.  This is signalled by storing -1
-				     * in point->z to indicate xlow/xhigh must be calculated later.
-				     */
-				    if(V.BoxWidth > 0 && V.BoxWidthIsAbsolute) {
-					    xlow = (AxS[pPlot->AxIdx_X].log) ? v[0] * pow(base, -V.BoxWidth/2.0) : v[0] - V.BoxWidth / 2.0;
-					    xhigh = (AxS[pPlot->AxIdx_X].log) ? v[0] * pow(base, V.BoxWidth/2.0) : v[0] + V.BoxWidth / 2.0;
-				    }
-				    else {
-					    width = -1.0;
-				    }
-			    }
-			    else if(j == 3) {
-				    xlow  = v[0] - v[2]/2;
-				    xhigh = v[0] + v[2]/2;
-			    }
-			    else if(j == 4) {
-				    xlow  = v[2];
-				    xhigh = v[3];
-			    }
-			    Store2DPoint(pPlot, i++, v[0], v[1], xlow, xhigh, v[1], v[1], width);
-			    break;
-		    }
+				{ /* 2 columns: x y (width depends on "set boxwidth")
+					 * 3 columns: x y xdelta
+					 * 4 columns: x y xlow xhigh
+					 */
+					coordval xlow  = v[0];
+					coordval xhigh = v[0];
+					coordval width = 0.0;
+					double base = AxS[pPlot->AxIdx_X].base;
+					if(j == 2) {
+						/* For boxwidth auto, we cannot calculate xlow/xhigh yet since they
+						 * depend on both adjacent boxes.  This is signalled by storing -1
+						 * in point->z to indicate xlow/xhigh must be calculated later.
+						 */
+						if(V.BoxWidth > 0 && V.BoxWidthIsAbsolute) {
+							xlow = (AxS[pPlot->AxIdx_X].log) ? v[0] * pow(base, -V.BoxWidth/2.0) : v[0] - V.BoxWidth / 2.0;
+							xhigh = (AxS[pPlot->AxIdx_X].log) ? v[0] * pow(base, V.BoxWidth/2.0) : v[0] + V.BoxWidth / 2.0;
+						}
+						else {
+							width = -1.0;
+						}
+					}
+					else if(j == 3) {
+						xlow  = v[0] - v[2]/2;
+						xhigh = v[0] + v[2]/2;
+					}
+					else if(j == 4) {
+						xlow  = v[2];
+						xhigh = v[3];
+					}
+					Store2DPoint(pPlot, i++, v[0], v[1], xlow, xhigh, v[1], v[1], width);
+				}
+				break;
 			case FILLEDCURVES:
-		    { /* 2 columns:  x y
-				 * 3 columns:  x y1 y2
-				 */
-			    coordval y1 = v[1];
-			    coordval y2;
-			    coordval w = 0.0; /* only needed for SMOOTH_ACSPLINES) */
-			    if(j==2) {
-				    if(oneof2(pPlot->filledcurves_options.closeto, FILLEDCURVES_CLOSED, FILLEDCURVES_DEFAULT))
-					    y2 = y1;
-				    else
-					    y2 = pPlot->filledcurves_options.at;
-			    }
-			    else {
-				    y2 = v[2];
-				    if(pPlot->filledcurves_options.closeto == FILLEDCURVES_DEFAULT)
-					    pPlot->filledcurves_options.closeto = FILLEDCURVES_BETWEEN;
-				    if(oneof3(pPlot->filledcurves_options.closeto, FILLEDCURVES_BETWEEN, FILLEDCURVES_ABOVE, FILLEDCURVES_BELOW)) {
-					    switch(pPlot->plot_smooth) {
-						    case SMOOTH_NONE:
-						    case SMOOTH_CSPLINES:
-						    case SMOOTH_SBEZIER:
-							break;
-						    case SMOOTH_ACSPLINES:
-							w = (j > 3) ? v[3] : 1.0;
-							break;
-						    default:
-							IntWarn(NO_CARET, "use csplines, acsplines or sbezier to smooth non-closed filledcurves");
-							pPlot->plot_smooth = SMOOTH_NONE;
-							break;
-					    }
-				    }
-			    }
-			    Store2DPoint(pPlot, i++, v[0], y1, v[0], v[0], y1, y2, w);
-			    break;
-		    }
+				{ /* 2 columns:  x y
+					 * 3 columns:  x y1 y2
+					 */
+					coordval y1 = v[1];
+					coordval y2;
+					coordval w = 0.0; /* only needed for SMOOTH_ACSPLINES) */
+					if(j==2) {
+						if(oneof2(pPlot->filledcurves_options.closeto, FILLEDCURVES_CLOSED, FILLEDCURVES_DEFAULT))
+							y2 = y1;
+						else
+							y2 = pPlot->filledcurves_options.at;
+					}
+					else {
+						y2 = v[2];
+						if(pPlot->filledcurves_options.closeto == FILLEDCURVES_DEFAULT)
+							pPlot->filledcurves_options.closeto = FILLEDCURVES_BETWEEN;
+						if(oneof3(pPlot->filledcurves_options.closeto, FILLEDCURVES_BETWEEN, FILLEDCURVES_ABOVE, FILLEDCURVES_BELOW)) {
+							switch(pPlot->plot_smooth) {
+								case SMOOTH_NONE:
+								case SMOOTH_CSPLINES:
+								case SMOOTH_SBEZIER:
+								break;
+								case SMOOTH_ACSPLINES:
+								w = (j > 3) ? v[3] : 1.0;
+								break;
+								default:
+								IntWarn(NO_CARET, "use csplines, acsplines or sbezier to smooth non-closed filledcurves");
+								pPlot->plot_smooth = SMOOTH_NONE;
+								break;
+							}
+						}
+					}
+					Store2DPoint(pPlot, i++, v[0], y1, v[0], v[0], y1, y2, w);
+				}
+				break;
 			case POLYGONS:
-		    { // Nothing yet to distinguish this from filledcurves 
-			    Store2DPoint(pPlot, i++, v[0], v[1], v[0], v[0], v[1], v[1], 0);
-			    break;
-		    }
+				{ // Nothing yet to distinguish this from filledcurves 
+					Store2DPoint(pPlot, i++, v[0], v[1], v[0], v[0], v[1], v[1], 0);
+				}
+				break;
 			case BOXPLOT:
-		    { /* 2 columns:  x data
-				 * 3 columns:  x data width
-				 * 4 columns:  x data width factor
-				 */
-			    coordval extra = DEFAULT_BOXPLOT_FACTOR;
-			    coordval xlow =  (j > 2) ? v[0] - v[2]/2. : v[0];
-			    coordval xhigh = (j > 2) ? v[0] + v[2]/2. : v[0];
-			    if(j == 4)
-				    extra = CheckOrAddBoxplotFactor(pPlot, _Df.df_tokens[3], v[0]);
-			    Store2DPoint(pPlot, i++, v[0], v[1], xlow, xhigh, v[1], v[1], extra);
-			    break;
-		    }
+				{ /* 2 columns:  x data
+					 * 3 columns:  x data width
+					 * 4 columns:  x data width factor
+					 */
+					coordval extra = DEFAULT_BOXPLOT_FACTOR;
+					coordval xlow =  (j > 2) ? v[0] - v[2]/2. : v[0];
+					coordval xhigh = (j > 2) ? v[0] + v[2]/2. : v[0];
+					if(j == 4)
+						extra = CheckOrAddBoxplotFactor(pPlot, _Df.df_tokens[3], v[0]);
+					Store2DPoint(pPlot, i++, v[0], v[1], xlow, xhigh, v[1], v[1], extra);
+				}
+				break;
 			case VECTOR:
-		    { /* 4 columns:	x y xdelta ydelta [arrowstyle variable] */
-			    coordval xlow  = v[0];
-			    coordval xhigh = v[0] + v[2];
-			    coordval ylow  = v[1];
-			    coordval yhigh = v[1] + v[3];
-			    coordval arrowstyle = (j == 5) ? v[4] : 0.0;
-			    Store2DPoint(pPlot, i++, v[0], v[1], xlow, xhigh, ylow, yhigh, arrowstyle);
-			    break;
-		    }
+				{ /* 4 columns:	x y xdelta ydelta [arrowstyle variable] */
+					coordval xlow  = v[0];
+					coordval xhigh = v[0] + v[2];
+					coordval ylow  = v[1];
+					coordval yhigh = v[1] + v[3];
+					coordval arrowstyle = (j == 5) ? v[4] : 0.0;
+					Store2DPoint(pPlot, i++, v[0], v[1], xlow, xhigh, ylow, yhigh, arrowstyle);
+				}
+				break;
 			case ARROWS:
-		    { /* 4 columns:	x y len ang [arrowstyle variable] */
-			    coordval xlow  = v[0];
-			    coordval ylow  = v[1];
-			    coordval len = v[2];
-			    coordval ang = v[3];
-			    coordval arrowstyle = (j == 5) ? v[4] : 0.0;
-			    Store2DPoint(pPlot, i++, v[0], v[1], xlow, len, ylow, ang, arrowstyle);
-			    break;
-		    }
+				{ /* 4 columns:	x y len ang [arrowstyle variable] */
+					coordval xlow  = v[0];
+					coordval ylow  = v[1];
+					coordval len = v[2];
+					coordval ang = v[3];
+					coordval arrowstyle = (j == 5) ? v[4] : 0.0;
+					Store2DPoint(pPlot, i++, v[0], v[1], xlow, len, ylow, ang, arrowstyle);
+				}
+				break;
 			case CIRCLES:
-		    { /* x y
-				 * x y radius
-				 * x y radius arc_begin arc_end
-				 */
-			    coordval x = v[0];
-			    coordval y = v[1];
-			    coordval xlow = x;
-			    coordval xhigh = x;
-			    coordval arc_begin = (j >= 5) ? v[3] : 0.0;
-			    coordval arc_end = (j >= 5) ? v[4] : 360.0;
-			    coordval radius = DEFAULT_RADIUS;
-			    if(j >= 3 && v[2] >= 0) {
-				    xlow  = x - v[2];
-				    xhigh = x + v[2];
-				    radius = 0.0;
-			    }
-			    Store2DPoint(pPlot, i++, x, y, xlow, xhigh, arc_begin, arc_end, radius);
-			    break;
-		    }
+				{ /* x y
+					 * x y radius
+					 * x y radius arc_begin arc_end
+					 */
+					coordval x = v[0];
+					coordval y = v[1];
+					coordval xlow = x;
+					coordval xhigh = x;
+					coordval arc_begin = (j >= 5) ? v[3] : 0.0;
+					coordval arc_end = (j >= 5) ? v[4] : 360.0;
+					coordval radius = DEFAULT_RADIUS;
+					if(j >= 3 && v[2] >= 0) {
+						xlow  = x - v[2];
+						xhigh = x + v[2];
+						radius = 0.0;
+					}
+					Store2DPoint(pPlot, i++, x, y, xlow, xhigh, arc_begin, arc_end, radius);
+				}
+				break;
 			case ELLIPSES:
-		    { /* x y
-				 * x y diam  (used for both major and minor axis)
-				 * x y major_diam minor_diam
-				 * x y major_diam minor_diam orientation
-				 */
-			    coordval x = v[0];
-			    coordval y = v[1];
-			    coordval major_axis = (j >= 3) ? v[2] : 0.0;
-			    coordval minor_axis = (j >= 4) ? v[3] : (j >= 3) ? v[2] : 0.0;
-			    coordval orientation = (j >= 5) ? v[4] : 0.0;
-			    coordval flag = (major_axis <= 0 || minor_axis <= 0) ?  DEFAULT_RADIUS : 0;
-			    if(j == 2) /* FIXME: why not also for j == 3 or 4? */
-				    orientation = Gg.default_ellipse.o.ellipse.orientation;
-			    Store2DPoint(pPlot, i++, x, y,
-				major_axis, minor_axis, orientation, 0.0 /* not used */,
-				flag);
-			    break;
-		    }
+				{ /* x y
+					 * x y diam  (used for both major and minor axis)
+					 * x y major_diam minor_diam
+					 * x y major_diam minor_diam orientation
+					 */
+					coordval x = v[0];
+					coordval y = v[1];
+					coordval major_axis = (j >= 3) ? v[2] : 0.0;
+					coordval minor_axis = (j >= 4) ? v[3] : (j >= 3) ? v[2] : 0.0;
+					coordval orientation = (j >= 5) ? v[4] : 0.0;
+					coordval flag = (major_axis <= 0 || minor_axis <= 0) ?  DEFAULT_RADIUS : 0;
+					if(j == 2) /* FIXME: why not also for j == 3 or 4? */
+						orientation = Gg.default_ellipse.o.ellipse.orientation;
+					Store2DPoint(pPlot, i++, x, y, major_axis, minor_axis, orientation, 0.0 /* not used */, flag);
+				}
+				break;
 			case IMAGE:
-		    { /* x y color_value */
-			    Store2DPoint(pPlot, i++, v[0], v[1], v[0], v[0], v[1], v[1], v[2]);
-			    break;
-		    }
+				{ /* x y color_value */
+					Store2DPoint(pPlot, i++, v[0], v[1], v[0], v[0], v[1], v[1], v[2]);
+				}
+				break;
 			case RGBIMAGE:
 			case RGBA_IMAGE:
-		    { // x y red green blue [alpha] 
-			    Store2DPoint(pPlot, i, v[0], v[1], v[0], v[0], v[1], v[1], 0.0);
-			    // If there is only one column of image data, it must be 32-bit ARGB 
-			    if(j==3) {
-				    uint argb = static_cast<uint>(v[2]);
-				    v[2] = (argb >> 16) & 0xff;
-				    v[3] = (argb >> 8) & 0xff;
-				    v[4] = (argb) & 0xff;
-				    /* The alpha channel convention is unfortunate */
-				    v[5] = 255 - (uint)((argb >> 24) & 0xff);
-			    }
-			    cp = &(pPlot->points[i]);
-			    cp->CRD_R = v[2];
-			    cp->CRD_G = v[3];
-			    cp->CRD_B = v[4];
-			    cp->CRD_A = v[5]; /* Alpha channel */
-			    i++;
-			    break;
-		    }
+				{ // x y red green blue [alpha] 
+					Store2DPoint(pPlot, i, v[0], v[1], v[0], v[0], v[1], v[1], 0.0);
+					// If there is only one column of image data, it must be 32-bit ARGB 
+					if(j==3) {
+						uint argb = static_cast<uint>(v[2]);
+						v[2] = (argb >> 16) & 0xff;
+						v[3] = (argb >> 8) & 0xff;
+						v[4] = (argb) & 0xff;
+						/* The alpha channel convention is unfortunate */
+						v[5] = 255 - (uint)((argb >> 24) & 0xff);
+					}
+					cp = &(pPlot->points[i]);
+					cp->CRD_R = v[2];
+					cp->CRD_G = v[3];
+					cp->CRD_B = v[4];
+					cp->CRD_A = v[5]; /* Alpha channel */
+					i++;
+				}
+				break;
 			case HISTOGRAMS:
-		    { /* 1 column:	y
-				 * 2 columns:	y yerr		(set style histogram errorbars)
-				 * 3 columns:	y ymin ymax	(set style histogram errorbars)
-				 */
-			    coordval x = _Df.df_datum;
-			    coordval y = v[0];
-			    coordval ylow  = v[0];
-			    coordval yhigh = v[0];
-			    coordval width = (V.BoxWidth > 0.0) ? V.BoxWidth : 1.0;
-			    coordval xlow  = x - width / 2.0;
-			    coordval xhigh = x + width / 2.0;
-			    if(Gg.histogram_opts.type == HT_ERRORBARS) {
-				    if(j == 1)
-					    IntErrorCurToken("No column given for errorbars in using specifier");
-				    if(j == 2) {
-					    ylow  = y - v[1];
-					    yhigh = y + v[1];
-				    }
-				    else {
-					    ylow   = v[1];
-					    yhigh  = v[2];
-				    }
-			    }
-			    else if(j > 1)
-				    IntErrorCurToken("Too many columns in using specification");
-			    if(Gg.histogram_opts.type == HT_STACKED_IN_TOWERS) {
-				    _Plt.histogram_rightmost = pPlot->histogram_sequence + pPlot->histogram->start;
-				    pPlot->histogram->end = _Plt.histogram_rightmost;
-			    }
-			    else if(x + pPlot->histogram->start > _Plt.histogram_rightmost) {
-				    _Plt.histogram_rightmost = x + pPlot->histogram->start;
-				    pPlot->histogram->end = _Plt.histogram_rightmost;
-			    }
-			    Store2DPoint(pPlot, i++, x, y, xlow, xhigh, ylow, yhigh, 0.0);
-			    break;
-		    }
+				{ /* 1 column:	y
+					 * 2 columns:	y yerr		(set style histogram errorbars)
+					 * 3 columns:	y ymin ymax	(set style histogram errorbars)
+					 */
+					coordval x = _Df.df_datum;
+					coordval y = v[0];
+					coordval ylow  = v[0];
+					coordval yhigh = v[0];
+					coordval width = (V.BoxWidth > 0.0) ? V.BoxWidth : 1.0;
+					coordval xlow  = x - width / 2.0;
+					coordval xhigh = x + width / 2.0;
+					if(Gg.histogram_opts.type == HT_ERRORBARS) {
+						if(j == 1)
+							IntErrorCurToken("No column given for errorbars in using specifier");
+						if(j == 2) {
+							ylow  = y - v[1];
+							yhigh = y + v[1];
+						}
+						else {
+							ylow   = v[1];
+							yhigh  = v[2];
+						}
+					}
+					else if(j > 1)
+						IntErrorCurToken("Too many columns in using specification");
+					if(Gg.histogram_opts.type == HT_STACKED_IN_TOWERS) {
+						_Plt.histogram_rightmost = pPlot->histogram_sequence + pPlot->histogram->start;
+						pPlot->histogram->end = _Plt.histogram_rightmost;
+					}
+					else if(x + pPlot->histogram->start > _Plt.histogram_rightmost) {
+						_Plt.histogram_rightmost = x + pPlot->histogram->start;
+						pPlot->histogram->end = _Plt.histogram_rightmost;
+					}
+					Store2DPoint(pPlot, i++, x, y, xlow, xhigh, ylow, yhigh, 0.0);
+				}
+				break;
 			case PARALLELPLOT:
-		    { // Similar to histogram plots, each parallel axis gets a separate comma-separated plot element with a single "using" spec.
-			    coordval x = AxS.Parallel(_Plt.paxis_current-1).paxis_x;
-			    coordval y = v[1];
-			    Store2DPoint(pPlot, i++, x, y, x, x, y, y, 0.0);
-			    break;
-		    }
+				{ // Similar to histogram plots, each parallel axis gets a separate comma-separated plot element with a single "using" spec.
+					coordval x = AxS.Parallel(_Plt.paxis_current-1).paxis_x;
+					coordval y = v[1];
+					Store2DPoint(pPlot, i++, x, y, x, x, y, y, 0.0);
+				}
+				break;
 			case SPIDERPLOT:
-		    { // Spider plots are essentially parallelaxis plots in polar coordinates.
-			    coordval var_color = pPlot->varcolor ? pPlot->varcolor[i] : i;
-			    coordval var_pt = pPlot->lp_properties.PtType;
-			    coordval theta = _Plt.paxis_current;
-			    coordval r = v[1];
-			    var_pt = (var_pt == PT_VARIABLE) ? v[2] : var_pt + 1;
-			    Store2DPoint(pPlot, i++, theta, r, theta, var_pt, r, var_color, 0.0);
-			    break;
-		    }
+				{ // Spider plots are essentially parallelaxis plots in polar coordinates.
+					coordval var_color = pPlot->varcolor ? pPlot->varcolor[i] : i;
+					coordval var_pt = pPlot->lp_properties.PtType;
+					coordval theta = _Plt.paxis_current;
+					coordval r = v[1];
+					var_pt = (var_pt == PT_VARIABLE) ? v[2] : var_pt + 1;
+					Store2DPoint(pPlot, i++, theta, r, theta, var_pt, r, var_color, 0.0);
+				}
+				break;
 			// These exist for 3D (splot) but not for 2D (plot) 
 			case PM3DSURFACE:
 			case SURFACEGRID:
@@ -976,8 +968,8 @@ int GnuPlot::GetData(curve_points * pPlot)
 			default:
 			    IntError(NO_CARET, "This plot style must have been missed in the grand code reorganization");
 			    break;
-		} /* switch (plot->plot_style) */
-	} /* while more input data */
+		}
+	}
 	// This removes an extra point caused by blank lines after data. 
 	if(i > 0 && pPlot->points[i-1].type == UNDEFINED)
 		i--;
@@ -998,7 +990,8 @@ void GnuPlot::Store2DPoint(curve_points * pPlot, int i/* point number */,
 	double x, double y, double xlow, double xhigh, double ylow, double yhigh, double width/* BOXES widths: -1 -> autocalc, 0 ->  use xlow/xhigh */)
 {
 	GpCoordinate * cp = &(pPlot->points[i]);
-	GpAxis * x_axis_ptr, * y_axis_ptr;
+	GpAxis * x_axis_ptr = 0;
+	GpAxis * y_axis_ptr = 0;
 	coord_type * y_type_ptr;
 	coord_type dummy_type = INRANGE; /* sometimes we dont care about outranging */
 	bool excluded_range = FALSE;
@@ -1041,9 +1034,7 @@ void GnuPlot::Store2DPoint(curve_points * pPlot, int i/* point number */,
 			PolarToXY(xlow, ylow, &xlow, &ylow, FALSE);
 		}
 	}
-	/* Version 5: Allow to store Inf or NaN
-	 *  We used to exit immediately in this case rather than storing anything
-	 */
+	// Version 5: Allow to store Inf or NaN. We used to exit immediately in this case rather than storing anything
 	x_axis_ptr = &AxS[pPlot->AxIdx_X];
 	dummy_type = cp->type; /* Save result of range check on x */
 	y_axis_ptr = &AxS[pPlot->AxIdx_Y];
@@ -1148,7 +1139,9 @@ int GnuPlot::CheckOrAddBoxplotFactor(curve_points * pPlot, const char * pString,
 	int index = DEFAULT_BOXPLOT_FACTOR;
 	// If there is no factor column (4th using spec) fall back to a single boxplot 
 	if(pString) {
-		text_label * label, * prev_label, * new_label;
+		text_label * label;
+		text_label * prev_label;
+		text_label * new_label;
 		// Remove the trailing garbage, quotes etc. from the string 
 		char * trimmed_string = DfParseStringField(pString);
 		if(!isempty(trimmed_string)) {
@@ -1285,7 +1278,8 @@ void GnuPlot::BoxPlotRangeFiddling(GpTermEntry * pTerm, curve_points * pPlot)
 //static void histogram_range_fiddling(curve_points * pPlot)
 void GnuPlot::HistogramRangeFiddling(curve_points * pPlot)
 {
-	double xlow, xhigh;
+	double xlow;
+	double xhigh;
 	int i;
 	//
 	// EAM FIXME - HT_STACKED_IN_TOWERS forcibly resets xmin, which is only
@@ -1621,11 +1615,9 @@ void GnuPlot::EvalPlots(GpTermEntry * pTerm)
 	xtitle = NULL;
 	Gg.VolatileData = false; // Assume that the input data can be re-read later 
 	_Plt.Plot2D_NComplexValues = 0; // Track complex values so that we can warn about trying to plot them 
-	/* ** First Pass: Read through data files ***
-	 * This pass serves to set the xrange and to parse the command, as well
-	 * as filling in every thing except the function data. That is done after
-	 * the xrange is defined.
-	 */
+	// First Pass: Read through data files.
+	// This pass serves to set the xrange and to parse the command, as well
+	// as filling in every thing except the function data. That is done after the xrange is defined.
 	_Pb.plot_iterator = CheckForIteration();
 	while(TRUE) {
 		/* Forgive trailing comma on a multi-element plot command */
@@ -1696,21 +1688,25 @@ void GnuPlot::EvalPlots(GpTermEntry * pTerm)
 			int specs = 0;
 			/* for datafile plot, record datafile spec for title */
 			const char * name_str;
-			bool duplication = FALSE;
-			bool set_smooth = FALSE, set_axes = FALSE, set_title = FALSE;
-			bool set_with = FALSE, set_lpstyle = FALSE;
-			bool set_fillstyle = FALSE;
-			bool set_fillcolor = FALSE;
-			bool set_labelstyle = FALSE;
-			bool set_ellipseaxes_units = FALSE;
+			bool duplication = false;
+			bool set_smooth = false;
+			bool set_axes = false;
+			bool set_title = false;
+			bool set_with = false;
+			bool set_lpstyle = false;
+			bool set_fillstyle = false;
+			bool set_fillcolor = false;
+			bool set_labelstyle = false;
+			bool set_ellipseaxes_units = false;
 			double paxis_x = -VERYLARGE;
 			t_colorspec fillcolor = DEFAULT_COLORSPEC;
-			/* CHANGE: Aug 2017
-			 * Allow sampling both u and v so that it is possible to do
-			 * plot sample [u=min:max:inc] [v=min:max:inc] '++' ... with image
-			 */
-			GpValue original_value_sample_var, original_value_sample_var2;
-			int sample_range_token, v_range_token;
+			// CHANGE: Aug 2017
+			// Allow sampling both u and v so that it is possible to do plot sample [u=min:max:inc] [v=min:max:inc] '++' ... with image
+			//
+			GpValue original_value_sample_var;
+			GpValue original_value_sample_var2;
+			int sample_range_token;
+			int v_range_token;
 			plot_num++;
 			// Check for a sampling range
 			AxS.InitSampleRange(&AxS[FIRST_X_AXIS], DATA);

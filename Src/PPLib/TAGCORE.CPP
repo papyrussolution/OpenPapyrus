@@ -1420,7 +1420,7 @@ int ObjTagCore::GetList(PPID objType, PPID objID, ObjTagList * pList)
 		}
 	}
 	if(!ok) {
-		PPSetError(PPERR_GETTAGLISTBYOBJFAULT, PPObjID(objType, objID).ToStr(SLS.AcquireRvlStr()));
+		PPSetError(PPERR_GETTAGLISTBYOBJFAULT, SObjID_ToStr(PPObjID(objType, objID), SLS.AcquireRvlStr()));
 	}
 	return ok;
 }

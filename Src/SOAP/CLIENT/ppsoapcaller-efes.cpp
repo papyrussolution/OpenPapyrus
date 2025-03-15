@@ -490,7 +490,7 @@ extern "C" __declspec(dllexport) TSCollection <SapEfesLogMsg> * EfesSetDailyStoc
 					THROW(p_new_item);
 					p_new_item->EFRProd = GetDynamicParamString((temp_buf = p_src_pack->GoodsCode).Transf(CTRANSF_INNER_TO_UTF8), arg_str_pool);
 					p_new_item->ReportDate = GetDynamicParamString(p_src_pack->Dt, DATF_ISO8601CENT, arg_str_pool);
-					p_new_item->Qty = GetDynamicParamString_(p_src_pack->Qtty, MKSFMTD(0, 3, 0), arg_str_pool);
+					p_new_item->Qty = GetDynamicParamString_(p_src_pack->Qtty, MKSFMTD_030, arg_str_pool);
 					p_new_item->Unit = EncodeEfesUnitType(p_src_pack->UnitType, arg_str_pool);
 				}
 			}
@@ -573,7 +573,7 @@ extern "C" __declspec(dllexport) TSCollection <SapEfesLogMsg> * EfesSetMTDProduc
 					THROW(p_new_item);
 					p_new_item->EFRProd = GetDynamicParamString((temp_buf = p_src_pack->GoodsCode).Transf(CTRANSF_INNER_TO_UTF8), arg_str_pool);
 					p_new_item->ReportDate = GetDynamicParamString(p_src_pack->Dt, DATF_ISO8601CENT, arg_str_pool);
-					p_new_item->Qty = GetDynamicParamString_(p_src_pack->Qtty, MKSFMTD(0, 3, 0), arg_str_pool);
+					p_new_item->Qty = GetDynamicParamString_(p_src_pack->Qtty, MKSFMTD_030, arg_str_pool);
 					p_new_item->Unit = EncodeEfesUnitType(p_src_pack->UnitType, arg_str_pool);
 				}
 			}
@@ -638,7 +638,7 @@ extern "C" __declspec(dllexport) TSCollection <SapEfesLogMsg> * EfesSetMTDOutlet
 					THROW(p_new_item);
 					p_new_item->EFRShipTo = GetDynamicParamString((temp_buf = p_src_pack->DlvrLocCode).Transf(CTRANSF_INNER_TO_UTF8), arg_str_pool);
 					p_new_item->ReportDate = GetDynamicParamString(p_src_pack->Dt, DATF_ISO8601CENT, arg_str_pool);
-					p_new_item->Qty = GetDynamicParamString_(p_src_pack->Qtty, MKSFMTD(0, 3, 0), arg_str_pool);
+					p_new_item->Qty = GetDynamicParamString_(p_src_pack->Qtty, MKSFMTD_030, arg_str_pool);
 					p_new_item->Unit = EncodeEfesUnitType(p_src_pack->UnitType, arg_str_pool);
 				}
 			}

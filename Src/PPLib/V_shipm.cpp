@@ -16,7 +16,7 @@ IMPLEMENT_PPFILT_FACTORY(ShipmAnalyze); ShipmAnalyzeFilt::ShipmAnalyzeFilt() : P
 /*virtual*/int ShipmAnalyzeFilt::Init(int fullyDestroy, long extraData)
 {
 	int   ok = PPBaseFilt::Init(1, 0);
-	Period.SetDate(getcurdate_()); // @v10.8.10 LConfig.OperDate-->getcurdate_()
+	Period.SetDate(getcurdate_());
 	return ok;
 }
 
@@ -242,8 +242,8 @@ int PPViewShipmAnalyze::Init_(const PPBaseFilt * pFilt)
 	PPWaitStart();
 	THROW(Tbl = CreateTempFile());
 	if(Filt.OpID) {
-		PPID   op_type = GetOpType(Filt.OpID);
-		if(oneof3(op_type, PPOPT_GOODSORDER, PPOPT_GOODSACK, PPOPT_GOODSEXPEND)) {
+		const  PPID filt_op_type = GetOpType(Filt.OpID);
+		if(oneof3(filt_op_type, PPOPT_GOODSORDER, PPOPT_GOODSACK, PPOPT_GOODSEXPEND)) {
 			ShipmAnalyzeCache cache;
 			PPIDArray bill_list;
 			BillFilt flt;
@@ -256,59 +256,59 @@ int PPViewShipmAnalyze::Init_(const PPBaseFilt * pFilt)
 			THROW(bv.Init_(&flt));
 			THROW(bv.GetBillIDList(&bill_list));
 			{
-				uint i;
 				PPTransaction tra(ppDbDependTransaction, 1);
 				THROW(tra);
-				for(i = 0; i < bill_list.getCount(); i++) {
+				for(uint i = 0; i < bill_list.getCount(); i++) {
 					PPID   bill_id = bill_list.at(i);
-					PPID   op_type = 0;
-					int    r_by_bill, kind = 0;
-					THROW(BObj->Search(bill_id, &bill_rec) > 0);
-					op_type = GetOpType(bill_rec.OpID);
-					if(op_type == PPOPT_GOODSORDER)
-						kind = 1;
-					else if(op_type == PPOPT_GOODSEXPEND)
-						kind = 2;
-					else if(op_type == PPOPT_GOODSACK)
-						kind = 3;
-					else
-						continue;
-					for(r_by_bill = 0; BObj->trfr->EnumItems(bill_id, &r_by_bill, &ti) > 0;) {
-						THROW(cache.Add(kind, Filt.Flags, &bill_rec, labs(ti.GoodsID), fabs(ti.Quantity_), ti.NetPrice()));
-						GbList.Add(labs(ti.GoodsID), bill_id, 0);
-					}
-					if(kind == 1) {
-						PPIDArray shipments;
-						DateRange shipm_period;
-						shipm_period.Z();
-						if(BObj->GetShipmByOrder(bill_id, &shipm_period, shipments) > 0) {
-							for(uint j = 0; j < shipments.getCount(); j++)
-								if(BObj->Search(shipments.at(j), &shipm_bill_rec) > 0) {
-									for(int r_by_bill = 0; BObj->trfr->EnumItems(shipm_bill_rec.ID, &r_by_bill, &shipm_ti) > 0;) {
-										THROW(cache.Add(2, Filt.Flags, &bill_rec, labs(shipm_ti.GoodsID), fabs(shipm_ti.Quantity_), shipm_ti.NetPrice()));
-									}
-									if(GetOpType(shipm_bill_rec.OpID) != PPOPT_GOODSACK) {
-										for(DateIter di; BObj->P_Tbl->EnumLinks(shipm_bill_rec.ID, &di, BLNK_ACK, &ack_bill_rec) > 0;) {
-											for(int r_by_bill = 0; BObj->trfr->EnumItems(ack_bill_rec.ID, &r_by_bill, &ack_ti) > 0;) {
-												THROW(cache.Add(3, Filt.Flags, &bill_rec, labs(ack_ti.GoodsID), fabs(ack_ti.Quantity_), ack_ti.NetPrice()))
+					int    r_by_bill;
+					if(BObj->Search(bill_id, &bill_rec) > 0) { // @v12.2.10 THROW()-->if()
+						const  PPID op_type_id = GetOpType(bill_rec.OpID);
+						int    kind = 0;
+						if(op_type_id == PPOPT_GOODSORDER)
+							kind = 1;
+						else if(op_type_id == PPOPT_GOODSEXPEND)
+							kind = 2;
+						else if(op_type_id == PPOPT_GOODSACK)
+							kind = 3;
+						if(kind) {
+							for(r_by_bill = 0; BObj->trfr->EnumItems(bill_id, &r_by_bill, &ti) > 0;) {
+								THROW(cache.Add(kind, Filt.Flags, &bill_rec, labs(ti.GoodsID), fabs(ti.Quantity_), ti.NetPrice()));
+								GbList.Add(labs(ti.GoodsID), bill_id, 0);
+							}
+							if(kind == 1) {
+								PPIDArray shipments;
+								DateRange shipm_period;
+								shipm_period.Z();
+								if(BObj->GetShipmByOrder(bill_id, &shipm_period, shipments) > 0) {
+									for(uint j = 0; j < shipments.getCount(); j++)
+										if(BObj->Search(shipments.at(j), &shipm_bill_rec) > 0) {
+											for(int r_by_bill = 0; BObj->trfr->EnumItems(shipm_bill_rec.ID, &r_by_bill, &shipm_ti) > 0;) {
+												THROW(cache.Add(2, Filt.Flags, &bill_rec, labs(shipm_ti.GoodsID), fabs(shipm_ti.Quantity_), shipm_ti.NetPrice()));
+											}
+											if(GetOpType(shipm_bill_rec.OpID) != PPOPT_GOODSACK) {
+												for(DateIter di; BObj->P_Tbl->EnumLinks(shipm_bill_rec.ID, &di, BLNK_ACK, &ack_bill_rec) > 0;) {
+													for(int r_by_bill = 0; BObj->trfr->EnumItems(ack_bill_rec.ID, &r_by_bill, &ack_ti) > 0;) {
+														THROW(cache.Add(3, Filt.Flags, &bill_rec, labs(ack_ti.GoodsID), fabs(ack_ti.Quantity_), ack_ti.NetPrice()))
+													}
+												}
 											}
 										}
+								}
+							}
+							else if(kind == 2) {
+								for(DateIter di; BObj->P_Tbl->EnumLinks(bill_id, &di, BLNK_ACK, &ack_bill_rec) > 0;) {
+									for(int r_by_bill = 0; BObj->trfr->EnumItems(ack_bill_rec.ID, &r_by_bill, &ack_ti) > 0;) {
+										THROW(cache.Add(3, Filt.Flags, &bill_rec, labs(ack_ti.GoodsID), fabs(ack_ti.Quantity_), ack_ti.NetPrice()))
 									}
 								}
-						}
-					}
-					else if(kind == 2) {
-						for(DateIter di; BObj->P_Tbl->EnumLinks(bill_id, &di, BLNK_ACK, &ack_bill_rec) > 0;) {
-							for(int r_by_bill = 0; BObj->trfr->EnumItems(ack_bill_rec.ID, &r_by_bill, &ack_ti) > 0;) {
-								THROW(cache.Add(3, Filt.Flags, &bill_rec, labs(ack_ti.GoodsID), fabs(ack_ti.Quantity_), ack_ti.NetPrice()))
 							}
-						}
-					}
-					else if(kind == 3) {
-						if(bill_rec.LinkBillID && BObj->Search(bill_rec.LinkBillID, &bill_rec) > 0) {
-							bill_id = bill_rec.ID;
-							for(r_by_bill = 0; BObj->trfr->EnumItems(bill_id, &r_by_bill, &ti) > 0;) {
-								THROW(cache.Add(2, Filt.Flags, &bill_rec, labs(ti.GoodsID), fabs(ti.Quantity_), ti.NetPrice()));
+							else if(kind == 3) {
+								if(bill_rec.LinkBillID && BObj->Search(bill_rec.LinkBillID, &bill_rec) > 0) {
+									bill_id = bill_rec.ID;
+									for(r_by_bill = 0; BObj->trfr->EnumItems(bill_id, &r_by_bill, &ti) > 0;) {
+										THROW(cache.Add(2, Filt.Flags, &bill_rec, labs(ti.GoodsID), fabs(ti.Quantity_), ti.NetPrice()));
+									}
+								}
 							}
 						}
 					}
@@ -317,7 +317,7 @@ int PPViewShipmAnalyze::Init_(const PPBaseFilt * pFilt)
 				{
 					SString goods_name;
 					BExtInsert bei(Tbl);
-					for(i = 0; i < cache.getCount(); i++) {
+					for(uint i = 0; i < cache.getCount(); i++) {
 						TempShipmentAnlzTbl::Rec rec;
 						const ShipmAnalyzeCache::Entry * p_entry = static_cast<const ShipmAnalyzeCache::Entry *>(cache.at(i));
 						STRNSCPY(rec.GoodsName, GetGoodsName(p_entry->GoodsID, goods_name));
@@ -353,9 +353,7 @@ int PPViewShipmAnalyze::InitIteration()
 	if(Tbl) {
 		P_IterQuery = new BExtQuery(Tbl, 1);
 		if(P_IterQuery) {
-			// @v10.6.8 char   k[MAXKEYLEN];
-			BtrDbKey k_; // @v10.6.8 
-			// @v10.6.8 @ctr memzero(k, sizeof(k));
+			BtrDbKey k_;
 			P_IterQuery->selectAll();
 			P_IterQuery->initIteration(0, k_, spFirst);
 			return 1;

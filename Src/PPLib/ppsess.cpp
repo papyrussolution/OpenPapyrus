@@ -189,7 +189,6 @@ int FASTCALL StatusWinChange(int onLogon /*=0*/, long timer/*=-1*/)
 			gr_userobj = ::GetGuiResources(GetCurrentProcess(), GR_USEROBJECTS);
 			//end turistti
 #ifndef NDEBUG
-			/* @v12.2.10
 			{
 				MemHeapTracer mht;
 				MemHeapTracer::Stat mht_stat;
@@ -208,7 +207,6 @@ int FASTCALL StatusWinChange(int onLogon /*=0*/, long timer/*=-1*/)
 					p_app->AddStatusBarItem("Heap Corrupted");
 				}
 			}
-			*/
 #endif
 		}
 		if(CConfig.Flags & CCFLG_3TIER) {
@@ -1006,7 +1004,7 @@ int PPThreadLocalArea::RegisterAdviseObjects()
 							PPAdviseEvent & r_ev = EvqList.at(i);
 							(msg_buf = "AdviseEvent").CatDiv(':', 2).CatEq("Ident", r_ev.Ident).Space().CatEq("Dtm", r_ev.Dtm).Space().
 								CatEq("Action", r_ev.Action).Space();
-							r_ev.Oid.ToStr(temp_buf);
+							SObjID_ToStr(r_ev.Oid, temp_buf);
 							msg_buf.CatEq("Oid", temp_buf).Space().CatEq("UserID", r_ev.UserID).Space().
 								CatEq("SjExtra", r_ev.SjExtra).Space().CatEq("Flags", r_ev.Flags);
 							PPLogMessage(PPFILNAM_DEBUG_LOG, msg_buf, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_THREADINFO);
@@ -2021,9 +2019,9 @@ static void InitTest()
 	REF_TEST_RECSIZE(PPGoodsInfo);
 	STATIC_ASSERT(sizeof(PPTimeSeries) == sizeof(Reference2Tbl::Rec));
 	STATIC_ASSERT(sizeof(PPTssModel) == sizeof(Reference2Tbl::Rec));
-	STATIC_ASSERT(sizeof(PPBarcodePrinter_)-sizeof(SString) == sizeof(Reference_Tbl::Rec));
+	STATIC_ASSERT(sizeof(PPBarcodePrinter_)-sizeof(SString) == sizeof(Reference_ObsoleteTbl::Rec));
 	STATIC_ASSERT(sizeof(PPBarcodePrinter2)-sizeof(SString) == sizeof(Reference2Tbl::Rec));
-	STATIC_ASSERT(sizeof(PPInternetAccount_)-sizeof(SString) == sizeof(Reference_Tbl::Rec));
+	STATIC_ASSERT(sizeof(PPInternetAccount_)-sizeof(SString) == sizeof(Reference_ObsoleteTbl::Rec));
 	STATIC_ASSERT(sizeof(PPInternetAccount2)-sizeof(SString) == sizeof(Reference2Tbl::Rec));
 	STATIC_ASSERT(sizeof(PPAlbatrosCfgHdr) == offsetof(PropertyTbl::Rec, VT));
 	STATIC_ASSERT(sizeof(PersonCore::RelationRecord) == sizeof(ObjAssocTbl::Rec));
@@ -3949,7 +3947,6 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 			}
 			THROW_MEM(r_tla.P_SysJ = new SysJournal);
 			THROW_MEM(r_tla.P_ObjSync = new ObjSyncCore);
-			// @v8.2.5 (moved down) LogAction(PPACN_LOGIN, 0, 0, r_lc.SessionID, 1);
 			{
 				int    iv;
 				SString sv;

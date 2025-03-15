@@ -1629,13 +1629,31 @@ char * FASTCALL strlwr866(char * str)
 	return str;
 }
 
-char * FASTCALL strupr866(char * str)
+char * FASTCALL strupr866(char * pStr)
 {
-	if(str) {
-		for(char * s = str; *s; s++)
+	if(pStr) {
+		for(char * s = pStr; *s; s++)
 			*s = ToUpper866(*s);
 	}
-	return str;
+	return pStr;
+}
+
+char * FASTCALL strupr_ascii(char * pStr) // @v12.2.10
+{
+	if(pStr) {
+		for(char * s = pStr; *s; s++)
+			*s = stoupper_ascii(*s);
+	}
+	return pStr;
+}
+
+char * FASTCALL strlwr_ascii(char * pStr) // @v12.2.10
+{
+	if(pStr) {
+		for(char * s = pStr; *s; s++)
+			*s = stolower_ascii(*s);
+	}
+	return pStr;
 }
 //
 // KOI

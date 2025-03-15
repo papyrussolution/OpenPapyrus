@@ -2299,7 +2299,7 @@ CONVERT_PROC(Convert5608, PPCvtObjSync5608);
 //
 //
 #define IMPL_REF2CVT_FUNC(rec) void ConvertRef(const rec##_ & rRec, rec##2 & rRec2) {\
-	STATIC_ASSERT(sizeof(rRec) == sizeof(Reference_Tbl::Rec)); \
+	STATIC_ASSERT(sizeof(rRec) == sizeof(Reference_ObsoleteTbl::Rec)); \
 	STATIC_ASSERT(sizeof(rRec2) == sizeof(Reference2Tbl::Rec)); \
 	MEMSZERO(rRec2); \
 	rRec2.Tag = rRec.Tag; \
@@ -2716,8 +2716,8 @@ static int ConvertRef2()
 	Reference2Tbl ref2;
 	ref2.getNumRecs(&numrec2);
 	if(numrec2 == 0) {
-		Reference_Tbl ref;
-		Reference_Tbl::Key0 k0;
+		Reference_ObsoleteTbl ref;
+		Reference_ObsoleteTbl::Key0 k0;
 		MEMSZERO(k0);
 		THROW(PPStartTransaction(&ta, 1));
 		if((r = ref.search(0, &k0, spFirst)) != 0)

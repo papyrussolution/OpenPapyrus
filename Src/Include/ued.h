@@ -1,5 +1,6 @@
 // UED.H
-// Copyright (c) A.Sobolev 2023, 2024
+// Copyright (c) A.Sobolev 2023, 2024, 2025
+// @codepage UTF-8
 //
 #ifndef __UED_H
 #define __UED_H
@@ -13,9 +14,9 @@ class UED {
 public:
 	static constexpr bool IsMetaId(uint64 ued) { return (HiDWord(ued) == 1); }
 	//
-	// Descr: Возвращает количество бит данных, доступных для значения UED-величины в 
-	//   зависимости от мета-идентификатора.
-	//   Если аргумент meta не является мета-идентификатором, то возвращает 0.
+	// Descr: Р’РѕР·РІСЂР°С‰Р°РµС‚ РєРѕР»РёС‡РµСЃС‚РІРѕ Р±РёС‚ РґР°РЅРЅС‹С…, РґРѕСЃС‚СѓРїРЅС‹С… РґР»СЏ Р·РЅР°С‡РµРЅРёСЏ UED-РІРµР»РёС‡РёРЅС‹ РІ 
+	//   Р·Р°РІРёСЃРёРјРѕСЃС‚Рё РѕС‚ РјРµС‚Р°-РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂР°.
+	//   Р•СЃР»Рё Р°СЂРіСѓРјРµРЅС‚ meta РЅРµ СЏРІР»СЏРµС‚СЃСЏ РјРµС‚Р°-РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂРѕРј, С‚Рѕ РІРѕР·РІСЂР°С‰Р°РµС‚ 0.
 	//
 	static constexpr uint GetMetaRawDataBits(uint64 meta)
 	{
@@ -32,9 +33,9 @@ public:
 		return result;
 	}
 	//
-	// Descr: Возвращает количество бит данных, доступных для значения UED.
-	//   Если аргумент является meta-идентификатором или не является валидным UED-значением,
-	//   то возвращает 0.
+	// Descr: Р’РѕР·РІСЂР°С‰Р°РµС‚ РєРѕР»РёС‡РµСЃС‚РІРѕ Р±РёС‚ РґР°РЅРЅС‹С…, РґРѕСЃС‚СѓРїРЅС‹С… РґР»СЏ Р·РЅР°С‡РµРЅРёСЏ UED.
+	//   Р•СЃР»Рё Р°СЂРіСѓРјРµРЅС‚ СЏРІР»СЏРµС‚СЃСЏ meta-РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂРѕРј РёР»Рё РЅРµ СЏРІР»СЏРµС‚СЃСЏ РІР°Р»РёРґРЅС‹Рј UED-Р·РЅР°С‡РµРЅРёРµРј,
+	//   С‚Рѕ РІРѕР·РІСЂР°С‰Р°РµС‚ 0.
 	//
 	static constexpr uint GetRawDataBits(uint64 ued)
 	{
@@ -78,7 +79,6 @@ public:
 	}
 	static uint64 ApplyMetaToRawValue(uint64 meta, uint64 rawValue);
 	static uint64 ApplyMetaToRawValue32(uint64 meta, uint32 rawValue);
-
 	static uint64 SetRaw_Int(uint64 meta, int64 val);
 	static bool   GetRaw_Int(uint64 ued, int64 & rVal);
 	static uint64 SetRaw_MacAddr(const MACAddr & rVal);
@@ -91,6 +91,8 @@ public:
 	static bool   GetRaw_Color(uint64 ued, SColor & rC);
 	static uint64 SetRaw_SphDir(const SphericalDirection & rV);
 	static bool   GetRaw_SphDir(uint64 ued, SphericalDirection & rV);
+	static uint64 SetRaw_Oid(SObjID oid);
+	static bool   GetRaw_Oid(uint64 ued, SObjID & rOid);
 
 	static uint64 SetRaw_Ru_INN(const char * pT);
 	static bool   GetRaw_Ru_INN(uint64 ued, SString & rT);
@@ -121,7 +123,7 @@ private:
 		decstrf_LZ2           = 0x02,
 		decstrf_LZ3           = 0x03,
 		decstrf_RuInn_InvCheckDigit = 0x08,
-		decstrf_ClRut_CtlK    = 0x08, // Для чилийского RUT в качестве контрольного символа - K
+		decstrf_ClRut_CtlK    = 0x08, // Р”Р»СЏ С‡РёР»РёР№СЃРєРѕРіРѕ RUT РІ РєР°С‡РµСЃС‚РІРµ РєРѕРЅС‚СЂРѕР»СЊРЅРѕРіРѕ СЃРёРјРІРѕР»Р° - K
 	};
 	static uint64 Helper_SetRaw_PlanarAngleDeg(uint64 meta, double deg);
 	static bool   Helper_GetRaw_PlanarAngleDeg(uint64 meta, uint64 ued, double & rDeg);
@@ -129,7 +131,7 @@ private:
 	static bool   Helper_GetRaw_DecimalString(uint64 meta, uint64 ued, SString & rT, uint flagsBits, uint * pFlags);
 };
 //
-// Descr: Базовый класс, реализующий упорядоченный набор ued-идентификаторов
+// Descr: Р‘Р°Р·РѕРІС‹Р№ РєР»Р°СЃСЃ, СЂРµР°Р»РёР·СѓСЋС‰РёР№ СѓРїРѕСЂСЏРґРѕС‡РµРЅРЅС‹Р№ РЅР°Р±РѕСЂ ued-РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂРѕРІ
 //
 class UedSetBase : private SBaseBuffer {
 public:
@@ -147,16 +149,16 @@ public:
 	bool   Add(const uint64 * pUed, uint count, uint * pIdx);
 	bool   Add(uint64 ued, uint * pIdx);
 private:
-	uint   LimbCount; // Фактическое количество 64-битных элементов
+	uint   LimbCount; // Р¤Р°РєС‚РёС‡РµСЃРєРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ 64-Р±РёС‚РЅС‹С… СЌР»РµРјРµРЅС‚РѕРІ
 };
 //
-// Descr: Базовый класс контейнера UED-объектов
+// Descr: Р‘Р°Р·РѕРІС‹Р№ РєР»Р°СЃСЃ РєРѕРЅС‚РµР№РЅРµСЂР° UED-РѕР±СЉРµРєС‚РѕРІ
 //
 class SrUedContainer_Base : public SStrGroup {
 public:
 	//
-	// Descr: Вспомогательная структура, содержащая значение UED сопоставленное с идентификатором локали.
-	//   Часто применяется при разборе исходных файлов.
+	// Descr: Р’СЃРїРѕРјРѕРіР°С‚РµР»СЊРЅР°СЏ СЃС‚СЂСѓРєС‚СѓСЂР°, СЃРѕРґРµСЂР¶Р°С‰Р°СЏ Р·РЅР°С‡РµРЅРёРµ UED СЃРѕРїРѕСЃС‚Р°РІР»РµРЅРЅРѕРµ СЃ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂРѕРј Р»РѕРєР°Р»Рё.
+	//   Р§Р°СЃС‚Рѕ РїСЂРёРјРµРЅСЏРµС‚СЃСЏ РїСЂРё СЂР°Р·Р±РѕСЂРµ РёСЃС…РѕРґРЅС‹С… С„Р°Р№Р»РѕРІ.
 	//
 	struct UedLocaleEntry {
 		UedLocaleEntry() : Ued(0ULL), Locale(0U)
@@ -177,11 +179,11 @@ public:
 	struct BaseEntry {
 		uint64 Id;
 		uint32 SymbHashId;
-		uint32 LineNo; // Номер строки исходного файла, с которой начинается определение.
+		uint32 LineNo; // РќРѕРјРµСЂ СЃС‚СЂРѕРєРё РёСЃС…РѕРґРЅРѕРіРѕ С„Р°Р№Р»Р°, СЃ РєРѕС‚РѕСЂРѕР№ РЅР°С‡РёРЅР°РµС‚СЃСЏ РѕРїСЂРµРґРµР»РµРЅРёРµ.
 	};
 	struct TextEntry : public UedLocaleEntry {
 		uint32 TextP;
-		uint32 LineNo; // Номер строки исходного файла, с которой начинается определение.
+		uint32 LineNo; // РќРѕРјРµСЂ СЃС‚СЂРѕРєРё РёСЃС…РѕРґРЅРѕРіРѕ С„Р°Р№Р»Р°, СЃ РєРѕС‚РѕСЂРѕР№ РЅР°С‡РёРЅР°РµС‚СЃСЏ РѕРїСЂРµРґРµР»РµРЅРёРµ.
 	};
 	enum {
 		canonfnIds = 1,
@@ -190,17 +192,17 @@ public:
 	static void MakeUedCanonicalName(int canonfn, SString & rResult, long ver);
 	static long SearchLastCanonicalFile(int canonfn, const char * pPath, SString & rFileName);
 	//
-	// Descr: Верифицирует UED-файл версии ver и находящийся в каталоге pPath 
-	//   на предмет наличия и соответствия хэша, хранящегося в отдельном файле в том же каталоге.
+	// Descr: Р’РµСЂРёС„РёС†РёСЂСѓРµС‚ UED-С„Р°Р№Р» РІРµСЂСЃРёРё ver Рё РЅР°С…РѕРґСЏС‰РёР№СЃСЏ РІ РєР°С‚Р°Р»РѕРіРµ pPath 
+	//   РЅР° РїСЂРµРґРјРµС‚ РЅР°Р»РёС‡РёСЏ Рё СЃРѕРѕС‚РІРµС‚СЃС‚РІРёСЏ С…СЌС€Р°, С…СЂР°РЅСЏС‰РµРіРѕСЃСЏ РІ РѕС‚РґРµР»СЊРЅРѕРј С„Р°Р№Р»Рµ РІ С‚РѕРј Р¶Рµ РєР°С‚Р°Р»РѕРіРµ.
 	//
 	int    Verify(const char * pPath, long ver, SBinaryChunk * pHash) const;
 	uint64 SearchSymb(const char * pSymb, uint64 meta) const;
 	//
-	// Descr: Флаги функции Recognize
+	// Descr: Р¤Р»Р°РіРё С„СѓРЅРєС†РёРё Recognize
 	//
 	enum {
-		rfDraft       = 0x0001, // Не искать соответствия символов
-		rfPrefixSharp = 0x0002  // Символы сущностей должны предваряться знаком '#'
+		rfDraft       = 0x0001, // РќРµ РёСЃРєР°С‚СЊ СЃРѕРѕС‚РІРµС‚СЃС‚РІРёСЏ СЃРёРјРІРѕР»РѕРІ
+		rfPrefixSharp = 0x0002  // РЎРёРјРІРѕР»С‹ СЃСѓС‰РЅРѕСЃС‚РµР№ РґРѕР»Р¶РЅС‹ РїСЂРµРґРІР°СЂСЏС‚СЊСЃСЏ Р·РЅР°РєРѕРј '#'
 	};
 
 	uint64 Recognize(SStrScan & rScan, uint64 implicitMeta, uint flags) const;
@@ -208,12 +210,12 @@ protected:
 	SrUedContainer_Base();
 	~SrUedContainer_Base();
 	//
-	// Descr: Флаги функции ReadSource
+	// Descr: Р¤Р»Р°РіРё С„СѓРЅРєС†РёРё ReadSource
 	//
 	enum {
 		rsfDebug       = 0x0001,
-		rsfCompileTime = 0x0002  // Считываются исходные данные в режиме предварительной компиляции. Если не установлен, то
-			// считывание осуществляется в run-time-режиме.
+		rsfCompileTime = 0x0002  // РЎС‡РёС‚С‹РІР°СЋС‚СЃСЏ РёСЃС…РѕРґРЅС‹Рµ РґР°РЅРЅС‹Рµ РІ СЂРµР¶РёРјРµ РїСЂРµРґРІР°СЂРёС‚РµР»СЊРЅРѕР№ РєРѕРјРїРёР»СЏС†РёРё. Р•СЃР»Рё РЅРµ СѓСЃС‚Р°РЅРѕРІР»РµРЅ, С‚Рѕ
+			// СЃС‡РёС‚С‹РІР°РЅРёРµ РѕСЃСѓС‰РµСЃС‚РІР»СЏРµС‚СЃСЏ РІ run-time-СЂРµР¶РёРјРµ.
 	};
 
 	int    ReadSource(const char * pFileName, uint flags, PPLogger * pLogger);
@@ -224,26 +226,26 @@ protected:
 	bool   SearchBaseId(uint64 id, SString & rSymb) const;
 	bool   SearchSymbHashId(uint32 symbHashId, SString & rSymb) const;
 	//
-	// Descr: Распознает простую конструкцию символа сущности в одном из двух вариантов:
-	//   symb или meta.symb
-	// Note: Функция не пытается определить достоверность символов. То есть
-	//   не ищет их среди определений.
+	// Descr: Р Р°СЃРїРѕР·РЅР°РµС‚ РїСЂРѕСЃС‚СѓСЋ РєРѕРЅСЃС‚СЂСѓРєС†РёСЋ СЃРёРјРІРѕР»Р° СЃСѓС‰РЅРѕСЃС‚Рё РІ РѕРґРЅРѕРј РёР· РґРІСѓС… РІР°СЂРёР°РЅС‚РѕРІ:
+	//   symb РёР»Рё meta.symb
+	// Note: Р¤СѓРЅРєС†РёСЏ РЅРµ РїС‹С‚Р°РµС‚СЃСЏ РѕРїСЂРµРґРµР»РёС‚СЊ РґРѕСЃС‚РѕРІРµСЂРЅРѕСЃС‚СЊ СЃРёРјРІРѕР»РѕРІ. РўРѕ РµСЃС‚СЊ
+	//   РЅРµ РёС‰РµС‚ РёС… СЃСЂРµРґРё РѕРїСЂРµРґРµР»РµРЅРёР№.
 	// Returns:
-	//   0 - не удалось распознать символ
-	//   1 - распознан единичный символ
-	//   2 - распознан вармант meta.symb
+	//   0 - РЅРµ СѓРґР°Р»РѕСЃСЊ СЂР°СЃРїРѕР·РЅР°С‚СЊ СЃРёРјРІРѕР»
+	//   1 - СЂР°СЃРїРѕР·РЅР°РЅ РµРґРёРЅРёС‡РЅС‹Р№ СЃРёРјРІРѕР»
+	//   2 - СЂР°СЃРїРѕР·РЅР°РЅ РІР°СЂРјР°РЅС‚ meta.symb
 	//
 	int    Helper_RecognizeSymb(SStrScan & rScan, uint flags, SString & rMeta, SString & rSymb) const;
 	//
-	// Descr: Определитель свойства сущности, сохраняемый в препроцессинговом виде
-	//   так как финишная обработка требует знаний о всем массиве сущностей.
+	// Descr: РћРїСЂРµРґРµР»РёС‚РµР»СЊ СЃРІРѕР№СЃС‚РІР° СЃСѓС‰РЅРѕСЃС‚Рё, СЃРѕС…СЂР°РЅСЏРµРјС‹Р№ РІ РїСЂРµРїСЂРѕС†РµСЃСЃРёРЅРіРѕРІРѕРј РІРёРґРµ
+	//   С‚Р°Рє РєР°Рє С„РёРЅРёС€РЅР°СЏ РѕР±СЂР°Р±РѕС‚РєР° С‚СЂРµР±СѓРµС‚ Р·РЅР°РЅРёР№ Рѕ РІСЃРµРј РјР°СЃСЃРёРІРµ СЃСѓС‰РЅРѕСЃС‚РµР№.
 	//
 	struct ProtoProp : public UedLocaleEntry {
 		ProtoProp() : LineNo(0)
 		{
 		}
-		// Если свойство задано для языкового определения сущности, то UedLocaleEntry::Locale - идентификатор соответствующего локуса.
-		uint32 LineNo; // Номер строки, на которой начинается определение свойства.
+		// Р•СЃР»Рё СЃРІРѕР№СЃС‚РІРѕ Р·Р°РґР°РЅРѕ РґР»СЏ СЏР·С‹РєРѕРІРѕРіРѕ РѕРїСЂРµРґРµР»РµРЅРёСЏ СЃСѓС‰РЅРѕСЃС‚Рё, С‚Рѕ UedLocaleEntry::Locale - РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РµРіРѕ Р»РѕРєСѓСЃР°.
+		uint32 LineNo; // РќРѕРјРµСЂ СЃС‚СЂРѕРєРё, РЅР° РєРѕС‚РѕСЂРѕР№ РЅР°С‡РёРЅР°РµС‚СЃСЏ РѕРїСЂРµРґРµР»РµРЅРёРµ СЃРІРѕР№СЃС‚РІР°.
 		StringSet Prop; // The first item - property symb, other - arguments
 	};
 	class ProtoPropList_SingleUed : public UedLocaleEntry, public TSCollection <ProtoProp> {
@@ -259,8 +261,8 @@ protected:
 		bool    Start(uint64 ued, int localeId);
 		//
 		// Returns:
-		//   >0 - разбор завершен (встретился завершающий символ '}')
-		//   <0 - разбор не завершен
+		//   >0 - СЂР°Р·Р±РѕСЂ Р·Р°РІРµСЂС€РµРЅ (РІСЃС‚СЂРµС‚РёР»СЃСЏ Р·Р°РІРµСЂС€Р°СЋС‰РёР№ СЃРёРјРІРѕР» '}')
+		//   <0 - СЂР°Р·Р±РѕСЂ РЅРµ Р·Р°РІРµСЂС€РµРЅ
 		//    0 - error
 		//
 		int    Do(SrUedContainer_Base & rC, SStrScan & rScan);
@@ -269,7 +271,7 @@ protected:
 		int    ScanProp(SrUedContainer_Base & rC, SStrScan & rScan);
 		int    ScanArg(SrUedContainer_Base & rC, SStrScan & rScan, bool isFirst/*@debug*/);
 		int    Status; // 0 - idle, 1 - started, 2 - in work (the first '{' was occured and processed)
-		int    State;  // Внутренний идентификатор состояния разбора.
+		int    State;  // Р’РЅСѓС‚СЂРµРЅРЅРёР№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЃРѕСЃС‚РѕСЏРЅРёСЏ СЂР°Р·Р±РѕСЂР°.
 		ProtoPropList_SingleUed PL;
 	};
 	struct PropIdxEntry : public UedLocaleEntry {
@@ -278,10 +280,10 @@ protected:
 			ASSIGN_PTR(pSize, sizeof(Ued)+sizeof(Locale));
 			return this;
 		}
-		LAssocArray RefList; // Список позиций в PropertySet
+		LAssocArray RefList; // РЎРїРёСЃРѕРє РїРѕР·РёС†РёР№ РІ PropertySet
 	};
 	//
-	// Descr: Финишный пул свойств, на которые ссылаются элементы UED-реестра.
+	// Descr: Р¤РёРЅРёС€РЅС‹Р№ РїСѓР» СЃРІРѕР№СЃС‚РІ, РЅР° РєРѕС‚РѕСЂС‹Рµ СЃСЃС‹Р»Р°СЋС‚СЃСЏ СЌР»РµРјРµРЅС‚С‹ UED-СЂРµРµСЃС‚СЂР°.
 	//
 	class PropertySet : private UedSetBase {
 	public:
@@ -290,7 +292,7 @@ protected:
 		uint   GetCount() const;
 		int    Get(uint idx, uint count, UedSetBase & rList) const;
 	private:
-		LAssocArray PosIdx; // Индекс позиций: Key - номер позиции, Val - количество элементов 
+		LAssocArray PosIdx; // РРЅРґРµРєСЃ РїРѕР·РёС†РёР№: Key - РЅРѕРјРµСЂ РїРѕР·РёС†РёРё, Val - РєРѕР»РёС‡РµСЃС‚РІРѕ СЌР»РµРјРµРЅС‚РѕРІ 
 	};
 	TSVector <BaseEntry> BL;
 	TSVector <TextEntry> TL;
@@ -307,16 +309,16 @@ private:
 	int    ProcessProperties();
 	int    Helper_PutProperties(const UedLocaleEntry & rUedEntry, const TSVector <uint64> & rRawPropList);
 	//
-	// Descr: Хелпер, считывающий одно свойство из файла standalone-описания свойств
+	// Descr: РҐРµР»РїРµСЂ, СЃС‡РёС‚С‹РІР°СЋС‰РёР№ РѕРґРЅРѕ СЃРІРѕР№СЃС‚РІРѕ РёР· С„Р°Р№Р»Р° standalone-РѕРїРёСЃР°РЅРёСЏ СЃРІРѕР№СЃС‚РІ
 	//
 	bool   ReadSingleProp(SStrScan & rScan);
 	uint64 LinguaLocusMeta;
-	SymbHashTable Ht; // Хэш-таблица символов из списка BL
+	SymbHashTable Ht; // РҐСЌС€-С‚Р°Р±Р»РёС†Р° СЃРёРјРІРѕР»РѕРІ РёР· СЃРїРёСЃРєР° BL
 	uint   LastSymbHashId;
 	PropertySet PropS;
 };
 //
-// Descr: Класс контейнера UED-объектов, реализующий функционал компиляции и сборки.
+// Descr: РљР»Р°СЃСЃ РєРѕРЅС‚РµР№РЅРµСЂР° UED-РѕР±СЉРµРєС‚РѕРІ, СЂРµР°Р»РёР·СѓСЋС‰РёР№ С„СѓРЅРєС†РёРѕРЅР°Р» РєРѕРјРїРёР»СЏС†РёРё Рё СЃР±РѕСЂРєРё.
 //
 class SrUedContainer_Ct : public SrUedContainer_Base {
 public:
@@ -328,13 +330,13 @@ public:
 	bool   GenerateSourceDecl_C(const char * pFileName, uint versionN, const SBinaryChunk & rHash);
 	bool   GenerateSourceDecl_Java(const char * pFileName, uint versionN, const SBinaryChunk & rHash);
 	//
-	// Descr: Верифицирует this-контейнер на непротиворечивость и, если указан контейнер
-	//   предыдущей версии (pPrevC != 0), то проверяет инварианты.
+	// Descr: Р’РµСЂРёС„РёС†РёСЂСѓРµС‚ this-РєРѕРЅС‚РµР№РЅРµСЂ РЅР° РЅРµРїСЂРѕС‚РёРІРѕСЂРµС‡РёРІРѕСЃС‚СЊ Рё, РµСЃР»Рё СѓРєР°Р·Р°РЅ РєРѕРЅС‚РµР№РЅРµСЂ
+	//   РїСЂРµРґС‹РґСѓС‰РµР№ РІРµСЂСЃРёРё (pPrevC != 0), С‚Рѕ РїСЂРѕРІРµСЂСЏРµС‚ РёРЅРІР°СЂРёР°РЅС‚С‹.
 	//
 	int    VerifyByPreviousVersion(const SrUedContainer_Ct * pPrevC, bool tolerant, PPLogger * pLogger);
 };
 //
-// Descr: Класс контейнера UED-объектов, реализующий функционал применения в run-time'е
+// Descr: РљР»Р°СЃСЃ РєРѕРЅС‚РµР№РЅРµСЂР° UED-РѕР±СЉРµРєС‚РѕРІ, СЂРµР°Р»РёР·СѓСЋС‰РёР№ С„СѓРЅРєС†РёРѕРЅР°Р» РїСЂРёРјРµРЅРµРЅРёСЏ РІ run-time'Рµ
 //
 class SrUedContainer_Rt : public SrUedContainer_Base {
 public:

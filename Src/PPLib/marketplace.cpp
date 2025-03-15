@@ -126,6 +126,73 @@ int PPMarketplaceInterface::Init(PPID guaID)
 //
 //
 //
+PPMarketplaceInterface_Wildberries::FaultStatusResult::FaultStatusResult() : Status(0), Timestamp(ZERODATETIME)
+{
+}
+	
+PPMarketplaceInterface_Wildberries::FaultStatusResult & PPMarketplaceInterface_Wildberries::FaultStatusResult::Z()
+{
+	Status = 0;
+	Timestamp = ZERODATETIME;
+	StatusText.Z();
+	Title.Z();
+	Detail.Z();
+	Code.Z();
+	ReqId.Z();
+	Origin.Z();
+	return *this;
+}
+
+bool PPMarketplaceInterface_Wildberries::FaultStatusResult::FromJson(const SJson * pJs)
+{
+	bool   ok = false;
+	Z();
+	/*
+		{
+			"title": "unauthorized",
+			"detail": "token expired; Manage tokens at https://seller.wildberries.ru/supplier-settings/access-to-api",
+			"code": "167251cb759b cc73ad3617b9d5c82732 456760352e0e-60",
+			"requestId": "0918c63512ce3d0e2c95d6af649b5fab",
+			"origin": "s2s-api-auth-supplies",
+			"status": 401,
+			"statusText": "Unauthorized",
+			"timestamp": "2025-03-09T16:54:13Z"
+		}
+	*/
+	if(SJson::IsObject(pJs)) {
+		for(const SJson * p_cur = pJs->P_Child; p_cur; p_cur = p_cur->P_Next) {
+			if(p_cur->Text.IsEqiAscii("status")) {
+				Status = p_cur->P_Child->Text.ToLong();
+			}
+			else if(p_cur->Text.IsEqiAscii("statusText")) {
+				(StatusText = p_cur->P_Child->Text).Unescape();
+			}
+			else if(p_cur->Text.IsEqiAscii("title")) {
+				(Title = p_cur->P_Child->Text).Unescape();
+			}
+			else if(p_cur->Text.IsEqiAscii("detail")) {
+				(Detail = p_cur->P_Child->Text).Unescape();
+			}
+			else if(p_cur->Text.IsEqiAscii("code")) {
+				(Code = p_cur->P_Child->Text).Unescape();
+			}
+			else if(p_cur->Text.IsEqiAscii("requestId")) {
+				(ReqId = p_cur->P_Child->Text).Unescape();
+			}
+			else if(p_cur->Text.IsEqiAscii("origin")) {
+				(Origin = p_cur->P_Child->Text).Unescape();
+			}
+			else if(p_cur->Text.IsEqiAscii("timestamp")) {
+				strtodatetime(p_cur->P_Child->Text, &Timestamp, DATF_ISO8601CENT, 0);
+			}
+		}
+		if(Status != 0 && StatusText.NotEmpty()) {
+			ok = true;
+		}
+	}
+	return ok;
+}
+
 PPMarketplaceInterface_Wildberries::Warehouse::Warehouse() : ID(0), Flags(0), UedGeoLoc(0ULL), CargoType(0), DeliveryType(0)
 {
 }
@@ -1434,15 +1501,17 @@ int PPMarketplaceInterface_Wildberries::FetchWarehouseList(TSCollection <Warehou
 		}
 	}
 	if(do_request) {
-		ok = Helper_RequestWarehouseList(methWarehouses, rList, local_cache_path);
+		ok = Helper_RequestWarehouseList(methWarehouses, rList, local_cache_path, 0/*FaultStatusResult*/);
 	}
 	return ok;
 }
 
-int PPMarketplaceInterface_Wildberries::Helper_RequestWarehouseList(int meth/*methWarehouses||methWarehouses2*/, TSCollection <Warehouse> & rList, const char * pFileNameToStoreJson)
+int PPMarketplaceInterface_Wildberries::Helper_RequestWarehouseList(int meth/*methWarehouses||methWarehouses2*/, TSCollection <Warehouse> & rList, 
+	const char * pFileNameToStoreJson, FaultStatusResult * pError)
 {
 	rList.freeAll();
 	int    ok = 0;
+	FaultStatusResult err_status;
 	SJson * p_js_reply = 0;
 	assert(oneof2(meth, methWarehouses, methWarehouses2));
 	if(oneof2(meth, methWarehouses, methWarehouses2)) {
@@ -1474,6 +1543,12 @@ int PPMarketplaceInterface_Wildberries::Helper_RequestWarehouseList(int meth/*me
 							}
 							ok = 1;
 						}
+						else {
+							if(err_status.FromJson(p_js_reply)) {
+								;
+							}
+							ok = 0;
+						}
 					}
 				}
 			}
@@ -1481,17 +1556,18 @@ int PPMarketplaceInterface_Wildberries::Helper_RequestWarehouseList(int meth/*me
 	}
 	CATCHZOK
 	delete p_js_reply;
+	ASSIGN_PTR(pError, err_status);
 	return ok;
 }
 
-int PPMarketplaceInterface_Wildberries::RequestWarehouseList(TSCollection <Warehouse> & rList)
+int PPMarketplaceInterface_Wildberries::RequestWarehouseList(TSCollection <Warehouse> & rList, FaultStatusResult * pError)
 {
-	return Helper_RequestWarehouseList(methWarehouses, rList, 0);
+	return Helper_RequestWarehouseList(methWarehouses, rList, 0, pError);
 }
 
-int PPMarketplaceInterface_Wildberries::RequestWarehouseList2(TSCollection <Warehouse> & rList)
+int PPMarketplaceInterface_Wildberries::RequestWarehouseList2(TSCollection <Warehouse> & rList, FaultStatusResult * pError)
 {
-	return Helper_RequestWarehouseList(methWarehouses2, rList, 0);
+	return Helper_RequestWarehouseList(methWarehouses2, rList, 0, pError);
 }
 
 int PPMarketplaceInterface_Wildberries::RequestProductCategoryList(TSCollection <ProductCategory> & rList)
@@ -1904,10 +1980,11 @@ int PPMarketplaceInterface_Wildberries::RequestReturnTariff() // @v12.2.3 @const
 	return ok;
 }
 
-int PPMarketplaceInterface_Wildberries::RequestIncomes(TSCollection <Income> & rList)
+int PPMarketplaceInterface_Wildberries::RequestIncomes(TSCollection <Income> & rList, FaultStatusResult * pError)
 {
 	rList.freeAll();
 	int    ok = 1;
+	FaultStatusResult err_status;
 	SJson * p_js_reply = 0;
 	SString temp_buf;
 	SString url_buf;
@@ -1942,19 +2019,28 @@ int PPMarketplaceInterface_Wildberries::RequestIncomes(TSCollection <Income> & r
 							}
 						}
 					}
+					else {
+						if(err_status.FromJson(p_js_reply)) {
+							(temp_buf = "Error").CatDiv(':', 2).Cat(err_status.Status).Space().Cat(err_status.StatusText).Space().CatParStr(err_status.Detail);
+							R_Prc.GetLogger().Log(temp_buf);
+						}
+						ok = 0;
+					}
 				}
 			}
 		}
 	}
 	CATCHZOK
 	delete p_js_reply;
+	ASSIGN_PTR(pError, err_status);
 	return ok;
 }
 
-int PPMarketplaceInterface_Wildberries::RequestStocks(TSCollection <Stock> & rList)
+int PPMarketplaceInterface_Wildberries::RequestStocks(TSCollection <Stock> & rList, FaultStatusResult * pError)
 {
 	rList.freeAll();
 	int    ok = 1;
+	FaultStatusResult err_status;
 	SJson * p_js_reply = 0;
 	SString temp_buf;
 	SString url_buf;
@@ -1989,6 +2075,13 @@ int PPMarketplaceInterface_Wildberries::RequestStocks(TSCollection <Stock> & rLi
 							}
 						}
 					}
+					else {
+						if(err_status.FromJson(p_js_reply)) {
+							(temp_buf = "Error").CatDiv(':', 2).Cat(err_status.Status).Space().Cat(err_status.StatusText).Space().CatParStr(err_status.Detail);
+							R_Prc.GetLogger().Log(temp_buf);
+						}
+						ok = 0;
+					}
 				}
 				{
 					//int PPObjOprKind::GetEdiStockOp(PPID * pID, int use_ta)
@@ -2005,6 +2098,7 @@ int PPMarketplaceInterface_Wildberries::RequestStocks(TSCollection <Stock> & rLi
 	}
 	CATCHZOK
 	delete p_js_reply;
+	ASSIGN_PTR(pError, err_status);
 	return ok;
 }
 
@@ -2100,10 +2194,11 @@ int PPMarketplaceInterface_Wildberries::RequestAcceptanceReport(const DateRange 
 	return ok;	
 }
 
-int PPMarketplaceInterface_Wildberries::RequestOrders(TSCollection <Sale> & rList)
+int PPMarketplaceInterface_Wildberries::RequestOrders(TSCollection <Sale> & rList, FaultStatusResult * pError)
 {
 	rList.freeAll();
 	int    ok = 1;
+	FaultStatusResult err_status;
 	SJson * p_js_reply = 0;
 	SString temp_buf;
 	SString url_buf;
@@ -2138,19 +2233,28 @@ int PPMarketplaceInterface_Wildberries::RequestOrders(TSCollection <Sale> & rLis
 							}
 						}
 					}
+					else {
+						if(err_status.FromJson(p_js_reply)) {
+							(temp_buf = "Error").CatDiv(':', 2).Cat(err_status.Status).Space().Cat(err_status.StatusText).Space().CatParStr(err_status.Detail);
+							R_Prc.GetLogger().Log(temp_buf);
+						}
+						ok = 0;
+					}
 				}
 			}
 		}
 	}
 	CATCHZOK
 	delete p_js_reply;
+	ASSIGN_PTR(pError, err_status);
 	return ok;
 }
 
-int PPMarketplaceInterface_Wildberries::RequestSales(TSCollection <Sale> & rList)
+int PPMarketplaceInterface_Wildberries::RequestSales(TSCollection <Sale> & rList, FaultStatusResult * pError)
 {
 	rList.freeAll();
 	int    ok = 1;
+	FaultStatusResult err_status;
 	SJson * p_js_reply = 0;
 	SString temp_buf;
 	SString url_buf;
@@ -2184,18 +2288,25 @@ int PPMarketplaceInterface_Wildberries::RequestSales(TSCollection <Sale> & rList
 								}
 							}
 						}
-					}
-					if(rList.getCount()) {
-						PPGetFilePath(PPPATH_OUT, "mpwb-sales_order_type.txt", temp_buf);
-						SFile f_out(temp_buf, SFile::mWrite);
-						for(uint i = 0; i < rList.getCount(); i++) {
-							const Sale * p_item = rList.at(i);
-							if(p_item) {
-								if(p_item->OrderType.NotEmpty()) {
-									f_out.WriteLine((temp_buf = p_item->OrderType).CR());
+						if(rList.getCount()) {
+							PPGetFilePath(PPPATH_OUT, "mpwb-sales_order_type.txt", temp_buf);
+							SFile f_out(temp_buf, SFile::mWrite);
+							for(uint i = 0; i < rList.getCount(); i++) {
+								const Sale * p_item = rList.at(i);
+								if(p_item) {
+									if(p_item->OrderType.NotEmpty()) {
+										f_out.WriteLine((temp_buf = p_item->OrderType).CR());
+									}
 								}
 							}
 						}
+					}
+					else {
+						if(err_status.FromJson(p_js_reply)) {
+							(temp_buf = "Error").CatDiv(':', 2).Cat(err_status.Status).Space().Cat(err_status.StatusText).Space().CatParStr(err_status.Detail);
+							R_Prc.GetLogger().Log(temp_buf);
+						}
+						ok = 0;
 					}
 				}
 			}
@@ -2203,6 +2314,7 @@ int PPMarketplaceInterface_Wildberries::RequestSales(TSCollection <Sale> & rList
 	}
 	CATCHZOK
 	delete p_js_reply;
+	ASSIGN_PTR(pError, err_status);
 	return ok;
 }
 
@@ -2891,10 +3003,11 @@ int PPMarketplaceInterface_Wildberries::RequestBalance()
 	return ok;
 }
 
-int PPMarketplaceInterface_Wildberries::RequestSalesReportDetailedByPeriod(const DateRange & rPeriod, TSCollection <SalesRepDbpEntry> & rList)
+int PPMarketplaceInterface_Wildberries::RequestSalesReportDetailedByPeriod(const DateRange & rPeriod, TSCollection <SalesRepDbpEntry> & rList, FaultStatusResult * pError)
 {
 	rList.freeAll();
 	int    ok = 1;
+	FaultStatusResult err_status;
 	SJson * p_js_reply = 0;
 	SString temp_buf;
 	SString url_buf;
@@ -2978,6 +3091,13 @@ int PPMarketplaceInterface_Wildberries::RequestSalesReportDetailedByPeriod(const
 								}
 							}
 						}
+					}
+					else {
+						if(err_status.FromJson(p_js_reply)) {
+							(temp_buf = "Error").CatDiv(':', 2).Cat(err_status.Status).Space().Cat(err_status.StatusText).Space().CatParStr(err_status.Detail);
+							R_Prc.GetLogger().Log(temp_buf);
+						}
+						ok = 0;
 					}
 				}
 			}
@@ -3360,11 +3480,13 @@ int PPMarketplaceInterface_Wildberries::ImportReceipts()
 	PPID   suppl_id = 0;
 	SString bill_code;
 	TSCollection <PPMarketplaceInterface_Wildberries::Income> income_list;
+	FaultStatusResult error_status;
 	const  PPID rcpt_op_id = CConfig.ReceiptOp;
 	THROW_PP(rcpt_op_id, PPERR_UNDEFRECEIPTOP);
 	THROW(ArObj.GetMainOrgAsSuppl(&suppl_id, 1/*processAbsense*/, 1/*use_ta*/));
-	RequestIncomes(income_list);
-	if(income_list.getCount()) {
+	if(!RequestIncomes(income_list, &error_status)) {
+	}
+	else if(income_list.getCount()) {
 		for(uint i = 0; i < income_list.getCount(); i++) {
 			const Income * p_wb_item = income_list.at(i);
 			if(p_wb_item) {
@@ -3455,7 +3577,7 @@ bool PPMarketplaceInterface_Wildberries::MakeTargetUrl_(int meth, int * pReq/*SH
 		{ methSales, apiStatistics, SHttpProtocol::reqGet, "api/v1/supplier/sales" },
 		{ methSalesReportDetailedByPeriod, apiStatistics,  SHttpProtocol::reqGet, "api/v5/supplier/reportDetailByPeriod" },
 		{ methSupples, apiMarketplace, SHttpProtocol::reqGet, "api/v3/supplies" },
-		{ methSupply, apiMarketplace, SHttpProtocol::reqGet, "api/v3/supplies" }, // /supplies/{supplyId}
+		{ methSupply,  apiMarketplace, SHttpProtocol::reqGet, "api/v3/supplies" }, // /supplies/{supplyId}
 		{ methSupplyOrders, apiMarketplace, SHttpProtocol::reqGet, "api/v3/supplies" }, // /{supplyId}/orders
 		{ methAcceptanceReport, apiAnalytics, SHttpProtocol::reqGet, "api/v1/analytics/acceptance-report" },
 		{ methGoodsPrices, apiDiscountsPrices, SHttpProtocol::reqGet, "api/v2/list/goods/filter" },
@@ -3810,12 +3932,15 @@ int PPMarketplaceInterface_Wildberries::ImportSales()
 	SString fmt_buf;
 	SString msg_buf;
 	TSCollection <PPMarketplaceInterface_Wildberries::Sale> sale_list;
+	FaultStatusResult error_status;
 	const PPID order_op_id = R_Prc.GetOrderOpID();
 	const PPID sale_op_id = R_Prc.GetSaleOpID();
 	const PPID ret_op_id = R_Prc.GetRetOpID();
 	THROW(sale_op_id); // @todo @err
-	RequestSales(sale_list);
-	if(sale_list.getCount()) {
+	if(!RequestSales(sale_list, &error_status)) {
+		;
+	}
+	else if(sale_list.getCount()) {
 		SString bill_code;
 		SString ord_bill_code;
 		SString serial_buf;
@@ -4141,8 +4266,11 @@ int PPMarketplaceInterface_Wildberries::ImportOrders()
 	SString fmt_buf;
 	SString msg_buf;
 	TSCollection <PPMarketplaceInterface_Wildberries::Sale> order_list;
-	RequestOrders(order_list);
-	if(order_list.getCount()) {
+	FaultStatusResult error_status;
+	if(!RequestOrders(order_list, &error_status)) {
+		;
+	}
+	else if(order_list.getCount()) {
 		const PPID order_op_id = R_Prc.GetOrderOpID();
 		THROW(order_op_id); // @todo @err
 		{
@@ -4336,6 +4464,7 @@ int PPMarketplaceInterface_Wildberries::ImportStocks() // @construction
 	PPID   stock_op_id = 0; // Вид операции фиксации остатков (драфт-документ, чаще всего это - PPOPK_EDI_STOCK)
 	PPObjOprKind op_obj;
 	TSCollection <Stock> stock_list;
+	FaultStatusResult error_status;
 	{
 		PPID   op_id = 0;
 		if(op_obj.GetEdiStockOp(&op_id, 1)) {
@@ -4343,7 +4472,7 @@ int PPMarketplaceInterface_Wildberries::ImportStocks() // @construction
 		}
 	}
 	if(stock_op_id) {
-		int    r = RequestStocks(stock_list);
+		int    r = RequestStocks(stock_list, &error_status);
 		if(r && stock_list.getCount()) {
 			PPObjBill * p_bobj = BillObj;
 			BillCore * p_billc = p_bobj->P_Tbl;
@@ -4449,6 +4578,7 @@ int PPMarketplaceInterface_Wildberries::ImportFinancialTransactions()
 	SString fmt_buf;
 	SString msg_buf;
 	TSCollection <PPMarketplaceInterface_Wildberries::SalesRepDbpEntry> sales_rep_dbp_list;
+	FaultStatusResult error_status;
 	DateRange period;
 	PPID   acc_id = 0;
 	PPID   acs_id = 0;
@@ -4480,12 +4610,16 @@ int PPMarketplaceInterface_Wildberries::ImportFinancialTransactions()
 	PPFormatPeriod(&period, temp_buf);
 	msg_buf.Printf(fmt_buf, temp_buf.cptr());
 	R_Prc.GetLogger().Log(msg_buf);
-	int r = RequestSalesReportDetailedByPeriod(period, sales_rep_dbp_list);
-	if(!sales_rep_dbp_list.getCount()) {
+	int r = RequestSalesReportDetailedByPeriod(period, sales_rep_dbp_list, &error_status);
+	if(!r) {
+		;
+	}
+	else if(!sales_rep_dbp_list.getCount()) {
 		R_Prc.GetLogger().Log(PPLoadTextS(PPTXT_MP_FINTRA_WB_REPEMPTY, msg_buf));
 	}
 	else {
 		// PPTXT_MPWB_NATIVEOPS
+		// PUP - pick-up point (ПВЗ - пункт выдачи заказов)
 		enum {
 			nativeopCargo               =  1, // Возмещение издержек по перевозке/по складским операциям с товаром
 			nativeopLogistics           =  2, // Логистика
@@ -4498,6 +4632,7 @@ int PPMarketplaceInterface_Wildberries::ImportFinancialTransactions()
 			nativeopFine                =  9, // @v12.2.0 Штраф 
 			nativeopReturn              = 10, // @v12.2.0 Возврат
 			nativeopDamagesCompensation = 11, // @v12.2.1 Компенсация ущерба
+			nativeopReimbursementAtPUP  = 12, // @v12.2.10 Возмещение за выдачу и возврат товаров на ПВЗ
 		};
 		PPLoadTextUtf8(PPTXT_MPWB_NATIVEOPS, temp_buf);
 		const StringSet ss_native_ops(';', temp_buf);
@@ -4910,7 +5045,19 @@ int PPMarketplaceInterface_Wildberries::ImportFinancialTransactions()
 							case nativeopAcquiringCorrection: // @v12.2.0 Корректировка эквайринга
 								{
 									// @todo
+									debug_mark = true;
 								}
+								break;
+							case nativeopReimbursementAtPUP: // @v12.2.10 Возмещение за выдачу и возврат товаров на ПВЗ
+								{
+									//double Ppvz_Reward;           // ppvz_reward	number Возмещение за выдачу и возврат товаров на ПВЗ
+									//double Ppvz_Vw;               // ppvz_vw number Вознаграждение WB без НДС
+									//double Ppvz_Vw_Vat;           // ppvz_vw_nds number НДС с вознаграждения WB
+									// В элементе p_entry значатся следующие суммы:
+									// (Ppvz_Reward >0) & ((Ppvz_Vw+Ppvz_Vw_Vat) < 0) причем (Ppvz_Vw+Ppvz_Vw_Vat) == -Ppvz_Reward
+									// @todo
+									debug_mark = true;
+								}								
 								break;
 						}
 					}
@@ -5901,7 +6048,7 @@ int TestMarketplace()
 					r = p_ifc_wb->RequestPromotionWareList(/*actionId*/805, true, ware_on_promo_list);
 				}
 				r = p_ifc_wb->RequestReturns();
-				r = p_ifc_wb->RequestWarehouseList2(wh_list2);
+				r = p_ifc_wb->RequestWarehouseList2(wh_list2, 0/*FaultStatusResult*/);
 				r = p_ifc_wb->RequestDocumentsList();
 				r = p_ifc_wb->RequestBalance();
 				//
@@ -5915,7 +6062,7 @@ int TestMarketplace()
 				r = p_ifc_wb->RequestSupplies();
 				//r = p_ifc_wb->RequestIncomes(income_list);
 				r = p_ifc_wb->RequestCommission();
-				r = p_ifc_wb->RequestStocks(stock_list);
+				r = p_ifc_wb->RequestStocks(stock_list, 0);
 				//r = p_ifc_wb->RequestOrders(order_list);
 				//r = p_ifc_wb->RequestSales(sale_list);
 				{

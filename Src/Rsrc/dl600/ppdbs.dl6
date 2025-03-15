@@ -21,27 +21,9 @@
 //   -- GlobalBizScore: ScoreDescr && Str move to UnxTextRef
 //   -- UserFuncPrfSess: DbUUID_s и SessUUID_s преобразовать в guid; DbName, UserName, MachineName перенести в UnxTextRef
 //
-table Reference_ {         // size=88
-	long   ObjType;        // Тип объекта
-	long   ObjID;          // Ид объекта
-	string ObjName[48];    // Наименование объекта
-	string AltText[20];    // Альтернативный текст
-	long   Flags;          // Флаги объекта
-	long   Val1;           // Дополнительные данные
-	long   Val2;           // Дополнительные данные
-index:
-	ObjType, ObjID (unique);
-	ObjType, ObjName acs (dup mod);
-	ObjType, Val1 (dup mod);
-	ObjType, Val2 (dup mod);
-file:
-	"ref.btr";
-	acstable = "rusncase.alt";
-	balanced;
-	access=3;
-}
+
 //
-//
+// Справочники
 //
 table Reference2 {         // size=148
 	long   ObjType;        // Тип объекта
@@ -66,8 +48,6 @@ file:
 //
 // Первые 500 идентификаторов свойств зарезервированы за главным приложением.
 // Следующие 500 - за сторонними приложениями. Пользовательские свойства начинаются с 1001.
-//
-// @todo { Добавить индекс {ObjType, Prop, ObjID} } @done v6.2.2
 //
 table Property {           // size=84+2048
 	long   ObjType;        // ->Reference.ObjType Тип объекта
@@ -268,76 +248,7 @@ index:
 file:
 	"objtag.btr";
 	acstable = "rusncase.alt";
-	compress; // @v7.3.5
-	balanced;
-}
-//
-// Государство
-// @obsolete (moved to table World)
-//
-table Country {         //
-	autolong ID;        // Ид
-	string Name[30];    // Название
-	string Abbr[10];    // Сокращенное название
-	long   Capital;     // ?? Столица ->City.ID
-	string Phone[10];   // Телефонный код
-	int16  HasRegions;  // Признак деления на регионы
-	raw    Reserve[16];
-index:
-	ID (unique);
-	Name acs (unique mod);
-	Abbr acs (dup mod);
-file:
-	"country.btr";
-	acstable = "rusncase.alt";
-	balanced;
-}
-//
-// Регион
-// @obsolete (moved to table World)
-//
-// Пока структура регионов одноуровневая на усмотрение пользователя.
-// Следовательно, государство должно однозначно делиться на вводимые регионы.
-// Потом будем думать, как улучшить структуру.
-//
-table Region {
-	autolong ID;        // Ид
-	long   Country;     // Государство          ->Country.ID
-	string Name[30];    // Название
-	string Abbr[10];    // Сокращенное название
-	long   Capital;     // ?? Столица           ->City.ID
-	string Phone[10];   // Телефонный код
-index:
-	ID (unique);
-	Country, Name acs (unique mod);
-	Name acs (unique mod);
-	Abbr acs (dup mod);
-file:
-	"region.btr";
-	acstable = "rusncase.alt";
-	balanced;
-}
-//
-// Населенный пункт
-// @obsolete (moved to table World)
-//
-table City {            //
-	autolong ID;        // Ид
-	long   Country;     // Государство ->Country.ID
-	long   Region;      // Регион      ->Region.ID
-	string Name[30];    // Название
-	string Abbr[10];    // Сокращение
-	long   Status;      // Статус      ->Ref(PPOBJ_CITYSTATUS)
-	string Phone[10];   // Телефонный код
-index:
-	ID (unique);
-	Region, Name acs (unique mod);
-	Country, Name acs (unique mod);
-	Name acs, Region (unique mod);
-	Abbr acs, Region (dup mod);
-file:
-	"city.btr";
-	acstable = "rusncase.alt";
+	compress;
 	balanced;
 }
 //
@@ -538,30 +449,6 @@ file:
 	access=3;
 }
 //
-// Банковские счета
-// @2.2.4: Для банков обязательный корр. счет в учреждениях центрального
-// банка прописывается в этой таблице с полем BankID == 0 и AccType == PPBAC_NOSTRO
-// @obsolete (moved to table Register)
-//
-table BankAccount_Pre9004 { //
-	autolong ID;           // Ид счета
-	long   PersonID;       // Владелец счета ->Person.ID
-	long   BankID;         // Банк           ->Person.ID
-	long   AccType;        // Тип счета      ->Ref(PPOBJ_BNKACCTYPE)
-	string Acct[32];       // Счет // since @v2.0.0 [24] // @v5.8.10 [24]-->[32]
-	date   OpenDate;       // Дата открытия //
-	long   Flags;          // Флаги
-	long   CorrAcc;        // Корреспондирующий балансовый счет
-	long   CorrArt;        // Корреспондирующая статья //
-index:
-	ID (unique);
-	PersonID, BankID, Acct (unique mod);
-file:
-	"bnkacct.btr";
-	balanced;
-	access=1;
-}
-//
 // Ассоциации Person-PersonKind в отношении многие-ко-многим.
 //
 table PersonKind {      // size=136
@@ -670,32 +557,6 @@ index:
 file:
 	"psnevent.btr";
 	// @v11.1.12 vlr;
-	balanced;
-	access=1;
-}
-//
-// @obsolete (moved to table Reference)
-//
-table StaffList_Pre9003 {  //
-	autolong ID;           // @id
-	long   OrgID;          // ->Person.ID Работодатель
-	long   DivisionID;     // ->Location.ID (LOCTYP_DIVISION)
-	string Name[48];
-	long   Rank;
-	long   Flags;
-	int16  VacancyCount;   // Общее количество ставок
-	int16  VacancyBusy;    // Занятое количество вакансий
-	money  Salary[8];      // @unused
-	long   FixedStaff;     // Зарезервированный ИД должности (PPFIXSTF_XXX)
-	long   ChargeGrpID;    // ->Ref(PPOBJ_SALCHARGEGRP) Группа начислений, используемая для этой должности
-	raw    Reserve[24];    // @reserve
-index:
-	ID (unique);
-	OrgID, DivisionID, Name acs (unique mod);
-	OrgID, DivisionID, Rank, Name acs (unique mod);
-file:
-	"staffl.btr";
-	acstable = "rusncase.alt";
 	balanced;
 	access=1;
 }
@@ -881,23 +742,6 @@ file:
 	"goods2.btr";
 	acstable = "rusncase.alt";
 	balanced;
-}
-//
-// История товаров
-//
-table HistGoods { // @obsolete
-	autolong ID;
-	long   GoodsID;
-	long   Ver;
-	long   Sz;             // @v5.8.11 Size-->Sz
-	blob   Data[2048];     // @v6.1.6 // @v6.2.2 [1024]-->[2048]
-index:
-	ID (unique);
-	GoodsID, Ver (unique);
-file:
-	"xgoods.btr";
-	vlr;
-	acstable = "rusncase.alt";
 }
 //
 // Справочник штрихкодов
@@ -1194,54 +1038,6 @@ file:
 	compress; // @v11.1.12
 	acstable = "rusncase.alt"; // @v11.1.12
 	access=1;
-}
-//
-// История изменения документов
-//
-table HistBill { // @obsolete
-	autolong ID;
-	long   InnerID;
-	long   BillID;
-	long   Ver;
-	string Code[24];    // Код документа
-	date   Dt;          // Дата документа
-	long   OpID;        // Вид операции          ->Ref(PPOBJ_OPRKIND)
-	long   LocID;       // Позиция               ->Location.ID
-	long   Object;      // Контрагент            ->Article.ID
-	long   Object2;     // Дополнительный объект ->Article.ID
-	long   CurID;       // Валюта (0 - базовая)  ->Ref(PPOBJ_CURRENCY)
-	double CRate;       // Курс валюты для пересчета в базовую валюту
-	double Amount;      // Номинальная сумма (в единицах CurID)
-	long   LinkBillID;  // Связанный документ    ->Bill.ID
-	long   Flags;       // Флаги
-	long   SCardID;     // ->SCard.ID
-	// BillExt
-	long   PayerID;     // ->Article.ID Плательщик
-	long   AgentID;     // ->Article.ID Агент
-	raw    Reserve[16]; // @reserve
-index:
-	ID (unique);
-	BillID, InnerID, Ver (unique);
-file:
-	"xbill.btr";
-}
-
-table HistTrfr { // @obsolete
-	long   HistBillID; // ->HistBill.ID
-	long   OprNo;      // >> Transfer.OprNo
-	long   GoodsID;    // ->Goods2.ID
-	double Quantity;
-	double Cost;
-	double Price;
-	double Discount;
-	long   QCertID;
-	date   Expiry;
-	long   Flags;
-index:
-	HistBillID, OprNo (unique mod);
-file:
-	"xtrfr.btr";
-	page=4096;  // @v7.8.3 При автоматически определяемом размере страницы может не хватить предела для размера файла.
 }
 //
 // Суммы документов
@@ -2556,21 +2352,6 @@ file:
 	access=1;
 }
 //
-// @v4.8.3 @obsolete
-// Текущие цены на товары по асинхронным кассовым узлам.
-// Вспомогательная таблица.
-//
-table CCurPrice {
-	long   CashID;      // Кассовый узел ->Ref(PPOBJ_CASHNODE)
-	long   GoodsID;     // Товар         ->Goods.ID
-	money  Price;       // Цена на текущий момент
-index:
-	CashID, GoodsID (unique);
-file:
-	"ccurpric.btr";
-	balanced;
-}
-//
 // @todo:
 //   -- Добавить поля Moment.dt, Moment.tm для отражения момента, от которого отсчитываются изменений в БД
 //   -- Добавить поле UserID для отражения ид пользователя, который осуществил загрузку
@@ -2669,49 +2450,6 @@ file:
 	acstable = "rusncase.alt";
 	balanced;
 	access=3;
-}
-//
-// @obsolete
-// @todo 09/08/2005 {
-//     1. Поле MainOrgID - организация, к которой относится счет
-//     2. В индексы #1, #2 добавить лидирующий сегмент MainOrgID
-// }
-//
-table Account_Pre9004 {    // size=144
-	autolong  ID;          // @id
-	//
-	// Ac number layout:
-	// 1..999       - Balance accounts    (Type = ACY_BAL)
-	// 1000..1999   - Outbal accounts     (Type = ACY_OBAL)
-	// 2000..9999   - Registers           (Type = ACY_REGISTER)
-	// 10000..11999 - Aggregate accounts  (Type = ACY_AGGR)
-	// 12000..13999 - Aliases of accounts (Type = ACY_ALIAS)
-	//
-	int16  Ac;             // Счет      <-
-	int16  Sb;             // Субсчет   <-
-	string Code[32];       // Код счета (символьное представление)
-	long   CurID;          // ->Ref(PPOBJ_CURRENCY) Валюта
-	string Name[48];       // Наименование счета
-	long   AccSheetID;     // ->Ref(PPOBJ_ACCSHEET) Ассоциированная таблица аналитических статей
-	date   OpenDate;       // Дата открытия счета
-	int16  Type;           // 1 - Балансовый, 2 - Внебалансовый, 3 - Агрегирующий, 4 - Регистр, 5 - Бюджетный счет
-	int16  Kind;           // Вид счета (1 - акт, 2 - пас, 3 - акт/пас)
-	long   Flags;          // Флаги счета (ACF_XXX)
-	double SaldoLimit;     // Макс. остаток в сторону активности (0 - не лимитирован) // @v10.9.1 Limit-->SaldoLimit
-	double Overdraft;      // Макс. остаток при переходе через ноль
-		// (0 - нельзя менять знак, для акт-пасс - не ограниченно)
-	date   FRRL_Date;      // @v3.0.11 Начальная дата блокировки пересчета форвардных остатков
-	long   ParentID;       // Родительский счет. Только для бюджетных счетов.D:\Papyrus\Src\Rsrc\dl600\ppdbs.dl6
-	raw    Reserve[12];    // @reserve
-index:
-	ID (unique);
-	Ac, Sb, CurID (unique mod);
-	Code acs, Ac, Sb, CurID (unique mod);
-file:
-	"account.btr";
-	acstable = "rusncase.alt";
-	balanced;
-	access=1;
 }
 //
 // Вспомогательная таблица. Содержит соответствия между балансовыми
@@ -3854,6 +3592,270 @@ index:
 file:
 	"tstajrnl.btr";
 	vlr;
+}
+//
+// Справочники before v5.8.10
+//
+table Reference_Obsolete { // size=88 // @v12.2.10 Reference_-->Reference_Obsolete
+	long   ObjType;        // Тип объекта
+	long   ObjID;          // Ид объекта
+	string ObjName[48];    // Наименование объекта
+	string AltText[20];    // Альтернативный текст
+	long   Flags;          // Флаги объекта
+	long   Val1;           // Дополнительные данные
+	long   Val2;           // Дополнительные данные
+index:
+	ObjType, ObjID (unique);
+	ObjType, ObjName acs (dup mod);
+	ObjType, Val1 (dup mod);
+	ObjType, Val2 (dup mod);
+file:
+	"ref.btr";
+	acstable = "rusncase.alt";
+	balanced;
+	access=3;
+}
+//
+// Государство
+// @obsolete (moved to table World)
+//
+table Country_Obsolete { // @v12.2.10 Country-->Country_Obsolete
+	autolong ID;        // Ид
+	string Name[30];    // Название
+	string Abbr[10];    // Сокращенное название
+	long   Capital;     // ?? Столица ->City.ID
+	string Phone[10];   // Телефонный код
+	int16  HasRegions;  // Признак деления на регионы
+	raw    Reserve[16];
+index:
+	ID (unique);
+	Name acs (unique mod);
+	Abbr acs (dup mod);
+file:
+	"country.btr";
+	acstable = "rusncase.alt";
+	balanced;
+}
+//
+// Регион
+// @obsolete (moved to table World)
+//
+// Пока структура регионов одноуровневая на усмотрение пользователя.
+// Следовательно, государство должно однозначно делиться на вводимые регионы.
+// Потом будем думать, как улучшить структуру.
+//
+table Region_Obsolete { // @v12.2.10 Region-->Region_Obsolete
+	autolong ID;        // Ид
+	long   Country;     // Государство          ->Country.ID
+	string Name[30];    // Название
+	string Abbr[10];    // Сокращенное название
+	long   Capital;     // ?? Столица           ->City.ID
+	string Phone[10];   // Телефонный код
+index:
+	ID (unique);
+	Country, Name acs (unique mod);
+	Name acs (unique mod);
+	Abbr acs (dup mod);
+file:
+	"region.btr";
+	acstable = "rusncase.alt";
+	balanced;
+}
+//
+// Населенный пункт
+// @obsolete (moved to table World)
+//
+table City_Obsolete {   // @v12.2.10 City-->City_Obsolete
+	autolong ID;        // Ид
+	long   Country;     // Государство ->Country.ID
+	long   Region;      // Регион      ->Region.ID
+	string Name[30];    // Название
+	string Abbr[10];    // Сокращение
+	long   Status;      // Статус      ->Ref(PPOBJ_CITYSTATUS)
+	string Phone[10];   // Телефонный код
+index:
+	ID (unique);
+	Region, Name acs (unique mod);
+	Country, Name acs (unique mod);
+	Name acs, Region (unique mod);
+	Abbr acs, Region (dup mod);
+file:
+	"city.btr";
+	acstable = "rusncase.alt";
+	balanced;
+}
+//
+// Банковские счета
+// @2.2.4: Для банков обязательный корр. счет в учреждениях центрального
+// банка прописывается в этой таблице с полем BankID == 0 и AccType == PPBAC_NOSTRO
+// @obsolete (moved to table Register)
+//
+table BankAccount_Pre9004 { //
+	autolong ID;           // Ид счета
+	long   PersonID;       // Владелец счета ->Person.ID
+	long   BankID;         // Банк           ->Person.ID
+	long   AccType;        // Тип счета      ->Ref(PPOBJ_BNKACCTYPE)
+	string Acct[32];       // Счет // since @v2.0.0 [24] // @v5.8.10 [24]-->[32]
+	date   OpenDate;       // Дата открытия //
+	long   Flags;          // Флаги
+	long   CorrAcc;        // Корреспондирующий балансовый счет
+	long   CorrArt;        // Корреспондирующая статья //
+index:
+	ID (unique);
+	PersonID, BankID, Acct (unique mod);
+file:
+	"bnkacct.btr";
+	balanced;
+	access=1;
+}
+//
+// @obsolete (moved to table Reference)
+//
+table StaffList_Pre9003 {  //
+	autolong ID;           // @id
+	long   OrgID;          // ->Person.ID Работодатель
+	long   DivisionID;     // ->Location.ID (LOCTYP_DIVISION)
+	string Name[48];
+	long   Rank;
+	long   Flags;
+	int16  VacancyCount;   // Общее количество ставок
+	int16  VacancyBusy;    // Занятое количество вакансий
+	money  Salary[8];      // @unused
+	long   FixedStaff;     // Зарезервированный ИД должности (PPFIXSTF_XXX)
+	long   ChargeGrpID;    // ->Ref(PPOBJ_SALCHARGEGRP) Группа начислений, используемая для этой должности
+	raw    Reserve[24];    // @reserve
+index:
+	ID (unique);
+	OrgID, DivisionID, Name acs (unique mod);
+	OrgID, DivisionID, Rank, Name acs (unique mod);
+file:
+	"staffl.btr";
+	acstable = "rusncase.alt";
+	balanced;
+	access=1;
+}
+//
+// История товаров
+//
+table HistGoods { // @obsolete
+	autolong ID;
+	long   GoodsID;
+	long   Ver;
+	long   Sz;             // @v5.8.11 Size-->Sz
+	blob   Data[2048];     // @v6.1.6 // @v6.2.2 [1024]-->[2048]
+index:
+	ID (unique);
+	GoodsID, Ver (unique);
+file:
+	"xgoods.btr";
+	vlr;
+	acstable = "rusncase.alt";
+}
+//
+// История изменения документов
+//
+table HistBill { // @obsolete
+	autolong ID;
+	long   InnerID;
+	long   BillID;
+	long   Ver;
+	string Code[24];    // Код документа
+	date   Dt;          // Дата документа
+	long   OpID;        // Вид операции          ->Ref(PPOBJ_OPRKIND)
+	long   LocID;       // Позиция               ->Location.ID
+	long   Object;      // Контрагент            ->Article.ID
+	long   Object2;     // Дополнительный объект ->Article.ID
+	long   CurID;       // Валюта (0 - базовая)  ->Ref(PPOBJ_CURRENCY)
+	double CRate;       // Курс валюты для пересчета в базовую валюту
+	double Amount;      // Номинальная сумма (в единицах CurID)
+	long   LinkBillID;  // Связанный документ    ->Bill.ID
+	long   Flags;       // Флаги
+	long   SCardID;     // ->SCard.ID
+	// BillExt
+	long   PayerID;     // ->Article.ID Плательщик
+	long   AgentID;     // ->Article.ID Агент
+	raw    Reserve[16]; // @reserve
+index:
+	ID (unique);
+	BillID, InnerID, Ver (unique);
+file:
+	"xbill.btr";
+}
+
+table HistTrfr { // @obsolete
+	long   HistBillID; // ->HistBill.ID
+	long   OprNo;      // >> Transfer.OprNo
+	long   GoodsID;    // ->Goods2.ID
+	double Quantity;
+	double Cost;
+	double Price;
+	double Discount;
+	long   QCertID;
+	date   Expiry;
+	long   Flags;
+index:
+	HistBillID, OprNo (unique mod);
+file:
+	"xtrfr.btr";
+	page=4096;  // @v7.8.3 При автоматически определяемом размере страницы может не хватить предела для размера файла.
+}
+//
+// @v4.8.3 @obsolete
+// Текущие цены на товары по асинхронным кассовым узлам.
+// Вспомогательная таблица.
+//
+table CCurPrice {
+	long   CashID;      // Кассовый узел ->Ref(PPOBJ_CASHNODE)
+	long   GoodsID;     // Товар         ->Goods.ID
+	money  Price;       // Цена на текущий момент
+index:
+	CashID, GoodsID (unique);
+file:
+	"ccurpric.btr";
+	balanced;
+}
+//
+// @obsolete
+// @todo 09/08/2005 {
+//     1. Поле MainOrgID - организация, к которой относится счет
+//     2. В индексы #1, #2 добавить лидирующий сегмент MainOrgID
+// }
+//
+table Account_Pre9004 {    // size=144
+	autolong  ID;          // @id
+	//
+	// Ac number layout:
+	// 1..999       - Balance accounts    (Type = ACY_BAL)
+	// 1000..1999   - Outbal accounts     (Type = ACY_OBAL)
+	// 2000..9999   - Registers           (Type = ACY_REGISTER)
+	// 10000..11999 - Aggregate accounts  (Type = ACY_AGGR)
+	// 12000..13999 - Aliases of accounts (Type = ACY_ALIAS)
+	//
+	int16  Ac;             // Счет      <-
+	int16  Sb;             // Субсчет   <-
+	string Code[32];       // Код счета (символьное представление)
+	long   CurID;          // ->Ref(PPOBJ_CURRENCY) Валюта
+	string Name[48];       // Наименование счета
+	long   AccSheetID;     // ->Ref(PPOBJ_ACCSHEET) Ассоциированная таблица аналитических статей
+	date   OpenDate;       // Дата открытия счета
+	int16  Type;           // 1 - Балансовый, 2 - Внебалансовый, 3 - Агрегирующий, 4 - Регистр, 5 - Бюджетный счет
+	int16  Kind;           // Вид счета (1 - акт, 2 - пас, 3 - акт/пас)
+	long   Flags;          // Флаги счета (ACF_XXX)
+	double SaldoLimit;     // Макс. остаток в сторону активности (0 - не лимитирован) // @v10.9.1 Limit-->SaldoLimit
+	double Overdraft;      // Макс. остаток при переходе через ноль
+		// (0 - нельзя менять знак, для акт-пасс - не ограниченно)
+	date   FRRL_Date;      // @v3.0.11 Начальная дата блокировки пересчета форвардных остатков
+	long   ParentID;       // Родительский счет. Только для бюджетных счетов.D:\Papyrus\Src\Rsrc\dl600\ppdbs.dl6
+	raw    Reserve[12];    // @reserve
+index:
+	ID (unique);
+	Ac, Sb, CurID (unique mod);
+	Code acs, Ac, Sb, CurID (unique mod);
+file:
+	"account.btr";
+	acstable = "rusncase.alt";
+	balanced;
+	access=1;
 }
 //
 // Временная таблица производственного отчета по техн сессии

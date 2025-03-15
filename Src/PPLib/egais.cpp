@@ -900,7 +900,7 @@ int PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, bool hor
 										result_barcode = "4600000000008"; // dummy ean
 									n_item.PutAttrib("ean", result_barcode);
 								}
-								n_item.PutAttrib("volume", EncText(temp_buf.Z().Cat(agi.Volume, MKSFMTD(0, 3, 0))));
+								n_item.PutAttrib("volume", EncText(temp_buf.Z().Cat(agi.Volume, MKSFMTD_030)));
 							}
 						}
 					}
@@ -918,7 +918,7 @@ int PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, bool hor
 								n_item.PutAttrib("code", EncText(temp_buf));
 								GetGoodsName(r_item.GoodsID, temp_buf);
 								n_item.PutAttrib("bname", EncText(temp_buf));
-								n_item.PutAttrib("volume", EncText(temp_buf.Z().Cat(agi.Volume, MKSFMTD(0, 3, 0))));
+								n_item.PutAttrib("volume", EncText(temp_buf.Z().Cat(agi.Volume, MKSFMTD_030)));
 								n_item.PutAttrib("alc", EncText(temp_buf.Z().Cat(agi.Proof, MKSFMTD(0, 1, 0))));
 								{
 									const double _p = intmnytodbl(r_item.Price) - r_item.Dscnt;
@@ -1849,7 +1849,7 @@ int PPEgaisProcessor::WriteProductInfo(SXml::WDoc & rXmlDoc, const char * pScope
 		}
 		{
 			const double proof = (use_refc_data && agi.RefcProof) ? agi.RefcProof : agi.Proof;
-			w_s.PutInner(SXml::nst("pref", "AlcVolume"), temp_buf.Z().Cat(proof, MKSFMTD(0, 3, 0)));
+			w_s.PutInner(SXml::nst("pref", "AlcVolume"), temp_buf.Z().Cat(proof, MKSFMTD_030));
 		}
 		{
 			temp_buf = (use_refc_data && agi.RefcCategoryCode.NotEmpty()) ? agi.RefcCategoryCode : agi.CategoryCode;
@@ -2452,7 +2452,7 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 										const double mult = agi.UnpackedVolume / 10.0;
 										qtty = (qtty * mult); // Неупакованная продукция передается в декалитрах
 										price = (price / mult);
-										qtty_fmt = MKSFMTD(0, 6, 0); // @v11.2.10 MKSFMTD(0, 3, 0)-->MKSFMTD(0, 6, 0)
+										qtty_fmt = MKSFMTD(0, 6, 0); // @v11.2.10 MKSFMTD_030-->MKSFMTD(0, 6, 0)
 									}
 									P_BObj->trfr->Rcpt.Search(r_ti.LotID, &lot_rec);
 									P_BObj->MakeLotText(&lot_rec, PPObjBill::ltfGoodsName, temp_buf);
@@ -3018,7 +3018,7 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 										// @v10.1.7 Округление до целых (в последнее время ЕГАИС почему-то отказывается принимать дробные значения) {
 										// @v10.8.9 if(qtty > 1.0) qtty = floor(qtty);
 										// } @v10.1.7
-										qtty_fmt = MKSFMTD(0, 3, 0);
+										qtty_fmt = MKSFMTD_030;
 									}
 									SXml::WNode w_p(_doc, SXml::nst("awr", "Position"));
 									w_p.PutInner(SXml::nst("awr", "Identity"), EncText(temp_buf.Z().Cat(r_ti.RByBill)));
@@ -3233,7 +3233,7 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 										if(agi.UnpackedVolume > 0.0) {
 											const double mult = agi.UnpackedVolume / 10.0;
 											qtty = (qtty * mult); // Неупакованная продукция передается в декалитрах
-											qtty_fmt = MKSFMTD(0, 3, 0);
+											qtty_fmt = MKSFMTD_030;
 										}
 										w_p.PutInner(SXml::nst("awr", "Quantity"), EncText(temp_buf.Z().Cat(qtty, qtty_fmt)));
 										if(doc_type == PPEDIOP_EGAIS_ACTWRITEOFF_V3) {
@@ -3355,7 +3355,7 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 										if(agi.UnpackedVolume > 0.0) {
 											const double mult = agi.UnpackedVolume / 10.0;
 											qtty = (qtty * mult); // Неупакованная продукция передается в декалитрах
-											qtty_fmt = MKSFMTD(0, 3, 0);
+											qtty_fmt = MKSFMTD_030;
 										}
 										SXml::WNode w_p(_doc, SXml::nst("tfs", "Position"));
 										w_p.PutInner(SXml::nst("tfs", "Identity"),    EncText(temp_buf.Z().Cat(r_ti.RByBill)));
@@ -3583,7 +3583,7 @@ int PPEgaisProcessor::Read_ProductInfo(xmlNode * pFirstNode, PPGoodsPacket * pPa
 	}
 	if(pOutFile) {
 		SString out_line_buf;
-        out_line_buf.Cat(alc_goods_item.EgaisCode).Tab().Cat(alc_goods_item.CategoryCode).Tab().Cat(alc_goods_item.Volume, MKSFMTD(0, 3, 0)).Tab().
+        out_line_buf.Cat(alc_goods_item.EgaisCode).Tab().Cat(alc_goods_item.CategoryCode).Tab().Cat(alc_goods_item.Volume, MKSFMTD_030).Tab().
 			Cat(alc_goods_item.Proof, MKSFMTD(0, 1, 0)).Tab().Cat(full_name).Tab().Cat(short_name).CR();
 		pOutFile->WriteLine(out_line_buf);
 	}
@@ -10205,7 +10205,7 @@ int EgaisProductCore::Export(long fmt, const char * pFileName)
 					f_out.WriteLine(line_buf);
 				}
 				line_buf.Z().Cat(item.ID).Tab().Cat(item.AlcoCode).Tab().Cat(item.ManufRarIdent).Tab().Cat(item.ImporterRarIdent).Tab().
-					Cat(item.CategoryCode).Tab().Cat(item.Proof, MKSFMTD_020).Tab().Cat(item.Volume, MKSFMTD(0, 3, 0)).Tab().
+					Cat(item.CategoryCode).Tab().Cat(item.Proof, MKSFMTD_020).Tab().Cat(item.Volume, MKSFMTD_030).Tab().
 					Cat(item.Name.Transf(CTRANSF_INNER_TO_OUTER)).Tab().Cat(item.FullName.Transf(CTRANSF_INNER_TO_OUTER)).CR();
 				f_out.WriteLine(line_buf);
 				rec_no++;
@@ -10519,7 +10519,7 @@ int EgaisRefACore::Export(long fmt, const char * pFileName)
 				f_out.WriteLine(line_buf);
 			}
 			line_buf.Z().Cat(item.ID).Tab().Cat(item.RefACode).Tab().Cat(item.AlcCode).Tab().Cat(item.ManufRarIdent).Tab().
-				Cat(item.ImporterRarIdent).Tab().Cat(item.CountryCode).Tab().Cat(static_cast<double>(item.Volume)/100000.0, MKSFMTD(0, 3, 0)).Tab().
+				Cat(item.ImporterRarIdent).Tab().Cat(item.CountryCode).Tab().Cat(static_cast<double>(item.Volume)/100000.0, MKSFMTD_030).Tab().
 				Cat(item.BottlingDate, DATF_DMY|DATF_CENTURY).CR();
 			f_out.WriteLine(line_buf);
 			rec_no++;

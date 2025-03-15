@@ -4786,3 +4786,44 @@ public:
 };
 
 IMPLEMENT_CMD_HDL_FACTORY(SETSCARDBYRULE);
+//
+//
+//
+class CMD_HDL_CLS(SOURCECODEPROCESSING) : public PPCommandHandler { // @v12.2.10
+public:
+	CMD_HDL_CLS(SOURCECODEPROCESSING)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
+	{
+	}
+	virtual int EditParam(SBuffer * pParam, long, void * extraPtr)
+	{
+		int    ok = -1;
+		if(pParam) {
+			PrcssrSourceCodeMaintaining prc;
+			PrcssrSourceCodeMaintainingFilt param;
+			if(!param.Read(*pParam, 0))
+				prc.InitParam(&param);
+			if(prc.EditParam(&param) > 0) {
+				if(param.Write(pParam->Z(), 0)) {
+					ok = 1;
+				}
+			}
+		}
+		return ok;
+	}
+	virtual int Run(SBuffer * pParam, long, void * extraPtr)
+	{
+		int    ok = -1;
+		PrcssrSourceCodeMaintainingFilt param;
+		if(pParam && param.Read(*pParam, 0)) {
+			PrcssrSourceCodeMaintaining prc;
+			if(!prc.Init(&param) || !prc.Run())
+				ok = PPErrorZ();
+		}
+		else {
+			ok = DoSourceCodeMaintaining(0);
+		}
+		return ok;
+	}
+};
+
+IMPLEMENT_CMD_HDL_FACTORY(SOURCECODEPROCESSING);

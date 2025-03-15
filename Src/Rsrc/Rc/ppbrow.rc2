@@ -7062,31 +7062,31 @@ cmd TestCURL              { "@{cmd_testcurl}"                              PPDV_
 cmd TestEGAIS             { "@{cmd_testegais}"                             PPDV_TEST01            none cmTestEGAIS }
 cmd QueryEGAIS            { "@{cmd_queryegais}"                            none                   none cmQueryEGAIS }
 cmd TestSearchEmail       { "@{cmd_testsearchemail}"                       PPDV_TEST01            none cmTestSearchEmail }
-cmd BuildLocalDL600       { "@{cmd_buildlocaldl600}"                       none                   none cmBuildLocalDL600 } // @v9.1.7
-cmd SupplInterchange      { "@{cmd_supplinterchange}"                      none                   none cmSupplInterchange } // @v9.2.1
-cmd WorkbookInterchange   { "@{cmd_workbookinterchange}"                   none                   none cmWorkbookInterchange } // @v9.3.10
-cmd AlcReportCfg          { "@{cmd_alcreportcfg}"                          none                   none cmAlcReportCfg } // @v9.4.5
-cmd ProcessOsm            { "@{prcssrosm}"                                 none                   none cmProcessOsm }   // @v9.5.9
-cmd TestLogWindow         { "@{cmd_testlogwindow}"                         PPDV_TEST01            none cmTestLogWindow } // @v9.7.0
-cmd ProcessSartre         { "@{cmd_importsartre}"                          none                   none cmProcessSartre } // @v9.7.8
-cmd BillAutoCreate        { "@{cmd_billautocreate}"                        none                   none cmBillAutoCreate } // @v9.7.10
-cmd TestTDDO2             { "@{cmd_testtddo2}"                             PPDV_TEST01            none cmTestTddo2 } // @v9.8.3
-cmd TestVetis             { "@{cmd_testvetis}"                             PPDV_LOGOVETIS         none cmTestVetis } // @v9.8.9
-cmd PhnSvcMonitor         { "@{cmd_phnsvcmonitor}"                         none                   none cmViewPhnSvcMonitor } // @v9.9.10
-cmd VetisDocument         { "@{cmd_vetisdocument}"                         PPDV_LOGOVETIS         none cmVetisDocument view = VetisDocument } // @v10.0.12
-cmd VetisInterchange      { "@{cmd_vetisinerchange}"                       PPDV_LOGOVETIS         none cmVetisInterchange } // @v10.1.2
-cmd TimeSeriesSA          { "@{cmd_tsstrategyanalyze}"                     none                   none cmTimeSeriesSA } // @v10.1.4
-cmd TimeSeriesConfig      { "@{cmd_timeseriesconfig}"                      none                   none cmTimeSeriesConfig } // @v10.3.1
-cmd SendBillsWithFilt     { "@{cmd_sendbillsbyfilt}"                       none                   none cmSendBillsByFilt } // @v10.4.1
-cmd FreightPackageType    { "@{cmd_freightpackagetype}"                    none                   none cmFreightPackageType } // @v10.4.1
-cmd ExportView            { "@{cmd_exportview}"                            none                   none cmExportView } // @v10.5.3
-cmd TestMqc               { "@{cmd_testmqc}"                               PPDV_TEST01            none cmTestMqc } // @v10.5.7
-cmd QuoteReqAnalyze       { "@{cmd_quotereqanalyze}"                       none                   none cmQuoteReqAnalyze } // @v10.5.7
-cmd UniFindObj            { "@{cmd_unifindobj}"                            none                   none cmUniFindObj } // @v10.6.1
+cmd BuildLocalDL600       { "@{cmd_buildlocaldl600}"                       none                   none cmBuildLocalDL600 }
+cmd SupplInterchange      { "@{cmd_supplinterchange}"                      none                   none cmSupplInterchange }
+cmd WorkbookInterchange   { "@{cmd_workbookinterchange}"                   none                   none cmWorkbookInterchange }
+cmd AlcReportCfg          { "@{cmd_alcreportcfg}"                          none                   none cmAlcReportCfg }
+cmd ProcessOsm            { "@{prcssrosm}"                                 none                   none cmProcessOsm }
+cmd TestLogWindow         { "@{cmd_testlogwindow}"                         PPDV_TEST01            none cmTestLogWindow }
+cmd ProcessSartre         { "@{cmd_importsartre}"                          none                   none cmProcessSartre }
+cmd BillAutoCreate        { "@{cmd_billautocreate}"                        none                   none cmBillAutoCreate }
+cmd TestTDDO2             { "@{cmd_testtddo2}"                             PPDV_TEST01            none cmTestTddo2 }
+cmd TestVetis             { "@{cmd_testvetis}"                             PPDV_LOGOVETIS         none cmTestVetis }
+cmd PhnSvcMonitor         { "@{cmd_phnsvcmonitor}"                         none                   none cmViewPhnSvcMonitor }
+cmd VetisDocument         { "@{cmd_vetisdocument}"                         PPDV_LOGOVETIS         none cmVetisDocument view = VetisDocument }
+cmd VetisInterchange      { "@{cmd_vetisinerchange}"                       PPDV_LOGOVETIS         none cmVetisInterchange }
+cmd TimeSeriesSA          { "@{cmd_tsstrategyanalyze}"                     none                   none cmTimeSeriesSA }
+cmd TimeSeriesConfig      { "@{cmd_timeseriesconfig}"                      none                   none cmTimeSeriesConfig }
+cmd SendBillsWithFilt     { "@{cmd_sendbillsbyfilt}"                       none                   none cmSendBillsByFilt }
+cmd FreightPackageType    { "@{cmd_freightpackagetype}"                    none                   none cmFreightPackageType }
+cmd ExportView            { "@{cmd_exportview}"                            none                   none cmExportView }
+cmd TestMqc               { "@{cmd_testmqc}"                               PPDV_TEST01            none cmTestMqc }
+cmd QuoteReqAnalyze       { "@{cmd_quotereqanalyze}"                       none                   none cmQuoteReqAnalyze }
+cmd UniFindObj            { "@{cmd_unifindobj}"                            none                   none cmUniFindObj }
 cmd QueryCHZN             { "@{cmd_querychzn}"                             PPDV_LOGOCHZN          none cmQueryCHZN }
-cmd TssModel              { "@{cmd_tssmodel}"                              none                   none cmTssModel  } // @v10.7.4
-cmd Events                { "@{cmd_events}"                                none                   none cmEvents } // @v10.8.9
-cmd EventSubscription     { "@{cmd_eventsubscription}"                     none                   none cmEventSubscription } // @v10.8.9
+cmd TssModel              { "@{cmd_tssmodel}"                              none                   none cmTssModel  }
+cmd Events                { "@{cmd_events}"                                none                   none cmEvents }
+cmd EventSubscription     { "@{cmd_eventsubscription}"                     none                   none cmEventSubscription }
 cmd AlcoDeclRu            { "@{cmd_alcodeclru}"                            PPDV_ALCODECL          none cmAlcoDeclRu view=AlcoDeclRu } // @v11.0.5
 cmd StyloQBindery         { "@{cmd_styloqbindery}"                         none                   none cmStyloQBindery  view=StyloQBindery } // @v11.1.7
 cmd StyloQCommands        { "@{cmd_styloqcommands}"                        none                   none cmStyloQCommands view=StyloQCommand } // @v11.1.9
@@ -7097,6 +7097,7 @@ cmd TestMarketplace           { "@{cmd_testmarketplace}"                       n
 cmd MarketplaceInterchange    { "@{cmd_marketplaceinterchange}"               PPDV_MARKETPLACE01     PPDV_MARKETPLACE01 cmMarketplaceInterchange } // @v12.1.3
 cmd AptekaRuInterchange       { "@{cmd_aptekaruinterchange}"                  none                   none cmAptekaRuInterchange } // @v12.2.1
 cmd GatherClientActivityStat  { "@{cmd_gathercliactivitystatistics}"          none                   none cmGatherClientActivityStat } // @v12.2.2
+cmd SourceCodeProcessing      { "@{cmd_sourcecodeprocessing}"                 none                   none cmSourceCodeProcessing } // @v12.2.10
 //
 // -------------- Описания серверных задач
 //
@@ -7263,29 +7264,29 @@ view   SuprWare                { "@{view_suprware}" }
 filter PrcssrObjTextParam      { "@{filter_prcssrobjtextparam}" }
 view   UserProfile             { "@{view_userprofile}" }
 view   Job                     { "@{view_job}" }
-filter Location                { "@{filter_location}" } // @v8.1.9
-filter Tex2HtmlParam           { "@{filter_tex2htmlparam}" } // @v8.3.3
-filter Ver2HtmlParam           { "@{filter_ver2htmlparam}" } // @v8.3.12
-filter BillTransmitParam       { "@{filter_billtransmitparam}" } // @v8.6.2
-view   GeoTracking             { "@{view_geotracking}" } // @v8.6.11
-view   LotExtCode              { "@{view_lotextcode}"} // @v8.8.2
-filter SupplInterchange        { "@{filter_supplinterchange}" } // @v9.2.1
-view   OprKind                 { "@{view_oprkind}" } // @v9.3.6
-filter GCT                     { "@{filter_gct}"   } // @v9.3.6
-filter PrcssrOsmParam          { "@{filter_prcssrosm}" } // @v9.5.9
-filter BillAutoCreateParam     { "@{filter_billautocreateparam}" } // @v9.7.8
-filter PrcssrSartreParam       { "@{filter_prcssrsartre}" } // @v9.7.8
-view   PhnSvcMonitor           { "@{view_phnsvcmonitor}" } // @v9.9.10
-view   VetisDocument           { "@{view_vetisdocument}" } // @v10.0.12
-filter PrcssrTsStrategyAnalyze { "@{tsstrategyanalyze}"  } // @v10.2.11
-view   TimeSeries              { "@{view_timeseries}" } // @v10.4.4
-view   TimSerDetail            { "@{view_timserdetail}" } // @v10.5.4
-view   QuoteReqAnalyze         { "@{view_quotereqanalyze}" } // @v10.5.7
-//view   VetisDocument           {"@{view_vetisdocument}"} // @v10.5.8 @erik
-view   TimSerStrategyContainer { "@{view_timserstrategycontainer}" } // @v10.7.8
-filter EditTextFileParam       { "@{filter_edittextfileparam}" } // @v10.8.1
-view   Event                   { "@{view_events}" } // @v10.8.9
-view   UserMenu                { "@{view_usermenu}" } // @v10.9.3
+filter Location                { "@{filter_location}" }
+filter Tex2HtmlParam           { "@{filter_tex2htmlparam}" }
+filter Ver2HtmlParam           { "@{filter_ver2htmlparam}" }
+filter BillTransmitParam       { "@{filter_billtransmitparam}" }
+view   GeoTracking             { "@{view_geotracking}" }
+view   LotExtCode              { "@{view_lotextcode}"}
+filter SupplInterchange        { "@{filter_supplinterchange}" }
+view   OprKind                 { "@{view_oprkind}" }
+filter GCT                     { "@{filter_gct}"   }
+filter PrcssrOsmParam          { "@{filter_prcssrosm}" }
+filter BillAutoCreateParam     { "@{filter_billautocreateparam}" }
+filter PrcssrSartreParam       { "@{filter_prcssrsartre}" }
+view   PhnSvcMonitor           { "@{view_phnsvcmonitor}" }
+view   VetisDocument           { "@{view_vetisdocument}" }
+filter PrcssrTsStrategyAnalyze { "@{tsstrategyanalyze}"  }
+view   TimeSeries              { "@{view_timeseries}" }
+view   TimSerDetail            { "@{view_timserdetail}" }
+view   QuoteReqAnalyze         { "@{view_quotereqanalyze}" }
+//view   VetisDocument           {"@{view_vetisdocument}"} // @erik
+view   TimSerStrategyContainer { "@{view_timserstrategycontainer}" }
+filter EditTextFileParam       { "@{filter_edittextfileparam}" }
+view   Event                   { "@{view_events}" }
+view   UserMenu                { "@{view_usermenu}" }
 view   AlcoDeclRu              { "@{view_alcodeclru}" } // @v11.0.4
 view   GoodsTrnovr             { "@{view_goodstrnovr}" } // @v11.0.6 @todo Этот отчет так до сих пор и не переведен на PPView
 view   StyloQBindery           { "@{view_styloqbindery}" } // @v11.1.6
@@ -7301,6 +7302,7 @@ filter MarketplaceInterchange    { "@{filter_marketplaceinterchange}" } // @v12.
 filter PrcssrAptekaRu            { "@{filter_prcssraptekaru}" } // @v12.2.1
 filter PrcssrClientActivityStatistics { "@{filter_prcssrclientactivitystatistics}" } // @v12.2.2
 view   ClientActivityDetails { "@{view_clientactivitydetails}" } // @v12.2.8
+filter PrcssrSourceCodeMaintaining  { "@{filter_prcssrsourcecodemaintaining}" } // @v12.2.10
 //
 // lastviewfilter ATTENTION: put new VIEWS and FILTERS before this line!
 //

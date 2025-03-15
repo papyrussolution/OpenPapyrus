@@ -1104,7 +1104,7 @@ data Bill {
 	string FreightCode[20];        // Номер фрахта
 	link   Transport TranspID;     // ИД транспорта
 	link   Person  CaptainID;      // Капитан судна (водитель автомобиля)
-	link   Person  Captain2ID;     // @v10.9.2 2-й капитан судна (водитель автомобиля)
+	link   Person  Captain2ID;     // 2-й капитан судна (водитель автомобиля)
 	link   Person  VesselsAgentID; // Транспортный брокер
 	link   City    PortOfLoading;  // Порт погрузки
 	link   City    PortOfDschrg;   // Порт разгрузки
@@ -1150,6 +1150,11 @@ data Bill {
 	link   SysJournalEntry GetCreationEvent(); // Возвращает ссылку на запись системного журнала,
 		// соответствующую созданию документа.
 	link   ObjectTag GetTag(string tagSymb[20]);
+	//
+	// Возвращает строку, идентфицирующую документ как UED-объект.
+	// Строка представляет собой 8-байтовый идентфикатор (meta UED_META_PRV_DOC) в виде 16-ной строки (буквы в верхнем регистре).
+	//
+	string GetUedIdent[20](); // @v12.2.10
 }
 //
 // Descr: Пул документов

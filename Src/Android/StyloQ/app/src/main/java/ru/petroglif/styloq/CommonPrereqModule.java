@@ -219,6 +219,7 @@ public class CommonPrereqModule {
 	public static final int qkoManual = 2;  // Разрешать выбирать вид котировки вручную
 	//
 	private SimpleSearchBlock SsB;
+	private int OwnCfgUserFlags; // @v12.2.10 Пользовательские флаги приватной конфигурации
 	public byte[] SvcIdent; // Получает через intent ("SvcIdent")
 	public String CmdName; // Получает через intent ("CmdName")
 	public String CmdDescr; // Получает через intent ("CmdDescr")
@@ -232,6 +233,7 @@ public class CommonPrereqModule {
 	// @v11.7.0 public RegistryFilt Rf; // @v11.5.3
 	public StyloQCurrentState Cs; // @v11.7.0
 
+	public int GetOwnCfgUserFlags() { return OwnCfgUserFlags; } // @v12.2.10
 	public String MakeDocumentText(final Document doc)
 	{
 		String result = null;
@@ -1615,6 +1617,7 @@ public class CommonPrereqModule {
 		TabNavStack = new Stack<Tab>();
 		Callback_BackButton = null;
 		Tr = new STokenRecognizer(); // @v11.6.12
+		OwnCfgUserFlags = 0; // @v12.2.10
 	}
 	public STokenRecognizer.TokenArray RecognizeToken(String text) { return Tr.Run(text); }
 	String GetBaseCurrencySymb() { return CSVCP.BaseCurrencySymb; }
@@ -1706,6 +1709,22 @@ public class CommonPrereqModule {
 			if(SLib.GetLen(title_text) > 0)
 				SLib.SetCtrlString(ActivityInstance, R.id.CTL_PAGEHEADER_TOPIC, title_text);
 			SLib.SetupImage(ActivityInstance, ActivityInstance.findViewById(R.id.CTLIMG_PAGEHEADER_SVC), blob_signature, false);
+			// @v12.2.10 {
+			{
+				OwnCfgUserFlags = 0;
+				//
+				StyloQConfig cfg_data = new StyloQConfig();
+				StyloQDatabase.SecStoragePacket pack = db.GetOwnPeerEntry();
+				if(pack != null) {
+					byte[] cfg_bytes = pack.Pool.Get(SecretTagPool.tagPrivateConfig);
+					if(SLib.GetLen(cfg_bytes) > 0) {
+						String cfg_json = new String(cfg_bytes);
+						if(cfg_data.FromJson(cfg_json))
+							OwnCfgUserFlags = SLib.satoi(cfg_data.Get(StyloQConfig.tagUserFlags));
+					}
+				}
+			}
+			// } @v12.2.10
 		}
 	}
 	protected Object OnEvent_CreateFragment(Object subj)

@@ -26,9 +26,12 @@ PrcssrBuild::BuildVer::BuildVer() : Major(0), Minor(0), Revision(0), Asm(0)
 {
 }
 
+PrcssrBuild::Param::ConfigEntry::ConfigEntry() : PrefMsvsVerMajor(0)
+{
+}
+
 PrcssrBuild::Param::Param() : Flags(0), ConfigEntryIdx(0), XpConfigEntryIdx(0)
 {
-	//PrefMsvsVerMajor = 0;
 }
 
 PrcssrBuild::Param::Param(const Param & rS)
@@ -148,7 +151,8 @@ PrcssrBuild::Param::ConfigEntry * PrcssrBuild::SetupParamByEntryIdx(Param * pPar
 int	PrcssrBuild::InitParam(Param * pParam)
 {
 	int    ok = 1;
-	SString temp_buf, full_path_buf;
+	SString temp_buf;
+	SString full_path_buf;
 	SString file_name_buf;
 	{
 		SString left, right;
@@ -501,8 +505,6 @@ int PrcssrBuild::Helper_Compile(const Param::ConfigEntry * pCfgEntry, int supple
 			Param::fBuildClient|Param::fSupplementalBuild },
 		{ "mtdll",         "papyrus.sln",       "MtDllRelease",  "ppwmt.dll", "ppwmt.dll", Param::fBuildMtdll|Param::fSupplementalBuild },
 		{ "jobsrv",        "papyrus.sln",       "ServerRelease", "ppws.exe", 0, Param::fBuildServer },
-		// @v9.6.9 { "equipsolution", "EquipSolution.sln", "Release",       "ppdrv-pirit.dll", Param::fBuildDrv },
-		// @v8.3.2 { "ppsoapmodules", "PPSoapModules.sln", "Release",       "PPSoapUhtt.dll",  Param::fBuildSoap }
 	};
 	StrAssocArray msvs_ver_list;
 	SString msvs_path;
@@ -879,47 +881,222 @@ int BuildLocalDL600()
 {
 	return PrcssrBuild().BuildLocalDl600(0);
 }
+//
+//
+//
+int DoSourceCodeMaintaining(const PrcssrSourceCodeMaintainingFilt * pFilt)
+{
+	int    ok = -1;
+	PrcssrSourceCodeMaintaining prcssr;
+	if(pFilt) {
+		if(prcssr.Init(pFilt) && prcssr.Run())
+			ok = 1;
+		else
+			ok = PPErrorZ();
+	}
+	else {
+		PrcssrSourceCodeMaintainingFilt param;
+		prcssr.InitParam(&param);
+		if(prcssr.EditParam(&param) > 0)
+			if(prcssr.Init(&param) && prcssr.Run())
+				ok = 1;
+			else
+				ok = PPErrorZ();
+	}
+	return ok;
+}
 
-int ParseWinRcForNativeText()
+IMPLEMENT_PPFILT_FACTORY(PrcssrSourceCodeMaintaining); PrcssrSourceCodeMaintainingFilt::PrcssrSourceCodeMaintainingFilt() : PPBaseFilt(PPFILT_PRCSSRSOURCECODEMAINTAINING, 0, 0)
+{
+	SetFlatChunk(offsetof(PrcssrSourceCodeMaintainingFilt, ReserveStart),
+		offsetof(PrcssrSourceCodeMaintainingFilt, Reserve) - offsetof(PrcssrSourceCodeMaintainingFilt, ReserveStart) + sizeof(Reserve));
+	Init(1, 0);
+}
+
+PrcssrSourceCodeMaintainingFilt & FASTCALL PrcssrSourceCodeMaintainingFilt::operator = (const PrcssrSourceCodeMaintainingFilt & rS)
+{
+	PPBaseFilt::Copy(&rS, 0);
+	return *this;
+}
+
+PrcssrSourceCodeMaintaining::PrcssrSourceCodeMaintaining()
+{
+}
+
+int PrcssrSourceCodeMaintaining::InitParam(PPBaseFilt * pFilt)
+{
+	int    ok = 1;
+	// @nothingtodo
+	return ok;
+}
+
+int PrcssrSourceCodeMaintaining::EditParam(PPBaseFilt * pBaseFilt)
+{
+	int    ok = -1;
+	TDialog * dlg = new TDialog(DLG_PRCRSRCC);
+	THROW(P.IsA(pBaseFilt));
+	THROW(CheckDialogPtr(&dlg));
+	{
+		PrcssrSourceCodeMaintainingFilt param;
+		param = *static_cast<const PrcssrSourceCodeMaintainingFilt *>(pBaseFilt);
+		dlg->AddClusterAssoc(CTL_PRCRSRCC_FLAGS, 0, PrcssrSourceCodeMaintainingFilt::fParseWinRcForNativeText);
+		dlg->AddClusterAssoc(CTL_PRCRSRCC_FLAGS, 1, PrcssrSourceCodeMaintainingFilt::fFindSourceCodeWithNotUtf8Encoding);
+		dlg->SetClusterData(CTL_PRCRSRCC_FLAGS, param.Flags);
+		while(ok <= 0 && ExecView(dlg) == cmOK) {
+			dlg->GetClusterData(CTL_PRCRSRCC_FLAGS, &param.Flags);
+			*static_cast<PrcssrSourceCodeMaintainingFilt *>(pBaseFilt) = param;
+			ok = 1;
+		}
+	}
+	CATCHZOKPPERR
+	delete dlg;
+	return ok;
+}
+
+int	PrcssrSourceCodeMaintaining::Init(const PPBaseFilt * pBaseFilt)
+{
+	int    ok = 1;
+	BuildRootPath.Z();
+	SrcPath.Z();
+	THROW(P.IsA(pBaseFilt));
+	P = *static_cast<const PrcssrSourceCodeMaintainingFilt *>(pBaseFilt);
+	{
+		SString temp_buf;
+		PPIniFile ini_file;
+		ini_file.Get(PPINISECT_SELFBUILD, PPINIPARAM_BUILDROOT, temp_buf.Z());
+		THROW_PP(temp_buf.NotEmpty(), PPERR_BUILD_UNDEFBUILDROOT);
+		THROW_SL(fileExists(temp_buf));
+		BuildRootPath = temp_buf;
+		//
+		ini_file.Get(PPINISECT_SELFBUILD, PPINIPARAM_BUILDSRC, temp_buf.Z());
+		THROW_PP(temp_buf.NotEmpty(), PPERR_BUILD_UNDEFBUILDSRC);
+		(SrcPath = BuildRootPath).SetLastSlash().Cat(temp_buf);
+		THROW_SL(fileExists(SrcPath));
+	}
+	CATCHZOK
+	return ok;
+}
+
+int PrcssrSourceCodeMaintaining::Run()
+{
+	int    ok = 1;
+	if(P.Flags & PrcssrSourceCodeMaintainingFilt::fParseWinRcForNativeText) {
+		if(!ParseWinRcForNativeText())
+			PPError();
+	}
+	if(P.Flags & PrcssrSourceCodeMaintainingFilt::fFindSourceCodeWithNotUtf8Encoding) {
+		if(!FindSourceCodeWithNotUtf8Encoding())
+			PPError();
+	}
+	return ok;
+}
+
+int PrcssrSourceCodeMaintaining::FindSourceCodeWithNotUtf8Encoding() // @v12.2.10 @construction
+{
+	int    ok = -1;
+	SString temp_buf;
+	TSCollection <NoticedFileEntry> problem_list;
+	if(SFile::IsDir(SrcPath)) {
+		SFileEntryPool fep;
+		SFileEntryPool::Entry fe; 
+		SString file_path;
+		STempBuffer file_buffer(SMEGABYTE(4));
+		StringSet ss_wildcards;
+		ss_wildcards.add("*.h");
+		ss_wildcards.add("*.c");
+		ss_wildcards.add("*.cpp");
+		fep.Scan(SrcPath, ss_wildcards, SFileEntryPool::scanfRecursive);
+		for(uint i = 0; i < fep.GetCount(); i++) {
+			if(fep.Get(i, &fe, &file_path)) {
+				SFile f_in(file_path, SFile::mRead);
+				size_t actual_size = 0;
+				if(f_in.ReadAll(file_buffer, 0, &actual_size)) {
+					assert(actual_size <= file_buffer.GetSize());
+					{
+						bool   local_ok = true;
+						for(size_t idx = 0; local_ok && idx < actual_size;) {
+							const uint8 * p = reinterpret_cast<const uint8 *>(file_buffer.ucptr()[idx]);
+							const size_t extra = SUtfConst::TrailingBytesForUTF8[*p];
+							if(extra == 0 && SUnicode::IsLegalUtf8Char(p, 1))
+								idx++;
+							else if(extra == 1) {
+								if(p[1] != 0 && SUnicode::IsLegalUtf8Char(p, 2))
+									idx += 2;
+								else
+									local_ok = false;
+							}
+							else if(extra == 2) {
+								if(p[1] != 0 && p[2] != 0 && SUnicode::IsLegalUtf8Char(p, 3))
+									idx += 3;
+								else
+									local_ok = false;
+							}
+							else {
+								const size_t tail = (actual_size - idx);
+								if((extra+1) <= tail && SUnicode::IsLegalUtf8Char(p, extra+1))
+									idx += (1+extra);
+								else
+									local_ok = false;
+							}
+						}
+						if(!local_ok) {
+							NoticedFileEntry * p_new_entry = problem_list.CreateNewItem();
+							if(p_new_entry) {
+								p_new_entry->FileName = file_path;
+							}
+						}
+					}					
+				}
+			}
+		}
+	}
+	return ok;
+}
+
+int PrcssrSourceCodeMaintaining::ParseWinRcForNativeText()
 {
 	int    ok = 1;
 	SString line_buf;
 	SString out_line_buf;
 	SString temp_buf;
-	SString build_root_path;
+	//SString build_root_path;
 	SString src_file_name;
-	PPIniFile ini_file;
-	ini_file.Get(PPINISECT_SELFBUILD, PPINIPARAM_BUILDROOT, temp_buf.Z());
-	THROW_PP(temp_buf.NotEmpty(), PPERR_BUILD_UNDEFBUILDROOT);
-	THROW_SL(fileExists(temp_buf));
-	build_root_path = temp_buf;
-	//
-	ini_file.Get(PPINISECT_SELFBUILD, PPINIPARAM_BUILDSRC, temp_buf.Z());
-	THROW_PP(temp_buf.NotEmpty(), PPERR_BUILD_UNDEFBUILDSRC);
-	(src_file_name = build_root_path).SetLastSlash().Cat(temp_buf);
-	THROW_SL(fileExists(src_file_name));
-	src_file_name.SetLastSlash().Cat("ppmain\\ppw.rc");
+	/*{
+		PPIniFile ini_file;
+		ini_file.Get(PPINISECT_SELFBUILD, PPINIPARAM_BUILDROOT, temp_buf.Z());
+		THROW_PP(temp_buf.NotEmpty(), PPERR_BUILD_UNDEFBUILDROOT);
+		THROW_SL(fileExists(temp_buf));
+		build_root_path = temp_buf;
+		//
+		ini_file.Get(PPINISECT_SELFBUILD, PPINIPARAM_BUILDSRC, temp_buf.Z());
+		THROW_PP(temp_buf.NotEmpty(), PPERR_BUILD_UNDEFBUILDSRC);
+		(src_file_name = build_root_path).SetLastSlash().Cat(temp_buf);
+		THROW_SL(fileExists(src_file_name));
+	}*/
+	(src_file_name = SrcPath).SetLastSlash().Cat("ppmain\\ppw.rc");
 	{
 		SFile  f_in(src_file_name, SFile::mRead);
-		if(f_in.IsValid()) {
+		THROW_SL(f_in.IsValid());
+		{
 			SFsPath ps(src_file_name);
 			ps.Nam.CatChar('-').Cat("nativetext");
 			ps.Ext = "tsv";
 			ps.Merge(temp_buf);
 			SFile  f_out(temp_buf, SFile::mWrite);
 			uint   line_no = 0;
+			SStrScan scan;
 			while(f_in.ReadLine(line_buf, SFile::rlfChomp)) {
 				line_no++;
-				SStrScan scan(line_buf);
+				scan.Set(line_buf, 0);
 				while(scan.SearchChar('\"')) {
 					scan.IncrLen();
 					if(scan.GetQuotedString(temp_buf)) {
 						temp_buf.Strip();
-						int    is_native_text = 0;
+						bool   is_native_text = false;
 						for(uint cidx = 0; !is_native_text && cidx < temp_buf.Len(); cidx++) {
 							uchar c = static_cast<uchar>(temp_buf.C(cidx));
 							if(c > 127)
-								is_native_text = 1;
+								is_native_text = true;
 						}
 						if(is_native_text) {
 							out_line_buf.Z().Cat(temp_buf).Tab().Cat(line_no).CR().Transf(CTRANSF_OUTER_TO_UTF8);
@@ -932,9 +1109,10 @@ int ParseWinRcForNativeText()
 			}
 		}
 	}
-	CATCH
+	CATCHZOK
+	/*CATCH
 		ok = PPErrorZ();
-	ENDCATCH
+	ENDCATCH*/
 	return ok;
 }
 

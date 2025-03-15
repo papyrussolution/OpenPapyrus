@@ -9674,7 +9674,7 @@ public:
 										n_i.PutAttrib("documentnumber", temp_buf.Z().Cat(bpack.Rec.Code).Transf(CTRANSF_INNER_TO_UTF8));
 										n_i.PutAttrib("documentdate", temp_buf.Z().Cat(bpack.Rec.Dt, DATF_YMD|DATF_CENTURY|DATF_NODIV).Cat("000000"));
 										n_i.PutAttrib("paymentdate", temp_buf.Z().Cat(last_paym_date, DATF_YMD|DATF_CENTURY|DATF_NODIV).Cat("000000"));
-										n_i.PutAttrib("debtsum", temp_buf.Z().Cat(nominal_amount-payment, MKSFMTD(0, 3, 0)));
+										n_i.PutAttrib("debtsum", temp_buf.Z().Cat(nominal_amount-payment, MKSFMTD_030));
 									}
 								}
 							}
@@ -9723,9 +9723,9 @@ public:
 							const SalesEntry::Item & r_detail_item = p_item->ItemList.at(tiidx);
 							SXml::WNode n_ti(p_x, "items ");
 							n_ti.PutAttrib("productcode", temp_buf.Z().Cat(r_detail_item.GoodsID));
-							n_ti.PutAttrib("counts", temp_buf.Z().Cat(r_detail_item.Qtty, MKSFMTD(0, 3, 0)));
-							n_ti.PutAttrib("summ", temp_buf.Z().Cat(r_detail_item.AmountWoVat, MKSFMTD(0, 3, 0)));
-							n_ti.PutAttrib("vatsumm", temp_buf.Z().Cat(r_detail_item.Vat, MKSFMTD(0, 3, 0)));
+							n_ti.PutAttrib("counts", temp_buf.Z().Cat(r_detail_item.Qtty, MKSFMTD_030));
+							n_ti.PutAttrib("summ", temp_buf.Z().Cat(r_detail_item.AmountWoVat, MKSFMTD_030));
+							n_ti.PutAttrib("vatsumm", temp_buf.Z().Cat(r_detail_item.Vat, MKSFMTD_030));
 						}
 					}
 				}
@@ -9853,7 +9853,7 @@ public:
 						n_i.PutAttrib("code", temp_buf.Z().Cat(goods_rec.ID));
 						n_i.PutAttrib("name", temp_buf.Z().Cat(goods_rec.Name).Transf(CTRANSF_INNER_TO_UTF8));
 						n_i.PutAttrib("suppliercode", "");
-						n_i.PutAttrib("vat", temp_buf.Z().Cat(vat_rate, MKSFMTD(0, 3, 0)));
+						n_i.PutAttrib("vat", temp_buf.Z().Cat(vat_rate, MKSFMTD_030));
 						n_i.PutAttrib("price_group", "");
 					}
 				}
@@ -9883,7 +9883,7 @@ public:
 						SXml::WNode n_i(p_x, "warehouse");
 						n_i.PutAttrib("code", temp_buf.Z().Cat(loc_rec.ID));
 						n_i.PutAttrib("name", temp_buf.Z().Cat(loc_rec.Name).Transf(CTRANSF_INNER_TO_UTF8));
-						n_i.PutAttrib("discount", temp_buf.Z().Cat(0.0, MKSFMTD(0, 3, 0)));
+						n_i.PutAttrib("discount", temp_buf.Z().Cat(0.0, MKSFMTD_030));
 					}
 				}
 			}
@@ -10620,8 +10620,8 @@ public:
 								SXml::WNode n_i(p_x, "Item");
 								n_i.PutInner("SupplierItemCode", XmlCp1251EncText(r_entry.ArCode));
 								n_i.PutInner("ItemDescription", XmlCp1251EncText(r_entry.Name));
-								n_i.PutInner("Quantity", temp_buf.Z().Cat(gp.Total.Rest, MKSFMTD(0, 3, 0)));
-								n_i.PutInner("Amount", temp_buf.Z().Cat(gp.Total.Cost, MKSFMTD(0, 2, 0)));
+								n_i.PutInner("Quantity", temp_buf.Z().Cat(gp.Total.Rest, MKSFMTD_030));
+								n_i.PutInner("Amount", temp_buf.Z().Cat(gp.Total.Cost, MKSFMTD_020));
 								n_i.PutInner("GrossWeight", temp_buf.Z().Cat(gp.Total.Rest * r_entry.Brutto, MKSFMTD(0, 3, NMBF_NOTRAILZ)));
 							}
 						}
@@ -10732,11 +10732,11 @@ public:
 								SXml::WNode n_i(p_x, "Item");
 								n_i.PutInner("SupplierItemCode", XmlCp1251EncText(r_item.ArCode));
 								n_i.PutInner("ItemDescription", XmlCp1251EncText(p_goods_entry->Name));
-								n_i.PutInner("OrderedQuantity", temp_buf.Z().Cat(r_item.Qtty, MKSFMTD(0, 3, 0)));
-								n_i.PutInner("Amount", temp_buf.Z().Cat(r_item.Amount, MKSFMTD(0, 2, 0)));
-								n_i.PutInner("GrossWeight", temp_buf.Z().Cat(r_item.Brutto, MKSFMTD(0, 3, 0)));
+								n_i.PutInner("OrderedQuantity", temp_buf.Z().Cat(r_item.Qtty, MKSFMTD_030));
+								n_i.PutInner("Amount", temp_buf.Z().Cat(r_item.Amount, MKSFMTD_020));
+								n_i.PutInner("GrossWeight", temp_buf.Z().Cat(r_item.Brutto, MKSFMTD_030));
 								n_i.PutInner("PriceName", "base");
-								n_i.PutInner("PriceAmount", temp_buf.Z().Cat(r_item.NominalPrice, MKSFMTD(0, 2, 0)));
+								n_i.PutInner("PriceAmount", temp_buf.Z().Cat(r_item.NominalPrice, MKSFMTD_020));
 							}
 						}
 					}
@@ -10841,11 +10841,11 @@ public:
 							SXml::WNode n_i(p_x, "Item");
 							n_i.PutInner("SupplierItemCode", XmlCp1251EncText(r_item.ArCode));
 							n_i.PutInner("ItemDescription", XmlCp1251EncText(p_goods_entry->Name));
-							n_i.PutInner("OrderedQuantity", temp_buf.Z().Cat(r_item.Qtty, MKSFMTD(0, 3, 0)));
-							n_i.PutInner("Amount", temp_buf.Z().Cat(r_item.Amount, MKSFMTD(0, 2, 0)));
-							n_i.PutInner("GrossWeight", temp_buf.Z().Cat(r_item.Brutto, MKSFMTD(0, 3, 0)));
+							n_i.PutInner("OrderedQuantity", temp_buf.Z().Cat(r_item.Qtty, MKSFMTD_030));
+							n_i.PutInner("Amount", temp_buf.Z().Cat(r_item.Amount, MKSFMTD_020));
+							n_i.PutInner("GrossWeight", temp_buf.Z().Cat(r_item.Brutto, MKSFMTD_030));
 							n_i.PutInner("PriceName", "base");
-							n_i.PutInner("PriceAmount", temp_buf.Z().Cat(r_item.NominalPrice, MKSFMTD(0, 2, 0)));
+							n_i.PutInner("PriceAmount", temp_buf.Z().Cat(r_item.NominalPrice, MKSFMTD_020));
 						}
 					}
 				}
@@ -10932,9 +10932,9 @@ public:
 							SXml::WNode n_i(p_x, "Item");
 							n_i.PutInner("SupplierItemCode", XmlCp1251EncText(r_item.ArCode));
 							n_i.PutInner("ItemDescription", XmlCp1251EncText(p_goods_entry->Name));
-							n_i.PutInner("OrderedQuantity", temp_buf.Z().Cat(r_item.Qtty, MKSFMTD(0, 3, 0)));
-							n_i.PutInner("Amount", temp_buf.Z().Cat(r_item.Amount, MKSFMTD(0, 2, 0)));
-							n_i.PutInner("GrossWeight", temp_buf.Z().Cat(r_item.Brutto, MKSFMTD(0, 3, 0)));
+							n_i.PutInner("OrderedQuantity", temp_buf.Z().Cat(r_item.Qtty, MKSFMTD_030));
+							n_i.PutInner("Amount", temp_buf.Z().Cat(r_item.Amount, MKSFMTD_020));
+							n_i.PutInner("GrossWeight", temp_buf.Z().Cat(r_item.Brutto, MKSFMTD_030));
 						}
 					}
 				}
@@ -10985,7 +10985,7 @@ public:
 								SXml::WNode n_i(p_x, "Item");
 								n_i.PutInner("SupplierItemCode", XmlCp1251EncText(r_entry.ArCode));
 								n_i.PutInner("ItemDescription", XmlCp1251EncText(r_entry.Name));
-								n_i.PutInner("PriceAmount", temp_buf.Z().Cat(price, MKSFMTD(0, 2, 0)));
+								n_i.PutInner("PriceAmount", temp_buf.Z().Cat(price, MKSFMTD_020));
 							}
 						}
 					}
@@ -11317,7 +11317,7 @@ int Ostankino::SendRest(StringSet & rSsFileName)
 					n_g.PutInner(Helper_GetToken(PPHSC_AGPLUS_LINENO), temp_buf.Z().Cat(i+1));
 					//XmlEncText(0);
 					n_g.PutInner(Helper_GetToken(PPHSC_AGPLUS_AR), XmlUtf8EncText(r_goods_entry.ArCode));
-					n_g.PutInner(Helper_GetToken(PPHSC_AGPLUS_QTTY), temp_buf.Z().Cat(gp.Total.Rest, MKSFMTD(0, 3, 0)));
+					n_g.PutInner(Helper_GetToken(PPHSC_AGPLUS_QTTY), temp_buf.Z().Cat(gp.Total.Rest, MKSFMTD_030));
 					n_g.PutInner(Helper_GetToken(PPHSC_AGPLUS_UOM), XmlUtf8EncText(r_goods_entry.UnitName));
 					n_g.PutInner(Helper_GetToken(PPHSC_AGPLUS_NAME), XmlUtf8EncText(r_goods_entry.Name));
 				}
@@ -11431,7 +11431,7 @@ int Ostankino::SendSales(StringSet & rSsFileName)
 								n_goods.PutInner(Helper_GetToken(PPHSC_AGPLUS_LINENO), temp_buf.Z().Cat(itmidx+1));
 								const GoodsEntry * p_goods_entry = SearchGoodsEntry(GoodsList, r_item.GoodsID);
 								n_goods.PutInner(Helper_GetToken(PPHSC_AGPLUS_AR), p_goods_entry ? p_goods_entry->ArCode : "");
-								n_goods.PutInner(Helper_GetToken(PPHSC_AGPLUS_QTTY), temp_buf.Z().Cat(r_item.Qtty, MKSFMTD(0, 3, 0)));
+								n_goods.PutInner(Helper_GetToken(PPHSC_AGPLUS_QTTY), temp_buf.Z().Cat(r_item.Qtty, MKSFMTD_030));
 								n_goods.PutInner(Helper_GetToken(PPHSC_AGPLUS_UOM), XmlUtf8EncText(p_goods_entry->UnitName));
 								n_goods.PutInner(Helper_GetToken(PPHSC_AGPLUS_PRICE), temp_buf.Z().Cat(r_item.Cost, MKSFMTD_020));
 								n_goods.PutInner(Helper_GetToken(PPHSC_AGPLUS_DISCOUNT), 0);
@@ -11946,19 +11946,19 @@ public:
 								n_i.PutAttrib(Helper_GetToken(PPHSC_RU_WEIGHTPERUNIT), temp_buf.Z().Cat(p_goods_entry->WeightPerUnit));
 								{
 									double w = (p_pack->DocType == BillPacket::doctypReturn) ? -fabs(r_item.Netto) : fabs(r_item.Netto);
-									n_i.PutAttrib(Helper_GetToken(PPHSC_RU_WEIGHT), temp_buf.Z().Cat(w, MKSFMTD(0, 3, 0)));
+									n_i.PutAttrib(Helper_GetToken(PPHSC_RU_WEIGHT), temp_buf.Z().Cat(w, MKSFMTD_030));
 								}
 								{
 									double qtty = (p_pack->DocType == BillPacket::doctypReturn) ? -fabs(r_item.Qtty) : fabs(r_item.Qtty);
-									n_i.PutAttrib(Helper_GetToken(PPHSC_RU_QUANTITY), temp_buf.Z().Cat(qtty, MKSFMTD(0, 3, 0)));
+									n_i.PutAttrib(Helper_GetToken(PPHSC_RU_QUANTITY), temp_buf.Z().Cat(qtty, MKSFMTD_030));
 								}
 								{
 									double amt = (p_pack->DocType == BillPacket::doctypReturn) ? -fabs(r_item.Amount) : fabs(r_item.Amount);
-									n_i.PutAttrib(Helper_GetToken(PPHSC_RU_AMOUNT), temp_buf.Z().Cat(amt, MKSFMTD(0, 2, 0)));
+									n_i.PutAttrib(Helper_GetToken(PPHSC_RU_AMOUNT), temp_buf.Z().Cat(amt, MKSFMTD_020));
 								}
 								{
 									double vat = (p_pack->DocType == BillPacket::doctypReturn) ? -fabs(r_item.Vat) : fabs(r_item.Vat);
-									n_i.PutAttrib(Helper_GetToken(PPHSC_RU_VAT), temp_buf.Z().Cat(vat, MKSFMTD(0, 2, 0)));
+									n_i.PutAttrib(Helper_GetToken(PPHSC_RU_VAT), temp_buf.Z().Cat(vat, MKSFMTD_020));
 								}
 							}
 						}
@@ -13093,8 +13093,8 @@ int VladimirskiyStandard::SendSales(StringSet & rSsFileName)
 							n_goods.PutInner(Helper_GetToken(PPHSC_AGPLUS_QTTY), temp_buf.Z().Cat(r_item.Qtty, MKSFMTD(0, 6, NMBF_NOTRAILZ))); // Количество
 							(temp_buf = r_item.UnitName).Transf(CTRANSF_INNER_TO_UTF8);
 							n_goods.PutInner(Helper_GetToken(PPHSC_AGPLUS_UOM), temp_buf); // ЕдиницаИзмерения
-							n_goods.PutInner(Helper_GetToken(PPHSC_AGPLUS_COEFF), temp_buf.Z().Cat(r_item.KgPerUnit, MKSFMTD(0, 3, 0))); // Коэффициент
-							n_goods.PutInner(Helper_GetToken(PPHSC_AGPLUS_WEIGHT), temp_buf.Z().Cat(r_item.Qtty * r_item.KgPerUnit, MKSFMTD(0, 3, 0))); // Вес
+							n_goods.PutInner(Helper_GetToken(PPHSC_AGPLUS_COEFF), temp_buf.Z().Cat(r_item.KgPerUnit, MKSFMTD_030)); // Коэффициент
+							n_goods.PutInner(Helper_GetToken(PPHSC_AGPLUS_WEIGHT), temp_buf.Z().Cat(r_item.Qtty * r_item.KgPerUnit, MKSFMTD_030)); // Вес
 							n_goods.PutInner(Helper_GetToken(PPHSC_AGPLUS_AMOUNT), temp_buf.Z().Cat(r_item.Cost * r_item.Qtty, MKSFMTD_020)); // Сумма
 							n_goods.PutInner(Helper_GetToken(PPHSC_AGPLUS_PRICE), temp_buf.Z().Cat(r_item.Cost, MKSFMTD_020)); // Цена
 						}

@@ -833,7 +833,7 @@ int TimeSeriesCache::SetTransactionNotification(const TsStakeEnvironment::Transa
 			if(r_ta.PriceTP > 0.0)
 				log_msg.CatEq("PriceTP", r_ta.PriceTP, MKSFMTD_050).Space();
 			if(r_ta.Volume > 0.0)
-				log_msg.CatEq("Volume", r_ta.Volume, MKSFMTD(0, 3, 0)).Space();
+				log_msg.CatEq("Volume", r_ta.Volume, MKSFMTD_030).Space();
 			if(r_ta.Position)
 				log_msg.CatEq("Position", r_ta.Position).Space();
 			if(r_ta.PositionBy)
@@ -1550,7 +1550,7 @@ int TimeSeriesCache::EvaluateStakes(TsStakeEnvironment::StakeRequestBlock & rRes
 								const double last_err = p_tre->ErrL.at(tre_erc-1);
 								//const double last_1_err = (tre_erc > 1) ? p_tre->ErrL.at(tre_erc-2) : 0.0;
 								const double avg_err = p_tre->ErrAvg;
-								trend_err_buf.Cat(fdivnz(last_err, avg_err), MKSFMTD(0, 3, 0));
+								trend_err_buf.Cat(fdivnz(last_err, avg_err), MKSFMTD_030);
 							}
 						}
 						trend_err_buf.CatChar(']');

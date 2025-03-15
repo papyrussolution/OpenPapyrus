@@ -1,5 +1,5 @@
 // UED.CPP
-// Copyright (c) A.Sobolev 2023, 2024
+// Copyright (c) A.Sobolev 2023, 2024, 2025
 //
 #include <pp.h>
 #pragma hdrstop
@@ -357,6 +357,47 @@ bool UedDecodeRange(uint64 v, uint64 upp, uint granulation, uint bits, double * 
 	const uint64 ued_width = ((1ULL << bits) - 1) / granulation * granulation;
 	*pResult = v * static_cast<double>(upp) / static_cast<double>(ued_width);
 	return true;
+}
+
+/*static*/uint64 UED::SetRaw_Oid(SObjID oid)
+{
+	uint64 result = 0;
+	uint64 meta = 0;
+	switch(oid.Obj) {
+		case PPOBJ_GOODS: meta = UED_META_PRV_WARE; break;
+		case PPOBJ_PERSON: meta = UED_META_PRV_PERSON; break;
+		case PPOBJ_LOCATION: meta = UED_META_PRV_LOCATION; break;
+		case PPOBJ_BILL: meta = UED_META_PRV_DOC; break;
+		case PPOBJ_LOT: meta = UED_META_PRV_LOT; break;
+	}
+	if(meta != 0ULL) {
+		result = ApplyMetaToRawValue(meta, oid.Id);
+	}
+	return result;
+}
+
+/*static*/bool UED::GetRaw_Oid(uint64 ued, SObjID & rOid)
+{
+	rOid.Z();
+	bool   ok = false;
+	uint64 meta = GetMeta(ued);
+	switch(meta) {
+		case UED_META_PRV_WARE: rOid.Obj = PPOBJ_GOODS; break;
+		case UED_META_PRV_PERSON: rOid.Obj = PPOBJ_PERSON; break;
+		case UED_META_PRV_LOCATION: rOid.Obj = PPOBJ_LOCATION; break;
+		case UED_META_PRV_DOC: rOid.Obj = PPOBJ_BILL; break;
+		case UED_META_PRV_LOT: rOid.Obj = PPOBJ_LOT; break;
+	}
+	if(rOid.Obj) {
+		uint64 raw_value = 0;
+		if(GetRawValue(ued, &raw_value)) {
+			if(raw_value <= INT_MAX) {
+				rOid.Id = static_cast<int32>(raw_value);
+				ok = true;
+			}
+		}
+	}
+	return ok;
 }
 
 /*static*/uint64 UED::SetRaw_SphDir(const SphericalDirection & rV)

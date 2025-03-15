@@ -1,5 +1,5 @@
 // OBJWORLD.CPP
-// Copyright (c) A.Sobolev, A.Starodub 2003, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024
+// Copyright (c) A.Sobolev, A.Starodub 2003, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1852,24 +1852,25 @@ int GetAddrListByZIP(const char * pZip, PPIDArray & rList)
 			is_need_conversion = 1;
 	}
 	if(is_need_conversion) {
-		PPID   id = 1, temp_id = 0;
-		CityTbl::Key0 k0;
+		PPID   id = 1;
+		PPID   temp_id = 0;
+		City_ObsoleteTbl::Key0 k0;
 		LAssocArray cntry_list, reg_list;
-		CityTbl    city_tbl;
-		RegionTbl  reg_tbl;
-		CountryTbl cntry_tbl;
+		City_ObsoleteTbl    city_tbl;
+		Region_ObsoleteTbl  reg_tbl;
+		Country_ObsoleteTbl cntry_tbl;
 		{
 			PPTransaction tra(1);
 			THROW(tra);
 			k0.ID = MAXLONG;
 			id = (city_tbl.search(0, &k0, spLt) > 0) ? (city_tbl.data.ID + 1) : 1;
 			{
-				CountryTbl::Key0 _k0;
+				Country_ObsoleteTbl::Key0 _k0;
 				THROW_MEM(p_q = new BExtQuery(&cntry_tbl, 0));
 				p_q->selectAll();
 				MEMSZERO(_k0);
 				for(p_q->initIteration(false, &_k0, spGe); p_q->nextIteration() > 0; id++) {
-					CountryTbl::Rec cntry_rec = cntry_tbl.data;
+					Country_ObsoleteTbl::Rec cntry_rec = cntry_tbl.data;
 					MEMSZERO(wrec);
 					wrec.ID = id;
 					wrec.Kind = WORLDOBJ_COUNTRY;
@@ -1883,12 +1884,12 @@ int GetAddrListByZIP(const char * pZip, PPIDArray & rList)
 			cntry_list.Sort();
 			BExtQuery::ZDelete(&p_q);
 			{
-				RegionTbl::Key0 reg_k0;
+				Region_ObsoleteTbl::Key0 reg_k0;
 				MEMSZERO(reg_k0);
 				THROW_MEM(p_q = new BExtQuery(&reg_tbl, 0));
 				p_q->selectAll();
 				for(p_q->initIteration(false, &reg_k0, spGe); p_q->nextIteration() > 0; id++) {
-					RegionTbl::Rec reg_rec = reg_tbl.data;
+					Region_ObsoleteTbl::Rec reg_rec = reg_tbl.data;
 					MEMSZERO(wrec);
 					wrec.ID   = id;
 					wrec.Kind = WORLDOBJ_REGION;
@@ -1904,12 +1905,12 @@ int GetAddrListByZIP(const char * pZip, PPIDArray & rList)
 			reg_list.Sort();
 			BExtQuery::ZDelete(&p_q);
 			{
-				CityTbl::Key0 city_k0;
+				City_ObsoleteTbl::Key0 city_k0;
 				MEMSZERO(city_k0);
 				THROW_MEM(p_q = new BExtQuery(&city_tbl, 0));
 				p_q->selectAll();
 				for(p_q->initIteration(false, &city_k0, spGe); p_q->nextIteration() > 0; id++) {
-					CityTbl::Rec city_rec = city_tbl.data;
+					City_ObsoleteTbl::Rec city_rec = city_tbl.data;
 					MEMSZERO(wrec);
 					wrec.ID   = city_rec.ID;
 					wrec.Kind = WORLDOBJ_CITY;

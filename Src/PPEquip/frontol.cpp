@@ -582,8 +582,6 @@ int ACS_FRONTOL::ExportData(int updOnly)
 						tail.Cat(level + 1).Semicol();                  // #18 - Номер уровня иерархического списка
 						tail.CatCharN(';', 3);                          // #19-#21 - Не используем
 						tail.Cat(gds_info.AsscPosNodeSymb).Semicol();   // #22 - Символ кассового аппарата, ассоциированного с товаром
-						// @v10.9.4 tail.Semicol();                     // #23 Налоговую группу не грузим
-						// @v10.9.4 {
 						{
 							/*
 								1 - НДС 0%
@@ -604,7 +602,6 @@ int ACS_FRONTOL::ExportData(int updOnly)
 								tail.Cat(vat_code);                     // #23 Налоговая группа
 							tail.Semicol();
 						}
-						// } @v10.9.4 
 						tail.CatCharN(';', 6);                          // #24-#29 - Не используем
 						tail.Cat(strip(gds_info.LocPrnSymb)).Semicol(); // #30 - Символ локального принтера, ассоциированного с товаром
 						tail.CatCharN(';', 22);                         // #31-#52 - Не используем

@@ -7360,7 +7360,7 @@ int EdiProviderImplementation_Kontur::ReadOwnFormatDocument(void * pCtx, const c
 								}
 								if(pos_blk.SetupGoods()) {
 									if(pos_blk.Ti.Quantity_ <= 0.0) {
-										addendum_msg_buf.Z().Cat(pos_blk.Ti.Quantity_, MKSFMTD(0, 3, 0)).CatDiv(':', 1).
+										addendum_msg_buf.Z().Cat(pos_blk.Ti.Quantity_, MKSFMTD_030).CatDiv(':', 1).
 											Cat(p_bpack->Rec.Code).CatDiv('-', 1).Cat(p_bpack->Rec.Dt, DATF_DMY);
 										CALLEXCEPT_PP_S(PPERR_EDI_UNBLRSLV_INVQTTY, addendum_msg_buf);
 									}
@@ -7846,7 +7846,7 @@ int EdiProviderImplementation_Kontur::ReadOwnFormatDocument(void * pCtx, const c
 								}
 								if(pos_blk.SetupGoods()) {
 									if(pos_blk.AccQtty <= 0.0) {
-										addendum_msg_buf.Z().Cat(pos_blk.Ti.Quantity_, MKSFMTD(0, 3, 0)).CatDiv(':', 1).
+										addendum_msg_buf.Z().Cat(pos_blk.Ti.Quantity_, MKSFMTD_030).CatDiv(':', 1).
 											Cat(p_bpack->Rec.Code).CatDiv('-', 1).Cat(p_bpack->Rec.Dt, DATF_DMY);
 										CALLEXCEPT_PP_S(PPERR_EDI_UNBLRSLV_INVQTTY, addendum_msg_buf);
 									}

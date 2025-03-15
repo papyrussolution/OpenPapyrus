@@ -712,6 +712,38 @@ GTaxVect::WareBlock::WareBlock(PPObjGoods & rGObj, PPID goodsID, PPID lotID, lon
 	assert(TaxFactor > 0.0);
 }
 
+LDATE GTaxVect::EvalBlock::GetOpDate()
+{
+	LDATE  result = ZERODATE;
+	const  PPTransferItem * p_ti = GetTI();
+	LDATE  link_bill_date = ZERODATE;
+	{
+		PPObjBill * p_bobj = BillObj;
+		const BillTbl::Rec * p_bill_rec = 0;
+		BillTbl::Rec bill_rec;
+		if(P_BPack) {
+			p_bill_rec = &P_BPack->Rec;
+		}
+		else if(p_ti) {
+			BillTbl::Rec bill_rec;
+			if(p_bobj->Fetch(p_ti->BillID, &bill_rec) > 0) {
+				p_bill_rec = &bill_rec;
+			}
+		}
+		if(p_bill_rec && GetOpType(p_bill_rec->OpID) == PPOPT_GOODSRETURN && p_bill_rec->LinkBillID) {
+			BillTbl::Rec link_bill_rec;
+			if(p_bobj->Fetch(p_bill_rec->LinkBillID, &link_bill_rec) > 0) {
+				link_bill_date = link_bill_rec.Dt;	
+			}
+		}
+	}
+	if(checkdate(link_bill_date))
+		result = link_bill_date;
+	else
+		result = p_ti ? p_ti->Date : (P_BPack ? P_BPack->Rec.Dt : (P_CcPack ? P_CcPack->Rec.Dt : ZERODATE));
+	return result;
+}
+
 int GTaxVect::EvaluateTaxes(const EvalBlock & rBlk__) // @v12.2.4
 {
 	/*
@@ -725,6 +757,8 @@ int GTaxVect::EvaluateTaxes(const EvalBlock & rBlk__) // @v12.2.4
 		-- Корректировочный документ расхода
 		-- Переоценка основных фондов
 		-- Прочие операции 
+		Дополнительные проблемы:
+		-- Привязанный возврат (налоговая схема должна применяться по дате документа отгрузки а не самого документа возврата)
 	*/ 
 	int    ok = 1;
 	EvalBlock lblk(rBlk__); // локальная копия расчетного блока (rBlk__ более в функции не используется)
@@ -742,7 +776,7 @@ int GTaxVect::EvaluateTaxes(const EvalBlock & rBlk__) // @v12.2.4
 		const  PPID  lot_id = p_ti ? p_ti->LotID : 0;
 		const  PPID  loc_id = lblk.GetLocID();
 		const  PPID  lot_tax_grp_id = p_ti ? p_ti->LotTaxGrpID : 0;
-		const  LDATE op_date  = p_ti ? p_ti->Date : (lblk.P_BPack ? lblk.P_BPack->Rec.Dt : (lblk.P_CcPack ? lblk.P_CcPack->Rec.Dt : ZERODATE));
+		const  LDATE op_date  = lblk.GetOpDate();
 		const  LDATE lot_date = p_ti ? p_ti->LotDate : op_date;
 		const  LDATE date_of_relevance = checkdate(lot_date) ? lot_date : op_date; // Драфт-документы имеют нулевой LotDate
 		// const  bool  is_suppl_vat_free = p_ti ? (IsSupplVATFree(p_ti->Suppl) > 0) : false; // @temporary

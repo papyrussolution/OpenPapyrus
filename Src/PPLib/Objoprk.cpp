@@ -3358,8 +3358,8 @@ PPID FASTCALL IsOpPaymOrRetn(PPID opID)
 {
 	if(opID) {
 		PPOprKind op_rec;
-		const  PPID t = GetOpType(opID, &op_rec);
-		return (oneof2(t, PPOPT_PAYMENT, PPOPT_GOODSRETURN) || (t == PPOPT_CHARGE && op_rec.Flags & OPKF_CHARGENEGPAYM)) ? t : 0;
+		const  PPID op_type_id = GetOpType(opID, &op_rec);
+		return (oneof2(op_type_id, PPOPT_PAYMENT, PPOPT_GOODSRETURN) || (op_type_id == PPOPT_CHARGE && op_rec.Flags & OPKF_CHARGENEGPAYM)) ? op_type_id : 0;
 	}
 	else
 		return 0;
@@ -3369,8 +3369,8 @@ bool FASTCALL IsOpPaym(PPID opID)
 {
 	if(opID) {
 		PPOprKind op_rec;
-		PPID   t = GetOpType(opID, &op_rec);
-		return ((t == PPOPT_PAYMENT) || (t == PPOPT_CHARGE && op_rec.Flags & OPKF_CHARGENEGPAYM));
+		const  PPID op_type_id = GetOpType(opID, &op_rec);
+		return ((op_type_id == PPOPT_PAYMENT) || (op_type_id == PPOPT_CHARGE && op_rec.Flags & OPKF_CHARGENEGPAYM));
 	}
 	else
 		return false;
@@ -3447,18 +3447,18 @@ int FASTCALL IsExpendOp(PPID opID)
 {
 	int    ret = -1;
 	if(opID) {
-		PPOprKind opk;
-		const  PPID t = GetOpType(opID, &opk);
-		if(t == PPOPT_GOODSEXPEND)
+		PPOprKind op_rec;
+		const  PPID op_type_id = GetOpType(opID, &op_rec);
+		if(op_type_id == PPOPT_GOODSEXPEND)
 			ret = 1;
-		else if(oneof2(t, PPOPT_GOODSRECEIPT, PPOPT_GOODSORDER))
+		else if(oneof2(op_type_id, PPOPT_GOODSRECEIPT, PPOPT_GOODSORDER))
 			ret = 0;
-		else if(t == PPOPT_GOODSRETURN) {
-			const int r = IsExpendOp(opk.LinkOpID);
+		else if(op_type_id == PPOPT_GOODSRETURN) {
+			const int r = IsExpendOp(op_rec.LinkOpID);
 			ret = (r >= 0) ? (r ? 0 : 1) : -1;
 		}
-		else if(t == PPOPT_GOODSACK)
-			ret = IsExpendOp(opk.LinkOpID);
+		else if(op_type_id == PPOPT_GOODSACK)
+			ret = IsExpendOp(op_rec.LinkOpID);
 	}
 	return ret;
 }

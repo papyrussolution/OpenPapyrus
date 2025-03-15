@@ -124,10 +124,10 @@ int PPTssModelPacket::Output(SString & rBuf) const
 	(temp_buf = Rec.Name).Transf(CTRANSF_INNER_TO_UTF8);
 	rBuf.CR().CatChar('#').Cat(Rec.ID).Space().Cat(temp_buf);
 	if(Rec.Flags & PPTssModel::fTrendErrLimitAsMedianPart)
-		rBuf.CR().CatEq("partitial_trend_err_limit", Rec.InitTrendErrLimit_, MKSFMTD(0, 3, 0));
+		rBuf.CR().CatEq("partitial_trend_err_limit", Rec.InitTrendErrLimit_, MKSFMTD_030);
 	else
-		rBuf.CR().CatEq("init_trend_err_limit", Rec.InitTrendErrLimit_, MKSFMTD(0, 3, 0));
-	rBuf.CR().CatEq("init_main_trend_err_limit", Rec.InitMainTrendErrLimit, MKSFMTD(0, 3, 0));
+		rBuf.CR().CatEq("init_trend_err_limit", Rec.InitTrendErrLimit_, MKSFMTD_030);
+	rBuf.CR().CatEq("init_main_trend_err_limit", Rec.InitMainTrendErrLimit, MKSFMTD_030);
 	rBuf.CR();
 	{
 		rBuf.Cat("input_frame_size").Eq();
@@ -198,7 +198,7 @@ int PPTssModelPacket::Output(SString & rBuf) const
 	}
 	rBuf.CR().CatEq("min_win_rate", Rec.MinWinRate, MKSFMTD_020);
 	rBuf.CR().CatEq("overall_win_rate_limit", Rec.OverallWinRateLimit, MKSFMTD_020);
-	rBuf.CR().CatEq("max_stake_count_variation", E.MaxStakeCountVariation, MKSFMTD(0, 3, 0));
+	rBuf.CR().CatEq("max_stake_count_variation", E.MaxStakeCountVariation, MKSFMTD_030);
 	rBuf.CR().CatEq("strategy_pool_sort_order", static_cast<uint>(Rec.StrategyPoolSortOrder));
 	rBuf.CR().CatEq("best_subset_dimension", Rec.BestSubsetDimention);
 	rBuf.CR().CatEq("best_subset_trendfollowing", STextConst::GetBool(Rec.Flags & PPTssModel::fBestSubsetTrendFollowing));
@@ -5069,8 +5069,8 @@ int PrcssrTsStrategyAnalyze::EditParam(PPBaseFilt * pBaseFilt)
 	public:
 		PrcssrTssaDialog() : TDialog(DLG_TSSA)
 		{
-			SetupCalDate(CTLCAL_TSSA_SBTDT, CTL_TSSA_SBTDT); // @v10.8.9
-			SetupCalDate(CTLCAL_TSSA_SBTDT2, CTL_TSSA_SBTDT2); // @v10.8.9
+			SetupCalDate(CTLCAL_TSSA_SBTDT, CTL_TSSA_SBTDT);
+			SetupCalDate(CTLCAL_TSSA_SBTDT2, CTL_TSSA_SBTDT2);
 		}
 		DECL_DIALOG_SETDTS()
 		{
@@ -5200,7 +5200,7 @@ int PrcssrTsStrategyAnalyze::Init(const PPBaseFilt * pBaseFilt)
 			const double op2r_dist = rS.OptDelta2Range.GetDistance();
 			if(op2r_dist > 0.0 && rS.OptDelta2Range.Check(*pOptFactor2)) {
 				const double tv2_part = (*pOptFactor2 - rS.OptDelta2Range.low) / op2r_dist;
-				rBuf.Cat(tv2_part, MKSFMTD(0, 3, 0)).CatChar('|');
+				rBuf.Cat(tv2_part, MKSFMTD_030).CatChar('|');
 			}
 			else
 				rBuf.CatChar('?').CatChar('|');
@@ -5215,7 +5215,7 @@ int PrcssrTsStrategyAnalyze::Init(const PPBaseFilt * pBaseFilt)
 				const double opr_dist = rS.OptDeltaRange.GetDistance();
 				if(opr_dist > 0.0 && rS.OptDeltaRange.Check(*pOptFactor)) {
 					const double tv_part = (*pOptFactor - rS.OptDeltaRange.low) / opr_dist;
-					rBuf.Cat(tv_part, MKSFMTD(0, 3, 0)).CatChar('|');
+					rBuf.Cat(tv_part, MKSFMTD_030).CatChar('|');
 				}
 				else
 					rBuf.CatChar('?').CatChar('|');
@@ -5525,16 +5525,16 @@ int PrcssrTsStrategyAnalyze::GetTimeSeries(PPID tsID, LDATE dateSince, LDATE dat
 static SString & OutputStategyResultEntry(const PPObjTimeSeries::StrategyResultEntry & rEntry, SString & rBuf)
 {
 	rBuf.Z().
-		CatEq("Result", rEntry.V.Result, MKSFMTD(0, 3, 0)).
+		CatEq("Result", rEntry.V.Result, MKSFMTD_030).
 		Space().CatEq("StakeCount", rEntry.StakeCount).Space().
 		Space().CatEq("WinCount", rEntry.WinCount). // @v10.7.1
 		Space().CatEq("LossCount", rEntry.StakeCount-rEntry.WinCount). // @v10.7.1
-		Space().CatEq("WinCountRate", rEntry.GetWinCountRate(), MKSFMTD(0, 3, 0)).
+		Space().CatEq("WinCountRate", rEntry.GetWinCountRate(), MKSFMTD_030).
 		Space().CatEq("TmCount", rEntry.V.TmCount).
 		Space().CatEq("TmSec", rEntry.V.TmSec).
 		Space().CatEq("TotalSec", rEntry.TotalSec).
 		Space().CatEq("ResultPerTotalDay", fdivnz(3600.0 * 24.0 * rEntry.V.Result, static_cast<double>(rEntry.TotalSec)), MKSFMTD(0, 4, 0));
-	//rBuf.Space().CatEq("StakeDensity", fdivui(rEntry.StakeCount, rEntry.GenPtCount), MKSFMTD(0, 3, 0));
+	//rBuf.Space().CatEq("StakeDensity", fdivui(rEntry.StakeCount, rEntry.GenPtCount), MKSFMTD_030);
 	return rBuf;
 }
 
@@ -7996,7 +7996,7 @@ int PrcssrTsStrategyAnalyze::Run()
 														default: temp_buf.CatCharN('#', 11); break;
 													}
 													temp_buf.Space().CatChar('{').Cat(re.FactorR.low, MKSFMTD_050).Dot().Dot().Cat(re.FactorR.upp, MKSFMTD_050).CatChar('}');
-													temp_buf.Space().Cat(re.Sc).Space().Cat(re.Wc).Space().Cat(re.Sc-re.Wc).Space().Cat(re.Prob, MKSFMTD(0, 3, 0));
+													temp_buf.Space().Cat(re.Sc).Space().Cat(re.Wc).Space().Cat(re.Sc-re.Wc).Space().Cat(re.Prob, MKSFMTD_030);
 													f_out_total_single.WriteLine(temp_buf.CR());
 												}
 											}
@@ -8113,11 +8113,11 @@ int PPObjTimeSeries::TrendEntry::Analyze(const PPTssModelPacket & rTssModel, SSt
 			CatEq("median", median, MKSFMTD(0, 6, 0)).Space().
 			CatEq("median (1/4)", median_2, MKSFMTD(0, 6, 0)).Space().
 			CatEq("median (3/4)", median_3, MKSFMTD(0, 6, 0)).Space().
-			CatEq("median/avg", median/errl_stat.GetExp(), MKSFMTD(0, 3, 0)).Space().
-			CatEq("median (1/4)/avg", median_2/errl_stat.GetExp(), MKSFMTD(0, 3, 0)).Space().
-			CatEq("median (3/4)/avg", median_3/errl_stat.GetExp(), MKSFMTD(0, 3, 0));
+			CatEq("median/avg", median/errl_stat.GetExp(), MKSFMTD_030).Space().
+			CatEq("median (1/4)/avg", median_2/errl_stat.GetExp(), MKSFMTD_030).Space().
+			CatEq("median (3/4)/avg", median_3/errl_stat.GetExp(), MKSFMTD_030);
 		if(!(rTssModel.Rec.Flags & PPTssModel::fTrendErrLimitAsMedianPart) && model_err_limit_ > 0.0) {
-			rOutBuf.CR().Tab_(3).CatEq("init_trend_err_limit", model_err_limit_, MKSFMTD(0, 3, 0)).Space();
+			rOutBuf.CR().Tab_(3).CatEq("init_trend_err_limit", model_err_limit_, MKSFMTD_030).Space();
 			const double b = errl_stat.GetExp() * model_err_limit_;
 			uint  err_lim_pos = 0;
 			uint _cp = temp_real_list.getCount();
@@ -8128,14 +8128,14 @@ int PPObjTimeSeries::TrendEntry::Analyze(const PPTssModelPacket & rTssModel, SSt
 					break;
 				}
 			} while(_cp);
-			rOutBuf.CatEq("err_lim_part", fdivui(err_lim_pos, temp_real_list.getCount()), MKSFMTD(0, 3, 0));
+			rOutBuf.CatEq("err_lim_part", fdivui(err_lim_pos, temp_real_list.getCount()), MKSFMTD_030);
 		}
 		if((rTssModel.Rec.Flags & PPTssModel::fTrendErrLimitAsMedianPart) && model_err_limit_ > 0.0 && model_err_limit_ <= 1.0) {
-			rOutBuf.CR().Tab_(3).CatEq("partitial_trend_err_limit", model_err_limit_, MKSFMTD(0, 3, 0)).Space();
+			rOutBuf.CR().Tab_(3).CatEq("partitial_trend_err_limit", model_err_limit_, MKSFMTD_030).Space();
 			uint lim_pos = static_cast<uint>(R0i(model_err_limit_ * static_cast<double>(temp_real_list.getCount())));
 			if(lim_pos >= 0 && lim_pos < temp_real_list.getCount()) {
 				double err_limit_by_pel = temp_real_list.at(lim_pos) / errl_stat.GetExp();
-				rOutBuf.CatEq("err_limit_by_pel", err_limit_by_pel, MKSFMTD(0, 3, 0));
+				rOutBuf.CatEq("err_limit_by_pel", err_limit_by_pel, MKSFMTD_030);
 			}
 		}
 	}
@@ -9435,7 +9435,7 @@ int TestTsDensityMap() // @debug
 						else
 							temp_buf.CatCharN('#', 11);
 						temp_buf.Space().CatChar('{').Cat(re.FactorR.low, MKSFMTD_050).Dot().Dot().Cat(re.FactorR.upp, MKSFMTD_050).CatChar('}');
-						temp_buf.Space().Cat(re.Sc).Space().Cat(re.Wc).Space().Cat(re.Sc-re.Wc).Space().Cat(re.Prob, MKSFMTD(0, 3, 0));
+						temp_buf.Space().Cat(re.Sc).Space().Cat(re.Wc).Space().Cat(re.Sc-re.Wc).Space().Cat(re.Prob, MKSFMTD_030);
 						f_out.WriteLine(temp_buf.CR());
 					}
 				}
@@ -9502,8 +9502,8 @@ int TestTsDensityMap() // @debug
 				}
 			}
 		}
-		line_buf.Z().CatEq("knn-011-win-rate", fdivui(knn_win_count_011, knn_count_011), MKSFMTD(0, 3, 0)).
-			Space().CatEq("knn-111-win-rate", fdivui(knn_win_count_111, knn_count_111), MKSFMTD(0, 3, 0));
+		line_buf.Z().CatEq("knn-011-win-rate", fdivui(knn_win_count_011, knn_count_011), MKSFMTD_030).
+			Space().CatEq("knn-111-win-rate", fdivui(knn_win_count_111, knn_count_111), MKSFMTD_030);
 		f_out_knn.WriteLine(line_buf.CR());
 		{
 			CP cplist[] = {
@@ -9532,7 +9532,7 @@ int TestTsDensityMap() // @debug
 					else
 						temp_buf.CatCharN('#', 11);
 					temp_buf.Space().CatChar('{').Cat(re.FactorR.low, MKSFMTD_050).Dot().Dot().Cat(re.FactorR.upp, MKSFMTD_050).CatChar('}');
-					temp_buf.Space().Cat(re.Sc).Space().Cat(re.Wc).Space().Cat(re.Sc-re.Wc).Space().Cat(re.Prob, MKSFMTD(0, 3, 0));
+					temp_buf.Space().Cat(re.Sc).Space().Cat(re.Wc).Space().Cat(re.Sc-re.Wc).Space().Cat(re.Prob, MKSFMTD_030);
 					f_out.WriteLine(temp_buf.CR());
 				}
 			}

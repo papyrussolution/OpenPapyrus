@@ -1,5 +1,5 @@
 // BusinessEntity.java
-// Copyright (c) A.Sobolev 2022
+// Copyright (c) A.Sobolev 2022, 2025
 //
 package ru.petroglif.styloq;
 import org.json.JSONArray;
@@ -499,8 +499,10 @@ public class BusinessEntity {
 		String ImgBlob;
 	}
 	public static class PreprocessBarcodeResult {
+		String OriginalCode;
 		String FinalCode;
 		String ChZnMark;
+		SLib.PPObjID Oid;
 		double Qtty;
 	}
 	public static PreprocessBarcodeResult PreprocessBarcode(String code, String wghtPrefix, String cntPrefix)
@@ -514,35 +516,52 @@ public class BusinessEntity {
 				if(SLib.GetLen(gtin14) == 14) {
 					if(result == null)
 						result = new PreprocessBarcodeResult();
+					result.OriginalCode = code;
 					result.ChZnMark = GTIN.PreprocessChZnCode(code);
 					result.FinalCode = gtin14.substring(1);
 					result.Qtty = 1.0;
 				}
 			}
-			else if(SLib.IsDecimal(code)) {
-				if(result == null)
-					result = new PreprocessBarcodeResult();
-				if(code_len == 13 || code_len == 12) {
-					final int wght_pfx_len = SLib.GetLen(wghtPrefix);
-					final int cnt_pfx_len = SLib.GetLen(cntPrefix);
-					if(wght_pfx_len == 2 && code.startsWith(wghtPrefix)) {
-						result.FinalCode = code.substring(0, 7);
-						String wght_text = code.substring(7, 12);
-						result.Qtty = Double.parseDouble(wght_text) / 1000.0;
-					}
-					else if(cnt_pfx_len == 2 && code.startsWith(cntPrefix)) {
-						result.FinalCode = code.substring(0, 7);
-						String count_text = code.substring(7, 12);
-						result.Qtty = Double.parseDouble(count_text);
-					}
-					else {
+			else {
+				final boolean is_dec = SLib.IsDecimal(code);
+				final boolean is_hex = SLib.IsHex(code);
+				if(is_dec || is_hex) {
+					long ued_potential = Long.parseLong(code, 16);
+					SLib.PPObjID oid = UED.GetRaw_Oid(ued_potential);
+					if(oid != null) {
+						if(result == null)
+							result = new PreprocessBarcodeResult();
+						result.OriginalCode = code;
+						result.Oid = oid;
 						result.FinalCode = code;
-						result.Qtty = 1.0;
 					}
-				}
-				else {
-					result.FinalCode = code;
-					result.Qtty = 1.0;
+					else if(is_dec) {
+						if(result == null)
+							result = new PreprocessBarcodeResult();
+						result.OriginalCode = code;
+						if(code_len == 13 || code_len == 12) {
+							final int wght_pfx_len = SLib.GetLen(wghtPrefix);
+							final int cnt_pfx_len = SLib.GetLen(cntPrefix);
+							if(wght_pfx_len == 2 && code.startsWith(wghtPrefix)) {
+								result.FinalCode = code.substring(0, 7);
+								String wght_text = code.substring(7, 12);
+								result.Qtty = Double.parseDouble(wght_text) / 1000.0;
+							}
+							else if(cnt_pfx_len == 2 && code.startsWith(cntPrefix)) {
+								result.FinalCode = code.substring(0, 7);
+								String count_text = code.substring(7, 12);
+								result.Qtty = Double.parseDouble(count_text);
+							}
+							else {
+								result.FinalCode = code;
+								result.Qtty = 1.0;
+							}
+						}
+						else {
+							result.FinalCode = code;
+							result.Qtty = 1.0;
+						}
+					}
 				}
 			}
 		}

@@ -1608,10 +1608,10 @@ int GnuPlot::DfReadAscii(double v[], int maxSize)
 		}
 		else
 			DfTokenise(s);
-		/* df_tokenise already processed everything, but in the case of pseudodata
-		 * '+' or '++' the value itself was passed as an ascii string formatted by
-		 * "%g".  We can do better than this by substituting in the binary value.
-		 */
+		// df_tokenise already processed everything, but in the case of pseudodata
+		// '+' or '++' the value itself was passed as an ascii string formatted by
+		// "%g".  We can do better than this by substituting in the binary value.
+		//
 		if(_Df.df_pseudodata > 0)
 			_Df.df_column[0].datum = _Df.df_pseudovalue_0;
 		if(_Df.df_pseudodata > 1)
@@ -1621,11 +1621,10 @@ int GnuPlot::DfReadAscii(double v[], int maxSize)
 			_Df.df_column[1].datum = _Pb.df_array->udv_value.v.value_array[_Df.df_array_index].v.cmplx_val.real;
 			_Df.df_column[2].datum = _Pb.df_array->udv_value.v.value_array[_Df.df_array_index].v.cmplx_val.imag;
 		}
-		/* Always save the contents of the first row in case it is needed for
-		 * later access via column("header").  However, unless we know for certain that
-		 * it contains headers only, e.g. via parse_1st_row_as_headers or
-		 * (_Df.ColumnForKeyTitle > 0), also treat it as a data row.
-		 */
+		// Always save the contents of the first row in case it is needed for
+		// later access via column("header").  However, unless we know for certain that
+		// it contains headers only, e.g. via parse_1st_row_as_headers or
+		// (_Df.ColumnForKeyTitle > 0), also treat it as a data row.
 		if(_Df.df_datum == 0 && !_Df.df_already_got_headers) {
 			int j;
 			FPRINTF((stderr, "datafile.c:%d processing %d column headers\n", __LINE__, _Df.df_no_cols));

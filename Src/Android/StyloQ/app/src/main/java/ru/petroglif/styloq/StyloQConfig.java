@@ -13,10 +13,10 @@ import java.util.Map;
 public class StyloQConfig {
 	// @persistent {
 	// Теги конфигурации
-	public static int tagUnkn = 0;
-	public static int tagUrl = 1;
-	public static int tagMqbAuth = 2;
-	public static int tagMqbSecret = 3;
+	public static int tagUnkn            = 0;
+	public static int tagUrl             = 1;
+	public static int tagMqbAuth         = 2;
+	public static int tagMqbSecret       = 3;
 	public static int tagLoclUrl         = 4; // URL локальной обработки запросов (отдельная машина или сеанс)
 	public static int tagLoclMqbAuth     = 5; // Login MQ-брокера локальной обработки запросов (отдельная машина или сеанс)
 	public static int tagLoclMqbSecret   = 6; // Secret MQ-брокера локальной обработки запросов (отдельная машина или сеанс)
@@ -57,7 +57,9 @@ public class StyloQConfig {
 	// Descr: Флаги для тега tagUserFlags
 	//
 	public static int userfNetworkDisabled  = 0x0001; // @v12.0.11 Пользователь намеренно отключил функции сетевого обмена
-	public static int userfSvcArchived      = 0x0002; // @v12.2.2  Сервис архивирован (более не используется)
+	public static int userfSvcArchived        = 0x0002; // @v12.2.2  Сервис архивирован (более не используется)
+	public static int userfClipboardBcScanner = 0x0004; // @v12.2.10 Коды от встроенного сканера штрихкодов получать через буфер обмена (в противном
+		// случае, система будет пытаться получать коды методами, специфичными для сканера - успех очень не гарантирован).
 
 	private Map<Integer, String> L;
 

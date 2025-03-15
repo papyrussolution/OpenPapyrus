@@ -2615,7 +2615,7 @@ int PPObjBill::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext 
 		if(stream == 0) {
 			int    skip = 0, warn = 0;
 			PPBillPacket bp;
-			const  PPID   op_type_id = GetOpType(p_pack->Rec.OpID);
+			const  PPID op_type_id = GetOpType(p_pack->Rec.OpID);
 			if(oneof2(pCtx->Cfg.RealizeOrder, RLZORD_FIFO, RLZORD_LIFO))
 				DS.SetRealizeOrder(pCtx->Cfg.RealizeOrder);
 			if(pCtx->Flags & ObjTransmContext::fConsolid) {
@@ -3070,9 +3070,9 @@ int PPObjBill::NeedTransmit(PPID id, const DBDivPack & rDestDbDivPack, ObjTransm
 	BillTbl::Rec bill_rec, link_rec;
 	if(Search(id, &bill_rec) > 0 && bill_rec.OpID && !(bill_rec.Flags & BILLF_CASH) && bill_rec.OpID != PPOPK_EDI_STOCK) {
 		if(!bill_rec.StatusID || !CheckStatusFlag(bill_rec.StatusID, BILSTF_DENY_TRANSM)) {
-			PPID   op_id = bill_rec.OpID;
+			const  PPID op_id = bill_rec.OpID;
 			PPOprKind op_rec;
-			PPID   op_type_id = GetOpType(op_id, &op_rec);
+			const  PPID op_type_id = GetOpType(op_id, &op_rec);
 			if(op_type_id == PPOPT_ACCTURN) {
 				if(op_rec.Flags & OPKF_EXTACCTURN) {
 					if(rDestDbDivPack.ResponsibleForLoc(bill_rec.LocID, 0))

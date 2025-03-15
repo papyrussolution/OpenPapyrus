@@ -3082,13 +3082,18 @@ SString & FASTCALL SString::CatHex(uint8 val)
 
 SString & FASTCALL SString::CatHexUpper(uint8 val)
 {
-	//char   temp_buf[512];
-	//ltoa(val, temp_buf, 16);
 	uint   dig = (val >> 4);
 	CatChar(dig + ((dig < 10) ? '0' : ('A'-10)));
 	dig = (val & 0x0f);
 	CatChar(dig + ((dig < 10) ? '0' : ('A'-10)));
 	return *this;
+}
+
+SString & FASTCALL SString::CatHexUpper(uint64 val)
+{
+	char   temp_buf[512];
+	_ui64toa(val, temp_buf, 16);
+	return Cat(strupr_ascii(temp_buf));
 }
 
 SString & STDCALL SString::CatHex(const void * pBinary, size_t size)
@@ -7770,12 +7775,9 @@ int STokenizer::Run(uint * pIdxFirst, uint * pIdxCount)
 
 int STokenizer::RunSString(const char * pResource, int64 orgOffs, const SString & rS, uint * pIdxFirst, uint * pIdxCount)
 	{ return BIN(Write(pResource, orgOffs, rS, rS.Len()+1) && Run(pIdxFirst, pIdxCount)); }
-uint STokenizer::GetCommCount() const
-	{ return CL.getCount(); }
-uint STokenizer::GetCount() const
-	{ return L.getCount(); }
-int STokenizer::GetSymbHashStat(SymbHashTable::Stat & rStat) const
-	{ return T.CalcStat(rStat); }
+uint STokenizer::GetCommCount() const { return CL.getCount(); }
+uint STokenizer::GetCount() const { return L.getCount(); }
+int STokenizer::GetSymbHashStat(SymbHashTable::Stat & rStat) const { return T.CalcStat(rStat); }
 
 int STokenizer::GetComm(uint idx, STokenizer::Item & rItem) const
 {
