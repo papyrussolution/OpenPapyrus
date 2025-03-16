@@ -2192,7 +2192,7 @@ int    FASTCALL RecognizeSNScriptSymb(const char * pSymb, size_t * pLength);
 // Descr: Возвращает символ текстовое наименование натурального скрипта в буфере rCode по значению
 //   идентификатора ident (snscriptXXX).
 //
-int    FASTCALL GetSNScriptCode(int ident, SString & rCode);
+bool   FASTCALL GetSNScriptCode(int ident, SString & rCode);
 
 enum SCodepage {
 	cpUndef   =   -1,

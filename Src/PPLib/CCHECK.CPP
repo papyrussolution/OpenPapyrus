@@ -2193,7 +2193,6 @@ int CCheckCore::ValidateCheck(PPID id, ValidateCheckParam & rParam, PPLogger & r
 			rParam.ErrorFlags |= ValidateCheckParam::efInvDiscount;
 			ok = 0;
 		}
-		// @v10.8.6 {
 		{
 			PPObjGoods goods_obj;
 			for(uint i = 0; i < cc_pack.Items_.getCount(); i++) {
@@ -2216,7 +2215,6 @@ int CCheckCore::ValidateCheck(PPID id, ValidateCheckParam & rParam, PPLogger & r
 				}
 			}
 		}
-		// } @v10.8.6 
 		{
 			const int amt_sign = fsign(rec_amt);
 			const CcAmountList & r_al = cc_pack.AL_Const();

@@ -60978,8 +60978,8 @@ private:
 		uint   LineNo; // 0 - undefined
 		SString FileName;
 	};
-	int    ParseWinRcForNativeText();
-	int    FindSourceCodeWithNotUtf8Encoding();
+	int    ParseWinRcForNativeText(PPLogger * pLogger);
+	int    FindSourceCodeWithNotUtf8Encoding(PPLogger * pLogger);
 
 	PrcssrSourceCodeMaintainingFilt P;
 	SString BuildRootPath;

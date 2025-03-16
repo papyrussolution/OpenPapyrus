@@ -1,5 +1,5 @@
 // REPORT.H
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2006, 2007, 2008, 2009, 2010, 2015, 2016, 2019
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2006, 2007, 2008, 2009, 2010, 2015, 2016, 2019, 2025
 // @codepage UTF-8
 //
 #ifndef __REPORT_H
@@ -46,17 +46,6 @@ class TVRez;
 #define GRPFMT_REPRINTHEAD     0x0008
 #define GRPFMT_RESETPGNMB      0x0010
 #define GRPFMT_SUMMARYONBOTTOM 0x0020 // Итог на дно страницы
-/* @v10.5.6 replaced with AGGRFUNC_XXX (slib.h)
-//
-// Агрегатные функции для группировки
-//
-#define AGGR_NONE                   0
-#define AGGR_COUNT                  1
-#define AGGR_SUM                    2
-#define AGGR_AVG                    3
-#define AGGR_MIN                    4
-#define AGGR_MAX                    5
-*/
 //
 // Опции печати
 //

@@ -5957,7 +5957,6 @@ STYLOPALM
 							break;
 						case cGtaOp:
 							{
-								// @v10.5.7 {
 								static const SIntToSymbTabEntry gta_op_list[] = {
 									{ GTAOP_NOOP, "NOOP" },
 									{ GTAOP_OBJGET, "OBJGET" },
@@ -5974,35 +5973,6 @@ STYLOPALM
 								};
 								P_SetBlk->U.GT.GtaOp = SIntToSymbTab_GetId(gta_op_list, SIZEOFARRAY(gta_op_list), rArg);
 								SETIFZ(P_SetBlk->U.GT.GtaOp, GTAOP_NOOP);
-								// } @v10.5.7 
-								/* @v10.5.7 
-								if(rArg.IsEqiAscii("NOOP"))
-									P_SetBlk->U.GT.GtaOp = GTAOP_NOOP;
-								else if(rArg.IsEqiAscii("OBJGET"))
-									P_SetBlk->U.GT.GtaOp = GTAOP_OBJGET;
-								else if(rArg.IsEqiAscii("OBJADD"))
-									P_SetBlk->U.GT.GtaOp = GTAOP_OBJADD;
-								else if(rArg.IsEqiAscii("OBJMOD"))
-									P_SetBlk->U.GT.GtaOp = GTAOP_OBJMOD;
-								else if(rArg.IsEqiAscii("OBJRMV"))
-									P_SetBlk->U.GT.GtaOp = GTAOP_OBJRMV;
-								else if(rArg.IsEqiAscii("CCHECKCREATE"))
-									P_SetBlk->U.GT.GtaOp = GTAOP_CCHECKCREATE;
-								else if(rArg.IsEqiAscii("SCARDWITHDRAW"))
-									P_SetBlk->U.GT.GtaOp = GTAOP_SCARDWITHDRAW;
-								else if(rArg.IsEqiAscii("SCARDDEPOSIT"))
-									P_SetBlk->U.GT.GtaOp = GTAOP_SCARDDEPOSIT;
-								else if(rArg.IsEqiAscii("FILEUPLOAD"))
-									P_SetBlk->U.GT.GtaOp = GTAOP_FILEUPLOAD;
-								else if(rArg.IsEqiAscii("FILEDOWNLOAD"))
-									P_SetBlk->U.GT.GtaOp = GTAOP_FILEDOWNLOAD;
-								else if(rArg.IsEqiAscii("BILLCREATE"))
-									P_SetBlk->U.GT.GtaOp = GTAOP_BILLCREATE;
-								else if(rArg.IsEqiAscii("SMSSEND"))
-									P_SetBlk->U.GT.GtaOp = GTAOP_SMSSEND;
-								else
-									P_SetBlk->U.GT.GtaOp = GTAOP_NOOP;
-								*/
 							}
 							break;
 						case cCount:

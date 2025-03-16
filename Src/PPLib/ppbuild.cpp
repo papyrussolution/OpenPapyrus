@@ -980,72 +980,95 @@ int	PrcssrSourceCodeMaintaining::Init(const PPBaseFilt * pBaseFilt)
 int PrcssrSourceCodeMaintaining::Run()
 {
 	int    ok = 1;
-	if(P.Flags & PrcssrSourceCodeMaintainingFilt::fParseWinRcForNativeText) {
-		if(!ParseWinRcForNativeText())
-			PPError();
-	}
-	if(P.Flags & PrcssrSourceCodeMaintainingFilt::fFindSourceCodeWithNotUtf8Encoding) {
-		if(!FindSourceCodeWithNotUtf8Encoding())
-			PPError();
+	if(P.Flags) {
+		PPLogger logger;
+		if(P.Flags & PrcssrSourceCodeMaintainingFilt::fParseWinRcForNativeText) {
+			if(!ParseWinRcForNativeText(&logger))
+				PPError();
+		}
+		if(P.Flags & PrcssrSourceCodeMaintainingFilt::fFindSourceCodeWithNotUtf8Encoding) {
+			if(!FindSourceCodeWithNotUtf8Encoding(&logger))
+				PPError();
+		}
 	}
 	return ok;
 }
 
-int PrcssrSourceCodeMaintaining::FindSourceCodeWithNotUtf8Encoding() // @v12.2.10 @construction
+int PrcssrSourceCodeMaintaining::FindSourceCodeWithNotUtf8Encoding(PPLogger * pLogger) // @v12.2.10 @construction
 {
 	int    ok = -1;
 	SString temp_buf;
 	TSCollection <NoticedFileEntry> problem_list;
 	if(SFile::IsDir(SrcPath)) {
-		SFileEntryPool fep;
-		SFileEntryPool::Entry fe; 
-		SString file_path;
-		STempBuffer file_buffer(SMEGABYTE(4));
-		StringSet ss_wildcards;
-		ss_wildcards.add("*.h");
-		ss_wildcards.add("*.c");
-		ss_wildcards.add("*.cpp");
-		fep.Scan(SrcPath, ss_wildcards, SFileEntryPool::scanfRecursive);
-		for(uint i = 0; i < fep.GetCount(); i++) {
-			if(fep.Get(i, &fe, &file_path)) {
-				SFile f_in(file_path, SFile::mRead);
-				size_t actual_size = 0;
-				if(f_in.ReadAll(file_buffer, 0, &actual_size)) {
-					assert(actual_size <= file_buffer.GetSize());
-					{
-						bool   local_ok = true;
-						for(size_t idx = 0; local_ok && idx < actual_size;) {
-							const uint8 * p = reinterpret_cast<const uint8 *>(file_buffer.ucptr()[idx]);
-							const size_t extra = SUtfConst::TrailingBytesForUTF8[*p];
-							if(extra == 0 && SUnicode::IsLegalUtf8Char(p, 1))
-								idx++;
-							else if(extra == 1) {
-								if(p[1] != 0 && SUnicode::IsLegalUtf8Char(p, 2))
-									idx += 2;
-								else
-									local_ok = false;
+		{
+			SFileEntryPool fep;
+			SFileEntryPool::Entry fe; 
+			SString file_path;
+			STempBuffer file_buffer(SMEGABYTE(4));
+			StringSet ss_wildcards;
+			ss_wildcards.add("*.h");
+			ss_wildcards.add("*.c");
+			ss_wildcards.add("*.cpp");
+			fep.Scan(SrcPath, ss_wildcards, SFileEntryPool::scanfRecursive);
+			for(uint i = 0; i < fep.GetCount(); i++) {
+				if(fep.Get(i, &fe, &file_path)) {
+					SFile f_in(file_path, SFile::mRead);
+					size_t actual_size = 0;
+					if(f_in.ReadAll(file_buffer, 0, &actual_size)) {
+						assert(actual_size <= file_buffer.GetSize());
+						{
+							bool   local_ok = true;
+							for(size_t idx = 0; local_ok && idx < actual_size;) {
+								const uint8 * p = file_buffer.ucptr() + idx;
+								const size_t extra = SUtfConst::TrailingBytesForUTF8[*p];
+								if(extra == 0 && SUnicode::IsLegalUtf8Char(p, 1))
+									idx++;
+								else if(extra == 1) {
+									if(p[1] != 0 && SUnicode::IsLegalUtf8Char(p, 2))
+										idx += 2;
+									else
+										local_ok = false;
+								}
+								else if(extra == 2) {
+									if(p[1] != 0 && p[2] != 0 && SUnicode::IsLegalUtf8Char(p, 3))
+										idx += 3;
+									else
+										local_ok = false;
+								}
+								else {
+									const size_t tail = (actual_size - idx);
+									if((extra+1) <= tail && SUnicode::IsLegalUtf8Char(p, extra+1))
+										idx += (1+extra);
+									else
+										local_ok = false;
+								}
 							}
-							else if(extra == 2) {
-								if(p[1] != 0 && p[2] != 0 && SUnicode::IsLegalUtf8Char(p, 3))
-									idx += 3;
-								else
-									local_ok = false;
+							if(!local_ok) {
+								NoticedFileEntry * p_new_entry = problem_list.CreateNewItem();
+								if(p_new_entry) {
+									p_new_entry->FileName = file_path;
+								}
 							}
-							else {
-								const size_t tail = (actual_size - idx);
-								if((extra+1) <= tail && SUnicode::IsLegalUtf8Char(p, extra+1))
-									idx += (1+extra);
-								else
-									local_ok = false;
-							}
-						}
-						if(!local_ok) {
-							NoticedFileEntry * p_new_entry = problem_list.CreateNewItem();
-							if(p_new_entry) {
-								p_new_entry->FileName = file_path;
-							}
-						}
-					}					
+						}					
+					}
+				}
+			}
+		}
+		if(problem_list.getCount()) {
+			PPGetFilePath(PPPATH_OUT, "sourcecode-with-not-utf-encoding.txt", temp_buf);
+			SFile  f_out(temp_buf, SFile::mWrite);
+			for(uint i = 0; i < problem_list.getCount(); i++) {
+				const NoticedFileEntry * p_entry = problem_list.at(i);
+				if(p_entry) {
+					temp_buf.Z().Cat(p_entry->FileName);
+					if(p_entry->LineNo) {
+						temp_buf.CatDiv(':', 2).Cat(p_entry->LineNo);
+					}
+					temp_buf.CR();
+					f_out.WriteLine(temp_buf);
+					if(pLogger) {
+						pLogger->Log(temp_buf.Chomp());
+					}
 				}
 			}
 		}
@@ -1053,7 +1076,7 @@ int PrcssrSourceCodeMaintaining::FindSourceCodeWithNotUtf8Encoding() // @v12.2.1
 	return ok;
 }
 
-int PrcssrSourceCodeMaintaining::ParseWinRcForNativeText()
+int PrcssrSourceCodeMaintaining::ParseWinRcForNativeText(PPLogger * pLogger)
 {
 	int    ok = 1;
 	SString line_buf;
@@ -1078,10 +1101,13 @@ int PrcssrSourceCodeMaintaining::ParseWinRcForNativeText()
 		SFile  f_in(src_file_name, SFile::mRead);
 		THROW_SL(f_in.IsValid());
 		{
+			SString out_file_name;
 			SFsPath ps(src_file_name);
-			ps.Nam.CatChar('-').Cat("nativetext");
-			ps.Ext = "tsv";
-			ps.Merge(temp_buf);
+			(out_file_name = ps.Nam).CatChar('-').Cat("nativetext").Dot().Cat("tsv");
+			PPGetFilePath(PPPATH_OUT, out_file_name, temp_buf);
+			//ps.Nam.CatChar('-').Cat("nativetext");
+			//ps.Ext = "tsv";
+			//ps.Merge(temp_buf);
 			SFile  f_out(temp_buf, SFile::mWrite);
 			uint   line_no = 0;
 			SStrScan scan;
@@ -1099,8 +1125,12 @@ int PrcssrSourceCodeMaintaining::ParseWinRcForNativeText()
 								is_native_text = true;
 						}
 						if(is_native_text) {
-							out_line_buf.Z().Cat(temp_buf).Tab().Cat(line_no).CR().Transf(CTRANSF_OUTER_TO_UTF8);
+							out_line_buf.Z().Cat(temp_buf).Tab().Cat(line_no);
+							out_line_buf.CR().Transf(CTRANSF_OUTER_TO_UTF8);
 							f_out.WriteLine(out_line_buf);
+							if(pLogger) {
+								pLogger->Log(out_line_buf.Chomp());
+							}
 						}
 					}
 					else

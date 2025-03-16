@@ -727,12 +727,13 @@ void FASTCALL GetLinguaList(LongArray & rList)
 //
 //
 //
-struct SNScriptIdent {
+/* @v12.2.11 struct SNScriptIdent {
 	int16  Id;
 	const char * P_Code;
-};
+};*/
 
-static const SNScriptIdent P_SNScriptIdentList[] = {
+// @v12.2.11 static const SNScriptIdent P_SNScriptIdentList[] = {
+static const SIntToSymbTabEntry P_SNScriptIdentList[] = {
 	//{ snscriptUnkn,        "unkn" },
 	//{ snscriptMeta,        "meta" },
 	{ snscriptLatin,        "latin" },
@@ -812,12 +813,11 @@ int FASTCALL RecognizeSNScriptSymb(const char * pSymb, size_t * pLength)
 			temp_buf.CatChar(*pSymb++);
 		temp_buf.ToLower();
 		for(i = 0; i < SIZEOFARRAY(P_SNScriptIdentList); i++) {
-			const char * p_code = P_SNScriptIdentList[i].P_Code;
+			const char * p_code = P_SNScriptIdentList[i].P_Symb;
 			const size_t code_len = sstrlen(p_code);
 			if(temp_buf.HasPrefix(p_code) && code_len > max_found_len) {
 				const char nextc = temp_buf.C(code_len);
-				// @v10.9.6 if(!((nextc >= 'a' && nextc <= 'z') || (nextc >= 'A' && nextc <= 'Z'))) {
-				if(!isasciialpha(nextc)) { // @v10.9.6 
+				if(!isasciialpha(nextc)) {
 					max_found_len = code_len;
 					ret_ident = P_SNScriptIdentList[i].Id;
 				}
@@ -828,25 +828,12 @@ int FASTCALL RecognizeSNScriptSymb(const char * pSymb, size_t * pLength)
 	return ret_ident;
 }
 
-int FASTCALL GetSNScriptCode(int ident, SString & rCode)
+bool FASTCALL GetSNScriptCode(int ident, SString & rCode)
 {
-	int    ok = 0;
-	rCode.Z();
-	for(uint i = 0; !ok && i < SIZEOFARRAY(P_SNScriptIdentList); i++) {
-		if(ident == P_SNScriptIdentList[i].Id) {
-			rCode = P_SNScriptIdentList[i].P_Code;
-			ok = 1;
-		}
-	}
-	return ok;
+	return SIntToSymbTab_GetSymb(P_SNScriptIdentList, SIZEOFARRAY(P_SNScriptIdentList), ident, rCode);
 }
 
-/* @v10.6.2 struct SSisIdent {
-	int16  Id;
-	const char * P_Code;
-};*/
-
-static const /*SSisIdent*/SIntToSymbTabEntry P_SisIdentList[] = { // @v10.6.2 SSisIdent-->SIntToSymbTabEntry
+static const /*SSisIdent*/SIntToSymbTabEntry P_SisIdentList[] = {
 	{ SSystem::ssisWindows, "windows" },
 	{ SSystem::ssisWindows, "win" },
 	{ SSystem::ssisMAC, "mac" },
@@ -857,35 +844,18 @@ static const /*SSisIdent*/SIntToSymbTabEntry P_SisIdentList[] = { // @v10.6.2 SS
 	{ SSystem::ssisSolaris, "solaris" },
 	{ SSystem::ssisHPUX, "hpux" },
 	{ SSystem::ssisGLibC, "glibc" },
-	{ SSystem::ssisBSD, "bsd" }, // @v10.4.5
-	{ SSystem::ssisGNU, "gnu" }  // @v10.4.5
+	{ SSystem::ssisBSD, "bsd" },
+	{ SSystem::ssisGNU, "gnu" }
 };
 
 int FASTCALL RecognizeSisSymb(const char * pSymb)
 {
-	return SIntToSymbTab_GetId(P_SisIdentList, SIZEOFARRAY(P_SisIdentList), pSymb); // @v10.6.2 
-	/* @v10.6.2 int    ret_ident = 0;
-	if(!isempty(pSymb)) {
-		for(uint i = 0; !ret_ident && i < SIZEOFARRAY(P_SisIdentList); i++) {
-			if(sstreqi_ascii(pSymb, P_SisIdentList[i].P_Code))
-                ret_ident = P_SisIdentList[i].Id;
-		}
-	}
-	return ret_ident;*/
+	return SIntToSymbTab_GetId(P_SisIdentList, SIZEOFARRAY(P_SisIdentList), pSymb);
 }
 
 int FASTCALL GetSisCode(int ident, SString & rCode)
 {
-	return SIntToSymbTab_GetSymb(P_SisIdentList, SIZEOFARRAY(P_SisIdentList), ident, rCode); // @v10.6.2
-	/* @v10.6.2 int    ok = 0;
-	rCode.Z();
-	for(uint i = 0; !ok && i < SIZEOFARRAY(P_SisIdentList); i++) {
-		if(ident == P_SisIdentList[i].Id) {
-			rCode = P_SisIdentList[i].P_Code;
-			ok = 1;
-		}
-	}
-	return ok;*/
+	return SIntToSymbTab_GetSymb(P_SisIdentList, SIZEOFARRAY(P_SisIdentList), ident, rCode);
 }
 
 #if 0 // {

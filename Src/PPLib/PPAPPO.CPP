@@ -1661,9 +1661,9 @@ int PPBackupSystemFiles_Arc()
 							PPFILNAM_JOBPOOL,
 							PPFILNAM_REPORT_INI,
 							PPFILNAM_IMPEXP_INI,
-							PPFILNAM_BARLABEL_LBL, // @v10.1.5
-							PPFILNAM_REGDATA,      // @v10.1.5
-							PPFILNAM_STDSLIP_FMT   // @v10.1.5
+							PPFILNAM_BARLABEL_LBL,
+							PPFILNAM_REGDATA,
+							PPFILNAM_STDSLIP_FMT
 						};
 						for(uint i = 0; i < SIZEOFARRAY(_bin_file_id_list); i++) {
 							PPGetFileName(_bin_file_id_list[i], fname);
@@ -1703,7 +1703,6 @@ int PPBackupSystemFiles_Arc()
 						}
 					}
 					// } @erik
-					// @v10.7.5 {
 					{
 						//
 						// Локальные отчеты
@@ -1716,7 +1715,6 @@ int PPBackupSystemFiles_Arc()
 						}
 						arc.AddEntries(path, SArchive::aefRecursive);
 					}
-					// @v10.7.5 {
 					arc.Close();
 					{
 						const uint max_arc = 5;
@@ -1748,7 +1746,7 @@ int PPBackupSystemFiles_Arc()
 				}
 			}
 		}
-		f_lck.Close(); // @v10.7.6
+		f_lck.Close();
 		SFile::Remove(lock_path);
 	}
 	return ok;
@@ -2010,9 +2008,8 @@ void PPApp::login(int processCmdLine)
 			// станции отличается от сервера более чем на 1 секунду
 			//
 			SetDatetimeByServer(&ini_file, 0);
-			PPSession::EnsureExtCfgDb(); // @v10.7.7
-			// @v10.1.5 PPBackupSystemFiles();
-			PPBackupSystemFiles_Arc(); // @v10.1.5
+			PPSession::EnsureExtCfgDb();
+			PPBackupSystemFiles_Arc();
 			// @v10.0.1 @experimental {
 			/*if(lua_script.NotEmpty()) {
 				ExecuteLuaScriptFile(lua_script);

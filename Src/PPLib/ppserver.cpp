@@ -1749,17 +1749,9 @@ int CPosNodeBlock::Execute(uint cmd, const char * pParams, PPJobSrvReply & rRepl
 		do {
 			int    sub_criterion = 0;
 			arg_buf.Z();
-			// @v10.5.7 {
 			int    criterion = SIntToSymbTab_GetId(crit_titles, SIZEOFARRAY(crit_titles), temp_buf);
 			if(criterion)
 				crit = temp_buf;
-			// } @v10.5.7
-			/* @v10.5.7 for(i = 0; !criterion && i < SIZEOFARRAY(crit_titles); i++) {
-				if(temp_buf.IsEqiAscii(crit_titles[i].P_Symb)) {
-					crit = temp_buf;
-					criterion = crit_titles[i].Id;
-				}
-			}*/
 			if(criterion == scLast) {
 				//
 				// Одиночные критерии (не требующие параметров): 'ACTUAL' 'LAST'
@@ -1771,20 +1763,11 @@ int CPosNodeBlock::Execute(uint cmd, const char * pParams, PPJobSrvReply & rRepl
 				if(scan[0] == '.') {
 					scan.Incr();
 					THROW_PP(scan.Skip().GetIdent(temp_buf), PPERR_CMDSEL_EXP_SUBCRITERION);
-					// @v10.5.7 {
 					sub_criterion = SIntToSymbTab_GetId(subcrit_titles, SIZEOFARRAY(subcrit_titles), temp_buf);
 					if(sub_criterion) {
 						sub_crit = temp_buf;
 						(added_msg = obj).Space().Cat("BY").Space().Cat(crit).Dot().Cat(sub_crit);
 					}
-					// } @v10.5.7
-					/* @v10.5.7 for(i = 0; !sub_criterion && i < SIZEOFARRAY(subcrit_titles); i++) {
-						if(temp_buf.IsEqiAscii(subcrit_titles[i].P_Symb)) {
-							sub_crit = temp_buf;
-							sub_criterion = subcrit_titles[i].Id;
-							(added_msg = obj).Space().Cat("BY").Space().Cat(crit).Dot().Cat(sub_crit);
-						}
-					}*/
 				}
 				THROW_PP(scan.Skip()[0] == '(', PPERR_CMDSEL_EXP_LEFTPAR);
 				{

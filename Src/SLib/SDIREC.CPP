@@ -449,6 +449,9 @@ int SFileEntryPool::Helper_Scan(const char * pPath, /*const char * pWildcard*/co
 						if(wildcard_buf.IsEmpty() || wildcard_buf == "*.*" || wildcard_buf == ".") {
 							is_suited = true;
 						}
+						else if(SFile::WildcardMatch(wildcard_buf, fb.GetNameUtf8(temp_buf))) {
+							is_suited = true;
+						}
 					}
 				}
 				if(is_suited) {
