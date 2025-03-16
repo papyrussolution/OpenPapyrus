@@ -1,5 +1,5 @@
 // BHT.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -953,6 +953,7 @@ public:
 		AddClusterAssoc(CTL_BHT_TYPE,  3, PPObjBHT::btWinCe);
 		AddClusterAssoc(CTL_BHT_TYPE,  4, PPObjBHT::btCom);
 		AddClusterAssocDef(CTL_BHT_TYPE, 5, PPObjBHT::btStyloBhtII);
+		DisableClusterItem(CTL_BHT_TYPE, 1, true); // @v12.2.10 полностью элиминируем поддержку
 		SetClusterData(CTL_BHT_TYPE, Data.Rec.BhtTypeID);
 		if(!oneof4(Data.Rec.BhtTypeID, PPObjBHT::btPalm, PPObjBHT::btStyloBhtII, PPObjBHT::btWinCe, PPObjBHT::btCom)) {
 			int    c = 0;
