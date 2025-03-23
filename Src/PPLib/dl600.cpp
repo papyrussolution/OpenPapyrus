@@ -811,20 +811,9 @@ int FASTCALL RtmStack::Init(size_t sz)
 	}
 }
 
-uint RtmStack::GetCurPos() const
-{
-	return P;
-}
-
-void FASTCALL RtmStack::SetCurPos(size_t p)
-{
-	P = p;
-}
-
-void * FASTCALL RtmStack::GetPtr(size_t p)
-{
-	return (B.P_Buf+p);
-}
+uint RtmStack::GetCurPos() const { return P; }
+void FASTCALL RtmStack::SetCurPos(size_t p) { P = p; }
+void * FASTCALL RtmStack::GetPtr(size_t p) { return (B.P_Buf+p); }
 
 uint FASTCALL RtmStack::Alloc(size_t sz)
 {

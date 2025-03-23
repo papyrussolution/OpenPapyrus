@@ -1,5 +1,5 @@
 // DL600R.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 // Run-time DL600 modules
 //
@@ -318,7 +318,7 @@ int DlContext::EvaluateExpr(DlRtm * pRtm, const DlScope * pScope, DlRtm * pCalle
 			if(te.T.IsZStr(&slen)) {
 				SString * p_str = *static_cast<SString **>(S.GetPtr(ret_pos));
 				*p_str = static_cast<const char *>(ConstList.GetPtr(&pExpr->U.C, slen));
-				PPExpandString(*p_str, CTRANSF_UTF8_TO_OUTER); // @v9.2.8
+				PPExpandString(*p_str, CTRANSF_UTF8_TO_OUTER);
 				p_str->Transf(CTRANSF_OUTER_TO_INNER);
 			}
 			else

@@ -2577,9 +2577,6 @@ static enum TIFFReadDirEntryErr STDCALL TIFFReadDirEntryCheckedSlong8(TIFF * tif
 static enum TIFFReadDirEntryErr STDCALL TIFFReadDirEntryCheckedRational(TIFF * tif, TIFFDirEntry* direntry, double* value)
 {
 	UInt64Aligned_t m;
-	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(double)==8);
-	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(uint64)==8);
-	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(uint32)==4);
 	if(!(tif->tif_flags&TIFF_BIGTIFF)) {
 		enum TIFFReadDirEntryErr err;
 		uint32 offset = direntry->tdir_offset.toff_long;
@@ -2606,10 +2603,6 @@ static enum TIFFReadDirEntryErr STDCALL TIFFReadDirEntryCheckedRational(TIFF * t
 static enum TIFFReadDirEntryErr STDCALL TIFFReadDirEntryCheckedSrational(TIFF * tif, TIFFDirEntry* direntry, double* value)
 {
 	UInt64Aligned_t m;
-	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(double)==8);
-	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(uint64)==8);
-	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(int32)==4);
-	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(uint32)==4);
 	if(!(tif->tif_flags&TIFF_BIGTIFF)) {
 		enum TIFFReadDirEntryErr err;
 		uint32 offset = direntry->tdir_offset.toff_long;
@@ -2639,8 +2632,6 @@ static void STDCALL TIFFReadDirEntryCheckedFloat(TIFF * tif, TIFFDirEntry* diren
 		float f;
 		uint32 i;
 	} float_union;
-	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(float)==4);
-	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(uint32)==4);
 	assert(sizeof(float_union)==4);
 	float_union.i = *(uint32 *)(&direntry->tdir_offset);
 	*value = float_union.f;
@@ -2650,8 +2641,6 @@ static void STDCALL TIFFReadDirEntryCheckedFloat(TIFF * tif, TIFFDirEntry* diren
 
 static enum TIFFReadDirEntryErr STDCALL TIFFReadDirEntryCheckedDouble(TIFF * tif, TIFFDirEntry* direntry, double* value)
 {
-	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(double)==8);
-	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(uint64)==8);
 	assert(sizeof(UInt64Aligned_t)==8);
 	if(!(tif->tif_flags&TIFF_BIGTIFF)) {
 		enum TIFFReadDirEntryErr err;

@@ -321,7 +321,7 @@ SFileEntryPool::Entry & SFileEntryPool::Entry::Z()
 	//Size = 0;
 	Name.Z();
 	Path.Z();
-	RemoteUrl.Z(); // @v10.8.2
+	RemoteUrl.Z();
 	return *this;
 }
 
@@ -394,8 +394,6 @@ int SFileEntryPool::Add(const char * pPath, const char * pRemoteUrl, long flags)
 	}
 	return ok;
 }
-
-//int    Helper_Scan(const char * pPath, const StringSet & rSsWildcards, long flags);
 
 int SFileEntryPool::Helper_Scan(const char * pPath, /*const char * pWildcard*/const StringSet & rSsWildcards, long flags)
 {

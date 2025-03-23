@@ -1083,7 +1083,7 @@ int PPLinkFile::CopyTo(void ** ppBuf)
 	const uint32 path_len = Path.Len() + 1;
 	const uint32 descr_len = Description.Len() + 1;
 	char * p = static_cast<char *>(*ppBuf);
-	Flags &= ~PPLNKFILE_ISNEW;
+	Flags &= ~PPLinkFile::fIsNew;
 	memcpy(p, &Id, sizeof(Id));
 	memcpy(p += sizeof(Id), &Flags, sizeof(Flags));
 	memcpy(p += sizeof(Flags), &ext_len, sizeof(ext_len));
@@ -1217,7 +1217,7 @@ int PPLinkFilesArray::AddNewByExt(const char * pExt, const char * pDescr, uint *
 	THROW_MEM(p_flink);
 	p_flink->Id = GetNewId();
 	p_flink->Ext.CopyFrom(pExt);
-	p_flink->Flags |= PPLNKFILE_ISNEW;
+	p_flink->Flags |= PPLinkFile::fIsNew;
 	p_flink->Description.CopyFrom(pDescr);
 	GetFilePath(p_flink->Id, p_flink->Ext, store_path);
 	if(p_flink->Ext.Search("xls", 0, 1, 0) > 0) {
@@ -1250,7 +1250,7 @@ int PPLinkFilesArray::Add(PPLinkFile * pLink, uint * pPos)
 		PPLinkFile * p_flink = new PPLinkFile;
 		SString store_path;
 		pLink->Id = GetNewId();
-		pLink->Flags |= PPLNKFILE_ISNEW;
+		pLink->Flags |= PPLinkFile::fIsNew;
 		*p_flink = *pLink;
 		GetFilePath(p_flink->Id, p_flink->Ext, store_path);
 		if(SCopyFile(p_flink->Path, store_path, 0, FILE_SHARE_READ, 0))
@@ -1464,7 +1464,7 @@ public:
 			PPBillConfig bcfg;
 			if(PPObjBill::ReadConfig(&bcfg) > 0)
 				AddFilesFolder = bcfg.AddFilesFolder;
-			enableCommand(cmWaitFile, BIN(AddFilesFolder.Len()));
+			enableCommand(cmWaitFile, (AddFilesFolder.Len() > 0));
 		}
 		updateList(-1);
 	}
@@ -1484,14 +1484,14 @@ private:
 
 IMPL_HANDLE_EVENT(LinkFilesDialog)
 {
-	const int link_cmd = BIN(TVCOMMAND && TVCMD == cmLink);
+	const bool is_link_cmd = (TVCOMMAND && TVCMD == cmLink);
 	PPListDialog::handleEvent(event);
 	if(event.isKeyDown(kbF2)) {
 		if(LinksAry.getCount() && SmartListBox::IsValidS(P_Box) && LinksAry.EditDescr(P_Box->P_Def->_curItem()))
 			updateList(-1);
 		clearEvent(event);
 	}
-	else if(link_cmd) {
+	else if(is_link_cmd) {
 		FileBrowseCtrlGroup * p_fgb = static_cast<FileBrowseCtrlGroup *>(getGroup(GRP_FBG));
 		if(p_fgb) {
 			FileBrowseCtrlGroup::Rec rec;
@@ -1609,7 +1609,7 @@ int LinkFilesDialog::delItem(long pos, long id)
 {
 	int    ok = -1;
 	if(pos >= 0 && pos < LinksAry.getCountI()) {
-		if(LinksAry.at(pos)->Flags & PPLNKFILE_ISNEW)
+		if(LinksAry.at(pos)->Flags & PPLinkFile::fIsNew)
 			LinksAry.Remove(pos);
 		else
 			LinksAry.atFree(pos);
@@ -1713,7 +1713,7 @@ int BillDialog::delItem(long pos, long id)
 {
 	int    ok = -1;
 	if(P_Pack && pos >= 0 && pos < P_Pack->LnkFiles.getCountI()) {
-		if(P_Pack->LnkFiles.at(pos)->Flags & PPLNKFILE_ISNEW)
+		if(P_Pack->LnkFiles.at(pos)->Flags & PPLinkFile::fIsNew)
 			P_Pack->LnkFiles.Remove(pos);
 		else
 			P_Pack->LnkFiles.atFree(pos);
@@ -1728,48 +1728,50 @@ int BillDialog::sendItem(long pos, long id)
 	int    ok = -1;
 	SendMailDialog * dlg = 0;
 	if(P_Pack && pos >= 0 && pos < P_Pack->LnkFiles.getCountI()) {
-		PPID   ar_id = 0;
-		SString path, addr;
-		PPLinkFile file_info;
-		SendMailDialog::Rec data;
-		PPAlbatrossConfig alb_cfg;
-		THROW(CheckDialogPtr(&(dlg = new SendMailDialog)));
-		getCtrlData(CTLSEL_BILL_OBJECT, &ar_id);
-		{
-			PPELinkArray addr_list;
-			PersonCore::GetELinks(ObjectToPerson(ar_id), addr_list);
-			if(addr_list.GetPhones(1, addr, ELNKRT_EMAIL) > 0)
-				data.AddrList.Add(1, addr);
-		}
-		file_info = *P_Pack->LnkFiles.at(pos);
-		P_Pack->LnkFiles.GetFilePath(pos, path);
-		THROW_SL(fileExists(path));
-		data.Subj = file_info.Description;
-		data.FilesList.insert(newStr(path));
-		THROW(PPAlbatrosCfgMngr::Get(&alb_cfg) > 0);
-		data.MailAccID = alb_cfg.Hdr.MailAccID;
-		dlg->setDTS(&data);
-		for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;) {
-			if(dlg->getDTS(&data) > 0) {
-				if(data.MailAccID) {
-					int    first = 1;
-					for(uint i = 0; i < data.AddrList.getCount(); i++) {
-						addr = data.AddrList.Get(i).Txt;
-						if(addr.NotEmptyS()) {
-							if(!first && data.Delay > 0 && data.Delay <= (24 * 3600 * 1000)) {
-								SDelay(data.Delay);
+		const PPLinkFile * p_file_info = P_Pack->LnkFiles.at(pos);
+		if(p_file_info) {
+			PPID   ar_id = 0;
+			SString path;
+			SString addr;
+			SendMailDialog::Rec data;
+			PPAlbatrossConfig alb_cfg;
+			THROW(CheckDialogPtr(&(dlg = new SendMailDialog)));
+			getCtrlData(CTLSEL_BILL_OBJECT, &ar_id);
+			{
+				PPELinkArray addr_list;
+				PersonCore::GetELinks(ObjectToPerson(ar_id), addr_list);
+				if(addr_list.GetPhones(1, addr, ELNKRT_EMAIL) > 0)
+					data.AddrList.Add(1, addr);
+			}
+			P_Pack->LnkFiles.GetFilePath(pos, path);
+			THROW_SL(fileExists(path));
+			data.Subj = p_file_info->Description;
+			data.FilesList.insert(newStr(path));
+			THROW(PPAlbatrosCfgMngr::Get(&alb_cfg) > 0);
+			data.MailAccID = alb_cfg.Hdr.MailAccID;
+			dlg->setDTS(&data);
+			for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;) {
+				if(dlg->getDTS(&data) > 0) {
+					if(data.MailAccID) {
+						int    first = 1;
+						for(uint i = 0; i < data.AddrList.getCount(); i++) {
+							addr = data.AddrList.Get(i).Txt;
+							if(addr.NotEmptyS()) {
+								if(!first && data.Delay > 0 && data.Delay <= (24 * 3600 * 1000)) {
+									SDelay(data.Delay);
+								}
+								data.Subj.Transf(CTRANSF_INNER_TO_UTF8);
+								data.Text.Transf(CTRANSF_INNER_TO_UTF8);
+								THROW(SendMailWithAttach(data.Subj, path, data.Text, addr, data.MailAccID));
+								first = 0;
+								ok = valid_data = 1;
 							}
-							data.Subj.Transf(CTRANSF_INNER_TO_UTF8);
-							data.Text.Transf(CTRANSF_INNER_TO_UTF8);
-							THROW(SendMailWithAttach(data.Subj, path, data.Text, addr, data.MailAccID));
-							first = 0;
-							ok = valid_data = 1;
 						}
 					}
 				}
+				else
+					PPError();
 			}
-			else
-				PPError();
 		}
 	}
 	CATCHZOKPPERR
@@ -1786,7 +1788,7 @@ int BillDialog::calcDate(uint ctlID)
 		PPInputStringDialogParam isd_param;
 		PPLoadText(PPTXT_INPUTNUMDAYS, isd_param.InputTitle);
 		if(InputStringDialog(&isd_param, input_buf) > 0) {
-			int    num_days = input_buf.ToLong();
+			const int num_days = input_buf.ToLong();
 			if(num_days > 0) {
 				setCtrlDate(ctlID, plusdate(dt, num_days));
 				ok = 1;

@@ -1,5 +1,6 @@
 // BNKTERMINAL.CPP
 // Copyright (c) A.Sobolev 2012, 2013, 2015, 2016, 2017, 2018, 2025
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -83,7 +84,7 @@ int PPBnkTerminal::Pay(double amount, SString & rSlip)
 	SString msg;
 	Arr_In.Z();
 	Arr_Out.Z();
-	BnkTermArrAdd(Arr_In, DVCPARAM_AMOUNT, R0i(amount * 100.0)); // Переведем в копейки
+	BnkTermArrAdd(Arr_In, DVCPARAM_AMOUNT, R0i(amount * 100.0)); // РџРµСЂРµРІРµРґРµРј РІ РєРѕРїРµР№РєРё
 	PPWaitStart();
 	PPWaitMsg(PPLoadTextS(PPTXT_BNKTRM_PAYMENT, msg));
 	int    ok = ExecOper(DVCCMD_PAY, Arr_In, Arr_Out);
@@ -101,7 +102,7 @@ int PPBnkTerminal::Refund(double amount, SString & rSlip)
 	SString msg;
 	Arr_In.Z();
 	Arr_Out.Z();
-	BnkTermArrAdd(Arr_In, DVCPARAM_AMOUNT, R0i(amount * 100.0)); // Переведем в копейки
+	BnkTermArrAdd(Arr_In, DVCPARAM_AMOUNT, R0i(amount * 100.0)); // РџРµСЂРµРІРµРґРµРј РІ РєРѕРїРµР№РєРё
 	PPWaitStart();
 	PPWaitMsg(PPLoadTextS(PPTXT_BNKTRM_RETURN, msg));
 	ok = ExecOper(DVCCMD_REFUND, Arr_In, Arr_Out);

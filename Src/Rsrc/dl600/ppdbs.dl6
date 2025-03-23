@@ -2136,7 +2136,8 @@ table CCheckExt {          // size=20
 	long   TableNo;        // Номер стола
 	long   AddPaym_unused; // 0.01 Доплата наличными @v6.0.6 VADIM // @v9.0.4 @unused
 	int16  GuestCount;     // @v6.2.2 Количество гостей за столом
-	raw    Reserve[2];     // @reserve @v6.7.8 [2]-->[14]
+	int16  Op_;            // @v12.2.11 Reserve[2]-->Op_
+	// @v12.2.11 raw    Reserve[2];     // @reserve @v6.7.8 [2]-->[14]
 	long   AddrID;         // @v7.0.7 Ид адреса доставки
 	long   AddCrdCardID_unused;   // @v6.8.0 Дополнительная кредитная карта, с которой оплачивается покупка // @v9.0.4 @unused
 	// @v10.6.8 long   AddCrdCardPaym_unused; // @v6.8.0 0.01 Сумма, оплаченная по дополнительной кредитной карте // @v9.0.4 @unused

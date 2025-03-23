@@ -1526,18 +1526,25 @@ static const SIntToSymbTabEntry SFileAccsfSymbList[] = {
 
 /*static*/int SFile::Rename(const char * pFileName, const char * pNewFileName)
 {
-	return (::rename(pFileName, pNewFileName) == 0) ? 1 : SLS.SetError(SLERR_FILE_RENAME, pFileName);
+	int    ok = 1;
+	if(!::rename(pFileName, pNewFileName) == 0) {
+		ok = SLS.SetError(SLERR_FILE_RENAME, pFileName);
+	}
+	return ok;
 }
 
 /*static*/int SFile::Compare(const char * pFileName1, const char * pFileName2, long flags)
 {
 	int    ok = 1;
-	int    r1 = 0, r2 = 0;
+	int    r1 = 0;
+	int    r2 = 0;
 	const  size_t blk_size = 4096;
-	size_t actual_size1 = 0, actual_size2 = 0;
+	size_t actual_size1 = 0;
+	size_t actual_size2 = 0;
 	SFile f1(pFileName1, SFile::mRead|SFile::mBinary|SFile::mNoStd);
 	SFile f2(pFileName2, SFile::mRead|SFile::mBinary|SFile::mNoStd);
-	SBaseBuffer b1, b2;
+	SBaseBuffer b1;
+	SBaseBuffer b2;
 	b1.Init();
 	b2.Init();
 	THROW(f1.IsValid());
@@ -3571,6 +3578,40 @@ int FileFormatRegBase::Identify(const char * pFileName, int * pFmtId, SString * 
 	return ok;
 }
 
+SFileFormat::CsvSniffingResult::CsvSniffingResult() : FieldDivisor(0), Flags(0), SnTokSeq_Common(0), SnTokSeq_First(0), LineCount(0), FieldCountExpectation(0.0)
+{
+}
+		
+SFileFormat::CsvSniffingResult & SFileFormat::CsvSniffingResult::Z()
+{
+	FieldDivisor = 0;
+	Flags = 0;
+	LineCount = 0;
+	SnTokSeq_Common = 0;
+	SnTokSeq_First = 0;
+	FieldCountExpectation = 0.0;
+	ColumnStatList.freeAll();
+	return *this;
+}
+
+SFileFormat::CsvSniffingResult::ColumnStat * SFileFormat::CsvSniffingResult::GetColumnStat(uint fldNo/*[1..]*/)
+{
+	ColumnStat * p_result = 0;
+	if(fldNo > 0) {
+		for(uint i = 0; !p_result && i < ColumnStatList.getCount(); i++) {
+			ColumnStat * p_item = ColumnStatList.at(i);
+			if(p_item && p_item->N == fldNo) {
+				p_result = p_item;
+			}
+		}
+		if(!p_result) {
+			p_result = ColumnStatList.CreateNewItem();
+			p_result->N = fldNo;
+		}
+	}
+	return p_result;
+}
+
 /*static*/uint SFileFormat::GloBaseIdx = 0;
 
 /*static*/int FASTCALL SFileFormat::Register(int id, const char * pExt, const char * pSign)
@@ -3899,128 +3940,6 @@ int SFileFormat::IdentifyMime(const char * pMime)
 	Register(Webp,            mtImage,       "webp", "webp", "52494646 8:57454250"); // @v11.3.4 webp graphics
 	return ok;
 }
-
-class CsvSniffer {
-public:
-	CsvSniffer();
-	~CsvSniffer();
-	int    Run(const char * pFileName, SFileFormat::CsvSniffingResult & rR);
-};
-
-CsvSniffer::CsvSniffer()
-{
-}
-	
-CsvSniffer::~CsvSniffer()
-{
-}
-
-int CsvSniffer::Run(const char * pFileName, SFileFormat::CsvSniffingResult & rR) // @construction
-{
-	rR.FieldDivisor = 0;
-	int    ok = -1;
-	uint   max_lines = 100;
-	THROW(!isempty(pFileName));
-	{
-		SString line_buf;
-		SFile f_in(pFileName, SFile::mRead);
-		uint   line_no = 0;
-		uint   empty_line_count = 0;
-		uint32 common_seq = _FFFF32; // 
-		uint32 first_line_seq = _FFFF32;
-		STokenRecognizer tr;
-		SNaturalTokenArray nta;
-		TSCollection <SNaturalTokenStat> nts_list;
-		SStrCollection line_list;
-		while(line_no < max_lines && f_in.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
-			if(line_buf.IsEmpty())
-				empty_line_count++;
-			else {
-				line_no++;
-				line_list.insert(newStr(line_buf));
-				SNaturalTokenStat * p_nts = nts_list.CreateNewItem();
-				THROW(p_nts);
-				THROW(tr.Run(line_buf.ucptr(), line_buf.Len(), nta, p_nts));
-				common_seq &= p_nts->Seq;
-				if(line_no == 1)
-					first_line_seq = p_nts->Seq;
-			}
-		}
-		rR.SnTokSeq_Common = common_seq;
-		rR.SnTokSeq_First = first_line_seq;
-		{
-			struct PotentialDivisor {
-				PotentialDivisor(const char c) : C(c)
-				{
-				}
-				const char C;
-				StatBase S;
-			};
-			TSCollection <PotentialDivisor> potential_div_list;
-			potential_div_list.insert(new PotentialDivisor(','));
-			potential_div_list.insert(new PotentialDivisor(';'));
-			potential_div_list.insert(new PotentialDivisor('\t'));
-			potential_div_list.insert(new PotentialDivisor('|'));
-			{
-				// Собираем статистику появления потенциального символа-разделителя.
-				for(uint pdidx = 0; pdidx < potential_div_list.getCount(); pdidx++) {
-					PotentialDivisor * p_pd = potential_div_list.at(pdidx);
-					assert(p_pd);
-					if(p_pd) {
-						for(uint ntsidx = 0; ntsidx < nts_list.getCount(); ntsidx++) {
-							const SNaturalTokenStat * p_nts = nts_list.at(ntsidx);
-							assert(p_nts);
-							if(p_nts) {
-								uint cp = 0;
-								if(p_nts->ChrList.BSearch(p_pd->C, &cp)) {
-									p_pd->S.Step(p_nts->ChrList.at(cp).Val);
-								}
-							}
-						}
-						p_pd->S.Finish();
-					}
-				}
-			}
-			{
-				// Анализируем статистику появления потенциального символа-разделителя.
-				RAssoc max_exp_to_dev_rel;
-				max_exp_to_dev_rel.Key = -1;
-				max_exp_to_dev_rel.Val = 0.0;
-				for(uint pdidx = 0; pdidx < potential_div_list.getCount(); pdidx++) {
-					const PotentialDivisor * p_pd = potential_div_list.at(pdidx);
-					assert(p_pd);
-					if(p_pd && p_pd->S.GetCount()) {
-						//
-						// Наиболее вероятным разделителем считаем тот, у которого отношение 
-						// среднего числа символом на строку к стандартному отклонению распределения //
-						// числа разделителей на строку максимальное.
-						// В идеальном случае среднее равно числу полей минус один, а отклонение - нулю 
-						// но существуют девиации (поля в кавычках, содержащие разделитель; ошибки формирования файла и т.д.)
-						//
-						double exp = p_pd->S.GetExp();
-						double sd = p_pd->S.GetStdDev();
-						assert(exp > 0.0);
-						if(sd == 0.0) {
-							max_exp_to_dev_rel.Key = pdidx;
-							max_exp_to_dev_rel.Val = 1000000.0;
-						}
-						else {
-							if(max_exp_to_dev_rel.Val < (exp / sd)) {
-								max_exp_to_dev_rel.Key = pdidx;
-								max_exp_to_dev_rel.Val = (exp / sd);
-							}
-						}
-					}
-				}
-				if(max_exp_to_dev_rel.Key >= 0) {
-					rR.FieldDivisor = potential_div_list.at(max_exp_to_dev_rel.Key)->C;
-				}
-			}
-		}
-	}
-	CATCHZOK
-	return ok;
-}
 //
 //
 //
@@ -4345,4 +4264,179 @@ SIntHandle SFile::ForceCreateFile(const wchar_t * pPath, uint mode, uint share, 
 		}
 	}
 	return fh;
+}
+//
+//
+//
+class CsvSniffer {
+public:
+	CsvSniffer();
+	~CsvSniffer();
+	int    Run(const char * pFileName, SFileFormat::CsvSniffingResult & rR);
+};
+
+CsvSniffer::CsvSniffer()
+{
+}
+	
+CsvSniffer::~CsvSniffer()
+{
+}
+
+int CsvSniffer::Run(const char * pFileName, SFileFormat::CsvSniffingResult & rR) // @construction
+{
+	rR.Z();
+	int    ok = -1;
+	uint   max_lines = 100;
+	THROW(!isempty(pFileName));
+	{
+		SString fld_buf;
+		SString line_buf;
+		SFile  f_in(pFileName, SFile::mRead);
+		uint   line_no = 0;
+		double field_count_expectation = 0.0;
+		uint   empty_line_count = 0;
+		uint32 common_seq = _FFFF32; // 
+		uint32 first_line_seq = _FFFF32;
+		STokenRecognizer tr;
+		SNaturalTokenArray nta;
+		TSCollection <SNaturalTokenStat> nts_list;
+		SStrCollection line_list;
+		while(line_no < max_lines && f_in.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
+			if(line_buf.IsEmpty())
+				empty_line_count++;
+			else {
+				line_no++;
+				line_list.insert(newStr(line_buf));
+				SNaturalTokenStat * p_nts = nts_list.CreateNewItem();
+				THROW(p_nts);
+				nta.Z();
+				THROW(tr.Run(line_buf.ucptr(), line_buf.Len(), nta, p_nts));
+				common_seq &= p_nts->Seq;
+				if(line_no == 1)
+					first_line_seq = p_nts->Seq;
+			}
+		}
+		rR.SnTokSeq_Common = common_seq;
+		rR.SnTokSeq_First = first_line_seq;
+		{
+			struct PotentialDivisor {
+				PotentialDivisor(const char c) : C(c)
+				{
+				}
+				const char C;
+				StatBase S;
+			};
+			TSCollection <PotentialDivisor> potential_div_list;
+			potential_div_list.insert(new PotentialDivisor(','));
+			potential_div_list.insert(new PotentialDivisor(';'));
+			potential_div_list.insert(new PotentialDivisor('\t'));
+			potential_div_list.insert(new PotentialDivisor('|'));
+			{
+				// Собираем статистику появления потенциального символа-разделителя.
+				for(uint pdidx = 0; pdidx < potential_div_list.getCount(); pdidx++) {
+					PotentialDivisor * p_pd = potential_div_list.at(pdidx);
+					assert(p_pd);
+					if(p_pd) {
+						for(uint ntsidx = 0; ntsidx < nts_list.getCount(); ntsidx++) {
+							const SNaturalTokenStat * p_nts = nts_list.at(ntsidx);
+							assert(p_nts);
+							if(p_nts) {
+								uint cp = 0;
+								if(p_nts->ChrList.BSearch(p_pd->C, &cp)) {
+									p_pd->S.Step(p_nts->ChrList.at(cp).Val);
+								}
+							}
+						}
+						p_pd->S.Finish();
+					}
+				}
+			}
+			{
+				// Анализируем статистику появления потенциального символа-разделителя.
+				RAssoc max_exp_to_dev_rel;
+				max_exp_to_dev_rel.Key = -1;
+				max_exp_to_dev_rel.Val = 0.0;
+				for(uint pdidx = 0; pdidx < potential_div_list.getCount(); pdidx++) {
+					const PotentialDivisor * p_pd = potential_div_list.at(pdidx);
+					assert(p_pd);
+					if(p_pd && p_pd->S.GetCount()) {
+						//
+						// Наиболее вероятным разделителем считаем тот, у которого отношение 
+						// среднего числа символов на строку к стандартному отклонению распределения //
+						// числа разделителей на строку максимальное.
+						// В идеальном случае среднее равно числу полей минус один, а отклонение - нулю 
+						// но существуют девиации (поля в кавычках, содержащие разделитель; ошибки формирования файла и т.д.)
+						//
+						double exp = p_pd->S.GetExp();
+						double sd = p_pd->S.GetStdDev();
+						assert(exp > 0.0);
+						if(sd == 0.0) {
+							max_exp_to_dev_rel.Key = pdidx;
+							max_exp_to_dev_rel.Val = 1000000.0;
+							field_count_expectation = exp+1.0;
+						}
+						else {
+							if(max_exp_to_dev_rel.Val < (exp / sd)) {
+								max_exp_to_dev_rel.Key = pdidx;
+								max_exp_to_dev_rel.Val = (exp / sd);
+								field_count_expectation = exp+1.0;
+							}
+						}
+					}
+				}
+				if(max_exp_to_dev_rel.Key >= 0) {
+					rR.FieldDivisor = potential_div_list.at(max_exp_to_dev_rel.Key)->C;
+					rR.FieldCountExpectation = field_count_expectation;
+				}
+			}
+		}
+		if(rR.FieldDivisor) {
+			f_in.Seek(0);
+			SFile::ReadLineCsvContext ctx(rR.FieldDivisor);
+			StringSet ss_line;
+			SNaturalTokenStat nts;
+			while(true) {
+				int rlr = f_in.ReadLineCsv(ctx, ss_line);
+				if(!rlr)
+					break;
+				else if(rlr > 0) {
+					uint   fld_no = 0;
+					for(uint ssp = 0; ss_line.get(&ssp, fld_buf);) {
+						fld_no++; // Отсчет номеров полей начинаем с 1
+						if(fld_buf.NotEmpty()) {
+							SFileFormat::CsvSniffingResult::ColumnStat * p_cs = rR.GetColumnStat(fld_no);
+							if(p_cs) {
+								nta.Z();
+								tr.Run(fld_buf.ucptr(), fld_buf.Len(), nta, &nts);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+int Test_CsvSniffer()
+{
+	int    ok = -1;
+	// ts-eurusd.csv (divider=',')
+	// test-input-csv-semicol-utf8.csv (divider=';')
+	SString temp_buf;
+	SString base_path;
+	SString path;
+	SLS.QueryPath("testroot", temp_buf);
+	(base_path = temp_buf).SetLastSlash().Cat("data");
+	CsvSniffer s;
+	int r = 0;
+	SFileFormat::CsvSniffingResult result;
+	r = s.Run((path = base_path).SetLastSlash().Cat("ts-eurusd.csv"), result);
+	r = s.Run((path = base_path).SetLastSlash().Cat("test-input-csv-semicol-utf8.csv"), result);
+	path = "D:/DEV/etc/Microsoft/Leak-of-some-Bing-Bing_Maps-Cortana-source-code/CWBMM/src/CWBMM.Product/Maps_SBS/CustomWPSBS/Examples/CreateDirectionsWPSBSSample/DirectionsCandidates.tsv";
+	r = s.Run(path, result);
+	//
+	return ok;
 }

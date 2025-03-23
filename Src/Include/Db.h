@@ -201,9 +201,9 @@ public:
 	// Descr: Сериализация объекта.
 	// Note: формат хранения в буфере не совместим с функциями Write_/Read_.
 	//
-	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx); // @v10.9.1
-	int    FASTCALL Write_(SBuffer & rBuf) const; // @v10.9.1
-	int    FASTCALL Read_(SBuffer & rBuf); // @v10.9.1
+	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
+	int    FASTCALL Write_(SBuffer & rBuf) const;
+	int    FASTCALL Read_(SBuffer & rBuf);
 	//
 	// Descr: Добавляет в конец записи новое поле с типом typ, именем pName и описанием pDescr.
 	// ARG(pID     OUT): @#{vptr0} Указатель, по которому будет присвоен идентификатор нового поля //
@@ -2401,8 +2401,8 @@ class TablePartsEnum {
 public:
 	explicit TablePartsEnum(const char * pPath);
 	int    Init(const char * pPath);
-	int    Next(SString & rPath, int * pFirst = 0);
-	int    ReplaceExt(int first, const SString & rIn, SString & rOut);
+	int    Next(SString & rPath, bool * pIsFirst = 0);
+	int    ReplaceExt(bool isFirst, const SString & rIn, SString & rOut);
 private:
 	SString Dir;
 	SString MainPart;
@@ -2966,10 +2966,10 @@ public:
 	public:
 		DbRegList();
 		void   Init();
-		int    GetMaxEntries() const;
+		uint   GetMaxEntries() const;
 		int    FASTCALL AddEntry(void * pTbl, void * pSupplementPtr);
-		int    FASTCALL FreeEntry(int handle, void * pSupplementPtr);
-		void * FASTCALL GetPtr(int handle) const;
+		void   FreeEntry(int handle, void * pSupplementPtr);
+		void * FASTCALL GetPtr_(int handle) const;
 		void * FASTCALL GetBySupplementPtr(const void * pSupplementPtr) const;
 	private:
 		TSArray <void *> Tab;
@@ -2987,9 +2987,9 @@ public:
 	void   Init();
 	long   GetState() const { return State; }
 	int    FASTCALL AddTableEntry(DBTable *);
-	int    FASTCALL FreeTableEntry(int handle);
+	void   FASTCALL FreeTableEntry(int handle);
 	uint   GetTabEntriesCount() const;
-	DBTable * FASTCALL GetTableEntry(int handle) const { return static_cast<DBTable *>(DbTableReg.GetPtr(handle)); }
+	DBTable * FASTCALL GetTableEntry(int handle) const { return static_cast<DBTable *>(DbTableReg.GetPtr_(handle)); }
 	DBTable * GetCloneEntry(BTBLID) const;
 	//
 	// Descr: Временная функция (до завершения разработки интерфейса с BerkeleyDB).

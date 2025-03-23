@@ -847,6 +847,7 @@ void SlSession::ReleaseThread()
 bool SlSession::SetError(int errCode, const char * pAddedMsg)
 {
 	const int sock_err = (errCode == SLERR_SOCK_WINSOCK) ? WSAGetLastError() : 0;
+	const int os_err = ::GetLastError();
 	SlThreadLocalArea & r_tla = GetTLA();
 	if(&r_tla) {
 		//
@@ -857,6 +858,10 @@ bool SlSession::SetError(int errCode, const char * pAddedMsg)
 		r_tla.LastErr = errCode;
 		r_tla.AddedMsgString = pAddedMsg;
 		r_tla.LastSockErr = sock_err;
+		// @v12.2.11 {
+		if(errCode == SLERR_FILE_RENAME)
+			r_tla.LastOsErr = os_err;
+		// } @v12.2.11 
 	}
 	return false;
 }

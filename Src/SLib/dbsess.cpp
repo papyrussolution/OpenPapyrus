@@ -17,10 +17,7 @@ void DbThreadLocalArea::DbRegList::Init()
 	OpenPeak = 0;
 }
 
-int DbThreadLocalArea::DbRegList::GetMaxEntries() const
-{
-	return Tab.getCount();
-}
+uint DbThreadLocalArea::DbRegList::GetMaxEntries() const { return Tab.getCount(); }
 
 int FASTCALL DbThreadLocalArea::DbRegList::AddEntry(void * pTbl, void * pSupplementPtr)
 {
@@ -47,7 +44,7 @@ int FASTCALL DbThreadLocalArea::DbRegList::AddEntry(void * pTbl, void * pSupplem
 	return h;
 }
 
-int FASTCALL DbThreadLocalArea::DbRegList::FreeEntry(int handle, void * pSupplementPtr)
+void DbThreadLocalArea::DbRegList::FreeEntry(int handle, void * pSupplementPtr)
 {
 	assert(handle > 0 && handle <= static_cast<int>(Tab.getCount()));
 	if(handle > 0 && handle <= static_cast<int>(Tab.getCount())) {
@@ -60,10 +57,9 @@ int FASTCALL DbThreadLocalArea::DbRegList::FreeEntry(int handle, void * pSupplem
 		}
 	}
 	assert(Tab.getCount() == OpenPeak);
-	return 1;
 }
 
-void * FASTCALL DbThreadLocalArea::DbRegList::GetPtr(int handle) const
+void * FASTCALL DbThreadLocalArea::DbRegList::GetPtr_(int handle) const
 {
 	assert(handle > 0 && handle <= static_cast<int>(Tab.getCount()));
 	return (handle > 0 && handle <= static_cast<int>(Tab.getCount())) ? Tab.at(handle-1) : 0;
@@ -103,25 +99,14 @@ void DbThreadLocalArea::Init()
 	ZDELETE(P_CurDict);
 }
 
-uint DbThreadLocalArea::GetTabEntriesCount() const
-{
-	return DbTableReg.GetMaxEntries();
-}
-
-int FASTCALL DbThreadLocalArea::AddTableEntry(DBTable * pTbl)
-{
-	return DbTableReg.AddEntry(pTbl, 0);
-}
-
-int FASTCALL DbThreadLocalArea::FreeTableEntry(int handle)
-{
-	return DbTableReg.FreeEntry(handle, 0);
-}
+uint DbThreadLocalArea::GetTabEntriesCount() const { return DbTableReg.GetMaxEntries(); }
+int  FASTCALL DbThreadLocalArea::AddTableEntry(DBTable * pTbl) { return DbTableReg.AddEntry(pTbl, 0); }
+void FASTCALL DbThreadLocalArea::FreeTableEntry(int handle) { DbTableReg.FreeEntry(handle, 0); }
 
 DBTable * DbThreadLocalArea::GetCloneEntry(BTBLID tblID) const
 {
-	for(int i = 1; i <= DbTableReg.GetMaxEntries(); i++) {
-		DBTable * p_tbl = static_cast<DBTable *>(DbTableReg.GetPtr(i));
+	for(uint i = 1; i <= DbTableReg.GetMaxEntries(); i++) {
+		DBTable * p_tbl = static_cast<DBTable *>(DbTableReg.GetPtr_(i));
 		if(p_tbl && p_tbl->GetTableID() == tblID)
 			return p_tbl;
 	}
@@ -136,10 +121,7 @@ void FASTCALL DbThreadLocalArea::InitErrFileName(const char * pFileName)
 	}
 }
 
-const char * DbThreadLocalArea::GetLastErrFileName() const
-{
-	return P_StFileName;
-}
+const char * DbThreadLocalArea::GetLastErrFileName() const { return P_StFileName; }
 
 int DbThreadLocalArea::StartTransaction()
 {
@@ -154,10 +136,7 @@ int DbThreadLocalArea::StartTransaction_DbDepend()
 {
 	int    ok = 1;
 	if(P_CurDict) {
-		if(P_CurDict->GetCapability() & DbProvider::cDbDependTa)
-			ok = P_CurDict->StartTransaction();
-		else
-			ok = -1;
+		ok = (P_CurDict->GetCapability() & DbProvider::cDbDependTa) ? P_CurDict->StartTransaction() : -1;
 	}
 	else
 		ok = Btrieve::StartTransaction(1);
@@ -261,7 +240,7 @@ int SLobType::Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, SSe
 //
 DbSession::DbSession() : LastThread(), Id__(1), TlsIdx(-1L), _Oe(0)
 {
-	memzero(__dbdata__, sizeof(__dbdata__)); // @v10.3.0
+	memzero(__dbdata__, sizeof(__dbdata__));
 	SetConfig(0); // Устанавливаем конфигурацию по умолчанию
 	InitProtectData();
 	TlsIdx = TlsAlloc();
@@ -306,14 +285,6 @@ void DbSession::SetConfig(const Config * pCfg)
 	}
 	LEAVE_CRITICAL_SECTION
 }
-
-/*@v10.0.0 void FASTCALL DbSession::GetConfig(Config & rCfg)
-{
-	rCfg = Cfg; // @v10.0.0 
-	// @v10.0.0 rCfg.Flags = Flags;
-	// @v10.0.0 rCfg.NWaitLockTries = NWaitLockTries;
-	// @v10.0.0 rCfg.NWaitLockTryTimeout = NWaitLockTryTimeout;
-}*/
 
 #if 0 // {
 void DbSession::SetFlag(long f, int set)
@@ -362,15 +333,8 @@ void DbSession::ReleaseThread()
 //
 // См. примечание к определению функций DB.H
 //
-DbThreadLocalArea & DbSession::GetTLA()
-{
-	return *static_cast<DbThreadLocalArea *>(SGetTls(TlsIdx));
-}
-
-const DbThreadLocalArea & DbSession::GetConstTLA() const
-{
-	return *static_cast<DbThreadLocalArea *>(SGetTls(TlsIdx));
-}
+DbThreadLocalArea & DbSession::GetTLA() { return *static_cast<DbThreadLocalArea *>(SGetTls(TlsIdx)); }
+const DbThreadLocalArea & DbSession::GetConstTLA() const { return *static_cast<DbThreadLocalArea *>(SGetTls(TlsIdx)); }
 
 int FASTCALL DbSession::SetError(int errCode)
 {
@@ -433,34 +397,14 @@ int DbSession::OpenDictionary2(DbProvider * pDb)
 	return (r_tla.P_CurDict != 0);
 }
 
-#if 0 // @v7.9.9 {
-int DbSession::OpenDictionary(int serverType, const char * pLocation, const char * pDataPath, const char * pTempPath)
-{
-	CloseDictionary();
-	DbThreadLocalArea & r_tla = GetTLA();
-	r_tla.P_CurDict = new BDictionary(pLocation, pDataPath, pTempPath);
-	if(r_tla.P_CurDict && !r_tla.P_CurDict->IsValid()) {
-		ZDELETE(r_tla.P_CurDict);
-	}
-	return (r_tla.P_CurDict != 0);
-}
-#endif // } 0 @v7.9.9
-
 void DbSession::CloseDictionary()
 {
 	DbThreadLocalArea & r_tla = GetTLA();
 	ZDELETE(r_tla.P_CurDict);
 }
 
-void FASTCALL DbSession::SetAddedMsgString(const char * pStr)
-{
-	GetTLA().AddedMsgString = pStr;
-}
-
-const  SString & DbSession::GetAddedMsgString() const
-{
-	return GetConstTLA().AddedMsgString;
-}
+void FASTCALL DbSession::SetAddedMsgString(const char * pStr) { GetTLA().AddedMsgString = pStr; }
+const SString & DbSession::GetAddedMsgString() const { return GetConstTLA().AddedMsgString; }
 
 void DbSession::GetProtectData(void * pBuf, int decr) const
 {
@@ -504,4 +448,3 @@ int btrnfound__()
 
 #pragma warning(disable:4073)
 #pragma init_seg(lib)
-// @v10.1.0 (moved to slsess.cpp) DbSession DBS; // @global

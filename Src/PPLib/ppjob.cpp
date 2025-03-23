@@ -1733,8 +1733,8 @@ LaunchAppParam::LaunchAppParam() : Signature(PPConst::Signature_LaunchAppParam),
 int LaunchAppParam::Write(SBuffer & rBuf, long) const
 {
 	int    ok = 1;
-	long   sign = PPConst::Signature_LaunchAppParam;
-	THROW_SL(rBuf.Write(sign));
+	const  long signature = PPConst::Signature_LaunchAppParam;
+	THROW_SL(rBuf.Write(signature));
 	THROW_SL(rBuf.Write(Ver));
 	THROW_SL(rBuf.Write(Flags));
 	THROW_SL(rBuf.Write(Reserve, sizeof(Reserve)));
@@ -1752,17 +1752,16 @@ int LaunchAppParam::Read(SBuffer & rBuf, long)
 	int    ok = -1;
 	if(rBuf.GetAvailableSize()) {
 		THROW_SL(rBuf.Read(Signature));
-		if(Signature == PPConst::Signature_LaunchAppParam) {
-			THROW_SL(rBuf.Read(Ver));
-			THROW_SL(rBuf.Read(Flags));
-			THROW_SL(rBuf.Read(Reserve, sizeof(Reserve)));
-			THROW_SL(rBuf.Read(App));
-			THROW_SL(rBuf.Read(Arg));
-			THROW_SL(rBuf.Read(WmiServer));
-			THROW_SL(rBuf.Read(UserLogin));
-			THROW_SL(rBuf.Read(UserPassword));
-			ok = 1;
-		}
+		THROW_PP_S(Signature == PPConst::Signature_LaunchAppParam, PPERR_INVSIGNONOBJSRLZRD, "LaunchAppParam");
+		THROW_SL(rBuf.Read(Ver));
+		THROW_SL(rBuf.Read(Flags));
+		THROW_SL(rBuf.Read(Reserve, sizeof(Reserve)));
+		THROW_SL(rBuf.Read(App));
+		THROW_SL(rBuf.Read(Arg));
+		THROW_SL(rBuf.Read(WmiServer));
+		THROW_SL(rBuf.Read(UserLogin));
+		THROW_SL(rBuf.Read(UserPassword));
+		ok = 1;
 	}
 	CATCHZOK
 	return ok;
@@ -4149,7 +4148,7 @@ public:
 	virtual int EditParam(SBuffer * pParam, void * extraPtr)
 	{
 		int    ok = -1;
-		PPEgaisProcessor prc(PPEgaisProcessor::cfUseVerByConfig, 0, 0);
+		PPEgaisProcessor prc(PPEgaisProcessor::cfUseVerByConfig, 0, 0); // @instantiation(PPEgaisProcessor)
 		PPEgaisProcessor::QueryParam filt;
 		SSerializeContext sctx;
 		const size_t sav_offs = pParam->GetRdOffs();
@@ -4175,7 +4174,7 @@ public:
 		SSerializeContext sctx;
 		THROW(filt.Serialize(-1, *pParam, &sctx));
 		{
-			PPEgaisProcessor prc(PPEgaisProcessor::cfUseVerByConfig, 0, 0);
+			PPEgaisProcessor prc(PPEgaisProcessor::cfUseVerByConfig, 0, 0); // @instantiation(PPEgaisProcessor)
             THROW(prc.ImplementQuery(filt));
 		}
 		CATCHZOKPPERR

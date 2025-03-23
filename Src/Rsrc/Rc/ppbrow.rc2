@@ -3982,6 +3982,7 @@ browser CCHECKGRP_GOODS north(100), 1, 1, "@{view_ccheck} @{_groupedbygoods}", O
 	toolbar TB_FIRST_TOOLBAR {
 		DETAIL         : kbEnter,  PPDV_LINS01,         "@{detail}\tEnter"
 		ADDALLTOBASKET : kbCtrlF8, PPDV_SHOPPINGCARTINTO01, "@{doputtobasketall}\tCtrl-F8"
+		ADDTOBASKET    : kbCtrlF4, PPDV_SHOPPINGCART01, "@{doputtobasket}\tCtrl-F4" // @v12.2.11
 		TOTAL          : kbF9,     PPDV_SIGMA02,        "@{totals}\tF9"
 		PRINT          : kbF7,     PPDV_PRINTER01,      "@{print}\tF7"
 		CHANGEFILT     : kbCtrlV,  PPDV_FILTER01,       "@{filter}\tCtrl-V"

@@ -213,7 +213,7 @@ int FASTCALL StatusWinChange(int onLogon /*=0*/, long timer/*=-1*/)
 			static SCycleTimer * p_timer = 0;
 			ENTER_CRITICAL_SECTION
 			if(!p_timer || p_timer->Check(0)) {
-				PPJobSrvClient * p_cli = DS.GetClientSession(1);
+				PPJobSrvClient * p_cli = DS.GetClientSession(true/*dontReconnect*/);
 				if(p_cli) {
 					ZDELETE(p_timer);
 					p_app->AddStatusBarItem("  ", 0, GetColorRef(SClrGreen), 0, GetColorRef(SClrWhite));
@@ -363,6 +363,7 @@ PPThreadLocalArea::PPThreadLocalArea() : Prf(1), UfpSess(0), RvlSsSCD(256)
 
 PPThreadLocalArea::~PPThreadLocalArea()
 {
+	ZDELETE(P_EgPrc_); // @v12.2.11
 	ZDELETE(P_WObj);
 	ZDELETE(P_WbObj);
 	ZDELETE(P_TodoObj);
@@ -430,8 +431,9 @@ int PPThreadLocalArea::RegisterAdviseObjects()
 		virtual int FASTCALL Run(const LDATETIME & rPrevRunTime)
 		{
 			const  char * p_quit = "QUIT";
-			long   quit_after = 5 * 60;
-			SString buf, path;
+			const  long   quit_after = 5 * 60;
+			SString buf;
+			SString path;
 			PPGetFileName(PPFILNAM_PPLOCK, buf);
 			PPGetFilePath(PPPATH_BIN, buf, path);
 			if(Timer == -1) {
@@ -1210,6 +1212,15 @@ int PPThreadLocalArea::SetIfcConfigParam(const char * pParam, const char * pValu
 	else
 		ok = -1;
 	return ok;
+}
+
+PPEgaisProcessor * PPThreadLocalArea::GetEgaisProcessor()
+{
+	if(!P_EgPrc_) {
+		long   egcf = PPEgaisProcessor::cfDirectFileLogging|PPEgaisProcessor::cfUseVerByConfig;
+		P_EgPrc_ = new PPEgaisProcessor(egcf, 0, 0); // @instantiation(PPEgaisProcessor)
+	}
+	return P_EgPrc_;
 }
 
 SrDatabase * PPThreadLocalArea::GetSrDatabase()
@@ -2848,7 +2859,9 @@ int PPSession::OpenDictionary2(DbLoginBlock * pBlk, long flags)
 {
 	int    ok = 1;
 	int    r;
-	SString data_path, temp_path, temp_buf;
+	SString temp_buf;
+	SString data_path;
+	SString temp_path;
 	PPVersionInfo ver_inf(0);
 	const SVerT this_ver   = ver_inf.GetVersion();
 	const SVerT this_db_min_ver = ver_inf.GetVersion(1);
@@ -4620,6 +4633,7 @@ void PPThreadLocalArea::OnLogout()
 {
 	State &= ~stAuth;
 	SrvViewList.freeAll();
+	ZDELETE(P_EgPrc_); // @v12.2.11
 	ZDELETE(P_WObj);
 	ZDELETE(P_WbObj);
 	ZDELETE(P_TodoObj);
@@ -5451,7 +5465,7 @@ int PPSession::GetObjectTitle(PPID objType, SString & rBuf)
 	return ok;
 }
 
-PPJobSrvClient * PPSession::GetClientSession(int dontReconnect)
+PPJobSrvClient * PPSession::GetClientSession(bool dontReconnect)
 {
 	PPJobSrvClient * p_cli = &GetTLA().SrvSess;
 	if(p_cli && CConfig.Flags & CCFLG_3TIER) {
@@ -5463,7 +5477,8 @@ PPJobSrvClient * PPSession::GetClientSession(int dontReconnect)
 				if(r > 0 && r != 2) {
 					PPSecur usr_rec;
 					char   pw[128];
-					SString user_name, db_symb;
+					SString user_name;
+					SString db_symb;
 					CurDict->GetDbSymb(db_symb);
 					if(PPRef->GetItem(PPOBJ_USR, LConfig.UserID, &usr_rec) > 0) {
 						Reference::GetPassword(&usr_rec, pw, sizeof(pw));

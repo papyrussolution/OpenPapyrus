@@ -5650,7 +5650,7 @@ int PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, const PPBi
 					cflags |= PPEgaisProcessor::cfVer3;
 					cflags &= ~PPEgaisProcessor::cfVer4;
 				}
-				PPEgaisProcessor ep(cflags, &logger, 0);
+				PPEgaisProcessor ep(cflags, &logger, 0); // @instantiation(PPEgaisProcessor)
 				THROW(ep);
 				THROW(ep.CheckLic());
 				{
@@ -8035,7 +8035,7 @@ int PPALDD_Bill::InitData(PPFilt & rFilt, long rsrv)
 			H.fWL  = BIN(rec.Flags & BILLF_WHITELABEL);
 			H.DueDate      = rec.DueDate;
 			H.Amount   = BR2(rec.Amount);
-			amtt_obj.GetTaxAmountIDs(&tai, 1);
+			amtt_obj.GetTaxAmountIDs(tai, 1);
 			H.Vat1Rate = fdiv100i(tai.VatRate[0]);
 			H.Vat2Rate = fdiv100i(tai.VatRate[1]);
 			p_billcore->GetAmountList(rec.ID, &amt_list);
@@ -8961,7 +8961,7 @@ int PPALDD_CashOrder::InitData(PPFilt & rFilt, long rsrv)
 			H.VATSum2  = total_data.VatList.at(1).VatSum * coeff;
 		}
 		if(incstax) {
-			amtt_obj.GetTaxAmountIDs(&tais, 1);
+			amtt_obj.GetTaxAmountIDs(tais, 1);
 			if(tais.STaxAmtID) {
 				H.STaxSum = pack->Amounts.Get(tais.STaxAmtID, 0L);
 				if(H.STaxSum) {
@@ -8973,7 +8973,7 @@ int PPALDD_CashOrder::InitData(PPFilt & rFilt, long rsrv)
 		SETIFZ(H.STaxSum, total_data.STax * coeff);
 	}
 	else if(pack->OpTypeID == PPOPT_ACCTURN) {
-		amtt_obj.GetTaxAmountIDs(&tais, 1);
+		amtt_obj.GetTaxAmountIDs(tais, 1);
 		if(tais.VatAmtID[0]) {
 			H.VATSum1 = pack->Amounts.Get(tais.VatAmtID[0], 0L);
 			if(H.VATSum1)

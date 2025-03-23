@@ -2399,8 +2399,8 @@ int PPViewVatBook::ProcessOp2(const OpEntryVector & rList, uint listIdx, const O
 		mode = (mode == -1000) ? 0 : -mode;
 	const  int storn_reckon = (!do_storno && VBObj.GetConfig(Filt.Kind).Flags & VATBCfg::hfDontStornReckon) ? 0 : 1;
 	TaxAmountIDs tai;
-	AmtTObj.GetTaxAmountIDs(&tai, 1);
-	TaxAmountIDs * p_tai = (tai.VatAmtID[0] || tai.VatAmtID[1] || tai.VatAmtID[2]) ? &tai : 0;
+	AmtTObj.GetTaxAmountIDs(tai, 1);
+	TaxAmountIDs * p_tai = tai.HasAnyVatAmountTypes() ? &tai : 0;
 	for(DateIter di(&pFilt->Period); P_BObj->P_Tbl->EnumByOpr(r_entry.OpID, &di, &bill_rec) > 0;)
 		if(is_paym || CheckBillRec(pFilt, &bill_rec)) {
 			PPWaitMsg(PPObjBill::MakeCodeString(&bill_rec, 1, wait_msg));

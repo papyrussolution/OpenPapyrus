@@ -25,7 +25,6 @@
 void FASTCALL TIFFSwabShort(uint16* wp)
 {
 	uchar * cp = (uchar *)wp;
-	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(uint16)==2);
 	uchar t = cp[1]; cp[1] = cp[0]; cp[0] = t;
 }
 #endif
@@ -34,7 +33,6 @@ void FASTCALL TIFFSwabShort(uint16* wp)
 void FASTCALL TIFFSwabLong(uint32 * lp)
 {
 	uchar * cp = (uchar *)lp;
-	// @v10.7.11 (tested at slsess.cpp) assert(sizeof(uint32)==4);
 	uchar t = cp[3]; 
 	cp[3] = cp[0]; 
 	cp[0] = t;

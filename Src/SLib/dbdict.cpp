@@ -363,37 +363,41 @@ int BRecoverParam::callbackProc(int, const void * lp1, const void * lp2, const v
 
 int BDictionary::RecoverTable(BTBLID tblID, BRecoverParam * pParam)
 {
-	int    ok = 1, replace_src = 0;
+	int    ok = 1;
+	bool   do_replace_src = false;
 	int16  k  = tblID;
 	DBRowId pos;
 	char   acs[265];
 	char   buf[MAX_PATH];
 	STempBuffer rec_buf(8192);
-	//long   s_bak_ext = 0x5F5F5FL;
 	static const char * p_bak_ext = "___";
-	SString path, dest, spart;
+	SString temp_buf;
+	SString org_path;
+	SString dest_path;
+	SString spart;
 	TablePartsEnum tpe(0);
-	DBTable tbl, newtbl;
+	DBTable org_tbl;
+	DBTable new_tbl;
 	pParam->OrgNumRecs = pParam->ActNumRecs = 0;
 	if(IsValid()) {
 		DbTableStat ts;
 		if(GetTableInfo(tblID, &ts)) {
-			path = ts.Location;
-			if(path.NotEmpty() && IsFileExists_(MakeFileName_(ts.TblName, path)) > 0) {
+			org_path = ts.Location;
+			if(org_path.NotEmpty() && IsFileExists_(MakeFileName_(ts.TblName, org_path)) > 0) {
 				RECORDSIZE fix_rec_size = 0;
-				SString tbl_name = ts.TblName;
+				SString tbl_name(ts.TblName);
 				DBS.GetProtectData(buf, 1);
-				THROW(tbl.open(tbl_name, path, omReadOnly));
-				tbl.setDataBuf(rec_buf, static_cast<RECORDSIZE>(rec_buf.GetSize()));
-				tbl.getNumRecs(&pParam->OrgNumRecs);
-				fix_rec_size = tbl.getRecSize();
-				if(pParam->P_DestPath && pParam->P_DestPath[0]) {
-					(dest = pParam->P_DestPath).Strip().SetLastSlash();
-					dest.Cat(ts.Location);
+				THROW(org_tbl.open(tbl_name, org_path, omReadOnly));
+				org_tbl.setDataBuf(rec_buf, static_cast<RECORDSIZE>(rec_buf.GetSize()));
+				org_tbl.getNumRecs(&pParam->OrgNumRecs);
+				fix_rec_size = org_tbl.getRecSize();
+				if(!isempty(pParam->P_DestPath)) {
+					(dest_path = pParam->P_DestPath).Strip().SetLastSlash();
+					dest_path.Cat(ts.Location);
 					//
 					// Удаляется файл назначения (если таблица состоит из нескольких файлов, то удаляются все файлы)
 					//
-					for(tpe.Init(dest); tpe.Next(spart) > 0;) {
+					for(tpe.Init(dest_path); tpe.Next(spart) > 0;) {
 						if(fileExists(spart)) {
 							if(!SFile::Remove(spart)) {
 								pParam->callbackProc(BREV_ERRDELPREV, spart.cptr()); // @badcast
@@ -403,56 +407,62 @@ int BDictionary::RecoverTable(BTBLID tblID, BRecoverParam * pParam)
 					}
 				}
 				else {
-					GetTemporaryFileName(dest, 0, 0);
-					replace_src = 1;
+					GetTemporaryFileName(dest_path, 0, 0);
+					do_replace_src = true;
 				}
-				THROW(LoadTableSpec(&newtbl, tbl_name, dest, 0));
-				if(CreateDataFile(&newtbl, dest, crmNoReplace, GetRusNCaseACS(acs))) {
+				THROW(LoadTableSpec(&new_tbl, tbl_name, dest_path, 0));
+				if(CreateDataFile(&new_tbl, dest_path, crmNoReplace, GetRusNCaseACS(acs))) {
 					DBField lob_fld;
-					int    sp_first = spFirst, sp_next = spNext;
-					THROW(newtbl.open(tbl_name, dest));
-					if(newtbl.GetLobCount())
-						newtbl.GetLobField(newtbl.GetLobCount()-1, &lob_fld);
+					const int sp_first = spFirst;
+					const int sp_next = spNext;
+					THROW(new_tbl.open(tbl_name, dest_path));
+					if(new_tbl.GetLobCount())
+						new_tbl.GetLobField(new_tbl.GetLobCount()-1, &lob_fld);
 					else
 						lob_fld.Id = 0;
-					pParam->callbackProc(BREV_START, path.cptr(), dest.cptr());
-					if(tbl.step(sp_first) || BtrError == BE_VLRPAGE) {
-						do {
-							RECORDSIZE retBufLen = tbl.getRetBufLen();
-							THROW(tbl.getPosition(&pos));
-							if(lob_fld.Id) {
-								newtbl.setDataBuf(tbl.getDataBuf(), fix_rec_size);
-								newtbl.setLobSize(lob_fld, (retBufLen > fix_rec_size) ? (retBufLen-fix_rec_size) : 0);
-							}
-							else
-								newtbl.setDataBuf(tbl.getDataBuf(), retBufLen);
-							if(newtbl.insertRec()) {
-								pParam->ActNumRecs++;
-								if(!pParam->callbackProc(BREV_PROGRESS, reinterpret_cast<const void *>(pParam->ActNumRecs), 
-									reinterpret_cast<const void *>(pParam->OrgNumRecs), path.cptr())) {
-									ok = -1;
-									break;
+					pParam->callbackProc(BREV_START, org_path.cptr(), dest_path.cptr());
+					if(pParam->OrgNumRecs > 0) {
+						if(org_tbl.step(sp_first) || BtrError == BE_VLRPAGE) {
+							do {
+								const RECORDSIZE ret_buf_len = org_tbl.getRetBufLen();
+								THROW(org_tbl.getPosition(&pos));
+								if(lob_fld.Id) {
+									new_tbl.setDataBuf(org_tbl.getDataBuf(), fix_rec_size);
+									new_tbl.setLobSize(lob_fld, (ret_buf_len > fix_rec_size) ? (ret_buf_len-fix_rec_size) : 0);
 								}
-							}
-							else {
-								if(!pParam->callbackProc(BREV_ERRINS, reinterpret_cast<const void *>((RECORDNUMBER)pos), 
-									reinterpret_cast<const void *>(retBufLen), tbl.getDataBufConst())) {
-									ok = -1;
-									break;
+								else
+									new_tbl.setDataBuf(org_tbl.getDataBuf(), ret_buf_len);
+								if(new_tbl.insertRec()) {
+									pParam->ActNumRecs++;
+									if(!pParam->callbackProc(BREV_PROGRESS, reinterpret_cast<const void *>(pParam->ActNumRecs), 
+										reinterpret_cast<const void *>(pParam->OrgNumRecs), org_path.cptr())) {
+										ok = -1;
+										break;
+									}
 								}
-							}
-						} while(tbl.step(sp_next) || BtrError == BE_VLRPAGE);
-					}
-					if(ok >= 0) {
-						if(!BTRNFOUND) {
-							pParam->callbackProc(BREV_ERRSTEP, reinterpret_cast<const void *>((RECORDNUMBER)pos));
-							ok = 0;
+								else {
+									if(!pParam->callbackProc(BREV_ERRINS, reinterpret_cast<const void *>((RECORDNUMBER)pos), 
+										reinterpret_cast<const void *>(ret_buf_len), org_tbl.getDataBufConst())) {
+										ok = -1;
+										break;
+									}
+								}
+							} while(org_tbl.step(sp_next) || BtrError == BE_VLRPAGE);
 						}
+						if(ok >= 0) {
+							if(!BTRNFOUND) {
+								pParam->callbackProc(BREV_ERRSTEP, reinterpret_cast<const void *>((RECORDNUMBER)pos));
+								ok = 0;
+							}
+							pParam->callbackProc(BREV_FINISH, reinterpret_cast<const void *>(pParam->ActNumRecs), reinterpret_cast<const void *>(pParam->OrgNumRecs));
+						}
+					}
+					else { // empty table
 						pParam->callbackProc(BREV_FINISH, reinterpret_cast<const void *>(pParam->ActNumRecs), reinterpret_cast<const void *>(pParam->OrgNumRecs));
 					}
 				}
 				else {
-					pParam->callbackProc(BREV_ERRCREATE, dest.cptr());
+					pParam->callbackProc(BREV_ERRCREATE, dest_path.cptr());
 					ok = 0;
 				}
 			}
@@ -462,35 +472,34 @@ int BDictionary::RecoverTable(BTBLID tblID, BRecoverParam * pParam)
 		}
 	}
 	CATCHZOK
-	tbl.setDataBuf(0, 0);
-	newtbl.setDataBuf(0, 0);
-	if(ok > 0 && replace_src) {
-		int    first = 0;
-		SString temp_buf;
-		tbl.close();
-		newtbl.close();
+	org_tbl.setDataBuf(0, 0);
+	new_tbl.setDataBuf(0, 0);
+	if(ok > 0 && do_replace_src) {
+		bool   is_first = false;
+		org_tbl.close();
+		new_tbl.close();
 		if(pParam->P_BakPath) {
-			for(tpe.Init(path); ok && tpe.Next(spart, &first) > 0;) {
+			for(tpe.Init(org_path); ok && tpe.Next(spart, &is_first) > 0;) {
 				SFsPath::ReplacePath(temp_buf = spart, pParam->P_BakPath, 1);
 				if(!SFile::Rename(spart, temp_buf)) {
-					pParam->callbackProc(BREV_ERRRENAME, dest.cptr());
+					pParam->callbackProc(BREV_ERRRENAME, spart.cptr(), temp_buf.cptr());
 					ok = 0;
 				}
 			}
 			if(ok) {
-				for(tpe.Init(dest); tpe.Next(spart, &first) > 0;) {
+				for(tpe.Init(dest_path); tpe.Next(spart, &is_first) > 0;) {
 					const SFsPath sp(spart);
-					SFsPath::ReplaceExt(temp_buf = path, sp.Ext, 1);
+					SFsPath::ReplaceExt(temp_buf = org_path, sp.Ext, 1);
 					SFile::Rename(spart, temp_buf);
 				}
 			}
 		}
 		else {
 			int    renm = 1;
-			STRNSCPY(buf, path);
-			SFsPath::ReplaceExt(path, p_bak_ext, 1);
-			for(tpe.Init(path); tpe.Next(spart, &first) > 0;) {
-				tpe.ReplaceExt(first, spart, temp_buf);
+			STRNSCPY(buf, org_path);
+			SFsPath::ReplaceExt(org_path, p_bak_ext, 1);
+			for(tpe.Init(org_path); tpe.Next(spart, &is_first) > 0;) {
+				tpe.ReplaceExt(is_first, spart, temp_buf);
 				if(fileExists(spart)) {
 					if(!SFile::Remove(spart)) {
 						SFile::Remove(temp_buf);
@@ -500,8 +509,8 @@ int BDictionary::RecoverTable(BTBLID tblID, BRecoverParam * pParam)
 				if(renm)
 					SFile::Rename(temp_buf, spart);
 			}
-			for(tpe.Init(dest); tpe.Next(spart, &first) > 0;) {
-				if(first)
+			for(tpe.Init(dest_path); tpe.Next(spart, &is_first) > 0;) {
+				if(is_first)
 					temp_buf = buf;
 				else {
 					SFsPath sp(buf);
@@ -552,26 +561,25 @@ int TablePartsEnum::Init(const char * pPath)
 	return ok;
 }
 
-int TablePartsEnum::Next(SString & rPath, int * pFirst /*=0*/)
+int TablePartsEnum::Next(SString & rPath, bool * pIsFirst /*=0*/)
 {
 	int    ok = -1;
 	if(List.getPointer() < List.getCount()) {
 		rPath = List.Get(List.getPointer()).Txt;
-		ASSIGN_PTR(pFirst, List.getPointer() == 0);
+		ASSIGN_PTR(pIsFirst, List.getPointer() == 0);
 		List.incPointer();
 		ok = 1;
 	}
 	return ok;
 }
 
-int TablePartsEnum::ReplaceExt(int first, const SString & rIn, SString & rOut)
+int TablePartsEnum::ReplaceExt(bool isFirst, const SString & rIn, SString & rOut)
 {
-	SString ext;
 	SFsPath sp(rIn);
 	const bool to_save = (sp.Ext.C(0) != '_');
-	ext = sp.Ext;
+	SString ext(sp.Ext);
 	sp.Ext.Z();
-	if(first)
+	if(isFirst)
 		ext = to_save ? "___" : "btr";
 	else {
 		ext.ShiftLeft();

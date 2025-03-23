@@ -238,7 +238,7 @@ static int EditGoodsGroupRecoverParam(GoodsGroupRecoverParam * pData)
 			setCtrlString(CTL_RCVRGGRP_LOG, Data.LogFileName);
 			AddClusterAssoc(CTL_RCVRGGRP_FLAGS, 0, GoodsGroupRecoverParam::fCorrect);
 			AddClusterAssoc(CTL_RCVRGGRP_FLAGS, 1, GoodsGroupRecoverParam::fDelTempAltGrp);
-			AddClusterAssoc(CTL_RCVRGGRP_FLAGS, 2, GoodsGroupRecoverParam::fDelUnusedBrands); // @v10.7.9
+			AddClusterAssoc(CTL_RCVRGGRP_FLAGS, 2, GoodsGroupRecoverParam::fDelUnusedBrands);
 			SetClusterData(CTL_RCVRGGRP_FLAGS, Data.Flags);
 			AddClusterAssocDef(CTL_RCVRGGRP_EGA, 0, GoodsGroupRecoverParam::egaNone);
 			AddClusterAssoc(CTL_RCVRGGRP_EGA, 1, GoodsGroupRecoverParam::egaReport);
@@ -748,7 +748,7 @@ static long FASTCALL GetSelBias(long p)
 //
 GoodsGroupView::GoodsGroupView(PPObjGoodsGroup * _ppobj) : PPListDialog(DLG_GGVIEW, CTL_GGVIEW_LIST), CurIterID(0), P_Iter(0)
 {
-	ContextMenuID = CTRLMENU_GOODSGROUPLIST; // @v10.8.11
+	ContextMenuID = CTRLMENU_GOODSGROUPLIST;
 	setupList();
 	setupButtons();
 	Draw_();
@@ -1471,8 +1471,8 @@ int PPObjTransport::Get(PPID id, PPTransportPacket * pPack)
 			pPack->Rec.CountryID = goods_rec.DefBCodeStrucID;
 			pPack->Rec.CaptainID = goods_rec.RspnsPersonID;
 			pPack->Rec.Capacity  = static_cast<long>(goods_rec.PhUPerU);
-			pPack->Rec.VanType   = goods_rec.VanType; // @v10.2.0
-			SETFLAG(pPack->Rec.Flags, GF_PASSIV, goods_rec.Flags & GF_PASSIV); // @v10.2.4
+			pPack->Rec.VanType   = goods_rec.VanType;
+			SETFLAG(pPack->Rec.Flags, GF_PASSIV, goods_rec.Flags & GF_PASSIV);
 			P_Tbl->ReadBarcodes(id, bc_list);
 			for(uint i = 0; i < bc_list.getCount(); i++) {
 				BarcodeTbl::Rec & r_bc_rec = bc_list.at(i);
@@ -1630,15 +1630,11 @@ public:
 		SetupPPObjCombo(this, CTLSEL_TRANSPORT_OWNER, PPOBJ_PERSON, Data.Rec.OwnerID, OLW_CANINSERT, reinterpret_cast<void *>(owner_kind_id));
 		SetupPPObjCombo(this, CTLSEL_TRANSPORT_CAPTAIN, PPOBJ_PERSON, Data.Rec.CaptainID, OLW_CANINSERT, reinterpret_cast<void *>(captain_kind_id));
 		SetupPPObjCombo(this, CTLSEL_TRANSPORT_CNTRY, PPOBJ_COUNTRY, Data.Rec.CountryID, OLW_CANINSERT);
-		// @v10.2.0 {
 		if(Data.Rec.TrType == PPTRTYP_CAR) {
 			SetupStringCombo(this, CTLSEL_TRANSPORT_VANTYP, PPTXT_VANTYPE, Data.Rec.VanType);
 		}
-		// } @v10.2.0
-		// @v10.2.4 {
 		AddClusterAssoc(CTL_TRANSPORT_FLAGS, 0, GF_PASSIV);
 		SetClusterData(CTL_TRANSPORT_FLAGS, Data.Rec.Flags);
-		// } @v10.2.4
 		LockAutoName = 0;
 		return 1;
 	}

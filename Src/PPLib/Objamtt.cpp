@@ -59,6 +59,21 @@ int SetupAmtTypeCombo(TDialog * dlg, uint ctl, PPID id, uint flags, long options
 	return ok;
 }
 
+TaxAmountIDs::TaxAmountIDs() : STaxAmtID(0), STaxRate(0)
+{
+	memzero(VatAmtID, sizeof(VatAmtID));
+	memzero(VatRate, sizeof(VatRate));
+}
+	
+TaxAmountIDs & TaxAmountIDs::Z()
+{
+	STaxAmtID = 0;
+	STaxRate = 0;
+	memzero(VatAmtID, sizeof(VatAmtID));
+	memzero(VatRate, sizeof(VatRate));
+	return *this;
+}
+
 PPObjAmountType::PPObjAmountType(void * extraPtr) : PPObjReference(PPOBJ_AMOUNTTYPE, extraPtr)
 {
 }
@@ -633,7 +648,7 @@ static void SwapVat(TaxAmountIDs * pData, uint i1, uint i2)
 
 int AmountTypeCache::InitTaxBlock()
 {
-	MEMSZERO(TaxBlock);
+	TaxBlock.Z();
 	IsThereDistribCostAmounts = 0;
 	for(uint j = 0; j < P_Ary->getCount(); j++) {
 		const AmountTypeData * p_entry = static_cast<const AmountTypeData *>(P_Ary->at(j));
@@ -645,17 +660,12 @@ int AmountTypeCache::InitTaxBlock()
 				TaxBlock.STaxRate  = p_entry->TaxRate;
 			}
 			else if(p_entry->Tax == GTAX_VAT) {
-				if(TaxBlock.VatAmtID[0] == 0) {
-					TaxBlock.VatAmtID[0] = p_entry->ID;
-					TaxBlock.VatRate[0]  = p_entry->TaxRate;
-				}
-				else if(TaxBlock.VatAmtID[1] == 0) {
-					TaxBlock.VatAmtID[1] = p_entry->ID;
-					TaxBlock.VatRate[1]  = p_entry->TaxRate;
-				}
-				else if(TaxBlock.VatAmtID[2] == 0) {
-					TaxBlock.VatAmtID[2] = p_entry->ID;
-					TaxBlock.VatRate[2]  = p_entry->TaxRate;
+				for(uint i = 0; i < SIZEOFARRAY(TaxBlock.VatAmtID); i++) {
+					if(TaxBlock.VatAmtID[i] == 0) {
+						TaxBlock.VatAmtID[i] = p_entry->ID;
+						TaxBlock.VatRate[i]  = p_entry->TaxRate;
+						break;
+					}
 				}
 			}
 		}
@@ -799,31 +809,34 @@ int PPObjAmountType::IsThereDistribCostAmounts()
 	return p_cache ? p_cache->IsThereDistribCost() : 0;
 }
 
-int PPObjAmountType::GetTaxAmountIDs(TaxAmountIDs * pData, int useCache)
+int PPObjAmountType::GetTaxAmountIDs(TaxAmountIDs & rData, int useCache)
 {
 	AmountTypeCache * p_cache = 0;
 	if(useCache && (p_cache = GetDbLocalCachePtr <AmountTypeCache> (Obj, 0)) != 0) {
-		PROFILE(p_cache->FetchTaxIDs(pData));
+		PROFILE(p_cache->FetchTaxIDs(&rData));
 	}
 	else {
 		PROFILE_START
 		PPAmountType amtt_rec;
-		memzero(pData, sizeof(TaxAmountIDs));
-		for(PPID amt_type_id = 0; EnumItems(&amt_type_id, &amtt_rec) > 0;)
+		rData.Z();
+		for(PPID amt_type_id = 0; EnumItems(&amt_type_id, &amtt_rec) > 0;) {
 			if(amtt_rec.IsTax(GTAX_SALES)) {
-				pData->STaxAmtID = amt_type_id;
-				pData->STaxRate  = amtt_rec.TaxRate;
+				rData.STaxAmtID = amt_type_id;
+				rData.STaxRate  = amtt_rec.TaxRate;
 			}
-			else if(amtt_rec.IsTax(GTAX_VAT))
-				for(uint i = 0; i < 3; i++)
-					if(pData->VatAmtID[i] == 0) {
-						pData->VatAmtID[i] = amt_type_id;
-						pData->VatRate[i]  = amtt_rec.TaxRate;
+			else if(amtt_rec.IsTax(GTAX_VAT)) {
+				for(uint i = 0; i < SIZEOFARRAY(rData.VatAmtID); i++) {
+					if(rData.VatAmtID[i] == 0) {
+						rData.VatAmtID[i] = amt_type_id;
+						rData.VatRate[i]  = amtt_rec.TaxRate;
 						break;
 					}
-		SwapVat(pData, 0, 1);
-		SwapVat(pData, 1, 2);
-		SwapVat(pData, 0, 1);
+				}
+			}
+		}
+		SwapVat(&rData, 0, 1);
+		SwapVat(&rData, 1, 2);
+		SwapVat(&rData, 0, 1);
 		PROFILE_END
 	}
 	return 1;

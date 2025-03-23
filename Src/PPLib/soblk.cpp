@@ -2286,8 +2286,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 							THROW(ti.SetupGoods(P_SetBlk->U.B.GoodsID, 0));
 							val = R6(P_SetBlk->U.B.Qtty);
 							THROW_PP_S(val >= 0.0 && val <= 1.E6, PPERR_CMDSEL_ARGINV_QTTY, temp_buf.Z().Cat(val, MKSFMTD(0, 6, NMBF_NOTRAILZ)));
-							// @v7.9.2 ti.Quantity_ = (val > 0.0) ? val : 1.0;
-							ti.Quantity_ = val; // @v7.9.2
+							ti.Quantity_ = val;
 							val = R5(P_SetBlk->U.B.Price);
 							THROW_PP_S(val >= 0.0 && val <= 1.E9, PPERR_CMDSEL_ARGINV_PRICE, temp_buf.Z().Cat(val, MKSFMTD(0, 6, NMBF_NOTRAILZ)));
 							ti.Price = val;

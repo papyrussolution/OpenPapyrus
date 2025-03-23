@@ -69,6 +69,9 @@ tools:context=".CmdRIncomingListBillActivity">
                     <ImageButton style="@style/ToolbarButton" android:id="@+id/tbButtonSearch"
                         android:layout_gravity="center_vertical|right"
                         app:srcCompat="@drawable/ic_search"/>
+                    <ImageButton style="@style/ToolbarButton" android:id="@+id/tbButtonScan"
+                        android:layout_gravity="center_vertical|right"
+                        app:srcCompat="@drawable/ic_barcode01"/>
                     <ImageButton style="@style/ToolbarButton" android:id="@+id/tbButtonClearFiter"
                         android:layout_gravity="center_vertical|right"
                         app:srcCompat="@drawable/ic_filterrmv01"/>

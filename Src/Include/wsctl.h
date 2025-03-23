@@ -351,14 +351,14 @@ public:
 	int    Registration(RegistrationBlock & rBlk);
 	int    RegisterComputer(ComputerRegistrationBlock & rBlk);
 	int    Auth(AuthBlock & rBlk);
-	int    SendClientPolicy(SString & rResult);
+	int    SendClientPolicy(const S_GUID & rComputerUuid, SString & rResult);
 	//
 	// Descr: Отправляет клиенту список програм для запуска в json-формате
 	// ARG(mock IN): если true, то отправляется тестовая "болванка" workspace/wsctl/wsctl-program.json. В противном случае список 
 	//   програм формируется из объекта данных PPObjSwProgram
 	// ARG(rResult OUT): буфер для результата
 	//
-	int    SendProgramList(bool mock, SString & rResult);
+	int    SendProgramList(bool mock, const S_GUID & rComputerUuid, SString & rResult);
 
 	PPObjTSession TSesObj;
 	PPObjQuotKind QkObj;

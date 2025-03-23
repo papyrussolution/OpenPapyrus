@@ -479,6 +479,7 @@ public:
 	static constexpr uint32 Signature_StyloQStoragePacket          = 0x11A52FB6U; // @v11.6.0 Сигнатура класса StyloQCore::StoragePacket
 	static constexpr uint32 Signature_StyloQPersonEventParam       = 0x230759EAU; // @v11.6.1 Сигнатура класса StyloQPersonEventParam
 	static constexpr long   Signature_LaunchAppParam               = 0x4c484150L; // 'LHAP'
+	static constexpr uint32 Signature_EgaisMarkAutoSelector_ResultBlock = 0x938EF619U; // @v12.2.11 Сигнатура класса EgaisMarkAutoSelector::ResultBlock. Для сериализации.
 	static constexpr const char * P_SubjectDbDiv = "$PpyDbDivTransmission$";
 	static constexpr const char * P_SubjectOrder = "$PpyOrderTransmission$";
 	static constexpr const char * P_SubjectCharry = "$PpyCharryTransmission$";
@@ -5569,6 +5570,7 @@ private:
 #define PPSCMD_WSCTL_REGISTRATION     10136 // @v11.9.10 WSCTL Регистрация клиента
 #define PPSCMD_WSCTL_REGISTERCOMPUTER 10137 // @v12.0.0 WSCTL Регистрация рабочей станции
 #define PPSCMD_GETDBINFO              10138 // @v12.0.6 Возвращает информацию о базе данных, в которой авторизован сеанс. Возвращает json
+#define PPSCMD_EGAISMARKAUTOSELECTION 10139 // @v12.2.11 Серверный вызов EgaisMarkAutoSelector::Run для ускорения обработки.
 
 #define PPSCMD_TEST                   11000 // Сеанс тестирования //
 #define PPSCMD___LASTIDENTIFIER       99999 // @v12.0.3 Максимальный допустимый идентификатор серверной команды. Этот лимит нужен для ситуативного 
@@ -6368,7 +6370,7 @@ public:
 	friend class PPSession;
 	PPThreadLocalArea();
 	~PPThreadLocalArea();
-	void * FASTCALL GetPtr(uint idx/*, int inc = 1*/) const;
+	void * FASTCALL GetPtr(uint idx) const;
 	void * FASTCALL GetPtrNonIncrement(uint idx) const;
 	int    CreatePtr(uint idx, void *);
 	int    FASTCALL ReleasePtr(uint idx);
@@ -6414,6 +6416,7 @@ public:
     int    SetIfcConfigParam(const char * pParam, const char * pValue);
     int    GetIfcConfigParam(const char * pParam, SString & rValue) const;
     SrDatabase * GetSrDatabase();
+	PPEgaisProcessor * GetEgaisProcessor();
 private:
 	int    RegisterAdviseObjects();
 	void   OnLogout();
@@ -6454,6 +6457,7 @@ private:
 	PhoneServiceEventResponder * P_PhnSvcEvRespr;
 	MqbEventResponder * P_MqbEvRespr;
 	SysMaintenanceEventResponder * P_SysMntnc;
+	PPEgaisProcessor * P_EgPrc_; // @v12.2.11
 public:
 	class WaitBlock {
 	public:
@@ -7162,10 +7166,10 @@ protected:
 	// Descr: Коды возврата функции ProcessCommand
 	//
 	enum CmdRet {
-		cmdretError  = 0,
-		cmdretOK     = 1,
-		cmdretQuit   = 100, // После обработки команды следует завершить сеанс.
-		cmdretResume = 101, // Команда восстановления сеанса. Необходимо завершить текущий сеанс и не посылать клиенту ответ, поскольку это сделает восстновленная сессия.
+		cmdretError          = 0,
+		cmdretOK             = 1,
+		cmdretQuit           = 100, // После обработки команды следует завершить сеанс.
+		cmdretResume         = 101, // Команда восстановления сеанса. Необходимо завершить текущий сеанс и не посылать клиенту ответ, поскольку это сделает восстновленная сессия.
 		cmdretSuspend        = 102, // Была обработана команда SUSPEND.  Сеанс входит в режим ожидания восстановления (timeout = SuspendTimeout)
 		cmdretStyloBhtIIMode = 103, // Сессия должна войти в режим обмена с устройством StyloBHT II
 		cmdretUnprocessed    = 104  // Команда не обработана. Базовый класс может вернуть этот результат, предполагая,
@@ -7562,7 +7566,7 @@ public:
 	void   SetTempLogFileName(const char * pFileName);
 	int    SetPrivateBasket(PPBasketPacket * pPack, int use_ta);
 	PPBasketPacket * GetPrivateBasket();
-	PPJobSrvClient * GetClientSession(int dontReconnect);
+	PPJobSrvClient * GetClientSession(bool dontReconnect);
 	int    SetThreadSock(int32 uniqueSessID, TcpSocket & rSock, PPJobSrvReply * pReply);
 	//
 	// Функции профилирования //
@@ -10335,7 +10339,7 @@ public:
 	//
 	// Descr: Возвращает !0 если есть не пустые поля расширения чека (Ext).
 	//
-	int    HasExt() const;
+	bool   HasExt() const;
 	uint   GetCount() const;
 	int    GetGuid(S_GUID & rUuid) const; 
 	int    SetGuid(const S_GUID * pUuid);
@@ -11909,7 +11913,7 @@ public:
 //
 //
 //
-#define PPLNKFILE_ISNEW 0x00000001L
+// @v12.2.11 (replaced with PPLinkFile::fIsNew) #define PPLNKFILE_ISNEW 0x00000001L
 
 struct PPLinkFile {
 	PPLinkFile();
@@ -11918,8 +11922,11 @@ struct PPLinkFile {
 	int    FASTCALL CopyFrom(const void * pBuf);
 	int    CopyTo(void ** ppBuf);
 
-	PPID    Id;
-	long    Flags;
+	enum { // @v12.2.11
+		fIsNew = 0x00001
+	};
+	PPID   Id;
+	long   Flags;
 	SString Ext;
 	SString Path;
 	SString Description;
@@ -15335,6 +15342,18 @@ public:
 #define CCHKF_ADDPAYM      0x40000000L // @deprecated Чек имеет ненулевую сумму доплаты в расширении записи чека CCheckExt
 	// Вспомогательный флаг, используемый для быстрого определения (не обращаясь к доп записи) есть ли у чека сумма доплаты.
 #define CCHKF_HASGIFT      0x80000000L // По чеку был предоставлен подарок  (не уточняется какой именно)
+//
+// Чековые операции 
+// @persistent
+//
+#define CCOP_GENERAL               0 // @persistent Что-то общее (продажа скорее всего, но черт его знает что там еще может быть). Возможна трактовка как неопределенная операция.
+#define CCOP_RETURN                1 // @persistent Возврат
+#define CCOP_CORRECTION_SELL       2 // @persistent Коррекция продажи
+#define CCOP_CORRECTION_SELLSTORNO 3 // @persistent Коррекция сторно продажи
+#define CCOP_CORRECTION_RET        4 // @persistent Коррекция возврата
+#define CCOP_CORRECTION_RETSTORNO  5 // @persistent Коррекция сторно возврата
+//
+//
 //
 struct CCheckGoodsEntry { // @flat @size=32
 	enum {
@@ -19029,19 +19048,24 @@ struct PPAmountTypePacket {
 };
 
 struct TaxAmountIDs {
-	PPID   VatAmtID[3];
-	long   VatRate[3];
-	PPID   STaxAmtID;
-	long   STaxRate;
+	TaxAmountIDs();
+	TaxAmountIDs & Z();
+	bool   HasAnyVatAmountTypes() const { return (VatAmtID[0] || VatAmtID[1] || VatAmtID[2] || VatAmtID[3] || VatAmtID[4]); }
+	bool   HasAnyAmountTypes() const { return (STaxAmtID || HasAnyVatAmountTypes()); }
+
+	PPID   VatAmtID[5]; // @v12.2.11 [3]--[5] Типы сумм для различных ставок НДС
+	long   VatRate[5];  // @v12.2.11 [3]--[5] Значения различных ставок НДС
+	PPID   STaxAmtID;   // Тип суммы для налога с продаж
+	long   STaxRate;    // Ставка налога с продаж
 };
 
 class PPObjAmountType : public PPObjReference {
 public:
-	PPObjAmountType(void * extraPtr = 0);
+	explicit PPObjAmountType(void * extraPtr = 0);
 	virtual int Edit(PPID * pID, void * extraPtr);
 	virtual int Browse(void * extraPtr);
 	int    SearchSymb(PPID *, const char * pSymb);
-	int    GetTaxAmountIDs(TaxAmountIDs *, int useCache);
+	int    GetTaxAmountIDs(TaxAmountIDs &, int useCache);
 	int    CheckDupTax(PPID, PPID tax, long taxRate);
 	enum {
 		selStaffOnly = 0x0001
@@ -23637,7 +23661,7 @@ struct PPAutoSmsConfig {
 	};
 	PPAutoSmsConfig();
 	bool   IsEmpty() const;
-	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx); // для запихивания стурктуры в буфер
+	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx); // для запихивания структуры в буфер
 
 	uint8  Reserve[32];
 	SString TddoPath; // Путь к файлу шаблона сообщения //
@@ -24985,6 +25009,7 @@ public:
 	private:
 		PPID   GetMainOrgPersonID(const BillTbl::Rec * pBillRec) const;
 		PPID   GetSupplPersonID(const PPTransferItem * pTi) const;
+		PPID   GetSupplPersonID_() const;
 		const  PPTransferItem * GetTI() const;
 		PPID   GetLocID() const;
 		LDATE  GetOpDate();
@@ -44847,7 +44872,7 @@ private:
 	int    CreateGoodsCorrTbl();
 	int    ViewGoodsCorr();
 	int    EditGoods(const void * pHdr, int goodsNo);
-	int    AddGoodsToBasket(PPID checkID);
+	int    AddGoodsByCCheckToBasket(PPID checkID);
 	int    GetBrwHdr(const void * pRow, BrwHdr * pHdr) const;
 	int    ToggleDlvrTag(PPID checkID);
 	int    GetReportId() const;
@@ -55824,12 +55849,15 @@ public:
 	//
 	// Descr: Операция текущего чека
 	//
-	enum { // @v12.2.9
+	/* replaced with CCOP_XXX enum { // @v12.2.9
 		//opUndef      = -1, // Не определено
-		opGeneral    = 0,  // Что-то общее (продажа скорее всего, но черт его знает что там еще может быть). Возможна трактовка как необпределенная операция.
-		opReturn     = 1,  // Возврат
-		opCorrection = 2,  // Коррекция
-	};
+		__opGeneral               = 0, // Что-то общее (продажа скорее всего, но черт его знает что там еще может быть). Возможна трактовка как необпределенная операция.
+		__opReturn                = 1, // Возврат
+		__opCorrection_Sell       = 2, // Коррекция продажи
+		__opCorrection_SellStorno = 3, // Коррекция сторно продажи
+		__opCorrection_Ret        = 4, // Коррекция возврата
+		__opCorrection_RetStorno  = 5, // Коррекция сторно возврата
+	};*/
 	//
 	// Descr: Операционные права кассира
 	//
@@ -56066,6 +56094,8 @@ public:
 	//   другими модулями.
 	//
 	static double Helper_CalcSCardOpBonusAmount(const CCheckLineTbl::Rec & rItem, PPObjGoods & rGObj, PPID bonusGoodsGrpID, double * pNonCrdAmt);
+	static bool   IsValidOp(int op) { return oneof6(op, CCOP_GENERAL, CCOP_RETURN, CCOP_CORRECTION_SELL, CCOP_CORRECTION_SELLSTORNO, CCOP_CORRECTION_RET, CCOP_CORRECTION_RETSTORNO); }
+	static bool   IsCorrectionOp(int op) { return oneof4(op, CCOP_CORRECTION_SELL, CCOP_CORRECTION_SELLSTORNO, CCOP_CORRECTION_RET, CCOP_CORRECTION_RETSTORNO); }
 
 	LongArray CTblList;
 	PPObjCSession CsObj;
@@ -56182,6 +56212,7 @@ protected:
 	//
 	int    GetCurrentOp() const; // @v12.2.9 
 	bool   IsCurrentOp(int op) const; // @v12.2.9 
+	bool   IsCurrentOpCorrection() const; // @v12.2.11
 	//
 	// Descr: Устанавливает операцию текущего чека.
 	//    Оооочень осторожно пользоваться - вся эта хрень в процессе разработки из-за необходимости отработать чеки коррекции.
@@ -56446,7 +56477,7 @@ protected:
 	SArray * P_DivGrpList;
 	CCheckPacket * P_ChkPack;
 	PPViewCCheck * P_CcView;
-	PPEgaisProcessor * P_EgPrc;
+	// @v12.2.11 PPEgaisProcessor * P_EgPrc_ToEliminate;
 	EgaisMarkAutoSelector * P_EgMas; // @v12.0.12
 	LAssocArray SpcTrtScsList; // Список серий карт со специальной трактовкой
 };
@@ -56499,7 +56530,7 @@ private:
 	void   FASTCALL SelectGoods__(int mode);
 	void   AddFromBasket();
 	void   AcceptQuantity();
-	int    VerifyQuantity(PPID goodsID, double & rQtty, int adjustQtty, const CCheckItem * pCurItem, bool checkInputBuffer); // @v11.0.3 checkInputBuffer
+	int    VerifyQuantity(PPID goodsID, double & rQtty, const CCheckItem * pCurItem, bool adjustQtty, bool checkInputBuffer); // @v11.0.3 checkInputBuffer
 	void   AcceptSCard(PPID scardID, const SCardSpecialTreatment::IdentifyReplyBlock * pStirb, uint ascf);
 	void   AcceptManualDiscount();
 	int    LoadCheck(const CCheckPacket *, bool makeRetCheck, bool dontShow);
@@ -58181,7 +58212,7 @@ public:
 	//
 	struct Ack {
 		Ack();
-		void   Clear();
+		PPEgaisProcessor::Ack & Z();
 
 		enum {
 			stError = 0x0001
@@ -58215,10 +58246,10 @@ public:
 	//
 	struct Ticket {
 		Ticket();
-		void   Clear();
+		PPEgaisProcessor::Ticket & Z();
 		struct Result {
 			Result();
-			void   Clear();
+			PPEgaisProcessor::Ticket::Result & Z();
 			enum {
 				spcNone = 0,
 				spcDup  = 1  // Тикет с ошибкой о том, что накладная уже загеристрирована в ЕГАИС
@@ -58242,9 +58273,9 @@ public:
 	struct ConfirmTicket {
 		ConfirmTicket();
 		PPID   BillID;
-		int    Conclusion; // 0 - rejected, 1 - accepted
-		SString Code;
+		int    Conclusion; // 0 - rejected, 1 - accepted, -1 - undef
 		LDATE  Date;
+		SString Code;
 		SString RegIdent;
 		SString Comment;
 	};
@@ -58258,14 +58289,14 @@ public:
         long   Qtty;
         LDATE  ManufDate;
         LDATE  TTNDate;
-        SString TTNCode;
         LDATE  EGAISDate;
+        SString TTNCode;
         SString EGAISCode;
 	};
 
 	struct InformBItem { // @flat
 		InformBItem();
-		void   Clear();
+		InformBItem & Z();
 
 		long   P;
 		char   OrgRowIdent[64];
@@ -58275,7 +58306,7 @@ public:
 
 	struct InformB {
 		InformB();
-		void   Clear();
+		InformB & Z();
 
         SString Id;
         SString WBRegId;      // ИД накладной в системе (присвоенный)
@@ -58376,7 +58407,7 @@ public:
 		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 
 		enum {
-			_afQueryRefA = 0x0001,
+			_afQueryRefA         = 0x0001,
 			_afQueryPerson       = 0x0002,
 			_afQueryGoods        = 0x0004,
 			_afQueryByChargeOn   = 0x0008,
@@ -58414,18 +58445,19 @@ public:
 	// Descr: Флаги создания экземпляра класса
 	//
 	enum {
-		cfDebugMode = 0x0001, // Работать в тестовом режиме отправки (не передавать данные в УТМ)
+		cfDebugMode         = 0x0001, // Работать в тестовом режиме отправки (не передавать данные в УТМ)
 		cfDirectFileLogging = 0x0002, // Сообщения выводить на прямую в файлы журналов (без посредничества PPLogger)
-		cfVer3      = 0x0004, // Применять 3-ю версию протокола при отправке документов
+		cfVer3              = 0x0004, // Применять 3-ю версию протокола при отправке документов
 		cfUseVerByConfig    = 0x0008, // Версию протокола применять в соответствии с конфигурацией
-		cfVer4      = 0x0010, // @v11.0.12 Применять 4-ю версию протокола при отправке документов
+		cfVer4              = 0x0010, // @v11.0.12 Применять 4-ю версию протокола при отправке документов
 	};
 
 	PPEgaisProcessor(long cflags, PPLogger * pOuterLogger, int __reserve);
 	~PPEgaisProcessor();
 	bool   operator !() const;
-	void   SetTestSendingMode(int set);
-	void   SetNonRvmTagMode(int set);
+	void   SetTestSendingMode(bool set);
+	void   SetNonRvmTagMode(bool set);
+	bool   GetTestSendingMode() const;
 	int    CheckLic() const;
 	int    GetUtmList(PPID locID, TSVector <UtmEntry> & rList);
 	void   SetUtmEntry(PPID locID, const UtmEntry * pEntry, const DateRange * pPeriod);
@@ -58490,7 +58522,7 @@ public:
 
 	int    ReadInput(PPID locID, const DateRange * pPeriod, long flags);
 	int    DebugReadInput(PPID locID);
-	int    RemoveOutputMessages(PPID locID, int debugMode);
+	int    RemoveOutputMessages(PPID locID, bool debugMode);
 	int    SendBillActs(const PPBillIterchangeFilt & rP);
 	int    SendBillRepeals(const PPBillIterchangeFilt & rP);
 	int    SendBills(const PPBillIterchangeFilt & rP);
@@ -58575,12 +58607,12 @@ private:
 	int    CheckBillForMainOrgID(const BillTbl::Rec & rRec, const PPOprKind & rOpRec);
 
 	enum {
-		stError     = 0x0001, // Во время выполнения какой-то функции произошла критическая ошибка
-		stValidLic  = 0x0004, // Присутствует лицензия на использование интерфейса с ЕГАИС
-		stTestSendingMode   = 0x0008, // Тестовый режим отправки сообщений. Фактически, сообщения в виде файлов копируются в каталог TEMP/EGAIX-XXX/OUT-TEST/
-		stDontRemoveTags    = 0x0010, // Опция, припятствующая удалению тегов с документов при получении отрицательных тикетов
-		stUseEgaisVer3      = 0x0040, // Документы отправлять в 3-й версии формата
-		stUseEgaisVer4      = 0x0080, // @v11.0.12 Документы отправлять в 4-й версии формата
+		stError           = 0x0001, // Во время выполнения какой-то функции произошла критическая ошибка
+		stValidLic        = 0x0004, // Присутствует лицензия на использование интерфейса с ЕГАИС
+		stTestSendingMode = 0x0008, // Тестовый режим отправки сообщений. Фактически, сообщения в виде файлов копируются в каталог TEMP/EGAIX-XXX/OUT-TEST/
+		stDontRemoveTags  = 0x0010, // Опция, припятствующая удалению тегов с документов при получении отрицательных тикетов
+		stUseEgaisVer3    = 0x0040, // Документы отправлять в 3-й версии формата
+		stUseEgaisVer4    = 0x0080, // @v11.0.12 Документы отправлять в 4-й версии формата
 	};
 	long   State;
 	const  UtmEntry * P_UtmEntry; // @notowned
@@ -58591,12 +58623,14 @@ private:
 	PPTextAnalyzerWrapper * P_Taw;
 };
 //
-// Descr: @v12.0.9 @construction Класс, реализующий функцию автоматического выбор марки егаис для списания в horeca
+// Descr: Класс, реализующий функцию автоматического выбор марки егаис для списания в horeca
 //
-class EgaisMarkAutoSelector {
+class EgaisMarkAutoSelector { // @v12.0.9 
 public:
 	struct _MarkEntry {
 		_MarkEntry();
+		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx); // @v12.2.11
+
 		SString Mark;
 		double Rest;
 	};
@@ -58606,6 +58640,7 @@ public:
 		_TerminalEntry(const _TerminalEntry & rS);
 		_TerminalEntry & FASTCALL operator = (const _TerminalEntry & rS);
 		bool   FASTCALL Copy(const _TerminalEntry & rS);
+		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx); // @v12.2.11
 
 		PPID   GoodsID;
 		PPID   LotID;
@@ -58618,6 +58653,7 @@ public:
 		Entry(const Entry & rS);
 		Entry & FASTCALL operator = (const Entry & rS);
 		bool   FASTCALL Copy(const Entry & rS);
+		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx); // @v12.2.11
 		const _TerminalEntry * SelectMark(uint * pMarkEntryIdx) const;
 
 		PPID   GsID;     // Идентификатор структуры, из которой сформирован экземпляр this
@@ -58634,6 +58670,7 @@ public:
 		DocItem(const DocItem & rS);
 		DocItem & FASTCALL operator = (const DocItem & rS);
 		bool   FASTCALL Copy(const DocItem & rS);
+		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx); // @v12.2.11
 
 		long   ItemId;  // Идентификатор для ссылки на исходный документ
 		PPID   GoodsID; // Стартовый товар (который был продан)
@@ -58646,8 +58683,11 @@ public:
 		ResultBlock(const ResultBlock & rS);
 		ResultBlock & FASTCALL operator = (const ResultBlock & rS);
 		bool   FASTCALL Copy(const ResultBlock & rS);
+		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx); // @v12.2.11
+		
+		int    RetCode; // @v12.2.11 Результат работы функции EgaisMarkAutoSelector::Run. Нужен для серверного запуска фукции.
 	};
-	EgaisMarkAutoSelector(PPEgaisProcessor * pEgPrc);
+	EgaisMarkAutoSelector(/*@v12.2.11 PPEgaisProcessor * pEgPrc*/);
 	~EgaisMarkAutoSelector();
 	int    Run(ResultBlock & rResult);
 private:
@@ -58671,7 +58711,7 @@ private:
 	int    GetRecentEgaisStock(TSVector <RefBEntry> & rResultList);
 
 	PPObjGoods GObj;
-	PPEgaisProcessor * P_EgPrc; // @notowned
+	// @v12.2.11 (DS.GetTLA().GetEgaisProcessor() used instead) PPEgaisProcessor * P_EgPrc; // @notowned
 	TSVector <RefBEntry> RecentEgaisStock;
 	bool   IsInitialized;
 };

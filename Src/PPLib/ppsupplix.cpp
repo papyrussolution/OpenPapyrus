@@ -4115,7 +4115,7 @@ int iSalesPepsi::SendStocks()
 				p_new_item->OuterCode = temp_buf;
 				p_new_item->Qtty = gr_item.Rest;
 				p_new_item->Type = 0;
-				p_new_item->UnitCode = NZOR(Ep.Fb.DefUnitID, 1004); // @v10.8.9 1004-->NZOR(Ep.Fb.DefUnitID, 1004)
+				p_new_item->UnitCode = NZOR(Ep.Fb.DefUnitID, 1004);
 			}
 		}
     }

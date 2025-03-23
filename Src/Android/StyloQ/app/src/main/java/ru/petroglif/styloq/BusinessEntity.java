@@ -539,6 +539,23 @@ public class BusinessEntity {
 						if(result == null)
 							result = new PreprocessBarcodeResult();
 						result.OriginalCode = code;
+						if(code_len > 4) {
+							int obj_type = 0;
+							int obj_id = 0;
+							if(code.startsWith("1011")) {
+								obj_type = SLib.PPOBJ_BILL;
+							}
+							else if(code.startsWith("1009")) {
+								obj_type = SLib.PPOBJ_GOODS;
+							}
+							else if(code.startsWith("1004")) {
+								obj_type = SLib.PPOBJ_PERSON;
+							}
+							if(obj_type > 0) {
+								obj_id = Integer.valueOf(code.substring(4, code_len));
+								result.Oid = new SLib.PPObjID(obj_type, obj_id);
+							}
+						}
 						if(code_len == 13 || code_len == 12) {
 							final int wght_pfx_len = SLib.GetLen(wghtPrefix);
 							final int cnt_pfx_len = SLib.GetLen(cntPrefix);

@@ -975,10 +975,11 @@ int CCheckPacket::IsEq(const CCheckPacket & rS, long options) const
 	return 1;
 }
 
-int CCheckPacket::HasExt() const
+bool CCheckPacket::HasExt() const
 {
-	return BIN(Ext.TableNo || Ext.SalerID || Ext.GuestCount || Ext.LinkCheckID ||
-		!!Ext.StartOrdDtm || !!Ext.EndOrdDtm || !!Ext.CreationDtm || Ext.CreationUserID || Ext.Memo[0] || Ext.AddrID);
+	return (Ext.TableNo || Ext.SalerID || Ext.GuestCount || Ext.LinkCheckID ||
+		!!Ext.StartOrdDtm || !!Ext.EndOrdDtm || !!Ext.CreationDtm || Ext.CreationUserID || Ext.Memo[0] || Ext.AddrID ||
+		CPosProcessor::IsCorrectionOp(Ext.Op_));
 }
 
 int CCheckPacket::GetGuid(S_GUID & rUuid) const
@@ -5443,8 +5444,8 @@ int CSessGrouping::TurnAccBill(PPID sessID, PPID locID, int use_ta) // @v11.0.4
 		PPObjAmountType amt_obj;
 		TaxAmountIDs tais;
 		BVATAccmArray bva_list;
-		amt_obj.GetTaxAmountIDs(&tais, 1);
-		const bool do_calc_vat = (r_eq_cfg.WrOffAccOpID && (tais.VatAmtID[0] || tais.VatAmtID[1] || tais.VatAmtID[2]));
+		amt_obj.GetTaxAmountIDs(tais, 1);
+		const bool do_calc_vat = (r_eq_cfg.WrOffAccOpID && tais.HasAnyVatAmountTypes());
 		THROW(GetSess(sessID, &sess_rec) > 0);
 		if(sess_rec.Incomplete == CSESSINCMPL_COMPLETE) {
 			PPObjBill * p_bobj = BillObj;
@@ -5562,8 +5563,8 @@ int CSessGrouping::ConvertToBills(PPID sessID, PPID locID, const char * pMsg, ui
 		PPObjAmountType amt_obj;
 		TaxAmountIDs tais;
 		BVATAccmArray bva_list;
-		amt_obj.GetTaxAmountIDs(&tais, 1);
-		const int do_calc_vat = BIN(r_eq_cfg.WrOffAccOpID && (tais.VatAmtID[0] || tais.VatAmtID[1] || tais.VatAmtID[2]));
+		amt_obj.GetTaxAmountIDs(tais, 1);
+		const bool do_calc_vat = (r_eq_cfg.WrOffAccOpID && tais.HasAnyVatAmountTypes());
 		CgBillCvtList list;
 		CSessTotal total;
 		CSessTotal preserve_total;

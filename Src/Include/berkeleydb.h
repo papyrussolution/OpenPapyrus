@@ -253,10 +253,9 @@ struct __db_dbt : public __db_dbt_base {
 	__db_dbt();
 	__db_dbt(uint32 f);
 };
-
-/*******************************************************
-* Mutexes.
-*******************************************************/
+// 
+// Mutexes.
+// 
 /*
  * When mixed size addressing is supported mutexes need to be the same size
  * independent of the process address size is.

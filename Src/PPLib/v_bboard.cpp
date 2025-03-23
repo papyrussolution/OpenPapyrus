@@ -1,5 +1,5 @@
 // V_BBOARD.CPP
-// Copyright (c) A.Starodub 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2024
+// Copyright (c) A.Starodub 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -170,7 +170,7 @@ int PPViewServerStat::ResetCache()
 {
 	int    ok = -1;
 	if(PPMaster) {
-		PPJobSrvClient * p_cli = DS.GetClientSession(0);
+		PPJobSrvClient * p_cli = DS.GetClientSession(false/*dontReconnect*/);
 		if(p_cli) {
 			PPJobSrvCmd cmd;
 			PPJobSrvReply reply;
@@ -191,7 +191,7 @@ int PPViewServerStat::LogLockStack()
 {
 	int    ok = -1;
 	if(PPMaster) {
-		PPJobSrvClient * p_cli = DS.GetClientSession(0);
+		PPJobSrvClient * p_cli = DS.GetClientSession(false/*dontReconnect*/);
 		if(p_cli) {
 			PPJobSrvCmd cmd;
 			PPJobSrvReply reply;

@@ -1,11 +1,10 @@
-/*
- * Summary: compile-time version informations
- * Description: compile-time version informations for the XML library
- *
- * Copy: See Copyright for the status of this software.
- *
- * Author: Daniel Veillard
- */
+// XMLVERSION.H
+// @codepage UTF-8
+// Summary: compile-time version informations
+// Description: compile-time version informations for the XML library
+// Copy: See Copyright for the status of this software.
+// Author: Daniel Veillard
+// 
 #ifndef __XML_VERSION_H__
 #define __XML_VERSION_H__
 //
@@ -224,7 +223,7 @@
 #if 0 // @sobolev 1-->0 
 #define LIBXML_ICONV_ENABLED // Whether iconv support is available
 #endif
-#if 1 // @v11.2.5 ICU òåïåðü âêëþ÷åí â îáùèé ïóë çàâèñèìîñòåé, îäíàêî, åñòü íåêîòîðûå ñëîæíîñòè â ïîäêëþ÷åíèåì åãî â LIBXML // @v11.6.2 0-->1
+#if 1 // @v11.2.5 ICU Ñ‚ÐµÐ¿ÐµÑ€ÑŒ Ð²ÐºÐ»ÑŽÑ‡ÐµÐ½ Ð² Ð¾Ð±Ñ‰Ð¸Ð¹ Ð¿ÑƒÐ» Ð·Ð°Ð²Ð¸ÑÐ¸Ð¼Ð¾ÑÑ‚ÐµÐ¹, Ð¾Ð´Ð½Ð°ÐºÐ¾, ÐµÑÑ‚ÑŒ Ð½ÐµÐºÐ¾Ñ‚Ð¾Ñ€Ñ‹Ðµ ÑÐ»Ð¾Ð¶Ð½Ð¾ÑÑ‚Ð¸ Ð² Ð¿Ð¾Ð´ÐºÐ»ÑŽÑ‡ÐµÐ½Ð¸ÐµÐ¼ ÐµÐ³Ð¾ Ð² LIBXML // @v11.6.2 0-->1
 	#define LIBXML_ICU_ENABLED // Whether icu support is available
 #endif
 #if 1

@@ -43,8 +43,10 @@ static int LoadRcvrMsg(int msgID, SString & rBuf)
 
 int PPRecoverParam::callbackProc(int ev, const void * lp1, const void * lp2, const void * vp)
 {
-	int    ok = 1, do_log_msg = 0;
-	SString fmt_buf, msg_buf;
+	int    ok = 1;
+	//int    do_log_msg = 0;
+	SString fmt_buf;
+	SString msg_buf;
 	switch(ev) {
 		case BREV_START:
 			if(!PPCheckUserBreak())
@@ -81,8 +83,10 @@ int PPRecoverParam::callbackProc(int ev, const void * lp1, const void * lp2, con
 				msg_buf.Printf(fmt_buf, static_cast<const char *>(lp1));
 			break;
 		case BREV_ERRRENAME:
-			if(LoadRcvrMsg(PPTXT_RCVR_ERRRENAME, fmt_buf))
-				msg_buf.Printf(fmt_buf, static_cast<const char *>(lp1), static_cast<const char *>(lp2));
+			{
+				if(LoadRcvrMsg(PPTXT_RCVR_ERRRENAME, fmt_buf))
+					msg_buf.Printf(fmt_buf, static_cast<const char *>(lp1), static_cast<const char *>(lp2));
+			}
 			break;
 		default:
 			break;
@@ -107,7 +111,8 @@ struct PPRecoverInfo {
 static int _Recover(BTBLID tblID, PPRecoverParam * pParam, SArray * pRecoverInfoAry)
 {
 	int    r = 1;
-	int64  disk_total = 0, disk_avail = 0;
+	int64  disk_total = 0;
+	int64  disk_avail = 0;
 	DbTableStat ts;
 	SString path;
 	SString msg_buf;
@@ -1030,7 +1035,7 @@ int PrcssrDbDump::OpenStream(const char * pFileName)
 		SBuffer buffer;
 		THROW_SL(FDump.Open(pFileName, SFile::mRead | SFile::mBinary | SFile::mNoStd));
 		THROW_SL(FDump.Read(&hdr, sizeof(hdr)));
-		THROW(hdr.Signature == PPConst::Signature_DbDump);
+		THROW_PP_S(hdr.Signature == PPConst::Signature_DbDump, PPERR_INVSIGNONOBJSRLZRD, "DbDump");
 		THROW_SL(FDump.CalcCRC(sizeof(hdr), &crc));
 		THROW(hdr.Crc32 == crc);
 
@@ -2325,12 +2330,18 @@ static int PPRecoverDialog(PPDbEntrySet2 * pDbes, BTBLID * pTblID, SString & rDe
 
 static int _DoRecover(PPDbEntrySet2 * pDbes, PPBackup * pBP)
 {
-	int    ok = 1, ret;
+	assert(PPRef == 0); // @v12.2.11
+	assert(BillObj == 0); // @v12.2.11
+	int    ok = 1;
+	int    ret;
 	int    all_ok = -1; // Если >0, то все таблицы восстановлены, если 0, то были ошибки
 	SArray r_info_array(sizeof(PPRecoverInfo));
 	BTBLID tblID = 0;
 	PPRecoverParam param;
-	SString data_path, path, bak_path, temp_buf;
+	SString temp_buf;
+	SString data_path;
+	SString path;
+	SString bak_path;
 	PPIniFile ini_file;
 	ini_file.Get(PPINISECT_RECOVER, PPINIPARAM_PATH, path);
 	ini_file.Get(PPINISECT_RECOVER, PPINIPARAM_LOG,  param.LogFileName);
@@ -2338,7 +2349,7 @@ static int _DoRecover(PPDbEntrySet2 * pDbes, PPBackup * pBP)
 	if(PPRecoverDialog(pDbes, &tblID, path, param.LogFileName) > 0) {
 		path.Strip().RmvLastSlash();
 		DbLoginBlock dlb;
-		long   dbentry = NZOR(pDbes->GetSelection(), pDbes->SetDefaultSelection());
+		const long dbentry = NZOR(pDbes->GetSelection(), pDbes->SetDefaultSelection());
 		if(pDbes->GetByID(dbentry, &dlb) > 0) {
 			ret = 1;
 			dlb.GetAttr(DbLoginBlock::attrDbPath, data_path);
@@ -2356,6 +2367,8 @@ static int _DoRecover(PPDbEntrySet2 * pDbes, PPBackup * pBP)
 			if(ret) {
 				THROW(DS.OpenDictionary2(&dlb, 0));
 				THROW(pBP->LockDatabase() > 0);
+				assert(PPRef == 0); // @v12.2.11
+				assert(BillObj == 0); // @v12.2.11
 				PPWaitStart();
 				param.P_DestPath = path;
 				if(param.LogFileName.IsEmpty())

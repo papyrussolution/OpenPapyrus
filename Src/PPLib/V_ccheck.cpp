@@ -2330,7 +2330,7 @@ DBQuery * PPViewCCheck::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 			case CCheckFilt::gAgentsNGoods:   brw_id = BROWSER_CCHECKGRP_AGENTSNHOUR; break;
 			case CCheckFilt::gCashiersNGoods: brw_id = BROWSER_CCHECKGRP_AGENTSNHOUR; break;
 			case CCheckFilt::gGoodsSCSer:     brw_id = BROWSER_CCHECKGRP_AGENTSNHOUR; break;
-			case CCheckFilt::gAgentGoodsSCSer: brw_id = BROWSER_CCHECKGRP_AGENTSNHOUR; break; // @v9.6.6
+			case CCheckFilt::gAgentGoodsSCSer: brw_id = BROWSER_CCHECKGRP_AGENTSNHOUR; break;
 			case CCheckFilt::gGoodsCard:      brw_id = BROWSER_CCHECKGRP_AGENTSNHOUR; break; // @erik v10.5.2
 			default: brw_id = (Filt.Flags & CCheckFilt::fGoodsCorr) ? BROWSER_CCHECK_GOODSCORR : BROWSER_CCHECK;
 		}
@@ -3184,9 +3184,10 @@ int PPViewCCheck::ViewGraph()
 	return ok;
 }
 
-int PPViewCCheck::AddGoodsToBasket(PPID checkID)
+int PPViewCCheck::AddGoodsByCCheckToBasket(PPID checkID)
 {
-	int    ok = -1, r = 0;
+	int    ok = -1;
+	int    r = 0;
 	SelBasketParam param;
 	if(Filt.Grp == CCheckFilt::gGoods) {
 		param.SelPrice = 3;
@@ -3570,7 +3571,7 @@ int PPViewCCheck::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser *
 				break;
 			case PPVCMD_DELETEITEM:
 				ok = -1;
-				if(!Filt.Grp)
+				if(!Filt.Grp) {
 					if(CsObj.CheckRights(CSESSRT_RMVCHECK)) {
 						if(id && PPMessage(mfConf|mfYes|mfCancel, PPCFM_DELETE) == cmYes) {
 							ok = P_CC->RemovePacket(id, 1);
@@ -3583,6 +3584,7 @@ int PPViewCCheck::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser *
 					}
 					else
 						ok = 0;
+				}
 				if(!ok)
 					PPError();
 				break;
@@ -3612,12 +3614,39 @@ int PPViewCCheck::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser *
 				break;
 			case PPVCMD_ADDALLTOBASKET:
 				ok = -1;
-				AddGoodsToBasket(0);
+				AddGoodsByCCheckToBasket(0);
 				break;
 			case PPVCMD_ADDTOBASKET:
 				ok = -1;
 				if(!Filt.Grp)
-					AddGoodsToBasket(id);
+					AddGoodsByCCheckToBasket(id);
+				// @v12.2.11 {
+				else if(Filt.HasGoodsGrouping() && !Filt.Sgg) {
+					if(P_TmpGrpTbl) {
+						TempCCheckGrpTbl::Rec rec;
+						PPID   k = id;
+						if(P_TmpGrpTbl->search(0, &k, spEq)) {
+							const PPID goods_id = P_TmpGrpTbl->data.GoodsID;
+							const double init_qtty = (fabs(P_TmpGrpTbl->data.Qtty) > 0) ? fabs(P_TmpGrpTbl->data.Qtty) : 1.0;
+							const double init_amt = fabs(P_TmpGrpTbl->data.Amount);
+							if(goods_id) {
+								SelBasketParam param;
+								param.SelPrice = 3;
+								param.SelReplace = 3; // сложить количества для существующих товаров
+								param.Flags = SelBasketParam::fNotSelPrice;
+								if(GetBasketByDialog(&param, 0) > 0) {
+									ILTI   ilti;
+									ilti.GoodsID  = goods_id;
+									ilti.Quantity = init_qtty;
+									ilti.Price    = init_amt / init_qtty;
+									param.Pack.AddItem(&ilti, 0, param.SelReplace);
+									GoodsBasketDialog(param, 1);
+								}								
+							}
+						}
+					}
+				}
+				// } @v12.2.11 
 				break;
 			case PPVCMD_GRAPH:
 				ok = -1;
@@ -3786,10 +3815,7 @@ int PPViewCCheck::AddItem()
 }
 
 // @<<PPViewCSess::CreateDraft
-int PPViewCCheck::GetPacket(PPID id, CCheckPacket * pPack)
-{
-	return P_CC->LoadPacket(id, 0, pPack);
-}
+int PPViewCCheck::GetPacket(PPID id, CCheckPacket * pPack) { return P_CC->LoadPacket(id, 0, pPack); }
 
 class CCheckInfoDialog : public TDialog {
 	DECL_DIALOG_DATA(CCheckPacket);
@@ -3848,12 +3874,23 @@ public:
 		setCtrlLong(CTL_CCHECKINFO_LINKID, Data.Ext.LinkCheckID);
 		{
 			temp_buf.Z();
+			const int ccop = Data.Ext.Op_;
 			if(Data.Rec.Flags & CCHKF_CORRECTION) {
 				if(Data.Rec.Flags & CCHKF_RETURN) {
 					temp_buf = "Invalid state";
 				}
 				else {
-					PPLoadString("correction", temp_buf);
+					const char * p_symb = 0;
+					switch(ccop) {
+						case CCOP_CORRECTION_SELL: p_symb = "correction_sell"; break;
+						case CCOP_CORRECTION_SELLSTORNO: p_symb = "correction_sell_storno"; break;
+						case CCOP_CORRECTION_RET: p_symb = "correction_ret"; break;
+						case CCOP_CORRECTION_RETSTORNO: p_symb = "correction_ret_storno"; break;
+						default: p_symb = "correction"; break;
+					}
+					if(!isempty(p_symb)) {
+						PPLoadString(p_symb, temp_buf);
+					}
 				}
 			}
 			else if(Data.Rec.Flags & CCHKF_RETURN) {

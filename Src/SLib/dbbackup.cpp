@@ -1,5 +1,5 @@
 // DBBACKUP.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -358,9 +358,10 @@ int DBBackup::CheckCopy(const BCopyData * pData, const CopyParams & rCP, BackupL
 {
 	EXCEPTVAR(DBErrCode);
 	int    ok = 1;
-	const  int use_compression = BIN(pData && (pData->Flags & BCOPYDF_USECOMPRESS));
+	const  bool use_compression = (pData && (pData->Flags & BCOPYDF_USECOMPRESS));
 	BTBLID i = 0;
-	SString path, spart;
+	SString path;
+	SString spart;
 	DbTableStat ts;
 	StrAssocArray tbl_list;
 	CopyParams cp;
@@ -423,7 +424,7 @@ int DBBackup::ReleaseContinuousMode(BackupLogFunc fnLog, void * extraPtr)
 			TablePartsEnum tpe(0);
 			path = ts.Location;
 			if(tpe.Init(P_Db->MakeFileName_(ts.TblName, path))) {
-				for(int is_first = 1; tpe.Next(spart) > 0; is_first = 0) {
+				for(bool is_first = true; tpe.Next(spart) > 0; is_first = false) {
 					if(fileExists(spart)) {
 						SFile::Stat stat;
 						if(SFile::GetStat(spart, 0, &stat, 0)) {
@@ -488,7 +489,7 @@ int DBBackup::Backup(BCopyData * pData, BackupLogFunc fnLog, void * extraPtr)
 				TablePartsEnum tpe(0);
 				path = ts.Location;
 				if(tpe.Init(P_Db->MakeFileName_(ts.TblName, path))) {
-					for(int is_first = 1; tpe.Next(spart) > 0; is_first = 0) {
+					for(bool is_first = true; tpe.Next(spart) > 0; is_first = false) {
 						if(fileExists(spart)) {
 							SFile::Stat stat;
 							if(SFile::GetStat(spart, 0, &stat, 0)) {
@@ -542,9 +543,7 @@ int DBBackup::GetCopyParams(const BCopyData * data, DBBackup::CopyParams * param
 {
 	EXCEPTVAR(DBErrCode);
 	int    ok = 1;
-	SString copy_path, wildcard, file_name;
-	SDirEntry dir_entry;
-	SDirec * direc = 0;
+	SString copy_path;
 	params->TotalSize = 0;
 	params->CheckSum  = 0;
 	THROW_V(P_Db, SDBERR_BU_DICTNOPEN);
@@ -553,22 +552,26 @@ int DBBackup::GetCopyParams(const BCopyData * data, DBBackup::CopyParams * param
 		DBS.SetAddedMsgString(copy_path);
 		CALLEXCEPTV(SDBERR_BU_NOCOPYPATH);
 	}
-	(wildcard = copy_path).SetLastSlash().Cat("*.*");
-	direc = new SDirec(wildcard);
-	for(; direc->Next(&dir_entry) > 0;)
-		if(!(dir_entry.Attr & 0x10)) {
-			dir_entry.GetNameA(copy_path, file_name);
-			SFile::Stat stat;
-			if(SFile::GetStat(file_name, 0, &stat, 0)) {
-				params->TotalSize += stat.Size;
-				THROW_V(params->SsFiles.add(file_name), SDBERR_SLIB);
+	else {
+		SDirEntry dir_entry;
+		SString file_name;
+		SString wildcard;
+		(wildcard = copy_path).SetLastSlash().Cat("*.*");
+		for(SDirec sd(wildcard); sd.Next(&dir_entry) > 0;) {
+			if(dir_entry.IsFile()) {
+				dir_entry.GetNameA(copy_path, file_name);
+				SFile::Stat stat;
+				if(SFile::GetStat(file_name, 0, &stat, 0)) {
+					params->TotalSize += stat.Size;
+					THROW_V(params->SsFiles.add(file_name), SDBERR_SLIB);
+				}
 			}
 		}
-	params->Path = copy_path;
-	if(data->BssFactor > 0)
-		SetSpaceSafetyFactor((uint)data->BssFactor);
+		params->Path = copy_path;
+		if(data->BssFactor > 0)
+			SetSpaceSafetyFactor((uint)data->BssFactor);
+	}
 	CATCHZOK
-	ZDELETE(direc);
 	return ok;
 }
 
@@ -578,20 +581,21 @@ int DBBackup::RemoveDatabase(int safe)
 	int    ok = 1;
 	DbTableStat ts;
 	StrAssocArray tbl_list;
-	SString path, spart;
+	SString path;
+	SString spart;
+	SString safe_file;
 	THROW_V(P_Db, SDBERR_BU_DICTNOPEN);
 	P_Db->GetListOfTables(0, &tbl_list);
 	for(uint j = 0; j < tbl_list.getCount(); j++) {
-		const StrAssocArray::Item item = tbl_list.Get(j);
+		const StrAssocArray::Item item(tbl_list.Get(j));
 		if(P_Db->GetTableInfo(item.Id, &ts) > 0 && !(ts.Flags & XTF_DICT) && ts.Location.NotEmpty()) {
-			int    first = 0;
+			bool   is_first = false;
 			TablePartsEnum tpe(0);
 			path = ts.Location;
-			for(tpe.Init(P_Db->MakeFileName_(ts.TblName, path)); tpe.Next(spart, &first) > 0;) {
+			for(tpe.Init(P_Db->MakeFileName_(ts.TblName, path)); tpe.Next(spart, &is_first) > 0;) {
 				if(fileExists(spart)) {
 					if(safe) {
-						SString safe_file;
-						tpe.ReplaceExt(first, spart, safe_file);
+						tpe.ReplaceExt(is_first, spart, safe_file);
 						if(fileExists(safe_file))
 							SFile::Remove(safe_file);
 						THROW_V(SFile::Rename(spart, safe_file), SDBERR_SLIB);
@@ -611,7 +615,9 @@ int DBBackup::RestoreRemovedDB(int restoreFiles)
 {
 	EXCEPTVAR(DBErrCode);
 	int    ok = 1;
-	SString path, spart, spart_saved;
+	SString path;
+	SString spart;
+	SString spart_saved;
 	DbTableStat ts;
 	StrAssocArray tbl_list;
 	THROW_V(P_Db, SDBERR_BU_DICTNOPEN);
@@ -620,12 +626,12 @@ int DBBackup::RestoreRemovedDB(int restoreFiles)
 		const StrAssocArray::Item item = tbl_list.Get(j);
 		if(P_Db->GetTableInfo(item.Id, &ts) > 0 && !(ts.Flags & XTF_DICT) && ts.Location.NotEmpty()) {
 			path = ts.Location;
-			int    first = 0;
+			bool   is_first = false;
 			TablePartsEnum tpe(0);
-			SString saved_file = P_Db->MakeFileName_(ts.TblName, path);
+			SString saved_file(P_Db->MakeFileName_(ts.TblName, path));
 			SFsPath::ReplaceExt(saved_file, "___", 1);
-			for(tpe.Init(saved_file); tpe.Next(spart_saved, &first) > 0;) {
-				tpe.ReplaceExt(first, spart_saved, spart);
+			for(tpe.Init(saved_file); tpe.Next(spart_saved, &is_first) > 0;) {
+				tpe.ReplaceExt(is_first, spart_saved, spart);
 				if(restoreFiles) {
 					if(fileExists(spart_saved)) {
 						if(fileExists(spart))
@@ -647,11 +653,14 @@ int DBBackup::RestoreRemovedDB(int restoreFiles)
 int DBBackup::CopyLinkFiles(const char * pSrcPath, const char * pDestPath, BackupLogFunc fnLog, void * extraPtr)
 {
 	int    ok = -1;
-	SString buf, src_dir, dest_dir;
+	SString buf;
+	SString src_dir;
+	SString dest_dir;
 	src_dir.CopyFrom(pSrcPath).SetLastSlash().Cat(SUBDIR_LINKFILES).RmvLastSlash();
 	dest_dir.CopyFrom(pDestPath).SetLastSlash().Cat(SUBDIR_LINKFILES).RmvLastSlash();
 	if(SFile::IsDir(src_dir)) {
-		SString src_path, dest_path;
+		SString src_path;
+		SString dest_path;
 		SDirec direc;
 		SDirEntry fb;
 		SFile::RemoveDir(dest_dir);
@@ -684,7 +693,9 @@ int DBBackup::CopyByRedirect(const char * pDBPath, BackupLogFunc fnLog, void * e
 				uint j = 0;
 				SString spart;
 				SFsPath ps;
-				SString tbl_name, dest_path, src_path;
+				SString tbl_name;
+				SString dest_path;
+				SString src_path;
 				TablePartsEnum tpe(0);
 				buf.Divide('=', tbl_name, dest_path);
 				dest_path.TrimRightChr('\x0A');

@@ -3942,7 +3942,7 @@ public:
 		int32  TableNo;
 		int32  AddPaym_unused;
 		int16  GuestCount;
-		uint8  Reserve[2]; // raw
+		int16  Op_;
 		int32  AddrID;
 		int32  AddCrdCardID_unused;
 		int32  CreationUserID;
@@ -3968,7 +3968,7 @@ public:
 	DBField TableNo;
 	DBField AddPaym_unused;
 	DBField GuestCount;
-	DBField Reserve;
+	DBField Op_;
 	DBField AddrID;
 	DBField AddCrdCardID_unused;
 	DBField CreationUserID;

@@ -428,7 +428,7 @@ struct VetisEnterprise : public VetisNamedGenericVersioningEntity {
 
 	SString EnglishName;
 	int    Type;          // EnterpriseType
-	PPID   NativeLocID;   // @v10.5.0 -->Location.ID Идентификатор соответствующей локации в БД
+	PPID   NativeLocID;   // -->Location.ID Идентификатор соответствующей локации в БД
 	StringSet NumberList; // EnterpriseNumberList
 	VetisAddress Address;
 	VetisEnterpriseActivityList ActivityList;
@@ -498,7 +498,7 @@ struct VetisBusinessEntity : public VetisNamedGenericVersioningEntity {
 	}
 	PPID   EntityID;
 	int    Type;     // BusinessEntityType
-	PPID   NativePsnID; // @v10.5.0 -->Person.ID Идентификатор соответствующей персоналии в БД
+	PPID   NativePsnID; // -->Person.ID Идентификатор соответствующей персоналии в БД
 	SString FullName;
 	SString Fio;
 	SString Passport;
@@ -751,7 +751,7 @@ struct VetisBatch {
 		SubProduct = rS.SubProduct;
 		ProductItem = rS.ProductItem;
 		Volume = rS.Volume;
-		AckVolume = rS.AckVolume; // @v10.5.8
+		AckVolume = rS.AckVolume;
 		PackingAmount = rS.PackingAmount;
 		Unit = rS.Unit;
 		DateOfProduction = rS.DateOfProduction;
@@ -786,7 +786,7 @@ struct VetisBatch {
 		Flags = 0;
 		BatchIdList.Z();
 		Origin.Z();
-		PackageList.freeAll(); // @v10.4.0
+		PackageList.freeAll();
 		PackingList.freeAll();
 		ZDELETE(P_Owner);
 		return *this;
@@ -797,7 +797,7 @@ struct VetisBatch {
 	VetisSubProduct SubProduct;
 	VetisProductItem ProductItem;
 	double Volume;
-	double AckVolume; // @v10.5.8 Количество принятое при поступлении товара.
+	double AckVolume; // Количество принятое при поступлении товара.
 	long   PackingAmount;
 	VetisUnit Unit;
 	VetisGoodsDate DateOfProduction;
@@ -1057,7 +1057,7 @@ struct VetisCertifiedConsignment {
 		TransportInfo.Z();
 		TransportStorageType_id = 0;
 		RoutePointList.freeAll();
-		CargoReloadingPointList.freeAll(); // @v10.5.4
+		CargoReloadingPointList.freeAll();
 		Batch.Z();
 		return *this;
 	}
@@ -1067,7 +1067,7 @@ struct VetisCertifiedConsignment {
 	VetisTransportInfo TransportInfo;
 	int    TransportStorageType_id; // TransportationStorageType
 	TSCollection <VetisShipmentRoutePoint> RoutePointList;
-	TSCollection <VetisCargoReloadingPoint> CargoReloadingPointList; // @v10.5.4
+	TSCollection <VetisCargoReloadingPoint> CargoReloadingPointList;
 	VetisBatch Batch;
 };
 
@@ -1321,17 +1321,17 @@ struct VetisVetDocument : public VetisDocument {
 		fCargoExpertized = 0x00040000,
 		fFromMainOrg     = 0x00100000,
 		fToMainOrg       = 0x00200000,
-		fDiscrepancy     = 0x00400000, // @v10.5.1 В комбинации со статусом vetisdocstOUTGOING_PREPARING строка представляет
+		fDiscrepancy     = 0x00400000, // В комбинации со статусом vetisdocstOUTGOING_PREPARING строка представляет
 			// предварительную запись для формирование излишков либо недостач по инвентаризации
 		// Следующие 2 флага уточняют условия принятия входящей партии. Если ни один из флагов не
 		// установлен, то партия считается безусловно приятной.
 		// Проецируются на CertifiedConsignment.Batch.Flags (fPartlyAccepted fRejected)
-		fPartlyAccepted  = 0x00800000, // @v10.5.8 Партия частично принята
-		fRejected        = 0x01000000, // @v10.5.8 Партия полностью отклонена
-		fDiscrepancyLack = 0x02000000, // @v10.5.11 В комбинации со статутом vetisdocstOUTGOING_PREPARING и флагом fDiscrepancy
+		fPartlyAccepted  = 0x00800000, // Партия частично принята
+		fRejected        = 0x01000000, // Партия полностью отклонена
+		fDiscrepancyLack = 0x02000000, // В комбинации со статутом vetisdocstOUTGOING_PREPARING и флагом fDiscrepancy
 			// строка представляет предварительную запись для формирования недостач по инвентаризации
-		fManufIncome     = 0x04000000, // @v10.6.9 Партия выхода из производства
-		fManufExpense    = 0x08000000, // @v10.6.9 Партия расхода на производство
+		fManufIncome     = 0x04000000, // Партия выхода из производства
+		fManufExpense    = 0x08000000, // Партия расхода на производство
 		fInSendingQueue  = 0x10000000  // @v11.3.4 Запись находится в очереди на отправку. Это означает, что пытаться отправлять (снова) ее не следует
 	};
 	long   Flags;
@@ -1476,7 +1476,7 @@ public:
 	STimeChunk Period;
 };
 
-class VetisGetStockEntryByUUIDRequest : public VetisApplicationData { // @v10.5.9 getStockEntryByUUID
+class VetisGetStockEntryByUUIDRequest : public VetisApplicationData { // getStockEntryByUUID
 public:
 	VetisGetStockEntryByUUIDRequest() : VetisApplicationData(signGetStockEntryByUUID)
 	{
@@ -1492,7 +1492,7 @@ protected:
 public:
 	int    DocType;   // VetisDocType
 	int    DocStatus; // VetisDocStatus
-	STimeChunk Period; // @v10.6.4
+	STimeChunk Period;
 };
 
 class VetisGetVetDocumentListRequest : public VetisGetVetDocumentListRequest_Base {
@@ -1539,7 +1539,7 @@ public:
 	S_GUID StockEntryGuid;
 	S_GUID StockEntryUuid;
 	VetisTransportInfo Transp;
-	SString TranspStorageType; // @v10.2.0
+	SString TranspStorageType;
 	const TSCollection <VetisRouteSectionR13nRules> * P_RegionRules; // @v11.0.11 @notowned
 };
 
@@ -1560,7 +1560,7 @@ public:
 	VetisEnterprise En;
 };
 
-class VetisModifyActivityLocationsRequest : public VetisApplicationData { // @V10.5.1
+class VetisModifyActivityLocationsRequest : public VetisApplicationData {
 public:
 	VetisModifyActivityLocationsRequest(VetisRegisterModificationType mt) : VetisApplicationData(signModifyActivityLocations), ModType(mt)
 	{
@@ -1570,7 +1570,7 @@ public:
 	VetisEnterprise En;
 };
 
-class ModifyProducerStockListOperationRequest : public VetisApplicationData { // @v10.5.2
+class ModifyProducerStockListOperationRequest : public VetisApplicationData {
 public:
 	ModifyProducerStockListOperationRequest(VetisRegisterModificationType mt) : VetisApplicationData(signModifyProducerStockListOperation), ModType(mt)
 	{
@@ -1588,7 +1588,7 @@ public:
 	TSCollection <VetisShipmentRoutePoint> RoutePointList;
 };
 
-class VetisResolveDiscrepancyRequest : public VetisApplicationData { // @v10.5.0
+class VetisResolveDiscrepancyRequest : public VetisApplicationData {
 public:
 	VetisResolveDiscrepancyRequest() : VetisApplicationData(signResolveDiscrepancy), StockEntryRest(0.0)
 	{
@@ -1596,13 +1596,13 @@ public:
 	VetisDocumentTbl::Rec VdRec;
 	VetisVetDocument Doc;
 	VetisProductItem Pi;
-	VetisVetDocument OrgDoc; // @v10.5.11 Документ, в соответствии с которым товар оказался у нас
-	S_GUID StockEntryGuid;   // @v10.5.11
-	S_GUID StockEntryUuid;   // @v10.5.11
-	double StockEntryRest;   // @v10.5.11
+	VetisVetDocument OrgDoc; // Документ, в соответствии с которым товар оказался у нас
+	S_GUID StockEntryGuid;   //
+	S_GUID StockEntryUuid;   //
+	double StockEntryRest;   //
 };
 
-class VetisRegisterProductionRequest : public VetisApplicationData { // @v10.6.10
+class VetisRegisterProductionRequest : public VetisApplicationData {
 public:
 	VetisRegisterProductionRequest() : VetisApplicationData(signRegisterProduction)
 	{
@@ -1676,16 +1676,16 @@ struct VetisApplicationBlock {
 	TSCollection <VetisFault> FaultList;
 	const VetisApplicationData * P_AppParam;
 	TSCollection <VetisProductItem> ProductItemList; // Ответ на запрос одного или нескольких ProductItem
-	TSCollection <VetisProduct> ProductList; // @v10.5.2
-	TSCollection <VetisSubProduct> SubProductList; // @v10.5.2
+	TSCollection <VetisProduct> ProductList;
+	TSCollection <VetisSubProduct> SubProductList;
 	TSCollection <VetisEnterprise> EntItemList;
 	TSCollection <VetisBusinessEntity> BEntList;
 	TSCollection <VetisVetDocument> VetDocList;
 	TSCollection <VetisStockEntry> VetStockList;
 	TSCollection <VetisUnit> UnitList;
 	TSCollection <VetisPurpose> PurposeList;
-	TSCollection <VetisCountry> CountryList; // @v10.5.1
-	TSCollection <VetisAddressObjectView> RegionList; // @v10.5.1
+	TSCollection <VetisCountry> CountryList;
+	TSCollection <VetisAddressObjectView> RegionList;
 	TSCollection <VetisRouteSectionR13nRules> R13RulesList; // @v11.0.11
 };
 //
@@ -1763,7 +1763,7 @@ VetisEnterprise & FASTCALL VetisEnterprise::operator = (const VetisEnterprise & 
 	VetisNamedGenericVersioningEntity::operator = (rS);
 	EnglishName = rS.EnglishName;
 	Type = rS.Type;
-	NativeLocID = rS.NativeLocID; // @v10.5.0
+	NativeLocID = rS.NativeLocID;
 	NumberList = rS.NumberList;
 	Address = rS.Address;
 	ActivityList = rS.ActivityList;
@@ -2471,19 +2471,17 @@ int VetisEntityCore::Get(PPID id, VetisVetDocument & rItem)
 			rItem.IssueNumber = rec.IssueNumber;
 			rItem.WayBillDate = rec.WayBillDate;
 			rItem.WayBillNumber = rec.WayBillNumber;
-			rItem.NativeBillID = rec.LinkBillID; // @v10.2.2 @fix
-			rItem.NativeBillRow = rec.LinkBillRow; // @v10.2.2 @fix
+			rItem.NativeBillID = rec.LinkBillID;
+			rItem.NativeBillRow = rec.LinkBillRow;
 			r_crtc.Batch.DateOfProduction.FirstDate.FromInt64(rec.ManufDateFrom);
 			r_crtc.Batch.DateOfProduction.SecondDate.FromInt64(rec.ManufDateTo);
 			r_crtc.Batch.ExpiryDate.FirstDate.FromInt64(rec.ExpiryFrom);
 			r_crtc.Batch.ExpiryDate.SecondDate.FromInt64(rec.ExpiryTo);
 			r_crtc.Batch.NativeGoodsID = rec.LinkGoodsID;
 			r_crtc.Batch.Volume = rec.Volume;
-			// @v10.5.8 {
 			r_crtc.Batch.AckVolume = rec.AckVolume;
 			SETFLAG(r_crtc.Batch.Flags, r_crtc.Batch.fPartlyAccepted, rec.Flags & VetisVetDocument::fPartlyAccepted);
 			SETFLAG(r_crtc.Batch.Flags, r_crtc.Batch.fRejected, rec.Flags & VetisVetDocument::fRejected);
-			// } @v10.5.8
 			r_crtc.Batch.PackingAmount = rec.PackingAmount;
 			r_crtc.Batch.ProductType = rec.ProductType;
 			r_crtc.TransportInfo.TransportType = rec.TranspType;
@@ -2491,13 +2489,13 @@ int VetisEntityCore::Get(PPID id, VetisVetDocument & rItem)
 			if(rec.FromEntityID) {
 				GetEntity(rec.FromEntityID, sub_entity);
 				sub_entity.Get(r_crtc.Consignor.BusinessEntity);
-				r_crtc.Consignor.BusinessEntity.EntityID = sub_entity.ID; // @v10.4.1
+				r_crtc.Consignor.BusinessEntity.EntityID = sub_entity.ID;
 			}
 			ResolveEntityByID(rec.FromEnterpriseID, r_crtc.Consignor.Enterprise);
 			if(rec.ToEntityID) {
 				GetEntity(rec.ToEntityID, sub_entity);
 				sub_entity.Get(r_crtc.Consignee.BusinessEntity);
-				r_crtc.Consignee.BusinessEntity.EntityID = sub_entity.ID; // @v10.4.1
+				r_crtc.Consignee.BusinessEntity.EntityID = sub_entity.ID;
 			}
 			ResolveEntityByID(rec.ToEnterpriseID, r_crtc.Consignee.Enterprise);
 			ResolveEntityByID(rec.ProductID, r_crtc.Batch.Product);
@@ -2870,7 +2868,6 @@ int VetisEntityCore::Put(PPID * pID, const VetisVetDocument & rItem, long flags,
 				VetisDocumentTbl::Key0 k0;
 				k0.EntityID = entity.ID;
 				if(DT.searchForUpdate(0, &k0, spEq)) {
-					// @v10.2.0 {
 					VetisDocumentTbl::Rec ex_rec;
 					DT.copyBufTo(&ex_rec);
 					if(!(rItem.Flags & rItem.fFromMainOrg) && (flags & putvdfEnableClearNativeBillLink)) { // @v11.1.8
@@ -2882,8 +2879,6 @@ int VetisEntityCore::Put(PPID * pID, const VetisVetDocument & rItem, long flags,
 							rec.LinkBillRow = ex_rec.LinkBillRow;
 						}
 					}
-					// } @v10.2.0
-					// @v10.5.8 {
 					if(flags & putvdfForceUpdateOuterFields) {
 						SETFLAG(rec.Flags, rItem.fPartlyAccepted, rItem.Flags & rItem.fPartlyAccepted);
 						SETFLAG(rec.Flags, rItem.fRejected, rItem.Flags & rItem.fRejected);
@@ -2894,7 +2889,6 @@ int VetisEntityCore::Put(PPID * pID, const VetisVetDocument & rItem, long flags,
 						SETFLAGBYSAMPLE(rec.Flags, rItem.fRejected, ex_rec.Flags);
 						rec.AckVolume = ex_rec.AckVolume;
 					}
-					// } @v10.5.8
 					if(memcmp(&DT.data, &rec, sizeof(rec)) != 0) {
 						THROW_DB(DT.updateRecBuf(&rec)); // @sfu
 					}
@@ -2946,7 +2940,7 @@ int VetisEntityCore::Put(PPID * pID, const VetisVetDocument & rItem, long flags,
 					const VetisProductMarks * p_mitem = r_bat.ProductMarkingList.at(midx);
 					if(p_mitem) {
 						code_list_buf.CatDivIfNotEmpty(';', 0).Cat(p_mitem->Cls).Comma().Cat(p_mitem->Item);
-						if(code_list_buf.Len() > 1024) // @v10.4.1
+						if(code_list_buf.Len() > 1024)
 							break;
 					}
 				}
@@ -2962,7 +2956,7 @@ int VetisEntityCore::Put(PPID * pID, const VetisVetDocument & rItem, long flags,
 		THROW(tra.Commit());
 	}
 	CATCHZOK
-	ASSIGN_PTR(pID, result_id); // @v10.5.8
+	ASSIGN_PTR(pID, result_id);
 	return ok;
 }
 
@@ -3391,7 +3385,7 @@ public:
 	int    GetVetDocumentList(const STimeChunk & rPeriod, uint startOffset, uint count, VetisApplicationBlock & rReply);
 	int    GetVetDocumentChangesList(const STimeChunk & rPeriod, uint startOffset, uint count, VetisApplicationBlock & rReply);
 	int    GetVetDocumentByUuid(const S_GUID & rUuid, VetisApplicationBlock & rReply);
-	int    GetStockEntryByUuid(const S_GUID & rUuid, VetisApplicationBlock & rReply); // @v10.5.9
+	int    GetStockEntryByUuid(const S_GUID & rUuid, VetisApplicationBlock & rReply);
 	//
 	// Операция IncomingOperation предназначена для оформления в системе Меркурий входящей партии.
 	//   На вход системы, в зависимости от сценария, передаются следующие сведения:
@@ -3464,8 +3458,8 @@ public:
 	int    GetRussianEnterpriseList(uint offs, uint count, VetisApplicationBlock & rReply);
 	int    GetBusinessEntityList(uint offs, uint count, VetisApplicationBlock & rReply);
 	int    GetProductItemList(uint offs, uint count, VetisApplicationBlock & rReply);
-	int    GetProductChangesList(uint offs, uint count, LDATE since, VetisApplicationBlock & rReply); // @v10.5.2
-	int    GetSubProductChangesList(uint offs, uint count, LDATE since, VetisApplicationBlock & rReply); // @v10.5.2
+	int    GetProductChangesList(uint offs, uint count, LDATE since, VetisApplicationBlock & rReply);
+	int    GetSubProductChangesList(uint offs, uint count, LDATE since, VetisApplicationBlock & rReply);
 	int    GetPurposeList(uint offs, uint count, VetisApplicationBlock & rReply);
 	int    GetUnitList(uint offs, uint count, VetisApplicationBlock & rReply);
 	int    GetCountryList(VetisApplicationBlock & rReply);
@@ -3552,14 +3546,14 @@ private:
 		PPID   DlvrLocID;
 		S_GUID PersonGuid;
 		S_GUID DlvrLocGuid;
-		PPID   ManufIncomeDocEntityID; // @v10.6.9 При обработке документа производства сначала формируется запись выхода а затем записи
+		PPID   ManufIncomeDocEntityID; // При обработке документа производства сначала формируется запись выхода а затем записи
 			// расхода, которые получают ссылку на запись выхода (DepDocEntityID). Таким образом, можно сформировать записи для документов
 			// производства, которые содержат одну и только одну исходящую позицию, подлежащую сертификации.
 	};
 	enum {
 		pbrfDiscrepancy = 0x0001,
-		pbrfManuf       = 0x0002, // @v10.6.3
-		pbrfManufInc    = 0x0004  // @v10.6.9 Если флаг установлен, то формируется запись для исходящей строки документа производства
+		pbrfManuf       = 0x0002, //
+		pbrfManufInc    = 0x0004  // Если флаг установлен, то формируется запись для исходящей строки документа производства
 	};
 	static int MakeOutgoingBillList(PPID locID, const DateRange & rPeriod, const PPIDArray & rOpList, long flags, PPIDArray & rBillList);
 	int    PutBillRow(const PPBillPacket & rBp, uint rowIdx, long flags, PutBillRowBlock & rPbrBlk, int use_ta);
@@ -3568,8 +3562,8 @@ private:
 	int    LogFaults(const VetisApplicationBlock & rAb, const OutcomingEntry * pOcEntry);
 
 	long   State;
-	PPID   DlvrLocToTranspTagID; // @v10.8.12 Тег сопоставляющий адрес транспортному стредству
-	PPID   PersonToTranspTagID; // @v11.6.12 Тег сопоставляющий контрагента транспортному стредству
+	PPID   DlvrLocToTranspTagID; // Тег сопоставляющий адрес транспортному стредству
+	PPID   PersonToTranspTagID;  // @v11.6.12 Тег сопоставляющий контрагента транспортному стредству
 	SString LogFileName;
 	SString LastMsg;
 	Param   P;
@@ -3624,9 +3618,8 @@ int PPVetisInterface::LogMessage(const char * pPrefix, const SString & rMsg)
 	Reference * p_ref = PPRef;
 	SString temp_buf;
 	PPAlbatrossConfig acfg;
-	// @v10.1.9 THROW(PPAlbatrosCfgMngr::Get(&acfg) > 0);
-	THROW(DS.FetchAlbatrosConfig(&acfg) > 0); // @v10.1.9
-	SETFLAG(rP.Flags, rP.fTestContour, acfg.Hdr.Flags & acfg.Hdr.fVetisTestContour); // @v10.5.1
+	THROW(DS.FetchAlbatrosConfig(&acfg) > 0);
+	SETFLAG(rP.Flags, rP.fTestContour, acfg.Hdr.Flags & acfg.Hdr.fVetisTestContour);
 	SETIFZ(rP.MainOrgID, GetMainOrgID());
 	SETIFZ(rP.LocID, LConfig.Location);
 	acfg.GetExtStrData(ALBATROSEXSTR_VETISUSER, temp_buf);
@@ -3649,7 +3642,7 @@ int PPVetisInterface::LogMessage(const char * pPrefix, const SString & rMsg)
 		}
 		GetPersonName(rP.MainOrgID, temp_buf);
 		THROW_PP_S(rP.IssuerUUID, PPERR_VETISBUSENTGUIDUNDEF, temp_buf);
-		if(!(rP.Flags & rP.fSkipLocInitialization)) { // @v10.5.1
+		if(!(rP.Flags & rP.fSkipLocInitialization)) {
 			if(p_ref->Ot.GetTag(PPOBJ_LOCATION, rP.LocID, PPTAG_LOC_VETIS_GUID, &tag_item) > 0) {
 				tag_item.GetGuid(&rP.EntUUID);
 			}
@@ -3690,7 +3683,6 @@ int PPVetisInterface::Init(const Param & rP)
 	P = rP;
 	PPObjTag tag_obj;
 	PPObjectTag tag_rec;
-	// @v10.8.12 {
 	DlvrLocToTranspTagID = 0;
 	{
 		for(SEnum en = tag_obj.Enum(0); !DlvrLocToTranspTagID && en.Next(&tag_rec) > 0;) {
@@ -3698,7 +3690,6 @@ int PPVetisInterface::Init(const Param & rP)
 				DlvrLocToTranspTagID = tag_rec.ID;
 		}
 	}
-	// } @v10.8.12
 	// @v11.6.12 {
 	PersonToTranspTagID = 0;
 	{
@@ -3752,7 +3743,7 @@ int PPVetisInterface::SendSOAP(const char * pUrl, const char * pAction, const SS
 		THROW(MakeAuthField(temp_buf));
 		SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrAuthorization, temp_buf);
 		if(!isempty(pAction)) {
-			SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrSoapAction, temp_buf.Z().CatQStr(pAction)); // @v10.9.0 temp_buf.-->temp_buf.Z().
+			SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrSoapAction, temp_buf.Z().CatQStr(pAction));
 		}
 	}
 	LogMessage("query", rPack);

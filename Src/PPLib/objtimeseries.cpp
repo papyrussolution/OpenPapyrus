@@ -8333,10 +8333,10 @@ int PrcssrTsStrategyAnalyze::TryStrategyContainer(const PPObjTimeSeries::Config 
 						{
 							LDATE till_date = p_result_entry->Sc.GetUseDataForStrategiesTill();
 							PPObjTimeSeries::StrategyResultEntry sre;
-							const uint insur_sl_delta = 0; // @v10.8.5 Страховочный запас для stop-limit (quants)
-							const uint insur_tp_delta = 0; // @v10.8.5 Страховочный запас для take-profit (quants)
+							const uint insur_sl_delta = 0; // Страховочный запас для stop-limit (quants)
+							const uint insur_tp_delta = 0; // Страховочный запас для take-profit (quants)
 							p_result_entry->Sc.Simulate(ctspb, rCfg, insur_sl_delta, insur_tp_delta, sre, &p_result_entry->DetailsList);
-							p_result_entry->Sc.AccumulateFactors(sre); // @v10.8.6
+							p_result_entry->Sc.AccumulateFactors(sre);
 							if(flags & tscfSkipOutput) {
 								for(uint dlidx = 0; dlidx < p_result_entry->DetailsList.getCount(); dlidx++) {
 									PPObjTimeSeries::StrategyResultValueEx & r_dli = p_result_entry->DetailsList.at(dlidx);

@@ -146,17 +146,36 @@ GTaxVect::EvalBlock::EvalBlock() : P_BPack(0), P_Ti(0), P_Gte(0), TiIdx(-1), OpI
 	MainOrgID = GetMainOrgPersonID(0);
 }
 
+PPID GTaxVect::EvalBlock::GetSupplPersonID_() const
+{
+	PPID   result_id = 0;
+	// @v12.2.11 {
+	// У драфт-документов в строках поставщика нет (ибо нет лота). Для драфт-прихода в ограниченном наборе случаем мы эмпирически идентифицирует поставщика
+	if(P_BPack && P_BPack->OpTypeID == PPOPT_DRAFTRECEIPT && TiAmt == TIAMT_COST) {
+		PPID suppl_ar_id = P_BPack->Rec.Object;
+		if(suppl_ar_id) {
+			result_id = ObjectToPerson(suppl_ar_id, 0);
+		}
+	}
+	else 
+	// } @v12.2.11 
+	{
+		if(P_Ti) {
+			result_id = GetSupplPersonID(P_Ti);
+		}
+		else if(P_BPack && TiIdx >= 0 && TiIdx < P_BPack->GetTCountI()) {
+			result_id = GetSupplPersonID(&P_BPack->ConstTI(TiIdx));
+		}
+	}
+	return result_id;
+}
+
 GTaxVect::EvalBlock::EvalBlock(const PPBillPacket & rBPack, int tiIdx, int tiamt/*TIAMT_XXX*/, long exclFlags, int correctionFlag) :
 	P_BPack(&rBPack), P_Ti(0), P_Gte(0), TiIdx(tiIdx), OpID(0), TiAmt(tiamt), ExclFlags(exclFlags), CorrectionFlag(correctionFlag), MainOrgID(0), SupplPsnID(0), Amount(0.0), Qtty(0.0),
 	P_CcPack(0), P_CcRow(0)
 {
 	MainOrgID = GetMainOrgPersonID(P_BPack ? &P_BPack->Rec : 0);
-	if(P_Ti) {
-		SupplPsnID = GetSupplPersonID(P_Ti);
-	}
-	else if(P_BPack && TiIdx >= 0 && TiIdx < P_BPack->GetTCountI()) {
-		SupplPsnID = GetSupplPersonID(&P_BPack->ConstTI(TiIdx));
-	}
+	SupplPsnID = GetSupplPersonID_();
 }
 
 GTaxVect::EvalBlock::EvalBlock(const PPBillPacket & rBPack, const PPTransferItem & rTi, int tiamt/*TIAMT_XXX*/, long exclFlags, int correctionFlag) :
@@ -164,12 +183,7 @@ GTaxVect::EvalBlock::EvalBlock(const PPBillPacket & rBPack, const PPTransferItem
 	P_CcPack(0), P_CcRow(0)
 {
 	MainOrgID = GetMainOrgPersonID(P_BPack ? &P_BPack->Rec : 0);
-	if(P_Ti) {
-		SupplPsnID = GetSupplPersonID(P_Ti);
-	}
-	else if(P_BPack && TiIdx >= 0 && TiIdx < P_BPack->GetTCountI()) {
-		SupplPsnID = GetSupplPersonID(&P_BPack->ConstTI(TiIdx));
-	}
+	SupplPsnID = GetSupplPersonID_();
 }
 
 GTaxVect::EvalBlock::EvalBlock(const PPTransferItem & rTi, PPID opID, int tiamt/*TIAMT_XXX*/, long exclFlags, int correctionFlag) :
@@ -181,12 +195,7 @@ GTaxVect::EvalBlock::EvalBlock(const PPTransferItem & rTi, PPID opID, int tiamt/
 		MainOrgID = GetMainOrgPersonID(&bill_rec);
 	else
 		MainOrgID = GetMainOrgPersonID(0);
-	if(P_Ti) {
-		SupplPsnID = GetSupplPersonID(P_Ti);
-	}
-	else if(P_BPack && TiIdx >= 0 && TiIdx < P_BPack->GetTCountI()) {
-		SupplPsnID = GetSupplPersonID(&P_BPack->ConstTI(TiIdx));
-	}
+	SupplPsnID = GetSupplPersonID_();
 }
 
 GTaxVect::EvalBlock::EvalBlock(const CCheckPacket & rCc, CCheckLineTbl::Rec & rCcRow, long exclFlags) : P_BPack(0), P_Ti(0), P_Gte(0), TiIdx(-1), 

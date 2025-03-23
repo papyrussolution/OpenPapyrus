@@ -29,14 +29,7 @@ int GoodsFilt::InitInstance()
 	return Init(1, 0);
 }
 
-#define GOODSFILT_VERSION -26
-	// @v6.0.2 -14-->-19
-	// @v6.4.2 -19-->-21
-	// @v7.2.0 -21-->-22
-	// @v7.7.9 -22-->-23
-	// @v8.6.4 -23-->-24
-	// @v10.0.12 -24-->-25
-	// @v11.5.8 -25-->-26
+#define GOODSFILT_VERSION -26 // @v11.5.8 -25-->-26
 
 IMPLEMENT_PPFILT_FACTORY(Goods); GoodsFilt::GoodsFilt(PPID goodsGroupID) : PPBaseFilt(PPFILT_GOODS, 0, GOODSFILT_VERSION)
 {
@@ -2963,12 +2956,12 @@ int PPViewGoods::Detail(const void * pHdr, PPViewBrowser * pBrw)
 	return -1;
 }
 
-static int RecoverGoodsExtPropRef(PPID goodsID, PPID * pRefID, int isCls, const PPGdsClsProp & rProp, PPLogger * pLogger)
+static int RecoverGoodsExtPropRef(PPID goodsID, PPID * pRefID, bool isCls, const PPGdsClsProp & rProp, PPLogger * pLogger)
 {
 	int    ok = 1;
 	uint   msg_id = 0;
 	if(*pRefID) {
-		if(isCls > 0) {
+		if(isCls) {
 			if(rProp.ItemsListID) {
 				PPObject * p_obj = GetPPObject(rProp.ItemsListID, 0);
 				if(!p_obj || p_obj->Search(*pRefID, 0) < 0) {
@@ -3057,10 +3050,9 @@ int PPViewGoods::Repair(PPID /*id*/)
 	SString msg_buf;
 	if(EditGoodsRecoverParam(&param) > 0) {
 		if(param.Flags & param.fCheckAlcoAttribs) {
-			THROW_MEM(p_eg_prc = new PPEgaisProcessor(PPEgaisProcessor::cfUseVerByConfig, &logger, 0));
+			THROW_MEM(p_eg_prc = new PPEgaisProcessor(PPEgaisProcessor::cfUseVerByConfig, &logger, 0)); // @instantiation(PPEgaisProcessor)
 		}
 		PPWaitStart();
-		// @v10.7.9 {
 		{
 			//
 			// Проверка на наличие висячих записей штрихкодов
@@ -3070,8 +3062,8 @@ int PPViewGoods::Repair(PPID /*id*/)
 			PPIDArray hanged_bc_goods_list;
 			MEMSZERO(bck0);
 			if(r_bctbl.search(0, &bck0, spFirst)) do {
-				PPID   bc_goods_id = r_bctbl.data.GoodsID;
-				int    r = GObj.Search(bc_goods_id, 0);
+				const  PPID bc_goods_id = r_bctbl.data.GoodsID;
+				const  int  r = GObj.Search(bc_goods_id, 0);
 				if(r > 0) {
 					; // ok
 				}
@@ -3096,7 +3088,6 @@ int PPViewGoods::Repair(PPID /*id*/)
 				THROW(tra.Commit());
 			}
 		}
-		// } @v10.7.9
 		PPID   prev_id = 0;
 		PPUnit unit_rec;
 		PPID   cfg_def_unit_id = GObj.GetConfig().DefUnitID;
@@ -3113,7 +3104,7 @@ int PPViewGoods::Repair(PPID /*id*/)
 				int    to_turn_packet = 0;
 				if(GObj.GetPacket(item.ID, &pack, 0) > 0) {
 					ArGoodsCodeArray susp_arcode_list; // @v11.6.3 Список кодов по статьям, имеющих подозрительное значение кода (неверная кодировка).
-					const int is_cls = BIN(pack.Rec.GdsClsID && gc_obj.GetPacket(pack.Rec.GdsClsID, &gc_pack) > 0);
+					const bool is_cls = (pack.Rec.GdsClsID && gc_obj.GetPacket(pack.Rec.GdsClsID, &gc_pack) > 0);
 					// @v11.3.2 {
 					if(pack.Rec.ParentID && GObj.Search(pack.Rec.ParentID, &parent_rec) > 0) {
 						;
@@ -3177,7 +3168,7 @@ int PPViewGoods::Repair(PPID /*id*/)
 						}
 					}
 					//
-					if(is_cls > 0) {
+					if(is_cls) {
 						THROW(gc_pack.CompleteGoodsPacket(&pack));
 						to_turn_packet = 1;
 					}
@@ -3966,8 +3957,8 @@ void PPViewGoods::Test_EgaisMarkAutoSelector(PPID goodsID)
 {
 	if(goodsID) {
 		PPLogger logger;
-		PPEgaisProcessor ep(PPEgaisProcessor::cfUseVerByConfig, &logger, 0);
-		EgaisMarkAutoSelector s(&ep);
+		PPEgaisProcessor ep(PPEgaisProcessor::cfUseVerByConfig, &logger, 0); // @instantiation(PPEgaisProcessor)
+		EgaisMarkAutoSelector s/*(&ep)*/;
 		EgaisMarkAutoSelector::ResultBlock result_blk;//(goodsID, 1.0);
 		EgaisMarkAutoSelector::DocItem * p_result_item = result_blk.CreateNewItem();
 		p_result_item->ItemId = 1;

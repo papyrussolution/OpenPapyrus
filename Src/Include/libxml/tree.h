@@ -1,13 +1,11 @@
-/*
- * Summary: interfaces for tree manipulation
- * Description: this module describes the structures found in an tree resulting
- *   from an XML or HTML parsing, as well as the API provided for
- *   various processing on that tree
- *
- * Copy: See Copyright for the status of this software.
- *
- * Author: Daniel Veillard
- */
+// TREE.H
+// @codepage UTF-8
+// Summary: interfaces for tree manipulation
+// Description: this module describes the structures found in an tree resulting
+//   from an XML or HTML parsing, as well as the API provided for various processing on that tree
+// Copy: See Copyright for the status of this software.
+// Author: Daniel Veillard
+// 
 #ifndef __XML_TREE_H__
 #define __XML_TREE_H__
 
@@ -208,7 +206,7 @@ struct xmlDtd : public XmlNodeBase {
 	//const xmlChar * name; // Name of the DTD 
 	//xmlNode * children; // the value of the property link
 	//xmlNode * last;   // last child link
-	//xmlDoc  * parent; // child->parent link // @sobolev @note Á‰ÂÒ¸ (xmlDoc * parent) ‚ ÂÁÛÎ¸Ú‡ÚÂ Ì‡ÒÎÂÌ‰Ó‚‡ÌËˇ ÓÚ XmlNodeBase ÔÂ‚‡˘‡ÂÚÒˇ ‚ (xmlNode * parent)
+	//xmlDoc  * parent; // child->parent link // @sobolev @note –∑–¥–µ—Å—å (xmlDoc * parent) –≤ —Ä–µ–∑—É–ª—å—Ç–∞—Ç–µ –Ω–∞—Å–ª–µ–Ω–¥–æ–≤–∞–Ω–∏—è –æ—Ç XmlNodeBase –ø—Ä–µ–≤—Ä–∞—â–∞–µ—Ç—Å—è –≤ (xmlNode * parent)
 	//xmlNode * next; // next sibling link 
 	//xmlNode * prev; // previous sibling link 
 	//xmlDoc  * doc;  // the containing document
@@ -786,4 +784,3 @@ xmlNode * xmlPreviousElementSibling(xmlNode * pNode);
 #endif
 
 #endif /* __XML_TREE_H__ */
-

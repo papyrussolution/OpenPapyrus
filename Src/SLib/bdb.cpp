@@ -1059,7 +1059,7 @@ void FASTCALL BDbTable::Statistics::ICt::Put(uint64 t)
 	BDbTable * p_taget_tbl = (BDbTable *)r_reg.GetBySupplementPtr(pSecondary);
 #ifndef NDEBUG
 	// testing {
-	for(int i = 1; i <= r_reg.GetMaxEntries(); i++) {
+	for(uint i = 1; i <= r_reg.GetMaxEntries(); i++) {
 		BDbTable * p_tbl = (BDbTable *)r_reg.GetPtr(i);
 		if(p_tbl && p_tbl->H == pSecondary) {
 			assert(p_taget_tbl == p_tbl);
@@ -1086,8 +1086,8 @@ void FASTCALL BDbTable::Statistics::ICt::Put(uint64 t)
 	int    r = DB_DONOTINDEX;
 	int    _found = 0;
 	DbThreadLocalArea::DbRegList & r_reg = DBS.GetTLA().GetBDbRegList();
-	for(int i = 1; i <= r_reg.GetMaxEntries(); i++) {
-		BDbTable * p_tbl = static_cast<BDbTable *>(r_reg.GetPtr(i));
+	for(uint i = 1; i <= r_reg.GetMaxEntries(); i++) {
+		BDbTable * p_tbl = static_cast<BDbTable *>(r_reg.GetPtr_(i));
 		if(p_tbl && p_tbl->H == pSecondary) {
 			if(p_tbl->P_IdxHandle) {
 				BDbTable::Buffer key(pKey);
@@ -1116,8 +1116,8 @@ void FASTCALL BDbTable::Statistics::ICt::Put(uint64 t)
 		BDbTable * p_target_tbl = static_cast<BDbTable *>(r_reg.GetBySupplementPtr(pDb));
 #ifndef NDEBUG
 		// testing {
-		for(int i = 1; i <= r_reg.GetMaxEntries(); i++) {
-			BDbTable * p_tbl = static_cast<BDbTable *>(r_reg.GetPtr(i));
+		for(uint i = 1; i <= r_reg.GetMaxEntries(); i++) {
+			BDbTable * p_tbl = static_cast<BDbTable *>(r_reg.GetPtr_(i));
 			if(p_tbl && p_tbl->H == pDb) {
 				assert(p_target_tbl == p_tbl);
 				//p_target_tbl = p_tbl;
@@ -1143,8 +1143,8 @@ void FASTCALL BDbTable::Statistics::ICt::Put(uint64 t)
 		BDbTable * p_target_tbl = static_cast<BDbTable *>(r_reg.GetBySupplementPtr(pDb));
 #ifndef NDEBUG
 		// testing {
-		for(int i = 1; i <= r_reg.GetMaxEntries(); i++) {
-			BDbTable * p_tbl = static_cast<BDbTable *>(r_reg.GetPtr(i));
+		for(uint i = 1; i <= r_reg.GetMaxEntries(); i++) {
+			BDbTable * p_tbl = static_cast<BDbTable *>(r_reg.GetPtr_(i));
 			if(p_tbl && p_tbl->H == pDb) {
 				assert(p_target_tbl == p_tbl);
 				//p_target_tbl = p_tbl;

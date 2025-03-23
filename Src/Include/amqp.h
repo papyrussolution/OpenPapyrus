@@ -1,13 +1,13 @@
-/** \file */
+// amqp.h
+// @codepage UTF-8
+//
 /*
- * ***** BEGIN LICENSE BLOCK *****
  * Version: MIT
  *
  * Portions created by Alan Antonuk are Copyright (c) 2012-2014
  * Alan Antonuk. All Rights Reserved.
  *
- * Portions created by VMware are Copyright (c) 2007-2012 VMware, Inc.
- * All Rights Reserved.
+ * Portions created by VMware are Copyright (c) 2007-2012 VMware, Inc. All Rights Reserved.
  *
  * Portions created by Tony Garnock-Jones are Copyright (c) 2009-2010
  * VMware, Inc. and Tony Garnock-Jones. All Rights Reserved.
@@ -22,7 +22,6 @@
  *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * ***** END LICENSE BLOCK *****
  */
 #ifndef AMQP_H
 #define AMQP_H
@@ -3119,13 +3118,13 @@ AMQP_BEGIN_DECLS
 AMQP_END_DECLS
 // } amqp_tcp_socket.h
 //
-// Descr: Транслирует коды статусов AMQP в коды ошибок SLIB.
+// Descr: РўСЂР°РЅСЃР»РёСЂСѓРµС‚ РєРѕРґС‹ СЃС‚Р°С‚СѓСЃРѕРІ AMQP РІ РєРѕРґС‹ РѕС€РёР±РѕРє SLIB.
 //
 int FASTCALL SlTranlateAmqpStatus(int amqpStatus);
 //
-// Descr: Проверяет статус AMQP на предмет ошибки. Если он сигнализирует об ошибке, то возвращает 0,
-//   в противном случае !0.
-//   В случае ошибки устанавливается код ошибки SLIB.
+// Descr: РџСЂРѕРІРµСЂСЏРµС‚ СЃС‚Р°С‚СѓСЃ AMQP РЅР° РїСЂРµРґРјРµС‚ РѕС€РёР±РєРё. Р•СЃР»Рё РѕРЅ СЃРёРіРЅР°Р»РёР·РёСЂСѓРµС‚ РѕР± РѕС€РёР±РєРµ, С‚Рѕ РІРѕР·РІСЂР°С‰Р°РµС‚ 0,
+//   РІ РїСЂРѕС‚РёРІРЅРѕРј СЃР»СѓС‡Р°Рµ !0.
+//   Р’ СЃР»СѓС‡Р°Рµ РѕС€РёР±РєРё СѓСЃС‚Р°РЅР°РІР»РёРІР°РµС‚СЃСЏ РєРѕРґ РѕС€РёР±РєРё SLIB.
 //
 int FASTCALL SlCheckAmqpError(int amqpStatus, const char * pAddedMsg);
 

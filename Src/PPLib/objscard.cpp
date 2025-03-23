@@ -2024,7 +2024,8 @@ int PPObjSCard::SearchCode(PPID seriesID, const char * pCode, SCardTbl::Rec * pR
 
 int PPObjSCard::Helper_GetListBySubstring(const char * pSubstr, PPID seriesID, void * pList, long flags)
 {
-	int    ok = 1, r = 0;
+	int    ok = 1;
+	int    r = 0;
 	const  size_t substr_len = sstrlen(pSubstr);
 	PPIDArray * p_list = 0;
 	StrAssocArray * p_str_list = 0;
@@ -2033,7 +2034,7 @@ int PPObjSCard::Helper_GetListBySubstring(const char * pSubstr, PPID seriesID, v
 	else
 		p_list = (PPIDArray *)pList;
 	if(substr_len) {
-		PPJobSrvClient * p_cli = DS.GetClientSession(0);
+		PPJobSrvClient * p_cli = DS.GetClientSession(false/*dontReconnect*/);
 		if(p_cli) {
 			SString q, temp_buf;
 			q.Cat("SELECT").Space().Cat("SCARD").Space().Cat("BY").Space();

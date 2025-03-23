@@ -6069,7 +6069,7 @@ void PPBillPacket::Implement_SumAmounts(AmtList & rList, const PPBillPacket * pO
 						const double def_vat_rate = te.GetVatRate();
 						PPObjAmountType amtt_obj;
 						TaxAmountIDs tais;
-						amtt_obj.GetTaxAmountIDs(&tais, 0);
+						amtt_obj.GetTaxAmountIDs(tais, 0);
 						uint   vat_rate_idx = 0;
 						for(uint i = 0; !vat_rate_idx && i < SIZEOFARRAY(tais.VatRate); i++) {
 							if(feqeps(def_vat_rate, fdiv100i(tais.VatRate[i]), 1E-6))

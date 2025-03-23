@@ -4,7 +4,50 @@
 //
 #include <pp.h>
 #pragma hdrstop
-
+//
+// Prototypes
+//
+int  TestSuffixTree(); //
+int  TestFann2();
+int  LuaTest();
+int  CollectLldFileStat();
+int  ParseCpEncodingTables(const char * pPath, SUnicodeTable * pUt);
+int  TestLargeVlrInputOutput();
+void Test_SSystemBackup();
+//void Test_MailMsg_ReadFromFile();
+//void Test_MakeEmailMessage();
+int  PPReadUnicodeBlockRawData(const char * pUnicodePath, const char * pCpPath, SUnicodeBlock & rBlk);
+void TestCRC();
+int  TestUhttClient();
+int  TestReadXmlMem_EgaisAck();
+int  TestGtinStruc();
+int  TestConfigDatabase_StringHistory();
+int  TestConfigDatabase_StringHistory_Interactive();
+void TestGravity();
+int  TestAddressRecognition(); 
+int  TestTsDensityMap(); // @debug
+int  TestUdsInterface();
+int  SrpTest();
+int  Test_StyloQInvitation();
+// @construction finished int  Test_Launch_SCalendarPicker();
+int  Test_StrAssocTree();
+int  Test_Fts();
+//int  Test_ReadUed(const char * pFileName);
+int  Test_LayoutedListDialog();
+int  Test_Cristal2SetRetailGateway();
+int  ImportYYE(const char * pSrcPath);
+int  ImportSpecial(const char * pPath);
+int  ReformatRazoomnick(const char * pFileName);
+int  SentencePieceExperiments(); // txtanlz.cpp
+const char * Test_GetPPConstCharPtr_P_MagicFileTransmit() { return PPConst::P_MagicFileTransmit; }
+int  Test_CsvSniffer();
+int  ClassfGoods();
+int  TestTddo();
+int  GetGoodsFromService(SString & rCode, PPGoodsPacket * pPack);
+int  TestSTree();
+//
+// 
+// 
 //#define TEST_LOCALE
 //#define TEST_HASH_AND_SEARCH
 //#define TEST_DBTEXTFILE
@@ -248,11 +291,6 @@ void test_foo2(int * a, int b) { *a = *a+b; }
 #if !SLTEST_RUNNING // {
 
 //#include <ppsoapclient.h>
-
-int ClassfGoods();
-int TestTddo();
-int GetGoodsFromService(SString & rCode, PPGoodsPacket * pPack);
-int TestSTree();
 
 int TestNoLogin()
 {
@@ -1815,40 +1853,6 @@ static void GumboTest()
 //
 //
 //
-int TestSuffixTree(); //
-int  TestFann2();
-int  LuaTest();
-int  CollectLldFileStat();
-int  ParseCpEncodingTables(const char * pPath, SUnicodeTable * pUt);
-int  TestLargeVlrInputOutput();
-void Test_SSystemBackup();
-//void Test_MailMsg_ReadFromFile();
-//void Test_MakeEmailMessage();
-int  PPReadUnicodeBlockRawData(const char * pUnicodePath, const char * pCpPath, SUnicodeBlock & rBlk);
-void TestCRC();
-int  TestUhttClient();
-int  TestReadXmlMem_EgaisAck();
-int  TestGtinStruc();
-int  TestConfigDatabase_StringHistory();
-int  TestConfigDatabase_StringHistory_Interactive();
-void TestGravity();
-int  TestAddressRecognition(); 
-int  TestTsDensityMap(); // @debug
-int  TestUdsInterface();
-int  SrpTest();
-int  Test_StyloQInvitation();
-// @construction finished int  Test_Launch_SCalendarPicker();
-int  Test_StrAssocTree();
-int  Test_Fts();
-//int  Test_ReadUed(const char * pFileName);
-int  Test_LayoutedListDialog();
-int  Test_Cristal2SetRetailGateway();
-int  ImportYYE(const char * pSrcPath);
-int  ImportSpecial(const char * pPath);
-int  ReformatRazoomnick(const char * pFileName);
-int  SentencePieceExperiments(); // txtanlz.cpp
-const char * Test_GetPPConstCharPtr_P_MagicFileTransmit() { return PPConst::P_MagicFileTransmit; }
-
 /*static int TestWorkspacePath()
 {
 	SString path;
@@ -1987,7 +1991,8 @@ int DoConstructionTest()
 		}
 	}
 #endif // } 0
-	PreprocessHFile();
+	Test_CsvSniffer();
+	//PreprocessHFile();
 	//TestTransferFileToFtp();
 	//VkInterface::Test();
 	//Test_Cristal2SetRetailGateway();

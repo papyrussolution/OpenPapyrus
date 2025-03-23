@@ -1427,7 +1427,7 @@ PPView::~PPView()
 			DS.GetTLA().ReleasePPViewPtr(ServerInstId);
 		}
 		else {
-			PPJobSrvClient * p_cli = DS.GetClientSession(0);
+			PPJobSrvClient * p_cli = DS.GetClientSession(false/*dontReconnect*/);
 			if(p_cli) {
 				PPJobSrvCmd cmd;
 				PPJobSrvReply reply;
@@ -1912,46 +1912,48 @@ int PPView::ExecNfViewParam::Read(SBuffer & rBuf, long)
 int PPView::Helper_Init(const PPBaseFilt * pFilt, int flags)
 {
 	int    ok = 1;
-	int    do_local = 1;
+	bool   do_local = true;
 	int    try_reconnect = 2;
-	PPJobSrvClient * p_cli = 0;
 	PPBaseFilt * p_filt = 0;
 	OuterTitle.Z();
 	ExecFlags = flags;
-	if(ImplementFlags & implUseServer && !(flags & exefDisable3Tier) && (p_cli = DS.GetClientSession(0)) != 0) {
-		while(try_reconnect) {
-			SSerializeContext ctx;
-			PPJobSrvCmd cmd;
-			PPJobSrvReply reply;
-			//
-			// Так как Serialize - non-const функция, придется создать копию фильтра и уже ее передавать серверу.
-			//
-			THROW(p_filt = CreateFilt(PPView::GetDescriptionExtra(GetViewId())));
-			THROW(p_filt->Copy(pFilt, 1));
-			THROW(cmd.StartWriting(PPSCMD_CREATEVIEW));
-			THROW_SL(cmd.Write(ViewId));
-			THROW_SL(cmd.Write(ServerInstId));
-			THROW(p_filt->Serialize(+1, cmd, &ctx));
-			cmd.FinishWriting();
-			if(!p_cli->ExecSrvCmd(cmd, reply)) {
-				const SlThreadLocalArea & r_sltla = SLS.GetConstTLA();
-				if(try_reconnect && PPErrCode == PPERR_SLIB && r_sltla.LastErr == SLERR_SOCK_WINSOCK && r_sltla.LastSockErr == WSAECONNRESET) {
-					if(--try_reconnect) {
-						p_cli = DS.GetClientSession(0);
-						if(!p_cli)
-							break;
+	if(ImplementFlags & implUseServer && !(flags & exefDisable3Tier)) {
+		PPJobSrvClient * p_cli = DS.GetClientSession(false/*dontReconnect*/);
+		if(p_cli) {
+			while(try_reconnect) {
+				SSerializeContext ctx;
+				PPJobSrvCmd cmd;
+				PPJobSrvReply reply;
+				//
+				// Так как Serialize - non-const функция, придется создать копию фильтра и уже ее передавать серверу.
+				//
+				THROW(p_filt = CreateFilt(PPView::GetDescriptionExtra(GetViewId())));
+				THROW(p_filt->Copy(pFilt, 1));
+				THROW(cmd.StartWriting(PPSCMD_CREATEVIEW));
+				THROW_SL(cmd.Write(ViewId));
+				THROW_SL(cmd.Write(ServerInstId));
+				THROW(p_filt->Serialize(+1, cmd, &ctx));
+				cmd.FinishWriting();
+				if(!p_cli->ExecSrvCmd(cmd, reply)) {
+					const SlThreadLocalArea & r_sltla = SLS.GetConstTLA();
+					if(try_reconnect && PPErrCode == PPERR_SLIB && r_sltla.LastErr == SLERR_SOCK_WINSOCK && r_sltla.LastSockErr == WSAECONNRESET) {
+						if(--try_reconnect) {
+							p_cli = DS.GetClientSession(false/*dontReconnect*/);
+							if(!p_cli)
+								break;
+						}
 					}
+					else
+						try_reconnect = 0;
 				}
-				else
+				else {
+					reply.StartReading(0);
+					THROW(reply.CheckRepError());
+					ctx.SerializeStateOfContext(-1, reply);
+					SerializeState(-1, reply, &ctx);
+					do_local = false;
 					try_reconnect = 0;
-			}
-			else {
-				reply.StartReading(0);
-				THROW(reply.CheckRepError());
-				ctx.SerializeStateOfContext(-1, reply);
-				SerializeState(-1, reply, &ctx);
-				do_local = 0;
-				try_reconnect = 0;
+				}
 			}
 		}
 	}

@@ -1,6 +1,7 @@
 // dbkv-lmdb.cpp
-// Copyright (c) A.Sobolev 2022
-// Декларации модуля управления базой данных LMDB
+// Copyright (c) A.Sobolev 2022, 2025
+// @codepage UTF-8
+// Р”РµРєР»Р°СЂР°С†РёРё РјРѕРґСѓР»СЏ СѓРїСЂР°РІР»РµРЅРёСЏ Р±Р°Р·РѕР№ РґР°РЅРЅС‹С… LMDB
 // Attention! Don't include this file into slib.h or pp.h because of some symbols of LMDB duplicate other symbols in BerkeleyDB
 //
 #ifndef __DBKV_LMDB_H
@@ -57,18 +58,18 @@ public:
 		int    Del(const void * pKey, size_t keyLen, const void * pVal, size_t valLen);
 		//
 		// Returns:
-		//   >0 - ключ pKey найден и данные, соответствующие ему, занесены в rValBuf
-		//   <0 - ключ pKey не найден. Буфер rValBuf в результате пустой
-		//    0 - error. Буфер rValBuf в результате пустой
+		//   >0 - РєР»СЋС‡ pKey РЅР°Р№РґРµРЅ Рё РґР°РЅРЅС‹Рµ, СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РёРµ РµРјСѓ, Р·Р°РЅРµСЃРµРЅС‹ РІ rValBuf
+		//   <0 - РєР»СЋС‡ pKey РЅРµ РЅР°Р№РґРµРЅ. Р‘СѓС„РµСЂ rValBuf РІ СЂРµР·СѓР»СЊС‚Р°С‚Рµ РїСѓСЃС‚РѕР№
+		//    0 - error. Р‘СѓС„РµСЂ rValBuf РІ СЂРµР·СѓР»СЊС‚Р°С‚Рµ РїСѓСЃС‚РѕР№
 		//
 		int    Get(const void * pKey, size_t keyLen, SBaseBuffer & rValBuf);
 		//
-		// Descr: То же, что и Get(const void * pKey, size_t keyLen, SBaseBuffer & rValBuf), но
-		//   результирующие данные заносятся в SBinaryChunk.
+		// Descr: РўРѕ Р¶Рµ, С‡С‚Рѕ Рё Get(const void * pKey, size_t keyLen, SBaseBuffer & rValBuf), РЅРѕ
+		//   СЂРµР·СѓР»СЊС‚РёСЂСѓСЋС‰РёРµ РґР°РЅРЅС‹Рµ Р·Р°РЅРѕСЃСЏС‚СЃСЏ РІ SBinaryChunk.
 		// Returns:
-		//   >0 - ключ pKey найден и данные, соответствующие ему, занесены в rValBuf
-		//   <0 - ключ pKey не найден. Буфер rValBuf в результате пустой
-		//    0 - error. Буфер rValBuf в результате пустой
+		//   >0 - РєР»СЋС‡ pKey РЅР°Р№РґРµРЅ Рё РґР°РЅРЅС‹Рµ, СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РёРµ РµРјСѓ, Р·Р°РЅРµСЃРµРЅС‹ РІ rValBuf
+		//   <0 - РєР»СЋС‡ pKey РЅРµ РЅР°Р№РґРµРЅ. Р‘СѓС„РµСЂ rValBuf РІ СЂРµР·СѓР»СЊС‚Р°С‚Рµ РїСѓСЃС‚РѕР№
+		//    0 - error. Р‘СѓС„РµСЂ rValBuf РІ СЂРµР·СѓР»СЊС‚Р°С‚Рµ РїСѓСЃС‚РѕР№
 		//
 		int    Get(const void * pKey, size_t keyLen, SBinaryChunk & rValBuf);
 		// MDB_NOOVERWRITE|MDB_NODUPDATA|MDB_RESERVE|MDB_APPEND|MDB_APPENDDUP

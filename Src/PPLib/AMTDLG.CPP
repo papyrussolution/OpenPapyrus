@@ -1,5 +1,6 @@
 // AMTDLG.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2010, 2014, 2015, 2016, 2017, 2018, 2020, 2024
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2010, 2014, 2015, 2016, 2017, 2018, 2020, 2024, 2025
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -454,6 +455,8 @@ IMPL_HANDLE_EVENT(BillTaxesDialog)
 			case CTL_BILLTAX_VAT1: tax_n = 1; break;
 			case CTL_BILLTAX_VAT2: tax_n = 2; break;
 			case CTL_BILLTAX_VAT3: tax_n = 3; break;
+			case CTL_BILLTAX_VAT4: tax_n = 4; break; // @v12.2.11
+			case CTL_BILLTAX_VAT5: tax_n = 5; break; // @v12.2.11
 			default: return;
 		}
 		calcTax(tax_n);
@@ -466,10 +469,10 @@ IMPL_HANDLE_EVENT(BillTaxesDialog)
 void BillTaxesDialog::calcTax(int taxN)
 {
 	uint   ctl_id = 0;
-	double bill_amt = getCtrlReal(CTL_BILLTAX_BILLAMT);
+	const  double bill_amt = getCtrlReal(CTL_BILLTAX_BILLAMT);
 	double amt = 0.0;
 	double rate = 0.0;
-	if(taxN == 0) { // Налог с продаж
+	if(taxN == 0) { // РќР°Р»РѕРі СЃ РїСЂРѕРґР°Р¶
 		amt = bill_amt * SalesTaxMult(fdiv100i(Tais.STaxRate));
 		ctl_id = CTL_BILLTAX_STAX;
 	}
@@ -485,6 +488,14 @@ void BillTaxesDialog::calcTax(int taxN)
 		else if(taxN == 3) {
 			rate = fdiv100i(Tais.VatRate[2]);
 			ctl_id = CTL_BILLTAX_VAT3;
+		}
+		else if(taxN == 4) { // @v12.2.11
+			rate = fdiv100i(Tais.VatRate[3]);
+			ctl_id = CTL_BILLTAX_VAT4;
+		}
+		else if(taxN == 5) { // @v12.2.11
+			rate = fdiv100i(Tais.VatRate[4]);
+			ctl_id = CTL_BILLTAX_VAT5;
 		}
 		double stax = getCtrlReal(CTL_BILLTAX_STAX);
 		amt = (bill_amt - stax) * SalesTaxMult(rate);
@@ -539,6 +550,8 @@ int BillTaxesDialog::setDTS(const AmtList * pData, const TaxAmountIDs * pTais)
 	setBillTaxCtrl(Tais.VatAmtID[0], CTL_BILLTAX_T_VAT1, CTL_BILLTAX_VAT1);
 	setBillTaxCtrl(Tais.VatAmtID[1], CTL_BILLTAX_T_VAT2, CTL_BILLTAX_VAT2);
 	setBillTaxCtrl(Tais.VatAmtID[2], CTL_BILLTAX_T_VAT3, CTL_BILLTAX_VAT3);
+	setBillTaxCtrl(Tais.VatAmtID[3], CTL_BILLTAX_T_VAT4, CTL_BILLTAX_VAT4); // @v12.2.11
+	setBillTaxCtrl(Tais.VatAmtID[4], CTL_BILLTAX_T_VAT5, CTL_BILLTAX_VAT5); // @v12.2.11
 	setBillTaxCtrl(Tais.STaxAmtID, CTL_BILLTAX_T_STAX, CTL_BILLTAX_STAX);
 	calcTotal();
 	return 1;
@@ -549,6 +562,8 @@ int BillTaxesDialog::getDTS(AmtList * pData)
 	getBillTaxCtrl(Tais.VatAmtID[0], CTL_BILLTAX_VAT1);
 	getBillTaxCtrl(Tais.VatAmtID[1], CTL_BILLTAX_VAT2);
 	getBillTaxCtrl(Tais.VatAmtID[2], CTL_BILLTAX_VAT3);
+	getBillTaxCtrl(Tais.VatAmtID[3], CTL_BILLTAX_VAT4); // @v12.2.11
+	getBillTaxCtrl(Tais.VatAmtID[4], CTL_BILLTAX_VAT5); // @v12.2.11
 	getBillTaxCtrl(Tais.STaxAmtID, CTL_BILLTAX_STAX);
 	CALLPTRMEMB(pData, copy(Data));
 	return 1;
@@ -559,8 +574,8 @@ int EditBillTaxes(AmtList * pAmounts, double amount)
 	int    ok = -1;
 	PPObjAmountType amtt_obj;
 	TaxAmountIDs tais;
-	amtt_obj.GetTaxAmountIDs(&tais, 0);
-	if(tais.VatAmtID[0] || tais.VatAmtID[1] || tais.VatAmtID[2] || tais.STaxAmtID) {
+	amtt_obj.GetTaxAmountIDs(tais, 0);
+	if(tais.HasAnyAmountTypes()) {
 		BillTaxesDialog * dlg = new BillTaxesDialog();
 		if(CheckDialogPtrErr(&dlg)) {
 			dlg->setDTS(pAmounts, &tais);

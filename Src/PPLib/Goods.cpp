@@ -1094,7 +1094,7 @@ int GoodsCore::Helper_GetListBySubstring(const char * pSubstr, void * pList, lon
 {
 	int    ok = 1;
 	bool   skip_passive = false;
-	bool   skip_generic = false; // @v10.7.7
+	bool   skip_generic = false;
 	PPIDArray * p_list = 0;
 	StrAssocArray * p_str_list = 0;
 	SString pattern;
@@ -1109,14 +1109,12 @@ int GoodsCore::Helper_GetListBySubstring(const char * pSubstr, void * pList, lon
 	}
 	else if(flags & glsfSkipPassive)
 		skip_passive = true;
-	// @v10.7.7 {
 	if(flags & glsfDefGeneric) {
 		//PPObjGoods goods_obj;
 		//skip_generic = BIN(goods_obj.GetConfig().Flags & GCF_DONTSELPASSIVE);
 	}
 	else if(flags & glsfSkipGeneric)
 		skip_generic = true;
-	// } @v10.7.7 
 	const StrAssocArray * p_full_list = GetFullList();
 	if(p_full_list) {
 		PPUserFuncProfiler ufp(PPUPRF_SRCHINGOODSFL);
@@ -1153,13 +1151,13 @@ int GoodsCore::Helper_GetListBySubstring(const char * pSubstr, void * pList, lon
 		}
 		ReleaseFullList(p_full_list);
 		p_full_list = 0;
-		ufp.SetFactor(0, c); // @v10.1.4
-		ufp.SetFactor(1, result_count); // @v10.1.4
-		ufp.Commit(); // @v10.1.4
+		ufp.SetFactor(0, c);
+		ufp.SetFactor(1, result_count);
+		ufp.Commit();
 	}
 	else {
 		int    r = 0;
-		PPJobSrvClient * p_cli = DS.GetClientSession(0);
+		PPJobSrvClient * p_cli = DS.GetClientSession(false/*dontReconnect*/);
 		if(p_cli) {
 			SString q;
 			q.Cat("SELECT").Space().Cat("GOODS").Space().Cat("BY").Space().Cat("SUBNAME").CatParStr(pSubstr).Space();
@@ -3803,7 +3801,7 @@ int GoodsCore::Helper_GetMtxByLoc(PPID locID, PPIDArray & rResult)
 	int    ok = 1, r = 0;
 	rResult.clear();
 #if 0 // возникли проблемы {
-	PPJobSrvClient * p_cli = DS.GetClientSession(0);
+	PPJobSrvClient * p_cli = DS.GetClientSession(false/*dontReconnect*/);
 	if(p_cli && !(CConfig.Flags2 & CCFLG2_DONTUSE3TIERGMTX)) {
 		SString q;
 		q.Cat("GETGOODSMATRIX").Space().Cat("LOCATION").CatChar('(').Cat(locID).CatChar(')').Space();

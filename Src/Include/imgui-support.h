@@ -1,5 +1,6 @@
 // IMGUI-SUPPORT.H
-// Copytight (c) A.Sobolev 2024
+// Copytight (c) A.Sobolev 2024, 2025
+// @codepage UTF-8
 //
 #ifndef IMGUI_SUPPORT_H
 #define IMGUI_SUPPORT_H
@@ -28,7 +29,7 @@ public:
 	void * MakeIconTexture(uint iconId); // @v11.9.2
 	void   ReleaseTexture(void * pTextureView);
 	//
-	// Descr: Общий метод, отрабатывающий Win-message WM_SIZE
+	// Descr: РћР±С‰РёР№ РјРµС‚РѕРґ, РѕС‚СЂР°Р±Р°С‚С‹РІР°СЋС‰РёР№ Win-message WM_SIZE
 	//
 	void   OnWindowResize(WPARAM wParam, LPARAM lParam);
 
@@ -93,7 +94,7 @@ public:
 	bool   HasColor() const { return !Clr.IsEmpty(); }
 	SColor GetColor() const { return Clr; }
 	//
-	// Descr: Каноническая функция возвращающая ключ экземпляра для хэширования.
+	// Descr: РљР°РЅРѕРЅРёС‡РµСЃРєР°СЏ С„СѓРЅРєС†РёСЏ РІРѕР·РІСЂР°С‰Р°СЋС‰Р°СЏ РєР»СЋС‡ СЌРєР·РµРјРїР»СЏСЂР° РґР»СЏ С…СЌС€РёСЂРѕРІР°РЅРёСЏ.
 	//
 	const void * GetHashKey(const void * pCtx, uint * pKeyLen) const;
 private:
@@ -118,13 +119,13 @@ protected:
 	class CommonTextureCacheEntry {
 	public:
 		//
-		// Descr: Варианты состояния экземпляра
+		// Descr: Р’Р°СЂРёР°РЅС‚С‹ СЃРѕСЃС‚РѕСЏРЅРёСЏ СЌРєР·РµРјРїР»СЏСЂР°
 		//
 		enum {
-			rstUndef  = 0, // не определенное assert(P_Texture == 0)
-			rstResolved,   // разрешенное assert(P_Texture != 0)
-			rstUnresolved, // неудача в разрешении assert(P_Texture == 0)
-			rstWaiting,    // ожидает разрешения assert(P_Texture == 0)
+			rstUndef  = 0, // РЅРµ РѕРїСЂРµРґРµР»РµРЅРЅРѕРµ assert(P_Texture == 0)
+			rstResolved,   // СЂР°Р·СЂРµС€РµРЅРЅРѕРµ assert(P_Texture != 0)
+			rstUnresolved, // РЅРµСѓРґР°С‡Р° РІ СЂР°Р·СЂРµС€РµРЅРёРё assert(P_Texture == 0)
+			rstWaiting,    // РѕР¶РёРґР°РµС‚ СЂР°Р·СЂРµС€РµРЅРёСЏ assert(P_Texture == 0)
 		};
 		CommonTextureCacheEntry() : P_Texture(0), RslvState(rstUndef)
 		{
@@ -241,5 +242,3 @@ protected:
 };
 
 #endif // !IMGUI_SUPPORT_H
-
-

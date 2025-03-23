@@ -1462,7 +1462,7 @@ int SCS_SYNCCASH::GetCheckInfo(const PPBillPacket * pPack, Sync_BillTaxArray * p
 		if(sum < 0.0)
 			flags |= PRNCHK_RETURN;
 		sum = fabs(sum);
-		amtt_obj.GetTaxAmountIDs(&tais, 1);
+		amtt_obj.GetTaxAmountIDs(tais, 1);
 		if(tais.STaxAmtID)
 			s_tax = tais.STaxRate;
 		if(tais.VatAmtID[0])
@@ -1812,13 +1812,10 @@ int SCS_SYNCCASH::ExecPrintOper(int cmd, const StrAssocArray & rIn, StrAssocArra
 			ok = 0;
 			break;
 		}
-		// @v10.1.2 r = AllowPrintOper();
-		// @v10.8.0 {
 		if(Flags & sfSkipAfVerif)
 			r = 1;
 		else
 			r = oneof2(cmd, DVCCMD_CLOSECHECK, DVCCMD_GETCHECKPARAM) ? 1 : 1/*AllowPrintOper()*/; // @v10.1.2
-		// } @v10.8.0
 		//
 		// Если выдана ошибка, не описанная в протоколе, то выходим для получения текста ошибки
 		//
@@ -1919,47 +1916,46 @@ int SCS_SYNCCASH::PrintBnkTermReport(const char * pZCheck)
 			for(uint pos = 0; str_set.get(&pos, str);) {
 				str.Chomp();
 				Arr_In.Z();
-				// @v10.7.6 {
 				// 0xDF^^
 				// ~0xDA^^
 				// ~0xDE^^
-				if(str.HasPrefixIAscii("0xDF^^")) { // @v10.7.8 @fix (!=0)-->(== 0)
+				if(str.HasPrefixIAscii("0xDF^^")) {
 					if(!(Flags & sfDontUseCutter)) {
 						THROW(ExecPrintOper(DVCCMD_CUT, Arr_In, Arr_Out.Z()));
 					}
 					else
-						SDelay(1000); // @v10.8.9
+						SDelay(1000);
 					//str.Z().CatCharN('-', 8);
 					//THROW(ArrAdd(Arr_In, DVCPARAM_RIBBONPARAM, CHECKRIBBON));
 					//THROW(ArrAdd(Arr_In, DVCPARAM_FONTSIZE, DEF_FONTSIZE));
 					//THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, str));
 					//THROW(ExecPrintOper(DVCCMD_PRINTTEXT, Arr_In, Arr_Out.Z()));
 				}
-				else if(str.HasPrefixIAscii("~0xDA^^")) { // @v10.7.8 @fix (!=0)-->(== 0)
+				else if(str.HasPrefixIAscii("~0xDA^^")) {
 					if(!(Flags & sfDontUseCutter)) {
 						THROW(ExecPrintOper(DVCCMD_CUT, Arr_In, Arr_Out.Z()));
 					}
 					else
-						SDelay(1000); // @v10.8.9
+						SDelay(1000);
 					//str.Z().CatCharN('-', 8);
 					//THROW(ArrAdd(Arr_In, DVCPARAM_RIBBONPARAM, CHECKRIBBON));
 					//THROW(ArrAdd(Arr_In, DVCPARAM_FONTSIZE, DEF_FONTSIZE));
 					//THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, str));
 					//THROW(ExecPrintOper(DVCCMD_PRINTTEXT, Arr_In, Arr_Out.Z()));
 				}
-				else if(str.HasPrefixIAscii("~0xDE^^")) { // @v10.7.8 @fix (!=0)-->(== 0)
+				else if(str.HasPrefixIAscii("~0xDE^^")) {
 					if(!(Flags & sfDontUseCutter)) {
 						THROW(ExecPrintOper(DVCCMD_CUT, Arr_In, Arr_Out.Z()));
 					}
 					else
-						SDelay(1000); // @v10.8.9
+						SDelay(1000);
 					//str.Z().CatCharN('-', 8);
 					//THROW(ArrAdd(Arr_In, DVCPARAM_RIBBONPARAM, CHECKRIBBON));
 					//THROW(ArrAdd(Arr_In, DVCPARAM_FONTSIZE, DEF_FONTSIZE));
 					//THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, str));
 					//THROW(ExecPrintOper(DVCCMD_PRINTTEXT, Arr_In, Arr_Out.Z()));
 				}
-				else { // } @v10.7.6
+				else {
 					// @v11.0.9 {
 					if(str.IsEmpty()) {
 						str.Space();
@@ -1973,12 +1969,6 @@ int SCS_SYNCCASH::PrintBnkTermReport(const char * pZCheck)
 			}
 			Arr_In.Z();
 			THROW(ExecPrintOper(DVCCMD_CLOSECHECK, Arr_In, Arr_Out.Z()));
-			// @v10.2.2 {
-			/* @v10.2.3 {
-				Arr_In.Z();
-				THROW(ExecPrintOper(DVCCMD_CUT, Arr_In, Arr_Out.Z()));
-			}*/
-			// } @v10.2.2
 		}
 	}
 	CATCH

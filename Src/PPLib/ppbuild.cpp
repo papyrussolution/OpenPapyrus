@@ -981,12 +981,19 @@ int PrcssrSourceCodeMaintaining::Run()
 {
 	int    ok = 1;
 	if(P.Flags) {
+		SString msg_buf;
 		PPLogger logger;
 		if(P.Flags & PrcssrSourceCodeMaintainingFilt::fParseWinRcForNativeText) {
+			PPLoadString("prcssrsourcecodemaintaining_fparsewinrcfornativetext", msg_buf);
+			if(msg_buf.NotEmpty())
+				logger.Log(msg_buf);
 			if(!ParseWinRcForNativeText(&logger))
 				PPError();
 		}
 		if(P.Flags & PrcssrSourceCodeMaintainingFilt::fFindSourceCodeWithNotUtf8Encoding) {
+			PPLoadString("prcssrsourcecodemaintaining_ffindsourcecodewithnotutf8encoding", msg_buf);
+			if(msg_buf.NotEmpty())
+				logger.Log(msg_buf);
 			if(!FindSourceCodeWithNotUtf8Encoding(&logger))
 				PPError();
 		}
@@ -998,23 +1005,38 @@ int PrcssrSourceCodeMaintaining::FindSourceCodeWithNotUtf8Encoding(PPLogger * pL
 {
 	int    ok = -1;
 	SString temp_buf;
+	SString fmt_buf;
 	TSCollection <NoticedFileEntry> problem_list;
+	PPWait(1);
 	if(SFile::IsDir(SrcPath)) {
 		{
 			SFileEntryPool fep;
 			SFileEntryPool::Entry fe; 
 			SString file_path;
-			STempBuffer file_buffer(SMEGABYTE(4));
+			SString line_buf;
+			//STempBuffer file_buffer(SMEGABYTE(4));
 			StringSet ss_wildcards;
 			ss_wildcards.add("*.h");
 			ss_wildcards.add("*.c");
 			ss_wildcards.add("*.cpp");
+			PPLoadText(PPTXT_SCANFSDIR, fmt_buf);
+			PPWaitMsg(temp_buf.Printf(fmt_buf, SrcPath.cptr()));
 			fep.Scan(SrcPath, ss_wildcards, SFileEntryPool::scanfRecursive);
 			for(uint i = 0; i < fep.GetCount(); i++) {
 				if(fep.Get(i, &fe, &file_path)) {
 					SFile f_in(file_path, SFile::mRead);
-					size_t actual_size = 0;
-					if(f_in.ReadAll(file_buffer, 0, &actual_size)) {
+					//size_t actual_size = 0;
+					for(uint line_no = 1; f_in.ReadLine(line_buf, SFile::rlfChomp); line_no++) {
+						if(!line_buf.IsLegalUtf8()) {
+							NoticedFileEntry * p_new_entry = problem_list.CreateNewItem();
+							if(p_new_entry) {
+								p_new_entry->FileName = file_path;
+								p_new_entry->LineNo = line_no;
+							}
+							break;
+						}
+					}
+					/*if(f_in.ReadAll(file_buffer, 0, &actual_size)) {
 						assert(actual_size <= file_buffer.GetSize());
 						{
 							bool   local_ok = true;
@@ -1050,8 +1072,9 @@ int PrcssrSourceCodeMaintaining::FindSourceCodeWithNotUtf8Encoding(PPLogger * pL
 								}
 							}
 						}					
-					}
+					}*/
 				}
+				PPWaitPercent(i+1, fep.GetCount());
 			}
 		}
 		if(problem_list.getCount()) {
@@ -1073,6 +1096,7 @@ int PrcssrSourceCodeMaintaining::FindSourceCodeWithNotUtf8Encoding(PPLogger * pL
 			}
 		}
 	}
+	PPWait(0);
 	return ok;
 }
 

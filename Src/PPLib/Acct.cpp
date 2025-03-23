@@ -1,5 +1,6 @@
 // ACCT.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2007, 2008, 2016, 2017, 2019, 2020, 2022, 2023
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2007, 2008, 2016, 2017, 2019, 2020, 2022, 2023, 2025
+// @codepage UTF-8
 // @Kernel
 //
 #include <pp.h>
@@ -146,7 +147,7 @@ static int FASTCALL searchSideText(const char * pStr, int * pSide)
 	char   item[64];
 	SString buf;
 #ifdef DL200C
-	(buf = "0DBT,0DB,0D,0ÄÁÒ,0ÄÁ,0Ä,1CRD,1CR,1KRD,1KR,1C,1K,1ÊÐÄ,1ÊÐ,1Ê").Transf(CTRANSF_OUTER_TO_INNER);
+	(buf = "0DBT,0DB,0D,0Ð”Ð‘Ð¢,0Ð”Ð‘,0Ð”,1CRD,1CR,1KRD,1KR,1C,1K,1ÐšÐ Ð”,1ÐšÐ ,1Ðš").Transf(CTRANSF_UTF8_TO_INNER); // file is in utf-8 encoding
 #else
 	PPLoadString(PPSTR_SYMB, PPSSYM_ACCSIDE, buf);
 #endif
@@ -172,7 +173,9 @@ static int parseAccString(const char * pStr, int pTok[], int * pSide)
 {
 	int    i = 0;
 	int    sd = -1;
-	char   s[32], dot[2], * p;
+	char   s[32];
+	char   dot[2];
+	char * p;
 	dot[0] = '.';
 	dot[1] = 0;
 	STRNSCPY(s, pStr);
@@ -204,9 +207,11 @@ int Acct::FromStr(long format, const char * pStr) // ACCBIN_NATURE
 int IsAccBelongToList(const Acct * pAcct, int side, const char * pList)
 {
 	int    found = 0;
-	char   buf[32], separator[8];
+	char   buf[32];
+	char   separator[8];
 	char   dup[256];
-	char * q, * p = strip(STRNSCPY(dup, pList));
+	char * q;
+	char * p = strip(STRNSCPY(dup, pList));
 	if(*p == '*')
 		found = 1;
 	else if(*p != 0) {
@@ -214,7 +219,8 @@ int IsAccBelongToList(const Acct * pAcct, int side, const char * pList)
 		separator[1] = 0;
 		if((p = strtok(p, separator)) != 0)
 			do {
-				int sd, tok[3];
+				int    sd;
+				int    tok[3];
 				q = p + sstrlen(p) + 1;
 				p = STRNSCPY(buf, p);
 				parseAccString(p, tok, &sd);

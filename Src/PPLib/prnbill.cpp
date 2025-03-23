@@ -1,5 +1,5 @@
 // PRNBILL.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -181,7 +181,7 @@ int BillMultiPrintParam::Serialize(int dir, SBuffer & rBuf, SSerializeContext * 
 	int    ok = 1;
 	uint32 signature = PPConst::Signature_BillMultiPrintParam;
 	THROW_SL(pSCtx->Serialize(dir, signature, rBuf));
-	THROW(dir > 0 || signature == PPConst::Signature_BillMultiPrintParam);
+	THROW_PP_S(dir > 0 || signature == PPConst::Signature_BillMultiPrintParam, PPERR_INVSIGNONOBJSRLZRD, "BillMultiPrintParam");
 	THROW_SL(pSCtx->SerializeBlock(dir, sizeof(Reserve), Reserve, rBuf, 0));
 	THROW_SL(pSCtx->Serialize(dir, FormBits, rBuf));
 	THROW_SL(pSCtx->Serialize(dir, Flags, rBuf));

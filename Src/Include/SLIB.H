@@ -11054,16 +11054,32 @@ public:
 		FirstUser        = 10000
 	};
 	struct CsvSniffingResult {
-		CsvSniffingResult() : FieldDivisor(0), Flags(0), SnTokSeq_Common(0), SnTokSeq_First(0)
-		{
-		}
+		struct ColumnStat {
+			ColumnStat() : N(0), NECount(0), LenAvg(0.0), LenSd(0.0)
+			{
+			}
+			uint   N;      // [1..] Номер колонки
+			uint   NECount;  // Количество строк, содержащих непустое значение
+			double LenAvg; // Средняя длина текста (только для непустых значений)
+			double LenSd;  // Стандартное отклонение длины текста от среднего (только для непустых значений)
+			// @construction SNaturalTokenArray NtaFirstRow; // Набор токенов для первой строки
+			// @construction SNaturalTokenArray NtaCommon;   // Общий набор токенов для всех строк кроме первой (только для непустых значений)
+		};
+		CsvSniffingResult();
+		CsvSniffingResult & Z();
+		ColumnStat * GetColumnStat(uint fldNo/*[1..]*/);
+
 		enum {
-			fTitleRow = 0x0001 // Первая строка - заголовки полей
+			fTitleRow   = 0x0001, // Первая строка - заголовки полей
+			fEmptyLines = 0x0002, // Файла содержит пустые строки
 		};
 		uint   FieldDivisor;
 		uint   Flags;
+		uint64 LineCount;
+		double FieldCountExpectation;
 		uint32 SnTokSeq_Common; // flags SNTOKSEQ_FFFF общие для всех строк
 		uint32 SnTokSeq_First;  // flags SNTOKSEQ_FFFF для первой строки
+		TSCollection <ColumnStat> ColumnStatList;
 	};
 	static int  FASTCALL Register(int id, int mimeType, const char * pMimeSubtype, const char * pExt, const char * pSign);
 	static int  FASTCALL Register(int id, const char * pExt, const char * pSign);
@@ -12200,16 +12216,20 @@ struct SNaturalTokenStat {
 };
 
 struct SNaturalToken { // @flat
+	SNaturalToken();
+	SString & GetSymb(SString & rBuf) const;
+
 	uint32 ID;
 	float  Prob;
-	SString & GetSymb(SString & rBuf) const;
+	uint32 Count; // @v12.2.11 Количество образцов, для которых встретился этот токен.
 };
 
 class SNaturalTokenArray : public TSVector <SNaturalToken> {
 public:
 	SNaturalTokenArray & Z();
 	float  FASTCALL Has(uint32 tok) const;
-	int    Add(uint32 tok, float prob);
+	int    Add(uint32 tok, float prob, uint flags); // @v12.2.11 arg:flags будут опции как комбинировать уже существующий элемент с новым.
+	int    Intersect(const SNaturalTokenArray & rS); // @v12.2.11
 };
 
 class STokenRecognizer : public SRegExpSet {

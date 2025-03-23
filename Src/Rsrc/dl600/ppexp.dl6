@@ -3354,6 +3354,8 @@ data GoodsBillData : GoodsBillBase {
 	ConsignorLocAddr = DlvrLocID ? // Адрес грузоотправителя
 		DlvrLocID.Addr : (ConsignorReq.RAddr == "" ? ConsignorReq.Address : ConsignorReq.RAddr);
 
+	// BillUED = BillID.GetUedIdent(); // @v12.2.11 @debug убрать после отработки
+
 	RcvrName   =
 		if(RcvrID == Glb.ID) (
 			RcvrLocID.Name
@@ -3415,6 +3417,14 @@ data GoodsBillSaldo : GoodsBillData {
 		InSaldo = CalcInSaldo(GoodsID.ID);
 		OutSaldo = InSaldo + Qtty;
 	}
+}
+//@construction
+//
+// Структура для печати товарного документа с UED документа в виде штрихкода
+//
+// @construction
+data GoodsBillBCUED : GoodsBillData { // @v12.2.11
+	BillUED = BillID.GetUedIdent();
 }
 //@construction
 //

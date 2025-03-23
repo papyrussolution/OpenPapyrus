@@ -1,4 +1,5 @@
 // gif_lib.h - service library for decoding and encoding GIF images
+// @codepage UTF-8
 // 
 #ifndef _GIF_LIB_H_
 #define _GIF_LIB_H_ 1
@@ -178,7 +179,7 @@ GifFileType * DGifOpenFileHandle(int GifFileHandle, int * Error);
 int DGifSlurp(GifFileType * GifFile);
 GifFileType * DGifOpen(void * userPtr, InputFunc readFunc, int * Error);    /* new one (TVT) */
 int DGifCloseFile(GifFileType * GifFile);
-int DGifCloseFile2(GifFileType * GifFile, int * pErrorCode); // @v11.2.8 Это - прототип реализации из более свежей версии GifLib
+int DGifCloseFile2(GifFileType * GifFile, int * pErrorCode); // @v11.2.8 Р­С‚Рѕ - РїСЂРѕС‚РѕС‚РёРї СЂРµР°Р»РёР·Р°С†РёРё РёР· Р±РѕР»РµРµ СЃРІРµР¶РµР№ РІРµСЂСЃРёРё GifLib
 
 #define D_GIF_SUCCEEDED            0
 #define D_GIF_ERR_OPEN_FAILED    101 // And DGif possible errors
@@ -259,5 +260,3 @@ extern void GifDrawBoxedText8x8(GifSavedImage * Image, const int x, const int y,
 }
 #endif /* __cplusplus */
 #endif /* _GIF_LIB_H */
-
-/* end */

@@ -1805,7 +1805,9 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 						case R.id.tbButtonSearch:
 							CPM.GotoSearchTab(R.id.VIEWPAGER_INCOMINGLISTBILL, 0);
 							break;
-						case R.id.tbButtonScan:
+						case R.id.tbButtonScan: // @v12.2.11
+							break;
+						case R.id.tbButtonScanMark: // @v12.2.11 tbButtonScan-->tbButtonScanMark
 							{
 								CommonPrereqModule.TabEntry te = SearchTabEntry(CommonPrereqModule.Tab.tabXclSetting);
 								//ScanSource = ScanType.Undef;
@@ -2159,8 +2161,32 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 				break;
 			case SLib.EV_BARCODERECEIVED:
 				if(subj != null && subj instanceof BusinessEntity.PreprocessBarcodeResult) {
-					BusinessEntity.PreprocessBarcodeResult pbr = (BusinessEntity.PreprocessBarcodeResult)subj;
-					AcceptBarcodeInput(pbr.OriginalCode);
+					StyloQApp app_ctx = (StyloQApp)getApplicationContext();
+					if(app_ctx != null) {
+						BusinessEntity.PreprocessBarcodeResult pbr = (BusinessEntity.PreprocessBarcodeResult) subj;
+						boolean done = false;
+						if(pbr.Oid != null && pbr.Oid.Type == SLib.PPOBJ_BILL) {
+							Document selected_entry = null;
+							if(CPM.IncomingDocListData != null) {
+								for(int i = 0; selected_entry == null && i < CPM.IncomingDocListData.size(); i++) {
+									Document doc_entry = CPM.IncomingDocListData.get(i);
+									if(doc_entry != null && doc_entry.H != null && doc_entry.H.ID == pbr.Oid.Id) {
+										selected_entry = doc_entry;
+									}
+								}
+							}
+							done = true;
+							if(selected_entry != null) {
+								CPM.SetIncomingDocument(selected_entry);
+								SetupCurrentDocument(true, false);
+							}
+							else {
+								// @todo(error message) app_ctx.DisplayError(this, exn, 0);
+							}
+						}
+						if(!done)
+							AcceptBarcodeInput(pbr.OriginalCode);
+					}
 				}
 				break;
 		}

@@ -1360,7 +1360,7 @@ int SCS_SHTRIHFRF::GetCheckInfo(const PPBillPacket * pPack, BillTaxArray * pAry,
 		if(sum < 0.0)
 			flags |= PRNCHK_RETURN;
 		sum = fabs(sum);
-		amtt_obj.GetTaxAmountIDs(&tais, 1);
+		amtt_obj.GetTaxAmountIDs(tais, 1);
 		if(tais.STaxAmtID)
 			s_tax = tais.STaxRate;
 		if(tais.VatAmtID[0])

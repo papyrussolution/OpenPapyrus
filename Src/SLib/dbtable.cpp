@@ -428,7 +428,7 @@ int DBTable::Btr_Implement_InsertRec(int idx, void * pKeyBuf, const void * pData
 			size_t rest_size = lob_buffer.GetAvailableSize();
 			long   rec_offs = FixRecSize;
 			while(result && rest_size) {
-				long   chunk_size = MIN(rest_size, MAX_ONEOP_LOBSIZE);
+				const  long chunk_size = MIN(rest_size, MAX_ONEOP_LOBSIZE);
 				temp_buf.Z();
 				long   item_value;
 				temp_buf.Write(item_value = CHUNK_DIR_RAND); // sub operation

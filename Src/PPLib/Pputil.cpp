@@ -4605,7 +4605,7 @@ PPTokenRecognizer::PPTokenRecognizer() : STokenRecognizer()
 #if(_MSC_VER >= 1900)
 	if(rIb.DecCount >= 5 && rIb.DecCount <= 15) { // i don't sure in correctness of [5..15] limit
 		if(PhnL.Parse(reinterpret_cast<const char *>(pToken), "RU")) {
-			rResultList.Add(SNTOK_PHONE, 0.9f);
+			rResultList.Add(SNTOK_PHONE, 0.9f, 0/*flags*/);
 		}
 		else {
 			//
@@ -4614,7 +4614,7 @@ PPTokenRecognizer::PPTokenRecognizer() : STokenRecognizer()
 			// как трактовать ситуацию, когда STokenRecognizer увидел номер телефона, а libphonenumber - нет.
 			// Пока оставлю без изменений, но, возможно, надо будет удалять значение SNTOK_PHONE из списка rResultList.
 			//
-			rResultList.Add(SNTOK_PHONE, 0.0f);
+			rResultList.Add(SNTOK_PHONE, 0.0f, 0/*flags*/);
 		}
 	}
 #endif

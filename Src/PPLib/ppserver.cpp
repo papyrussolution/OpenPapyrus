@@ -305,6 +305,7 @@ int PPServerCmd::ParseLine(const SString & rLine, long flags)
 		tGetCommonMqsConfig,
 		tExecJobImm,          // @v11.3.9
 		tGetDbInfo,           // @v12.0.6 
+		tEgaisMarkAutoSelection, // @v12.2.11
 	};
 	enum {
 		cmdfNeedAuth = 0x0001, // Команда требует авторизованного сеанса
@@ -428,7 +429,8 @@ int PPServerCmd::ParseLine(const SString & rLine, long flags)
 		{ PPHS_SETTIMESERIESSTKENV      , /*"settimeseriesstkenv",*/       tSetTimeSeriesStkEnv,     PPSCMD_SETTIMESERIESSTKENV,   cmdfNeedAuth },
 		{ PPHS_GETCOMMONMQSCONFIG       , /*"getcommonmqsconfig",*/        tGetCommonMqsConfig,      PPSCMD_GETCOMMONMQSCONFIG,    cmdfNeedAuth },
 		{ PPHS_EXECJOBIMM               ,                                  tExecJobImm,              PPSCMD_EXECJOBIMM,                       0 }, // @v11.3.9
-		{ PPHS_GETDBINFO                ,                                  tGetDbInfo,               PPSCMD_GETDBINFO,                        0 }, // @v12.0.6
+		{ PPHS_GETDBINFO                ,                                  tGetDbInfo,               PPSCMD_GETDBINFO,              cmdfNeedAuth }, // @v12.0.6
+		{ PPHS_EGAISMARKAUTOSELECTION   ,                                  tEgaisMarkAutoSelection,  PPSCMD_EGAISMARKAUTOSELECTION, cmdfNeedAuth }, // @v12.2.11  
 	};
 	int    ok = 1;
 	size_t p = 0;
@@ -2893,19 +2895,19 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 				const ThreadID this_thread_id = DS.GetConstTLA().GetThreadID();
 				TSCollection <PPThread::Info> list;
 				DS.GetThreadInfoList(0, list);
-				SSerializeContext ctx;
+				SSerializeContext sctx;
 				int32 c = list.getCount();
 				SBuffer _temp_sbuf;
-				ctx.Init(0, getcurdate_());
-				THROW_SL(ctx.Serialize(+1, c, _temp_sbuf));
+				sctx.Init(0, getcurdate_());
+				THROW_SL(sctx.Serialize(+1, c, _temp_sbuf));
 				for(int i = 0; i < c; i++) {
 					PPThread::Info * p_item = list.at(i);
 					if(p_item->Id == this_thread_id && p_item->LastMsg.IsEmpty()) {
 						p_item->LastMsg = "GetServerStat";
 					}
-					THROW(p_item->Serialize(+1, _temp_sbuf, &ctx));
+					THROW(p_item->Serialize(+1, _temp_sbuf, &sctx));
 				}
-				THROW_SL(ctx.SerializeStateOfContext(+1, rReply));
+				THROW_SL(sctx.SerializeStateOfContext(+1, rReply));
 				THROW_SL(rReply.Write(_temp_sbuf.GetBuf(_temp_sbuf.GetRdOffs()), _temp_sbuf.GetAvailableSize()));
 			}
 			break;
@@ -2913,9 +2915,9 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 			{
 				PPJobSrvProtocol::StopThreadBlock blk;
 				PPThread::Info tinfo;
-				SSerializeContext ctx;
-				ctx.Init(0, getcurdate_());
-				THROW_SL(blk.Serialize(-1, *pEv, &ctx));
+				SSerializeContext sctx;
+				sctx.Init(0, getcurdate_());
+				THROW_SL(blk.Serialize(-1, *pEv, &sctx));
 				DS.GetThreadInfo(blk.TId, tinfo);
 				THROW(DS.StopThread(blk.TId));
 				rReply.SetAck();
@@ -3298,7 +3300,7 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 				ok = TransmitFile(tfvStart, tfctFile, path, rReply);
 			}
 			break;
-		case PPSCMD_EXECJOBIMM: // @v11.3.9 @construction
+		case PPSCMD_EXECJOBIMM: // @v11.3.9
 			{
 				pEv->GetParam(1, temp_buf);
 				PPID    job_id = temp_buf.ToLong();
@@ -3316,6 +3318,21 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 						p_sess->Start(1);
 						ok = cmdretOK;
 					}
+				}
+			}
+			break;
+		case PPSCMD_EGAISMARKAUTOSELECTION: // @v12.2.11
+			THROW_PP(State_PPws & stLoggedIn, PPERR_NOTLOGGEDIN);
+			{
+				EgaisMarkAutoSelector::ResultBlock rblk;
+				SSerializeContext sctx;
+				if(rblk.Serialize(-1, *pEv, &sctx)) {
+					EgaisMarkAutoSelector emas;
+					int r = emas.Run(rblk);
+					THROW(r);
+					THROW(rblk.Serialize(+1, rReply, &sctx)); // PPSCMD_EGAISMARKAUTOSELECTION
+					rReply.SetDataType(PPJobSrvReply::htGeneric, 0);
+					ok = cmdretOK;
 				}
 			}
 			break;
@@ -3904,17 +3921,25 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 		case PPSCMD_WSCTL_QUERYPOLICY: // @v11.7.12
 			THROW_PP(State_PPws & stLoggedIn, PPERR_NOTLOGGEDIN);
 			SETIFZQ(P_WsCtlBlk, new WsCtlSrvBlock());
-			if(P_WsCtlBlk->SendClientPolicy(temp_buf)) {
-				rReply.SetString(temp_buf);
-				ok = cmdretOK;				
+			{
+				S_GUID  wsctl_uuid;
+				pEv->Read(&wsctl_uuid, sizeof(wsctl_uuid));
+				if(P_WsCtlBlk->SendClientPolicy(wsctl_uuid, temp_buf)) {
+					rReply.SetString(temp_buf);
+					ok = cmdretOK;				
+				}
 			}
 			break;
 		case PPSCMD_WSCTL_QUERYPGMLIST: // @v11.8.5
 			THROW_PP(State_PPws & stLoggedIn, PPERR_NOTLOGGEDIN);
 			SETIFZQ(P_WsCtlBlk, new WsCtlSrvBlock());
-			if(P_WsCtlBlk->SendProgramList(false/*mock*/, temp_buf)) {
-				rReply.SetString(temp_buf);
-				ok = cmdretOK;				
+			{
+				S_GUID  wsctl_uuid;
+				pEv->Read(&wsctl_uuid, sizeof(wsctl_uuid));
+				if(P_WsCtlBlk->SendProgramList(false/*mock*/, wsctl_uuid, temp_buf)) {
+					rReply.SetString(temp_buf);
+					ok = cmdretOK;				
+				}
 			}
 			break;
 		/*
@@ -4817,7 +4842,7 @@ void PPServerSession::Run()
 			switch(waiting_mode) {
 				case wmodActiveSession:
 				case wmodActiveSession_AfterReconnection:
-				case wmodStyloBhtII: msg_id = PPTXT_LOG_SRVSESSINTRBYTIMEOUT_ACTV; break; // @v8.3.6
+				case wmodStyloBhtII: msg_id = PPTXT_LOG_SRVSESSINTRBYTIMEOUT_ACTV; break;
 				case wmodActiveSession_TransportError: msg_id = PPTXT_LOG_SRVSESSINTRBYTIMEOUT_ACTV; break;
 				case wmodSuspended: msg_id = PPTXT_LOG_SRVSESSINTRBYTIMEOUT_SUSP; break;
 				case wmodDisconnected: msg_id = PPTXT_LOG_SRVSESSINTRBYTIMEOUT_DSCN; break;
@@ -5317,7 +5342,7 @@ int run_server()
 					if(ClientTimeout > 0)
 						rSock.SetTimeout(ClientTimeout);
 					PPServerSession * p_sess = new PPServerSession(rSock, Sib, rAddr);
-					p_sess->Start(0/* @v8.5.10 1-->0 */);
+					p_sess->Start(0/* waitOnStartup */);
 					//
 					// Объект p_sess будет удален функцией p_sess->Start
 					//
@@ -5682,11 +5707,11 @@ int start_service(int start)
 int TestReconnect()
 {
 	int    ok = 1;
-	PPJobSrvClient * p_cli = DS.GetClientSession(0);
+	PPJobSrvClient * p_cli = DS.GetClientSession(false/*dontReconnect*/);
 	if(p_cli) {
 		p_cli->TestBreakConnection();
 		SDelay(1000);
-		p_cli = DS.GetClientSession(0);
+		p_cli = DS.GetClientSession(false/*dontReconnect*/);
 	}
 	return ok;
 }

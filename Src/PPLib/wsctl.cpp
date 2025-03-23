@@ -1679,16 +1679,116 @@ int WsCtlSrvBlock::Auth(AuthBlock & rBlk)
 	return ok;
 }
 	
-int WsCtlSrvBlock::SendClientPolicy(SString & rResult)
+int WsCtlSrvBlock::SendClientPolicy(const S_GUID & rComputerUuid, SString & rResult)
 {
 	rResult.Z();
 	int    ok = 1;
+	Reference * p_ref = PPRef;
 	SJson * p_js = 0;
 	SString temp_buf;
-	PPGetPath(PPPATH_WORKSPACE, temp_buf);
-	temp_buf.SetLastSlash().Cat("wsctl").SetLastSlash().Cat("wsctl-policy.json");
-	p_js = SJson::ParseFile(temp_buf);
-	THROW(p_js);
+	SString path;
+	SString default_file_name;
+	SString final_file_name;
+	PPID   comp_id = 0;
+	//
+	// Нам нужно найти файл с определениями системных политик для компьютера rComputerUuid.
+	// Если нам не удастся найти политики для конкретного компьютера, то будем использовать 
+	// default-политики, которые должны быть определены в файле wsctl-policy.json.
+	// 
+	// Политики для конкретного компьютера должны быть определены в файле с именем wsctl-policy-xxxxx.json
+	// где xxxxx либо GUID компьютера, либо его MAC-адрес, либо идентификатор в виде либо числа либо хэш-числа (#9999).
+	// Например:
+	//    wsctl-policy.json - default
+	//    wsctl-policy-34EEB9C2-04F2-4C9B-A7E9-6E972F3383BE.json - политики для компьютера с GUID 34EEB9C2-04F2-4C9B-A7E9-6E972F3383BE
+	//    wsctl-policy-34EEB9C2-00-1B-63-84-45-E6.json - политики для компьютера с MAC-адресом 00-1B-63-84-45-E6
+	//    wsctl-policy-1018.json - политики для компьютера с идентификатором 1018
+	//    wsctl-policy-#1018.json - политики для компьютера с идентификатором 1018
+	//
+	const  char * p_file_name_prefix = "wsctl-policy";
+	PPGetPath(PPPATH_WORKSPACE, path);
+	path.SetLastSlash().Cat("wsctl");
+	{
+		(temp_buf = p_file_name_prefix).Dot().Cat("json");
+		(default_file_name = path).SetLastSlash().Cat(temp_buf);
+	}
+	if(rComputerUuid.IsZero()) {
+		final_file_name = default_file_name;
+	}
+	else {
+		SFileEntryPool fep;
+		SFileEntryPool::Entry fe;
+		{
+			(temp_buf = p_file_name_prefix).CatChar('*').Dot().Cat("json");
+			fep.Scan(path, temp_buf, 0);
+		}
+		if(fep.GetCount()) {
+			PPObjComputer cobj;
+			PPIDArray comp_id_list_by_uuid;
+			PPComputerPacket comp_pack;
+			p_ref->Ot.SearchObjectsByGuid(PPOBJ_COMPUTER, PPTAG_COMPUTER_GUID, rComputerUuid, &comp_id_list_by_uuid);
+			{
+				uint i = comp_id_list_by_uuid.getCount();
+				if(i) do {
+					PPID iter_comp_id = comp_id_list_by_uuid.get(--i);
+					if(CompObj.Get(iter_comp_id, &comp_pack) > 0) {
+						comp_id = iter_comp_id;
+					}
+					else {
+						comp_id_list_by_uuid.atFree(i);
+					}
+				} while(i && !comp_id);
+			}
+			{
+				SString iter_file_name;
+				SFsPath ps;
+				for(uint i = 0; final_file_name.IsEmpty() && i < fep.GetCount(); i++) {
+					if(fep.Get(i, &fe, &iter_file_name)) {
+						ps.Split(iter_file_name);
+						temp_buf = ps.Nam;
+						assert(temp_buf.HasPrefixIAscii(p_file_name_prefix));
+						if(temp_buf.HasPrefixIAscii(p_file_name_prefix)) {
+							temp_buf.ShiftLeft(sstrlen(p_file_name_prefix));
+							while(oneof3(temp_buf.C(0), '-', '_', ' ')) {
+								temp_buf.ShiftLeft();
+							}
+							while(oneof3(temp_buf.Last(), '-', '_', ' ')) {
+								temp_buf.TrimRight();
+							}
+							S_GUID iter_uuid;
+							if(iter_uuid.FromStr(temp_buf) && iter_uuid == rComputerUuid) {
+								final_file_name = iter_file_name;
+							}
+							else {
+								MACAddr iter_macadr;
+								if(!comp_pack.Rec.MacAdr.IsZero() && iter_macadr.FromStr(temp_buf) && iter_macadr == comp_pack.Rec.MacAdr) {
+									final_file_name = iter_file_name;
+								}
+								else {
+									if(comp_pack.Rec.ID) {
+										if(isdec(temp_buf.C(0)) && temp_buf.ToLong() == comp_pack.Rec.ID) {
+											final_file_name = iter_file_name;
+										}
+										else {
+											if(temp_buf.C(0) == '#') {
+												temp_buf.ShiftLeft();
+												if(isdec(temp_buf.C(0)) && temp_buf.ToLong() == comp_pack.Rec.ID) {
+													final_file_name = iter_file_name;
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		if(final_file_name.IsEmpty())
+			final_file_name = default_file_name;
+	}
+	p_js = SJson::ParseFile(final_file_name);
+	THROW_SL(p_js);
 	{
 		WsCtl_ClientPolicy policy;
 		THROW(policy.FromJsonObj(p_js));
@@ -1699,7 +1799,7 @@ int WsCtlSrvBlock::SendClientPolicy(SString & rResult)
 	return ok;
 }
 
-int WsCtlSrvBlock::SendProgramList(bool mock, SString & rResult)
+int WsCtlSrvBlock::SendProgramList(bool mock, const S_GUID & rComputerUuid, SString & rResult)
 {
 	rResult.Z();
 	int    ok = -1;

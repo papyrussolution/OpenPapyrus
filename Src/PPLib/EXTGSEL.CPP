@@ -230,26 +230,22 @@ TIDlgInitData::TIDlgInitData()
 
 void FASTCALL TIDlgInitData::SetTiSign(int tisign)
 {
-	if(tisign == TISIGN_MINUS)
-		ModifMode = mmExpend;
-	else if(tisign == TISIGN_PLUS)
-		ModifMode = mmIncoming;
-	else if(tisign == TISIGN_RECOMPLETE)
-		ModifMode = mmRecompl;
-	else
-		ModifMode = mmUndef;
+	switch(tisign) {
+		case TISIGN_MINUS: ModifMode = mmExpend; break;
+		case TISIGN_PLUS: ModifMode = mmIncoming; break;
+		case TISIGN_RECOMPLETE: ModifMode = mmRecompl; break;
+		default: ModifMode = mmUndef; break;
+	}
 }
 
 int TIDlgInitData::GetTiSign() const
 {
-	if(ModifMode == mmExpend)
-		return TISIGN_MINUS;
-	else if(ModifMode == mmIncoming)
-		return TISIGN_PLUS;
-	else if(ModifMode == mmRecompl)
-		return TISIGN_RECOMPLETE;
-	else
-		return TISIGN_UNDEF;
+	switch(ModifMode) {
+		case mmExpend: return TISIGN_MINUS;
+		case mmIncoming: return TISIGN_PLUS;
+		case mmRecompl: return TISIGN_RECOMPLETE;
+		default: return TISIGN_UNDEF;
+	}
 }
 
 #define MAX_GOODS_RECS   50000
@@ -278,7 +274,7 @@ ExtGoodsSelDialog::ExtGoodsSelDialog(PPID _op, PPID initGoodsID, long flags) : T
 	SETFLAGBYSAMPLE(Flags, fHidePassive, flags);
 	SETFLAGBYSAMPLE(Flags, fForcePassive, flags);
 	SETFLAGBYSAMPLE(Flags, fSelectModifMode, flags);
-	SETFLAGBYSAMPLE(Flags, fHideGeneric, flags); // @v10.7.7
+	SETFLAGBYSAMPLE(Flags, fHideGeneric, flags);
 	SETFLAGBYSAMPLE(Flags, fForceMatrixUsage, flags); // @v11.2.8
 	LocID = r_cfg.Location;
 	MEMSZERO(SerialData);
@@ -315,7 +311,7 @@ ExtGoodsSelDialog::ExtGoodsSelDialog(PPID _op, PPID initGoodsID, long flags) : T
 			if(initGoodsID && accsr.CFlags & PPAccessRestriction::cfStrictOnlyGoodsGrp)
 				disable_group_selection = 1;
 		}
-		SetupPPObjCombo(this, CTLSEL_EXTGSEL_GGRP, PPOBJ_GOODSGROUP, initGoodsID, OLW_CANINSERT|OLW_WORDSELECTOR, 0); // @v9.4.0 OLW_WORDSELECTOR
+		SetupPPObjCombo(this, CTLSEL_EXTGSEL_GGRP, PPOBJ_GOODSGROUP, initGoodsID, OLW_CANINSERT|OLW_WORDSELECTOR, 0);
 		if(disable_group_selection)
 			disableCtrl(CTLSEL_EXTGSEL_GGRP, 1);
 	}

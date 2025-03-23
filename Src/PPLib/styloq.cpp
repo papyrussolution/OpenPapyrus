@@ -1736,7 +1736,7 @@ bool FASTCALL StyloQCore::StoragePacket::IsEq(const StyloQCore::StoragePacket & 
 bool StyloQCore::StoragePacket::IsValid() const
 {
 	bool   ok = true;
-	THROW(Signature == PPConst::Signature_StyloQStoragePacket); // @v11.6.0
+	THROW_PP_S(Signature == PPConst::Signature_StyloQStoragePacket, PPERR_INVSIGNONOBJSRLZRD, "StyloQCore::StoragePacket"); // @v11.6.0
 	THROW(oneof8(Rec.Kind, kNativeService, kForeignService, kDocIncoming, kDocOutcoming, kClient, kSession, kFace, kCounter))
 	THROW(oneof2(Rec.Kind, kNativeService, kForeignService) || !(Rec.Flags & styloqfMediator));
 	THROW(oneof2(Rec.Kind, kDocIncoming, kDocOutcoming) || !(Rec.Flags & styloqfDocStatusFlags));
@@ -2813,7 +2813,7 @@ int StyloQCore::SvcDbSymbMap::Serialize(int dir, SBuffer & rBuf, SSerializeConte
 		SVerT ver;
 		uint8 signature[sizeof(PPConst::Signature_StqDbSymbToSvcIdMap)];
 		THROW_SL(rBuf.Read(signature, sizeof(signature)));
-		THROW(memcmp(signature, &PPConst::Signature_StqDbSymbToSvcIdMap, sizeof(PPConst::Signature_StqDbSymbToSvcIdMap)) == 0);
+		THROW_PP_S(memcmp(signature, &PPConst::Signature_StqDbSymbToSvcIdMap, sizeof(PPConst::Signature_StqDbSymbToSvcIdMap)) == 0, PPERR_INVSIGNONOBJSRLZRD, "SvcDbSymbMap");
 		THROW_SL(rBuf.Read(&ver, sizeof(ver)));
 	}
 	THROW_SL(TSCollection_Serialize(*this, dir, rBuf, pSCtx));
@@ -7973,7 +7973,7 @@ int StyloQPersonEventParam::Serialize(int dir, SBuffer & rBuf, SSerializeContext
 	}
 	if(!done) {
 		THROW(pSCtx->Serialize(dir, _signature, rBuf));
-		THROW(dir > 0 || _signature == PPConst::Signature_StyloQPersonEventParam); // @todo @err
+		THROW_PP_S(dir > 0 || _signature == PPConst::Signature_StyloQPersonEventParam, PPERR_INVSIGNONOBJSRLZRD, "StyloQPersonEventParam");
 		THROW(pSCtx->Serialize(dir, Flags, rBuf));
 		THROW(pSCtx->Serialize(dir, MaxGeoDistance, rBuf));
 		THROW(pe_obj.SerializePacket(dir, &PePack, rBuf, pSCtx));

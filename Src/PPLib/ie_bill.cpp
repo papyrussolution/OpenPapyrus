@@ -5170,7 +5170,7 @@ int PPBillImporter::Run()
 			cflags |= PPEgaisProcessor::cfVer3;
 			cflags &= ~PPEgaisProcessor::cfVer4;
 		}
-		PPEgaisProcessor ep(cflags, &Logger, 0);
+		PPEgaisProcessor ep(cflags, &Logger, 0); // @instantiation(PPEgaisProcessor)
 		THROW(ep);
 		if(Flags & PPBillImporter::fDontRemoveTags)
 			ep.SetNonRvmTagMode(1);
@@ -6741,7 +6741,7 @@ DocNalogRu_Generator::File::File(DocNalogRu_Generator & rG, const FileInfo & rHi
 			if(rHi.FileFormatVer.NotEmpty())
 				temp_buf = rHi.FileFormatVer;
 			else {
-				temp_buf = "5.02"; // @v12.2.10 "5.01"-->"5.02"
+				temp_buf = "5.03"; // @v12.2.10 "5.01"-->"5.02" // @v12.2.11 "5.02"-->"5.03"
 			}
 			N.PutAttrib(rG.GetToken_Ansi(PPHSC_RU_VERFORM)/*"ВерсФорм"*/, temp_buf);
 		}

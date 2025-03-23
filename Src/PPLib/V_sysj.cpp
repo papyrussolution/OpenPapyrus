@@ -838,8 +838,8 @@ int PPViewSysJournal::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 			ok = -1;
 			int    do_refresh = 1;
 			if(GetServerInstId() && !(BaseState & bsServerInst)) {
-				PPJobSrvClient * p_cli = 0;
-				if((p_cli = DS.GetClientSession(0)) != 0) {
+				PPJobSrvClient * p_cli = DS.GetClientSession(false/*dontReconnect*/);
+				if(p_cli) {
 					PPJobSrvCmd cmd;
 					PPJobSrvReply reply;
 					if(cmd.StartWriting(PPSCMD_REFRESHVIEW) && cmd.Write(GetServerInstId())) {

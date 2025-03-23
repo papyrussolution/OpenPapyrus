@@ -741,7 +741,7 @@ public class GTIN {
 										}
 									}
 									//THROW(!StrAssocArray::Search (prefix_id));
-									SLib.THROW(L.Search(_dp.Id) < 0, 0);
+									SLib.THROW(L == null || L.Search(_dp.Id) < 0, 0);
 									AddToken(_dp.Id, temp_buf);
 								}
 							}

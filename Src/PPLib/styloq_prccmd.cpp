@@ -6,7 +6,7 @@
 
 PPStyloQInterchange::MakeInnerGoodsEntryBlock::MakeInnerGoodsEntryBlock()
 {
-	P_Ep = new PPEgaisProcessor(PPEgaisProcessor::cfUseVerByConfig, 0, 0);
+	P_Ep = new PPEgaisProcessor(PPEgaisProcessor::cfUseVerByConfig, 0, 0); // @instantiation(PPEgaisProcessor)
 }
 
 PPStyloQInterchange::MakeInnerGoodsEntryBlock::~MakeInnerGoodsEntryBlock()

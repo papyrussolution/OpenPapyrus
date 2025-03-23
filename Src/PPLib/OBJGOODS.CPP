@@ -3027,7 +3027,7 @@ ListBoxDef * PPObjGoods::_Selector2(ListBoxDef * pDef, long parentID, long optio
 	else if(mtx_qk_id || grp || brand || exist_only || code_prefix) {
 		int    r = -1;
 		SETIFZ(p_array, new StrAssocArray);
-		PPJobSrvClient * p_cli = DS.GetClientSession(0);
+		PPJobSrvClient * p_cli = DS.GetClientSession(false/*dontReconnect*/);
 		if(p_cli) {
 			SString q;
 			q.Cat("SELECT").Space().Cat("GOODS").Space().Cat("BY").Space();
