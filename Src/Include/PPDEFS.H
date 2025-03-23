@@ -1018,7 +1018,9 @@
 	#define PPUPRF_STYLOQ_CMD_ORDERPREREQ 	   77 // @v11.2.12
 	#define PPUPRF_STYLOQ_CMD_INDOORSVCPREREQ  78 // @v11.4.4
 	#define PPUPRF_STYLOQ_CMD_ATTENDANCEPREREQ 79 // @v11.4.4
-	#define PPUPRF_LAST                        80 // @anchor Идентификатор для отмера количества существующих значений
+	#define PPUPRF_EGAISMARKAUTOSELECTOR       80 // @v12.2.11 Локальный вызов функции EgaisMarkAutoselector
+	#define PPUPRF_EGAISMARKAUTOSELECTOR_SVR   81 // @v12.2.11 Серверный вызов функции EgaisMarkAutoselector
+	#define PPUPRF_LAST                        82 // @anchor Идентификатор для отмера количества существующих значений
 #define PPOBJ_EDIPROVIDER	     74L // Провайдеры EDI-обмена
 	#define EDIPRVPRP_EXTSTRING       1L // Текстовые данные пакета
 #define PPOBJ_USREXCLRIGHTS      75L // Исключения для пользовательских прав доступа при некоторых действиях

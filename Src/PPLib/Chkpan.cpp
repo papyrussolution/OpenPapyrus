@@ -2731,6 +2731,9 @@ int CPosProcessor::AutosaveCheck()
 					// @v12.0.12 {
 					if(p_eg_prc && P_EgMas) {
 						EgaisMarkAutoSelector::ResultBlock rb;
+						EgaisMarkAutoSelector::ResultBlock rb_server_reply;
+						EgaisMarkAutoSelector::ResultBlock * p_rb_result = 0; // В зависимости от того локально мы вызывали обработку или посредством сервера
+							// этот указатель может ссылаться либо на rb либо на rb_server_reply
 						PPObjGoodsType gt_obj;
 						PPGoodsType gt_rec;
 						Goods2Tbl::Rec goods_rec;
@@ -2748,38 +2751,56 @@ int CPosProcessor::AutosaveCheck()
 							}
 						}
 						if(rb.getCount()) {
-							// @v12.2.11 @construction {
-#ifndef NDEBUG // {
+							// @v12.2.11
 							PPJobSrvClient * p_cli = DS.GetClientSession(false/*dontReconnect*/);
 							if(p_cli) {
-								bool debug_mark = false;
-								PPJobSrvCmd cmd;
-								PPJobSrvReply reply;
-								if(cmd.StartWriting(PPSCMD_EGAISMARKAUTOSELECTION)) {
-									SSerializeContext sctx;
-									if(rb.Serialize(+1, cmd, &sctx)) {
-										cmd.FinishWriting();
-										if(p_cli->ExecSrvCmd(cmd, reply)) {
-											reply.StartReading(0);
-											if(reply.CheckRepError()) {
-												EgaisMarkAutoSelector::ResultBlock rb_reply;
-												int rsr = rb_reply.Serialize(-1, reply, &sctx);
-												debug_mark = true;
-												//BaseState |= bsServerInstDestr;
-												
+								PROFILE_START
+								{
+									PPUserFuncProfiler ufp(PPUPRF_EGAISMARKAUTOSELECTOR_SVR);
+									PPJobSrvCmd cmd;
+									PPJobSrvReply reply;
+									if(cmd.StartWriting(PPSCMD_EGAISMARKAUTOSELECTION)) {
+										SSerializeContext sctx;
+										if(rb.Serialize(+1, cmd, &sctx)) {
+											cmd.FinishWriting();
+											if(p_cli->ExecSrvCmd(cmd, reply)) {
+												reply.StartReading(0);
+												if(reply.CheckRepError()) {
+													int rsr = rb_server_reply.Serialize(-1, reply, &sctx);
+													if(rsr)
+														p_rb_result = &rb_server_reply;
+												}
 											}
 										}
 									}
+									ufp.SetFactor(0, rb.getCount());
+									ufp.SetFactor(1, rb_server_reply.GetTerminalEntryCount());
 								}
+								PROFILE_END
+								(msg_buf = "EgaisMarkAutoSelector server call").CatDiv(':', 2).Cat(p_rb_result ? "succsess" : "failure");
+								PPLogMessage(PPFILNAM_DEBUG_LOG, msg_buf, LOGMSGF_DIRECTOUTP); // @debug
 							}
-#endif // } NDEBUG 
-							// } @v12.2.11 @construction
-							int r = P_EgMas->Run(rb);
+							// } @v12.2.11
+							int r = 0;
+							if(!p_rb_result) {
+								PROFILE_START
+								{
+									PPUserFuncProfiler ufp(PPUPRF_EGAISMARKAUTOSELECTOR);
+									r = P_EgMas->Run(rb);
+									ufp.SetFactor(0, rb.getCount());
+									ufp.SetFactor(1, rb.GetTerminalEntryCount());
+								}
+								PROFILE_END
+								p_rb_result = &rb;
+							}
+							else
+								r = 1;
+							assert(p_rb_result);
 							if(r > 0) {
 								CCheckPacket cc_shadow_egais;
 								bool is_ccs_inited = false;
-								for(uint i = 0; i < rb.getCount(); i++) {
-									const EgaisMarkAutoSelector::DocItem * p_di = rb.at(i);
+								for(uint i = 0; i < p_rb_result->getCount(); i++) {
+									const EgaisMarkAutoSelector::DocItem * p_di = p_rb_result->at(i);
 									if(p_di) {
 										for(uint eidx = 0; eidx < p_di->getCount(); eidx++) {
 											// Каждый EgaisMarkAutoSelector::Entry - соответствует одной строке суррогатного чека для егаис

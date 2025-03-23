@@ -799,13 +799,12 @@ struct UpdPersonListParam {
 };
 
 class UpdPersonListParamDialog : public TDialog {
-	typedef UpdPersonListParam DlgDataType;
-	DlgDataType Data;
+	DECL_DIALOG_DATA(UpdPersonListParam);
 public:
 	UpdPersonListParamDialog() : TDialog(DLG_UPDPLIST)
 	{
 	}
-	int setDTS(const DlgDataType * pData)
+	DECL_DIALOG_SETDTS()
 	{
 		int    ok = 1;
 		RVALUEPTR(Data, pData);
@@ -822,7 +821,7 @@ public:
 		SetupControls(0);
 		return ok;
 	}
-	int getDTS(DlgDataType * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
 		uint   sel = 0;

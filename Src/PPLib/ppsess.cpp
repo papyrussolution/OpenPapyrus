@@ -228,9 +228,9 @@ int FASTCALL StatusWinChange(int onLogon /*=0*/, long timer/*=-1*/)
 		if(r_tla.P_Ref) {
 			PPProjectConfig prj_cfg;
 			if(PPObjProject::FetchConfig(&prj_cfg)) {
-				const  int check_new_task = BIN((onLogon && prj_cfg.Flags & PRJCFGF_NEWTASKNOTICEONLOGIN) || (!onLogon && prj_cfg.Flags & PRJCFGF_NEWTASKNOTICE));
-				const  int rmnd_incompl_task = BIN(prj_cfg.Flags & PRJCFGF_INCOMPLETETASKREMIND);
-				if(check_new_task || rmnd_incompl_task) {
+				const  bool do_check_new_task = ((onLogon && prj_cfg.Flags & PRJCFGF_NEWTASKNOTICEONLOGIN) || (!onLogon && prj_cfg.Flags & PRJCFGF_NEWTASKNOTICE));
+				const  bool do_rmnd_incompl_task = LOGIC(prj_cfg.Flags & PRJCFGF_INCOMPLETETASKREMIND);
+				if(do_check_new_task || do_rmnd_incompl_task) {
 					PPID   employer = 0;
 					PPObjPerson::GetCurUserPerson(&employer, 0);
 					if(employer) {
@@ -239,7 +239,7 @@ int FASTCALL StatusWinChange(int onLogon /*=0*/, long timer/*=-1*/)
 						if(p_todo_obj) {
 							PrjTaskCore * t = p_todo_obj->P_Tbl;
 							PrjTaskTbl::Rec todo_rec;
-							if(check_new_task) {
+							if(do_check_new_task) {
 								for(SEnum en = t->EnumByEmployer(employer, 0, 0); en.Next(&todo_rec) > 0;) {
 									if(!(todo_rec.Flags & TODOF_OPENEDBYEMPL) && !oneof2(todo_rec.Status, TODOSTTS_REJECTED, TODOSTTS_COMPLETED)) {
 										SString & r_temp_buf = SLS.AcquireRvlStr();
@@ -249,10 +249,9 @@ int FASTCALL StatusWinChange(int onLogon /*=0*/, long timer/*=-1*/)
 									}
 								}
 							}
-							if(rmnd_incompl_task) {
+							if(do_rmnd_incompl_task) {
 								DateRange period;
-								LDATE cur_dt = getcurdate_();
-								period.SetDate(cur_dt);
+								period.SetDate(getcurdate_());
 								plusdate(&period.upp, abs(prj_cfg.RemindPrd.low), 0);
 								if(prj_cfg.RemindPrd.low != prj_cfg.RemindPrd.upp)
 									plusdate(&period.low, -abs(prj_cfg.RemindPrd.upp), 0);

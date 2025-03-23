@@ -1,5 +1,5 @@
 // PPBulletinBoard.cpp
-// Copyright (c) A.Sobolev 2018, 2019, 2020, 2022, 2024
+// Copyright (c) A.Sobolev 2018, 2019, 2020, 2022, 2024, 2025
 // @codepage UTF-8
 // Концепт доски объявлений, реализующей функционал общедоступных системных задач
 //
@@ -1483,7 +1483,7 @@ double TimeSeriesCache::EvaluateUsedMargin() const
 int TimeSeriesCache::EvaluateStakes(TsStakeEnvironment::StakeRequestBlock & rResult) const
 {
 	int    ok = -1;
-	PPUserFuncProfiler ufp(PPUPRF_TSEVALSTAKES); // @v10.3.3
+	PPUserFuncProfiler ufp(PPUPRF_TSEVALSTAKES);
 	const LDATETIME now_dtm = getcurdatetime_();
 	SString temp_buf;
 	SString log_msg;

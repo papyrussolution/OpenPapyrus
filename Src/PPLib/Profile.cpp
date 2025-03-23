@@ -1,5 +1,5 @@
 // PROFILE.CPP
-// Copyright (c) A.Sobolev 1999-2002, 2003, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 1999-2002, 2003, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -60,13 +60,15 @@ static const PPUserProfileFuncEntry PPUserProfileFuncTab[] = {
 	{ PPUPRF_BHTPREPBILL,       	 0, 1, 0, 0 },
 	{ PPUPRF_BHTPREPGOODS,      	 0, 1, 0, 0 },
 	{ PPUPRF_OSMXMLPARSETAG,    	 0, 1, PPUserProfileFuncEntry::fAccumulate, 1000000 },
-	{ PPUPRF_BUILDGOODSFL,      	 0, 1, 0, 0 },  // @v10.1.4
-	{ PPUPRF_SRCHINGOODSFL,     	 0, 2, 0, 0 },  // @v10.1.4
-	{ PPUPRF_TIMSERWRITE,       	 0, 1, PPUserProfileFuncEntry::fAccumulate, 100 }, // @v10.3.3
-	{ PPUPRF_TSEVALSTAKES,      	 0, 1, PPUserProfileFuncEntry::fAccumulate, 600 }, // @v10.3.3
+	{ PPUPRF_BUILDGOODSFL,      	 0, 1, 0, 0 },
+	{ PPUPRF_SRCHINGOODSFL,     	 0, 2, 0, 0 },
+	{ PPUPRF_TIMSERWRITE,       	 0, 1, PPUserProfileFuncEntry::fAccumulate, 100 },
+	{ PPUPRF_TSEVALSTAKES,      	 0, 1, PPUserProfileFuncEntry::fAccumulate, 600 },
 	{ PPUPRF_STYLOQ_CMD_ORDERPREREQ, 0, 2, 0, 0 }, // @v11.2.12
-	{ PPUPRF_STYLOQ_CMD_INDOORSVCPREREQ, 0, 2, 0, 0 }, // @v11.4.4
-	{ PPUPRF_STYLOQ_CMD_ATTENDANCEPREREQ, 2, 2, 0, 0 } // @v11.4.4
+	{ PPUPRF_STYLOQ_CMD_INDOORSVCPREREQ,  0, 2, 0, 0 }, // @v11.4.4
+	{ PPUPRF_STYLOQ_CMD_ATTENDANCEPREREQ, 2, 2, 0, 0 }, // @v11.4.4
+	{ PPUPRF_EGAISMARKAUTOSELECTOR,       0, 2, 0, 0 }, // @v12.2.11
+	{ PPUPRF_EGAISMARKAUTOSELECTOR_SVR,   0, 2, 0, 0 }, // @v12.2.11
 };
 
 static const PPUserProfileFuncEntry * FASTCALL _GetUserProfileFuncEntry(int funcId)

@@ -58641,6 +58641,16 @@ public:
 		_TerminalEntry & FASTCALL operator = (const _TerminalEntry & rS);
 		bool   FASTCALL Copy(const _TerminalEntry & rS);
 		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx); // @v12.2.11
+		uint   GetTerminalEntryCount() const
+		{
+			uint   result = 0;
+			for(uint i = 0; i < ML.getCount(); i++) {
+				const _MarkEntry * p_entry = ML.at(i);
+				if(p_entry)
+					result++;
+			}
+			return result;
+		}
 
 		PPID   GoodsID;
 		PPID   LotID;
@@ -58655,6 +58665,16 @@ public:
 		bool   FASTCALL Copy(const Entry & rS);
 		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx); // @v12.2.11
 		const _TerminalEntry * SelectMark(uint * pMarkEntryIdx) const;
+		uint   GetTerminalEntryCount() const
+		{
+			uint   result = 0;
+			for(uint i = 0; i < Te.getCount(); i++) {
+				const _TerminalEntry * p_entry = Te.at(i);
+				if(p_entry)
+					result += p_entry->GetTerminalEntryCount();
+			}
+			return result;
+		}
 
 		PPID   GsID;     // Идентификатор структуры, из которой сформирован экземпляр this
 		//
@@ -58671,6 +58691,16 @@ public:
 		DocItem & FASTCALL operator = (const DocItem & rS);
 		bool   FASTCALL Copy(const DocItem & rS);
 		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx); // @v12.2.11
+		uint   GetTerminalEntryCount() const
+		{
+			uint   result = 0;
+			for(uint i = 0; i < getCount(); i++) {
+				const Entry * p_entry = at(i);
+				if(p_entry)
+					result += p_entry->GetTerminalEntryCount();
+			}
+			return result;
+		}
 
 		long   ItemId;  // Идентификатор для ссылки на исходный документ
 		PPID   GoodsID; // Стартовый товар (который был продан)
@@ -58684,11 +58714,22 @@ public:
 		ResultBlock & FASTCALL operator = (const ResultBlock & rS);
 		bool   FASTCALL Copy(const ResultBlock & rS);
 		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx); // @v12.2.11
+		uint   GetTerminalEntryCount() const
+		{
+			uint result = 0;
+			for(uint i = 0; i < getCount(); i++) {
+				const DocItem * p_item = at(i);
+				if(p_item)
+					result += p_item->GetTerminalEntryCount();	
+			}
+			return result;
+		}
 		
 		int    RetCode; // @v12.2.11 Результат работы функции EgaisMarkAutoSelector::Run. Нужен для серверного запуска фукции.
 	};
 	EgaisMarkAutoSelector(/*@v12.2.11 PPEgaisProcessor * pEgPrc*/);
 	~EgaisMarkAutoSelector();
+	
 	int    Run(ResultBlock & rResult);
 private:
 	struct RefBEntry { // @flat
