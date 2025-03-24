@@ -1,5 +1,5 @@
 // DBENTSET.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2014, 2015, 2016, 2017, 2018, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2014, 2015, 2016, 2017, 2018, 2020, 2021, 2022, 2025
 // @codepage UTF-8
 // @Kernel
 //
@@ -64,12 +64,10 @@ int DbLoginBlock::UrlParse(const char * pUrl)
 			if(url.GetComponent(InetUrl::cUserName, 0, temp_buf))
 				SetAttr(attrUserName, temp_buf);
 			url.Compose(InetUrl::stHost|InetUrl::stPath, temp_buf);
-			// @v10.9.3 @fix {
 			{
 				temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
 				DS.ConvertPathToUnc(temp_buf.Strip().RmvLastSlash());
 			}
-			// } @v10.9.3 
 			SetAttr(attrDbPath, temp_buf);
 			SetAttr(attrServerType, 0);
 			break;
@@ -238,7 +236,6 @@ int PPDbEntrySet2::ParseProfileLine(const char * pLine, DbLoginBlock * pBlk) con
 	int    ok = 1;
 	SqlServerType server_type = sqlstNone;
 	SString temp_buf, left, right;
-	// @v10.9.2 {
 	{
 		(temp_buf = pLine).Strip();
 		if(temp_buf.Divide(',', left, right) > 0) {
@@ -247,68 +244,6 @@ int PPDbEntrySet2::ParseProfileLine(const char * pLine, DbLoginBlock * pBlk) con
 		}
 		pBlk->UrlParse(temp_buf);
 	}
-	// } @v10.9.2 
-#if 0 // @v10.9.2 {
-	SStrScan scan(pLine);
-	scan.Skip();
-	if(scan.Skip().SearchChar(',')) {
-		scan.Get(temp_buf);
-		scan.IncrLen(1);
-		if(temp_buf.Divide(':', left, right) > 0) {
-			left.Strip();
-			right.Strip();
-			server_type = GetSqlServerTypeBySymb(left);
-			if(oneof2(server_type, sqlstGeneric, sqlstNone))
-				pBlk->SetAttr(DbLoginBlock::attrServerType, "DEFAULT");
-			else 
-				pBlk->SetAttr(DbLoginBlock::attrServerType, "BTRIEVE");
-			pBlk->SetAttr(DbLoginBlock::attrDbFriendlyName, right);
-		}
-		else
-			pBlk->SetAttr(DbLoginBlock::attrDbFriendlyName, left);
-		//
-		//
-		//
-		{
-			SString data_path;
-			if(scan.Skip().SearchChar(',')) {
-				scan.Get(data_path);
-				scan.IncrLen(1);
-			}
-			(left = scan).Strip();
-			if(oneof3(server_type, sqlstORA, sqlstMSS, sqlstMySQL)) {
-				THROW_PP_S(scan.Skip().SearchChar('@'), PPERR_INVPROFILESQLDBP, scan);
-				scan.Get(temp_buf);
-				scan.IncrLen(1);
-				temp_buf.Strip();
-				pBlk->SetAttr(DbLoginBlock::attrDbName, temp_buf);
-				(temp_buf = scan).Strip().Divide(':', left, right);
-				pBlk->SetAttr(DbLoginBlock::attrUserName, left.Strip());
-				if(right.NotEmptyS()) {
-					char   pw_buf[512];
-					size_t real_size = 0;
-					right.DecodeMime64(pw_buf, sizeof(pw_buf), &real_size);
-					assert(real_size == PWCRYPTBUFSIZE);
-					IdeaDecrypt(P_DefaultSymb, pw_buf, real_size);
-					pBlk->SetAttr(DbLoginBlock::attrPassword, pw_buf);
-					memzero(pw_buf, sizeof(pw_buf));
-				}
-			}
-			else if(data_path.NotEmpty()) {
-				left.Transf(CTRANSF_INNER_TO_OUTER); // @v10.7.4
-				pBlk->SetAttr(DbLoginBlock::attrDictPath, left);
-			}
-			else
-				data_path = left;
-			if(data_path.NotEmptyS()) {
-				data_path.Transf(CTRANSF_INNER_TO_OUTER); // @v10.7.4
-				DS.ConvertPathToUnc(data_path.Strip().RmvLastSlash());
-				pBlk->SetAttr(DbLoginBlock::attrDbPath, data_path);
-			}
-		}
-	}
-	CATCHZOK
-#endif // } 0
 	return ok;
 }
 

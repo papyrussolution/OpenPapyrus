@@ -153,25 +153,20 @@ void TypeDefinedMapFieldBase<Key, T>::CopyIterator(MapIterator* this_iter, const
 
 // ----------------------------------------------------------------------
 
-template <typename Derived, typename Key, typename T,
-    WireFormatLite::FieldType kKeyFieldType,
-    WireFormatLite::FieldType kValueFieldType>
-int MapField<Derived, Key, T, kKeyFieldType, kValueFieldType>::size() const {
+template <typename Derived, typename Key, typename T, WireFormatLite::FieldType kKeyFieldType, WireFormatLite::FieldType kValueFieldType>
+int MapField<Derived, Key, T, kKeyFieldType, kValueFieldType>::size() const 
+{
 	MapFieldBase::SyncMapWithRepeatedField();
 	return static_cast<int>(impl_.GetMap().size());
 }
 
-template <typename Derived, typename Key, typename T,
-    WireFormatLite::FieldType kKeyFieldType,
-    WireFormatLite::FieldType kValueFieldType>
-void MapField<Derived, Key, T, kKeyFieldType, kValueFieldType>::Clear() {
+template <typename Derived, typename Key, typename T, WireFormatLite::FieldType kKeyFieldType, WireFormatLite::FieldType kValueFieldType>
+void MapField<Derived, Key, T, kKeyFieldType, kValueFieldType>::Clear() 
+{
 	if(this->MapFieldBase::repeated_field_ != nullptr) {
-		RepeatedPtrField<EntryType>* repeated_field =
-		    reinterpret_cast<RepeatedPtrField<EntryType>*>(
-			this->MapFieldBase::repeated_field_);
+		RepeatedPtrField<EntryType>* repeated_field = reinterpret_cast<RepeatedPtrField<EntryType>*>(this->MapFieldBase::repeated_field_);
 		repeated_field->Clear();
 	}
-
 	impl_.MutableMap()->clear();
 	// Data in map and repeated field are both empty, but we can't set status
 	// CLEAN. Because clear is a generated API, we cannot invalidate previous
@@ -179,12 +174,9 @@ void MapField<Derived, Key, T, kKeyFieldType, kValueFieldType>::Clear() {
 	MapFieldBase::SetMapDirty();
 }
 
-template <typename Derived, typename Key, typename T,
-    WireFormatLite::FieldType kKeyFieldType,
-    WireFormatLite::FieldType kValueFieldType>
-void MapField<Derived, Key, T, kKeyFieldType,
-    kValueFieldType>::SetMapIteratorValue(MapIterator* map_iter)
-const {
+template <typename Derived, typename Key, typename T, WireFormatLite::FieldType kKeyFieldType, WireFormatLite::FieldType kValueFieldType>
+void MapField<Derived, Key, T, kKeyFieldType, kValueFieldType>::SetMapIteratorValue(MapIterator* map_iter) const 
+{
 	const Map<Key, T>& map = impl_.GetMap();
 	typename Map<Key, T>::const_iterator iter =
 	    TypeDefinedMapFieldBase<Key, T>::InternalGetIterator(map_iter);
@@ -193,22 +185,18 @@ const {
 	map_iter->value_.SetValue(&iter->second);
 }
 
-template <typename Derived, typename Key, typename T,
-    WireFormatLite::FieldType kKeyFieldType,
-    WireFormatLite::FieldType kValueFieldType>
-bool MapField<Derived, Key, T, kKeyFieldType, kValueFieldType>::ContainsMapKey(const MapKey& map_key) const {
+template <typename Derived, typename Key, typename T, WireFormatLite::FieldType kKeyFieldType, WireFormatLite::FieldType kValueFieldType>
+bool MapField<Derived, Key, T, kKeyFieldType, kValueFieldType>::ContainsMapKey(const MapKey& map_key) const 
+{
 	const Map<Key, T>& map = impl_.GetMap();
 	const Key& key = UnwrapMapKey<Key>(map_key);
 	typename Map<Key, T>::const_iterator iter = map.find(key);
 	return iter != map.end();
 }
 
-template <typename Derived, typename Key, typename T,
-    WireFormatLite::FieldType kKeyFieldType,
-    WireFormatLite::FieldType kValueFieldType>
-bool MapField<Derived, Key, T, kKeyFieldType,
-    kValueFieldType>::InsertOrLookupMapValue(const MapKey& map_key,
-    MapValueRef* val) {
+template <typename Derived, typename Key, typename T, WireFormatLite::FieldType kKeyFieldType, WireFormatLite::FieldType kValueFieldType>
+bool MapField<Derived, Key, T, kKeyFieldType, kValueFieldType>::InsertOrLookupMapValue(const MapKey& map_key, MapValueRef* val) 
+{
 	// Always use mutable map because users may change the map value by
 	// MapValueRef.
 	Map<Key, T>* map = MutableMap();

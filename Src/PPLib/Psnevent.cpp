@@ -1600,12 +1600,8 @@ PsnEventDialog::PsnEventDialog(Param * pParam, PPObjPersonEvent * pPeObj) : PPLi
 		addGroup(ctlgroupPersonPrmr, new PersonCtrlGroup(CTLSEL_PSNEVNT_PRMR, CTL_PSNEVNT_PRMRSCARD, 0, psn_grp_flags));
 		addGroup(ctlgroupPersonScnd, new PersonCtrlGroup(CTLSEL_PSNEVNT_SCND, CTL_PSNEVNT_SCNDSCARD, 0, psn_grp_flags));
 	}
-	SetupInputLine(CTL_PSNEVNT_MEMO, MKSTYPE(S_ZSTRING, 512), MKSFMT(512, 0)); // @v10.2.3
-	// @v10.7.10 button is still in vevelopment {
-#ifdef NDEBUG
-	showButton(cmVkApiPost, 0);
-#endif
-	// }
+	SetupInputLine(CTL_PSNEVNT_MEMO, MKSTYPE(S_ZSTRING, 512), MKSFMT(512, 0));
+	showButton(cmVkApiPost, SlDebugMode::CT()); // button is still in development
 }
 
 int PsnEventDialog::setupList()

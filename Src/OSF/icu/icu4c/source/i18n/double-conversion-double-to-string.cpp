@@ -221,13 +221,11 @@ bool DoubleToStringConverter::ToFixed(double value,
 	return true;
 }
 
-bool DoubleToStringConverter::ToExponential(double value,
-    int requested_digits,
-    StringBuilder* result_builder) const {
+bool DoubleToStringConverter::ToExponential(double value, int requested_digits, StringBuilder* result_builder) const 
+{
 	if(Double(value).IsSpecial()) {
 		return HandleSpecialValues(value, result_builder);
 	}
-
 	if(requested_digits < -1) return false;
 	if(requested_digits > kMaxExponentialDigits) return false;
 

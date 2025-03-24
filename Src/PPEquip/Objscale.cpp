@@ -191,7 +191,7 @@ public:
 			MEMSZERO(Data);
 		}
 	}
-	virtual ~PPScaleDevice() // @v10.3.2 @fix non-virtual-->virtual
+	virtual ~PPScaleDevice()
 	{
 		if(H_Port != INVALID_HANDLE_VALUE)
 			CloseHandle(H_Port);

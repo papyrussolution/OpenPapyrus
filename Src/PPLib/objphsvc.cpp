@@ -1251,7 +1251,10 @@ int TestAsteriskAmiClient(PPID phnSvcID)
 	int    ok = 1;
 #ifndef NDEBUG // {
 	if(phnSvcID) {
-		SString addr_buf, user_buf, secret_buf, temp_buf;
+		SString temp_buf;
+		SString addr_buf;
+		SString user_buf;
+		SString secret_buf;
 		int    port = 0;
 		PPObjPhoneService ps_obj(0);
 		PPPhoneServicePacket ps_pack;

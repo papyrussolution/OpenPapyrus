@@ -2356,6 +2356,7 @@ PPERR_APTEKARU_AUTHFAULT_NOGUA      "Ошибка авторизации на с
 PPERR_APTEKARU_AUTHFAULT_INVATTRS   "Ошибка авторизации на сервисе @{brand_aptekaru}: не определены логин или пароль в глобальной учетной записи"
 PPERR_APTEKARU_AUTHFAULT            "Ошибка авторизации на сервисе @{brand_aptekaru}: %s"
 PPERR_INVSIGNONOBJSRLZRD            "Неверная сигнатура объекта '%s' при чтении сериализованных данных"
+PPERR_BILLBYIDENTNFOUND             "Документ по идентификатору '%s' не найден"
 
 // LastError
 

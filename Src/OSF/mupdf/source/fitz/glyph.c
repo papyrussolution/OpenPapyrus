@@ -44,15 +44,8 @@ fz_irect fz_glyph_bbox_no_ctx(fz_glyph * glyph)
 	return bbox;
 }
 
-int fz_glyph_width(fz_context * ctx, fz_glyph * glyph)
-{
-	return glyph->w;
-}
-
-int fz_glyph_height(fz_context * ctx, fz_glyph * glyph)
-{
-	return glyph->h;
-}
+int fz_glyph_width(fz_context * ctx, fz_glyph * glyph) { return glyph->w; }
+int fz_glyph_height(fz_context * ctx, fz_glyph * glyph) { return glyph->h; }
 
 #ifndef NDEBUG
 #include <stdio.h>
@@ -60,13 +53,11 @@ int fz_glyph_height(fz_context * ctx, fz_glyph * glyph)
 void fz_dump_glyph(fz_glyph * glyph)
 {
 	int x, y;
-
 	if(glyph->pixmap) {
 		printf("pixmap glyph\n");
 		return;
 	}
 	printf("glyph: %dx%d @ (%d,%d)\n", glyph->w, glyph->h, glyph->x, glyph->y);
-
 	for(y = 0; y < glyph->h; y++) {
 		int offset = ((int*)(glyph->data))[y];
 		if(offset >= 0) {
@@ -119,14 +110,10 @@ void fz_dump_glyph(fz_glyph * glyph)
 fz_glyph * fz_new_glyph_from_pixmap(fz_context * ctx, fz_pixmap * pix)
 {
 	fz_glyph * glyph = NULL;
-
 	if(pix == NULL)
 		return NULL;
-
 	fz_var(glyph);
-
-	fz_try(ctx)
-	{
+	fz_try(ctx) {
 		if(pix->n != 1 || pix->w * pix->h < RLE_THRESHOLD) {
 			glyph = fz_malloc_struct(ctx, fz_glyph);
 			FZ_INIT_STORABLE(glyph, 1, fz_drop_glyph_imp);
@@ -140,15 +127,12 @@ fz_glyph * fz_new_glyph_from_pixmap(fz_context * ctx, fz_pixmap * pix)
 		else
 			glyph = fz_new_glyph_from_8bpp_data(ctx, pix->x, pix->y, pix->w, pix->h, pix->samples, pix->stride);
 	}
-	fz_always(ctx)
-	{
+	fz_always(ctx) {
 		fz_drop_pixmap(ctx, pix);
 	}
-	fz_catch(ctx)
-	{
+	fz_catch(ctx) {
 		fz_rethrow(ctx);
 	}
-
 	return glyph;
 }
 

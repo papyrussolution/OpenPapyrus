@@ -1,8 +1,10 @@
 // SLUTIL.CPP
-// Copyright (c) A.Sobolev 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024
+// Copyright (c) A.Sobolev 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025
 //
 #include <slib-internal.h>
 #pragma hdrstop
+
+/*static*/bool SlDebugMode::RT__ = false;
 //
 // Compare
 //

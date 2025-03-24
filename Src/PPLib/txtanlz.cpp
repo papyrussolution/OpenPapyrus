@@ -2606,11 +2606,7 @@ int PPObjectTokenizer::ProcessGoods(const GoodsFilt * pFilt)
 
 int PPObjectTokenizer::SearchObjects(const char * pText, PPID objType, long flags, RAssocArray & rObjIdScoreList)
 {
-#ifdef NDEBUG
-	const int debug_output = 0;
-#else
-	const int debug_output = 1;
-#endif
+	const bool debug_output = SlDebugMode::CT();
 	rObjIdScoreList.clear();
 	int    ok = -1;
 	SString text(pText);

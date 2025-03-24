@@ -5145,8 +5145,8 @@ void SelCheckListDialog::Helper_Constructor(CPosProcessor * pSrv, const AddedPar
 	}
 	// @v12.2.8 {
 	if(P_AddParam && (P_AddParam->Flags & AddedParam::fRetOrCorrSelection)) {
-		const bool correctiona_enabled = false; // @v12.2.10 Пока блокируем возможность выбора коррекции - надо еще поработать над механизмами.
-		if(correctiona_enabled)
+		const bool correction_enabled = SlDebugMode::CT(); // @v12.2.10 Пока блокируем возможность выбора коррекции - надо еще поработать над механизмами.
+		if(correction_enabled)
 			Op = CCOP_RETURN;
 		else {
 			if(Op == CCOP_GENERAL)
@@ -5158,10 +5158,10 @@ void SelCheckListDialog::Helper_Constructor(CPosProcessor * pSrv, const AddedPar
 		AddClusterAssocDef(CTL_SELCHECK_OP, 3, CCOP_CORRECTION_RET); // @v12.2.11
 		AddClusterAssocDef(CTL_SELCHECK_OP, 4, CCOP_CORRECTION_RETSTORNO); // @v12.2.11
 		SetClusterData(CTL_SELCHECK_OP, Op);
-		DisableClusterItem(CTL_SELCHECK_OP, 1, !correctiona_enabled);
-		DisableClusterItem(CTL_SELCHECK_OP, 2, !correctiona_enabled);
-		DisableClusterItem(CTL_SELCHECK_OP, 3, !correctiona_enabled);
-		DisableClusterItem(CTL_SELCHECK_OP, 4, !correctiona_enabled);
+		DisableClusterItem(CTL_SELCHECK_OP, 1, !correction_enabled);
+		DisableClusterItem(CTL_SELCHECK_OP, 2, !correction_enabled);
+		DisableClusterItem(CTL_SELCHECK_OP, 3, !correction_enabled);
+		DisableClusterItem(CTL_SELCHECK_OP, 4, !correction_enabled);
 	}
 	else {
 		showCtrl(CTL_SELCHECK_OP, false);
@@ -7574,10 +7574,10 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 	}
 	else if(TVKEYDOWN) {
 		switch(TVKEY) {
-#ifndef NDEBUG // {
 			case kbF12:
-				{
-					SString temp_buf, file_name;
+				if(SlDebugMode::CT()) {
+					SString temp_buf;
+					SString file_name;
 					if(ExportCurrentState(temp_buf)) {
 						PPGetFilePath(PPPATH_OUT, "CPosProcessorState.xml", file_name);
 						SFile f_out(file_name, SFile::mWrite);
@@ -7601,7 +7601,6 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 						PPError();
 				}
 				break;
-#endif // } !NDEBUG
 			case kbCtrlF12:
 				{
 					SString mark;
@@ -8040,8 +8039,8 @@ int CheckPaneDialog::UpdateGList(int updGoodsList, PPID selGroupID)
 			SmartListBox * p_grp_list = static_cast<SmartListBox *>(getCtrlView(CTL_CHKPAN_GRPLIST));
 			ListBoxDef * p_def = SmartListBox::IsValidS(p_grp_list) ? static_cast<ListBoxDef *>(p_grp_list->P_Def) : 0;
 			if(p_def) {
-				int    sav_pos = p_def->_curItem();
-				int    focus_item_found = 0;
+				const  int sav_pos = p_def->_curItem();
+				bool   focus_item_found = false;
 				p_grp_list->freeAll();
 				GrpListItem * p_item = 0;
 				for(uint i = 0; GroupList.enumItems(&i, (void **)&p_item);) {
@@ -8060,7 +8059,7 @@ int CheckPaneDialog::UpdateGList(int updGoodsList, PPID selGroupID)
 					if(do_insert && GObj.Fetch(p_item->ID, &goods_rec) > 0) {
 						p_grp_list->addItem(goods_rec.ID, goods_rec.Name);
 						if(goods_rec.ID == selGroupID)
-							focus_item_found = 1;
+							focus_item_found = true;
 					}
 				}
 				RECT   list_rect;

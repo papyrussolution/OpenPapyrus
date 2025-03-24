@@ -32,10 +32,7 @@ RSet::~RSet()
 {
 }
 
-Xapian::doccount RSet::size() const
-{
-	return internal.get() ? internal->docs.size() : 0;
-}
+Xapian::doccount RSet::size() const { return internal.get() ? internal->docs.size() : 0; }
 
 void RSet::add_document(Xapian::docid did)
 {

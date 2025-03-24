@@ -259,7 +259,7 @@ int TProgram::AddListToTree(long cmd, const char * pTitle, ListWindow * pLw)
 			ShowLeftTree(true); // @v11.3.8 
 			PostMessage(H_MainWnd, WM_COMMAND, cmShowTree, 0);
 		}
-		if(cmd && pLw) // @v10.1.3
+		if(cmd && pLw)
 			P_TreeWnd->Insert(cmd, pTitle, pLw);
 		ok = 1;
 	}
@@ -275,7 +275,6 @@ void TProgram::DelItemFromMenu(void * ptr)
 			CALLPTRMEMB(P_TreeWnd, DelItemCmdList(ptr));
 			if(H_ShortcutsWnd) {
 				int     i;
-				//char    tooltip[80];
 				RECT    rc_item;
 				TCITEM tci;
 				HWND   hwnd_tab = GetDlgItem(H_ShortcutsWnd, CTL_SHORTCUTS_ITEMS);
@@ -287,7 +286,6 @@ void TProgram::DelItemFromMenu(void * ptr)
 						MEMSZERO(rc_item);
 						TabCtrl_GetItemRect(hwnd_tab, i, &rc_item);
 						TabCtrl_DeleteItem(hwnd_tab, i);
-						//memzero(tooltip, sizeof(tooltip));
 						TOOLINFO t_i;
 						INITWINAPISTRUCT(t_i);
 						t_i.uFlags      = TTF_SUBCLASS;
@@ -1539,17 +1537,17 @@ int TProgram::InitUiToolBox()
 			UiToolBox.CreateColor(tbiIconAlertColor,   SColor(0xDD, 0x1C, 0x1A));
 			UiToolBox.CreateColor(tbiIconAccentColor,  SColor(0x2A, 0x9D, 0x8F));
 			UiToolBox.CreateColor(tbiIconPassiveColor, SColor(0xFF, 0xF1, 0xD0));
-			UiToolBox.CreatePen(tbiBlackPen,         SPaintObj::psSolid, 1.0f, SClrBlack); // @v10.3.0
-			UiToolBox.CreatePen(tbiWhitePen,         SPaintObj::psSolid, 1.0f, SClrWhite); // @v10.3.0
-			UiToolBox.CreateBrush(tbiInvalInpBrush,  SPaintObj::bsSolid, SClrCrimson, 0); // @v10.2.4
-			UiToolBox.CreateBrush(tbiInvalInp2Brush, SPaintObj::bsSolid, SColor(0xff, 0x99, 0x00) /*https://www.colorhexa.com/ff9900*/, 0); // @v10.3.0
-			UiToolBox.CreateBrush(tbiInvalInp3Brush, SPaintObj::bsSolid, SColor(0xff, 0x33, 0xcc) /*https://www.colorhexa.com/ff33cc*/, 0); // @v10.3.0
-			UiToolBox.CreateBrush(tbiListBkgBrush,   SPaintObj::bsSolid, SClrWhite, 0); // @v10.3.0
-			UiToolBox.CreatePen(tbiListBkgPen,       SPaintObj::psSolid, 1.0f, SClrWhite); // @v10.3.0
-			UiToolBox.CreateBrush(tbiListFocBrush,   SPaintObj::bsSolid, SColor(0x00, 0x66, 0xcc) /*https://www.colorhexa.com/0066cc*/, 0); // @v10.3.0
-			UiToolBox.CreatePen(tbiListFocPen,       SPaintObj::psSolid, 1.0f, SColor(0x00, 0x66, 0xcc) /*https://www.colorhexa.com/0066cc*/); // @v10.3.0
-			UiToolBox.CreateBrush(tbiListSelBrush,   SPaintObj::bsSolid, SColor(0xa2, 0xd2, 0xff) /*https://www.colorhexa.com/0066cc*/, 0); // @v10.3.0
-			UiToolBox.CreatePen(tbiListSelPen,       SPaintObj::psDot, 1.0f, SColor(0x00, 0x66, 0xcc) /*https://www.colorhexa.com/0066cc*/); // @v10.3.0
+			UiToolBox.CreatePen(tbiBlackPen,         SPaintObj::psSolid, 1.0f, SClrBlack);
+			UiToolBox.CreatePen(tbiWhitePen,         SPaintObj::psSolid, 1.0f, SClrWhite);
+			UiToolBox.CreateBrush(tbiInvalInpBrush,  SPaintObj::bsSolid, SClrCrimson, 0);
+			UiToolBox.CreateBrush(tbiInvalInp2Brush, SPaintObj::bsSolid, SColor(0xff, 0x99, 0x00) /*https://www.colorhexa.com/ff9900*/, 0);
+			UiToolBox.CreateBrush(tbiInvalInp3Brush, SPaintObj::bsSolid, SColor(0xff, 0x33, 0xcc) /*https://www.colorhexa.com/ff33cc*/, 0);
+			UiToolBox.CreateBrush(tbiListBkgBrush,   SPaintObj::bsSolid, SClrWhite, 0);
+			UiToolBox.CreatePen(tbiListBkgPen,       SPaintObj::psSolid, 1.0f, SClrWhite);
+			UiToolBox.CreateBrush(tbiListFocBrush,   SPaintObj::bsSolid, SColor(0x00, 0x66, 0xcc) /*https://www.colorhexa.com/0066cc*/, 0);
+			UiToolBox.CreatePen(tbiListFocPen,       SPaintObj::psSolid, 1.0f, SColor(0x00, 0x66, 0xcc) /*https://www.colorhexa.com/0066cc*/);
+			UiToolBox.CreateBrush(tbiListSelBrush,   SPaintObj::bsSolid, SColor(0xa2, 0xd2, 0xff) /*https://www.colorhexa.com/0066cc*/, 0);
+			UiToolBox.CreatePen(tbiListSelPen,       SPaintObj::psDot, 1.0f, SColor(0x00, 0x66, 0xcc) /*https://www.colorhexa.com/0066cc*/);
 			{
 				// linear-gradient(to bottom, #f0f9ff 0%,#cbebff 47%,#a1dbff 100%)
 				/*
@@ -2148,12 +2146,12 @@ int TProgram::DrawButton3(HWND hwnd, DRAWITEMSTRUCT * pDi)
 					case IDB_GUESTS:        dv_id = PPDV_GUESTCOUNT01; break;
 					case IDB_TABLE_ORDERS:  dv_id = PPDV_TABLEORDER02; break;
 					case IDB_DELIVERY:      dv_id = PPDV_DELIVERY01; break;
-					case IDB_CLOCK:         dv_id = PPDV_CLOCK02; break; // @v9.2.11
-					case IDB_PHONE:         dv_id = PPDV_PHONE01; break; // @v10.0.04
-					case IDB_PHONEFORWARDED: dv_id = PPDV_PHONEFORWARDED01; break; // @v10.0.04
-					case IDB_GEAR:           dv_id = PPDV_GEAR01; break; // @v10.4.11
+					case IDB_CLOCK:         dv_id = PPDV_CLOCK02; break;
+					case IDB_PHONE:         dv_id = PPDV_PHONE01; break;
+					case IDB_PHONEFORWARDED: dv_id = PPDV_PHONEFORWARDED01; break;
+					case IDB_GEAR:           dv_id = PPDV_GEAR01; break;
 					default:
-						if(bmp_id & SlConst::VectorImageMask) { // @v10.5.5
+						if(bmp_id & SlConst::VectorImageMask) {
 							dv_id = bmp_id;
 						}
 						else {
@@ -2174,8 +2172,8 @@ int TProgram::DrawButton3(HWND hwnd, DRAWITEMSTRUCT * pDi)
 								case STDCTL_IMGADDBUTTON:    dv_id = PPDV_FOLDER02; break; // @v11.3.4
 								case STDCTL_IMGDELBUTTON:    dv_id = PPDV_CANCEL02; break; // @v11.3.4
 								case STDCTL_IMGPSTBUTTON:    dv_id = PPDV_CLIPBOARDPASTE01; break;
-								case STDCTL_SJBUTTON:        dv_id = PPDV_SYSJOURNAL; break; // @v10.5.3
-								case STDCTL_TRANSMITBUTTON:  dv_id = PPDV_SYNC01; break; // @v10.5.3
+								case STDCTL_SJBUTTON:        dv_id = PPDV_SYSJOURNAL; break;
+								case STDCTL_TRANSMITBUTTON:  dv_id = PPDV_SYNC01; break;
 								case STDCTL_INSBUTTON:
 									dv_id = PPDV_ADDFILE02;
 									if(text_buf == "+") // Специальный случай: иногда кнопка "Добавить" содержит текст "+" - его надо элиминировать

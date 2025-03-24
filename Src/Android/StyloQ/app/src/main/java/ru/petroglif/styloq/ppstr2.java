@@ -2273,6 +2273,8 @@ class ppstr2 {
 	public static final int PPERR_APTEKARU_AUTHFAULT = 12257;
 	public static final int PPERR_WSCTL_CLIPHONEREGISTERED = 12258;
 	public static final int PPERR_WSCTL_CLINAMEREGISTERED = 12259;
+	public static final int PPERR_INVSIGNONOBJSRLZRD = 12260;
+	public static final int PPERR_BILLBYIDENTNFOUND = 12261;
 	//
 	// .N.
 	//
@@ -4669,6 +4671,7 @@ class ppstr2 {
 	public static final int PPTXT_PRNALLBILLS_FLTOPISPAYMWOINVCOPT = 12142;
 	public static final int PPTXT_PRNALLBILLS_FLTOPGEN_NOCOMMOPTYP = 12143;
 	public static final int PPTXT_PRNALLBILLS_FLTOPGEN_NOCOMMACS = 12144;
+	public static final int PPTXT_SCANFSDIR = 12145;
 	//
 	// .N.
 	//
@@ -5171,6 +5174,7 @@ class ppstr2 {
 	public static final int PPHS_RAWMATERIAL = 10326;
 	public static final int PPHS_ACCOUNT = 10327;
 	public static final int PPHS_GOODSTAX = 10328;
+	public static final int PPHS_EGAISMARKAUTOSELECTION = 10329;
 	//
 	// .N.
 	//

@@ -633,9 +633,9 @@ static const Mutex::MuHow kShared = &kSharedS;        // shared lock
 static const Mutex::MuHow kExclusive = &kExclusiveS;  // exclusive lock
 
 #ifdef NDEBUG
-static constexpr bool kDebugMode = false;
+	static constexpr bool kDebugMode = false;
 #else
-static constexpr bool kDebugMode = true;
+	static constexpr bool kDebugMode = true;
 #endif
 
 #ifdef ABSL_INTERNAL_HAVE_TSAN_INTERFACE
@@ -645,11 +645,10 @@ static unsigned TsanFlags(Mutex::MuHow how) {
 
 #endif
 
-static bool DebugOnlyIsExiting() {
-	return false;
-}
+static bool DebugOnlyIsExiting() { return false; }
 
-Mutex::~Mutex() {
+Mutex::~Mutex() 
+{
 	intptr_t v = mu_.load(std::memory_order_relaxed);
 	if((v & kMuEvent) != 0 && !DebugOnlyIsExiting()) {
 		ForgetSynchEvent(&this->mu_, kMuEvent, kMuSpin);

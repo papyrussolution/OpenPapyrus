@@ -51,57 +51,36 @@ inline float Gumbel()
 	auto * mt = random::GetRandomGenerator();
 	std::uniform_real_distribution<float> dis(0.0, 1.0);
 	float noise = -std::log(-(std::log(dis(*mt) + kEpsilon)));
-
 	return noise;
 }
 }  // namespace
 
-Lattice::Lattice() : node_allocator_(kPreallocateLatticeNodeSize) {
+Lattice::Lattice() : node_allocator_(kPreallocateLatticeNodeSize) 
+{
 }
 
-Lattice::~Lattice() {
+Lattice::~Lattice() 
+{
 }
 
-const std::vector<Lattice::Node *> &Lattice::begin_nodes(int pos) const {
-	return begin_nodes_[pos];
-}
+const std::vector<Lattice::Node *> &Lattice::begin_nodes(int pos) const { return begin_nodes_[pos]; }
+const std::vector<Lattice::Node *> &Lattice::end_nodes(int pos) const { return end_nodes_[pos]; }
+int Lattice::size() const { return std::max<int>(0, surface_.size() - 1); /*-1 because surface_ may include the EOS.*/ }
+int Lattice::utf8_size() const { return sentence_.size(); }
+const char * Lattice::sentence() const { return sentence_.data(); }
+const char * Lattice::surface(int pos) const { return surface_[pos]; }
+Lattice::Node * Lattice::bos_node() const { return end_nodes_[0][0]; }
+Lattice::Node * Lattice::eos_node() const { return begin_nodes_[size()][0]; }
 
-const std::vector<Lattice::Node *> &Lattice::end_nodes(int pos) const {
-	return end_nodes_[pos];
-}
-
-int Lattice::size() const {
-	// -1 because surface_ may include the EOS.
-	return std::max<int>(0, surface_.size() - 1);
-}
-
-int Lattice::utf8_size() const {
-	return sentence_.size();
-}
-
-const char * Lattice::sentence() const {
-	return sentence_.data();
-}
-
-const char * Lattice::surface(int pos) const {
-	return surface_[pos];
-}
-
-Lattice::Node * Lattice::bos_node() const {
-	return end_nodes_[0][0];
-}
-
-Lattice::Node * Lattice::eos_node() const {
-	return begin_nodes_[size()][0];
-}
-
-Lattice::Node * Lattice::NewNode() {
+Lattice::Node * Lattice::NewNode() 
+{
 	Node * node = node_allocator_.Allocate();
 	node->node_id = node_allocator_.size() - 1;
 	return node;
 }
 
-void Lattice::Clear() {
+void Lattice::Clear() 
+{
 	begin_nodes_.clear();
 	end_nodes_.clear();
 	sentence_ = absl::string_view("");
@@ -109,15 +88,13 @@ void Lattice::Clear() {
 	node_allocator_.Free();
 }
 
-void Lattice::SetSentence(absl::string_view sentence) {
+void Lattice::SetSentence(absl::string_view sentence) 
+{
 	Clear();
-
 	sentence_ = sentence;
 	surface_.reserve(sentence.size() + 1);
-
 	while(!sentence.empty()) {
-		const int mblen = std::min<int>(string_util::OneCharLen(sentence.data()),
-			sentence.size());
+		const int mblen = std::min<int>(string_util::OneCharLen(sentence.data()), sentence.size());
 		surface_.push_back(sentence.data());
 		sentence.remove_prefix(mblen);
 	}
@@ -231,12 +208,11 @@ std::vector<float> Lattice::BackwardAlgorithm(float inv_theta) const {
 	return beta;
 }
 
-float Lattice::PopulateMarginal(float freq,
-    std::vector<float> * expected) const {
-	if(expected == nullptr) return 0.0;
-
+float Lattice::PopulateMarginal(float freq, std::vector<float> * expected) const 
+{
+	if(expected == nullptr) 
+		return 0.0;
 	const int len = size();
-
 	// alpha and beta (accumulative log prob) in Forward Backward.
 	// the index of alpha/beta is Node::node_id.
 

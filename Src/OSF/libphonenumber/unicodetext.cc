@@ -452,7 +452,8 @@ int UnicodeText::const_iterator::get_utf8(char * utf8_output) const
 	return 4;
 }
 
-UnicodeText::const_iterator UnicodeText::MakeIterator(const char* p) const {
+UnicodeText::const_iterator UnicodeText::MakeIterator(const char* p) const 
+{
 #ifndef NDEBUG
 	assert(p != NULL);
 	const char* start = utf8_data();

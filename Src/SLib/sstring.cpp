@@ -7915,25 +7915,27 @@ float FASTCALL SNaturalTokenArray::Has(uint32 tok) const
     return lsearch(&tok, &pos, CMPF_LONG) ? at(pos).Prob : 0.0f;
 }
 
-int SNaturalTokenArray::Add(uint32 tok, float prob, uint flags)
+int SNaturalTokenArray::AddTok(uint32 tok, float prob, uint flags)
 {
 	int    ok = 1;
     uint   pos = 0;
-    if(lsearch(&tok, &pos, CMPF_LONG)) {
-		SNaturalToken & r_item = at(pos);
-		if(r_item.Prob != prob) {
-			if(prob <= 0.0f)
-				atFree(pos);
-			else
+	if(prob > 0.0f) {
+		if(lsearch(&tok, &pos, CMPF_LONG)) {
+			SNaturalToken & r_item = at(pos);
+			/*if(r_item.Prob != prob) {
 				r_item.Prob = prob;
+			}*/
+			float new_prob = ((r_item.Prob * r_item.Count) + prob) / static_cast<float>(r_item.Count+1);
+			r_item.Prob = new_prob;
+			r_item.Count++;
 		}
-	}
-	else if(prob > 0.0f) { // @v11.4.9 @fix (prob >= 0.0f)-->(prob > 0.0f)
-		SNaturalToken item;
-		item.ID = tok;
-		item.Prob = prob;
-		item.Count = 1;
-		ok = insert(&item);
+		else {
+			SNaturalToken item;
+			item.ID = tok;
+			item.Prob = prob;
+			item.Count = 1;
+			ok = insert(&item);
+		}
 	}
 	return ok;
 }
@@ -8404,7 +8406,7 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 		}
 		if(h & SNTOKSEQ_LEADSHARP) {
 			if(h & SNTOKSEQ_HEX && toklen == 7) {
-				rResultList.Add(SNTOK_COLORHEX, 0.9f, 0/*flags*/);
+				rResultList.AddTok(SNTOK_COLORHEX, 0.9f, 0/*flags*/);
 			}
 		}
 		/*else if(h & SNTOKSEQ_LEADMINUS) {
@@ -8417,11 +8419,11 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 			if(h & SNTOKSEQ_DEC) {
 				uchar last = pToken[toklen-1];
 				int   cd = 0;
-				rResultList.Add(SNTOK_DIGITCODE, 1.0f, 0/*flags*/);
+				rResultList.AddTok(SNTOK_DIGITCODE, 1.0f, 0/*flags*/);
 				switch(toklen) {
 					case 6:
 						if(_ProbeDate(rIb.Temp.Z().CatN(reinterpret_cast<const char *>(pToken), toklen))) {
-							rResultList.Add(SNTOK_DATE, 0.5f, 0/*flags*/);
+							rResultList.AddTok(SNTOK_DATE, 0.5f, 0/*flags*/);
 						}
 						break;
 					case 8:
@@ -8453,28 +8455,28 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 								cd2 = 0;
 							is_ru_okpo = (cd1 > 9) ? BIN((last-'0') == cd2) : BIN((last-'0') == cd1);							
 							if(is_ru_okpo)
-								rResultList.Add(SNTOK_RU_OKPO, 0.95f, 0/*flags*/);
+								rResultList.AddTok(SNTOK_RU_OKPO, 0.95f, 0/*flags*/);
 						}
 						cd = SCalcBarcodeCheckDigitL(reinterpret_cast<const char *>(pToken), toklen-1);
 						if(static_cast<uchar>(cd) == (last-'0')) {
 							if(pToken[0] == '0')
-								rResultList.Add(SNTOK_UPCE, 0.9f, 0/*flags*/);
+								rResultList.AddTok(SNTOK_UPCE, 0.9f, 0/*flags*/);
 							else
-								rResultList.Add(SNTOK_EAN8, 0.9f, 0/*flags*/);
+								rResultList.AddTok(SNTOK_EAN8, 0.9f, 0/*flags*/);
 						}
 						if(_ProbeDate(rIb.Temp.Z().CatN(reinterpret_cast<const char *>(pToken), toklen))) {
-							rResultList.Add(SNTOK_DATE, 0.8f, 0/*flags*/);
+							rResultList.AddTok(SNTOK_DATE, 0.8f, 0/*flags*/);
 						}
 						break;
 					case 9:
 						if(pToken[0] == '0' && pToken[1] == '4') {
-							rResultList.Add(SNTOK_RU_BIC, 0.6f, 0/*flags*/);
+							rResultList.AddTok(SNTOK_RU_BIC, 0.6f, 0/*flags*/);
 						}
-						rResultList.Add(SNTOK_RU_KPP, 0.1f, 0/*flags*/);
+						rResultList.AddTok(SNTOK_RU_KPP, 0.1f, 0/*flags*/);
 						break;
 					case 10:
 						if(SCalcCheckDigit(SCHKDIGALG_RUINN|SCHKDIGALG_TEST, reinterpret_cast<const char *>(pToken), toklen)) {
-							rResultList.Add(SNTOK_RU_INN, 1.0f, 0/*flags*/);
+							rResultList.AddTok(SNTOK_RU_INN, 1.0f, 0/*flags*/);
 						}
 						break;
 					case 11:
@@ -8511,7 +8513,7 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 									cn = 0;
 							}
 							if(cn == ((pToken[9]-'0') * 10 + (pToken[10]-'0'))) {
-								rResultList.Add(SNTOK_RU_SNILS, 0.95f, 0/*flags*/);
+								rResultList.AddTok(SNTOK_RU_SNILS, 0.95f, 0/*flags*/);
 							}
 						}
 						break; // @v11.4.9 @fix (break)
@@ -8519,41 +8521,41 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 						cd = SCalcBarcodeCheckDigitL(reinterpret_cast<const char *>(pToken), toklen-1);
 						if(static_cast<uchar>(cd) == (last-'0')) {
 							if(pToken[0] == '0')
-								rResultList.Add(SNTOK_UPCE, 1.0f, 0/*flags*/);
+								rResultList.AddTok(SNTOK_UPCE, 1.0f, 0/*flags*/);
 							else
-								rResultList.Add(SNTOK_EAN8, 1.0f, 0/*flags*/);
+								rResultList.AddTok(SNTOK_EAN8, 1.0f, 0/*flags*/);
 						}
 						else if(SCalcCheckDigit(SCHKDIGALG_RUINN|SCHKDIGALG_TEST, reinterpret_cast<const char *>(pToken), toklen)) {
-							rResultList.Add(SNTOK_RU_INN, 1.0f, 0/*flags*/);
+							rResultList.AddTok(SNTOK_RU_INN, 1.0f, 0/*flags*/);
 						}
 						break;
 					case 13:
 						cd = SCalcBarcodeCheckDigitL(reinterpret_cast<const char *>(pToken), toklen-1);
 						if((uchar)cd == (last-'0')) {
-							rResultList.Add(SNTOK_EAN13, 1.0f, 0/*flags*/);
+							rResultList.AddTok(SNTOK_EAN13, 1.0f, 0/*flags*/);
 						}
 						break;
 					case 15:
 						if(SCalcCheckDigit(SCHKDIGALG_LUHN|SCHKDIGALG_TEST, reinterpret_cast<const char *>(pToken), toklen)) {
-							rResultList.Add(SNTOK_IMEI, 0.9f, 0/*flags*/);
-							rResultList.Add(SNTOK_DIGITCODE, 0.1f, 0/*flags*/);
+							rResultList.AddTok(SNTOK_IMEI, 0.9f, 0/*flags*/);
+							rResultList.AddTok(SNTOK_DIGITCODE, 0.1f, 0/*flags*/);
 						}
 						break;
 					case 19:
 						if(SCalcCheckDigit(SCHKDIGALG_LUHN|SCHKDIGALG_TEST, reinterpret_cast<const char *>(pToken), toklen)) {
-							rResultList.Add(SNTOK_LUHN, 0.9f, 0/*flags*/);
-							rResultList.Add(SNTOK_EGAISWARECODE, 0.1f, 0/*flags*/);
+							rResultList.AddTok(SNTOK_LUHN, 0.9f, 0/*flags*/);
+							rResultList.AddTok(SNTOK_EGAISWARECODE, 0.1f, 0/*flags*/);
 						}
 						else {
-							rResultList.Add(SNTOK_EGAISWARECODE, 1.0f, 0/*flags*/);
+							rResultList.AddTok(SNTOK_EGAISWARECODE, 1.0f, 0/*flags*/);
 						}
 						break;
 				}
 			}
 			if(h & SNTOKSEQ_DECLAT) {
-				rResultList.Add(SNTOK_DIGLAT, 1.0f, 0/*flags*/);
+				rResultList.AddTok(SNTOK_DIGLAT, 1.0f, 0/*flags*/);
 				if(oneof2(toklen, 68, 150))
-					rResultList.Add(SNTOK_EGAISMARKCODE, 0.8f, 0/*flags*/);
+					rResultList.AddTok(SNTOK_EGAISMARKCODE, 0.8f, 0/*flags*/);
 				else if(toklen == 9) {
 					int   is_ru_kpp = 1;
 					for(i = 0; is_ru_kpp && i < toklen; i++) {
@@ -8563,7 +8565,7 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 						}
 					}
 					if(is_ru_kpp)
-						rResultList.Add(SNTOK_RU_KPP, 0.1f, 0/*flags*/); 
+						rResultList.AddTok(SNTOK_RU_KPP, 0.1f, 0/*flags*/); 
 				}
 			}
 			if(h & SNTOKSEQ_HEXHYPHEN) {
@@ -8571,7 +8573,7 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 					uint   pos = 0;
 					long   val = 0;
 					if(r_chr_list.BSearch((long)'-', &val, &pos) && val == 4) {
-						rResultList.Add(SNTOK_GUID, 1.0f, 0/*flags*/);
+						rResultList.AddTok(SNTOK_GUID, 1.0f, 0/*flags*/);
 					}
 				}
 			}
@@ -8591,7 +8593,7 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 					const uint ss_count = ss.getCount();
 					if(ss_count == 3) {
 						if(_ProbeDate(rIb.Temp.Z().CatN(reinterpret_cast<const char *>(pToken), toklen))) {
-							rResultList.Add(SNTOK_DATE, 0.8f, 0/*flags*/);
+							rResultList.AddTok(SNTOK_DATE, 0.8f, 0/*flags*/);
 						}
 					}
 				}
@@ -8602,7 +8604,7 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 				StringSet ss('.', rIb.Temp);
 				const uint ss_count = ss.getCount();
 				if(ss_count == 2) {
-					rResultList.Add(SNTOK_REALNUMBER, 0.9f, 0/*flags*/);
+					rResultList.AddTok(SNTOK_REALNUMBER, 0.9f, 0/*flags*/);
 				}
 				if(toklen >= 3 && toklen <= 15) {
 					if(ss_count == 4) {
@@ -8611,16 +8613,14 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 							if(rIb.Temp.IsEmpty())
 								is_ip4 = 0;
 							else {
-								long v = rIb.Temp.ToLong();
+								const long v = rIb.Temp.ToLong();
 								if(v < 0 || v > 255)
 									is_ip4 = 0;
 							}
 						}
 						if(is_ip4) {
-							float prob = 0.95f;
-							if(memcmp(pToken, "127.0.0.1", toklen) == 0)
-								prob = 1.0f;
-							rResultList.Add(SNTOK_IP4, prob, 0/*flags*/);
+							const float prob = (memcmp(pToken, "127.0.0.1", toklen) == 0) ? 1.0f : 0.95f;
+							rResultList.AddTok(SNTOK_IP4, prob, 0/*flags*/);
 						}
 					}
 					else if(oneof2(ss_count, 2, 3)) {
@@ -8629,27 +8629,27 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 							if(rIb.Temp.IsEmpty())
 								is_ver = 0;
 							else {
-								long v = rIb.Temp.ToLong();
+								const long v = rIb.Temp.ToLong();
 								if(v < 0 || v > 100)
 									is_ver = 0;
 							}
 						}
 						if(is_ver) {
-							rResultList.Add(SNTOK_SOFTWAREVER, (ss_count == 3) ? 0.5f : 0.1f, 0/*flags*/);
+							rResultList.AddTok(SNTOK_SOFTWAREVER, (ss_count == 3) ? 0.5f : 0.1f, 0/*flags*/);
 						}
 					}
 				}
 			}
 			if(h & SNTOKSEQ_NUMERIC) {
 				if(num_potential_frac_delim && num_potential_frac_delim == num_potential_tri_delim) {
-					rResultList.Add(SNTOK_NUMERIC_COM, 0.6f, 0/*flags*/);
-					rResultList.Add(SNTOK_NUMERIC_DOT, 0.6f, 0/*flags*/);
+					rResultList.AddTok(SNTOK_NUMERIC_COM, 0.6f, 0/*flags*/);
+					rResultList.AddTok(SNTOK_NUMERIC_DOT, 0.6f, 0/*flags*/);
 				}
 				else if(num_potential_frac_delim == ',') {
-					rResultList.Add(SNTOK_NUMERIC_COM, num_potential_tri_delim ? 0.7f : 0.95f, 0/*flags*/);
+					rResultList.AddTok(SNTOK_NUMERIC_COM, num_potential_tri_delim ? 0.7f : 0.95f, 0/*flags*/);
 				}
 				else {
-					rResultList.Add(SNTOK_NUMERIC_DOT, num_potential_tri_delim ? 0.8f : 0.99f, 0/*flags*/);
+					rResultList.AddTok(SNTOK_NUMERIC_DOT, num_potential_tri_delim ? 0.8f : 0.99f, 0/*flags*/);
 				}
 			}
 			// @v11.0.3 {
@@ -8663,7 +8663,7 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 							size_t _offs = reresult.at(f_pos).low;
 							size_t _len = reresult.at(f_pos).upp - reresult.at(f_pos).low;
 							if(_offs == 0 && _len == toklen)
-								rResultList.Add(SNTOK_PHONE, 0.8f, 0/*flags*/);
+								rResultList.AddTok(SNTOK_PHONE, 0.8f, 0/*flags*/);
 						}
 					}
 				}
@@ -8699,7 +8699,7 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 						else
 							cctrl = '0' + cv;
 						if(cctrl == control) {
-							rResultList.Add(SNTOK_CL_RUT, 0.95f, 0/*flags*/);
+							rResultList.AddTok(SNTOK_CL_RUT, 0.95f, 0/*flags*/);
 						}
 						/*
 						{"9007920-4", "21620312-7", "13621690-2", "9329827-6", 
@@ -8724,7 +8724,7 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 							size_t _offs = reresult.at(f_pos).low;
 							size_t _len = reresult.at(f_pos).upp - reresult.at(f_pos).low;
 							if(_offs == 0 && _len == toklen)
-								rResultList.Add(SNTOK_EMAIL, 1.0f, 0/*flags*/);
+								rResultList.AddTok(SNTOK_EMAIL, 1.0f, 0/*flags*/);
 						}
 					}
 				}
@@ -8742,11 +8742,11 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 						}
 						if(is_chzn_cigitem) {
 							if(memcmp(pToken+21, "AAAA", 4) == 0) { // @v11.9.0
-								rResultList.Add(SNTOK_CHZN_ALTCIGITEM, 0.8f, 0/*flags*/);
-								rResultList.Add(SNTOK_CHZN_CIGITEM, 0.4f, 0/*flags*/);
+								rResultList.AddTok(SNTOK_CHZN_ALTCIGITEM, 0.8f, 0/*flags*/);
+								rResultList.AddTok(SNTOK_CHZN_CIGITEM, 0.4f, 0/*flags*/);
 							}
 							else {
-								rResultList.Add(SNTOK_CHZN_CIGITEM, 0.8f, 0/*flags*/);
+								rResultList.AddTok(SNTOK_CHZN_CIGITEM, 0.8f, 0/*flags*/);
 							}
 						}
 					}
@@ -8781,9 +8781,9 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 						if(is_chzn_cigblock) {
 							assert(_offs == 16 || _offs == 18);
 							if(strstr(PTRCHRC_(pToken)+_offs, "8005")) // код сигаретного блока может содержать тег цены с префиксом 80005
-								rResultList.Add(SNTOK_CHZN_CIGBLOCK, 0.8f, 0/*flags*/);
+								rResultList.AddTok(SNTOK_CHZN_CIGBLOCK, 0.8f, 0/*flags*/);
 							else if(toklen == 25)
-								rResultList.Add(SNTOK_CHZN_CIGBLOCK, 0.5f, 0/*flags*/);
+								rResultList.AddTok(SNTOK_CHZN_CIGBLOCK, 0.5f, 0/*flags*/);
 						}
 					}
 				}

@@ -498,15 +498,14 @@ extern uint32 lzma_mf_find(lzma_mf * mf, uint32 * count_ptr, lzma_match * matche
 	// and thus the maximum length is zero.
 	uint32 len_best = 0;
 	if(count > 0) {
-#ifndef NDEBUG
-		// Validate the matches.
-		for(uint32 i = 0; i < count; ++i) {
-			assert(matches[i].len <= mf->nice_len);
-			assert(matches[i].dist < mf->read_pos);
-			assert(memcmp(mf_ptr(mf) - 1, mf_ptr(mf) - matches[i].dist - 2, matches[i].len) == 0);
+		if(SlDebugMode::CT()) {
+			// Validate the matches.
+			for(uint32 i = 0; i < count; ++i) {
+				assert(matches[i].len <= mf->nice_len);
+				assert(matches[i].dist < mf->read_pos);
+				assert(memcmp(mf_ptr(mf) - 1, mf_ptr(mf) - matches[i].dist - 2, matches[i].len) == 0);
+			}
 		}
-#endif
-
 		// The last used element in the array contains
 		// the longest match.
 		len_best = matches[count - 1].len;

@@ -1679,17 +1679,17 @@ int PPObjWorkbook::RemoveAll()
 								update = 2;
 						}
 					}
-#ifndef NDEBUG // {
 					if(TVKEY == kbCtrlX) {
-						if(p_wb_obj) {
-							p_wb_obj->InterchangeUhtt();
-							/*
-							if(current_id)
-								p_wb_obj->ExportToUhtt(current_id);
-							*/
+						if(SlDebugMode::CT()) {
+							if(p_wb_obj) {
+								p_wb_obj->InterchangeUhtt();
+								/*
+								if(current_id)
+									p_wb_obj->ExportToUhtt(current_id);
+								*/
+							}
 						}
 					}
-#endif // } NDEBUG
 				}
 				PostProcessHandleEvent(update, current_id);
 			}

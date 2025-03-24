@@ -473,7 +473,8 @@ bool CordRepBtree::IsValid(const CordRepBtree* tree, bool shallow) {
 
 #ifndef NDEBUG
 
-CordRepBtree* CordRepBtree::AssertValid(CordRepBtree* tree, bool shallow) {
+CordRepBtree* CordRepBtree::AssertValid(CordRepBtree* tree, bool shallow) 
+{
 	if(!IsValid(tree, shallow)) {
 		Dump(tree, "CordRepBtree validation failed:", false, std::cout);
 		ABSL_RAW_LOG(FATAL, "CordRepBtree::CheckValid() FAILED");
@@ -481,8 +482,8 @@ CordRepBtree* CordRepBtree::AssertValid(CordRepBtree* tree, bool shallow) {
 	return tree;
 }
 
-const CordRepBtree* CordRepBtree::AssertValid(const CordRepBtree* tree,
-    bool shallow) {
+const CordRepBtree* CordRepBtree::AssertValid(const CordRepBtree* tree, bool shallow) 
+{
 	if(!IsValid(tree, shallow)) {
 		Dump(tree, "CordRepBtree validation failed:", false, std::cout);
 		ABSL_RAW_LOG(FATAL, "CordRepBtree::CheckValid() FAILED");

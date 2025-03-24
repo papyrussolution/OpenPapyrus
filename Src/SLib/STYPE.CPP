@@ -55,7 +55,7 @@ void   FASTCALL stmaxval(TYPEID t, void * d) { DataType _t; stype(t, &_t).maxval
 //
 //
 //
-uint32 DataType::size() const { return S; } // @v10.2.1
+uint32 DataType::size() const { return S; }
 int    DataType::comp(const void * i1, const void * i2) const { return memcmp(i1, i2, size()); }
 char * DataType::tostr(const void *, long, char * b) const { return &(b[0] = 0); }
 

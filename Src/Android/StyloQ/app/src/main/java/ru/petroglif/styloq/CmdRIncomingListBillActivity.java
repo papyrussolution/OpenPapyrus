@@ -2181,7 +2181,7 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 								SetupCurrentDocument(true, false);
 							}
 							else {
-								// @todo(error message) app_ctx.DisplayError(this, exn, 0);
+								app_ctx.DisplayError(this, app_ctx.GetErrorText(ppstr2.PPERR_BILLBYIDENTNFOUND, Integer.toString(pbr.Oid.Id)), 0);
 							}
 						}
 						if(!done)

@@ -272,7 +272,8 @@ bool UnicodeSet::operator == (const UnicodeSet & o) const {
  * @return the hash code value for this set.
  * @see Object#hashCode()
  */
-int32_t UnicodeSet::hashCode() const {
+int32_t UnicodeSet::hashCode() const 
+{
 	uint32_t result = static_cast<uint32_t>(len);
 	for(int32_t i = 0; i < len; ++i) {
 		result *= 1000003u;
@@ -280,11 +281,9 @@ int32_t UnicodeSet::hashCode() const {
 	}
 	return static_cast<int32_t>(result);
 }
-
-//----------------------------------------------------------------
+//
 // Public API
-//----------------------------------------------------------------
-
+//
 /**
  * Returns the number of elements in this set (its cardinality),
  * Note than the elements of a set may include both individual
@@ -292,7 +291,8 @@ int32_t UnicodeSet::hashCode() const {
  *
  * @return the number of elements in this set (its cardinality).
  */
-int32_t UnicodeSet::size() const {
+int32_t UnicodeSet::size() const 
+{
 	int32_t n = 0;
 	int32_t count = getRangeCount();
 	for(int32_t i = 0; i < count; ++i) {
@@ -300,22 +300,20 @@ int32_t UnicodeSet::size() const {
 	}
 	return n + stringsSize();
 }
-
 /**
  * Returns <tt>true</tt> if this set contains no elements.
  *
  * @return <tt>true</tt> if this set contains no elements.
  */
-bool UnicodeSet::isEmpty() const {
-	return len == 1 && !hasStrings();
-}
+bool UnicodeSet::isEmpty() const { return len == 1 && !hasStrings(); }
 
 /**
  * Returns true if this set contains the given character.
  * @param c character to be checked for containment
  * @return true if the test condition is met
  */
-bool UnicodeSet::contains(UChar32 c) const {
+bool UnicodeSet::contains(UChar32 c) const 
+{
 	// Set i to the index of the start item greater than ch
 	// We know we will terminate without length test!
 	// LATER: for large sets, add binary search
@@ -345,7 +343,8 @@ bool UnicodeSet::contains(UChar32 c) const {
  * @return the smallest integer i in the range 0..len-1,
  * inclusive, such that c < list[i]
  */
-int32_t UnicodeSet::findCodePoint(UChar32 c) const {
+int32_t UnicodeSet::findCodePoint(UChar32 c) const 
+{
 	/* Examples:
 	                                   findCodePoint(c)
 	   set              list[]         c=0 1 3 4 7 8

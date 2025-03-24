@@ -284,7 +284,15 @@ int STDCALL PPSetObjError(int errCode, PPID objType, PPID objID)
 	if(&tla && tla.IsConsistent()) {
 		tla.LastErrObj.Obj = objType;
 		tla.LastErrObj.Id  = objID;
-		tla.LastErr = errCode;
+		if(errCode == PPERR_OBJNFOUND && objType == PPOBJ_BILL) {
+			// @v12.2.12 Завел новое сообщение PPERR_BILLBYIDENTNFOUND в совершенно далеких целях (Stylo-Q) и, чтоб добру не 
+			// пропадать, специализировал сообщение об ошибке и здесь.
+			tla.LastErr = PPERR_BILLBYIDENTNFOUND;
+			tla.AddedMsgString.Z().Cat(objID);
+		}
+		else {
+			tla.LastErr = errCode;
+		}
 	}
 	return 0;
 }
@@ -920,10 +928,10 @@ void FASTCALL PPWaitDate(LDATE dt)
 	PPWaitMsg(datefmt(&dt, DATF_DMY, b));
 }
 
-static int FASTCALL CheckEscKey(int cmd)
+static bool FASTCALL CheckEscKey(int cmd)
 {
 	MSG    msg;
-	return PeekMessage(&msg, 0, WM_KEYDOWN, WM_KEYDOWN, cmd ? PM_NOREMOVE : PM_REMOVE) ? ((msg.wParam == VK_ESCAPE) ? 1 : 0) : 0;
+	return PeekMessage(&msg, 0, WM_KEYDOWN, WM_KEYDOWN, cmd ? PM_NOREMOVE : PM_REMOVE) ? (msg.wParam == VK_ESCAPE) : false;
 }
 
 int PPCheckUserBreak()

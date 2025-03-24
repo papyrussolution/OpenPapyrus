@@ -487,8 +487,9 @@ int STDCALL SearchByID_ForUpdate(DBTable * pTbl, PPID objType, PPID id, void * b
 			pTbl->copyBufTo(b);
 			ok = 1;
 		}
-		else if(!id || BTRNFOUND)
+		else if(!id || BTRNFOUND) {
 			ok = (PPSetObjError(PPERR_OBJNFOUND, objType, id), -1);
+		}
 		else
 			ok = PPSetErrorDB();
 	}
@@ -4605,7 +4606,7 @@ PPTokenRecognizer::PPTokenRecognizer() : STokenRecognizer()
 #if(_MSC_VER >= 1900)
 	if(rIb.DecCount >= 5 && rIb.DecCount <= 15) { // i don't sure in correctness of [5..15] limit
 		if(PhnL.Parse(reinterpret_cast<const char *>(pToken), "RU")) {
-			rResultList.Add(SNTOK_PHONE, 0.9f, 0/*flags*/);
+			rResultList.AddTok(SNTOK_PHONE, 0.9f, 0/*flags*/);
 		}
 		else {
 			//
@@ -4614,7 +4615,7 @@ PPTokenRecognizer::PPTokenRecognizer() : STokenRecognizer()
 			// как трактовать ситуацию, когда STokenRecognizer увидел номер телефона, а libphonenumber - нет.
 			// Пока оставлю без изменений, но, возможно, надо будет удалять значение SNTOK_PHONE из списка rResultList.
 			//
-			rResultList.Add(SNTOK_PHONE, 0.0f, 0/*flags*/);
+			rResultList.AddTok(SNTOK_PHONE, 0.0f, 0/*flags*/);
 		}
 	}
 #endif

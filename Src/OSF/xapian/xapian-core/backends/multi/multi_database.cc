@@ -16,10 +16,7 @@
 
 using namespace std;
 
-MultiDatabase::size_type MultiDatabase::size() const
-{
-	return shards.size();
-}
+MultiDatabase::size_type MultiDatabase::size() const { return shards.size(); }
 
 bool MultiDatabase::reopen()
 {

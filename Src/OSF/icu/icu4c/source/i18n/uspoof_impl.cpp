@@ -704,7 +704,8 @@ void * SpoofData::reserveSpace(int32_t numBytes,  UErrorCode & status)
 	return (char *)fRawData + returnOffset;
 }
 
-int32_t SpoofData::serialize(void * buf, int32_t capacity, UErrorCode & status) const {
+int32_t SpoofData::serialize(void * buf, int32_t capacity, UErrorCode & status) const 
+{
 	int32_t dataSize = fRawData->fLength;
 	if(capacity < dataSize) {
 		status = U_BUFFER_OVERFLOW_ERROR;
@@ -714,9 +715,7 @@ int32_t SpoofData::serialize(void * buf, int32_t capacity, UErrorCode & status) 
 	return dataSize;
 }
 
-int32_t SpoofData::size() const {
-	return fRawData->fLength;
-}
+int32_t SpoofData::size() const { return fRawData->fLength; }
 
 //-------------------------------
 //

@@ -40,9 +40,7 @@ void SubstituteAndAppendArray(std::string* output, absl::string_view format, con
 			}
 			else {
 #ifndef NDEBUG
-				ABSL_RAW_LOG(FATAL,
-				    "Invalid absl::Substitute() format string: \"%s\".",
-				    absl::CEscape(format).c_str());
+				ABSL_RAW_LOG(FATAL, "Invalid absl::Substitute() format string: \"%s\".", absl::CEscape(format).c_str());
 #endif
 				return;
 			}
@@ -51,13 +49,11 @@ void SubstituteAndAppendArray(std::string* output, absl::string_view format, con
 			++size;
 		}
 	}
-
-	if(size == 0) return;
-
+	if(size == 0) 
+		return;
 	// Build the string.
 	size_t original_size = output->size();
-	strings_internal::STLStringResizeUninitializedAmortized(output,
-	    original_size + size);
+	strings_internal::STLStringResizeUninitializedAmortized(output, original_size + size);
 	char* target = &(*output)[original_size];
 	for(size_t i = 0; i < format.size(); i++) {
 		if(format[i] == '$') {

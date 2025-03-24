@@ -130,8 +130,7 @@ static int CGM_find_nearest_color(const t_colorspec * colorspec);
 
 //#include <ctype.h>              /* for isspace() */
 
-/* uncomment the following to enable assertions for this module only,
-   regardless of compiler switches
+/* uncomment the following to enable assertions for this module only, regardless of compiler switches
  #ifdef NDEBUG
  #define DEFEAT_ASSERTIONS
  #endif

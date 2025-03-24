@@ -3123,9 +3123,7 @@ ImpExpCfgsListDialog::ImpExpCfgsListDialog() : PPListDialog(DLG_IMPEXPCFGS, CTL_
 		db_dir.SetLastSlash().Cat("CDB");
 		CDb.Open(db_dir);
 	}
-#ifdef NDEBUG
-	showButton(cmImport, 0);
-#endif
+	showButton(cmImport, SlDebugMode::CT());
 	updateList(-1);
 }
 

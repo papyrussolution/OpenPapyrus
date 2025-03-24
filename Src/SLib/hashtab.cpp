@@ -425,7 +425,7 @@ int SymbHashTable::BuildAssoc()
 
 uint SymbHashTable::GetMaxVal() const
 {
-	Iter i;
+	Iter   i;
 	uint   val = 0;
 	uint   max_val = 0;
 	for(InitIteration(&i); NextIteration(&i, &val, 0, 0);) {

@@ -1388,6 +1388,28 @@ public:
 	static constexpr uint32 SLobSignature[4] = { 0x2efc, 0xd421, 0x426c, 0xee07 }; // @v12.2.3 Сигнатура объекта SLob, означающая, что буфер структурирован.
 };
 // @v11.7.4 extern const SlConstParam _SlConst_Removed;
+//
+// Descr: Утилитный объект, обеспечивающий унифицированный механизм управления отладочными признаками
+//
+class SlDebugMode { // @v12.2.12
+public:
+	//
+	// Descr: Возвращает true если compile-time отладка включена.
+	//
+	static constexpr bool CT() { return CT__; }
+	static bool RT() { return RT__; }
+	static void SetRT(bool s)
+	{
+		RT__ = s;
+	}
+private:
+#ifdef NDEBUG
+	static constexpr bool CT__ = false;
+#else
+	static constexpr bool CT__ = true;
+#endif
+	static bool RT__;
+};
 // 
 // Descr: Класс, содержащий статические декларации таблиц данных общего использования.
 // 
@@ -11053,34 +11075,6 @@ public:
 
 		FirstUser        = 10000
 	};
-	struct CsvSniffingResult {
-		struct ColumnStat {
-			ColumnStat() : N(0), NECount(0), LenAvg(0.0), LenSd(0.0)
-			{
-			}
-			uint   N;      // [1..] Номер колонки
-			uint   NECount;  // Количество строк, содержащих непустое значение
-			double LenAvg; // Средняя длина текста (только для непустых значений)
-			double LenSd;  // Стандартное отклонение длины текста от среднего (только для непустых значений)
-			// @construction SNaturalTokenArray NtaFirstRow; // Набор токенов для первой строки
-			// @construction SNaturalTokenArray NtaCommon;   // Общий набор токенов для всех строк кроме первой (только для непустых значений)
-		};
-		CsvSniffingResult();
-		CsvSniffingResult & Z();
-		ColumnStat * GetColumnStat(uint fldNo/*[1..]*/);
-
-		enum {
-			fTitleRow   = 0x0001, // Первая строка - заголовки полей
-			fEmptyLines = 0x0002, // Файла содержит пустые строки
-		};
-		uint   FieldDivisor;
-		uint   Flags;
-		uint64 LineCount;
-		double FieldCountExpectation;
-		uint32 SnTokSeq_Common; // flags SNTOKSEQ_FFFF общие для всех строк
-		uint32 SnTokSeq_First;  // flags SNTOKSEQ_FFFF для первой строки
-		TSCollection <ColumnStat> ColumnStatList;
-	};
 	static int  FASTCALL Register(int id, int mimeType, const char * pMimeSubtype, const char * pExt, const char * pSign);
 	static int  FASTCALL Register(int id, const char * pExt, const char * pSign);
 	static int  Register();
@@ -12228,7 +12222,7 @@ class SNaturalTokenArray : public TSVector <SNaturalToken> {
 public:
 	SNaturalTokenArray & Z();
 	float  FASTCALL Has(uint32 tok) const;
-	int    Add(uint32 tok, float prob, uint flags); // @v12.2.11 arg:flags будут опции как комбинировать уже существующий элемент с новым.
+	int    AddTok(uint32 tok, float prob, uint flags); // @v12.2.11 arg:flags будут опции как комбинировать уже существующий элемент с новым.
 	int    Intersect(const SNaturalTokenArray & rS); // @v12.2.11
 };
 
@@ -12626,6 +12620,35 @@ public:
 		SString LineBuf;
 		SString FldBuf; // @reuse
 		SStrScan Scan;
+	};
+	struct CsvSniffingResult {
+		struct ColumnStat {
+			ColumnStat() : N(0), NECount(0), FirstRowLen(0), LenAvg(0.0), LenStdDev(0.0)
+			{
+			}
+			uint   N;      // [1..] Номер колонки
+			uint   NECount;  // Количество строк, содержащих непустое значение
+			uint   FirstRowLen; // Длина текста в первой строке
+			double LenAvg;      // Средняя длина текста (без первой строки и только для непустых значений)
+			double LenStdDev;
+			SNaturalTokenArray NtaFirstRow; // Набор токенов для первой строки
+			SNaturalTokenArray NtaCommon;   // Общий набор токенов для всех строк кроме первой (только для непустых значений)
+		};
+		CsvSniffingResult();
+		CsvSniffingResult & Z();
+		ColumnStat * GetColumnStat(uint fldNo/*[1..]*/);
+
+		enum {
+			fTitleRow   = 0x0001, // Первая строка - заголовки полей
+			fEmptyLines = 0x0002, // Файла содержит пустые строки
+		};
+		uint   FieldDivisor;
+		uint   Flags;
+		uint64 LineCount;
+		double FieldCountExpectation;
+		uint32 SnTokSeq_Common; // flags SNTOKSEQ_FFFF общие для всех строк
+		uint32 SnTokSeq_First;  // flags SNTOKSEQ_FFFF для первой строки
+		TSCollection <ColumnStat> ColumnStatList;
 	};
 	//
 	// Descr: Высокоуровневая функция, считывающая строку текстового файла в предположении, что этот файл имеет csv-формат.
@@ -13239,7 +13262,7 @@ public:
 		providerUnkn = 0,
 		providerZip  = 1, // LibZIP
 		providerBz2  = 2,
-		providerLA   = 3  // @v10.4.4 LibArchive
+		providerLA   = 3  // LibArchive
 		//t7Z // @construction
 	};
 	//
@@ -13329,7 +13352,7 @@ private:
 	const  int Provider;
 	int    OpenMode;
 	void * H;
-	LaCbBlock * P_Cb_Blk; // @v10.4.4
+	LaCbBlock * P_Cb_Blk; //
 	SFileEntryPool Fep;   // @v11.6.9 Пул информации о файлах, находящихся в архиве
 };
 //
@@ -13723,7 +13746,7 @@ SJson * json_process(SJson *object);
 // Mathematics {
 //
 #ifndef RC_INVOKED // {
-class SMathConst { // @todo transform to constexpr
+class SMathConst {
 public:
 
 	#define PI__  3.1415926535897932384626433832795
@@ -13794,11 +13817,9 @@ struct SphericalDirection { // @v11.9.3
 
 // @v11.7.12 typedef uint LMIDX_Removed; // @v11.7.12 long-->uint
 typedef TSVector <unsigned long> UlongArray;
-// @v10.9.1 {
 #if !defined(INFINITY)
 	#define INFINITY HUGE_VAL
 #endif
-// } @v10.9.1
 // @v11.8.11 (replaced with SIEEE754::IsValid) bool   IsValidIEEE(double);
 int    FASTCALL fisnan(double);
 int    fisnanf(float);

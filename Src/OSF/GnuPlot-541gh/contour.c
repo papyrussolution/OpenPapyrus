@@ -938,7 +938,7 @@ void GnuPlot::IntpCubicSpline(int n, ContourNode * p_cntr, double d2x[], double 
 	for(i = 0; i < n - 1; i++)
 		t_max += delta_t[i];
 	// The distance between interpolated points 
-	t_skip = (1. - 1e-7) * t_max / (n_intpol - 1);
+	t_skip = (1.0 - 1e-7) * t_max / (n_intpol - 1);
 	t = 0.0; // Parameter value 
 	x1 = p_cntr->x;
 	y1 = p_cntr->y;

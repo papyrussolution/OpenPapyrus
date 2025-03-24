@@ -1,22 +1,12 @@
+// uspoof_conf.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- ******************************************************************************
- *
- *   Copyright (C) 2008-2015, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *
- ******************************************************************************
- *   file name:  uspoof_conf.cpp
- *   encoding:   UTF-8
- *   tab size:   8 (not used)
- *   indentation:4
- *
- *   created on: 2009Jan05  (refactoring earlier files)
- *   created by: Andy Heninger
- *
- *   Internal classes for compiling confusable data into its binary (runtime) form.
- */
+// Copyright (C) 2008-2015, International Business Machines Corporation and others.  All Rights Reserved.
+// encoding:   UTF-8
+// created on: 2009Jan05  (refactoring earlier files)
+// created by: Andy Heninger
+// Internal classes for compiling confusable data into its binary (runtime) form.
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 #include "unicode/uspoof.h"
@@ -53,29 +43,29 @@ U_NAMESPACE_USE
 //     5.  Build the run-time key and value tables.  These are parallel tables, and are built
 //         at the same time
 //
-
-SPUString::SPUString(UnicodeString * s) {
+SPUString::SPUString(UnicodeString * s) 
+{
 	fStr = s;
 	fCharOrStrTableIndex = 0;
 }
 
-SPUString::~SPUString() {
+SPUString::~SPUString() 
+{
 	delete fStr;
 }
 
-SPUStringPool::SPUStringPool(UErrorCode & status) : fVec(NULL), fHash(NULL) {
+SPUStringPool::SPUStringPool(UErrorCode & status) : fVec(NULL), fHash(NULL) 
+{
 	fVec = new UVector(status);
 	if(fVec == NULL) {
 		status = U_MEMORY_ALLOCATION_ERROR;
 		return;
 	}
-	fHash = uhash_open(uhash_hashUnicodeString,       // key hash function
-		uhash_compareUnicodeString,               // Key Comparator
-		NULL,                                     // Value Comparator
-		&status);
+	fHash = uhash_open(uhash_hashUnicodeString/*key hash function*/, uhash_compareUnicodeString/*Key Comparator*/, NULL/*Value Comparator*/, &status);
 }
 
-SPUStringPool::~SPUStringPool() {
+SPUStringPool::~SPUStringPool() 
+{
 	int i;
 	for(i = fVec->size()-1; i>=0; i--) {
 		SPUString * s = static_cast<SPUString *>(fVec->elementAt(i));
@@ -85,11 +75,10 @@ SPUStringPool::~SPUStringPool() {
 	uhash_close(fHash);
 }
 
-int32_t SPUStringPool::size() {
-	return fVec->size();
-}
+int32_t SPUStringPool::size() { return fVec->size(); }
 
-SPUString * SPUStringPool::getByIndex(int32_t index) {
+SPUString * SPUStringPool::getByIndex(int32_t index) 
+{
 	SPUString * retString = (SPUString*)fVec->elementAt(index);
 	return retString;
 }
@@ -99,11 +88,10 @@ SPUString * SPUStringPool::getByIndex(int32_t index) {
 // by code point order.
 // Conforms to the type signature for a USortComparator in uvector.h
 
-static int32_t U_CALLCONV SPUStringCompare(UHashTok left, UHashTok right) {
-	const SPUString * sL = const_cast<const SPUString *>(
-		static_cast<SPUString *>(left.pointer));
-	const SPUString * sR = const_cast<const SPUString *>(
-		static_cast<SPUString *>(right.pointer));
+static int32_t U_CALLCONV SPUStringCompare(UHashTok left, UHashTok right) 
+{
+	const SPUString * sL = const_cast<const SPUString *>(static_cast<SPUString *>(left.pointer));
+	const SPUString * sR = const_cast<const SPUString *>(static_cast<SPUString *>(right.pointer));
 	int32_t lenL = sL->fStr->length();
 	int32_t lenR = sR->fStr->length();
 	if(lenL < lenR) {
@@ -139,42 +127,28 @@ SPUString * SPUStringPool::addString(UnicodeString * src, UErrorCode & status) {
 }
 
 ConfusabledataBuilder::ConfusabledataBuilder(SpoofImpl * spImpl, UErrorCode & status) :
-	fSpoofImpl(spImpl),
-	fInput(NULL),
-	fTable(NULL),
-	fKeySet(NULL),
-	fKeyVec(NULL),
-	fValueVec(NULL),
-	fStringTable(NULL),
-	stringPool(NULL),
-	fParseLine(NULL),
-	fParseHexNum(NULL),
-	fLineNum(0)
+	fSpoofImpl(spImpl), fInput(NULL), fTable(NULL), fKeySet(NULL), fKeyVec(NULL), fValueVec(NULL), fStringTable(NULL),
+	stringPool(NULL), fParseLine(NULL), fParseHexNum(NULL), fLineNum(0)
 {
 	if(U_FAILURE(status)) {
 		return;
 	}
-
 	fTable = uhash_open(uhash_hashLong, uhash_compareLong, NULL, &status);
-
 	fKeySet = new UnicodeSet();
 	if(fKeySet == NULL) {
 		status = U_MEMORY_ALLOCATION_ERROR;
 		return;
 	}
-
 	fKeyVec = new UVector(status);
 	if(fKeyVec == NULL) {
 		status = U_MEMORY_ALLOCATION_ERROR;
 		return;
 	}
-
 	fValueVec = new UVector(status);
 	if(fValueVec == NULL) {
 		status = U_MEMORY_ALLOCATION_ERROR;
 		return;
 	}
-
 	stringPool = new SPUStringPool(status);
 	if(stringPool == NULL) {
 		status = U_MEMORY_ALLOCATION_ERROR;
@@ -182,7 +156,8 @@ ConfusabledataBuilder::ConfusabledataBuilder(SpoofImpl * spImpl, UErrorCode & st
 	}
 }
 
-ConfusabledataBuilder::~ConfusabledataBuilder() {
+ConfusabledataBuilder::~ConfusabledataBuilder() 
+{
 	uprv_free(fInput);
 	uregex_close(fParseLine);
 	uregex_close(fParseHexNum);
@@ -195,7 +170,8 @@ ConfusabledataBuilder::~ConfusabledataBuilder() {
 }
 
 void ConfusabledataBuilder::buildConfusableData(SpoofImpl * spImpl, const char * confusables,
-    int32_t confusablesLen, int32_t * errorType, UParseError * pe, UErrorCode & status) {
+    int32_t confusablesLen, int32_t * errorType, UParseError * pe, UErrorCode & status) 
+{
 	if(U_FAILURE(status)) {
 		return;
 	}
@@ -207,8 +183,8 @@ void ConfusabledataBuilder::buildConfusableData(SpoofImpl * spImpl, const char *
 	}
 }
 
-void ConfusabledataBuilder::build(const char * confusables, int32_t confusablesLen,
-    UErrorCode & status) {
+void ConfusabledataBuilder::build(const char * confusables, int32_t confusablesLen, UErrorCode & status) 
+{
 	// Convert the user input data from UTF-8 to char16_t (UTF-16)
 	int32_t inputLen = 0;
 	if(U_FAILURE(status)) {

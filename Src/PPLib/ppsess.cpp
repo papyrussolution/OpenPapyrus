@@ -6061,11 +6061,7 @@ bool SysMaintenanceEventResponder::IsConsistent() const { return (Signature == P
 	int    ok = -1;
 	if(kind == PPAdviseBlock::evQuartz) {
 		const double prob_common_mqs_config = 0.000005;
-#ifdef NDEBUG
-		const double prob_event_detection   = 0.000020; 
-#else
-		const double prob_event_detection   = 0.020000;
-#endif
+		const double prob_event_detection   = SlDebugMode::CT() ? 0.020000 : 0.000020;
 		if(SLS.GetTLA().Rg.GetProbabilityEvent(prob_event_detection) && PPRef != 0) {
 			PROFILE_START
 			PPObjEventSubscription es_obj(0);

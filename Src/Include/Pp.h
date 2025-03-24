@@ -1268,7 +1268,7 @@ public:
 		afMax,
 	};
 	Crosstab();
-	virtual ~Crosstab(); // @v10.3.2 @fix non-virtual-->virtual
+	virtual ~Crosstab();
 	int    SetTable(DBTable * pTbl, const DBField & crssFld);
 	int    AddIdxField(const DBField &);
 	int    AddAggrField(const DBField &, AggrFunc af = afSum, const char * pColName = 0, long format = 0, long options = 0);
@@ -6235,15 +6235,15 @@ struct PPAdviseEvent {
     long   Flags;
 	int32  Priority;          // Phn, Mqb
 	int32  Duration;          // Phn
-	uint16 MqbChannelN;       // @v10.5.7
-	uint16 MqbReserve;        // @v10.5.7
-	uint64 MqbDeliveryTag;    // @v10.5.7
-	uint   MqbEnvFlags;       // @v10.5.7
-	uint   MqbMsgFlags;       // @v10.5.7
-	int    MqbContentType;    // @v10.5.7
-	int    MqbEncoding;       // @v10.5.7
-	uint   MqbDeliveryMode;   // @v10.5.7
-	uint   MqbExtraIdx;       // @v10.5.7 Индекс блока расширения в PPAdviseEventVector::MqbExtraList [0..]. Валиден только если Flags & fMqbExtraIdxIsValid
+	uint16 MqbChannelN;       //
+	uint16 MqbReserve;        //
+	uint64 MqbDeliveryTag;    //
+	uint   MqbEnvFlags;       //
+	uint   MqbMsgFlags;       //
+	int    MqbContentType;    //
+	int    MqbEncoding;       //
+	uint   MqbDeliveryMode;   //
+	uint   MqbExtraIdx;       // Индекс блока расширения в PPAdviseEventVector::MqbExtraList [0..]. Валиден только если Flags & fMqbExtraIdxIsValid
 	//
 	// Следующие поля являются позициями соответствующих строк в пуле PPAdviseEventVector
 	//
@@ -6252,19 +6252,19 @@ struct PPAdviseEvent {
 	uint   ConnectedLineNumP; // Номер линии
 	uint   ContextP;          // Контекст события
 	uint   ExtenP;            // @? Добавочный номер
-	uint   BridgeP;           // @v10.0.02 Ид моста (BridgeId) для телефонного события
-	uint   OuterCallerIdP;    // @v10.2.3 Внешний вызывающий номер (полученный через Bridge, если вызова перенаправлен из внутреннего канала)
-	uint   MqbConsumerTagP;   // @v10.5.7
-	uint   MqbExchangeP;      // @v10.5.7
-	uint   MqbRoutingKeyP;    // @v10.5.7
-	uint   MqbCorrelationIdP; // @v10.5.7
-	uint   MqbReplyToP;       // @v10.5.7
-	uint   MqbExpirationP;    // @v10.5.7
-	uint   MqbMessageIdP;     // @v10.5.7
-	uint   MqbTypeP;          // @v10.5.7
-	uint   MqbUserIdP;        // @v10.5.7
-	uint   MqbAppIdP;         // @v10.5.7
-	uint   MqbClusterIdP;     // @v10.5.7
+	uint   BridgeP;           // Ид моста (BridgeId) для телефонного события
+	uint   OuterCallerIdP;    // Внешний вызывающий номер (полученный через Bridge, если вызова перенаправлен из внутреннего канала)
+	uint   MqbConsumerTagP;   // 
+	uint   MqbExchangeP;      // 
+	uint   MqbRoutingKeyP;    //
+	uint   MqbCorrelationIdP; //
+	uint   MqbReplyToP;       //
+	uint   MqbExpirationP;    //
+	uint   MqbMessageIdP;     //
+	uint   MqbTypeP;          //
+	uint   MqbUserIdP;        //
+	uint   MqbAppIdP;         //
+	uint   MqbClusterIdP;     //
 	//
     ExtObject * ExtraObj; // @notowned
 };
@@ -6284,7 +6284,7 @@ public:
 	const  MqbExtra * FASTCALL GetMqbExtra(uint pos) const;
 protected:
 	int    Pack();
-	TSCollection <MqbExtra> MqbExtraList; // @v10.5.7
+	TSCollection <MqbExtra> MqbExtraList;
 };
 //
 // Descr: Реализует очередь системных событий, заполняемую в отдельном потоке.
@@ -6332,13 +6332,13 @@ public:
         uint32 Get_Count;        // Количество запросов Get
         uint32 GetDecline_Count; // Количество отклоненных запросов Get по причине блокировки
         uint32 MaxLength;        // Максимальная длина очереди
-		uint   State;            // @v10.6.0 Флаги состояния очереди
-		uint   SjPrcCount;       // @v10.6.0 Количество обращений к системному журналу
-		uint   SjMsgCount;       // @v10.6.0 Количество событий, поступивщих от системного журнала
-		uint   PhnSvcPrcCount;   // @v10.6.0 Количество обращений к телефонному сервису
-		uint   PhnSvcMsgCount;   // @v10.6.0 Количество событий поступивших от телефонного сервиса
-		uint   MqbPrcCount;      // @v10.6.0 Количество обращений к брокеру сообщений
-		uint   MqbMsgCount;      // @v10.6.0 Количество сообщений поступивших от брокера сообщений
+		uint   State;            // Флаги состояния очереди
+		uint   SjPrcCount;       // Количество обращений к системному журналу
+		uint   SjMsgCount;       // Количество событий, поступивщих от системного журнала
+		uint   PhnSvcPrcCount;   // Количество обращений к телефонному сервису
+		uint   PhnSvcMsgCount;   // Количество событий поступивших от телефонного сервиса
+		uint   MqbPrcCount;      // Количество обращений к брокеру сообщений
+		uint   MqbMsgCount;      // Количество сообщений поступивших от брокера сообщений
 	};
 
 	int    FASTCALL RegisterClient(const Client * pCli);
@@ -6504,7 +6504,7 @@ public:
 	int16  Reserve;              // @alignment
 	PPID   GlobAccID;            // Текущий ИД глобальной учетной записи
 	PPID   AgentAccSheetID;      // 0 - не инициализирован, -1 - не удалось идентифицировать, >0 - валидное значение
-	PPID   DefPhnSvcID;          // @v10.0.04 Ид телефонного сервиса по умолчанию (PPEquipConfig::PhnSvcID)
+	PPID   DefPhnSvcID;          // Ид телефонного сервиса по умолчанию (PPEquipConfig::PhnSvcID)
 	//
 	// Descr: Флаги состояния State
 	//
@@ -6512,7 +6512,7 @@ public:
 		stExpTariffTa    = 0x0001,
 		stMainOrgInit    = 0x0002,
 		stAuth           = 0x0004, // Поток авторизован в базе данных Papyrus
-		stNonInteractive = 0x0008  // @v10.9.6 Поток не-интерактивный: всякие окна, диалоги и виджеты запрещены
+		stNonInteractive = 0x0008  // Поток не-интерактивный: всякие окна, диалоги и виджеты запрещены
 	};
 	int    State;                // @Muxa Флаги
 	SysJournal * P_SysJ;
@@ -6617,7 +6617,7 @@ struct PPNotifyEvent : public PPExtStrContainer {
 		extssConnectedLineNum = 4,
 		extssContext  = 5,
 		extssExten    = 6,
-		extssBridgeId = 7 // @v10.0.02
+		extssBridgeId = 7
 	};
 	PPNotifyEvent();
 	~PPNotifyEvent();
@@ -6630,7 +6630,7 @@ struct PPNotifyEvent : public PPExtStrContainer {
 	PPID   ObjID;
 	long   ExtInt_;
 	LDATETIME ExtDtm;
-	PPMqbClient::Envelope * P_MqbEnv; // @v10.5.7
+	PPMqbClient::Envelope * P_MqbEnv;
 };
 //
 // Descr: callback-функция, вызываемая в ответ на событие.
@@ -6656,9 +6656,9 @@ struct PPAdviseBlock {
 		evPsnEvChanged,         // Оповещать об изменениях персональных операций
 		evPhoneRinging,         // Телефонный сервис: звонит телефон
 		evPhoneUp,              // Телефонный сервис: поднята телефонная трубка
-		evConfigChanged,        // @v10.3.1 Оповещать об изменениях конфигураций
-		evMqbMessage,           // @v10.5.7 Принято сообщение от брокера сообщений
-		evEventCreated          // @v10.9.0 Сформировано событие, на которое подписан пользователь
+		evConfigChanged,        // Оповещать об изменениях конфигураций
+		evMqbMessage,           // Принято сообщение от брокера сообщений
+		evEventCreated          // Сформировано событие, на которое подписан пользователь
 	};
 	long   Cookie;     // for internal use
 	int    Kind;       // PPAdivseBlock::evXXX Тип извещения, для которого сформирован этот блок.
@@ -6911,7 +6911,7 @@ protected:
 	Stat   StatData;
 	SArray * P_Ary;
 	SString StatLogMsg;
-	mutable int EntryToDataFailed; // @v10.4.3 Специальный индикатор, позволяющий виртуальному методу EntryToData
+	mutable int EntryToDataFailed; // Специальный индикатор, позволяющий виртуальному методу EntryToData
 		// просигналить о том, что что-то пошло не так и надо обновить запись в кэше. Это - костыль, добавленный
 		// из-за того, что EntryToData - void-метод и весь обложен константными ограничениями.
 private:
@@ -7703,7 +7703,7 @@ private:
 		// Единственная точка прямого доступа к этому указателю - PPSession::GetSrSyntaxRuleSet()
 	SrUedContainer_Rt * P_UedC; // @v11.8.4 @construction Глобально доступный экземпляр для работы с коллекцией объектов UED
 	Profile GPrf; // Глобальный профайлер для всей сессии. Кроме него в каждом потоке есть собственный профайлер PPThreadLocalArea::Prf
-	PPConfigDatabase * P_ExtCfgDb; // @v10.7.6 Экспериментальный вариант экземпляра дополнительной конфигурационной базы данных
+	PPConfigDatabase * P_ExtCfgDb; // Экспериментальный вариант экземпляра дополнительной конфигурационной базы данных
 	TWhatmanToolArray DvToolList_; // @v11.9.2 (moved from the class TProgram) Векторные изображения, загружаемые из внешнего файла 
 	SPaintToolBox UiToolBox_;      // @v11.9.2 (moved from the class TProgram) Набор инструментов для отрисовки компонентов пользовательского интерфейса.
 
@@ -8055,14 +8055,6 @@ int    IsAccBelongToList(const Acct *, int side, const char * pList);
 //
 PPID   FASTCALL ObjectToPerson(PPID articleID, PPID * pAccSheetID = 0);
 //
-// Descr: производит простую операцию вычисления цены реализации по заданным цене //
-//   поступления, проценту наценки и параметрам округления. Опция force_dir указывает //
-//   в какую сторону необходимо округлять результат. Если force_dir < 0, то округляется //
-//   до нижнего значения, если force_dir > 0, то до верхнего. 0 - до ближайшего.
-//
-// @v10.9.11 double CalcSelling(double cost, double pc, double prec, int force_dir);
-// @v10.9.11 double CalcSelling(double cost, double pc);
-//
 // Descr: Округляет значение v с точностью prec в направлении dir.
 // ARG(v    IN): Значение, которое необходимо округлить
 // ARG(prec IN): Точность округления. Например: 1.0 - до целых, 0.01 - два знака после точки, 50.0 - с точностью до 50
@@ -8072,10 +8064,6 @@ PPID   FASTCALL ObjectToPerson(PPID articleID, PPID * pAccSheetID = 0);
 //   Округленное значение.
 //
 double PPRound(double v, double prec, int dir);
-//
-// Descr: округляет значение цены p в соответствии с параметрами, заданными в конфигурации
-//
-// @v10.9.11 (replced with PPObjQuotKind::RoundUpPrice) double RoundUpPrice(double p);
 //
 // Descr: return (!flt || flt == id)
 // Note: Провел небольшое исследование насчет inline-варианта этой функции.
@@ -55846,18 +55834,6 @@ public:
 		sWAITER             = 8, // Режим ввода кода официанта
 		sTABLE              = 9  // Режим ввода кода стола
 	};
-	//
-	// Descr: Операция текущего чека
-	//
-	/* replaced with CCOP_XXX enum { // @v12.2.9
-		//opUndef      = -1, // Не определено
-		__opGeneral               = 0, // Что-то общее (продажа скорее всего, но черт его знает что там еще может быть). Возможна трактовка как необпределенная операция.
-		__opReturn                = 1, // Возврат
-		__opCorrection_Sell       = 2, // Коррекция продажи
-		__opCorrection_SellStorno = 3, // Коррекция сторно продажи
-		__opCorrection_Ret        = 4, // Коррекция возврата
-		__opCorrection_RetStorno  = 5, // Коррекция сторно возврата
-	};*/
 	//
 	// Descr: Операционные права кассира
 	//

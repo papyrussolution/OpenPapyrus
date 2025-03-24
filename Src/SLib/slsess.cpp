@@ -262,486 +262,486 @@ bool FASTCALL IsMadeOfEightDigitsFast(const uint8 * pS);
 
 static void InitTest()
 {
-#ifndef NDEBUG // {
-	{
-		//
-		// @paranoic (Эта проверка нужна мне для успокоения, ибо меня преследует фобия, что такое равенство не выполняется)
-		//
-		char   temp_buf[32];
-		STATIC_ASSERT((void *)temp_buf == (void *)&temp_buf);
-	}
-	{
-		//#pragma pack(show)
-		//
-		// Проверяем работоспособность *& для присваивания указателя по ссылке.
-		//
-		struct LocalData {
-			LocalData(int a, uint8 c, double b) : A(a), C(c), B(b)
-			{
-			}
-			int    A;
-			uint8  C; // @v11.7.0
-			double B;
-		};
-
-		class LocalBlock {
-		public:
-			static void Func1(LocalData *& prData)
-			{
-				prData = new LocalData(1, 15, 10.0);
-			}
-		};
-		LocalData * p_data = 0;
-		LocalBlock::Func1(p_data);
-		assert(p_data != 0 && p_data->A == 1 && p_data->B == 10.0 && p_data->C == 15);
-		ZDELETE(p_data);
-		assert(p_data == 0);
-		//
-		// @v11.7.0
-		// Кроме того, проверяем, чтобы код компилировался с выравниванием по 1 байту
-		// 
-		STATIC_ASSERT(offsetof(LocalData, A) == 0 && offsetof(LocalData, C) == 4 && offsetof(LocalData, B) == 5);
-		STATIC_ASSERT(sizeof(LocalData) == 13);
-	}
-	{
-		//
-		// Проверка компилятора не предмет однозначного равенства результатов сравнения 0 или 1.
-		//
-		int    ix;
-		double rx;
-		void * p_x = 0;
-		ix = 0;
-		assert((ix == 0) == 1);
-		assert((ix != 0) == 0);
-		assert((ix > 0) == 0);
-		assert((ix <= 0) == 1);
-		ix = 93281;
-		assert((ix == 93281) == 1);
-		assert((ix != 93281) == 0);
-		rx = 0.0;
-		assert((rx == 0) == 1);
-		assert((rx != 0) == 0);
-		rx = 17.5;
-		assert((rx == 17.5) == 1);
-		assert((rx != 17.5) == 0);
-		p_x = 0;
-		assert((p_x == 0) == 1);
-		assert((p_x != 0) == 0);
-		p_x = &rx;
-		assert((p_x == &rx) == 1);
-		assert((p_x != &rx) == 0);
-		STATIC_ASSERT(BIN(17) == 1); // must be 1
-		STATIC_ASSERT(BIN(0) == 0);
-		#if(_MSC_VER > 1400) // Выясняется, что BIN нельзя применять к floating point. Например, Visual Studio 7.1 ошибается в такой конструкции.
-			STATIC_ASSERT(BIN(0.0) == 0);
-			STATIC_ASSERT(BIN(0.0f) == 0);
-		#endif
-		STATIC_ASSERT(!0 == 1);
-		STATIC_ASSERT(!17 == 0);
-		STATIC_ASSERT(LOGIC(!0.000001) == false);
-		STATIC_ASSERT(LOGIC(!0.00000) == true);
-	}
-	{
-		// @paranoic (Защита от классической шутки)
-		STATIC_ASSERT(TRUE == 1);
-		STATIC_ASSERT(FALSE == 0);
-		STATIC_ASSERT(true == 1);
-		STATIC_ASSERT(false == 0);
-		STATIC_ASSERT(GENDER_MALE == 1);
-		STATIC_ASSERT(GENDER_FEMALE == 2);
-		STATIC_ASSERT(GENDER_QUESTIONING == 3);
-		STATIC_ASSERT(AGGRFUNC_COUNT == 1);
-		STATIC_ASSERT(AGGRFUNC_SUM == 2);
-		STATIC_ASSERT(AGGRFUNC_AVG == 3);
-		STATIC_ASSERT(AGGRFUNC_MIN == 4);
-		STATIC_ASSERT(AGGRFUNC_MAX == 5);
-		STATIC_ASSERT(AGGRFUNC_STDDEV == 6);
-		STATIC_ASSERT(SlConst::SecsPerDay == (24 * 60 * 60)); // @v11.4.7 То же кто-то может пошутить :)
-	}
-	{
-		void * ptr = SAlloc::M(0);
-		assert(ptr != 0);
-		SAlloc::F(ptr);
-		//
-		ptr = SAlloc::M(4);
-		assert(ptr != 0);
-		SAlloc::F(ptr);
-	}
-	{
-		//
-		// Тестирование макроса SETIFZ
-		//
-		int    a = 1;
-		SETIFZQ(a, 2);
-		assert(a == 1);
-		a = 0;
-		SETIFZQ(a, 2);
-		assert(a == 2);
+	if(SlDebugMode::CT()) {
 		{
-			void * ptr = 0;
-			if(SETIFZ(ptr, SAlloc::M(128))) {
-				assert(ptr != 0);
-			}
-			else {
-				assert(ptr == 0);
-			}
-			ZFREE(ptr);
 			//
-			const char * p_abc = "abc";
-			ptr = (void *)p_abc;
-			if(SETIFZ(ptr, SAlloc::M(128))) { // Memory hasn't been allocated (ptr != 0)
-				assert(ptr == p_abc);
-			}
-			else {
-				assert(ptr == 0);
-			}
-			ptr = 0;
-			p_abc = 0;
-			if(SETIFZ(ptr, (void *)p_abc)) {
-				assert(0);
-			}
-			else {
-				assert(ptr == p_abc);
-			}
-		}
-	}
-	{
-		//
-		// Удостоверяемся в том, что SIZEOFARRAY работает правильно (тоже фобия)
-		//
-		struct TestStruc {
-			const char * P_S;
-			int16  I16;
-		};
-		TestStruc test_array[] = {
-			{ "Abc", 1 },
-			{ "Ab2", 2 },
-			{ "Ab3", 3 },
-			{ "Ab4", 4 },
-			{ "Ab5", 5 }
-		};
-		STATIC_ASSERT(SIZEOFARRAY(test_array) == 5);
-		STATIC_ASSERT(sizeofarray(test_array) == 5); // @v11.7.5
-	}
-	STATIC_ASSERT(sizeof(bool) == 1);
-	STATIC_ASSERT(sizeof(char) == 1);
-	STATIC_ASSERT(sizeof(int) == 4);
-	STATIC_ASSERT(sizeof(uint) == 4);
-	STATIC_ASSERT(sizeof(short) >= 2);
-	STATIC_ASSERT(sizeof(long)  >= 4);
-	STATIC_ASSERT(sizeof(int) >= sizeof(short));
-	STATIC_ASSERT(sizeof(long) >= sizeof(int));
-	STATIC_ASSERT(sizeof(int8) == 1);
-	STATIC_ASSERT(sizeof(uint8) == 1);
-	STATIC_ASSERT(sizeof(int16) == 2);
-	STATIC_ASSERT(sizeof(uint16) == 2);
-	STATIC_ASSERT(sizeof(int32) == 4);
-	STATIC_ASSERT(sizeof(uint32) == 4);
-	STATIC_ASSERT(sizeof(int64) == 8);
-	STATIC_ASSERT(sizeof(uint64) == 8);
-	STATIC_ASSERT(sizeof(float) == 4);
-	STATIC_ASSERT(sizeof(double) == 8);
-	STATIC_ASSERT(sizeof(S_GUID) == 16);
-	STATIC_ASSERT(sizeof(S_GUID) == sizeof(S_GUID_Base));
-	STATIC_ASSERT(sizeof(SColorBase) == 4);
-	STATIC_ASSERT(sizeof(SColor) == sizeof(SColorBase));
-	STATIC_ASSERT(sizeof(IntRange) == 8);
-	STATIC_ASSERT(sizeof(RealRange) == 16);
-	STATIC_ASSERT(sizeof(DateRange) == 8);
-	STATIC_ASSERT(sizeof(TimeRange) == 8);
-#ifdef _M_X64
-	STATIC_ASSERT(sizeof(SBaseBuffer) == 16);
-#else
-	STATIC_ASSERT(sizeof(SBaseBuffer) == 8);
-#endif
-	STATIC_ASSERT(sizeof(DateRepeating) == 8);
-	STATIC_ASSERT(sizeof(DateTimeRepeating) == 12);
-	STATIC_ASSERT(sizeof(WorkDate) == 2); // @v11.7.0
-	STATIC_ASSERT(sizeof(SUnicodeBlock::StrgHeader) == 32); // @v11.7.0
-	STATIC_ASSERT(sizeof(LMatrix2D) == 48); // @v11.7.0
-	//
-	STATIC_ASSERT(sizeof(TYPEID) == 4);
-	STATIC_ASSERT(sizeof(STypEx) == 16);
-	STATIC_ASSERT(sizeof(CommPortParams) == 6);
-	// 
-	// @v11.2.0 {
-	STATIC_ASSERT(sizeof(SPoint2I) == sizeof(POINT));
-	STATIC_ASSERT(offsetof(SPoint2I, x) == offsetof(POINT, x));
-	STATIC_ASSERT(offsetof(SPoint2I, y) == offsetof(POINT, y));
-	{
-		uint ff = 0;
-		{
-			SETFLAG(ff, 0x08000000, true);
-			assert((ff & 0x08000000));
-			SETFLAG(ff, 0x08000000, false);
-			assert(!(ff & 0x08000000));
-		}
-	}
-	// } @v11.2.0 
-	STATIC_ASSERT(sizeof(SPoint2S) == sizeof(4)); // @v11.7.0
-	STATIC_ASSERT(sizeof(MACAddr) == 6); // @v11.7.0
-	STATIC_ASSERT(sizeof(KeyDownCommand) == 4); // @v11.7.0
-	STATIC_ASSERT(sizeof(SUiLayout::Result) == (24+sizeof(void *))); // @v11.7.0
-	// @v11.4.8 {
-	{
-		// Убеждаемся в том, что memset(mem, 0xff, size) заполнит весь отрезок битовыми единицами
-		// Сомнения существуют из-за того, что аргумент функции int а передаем только один байт (0xff).
-		uint8 chunk[379];
-		memset(chunk, 0xff, sizeof(chunk));
-		for(uint i = 0; i < sizeof(chunk); i++)
-			assert(chunk[i] == static_cast<uint8>(0xff));
-	}
-	// } @v11.4.8 
-	STATIC_ASSERT(MAX(3.1, 8.5) == 8.5);
-	assert(smax(3.1, 8.5) == 8.5);
-	assert(smax(3.1f, 8.5f) == 8.5f);
-	STATIC_ASSERT(MIN(1.5, -7.3) == -7.3);
-	assert(smin(1.5, -7.3) == -7.3);
-	assert(smin(1.5f, -7.3f) == -7.3f);
-	assert(smin(1, 2) == 1);
-	assert(smax(-5, 5) == 5);
-	assert(smax(-5U, 5U) == -5U);
-	assert(smin(-5U, 5U) == 5U);
-	assert(smax(0.00001, 0.0000101) == 0.0000101);
-	assert(smax(0.00001f, 0.0000101f) == 0.0000101f);
-	assert(smin('a', 'A') == 'A');
-	assert(smin('A', 'a') == 'A');
-	assert(smax('z', 'Z') == 'z');
-	assert(smax('Z', 'z') == 'z');
-	assert(smax(100L, 100L) == smin(100L, 100L));
-	STATIC_ASSERT(MIN(1.00175120103, 1.00175120103) == 1.00175120103);
-	STATIC_ASSERT(MAX(1.00175120103, 1.00175120103) == 1.00175120103);
-	{
-		const long test_dword = 0x1234befa;
-		STATIC_ASSERT(MakeLong(LoWord(test_dword), HiWord(test_dword)) == test_dword);
-	}
-	{
-		//
-		// Проверка макроса SETIFZ для даты
-		//
-		const LDATE cdt = getcurdate_();
-		LDATE dt = ZERODATE;
-		SETIFZ(dt, cdt);
-		assert(dt == cdt);
-		dt = encodedate(7, 11, 2017);
-		SETIFZ(dt, cdt);
-		assert(dt != cdt);
-	}
-	{
-		//
-		// Проверка макроса SETIFZ для LDATETIME
-		//
-		const LDATETIME now_dtm = getcurdatetime_();
-		LDATETIME dtm = ZERODATETIME;
-		SETIFZ(dtm, now_dtm);
-		assert(dtm == now_dtm);
-		dtm.d = encodedate(7, 11, 2017);
-		dtm.t = encodetime(12, 25, 58, 9);
-		SETIFZ(dtm, now_dtm);
-		assert(dtm != now_dtm);
-	}
-	{
-		{
-			SString temp_buf;
-			StringSet ss(';', "1;2");
-			ss.get(0U, temp_buf);
-			assert(temp_buf == "1");
+			// @paranoic (Эта проверка нужна мне для успокоения, ибо меня преследует фобия, что такое равенство не выполняется)
+			//
+			char   temp_buf[32];
+			static_assert((void *)temp_buf == (void *)&temp_buf);
 		}
 		{
-			SString temp_buf;
-			StringSet(';', "1;2").get(0U, temp_buf);
-			assert(temp_buf == "1");
+			//#pragma pack(show)
+			//
+			// Проверяем работоспособность *& для присваивания указателя по ссылке.
+			//
+			struct LocalData {
+				LocalData(int a, uint8 c, double b) : A(a), C(c), B(b)
+				{
+				}
+				int    A;
+				uint8  C; // @v11.7.0
+				double B;
+			};
+
+			class LocalBlock {
+			public:
+				static void Func1(LocalData *& prData)
+				{
+					prData = new LocalData(1, 15, 10.0);
+				}
+			};
+			LocalData * p_data = 0;
+			LocalBlock::Func1(p_data);
+			assert(p_data != 0 && p_data->A == 1 && p_data->B == 10.0 && p_data->C == 15);
+			ZDELETE(p_data);
+			assert(p_data == 0);
+			//
+			// @v11.7.0
+			// Кроме того, проверяем, чтобы код компилировался с выравниванием по 1 байту
+			// 
+			static_assert(offsetof(LocalData, A) == 0 && offsetof(LocalData, C) == 4 && offsetof(LocalData, B) == 5);
+			static_assert(sizeof(LocalData) == 13);
 		}
-	}
-	assert(ismemzero(&ZEROGUID, sizeof(ZEROGUID))); 
-	assert(isasciialpha('A') != 0);
-	assert(isasciialpha('z') != 0);
-	assert(isasciialpha('U') != 0);
-	assert(isasciialpha('d') != 0);
-	assert(isasciialpha('Z'+1) == 0);
-	assert(isasciialpha('A'-1) == 0);
-	assert(isasciialpha('z'+1) == 0);
-	assert(isasciialpha('a'-1) == 0);
-	// assert(sizeof(SUiLayout::Result) == 24); // @v11.0.0
-	{
-		//bool FASTCALL IsMadeOfEightDigitsFast(const uint8 * pS);
-		assert(IsMadeOfEightDigitsFast(PTR8C("00000000")));
-		assert(!IsMadeOfEightDigitsFast(PTR8C("00000z00")));
-		/*{
-			uint8   random_buf[1024];
-			for(uint i = 0; i < SIZEOFARRAY(random_buf); i++) {
-			
-			}
-			for(uint offs = 0; offs < 800; offs++) {
-			
-			}
-		}*/
-	}
-	{
-		//void * ptr = SAlloc::M(0);
-		//assert(ptr == 0);
-#if(_MSC_VER >= 1900)
-		_aligned_free(0); // Рассчитываем, что никаких последствий не будет
-#endif
-		SAlloc::F(0); // Рассчитываем, что никаких последствий не будет
-	}
-	// @v11.2.3 {
-	{
-		//
-		// Проверка работоспособности передачи временного строкового объекта в качестве параметра в функцию
-		// с целью убедиться, что указатель целый и невредимый будет доставлен в функцию (здесь вопрос
-		// в порядке разрушения объекта).
-		//
-		class InnerBlock {
-		public:
-			static void StringFunc(const char * pInput, SString & rOutput)
+		{
+			//
+			// Проверка компилятора не предмет однозначного равенства результатов сравнения 0 или 1.
+			//
+			int    ix;
+			double rx;
+			void * p_x = 0;
+			ix = 0;
+			assert((ix == 0) == 1);
+			assert((ix != 0) == 0);
+			assert((ix > 0) == 0);
+			assert((ix <= 0) == 1);
+			ix = 93281;
+			assert((ix == 93281) == 1);
+			assert((ix != 93281) == 0);
+			rx = 0.0;
+			assert((rx == 0) == 1);
+			assert((rx != 0) == 0);
+			rx = 17.5;
+			assert((rx == 17.5) == 1);
+			assert((rx != 17.5) == 0);
+			p_x = 0;
+			assert((p_x == 0) == 1);
+			assert((p_x != 0) == 0);
+			p_x = &rx;
+			assert((p_x == &rx) == 1);
+			assert((p_x != &rx) == 0);
+			static_assert(BIN(17) == 1); // must be 1
+			static_assert(BIN(0) == 0);
+			#if(_MSC_VER > 1400) // Выясняется, что BIN нельзя применять к floating point. Например, Visual Studio 7.1 ошибается в такой конструкции.
+				static_assert(BIN(0.0) == 0);
+				static_assert(BIN(0.0f) == 0);
+			#endif
+			static_assert(!0 == 1);
+			static_assert(!17 == 0);
+			static_assert(LOGIC(!0.000001) == false);
+			static_assert(LOGIC(!0.00000) == true);
+		}
+		{
+			// @paranoic (Защита от классической шутки)
+			static_assert(TRUE == 1);
+			static_assert(FALSE == 0);
+			static_assert(true == 1);
+			static_assert(false == 0);
+			static_assert(GENDER_MALE == 1);
+			static_assert(GENDER_FEMALE == 2);
+			static_assert(GENDER_QUESTIONING == 3);
+			static_assert(AGGRFUNC_COUNT == 1);
+			static_assert(AGGRFUNC_SUM == 2);
+			static_assert(AGGRFUNC_AVG == 3);
+			static_assert(AGGRFUNC_MIN == 4);
+			static_assert(AGGRFUNC_MAX == 5);
+			static_assert(AGGRFUNC_STDDEV == 6);
+			static_assert(SlConst::SecsPerDay == (24 * 60 * 60)); // @v11.4.7 То же кто-то может пошутить :)
+		}
+		{
+			void * ptr = SAlloc::M(0);
+			assert(ptr != 0);
+			SAlloc::F(ptr);
+			//
+			ptr = SAlloc::M(4);
+			assert(ptr != 0);
+			SAlloc::F(ptr);
+		}
+		{
+			//
+			// Тестирование макроса SETIFZ
+			//
+			int    a = 1;
+			SETIFZQ(a, 2);
+			assert(a == 1);
+			a = 0;
+			SETIFZQ(a, 2);
+			assert(a == 2);
 			{
-				rOutput.Z().Cat(pInput).Space().CatChar('A');
-			}
-		};
-		SString result("B");
-		InnerBlock::StringFunc(SString("00000000").Space().Cat("00000z00").Space().Cat(7L), result);
-		// Temporary obj SString("00000000") has been destroyed here and func InnerBlock::StringFunc can operate it safely
-		assert(result == "00000000 00000z00 7 A");
-	}
-	// } @v11.2.3
-	// @v11.0.0 {
-#if CXX_OS_WINDOWS != 0
-	{
-		//
-		// Следующие проверки вызова некоторых очищающих функций WIN API нужны для того, чтобы убедиться,
-		// что при обращении к ним с явно неопределенными аргументами ничего ужасного не случается.
-		// Это важно так как я стараюсь элиминировать лишние проверки аргументов перед вызовами функций
-		// (размер исходного кода морщим, знаете-ли).
-		//
-		// (Этот тест не работает на Win10, но работает на Win2012 server) assert(::CloseHandle(INVALID_HANDLE_VALUE) == 0);
-		assert(::DestroyWindow(0) == 0);
-		assert(::GlobalFree(0) == 0);
-		assert(::LocalFree(0) == 0);
-		assert(::RegCloseKey(0) != ERROR_SUCCESS);
-		assert(::FreeLibrary(0) == 0);
-		assert(::ReleaseDC(0, 0) == 0);
-		assert(::DeleteDC(0) == 0);
-		assert(::DeleteObject(0) == 0);
-	}
-#endif
-	// } @v11.0.0 
-	// @v11.3.8 {
-	{
-		//
-		// Экспресс-тест json
-		//
-		SString js_buf;
-		SJson js_in(SJson::tOBJECT);
-		js_in.InsertString("string-key", "string-val");
-		js_in.InsertBool("bool-key1", true);
-		js_in.InsertBool("bool-key2", false);
-		js_in.ToStr(js_buf);
-		//
-		{
-			SJson * p_js_out = SJson::Parse(js_buf);
-			assert(p_js_out);
-			assert(p_js_out->IsObject());
-			for(const SJson * p_node = p_js_out->P_Child; p_node; p_node = p_node->P_Next) {
-				if(p_node->Text.IsEqiAscii("String-Key")) {
-					assert(p_node->P_Child->IsString());
-					assert(p_node->P_Child->Text.IsEqiAscii("string-val")); 
+				void * ptr = 0;
+				if(SETIFZ(ptr, SAlloc::M(128))) {
+					assert(ptr != 0);
 				}
-				else if(p_node->Text.IsEqiAscii("bool-key1")) {
-					assert(p_node->P_Child->IsTrue());
+				else {
+					assert(ptr == 0);
 				}
-				else if(p_node->Text.IsEqiAscii("bool-keY2")) {
-					assert(p_node->P_Child->IsFalse());
+				ZFREE(ptr);
+				//
+				const char * p_abc = "abc";
+				ptr = (void *)p_abc;
+				if(SETIFZ(ptr, SAlloc::M(128))) { // Memory hasn't been allocated (ptr != 0)
+					assert(ptr == p_abc);
 				}
-			}
-			delete p_js_out;
-		}
-	}
-	// } @v11.3.8
-	{
-		// Экспресс-тест функций setlowbits64 и setlowbits32
-		{
-			for(uint i = 1; i <= 32; i++) {
-				uint32 v = setlowbits32(i);
-				for(uint j = 0; j < 32; j++) {
-					if(j < i)
-						assert((v & (1 << j)) == (1 << j));
-					else 
-						assert((v & (1 << j)) == 0);
+				else {
+					assert(ptr == 0);
+				}
+				ptr = 0;
+				p_abc = 0;
+				if(SETIFZ(ptr, (void *)p_abc)) {
+					assert(0);
+				}
+				else {
+					assert(ptr == p_abc);
 				}
 			}
 		}
 		{
-			for(uint i = 1; i <= 64; i++) {
-				uint64 v = setlowbits64(i);
-				for(uint j = 0; j < 64; j++) {
-					if(j < i)
-						assert((v & (1ULL << j)) == (1ULL << j));
-					else 
-						assert((v & (1ULL << j)) == 0);
-				}
-			}
-		}
-	}
-	// @v11.7.4 {
-	{
-		// Экспресс-тест макроса SCOMOBJRELEASE
-		IMalloc * p_malloc = 0;
-		SCOMOBJRELEASE(p_malloc);
-		assert(p_malloc == 0);
-		SHGetMalloc(&p_malloc);
-		assert(p_malloc != 0);
-		SCOMOBJRELEASE(p_malloc);
-		assert(p_malloc == 0);
-	}
-	// } @v11.7.4
-	// @v11.8.1 {
-	{
-		union {
-			uint8 RawData[256];
-			struct {
-				int8   I8;
-				uint8  U8;
+			//
+			// Удостоверяемся в том, что SIZEOFARRAY работает правильно (тоже фобия)
+			//
+			struct TestStruc {
+				const char * P_S;
 				int16  I16;
-				uint16 U16;
-				int    I;
-				uint   U;
-				long   L;
-				ulong  UL;
-				int64  II;
-				uint64 UII;
-			} TD;
-		} U;
-		SObfuscateBuffer(&U, sizeof(U));
-		assert(SBits::Cpop((uint8)FFFF(U.TD.I8)) == 8);
-		assert(SBits::Cpop(FFFF(U.TD.U8)) == 8);
-		assert(SBits::Cpop((uint16)FFFF(U.TD.I16)) == 16);
-		assert(SBits::Cpop(FFFF(U.TD.U16)) == 16);
-		assert(SBits::Cpop((uint)FFFF(U.TD.I)) == 32);
-		assert(SBits::Cpop(FFFF(U.TD.U)) == 32);
-		assert(SBits::Cpop((ulong)FFFF(U.TD.L)) == 32);
-		assert(SBits::Cpop(FFFF(U.TD.UL)) == 32);
-		assert(SBits::Cpop((uint64)FFFF(U.TD.II)) == 64);
-		assert(SBits::Cpop(FFFF(U.TD.UII)) == 64);
+			};
+			TestStruc test_array[] = {
+				{ "Abc", 1 },
+				{ "Ab2", 2 },
+				{ "Ab3", 3 },
+				{ "Ab4", 4 },
+				{ "Ab5", 5 }
+			};
+			static_assert(SIZEOFARRAY(test_array) == 5);
+			static_assert(sizeofarray(test_array) == 5); // @v11.7.5
+		}
+		static_assert(sizeof(bool) == 1);
+		static_assert(sizeof(char) == 1);
+		static_assert(sizeof(int) == 4);
+		static_assert(sizeof(uint) == 4);
+		static_assert(sizeof(short) >= 2);
+		static_assert(sizeof(long)  >= 4);
+		static_assert(sizeof(int) >= sizeof(short));
+		static_assert(sizeof(long) >= sizeof(int));
+		static_assert(sizeof(int8) == 1);
+		static_assert(sizeof(uint8) == 1);
+		static_assert(sizeof(int16) == 2);
+		static_assert(sizeof(uint16) == 2);
+		static_assert(sizeof(int32) == 4);
+		static_assert(sizeof(uint32) == 4);
+		static_assert(sizeof(int64) == 8);
+		static_assert(sizeof(uint64) == 8);
+		static_assert(sizeof(float) == 4);
+		static_assert(sizeof(double) == 8);
+		static_assert(sizeof(S_GUID) == 16);
+		static_assert(sizeof(S_GUID) == sizeof(S_GUID_Base));
+		static_assert(sizeof(SColorBase) == 4);
+		static_assert(sizeof(SColor) == sizeof(SColorBase));
+		static_assert(sizeof(IntRange) == 8);
+		static_assert(sizeof(RealRange) == 16);
+		static_assert(sizeof(DateRange) == 8);
+		static_assert(sizeof(TimeRange) == 8);
+	#ifdef _M_X64
+		static_assert(sizeof(SBaseBuffer) == 16);
+	#else
+		static_assert(sizeof(SBaseBuffer) == 8);
+	#endif
+		static_assert(sizeof(DateRepeating) == 8);
+		static_assert(sizeof(DateTimeRepeating) == 12);
+		static_assert(sizeof(WorkDate) == 2); // @v11.7.0
+		static_assert(sizeof(SUnicodeBlock::StrgHeader) == 32); // @v11.7.0
+		static_assert(sizeof(LMatrix2D) == 48); // @v11.7.0
+		//
+		static_assert(sizeof(TYPEID) == 4);
+		static_assert(sizeof(STypEx) == 16);
+		static_assert(sizeof(CommPortParams) == 6);
+		// 
+		// @v11.2.0 {
+		static_assert(sizeof(SPoint2I) == sizeof(POINT));
+		static_assert(offsetof(SPoint2I, x) == offsetof(POINT, x));
+		static_assert(offsetof(SPoint2I, y) == offsetof(POINT, y));
+		{
+			uint ff = 0;
+			{
+				SETFLAG(ff, 0x08000000, true);
+				assert((ff & 0x08000000));
+				SETFLAG(ff, 0x08000000, false);
+				assert(!(ff & 0x08000000));
+			}
+		}
+		// } @v11.2.0 
+		static_assert(sizeof(SPoint2S) == sizeof(4)); // @v11.7.0
+		static_assert(sizeof(MACAddr) == 6); // @v11.7.0
+		static_assert(sizeof(KeyDownCommand) == 4); // @v11.7.0
+		static_assert(sizeof(SUiLayout::Result) == (24+sizeof(void *))); // @v11.7.0
+		// @v11.4.8 {
+		{
+			// Убеждаемся в том, что memset(mem, 0xff, size) заполнит весь отрезок битовыми единицами
+			// Сомнения существуют из-за того, что аргумент функции int а передаем только один байт (0xff).
+			uint8 chunk[379];
+			memset(chunk, 0xff, sizeof(chunk));
+			for(uint i = 0; i < sizeof(chunk); i++)
+				assert(chunk[i] == static_cast<uint8>(0xff));
+		}
+		// } @v11.4.8 
+		static_assert(MAX(3.1, 8.5) == 8.5);
+		assert(smax(3.1, 8.5) == 8.5);
+		assert(smax(3.1f, 8.5f) == 8.5f);
+		static_assert(MIN(1.5, -7.3) == -7.3);
+		assert(smin(1.5, -7.3) == -7.3);
+		assert(smin(1.5f, -7.3f) == -7.3f);
+		assert(smin(1, 2) == 1);
+		assert(smax(-5, 5) == 5);
+		assert(smax(-5U, 5U) == -5U);
+		assert(smin(-5U, 5U) == 5U);
+		assert(smax(0.00001, 0.0000101) == 0.0000101);
+		assert(smax(0.00001f, 0.0000101f) == 0.0000101f);
+		assert(smin('a', 'A') == 'A');
+		assert(smin('A', 'a') == 'A');
+		assert(smax('z', 'Z') == 'z');
+		assert(smax('Z', 'z') == 'z');
+		assert(smax(100L, 100L) == smin(100L, 100L));
+		static_assert(MIN(1.00175120103, 1.00175120103) == 1.00175120103);
+		static_assert(MAX(1.00175120103, 1.00175120103) == 1.00175120103);
+		{
+			const long test_dword = 0x1234befa;
+			static_assert(MakeLong(LoWord(test_dword), HiWord(test_dword)) == test_dword);
+		}
+		{
+			//
+			// Проверка макроса SETIFZ для даты
+			//
+			const LDATE cdt = getcurdate_();
+			LDATE dt = ZERODATE;
+			SETIFZ(dt, cdt);
+			assert(dt == cdt);
+			dt = encodedate(7, 11, 2017);
+			SETIFZ(dt, cdt);
+			assert(dt != cdt);
+		}
+		{
+			//
+			// Проверка макроса SETIFZ для LDATETIME
+			//
+			const LDATETIME now_dtm = getcurdatetime_();
+			LDATETIME dtm = ZERODATETIME;
+			SETIFZ(dtm, now_dtm);
+			assert(dtm == now_dtm);
+			dtm.d = encodedate(7, 11, 2017);
+			dtm.t = encodetime(12, 25, 58, 9);
+			SETIFZ(dtm, now_dtm);
+			assert(dtm != now_dtm);
+		}
+		{
+			{
+				SString temp_buf;
+				StringSet ss(';', "1;2");
+				ss.get(0U, temp_buf);
+				assert(temp_buf == "1");
+			}
+			{
+				SString temp_buf;
+				StringSet(';', "1;2").get(0U, temp_buf);
+				assert(temp_buf == "1");
+			}
+		}
+		assert(ismemzero(&ZEROGUID, sizeof(ZEROGUID))); 
+		assert(isasciialpha('A') != 0);
+		assert(isasciialpha('z') != 0);
+		assert(isasciialpha('U') != 0);
+		assert(isasciialpha('d') != 0);
+		assert(isasciialpha('Z'+1) == 0);
+		assert(isasciialpha('A'-1) == 0);
+		assert(isasciialpha('z'+1) == 0);
+		assert(isasciialpha('a'-1) == 0);
+		// assert(sizeof(SUiLayout::Result) == 24); // @v11.0.0
+		{
+			//bool FASTCALL IsMadeOfEightDigitsFast(const uint8 * pS);
+			assert(IsMadeOfEightDigitsFast(PTR8C("00000000")));
+			assert(!IsMadeOfEightDigitsFast(PTR8C("00000z00")));
+			/*{
+				uint8   random_buf[1024];
+				for(uint i = 0; i < SIZEOFARRAY(random_buf); i++) {
+			
+				}
+				for(uint offs = 0; offs < 800; offs++) {
+			
+				}
+			}*/
+		}
+		{
+			//void * ptr = SAlloc::M(0);
+			//assert(ptr == 0);
+	#if(_MSC_VER >= 1900)
+			_aligned_free(0); // Рассчитываем, что никаких последствий не будет
+	#endif
+			SAlloc::F(0); // Рассчитываем, что никаких последствий не будет
+		}
+		// @v11.2.3 {
+		{
+			//
+			// Проверка работоспособности передачи временного строкового объекта в качестве параметра в функцию
+			// с целью убедиться, что указатель целый и невредимый будет доставлен в функцию (здесь вопрос
+			// в порядке разрушения объекта).
+			//
+			class InnerBlock {
+			public:
+				static void StringFunc(const char * pInput, SString & rOutput)
+				{
+					rOutput.Z().Cat(pInput).Space().CatChar('A');
+				}
+			};
+			SString result("B");
+			InnerBlock::StringFunc(SString("00000000").Space().Cat("00000z00").Space().Cat(7L), result);
+			// Temporary obj SString("00000000") has been destroyed here and func InnerBlock::StringFunc can operate it safely
+			assert(result == "00000000 00000z00 7 A");
+		}
+		// } @v11.2.3
+		// @v11.0.0 {
+	#if CXX_OS_WINDOWS != 0
+		{
+			//
+			// Следующие проверки вызова некоторых очищающих функций WIN API нужны для того, чтобы убедиться,
+			// что при обращении к ним с явно неопределенными аргументами ничего ужасного не случается.
+			// Это важно так как я стараюсь элиминировать лишние проверки аргументов перед вызовами функций
+			// (размер исходного кода морщим, знаете-ли).
+			//
+			// (Этот тест не работает на Win10, но работает на Win2012 server) assert(::CloseHandle(INVALID_HANDLE_VALUE) == 0);
+			assert(::DestroyWindow(0) == 0);
+			assert(::GlobalFree(0) == 0);
+			assert(::LocalFree(0) == 0);
+			assert(::RegCloseKey(0) != ERROR_SUCCESS);
+			assert(::FreeLibrary(0) == 0);
+			assert(::ReleaseDC(0, 0) == 0);
+			assert(::DeleteDC(0) == 0);
+			assert(::DeleteObject(0) == 0);
+		}
+	#endif
+		// } @v11.0.0 
+		// @v11.3.8 {
+		{
+			//
+			// Экспресс-тест json
+			//
+			SString js_buf;
+			SJson js_in(SJson::tOBJECT);
+			js_in.InsertString("string-key", "string-val");
+			js_in.InsertBool("bool-key1", true);
+			js_in.InsertBool("bool-key2", false);
+			js_in.ToStr(js_buf);
+			//
+			{
+				SJson * p_js_out = SJson::Parse(js_buf);
+				assert(p_js_out);
+				assert(p_js_out->IsObject());
+				for(const SJson * p_node = p_js_out->P_Child; p_node; p_node = p_node->P_Next) {
+					if(p_node->Text.IsEqiAscii("String-Key")) {
+						assert(p_node->P_Child->IsString());
+						assert(p_node->P_Child->Text.IsEqiAscii("string-val")); 
+					}
+					else if(p_node->Text.IsEqiAscii("bool-key1")) {
+						assert(p_node->P_Child->IsTrue());
+					}
+					else if(p_node->Text.IsEqiAscii("bool-keY2")) {
+						assert(p_node->P_Child->IsFalse());
+					}
+				}
+				delete p_js_out;
+			}
+		}
+		// } @v11.3.8
+		{
+			// Экспресс-тест функций setlowbits64 и setlowbits32
+			{
+				for(uint i = 1; i <= 32; i++) {
+					uint32 v = setlowbits32(i);
+					for(uint j = 0; j < 32; j++) {
+						if(j < i)
+							assert((v & (1 << j)) == (1 << j));
+						else 
+							assert((v & (1 << j)) == 0);
+					}
+				}
+			}
+			{
+				for(uint i = 1; i <= 64; i++) {
+					uint64 v = setlowbits64(i);
+					for(uint j = 0; j < 64; j++) {
+						if(j < i)
+							assert((v & (1ULL << j)) == (1ULL << j));
+						else 
+							assert((v & (1ULL << j)) == 0);
+					}
+				}
+			}
+		}
+		// @v11.7.4 {
+		{
+			// Экспресс-тест макроса SCOMOBJRELEASE
+			IMalloc * p_malloc = 0;
+			SCOMOBJRELEASE(p_malloc);
+			assert(p_malloc == 0);
+			SHGetMalloc(&p_malloc);
+			assert(p_malloc != 0);
+			SCOMOBJRELEASE(p_malloc);
+			assert(p_malloc == 0);
+		}
+		// } @v11.7.4
+		// @v11.8.1 {
+		{
+			union {
+				uint8 RawData[256];
+				struct {
+					int8   I8;
+					uint8  U8;
+					int16  I16;
+					uint16 U16;
+					int    I;
+					uint   U;
+					long   L;
+					ulong  UL;
+					int64  II;
+					uint64 UII;
+				} TD;
+			} U;
+			SObfuscateBuffer(&U, sizeof(U));
+			assert(SBits::Cpop((uint8)FFFF(U.TD.I8)) == 8);
+			assert(SBits::Cpop(FFFF(U.TD.U8)) == 8);
+			assert(SBits::Cpop((uint16)FFFF(U.TD.I16)) == 16);
+			assert(SBits::Cpop(FFFF(U.TD.U16)) == 16);
+			assert(SBits::Cpop((uint)FFFF(U.TD.I)) == 32);
+			assert(SBits::Cpop(FFFF(U.TD.U)) == 32);
+			assert(SBits::Cpop((ulong)FFFF(U.TD.L)) == 32);
+			assert(SBits::Cpop(FFFF(U.TD.UL)) == 32);
+			assert(SBits::Cpop((uint64)FFFF(U.TD.II)) == 64);
+			assert(SBits::Cpop(FFFF(U.TD.UII)) == 64);
+		}
+		// } @v11.8.1
+		{
+			assert(log10i_floor(UINT64_MAX) == 19);
+			assert(log10i_floor(UINT32_MAX) == 9);
+			assert(log10i_floor(1ULL) == 0);
+			assert(log10i_floor(1U) == 0);
+			assert(log10i_floor(1000U) == 3);
+			assert(log10i_floor(1000ULL) == 3);
+			assert(log10i_floor(998U) == 2);
+			assert(log10i_floor(998ULL) == 2);
+		}
+		{
+			// Верификация константы, использующая один из вариантов представления (pthreads42 && bdb)
+			static_assert(SlConst::Epoch1600_1970_Offs_100Ns == (((uint64_t)27111902UL << 32) + (uint64_t)3577643008UL));
+			static_assert(SlConst::Epoch1600_1970_Offs_100Ns == SlConst::Epoch1600_1970_Offs_Mks * 10);
+			static_assert(SlConst::Epoch1600_1970_Offs_100Ns == SlConst::Epoch1600_1970_Offs_s * 10000000);
+		}
 	}
-	// } @v11.8.1
-	{
-		assert(log10i_floor(UINT64_MAX) == 19);
-		assert(log10i_floor(UINT32_MAX) == 9);
-		assert(log10i_floor(1ULL) == 0);
-		assert(log10i_floor(1U) == 0);
-		assert(log10i_floor(1000U) == 3);
-		assert(log10i_floor(1000ULL) == 3);
-		assert(log10i_floor(998U) == 2);
-		assert(log10i_floor(998ULL) == 2);
-	}
-	{
-		// Верификация константы, использующая один из вариантов представления (pthreads42 && bdb)
-		STATIC_ASSERT(SlConst::Epoch1600_1970_Offs_100Ns == (((uint64_t)27111902UL << 32) + (uint64_t)3577643008UL));
-		STATIC_ASSERT(SlConst::Epoch1600_1970_Offs_100Ns == SlConst::Epoch1600_1970_Offs_Mks * 10);
-		STATIC_ASSERT(SlConst::Epoch1600_1970_Offs_100Ns == SlConst::Epoch1600_1970_Offs_s * 10000000);
-	}
-#endif // } NDEBUG
 }
 
 void SlSession::Init(const char * pAppName, HINSTANCE hInst)
