@@ -4801,11 +4801,7 @@ void FASTCALL SCardCache::Dirty(PPID id)
 
 int SCardCache::FetchUhttEntry(const char * pCode, PPObjSCard::UhttEntry * pEntry)
 {
-#ifdef NDEBUG
-	const long rest_actual_timeout = 10;
-#else
-	const long rest_actual_timeout = 30;
-#endif
+	const long rest_actual_timeout = SlDebugMode::CT() ? 30 : 10;
 	const uint max_entries = 20;
 	int    ok = -1;
 	uint   pos = 0;

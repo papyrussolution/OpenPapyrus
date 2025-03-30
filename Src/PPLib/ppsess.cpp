@@ -407,12 +407,7 @@ int PPThreadLocalArea::RegisterAdviseObjects()
 {
 	class IdleCmdUpdateStatusWin : public IdleCommand {
 	public:
-	#ifndef NDEBUG
-		#define UPD_STATUS_PERIOD 1
-	#else
-		#define UPD_STATUS_PERIOD 5
-	#endif
-		IdleCmdUpdateStatusWin(long repeatPeriodSec) : IdleCommand(repeatPeriodSec/*UPD_STATUS_PERIOD*/), OnLogon(1)
+		IdleCmdUpdateStatusWin(long repeatPeriodSec) : IdleCommand(repeatPeriodSec), OnLogon(1)
 		{
 		}
 		virtual int FASTCALL Run(const LDATETIME & rPrevRunTime)
@@ -967,7 +962,7 @@ int PPThreadLocalArea::RegisterAdviseObjects()
 	};
 
 	int    ok = 1;
-	IdleCmdList.insert(new IdleCmdUpdateStatusWin(UPD_STATUS_PERIOD));
+	IdleCmdList.insert(new IdleCmdUpdateStatusWin(SlDebugMode::CT() ? 1 : 5));
 	IdleCmdList.insert(new IdleCmdQuitSession(10));
 	IdleCmdList.insert(new IdleCmdUpdateCaches(10));
 	IdleCmdList.insert(new IdleCmdUpdateBizScoreOnDesktop(30));
@@ -981,11 +976,7 @@ int PPThreadLocalArea::RegisterAdviseObjects()
 	IdleCmdList.insert(new IdleCmdPhoneSvc(2, 0));
 	IdleCmdList.insert(new IdleCmdConfigUpdated(60, 0, PPAdviseBlock::evConfigChanged));
 	{
-#ifdef NDEBUG
-		const long mqb_refresh_period = 73;
-#else
-		const long mqb_refresh_period = 17;
-#endif
+		const long mqb_refresh_period = SlDebugMode::CT() ? 17 : 73;
 		IdleCmdList.insert(new IdleCmdMqb(mqb_refresh_period, PPAdviseBlock::evMqbMessage));
 	}
 	IdleCmdList.insert(new IdleCmdEventCreation(83));

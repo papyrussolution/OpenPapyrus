@@ -54,11 +54,7 @@ int PPInitStrings(const char * pFileName)
         }
 		_PPStrStore = new StringStore2();
 		{
-	#ifdef NDEBUG
-			const int self_test = 0;
-	#else
-			const int self_test = 1;
-	#endif
+			const int self_test = SlDebugMode::CT() ? 1 : 0;
 			int    _done = 0;
 			for(uint i = 0; i < file_lang_list.getCount(); i++) {
 				name = file_lang_list.at_WithoutParent(i).Txt;

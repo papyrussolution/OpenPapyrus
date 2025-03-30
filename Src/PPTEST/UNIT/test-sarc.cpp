@@ -1,5 +1,5 @@
 // TEST-SARC.CPP
-// Copyright (c) A.Sobolev 2023, 2024
+// Copyright (c) A.Sobolev 2023, 2024, 2025
 //
 #include <pp.h>
 #pragma hdrstop
@@ -15,7 +15,7 @@
 		if(_c) {
 			rBuf.CatChar('-').Cat(_c);
 		}
-		rBuf.Dot().Cat("7z");
+		rBuf.DotCat("7z");
 		_c++;
 	} while(fileExists(rBuf));
 }*/
@@ -103,7 +103,7 @@ SLTEST_R(SArchive)
 					if(_c) {
 						arc_name.CatChar('-').Cat(_c);
 					}
-					arc_name.Dot().Cat("7z");
+					arc_name.DotCat("7z");
 					_c++;
 				} while(fileExists(arc_name));
 				// 
@@ -117,7 +117,7 @@ SLTEST_R(SArchive)
 					if(_c) {
 						arc_name.CatChar('-').Cat(_c);
 					}
-					arc_name.Dot().Cat("zip");
+					arc_name.DotCat("zip");
 					_c++;
 				} while(fileExists(arc_name));
 				// 
@@ -131,7 +131,7 @@ SLTEST_R(SArchive)
 					if(_c) {
 						arc_name.CatChar('-').Cat(_c);
 					}
-					arc_name.Dot().Cat("xar");
+					arc_name.DotCat("xar");
 					_c++;
 				} while(fileExists(arc_name));
 				// 

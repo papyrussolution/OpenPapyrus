@@ -626,9 +626,9 @@ enum PredefinedImpExpFormat { // @persistent
 	piefNalogR_Invoice           =  1, // Счет-фактура в формате nalog.ru
 	piefNalogR_REZRUISP          =  2, // Специальный тип документа в формате nalog.ru
 	piefNalogR_SCHFDOPPR         =  3, // УПД ON_SCHFDOPPR_1_995_01_05_01_02.xsd
-	piefExport_Marks             =  4, // @v10.7.12 Внутренний простой текстовый формат экспорта марок
-	piefNalogR                   =  5, // @v10.8.0 import-only Файлы в формате nalog.ru
-	piefNalogR_ON_NSCHFDOPPRMARK =  6, // @v10.8.0 Счет-фактура с марками
+	piefExport_Marks             =  4, // Внутренний простой текстовый формат экспорта марок
+	piefNalogR                   =  5, // import-only Файлы в формате nalog.ru
+	piefNalogR_ON_NSCHFDOPPRMARK =  6, // Счет-фактура с марками
 	piefICalendar                =  7, // @v11.0.1 iCalendar
 	piefNalogR_ON_NSCHFDOPPR     =  8, // @v11.2.1 Счет-фактура
 	piefCokeOrder                =  9, // @v11.3.8 xml-заказы кока-кола
@@ -3891,7 +3891,7 @@ struct QuotFilt : public PPBaseFilt {
 	//   Для выполнения этого условия необходимо, что бы был установлен флаг fSeries
 	//   и были не нулевыми члены GoodsID и QuotKindID.
 	//
-	int    IsSeries() const;
+	bool   IsSeries() const;
 
 	enum {
 		fAllQuotKinds        = 0x0001, // Все котировки (актуально,
@@ -7571,11 +7571,6 @@ public:
 	//
 	// Функции профилирования //
 	//
-	// Descr: Возвращает абсолютное время в микросекундах для целей профилирования //
-	// Note: использует локальный для потока объект PPThreadLocalArea::Prf
-	//
-	// @v9.7.11 (moved to SlSession) uint64 GetProfileTime();
-	//
 	// Descr: Фиксирует начало профилирования участка кода файла pFileName строки lineNo.
 	// Note: использует глобальный объект PPSession::GPrf
 	//
@@ -10353,8 +10348,9 @@ public:
 	int    RemoveLine_(uint pos);
 	int    CopyLines(const CCheckPacket & rS);
 	bool   SearchLine(int rByCheck, uint * pPos) const;
-	int    SetLineTextExt(int pos /*[1..]*/, int lnextId, const char *);
-	int    GetLineTextExt(int pos /*[1..]*/, int lnextId, SString & rBuf) const;
+	int    SetLineTextExt(int pos/*[1..]*/, int lnextId, const char *);
+	int    GetLineTextExt(int pos/*[1..]*/, int lnextId, SString & rBuf) const;
+	bool   HasAnyLineTextExt(int pos/*[1..]*/) const;
 	int    SetLineExt(int pos /*[1..]*/, const LineExt & pExt);
 	int    GetLineExt(int pos /*[1..]*/, LineExt & rExt) const;
 	int    SetLineChZnPreprocessResult(int pos /*[1..]*/, const PreprocessChZnCodeResult * pResult); // @v11.1.11
@@ -22545,8 +22541,8 @@ protected:
 	void   SetupTempCcLineRec(TempCCheckLineTbl::Rec * pRec, long ccID, long ccCode, LDATE dt, int div, PPID goodsID);
 	int    SetTempCcLineValuesAndInsert(TempCCheckLineTbl * pTbl, double qtty, double price, double discount, PPExtStrContainer * pLnExtStrings);
 	int    GetExpPathSet(StringSet *);
-	int    FASTCALL CheckCnFlag(long);
-	int    FASTCALL CheckCnExtFlag(long);
+	bool   FASTCALL CheckCnFlag(long);
+	bool   FASTCALL CheckCnExtFlag(long);
 	int    GetNodeData(PPAsyncCashNode *);
 	void   FASTCALL AdjustSCardCode(char * pCode);
 	//
@@ -25722,8 +25718,14 @@ public:
 	static void * FASTCALL MakeExtraParam(const PPIDArray & rKindList, PPID parentID, PPID countryID);
 	static int  ConvertExtraParam(void * extraPtr, SelFilt * pFilt);
 	static int  UniteMaxLike();
-	static SString & GetNativeCountryName(SString & rBuf);
 	static int  Recover();
+	static SString & GetNativeCountryName(SString & rBuf);
+	//
+	// @v12.2.12
+	// Descr: Ищет наименование региона России по коду. Поиск осуществляется по 
+	//   данным, загружаемым из файла ru-region.csv (распространяется с дистрибутивом)
+	//
+	static bool GetRuRegionNameByCode(const char * pCode, SString & rNameUtf8);
 	explicit PPObjWorld(void * extraPtr = 0);
 	~PPObjWorld();
 	virtual int    Browse(void * extraPtr);
@@ -55935,6 +55937,8 @@ public:
 	virtual void   ClearCheck();
 	virtual void   ClearRow();
 	virtual void   OnUpdateList(int goBottom);
+
+	int    TurnCorrectionStorno(PPID * pCcID, int ccOp /*CCOP_XXX*/, PPID ccToStornoID); // @v12.2.12
 	//
 	// Descr: Структура, обрабатываемая функцией CheckPaneDialog::PreprocessGoodsSelection
 	//   и передаваемая в CPosProcessorCPosProcessor::SetupNewRow()
@@ -56659,25 +56663,25 @@ private:
 struct ImpExpParamDllStruct {
 	ImpExpParamDllStruct();
 
-	long   BeerGrpID;		   // ИД группы товаров "пиво"
-	long   AlcoGrpID;		   // ИД группы товаров "алкоголь"
-	long   AlcoLicenseRegID;  // ИД регистра производителя с номером "лицензия на алкоголь"
-	long   TTNTagID;		   // ИД тега с номером ТТН
-	long   ManufTagID;		   // ИД тега импортера/производител
-	long   ManufKPPRegTagID;  // ИД регистра производителя с номером КПП
-	long   RcptTagID;		   // ИД тега для пометки о доставке заказа поставщику
-	long   ManufRegionCode;   // Код региона из адреса производителя/импортера
-	long   IsManufTagID;	   // Если 1, то персоналия-производитель, 2 - персоналия-импортер
-	long   GoodsKindTagID;    // ИД тега лота, определяющего вид товара
-	long   ManufINNID;        // ИД тега лота, содержащего ИНН производител
+	long   BeerGrpID;		 // ИД группы товаров "пиво"
+	long   AlcoGrpID;		 // ИД группы товаров "алкоголь"
+	long   AlcoLicenseRegID; // ИД регистра производителя с номером "лицензия на алкоголь"
+	long   TTNTagID;		 // ИД тега с номером ТТН
+	long   ManufTagID;		 // ИД тега импортера/производител
+	long   ManufKPPRegTagID; // ИД регистра производителя с номером КПП
+	long   RcptTagID;		 // ИД тега для пометки о доставке заказа поставщику
+	long   ManufRegionCode;  // Код региона из адреса производителя/импортера
+	long   IsManufTagID;	 // Если 1, то персоналия-производитель, 2 - персоналия-импортер
+	long   GoodsKindTagID;   // ИД тега лота, определяющего вид товара
+	long   ManufINNID;       // ИД тега лота, содержащего ИНН производител
 	SString DllPath;
 	SString FileName;
 	SString Login;
 	SString Password;
-	SString GoodsKindSymb;	   // По какому параметру искать вид товара: x, y, z, w
+	SString GoodsKindSymb;	 // По какому параметру искать вид товара: x, y, z, w
 	SString XmlPrefix;
-	SString OperType;		   // Тип операции импорта/экспорта
-	SString GoodsVolSymb;      // По какому параметру смотреть объем продукции: x, y, z, w
+	SString OperType;		 // Тип операции импорта/экспорта
+	SString GoodsVolSymb;    // По какому параметру смотреть объем продукции: x, y, z, w
 };
 //
 // Descr: Структура соответсвия полей и параметров импорта/экспорта данных
@@ -57480,6 +57484,7 @@ public:
 	//   Если parentTokId == 0, то применяется тег с идентификатором PPHSC_RU_FIO.
 	//
 	int    WriteFIO(const char * pName, long parentTokId, bool asTags);
+	int    WriteDocRequisites(const PPBillPacket & rBp); // @v12.2.12
 	int    Underwriter(PPID psnID);
 	int    GetAgreementParams(/*PPID arID*/const PPBillPacket & rBillPack, SString & rAgtCode, LDATE & rAgtDate, LDATE & rAgtExpiry);
 	const  SString & FASTCALL EncText(const SString & rS);
@@ -57492,6 +57497,9 @@ public:
 	// Descr: Возвращает токен поля с префиксом П1 и последующим номером 10-значным n, набитым слева нулями.
 	//
 	const  SString & FASTCALL GetToken_Ansi_Pe1(long n);
+	SVerT  SetupOutputFormatVer(SVerT v); // @v12.2.12
+	SVerT  GetOutputFormatVer() const { return OutputFormatVer; } // @v12.2.12
+	bool   IsVer503() const { return OutputFormatVer.IsGe(5, 3, 0); } // @v12.2.12
 //private:
 	PPObjGoods GObj;
 	PPObjPerson PsnObj;
@@ -57500,6 +57508,8 @@ public:
 	xmlTextWriter * P_X;
 private:
 	void   WriteExcise(SXml::WNode & rParentNode, double value);
+	int    WriteWareInfoAddendum(const PPBillImpExpParam & rParam, const PPBillPacket & rBp, uint itemIdx, 
+		const SString & rGoodsCode, const SString & rBarcodeForMarking, bool correction); // @v12.2.12
 	//
 	// Descr: Извлекает из базы данных идентификатор участника документооборота.
 	//   Сложность в том, что этот идентификатор может быть задан либо в виде тега персоналии (PPTAG_PERSON_ENALOGID),
@@ -57528,6 +57538,10 @@ private:
 	};
 	uint   State; // @v11.9.9
 	SCodepage Cp; // @v11.9.9
+	SVerT  DefOutputFormatVer; // @v12.2.12 Версия формата nalog.ru для формирования документов. Извлекается из
+		// параметра pp.ini [config] expnalogrudefver.
+	SVerT  OutputFormatVer; // @v12.2.12 Версия формата nalog.ru для формирования документов. Поле введено из-за того, что
+		// в 2025 году меняется формат с 5.01 на 5.03 со значительным набором изменений в тегах.
 	SString EncBuf;
 };
 

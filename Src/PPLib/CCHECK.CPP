@@ -1303,8 +1303,19 @@ int CCheckPacket::Helper_PackLineTextExt(SString & rResult) const
 	return ok;
 }
 
-int CCheckPacket::SetLineTextExt(int pos /* 1.. */, int lnextId, const char * pText) { return Helper_SetLineTextExt(pos, lnextId, LnTextList, pText); }
-int CCheckPacket::GetLineTextExt(int pos /* 1.. */, int lnextId, SString & rBuf) const { return Helper_GetLineTextExt(pos, lnextId, LnTextList, rBuf); }
+int CCheckPacket::SetLineTextExt(int pos/*1..*/, int lnextId, const char * pText) { return Helper_SetLineTextExt(pos, lnextId, LnTextList, pText); }
+int CCheckPacket::GetLineTextExt(int pos/*1..*/, int lnextId, SString & rBuf) const { return Helper_GetLineTextExt(pos, lnextId, LnTextList, rBuf); }
+
+bool CCheckPacket::HasAnyLineTextExt(int pos/*1..*/) const
+{
+	bool    result = false;
+	SString & r_common_buf = SLS.AcquireRvlStr();
+	LnTextList.GetText(pos, r_common_buf);
+	if(r_common_buf.NotEmpty()) {
+		result = true;
+	}
+	return result;
+}
 
 int CCheckPacket::SetLineExt(int pos /* 1.. */, const LineExt & rExt)
 {
@@ -1736,7 +1747,7 @@ int CCheckPacket::HasNonFiscalAmount(double * pFiscal, double * pNonFiscal) cons
 	else {
 		if(Rec.Flags & CCHKF_INCORPCRD) {
 			if(Rec.Flags & CCHKF_ADDPAYM) {
-				fiscal = 0.0; // @v9.0.4 intmnytodbl(Ext.AddPaym)-->0.0
+				fiscal = 0.0;
 				nonfiscal = amt - fiscal;
 			}
 			else

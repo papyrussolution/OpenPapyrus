@@ -289,7 +289,7 @@ static PPObject * FASTCALL _GetPPObject(PPID obj, void * extraPtr)
 	return rBuf;
 }
 
-PPObject::SerializeSignature::SerializeSignature() : S(0), V(0)
+PPObject::SerializeSignature::SerializeSignature() : S(0), V()
 {
 }
 
@@ -1972,8 +1972,7 @@ void ObjLinkFiles::Fns::Reset()
 				pS->ObjID = temp_buf.ToLong();
 				if(ss.getCount() > 3) { // Извлечем AddedID
 					if(ss.get(&i, temp_buf)) {
-						// @v9.3.9 pS->AddedID = temp_buf.ToLong();
-						pS->AddedStr = temp_buf; // @v9.3.9
+						pS->AddedStr = temp_buf;
 					}
 				}
 				if(ss.get(&i, temp_buf)) {
@@ -2069,8 +2068,7 @@ int ObjLinkFiles::Helper_Save(PPID objID, const char * pAddedStr, uint idx, SStr
 			if(SFile::CreateDir(path)) {
 				MakeFilePath(objID, pAddedStr, path);
 				path.Cat(num).Dot().Cat(ps.Ext);
-				// @v9.3.9 ::CopyFile(orig_path, path, FALSE); // @unicodeproblem
-				SCopyFile(orig_path, path, 0, FILE_SHARE_READ, 0); // @v9.3.9
+				SCopyFile(orig_path, path, 0, FILE_SHARE_READ, 0);
 				_chmod(path, _S_IREAD|_S_IWRITE);
 				ASSIGN_PTR(pResultFileName, path);
 			}

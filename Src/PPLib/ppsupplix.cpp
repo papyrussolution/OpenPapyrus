@@ -9993,7 +9993,7 @@ private:
 	{
 		//ИмяПакета_ yyyyMMddHHmmss
 		const LDATETIME now_dtm = getcurdatetime_();
-		rBuf.Z().Cat(pPacketName).CatChar('_').Cat(now_dtm.d, DATF_YMD|DATF_CENTURY|DATF_NODIV).Cat(now_dtm.t, TIMF_HMS|TIMF_NODIV).Dot().Cat("xml");
+		rBuf.Z().Cat(pPacketName).CatChar('_').Cat(now_dtm.d, DATF_YMD|DATF_CENTURY|DATF_NODIV).Cat(now_dtm.t, TIMF_HMS|TIMF_NODIV).DotCat("xml");
 		return rBuf;
 	}
 	const GoodsEntry * SearchGoodsEntry(const TSVector <GoodsEntry> & rGoodsList, PPID goodsID) const
@@ -10452,7 +10452,7 @@ public:
 		SString temp_buf;
 		SString out_file_name;
 		xmlTextWriter * p_x = 0;
-		temp_buf.Z().Cat("Items").Dot().Cat("xml");
+		temp_buf.Z().Cat("Items").DotCat("xml");
 		PPGetPath(PPPATH_OUT, out_file_name);
 		out_file_name.SetLastSlash().Cat("efop-maytea");
 		SFile::CreateDir(out_file_name);
@@ -10513,7 +10513,7 @@ public:
 		SString temp_buf;
 		SString out_file_name;
 		xmlTextWriter * p_x = 0;
-		temp_buf.Z().Cat("Distr_Buyers").Dot().Cat("xml");
+		temp_buf.Z().Cat("Distr_Buyers").DotCat("xml");
 		PPGetPath(PPPATH_OUT, out_file_name);
 		out_file_name.SetLastSlash().Cat("efop-maytea");
 		SFile::CreateDir(out_file_name);
@@ -10587,7 +10587,7 @@ public:
 		SString temp_buf;
 		SString out_file_name;
 		xmlTextWriter * p_x = 0;
-		temp_buf.Z().Cat("Distr_Stocks").Dot().Cat("xml");
+		temp_buf.Z().Cat("Distr_Stocks").DotCat("xml");
 		PPGetPath(PPPATH_OUT, out_file_name);
 		out_file_name.SetLastSlash().Cat("efop-maytea");
 		SFile::CreateDir(out_file_name);
@@ -10686,7 +10686,7 @@ public:
 		SString out_file_name;
 		BillPacketCollection bill_list(*this);
 		xmlTextWriter * p_x = 0;
-		temp_buf.Z().Cat("Distr2_Invoices").Dot().Cat("xml");
+		temp_buf.Z().Cat("Distr2_Invoices").DotCat("xml");
 		PPGetPath(PPPATH_OUT, out_file_name);
 		out_file_name.SetLastSlash().Cat("efop-maytea");
 		SFile::CreateDir(out_file_name);
@@ -10795,7 +10795,7 @@ public:
 		xmlTextWriter * p_x = 0;
 		PPAlbatrossConfig  albtr_cfg;
 		const PPID order_op_id = (PPAlbatrosCfgMngr::Get(&albtr_cfg) > 0) ? albtr_cfg.Hdr.EdiOrderOpID : 0;
-		temp_buf.Z().Cat("Distr2_Orders").Dot().Cat("xml");
+		temp_buf.Z().Cat("Distr2_Orders").DotCat("xml");
 		PPGetPath(PPPATH_OUT, out_file_name);
 		out_file_name.SetLastSlash().Cat("efop-maytea");
 		SFile::CreateDir(out_file_name);
@@ -10896,7 +10896,7 @@ public:
 		SString out_file_name;
 		BillPacketCollection bill_list(*this);
 		xmlTextWriter * p_x = 0;
-		temp_buf.Z().Cat("Distr_Receipts").Dot().Cat("xml");
+		temp_buf.Z().Cat("Distr_Receipts").DotCat("xml");
 		PPGetPath(PPPATH_OUT, out_file_name);
 		out_file_name.SetLastSlash().Cat("efop-maytea");
 		SFile::CreateDir(out_file_name);
@@ -10957,7 +10957,7 @@ public:
 		SString out_file_name;
 		BillPacketCollection bill_list(*this);
 		xmlTextWriter * p_x = 0;
-		temp_buf.Z().Cat("Distr_Prices").Dot().Cat("xml");
+		temp_buf.Z().Cat("Distr_Prices").DotCat("xml");
 		PPGetPath(PPPATH_OUT, out_file_name);
 		out_file_name.SetLastSlash().Cat("efop-maytea");
 		SFile::CreateDir(out_file_name);
@@ -11255,7 +11255,7 @@ SString & Ostankino::MakeFileName(const char * pPrefix, const char * pInn, const
 		DESADV_532111776395_3522003778_00000024420_20181025.xml 
 
 	*/
-	return rBuf.Z().Cat(pPrefix).CatChar('_').Cat(pInn).CatChar('_').Cat(pGln).CatChar('_').Cat(pDocNumber).Dot().Cat("xml");
+	return rBuf.Z().Cat(pPrefix).CatChar('_').Cat(pInn).CatChar('_').Cat(pGln).CatChar('_').Cat(pDocNumber).DotCat("xml");
 }
 	
 int Ostankino::SendRest(StringSet & rSsFileName)
@@ -11285,7 +11285,7 @@ int Ostankino::SendRest(StringSet & rSsFileName)
 		20180530 – дата выгрузки данных из учетной системы
 	*/
 	//
-	temp_buf.Z().Cat("ACTREM").CatChar('_').Cat(own_inn_buf).CatChar('_').Cat(now_dtm.d, DATF_ISO8601CENT|DATF_NODIV).Dot().Cat("xml");
+	temp_buf.Z().Cat("ACTREM").CatChar('_').Cat(own_inn_buf).CatChar('_').Cat(now_dtm.d, DATF_ISO8601CENT|DATF_NODIV).DotCat("xml");
 	PPGetPath(PPPATH_OUT, out_file_name);
 	out_file_name.SetLastSlash().Cat("ostankino");
 	SFile::CreateDir(out_file_name);
@@ -11890,7 +11890,7 @@ public:
 		SString out_file_name;
 		BillPacketCollection bill_list(*this);
 		xmlTextWriter * p_x = 0;
-		temp_buf.Z().Cat("ClientResponseSales").Dot().Cat("xml");
+		temp_buf.Z().Cat("ClientResponseSales").DotCat("xml");
 		PPGetPath(PPPATH_OUT, out_file_name);
 		out_file_name.SetLastSlash().Cat("tsaritsyno");
 		SFile::CreateDir(out_file_name);
@@ -11981,7 +11981,7 @@ public:
 		SString temp_buf;
 		SString out_file_name;
 		xmlTextWriter * p_x = 0;
-		temp_buf.Z().Cat("Customers").Dot().Cat("xml");
+		temp_buf.Z().Cat("Customers").DotCat("xml");
 		PPGetPath(PPPATH_OUT, out_file_name);
 		out_file_name.SetLastSlash().Cat("tsaritsyno");
 		SFile::CreateDir(out_file_name);
@@ -12855,7 +12855,7 @@ int VladimirskiyStandard::SendRest(StringSet & rSsFileName)
 		SString date_buf;
 		SString time_buf;
 		(temp_buf = "GoodsInStock").CatChar('_').Cat(cli_code).CatChar('_').Cat(date_buf.Z().Cat(now_dtm.d, DATF_DMY|DATF_CENTURY|DATF_NODIV)).
-			CatChar('_').Cat(time_buf.Z().Cat(now_dtm.t, TIMF_HMS|TIMF_NODIV)).Dot().Cat("xml");
+			CatChar('_').Cat(time_buf.Z().Cat(now_dtm.t, TIMF_HMS|TIMF_NODIV)).DotCat("xml");
 		PPGetFilePath(PPPATH_OUT, temp_buf, out_file_name);
 	}
 	xmlTextWriter * p_x = xmlNewTextWriterFilename(out_file_name, 0);
@@ -12954,7 +12954,7 @@ int VladimirskiyStandard::SendSales(StringSet & rSsFileName)
 		SString date_buf;
 		SString time_buf;
 		(temp_buf = "Sales").CatChar('_').Cat(cli_code).CatChar('_').Cat(date_buf.Z().Cat(now_dtm.d, DATF_DMY|DATF_CENTURY|DATF_NODIV)).
-			CatChar('_').Cat(time_buf.Z().Cat(now_dtm.t, TIMF_HMS|TIMF_NODIV)).Dot().Cat("xml");
+			CatChar('_').Cat(time_buf.Z().Cat(now_dtm.t, TIMF_HMS|TIMF_NODIV)).DotCat("xml");
 		PPGetFilePath(PPPATH_OUT, temp_buf, out_file_name);
 	}
 	THROW(MakeLocList(loc_list));

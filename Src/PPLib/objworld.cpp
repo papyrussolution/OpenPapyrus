@@ -201,6 +201,153 @@ PPID PPObjWorld::SelFilt::GetSingleKind() const
 	return rBuf;
 }
 //
+// @v12.2.12 {
+//
+struct RuRegion { // @flat
+	RuRegion()
+	{
+		Name[0] = 0;
+		FullName[0] = 0;
+		TaxCode[0] = 0;
+	}
+	char   Name[128];
+	char   FullName[128];
+	char   TaxCode[8];
+};
+
+class RuRegionArray : public TSVector <RuRegion> {
+public:
+	RuRegionArray() : TSVector <RuRegion>()
+	{
+	}
+	const RuRegion * SearchByTaxCode(const char * pCode)
+	{
+		const  RuRegion * p_result = 0;
+		const  uint len = sstrlen(pCode);
+		if(len >= 1 && len <= 4) {
+			for(uint i = 0; !p_result && i < getCount(); i++) {
+				const RuRegion & r_entry = at(i);
+				if(sstreq(r_entry.TaxCode, pCode)) {
+					p_result = &r_entry;
+				}
+				else if(len == 2 && sstrneq(r_entry.TaxCode, pCode, 2) && r_entry.TaxCode[2] == '0' && r_entry.TaxCode[3] == '0') {
+					p_result = &r_entry;
+				}
+			}
+		}
+		return p_result;
+	}
+	bool   Load(const char * pFileName)
+	{
+		clear();
+		bool   ok = false;
+		SFile  f_in(pFileName, SFile::mRead);
+		if(f_in.IsValid()) {
+			// name,type,name_with_type,federal_district,kladr_id,fias_id,okato,oktmo,tax_office,postal_code,iso_code,timezone,geoname_code,geoname_id,geoname_name
+			SString temp_buf;
+			StringSet ss_line;
+			SFile::ReadLineCsvContext ctx(',');
+			uint   line_no = 0;
+			while(f_in.ReadLineCsv(ctx, ss_line)) {
+				line_no++;
+				if(line_no > 1) {
+					RuRegion new_item;
+					uint fld_no = 0;
+					for(uint ssp = 0; ss_line.get(&ssp, temp_buf);) {
+						fld_no++;
+						switch(fld_no) {
+							case 1: // name
+								STRNSCPY(new_item.Name, temp_buf);
+								break;
+							case 2: // type
+								break;
+							case 3: // name_with_type
+								STRNSCPY(new_item.FullName, temp_buf);
+								break;
+							case 4: // federal_district
+								break;
+							case 5: // kladr_id
+								break;
+							case 6: // fias_id
+								break;
+							case 7: // okato
+								break;
+							case 8: // oktmo
+								break;
+							case 9: // tax_office
+								STRNSCPY(new_item.TaxCode, temp_buf);
+								break;
+							case 10: // postal_code
+								break;
+							case 11: // iso_code
+								break;
+							case 12: // timezone
+								break;
+							case 13: // geoname_code
+								break;
+							case 14: // geoname_id
+								break;
+							case 15: // geoname_name
+								break;
+						}
+					}
+					if(!isempty(new_item.Name) && !isempty(new_item.FullName) && !isempty(new_item.TaxCode)) {
+						insert(&new_item);
+						ok = true;
+					}
+				}
+			}
+		}
+		return ok;
+	}
+};
+
+/*static*/bool PPObjWorld::GetRuRegionNameByCode(const char * pCode, SString & rNameUtf8)
+{
+	rNameUtf8.Z();
+	bool   ok = false;
+	{
+		RuRegionArray * p_ss = 0;
+		{
+			static const char * P_GlobalSymbol = "RuRegionTab";
+			long   symbol_id = SLS.GetGlobalSymbol(P_GlobalSymbol, -1, 0);
+			THROW_SL(symbol_id);
+			if(symbol_id < 0) {
+				TSClassWrapper <RuRegionArray> cls;
+				THROW_SL(symbol_id = SLS.CreateGlobalObject(cls));
+				THROW_SL(p_ss = static_cast<RuRegionArray *>(SLS.GetGlobalObject(symbol_id)));
+				{
+					long s = SLS.GetGlobalSymbol(P_GlobalSymbol, symbol_id, 0);
+					assert(symbol_id == s);
+				}
+				{
+					SString file_name;
+					PPGetFilePath(PPPATH_DD, "ru-region.csv", file_name);
+					if(p_ss->Load(file_name)) {
+						; // ok
+					}
+					else {
+						p_ss->freeAll(); // Указатель оставляем не нулевым дабы в течении сеанса каждый раз не пытаться создавать его заново.
+					}
+				}
+			}
+			else if(symbol_id > 0) {
+				THROW_SL(p_ss = static_cast<RuRegionArray *>(SLS.GetGlobalObject(symbol_id)));
+			}
+		}
+		if(p_ss) {
+			const RuRegion * p_item = p_ss->SearchByTaxCode(pCode);
+			if(p_item) {
+				rNameUtf8 = p_item->FullName;
+				ok = true;
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+// } @v12.2.12 
+//
 //
 //
 TLP_IMPL(PPObjWorld, WorldTbl, P_Tbl);

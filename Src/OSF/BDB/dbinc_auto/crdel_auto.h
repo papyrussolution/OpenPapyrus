@@ -2,7 +2,6 @@
 
 #ifndef	__crdel_AUTO_H
 #define	__crdel_AUTO_H
-// @v9.5.5 #include "dbinc/log.h"
 #define	DB___crdel_metasub	142
 typedef struct ___crdel_metasub_args {
 	uint32 type;

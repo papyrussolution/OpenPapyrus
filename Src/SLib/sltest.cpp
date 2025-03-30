@@ -1,5 +1,5 @@
 // SLTEST.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2010, 2012, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2010, 2012, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 // Test Suits
 //
@@ -174,13 +174,8 @@ static double test_frac_diff(double x1, double x2)
 
 int STestCase::_check_math_result(SMathResult & r, double val, double tol, const char * pF)
 {
-#ifdef NDEBUG
-	#define TEST_FACTOR 100.0
-	#define TEST_SIGMA  1.5
-#else
-	#define TEST_FACTOR 1.0
-	#define TEST_SIGMA  1.0
-#endif
+	constexpr double _test_factor = SlDebugMode::CT() ? 1.0 : 100.0;
+	constexpr double _test_sigma  = SlDebugMode::CT() ? 1.0 : 1.5;
 	int    s = 0;
 	double f = 0.0;
 	if(fisnan(r.V) || fisnan(val))
@@ -189,13 +184,13 @@ int STestCase::_check_math_result(SMathResult & r, double val, double tol, const
 		s = (fisinf(r.V) != fisinf(val)) ? smtfIncons : s;
 	else {
 		f = test_frac_diff(val, r.V);
-		if(fabs(val - r.V) > 2.0 * TEST_SIGMA * r.E)
+		if(fabs(val - r.V) > 2.0 * _test_sigma * r.E)
 			s |= smtfIncons;
 		if(r.E < 0.0)
 			s |= smtfErrNeg;
 		if(fisinf(r.E))
 			s |= smtfErrBad;
-		if(f > TEST_FACTOR * tol)
+		if(f > (_test_factor * tol))
 			s |= smtfTolBad;
 	}
 	if(s != 0) {

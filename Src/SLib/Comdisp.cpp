@@ -76,7 +76,6 @@ int ComDispInterface::AssignIDByName(const char * pName, long nameID)
 	THROW(DispIDAry.insert(&dispid_entry));
 	CATCH
 		ok = SUCCEEDED(HRes) ? 0 : (SetErrCode(), -1);
-		// @v9.1.7 {
 		/*{
 			SString msg_buf, err_msg;
 			PPLoadText(PPTXT_DISPIFASSGNFAULT, msg_buf);
@@ -86,7 +85,6 @@ int ComDispInterface::AssignIDByName(const char * pName, long nameID)
 				msg_buf.CatDiv(':', 2).Cat(err_msg);
 			PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
 		}*/
-		// } @v9.1.7
 	ENDCATCH
 	delete [] p_wname;
 	return ok;

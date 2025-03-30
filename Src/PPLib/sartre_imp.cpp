@@ -1051,7 +1051,7 @@ public:
 		tokDot,             // .
 		tokComma,           // ,
 		tokSharp,           // #
-		tokSlash,           // / @v9.8.12
+		tokSlash,           // / 
 		tokBracketsDescr,   // [abc]
 		tokConcept,         // :concept
 		tokSubclassOf,      // ::concept
@@ -1065,8 +1065,8 @@ public:
 		//tokTypeHDate,       // #hdate
 		tokTypeUniTime,     // #unitime
 		tokTypeHPeriod,     // #hperiod
-		tokEqAbbrev,        // @v9.8.12 =$ кг=$килограмм
-		tokEqAbbrevDot,     // @v9.8.12 =. ул=.улица    ул или ул.
+		tokEqAbbrev,        // =$ кг=$килограмм
+		tokEqAbbrevDot,     // =. ул=.улица    ул или ул.
 	};
 
 	static int FASTCALL _IsWordbreakChar(int c);
@@ -5042,7 +5042,7 @@ int SrSyntaxRuleSet::__ResolveExprRule(ResolveRuleBlock & rB, int unrollStackOnl
 			if(!unrollStackOnly) {
 				CONCEPTID  target_cid = p_sti->RSymb;
 				if(target_cid == 0 && p_sti->VarItemRef >= 0) { // Ссылка на другой операнд
-					assert(p_sti->VarItemRef < (int)r_st.getCount());
+					assert(p_sti->VarItemRef < r_st.getCountI());
 					for(uint mi = 0; mi < rB.GetMatchList().getCount(); mi++) {
 						const MatchEntry & r_me = rB.GetMatchList().at(mi);
 						if((int)r_me.StackP == p_sti->VarItemRef && r_me.ConceptId) {
@@ -5055,7 +5055,7 @@ int SrSyntaxRuleSet::__ResolveExprRule(ResolveRuleBlock & rB, int unrollStackOnl
 					SrNGram sng;
 					SrNGram sng_local;
 					uint   tidx = rB.TextIdx;
-					TSVector <NGID> ng_list; // @v9.8.4 TSArray-->TSVect
+					TSVector <NGID> ng_list;
 					Int64Array concept_list; // Список концепций, соответствующих отдельной N-грамме
 					Int64Array concept_hier_list; // Иерархия отдельной концепции
 					LEXID  word_id = 0;
@@ -5093,7 +5093,7 @@ int SrSyntaxRuleSet::__ResolveExprRule(ResolveRuleBlock & rB, int unrollStackOnl
 								SrNGram * p_ng = sng_list.at(--_c);
 								THROW(p_ng->WordIdList.get(0) == word_id);
 								int    is_match = 1;
-								tidx = local_preserve_tidx; // @v9.9.11
+								tidx = local_preserve_tidx;
 								for(uint j = 1 /*! 0-й элемент уже проверен*/; is_match && j < p_ng->WordIdList.getCount(); j++) {
 									const LEXID ng_word_id = p_ng->WordIdList.get(j);
 									if(rB.R_T.Get(++tidx, rB.TItemBuf)) {

@@ -3254,12 +3254,9 @@ int PiritEquip::GetStatus(SString & rStatus)
 		status = CHECKCLOSED;
 	if(rStatus.NotEmpty())
 		rStatus.Destroy();
-	/* @v9.6.9 if(r_error.Empty()) // Режим печати чека
-		status |= PRINT;*/
 	LastStatus = status;
 	if(status == CHECKCLOSED) // Этот статус не надо передавать во внешнюю программу
 		status = 0;
-	// @v9.6.9 rStatus.CatEq("STATUS", status);
 	CATCHZOK
 	rStatus.CatEq("STATUS", status);
 	return ok;

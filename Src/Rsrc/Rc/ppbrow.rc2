@@ -9339,6 +9339,7 @@ drawvector "..\rsrc\svg" #000000 {
 	PPDV_MARKETPLACE01                // @v12.1.3
 	PPDV_ACTIVITY01                   // @v12.2.2
 	PPDV_ARCHIVE01                    // @v12.2.2
+	PPDV_CLOSE01                      // @v12.2.12
 }
 //
 // Следующие изображения используются без замещения цвета

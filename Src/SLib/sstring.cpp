@@ -7891,6 +7891,11 @@ static const SIntToSymbTabEntry SNTokSymb_List[] = {
 	{ SNTOK_CL_RUT, "cl-rut" },
 	{ SNTOK_CHZN_ALTCIGITEM, "chzn-altcigitem" },
 	{ SNTOK_AR_DNI, "ar-dni" },
+	{ SNTOK_GENERICTEXT_ASCII, "generictext-ascii" }, // @v12.2.12
+	{ SNTOK_GENERICTEXT_UTF8, "generictext-utf8" }, // @v12.2.12
+	{ SNTOK_GENERICTEXT_CP1251, "generictext-cp1251"}, // @v12.2.12
+	{ SNTOK_GENERICTEXT_CP866, "generictext-cp866" }, // @v12.2.12
+	{ SNTOK_GENERICTEXT_JSON, "json" }, // @v12.2.12
 };
 
 SNaturalToken::SNaturalToken() : ID(0), Prob(0.0f), Count(0)
@@ -8100,8 +8105,10 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 				SNTOKSEQ_DECCOLON|SNTOKSEQ_HEXDOT|SNTOKSEQ_DECDOT|SNTOKSEQ_DECSLASH|SNTOKSEQ_NUMERIC);
 		}
 		else {
-			int is_lead_plus = 0;
-			int has_dec = 0;
+			bool   is_lead_plus = false;
+			bool   has_dec = false;
+			bool   has_cp866 = false;
+			bool   has_cp1251 = false;
 			i = 0;
 			if(the_first_chr == '#') {
 				h |= SNTOKSEQ_LEADSHARP;
@@ -8112,7 +8119,7 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 			else if(the_first_chr == '$')
 				h |= SNTOKSEQ_LEADDOLLAR;
 			else if(the_first_chr == '+')
-				is_lead_plus = 1;
+				is_lead_plus = true;
 			const uint clc = r_chr_list.getCount();
 			for(; i < clc; i++) {
 				const uchar c = static_cast<uchar>(r_chr_list.at(i).Key);
@@ -8124,7 +8131,7 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 					const bool is_dec_c = isdec(c);
 					const bool is_asciialpha = isasciialpha(c);
 					if(is_dec_c) {
-						has_dec = 1;
+						has_dec = true;
 						rIb.DecCount += ccnt;
 					}
 					if(h & SNTOKSEQ_LAT && !is_asciialpha) {
@@ -8193,11 +8200,27 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 					}
 					// } @v11.6.0 
 				}
-				if(h & SNTOKSEQ_866 && !IsLetter866(c))
-					h &= ~SNTOKSEQ_866;
-				if(h & SNTOKSEQ_1251 && !IsLetter1251(c))
-					h &= ~SNTOKSEQ_1251;
+				{
+					const bool is_letter_cp866 = IsLetter866(c);
+					const bool is_letter_cp1251 = IsLetter1251(c);
+					if(is_letter_cp866) {
+						has_cp866 = true;
+					}
+					else if(h & SNTOKSEQ_866 && !(c >= 1 && c <= 127)) {
+						h &= ~SNTOKSEQ_866;
+					}
+					if(is_letter_cp1251) {
+						has_cp1251 = true;
+					}
+					else if(h & SNTOKSEQ_1251 && !(c >= 1 && c <= 127)) {
+						h &= ~SNTOKSEQ_1251;
+					}
+				}
 			}
+			if(h & SNTOKSEQ_866 && !has_cp866)
+				h &= ~SNTOKSEQ_866;
+			if(h & SNTOKSEQ_1251 && !has_cp1251)
+				h &= ~SNTOKSEQ_1251;
 			if(!(h & SNTOKSEQ_ASCII)) {
 				h &= ~(SNTOKSEQ_LAT|SNTOKSEQ_LATUPR|SNTOKSEQ_LATLWR|SNTOKSEQ_HEX|SNTOKSEQ_DEC|SNTOKSEQ_DECLAT|
 					SNTOKSEQ_HEXHYPHEN|SNTOKSEQ_DECHYPHEN|SNTOKSEQ_HEXCOLON|SNTOKSEQ_DECCOLON|SNTOKSEQ_HEXDOT|
@@ -8209,7 +8232,6 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 				if(!(h & SNTOKSEQ_LAT))
 					h &= ~(SNTOKSEQ_LATLWR|SNTOKSEQ_LATUPR);
 			}
-			// @v10.5.6 @fix if(SNTOKSEQ_DECLAT) { if(!(h & (SNTOKSEQ_LAT|SNTOKSEQ_DEC))) h &= ~SNTOKSEQ_DECLAT; }
 			{
 				const uint32 tf = SNTOKSEQ_HEXHYPHEN;
 				if(h & tf) {
@@ -8416,140 +8438,171 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 		else if(h & SNTOKSEQ_BACKPCT) {
 		}
 		else {
+			if(h & SNTOKSEQ_DECCOLON) { // @v12.2.12
+				LTIME temp_tm = ZEROTIME;
+				if(strtotime(reinterpret_cast<const char *>(pToken), TIMF_HMS, &temp_tm)) {
+					const int _tm_h = temp_tm.hour();
+					const int _tm_m = temp_tm.minut();
+					const int _tm_s = temp_tm.sec();
+					if(_tm_h >= 0 && _tm_h < 24 && _tm_m >= 0 && _tm_m < 60 && _tm_s >= 0 && _tm_s < 60) {
+						rResultList.AddTok(SNTOK_TIME, 0.9f, 0/*flags*/);
+					}
+				}
+			}
 			if(h & SNTOKSEQ_DEC) {
-				uchar last = pToken[toklen-1];
-				int   cd = 0;
-				rResultList.AddTok(SNTOK_DIGITCODE, 1.0f, 0/*flags*/);
-				switch(toklen) {
-					case 6:
-						if(_ProbeDate(rIb.Temp.Z().CatN(reinterpret_cast<const char *>(pToken), toklen))) {
-							rResultList.AddTok(SNTOK_DATE, 0.5f, 0/*flags*/);
-						}
-						break;
-					case 8:
-						// RU_OKPO
-						{
-							// 
-							// Проверка правильности указания ОКПО:
-							// 
-							// Алгоритм проверки ОКПО:
-							// 1. Вычисляется контрольная сумма по 7-и цифрам со следующими весовыми коэффициентами: (1,2,3,4,5,6,7).
-							// 2. Вычисляется контрольное число(1) как остаток от деления контрольной суммы на 11.
-							// 3. Вычисляется контрольная сумма по 7-и цифрам со следующими весовыми коэффициентами: (3,4,5,6,7,8,9).
-							// 4. Вычисляется контрольное число(2) как остаток от деления контрольной суммы на 11.
-							//   Если остаток от деления равен 10-ти, то контрольному числу(2) присваивается ноль.
-							// 5. Если контрольное число(1) больше девяти, то восьмой знак ОКПО сравнивается с контрольным числом(2),
-							//   иначе восьмой знак ОКПО сравнивается с контрольным числом(1). В случае их равенства ОКПО считается правильным.
-							// 
-							int is_ru_okpo = 0;
-							static const int8 ru_okpo_w1[] = {1,2,3,4,5,6,7};
-							static const int8 ru_okpo_w2[] = {3,4,5,6,7,8,9};
-							ulong  sum1 = 0, sum2 = 0;
-							for(i = 0; i < 7; i++) {
-								sum1 += (ru_okpo_w1[i] * (pToken[i]-'0'));
-								sum2 += (ru_okpo_w2[i] * (pToken[i]-'0'));
-							}
-							int    cd1 = (sum1 % 11);
-							int    cd2 = (sum2 % 11);
-							if(cd2 == 10)
-								cd2 = 0;
-							is_ru_okpo = (cd1 > 9) ? BIN((last-'0') == cd2) : BIN((last-'0') == cd1);							
-							if(is_ru_okpo)
-								rResultList.AddTok(SNTOK_RU_OKPO, 0.95f, 0/*flags*/);
-						}
-						cd = SCalcBarcodeCheckDigitL(reinterpret_cast<const char *>(pToken), toklen-1);
-						if(static_cast<uchar>(cd) == (last-'0')) {
+				// @v12.2.12 {
+				{
+					//SNTOKSEQ_LEADMINUS
+					float intnum_prob = 1.0f;
+					rResultList.AddTok(SNTOK_INTNUMBER, intnum_prob, 0/*flags*/);
+				}
+				// } @v12.2.12 
+				if(!(h & SNTOKSEQ_LEADMINUS)) {
+					const uchar last = pToken[toklen-1];
+					int   cd = 0;
+					{
+						float digcod_prob = 1.0f;
+						if(toklen >= 2) {
 							if(pToken[0] == '0')
-								rResultList.AddTok(SNTOK_UPCE, 0.9f, 0/*flags*/);
+								digcod_prob = 0.9f;
 							else
-								rResultList.AddTok(SNTOK_EAN8, 0.9f, 0/*flags*/);
+								digcod_prob = 0.8f;
 						}
-						if(_ProbeDate(rIb.Temp.Z().CatN(reinterpret_cast<const char *>(pToken), toklen))) {
-							rResultList.AddTok(SNTOK_DATE, 0.8f, 0/*flags*/);
-						}
-						break;
-					case 9:
-						if(pToken[0] == '0' && pToken[1] == '4') {
-							rResultList.AddTok(SNTOK_RU_BIC, 0.6f, 0/*flags*/);
-						}
-						rResultList.AddTok(SNTOK_RU_KPP, 0.1f, 0/*flags*/);
-						break;
-					case 10:
-						if(SCalcCheckDigit(SCHKDIGALG_RUINN|SCHKDIGALG_TEST, reinterpret_cast<const char *>(pToken), toklen)) {
-							rResultList.AddTok(SNTOK_RU_INN, 1.0f, 0/*flags*/);
-						}
-						break;
-					case 11:
-						{
-							// СНИЛС (страховой номер индивидуального лицевого счета) состоит из 11 цифр:
-							//	1-9-я цифры — любые цифры;
-							//	10-11-я цифры — контрольное число.
-							// Маски ввода
-							//	XXXXXXXXXXX — маска ввода без разделителей.
-							//	XXX-XXX-XXX-XX — маска ввода с разделителями.
-							//	XXX-XXX-XXX XX — маска ввода с разделителями и с отделением контрольного числа.
-							// Алгоритм проверки контрольного числа
-							//	Вычислить сумму произведений цифр СНИЛС (с 1-й по 9-ю) на следующие коэффициенты — 9, 8, 7, 6, 5, 4, 3, 2, 1 (т.е. номера цифр в обратном порядке).
-							//	Вычислить контрольное число от полученной суммы следующим образом:
-							//		если она меньше 100, то контрольное число равно этой сумме;
-							//		если равна 100, то контрольное число равно 0;
-							//		если больше 100, то вычислить остаток от деления на 101 и далее:
-							//			если остаток от деления равен 100, то контольное число равно 0;
-							//			в противном случае контрольное число равно вычисленному остатку от деления.
-							//	Сравнить полученное контрольное число с двумя младшими разрядами СНИЛС. Если они равны, то СНИЛС верный.
-							static const int8 ru_snils_w[] = {9, 8, 7, 6, 5, 4, 3, 2, 1};
-							ulong  sum = 0;
-							uint   cn = 0; // check number
-							for(i = 0; i < 9; i++) {
-								sum += (ru_snils_w[i] * (pToken[i]-'0'));
+						else
+							digcod_prob = 0.5f;
+						rResultList.AddTok(SNTOK_DIGITCODE, digcod_prob, 0/*flags*/);
+					}
+					switch(toklen) {
+						case 6:
+							if(_ProbeDate(rIb.Temp.Z().CatN(reinterpret_cast<const char *>(pToken), toklen))) {
+								rResultList.AddTok(SNTOK_DATE, 0.5f, 0/*flags*/);
 							}
-							if(sum < 100)
-								cn = sum;
-							else if(sum == 100)
-								cn = 0;
-							else {
-								cn = sum % 101;
-								if(cn == 100)
+							break;
+						case 8:
+							// RU_OKPO
+							{
+								// 
+								// Проверка правильности указания ОКПО:
+								// 
+								// Алгоритм проверки ОКПО:
+								// 1. Вычисляется контрольная сумма по 7-и цифрам со следующими весовыми коэффициентами: (1,2,3,4,5,6,7).
+								// 2. Вычисляется контрольное число(1) как остаток от деления контрольной суммы на 11.
+								// 3. Вычисляется контрольная сумма по 7-и цифрам со следующими весовыми коэффициентами: (3,4,5,6,7,8,9).
+								// 4. Вычисляется контрольное число(2) как остаток от деления контрольной суммы на 11.
+								//   Если остаток от деления равен 10-ти, то контрольному числу(2) присваивается ноль.
+								// 5. Если контрольное число(1) больше девяти, то восьмой знак ОКПО сравнивается с контрольным числом(2),
+								//   иначе восьмой знак ОКПО сравнивается с контрольным числом(1). В случае их равенства ОКПО считается правильным.
+								// 
+								int is_ru_okpo = 0;
+								static const int8 ru_okpo_w1[] = {1,2,3,4,5,6,7};
+								static const int8 ru_okpo_w2[] = {3,4,5,6,7,8,9};
+								ulong  sum1 = 0, sum2 = 0;
+								for(i = 0; i < 7; i++) {
+									sum1 += (ru_okpo_w1[i] * (pToken[i]-'0'));
+									sum2 += (ru_okpo_w2[i] * (pToken[i]-'0'));
+								}
+								int    cd1 = (sum1 % 11);
+								int    cd2 = (sum2 % 11);
+								if(cd2 == 10)
+									cd2 = 0;
+								is_ru_okpo = (cd1 > 9) ? BIN((last-'0') == cd2) : BIN((last-'0') == cd1);							
+								if(is_ru_okpo)
+									rResultList.AddTok(SNTOK_RU_OKPO, 0.95f, 0/*flags*/);
+							}
+							cd = SCalcBarcodeCheckDigitL(reinterpret_cast<const char *>(pToken), toklen-1);
+							if(static_cast<uchar>(cd) == (last-'0')) {
+								if(pToken[0] == '0')
+									rResultList.AddTok(SNTOK_UPCE, 0.9f, 0/*flags*/);
+								else
+									rResultList.AddTok(SNTOK_EAN8, 0.9f, 0/*flags*/);
+							}
+							if(_ProbeDate(rIb.Temp.Z().CatN(reinterpret_cast<const char *>(pToken), toklen))) {
+								rResultList.AddTok(SNTOK_DATE, 0.8f, 0/*flags*/);
+							}
+							break;
+						case 9:
+							if(pToken[0] == '0' && pToken[1] == '4') {
+								rResultList.AddTok(SNTOK_RU_BIC, 0.6f, 0/*flags*/);
+							}
+							rResultList.AddTok(SNTOK_RU_KPP, 0.1f, 0/*flags*/);
+							break;
+						case 10:
+							if(SCalcCheckDigit(SCHKDIGALG_RUINN|SCHKDIGALG_TEST, reinterpret_cast<const char *>(pToken), toklen)) {
+								rResultList.AddTok(SNTOK_RU_INN, 1.0f, 0/*flags*/);
+							}
+							break;
+						case 11:
+							{
+								// СНИЛС (страховой номер индивидуального лицевого счета) состоит из 11 цифр:
+								//	1-9-я цифры — любые цифры;
+								//	10-11-я цифры — контрольное число.
+								// Маски ввода
+								//	XXXXXXXXXXX — маска ввода без разделителей.
+								//	XXX-XXX-XXX-XX — маска ввода с разделителями.
+								//	XXX-XXX-XXX XX — маска ввода с разделителями и с отделением контрольного числа.
+								// Алгоритм проверки контрольного числа
+								//	Вычислить сумму произведений цифр СНИЛС (с 1-й по 9-ю) на следующие коэффициенты — 9, 8, 7, 6, 5, 4, 3, 2, 1 (т.е. номера цифр в обратном порядке).
+								//	Вычислить контрольное число от полученной суммы следующим образом:
+								//		если она меньше 100, то контрольное число равно этой сумме;
+								//		если равна 100, то контрольное число равно 0;
+								//		если больше 100, то вычислить остаток от деления на 101 и далее:
+								//			если остаток от деления равен 100, то контольное число равно 0;
+								//			в противном случае контрольное число равно вычисленному остатку от деления.
+								//	Сравнить полученное контрольное число с двумя младшими разрядами СНИЛС. Если они равны, то СНИЛС верный.
+								static const int8 ru_snils_w[] = {9, 8, 7, 6, 5, 4, 3, 2, 1};
+								ulong  sum = 0;
+								uint   cn = 0; // check number
+								for(i = 0; i < 9; i++) {
+									sum += (ru_snils_w[i] * (pToken[i]-'0'));
+								}
+								if(sum < 100)
+									cn = sum;
+								else if(sum == 100)
 									cn = 0;
+								else {
+									cn = sum % 101;
+									if(cn == 100)
+										cn = 0;
+								}
+								if(cn == ((pToken[9]-'0') * 10 + (pToken[10]-'0'))) {
+									rResultList.AddTok(SNTOK_RU_SNILS, 0.95f, 0/*flags*/);
+								}
 							}
-							if(cn == ((pToken[9]-'0') * 10 + (pToken[10]-'0'))) {
-								rResultList.AddTok(SNTOK_RU_SNILS, 0.95f, 0/*flags*/);
+							break; // @v11.4.9 @fix (break)
+						case 12:
+							cd = SCalcBarcodeCheckDigitL(reinterpret_cast<const char *>(pToken), toklen-1);
+							if(static_cast<uchar>(cd) == (last-'0')) {
+								if(pToken[0] == '0')
+									rResultList.AddTok(SNTOK_UPCE, 1.0f, 0/*flags*/);
+								else
+									rResultList.AddTok(SNTOK_EAN8, 1.0f, 0/*flags*/);
 							}
-						}
-						break; // @v11.4.9 @fix (break)
-					case 12:
-						cd = SCalcBarcodeCheckDigitL(reinterpret_cast<const char *>(pToken), toklen-1);
-						if(static_cast<uchar>(cd) == (last-'0')) {
-							if(pToken[0] == '0')
-								rResultList.AddTok(SNTOK_UPCE, 1.0f, 0/*flags*/);
-							else
-								rResultList.AddTok(SNTOK_EAN8, 1.0f, 0/*flags*/);
-						}
-						else if(SCalcCheckDigit(SCHKDIGALG_RUINN|SCHKDIGALG_TEST, reinterpret_cast<const char *>(pToken), toklen)) {
-							rResultList.AddTok(SNTOK_RU_INN, 1.0f, 0/*flags*/);
-						}
-						break;
-					case 13:
-						cd = SCalcBarcodeCheckDigitL(reinterpret_cast<const char *>(pToken), toklen-1);
-						if((uchar)cd == (last-'0')) {
-							rResultList.AddTok(SNTOK_EAN13, 1.0f, 0/*flags*/);
-						}
-						break;
-					case 15:
-						if(SCalcCheckDigit(SCHKDIGALG_LUHN|SCHKDIGALG_TEST, reinterpret_cast<const char *>(pToken), toklen)) {
-							rResultList.AddTok(SNTOK_IMEI, 0.9f, 0/*flags*/);
-							rResultList.AddTok(SNTOK_DIGITCODE, 0.1f, 0/*flags*/);
-						}
-						break;
-					case 19:
-						if(SCalcCheckDigit(SCHKDIGALG_LUHN|SCHKDIGALG_TEST, reinterpret_cast<const char *>(pToken), toklen)) {
-							rResultList.AddTok(SNTOK_LUHN, 0.9f, 0/*flags*/);
-							rResultList.AddTok(SNTOK_EGAISWARECODE, 0.1f, 0/*flags*/);
-						}
-						else {
-							rResultList.AddTok(SNTOK_EGAISWARECODE, 1.0f, 0/*flags*/);
-						}
-						break;
+							else if(SCalcCheckDigit(SCHKDIGALG_RUINN|SCHKDIGALG_TEST, reinterpret_cast<const char *>(pToken), toklen)) {
+								rResultList.AddTok(SNTOK_RU_INN, 1.0f, 0/*flags*/);
+							}
+							break;
+						case 13:
+							cd = SCalcBarcodeCheckDigitL(reinterpret_cast<const char *>(pToken), toklen-1);
+							if((uchar)cd == (last-'0')) {
+								rResultList.AddTok(SNTOK_EAN13, 1.0f, 0/*flags*/);
+							}
+							break;
+						case 15:
+							if(SCalcCheckDigit(SCHKDIGALG_LUHN|SCHKDIGALG_TEST, reinterpret_cast<const char *>(pToken), toklen)) {
+								rResultList.AddTok(SNTOK_IMEI, 0.9f, 0/*flags*/);
+								rResultList.AddTok(SNTOK_DIGITCODE, 0.1f, 0/*flags*/);
+							}
+							break;
+						case 19:
+							if(SCalcCheckDigit(SCHKDIGALG_LUHN|SCHKDIGALG_TEST, reinterpret_cast<const char *>(pToken), toklen)) {
+								rResultList.AddTok(SNTOK_LUHN, 0.9f, 0/*flags*/);
+								rResultList.AddTok(SNTOK_EGAISWARECODE, 0.1f, 0/*flags*/);
+							}
+							else {
+								rResultList.AddTok(SNTOK_EGAISWARECODE, 1.0f, 0/*flags*/);
+							}
+							break;
+					}
 				}
 			}
 			if(h & SNTOKSEQ_DECLAT) {
@@ -8789,6 +8842,36 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 				}
 			}
 		}
+		// @v12.2.12 {
+		{
+			if(h & SNTOKSEQ_1251) {
+				rResultList.AddTok(SNTOK_GENERICTEXT_CP1251, 0.9f, 0/*flags*/);
+			}
+			if(h & SNTOKSEQ_866) {
+				rResultList.AddTok(SNTOK_GENERICTEXT_CP866, 0.9f, 0/*flags*/);
+			}
+			if(h & SNTOKSEQ_ASCII) {
+				rResultList.AddTok(SNTOK_GENERICTEXT_ASCII, 0.3f, 0/*flags*/);
+			}
+			else if(h & SNTOKSEQ_UTF8) {
+				rResultList.AddTok(SNTOK_GENERICTEXT_UTF8, 0.9f, 0/*flags*/);
+			}
+		}
+		{
+			if(h & (SNTOKSEQ_ASCII|SNTOKSEQ_UTF8)) {
+				if((pToken[0] == '[' && pToken[toklen-1] == ']') || (pToken[0] == '{' && pToken[toklen-1] == '}')) {
+					// Возможно, json
+					SString temp_buf;
+					temp_buf.CatN(reinterpret_cast<const char *>(pToken), toklen);
+					SJson * p_js_probe = SJson::Parse(temp_buf);
+					if(p_js_probe) {
+						rResultList.AddTok(SNTOK_GENERICTEXT_JSON, 1.0f, 0/*flags*/);
+						delete p_js_probe;
+					}
+				}
+			}
+		}
+		// } @v12.2.12 
     }
 	rIb.Stat.Seq = h;
 	ASSIGN_PTR(pStat, rIb.Stat);

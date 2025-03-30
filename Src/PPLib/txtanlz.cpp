@@ -4081,10 +4081,10 @@ int ParseCpEncodingTables(const char * pPath, SUnicodeTable * pUt)
 			}
 			SFsPath::NormalizePath(temp_buf = basis_path_wo_ext, SFsPath::npfSlash, basis_path_wo_ext);
 
-			(raw_input_file_path = basis_path_wo_ext).Dot().Cat("txt");
-			(model_file_path = basis_path_wo_ext).Dot().Cat("model");
-			(vec_file_path = basis_path_wo_ext).Dot().Cat("vec");
-			(tok_file_path = basis_path_wo_ext).Dot().Cat("tok");
+			(raw_input_file_path = basis_path_wo_ext).DotCat("txt");
+			(model_file_path = basis_path_wo_ext).DotCat("model");
+			(vec_file_path = basis_path_wo_ext).DotCat("vec");
+			(tok_file_path = basis_path_wo_ext).DotCat("tok");
 			/*{
 				PPTextAnalyzer txta;
 				txta.MakeGoodsNameList(raw_input_file_path);

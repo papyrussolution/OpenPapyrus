@@ -531,11 +531,7 @@ IDEACFB::~IDEACFB() // erase current key schedule tables
 */
 void IDEACFB::close()
 {
-	/* @v9.6.3
-	for(int i = 0; i < IDEA_KEYLEN; i++)
-		Z[i] = 0;
-	*/
-	memzero(Z, sizeof(Z)); // @v9.6.3
+	memzero(Z, sizeof(Z));
 }
 //
 // IDEARAND

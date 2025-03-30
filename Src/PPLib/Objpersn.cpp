@@ -8483,7 +8483,7 @@ int PrcssrClientActivityStatistics::Run()
 			SString out_file_name;
 			CurDict->GetDbSymb(temp_buf);
 			PPGetPath(PPPATH_OUT, out_file_name);
-			out_file_name.SetLastSlash().Cat("PrcssrClientActivityStatistics").CatDiv('-', 0).Cat(temp_buf).Dot().Cat("txt");
+			out_file_name.SetLastSlash().Cat("PrcssrClientActivityStatistics").CatDiv('-', 0).Cat(temp_buf).DotCat("txt");
 			SFile f_out(out_file_name, SFile::mWrite);
 			for(_view.InitIteration(); _view.NextIteration(&view_item) > 0;) {
 				PPWaitPercent(_view.GetCounter(), view_item.Name);

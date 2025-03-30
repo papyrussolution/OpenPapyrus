@@ -5297,7 +5297,14 @@ int32 DL6ICLS_PPObjBill::Search(int32 id, PPYOBJREC rec)
 	if(p_e && p_e->P_BObj) {
 		PPBillPacket bpack;
 		ok = p_e->P_BObj->ExtractPacket(id, &bpack);
-		ok = (ok == 0 && DS.GetTLA().LastErr == PPERR_OBJNFOUND) ? -1 : ok;
+		// @v12.2.12 ok = (ok == 0 && DS.GetTLA().LastErr == PPERR_OBJNFOUND) ? -1 : ok;
+		// @v12.2.12 {
+		if(ok == 0) {
+			const int last_err = DS.GetTLA().LastErr;
+			if(oneof2(last_err, PPERR_OBJNFOUND, PPERR_BILLBYIDENTNFOUND))
+				ok = -1;
+		}
+		// } @v12.2.12 
 		FillBillRec(&bpack, static_cast<SPpyO_Bill *>(rec));
 	}
 	SetAppError(ok);
@@ -5883,7 +5890,14 @@ int32 DL6ICLS_PPObjBill::GetPacket(int32 id, IPapyrusBillPacket * pPack)
 	InnerBillExtra * p_e = static_cast<InnerBillExtra *>(ExtraPtr);
 	if(p_pack && p_e->P_BObj) {
 		ok = p_e->P_BObj->ExtractPacket(id, p_pack);
-		ok = (ok == 0 && DS.GetTLA().LastErr == PPERR_OBJNFOUND) ? -1 : ok;
+		// @v12.2.12 ok = (ok == 0 && DS.GetTLA().LastErr == PPERR_OBJNFOUND) ? -1 : ok;
+		// @v12.2.12 {
+		if(ok == 0) {
+			const int last_err = DS.GetTLA().LastErr;
+			if(oneof2(last_err, PPERR_OBJNFOUND, PPERR_BILLBYIDENTNFOUND))
+				ok = -1;
+		}
+		// } @v12.2.12 
 	}
 	SetAppError(ok);
 	return ok;

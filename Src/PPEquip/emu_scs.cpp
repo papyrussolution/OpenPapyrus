@@ -336,7 +336,7 @@ int SCS_SYNCSYM::SendToPrinter(PrnLinesArray * pPrnLines)
 				SJson * p_js = AtolDrv_MakeJson_CCheck(ofdf, pPack, P_SlipFmt, 0/*flags*/);
 				if(p_js) {
 					SString file_name;
-					(temp_buf = "posnode_debug_ccheck").CatChar('_').CatChar('#').Cat(SCn.ID).Dot().Cat("txt");
+					(temp_buf = "posnode_debug_ccheck").CatChar('_').CatChar('#').Cat(SCn.ID).DotCat("txt");
 					PPGetFilePath(PPPATH_OUT, temp_buf, file_name);
 					if(p_js->ToStr(temp_buf)) {
 						SFile f_out(file_name, SFile::mAppend);

@@ -806,7 +806,6 @@ int PPObjGoods::Helper_WriteConfig(const PPGoodsConfig * pCfg, const SString * p
 	int    is_new = 0;
 	PPGoodsConfig cfg = *pCfg;
 	PPGoodsConfig prev_cfg;
-	// @v9.7.2 assert(!cfg.Ver.IsLt(7, 7, 0)); // Жесткая проверка на предмет инициализации номера версии
 	cfg.Ver__ = DS.GetVersion();
 	{
 		PPTransaction tra(use_ta);
@@ -1025,7 +1024,6 @@ PPGoodsConfig::PPGoodsConfig()
 PPGoodsConfig & PPGoodsConfig::Z()
 {
 	memzero(this, static_cast<size_t>(PTR8(&TagIndFilt) - PTR8(this)));
-	// @v9.7.2 (expensive call) Ver = DS.GetVersion();
 	TagIndFilt.Init(1, 0);
 	return *this;
 }
@@ -1081,7 +1079,7 @@ private:
 			EditGoodsExTitles(GoodsExTitles);
 		}
 		else if(event.isCmd(cmTagIndFilt)) {
-			Data.TagIndFilt.Flags |= TagFilt::fColors; // @v9.8.6
+			Data.TagIndFilt.Flags |= TagFilt::fColors;
 			EditTagFilt(PPOBJ_GOODS, &Data.TagIndFilt);
 		}
 		else
@@ -1985,7 +1983,6 @@ int QuotationDialog::SetupMatrixLocEntry(const StrAssocArray::Item & rItem, Smar
 			buf.Cat((long)quot.Quot);
 	}
 	else if(Cls == PPQuot::clsMtx) {
-		// @v9.4.9 QuotIdent qi(loc_id, Kinds[0], SelCurID, SelArticleID);
 		int    r = 0;
 		double result = 0.0;
 		Goods2Tbl::Rec goods_rec;

@@ -6729,7 +6729,7 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 									else
 										n_req.PutAttrib("xmlns", InetUrl::MkHttp(P_ApiVtrf, "schema/cdm/mercury/applications"));
 									n_req.PutInner("localTransactionId", temp_buf.Z().Cat(rAppBlk.LocalTransactionId));
-									PutInitiator(srb, 0, (rAppBlk.VetisSvcVer_ >= SVerT(2)) ? "vd" : "co", rAppBlk.User);
+									PutInitiator(srb, 0, (rAppBlk.VetisSvcVer_ >= SVerT(2, 0)) ? "vd" : "co", rAppBlk.User);
 									//PutListOptions(srb, "bs", p_req->ListOptions);
 									{
 										SXml::WNode n_n2(srb, _xmlnst_bs_uuid(), temp_buf.Z().Cat(p_req->Uuid, S_GUID::fmtIDL|S_GUID::fmtLower));

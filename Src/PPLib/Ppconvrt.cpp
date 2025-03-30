@@ -5616,7 +5616,6 @@ public:
 			int32  Proof;          // Промилле
 			int32  Volume;         // x100000
 			LDATE  ActualDate;
-			//long   Flags; // @v9.2.12
 		};
 		EgaisProductTbl::Rec * p_data = static_cast<EgaisProductTbl::Rec *>(pNewTbl->getDataBuf());
 		EgaisProductTblRec_Before9214 * p_old_rec = static_cast<EgaisProductTblRec_Before9214 *>(pOldRec);

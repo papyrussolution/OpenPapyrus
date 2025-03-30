@@ -1,5 +1,5 @@
 // IMGUI-SUPPORT.CPP
-// Copyright (c) A.Sobolev 2024
+// Copyright (c) A.Sobolev 2024, 2025
 //
 #include <pp.h>
 #pragma hdrstop
@@ -364,7 +364,7 @@ int ImGuiSceneBase::LoadUiDescription(ImGuiIO & rIo)
 					const char * p_fn = "layout";
 					SString fn;
 					do {
-						(fn = p_fn).CatLongZ(++fn_n, 5).Dot().Cat("json");
+						(fn = p_fn).CatLongZ(++fn_n, 5).DotCat("json");
 						PPGetFilePath(PPPATH_OUT, fn, temp_buf);
 					} while(fileExists(temp_buf));
 					SFile f_out(temp_buf, SFile::mWrite);

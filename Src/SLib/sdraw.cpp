@@ -1,5 +1,5 @@
 // SDRAW.CPP
-// Copyright (c) A.Sobolev 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -181,11 +181,11 @@ int SViewPort::FromStr(const char * pStr, int fmt)
 	if(scan.GetNumber(temp_buf)) {
 		Flags &= ~fEmpty;
 		a.x = temp_buf.ToFloat();
-		SETMAX(a.x, 0.0f); // @v10.8.1 я не знаю как правильно разрулить отрицательную координату - потому просто сдвигаю ее в ноль
+		SETMAX(a.x, 0.0f); // я не знаю как правильно разрулить отрицательную координату - потому просто сдвигаю ее в ноль
 		scan.SkipOptionalDiv(',');
 		THROW(scan.GetNumber(temp_buf));
 		a.y = temp_buf.ToFloat();
-		SETMAX(a.y, 0.0f); // @v10.8.1 я не знаю как правильно разрулить отрицательную координату - потому просто сдвигаю ее в ноль
+		SETMAX(a.y, 0.0f); // я не знаю как правильно разрулить отрицательную координату - потому просто сдвигаю ее в ноль
 		scan.SkipOptionalDiv(',');
 		THROW(scan.GetNumber(temp_buf));
 		b.x = a.x + temp_buf.ToFloat();
@@ -227,7 +227,7 @@ template <class F> SDrawFigure * DupDrawFigure(const SDrawFigure * pThis)
 
 /*static*/int FASTCALL SDrawFigure::CheckKind(int kind)
 {
-	if(oneof6(kind, kShape, kPath, kGroup, kImage, kText, kRef)) // @v10.4.5 kRef
+	if(oneof6(kind, kShape, kPath, kGroup, kImage, kText, kRef))
 		return 1;
 	else {
 		SString msg_buf;
@@ -294,7 +294,7 @@ SDrawFigure::~SDrawFigure()
 		case kGroup:
 			p_instance = (flags & SDrawFigure::fDraw) ? new SDraw : new SDrawGroup(0, (flags & SDrawFigure::fSymbolGroup) ? SDrawGroup::dgtSymbol : SDrawGroup::dgtOrdinary);
 			break;
-		case kRef: p_instance = new SDrawRef; break; // @v10.4.5
+		case kRef: p_instance = new SDrawRef; break;
 		default:
 			#define Invalid_DrawFigure_Kind 0
 			assert(Invalid_DrawFigure_Kind);
@@ -909,7 +909,7 @@ int SDrawPath::FromStr(const char * pStr, int fmt)
 				case 'M': // 2, SVG_PATH_CMD_MOVE_TO
 					for(int first = 1; scan.Skip().IsDotPrefixedNumber(); first = 0) {
 						THROW(GetSvgPathPoint(scan, temp_buf, pnt));
-						scan.Skip().IncrChr(','); // @v10.7.8
+						scan.Skip().IncrChr(',');
 						if(first)
 							Move(pnt);
 						else
@@ -929,7 +929,7 @@ int SDrawPath::FromStr(const char * pStr, int fmt)
 				case 'm': // 2, SVG_PATH_CMD_REL_MOVE_TO
 					for(int first = 1; scan.Skip().IsDotPrefixedNumber(); first = 0) {
 						THROW(GetSvgPathPoint(scan, temp_buf, pnt));
-						scan.Skip().IncrChr(','); // @v10.7.8
+						scan.Skip().IncrChr(',');
 						const SPoint2F cur = GetCurrent();
 						if(first)
 							Move(cur + pnt);
@@ -956,14 +956,14 @@ int SDrawPath::FromStr(const char * pStr, int fmt)
 				case 'L': // 2, SVG_PATH_CMD_LINE_TO
 					while(scan.Skip().IsDotPrefixedNumber()) {
 						THROW(GetSvgPathPoint(scan, temp_buf, pnt));
-						scan.Skip().IncrChr(','); // @v10.7.8
+						scan.Skip().IncrChr(',');
 						Line(pnt);
 					}
 					break;
 				case 'l': // 2, SVG_PATH_CMD_REL_LINE_TO
 					while(scan.Skip().IsDotPrefixedNumber()) {
 						THROW(GetSvgPathPoint(scan, temp_buf, pnt));
-						scan.Skip().IncrChr(','); // @v10.7.8
+						scan.Skip().IncrChr(',');
 						const SPoint2F cur = GetCurrent();
 						Line(cur + pnt);
 					}
@@ -971,7 +971,7 @@ int SDrawPath::FromStr(const char * pStr, int fmt)
 				case 'H': // 1, SVG_PATH_CMD_HORIZONTAL_LINE_TO
 					while(scan.Skip().IsDotPrefixedNumber()) {
 						THROW(GetSvgPathNumber(scan, temp_buf, nmb));
-						scan.Skip().IncrChr(','); // @v10.7.8
+						scan.Skip().IncrChr(',');
 						const SPoint2F cur = GetCurrent();
 						Line(pnt.Set(nmb, cur.y));
 					}
@@ -979,7 +979,7 @@ int SDrawPath::FromStr(const char * pStr, int fmt)
 				case 'h': // 1, SVG_PATH_CMD_REL_HORIZONTAL_LINE_TO
 					while(scan.Skip().IsDotPrefixedNumber()) {
 						THROW(GetSvgPathNumber(scan, temp_buf, nmb));
-						scan.Skip().IncrChr(','); // @v10.7.8
+						scan.Skip().IncrChr(',');
 						pnt = GetCurrent();
 						Line(pnt.AddX(nmb));
 					}
@@ -987,7 +987,7 @@ int SDrawPath::FromStr(const char * pStr, int fmt)
 				case 'V': // 1, SVG_PATH_CMD_VERTICAL_LINE_TO
 					while(scan.Skip().IsDotPrefixedNumber()) {
 						THROW(GetSvgPathNumber(scan, temp_buf, nmb));
-						scan.Skip().IncrChr(','); // @v10.7.8
+						scan.Skip().IncrChr(',');
 						const SPoint2F cur = GetCurrent();
 						Line(pnt.Set(cur.x, nmb));
 					}
@@ -995,7 +995,7 @@ int SDrawPath::FromStr(const char * pStr, int fmt)
 				case 'v': // 1, SVG_PATH_CMD_REL_VERTICAL_LINE_TO
 					while(scan.Skip().IsDotPrefixedNumber()) {
 						THROW(GetSvgPathNumber(scan, temp_buf, nmb));
-						scan.Skip().IncrChr(','); // @v10.7.8
+						scan.Skip().IncrChr(',');
 						pnt = GetCurrent();
 						Line(pnt.AddY(nmb));
 					}
@@ -1007,7 +1007,7 @@ int SDrawPath::FromStr(const char * pStr, int fmt)
 						THROW(GetSvgPathPoint(scan, temp_buf, pa[1]));
 						scan.Skip().IncrChr(',');
 						THROW(GetSvgPathPoint(scan, temp_buf, pa[2]));
-						scan.Skip().IncrChr(','); // @v10.7.8
+						scan.Skip().IncrChr(',');
 						Curve(pa[0], pa[1], pa[2]);
 					}
 					break;
@@ -1019,7 +1019,7 @@ int SDrawPath::FromStr(const char * pStr, int fmt)
 							THROW(GetSvgPathPoint(scan, temp_buf, pa[1]));
 							scan.Skip().IncrChr(',');
 							THROW(GetSvgPathPoint(scan, temp_buf, pa[2]));
-							scan.Skip().IncrChr(','); // @v10.7.8
+							scan.Skip().IncrChr(',');
 							const SPoint2F cur = GetCurrent();
 							Curve(cur + pa[0], cur + pa[1], cur + pa[2]);
 						}
@@ -1030,7 +1030,7 @@ int SDrawPath::FromStr(const char * pStr, int fmt)
 						THROW(GetSvgPathPoint(scan, temp_buf, pa[0]));
 						scan.Skip().IncrChr(',');
 						THROW(GetSvgPathPoint(scan, temp_buf, pa[1]));
-						scan.Skip().IncrChr(','); // @v10.7.8
+						scan.Skip().IncrChr(',');
 						if(OpList.getCount() && OpList.at(OpList.getCount()-1).Key == opCurve) {
 							pnt = ArgList.getPoint(ArgList.getCount()-2);
 							SPoint2F pnt_1 = ArgList.getPoint(ArgList.getCount()-4);
@@ -1048,7 +1048,7 @@ int SDrawPath::FromStr(const char * pStr, int fmt)
 						THROW(GetSvgPathPoint(scan, temp_buf, pa[0]));
 						scan.Skip().IncrChr(',');
 						THROW(GetSvgPathPoint(scan, temp_buf, pa[1]));
-						scan.Skip().IncrChr(','); // @v10.7.8
+						scan.Skip().IncrChr(',');
 						if(OpList.getCount() && OpList.at(OpList.getCount()-1).Key == opCurve) {
 							pnt = ArgList.getPoint(ArgList.getCount()-2);
 							SPoint2F pnt_1 = ArgList.getPoint(ArgList.getCount()-4);
@@ -1066,7 +1066,7 @@ int SDrawPath::FromStr(const char * pStr, int fmt)
 					THROW(GetSvgPathPoint(scan, temp_buf, pa[0]));
 					scan.Skip().IncrChr(',');
 					THROW(GetSvgPathPoint(scan, temp_buf, pa[1]));
-					scan.Skip().IncrChr(','); // @v10.7.8
+					scan.Skip().IncrChr(',');
 					Quad(pa[0], pa[1]);
 					break;
 				case 'q': // 4, SVG_PATH_CMD_REL_QUADRATIC_CURVE_TO
@@ -1074,7 +1074,7 @@ int SDrawPath::FromStr(const char * pStr, int fmt)
 						THROW(GetSvgPathPoint(scan, temp_buf, pa[0]));
 						scan.Skip().IncrChr(',');
 						THROW(GetSvgPathPoint(scan, temp_buf, pa[1]));
-						scan.Skip().IncrChr(','); // @v10.7.8
+						scan.Skip().IncrChr(',');
 						const SPoint2F cur = GetCurrent();
 						Quad(cur + pa[0], cur + pa[1]);
 					}
@@ -1082,7 +1082,7 @@ int SDrawPath::FromStr(const char * pStr, int fmt)
 				case 'T': // 2, SVG_PATH_CMD_SMOOTH_QUADRATIC_CURVE_TO
 					{
 						THROW(GetSvgPathPoint(scan, temp_buf, pa[0]));
-						scan.Skip().IncrChr(','); // @v10.7.8
+						scan.Skip().IncrChr(',');
 						if(OpList.getCount() && OpList.at(OpList.getCount()-1).Key == opQuad) {
 							//SPoint2F refl_p2 = ArgList[ArgList.getCount()-1];
 							//SPoint2F refl_p1 = ArgList[ArgList.getCount()-2];
@@ -1099,7 +1099,7 @@ int SDrawPath::FromStr(const char * pStr, int fmt)
 				case 't': // 2, SVG_PATH_CMD_REL_SMOOTH_QUADRATIC_CURVE_TO
 					{
 						THROW(GetSvgPathPoint(scan, temp_buf, pa[0]));
-						scan.Skip().IncrChr(','); // @v10.7.8
+						scan.Skip().IncrChr(',');
 						if(OpList.getCount() && OpList.at(OpList.getCount()-1).Key == opQuad) {
 							pnt = ArgList.getPoint(ArgList.getCount()-4);
 							const SPoint2F cur = GetCurrent();
@@ -1112,42 +1112,38 @@ int SDrawPath::FromStr(const char * pStr, int fmt)
 					}
 					break;
 				case 'A': // 7, SVG_PATH_CMD_ARC_TO
-					while(scan.Skip().IsDotPrefixedNumber()) { // @v10.9.6 (while in front of '{')
+					while(scan.Skip().IsDotPrefixedNumber()) { // (while in front of '{')
 						float x_axis_rotation = 0.0f;
 						int   large_arc_flag = 0;
 						int   sweep_flag = 0;
 						THROW(GetSvgPathPoint(scan, temp_buf, pa[0])); // radius
-						scan.Skip().IncrChr(','); // @v10.7.8
+						scan.Skip().IncrChr(',');
 						THROW(GetSvgPathNumber(scan, temp_buf, x_axis_rotation));
-						scan.Skip().IncrChr(','); // @v10.7.8
-						// @v10.8.6 THROW(GetSvgPathNumber(scan, temp_buf, large_arc_flag));
-						THROW(GetSvgPathBinaryFlag(scan, temp_buf, large_arc_flag)); // @v10.8.6 
-						scan.Skip().IncrChr(','); // @v10.7.8
-						// @v10.8.6 THROW(GetSvgPathNumber(scan, temp_buf, sweep_flag));
-						THROW(GetSvgPathBinaryFlag(scan, temp_buf, sweep_flag)); // @v10.8.6 
-						scan.Skip().IncrChr(','); // @v10.7.8
+						scan.Skip().IncrChr(',');
+						THROW(GetSvgPathBinaryFlag(scan, temp_buf, large_arc_flag));
+						scan.Skip().IncrChr(',');
+						THROW(GetSvgPathBinaryFlag(scan, temp_buf, sweep_flag));
+						scan.Skip().IncrChr(',');
 						THROW(GetSvgPathPoint(scan, temp_buf, pa[1])); // start point
-						scan.Skip().IncrChr(','); // @v10.7.8
+						scan.Skip().IncrChr(',');
 						ArcSvg(pa[0], x_axis_rotation, large_arc_flag, sweep_flag, pa[1]);
 					}
 					break;
 				case 'a': // 7, SVG_PATH_CMD_REL_ARC_TO
-					while(scan.Skip().IsDotPrefixedNumber()) { // @v10.7.8
+					while(scan.Skip().IsDotPrefixedNumber()) {
 						float x_axis_rotation = 0.0f;
 						int   large_arc_flag = 0;
 						int   sweep_flag = 0;
 						THROW(GetSvgPathPoint(scan, temp_buf, pa[0])); // radius
-						scan.Skip().IncrChr(','); // @v10.7.8
+						scan.Skip().IncrChr(',');
 						THROW(GetSvgPathNumber(scan, temp_buf, x_axis_rotation));
-						scan.Skip().IncrChr(','); // @v10.7.8
-						// @v10.8.6 THROW(GetSvgPathNumber(scan, temp_buf, large_arc_flag));
-						THROW(GetSvgPathBinaryFlag(scan, temp_buf, large_arc_flag)); // @v10.8.6 
-						scan.Skip().IncrChr(','); // @v10.7.8
-						// @v10.8.6 THROW(GetSvgPathNumber(scan, temp_buf, sweep_flag));
-						THROW(GetSvgPathBinaryFlag(scan, temp_buf, sweep_flag)); // @v10.8.6 
-						scan.Skip().IncrChr(','); // @v10.7.8
+						scan.Skip().IncrChr(',');
+						THROW(GetSvgPathBinaryFlag(scan, temp_buf, large_arc_flag));
+						scan.Skip().IncrChr(',');
+						THROW(GetSvgPathBinaryFlag(scan, temp_buf, sweep_flag));
+						scan.Skip().IncrChr(',');
 						THROW(GetSvgPathPoint(scan, temp_buf, pa[1])); // start point
-						scan.Skip().IncrChr(','); // @v10.7.8
+						scan.Skip().IncrChr(',');
 						const SPoint2F cur = GetCurrent();
 						ArcSvg(pa[0], x_axis_rotation, large_arc_flag, sweep_flag, cur + pa[1]);
 					}
@@ -3976,7 +3972,7 @@ IcoCurFound:
 //
 #if SLTEST_RUNNING // {
 
-int Test_LCMS2(const char * pTestBedPath, const char * pOutputFileName, bool exhaustive); // @v10.9.7 (Экспериментальное внедрение тестирования библиотеки lcms2) 
+int Test_LCMS2(const char * pTestBedPath, const char * pOutputFileName, bool exhaustive); // (Экспериментальное внедрение тестирования библиотеки lcms2) 
 
 SLTEST_R(lcms2)
 {
@@ -3984,7 +3980,7 @@ SLTEST_R(lcms2)
 	SString temp_buf;
 	SString testbed_path;
 	(testbed_path = GetInputPath()).SetLastSlash().Cat("lcms2");
-	(temp_buf = "lcms2").CatChar('-').Cat("test").CatChar('-').Cat(getcurdate_(), DATF_YMD|DATF_NODIV|DATF_CENTURY).Cat(getcurtime_(), TIMF_HMS|TIMF_NODIV).Dot().Cat("out");
+	(temp_buf = "lcms2").CatChar('-').Cat("test").CatChar('-').Cat(getcurdate_(), DATF_YMD|DATF_NODIV|DATF_CENTURY).Cat(getcurtime_(), TIMF_HMS|TIMF_NODIV).DotCat("out");
 	const char * p_out_file_name = MakeOutputFilePath(temp_buf);
 	SLCHECK_Z(Test_LCMS2(testbed_path, p_out_file_name, true));	
 #else

@@ -3021,7 +3021,8 @@ static xmlChar * FASTCALL xmlParseStringName(xmlParserCtxt * ctxt, const xmlChar
 xmlChar * xmlParseNmtoken(xmlParserCtxt * ctxt)
 {
 	xmlChar buf[XML_MAX_NAMELEN + 5];
-	int len = 0, l;
+	int len = 0;
+	int l;
 	int c;
 	int count = 0;
 #ifndef NDEBUG
@@ -3047,10 +3048,7 @@ xmlChar * xmlParseNmtoken(xmlParserCtxt * ctxt)
 			c = CUR_CHAR(l);
 		}
 		if(len >= XML_MAX_NAMELEN) {
-			/*
-			 * Okay someone managed to make a huge token, so he's ready to pay
-			 * for the processing speed.
-			 */
+			// Okay someone managed to make a huge token, so he's ready to pay for the processing speed.
 			int max = len * 2;
 			xmlChar * buffer = static_cast<xmlChar *>(SAlloc::M(max * sizeof(xmlChar)));
 			if(!buffer) {
@@ -3067,7 +3065,7 @@ xmlChar * xmlParseNmtoken(xmlParserCtxt * ctxt)
 						return 0;
 					}
 				}
-				if(len + 10 > max) {
+				if((len + 10) > max) {
 					xmlChar * tmp;
 					if((max > XML_MAX_NAME_LENGTH) && ((ctxt->options & XML_PARSE_HUGE) == 0)) {
 						xmlFatalErr(ctxt, XML_ERR_NAME_TOO_LONG, "NmToken");
@@ -3107,8 +3105,7 @@ xmlChar * xmlParseNmtoken(xmlParserCtxt * ctxt)
  *
  * parse a value for ENTITY declarations
  *
- * [9] EntityValue ::= '"' ([^%&"] | PEReference | Reference)* '"' |
- *	               "'" ([^%&'] | PEReference | Reference)* "'"
+ * [9] EntityValue ::= '"' ([^%&"] | PEReference | Reference)* '"' | "'" ([^%&'] | PEReference | Reference)* "'"
  *
  * Returns the EntityValue parsed with reference substituted or NULL
  */

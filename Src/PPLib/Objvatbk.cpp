@@ -1142,7 +1142,6 @@ IMPL_HANDLE_EVENT(VATBCfgDialog)
 			pConfig->Flags = (pConfig->Flags & VATBCfg::hfWoTax);
 			pConfig->Flags |= VATBCfg::hfDontStornReckon;
 			pConfig->AcctgBasis = INCM_BYPAYMENT;
-			// @v9.6.4 pConfig->Period.SetZero();
 		}
 	}
 	THROW(CheckDialogPtr(&(dlg = new VATBCfgDialog(dlg_id))));

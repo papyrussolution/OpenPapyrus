@@ -6296,9 +6296,9 @@ struct TsFindStrategiesBlock {
 			#endif
 								assert(work_range.low == static_cast<int32>(new_range.LoPos));
 								assert(work_range.upp == static_cast<int32>(new_range.UpPos));
-								pos_range_list.ordInsert(&work_range, 0, PTR_CMPFUNC(_2long)); // @v10.7.7 insert-->ordInsert
-								new_range.GenSeq = pRc->getCount()+1; // @v10.7.9
-								new_range.GenPtCount = (_last_idx - _first_idx + 1); // @v10.7.11
+								pos_range_list.ordInsert(&work_range, 0, PTR_CMPFUNC(_2long));
+								new_range.GenSeq = pRc->getCount()+1;
+								new_range.GenPtCount = (_last_idx - _first_idx + 1);
 								pRc->insert(&new_range);
 								if(pRawResult) {
 									pRawResult->OptRangeCount++;

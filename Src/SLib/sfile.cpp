@@ -4392,6 +4392,7 @@ int CsvSniffer::Run(const char * pFileName, SFile::CsvSniffingResult & rR) // @c
 			potential_div_list.insert(new PotentialDivisor(';'));
 			potential_div_list.insert(new PotentialDivisor('\t'));
 			potential_div_list.insert(new PotentialDivisor('|'));
+			potential_div_list.insert(new PotentialDivisor(' '));
 			{
 				// Собираем статистику появления потенциального символа-разделителя.
 				for(uint pdidx = 0; pdidx < potential_div_list.getCount(); pdidx++) {
@@ -4498,35 +4499,66 @@ int CsvSniffer::Run(const char * pFileName, SFile::CsvSniffingResult & rR) // @c
 				SLS.QueryPath("testroot", out_file_path);
 				if(out_file_path.NotEmpty()) {
 					SFsPath ps(pFileName);
+					ps.Nam.CatChar('-').Cat("out");
 					ps.Merge(SFsPath::fNam|SFsPath::fExt, temp_buf);
 					out_file_path.SetLastSlash().Cat("out").SetLastSlash().Cat(temp_buf);
 					SFile f_out(out_file_path, SFile::mWrite);
 					if(f_out.IsValid()) {
-						for(uint i = 0; i < data_collector.ColumnStatList.getCount(); i++) {
-							const TemporaryCsvDataCollector::ColumnStat * p_cs = data_collector.ColumnStatList.at(i);
-							if(p_cs) {
-								double len_avg = p_cs->LenStat.GetExp();
-								double len_stddev = p_cs->LenStat.GetStdDev();
-								line_buf.Z().CatEq("Column", p_cs->N).Space().CatEq("NECount", p_cs->NECount).Space().
-									CatEq("FirstRowLen", p_cs->FirstRowLen).Space().
-									CatEq("Len average", len_avg, MKSFMTD(0, 2, 0)).Space().
-									CatEq("Len stddev", len_stddev, MKSFMTD(0, 5, 0));
-								line_buf.CR();
-								f_out.WriteLine(line_buf);
-								{
-									f_out.WriteLine(line_buf.Z().Tab().Cat("NtaFirstRow").Colon().CR());
-									for(uint j = 0; j < p_cs->NtaFirstRow.getCount(); j++) {
-										const SNaturalToken & r_tok = p_cs->NtaFirstRow.at(j);
-										line_buf.Z().Tab().Cat(r_tok.GetSymb(temp_buf)).Space().CatEq("Prob", r_tok.Prob, MKSFMTD(0, 3, 0)).Space().CatEq("Count", r_tok.Count);
-										line_buf.CR();
-										f_out.WriteLine(line_buf);
+						{
+							line_buf.Z().Cat("Divider").CatDiv(':', 2);
+							//.CatChar(rR.FieldDivisor);
+							switch(rR.FieldDivisor) {
+								case ' ': line_buf.Cat("space"); break;
+								case '\t': line_buf.Cat("tab"); break;
+								case '|': line_buf.Cat("\'|\'"); break;
+								case ',': line_buf.Cat("\',\'"); break;
+								case ';': line_buf.Cat("\';\'"); break;
+							}
+							line_buf.CR();
+							f_out.WriteLine(line_buf);
+							for(uint i = 0; i < data_collector.ColumnStatList.getCount(); i++) {
+								const TemporaryCsvDataCollector::ColumnStat * p_cs = data_collector.ColumnStatList.at(i);
+								if(p_cs) {
+									double len_avg = p_cs->LenStat.GetExp();
+									double len_stddev = p_cs->LenStat.GetStdDev();
+									line_buf.Z().CatEq("Column", p_cs->N).Space().CatEq("NECount", p_cs->NECount).Space().
+										CatEq("FirstRowLen", p_cs->FirstRowLen).Space().
+										CatEq("Len average", len_avg, MKSFMTD(0, 2, 0)).Space().
+										CatEq("Len stddev", len_stddev, MKSFMTD(0, 5, 0));
+									line_buf.CR();
+									f_out.WriteLine(line_buf);
+									{
+										f_out.WriteLine(line_buf.Z().Tab().Cat("NtaFirstRow").Colon().CR());
+										for(uint j = 0; j < p_cs->NtaFirstRow.getCount(); j++) {
+											const SNaturalToken & r_tok = p_cs->NtaFirstRow.at(j);
+											line_buf.Z().Tab_(2).Cat(r_tok.GetSymb(temp_buf)).Space().CatEq("Prob", r_tok.Prob, MKSFMTD(0, 3, 0)).Space().CatEq("Count", r_tok.Count);
+											line_buf.CR();
+											f_out.WriteLine(line_buf);
+										}
+									}
+									{
+										f_out.WriteLine(line_buf.Z().Tab().Cat("NtaCommon").Colon().CR());
+										for(uint j = 0; j < p_cs->NtaCommon.getCount(); j++) {
+											const SNaturalToken & r_tok = p_cs->NtaCommon.at(j);
+											line_buf.Z().Tab_(2).Cat(r_tok.GetSymb(temp_buf)).Space().CatEq("Prob", r_tok.Prob, MKSFMTD(0, 3, 0)).Space().CatEq("Count", r_tok.Count);
+											line_buf.CR();
+											f_out.WriteLine(line_buf);
+										}
 									}
 								}
-								{
-									f_out.WriteLine(line_buf.Z().Tab().Cat("NtaCommon").Colon().CR());
-									for(uint j = 0; j < p_cs->NtaCommon.getCount(); j++) {
-										const SNaturalToken & r_tok = p_cs->NtaCommon.at(j);
-										line_buf.Z().Tab().Cat(r_tok.GetSymb(temp_buf)).Space().CatEq("Prob", r_tok.Prob, MKSFMTD(0, 3, 0)).Space().CatEq("Count", r_tok.Count);
+							}
+						}
+						{
+							for(uint i = 0; i < data_collector.ColumnStatList.getCount(); i++) {
+								const TemporaryCsvDataCollector::ColumnStat * p_cs = data_collector.ColumnStatList.at(i);
+								if(p_cs) {
+									line_buf.Z().Cat("Column").Space().CatChar('#').Cat(p_cs->N).Space().Cat("data").Colon();
+									line_buf.CR();
+									f_out.WriteLine(line_buf);
+									for(uint j = 0; j < p_cs->DataRefList.getCount(); j++) {
+										const long ref = p_cs->DataRefList.get(j);
+										data_collector.HT.Get(ref, temp_buf);
+										line_buf.Z().Tab().Cat(temp_buf);
 										line_buf.CR();
 										f_out.WriteLine(line_buf);
 									}
@@ -4547,6 +4579,7 @@ int Test_CsvSniffer()
 	int    ok = -1;
 	// ts-eurusd.csv (divider=',')
 	// test-input-csv-semicol-utf8.csv (divider=';')
+	// gpdata001.dat (divider=' ')
 	SString temp_buf;
 	SString base_path;
 	SString path;
@@ -4555,6 +4588,8 @@ int Test_CsvSniffer()
 	CsvSniffer s;
 	int r = 0;
 	SFile::CsvSniffingResult result;
+	r = s.Run((path = base_path).SetLastSlash().Cat("test_goods.csv"), result);
+	r = s.Run((path = base_path).SetLastSlash().Cat("gpdata001.dat"), result);
 	r = s.Run((path = base_path).SetLastSlash().Cat("ts-eurusd.csv"), result);
 	r = s.Run((path = base_path).SetLastSlash().Cat("test-input-csv-semicol-utf8.csv"), result);
 	path = "D:/DEV/etc/Microsoft/Leak-of-some-Bing-Bing_Maps-Cortana-source-code/CWBMM/src/CWBMM.Product/Maps_SBS/CustomWPSBS/Examples/CreateDirectionsWPSBSSample/DirectionsCandidates.tsv";

@@ -1156,13 +1156,9 @@ int PPObjectTransmit::PushObjectsToQueue(PPObjectTransmit::Header & rHdr, const 
 	else {
 		const uint max_idx_recs_per_ta = 512;
 		//
-		// @v9.8.3 Алгортим реорганизован с целью сократить размер транзакций.
-		// Выяснилось, что на этой фазе иногда надолго зависают задачи сервера.
-		// Теперь функция P_Queue->AddFileRecord вызывается в рамках собственной транзакции,
+		// Функция P_Queue->AddFileRecord вызывается в рамках собственной транзакции,
 		// а вся очередь объектов на прием формируется отрезками по max_idx_recs_per_ta записей.
 		//
-		// @v9.8.3 PPTransaction tra(use_ta);
-		// @v9.8.3 THROW(tra);
 		{
 			ObjSyncQueueCore::FileInfo fi;
 			{
@@ -1214,7 +1210,6 @@ int PPObjectTransmit::PushObjectsToQueue(PPObjectTransmit::Header & rHdr, const 
 				THROW(Helper_PushObjectsToQueue(rHdr, sys_file_id, idx_rec_list, use_ta));
 			}
 		}
-		// @v9.8.3 THROW(tra.Commit());
 		rHdr.Flags |= PPOTF_ACK;
 		THROW(UpdateInHeader(pInStream, &rHdr));
 	}

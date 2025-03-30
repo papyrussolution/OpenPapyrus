@@ -5135,13 +5135,11 @@ public:
 //   Note: Гарантируется сохранение количества, размера и порядка следования переменных-членов этой структуры.
 //
 struct SVerT { // @persistent Size=4
-	explicit SVerT(int = 0, int = 0, int = 0);
+	SVerT();
+	SVerT(int major, int minor);
+	SVerT(int major, int minor, int release);
 	bool   IsEmpty() const { return (!V && !R); }
-	SVerT & Z()
-	{
-		V = R = 0;
-		return *this;
-	}
+	SVerT & Z();
 	int    Get(int *, int *, int *) const;
 	int    GetMajor() const;
 	int    GetMinor() const;
@@ -5153,7 +5151,15 @@ struct SVerT { // @persistent Size=4
 	bool   IsGe(int, int, int) const;
 	bool   IsEq(int, int, int) const;
 	int    FASTCALL Cmp(const SVerT *) const;
+	//
+	// Descr: Флаги форматирования номера версии. Причина для их ввода весьма ситуативная и, похоже, дальше они и будут ситуативными.
+	//
+	enum {
+		fmtMinorPadZero2   = 0x0001, // Минор версии двузначный с набивкой слева нулем (если <10). Например 5.03
+		fmtOmitZeroRelease = 0x0002, // Если релиз версии (последний компонент) == 0, то не выводить его
+	};
 	SString FASTCALL ToStr(SString & rBuf) const;
+	SString ToStr(uint fmt, SString & rBuf) const;
 	//
 	// Descr: Преобразует строковое представление версии в данный экземпляр объекта.
 	//   Возможен разбор 2 вариантов представления:
@@ -12165,40 +12171,44 @@ int FASTCALL ExtStrSrch(const char * pBuffer, const char * pPattern, uint flags)
 #define SNTOK_CHZN_SSCC                 30 // честный знак Индивидуальный серийный номер третичной/транспортной упаковки regexp: "[0-9]{18}"
 #define SNTOK_CHZN_CIGITEM              31 // честный знак Маркировка пачки сигарет
 #define SNTOK_CHZN_CIGBLOCK             32 // честный знак Маркировка блока сигарет
-#define SNTOK_RU_OKPO                   33 // @v10.8.1 Российский код ОКПО
-#define SNTOK_RU_SNILS                  34 // @v10.8.1 Российский код СНИЛС
-#define SNTOK_RU_BIC                    35 // @v10.8.1 Российский банковский идентификационный код (БИК)
-#define SNTOK_RU_KPP                    36 // @v10.8.2 Российский код причины постановки на налоговый учет (КПП)
+#define SNTOK_RU_OKPO                   33 // Российский код ОКПО
+#define SNTOK_RU_SNILS                  34 // Российский код СНИЛС
+#define SNTOK_RU_BIC                    35 // Российский банковский идентификационный код (БИК)
+#define SNTOK_RU_KPP                    36 // Российский код причины постановки на налоговый учет (КПП)
 #define SNTOK_LINGUACODE                37 // @v11.3.12 Код естественного языка
 #define SNTOK_CHZN_SURROGATE_GTIN       38 // честный знак Специальная суррогатная конструкция, не являющаяся маркой (02 GTIN14)
 #define SNTOK_CHZN_SURROGATE_GTINCOUNT  39 // честный знак Специальная суррогатная конструкция, не являющаяся маркой (02 GTIN14 37 COUNT)
 #define SNTOK_CL_RUT                    40 // @v11.6.1 Чилийский налоговый код RUT
 #define SNTOK_CHZN_ALTCIGITEM           41 // @v11.9.0 честный знак Маркировка альтернативной табачной продукции (розничная единица). Код аналогичен SNTOK_CHZN_CIGITEM, но на месте МРЦ стоит AAAA
 #define SNTOK_AR_DNI                    42 // @v11.9.4 @construction Аргентинский идентификатор гражданина 
+#define SNTOK_GENERICTEXT_ASCII         43 // @v12.2.12
+#define SNTOK_GENERICTEXT_UTF8          44 // @v12.2.12
+#define SNTOK_GENERICTEXT_CP1251        45 // @v12.2.12
+#define SNTOK_GENERICTEXT_CP866         46 // @v12.2.12
+#define SNTOK_GENERICTEXT_JSON          47 // @v12.2.12
 
-#define SNTOKSEQ_DEC        0x00000001 // 0-9
-#define SNTOKSEQ_LATLWR     0x00000002 // a-z
-#define SNTOKSEQ_LATUPR     0x00000004 // A-Z
-#define SNTOKSEQ_LAT        0x00000008 // A-Z||a-z
-#define SNTOKSEQ_HEX        0x00000010 // 0-9||A-F||a-f
-#define SNTOKSEQ_ASCII      0x00000020 // 1-127
-#define SNTOKSEQ_UTF8       0x00000040 // Вся последовательность состоит из валидных UTF-8 символов
-#define SNTOKSEQ_1251       0x00000080 // Вся последовательность состоит из символов, соответствующих кодировке cp1251
-#define SNTOKSEQ_866        0x00000100 // Вся последовательность состоит из символов, соответствующих кодировке cp866
-#define SNTOKSEQ_DECLAT     0x00000200 // 0-9||A-F||a-f
-#define SNTOKSEQ_HEXHYPHEN  0x00000400 // ТОЛЬКО HEX && -
-#define SNTOKSEQ_DECHYPHEN  0x00000800 // ТОЛЬКО DEC && -
-#define SNTOKSEQ_HEXCOLON   0x00001000 // ТОЛЬКО HEX && :
-#define SNTOKSEQ_DECCOLON   0x00002000 // ТОЛЬКО DEC && :
-#define SNTOKSEQ_HEXDOT     0x00004000 // ТОЛЬКО HEX && .
-#define SNTOKSEQ_DECDOT     0x00008000 // ТОЛЬКО DEC && .
-#define SNTOKSEQ_DECSLASH   0x00010000 // ТОЛЬКО DEC && /
-#define SNTOKSEQ_LEADSHARP  0x00020000 // Лидирующий символ # (если этот символ встречается только в начале строки, то он не отключает остальные флаги.
-#define SNTOKSEQ_LEADMINUS  0x00040000 // Лидирующий символ - (если этот символ встречается только в начале строки, то он не отключает остальные флаги.
-#define SNTOKSEQ_LEADDOLLAR 0x00080000 // Лидирующий символ $ (если этот символ встречается только в начале строки, то он не отключает остальные флаги.
-#define SNTOKSEQ_BACKPCT    0x00100000 // Последовательность завершается символом % (без отключения остальных флагов)
-#define SNTOKSEQ_NUMERIC    0x00200000 // @v10.2.5 Многовариантное представление числа [+\-0-9.,' ]
-	// -9,999.99  +99'999,9  9 999.999  999
+#define SNTOKSEQ_DEC                0x00000001 // 0-9
+#define SNTOKSEQ_LATLWR             0x00000002 // a-z
+#define SNTOKSEQ_LATUPR             0x00000004 // A-Z
+#define SNTOKSEQ_LAT                0x00000008 // A-Z||a-z
+#define SNTOKSEQ_HEX                0x00000010 // 0-9||A-F||a-f
+#define SNTOKSEQ_ASCII              0x00000020 // 1-127
+#define SNTOKSEQ_UTF8               0x00000040 // Вся последовательность состоит из валидных UTF-8 символов
+#define SNTOKSEQ_1251               0x00000080 // Вся последовательность состоит из символов, соответствующих кодировке cp1251 или ascii-символов
+#define SNTOKSEQ_866                0x00000100 // Вся последовательность состоит из символов, соответствующих кодировке cp866 или ascii-символов
+#define SNTOKSEQ_DECLAT             0x00000200 // 0-9||A-F||a-f
+#define SNTOKSEQ_HEXHYPHEN          0x00000400 // ТОЛЬКО HEX && -
+#define SNTOKSEQ_DECHYPHEN          0x00000800 // ТОЛЬКО DEC && -
+#define SNTOKSEQ_HEXCOLON           0x00001000 // ТОЛЬКО HEX && :
+#define SNTOKSEQ_DECCOLON           0x00002000 // ТОЛЬКО DEC && :
+#define SNTOKSEQ_HEXDOT             0x00004000 // ТОЛЬКО HEX && .
+#define SNTOKSEQ_DECDOT             0x00008000 // ТОЛЬКО DEC && .
+#define SNTOKSEQ_DECSLASH           0x00010000 // ТОЛЬКО DEC && /
+#define SNTOKSEQ_LEADSHARP          0x00020000 // Лидирующий символ # (если этот символ встречается только в начале строки, то он не отключает остальные флаги.
+#define SNTOKSEQ_LEADMINUS          0x00040000 // Лидирующий символ - (если этот символ встречается только в начале строки, то он не отключает остальные флаги.
+#define SNTOKSEQ_LEADDOLLAR         0x00080000 // Лидирующий символ $ (если этот символ встречается только в начале строки, то он не отключает остальные флаги.
+#define SNTOKSEQ_BACKPCT            0x00100000 // Последовательность завершается символом % (без отключения остальных флагов)
+#define SNTOKSEQ_NUMERIC            0x00200000 // Многовариантное представление числа [+\-0-9.,' ] (-9,999.99  +99'999,9  9 999.999  999)
 #define SNTOKSEQ_LATHYPHENORUSCORE  0x00400000 // @v11.3.12 ТОЛЬКО LAT && (- || _)
 
 struct SNaturalTokenStat {

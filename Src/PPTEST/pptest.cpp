@@ -1769,7 +1769,7 @@ static void GumboTest()
 						if(p_output && p_output->root) {
 							{
 								PPGetPath(PPPATH_TESTROOT, temp_buf);
-								temp_buf.SetLastSlash().Cat("out").SetLastSlash().Cat(p_rule->Symb).Dot().Cat("out");
+								temp_buf.SetLastSlash().Cat("out").SetLastSlash().Cat(p_rule->Symb).DotCat("out");
 								SFile f_out(temp_buf, SFile::mWrite);
 								uint pgn_flags = 0;
 								PrintGumboOutput(p_output, 0, pgn_flags, f_out, temp_buf);
@@ -1806,14 +1806,14 @@ static void GumboTest()
 			p_output = gumbo_parse_with_options(&go, html_buf, html_buf.Len());
 			{
 				PPGetPath(PPPATH_TESTROOT, temp_buf);
-				temp_buf.SetLastSlash().Cat("out").SetLastSlash().Cat("html").CatChar('-').CatLongZ(i+1, 3).Cat("-text").Dot().Cat("out");
+				temp_buf.SetLastSlash().Cat("out").SetLastSlash().Cat("html").CatChar('-').CatLongZ(i+1, 3).Cat("-text").DotCat("out");
 				SFile f_out(temp_buf, SFile::mWrite);
 				uint pgn_flags = pgnfTextOnly|pgnfSkipEmptyText|pgnfSkipScript;
 				PrintGumboNode(p_output->document, 0, pgn_flags, f_out, temp_buf);
 			}
 			{
 				PPGetPath(PPPATH_TESTROOT, temp_buf);
-				temp_buf.SetLastSlash().Cat("out").SetLastSlash().Cat("html").CatChar('-').CatLongZ(i+1, 3).Cat("-tags").Dot().Cat("out");
+				temp_buf.SetLastSlash().Cat("out").SetLastSlash().Cat("html").CatChar('-').CatLongZ(i+1, 3).Cat("-tags").DotCat("out");
 				SFile f_out(temp_buf, SFile::mWrite);
 				uint pgn_flags = pgnfTagsOnly|pgnfSkipEmptyText;
 				PrintGumboNode(p_output->document, 0, pgn_flags, f_out, temp_buf);
@@ -1991,11 +1991,11 @@ int DoConstructionTest()
 		}
 	}
 #endif // } 0
-	Test_CsvSniffer();
+	//Test_CsvSniffer();
+	Test_Cristal2SetRetailGateway();
 	//PreprocessHFile();
 	//TestTransferFileToFtp();
 	//VkInterface::Test();
-	//Test_Cristal2SetRetailGateway();
 	//Test_LayoutedListDialog();
 	//SentencePieceExperiments();
 	//TestGtinStruc();

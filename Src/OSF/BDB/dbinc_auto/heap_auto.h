@@ -3,7 +3,6 @@
 #ifndef	__heap_AUTO_H
 #define	__heap_AUTO_H
 #ifdef HAVE_HEAP
-// @v9.5.5 #include "dbinc/log.h"
 #define	DB___heap_addrem	151
 typedef struct ___heap_addrem_args {
 	uint32 type;

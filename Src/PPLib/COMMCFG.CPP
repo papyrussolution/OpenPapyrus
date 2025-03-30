@@ -1,5 +1,5 @@
 // COMMCFG.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2021, 2023, 2024
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2021, 2023, 2024, 2025
 // @codepage UTF-8
 //
 // Диалог редактирования общих параметров настройки
@@ -88,11 +88,9 @@ int CommCfgDialog::editSysParams()
 			setCtrlData(CTL_CCFGSYS_CSFWPRD,    &Data.CSessFwAsscPeriod);
 			AddClusterAssoc(CTL_CCFGSYS_FLAGS,  0, CCFLG_USEGDSCLS);
 			AddClusterAssoc(CTL_CCFGSYS_FLAGS,  1, CCFLG_USEGOODSPCKG);
-			AddClusterAssoc(CTL_CCFGSYS_FLAGS,  2, CCFLG_USEDRAFTBILL); // @v9.8.11 @obsolete
-			// @v10.5.3 AddClusterAssoc(CTL_CCFGSYS_FLAGS,  3, CCFLG_USEHISTBILL);
+			AddClusterAssoc(CTL_CCFGSYS_FLAGS,  2, CCFLG_USEDRAFTBILL); // @obsolete
 			AddClusterAssoc(CTL_CCFGSYS_FLAGS,  3, CCFLG_CHECKSPOILAGE);
 			AddClusterAssoc(CTL_CCFGSYS_FLAGS,  4, CCFLG_THROUGHSCARDUNIQ);
-			// @v10.5.3 AddClusterAssoc(CTL_CCFGSYS_FLAGS,  6, CCFLG_USEHISTGOODS);
 			AddClusterAssoc(CTL_CCFGSYS_FLAGS,  5, CCFLG_USECCHECKEXT);
 			AddClusterAssoc(CTL_CCFGSYS_FLAGS,  6, CCFLG_USECCHECKLINEEXT);
 			AddClusterAssoc(CTL_CCFGSYS_FLAGS,  7, CCFLG_GENLOTONUNLIMORDER);
@@ -105,11 +103,9 @@ int CommCfgDialog::editSysParams()
 			AddClusterAssoc(CTL_CCFGSYS_LCRUSAGE, 1, 1);
 			AddClusterAssoc(CTL_CCFGSYS_LCRUSAGE, 2, 2);
 			SetClusterData(CTL_CCFGSYS_LCRUSAGE, Data.LcrUsage);
-			// @v10.1.5 {
 			AddClusterAssoc(CTL_CCFGSYS_LCRV2, 0, CCFLG2_USELCR2);
 			SetClusterData(CTL_CCFGSYS_LCRV2, Data.Flags2);
 			setCtrlData(CTL_CCFGSYS_LCRSINCE, &Data.LcrUsageSince);
-			// } @v10.1.5
 			AddClusterAssoc(CTL_CCFGSYS_FLAGS2, 0, CCFLG2_QUOT2);
 			AddClusterAssoc(CTL_CCFGSYS_FLAGS2, 1, CCFLG2_INDEXEADDR);
 			AddClusterAssoc(CTL_CCFGSYS_FLAGS2, 2, CCFLG2_SYNCLOT);
@@ -118,7 +114,6 @@ int CommCfgDialog::editSysParams()
 			AddClusterAssoc(CTL_CCFGSYS_FLAGS2, 5, CCFLG2_USESARTREDB);
 			AddClusterAssoc(CTL_CCFGSYS_FLAGS2, 6, CCFLG2_USELOTXCODE);
 			SetClusterData(CTL_CCFGSYS_FLAGS2, Data.Flags2);
-			// @v10.5.3 {
 			{
 				long   usehistobj = 0;
 				SETFLAG(usehistobj, usehistobjBill,   Data.Flags & CCFLG_USEHISTBILL);
@@ -131,7 +126,6 @@ int CommCfgDialog::editSysParams()
 				AddClusterAssoc(CTL_CCFGSYS_OBJHISTF, 3, usehistobjSCard);
 				SetClusterData(CTL_CCFGSYS_OBJHISTF, usehistobj);
 			}
-			// } @v10.5.3 
 			{
 				SString db_path;
 				PPGetPath(PPPATH_SARTREDB, db_path);

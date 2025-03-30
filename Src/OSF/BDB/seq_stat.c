@@ -10,9 +10,7 @@
 #pragma hdrstop
 
 #ifdef HAVE_64BIT_TYPES
- // @sobolev // @v9.5.5 #include "dbinc/db_page.h"
- // @v9.5.5 #include "dbinc/db_am.h"
- #include "dbinc_auto/sequence_ext.h"
+	#include "dbinc_auto/sequence_ext.h"
 
  #ifdef HAVE_STATISTICS
 static int __seq_print_all __P((DB_SEQUENCE*, uint32));

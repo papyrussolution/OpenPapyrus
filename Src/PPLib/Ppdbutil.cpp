@@ -2935,15 +2935,6 @@ int DoDBMaintain(const DBMaintainParam * pParam)
 			THROW(sj.DoMaintain(to_dt, BIN(param.Tables & DBMaintainParam::tblRsrvSj), &logger));
 			logger.LogSubString(PPTXT_DBMAINTAINLOG, DBMAINTAINLOG_ENDSYSJ);
 		}
-		/* @v9.8.11 Более не актуально из-за изменения технологии хранений версий документов
-		if(param.Tables & (DBMaintainParam::tblXBill|DBMaintainParam::tblXBillRecover)) {
-			HistBillCore hb;
-			to_dt = (param.Tables & DBMaintainParam::tblXBill) ? plusdate(getcurdate_(), -param.XBillDays) : ZERODATE;
-			logger.LogSubString(PPTXT_DBMAINTAINLOG, DBMAINTAINLOG_STARTXBILL);
-			THROW(hb.DoMaintain(to_dt, BIN(param.Tables & DBMaintainParam::tblXBillRecover), &logger));
-			logger.LogSubString(PPTXT_DBMAINTAINLOG, DBMAINTAINLOG_ENDXBILL);
-		}
-		*/
 		if(param.Tables & DBMaintainParam::tblDLS) {
 			DeviceLoadingStat dls;
 			logger.LogSubString(PPTXT_DBMAINTAINLOG, DBMAINTAINLOG_STARTDLS);

@@ -41,26 +41,40 @@ public class BarcodeScannerClipboardReader {
 	{
 		UnregisterListener();
 		if(Handler != null) {
-			Listener = new ClipboardManager.OnPrimaryClipChangedListener() {
-				@Override public void onPrimaryClipChanged()
-				{
-					if(Handler != null && CbMgr != null) {
-						BusinessEntity.PreprocessBarcodeResult r = GetBarcodeFromClipboard();
-						if(r != null) {
-							CbMgr.clearPrimaryClip();
-							Handler.HandleEvent(SLib.EV_BARCODERECEIVED, "clipboard", r);
-							//ClipDescription cd = CbMgr.getPrimaryClipDescription();
+			if(CbMgr != null) {
+				CbMgr.clearPrimaryClip();
+				Listener = new ClipboardManager.OnPrimaryClipChangedListener() {
+					@Override
+					public void onPrimaryClipChanged()
+					{
+						if(Handler != null && CbMgr != null) {
+							BusinessEntity.PreprocessBarcodeResult bcr = GetBarcodeFromClipboard();
+							if(bcr != null) {
+								CbMgr.clearPrimaryClip();
+								// @v12.2.12 Handler.HandleEvent(SLib.EV_BARCODERECEIVED, "clipboard", bcr);
+								// @v12.2.12 {
+								((SLib.SlActivity)Handler).runOnUiThread(new Runnable() {
+									@Override public void run()
+									{
+										Handler.HandleEvent(SLib.EV_BARCODERECEIVED, "clipboard", bcr);
+									}
+								});
+								// } @v12.2.12
+								//ClipDescription cd = CbMgr.getPrimaryClipDescription();
+							}
 						}
 					}
-				}
-			};
-			CbMgr.addPrimaryClipChangedListener(Listener);
+				};
+				CbMgr.addPrimaryClipChangedListener(Listener);
+			}
 		}
 	}
 	public void UnregisterListener()
 	{
 		if(Listener != null) {
-			CbMgr.removePrimaryClipChangedListener(Listener);
+			if(CbMgr != null) {
+				CbMgr.removePrimaryClipChangedListener(Listener);
+			}
 			Listener = null;
 		}
 	}

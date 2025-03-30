@@ -7261,8 +7261,9 @@ int PPObjBill::FillTurnList(PPBillPacket * pPack)
 				if(p_att->Flags & ATTF_BASEPROJECTION) {
 					THROW(p_att->CreateBaseProjectionAccturns(pPack));
 				}
-				else
+				else {
 					THROW(p_att->CreateAccturns(pPack));
+				}
 			}
 		}
 	}

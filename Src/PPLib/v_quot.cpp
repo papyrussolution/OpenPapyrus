@@ -18,10 +18,7 @@ IMPLEMENT_PPFILT_FACTORY(Quot); QuotFilt::QuotFilt() : PPBaseFilt(PPFILT_QUOT, 0
 	Init(1, 0);
 }
 
-int QuotFilt::IsSeries() const
-{
-	return BIN(Flags & fSeries && GoodsID && QuotKindID);
-}
+bool QuotFilt::IsSeries() const { return (Flags & fSeries && GoodsID && QuotKindID); }
 
 int QuotFilt::ReadPreviousVer(SBuffer & rBuf, int ver)
 {
@@ -1191,11 +1188,7 @@ int PPViewQuot::Helper_CreateTmpTblEntries(const QuotFilt * pFilt, PPQuotItemArr
 						QuotKindList.AtFree(i);
 				} while(i);
 			}
-#ifndef NDEBUG
-			const int debug_dup = 1;
-#else
-			const int debug_dup = 0;
-#endif
+			constexpr bool debug_dup = SlDebugMode::CT();
 			BExtInsert bei(P_TempTbl);
 			for(i = 0; i < qlc; i++) {
 				const PPQuotItem_ & r_item = pQList->at(i);

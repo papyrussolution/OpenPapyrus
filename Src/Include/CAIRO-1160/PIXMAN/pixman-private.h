@@ -649,24 +649,19 @@ float FASTCALL pixman_unorm_to_float(uint16 u, int n_bits);
 /*
  * Various debugging code
  */
-
 #undef DEBUG
-
 // @sobolev (declared also in cairoint.h) #define COMPILE_TIME_ASSERT(x) do { typedef int compile_time_assertion [(x) ? 1 : -1]; } while(0)
 // Turn on debugging depending on what type of release this is
 #if(((PIXMAN_VERSION_MICRO % 2) == 0) && ((PIXMAN_VERSION_MINOR % 2) == 1))
-
-/* Debugging gets turned on for development releases because these
- * are the things that end up in bleeding edge distributions such
- * as Rawhide etc.
- *
- * For performance reasons we don't turn it on for stable releases or
- * random git checkouts. (Random git checkouts are often used for
- * performance work).
- */
-
-#define DEBUG
-
+	/* Debugging gets turned on for development releases because these
+	 * are the things that end up in bleeding edge distributions such
+	 * as Rawhide etc.
+	 *
+	 * For performance reasons we don't turn it on for stable releases or
+	 * random git checkouts. (Random git checkouts are often used for
+	 * performance work).
+	 */
+	#define DEBUG
 #endif
 
 void FASTCALL _pixman_log_error(const char * function, const char * message);
@@ -696,7 +691,6 @@ void FASTCALL _pixman_log_error(const char * function, const char * message);
 /*
  * Matrix
  */
-
 typedef struct { pixman_fixed_48_16_t v[3]; } pixman_vector_48_16_t;
 
 boolint pixman_transform_point_31_16(const pixman_transform_t * t, const pixman_vector_48_16_t * v, pixman_vector_48_16_t * result);

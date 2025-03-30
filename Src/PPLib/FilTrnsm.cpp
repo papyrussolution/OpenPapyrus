@@ -262,7 +262,7 @@ int GetFilesFromMailServer2(PPID mailAccID, const char * pDestPath, long filtFla
 		if(deleMsg)
 			uftp.Flags |= uftp.fDeleteAfter;
 		//uftp.Format = SFileFormat::Jpeg;
-		uftp.Pop3TopMaxLines = 40; // @v9.9.9
+		uftp.Pop3TopMaxLines = 40;
 		PROFILE(THROW_SL(uftp.Run(GetFilesFromMailServerProgressProc, 0)));
 		temp_buf = uftp.Reply;
 	}
@@ -270,16 +270,6 @@ int GetFilesFromMailServer2(PPID mailAccID, const char * pDestPath, long filtFla
 	PPWaitStop();
 	return ok;
 }
-
-/* @v9.8.11 int Debug_GetFilesFromMessage(const char * pMsgFile)
-{
-	int    ok = 0;
-	SString dest_path;
-	PPGetPath(PPPATH_IN, dest_path);
-	PPMailPop3 mail(0); //
-	ok = mail.SaveAttachment(pMsgFile, 0, dest_path);
-	return ok;
-}*/
 
 static int CallbackFTPTransfer(long count, long total, const char * pMsg, int)
 {

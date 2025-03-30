@@ -4904,7 +4904,6 @@ int EdiProviderImplementation_SBIS::Write_DESADV(xmlTextWriter * pX, const S_GUI
 	bill_ieparam.EdiProviderSymb = "SBIS";
 	DocNalogRu_WriteBillBlock _blk(bill_ieparam, rBp, "ON_NSCHFDOPPR", nominal_file_name);
 	ok = _blk.IsValid() ? _blk.Do_UPD(result_file_name_) : 0;
-	//int WriteBill_NalogRu2_UPD(const PPBillImpExpParam & rParam, const PPBillPacket & rBp, const SString & rFileName, SString & rResultFileName)
 	return ok;
 }
 
@@ -5525,7 +5524,6 @@ int EdiProviderImplementation_SBIS::ProcessDocument(DocNalogRu_Reader::DocumentI
 			DocNalogRu_WriteBillBlock _blk(bill_ieparam, *p_bp, "ON_NSCHFDOPPR", path/*nominam-file_name*/);
 			ok = _blk.IsValid() ? _blk.Do_UPD(result_file_name_) : 0;
 			path = result_file_name_;
-			//int WriteBill_NalogRu2_UPD(const PPBillImpExpParam & rParam, const PPBillPacket & rBp, const SString & rFileName, SString & rResultFileName)
 		}
 		else {
 			//
@@ -5533,7 +5531,7 @@ int EdiProviderImplementation_SBIS::ProcessDocument(DocNalogRu_Reader::DocumentI
 			//
 			THROW(p_x = xmlNewTextWriterFilename(path, 0));
 			Epp.GetExtStrData(Epp.extssFormatSymb, edi_format_symb);
-			const int use_own_format = edi_format_symb.IsEqiAscii("eancom") ? 0 : 1;
+			const bool use_own_format = !edi_format_symb.IsEqiAscii("eancom");
 			switch(rPack.DocType) {
 				//case PPEDIOP_ORDER: THROW(Write_OwnFormat_ORDERS(p_x, msg_uuid, *p_bp)); break;
 				case PPEDIOP_ORDERRSP: THROW(Write_ORDERRSP(p_x, msg_uuid, *p_bp, static_cast<const PPBillPacket *>(rPack.P_ExtData))); break;

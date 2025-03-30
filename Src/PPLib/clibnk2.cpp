@@ -219,14 +219,14 @@ struct BankStmntItem : public Sdr_CliBnkData { // @flat
 	}
 	const char * GetContragentName() const { return WeArePayer ? ReceiverName : PayerName; }
 	const char * GetContragentINN()  const { return WeArePayer ? ReceiverINN  : PayerINN;  }
-	const char * GetContragentBnkAcc() const { return WeArePayer ? ReceiverBankAcc  : PayerBankAcc;  } // @v10.0.03
+	const char * GetContragentBnkAcc() const { return WeArePayer ? ReceiverBankAcc  : PayerBankAcc;  }
 	const char * GetOurBIC() const { return WeArePayer ? PayerBankCode : ReceiverBankCode; }
 	SString & MakeDescrText(SString &) const;
 
 	int    WeArePayer;              // !0 - главная организация является плательщиком
 	PPID   PayerPersonID;			// ИД персоналии плательщика //
 	PPID   ReceiverPersonID;		// ИД персоналии получателя  //
-	char   WhKPP[24];               // @v9.1.1 Кпп склада, к которому привязан документ
+	char   WhKPP[24];               // Кпп склада, к которому привязан документ
 };
 
 SString & BankStmntItem::MakeDescrText(SString & rBuf) const

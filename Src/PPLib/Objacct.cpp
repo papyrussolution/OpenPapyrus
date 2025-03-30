@@ -1,5 +1,5 @@
 // OBJACCT.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1142,11 +1142,11 @@ int PPObjAccount::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmConte
 			const  int16 org_ac = p_pack->Rec.A.Ac;
 			const  int16 org_sb = p_pack->Rec.A.Sb;
 			int    r = SearchNum(p_pack->Rec.A.Ac, p_pack->Rec.A.Sb, p_pack->Rec.CurID, &same_rec);
-			if(r > 0 /* @v9.2.10 && (same_rec.AccSheetID == p_pack->Rec.AccSheetID || (p->Flags & PPObjPack::fDispatcher)) */) {
+			if(r > 0) {
 				*pID = same_rec.ID;
 			}
 			else {
-				if(r > 0) { // @v9.2.7 @fix(r-->(r>0)) Счет в разделе найден, но с ним ассоциирована иная таблица статей: придется присвоить счету другой номер.
+				if(r > 0) { // Счет в разделе найден, но с ним ассоциирована иная таблица статей: придется присвоить счету другой номер.
 					for(int i = 1; i < 100; i++) {
 						if(SearchNum(p_pack->Rec.A.Ac, i, 0L/*@curID*/) < 0) {
 							p_pack->Rec.A.Sb = i;

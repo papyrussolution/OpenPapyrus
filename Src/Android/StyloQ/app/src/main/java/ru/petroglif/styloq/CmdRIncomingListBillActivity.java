@@ -808,13 +808,14 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 				{
 					Intent intent = getIntent();
 					// @v12.2.2 {
-					try {
-						ScanDvc = new ScanDevice();
-						ScanDvc.openScan();
-						ScanDvc.setOutScanMode(0);
-					} catch(Exception exn)
-					{
-						ScanDvc = null;
+					if((CPM.GetOwnCfgUserFlags() & StyloQConfig.userfClipboardBcScanner) == 0) { // @v12.2.12
+						try {
+							ScanDvc = new ScanDevice();
+							ScanDvc.openScan();
+							ScanDvc.setOutScanMode(0);
+						} catch(Exception exn) {
+							ScanDvc = null;
+						}
 					}
 					// } @v12.2.2
 					try {
@@ -957,24 +958,25 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 					ScanDvc.stopScan ();
 					ScanDvc.setScanLaserMode (8);
 					ScanDvc.closeScan ();
-					// @v12.2.10 {
-					if(BSCReader != null) {
-						BSCReader.UnregisterListener();
-					}
-					// } @v12.2.10
 				}
+				// @v12.2.10 {
+				if(BSCReader != null) {
+					BSCReader.UnregisterListener();
+				}
+				// } @v12.2.10
 				break;
 			case SLib.EV_PAUSE: // @v12.2.2
 				if(ScanDvc != null) {
 					unregisterReceiver(BarcodeScanDeviceReceiver);
 				}
+				// @v12.2.12 {
+				if(BSCReader != null) {
+					BSCReader.UnregisterListener();
+				}
+				// } @v12.2.12
 				break;
 			case SLib.EV_ACTIVITYRESUME: // @v12.2.2
-				if(ScanDvc != null) {
-					IntentFilter filter = new IntentFilter();
-					filter.addAction(/*SCAN_ACTION*/"scan.rcv.message");
-					registerReceiver(BarcodeScanDeviceReceiver, filter);
-					// @v12.2.10 {
+				{
 					StyloQApp app_ctx = GetAppCtx();
 					if(app_ctx != null) {
 						if((CPM.GetOwnCfgUserFlags() & StyloQConfig.userfClipboardBcScanner) != 0) {
@@ -983,10 +985,15 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 							}
 							BSCReader.RegisterListener();
 						}
-						else
+						else {
 							BSCReader = null;
+							if(ScanDvc != null) {
+								IntentFilter filter = new IntentFilter();
+								filter.addAction(/*SCAN_ACTION*/"scan.rcv.message");
+								registerReceiver(BarcodeScanDeviceReceiver, filter);
+							}
+						}
 					}
-					// } @v12.2.10
 				}
 				break;
 			case SLib.EV_TABSELECTED:
@@ -2166,17 +2173,24 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 						BusinessEntity.PreprocessBarcodeResult pbr = (BusinessEntity.PreprocessBarcodeResult) subj;
 						boolean done = false;
 						if(pbr.Oid != null && pbr.Oid.Type == SLib.PPOBJ_BILL) {
+							final boolean debug_mode = false; // @debug
 							Document selected_entry = null;
-							if(CPM.IncomingDocListData != null) {
+							if(CPM.IncomingDocListData != null && CPM.IncomingDocListData.size() > 0) {
 								for(int i = 0; selected_entry == null && i < CPM.IncomingDocListData.size(); i++) {
 									Document doc_entry = CPM.IncomingDocListData.get(i);
 									if(doc_entry != null && doc_entry.H != null && doc_entry.H.ID == pbr.Oid.Id) {
 										selected_entry = doc_entry;
 									}
 								}
+								// @v12.2.12 @debug {
+								if(selected_entry == null && debug_mode) {
+									selected_entry = CPM.IncomingDocListData.get(0);
+								}
+								// } @v12.2.12 @debug
 							}
 							done = true;
 							if(selected_entry != null) {
+								CPM.ResetCurrentDocument();
 								CPM.SetIncomingDocument(selected_entry);
 								SetupCurrentDocument(true, false);
 							}

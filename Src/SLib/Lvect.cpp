@@ -1,5 +1,5 @@
 // LVECT.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2007, 2008, 2010, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 2002, 2003, 2007, 2008, 2010, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -644,7 +644,7 @@ int inverse(LMatrix & a)
 		a = ai;
 		ret = 1;
 	}
-	delete [] p_indx; // @v9.8.4 @fix []
+	delete [] p_indx;
 	return ret;
 };
 //

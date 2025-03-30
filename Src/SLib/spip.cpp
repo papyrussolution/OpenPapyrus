@@ -326,9 +326,24 @@ bool S_WinSID::FromStr(const char * pText)
 //
 //
 //
+SVerT::SVerT() : V(0), R(0)
+{
+}
+
+SVerT::SVerT(int major, int minor)
+{
+	Set(major, minor, 0);
+}
+
 SVerT::SVerT(int j, int n, int r)
 {
 	Set(j, n, r);
+}
+
+SVerT & SVerT::Z()
+{
+	V = R = 0;
+	return *this;
 }
 
 SVerT::operator uint32() const
@@ -412,12 +427,29 @@ SString FASTCALL SVerT::ToStr(SString & rBuf) const
 	return rBuf.Z().CatDotTriplet(j, n, r);
 }
 
+SString SVerT::ToStr(uint fmt, SString & rBuf) const
+{	
+	rBuf.Z();
+	int    j, n, r;
+	Get(&j, &n, &r);
+	rBuf.Cat(j);
+	if(fmt & fmtMinorPadZero2)
+		rBuf.Dot().CatLongZ(n, 2);
+	else
+		rBuf.Dot().Cat(n);
+	if(!(fmt & fmtOmitZeroRelease))
+		rBuf.Dot().Cat(r);
+	return rBuf;
+}
+
 int FASTCALL SVerT::FromStr(const char * pStr)
 {
 	int    ok = 0;
 	Z();
 	if(!isempty(pStr)) {
-		int    j = 0, n = 0, r = 0;
+		int    j = 0;
+		int    n = 0;
+		int    r = 0;
 		SString temp_buf;
 		SStrScan scan(pStr);
 		if(scan.Skip().GetDigits(temp_buf)) {
@@ -442,6 +474,7 @@ int FASTCALL SVerT::FromStr(const char * pStr)
 			}
 		}
 	}
+	assert(ok != 0 || IsEmpty()); // @v12.2.12
 	return ok;
 }
 

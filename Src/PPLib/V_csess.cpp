@@ -212,7 +212,7 @@ int PPViewCSess::EditBaseFilt(PPBaseFilt * pBaseFilt)
 			GetClusterData(CTL_CSESSFILT_ORDER, &Data.InitOrder);
 			GetPeriodInput(this, sel = CTL_CSESSFILT_PERIOD, &Data.Period);
 			PosNodeCtrlGroup::Rec cn_rec;
-			THROW(ObjRts.AdjustCSessPeriod(Data.Period, 1)); // @v9.2.11
+			THROW(ObjRts.AdjustCSessPeriod(Data.Period, 1));
 			THROW(getGroupData(sel = ctlgroupPosNode, &cn_rec));
 			Data.NodeList_ = cn_rec.List;
 			getCtrlData(CTL_CSESSFILT_CASHN, &Data.CashNumber);
@@ -1565,8 +1565,7 @@ int PPViewCSess::CreateDraft(PPID ruleID, PPID sessID, const SString & rMsg1, co
 				else {
 					Goods2Tbl::Rec goods_rec;
 					if(g_obj.Fetch(p_crec->GoodsID, &goods_rec) <= 0) {
-						// @v9.7.0 if(g_obj.SearchByBarcode(CConfig.PrepayInvoiceGoodsCode, 0, &goods_rec) > 0)
-						if(g_obj.Search(CConfig.PrepayInvoiceGoodsID, &goods_rec) > 0) // @v9.7.0
+						if(g_obj.Search(CConfig.PrepayInvoiceGoodsID, &goods_rec) > 0)
 							p_crec->GoodsID = goods_rec.ID;
 					}
 					int    excl_ggrp = BIN(rule.Rec.Flags & PPDraftCreateRule::fExclGoodsGrp);
@@ -1696,7 +1695,6 @@ int PPViewCSess::CreateDraft(PPID ruleID, PPID sessID, const SString & rMsg1, co
 							new_doc_by_loc = 0;
 							ok = 1;
 						}
-						// @v9.5.3 (excess) b_pack.destroy();
 						THROW(b_pack.CreateBlank(rule.Rec.OpID, 0, loc_id, 0));
 						b_pack.Rec.LocID   = loc_id;
 						b_pack.Rec.Object  = rule.Rec.ArID;

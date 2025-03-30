@@ -1147,7 +1147,7 @@ int PPObjMrpTab::SetupRest(const MrpTabPacket * pPack, const MrpTabLeaf * pLeaf,
 				THROW(r = P_Tbl->SetRest(pLeaf->TabID, goods_id, 0, &dfct, 0));
 			}
 			else {
-				if(!(cflags & cfIgnoreRest) && !(r_dest_item.Flags & MRPLF_IGNOREREST)) { // @v9.1.8 !(r_dest_item.Flags & MRPLF_IGNOREREST)
+				if(!(cflags & cfIgnoreRest) && !(r_dest_item.Flags & MRPLF_IGNOREREST)) {
 					if(pPack) {
 						THROW(pPack->GetAvailGoodsRest(goods_id, pLeaf, &rest));
 					}
@@ -1249,7 +1249,7 @@ int MrpTabPacket::ProcessReq(const MrpTabLeaf * pLeaf, const MrpReqItem & rReq, 
 		rest_takenin = 1;
 	}
 	else {
-		if(!(cflags & PPObjMrpTab::cfIgnoreRest) && !(rReq.Flags & MRPLF_IGNOREREST)) { // @v9.1.7 && !(rReq.Flags & MRPLF_IGNOREREST)
+		if(!(cflags & PPObjMrpTab::cfIgnoreRest) && !(rReq.Flags & MRPLF_IGNOREREST)) {
 			THROW(GetAvailGoodsRest(rReq.GoodsID, pLeaf, &rest));
 		}
 	}

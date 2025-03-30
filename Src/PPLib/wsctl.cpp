@@ -1708,7 +1708,7 @@ int WsCtlSrvBlock::SendClientPolicy(const S_GUID & rComputerUuid, SString & rRes
 	PPGetPath(PPPATH_WORKSPACE, path);
 	path.SetLastSlash().Cat("wsctl");
 	{
-		(temp_buf = p_file_name_prefix).Dot().Cat("json");
+		(temp_buf = p_file_name_prefix).DotCat("json");
 		(default_file_name = path).SetLastSlash().Cat(temp_buf);
 	}
 	if(rComputerUuid.IsZero()) {
@@ -1718,7 +1718,7 @@ int WsCtlSrvBlock::SendClientPolicy(const S_GUID & rComputerUuid, SString & rRes
 		SFileEntryPool fep;
 		SFileEntryPool::Entry fe;
 		{
-			(temp_buf = p_file_name_prefix).CatChar('*').Dot().Cat("json");
+			(temp_buf = p_file_name_prefix).CatChar('*').DotCat("json");
 			fep.Scan(path, temp_buf, 0);
 		}
 		if(fep.GetCount()) {

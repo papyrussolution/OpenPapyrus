@@ -5344,7 +5344,6 @@ int IdentifyGoods(PPObjGoods * pGObj, SString & rBarcode, PPID * pGoodsID, Goods
 	}
 	ZDELETE(dlg);
 	if(valid_data && bht_obj.GetPacket(bht_id, &pack) > 0) {
-		//bool   is_debug = true;
 		long   s = 1;
 		long   timeout = 30000L;
 		SString dir, path;
@@ -5376,9 +5375,6 @@ int IdentifyGoods(PPObjGoods * pGObj, SString & rBarcode, PPID * pGoodsID, Goods
 		else if(bht_type == PPObjBHT::btSyntech) {
 			THROW(bht_obj.InitProtocol(bht_id, &cp));
 		}
-#ifdef NDEBUG
-		//is_debug = false;
-#endif
 		if(bht_type == PPObjBHT::btDenso && pack.ImpExpPath_.NotEmpty() && SFile::IsDir(pack.ImpExpPath_)) {
 			//PPGetPath(PPPATH_IN, dir);
 			(path = pack.ImpExpPath_.SetLastSlash()).Cat("bht?????.dat");

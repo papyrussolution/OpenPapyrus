@@ -705,18 +705,19 @@ int PPAccTurnTempl::CreateBaseProjectionAccturns(PPBillPacket * pPack)
 			if(r >= 0) {
 				PPAccTurn at = pattern_at;
 				for(uint j = 0; j < cur_list.getCount(); j++) {
-					PPID   cur_id   = cur_list.at(j);
+					const  PPID cur_id   = cur_list.at(j);
 					double temp_amt = 0.0;
 					if(Flags & ATTF_EXPRESSION) {
 						THROW(PPCalcExpression(Expr, &temp_amt, pPack, cur_id, elb.SubstAr));
 					}
-					else if(pPack->Rec.CurID == cur_id)
+					else if(pPack->Rec.CurID == cur_id) {
 						if(r == 1) {
 			   				if(&pPack->AdvList.Get(elb.Idx))
 								temp_amt = pPack->AdvList.Get(elb.Idx).Amount;
 						}
 						else
 							temp_amt = BR2(pPack->Rec.Amount);
+					}
 					at.Amount += R2(temp_amt);
 				}
 				if(Flags & ATTF_INTROUNDING)
@@ -786,8 +787,11 @@ int PPAccTurnTempl::CreateAccturns(PPBillPacket * pPack)
 						}
 						THROW(ok = SetupAccounts(param, cur_id, &at));
 					}
-					if(ok > 0)
-						THROW_SL(pPack->Turns.insert(&at));
+					if(ok > 0) {
+						if(at.DbtID == at.CrdID) { // @v12.2.12 Если с обеих сторон проводки стоит один и тот же терминальный счет, то такую проводку пропускаем.
+							THROW_SL(pPack->Turns.insert(&at));
+						}
+					}
 				}
 			} while((r = EnumerateExtLines(0, &elb)) != 0);
 		}
@@ -1009,6 +1013,7 @@ int PPAccTurnTempl::AccTemplFromStr(int side, const char * pBuf)
 // Диалог шаблона бухгалтерской проводки
 //
 class ATurnTmplDialog : public TDialog {
+	DECL_DIALOG_DATA(PPAccTurnTempl);
 public:
 	enum {
 		ctlgroupDbt = 1,
@@ -1017,40 +1022,103 @@ public:
 	ATurnTmplDialog(uint rezID, PPObjAccTurn * _ppobj) : TDialog(rezID), ppobj(_ppobj)
 	{
 		SetupCalPeriod(CTLCAL_ATRNTMPL_PERIOD, CTL_ATRNTMPL_PERIOD);
-		AcctCtrlGroup * p_acc_grp = 0;
 		// @v11.3.2 @obsolete setCtrlOption(CTL_ATRNTMPL_DTEXT,  ofFramed, 1);
 		// @v11.3.2 @obsolete setCtrlOption(CTL_ATRNTMPL_CTEXT,  ofFramed, 1);
 		// @v11.3.2 @obsolete setCtrlOption(CTL_ATRNTMPL_SFRAME, ofFramed, 1);
-		p_acc_grp = new AcctCtrlGroup(CTL_ATRNTMPL_DACC, CTL_ATRNTMPL_DART, CTLSEL_ATRNTMPL_DACCNAME, CTLSEL_ATRNTMPL_DARTNAME);
+		AcctCtrlGroup * p_acc_grp = new AcctCtrlGroup(CTL_ATRNTMPL_DACC, CTL_ATRNTMPL_DART, CTLSEL_ATRNTMPL_DACCNAME, CTLSEL_ATRNTMPL_DARTNAME);
 		addGroup(ctlgroupDbt, p_acc_grp);
 		p_acc_grp = new AcctCtrlGroup(CTL_ATRNTMPL_CACC, CTL_ATRNTMPL_CART, CTLSEL_ATRNTMPL_CACCNAME, CTLSEL_ATRNTMPL_CARTNAME);
 		addGroup(ctlgroupCrd, p_acc_grp);
 		setDTS(0);
 	}
-	int    setDTS(const PPAccTurnTempl *);
-	int    getDTS(PPAccTurnTempl *);
+	DECL_DIALOG_SETDTS()
+	{
+		SString prim_subst;
+		SString foreign_subst;
+		ushort v = 0;
+		AcctCtrlGroup::Rec rec;
+		if(!RVALUEPTR(Data, pData))
+			MEMSZERO(Data);
+		setFlags();
+		prim = (Data.Flags & ATTF_PRIMONCREDIT) ? PPCREDIT : PPDEBIT;
+		setCtrlData(CTL_ATRNTMPL_AMOUNT, Data.Expr);
+		getSheetOfAcc(&(rec.AcctId = Data.DbtID), &rec.AccSheetID);
+		rec.AccSelParam = ACY_SEL_BALOBALALIAS;
+		setGroupData(ctlgroupDbt, &rec);
+		getSheetOfAcc(&(rec.AcctId = Data.CrdID), &rec.AccSheetID);
+		setGroupData(ctlgroupCrd, &rec);
+		Data.SubstToStrings(prim_subst, foreign_subst);
+		setCtrlString(CTL_ATRNTMPL_PSUBST, prim_subst);
+		setCtrlString(CTL_ATRNTMPL_FSUBST, foreign_subst);
+		AddClusterAssoc(CTL_ATRNTMPL_SKIPNEG, 0, ATTF_SKIPNEG);
+		AddClusterAssoc(CTL_ATRNTMPL_SKIPNEG, 1, ATTF_INVERTNEG);
+		AddClusterAssoc(CTL_ATRNTMPL_SKIPNEG, 2, ATTF_BASEPROJECTION);
+		AddClusterAssoc(CTL_ATRNTMPL_SKIPNEG, 3, ATTF_INTROUNDING);
+		AddClusterAssoc(CTL_ATRNTMPL_SKIPNEG, 4, ATTF_PASSIVE);
+		AddClusterAssoc(CTL_ATRNTMPL_SKIPNEG, 5, ATTF_BYADVLINES);
+		AddClusterAssoc(CTL_ATRNTMPL_SKIPNEG, 6, ATTF_SKIPEMPTYALIAS);
+		SetClusterData(CTL_ATRNTMPL_SKIPNEG, Data.Flags);
+		SetPeriodInput(this, CTL_ATRNTMPL_PERIOD, &Data.Period);
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		char   prim_subst[256];
+		char   foreign_subst[256];
+		ushort v = 0;
+		AcctCtrlGroup::Rec dbt_acc_rec, crd_acc_rec;
+		getFlags();
+		THROW(getGroupData(ctlgroupDbt, &dbt_acc_rec));
+		Data.DbtID = dbt_acc_rec.AcctId;
+		THROW(getGroupData(ctlgroupCrd, &crd_acc_rec));
+		Data.CrdID = crd_acc_rec.AcctId;
+		selectCtrl(CTL_ATRNTMPL_AMOUNT);
+		getCtrlData(CTL_ATRNTMPL_AMOUNT, Data.Expr);
+		if(dbt_acc_rec.AccType != ACY_ALIAS && crd_acc_rec.AccType != ACY_ALIAS) {
+			if(oneof2(dbt_acc_rec.AccType, ACY_OBAL, ACY_REGISTER)) {
+				THROW_PP(!crd_acc_rec.AcctId.ac || crd_acc_rec.AccType != ACY_BAL, PPERR_INVACCTYPEPAIR);
+			}
+		}
+		if(oneof2(dbt_acc_rec.AccType, ACY_OBAL, ACY_REGISTER) && crd_acc_rec.AcctId.ac == 0)
+			Data.Flags |= ATTF_CACCFIX;
+		if(*strip(Data.Expr)) {
+			Data.Flags |= ATTF_EXPRESSION;
+			THROW_PP(Data.Flags & (ATTF_DACCFIX | ATTF_CACCFIX), PPERR_ATTMUSTBEFIX);
+		}
+		else
+			Data.Flags &= ~ATTF_EXPRESSION;
+		getCtrlData(CTL_ATRNTMPL_PSUBST, prim_subst);
+		getCtrlData(CTL_ATRNTMPL_FSUBST, foreign_subst);
+		THROW(Data.SetupSubst(prim_subst, foreign_subst));
+		GetClusterData(CTL_ATRNTMPL_SKIPNEG, &Data.Flags);
+		THROW(GetPeriodInput(this, CTL_ATRNTMPL_PERIOD, &Data.Period));
+		CATCH
+			return PPErrorZ();
+		ENDCATCH
+		ASSIGN_PTR(pData, Data);
+		return 1;
+	}
 	PPObjAccTurn * ppobj;
-	PPAccTurnTempl data;
 private:
 	DECL_HANDLE_EVENT;
 	void   symbToFormula(const char * pSymb);
 	void   setFlags()
 	{
-		setCtrlUInt16(CTL_ATRNTMPL_PRIMARY, BIN(data.Flags & ATTF_PRIMONCREDIT));
+		setCtrlUInt16(CTL_ATRNTMPL_PRIMARY, BIN(Data.Flags & ATTF_PRIMONCREDIT));
 		AddClusterAssoc(CTL_ATRNTMPL_DFIX, 0, ATTF_DACCFIX);
 		AddClusterAssoc(CTL_ATRNTMPL_DFIX, 1, ATTF_DARTFIX);
-		SetClusterData(CTL_ATRNTMPL_DFIX, data.Flags);
+		SetClusterData(CTL_ATRNTMPL_DFIX, Data.Flags);
 		AddClusterAssoc(CTL_ATRNTMPL_CFIX, 0, ATTF_CACCFIX);
 		AddClusterAssoc(CTL_ATRNTMPL_CFIX, 1, ATTF_CARTFIX);
-		SetClusterData(CTL_ATRNTMPL_CFIX, data.Flags);
+		SetClusterData(CTL_ATRNTMPL_CFIX, Data.Flags);
 	}
 	void   getFlags()
 	{
-		data.Flags = 0;
+		Data.Flags = 0;
 		const ushort v = getCtrlUInt16(CTL_ATRNTMPL_PRIMARY);
-		SETFLAG(data.Flags, ATTF_PRIMONCREDIT, v);
-		GetClusterData(CTL_ATRNTMPL_DFIX, &data.Flags);
-		GetClusterData(CTL_ATRNTMPL_CFIX, &data.Flags);
+		SETFLAG(Data.Flags, ATTF_PRIMONCREDIT, v);
+		GetClusterData(CTL_ATRNTMPL_DFIX, &Data.Flags);
+		GetClusterData(CTL_ATRNTMPL_CFIX, &Data.Flags);
 	}
 	int    getSheetOfAcc(AcctID * pAcctId, PPID * pAcsID)
 	{
@@ -1119,73 +1187,6 @@ IMPL_HANDLE_EVENT(ATurnTmplDialog)
 		}
 		clearEvent(event);
 	}
-}
-
-int ATurnTmplDialog::setDTS(const PPAccTurnTempl * pData)
-{
-	SString prim_subst, foreign_subst;
-	ushort v = 0;
-	AcctCtrlGroup::Rec rec;
-	if(!RVALUEPTR(data, pData))
-		MEMSZERO(data);
-	setFlags();
-	prim = (data.Flags & ATTF_PRIMONCREDIT) ? PPCREDIT : PPDEBIT;
-	setCtrlData(CTL_ATRNTMPL_AMOUNT, data.Expr);
-	getSheetOfAcc(&(rec.AcctId = data.DbtID), &rec.AccSheetID);
-	rec.AccSelParam = ACY_SEL_BALOBALALIAS;
-	setGroupData(ctlgroupDbt, &rec);
-	getSheetOfAcc(&(rec.AcctId = data.CrdID), &rec.AccSheetID);
-	setGroupData(ctlgroupCrd, &rec);
-	data.SubstToStrings(prim_subst, foreign_subst);
-	setCtrlString(CTL_ATRNTMPL_PSUBST, prim_subst);
-	setCtrlString(CTL_ATRNTMPL_FSUBST, foreign_subst);
-	AddClusterAssoc(CTL_ATRNTMPL_SKIPNEG, 0, ATTF_SKIPNEG);
-	AddClusterAssoc(CTL_ATRNTMPL_SKIPNEG, 1, ATTF_INVERTNEG);
-	AddClusterAssoc(CTL_ATRNTMPL_SKIPNEG, 2, ATTF_BASEPROJECTION);
-	AddClusterAssoc(CTL_ATRNTMPL_SKIPNEG, 3, ATTF_INTROUNDING);
-	AddClusterAssoc(CTL_ATRNTMPL_SKIPNEG, 4, ATTF_PASSIVE);
-	AddClusterAssoc(CTL_ATRNTMPL_SKIPNEG, 5, ATTF_BYADVLINES);
-	AddClusterAssoc(CTL_ATRNTMPL_SKIPNEG, 6, ATTF_SKIPEMPTYALIAS);
-	SetClusterData(CTL_ATRNTMPL_SKIPNEG, data.Flags);
-	SetPeriodInput(this, CTL_ATRNTMPL_PERIOD, &data.Period);
-	return 1;
-}
-
-int ATurnTmplDialog::getDTS(PPAccTurnTempl * pData)
-{
-	char   prim_subst[256], foreign_subst[256];
-	ushort v = 0;
-	AcctCtrlGroup::Rec dbt_acc_rec, crd_acc_rec;
-	getFlags();
-	THROW(getGroupData(ctlgroupDbt, &dbt_acc_rec));
-	data.DbtID = dbt_acc_rec.AcctId;
-	THROW(getGroupData(ctlgroupCrd, &crd_acc_rec));
-	data.CrdID = crd_acc_rec.AcctId;
-	selectCtrl(CTL_ATRNTMPL_AMOUNT);
-	getCtrlData(CTL_ATRNTMPL_AMOUNT, data.Expr);
-	if(dbt_acc_rec.AccType != ACY_ALIAS && crd_acc_rec.AccType != ACY_ALIAS) {
-		if(oneof2(dbt_acc_rec.AccType, ACY_OBAL, ACY_REGISTER)) {
-			THROW_PP(!crd_acc_rec.AcctId.ac || crd_acc_rec.AccType != ACY_BAL, PPERR_INVACCTYPEPAIR);
-		}
-	}
-	if(oneof2(dbt_acc_rec.AccType, ACY_OBAL, ACY_REGISTER) && crd_acc_rec.AcctId.ac == 0)
-		data.Flags |= ATTF_CACCFIX;
-	if(*strip(data.Expr)) {
-		data.Flags |= ATTF_EXPRESSION;
-		THROW_PP(data.Flags & (ATTF_DACCFIX | ATTF_CACCFIX), PPERR_ATTMUSTBEFIX);
-	}
-	else
-		data.Flags &= ~ATTF_EXPRESSION;
-	getCtrlData(CTL_ATRNTMPL_PSUBST, prim_subst);
-	getCtrlData(CTL_ATRNTMPL_FSUBST, foreign_subst);
-	THROW(data.SetupSubst(prim_subst, foreign_subst));
-	GetClusterData(CTL_ATRNTMPL_SKIPNEG, &data.Flags);
-	THROW(GetPeriodInput(this, CTL_ATRNTMPL_PERIOD, &data.Period));
-	CATCH
-		return PPErrorZ();
-	ENDCATCH
-	*pData = data;
-	return 1;
 }
 
 int EditAccTurnTemplate(PPObjAccTurn * pObj, PPAccTurnTempl * pData) { DIALOG_PROC_BODY_P2(ATurnTmplDialog, DLG_ATRNTMPL, pObj, pData); }

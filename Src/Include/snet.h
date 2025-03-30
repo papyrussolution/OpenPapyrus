@@ -1,5 +1,5 @@
 // SNET.H
-// Copyright (c) A.Sobolev 2005, 2007, 2010, 2012, 2013, 2014, 2015, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 2005, 2007, 2010, 2012, 2013, 2014, 2015, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #ifndef __SNET_H
@@ -614,8 +614,8 @@ struct SMailMessage : SStrGroup {
 		fldSubj,
 		fldBoundary,
 		fldText,
-		fldCc, // @v8.9.11 Адреса для копий письма
-		fldMailer // @v9.8.4
+		fldCc,    // Адреса для копий письма
+		fldMailer //
 	};
 	enum {
 		fPpyOrder  = 0x0001, // Заказ Albatros

@@ -1798,7 +1798,7 @@ int SrUedContainer_Base::ProcessProperties()
 	SDirEntry de;
 	SFsPath ps;
 	MakeUedCanonicalName(canonfn, fn_wc, 0);
-	(temp_buf = pPath).Strip().SetLastSlash().Cat(fn_wc).Dot().Cat("dat");
+	(temp_buf = pPath).Strip().SetLastSlash().Cat(fn_wc).DotCat("dat");
 	for(SDirec sd(temp_buf, 0); sd.Next(&de) > 0;) {
 		if(de.IsFile()) {
 			ss.Z();
@@ -2287,7 +2287,7 @@ int SrUedContainer_Base::Verify(const char * pPath, long ver, SBinaryChunk * pHa
 		SString file_path;
 		SString hash_file_path;
 		binary256 hash;
-		(file_path = pPath).SetLastSlash().Cat(temp_buf).Dot().Cat("dat");
+		(file_path = pPath).SetLastSlash().Cat(temp_buf).DotCat("dat");
 		THROW_SL(fileExists(file_path));
 		(hash_file_path = pPath).SetLastSlash().Cat(temp_buf);
 		SlHash::GetAlgorithmSymb(SHASHF_SHA256, temp_buf);

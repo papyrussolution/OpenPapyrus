@@ -516,7 +516,7 @@ int BDictionary::RecoverTable(BTBLID tblID, BRecoverParam * pParam)
 					SFsPath sp(buf);
 					sp.Merge(~SFsPath::fExt, temp_buf);
 					sp.Split(spart);
-					temp_buf.Dot().Cat(sp.Ext);
+					temp_buf.DotCat(sp.Ext);
 				}
 				SFile::Rename(spart, temp_buf);
 			}

@@ -3473,37 +3473,6 @@ struct EgaisGoodsNameReplacement {
 	const char * P_Subst;
 };
 
-/* @v9.7.5 Заменено на использование общей технологии (особенно, из-за перехода на utf8 кодировку исходных кодов)
-static EgaisGoodsNameReplacement _GoodsNameReplacement[] = {
-	{ "красное", "красн" },
-	{ "полусухое", "полусух" },
-	{ "полусладкое", "полуслад" },
-	{ "защищенного наименования места происхождения", " "},
-	{ "защищенного географического указания", " " },
-	{ "с защищенным географическим указанием", " " },
-	{ "защищенного географического названия", " " },
-	{ "географического указания", " " },
-	{ "с защищенным наименованием места происхождения", " " },
-	{ "напиток ароматизированный, изготовленный на основе пива", "пивной напиток ароматизированный" },
-	{ "напиток, изготовленный на основе пива", "пивной напиток" },
-	{ "изготовленный на основе пива", "на основе пива" },
-	{ "объемная доля этилового спирта", " " },
-	{ "в алюминиевых банках вместимостью", "банка" },
-	{ "сидр фруктовый ароматизированный газированный", "сидр фруктовый ароматиз газ" },
-	{ "блейзер стронг ( blazer strong)", " блейзер стронг " },
-	{ "<блейзер> (<blazer>)", "блейзер" },
-	{ "<марти рэй> (<marty ray>)", "марти рэй" },
-    { "со вкусом", "вкус" },
-	{ "пастеризованный", "пастериз" },
-	{ "из полиэтилентерефталата", "пэтф" },
-	{ "нефильтрованное", "нефильтр" },
-	{ "пастеризованное", "пастер" },
-	{ "hefe-weissier naturtrub (пауланер хефе-вайссбир натуртрюб)", "hefe-weissier naturtrub" },
-	{ "\"", " " },
-	{ " ,", "," },
-	{ "  ", " " }
-};*/
-
 SString & FASTCALL PPEgaisProcessor::PreprocessGoodsName(SString & rName) const
 {
 	rName.Strip();
@@ -3515,12 +3484,6 @@ SString & FASTCALL PPEgaisProcessor::PreprocessGoodsName(SString & rName) const
 		}
 		rName.Transf(CTRANSF_INNER_TO_OUTER);
 	}
-	/*
-	rName.Strip().ToLower1251();
-	for(uint i = 0; i < SIZEOFARRAY(_GoodsNameReplacement); i++)
-        rName.ReplaceStr(_GoodsNameReplacement[i].P_Pattern, _GoodsNameReplacement[i].P_Subst, 0);
-	return rName.Strip();
-	*/
 	return rName;
 }
 
@@ -11040,11 +11003,7 @@ int EgaisMarkAutoSelector::GetRecentEgaisStock(TSVector <RefBEntry> & rResultLis
 		PPObjBill * p_bobj = BillObj;
 		BillCore * p_billc = p_bobj->P_Tbl;
 		ObjTagCore & r_tagc = PPRef->Ot;
-#ifdef NDEBUG
-		const long back_days = 1;
-#else
-		const long back_days = 60;
-#endif
+		const long back_days = SlDebugMode::CT() ? 60 : 1;
 		const char * p_code_suffix = "-R1";
 		PPIDArray loc_list;
 		LAssocArray loc_to_date_list;

@@ -2967,8 +2967,8 @@ int PPViewBill::CellStyleFunc_(const void * pData, long col, int paintAction, Br
 
 DBQuery * PPViewBill::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
-	const int use_omt_paymamt = BIN(CConfig.Flags2 & CCFLG2_USEOMTPAYMAMT);
-	PPID   single_loc_id = LocList_.getSingle();
+	const int  use_omt_paymamt = BIN(CConfig.Flags2 & CCFLG2_USEOMTPAYMAMT);
+	const PPID single_loc_id = LocList_.getSingle();
 	BillTbl  * bll  = 0;
 	TempBillTbl   * bllt = 0;
 	TempOrderTbl  * ordt = 0;
@@ -3612,12 +3612,12 @@ static int SelectAddByOrderAction(SelAddBySampleParam * pData, int allowBulkMode
 			WinRegKey reg_key(HKEY_CURRENT_USER, PPConst::WrKey_PrefSettings, 1);
 			SString param;
 			SString temp_buf;
-			PPID   op_id = getCtrlLong(CTLSEL_SELBBSMPL_OP);
+			const  PPID op_id = getCtrlLong(CTLSEL_SELBBSMPL_OP);
 			long   action = 0;
 			GetClusterData(CTL_SELBBSMPL_WHAT, &action);
 			(param = WrParam_StoreFlags).CatChar('-').Cat(op_id).CatChar('-').Cat(action);
 			if(reg_key.GetString(param, temp_buf)) {
-				long rf = satoi(temp_buf);
+				const long rf = satoi(temp_buf);
 				SETFLAGBYSAMPLE(Data.Flags, SelAddBySampleParam::fCopyBillCode, rf);
 				SETFLAGBYSAMPLE(Data.Flags, SelAddBySampleParam::fRcptAllOnShipm, rf);
 				SETFLAGBYSAMPLE(Data.Flags, SelAddBySampleParam::fRcptDfctOnShipm, rf); // @v12.0.7
@@ -5351,10 +5351,7 @@ struct PrvdrDllLink {
 
 int WriteBill_ExportMarks(const PPBillImpExpParam & rParam, const PPBillPacket & rBp, const SString & rFileName, SString & rResultFileName); // @prototype
 
-static bool IsByEmailAddrByContext(const SString & rBuf)
-{
-	return (rBuf.IsEqiAscii("@bycontext") || rBuf == "@@");
-}
+static bool IsByEmailAddrByContext(const SString & rBuf) { return (rBuf.IsEqiAscii("@bycontext") || rBuf == "@@"); }
 
 int PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, const PPBillImpExpParam * pBRowParam)
 {
@@ -5409,22 +5406,20 @@ int PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, const PPBi
 			const StrAssocArray inet_addr_list = b_e.Tp.AddrList;
 			// @v11.8.6 PPID  fix_tag_id = 0; // @v11.5.6
 			// @v11.8.6 PPObjectTag fix_tag_rec;
-			int   use_mail_addr_by_context = 0;
+			bool   use_mail_addr_by_context = false;
 			SString email_buf;
-			SString mail_subj = b_e.Tp.Subject;
+			SString mail_subj(b_e.Tp.Subject);
 			mail_subj.SetIfEmpty("No Subject").Transf(CTRANSF_INNER_TO_UTF8);
 			if(inet_acc_id && inet_addr_list.getCount()) {
 				for(uint ai = 0; !use_mail_addr_by_context && ai < inet_addr_list.getCount(); ai++) {
 					temp_buf = inet_addr_list.Get(ai).Txt;
 					if(IsByEmailAddrByContext(temp_buf))
-						use_mail_addr_by_context = 1;
+						use_mail_addr_by_context = true;
 				}
 			}
 			//
-			PPBillImpExpParam bill_param;
-			PPBillImpExpParam brow_param;
-			bill_param = b_e.BillParam;
-			brow_param = b_e.BRowParam;
+			PPBillImpExpParam bill_param(b_e.BillParam);
+			PPBillImpExpParam brow_param(b_e.BRowParam);
 			if(b_e.GetIEBill())
 				bill_param.FileName = b_e.GetIEBill()->GetPreservedOrgFileName();
 			if(b_e.GetIEBRow())
@@ -5497,13 +5492,10 @@ int PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, const PPBi
 									if(is_exp_correction) {
 										DocNalogRu_WriteBillBlock _blk(b_e.BillParam, pack, "ON_NKORSCHFDOPPR", nominal_file_name);
 										r = _blk.Do_CorrInvoice(result_file_name_);
-										//r = WriteBill_NalogRu2_CorrInvoice(b_e.BillParam, pack, "ON_NKORSCHFDOPPR", nominal_file_name, result_file_name_); // @v11.7.0
 									}
 									else {
-										const char * p_header_symb = pack_has_marks ? "ON_NSCHFDOPPRMARK" : "ON_NSCHFDOPPR";
-										DocNalogRu_WriteBillBlock _blk(b_e.BillParam, pack, p_header_symb, nominal_file_name);
+										DocNalogRu_WriteBillBlock _blk(b_e.BillParam, pack, (pack_has_marks ? "ON_NSCHFDOPPRMARK" : "ON_NSCHFDOPPR"), nominal_file_name);
 										r = _blk.Do_Invoice2(result_file_name_);
-										//r = WriteBill_NalogRu2_Invoice2(b_e.BillParam, pack, p_header_symb, nominal_file_name, result_file_name_);
 									}
 								}
 								else { // } @v11.2.2 
@@ -5512,25 +5504,20 @@ int PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, const PPBi
 											{
 												DocNalogRu_WriteBillBlock _blk(b_e.BillParam, pack, "ON_SFAKT", nominal_file_name);
 												r = _blk.IsValid() ? _blk.Do_Invoice(result_file_name_) : 0;
-												//r = WriteBill_NalogRu2_Invoice(b_e.BillParam, pack, nominal_file_name, result_file_name_); 
 											}
 											break;
 										case piefNalogR_REZRUISP: 
 											{
 												DocNalogRu_WriteBillBlock _blk(b_e.BillParam, pack, "DP_REZRUISP", nominal_file_name);
 												r = _blk.IsValid() ? _blk.Do_Invoice(result_file_name_) : 0;
-												//r = WriteBill_NalogRu2_DP_REZRUISP(b_e.BillParam, pack, nominal_file_name, result_file_name_); 
 											}
 											break;
 										case piefNalogR_SCHFDOPPR: 
 											{
 												DocNalogRu_WriteBillBlock _blk(b_e.BillParam, pack, "ON_NSCHFDOPPR", nominal_file_name);
 												r = _blk.IsValid() ? _blk.Do_UPD(result_file_name_) : 0;
-												//r = WriteBill_NalogRu2_UPD(b_e.BillParam, pack, nominal_file_name, result_file_name_); 
 											}
 											break;
-										//case piefNalogR_ON_NSCHFDOPPRMARK: r = WriteBill_NalogRu2_Invoice2(b_e.BillParam, pack, "ON_NSCHFDOPPRMARK", nominal_file_name, result_file_name_); break;
-										//case piefNalogR_ON_NSCHFDOPPR: r = WriteBill_NalogRu2_Invoice2(b_e.BillParam, pack, "ON_NSCHFDOPPR", nominal_file_name, result_file_name_); break; // @v11.2.1
 										case piefExport_Marks: // @erik 
 											r = WriteBill_ExportMarks(b_e.BillParam, pack, nominal_file_name, result_file_name_); 
 											break; 
@@ -5538,7 +5525,6 @@ int PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, const PPBi
 											{
 												DocNalogRu_WriteBillBlock _blk(b_e.BillParam, pack, "ON_NKORSCHFDOPPR", nominal_file_name);
 												r = _blk.IsValid() ? _blk.Do_CorrInvoice(result_file_name_) : 0;
-												//r = WriteBill_NalogRu2_CorrInvoice(b_e.BillParam, pack, 0, nominal_file_name, result_file_name_); 
 											}
 											break;
 									}

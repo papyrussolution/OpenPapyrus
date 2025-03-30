@@ -3758,15 +3758,14 @@ static int temme_ik_series(double v, double x, double * K, double * K1)
 	if(k == MAXITER) {
 		mtherr("ikv_temme(temme_ik_series)", MTHERR_TLPREC);
 	}
-
 	*K = sum;
 	*K1 = 2 * sum1 / x;
-
 	return 0;
 }
-
-/* Evaluate continued fraction fv = I_(v+1) / I_v, derived from
- * Abramowitz and Stegun, Handbook of Mathematical Functions, 1972, 9.1.73 */
+//
+// Evaluate continued fraction fv = I_(v+1) / I_v, derived from
+// Abramowitz and Stegun, Handbook of Mathematical Functions, 1972, 9.1.73 
+//
 static int CF1_ik(double v, double x, double * fv)
 {
 	double C, D, f, a, b, delta, tiny, tolerance;
@@ -3804,12 +3803,9 @@ static int CF1_ik(double v, double x, double * fv)
 	if(k == MAXITER) {
 		mtherr("ikv_temme(CF1_ik)", MTHERR_TLPREC);
 	}
-
 	*fv = f;
-
 	return 0;
 }
-
 /*
  * Calculate K(v, x) and K(v+1, x) by evaluating continued fraction
  * z1 / z0 = U(v+1.5, 2v+1, 2x) / U(v+0.5, 2v+1, 2x), see
@@ -3926,10 +3922,10 @@ static void ikv_temme(double v, double x, double * Iv_p, double * Kv_p)
 	}
 	/* x is positive until reflection */
 	W = 1 / x; /* Wronskian */
-	if(x <= 2) {            /* x in (0, 2] */
+	if(x <= 2) { /* x in (0, 2] */
 		temme_ik_series(u, x, &Ku, &Ku1); /* Temme series */
 	}
-	else {                  /* x in (2, \infty) */
+	else { /* x in (2, \infty) */
 		CF2_ik(u, x, &Ku, &Ku1); /* continued fraction CF2_ik */
 	}
 	prev = Ku;
@@ -3980,7 +3976,6 @@ static void ikv_temme(double v, double x, double * Iv_p, double * Kv_p)
  * End of code supporting besin(n,x)
  * ===================== BESIN =====================
  */
-
 /*
  * ==================== INCBET =====================
  * Start implementation of incbet(a,b, z)
@@ -3988,13 +3983,10 @@ static void ikv_temme(double v, double x, double * Iv_p, double * Kv_p)
  * adapted from Cephes library release 2.8
  * This feature can be disabled by undefining INCBET.
  */
-
 #ifdef INCBET
-
 /*
  * begin wrapper/adaptation for use in gnuplot
  */
-
 /* NB: these are log(2**127) and log (2**-128)
  *      but this is very conservative for IEEE math
  */
@@ -4146,26 +4138,20 @@ double incbet(double aa, double bb, double xx)
 		t = 0.0;
 	else
 		t = exp(y);
-
 done:
-
 	if(reflection)
 		t = (t <= MACHEP) ?  1.0 - MACHEP :  1.0 - t;
-
 	return t;
 }
-
 /* Continued fraction expansion #1
  * for incomplete beta integral
  */
-
 static double incbcf(double a, double b, double x)
 {
 	double xk, pk, pkm1, pkm2, qk, qkm1, qkm2;
 	double k1, k2, k3, k4, k5, k6, k7, k8;
 	double r, t, ans, thresh;
 	int n;
-
 	k1 = a;
 	k2 = a + b;
 	k3 = a;
@@ -4174,7 +4160,6 @@ static double incbcf(double a, double b, double x)
 	k6 = b - 1.0;
 	k7 = k4;
 	k8 = a + 2.0;
-
 	pkm2 = 0.0;
 	qkm2 = 1.0;
 	pkm1 = 1.0;

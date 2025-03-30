@@ -144,7 +144,7 @@ CCheckFilt & FASTCALL CCheckFilt::operator = (const CCheckFilt & src)
 			CCheckFilt_v3() : PPBaseFilt(PPFILT_CCHECK, 0, 3)
 			{
 				SetFlatChunk(offsetof(CCheckFilt_v3, ReserveStart), offsetof(CCheckFilt_v3, SessIDList)-offsetof(CCheckFilt_v3, ReserveStart));
-				SetBranchSVector(offsetof(CCheckFilt_v3, SessIDList)); // @v9.8.4 SetBranchSArray-->SetBranchSVector
+				SetBranchSVector(offsetof(CCheckFilt_v3, SessIDList));
 				SetBranchObjIdListFilt(offsetof(CCheckFilt_v3, NodeList));
 				SetBranchObjIdListFilt(offsetof(CCheckFilt_v3, CorrGoodsList));
 				SetBranchObjIdListFilt(offsetof(CCheckFilt_v3, CtValList));
@@ -578,7 +578,7 @@ public:
 			Data.NodeList = cn_rec.List;
 		}
 		getCtrlData(CTL_CCHECKFLT_CASHN, &Data.CashNumber);
-		Data.CodeR.Set(0); // @v9.6.8 при пустой строке диапазон не меняется
+		Data.CodeR.Set(0); // при пустой строке диапазон не меняется
 		GetIntRangeInput(this, CTL_CCHECKFLT_CODERANGE, &Data.CodeR);
 		GetClusterData(CTL_CCHECKFLT_FLAGS, &Data.Flags);
 		GetClusterData(CTL_CCHECKFLT_FLAGS2, &Data.Flags2); // @v11.9.1
@@ -787,10 +787,9 @@ int FASTCALL PPViewCCheck::CheckForFilt(const CCheckTbl::Rec * pRec, const CChec
 				return 0;
 			else if(ff_ & CCheckFilt::fCTableStatus && !(f & (CCHKF_SUSPENDED|CCHKF_ORDER)))
 				return 0;
-			// @v9.7.11 дополнение по состоянию stSkipUnprinted
 			else if(ff_ & CCheckFilt::fWithoutSkipTag && ((f & CCHKF_SKIP) || (State & stSkipUnprinted && !(f & CCHKF_PRINTED))))
 				return 0;
-			else if(ff_ & CCheckFilt::fNotSpFinished && f & CCHKF_SPFINISHED) // @v9.7.5
+			else if(ff_ & CCheckFilt::fNotSpFinished && f & CCHKF_SPFINISHED)
 				return 0;
 			else if(Filt.WeekDays && !(Filt.WeekDays & (1 << dayofweek(&pRec->Dt, 0))))
 				return 0;
@@ -2531,12 +2530,10 @@ DBQuery * PPViewCCheck::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 				dbq = ppcheckflag(dbq, t->Flags, CCHKF_CLOSEDORDER, (Filt.Flags & CCheckFilt::fDlvrOutstandOnly) ? -1 : 0);
 				{
 					dbq = ppcheckflag(dbq, t->Flags, CCHKF_SKIP, (Filt.Flags & CCheckFilt::fWithoutSkipTag) ? -1 : 0);
-					// @v9.7.11 {
 					if(State & stSkipUnprinted)
 						dbq = ppcheckflag(dbq, t->Flags, CCHKF_PRINTED, (Filt.Flags & CCheckFilt::fWithoutSkipTag) ? 1 : 0);
-					// } @v9.7.11
 				}
-				dbq = ppcheckflag(dbq, t->Flags, CCHKF_SPFINISHED, (Filt.Flags & CCheckFilt::fNotSpFinished) ? -1 : 0); // @v9.7.5
+				dbq = ppcheckflag(dbq, t->Flags, CCHKF_SPFINISHED, (Filt.Flags & CCheckFilt::fNotSpFinished) ? -1 : 0);
 				dbq = &(*dbq && intrange(t->Code, Filt.CodeR));
 				if(!Filt.PcntR.IsZero()) {
 					PPDbqFuncPool::InitPctFunc(dbe_pctdis, t->Discount, t->Amount, 1); // @pctdis
@@ -3840,7 +3837,7 @@ public:
 		setCtrlData(CTL_CCHECKINFO_TIME,     &Data.Rec.Tm);
 		setCtrlData(CTL_CCHECKINFO_AMOUNT,   Data.Rec.Amount);
 		setCtrlData(CTL_CCHECKINFO_DSCNT,    Data.Rec.Discount);
-		setCtrlReal(CTL_CCHECKINFO_ADDPAYM,  0.0); // @v9.0.4 fdiv100i(Data.Ext.AddPaym)-->0.0
+		setCtrlReal(CTL_CCHECKINFO_ADDPAYM,  0.0);
 		if((!Data.Rec.SessID || CsObj.Search(Data.Rec.SessID, &csess_rec) <= 0) && PPMaster) {
 			//
 			// Если ИД сессии равен нулю или сессия не найдена и работает master,
@@ -4940,12 +4937,9 @@ int PPALDD_CCheckDetail::InitData(PPFilt & rFilt, long rsrv)
 				p_addr = &loc_rec;
 		}
 		if(p_addr) {
-			LocationCore::GetExField(p_addr, LOCEXSTR_SHORTADDR, temp_buf);
-			temp_buf.CopyTo(H.DlvrAddr, sizeof(H.DlvrAddr));
-			LocationCore::GetExField(p_addr, LOCEXSTR_PHONE, temp_buf);
-			temp_buf.CopyTo(H.DlvrPhone, sizeof(H.DlvrPhone));
-			LocationCore::GetExField(p_addr, LOCEXSTR_CONTACT, temp_buf);
-			temp_buf.CopyTo(H.DlvrContact, sizeof(H.DlvrContact));
+			LocationCore::GetExFieldS(p_addr, LOCEXSTR_SHORTADDR, temp_buf).CopyTo(H.DlvrAddr, sizeof(H.DlvrAddr));
+			LocationCore::GetExFieldS(p_addr, LOCEXSTR_PHONE, temp_buf).CopyTo(H.DlvrPhone, sizeof(H.DlvrPhone));
+			LocationCore::GetExFieldS(p_addr, LOCEXSTR_CONTACT, temp_buf).CopyTo(H.DlvrContact, sizeof(H.DlvrContact));
 		}
 	}
 	pack.MakeBarcodeIdent(temp_buf).CopyTo(H.OrderCode, sizeof(H.OrderCode));

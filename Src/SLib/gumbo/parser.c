@@ -1665,10 +1665,8 @@ static void merge_attributes(GumboParser * parser, GumboToken* token, GumboNode*
 	// transferred need to be nulled-out in the vector above so that they aren't
 	// double-deleted.
 	gumbo_token_destroy(token);
-
 #ifndef NDEBUG
-	// Mark this sentinel so the assertion in the main loop knows it's been
-	// destroyed.
+	// Mark this sentinel so the assertion in the main loop knows it's been destroyed.
 	token->v.start_tag.attributes = kGumboEmptyVector;
 #endif
 }

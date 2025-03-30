@@ -3969,7 +3969,7 @@ void PPViewGoods::Test_EgaisMarkAutoSelector(PPID goodsID)
 			SString temp_buf;
 			SString line_buf;
 			SString file_name;
-			(file_name = "test-EgaisMarkAutoSelector").CatChar('-').Cat(goodsID).Dot().Cat("out");
+			(file_name = "test-EgaisMarkAutoSelector").CatChar('-').Cat(goodsID).DotCat("out");
 			PPGetFilePath(PPPATH_OUT, file_name, temp_buf);
 			SFile f_out(temp_buf, SFile::mWrite);
 			GetGoodsName(goodsID, temp_buf);

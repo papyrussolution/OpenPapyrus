@@ -621,8 +621,9 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, bool goodsIdAsArticle, 
 		rResultFileName = temp_buf;
 	}
 	p_writer->StartElement("goods-catalog");
-	int    last_goods_export = 0, iter_end = 0;
-	const int ignore_lookbackprices = CheckCnExtFlag(CASHFX_IGNLOOKBACKPRICES);
+	int    last_goods_export = 0;
+	int    iter_end = 0;
+	const  bool ignore_lookbackprices = CheckCnExtFlag(CASHFX_IGNLOOKBACKPRICES);
 	while((iter_end = pGoodsIter->Next(&rGoodsInfo)) > 0 || !last_goods_export) {
 		if(iter_end <= 0)
 			last_goods_export = 1;
@@ -898,7 +899,9 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, bool goodsIdAsArticle, 
 							p_writer->PutPlugin("best-before", expiry);
 					}
 					else {
-						SString ingred, storage, energy;
+						SString ingred;
+						SString storage;
+						SString energy;
 						// 1. composition (состав)
 						// 2. storage-conditions (условия хранения)
 						// 3. food-value (пищевая ценность)
@@ -4759,7 +4762,7 @@ public:
 			SString log_msg_buf;
 			SDirEntry de;
 			SString inner_file_path;
-			(temp_buf = pPathUtf8).SetLastSlash().CatChar('*').Dot().Cat("*");
+			(temp_buf = pPathUtf8).SetLastSlash().CatChar('*').DotCat("*");
 			for(SDirec dir(temp_buf); dir.Next(&de) > 0;) {
 				if(!de.IsSelf() && !de.IsUpFolder()) {
 					if(de.IsFile()) {
@@ -5152,7 +5155,120 @@ int Test_Cristal2SetRetailGateway()
 	PPGetFilePath(PPPATH_OUT, "test-tallinsky-dictinfo.txt", dict_info_file_path);
 	g.Helper_CristalImportDir(p_src_path, ib, log_file_path);
 	//
+	// CASHAUTH.BTR 
+		//double Summa
+		//double Price
+		//int32 Tovar
+		//int16 Depart
+		//time TimeSale
+		//date DateSale
+		//lstring Casher[11]
+		//lstring AuthCode[10]
+		//lstring CardNum[20]
+		//int16 ID
+		//int32 CheckNumber
+		//int16 ZNumber
+		//int16 CashNumber
+		//int16 ShopIndex
+		// CashNumber
+		// DateSale ID
+	// CASHDCRD.BTR 
+		//int16 ZNumber
+		//int32 CheckNumber
+		//int16 CardType
+		//lstring CardNumber[23]
+		//double DiscountRub
+		//double DiscountCur
+		//lstring Casher[11]
+		//date DateSale
+		//time TimeSale
+		//int16 CashNumber
+		//int16 ShopIndex
+		// CashNumber
+		// DateSale ShopIndex
+		// ShopIndex CashNumber ZNumber CheckNumber CardType CardNumber
+		// CardType CardNumber
+	// CASHDISC.BTR 
+		//double Summa
+		//double Price
+		//int32 Tovar
+		//int16 Depart
+		//time TimeSale
+		//date DateSale
+		//lstring Casher[11]
+		//double DiscountCur
+		//double DiscountRub
+		//double DiscountProc
+		//int16 DiscountIndex
+		//int16 ID
+		//int32 CheckNumber
+		//int16 ZNumber
+		//int16 ShopIndex
+		//int16 CashNumber
+		// CashNumber ShopIndex
+		// DateSale DiscountIndex
+	// CQ202210.BTR 
+		//int32 NSmena
+		//double PriceNSP
+		//double SumNSP
+		//double SumNDS
+		//double Summa
+		//time Times
+		//double NDSx2
+		//double NDSx1
+		//lstring BestB[11]
+		//lstring Seria[11]
+		//double Ck_Disc
+		//double Ck_Disg
+		//lstring Ck_CurAbr[4]
+		//double Ck_Curs
+		//int32 Ck_Number
+		//lstring Store[7]
+		//double Price
+		//date DateOperation
+		//double Contr_Cost
+		//lstring Contr_Code[8]
+		//int32 Ck_Card
+		//int32 Cash_Code
+		//lstring Cassir[11]
+		//int32 Code
+		//int16 GrCode
+		//double Quant_S
+		//lstring Operation[2]
+		//double Quant
+		// NSmena
+		// Cash_Code DateOperation
+		// Code Price
+		// Code GrCode DateOperation Ck_Number
+		// Cash_Code DateOperation Cassir Ck_Number
+		// Cash_Code DateOperation Cassir Ck_Number
+		// Cash_Code DateOperation Price
+		// Code GrCode Ck_Number Cash_Code DateOperation
+		// Cash_Code DateOperation GrCode Ck_Number
+	//
 	Cristal2SetRetailGateway_CSessDictionaryOutput(p_dict_path, dict_info_file_path);
+	{
+		Reference * p_ref = PPRef;
+		PPObjTag tag_obj;
+		PPID   tag_id = 0;
+		PPObjectTag tag_rec;
+		PPObjCashNode cn_obj;
+		PPID   cn_id = 0;
+		if(tag_obj.SearchByName("Cristal2SetRetailGateway", &tag_id, &tag_rec) > 0) {
+			PPCashNode2 iter_cn_rec;
+			for(SEnum en = cn_obj.Enum(0); !cn_id && en.Next(&iter_cn_rec) > 0;) {
+				if(iter_cn_rec.CashType == PPCMT_CRCSHSRV) {
+					ObjTagItem tag_item;
+					if(p_ref->Ot.GetTag(PPOBJ_CASHNODE, iter_cn_rec.ID, tag_id, &tag_item) > 0)
+						cn_id = iter_cn_rec.ID;
+				}
+			}
+		}
+		if(cn_id) {
+			PPAsyncCashNode acn_pack;
+			if(cn_obj.GetAsync(cn_id, &acn_pack) > 0) {
+			}
+		}
+	}
 	return ok;
 }
-

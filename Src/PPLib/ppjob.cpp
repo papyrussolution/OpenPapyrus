@@ -3917,7 +3917,8 @@ public:
 	{
 		int    ok = 1;
 		const  PPCommConfig & r_ccfg = CConfig;
-		SString fmt_buf, msg_buf;
+		SString fmt_buf;
+		SString msg_buf;
 		TSessionFilt filt;
 		CoInitialize(NULL);
 		THROW(filt.Read(*pParam, 0) > 0);

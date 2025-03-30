@@ -1,5 +1,5 @@
 // ACS_1.CPP
-// Copyright (c) A.Sobolev 1997-2001, 2007, 2008, 2009, 2010, 2016, 2017, 2020
+// Copyright (c) A.Sobolev 1997-2001, 2007, 2008, 2009, 2010, 2016, 2017, 2020, 2025
 // @codepage UTF-8
 // Поддержка кассовых аппаратов Електроника-92-Аквариус и ЭКР-4110
 //
@@ -20,7 +20,9 @@ CS_1::~CS_1()
 int CS_1::GetFileSet(char *, uint filesPerSet)
 {
 	int    ok = 1;
-	SString in_path, temp_buf, temp_path;
+	SString temp_buf;
+	SString temp_path;
+	SString in_path;
 	PPObjCashNode cnobj;
 	PPAsyncCashNode acn;
 	FilesPerSet = filesPerSet;
@@ -78,7 +80,8 @@ PP_CREATE_TEMP_FILE_PROC(TempBarcodeTbl, Barcode);
 BarcodeTbl * CS_1::CreateTmpBarToID(int num, int fn, int fldGoodsID, int fldBarCode, int fldUnitPerPack)
 {
 	BarcodeTbl * p_tbl = 0;
-	char   code[24], * c;
+	char   code[24];
+	char * c = 0;
 	DbfTable   * dbft = 0;
 	THROW(dbft = OpenDBFTable(num, fn));
 	THROW(p_tbl = TempBarcodeTbl());

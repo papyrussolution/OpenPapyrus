@@ -1600,10 +1600,10 @@ int ExecCSPanel(const CashNodePaneFilt * pFilt)
 			}
 			dlg->selectButton(cmCSViewCheckList);
 			while(cmd_from_filt || (dlg && (c = ExecView(dlg)) != cmCancel)) {
-				int    do_exit_loop = 0;
+				bool   do_exit_loop = false;
 				if(cmd_from_filt) {
 					c = (is_locked && pFilt->CommandID != cmCSViewCheckList) ? 0 : pFilt->CommandID;
-					do_exit_loop = 1;
+					do_exit_loop = true;
 				}
 				if(sync) {
 					LDATE  dt = ZERODATE;
@@ -1682,7 +1682,7 @@ int ExecCSPanel(const CashNodePaneFilt * pFilt)
 							break;
 						case cmCSViewCheckList:
 							ZDELETE(dlg);
-							do_exit_loop = 1;
+							do_exit_loop = true;
 							ok =  p_cm->SyncBrowseCheckList(0, 0);
 							break;
 						case cmSCSLock:
@@ -1740,7 +1740,7 @@ int ExecCSPanel(const CashNodePaneFilt * pFilt)
 					}
 				}
 				else {
-					do_exit_loop = 1;
+					do_exit_loop = true;
 				}
 				if(ok == 0)
 					PPError();

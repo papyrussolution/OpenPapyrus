@@ -6321,7 +6321,7 @@ int Test_StyloQInvitation()
 				bip.Std = BARCSTD_QR;
 				//bip.Size.Set(600, 600);
 				bip.OutputFormat = SFileFormat::Png;
-				PPGetFilePath(PPPATH_OUT, SString("styloq-invitation").CatChar('-').Cat(roundNo).Dot().Cat("png"), bip.OutputFileName);
+				PPGetFilePath(PPPATH_OUT, SString("styloq-invitation").CatChar('-').Cat(roundNo).DotCat("png"), bip.OutputFileName);
 				if(PPBarcode::CreateImage(bip)) {
 					//
 					TSCollection <PPBarcode::Entry> bce_list;

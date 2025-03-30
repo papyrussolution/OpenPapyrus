@@ -190,13 +190,9 @@ int	PrcssrBuild::EditParam(Param * pParam)
 	class SelfBuildDialog : public TDialog {
 		DECL_DIALOG_DATA(PrcssrBuild::Param);
 	public:
-		SelfBuildDialog(PrcssrBuild & rPrcssr) : TDialog(DLG_SELFBUILD), R_Prcssr(rPrcssr), PrevTimeoutRest(-1), StartClock(0)
+		SelfBuildDialog(PrcssrBuild & rPrcssr) : TDialog(DLG_SELFBUILD), R_Prcssr(rPrcssr), PrevTimeoutRest(-1), StartClock(0),
+			CloseTimeout(SlDebugMode::CT() ? -1 : 60)
 		{
-#ifdef NDEBUG
-			CloseTimeout = 60;
-#else
-			CloseTimeout = -1;
-#endif
 		}
 		DECL_DIALOG_SETDTS()
 		{
@@ -1127,7 +1123,7 @@ int PrcssrSourceCodeMaintaining::ParseWinRcForNativeText(PPLogger * pLogger)
 		{
 			SString out_file_name;
 			SFsPath ps(src_file_name);
-			(out_file_name = ps.Nam).CatChar('-').Cat("nativetext").Dot().Cat("tsv");
+			(out_file_name = ps.Nam).CatChar('-').Cat("nativetext").DotCat("tsv");
 			PPGetFilePath(PPPATH_OUT, out_file_name, temp_buf);
 			//ps.Nam.CatChar('-').Cat("nativetext");
 			//ps.Ext = "tsv";

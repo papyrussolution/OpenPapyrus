@@ -1,5 +1,5 @@
 ; PAPYRUS.NSI
-; Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+; Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 ; Скрипт создания инсталляции системы Papyrus
 ;
 ;
@@ -432,17 +432,16 @@ Section -PPALDD SEC_PPALDD
 	File "${SRC_REDIST}\pattern.dl2"
 	File "${SRC_ROOT}\SRC\VBA\dl200.xla"
 	;
-	; @v8.3.8
 	; Файлы данных (текстовые)
 	;	
 	File "${SRC_ROOT}\SRC\RSRC\DATA\RAR-AlcoholCategory.txt"
+	File "${SRC_ROOT}\SRC\RSRC\DATA\ru-region.csv" ; @v12.2.12 Список регионов РФ
 	File "${SRC_ROOT}\SRC\RSRC\DATA\replacer-rule-goods.sr" ; @v9.7.5
 	File "${SRC_ROOT}\SRC\RSRC\DATA\editorlangmodel.xml" ; @v9.8.2
 	File "${SRC_ROOT}\SRC\RSRC\DATA\editorstyles.xml"    ; @v9.8.2
 	; @v10.8.3 Изображения
 	File "${SRC_ROOT}\SRC\RSRC\BITMAP\nophoto.png"       ; @v10.8.3
 	;
-	; @v6.7.1
 	; WTM-файлы
 	;
 	SetOutPath "$INSTDIR\DD\WTM"

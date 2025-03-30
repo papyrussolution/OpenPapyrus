@@ -1925,11 +1925,11 @@ int PPViewAccAnlz::GetBrwHdr(const void * pRow, BrwHdr * pHdr) const
 								AcctRelTbl::Rec acr_rec;
 								if(P_ATC->AccRel.SearchNum(0, &hdr.A, hdr.CurID, &acr_rec) > 0) {
 									flt.AccID = acr_rec.ID;
-									// @v9.5.11 (Если Filt.AcctId.ar группирующая статья, то это - необходимо) {
+									// (Если Filt.AcctId.ar группирующая статья, то это - необходимо) {
 									flt.AcctId.ac = acr_rec.AccID;
 									flt.AcctId.ar = acr_rec.ArticleID;
 									flt.SingleArID = acr_rec.ArticleID;
-									// } @v9.5.11
+									// }
 								}
 								else
 									ok = 0;
