@@ -1,5 +1,5 @@
 // TEST-STRING.CPP
-// Copyright (c) A.Sobolev 2023, 2024
+// Copyright (c) A.Sobolev 2023, 2024, 2025
 // @codepage UTF-8
 // Тестирование функций класса SString
 //
@@ -8,7 +8,6 @@
 #include <string>
 
 const char * byteshift_strstr(const char * pHayStack, const char * pNeedle); // @prototype(stext.cpp)
-// @v10.7.9 int FASTCALL dconvstr_scan(const char * input, const char ** input_end, double * output, int * output_erange);
 
 struct SlTestFixtureSString {
 public:
@@ -939,6 +938,27 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 			STokenRecognizer tr;
 			SNaturalTokenStat nts;
 			SNaturalTokenArray nta;
+			{
+				// @v12.3.0 {
+				// Прогоняем обычную текстовую строку на русском языке в 3-х кодировках
+				const char * p_ru_text_utf8 = "Товары гастронома со скидкой";
+				{
+					(str = p_ru_text_utf8).Transf(CTRANSF_UTF8_TO_OUTER);
+					tr.Run(str.ucptr(), -1, nta.Z(), &nts); 
+					SLCHECK_LT(0.0f, nta.Has(SNTOK_GENERICTEXT_CP1251));
+				}
+				{
+					(str = p_ru_text_utf8);
+					tr.Run(str.ucptr(), -1, nta.Z(), &nts); 
+					SLCHECK_LT(0.0f, nta.Has(SNTOK_GENERICTEXT_UTF8));
+				}
+				{
+					(str = p_ru_text_utf8).Transf(CTRANSF_UTF8_TO_INNER);
+					tr.Run(str.ucptr(), -1, nta.Z(), &nts); 
+					SLCHECK_LT(0.0f, nta.Has(SNTOK_GENERICTEXT_CP866));
+				}
+				// } @v12.3.0 
+			}
 			tr.Run((const uchar *)"0123", -1, nta.Z(), &nts); 
 			SLCHECK_LT(0.0f, nta.Has(SNTOK_DIGITCODE));
 			tr.Run((const uchar *)"4610017121115", -1, nta.Z(), 0); 
@@ -953,7 +973,6 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 			tr.Run((const uchar *)"100100802804", -1, nta.Z(), 0); 
 			SLCHECK_LT(0.0f, nta.Has(SNTOK_DIGITCODE));
 			SLCHECK_LT(0.0f, nta.Has(SNTOK_RU_INN));
-			// @v10.8.1 {
 			tr.Run((const uchar *)"47296611", -1, nta.Z(), 0); 
 			SLCHECK_LT(0.0f, nta.Has(SNTOK_DIGITCODE));
 			SLCHECK_LT(0.0f, nta.Has(SNTOK_RU_OKPO));
@@ -966,7 +985,6 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 			tr.Run((const uchar *)"6993417681", -1, nta.Z(), 0); 
 			SLCHECK_LT(0.0f, nta.Has(SNTOK_DIGITCODE));
 			SLCHECK_EQ(0.0f, nta.Has(SNTOK_RU_OKPO));
-			// } @v10.8.1 
 			tr.Run((const uchar *)"0034012000001472206", -1, nta.Z(), 0); 
 			SLCHECK_LT(0.0f, nta.Has(SNTOK_DIGITCODE));
 			SLCHECK_LT(0.0f, nta.Has(SNTOK_EGAISWARECODE));

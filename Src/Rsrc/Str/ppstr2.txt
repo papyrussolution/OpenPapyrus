@@ -7398,6 +7398,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @billguid                            "GUID документа"
 @billuuid                            "UUID документа"
 @billno                              "Номер документа"
+@without_billno                      "Без номера" // @v12.3.0
 @waybillno                           "Номер товарно-транспортной накладной"
 @waybillno_s                         "Номер ТТН"
 @billdate                            "Дата документа"
@@ -18751,6 +18752,7 @@ PPHSC_RU_ADDR_OFFSHR           "АдрИнф"
 PPHSC_RU_ADDR_TEXT             "АдрТекст"
 PPHSC_RU_ADDR_COUNTRYCODE      "КодСтр"
 PPHSC_RU_ADDR_COUNTRYCODE2     "КодСтраны"
+PPHSC_RU_ADDR_COUNTRYNAME      "НаимСтран" // @v12.3.0 nalog.ru ver 5.03
 PPHSC_RU_INDEX                 "Индекс"
 PPHSC_RU_REGIONCODE            "КодРегион"
 PPHSC_RU_REGIONAME             "НаимРегион" // @v12.2.12 nalog.ru ver 5.03

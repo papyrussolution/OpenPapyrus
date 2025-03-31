@@ -7900,6 +7900,19 @@ int DocNalogRu_Generator::WriteAddress(const PPLocationPacket & rP, int regionCo
 				const char * p_country_code = cb.Code.NotEmpty() ? cb.Code.cptr() : "643";
 				SXml::WNode n_i(P_X, GetToken_Ansi(PPHSC_RU_ADDR_OFFSHR));
 				n_i.PutAttrib(GetToken_Ansi(PPHSC_RU_ADDR_COUNTRYCODE), p_country_code);
+				// @v12.3.0 {
+				temp_buf.Z();
+				if(sstreq(p_country_code, "643")) {
+					PPLoadString("nativecountry", temp_buf);
+				}
+				else if(cb.Name.NotEmpty()) {
+					temp_buf = cb.Name;
+				}
+				else {
+					temp_buf = p_country_code;
+				}
+				n_i.PutAttrib(GetToken_Ansi(PPHSC_RU_ADDR_COUNTRYNAME), EncText(temp_buf)); 
+				// } @v12.3.0 
 				n_i.PutAttrib(GetToken_Ansi(PPHSC_RU_ADDR_TEXT), EncText(addr_text));
 			}
 			else {
@@ -8573,6 +8586,12 @@ int DocNalogRu_WriteBillBlock::Do_Invoice2(SString & rResultFileName)
 						else {
 							temp_buf = GetToken(PPHSC_RU_NODOCOFBASISFORWARETRANSFER);
 							n_11.PutAttrib(GetToken(G.IsVer503() ? PPHSC_RU_REQDOCNAME : PPHSC_RU_NAMEOFBASISFORWARETRANSFER), temp_buf);
+							// @v12.3.0 {
+							PPLoadString("without_billno", temp_buf);
+							n_11.PutAttrib(GetToken(G.IsVer503() ? PPHSC_RU_REQDOCNO   : PPHSC_RU_NUMBOFBASISFORWARETRANSFER), EncText(temp_buf));
+							temp_buf.Z().Cat(R_Bp.Rec.Dt, DATF_GERMANCENT);
+							n_11.PutAttrib(GetToken(G.IsVer503() ? PPHSC_RU_REQDOCDATE : PPHSC_RU_DATEOFBASISFORWARETRANSFER), EncText(temp_buf));
+							// } @v12.3.0 
 						}
 						// @v11.0.2 {
 						/* @v11.1.12 
@@ -9059,6 +9078,12 @@ int DocNalogRu_WriteBillBlock::Do_UPD(SString & rResultFileName)
 						}
 						else {
 							n_11.PutAttrib(GetToken(G.IsVer503() ? PPHSC_RU_REQDOCNAME : PPHSC_RU_NAMEOFBASISFORWARETRANSFER), GetToken(PPHSC_RU_NODOCOFBASISFORWARETRANSFER));
+							// @v12.3.0 {
+							PPLoadString("without_billno", temp_buf);
+							n_11.PutAttrib(GetToken(G.IsVer503() ? PPHSC_RU_REQDOCNO   : PPHSC_RU_NUMBOFBASISFORWARETRANSFER), EncText(temp_buf));
+							temp_buf.Z().Cat(R_Bp.Rec.Dt, DATF_GERMANCENT);
+							n_11.PutAttrib(GetToken(G.IsVer503() ? PPHSC_RU_REQDOCDATE : PPHSC_RU_DATEOFBASISFORWARETRANSFER), EncText(temp_buf));
+							// } @v12.3.0 
 						}
 						// @v11.0.2 {
 						/* @v11.1.12 

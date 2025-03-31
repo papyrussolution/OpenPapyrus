@@ -535,19 +535,17 @@ int32_t NumberFormatterImpl::writeAffixes(const MicroProps& micros, FormattedStr
 }
 
 int32_t NumberFormatterImpl::writeNumber(const MicroProps& micros, DecimalQuantity& quantity,
-    FormattedStringBuilder& string, int32_t index,
-    UErrorCode & status) {
+    FormattedStringBuilder& string, int32_t index, UErrorCode & status) 
+{
 	int32_t length = 0;
 	if(quantity.isInfinite()) {
-		length += string.insert(
-			length + index,
+		length += string.insert(length + index,
 			micros.symbols->getSymbol(DecimalFormatSymbols::ENumberFormatSymbol::kInfinitySymbol),
 			{UFIELD_CATEGORY_NUMBER, UNUM_INTEGER_FIELD},
 			status);
 	}
 	else if(quantity.isNaN()) {
-		length += string.insert(
-			length + index,
+		length += string.insert(length + index,
 			micros.symbols->getSymbol(DecimalFormatSymbols::ENumberFormatSymbol::kNaNSymbol),
 			{UFIELD_CATEGORY_NUMBER, UNUM_INTEGER_FIELD},
 			status);
@@ -555,99 +553,67 @@ int32_t NumberFormatterImpl::writeNumber(const MicroProps& micros, DecimalQuanti
 	else {
 		// Add the integer digits
 		length += writeIntegerDigits(micros, quantity, string, length + index, status);
-
 		// Add the decimal point
 		if(quantity.getLowerDisplayMagnitude() < 0 || micros.decimal == UNUM_DECIMAL_SEPARATOR_ALWAYS) {
 			if(!micros.currencyAsDecimal.isBogus()) {
-				length += string.insert(
-					length + index,
+				length += string.insert(length + index,
 					micros.currencyAsDecimal,
-					{UFIELD_CATEGORY_NUMBER, UNUM_CURRENCY_FIELD},
-					status);
+					{UFIELD_CATEGORY_NUMBER, UNUM_CURRENCY_FIELD}, status);
 			}
 			else if(micros.useCurrency) {
-				length += string.insert(
-					length + index,
-					micros.symbols->getSymbol(
-						DecimalFormatSymbols::ENumberFormatSymbol::kMonetarySeparatorSymbol),
-					{UFIELD_CATEGORY_NUMBER, UNUM_DECIMAL_SEPARATOR_FIELD},
-					status);
+				length += string.insert(length + index,
+					micros.symbols->getSymbol(DecimalFormatSymbols::ENumberFormatSymbol::kMonetarySeparatorSymbol),
+					{UFIELD_CATEGORY_NUMBER, UNUM_DECIMAL_SEPARATOR_FIELD}, status);
 			}
 			else {
-				length += string.insert(
-					length + index,
-					micros.symbols->getSymbol(
-						DecimalFormatSymbols::ENumberFormatSymbol::kDecimalSeparatorSymbol),
-					{UFIELD_CATEGORY_NUMBER, UNUM_DECIMAL_SEPARATOR_FIELD},
-					status);
+				length += string.insert(length + index,
+					micros.symbols->getSymbol(DecimalFormatSymbols::ENumberFormatSymbol::kDecimalSeparatorSymbol),
+					{UFIELD_CATEGORY_NUMBER, UNUM_DECIMAL_SEPARATOR_FIELD}, status);
 			}
 		}
 
 		// Add the fraction digits
 		length += writeFractionDigits(micros, quantity, string, length + index, status);
-
 		if(!length) {
 			// Force output of the digit for value 0
-			length += utils::insertDigitFromSymbols(
-				string,
-				index,
-				0,
-				*micros.symbols,
-				{UFIELD_CATEGORY_NUMBER, UNUM_INTEGER_FIELD},
-				status);
+			length += utils::insertDigitFromSymbols(string, index, 0,
+				*micros.symbols, {UFIELD_CATEGORY_NUMBER, UNUM_INTEGER_FIELD}, status);
 		}
 	}
-
 	return length;
 }
 
 int32_t NumberFormatterImpl::writeIntegerDigits(const MicroProps& micros, DecimalQuantity& quantity,
-    FormattedStringBuilder& string, int32_t index,
-    UErrorCode & status) {
+    FormattedStringBuilder& string, int32_t index, UErrorCode & status) 
+{
 	int length = 0;
 	int integerCount = quantity.getUpperDisplayMagnitude() + 1;
 	for(int i = 0; i < integerCount; i++) {
 		// Add grouping separator
 		if(micros.grouping.groupAtPosition(i, quantity)) {
-			length += string.insert(
-				index,
-				micros.useCurrency ? micros.symbols->getSymbol(
+			length += string.insert(index, micros.useCurrency ? micros.symbols->getSymbol(
 					DecimalFormatSymbols::ENumberFormatSymbol::kMonetaryGroupingSeparatorSymbol)
-				: micros.symbols->getSymbol(
-					DecimalFormatSymbols::ENumberFormatSymbol::kGroupingSeparatorSymbol),
-				{UFIELD_CATEGORY_NUMBER, UNUM_GROUPING_SEPARATOR_FIELD},
-				status);
+				: micros.symbols->getSymbol(DecimalFormatSymbols::ENumberFormatSymbol::kGroupingSeparatorSymbol),
+				{UFIELD_CATEGORY_NUMBER, UNUM_GROUPING_SEPARATOR_FIELD}, status);
 		}
-
 		// Get and append the next digit value
 		int8 nextDigit = quantity.getDigit(i);
-		length += utils::insertDigitFromSymbols(
-			string,
-			index,
-			nextDigit,
-			*micros.symbols,
-			{UFIELD_CATEGORY_NUMBER,
-			 UNUM_INTEGER_FIELD},
-			status);
+		length += utils::insertDigitFromSymbols(string, index, nextDigit, *micros.symbols,
+			{UFIELD_CATEGORY_NUMBER, UNUM_INTEGER_FIELD}, status);
 	}
 	return length;
 }
 
 int32_t NumberFormatterImpl::writeFractionDigits(const MicroProps& micros, DecimalQuantity& quantity,
-    FormattedStringBuilder& string, int32_t index,
-    UErrorCode & status) {
+    FormattedStringBuilder& string, int32_t index, UErrorCode & status) 
+{
 	int length = 0;
 	int fractionCount = -quantity.getLowerDisplayMagnitude();
 	for(int i = 0; i < fractionCount; i++) {
 		// Get and append the next digit value
 		int8 nextDigit = quantity.getDigit(-i - 1);
-		length += utils::insertDigitFromSymbols(
-			string,
-			length + index,
-			nextDigit,
-			*micros.symbols,
-			{UFIELD_CATEGORY_NUMBER, UNUM_FRACTION_FIELD},
-			status);
+		length += utils::insertDigitFromSymbols(string, length + index, nextDigit,
+			*micros.symbols, {UFIELD_CATEGORY_NUMBER, UNUM_FRACTION_FIELD}, status);
 	}
 	return length;
 }

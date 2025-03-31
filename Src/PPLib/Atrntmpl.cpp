@@ -788,7 +788,7 @@ int PPAccTurnTempl::CreateAccturns(PPBillPacket * pPack)
 						THROW(ok = SetupAccounts(param, cur_id, &at));
 					}
 					if(ok > 0) {
-						if(at.DbtID == at.CrdID) { // @v12.2.12 Если с обеих сторон проводки стоит один и тот же терминальный счет, то такую проводку пропускаем.
+						if(at.DbtID != at.CrdID) { // @v12.2.12 Если с обеих сторон проводки стоит один и тот же терминальный счет, то такую проводку пропускаем.
 							THROW_SL(pPack->Turns.insert(&at));
 						}
 					}

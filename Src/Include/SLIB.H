@@ -12185,7 +12185,8 @@ int FASTCALL ExtStrSrch(const char * pBuffer, const char * pPattern, uint flags)
 #define SNTOK_GENERICTEXT_UTF8          44 // @v12.2.12
 #define SNTOK_GENERICTEXT_CP1251        45 // @v12.2.12
 #define SNTOK_GENERICTEXT_CP866         46 // @v12.2.12
-#define SNTOK_GENERICTEXT_JSON          47 // @v12.2.12
+#define SNTOK_JSON                      47 // @v12.2.12
+#define SNTOK_PLIDENT                   48 // @v12.3.0 Идентификатор во многих (но не всех) языках программирования. Все символы - ascii, первый символ - latin or '_', остальные - decimal or latin or '_'
 
 #define SNTOKSEQ_DEC                0x00000001 // 0-9
 #define SNTOKSEQ_LATLWR             0x00000002 // a-z
@@ -12196,7 +12197,7 @@ int FASTCALL ExtStrSrch(const char * pBuffer, const char * pPattern, uint flags)
 #define SNTOKSEQ_UTF8               0x00000040 // Вся последовательность состоит из валидных UTF-8 символов
 #define SNTOKSEQ_1251               0x00000080 // Вся последовательность состоит из символов, соответствующих кодировке cp1251 или ascii-символов
 #define SNTOKSEQ_866                0x00000100 // Вся последовательность состоит из символов, соответствующих кодировке cp866 или ascii-символов
-#define SNTOKSEQ_DECLAT             0x00000200 // 0-9||A-F||a-f
+#define SNTOKSEQ_DECLAT             0x00000200 // 0-9||A-Z||a-z
 #define SNTOKSEQ_HEXHYPHEN          0x00000400 // ТОЛЬКО HEX && -
 #define SNTOKSEQ_DECHYPHEN          0x00000800 // ТОЛЬКО DEC && -
 #define SNTOKSEQ_HEXCOLON           0x00001000 // ТОЛЬКО HEX && :
@@ -12210,6 +12211,8 @@ int FASTCALL ExtStrSrch(const char * pBuffer, const char * pPattern, uint flags)
 #define SNTOKSEQ_BACKPCT            0x00100000 // Последовательность завершается символом % (без отключения остальных флагов)
 #define SNTOKSEQ_NUMERIC            0x00200000 // Многовариантное представление числа [+\-0-9.,' ] (-9,999.99  +99'999,9  9 999.999  999)
 #define SNTOKSEQ_LATHYPHENORUSCORE  0x00400000 // @v11.3.12 ТОЛЬКО LAT && (- || _)
+#define SNTOKSEQ_PLIDENT            0x00800000 // @v12.3.0 Набор символов, соответствующий правилам наименования идентификаторов во многих (но не всех) языках
+	// программирования. Все символы - ascii, первый символ - latin or '_', остальные - decimal or latin or '_'
 
 struct SNaturalTokenStat {
 	SNaturalTokenStat();
@@ -12233,6 +12236,7 @@ public:
 	SNaturalTokenArray & Z();
 	float  FASTCALL Has(uint32 tok) const;
 	int    AddTok(uint32 tok, float prob, uint flags); // @v12.2.11 arg:flags будут опции как комбинировать уже существующий элемент с новым.
+	int    Combine(const SNaturalTokenArray & rOther);
 	int    Intersect(const SNaturalTokenArray & rS); // @v12.2.11
 };
 
@@ -12250,7 +12254,7 @@ public:
 protected:
 	struct ImplementBlock {
 		enum {
-			fUtf8     = 0x0001, // Весь токен состоит из валидных UTF8-символов
+			// @v12.3.0 fUtf8     = 0x0001, // Весь токен состоит из валидных UTF8-символов
 			fPhoneSet = 0x0002, // Токен по набору символов может быть истолкован как номер телефона (но требуются дополнительные проверки)
 			fClRut    = 0x0004  // @v11.6.0 Токен по набору символов может быть истолкован как чилийский налоговый идентификатор RUT (требуются дополнительные проверки)
 		};
@@ -12631,35 +12635,6 @@ public:
 		SString FldBuf; // @reuse
 		SStrScan Scan;
 	};
-	struct CsvSniffingResult {
-		struct ColumnStat {
-			ColumnStat() : N(0), NECount(0), FirstRowLen(0), LenAvg(0.0), LenStdDev(0.0)
-			{
-			}
-			uint   N;      // [1..] Номер колонки
-			uint   NECount;  // Количество строк, содержащих непустое значение
-			uint   FirstRowLen; // Длина текста в первой строке
-			double LenAvg;      // Средняя длина текста (без первой строки и только для непустых значений)
-			double LenStdDev;
-			SNaturalTokenArray NtaFirstRow; // Набор токенов для первой строки
-			SNaturalTokenArray NtaCommon;   // Общий набор токенов для всех строк кроме первой (только для непустых значений)
-		};
-		CsvSniffingResult();
-		CsvSniffingResult & Z();
-		ColumnStat * GetColumnStat(uint fldNo/*[1..]*/);
-
-		enum {
-			fTitleRow   = 0x0001, // Первая строка - заголовки полей
-			fEmptyLines = 0x0002, // Файла содержит пустые строки
-		};
-		uint   FieldDivisor;
-		uint   Flags;
-		uint64 LineCount;
-		double FieldCountExpectation;
-		uint32 SnTokSeq_Common; // flags SNTOKSEQ_FFFF общие для всех строк
-		uint32 SnTokSeq_First;  // flags SNTOKSEQ_FFFF для первой строки
-		TSCollection <ColumnStat> ColumnStatList;
-	};
 	//
 	// Descr: Высокоуровневая функция, считывающая строку текстового файла в предположении, что этот файл имеет csv-формат.
 	//   Результат чтения заносится в экземляр StringSet.
@@ -12849,6 +12824,45 @@ private:
 	// для использования другой блокировкой.
 	//
 	TSVector <SFile::LckChunk> LckList;
+};
+//
+// Descr: Класс, реализующий механизм детекции стркутуры и параметров текстового файла данных,
+//   в котором колонки разделены символом-разделителем (comma, semicolon, space, tab, '|').
+//
+class CsvSniffer {
+public:
+	struct Result {
+		struct ColumnStat {
+			ColumnStat() : N(0), NECount(0), FirstRowLen(0), LenAvg(0.0), LenStdDev(0.0)
+			{
+			}
+			uint   N;      // [1..] Номер колонки
+			uint   NECount;  // Количество строк, содержащих непустое значение
+			uint   FirstRowLen; // Длина текста в первой строке
+			double LenAvg;      // Средняя длина текста (без первой строки и только для непустых значений)
+			double LenStdDev;
+			SNaturalTokenArray NtaFirstRow; // Набор токенов для первой строки
+			SNaturalTokenArray NtaCommon;   // Общий набор токенов для всех строк кроме первой (только для непустых значений)
+		};
+		Result();
+		Result & Z();
+		ColumnStat * GetColumnStat(uint fldNo/*[1..]*/);
+
+		enum {
+			fTitleRow   = 0x0001, // Первая строка - заголовки полей
+			fEmptyLines = 0x0002, // Файла содержит пустые строки
+		};
+		uint   FieldDivisor;
+		uint   Flags;
+		uint64 LineCount;
+		double FieldCountExpectation;
+		uint32 SnTokSeq_Common; // flags SNTOKSEQ_FFFF общие для всех строк
+		uint32 SnTokSeq_First;  // flags SNTOKSEQ_FFFF для первой строки
+		TSCollection <ColumnStat> ColumnStatList;
+	};
+	CsvSniffer();
+	~CsvSniffer();
+	int    Run(const char * pFileName, Result & rR);
 };
 //
 //

@@ -505,8 +505,7 @@ std::set<std::string>* NewAllowedProto3Extendee()
 		// descriptor.proto has a different package name in opensource. We allow
 		// both so the opensource protocol compiler can also compile internal
 		// proto3 files with custom options. See: b/27567912
-		allowed_proto3_extendees->insert(std::string("google.protobuf.") +
-		    option_name);
+		allowed_proto3_extendees->insert(std::string("google.protobuf.") + option_name);
 		// Split the word to trick the opensource processing scripts so they
 		// will keep the original package name.
 		allowed_proto3_extendees->insert(std::string("proto") + "2." + option_name);

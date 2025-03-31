@@ -1515,7 +1515,7 @@ void OprKindDialog::addTempl()
 		PPAccTurnTempl tmpl;
 		MEMSZERO(tmpl);
 		if(EditAccTurnTemplate(P_AtObj, &tmpl) > 0) {
-			if(P_Data->ATTmpls.insert(&tmpl) == 0)
+			if(!P_Data->ATTmpls.insert(&tmpl))
 				PPError(PPERR_SLIB, 0);
 			else
 				updateList();

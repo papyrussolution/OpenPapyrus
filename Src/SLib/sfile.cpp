@@ -3578,11 +3578,11 @@ int FileFormatRegBase::Identify(const char * pFileName, int * pFmtId, SString * 
 	return ok;
 }
 
-SFile::CsvSniffingResult::CsvSniffingResult() : FieldDivisor(0), Flags(0), SnTokSeq_Common(0), SnTokSeq_First(0), LineCount(0), FieldCountExpectation(0.0)
+CsvSniffer::Result::Result() : FieldDivisor(0), Flags(0), SnTokSeq_Common(0), SnTokSeq_First(0), LineCount(0), FieldCountExpectation(0.0)
 {
 }
 		
-SFile::CsvSniffingResult & SFile::CsvSniffingResult::Z()
+CsvSniffer::Result & CsvSniffer::Result::Z()
 {
 	FieldDivisor = 0;
 	Flags = 0;
@@ -3594,7 +3594,7 @@ SFile::CsvSniffingResult & SFile::CsvSniffingResult::Z()
 	return *this;
 }
 
-SFile::CsvSniffingResult::ColumnStat * SFile::CsvSniffingResult::GetColumnStat(uint fldNo/*[1..]*/)
+CsvSniffer::Result::ColumnStat * CsvSniffer::Result::GetColumnStat(uint fldNo/*[1..]*/)
 {
 	ColumnStat * p_result = 0;
 	if(fldNo > 0) {
@@ -4268,13 +4268,6 @@ SIntHandle SFile::ForceCreateFile(const wchar_t * pPath, uint mode, uint share, 
 //
 //
 //
-class CsvSniffer {
-public:
-	CsvSniffer();
-	~CsvSniffer();
-	int    Run(const char * pFileName, SFile::CsvSniffingResult & rR);
-};
-
 CsvSniffer::CsvSniffer()
 {
 }
@@ -4342,7 +4335,7 @@ public:
 	}
 };
 
-int CsvSniffer::Run(const char * pFileName, SFile::CsvSniffingResult & rR) // @construction
+int CsvSniffer::Run(const char * pFileName, Result & rR) // @construction
 {
 	rR.Z();
 	int    ok = -1;
@@ -4457,6 +4450,7 @@ int CsvSniffer::Run(const char * pFileName, SFile::CsvSniffingResult & rR) // @c
 			SFile::ReadLineCsvContext ctx(rR.FieldDivisor);
 			StringSet ss_line;
 			SNaturalTokenStat nts;
+			SNaturalTokenArray first_column_combined_nta;
 			line_no = 0;
 			while(true) {
 				int rlr = f_in.ReadLineCsv(ctx, ss_line);
@@ -4481,6 +4475,10 @@ int CsvSniffer::Run(const char * pFileName, SFile::CsvSniffingResult & rR) // @c
 									p_cs->LenStat.Step(temp_buf.Len());
 								}
 								tr.Run(temp_buf.ucptr(), temp_buf.Len(), *p_nta, &nts);
+								//
+								if(temp_buf.NotEmptyS()) {
+									p_cs->NECount++;
+								}
 							}
 						}
 					}
@@ -4491,6 +4489,7 @@ int CsvSniffer::Run(const char * pFileName, SFile::CsvSniffingResult & rR) // @c
 					TemporaryCsvDataCollector::ColumnStat * p_cs = data_collector.ColumnStatList.at(i);
 					if(p_cs) {
 						p_cs->LenStat.Finish();
+						first_column_combined_nta.Combine(p_cs->NtaFirstRow);
 					}
 				}
 			}
@@ -4513,36 +4512,51 @@ int CsvSniffer::Run(const char * pFileName, SFile::CsvSniffingResult & rR) // @c
 								case '|': line_buf.Cat("\'|\'"); break;
 								case ',': line_buf.Cat("\',\'"); break;
 								case ';': line_buf.Cat("\';\'"); break;
+								default: line_buf.CatChar('\'').CatChar(rR.FieldDivisor).CatChar('\''); break;
 							}
+							line_buf.Space().CatEq("Columns count", data_collector.ColumnStatList.getCount());
 							line_buf.CR();
 							f_out.WriteLine(line_buf);
-							for(uint i = 0; i < data_collector.ColumnStatList.getCount(); i++) {
-								const TemporaryCsvDataCollector::ColumnStat * p_cs = data_collector.ColumnStatList.at(i);
-								if(p_cs) {
-									double len_avg = p_cs->LenStat.GetExp();
-									double len_stddev = p_cs->LenStat.GetStdDev();
-									line_buf.Z().CatEq("Column", p_cs->N).Space().CatEq("NECount", p_cs->NECount).Space().
-										CatEq("FirstRowLen", p_cs->FirstRowLen).Space().
-										CatEq("Len average", len_avg, MKSFMTD(0, 2, 0)).Space().
-										CatEq("Len stddev", len_stddev, MKSFMTD(0, 5, 0));
+							if(first_column_combined_nta.getCount()) {
+								line_buf.Z().Cat("First Column Combined Nta");
+								line_buf.CR();
+								f_out.WriteLine(line_buf);
+								for(uint i = 0; i < first_column_combined_nta.getCount(); i++) {
+									const SNaturalToken & r_tok = first_column_combined_nta.at(i);
+									line_buf.Z().Tab().Cat(r_tok.GetSymb(temp_buf)).Space().CatEq("Prob", r_tok.Prob, MKSFMTD(0, 3, 0)).Space().CatEq("Count", r_tok.Count);
 									line_buf.CR();
-									f_out.WriteLine(line_buf);
-									{
-										f_out.WriteLine(line_buf.Z().Tab().Cat("NtaFirstRow").Colon().CR());
-										for(uint j = 0; j < p_cs->NtaFirstRow.getCount(); j++) {
-											const SNaturalToken & r_tok = p_cs->NtaFirstRow.at(j);
-											line_buf.Z().Tab_(2).Cat(r_tok.GetSymb(temp_buf)).Space().CatEq("Prob", r_tok.Prob, MKSFMTD(0, 3, 0)).Space().CatEq("Count", r_tok.Count);
-											line_buf.CR();
-											f_out.WriteLine(line_buf);
+									f_out.WriteLine(line_buf);									
+								}
+							}
+							{
+								for(uint i = 0; i < data_collector.ColumnStatList.getCount(); i++) {
+									const TemporaryCsvDataCollector::ColumnStat * p_cs = data_collector.ColumnStatList.at(i);
+									if(p_cs) {
+										double len_avg = p_cs->LenStat.GetExp();
+										double len_stddev = p_cs->LenStat.GetStdDev();
+										line_buf.Z().CatEq("Column", p_cs->N).Space().CatEq("NECount", p_cs->NECount).Space().
+											CatEq("FirstRowLen", p_cs->FirstRowLen).Space().
+											CatEq("Len average", len_avg, MKSFMTD(0, 2, 0)).Space().
+											CatEq("Len stddev", len_stddev, MKSFMTD(0, 5, 0));
+										line_buf.CR();
+										f_out.WriteLine(line_buf);
+										{
+											f_out.WriteLine(line_buf.Z().Tab().Cat("NtaFirstRow").Colon().CR());
+											for(uint j = 0; j < p_cs->NtaFirstRow.getCount(); j++) {
+												const SNaturalToken & r_tok = p_cs->NtaFirstRow.at(j);
+												line_buf.Z().Tab_(2).Cat(r_tok.GetSymb(temp_buf)).Space().CatEq("Prob", r_tok.Prob, MKSFMTD(0, 3, 0)).Space().CatEq("Count", r_tok.Count);
+												line_buf.CR();
+												f_out.WriteLine(line_buf);
+											}
 										}
-									}
-									{
-										f_out.WriteLine(line_buf.Z().Tab().Cat("NtaCommon").Colon().CR());
-										for(uint j = 0; j < p_cs->NtaCommon.getCount(); j++) {
-											const SNaturalToken & r_tok = p_cs->NtaCommon.at(j);
-											line_buf.Z().Tab_(2).Cat(r_tok.GetSymb(temp_buf)).Space().CatEq("Prob", r_tok.Prob, MKSFMTD(0, 3, 0)).Space().CatEq("Count", r_tok.Count);
-											line_buf.CR();
-											f_out.WriteLine(line_buf);
+										{
+											f_out.WriteLine(line_buf.Z().Tab().Cat("NtaCommon").Colon().CR());
+											for(uint j = 0; j < p_cs->NtaCommon.getCount(); j++) {
+												const SNaturalToken & r_tok = p_cs->NtaCommon.at(j);
+												line_buf.Z().Tab_(2).Cat(r_tok.GetSymb(temp_buf)).Space().CatEq("Prob", r_tok.Prob, MKSFMTD(0, 3, 0)).Space().CatEq("Count", r_tok.Count);
+												line_buf.CR();
+												f_out.WriteLine(line_buf);
+											}
 										}
 									}
 								}
@@ -4587,11 +4601,12 @@ int Test_CsvSniffer()
 	(base_path = temp_buf).SetLastSlash().Cat("data");
 	CsvSniffer s;
 	int r = 0;
-	SFile::CsvSniffingResult result;
+	CsvSniffer::Result result;
 	r = s.Run((path = base_path).SetLastSlash().Cat("test_goods.csv"), result);
 	r = s.Run((path = base_path).SetLastSlash().Cat("gpdata001.dat"), result);
 	r = s.Run((path = base_path).SetLastSlash().Cat("ts-eurusd.csv"), result);
 	r = s.Run((path = base_path).SetLastSlash().Cat("test-input-csv-semicol-utf8.csv"), result);
+	r = s.Run((path = base_path).SetLastSlash().Cat("csv-vbar-notitle-866.csv"), result);
 	path = "D:/DEV/etc/Microsoft/Leak-of-some-Bing-Bing_Maps-Cortana-source-code/CWBMM/src/CWBMM.Product/Maps_SBS/CustomWPSBS/Examples/CreateDirectionsWPSBSSample/DirectionsCandidates.tsv";
 	r = s.Run(path, result);
 	//

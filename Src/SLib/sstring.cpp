@@ -7895,7 +7895,8 @@ static const SIntToSymbTabEntry SNTokSymb_List[] = {
 	{ SNTOK_GENERICTEXT_UTF8, "generictext-utf8" }, // @v12.2.12
 	{ SNTOK_GENERICTEXT_CP1251, "generictext-cp1251"}, // @v12.2.12
 	{ SNTOK_GENERICTEXT_CP866, "generictext-cp866" }, // @v12.2.12
-	{ SNTOK_GENERICTEXT_JSON, "json" }, // @v12.2.12
+	{ SNTOK_JSON, "json" }, // @v12.2.12
+	{ SNTOK_PLIDENT, "plident" }, // @v12.3.0
 };
 
 SNaturalToken::SNaturalToken() : ID(0), Prob(0.0f), Count(0)
@@ -7940,6 +7941,22 @@ int SNaturalTokenArray::AddTok(uint32 tok, float prob, uint flags)
 			item.Prob = prob;
 			item.Count = 1;
 			ok = insert(&item);
+		}
+	}
+	return ok;
+}
+
+int SNaturalTokenArray::Combine(const SNaturalTokenArray & rOther)
+{
+	int    ok = -1;
+	const  uint _c = rOther.getCount();
+	if(_c) {
+		for(uint i = 0; ok && i < _c; i++) {
+			const SNaturalToken & r_other_item = rOther.at(i);
+			if(AddTok(r_other_item.ID, r_other_item.Prob, 0/*flags*/))
+				ok = 1;
+			else
+				ok = 0;
 		}
 	}
 	return ok;
@@ -8071,6 +8088,8 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 		uint   i;
 		uchar  num_potential_frac_delim = 0;
 		uchar  num_potential_tri_delim = 0;
+		bool   is_there_illegal_utf8 = false;
+		bool   is_there_multib_utf8 = false; // true если в тексте содержатся utf8 символы с длиной более однога байта
 		h = 0xffffffffU & ~(SNTOKSEQ_LEADSHARP|SNTOKSEQ_LEADMINUS|SNTOKSEQ_LEADDOLLAR|SNTOKSEQ_BACKPCT);
 		const char the_first_chr = pToken[0];
 		// @v11.3.6 {
@@ -8083,14 +8102,18 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 		// } @v11.6.0 
 		for(i = 0; i < toklen; i++) {
             const uchar c = pToken[i];
-			const int   ul = IsUtf8(pToken+i, toklen-i);
-			if(ul > 1) {
-                rIb.F |= ImplementBlock::fUtf8;
-                i += (ul-1);
+			const uint16 utf8_extra = SUtfConst::TrailingBytesForUTF8[c];
+			const bool is_legal_utf8 = SUnicode::IsLegalUtf8Char(pToken+i, utf8_extra+1);
+			//const int   ul = IsUtf8(pToken+i, toklen-i);
+			if(/*ul > 1*/is_legal_utf8) {
+                /*rIb.F*/h |= /*ImplementBlock::fUtf8*/SNTOKSEQ_UTF8; // @v12.3.0 @fix ImplementBlock::fUtf8-->SNTOKSEQ_UTF8
+                i += (/*ul-1*/utf8_extra);
+				if(utf8_extra > 0)
+					is_there_multib_utf8 = true;
 			}
-			else {
-                if(!ul)
-					h &= ~SNTOKSEQ_UTF8;
+			else
+				is_there_illegal_utf8 = true;
+			if(!is_legal_utf8 || !utf8_extra) {
 				uint  pos = 0;
 				if(r_chr_list.Search(static_cast<long>(c), &pos))
 					r_chr_list.at(pos).Val++;
@@ -8098,11 +8121,16 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 					r_chr_list.Add(static_cast<long>(c), 1, 0);
 			}
 		}
+		if(is_there_illegal_utf8) {
+			h &= ~SNTOKSEQ_UTF8;
+			is_there_multib_utf8 = false;
+		}
 		r_chr_list.Sort();
-		if(rIb.F & ImplementBlock::fUtf8) {
+		// @v12.3.0 if(/*rIb.F*/h & /*ImplementBlock::fUtf8*/SNTOKSEQ_UTF8) { // @v12.3.0 @fix ImplementBlock::fUtf8-->SNTOKSEQ_UTF8
+		if(is_there_multib_utf8) { // @v12.3.0
 			h &= ~(SNTOKSEQ_DEC|SNTOKSEQ_HEX|SNTOKSEQ_LATLWR|SNTOKSEQ_LATUPR|SNTOKSEQ_LAT|SNTOKSEQ_DECLAT|
 				SNTOKSEQ_ASCII|SNTOKSEQ_866|SNTOKSEQ_1251|SNTOKSEQ_HEXHYPHEN|SNTOKSEQ_DECHYPHEN|SNTOKSEQ_HEXCOLON|
-				SNTOKSEQ_DECCOLON|SNTOKSEQ_HEXDOT|SNTOKSEQ_DECDOT|SNTOKSEQ_DECSLASH|SNTOKSEQ_NUMERIC);
+				SNTOKSEQ_DECCOLON|SNTOKSEQ_HEXDOT|SNTOKSEQ_DECDOT|SNTOKSEQ_DECSLASH|SNTOKSEQ_NUMERIC|SNTOKSEQ_PLIDENT);
 		}
 		else {
 			bool   is_lead_plus = false;
@@ -8120,12 +8148,17 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 				h |= SNTOKSEQ_LEADDOLLAR;
 			else if(the_first_chr == '+')
 				is_lead_plus = true;
+			// @v12.3.0 {
+			if((h & SNTOKSEQ_PLIDENT) && !(the_first_chr == '_' || isasciialpha(the_first_chr)))
+				h &= ~SNTOKSEQ_PLIDENT;
+			// } @v12.3.0 
 			const uint clc = r_chr_list.getCount();
 			for(; i < clc; i++) {
 				const uchar c = static_cast<uchar>(r_chr_list.at(i).Key);
 				const uint  ccnt = static_cast<uint>(r_chr_list.at(i).Val);
-				if(h & SNTOKSEQ_ASCII && !(c >= 1 && c <= 127))
-					h &= ~SNTOKSEQ_ASCII;
+				if(h & SNTOKSEQ_ASCII && !(c >= 1 && c <= 127)) {
+					h &= ~(SNTOKSEQ_ASCII|SNTOKSEQ_PLIDENT);
+				}
 				else {
 					const bool is_hex_c = ishex(c);
 					const bool is_dec_c = isdec(c);
@@ -8199,6 +8232,11 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 						// @todo Надо еще проверить на отсутствие дубликатов 'k'-'K'; 'K'-'k'
 					}
 					// } @v11.6.0 
+					// @v12.3.0 {
+					if(h & SNTOKSEQ_PLIDENT && !(is_asciialpha || is_dec_c || c == '_')) { // Первый символ не может быть цифрой, но это мы уже проверили выше 
+						h &= ~SNTOKSEQ_PLIDENT;
+					}
+					// } @v12.3.0 
 				}
 				{
 					const bool is_letter_cp866 = IsLetter866(c);
@@ -8438,6 +8476,9 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 		else if(h & SNTOKSEQ_BACKPCT) {
 		}
 		else {
+			if(h & SNTOKSEQ_PLIDENT) { // @v12.3.0
+				rResultList.AddTok(SNTOK_PLIDENT, 0.3f, 0/*flags*/);
+			}
 			if(h & SNTOKSEQ_DECCOLON) { // @v12.2.12
 				LTIME temp_tm = ZEROTIME;
 				if(strtotime(reinterpret_cast<const char *>(pToken), TIMF_HMS, &temp_tm)) {
@@ -8844,20 +8885,6 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 		}
 		// @v12.2.12 {
 		{
-			if(h & SNTOKSEQ_1251) {
-				rResultList.AddTok(SNTOK_GENERICTEXT_CP1251, 0.9f, 0/*flags*/);
-			}
-			if(h & SNTOKSEQ_866) {
-				rResultList.AddTok(SNTOK_GENERICTEXT_CP866, 0.9f, 0/*flags*/);
-			}
-			if(h & SNTOKSEQ_ASCII) {
-				rResultList.AddTok(SNTOK_GENERICTEXT_ASCII, 0.3f, 0/*flags*/);
-			}
-			else if(h & SNTOKSEQ_UTF8) {
-				rResultList.AddTok(SNTOK_GENERICTEXT_UTF8, 0.9f, 0/*flags*/);
-			}
-		}
-		{
 			if(h & (SNTOKSEQ_ASCII|SNTOKSEQ_UTF8)) {
 				if((pToken[0] == '[' && pToken[toklen-1] == ']') || (pToken[0] == '{' && pToken[toklen-1] == '}')) {
 					// Возможно, json
@@ -8865,9 +8892,26 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 					temp_buf.CatN(reinterpret_cast<const char *>(pToken), toklen);
 					SJson * p_js_probe = SJson::Parse(temp_buf);
 					if(p_js_probe) {
-						rResultList.AddTok(SNTOK_GENERICTEXT_JSON, 1.0f, 0/*flags*/);
+						rResultList.AddTok(SNTOK_JSON, 1.0f, 0/*flags*/);
 						delete p_js_probe;
 					}
+				}
+			}
+		}
+		{
+			if(!rResultList.getCount()) { 
+				// Если нам не удалось распознать ни одного годного токена, то попробуем трактовать переданную строку как некий текст
+				if(h & SNTOKSEQ_1251) {
+					rResultList.AddTok(SNTOK_GENERICTEXT_CP1251, 0.9f, 0/*flags*/);
+				}
+				if(h & SNTOKSEQ_866) {
+					rResultList.AddTok(SNTOK_GENERICTEXT_CP866, 0.9f, 0/*flags*/);
+				}
+				if(h & SNTOKSEQ_ASCII) {
+					rResultList.AddTok(SNTOK_GENERICTEXT_ASCII, 0.3f, 0/*flags*/);
+				}
+				else if(h & SNTOKSEQ_UTF8) {
+					rResultList.AddTok(SNTOK_GENERICTEXT_UTF8, 0.9f, 0/*flags*/);
 				}
 			}
 		}

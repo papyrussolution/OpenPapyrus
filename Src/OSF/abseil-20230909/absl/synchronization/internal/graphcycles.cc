@@ -269,23 +269,24 @@ private:
 			i = (i + 1) & mask; // Linear probing; quadratic is slightly slower.
 		}
 	}
-
-	void Init() {
+	void Init() 
+	{
 		table_.clear();
 		table_.resize(kInline);
 		table_.fill(kEmpty);
 		occupied_ = 0;
 	}
 
-	void Grow() {
+	void Grow() 
+	{
 		Vec<int32_t> copy;
 		copy.MoveFrom(&table_);
 		occupied_ = 0;
 		table_.resize(copy.size() * 2);
 		table_.fill(kEmpty);
-
 		for(const auto& e : copy) {
-			if(e >= 0) insert(e);
+			if(e >= 0) 
+				insert(e);
 		}
 	}
 
@@ -297,20 +298,15 @@ private:
 // number is incremented when the GraphId is freed which automatically
 // invalidates all copies of the GraphId.
 
-inline GraphId MakeId(int32_t index, uint32_t version) {
+inline GraphId MakeId(int32_t index, uint32_t version) 
+{
 	GraphId g;
-	g.handle =
-	    (static_cast<uint64_t>(version) << 32) | static_cast<uint32_t>(index);
+	g.handle = (static_cast<uint64_t>(version) << 32) | static_cast<uint32_t>(index);
 	return g;
 }
 
-inline int32_t NodeIndex(GraphId id) {
-	return static_cast<int32_t>(id.handle);
-}
-
-inline uint32_t NodeVersion(GraphId id) {
-	return static_cast<uint32_t>(id.handle >> 32);
-}
+inline int32_t NodeIndex(GraphId id) { return static_cast<int32_t>(id.handle); }
+inline uint32_t NodeVersion(GraphId id) { return static_cast<uint32_t>(id.handle >> 32); }
 
 struct Node {
 	int32_t rank;         // rank number assigned by Pearce-Kelly algorithm

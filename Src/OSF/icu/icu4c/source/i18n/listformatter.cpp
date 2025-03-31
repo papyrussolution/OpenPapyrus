@@ -503,17 +503,19 @@ ListFormatInternal* ListFormatter::loadListFormatInternal(const Locale & locale,
 	return result;
 }
 
-ListFormatter* ListFormatter::createInstance(UErrorCode & errorCode) {
+ListFormatter* ListFormatter::createInstance(UErrorCode & errorCode) 
+{
 	Locale locale; // The default locale.
 	return createInstance(locale, errorCode);
 }
 
-ListFormatter* ListFormatter::createInstance(const Locale & locale, UErrorCode & errorCode) {
+ListFormatter* ListFormatter::createInstance(const Locale & locale, UErrorCode & errorCode) 
+{
 	return createInstance(locale, ULISTFMT_TYPE_AND, ULISTFMT_WIDTH_WIDE, errorCode);
 }
 
-ListFormatter* ListFormatter::createInstance(const Locale & locale, UListFormatterType type, UListFormatterWidth width,
-    UErrorCode & errorCode) {
+ListFormatter* ListFormatter::createInstance(const Locale & locale, UListFormatterType type, UListFormatterWidth width, UErrorCode & errorCode) 
+{
 	const char * style = typeWidthToStyleString(type, width);
 	if(style == nullptr) {
 		errorCode = U_ILLEGAL_ARGUMENT_ERROR;
@@ -522,7 +524,8 @@ ListFormatter* ListFormatter::createInstance(const Locale & locale, UListFormatt
 	return createInstance(locale, style, errorCode);
 }
 
-ListFormatter* ListFormatter::createInstance(const Locale & locale, const char * style, UErrorCode & errorCode) {
+ListFormatter* ListFormatter::createInstance(const Locale & locale, const char * style, UErrorCode & errorCode) 
+{
 	const ListFormatInternal* listFormatInternal = getListFormatInternal(locale, style, errorCode);
 	if(U_FAILURE(errorCode)) {
 		return nullptr;
@@ -535,15 +538,18 @@ ListFormatter* ListFormatter::createInstance(const Locale & locale, const char *
 	return p;
 }
 
-ListFormatter::ListFormatter(const ListFormatData& listFormatData, UErrorCode & errorCode) {
+ListFormatter::ListFormatter(const ListFormatData& listFormatData, UErrorCode & errorCode) 
+{
 	owned = new ListFormatInternal(listFormatData, errorCode);
 	data = owned;
 }
 
-ListFormatter::ListFormatter(const ListFormatInternal* listFormatterInternal) : owned(nullptr), data(listFormatterInternal) {
+ListFormatter::ListFormatter(const ListFormatInternal* listFormatterInternal) : owned(nullptr), data(listFormatterInternal) 
+{
 }
 
-ListFormatter::~ListFormatter() {
+ListFormatter::~ListFormatter() 
+{
 	delete owned;
 }
 
@@ -553,23 +559,20 @@ public:
 	LocalPointer<FormattedListData> data;
 
 	/** For lists of length 1+ */
-	FormattedListBuilder(const UnicodeString & start, UErrorCode & status)
-		: data(new FormattedListData(status), status) {
+	FormattedListBuilder(const UnicodeString & start, UErrorCode & status) : data(new FormattedListData(status), status) 
+	{
 		if(U_SUCCESS(status)) {
-			data->getStringRef().append(
-				start,
-				{UFIELD_CATEGORY_LIST, ULISTFMT_ELEMENT_FIELD},
-				status);
+			data->getStringRef().append(start, {UFIELD_CATEGORY_LIST, ULISTFMT_ELEMENT_FIELD}, status);
 			data->appendSpanInfo(UFIELD_CATEGORY_LIST_SPAN, 0, -1, start.length(), status);
 		}
 	}
 
 	/** For lists of length 0 */
-	FormattedListBuilder(UErrorCode & status)
-		: data(new FormattedListData(status), status) {
+	FormattedListBuilder(UErrorCode & status) : data(new FormattedListData(status), status) 
+	{
 	}
-
-	void append(const SimpleFormatter& pattern, const UnicodeString & next, int32_t position, UErrorCode & status) {
+	void append(const SimpleFormatter& pattern, const UnicodeString & next, int32_t position, UErrorCode & status) 
+	{
 		if(U_FAILURE(status)) {
 			return;
 		}
@@ -583,49 +586,21 @@ public:
 		if(offsets[0] <= offsets[1]) {
 			// prefix{0}infix{1}suffix
 			// Prepend prefix, then append infix, element, and suffix
-			data->getStringRef().insert(
-				0,
-				temp.tempSubStringBetween(0, offsets[0]),
-				{UFIELD_CATEGORY_LIST, ULISTFMT_LITERAL_FIELD},
-				status);
-			data->getStringRef().append(
-				temp.tempSubStringBetween(offsets[0], offsets[1]),
-				{UFIELD_CATEGORY_LIST, ULISTFMT_LITERAL_FIELD},
-				status);
-			data->getStringRef().append(
-				next,
-				{UFIELD_CATEGORY_LIST, ULISTFMT_ELEMENT_FIELD},
-				status);
+			data->getStringRef().insert(0, temp.tempSubStringBetween(0, offsets[0]), {UFIELD_CATEGORY_LIST, ULISTFMT_LITERAL_FIELD}, status);
+			data->getStringRef().append(temp.tempSubStringBetween(offsets[0], offsets[1]), {UFIELD_CATEGORY_LIST, ULISTFMT_LITERAL_FIELD}, status);
+			data->getStringRef().append(next, {UFIELD_CATEGORY_LIST, ULISTFMT_ELEMENT_FIELD}, status);
 			data->appendSpanInfo(UFIELD_CATEGORY_LIST_SPAN, position, -1, next.length(), status);
-			data->getStringRef().append(
-				temp.tempSubString(offsets[1]),
-				{UFIELD_CATEGORY_LIST, ULISTFMT_LITERAL_FIELD},
-				status);
+			data->getStringRef().append(temp.tempSubString(offsets[1]), {UFIELD_CATEGORY_LIST, ULISTFMT_LITERAL_FIELD}, status);
 		}
 		else {
 			// prefix{1}infix{0}suffix
 			// Prepend infix, element, and prefix, then append suffix.
 			// (We prepend in reverse order because prepending at index 0 is fast.)
-			data->getStringRef().insert(
-				0,
-				temp.tempSubStringBetween(offsets[1], offsets[0]),
-				{UFIELD_CATEGORY_LIST, ULISTFMT_LITERAL_FIELD},
-				status);
-			data->getStringRef().insert(
-				0,
-				next,
-				{UFIELD_CATEGORY_LIST, ULISTFMT_ELEMENT_FIELD},
-				status);
+			data->getStringRef().insert(0, temp.tempSubStringBetween(offsets[1], offsets[0]), {UFIELD_CATEGORY_LIST, ULISTFMT_LITERAL_FIELD}, status);
+			data->getStringRef().insert(0, next, {UFIELD_CATEGORY_LIST, ULISTFMT_ELEMENT_FIELD}, status);
 			data->prependSpanInfo(UFIELD_CATEGORY_LIST_SPAN, position, -1, next.length(), status);
-			data->getStringRef().insert(
-				0,
-				temp.tempSubStringBetween(0, offsets[1]),
-				{UFIELD_CATEGORY_LIST, ULISTFMT_LITERAL_FIELD},
-				status);
-			data->getStringRef().append(
-				temp.tempSubString(offsets[0]),
-				{UFIELD_CATEGORY_LIST, ULISTFMT_LITERAL_FIELD},
-				status);
+			data->getStringRef().insert(0, temp.tempSubStringBetween(0, offsets[1]), {UFIELD_CATEGORY_LIST, ULISTFMT_LITERAL_FIELD}, status);
+			data->getStringRef().append(temp.tempSubString(offsets[0]), {UFIELD_CATEGORY_LIST, ULISTFMT_LITERAL_FIELD}, status);
 		}
 	}
 };

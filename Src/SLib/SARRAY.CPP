@@ -199,16 +199,10 @@ static void insmem(void * pDest, const void * pSrc, size_t blkOffs, size_t blkSi
 
 int FASTCALL SVectorBase::insert(const void * pItem)
 {
-	//
-	// @v7.8.0 Так как данная функция очень часто вызывается, вместо вызова atInsert(count, pItem)
-	// сделаем прямую реализацию функции, дабы сэкономить немного времени.
-	//
 	const  uint _c = count;
 	int    ok = 1;
-	if(_c < Limit || expand(1)) { // @v8.1.11 (count < limit ||) так быстрее ибо придется реже входить в функцию expand
+	if(_c < Limit || expand(1)) { // (count < limit ||): так быстрее ибо придется реже входить в функцию expand
 		const size_t quant = static_cast<size_t>(isize);
-		//insmem(data, _INTRPTR(pItem), _c, quant, _c);
-		//static void insmem(void * pDest, const void * pSrc, size_t blkOffs, size_t blkSize, size_t destSize)
 		{
 			const void * p_intr = _INTRPTR(pItem);
 			uint8 * d = PTR8(P_VData) + _c * quant;

@@ -169,19 +169,17 @@ private:
 // A hash set of non-negative int32_t that uses Vec for its underlying storage.
 class NodeSet {
 public:
-	NodeSet() {
+	NodeSet() 
+	{
 		Init();
 	}
-
-	void clear() {
+	void clear() 
+	{
 		Init();
 	}
-
-	bool contains(int32_t v) const {
-		return table_[FindIndex(v)] == v;
-	}
-
-	bool insert(int32_t v) {
+	bool contains(int32_t v) const { return table_[FindIndex(v)] == v; }
+	bool insert(int32_t v) 
+	{
 		uint32_t i = FindIndex(v);
 		if(table_[i] == v) {
 			return false;
@@ -196,14 +194,13 @@ public:
 		if(occupied_ >= table_.size() - table_.size()/4) Grow();
 		return true;
 	}
-
-	void erase(uint32_t v) {
+	void erase(uint32_t v) 
+	{
 		uint32_t i = FindIndex(v);
 		if(static_cast<uint32_t>(table_[i]) == v) {
 			table_[i] = kDel;
 		}
 	}
-
 	// Iteration: is done via HASH_FOR_EACH
 	// Example:
 	//    HASH_FOR_EACH(elem, node->out) { ... }
@@ -226,12 +223,10 @@ private:
 	Vec<int32_t> table_;
 	uint32_t occupied_; // Count of non-empty slots (includes deleted slots)
 
-	static uint32_t Hash(uint32_t a) {
-		return a * 41;
-	}
-
+	static uint32_t Hash(uint32_t a) { return a * 41; }
 	// Return index for storing v.  May return an empty index or deleted index
-	int FindIndex(int32_t v) const {
+	int FindIndex(int32_t v) const 
+	{
 		// Search starting at hash index.
 		const uint32_t mask = table_.size() - 1;
 		uint32_t i = Hash(v) & mask;
@@ -252,23 +247,23 @@ private:
 			i = (i + 1) & mask; // Linear probing; quadratic is slightly slower.
 		}
 	}
-
-	void Init() {
+	void Init() 
+	{
 		table_.clear();
 		table_.resize(kInline);
 		table_.fill(kEmpty);
 		occupied_ = 0;
 	}
-
-	void Grow() {
+	void Grow() 
+	{
 		Vec<int32_t> copy;
 		copy.MoveFrom(&table_);
 		occupied_ = 0;
 		table_.resize(copy.size() * 2);
 		table_.fill(kEmpty);
-
 		for(const auto & e : copy) {
-			if(e >= 0) insert(e);
+			if(e >= 0) 
+				insert(e);
 		}
 	}
 
@@ -280,20 +275,15 @@ private:
 // number is incremented when the GraphId is freed which automatically
 // invalidates all copies of the GraphId.
 
-inline GraphId MakeId(int32_t index, uint32_t version) {
+inline GraphId MakeId(int32_t index, uint32_t version) 
+{
 	GraphId g;
-	g.handle =
-	    (static_cast<uint64_t>(version) << 32) | static_cast<uint32_t>(index);
+	g.handle = (static_cast<uint64_t>(version) << 32) | static_cast<uint32_t>(index);
 	return g;
 }
 
-inline int32_t NodeIndex(GraphId id) {
-	return static_cast<uint32_t>(id.handle & 0xfffffffful);
-}
-
-inline uint32_t NodeVersion(GraphId id) {
-	return static_cast<uint32_t>(id.handle >> 32);
-}
+inline int32_t NodeIndex(GraphId id) { return static_cast<uint32_t>(id.handle & 0xfffffffful); }
+inline uint32_t NodeVersion(GraphId id) { return static_cast<uint32_t>(id.handle >> 32); }
 
 struct Node {
 	int32_t rank;         // rank number assigned by Pearce-Kelly algorithm
@@ -311,11 +301,12 @@ struct Node {
 // Hash table for pointer to node index lookups.
 class PointerMap {
 public:
-	explicit PointerMap(const Vec<Node*>* nodes) : nodes_(nodes) {
+	explicit PointerMap(const Vec<Node*>* nodes) : nodes_(nodes) 
+	{
 		table_.fill(-1);
 	}
-
-	int32_t Find(void* ptr) {
+	int32_t Find(void* ptr) 
+	{
 		auto masked = base_internal::HidePtr(ptr);
 		for(int32_t i = table_[Hash(ptr)]; i != -1;) {
 			Node* n = (*nodes_)[i];
@@ -324,14 +315,14 @@ public:
 		}
 		return -1;
 	}
-
-	void Add(void* ptr, int32_t i) {
+	void Add(void* ptr, int32_t i) 
+	{
 		int32_t* head = &table_[Hash(ptr)];
 		(*nodes_)[i] -> next_hash = * head;
 		* head = i;
 	}
-
-	int32_t Remove(void* ptr) {
+	int32_t Remove(void* ptr) 
+	{
 		// Advance through linked list while keeping track of the
 		// predecessor slot that points to the current entry.
 		auto masked = base_internal::HidePtr(ptr);
@@ -347,17 +338,13 @@ public:
 		}
 		return -1;
 	}
-
 private:
 	// Number of buckets in hash table for pointer lookups.
 	static constexpr uint32_t kHashTableSize = 8171; // should be prime
-
 	const Vec<Node*>* nodes_;
 	std::array<int32_t, kHashTableSize> table_;
 
-	static uint32_t Hash(void* ptr) {
-		return reinterpret_cast<uintptr_t>(ptr) % kHashTableSize;
-	}
+	static uint32_t Hash(void* ptr) { return reinterpret_cast<uintptr_t>(ptr) % kHashTableSize; }
 };
 }  // namespace
 

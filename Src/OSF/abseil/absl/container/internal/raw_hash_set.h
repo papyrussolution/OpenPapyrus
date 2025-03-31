@@ -1000,13 +1000,9 @@ private:
 		    that.hash_ref(), that.eq_ref(), that.alloc_ref()) {
 	}
 
-	raw_hash_set(raw_hash_set&& that, const allocator_type& a)
-		: ctrl_(EmptyGroup()),
-		slots_(nullptr),
-		size_(0),
-		capacity_(0),
-		settings_(0, HashtablezInfoHandle(), that.hash_ref(), that.eq_ref(),
-		    a) {
+	raw_hash_set(raw_hash_set&& that, const allocator_type& a) : ctrl_(EmptyGroup()), slots_(nullptr), size_(0), capacity_(0),
+		settings_(0, HashtablezInfoHandle(), that.hash_ref(), that.eq_ref(), a) 
+	{
 		if(a == that.alloc_ref()) {
 			std::swap(ctrl_, that.ctrl_);
 			std::swap(slots_, that.slots_);
@@ -1019,19 +1015,16 @@ private:
 			reserve(that.size());
 			// Note: this will copy elements of dense_set and unordered_set instead of
 			// moving them. This can be fixed if it ever becomes an issue.
-			for(auto & elem : that) insert(std::move(elem));
+			for(auto & elem : that) 
+				insert(std::move(elem));
 		}
 	}
-
-	raw_hash_set& operator = (const raw_hash_set& that) {
-		raw_hash_set tmp(that,
-		    AllocTraits::propagate_on_container_copy_assignment::value
-		    ? that.alloc_ref()
-		    : alloc_ref());
+	raw_hash_set& operator = (const raw_hash_set& that) 
+	{
+		raw_hash_set tmp(that, AllocTraits::propagate_on_container_copy_assignment::value ? that.alloc_ref() : alloc_ref());
 		swap(tmp);
 		return *this;
 	}
-
 	raw_hash_set& operator = (raw_hash_set&& that) noexcept (
 		absl::allocator_traits<allocator_type>::is_always_equal::value&&
 		std::is_nothrow_move_assignable<hasher>::value&&
@@ -1176,34 +1169,27 @@ private:
 	template <
 		class T, RequiresInsertable<T> = 0,
 		typename std::enable_if<IsDecomposable<const T&>::value, int>::type = 0>
-	iterator insert(const_iterator, const T& value) {
-		return insert(value).first;
+	iterator insert(const_iterator, const T& value) { return insert(value).first; }
+	iterator insert(const_iterator, init_type&& value) { return insert(std::move(value)).first; }
+	template <class InputIt> void insert(InputIt first, InputIt last) 
+	{
+		for(; first != last; ++first) 
+			emplace(*first);
 	}
-
-	iterator insert(const_iterator, init_type&& value) {
-		return insert(std::move(value)).first;
-	}
-
-	template <class InputIt>
-	void insert(InputIt first, InputIt last) {
-		for(; first != last; ++first) emplace(*first);
-	}
-
-	template <class T, RequiresNotInit<T> = 0, RequiresInsertable<const T&> = 0>
-	void insert(std::initializer_list<T> ilist) {
+	template <class T, RequiresNotInit<T> = 0, RequiresInsertable<const T&> = 0> void insert(std::initializer_list<T> ilist) 
+	{
 		insert(ilist.begin(), ilist.end());
 	}
-
-	void insert(std::initializer_list<init_type> ilist) {
+	void insert(std::initializer_list<init_type> ilist) 
+	{
 		insert(ilist.begin(), ilist.end());
 	}
-
-	insert_return_type insert(node_type&& node) {
-		if(!node) return {end(), false, node_type()};
+	insert_return_type insert(node_type&& node) 
+	{
+		if(!node) 
+			return {end(), false, node_type()};
 		const auto & elem = PolicyTraits::element(CommonAccess::GetSlot(node));
-		auto res = PolicyTraits::apply(
-			InsertSlot<false>{*this, std::move(*CommonAccess::GetSlot(node))},
-			elem);
+		auto res = PolicyTraits::apply(InsertSlot<false>{*this, std::move(*CommonAccess::GetSlot(node))}, elem);
 		if(res.second) {
 			CommonAccess::Reset(&node);
 			return {res.first, true, node_type()};
@@ -1212,13 +1198,12 @@ private:
 			return {res.first, false, std::move(node)};
 		}
 	}
-
-	iterator insert(const_iterator, node_type&& node) {
+	iterator insert(const_iterator, node_type&& node) 
+	{
 		auto res = insert(std::move(node));
 		node = std::move(res.node);
 		return res.position;
 	}
-
 	// This overload kicks in if we can deduce the key from args. This enables us
 	// to avoid constructing value_type if an entry with the same key already
 	// exists.
@@ -1228,19 +1213,16 @@ private:
 	//   flat_hash_map<std::string, std::string> m = {{"abc", "def"}};
 	//   // Creates no std::string copies and makes no heap allocations.
 	//   m.emplace("abc", "xyz");
-	template <class ... Args, typename std::enable_if<
-		    IsDecomposable<Args ...>::value, int>::type = 0>
+	template <class ... Args, typename std::enable_if<IsDecomposable<Args ...>::value, int>::type = 0>
 	std::pair<iterator, bool> emplace(Args&& ... args) {
-		return PolicyTraits::apply(EmplaceDecomposable{*this},
-			   std::forward<Args>(args) ...);
+		return PolicyTraits::apply(EmplaceDecomposable{*this}, std::forward<Args>(args) ...);
 	}
-
 	// This overload kicks in if we cannot deduce the key from args. It constructs
 	// value_type unconditionally and then either moves it into the table or
 	// destroys.
-	template <class ... Args, typename std::enable_if<
-		    !IsDecomposable<Args ...>::value, int>::type = 0>
-	std::pair<iterator, bool> emplace(Args&& ... args) {
+	template <class ... Args, typename std::enable_if<!IsDecomposable<Args ...>::value, int>::type = 0>
+	std::pair<iterator, bool> emplace(Args&& ... args) 
+	{
 		alignas(slot_type) unsigned char raw[sizeof(slot_type)];
 		slot_type* slot = reinterpret_cast<slot_type*>(&raw);
 
@@ -1248,12 +1230,10 @@ private:
 		const auto & elem = PolicyTraits::element(slot);
 		return PolicyTraits::apply(InsertSlot<true>{*this, std::move(*slot)}, elem);
 	}
-
-	template <class ... Args>
-	iterator emplace_hint(const_iterator, Args&& ... args) {
+	template <class ... Args> iterator emplace_hint(const_iterator, Args&& ... args) 
+	{
 		return emplace(std::forward<Args>(args) ...).first;
 	}
-
 	// Extension API: support for lazy emplace.
 	//
 	// Looks up key in the table. If found, returns the iterator to the element.
@@ -1283,7 +1263,6 @@ private:
 	// the same thing with the rest of the API, prefer that.
 	class constructor {
 		friend class raw_hash_set;
-
 public:
 		template <class ... Args>
 		void operator()(Args&& ... args) const {
