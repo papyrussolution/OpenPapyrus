@@ -154,7 +154,7 @@ public:
 	TCalendarP(LDATE d1, LDATE d2) : TCalendar()
 	{
 		PeriodSelect = 1;
-		D  = checkdate(d1) ? d1 : getcurdate_();
+		D  = ValidDateOr(d1, getcurdate_());
 		D1 = d1;
 		D2 = d2;
 		Normalize();
@@ -189,8 +189,8 @@ public:
 		char   period_buf[128];
 		strtoperiod(Period, &range, 0);
 		const  LDATE cur_dt = getcurdate_();
-		D1 = checkdate(range.low) ? range.low : cur_dt;
-		D2 = checkdate(range.upp) ? range.upp : cur_dt;
+		D1 = ValidDateOr(range.low, cur_dt);
+		D2 = ValidDateOr(range.upp, cur_dt);
 		range.Set(D1, D2);
 		const int r = periodfmtex(&range, period_buf, sizeof(period_buf));
 		Period = period_buf;

@@ -3966,7 +3966,7 @@ void PPObjTimeSeries::StrategyContainer::SetupByTsPacket(const PPTimeSeriesPacke
 
 void PPObjTimeSeries::StrategyContainer::SetUseDataForStrategiesTill(LDATE dt)
 {
-	Fb.UseDataForStrategiesTill = checkdate(dt) ? dt : ZERODATE;
+	Fb.UseDataForStrategiesTill = ValidDateOr(dt, ZERODATE);
 }
 
 void PPObjTimeSeries::StrategyContainer::SetLastValTm(LDATETIME dtm)
@@ -7655,7 +7655,7 @@ int PrcssrTsStrategyAnalyze::Run()
 			msg_buf.Z().CatCharN('=', 8).Space().CatCurDateTime(DATF_ISO8601CENT, 0).Space().CatCharN('=', 8);
 			if(checkdate(P.UseDataForStrategiesTill))
 				msg_buf.CR().CatEq("p.use_data_for_strategies_till", P.UseDataForStrategiesTill, DATF_DMY|DATF_CENTURY);
-			if(checkdate(P.UseDataForStrategiesTill2)) // @v10.8.9
+			if(checkdate(P.UseDataForStrategiesTill2))
 				msg_buf.CR().CatEq("p.use_data_for_strategies_till_2", P.UseDataForStrategiesTill2, DATF_DMY|DATF_CENTURY);
 			msg_buf.CR();
 			f_out.WriteLine(msg_buf);
@@ -7687,10 +7687,10 @@ int PrcssrTsStrategyAnalyze::Run()
 			if(TsObj.GetPacket(id, &ts_pack) > 0 && GetTssModel(&ts_pack.Rec, &tss_model) > 0) {
 				STimeSeries ts;
 				SString ts_buf;
-				const LDATE date_since = checkdate(ts_pack.E.UseDataForStrategiesSince) ? ts_pack.E.UseDataForStrategiesSince : tss_model.Rec.UseDataSince;
-				const LDATE date_till2 = checkdate(P.UseDataForStrategiesTill2) ? P.UseDataForStrategiesTill2 : ZERODATE; // @v10.8.9
-				STimeSeries ts_2; // @v10.8.9 Серия, обрезанная по till_date2
-				GetTimeSeries(id, date_since, date_till2, ts_2); // @v10.8.9
+				const LDATE date_since = ValidDateOr(ts_pack.E.UseDataForStrategiesSince, tss_model.Rec.UseDataSince);
+				const LDATE date_till2 = ValidDateOr(P.UseDataForStrategiesTill2, ZERODATE);
+				STimeSeries ts_2; // Серия, обрезанная по till_date2
+				GetTimeSeries(id, date_since, date_till2, ts_2);
 				if(do_iterate_throw_periods && checkdate(P.UseDataForStrategiesTill)) {
 					TSVector <LDATE> date_till_list;
 					TSCollection <PPObjTimeSeries::StrategyContainer> container_list;
@@ -7752,7 +7752,7 @@ int PrcssrTsStrategyAnalyze::Run()
 					}
 				}
 				else {
-					const LDATE date_till = checkdate(P.UseDataForStrategiesTill) ? P.UseDataForStrategiesTill : ZERODATE;
+					const LDATE date_till = ValidDateOr(P.UseDataForStrategiesTill, ZERODATE);
 					const int gtsr = GetTimeSeries(id, date_since, date_till, ts);
 					msg_buf.Z().CatChar('#').Cat(ts_pack.Rec.ID).Space().Cat(ts_pack.Rec.Name).Space().CatEq("date_till", date_till, DATF_ISO8601).CR();
 					tss_model.Output(temp_buf);

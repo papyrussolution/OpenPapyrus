@@ -3525,7 +3525,7 @@ int PPMarketplaceInterface_Wildberries::ImportReceipts()
 						PPID   ex_bill_id = 0;
 						Goods2Tbl::Rec goods_rec;
 						PPBillPacket::SetupObjectBlock sob;
-						const LDATE dt = checkdate(p_wb_item->Dtm.d) ? p_wb_item->Dtm.d : getcurdate_();
+						const LDATE dt = ValidDateOr(p_wb_item->Dtm.d, getcurdate_());
 						const PPID lot_id = CreateReceipt(p_wb_item->IncomeID, p_wb_item->Ware, dt, wh_id, goods_id, fabs(p_wb_item->Qtty), false, 1);
 						if(lot_id) {
 							ok = 1;
@@ -4043,7 +4043,7 @@ int PPMarketplaceInterface_Wildberries::ImportSales()
 								R_Prc.GetLogger().LogLastError();
 							}
 							else {
-								pack.Rec.Dt = checkdate(p_wb_item->Dtm.d) ? p_wb_item->Dtm.d : getcurdate_();
+								pack.Rec.Dt = ValidDateOr(p_wb_item->Dtm.d, getcurdate_());
 								STRNSCPY(pack.Rec.Code, bill_code);
 								if(ar_id) {
 									pack.SetupObject(ar_id, sob);
@@ -4101,7 +4101,7 @@ int PPMarketplaceInterface_Wildberries::ImportSales()
 						}
 						else {
 							const double sold_quantity = 1.0; // 
-							pack.Rec.Dt = checkdate(p_wb_item->Dtm.d) ? p_wb_item->Dtm.d : getcurdate_();
+							pack.Rec.Dt = ValidDateOr(p_wb_item->Dtm.d, getcurdate_());
 							STRNSCPY(pack.Rec.Code, bill_code);
 							if(ar_id) {
 								pack.SetupObject(ar_id, sob);
@@ -4119,7 +4119,7 @@ int PPMarketplaceInterface_Wildberries::ImportSales()
 								nominal_price = p_wb_item->FinishedPrice;
 							// Предполагаем, что на маркетплейсе заказ может прийти только тогда, когда товар уже есть на складе.
 							// Таким образом, дата прихода должна быть не больше даты заказа.
-							const  LDATE lot_date = checkdate(ord_pack.Rec.Dt) ? ord_pack.Rec.Dt : pack.Rec.Dt;
+							const  LDATE lot_date = ValidDateOr(ord_pack.Rec.Dt, pack.Rec.Dt);
 							PPID   lot_id = AdjustReceiptOnExpend(p_wb_item->Ware, p_wb_item->IncomeID, lot_date, wh_id, goods_id, sold_quantity, nominal_price, 1/*use_ta*/);
 							if(lot_id) {
 								mp_lot_list.add(lot_id);
@@ -4316,7 +4316,7 @@ int PPMarketplaceInterface_Wildberries::ImportOrders()
 							PPBillPacket::SetupObjectBlock sob;
 							PPID   ar_id = CreateBuyer(p_wb_item, 1/*use_ta*/);
 							if(pack.CreateBlank_WithoutCode(order_op_id, 0, wh_id, 1)) {
-								pack.Rec.Dt = checkdate(p_wb_item->Dtm.d) ? p_wb_item->Dtm.d : getcurdate_();
+								pack.Rec.Dt = ValidDateOr(p_wb_item->Dtm.d, getcurdate_());
 								STRNSCPY(pack.Rec.Code, bill_code);
 								if(ar_id) {
 									PPBillPacket::SetupObjectBlock sob;
@@ -4737,7 +4737,7 @@ int PPMarketplaceInterface_Wildberries::ImportFinancialTransactions()
 											PPTransaction tra(1);
 											THROW(tra);
 											bpack_at.CreateBlank_WithoutCode(op_id, 0, loc_id, 0);
-											bpack_at.Rec.Dt = checkdate(p_entry->RrDtm.d) ? p_entry->RrDtm.d : (checkdate(p_entry->CrDate) ? p_entry->CrDate : now_dtm.d);
+											bpack_at.Rec.Dt = ValidDateOr(p_entry->RrDtm.d, ValidDateOr(p_entry->CrDate, now_dtm.d));
 											STRNSCPY(bpack_at.Rec.Code, bill_code);
 											if(ArObj.P_Tbl->SearchNum(acs_id, ARTN_MRKTPLCACC_ACCEPTANCE, &ar_rec) > 0) {
 												PPAccTurn at;
@@ -4881,10 +4881,10 @@ int PPMarketplaceInterface_Wildberries::ImportFinancialTransactions()
 													MakeSerialIdent(p_entry->IncomeID, p_entry->Ware, serial_buf); // nativeopDamagesCompensation
 													const double qtty = fabs(p_entry->Qtty);
 													const double nominal_price = 0.0;
-													const LDATE  bill_date = checkdate(p_entry->RrDtm.d) ? p_entry->RrDtm.d : getcurdate_();
+													const LDATE  bill_date = ValidDateOr(p_entry->RrDtm.d, getcurdate_());
 													// Предполагаем, что на маркетплейсе заказ может прийти только тогда, когда товар уже есть на складе.
 													// Таким образом, дата прихода должна быть не больше даты заказа.
-													const  LDATE lot_date = checkdate(p_entry->OrderDtm.d) ? p_entry->OrderDtm.d : bill_date;
+													const  LDATE lot_date = ValidDateOr(p_entry->OrderDtm.d, bill_date);
 													PPID   lot_id = AdjustReceiptOnExpend(p_entry->Ware, p_entry->IncomeID, lot_date, loc_id, goods_id, qtty, nominal_price, 0/*use_ta*/);
 													ReceiptTbl::Rec lot_rec;
 													if(lot_id && p_bobj->trfr->Rcpt.Search(lot_id, &lot_rec) > 0) {
@@ -4951,7 +4951,7 @@ int PPMarketplaceInterface_Wildberries::ImportFinancialTransactions()
 											PPTransaction tra(1);
 											THROW(tra);
 											bpack_at.CreateBlank_WithoutCode(op_id, 0, loc_id, 0);
-											bpack_at.Rec.Dt = checkdate(p_entry->RrDtm.d) ? p_entry->RrDtm.d : (checkdate(p_entry->CrDate) ? p_entry->CrDate : now_dtm.d);
+											bpack_at.Rec.Dt = ValidDateOr(p_entry->RrDtm.d, ValidDateOr(p_entry->CrDate, now_dtm.d));
 											STRNSCPY(bpack_at.Rec.Code, bill_code);
 											if(ArObj.P_Tbl->SearchNum(acs_id, ARTN_MRKTPLCACC_PENALTY, &ar_rec) > 0) {
 												PPAccTurn at;
@@ -4987,7 +4987,7 @@ int PPMarketplaceInterface_Wildberries::ImportFinancialTransactions()
 											PPTransaction tra(1);
 											THROW(tra);
 											bpack_at.CreateBlank_WithoutCode(op_id, 0, loc_id, 0);
-											bpack_at.Rec.Dt = checkdate(p_entry->RrDtm.d) ? p_entry->RrDtm.d : (checkdate(p_entry->CrDate) ? p_entry->CrDate : now_dtm.d);
+											bpack_at.Rec.Dt = ValidDateOr(p_entry->RrDtm.d, ValidDateOr(p_entry->CrDate, now_dtm.d));
 											STRNSCPY(bpack_at.Rec.Code, bill_code);
 											if(ArObj.P_Tbl->SearchNum(acs_id, ARTN_MRKTPLCACC_DEDUCTION, &ar_rec) > 0) {
 												PPAccTurn at;
@@ -5023,7 +5023,7 @@ int PPMarketplaceInterface_Wildberries::ImportFinancialTransactions()
 											PPTransaction tra(1);
 											THROW(tra);
 											bpack_at.CreateBlank_WithoutCode(op_id, 0, loc_id, 0);
-											bpack_at.Rec.Dt = checkdate(p_entry->RrDtm.d) ? p_entry->RrDtm.d : (checkdate(p_entry->CrDate) ? p_entry->CrDate : now_dtm.d);
+											bpack_at.Rec.Dt = ValidDateOr(p_entry->RrDtm.d, ValidDateOr(p_entry->CrDate, now_dtm.d));
 											STRNSCPY(bpack_at.Rec.Code, bill_code);
 											if(ArObj.P_Tbl->SearchNum(acs_id, ARTN_MRKTPLCACC_STORAGE, &ar_rec) > 0) {
 												PPAccTurn at;

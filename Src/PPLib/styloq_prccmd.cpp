@@ -1097,9 +1097,9 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 					loc_id = loc_list.getSingle(); // @v11.4.9
 				}
 			}
-			const LDATE due_date = checkdate(doc.DueTime.d) ? doc.DueTime.d : ZERODATE;
+			const LDATE due_date = ValidDateOr(doc.DueTime.d, ZERODATE);
 			const LDATE nominal_doc_date = (p_cmd_doc_filt && p_cmd_doc_filt->Flags & StyloQDocumentPrereqParam::fDlvrDateAsNominal && checkdate(due_date)) ? due_date : 
-				(checkdate(doc.Time.d) ? doc.Time.d : (checkdate(doc.CreationTime.d) ? doc.CreationTime.d : getcurdate_()));
+				ValidDateOr(doc.Time.d, ValidDateOr(doc.CreationTime.d, getcurdate_()));
 			THROW_PP_S(GetOpData(_op_id, &op_rec) > 0, PPERR_SQ_INDOCINVOP, doc_text);
 			temp_buf.Z().Cat(doc.Code).CatDiv('-', 1).Cat(nominal_doc_date, DATF_DMY);
 			THROW_PP_S(doc.TiList.getCount(), PPERR_INCOMINGBILLHASNTTI, temp_buf);

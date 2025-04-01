@@ -907,13 +907,12 @@ int PPObjCashNode::GetTaxSystem(PPID id, LDATE dt, PPID * pTaxSysID)
 {
 	int    ok = -1;
 	PPID   tax_sys_id = TAXSYSK_GENERAL;
-	const  LDATE actual_date = checkdate(dt) ? dt : getcurdate_();
+	const  LDATE actual_date = ValidDateOr(dt, getcurdate_());
 	PPObjPerson psn_obj;
 	RegisterTbl::Rec reg_rec;
 	if(id) {
         PPCashNode cn_rec;
 		if(Fetch(id, &cn_rec) > 0) {
-			// @v10.6.12 {
 			ObjTagList tag_list;
 			P_Ref->Ot.GetList(PPOBJ_CASHNODE, id, &tag_list);
 			for(uint tagidx = 0; ok < 0 && tagidx < tag_list.GetCount(); tagidx++) {
@@ -926,7 +925,6 @@ int PPObjCashNode::GetTaxSystem(PPID id, LDATE dt, PPID * pTaxSysID)
 					}
 				}
 			}
-			// } @v10.6.12
 			if(ok < 0 && cn_rec.LocID && psn_obj.LocObj.GetRegister(cn_rec.LocID, PPREGT_TAXSYSTEM, actual_date, false, &reg_rec) > 0 && reg_rec.ExtID > 0) {
 				tax_sys_id = reg_rec.ExtID;
 				ok = 1;

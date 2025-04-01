@@ -7368,7 +7368,7 @@ int PPVetisInterface::GetProductChangesList(uint offs, uint count, LDATE since, 
 					{
 						SXml::WNode n_udi(srb, SXml::nst("base", "updateDateInterval"));
 						LDATETIME dtm_since;
-						dtm_since.Set(checkdate(since) ? since : encodedate(1, 1, 2015), ZEROTIME);
+						dtm_since.Set(ValidDateOr(since, encodedate(1, 1, 2015)), ZEROTIME);
 						n_udi.PutInner(SXml::nst("base", "beginDate"), temp_buf.Z().Cat(dtm_since, DATF_ISO8601CENT, 0));
 					}
 				}
@@ -7427,7 +7427,7 @@ int PPVetisInterface::GetSubProductChangesList(uint offs, uint count, LDATE sinc
 					{
 						SXml::WNode n_udi(srb, SXml::nst("base", "updateDateInterval"));
 						LDATETIME dtm_since;
-						dtm_since.Set(checkdate(since) ? since : encodedate(1, 1, 2015), ZEROTIME);
+						dtm_since.Set(ValidDateOr(since, encodedate(1, 1, 2015)), ZEROTIME);
 						n_udi.PutInner(SXml::nst("base", "beginDate"), temp_buf.Z().Cat(dtm_since, DATF_ISO8601CENT, 0));
 					}
 				}
@@ -11026,7 +11026,6 @@ static int _SetupTimeChunkByDateRange(const DateRange & rPeriod, STimeChunk & rT
 						req_offs += reply.VetStockList.getCount();
 				}
 			}
-			// @v10.7.8 {
 			if(filt.Actions & VetisDocumentFilt::icacnPrepareOutgoing) {
 				DateRange period;
 				if(checkdate(filt.Period.low))
@@ -11034,7 +11033,7 @@ static int _SetupTimeChunkByDateRange(const DateRange & rPeriod, STimeChunk & rT
 				if(checkdate(filt.Period.upp))
 					period.upp = filt.Period.upp;
 				if(!checkdate(period.low)) {
-					period.low = checkdate(period.upp) ? period.upp : getcurdate_();
+					period.low = ValidDateOr(period.upp, getcurdate_());
 				}
 				if(!checkdate(period.upp)) {
 					period.upp = getcurdate_();
@@ -11044,7 +11043,6 @@ static int _SetupTimeChunkByDateRange(const DateRange & rPeriod, STimeChunk & rT
 			}
 			if(filt.Actions & VetisDocumentFilt::icacnSendOutgoing) {
 			}
-			// } @v10.7.8
 			if(ok > 0)
 				THROW(ifc.ProcessUnresolvedEntityList(ure_list));
 		}
@@ -12300,7 +12298,7 @@ int PPViewVetisDocument::LoadDocuments()
 	period.Z();
 	if(checkdate(Filt.Period.low)) {
 		period.low = Filt.Period.low;
-		period.upp = checkdate(Filt.Period.upp) ? Filt.Period.upp : Filt.Period.low;
+		period.upp = ValidDateOr(Filt.Period.upp, Filt.Period.low);
 	}
 	else if(checkdate(Filt.Period.upp))
 		period.SetDate(Filt.Period.upp);
@@ -13132,7 +13130,7 @@ int PPViewVetisDocument::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBr
 						if(checkdate(Filt.Period.upp))
 							period.upp = Filt.Period.upp;
 						if(!checkdate(period.low))
-							period.low = checkdate(period.upp) ? period.upp : getcurdate_();
+							period.low = ValidDateOr(period.upp, getcurdate_());
 						if(!checkdate(period.upp)) {
 							/*if(checkdate(period.low))
 								period.upp = period.low;

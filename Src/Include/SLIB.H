@@ -5551,6 +5551,10 @@ int    FASTCALL checkdate(LDATE dt, int zeroIsOk);
 //
 int    FASTCALL checkdate(LDATE dt);
 //
+// Descr: Возвращает dt если checkdate(dt) != 0 и defaultDate в противном случае.
+//
+LDATE  FASTCALL ValidDateOr(LDATE dt, LDATE defaultDate); // @v12.3.0
+//
 // Descr: Проверяет валидность полей времени
 // ARG(hr IN): часы [0..23]
 // ARG(mn IN): минуты [0..59]
@@ -8161,8 +8165,8 @@ public:
 	void * next();
 	int    STDCALL  enumItems(uint * pIdx, void ** ppItem) const;
 	void * atPut(uint, const void *);
-	int    STDCALL  atInsert(uint, const void *);
-	int    FASTCALL insert(const void * pItem);
+	bool   STDCALL  atInsert(uint, const void *);
+	bool   FASTCALL insert(const void * pItem);
 	//
 	// Descr: Функция массовой вставки элементов в массив.
 	// ARG(numItemsToInsert IN): количество новых элементов, добавляемых в массив.
@@ -8180,7 +8184,7 @@ public:
 	//      p_ptr_list[i] = new SomeStruct;
 	//   some_struct_list.insertChunk(32, p_ptr_list);
 	//
-	int    insertChunk(uint numItemsToInsert, const void * pItems);
+	bool   insertChunk(uint numItemsToInsert, const void * pItems);
 	//
 	// Descr: меняет местами элементы с индексами p1 и p2.
 	// Returns:

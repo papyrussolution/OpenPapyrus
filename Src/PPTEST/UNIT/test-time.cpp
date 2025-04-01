@@ -1,5 +1,5 @@
 // TEST-TIME.CPP
-// Copyright (c) A.Sobolev 2023, 2024
+// Copyright (c) A.Sobolev 2023, 2024, 2025
 // @codepage UTF-8
 // Тестирование реализаций времени и даты
 //
@@ -8,6 +8,23 @@
 
 SLTEST_R(LDATE)
 {
+	// @v12.3.0 {
+	{
+		const LDATE now_date = getcurdate_();
+		SLCHECK_NZ(checkdate(encodedate(11, 11, 2011)));
+		{
+			const LDATE inv_date = encodedate(41, 11, 2011);
+			SLCHECK_EQ(inv_date.day(), 41);
+			SLCHECK_Z(checkdate(inv_date));
+		}
+		SLCHECK_Z(checkdate(ZERODATE));
+		SLCHECK_Z(checkdate(ZERODATETIME.d));
+		SLCHECK_NZ(now_date);
+		SLCHECK_EQ(ValidDateOr(ZERODATE, now_date), now_date);
+		SLCHECK_EQ(ValidDateOr(ZERODATE, ZERODATE), ZERODATE);
+		SLCHECK_EQ(ValidDateOr(encodedate(7, 7, 1997), now_date), encodedate(7, 7, 1997));
+	}
+	// } @v12.3.0 
 	struct Pair {
 		char   In[64];
 		char   Out[64];

@@ -155,6 +155,44 @@ DocNalogRu_Base::DocumentInfo::DocumentInfo() : Flags(0), EdiOp(0), Dt(ZERODATE)
 {
 }
 
+DocNalogRu_Base::DocumentInfo::DocumentInfo(const DocumentInfo & rS)
+{
+	Copy(rS);
+}
+
+DocNalogRu_Base::DocumentInfo & FASTCALL DocNalogRu_Base::DocumentInfo::operator = (const DocumentInfo & rS)
+{
+	Copy(rS);
+	return *this;
+}
+
+bool FASTCALL DocNalogRu_Base::DocumentInfo::Copy(const DocumentInfo & rS)
+{
+	bool   ok = true;
+	{
+		#define _FLD(f) f = rS.f
+		_FLD(Flags);
+		_FLD(EdiOp);
+		_FLD(Dt);
+		_FLD(DueDtm);
+		_FLD(InvcDate);
+		_FLD(KND);
+		_FLD(Function);
+		_FLD(Code);
+		_FLD(InvcCode);
+		_FLD(Subj);
+		_FLD(SubjReason);
+		_FLD(NameOfDoc);
+		_FLD(NameOfDoc2);
+		_FLD(ConsigneeDivCode);
+		_FLD(ConsigneeDivName);
+		#undef _FLD
+	}
+	TSCollection_Copy(ParticipantList, rS.ParticipantList);
+	TSCollection_Copy(GoodsItemList, rS.GoodsItemList);
+	return ok;
+}
+
 DocNalogRu_Base::Participant * DocNalogRu_Base::DocumentInfo::GetParticipant(int partQ, bool createIfNExists)
 {
 	Participant * p_result = 0;
@@ -4986,7 +5024,7 @@ int PPBillImporter::Helper_AcceptCokeData(const SCollection * pRowList, PPID opI
 				pack.Rec.DueDate = p_item->DeliveryDate;
 			}
 			else {
-				pack.Rec.Dt = checkdate(p_item->OrderDate) ? p_item->OrderDate : getcurdate_(); // @v11.4.8
+				pack.Rec.Dt = ValidDateOr(p_item->OrderDate, getcurdate_()); // @v11.4.8
 			}
 			if(p_item->ClientDistrib.NotEmpty() && p_item->ClientDistrib.Divide('_', left_buf, right_buf) > 0) {
 				if(ArObj.Search(left_buf.ToLong(), &ar_rec) > 0) { // @v11.4.3 Fetch-->Search
@@ -5325,7 +5363,7 @@ int PPBillImporter::Run()
 						SString init_bill_code;
 						PPID   seller_ar_id = 0;
 						PPID   buyer_ar_id = 0;
-						LDATE  init_bill_date = checkdate(p_doc->Dt) ? p_doc->Dt : (checkdate(p_doc->InvcDate) ? p_doc->InvcDate : getcurdate_());
+						const  LDATE init_bill_date = ValidDateOr(p_doc->Dt, ValidDateOr(p_doc->InvcDate, getcurdate_()));
 						if(p_doc->Code.NotEmpty())
 							init_bill_code = p_doc->Code;
 						else if(p_doc->InvcCode.NotEmpty())
@@ -6791,6 +6829,7 @@ DocNalogRu_Generator::File::File(DocNalogRu_Generator & rG, const FileInfo & rHi
 
 DocNalogRu_Generator::Document::Document(DocNalogRu_Generator & rG, const DocumentInfo & rInfo) : N(rG.P_X, rG.GetToken_Ansi(PPHSC_RU_DOCUMENT))
 {
+	rG.SetDocumentInfo(rInfo); // @v12.3.0
 	if(!(rInfo.Flags & DocumentInfo::fIndepFormatProvider)) { // @v11.9.9
 		SString temp_buf;
 		N.PutAttrib(rG.GetToken_Ansi(PPHSC_RU_KND), rInfo.KND); // Код по Классификатору налоговой документации
@@ -8006,7 +8045,10 @@ int DocNalogRu_Generator::WriteDocRequisites(const PPBillPacket & rBp) // @v12.2
 	SString temp_buf;
 	if(IsVer503()) {
 		SXml::WNode n(P_X, GetToken_Ansi(PPHSC_RU_CONFSHIPMDOC2));
-		temp_buf = GetToken_Ansi(PPHSC_RU_CONFSHIPMDOCNAM_BILL);
+		if(Di.NameOfDoc.NotEmpty()) 
+			temp_buf = EncText(Di.NameOfDoc);
+		else
+			GetToken_Ansi(PPHSC_RU_CONFSHIPMDOCNAM_BILL);
 		n.PutAttrib(GetToken_Ansi(PPHSC_RU_REQDOCNAME), temp_buf);
 		temp_buf = rBp.Rec.Code;
 		n.PutAttrib(GetToken_Ansi(PPHSC_RU_REQDOCNO), EncText(temp_buf));
@@ -8207,7 +8249,7 @@ int DocNalogRu_WriteBillBlock::Do_DP_REZRUISP(SString & rResultFileName)
 			DocNalogRu_Generator::File f(G, _Hi);
 			// Наименование экономического субъекта – составителя информации исполнителя
 			GetMainOrgName(temp_buf);
-			DocNalogRu_Generator::DocumentInfo docinfo;
+			DocNalogRu_Base::DocumentInfo docinfo;
 			docinfo.KND = "1175012";
 			docinfo.Subj = temp_buf;
 			DocNalogRu_Generator::Document d(G, docinfo);
@@ -8399,7 +8441,7 @@ int DocNalogRu_WriteBillBlock::Do_Invoice2(SString & rResultFileName)
 			}
 			// } @v11.5.9 
 			// @v11.5.9 GetMainOrgName(temp_buf);
-			DocNalogRu_Generator::DocumentInfo docinfo;
+			DocNalogRu_Base::DocumentInfo docinfo;
 			docinfo.KND = "1115131";
 			docinfo.Subj = temp_buf;
 			docinfo.Function = "СЧФДОП";
@@ -8580,7 +8622,7 @@ int DocNalogRu_WriteBillBlock::Do_Invoice2(SString & rResultFileName)
 							temp_buf = GetToken(PPHSC_RU_CONTRACT);
 							n_11.PutAttrib(GetToken(G.IsVer503() ? PPHSC_RU_REQDOCNAME : PPHSC_RU_NAMEOFBASISFORWARETRANSFER), temp_buf);
 							n_11.PutAttrib(GetToken(G.IsVer503() ? PPHSC_RU_REQDOCNO   : PPHSC_RU_NUMBOFBASISFORWARETRANSFER), EncText(AgtCode));
-							temp_buf.Z().Cat(checkdate(AgtDate) ? AgtDate : encodedate(1, 1, 2017), DATF_GERMANCENT);
+							temp_buf.Z().Cat(ValidDateOr(AgtDate, encodedate(1, 1, 2017)), DATF_GERMANCENT);
 							n_11.PutAttrib(GetToken(G.IsVer503() ? PPHSC_RU_REQDOCDATE : PPHSC_RU_DATEOFBASISFORWARETRANSFER), EncText(temp_buf));
 						}
 						else {
@@ -8639,7 +8681,7 @@ int DocNalogRu_WriteBillBlock::Do_CorrInvoice(SString & rResultFileName)
 			//PPHSC_RU_CORRINVOICEHEADER
 			DocNalogRu_Generator::File f(G, _Hi);
 			GetMainOrgName(temp_buf);
-			DocNalogRu_Generator::DocumentInfo docinfo;
+			DocNalogRu_Base::DocumentInfo docinfo;
 			docinfo.KND = "1115133";
 			docinfo.Subj = temp_buf;
 			/*
@@ -8720,7 +8762,7 @@ int DocNalogRu_WriteBillBlock::Do_Invoice(SString & rResultFileName)
         {
 			DocNalogRu_Generator::File f(G, _Hi);
 			GetMainOrgName(temp_buf);
-			DocNalogRu_Generator::DocumentInfo docinfo;
+			DocNalogRu_Base::DocumentInfo docinfo;
 			docinfo.KND = "1115101";
 			docinfo.Subj = temp_buf;
 			DocNalogRu_Generator::Document d(G, docinfo);
@@ -8828,7 +8870,7 @@ int DocNalogRu_WriteBillBlock::Do_UPD(SString & rResultFileName)
         {
 			DocNalogRu_Generator::File f(G, _Hi);
 			GetMainOrgName(temp_buf);
-			DocNalogRu_Generator::DocumentInfo docinfo;
+			DocNalogRu_Base::DocumentInfo docinfo;
 			docinfo.KND = "1115131";
 			docinfo.Subj = temp_buf;
 			DocNalogRu_Generator::Document d(G, docinfo);
@@ -8943,12 +8985,25 @@ int DocNalogRu_WriteBillBlock::Do_UPD(SString & rResultFileName)
 					// } @v11.4.12 
 					G.WriteOrgInfo(GetToken(PPHSC_RU_BUYERINFO), _buyer_person_id, /*consignee_loc_id*/0, R_Bp.Rec.Dt, /*DocNalogRu_Generator::woifAddrLoc_KppOnly*/0);
 				}
+				// @v12.3.0 {
+				if(G.IsVer503()) {
+					SXml::WNode n01(G.P_X, G.GetToken_Ansi(PPHSC_RU_UOMCURRENCY));
+					n01.PutAttrib(G.GetToken_Ansi(PPHSC_RU_CODEOKV), "643");
+					n01.PutAttrib(G.GetToken_Ansi(PPHSC_RU_CURRENCYNAME), G.GetToken_Ansi(PPHSC_RU_CURRENCYNAME_RUB));
+				}
+				// } @v12.3.0 
 				{
-					SXml::WNode n(G.P_X, GetToken(PPHSC_RU_TRANSACTIONCONTENTEX1));
-					if(R_Bp.BTagL.GetItemStr(PPTAG_BILL_STATECONTRACTID, temp_buf) > 0)
-						n.PutAttrib(GetToken(PPHSC_RU_STATECONTRID), temp_buf);
-					temp_buf = GetToken(PPHSC_RU_CURRENCYNAME_RUB);
-					n.PutAttrib(GetToken(PPHSC_RU_CURRENCYNAME), temp_buf);
+					SString state_contract;
+					R_Bp.BTagL.GetItemStr(PPTAG_BILL_STATECONTRACTID, state_contract);
+					if(!G.IsVer503() || state_contract.NotEmptyS()) {
+						SXml::WNode n(G.P_X, GetToken(PPHSC_RU_TRANSACTIONCONTENTEX1));
+						if(state_contract.NotEmptyS())
+							n.PutAttrib(GetToken(PPHSC_RU_STATECONTRID), state_contract);
+						if(!G.IsVer503()) {
+							temp_buf = GetToken(PPHSC_RU_CURRENCYNAME_RUB);
+							n.PutAttrib(GetToken(PPHSC_RU_CURRENCYNAME), temp_buf);
+						}
+					}
 				}
 				{
 					// @v11.7.4 PPHSC_RU_EXTRA_WAYBILLCODE  номер_накладной
@@ -9073,7 +9128,7 @@ int DocNalogRu_WriteBillBlock::Do_UPD(SString & rResultFileName)
 						else if(AgtCode.NotEmpty()) {
 							n_11.PutAttrib(GetToken(G.IsVer503() ? PPHSC_RU_REQDOCNAME : PPHSC_RU_NAMEOFBASISFORWARETRANSFER), GetToken(PPHSC_RU_CONTRACT));
 							n_11.PutAttrib(GetToken(G.IsVer503() ? PPHSC_RU_REQDOCNO   : PPHSC_RU_NUMBOFBASISFORWARETRANSFER), EncText(AgtCode));
-							temp_buf.Z().Cat(checkdate(AgtDate) ? AgtDate : encodedate(1, 1, 2017), DATF_GERMANCENT);
+							temp_buf.Z().Cat(ValidDateOr(AgtDate, encodedate(1, 1, 2017)), DATF_GERMANCENT);
 							n_11.PutAttrib(GetToken(G.IsVer503() ? PPHSC_RU_REQDOCDATE : PPHSC_RU_DATEOFBASISFORWARETRANSFER), EncText(temp_buf));
 						}
 						else {

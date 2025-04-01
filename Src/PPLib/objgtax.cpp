@@ -546,7 +546,7 @@ int GTaxVect::CalcTI_Implement(const PPTransferItem & rTi, PPID opID, int tiamt,
 	const  PPCommConfig & r_ccfg = CConfig;
 	PPObjBill * p_bobj = BillObj;
 	const  bool calcti_costwovat_byprice = (r_ccfg.Flags & CCFLG_COSTWOVATBYSUM) ? false : true;
-	const  LDATE date_of_relevance = checkdate(rTi.LotDate) ? rTi.LotDate : rTi.Date; // Драфт-документы имеют нулевой LotDate
+	const  LDATE date_of_relevance = ValidDateOr(rTi.LotDate, rTi.Date); // Драфт-документы имеют нулевой LotDate
 	bool   is_cost_wo_vat = false;
 	bool   is_asset = false;
 	bool   is_exclvat = false;
@@ -787,7 +787,7 @@ int GTaxVect::EvaluateTaxes(const EvalBlock & rBlk__) // @v12.2.4
 		const  PPID  lot_tax_grp_id = p_ti ? p_ti->LotTaxGrpID : 0;
 		const  LDATE op_date  = lblk.GetOpDate();
 		const  LDATE lot_date = p_ti ? p_ti->LotDate : op_date;
-		const  LDATE date_of_relevance = checkdate(lot_date) ? lot_date : op_date; // Драфт-документы имеют нулевой LotDate
+		const  LDATE date_of_relevance = ValidDateOr(lot_date, op_date); // Драфт-документы имеют нулевой LotDate
 		// const  bool  is_suppl_vat_free = p_ti ? (IsSupplVATFree(p_ti->Suppl) > 0) : false; // @temporary
 		const  double cost = p_ti ? p_ti->Cost : 0.0;
 		const  double price = p_ti ? p_ti->NetPrice() : (lblk.P_CcRow ? (intmnytodbl(lblk.P_CcRow->Price) - lblk.P_CcRow->Dscnt) : 0.0);

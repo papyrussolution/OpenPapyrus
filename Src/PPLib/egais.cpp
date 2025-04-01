@@ -4480,7 +4480,7 @@ int PPEgaisProcessor::Read_WayBillAct(xmlNode * pFirstNode, PPID locID, Packet *
 								else if(!do_skip) {
 									THROW(link_pack.CreateBlank_WithoutCode(op_id, ex_bill_id, bp.Rec.LocID, 1));
 									STRNSCPY(link_pack.Rec.Code, act_code);
-									link_pack.Rec.Dt = checkdate(act_date) ? act_date : getcurdate_();
+									link_pack.Rec.Dt = ValidDateOr(act_date, getcurdate_());
 									link_pack.Rec.EdiOp = PPEDIOP_RECADV;
 									for(uint k = 0; k < bp.GetTCount(); k++) {
 										const PPTransferItem & r_ti = bp.ConstTI(k);
@@ -6421,7 +6421,7 @@ int PPEgaisProcessor::Read_Rests(xmlNode * pFirstNode, PPID locID, const DateRan
 			}
 		}
     }
-    if(p_bp && /*(items.getCount() || pPack->DocType == PPEDIOP_EGAIS_REPLYRESTSSHOP) &&*/ checkdate(rest_dtm.d)) { // @v10.1.1 Убрана проверка на не пустой документ
+    if(p_bp && checkdate(rest_dtm.d)) {
 		SString bill_text;
 		int    do_skip = 0;
 		PPID   op_id = 0;

@@ -53,84 +53,72 @@ enum class FlagOp {
 using FlagOpFn = void* (*)(FlagOp, const void*, void*, void*);
 
 // Forward declaration for Flag value specific operations.
-template <typename T>
-void* FlagOps(FlagOp op, const void* v1, void* v2, void* v3);
+template <typename T> void* FlagOps(FlagOp op, const void* v1, void* v2, void* v3);
 
 // Allocate aligned memory for a flag value.
-inline void* Alloc(FlagOpFn op) {
-	return op(FlagOp::kAlloc, nullptr, nullptr, nullptr);
-}
-
+inline void* Alloc(FlagOpFn op) { return op(FlagOp::kAlloc, nullptr, nullptr, nullptr); }
 // Deletes memory interpreting obj as flag value type pointer.
-inline void Delete(FlagOpFn op, void* obj) {
-	op(FlagOp::kDelete, nullptr, obj, nullptr);
-}
-
+inline void Delete(FlagOpFn op, void* obj) { op(FlagOp::kDelete, nullptr, obj, nullptr); }
 // Copies src to dst interpreting as flag value type pointers.
-inline void Copy(FlagOpFn op, const void* src, void* dst) {
-	op(FlagOp::kCopy, src, dst, nullptr);
-}
+inline void Copy(FlagOpFn op, const void* src, void* dst) { op(FlagOp::kCopy, src, dst, nullptr); }
 
 // Construct a copy of flag value in a location pointed by dst
 // based on src - pointer to the flag's value.
-inline void CopyConstruct(FlagOpFn op, const void* src, void* dst) {
-	op(FlagOp::kCopyConstruct, src, dst, nullptr);
-}
+inline void CopyConstruct(FlagOpFn op, const void* src, void* dst) { op(FlagOp::kCopyConstruct, src, dst, nullptr); }
 
 // Makes a copy of flag value pointed by obj.
-inline void* Clone(FlagOpFn op, const void* obj) {
+inline void* Clone(FlagOpFn op, const void* obj) 
+{
 	void* res = flags_internal::Alloc(op);
 	flags_internal::CopyConstruct(op, obj, res);
 	return res;
 }
 
 // Returns true if parsing of input text is successfull.
-inline bool Parse(FlagOpFn op, absl::string_view text, void* dst,
-    std::string* error) {
-	return op(FlagOp::kParse, &text, dst, error) != nullptr;
-}
+inline bool Parse(FlagOpFn op, absl::string_view text, void* dst, std::string* error) { return op(FlagOp::kParse, &text, dst, error) != nullptr; }
 
 // Returns string representing supplied value.
-inline std::string Unparse(FlagOpFn op, const void* val) {
+inline std::string Unparse(FlagOpFn op, const void* val) 
+{
 	std::string result;
 	op(FlagOp::kUnparse, val, &result, nullptr);
 	return result;
 }
 
 // Returns size of flag value type.
-inline size_t Sizeof(FlagOpFn op) {
+inline size_t Sizeof(FlagOpFn op) 
+{
 	// This sequence of casts reverses the sequence from
 	// `flags_internal::FlagOps()`
-	return static_cast<size_t>(reinterpret_cast<intptr_t>(
-		       op(FlagOp::kSizeof, nullptr, nullptr, nullptr)));
+	return static_cast<size_t>(reinterpret_cast<intptr_t>(op(FlagOp::kSizeof, nullptr, nullptr, nullptr)));
 }
 
 // Returns fast type id coresponding to the value type.
-inline FlagFastTypeId FastTypeId(FlagOpFn op) {
-	return reinterpret_cast<FlagFastTypeId>(
-		op(FlagOp::kFastTypeId, nullptr, nullptr, nullptr));
+inline FlagFastTypeId FastTypeId(FlagOpFn op) 
+{
+	return reinterpret_cast<FlagFastTypeId>(op(FlagOp::kFastTypeId, nullptr, nullptr, nullptr));
 }
 
 // Returns fast type id coresponding to the value type.
-inline const std::type_info* RuntimeTypeId(FlagOpFn op) {
-	return reinterpret_cast<const std::type_info*>(
-		op(FlagOp::kRuntimeTypeId, nullptr, nullptr, nullptr));
+inline const std::type_info* RuntimeTypeId(FlagOpFn op) 
+{
+	return reinterpret_cast<const std::type_info*>(op(FlagOp::kRuntimeTypeId, nullptr, nullptr, nullptr));
 }
 
 // Returns offset of the field value_ from the field impl_ inside of
 // absl::Flag<T> data. Given FlagImpl pointer p you can get the
 // location of the corresponding value as:
 //      reinterpret_cast<char*>(p) + ValueOffset().
-inline ptrdiff_t ValueOffset(FlagOpFn op) {
+inline ptrdiff_t ValueOffset(FlagOpFn op) 
+{
 	// This sequence of casts reverses the sequence from
 	// `flags_internal::FlagOps()`
-	return static_cast<ptrdiff_t>(reinterpret_cast<intptr_t>(
-		       op(FlagOp::kValueOffset, nullptr, nullptr, nullptr)));
+	return static_cast<ptrdiff_t>(reinterpret_cast<intptr_t>(op(FlagOp::kValueOffset, nullptr, nullptr, nullptr)));
 }
 
 // Returns an address of RTTI's typeid(T).
-template <typename T>
-inline const std::type_info* GenRuntimeTypeId() {
+template <typename T> inline const std::type_info* GenRuntimeTypeId() 
+{
 #ifdef ABSL_INTERNAL_HAS_RTTI
 	return &typeid(T);
 #else
@@ -146,8 +134,7 @@ inline const std::type_info* GenRuntimeTypeId() {
 // cases.
 using HelpGenFunc = std::string (*)();
 
-template <size_t N>
-struct FixedCharArray {
+template <size_t N> struct FixedCharArray {
 	char value[N];
 
 	template <size_t ... I>
@@ -157,13 +144,13 @@ struct FixedCharArray {
 };
 
 template <typename Gen, size_t N = Gen::Value().size()>
-constexpr FixedCharArray<N + 1> HelpStringAsArray(int) {
-	return FixedCharArray<N + 1>::FromLiteralString(
-		Gen::Value(), absl::make_index_sequence<N>{});
+constexpr FixedCharArray<N + 1> HelpStringAsArray(int) 
+{
+	return FixedCharArray<N + 1>::FromLiteralString(Gen::Value(), absl::make_index_sequence<N>{});
 }
 
-template <typename Gen>
-constexpr std::false_type HelpStringAsArray(char) {
+template <typename Gen> constexpr std::false_type HelpStringAsArray(char) 
+{
 	return std::false_type{};
 }
 

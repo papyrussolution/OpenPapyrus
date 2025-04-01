@@ -197,10 +197,10 @@ static void insmem(void * pDest, const void * pSrc, size_t blkOffs, size_t blkSi
 	}
 }
 
-int FASTCALL SVectorBase::insert(const void * pItem)
+bool FASTCALL SVectorBase::insert(const void * pItem)
 {
 	const  uint _c = count;
-	int    ok = 1;
+	bool   ok = true;
 	if(_c < Limit || expand(1)) { // (count < limit ||): так быстрее ибо придется реже входить в функцию expand
 		const size_t quant = static_cast<size_t>(isize);
 		{
@@ -221,13 +221,13 @@ int FASTCALL SVectorBase::insert(const void * pItem)
 		VFlags &= ~arySorted;
 	}
 	else
-		ok = 0;
+		ok = false;
 	return ok;
 }
 
-int STDCALL SVectorBase::atInsert(uint idx, const void * pItem)
+bool STDCALL SVectorBase::atInsert(uint idx, const void * pItem)
 {
-	int    ok = 1;
+	bool   ok = true;
 	const  uint _c = count;
 	assert(idx <= _c);
 	if(_c < Limit || expand(1)) {
@@ -236,13 +236,13 @@ int STDCALL SVectorBase::atInsert(uint idx, const void * pItem)
 		VFlags &= ~arySorted;
 	}
 	else
-		ok = 0;
+		ok = false;
 	return ok;
 }
 
-int SVectorBase::insertChunk(uint numItemsToInsert, const void * pItems)
+bool SVectorBase::insertChunk(uint numItemsToInsert, const void * pItems)
 {
-	int    ok = 1;
+	bool   ok = true;
 	if(expand(numItemsToInsert)) {
 		uint8 * d = PTR8(P_VData) + count * isize;
 		if(pItems)
@@ -253,7 +253,7 @@ int SVectorBase::insertChunk(uint numItemsToInsert, const void * pItems)
 		VFlags &= ~arySorted;
 	}
 	else
-		ok = 0;
+		ok = false;
 	return ok;
 }
 

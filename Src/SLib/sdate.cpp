@@ -738,6 +738,8 @@ int FASTCALL checkdate(LDATE dt)
 	else
 		return 0;
 }
+
+LDATE FASTCALL ValidDateOr(LDATE dt, LDATE defaultDate) { return checkdate(dt) ? dt : defaultDate; } // @v12.3.0
 //
 //
 //
@@ -1427,7 +1429,7 @@ int LDATE::getclass() const
 {
 	if(v == 0)
 		return cZero;
-	else if(year() & 0x8000 || year() & 0x4000 || year() & 0x2000 || month() & 0x80 || day() & 0x80)
+	else if((year() & (0x8000|0x4000|0x2000)) || (month() & 0x80) || (day() & 0x80))
 		return cSpecial;
 	else if(checkdate(*this))
 		return cNormal;
@@ -1437,14 +1439,15 @@ int LDATE::getclass() const
 
 int LDATE::encode(int d, int m, int y)
 {
-	int16  shift; // @v10.4.12 @fix int-->int16
 	int    x;
-	int    d_ = 0, m_ = 0, y_ = 0;
+	int    d_ = 0;
+	int    m_ = 0;
+	int    y_ = 0;
 	if(d == ANY_DATE_VALUE) {
 		d_ = ANY_DAYITEM_VALUE;
 	}
 	else if(d & REL_DATE_MASK) {
-		shift = static_cast<int16>(LoWord(d));
+		const int16 shift = static_cast<int16>(LoWord(d));
 		if(m == -1 && y == -1) {
 			v = MakeLong(shift, 0x8000);
 			return 1;
@@ -1460,7 +1463,7 @@ int LDATE::encode(int d, int m, int y)
 		}
 	}
 	else if(d & THRSMDAY_DATE_MASK) {
-		shift = static_cast<int16>(LoWord(d));
+		const int16 shift = static_cast<int16>(LoWord(d));
 		if(shift >= 1 && shift <= 31) {
 			v = MakeLong(shift, 0x2000);
 			return 1;
@@ -1476,7 +1479,7 @@ int LDATE::encode(int d, int m, int y)
 		m_ = ANY_MONITEM_VALUE;
 	}
 	else if(m & REL_DATE_MASK) {
-		shift = static_cast<int16>(LoWord(m));
+		const int16 shift = static_cast<int16>(LoWord(m));
 		if(shift < 0)
 			x = (shift <= -24) ? (0x40 | 24) : (0x40 | (-shift));
 		else if(shift > 0)
@@ -1491,7 +1494,7 @@ int LDATE::encode(int d, int m, int y)
 		y_ = ANY_YEARITEM_VALUE;
 	}
 	else if(y & REL_DATE_MASK) {
-		shift = static_cast<int16>(LoWord(y));
+		const int16 shift = static_cast<int16>(LoWord(y));
 		if(shift < 0)
 			x = (shift <= -255) ? (0x0400 | 255) : (0x0400 | (-shift));
 		else if(shift > 0)
@@ -1513,7 +1516,8 @@ int LDATE::decode(int * pD, int * pM, int * pY) const
 		ok = MAXDATEVALID.decode(pD, pM, pY);
 	}
 	else {
-		int    d, m;
+		int    d;
+		int    m;
 		int    y = year();
 		if(y == 0x8000) {
 			d = MakeLong((int16)v, 0x8000);

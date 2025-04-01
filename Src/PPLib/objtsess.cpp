@@ -2327,7 +2327,7 @@ int PPObjTSession::MakeSessionsByRepeating(const PPIDArray * pSrcSessList, const
 				DateRepeating dr = *reinterpret_cast<const DateRepeating *>(&src_sess_pack.Rec.Repeating);
 				DateRange eff_period;
 				eff_period.low = (checkdate(rPeriod.low) && rPeriod.low >= src_sess_pack.Rec.StDt) ? rPeriod.low : src_sess_pack.Rec.StDt;
-				eff_period.upp = checkdate(rPeriod.upp) ? rPeriod.upp : plusdate(getcurdate_(), 30);
+				eff_period.upp = ValidDateOr(rPeriod.upp, plusdate(getcurdate_(), 30));
 				DateRepIterator dr_iter(dr, eff_period.low, eff_period.upp);
 				for(LDATE dt = dr_iter.Next(); dt; dt = dr_iter.Next()) {
 					if(eff_period.CheckDate(dt)) {

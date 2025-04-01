@@ -5004,7 +5004,7 @@ int EdiProviderImplementation_SBIS::Write_ORDERRSP(xmlTextWriter * pX, const S_G
 		f.N.PutAttrib(G.GetToken_Ansi(PPHSC_RU_FORMAT), G.GetToken_Ansi(PPHSC_RU_EDIOP_ORDRSP));
 		//SXml::WDoc _doc(pX, cpUTF8);
 		{
-			DocNalogRu_Generator::DocumentInfo docinfo;
+			DocNalogRu_Base::DocumentInfo docinfo;
 			docinfo.Flags |= DocNalogRu_Base::DocumentInfo::fIndepFormatProvider;
 			DocNalogRu_Generator::Document d(G, docinfo);
 			d.N.PutAttrib(G.GetToken_Ansi(PPHSC_RU_DATE), temp_buf.Z().Cat(now_dtm.d, DATF_GERMAN|DATF_CENTURY));
@@ -6487,7 +6487,7 @@ int EdiProviderImplementation_Kontur::Write_OwnFormat_INVOIC(xmlTextWriter * pX,
 		temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
 		n_b.PutAttrib("number", temp_buf);
 		assert(checkdate(rBp.Rec.Dt)); // @v11.2.12
-		temp_buf.Z().Cat(checkdate(rBp.Ext.InvoiceDate) ? rBp.Ext.InvoiceDate : rBp.Rec.Dt, DATF_ISO8601CENT);
+		temp_buf.Z().Cat(ValidDateOr(rBp.Ext.InvoiceDate, rBp.Rec.Dt), DATF_ISO8601CENT);
 		n_b.PutAttrib("date", temp_buf);
 		n_b.PutAttrib("status", "Original");
 		{
@@ -7406,7 +7406,7 @@ int EdiProviderImplementation_Kontur::ReadOwnFormatDocument(void * pCtx, const c
 					assert(p_bpack);
 					p_bpack->CreateBlank_WithoutCode(ordrsp_op_id, 0/*link_bill_id*/, 0/*loc_id*/, 1);
 					STRNSCPY(p_bpack->Rec.Code, attrs.Num);
-					p_bpack->Rec.Dt = checkdate(attrs.Dt) ? attrs.Dt : getcurdate_();
+					p_bpack->Rec.Dt = ValidDateOr(attrs.Dt, getcurdate_());
 					p_bpack->Rec.EdiOp = p_pack->DocType;
 					//p_bpack->Rec.Dt = document.GetBillDate();
 					//p_bpack->Rec.DueDate = document.GetBillDueDate();

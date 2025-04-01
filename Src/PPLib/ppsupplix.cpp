@@ -2969,7 +2969,7 @@ int iSalesPepsi::ReceiveReceipts()
 					THROW(pack.CreateBlank_WithoutCode(acfg.Hdr.EdiDesadvOpID, 0, loc_id, 1));
 					pack.SetupObject(ar_id, sob);
 					STRNSCPY(pack.Rec.Code, p_src_pack->Code);
-					pack.Rec.Dt = checkdate(p_src_pack->Dtm.d) ? p_src_pack->Dtm.d : getcurdate_();
+					pack.Rec.Dt = ValidDateOr(p_src_pack->Dtm.d, getcurdate_());
 					// @v11.1.12 STRNSCPY(pack.Rec.Memo, p_src_pack->Memo);
 					pack.SMemo = p_src_pack->Memo; // @v11.1.12
 					if(P_BObj->P_Tbl->SearchAnalog(&pack.Rec, BillCore::safDefault, &ex_bill_id, &ex_bill_rec) > 0) {
@@ -3124,12 +3124,10 @@ int iSalesPepsi::ReceiveVDocs()
 					SETIFZ(loc_id, P.LocList.GetSingle());
 					THROW(pack.CreateBlank_WithoutCode(op_id, 0, loc_id, 1));
 					STRNSCPY(pack.Rec.Code, p_src_pack->Code);
-					pack.Rec.Dt = checkdate(p_src_pack->Dtm.d) ? p_src_pack->Dtm.d : getcurdate_();
-					pack.Rec.DueDate = checkdate(p_src_pack->IncDtm.d) ? p_src_pack->IncDtm.d : ZERODATE;
-					// @v10.8.11 {
+					pack.Rec.Dt = ValidDateOr(p_src_pack->Dtm.d, getcurdate_());
+					pack.Rec.DueDate = ValidDateOr(p_src_pack->IncDtm.d, ZERODATE);
 					if(treat_duedate_as_maindate && checkdate(pack.Rec.DueDate))
 						pack.Rec.Dt = pack.Rec.DueDate;
-					// } @v10.8.11 
 					// @v11.1.12 STRNSCPY(pack.Rec.Memo, p_src_pack->Memo);
 					pack.SMemo = p_src_pack->Memo; // @v11.1.12
 					{
@@ -3621,15 +3619,13 @@ int iSalesPepsi::ReceiveOrders()
 					}
 					if(!loc_id && _src_loc_id && LocObj.Fetch(_src_loc_id, &loc_rec) > 0 && loc_rec.Type == LOCTYP_WAREHOUSE)
 						loc_id = loc_rec.ID;
-					SETIFZ(loc_id, P.LocList.GetSingle()); // @v10.8.12
+					SETIFZ(loc_id, P.LocList.GetSingle());
 					THROW(pack.CreateBlank_WithoutCode(op_id, 0, loc_id, 1));
 					STRNSCPY(pack.Rec.Code, p_src_pack->Code);
-					pack.Rec.Dt = checkdate(p_src_pack->Dtm.d) ? p_src_pack->Dtm.d : getcurdate_();
-					pack.Rec.DueDate = checkdate(p_src_pack->IncDtm.d) ? p_src_pack->IncDtm.d : ZERODATE;
-					// @v10.8.11 {
+					pack.Rec.Dt = ValidDateOr(p_src_pack->Dtm.d, getcurdate_());
+					pack.Rec.DueDate = ValidDateOr(p_src_pack->IncDtm.d, ZERODATE);
 					if(treat_duedate_as_maindate && checkdate(pack.Rec.DueDate))
 						pack.Rec.Dt = pack.Rec.DueDate;
-					// } @v10.8.11 
 					// @v11.1.12 STRNSCPY(pack.Rec.Memo, p_src_pack->Memo);
 					pack.SMemo = p_src_pack->Memo; // @v11.1.12
 					{
@@ -6441,8 +6437,8 @@ int SfaHeineken::ReceiveOrders()
 					PPID   ex_bill_id = 0;
 					Goods2Tbl::Rec goods_rec;
 					PPBillPacket::SetupObjectBlock sob;
-					THROW(pack.CreateBlank2(acfg.Hdr.OpID, checkdate(p_src_pack->Dtm.d) ? p_src_pack->Dtm.d : getcurdate_(), wh_id, 1));
-					pack.Rec.DueDate = checkdate(p_src_pack->DlvrDtm.d) ? p_src_pack->DlvrDtm.d : ZERODATE;
+					THROW(pack.CreateBlank2(acfg.Hdr.OpID, ValidDateOr(p_src_pack->Dtm.d, getcurdate_()), wh_id, 1));
+					pack.Rec.DueDate = ValidDateOr(p_src_pack->DlvrDtm.d, ZERODATE);
 					//
 					sob.Flags |= PPBillPacket::SetupObjectBlock::fEnableStop;
 					if(!pack.SetupObject(ar_id, sob)) {
@@ -6687,7 +6683,7 @@ int SfaHeineken::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCollectio
 				SfaHeinekenInvoice * p_new_entry = rList.CreateNewItem();
 				THROW_SL(p_new_entry);
 				p_new_entry->Code = bill_code;
-				p_new_entry->Dt = checkdate(pack.Ext.InvoiceDate) ? pack.Ext.InvoiceDate : pack.Rec.Dt;
+				p_new_entry->Dt = ValidDateOr(pack.Ext.InvoiceDate, pack.Rec.Dt);
 				if(is_own_order) {
 					// TSCollection <SfaHeinekenOrderDelivery> OrderList; // Если доставка по заказу из системы Jeans
 					SfaHeinekenInvoice::OrderDelivery * p_o = p_new_entry->OrderList.CreateNewItem();
@@ -10597,7 +10593,7 @@ public:
 			SXml::WDoc _doc(p_x, cp1251);
 			SXml::WNode n_o(p_x, "Stocks");
 			n_o.PutInner("SourceCode", XmlCp1251EncText(CliCode));
-			const LDATE stock_date = checkdate(P.ExpPeriod.upp) ? P.ExpPeriod.upp : now_dtm.d;
+			const LDATE stock_date = ValidDateOr(P.ExpPeriod.upp, now_dtm.d);
 			for(uint locidx = 0; locidx < Ep.WhList.GetCount(); locidx++) {
 				const PPID loc_id = Ep.WhList.Get(locidx);
 				LocationTbl::Rec loc_rec;

@@ -95,32 +95,23 @@ enum class FlagOp {
 using FlagOpFn = void* (*)(FlagOp, const void*, void*, void*);
 
 // Forward declaration for Flag value specific operations.
-template <typename T>
-void* FlagOps(FlagOp op, const void* v1, void* v2, void* v3);
+template <typename T> void* FlagOps(FlagOp op, const void* v1, void* v2, void* v3);
 
 // Allocate aligned memory for a flag value.
-inline void* Alloc(FlagOpFn op) {
-	return op(FlagOp::kAlloc, nullptr, nullptr, nullptr);
-}
+inline void* Alloc(FlagOpFn op) { return op(FlagOp::kAlloc, nullptr, nullptr, nullptr); }
 
 // Deletes memory interpreting obj as flag value type pointer.
-inline void Delete(FlagOpFn op, void* obj) {
-	op(FlagOp::kDelete, nullptr, obj, nullptr);
-}
-
+inline void Delete(FlagOpFn op, void* obj) { op(FlagOp::kDelete, nullptr, obj, nullptr); }
 // Copies src to dst interpreting as flag value type pointers.
-inline void Copy(FlagOpFn op, const void* src, void* dst) {
-	op(FlagOp::kCopy, src, dst, nullptr);
-}
+inline void Copy(FlagOpFn op, const void* src, void* dst) { op(FlagOp::kCopy, src, dst, nullptr); }
 
 // Construct a copy of flag value in a location pointed by dst
 // based on src - pointer to the flag's value.
-inline void CopyConstruct(FlagOpFn op, const void* src, void* dst) {
-	op(FlagOp::kCopyConstruct, src, dst, nullptr);
-}
+inline void CopyConstruct(FlagOpFn op, const void* src, void* dst) { op(FlagOp::kCopyConstruct, src, dst, nullptr); }
 
 // Makes a copy of flag value pointed by obj.
-inline void* Clone(FlagOpFn op, const void* obj) {
+inline void* Clone(FlagOpFn op, const void* obj) 
+{
 	void* res = flags_internal::Alloc(op);
 	flags_internal::CopyConstruct(op, obj, res);
 	return res;

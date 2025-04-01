@@ -49357,7 +49357,9 @@ private:
 	PPObjStyloQBindery Obj;
 	ObjCollection ObjColl;
 	enum {
-		stMatchingUpdated = 0x0001 // Были изменены привязки записей (надо обновить глобальную карту соответствий объектов StyloQ)
+		stMatchingUpdated  = 0x0001, // Были изменены привязки записей (надо обновить глобальную карту соответствий объектов StyloQ)
+		stSvcConfigUpdated = 0x0002, // @v12.3.0 Была изменена конфигурация сервиса
+		stSvcFaceUpdated   = 0x0004, // @v12.3.0 Был изменен лик сервиса
 	};
 	uint   State;
 };
@@ -57382,17 +57384,21 @@ public:
 				// note: Значение флага должно совпадать с аналогичным флагом FileInfo::fIndepFormatProvider
 		};
 		DocumentInfo();
+		DocumentInfo(const DocumentInfo & rS);
+		DocumentInfo & FASTCALL operator = (const DocumentInfo & rS);
 		Participant * GetParticipant(int partQ, bool createIfNExists);
-		long   Flags; // @v11.9.9 @flags
-		int    EdiOp; // @v11.9.5 В случае, если формат используется для EDI, то это - тип EDI-операции 
-		SString KND; // КНД
-		SString Function; // Функция
-		LDATE  Dt; // Дата документа (накладной)
-		LDATETIME DueDtm; // @v11.9.5 Для заказов
-		SString Code; // Номер документа (накладной)
-		LDATE  InvcDate; // Дата счет-фактуры
-		SString InvcCode; // Номер счет-фактуры
-		SString Subj; // PPHSC_RU_NAMEECSUBJCOMP(НаимЭконСубСост)
+		bool   FASTCALL Copy(const DocumentInfo & rS);
+
+		long   Flags;       // @v11.9.9 @flags
+		int    EdiOp;       // @v11.9.5 В случае, если формат используется для EDI, то это - тип EDI-операции 
+		SString KND;        // КНД
+		SString Function;   // Функция
+		LDATE  Dt;          // Дата документа (накладной)
+		LDATETIME DueDtm;   // @v11.9.5 Для заказов
+		SString Code;       // Номер документа (накладной)
+		LDATE  InvcDate;    // Дата счет-фактуры
+		SString InvcCode;   // Номер счет-фактуры
+		SString Subj;       // PPHSC_RU_NAMEECSUBJCOMP(НаимЭконСубСост)
 		SString SubjReason; // PPHSC_RU_REASONECSUBJCOMP(ОснДоверОргСост)
 		SString NameOfDoc;  // "НаимДокОпр"
 		SString NameOfDoc2; // "ПоФактХЖ"
@@ -57406,7 +57412,6 @@ public:
 	const  SString & FASTCALL GetToken_Utf8(long tokId);
 protected:
 	SString & FASTCALL Helper_GetToken(long tokId);
-	// @v11.7.0 (заменено на револьверную строку) SString TokBuf;
 	TokenSymbHashTable TsHt;
 };
 
@@ -57500,6 +57505,11 @@ public:
 	SVerT  SetupOutputFormatVer(SVerT v); // @v12.2.12
 	SVerT  GetOutputFormatVer() const { return OutputFormatVer; } // @v12.2.12
 	bool   IsVer503() const { return OutputFormatVer.IsGe(5, 3, 0); } // @v12.2.12
+	//
+	void   SetDocumentInfo(const DocumentInfo & rS)
+	{
+		Di.Copy(rS);
+	}
 //private:
 	PPObjGoods GObj;
 	PPObjPerson PsnObj;
@@ -57543,6 +57553,7 @@ private:
 	SVerT  OutputFormatVer; // @v12.2.12 Версия формата nalog.ru для формирования документов. Поле введено из-за того, что
 		// в 2025 году меняется формат с 5.01 на 5.03 со значительным набором изменений в тегах.
 	SString EncBuf;
+	DocumentInfo Di; // @v12.3.0 Копия заголовочной информации о документе, передаваемая сюда конструктором Document::Document
 };
 
 class DocNalogRu_WriteBillBlock {

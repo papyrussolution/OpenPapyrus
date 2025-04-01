@@ -224,7 +224,7 @@ bool PPViewPerson::IsTempTblNeeded()
 	PsnObj.DirtyConfig(); // @v12.2.4
 	// @v12.2.3 {
 	{
-		const LDATE actual_date = checkdate(Filt.ClientActivityEvalDate) ? Filt.ClientActivityEvalDate : now_date;
+		const LDATE actual_date = ValidDateOr(Filt.ClientActivityEvalDate, now_date);
 		assert(checkdate(actual_date));
 		Filt.ClientActivityEvalDate = actual_date;
 		Filt.NewCliPeriod.Actualize(actual_date);
