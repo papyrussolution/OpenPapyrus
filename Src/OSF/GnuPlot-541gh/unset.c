@@ -60,7 +60,7 @@ ITERATE:
 		case S_DUMMY: UnsetDummy(); break;
 		case S_ENCODING: unset_encoding(); break;
 		case S_DECIMALSIGN: UnsetDecimalSign(); break;
-		case S_FIT: UnsetFit(); break;
+		case S_FIT: UnsetFit(_Fit); break;
 		case S_FORMAT:
 		    Pgm.Rollback();
 		    SetFormat();
@@ -574,21 +574,21 @@ void GnuPlot::UnsetDecimalSign()
 //
 // process 'unset fit' command 
 //
-void GnuPlot::UnsetFit()
+void GnuPlot::UnsetFit(GpFit & rFit)
 {
-	ZFREE(_Fit.fitlogfile);
-	_Fit.fit_errorvariables = TRUE;
-	_Fit.fit_covarvariables = FALSE;
-	_Fit.fit_errorscaling = TRUE;
-	_Fit.fit_prescale = TRUE;
-	_Fit.fit_verbosity = BRIEF;
+	ZFREE(rFit.fitlogfile);
+	rFit.fit_errorvariables = TRUE;
+	rFit.fit_covarvariables = FALSE;
+	rFit.fit_errorscaling = TRUE;
+	rFit.fit_prescale = TRUE;
+	rFit.fit_verbosity = BRIEF;
 	DelUdvByName(FITLIMIT, FALSE);
-	_Fit.epsilon_abs = 0.;
+	rFit.epsilon_abs = 0.;
 	DelUdvByName(FITMAXITER, FALSE);
 	DelUdvByName(FITSTARTLAMBDA, FALSE);
 	DelUdvByName(FITLAMBDAFACTOR, FALSE);
-	ZFREE(_Fit.fit_script);
-	_Fit.fit_wrap = 0;
+	ZFREE(rFit.fit_script);
+	rFit.fit_wrap = 0;
 	// do not reset fit_v4compatible 
 }
 //
@@ -1522,11 +1522,11 @@ void GnuPlot::ResetCommand()
 			UnsetMissing();
 			ZFREE(_Df.df_separators);
 			FREEANDASSIGN(_Df.df_commentschars, sstrdup(DEFAULT_COMMENTS_CHARS));
-			DfInit();
+			DfInit(_Df);
 			{ // Preserve some settings for `reset`, but not for `unset fit` 
-				verbosity_level save_verbosity = _Fit.fit_verbosity;
+				const verbosity_level save_verbosity = _Fit.fit_verbosity;
 				const bool save_errorscaling = _Fit.fit_errorscaling;
-				UnsetFit();
+				UnsetFit(_Fit);
 				_Fit.fit_verbosity = save_verbosity;
 				_Fit.fit_errorscaling = save_errorscaling;
 			}

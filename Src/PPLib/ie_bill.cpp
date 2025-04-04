@@ -8048,7 +8048,7 @@ int DocNalogRu_Generator::WriteDocRequisites(const PPBillPacket & rBp) // @v12.2
 		if(Di.NameOfDoc.NotEmpty()) 
 			temp_buf = EncText(Di.NameOfDoc);
 		else
-			GetToken_Ansi(PPHSC_RU_CONFSHIPMDOCNAM_BILL);
+			temp_buf = GetToken_Ansi(PPHSC_RU_CONFSHIPMDOCNAM_BILL);
 		n.PutAttrib(GetToken_Ansi(PPHSC_RU_REQDOCNAME), temp_buf);
 		temp_buf = rBp.Rec.Code;
 		n.PutAttrib(GetToken_Ansi(PPHSC_RU_REQDOCNO), EncText(temp_buf));
@@ -8614,8 +8614,7 @@ int DocNalogRu_WriteBillBlock::Do_Invoice2(SString & rResultFileName)
 					SXml::WNode n_1(G.P_X, GetToken(PPHSC_RU_WARETRANSFINFO2));
 					PPLoadText(PPTXT_NALOGRU_UPDOPCONTENT, temp_buf);
 					n_1.PutAttrib(GetToken(PPHSC_RU_CONTOFOP), EncText(temp_buf));
-					temp_buf.Z().Cat(R_Bp.Rec.Dt, DATF_GERMANCENT);
-					n_1.PutAttribSkipEmpty(GetToken(PPHSC_RU_WARETRANSFDATE), temp_buf);
+					n_1.PutAttrib(GetToken(PPHSC_RU_WARETRANSFDATE), temp_buf.Z().Cat(R_Bp.Rec.Dt, DATF_GERMANCENT));
 					{
 						SXml::WNode n_11(G.P_X, GetToken(PPHSC_RU_BASISFORWARETRANSFER));
 						if(AgtCode.NotEmpty()) {
@@ -9115,6 +9114,7 @@ int DocNalogRu_WriteBillBlock::Do_UPD(SString & rResultFileName)
 					SXml::WNode n_1(G.P_X, GetToken(PPHSC_RU_WARETRANSFINFO2));
 					PPLoadText(PPTXT_NALOGRU_UPDOPCONTENT, temp_buf);
 					n_1.PutAttrib(GetToken(PPHSC_RU_CONTOFOP), EncText(temp_buf));
+					n_1.PutAttrib(GetToken(PPHSC_RU_WARETRANSFDATE), temp_buf.Z().Cat(R_Bp.Rec.Dt, DATF_GERMANCENT)); // @v12.3.0
 					{
 						SXml::WNode n_11(G.P_X, GetToken(PPHSC_RU_BASISFORWARETRANSFER));
 						if(order_bill_rec.ID) {

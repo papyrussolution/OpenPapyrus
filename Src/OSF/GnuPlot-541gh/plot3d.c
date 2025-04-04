@@ -674,7 +674,7 @@ int GnuPlot::Get3DData(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 		// here so that it affects data fields read from the input file.      
 		set_numeric_locale();
 		_Df.df_warn_on_missing_columnheader = true; // Initial state 
-		while((retval = DfReadLine(v, MAXDATACOLS)) != DF_EOF) {
+		while((retval = DfReadLine(_Df, v, MAXDATACOLS)) != DF_EOF) {
 			j = retval;
 			if(j == 0) // not blank line, but df_readline couldn't parse it 
 				IntWarn(NO_CARET, "Bad data on line %d of file %s", _Df.df_line_number, NZOR(_Df.df_filename, ""));
@@ -1401,7 +1401,7 @@ void GnuPlot::Eval3DPlots(GpTermEntry * pTerm)
 				    free_at(_Df.df_plot_title_at);
 				    _Df.df_plot_title_at = NULL;
 				    DfSetPlotMode(MODE_SPLOT);
-				    specs = DfOpen(name_str, MAXDATACOLS, (curve_points *)p_plot_);
+				    specs = DfOpen(_Df, name_str, MAXDATACOLS, (curve_points *)p_plot_);
 				    if(_Df.df_matrix)
 					    p_plot_->has_grid_topology = true;
 				    // Store pointers to the named variables used for sampling 
@@ -1882,7 +1882,7 @@ void GnuPlot::Eval3DPlots(GpTermEntry * pTerm)
 					}
 					strcpy(p_plot_->pm3d_where, first_dataset->pm3d_where);
 				} while(df_return != DF_EOF);
-				DfClose();
+				DfClose(_Df);
 				// Plot-type specific range-fiddling 
 				if(!AxS[FIRST_Z_AXIS].log && (p_plot_->plot_style == IMPULSES || p_plot_->plot_style == BOXES)) {
 					if(AxS[FIRST_Z_AXIS].autoscale & AUTOSCALE_MIN) {

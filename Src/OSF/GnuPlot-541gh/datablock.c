@@ -46,7 +46,7 @@ void GnuPlot::DatablockCommand()
 	fin = P_LfHead ? P_LfHead->fp : stdin;
 	if(!fin)
 		IntError(NO_CARET, "attempt to define data block from invalid context");
-	for(nlines = 0; (dataline = DfGets(fin)); nlines++) {
+	for(nlines = 0; (dataline = DfGets(_Df, fin)); nlines++) {
 		int n;
 		if(!strncmp(eod, dataline, strlen(eod)))
 			break;

@@ -1991,8 +1991,8 @@ int DoConstructionTest()
 		}
 	}
 #endif // } 0
-	Test_CsvSniffer();
-	//Test_Cristal2SetRetailGateway();
+	//Test_CsvSniffer();
+	Test_Cristal2SetRetailGateway();
 	//PreprocessHFile();
 	//TestTransferFileToFtp();
 	//VkInterface::Test();

@@ -940,7 +940,8 @@ inline CordRepBtree* CordRepBtree::Append(CordRepBtree* tree, CordRep* rep)
 	return AppendSlow(tree, rep);
 }
 
-inline CordRepBtree* CordRepBtree::Prepend(CordRepBtree* tree, CordRep* rep) {
+inline CordRepBtree* CordRepBtree::Prepend(CordRepBtree* tree, CordRep* rep) 
+{
 	if(ABSL_PREDICT_TRUE(IsDataEdge(rep))) {
 		return CordRepBtree::AddCordRep<kFront>(tree, rep);
 	}
@@ -948,17 +949,8 @@ inline CordRepBtree* CordRepBtree::Prepend(CordRepBtree* tree, CordRep* rep) {
 }
 
 #ifdef NDEBUG
-
-inline CordRepBtree* CordRepBtree::AssertValid(CordRepBtree* tree,
-    bool /* shallow */) {
-	return tree;
-}
-
-inline const CordRepBtree* CordRepBtree::AssertValid(const CordRepBtree* tree,
-    bool /* shallow */) {
-	return tree;
-}
-
+	inline CordRepBtree* CordRepBtree::AssertValid(CordRepBtree* tree, bool /* shallow */) { return tree; }
+	inline const CordRepBtree* CordRepBtree::AssertValid(const CordRepBtree* tree, bool /* shallow */) { return tree; }
 #endif
 }  // namespace cord_internal
 ABSL_NAMESPACE_END

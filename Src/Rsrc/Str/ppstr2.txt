@@ -2244,6 +2244,11 @@ PPERR_SQ_INDOCINVQTTY               "StyloQ: [PostDocument] недопустим
 PPERR_SQ_INDOCINVTITEM              "StyloQ @{err_internal}: [PostDocument] нулевая ссылка на строку документа '%s'"
 PPERR_SQ_INDOCINVCLI                "StyloQ: [PostDocument] для входящего документа не удалось идентифицировать клиента '%s'"
 PPERR_SQ_INDOCINVCLIACS             "StyloQ: [PostDocument] для входящего документа у идентифицированного клиента недопустимая таблица статей '%s'"
+PPERR_SQ_DUPNATIVESVCREC            "StyloQ: внутренняя ошибка - повторная попытка вставить запись собственного сервиса в реестр" // @v12.3.0
+PPERR_SQ_MKIDXREQ_INVPACKKIND       "StyloQ: внутренняя ошибка - функции PPStyloQInterchange::MakeIndexingRequestCommand передан пакет вида, отличного от 'собственный сервис'" // @v12.3.0
+PPERR_SQ_MKJSOWNFC_INVPACKKIND      "StyloQ: внутренняя ошибка - функции PPStyloQInterchange::MakeObjJson_OwnFace передан пакет вида, отличного от 'собственный сервис'" // @v12.3.0
+PPERR_SQ_MKIDXREQ_INVCMDTYPE        "StyloQ: внутренняя ошибка - функции PPStyloQInterchange::MakeIndexingRequestCommand передана команда недопустимого типа" // @v12.3.0
+PPERR_SQ_MKIDXREQ_INVOWNPACKIDENT   "StyloQ: внутренняя ошибка - функции PPStyloQInterchange::MakeIndexingRequestCommand передан собственный пакет с инвалидным идентификатором" // @v12.3.0
 PPERR_SQPROT_RDHDRSIZE              "Ошибка протокола StyloQ: инвалидный размер заголовка фрейма"
 PPERR_SQPROT_RDVERSION              "Ошибка протокола StyloQ: инвалидная версия фрейма"
 PPERR_SQPROT_INVHDR                 "Ошибка протокола StyloQ: инвалидный заголовок"
@@ -17975,6 +17980,9 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @styloqcommand_fnotify_objnew                 "Уведомлять о новых объектах"
 @styloqcommand_fnotify_objupd                 "Уведомлять об изменении объектов"
 @styloqcommand_fnotify_objstatus              "Уведомлять об изменении статуса объектов"
+
+@styloqbindery_domatchcli                     "Сопоставить клиентскую запись объекту"
+@styloqbindery_dobuildsvcsymbmap              "Сформировать таблицу соответствия сервисов символам базам данных"
 
 @styloqsvcconfig                              "Конфигурация сервиса Stylo-Q"
 @styloqsvcconfig_url                          "@{serverurl}"

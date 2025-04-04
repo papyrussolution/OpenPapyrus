@@ -347,51 +347,51 @@ static const char * equal_symbol_msg = "Equal ('=') symbol required";
 // Called via reset_command() on program entry.		 
 //
 //void df_init()
-void GnuPlot::DfInit()
+void GnuPlot::DfInit(GpDataFile & rDf)
 {
-	if(_Df.MaxLineLen < DATA_LINE_BUFSIZ) {
-		_Df.MaxLineLen = DATA_LINE_BUFSIZ;
-		_Df.df_line = (char *)SAlloc::M(_Df.MaxLineLen);
+	if(rDf.MaxLineLen < DATA_LINE_BUFSIZ) {
+		rDf.MaxLineLen = DATA_LINE_BUFSIZ;
+		rDf.df_line = (char *)SAlloc::M(rDf.MaxLineLen);
 	}
 }
 
 //static char * df_gets()
-char * GnuPlot::DfGets()
+char * GnuPlot::DfGets(GpDataFile & rDf)
 {
 	// HBB 20000526: prompt user for inline data, if in interactive mode 
-	if(_Df.mixed_data_fp && _Plt.interactive)
+	if(rDf.mixed_data_fp && _Plt.interactive)
 		fputs("input data ('e' ends) > ", stderr);
 	// Special pseudofiles '+' and '++' return coords of sample 
-	if(_Df.df_pseudodata)
-		return DfGeneratePseudodata();
-	if(_Df.df_datablock)
-		return *(_Df.df_datablock_line++);
+	if(rDf.df_pseudodata)
+		return DfGeneratePseudodata(rDf);
+	if(rDf.df_datablock)
+		return *(rDf.df_datablock_line++);
 	if(_Pb.df_array)
 		return DfGenerateAsciiArrayEntry();
-	return DfGets(_Df.data_fp);
+	return DfGets(rDf, rDf.data_fp);
 }
 // 
 // This one is shared by df_gets() and by datablock.c:datablock_command
 // 
 //char * df_fgets(FILE * fin)
-char * GnuPlot::DfGets(FILE * fin)
+char * GnuPlot::DfGets(GpDataFile & rDf, FILE * fin)
 {
 	int len = 0;
-	if(!fgets(_Df.df_line, _Df.MaxLineLen, fin))
+	if(!fgets(rDf.df_line, rDf.MaxLineLen, fin))
 		return NULL;
-	if(_Df.mixed_data_fp)
+	if(rDf.mixed_data_fp)
 		++Pgm.inline_num;
 	for(;;) {
-		len += strlen(_Df.df_line + len);
-		if(len > 0 && _Df.df_line[len-1] == '\n') {
+		len += strlen(rDf.df_line + len);
+		if(len > 0 && rDf.df_line[len-1] == '\n') {
 			// we have read an entire text-file line. Strip the trailing linefeed and return
-			_Df.df_line[len-1] = 0;
-			return _Df.df_line;
+			rDf.df_line[len-1] = 0;
+			return rDf.df_line;
 		}
-		if((_Df.MaxLineLen - len) < 32)
-			_Df.df_line = (char *)SAlloc::R(_Df.df_line, _Df.MaxLineLen *= 2);
-		if(!fgets(_Df.df_line + len, _Df.MaxLineLen - len, fin))
-			return _Df.df_line; // unexpected end of file, but we have something to do 
+		if((rDf.MaxLineLen - len) < 32)
+			rDf.df_line = (char *)SAlloc::R(rDf.df_line, rDf.MaxLineLen *= 2);
+		if(!fgets(rDf.df_line + len, rDf.MaxLineLen - len, fin))
+			return rDf.df_line; // unexpected end of file, but we have something to do 
 	}
 	/* NOTREACHED */
 	return NULL;
@@ -400,7 +400,7 @@ char * GnuPlot::DfGets(FILE * fin)
 /*}}} */
 
 //static int df_tokenise(char * s)
-int GnuPlot::DfTokenise(char * s)
+int GnuPlot::DfTokenise(GpDataFile & rDf, char * s)
 {
 	// implement our own sscanf that takes 'missing' into account,
 	// and can understand fortran quad format
@@ -411,49 +411,49 @@ int GnuPlot::DfTokenise(char * s)
 	if(s[strlen(s)-1] == '\n' || s[strlen(s)-1] == '\r')
 		s[strlen(s)-1] = '\0';
 	for(i = 0; i < MAXDATACOLS; i++)
-		_Df.df_tokens[i] = NULL;
-	_Df.df_no_cols = 0;
+		rDf.df_tokens[i] = NULL;
+	rDf.df_no_cols = 0;
 	while(*s) {
 		// We may poke at 2 new fields before coming back here - make sure there is room 
-		if(_Df.df_max_cols <= _Df.df_no_cols + 2)
-			_Df.ExpandColumn((_Df.df_max_cols < 20) ? _Df.df_max_cols+20 : 2*_Df.df_max_cols);
+		if(rDf.df_max_cols <= rDf.df_no_cols + 2)
+			rDf.ExpandColumn((rDf.df_max_cols < 20) ? rDf.df_max_cols+20 : 2*rDf.df_max_cols);
 		// have always skipped spaces at this point 
-		_Df.df_column[_Df.df_no_cols].position = s;
+		rDf.df_column[rDf.df_no_cols].position = s;
 		in_string = FALSE;
 		// Keep pointer to start of this token if user wanted it for anything, particularly if it is a string 
 		for(i = 0; i<MAXDATACOLS; i++) {
-			if(_Df.df_no_cols == _Df.UseSpec[i].column-1) {
-				_Df.df_tokens[i] = s;
-				if(_Df.UseSpec[i].expected_type == CT_STRING)
-					_Df.df_column[_Df.df_no_cols].good = DF_GOOD;
+			if(rDf.df_no_cols == rDf.UseSpec[i].column-1) {
+				rDf.df_tokens[i] = s;
+				if(rDf.UseSpec[i].expected_type == CT_STRING)
+					rDf.df_column[rDf.df_no_cols].good = DF_GOOD;
 			}
 		}
 		// CSV files must accept numbers inside quotes also,
 		// so we step past the quote 
-		if(*s == '"' && _Df.df_separators) {
+		if(*s == '"' && rDf.df_separators) {
 			in_string = TRUE;
-			_Df.df_column[_Df.df_no_cols].position = ++s;
+			rDf.df_column[rDf.df_no_cols].position = ++s;
 		}
 		if(*s == '"') {
 			// treat contents of a quoted string as single column 
 			in_string = !in_string;
-			_Df.df_column[_Df.df_no_cols].good = DF_STRINGDATA;
+			rDf.df_column[rDf.df_no_cols].good = DF_STRINGDATA;
 		}
 		else if(CheckMissing(s)) {
-			_Df.df_column[_Df.df_no_cols].good = DF_MISSING;
-			_Df.df_column[_Df.df_no_cols].datum = fgetnan();
-			_Df.df_column[_Df.df_no_cols].position = NULL;
+			rDf.df_column[rDf.df_no_cols].good = DF_MISSING;
+			rDf.df_column[rDf.df_no_cols].datum = fgetnan();
+			rDf.df_column[rDf.df_no_cols].position = NULL;
 		}
 		else {
 			int used;
 			int count;
-			int dfncp1 = _Df.df_no_cols + 1;
+			int dfncp1 = rDf.df_no_cols + 1;
 			// optimizations by Corey Satten, corey@cac.washington.edu 
 			// only scanf the field if it is mentioned in one of the using specs 
-			if(!_Df.fast_columns || (_Df.df_no_use_specs == 0) || ((_Df.df_no_use_specs > 0) && (_Df.UseSpec[0].column == dfncp1 || 
-				(_Df.df_no_use_specs > 1 && (_Df.UseSpec[1].column == dfncp1 || (_Df.df_no_use_specs > 2 && (_Df.UseSpec[2].column == dfncp1 || 
-				(_Df.df_no_use_specs > 3 && (_Df.UseSpec[3].column == dfncp1 || (_Df.df_no_use_specs > 4 && (_Df.UseSpec[4].column == dfncp1 || 
-				_Df.df_no_use_specs > 5))))))))))) {
+			if(!rDf.fast_columns || (rDf.df_no_use_specs == 0) || ((rDf.df_no_use_specs > 0) && (rDf.UseSpec[0].column == dfncp1 || 
+				(rDf.df_no_use_specs > 1 && (rDf.UseSpec[1].column == dfncp1 || (rDf.df_no_use_specs > 2 && (rDf.UseSpec[2].column == dfncp1 || 
+				(rDf.df_no_use_specs > 3 && (rDf.UseSpec[3].column == dfncp1 || (rDf.df_no_use_specs > 4 && (rDf.UseSpec[4].column == dfncp1 || 
+				rDf.df_no_use_specs > 5))))))))))) {
 				/* This was the [slow] code used through version 4.0
 				 *   count = sscanf(s, "%lf%n", &df_column[df_no_cols].datum, &used);
 				 */
@@ -464,7 +464,7 @@ int GnuPlot::DfTokenise(char * s)
 				 *  - atof() does not return a count or new position
 				 */
 				char * next;
-				_Df.df_column[_Df.df_no_cols].datum = strtod(s, &next);
+				rDf.df_column[rDf.df_no_cols].datum = strtod(s, &next);
 				used = next - s;
 				count = (used) ? 1 : 0;
 			}
@@ -475,7 +475,7 @@ int GnuPlot::DfTokenise(char * s)
 				count = (*s && NOTSEP) ? 1 : 0;
 				// skip chars to end of column 
 				used = 0;
-				if(_Df.df_separators && in_string) {
+				if(rDf.df_separators && in_string) {
 					do {
 						++s;
 					} while(*s && *s != '"');
@@ -485,7 +485,7 @@ int GnuPlot::DfTokenise(char * s)
 					++s;
 			}
 			// it might be a fortran double or quad precision. 'used' is only safe if count is 1
-			if(_Df.df_fortran_constants && count == 1 && (s[used] == 'd' || s[used] == 'D' || s[used] == 'q' || s[used] == 'Q')) {
+			if(rDf.df_fortran_constants && count == 1 && (s[used] == 'd' || s[used] == 'D' || s[used] == 'q' || s[used] == 'Q')) {
 				// HBB 20001221: avoid breaking parsing of time/date
 				// strings like 01Dec2000 that would be caused by
 				// overwriting the 'D' with an 'e'... 
@@ -494,17 +494,17 @@ int GnuPlot::DfTokenise(char * s)
 				// might be fortran double 
 				s[used] = 'e';
 				// and try again 
-				_Df.df_column[_Df.df_no_cols].datum = strtod(s, &endptr);
+				rDf.df_column[rDf.df_no_cols].datum = strtod(s, &endptr);
 				count = (endptr == s) ? 0 : 1;
 				s[used] = save_char;
 			}
-			_Df.df_column[_Df.df_no_cols].good = count == 1 ? DF_GOOD : DF_BAD;
-			if(isnan(_Df.df_column[_Df.df_no_cols].datum)) {
-				_Df.df_column[_Df.df_no_cols].good = DF_UNDEFINED;
-				FPRINTF((stderr, "NaN in column %d\n", _Df.df_no_cols));
+			rDf.df_column[rDf.df_no_cols].good = count == 1 ? DF_GOOD : DF_BAD;
+			if(isnan(rDf.df_column[rDf.df_no_cols].datum)) {
+				rDf.df_column[rDf.df_no_cols].good = DF_UNDEFINED;
+				FPRINTF((stderr, "NaN in column %d\n", rDf.df_no_cols));
 			}
 		}
-		++_Df.df_no_cols;
+		++rDf.df_no_cols;
 		// If we are in a quoted string, skip to end of quote 
 		if(in_string) {
 			do {
@@ -512,7 +512,7 @@ int GnuPlot::DfTokenise(char * s)
 			} while(*s && (uchar)*s != '"');
 		}
 		// skip to 1st character in the next field 
-		if(_Df.df_separators) {
+		if(rDf.df_separators) {
 			// skip to next separator or end of line 
 			while((*s != '\0') && (*s != '\n') && NOTSEP)
 				++s;
@@ -524,9 +524,9 @@ int GnuPlot::DfTokenise(char * s)
 			while((*s == ' ' || *s == '\t') && NOTSEP)
 				++s;
 			if((*s == '\0') || (*s == '\n')) { /* Last field is empty */
-				_Df.df_column[_Df.df_no_cols].good = DF_MISSING;
-				_Df.df_column[_Df.df_no_cols].datum = fgetnan();
-				++_Df.df_no_cols;
+				rDf.df_column[rDf.df_no_cols].good = DF_MISSING;
+				rDf.df_column[rDf.df_no_cols].datum = fgetnan();
+				++rDf.df_no_cols;
 				break;
 			}
 		}
@@ -539,7 +539,7 @@ int GnuPlot::DfTokenise(char * s)
 				++s;
 		}
 	}
-	return _Df.df_no_cols;
+	return rDf.df_no_cols;
 }
 
 /*{{{  static double *df_read_matrix() */
@@ -550,19 +550,19 @@ int GnuPlot::DfTokenise(char * s)
  * the calling code.
  */
 //static double * df_read_matrix(int * pRows, int * pCols)
-double * GnuPlot::DfReadMatrix(int * pRows, int * pCols)
+double * GnuPlot::DfReadMatrix(GpDataFile & rDf, int * pRows, int * pCols)
 {
 	int    max_rows = 0;
 	int    c;
 	double * linearized_matrix = NULL;
 	char * s;
 	int    index = 0;
-	_Df.df_bad_matrix_values = 0;
+	rDf.df_bad_matrix_values = 0;
 	*pRows = 0;
 	*pCols = 0;
 	for(;;) {
-		if(!(s = DfGets())) {
-			_Df.df_eof = 1;
+		if(!(s = DfGets(rDf))) {
+			rDf.df_eof = 1;
 			// NULL if we have not read anything yet 
 			return linearized_matrix;
 		}
@@ -572,33 +572,33 @@ double * GnuPlot::DfReadMatrix(int * pRows, int * pCols)
 		// skip blank lines and comments 
 		if(!*s || is_comment(*s)) {
 			// except that some comments hide an index name 
-			if(_Df.P_IndexName) {
+			if(rDf.P_IndexName) {
 				while(is_comment(*s) || isspace((uchar)*s))
 					++s;
-				if(*s && !strncmp(s, _Df.P_IndexName, strlen(_Df.P_IndexName)))
-					_Df.IndexFound = true;
+				if(*s && !strncmp(s, rDf.P_IndexName, strlen(rDf.P_IndexName)))
+					rDf.IndexFound = true;
 			}
 			// This whole section copied with minor tweaks from df_readascii() 
-			if(++_Df.BlankCount == 1) {
+			if(++rDf.BlankCount == 1) {
 				// first blank line 
 				if(linearized_matrix)
 					return linearized_matrix;
-				if(_Df.P_IndexName && !_Df.IndexFound)
+				if(rDf.P_IndexName && !rDf.IndexFound)
 					continue;
-				if(_Df.df_current_index < _Df.df_lower_index)
+				if(rDf.df_current_index < rDf.df_lower_index)
 					continue;
 			}
-			if(_Df.BlankCount == 2) {
+			if(rDf.BlankCount == 2) {
 				// just reached the end of a data block 
-				++_Df.df_current_index;
-				if(_Df.P_IndexName && _Df.IndexFound) {
-					_Df.df_eof = 1;
+				++rDf.df_current_index;
+				if(rDf.P_IndexName && rDf.IndexFound) {
+					rDf.df_eof = 1;
 					return linearized_matrix;
 				}
-				if(_Df.df_current_index <= _Df.df_lower_index)
+				if(rDf.df_current_index <= rDf.df_lower_index)
 					continue;
-				if(_Df.df_current_index > _Df.df_upper_index) {
-					_Df.df_eof = 1;
+				if(rDf.df_current_index > rDf.df_upper_index) {
+					rDf.df_eof = 1;
 					return linearized_matrix;
 				}
 			}
@@ -607,34 +607,34 @@ double * GnuPlot::DfReadMatrix(int * pRows, int * pCols)
 			}
 		}
 		// get here => was not blank 
-		_Df.df_last_index_read = _Df.df_current_index;
+		rDf.df_last_index_read = rDf.df_current_index;
 		// TODO:  Handle columnheaders for 2nd and subsequent data blocks?
 		// if (blank_count >= 2) { do something }
-		_Df.BlankCount = 0;
-		if(_Df.mixed_data_fp && is_EOF(*s)) {
-			_Df.df_eof = 1;
+		rDf.BlankCount = 0;
+		if(rDf.mixed_data_fp && is_EOF(*s)) {
+			rDf.df_eof = 1;
 			return linearized_matrix;
 		}
-		c = DfTokenise(s);
+		c = DfTokenise(rDf, s);
 		if(!c)
 			return linearized_matrix;
 		// If the first row of matrix data contains column headers 
-		if(!_Df.df_already_got_headers && _Df.df_matrix_columnheaders && *pRows == 0) {
+		if(!rDf.df_already_got_headers && rDf.df_matrix_columnheaders && *pRows == 0) {
 			int i;
 			char * temp_string;
-			_Df.df_already_got_headers = true;
-			for(i = (_Df.df_matrix_rowheaders ? 1 : 0); i < c; i++) {
-				double xpos = _Df.df_matrix_rowheaders ? (i-1) : i;
-				if(_Df.UseSpec[0].at) {
+			rDf.df_already_got_headers = true;
+			for(i = (rDf.df_matrix_rowheaders ? 1 : 0); i < c; i++) {
+				double xpos = rDf.df_matrix_rowheaders ? (i-1) : i;
+				if(rDf.UseSpec[0].at) {
 					GpValue a;
-					_Df.df_column[0].datum = xpos;
-					_Df.df_column[0].good = DF_GOOD;
-					_Df.evaluate_inside_using = true;
-					EvaluateAt(_Df.UseSpec[0].at, &a);
-					_Df.evaluate_inside_using = false;
+					rDf.df_column[0].datum = xpos;
+					rDf.df_column[0].good = DF_GOOD;
+					rDf.evaluate_inside_using = true;
+					EvaluateAt(rDf.UseSpec[0].at, &a);
+					rDf.evaluate_inside_using = false;
 					xpos = Real(&a);
 				}
-				temp_string = DfParseStringField(_Df.df_column[i].position);
+				temp_string = DfParseStringField(rDf.df_column[i].position);
 				AddTicUser(&AxS[FIRST_X_AXIS], temp_string, xpos, -1);
 				SAlloc::F(temp_string);
 			}
@@ -655,35 +655,35 @@ double * GnuPlot::DfReadMatrix(int * pRows, int * pCols)
 		{
 			for(int i = 0; i < c; ++i) {
 				// First column in "matrix rowheaders" is a ytic label 
-				if(_Df.df_matrix_rowheaders && i == 0) {
+				if(rDf.df_matrix_rowheaders && i == 0) {
 					char * temp_string;
 					double ypos = *pRows - 1;
-					if(_Df.UseSpec[1].at) {
+					if(rDf.UseSpec[1].at) {
 						// The save/restore is to make sure 1:(f($2)):3 works 
 						GpValue a;
-						const double save = _Df.df_column[1].datum;
-						_Df.df_column[1].datum = ypos;
-						_Df.evaluate_inside_using = true;
-						EvaluateAt(_Df.UseSpec[1].at, &a);
-						_Df.evaluate_inside_using = false;
+						const double save = rDf.df_column[1].datum;
+						rDf.df_column[1].datum = ypos;
+						rDf.evaluate_inside_using = true;
+						EvaluateAt(rDf.UseSpec[1].at, &a);
+						rDf.evaluate_inside_using = false;
 						ypos = Real(&a);
-						_Df.df_column[1].datum = save;
+						rDf.df_column[1].datum = save;
 					}
-					temp_string = DfParseStringField(_Df.df_column[0].position);
+					temp_string = DfParseStringField(rDf.df_column[0].position);
 					AddTicUser(&AxS[FIRST_Y_AXIS], temp_string, ypos, -1);
 					SAlloc::F(temp_string);
 					continue;
 				}
-				if(i < _Df.FirstPoint && _Df.df_column[i].good != DF_GOOD) {
+				if(i < rDf.FirstPoint && rDf.df_column[i].good != DF_GOOD) {
 					// It's going to be skipped anyhow, so... 
 					linearized_matrix[index++] = 0;
 				}
 				else
-					linearized_matrix[index++] = _Df.df_column[i].datum;
-				if(_Df.df_column[i].good != DF_GOOD) {
-					if(_Df.df_nonuniform_matrix && index == 1)
+					linearized_matrix[index++] = rDf.df_column[i].datum;
+				if(rDf.df_column[i].good != DF_GOOD) {
+					if(rDf.df_nonuniform_matrix && index == 1)
 						; // This field is typically a label or comment 
-					else if(_Df.df_bad_matrix_values++ == 0)
+					else if(rDf.df_bad_matrix_values++ == 0)
 						IntWarn(NO_CARET, "matrix contains missing or undefined values");
 				}
 			}
@@ -730,107 +730,107 @@ void GnuPlot::InitializePlotStyle(curve_points * pPlot)
 // specs [well, we have to return something !]
 // 
 //int df_open(const char * cmd_filename, int max_using, curve_points * plot)
-int GnuPlot::DfOpen(const char * pCmdFileName, int maxUsing, curve_points * pPlot)
+int GnuPlot::DfOpen(GpDataFile & rDf, const char * pCmdFileName, int maxUsing, curve_points * pPlot)
 {
 	int    name_token = Pgm.GetPrevTokenIdx();
 	bool   duplication = FALSE;
 	bool   set_index = FALSE, set_skip = FALSE;
 	bool   set_using = FALSE;
 	bool   set_matrix = FALSE;
-	_Df.fast_columns = 1; /* corey@cac */
+	rDf.fast_columns = 1; /* corey@cac */
 	// close file if necessary 
-	if(_Df.data_fp) {
-		DfClose();
-		_Df.data_fp = NULL;
+	if(rDf.data_fp) {
+		DfClose(rDf);
+		rDf.data_fp = NULL;
 	}
-	ZFREE(_Df.df_format); /* no format string */
-	_Df.df_no_tic_specs = 0;
-	ZFREE(_Df.df_key_title);
+	ZFREE(rDf.df_format); /* no format string */
+	rDf.df_no_tic_specs = 0;
+	ZFREE(rDf.df_key_title);
 	InitializeUseSpec();
-	_Df.ClearColumnHeaders();
-	_Df.df_datum = -1; /* it will be preincremented before use */
-	_Df.df_line_number = 0; /* ditto */
-	_Df.df_lower_index = 0;
-	_Df.df_index_step = 1;
-	_Df.df_upper_index = MAXINT;
-	ZFREE(_Df.P_IndexName);
-	_Df.df_current_index = 0;
-	_Df.df_last_index_read = 0;
-	_Df.BlankCount = 2;
+	rDf.ClearColumnHeaders();
+	rDf.df_datum = -1; /* it will be preincremented before use */
+	rDf.df_line_number = 0; /* ditto */
+	rDf.df_lower_index = 0;
+	rDf.df_index_step = 1;
+	rDf.df_upper_index = MAXINT;
+	ZFREE(rDf.P_IndexName);
+	rDf.df_current_index = 0;
+	rDf.df_last_index_read = 0;
+	rDf.BlankCount = 2;
 	// by initialising blank_count, leading blanks will be ignored 
-	_Df.SetEvery = FALSE;
-	_Df.EveryPoint = _Df.everyline = 1; /* unless there is an every spec */
-	_Df.FirstPoint = _Df.firstline = 0;
-	_Df.LastPoint = _Df.lastline = MAXINT;
-	_Df.df_binary_file = _Df.df_matrix_file = false;
-	_Df.df_pixeldata = NULL;
-	_Df.NumBinRecords = 0;
-	_Df.df_matrix = false;
-	_Df.df_nonuniform_matrix = false;
-	_Df.df_matrix_columnheaders = false;
-	_Df.df_matrix_rowheaders = false;
-	_Df.df_skip_at_front = 0;
-	_Df.df_xpixels = 0;
-	_Df.df_ypixels = 0;
-	_Df.df_transpose = false;
-	_Df.df_voxelgrid = false;
-	_Df.df_eof = 0;
+	rDf.SetEvery = FALSE;
+	rDf.EveryPoint = rDf.everyline = 1; /* unless there is an every spec */
+	rDf.FirstPoint = rDf.firstline = 0;
+	rDf.LastPoint = rDf.lastline = MAXINT;
+	rDf.df_binary_file = rDf.df_matrix_file = false;
+	rDf.df_pixeldata = NULL;
+	rDf.NumBinRecords = 0;
+	rDf.df_matrix = false;
+	rDf.df_nonuniform_matrix = false;
+	rDf.df_matrix_columnheaders = false;
+	rDf.df_matrix_rowheaders = false;
+	rDf.df_skip_at_front = 0;
+	rDf.df_xpixels = 0;
+	rDf.df_ypixels = 0;
+	rDf.df_transpose = false;
+	rDf.df_voxelgrid = false;
+	rDf.df_eof = 0;
 	// Save for use by df_readline(). 
 	// Perhaps it should be a parameter to df_readline? 
-	_Df.df_current_plot = pPlot;
+	rDf.df_current_plot = pPlot;
 	// If either 'set datafile columnhead' or 'set key autotitle columnhead'
 	// is in effect we always treat the * first data row as non-data
 	// (df_readline() will return DF_COLUMN_HEADERS rather than the column count).
 	// This is true even if the key is off or the data is read from 'stats'
 	// or from 'fit' rather than plot.
-	_Df.ColumnForKeyTitle = NO_COLUMN_HEADER;
-	_Df.df_already_got_headers = FALSE;
+	rDf.ColumnForKeyTitle = NO_COLUMN_HEADER;
+	rDf.df_already_got_headers = FALSE;
 	if(Gg.KeyT.auto_titles == COLUMNHEAD_KEYTITLES)
 		_Pb.parse_1st_row_as_headers = TRUE;
-	else if(_Df.df_columnheaders)
+	else if(rDf.df_columnheaders)
 		_Pb.parse_1st_row_as_headers = TRUE;
 	else
 		_Pb.parse_1st_row_as_headers = FALSE;
 	if(!pCmdFileName)
 		IntErrorCurToken("missing filename");
 	if(!pCmdFileName[0]) {
-		if(isempty(_Df.df_filename))
+		if(isempty(rDf.df_filename))
 			IntError(Pgm.GetPrevTokenIdx(), "No previous filename");
-		if(sstreq(_Df.df_filename, "@@") && _Df.df_arrayname) {
-			_Pb.df_array = Ev.GetUdvByName(_Df.df_arrayname);
+		if(sstreq(rDf.df_filename, "@@") && rDf.df_arrayname) {
+			_Pb.df_array = Ev.GetUdvByName(rDf.df_arrayname);
 			if(_Pb.df_array->udv_value.Type != ARRAY)
-				IntError(Pgm.GetPrevTokenIdx(), "Array %s invalid", _Df.df_arrayname);
+				IntError(Pgm.GetPrevTokenIdx(), "Array %s invalid", rDf.df_arrayname);
 		}
 	}
 	else if(pCmdFileName[0] == '$' && GetVGridByName(pCmdFileName)) {
 		// The rest of the df_open() processing is not relevant 
-		_Df.df_voxelgrid = true;
+		rDf.df_voxelgrid = true;
 		return 1;
 	}
 	else {
-		FREEANDASSIGN(_Df.df_filename, sstrdup(pCmdFileName));
+		FREEANDASSIGN(rDf.df_filename, sstrdup(pCmdFileName));
 	}
 	// defer opening until we have parsed the modifiers... 
 	// pm 25.11.2001 allow any order of options 
 	while(!Pgm.EndOfCommand()) {
 		// look for binary / matrix 
 		if(Pgm.AlmostEqualsCur("bin$ary")) {
-			if(_Df.df_filename[0] == '$')
+			if(rDf.df_filename[0] == '$')
 				IntErrorCurToken("data blocks cannot be binary");
-			if(sstreq(_Df.df_filename, "+") || sstreq(_Df.df_filename, "++"))
+			if(sstreq(rDf.df_filename, "+") || sstreq(rDf.df_filename, "++"))
 				IntErrorCurToken("pseudofiles '+' and '++' cannot be binary");
 			Pgm.Shift();
-			if(_Df.df_binary_file || set_skip) {
+			if(rDf.df_binary_file || set_skip) {
 				duplication = true;
 				break;
 			}
-			GpExpandTilde(&_Df.df_filename);
-			_Df.df_binary_file = true;
+			GpExpandTilde(&rDf.df_filename);
+			rDf.df_binary_file = true;
 			// Up to the time of adding the general binary code, only matrix
 			// binary for 3d was defined.  So, use matrix binary by default.
-			_Df.df_matrix_file = true;
+			rDf.df_matrix_file = true;
 			InitializeBinaryVars();
-			PlotOptionBinary(set_matrix, FALSE);
+			PlotOptionBinary(rDf, set_matrix, FALSE);
 			continue;
 		}
 		// deal with matrix 
@@ -843,21 +843,21 @@ int GnuPlot::DfOpen(const char * pCmdFileName, int maxUsing, curve_points * pPlo
 			// `binary` default is both df_matrix_file and df_binary_file.
 			// So if df_binary_file is true, but df_matrix_file isn't, then
 			// some keyword specific to general binary has been given.
-			if(!_Df.df_matrix_file && _Df.df_binary_file)
+			if(!rDf.df_matrix_file && rDf.df_binary_file)
 				IntErrorCurToken(matrix_general_binary_conflict_msg);
-			_Df.df_matrix_file = true;
+			rDf.df_matrix_file = true;
 			set_matrix = TRUE;
-			_Df.fast_columns = 0;
+			rDf.fast_columns = 0;
 			continue;
 		}
 		// May 2011 - "nonuniform matrix" indicates an ascii data file
 		// with the same row/column layout as "binary matrix" 
 		if(Pgm.AlmostEqualsCur("nonuni$form")) {
 			Pgm.Shift();
-			_Df.df_matrix_file = true;
-			_Df.df_nonuniform_matrix = true;
-			_Df.fast_columns = 0;
-			if(_Df.df_matrix_rowheaders || _Df.df_matrix_columnheaders)
+			rDf.df_matrix_file = true;
+			rDf.df_nonuniform_matrix = true;
+			rDf.fast_columns = 0;
+			if(rDf.df_matrix_rowheaders || rDf.df_matrix_columnheaders)
 				duplication = true;
 			continue;
 		}
@@ -865,9 +865,9 @@ int GnuPlot::DfOpen(const char * pCmdFileName, int maxUsing, curve_points * pPlo
 		// in uniform grid format but with column labels in row 1 
 		if(Pgm.AlmostEqualsCur("columnhead$ers")) {
 			Pgm.Shift();
-			_Df.df_matrix_file = true;
-			_Df.df_matrix_columnheaders = true;
-			if(_Df.df_nonuniform_matrix || !set_matrix)
+			rDf.df_matrix_file = true;
+			rDf.df_matrix_columnheaders = true;
+			if(rDf.df_nonuniform_matrix || !set_matrix)
 				duplication = TRUE;
 			continue;
 		}
@@ -875,9 +875,9 @@ int GnuPlot::DfOpen(const char * pCmdFileName, int maxUsing, curve_points * pPlo
 		// in uniform grid format but with row labels in column 1 
 		if(Pgm.AlmostEqualsCur("rowhead$ers")) {
 			Pgm.Shift();
-			_Df.df_matrix_file = true;
-			_Df.df_matrix_rowheaders = true;
-			if(_Df.df_nonuniform_matrix || !set_matrix)
+			rDf.df_matrix_file = true;
+			rDf.df_matrix_rowheaders = true;
+			if(rDf.df_nonuniform_matrix || !set_matrix)
 				duplication = true;
 			continue;
 		}
@@ -887,31 +887,31 @@ int GnuPlot::DfOpen(const char * pCmdFileName, int maxUsing, curve_points * pPlo
 				duplication = TRUE; 
 				break;
 			}
-			PlotOptionIndex();
+			PlotOptionIndex(rDf);
 			set_index = TRUE;
 			continue;
 		}
 		// deal with every 
 		if(Pgm.AlmostEqualsCur("ev$ery")) {
-			if(_Df.SetEvery) {
+			if(rDf.SetEvery) {
 				duplication = TRUE; 
 				break;
 			}
-			PlotOptionEvery();
-			_Df.SetEvery = TRUE;
+			PlotOptionEvery(rDf);
+			rDf.SetEvery = TRUE;
 			continue;
 		}
 		// deal with skip 
 		if(Pgm.EqualsCur("skip")) {
-			if(set_skip || _Df.df_binary_file) {
+			if(set_skip || rDf.df_binary_file) {
 				duplication = true; 
 				break;
 			}
 			set_skip = true;
 			Pgm.Shift();
-			_Df.df_skip_at_front = IntExpression();
-			if(_Df.df_skip_at_front < 0)
-				_Df.df_skip_at_front = 0;
+			rDf.df_skip_at_front = IntExpression();
+			if(rDf.df_skip_at_front < 0)
+				rDf.df_skip_at_front = 0;
 			continue;
 		}
 		// deal with using 
@@ -920,7 +920,7 @@ int GnuPlot::DfOpen(const char * pCmdFileName, int maxUsing, curve_points * pPlo
 				duplication = TRUE; 
 				break;
 			}
-			PlotOptionUsing(maxUsing);
+			PlotOptionUsing(rDf, maxUsing);
 			set_using = TRUE;
 			continue;
 		}
@@ -943,35 +943,35 @@ int GnuPlot::DfOpen(const char * pCmdFileName, int maxUsing, curve_points * pPlo
 		IntErrorCurToken("duplicated or contradicting arguments in datafile options");
 	// Check for auto-generation of key title from column header  
 	if(Gg.KeyT.auto_titles == COLUMNHEAD_KEYTITLES) {
-		if(_Df.df_no_use_specs == 1)
-			_Df.ColumnForKeyTitle = _Df.UseSpec[0].column;
+		if(rDf.df_no_use_specs == 1)
+			rDf.ColumnForKeyTitle = rDf.UseSpec[0].column;
 		else if(pPlot && pPlot->plot_style == HISTOGRAMS)
-			_Df.ColumnForKeyTitle = _Df.UseSpec[0].column;
+			rDf.ColumnForKeyTitle = rDf.UseSpec[0].column;
 		else if(pPlot && pPlot->plot_type == DATA3D)
-			_Df.ColumnForKeyTitle = _Df.UseSpec[2].column;
+			rDf.ColumnForKeyTitle = rDf.UseSpec[2].column;
 		else
-			_Df.ColumnForKeyTitle = _Df.UseSpec[1].column;
+			rDf.ColumnForKeyTitle = rDf.UseSpec[1].column;
 	}
 	// {{{  more variable inits 
-	_Df.PointCount = -1; // we preincrement 
-	_Df.LineCount = 0;
-	_Df.df_pseudodata = 0;
-	_Df.df_pseudorecord = 0;
-	_Df.df_pseudospan = 0;
-	_Df.df_datablock = FALSE;
-	_Df.df_datablock_line = NULL;
-	_Df.df_tabulate_strings = FALSE;
+	rDf.PointCount = -1; // we preincrement 
+	rDf.LineCount = 0;
+	rDf.df_pseudodata = 0;
+	rDf.df_pseudorecord = 0;
+	rDf.df_pseudospan = 0;
+	rDf.df_datablock = FALSE;
+	rDf.df_datablock_line = NULL;
+	rDf.df_tabulate_strings = FALSE;
 	if(pPlot) {
 		// Save the matrix/array/image dimensions for binary image plot styles	
-		pPlot->image_properties.ncols = _Df.df_xpixels;
-		pPlot->image_properties.nrows = _Df.df_ypixels;
-		FPRINTF((stderr, "datafile.c:%d (ncols,nrows) set to (%d,%d)\n", __LINE__, _Df.df_xpixels, _Df.df_ypixels));
-		if(_Df.SetEvery && _Df.df_xpixels && _Df.df_ypixels) {
-			pPlot->image_properties.ncols = 1 + ((int)(MIN(_Df.LastPoint, static_cast<int>(_Df.df_xpixels-1))) - _Df.FirstPoint) / _Df.EveryPoint;
-			pPlot->image_properties.nrows = 1 + ((int)(MIN(_Df.lastline, static_cast<int>(_Df.df_ypixels-1))) - _Df.firstline) / _Df.everyline;
+		pPlot->image_properties.ncols = rDf.df_xpixels;
+		pPlot->image_properties.nrows = rDf.df_ypixels;
+		FPRINTF((stderr, "datafile.c:%d (ncols,nrows) set to (%d,%d)\n", __LINE__, rDf.df_xpixels, rDf.df_ypixels));
+		if(rDf.SetEvery && rDf.df_xpixels && rDf.df_ypixels) {
+			pPlot->image_properties.ncols = 1 + ((int)(MIN(rDf.LastPoint, static_cast<int>(rDf.df_xpixels-1))) - rDf.FirstPoint) / rDf.EveryPoint;
+			pPlot->image_properties.nrows = 1 + ((int)(MIN(rDf.lastline, static_cast<int>(rDf.df_ypixels-1))) - rDf.firstline) / rDf.everyline;
 			FPRINTF((stderr, "datafile.c:%d  adjusting to (%d, %d)\n", __LINE__, pPlot->image_properties.ncols, pPlot->image_properties.nrows));
 		}
-		if(_Df.df_transpose) {
+		if(rDf.df_transpose) {
 			uint temp = pPlot->image_properties.ncols;
 			pPlot->image_properties.ncols = pPlot->image_properties.nrows;
 			pPlot->image_properties.nrows = temp;
@@ -981,18 +981,18 @@ int GnuPlot::DfOpen(const char * pCmdFileName, int maxUsing, curve_points * pPlo
 	// }}} 
 	// {{{  open file 
 #if defined(HAVE_FDOPEN)
-	if(*_Df.df_filename == '<' && strlen(_Df.df_filename) > 1 && _Df.df_filename[1] == '&') {
+	if(*rDf.df_filename == '<' && strlen(rDf.df_filename) > 1 && rDf.df_filename[1] == '&') {
 		char * substr;
 		// read from an already open file descriptor 
-		_Df.data_fd = strtol(_Df.df_filename + 2, &substr, 10);
-		if(*substr != '\0' || _Df.data_fd < 0 || substr == _Df.df_filename+2)
+		rDf.data_fd = strtol(rDf.df_filename + 2, &substr, 10);
+		if(*substr != '\0' || rDf.data_fd < 0 || substr == rDf.df_filename+2)
 			IntError(name_token, "invalid file descriptor integer");
-		else if(_Df.data_fd == _fileno(stdin) || _Df.data_fd == _fileno(stdout) || _Df.data_fd == _fileno(stderr))
+		else if(rDf.data_fd == _fileno(stdin) || rDf.data_fd == _fileno(stdout) || rDf.data_fd == _fileno(stderr))
 			IntError(name_token, "cannot plot from stdin/stdout/stderr");
-		else if((_Df.data_fp = _fdopen(_Df.data_fd, "r")) == (FILE*)NULL)
+		else if((rDf.data_fp = _fdopen(rDf.data_fd, "r")) == (FILE*)NULL)
 			IntError(name_token, "cannot open file descriptor for reading data");
 		// if this stream isn't seekable, set it to volatile 
-		if(fseek(_Df.data_fp, 0, SEEK_CUR) < 0)
+		if(fseek(rDf.data_fp, 0, SEEK_CUR) < 0)
 			Gg.VolatileData = true;
 	}
 	else
@@ -1003,40 +1003,40 @@ int GnuPlot::DfOpen(const char * pCmdFileName, int maxUsing, curve_points * pPlo
 		if((data_fp = popen(df_filename + 1, "r")) == (FILE*)NULL)
 			OsError(name_token, "cannot create pipe for data");
 		else
-			_Df.df_pipe_open = TRUE;
+			rDf.df_pipe_open = TRUE;
 	}
 	else
 #endif /* PIPES */
 	// Special filenames '-' '+' '++' '$DATABLOCK' 
-	if(*_Df.df_filename == '-' && strlen(_Df.df_filename) == 1) {
-		_Df.plotted_data_from_stdin = true;
+	if(*rDf.df_filename == '-' && strlen(rDf.df_filename) == 1) {
+		rDf.plotted_data_from_stdin = true;
 		Gg.VolatileData = true;
-		_Df.data_fp = LfTop();
-		SETIFZ(_Df.data_fp, stdin);
-		_Df.mixed_data_fp = true; // don't close command file 
+		rDf.data_fp = LfTop();
+		SETIFZ(rDf.data_fp, stdin);
+		rDf.mixed_data_fp = true; // don't close command file 
 	}
-	else if(sstreq(_Df.df_filename, "+")) {
-		_Df.df_pseudodata = 1;
+	else if(sstreq(rDf.df_filename, "+")) {
+		rDf.df_pseudodata = 1;
 	}
-	else if(sstreq(_Df.df_filename, "++")) {
-		_Df.df_pseudodata = 2;
+	else if(sstreq(rDf.df_filename, "++")) {
+		rDf.df_pseudodata = 2;
 	}
-	else if(_Df.df_filename[0] == '$') {
-		_Df.df_datablock = true;
-		_Df.df_datablock_line = GetDatablock(_Df.df_filename);
+	else if(rDf.df_filename[0] == '$') {
+		rDf.df_datablock = true;
+		rDf.df_datablock_line = GetDatablock(rDf.df_filename);
 		// Better safe than sorry. Check for inblock != outblock 
-		if(pPlot && Tab.P_Var && Tab.P_Var->udv_value.v.data_array == _Df.df_datablock_line)
+		if(pPlot && Tab.P_Var && Tab.P_Var->udv_value.v.data_array == rDf.df_datablock_line)
 			IntError(NO_CARET, "input and output datablock are the same");
 	}
-	else if(sstreq(_Df.df_filename, "@@") && _Pb.df_array) {
+	else if(sstreq(rDf.df_filename, "@@") && _Pb.df_array) {
 		// df_array was set in string_or_express() 
-		_Df.df_array_index = 0;
+		rDf.df_array_index = 0;
 		// save name so we can refer to it later 
-		_Df.df_arrayname = _Pb.df_array->udv_name;
+		rDf.df_arrayname = _Pb.df_array->udv_name;
 	}
 	else {
 		// filename cannot be static array! 
-		GpExpandTilde(&_Df.df_filename);
+		GpExpandTilde(&rDf.df_filename);
 		// Open failure generates a warning rather than an immediate fatal error.
 		// We assume success (GPVAL_ERRNO == 0) and let the caller change this to
 		// something else if it considers DF_EOF a serious error.
@@ -1044,105 +1044,105 @@ int GnuPlot::DfOpen(const char * pCmdFileName, int maxUsing, curve_points * pPlo
 #ifdef HAVE_SYS_STAT_H
 		{
 			struct stat statbuf;
-			if((stat(_Df.df_filename, &statbuf) > -1) && S_ISDIR(statbuf.st_mode)) {
-				char * errmsg = (char *)SAlloc::M(32 + strlen(_Df.df_filename));
-				sprintf(errmsg, "\"%s\" is a directory", _Df.df_filename);
+			if((stat(rDf.df_filename, &statbuf) > -1) && S_ISDIR(statbuf.st_mode)) {
+				char * errmsg = (char *)SAlloc::M(32 + strlen(rDf.df_filename));
+				sprintf(errmsg, "\"%s\" is a directory", rDf.df_filename);
 				Ev.FillGpValString("GPVAL_ERRMSG", errmsg);
 				SAlloc::F(errmsg);
-				IntWarn(name_token, "\"%s\" is a directory", _Df.df_filename);
-				_Df.df_eof = 1;
+				IntWarn(name_token, "\"%s\" is a directory", rDf.df_filename);
+				rDf.df_eof = 1;
 				return DF_EOF;
 			}
 		}
 #endif
-		if((_Df.data_fp = LoadPath_fopen(_Df.df_filename, _Df.df_binary_file ? "rb" : "r")) == NULL) {
-			char * errmsg = (char *)SAlloc::M(32 + strlen(_Df.df_filename));
-			sprintf(errmsg, "Cannot find or open file \"%s\"", _Df.df_filename);
+		if((rDf.data_fp = LoadPath_fopen(rDf.df_filename, rDf.df_binary_file ? "rb" : "r")) == NULL) {
+			char * errmsg = (char *)SAlloc::M(32 + strlen(rDf.df_filename));
+			sprintf(errmsg, "Cannot find or open file \"%s\"", rDf.df_filename);
 			Ev.FillGpValString("GPVAL_ERRMSG", errmsg);
 			SAlloc::F(errmsg);
 			if(pPlot) // suppress message if this is a stats command 
-				IntWarn(NO_CARET, "Cannot find or open file \"%s\"", _Df.df_filename);
-			_Df.df_eof = 1;
+				IntWarn(NO_CARET, "Cannot find or open file \"%s\"", rDf.df_filename);
+			rDf.df_eof = 1;
 			return DF_EOF;
 		}
 	}
 	// }}} 
 	// Binary file options are handled differently depending on the plot style. 
 	// Peek ahead in the command line to see if there is a "with <style>" later.
-	if(_Df.df_binary_file || _Df.df_matrix_file)
+	if(rDf.df_binary_file || rDf.df_matrix_file)
 		InitializePlotStyle(pPlot);
 	// If the data is in binary matrix form, read in some values
 	// to determine the number of columns and rows.  If data is in
 	// ASCII matrix form, read in all the data to memory in preparation
 	// for using df_readbinary() routine.
-	if(_Df.df_matrix_file) {
-		DfDetermineMatrix_info(_Df.data_fp);
+	if(rDf.df_matrix_file) {
+		DfDetermineMatrix_info(rDf, rDf.data_fp);
 		// NB: If we're inside a 'stats' command there is no plot 
 		if(pPlot) {
 			// Image size bookkeeping for ascii uniform matrices 
-			if(!_Df.df_binary_file) {
-				pPlot->image_properties.ncols = _Df.df_xpixels;
-				pPlot->image_properties.nrows = _Df.df_ypixels;
+			if(!rDf.df_binary_file) {
+				pPlot->image_properties.ncols = rDf.df_xpixels;
+				pPlot->image_properties.nrows = rDf.df_ypixels;
 			}
 		}
 	}
 	// General binary, matrix binary and ASCII matrix all use the
 	// df_readbinary() routine.
-	if(_Df.df_binary_file || _Df.df_matrix_file) {
-		_Df.df_read_binary = true;
-		AdjustBinaryUseSpec(pPlot);
+	if(rDf.df_binary_file || rDf.df_matrix_file) {
+		rDf.df_read_binary = true;
+		AdjustBinaryUseSpec(rDf, pPlot);
 	}
 	else
-		_Df.df_read_binary = FALSE;
+		rDf.df_read_binary = FALSE;
 	// Make information about whether the data forms a grid or not
 	// available to the outside world.  */
-	_Df.df_matrix = (_Df.df_matrix_file || ((_Df.NumBinRecords == 1) && ((_Df.df_bin_record[0].cart_dim[1] > 0) || (_Df.df_bin_record[0].scan_dim[1] > 0))));
-	return _Df.df_no_use_specs;
+	rDf.df_matrix = (rDf.df_matrix_file || ((rDf.NumBinRecords == 1) && ((rDf.df_bin_record[0].cart_dim[1] > 0) || (rDf.df_bin_record[0].scan_dim[1] > 0))));
+	return rDf.df_no_use_specs;
 }
 /*}}} */
 
 // {{{  void df_close() 
 //void df_close()
-void GnuPlot::DfClose()
+void GnuPlot::DfClose(GpDataFile & rDf)
 {
 	int i;
 	// paranoid - mark $n and column(n) as invalid 
-	_Df.df_no_cols = 0;
-	if(_Df.data_fp || _Df.df_datablock) {
+	rDf.df_no_cols = 0;
+	if(rDf.data_fp || rDf.df_datablock) {
 		// free any use expression storage 
 		for(i = 0; i < MAXDATACOLS; ++i)
-			if(_Df.UseSpec[i].at) {
-				free_at(_Df.UseSpec[i].at);
-				_Df.UseSpec[i].at = NULL;
+			if(rDf.UseSpec[i].at) {
+				free_at(rDf.UseSpec[i].at);
+				rDf.UseSpec[i].at = NULL;
 			}
 		// free binary matrix data 
-		if(_Df.df_matrix) {
-			for(i = 0; i < _Df.NumBinRecords; i++) {
-				ZFREE(_Df.df_bin_record[i].memory_data);
+		if(rDf.df_matrix) {
+			for(i = 0; i < rDf.NumBinRecords; i++) {
+				ZFREE(rDf.df_bin_record[i].memory_data);
 			}
 		}
-		if(!_Df.mixed_data_fp && !_Df.df_datablock) {
+		if(!rDf.mixed_data_fp && !rDf.df_datablock) {
 	#if defined(HAVE_FDOPEN)
-			if(_Df.data_fd == _fileno(_Df.data_fp)) {
+			if(rDf.data_fd == _fileno(rDf.data_fp)) {
 				// This will allow replotting if this stream is backed by a file,
 				// and hopefully is harmless if it connects to a pipe.
 				// Leave it open in either case.
-				rewind(_Df.data_fp);
-				fprintf(stderr, "Rewinding fd %d\n", _Df.data_fd);
+				rewind(rDf.data_fp);
+				fprintf(stderr, "Rewinding fd %d\n", rDf.data_fd);
 			}
 			else
 	#endif
 	#if defined(PIPES)
-			if(_Df.df_pipe_open) {
-				pclose(_Df.data_fp);
-				_Df.df_pipe_open = FALSE;
+			if(rDf.df_pipe_open) {
+				pclose(rDf.data_fp);
+				rDf.df_pipe_open = FALSE;
 			}
 			else
 	#endif
-			fclose(_Df.data_fp);
+			fclose(rDf.data_fp);
 		}
-		_Df.mixed_data_fp = FALSE;
-		_Df.data_fp = NULL;
+		rDf.mixed_data_fp = FALSE;
+		rDf.data_fp = NULL;
 	}
 }
 
@@ -1163,88 +1163,88 @@ void GnuPlot::DfShowData()
 /*}}} */
 
 //static void plot_option_every()
-void GnuPlot::PlotOptionEvery()
+void GnuPlot::PlotOptionEvery(GpDataFile & rDf)
 {
-	_Df.fast_columns = 0; /* corey@cac */
+	rDf.fast_columns = 0; /* corey@cac */
 	// allow empty fields - every a:b:c::e we have already established the defaults 
 	Pgm.Shift();
 	if(!Pgm.EqualsCur(":")) {
-		_Df.EveryPoint = IntExpression();
-		if(_Df.EveryPoint < 0) 
-			_Df.EveryPoint = 1;
-		else if(_Df.EveryPoint < 1)
+		rDf.EveryPoint = IntExpression();
+		if(rDf.EveryPoint < 0) 
+			rDf.EveryPoint = 1;
+		else if(rDf.EveryPoint < 1)
 			IntErrorCurToken("Expected positive integer");
 	}
 	// if it fails on first test, no more tests will succeed. If it
 	// fails on second test, next test will succeed with correct c_token 
 	if(Pgm.EqualsCur(":") && !Pgm.Equals(++Pgm.CToken, ":")) {
-		_Df.everyline = IntExpression();
-		if(_Df.everyline < 0) 
-			_Df.everyline = 1;
-		else if(_Df.everyline < 1)
+		rDf.everyline = IntExpression();
+		if(rDf.everyline < 0) 
+			rDf.everyline = 1;
+		else if(rDf.everyline < 1)
 			IntErrorCurToken("Expected positive integer");
 	}
 	if(Pgm.EqualsCur(":") && !Pgm.Equals(++Pgm.CToken, ":")) {
-		_Df.FirstPoint = IntExpression();
-		if(_Df.FirstPoint < 0) 
-			_Df.FirstPoint = 0;
+		rDf.FirstPoint = IntExpression();
+		if(rDf.FirstPoint < 0) 
+			rDf.FirstPoint = 0;
 	}
 	if(Pgm.EqualsCur(":") && !Pgm.Equals(++Pgm.CToken, ":")) {
-		_Df.firstline = IntExpression();
-		if(_Df.firstline < 0) 
-			_Df.firstline = 0;
+		rDf.firstline = IntExpression();
+		if(rDf.firstline < 0) 
+			rDf.firstline = 0;
 	}
 	if(Pgm.EqualsCur(":") && !Pgm.Equals(++Pgm.CToken, ":")) {
-		_Df.LastPoint = IntExpression();
-		if(_Df.LastPoint < 0) 
-			_Df.LastPoint = MAXINT;
-		else if(_Df.LastPoint < _Df.FirstPoint)
+		rDf.LastPoint = IntExpression();
+		if(rDf.LastPoint < 0) 
+			rDf.LastPoint = MAXINT;
+		else if(rDf.LastPoint < rDf.FirstPoint)
 			IntErrorCurToken("Last point must not be before first point");
 	}
 	if(Pgm.EqualsCur(":")) {
 		Pgm.Shift();
-		_Df.lastline = IntExpression();
-		if(_Df.lastline < 0) 
-			_Df.lastline = MAXINT;
-		else if(_Df.lastline < _Df.firstline)
+		rDf.lastline = IntExpression();
+		if(rDf.lastline < 0) 
+			rDf.lastline = MAXINT;
+		else if(rDf.lastline < rDf.firstline)
 			IntErrorCurToken("Last line must not be before first line");
 	}
 }
 
 //static void plot_option_index()
-void GnuPlot::PlotOptionIndex()
+void GnuPlot::PlotOptionIndex(GpDataFile & rDf)
 {
-	if(_Df.df_binary_file && _Df.df_matrix_file)
+	if(rDf.df_binary_file && rDf.df_matrix_file)
 		IntErrorCurToken("Binary matrix file format does not allow more than one surface per file");
 	Pgm.Shift();
 	// Check for named index 
-	if((_Df.P_IndexName = TryToGetString())) {
-		_Df.IndexFound = FALSE;
+	if((rDf.P_IndexName = TryToGetString())) {
+		rDf.IndexFound = FALSE;
 	}
 	else {
 		// Numerical index list 
-		_Df.df_lower_index = IntExpression();
-		if(_Df.df_lower_index < 0)
+		rDf.df_lower_index = IntExpression();
+		if(rDf.df_lower_index < 0)
 			IntErrorCurToken("index must be non-negative");
 		if(Pgm.EqualsCur(":")) {
 			Pgm.Shift();
 			if(Pgm.EqualsCur(":")) {
-				_Df.df_upper_index = MAXINT; /* If end index not specified */
+				rDf.df_upper_index = MAXINT; /* If end index not specified */
 			}
 			else {
-				_Df.df_upper_index = IntExpression();
-				if(_Df.df_upper_index < _Df.df_lower_index)
+				rDf.df_upper_index = IntExpression();
+				if(rDf.df_upper_index < rDf.df_lower_index)
 					IntErrorCurToken("Upper index should be bigger than lower index");
 			}
 			if(Pgm.EqualsCur(":")) {
 				Pgm.Shift();
-				_Df.df_index_step = IntExpression();
-				if(_Df.df_index_step < 1)
+				rDf.df_index_step = IntExpression();
+				if(rDf.df_index_step < 1)
 					IntErrorCurToken("Index step must be positive");
 			}
 		}
 		else
-			_Df.df_upper_index = _Df.df_lower_index;
+			rDf.df_upper_index = rDf.df_lower_index;
 	}
 }
 // 
@@ -1284,40 +1284,40 @@ static bool valid_format(const char * format)
 }
 
 //static void plot_option_using(int max_using)
-void GnuPlot::PlotOptionUsing(int max_using)
+void GnuPlot::PlotOptionUsing(GpDataFile & rDf, int max_using)
 {
 	int no_cols = 0; /* For general binary only. */
 	char * column_label;
 	// The filetype function may have set the using specs, so reset them before processing tokens.
-	if(_Df.df_binary_file)
+	if(rDf.df_binary_file)
 		InitializeUseSpec();
 	// Try to distinguish between 'using "A":"B"' and 'using "%lf %lf" 
 	if(!Pgm.EndOfCommand() && Pgm.IsString(++Pgm.CToken)) {
 		int save_token = Pgm.GetCurTokenIdx();
-		_Df.df_format = TryToGetString();
-		if(valid_format(_Df.df_format))
+		rDf.df_format = TryToGetString();
+		if(valid_format(rDf.df_format))
 			return;
-		ZFREE(_Df.df_format);
+		ZFREE(rDf.df_format);
 		Pgm.SetTokenIdx(save_token);
 	}
 	if(!Pgm.EndOfCommand()) {
 		do {            /* must be at least one */
-			if(_Df.df_no_use_specs >= MAXDATACOLS)
+			if(rDf.df_no_use_specs >= MAXDATACOLS)
 				IntErrorCurToken("at most %d columns allowed in using spec", MAXDATACOLS);
-			if(_Df.df_no_use_specs >= max_using)
+			if(rDf.df_no_use_specs >= max_using)
 				IntErrorCurToken("Too many columns in using specification");
 			if(Pgm.EqualsCur(":")) {
 				// empty specification - use default 
-				_Df.UseSpec[_Df.df_no_use_specs].column = _Df.df_no_use_specs;
-				if(_Df.df_no_use_specs > no_cols)
-					no_cols = _Df.df_no_use_specs;
-				++_Df.df_no_use_specs;
+				rDf.UseSpec[rDf.df_no_use_specs].column = rDf.df_no_use_specs;
+				if(rDf.df_no_use_specs > no_cols)
+					no_cols = rDf.df_no_use_specs;
+				++rDf.df_no_use_specs;
 				// do not increment c+token ; let while() find the : 
 			}
 			else if(Pgm.EqualsCur("(")) {
 				int i;
-				use_spec_s * spec = &_Df.UseSpec[_Df.df_no_use_specs];
-				_Df.fast_columns = 0; /* corey@cac */
+				use_spec_s * spec = &rDf.UseSpec[rDf.df_no_use_specs];
+				rDf.fast_columns = 0; /* corey@cac */
 				Pgm.dummy_func = NULL; /* no dummy variables active */
 				_Pb.at_highest_column_used = NO_COLUMN_HEADER;
 				spec->at = PermAt();
@@ -1332,72 +1332,72 @@ void GnuPlot::PlotOptionUsing(int max_using)
 				}
 				// Catch at least the simplest case of 'autotitle columnhead' using an expression 
 				spec->column = _Pb.at_highest_column_used;
-				_Df.df_no_use_specs++;
+				rDf.df_no_use_specs++;
 				// It would be nice to handle these like any other      
 				// internal function via perm_at() but it doesn't work. 
 			}
 			else if(Pgm.AlmostEqualsCur("xtic$labels")) {
-				PlotTicLabelUsing(CT_XTICLABEL);
+				PlotTicLabelUsing(rDf, CT_XTICLABEL);
 			}
 			else if(Pgm.AlmostEqualsCur("x2tic$labels")) {
-				PlotTicLabelUsing(CT_X2TICLABEL);
+				PlotTicLabelUsing(rDf, CT_X2TICLABEL);
 			}
 			else if(Pgm.AlmostEqualsCur("ytic$labels")) {
-				PlotTicLabelUsing(CT_YTICLABEL);
+				PlotTicLabelUsing(rDf, CT_YTICLABEL);
 			}
 			else if(Pgm.AlmostEqualsCur("y2tic$labels")) {
-				PlotTicLabelUsing(CT_Y2TICLABEL);
+				PlotTicLabelUsing(rDf, CT_Y2TICLABEL);
 			}
 			else if(Pgm.AlmostEqualsCur("ztic$labels")) {
-				PlotTicLabelUsing(CT_ZTICLABEL);
+				PlotTicLabelUsing(rDf, CT_ZTICLABEL);
 			}
 			else if(Pgm.AlmostEqualsCur("cbtic$labels")) {
-				PlotTicLabelUsing(CT_CBTICLABEL);
+				PlotTicLabelUsing(rDf, CT_CBTICLABEL);
 			}
 			else if(Pgm.AlmostEqualsCur("key")) {
-				PlotTicLabelUsing(CT_KEYLABEL);
+				PlotTicLabelUsing(rDf, CT_KEYLABEL);
 			}
 			else if((column_label = TryToGetString())) {
 				// ...using "A"... Dummy up a call to column(column_label) 
-				_Df.UseSpec[_Df.df_no_use_specs].at = create_call_column_at(column_label);
-				_Df.UseSpec[_Df.df_no_use_specs++].column = NO_COLUMN_HEADER;
+				rDf.UseSpec[rDf.df_no_use_specs].at = create_call_column_at(column_label);
+				rDf.UseSpec[rDf.df_no_use_specs++].column = NO_COLUMN_HEADER;
 				_Pb.parse_1st_row_as_headers = TRUE;
-				_Df.fast_columns = 0;
+				rDf.fast_columns = 0;
 				// FIXME - is it safe to always take the title from the 2nd use spec? 
-				if(_Df.df_no_use_specs == 2) {
-					FREEANDASSIGN(_Df.df_key_title, sstrdup(column_label));
+				if(rDf.df_no_use_specs == 2) {
+					FREEANDASSIGN(rDf.df_key_title, sstrdup(column_label));
 				}
 			}
 			else {
 				int col = IntExpression();
 				if(col == -3) /* pseudocolumn -3 means "last column" */
-					_Df.fast_columns = 0;
+					rDf.fast_columns = 0;
 				else if(col < -2)
 					IntErrorCurToken("Column must be >= -2");
-				_Df.UseSpec[_Df.df_no_use_specs++].column = col;
+				rDf.UseSpec[rDf.df_no_use_specs++].column = col;
 				// Supposedly only happens for binary files, but don't bet on it 
 				if(col > no_cols)
 					no_cols = col;
 			}
 		} while(Pgm.EqualsCur(":") && ++Pgm.CToken);
 	}
-	if(_Df.df_binary_file) {
+	if(rDf.df_binary_file) {
 		// If the highest user column number is greater than number of binary
 		// columns, set the uninitialized columns binary info to that of the last
 		// specified column or the default.
-		DfExtendBinaryColumns(no_cols);
+		DfExtendBinaryColumns(rDf, no_cols);
 	}
 	// Allow a format specifier after the enumeration of columns.
 	// Note: This was left out by mistake in versions 4.6.0 + 4.6.1 
 	if(!Pgm.EndOfCommand() && Pgm.IsString(Pgm.GetCurTokenIdx())) {
-		_Df.df_format = TryToGetString();
-		if(!valid_format(_Df.df_format))
+		rDf.df_format = TryToGetString();
+		if(!valid_format(rDf.df_format))
 			IntErrorCurToken("format must have 1-7 conversions of type double (%%lf)");
 	}
 }
 
 //static void plot_ticlabel_using(int axis)
-void GnuPlot::PlotTicLabelUsing(int axis)
+void GnuPlot::PlotTicLabelUsing(GpDataFile & rDf, int axis)
 {
 	int col = 0;
 	Pgm.Shift();
@@ -1409,11 +1409,11 @@ void GnuPlot::PlotTicLabelUsing(int axis)
 	// with parsing the first argument of the plot command itself.        
 	if(Pgm.IsANumber(Pgm.GetCurTokenIdx()) || TypeUdv(Pgm.GetCurTokenIdx()) == INTGR) {
 		col = IntExpression();
-		_Df.UseSpec[_Df.df_no_use_specs+_Df.df_no_tic_specs].at = NULL;
+		rDf.UseSpec[rDf.df_no_use_specs+rDf.df_no_tic_specs].at = NULL;
 	}
 	else {
-		_Df.UseSpec[_Df.df_no_use_specs+_Df.df_no_tic_specs].at = PermAt();
-		_Df.fast_columns = 0; // Force all columns to be evaluated 
+		rDf.UseSpec[rDf.df_no_use_specs+rDf.df_no_tic_specs].at = PermAt();
+		rDf.fast_columns = 0; // Force all columns to be evaluated 
 		col = 1; // Redundant because of the above 
 	}
 	if(col < 1)
@@ -1421,20 +1421,20 @@ void GnuPlot::PlotTicLabelUsing(int axis)
 	if(!Pgm.EqualsCur(")"))
 		IntErrorCurToken("missing ')'");
 	Pgm.Shift();
-	_Df.UseSpec[_Df.df_no_use_specs+_Df.df_no_tic_specs].expected_type = axis;
-	_Df.UseSpec[_Df.df_no_use_specs+_Df.df_no_tic_specs].column = col;
-	_Df.df_no_tic_specs++;
+	rDf.UseSpec[rDf.df_no_use_specs+rDf.df_no_tic_specs].expected_type = axis;
+	rDf.UseSpec[rDf.df_no_use_specs+rDf.df_no_tic_specs].column = col;
+	rDf.df_no_tic_specs++;
 }
 
 //int df_readline(double v[], int max)
-int GnuPlot::DfReadLine(double v[], int maxSize)
+int GnuPlot::DfReadLine(GpDataFile & rDf, double v[], int maxSize)
 {
-	if(!_Df.data_fp && !_Df.df_pseudodata && !_Df.df_datablock && !_Pb.df_array)
+	if(!rDf.data_fp && !rDf.df_pseudodata && !rDf.df_datablock && !_Pb.df_array)
 		return DF_EOF;
-	else if(_Df.df_read_binary) // General binary, matrix binary or matrix ascii converted to binary 
-		return DfReadBinary(v, maxSize);
+	else if(rDf.df_read_binary) // General binary, matrix binary or matrix ascii converted to binary 
+		return DfReadBinary(rDf, v, maxSize);
 	else
-		return DfReadAscii(v, maxSize);
+		return DfReadAscii(rDf, v, maxSize);
 }
 
 /* do the hard work... read lines from file,
@@ -1444,45 +1444,43 @@ int GnuPlot::DfReadLine(double v[], int maxSize)
  */
 
 //int df_readascii(double v[], int max)
-int GnuPlot::DfReadAscii(double v[], int maxSize)
+int GnuPlot::DfReadAscii(GpDataFile & rDf, double v[], int maxSize)
 {
 	char * s;
 	int return_value = DF_GOOD;
-	/* Version 5.3
-	 * Some plot styles (e.g. PARALLELPLOT) must guarantee that every line
-	 * of data will return some input value even if it is missing or bad.
-	 * This flag will force the line to return NaN rather than being skipped.
-	 * FIXME: it would be better to make this flag generic and set before entry.
-	 */
-	bool df_bad_returns_NaN = (_Df.df_current_plot && oneof2(_Df.df_current_plot->plot_style, PARALLELPLOT, TABLESTYLE));
+	// Version 5.3
+	// Some plot styles (e.g. PARALLELPLOT) must guarantee that every line
+	// of data will return some input value even if it is missing or bad.
+	// This flag will force the line to return NaN rather than being skipped.
+	// FIXME: it would be better to make this flag generic and set before entry.
+	bool df_bad_returns_NaN = (rDf.df_current_plot && oneof2(rDf.df_current_plot->plot_style, PARALLELPLOT, TABLESTYLE));
 	assert(maxSize <= MAXDATACOLS);
 	// catch attempt to read past EOF on mixed-input 
-	if(_Df.df_eof)
+	if(rDf.df_eof)
 		return DF_EOF;
 #if (1)
-	/* DEBUG FIXME
-	 * Normally 'plot ARRAY ...' wants each array entry as a separate input "line".
-	 * However spiderplots want only a single line, not one line per array entry.
-	 * This code forces the single line but loses the content.
-	 * Is there a better solution?
-	 * Work-around
-	 *    plot for [i=1:|ARRAY|] [t=1:1:1] '+' using (ARRAY[i]) with spiderplot
-	 */
-	if(Gg.SpiderPlot && _Pb.df_array && _Df.df_datum >= 0)
+	// DEBUG FIXME
+	// Normally 'plot ARRAY ...' wants each array entry as a separate input "line".
+	// However spiderplots want only a single line, not one line per array entry.
+	// This code forces the single line but loses the content.
+	// Is there a better solution?
+	// Work-around
+	//   plot for [i=1:|ARRAY|] [t=1:1:1] '+' using (ARRAY[i]) with spiderplot
+	if(Gg.SpiderPlot && _Pb.df_array && rDf.df_datum >= 0)
 		return DF_EOF;
 #endif
 	/*{{{  process line */
-	while((s = DfGets()) != NULL) {
+	while((s = DfGets(rDf)) != NULL) {
 		bool line_okay = TRUE;
 		int output = 0; /* how many numbers written to v[] */
 		return_value = DF_GOOD;
 		// "skip" option 
-		if(_Df.df_skip_at_front > 0) {
-			_Df.df_skip_at_front--;
+		if(rDf.df_skip_at_front > 0) {
+			rDf.df_skip_at_front--;
 			continue;
 		}
-		++_Df.df_line_number;
-		_Df.df_no_cols = 0;
+		++rDf.df_line_number;
+		rDf.df_no_cols = 0;
 		/*{{{  check for blank lines, and reject by index/every */
 		/*{{{  skip leading spaces */
 		while(isspace((uchar)*s) && NOTSEP)
@@ -1491,19 +1489,19 @@ int GnuPlot::DfReadAscii(double v[], int maxSize)
 
 		/*{{{  skip comments */
 		if(is_comment(*s)) {
-			if(_Df.P_IndexName) { /* Look for index name in comment */
+			if(rDf.P_IndexName) { /* Look for index name in comment */
 				while(is_comment(*s) || isspace((uchar)*s))
 					++s;
-				if(*s && !strncmp(s, _Df.P_IndexName, strlen(_Df.P_IndexName)))
-					_Df.IndexFound = TRUE;
+				if(*s && !strncmp(s, rDf.P_IndexName, strlen(rDf.P_IndexName)))
+					rDf.IndexFound = TRUE;
 			}
 			continue; /* ignore comments */
 		}
 		/*}}} */
 
 		/*{{{  check EOF on mixed data */
-		if(_Df.mixed_data_fp && is_EOF(*s)) {
-			_Df.df_eof = 1; /* trap attempts to read past EOF */
+		if(rDf.mixed_data_fp && is_EOF(*s)) {
+			rDf.df_eof = 1; /* trap attempts to read past EOF */
 			return DF_EOF;
 		}
 		/*}}} */
@@ -1518,222 +1516,221 @@ int GnuPlot::DfReadAscii(double v[], int maxSize)
 			 * - I have probably missed some obvious way of doing all this,
 			 * but its getting late
 			 */
-			_Df.PointCount = -1; /* restart counter within line */
-			if(++_Df.BlankCount == 1) {
+			rDf.PointCount = -1; /* restart counter within line */
+			if(++rDf.BlankCount == 1) {
 				// first blank line 
-				++_Df.LineCount;
+				++rDf.LineCount;
 			}
 			// just reached end of a group/surface 
-			if(_Df.BlankCount == 2) {
-				++_Df.df_current_index;
-				_Df.LineCount = 0;
-				_Df.df_datum = -1;
+			if(rDf.BlankCount == 2) {
+				++rDf.df_current_index;
+				rDf.LineCount = 0;
+				rDf.df_datum = -1;
 				// Found two blank lines after a block of data with a named index 
-				if(_Df.P_IndexName && _Df.IndexFound) {
-					_Df.df_eof = 1;
+				if(rDf.P_IndexName && rDf.IndexFound) {
+					rDf.df_eof = 1;
 					return DF_EOF;
 				}
-				/* ignore line if current_index has just become
-				 * first required one - client doesn't want this
-				 * blank line. While we're here, check for <=
-				 * - we need to do it outside this conditional, but
-				 * probably no extra cost at assembler level
-				 */
-				if(_Df.df_current_index <= _Df.df_lower_index)
+				// ignore line if current_index has just become
+				// first required one - client doesn't want this
+				// blank line. While we're here, check for <=
+				// - we need to do it outside this conditional, but
+				// probably no extra cost at assembler level
+				if(rDf.df_current_index <= rDf.df_lower_index)
 					continue; /* dont tell client */
 				// df_upper_index is MAXINT-1 if we are not doing index 
-				if(_Df.df_current_index > _Df.df_upper_index) {
+				if(rDf.df_current_index > rDf.df_upper_index) {
 					// oops - need to gobble rest of input if mixed 
-					if(_Df.mixed_data_fp)
+					if(rDf.mixed_data_fp)
 						continue;
 					else {
-						_Df.df_eof = 1;
+						rDf.df_eof = 1;
 						return DF_EOF; /* no point continuing */
 					}
 				}
 			}
 			// dont tell client if we haven't reached first index 
-			if(_Df.P_IndexName && !_Df.IndexFound)
+			if(rDf.P_IndexName && !rDf.IndexFound)
 				continue;
-			if(_Df.df_current_index < _Df.df_lower_index)
+			if(rDf.df_current_index < rDf.df_lower_index)
 				continue;
 			// ignore blank lines after blank_index 
-			if(_Df.BlankCount > 2)
+			if(rDf.BlankCount > 2)
 				continue;
-			return DF_FIRST_BLANK - (_Df.BlankCount - 1);
+			return DF_FIRST_BLANK - (rDf.BlankCount - 1);
 		}
 		/*}}} */
 		// get here => was not blank 
-		_Df.df_last_index_read = _Df.df_current_index;
-		_Df.BlankCount = 0;
+		rDf.df_last_index_read = rDf.df_current_index;
+		rDf.BlankCount = 0;
 		/*{{{  ignore points outside range of index */
 		/* we try to return end-of-file as soon as we pass upper index,
 		 * but for mixed input stream, we must skip garbage
 		 */
-		if(_Df.P_IndexName && !_Df.IndexFound)
+		if(rDf.P_IndexName && !rDf.IndexFound)
 			continue;
-		if(_Df.df_current_index < _Df.df_lower_index || _Df.df_current_index > _Df.df_upper_index || ((_Df.df_current_index - _Df.df_lower_index) % _Df.df_index_step) != 0)
+		if(rDf.df_current_index < rDf.df_lower_index || rDf.df_current_index > rDf.df_upper_index || ((rDf.df_current_index - rDf.df_lower_index) % rDf.df_index_step) != 0)
 			continue;
 		/*}}} */
 		// Bookkeeping for the plot ... every N:M:etc option 
-		if((_Pb.parse_1st_row_as_headers || _Df.ColumnForKeyTitle > 0) && !_Df.df_already_got_headers) {
+		if((_Pb.parse_1st_row_as_headers || rDf.ColumnForKeyTitle > 0) && !rDf.df_already_got_headers) {
 			FPRINTF((stderr, "skipping 'every' test in order to read column headers\n"));
 		}
 		else {
 			// Accept only lines with (line_count%everyline) == 0 
-			if(_Df.LineCount < _Df.firstline || _Df.LineCount > _Df.lastline || (_Df.LineCount - _Df.firstline) % _Df.everyline != 0)
+			if(rDf.LineCount < rDf.firstline || rDf.LineCount > rDf.lastline || (rDf.LineCount - rDf.firstline) % rDf.everyline != 0)
 				continue;
 			// update point_count. ignore point if point_count%everypoint != 0 
-			if(++_Df.PointCount < _Df.FirstPoint || _Df.PointCount > _Df.LastPoint || (_Df.PointCount - _Df.FirstPoint) % _Df.EveryPoint != 0)
+			if(++rDf.PointCount < rDf.FirstPoint || rDf.PointCount > rDf.LastPoint || (rDf.PointCount - rDf.FirstPoint) % rDf.EveryPoint != 0)
 				continue;
 		}
 		/*}}} */
-		++_Df.df_datum;
-		if(_Df.df_format) {
+		++rDf.df_datum;
+		if(rDf.df_format) {
 			/*{{{  do a sscanf */
 			int i;
 			// check we have room for at least 7 columns 
-			if(_Df.df_max_cols < 7)
-				_Df.ExpandColumn(7);
-			_Df.df_no_cols = sscanf(s, _Df.df_format, &_Df.df_column[0].datum, &_Df.df_column[1].datum, &_Df.df_column[2].datum, &_Df.df_column[3].datum, &_Df.df_column[4].datum, &_Df.df_column[5].datum, &_Df.df_column[6].datum);
-			if(_Df.df_no_cols == EOF) {
-				_Df.df_eof = 1;
+			if(rDf.df_max_cols < 7)
+				rDf.ExpandColumn(7);
+			rDf.df_no_cols = sscanf(s, rDf.df_format, &rDf.df_column[0].datum, &rDf.df_column[1].datum, &rDf.df_column[2].datum, &rDf.df_column[3].datum, &rDf.df_column[4].datum, &rDf.df_column[5].datum, &rDf.df_column[6].datum);
+			if(rDf.df_no_cols == EOF) {
+				rDf.df_eof = 1;
 				return DF_EOF; /* tell client */
 			}
-			for(i = 0; i < _Df.df_no_cols; ++i) { /* may be zero */
-				_Df.df_column[i].good = DF_GOOD;
-				_Df.df_column[i].position = NULL; /* cant get a time */
+			for(i = 0; i < rDf.df_no_cols; ++i) { /* may be zero */
+				rDf.df_column[i].good = DF_GOOD;
+				rDf.df_column[i].position = NULL; /* cant get a time */
 			}
 			/*}}} */
 		}
 		else
-			DfTokenise(s);
+			DfTokenise(rDf, s);
 		// df_tokenise already processed everything, but in the case of pseudodata
 		// '+' or '++' the value itself was passed as an ascii string formatted by
 		// "%g".  We can do better than this by substituting in the binary value.
 		//
-		if(_Df.df_pseudodata > 0)
-			_Df.df_column[0].datum = _Df.df_pseudovalue_0;
-		if(_Df.df_pseudodata > 1)
-			_Df.df_column[1].datum = _Df.df_pseudovalue_1;
+		if(rDf.df_pseudodata > 0)
+			rDf.df_column[0].datum = rDf.df_pseudovalue_0;
+		if(rDf.df_pseudodata > 1)
+			rDf.df_column[1].datum = rDf.df_pseudovalue_1;
 		// Similar to above, we can go back to the original numerical value of A[i] 
-		if(_Pb.df_array && _Pb.df_array->udv_value.v.value_array[_Df.df_array_index].Type == CMPLX) {
-			_Df.df_column[1].datum = _Pb.df_array->udv_value.v.value_array[_Df.df_array_index].v.cmplx_val.real;
-			_Df.df_column[2].datum = _Pb.df_array->udv_value.v.value_array[_Df.df_array_index].v.cmplx_val.imag;
+		if(_Pb.df_array && _Pb.df_array->udv_value.v.value_array[rDf.df_array_index].Type == CMPLX) {
+			rDf.df_column[1].datum = _Pb.df_array->udv_value.v.value_array[rDf.df_array_index].v.cmplx_val.real;
+			rDf.df_column[2].datum = _Pb.df_array->udv_value.v.value_array[rDf.df_array_index].v.cmplx_val.imag;
 		}
 		// Always save the contents of the first row in case it is needed for
 		// later access via column("header").  However, unless we know for certain that
 		// it contains headers only, e.g. via parse_1st_row_as_headers or
-		// (_Df.ColumnForKeyTitle > 0), also treat it as a data row.
-		if(_Df.df_datum == 0 && !_Df.df_already_got_headers) {
+		// (rDf.ColumnForKeyTitle > 0), also treat it as a data row.
+		if(rDf.df_datum == 0 && !rDf.df_already_got_headers) {
 			int j;
-			FPRINTF((stderr, "datafile.c:%d processing %d column headers\n", __LINE__, _Df.df_no_cols));
-			for(j = 0; j < _Df.df_no_cols; j++) {
-				FREEANDASSIGN(_Df.df_column[j].header, DfParseStringField(_Df.df_column[j].position));
-				if(_Df.df_column[j].header) {
-					SETMAX(_Df.LongestColumnHead, sstrleni(_Df.df_column[j].header));
-					FPRINTF((stderr, "Col %d: \"%s\"\n", j+1, _Df.df_column[j].header));
+			FPRINTF((stderr, "datafile.c:%d processing %d column headers\n", __LINE__, rDf.df_no_cols));
+			for(j = 0; j < rDf.df_no_cols; j++) {
+				FREEANDASSIGN(rDf.df_column[j].header, DfParseStringField(rDf.df_column[j].position));
+				if(rDf.df_column[j].header) {
+					SETMAX(rDf.LongestColumnHead, sstrleni(rDf.df_column[j].header));
+					FPRINTF((stderr, "Col %d: \"%s\"\n", j+1, rDf.df_column[j].header));
 				}
 			}
-			_Df.df_already_got_headers = true;
+			rDf.df_already_got_headers = true;
 			// Restrict the column number to possible values 
-			SETMIN(_Df.ColumnForKeyTitle, _Df.df_no_cols);
-			if(_Df.ColumnForKeyTitle == -3) /* last column in file */
-				_Df.ColumnForKeyTitle = _Df.df_no_cols;
-			if(_Df.ColumnForKeyTitle > 0) {
-				_Df.df_key_title = sstrdup(_Df.df_column[_Df.ColumnForKeyTitle-1].header);
-				if(!_Df.df_key_title) {
+			SETMIN(rDf.ColumnForKeyTitle, rDf.df_no_cols);
+			if(rDf.ColumnForKeyTitle == -3) /* last column in file */
+				rDf.ColumnForKeyTitle = rDf.df_no_cols;
+			if(rDf.ColumnForKeyTitle > 0) {
+				rDf.df_key_title = sstrdup(rDf.df_column[rDf.ColumnForKeyTitle-1].header);
+				if(!rDf.df_key_title) {
 					FPRINTF((stderr, "df_readline: missing column head for key title\n"));
 					return(DF_KEY_TITLE_MISSING);
 				}
-				_Df.df_datum--;
-				_Df.ColumnForKeyTitle = NO_COLUMN_HEADER;
+				rDf.df_datum--;
+				rDf.ColumnForKeyTitle = NO_COLUMN_HEADER;
 				_Pb.parse_1st_row_as_headers = false;
 				return DF_FOUND_KEY_TITLE;
 			}
 			else if(_Pb.parse_1st_row_as_headers) {
-				_Df.df_datum--;
+				rDf.df_datum--;
 				_Pb.parse_1st_row_as_headers = false;
 				return DF_COLUMN_HEADERS;
 			}
 		}
 		// Used by stats to set STATS_columns 
-		if(_Df.df_datum == 0)
-			_Df.df_last_col = _Df.df_no_cols;
+		if(rDf.df_datum == 0)
+			rDf.df_last_col = rDf.df_no_cols;
 		//{{{  copy column[] to v[] via use[] 
 		{
-			int limit = (_Df.df_no_use_specs ? (_Df.df_no_use_specs + _Df.df_no_tic_specs) : MAXDATACOLS);
-			SETMIN(limit, maxSize + _Df.df_no_tic_specs);
+			int limit = (rDf.df_no_use_specs ? (rDf.df_no_use_specs + rDf.df_no_tic_specs) : MAXDATACOLS);
+			SETMIN(limit, maxSize + rDf.df_no_tic_specs);
 			// Used only by TABLESTYLE 
-			if(_Df.df_tabulate_strings)
+			if(rDf.df_tabulate_strings)
 				for(output = 0; output < limit; ++output)
-					gpfree_string(&_Df.df_strings[output]);
+					gpfree_string(&rDf.df_strings[output]);
 			// The real processing starts here 
 			for(output = 0; output < limit; ++output) {
 				// if there was no using spec, column is output+1 and at=NULL 
-				int column = _Df.UseSpec[output].column;
+				int column = rDf.UseSpec[output].column;
 				if(column == -3) // pseudocolumn -3 means "last column" 
-					column = _Df.UseSpec[output].column = _Df.df_no_cols;
+					column = rDf.UseSpec[output].column = rDf.df_no_cols;
 				// Handle cases where column holds a meta-data string 
 				// Axis labels, plot titles, etc.                     
-				if(_Df.UseSpec[output].expected_type >= CT_XTICLABEL) {
+				if(rDf.UseSpec[output].expected_type >= CT_XTICLABEL) {
 					int axis, axcol;
 					double xpos;
 					// EAM FIXME - skip columnstacked histograms also 
-					if(_Df.df_current_plot) {
-						if(_Df.df_current_plot->plot_style == BOXPLOT)
+					if(rDf.df_current_plot) {
+						if(rDf.df_current_plot->plot_style == BOXPLOT)
 							continue;
 					}
-					axcol = AxColForTicLabel((COLUMN_TYPE)_Df.UseSpec[output].expected_type, &axis);
+					axcol = AxColForTicLabel((COLUMN_TYPE)rDf.UseSpec[output].expected_type, &axis);
 					// Trap special case of only a single 'using' column 
 					if(output == 1)
-						xpos = (axcol == 0) ? _Df.df_datum : v[axcol-1];
+						xpos = (axcol == 0) ? rDf.df_datum : v[axcol-1];
 					else
 						xpos = v[axcol];
-					if(_Df.df_current_plot && _Df.df_current_plot->plot_style == HISTOGRAMS) {
+					if(rDf.df_current_plot && rDf.df_current_plot->plot_style == HISTOGRAMS) {
 						if(output > 1) // Can only happen for HT_ERRORBARS 
-							xpos = (axcol == 0) ? _Df.df_datum : v[axcol-1];
-						xpos += _Df.df_current_plot->histogram->start;
+							xpos = (axcol == 0) ? rDf.df_datum : v[axcol-1];
+						xpos += rDf.df_current_plot->histogram->start;
 					}
 					// Tic label is generated by a string-valued function 
-					if(_Df.UseSpec[output].at) {
+					if(rDf.UseSpec[output].at) {
 						GpValue a;
-						_Df.evaluate_inside_using = true;
-						EvaluateAt(_Df.UseSpec[output].at, &a);
-						_Df.evaluate_inside_using = false;
+						rDf.evaluate_inside_using = true;
+						EvaluateAt(rDf.UseSpec[output].at, &a);
+						rDf.evaluate_inside_using = false;
 						if(a.Type == STRING) {
 							AddTicUser(&AxS[axis], a.v.string_val, xpos, -1);
 							gpfree_string(&a);
 						}
 					}
 					else {
-						char * temp_string = DfParseStringField(_Df.df_tokens[output]);
+						char * temp_string = DfParseStringField(rDf.df_tokens[output]);
 						AddTicUser(&AxS[axis], temp_string, xpos, -1);
 						SAlloc::F(temp_string);
 					}
 				}
-				else if(_Df.UseSpec[output].expected_type == CT_KEYLABEL) {
-					char * temp_string = DfParseStringField(_Df.df_tokens[output]);
-					if(_Df.df_current_plot)
-						AddKeyEntry(temp_string, _Df.df_datum);
+				else if(rDf.UseSpec[output].expected_type == CT_KEYLABEL) {
+					char * temp_string = DfParseStringField(rDf.df_tokens[output]);
+					if(rDf.df_current_plot)
+						AddKeyEntry(temp_string, rDf.df_datum);
 					SAlloc::F(temp_string);
 				}
-				else if(_Df.UseSpec[output].at) {
+				else if(rDf.UseSpec[output].at) {
 					GpValue a;
 					bool timefield = FALSE;
 					// Don't try to evaluate an expression that depends on a data field value that is missing.
-					if(_Df.UseSpec[output].depends_on_column > 0) {
-						if((_Df.UseSpec[output].depends_on_column > _Df.df_no_cols) ||  _Df.df_column[_Df.UseSpec[output].depends_on_column-1].good == DF_MISSING) {
-							FPRINTF((stderr, "df_readascii: skipping evaluation that uses missing value in $%d\n", _Df.UseSpec[output].depends_on_column));
+					if(rDf.UseSpec[output].depends_on_column > 0) {
+						if((rDf.UseSpec[output].depends_on_column > rDf.df_no_cols) ||  rDf.df_column[rDf.UseSpec[output].depends_on_column-1].good == DF_MISSING) {
+							FPRINTF((stderr, "df_readascii: skipping evaluation that uses missing value in $%d\n", rDf.UseSpec[output].depends_on_column));
 							v[output] = fgetnan();
 							return_value = DF_MISSING;
 							continue;
 						}
 					}
 					a.SetNotDefined();
-					_Df.evaluate_inside_using = true;
-					EvaluateAt(_Df.UseSpec[output].at, &a);
-					_Df.evaluate_inside_using = false;
+					rDf.evaluate_inside_using = true;
+					EvaluateAt(rDf.UseSpec[output].at, &a);
+					rDf.evaluate_inside_using = false;
 					// If column N contains the "missing" flag and is referenced by
 					// 'using N' or 'using (func($N)) then we caught it already.
 					// Here we check for indirect references like 'using "header_of_N"'.
@@ -1754,7 +1751,7 @@ int GnuPlot::DfReadAscii(double v[], int maxSize)
 						v[output] = fgetnan();
 						continue;
 					}
-					if((_Df.df_axis[output] != NO_AXIS) && AxS[_Df.df_axis[output]].datatype == DT_TIMEDATE)
+					if((rDf.df_axis[output] != NO_AXIS) && AxS[rDf.df_axis[output]].datatype == DT_TIMEDATE)
 						timefield = TRUE;
 					if(timefield && (a.Type != STRING) && sstreq(AxS.P_TimeFormat, "%s")) {
 						// Handle the case of P_TimeFormat "%s" which expects a string 
@@ -1769,20 +1766,20 @@ int GnuPlot::DfReadAscii(double v[], int maxSize)
 					}
 					if(a.Type == STRING) {
 						v[output] = fgetnan(); /* found a string, not a number */
-						if(_Df.df_tabulate_strings) {
+						if(rDf.df_tabulate_strings) {
 							// Save for TABLESTYLE 
-							_Df.df_strings[output].Type = STRING;
-							_Df.df_strings[output].v.string_val = sstrdup(a.v.string_val);
+							rDf.df_strings[output].Type = STRING;
+							rDf.df_strings[output].v.string_val = sstrdup(a.v.string_val);
 						}
 						// This string value will get parsed as if it were a data column 
 						// so put it in quotes to allow embedded whitespace.             
-						if(_Df.UseSpec[output].expected_type == CT_STRING) {
+						if(rDf.UseSpec[output].expected_type == CT_STRING) {
 							char * s = (char *)SAlloc::M(strlen(a.v.string_val)+3);
 							*s = '"';
 							strcpy(s+1, a.v.string_val);
 							strcat(s, "\"");
-							SAlloc::F(_Df.df_stringexpression[output]);
-							_Df.df_tokens[output] = _Df.df_stringexpression[output] = s;
+							SAlloc::F(rDf.df_stringexpression[output]);
+							rDf.df_tokens[output] = rDf.df_stringexpression[output] = s;
 						}
 						// Check for P_TimeFormat string generated by a function 
 						if(timefield) {
@@ -1800,10 +1797,10 @@ int GnuPlot::DfReadAscii(double v[], int maxSize)
 						// Expecting a numerical type but got a string value 
 						else
 						// 'with points pt variable' is the only current user 
-						if(_Df.df_current_plot && (_Df.df_current_plot->lp_properties.PtType == PT_VARIABLE)) {
+						if(rDf.df_current_plot && (rDf.df_current_plot->lp_properties.PtType == PT_VARIABLE)) {
 							static char varchar[8];
 							strnzcpy(varchar, a.v.string_val, 8);
-							_Df.df_tokens[output] = varchar;
+							rDf.df_tokens[output] = varchar;
 						}
 						gpfree_string(&a);
 					}
@@ -1814,25 +1811,25 @@ int GnuPlot::DfReadAscii(double v[], int maxSize)
 					}
 				}
 				else if(column == -2) {
-					v[output] = _Df.df_current_index;
+					v[output] = rDf.df_current_index;
 				}
 				else if(column == -1) {
-					v[output] = _Df.LineCount;
+					v[output] = rDf.LineCount;
 				}
 				else if(column == 0) {
-					v[output] = _Df.df_datum; // using 0 
+					v[output] = rDf.df_datum; // using 0 
 				}
 				else if(column <= 0) /* really < -2, but */
 					IntError(NO_CARET, "internal error: column <= 0 in datafile.c");
-				else if((_Df.df_axis[output] != NO_AXIS) && (AxS[_Df.df_axis[output]].datatype == DT_TIMEDATE)) {
+				else if((rDf.df_axis[output] != NO_AXIS) && (AxS[rDf.df_axis[output]].datatype == DT_TIMEDATE)) {
 					struct tm tm;
 					double usec = 0.0;
 					double reltime;
 					int status;
-					if(column > _Df.df_no_cols || _Df.df_column[column-1].good == DF_MISSING || !_Df.df_column[column-1].position ||
-					    (status = GStrPTime(_Df.df_column[column-1].position, AxS.P_TimeFormat, &tm, &usec, &reltime), status == DT_BAD)) {
+					if(column > rDf.df_no_cols || rDf.df_column[column-1].good == DF_MISSING || !rDf.df_column[column-1].position ||
+					    (status = GStrPTime(rDf.df_column[column-1].position, AxS.P_TimeFormat, &tm, &usec, &reltime), status == DT_BAD)) {
 						// line bad only if user explicitly asked for this column 
-						if(_Df.df_no_use_specs) {
+						if(rDf.df_no_use_specs) {
 							line_okay = false;
 							if(df_bad_returns_NaN) {
 								v[output] = fgetnan();
@@ -1847,37 +1844,37 @@ int GnuPlot::DfReadAscii(double v[], int maxSize)
 					else
 						v[output] = (double)gtimegm(&tm) + usec;
 				}
-				else if(_Df.UseSpec[output].expected_type == CT_STRING) {
+				else if(rDf.UseSpec[output].expected_type == CT_STRING) {
 					// Do nothing. /
 					// String tokens were loaded into df_tokens already. 
 				}
 				else {
 					// column > 0 
-					if((column <= _Df.df_no_cols) && _Df.df_column[column-1].good == DF_GOOD) {
-						v[output] = _Df.df_column[column-1].datum;
+					if((column <= rDf.df_no_cols) && rDf.df_column[column-1].good == DF_GOOD) {
+						v[output] = rDf.df_column[column-1].datum;
 						// Version 5:
 						// Do not return immediately on DF_MISSING or DF_UNDEFINED.
 						// THIS IS A CHANGE.
 					}
-					else if((column <= _Df.df_no_cols) && _Df.UseSpec[output].expected_type == CT_MUST_HAVE) {
+					else if((column <= rDf.df_no_cols) && rDf.UseSpec[output].expected_type == CT_MUST_HAVE) {
 						// This catches cases where the plot style cannot tolerate
 						// silently missed points (e.g. stacked histograms)
 						v[output] = fgetnan();
 						return DF_UNDEFINED;
 					}
-					else if((column <= _Df.df_no_cols) && (_Df.df_column[column-1].good == DF_MISSING)) {
+					else if((column <= rDf.df_no_cols) && (rDf.df_column[column-1].good == DF_MISSING)) {
 						v[output] = fgetnan();
-						if(_Df.missing_val && _Df.df_current_plot->plot_style == TABLESTYLE) {
-							_Df.df_strings[output].Type = STRING;
-							_Df.df_strings[output].v.string_val = sstrdup(_Df.missing_val);
+						if(rDf.missing_val && rDf.df_current_plot->plot_style == TABLESTYLE) {
+							rDf.df_strings[output].Type = STRING;
+							rDf.df_strings[output].v.string_val = sstrdup(rDf.missing_val);
 						}
 						return_value = DF_MISSING;
 					}
-					else if((column <= _Df.df_no_cols) && (_Df.df_column[column-1].good == DF_UNDEFINED)) {
-						v[output] = _Df.df_column[column-1].datum;
+					else if((column <= rDf.df_no_cols) && (rDf.df_column[column-1].good == DF_UNDEFINED)) {
+						v[output] = rDf.df_column[column-1].datum;
 						return_value = DF_UNDEFINED;
 					}
-					else if((_Df.df_current_plot && _Df.df_current_plot->plot_style == POLYGONS && _Df.df_no_use_specs && column == _Df.df_no_cols+1)) {
+					else if((rDf.df_current_plot && rDf.df_current_plot->plot_style == POLYGONS && rDf.df_no_use_specs && column == rDf.df_no_cols+1)) {
 						/* DEBUG - the idea here is to forgive a missing color value in
 						 *   polygon vertices after the first one. The test is not
 						 *   quite correct since we don't track the vertex number.
@@ -1886,7 +1883,7 @@ int GnuPlot::DfReadAscii(double v[], int maxSize)
 					}
 					else {
 						// line bad only if user explicitly asked for this column 
-						if(_Df.df_no_use_specs) {
+						if(rDf.df_no_use_specs) {
 							if(df_bad_returns_NaN) {
 								v[output] = fgetnan();
 								return_value = DF_UNDEFINED;
@@ -1901,11 +1898,11 @@ int GnuPlot::DfReadAscii(double v[], int maxSize)
 					}
 				}
 				// Special case to make 'using 0' et al. to work with labels 
-				if(_Df.UseSpec[output].expected_type == CT_STRING && (!(_Df.UseSpec[output].at) || !_Df.df_tokens[output]) && oneof3(column, -2, -1, 0)) {
+				if(rDf.UseSpec[output].expected_type == CT_STRING && (!(rDf.UseSpec[output].at) || !rDf.df_tokens[output]) && oneof3(column, -2, -1, 0)) {
 					char * s = (char *)SAlloc::M(32*sizeof(char));
 					sprintf(s, "%d", (int)v[output]);
-					SAlloc::F(_Df.df_stringexpression[output]);
-					_Df.df_tokens[output] = _Df.df_stringexpression[output] = s;
+					SAlloc::F(rDf.df_stringexpression[output]);
+					rDf.df_tokens[output] = rDf.df_stringexpression[output] = s;
 				}
 			}
 		}
@@ -1920,13 +1917,13 @@ int GnuPlot::DfReadAscii(double v[], int maxSize)
 		 * know whether or not tic specs were read from this line, but
 		 * all callers would have to be modified to deal with it one
 		 * way or the other. */
-		output -= _Df.df_no_tic_specs;
+		output -= rDf.df_no_tic_specs;
 		/*
 		 * EAM Apr 2012 - If there is no using spec, then whatever we found on
 		 * the first line becomes the expectation for the rest of the input file.
 		 * THIS IS A CHANGE!
 		 */
-		SETIFZ(_Df.df_no_use_specs, output);
+		SETIFZ(rDf.df_no_use_specs, output);
 		/* Version 5:
 		 * If all requested values were OK, return number of columns read.
 		 * If a requested column was bad, return an error but nevertheless
@@ -1949,8 +1946,8 @@ int GnuPlot::DfReadAscii(double v[], int maxSize)
 	/*}}} */
 	// get here => fgets failed */
 	// no longer needed - mark column(x) as invalid 
-	_Df.df_no_cols = 0;
-	_Df.df_eof = 1;
+	rDf.df_no_cols = 0;
+	rDf.df_eof = 1;
 	return DF_EOF;
 }
 
@@ -2000,9 +1997,9 @@ double GnuPlot::DfReadAFloat(FILE * fin)
 }
 
 //void df_determine_matrix_info(FILE * fin)
-void GnuPlot::DfDetermineMatrix_info(FILE * fin)
+void GnuPlot::DfDetermineMatrix_info(GpDataFile & rDf, FILE * fin)
 {
-	if(_Df.df_binary_file) {
+	if(rDf.df_binary_file) {
 		// Binary matrix format. 
 		off_t nr; // off_t because they contribute to fseek offset 
 		off_t flength;
@@ -2041,16 +2038,16 @@ void GnuPlot::DfDetermineMatrix_info(FILE * fin)
 			IntError(NO_CARET, "seek error in binary input stream - %s", strerror(errno));
 		df_matrix_corner[1][1] = DfReadAFloat(fin);
 		// Set up scan information for df_readbinary(). 
-		_Df.df_bin_record[0].scan_dim[0] = static_cast<int>(nc);
-		_Df.df_bin_record[0].scan_dim[1] = static_cast<int>(nr);
+		rDf.df_bin_record[0].scan_dim[0] = static_cast<int>(nc);
+		rDf.df_bin_record[0].scan_dim[1] = static_cast<int>(nr);
 		// Save submatrix size for stats 
-		if(_Df.SetEvery) {
-			_Df.df_bin_record[0].submatrix_ncols = 1 + ((MIN(_Df.LastPoint, static_cast<int>(nc-1))) - _Df.FirstPoint) / _Df.EveryPoint;
-			_Df.df_bin_record[0].submatrix_nrows = 1 + ((MIN(_Df.lastline,  static_cast<int>(nr-1))) - _Df.firstline) / _Df.everyline;
+		if(rDf.SetEvery) {
+			rDf.df_bin_record[0].submatrix_ncols = 1 + ((MIN(rDf.LastPoint, static_cast<int>(nc-1))) - rDf.FirstPoint) / rDf.EveryPoint;
+			rDf.df_bin_record[0].submatrix_nrows = 1 + ((MIN(rDf.lastline,  static_cast<int>(nr-1))) - rDf.firstline) / rDf.everyline;
 		}
 		else {
-			_Df.df_bin_record[0].submatrix_ncols = static_cast<int>(nc);
-			_Df.df_bin_record[0].submatrix_nrows = static_cast<int>(nr);
+			rDf.df_bin_record[0].submatrix_ncols = static_cast<int>(nc);
+			rDf.df_bin_record[0].submatrix_nrows = static_cast<int>(nr);
 		}
 		// Reset counter file pointer. 
 		ierr = fseek(fin, 0L, SEEK_SET);
@@ -2071,55 +2068,55 @@ void GnuPlot::DfDetermineMatrix_info(FILE * fin)
 		// The default binary record type is currently float (Dec 2019)
 		// but we have changed df_read_matrix to return doubles.
 		// Make sure the binary record type is marked accordingly.
-		DfExtendBinaryColumns(1);
-		DfSetReadType(1, DF_DOUBLE);
+		DfExtendBinaryColumns(rDf, 1);
+		DfSetReadType(rDf, 1, DF_DOUBLE);
 		// If the user has set an explicit locale for numeric input, apply it 
 		// here so that it affects data fields read from the input file.      
 		set_numeric_locale();
 		// "skip" option to skip lines at start of ascii file 
-		while(_Df.df_skip_at_front > 0) {
-			DfGets();
-			_Df.df_skip_at_front--;
+		while(rDf.df_skip_at_front > 0) {
+			DfGets(rDf);
+			rDf.df_skip_at_front--;
 		}
 		// Keep reading matrices until file is empty. 
-		while(!_Df.df_eof) {
-			if((matrix = DfReadMatrix(&nr, &nc)) != NULL) {
-				int index = _Df.NumBinRecords;
+		while(!rDf.df_eof) {
+			if((matrix = DfReadMatrix(rDf, &nr, &nc)) != NULL) {
+				int index = rDf.NumBinRecords;
 				// Ascii matrix with explicit y in first row, x in first column 
-				if(_Df.df_nonuniform_matrix) {
+				if(rDf.df_nonuniform_matrix) {
 					nc--;
 					nr--;
 				}
 				// First column contains row labels, not data 
-				if(_Df.df_matrix_rowheaders)
+				if(rDf.df_matrix_rowheaders)
 					nc--;
 				DfAddBinaryRecords(1, DF_CURRENT_RECORDS);
-				_Df.df_bin_record[index].memory_data = (char *)matrix;
+				rDf.df_bin_record[index].memory_data = (char *)matrix;
 				matrix = NULL;
-				_Df.df_bin_record[index].scan_dim[0] = nc;
-				_Df.df_bin_record[index].scan_dim[1] = nr;
-				_Df.df_bin_record[index].scan_dim[2] = 0;
-				_Df.BinFileEndianess = THIS_COMPILER_ENDIAN;
+				rDf.df_bin_record[index].scan_dim[0] = nc;
+				rDf.df_bin_record[index].scan_dim[1] = nr;
+				rDf.df_bin_record[index].scan_dim[2] = 0;
+				rDf.BinFileEndianess = THIS_COMPILER_ENDIAN;
 				// Save matrix dimensions in case it contains an image 
-				_Df.df_xpixels = nc;
-				_Df.df_ypixels = nr;
-				if(_Df.SetEvery) {
-					_Df.df_xpixels = 1 + ((int)(MIN(_Df.LastPoint, static_cast<int>(_Df.df_xpixels-1))) - _Df.FirstPoint) / _Df.EveryPoint;
-					_Df.df_ypixels = 1 + ((int)(MIN(_Df.lastline,  static_cast<int>(_Df.df_ypixels-1))) - _Df.firstline) / _Df.everyline;
-					FPRINTF((stderr, "datafile.c:%d filtering (%d,%d) to (%d,%d)\n", __LINE__, nc, nr, _Df.df_xpixels, _Df.df_ypixels));
+				rDf.df_xpixels = nc;
+				rDf.df_ypixels = nr;
+				if(rDf.SetEvery) {
+					rDf.df_xpixels = 1 + ((int)(MIN(rDf.LastPoint, static_cast<int>(rDf.df_xpixels-1))) - rDf.FirstPoint) / rDf.EveryPoint;
+					rDf.df_ypixels = 1 + ((int)(MIN(rDf.lastline,  static_cast<int>(rDf.df_ypixels-1))) - rDf.firstline) / rDf.everyline;
+					FPRINTF((stderr, "datafile.c:%d filtering (%d,%d) to (%d,%d)\n", __LINE__, nc, nr, rDf.df_xpixels, rDf.df_ypixels));
 				}
 				// Save submatrix dimensions for stats 
-				_Df.df_bin_record[index].submatrix_ncols = _Df.df_xpixels;
-				_Df.df_bin_record[index].submatrix_nrows = _Df.df_ypixels;
+				rDf.df_bin_record[index].submatrix_ncols = rDf.df_xpixels;
+				rDf.df_bin_record[index].submatrix_nrows = rDf.df_ypixels;
 				// This matrix is the one (and only) requested by name.	
 				// Dummy up index range and skip rest of file.		
-				if(_Df.P_IndexName) {
-					if(_Df.IndexFound) {
-						_Df.df_lower_index = _Df.df_upper_index = index;
+				if(rDf.P_IndexName) {
+					if(rDf.IndexFound) {
+						rDf.df_lower_index = rDf.df_upper_index = index;
 						break;
 					}
 					else
-						_Df.df_lower_index = index+1;
+						rDf.df_lower_index = index+1;
 				}
 			}
 			else
@@ -2129,7 +2126,7 @@ void GnuPlot::DfDetermineMatrix_info(FILE * fin)
 		reset_numeric_locale();
 		// Data from file is now in memory.  Make the rest of gnuplot think
 		// that the data stream has not yet reached the end of file.
-		_Df.df_eof = 0;
+		rDf.df_eof = 0;
 	}
 }
 //
@@ -2485,30 +2482,30 @@ void GnuPlot::DfSetKeyTitle(curve_points * pPlot)
 // Called from eval_plots(), eval_3dplots() while parsing the plot title option
 //
 //void df_set_key_title_columnhead(const curve_points * plot)
-void GnuPlot::DfSetKeyTitleColumnHead(const curve_points * pPlot)
+void GnuPlot::DfSetKeyTitleColumnHead(GpDataFile & rDf, const curve_points * pPlot)
 {
 	Pgm.Shift();
 	if(Pgm.EqualsCur("(")) {
 		Pgm.Shift();
-		_Df.ColumnForKeyTitle = IntExpression();
+		rDf.ColumnForKeyTitle = IntExpression();
 		Pgm.Shift();
 	}
 	else if(!Pgm.EndOfCommand() && Pgm.IsANumber(Pgm.GetCurTokenIdx())) {
-		_Df.ColumnForKeyTitle = IntExpression();
+		rDf.ColumnForKeyTitle = IntExpression();
 	}
 	else {
 		if(!pPlot) /* stats "name" option rather than plot title */
-			_Df.ColumnForKeyTitle = _Df.UseSpec[0].column;
+			rDf.ColumnForKeyTitle = rDf.UseSpec[0].column;
 		else if(pPlot->plot_style == HISTOGRAMS)
-			_Df.ColumnForKeyTitle = _Df.UseSpec[0].column;
+			rDf.ColumnForKeyTitle = rDf.UseSpec[0].column;
 		else if(pPlot->plot_style == PARALLELPLOT)
-			_Df.ColumnForKeyTitle = _Df.UseSpec[0].column;
-		else if(_Df.df_no_use_specs == 1)
-			_Df.ColumnForKeyTitle = _Df.UseSpec[0].column;
+			rDf.ColumnForKeyTitle = rDf.UseSpec[0].column;
+		else if(rDf.df_no_use_specs == 1)
+			rDf.ColumnForKeyTitle = rDf.UseSpec[0].column;
 		else if(pPlot->plot_type == DATA3D)
-			_Df.ColumnForKeyTitle = _Df.UseSpec[2].column;
+			rDf.ColumnForKeyTitle = rDf.UseSpec[2].column;
 		else
-			_Df.ColumnForKeyTitle = _Df.UseSpec[1].column;
+			rDf.ColumnForKeyTitle = rDf.UseSpec[1].column;
 	}
 	// This results from  plot 'foo' using (column("name")) title columnhead 
 	// FIXME:  builds on top of older circuitous method
@@ -2516,9 +2513,9 @@ void GnuPlot::DfSetKeyTitleColumnHead(const curve_points * pPlot)
 	// - somewhere else the real columnhead is stored in df_key_title
 	// - when columnhead(-1) is evaluated, it returns the content of df_key_title
 	// Why can't we dummy up columhead(real column) and skip the intermediate step?
-	if(_Df.ColumnForKeyTitle == NO_COLUMN_HEADER) {
-		free_at(_Df.df_plot_title_at);
-		_Df.df_plot_title_at = create_call_columnhead();
+	if(rDf.ColumnForKeyTitle == NO_COLUMN_HEADER) {
+		free_at(rDf.df_plot_title_at);
+		rDf.df_plot_title_at = create_call_columnhead();
 	}
 	_Pb.parse_1st_row_as_headers = true; // This may be redundant, but can't hurt 
 }
@@ -2657,41 +2654,41 @@ void GnuPlot::DfUnsetDatafileBinary()
 }
 
 //void df_set_datafile_binary()
-void GnuPlot::DfSetDataFileBinary()
+void GnuPlot::DfSetDataFileBinary(GpDataFile & rDf)
 {
 	Pgm.Shift();
 	if(Pgm.EndOfCommand())
 		IntErrorCurToken("option expected");
 	ClearBinaryRecords(DF_CURRENT_RECORDS);
 	// Set current records to default in order to retain current default settings. 
-	if(_Df.df_bin_record_default) {
-		_Df.BinFileType = _Df.BinFileTypeDefault;
-		_Df.BinFileEndianess = _Df.df_bin_file_endianess_default;
-		DfAddBinaryRecords(_Df.df_num_bin_records_default, DF_CURRENT_RECORDS);
-		memcpy(_Df.df_bin_record, _Df.df_bin_record_default, _Df.NumBinRecords*sizeof(df_binary_file_record_struct));
+	if(rDf.df_bin_record_default) {
+		rDf.BinFileType = rDf.BinFileTypeDefault;
+		rDf.BinFileEndianess = rDf.df_bin_file_endianess_default;
+		DfAddBinaryRecords(rDf.df_num_bin_records_default, DF_CURRENT_RECORDS);
+		memcpy(rDf.df_bin_record, rDf.df_bin_record_default, rDf.NumBinRecords*sizeof(df_binary_file_record_struct));
 	}
 	else {
-		_Df.BinFileType = _Df.BinFileTypeReset;
-		_Df.BinFileEndianess = DF_BIN_FILE_ENDIANESS_RESET;
+		rDf.BinFileType = rDf.BinFileTypeReset;
+		rDf.BinFileEndianess = DF_BIN_FILE_ENDIANESS_RESET;
 		DfAddBinaryRecords(1, DF_CURRENT_RECORDS);
 	}
 	// Process the binary tokens. 
 	DfSetPlotMode(MODE_QUERY);
-	PlotOptionBinary(FALSE, TRUE);
+	PlotOptionBinary(rDf, FALSE, TRUE);
 	// Copy the modified settings as the new default settings. 
-	_Df.BinFileTypeDefault = _Df.BinFileType;
-	_Df.df_bin_file_endianess_default = _Df.BinFileEndianess;
+	rDf.BinFileTypeDefault = rDf.BinFileType;
+	rDf.df_bin_file_endianess_default = rDf.BinFileEndianess;
 	ClearBinaryRecords(DF_DEFAULT_RECORDS);
-	DfAddBinaryRecords(_Df.NumBinRecords, DF_DEFAULT_RECORDS);
-	memcpy(_Df.df_bin_record_default, _Df.df_bin_record, _Df.df_num_bin_records_default*sizeof(df_binary_file_record_struct));
+	DfAddBinaryRecords(rDf.NumBinRecords, DF_DEFAULT_RECORDS);
+	memcpy(rDf.df_bin_record_default, rDf.df_bin_record, rDf.df_num_bin_records_default*sizeof(df_binary_file_record_struct));
 }
 
 //void gpbin_filetype_function()
-void GnuPlot::FileTypeFunction_GpBin()
+void GnuPlot::FileTypeFunction_GpBin(GpDataFile & rDf)
 {
 	// Gnuplot binary. 
-	_Df.df_matrix_file = true;
-	_Df.df_binary_file = true;
+	rDf.df_matrix_file = true;
+	rDf.df_binary_file = true;
 }
 
 //void raw_filetype_function()
@@ -2703,7 +2700,7 @@ void GnuPlot::FileTypeFunction_Raw()
 }
 
 //void avs_filetype_function()
-void GnuPlot::FileTypeFunction_Avs()
+void GnuPlot::FileTypeFunction_Avs(GpDataFile & rDf)
 {
 	// A very simple file format:
 	// 8 byte header (width and height, 4 bytes each), unknown endian
@@ -2711,45 +2708,45 @@ void GnuPlot::FileTypeFunction_Avs()
 	ulong M, N;
 	int read_order = 0;
 	// open (header) file 
-	FILE * fp = LoadPath_fopen(_Df.df_filename, "rb");
+	FILE * fp = LoadPath_fopen(rDf.df_filename, "rb");
 	if(!fp)
-		OsError(NO_CARET, "Can't open data file \"%s\"", _Df.df_filename);
+		OsError(NO_CARET, "Can't open data file \"%s\"", rDf.df_filename);
 	// read header: it is only 8 bytes 
 	if(!fread(&M, 4, 1, fp))
-		OsError(NO_CARET, "Can't read first dimension in data file \"%s\"", _Df.df_filename);
+		OsError(NO_CARET, "Can't read first dimension in data file \"%s\"", rDf.df_filename);
 	if(M > 0xFFFF)
 		read_order = DF_3210;
 	df_swap_bytes_by_endianess((char *)&M, read_order, 4);
 	if(!fread(&N, 4, 1, fp))
-		OsError(NO_CARET, "Can't read second dimension in data file \"%s\"", _Df.df_filename);
+		OsError(NO_CARET, "Can't read second dimension in data file \"%s\"", rDf.df_filename);
 	df_swap_bytes_by_endianess((char *)&N, read_order, 4);
 
 	fclose(fp);
-	_Df.df_matrix_file = false;
-	_Df.df_binary_file = true;
-	_Df.df_bin_record[0].scan_skip[0] = 8;
-	_Df.df_bin_record[0].scan_dim[0] = M;
-	_Df.df_bin_record[0].scan_dim[1] = N;
+	rDf.df_matrix_file = false;
+	rDf.df_binary_file = true;
+	rDf.df_bin_record[0].scan_skip[0] = 8;
+	rDf.df_bin_record[0].scan_dim[0] = M;
+	rDf.df_bin_record[0].scan_dim[1] = N;
 
-	_Df.df_bin_record[0].scan_dir[0] = 1;
-	_Df.df_bin_record[0].scan_dir[1] = -1;
-	_Df.df_bin_record[0].scan_generate_coord = TRUE;
-	_Df.df_bin_record[0].cart_scan[0] = DF_SCAN_POINT;
-	_Df.df_bin_record[0].cart_scan[1] = DF_SCAN_LINE;
+	rDf.df_bin_record[0].scan_dir[0] = 1;
+	rDf.df_bin_record[0].scan_dir[1] = -1;
+	rDf.df_bin_record[0].scan_generate_coord = TRUE;
+	rDf.df_bin_record[0].cart_scan[0] = DF_SCAN_POINT;
+	rDf.df_bin_record[0].cart_scan[1] = DF_SCAN_LINE;
 
 	// The four components are 1 byte each. Permute ARGB to RGBA 
-	DfExtendBinaryColumns(4);
-	DfSetReadType(1, DF_UCHAR);
-	DfSetReadType(2, DF_UCHAR);
-	DfSetReadType(3, DF_UCHAR);
-	DfSetReadType(4, DF_UCHAR);
-	DfSetSkipBefore(1, 0);
+	DfExtendBinaryColumns(rDf, 4);
+	DfSetReadType(rDf, 1, DF_UCHAR);
+	DfSetReadType(rDf, 2, DF_UCHAR);
+	DfSetReadType(rDf, 3, DF_UCHAR);
+	DfSetReadType(rDf, 4, DF_UCHAR);
+	DfSetSkipBefore(rDf, 1, 0);
 
-	_Df.df_no_use_specs = 4;
-	_Df.UseSpec[0].column = 2;
-	_Df.UseSpec[1].column = 3;
-	_Df.UseSpec[2].column = 4;
-	_Df.UseSpec[3].column = 1;
+	rDf.df_no_use_specs = 4;
+	rDf.UseSpec[0].column = 2;
+	rDf.UseSpec[1].column = 3;
+	rDf.UseSpec[2].column = 4;
+	rDf.UseSpec[3].column = 1;
 }
 
 //static void initialize_binary_vars()
@@ -2760,7 +2757,7 @@ void GnuPlot::InitializeBinaryVars()
 	_Df.df_M_count = _Df.df_N_count = _Df.df_O_count = 0;
 	// Set default binary data widths and skip paratemers. 
 	_Df.df_no_bin_cols = 0;
-	DfSetSkipBefore(1, 0);
+	DfSetSkipBefore(_Df, 1, 0);
 	// Copy the default binary records to the active binary records.  The number
 	// of records will always be at least one in case "record", "array",
 	// or "filetype" are not issued by the user.
@@ -2852,41 +2849,39 @@ df_bin_default_columns default_style_cols[] = {
  * so long as the ones that are present are mapped to the right ordering.
  */
 //static void adjust_binary_use_spec(curve_points * plot)
-void GnuPlot::AdjustBinaryUseSpec(curve_points * pPlot)
+void GnuPlot::AdjustBinaryUseSpec(GpDataFile & rDf, curve_points * pPlot)
 {
 	const char * nothing_known = "a 'using' specifier is required for that binary plot style";
 	uint ps_index;
 	enum PLOT_STYLE plot_style = pPlot ? pPlot->plot_style : LINES;
 	// The default binary matrix format is nonuniform, i.e.
 	// it has an extra row and column for sample coordinates.
-	if(_Df.df_matrix_file && _Df.df_binary_file)
-		_Df.df_nonuniform_matrix = true;
+	if(rDf.df_matrix_file && rDf.df_binary_file)
+		rDf.df_nonuniform_matrix = true;
 	// Determine index. 
 	for(ps_index = 0; ps_index < sizeof(default_style_cols)/sizeof(default_style_cols[0]); ps_index++) {
 		if(default_style_cols[ps_index].plot_style == plot_style)
 			break;
 	}
-	// A known default is all very well, but if there was an actual using spec
-	// that's all we need.
-	if(ps_index == sizeof(default_style_cols)/sizeof(default_style_cols[0]) && !_Df.df_no_use_specs)
+	// A known default is all very well, but if there was an actual using spec that's all we need.
+	if(ps_index == sizeof(default_style_cols)/sizeof(default_style_cols[0]) && !rDf.df_no_use_specs)
 		IntError(NO_CARET, nothing_known);
 	// Matrix format is interpreted as always having three columns. 
-	if(_Df.df_matrix_file) {
-		if(_Df.df_no_bin_cols > 3)
+	if(rDf.df_matrix_file) {
+		if(rDf.df_no_bin_cols > 3)
 			IntError(NO_CARET, "Matrix data contains only three columns");
-		DfExtendBinaryColumns(3);
+		DfExtendBinaryColumns(rDf, 3);
 	}
-	// If nothing has been done to set the using specs, use the default using
-	// characteristics for the style.
-	if(!_Df.df_no_use_specs) {
-		if(!_Df.df_matrix_file) {
+	// If nothing has been done to set the using specs, use the default using characteristics for the style.
+	if(!rDf.df_no_use_specs) {
+		if(!rDf.df_matrix_file) {
 			int no_cols = default_style_cols[ps_index].excluding_gen_coords;
 			if(!no_cols)
 				IntError(NO_CARET, nothing_known);
 			// If coordinates are generated, make sure this plot style allows it.
 			// Otherwise, add in the number of generated coordinates and add an
 			// extra column if using `splot`.
-			if(_Df.NumBinRecords && _Df.df_bin_record[0].scan_generate_coord) {
+			if(rDf.NumBinRecords && rDf.df_bin_record[0].scan_generate_coord) {
 				if(default_style_cols[ps_index].dimen_in_2d == 0)
 					IntError(NO_CARET, "Cannot generate coords for that plot style");
 			}
@@ -2894,15 +2889,15 @@ void GnuPlot::AdjustBinaryUseSpec(curve_points * pPlot)
 				// If there aren't generated coordinates, then add the
 				// amount of columns that would be generated.
 				no_cols += default_style_cols[ps_index].dimen_in_2d;
-				if(_Df.df_plot_mode == MODE_SPLOT)
+				if(rDf.df_plot_mode == MODE_SPLOT)
 					no_cols++;
 			}
 			assert(no_cols <= MAXDATACOLS);
 			// Nothing need be done here to set the using specs because they
 			// will have been initialized appropriately and left unaltered.
 			// So just set the number of specs.
-			_Df.df_no_use_specs = no_cols;
-			DfExtendBinaryColumns(no_cols);
+			rDf.df_no_use_specs = no_cols;
+			DfExtendBinaryColumns(rDf, no_cols);
 		}
 		else {
 			// Number of columns is fixed at three and no using specs given.  Do what we can.
@@ -2910,59 +2905,59 @@ void GnuPlot::AdjustBinaryUseSpec(curve_points * pPlot)
 			// value.  One wonders what to do if a matrix is only one column; can be treated
 			// as linear?  This isn't implemented here, but if it were, this is where it should go.
 			if((default_style_cols[ps_index].dimen_in_2d == 2) && (default_style_cols[ps_index].excluding_gen_coords == 1)) {
-				_Df.df_no_use_specs = 3;
+				rDf.df_no_use_specs = 3;
 			}
 			else if((default_style_cols[ps_index].dimen_in_2d == 1) && (default_style_cols[ps_index].excluding_gen_coords == 1) ) {
-				if(_Df.df_plot_mode == MODE_SPLOT)
-					_Df.df_no_use_specs = 3;
+				if(rDf.df_plot_mode == MODE_SPLOT)
+					rDf.df_no_use_specs = 3;
 				else {
 					// Command:  plot 'foo' matrix       with no using spec 
 					// Matrix element treated as y value rather than z value 
-					_Df.df_no_use_specs = 2;
-					_Df.UseSpec[1].column = 3;
+					rDf.df_no_use_specs = 2;
+					rDf.UseSpec[1].column = 3;
 				}
 			}
 			else
 				IntError(NO_CARET, "Plot style does not conform to three column data in this graph mode");
 		}
 	}
-	if(_Df.NumBinRecords && _Df.df_bin_record[0].scan_generate_coord && !_Df.df_matrix_file) {
+	if(rDf.NumBinRecords && rDf.df_bin_record[0].scan_generate_coord && !rDf.df_matrix_file) {
 		int i;
 		use_spec_s original_use_spec[MAXDATACOLS];
 		int added_columns = 0;
 		// Keep record of the original using specs. 
-		memcpy(original_use_spec, _Df.UseSpec, sizeof(_Df.UseSpec));
+		memcpy(original_use_spec, rDf.UseSpec, sizeof(rDf.UseSpec));
 		// Put in columns at front for generated variables. 
 		for(i = 0; i < 3; i++) {
-			if(_Df.df_bin_record[0].cart_dim[i] || _Df.df_bin_record[0].scan_dim[i])
+			if(rDf.df_bin_record[0].cart_dim[i] || rDf.df_bin_record[0].scan_dim[i])
 				added_columns++;
 			else
 				break;
 		}
-		if((_Df.df_no_use_specs + added_columns) >= MAXDATACOLS)
+		if((rDf.df_no_use_specs + added_columns) >= MAXDATACOLS)
 			IntError(NO_CARET, too_many_cols_msg);
 		else {
 			// Shift the original columns over by added number of columns, but only if not matrix data.
-			memcpy(&_Df.UseSpec[added_columns], original_use_spec, _Df.df_no_use_specs*sizeof(_Df.UseSpec[0]));
+			memcpy(&rDf.UseSpec[added_columns], original_use_spec, rDf.df_no_use_specs*sizeof(rDf.UseSpec[0]));
 			// The at portion is set to NULL here, but this doesn't mash
 			// a valid memory pointer because any valid memory pointers
 			// were copied to new locations in the previous memcpy().
 			for(i = 0; i < added_columns; i++) {
-				_Df.UseSpec[i].column = _Df.df_bin_record[0].cart_scan[i];
-				_Df.UseSpec[i].at = 0; // Not a bad memory pointer overwrite!! 
+				rDf.UseSpec[i].column = rDf.df_bin_record[0].cart_scan[i];
+				rDf.UseSpec[i].at = 0; // Not a bad memory pointer overwrite!! 
 			}
-			_Df.df_no_use_specs += added_columns; // Do not extend columns for generated coordinates. 
+			rDf.df_no_use_specs += added_columns; // Do not extend columns for generated coordinates. 
 		}
-		if(_Df.df_plot_mode == MODE_SPLOT) {
+		if(rDf.df_plot_mode == MODE_SPLOT) {
 			// For binary data having an implied uniformly sampled grid, treat
 			// less than three-dimensional data in special ways based upon what
 			// is being plotted.
-			for(int k = 0; k < _Df.NumBinRecords; k++) {
-				if((_Df.df_bin_record[k].cart_dim[2] == 0) && (_Df.df_bin_record[k].scan_dim[2] == 0)) {
+			for(int k = 0; k < rDf.NumBinRecords; k++) {
+				if((rDf.df_bin_record[k].cart_dim[2] == 0) && (rDf.df_bin_record[k].scan_dim[2] == 0)) {
 					if(default_style_cols[ps_index].dimen_in_2d > 2)
 						IntError(NO_CARET, "Plot style requires higher than two-dimensional sampling array");
 					else {
-						if((_Df.df_bin_record[k].cart_dim[1] == 0) && (_Df.df_bin_record[k].scan_dim[1] == 0)) {
+						if((rDf.df_bin_record[k].cart_dim[1] == 0) && (rDf.df_bin_record[k].scan_dim[1] == 0)) {
 							if(default_style_cols[ps_index].dimen_in_2d > 1)
 								IntError(NO_CARET, "Plot style requires higher than one-dimensional sampling array");
 							else {
@@ -2982,7 +2977,7 @@ void GnuPlot::AdjustBinaryUseSpec(curve_points * pPlot)
 }
 
 //static void plot_option_binary(bool set_matrix, bool set_default)
-void GnuPlot::PlotOptionBinary(bool setMatrix, bool setDefault)
+void GnuPlot::PlotOptionBinary(GpDataFile & rDf, bool setMatrix, bool setDefault)
 {
 	bool duplication = FALSE;
 	bool set_record = FALSE;
@@ -3004,15 +2999,15 @@ void GnuPlot::PlotOptionBinary(bool setMatrix, bool setDefault)
 	bool set_scan = FALSE;
 	bool set_format = FALSE;
 	// Binary file type must be the first word in the command following `binary`" 
-	if(_Df.BinFileTypeDefault)
-		_Df.BinFileType = _Df.BinFileTypeDefault;
-	if(Pgm.AlmostEqualsCur("file$type") || (_Df.BinFileType >= 0)) {
+	if(rDf.BinFileTypeDefault)
+		rDf.BinFileType = rDf.BinFileTypeDefault;
+	if(Pgm.AlmostEqualsCur("file$type") || (rDf.BinFileType >= 0)) {
 		int i;
 		char file_ext[8] = {'\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0'};
 		// Above keyword not part of pre-existing binary definition. So use general binary. 
 		if(setMatrix)
 			IntErrorCurToken(matrix_general_binary_conflict_msg);
-		_Df.df_matrix_file = false;
+		rDf.df_matrix_file = false;
 		if(Pgm.AlmostEqualsCur("file$type")) {
 			Pgm.Shift();
 			if(!Pgm.EqualsCur("="))
@@ -3022,29 +3017,29 @@ void GnuPlot::PlotOptionBinary(bool setMatrix, bool setDefault)
 			{
 				int r = SIntToSymbTab_GetId(DfBinFileTypeTable, SIZEOFARRAY(DfBinFileTypeTable), file_ext);
 				if(r)
-					_Df.BinFileType = static_cast<FileType>(r);
+					rDf.BinFileType = static_cast<FileType>(r);
 				else {
 					// Maybe set to "auto" and continue? 
-					_Df.BinFileType = filtypAuto; // @sobolev
+					rDf.BinFileType = filtypAuto; // @sobolev
 					IntErrorCurToken("Unrecognized filetype; try \"show datafile binary filetypes\"");
 				}
 			}
 			/*for(i = 0; df_bin_filetype_table[i].key; i++) {
 				if(sstreqi_ascii(file_ext, df_bin_filetype_table[i].key)) {
 					binary_input_function = df_bin_filetype_table[i].value;
-					_Df.BinFileType = i;
+					rDf.BinFileType = i;
 					break;
 				}
 			}
-			if(_Df.BinFileType != i) // Maybe set to "auto" and continue? 
+			if(rDf.BinFileType != i) // Maybe set to "auto" and continue? 
 				IntErrorCurToken("Unrecognized filetype; try \"show datafile binary filetypes\"");*/
 			Pgm.Shift();
 		}
 		{
-			FileType _file_type = _Df.BinFileType;
-			//if(_Df.df_plot_mode != MODE_QUERY && sstreq("auto", df_bin_filetype_table[_Df.BinFileType].key)) {
-			if(_Df.df_plot_mode != MODE_QUERY && oneof2(_file_type, filtypUndef, filtypAuto)) {
-				const char * file_ext = sstrrchr(_Df.df_filename, '.');
+			FileType _file_type = rDf.BinFileType;
+			//if(rDf.df_plot_mode != MODE_QUERY && sstreq("auto", df_bin_filetype_table[rDf.BinFileType].key)) {
+			if(rDf.df_plot_mode != MODE_QUERY && oneof2(_file_type, filtypUndef, filtypAuto)) {
+				const char * file_ext = sstrrchr(rDf.df_filename, '.');
 				if(file_ext) {
 					int r = SIntToSymbTab_GetId(DfBinFileTypeTable, SIZEOFARRAY(DfBinFileTypeTable), file_ext+1);
 					_file_type = static_cast<FileType>(r);
@@ -3066,25 +3061,25 @@ void GnuPlot::PlotOptionBinary(bool setMatrix, bool setDefault)
 				*/
 			}
 			// Unless only querying settings, call the routine to prep binary data parameters. 
-			if(_Df.df_plot_mode != MODE_QUERY) {
+			if(rDf.df_plot_mode != MODE_QUERY) {
 				switch(_file_type) {
 					case filtypAvs:
-						FileTypeFunction_Avs();
+						FileTypeFunction_Avs(rDf);
 						break;
 					case filtypBin:
 						FileTypeFunction_Raw();
 						break;
 					case filtypEdf:
-						FileTypeFunction_Edf();
+						FileTypeFunction_Edf(rDf);
 						break;
 					case filtypEhf:
-						FileTypeFunction_Edf();
+						FileTypeFunction_Edf(rDf);
 						break;
 					case filtypGif:
 						FileTypeFunction_Gif();
 						break;
 					case filtypGpBin:
-						FileTypeFunction_GpBin();
+						FileTypeFunction_GpBin(rDf);
 						break;
 					case filtypJpeg:
 						FileTypeFunction_Jpeg();
@@ -3106,28 +3101,28 @@ void GnuPlot::PlotOptionBinary(bool setMatrix, bool setDefault)
 						break;
 				}
 				//(*binary_input_function)();
-				_Df.df_xpixels = _Df.df_bin_record[0].scan_dim[0];
-				_Df.df_ypixels = _Df.df_bin_record[0].scan_dim[1];
-				FPRINTF((stderr, "datafile.c:%d  image dimensions %d x %d\n", __LINE__, _Df.df_xpixels, _Df.df_ypixels));
+				rDf.df_xpixels = rDf.df_bin_record[0].scan_dim[0];
+				rDf.df_ypixels = rDf.df_bin_record[0].scan_dim[1];
+				FPRINTF((stderr, "datafile.c:%d  image dimensions %d x %d\n", __LINE__, rDf.df_xpixels, rDf.df_ypixels));
 			}
 		}
 		// Now, at this point anything that was filled in for "scan" should override the "cart" variables.
-		for(i = 0; i < _Df.NumBinRecords; i++) {
+		for(i = 0; i < rDf.NumBinRecords; i++) {
 			int j;
 			// Dimension 
-			if(_Df.df_bin_record[i].scan_dim[0] != df_bin_record_reset.scan_dim[0])
+			if(rDf.df_bin_record[i].scan_dim[0] != df_bin_record_reset.scan_dim[0])
 				for(j = 0; j < 3; j++)
-					_Df.df_bin_record[i].cart_dim[j] = 0;
+					rDf.df_bin_record[i].cart_dim[j] = 0;
 			// Delta 
 			for(j = 0; j < 3; j++)
-				if(_Df.df_bin_record[i].scan_delta[j] != 0.0) {
+				if(rDf.df_bin_record[i].scan_delta[j] != 0.0) {
 					for(int k = 0; k < 3; k++)
-						if(_Df.df_bin_record[i].cart_scan[k] == (DF_SCAN_POINT - j))
-							_Df.df_bin_record[i].cart_delta[k] = 0;
+						if(rDf.df_bin_record[i].cart_scan[k] == (DF_SCAN_POINT - j))
+							rDf.df_bin_record[i].cart_delta[k] = 0;
 				}
 			// Translation 
-			if(_Df.df_bin_record[i].scan_trans != DF_TRANSLATE_DEFAULT)
-				_Df.df_bin_record[i].cart_trans = DF_TRANSLATE_DEFAULT;
+			if(rDf.df_bin_record[i].scan_trans != DF_TRANSLATE_DEFAULT)
+				rDf.df_bin_record[i].cart_trans = DF_TRANSLATE_DEFAULT;
 		}
 	}
 	while(!Pgm.EndOfCommand()) {
@@ -3142,12 +3137,12 @@ void GnuPlot::PlotOptionBinary(bool setMatrix, bool setDefault)
 			// Above keyword not part of pre-existing binary definition.  So use general binary.
 			if(setMatrix)
 				IntErrorCurToken(matrix_general_binary_conflict_msg);
-			_Df.df_matrix_file = false;
-			PlotOptionArray();
+			rDf.df_matrix_file = false;
+			PlotOptionArray(rDf);
 			set_record = true;
-			_Df.df_xpixels = _Df.df_bin_record[_Df.NumBinRecords-1].cart_dim[0];
-			_Df.df_ypixels = _Df.df_bin_record[_Df.NumBinRecords-1].cart_dim[1];
-			FPRINTF((stderr, "datafile.c:%d  record dimensions %d x %d\n", __LINE__, _Df.df_xpixels, _Df.df_ypixels));
+			rDf.df_xpixels = rDf.df_bin_record[rDf.NumBinRecords-1].cart_dim[0];
+			rDf.df_ypixels = rDf.df_bin_record[rDf.NumBinRecords-1].cart_dim[1];
+			FPRINTF((stderr, "datafile.c:%d  record dimensions %d x %d\n", __LINE__, rDf.df_xpixels, rDf.df_ypixels));
 			continue;
 		}
 		// look for array 
@@ -3161,16 +3156,16 @@ void GnuPlot::PlotOptionBinary(bool setMatrix, bool setDefault)
 			// Above keyword not part of pre-existing binary definition.  So use general binary. 
 			if(setMatrix)
 				IntErrorCurToken(matrix_general_binary_conflict_msg);
-			_Df.df_matrix_file = false;
-			PlotOptionArray();
-			for(i = 0; i < _Df.NumBinRecords; i++) {
+			rDf.df_matrix_file = false;
+			PlotOptionArray(rDf);
+			for(i = 0; i < rDf.NumBinRecords; i++) {
 				// Indicate that coordinate info should be generated internally 
-				_Df.df_bin_record[i].scan_generate_coord = TRUE;
+				rDf.df_bin_record[i].scan_generate_coord = TRUE;
 			}
 			set_array = TRUE;
-			_Df.df_xpixels = _Df.df_bin_record[_Df.NumBinRecords-1].cart_dim[0];
-			_Df.df_ypixels = _Df.df_bin_record[_Df.NumBinRecords-1].cart_dim[1];
-			FPRINTF((stderr, "datafile.c:%d  array dimensions %d x %d\n", __LINE__, _Df.df_xpixels, _Df.df_ypixels));
+			rDf.df_xpixels = rDf.df_bin_record[rDf.NumBinRecords-1].cart_dim[0];
+			rDf.df_ypixels = rDf.df_bin_record[rDf.NumBinRecords-1].cart_dim[1];
+			FPRINTF((stderr, "datafile.c:%d  array dimensions %d x %d\n", __LINE__, rDf.df_xpixels, rDf.df_ypixels));
 			continue;
 		}
 		// deal with spacing between array points 
@@ -3180,14 +3175,14 @@ void GnuPlot::PlotOptionBinary(bool setMatrix, bool setDefault)
 				break;
 			}
 			Pgm.Shift();
-			PlotOptionMultiValued(DF_DELTA, 0);
+			PlotOptionMultiValued(rDf, DF_DELTA, 0);
 			if(!set_dy) {
-				for(int i = 0; i < _Df.NumBinRecords; i++)
-					_Df.df_bin_record[i].cart_delta[1] = _Df.df_bin_record[i].cart_delta[0];
+				for(int i = 0; i < rDf.NumBinRecords; i++)
+					rDf.df_bin_record[i].cart_delta[1] = rDf.df_bin_record[i].cart_delta[0];
 			}
 			if(!set_dz) {
-				for(int i = 0; i < _Df.NumBinRecords; i++)
-					_Df.df_bin_record[i].cart_delta[2] = _Df.df_bin_record[i].cart_delta[0];
+				for(int i = 0; i < rDf.NumBinRecords; i++)
+					rDf.df_bin_record[i].cart_delta[2] = rDf.df_bin_record[i].cart_delta[0];
 			}
 			set_dx = TRUE;
 			continue;
@@ -3196,13 +3191,13 @@ void GnuPlot::PlotOptionBinary(bool setMatrix, bool setDefault)
 			if(set_dy) {
 				duplication = TRUE; break;
 			}
-			if(!set_array && !_Df.df_bin_record)
+			if(!set_array && !rDf.df_bin_record)
 				IntErrorCurToken("Must specify a sampling array size before indicating spacing in second dimension");
 			Pgm.Shift();
-			PlotOptionMultiValued(DF_DELTA, 1);
+			PlotOptionMultiValued(rDf, DF_DELTA, 1);
 			if(!set_dz) {
-				for(int i = 0; i < _Df.NumBinRecords; i++)
-					_Df.df_bin_record[i].cart_delta[2] = _Df.df_bin_record[i].cart_delta[1];
+				for(int i = 0; i < rDf.NumBinRecords; i++)
+					rDf.df_bin_record[i].cart_delta[2] = rDf.df_bin_record[i].cart_delta[1];
 			}
 			set_dy = TRUE;
 			continue;
@@ -3212,10 +3207,10 @@ void GnuPlot::PlotOptionBinary(bool setMatrix, bool setDefault)
 			if(set_dz) {
 				duplication = TRUE; break;
 			}
-			if(!set_array && !_Df.df_bin_record)
+			if(!set_array && !rDf.df_bin_record)
 				IntErrorCurToken("Must specify a sampling array size before indicating spacing in third dimension");
 			Pgm.Shift();
-			PlotOptionMultiValued(DF_DELTA, 2);
+			PlotOptionMultiValued(rDf, DF_DELTA, 2);
 			set_dz = TRUE;
 			continue;
 		}
@@ -3228,11 +3223,11 @@ void GnuPlot::PlotOptionBinary(bool setMatrix, bool setDefault)
 			Pgm.Shift();
 			// If no equal sign, then set flip true for all records. 
 			if(!Pgm.EqualsCur("=")) {
-				for(int i = 0; i < _Df.NumBinRecords; i++)
-					_Df.df_bin_record[i].cart_dir[0] = -1;
+				for(int i = 0; i < rDf.NumBinRecords; i++)
+					rDf.df_bin_record[i].cart_dir[0] = -1;
 			}
 			else {
-				PlotOptionMultiValued(DF_FLIP_AXIS, 0);
+				PlotOptionMultiValued(rDf, DF_FLIP_AXIS, 0);
 			}
 			set_flipx = TRUE;
 			continue;
@@ -3241,16 +3236,16 @@ void GnuPlot::PlotOptionBinary(bool setMatrix, bool setDefault)
 			if(set_flipy) {
 				duplication = TRUE; break;
 			}
-			if(!set_array && !_Df.df_bin_record)
+			if(!set_array && !rDf.df_bin_record)
 				IntErrorCurToken("Must specify a sampling array size before indicating flip in second dimension");
 			Pgm.Shift();
 			// If no equal sign, then set flip true for all records. 
 			if(!Pgm.EqualsCur("=")) {
-				for(int i = 0; i < _Df.NumBinRecords; i++)
-					_Df.df_bin_record[i].cart_dir[1] = -1;
+				for(int i = 0; i < rDf.NumBinRecords; i++)
+					rDf.df_bin_record[i].cart_dir[1] = -1;
 			}
 			else {
-				PlotOptionMultiValued(DF_FLIP_AXIS, 1);
+				PlotOptionMultiValued(rDf, DF_FLIP_AXIS, 1);
 			}
 			set_flipy = true;
 			continue;
@@ -3261,16 +3256,16 @@ void GnuPlot::PlotOptionBinary(bool setMatrix, bool setDefault)
 				duplication = true;
 				break;
 			}
-			if(!set_array && !_Df.df_bin_record)
+			if(!set_array && !rDf.df_bin_record)
 				IntErrorCurToken("Must specify a sampling array size before indicating spacing in third dimension");
 			Pgm.Shift();
 			// If no equal sign, then set flip true for all records. 
 			if(!Pgm.EqualsCur("=")) {
-				for(int i = 0; i < _Df.NumBinRecords; i++)
-					_Df.df_bin_record[i].cart_dir[2] = -1;
+				for(int i = 0; i < rDf.NumBinRecords; i++)
+					rDf.df_bin_record[i].cart_dir[2] = -1;
 			}
 			else {
-				PlotOptionMultiValued(DF_FLIP_AXIS, 2);
+				PlotOptionMultiValued(rDf, DF_FLIP_AXIS, 2);
 			}
 			set_flipz = true;
 			continue;
@@ -3282,7 +3277,7 @@ void GnuPlot::PlotOptionBinary(bool setMatrix, bool setDefault)
 				break;
 			}
 			Pgm.Shift();
-			PlotOptionMultiValued(DF_FLIP, -1);
+			PlotOptionMultiValued(rDf, DF_FLIP, -1);
 			set_flip = true;
 			continue;
 		}
@@ -3293,7 +3288,7 @@ void GnuPlot::PlotOptionBinary(bool setMatrix, bool setDefault)
 				break;
 			}
 			Pgm.Shift();
-			PlotOptionMultiValued(DF_FLIP, 1);
+			PlotOptionMultiValued(rDf, DF_FLIP, 1);
 			set_noflip = true;
 			continue;
 		}
@@ -3305,8 +3300,8 @@ void GnuPlot::PlotOptionBinary(bool setMatrix, bool setDefault)
 			}
 			Pgm.Shift();
 			if(Pgm.AlmostEquals(Pgm.GetCurTokenIdx()+1, "yx$z"))
-				_Df.df_transpose = true;
-			PlotOptionMultiValued(DF_SCAN, 0);
+				rDf.df_transpose = true;
+			PlotOptionMultiValued(rDf, DF_SCAN, 0);
 			set_scan = true;
 			continue;
 		}
@@ -3317,10 +3312,10 @@ void GnuPlot::PlotOptionBinary(bool setMatrix, bool setDefault)
 				break;
 			}
 			Pgm.Shift();
-			for(int i = 0; i < _Df.NumBinRecords; i++)
-				memcpy(_Df.df_bin_record[i].cart_scan, df_bin_scan_table_2D[TRANSPOSE_INDEX].scan, sizeof(_Df.df_bin_record[0].cart_scan));
+			for(int i = 0; i < rDf.NumBinRecords; i++)
+				memcpy(rDf.df_bin_record[i].cart_scan, df_bin_scan_table_2D[TRANSPOSE_INDEX].scan, sizeof(rDf.df_bin_record[0].cart_scan));
 			set_scan = true;
-			_Df.df_transpose = true;
+			rDf.df_transpose = true;
 			continue;
 		}
 		// deal with origin 
@@ -3332,7 +3327,7 @@ void GnuPlot::PlotOptionBinary(bool setMatrix, bool setDefault)
 				break;
 			}
 			Pgm.Shift();
-			PlotOptionMultiValued(DF_ORIGIN, _Df.df_plot_mode);
+			PlotOptionMultiValued(rDf, DF_ORIGIN, rDf.df_plot_mode);
 			set_origin = true;
 			continue;
 		}
@@ -3345,7 +3340,7 @@ void GnuPlot::PlotOptionBinary(bool setMatrix, bool setDefault)
 				break;
 			}
 			Pgm.Shift();
-			PlotOptionMultiValued(DF_CENTER, _Df.df_plot_mode);
+			PlotOptionMultiValued(rDf, DF_CENTER, rDf.df_plot_mode);
 			set_center = true;
 			continue;
 		}
@@ -3355,19 +3350,19 @@ void GnuPlot::PlotOptionBinary(bool setMatrix, bool setDefault)
 				duplication = TRUE; break;
 			}
 			Pgm.Shift();
-			PlotOptionMultiValued(DF_ROTATION, 0);
+			PlotOptionMultiValued(rDf, DF_ROTATION, 0);
 			set_rotation = TRUE;
 			continue;
 		}
 		// deal with rotation angle 
 		if(Pgm.AlmostEqualsCur("perp$endicular")) {
-			if(_Df.df_plot_mode == MODE_PLOT)
+			if(rDf.df_plot_mode == MODE_PLOT)
 				IntErrorCurToken("Key word `perpendicular` is not allowed with `plot` command");
 			if(set_perpendicular) {
 				duplication = TRUE; break;
 			}
 			Pgm.Shift();
-			PlotOptionMultiValued(DF_PERPENDICULAR, 0);
+			PlotOptionMultiValued(rDf, DF_PERPENDICULAR, 0);
 			set_perpendicular = TRUE;
 			continue;
 		}
@@ -3378,7 +3373,7 @@ void GnuPlot::PlotOptionBinary(bool setMatrix, bool setDefault)
 				break;
 			}
 			Pgm.Shift();
-			PlotOptionMultiValued(DF_SKIP, 0);
+			PlotOptionMultiValued(rDf, DF_SKIP, 0);
 			set_skip = TRUE;
 			continue;
 		}
@@ -3394,16 +3389,16 @@ void GnuPlot::PlotOptionBinary(bool setMatrix, bool setDefault)
 				IntErrorCurToken(equal_symbol_msg);
 			Pgm.Shift();
 			if(Pgm.AlmostEqualsCur("def$ault"))
-				_Df.BinFileEndianess = THIS_COMPILER_ENDIAN;
+				rDf.BinFileEndianess = THIS_COMPILER_ENDIAN;
 			else if(Pgm.EqualsCur("swap") || Pgm.EqualsCur("swab"))
-				_Df.BinFileEndianess = (df_endianess_type)((~_Df.BinFileEndianess)&3); /* complement and isolate lowest two its */
+				rDf.BinFileEndianess = (df_endianess_type)((~rDf.BinFileEndianess)&3); /* complement and isolate lowest two its */
 			else if(Pgm.AlmostEqualsCur("lit$tle"))
-				_Df.BinFileEndianess = DF_LITTLE_ENDIAN;
+				rDf.BinFileEndianess = DF_LITTLE_ENDIAN;
 			else if(Pgm.EqualsCur("big"))
-				_Df.BinFileEndianess = DF_BIG_ENDIAN;
+				rDf.BinFileEndianess = DF_BIG_ENDIAN;
 #if SUPPORT_MIDDLE_ENDIAN
 			else if(Pgm.AlmostEqualsCur("mid$dle") || Pgm.EqualsCur("pdp"))
-				_Df.BinFileEndianess = DF_PDP_ENDIAN;
+				rDf.BinFileEndianess = DF_PDP_ENDIAN;
 			else
 				IntErrorCurToken("Options are default, swap (swab), little, big, middle (pdp)");
 #else
@@ -3424,13 +3419,13 @@ void GnuPlot::PlotOptionBinary(bool setMatrix, bool setDefault)
 			// Format string not part of pre-existing binary definition.  So use general binary. 
 			if(setMatrix)
 				IntErrorCurToken(matrix_general_binary_conflict_msg);
-			_Df.df_matrix_file = false;
+			rDf.df_matrix_file = false;
 			// Require equal sign 
 			if(!Pgm.EqualsCur("="))
 				IntErrorCurToken(equal_symbol_msg);
 			Pgm.Shift();
 			if(setDefault) {
-				FREEANDASSIGN(_Df.df_binary_format, TryToGetString());
+				FREEANDASSIGN(rDf.df_binary_format, TryToGetString());
 			}
 			else {
 				char * format_string = TryToGetString();
@@ -3446,12 +3441,12 @@ void GnuPlot::PlotOptionBinary(bool setMatrix, bool setDefault)
 	} /* while (!Pgm.EndOfCommand()) */
 	if(duplication)
 		IntErrorCurToken("Duplicated or contradicting arguments in datafile options");
-	if(!setDefault && !setMatrix && _Df.df_num_bin_records_default) {
+	if(!setDefault && !setMatrix && rDf.df_num_bin_records_default) {
 		IntWarn(NO_CARET, "using default binary record/array structure");
 	}
-	if(!set_format && !_Df.df_matrix_file) {
-		if(_Df.df_binary_format) {
-			PlotOptionBinaryFormat(_Df.df_binary_format);
+	if(!set_format && !rDf.df_matrix_file) {
+		if(rDf.df_binary_format) {
+			PlotOptionBinaryFormat(rDf.df_binary_format);
 			IntWarn(NO_CARET, "using default binary format");
 		}
 	}
@@ -3510,7 +3505,7 @@ void GnuPlot::ClearBinaryRecords(df_records_type records_type)
 // Syntax is:   array=(xdim,ydim):(xdim,ydim):CONST:(xdim) etc
 //
 //static void plot_option_array()
-void GnuPlot::PlotOptionArray()
+void GnuPlot::PlotOptionArray(GpDataFile & rDf)
 {
 	int number_of_records = 0;
 	if(!Pgm.EqualsCur("="))
@@ -3519,28 +3514,29 @@ void GnuPlot::PlotOptionArray()
 		Pgm.Shift();
 		// Partial backward compatibility with syntax up to 4.2.4 
 		if(Pgm.IsANumber(Pgm.GetCurTokenIdx())) {
-			if(++number_of_records > _Df.NumBinRecords)
+			if(++number_of_records > rDf.NumBinRecords)
 				DfAddBinaryRecords(1, DF_CURRENT_RECORDS);
-			_Df.df_bin_record[_Df.NumBinRecords-1].cart_dim[0] = IntExpression();
+			rDf.df_bin_record[rDf.NumBinRecords-1].cart_dim[0] = IntExpression();
 			// Handle the old syntax:  array=123x456 
 			if(!Pgm.EndOfCommand()) {
-				char xguy[8]; int itmp = 0;
+				char xguy[8]; 
+				int itmp = 0;
 				Pgm.CopyStr(xguy, Pgm.GetCurTokenIdx(), 6);
 				if(xguy[0] == 'x') {
 					sscanf(&xguy[1], "%d", &itmp);
-					_Df.df_bin_record[_Df.NumBinRecords-1].cart_dim[1] = itmp;
+					rDf.df_bin_record[rDf.NumBinRecords-1].cart_dim[1] = itmp;
 					Pgm.Shift();
 				}
 			}
 		}
 		else if(Pgm.EqualsCur("(")) {
 			Pgm.Shift();
-			if(++number_of_records > _Df.NumBinRecords)
+			if(++number_of_records > rDf.NumBinRecords)
 				DfAddBinaryRecords(1, DF_CURRENT_RECORDS);
-			_Df.df_bin_record[_Df.NumBinRecords-1].cart_dim[0] = IntExpression();
+			rDf.df_bin_record[rDf.NumBinRecords-1].cart_dim[0] = IntExpression();
 			if(Pgm.EqualsCur(",")) {
 				Pgm.Shift();
-				_Df.df_bin_record[_Df.NumBinRecords-1].cart_dim[1] = IntExpression();
+				rDf.df_bin_record[rDf.NumBinRecords-1].cart_dim[1] = IntExpression();
 			}
 			if(!Pgm.EqualsCur(")"))
 				IntErrorCurToken("tuple syntax error");
@@ -3587,7 +3583,7 @@ int GnuPlot::Token2Tuple(double * pTuple, int dimension)
 // Determine the 2D rotational matrix from the "rotation" qualifier. 
 //
 //void plot_option_multivalued(df_multivalue_type type, int arg)
-void GnuPlot::PlotOptionMultiValued(df_multivalue_type type, int arg)
+void GnuPlot::PlotOptionMultiValued(GpDataFile & rDf, df_multivalue_type type, int arg)
 {
 	int bin_record_count = 0;
 	int test_val;
@@ -3617,22 +3613,22 @@ void GnuPlot::PlotOptionMultiValued(df_multivalue_type type, int arg)
 		if(test_val) {
 			char const * cannot_flip_msg = "Cannot flip a non-existent dimension";
 			char flip_list[4];
-			if(bin_record_count >= _Df.NumBinRecords)
+			if(bin_record_count >= rDf.NumBinRecords)
 				IntErrorCurToken("More parameters specified than data records specified");
 			switch(type) {
 				case DF_DELTA:
 				    // Set the spacing between grid points in the specified dimension. 
-				    *(_Df.df_bin_record[bin_record_count].cart_delta + arg) = tuple[0];
-				    if(_Df.df_bin_record[bin_record_count].cart_delta[arg] <= 0)
+				    *(rDf.df_bin_record[bin_record_count].cart_delta + arg) = tuple[0];
+				    if(rDf.df_bin_record[bin_record_count].cart_delta[arg] <= 0)
 					    IntError(Pgm.GetCurTokenIdx()-2, "Sample period must be positive. Try `flip` for changing direction");
 				    break;
 				case DF_FLIP_AXIS:
 				    // Set the direction of grid points increment in the specified dimension. 
-				    if(_Df.df_bin_record[bin_record_count].cart_dim[0] != 0) {
+				    if(rDf.df_bin_record[bin_record_count].cart_dim[0] != 0) {
 					    if(tuple[0] == 0.0)
-						    _Df.df_bin_record[bin_record_count].cart_dir[arg] = 0;
+						    rDf.df_bin_record[bin_record_count].cart_dir[arg] = 0;
 					    else if(tuple[0] == 1.0)
-						    _Df.df_bin_record[bin_record_count].cart_dir[arg] = 1;
+						    rDf.df_bin_record[bin_record_count].cart_dir[arg] = 1;
 					    else
 						    IntError(Pgm.GetPrevTokenIdx(), "Flipping dimension direction must be 1 or 0");
 				    }
@@ -3648,20 +3644,20 @@ void GnuPlot::PlotOptionMultiValued(df_multivalue_type type, int arg)
 					    IntErrorCurToken("Can only flip x, y, and/or z");
 				    // Check for valid dimensions. 
 				    if(strpbrk(flip_list, "xX")) {
-					    if(_Df.df_bin_record[bin_record_count].cart_dim[0] != 0)
-						    _Df.df_bin_record[bin_record_count].cart_dir[0] = arg;
+					    if(rDf.df_bin_record[bin_record_count].cart_dim[0] != 0)
+						    rDf.df_bin_record[bin_record_count].cart_dir[0] = arg;
 					    else
 						    IntErrorCurToken(cannot_flip_msg);
 				    }
 				    if(strpbrk(flip_list, "yY")) {
-					    if(_Df.df_bin_record[bin_record_count].cart_dim[1] != 0)
-						    _Df.df_bin_record[bin_record_count].cart_dir[1] = arg;
+					    if(rDf.df_bin_record[bin_record_count].cart_dim[1] != 0)
+						    rDf.df_bin_record[bin_record_count].cart_dir[1] = arg;
 					    else
 						    IntErrorCurToken(cannot_flip_msg);
 				    }
 				    if(strpbrk(flip_list, "zZ")) {
-					    if(_Df.df_bin_record[bin_record_count].cart_dim[2] != 0)
-						    _Df.df_bin_record[bin_record_count].cart_dir[2] = arg;
+					    if(rDf.df_bin_record[bin_record_count].cart_dim[2] != 0)
+						    rDf.df_bin_record[bin_record_count].cart_dir[2] = arg;
 					    else
 						    IntErrorCurToken(cannot_flip_msg);
 				    }
@@ -3670,13 +3666,13 @@ void GnuPlot::PlotOptionMultiValued(df_multivalue_type type, int arg)
 				case DF_SCAN: {
 				    // Set the method in which data is scanned from file.  Compare against a set number of strings.
 				    int i;
-				    if(!(_Df.df_bin_record[bin_record_count].cart_dim[0] || _Df.df_bin_record[bin_record_count].scan_dim[0]) || 
-						!(_Df.df_bin_record[bin_record_count].cart_dim[1] || _Df.df_bin_record[bin_record_count].scan_dim[1]))
+				    if(!(rDf.df_bin_record[bin_record_count].cart_dim[0] || rDf.df_bin_record[bin_record_count].scan_dim[0]) || 
+						!(rDf.df_bin_record[bin_record_count].cart_dim[1] || rDf.df_bin_record[bin_record_count].scan_dim[1]))
 					    IntErrorCurToken("Cannot alter scanning method for one-dimensional data");
-				    else if(_Df.df_bin_record[bin_record_count].cart_dim[2] || _Df.df_bin_record[bin_record_count].scan_dim[2]) {
+				    else if(rDf.df_bin_record[bin_record_count].cart_dim[2] || rDf.df_bin_record[bin_record_count].scan_dim[2]) {
 					    for(i = 0; i < sizeof(df_bin_scan_table_3D)/sizeof(df_bin_scan_table_3D_struct); i++)
 						    if(Pgm.EqualsCur(df_bin_scan_table_3D[i].string)) {
-							    memcpy(_Df.df_bin_record[bin_record_count].cart_scan, df_bin_scan_table_3D[i].scan, sizeof(_Df.df_bin_record[0].cart_scan));
+							    memcpy(rDf.df_bin_record[bin_record_count].cart_scan, df_bin_scan_table_3D[i].scan, sizeof(rDf.df_bin_record[0].cart_scan));
 							    break;
 						    }
 					    if(i == sizeof(df_bin_scan_table_3D) / sizeof(df_bin_scan_table_3D_struct))
@@ -3685,27 +3681,27 @@ void GnuPlot::PlotOptionMultiValued(df_multivalue_type type, int arg)
 				    else {
 					    for(i = 0; i < sizeof(df_bin_scan_table_2D)/sizeof(df_bin_scan_table_2D_struct); i++)
 						    if(Pgm.EqualsCur(df_bin_scan_table_2D[i].string)) {
-							    memcpy(_Df.df_bin_record[bin_record_count].cart_scan, df_bin_scan_table_2D[i].scan, sizeof(_Df.df_bin_record[0].cart_scan));
+							    memcpy(rDf.df_bin_record[bin_record_count].cart_scan, df_bin_scan_table_2D[i].scan, sizeof(rDf.df_bin_record[0].cart_scan));
 							    break;
 						    }
 					    if(i == sizeof(df_bin_scan_table_2D) / sizeof(df_bin_scan_table_2D_struct))
 						    IntErrorCurToken("Improper scanning string. Try 2 character string for 2D data");
 				    }
 				    // Remove the file supplied scan direction. 
-				    memcpy(_Df.df_bin_record[bin_record_count].scan_dir, df_bin_record_reset.scan_dir, sizeof(_Df.df_bin_record[0].scan_dir));
+				    memcpy(rDf.df_bin_record[bin_record_count].scan_dir, df_bin_record_reset.scan_dir, sizeof(rDf.df_bin_record[0].scan_dir));
 				    Pgm.Shift();
 				    break;
 			    }
 				case DF_SKIP:
 				    // Set the number of bytes to skip before reading record. 
-				    _Df.df_bin_record[bin_record_count].scan_skip[0] = static_cast<off_t>(tuple[0]);
-				    if((_Df.df_bin_record[bin_record_count].scan_skip[0] != tuple[0]) || (_Df.df_bin_record[bin_record_count].scan_skip[0] < 0))
+				    rDf.df_bin_record[bin_record_count].scan_skip[0] = static_cast<off_t>(tuple[0]);
+				    if((rDf.df_bin_record[bin_record_count].scan_skip[0] != tuple[0]) || (rDf.df_bin_record[bin_record_count].scan_skip[0] < 0))
 					    IntErrorCurToken("Number of bytes to skip must be positive integer");
 				    break;
 				case DF_ORIGIN:
 				case DF_CENTER:
 				    // Set the origin or center of the image based upon the plot mode. 
-				    _Df.df_bin_record[bin_record_count].cart_trans = (type == DF_ORIGIN) ? DF_TRANSLATE_VIA_ORIGIN : DF_TRANSLATE_VIA_CENTER;
+				    rDf.df_bin_record[bin_record_count].cart_trans = (type == DF_ORIGIN) ? DF_TRANSLATE_VIA_ORIGIN : DF_TRANSLATE_VIA_CENTER;
 				    if(arg == MODE_PLOT) {
 					    if(test_val != 2)
 						    IntErrorCurToken("Two-dimensional tuple required for 2D plot");
@@ -3722,7 +3718,7 @@ void GnuPlot::PlotOptionMultiValued(df_multivalue_type type, int arg)
 				    else {
 					    IntErrorCurToken("Internal error (datafile.c): Unknown plot mode");
 				    }
-				    memcpy(_Df.df_bin_record[bin_record_count].cart_cen_or_ori, tuple, sizeof(tuple));
+				    memcpy(rDf.df_bin_record[bin_record_count].cart_cen_or_ori, tuple, sizeof(tuple));
 				    break;
 				case DF_ROTATION:
 				    // Allow user to enter angle in terms of pi or degrees. 
@@ -3735,7 +3731,7 @@ void GnuPlot::PlotOptionMultiValued(df_multivalue_type type, int arg)
 					    Pgm.Shift();
 				    }
 				    // Construct 2D rotation matrix. 
-				    _Df.df_bin_record[bin_record_count].cart_alpha = tuple[0];
+				    rDf.df_bin_record[bin_record_count].cart_alpha = tuple[0];
 				    break;
 				case DF_PERPENDICULAR:
 				    // Make sure in three dimensional plotting mode before
@@ -3746,7 +3742,7 @@ void GnuPlot::PlotOptionMultiValued(df_multivalue_type type, int arg)
 				    // to determine if this is the null vector 
 				    if((tuple[0]*tuple[0] + tuple[1]*tuple[1] + tuple[2]*tuple[2]) < 100.*DBL_EPSILON)
 					    IntErrorCurToken("Perpendicular vector cannot be zero");
-				    memcpy(_Df.df_bin_record[bin_record_count].cart_p, tuple, sizeof(tuple));
+				    memcpy(rDf.df_bin_record[bin_record_count].cart_p, tuple, sizeof(tuple));
 				    break;
 				default:
 				    IntError(NO_CARET, "Internal error: Invalid comma separated type");
@@ -3767,31 +3763,31 @@ void GnuPlot::PlotOptionMultiValued(df_multivalue_type type, int arg)
 // Set the 'bytes' to skip before column 'col'. 
 //
 //void df_set_skip_before(int col, int bytes)
-void GnuPlot::DfSetSkipBefore(int col, int bytes)
+void GnuPlot::DfSetSkipBefore(GpDataFile & rDf, int col, int bytes)
 {
 	assert(col > 0);
 	// Check if we have room at least col columns 
-	if(col > _Df.df_max_bininfo_cols) {
-		_Df.df_column_bininfo = (df_column_bininfo_struct *)SAlloc::R(_Df.df_column_bininfo, col * sizeof(df_column_bininfo_struct));
-		_Df.df_max_bininfo_cols = col;
+	if(col > rDf.df_max_bininfo_cols) {
+		rDf.df_column_bininfo = (df_column_bininfo_struct *)SAlloc::R(rDf.df_column_bininfo, col * sizeof(df_column_bininfo_struct));
+		rDf.df_max_bininfo_cols = col;
 	}
-	_Df.df_column_bininfo[col-1].skip_bytes = bytes;
+	rDf.df_column_bininfo[col-1].skip_bytes = bytes;
 }
 //
 // Set the column data type. 
 //
 //void df_set_read_type(int col, df_data_type type)
-void GnuPlot::DfSetReadType(int col, df_data_type type)
+void GnuPlot::DfSetReadType(GpDataFile & rDf, int col, df_data_type type)
 {
 	assert(col > 0);
 	assert(type < DF_BAD_TYPE);
 	// Check if we have room at least col columns 
-	if(col > _Df.df_max_bininfo_cols) {
-		_Df.df_column_bininfo = (df_column_bininfo_struct *)SAlloc::R(_Df.df_column_bininfo, col * sizeof(df_column_bininfo_struct));
-		_Df.df_max_bininfo_cols = col;
+	if(col > rDf.df_max_bininfo_cols) {
+		rDf.df_column_bininfo = (df_column_bininfo_struct *)SAlloc::R(rDf.df_column_bininfo, col * sizeof(df_column_bininfo_struct));
+		rDf.df_max_bininfo_cols = col;
 	}
-	_Df.df_column_bininfo[col-1].column.read_type = type;
-	_Df.df_column_bininfo[col-1].column.read_size = df_binary_details[type].type.read_size;
+	rDf.df_column_bininfo[col-1].column.read_type = type;
+	rDf.df_column_bininfo[col-1].column.read_size = df_binary_details[type].type.read_size;
 }
 // 
 // If the column number is greater than number of binary columns, set
@@ -3799,15 +3795,15 @@ void GnuPlot::DfSetReadType(int col, df_data_type type)
 // column or the default if none were set.  
 // 
 //void df_extend_binary_columns(int no_cols)
-void GnuPlot::DfExtendBinaryColumns(int no_cols)
+void GnuPlot::DfExtendBinaryColumns(GpDataFile & rDf, int no_cols)
 {
-	if(no_cols > _Df.df_no_bin_cols) {
-		const df_data_type type = (_Df.df_no_bin_cols > 0) ? _Df.df_column_bininfo[_Df.df_no_bin_cols-1].column.read_type : DF_DEFAULT_TYPE;
-		for(int i = no_cols; i > _Df.df_no_bin_cols; i--) {
-			df_set_skip_after(i, 0);
-			DfSetReadType(i, type);
+	if(no_cols > rDf.df_no_bin_cols) {
+		const df_data_type type = (rDf.df_no_bin_cols > 0) ? rDf.df_column_bininfo[rDf.df_no_bin_cols-1].column.read_type : DF_DEFAULT_TYPE;
+		for(int i = no_cols; i > rDf.df_no_bin_cols; i--) {
+			df_set_skip_after(rDf, i, 0);
+			DfSetReadType(rDf, i, type);
 		}
-		_Df.df_no_bin_cols = no_cols;
+		rDf.df_no_bin_cols = no_cols;
 	}
 }
 // 
@@ -3844,8 +3840,8 @@ void GnuPlot::PlotOptionBinaryFormat(char * pFormatString)
 							if(!ignore) {
 								for(int n = 0; n < field_repeat; n++) {
 									no_fields++;
-									df_set_skip_after(no_fields, 0);
-									DfSetReadType(no_fields, df_binary_tables[j].group[k].type.read_type);
+									df_set_skip_after(_Df, no_fields, 0);
+									DfSetReadType(_Df, no_fields, df_binary_tables[j].group[k].type.read_type);
 									prev_read_type = df_binary_tables[j].group[k].type.read_type;
 								}
 							}
@@ -3875,9 +3871,9 @@ void GnuPlot::PlotOptionBinaryFormat(char * pFormatString)
 	// Any remaining unspecified fields are assumed to be of the same type
 	// as the last specified field.
 	for(; no_fields < _Df.df_no_bin_cols; no_fields++) {
-		df_set_skip_after(no_fields, 0);
-		DfSetSkipBefore(no_fields, 0);
-		DfSetReadType(no_fields, (df_data_type)prev_read_type);
+		df_set_skip_after(_Df, no_fields, 0);
+		DfSetSkipBefore(_Df, no_fields, 0);
+		DfSetReadType(_Df, no_fields, (df_data_type)prev_read_type);
 	}
 	_Df.df_no_bin_cols = no_fields;
 }
@@ -4042,7 +4038,7 @@ int GnuPlot::DfSkipBytes(off_t nbytes)
  */
 
 //int df_readbinary(double v[], int max)
-int GnuPlot::DfReadBinary(double v[], int maxSize)
+int GnuPlot::DfReadBinary(GpDataFile & rDf, double v[], int maxSize)
 {
 	// For general column structured binary. 
 	static int scan_size[3];
@@ -4063,38 +4059,38 @@ int GnuPlot::DfReadBinary(double v[], int maxSize)
 	static int first_matrix_row_col_count;
 	bool saved_first_matrix_column = FALSE;
 	assert(maxSize <= MAXDATACOLS);
-	assert(_Df.df_max_bininfo_cols > _Df.df_no_bin_cols);
-	assert(_Df.df_no_bin_cols);
+	assert(rDf.df_max_bininfo_cols > rDf.df_no_bin_cols);
+	assert(rDf.df_no_bin_cols);
 	// catch attempt to read past EOF on mixed-input 
-	if(_Df.df_eof)
+	if(rDf.df_eof)
 		return DF_EOF;
 	// Check if we have room for at least df_no_bin_cols columns 
-	if(_Df.df_max_cols < _Df.df_no_bin_cols)
-		_Df.ExpandColumn(_Df.df_no_bin_cols);
+	if(rDf.df_max_cols < rDf.df_no_bin_cols)
+		rDf.ExpandColumn(rDf.df_no_bin_cols);
 	// In binary mode, the number of user specs was increased by the
 	// number of dimensions in the underlying uniformly sampled grid
 	// previously.  Fill in those values.  Also, compute elements of
 	// formula x' = P*R*(x - c) + o 
-	if(!_Df.df_M_count && !_Df.df_N_count && !_Df.df_O_count) {
+	if(!rDf.df_M_count && !rDf.df_N_count && !rDf.df_O_count) {
 		int i;
 		bool D2, D3;
-		df_binary_file_record_struct * this_record = _Df.df_bin_record + _Df.df_bin_record_count;
+		df_binary_file_record_struct * this_record = rDf.df_bin_record + rDf.df_bin_record_count;
 		scan_size[0] = scan_size[1] = scan_size[2] = 0;
 		D2 = rotation_matrix_2D(R, this_record->cart_alpha);
 		D3 = rotation_matrix_3D(P, this_record->cart_p);
 		translation_required = D2 || D3;
-		if(_Df.df_matrix_file) {
+		if(rDf.df_matrix_file) {
 			// Dimensions 
 			scan_size[0] = this_record->scan_dim[0];
 			scan_size[1] = this_record->scan_dim[1];
-			if(_Df.df_xpixels == 0) {
+			if(rDf.df_xpixels == 0) {
 				/* df_xpixels and df_ypixels were corrected for ascii `matrix every`
 				 * but scan_size was not. For that case we must not overwrite here.
 				 * For binary matrix, df_xpixels is still 0.
 				 */
 				FPRINTF((stderr, "datafile.c:%d matrix dimensions %d x %d\n", __LINE__, scan_size[1], scan_size[0]));
-				_Df.df_xpixels = scan_size[1];
-				_Df.df_ypixels = scan_size[0];
+				rDf.df_xpixels = scan_size[1];
+				rDf.df_ypixels = scan_size[0];
 			}
 			if(scan_size[0] == 0)
 				IntError(NO_CARET, "Scan size of matrix is zero");
@@ -4128,7 +4124,7 @@ int GnuPlot::DfReadBinary(double v[], int maxSize)
 				// How to direct the generated coordinates in regard to scan direction 
 				if(this_record->cart_dim[i] || this_record->scan_dim[i]) {
 					if(this_record->scan_generate_coord)
-						_Df.UseSpec[i].column = this_record->cart_scan[i];
+						rDf.UseSpec[i].column = this_record->cart_scan[i];
 				}
 				// Dimensions 
 				const int map = DF_SCAN_POINT - this_record->cart_scan[i];
@@ -4161,27 +4157,27 @@ int GnuPlot::DfReadBinary(double v[], int maxSize)
 		for(i = 0; i < 3; i++)
 			translation_required = translation_required || (c[i] != o[i]);
 		memory_data = this_record->memory_data; // Should data come from memory? 
-		read_order = byte_read_order(_Df.BinFileEndianess); // byte read order 
+		read_order = byte_read_order(rDf.BinFileEndianess); // byte read order 
 		record_skip = this_record->scan_skip[0]; // amount to skip before first record 
 		end_of_scan_line = FALSE;
 		end_of_block = FALSE;
-		_Df.PointCount = -1;
-		_Df.LineCount = 0;
-		_Df.df_current_index = _Df.df_bin_record_count;
-		_Df.df_last_index_read = _Df.df_current_index;
+		rDf.PointCount = -1;
+		rDf.LineCount = 0;
+		rDf.df_current_index = rDf.df_bin_record_count;
+		rDf.df_last_index_read = rDf.df_current_index;
 		// Craig DeForest Feb 2013 - Fast version of uniform binary matrix.
 		// Don't apply this to ascii input or special filetypes.
 		// Slurp all data from file or pipe in one shot to minimize fread calls.
-		if(!memory_data && !_Df.BinFileType && _Df.df_binary_file && _Df.df_matrix && !_Df.df_nonuniform_matrix) {
+		if(!memory_data && !rDf.BinFileType && rDf.df_binary_file && rDf.df_matrix && !rDf.df_nonuniform_matrix) {
 			ulong bytes_per_point = 0;
 			ulong bytes_per_line = 0;
 			ulong bytes_per_plane = 0;
 			ulong bytes_total = 0;
 			size_t fread_ret;
 			// Accumulate total number of bytes in this tuple 
-			for(int i = 0; i < _Df.df_no_bin_cols; i++)
-				bytes_per_point += _Df.df_column_bininfo[i].skip_bytes + _Df.df_column_bininfo[i].column.read_size;
-			bytes_per_point += _Df.df_column_bininfo[_Df.df_no_bin_cols].skip_bytes;
+			for(int i = 0; i < rDf.df_no_bin_cols; i++)
+				bytes_per_point += rDf.df_column_bininfo[i].skip_bytes + rDf.df_column_bininfo[i].column.read_size;
+			bytes_per_point += rDf.df_column_bininfo[rDf.df_no_bin_cols].skip_bytes;
 			bytes_per_line  = bytes_per_point * ((scan_size[0] > 0) ? scan_size[0] : 1);
 			bytes_per_plane = bytes_per_line * ((scan_size[1] > 0) ? scan_size[1] : 1);
 			bytes_total     = bytes_per_plane * ((scan_size[2]>0) ? scan_size[2] : 1);
@@ -4192,15 +4188,15 @@ int GnuPlot::DfReadBinary(double v[], int maxSize)
 			FPRINTF((stderr, "Fast matrix code:\n"));
 			FPRINTF((stderr, "\t\t skip %ld bytes, read %ld bytes per point %ld total as %d x %d array\n", record_skip, bytes_per_point, bytes_total, scan_size[0], scan_size[1]));
 			// Do the actual slurping 
-			fread_ret = fread(memory_data, 1, bytes_total, _Df.data_fp);
+			fread_ret = fread(memory_data, 1, bytes_total, rDf.data_fp);
 			if(fread_ret != bytes_total) {
 				IntWarn(NO_CARET, "Couldn't slurp %ld bytes (return was %zd)\n", bytes_total, fread_ret);
-				_Df.df_eof = 1;
+				rDf.df_eof = 1;
 				return DF_EOF;
 			}
 		}
 	}
-	while(!_Df.df_eof) {
+	while(!rDf.df_eof) {
 		/*{{{  process line */
 		bool line_okay = TRUE;
 		int output = 0; /* how many numbers written to v[] */
@@ -4232,13 +4228,13 @@ int GnuPlot::DfReadBinary(double v[], int maxSize)
 		/* Handle end of line or end of block on previous read. */
 		if(end_of_scan_line) {
 			end_of_scan_line = FALSE;
-			_Df.PointCount = -1;
-			_Df.LineCount++;
+			rDf.PointCount = -1;
+			rDf.LineCount++;
 			return DF_FIRST_BLANK;
 		}
 		if(end_of_block) {
 			end_of_block = FALSE;
-			_Df.LineCount = 0;
+			rDf.LineCount = 0;
 			return DF_SECOND_BLANK;
 		}
 		// Possibly skip bytes before starting to read record. 
@@ -4253,7 +4249,7 @@ int GnuPlot::DfReadBinary(double v[], int maxSize)
 		 * If less than than the appropriate number of bytes have been
 		 * read, issue an error stating not enough columns were found.  */
 		for(i = 0;; i++) {
-			off_t skip_bytes = _Df.df_column_bininfo[i].skip_bytes;
+			off_t skip_bytes = rDf.df_column_bininfo[i].skip_bytes;
 			if(skip_bytes) {
 				if(memory_data)
 					memory_data += skip_bytes;
@@ -4261,59 +4257,59 @@ int GnuPlot::DfReadBinary(double v[], int maxSize)
 					return DF_EOF;
 			}
 			// Last entry only has skip bytes, no data.
-			if(i == _Df.df_no_bin_cols)
+			if(i == rDf.df_no_bin_cols)
 				break;
 			// Read in a "column", i.e., a binary value of various types.
-			if(_Df.df_pixeldata) {
-				io_val.uc = df_libgd_get_pixel(_Df.df_M_count, _Df.df_N_count, i);
+			if(rDf.df_pixeldata) {
+				io_val.uc = df_libgd_get_pixel(rDf.df_M_count, rDf.df_N_count, i);
 			}
 			else if(memory_data) {
-				for(fread_ret = 0; fread_ret < _Df.df_column_bininfo[i].column.read_size; fread_ret++)
+				for(fread_ret = 0; fread_ret < rDf.df_column_bininfo[i].column.read_size; fread_ret++)
 					(&io_val.ch)[fread_ret] = *memory_data++;
 			}
 			else {
-				fread_ret = fread(&io_val.ch, _Df.df_column_bininfo[i].column.read_size, 1, _Df.data_fp);
+				fread_ret = fread(&io_val.ch, rDf.df_column_bininfo[i].column.read_size, 1, rDf.data_fp);
 				if(fread_ret != 1) {
-					_Df.df_eof = 1;
+					rDf.df_eof = 1;
 					return DF_EOF;
 				}
 			}
 			if(read_order != 0)
-				df_swap_bytes_by_endianess(&io_val.ch, read_order, _Df.df_column_bininfo[i].column.read_size);
-			switch(_Df.df_column_bininfo[i].column.read_type) {
-				case DF_CHAR: _Df.df_column[i].datum = io_val.ch; break;
-				case DF_UCHAR: _Df.df_column[i].datum = io_val.uc; break;
-				case DF_SHORT: _Df.df_column[i].datum = io_val.sh; break;
-				case DF_USHORT: _Df.df_column[i].datum = io_val.us; break;
-				case DF_INT: _Df.df_column[i].datum = io_val.in; break;
-				case DF_UINT: _Df.df_column[i].datum = io_val.ui; break;
-				case DF_LONG: _Df.df_column[i].datum = io_val.lo; break;
-				case DF_ULONG: _Df.df_column[i].datum = io_val.ul; break;
-				case DF_LONGLONG: _Df.df_column[i].datum = static_cast<double>(io_val.llo); break;
-				case DF_ULONGLONG: _Df.df_column[i].datum = static_cast<double>(io_val.ull); break;
-				case DF_FLOAT: _Df.df_column[i].datum = io_val.fl; break;
-				case DF_DOUBLE: _Df.df_column[i].datum = io_val.db; break;
+				df_swap_bytes_by_endianess(&io_val.ch, read_order, rDf.df_column_bininfo[i].column.read_size);
+			switch(rDf.df_column_bininfo[i].column.read_type) {
+				case DF_CHAR: rDf.df_column[i].datum = io_val.ch; break;
+				case DF_UCHAR: rDf.df_column[i].datum = io_val.uc; break;
+				case DF_SHORT: rDf.df_column[i].datum = io_val.sh; break;
+				case DF_USHORT: rDf.df_column[i].datum = io_val.us; break;
+				case DF_INT: rDf.df_column[i].datum = io_val.in; break;
+				case DF_UINT: rDf.df_column[i].datum = io_val.ui; break;
+				case DF_LONG: rDf.df_column[i].datum = io_val.lo; break;
+				case DF_ULONG: rDf.df_column[i].datum = io_val.ul; break;
+				case DF_LONGLONG: rDf.df_column[i].datum = static_cast<double>(io_val.llo); break;
+				case DF_ULONGLONG: rDf.df_column[i].datum = static_cast<double>(io_val.ull); break;
+				case DF_FLOAT: rDf.df_column[i].datum = io_val.fl; break;
+				case DF_DOUBLE: rDf.df_column[i].datum = io_val.db; break;
 				default: IntError(NO_CARET, "Binary data type unknown");
 			}
-			_Df.df_column[i].good = DF_GOOD;
-			_Df.df_column[i].position = NULL; /* cant get a time */
+			rDf.df_column[i].good = DF_GOOD;
+			rDf.df_column[i].position = NULL; /* cant get a time */
 			// Matrix file data is a special case. After reading in just one binary value, stop and decide on what to do with it. 
-			if(_Df.df_matrix_file)
+			if(rDf.df_matrix_file)
 				break;
 		} /* for(i) */
-		if(_Df.df_matrix_file) {
-			if(_Df.df_nonuniform_matrix) {
+		if(rDf.df_matrix_file) {
+			if(rDf.df_nonuniform_matrix) {
 				// Store just first column? 
-				if(!_Df.df_M_count && !saved_first_matrix_column) {
-					first_matrix_column = _Df.df_column[i].datum;
+				if(!rDf.df_M_count && !saved_first_matrix_column) {
+					first_matrix_column = rDf.df_column[i].datum;
 					saved_first_matrix_column = TRUE;
 					continue;
 				}
 				// Read reset of first row? 
-				if(!_Df.df_M_count && !_Df.df_N_count && !_Df.df_O_count && first_matrix_row_col_count < scan_size[0]) {
+				if(!rDf.df_M_count && !rDf.df_N_count && !rDf.df_O_count && first_matrix_row_col_count < scan_size[0]) {
 					if(!first_matrix_row_col_count)
 						scanned_matrix_row = (double *)SAlloc::R(scanned_matrix_row, scan_size[0]*sizeof(double));
-					scanned_matrix_row[first_matrix_row_col_count] = _Df.df_column[i].datum;
+					scanned_matrix_row[first_matrix_row_col_count] = rDf.df_column[i].datum;
 					first_matrix_row_col_count++;
 					if(first_matrix_row_col_count == scan_size[0])
 						saved_first_matrix_column = false; // Start of the second row
@@ -4326,51 +4322,51 @@ int GnuPlot::DfReadBinary(double v[], int maxSize)
 			 * column.  There can only be one column of data input
 			 * because it is a matrix of data, not columns.  */
 			{
-				_Df.df_datum = static_cast<int>(_Df.df_column[i].datum);
+				rDf.df_datum = static_cast<int>(rDf.df_column[i].datum);
 				// Fill backward so that current read value is not overwritten. 
-				for(int j = _Df.df_no_bin_cols-1; j >= 0; j--) {
+				for(int j = rDf.df_no_bin_cols-1; j >= 0; j--) {
 					if(j == 0)
-						_Df.df_column[j].datum = _Df.df_nonuniform_matrix ? scanned_matrix_row[_Df.df_M_count] : _Df.df_M_count;
+						rDf.df_column[j].datum = rDf.df_nonuniform_matrix ? scanned_matrix_row[rDf.df_M_count] : rDf.df_M_count;
 					else if(j == 1)
-						_Df.df_column[j].datum = _Df.df_nonuniform_matrix ? first_matrix_column : _Df.df_N_count;
+						rDf.df_column[j].datum = rDf.df_nonuniform_matrix ? first_matrix_column : rDf.df_N_count;
 					else
-						_Df.df_column[j].datum = _Df.df_column[i].datum;
-					_Df.df_column[j].good = DF_GOOD;
-					_Df.df_column[j].position = NULL;
+						rDf.df_column[j].datum = rDf.df_column[i].datum;
+					rDf.df_column[j].good = DF_GOOD;
+					rDf.df_column[j].position = NULL;
 				}
 			}
 		}
 		else { // Not matrix file, general binary. 
-			_Df.df_datum = _Df.PointCount + 1;
-			if(i != _Df.df_no_bin_cols) {
-				if(feof(_Df.data_fp)) {
+			rDf.df_datum = rDf.PointCount + 1;
+			if(i != rDf.df_no_bin_cols) {
+				if(feof(rDf.data_fp)) {
 					if(i != 0)
 						IntError(NO_CARET, "Last point in the binary file did not match the specified `using` columns");
-					_Df.df_eof = 1;
+					rDf.df_eof = 1;
 					return DF_EOF;
 				}
 				else
 					IntError(NO_CARET, read_error_msg);
 			}
 		}
-		m_value = _Df.df_M_count;
-		n_value = _Df.df_N_count;
-		o_value = _Df.df_O_count;
-		_Df.df_M_count++;
-		if((scan_size[0] > 0) && (_Df.df_M_count >= scan_size[0])) {
+		m_value = rDf.df_M_count;
+		n_value = rDf.df_N_count;
+		o_value = rDf.df_O_count;
+		rDf.df_M_count++;
+		if((scan_size[0] > 0) && (rDf.df_M_count >= scan_size[0])) {
 			// This is a new "line". 
-			_Df.df_M_count = 0;
-			_Df.df_N_count++;
+			rDf.df_M_count = 0;
+			rDf.df_N_count++;
 			end_of_scan_line = TRUE;
-			if((scan_size[1] >= 0) && (_Df.df_N_count >= scan_size[1])) {
+			if((scan_size[1] >= 0) && (rDf.df_N_count >= scan_size[1])) {
 				// This is a "block". 
-				_Df.df_N_count = 0;
-				_Df.df_O_count++;
-				if((scan_size[2] >= 0) && (_Df.df_O_count >= scan_size[2])) {
-					_Df.df_O_count = 0;
+				rDf.df_N_count = 0;
+				rDf.df_O_count++;
+				if((scan_size[2] >= 0) && (rDf.df_O_count >= scan_size[2])) {
+					rDf.df_O_count = 0;
 					end_of_block = TRUE;
-					if(++_Df.df_bin_record_count >= _Df.NumBinRecords) {
-						_Df.df_eof = 1;
+					if(++rDf.df_bin_record_count >= rDf.NumBinRecords) {
+						rDf.df_eof = 1;
 					}
 				}
 			}
@@ -4378,53 +4374,53 @@ int GnuPlot::DfReadBinary(double v[], int maxSize)
 		/*{{{  ignore points outside range of index */
 		/* we try to return end-of-file as soon as we pass upper
 		 * index, but for mixed input stream, we must skip garbage */
-		if(_Df.df_current_index < _Df.df_lower_index || _Df.df_current_index > _Df.df_upper_index || ((_Df.df_current_index - _Df.df_lower_index) % _Df.df_index_step) != 0)
+		if(rDf.df_current_index < rDf.df_lower_index || rDf.df_current_index > rDf.df_upper_index || ((rDf.df_current_index - rDf.df_lower_index) % rDf.df_index_step) != 0)
 			continue;
 		/*}}} */
 		/*{{{  reject points by every */
 		// accept only lines with (line_count%everyline) == 0
-		if(_Df.LineCount < _Df.firstline || _Df.LineCount > _Df.lastline || (_Df.LineCount - _Df.firstline) % _Df.everyline != 0)
+		if(rDf.LineCount < rDf.firstline || rDf.LineCount > rDf.lastline || (rDf.LineCount - rDf.firstline) % rDf.everyline != 0)
 			continue;
 		// update point_count. ignore point if point_count%everypoint != 0 
-		if(++_Df.PointCount < _Df.FirstPoint || _Df.PointCount > _Df.LastPoint || (_Df.PointCount - _Df.FirstPoint) % _Df.EveryPoint != 0)
+		if(++rDf.PointCount < rDf.FirstPoint || rDf.PointCount > rDf.LastPoint || (rDf.PointCount - rDf.FirstPoint) % rDf.EveryPoint != 0)
 			continue;
 		/*}}} */
 		/* At this point the binary columns have been read
 		 * successfully.  Set df_no_cols to df_no_bin_cols for use
 		 * in the interpretation code.  */
-		_Df.df_no_cols = _Df.df_no_bin_cols;
+		rDf.df_no_cols = rDf.df_no_bin_cols;
 		/*{{{  copy column[] to v[] via use[] */
 		{
-			int limit = (_Df.df_no_use_specs ? _Df.df_no_use_specs : MAXDATACOLS);
+			int limit = (rDf.df_no_use_specs ? rDf.df_no_use_specs : MAXDATACOLS);
 			SETMIN(limit, maxSize);
 			for(output = 0; output < limit; ++output) {
-				int column = _Df.UseSpec[output].column;
+				int column = rDf.UseSpec[output].column;
 				// if there was no using spec, column is output+1 and at=NULL 
-				if(_Df.UseSpec[output].at) {
+				if(rDf.UseSpec[output].at) {
 					GpValue a;
 					// no dummy values to set up prior to... 
-					_Df.evaluate_inside_using = true;
-					EvaluateAt(_Df.UseSpec[output].at, &a);
-					_Df.evaluate_inside_using = false;
+					rDf.evaluate_inside_using = true;
+					EvaluateAt(rDf.UseSpec[output].at, &a);
+					rDf.evaluate_inside_using = false;
 					if(Ev.IsUndefined_) {
 						v[output] = fgetnan();
 						return DF_UNDEFINED;
 					}
 					if(a.Type == STRING) {
 						v[output] = fgetnan(); /* found a string, not a number */
-						if(_Df.UseSpec[output].expected_type == CT_STRING) {
+						if(rDf.UseSpec[output].expected_type == CT_STRING) {
 							char * s = (char *)SAlloc::M(strlen(a.v.string_val)+3);
 							*s = '"';
 							strcpy(s+1, a.v.string_val);
 							strcat(s, "\"");
-							SAlloc::F(_Df.df_stringexpression[output]);
-							_Df.df_tokens[output] = _Df.df_stringexpression[output] = s;
+							SAlloc::F(rDf.df_stringexpression[output]);
+							rDf.df_tokens[output] = rDf.df_stringexpression[output] = s;
 						}
 						// Expecting a numerical type but got a string value 
-						else if(_Df.df_current_plot && (_Df.df_current_plot->lp_properties.PtType == PT_VARIABLE)) {
+						else if(rDf.df_current_plot && (rDf.df_current_plot->lp_properties.PtType == PT_VARIABLE)) {
 							static char varchar[8];
 							strnzcpy(varchar, a.v.string_val, 8);
-							_Df.df_tokens[output] = varchar;
+							rDf.df_tokens[output] = varchar;
 						}
 						gpfree_string(&a);
 						continue; /* otherwise isnan(v[output]) would terminate */
@@ -4440,7 +4436,7 @@ int GnuPlot::DfReadBinary(double v[], int maxSize)
 					}
 				}
 				else if(column == DF_SCAN_PLANE) {
-					if((_Df.df_current_plot->plot_style == IMAGE) || (_Df.df_current_plot->plot_style == RGBIMAGE))
+					if((rDf.df_current_plot->plot_style == IMAGE) || (rDf.df_current_plot->plot_style == RGBIMAGE))
 						v[output] = o_value*delta[2];
 					/* EAM August 2009
 					 * This was supposed to be "z" in a 3D grid holding a binary
@@ -4452,7 +4448,7 @@ int GnuPlot::DfReadBinary(double v[], int maxSize)
 					 * to draw surfaces described by a 2D binary array.
 					 */
 					else
-						v[output] = _Df.df_column[0].datum;
+						v[output] = rDf.df_column[0].datum;
 				}
 				else if(column == DF_SCAN_LINE) {
 					v[output] = n_value*delta[1];
@@ -4461,13 +4457,13 @@ int GnuPlot::DfReadBinary(double v[], int maxSize)
 					v[output] = m_value*delta[0];
 				}
 				else if(column == -2) {
-					v[output] = _Df.df_current_index;
+					v[output] = rDf.df_current_index;
 				}
 				else if(column == -1) {
-					v[output] = _Df.LineCount;
+					v[output] = rDf.LineCount;
 				}
 				else if(column == 0) {
-					v[output] = _Df.df_datum;
+					v[output] = rDf.df_datum;
 				}
 				else if(column <= 0) {
 					IntError(NO_CARET, "internal error: unknown column type");
@@ -4475,8 +4471,8 @@ int GnuPlot::DfReadBinary(double v[], int maxSize)
 					/* But time data in a binary file is just one more binary value, */
 					/* so let the general case code handle it.                       */
 				}
-				else if((column <= _Df.df_no_cols) && _Df.df_column[column-1].good == DF_GOOD)
-					v[output] = _Df.df_column[column-1].datum;
+				else if((column <= rDf.df_no_cols) && rDf.df_column[column-1].good == DF_GOOD)
+					v[output] = rDf.df_column[column-1].datum;
 
 				/* EAM - Oct 2002 Distinguish between DF_MISSING
 				 * and DF_BAD.  Previous versions would never
@@ -4484,18 +4480,18 @@ int GnuPlot::DfReadBinary(double v[], int maxSize)
 				 * will be noted. Bad data should arguably be
 				 * noted also, but that would change existing
 				 * default behavior.  */
-				else if((column <= _Df.df_no_cols) && (_Df.df_column[column-1].good == DF_MISSING))
+				else if((column <= rDf.df_no_cols) && (rDf.df_column[column-1].good == DF_MISSING))
 					return DF_MISSING;
 				else {
 					// line bad only if user explicitly asked for this column 
-					if(_Df.df_no_use_specs)
+					if(rDf.df_no_use_specs)
 						line_okay = FALSE;
 					break; // return or ignore depending on line_okay 
 				}
 				if(isnan(v[output])) {
 					// EAM April 2012 - return, continue, or ignore??? 
 					FPRINTF((stderr, "NaN input value"));
-					if(!_Df.df_matrix)
+					if(!rDf.df_matrix)
 						return DF_UNDEFINED;
 				}
 			}
@@ -4506,7 +4502,7 @@ int GnuPlot::DfReadBinary(double v[], int maxSize)
 				double y = v[1] - c[1];
 				v[0] = R[0][0] * x + R[0][1] * y;
 				v[1] = R[1][0] * x + R[1][1] * y;
-				if(_Df.df_plot_mode == MODE_SPLOT) {
+				if(rDf.df_plot_mode == MODE_SPLOT) {
 					x = v[0];
 					y = v[1];
 					z = v[2] - c[2];
@@ -4516,22 +4512,22 @@ int GnuPlot::DfReadBinary(double v[], int maxSize)
 				}
 				v[0] += o[0];
 				v[1] += o[1];
-				if(_Df.df_plot_mode == MODE_SPLOT)
+				if(rDf.df_plot_mode == MODE_SPLOT)
 					v[2] += o[2];
 			}
 		}
 		/*}}} */
 		if(!line_okay)
 			continue;
-		for(i = _Df.df_no_use_specs; i < _Df.df_no_use_specs+_Df.df_no_tic_specs; i++) {
-			if(_Df.UseSpec[i].expected_type >= CT_XTICLABEL && _Df.UseSpec[i].at) {
+		for(i = rDf.df_no_use_specs; i < rDf.df_no_use_specs+rDf.df_no_tic_specs; i++) {
+			if(rDf.UseSpec[i].expected_type >= CT_XTICLABEL && rDf.UseSpec[i].at) {
 				GpValue a;
 				int axis, axcol;
-				_Df.evaluate_inside_using = true;
-				EvaluateAt(_Df.UseSpec[i].at, &a);
-				_Df.evaluate_inside_using = false;
+				rDf.evaluate_inside_using = true;
+				EvaluateAt(rDf.UseSpec[i].at, &a);
+				rDf.evaluate_inside_using = false;
 				if(a.Type == STRING) {
-					axcol = AxColForTicLabel((COLUMN_TYPE)_Df.UseSpec[i].expected_type, &axis);
+					axcol = AxColForTicLabel((COLUMN_TYPE)rDf.UseSpec[i].expected_type, &axis);
 					AddTicUser(&AxS[axis], a.v.string_val, v[axcol], -1);
 					gpfree_string(&a);
 				}
@@ -4540,7 +4536,7 @@ int GnuPlot::DfReadBinary(double v[], int maxSize)
 		return output;
 	}
 	/*}}} */
-	_Df.df_eof = 1;
+	rDf.df_eof = 1;
 	return DF_EOF;
 }
 
@@ -4554,17 +4550,17 @@ void GnuPlot::DfSetPlotMode(int mode)
 // Special pseudofile '++' returns x and y coordinates of grid for 3D plots.
 //
 //static char * df_generate_pseudodata()
-char * GnuPlot::DfGeneratePseudodata()
+char * GnuPlot::DfGeneratePseudodata(GpDataFile & rDf)
 {
 	// Pseudofile '+' returns a set of (samples) x coordinates */
 	// This code copied from that in second pass through eval_plots() */
-	if(_Df.df_pseudodata == 1) {
+	if(rDf.df_pseudodata == 1) {
 		static double t;
 		static RealRange t_range;
 		//static double t_min;
 		//static double t_max;
 		static double t_step;
-		if(_Df.df_pseudorecord == 0) {
+		if(rDf.df_pseudorecord == 0) {
 			t_step = 0;
 			if(AxS[SAMPLE_AXIS].range_flags & RANGE_SAMPLED) {
 				t_range.Set(AxS[SAMPLE_AXIS].Range.low, AxS[SAMPLE_AXIS].Range.upp);
@@ -4603,7 +4599,7 @@ char * GnuPlot::DfGeneratePseudodata()
 			if(t_step == 0.0) // prevent infinite loop on zero range 
 				t_step = 1.0;
 		}
-		t = t_range.low + _Df.df_pseudorecord * t_step;
+		t = t_range.low + rDf.df_pseudorecord * t_step;
 		if((AxS[SAMPLE_AXIS].range_flags & RANGE_SAMPLED)) {
 			// This is the case of an explicit sampling range 
 			// @v11.3.7 if(!inrange(t, t_min, t_max)) {
@@ -4613,7 +4609,7 @@ char * GnuPlot::DfGeneratePseudodata()
 		}
 		else {
 			// This is the usual case 
-			if(_Df.df_pseudorecord >= Gg.Samples1)
+			if(rDf.df_pseudorecord >= Gg.Samples1)
 				return NULL;
 			if(AxS.__X().IsNonLinear()) {
 				const GpAxis * visible = AxS.__X().linked_to_primary->linked_to_secondary;
@@ -4622,15 +4618,15 @@ char * GnuPlot::DfGeneratePseudodata()
 		}
 		// This allows commands of the form
 		// plot sample [foo=0:10] '+' using (sin(foo)):(cos(foo)):(foo)
-		if(_Df.df_current_plot && _Df.df_current_plot->sample_var)
-			Gcomplex(&(_Df.df_current_plot->sample_var->udv_value), t, 0.0);
-		_Df.df_pseudovalue_0 = t;
-		sprintf(_Df.df_line, "%g", t);
-		++_Df.df_pseudorecord;
+		if(rDf.df_current_plot && rDf.df_current_plot->sample_var)
+			Gcomplex(&(rDf.df_current_plot->sample_var->udv_value), t, 0.0);
+		rDf.df_pseudovalue_0 = t;
+		sprintf(rDf.df_line, "%g", t);
+		++rDf.df_pseudorecord;
 	}
 	// Pseudofile '++' returns a (samples X isosamples) grid of x,y coordinates 
 	// This code copied from that in second pass through eval_3dplots 
-	if(_Df.df_pseudodata == 2) {
+	if(rDf.df_pseudodata == 2) {
 		static RealRange u_range;
 		static RealRange v_range;
 		//static double u_min;
@@ -4649,7 +4645,7 @@ char * GnuPlot::DfGeneratePseudodata()
 		AXIS_INDEX u_axis = U_AXIS;
 		AXIS_INDEX v_axis = V_AXIS;
 		// Fill in the static variables only once per plot 
-		if(_Df.df_pseudospan == 0 && _Df.df_pseudorecord == 0) {
+		if(rDf.df_pseudospan == 0 && rDf.df_pseudorecord == 0) {
 			if(Gg.Samples1 < 2 || Gg.Samples2 < 2 || Gg.IsoSamples1 < 2 || Gg.IsoSamples2 < 2)
 				IntError(NO_CARET, "samples or iso_samples < 2. Must be at least 2.");
 			if(Gg.Parametric) {
@@ -4694,39 +4690,39 @@ char * GnuPlot::DfGeneratePseudodata()
 			}
 		}
 		// wrap at end of each line 
-		if(_Df.df_pseudorecord >= nusteps) {
-			_Df.df_pseudorecord = 0;
-			if(++_Df.df_pseudospan >= nvsteps)
+		if(rDf.df_pseudorecord >= nusteps) {
+			rDf.df_pseudorecord = 0;
+			if(++rDf.df_pseudospan >= nvsteps)
 				return NULL;
 			else
 				return const_cast<char *>(""); // @badcast blank record for end of scan line 
 		}
 		// Duplicate algorithm from calculate_set_of_isolines() 
-		u = u_range.low + _Df.df_pseudorecord * u_step;
-		v = v_range.upp - _Df.df_pseudospan * v_isostep;
+		u = u_range.low + rDf.df_pseudorecord * u_step;
+		v = v_range.upp - rDf.df_pseudospan * v_isostep;
 		// Round-off error is most visible at the border 
-		if(_Df.df_pseudorecord == nusteps-1)
+		if(rDf.df_pseudorecord == nusteps-1)
 			u = u_range.upp;
-		if(_Df.df_pseudospan == nvsteps-1)
+		if(rDf.df_pseudospan == nvsteps-1)
 			v = v_range.low;
 		if(Gg.Parametric) {
-			_Df.df_pseudovalue_0 = u;
-			_Df.df_pseudovalue_1 = v;
+			rDf.df_pseudovalue_0 = u;
+			rDf.df_pseudovalue_1 = v;
 		}
 		else {
-			_Df.df_pseudovalue_0 = AxS[u_axis].IsNonLinear() ? EvalLinkFunction(&AxS[u_axis], u) : u;
-			_Df.df_pseudovalue_1 = AxS[v_axis].IsNonLinear() ? EvalLinkFunction(&AxS[v_axis], v) : v;
+			rDf.df_pseudovalue_0 = AxS[u_axis].IsNonLinear() ? EvalLinkFunction(&AxS[u_axis], u) : u;
+			rDf.df_pseudovalue_1 = AxS[v_axis].IsNonLinear() ? EvalLinkFunction(&AxS[v_axis], v) : v;
 		}
-		sprintf(_Df.df_line, "%g %g", _Df.df_pseudovalue_0, _Df.df_pseudovalue_1);
-		++_Df.df_pseudorecord;
+		sprintf(rDf.df_line, "%g %g", rDf.df_pseudovalue_0, rDf.df_pseudovalue_1);
+		++rDf.df_pseudorecord;
 		// This allows commands of the form
 		//   splot sample [foo=0:10][baz=44:55] '++' using (foo):(baz):(foo*baz)
-		if(_Df.df_current_plot && _Df.df_current_plot->sample_var)
-			Gcomplex(&(_Df.df_current_plot->sample_var->udv_value), _Df.df_pseudovalue_0, 0.0);
-		if(_Df.df_current_plot && _Df.df_current_plot->sample_var2)
-			Gcomplex(&(_Df.df_current_plot->sample_var2->udv_value), _Df.df_pseudovalue_1, 0.0);
+		if(rDf.df_current_plot && rDf.df_current_plot->sample_var)
+			Gcomplex(&(rDf.df_current_plot->sample_var->udv_value), rDf.df_pseudovalue_0, 0.0);
+		if(rDf.df_current_plot && rDf.df_current_plot->sample_var2)
+			Gcomplex(&(rDf.df_current_plot->sample_var2->udv_value), rDf.df_pseudovalue_1, 0.0);
 	}
-	return _Df.df_line;
+	return rDf.df_line;
 }
 // 
 // The main loop in df_readascii wants a string to process.

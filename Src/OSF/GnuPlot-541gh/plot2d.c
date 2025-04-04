@@ -180,7 +180,7 @@ void GnuPlot::RefreshBounds(GpTermEntry * pTerm, curve_points * pFirstPlot, int 
 // it will later be moved past title/with/linetype/pointtype
 //
 //static int get_data(curve_points * current_plot)
-int GnuPlot::GetData(curve_points * pPlot)
+int GnuPlot::GetData(GpDataFile rDf, curve_points * pPlot)
 {
 	int i /* num. points ! */, j;
 	int ngood;
@@ -219,19 +219,19 @@ int GnuPlot::GetData(curve_points * pPlot)
 	/* HBB NEW 20060427: if there's only one, explicit using column,
 	 * it's y data.  df_axis[] has to reflect that, so df_readline()
 	 * will expect time/date input. */
-	if(_Df.df_no_use_specs == 1)
-		_Df.df_axis[0] = _Df.df_axis[1];
+	if(rDf.df_no_use_specs == 1)
+		rDf.df_axis[0] = rDf.df_axis[1];
 	switch(pPlot->plot_style) { /* set maximum columns to scan */
 		case XYERRORLINES:
 		case XYERRORBARS:
 		case BOXXYERROR:
 		    min_cols = 4;
 		    max_cols = 7;
-		    if(_Df.df_no_use_specs >= 6) {
+		    if(rDf.df_no_use_specs >= 6) {
 			    // HBB 20060427: signal 3rd and 4th column are absolute x data --- needed so time/date parsing works 
-			    _Df.df_axis[2] = _Df.df_axis[3] = _Df.df_axis[0];
+			    rDf.df_axis[2] = rDf.df_axis[3] = rDf.df_axis[0];
 			    // and 5th and 6th are absolute y data 
-			    _Df.df_axis[4] = _Df.df_axis[5] = _Df.df_axis[1];
+			    rDf.df_axis[4] = rDf.df_axis[5] = rDf.df_axis[1];
 		    }
 		    break;
 		case FINANCEBARS:
@@ -240,31 +240,31 @@ int GnuPlot::GetData(curve_points * pPlot)
 		    min_cols = 5;
 		    max_cols = 6;
 		    // HBB 20060427: signal 3rd and 4th column are absolute y data --- needed so time/date parsing works
-		    _Df.df_axis[2] = _Df.df_axis[3] = _Df.df_axis[4] = _Df.df_axis[1];
+		    rDf.df_axis[2] = rDf.df_axis[3] = rDf.df_axis[4] = rDf.df_axis[1];
 		    break;
 		case BOXPLOT:
-		    min_cols = 2; /* fixed x, lots of y data points */
-		    max_cols = 4; /* optional width, optional factor */
+		    min_cols = 2; // fixed x, lots of y data points
+		    max_cols = 4; // optional width, optional factor
 		    ExpectString(4);
 		    break;
 		case CANDLESTICKS:
 		    pPlot->AxIdx_Z = pPlot->AxIdx_Y;
 		    min_cols = 5;
 		    max_cols = 7;
-		    _Df.df_axis[2] = _Df.df_axis[3] = _Df.df_axis[4] = _Df.df_axis[1];
+		    rDf.df_axis[2] = rDf.df_axis[3] = rDf.df_axis[4] = rDf.df_axis[1];
 		    break;
 		case BOXERROR:
 		    min_cols = 3;
 		    max_cols = 6;
-		    /* There are four possible cases: */
-		    /* 3 cols --> (x,y,dy), auto dx */
-		    /* 4 cols, boxwidth==-2 --> (x,y,ylow,yhigh), auto dx */
-		    /* 4 cols, boxwidth!=-2 --> (x,y,dy,dx) */
-		    /* 5 cols --> (x,y,ylow,yhigh,dx) */
-		    /* In each case an additional column may hold variable color */
-		    if((_Df.df_no_use_specs == 4 && V.BoxWidth == -2.0) || _Df.df_no_use_specs >= 5)
+		    // There are four possible cases:
+		    //   3 cols --> (x,y,dy), auto dx
+		    //   4 cols, boxwidth==-2 --> (x,y,ylow,yhigh), auto dx
+		    //   4 cols, boxwidth!=-2 --> (x,y,dy,dx)
+		    //   5 cols --> (x,y,ylow,yhigh,dx)
+		    //   In each case an additional column may hold variable color
+		    if((rDf.df_no_use_specs == 4 && V.BoxWidth == -2.0) || rDf.df_no_use_specs >= 5)
 			    // HBB 20060427: signal 3rd and 4th column are absolute y data --- needed so time/date parsing works 
-			    _Df.df_axis[2] = _Df.df_axis[3] = _Df.df_axis[1];
+			    rDf.df_axis[2] = rDf.df_axis[3] = rDf.df_axis[1];
 		    break;
 		case VECTOR: /* x, y, dx, dy, variable color or arrow style */
 		case ARROWS: /* x, y, len, ang, variable color or arrow style */
@@ -275,25 +275,23 @@ int GnuPlot::GetData(curve_points * pPlot)
 		case XERRORBARS:
 		    min_cols = 3;
 		    max_cols = 5;
-		    if(_Df.df_no_use_specs >= 4)
+		    if(rDf.df_no_use_specs >= 4)
 			    // HBB 20060427: signal 3rd and 4th column are absolute x data --- needed so time/date parsing works 
-			    _Df.df_axis[2] = _Df.df_axis[3] = _Df.df_axis[0];
+			    rDf.df_axis[2] = rDf.df_axis[3] = rDf.df_axis[0];
 		    break;
 		case YERRORLINES:
 		case YERRORBARS:
 		    min_cols = 2;
 		    max_cols = 5;
-		    if(_Df.df_no_use_specs >= 4)
+		    if(rDf.df_no_use_specs >= 4)
 			    // HBB 20060427: signal 3rd and 4th column are absolute y data --- needed so time/date parsing works
-			    _Df.df_axis[2] = _Df.df_axis[3] = _Df.df_axis[1];
+			    rDf.df_axis[2] = rDf.df_axis[3] = rDf.df_axis[1];
 		    break;
 		case HISTOGRAMS:
 		    min_cols = 1;
 		    max_cols = 3;
-		    /* Stacked histogram get out of sync if "missing" values in the
-		     * input data are silently ignored.  require_value() forces a
-		     * value of NaN to be returned in this case.
-		     */
+		    // Stacked histogram get out of sync if "missing" values in the
+		    // input data are silently ignored.  require_value() forces a value of NaN to be returned in this case.
 		    if(oneof2(Gg.histogram_opts.type, HT_STACKED_IN_TOWERS, HT_STACKED_IN_LAYERS))
 			    RequireValue(1);
 		    break;
@@ -304,7 +302,7 @@ int GnuPlot::GetData(curve_points * pPlot)
 		case FILLEDCURVES:
 		    min_cols = 1;
 		    max_cols = 3;
-		    _Df.df_axis[2] = _Df.df_axis[1]; // Both curves use same y axis 
+		    rDf.df_axis[2] = rDf.df_axis[1]; // Both curves use same y axis 
 		    break;
 		case IMPULSES: /* 2 + possible variable color */
 		case POLYGONS:
@@ -362,7 +360,6 @@ int GnuPlot::GetData(curve_points * pPlot)
 		    min_cols = 1;
 		    max_cols = MAXDATACOLS;
 		    break;
-
 		default:
 		    min_cols = 1;
 		    max_cols = 2;
@@ -381,7 +378,7 @@ int GnuPlot::GetData(curve_points * pPlot)
 		    max_cols++;
 		    break;
 		default:
-		    if(_Df.df_no_use_specs > 2 && pPlot->plot_style != FILLEDCURVES)
+		    if(rDf.df_no_use_specs > 2 && pPlot->plot_style != FILLEDCURVES)
 			    IntWarn(NO_CARET, "extra columns ignored by smoothing option");
 		    break;
 	}
@@ -404,17 +401,17 @@ int GnuPlot::GetData(curve_points * pPlot)
 		if(AxS[pPlot->AxIdx_Y].datatype == DT_TIMEDATE)
 			ExpectString(2);
 	}
-	if(_Df.df_no_use_specs > max_cols)
+	if(rDf.df_no_use_specs > max_cols)
 		IntError(NO_CARET, "Too many using specs for this style");
-	if(_Df.df_no_use_specs > 0 && _Df.df_no_use_specs < min_cols)
+	if(rDf.df_no_use_specs > 0 && rDf.df_no_use_specs < min_cols)
 		IntError(NO_CARET, "Not enough columns for this style");
 	i = 0; ngood = 0;
 	// If the user has set an explicit locale for numeric input, apply it 
 	// here so that it affects data fields read from the input file.      
 	set_numeric_locale();
 	// Initial state 
-	_Df.df_warn_on_missing_columnheader = true;
-	while((j = DfReadLine(v, max_cols)) != DF_EOF) {
+	rDf.df_warn_on_missing_columnheader = true;
+	while((j = DfReadLine(rDf, v, max_cols)) != DF_EOF) {
 		if(i >= pPlot->p_max) {
 			// overflow about to occur. Extend size of points[] array. Double the size, and add 1000 points, to avoid needlessly small steps.
 			cp_extend(pPlot, i + i + 1000);
@@ -424,8 +421,8 @@ int GnuPlot::GetData(curve_points * pPlot)
 		// First handle all the special cases (j <= 0) 
 		switch(j) {
 			case 0:
-			    DfClose();
-			    IntError(pPlot->token, "Bad data on line %d of file %s", _Df.df_line_number, NZOR(_Df.df_filename, ""));
+			    DfClose(rDf);
+			    IntError(pPlot->token, "Bad data on line %d of file %s", rDf.df_line_number, NZOR(rDf.df_filename, ""));
 			    continue;
 			case DF_COMPLEX_VALUE:
 			    _Plt.Plot2D_NComplexValues++;
@@ -434,12 +431,12 @@ int GnuPlot::GetData(curve_points * pPlot)
 			case DF_UNDEFINED:
 			    // Version 5 - We are now trying to pass back all available info even if one of the requested columns was missing or undefined.
 			    pPlot->points[i].type = UNDEFINED;
-			    if(_Df.missing_val && sstreq(_Df.missing_val, "NaN")) {
+			    if(rDf.missing_val && sstreq(rDf.missing_val, "NaN")) {
 				    j = DF_MISSING;
 				    // @fallthrough to short-circuit for missing data 
 			    }
 			    else {
-				    j = _Df.df_no_use_specs;
+				    j = rDf.df_no_use_specs;
 				    break;
 				    // continue with normal processing for this line 
 			    }
@@ -448,7 +445,7 @@ int GnuPlot::GetData(curve_points * pPlot)
 			    // Plot type specific handling of missing points goes here. 
 			    if(oneof2(pPlot->plot_style, PARALLELPLOT, SPIDERPLOT)) {
 				    pPlot->points[i].type = UNDEFINED;
-				    j = _Df.df_no_use_specs;
+				    j = rDf.df_no_use_specs;
 				    break;
 			    }
 			    if(pPlot->plot_style == HISTOGRAMS) {
@@ -456,7 +453,7 @@ int GnuPlot::GetData(curve_points * pPlot)
 				    i++;
 			    }
 			    if(pPlot->plot_style == TABLESTYLE) {
-				    j = _Df.df_no_use_specs;
+				    j = rDf.df_no_use_specs;
 				    break;
 			    }
 			    continue;
@@ -485,8 +482,8 @@ int GnuPlot::GetData(curve_points * pPlot)
 			    continue;
 			default:
 			    if(j < 0) {
-				    DfClose();
-				    IntErrorCurToken("internal error : df_readline returned %d : datafile line %d", j, _Df.df_line_number);
+				    DfClose(rDf);
+				    IntErrorCurToken("internal error : df_readline returned %d : datafile line %d", j, rDf.df_line_number);
 			    }
 			    break; /* Not continue!! */
 		}
@@ -494,7 +491,7 @@ int GnuPlot::GetData(curve_points * pPlot)
 		ngood++;
 		// "plot ... with table" bypasses all the column interpretation 
 		if(pPlot->plot_style == TABLESTYLE) {
-			TabulateOneLine(v, _Df.df_strings, j);
+			TabulateOneLine(v, rDf.df_strings, j);
 			continue;
 		}
 		// June 2010 - New mechanism for variable color                  
@@ -570,7 +567,7 @@ int GnuPlot::GetData(curve_points * pPlot)
 				v[1] = 1.0;
 			else {
 				v[1] = v[0];
-				v[0] = _Df.df_datum;
+				v[0] = rDf.df_datum;
 			}
 			j = 2;
 		}
@@ -600,8 +597,8 @@ int GnuPlot::GetData(curve_points * pPlot)
 					if(pPlot->plot_smooth == SMOOTH_ZSORT)
 						weight = v[var++];
 					if(var_pt == PT_VARIABLE) {
-						if(isnan(v[var]) && _Df.df_tokens[var]) {
-							strnzcpy((char *)(&var_char), _Df.df_tokens[var], sizeof(coordval));
+						if(isnan(v[var]) && rDf.df_tokens[var]) {
+							strnzcpy((char *)(&var_char), rDf.df_tokens[var], sizeof(coordval));
 							truncate_to_one_utf8_char((char *)(&var_char));
 						}
 						var_pt = v[var++];
@@ -637,7 +634,7 @@ int GnuPlot::GetData(curve_points * pPlot)
 					var_ps, var_pt, var_rotation, v[1], 0.0);
 					// Allocate and fill in a text_label structure to match it 
 					if(pPlot->points[i].type != UNDEFINED) {
-						StoreLabel(GPT.P_Term, pPlot->labels, &(pPlot->points[i]), i, _Df.df_tokens[2], pPlot->varcolor ? pPlot->varcolor[i] : 0.0);
+						StoreLabel(GPT.P_Term, pPlot->labels, &(pPlot->points[i]), i, rDf.df_tokens[2], pPlot->varcolor ? pPlot->varcolor[i] : 0.0);
 					}
 					i++;
 				}
@@ -816,7 +813,7 @@ int GnuPlot::GetData(curve_points * pPlot)
 					coordval xlow =  (j > 2) ? v[0] - v[2]/2. : v[0];
 					coordval xhigh = (j > 2) ? v[0] + v[2]/2. : v[0];
 					if(j == 4)
-						extra = CheckOrAddBoxplotFactor(pPlot, _Df.df_tokens[3], v[0]);
+						extra = CheckOrAddBoxplotFactor(pPlot, rDf.df_tokens[3], v[0]);
 					Store2DPoint(pPlot, i++, v[0], v[1], xlow, xhigh, v[1], v[1], extra);
 				}
 				break;
@@ -904,11 +901,11 @@ int GnuPlot::GetData(curve_points * pPlot)
 				}
 				break;
 			case HISTOGRAMS:
-				{ /* 1 column:	y
-					 * 2 columns:	y yerr		(set style histogram errorbars)
-					 * 3 columns:	y ymin ymax	(set style histogram errorbars)
-					 */
-					coordval x = _Df.df_datum;
+				{   
+					// 1 column:  y
+					// 2 columns: y yerr		(set style histogram errorbars)
+					// 3 columns: y ymin ymax	(set style histogram errorbars)
+					coordval x = rDf.df_datum;
 					coordval y = v[0];
 					coordval ylow  = v[0];
 					coordval yhigh = v[0];
@@ -975,7 +972,7 @@ int GnuPlot::GetData(curve_points * pPlot)
 		i--;
 	pPlot->p_count = i;
 	cp_extend(pPlot, i); /* shrink to fit */
-	DfClose();
+	DfClose(rDf);
 	// We are finished reading user input; return to C locale for internal use 
 	reset_numeric_locale();
 	// Deferred evaluation of plot title now that we know column headers 
@@ -1760,7 +1757,7 @@ void GnuPlot::EvalPlots(GpTermEntry * pTerm)
 				free_at(_Df.df_plot_title_at); // Mechanism for deferred evaluation of plot title 
 				// up to MAXDATACOLS cols 
 				DfSetPlotMode(MODE_PLOT); // Needed for binary datafiles 
-				specs = DfOpen(name_str, MAXDATACOLS, p_plot);
+				specs = DfOpen(_Df, name_str, MAXDATACOLS, p_plot);
 				// Store a pointer to the named variable used for sampling 
 				p_plot->sample_var  = (sample_range_token > 0) ? AddUdv(sample_range_token) : Ev.AddUdvByName(_Pb.c_dummy_var[0]);
 				p_plot->sample_var2 = (v_range_token > 0) ? AddUdv(v_range_token) : Ev.AddUdvByName(_Pb.c_dummy_var[1]);
@@ -2391,7 +2388,7 @@ void GnuPlot::EvalPlots(GpTermEntry * pTerm)
 				// current autoscaled ranges here so we can restore them later.   
 				AxS.SaveAutoscaledRanges(&AxS[p_plot->AxIdx_X], &AxS[p_plot->AxIdx_Y]);
 				// actually get the data now 
-				if(GetData(p_plot) == 0) {
+				if(GetData(_Df, p_plot) == 0) {
 					if(!forever_iteration(_Pb.plot_iterator))
 						IntWarn(NO_CARET, "Skipping data file with no valid points");
 					p_plot->plot_type = NODATA;
@@ -3092,7 +3089,7 @@ void GnuPlot::ParsePlotTitle(curve_points * pPlot, char * pXTitle, char * pYTitl
 		// This ugliness is because columnheader can be either a keyword 
 		// or a function name.  Yes, the design could have been better. 
 		if(Pgm.AlmostEqualsCur("col$umnheader") && !(Pgm.AlmostEqualsCur("columnhead$er") && Pgm.EqualsNext("(")) ) {
-			DfSetKeyTitleColumnHead(pPlot);
+			DfSetKeyTitleColumnHead(_Df, pPlot);
 		}
 		else if(Pgm.EqualsCur("at")) {
 			*pSetTitle = false;

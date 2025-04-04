@@ -174,7 +174,7 @@ void GnuPlot::ShowCommand()
 		case S_RGBMAX: ShowRgbMax(); break;
 		case S_DECIMALSIGN: ShowDecimalSign(); break;
 		case S_ENCODING: ShowEncoding(); break;
-		case S_FIT: ShowFit(); break;
+		case S_FIT: ShowFit(_Fit); break;
 		case S_FONTPATH: ShowFontPath(); break;
 		case S_POLAR: ShowPolar(); break;
 		case S_PRINT: ShowPrint(); break;
@@ -429,7 +429,7 @@ void GnuPlot::ShowAll()
 	ShowRgbMax();
 	ShowEncoding();
 	ShowDecimalSign();
-	ShowFit();
+	ShowFit(_Fit);
 	ShowPolar();
 	ShowAngles();
 	SaveObject(stderr, 0);
@@ -2023,12 +2023,12 @@ void GnuPlot::ShowMinusSign()
 //
 // process 'show fit' command 
 //
-void GnuPlot::ShowFit()
+void GnuPlot::ShowFit(GpFit & rFit)
 {
 	udvt_entry * v = NULL;
 	double d;
 	ShowAllNl();
-	switch(_Fit.fit_verbosity) {
+	switch(rFit.fit_verbosity) {
 		case QUIET:
 		    fprintf(stderr, "\tfit will not output results to console.\n");
 		    break;
@@ -2037,23 +2037,23 @@ void GnuPlot::ShowFit()
 		    break;
 		case BRIEF:
 		    fprintf(stderr, "\tfit will output brief results to console and log-file.\n");
-		    if(_Fit.fit_wrap)
-			    fprintf(stderr, "\toutput of long lines will be wrapped at column %i.\n", _Fit.fit_wrap);
+		    if(rFit.fit_wrap)
+			    fprintf(stderr, "\toutput of long lines will be wrapped at column %i.\n", rFit.fit_wrap);
 		    break;
 		case VERBOSE:
 		    fprintf(stderr, "\tfit will output verbose results to console and log-file.\n");
 		    break;
 	}
 	fprintf(stderr, "\tfit can handle up to %d independent variables\n", MIN(MAX_NUM_VAR, MAXDATACOLS-2));
-	fprintf(stderr, "\tfit will%s prescale parameters by their initial values\n", _Fit.fit_prescale ? "" : " not");
-	fprintf(stderr, "\tfit will%s place parameter errors in variables\n", _Fit.fit_errorvariables ? "" : " not");
-	fprintf(stderr, "\tfit will%s place covariances in variables\n", _Fit.fit_covarvariables ? "" : " not");
-	fprintf(stderr, "\tfit will%s scale parameter errors with the reduced chi square\n", _Fit.fit_errorscaling ? "" : " not");
-	if(_Fit.fit_suppress_log) {
+	fprintf(stderr, "\tfit will%s prescale parameters by their initial values\n", rFit.fit_prescale ? "" : " not");
+	fprintf(stderr, "\tfit will%s place parameter errors in variables\n", rFit.fit_errorvariables ? "" : " not");
+	fprintf(stderr, "\tfit will%s place covariances in variables\n", rFit.fit_covarvariables ? "" : " not");
+	fprintf(stderr, "\tfit will%s scale parameter errors with the reduced chi square\n", rFit.fit_errorscaling ? "" : " not");
+	if(rFit.fit_suppress_log) {
 		fprintf(stderr, "\tfit will not create a log file\n");
 	}
-	else if(_Fit.fitlogfile) {
-		fprintf(stderr, "\tlog-file for fits was set by the user to \n\t'%s'\n", _Fit.fitlogfile);
+	else if(rFit.fitlogfile) {
+		fprintf(stderr, "\tlog-file for fits was set by the user to \n\t'%s'\n", rFit.fitlogfile);
 	}
 	else {
 		char * logfile = GetFitLogFile();
@@ -2065,8 +2065,8 @@ void GnuPlot::ShowFit()
 	v = Ev.GetUdvByName(FITLIMIT);
 	d = (v && (v->udv_value.Type != NOTDEFINED)) ? Real(&v->udv_value) : -1.0;
 	fprintf(stderr, "\tfits will be considered to have converged if  delta chisq < chisq * %g", ((d > 0.) && (d < 1.)) ? d : DEF_FIT_LIMIT);
-	if(_Fit.epsilon_abs > 0.0)
-		fprintf(stderr, " + %g", _Fit.epsilon_abs);
+	if(rFit.epsilon_abs > 0.0)
+		fprintf(stderr, " + %g", rFit.epsilon_abs);
 	fprintf(stderr, "\n");
 	v = Ev.GetUdvByName(FITMAXITER);
 	if(v && (v->udv_value.Type != NOTDEFINED) && (Real(&v->udv_value) > 0))
@@ -2081,11 +2081,11 @@ void GnuPlot::ShowFit()
 	d = (v && (v->udv_value.Type != NOTDEFINED)) ? Real(&v->udv_value) : -1.0;
 	if(d > 0.)
 		fprintf(stderr, "\tfit will change lambda by a factor of %g\n", d);
-	if(_Fit.fit_v4compatible)
+	if(rFit.fit_v4compatible)
 		fprintf(stderr, "\tfit command syntax is backwards compatible to version 4\n");
 	else
 		fprintf(stderr, "\tfit will default to `unitweights` if no `error`keyword is given on the command line.\n");
-	fprintf(stderr, "\tfit can run the following command when interrupted:\n\t\t'%s'\n", GetFitScript());
+	fprintf(stderr, "\tfit can run the following command when interrupted:\n\t\t'%s'\n", GetFitScript(rFit));
 	v = Ev.GetUdvByName("GPVAL_LAST_FIT");
 	if(v && v->udv_value.Type != NOTDEFINED)
 		fprintf(stderr, "\tlast fit command was: %s\n", v->udv_value.v.string_val);

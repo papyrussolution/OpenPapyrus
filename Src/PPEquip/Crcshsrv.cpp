@@ -85,8 +85,106 @@ public:
 		LDATE Dt;
 		LTIME Tm;
 	};
+	class CcXmlReader {
+	public:
+		struct Header { // @falt
+			Header()
+			{
+				THISZERO();
+			}
+			long   SmenaNum;
+			long   CashNum;
+			long   ChkNum;
+			char   SCardNum[64];
+			char   GiftCardNum[64];
+			LDATETIME Dtm;
+			int16  IsSale;
+			int16  Banking;
+			long   Div;
+			double Amount;        // извлекается из заголовка чека, как показала практика эта сумма не всегда достоверна
+			double CheckAmount;   // Сумма оплат внесенных за чек
+			double AddedDiscount; // дополнительная скидка
+			double BankingAmount;
+			double GiftCardAmount;
+			double Discount;      // извлекается из заголовка чека
+			long   TabNum;
+		};
 
-	explicit ACS_CRCSHSRV(PPID n) : PPAsyncCashSession(n), Options(0), CurOperDate(ZERODATE), P_SCardPaymTbl(0), StatID(0)
+		struct Item {
+			long   Pos;
+			char   GoodsCode[32];
+			char   Barcode[32];
+			char   Serial[32];
+			char   Mark[256]; // @v11.3.8 Марка ЕГАИС или честный знак
+			double Price;
+			double PriceWithDiscount;
+			double Qtty;
+			double Discount;
+			double Amount;
+			double VatAmount;
+			long   Div;
+		};
+
+		class Packet {
+		public:
+			Packet()
+			{
+			}
+			Packet & FASTCALL operator = (const Packet & rPack)
+			{
+				Items.freeAll();
+				Head = rPack.Head;
+				Items.copy(rPack.Items);
+				return *this;
+			}
+			int PutHead(const Header * pHead)
+			{
+				return (pHead) ? (Head = *pHead, 1) : (MEMSZERO(Head), 0);
+			}
+			uint   GetCount() const { return Items.getCount(); }
+			Item & GetItemByIdx(uint idx) { return Items.at(idx); }
+			int AddItem(const Item * pItem)
+			{
+				return (pItem) ? Items.insert(pItem) : 0;
+			}
+			int SetItemDiscount(long pos, double discount)
+			{
+				uint p = 0;
+				return Items.lsearch(&pos, &p, CMPF_LONG) ? (Items.at(p).Discount = discount, 1) : -1;
+			}
+			int GetHead(Header * pHead)
+			{
+				ASSIGN_PTR(pHead, Head);
+				return 1;
+			}
+			int EnumItems(long * pPos, Item * pItem)
+			{
+				if(pPos && *pPos < Items.getCountI()) {
+					ASSIGN_PTR(pItem, Items.at((*pPos)++));
+					return 1;
+				}
+				else
+					return -1;
+			}
+		private:
+			Header Head;
+			TSArray <Item> Items;
+		};
+		CcXmlReader(const char * pPath, PPIDArray * pLogNumList, int subVer);
+		~CcXmlReader();
+		int    Next(Packet *);
+	private:
+		int    GetGiftCard(const xmlNode * const * pPlugins, SString & rSerial, int isPaym);
+
+		int    SubVer;
+		long   ChecksCount;
+		PPIDArray * P_LogNumList;
+		xmlDoc  * P_Doc;
+		xmlNode * P_CurRec;
+		xmlTextReader * P_Reader;
+	};
+
+	explicit ACS_CRCSHSRV(PPID posNodeID) : PPAsyncCashSession(posNodeID), Options(0), CurOperDate(ZERODATE), P_SCardPaymTbl(0), StatID(0)
 	{
 		int    ipar = 0;
 		PPIniFile ini_file;
@@ -94,8 +192,7 @@ public:
 		if(ipar > 0)
 			Options |= oUseAltImport;
 		ChkRepPeriod.Z();
-		for(size_t i = 0; i < SIZEOFARRAY(P_IEParam); i++)
-			P_IEParam[i] = 0;
+		memzero(P_IEParam, sizeof(P_IEParam));  // (PPBillImpExpParam * P_IEParam[4])
 		{
 			PPAsyncCashNode acn;
 			GetNodeData(&acn);
@@ -114,9 +211,11 @@ public:
 	virtual int  ImportSession(int);
 	virtual int  FinishImportSession(PPIDArray *);
 	virtual void CleanUpSession();
-	int ExportDataV10(int updOnly);
-	int ExportData__(int updOnly);
-	int Prev_ExportData(int updOnly);
+	int    ExportDataV10(int updOnly);
+	int    ExportData__(int updOnly);
+	int    Prev_ExportData(int updOnly);
+
+	int    Cristal2SetRetailGateway_TranslateSales();
 private:
 	enum {
 		filTypZRep = 0,
@@ -3106,106 +3205,7 @@ static int FindFirstRec(xmlNode * pChild, xmlNode ** ppCurRec, const char * pTag
 //#define PAY_CASH       "CashPaymentEntity"
 //#define PAY_CASH01     "ODCashPaymentEntity"
 
-class XmlReader {
-public:
-	struct Header { // @falt
-		Header()
-		{
-			THISZERO();
-		}
-		long   SmenaNum;
-		long   CashNum;
-		long   ChkNum;
-		char   SCardNum[64];
-		char   GiftCardNum[64];
-		LDATETIME Dtm;
-		int16  IsSale;
-		int16  Banking;
-		long   Div;
-		double Amount;        // извлекается из заголовка чека, как показала практика эта сумма не всегда достоверна
-		double CheckAmount;   // Сумма оплат внесенных за чек
-		double AddedDiscount; // дополнительная скидка
-		double BankingAmount;
-		double GiftCardAmount;
-		double Discount;      // извлекается из заголовка чека
-		long   TabNum;
-	};
-
-	struct Item {
-		long   Pos;
-		char   GoodsCode[32];
-		char   Barcode[32];
-		char   Serial[32];
-		char   Mark[256]; // @v11.3.8 Марка ЕГАИС или честный знак
-		double Price;
-		double PriceWithDiscount;
-		double Qtty;
-		double Discount;
-		double Amount;
-		double VatAmount;
-		long   Div;
-	};
-
-	class Packet {
-	public:
-		Packet()
-		{
-		}
-		Packet & FASTCALL operator = (const Packet & rPack)
-		{
-			Items.freeAll();
-			Head = rPack.Head;
-			Items.copy(rPack.Items);
-			return *this;
-		}
-		int PutHead(const Header * pHead)
-		{
-			return (pHead) ? (Head = *pHead, 1) : (MEMSZERO(Head), 0);
-		}
-		uint   GetCount() const { return Items.getCount(); }
-		Item & GetItemByIdx(uint idx) { return Items.at(idx); }
-		int AddItem(const Item * pItem)
-		{
-			return (pItem) ? Items.insert(pItem) : 0;
-		}
-		int SetItemDiscount(long pos, double discount)
-		{
-			uint p = 0;
-			return Items.lsearch(&pos, &p, CMPF_LONG) ? (Items.at(p).Discount = discount, 1) : -1;
-		}
-		int GetHead(Header * pHead)
-		{
-			ASSIGN_PTR(pHead, Head);
-			return 1;
-		}
-		int EnumItems(long * pPos, Item * pItem)
-		{
-			if(pPos && *pPos < Items.getCountI()) {
-				ASSIGN_PTR(pItem, Items.at((*pPos)++));
-				return 1;
-			}
-			else
-				return -1;
-		}
-	private:
-		Header Head;
-		TSArray <Item> Items;
-	};
-	XmlReader(const char * pPath, PPIDArray * pLogNumList, int subVer);
-	~XmlReader();
-	int    Next(Packet *);
-private:
-	int    GetGiftCard(const xmlNode * const * pPlugins, SString & rSerial, int isPaym);
-
-	int    SubVer;
-	long   ChecksCount;
-	PPIDArray * P_LogNumList;
-	xmlDoc  * P_Doc;
-	xmlNode * P_CurRec;
-	xmlTextReader * P_Reader;
-};
-
-XmlReader::XmlReader(const char * pPath, PPIDArray * pLogNumList, int subVer) : P_Reader(0), P_LogNumList(pLogNumList), ChecksCount(0), P_CurRec(0), P_Doc(0)
+ACS_CRCSHSRV::CcXmlReader::CcXmlReader(const char * pPath, PPIDArray * pLogNumList, int subVer) : P_Reader(0), P_LogNumList(pLogNumList), ChecksCount(0), P_CurRec(0), P_Doc(0)
 {
 	const char * p_chr_tag = "purchase";
 	if(pPath)
@@ -3232,7 +3232,7 @@ XmlReader::XmlReader(const char * pPath, PPIDArray * pLogNumList, int subVer) : 
 	SubVer = subVer;
 }
 
-XmlReader::~XmlReader()
+ACS_CRCSHSRV::CcXmlReader::~CcXmlReader()
 {
 	if(P_Reader) {
 		xmlFreeTextReader(P_Reader);
@@ -3241,7 +3241,7 @@ XmlReader::~XmlReader()
 	xmlFreeDoc(P_Doc);
 }
 
-int XmlReader::GetGiftCard(const xmlNode * const * pPlugins, SString & rSerial, int isPaym)
+int ACS_CRCSHSRV::CcXmlReader::GetGiftCard(const xmlNode * const * pPlugins, SString & rSerial, int isPaym)
 {
 	int    ok = -1;
 	int    is_gift_card = 0;
@@ -3282,7 +3282,7 @@ int XmlReader::GetGiftCard(const xmlNode * const * pPlugins, SString & rSerial, 
 	return ok;
 }
 
-int XmlReader::Next(Packet * pPack)
+int ACS_CRCSHSRV::CcXmlReader::Next(Packet * pPack)
 {
 	// "plugin-property"
 	//const char * p_attribs = "shop;operationType;operDay;cash;shift;saletime;number;amount;discountAmount;username;userTabNumber;tabNumber";
@@ -3659,8 +3659,8 @@ int ACS_CRCSHSRV::ConvertWareListV10(const SVector * pZRepList, const char * pPa
 	double sum_diff = 0.0;
 	PPObjGoods goods_obj;
 	IterCounter cntr;
-	XmlReader::Packet pack;
-	XmlReader reader(pPath, &LogNumList, ModuleSubVer);
+	CcXmlReader::Packet pack;
+	CcXmlReader reader(pPath, &LogNumList, ModuleSubVer);
 	{
 		PPTransaction tra(1);
 		THROW(tra);
@@ -3670,8 +3670,8 @@ int ACS_CRCSHSRV::ConvertWareListV10(const SVector * pZRepList, const char * pPa
 			PPID   id = 0;
 			PPID   scard_id = 0;
 			PPID   gift_card_id = 0;
-			XmlReader::Item   item;
-			XmlReader::Header hdr;
+			CcXmlReader::Item   item;
+			CcXmlReader::Header hdr;
 			AcceptedCheck_ accept_chk;
 			SCardTbl::Rec scard_rec;
 			pack.GetHead(&hdr);
@@ -5109,10 +5109,34 @@ static void Cristal2SetRetailGateway_CSessDictionaryOutput(const char * pDictPat
 								}
 							}
 							{
+								/*
+									//
+									// Index flags
+									// Note:
+									//     XIF_DUP, XIF_MOD, XIF_REPDUP, XIF_ALLSEGNULL, XIF_ANYSEGNULL
+									//     flags must be equal for all segments of the same key
+									//
+									#define XIF_DUP            0x0001 // Index allows duplicates
+									#define XIF_MOD            0x0002 // Index is modifiable
+									#define XIF_BINARY         0x0004 // Standard binary type
+									#define XIF_ALLSEGNULL     0x0008 // Null Key (All-Segment)
+									#define XIF_SEG            0x0010 // Another seg is concat to this one in the index
+									#define XIF_ACS            0x0020 // There is alternate collating sequence
+									#define XIF_DESC           0x0040 // Index is in descending order
+									#define XIF_NAMED          0x0080 // Supplemental index v5.x
+									#define XIF_REPDUP         0x0080 // Repeating Duplicatable index v6.1
+									#define XIF_EXT            0x0100 // Index is an extended data type
+									#define XIF_ANYSEGNULL     0x0200 // Null Key (Any-Segment)
+									#define XIF_NOCASE         0x0400 // Case insensitivity
+									#define XIF_ALLSEGFLAGS (XIF_DUP|XIF_REPDUP|XIF_MOD|XIF_ALLSEGNULL|XIF_ANYSEGNULL)
+									#define XIF_UNIQUE     0x08000000 // Индекс уникальный (этот флаг используется только для //
+										// отрицания XIF_DUP. В словаре Btrieve не прописывается //
+								*/ 
 								SString index_buf;
 								for(uint ii = 0; ii < r_idx_list.getNumKeys(); ii++) {
 									BNKey k = r_idx_list.getKey(ii);
 									index_buf.Z();
+									const int keyf = k.getFlags(UNDEF);
 									for(int si = 0; si < k.getNumSeg(); si++) {
 										const int fldid = k.getFieldID(si);
 										const int segf = k.getFlags(si);
@@ -5127,6 +5151,73 @@ static void Cristal2SetRetailGateway_CSessDictionaryOutput(const char * pDictPat
 										}
 										else {
 											index_buf.Space().Cat("undef_field").CatChar('#').Cat(fldid);
+										}
+										if(segf) {
+											bool par_opened = false;
+											if(segf & XIF_ACS) {
+												if(!par_opened) {
+													index_buf.Space().CatChar('(');
+													par_opened = true;
+												}
+												index_buf.Space().Cat("acs");
+											}
+											if(segf & XIF_NOCASE) {
+												if(!par_opened) {
+													index_buf.Space().CatChar('(');
+													par_opened = true;
+												}
+												index_buf.Space().Cat("nocase");
+											}
+											if(segf & XIF_DESC) {
+												if(!par_opened) {
+													index_buf.Space().CatChar('(');
+													par_opened = true;
+												}
+												index_buf.Space().Cat("desc");
+											}
+											if(par_opened)
+												index_buf.CatChar(')');
+										}
+									}
+									if(keyf) {
+										bool par_opened = false;
+										if(keyf & XIF_DUP) {
+											if(!par_opened) {
+												index_buf.Space().CatChar('<');
+												par_opened = true;
+											}
+											index_buf.Space().Cat("dup");
+										}
+										if(keyf & XIF_REPDUP) {
+											if(!par_opened) {
+												index_buf.Space().CatChar('<');
+												par_opened = true;
+											}
+											index_buf.Space().Cat("repdup");
+										}
+										if(keyf & XIF_MOD) {
+											if(!par_opened) {
+												index_buf.Space().CatChar('<');
+												par_opened = true;
+											}
+											index_buf.Space().Cat("mod");
+										}
+										if(keyf & XIF_ALLSEGNULL) {
+											if(!par_opened) {
+												index_buf.Space().CatChar('<');
+												par_opened = true;
+											}
+											index_buf.Space().Cat("allsegnull");
+										}
+										if(keyf & XIF_ANYSEGNULL) {
+											if(!par_opened) {
+												index_buf.Space().CatChar('<');
+												par_opened = true;
+											}
+											index_buf.Space().Cat("anysegnull");
+										}
+										if(par_opened) {
+											index_buf.CatChar('>');
 										}
 									}
 									line_buf.Tab().Cat(index_buf).CR();
@@ -5267,8 +5358,43 @@ int Test_Cristal2SetRetailGateway()
 		if(cn_id) {
 			PPAsyncCashNode acn_pack;
 			if(cn_obj.GetAsync(cn_id, &acn_pack) > 0) {
+				ACS_CRCSHSRV driver(cn_id);
+				driver.Cristal2SetRetailGateway_TranslateSales();
 			}
 		}
 	}
+	return ok;
+}
+
+int ACS_CRCSHSRV::Cristal2SetRetailGateway_TranslateSales()
+{
+	int    ok = -1;
+	PPAsyncCashNode acn;
+	SString temp_buf;
+	SString in_path;
+	SString base_path;
+	THROW(GetNodeData(&acn) > 0);
+	acn.GetLogNumList(LogNumList);
+	{
+		SDirEntry sd_entry;
+		SFsPath sp(PathRpt[filTypChkXml]);
+		sp.Merge(SFsPath::fDrv|SFsPath::fDir, base_path);
+		sp.Nam.Cat("*");
+		sp.Merge(temp_buf);
+		for(SDirec sd(temp_buf); sd.Next(&sd_entry) > 0;) {
+			if(sd_entry.IsFile()) {
+				sd_entry.GetNameA(base_path, in_path);
+				DrfL.Add("chks", in_path);
+				//THROW(ConvertWareListV10(&zrep_list, data_path, wait_msg));
+				ACS_CRCSHSRV::CcXmlReader reader(in_path, &LogNumList, ModuleSubVer);
+				CcXmlReader::Packet pack;
+				{
+					while(reader.Next(&pack) > 0) {
+					}
+				}
+			}
+		}
+	}
+	CATCHZOK
 	return ok;
 }

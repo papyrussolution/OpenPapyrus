@@ -477,6 +477,9 @@ int PPViewStyloQBindery::Invitation()
 						ok = 1;
 				}
 				break;
+			case PPVCMD_BUILDSVCSYMBMAP: // @v12.3.0
+				StyloQCore::BuildSvcDbSymbMap();
+				break;
 			case PPVCMD_SYSJ: // @v11.2.12
 				if(id) {
 					ViewSysJournal(PPOBJ_STYLOQBINDERY, id, 0);

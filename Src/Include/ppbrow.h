@@ -1163,6 +1163,7 @@
 #define PPVCMD_MATCH                                  295
 #define PPVCMD_FACE                                   296
 #define PPVCMD_INVITATION                             297
+#define PPVCMD_BUILDSVCSYMBMAP                        298
 //
 // PPCMD definitions
 //

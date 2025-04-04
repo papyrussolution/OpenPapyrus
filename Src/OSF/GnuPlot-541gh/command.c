@@ -415,7 +415,7 @@ void GnuPlot::Command()
 			else if(Pgm.AlmostEquals(cur_tok_idx, "ex$it"))
 				ExitCommand();
 			else if(Pgm.AlmostEquals(cur_tok_idx, "f$it"))
-				FitCommand();
+				FitCommand(_Fit);
 			else if(Pgm.AlmostEquals(cur_tok_idx, "h$elp"))
 				HelpCommand();
 			else if(Pgm.AlmostEquals(cur_tok_idx, "?"))
@@ -1926,7 +1926,7 @@ void GnuPlot::SaveCommand()
 		case SAVE_SET: SaveSet(fp); break;
 		case SAVE_TERMINAL: SaveTerm(GPT.P_Term, fp); break;
 		case SAVE_VARS: SaveVariables(fp); break;
-		case SAVE_FIT: SaveFit(fp); break;
+		case SAVE_FIT: SaveFit(_Fit, fp); break;
 		case SAVE_DATABLOCKS: SaveDatablocks(fp); break;
 		default: SaveAll(fp);
 	}

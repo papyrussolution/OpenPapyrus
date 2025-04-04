@@ -100,7 +100,7 @@ enum {
 };
 
 #if defined(MEMENTO) || !defined(NDEBUG)
-#define FITZ_DEBUG_LOCKING
+    #define FITZ_DEBUG_LOCKING
 #endif
 
 #ifdef FITZ_DEBUG_LOCKING
@@ -127,7 +127,6 @@ enum {
 	FZ_STORE_UNLIMITED = 0,
 	FZ_STORE_DEFAULT = 256 << 20,
 };
-
 /**
         Allocate context containing global state.
 

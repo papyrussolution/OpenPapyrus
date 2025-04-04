@@ -56,8 +56,7 @@ void BadStatusOrAccess::InitWhat() const {
 
 namespace internal_statusor {
 void Helper::HandleInvalidStatusCtorArg(absl::Status* status) {
-	const char* kMessage =
-	    "An OK status is not a valid constructor argument to StatusOr<T>";
+	const char* kMessage = "An OK status is not a valid constructor argument to StatusOr<T>";
 #ifdef NDEBUG
 	ABSL_INTERNAL_LOG(ERROR, kMessage);
 #else
@@ -67,21 +66,17 @@ void Helper::HandleInvalidStatusCtorArg(absl::Status* status) {
 	*status = absl::InternalError(kMessage);
 }
 
-void Helper::Crash(const absl::Status& status) {
-	ABSL_INTERNAL_LOG(
-		FATAL,
-		absl::StrCat("Attempting to fetch value instead of handling error ",
-		status.ToString()));
+void Helper::Crash(const absl::Status& status) 
+{
+	ABSL_INTERNAL_LOG(FATAL, absl::StrCat("Attempting to fetch value instead of handling error ", status.ToString()));
 }
 
-void ThrowBadStatusOrAccess(absl::Status status) {
+void ThrowBadStatusOrAccess(absl::Status status) 
+{
 #ifdef ABSL_HAVE_EXCEPTIONS
 	throw absl::BadStatusOrAccess(std::move(status));
 #else
-	ABSL_INTERNAL_LOG(
-		FATAL,
-		absl::StrCat("Attempting to fetch value instead of handling error ",
-		status.ToString()));
+	ABSL_INTERNAL_LOG(FATAL, absl::StrCat("Attempting to fetch value instead of handling error ", status.ToString()));
 	std::abort();
 #endif
 }

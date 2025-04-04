@@ -12242,6 +12242,12 @@ public:
 	int    AddTok(uint32 tok, float prob, uint flags); // @v12.2.11 arg:flags будут опции как комбинировать уже существующий элемент с новым.
 	int    Combine(const SNaturalTokenArray & rOther);
 	int    Intersect(const SNaturalTokenArray & rS); // @v12.2.11
+	//
+	// Descr: Возвращает true если в наборе this есть хотя бы один элемент, которого нет в наборе rOther.
+	//   Мотивацией для ввода этой функции является попытка эвристически определить может ли первая строка CSV-файла
+	//   быть строкой заголовков (see class CsvSniffer).
+	//
+	uint   IsThereAnyItemsThatAreNotInOther(const SNaturalTokenArray & rOther) const;
 };
 
 class STokenRecognizer : public SRegExpSet {
@@ -12840,8 +12846,8 @@ public:
 			ColumnStat() : N(0), NECount(0), FirstRowLen(0), LenAvg(0.0), LenStdDev(0.0)
 			{
 			}
-			uint   N;      // [1..] Номер колонки
-			uint   NECount;  // Количество строк, содержащих непустое значение
+			uint   N;           // [1..] Номер колонки
+			uint   NECount;     // Количество строк, содержащих непустое значение
 			uint   FirstRowLen; // Длина текста в первой строке
 			double LenAvg;      // Средняя длина текста (без первой строки и только для непустых значений)
 			double LenStdDev;
@@ -12853,11 +12859,14 @@ public:
 		ColumnStat * GetColumnStat(uint fldNo/*[1..]*/);
 
 		enum {
-			fTitleRow   = 0x0001, // Первая строка - заголовки полей
-			fEmptyLines = 0x0002, // Файла содержит пустые строки
+			fTitleRow_HTest = 0x0001, // Первая строка - заголовки полей (в соответствии с тестом по содержимому первой строки)
+			fTitleRow_VTest = 0x0002, // Первая строка - заголовки полей (в соответствии с тестом по разнице между содержанием первый строки и остальных строк колонок).
+			fEmptyLines     = 0x0004, // Файла содержит пустые строки
 		};
 		uint   FieldDivisor;
 		uint   Flags;
+		uint   TitleRow_VTest_ColumnCount; // Количество столбцов, для которых первая строка имеет эксклюзивные токены по сравнению с остальными строками.
+			// Используется для оценки вероятности того, что первая строка является заголовочной.
 		uint64 LineCount;
 		double FieldCountExpectation;
 		uint32 SnTokSeq_Common; // flags SNTOKSEQ_FFFF общие для всех строк

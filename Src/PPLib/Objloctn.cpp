@@ -1551,39 +1551,18 @@ private:
 	virtual int editItem(long pos, long id);
 	virtual int delItem(long pos, long id);
 	virtual int setupList();
-	// @v10.7.11 int    Edit(TaggedString *);
-	int    Edit(SStringTag *); // @v10.7.11
+	int    Edit(SStringTag *);
 
-	StrAssocArray FieldNames; // @v10.7.11 TaggedStringArray-->StrAssocArray
+	StrAssocArray FieldNames;
 	StrAssocArray Fields;
 };
-
-#if 0 // @v10.7.11 {
-static int SetupTaggedStringCombo(TDialog * dlg, uint ctlID, const TaggedStringArray * pStrings, long initID, uint /*flags*/)
-{
-	int    ok = 1;
-	ListWindow * p_lw = 0;
-	ComboBox   * p_cb = static_cast<ComboBox *>(dlg->getCtrlView(ctlID));
-	if(p_cb) {
-		uint   options = (lbtDisposeData|lbtDblClkNotify);
-		uint   idx = 0;
-		TaggedString * p_s;
-		THROW(p_lw = CreateListWindow(TaggedString::BufSize(), options));
-		for(idx = 0; pStrings->enumItems(&idx, (void **)&p_s);)
-			p_lw->listBox()->addItem(p_s->Id, p_s->Txt);
-		p_cb->setListWindow(p_lw, initID);
-	}
-	CATCHZOK
-	return ok;
-}
-#endif // } @v10.7.11
 
 int LocationExtFieldsDialog::Edit(SStringTag * pData)
 {
 	class AddExtFldDialog : public TDialog {
-		DECL_DIALOG_DATA(SStringTag); // @v10.7.11 TaggedString-->SStringTag
+		DECL_DIALOG_DATA(SStringTag);
 	public:
-		explicit AddExtFldDialog(const StrAssocArray * pFieldNames) : TDialog(DLG_ADDEXTFLD) // @v10.7.11 TaggedStringArray-->StrAssocArray
+		explicit AddExtFldDialog(const StrAssocArray * pFieldNames) : TDialog(DLG_ADDEXTFLD)
 		{
 			RVALUEPTR(FieldNames, pFieldNames);
 			disableCtrl(CTLSEL_ADDEXTFLD_FLD, 1);
@@ -1594,8 +1573,7 @@ int LocationExtFieldsDialog::Edit(SStringTag * pData)
 				Data.Id = 0;
 				Data.Z();
 			}
-			// @v10.7.11 SetupTaggedStringCombo(this, CTLSEL_ADDEXTFLD_FLD, &FieldNames, Data.Id, 0);
-			SetupStrAssocCombo(this, CTLSEL_ADDEXTFLD_FLD, FieldNames, Data.Id, 0); // @v10.7.11
+			SetupStrAssocCombo(this, CTLSEL_ADDEXTFLD_FLD, FieldNames, Data.Id, 0);
 			setCtrlString(CTL_ADDEXTFLD_VAL, Data);
 			return 1;
 		}
@@ -1610,12 +1588,12 @@ int LocationExtFieldsDialog::Edit(SStringTag * pData)
 			return ok;
 		}
 	private:
-		StrAssocArray FieldNames; // @v10.7.11 TaggedStringArray-->StrAssocArray
+		StrAssocArray FieldNames;
 	};
 	int    ok = -1;
 	SString prev_txt;
-	SStringTag data; // @v10.7.11 TaggedString-->SStringTag
-	StrAssocArray field_names; // @v10.7.11 TaggedStringArray-->StrAssocArray
+	SStringTag data;
+	StrAssocArray field_names;
 	AddExtFldDialog * p_dlg = 0;
 	RVALUEPTR(data, pData);
 	prev_txt = data;
@@ -1650,7 +1628,7 @@ int LocationExtFieldsDialog::editItem(long pos, long id)
 	int    ok = -1;
 	if(pos >= 0 && pos < static_cast<long>(FieldNames.getCount())) {
 		SString      buf;
-		SStringTag item; // @v10.7.11 TaggedString-->SStringTag
+		SStringTag item;
 		item.Id = id;
 		Fields.GetText(id, buf);
 		static_cast<SString &>(item) = buf;
@@ -3367,18 +3345,15 @@ int LocationCache::AddWarehouseEntry(const LocationTbl::Rec * pRec, PPID accShee
 		WhObjList.atFree(pos);
 	{
 		const int is_enabled = ObjRts.CheckLocID(entry.LocID, 0);
-		// @v10.0.05 {
-		if(!is_enabled)
+		if(!is_enabled) {
 			entry.Flags |= LOCF_INTERNAL_DISABLED;
-		// } @v10.0.05
-		// @v10.0.05 if(ObjRts.CheckLocID(entry.LocID, 0)) {
-			PPObjAccTurn * p_atobj = BillObj->atobj;
-			SETIFZ(accSheetID, LConfig.LocAccSheetID); 
-			ArticleTbl::Rec ar_rec;
-			if(p_atobj->P_Tbl->Art.SearchObjRef(accSheetID, entry.LocID, &ar_rec) > 0)
-				entry.ObjID = ar_rec.ID;
-			ok = WhObjList.insert(&entry) ? 1 : PPSetErrorSLib();
-		// @v10.0.05 }
+		}
+		PPObjAccTurn * p_atobj = BillObj->atobj;
+		SETIFZ(accSheetID, LConfig.LocAccSheetID); 
+		ArticleTbl::Rec ar_rec;
+		if(p_atobj->P_Tbl->Art.SearchObjRef(accSheetID, entry.LocID, &ar_rec) > 0)
+			entry.ObjID = ar_rec.ID;
+		ok = WhObjList.insert(&entry) ? 1 : PPSetErrorSLib();
 	}
 	return ok;
 }
@@ -3397,16 +3372,9 @@ int LocationCache::LoadWarehouseTab()
 				PPObjAccTurn * p_atobj = BillObj->atobj;
 				const  PPID acs_id = LConfig.LocAccSheetID;
 				WhObjList.clear();
-				// @v10.7.2 {
 				for(SEnum en = lobj.P_Tbl->Enum(LOCTYP_WAREHOUSE, 0, LocationCore::eoIgnoreParent); en.Next(&loc_rec) > 0;) {
 					AddWarehouseEntry(&loc_rec, acs_id);
 				}
-				// } @v10.7.2 
-				/* @v10.7.2 SEnum en = lobj.P_Tbl->Enum(LOCTYP_WAREHOUSE, 0, LocationCore::eoIgnoreParent);
-				while(ok && en.Next(&loc_rec) > 0) {
-					if(!AddWarehouseEntry(&loc_rec))
-						ok = 0;
-				}*/
 				if(ok)
 					IsWhObjTabInited = 1;
 			}

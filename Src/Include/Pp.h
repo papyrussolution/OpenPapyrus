@@ -42169,13 +42169,6 @@ public:
 		OrdByGrp_BarCode,
 		OrdByRest // @v11.4.6
 	};
-	// @erik v10.7.13 {
-	/*enum {
-		expDirUhtt = 1,
-		expDirVkMarket,
-		expDirUDS        // @v10.9.4
-	};*/
-	// } @erik v10.7.13
 
 	PPViewGoodsRest();
 	~PPViewGoodsRest();
@@ -48270,8 +48263,10 @@ private:
 	static ReadWriteLock _SvcDbMapRwl; // Блокировка для защиты _SvcDbMap
 	static SvcDbSymbMap _SvcDbMap;
 };
-
-class StyloQCommandList { // @construction
+//
+// Descr: Список команд сервиса Stylo-Q. Внутренний объект StyloQCommandList::Item определяет одиночную команду.
+//
+class StyloQCommandList {
 public:
 	//
 	// Descr: Идентификаторы базовых типов команд
@@ -48337,7 +48332,7 @@ public:
 			rP.Init(0, 0);
 			int    ok = 1;
 			PPBaseFilt * p_base_filt = 0;
-			SBuffer _param = Param; // Функция должна быть const и дабы не менять состояние Param при чтении просто сделаем его дубликат.
+			SBuffer _param(Param); // Функция должна быть const и дабы не менять состояние Param при чтении просто сделаем его дубликат.
 			const T pattern_filt;
 			if(_param.GetAvailableSize()) {
 				THROW(PPView::ReadFiltPtr(_param, &p_base_filt));

@@ -2629,8 +2629,8 @@ SOAP_FMAC1 void SOAP_FMAC2 soap_ssl_init()
   #ifdef WITH_OPENSSL
 		SSL_library_init();
 		OpenSSL_add_all_algorithms(); /* 2.8.1 change (wsseapi.c) */
-		ENGINE_load_builtin_engines(); // @v10.6.3
-		ENGINE_register_all_complete(); // @v10.6.3
+		ENGINE_load_builtin_engines();
+		ENGINE_register_all_complete();
    #ifndef WITH_LEAN
 		SSL_load_error_strings();
    #endif

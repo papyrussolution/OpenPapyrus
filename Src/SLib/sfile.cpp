@@ -3578,7 +3578,7 @@ int FileFormatRegBase::Identify(const char * pFileName, int * pFmtId, SString * 
 	return ok;
 }
 
-CsvSniffer::Result::Result() : FieldDivisor(0), Flags(0), SnTokSeq_Common(0), SnTokSeq_First(0), LineCount(0), FieldCountExpectation(0.0)
+CsvSniffer::Result::Result() : FieldDivisor(0), Flags(0), SnTokSeq_Common(0), SnTokSeq_First(0), LineCount(0), FieldCountExpectation(0.0), TitleRow_VTest_ColumnCount(0)
 {
 }
 		
@@ -3587,6 +3587,7 @@ CsvSniffer::Result & CsvSniffer::Result::Z()
 	FieldDivisor = 0;
 	Flags = 0;
 	LineCount = 0;
+	TitleRow_VTest_ColumnCount = 0;
 	SnTokSeq_Common = 0;
 	SnTokSeq_First = 0;
 	FieldCountExpectation = 0.0;
@@ -4484,13 +4485,43 @@ int CsvSniffer::Run(const char * pFileName, Result & rR) // @construction
 					}
 				}
 			}
+			const uint column_count = data_collector.ColumnStatList.getCount();
 			{
-				for(uint i = 0; i < data_collector.ColumnStatList.getCount(); i++) {
+				bool   all_columns_have_text_in_first_row = true;
+				static const int sntok_text_list[] = { SNTOK_GENERICTEXT_ASCII, SNTOK_GENERICTEXT_UTF8, 
+					SNTOK_GENERICTEXT_CP1251, SNTOK_GENERICTEXT_CP866, SNTOK_PLIDENT, SNTOK_NATURALWORD };
+				for(uint i = 0; i < column_count; i++) {
 					TemporaryCsvDataCollector::ColumnStat * p_cs = data_collector.ColumnStatList.at(i);
 					if(p_cs) {
 						p_cs->LenStat.Finish();
+						{
+							bool is_there_text = false;
+							for(uint tli = 0; !is_there_text && tli < SIZEOFARRAY(sntok_text_list); tli++) {
+								if(p_cs->NtaFirstRow.Has(sntok_text_list[tli]) > 0.0f)
+									is_there_text = true;
+							}
+							if(!is_there_text)
+								all_columns_have_text_in_first_row = false;	
+						}
 						first_column_combined_nta.Combine(p_cs->NtaFirstRow);
 					}
+				}
+				if(all_columns_have_text_in_first_row)
+					rR.Flags |= Result::fTitleRow_HTest;
+			}
+			{
+				uint   exclusive_nta_count = 0; // Количество столбцов, в которых p_cs->NtaFirstRow.IsThereAnyItemsThatAreNotInOther(p_cs->NtaCommon) > 0
+				for(uint i = 0; i < column_count; i++) {
+					TemporaryCsvDataCollector::ColumnStat * p_cs = data_collector.ColumnStatList.at(i);
+					if(p_cs) {
+						if(p_cs->NtaFirstRow.IsThereAnyItemsThatAreNotInOther(p_cs->NtaCommon) > 0) {
+							exclusive_nta_count++;
+						}
+					}
+				}
+				rR.TitleRow_VTest_ColumnCount = exclusive_nta_count;
+				if(exclusive_nta_count >= (column_count / 2)) {
+					rR.Flags |= Result::fTitleRow_VTest;
 				}
 			}
 			{
@@ -4514,9 +4545,13 @@ int CsvSniffer::Run(const char * pFileName, Result & rR) // @construction
 								case ';': line_buf.Cat("\';\'"); break;
 								default: line_buf.CatChar('\'').CatChar(rR.FieldDivisor).CatChar('\''); break;
 							}
-							line_buf.Space().CatEq("Columns count", data_collector.ColumnStatList.getCount());
-							line_buf.CR();
-							f_out.WriteLine(line_buf);
+							line_buf.Space().CatEq("Columns count", column_count);
+							f_out.WriteLine(line_buf.CR());
+							line_buf.Z();
+							line_buf.Cat("The first line as a title test result").CatDiv(':', 2);
+							line_buf.CatEq("HTest", LOGIC(rR.Flags & Result::fTitleRow_HTest)).Semicol();
+							line_buf.CatEq("VTest", LOGIC(rR.Flags & Result::fTitleRow_VTest)).Space().Cat(rR.TitleRow_VTest_ColumnCount).Slash().Cat(column_count);
+							f_out.WriteLine(line_buf.CR());
 							if(first_column_combined_nta.getCount()) {
 								line_buf.Z().Cat("First Column Combined Nta");
 								line_buf.CR();
@@ -4529,7 +4564,7 @@ int CsvSniffer::Run(const char * pFileName, Result & rR) // @construction
 								}
 							}
 							{
-								for(uint i = 0; i < data_collector.ColumnStatList.getCount(); i++) {
+								for(uint i = 0; i < column_count; i++) {
 									const TemporaryCsvDataCollector::ColumnStat * p_cs = data_collector.ColumnStatList.at(i);
 									if(p_cs) {
 										double len_avg = p_cs->LenStat.GetExp();
@@ -4563,7 +4598,7 @@ int CsvSniffer::Run(const char * pFileName, Result & rR) // @construction
 							}
 						}
 						{
-							for(uint i = 0; i < data_collector.ColumnStatList.getCount(); i++) {
+							for(uint i = 0; i < column_count; i++) {
 								const TemporaryCsvDataCollector::ColumnStat * p_cs = data_collector.ColumnStatList.at(i);
 								if(p_cs) {
 									line_buf.Z().Cat("Column").Space().CatChar('#').Cat(p_cs->N).Space().Cat("data").Colon();
@@ -4607,6 +4642,10 @@ int Test_CsvSniffer()
 	r = s.Run((path = base_path).SetLastSlash().Cat("ts-eurusd.csv"), result);
 	r = s.Run((path = base_path).SetLastSlash().Cat("test-input-csv-semicol-utf8.csv"), result);
 	r = s.Run((path = base_path).SetLastSlash().Cat("csv-vbar-notitle-866.csv"), result);
+	{
+		(path = base_path).SetLastSlash().Cat("..\\..\\Rsrc\\Data").SetLastSlash().Cat("ru-region.csv");
+		r = s.Run(path, result);
+	}
 	path = "D:/DEV/etc/Microsoft/Leak-of-some-Bing-Bing_Maps-Cortana-source-code/CWBMM/src/CWBMM.Product/Maps_SBS/CustomWPSBS/Examples/CreateDirectionsWPSBSSample/DirectionsCandidates.tsv";
 	r = s.Run(path, result);
 	//

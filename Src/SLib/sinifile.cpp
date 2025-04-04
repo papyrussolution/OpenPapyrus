@@ -1,5 +1,5 @@
 // SINIFILE.CPP
-// Copyright (c) A.Sobolev 2007, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023
+// Copyright (c) A.Sobolev 2007, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2025
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -356,7 +356,7 @@ int SIniFile::FlashIniBuf()
 			for(uint j = 0; p_sect->EnumParams(&j, &par, &val) > 0;) {
 				/*if(Flags & fWinCoding) par.Transf(CTRANSF_INNER_TO_OUTER);*/
 				EncodeText(par);
-				EncodeText(val); // @v10.3.11
+				EncodeText(val);
 				THROW(File.WriteLine(temp_buf.Z().CatEq(par, val).CR()));
 			}
 		}

@@ -12211,7 +12211,7 @@ int PPViewVetisDocument::ProcessIncoming(PPID entityID)
 				PPWaitStop();
 			}
 		}
-		else if(v == 3) { // @v10.6.4 Списать выбранный документ // @construction
+		else if(v == 3) { // Списать выбранный документ // @construction
 			VetisVetDocument item;
 			if(EC.Get(entityID, item) > 0) {
 				if(!item.Uuid.IsZero()) {
@@ -12231,7 +12231,7 @@ int PPViewVetisDocument::ProcessIncoming(PPID entityID)
 				}
 			}
 		}
-		else if(v == 4) { // @v10.6.4 Списать всю выборку документов
+		else if(v == 4) { // Списать всю выборку документов
 			if(CONFIRMCRIT(PPCFM_WROFFALLVETISCERTS)) {
 				PPVetisInterface::Param param(0, Filt.LocID__, 0);
 				THROW(PPVetisInterface::SetupParam(param));

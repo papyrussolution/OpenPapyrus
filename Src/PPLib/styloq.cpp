@@ -2391,8 +2391,9 @@ int StyloQCore::PutPeerEntry(PPID * pID, StoragePacket * pPack, int use_ta)
 		else if(pPack) {
 			PPID   new_id = 0;
 			if(pPack->Rec.Kind == kNativeService) {
-				// В таблице может быть не более одной записи вида kNativeService
-				THROW(GetOwnPeerEntry(0) < 0); // @error Попытка вставить вторую запись вида native-service
+				const int gope_r = GetOwnPeerEntry(0);
+				THROW(gope_r);
+				THROW_PP(gope_r < 0, PPERR_SQ_DUPNATIVESVCREC); // В таблице может быть не более одной записи вида kNativeService
 			}
 			else if(pPack->Rec.Kind == kFace) {
 				if(ismemzero(pPack->Rec.BI, sizeof(pPack->Rec.BI))) {
@@ -2958,14 +2959,14 @@ int StyloQCore::SvcDbSymbMap::Read(const char * pFilePath, int loadTimeUsage)
 			if(dlb.GetAttr(DbLoginBlock::attrDbSymb, db_symb) && db_symb.NotEmpty()) {
 				p_ldb = DS.LimitedOpenDatabase(db_symb, PPSession::lodfReference|PPSession::lodfStyloQCore);
 				if(!p_ldb)
-					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_COMP);
+					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_DBINFO|LOGMSGF_COMP);
 				else if(p_ldb->P_Sqc) {
 					StyloQCore::StoragePacket sp;
 					if(p_ldb->P_Sqc->GetOwnPeerEntry(&sp) <= 0) {
-						PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_COMP);
+						PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_DBINFO|LOGMSGF_COMP);
 					}
 					else if(!sp.Pool.Get(SSecretTagPool::tagSvcIdent, &bc)) {
-						PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_COMP);
+						PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_DBINFO|LOGMSGF_COMP);
 					}
 					else {
 						assert(bc.Len() > 0);
@@ -6721,7 +6722,7 @@ SJson * PPStyloQInterchange::MakeObjJson_OwnFace(const StyloQCore::StoragePacket
 	SString temp_buf;
 	SBinaryChunk own_svc_ident;
 	THROW_SL(p_result);
-	THROW(rOwnPack.Rec.Kind == StyloQCore::kNativeService); // @err
+	THROW_PP(rOwnPack.Rec.Kind == StyloQCore::kNativeService, PPERR_SQ_MKJSOWNFC_INVPACKKIND);
 	THROW_PP(rOwnPack.Pool.Get(SSecretTagPool::tagSvcIdent, &own_svc_ident), PPERR_SQ_UNDEFOWNSVCID);
 	{
 		SString my_face_json_buf;
@@ -7106,10 +7107,10 @@ int PPStyloQInterchange::MakeIndexingRequestCommand(const StyloQCore::StoragePac
 	SJson  js(SJson::tOBJECT);
 	if(!rDocUuid)
 		rDocUuid.Generate();
-	THROW(!pCmd || pCmd->BaseCmdId == StyloQCommandList::sqbcRsrvPushIndexContent); // @todo @err
-	THROW(pOwnPack->Rec.Kind == StyloQCore::kNativeService); // @todo @err
-	THROW_PP(pOwnPack->Pool.Get(SSecretTagPool::tagSvcIdent, &own_svc_ident), PPERR_SQ_UNDEFOWNSVCID)
-	THROW(own_svc_ident.Len() <= sizeof(pOwnPack->Rec.BI) && own_svc_ident.IsEq(pOwnPack->Rec.BI, own_svc_ident.Len())); // @todo @err
+	THROW_PP(!pCmd || pCmd->BaseCmdId == StyloQCommandList::sqbcRsrvPushIndexContent, PPERR_SQ_MKIDXREQ_INVCMDTYPE);
+	THROW_PP(pOwnPack->Rec.Kind == StyloQCore::kNativeService, PPERR_SQ_MKIDXREQ_INVPACKKIND);
+	THROW_PP(pOwnPack->Pool.Get(SSecretTagPool::tagSvcIdent, &own_svc_ident), PPERR_SQ_UNDEFOWNSVCID);
+	THROW_PP(own_svc_ident.Len() <= sizeof(pOwnPack->Rec.BI) && own_svc_ident.IsEq(pOwnPack->Rec.BI, own_svc_ident.Len()), PPERR_SQ_MKIDXREQ_INVOWNPACKIDENT);
 	if(pCmd) {
 		size_t sav_offs = 0;
 		uint   pos = 0;
@@ -7213,7 +7214,7 @@ int PPStyloQInterchange::MakeIndexingRequestCommand(const StyloQCore::StoragePac
 			P_T->IndexingContent_Json(0, 0, rResult);
 		}
 	}
-	// } @debug
+	// } @debug 
 	CATCHZOK
 	ZDELETE(p_param_);
 	return ok;
@@ -11968,14 +11969,14 @@ void RunStyloQMqbServer()
 				StyloQCore::StoragePacket sp;
 				PPSession::LimitedDatabaseBlock * p_ldb = DS.LimitedOpenDatabase(p_map_entry->DbSymb, PPSession::lodfReference|PPSession::lodfStyloQCore|PPSession::lodfSysJournal);
 				if(!p_ldb) {
-					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_COMP);
+					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_DBINFO|LOGMSGF_COMP);
 				}
 				else if(p_ldb->P_Sqc->GetOwnPeerEntry(&sp) <= 0) {
-					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_COMP);
+					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_DBINFO|LOGMSGF_COMP);
 				}
 				else if(!sp.Pool.Get(SSecretTagPool::tagSvcIdent, &bc)) {
 					PPSetError(PPERR_SQ_UNDEFOWNSVCID);
-					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_COMP);
+					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_DBINFO|LOGMSGF_COMP);
 				}
 				else {
 					bool svc_id_reckoned = false;
@@ -13306,14 +13307,14 @@ int PPStyloQInterchange::Helper_PrepareAhed(const StyloQCommandList & rFullCmdLi
 				ZDELETE(p_ldb);
 				p_ldb = DS.LimitedOpenDatabase(p_map_entry->DbSymb, PPSession::lodfReference|PPSession::lodfStyloQCore|PPSession::lodfSysJournal);
 				if(!p_ldb) {
-					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_COMP);
+					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_DBINFO|LOGMSGF_COMP);
 				}
 				else if(p_ldb->P_Sqc->GetOwnPeerEntry(&sp) <= 0) {
-					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_COMP);
+					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_DBINFO|LOGMSGF_COMP);
 				}
 				else if(!sp.Pool.Get(SSecretTagPool::tagSvcIdent, &bc)) {
 					PPSetError(PPERR_SQ_UNDEFOWNSVCID);
-					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_COMP);
+					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_DBINFO|LOGMSGF_COMP);
 				}
 				else {
 					SysJournal * p_sj = p_ldb->P_Sj;

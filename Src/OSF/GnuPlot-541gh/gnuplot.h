@@ -3806,7 +3806,7 @@ extern const GpCoordinate blank_data_line;
 //
 void df_show_datasizes(FILE * fp);
 void df_show_filetypes(FILE * fp);
-#define df_set_skip_after(col, bytes) DfSetSkipBefore(col+1, bytes) // Number of bytes to skip after a binary column
+#define df_set_skip_after(rDf__, col, bytes) DfSetSkipBefore(rDf__, col+1, bytes) // Number of bytes to skip after a binary column
 //
 //#include <datablock.h>
 void gpfree_datablock(GpValue *datablock_value);
@@ -5558,10 +5558,128 @@ public:
 		double Intersection[12][3]; // the fractional index intersection along each of the cubes's 12 edges 
 		t_voxel CornerValue[8]; // working copy of the corner values for the current cube 
 	};
+	struct GpFit {
+		//
+		// is_empty: check for valid string entries
+		//
+		static bool IsEmptyString(const char * s)
+		{
+			while(*s == ' ' || *s == '\t' || *s == '\n' || *s == '\r')
+				s++;
+			return (bool)(*s == '#' || *s == '\0');
+		}
+		GpFit() :
+			epsilon(DEF_FIT_LIMIT),
+			startup_lambda(0.0),
+			lambda_down_factor(LAMBDA_DOWN_FACTOR),
+			lambda_up_factor(LAMBDA_UP_FACTOR),
+			log_f(0),
+			via_f(0),
+			num_data(0),
+			num_params(0),
+			num_indep(0),
+			num_errors(0),
+			fit_show_lambda(true),
+			user_stop(false),
+			columns(0),
+			fit_x(0),
+			fit_z(0),
+			err_data(0),
+			a(0),
+			regress_C(0),
+			CleanUpProc(0),
+			scale_params(0),
+			par_name(0),
+			par_udv(0),
+			last_par_name(0),
+			last_num_params(0),
+			last_fit_command(0),
+			fitlogfile(0),
+			fit_verbosity(BRIEF),
+			fit_script(0),
+			fit_wrap(0),
+			maxiter(0),
+			epsilon_abs(0.0),
+			fit_suppress_log(false),
+			fit_errorvariables(true),
+			fit_covarvariables(false),
+			fit_errorscaling(true),
+			fit_prescale(true),
+			fit_v4compatible(false)
+		{
+			memzero(err_cols, sizeof(err_cols));
+			memzero(last_dummy_var, sizeof(last_dummy_var));
+			memzero(fit_dummy_udvs, sizeof(fit_dummy_udvs));
+			memzero(&func, sizeof(func));
+		}
+		// 
+		// Small function to write the last fit command into a file
+		// Arg: Pointer to the file; if NULL, nothing is written,
+		//   but only the size of the string is returned.
+		// 
+		size_t WriToFilLastFitCmd(FILE * fp)
+		{
+			if(!last_fit_command)
+				return 0;
+			else if(!fp)
+				return strlen(last_fit_command);
+			else
+				return (size_t)fputs(last_fit_command, fp);
+		}
+		void   Dblfn(const char * fmt, ...) const;
+		void   ShowResults(double chisq, double last_chisq, double * pA, double * pDPar, double ** ppCorel);
+		double epsilon;  // relative convergence limit 
+		double startup_lambda;
+		double lambda_down_factor;
+		double lambda_up_factor;
+		FILE * log_f;
+		FILE * via_f;
+		int    num_data;
+		int    num_params;
+		int    num_indep; // # independent variables in fit function 
+		int    num_errors; // #error columns 
+		bool   fit_show_lambda;
+		bool   user_stop;
+		bool   err_cols[MAX_NUM_VAR+1]; // TRUE if variable has an associated error 
+		int    columns; // # values read from data file for each point 
+		double * fit_x; // all independent variable values, e.g. value of the ith variable from the jth data point is in fit_x[j*num_indep+i] 
+		double * fit_z; // dependent data values 
+		double * err_data; // standard deviations of indep. and dependent data
+		double * a; // array of fitting parameters 
+		double ** regress_C; // global copy of C matrix in regress 
+		//void (* regress_cleanup)(); // memory cleanup function callback 
+		RegressCleanUpProc CleanUpProc; // memory cleanup function callback 
+		double * scale_params; // scaling values for parameters 
+		udft_entry func;
+		fixstr * par_name;
+		GpValue ** par_udv; // array of pointers to the "via" variables 
+		fixstr * last_par_name;
+		int    last_num_params;
+		char * last_dummy_var[MAX_NUM_VAR];
+		char * last_fit_command;
+		// Mar 2014 - the single hottest call path in fit was looking up the
+		// dummy parameters by name (4 billion times in fit.dem).
+		// A total waste, since they don't change.  Look up once and store here.
+		udvt_entry * fit_dummy_udvs[MAX_NUM_VAR];
+		//
+		char * fitlogfile;
+		verbosity_level fit_verbosity;
+		char * fit_script;
+		int    fit_wrap;
+		int    maxiter;
+		double epsilon_abs; // // absolute convergence criterion. default to zero non-relative limit 
+		bool   fit_suppress_log;
+		bool   fit_errorvariables;
+		bool   fit_covarvariables;
+		bool   fit_errorscaling;
+		bool   fit_prescale;
+		bool   fit_v4compatible;
+	};
+
 	GnuPlot();
 	~GnuPlot();
 	int    ImplementMain(int argc_orig, char ** argv);
-	void   Call(const double * par, double * data);
+	void   Call(GpFit & rFit, const double * par, double * data);
 	void   PlotRequest(GpTermEntry * pTerm);
 	static void DoArrow(GpTermEntry_Static * pThis, uint usx, uint usy/* start point */, uint uex, uint uey/* end point (point of arrowhead) */, int headstyle);
 	static void DoPoint(GpTermEntry_Static * pThis, uint x, uint y, int number);
@@ -5648,7 +5766,7 @@ public:
 	void   SetCommand();
 	void   ResetCommand();
 	void   UnsetCommand();
-	void   FitCommand();
+	void   FitCommand(GpFit & rFit);
 	void   ExitCommand();
 	void   ShowCommand();
 	void   LinkCommand();
@@ -5687,10 +5805,10 @@ public:
 	void   UpdateCommand();
 	void   ScreenDumpCommand(GpTermEntry * pTerm);
 	void   PrintLineWithError(int t_num);
-	void   PlotOptionEvery();
-	void   PlotOptionUsing(int max_using);
-	void   PlotOptionIndex();
-	void   PlotOptionBinary(bool setMatrix, bool setDefault);
+	void   PlotOptionEvery(GpDataFile & rDf);
+	void   PlotOptionUsing(GpDataFile & rDf, int max_using);
+	void   PlotOptionIndex(GpDataFile & rDf);
+	void   PlotOptionBinary(GpDataFile & rDf, bool setMatrix, bool setDefault);
 	void   Plot3DRequest(GpTermEntry * pTerm);
 	void   RefreshRequest(GpTermEntry * pTerm);
 	void   StatsRequest();
@@ -5788,7 +5906,7 @@ public:
 	void   UnsetPolar();
 	void   UnsetStyle();
 	void   TestTerminal(GpTermEntry * pTerm);
-	char * DfGeneratePseudodata();
+	char * DfGeneratePseudodata(GpDataFile & rDf);
 	int    IsBuiltinFunction(int t_num) const;
 	int    IsFunction(int t_num) const;
 	int    IsDefinition(int t_num) const;
@@ -5798,7 +5916,7 @@ public:
 	void   UpdateGpvalVariables(GpTermEntry * pTerm, int context);
 	GpIterator * CheckForIteration();
 	void   PrepareCall(int calltype);
-	int    DfOpen(const char * pCmdFileName, int maxUsing, curve_points * pPlot);
+	int    DfOpen(GpDataFile & rDf, const char * pCmdFileName, int maxUsing, curve_points * pPlot);
 	double DfReadAFloat(FILE * fin);
 	// C-callable versions of internal gnuplot functions word() and words() 
 	char * Gp_Word(char * string, int i);
@@ -5823,17 +5941,17 @@ public:
 	void   GPrintf(char * pOutString, size_t count, const char * pFormat, double log10_base, double x);
 	void   TermReset(GpTermEntry * pTerm);
 	void   TermSetOutput(GpTermEntry * pTerm, char * pDest);
-	int    DfReadLine(double v[], int maxSize);
+	int    DfReadLine(GpDataFile & rDf, double v[], int maxSize);
 	void   RemoveLabel(GpTermEntry * pTerm, int x, int y);
 	gradient_struct * ApproximatePalette(t_sm_palette * pPalette, int samples, double allowedDeviation, int * pGradientNum);
 	double MapX(double value);
 	double MapY(double value);
 	int    MapiX(double value);
 	int    MapiY(double value);
-	char * DfGets(FILE * fin);
-	void   DfSetSkipBefore(int col, int bytes);
-	void   DfSetReadType(int col, df_data_type type);
-	void   DfExtendBinaryColumns(int no_cols);
+	char * DfGets(GpDataFile & rDf, FILE * fin);
+	void   DfSetSkipBefore(GpDataFile & rDf, int col, int bytes);
+	void   DfSetReadType(GpDataFile & rDf, int col, df_data_type type);
+	void   DfExtendBinaryColumns(GpDataFile & rDf, int no_cols);
 	void   DfSetPlotMode(int mode);
 	void   Givens(double ** ppC, double * pD, double * pX, int N, int n);
 	void   ErrorEx(int t_num, const char * str, ...);
@@ -5848,126 +5966,6 @@ public:
 	double FASTCALL Magnitude(const GpValue * pVal);
 	double FASTCALL Angle(const GpValue * pVal);
 	void   EnhErrCheck(const char * pStr);
-	//
-	//
-	//
-	struct GpFit {
-		//
-		// is_empty: check for valid string entries
-		//
-		static bool IsEmptyString(const char * s)
-		{
-			while(*s == ' ' || *s == '\t' || *s == '\n' || *s == '\r')
-				s++;
-			return (bool)(*s == '#' || *s == '\0');
-		}
-		GpFit() :
-			epsilon(DEF_FIT_LIMIT),
-			startup_lambda(0.0),
-			lambda_down_factor(LAMBDA_DOWN_FACTOR),
-			lambda_up_factor(LAMBDA_UP_FACTOR),
-			log_f(0),
-			via_f(0),
-			num_data(0),
-			num_params(0),
-			num_indep(0),
-			num_errors(0),
-			fit_show_lambda(true),
-			user_stop(false),
-			columns(0),
-			fit_x(0),
-			fit_z(0),
-			err_data(0),
-			a(0),
-			regress_C(0),
-			CleanUpProc(0),
-			scale_params(0),
-			par_name(0),
-			par_udv(0),
-			last_par_name(0),
-			last_num_params(0),
-			last_fit_command(0),
-			fitlogfile(0),
-			fit_verbosity(BRIEF),
-			fit_script(0),
-			fit_wrap(0),
-			maxiter(0),
-			epsilon_abs(0.0),
-			fit_suppress_log(false),
-			fit_errorvariables(true),
-			fit_covarvariables(false),
-			fit_errorscaling(true),
-			fit_prescale(true),
-			fit_v4compatible(false)
-		{
-			memzero(err_cols, sizeof(err_cols));
-			memzero(last_dummy_var, sizeof(last_dummy_var));
-			memzero(fit_dummy_udvs, sizeof(fit_dummy_udvs));
-			memzero(&func, sizeof(func));
-		}
-		// 
-		// Small function to write the last fit command into a file
-		// Arg: Pointer to the file; if NULL, nothing is written,
-		//   but only the size of the string is returned.
-		// 
-		size_t WriToFilLastFitCmd(FILE * fp)
-		{
-			if(!last_fit_command)
-				return 0;
-			else if(!fp)
-				return strlen(last_fit_command);
-			else
-				return (size_t)fputs(last_fit_command, fp);
-		}
-		void   Dblfn(const char * fmt, ...);
-		void   ShowResults(double chisq, double last_chisq, double * pA, double * pDPar, double ** ppCorel);
-		double epsilon;  // relative convergence limit 
-		double startup_lambda;
-		double lambda_down_factor;
-		double lambda_up_factor;
-		FILE * log_f;
-		FILE * via_f;
-		int    num_data;
-		int    num_params;
-		int    num_indep; // # independent variables in fit function 
-		int    num_errors; // #error columns 
-		bool   fit_show_lambda;
-		bool   user_stop;
-		bool   err_cols[MAX_NUM_VAR+1]; // TRUE if variable has an associated error 
-		int    columns; // # values read from data file for each point 
-		double * fit_x; // all independent variable values, e.g. value of the ith variable from the jth data point is in fit_x[j*num_indep+i] 
-		double * fit_z; // dependent data values 
-		double * err_data; // standard deviations of indep. and dependent data
-		double * a; // array of fitting parameters 
-		double ** regress_C; // global copy of C matrix in regress 
-		//void (* regress_cleanup)(); // memory cleanup function callback 
-		RegressCleanUpProc CleanUpProc; // memory cleanup function callback 
-		double * scale_params; // scaling values for parameters 
-		udft_entry func;
-		fixstr * par_name;
-		GpValue ** par_udv; // array of pointers to the "via" variables 
-		fixstr * last_par_name;
-		int    last_num_params;
-		char * last_dummy_var[MAX_NUM_VAR];
-		char * last_fit_command;
-		// Mar 2014 - the single hottest call path in fit was looking up the
-		// dummy parameters by name (4 billion times in fit.dem).
-		// A total waste, since they don't change.  Look up once and store here.
-		udvt_entry * fit_dummy_udvs[MAX_NUM_VAR];
-		//
-		char * fitlogfile;
-		verbosity_level fit_verbosity;
-		char * fit_script;
-		int    fit_wrap;
-		int    maxiter;
-		double epsilon_abs; // // absolute convergence criterion. default to zero non-relative limit 
-		bool   fit_suppress_log;
-		bool   fit_errorvariables;
-		bool   fit_covarvariables;
-		bool   fit_errorscaling;
-		bool   fit_prescale;
-		bool   fit_v4compatible;
-	};
 	//
 	//
 	//
@@ -6101,7 +6099,7 @@ public:
 	void   BmpCharSize(uint size);
 	void   BmpMakeBitmap(uint x, uint y, uint planes);
 	void   BmpFreeBitmap();
-	marq_res_t Marquardt(double a[], double ** C, double * chisq, double * lambda);
+	marq_res_t Marquardt(GpFit & rFit, double a[], double ** C, double * chisq, double * lambda);
 	void   InternalRegressCleanUp();
 	void   GetUserEnv();
 	void   GpExpandTilde(char ** ppPath);
@@ -6391,9 +6389,9 @@ private:
 	void   PlaceObjects(GpTermEntry * pTerm, GpObject * pListHead, int layer, int dimensions);
 	void   PlaceLabels3D(GpTermEntry * pTerm, text_label * pListHead, int layer);
 	void   Plot3DBoxErrorBars(GpTermEntry * pTerm, GpSurfacePoints * plot);
-	void   PlotOptionMultiValued(df_multivalue_type type, int arg);
-	void   PlotOptionArray();
-	void   PlotTicLabelUsing(int axis);
+	void   PlotOptionMultiValued(GpDataFile & rDf, df_multivalue_type type, int arg);
+	void   PlotOptionArray(GpDataFile & rDf);
+	void   PlotTicLabelUsing(GpDataFile & rDf, int axis);
 	void   PlotDots(GpTermEntry * pTerm, const curve_points * pPlot);
 	void   PlotBoxPlot(GpTermEntry * pTerm, curve_points * pPlot, bool onlyAutoscale);
 	void   PlotSpiderPlot(GpTermEntry * pTerm, curve_points * pPlot);
@@ -6506,8 +6504,8 @@ private:
 	void   SetTicScale();
 	void   SetTimeStamp();
 	void   SetArrowStyle();
-	void   SetDataFile();
-	void   DfSetDataFileBinary();
+	void   SetDataFile(GpDataFile & rDf);
+	void   DfSetDataFileBinary(GpDataFile & rDf);
 	void   SetTimeData(GpAxis * pAx);
 	void   SetRange(GpAxis * pAx);
 	void   SetCbMinMax();
@@ -6516,7 +6514,7 @@ private:
 	void   SaveWritebackAllAxes();
 	void   CheckAxisReversed(AXIS_INDEX axIdx);
 	void   SaveZeroAxis(FILE * fp, AXIS_INDEX axis);
-	void   SetFit();
+	void   SetFit(GpFit & rFit);
 	void   SetCntrLabel();
 	void   SetContour();
 	void   SetBoxPlot();
@@ -6528,7 +6526,7 @@ private:
 	double MapY3D(double y);
 	double MapZ3D(double z);
 	void   UpdateRuler(GpTermEntry * pTerm);
-	int    GetData(curve_points * pPlot);
+	int    GetData(GpDataFile rDf, curve_points * pPlot);
 	void   RefreshBounds(GpTermEntry * pTerm, curve_points * pFirstPlot, int nplots);
 	void   SpiderPlotRangeFiddling(curve_points * plot);
 	void   ParsePrimaryExpression();
@@ -6637,7 +6635,7 @@ private:
 	void   UnsetAutoScale();
 	void   UnsetSize();
 	void   UnsetClip();
-	void   UnsetFit();
+	void   UnsetFit(GpFit & rFit);
 	void   UnsetTerminal();
 	void   UnsetParametric();
 	void   UnsetDummy();
@@ -6729,7 +6727,7 @@ private:
 	void   ShowPalette_Gradient();
 	void   ShowLink();
 	void   ShowGrid();
-	void   ShowFit();
+	void   ShowFit(GpFit & rFit);
 	void   ShowTable();
 	void   ShowLineType(linestyle_def * pListHead, int tag);
 	void   ShowArrowStyle(int tag);
@@ -6813,7 +6811,7 @@ private:
 	void   ShowAllNl();
 	void   ShowJitter();
 	void   SaveStyleTextBox(FILE * fp);
-	void   SaveFit(FILE * fp);
+	void   SaveFit(const GpFit & rFit, FILE * fp);
 	void   SaveAll(FILE * fp);
 	void   SaveOffsets(FILE * fp, const char * lead);
 	void   SavePosition(FILE * fp, const GpPosition * pPos, int ndim, bool offset);
@@ -6841,9 +6839,9 @@ private:
 	void   SavePRange(FILE * fp, const GpAxis & rAx);
 	void   SaveJitter(FILE * fp);
 	void   InitializePlotStyle(curve_points * pPlot);
-	void   DfDetermineMatrix_info(FILE * fin);
-	void   DfSetKeyTitleColumnHead(const curve_points * pPlot);
-	void   AdjustBinaryUseSpec(curve_points * pPlot);
+	void   DfDetermineMatrix_info(GpDataFile & rDf, FILE * fin);
+	void   DfSetKeyTitleColumnHead(GpDataFile & rDf, const curve_points * pPlot);
+	void   AdjustBinaryUseSpec(GpDataFile & rDf, curve_points * pPlot);
 	int    Token2Tuple(double * pTuple, int dimension);
 	void   DrawTitles(GpTermEntry * pTerm);
 	void   Draw3DGraphBox(GpTermEntry * pTerm, const GpSurfacePoints * pPlot, int plotNum, WHICHGRID whichgrid, int currentLayer);
@@ -6909,11 +6907,11 @@ private:
 	void   PrintTable(curve_points * pPlot, int plotNum);
 	void   Print3DTable(int pcount);
 	bool   TabulateOneLine(double v[MAXDATACOLS], GpValue str[MAXDATACOLS], int ncols);
-	int    DfReadBinary(double v[], int maxSize);
-	int    DfReadAscii(double v[], int maxSize);
-	double * DfReadMatrix(int * pRows, int * pCols);
-	bool   Regress(double a[]);
-	void   RegressFinalize(int iter, double chisq, double lastChisq, double lambda, double ** ppCovar);
+	int    DfReadBinary(GpDataFile & rDf, double v[], int maxSize);
+	int    DfReadAscii(GpDataFile & rDf, double v[], int maxSize);
+	double * DfReadMatrix(GpDataFile & rDf, int * pRows, int * pCols);
+	bool   Regress(GpFit & rFit, double a[]);
+	void   RegressFinalize(GpFit & rFit, int iter, double chisq, double lastChisq, double lambda, double ** ppCovar);
 	void   GenInterpFrequency(curve_points * pPlot);
 	void   GenInterpUnwrap(curve_points * pPlot);
 	void   DoFreq(curve_points * pPlot/* still contains old plot->points */, int first_point/* where to start in plot->points */, int num_points/* to determine end in plot->points */);
@@ -6944,11 +6942,11 @@ private:
 	long   StoreVertex(GpCoordinate * pPoint, lp_style_type * pLpStyle, bool colorFromColumn);
 	void   ReevaluatePlotTitle(curve_points * pPlot);
 	bool   IsPlotWithColorbox() const;
-	void   DfInit();
-	void   DfClose();
+	void   DfInit(GpDataFile & rDf);
+	void   DfClose(GpDataFile & rDf);
 	char * DfGenerateAsciiArrayEntry();
-	char * DfGets();
-	int    DfTokenise(char * s);
+	char * DfGets(GpDataFile & rDf);
+	int    DfTokenise(GpDataFile & rDf, char * s);
 	void   DfShowData();
 	char * DfRetrieveColumnHead(int column);
 	void   DfUnsetDatafileBinary();
@@ -7046,7 +7044,7 @@ private:
 	bool   AxisPositionZeroAxis(AXIS_INDEX axis);
 	intgr_t GetIVar(const char * pVarName);
 	double GetDVar(const char * pVarName);
-	void   RegressInit();
+	void   RegressInit(GpFit & rFit);
 	GpFileStats AnalyzeFile(long n, int outofrange, int invalid, int blank, int dblblank, int headers);
 	void   EnsureOutput();
 	void   FileOutput(GpFileStats s);
@@ -7065,12 +7063,12 @@ private:
 	int    Scanner(char ** ppExpression, size_t * pExpressionLen);
 	int    ReadLine(const char * pPrompt, int start);
 	void   InitMemory();
-	void   Analyze(double pA[], double ** ppC, double pD[], double * pChisq, double ** ppDeriv);
-	void   Calculate(double * pZFunc, double ** ppDzda, double pA[]);
-	void   CalcDerivatives(const double * pPar, double * pData, double ** ppDeriv);
-	double EffectiveError(double ** ppDeriv, int i);
+	void   Analyze(GpFit & rFit, double pA[], double ** ppC, double pD[], double * pChisq, double ** ppDeriv);
+	void   Calculate(GpFit & rFit, double * pZFunc, double ** ppDzda, double pA[]);
+	void   CalcDerivatives(GpFit & rFit, const double * pPar, double * pData, double ** ppDeriv);
+	double EffectiveError(GpFit & rFit, double ** ppDeriv, int i);
 	bool   RegressCheckStop(int iter, double chisq, double last_chisq, double lambda);
-	bool   FitInterrupt();
+	bool   FitInterrupt(GpFit & rFit);
 	void   FitProgress(int i, double chisq, double last_chisq, double * pA, double lambda, FILE * pDevice);
 	void   FitShow(int i, double chisq, double last_chisq, double * pA, double lambda, FILE * pDevice);
 	void   FitShowBrief(int iter, double chisq, double last_chisq, double * pParms, double lambda, FILE * pDevice);
@@ -7096,7 +7094,7 @@ private:
 	char * XDateTimeFormat(double x, char * pB, int mode);
 	void   SetupTics(GpAxis * pAx, int max);
 	char * CopyOrInventFormatString(GpAxis * pAx);
-	const  char * GetFitScript();
+	const  char * GetFitScript(GpFit & rFit);
 	char * GetFitLogFile();
 	void   ScreenDump(GpTermEntry * pTerm);
 	uint   Hsv2Rgb(rgb_color * pColor);
@@ -7110,10 +7108,10 @@ private:
 	char * DfParseStringField(const char * field);
 	void   DfResetAfterError();
 	void   RequireValue(const char column);
-	void   FileTypeFunction_GpBin();
+	void   FileTypeFunction_GpBin(GpDataFile & rDf);
 	void   FileTypeFunction_Raw();
-	void   FileTypeFunction_Avs();
-	void   FileTypeFunction_Edf();
+	void   FileTypeFunction_Avs(GpDataFile & rDf);
+	void   FileTypeFunction_Edf(GpDataFile & rDf);
 	void   Implement_FileTypeFunction_Gd(int type);
 	void   FileTypeFunction_Png();
 	void   FileTypeFunction_Gif();

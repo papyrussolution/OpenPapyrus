@@ -1371,7 +1371,7 @@ void GnuPlot::PlotBars(GpTermEntry * pTerm, curve_points * plot)
 				// centered about the integer representing the cluster number 
 				// 'start' is reset to 0 at the top of eval_plots(), and then 
 				// incremented if 'plot new histogram' is encountered.        
-				int clustersize = plot->histogram->clustersize + Gg.histogram_opts.gap;
+				const int clustersize = plot->histogram->clustersize + Gg.histogram_opts.gap;
 				x  += (i-1) * (clustersize - 1) + plot->histogram_sequence;
 				x  += (Gg.histogram_opts.gap - 1) / 2.;
 				x  /= clustersize;

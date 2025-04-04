@@ -77,7 +77,7 @@ ITERATE:
 			case S_DECIMALSIGN: SetDecimalSign(); break;
 			case S_DUMMY: SetDummy(); break;
 			case S_ENCODING: SetEncoding(); break;
-			case S_FIT: SetFit(); break;
+			case S_FIT: SetFit(_Fit); break;
 			case S_FONTPATH: SetFontPath(); break;
 			case S_FORMAT: SetFormat(); break;
 			case S_GRID: SetGrid(GPT.P_Term); break;
@@ -129,7 +129,7 @@ ITERATE:
 			case S_TMARGIN: SetMargin(&V.MarginT); break;
 			case S_MICRO:   SetMicro(); break;
 			case S_MINUS_SIGN: SetMinusSign(); break;
-			case S_DATAFILE: SetDataFile(); break;
+			case S_DATAFILE: SetDataFile(_Df); break;
 			case S_MOUSE: SetMouse(GPT.P_Term); break;
 			case S_MONOCHROME: SetMonochrome(); break;
 			case S_MULTIPLOT: TermStartMultiplot(GPT.P_Term); break;
@@ -1289,7 +1289,7 @@ void GnuPlot::SetEncoding()
 // process 'set fit' command 
 //
 //static void set_fit()
-void GnuPlot::SetFit()
+void GnuPlot::SetFit(GpFit & rFit)
 {
 	int key;
 	Pgm.Shift();
@@ -1297,59 +1297,59 @@ void GnuPlot::SetFit()
 		if(Pgm.AlmostEqualsCur("log$file")) {
 			char * tmp;
 			Pgm.Shift();
-			_Fit.fit_suppress_log = FALSE;
+			rFit.fit_suppress_log = FALSE;
 			if(Pgm.EndOfCommand()) {
-				ZFREE(_Fit.fitlogfile);
+				ZFREE(rFit.fitlogfile);
 			}
 			else if(Pgm.EqualsCur("default")) {
 				Pgm.Shift();
-				ZFREE(_Fit.fitlogfile);
+				ZFREE(rFit.fitlogfile);
 			}
 			else if((tmp = TryToGetString()) != NULL) {
-				FREEANDASSIGN(_Fit.fitlogfile, tmp);
+				FREEANDASSIGN(rFit.fitlogfile, tmp);
 			}
 			else {
 				IntErrorCurToken("expecting string");
 			}
 		}
 		else if(Pgm.AlmostEqualsCur("nolog$file")) {
-			_Fit.fit_suppress_log = TRUE;
+			rFit.fit_suppress_log = TRUE;
 			Pgm.Shift();
 		}
 		else if(Pgm.AlmostEqualsCur("err$orvariables")) {
-			_Fit.fit_errorvariables = TRUE;
+			rFit.fit_errorvariables = TRUE;
 			Pgm.Shift();
 		}
 		else if(Pgm.AlmostEqualsCur("noerr$orvariables")) {
-			_Fit.fit_errorvariables = FALSE;
+			rFit.fit_errorvariables = FALSE;
 			Pgm.Shift();
 		}
 		else if(Pgm.AlmostEqualsCur("cov$ariancevariables")) {
-			_Fit.fit_covarvariables = TRUE;
+			rFit.fit_covarvariables = TRUE;
 			Pgm.Shift();
 		}
 		else if(Pgm.AlmostEqualsCur("nocov$ariancevariables")) {
-			_Fit.fit_covarvariables = FALSE;
+			rFit.fit_covarvariables = FALSE;
 			Pgm.Shift();
 		}
 		else if(Pgm.AlmostEqualsCur("errors$caling")) {
-			_Fit.fit_errorscaling = TRUE;
+			rFit.fit_errorscaling = TRUE;
 			Pgm.Shift();
 		}
 		else if(Pgm.AlmostEqualsCur("noerrors$caling")) {
-			_Fit.fit_errorscaling = FALSE;
+			rFit.fit_errorscaling = FALSE;
 			Pgm.Shift();
 		}
 		else if((key = Pgm.LookupTableForCurrentToken(fit_verbosity_level)) > 0) {
-			_Fit.fit_verbosity = (verbosity_level)key;
+			rFit.fit_verbosity = (verbosity_level)key;
 			Pgm.Shift();
 		}
 		else if(Pgm.EqualsCur("prescale")) {
-			_Fit.fit_prescale = TRUE;
+			rFit.fit_prescale = TRUE;
 			Pgm.Shift();
 		}
 		else if(Pgm.EqualsCur("noprescale")) {
-			_Fit.fit_prescale = FALSE;
+			rFit.fit_prescale = FALSE;
 			Pgm.Shift();
 		}
 		else if(Pgm.EqualsCur("limit")) {
@@ -1372,7 +1372,7 @@ void GnuPlot::SetFit()
 		else if(Pgm.EqualsCur("limit_abs")) {
 			Pgm.Shift();
 			double value = RealExpression();
-			_Fit.epsilon_abs = (value > 0.) ? value : 0.;
+			rFit.epsilon_abs = MAX(value, 0.0);
 		}
 		else if(Pgm.EqualsCur("maxiter")) {
 			// preserve compatibility with FIT_MAXITER user variable 
@@ -1429,14 +1429,14 @@ void GnuPlot::SetFit()
 			char * tmp;
 			Pgm.Shift();
 			if(Pgm.EndOfCommand()) {
-				ZFREE(_Fit.fit_script);
+				ZFREE(rFit.fit_script);
 			}
 			else if(Pgm.EqualsCur("default")) {
 				Pgm.Shift();
-				ZFREE(_Fit.fit_script);
+				ZFREE(rFit.fit_script);
 			}
 			else if((tmp = TryToGetString())) {
-				FREEANDASSIGN(_Fit.fit_script, tmp);
+				FREEANDASSIGN(rFit.fit_script, tmp);
 			}
 			else {
 				IntErrorCurToken("expecting string");
@@ -1444,21 +1444,21 @@ void GnuPlot::SetFit()
 		}
 		else if(Pgm.EqualsCur("wrap")) {
 			Pgm.Shift();
-			_Fit.fit_wrap = IntExpression();
-			if(_Fit.fit_wrap < 0) 
-				_Fit.fit_wrap = 0;
+			rFit.fit_wrap = IntExpression();
+			if(rFit.fit_wrap < 0) 
+				rFit.fit_wrap = 0;
 		}
 		else if(Pgm.EqualsCur("nowrap")) {
 			Pgm.Shift();
-			_Fit.fit_wrap = 0;
+			rFit.fit_wrap = 0;
 		}
 		else if(Pgm.EqualsCur("v4")) {
 			Pgm.Shift();
-			_Fit.fit_v4compatible = TRUE;
+			rFit.fit_v4compatible = TRUE;
 		}
 		else if(Pgm.EqualsCur("v5")) {
 			Pgm.Shift();
-			_Fit.fit_v4compatible = FALSE;
+			rFit.fit_v4compatible = FALSE;
 		}
 		else {
 			IntErrorCurToken("unrecognized option --- see `help set fit`");
@@ -2985,14 +2985,14 @@ void GnuPlot::SetPaletteFile()
 	if(!(file_name = TryToGetString()))
 		IntErrorCurToken("missing filename");
 	DfSetPlotMode(MODE_QUERY); /* Needed only for binary datafiles */
-	DfOpen(file_name, 4, NULL);
+	DfOpen(_Df, file_name, 4, NULL);
 	SAlloc::F(file_name);
 	ZFREE(SmPltt.P_Gradient);
 	actual_size = 10;
 	SmPltt.P_Gradient = (gradient_struct *)SAlloc::M(actual_size*sizeof(gradient_struct));
 	i = 0;
 	// values are clipped to [0,1] without notice 
-	while((j = DfReadLine(v, 4)) != DF_EOF) {
+	while((j = DfReadLine(_Df, v, 4)) != DF_EOF) {
 		if(i >= actual_size) {
 			actual_size += 10;
 			SmPltt.P_Gradient = (gradient_struct *)SAlloc::R(SmPltt.P_Gradient, actual_size*sizeof(gradient_struct));
@@ -3011,13 +3011,13 @@ void GnuPlot::SetPaletteFile()
 			    SmPltt.P_Gradient[i].pos = v[0];
 			    break;
 			default:
-			    DfClose();
+			    DfClose(_Df);
 			    IntErrorCurToken("Bad data on line %d", _Df.df_line_number);
 			    break;
 		}
 		++i;
 	}
-	DfClose();
+	DfClose(_Df);
 	if(!i)
 		IntErrorCurToken("No valid palette found");
 	SmPltt.GradientNum = i;
@@ -6157,40 +6157,40 @@ void GnuPlot::RRangeToXY()
 }
 
 //static void set_datafile()
-void GnuPlot::SetDataFile()
+void GnuPlot::SetDataFile(GpDataFile & rDf)
 {
 	Pgm.Shift();
 	while(!Pgm.EndOfCommand()) {
 		if(Pgm.AlmostEqualsCur("miss$ing"))
 			SetMissing();
 		else if(Pgm.AlmostEqualsCur("sep$arators"))
-			SetSeparator(&_Df.df_separators);
+			SetSeparator(&rDf.df_separators);
 		else if(Pgm.AlmostEqualsCur("com$mentschars"))
 			SetDataFileCommentsChars();
 		else if(Pgm.AlmostEqualsCur("bin$ary"))
-			DfSetDataFileBinary();
+			DfSetDataFileBinary(rDf);
 		else if(Pgm.AlmostEqualsCur("fort$ran")) {
-			_Df.df_fortran_constants = true;
+			rDf.df_fortran_constants = true;
 			Pgm.Shift();
 		}
 		else if(Pgm.AlmostEqualsCur("nofort$ran")) {
-			_Df.df_fortran_constants = false;
+			rDf.df_fortran_constants = false;
 			Pgm.Shift();
 		}
 		else if(Pgm.AlmostEqualsCur("fpe_trap")) {
-			_Df.df_nofpe_trap = false;
+			rDf.df_nofpe_trap = false;
 			Pgm.Shift();
 		}
 		else if(Pgm.AlmostEqualsCur("nofpe_trap")) {
-			_Df.df_nofpe_trap = true;
+			rDf.df_nofpe_trap = true;
 			Pgm.Shift();
 		}
 		else if(Pgm.AlmostEqualsCur("columnhead$ers")) {
-			_Df.df_columnheaders = true;
+			rDf.df_columnheaders = true;
 			Pgm.Shift();
 		}
 		else if(Pgm.AlmostEqualsCur("nocolumnhead$ers")) {
-			_Df.df_columnheaders = false;
+			rDf.df_columnheaders = false;
 			Pgm.Shift();
 		}
 		else

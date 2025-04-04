@@ -7962,6 +7962,27 @@ int SNaturalTokenArray::Combine(const SNaturalTokenArray & rOther)
 	return ok;
 }
 
+uint SNaturalTokenArray::IsThereAnyItemsThatAreNotInOther(const SNaturalTokenArray & rOther) const
+{
+	uint    result = 0;
+	if(getCount()) {
+		if(rOther.getCount()) {
+			for(uint i = 0; i < getCount(); i++) {
+				const SNaturalToken & r_item = at(i);
+				if(rOther.Has(r_item.ID) > 0.0f) {
+					;
+				}
+				else {
+					result++;
+				}
+			}
+		}
+		else
+			result = getCount();
+	}
+	return result;
+}
+
 int SNaturalTokenArray::Intersect(const SNaturalTokenArray & rS) // @v12.2.11
 {
 	int    result = -1;

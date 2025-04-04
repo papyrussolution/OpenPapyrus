@@ -1637,14 +1637,7 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 {
 	int    ok = 1;
 	Reference * p_ref = PPRef;
-	/* @v11.5.2 
-	#ifdef  NDEBUG
-		bool   use_json_cmd = false; // @v11.3.5 @debug
-	#else
-		bool   use_json_cmd = true; // @v11.3.5 @debug
-	#endif // ! NDEBUG
-	*/
-	const  bool   use_json_cmd = LOGIC(Flags & sfUseJson); // @v11.5.2
+	const  bool   use_json_cmd = LOGIC(Flags & sfUseJson);
 	bool   is_format = false;
 	bool   enabled = true;
 	int    jsproc_result = 0;

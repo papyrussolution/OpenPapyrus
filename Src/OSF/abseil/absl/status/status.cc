@@ -128,13 +128,9 @@ bool Status::ErasePayload(absl::string_view type_url) {
 void Status::ForEachPayload(absl::FunctionRef<void(absl::string_view, const absl::Cord&)> visitor)
 const {
 	if(auto* payloads = GetPayloads()) {
-		bool in_reverse =
-		    payloads->size() > 1 && reinterpret_cast<uintptr_t>(payloads) % 13 > 6;
-
+		bool in_reverse = payloads->size() > 1 && reinterpret_cast<uintptr_t>(payloads) % 13 > 6;
 		for(size_t index = 0; index < payloads->size(); ++index) {
-			const auto & elem =
-			    (*payloads)[in_reverse ? payloads->size() - 1 - index : index];
-
+			const auto & elem = (*payloads)[in_reverse ? payloads->size() - 1 - index : index];
 #ifdef NDEBUG
 			visitor(elem.type_url, elem.payload);
 #else
@@ -148,10 +144,12 @@ const {
 	}
 }
 
-const std::string* Status::EmptyString() {
+const std::string* Status::EmptyString() 
+{
 	static union EmptyString {
 		std::string str;
-		~EmptyString() {
+		~EmptyString() 
+		{
 		}
 	} empty = {{}};
 	return &empty.str;
@@ -159,7 +157,8 @@ const std::string* Status::EmptyString() {
 
 constexpr const char Status::kMovedFromString[];
 
-const std::string* Status::MovedFromString() {
+const std::string* Status::MovedFromString() 
+{
 	static std::string* moved_from_string = new std::string(kMovedFromString);
 	return moved_from_string;
 }

@@ -651,7 +651,7 @@ void GnuPlot::StatsRequest()
 	//
 	if(TRUE) {
 		DfSetPlotMode(MODE_PLOT); /* Used for matrix datafiles */
-		columns = DfOpen(file_name, 2, NULL); /* up to 2 using specs allowed */
+		columns = DfOpen(_Df, file_name, 2, NULL); /* up to 2 using specs allowed */
 		// 
 		// "stats <badfilename> nooutput"
 		// allows user to test for existance of a file without generating a fatal error.
@@ -688,7 +688,7 @@ void GnuPlot::StatsRequest()
 			else if(Pgm.AlmostEqualsCur("pre$fix") || Pgm.EqualsCur("name")) {
 				Pgm.Shift();
 				if(Pgm.AlmostEqualsCur("col$umnheader")) {
-					DfSetKeyTitleColumnHead(NULL);
+					DfSetKeyTitleColumnHead(_Df, NULL);
 					prefix_from_columnhead = TRUE;
 					continue;
 				}
@@ -731,12 +731,12 @@ void GnuPlot::StatsRequest()
 		   - no using  = first two columns if both are present on the first line of data
 		               else first column only
 		 */
-		while((i = DfReadLine(v, 2)) != DF_EOF) {
+		while((i = DfReadLine(_Df, v, 2)) != DF_EOF) {
 			if(n >= max_n) {
 				max_n = (max_n * 3) / 2; // increase max_n by factor of 1.5 
 				// Some of the reallocations went bad: 
 				if(!redim_vec(&data_x, max_n) || !redim_vec(&data_y, max_n)) {
-					DfClose();
+					DfClose(_Df);
 					IntError(NO_CARET, "Out of memory in stats: too many datapoints (%d)?", max_n);
 				}
 			} /* if (need to extend storage space) */
@@ -788,7 +788,7 @@ void GnuPlot::StatsRequest()
 				    break;
 			}
 		} // end-while : done reading file 
-		DfClose();
+		DfClose(_Df);
 		// now resize fields to actual length: 
 		redim_vec(&data_x, n);
 		redim_vec(&data_y, n);

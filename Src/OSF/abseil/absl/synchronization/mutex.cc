@@ -1349,9 +1349,9 @@ static inline GraphId DebugOnlyDeadlockCheck(Mutex * mu) {
 	}
 }
 
-void Mutex::ForgetDeadlockInfo() {
-	if(kDebugMode && synch_deadlock_detection.load(std::memory_order_acquire) !=
-	    OnDeadlockCycle::kIgnore) {
+void Mutex::ForgetDeadlockInfo() 
+{
+	if(kDebugMode && synch_deadlock_detection.load(std::memory_order_acquire) != OnDeadlockCycle::kIgnore) {
 		deadlock_graph_mu.Lock();
 		if(deadlock_graph != nullptr) {
 			deadlock_graph->RemoveNode(this);
@@ -1360,21 +1360,19 @@ void Mutex::ForgetDeadlockInfo() {
 	}
 }
 
-void Mutex::AssertNotHeld() const {
+void Mutex::AssertNotHeld() const 
+{
 	// We have the data to allow this check only if in debug mode and deadlock
 	// detection is enabled.
-	if(kDebugMode &&
-	    (mu_.load(std::memory_order_relaxed) & (kMuWriter | kMuReader)) != 0 &&
-	    synch_deadlock_detection.load(std::memory_order_acquire) !=
-	    OnDeadlockCycle::kIgnore) {
+	if(kDebugMode && (mu_.load(std::memory_order_relaxed) & (kMuWriter | kMuReader)) != 0 &&
+	    synch_deadlock_detection.load(std::memory_order_acquire) != OnDeadlockCycle::kIgnore) {
 		GraphId id = GetGraphId(const_cast<Mutex *>(this));
 		SynchLocksHeld * locks = Synch_GetAllLocks();
 		for(int i = 0; i != locks->n; i++) {
 			if(locks->locks[i].id == id) {
 				SynchEvent * mu_events = GetSynchEvent(this);
 				ABSL_RAW_LOG(FATAL, "thread should not hold mutex %p %s",
-				    static_cast<const void *>(this),
-				    (mu_events == nullptr ? "" : mu_events->name));
+				    static_cast<const void *>(this), (mu_events == nullptr ? "" : mu_events->name));
 			}
 		}
 	}
@@ -1382,7 +1380,8 @@ void Mutex::AssertNotHeld() const {
 
 // Attempt to acquire *mu, and return whether successful.  The implementation
 // may spin for a short while if the lock cannot be acquired immediately.
-static bool TryAcquireWithSpinning(std::atomic<intptr_t>* mu) {
+static bool TryAcquireWithSpinning(std::atomic<intptr_t>* mu) 
+{
 	int c = GetMutexGlobals().spinloop_iterations;
 	do { // do/while somewhat faster on AMD
 		intptr_t v = mu->load(std::memory_order_relaxed);
@@ -1399,7 +1398,8 @@ static bool TryAcquireWithSpinning(std::atomic<intptr_t>* mu) {
 	return false;
 }
 
-ABSL_XRAY_LOG_ARGS(1) void Mutex::Lock() {
+ABSL_XRAY_LOG_ARGS(1) void Mutex::Lock() 
+{
 	ABSL_TSAN_MUTEX_PRE_LOCK(this, 0);
 	GraphId id = DebugOnlyDeadlockCheck(this);
 	intptr_t v = mu_.load(std::memory_order_relaxed);
@@ -1417,7 +1417,8 @@ ABSL_XRAY_LOG_ARGS(1) void Mutex::Lock() {
 	ABSL_TSAN_MUTEX_POST_LOCK(this, 0, 0);
 }
 
-ABSL_XRAY_LOG_ARGS(1) void Mutex::ReaderLock() {
+ABSL_XRAY_LOG_ARGS(1) void Mutex::ReaderLock() 
+{
 	ABSL_TSAN_MUTEX_PRE_LOCK(this, __tsan_mutex_read_lock);
 	GraphId id = DebugOnlyDeadlockCheck(this);
 	intptr_t v = mu_.load(std::memory_order_relaxed);
@@ -1432,7 +1433,8 @@ ABSL_XRAY_LOG_ARGS(1) void Mutex::ReaderLock() {
 	ABSL_TSAN_MUTEX_POST_LOCK(this, __tsan_mutex_read_lock, 0);
 }
 
-void Mutex::LockWhen(const Condition &cond) {
+void Mutex::LockWhen(const Condition &cond) 
+{
 	ABSL_TSAN_MUTEX_PRE_LOCK(this, 0);
 	GraphId id = DebugOnlyDeadlockCheck(this);
 	this->LockSlow(kExclusive, &cond, 0);
@@ -1440,11 +1442,13 @@ void Mutex::LockWhen(const Condition &cond) {
 	ABSL_TSAN_MUTEX_POST_LOCK(this, 0, 0);
 }
 
-bool Mutex::LockWhenWithTimeout(const Condition &cond, absl::Duration timeout) {
+bool Mutex::LockWhenWithTimeout(const Condition &cond, absl::Duration timeout) 
+{
 	return LockWhenWithDeadline(cond, DeadlineFromTimeout(timeout));
 }
 
-bool Mutex::LockWhenWithDeadline(const Condition &cond, absl::Time deadline) {
+bool Mutex::LockWhenWithDeadline(const Condition &cond, absl::Time deadline) 
+{
 	ABSL_TSAN_MUTEX_PRE_LOCK(this, 0);
 	GraphId id = DebugOnlyDeadlockCheck(this);
 	bool res = LockSlowWithDeadline(kExclusive, &cond,
@@ -1454,7 +1458,8 @@ bool Mutex::LockWhenWithDeadline(const Condition &cond, absl::Time deadline) {
 	return res;
 }
 
-void Mutex::ReaderLockWhen(const Condition &cond) {
+void Mutex::ReaderLockWhen(const Condition &cond) 
+{
 	ABSL_TSAN_MUTEX_PRE_LOCK(this, __tsan_mutex_read_lock);
 	GraphId id = DebugOnlyDeadlockCheck(this);
 	this->LockSlow(kShared, &cond, 0);
@@ -1607,20 +1612,17 @@ ABSL_XRAY_LOG_ARGS(1) bool Mutex::ReaderTryLock() {
 	return false;
 }
 
-ABSL_XRAY_LOG_ARGS(1) void Mutex::Unlock() {
+ABSL_XRAY_LOG_ARGS(1) void Mutex::Unlock() 
+{
 	ABSL_TSAN_MUTEX_PRE_UNLOCK(this, 0);
 	DebugOnlyLockLeave(this);
 	intptr_t v = mu_.load(std::memory_order_relaxed);
-
 	if(kDebugMode && ((v & (kMuWriter | kMuReader)) != kMuWriter)) {
-		ABSL_RAW_LOG(FATAL, "Mutex unlocked when destroyed or not locked: v=0x%x",
-		    static_cast<unsigned>(v));
+		ABSL_RAW_LOG(FATAL, "Mutex unlocked when destroyed or not locked: v=0x%x", static_cast<unsigned>(v));
 	}
-
 	// should_try_cas is whether we'll try a compare-and-swap immediately.
 	// NOTE: optimized out when kDebugMode is false.
-	bool should_try_cas = ((v & (kMuEvent | kMuWriter)) == kMuWriter &&
-	    (v & (kMuWait | kMuDesig)) != kMuWait);
+	bool should_try_cas = ((v & (kMuEvent | kMuWriter)) == kMuWriter && (v & (kMuWait | kMuDesig)) != kMuWait);
 	// But, we can use an alternate computation of it, that compilers
 	// currently don't find on their own.  When that changes, this function
 	// can be simplified.

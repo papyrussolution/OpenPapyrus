@@ -489,7 +489,7 @@ void GnuPlot::VFill(t_voxel * pGrid, bool gridCoordinates)
 		// FIXME:  what exactly do we need to fill in? 
 		this_plot->plot_type = DATA;
 		this_plot->noautoscale = TRUE;
-		specs = DfOpen(name_str, 5, this_plot); // Fixed number of input columns x:y:z:radius:(density_function) 
+		specs = DfOpen(_Df, name_str, 5, this_plot); // Fixed number of input columns x:y:z:radius:(density_function) 
 		// We will invoke density_function in modify_voxels rather than df_readline 
 		if(_Df.UseSpec[4].at == NULL)
 			IntError(NO_CARET, "5th user spec to vfill must be an expression");
@@ -525,10 +525,10 @@ void GnuPlot::VFill(t_voxel * pGrid, bool gridCoordinates)
 			set_numeric_locale();
 			// Initial state 
 			_Df.df_warn_on_missing_columnheader = true;
-			while((j = DfReadLine(v, 5)) != DF_EOF) {
+			while((j = DfReadLine(_Df, v, 5)) != DF_EOF) {
 				switch(j) {
 					case 0:
-					    DfClose();
+					    DfClose(_Df);
 					    IntError(this_plot->token, "Bad data on line %d of file %s", _Df.df_line_number, NZOR(_Df.df_filename, ""));
 					    continue;
 					case DF_UNDEFINED:
@@ -560,7 +560,7 @@ void GnuPlot::VFill(t_voxel * pGrid, bool gridCoordinates)
 				// modify the current voxel grid.
 				ModifyVoxels(pGrid, v[0], v[1], v[2], v[3], _VG.P_DensityFunction, gridCoordinates);
 			} // End of loop over input data points 
-			DfClose();
+			DfClose(_Df);
 			// We are finished reading user input; return to C locale for internal use 
 			reset_numeric_locale();
 			if(ngood == 0) {

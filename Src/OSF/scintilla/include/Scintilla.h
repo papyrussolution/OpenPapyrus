@@ -1478,7 +1478,7 @@ namespace Scintilla {
 		// @sobolev @20200511 static int Clamp(int val, int minVal, int maxVal);
 	};
 
-	#ifdef  NDEBUG
+	#ifdef NDEBUG
 		#define PLATFORM_ASSERT(c) ((void)0)
 	#else
 		#ifdef SCI_NAMESPACE
