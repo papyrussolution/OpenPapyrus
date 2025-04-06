@@ -6430,8 +6430,48 @@ int PPStyloQInterchange::QueryConfigIfNeeded(RoundTripBlock & rB)
 	return ok;
 }
 
-int StyloQCore::IndexingContent_Json(PPFtsInterface::TransactionHandle * pFtsTra, PPTextAnalyzer * pTa, const char * pJsText)
+/*static*/SJson * StyloQCore::PreprocessIndexingContent(const char * pJsText, SString & rSvcIdent)
 {
+	rSvcIdent.Z();
+	SJson * p_js_doc = 0;
+	SString cmd;
+	THROW_PP(!isempty(pJsText), PPERR_SQ_EMPTYINDEXINGJS);
+	THROW_SL(p_js_doc = SJson::Parse(pJsText));
+	THROW_PP(p_js_doc->IsObject(), PPERR_SQ_MALFORMEDINDEXINGJS);
+	{
+		const SJson * p_itm = p_js_doc->FindChildByKey("service");
+		if(p_itm) {
+			const SJson * p_js_ident = p_itm->FindChildByKey("ident");
+			if(p_js_ident) {
+				(rSvcIdent = p_js_ident->Text).Unescape();
+			}
+		}
+		p_itm = p_js_doc->FindChildByKey("cmd");
+		if(p_itm)
+			cmd = p_itm->Text;
+		p_itm = p_js_doc->FindChildByKey("time");
+		if(p_itm) {
+			;
+		}
+		p_itm = p_js_doc->FindChildByKey("expir_time_sec");
+		if(p_itm) {
+			;
+		}
+	}
+	THROW_PP(rSvcIdent.NotEmpty(), PPERR_SQ_INDEXINGJSHASNTSVCIDENT);
+	THROW_PP(cmd.IsEqiAscii("pushindexingcontent"), PPERR_SQ_MALFORMEDINDEXINGJS);
+	CATCH
+		ZDELETE(p_js_doc);
+	ENDCATCH
+	return p_js_doc;
+}
+
+/*static*/int StyloQCore::Helper_IndexingContent_Json(PPFtsInterface::TransactionHandle * pFtsTra, PPTextAnalyzer * pTa, const SJson * pJs, const SString & rSvcIdent, int64 svcId)
+{
+	int    ok = -1;
+	SString temp_buf;
+	SString opaque_data; // utf8-текст, хранящийся как приложение к документу xapian для аннотации
+	StringSet ss;
 	class InnerBlock {
 	public:
 		int Tokenize(PPTextAnalyzer * pTa, const SString & rText_, StringSet & rSet)
@@ -6467,57 +6507,8 @@ int StyloQCore::IndexingContent_Json(PPFtsInterface::TransactionHandle * pFtsTra
 		STokenizer::Item TItem;
 		SString TextBuf;
 	};
-	int    ok = 1;
 	InnerBlock ib_;
-	SString temp_buf;
-	SString text;
-	StringSet ss;
-	SString cmd;
-	SString svc_ident;
-	SString opaque_data; // utf8-текст, хранящийся как приложение к документу xapian для аннотации
-	int64  svc_id = 0;
-	SJson * p_js_doc = 0;
-	THROW_PP(!isempty(pJsText), PPERR_SQ_EMPTYINDEXINGJS);
-	THROW_SL(p_js_doc = SJson::Parse(pJsText));
-	THROW_PP(p_js_doc->IsObject(), PPERR_SQ_MALFORMEDINDEXINGJS);
-	{
-		const SJson * p_itm = p_js_doc->FindChildByKey("service");
-		if(p_itm) {
-			const SJson * p_js_ident = p_itm->FindChildByKey("ident");
-			if(p_js_ident) {
-				(svc_ident = p_js_ident->Text).Unescape();
-			}
-		}
-		p_itm = p_js_doc->FindChildByKey("cmd");
-		if(p_itm)
-			cmd = p_itm->Text;
-		p_itm = p_js_doc->FindChildByKey("time");
-		if(p_itm) {
-			;
-		}
-		p_itm = p_js_doc->FindChildByKey("expir_time_sec");
-		if(p_itm) {
-			;
-		}
-	}
-	THROW_PP(svc_ident.NotEmpty(), PPERR_SQ_INDEXINGJSHASNTSVCIDENT);
-	THROW_PP(cmd.IsEqiAscii("pushindexingcontent"), PPERR_SQ_MALFORMEDINDEXINGJS);
-	{
-		SBinaryChunk bc_ident;
-		StoragePacket svc_pack;
-		THROW_PP(bc_ident.FromMime64(svc_ident), PPERR_SQ_MALFORMEDSVCIDENTTEXT);
-		{
-			int nsr = 0;
-			int fsr = 0;
-			THROW(fsr = SearchGlobalIdentEntry(kForeignService, bc_ident, &svc_pack));
-			if(fsr < 0) {
-				THROW(nsr = SearchGlobalIdentEntry(kNativeService, bc_ident, &svc_pack));
-			}
-			THROW(fsr > 0 || nsr > 0);
-			svc_id = svc_pack.Rec.ID;
-		}
-	}
-	for(const SJson * p_cur = p_js_doc->P_Child; p_cur; p_cur = p_cur->P_Next) {
+	for(const SJson * p_cur = pJs ? pJs->P_Child : 0; p_cur; p_cur = p_cur->P_Next) {
 		if(p_cur->Text.IsEqiAscii("service")) {
 			if(p_cur->P_Child && p_cur->P_Child->IsObject()) {
 				ss.Z();
@@ -6565,11 +6556,12 @@ int StyloQCore::IndexingContent_Json(PPFtsInterface::TransactionHandle * pFtsTra
 				if(pFtsTra && ss.getCount()) {
 					PPFtsInterface::Entity entity;
 					entity.Scope = PPFtsInterface::scopeStyloQSvc;
-					entity.ScopeIdent = svc_ident;
+					entity.ScopeIdent = rSvcIdent;
 					entity.ObjType = PPOBJ_STYLOQBINDERY;
-					entity.ObjId = svc_id;
+					entity.ObjId = svcId;
 					uint64 result_doc_id = pFtsTra->PutEntity(entity, ss, opaque_data);
 					THROW(result_doc_id);
+					ok = 1;
 				}
 			}
 		}
@@ -6604,11 +6596,12 @@ int StyloQCore::IndexingContent_Json(PPFtsInterface::TransactionHandle * pFtsTra
 						if(pFtsTra && _id && ss.getCount()) {
 							PPFtsInterface::Entity entity;
 							entity.Scope = PPFtsInterface::scopeStyloQSvc;
-							entity.ScopeIdent = svc_ident;
+							entity.ScopeIdent = rSvcIdent;
 							entity.ObjType = PPOBJ_GOODS;
 							entity.ObjId = _id;
 							uint64 result_doc_id = pFtsTra->PutEntity(entity, ss, opaque_data);
 							THROW(result_doc_id);
+							ok = 1;
 						}
 					}
 				}
@@ -6636,11 +6629,12 @@ int StyloQCore::IndexingContent_Json(PPFtsInterface::TransactionHandle * pFtsTra
 						if(pFtsTra && _id && ss.getCount()) {
 							PPFtsInterface::Entity entity;
 							entity.Scope = PPFtsInterface::scopeStyloQSvc;
-							entity.ScopeIdent = svc_ident;
+							entity.ScopeIdent = rSvcIdent;
 							entity.ObjType = PPOBJ_GOODSGROUP;
 							entity.ObjId = _id;
 							uint64 result_doc_id = pFtsTra->PutEntity(entity, ss, opaque_data);
 							THROW(result_doc_id);
+							ok = 1;
 						}
 					}
 				}
@@ -6668,11 +6662,12 @@ int StyloQCore::IndexingContent_Json(PPFtsInterface::TransactionHandle * pFtsTra
 						if(pFtsTra && _id && ss.getCount()) {
 							PPFtsInterface::Entity entity;
 							entity.Scope = PPFtsInterface::scopeStyloQSvc;
-							entity.ScopeIdent = svc_ident;
+							entity.ScopeIdent = rSvcIdent;
 							entity.ObjType = PPOBJ_BRAND;
 							entity.ObjId = _id;
 							uint64 result_doc_id = pFtsTra->PutEntity(entity, ss, opaque_data);
 							THROW(result_doc_id);
+							ok = 1;
 						}
 					}
 				}
@@ -6700,17 +6695,45 @@ int StyloQCore::IndexingContent_Json(PPFtsInterface::TransactionHandle * pFtsTra
 						if(pFtsTra && _id && ss.getCount()) {
 							PPFtsInterface::Entity entity;
 							entity.Scope = PPFtsInterface::scopeStyloQSvc;
-							entity.ScopeIdent = svc_ident;
+							entity.ScopeIdent = rSvcIdent;
 							entity.ObjType = PPOBJ_PROCESSOR;
 							entity.ObjId = _id;
 							uint64 result_doc_id = pFtsTra->PutEntity(entity, ss, opaque_data);
 							THROW(result_doc_id);
+							ok = 1;
 						}
 					}
 				}
 			}
 		}
 	}
+	CATCHZOK
+	return ok;
+}
+
+int StyloQCore::IndexingContent_Json(PPFtsInterface::TransactionHandle * pFtsTra, PPTextAnalyzer * pTa, const char * pJsText)
+{
+	int    ok = 1;
+	SString svc_ident;
+	int64  svc_id = 0;
+	SJson * p_js_doc = StyloQCore::PreprocessIndexingContent(pJsText, svc_ident);
+	THROW(p_js_doc);
+	{
+		SBinaryChunk bc_ident;
+		StoragePacket svc_pack;
+		THROW_PP(bc_ident.FromMime64(svc_ident), PPERR_SQ_MALFORMEDSVCIDENTTEXT);
+		{
+			int nsr = 0;
+			int fsr = 0;
+			THROW(fsr = SearchGlobalIdentEntry(kForeignService, bc_ident, &svc_pack));
+			if(fsr < 0) {
+				THROW(nsr = SearchGlobalIdentEntry(kNativeService, bc_ident, &svc_pack));
+			}
+			THROW(fsr > 0 || nsr > 0);
+			svc_id = svc_pack.Rec.ID;
+		}
+	}
+	THROW(StyloQCore::Helper_IndexingContent_Json(pFtsTra, pTa, p_js_doc, svc_ident, svc_id));
 	CATCHZOK
 	delete p_js_doc;
 	return ok;
@@ -11607,6 +11630,70 @@ static int SetupCorrelationIdent(const PPMqbClient::Envelope & rMqbEnv, StyloQPr
 	return ok;
 }
 
+#if 1 // @construction {
+/*static*/int StyloQCore::Test_IndexingContent(const char * pDbLoc, const char * pJsText) // @v12.3.1
+{
+	int    ok = -1;
+	if(!isempty(pDbLoc) && !isempty(pJsText)) {
+		SString temp_buf;
+		//StyloQCore::StoragePacket sp;
+		//StyloQConfig cfg_pack;
+		//SBinaryChunk bin_chunk;
+		//THROW(GetOwnPeerEntry(&sp) > 0);
+		//THROW_PP(sp.Pool.Get(SSecretTagPool::tagConfig, &bin_chunk), PPERR_SQ_UNDEFOWNCFG);
+		//THROW(cfg_pack.FromJson(bin_chunk.ToRawStr(temp_buf)));
+		//if(cfg_pack.GetFeatures() & StyloQConfig::featrfMediator) {
+			//PPIDArray doc_id_list;
+			//if(GetUnprocessedIndexindDocIdList(doc_id_list) > 0) {
+				//assert(doc_id_list.getCount()); // because GetDocIdListByType() > 0 
+
+				PPTextAnalyzer txa;
+				STokenizer::Param txa_param;
+				txa_param.Cp = cpUTF8;
+				txa_param.Delim = " \t\n\r(){}[]<>,.:;-\\/&$#@!?*^\"+=%\xA0";
+				txa_param.Flags |= (STokenizer::fDivAlNum|STokenizer::fEachDelim);
+				txa.SetParam(&txa_param);
+
+				PPFtsInterface fts_db(pDbLoc, true/*forUpdate*/, 120000);
+				THROW(fts_db);
+				//for(uint didx = 0; didx < doc_id_list.getCount(); didx++) {
+					//const  PPID doc_id = doc_id_list.get(didx);
+					//StyloQCore::StoragePacket doc_pack;
+					//THROW(GetPeerEntry(doc_id, &doc_pack) > 0);
+					//if(doc_pack.Rec.Flags & StyloQCore::fUnprocessedDoc_Misplaced) {
+						//if(doc_pack.Pool.Get(SSecretTagPool::tagRawData, &bin_chunk)) {
+							//bin_chunk.ToRawStr(temp_buf);
+							PPFtsInterface::TransactionHandle tra(fts_db);
+							bool   is_local_fault = true;
+							if(!!tra) {
+								SString svc_ident;
+								int64  svc_id = 100010001LL;
+								SJson * p_js_doc = StyloQCore::PreprocessIndexingContent(pJsText, svc_ident);
+								int icr = StyloQCore::Helper_IndexingContent_Json(&tra, &txa, p_js_doc, svc_ident, svc_id);
+								ZDELETE(p_js_doc);
+								if(icr) {
+									if(tra.Commit()) {
+										//doc_pack.Rec.Flags &= ~StyloQCore::fUnprocessedDoc_Misplaced;
+										//PPID temp_id = doc_id;
+										//THROW(PutPeerEntry(&temp_id, &doc_pack, 1));
+										is_local_fault = false;
+									}
+								}
+							}
+							if(is_local_fault) {
+								PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER|LOGMSGF_DBINFO);
+							}
+						//}
+					//}
+				//}
+			//}
+		//}		
+	}
+	CATCHZOK
+	return ok;
+}
+#endif // } 0 @construction
+
 int StyloQCore::IndexingContent()
 {
 	int    ok = -1;
@@ -11629,7 +11716,7 @@ int StyloQCore::IndexingContent()
 			txa_param.Flags |= (STokenizer::fDivAlNum|STokenizer::fEachDelim);
 			txa.SetParam(&txa_param);
 
-			PPFtsInterface fts_db(true/*forUpdate*/, 120000);
+			PPFtsInterface fts_db(0/*pDbLoc*/, true/*forUpdate*/, 120000);
 			THROW(fts_db);
 			for(uint didx = 0; didx < doc_id_list.getCount(); didx++) {
 				const  PPID doc_id = doc_id_list.get(didx);

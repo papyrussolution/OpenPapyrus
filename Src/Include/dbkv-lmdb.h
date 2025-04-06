@@ -12,7 +12,31 @@
 class LmdbDatabase {
 	friend TSClassWrapper <LmdbDatabase>;
 public:
-	static LmdbDatabase * GetInstance(const char * pPath, uint flags, int mode);
+	struct Options {
+		static constexpr uint32 _Signature = 0x8B817194U;
+
+		Options() : S(_Signature), MapSizeMb(0), MaxDbEntities(0), MaxReaders(0)
+		{
+		}
+		Options(const Options & rS) : S(_Signature), MapSizeMb(rS.MapSizeMb), MaxDbEntities(rS.MaxDbEntities), MaxReaders(rS.MaxReaders)
+		{
+			assert(rS.S == _Signature);
+		}
+		Options & FASTCALL operator = (const Options & rS)
+		{
+			assert(S == _Signature);
+			assert(rS.S == _Signature);
+			MapSizeMb = rS.MapSizeMb;
+			MaxDbEntities = rS.MaxDbEntities;
+			MaxReaders = rS.MaxReaders;
+			return *this;
+		}
+		const  uint32 S;
+		uint   MapSizeMb;     // default = 128 
+		uint   MaxDbEntities; // default = 16
+		uint   MaxReaders;    // default = 126
+	};
+	static LmdbDatabase * GetInstance(const char * pPath, uint flags, int mode, const Options * pOptions);
 
 	class Table;
 	struct Stat {

@@ -1173,6 +1173,24 @@ LDATETIME & FASTCALL LDATETIME::SetNs100(int64 ns100Tm) // @v11.8.11
 	return *this;
 }
 
+LDATETIME & FASTCALL LDATETIME::SetNs100_AdjToTimezone(int64 ns100Tm) // @v12.3.1
+{
+	TIME_ZONE_INFORMATION tz;
+	::GetTimeZoneInformation(&tz);
+
+	//dtm.SetNs100(fs.ModTm_);
+	//long tm_diff_sec = labs(diffdatetimesec(dtm, now_dtm));
+	//SLCHECK_NZ((tm_diff_sec + (tz.Bias * 60)) <= 1);
+
+	SUniTime_Internal uti;
+	uti.SetTime100ns(ns100Tm);
+	LDATETIME tmp_dtm;
+	tmp_dtm.d.encode(uti.D, uti.M, uti.Y);
+	tmp_dtm.t.encode(uti.Hr, uti.Mn, uti.Sc, uti.MSc);
+	*this = plusdatetime(tmp_dtm, -(tz.Bias * 60), 3);
+	return *this;
+}
+
 LDATETIME & FASTCALL LDATETIME::SetTimeT(time_t _tm)
 {
 	const struct tm * p_temp_tm = localtime(&_tm);

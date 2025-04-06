@@ -454,7 +454,7 @@ int PPStyloQInterchange::ProcessCommand_Search(const StyloQCore::StoragePacket &
 		}
 	}
 	if(plain_query.NotEmptyS()) {
-		PPFtsInterface fts_db(false/*forUpdate*/, 30000);
+		PPFtsInterface fts_db(0/*pDbLoc*/, false/*forUpdate*/, 30000);
 		TSCollection <PPFtsInterface::SearchResultEntry> result_list;
 		THROW(fts_db);
 		THROW(fts_db.Search(plain_query, max_result_count, result_list));

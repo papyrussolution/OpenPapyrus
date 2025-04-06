@@ -122,11 +122,6 @@ typedef int32 pid_t;
 #else
 	typedef size_t db_size_t;
 #endif
-/* @v10.8.1 #ifdef _WIN64
-	typedef int64 ssize_t;
-#else
-	typedef int32 ssize_t;
-#endif*/
 #ifdef HAVE_MIXED_SIZE_ADDRESSING
 	typedef int32 db_ssize_t;
 #else

@@ -1,5 +1,5 @@
 // DBKV-LMDB.CPP
-// Copyright (c) A.Sobolev 2022
+// Copyright (c) A.Sobolev 2022, 2025
 // @codepage UTF-8
 // Интерфейс с key-value DBMS LMDB
 //
@@ -7,7 +7,7 @@
 #pragma hdrstop
 #include <dbkv-lmdb.h>
 
-/*static*/LmdbDatabase * LmdbDatabase::GetInstance(const char * pPath, uint flags, int mode)
+/*static*/LmdbDatabase * LmdbDatabase::GetInstance(const char * pPath, uint flags, int mode, const Options * pOptions)
 {
 	//static uint instance_idx = 0;
 	LmdbDatabase * p_result = 0;
@@ -22,7 +22,17 @@
 			symbol_id = SLS.CreateGlobalObject(cls);
 			p_result = static_cast<LmdbDatabase *>(SLS.GetGlobalObject(symbol_id));
 			if(p_result) {
-				p_result->SetOptions(SMEGABYTE(512), 16, 0);
+				// @v12.3.1 {
+				Options opts;
+				RVALUEPTR(opts, pOptions);
+				if(opts.MapSizeMb < 1 || opts.MapSizeMb > SKILOBYTE(2))
+					opts.MapSizeMb = 128;
+				if(opts.MaxDbEntities < 1 || opts.MaxDbEntities > 1024)
+					opts.MaxDbEntities = 16;
+				if(opts.MaxReaders < 1 || opts.MaxReaders > 4000)
+					opts.MaxReaders = 126;
+				// } @v12.3.1 
+				p_result->SetOptions(SMEGABYTE(opts.MapSizeMb), opts.MaxDbEntities, opts.MaxReaders);
 				if(p_result->Open(pPath, flags, mode)) {
 					{
 						long s = SLS.GetGlobalSymbol(symb, symbol_id, 0);

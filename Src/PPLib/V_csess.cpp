@@ -904,7 +904,6 @@ class DraftCreateRuleDialog : public TDialog {
 public:
 	DraftCreateRuleDialog() : TDialog(DLG_DFRULE)
 	{
-		// @v10.6.8 @ctr Data.Z();
 	}
 	int    setDTS(const PPDfCreateRulePacket *);
 	int    getDTS(PPDfCreateRulePacket *);
@@ -1032,7 +1031,6 @@ int DraftCreateRuleDialog::setDTS(const PPDfCreateRulePacket * pData)
 		AddClusterAssoc(CTL_DFRULE_WOSCARD, 1, PPDraftCreateRule::fExcludeSCardSer);
 		AddClusterAssoc(CTL_DFRULE_WOSCARD, 2, PPDraftCreateRule::fUseGoodsLocAssoc);
 		SetClusterData(CTL_DFRULE_WOSCARD, Data.Rec.Flags);
-		// @v10.3.5 {
 		{
 			const long ret_sale_toggle = CHKXORFLAGS(Data.Rec.Flags, PPDraftCreateRule::fRetOnly, PPDraftCreateRule::fSalesOnly);
 			AddClusterAssocDef(CTL_DFRULE_RETSALTGGL, 0, 0);
@@ -1040,7 +1038,6 @@ int DraftCreateRuleDialog::setDTS(const PPDfCreateRulePacket * pData)
 			AddClusterAssoc(CTL_DFRULE_RETSALTGGL, 2, PPDraftCreateRule::fRetOnly);
 			SetClusterData(CTL_DFRULE_RETSALTGGL, ret_sale_toggle);
 		}
-		// } @v10.3.5
 		SetupPPObjCombo(this, CTLSEL_DFRULE_SCARDSER, PPOBJ_SCARDSERIES, Data.Rec.SCardSerID, OLW_CANEDIT, 0);
 	}
 	SetupCtrls();
@@ -1096,13 +1093,11 @@ int DraftCreateRuleDialog::getDTS(PPDfCreateRulePacket * pData)
 		Data.Rec.Flags &= ~(PPDraftCreateRule::fOnlyBanking|PPDraftCreateRule::fOnlyNotBanking);
 		Data.Rec.Flags |= pay_type;
 		GetClusterData(CTL_DFRULE_WOSCARD,  &Data.Rec.Flags);
-		// @v10.3.5 {
 		{
 			const long ret_sale_toggle = GetClusterData(CTL_DFRULE_RETSALTGGL);
 			Data.Rec.Flags &= ~(PPDraftCreateRule::fRetOnly|PPDraftCreateRule::fSalesOnly);
 			Data.Rec.Flags |= ret_sale_toggle;
 		}
-		// } @v10.3.5
 		getCtrlData(CTLSEL_DFRULE_SCARDSER, &Data.Rec.SCardSerID);
 	}
 	ASSIGN_PTR(pData, Data);
@@ -1121,7 +1116,6 @@ PPDraftCreateRule2::PPDraftCreateRule2()
 
 PPDfCreateRulePacket::PPDfCreateRulePacket()
 {
-	// @v10.6.8 Init();
 }
 
 PPDfCreateRulePacket & PPDfCreateRulePacket::Z()
@@ -1478,7 +1472,7 @@ int PPViewCSess::CreateDraft(PPID ruleID, PPID sessID, const SString & rMsg1, co
 			CCheckLineTbl::Rec * p_crec = 0;
 			PPBillPacket b_pack;
 			SString memo_buf, csess_buf;
-			const long ret_sale_toggle = CHKXORFLAGS(rule.Rec.Flags, PPDraftCreateRule::fRetOnly, PPDraftCreateRule::fSalesOnly); // @v10.3.5
+			const long ret_sale_toggle = CHKXORFLAGS(rule.Rec.Flags, PPDraftCreateRule::fRetOnly, PPDraftCreateRule::fSalesOnly);
 			THROW(CsObj.Search(sessID, &csess_rec) > 0);
 			bill_dt = csess_rec.Dt;
 			rule.GetCashNN(&cash_list);
@@ -1499,12 +1493,10 @@ int PPViewCSess::CreateDraft(PPID ruleID, PPID sessID, const SString & rMsg1, co
 					int    to_del = 0;
 					CCheckTbl::Rec chk_rec;
 					if(CsObj.P_Cc->Search(cc_id, &chk_rec) > 0) {
-						// @v10.3.5 {
 						if(ret_sale_toggle == PPDraftCreateRule::fRetOnly && !(chk_rec.Flags & CCHKF_RETURN))
 							to_del = 1;
 						else if(ret_sale_toggle == PPDraftCreateRule::fSalesOnly && (chk_rec.Flags & CCHKF_RETURN))
 							to_del = 1;
-						// } @v10.3.5
 						else if((rule.Rec.Flags & PPDraftCreateRule::fWoSCard) && chk_rec.SCardID)
 							to_del = 1;
 						else if(rule.Rec.SCardSerID) {
@@ -1896,15 +1888,8 @@ int PPViewCSess::CloseSession()
 		ok = 1;
 	}
 	else {
-		THROW(PPCashMachine::AsyncCloseSession2(single_cn_id, 0)); // @v10.1.1
+		THROW(PPCashMachine::AsyncCloseSession2(single_cn_id, 0));
 		ok = 1;
-		/* @v10.1.1
-		p_acs = p_cm->AsyncInterface();
-		if(p_acs) {
-			ZDELETE(p_acs);
-			THROW(p_cm->AsyncCloseSession(0, 0));
-			ok = 1;
-		} */
 	}
 	CATCHZOKPPERR
 	delete p_cm;
@@ -2523,7 +2508,7 @@ int PPViewCSessExc::GetAltGoodsPrice(PPID goodsID, double * pPrice)
 			if(CsObj.Search(last_sess_id, &csess_rec) > 0)
 				dt = csess_rec.Dt;
 		}
-		dt = NZOR(dt, getcurdate_()); // @v10.8.10 LConfig.OperDate-->getcurdate_()
+		dt = NZOR(dt, getcurdate_());
 		ReceiptTbl::Rec lot_rec;
 		if(BillObj->trfr->Rcpt.GetLastLot(goodsID, GetCommonLoc(), dt, &lot_rec) > 0)
 			price = R5(lot_rec.Price);
@@ -2536,13 +2521,11 @@ int PPViewCSessExc::GetAltGoodsPrice(PPID goodsID, double * pPrice)
 int PPViewCSessExc::InitIteration()
 {
 	int    ok = 1;
-	// @v10.6.8 char   k[MAXKEYLEN];
-	BtrDbKey k_; // @v10.6.8
+	BtrDbKey k_;
 	BExtQuery::ZDelete(&P_IterQuery);
 	THROW_PP(P_TempTbl, PPERR_PPVIEWNOTINITED);
 	THROW_MEM(P_IterQuery = new BExtQuery(P_TempTbl, 0, 16));
 	P_IterQuery->selectAll();
-	// @v10.6.8 @ctr memzero(k, sizeof(k));
 	P_IterQuery->initIteration(0, k_, spFirst);
 	CATCHZOK
 	return ok;

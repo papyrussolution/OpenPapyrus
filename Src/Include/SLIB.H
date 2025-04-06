@@ -486,10 +486,10 @@
 #define PTR32C(p)             (reinterpret_cast<const uint32 *>(p))
 #define PTR64C(p)             (reinterpret_cast<const uint64*>(p))
 #define PTRDBLC(p)            (reinterpret_cast<const double*>(p))
-#define PTRCHR(p)             (static_cast<char *>(p)) // @v10.7.8
-#define PTRCHRC(p)            (static_cast<const char *>(p)) // @v10.7.8
-#define PTRCHR_(p)            (reinterpret_cast<char *>(p)) // @v10.7.8
-#define PTRCHRC_(p)           (reinterpret_cast<const char *>(p)) // @v10.7.8
+#define PTRCHR(p)             (static_cast<char *>(p))
+#define PTRCHRC(p)            (static_cast<const char *>(p))
+#define PTRCHR_(p)            (reinterpret_cast<char *>(p))
+#define PTRCHRC_(p)           (reinterpret_cast<const char *>(p))
 #define PTR2U(p)              (static_cast<uint32>(p))
 #define U2PTR(typ,u)          (static_cast<typ *>(u))
 #define U2PTRV(u)             (static_cast<void *>(u))
@@ -676,7 +676,7 @@
 #define SLERR_XMLDB_RECTAGEMPTY        112 //
 #define SLERR_XMLDB_ROOTTAGINVCHR      113 //
 #define SLERR_XMLDB_RECTAGINVCHR       114 //
-#define SLERR_EXCL_SAVEFAULT           115 // @v10.9.6 Ошибка сохранения файла Excel '%s'
+#define SLERR_EXCL_SAVEFAULT           115 // Ошибка сохранения файла Excel '%s'
 
 #define SLERR_SDREC_DUPFLDID           121 // Поле с заданным идентификатором в записи уже присутствует ('%s')
 #define SLERR_SDREC_DUPFLDNAME         122 // Поле с заданным именем '%s' в записи уже присутствует
@@ -809,7 +809,7 @@
 #define SLERR_LIBXML                           456 // Ошибка библиотеки libxml
 #define SLERR_DUPSYMBWITHUNEQID                457 // Дублирование символа '%s' элемента с отличным идентификатором
 #define SLERR_INVIMAGESIZE                     458 // Недопустимый размер изображения ([1..30000], [1..30000])
-#define SLERR_WTM_DUPLAYOUTSYMB                459 // @v10.4.9 Дублирование символа layout
+#define SLERR_WTM_DUPLAYOUTSYMB                459 // Дублирование символа layout
 #define SLERR_STRINGISNTUTF8                   460 // @v11.3.3 Строка - не в кодировке utf-8
 #define SLERR_LMDB                             461 // @v11.3.6 Ошибка базы данных LMDB
 #define SLERR_FILSTRG_INVHANDLE                462 // @v11.3.7 Внутренняя ошибка: недопустимый манипулятор чтения/записи объекта SFileStorage
@@ -907,9 +907,9 @@
 #define SLERR_ZIP_OPNOTSUPP                    618  // N Operation not supported
 #define SLERR_ZIP_INUSE                        619  // N Resource still in use
 #define SLERR_ZIP_TELL                         620  // S Tell error
-#define SLERR_ZIP_COMPRESSED_DATA              621  // @v10.8.4 N Compressed data invalid
-#define SLERR_ZIP_CANCELLED                    622  // @v10.8.4 N Operation cancelled
-#define SLERR_ZIP_LASTERROR                    622  // @anchor @v10.8.4 620-->622
+#define SLERR_ZIP_COMPRESSED_DATA              621  // N Compressed data invalid
+#define SLERR_ZIP_CANCELLED                    622  // N Operation cancelled
+#define SLERR_ZIP_LASTERROR                    622  // @anchor
 #define SLERR_ZLIB_BUFINFLATEFAULT             623  // @v11.2.9 Ошибка распаковки буфера данных
 #define SLERR_SSYSBU_INFORDFAULT               624  // @v11.8.12 Ошибка чтения файла информации о резервной копии SSystemBackup (%s)
 
@@ -1087,7 +1087,7 @@
 #define T_UINT64           MKSTYPE(S_UINT,8)
 #define T_INT16            MKSTYPE(S_INT,2)
 #define T_INT32            MKSTYPE(S_INT,4)
-#define T_INT64            MKSTYPE(S_INT64 ,8) // @v10.6.3 MKSTYPE(S_INT ,8)-->MKSTYPE(S_INT64 ,8)
+#define T_INT64            MKSTYPE(S_INT64 ,8)
 #define T_LONG             MKSTYPE(S_INT,4)
 #define T_ULONG            MKSTYPE(S_UINT,4)
 #define T_FLOAT            MKSTYPE(S_FLOAT,4)
@@ -1104,7 +1104,7 @@
 #define T_FPOINT2          MKSTYPE(S_FPOINT2, 8)
 #define T_BOOL             MKSTYPE(S_BOOL, 4)
 #define T_GUID             MKSTYPE(S_UUID_, 16)
-#define T_COLOR_RGBA       MKSTYPE(S_COLOR_RGBA, 4) // @v10.9.10
+#define T_COLOR_RGBA       MKSTYPE(S_COLOR_RGBA, 4)
 //
 //
 //
@@ -1374,7 +1374,8 @@ public:
 	static constexpr uint16 CrcPoly_CCITT16 = 0x1021;
 	static constexpr uint32 CrcPoly_CCITT32 = 0xEDB88320U;
 	static constexpr uint32 CrcPoly_BZIP2   = 0x04C11DB7U; // AUTODIN II, Ethernet, & FDDI
-	static constexpr uint64 CrcPoly_64      = 0xC96C5795D7870F42ULL;
+	static constexpr uint64 CrcPoly_64_Lzma = 0xC96C5795D7870F42ULL;
+	static constexpr uint64 CrcPoly_64_     = 0xad93d23594c935a9ULL; // @v12.3.1 Этот полином используется в SlHash::CRC64()
 	static constexpr uint64 Epoch1600_1970_Offs_s     = 11644473600ULL;        // Number of second units from 1/1/1601 to 1/1/1970
 	static constexpr uint64 Epoch1600_1970_Offs_Mks   = 11644473600000000ULL;  // Number of microsecond units from 1/1/1601 to 1/1/1970
 	static constexpr uint64 Epoch1600_1970_Offs_100Ns = 116444736000000000ULL; // Number of 100 nanosecond units from 1/1/1601 to 1/1/1970
@@ -2661,7 +2662,7 @@ struct LDATE { // @noctr
 	ulong  v;
 private:
 	LDATE  Helper_GetActual(LDATE rel, LDATE cmp) const;
-	LDATE  operator = (int); // @v10.9.12 an empty inaccessable method (prevention of the mismatched assignment)
+	LDATE  operator = (int); // an empty inaccessable method (prevention of the mismatched assignment)
 };
 //
 // Descr: Календарный день. Применяется для хранения регулярных дат.
@@ -2718,7 +2719,7 @@ struct LTIME { // @size=4
 	LTIME & FASTCALL addhs(long n);
 	ulong  v;
 private:
-	LTIME  operator = (int); // @v10.9.12 an empty inaccessable method (prevention of the mismatched assignment)
+	LTIME  operator = (int); // an empty inaccessable method (prevention of the mismatched assignment)
 };
 //
 // @construction {
@@ -2815,6 +2816,7 @@ struct LDATETIME {
 	LDATETIME & SetFar(); // far-moment: (LDATE)d = MAXLONG, (LTIME)t = 0
 	LDATETIME & FASTCALL SetTimeT(time_t epochTm);
 	LDATETIME & FASTCALL SetNs100(int64 ns100Tm); // @v11.8.11
+	LDATETIME & FASTCALL SetNs100_AdjToTimezone(int64 ns100Tm); // @v12.3.1
 	time_t GetTimeT() const;
 	bool   IsFar() const;
 	//
@@ -7071,7 +7073,7 @@ public:
 		fmtIDL = 0,
 		fmtC   = 1,
 		fmtPlain,    // "плоский" формат. то есть, без ограничителей и разделителей в 16-ричном формате
-		// @construction fmtSUID27,   // @v10.9.0 Специальный внутренний формат (base32), умещающийся в 28 байт (с нулем в конце)
+		// @construction fmtSUID27,   // Специальный внутренний формат (base32), умещающийся в 28 байт (с нулем в конце)
 		fmtLower = 0x8000 // Флаг, предписывающий использовать буквы [a-f] в строчном регистре
 	};
 	bool   operator !() const { return IsZero(); }
@@ -7151,7 +7153,7 @@ public:
 //
 //
 //
-extern const S_GUID    ZEROGUID; // @v10.9.3
+extern const S_GUID    ZEROGUID;
 //
 // Descr: Идентификация алгоритмов хэширования.
 // @persistent

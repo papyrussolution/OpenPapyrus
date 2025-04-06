@@ -258,12 +258,12 @@ template<typename T, typename U> typename std::enable_if<!std::is_const<typename
 #ifndef PACKAGE
 	#error config.h must be included first in each C++ source file
 #endif
-/* @sobolev (replaced with sbswap32/sbswap16/sbswap64)
+// @v12.3.1 /* @sobolev (replaced with sbswap32/sbswap16/sbswap64)
 inline uint16_t do_bswap(uint16_t value) 
 {
 #if HAVE_DECL___BUILTIN_BSWAP16
 	return __builtin_bswap16(value);
-# elif HAVE_DECL__BYTESWAP_USHORT
+#elif HAVE_DECL__BYTESWAP_USHORT
 	return _byteswap_ushort(value);
 #else
 	return (value << 8) | (value >> 8);
@@ -274,7 +274,7 @@ inline uint32_t do_bswap(uint32_t value)
 {
 #if HAVE_DECL___BUILTIN_BSWAP32
 	return __builtin_bswap32(value);
-# elif HAVE_DECL__BYTESWAP_ULONG
+#elif HAVE_DECL__BYTESWAP_ULONG
 	return _byteswap_ulong(value);
 #else
 	return (value << 24) | ((value & 0xff00) << 8) | ((value >> 8) & 0xff00) | (value >> 24);
@@ -285,22 +285,21 @@ inline uint64_t do_bswap(uint64_t value)
 {
 #if HAVE_DECL___BUILTIN_BSWAP64
 	return __builtin_bswap64(value);
-# elif HAVE_DECL__BYTESWAP_UINT64
+#elif HAVE_DECL__BYTESWAP_UINT64
 	return _byteswap_uint64(value);
 #else
 	return (value << 56) | ((value & 0xff00) << 40) | ((value & 0xff0000) << 24) |
 	       ((value & 0xff000000) << 8) | ((value >> 8) & 0xff000000) | ((value >> 24) & 0xff0000) |
 	       ((value >> 40) & 0xff00) | (value >> 56);
 #endif
-}*/
+}
+// @v12.3.1 */
 
 template <typename UINT> inline UINT do_aligned_read(const uchar * ptr)
 {
 	UINT value = *alignment_cast<const UINT*>(ptr);
 #ifndef SL_BIGENDIAN
-	//const uint v2 = sbswap32(value);
-	value = /*do_bswap*/sbswap32(value);
-	//assert(v2 == value);
+	value = do_bswap(value);
 #endif
 	return value;
 }
@@ -315,9 +314,7 @@ template <typename T, typename UINT> inline void do_aligned_write(uchar * ptr, T
 	}
 	UINT v = UINT(value);
 #ifndef SL_BIGENDIAN
-	//const uint v2 = sbswap32(v);
-	v = /*do_bswap*/sbswap32(v);
-	//assert(v2 == v);
+	v = do_bswap(v);
 #endif
 	*alignment_cast<UINT*>(ptr) = v;
 }
@@ -327,9 +324,7 @@ template <typename UINT> inline UINT do_unaligned_read(const uchar * ptr)
 	UINT value;
 	memcpy(&value, ptr, sizeof(UINT));
 #ifndef SL_BIGENDIAN
-	//const uint v2 = sbswap32(value);
-	value = /*do_bswap*/sbswap32(value);
-	//assert(v2 == value);
+	value = do_bswap(value);
 #endif
 	return value;
 }
@@ -344,9 +339,7 @@ template <typename T, typename UINT> inline void do_unaligned_write(uchar * ptr,
 	}
 	UINT v = UINT(value);
 #ifndef SL_BIGENDIAN
-	//const uint v2 = sbswap32(v);
-	v = /*do_bswap*/sbswap32(v);
-	//assert(v2 == v);
+	v = do_bswap(v);
 #endif
 	memcpy(ptr, &v, sizeof(UINT));
 }

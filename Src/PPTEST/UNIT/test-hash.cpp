@@ -1,5 +1,5 @@
 // TEST-HASH.CPP
-// Copyright (c) A.Sobolev 2023, 2024
+// Copyright (c) A.Sobolev 2023, 2024, 2025
 //
 #include <pp.h>
 #pragma hdrstop
@@ -154,6 +154,27 @@ SLTEST_R(BDT)
 			Helper_Test_Crypto_Vec(*this, in_file_name, "AES-192", SlCrypto::algAes, SlCrypto::kbl192, SlCrypto::algmodEcb);
 			Helper_Test_Crypto_Vec(*this, in_file_name, "AES-256", SlCrypto::algAes, SlCrypto::kbl256, SlCrypto::algmodEcb);
 		}
+		// @v12.3.1 {
+		{
+			{
+				const char * p_data = "123456789";
+				uint64 h = SlHash::CRC64(0, p_data, sstrlen(p_data));
+				SLCHECK_EQ(h, 0xe9c6d914c4b8d9caULL);
+			}
+			{
+				const char * p_data = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed "
+						"do eiusmod tempor incididunt ut labore et dolore magna "
+						"aliqua. Ut enim ad minim veniam, quis nostrud exercitation "
+						"ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis "
+						"aute irure dolor in reprehenderit in voluptate velit esse "
+						"cillum dolore eu fugiat nulla pariatur. Excepteur sint "
+						"occaecat cupidatat non proident, sunt in culpa qui officia "
+						"deserunt mollit anim id est laborum.";
+				uint64 h = SlHash::CRC64(0, p_data, sstrlen(p_data)+1); // +1 потому что тестовый случай включает завершающий '\0'
+				SLCHECK_EQ(h, 0xc7794709e69683b3ULL);
+			}
+		}
+		// } @v12.3.1 
 		{
 			(in_file_name = data_trasform_path).Cat("crc24.vec");
 			data_set.freeAll();

@@ -605,52 +605,17 @@ static const SIntToSymbTabEntry ContentDispositionTypeNameList_[] = {
 	{ SMailMessage::ContentDispositionBlock::tRecordingSession, "recording-session" }
 };
 
-/* @v10.7.6 static const struct ContentDispositionTypeName { const char * P_Name; int Type; } ContentDispositionTypeNameList[] = {
-	{ "inline", SMailMessage::ContentDispositionBlock::tInline },
-	{ "attachment", SMailMessage::ContentDispositionBlock::tAttachment },
-	{ "form-data", SMailMessage::ContentDispositionBlock::tFormData },
-	{ "signal", SMailMessage::ContentDispositionBlock::tSignal },
-	{ "alert", SMailMessage::ContentDispositionBlock::tAlert },
-	{ "icon", SMailMessage::ContentDispositionBlock::tIcon },
-	{ "render", SMailMessage::ContentDispositionBlock::tRender },
-	{ "recipient-list-history", SMailMessage::ContentDispositionBlock::tRecipientListHistory },
-	{ "session", SMailMessage::ContentDispositionBlock::tSession },
-	{ "aib", SMailMessage::ContentDispositionBlock::tAIB },
-	{ "early-session", SMailMessage::ContentDispositionBlock::tEarlySession },
-	{ "recipient-list", SMailMessage::ContentDispositionBlock::tRecipientList },
-	{ "notification", SMailMessage::ContentDispositionBlock::tNotification },
-	{ "by-reference", SMailMessage::ContentDispositionBlock::tByReference },
-	{ "recording-session", SMailMessage::ContentDispositionBlock::tRecordingSession }
-};*/
-
 /*static*/int FASTCALL SMailMessage::ContentDispositionBlock::GetTypeName(int t, SString & rBuf)
 {
-	return SIntToSymbTab_GetSymb(ContentDispositionTypeNameList_, SIZEOFARRAY(ContentDispositionTypeNameList_), t, rBuf); // @v10.7.6
-	/* @v10.7.6 int    ok = 0;
-	rBuf.Z();
-	for(uint i = 0; !ok && i < SIZEOFARRAY(ContentDispositionTypeNameList); i++) {
-		if(t == ContentDispositionTypeNameList[i].Type) {
-			rBuf = ContentDispositionTypeNameList[i].P_Name;
-			ok = 1;
-		}
-	}
-	return ok;*/
+	return SIntToSymbTab_GetSymb(ContentDispositionTypeNameList_, SIZEOFARRAY(ContentDispositionTypeNameList_), t, rBuf);
 }
 
 /*static*/int FASTCALL SMailMessage::ContentDispositionBlock::IdentifyType(const char * pTypeName)
 {
 	// SMailMessage::ContentDispositionBlock::tUnkn == 0
-	// @v10.7.6 {
 	int      type = SIntToSymbTab_GetId(ContentDispositionTypeNameList_, SIZEOFARRAY(ContentDispositionTypeNameList_), pTypeName); 
 	SETIFZ(type, SMailMessage::ContentDispositionBlock::tUnkn);
 	return type;
-	// } @v10.7.6 
-	/*int    type = ContentDispositionBlock::tUnkn;
-	for(uint i = 0; type == ContentDispositionBlock::tUnkn && i < SIZEOFARRAY(ContentDispositionTypeNameList); i++) {
-		if(sstreqi_ascii(pTypeName, ContentDispositionTypeNameList[i].P_Name))
-			type = ContentDispositionTypeNameList[i].Type;
-	}
-	return type;*/
 }
 
 SMailMessage::ContentDispositionBlock::ContentDispositionBlock()
@@ -1443,7 +1408,7 @@ int SMailMessage::PreprocessEmailAddrString(const SString & rSrc, SString & rRes
 	for(uint ssp = 0; ss_to.get(&ssp, temp_buf);) {
 		size_t ang_pos = 0;
 		nta.clear();
-		tr.Run(temp_buf.Strip().ucptr(), -1, nta, 0); // @v10.8.9 Strip()
+		tr.Run(temp_buf.Strip().ucptr(), -1, nta, 0);
 		if(nta.Has(SNTOK_EMAIL) > 0.0f) {
 			rResult.CatDivIfNotEmpty(',', 0);
 			if(rResult.Len() > 70)
@@ -2827,7 +2792,6 @@ int ScURL::SetupDefaultSslOptions(const char * pCertFilePath, int sslVer /* SSys
 	}
 	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_CAINFO, ca_file.cptr())));
 	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_CAPATH, ca_path.cptr())));
-	// @v10.6.2 {
 	{
 		int    curl_ssl_ver = CURL_SSLVERSION_DEFAULT;
 		switch(sslVer) {
@@ -2843,9 +2807,8 @@ int ScURL::SetupDefaultSslOptions(const char * pCertFilePath, int sslVer /* SSys
 			THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_SSLVERSION, curl_ssl_ver)));
 		}
 	}
-	// } @v10.6.2 
 	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_SSL_VERIFYPEER, 1L)));
-	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_SSL_VERIFYHOST, /*2L*/0L))); // @v10.6.4 2-->0 debug
+	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_SSL_VERIFYHOST, /*2L*/0L)));
 	if(pSsCipherList) {
 		/*SString temp_buf;
 		for(uint ssp = 0; pSsCipherList->get(&ssp, temp_buf);) {
@@ -2983,7 +2946,7 @@ int ScURL::PrepareURL(InetUrl & rUrl, int defaultProt, ScURL::InnerUrlInfo & rIn
 	}
 	{
 		long   npf = SFsPath::npfSlash;
-		if(oneof4(prot, InetUrl::protHttp, InetUrl::protHttps, InetUrl::protFtp, InetUrl::protFtps)) // @v10.3.0 InetUrl::protFtp, InetUrl::protFtps
+		if(oneof4(prot, InetUrl::protHttp, InetUrl::protHttps, InetUrl::protFtp, InetUrl::protFtps))
 			npf |= SFsPath::npfKeepCase;
 		rUrl.GetComponent(InetUrl::cPath, 0, temp_buf);
 		SFsPath::NormalizePath(temp_buf, npf, rInfo.Path);
@@ -3056,15 +3019,15 @@ int ScURL::FtpPut(const InetUrl & rUrl, int mflags, const char * pLocalFile, con
 			SFsPath ps(pLocalFile);
 			ps.Merge(SFsPath::fNam|SFsPath::fExt, temp_buf);
 			if(!temp_buf.IsLegalUtf8()) // @v11.8.5
-				temp_buf.Transf(CTRANSF_OUTER_TO_UTF8); // @v10.3.0 !
+				temp_buf.Transf(CTRANSF_OUTER_TO_UTF8);
 		}
 		url_info.Path.SetLastDSlash().Cat(temp_buf);
 		url_local.SetComponent(InetUrl::cPath, url_info.Path);
-		//THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_TRANSFERTEXT, 1))); // @v10.7.10
+		//THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_TRANSFERTEXT, 1)));
 		{
 			SString url_buf;
 			url_local.Compose(InetUrl::stAll & ~(InetUrl::stUserName|InetUrl::stPassword), url_buf);
-			//url_buf.EncodeUrl(temp_buf.cptr(), 0); // @v10.7.10
+			//url_buf.EncodeUrl(temp_buf.cptr(), 0);
 			THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_URL, url_buf.cptr())));
 		}
 	}
@@ -3201,7 +3164,7 @@ int ScURL::FtpChangeDir(const InetUrl & rUrl, int mflags)
 	curl_easy_reset(_CURLH);
 	CleanCbRW();
 	THROW(PrepareURL(url_local, InetUrl::protFtp, url_info));
-	url_local.GetComponent(InetUrl::stPath, 0, path_to_cwd);  // @v10.8.2 @fix
+	url_local.GetComponent(InetUrl::stPath, 0, path_to_cwd);
 	THROW(SetCommonOptions(mflags|mfTcpKeepAlive, 0, 0))
 	{
 		url_local.Compose(InetUrl::stAll & ~(InetUrl::stUserName|InetUrl::stPassword|InetUrl::stPath), temp_buf); // @notebene InetUrl::stPath

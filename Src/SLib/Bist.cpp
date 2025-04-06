@@ -103,7 +103,7 @@ public:
 class SDec : public DataType {
 public:
 	SDec(size_t sz = 8, size_t prec = 2);
-	virtual uint32 size() const; // @v10.2.1 size_t-->uint32
+	virtual uint32 size() const;
 	virtual int    comp(const void *, const void *) const;
 	virtual char * tostr(const void *, long, char *) const;
 	virtual int    fromstr(void *, long, const char *) const;
@@ -301,7 +301,7 @@ void RegisterBIST()
 {
 	RegisterSType(S_VOID,        &SVoid());
 	RegisterSType(S_CHAR,     	 &SChar());
-	RegisterSType(S_INT,      	 &SInt(4)); // @v10.6.3 default(2)-->4
+	RegisterSType(S_INT,      	 &SInt(4));
 	// @v11.9.9 (S_BOOL is S_LOGICAL) RegisterSType(S_BOOL,     	 &SBool());
 	RegisterSType(S_UINT,     	 &SUInt());
 	RegisterSType(S_LOGICAL,  	 &SBool());
@@ -312,7 +312,7 @@ void RegisterBIST()
 	RegisterSType(S_DATETIME, 	 &SDateTime());
 	RegisterSType(S_TIME,     	 &STime());
 	RegisterSType(S_ZSTRING,  	 &SZString());
-	RegisterSType(S_AUTOINC,  	 &SAutoinc(4)); // @v10.6.3 default(2)-->4
+	RegisterSType(S_AUTOINC,  	 &SAutoinc(4));
 	RegisterSType(S_NOTE,     	 &SNote());
 	RegisterSType(S_LSTRING,  	 &SLString());
 	RegisterSType(S_VARIANT,  	 &SVariant());
@@ -322,9 +322,9 @@ void RegisterBIST()
 	RegisterSType(S_IPOINT2,  	 &SIPoint2());
 	RegisterSType(S_FPOINT2,  	 &SFPoint2());
 	RegisterSType(S_UUID_,    	 &SGuid());
-	RegisterSType(S_INT64,       &SInt64()); // @v10.6.3
-	RegisterSType(S_UINT64,      &SUInt64()); // @v10.6.3
-	RegisterSType(S_COLOR_RGBA,  &SDataType_Color()); // @v10.9.10
+	RegisterSType(S_INT64,       &SInt64());
+	RegisterSType(S_UINT64,      &SUInt64());
+	RegisterSType(S_COLOR_RGBA,  &SDataType_Color());
 }
 //
 // SChar

@@ -1551,7 +1551,7 @@ public:
 	VetisVetDocument Doc;
 };
 
-class VetisModifyEnterpriseRequest : public VetisApplicationData { // @V10.5.0
+class VetisModifyEnterpriseRequest : public VetisApplicationData {
 public:
 	VetisModifyEnterpriseRequest(VetisRegisterModificationType mt) : VetisApplicationData(signModifyEnterprise), ModType(mt)
 	{
@@ -6497,7 +6497,6 @@ int PPVetisInterface::SubmitRequest(VetisApplicationBlock & rAppBlk, VetisApplic
 										}
 										if(!p_trinfo->TransportNumber.IsEmpty()) {
 											SXml::WNode n_tn(srb, _xmlnst_vd("transportNumber"));
-											// @v10.3.2 PutNonEmptyText(n_tn, "d9p1", "containerNumber", r_doc.CertifiedConsignment.TransportInfo.TransportNumber.ContainerNumber);
 											XMLReplaceSpecSymb((temp_buf = p_trinfo->TransportNumber.ContainerNumber), "<>&/");
 											PutNonEmptyText(n_tn, "vd", "containerNumber", temp_buf);
 											XMLReplaceSpecSymb((temp_buf = p_trinfo->TransportNumber.VehicleNumber), "<>&/");
@@ -10619,8 +10618,8 @@ public:
 				SetupPersonCombo(this, CTLSEL_VETDOCFLT_TOP, Data.ToPersonID, 0, acs_rec.ObjGroup, 1);
 			}
 		}
-		setCtrlUInt16(CTL_VETDOCFLT_FTEXPIRY, (Data.Ft_Expiry > 0)   ? 1 : ((Data.Ft_Expiry < 0)   ? 2 : 0)); // @v10.6.3
-		setCtrlUInt16(CTL_VETDOCFLT_FTMATCH,  (Data.Ft_LotMatch > 0) ? 1 : ((Data.Ft_LotMatch < 0) ? 2 : 0)); // @v10.6.3
+		setCtrlUInt16(CTL_VETDOCFLT_FTEXPIRY, (Data.Ft_Expiry > 0)   ? 1 : ((Data.Ft_Expiry < 0)   ? 2 : 0));
+		setCtrlUInt16(CTL_VETDOCFLT_FTMATCH,  (Data.Ft_LotMatch > 0) ? 1 : ((Data.Ft_LotMatch < 0) ? 2 : 0));
 		return ok;
 	}
 	DECL_DIALOG_GETDTS()

@@ -239,9 +239,6 @@
 #ifndef NTDDI_VERSION
 	#define NTDDI_VERSION 0x06010000
 #endif // NTDDI_VERSION
-// @v10.6.1 #ifndef _WIN32_WINNT
-	// @v10.6.1 #define _WIN32_WINNT 0x0601
-// @v10.6.1 #endif // _WIN32_WINNT
 #ifndef WINVER
 	#define WINVER 0x0601
 #endif // WINVER
@@ -252,11 +249,6 @@
 /* #undef off_t */ /* Define to `long long' if <sys/types.h> does not define. */
 #define pid_t int /* Define to `int' if <sys/types.h> doesn't define. */
 /* #undef size_t */ /* Define to `uint' if <sys/types.h> does not define. */
-/* @v10.8.1 #ifdef _WIN64
-	#define ssize_t long long // Define to `int' if <sys/types.h> does not define. 
-#else
-	#define ssize_t long // Define to `int' if <sys/types.h> does not define. 
-#endif*/
 #define uid_t short /* Define to `int' if <sys/types.h> doesn't define. */
 /* #undef intptr_t */ /* Define to `int' if <sys/types.h> does not define. */
 /* #undef uintptr_t */ /* Define to `uint' if <sys/types.h> does not define. */

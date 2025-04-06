@@ -16561,8 +16561,8 @@ public:
 	PPJob();
 	PPJob(const PPJob & rS);
 	PPJob & FASTCALL operator = (const PPJob &);
-	int    FASTCALL Write(SBuffer & rBuf);
-	int    FASTCALL Read(SBuffer & rBuf);
+	// @v12.3.1 (@obsolete) int    FASTCALL Write(SBuffer & rBuf);
+	// @v12.3.1 (@obsolete) int    FASTCALL Read(SBuffer & rBuf);
 	int    FASTCALL Write2(xmlTextWriter * pXmlWriter) const; //@erik v10.7.1
 	int    FASTCALL Read2(const xmlNode * pParentNode); //@erik v10.7.1
 	enum {
@@ -16680,7 +16680,7 @@ public:
 	~PPJobMngr();
 	int    LoadResource(PPID jobID, PPJobDescr * pJob);
 	int    GetResourceList(int loadText, StrAssocArray & rList);
-	int    SavePool(const PPJobPool *);
+	// @v12.3.1 (@obsolete) int    SavePool(const PPJobPool *);
 	int    LoadPool2(const char * pDbSymb, PPJobPool *, bool readOnly); //@erik v10.7.4
 	int    SavePool2(const PPJobPool *); //@erik v10.7.4
 	int    IsPoolChanged() const;
@@ -16692,23 +16692,23 @@ public:
 	void   FASTCALL UpdateLastId(long id);
 	const  SString & GetFileName() const { return XmlFilePath; }
 private:
-	int    LoadPool(const char * pDbSymb, PPJobPool *, int readOnly); // @obsolete function. Used only for convertation.
-	int    Helper_ReadHeader(SFile & rF, void * pHdr, int lockMode);
-	int    CreatePool();
+	// @v12.3.1 (@obsolete) int    LoadPool(const char * pDbSymb, PPJobPool *, int readOnly); // @obsolete function. Used only for convertation.
+	// @v12.3.1 (@obsolete) int    Helper_ReadHeader(SFile & rF, void * pHdr, int lockMode);
+	// @v12.3.1 (@obsolete) int    CreatePool();
 	void   CloseFile();
 	int    GetXmlPoolDir(SString & rXmlPoolPath); //@erik v10.7.4
 	// Выполняется если ни одна задача еще не была сохранена в xml формате
-	int    ConvertBinToXml();
+	// @v12.3.1 (@obsolete) int    ConvertBinToXml();
 
 	TVRez  * P_Rez;
 	// Путь к файлу, в котором хранится пул задач. Мы сохраняем этот
 	//   путь в переменной потому что при обработке задач все нужно делать очень быстро.
-	SString FilePath; // @*PPJobMngr::PPJobMngr
+	// @v12.3.1 (obsolete) SString FilePath; // @*PPJobMngr::PPJobMngr
 	SString XmlFilePath; //@erik v10.7.4
 	LDATETIME LastLoading; // Время последнего вызова функции LoadPool. Используется для определения факта изменения файла пула с момена последней загрузки
 	long   LastId; // @persistent Используется для присвоения уникального идентификатора новым задачам
 	int    LckH;   // @transient  Дескриптор блокировки заголовка файла
-	SFile * P_F;   // Файл, из которого считаны данные в режиме 'на запись'. Если данные извлекаются только для чтения,
+	// @v12.3.1 (@obsolete) SFile * P_F;   // Файл, из которого считаны данные в режиме 'на запись'. Если данные извлекаются только для чтения,
 	PPSync Sync;//@erik v10.7.4
 };
 //
@@ -16716,7 +16716,6 @@ private:
 //
 class PPNamedFilt {
 public:
-	// @v10.5.0 @construction {
 	class ViewDefinition : public SStrGroup {
 	public:
 		friend class PPNamedFilt;
@@ -16744,7 +16743,6 @@ public:
 		int    XmlRead(const xmlNode * pParentNode); //@erik v10.7.5
 		int    XmlWrite(xmlTextWriter * pXmlWriter) const; //@erik v10.7.5
 		int    RemoveEntryByPos(uint pos);
-		// @v10.6.7 int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 		int    XmlWriter(void * param);
 		int    Swap(uint p1, uint p2);
 	private:
@@ -16761,9 +16759,8 @@ public:
 		};
 		int    SearchEntry(const char * pZone, const char * pFieldName, uint * pPos, InnerEntry * pInneEntry) const;
 		TSVector <InnerEntry> L;
-		SString StrucSymb; // @v10.6.7 Наименование структуры DL600 для формирования данных
+		SString StrucSymb; // Наименование структуры DL600 для формирования данных
 	};
-	// } @v10.5.0
 
 	static int EditRestrictedViewDefinitionList(PPNamedFilt::ViewDefinition & rData);
 
@@ -16785,7 +16782,7 @@ public:
 
 	enum {
 		fDontWriteXmlDTD = 0x0001, // В исходящий XML-файле на писать DTD
-		fCompressXml     = 0x0002  // @v10.6.0 Сжимать создаваемый xml-файл
+		fCompressXml     = 0x0002  // Сжимать создаваемый xml-файл
 	};
 	PPID   ID;          // Уникальный идентификатор фильтра внутри пула
 	long   Ver;         // Номер версии хранимой копии именованного фильтра
@@ -47778,8 +47775,11 @@ public:
 		SPtrHandle H;
 		PPFtsInterface & R_Ifc;
 	};
-
-	explicit PPFtsInterface(bool writer, long lockTimeout);
+	//
+	// ARG(pDbLoc IN): Если аргумент не пустой, то указывает на путь к каталогу, где находятся (или должны находиться) данные.
+	//   Если isempty(pDbLoc), то путь определяется автоматически по внутренней конфигурации (workspace\supplementaldata)
+	//
+	explicit PPFtsInterface(const char * pDbLoc, bool writer, long lockTimeout);
 	~PPFtsInterface();
 	bool   operator !() const;
 	bool   IsWriter() const;
@@ -47787,7 +47787,11 @@ public:
 private:
 	class Ptr {
 	public:
-		explicit Ptr(bool writer, long lockTimeout);
+		//
+		// ARG(pDbLoc IN): Если аргумент не пустой, то указывает на путь к каталогу, где находятся (или должны находиться) данные.
+		//   Если isempty(pDbLoc), то путь определяется автоматически по внутренней конфигурации (workspace\supplementaldata)
+		//
+		Ptr(const char * pDbLoc, bool writer, long lockTimeout);
 		~Ptr();
 		bool operator !() const { return (P == 0); }
 		bool IsWriter() const { return Writer; }
@@ -48258,8 +48262,15 @@ public:
 	int    IndexingContent();
 	int    IndexingContent_Json(PPFtsInterface::TransactionHandle * pFtsTra, PPTextAnalyzer * pTa, const char * pJsText);
 	int    GetMediatorList(TSCollection <StyloQCore::IgnitionServerEntry> & rList);
+	//
+	// @v12.3.1
+	// Descr: Тестовая процедура для проверки и отладки индексации контента в условиях максимально близких к реальным.
+	//
+	static int Test_IndexingContent(const char * pDbLoc, const char * pJsText);
 private:
 	int    Helper_PutDocument(PPID * pID, StyloQSecTbl::Rec * pResultRec, const SBinaryChunk & rContractorIdent, int direction, int docType, const SBinaryChunk & rIdent, const SSecretTagPool & rPool, int use_ta);
+	static SJson * PreprocessIndexingContent(const char * pJsText, SString & rSvcIdent);
+	static int  Helper_IndexingContent_Json(PPFtsInterface::TransactionHandle * pFtsTra, PPTextAnalyzer * pTa, const SJson * pJs, const SString & rSvcIdent, int64 svcId);
 	static ReadWriteLock _SvcDbMapRwl; // Блокировка для защиты _SvcDbMap
 	static SvcDbSymbMap _SvcDbMap;
 };

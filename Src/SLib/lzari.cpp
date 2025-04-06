@@ -817,7 +817,6 @@ int LZAri::GetFileInfo(int compress)
 
 int LZAri::CheckCrc()
 {
-	// @v10.0.0 EXCEPTVAR(SLibError);
 	const size_t buf_size = 512;
 	int    ok = 1;
 	char * p_buf = 0;
@@ -836,7 +835,8 @@ int LZAri::CheckCrc()
 
 int DoCompress(const char * pSrc, const char * pDest, int64 * pFileSize, int compress, PercentFunc pf)
 {
-	char   src_path[MAX_PATH], dest_path[MAX_PATH];
+	char   src_path[MAX_PATH];
+	char   dest_path[MAX_PATH];
 	STRNSCPY(src_path, pSrc);
 	STRNSCPY(dest_path, pDest);
 	LZAri  lz_ari;

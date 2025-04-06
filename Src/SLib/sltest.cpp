@@ -740,7 +740,7 @@ int STestSuite::Run(const char * pIniFileName)
 {
 	int    ok = 1;
 	SString temp_buf(8192);
-	// @v10.8.1 @linkage {
+	// @linkage {
 	{
 		SString temp_sbuf;
 		slprintf(temp_sbuf, "% d", 4232);
@@ -774,8 +774,10 @@ int STestSuite::Run(const char * pIniFileName)
 				assert(Mht.CalcStat(&p_entry->HeapBefore));
 				p_case = f(this);
 				if(p_case) {
-					int64 tm_start, tm_finish;
-					int64 tmsys_start, tmsys_finish;
+					int64 tm_start;
+					int64 tm_finish;
+					int64 tmsys_start;
+					int64 tmsys_finish;
 					{
 						uint  c = p_entry->MaxCount;
 						uint  succ = 0, fail = 0; // Счетчики успешных и ошибочных запусков

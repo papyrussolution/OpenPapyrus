@@ -360,35 +360,35 @@ private:
 		BarCode,                          //
 		FirstLineNumber,                  //
 		LineNumber,                       //
-		Summ4,                            // @v10.6.1
-		Summ5,                            // @v10.6.1
-		Summ6,                            // @v10.6.1
-		Summ7,                            // @v10.6.1
-		Summ8,                            // @v10.6.1
-		Summ9,                            // @v10.6.1
-		Summ10,                           // @v10.6.1
-		Summ11,                           // @v10.6.1
-		Summ12,                           // @v10.6.1
-		Summ13,                           // @v10.6.1
-		Summ14,                           // @v10.6.1
-		Summ15,                           // @v10.6.1
-		Summ16,                           // @v10.6.1
-		CloseCheckEx,                     // @v10.6.3
-		FNOperation,                      // @v10.7.2
-		PaymentTypeSign,                  // @v10.7.2 Признак способа расчета
-		PaymentItemSign,                  // @v10.7.2 Признак предмета расчета 
-		FNSendItemCodeData,               // @v10.7.2
+		Summ4,                            //
+		Summ5,                            //
+		Summ6,                            //
+		Summ7,                            //
+		Summ8,                            //
+		Summ9,                            //
+		Summ10,                           //
+		Summ11,                           //
+		Summ12,                           //
+		Summ13,                           //
+		Summ14,                           //
+		Summ15,                           //
+		Summ16,                           //
+		CloseCheckEx,                     //
+		FNOperation,                      //
+		PaymentTypeSign,                  // Признак способа расчета
+		PaymentItemSign,                  // Признак предмета расчета 
+		FNSendItemCodeData,               //
 		FNSendItemBarcode,                // @v12.0.4 OFD 1.2
-		MarkingType,                      // @v10.7.2
-		GTIN,                             // @v10.7.2
-		SerialNumber,                     // @v10.7.2
-		FNBeginSTLVTag,                   // @v10.9.0
-		TagID,                            // @v10.9.0
-		TagNumber,                        // @v10.9.0
-		TagType,                          // @v10.9.0
-		TagValueStr,                      // @v10.9.0
-		FNAddTag,                         // @v10.9.0
-		FNSendSTLVTag,                    // @v10.9.0
+		MarkingType,                      //
+		GTIN,                             //
+		SerialNumber,                     //
+		FNBeginSTLVTag,                   //
+		TagID,                            //
+		TagNumber,                        //
+		TagType,                          //
+		TagValueStr,                      //
+		FNAddTag,                         //
+		FNSendSTLVTag,                    //
 		// Код системы налогообложения. Битовое поле:
 		// Бит 5|Бит 4|Бит 3|Бит 2|Бит 1|Бит 0|Описание
 		// 0     0     0     0     0     1     Основная
@@ -445,7 +445,7 @@ private:
 		sfPrintSlip     = 0x0010, // печать подкладного документа
 		sfDontUseCutter = 0x0020, // не использовать отрезчик чеков
 		sfUseWghtSensor = 0x0040, // использовать весовой датчик
-		sfUseFnMethods  = 0x0080  // @v10.7.2 Разрешение на использование fn-методов (параметр pp.ini [config] ShtrihFRUseFnMethods)
+		sfUseFnMethods  = 0x0080  // Разрешение на использование fn-методов (параметр pp.ini [config] ShtrihFRUseFnMethods)
 	};
 	//
 	// Descr: Варианты соединения с кассовым регистратором
@@ -458,7 +458,7 @@ private:
 	};
 	static FR_INTRF * P_DrvFRIntrf;
 	static int  RefToIntrf;
-	static uint PayTypeRegFlags;   // @v10.6.1 Флаги успешности получения интерфейсов для Summ1..Summ16
+	static uint PayTypeRegFlags;   // Флаги успешности получения интерфейсов для Summ1..Summ16
 	enum {
 		extmethfCloseCheckEx           = 0x00000001,
 		extmethfFNCheckItemBarcode     = 0x00000002,
@@ -482,13 +482,13 @@ private:
 		extmethfOpenSession            = 0x00080000, // @v12.0.4
 		extmethfFNSendItemBarcode      = 0x00100000, // @v12.0.4
 	};
-	static uint ExtMethodsFlags;   // @v10.6.3 Флаги успешности получения расширенных методов драйвера
+	static uint ExtMethodsFlags;   // Флаги успешности получения расширенных методов драйвера
 	long   CashierPassword;    // Пароль кассира
 	long   AdmPassword;        // Пароль сист.администратора
 	int    ResCode;            //
 	int    ErrCode;            //
 	int    DeviceType;         //
-	int    SCardPaymEntryN;    // @v10.6.2 PPINIPARAM_SHTRIHFRSCARDPAYMENTRY Регистр аппарата, в который заносится оплата по корпоративной карте [1..16]
+	int    SCardPaymEntryN;    // PPINIPARAM_SHTRIHFRSCARDPAYMENTRY Регистр аппарата, в который заносится оплата по корпоративной карте [1..16]
 	long   CheckStrLen;        //
 	long   Flags;              //
 	int    ConnectionMode;     // @v12.0.5 connmodeXXX
@@ -1026,7 +1026,7 @@ int SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 									case GTCHZNPT_ALTTOBACCO: marking_type = 0x444D; break; // @v11.9.0
 									case GTCHZNPT_SHOE: marking_type = 0x444D; break;
 									case GTCHZNPT_MEDICINE: marking_type = 0x444D; break;
-									case GTCHZNPT_CARTIRE: marking_type = 0x444D; break; // @v10.9.7
+									case GTCHZNPT_CARTIRE: marking_type = 0x444D; break;
 									case GTCHZNPT_MILK: marking_type = 0x444D; break; // @v11.5.7
 									case GTCHZNPT_WATER: marking_type = 0x444D; break; // @v11.5.7
 									case GTCHZNPT_DIETARYSUPPLEMENT: marking_type = 0x444D; break; // @v12.0.4
@@ -1180,7 +1180,6 @@ int SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 			const double __amt_bnk = amt_bnk;
 			const double __amt_ccrd = amt_ccrd;
 			const double __amt_cash = sum - __amt_bnk - __amt_ccrd;
-			// @v10.6.2 {
 			const int ccrd_entry_n = inrangeordefault(SCardPaymEntryN, 1, 16, (ExtMethodsFlags & extmethfCloseCheckEx) ? 14 : 2);
 			PPID  ccrd_entry_id = 0;
 			switch(ccrd_entry_n) {
@@ -1204,7 +1203,6 @@ int SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 			if(PayTypeRegFlags & (1U << ccrd_entry_n) && !ccrd_entry_id) {
 				ccrd_entry_id = Summ2;
 			}
-			// } @v10.6.2 
 			{
 				msg_buf.Z().Cat("Payment").CatDiv(':', 2).Cat("PayTypeRegFlags-hex").Eq().CatHex(static_cast<ulong>(PayTypeRegFlags));
 				msg_buf.Space().Cat("PayTypeRegFlags-dec").Eq().Cat(PayTypeRegFlags);
@@ -1262,7 +1260,7 @@ int SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 			if(true/*ExtMethodsFlags & extmethfFNCloseCheckEx && ProtocolVer.IsGe(5, 0, 0)*/) { // @v11.7.11 (&& ProtocolVer.IsGt(5, 0, 0))
 				THROW(ExecFR(FNCloseCheckEx));
 			} // } @v11.7.2 
-			else if(ExtMethodsFlags & extmethfCloseCheckEx) { // @v10.6.3
+			else if(ExtMethodsFlags & extmethfCloseCheckEx) {
 				THROW(ExecFR(CloseCheckEx));
 			}
 			else {
@@ -1810,8 +1808,6 @@ int SCS_SHTRIHFRF::GetSummator(double * val)
 	return ok;
 }
 
-// @v10.3.9 int SCS_SHTRIHFRF::InitChannel() { return 1; }
-
 FR_INTRF * SCS_SHTRIHFRF::InitDriver()
 {
 	struct IfcEntry {
@@ -1847,20 +1843,20 @@ FR_INTRF * SCS_SHTRIHFRF::InitDriver()
 		IFC_ENTRY_SS(Summ1, PayTypeRegFlags, (1U <<  1)),
 		IFC_ENTRY_SS(Summ2, PayTypeRegFlags, (1U <<  2)),
 		IFC_ENTRY_SS(Summ3, PayTypeRegFlags, (1U <<  3)),
-		IFC_ENTRY_SS(Summ4, PayTypeRegFlags, (1U <<  4)), // @v10.6.1
-		IFC_ENTRY_SS(Summ5, PayTypeRegFlags, (1U <<  5)), // @v10.6.1
-		IFC_ENTRY_SS(Summ6, PayTypeRegFlags, (1U <<  6)), // @v10.6.1
-		IFC_ENTRY_SS(Summ7, PayTypeRegFlags, (1U <<  7)), // @v10.6.1
-		IFC_ENTRY_SS(Summ8, PayTypeRegFlags, (1U <<  8)), // @v10.6.1
-		IFC_ENTRY_SS(Summ9, PayTypeRegFlags, (1U <<  9)), // @v10.6.1
-		IFC_ENTRY_SS(Summ10, PayTypeRegFlags, (1U << 10)), // @v10.6.1
-		IFC_ENTRY_SS(Summ11, PayTypeRegFlags, (1U << 11)), // @v10.6.1
-		IFC_ENTRY_SS(Summ12, PayTypeRegFlags, (1U << 12)), // @v10.6.1
-		IFC_ENTRY_SS(Summ13, PayTypeRegFlags, (1U << 13)), // @v10.6.1
-		IFC_ENTRY_SS(Summ14, PayTypeRegFlags, (1U << 14)), // @v10.6.1
-		IFC_ENTRY_SS(Summ15, PayTypeRegFlags, (1U << 15)), // @v10.6.1
-		IFC_ENTRY_SS(Summ16, PayTypeRegFlags, (1U << 16)), // @v10.6.1
-		IFC_ENTRY_SS(CloseCheckEx,   ExtMethodsFlags, extmethfCloseCheckEx),   // @v10.6.3
+		IFC_ENTRY_SS(Summ4, PayTypeRegFlags, (1U <<  4)),
+		IFC_ENTRY_SS(Summ5, PayTypeRegFlags, (1U <<  5)),
+		IFC_ENTRY_SS(Summ6, PayTypeRegFlags, (1U <<  6)),
+		IFC_ENTRY_SS(Summ7, PayTypeRegFlags, (1U <<  7)),
+		IFC_ENTRY_SS(Summ8, PayTypeRegFlags, (1U <<  8)),
+		IFC_ENTRY_SS(Summ9, PayTypeRegFlags, (1U <<  9)),
+		IFC_ENTRY_SS(Summ10, PayTypeRegFlags, (1U << 10)),
+		IFC_ENTRY_SS(Summ11, PayTypeRegFlags, (1U << 11)),
+		IFC_ENTRY_SS(Summ12, PayTypeRegFlags, (1U << 12)),
+		IFC_ENTRY_SS(Summ13, PayTypeRegFlags, (1U << 13)),
+		IFC_ENTRY_SS(Summ14, PayTypeRegFlags, (1U << 14)),
+		IFC_ENTRY_SS(Summ15, PayTypeRegFlags, (1U << 15)),
+		IFC_ENTRY_SS(Summ16, PayTypeRegFlags, (1U << 16)),
+		IFC_ENTRY_SS(CloseCheckEx,   ExtMethodsFlags, extmethfCloseCheckEx),
 		IFC_ENTRY_SS(FNCloseCheckEx, ExtMethodsFlags, extmethfFNCloseCheckEx), // @v11.7.2
 		// @v11.2.11 {
 		//if(ExtMethodsFlags & extmethfCloseCheckEx)
@@ -1940,20 +1936,20 @@ FR_INTRF * SCS_SHTRIHFRF::InitDriver()
 		IFC_ENTRY(BarCode),
 		IFC_ENTRY(FirstLineNumber),
 		IFC_ENTRY(LineNumber),
-		IFC_ENTRY(FNOperation),        // @v10.7.2
-		IFC_ENTRY(PaymentTypeSign),    // @v10.7.2 Признак способа расчета
-		IFC_ENTRY(PaymentItemSign),    // @v10.7.2 Признак предмета расчета 
-		IFC_ENTRY(FNSendItemCodeData), // @v10.7.2
-		IFC_ENTRY(MarkingType),        // @v10.7.2
-		IFC_ENTRY(GTIN),               // @v10.7.2
-		IFC_ENTRY(SerialNumber),       // @v10.7.2
-		IFC_ENTRY(FNBeginSTLVTag), // @v10.9.0
-		IFC_ENTRY(TagID),          // @v10.9.0
-		IFC_ENTRY(TagNumber),      // @v10.9.0
-		IFC_ENTRY(TagType),        // @v10.9.0
-		IFC_ENTRY(TagValueStr),    // @v10.9.0
-		IFC_ENTRY(FNAddTag),       // @v10.9.0
-		IFC_ENTRY(FNSendSTLVTag),  // @v10.9.0
+		IFC_ENTRY(FNOperation),        //
+		IFC_ENTRY(PaymentTypeSign),    // Признак способа расчета
+		IFC_ENTRY(PaymentItemSign),    // Признак предмета расчета 
+		IFC_ENTRY(FNSendItemCodeData), //
+		IFC_ENTRY(MarkingType),        //
+		IFC_ENTRY(GTIN),               //
+		IFC_ENTRY(SerialNumber),       //
+		IFC_ENTRY(FNBeginSTLVTag), //
+		IFC_ENTRY(TagID),          //
+		IFC_ENTRY(TagNumber),      //
+		IFC_ENTRY(TagType),        //
+		IFC_ENTRY(TagValueStr),    //
+		IFC_ENTRY(FNAddTag),       //
+		IFC_ENTRY(FNSendSTLVTag),  //
 		IFC_ENTRY(FNAcceptMarkingCode),  // @v12.0.4
 		IFC_ENTRY(FNDeclineMarkingCode), // @v12.0.4
 		IFC_ENTRY_SS(FNCheckItemBarcode,     ExtMethodsFlags, extmethfFNCheckItemBarcode),     // @v11.6.6 / !

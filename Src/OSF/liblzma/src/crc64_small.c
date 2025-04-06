@@ -10,12 +10,12 @@ static  uint64 crc64_table[256];
 
 static void crc64_init(void)
 {
-	//static const  uint64 poly64 = /*0xC96C5795D7870F42ULL*/SlConst::CrcPoly_64;
+	//static const  uint64 poly64 = /*0xC96C5795D7870F42ULL*/SlConst::CrcPoly_64_Lzma;
 	for(size_t b = 0; b < 256; ++b) {
 		uint64 r = b;
 		for(size_t i = 0; i < 8; ++i) {
 			if(r & 1)
-				r = (r >> 1) ^ SlConst::CrcPoly_64;
+				r = (r >> 1) ^ SlConst::CrcPoly_64_Lzma;
 			else
 				r >>= 1;
 		}

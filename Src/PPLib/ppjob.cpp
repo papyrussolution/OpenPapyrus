@@ -80,11 +80,11 @@ int PPJobMngr::EditJobParam(PPJob & rJob)
 //
 //
 //
-PPJobMngr::PPJobMngr() : LckH(0), LastId(0), P_F(0), LastLoading(ZERODATETIME)
+PPJobMngr::PPJobMngr() : LckH(0), LastId(0), /*P_F(0),*/LastLoading(ZERODATETIME)
 {
 	SString name;
 	P_Rez = new TVRez(makeExecPathFileName("pp", "res", name), 1);
-	PPGetFilePath(PPPATH_BIN, PPFILNAM_JOBPOOL, FilePath);
+	// @v12.3.1 (obsolete) PPGetFilePath(PPPATH_BIN, PPFILNAM_JOBPOOL, FilePath);
 //@erik v10.7.4
 	GetXmlPoolDir(XmlFilePath);
 	Sync.Init(XmlFilePath);
@@ -111,19 +111,20 @@ void FASTCALL PPJobMngr::UpdateLastId(long id)
 
 void PPJobMngr::CloseFile()
 {
+	/* @v12.3.1 (@obsolete) 
 	if(P_F) {
 		if(LckH) {
 			P_F->Unlock(LckH);
 			LckH = 0;
 		}
 		ZDELETE(P_F);
-	}
+	}*/
 	if(Sync.IsMyLock(LConfig.SessionID, PPCFGOBJ_JOBPOOL, 1)) {
 		Sync.ReleaseMutex(PPCFGOBJ_JOBPOOL, 1);
 	}
 }
 
-int PPJobMngr::ConvertBinToXml()
+/* @v12.3.1 (@obsolete) int PPJobMngr::ConvertBinToXml()
 {
 	int    ok = 1;
 	PPJobPool pool(this, 0, 0);
@@ -134,7 +135,7 @@ int PPJobMngr::ConvertBinToXml()
 	Sync.ReleaseMutex(PPCFGOBJ_JOBPOOL, 1);
 	CATCHZOK
 	return ok;
-}
+}*/
 
 int PPJobMngr::LoadResource(PPID jobID, PPJobDescr * pJob)
 {
@@ -178,7 +179,7 @@ struct JobStrgHeader { // @persistent @size=64
 	char   Reserve2[44];
 };
 
-int PPJobMngr::Helper_ReadHeader(SFile & rF, void * pHdr, int lockMode)
+/* @v12.3.1 (@obsolete) int PPJobMngr::Helper_ReadHeader(SFile & rF, void * pHdr, int lockMode)
 {
 	int    ok = 1;
 	uint32 locking_stub = 0;
@@ -213,9 +214,9 @@ int PPJobMngr::Helper_ReadHeader(SFile & rF, void * pHdr, int lockMode)
 	THROW_SL(rF.Seek(sizeof(*p_hdr), SEEK_SET));
 	CATCHZOK
 	return ok;
-}
+}*/
 
-int PPJobMngr::LoadPool(const char * pDbSymb, PPJobPool * pPool, int readOnly)
+/* @v12.3.1 (@obsolete) int PPJobMngr::LoadPool(const char * pDbSymb, PPJobPool * pPool, int readOnly)
 {
 	int    ok = 1;
 	assert(!P_F || LckH);
@@ -260,7 +261,7 @@ int PPJobMngr::LoadPool(const char * pDbSymb, PPJobPool * pPool, int readOnly)
 	ENDCATCH
 	SETFLAG(pPool->Flags, PPJobPool::fReadOnly, readOnly);
 	return ok;
-}
+}*/
 
 //@erik v10.7.4
 int PPJobMngr::LoadPool2(const char * pDbSymb, PPJobPool * pPool, bool readOnly)
@@ -273,6 +274,7 @@ int PPJobMngr::LoadPool2(const char * pDbSymb, PPJobPool * pPool, bool readOnly)
 	const long session_id = LConfig.SessionID;
 	pPool->Flags &= ~PPJobPool::fReadOnly;
 	pPool->freeAll();
+	/* @v12.3.1 @obsolete
 	if(!fileExists(XmlFilePath)) {
 		SString fmt_buf;
 		SString msg_buf;
@@ -281,7 +283,7 @@ int PPJobMngr::LoadPool2(const char * pDbSymb, PPJobPool * pPool, bool readOnly)
 		msg_buf.Printf(fmt_buf, XmlFilePath.cptr(), FilePath.cptr());
 		PPLogMessage(PPFILNAM_INFO_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_COMP);
 		THROW(ConvertBinToXml());
-	}
+	}*/
 	if(!readOnly) {
 		THROW(Sync.CreateMutex_(session_id, PPCFGOBJ_JOBPOOL, 1, 0, 0));
 	}
@@ -342,9 +344,9 @@ int PPJobMngr::IsPoolChanged() const
 	if(LastLoading.d) {
 		SFile::Stat fs;
 		// @v11.8.11 {
-		if(SFile::GetStat(FilePath, 0, &fs, 0) && SFile::GetStat(XmlFilePath, 0, &fs, 0)) {
+		if(/* @v12.3.1 (obsolete) SFile::GetStat(FilePath, 0, &fs, 0) &&*/SFile::GetStat(XmlFilePath, 0, &fs, 0)) {
 			LDATETIME fs_dtm;
-			if(cmp(fs_dtm.SetNs100(fs.ModTm_), LastLoading) > 0) {
+			if(cmp(fs_dtm.SetNs100_AdjToTimezone(fs.ModTm_), LastLoading) > 0) { // @v12.3.1 SetNs100-->SetNs100_AdjToTimezone
 				ok = 1; // Файл был модифицирован
 			}
 		}
@@ -365,7 +367,7 @@ int PPJobMngr::IsPoolChanged() const
 	return ok;
 }
 
-int PPJobMngr::CreatePool()
+/*@v12.3.1 (@obsolete) int PPJobMngr::CreatePool()
 {
 	int    ok = 1;
 	if(!fileExists(FilePath)) {
@@ -387,9 +389,9 @@ int PPJobMngr::CreatePool()
 	}		
 	CATCHZOK
 	return ok;
-}
+}*/
 
-int PPJobMngr::SavePool(const PPJobPool * pPool)
+/*@v12.3.1 (@obsolete) int PPJobMngr::SavePool(const PPJobPool * pPool)
 {
 	int ok = 1;
 	assert(!P_F || LckH);
@@ -403,7 +405,7 @@ int PPJobMngr::SavePool(const PPJobPool * pPool)
 	hdr.Ver = DS.GetVersion();
 	{
 		//
-		// Снимаем блокировку непосредственно преред записью.
+		// Снимаем блокировку непосредственно перед записью.
 		// Ненулевое значение LckH уже проверено выше.
 		//
 		THROW_SL(P_F->Unlock(LckH));
@@ -423,7 +425,7 @@ int PPJobMngr::SavePool(const PPJobPool * pPool)
 	THROW(Helper_ReadHeader(*P_F, &hdr, 1));
 	CATCHZOK
 	return ok;
-}
+}*/
 
 //@erik v10.7.0
 int PPJobMngr::SavePool2(const PPJobPool * pPool)
@@ -582,7 +584,7 @@ PPJob & FASTCALL PPJob::operator = (const PPJob & s)
 	return *this;
 }
 
-int FASTCALL PPJob::Write(SBuffer & rBuf)
+/*@v12.3.1 (@obsolete) int FASTCALL PPJob::Write(SBuffer & rBuf)
 {
 	int    ok = 1;
 	long   flags = (Flags | fV579);
@@ -607,9 +609,9 @@ int FASTCALL PPJob::Write(SBuffer & rBuf)
 		ok = PPSetErrorSLib();
 	ENDCATCH
 	return ok;
-}
+}*/
 
-int FASTCALL PPJob::Read(SBuffer & rBuf)
+/*@v12.3.1 (@obsolete) int FASTCALL PPJob::Read(SBuffer & rBuf)
 {
 	int    ok = 1;
 	THROW(rBuf.Read(ID));
@@ -636,7 +638,7 @@ int FASTCALL PPJob::Read(SBuffer & rBuf)
 		ok = PPSetErrorSLib();
 	ENDCATCH
 	return ok;
-}
+}*/
 
 int PPJob::Write2(xmlTextWriter * pXmlWriter) const //@erik v10.7.4
 {

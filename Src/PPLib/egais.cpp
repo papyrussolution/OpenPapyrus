@@ -571,8 +571,7 @@ int PPEgaisProcessor::ReadAck(const SBuffer * pBuf, PPEgaisProcessor::Ack & rAck
 		SString temp_buf;
 		xmlNode * p_root = 0;
 		THROW(p_ctx = xmlNewParserCtxt());
-		THROW_LXML(p_doc = xmlCtxtReadMemory(p_ctx, pBuf->GetBufC(), avl_size, 0, 0, XML_PARSE_NOENT), p_ctx); // note @v10.6.0 Здесь
-			// может произойти сбой сеанса по непонятным причинам (Win10)
+		THROW_LXML(p_doc = xmlCtxtReadMemory(p_ctx, pBuf->GetBufC(), avl_size, 0, 0, XML_PARSE_NOENT), p_ctx); // note Здесь может произойти сбой сеанса по непонятным причинам (Win10)
 		THROW(p_root = xmlDocGetRootElement(p_doc));
 		if(SXml::IsName(p_root, "A")) {
 			for(const xmlNode * p_c = p_root->children; p_c; p_c = p_c->next) {
@@ -2526,7 +2525,7 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 												}
 											}
 											if(is_there_ext_codes) {
-												SXml::WNode w_m(_doc, SXml::nst("ce", "MarkInfo")); // @v10.7.12 #1
+												SXml::WNode w_m(_doc, SXml::nst("ce", "MarkInfo"));
 												for(uint lpidx = 0; lpidx < local_pos_list.getCount(); lpidx++) {
 													const int row_idx = local_pos_list.get(lpidx);
 													if(p_bp->XcL.Get(row_idx+1, 0, ext_codes_set) > 0 && ext_codes_set.GetCount()) {
@@ -2794,11 +2793,7 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 									else if(is_uncond_accept) {
 										LogTextWithAddendum(PPTXT_EGAIS_BILLUNCNDACCEPTED, bill_text);
 										cmp_result = 0;
-										/* @v10.9.4
-										// @v10.8.10 recadv_status = PPEDI_RECADV_STATUS_ACCEPT;
-										recadv_status = PPEDI_RECADV_STATUS_UNDEF; // @v10.8.10 (экспериментально оставляем статус UNDEF - есть вероятность, что так правильнее)
-										*/
-										recadv_status = PPEDI_RECADV_STATUS_ACCEPT; // @v10.9.4 Вернули все назад
+										recadv_status = PPEDI_RECADV_STATUS_ACCEPT;
 									}
 									else if(all_absent) {
 										LogTextWithAddendum(PPTXT_EGAIS_BILLFULLYREJECTED, bill_text);
@@ -3017,9 +3012,6 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 									if(agi.UnpackedVolume > 0.0) {
 										const double mult = agi.UnpackedVolume / 10.0;
 										qtty = (qtty * mult); // Неупакованная продукция передается в декалитрах
-										// @v10.1.7 Округление до целых (в последнее время ЕГАИС почему-то отказывается принимать дробные значения) {
-										// @v10.8.9 if(qtty > 1.0) qtty = floor(qtty);
-										// } @v10.1.7
 										qtty_fmt = MKSFMTD_030;
 									}
 									SXml::WNode w_p(_doc, SXml::nst("awr", "Position"));

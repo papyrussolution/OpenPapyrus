@@ -334,15 +334,25 @@ SLTEST_R(LDATE)
 			//
 			SFile::Stat fs;
 			if(SFile::GetStat(temp_file_path, 0, &fs, 0)) {
-				LDATETIME dtm;
-				//int tz = gettimezone(); 
+				{
+					LDATETIME dtm;
+					//int tz = gettimezone(); 
 
-				TIME_ZONE_INFORMATION tz;
-				::GetTimeZoneInformation(&tz);
+					TIME_ZONE_INFORMATION tz;
+					::GetTimeZoneInformation(&tz);
 
-				dtm.SetNs100(fs.ModTm_);
-				long tm_diff_sec = labs(diffdatetimesec(dtm, now_dtm));
-				SLCHECK_NZ((tm_diff_sec + (tz.Bias * 60)) <= 1);
+					dtm.SetNs100(fs.ModTm_);
+					long tm_diff_sec = labs(diffdatetimesec(dtm, now_dtm));
+					SLCHECK_NZ((tm_diff_sec + (tz.Bias * 60)) <= 1);
+				}
+				// @v12.3.1 {
+				{
+					LDATETIME dtm;
+					dtm.SetNs100_AdjToTimezone(fs.ModTm_);
+					long tm_diff_sec = labs(diffdatetimesec(dtm, now_dtm));
+					SLCHECK_NZ(tm_diff_sec <= 1);					
+				}
+				// } @v12.3.1 
 			}
 		}
 	}

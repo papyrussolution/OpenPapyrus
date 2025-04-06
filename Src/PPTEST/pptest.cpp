@@ -1974,7 +1974,7 @@ int DoConstructionTest()
 //#endif
 	}
 #if(_MSC_VER >= 1900)
-	//Test_Fts();
+	Test_Fts();
 #endif
 #if 0 // {
 	{
@@ -1992,7 +1992,7 @@ int DoConstructionTest()
 	}
 #endif // } 0
 	//Test_CsvSniffer();
-	Test_Cristal2SetRetailGateway();
+	//Test_Cristal2SetRetailGateway();
 	//PreprocessHFile();
 	//TestTransferFileToFtp();
 	//VkInterface::Test();

@@ -1,5 +1,5 @@
 // TEST-FTS.CPP
-// Copyright (c) A.Sobolev 2023
+// Copyright (c) A.Sobolev 2023, 2025
 // @codepage UTF-8
 // Модуль тестирования полнотекстового поиска на базе xapian
 //
@@ -25,7 +25,7 @@ private:
 			SString line_buf;
 			SString name_en;
 			SString name_ru;
-			PPFtsInterface r(false, LockTimeout);
+			PPFtsInterface r(0/*pDbLoc*/, false, LockTimeout);
 			assert(r);
 			THROW(r);
 			for(uint j = 0; j < 20; j++) {
@@ -80,7 +80,7 @@ private:
 			SString line_buf;
 			SString name_en;
 			SString name_ru;
-			PPFtsInterface w(true, LockTimeout);
+			PPFtsInterface w(0/*pDbLoc*/, true, LockTimeout);
 			assert(w.IsWriter());
 			THROW(w.IsWriter());
 			assert(w);
@@ -126,7 +126,9 @@ SLTEST_R(PPFtsInterface)
 	uint   line_no = 0;
 	SString path_in = GetSuiteEntry()->InPath;
 	SString src_file_name;
+	SString db_loc;
 	StrAssocArray test_list;
+	(db_loc = GetSuiteEntry()->OutPath).SetLastSlash().Cat("fts-db-loc");
 	{
 		const char * p_file_name = "city-enru-pair.csv";
 		(src_file_name = path_in).SetLastSlash().Cat(p_file_name); // ANSI-codepage (windows-1251)
@@ -136,7 +138,8 @@ SLTEST_R(PPFtsInterface)
 			SString name_en;
 			SString name_ru;
 			{
-				PPFtsInterface w(true, 0/*default*/);
+				
+				PPFtsInterface w(db_loc, true, 0/*default*/);
 				THROW(SLCHECK_NZ(w.IsWriter()));
 				THROW(SLCHECK_NZ(w));
 				{
@@ -162,7 +165,7 @@ SLTEST_R(PPFtsInterface)
 								ss.add(name_ru);
 								THROW(SLCHECK_NZ(tra.PutEntity(ent, ss, 0)));
 								if((line_no % 5000) == 0) {
-									PPFtsInterface r(false, 0/*default*/);
+									PPFtsInterface r(0/*pDbLoc*/, false, 0/*default*/);
 									THROW(SLCHECK_Z(r));
 								}
 							}

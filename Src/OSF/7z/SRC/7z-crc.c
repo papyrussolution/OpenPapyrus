@@ -5,7 +5,7 @@
 #pragma hdrstop
 
 // @v11.7.11 (replaced with SlConst::CrcPoly_CCITT32) #define kCrcPoly   0xEDB88320
-// @v11.8.7 (replaced with SlConst::CrcPoly_64) #define kCrc64Poly UINT64_CONST(0xC96C5795D7870F42)
+// @v11.8.7 (replaced with SlConst::CrcPoly_64_Lzma) #define kCrc64Poly UINT64_CONST(0xC96C5795D7870F42)
 
 #define CRC_UPDATE_BYTE_2(crc, b) (table[((crc) ^ (b)) & 0xFF] ^ ((crc) >> 8))
 
@@ -210,7 +210,7 @@ void FASTCALL Crc64GenerateTable()
 		uint64 r = i;
 		uint   j;
 		for(j = 0; j < 8; j++)
-			r = (r >> 1) ^ (/*kCrc64Poly*/SlConst::CrcPoly_64 & ((uint64)0 - (r & 1)));
+			r = (r >> 1) ^ (/*kCrc64Poly*/SlConst::CrcPoly_64_Lzma & ((uint64)0 - (r & 1)));
 		g_Crc64Table[i] = r;
 	}
 	for(i = 256; i < 256 * CRC64_NUM_TABLES; i++) {

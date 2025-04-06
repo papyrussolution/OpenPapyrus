@@ -2055,7 +2055,7 @@ void crcspeed64native_init(crcfn64 fn, uint64 table[8][256])
 	//*(char *)&n ? crcspeed64le_init(fn, table) : crcspeed64be_init(fn, table);
 }
 
-#define POLY_CRC64 0xad93d23594c935a9ULL
+// @v12.3.1 (replaced with SlConst::CrcPoly_64_) #define POLY_CRC64 0xad93d23594c935a9ULL
 /******************** BEGIN GENERATED PYCRC FUNCTIONS ********************/
 /**
  * Generated on Sun Dec 21 14:14:07 2014,
@@ -2120,7 +2120,7 @@ uint64 _crc64_proc(uint64 crc, const void * in_data, const uint64_t len)
 			}
 			crc <<= 1;
 			if(bit) {
-				crc ^= POLY_CRC64;
+				crc ^= SlConst::CrcPoly_64_;
 			}
 		}
 		crc &= 0xffffffffffffffff;
@@ -2145,43 +2145,7 @@ uint64 _crc64_proc(uint64 crc, const void * in_data, const uint64_t len)
 	//return crc_reflect(crc, 64) ^ 0x0000000000000000;
 }
 
-/******************** END GENERATED PYCRC FUNCTIONS ********************/
-
-//static uint64 crc64_table[8][256] = {{0}};
-// Initializes the 16KB lookup tables
-//void crc64_init() { crcspeed64native_init(_crc64_proc, crc64_table); }
-// Compute crc64 
-//uint64 crc64(uint64 crc, const uchar * s, size_t l) { return crcspeed64native(crc64_table, crc, (void *)s, l); }
-
-/* Test main */
-#ifdef REDIS_TEST
-
-#define UNUSED(x) (void)(x)
-int crc64Test(int argc, char *argv[]) 
-{
-    UNUSED(argc);
-    UNUSED(argv);
-    crc64_init();
-    printf("[calcula]: e9c6d914c4b8d9ca == %016" PRIx64 "\n", (uint64)_crc64_proc(0, "123456789", 9));
-    printf("[64speed]: e9c6d914c4b8d9ca == %016" PRIx64 "\n", (uint64)crc64(0, "123456789", 9));
-    char li[] = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed "
-                "do eiusmod tempor incididunt ut labore et dolore magna "
-                "aliqua. Ut enim ad minim veniam, quis nostrud exercitation "
-                "ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis "
-                "aute irure dolor in reprehenderit in voluptate velit esse "
-                "cillum dolore eu fugiat nulla pariatur. Excepteur sint "
-                "occaecat cupidatat non proident, sunt in culpa qui officia "
-                "deserunt mollit anim id est laborum.";
-    printf("[calcula]: c7794709e69683b3 == %016" PRIx64 "\n", (uint64_t)_crc64_proc(0, li, sizeof(li)));
-    printf("[64speed]: c7794709e69683b3 == %016" PRIx64 "\n", (uint64_t)crc64(0, li, sizeof(li)));
-    return 0;
-}
-
-#endif
-
-// } @construction CRC64
-
-/*static*/uint64 STDCALL SlHash::CRC64(State * pS, const void * pData, size_t dataLen) // @construction
+/*static*/uint64 STDCALL SlHash::CRC64(State * pS, const void * pData, size_t dataLen) // Реализация заимствована из redis
 {
 	uint64 result = 0;
 	if(!pS) {

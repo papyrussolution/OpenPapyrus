@@ -705,18 +705,14 @@ lzma_ret lzma_block_encoder(lzma_stream *strm, lzma_block *block)
 //
 static inline bool update_size(lzma_vli * size, lzma_vli add, lzma_vli limit)
 {
-	if(limit > LZMA_VLI_MAX)
-		limit = LZMA_VLI_MAX;
+	SETMIN(limit, LZMA_VLI_MAX);
 	if(limit < *size || limit - *size < add)
 		return true;
 	*size += add;
 	return false;
 }
 
-static inline bool is_size_valid(lzma_vli size, lzma_vli reference)
-{
-	return reference == LZMA_VLI_UNKNOWN || reference == size;
-}
+static inline bool is_size_valid(lzma_vli size, lzma_vli reference) { return (reference == LZMA_VLI_UNKNOWN || reference == size); }
 
 static lzma_ret block_decode(void * coder_ptr, const lzma_allocator * allocator, const uint8 * in, size_t * in_pos,
     size_t in_size, uint8 * out, size_t * out_pos, size_t out_size, lzma_action action)
@@ -825,7 +821,7 @@ extern lzma_ret lzma_block_decoder_init(lzma_next_coder * next, const lzma_alloc
 	// Caller can test lzma_check_is_supported(block->check).
 	coder->check_pos = 0;
 	lzma_check_init(&coder->check, block->check);
-	coder->ignore_check = (block->version >= 1) ? LOGIC(block->ignore_check) : false;
+	coder->ignore_check = (block->version >= 1) ? block->ignore_check : false;
 	// Initialize the filter chain.
 	return lzma_raw_decoder_init(&coder->next, allocator, block->filters);
 }

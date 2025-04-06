@@ -75,7 +75,7 @@ int FASTCALL operator != (const RegisterTbl::Rec & r1, const RegisterTbl::Rec & 
 {
 	#define ISEQ(f) (rRec1.f == rRec2.f)
 	if(ISEQ(ObjType) && ISEQ(ObjID) && ISEQ(PsnEventID) && ISEQ(RegTypeID) && ISEQ(Dt) && ISEQ(RegOrgID) &&
-		ISEQ(Expiry) && ISEQ(Flags) && ISEQ(ExtID) && sstreq(rRec1.Serial, rRec2.Serial) && sstreq(rRec1.Num, rRec2.Num)) // @v10.6.0 ISEQ(ExtID)
+		ISEQ(Expiry) && ISEQ(Flags) && ISEQ(ExtID) && sstreq(rRec1.Serial, rRec2.Serial) && sstreq(rRec1.Num, rRec2.Num))
 		return 1;
 	else
 		return 0;
@@ -836,9 +836,7 @@ int RegisterCore::SearchByFilt(const RegisterFilt * pFilt, PPIDArray * pResList,
 			if(search(idx, &k, spGe) && data.RegTypeID == pFilt->RegTypeID && pFilt->SerPattern == data.Serial && pFilt->NmbPattern == data.Num) do {
 				if(CheckRecForFilt(data, pFilt)) {
 					CALLPTRMEMB(pResList, add(data.ID));
-					// @v10.0.1 if(data.ObjType == PPOBJ_PERSON) {
-						CALLPTRMEMB(pObjList, add(data.ObjID));
-					// @v10.0.1 }
+					CALLPTRMEMB(pObjList, add(data.ObjID));
 					c++;
 				}
 			} while(search(idx, &k, spNext) && data.RegTypeID == pFilt->RegTypeID && pFilt->SerPattern == data.Serial && pFilt->NmbPattern == data.Num);
@@ -850,9 +848,7 @@ int RegisterCore::SearchByFilt(const RegisterFilt * pFilt, PPIDArray * pResList,
 			if(search(idx, &k, spGe) && data.RegTypeID == pFilt->RegTypeID && pFilt->NmbPattern == data.Num) do {
 				if(CheckRecForFilt(data, pFilt)) {
 					CALLPTRMEMB(pResList, add(data.ID));
-					// @v10.0.1 if(data.ObjType == PPOBJ_PERSON) {
-						CALLPTRMEMB(pObjList, add(data.ObjID));
-					// @v10.0.1 }
+					CALLPTRMEMB(pObjList, add(data.ObjID));
 					c++;
 				}
 			} while(search(idx, &k, spNext) && data.RegTypeID == pFilt->RegTypeID && pFilt->NmbPattern == data.Num);
@@ -888,9 +884,7 @@ int RegisterCore::SearchByFilt(const RegisterFilt * pFilt, PPIDArray * pResList,
 		for(q.initIteration(false, &k, sp); q.nextIteration() > 0;) {
 			if(CheckRecForFilt(data, pFilt)) {
 				CALLPTRMEMB(pResList, add(data.ID));
-				// @v10.0.1 if(data.ObjType == PPOBJ_PERSON) {
-					CALLPTRMEMB(pObjList, add(data.ObjID));
-				// @v10.0.1 }
+				CALLPTRMEMB(pObjList, add(data.ObjID));
 				c++;
 			}
 		}

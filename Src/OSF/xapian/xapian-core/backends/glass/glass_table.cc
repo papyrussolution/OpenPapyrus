@@ -282,8 +282,7 @@ void GlassTable::block_to_cursor(Glass::Cursor * C_, int j, uint4 n) const
 		write_block(C_[j].get_n(), C_[j].get_p());
 		C_[j].rewrite = false;
 	}
-	// Check if the block is in the built-in cursor (potentially in
-	// modified form).
+	// Check if the block is in the built-in cursor (potentially in modified form).
 	const uint8 * p;
 	if(n == C[j].get_n()) {
 		p = C_[j].clone(C[j]);
@@ -361,20 +360,16 @@ void GlassTable::alter()
 		BItem_wr(C[j].get_modifiable_p(block_size), C[j].c).set_block_given_by(n);
 	}
 }
-
-/** find_in_leaf(p, key, c, exact) searches for the key in the leaf block at p.
-
-   What we get is the directory entry to the last key <= the key being searched
-   for.
-
-   The lookup is by binary chop, with i and j set to the left and
-   right ends of the search area. In sequential addition, c will often
-   be the answer, so we test the keys round c and move i and j towards
-   c if possible.
-
-   exact is set to true if the match was exact (otherwise exact is unchanged).
- */
-
+// 
+// find_in_leaf(p, key, c, exact) searches for the key in the leaf block at p.
+// What we get is the directory entry to the last key <= the key being searched for.
+// 
+// The lookup is by binary chop, with i and j set to the left and
+// right ends of the search area. In sequential addition, c will often
+// be the answer, so we test the keys round c and move i and j towards c if possible.
+// 
+// exact is set to true if the match was exact (otherwise exact is unchanged).
+// 
 int GlassTable::find_in_leaf(const uint8 * p, LeafItem item, int c, bool& exact)
 {
 	LOGCALL_STATIC(DB, int, "GlassTable::find_in_leaf", (const void*)p | (const void*)item.get_address() | c | Literal("bool&"));
@@ -386,7 +381,6 @@ int GlassTable::find_in_leaf(const uint8 * p, LeafItem item, int c, bool& exact)
 		AssertRel(i, <=, c);
 	}
 	int j = DIR_END(p);
-
 	if(c != -1) {
 		if(c < j && i < c) {
 			int r = compare(LeafItem(p, c), item);
@@ -394,7 +388,8 @@ int GlassTable::find_in_leaf(const uint8 * p, LeafItem item, int c, bool& exact)
 				exact = true;
 				return c;
 			}
-			if(r < 0) i = c;
+			if(r < 0) 
+				i = c;
 		}
 		c += D2;
 		if(c < j && i < c) {
@@ -403,11 +398,11 @@ int GlassTable::find_in_leaf(const uint8 * p, LeafItem item, int c, bool& exact)
 				exact = true;
 				return c;
 			}
-			if(r < 0) j = c;
+			if(r < 0) 
+				j = c;
 		}
 	}
-
-	while(j - i > D2) {
+	while((j - i) > D2) {
 		int k = i + ((j - i) / (D2 * 2)) * D2; /* mid way */
 		int r = compare(item, LeafItem(p, k));
 		if(r < 0) {
@@ -435,21 +430,23 @@ template <typename ITEM> int find_in_branch_(const uint8 * p, ITEM item, int c)
 		AssertRel(i, <=, c);
 	}
 	int j = DIR_END(p);
-
 	if(c != -1) {
 		if(c < j && i < c) {
 			int r = compare(BItem(p, c), item);
-			if(!r) return c;
-			if(r < 0) i = c;
+			if(!r) 
+				return c;
+			if(r < 0) 
+				i = c;
 		}
 		c += D2;
 		if(c < j && i < c) {
 			int r = compare(item, BItem(p, c));
-			if(!r) return c;
-			if(r < 0) j = c;
+			if(!r) 
+				return c;
+			if(r < 0) 
+				j = c;
 		}
 	}
-
 	while(j - i > D2) {
 		int k = i + ((j - i) / (D2 * 2)) * D2; /* mid way */
 		int r = compare(item, BItem(p, k));
@@ -458,7 +455,8 @@ template <typename ITEM> int find_in_branch_(const uint8 * p, ITEM item, int c)
 		}
 		else {
 			i = k;
-			if(!r) break;
+			if(!r) 
+				break;
 		}
 	}
 	AssertRel(DIR_START, <=, i);
@@ -497,7 +495,7 @@ bool GlassTable::find(Glass::Cursor * C_) const
 #ifdef BTREE_DEBUG_FULL
 		printf("Block in GlassTable:find - code position 1");
 		report_block_full(j, C_[j].get_n(), p);
-#endif /* BTREE_DEBUG_FULL */
+#endif
 		C_[j].c = c;
 		block_to_cursor(C_, j - 1, BItem(p, c).block_given_by());
 	}
@@ -507,7 +505,7 @@ bool GlassTable::find(Glass::Cursor * C_) const
 #ifdef BTREE_DEBUG_FULL
 	printf("Block in GlassTable:find - code position 2");
 	report_block_full(0, C_[0].get_n(), p);
-#endif /* BTREE_DEBUG_FULL */
+#endif
 	C_[0].c = c;
 	RETURN(exact);
 }
@@ -550,10 +548,9 @@ void GlassTable::compact(uint8 * p)
 	SET_TOTAL_FREE(p, e);
 	SET_MAX_FREE(p, e);
 }
-
-/** Btree needs to gain a new level to insert more items: so split root block
- *  and construct a new one.
- */
+//
+// Btree needs to gain a new level to insert more items: so split root block and construct a new one.
+//
 void GlassTable::split_root(uint4 split_n)
 {
 	LOGCALL_VOID(DB, "GlassTable::split_root", split_n);
@@ -573,7 +570,6 @@ void GlassTable::split_root(uint4 split_n)
 	SET_LEVEL(q, level);
 	SET_DIR_END(q, DIR_START);
 	compact(q); /* to reset TOTAL_FREE, MAX_FREE */
-
 	/* form a null key in b with a pointer to the old root */
 	uint8 b[10]; /* 7 is exact */
 	BItem_wr item(b);
@@ -1235,7 +1231,6 @@ void GlassTable::add(const string &key, string tag, bool already_compressed)
 {
 	LOGCALL_VOID(DB, "GlassTable::add", key | tag | already_compressed);
 	Assert(writable);
-
 	if(handle < 0) {
 		if(handle == -2) {
 			GlassTable::throw_database_closed();
@@ -1244,12 +1239,9 @@ void GlassTable::add(const string &key, string tag, bool already_compressed)
 		root_info.init(block_size, compress_min);
 		do_open_to_write(&root_info);
 	}
-
 	form_key(key);
-
 	const char * tag_data = tag.data();
 	size_t tag_size = tag.size();
-
 	bool compressed = false;
 	if(already_compressed) {
 		compressed = true;
@@ -1261,7 +1253,6 @@ void GlassTable::add(const string &key, string tag, bool already_compressed)
 			tag_data = res;
 		}
 	}
-
 	// sort of matching kt.append_chunk(), but setting the chunk
 	const size_t cd = kt.key().length() + K1 + I2 + X2; // offset to the tag data
 	const size_t L = max_item_size - cd; // largest amount of tag data for any chunk
@@ -1297,15 +1288,11 @@ void GlassTable::add(const string &key, string tag, bool already_compressed)
 			}
 		}
 	}
-
 	// There are m items to add.
 	int m = (tag_size - first_L + L - 1) / L + 1;
-	/* FIXME: sort out this error higher up and turn this into
-	 * an assert.
-	 */
+	// FIXME: sort out this error higher up and turn this into an assert.
 	if(m >= BYTE_PAIR_RANGE)
 		throw Xapian::UnimplementedError("Can't handle insanely large tags");
-
 	size_t o = 0;                 // Offset into the tag
 	size_t residue = tag_size;    // Bytes of the tag remaining to add in
 	bool replacement = false;     // Has there been a replacement?
@@ -1317,13 +1304,13 @@ void GlassTable::add(const string &key, string tag, bool already_compressed)
 		Assert(this_cd + l <= block_size);
 		Assert(o + l <= tag_size);
 		kt.set_tag(this_cd, tag_data + o, l, compressed, i, m);
-
 		o += l;
 		residue -= l;
-
-		if(i > 1) found = find(C);
+		if(i > 1) 
+			found = find(C);
 		int result = add_kt(found);
-		if(result) replacement = true;
+		if(result) 
+			replacement = true;
 		components_to_del = (result == 1);
 	}
 	AssertEq(o, tag_size);
@@ -1333,7 +1320,8 @@ void GlassTable::add(const string &key, string tag, bool already_compressed)
 			kt.set_component_of(++i);
 		} while(delete_kt() == 1);
 	}
-	if(!replacement) ++item_count;
+	if(!replacement) 
+		++item_count;
 	Btree_modified = true;
 	if(cursor_created_since_last_modification) {
 		cursor_created_since_last_modification = false;

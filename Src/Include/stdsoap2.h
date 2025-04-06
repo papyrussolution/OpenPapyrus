@@ -647,7 +647,7 @@
 	#include <openssl/rand.h>
 	#include <openssl/ssl.h>
 	#include <openssl/x509v3.h>
-	#include <openssl/engine.h> // @v10.6.3
+	#include <openssl/engine.h>
   #ifndef ALLOW_OLD_VERSIONS
    #if (OPENSSL_VERSION_NUMBER < 0x00905100L)
     #error "Must use OpenSSL 0.9.6 or later"

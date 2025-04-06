@@ -1,8 +1,8 @@
 // PPFTS.CPP
-// Copyright (c) A.Sobolev 2022, 2023
+// Copyright (c) A.Sobolev 2022, 2023, 2025
 // @codepage UTF-8
 // @construction
-// For this module compiler option /EHsc must be set (Enable C++ exceptions)
+// For this module compiler option /EHsc must be set (Enable C++ exceptions) and precompiled headers must be off
 // Полнотекстовый поиск
 //
 #include <pp.h>
@@ -58,7 +58,7 @@ PPFtsInterface::SearchResultEntry::SearchResultEntry() : Entity(), DocId(0), Ran
 {
 }
 
-PPFtsInterface::PPFtsInterface(bool writer, long lockTimeout) : H(writer, lockTimeout)
+PPFtsInterface::PPFtsInterface(const char * pDbLoc, bool writer, long lockTimeout) : H(pDbLoc, writer, lockTimeout)
 {
 }
 
@@ -113,6 +113,8 @@ using namespace U_ICU_NAMESPACE;
 class PPFtsDatabase {
 	friend class PPFtsInterface;
 public:
+	static LmdbDatabase::Options & GetLmdbOptions(LmdbDatabase::Options & rOpts);
+
 	~PPFtsDatabase();
 	//
 	// Примерный сценарий индексации:
@@ -140,7 +142,7 @@ public:
 private:
 	static ReadWriteLock RwL; // Блокировка, управляющая синхронизацией читателей/писателей
 
-	explicit PPFtsDatabase(bool forUpdate);
+	PPFtsDatabase(const char * pDbLoc/*directory*/, bool forUpdate);
 	int    GetEntityKey(PPFtsInterface::Entity & rEnt, uint64 * pSurrogateScopeIdent, SBuffer & rEntityBuf, uint64 * pKey);
 	int    StoreEntityKey(uint64 surrogateScopeIdent, const SBuffer & rEntityBuf, uint64 key);
 	int    SearchEntityKey(uint64 key, PPFtsInterface::Entity & rEnt, uint64 * pSurrogateScopeIdent);
@@ -184,7 +186,7 @@ private:
 		dbdMain         = 1,
 		dbdSupplemental = 2
 	};
-	int    GetDatabasePath(int dbd, SString & rBuf) const;
+	int    GetDatabasePath(const char * pDbLoc, int dbd, SString & rBuf) const;
 	enum {
 		stError   = 0x0001,
 		stWriting = 0x0002  // База данных открыта для изменений //
@@ -197,16 +199,16 @@ private:
 
 /*static*/ReadWriteLock PPFtsDatabase::RwL;
 
-PPFtsInterface::Ptr::Ptr(bool writer, long lockTimeout) : P(0), Writer(writer), LockTimeout((lockTimeout > 0) ? lockTimeout : FtsDatabaseLockTimeout)
+PPFtsInterface::Ptr::Ptr(const char * pDbLoc, bool writer, long lockTimeout) : P(0), Writer(writer), LockTimeout((lockTimeout > 0) ? lockTimeout : FtsDatabaseLockTimeout)
 {
 	if(Writer) {
 		if(PPFtsDatabase::RwL.WriteLockT_(LockTimeout) > 0) {
-			P = new PPFtsDatabase(true);
+			P = new PPFtsDatabase(pDbLoc, true);
 		}
 	}
 	else {
 		if(PPFtsDatabase::RwL.ReadLockT_(LockTimeout) > 0) {
-			P = new PPFtsDatabase(false);
+			P = new PPFtsDatabase(pDbLoc, false);
 		}
 	}
 }
@@ -310,36 +312,44 @@ int PPFtsInterface::Entity::SetSurrogateScopeIdent(const SBinaryChunk & rSsi)
 PPFtsDatabase::Transaction::Transaction(PPFtsDatabase & rMaster) : State(0), R_Master(rMaster),
 	P_SKeyT(0), P_SKeyRevT(0), P_SDomainT(0), P_SDomainRevT(0), P_STxn(0)
 {
-	if(R_Master.P_XDb && R_Master.P_SupplementalDb) {
-		P_STxn = new LmdbDatabase::Transaction(*rMaster.P_SupplementalDb, (R_Master.State & stWriting) ? false : true);
-		if(P_STxn->GetState() == LmdbDatabase::Transaction::stUndef) {
-			State |= stError;
-		}
-		else {
-			P_SKeyT = new LmdbDatabase::Table(*P_STxn, "fts-supplemental-key");
-			P_SKeyRevT = new LmdbDatabase::Table(*P_STxn, "fts-supplemental-rev");
-			P_SDomainT = new LmdbDatabase::Table(*P_STxn, "fts-supplemental-domain-key");
-			P_SDomainRevT = new LmdbDatabase::Table(*P_STxn, "fts-supplemental-domain-rev");
-			if(!P_SKeyT->IsValid() || !P_SKeyRevT->IsValid() || !P_SDomainT->IsValid() || !P_SDomainRevT->IsValid()) {
-				State |= stError;
-			}
-		}
-		if(!(State & stError)) {
-			if(R_Master.State & stWriting) {
-				try {
-					static_cast<Xapian::WritableDatabase *>(R_Master.P_XDb)->begin_transaction(true);
-				} catch(...) { 
-					State |= stError;
-				}
-			}
-		}
-		if(State & stError) {
-			DestroyTables();
-			ZDELETE(P_STxn);
+	bool   ok = true;
+	THROW(R_Master.P_XDb);
+	THROW(R_Master.P_SupplementalDb);
+	P_STxn = new LmdbDatabase::Transaction(*rMaster.P_SupplementalDb, (R_Master.State & stWriting) ? false : true);
+	THROW_SL(P_STxn);
+	THROW_PP(P_STxn->GetState() != LmdbDatabase::Transaction::stUndef, PPERR_FTS_TA_UNDEFSTATE);
+	{
+		struct InternalLmdbIdxEntry {
+			const char * P_Symb;
+			LmdbDatabase::Table ** PP_Tbl;
+		};
+		/*non-static*/InternalLmdbIdxEntry idx_tab[] = {
+			{ "fts-supplemental-key", &P_SKeyT },
+			{ "fts-supplemental-rev", &P_SKeyRevT },
+			{ "fts-supplemental-domain-key", &P_SDomainT },
+			{ "fts-supplemental-domain-rev", &P_SDomainRevT },
+		};
+		for(uint i = 0; i < SIZEOFARRAY(idx_tab); i++) {
+			InternalLmdbIdxEntry & r_entry = idx_tab[i];
+			*r_entry.PP_Tbl = new LmdbDatabase::Table(*P_STxn, r_entry.P_Symb);
+			THROW_SL(*r_entry.PP_Tbl);
+			THROW_PP_S((*r_entry.PP_Tbl)->IsValid(), PPERR_FTS_TA_LMDBIDX_FAULT, r_entry.P_Symb);
 		}
 	}
-	else
+	if(R_Master.State & stWriting) {
+		try {
+			static_cast<Xapian::WritableDatabase *>(R_Master.P_XDb)->begin_transaction(true);
+		} catch(...) { 
+			PPSetError(PPERR_FTS_TA_XAPIAN);
+			ok = false;
+		}
+	}
+	CATCHZOK
+	if(!ok) {
 		State |= stError;
+		DestroyTables();
+		ZDELETE(P_STxn);
+	}
 }
 
 PPFtsDatabase::Transaction::~Transaction()
@@ -357,10 +367,7 @@ void PPFtsDatabase::Transaction::DestroyTables()
 	ZDELETE(P_SDomainRevT);
 }
 		
-bool PPFtsDatabase::Transaction::IsValid() const
-{
-	return !(State & stError);
-}
+bool PPFtsDatabase::Transaction::IsValid() const { return !(State & stError); }
 		
 bool PPFtsDatabase::Transaction::Commit()
 {
@@ -421,13 +428,18 @@ LmdbDatabase::Table * PPFtsDatabase::Transaction::GetDomainRevT() { return (Stat
 LmdbDatabase::Table * PPFtsDatabase::Transaction::GetKeyT() { return (State & (stError|stFinished)) ? 0 : P_SKeyT; }
 LmdbDatabase::Table * PPFtsDatabase::Transaction::GetKeyRevT() { return (State & (stError|stFinished)) ? 0 : P_SKeyRevT; }
 
-int PPFtsDatabase::GetDatabasePath(int dbd, SString & rBuf) const
+int PPFtsDatabase::GetDatabasePath(const char * pDbLoc, int dbd, SString & rBuf) const // @v12.3.1
 {
 	rBuf.Z();
 	int    ok = 1;
 	SString base_path;
-	PPGetPath(PPPATH_WORKSPACE, base_path);
-	base_path.SetLastSlash().Cat("supplementaldata");
+	if(isempty(pDbLoc)) {
+		PPGetPath(PPPATH_WORKSPACE, base_path);
+		base_path.SetLastSlash().Cat("supplementaldata");
+	}
+	else {
+		base_path = pDbLoc;
+	}
 	if(dbd == PPFtsDatabase::dbdMain) {
 		(rBuf = base_path).SetLastSlash().Cat("fti");
 		THROW_SL(SFile::CreateDir(rBuf));
@@ -442,11 +454,30 @@ int PPFtsDatabase::GetDatabasePath(int dbd, SString & rBuf) const
 	return ok;
 }
 
-PPFtsDatabase::PPFtsDatabase(bool forUpdate) : State(0), P_XDb(0), P_SupplementalDb(0), P_CurrentTra(0)
+/*static*/LmdbDatabase::Options & PPFtsDatabase::GetLmdbOptions(LmdbDatabase::Options & rOpts)
+{
+	//
+	// Здесь не проверяем установленные значения поскольку функция, которая использует эти параметры самостоятельно это сделает.
+	//
+	PPIniFile ini_file;
+	int   v = 0;
+	if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_LMDB_MAPSIZE, &v) > 0) {
+		rOpts.MapSizeMb = static_cast<uint>(v);
+	}
+	if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_LMDB_MAXDBENTITIES, &v) > 0) {
+		rOpts.MaxDbEntities = static_cast<uint>(v);
+	}
+	if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_LMDB_MAXREADERS, &v) > 0) {
+		rOpts.MaxReaders = static_cast<uint>(v);
+	}
+	return rOpts;
+}
+
+PPFtsDatabase::PPFtsDatabase(const char * pDbLoc/*directory*/, bool forUpdate) : State(0), P_XDb(0), P_SupplementalDb(0), P_CurrentTra(0)
 {
 	{
 		SString dbpath;
-		GetDatabasePath(dbdMain, dbpath);
+		GetDatabasePath(pDbLoc, dbdMain, dbpath);
 		try {
 			if(forUpdate) {
 				P_XDb = new Xapian::WritableDatabase(dbpath.cptr(), Xapian::DB_CREATE_OR_OPEN, 0);
@@ -462,8 +493,9 @@ PPFtsDatabase::PPFtsDatabase(bool forUpdate) : State(0), P_XDb(0), P_Supplementa
 	}
 	{
 		SString suppemental_db_path;
-		GetDatabasePath(dbdSupplemental, suppemental_db_path);
-		P_SupplementalDb = LmdbDatabase::GetInstance(suppemental_db_path, 0, 0);
+		LmdbDatabase::Options lmdb_opts;
+		GetDatabasePath(pDbLoc, dbdSupplemental, suppemental_db_path);
+		P_SupplementalDb = LmdbDatabase::GetInstance(suppemental_db_path, 0, 0, &PPFtsDatabase::GetLmdbOptions(lmdb_opts));
 		if(!P_SupplementalDb)
 			State |= stError;
 	}
@@ -484,7 +516,7 @@ SPtrHandle PPFtsDatabase::BeginTransaction()
 	else {
 		P_CurrentTra = new Transaction(*this);
 		if(P_CurrentTra && !P_CurrentTra->IsValid()) {
-			PPSetError(PPERR_FTS_BEGINTRANSACTIONFAULT);
+			// @v12.3.1 (Transaction::Transaction() инициирует уточненную ошибку) PPSetError(PPERR_FTS_BEGINTRANSACTIONFAULT);
 			ZDELETE(P_CurrentTra);
 		}
 		return SPtrHandle(P_CurrentTra);
@@ -784,26 +816,26 @@ static int Test_Fts2()
 	THROW(p_dict);
 	{
 		{
-			PPFtsInterface db1(true/*forUpdate*/, 0/*default*/);
+			PPFtsInterface db1(0/*pDbLoc*/, true/*forUpdate*/, 0/*default*/);
 			assert(!!db1);
-			PPFtsInterface db2(true/*forUpdate*/, 0/*default*/);
+			PPFtsInterface db2(0/*pDbLoc*/, true/*forUpdate*/, 0/*default*/);
 			assert(!db2);
-			PPFtsInterface db3(false/*forUpdate*/, 0/*default*/);
+			PPFtsInterface db3(0/*pDbLoc*/, false/*forUpdate*/, 0/*default*/);
 			assert(!db3);
 		}
 		{
-			PPFtsInterface db4(false/*forUpdate*/, 0/*default*/);
+			PPFtsInterface db4(0/*pDbLoc*/, false/*forUpdate*/, 0/*default*/);
 			assert(!!db4);
-			PPFtsInterface db5(false/*forUpdate*/, 0/*default*/);
+			PPFtsInterface db5(0/*pDbLoc*/, false/*forUpdate*/, 0/*default*/);
 			assert(!!db5);
-			PPFtsInterface db6(false/*forUpdate*/, 0/*default*/);
+			PPFtsInterface db6(0/*pDbLoc*/, false/*forUpdate*/, 0/*default*/);
 			assert(!!db6);
-			PPFtsInterface db7(true/*forUpdate*/, 0/*default*/);
+			PPFtsInterface db7(0/*pDbLoc*/, true/*forUpdate*/, 0/*default*/);
 			assert(!db7);
 		}
 	}
 	{
-		PPFtsInterface db(true/*forUpdate*/, 0/*default*/);
+		PPFtsInterface db(0/*pDbLoc*/, true/*forUpdate*/, 0/*default*/);
 		if(!!db) {
 			//SPtrHandle tra;
 			PPObjGoods goods_obj;
@@ -928,7 +960,7 @@ static int Test_Fts2()
 		//
 		// Теперь проверяем поиск
 		//
-		PPFtsInterface db(false, 0/*default*/);
+		PPFtsInterface db(0/*pDbLoc*/, false, 0/*default*/);
 		if(!!db) {
 			word_to_doc_assoc.SortByKeyVal();
 			SymbHashTable::Iter iter;
@@ -973,15 +1005,35 @@ static int Test_Fts2()
 	return ok;
 }
 
-int  Test_Fts()
+int Test_Fts()
 {
 	int    ok = 1;
+	SString temp_buf;
+	// @v12.3.1 {
+	{
+		const char * p_base_path = "D:/Papyrus/__TEMP__/__TEST__";
+		SString js_text;
+		SString db_loc;
+		(db_loc = p_base_path).SetLastSlash().Cat("supplementaldata");
+		{
+			(temp_buf = p_base_path).SetLastSlash().Cat("pushindexingcontent-request.js");
+			SFile f_js(temp_buf, SFile::mRead);
+			if(f_js.IsValid()) {
+				if(!f_js.ReadLine(js_text, SFile::rlfChomp|SFile::rlfStrip)) {
+					js_text.Z();
+				}
+			}
+		}
+		if(js_text.NotEmpty()) {
+			int r = StyloQCore::Test_IndexingContent(db_loc, js_text); // @v12.3.1	
+		}
+	}
+	// } @v12.3.1 
 	THROW(Test_Fts2());
 	if(0) {
 		const char * pp_text_file_names[] = { "rustext.txt", "phrases-ru-1251.txt", "person.txt", "address.txt" };
 		SString base_path;
 		SString file_path;
-		SString temp_buf;
 		STempBuffer raw_input_buf(SKILOBYTE(512));
 		SStringU input_text_u;
 		SString input_text_utf8;
@@ -991,12 +1043,13 @@ int  Test_Fts()
 			// Пробуем работать с базой данных LMDB
 			//
 			SString lmdb_path;
+			LmdbDatabase::Options lmdb_opts;
 			PPGetPath(PPPATH_WORKSPACE, lmdb_path);
 			lmdb_path.SetLastSlash().Cat("lmdb");
 			SFile::CreateDir(lmdb_path);
-			LmdbDatabase * p_db = LmdbDatabase::GetInstance(lmdb_path, 0, 0);
+			LmdbDatabase * p_db = LmdbDatabase::GetInstance(lmdb_path, 0, 0, &PPFtsDatabase::GetLmdbOptions(lmdb_opts));
 			if(p_db) {
-				LmdbDatabase * p_db2 = LmdbDatabase::GetInstance(lmdb_path, 0, 0);
+				LmdbDatabase * p_db2 = LmdbDatabase::GetInstance(lmdb_path, 0, 0, &PPFtsDatabase::GetLmdbOptions(lmdb_opts));
 				assert(p_db2 == p_db);
 				{
 					uint put_err = 0;

@@ -383,14 +383,14 @@ Section "Файлы приложения" SEC01
 	File "${SRC_TARGET}\ppdrv-cd-Shtrih-DPD201.dll" ; @v7.3.4
 	File "${SRC_TARGET}\ppdrv-cd-posiflex.dll"      ; @v7.3.4
 	File "${SRC_TARGET}\ppdrv-cd-FlyTechVFD-Epson.dll" ; @v8.2.11
-	File "${SRC_TARGET}\ppdrv-ie-korus.dll"         ; @v7.6.5
-	File "${SRC_TARGET}\ppdrv-ie-edisoft.dll"       ; @v8.0.3
-	File "${SRC_TARGET}\ppdrv-ie-kontur.dll"        ; @v8.2.7 
-	File "${SRC_TARGET}\ppdrv-ie-leradata.dll"      ; @v8.3.0
+	; @v12.3.1 File "${SRC_TARGET}\ppdrv-ie-korus.dll"         ; @v7.6.5
+	; @v12.3.1 File "${SRC_TARGET}\ppdrv-ie-edisoft.dll"       ; @v8.0.3
+	; @v12.3.1 File "${SRC_TARGET}\ppdrv-ie-kontur.dll"        ; @v8.2.7 
+	; @v12.3.1 File "${SRC_TARGET}\ppdrv-ie-leradata.dll"      ; @v8.3.0
 	; @v11.0.6 File "${SRC_TARGET}\ppdrv-ie-alcodeclbill.dll"  ; @v7.6.7
 	File "${SRC_TARGET}\ppdrv-ie-alcodeclbill.dll"  ; @v7.6.7 ; @v11.5.3 Вернули назад
-	File "${SRC_TARGET}\ppdrv-ctrl-reversk2.dll"    ; @v7.8.1
-	File "${SRC_TARGET}\ppdrv-crdr-emmarine.dll"    ; @v7.9.6
+	; @v12.3.1 File "${SRC_TARGET}\ppdrv-ctrl-reversk2.dll"    ; @v7.8.1
+	; @v12.3.1 File "${SRC_TARGET}\ppdrv-crdr-emmarine.dll"    ; @v7.9.6
 	File "${SRC_TARGET}\ppdrv-bnkt-sberbank.dll"    ; @v8.1.8
 	File "${SRC_TARGET}\ppdrv-bnkt-emul.dll"        ; @v10.1.3
 	File "${SRC_TARGET}\ppdrv-bnkt-inpas.dll"       ; @v10.1.3

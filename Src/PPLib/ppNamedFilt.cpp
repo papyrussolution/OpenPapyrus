@@ -479,7 +479,7 @@ int PPNamedFiltMngr::LoadPool2(const char * pDbSymb, PPNamedFiltPool * pPool, bo
 	if(!fileExists(XmlFilePath)) {
 		THROW(ConvertBinToXml());
 	}
-	xmlDoc  * p_doc = 0;
+	xmlDoc * p_doc = 0;
 	xmlParserCtxt * p_xml_parser = xmlNewParserCtxt();
 	assert(p_xml_parser);
 	THROW(p_xml_parser);
