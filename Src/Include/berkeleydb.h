@@ -1,3 +1,6 @@
+// berkeleydb.h
+// @codepage UTF-8
+//
 /* DO NOT EDIT: automatically built by dist/s_windows. */
 /*
  * See the file LICENSE for redistribution information.
@@ -243,7 +246,7 @@ struct __db_dbt_base {
 
 struct __db_dbt : public __db_dbt_base {
 	//
-	// Descr: Обнуляет все компоненты структуры
+	// Descr: РћР±РЅСѓР»СЏРµС‚ РІСЃРµ РєРѕРјРїРѕРЅРµРЅС‚С‹ СЃС‚СЂСѓРєС‚СѓСЂС‹
 	//
 	__db_dbt();
 	__db_dbt(uint32 f);
@@ -470,10 +473,9 @@ struct __db_lockreq {
 	DBT * obj; /* Object being locked. */
 	DB_LOCK lock; /* Lock returned. */
 };
-
-/*******************************************************
-* Logging.
-*******************************************************/
+// 
+// Logging.
+// 
 #define DB_LOGVERSION   18             /* Current log version. */
 #define DB_LOGVERSION_LATCHING 15      /* Log version using latching. */
 #define DB_LOGCHKSUM    12             /* Check sum headers. */

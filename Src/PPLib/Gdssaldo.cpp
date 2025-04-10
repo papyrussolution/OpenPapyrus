@@ -1,8 +1,7 @@
 // GDSSALDO.CPP
-// Copyright (c) V.Nasonov 2003, 2005, 2007, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2019, 2020, 2021, 2024
-// @codepage windows-1251
-//
-// Расчет сальдо по товарам
+// Copyright (c) V.Nasonov 2003, 2005, 2007, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2019, 2020, 2021, 2024, 2025
+// @codepage UTF-8
+// Р Р°СЃС‡РµС‚ СЃР°Р»СЊРґРѕ РїРѕ С‚РѕРІР°СЂР°Рј
 //
 #include <pp.h>
 #pragma hdrstop
@@ -26,7 +25,7 @@ int GoodsSaldoCore::GetLastSaldo(PPID goodsID, PPID arID, PPID dlvrLocID, LDATE 
 		k0.ArID    = arID;
 		k0.DlvrLocID = dlvrLocID;
 		k0.Dt      = base_date;
-		if(search(0, &k0, spLt) && k0.GoodsID == goodsID && k0.ArID == arID && k0.DlvrLocID == dlvrLocID) { // @v8.8.0 spLe-->spLt
+		if(search(0, &k0, spLt) && k0.GoodsID == goodsID && k0.ArID == arID && k0.DlvrLocID == dlvrLocID) {
 			copyBufTo(&gd_rec);
 			dt = gd_rec.Dt;
 			ok = 1;
@@ -105,9 +104,8 @@ int GoodsSaldoCore::GetLastCalcDate(PPID goodsGrpID, PPID goodsID, PPID arID, PP
 //   CalcSaldoList
 //
 struct CalcSaldoEntry { // @flat
-	CalcSaldoEntry()
+	CalcSaldoEntry() : GoodsID(0), ArticleID(0), Dt(ZERODATE)
 	{
-		THISZERO();
 	}
 	PPID   GoodsID;
 	PPID   ArticleID;
@@ -378,7 +376,7 @@ int PrcssrGoodsSaldo::Test(PPID goodsID, PPID arID, PPID dlvrLocID, const DateRa
 			period.upp = getcurdate_();
 			period.low = plusdate(period.upp, -180);
 		}
-		// PPTXT_TESTGS_LOG_HEADER "Тестирование расчета сальдо по товару '@goods' для контрагента '@article' (@locaddr) за период @period"
+		// PPTXT_TESTGS_LOG_HEADER "РўРµСЃС‚РёСЂРѕРІР°РЅРёРµ СЂР°СЃС‡РµС‚Р° СЃР°Р»СЊРґРѕ РїРѕ С‚РѕРІР°СЂСѓ '@goods' РґР»СЏ РєРѕРЅС‚СЂР°РіРµРЅС‚Р° '@article' (@locaddr) Р·Р° РїРµСЂРёРѕРґ @period"
 		PPFormatT(PPTXT_TESTGS_LOG_HEADER, &msg_buf, goodsID, arID, dlvrLocID, period);
 		logger.Log(msg_buf);
 		for(LDATE dt = period.low; dt <= period.upp; dt = plusdate(dt, 1)) {
@@ -391,7 +389,7 @@ int PrcssrGoodsSaldo::Test(PPID goodsID, PPID arID, PPID dlvrLocID, const DateRa
 			THROW(p_bobj->GetGoodsSaldo(goodsID, arID, dlvrLocID, dt, MAXLONG, &saldo_qtty, &saldo_amt));
 			THROW(p_bobj->CalcGoodsSaldo(goodsID, arID, dlvrLocID, &local_period, MAXLONG, &direct_saldo_qtty, &direct_saldo_amt));
 			if(direct_saldo_qtty != saldo_qtty) {
-                //PPTXT_TESTGS_LOG_ERROR        "Ошибка в расчета сальдо за @date: GetGoodsSaldo=@real, CalcGoodsSaldo=@real"
+                //PPTXT_TESTGS_LOG_ERROR        "РћС€РёР±РєР° РІ СЂР°СЃС‡РµС‚Р° СЃР°Р»СЊРґРѕ Р·Р° @date: GetGoodsSaldo=@real, CalcGoodsSaldo=@real"
                 PPFormatT(PPTXT_TESTGS_LOG_ERROR, &msg_buf, dt, saldo_qtty, direct_saldo_qtty);
                 logger.Log(msg_buf);
 			}
@@ -408,7 +406,7 @@ int PrcssrGoodsSaldo::Run()
 	int    ok = 1;
 	const  LDATE end_date = plusdate(NZOR(Par.Dt, getcurdate_()), -1);
 	PPIDArray goods_list;
-	PPIDArray actual_goods_list; // Список товаров, для которых надо удалить записи перед вставкой новых
+	PPIDArray actual_goods_list; // РЎРїРёСЃРѕРє С‚РѕРІР°СЂРѕРІ, РґР»СЏ РєРѕС‚РѕСЂС‹С… РЅР°РґРѕ СѓРґР°Р»РёС‚СЊ Р·Р°РїРёСЃРё РїРµСЂРµРґ РІСЃС‚Р°РІРєРѕР№ РЅРѕРІС‹С…
 	SString goods_name, temp_buf;
 	IterCounter cntr;
 	TSVector <GArSEntry> list;
@@ -451,8 +449,8 @@ int PrcssrGoodsSaldo::Run()
 						dt = encodedate(1, 12, dt.year());
 					*/
 					//
-					// Если скорректированная с учетом периодичности дата превышает заданную в параметрах,
-					// то не заполняем соответствующие элементы
+					// Р•СЃР»Рё СЃРєРѕСЂСЂРµРєС‚РёСЂРѕРІР°РЅРЅР°СЏ СЃ СѓС‡РµС‚РѕРј РїРµСЂРёРѕРґРёС‡РЅРѕСЃС‚Рё РґР°С‚Р° РїСЂРµРІС‹С€Р°РµС‚ Р·Р°РґР°РЅРЅСѓСЋ РІ РїР°СЂР°РјРµС‚СЂР°С…,
+					// С‚Рѕ РЅРµ Р·Р°РїРѕР»РЅСЏРµРј СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РёРµ СЌР»РµРјРµРЅС‚С‹
 					//
 					if(dt <= end_date) {
 						PPFreight freight;
@@ -467,9 +465,9 @@ int PrcssrGoodsSaldo::Run()
 			} while(gctiter.Next(&trfr_rec, &bill_rec) > 0);
 		}
 		//
-		// Устанавливаем последнюю дату периода расчета для товара.
-		// Это необходимо для того, чтобы при вычислении сальдо по клиенту, для которого было
-		// мало операций не перечислять все с начала времен, а считать от этой самой даты.
+		// РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј РїРѕСЃР»РµРґРЅСЋСЋ РґР°С‚Сѓ РїРµСЂРёРѕРґР° СЂР°СЃС‡РµС‚Р° РґР»СЏ С‚РѕРІР°СЂР°.
+		// Р­С‚Рѕ РЅРµРѕР±С…РѕРґРёРјРѕ РґР»СЏ С‚РѕРіРѕ, С‡С‚РѕР±С‹ РїСЂРё РІС‹С‡РёСЃР»РµРЅРёРё СЃР°Р»СЊРґРѕ РїРѕ РєР»РёРµРЅС‚Сѓ, РґР»СЏ РєРѕС‚РѕСЂРѕРіРѕ Р±С‹Р»Рѕ
+		// РјР°Р»Рѕ РѕРїРµСЂР°С†РёР№ РЅРµ РїРµСЂРµС‡РёСЃР»СЏС‚СЊ РІСЃРµ СЃ РЅР°С‡Р°Р»Р° РІСЂРµРјРµРЅ, Р° СЃС‡РёС‚Р°С‚СЊ РѕС‚ СЌС‚РѕР№ СЃР°РјРѕР№ РґР°С‚С‹.
 		//
 		if(!checkdate(last_date))
 			last_date = end_date;

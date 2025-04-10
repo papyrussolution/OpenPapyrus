@@ -630,6 +630,53 @@ int PPObjBill::Helper_WrOffDrft_ExpExp(WrOffDraftBlock & rBlk, int use_ta)
 					ciltif |= CILTIF_CAREFULLYALIGNPRICE;
 				local_row_pos_list.clear();
 				THROW(ConvertILTI(&ilti, p_pack, &local_row_pos_list, ciltif, serial_buf));
+				{
+					// @v12.3.1 {
+					PPLotExtCodeContainer::MarkSet xcl_set;
+					rBlk.SrcDraftPack.XcL.Get(i+1, 0, xcl_set);
+					if(xcl_set.GetCount()) {
+						if(!ilti.HasDeficit() && local_row_pos_list.getCount() == 1) {
+							const uint dest_ti_idx = static_cast<uint>(local_row_pos_list.get(0));
+							p_pack->XcL.Set_2(dest_ti_idx+1, &xcl_set);
+						}
+						else {
+							LongArray used_xcl_idx_list;
+							PPLotExtCodeContainer::MarkSet::Entry xcl_entry;
+							for(uint lrpi = 0; lrpi < local_row_pos_list.getCount(); lrpi++) {
+								const uint dest_ti_idx = static_cast<uint>(local_row_pos_list.get(lrpi));
+								const PPTransferItem & r_ti = p_pack->ConstTI(dest_ti_idx);
+								PPLotExtCodeContainer::MarkSet local_xcl_set;
+								uint  added_mark_count = 0;
+								for(uint xcli = 0; xcli < xcl_set.GetCount(); xcli++) {
+									if(!used_xcl_idx_list.lsearch(static_cast<long>(xcli))) {
+										if(xcl_set.GetByIdx(xcli, xcl_entry)) {
+											if(xcl_entry.Flags & PPLotExtCodeContainer::fBox) {
+												;
+											}
+											else {
+												if(local_xcl_set.AddNum(0, xcl_entry.Num, true)) {
+													used_xcl_idx_list.add(static_cast<long>(xcli));
+													added_mark_count++;
+													//
+													// Если строка документа последняя, то добавляем туда все оставшиеся марки, в противном
+													// случае добавляем не более, чем количество единиц товара в этой строке (с округлением вниз)
+													//
+													if(lrpi < (local_row_pos_list.getCount()-1) && added_mark_count >= static_cast<uint>(fabs(r_ti.Qtty()))) {
+														break;
+													}
+												}
+											}
+										}
+									}
+								}
+								if(local_xcl_set.GetCount()) {
+									p_pack->XcL.Set_2(dest_ti_idx+1, &local_xcl_set);
+								}
+							}
+						}
+					}
+				}
+				// } @v12.3.1 
 				rows.add(&local_row_pos_list);
 				if(IsIntrExpndOp(p_pack->Rec.OpID)) {
 					for(uint i = 0; i < local_row_pos_list.getCount(); i++) {

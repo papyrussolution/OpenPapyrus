@@ -50,6 +50,7 @@ public class StyloQCommand {
 	public static final int sqbcDebtList             = 111;  // @v11.5.4 Список долговых документов по контрагенту. В общем случае, это могут быть как долги и покупателей, так и наша
 		// задолженность перед поставщиками. Пока предполагается использовать как вспомогательную команду для получения долговой ведомости по клиенту в рамках
 		// работы с более высокоуровневыми командами (eg sqbcRsrvOrderPrereq)
+	public static final int sqbcTest                 = 112; // @v12.3.1 Тестовая команда.
 
 	public static class ViewDefinitionEntry {
 		String Zone;

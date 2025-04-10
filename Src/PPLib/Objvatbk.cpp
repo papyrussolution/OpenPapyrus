@@ -1418,12 +1418,12 @@ void PPViewVatBook::ViewTotal()
 			dlg->setCtrlData(CTL_VATBOOKTOTAL_VAT2, &Total.Vat2Amount);
 			dlg->setCtrlData(CTL_VATBOOKTOTAL_VAT3, &Total.Vat3Amount);
 			dlg->setCtrlData(CTL_VATBOOKTOTAL_VAT4, &Total.Vat4Amount); // @v12.2.10
-			dlg->setCtrlData(CTL_VATBOOKTOTAL_VAT4, &Total.Vat5Amount); // @v12.2.10
+			dlg->setCtrlData(CTL_VATBOOKTOTAL_VAT5, &Total.Vat5Amount); // @v12.2.10 // @v12.3.1 @fix CTL_VATBOOKTOTAL_VAT4-->CTL_VATBOOKTOTAL_VAT5
 			dlg->setCtrlData(CTL_VATBOOKTOTAL_SVAT1, &Total.Vat1Sum);
 			dlg->setCtrlData(CTL_VATBOOKTOTAL_SVAT2, &Total.Vat2Sum);
 			dlg->setCtrlData(CTL_VATBOOKTOTAL_SVAT3, &Total.Vat3Sum);
 			dlg->setCtrlData(CTL_VATBOOKTOTAL_SVAT4, &Total.Vat4Sum); // @v12.2.10
-			dlg->setCtrlData(CTL_VATBOOKTOTAL_SVAT4, &Total.Vat5Sum); // @v12.2.10
+			dlg->setCtrlData(CTL_VATBOOKTOTAL_SVAT5, &Total.Vat5Sum); // @v12.2.10 // @v12.3.1 @fix CTL_VATBOOKTOTAL_SVAT4-->CTL_VATBOOKTOTAL_SVAT5
 			SString rate_buf;
 			dlg->setStaticText(CTL_VATBOOKTOTAL_TVAT1, VatRateStr(PPObjVATBook::GetVatRate(0), rate_buf));
 			dlg->setStaticText(CTL_VATBOOKTOTAL_TVAT2, VatRateStr(PPObjVATBook::GetVatRate(1), rate_buf));
@@ -2877,36 +2877,26 @@ int PPALDD_VatBook::NextIteration(PPIterID iterId)
 	I.Vat1Amount = item.VAT1;
 	I.Vat2Amount = item.VAT2;
 	I.Vat3Amount = item.VAT3;
+	I.Vat4Amount = item.VAT4; // @v12.3.1
+	I.Vat5Amount = item.VAT5; // @v12.3.1
 	I.Vat1Sum    = item.SVAT1;
 	I.Vat2Sum    = item.SVAT2;
 	I.Vat3Sum    = item.SVAT3;
+	I.Vat4Sum    = item.SVAT4; // @v12.3.1
+	I.Vat5Sum    = item.SVAT5; // @v12.3.1
 	I.Vat1Rate   = PPObjVATBook::GetVatRate(0); // 10
 	I.Vat2Rate   = PPObjVATBook::GetVatRate(1); // 18
 	I.Vat3Rate   = PPObjVATBook::GetVatRate(2); // 20
+	I.Vat4Rate   = PPObjVATBook::GetVatRate(3); // 5   // @v12.3.1
+	I.Vat5Rate   = PPObjVATBook::GetVatRate(4); // 7   // @v12.3.1
 	I.fExcluded  = item.Excluded;
 	I.fVatFree   = BIN(item.Flags & VATBF_VATFREE);
 	I.fFixed     = BIN(item.Flags & VATBF_FIX);
 	I.fSlVatAddendum = BIN(item.LineSubType == 1);
 	I.CBillDt    = item.CBillDt;
 	STRNSCPY(I.CBillCode, item.CBillCode);
-	//
-	// Возможно, следующий участок кода придется снова пересмотреть.
-	// Суть проблемы: не очевидно, в каком случае операции не облагаемые НДС
-	// должны попадать в графу "Свободно от НДС", а в каком случае - в "НДС 0".
-	// С версии 5.9.2 под давлением пользователей все операции без НДС сваливаем
-	// в колонку "Освобождено от НДС".
-	//
-#if 0 // @v5.9.2 {
-	if(item.Flags & VATBF_VATFREE) {
-		I.VatFreeAmount = item.VAT0;
-		I.Vat0Amount = 0.0;
-	}
-	else
-		I.VatFreeAmount = 0.0;
-#else // }{
 	I.VatFreeAmount = item.VAT0;
 	I.Vat0Amount = 0.0;
-#endif // } @v5.9.2
 	PPWaitPercent(p_v->GetCounter());
 	FINISH_PPVIEW_ALDD_ITER();
 }
@@ -2989,7 +2979,8 @@ int PPViewVatBook::Export()
 	// @v11.3.2 const char * p_ledger_line_title = 0;
 	PPID   main_org_id = GetMainOrgID();
 	{
-		SString sender_ident, rcvr_ident;
+		SString sender_ident;
+		SString rcvr_ident;
 		if(main_org_id) {
 			RegisterTbl::Rec reg_rec;
 			if(PsnObj.GetRegister(main_org_id, PPREGT_TPID, &reg_rec) > 0) {

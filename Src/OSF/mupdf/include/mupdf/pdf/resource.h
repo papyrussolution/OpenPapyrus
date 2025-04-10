@@ -26,7 +26,7 @@ typedef struct pdf_function pdf_function;
 void pdf_eval_function(fz_context *ctx, pdf_function *func, const float *in, int inlen, float *out, int outlen);
 pdf_function *pdf_keep_function(fz_context *ctx, pdf_function *func);
 void pdf_drop_function(fz_context *ctx, pdf_function *func);
-size_t pdf_function_size(fz_context *ctx, pdf_function *func);
+size_t pdf_function_size(fz_context *ctx, const pdf_function *func);
 pdf_function *pdf_load_function(fz_context *ctx, pdf_obj *ref, int in, int out);
 
 fz_colorspace *pdf_document_output_intent(fz_context *ctx, pdf_document *doc);

@@ -1532,9 +1532,10 @@ PPThread * FASTCALL PPSession::ThreadCollection::SearchBySessId(int32 sessId)
 	return p_ret;
 }
 
-PPThread * STDCALL PPSession::ThreadCollection::SearchByOuterSignature(int kind, const char * pSignature)
+PPThread * STDCALL PPSession::ThreadCollection::SearchByOuterSignature(int kind, const char * pSignature, const SBinaryChunk & rSvcIdent)
 {
 	PPThread * p_ret = 0;
+	bool   debug_mark = false; // @v12.3.1 @debug
 	{
 		SRWLOCKER(RwL, SReadWriteLocker::Read);
 		if(!isempty(pSignature)) {
@@ -1542,6 +1543,15 @@ PPThread * STDCALL PPSession::ThreadCollection::SearchByOuterSignature(int kind,
 			for(uint i = 0; i < c; i++) {
 				PPThread * p_thread = at(i);
 				if(p_thread && p_thread->IsConsistent() && (!kind || p_thread->GetKind() == kind) && p_thread->CheckOuterSignature(pSignature)) {
+					/*
+					if(!rSvcIdent.Len() || p_thread->CheckSvcIdent(rSvcIdent.PtrC(), rSvcIdent.Len())) {
+						p_ret = p_thread;
+						break;
+					}
+					else {
+						debug_mark = true;
+					}
+					*/
 					p_ret = p_thread;
 					break;
 				}
@@ -1553,8 +1563,13 @@ PPThread * STDCALL PPSession::ThreadCollection::SearchByOuterSignature(int kind,
 				PPThread * p_thread = at(i);
 				if(p_thread && p_thread->IsConsistent() && (!kind || p_thread->GetKind() == kind) && p_thread->CheckOuterSignature(0)) {
 					if(p_thread->IsIdle()) {
-						p_ret = p_thread;
-						break;
+						if(!rSvcIdent.Len() || p_thread->CheckSvcIdent(rSvcIdent.PtrC(), rSvcIdent.Len())) {
+							p_ret = p_thread;
+							break;
+						}
+						else {
+							debug_mark = true;
+						}
 					}
 				}
 			}				
@@ -3580,7 +3595,8 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
         logmService   = 2, // Под именем PPSession::P_JobLogin
         logmEmptyBaseCreation = 3  // Под именем PPSession::P_EmptyBaseCreationLogin
 	};
-	int    ok = 1, r;
+	int    ok = 1;
+	int    r;
 	int    debug_r = 0;
 	uint   db_state = 0; // Флаги состояния базы данных
 	SString dict_path;
@@ -3606,7 +3622,8 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 		PPThreadLocalArea & r_tla = GetTLA();
 		MACAddr machine_id;
 		int    logmode = logmOrdinary;
-		int    empty_secur_base = 0, is_demo = 0;
+		int    empty_secur_base = 0;
+		int    is_demo = 0;
 		char   user_name[64];
 		ulong  term_sess_id = 0;
 		PPID   id;

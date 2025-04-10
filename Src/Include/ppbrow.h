@@ -1944,6 +1944,7 @@
 	#define PPFILT_CLIENTACTIVITYDETAILS                 1381
 	#define PPVIEWITEM_CLIENTACTIVITYDETAILS                 1382
 #define PPFILT_PRCSSRSOURCECODEMAINTAINING           1391
+#define PPFILT_STYLOQTESTCMDPARAM                    1401
 //
 // RECORD definitions
 //

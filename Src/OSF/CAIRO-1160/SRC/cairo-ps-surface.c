@@ -2132,38 +2132,29 @@ static cairo_status_t _cairo_ps_surface_emit_base85_string(cairo_ps_surface_t * 
 	status2 = _cairo_output_stream_destroy(string_array_stream);
 	if(status == CAIRO_STATUS_SUCCESS)
 		status = status2;
-
 	return status;
 }
 
 static const char * get_interpolate(cairo_filter_t filter)
 {
 	const char * interpolate;
-
 	switch(filter) {
 		default:
 		case CAIRO_FILTER_GOOD:
 		case CAIRO_FILTER_BEST:
-		case CAIRO_FILTER_BILINEAR:
-		    interpolate = "true";
-		    break;
+		case CAIRO_FILTER_BILINEAR: interpolate = "true"; break;
 		case CAIRO_FILTER_FAST:
 		case CAIRO_FILTER_NEAREST:
-		case CAIRO_FILTER_GAUSSIAN:
-		    interpolate = "false";
-		    break;
+		case CAIRO_FILTER_GAUSSIAN: interpolate = "false"; break;
 	}
-
 	return interpolate;
 }
 
-static cairo_status_t _cairo_ps_surface_emit_image(cairo_ps_surface_t * surface,
-    cairo_emit_surface_mode_t mode,
-    cairo_emit_surface_params_t * params)
+static cairo_status_t _cairo_ps_surface_emit_image(cairo_ps_surface_t * surface, cairo_emit_surface_mode_t mode, cairo_emit_surface_params_t * params)
 {
 	cairo_status_t status;
 	uchar * data;
-	ulong data_size;
+	ulong data_size = 0;
 	cairo_image_surface_t * ps_image;
 	int x, y, i, a;
 	cairo_image_transparency_t transparency;
@@ -2178,42 +2169,29 @@ static cairo_status_t _cairo_ps_surface_emit_image(cairo_ps_surface_t * surface,
 	cairo_image_surface_t * image_surf;
 	cairo_image_surface_t * image;
 	void * image_extra;
-
 	if(params->src_surface->status)
 		return params->src_surface->status;
-
 	status = _cairo_surface_acquire_source_image(params->src_surface, &image_surf, &image_extra);
 	if(UNLIKELY(status))
 		return status;
-
 	image  = image_surf;
-	if(image->format != CAIRO_FORMAT_RGB24 &&
-	    image->format != CAIRO_FORMAT_ARGB32 &&
-	    image->format != CAIRO_FORMAT_A8 &&
-	    image->format != CAIRO_FORMAT_A1) {
-		cairo_surface_t * surf;
+	if(image->format != CAIRO_FORMAT_RGB24 && image->format != CAIRO_FORMAT_ARGB32 &&
+	    image->format != CAIRO_FORMAT_A8 && image->format != CAIRO_FORMAT_A1) {
 		cairo_surface_pattern_t pattern;
-
-		surf = _cairo_image_surface_create_with_content(image->base.content,
-			image->width,
-			image->height);
+		cairo_surface_t * surf = _cairo_image_surface_create_with_content(image->base.content, image->width, image->height);
 		image = (cairo_image_surface_t*)surf;
 		if(surf->status) {
 			status = surf->status;
 			goto bail0;
 		}
-
 		_cairo_pattern_init_for_surface(&pattern, &image->base);
-		status = _cairo_surface_paint(surf,
-			CAIRO_OPERATOR_SOURCE, &pattern.base,
-			NULL);
+		status = _cairo_surface_paint(surf, CAIRO_OPERATOR_SOURCE, &pattern.base, NULL);
 		_cairo_pattern_fini(&pattern.base);
 		if(UNLIKELY(status))
 			goto bail0;
 	}
 	ps_image = image;
 	interpolate = get_interpolate(params->filter);
-
 	if(params->stencil_mask) {
 		use_mask = FALSE;
 		color = CAIRO_IMAGE_IS_MONOCHROME;
@@ -2221,21 +2199,14 @@ static cairo_status_t _cairo_ps_surface_emit_image(cairo_ps_surface_t * surface,
 	}
 	else {
 		transparency = _cairo_image_analyze_transparency(image);
-
 		/* PostScript can not represent the alpha channel, so we blend the
 		   current image over a white (or black for CONTENT_COLOR
 		   surfaces) RGB surface to eliminate it. */
-
-		if(params->op == CAIRO_OPERATOR_SOURCE ||
-		    transparency == CAIRO_IMAGE_HAS_ALPHA ||
-		    (transparency == CAIRO_IMAGE_HAS_BILEVEL_ALPHA &&
-		    surface->ps_level == CAIRO_PS_LEVEL_2)) {
-			status = _cairo_ps_surface_flatten_image_transparency(surface,
-				image,
-				&ps_image);
+		if(params->op == CAIRO_OPERATOR_SOURCE || transparency == CAIRO_IMAGE_HAS_ALPHA ||
+		    (transparency == CAIRO_IMAGE_HAS_BILEVEL_ALPHA && surface->ps_level == CAIRO_PS_LEVEL_2)) {
+			status = _cairo_ps_surface_flatten_image_transparency(surface, image, &ps_image);
 			if(UNLIKELY(status))
 				return status;
-
 			use_mask = FALSE;
 		}
 		else if(transparency == CAIRO_IMAGE_IS_OPAQUE) {
@@ -2244,27 +2215,18 @@ static cairo_status_t _cairo_ps_surface_emit_image(cairo_ps_surface_t * surface,
 		else { /* transparency == CAIRO_IMAGE_HAS_BILEVEL_ALPHA */
 			use_mask = TRUE;
 		}
-
 		color = _cairo_image_analyze_color(ps_image);
 	}
-
 	/* Type 2 (mask and image interleaved) has the mask and image
 	 * samples interleaved by row.  The mask row is first, one bit per
 	 * pixel with (bit 7 first). The row is padded to byte
 	 * boundaries. The image data is 3 bytes per pixel RGB format. */
 	switch(color) {
 		default:
-		case CAIRO_IMAGE_UNKNOWN_COLOR:
-		    ASSERT_NOT_REACHED;
-		case CAIRO_IMAGE_IS_COLOR:
-		    data_size = ps_image->width * 3;
-		    break;
-		case CAIRO_IMAGE_IS_GRAYSCALE:
-		    data_size = ps_image->width;
-		    break;
-		case CAIRO_IMAGE_IS_MONOCHROME:
-		    data_size = (ps_image->width + 7)/8;
-		    break;
+		case CAIRO_IMAGE_UNKNOWN_COLOR: ASSERT_NOT_REACHED; break;
+		case CAIRO_IMAGE_IS_COLOR: data_size = ps_image->width * 3; break;
+		case CAIRO_IMAGE_IS_GRAYSCALE: data_size = ps_image->width; break;
+		case CAIRO_IMAGE_IS_MONOCHROME: data_size = (ps_image->width + 7)/8; break;
 	}
 	if(use_mask)
 		data_size += (ps_image->width + 7)/8;
@@ -2274,14 +2236,12 @@ static cairo_status_t _cairo_ps_surface_emit_image(cairo_ps_surface_t * surface,
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto bail1;
 	}
-
 	i = 0;
 	for(y = 0; y < ps_image->height; y++) {
 		if(params->stencil_mask || use_mask) {
 			/* mask row */
 			if(ps_image->format == CAIRO_FORMAT_A1) {
 				pixel8 = (uint8 *)(ps_image->data + y * ps_image->stride);
-
 				for(x = 0; x < (ps_image->width + 7) / 8; x++, pixel8++) {
 					a = *pixel8;
 					a = CAIRO_BITSWAP8_IF_LITTLE_ENDIAN(a);
@@ -2301,7 +2261,6 @@ static cairo_status_t _cairo_ps_surface_emit_image(cairo_ps_surface_t * surface,
 						a = *pixel8;
 						pixel8++;
 					}
-
 					if(transparency == CAIRO_IMAGE_HAS_ALPHA) {
 						data[i++] = a;
 					}

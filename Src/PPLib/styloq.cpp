@@ -1017,6 +1017,7 @@ int StyloQFace::GetRepresentation(int lang, SString & rBuf) const
 		case sqbcIncomingListTSess: p_sign = "styloqbasecmd_incominglisttsess"; break; // @v11.4.7
 		case sqbcIncomingListTodo: p_sign = "styloqbasecmd_incominglisttodo"; break; // @v11.4.7
 		case sqbcDebtList: p_sign = "styloqbasecmd_debtlist"; break; // @v11.5.4
+		case sqbcTest: p_sign = "styloqbasecmd_test"; // @v12.3.1
 	}
 	if(p_sign)
 		PPLoadString(p_sign, rBuf);
@@ -4198,15 +4199,17 @@ int StyloQProtocol::Read(PPMqbClient::Message & rMsg, const SBinaryChunk * pCryp
 
 int StyloQProtocol::ReadMime64(const SString & rSrcMime64, const SBinaryChunk * pCryptoKey)
 {
-	int    ok = 1;
 	Z();
+	int    ok = 1;
+	int    rr = 0; // Результат вызова функции Read()
 	if(rSrcMime64.Len()) {
 		SBuffer temp_sbuf;
 		size_t real_size = 0;
 		STempBuffer tbuf((rSrcMime64.Len() * 3) / 2);
 		THROW_SL(rSrcMime64.DecodeMime64(tbuf, tbuf.GetSize(), &real_size));
 		THROW_SL(temp_sbuf.Write(tbuf.cptr(), real_size));
-		THROW(Read(temp_sbuf, pCryptoKey));
+		rr = Read(temp_sbuf, pCryptoKey);
+		THROW(rr);
 	}
 	else {
 		ok = -1;
@@ -4796,6 +4799,17 @@ int PPStyloQInterchange::SendHttpQuery(RoundTripBlock & rB, StyloQProtocol & rPa
 		rB.Url.SetComponent(InetUrl::cPath, "styloq");
 	}
 	rB.Url.SetQueryParam("rtsid", SLS.AcquireRvlStr().Cat(rB.Uuid, S_GUID::fmtIDL|S_GUID::fmtPlain|S_GUID::fmtLower));
+	// @v12.3.1 {
+	{
+		SBinaryChunk svc_ident;
+		if(rB.Other.Get(SSecretTagPool::tagSvcIdent, &svc_ident)) {
+			if(svc_ident.Len()) {
+				svc_ident.Mime64(temp_buf);
+				rB.Url.SetQueryParam("svcident", temp_buf);
+			}
+		}
+	}
+	// } @v12.3.1
 	if(rPack.GetH().Type == PPSCMD_PING) {
 		content_buf = "test-request-for-connection-checking";
 		test_ping = true;
@@ -8097,6 +8111,62 @@ int StyloQAttendancePrereqParam::InitInstance()
 	SetBranchSString(offsetof(StyloQAttendancePrereqParam, PrcTitle));
 	return Init(1, 0);
 }
+//
+//
+//
+IMPLEMENT_PPFILT_FACTORY_CLS(StyloQTestCmdParam);
+
+StyloQTestCmdParam::StyloQTestCmdParam() : PPBaseFilt(PPFILT_STYLOQTESTCMDPARAM, 0, 0)
+{
+	InitInstance();
+}
+
+StyloQTestCmdParam::StyloQTestCmdParam(const StyloQTestCmdParam & rS) : PPBaseFilt(PPFILT_STYLOQTESTCMDPARAM, 0, 0)
+{
+	InitInstance();
+	Copy(&rS, 1);
+}
+	
+StyloQTestCmdParam & FASTCALL StyloQTestCmdParam::operator = (const StyloQTestCmdParam & rS)
+{
+	Copy(&rS, 1);
+	return *this;
+}
+	
+int StyloQTestCmdParam::InitInstance()
+{
+	SetFlatChunk(offsetof(StyloQTestCmdParam, ReserveStart), offsetof(StyloQTestCmdParam, ReplyText)-offsetof(StyloQTestCmdParam, ReserveStart));
+	SetBranchSString(offsetof(StyloQTestCmdParam, ReplyText));
+	return Init(1, 0);
+}
+//
+//
+//
+/*static*/int PPStyloQInterchange::Edit_TestCmdParam(StyloQTestCmdParam & rParam) // @v12.3.1
+{
+	class StyloQTestCmdParamDialog : public TDialog {
+		DECL_DIALOG_DATA(StyloQTestCmdParam);
+	public:
+		StyloQTestCmdParamDialog() : TDialog(DLG_STQTESTPARAM)
+		{
+		}
+		DECL_DIALOG_SETDTS()
+		{
+			int    ok = 1;
+			RVALUEPTR(Data, pData);
+			setCtrlString(CTL_STQTESTPARAM_REPLY, Data.ReplyText);
+			return ok;
+		}
+		DECL_DIALOG_GETDTS()
+		{
+			int    ok = 1;
+			getCtrlString(CTL_STQTESTPARAM_REPLY, Data.ReplyText);
+			ASSIGN_PTR(pData, Data);
+			return ok;
+		}
+	};	
+	DIALOG_PROC_BODY(StyloQTestCmdParamDialog, &rParam);
+}
 
 /*static*/int PPStyloQInterchange::Edit_PersonEventParam(StyloQPersonEventParam & rParam)
 {
@@ -9310,6 +9380,9 @@ int PPStyloQInterchange::Debug_Command(const StyloQCommandList::Item * pCmd) // 
 				// @todo
 				break;
 			case StyloQCommandList::sqbcDebtList: // @v11.5.4
+				// @todo
+				break;
+			case StyloQCommandList::sqbcTest: // @v12.3.1
 				// @todo
 				break;
 		}
@@ -10772,6 +10845,24 @@ int PPStyloQInterchange::ProcessCmd(const StyloQProtocol & rRcvPack, const SBina
 					const StyloQCommandList::Item * p_targeted_item = p_target_cmd_list ? p_target_cmd_list->GetByUuid(cmd_uuid) : 0;
 					THROW_PP(p_targeted_item, PPERR_SQ_UNTARGETEDCMD);
 					switch(p_targeted_item->BaseCmdId) {
+						case StyloQCommandList::sqbcTest: // @v12.3.1
+							// @todo
+							{
+								StyloQTestCmdParam param;
+								if(p_targeted_item->Param.GetAvailableSize()) {
+									SSerializeContext sctx;
+									SBuffer temp_non_const_buf(p_targeted_item->Param);
+									if(param.Serialize(-1, temp_non_const_buf, &sctx)) {
+										reply_text_buf = param.ReplyText;
+									}
+								}
+								if(reply_text_buf.IsEmpty()) {
+									reply_text_buf = "Default reply on the test command";
+								}
+								reply_text_buf.Transf(CTRANSF_INNER_TO_UTF8);
+								cmd_reply_ok = true;
+							}
+							break;
 						case StyloQCommandList::sqbcPersonEvent:
 							if(ProcessCommand_PersonEvent(StyloQCommandList::Item(*p_targeted_item), cli_pack, p_js_cmd, geopos)) {
 								PPLoadText(PPTXT_SQ_CMDSUCCESS_PSNEV, reply_text_buf);

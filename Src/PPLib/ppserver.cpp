@@ -70,13 +70,27 @@ void FASTCALL PPThread::SetJobID(PPID jobID)
 		JobID = jobID;
 }
 
-bool PPThread::HasOuterSignature() const
+bool PPThread::HasSignatureAttr(uint orSignatureAttrFlags) const
 {
 	bool result = false;
-	OtrSigntr.Lck.Lock();
-	if(OtrSigntr.Signature[0] != 0)
-		result = true;
-	OtrSigntr.Lck.Unlock();
+	uint result_flags = 0;
+	if(orSignatureAttrFlags) {
+		OtrSigntr.Lck.Lock();
+		if(orSignatureAttrFlags & sattrOuterSignature) {
+			if(OtrSigntr.Signature[0]) {
+				result_flags |= sattrOuterSignature;
+			}
+		}
+		if(orSignatureAttrFlags & sattrSvcIdent) {
+			if(OtrSigntr.SvcIdent[0]) {
+				result_flags |= sattrSvcIdent;
+			}
+		}
+		OtrSigntr.Lck.Unlock();
+		if(result_flags) {
+			result = true;
+		}
+	}
 	return result;
 }
 
@@ -96,12 +110,36 @@ bool FASTCALL PPThread::CheckOuterSignature(const char * pS) const // @v11.1.12
 	return result;
 }
 
+bool FASTCALL PPThread::CheckSvcIdent(const void * pIdent, size_t identSize) const // @v12.3.1
+{
+	bool result = false;
+	if(pIdent && identSize > 0 && identSize <= sizeof(OtrSigntr.SvcIdent)) {
+		OtrSigntr.Lck.Lock();
+		result = (memcmp(pIdent, OtrSigntr.SvcIdent, identSize) == 0);
+		OtrSigntr.Lck.Unlock();
+	}
+	return result;
+}
+
 void FASTCALL PPThread::SetOuterSignature(const char * pSignature) // @v11.1.12
 {
 	OtrSigntr.Lck.Lock();
 	STRNSCPY(OtrSigntr.Signature, pSignature);
 	OtrSigntr.Tm = time(0);
 	OtrSigntr.Lck.Unlock();
+}
+
+void FASTCALL PPThread::SetSvcIdent(const void * pIdent, size_t identSize) // @v12.3.1
+{
+	
+	OtrSigntr.Lck.Lock();
+	if(pIdent && identSize > 0 && identSize <= sizeof(OtrSigntr.SvcIdent)) {
+		memcpy(OtrSigntr.SvcIdent, pIdent, identSize);
+	}
+	else {
+		OtrSigntr.SvcIdent[0] = 0;
+	}
+	OtrSigntr.Lck.Unlock();	
 }
 
 void FASTCALL PPThread::ResetOuterSignatureByTimeout(int64 currentEpochTime, int timeoutSec)

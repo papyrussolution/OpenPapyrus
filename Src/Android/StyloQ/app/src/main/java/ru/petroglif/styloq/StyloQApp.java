@@ -1051,6 +1051,34 @@ public class StyloQApp extends SLib.App {
 				else
 					DisplayError(activity_for_message, "Unknown result", 0);
 			}
+			else if(subj.OriginalCmdItem != null && subj.OriginalCmdItem.BaseCmdId == StyloQCommand.sqbcTest) { // @v12.3.1
+				String reply_message = null;
+				int err_code = 0;
+				String status_text = null;
+				if(subj.InfoReply != null && subj.InfoReply instanceof SecretTagPool) {
+					SecretTagPool stp = (SecretTagPool)subj.InfoReply;
+					byte [] raw_data = stp.Get(SecretTagPool.tagRawData);
+					byte [] raw_status_text = stp.Get(SecretTagPool.tagReplyStatusText);
+					byte [] raw_err_code =  stp.Get(SecretTagPool.tagErrorCode);
+					if(SLib.GetLen(raw_err_code) == 4) {
+						err_code = SLib.BytesToInt(raw_err_code, 0);
+					}
+					if(SLib.GetLen(raw_status_text) > 0) {
+						status_text = new String(raw_status_text);
+					}
+					JSONObject sv_reply_js = stp.GetJsonObject(SecretTagPool.tagRawData);
+					if(sv_reply_js != null) {
+						reply_message = sv_reply_js.optString("msg");
+					}
+				}
+				if(SLib.GetLen(reply_message) == 0) {
+					if(SLib.GetLen(status_text) > 0)
+						reply_message = status_text;
+					else
+						reply_message = "This is a local reply on the test message";
+				}
+				DisplayMessage(activity_for_message, reply_message, 0);
+			}
 			else {
 				byte[] rawdata = null;
 				if(original_cmd_item != null || retr_handler != null || subj_text.equalsIgnoreCase("Command")) {

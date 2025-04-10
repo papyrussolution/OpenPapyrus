@@ -4233,6 +4233,7 @@ data Balance {
 // Книга продаж/покупок
 // @v7.2.9 Verification needed
 // @v7.3.11 Verification needed
+// @v12.3.1 Verification needed
 //
 data VatBook {
 	declare "Destroy"
@@ -4290,12 +4291,18 @@ data VatBook {
 		double Vat1Amount;       // Сумма сделки, облагаемая ставкой НДС и индексом 1 (HVat1Rate)
 		double Vat2Amount;       // Сумма сделки, облагаемая ставкой НДС и индексом 2 (HVat2Rate)
 		double Vat3Amount;       // Сумма сделки, облагаемая ставкой НДС и индексом 3 (HVat3Rate)
+		double Vat4Amount;       // Сумма сделки, облагаемая ставкой НДС и индексом 4 (HVat4Rate) // @v12.3.1
+		double Vat5Amount;       // Сумма сделки, облагаемая ставкой НДС и индексом 5 (HVat5Rate) // @v12.3.1
 		double Vat1Rate;         // Ставка НДС с индексом 1 (HVat1Rate)
 		double Vat2Rate;         // Ставка НДС с индексом 2 (HVat2Rate)
 		double Vat3Rate;         // Ставка НДС с индексом 3 (HVat3Rate)
+		double Vat4Rate;         // Ставка НДС с индексом 4 (HVat4Rate) // @v12.3.1
+		double Vat5Rate;         // Ставка НДС с индексом 5 (HVat5Rate) // @v12.3.1
 		double Vat1Sum;          // Сумма НДС по ставке с индексом 1 (HVat1Rate)
 		double Vat2Sum;          // Сумма НДС по ставке с индексом 2 (HVat2Rate)
 		double Vat3Sum;          // Сумма НДС по ставке с индексом 3 (HVat3Rate)
+		double Vat4Sum;          // Сумма НДС по ставке с индексом 4 (HVat4Rate) // @v12.3.1
+		double Vat5Sum;          // Сумма НДС по ставке с индексом 5 (HVat5Rate) // @v12.3.1
 		double VatFreeAmount;    // Сумма сделки, освобожденная от НДС
 
 		date   CBillDt;          // Дата корректирующего документа

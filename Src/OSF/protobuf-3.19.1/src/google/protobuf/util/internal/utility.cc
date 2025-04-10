@@ -324,19 +324,19 @@ void InitWellKnownTypes() {
 	google::protobuf::internal::OnShutdown(&DeleteWellKnownTypes);
 }
 
-bool IsWellKnownType(const std::string & type_name) {
-	PROTOBUF_NAMESPACE_ID::internal::call_once(well_known_types_init_,
-	    InitWellKnownTypes);
+bool IsWellKnownType(const std::string & type_name) 
+{
+	PROTOBUF_NAMESPACE_ID::internal::call_once(well_known_types_init_, InitWellKnownTypes);
 	return ContainsKey(*well_known_types_, type_name);
 }
 
-bool IsValidBoolString(StringPiece bool_string) {
-	return bool_string == "true" || bool_string == "false" ||
-	       bool_string == "1" || bool_string == "0";
+bool IsValidBoolString(StringPiece bool_string) 
+{
+	return bool_string == "true" || bool_string == "false" || bool_string == "1" || bool_string == "0";
 }
 
-bool IsMap(const google::protobuf::Field& field,
-    const google::protobuf::Type& type) {
+bool IsMap(const google::protobuf::Field& field, const google::protobuf::Type& type) 
+{
 	return field.cardinality() == google::protobuf::Field::CARDINALITY_REPEATED &&
 	       (GetBoolOptionOrDefault(type.options(), "map_entry", false) ||
 	       GetBoolOptionOrDefault(type.options(),

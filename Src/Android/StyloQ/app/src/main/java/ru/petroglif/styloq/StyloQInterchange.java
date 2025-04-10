@@ -1235,6 +1235,15 @@ public class StyloQInterchange {
 		String _auth = rtb.Url.getAuthority();
 		ub.scheme(rtb.Url.getScheme()).encodedAuthority(_auth).
 			appendPath(_path).appendQueryParameter("rtsid", rtb.Uuid.toString());
+		// @v12.3.1 {
+		{
+			byte[] svc_ident = rtb.Other.Get(SecretTagPool.tagSvcIdent);
+			if(SLib.GetLen(svc_ident) > 0) {
+				String svc_ident_hex = Base64.getEncoder().encodeToString(svc_ident);
+				ub.appendQueryParameter("svcident", svc_ident_hex);
+			}
+		}
+		// } @v12.3.1
 		try {
 			String content_buf = null;
 			if(pack.H.Type == JobServerProtocol.PPSCMD_PING) {
@@ -1394,6 +1403,11 @@ public class StyloQInterchange {
 		byte[] sess_secret = rtb.Sess.Get(SecretTagPool.tagSessionSecret);
 		byte[] svc_ident = rtb.Other.Get(SecretTagPool.tagSvcIdent);
 		String js_selfy_face = null;
+		// @debug {
+		if(SLib.GetLen(cli_secret) == 0) {
+			ok = 0;
+		}
+		// } @debug
 		THROW(SLib.GetLen(cli_ident) > 0, ppstr2.PPERR_SQ_UNDEFCLIID);
 		THROW(SLib.GetLen(svc_ident) > 0, ppstr2.PPERR_SQ_UNDEFSVCID);
 		THROW(SLib.GetLen(cli_secret) > 0, ppstr2.PPERR_SQ_UNDEFSESSSECRET_INNER);
@@ -1697,6 +1711,11 @@ public class StyloQInterchange {
 			byte[] cli_ident = rtb.Sess.Get(SecretTagPool.tagClientIdent);
 			byte[] cli_secret = rtb.Sess.Get(SecretTagPool.tagSecret);
 			final String cli_ident_text = Base64.getEncoder().encodeToString(cli_ident);
+			// @debug {
+			if(SLib.GetLen(cli_secret) == 0) {
+				ok = false;
+			}
+			// } @debug
 			THROW(SLib.GetLen(cli_ident) > 0, ppstr2.PPERR_SQ_UNDEFCLIID);
 			THROW(SLib.GetLen(cli_secret) > 0, ppstr2.PPERR_SQ_UNDEFSESSSECRET_INNER);
 			//
@@ -1865,6 +1884,11 @@ public class StyloQInterchange {
 		boolean ok = false;
 		SecretTagPool.DeflateStrategy ds = new SecretTagPool.DeflateStrategy(256);
 		byte[] sess_secret = rtb.Sess.Get(SecretTagPool.tagSessionSecret);
+		// @debug {
+		if(SLib.GetLen(sess_secret) == 0) {
+			ok = false;
+		}
+		// } @debug
 		THROW(SLib.GetLen(sess_secret) > 0, ppstr2.PPERR_SQ_UNDEFSESSSECRET_INNER);
 		THROW(SLib.GetLen(cmdJson) > 0, ppstr2.PPERR_SQ_UNDEFSVCCOMMAND);
 		JobServerProtocol.StyloQFrame tp = new JobServerProtocol.StyloQFrame();
@@ -2254,8 +2278,9 @@ public class StyloQInterchange {
 					do_req_cmd = true;
 					is_current_sess_valid = true;
 				}
-				else
+				else {
 					result = new StyloQApp.InterchangeResult(StyloQApp.SvcQueryResult.ERROR, param.SvcIdent, "SessionRequest", null);
+				}
 			}
 			if(!is_current_sess_valid) {
 				boolean do_registration = false;

@@ -4738,9 +4738,9 @@
 	#define CTL_TAGV_TAGID               (13 + WINDOWS_ID_BIAS) // @v11.5.12
 	#define CTL_TAGV_INT                 (14 + WINDOWS_ID_BIAS) // @v11.8.12
 	#define CTL_TAGV_HOBJ1               (15 + WINDOWS_ID_BIAS) // @v12.2.10
-	#define CTLSEL_TAGV_HOBJ1            (16 + WINDOWS_ID_BIAS) // @v12.2.10 Вспомогательный объект #1 для выбора ссылки 
+	#define CTLSEL_TAGV_HOBJ1            (16 + WINDOWS_ID_BIAS) // @v12.2.10 Вспомогательный объект #1 для выбора ссылки
 	#define CTL_TAGV_HOBJ2               (17 + WINDOWS_ID_BIAS) // @v12.2.10
-	#define CTLSEL_TAGV_HOBJ2            (18 + WINDOWS_ID_BIAS) // @v12.2.10 Вспомогательный объект #2 для выбора ссылки 
+	#define CTLSEL_TAGV_HOBJ2            (18 + WINDOWS_ID_BIAS) // @v12.2.10 Вспомогательный объект #2 для выбора ссылки
 #define DLG_TAGVALVIEW            351
 	#define CTL_TAGVALVIEW_LIST          (1 + WINDOWS_ID_BIAS)
 	#define CTL_TAGVALVIEW_OBJ           (2 + WINDOWS_ID_BIAS)
@@ -11733,7 +11733,8 @@
 #define DLG_PRCRSRCC              1460 // @v12.2.10 Параметры процессинга собственных исходных кодов проекта
 	#define CTL_PRCRSRCC_FLAGS           (1 + WINDOWS_ID_BIAS)
 // #define DLG_TAGVLOCLNK            1461 // occupied @v12.2.10 Диалог значения тега, ссылающегося на адрес персоналии
-
+#define DLG_STQTESTPARAM          1462 // @v12.3.1
+	#define CTL_STQTESTPARAM_REPLY       (1  + WINDOWS_ID_BIAS)
 //
 // Win32 Dialog Identifiers
 //

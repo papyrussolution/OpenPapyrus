@@ -1,7 +1,7 @@
 // DGACC.CPP
 // Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2023, 2024, 2025
-// @codepage windows-1251
-// Диалоговая группа ввода счета и аналитической статьи
+// @codepage UTF-8
+// Р”РёР°Р»РѕРіРѕРІР°СЏ РіСЂСѓРїРїР° РІРІРѕРґР° СЃС‡РµС‚Р° Рё Р°РЅР°Р»РёС‚РёС‡РµСЃРєРѕР№ СЃС‚Р°С‚СЊРё
 //
 #include <pp.h>
 #pragma hdrstop
@@ -259,7 +259,7 @@ ArticleCtrlGroup::Rec::Rec(PPID acsID, PPID opID, const ObjIdListFilt * pArList)
 
 ArticleCtrlGroup::Rec::Rec(PPID acsID, PPID opID, PPID arID) : AcsID(acsID), OpID(opID)
 {
-	ArList.Add(arID); // ObjIdListFilt::Add(x) игнорирует нулевой аргумент
+	ArList.Add(arID); // ObjIdListFilt::Add(x) РёРіРЅРѕСЂРёСЂСѓРµС‚ РЅСѓР»РµРІРѕР№ Р°СЂРіСѓРјРµРЅС‚
 }
 
 ArticleCtrlGroup::ArticleCtrlGroup(uint ctlselAcs, uint ctlselOp, uint ctlselAr, uint cmEditList, PPID accSheetID, long flags) :

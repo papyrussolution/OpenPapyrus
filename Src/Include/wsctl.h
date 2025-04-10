@@ -1,8 +1,8 @@
 // WSCTL.H
 // Copyright (c) A.Sobolev 2023, 2024, 2025
-//
-//
-// Descr: Блок само-идентификации. 
+// @codepage UTF-8
+// 
+// Descr: Р‘Р»РѕРє СЃР°РјРѕ-РёРґРµРЅС‚РёС„РёРєР°С†РёРё. 
 //
 class WsCtl_SelfIdentityBlock {
 public:
@@ -12,11 +12,11 @@ public:
 	S_GUID Uuid;
 	MACAddrArray MacAdrList; // @v12.0.1
 	S_IPAddr IpAdr; // @v12.0.1
-	PPID   PrcID; // Идентификатор процессора на сервере. Инициируется ответом от сервера.
-	PPID   ComputerID; // @v12.0.3 Идентификатор компьютера на сервере.
-	PPID   CompCatID; // @v12.0.3 Идентификатор категории компьютера.
-	SString PrcName; // Наименование процессора на сервере. Инициируется ответом от сервера.
-	SString CompCatName; // @v12.0.3 Наименование категории компьютера
+	PPID   PrcID; // РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РїСЂРѕС†РµСЃСЃРѕСЂР° РЅР° СЃРµСЂРІРµСЂРµ. РРЅРёС†РёРёСЂСѓРµС‚СЃСЏ РѕС‚РІРµС‚РѕРј РѕС‚ СЃРµСЂРІРµСЂР°.
+	PPID   ComputerID; // @v12.0.3 РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РєРѕРјРїСЊСЋС‚РµСЂР° РЅР° СЃРµСЂРІРµСЂРµ.
+	PPID   CompCatID; // @v12.0.3 РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РєР°С‚РµРіРѕСЂРёРё РєРѕРјРїСЊСЋС‚РµСЂР°.
+	SString PrcName; // РќР°РёРјРµРЅРѕРІР°РЅРёРµ РїСЂРѕС†РµСЃСЃРѕСЂР° РЅР° СЃРµСЂРІРµСЂРµ. РРЅРёС†РёРёСЂСѓРµС‚СЃСЏ РѕС‚РІРµС‚РѕРј РѕС‚ СЃРµСЂРІРµСЂР°.
+	SString CompCatName; // @v12.0.3 РќР°РёРјРµРЅРѕРІР°РЅРёРµ РєР°С‚РµРіРѕСЂРёРё РєРѕРјРїСЊСЋС‚РµСЂР°
 };
 //
 // 
@@ -31,11 +31,11 @@ public:
 			DbSymb == rS.DbSymb && User == rS.User && Password == rS.Password);
 	}
 	//
-	// Descr: Считывает конфигурацию из win-реестра
+	// Descr: РЎС‡РёС‚С‹РІР°РµС‚ РєРѕРЅС„РёРіСѓСЂР°С†РёСЋ РёР· win-СЂРµРµСЃС‚СЂР°
 	//
 	int    Read();
 	//
-	// Descr: Записывает конфигурацию в win-реестр
+	// Descr: Р—Р°РїРёСЃС‹РІР°РµС‚ РєРѕРЅС„РёРіСѓСЂР°С†РёСЋ РІ win-СЂРµРµСЃС‚СЂ
 	//
 	int    Write();
 	SJson * ToJsonObj() const;
@@ -104,11 +104,11 @@ public:
 	int    Resolve();
 	int    Apply();
 	//
-	// Descr: Формирует строку пути к базовому каталогу системного образа для копирования и восстановления.
+	// Descr: Р¤РѕСЂРјРёСЂСѓРµС‚ СЃС‚СЂРѕРєСѓ РїСѓС‚Рё Рє Р±Р°Р·РѕРІРѕРјСѓ РєР°С‚Р°Р»РѕРіСѓ СЃРёСЃС‚РµРјРЅРѕРіРѕ РѕР±СЂР°Р·Р° РґР»СЏ РєРѕРїРёСЂРѕРІР°РЅРёСЏ Рё РІРѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРёСЏ.
 	//
 	SString & MakeBaseSystemImagePath(SString & rBuf) const;
 	//
-	// Descr: Функция выясняет существует ли системный образ.
+	// Descr: Р¤СѓРЅРєС†РёСЏ РІС‹СЏСЃРЅСЏРµС‚ СЃСѓС‰РµСЃС‚РІСѓРµС‚ Р»Рё СЃРёСЃС‚РµРјРЅС‹Р№ РѕР±СЂР°Р·.
 	//
 	bool   IsThereSystemImage() const;
 	int    CreateSystemImage();
@@ -127,8 +127,8 @@ public:
 		bool   FASTCALL operator == (const AllowedPath & rS) const { return (Flags == rS.Flags && Path == rS.Path); }
 		uint   Flags;   // SFile::accsfXXX
 		SString Path;
-		SString ResolvedPath; // Так как path может быть задан в шаблонизированном виде, могут понадобиться дополнительные действия //
-			// по разрешению шаблонов. Окончательный результат заносится в ResolvedPath.
+		SString ResolvedPath; // РўР°Рє РєР°Рє path РјРѕР¶РµС‚ Р±С‹С‚СЊ Р·Р°РґР°РЅ РІ С€Р°Р±Р»РѕРЅРёР·РёСЂРѕРІР°РЅРЅРѕРј РІРёРґРµ, РјРѕРіСѓС‚ РїРѕРЅР°РґРѕР±РёС‚СЊСЃСЏ РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Рµ РґРµР№СЃС‚РІРёСЏ //
+			// РїРѕ СЂР°Р·СЂРµС€РµРЅРёСЋ С€Р°Р±Р»РѕРЅРѕРІ. РћРєРѕРЅС‡Р°С‚РµР»СЊРЅС‹Р№ СЂРµР·СѓР»СЊС‚Р°С‚ Р·Р°РЅРѕСЃРёС‚СЃСЏ РІ ResolvedPath.
 	};
 	struct AllowedRegistryEntry {
 		AllowedRegistryEntry() : RegKeyType(0), Flags(0)
@@ -143,7 +143,7 @@ public:
 	TSCollection <AllowedRegistryEntry> AllowedRegList;
 };
 //
-// Descr: Дескриптор исполняемой программы, отображаемый в клиентском окне.
+// Descr: Р”РµСЃРєСЂРёРїС‚РѕСЂ РёСЃРїРѕР»РЅСЏРµРјРѕР№ РїСЂРѕРіСЂР°РјРјС‹, РѕС‚РѕР±СЂР°Р¶Р°РµРјС‹Р№ РІ РєР»РёРµРЅС‚СЃРєРѕРј РѕРєРЅРµ.
 //
 class WsCtl_ProgramEntry {
 public:
@@ -158,33 +158,33 @@ public:
 	//
 	bool   FASTCALL operator != (const WsCtl_ProgramEntry & rS) const { return !IsEq(rS); }
 	//
-	// Descr: Выясняет эквивалентность экземпляра this с экземпляром rS.
-	//   Эквивалентность определяется без учета члена FullResolvedPath поскольку
-	//   он вычисляется клиентом на основании контекстной информации.
+	// Descr: Р’С‹СЏСЃРЅСЏРµС‚ СЌРєРІРёРІР°Р»РµРЅС‚РЅРѕСЃС‚СЊ СЌРєР·РµРјРїР»СЏСЂР° this СЃ СЌРєР·РµРјРїР»СЏСЂРѕРј rS.
+	//   Р­РєРІРёРІР°Р»РµРЅС‚РЅРѕСЃС‚СЊ РѕРїСЂРµРґРµР»СЏРµС‚СЃСЏ Р±РµР· СѓС‡РµС‚Р° С‡Р»РµРЅР° FullResolvedPath РїРѕСЃРєРѕР»СЊРєСѓ
+	//   РѕРЅ РІС‹С‡РёСЃР»СЏРµС‚СЃСЏ РєР»РёРµРЅС‚РѕРј РЅР° РѕСЃРЅРѕРІР°РЅРёРё РєРѕРЅС‚РµРєСЃС‚РЅРѕР№ РёРЅС„РѕСЂРјР°С†РёРё.
 	// Returns:
-	//   true - *this и rS эквивалентны.
-	//   false - *this и rS различаются.
+	//   true - *this Рё rS СЌРєРІРёРІР°Р»РµРЅС‚РЅС‹.
+	//   false - *this Рё rS СЂР°Р·Р»РёС‡Р°СЋС‚СЃСЏ.
 	//
 	bool   FASTCALL IsEq(const WsCtl_ProgramEntry & rS) const;
 	SJson * ToJsonObj(bool withResolvance) const;
 	int    FromJsonObj(const SJson * pJsObj);
 
 	enum {
-		fResolving_FileNFound = 0x0001, // Исполняемый файл программы не найден
-		fResolving_ByCache    = 0x0002  // Полный путь к программе разрешен посредством кэша 
+		fResolving_FileNFound = 0x0001, // РСЃРїРѕР»РЅСЏРµРјС‹Р№ С„Р°Р№Р» РїСЂРѕРіСЂР°РјРјС‹ РЅРµ РЅР°Р№РґРµРЅ
+		fResolving_ByCache    = 0x0002  // РџРѕР»РЅС‹Р№ РїСѓС‚СЊ Рє РїСЂРѕРіСЂР°РјРјРµ СЂР°Р·СЂРµС€РµРЅ РїРѕСЃСЂРµРґСЃС‚РІРѕРј РєСЌС€Р° 
 	};
 
-	PPID   ID;                 // @v12.0.6 Идентификатор объекта в базе данных сервера
-	PPID   CategoryID;         // @v12.0.6 Идентификатор категории в базе данных сервера
-	SString Category;          // utf8 Категория программы
-	SString Title;             // utf8 Отображаемый на экране заголовок программы
-	SString ExeFileName;       // utf8 Имя исполняемого файла (с расширением) 
-	SString FullResolvedPath;  // @transient utf8 Полный путь к исполняемому файлу.
-	SString PicSymb;           // utf8 Символ изображения иконки //
-	int   PicHashAlg;          // @v12.0.6 Алгоритм хэша содержимого изображения // 
-	SBinaryChunk PicHash;      // @v12.0.6 Хэш содержимого изображения //
-	uint64 UedTime_Resolution; // @v12.1.9 (cache) Время вычисления полного пути программы
-	uint  Flags;               // @v12.1.9 @flags (в том числе флаги кэша, информирующие о результате вычисления полного пути) 
+	PPID   ID;                 // @v12.0.6 РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РѕР±СЉРµРєС‚Р° РІ Р±Р°Р·Рµ РґР°РЅРЅС‹С… СЃРµСЂРІРµСЂР°
+	PPID   CategoryID;         // @v12.0.6 РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РєР°С‚РµРіРѕСЂРёРё РІ Р±Р°Р·Рµ РґР°РЅРЅС‹С… СЃРµСЂРІРµСЂР°
+	SString Category;          // utf8 РљР°С‚РµРіРѕСЂРёСЏ РїСЂРѕРіСЂР°РјРјС‹
+	SString Title;             // utf8 РћС‚РѕР±СЂР°Р¶Р°РµРјС‹Р№ РЅР° СЌРєСЂР°РЅРµ Р·Р°РіРѕР»РѕРІРѕРє РїСЂРѕРіСЂР°РјРјС‹
+	SString ExeFileName;       // utf8 РРјСЏ РёСЃРїРѕР»РЅСЏРµРјРѕРіРѕ С„Р°Р№Р»Р° (СЃ СЂР°СЃС€РёСЂРµРЅРёРµРј) 
+	SString FullResolvedPath;  // @transient utf8 РџРѕР»РЅС‹Р№ РїСѓС‚СЊ Рє РёСЃРїРѕР»РЅСЏРµРјРѕРјСѓ С„Р°Р№Р»Сѓ.
+	SString PicSymb;           // utf8 РЎРёРјРІРѕР» РёР·РѕР±СЂР°Р¶РµРЅРёСЏ РёРєРѕРЅРєРё //
+	int   PicHashAlg;          // @v12.0.6 РђР»РіРѕСЂРёС‚Рј С…СЌС€Р° СЃРѕРґРµСЂР¶РёРјРѕРіРѕ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ // 
+	SBinaryChunk PicHash;      // @v12.0.6 РҐСЌС€ СЃРѕРґРµСЂР¶РёРјРѕРіРѕ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ //
+	uint64 UedTime_Resolution; // @v12.1.9 (cache) Р’СЂРµРјСЏ РІС‹С‡РёСЃР»РµРЅРёСЏ РїРѕР»РЅРѕРіРѕ РїСѓС‚Рё РїСЂРѕРіСЂР°РјРјС‹
+	uint  Flags;               // @v12.1.9 @flags (РІ С‚РѕРј С‡РёСЃР»Рµ С„Р»Р°РіРё РєСЌС€Р°, РёРЅС„РѕСЂРјРёСЂСѓСЋС‰РёРµ Рѕ СЂРµР·СѓР»СЊС‚Р°С‚Рµ РІС‹С‡РёСЃР»РµРЅРёСЏ РїРѕР»РЅРѕРіРѕ РїСѓС‚Рё) 
 };
 
 class WsCtl_ProgramCollection : public TSCollection <WsCtl_ProgramEntry> {
@@ -196,12 +196,12 @@ public:
 	bool   FASTCALL operator == (const WsCtl_ProgramCollection & rS) const { return IsEq(rS); }
 	bool   FASTCALL operator != (const WsCtl_ProgramCollection & rS) const { return !IsEq(rS); }
 	//
-	// Descr: Функция определяет эквивалентность экземпляра this с экземпляром rS.
-	//   Эквивалентность определяется без учета членов CatList и SelectedCatSurrogateId.
-	//   Кроме того, see desr of WsCtl_ProgramEntry::IsEq.
+	// Descr: Р¤СѓРЅРєС†РёСЏ РѕРїСЂРµРґРµР»СЏРµС‚ СЌРєРІРёРІР°Р»РµРЅС‚РЅРѕСЃС‚СЊ СЌРєР·РµРјРїР»СЏСЂР° this СЃ СЌРєР·РµРјРїР»СЏСЂРѕРј rS.
+	//   Р­РєРІРёРІР°Р»РµРЅС‚РЅРѕСЃС‚СЊ РѕРїСЂРµРґРµР»СЏРµС‚СЃСЏ Р±РµР· СѓС‡РµС‚Р° С‡Р»РµРЅРѕРІ CatList Рё SelectedCatSurrogateId.
+	//   РљСЂРѕРјРµ С‚РѕРіРѕ, see desr of WsCtl_ProgramEntry::IsEq.
 	// Returns:
-	//   true - *this и rS эквивалентны.
-	//   false - *this и rS различаются.// 
+	//   true - *this Рё rS СЌРєРІРёРІР°Р»РµРЅС‚РЅС‹.
+	//   false - *this Рё rS СЂР°Р·Р»РёС‡Р°СЋС‚СЃСЏ.// 
 	//
 	bool   FASTCALL IsEq(const WsCtl_ProgramCollection & rS) const;
 	bool   IsResolved() const { return Resolved; }
@@ -218,18 +218,18 @@ public:
 	int    MakeCatList();
 	int    Resolve(const WsCtl_ClientPolicy & rPolicy);
 
-	mutable SMtLock Lck; // Блокировка, используемая для асинхронного запуска процедура разрешения путей к программам.
+	mutable SMtLock Lck; // Р‘Р»РѕРєРёСЂРѕРІРєР°, РёСЃРїРѕР»СЊР·СѓРµРјР°СЏ РґР»СЏ Р°СЃРёРЅС…СЂРѕРЅРЅРѕРіРѕ Р·Р°РїСѓСЃРєР° РїСЂРѕС†РµРґСѓСЂР° СЂР°Р·СЂРµС€РµРЅРёСЏ РїСѓС‚РµР№ Рє РїСЂРѕРіСЂР°РјРјР°Рј.
 private:
 	StrAssocArray CatList; // @transient
 	long   SelectedCatSurrogateId; // @transient
 	bool   Resolved; // @transient
 };
 //
-// Descr: Класс, отвечающий за системное сопровождение сессий:
-//   -- авторизация в операционной системе
-//   -- запуск и завершение процессов
-//   -- управление ограничениями
-//   -- отслеживание изменений в системе
+// Descr: РљР»Р°СЃСЃ, РѕС‚РІРµС‡Р°СЋС‰РёР№ Р·Р° СЃРёСЃС‚РµРјРЅРѕРµ СЃРѕРїСЂРѕРІРѕР¶РґРµРЅРёРµ СЃРµСЃСЃРёР№:
+//   -- Р°РІС‚РѕСЂРёР·Р°С†РёСЏ РІ РѕРїРµСЂР°С†РёРѕРЅРЅРѕР№ СЃРёСЃС‚РµРјРµ
+//   -- Р·Р°РїСѓСЃРє Рё Р·Р°РІРµСЂС€РµРЅРёРµ РїСЂРѕС†РµСЃСЃРѕРІ
+//   -- СѓРїСЂР°РІР»РµРЅРёРµ РѕРіСЂР°РЅРёС‡РµРЅРёСЏРјРё
+//   -- РѕС‚СЃР»РµР¶РёРІР°РЅРёРµ РёР·РјРµРЅРµРЅРёР№ РІ СЃРёСЃС‚РµРјРµ
 //
 class WsCtl_SessionFrame {
 public:
@@ -255,12 +255,12 @@ private:
 		stRunning = 0x0001
 	};
 	WsCtl_ClientPolicy Policy;
-	TSCollection <Process> RunningProcessList; // Список хандлеров запущенных процессов
+	TSCollection <Process> RunningProcessList; // РЎРїРёСЃРѕРє С…Р°РЅРґР»РµСЂРѕРІ Р·Р°РїСѓС‰РµРЅРЅС‹С… РїСЂРѕС†РµСЃСЃРѕРІ
 	SPtrHandle H_UserToken;
 	uint   State;
 };
 //
-// Descr: Блок, отвечающий за взаимодействие серверной сессии с модулем WsCtl
+// Descr: Р‘Р»РѕРє, РѕС‚РІРµС‡Р°СЋС‰РёР№ Р·Р° РІР·Р°РёРјРѕРґРµР№СЃС‚РІРёРµ СЃРµСЂРІРµСЂРЅРѕР№ СЃРµСЃСЃРёРё СЃ РјРѕРґСѓР»РµРј WsCtl
 //
 class WsCtlSrvBlock {
 public:
@@ -290,18 +290,18 @@ public:
 		S_GUID WsCtlUuid; // IN/OUT
 		MACAddrArray MacAdrList;
 		SString Name;
-		SString CompCatName; // @v12.0.4 Наименование категории компьютера
+		SString CompCatName; // @v12.0.4 РќР°РёРјРµРЅРѕРІР°РЅРёРµ РєР°С‚РµРіРѕСЂРёРё РєРѕРјРїСЊСЋС‚РµСЂР°
 		// Results:
 		int    Status;  // 0 - error, 1 - success
 		PPID   PrcID;
 		PPID   ComputerID;
-		PPID   CompCatID; // @v12.0.4 Идентификатор категории компьютера
+		PPID   CompCatID; // @v12.0.4 РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РєР°С‚РµРіРѕСЂРёРё РєРѕРјРїСЊСЋС‚РµСЂР°
 	};
 	struct AuthBlock {
 		AuthBlock();
 		AuthBlock & Z();
 		//
-		// Descr: Возвращает true если входящие параметры инициализированы в достаточной степени для запуска исполнения команды
+		// Descr: Р’РѕР·РІСЂР°С‰Р°РµС‚ true РµСЃР»Рё РІС…РѕРґСЏС‰РёРµ РїР°СЂР°РјРµС‚СЂС‹ РёРЅРёС†РёР°Р»РёР·РёСЂРѕРІР°РЅС‹ РІ РґРѕСЃС‚Р°С‚РѕС‡РЅРѕР№ СЃС‚РµРїРµРЅРё РґР»СЏ Р·Р°РїСѓСЃРєР° РёСЃРїРѕР»РЅРµРЅРёСЏ РєРѕРјР°РЅРґС‹
 		//
 		bool   IsEmpty() const;
 		bool   FromJsonObj(const SJson * pJs);
@@ -316,7 +316,7 @@ public:
 	struct StartSessBlock {
 		StartSessBlock();
 		//
-		// Descr: Возвращает true если входящие параметры инициализированы в достаточной степени для запуска исполнения команды
+		// Descr: Р’РѕР·РІСЂР°С‰Р°РµС‚ true РµСЃР»Рё РІС…РѕРґСЏС‰РёРµ РїР°СЂР°РјРµС‚СЂС‹ РёРЅРёС†РёР°Р»РёР·РёСЂРѕРІР°РЅС‹ РІ РґРѕСЃС‚Р°С‚РѕС‡РЅРѕР№ СЃС‚РµРїРµРЅРё РґР»СЏ Р·Р°РїСѓСЃРєР° РёСЃРїРѕР»РЅРµРЅРёСЏ РєРѕРјР°РЅРґС‹
 		//
 		bool   IsEmpty() const { return (!SCardID || !GoodsID); }
 		StartSessBlock & Z();
@@ -334,8 +334,8 @@ public:
 		PPID   RetTechID;
 		PPID   RetSCardID;
 		PPID   RetGoodsID;
-		LDATETIME ScOpDtm; // Время операции списания денег //
-		double WrOffAmount; // Списанная сумма //
+		LDATETIME ScOpDtm; // Р’СЂРµРјСЏ РѕРїРµСЂР°С†РёРё СЃРїРёСЃР°РЅРёСЏ РґРµРЅРµРі //
+		double WrOffAmount; // РЎРїРёСЃР°РЅРЅР°СЏ СЃСѓРјРјР° //
 		STimeChunk SessTimeRange;
 	};
 
@@ -343,7 +343,7 @@ public:
 	int    SearchPrcByWsCtlUuid(const S_GUID & rWsCtlUuid, PPID * pPrcID, SString * pPrcNameUtf8, ProcessorTbl::Rec * pRec); // @v12.2.4 (ProcessorTbl::Rec * pRec)
 	int    Init(const S_GUID & rUuid);
 	//
-	// Descr: Возвращает ранжированный список видов котировок, которые могут быть применены для установки цен для технологических сессий.
+	// Descr: Р’РѕР·РІСЂР°С‰Р°РµС‚ СЂР°РЅР¶РёСЂРѕРІР°РЅРЅС‹Р№ СЃРїРёСЃРѕРє РІРёРґРѕРІ РєРѕС‚РёСЂРѕРІРѕРє, РєРѕС‚РѕСЂС‹Рµ РјРѕРіСѓС‚ Р±С‹С‚СЊ РїСЂРёРјРµРЅРµРЅС‹ РґР»СЏ СѓСЃС‚Р°РЅРѕРІРєРё С†РµРЅ РґР»СЏ С‚РµС…РЅРѕР»РѕРіРёС‡РµСЃРєРёС… СЃРµСЃСЃРёР№.
 	//
 	int    GetRawQuotKindList(PPIDArray & rList);
 	int    GetQuotList(PPID goodsID, PPID locID, const PPIDArray & rRawQkList, PPQuotArray & rQList);
@@ -353,10 +353,10 @@ public:
 	int    Auth(AuthBlock & rBlk);
 	int    SendClientPolicy(const S_GUID & rComputerUuid, SString & rResult);
 	//
-	// Descr: Отправляет клиенту список програм для запуска в json-формате
-	// ARG(mock IN): если true, то отправляется тестовая "болванка" workspace/wsctl/wsctl-program.json. В противном случае список 
-	//   програм формируется из объекта данных PPObjSwProgram
-	// ARG(rResult OUT): буфер для результата
+	// Descr: РћС‚РїСЂР°РІР»СЏРµС‚ РєР»РёРµРЅС‚Сѓ СЃРїРёСЃРѕРє РїСЂРѕРіСЂР°Рј РґР»СЏ Р·Р°РїСѓСЃРєР° РІ json-С„РѕСЂРјР°С‚Рµ
+	// ARG(mock IN): РµСЃР»Рё true, С‚Рѕ РѕС‚РїСЂР°РІР»СЏРµС‚СЃСЏ С‚РµСЃС‚РѕРІР°СЏ "Р±РѕР»РІР°РЅРєР°" workspace/wsctl/wsctl-program.json. Р’ РїСЂРѕС‚РёРІРЅРѕРј СЃР»СѓС‡Р°Рµ СЃРїРёСЃРѕРє 
+	//   РїСЂРѕРіСЂР°Рј С„РѕСЂРјРёСЂСѓРµС‚СЃСЏ РёР· РѕР±СЉРµРєС‚Р° РґР°РЅРЅС‹С… PPObjSwProgram
+	// ARG(rResult OUT): Р±СѓС„РµСЂ РґР»СЏ СЂРµР·СѓР»СЊС‚Р°С‚Р°
 	//
 	int    SendProgramList(bool mock, const S_GUID & rComputerUuid, SString & rResult);
 
@@ -367,19 +367,19 @@ public:
 	PPObjSCard ScObj;
 	PPObjArticle ArObj;
 	PPObjComputer CompObj;
-	S_GUID WsUUID; // UUID управляемой рабочей станции
-	PPID   PrcID;  // Ид процессора, соответствующего рабочей станции
-	PPID   ComputerID;  // @v12.2.4 Идентификатор компьютера (в общем, должно выполняться правило: 
+	S_GUID WsUUID; // UUID СѓРїСЂР°РІР»СЏРµРјРѕР№ СЂР°Р±РѕС‡РµР№ СЃС‚Р°РЅС†РёРё
+	PPID   PrcID;  // РРґ РїСЂРѕС†РµСЃСЃРѕСЂР°, СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РµРіРѕ СЂР°Р±РѕС‡РµР№ СЃС‚Р°РЅС†РёРё
+	PPID   ComputerID;  // @v12.2.4 РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РєРѕРјРїСЊСЋС‚РµСЂР° (РІ РѕР±С‰РµРј, РґРѕР»Р¶РЅРѕ РІС‹РїРѕР»РЅСЏС‚СЊСЃСЏ РїСЂР°РІРёР»Рѕ: 
 		// ProcessorRec(PrcID).LinkObjType == PPOBJ_COMPUTER && ProcessorRec(PrcID).LinkObjID == ComputerID)
-	PPID   CompCatID;   // @v12.2.4 Идентификатор категории компьютера
+	PPID   CompCatID;   // @v12.2.4 РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РєР°С‚РµРіРѕСЂРёРё РєРѕРјРїСЊСЋС‚РµСЂР°
 	SString PrcNameUtf8;
 private:
 	PPSCardConfig ScCfg;
-	PPID   ScSerID; // Серия карт (из конфигурации)
-	PPID   PsnKindID; // Вид персоналий, связанный с серией карт ScSerID
+	PPID   ScSerID; // РЎРµСЂРёСЏ РєР°СЂС‚ (РёР· РєРѕРЅС„РёРіСѓСЂР°С†РёРё)
+	PPID   PsnKindID; // Р’РёРґ РїРµСЂСЃРѕРЅР°Р»РёР№, СЃРІСЏР·Р°РЅРЅС‹Р№ СЃ СЃРµСЂРёРµР№ РєР°СЂС‚ ScSerID
 };
 //
-// Descr: Заголовочный класс приложения, куда я сваливаю всякие общеупотребимые утилиты и данные
+// Descr: Р—Р°РіРѕР»РѕРІРѕС‡РЅС‹Р№ РєР»Р°СЃСЃ РїСЂРёР»РѕР¶РµРЅРёСЏ, РєСѓРґР° СЏ СЃРІР°Р»РёРІР°СЋ РІСЃСЏРєРёРµ РѕР±С‰РµСѓРїРѕС‚СЂРµР±РёРјС‹Рµ СѓС‚РёР»РёС‚С‹ Рё РґР°РЅРЅС‹Рµ
 //
 class WsCtlApp {
 public:

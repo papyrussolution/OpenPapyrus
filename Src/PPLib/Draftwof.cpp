@@ -803,8 +803,8 @@ int PrcssrWrOffDraft::WriteOffMrp(const PPDraftWrOffPacket * pPack, PUGL * pPugl
 							mrp_pack.Sort();
 							for(uint j = 0; mrp_pack.enumItems(&j, (void **)&p_leaf);) {
 								if(!mrp_pack.IsTree() || p_leaf->TabID != mrp_pack.GetBaseID()) {
-									PUGL::SetLotManufTimeParam slmt; // @v10.5.12
-									P.GetLotManufTimeParam(&slmt); // @v10.5.12
+									PUGL::SetLotManufTimeParam slmt;
+									P.GetLotManufTimeParam(&slmt);
 									THROW(MrpObj.CreateModif(p_leaf, mrp_src_id, wroff_compl_op_id, &slmt, &wroff_bill_list, &Logger, 0));
 									for(uint k = 0; k < bill_list.getCount(); k++) {
 										const  PPID bill_id = bill_list.at(k);

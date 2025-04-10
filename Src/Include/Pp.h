@@ -436,6 +436,7 @@ class StyloQGoodsInfoParam;
 class StyloQIncomingListParam;
 class StyloQDocumentPrereqParam;
 class StyloQPersonEventParam;
+class StyloQTestCmdParam;
 class PPObjTech;
 class PPBillImporter;
 class EgaisMarkAutoSelector;
@@ -7090,21 +7091,31 @@ public:
 	void   FASTCALL GetInfo(PPThread::Info & rInfo) const;
 	void   FASTCALL LockStackToStr(SString & rBuf) const;
 	int32  GetUniqueSessID() const { return UniqueSessID; }
+
+	enum SignatureAttr {
+		sattrOuterSignature = 0x0001,
+		sattrSvcIdent       = 0x0002
+	};
 	//
 	// Descr: Возвращает true если в потоке задана внешняя сигнатура.
 	//
-	bool   HasOuterSignature() const;
+	bool   HasSignatureAttr(uint orSignatureAttrFlags) const;
 	void   FASTCALL SetOuterSignature(const char * pSignature); // @v11.1.12
+	void   FASTCALL SetSvcIdent(const void * pIdent, size_t identSize); // @v12.3.1
 	//
 	// Descr: Если !isempty(pS) и сигнатура потока равена pS, то возвращает true.
 	//   Если isempty(pS) и сигнатура потока пустая, то возвращает true.
 	//   В остальных случаях возвращает false.
 	//
 	bool   FASTCALL CheckOuterSignature(const char * pS) const; // @v11.1.12
+	bool   FASTCALL CheckSvcIdent(const void * pIdent, size_t identSize) const; // @v12.3.1
 	//
 	// Descr: Если время жизни сигнатуры в секундах превысило таймаут, заданный параметром timeoutSec,
 	//   то значение сигнатуры обнуляется. Таким образом, поток теряет привязку к сигнатуре.
 	//   Ради ускорения обработки множества потоков текущее время передается параметром currentEpochTime
+	// 
+	//   Функция не сбрасывает значение идентификатора сервиса, ассоциированного с потоком, поскольку
+	//   этот идентификатор важен при переназначении потока задаче, связанной с тем же сервисом.
 	//
 	void   FASTCALL ResetOuterSignatureByTimeout(int64 currentEpochTime, int timeoutSec);
 	virtual int SubstituteSock(TcpSocket & rSock, PPJobSrvReply * pReply) { return -1; }
@@ -7136,21 +7147,24 @@ private:
 	//   Текущая мотивация заключается в асинхронной обработке запросов к серверу.
 	//   Важно: в общем случае нелья гарантировать, что эта сигнатура уникальна, поскольку эмитирована
 	//   актором, который нами не контролируется.
+	// 
+	// @v12.3.1 Начиная с этого релиза в блоке так же хранится идентификатор сервиса Stylo-Q, обслуживаемого 
+	//   этим потоком.
 	//
-	struct OuterSignatureBlock {
-		OuterSignatureBlock() : Tm(0)
+	struct SignatureBlock {
+		SignatureBlock() : Tm(0)
 		{
 			Signature[0] = 0;
+			SvcIdent[0] = 0;
 		}
 		char   Signature[64]; // Собственно, сигнатура. Реализована в виде плоского массива символов
 			// с целью снизить накладные расходы на обработку.
+		char   SvcIdent[64];  // @v12.3.1 Идентификатора сервиса Stylo-Q, обслуживаемого этим потоком
 		mutable SMtLock Lck; // Блокировка (возможно, правильнее будет read-write, но пока сделаем по-проще)
 		int64 Tm; // Epoch-time время установки. Используется для сброса, если время жизни превысило
 			// допустимый таймаут (другими словами, для освобождения потока, чтобы он мог заняться иной работой).
 	};
-	OuterSignatureBlock OtrSigntr;
-	//mutable SMtLock Lck_OuterSignature; // @v11.1.12 Блокировка для OuterSignature
-	//SString OuterSignature; // @v11.1.12 Сигнатура потока, заданная внешним актором. Назначение ее в том, чтобы при
+	SignatureBlock OtrSigntr;
 
 	SString Text;
 	SString LastMsg_;
@@ -7736,7 +7750,7 @@ private:
 		//   !0 - указатель на поток, отвечающий перечисленным выше критериям
 		//    0 - поток по заданаым критериям не найден.
 		//
-		PPThread * STDCALL  SearchByOuterSignature(int kind, const char * pSignature);
+		PPThread * STDCALL  SearchByOuterSignature(int kind, const char * pSignature, const SBinaryChunk & rSvcIdent);
 		//
 		// Descr: Находит первый попавшийся поток вида kind, имеющий статус SlThread::stIdle.
 		//
@@ -48318,6 +48332,7 @@ public:
 		sqbcDebtList             = 111, // @v11.5.4 Список долговых документов по контрагенту. В общем случае, это могут быть как долги и покупателей, так и наша 
 			// задолженность перед поставщиками. Пока предполагается использовать как вспомогательную команду для получения долговой ведомости по клиенту в рамках
 			// работы с более высокоуровневыми командами (eg sqbcRsrvOrderPrereq)
+		sqbcTest                 = 112, // @v12.3.1 Тестовая команда
 	};
 	//
 	// Descr: Идентификаторы типов документов обмена
@@ -48875,6 +48890,7 @@ public:
 	static int   Edit_IncomingListParam(StyloQIncomingListParam & rParam);
 	static int   Edit_RsrvDocumentPrereqParam(StyloQDocumentPrereqParam & rParam);
 	static int   Edit_PersonEventParam(StyloQPersonEventParam & rParam);
+	static int   Edit_TestCmdParam(StyloQTestCmdParam & rParam); // @v12.3.1
 	//
 	// Descr: Отправляет одному из медиаторов Stylo-Q запрос на индексацию данных из всех
 	//   баз данных, которые содержат сервисы Stylo-Q.
@@ -49173,7 +49189,23 @@ public:
 private:
 	int    InitInstance();
 };
+//
+// Descr: Параметры тестовой команды Stylo-Q
+//
+class StyloQTestCmdParam : public PPBaseFilt { // @v12.3.1
+public:
+	StyloQTestCmdParam();
+	StyloQTestCmdParam(const StyloQTestCmdParam & rS);
+	StyloQTestCmdParam & FASTCALL operator = (const StyloQTestCmdParam & rS);
 
+	uint8  ReserveStart[128]; // @reserve
+	SString ReplyText;        // @anchor 
+private:
+	int    InitInstance();
+};
+//
+//
+//
 class StyloQIncomingListParam : public PPBaseFilt {
 public:
 	StyloQIncomingListParam();

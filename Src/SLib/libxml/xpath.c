@@ -4789,13 +4789,9 @@ free_obj:
 		}
 	}
 }
-
-/************************************************************************
-*									*
-*			Type Casting Routines				*
-*									*
-************************************************************************/
-
+// 
+// Type Casting Routines
+// 
 /**
  * xmlXPathCastBooleanToString:
  * @val:  a boolean
@@ -4806,14 +4802,8 @@ free_obj:
  */
 xmlChar * xmlXPathCastBooleanToString(int val) 
 {
-	xmlChar * ret;
-	if(val)
-		ret = sstrdup((const xmlChar *)"true");
-	else
-		ret = sstrdup((const xmlChar *)"false");
-	return ret;
+	return sstrdup((const xmlChar *)(val ? "true" : "false"));
 }
-
 /**
  * xmlXPathCastNumberToString:
  * @val:  a number
@@ -4822,15 +4812,12 @@ xmlChar * xmlXPathCastBooleanToString(int val)
  *
  * Returns a newly allocated string.
  */
-xmlChar * xmlXPathCastNumberToString(double val) {
+xmlChar * xmlXPathCastNumberToString(double val) 
+{
 	xmlChar * ret;
 	switch(xmlXPathIsInf(val)) {
-		case 1:
-		    ret = sstrdup((const xmlChar *)"Infinity");
-		    break;
-		case -1:
-		    ret = sstrdup((const xmlChar *)"-Infinity");
-		    break;
+		case 1: ret = sstrdup((const xmlChar *)"Infinity"); break;
+		case -1: ret = sstrdup((const xmlChar *)"-Infinity"); break;
 		default:
 		    if(fisnan(val)) {
 			    ret = sstrdup((const xmlChar *)"NaN");
@@ -4848,7 +4835,6 @@ xmlChar * xmlXPathCastNumberToString(double val) {
 	}
 	return ret;
 }
-
 /**
  * xmlXPathCastNodeToString:
  * @node:  a node

@@ -1,5 +1,5 @@
 // PPNGX.CPP
-// Copyright (c) A.Sobolev 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 // Взаимодействие с NGINX
 //
@@ -275,10 +275,11 @@ ngx_module_t ngx_http_papyrus_test_module = {
 //
 //
 //
-static bool GetHttpReqRtsId(ngx_http_request_t * pReq, SString & rRtsId)
+static uint GetHttpReqRtsId(ngx_http_request_t * pReq, SString & rRtsId, SBinaryChunk & rSvcIdent)
 {
 	rRtsId.Z();
-	bool   ok = false;
+	rSvcIdent.Z();
+	uint   result = 0;
 	if(pReq && pReq->args.len > 0 && pReq->args.data) {
 		SString & r_temp_buf = SLS.AcquireRvlStr();
 		r_temp_buf.CatN(reinterpret_cast<const char *>(pReq->args.data), pReq->args.len);
@@ -286,14 +287,24 @@ static bool GetHttpReqRtsId(ngx_http_request_t * pReq, SString & rRtsId)
 		SString & r_key_buf = SLS.AcquireRvlStr();
 		SString & r_val_buf = SLS.AcquireRvlStr();
 		for(uint ssp = 0; ss.get(&ssp, r_temp_buf);) {
-			if(r_temp_buf.Divide('=', r_key_buf, r_val_buf) > 0 && r_key_buf.Strip().IsEqiAscii("rtsid")) {
-				rRtsId = r_val_buf.Strip();
-				ok = true;
-				break;
+			if(r_temp_buf.Divide('=', r_key_buf, r_val_buf) > 0) {
+				if(r_key_buf.Strip().IsEqiAscii("rtsid")) {
+					rRtsId = r_val_buf.Strip();
+					result |= 0x01;
+				}
+				else if(r_key_buf.Strip().IsEqiAscii("svcident")) {
+					SString mime_buf;
+					r_val_buf.Strip().DecodeUrl(mime_buf);
+					if(rSvcIdent.FromMime64(mime_buf)) {
+						result |= 0x02;
+					}
+				}
 			}
+			if((result & (0x01|0x02)) == (0x01|0x02))
+				break;
 		}
 	}
-	return ok;
+	return result;
 }
 //
 //
@@ -395,11 +406,12 @@ public:
 		WakeUpEv.Signal();
 	}
 private:
-	int    Login(uint flags)
+	int    Login(const SBinaryChunk & rSvcIdent, uint flags)
 	{
 		int    ok = 1;
 		int    login_result = -1;
-		bool   is_logged_id = false;
+		bool   debug_mark = false; // @v12.3.1 @debug
+		bool   is_logged_in = false;
 		char   secret[64];
 		SString db_symb;
 		SString temp_buf;
@@ -424,21 +436,26 @@ private:
 				if(p_dict) {
 					p_dict->GetDbSymb(temp_buf);
 					if(temp_buf.IsEqiAscii(db_symb))
-						is_logged_id = true;
+						is_logged_in = true;
+					else {
+						debug_mark = true;
+					}
 				}
-				if(!is_logged_id) {
+				if(!is_logged_in) {
 					Logout();
 				}
 			}
-			if(!is_logged_id) {
+			if(!is_logged_in) {
 				ZDELETE(P_Ic); // @v11.2.10
 				login_result = DS.Login(db_symb, user_name, secret, PPSession::loginfSkipLicChecking|PPSession::loginfInternal);
 			}
 			else 
 				login_result = 1;
 			memzero(secret, sizeof(secret));
-			if(login_result)
+			if(login_result) {
 				State_PPws |= stLoggedIn;
+				PPThread::SetSvcIdent(rSvcIdent.PtrC(), rSvcIdent.Len());
+			}
 			else {
 				PPLogMessage(PPFILNAM_SERVER_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME);
 			}
@@ -461,16 +478,19 @@ private:
 	{
 		#define INTERNAL_ERR_INVALID_WAITING_MODE 0
 		//
-		const int outer_signature_timeout_sec = 20; // секунды // для отладки побольше, в нормальной ситуации должно быть секунд 15 // @v11.4.5 120-->20
+		const int outer_signature_timeout_sec = 30; // секунды //
 		SString s;
 		SString fmt_buf;
 		SString log_buf;
 		SString temp_buf;
+		SBinaryChunk svc_ident_empty; // @v12.3.1
 		//PPJobSrvReply reply(0);
 		PPServerCmd cmd;
-		const int login_result = Login(0);
+		const int login_result = Login(svc_ident_empty, 0);
 		/*if(login_result)*/ {
-			SString _s, log_file_name, debug_log_file_name;
+			SString _s;
+			SString log_file_name;
+			SString debug_log_file_name;
 			uint32 wait_obj_localstop = INFINITE;
 			uint32 wait_obj_stop = INFINITE;
 			uint32 wait_obj_wakeup = INFINITE;
@@ -482,7 +502,7 @@ private:
 				HANDLE h_list[32];
 				// При наличии внешней сигнатуры надо чаще проверять необходимость ее сброса по таймауту
 				// дабы не держать потоки занятыми, если сигнатура более не валидна.
-				uint32 timeout = HasOuterSignature() ? 1000 : 60000;
+				const uint32 timeout = HasSignatureAttr(sattrOuterSignature) ? 1000 : 60000;
 				h_list[h_count++] = EvLocalStop;
 				wait_obj_localstop = WAIT_OBJECT_0+h_count-1;
 				h_list[h_count++] = stop_event;
@@ -498,6 +518,10 @@ private:
 					// только потому, что у него была эта сигнатура. Таким образом, в этом случае проверять таймаут сигнатуры резона нет.
 					if(!p_req) { 
 						ResetOuterSignatureByTimeout(time(0), outer_signature_timeout_sec);
+						// @v12.3.1 {
+						if(!HasSignatureAttr(sattrOuterSignature|sattrSvcIdent))
+							break;
+						// } @v12.3.1 
 					}
 				}
 				else if(r == wait_obj_wakeup) {
@@ -514,10 +538,17 @@ private:
 				if(p_req) {
 					ResetIdleState();
 					ProcessHttpRequest(p_req, cmd);
-					SetIdleState();
+					if(HasSignatureAttr(sattrOuterSignature|sattrSvcIdent)) {
+						SetIdleState();
+					}
+					else {
+						// Поток не имеет важных атрибутов, на основании которых можно было бы привлечь его снова к работе - убиваем его.
+						break;
+					}
 				}
 			}
 		}
+		Logout(); // @v12.3.1 
 	}
 	virtual CmdRet ProcessCommand_(PPServerCmd * pEv, PPJobSrvReply & rReply)
 	{
@@ -611,50 +642,91 @@ void PPWorkingPipeSession::PushNgxResult(ngx_http_request_t * pReq, int ngxReply
 	}
 }
 
+static int GetStyloQProtocolPacketFromNgxReq(const ngx_http_request_t * pReq, StyloQProtocol & rStqProt, const SBinaryChunk & rReqSessSecret)
+{
+	rStqProt.Z();
+	int    ok = 0;
+	if(pReq) {
+		SString temp_buf;
+		for(ngx_chain_t * p_nb = pReq->request_body->bufs; p_nb; p_nb = p_nb->next) {
+			temp_buf.CatN(reinterpret_cast<const char *>(p_nb->buf->pos), ngx_buf_size(p_nb->buf));
+		}
+		if(temp_buf.IsEqiAscii("test-request-for-connection-checking")) {
+			//out_buf = "your-test-request-is-accepted";
+			ok = -1;
+		}
+		else if(rStqProt.ReadMime64(temp_buf, &rReqSessSecret)) {
+			ok = 1;
+		}
+		else {
+			ok = 0;
+		}
+	}
+	return ok;
+}
+
+static int DetermineDbSymbBySvcIdentInStqProtocolPacket(const StyloQProtocol & rStqProt, SBinaryChunk & rSvcIdent, SString & rDbSymb)
+{
+	rSvcIdent.Z();
+	rDbSymb.Z();
+	int    ok = 1;
+	rStqProt.P.Get(SSecretTagPool::tagSvcIdent, &rSvcIdent);
+	THROW_PP(rSvcIdent, PPERR_SQ_UNDEFSVCID);
+	THROW(StyloQCore::GetDbMapBySvcIdent(rSvcIdent, &rDbSymb, 0));
+	assert(rDbSymb.Len());
+	CATCHZOK
+	return ok;
+}
+
 void PPWorkingPipeSession::ProcessHttpRequest_StyloQ(ngx_http_request_t * pReq, PPServerCmd & rCmd)
 {
+	bool debug_mark = false;
 	SString temp_buf;
 	SString out_buf;
 	StyloQProtocol sp;
 	StyloQProtocol reply_tp;
+	SBinaryChunk svc_ident;
+	SBinaryChunk query_svc_ident; // Идент сервиса полученный из http-запроса
 	SBinaryChunk cli_ident;
-	SBinaryChunk sess_secret;
+	SBinaryChunk __sess_secret;
 	SBinaryChunk my_public;
 	SBinaryChunk other_public;
 	SString req_rtsid;
 	int32  in_pack_type = 0;
 	out_buf.Cat("(empty)"); // @debug
 	THROW_PP(pReq->request_body, PPERR_SQPROT_UNDEFHTTPBODY);
-	GetHttpReqRtsId(pReq, req_rtsid);
-	temp_buf.Z();
-	for(ngx_chain_t * p_nb = pReq->request_body->bufs; p_nb; p_nb = p_nb->next) {
-		temp_buf.CatN(reinterpret_cast<const char *>(p_nb->buf->pos), ngx_buf_size(p_nb->buf));
+	GetHttpReqRtsId(pReq, req_rtsid, query_svc_ident);
+	if(P_StqRtb) {
+		//
+		// Если в P_StqRtb->Sess есть что-то, то считаем P_StqRtb валидным, в противном случае просто убиваем его (вероятно, он
+		// получил инвалидность в результате ошибки какого-то из предыдущих раундов).
+		//
+		if(P_StqRtb->Sess.GetDataLen()) {
+			const int lr = P_StqRtb->Sess.Get(SSecretTagPool::tagSessionSecret, &__sess_secret);
+			THROW_PP(lr, PPERR_SQ_UNDEFSESSSECRET);
+		}
+		else {
+			ZDELETE(P_StqRtb);
+		}
 	}
-	if(temp_buf.IsEqiAscii("test-request-for-connection-checking")) {
+	const int stqpr = GetStyloQProtocolPacketFromNgxReq(pReq, sp, __sess_secret);
+	THROW(stqpr);
+	if(stqpr < 0) {
 		out_buf = "your-test-request-is-accepted";
 	}
-	else {
-		if(P_StqRtb) {
-			//
-			// Если в P_StqRtb->Sess есть что-то, то считаем P_StqRtb валидным, в противном случае просто убиваем его (вероятно, он
-			// получил инвалидность в результате ошибки какого-то из предыдущих раундов).
-			//
-			if(P_StqRtb->Sess.GetDataLen()) {
-				THROW_PP(P_StqRtb->Sess.Get(SSecretTagPool::tagSessionSecret, &sess_secret), PPERR_SQ_UNDEFSESSSECRET);
-			}
-			else {
-				ZDELETE(P_StqRtb);
-			}
-		}
-		THROW(sp.ReadMime64(temp_buf, &sess_secret));
+	else if(stqpr > 0) {
+		const SBinaryChunk * p_sess_secret = &__sess_secret;
 		sp.P.Get(SSecretTagPool::tagClientIdent, &cli_ident);
 		if(!P_StqRtb) { // Если инициирующий запрос, то необходимо разобраться с какой базой данных работать
 			SString stq_dbsymb;
+			THROW(DetermineDbSymbBySvcIdentInStqProtocolPacket(sp, svc_ident, stq_dbsymb));
+			/*
 			SBinaryChunk svc_ident;
 			sp.P.Get(SSecretTagPool::tagSvcIdent, &svc_ident);
 			THROW_PP(svc_ident, PPERR_SQ_UNDEFSVCID);
 			THROW(StyloQCore::GetDbMapBySvcIdent(svc_ident, &stq_dbsymb, 0));
 			assert(stq_dbsymb.Len());
+			*/
 			DblBlk.SetAttr(DbLoginBlock::attrDbSymb, stq_dbsymb);
 		}
 		in_pack_type = sp.GetH().Type;
@@ -665,7 +737,7 @@ void PPWorkingPipeSession::ProcessHttpRequest_StyloQ(ngx_http_request_t * pReq, 
 					THROW_PP(cli_ident.Len(), PPERR_SQ_UNDEFCLIID);
 					THROW_PP(sp.P.Get(SSecretTagPool::tagSessionPublicKey, &other_public), PPERR_SQ_UNDEFSESSPUBKEY);
 					assert(other_public.Len());
-					THROW(Login(PPSession::loginfAllowAuthAsJobSrv));
+					THROW(Login(svc_ident, PPSession::loginfAllowAuthAsJobSrv));
 					THROW_SL(SETIFZ(P_Ic, new PPStyloQInterchange));
 					ZDELETE(P_StqRtb);
 					THROW_SL(P_StqRtb = new PPStyloQInterchange::RoundTripBlock());
@@ -692,13 +764,13 @@ void PPWorkingPipeSession::ProcessHttpRequest_StyloQ(ngx_http_request_t * pReq, 
 			case PPSCMD_SQ_SESSION: // @init Команда инициации соединения по значению сессии, которая была установлена на предыдущем сеансе обмена
 				{
 					SBinaryChunk temp_chunk;
-					SBinaryChunk * p_sess_secret = 0;
+					SBinaryChunk local_sess_secret;
 					StyloQCore::StoragePacket pack;
 					THROW_PP(sp.P.Get(SSecretTagPool::tagSessionPublicKey, &other_public), PPERR_SQ_INPHASNTSESSPUBKEY); // PPERR_SQ_INPHASNTSESSPUBKEY Входящий запрос сессии не содержит публичного ключа
 					THROW_PP(cli_ident.Len(), PPERR_SQ_INPHASNTCLIIDENT); // PPERR_SQ_INPHASNTCLIIDENT Входящий запрос сессии не содержит идентификатора контрагента
 					assert(other_public.Len());
 					//assert(cli_ident.Len());
-					THROW(Login(PPSession::loginfAllowAuthAsJobSrv));
+					THROW(Login(svc_ident, PPSession::loginfAllowAuthAsJobSrv));
 					THROW_SL(P_Ic = new PPStyloQInterchange);
 					{
 						int ssr = P_Ic->SearchSession(other_public, &pack);
@@ -713,12 +785,11 @@ void PPWorkingPipeSession::ProcessHttpRequest_StyloQ(ngx_http_request_t * pReq, 
 					THROW_PP(temp_chunk == other_public, PPERR_SQ_INRSESPUBKEYNEQTOOTR); // PPERR_SQ_INRSESPUBKEYNEQTOOTR   Публичный ключ сохраненной сессии не равен полученному от контрагента
 					THROW_PP(pack.Pool.Get(SSecretTagPool::tagClientIdent, &temp_chunk), PPERR_SQ_INRSESSHASNTCLIIDENT); // PPERR_SQ_INRSESSHASNTCLIIDENT   Сохраненная сессия не содержит идентификатора контрагента
 					THROW_PP(temp_chunk == cli_ident, PPERR_SQ_INRSESCLIIDENTNEQTOOTR); // PPERR_SQ_INRSESCLIIDENTNEQTOOTR Идентификатора контрагента сохраненной сессии не равен полученному от контрагента
-					THROW_PP(pack.Pool.Get(SSecretTagPool::tagSessionSecret, &sess_secret), PPERR_SQ_INRSESSHASNTSECRET); // PPERR_SQ_INRSESSHASNTSECRET     Сохраненная сессия не содержит секрета 
+					THROW_PP(pack.Pool.Get(SSecretTagPool::tagSessionSecret, &local_sess_secret), PPERR_SQ_INRSESSHASNTSECRET); // PPERR_SQ_INRSESSHASNTSECRET     Сохраненная сессия не содержит секрета 
 
 					P_StqRtb->Other.Put(SSecretTagPool::tagClientIdent, cli_ident);
 					P_StqRtb->Other.Put(SSecretTagPool::tagSessionPublicKey, other_public);
-					P_StqRtb->Sess.Put(SSecretTagPool::tagSessionSecret, sess_secret);
-					p_sess_secret = &sess_secret;
+					P_StqRtb->Sess.Put(SSecretTagPool::tagSessionSecret, local_sess_secret);
 					//
 					reply_tp.StartWriting(in_pack_type, StyloQProtocol::psubtypeReplyOk);
 					THROW(reply_tp.FinishWriting(0));
@@ -728,7 +799,6 @@ void PPWorkingPipeSession::ProcessHttpRequest_StyloQ(ngx_http_request_t * pReq, 
 				break;
 			case PPSCMD_SQ_SRPAUTH: // @init Команда инициации соединения методом SRP-авторизации по параметрам, установленным ранее 
 				{
-					int    debug_mark = 0;
 					PPID   id = 0; // Внутренний идентификатор записи клиента в DBMS
 					SBinaryChunk srp_s;
 					SBinaryChunk srp_v;
@@ -737,7 +807,7 @@ void PPWorkingPipeSession::ProcessHttpRequest_StyloQ(ngx_http_request_t * pReq, 
 					StyloQCore::StoragePacket storage_pack;
 					THROW(sp.P.Get(SSecretTagPool::tagSessionPublicKey, &other_public));
 					THROW_PP(cli_ident.Len(), PPERR_SQ_UNDEFCLIID);
-					THROW(Login(PPSession::loginfAllowAuthAsJobSrv)); // @error (Inner service error: unable to login
+					THROW(Login(svc_ident, PPSession::loginfAllowAuthAsJobSrv)); // @error (Inner service error: unable to login)
 					THROW(SETIFZ(P_Ic, new PPStyloQInterchange));
 					ZDELETE(P_StqRtb);
 					THROW_SL(P_StqRtb = new PPStyloQInterchange::RoundTripBlock());
@@ -792,7 +862,7 @@ void PPWorkingPipeSession::ProcessHttpRequest_StyloQ(ngx_http_request_t * pReq, 
 						// Теперь все - верификация завершена. Сохраняем сессию и дальше будем ждать полезных сообщений от клиента
 						PPID   sess_id = 0;
 						SBinaryChunk temp_chunk;
-						SBinaryChunk _sess_secret;
+						SBinaryChunk local_sess_secret;
 						StyloQCore::StoragePacket sess_pack;
 						//
 						if(sp.P.Get(SSecretTagPool::tagSessionExpirPeriodSec, &temp_chunk) && temp_chunk.Len() == sizeof(uint32)) {
@@ -803,12 +873,12 @@ void PPWorkingPipeSession::ProcessHttpRequest_StyloQ(ngx_http_request_t * pReq, 
 						//
 						// Проверки assert'ами (не THROW) реализуются из-за того, что не должно возникнуть ситуации, когда мы
 						// попали в этот участок кода с невыполненными условиями (то есть при необходимости THROW должны были быть вызваны выше).
-						P_StqRtb->Sess.Get(SSecretTagPool::tagSessionSecret, &_sess_secret);
+						P_StqRtb->Sess.Get(SSecretTagPool::tagSessionSecret, &local_sess_secret);
 						P_StqRtb->Sess.Get(SSecretTagPool::tagSessionPublicKey, &my_public);
 						P_StqRtb->Other.Get(SSecretTagPool::tagSessionPublicKey, &other_public);
 						P_StqRtb->Other.Get(SSecretTagPool::tagClientIdent, &cli_ident);
 						//P_StqRtb->StP.Pool.Get(SSecretTagPool::tagSvcIdent, )
-						//assert(_sess_secret.Len());
+						//assert(local_sess_secret.Len());
 						assert(my_public.Len());
 						//assert(other_public.Len());
 						assert(P_StqRtb->Sess.Get(SSecretTagPool::tagSessionPrivateKey, 0));
@@ -818,7 +888,7 @@ void PPWorkingPipeSession::ProcessHttpRequest_StyloQ(ngx_http_request_t * pReq, 
 							sess_pack.Pool.Put(SSecretTagPool::tagSessionPrivateKey, temp_chunk);
 						}
 						sess_pack.Pool.Put(SSecretTagPool::tagSessionPublicKeyOther, other_public);
-						sess_pack.Pool.Put(SSecretTagPool::tagSessionSecret, _sess_secret);
+						sess_pack.Pool.Put(SSecretTagPool::tagSessionSecret, local_sess_secret);
 						sess_pack.Pool.Put(SSecretTagPool::tagClientIdent, cli_ident);
 						if(cli_session_expiry_period || svc_session_expiry_period) {
 							uint32 sep = 0;
@@ -848,10 +918,11 @@ void PPWorkingPipeSession::ProcessHttpRequest_StyloQ(ngx_http_request_t * pReq, 
 					SString reply_status_text;
 					StyloQProtocol reply_tp;
 					SBinaryChunk bc;
+					SBinaryChunk local_sess_secret;
 					StyloQCore::StoragePacket cli_pack; // @v11.6.0
 					THROW(P_StqRtb);
 					P_StqRtb->LastRcvCmd = sp.GetH().Type;
-					THROW(P_StqRtb->Sess.Get(SSecretTagPool::tagSessionSecret, &sess_secret));
+					THROW(P_StqRtb->Sess.Get(SSecretTagPool::tagSessionSecret, &local_sess_secret));
 					THROW(P_Ic->GetOwnPeerEntry(&P_StqRtb->StP) > 0); // @v11.5.11
 					THROW(P_Ic->Registration_ServiceReply(*P_StqRtb, sp, &cli_pack));
 					reply_tp.StartWriting(in_pack_type, StyloQProtocol::psubtypeReplyOk);
@@ -883,7 +954,7 @@ void PPWorkingPipeSession::ProcessHttpRequest_StyloQ(ngx_http_request_t * pReq, 
 						if(reply_status_text.NotEmpty()) 
 							reply_tp.P.Put(SSecretTagPool::tagReplyStatusText, reply_status_text.cptr(), reply_status_text.Len()+1);
 					}
-					reply_tp.FinishWriting(&sess_secret);
+					reply_tp.FinishWriting(&local_sess_secret);
 					out_buf.Z().EncodeMime64(reply_tp.constptr(), reply_tp.GetAvailableSize());
 					P_StqRtb->LastSndCmd = reply_tp.GetH().Type;
 				}
@@ -893,7 +964,8 @@ void PPWorkingPipeSession::ProcessHttpRequest_StyloQ(ngx_http_request_t * pReq, 
 					P_StqRtb->LastRcvCmd = sp.GetH().Type;
 					P_StqRtb->Other.Get(SSecretTagPool::tagClientIdent, &cli_ident);
 					if(P_Ic) {
-						if(P_Ic->ProcessCmd(sp, cli_ident, &sess_secret, reply_tp, 0, 0)) {	
+						assert(p_sess_secret);
+						if(P_Ic->ProcessCmd(sp, cli_ident, p_sess_secret, reply_tp, 0, 0)) {	
 							out_buf.Z().EncodeMime64(reply_tp.constptr(), reply_tp.GetAvailableSize());
 							P_StqRtb->LastSndCmd = reply_tp.GetH().Type;
 						}
@@ -917,6 +989,7 @@ void PPWorkingPipeSession::ProcessHttpRequest_StyloQ(ngx_http_request_t * pReq, 
 			const int32 err_code = PPErrCode;
 			reply_tp.StartWriting(in_pack_type, StyloQProtocol::psubtypeReplyError);
 			PPGetMessage(mfError, err_code, 0, DS.CheckExtFlag(ECF_SYSSERVICE), temp_buf);
+			temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
 			reply_tp.P.Put(SSecretTagPool::tagErrorCode, &err_code, sizeof(err_code));
 			reply_tp.P.Put(SSecretTagPool::tagReplyStatusText, temp_buf.cptr(), temp_buf.Len()+1);
 			reply_tp.FinishWriting(/*sess_secret.Len() ? &sess_secret : 0*/0);
@@ -1057,10 +1130,20 @@ int PPSession::DispatchNgxRequest(void * pReq, const void * pCfg)
 		ngx_http_request_t * p_ngx_req = static_cast<ngx_http_request_t *>(pReq);
 		SString temp_buf;
 		SString rtsid;
-		GetHttpReqRtsId(p_ngx_req, rtsid);
+		SString stq_dbsymb;
+		//SBinaryChunk stq_svc_ident;
+		SBinaryChunk query_svc_ident; // Идент сервиса полученный из http-запроса
+		GetHttpReqRtsId(p_ngx_req, rtsid, query_svc_ident);
+		/*{
+			StyloQProtocol stqprot;
+			SBinaryChunk secret_empty;
+			if(GetStyloQProtocolPacketFromNgxReq(p_ngx_req, stqprot, secret_empty)) {
+				DetermineDbSymbBySvcIdentInStqProtocolPacket(stqprot, stq_svc_ident, stq_dbsymb);
+			}
+		}*/
 		thread_count = ThreadList.GetCount(PPThread::kWorkerSession);
 		while(!p_thread) {
-			p_thread = static_cast<PPWorkingPipeSession *>(ThreadList.SearchByOuterSignature(PPThread::kWorkerSession, rtsid));
+			p_thread = static_cast<PPWorkingPipeSession *>(ThreadList.SearchByOuterSignature(PPThread::kWorkerSession, rtsid, query_svc_ident));
 			if(p_thread) {
 				p_thread->SetOuterSignature(rtsid);
 			}

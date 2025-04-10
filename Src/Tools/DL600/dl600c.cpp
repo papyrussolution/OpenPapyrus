@@ -4758,6 +4758,7 @@ int DlContext::Write_UiView(const DlScope * pScope, uint indentTabCount, SString
 		{
 			uint32 vk = 0;
 			CtmExprConst c_vk = pScope->GetConst(DlScope::cuifViewKind);
+			//cuifCtrlText
 			if(!!c_vk) {
 				if(GetConstData(c_vk, c_buf, sizeof(c_buf))) {
 					vk = *reinterpret_cast<const uint32 *>(c_buf);
@@ -4768,12 +4769,43 @@ int DlContext::Write_UiView(const DlScope * pScope, uint indentTabCount, SString
 				UiItemKind::GetSymbById(vk, temp_buf);
 				rOutBuf.Space().Cat(temp_buf);
 			}
+			{
+				{
+					CtmExprConst __c = pScope->GetConst(DlScope::cuifCtrlText);
+					if(!!__c) {
+						memzero(c_buf, sizeof(c_buf));
+						if(GetConstData(__c, c_buf, sizeof(c_buf))) {
+							rOutBuf.CR().Tab_(indentTabCount+1).Cat("text").CatDiv(':', 2).Cat(reinterpret_cast<const char *>(c_buf));
+						}
+					}
+				}
+				{
+					CtmExprConst __c = pScope->GetConst(DlScope::cuifCtrlRect);
+					if(!!__c) {
+						memzero(c_buf, sizeof(c_buf));
+						if(GetConstData(__c, c_buf, sizeof(c_buf))) {
+							const UiRelRect * p_rect = reinterpret_cast<const UiRelRect *>(c_buf);
+							temp_buf.Z();
+							_RectToLine(*p_rect, temp_buf);
+							rOutBuf.CR().Tab_(indentTabCount+1).Cat("rect").CatDiv(':', 2).Cat(temp_buf);
+						}
+					}
+				}
+				{
+					//cuiRect
+				}
+			}
 		}
 		{
 			CtmExprConst c_lb = pScope->GetConst(DlScope::cuifLayoutBlock);
 			if(!!c_lb) {
 				if(GetConstData(c_lb, c_buf, sizeof(c_buf))) {
 					const SUiLayoutParam * p_lp = reinterpret_cast<const SUiLayoutParam *>(c_buf);
+					float x1 = p_lp->GetAbsoluteLowX();
+					float y1 = p_lp->GetAbsoluteLowY();
+					float sx = p_lp->GetAbsoluteSizeX();
+					float sy = p_lp->GetAbsoluteSizeY();
+
 					debug_mark = true;
 				}
 			}

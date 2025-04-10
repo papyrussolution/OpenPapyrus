@@ -7305,6 +7305,7 @@ filter PrcssrAptekaRu            { "@{filter_prcssraptekaru}" } // @v12.2.1
 filter PrcssrClientActivityStatistics { "@{filter_prcssrclientactivitystatistics}" } // @v12.2.2
 view   ClientActivityDetails { "@{view_clientactivitydetails}" } // @v12.2.8
 filter PrcssrSourceCodeMaintaining  { "@{filter_prcssrsourcecodemaintaining}" } // @v12.2.10
+filter StyloQTestCmdParam           { "@{filter_styloqtestcmdparam}" } // @v12.3.1
 //
 // lastviewfilter ATTENTION: put new VIEWS and FILTERS before this line!
 //

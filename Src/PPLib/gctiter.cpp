@@ -1,5 +1,6 @@
 // GCTITER.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2020, 2021, 2024
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2020, 2021, 2024, 2025
+// @codepage UTF-8
 // @Kernel
 // GCTIterator
 //
@@ -423,7 +424,7 @@ GCTIterator::GCTIterator(const GCTFilt * pFilt, const DateRange * pDRange) : Sta
 	}
 	if(Filt.SupplAgentID) {
 		BT->GetBillListByExt(Filt.SupplAgentID, 0L, SupplAgentBillList);
-		// @v8.1.0 (ñîðòèðîâêó òåïåðü âûïîëíÿåò GetBillListByExt) SupplAgentBillList.sort();
+		// @v8.1.0 (ÑÐ¾Ñ€Ñ‚Ð¸Ñ€Ð¾Ð²ÐºÑƒ Ñ‚ÐµÐ¿ÐµÑ€ÑŒ Ð²Ñ‹Ð¿Ð¾Ð»Ð½ÑÐµÑ‚ GetBillListByExt) SupplAgentBillList.sort();
 	}
 	{
 		PPIDArray op_list;
@@ -644,8 +645,8 @@ int GCTIterator::InitQuery(int cpMode)
 				BillList.sort();
 				if(!cpMode && P_GoodsRestList) {
 					//
-					// Åñëè íåîáõîäèìî àêêóìóëèðîâàòü òîâàðíûå îñòàòêè ïî äàòàì, òî ïðèäåòñÿ ïåðåáèðàòü âñå îïåðàöèè,
-					// à íå òîëüêî ïî çàäàííûì äîêóìåíòàì
+					// Ð•ÑÐ»Ð¸ Ð½ÐµÐ¾Ð±Ñ…Ð¾Ð´Ð¸Ð¼Ð¾ Ð°ÐºÐºÑƒÐ¼ÑƒÐ»Ð¸Ñ€Ð¾Ð²Ð°Ñ‚ÑŒ Ñ‚Ð¾Ð²Ð°Ñ€Ð½Ñ‹Ðµ Ð¾ÑÑ‚Ð°Ñ‚ÐºÐ¸ Ð¿Ð¾ Ð´Ð°Ñ‚Ð°Ð¼, Ñ‚Ð¾ Ð¿Ñ€Ð¸Ð´ÐµÑ‚ÑÑ Ð¿ÐµÑ€ÐµÐ±Ð¸Ñ€Ð°Ñ‚ÑŒ Ð²ÑÐµ Ð¾Ð¿ÐµÑ€Ð°Ñ†Ð¸Ð¸,
+					// Ð° Ð½Ðµ Ñ‚Ð¾Ð»ÑŒÐºÐ¾ Ð¿Ð¾ Ð·Ð°Ð´Ð°Ð½Ð½Ñ‹Ð¼ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ð°Ð¼
 					//
 					ByWhat_ = bwNone;
 					CurrID = 0;
@@ -787,7 +788,7 @@ int GCTIterator::AcceptTrfrRec(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBill
 					pTrfrRec->Quantity = 0.0;
 					pBillRec->Amount   = 0.0;
 					if(article_notvalid)
-						pBillRec->Object = Filt.ArList.GetSingle(); // Çäåñü ïðèñâàèâàåì êîíòðàãåíòà (âîçìîæíî ãðóïïèðóþùåãî) èç ôèëüòðà
+						pBillRec->Object = Filt.ArList.GetSingle(); // Ð—Ð´ÐµÑÑŒ Ð¿Ñ€Ð¸ÑÐ²Ð°Ð¸Ð²Ð°ÐµÐ¼ ÐºÐ¾Ð½Ñ‚Ñ€Ð°Ð³ÐµÐ½Ñ‚Ð° (Ð²Ð¾Ð·Ð¼Ð¾Ð¶Ð½Ð¾ Ð³Ñ€ÑƒÐ¿Ð¿Ð¸Ñ€ÑƒÑŽÑ‰ÐµÐ³Ð¾) Ð¸Ð· Ñ„Ð¸Ð»ÑŒÑ‚Ñ€Ð°
 					if(goods_notvalid)
 						pTrfrRec->GoodsID = NZOR(Filt.GoodsID, Filt.GoodsGrpID);
 				}
@@ -848,7 +849,7 @@ int GCTIterator::AcceptCpTrfrRec(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBi
 			PPObjBill * p_bobj = BillObj;
 			PPBillExt ext_rec;
 			const bool article_notvalid = !ArList.CheckID(pBillRec->Object);
-			const bool goods_notvalid = (Filt.GoodsID && labs(Filt.GoodsID) != goods_id || (State & stUseGoodsList) && !goods_found); // @todo Íàäî ïåðåïðîâåðèòü ýòîò îïåðàòîð!
+			const bool goods_notvalid = (Filt.GoodsID && labs(Filt.GoodsID) != goods_id || (State & stUseGoodsList) && !goods_found); // @todo ÐÐ°Ð´Ð¾ Ð¿ÐµÑ€ÐµÐ¿Ñ€Ð¾Ð²ÐµÑ€Ð¸Ñ‚ÑŒ ÑÑ‚Ð¾Ñ‚ Ð¾Ð¿ÐµÑ€Ð°Ñ‚Ð¾Ñ€!
 			bool   agent_notvalid = false;
 			if(Filt.Flags & OPG_BYZEROAGENT) {
 				if(p_bobj->FetchExt(bill_id, &ext_rec) > 0 && ext_rec.AgentID != 0)
@@ -881,7 +882,7 @@ int GCTIterator::AcceptCpTrfrRec(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBi
 				pTrfrRec->Quantity = 0.0;
 				pBillRec->Amount   = 0.0;
 				if(article_notvalid)
-					pBillRec->Object = Filt.ArList.GetSingle(); // Çäåñü ïðèñâàèâàåì êîíòðàãåíòà (âîçìîæíî ãðóïïèðóþùåãî) èç ôèëüòðà
+					pBillRec->Object = Filt.ArList.GetSingle(); // Ð—Ð´ÐµÑÑŒ Ð¿Ñ€Ð¸ÑÐ²Ð°Ð¸Ð²Ð°ÐµÐ¼ ÐºÐ¾Ð½Ñ‚Ñ€Ð°Ð³ÐµÐ½Ñ‚Ð° (Ð²Ð¾Ð·Ð¼Ð¾Ð¶Ð½Ð¾ Ð³Ñ€ÑƒÐ¿Ð¿Ð¸Ñ€ÑƒÑŽÑ‰ÐµÐ³Ð¾) Ð¸Ð· Ñ„Ð¸Ð»ÑŒÑ‚Ñ€Ð°
 				if(goods_notvalid)
 					pTrfrRec->GoodsID = NZOR(Filt.GoodsID, Filt.GoodsGrpID);
 			}
@@ -1173,7 +1174,7 @@ int GCTIterator::NextCpTrfr(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRec
 					PPObjBill * p_bobj = BillObj;
 					PPBillExt ext_rec;
 					const bool article_notvalid = !ArList.CheckID(pBillRec->Object);
-					const bool goods_notvalid = (Filt.GoodsID && labs(Filt.GoodsID) != goods_id || (State & stUseGoodsList) && !goods_found); // @todo Ïåðåïðîâåðèòü óñëîâèå (ñìóùàåò || áåç ñêîáîê)
+					const bool goods_notvalid = (Filt.GoodsID && labs(Filt.GoodsID) != goods_id || (State & stUseGoodsList) && !goods_found); // @todo ÐŸÐµÑ€ÐµÐ¿Ñ€Ð¾Ð²ÐµÑ€Ð¸Ñ‚ÑŒ ÑƒÑÐ»Ð¾Ð²Ð¸Ðµ (ÑÐ¼ÑƒÑ‰Ð°ÐµÑ‚ || Ð±ÐµÐ· ÑÐºÐ¾Ð±Ð¾Ðº)
 					bool  agent_notvalid = false;
 					if(Filt.Flags & OPG_BYZEROAGENT) {
 						if(p_bobj->FetchExt(bill_id, &ext_rec) > 0 && ext_rec.AgentID != 0)
@@ -1206,7 +1207,7 @@ int GCTIterator::NextCpTrfr(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRec
 						pTrfrRec->Quantity = 0.0;
 						pBillRec->Amount   = 0.0;
 						if(article_notvalid)
-							pBillRec->Object = Filt.ArList.GetSingle(); // Çäåñü ïðèñâàèâàåì êîíòðàãåíòà (âîçìîæíî ãðóïïèðóþùåãî) èç ôèëüòðà
+							pBillRec->Object = Filt.ArList.GetSingle(); // Ð—Ð´ÐµÑÑŒ Ð¿Ñ€Ð¸ÑÐ²Ð°Ð¸Ð²Ð°ÐµÐ¼ ÐºÐ¾Ð½Ñ‚Ñ€Ð°Ð³ÐµÐ½Ñ‚Ð° (Ð²Ð¾Ð·Ð¼Ð¾Ð¶Ð½Ð¾ Ð³Ñ€ÑƒÐ¿Ð¿Ð¸Ñ€ÑƒÑŽÑ‰ÐµÐ³Ð¾) Ð¸Ð· Ñ„Ð¸Ð»ÑŒÑ‚Ñ€Ð°
 						if(goods_notvalid)
 							pTrfrRec->GoodsID = NZOR(Filt.GoodsID, Filt.GoodsGrpID);
 					}

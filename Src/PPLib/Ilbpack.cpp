@@ -86,19 +86,19 @@ void FASTCALL ILTI::Init(const PPTransferItem * pTi)
 struct _LotCmp { // @flat
 	_LotCmp & init(uint p, const ReceiptTbl::Rec * pLotRec, double cost, double price)
 	{
-		pos = p;
-		lot = pLotRec->ID;
-		cost_diff  = (cost  != 0.0) ? fabs(cost  - R5(pLotRec->Cost))  : 0.0;
-		price_diff = (price != 0.0) ? fabs(price - R5(pLotRec->Price)) : 0.0;
+		Pos = p;
+		LotID = pLotRec->ID;
+		CostDiff  = (cost  != 0.0) ? fabs(cost  - R5(pLotRec->Cost))  : 0.0;
+		PriceDiff = (price != 0.0) ? fabs(price - R5(pLotRec->Price)) : 0.0;
 		return *this;
 	}
-	uint   pos;
-	PPID   lot;
-	double cost_diff;
-	double price_diff;
+	uint   Pos;
+	PPID   LotID;
+	double CostDiff;
+	double PriceDiff;
 };
 
-IMPL_CMPFUNC(_LotCmp, p1, p2) { RET_CMPCASCADE3(static_cast<const _LotCmp *>(p1), static_cast<const _LotCmp *>(p2), cost_diff, price_diff, pos); }
+IMPL_CMPFUNC(_LotCmp, p1, p2) { RET_CMPCASCADE3(static_cast<const _LotCmp *>(p1), static_cast<const _LotCmp *>(p2), CostDiff, PriceDiff, Pos); }
 
 int PPObjBill::OrderLots(const PPBillPacket * pPack, PPIDArray * pLots, PPID genGoodsID, double cost, double price, double qtty)
 {
@@ -120,13 +120,13 @@ int PPObjBill::OrderLots(const PPBillPacket * pPack, PPIDArray * pLots, PPID gen
 					continue;
 			THROW(trfr->GetLotPrices(&lot_rec, pPack->Rec.Dt));
 			THROW_SL(_lots.ordInsert(&lc.init(i, &lot_rec, cost, price), 0, PTR_CMPFUNC(_LotCmp)));
-			if(lc.cost_diff == 0 && lc.price_diff == 0)
+			if(lc.CostDiff == 0.0 && lc.PriceDiff == 0.0)
 				qtty += rest;
 		}
    	}
 	pLots->clear();
 	for(i = 0; i < _lots.getCount(); i++)
-		THROW_SL(pLots->add(_lots.at(i).lot));
+		THROW_SL(pLots->add(_lots.at(i).LotID));
 	CATCHZOK
 	return ok;
 }
@@ -170,25 +170,21 @@ int PPObjBill::Helper_ConvertILTI_Subst(ILTI * ilti, PPBillPacket * pPack, LongA
 	const  PPID  loc_id = pPack->Rec.LocID;
 	LotArray lot_list;
 	SVector cgla(sizeof(CmpGenLots));
-	int    do_optimize_lots = /*BIN(flags & CILTIF_OPTMZLOTS)*/0; // Оптимизация лотов заблокирована потому что из-за нее нарушается балансировка использования подстановок
+	const bool do_optimize_lots = /*LOGIC(flags & CILTIF_OPTMZLOTS)*/false; // Оптимизация лотов заблокирована потому что из-за нее нарушается балансировка использования подстановок
 	const PPIDArray * p_spc_list = pGra ? pGra->GetSpecialSubstGoodsList() : 0;
 	if(p_spc_list) {
 		PPGoodsTaxEntry dest_gte;
+		Goods2Tbl::Rec dest_goods_rec;
+		Goods2Tbl::Rec src_goods_rec;
 		const  double dest_price = ilti->Price;
 		const  double dest_cost = ilti->Cost;
 		const  double dest_cost_mark = (dest_cost > 0.0) ? dest_cost : dest_price;
-		PPID   dest_unit_id = 0;
-		Goods2Tbl::Rec dest_goods_rec;
-		Goods2Tbl::Rec src_goods_rec;
-		if(GObj.Fetch(dest_goods_id, &dest_goods_rec) > 0)
-			dest_unit_id = dest_goods_rec.UnitID;
+		const  PPID   dest_unit_id = (GObj.Fetch(dest_goods_id, &dest_goods_rec) > 0) ? dest_goods_rec.UnitID : 0;
 		if(dest_unit_id && GObj.FetchTaxEntry2(dest_goods_id, 0/*lotID*/, 0/*taxPayerID*/, dt, pPack->Rec.OpID, &dest_gte) > 0) {
 			PPGoodsTaxEntry src_gte;
 			for(i = 0; i < p_spc_list->getCount(); i++) {
 				const  PPID src_goods_id = p_spc_list->get(i);
-				PPID   src_unit_id = 0;
-				if(GObj.Fetch(src_goods_id, &src_goods_rec) > 0)
-					src_unit_id = src_goods_rec.UnitID;
+				const  PPID src_unit_id = (GObj.Fetch(src_goods_id, &src_goods_rec) > 0) ? src_goods_rec.UnitID : 0;
 				if(src_unit_id == dest_unit_id && GObj.FetchTaxEntry2(src_goods_id, 0/*lotID*/, 0/*taxPayerID*/, dt, pPack->Rec.OpID, &src_gte) > 0 && src_gte.VAT == dest_gte.VAT) {
 					r = 0;
 					lot_list.clear();

@@ -728,6 +728,7 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData, cons
 				base_cmd_id_list.add(StyloQCommandList::sqbcIncomingListTSess); // @v11.6.5
 				// @construction base_cmd_id_list.add(StyloQCommandList::sqbcIncomingListTodo); // @v11.4.7
 				base_cmd_id_list.add(StyloQCommandList::sqbcDebtList); // @v11.5.4
+				base_cmd_id_list.add(StyloQCommandList::sqbcTest); // @v12.3.1
 				StrAssocArray basecmd_list;
 				for(uint i = 0; i < base_cmd_id_list.getCount(); i++) {
 					const long base_cmd_id = base_cmd_id_list.get(i);
@@ -822,6 +823,9 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData, cons
 						break;
 					case StyloQCommandList::sqbcDebtList: // @todo // @v11.5.4
 						break;
+					case StyloQCommandList::sqbcTest: // @v12.3.1
+						EditTestCmdFilter();
+						break;
 					default: return;
 				}
 			}
@@ -862,22 +866,12 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData, cons
 				return;
 			clearEvent(event);
 		}
-		void EditPersonEventFilter()
+		void EditTestCmdFilter()
 		{
 			const size_t sav_offs = Data.Param.GetRdOffs();
-			//PPPsnEventPacket pack;
-			StyloQPersonEventParam param;
+			StyloQTestCmdParam param;
 			SSerializeContext sctx;
 			if(Data.Param.GetAvailableSize()) {
-				//
-				/*
-				PPPsnEventPacket temp_pack;
-				bool debug_s = false;
-				if(PsnEvObj.SerializePacket(-1, &temp_pack, Data.Param, &sctx)) {
-					debug_s = true;
-				}
-				*/
-				//
 				if(param.Serialize(-1, Data.Param, &sctx)) {
 					Data.Param.SetRdOffs(sav_offs);
 				}
@@ -885,10 +879,28 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData, cons
 					Data.Param.Z();
 				}
 			}
-			//if(PsnEvObj.EditPacket(&pack, true) > 0) {
+			if(PPStyloQInterchange::Edit_TestCmdParam(param) > 0) {
+				Data.Param.Z();
+				if(param.Serialize(+1, Data.Param, &sctx)) {
+					;
+				}
+			}
+		}
+		void EditPersonEventFilter()
+		{
+			const size_t sav_offs = Data.Param.GetRdOffs();
+			StyloQPersonEventParam param;
+			SSerializeContext sctx;
+			if(Data.Param.GetAvailableSize()) {
+				if(param.Serialize(-1, Data.Param, &sctx)) {
+					Data.Param.SetRdOffs(sav_offs);
+				}
+				else {
+					Data.Param.Z();
+				}
+			}
 			if(PPStyloQInterchange::Edit_PersonEventParam(param) > 0) {
 				Data.Param.Z();
-				//if(PsnEvObj.SerializePacket(+1, &pack, Data.Param, &sctx)) {
 				if(param.Serialize(+1, Data.Param, &sctx)) {
 					;
 				}
@@ -1213,6 +1225,11 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData, cons
 					enable_viewcombo = false;
 					break;
 				case StyloQCommandList::sqbcDebtList: // @v11.5.4 // @todo
+					break;
+				case StyloQCommandList::sqbcTest: // @v12.3.1
+					enable_cmd_param = true;
+					enable_viewcmd = false;
+					enable_viewcombo = false;
 					break;
 			}
 			enableCommand(cmCmdParam, enable_cmd_param);
