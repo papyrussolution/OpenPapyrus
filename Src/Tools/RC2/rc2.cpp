@@ -1,5 +1,5 @@
 // RC2.CPP
-// Copyright (c) V.Antonov, A.Sobolev 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2016, 2017, 2019, 2020, 2021, 2023
+// Copyright (c) V.Antonov, A.Sobolev 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2016, 2017, 2019, 2020, 2021, 2023, 2025
 //
 #include <pp.h>
 #include "rc2.h"
@@ -1094,10 +1094,8 @@ int DeclareSymbList::AddSymb(int kind, const char * pSymb, long * pID)
 		if(!LastIdList.Search(kind, &last_id, 0)) {
 			if(kind == DeclareSymb::kCmd)
 				last_id = 1000;
-			// @v10.5.0 {
 			else if(kind == DeclareSymb::kDrawVector) 
 				last_id = 0x8000;
-			// } @v10.5.0 
 			else
 				last_id = 0;
 		}
@@ -1124,8 +1122,9 @@ int DeclareSymbList::AddSymb(int kind, const char * pSymb, long * pID)
 	return ok;
 }
 
-int DeclareSymbList::SearchSymb(int kind, const char * pSymb, uint * pPos)
+bool DeclareSymbList::SearchSymb(int kind, const char * pSymb, uint * pPos) const
 {
+	bool   ok = false;
 	DeclareSymb s;
 	MEMSZERO(s);
 	s.Kind = kind;
@@ -1133,13 +1132,14 @@ int DeclareSymbList::SearchSymb(int kind, const char * pSymb, uint * pPos)
 	uint pos = 0;
 	if(lsearch(&s, &pos, PTR_CMPFUNC(DeclareSymb_Symb))) {
 		ASSIGN_PTR(pPos, pos);
-		return 1;
+		ok = true;
 	}
-	return 0;
+	return ok;
 }
 
-int DeclareSymbList::SearchSymbByID(int kind, long id, char * pBuf, size_t bufLen)
+bool DeclareSymbList::SearchSymbByID(int kind, long id, char * pBuf, size_t bufLen) const
 {
+	bool   ok = false;
 	DeclareSymb s;
 	MEMSZERO(s);
 	s.Kind = kind;
@@ -1147,11 +1147,12 @@ int DeclareSymbList::SearchSymbByID(int kind, long id, char * pBuf, size_t bufLe
 	uint   pos = 0;
 	if(lsearch(&s, &pos, PTR_CMPFUNC(DeclareSymb_ID))) {
 		strnzcpy(pBuf, at(pos).Symb, bufLen);
-		return 1;
+		ok = true;
 	}
-	if(pBuf)
-		pBuf[0] = 0;
-	return 0;
+	else {
+		ASSIGN_PTR(pBuf, 0);
+	}
+	return ok;
 }
 //
 //

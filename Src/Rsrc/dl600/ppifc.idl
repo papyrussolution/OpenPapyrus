@@ -242,7 +242,7 @@ typedef struct STaggedString {
 
 [
 	object,
-	uuid(079636EB-78C6-4FF7-AFE6-744BBE06C59F)
+	uuid(109C32CC-8756-430D-B867-59765D125FF3)
 ]
 interface IEnumTaggedString : IUnknown {
 	HRESULT __stdcall Next(long celt, [out] STaggedString * pItems, [out] long * pceltFetched);
@@ -253,7 +253,7 @@ interface IEnumTaggedString : IUnknown {
 
 [
 	object,
-	uuid(10375D3A-3E0D-4549-9F08-F0EBCCAA4F33)
+	uuid(7791B69E-8902-4F2D-8B77-769E96ADEE5F)
 ]
 interface ILongList : IUnknown {
 	HRESULT __stdcall GetCount([out,retval] long * pRet);
@@ -271,7 +271,7 @@ interface ILongList : IUnknown {
 
 [
 	object,
-	uuid(397E38AB-E660-47DB-8CAB-4CFBCC8BE414)
+	uuid(A15CB3C7-F4CA-472C-BA7C-49AA364B98A1)
 ]
 interface IStrAssocList : IUnknown {
 	HRESULT __stdcall GetCount([out,retval] long * pRet);
@@ -304,7 +304,7 @@ typedef [v1_enum] enum _SFileMode {
 
 [
 	object,
-	uuid(FB7234A1-C0C9-4CB1-A776-BB5757750CEC)
+	uuid(8E01A18C-AF1E-42B7-AC36-B27667B1AEBE)
 ]
 interface ISFile : IUnknown {
 	HRESULT __stdcall Open([in] BSTR fileName, [in] SFileMode mode, [out,retval] long * pRet);
@@ -334,7 +334,7 @@ typedef struct SDbfCreateFld {
 
 [
 	object,
-	uuid(20C750CC-C2D7-4D11-8981-A283B0CE2BA5)
+	uuid(076A7660-6891-4E8B-A9D7-E7A8B074267B)
 ]
 interface ISDbfCreateFlds : IUnknown {
 	HRESULT __stdcall Add([in] SDbfCreateFld * pFld, [out,retval] long * pRet);
@@ -345,7 +345,7 @@ interface ISDbfCreateFlds : IUnknown {
 
 [
 	object,
-	uuid(C23022E3-55AA-46BE-BEEA-CE25B1CF2D14)
+	uuid(EA11A0C4-CC58-441B-9B20-46A47A1BAA74)
 ]
 interface ISDbfRecord : IUnknown {
 	HRESULT __stdcall Empty([out,retval] long * pRet);
@@ -366,7 +366,7 @@ interface ISDbfRecord : IUnknown {
 
 [
 	object,
-	uuid(59866FFD-5395-4A15-9439-2C766B425C6E)
+	uuid(54FEFFDF-6F32-4DC5-B61D-8286C84F697F)
 ]
 interface ISDbfTable : IUnknown {
 	HRESULT __stdcall Open(BSTR fileName, [out,retval] long * pRet);
@@ -433,7 +433,7 @@ typedef struct SFtpAccount {
 
 [
 	object,
-	uuid(DC61FC2A-917C-4E5D-90C7-92012020F0EB)
+	uuid(CCE3291A-512E-4DFE-96B9-80B4637FD8CF)
 ]
 interface IFtp : IUnknown {
 	HRESULT __stdcall Init([in] SFtpConfig * pCfg, [out,retval] long * pRet);
@@ -447,7 +447,7 @@ interface IFtp : IUnknown {
 };
 
 [
-	uuid(A9013A3B-2FAB-4A44-9587-7DE4341CAA91),
+	uuid(DBA67148-1F43-41F7-8D90-58584FF78A10),
 	version(1.0)
 ]
 library PapyrusInterfaceLib {
@@ -495,7 +495,7 @@ library PapyrusInterfaceLib {
 
 	[
 		object,
-		uuid(428700C3-29F0-48BD-82D1-447BA86BCE4C)
+		uuid(89EB11FD-5C08-4C1C-A7EF-7D77428BCACD)
 	]
 	interface INaturalTokenArray : IUnknown {
 		HRESULT __stdcall Has([in] SNTok t, [out,retval] double * pRet);
@@ -503,7 +503,7 @@ library PapyrusInterfaceLib {
 
 	[
 		object,
-		uuid(429799E3-CB3E-47CE-883F-A4E96235E7AB)
+		uuid(DD5ECCE9-618E-4BEF-AAE7-55BCBAC033DB)
 	]
 	interface INaturalTokenRecognizer : IUnknown {
 		HRESULT __stdcall Run([in] BSTR text, [in] long len, [out,retval] INaturalTokenArray ** pRet);
@@ -511,7 +511,7 @@ library PapyrusInterfaceLib {
 
 	[
 		object,
-		uuid(C773ADA5-24E3-4BC1-B4A0-AACB0C6A20DD)
+		uuid(3CADB265-8E7E-4107-9ECE-4F067D9F400A)
 	]
 	interface IPapyrusTextAnalyzer : IUnknown {
 		HRESULT __stdcall Init([in] BSTR ruleFileName, [out,retval] long * pRet);
@@ -630,7 +630,7 @@ library PapyrusInterfaceLib {
 
 	[
 		object,
-		uuid(FF62A2FA-4553-4257-886D-5C1F5649F8BD)
+		uuid(93F44584-EA3E-4A7D-B7B9-CE0964B732EE)
 	]
 	interface IPapyrusAmountList : IUnknown {
 		HRESULT __stdcall GetCount([out,retval] long * pRet);
@@ -721,7 +721,7 @@ library PapyrusInterfaceLib {
 
 	[
 		object,
-		uuid(B1648F94-A46F-42D7-9285-B874135D46C9)
+		uuid(1A3C3B20-7360-4A04-AE08-67AC59318463)
 	]
 	interface IPapyrusUtil : IUnknown {
 		HRESULT __stdcall StrToDateRange(BSTR str, [out,retval] SDateRange * pRet);
@@ -803,7 +803,7 @@ library PapyrusInterfaceLib {
 
 	[
 		object,
-		uuid(FDF3AE23-82A3-468A-94AB-35B672987CF3)
+		uuid(9D102F7B-9DBB-488C-B2AC-E51C9DB31F51)
 	]
 	interface IPapyrusSysJournal : IUnknown {
 		HRESULT __stdcall GetCreatedObjectListSince([in] PpyObjectIdent objType, [in] DATE since, [out,retval] ILongList ** pRet);
@@ -812,7 +812,7 @@ library PapyrusInterfaceLib {
 
 	[
 		object,
-		uuid(40359C4A-F383-4E04-A414-A57562FDD527)
+		uuid(84ED2E5B-3231-4B57-BA23-78BED5CBA277)
 	]
 	interface IPapyrusDL200Resolver : IUnknown {
 		HRESULT __stdcall SetPeriod(SDateRange * pPeriod, [out,retval] long * pRet);
@@ -822,7 +822,7 @@ library PapyrusInterfaceLib {
 
 	[
 		object,
-		uuid(C81A81E9-B116-4B5E-BE06-4688BFCC5D9A)
+		uuid(C35CB132-1045-4F1D-A46C-C0A9C85AEC3B)
 	]
 	interface IPapyrusObject : IUnknown {
 		HRESULT __stdcall Search(long id, [out] PPYOBJREC rec, [out,retval] long * pRet);
@@ -877,7 +877,7 @@ library PapyrusInterfaceLib {
 
 	[
 		object,
-		uuid(BCC3ED25-AA5E-4559-8E62-23276D830BEC)
+		uuid(A1DD132D-9994-4CA0-9FA0-920C84F8049D)
 	]
 	interface IPapyrusQuot : IUnknown {
 		[propget]
@@ -915,7 +915,7 @@ library PapyrusInterfaceLib {
 
 	[
 		object,
-		uuid(D2C1AA1A-A61F-4218-BD1B-96118FA1E1A2)
+		uuid(39B2C87F-25AB-481F-A42B-9A10BBD293F8)
 	]
 	interface IPapyrusRtlPriceExtractor : IUnknown {
 		HRESULT __stdcall Init(long locID, long extQuotKindID, PpyRtlPriceFlags flags, [out,retval] long * pRet);
@@ -924,7 +924,7 @@ library PapyrusInterfaceLib {
 
 	[
 		object,
-		uuid(C06B14CA-32C5-43A5-BFEC-ADCDFB59FD9A)
+		uuid(F819AC4B-7195-453E-84A1-2A7FEA8F18CE)
 	]
 	interface IPapyrusView : IUnknown {
 		HRESULT __stdcall CreateFilt(long param, [out,retval] IUnknown ** pRet);
@@ -971,7 +971,7 @@ library PapyrusInterfaceLib {
 
 	[
 		object,
-		uuid(5C1F8014-504E-4C9F-9CE7-89B50DD4C39F)
+		uuid(31910DA4-1D98-436C-A6A1-907278EB4FE4)
 	]
 	interface IPapyrusSession : IUnknown {
 		HRESULT __stdcall GetDatabaseList(long nameKind, [out,retval] IStrAssocList ** pRet);
@@ -1287,7 +1287,7 @@ library PapyrusInterfaceLib {
 
 	[
 		object,
-		uuid(04BF9269-0025-4D8B-B017-256BBCAAFB3F)
+		uuid(06F786AD-4CC0-49CC-91CC-440C83952AD5)
 	]
 	interface IPapyrusObjOprKind : IUnknown {
 		HRESULT __stdcall GetDraftExData(long opID, [out] SPpyO_DraftOpEx * pData, [out,retval] long * pRet);
@@ -1445,7 +1445,7 @@ library PapyrusInterfaceLib {
 
 	[
 		object,
-		uuid(085EB695-B04F-4DDF-8C2D-E75E6316129A)
+		uuid(5A2FB88F-AA5D-48DF-AB61-E8DD0396E7D2)
 	]
 	interface IPapyrusObjCurrency : IUnknown {
 		HRESULT __stdcall GetConfig([out] PpyOCurrencyCfg * pCfg, [out,retval] long * pRet);
@@ -1608,7 +1608,7 @@ library PapyrusInterfaceLib {
 
 	[
 		object,
-		uuid(91A8A57E-1B92-43AC-93F8-FF80943DEA7E)
+		uuid(EB3CCDA4-E622-4A88-BAC8-E9593A7CC763)
 	]
 	interface IPapyrusObjGoods : IUnknown {
 		HRESULT __stdcall GetBarcodes(long goodsID, [out,retval] IStrAssocList ** pRet);
@@ -1631,7 +1631,7 @@ library PapyrusInterfaceLib {
 
 	[
 		object,
-		uuid(D798B5EC-3568-4647-94FB-8D246CCD8124)
+		uuid(25929F6D-2DAD-45B2-B6F7-8214EA7DA4A8)
 	]
 	interface IPapyrusObjGoodsGroup : IUnknown {
 		HRESULT __stdcall GetGGroupsFromAltGrp(long altGrpID, [out,retval] IStrAssocList ** pRet);
@@ -1699,7 +1699,7 @@ library PapyrusInterfaceLib {
 
 	[
 		object,
-		uuid(FC9E13E7-36BC-4A7F-8ADC-33051E5ED2EF)
+		uuid(276C61CD-BA3E-40C8-976F-3EA9BA671F60)
 	]
 	interface ILocAddrStruc : IUnknown {
 		HRESULT __stdcall Recognize(BSTR addr, [out,retval] long * pRet);
@@ -1740,7 +1740,7 @@ library PapyrusInterfaceLib {
 
 	[
 		object,
-		uuid(4CE3CC07-E735-4B32-AA99-0C571358A8E3)
+		uuid(7E24C89D-1B65-493A-AA13-9F0393AF0A0F)
 	]
 	interface IPapyrusObjLocation : IUnknown {
 		HRESULT __stdcall GetAddress(long locID, [out,retval] BSTR * pRet);
@@ -1776,7 +1776,7 @@ library PapyrusInterfaceLib {
 
 	[
 		object,
-		uuid(99C599C8-35A4-4289-93FE-D2091875C9FA)
+		uuid(CA8FA08A-08B9-414D-AA86-507397A0B6BF)
 	]
 	interface IFias : IUnknown {
 		HRESULT __stdcall SearchAddr([in] long id, [out] SPpyO_FiasAddr * pRec, [out,retval] long * pRet);
@@ -1819,7 +1819,7 @@ library PapyrusInterfaceLib {
 
 	[
 		object,
-		uuid(3C514439-E9B6-42A2-9F5C-16F4E7A23D37)
+		uuid(0152C685-0474-4C1E-8B64-BA7429C1CD9C)
 	]
 	interface IPapyrusObjPerson : IUnknown {
 		HRESULT __stdcall GetLoc(long personID, long getRLoc, SPpyO_Location * pLoc, [out,retval] long * pRet);
@@ -2069,7 +2069,7 @@ library PapyrusInterfaceLib {
 
 	[
 		object,
-		uuid(A6AD32BE-8E89-4FCD-8BDC-40ED080EEF18)
+		uuid(6F0FB8B7-5691-4FF1-9207-F0E2CB1A71A9)
 	]
 	interface ICompleteList : IUnknown {
 		HRESULT __stdcall Clear();
@@ -2079,7 +2079,7 @@ library PapyrusInterfaceLib {
 
 	[
 		object,
-		uuid(77E8E15F-6AF3-4555-93FE-2A76689F4D5F)
+		uuid(4B4E20A3-75D2-4409-B7D7-B576DDF08497)
 	]
 	interface IPapyrusBillPacket : IUnknown {
 		HRESULT __stdcall Init([out,retval] long * pRet);
@@ -2178,7 +2178,7 @@ library PapyrusInterfaceLib {
 
 	[
 		object,
-		uuid(4A8491A3-DC20-4220-9B19-AF2D496B6CA0)
+		uuid(DC62CCFE-76B6-48C5-833E-BAA4327F23DE)
 	]
 	interface ILotList : IUnknown {
 		HRESULT __stdcall GetCount([out,retval] long * pRet);
@@ -2194,7 +2194,7 @@ library PapyrusInterfaceLib {
 
 	[
 		object,
-		uuid(DD4B3825-3F3C-4AF9-8810-521ABF09D797)
+		uuid(4259BF9D-4C18-410C-8852-3EE2CAAD3615)
 	]
 	interface IPapyrusObjBill : IUnknown {
 		HRESULT __stdcall EnumBillRows(long billID, SPpyO_TrfrItem * pRow, [out,retval] long * pRet);
@@ -2251,7 +2251,7 @@ library PapyrusInterfaceLib {
 
 	[
 		object,
-		uuid(0858333C-7DF9-44E5-A65B-3BC93375B2AE)
+		uuid(03DA014D-DEDE-4B67-B443-C0882FBE3542)
 	]
 	interface IPapyrusObjRegister : IUnknown {
 		HRESULT __stdcall SearchByNumber(long regTypeID, BSTR rSn, BSTR rNmbr, [out] SPpyO_Register * pRegister, [out,retval] long * pRet);
@@ -2291,7 +2291,7 @@ library PapyrusInterfaceLib {
 
 	[
 		object,
-		uuid(802629BF-DF9C-462D-A9FF-2614E7D19919)
+		uuid(B889F87D-D593-43FD-9F67-4719134EBA96)
 	]
 	interface IPapyrusPersonRelTypePacket : IUnknown {
 		HRESULT __stdcall Init([out,retval] long * pRet);
@@ -2303,7 +2303,7 @@ library PapyrusInterfaceLib {
 
 	[
 		object,
-		uuid(2AD5332A-1982-4EA1-BAC9-F38EF508C4DB)
+		uuid(AD98FA91-2E3C-4C1D-A6B1-F0540FDE1501)
 	]
 	interface IPapyrusObjPersonRelType : IUnknown {
 		HRESULT __stdcall CreatePacket([out,retval] IPapyrusPersonRelTypePacket ** pRet);
@@ -2609,7 +2609,7 @@ library PapyrusInterfaceLib {
 
 	[
 		object,
-		uuid(CC8B4FFB-7079-484D-9C79-6106E4FE11E2)
+		uuid(D99A7FAA-4416-4A2D-9E17-5B9CC9073987)
 	]
 	interface IPapyrusObjSCard : IUnknown {
 		HRESULT __stdcall GetPacket([in] long id, SPpyO_SCard * pPack, [out,retval] long * pRet);
@@ -2652,7 +2652,7 @@ library PapyrusInterfaceLib {
 
 	[
 		object,
-		uuid(44676421-418B-4B25-A9AB-31A169A9F13E)
+		uuid(839CECCA-9E9F-48AC-B2CB-840371294A60)
 	]
 	interface IPpyFilt_TrfrAnlz : IUnknown {
 		HRESULT __stdcall SetPeriod(DATE low, DATE upp);
@@ -2799,7 +2799,7 @@ library PapyrusInterfaceLib {
 
 	[
 		object,
-		uuid(BDA887FC-FAFF-44D8-8286-79829A500FDB)
+		uuid(CF5D4A68-9844-43BC-8CBC-D14FAF1B02E9)
 	]
 	interface IPapyrusTrfrAnlz : IUnknown {
 		HRESULT __stdcall InitAlcRepParam([in] SPpyV_TrfrAnlz_AlcRepParam * pParam, [out,retval] long * pRet);
@@ -2808,7 +2808,7 @@ library PapyrusInterfaceLib {
 
 	[
 		object,
-		uuid(CD15574E-B90E-4EFF-B5FC-9350F03156D5)
+		uuid(AB04A899-5813-44E2-9DD1-A69F90E78265)
 	]
 	interface IAlcRepOpList : IUnknown {
 		HRESULT __stdcall Init([in] long genRcpt, [in] long genRcptEtc, [in] long genRet, [in] long genSupplRet, [in] long genExp, [in] long genExpEtc, [in] long genIntrMov, [out,retval] long * pRet);
@@ -2850,7 +2850,7 @@ library PapyrusInterfaceLib {
 
 	[
 		object,
-		uuid(B2AB99BC-A403-482A-AE18-50D4FA5E887F)
+		uuid(F227EE4F-67F9-49DE-9F71-94E288FB7E25)
 	]
 	interface IPpyFilt_CCheck : IUnknown {
 		HRESULT __stdcall SetPeriod(DATE low, DATE upp);
@@ -2995,7 +2995,7 @@ library PapyrusInterfaceLib {
 
 	[
 		object,
-		uuid(F6F5F1E9-3485-411A-AC4D-6CCCC80AFD1A)
+		uuid(0F66ACAE-E7C2-4716-A79F-269F44AFC83E)
 	]
 	interface IPpyFilt_Lot : IUnknown {
 		HRESULT __stdcall SetPeriod(DATE low, DATE upp);
@@ -3147,7 +3147,7 @@ library PapyrusInterfaceLib {
 
 	[
 		object,
-		uuid(9B80C894-36AE-44D8-82BD-15C04622665E)
+		uuid(E37494F3-1086-494E-BC97-6F3083C53F3D)
 	]
 	interface IPpyFilt_Goods : IUnknown {
 		HRESULT __stdcall SetLotPeriod(DATE low, DATE upp);
@@ -3316,7 +3316,7 @@ library PapyrusInterfaceLib {
 
 	[
 		object,
-		uuid(09819E4D-E52E-41C7-BC1A-EC5A9EEB45C1)
+		uuid(01D89BE0-EF38-4B08-8B76-0E2E3D745AE0)
 	]
 	interface IPpyFilt_GoodsStruc : IUnknown {
 		[propget]
@@ -3425,7 +3425,7 @@ library PapyrusInterfaceLib {
 
 	[
 		object,
-		uuid(A5278F55-C716-465A-A910-B81A878E5B19)
+		uuid(CE9B1A4C-992F-498C-A137-7846B8A371E0)
 	]
 	interface IPpyFilt_GoodsRest : IUnknown {
 		HRESULT __stdcall SetPrgnPeriod(DATE low, DATE upp);
@@ -3579,7 +3579,7 @@ library PapyrusInterfaceLib {
 
 	[
 		object,
-		uuid(66769748-7F22-4078-9145-D1482317B7CB)
+		uuid(A081FC79-FC48-4967-AE98-296C018B4631)
 	]
 	interface IPpyFilt_Bill : IUnknown {
 		HRESULT __stdcall SetPeriod(DATE low, DATE upp);
@@ -3815,7 +3815,7 @@ library PapyrusInterfaceLib {
 
 	[
 		object,
-		uuid(32B73240-5AED-4EFC-B6B8-B551C6E822F6)
+		uuid(4434B77E-B464-4C01-890D-1710B96AF56B)
 	]
 	interface IPpyFilt_GoodsOpAnlz : IUnknown {
 		HRESULT __stdcall AddBillID(long id);
@@ -3922,7 +3922,7 @@ library PapyrusInterfaceLib {
 
 	[
 		object,
-		uuid(80CF9697-E603-4406-9A8D-EC62566CF3B2)
+		uuid(1D481A2F-F4EC-4C0B-A509-B547383B0F0C)
 	]
 	interface IPpyFilt_TSession : IUnknown {
 		HRESULT __stdcall SetStPeriod(DATE low, DATE upp);
@@ -4020,7 +4020,7 @@ library PapyrusInterfaceLib {
 
 	[
 		object,
-		uuid(6A8D80B8-9CFE-4132-AC9D-8869A0627797)
+		uuid(454AF5DC-54BF-4619-9714-64CAA4CA5230)
 	]
 	interface IPpyFilt_PrjTask : IUnknown {
 		HRESULT __stdcall SetPeriod(DATE low, DATE upp);
@@ -4148,7 +4148,7 @@ library PapyrusInterfaceLib {
 
 	[
 		object,
-		uuid(10E19D3B-C520-44A4-BB51-2BA8303C2864)
+		uuid(13295967-3C82-4070-86DA-046603AFAEB2)
 	]
 	interface IPpyFilt_Project : IUnknown {
 		HRESULT __stdcall SetStartPeriod(DATE low, DATE upp);
@@ -4219,7 +4219,7 @@ library PapyrusInterfaceLib {
 
 	[
 		object,
-		uuid(99A90A03-CE54-4C0D-91EB-28EA48C6C2EB)
+		uuid(49341FE6-0835-4990-ADDC-752ECFCE1E75)
 	]
 	interface IPpyFilt_OpGrouping : IUnknown {
 		HRESULT __stdcall SetPeriod(DATE low, DATE upp);
@@ -4352,7 +4352,7 @@ library PapyrusInterfaceLib {
 
 	[
 		object,
-		uuid(F43D1D16-1C84-4FA1-88EB-E28B2BC6F10C)
+		uuid(185836D1-CDCD-434E-843A-0257CC1BE8C0)
 	]
 	interface IPpyFilt_DebtTrnovr : IUnknown {
 		HRESULT __stdcall SetPeriod(DATE low, DATE upp);
@@ -4482,7 +4482,7 @@ library PapyrusInterfaceLib {
 
 	[
 		object,
-		uuid(2452EE41-D912-48A3-B2F2-D0B0021589FE)
+		uuid(474510F8-12E5-4693-9283-82827E4EF5B3)
 	]
 	interface IPpyFilt_LotOp : IUnknown {
 		[propget]
@@ -4561,7 +4561,7 @@ library PapyrusInterfaceLib {
 
 	[
 		object,
-		uuid(30C70AAD-23D3-44B0-96AD-232EA721EB3D)
+		uuid(6A7CDA9B-23DD-4BF9-A6AA-B0664FC251BE)
 	]
 	interface IPrcssrAlcReport : IUnknown {
 		HRESULT __stdcall Init([out,retval] long * pRet);
@@ -4636,7 +4636,7 @@ library PapyrusInterfaceLib {
 
 	[
 		object,
-		uuid(9CBADF24-A82B-496C-A712-CA6CD5FEC597)
+		uuid(68FFCC49-30D9-4CC9-98C4-CAA221A7DDE1)
 	]
 	interface ICCheckPacket : IUnknown {
 		HRESULT __stdcall Init([out,retval] long * pRet);
@@ -4653,7 +4653,7 @@ library PapyrusInterfaceLib {
 
 	[
 		object,
-		uuid(FC3B2FE7-6A83-4D1E-88D0-CC71248F8483)
+		uuid(FC7F8099-E42C-4F87-9A69-9764F9911B0C)
 	]
 	interface IPapyrusObjCCheck : IUnknown {
 		HRESULT __stdcall Search([in] long id, [out] SPpyO_CCheck * pRec, [out,retval] long * pRet);
@@ -4672,7 +4672,7 @@ library PapyrusInterfaceLib {
 
 	[
 		object,
-		uuid(38DD82C0-2EF1-4819-A3CC-82F743EB9059)
+		uuid(535AA2C6-D7BF-42F8-8B3C-66DEDA40481D)
 	]
 	interface IUhttGoodsProcessor : IUnknown {
 		HRESULT __stdcall Init([out,retval] long * pRet);
@@ -4683,7 +4683,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(A09E3337-7A9A-4FDE-8D05-928217CE4176),
+		uuid(06AC52F5-76AA-4DBA-AD34-60A5C4EE6CFD),
 		version(1.0)
 	]
 	coclass PapyrusTextAnalyzer {
@@ -4692,7 +4692,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(EF3AD699-AC52-4249-91F3-CCBA49A69647),
+		uuid(8ED53236-C9E4-45B6-B79A-44787334B33B),
 		version(1.0)
 	]
 	coclass UhttGoodsProcessor {
@@ -4701,7 +4701,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(5B0E02E8-E798-4366-9B08-1B324E8C9BA0)
+		uuid(AAB78A9D-19D5-43D6-B705-A68E4D45B748)
 	]
 	coclass StrAssocList {
 		interface IStrAssocList;
@@ -4709,7 +4709,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(E8191E79-0F59-4FB2-A069-3D82F66C1D3A)
+		uuid(0DFD291D-696C-47D2-BF88-33BC8D9B124F)
 	]
 	coclass CompleteList {
 		interface ICompleteList;
@@ -4717,7 +4717,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(F91BDE6C-5033-41C4-93BB-CFFE098115F1)
+		uuid(7CF12BCB-74E4-4B3E-8BC8-9DB0FD169608)
 	]
 	coclass NaturalTokenArray {
 		[default] interface INaturalTokenArray;
@@ -4725,7 +4725,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(7B09CF87-452B-487A-ADDE-88174935AC0A)
+		uuid(24DA0004-40FF-4F69-AD28-6047785F05B9)
 	]
 	coclass NaturalTokenRecognizer {
 		[default] interface INaturalTokenRecognizer;
@@ -4733,7 +4733,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(F8A9AE4A-EDE4-4B64-9E18-DB0DCD7A121F),
+		uuid(0806399A-C9F0-42F7-A8A8-DC4EE8A00D29),
 		version(1.0)
 	]
 	coclass PPUtil {
@@ -4742,7 +4742,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(701313E8-6046-46BA-ABC9-47C9817C1813),
+		uuid(B4A78C34-83DD-46A5-B543-5C7B7F1DFA63),
 		version(1.0)
 	]
 	coclass PPRtlPriceExtractor {
@@ -4751,7 +4751,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(825A51E0-2139-419B-947B-50245AC2AB11),
+		uuid(CD30E274-7ADF-43A2-9AE3-A3DC9D98AD8B),
 		version(1.0)
 	]
 	coclass PPSFile {
@@ -4760,7 +4760,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(397A3030-498D-48F3-8D25-7F882A1979EE),
+		uuid(4890D8D2-859F-4816-A2CC-34648B95D511),
 		version(1.0)
 	]
 	coclass PPDbfCreateFlds {
@@ -4769,7 +4769,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(9DF12A00-A62A-4025-B9FB-5FE170A1141B),
+		uuid(1C4DA323-84F8-46D2-A6DE-0477D8551EFD),
 		version(1.0)
 	]
 	coclass PPDbfRecord {
@@ -4778,7 +4778,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(49D26479-B361-4F6D-A7DC-FE8703D6AEED),
+		uuid(537FDE70-B2D9-4CEE-B800-D933DBE44D8C),
 		version(1.0)
 	]
 	coclass PPDbfTable {
@@ -4787,7 +4787,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(E2CEB5D3-821C-488F-9D7C-3A11AB04ACEC),
+		uuid(C89BE776-0F95-4C1A-B64D-28D4D807A1B8),
 		version(1.0)
 	]
 	coclass PPFtp {
@@ -4796,7 +4796,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(C0B572C0-B055-4DD7-9E6B-6074E7560E3E),
+		uuid(C4202C66-889C-45E5-9807-F686E0181FFE),
 		version(1.0)
 	]
 	coclass PPSession {
@@ -4805,7 +4805,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(702CCF6B-EA94-4048-AE5D-416C91FA9B6E),
+		uuid(75057C61-0643-440E-9CB7-4C4818E9B825),
 		version(1.0)
 	]
 	coclass PPDL200Resolver {
@@ -4814,7 +4814,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(E526DF81-1578-476F-AA1A-233646316419),
+		uuid(BAF72E67-CE37-4766-B15B-D0EDE555AE23),
 		version(1.0)
 	]
 	coclass PPAmountList {
@@ -4823,7 +4823,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(0EA59307-E787-4357-B344-E027A8431AB2),
+		uuid(36058CF3-A482-4A7A-96B6-73A74F050476),
 		version(1.0),
 		hidden
 	]
@@ -4833,7 +4833,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(EB0A7D7C-CFDF-44F3-8DDD-657A525FCAA6),
+		uuid(FC21820E-99D2-4A7D-8071-855A6FE8159C),
 		version(1.0),
 		hidden
 	]
@@ -4843,7 +4843,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(9B8AF22D-A66A-4D4E-856E-F9A14466D83B),
+		uuid(B5A8DEA7-8659-478E-AA36-1F4DE3E51A72),
 		version(1.0),
 		hidden
 	]
@@ -4854,7 +4854,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(A1F3659B-CD6D-4C35-B36E-5BA22F81B30C),
+		uuid(6BB4D08F-19F3-4DC5-B716-0A373B837029),
 		version(1.0),
 		hidden
 	]
@@ -4864,7 +4864,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(5FF3C2AD-493F-46A9-A05E-F7630334AB1B),
+		uuid(0E68A4C1-3243-496D-8417-DA8AE492A255),
 		version(1.0),
 		hidden
 	]
@@ -4874,7 +4874,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(EEE0C8C2-35E3-41D5-9BE7-CDDAA034FB87),
+		uuid(19166F36-C91E-4753-96A1-FA5033C8455B),
 		version(1.0),
 		hidden
 	]
@@ -4884,7 +4884,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(4FB175D0-F5BB-4030-BB38-CBAEF017C1D5),
+		uuid(D54D1B47-77B6-4FBF-9581-4C60C6505546),
 		version(1.0),
 		hidden
 	]
@@ -4894,7 +4894,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(8C39172E-67A3-4507-9E6B-074DF9276D66),
+		uuid(39005641-DCD2-48B1-B4E4-ABB76D80288B),
 		version(1.0),
 		hidden
 	]
@@ -4904,7 +4904,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(2328E9C0-3A9F-4D00-AE1C-ED179A9ED7B6),
+		uuid(92070F3E-1AD6-4545-9E74-202BE506ADA1),
 		version(1.0),
 		hidden
 	]
@@ -4914,7 +4914,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(8681C2C6-79F1-46C5-A66B-B8EFF50FD5C2),
+		uuid(315EA99C-7687-4B26-BF11-4F8EBF10E548),
 		version(1.0),
 		hidden
 	]
@@ -4925,7 +4925,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(CDCBEF21-571C-4D23-ABE2-659D79A38F81),
+		uuid(755BD0AF-2CBF-4AF5-BBB8-7A3F116C6C50),
 		version(1.0),
 		hidden
 	]
@@ -4935,7 +4935,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(FE53F1AF-D994-4BB1-A1E7-43B75B1F3692),
+		uuid(7A662325-F3FE-4E1E-ACA5-99EAD8F552B6),
 		version(1.0),
 		hidden
 	]
@@ -4945,7 +4945,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(78CE1414-1D35-4025-BF5E-BB3816B855FD),
+		uuid(0B8912DB-8C33-4C2E-A50E-D82F8FD8723F),
 		version(1.0),
 		hidden
 	]
@@ -4956,7 +4956,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(4926428A-DCA9-4340-81DE-521B53C05480),
+		uuid(532EA21C-EA0E-4363-89EF-7D8A0BBFF766),
 		version(1.0),
 		hidden
 	]
@@ -4966,7 +4966,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(D962EFF4-BEC2-453A-9C5E-1CBA9AA324AF),
+		uuid(DAD45342-B0B0-4838-83DE-1A4893522A9D),
 		version(1.0),
 		hidden
 	]
@@ -4977,7 +4977,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(85F1CD6C-F099-4C46-B6F2-34A43EE8B251),
+		uuid(E8D17054-F5AC-45B7-AEFF-BCD7EDBEB542),
 		version(1.0),
 		hidden
 	]
@@ -4988,7 +4988,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(5FEEA1EE-B69A-43DA-9895-E0D3DA232433),
+		uuid(B5F27CBD-4183-4618-9504-830D8F6DC67F),
 		version(1.0)
 	]
 	coclass PPLocAddrStruc {
@@ -4997,7 +4997,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(F64957C8-35AC-4CCE-BD7E-412B86A72C0E),
+		uuid(6544D54C-DBE5-4215-8147-AEF58998FC2E),
 		version(1.0),
 		hidden
 	]
@@ -5008,7 +5008,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(C182937B-76BC-437B-B1E1-2A1A2F40EACD),
+		uuid(CE75B70C-BA2D-4276-B145-72BDF33CEA65),
 		version(1.0),
 		hidden
 	]
@@ -5018,7 +5018,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(E8183E9E-DD1E-4AA8-B0E7-4610965D5B19),
+		uuid(FEAAF8BE-7BC7-4CAE-A807-52934DD9181A),
 		version(1.0),
 		hidden
 	]
@@ -5029,7 +5029,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(BF6BA1E5-F025-4C53-A029-B32353D8FC50),
+		uuid(BB065E27-D91F-469E-99F6-A75FAB9F4DE4),
 		version(1.0),
 		hidden
 	]
@@ -5039,7 +5039,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(77D51566-AA77-44C9-BDBC-210A52914D64),
+		uuid(CDC1DFB9-19BC-42D2-B1C9-B8033CFD4A00),
 		version(1.0),
 		hidden
 	]
@@ -5050,7 +5050,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(F91AF223-B52B-4386-AA5D-2DBF27BBD564),
+		uuid(A0105962-C9D7-4816-A29F-F5E9A298E868),
 		version(1.0),
 		hidden
 	]
@@ -5060,7 +5060,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(78C32CDC-2434-4503-810A-6F73C814D1F1),
+		uuid(61315CE5-CD72-473D-8843-D1DF246210DC),
 		version(1.0),
 		hidden
 	]
@@ -5071,7 +5071,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(C7325B28-F2C8-4AC6-922B-A5F1ABBDA788),
+		uuid(84361EA8-40F8-4FB2-BD81-B05049306DF4),
 		version(1.0),
 		hidden
 	]
@@ -5081,7 +5081,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(A3D40BB7-1C43-40D3-B20E-1A69BA4AE461),
+		uuid(17112929-8F29-40BB-998B-20E322BA2451),
 		version(1.0),
 		hidden
 	]
@@ -5091,7 +5091,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(CB0B7AA8-281C-479D-B6B7-7FC13D250595),
+		uuid(FEA6F93F-6BEB-4B10-9AF8-D1517B2C900A),
 		version(1.0),
 		hidden
 	]
@@ -5101,7 +5101,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(C5BC885B-A68E-496A-9165-E9E31F322ABB),
+		uuid(FE9543ED-C713-4809-B85F-92851C1B112F),
 		version(1.0),
 		hidden
 	]
@@ -5111,7 +5111,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(54D3B38E-3E31-4068-9C50-2CC5CB5EC0C7),
+		uuid(3E15F8D2-B455-4B73-91CA-DFC1A0733CD9),
 		version(1.0),
 		hidden
 	]
@@ -5121,7 +5121,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(85FF7167-3158-4A48-A8E0-00FA09A5EC0F),
+		uuid(9052E066-9E07-45E8-A269-68BD18C3A6C5),
 		version(1.0),
 		hidden
 	]
@@ -5131,7 +5131,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(D226D618-F2B3-48A5-A5E2-04562252C43C),
+		uuid(BC84B657-C972-481A-9CC5-7C7FA371520A),
 		version(1.0),
 		hidden
 	]
@@ -5141,7 +5141,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(DA548687-7499-410B-B198-FDBCF48E4191),
+		uuid(711BD31A-1F9C-43B6-9B13-CBACBAA9B1D3),
 		version(1.0)
 	]
 	coclass PPFiltTrfrAnlz {
@@ -5150,7 +5150,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(9F35F8D7-F2CB-4BD2-9957-606A0D10FEF8),
+		uuid(610E14EF-4C38-44FE-8666-F4744DE9DF01),
 		version(1.0),
 		hidden
 	]
@@ -5161,7 +5161,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(5D6D87F8-860E-4721-8CF9-CEE106D6D64A),
+		uuid(E51EA280-468C-436F-A795-DE5244C1BF7C),
 		version(1.0)
 	]
 	coclass PPFiltCCheck {
@@ -5170,7 +5170,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(B0955AAE-738D-44D6-A301-7BE37A1FA217),
+		uuid(53620BEF-0612-47DA-93CA-FE6BA9852A62),
 		version(1.0),
 		hidden
 	]
@@ -5180,7 +5180,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(94BCBCF2-706D-40A5-8025-21B30AF89A25),
+		uuid(8F94B7E5-5503-4794-8B6E-D2211466C82F),
 		version(1.0)
 	]
 	coclass PPFiltLot {
@@ -5189,7 +5189,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(6D054F5D-CC47-43F9-91AD-01BEE3AA7525),
+		uuid(51388220-8473-44F6-8EA4-2BAF24EC376F),
 		version(1.0),
 		hidden
 	]
@@ -5199,7 +5199,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(BF5F48A3-9403-4476-9D32-6F3E2D5885B5),
+		uuid(EA389F5B-6FF4-4814-9732-C716F4B2B809),
 		version(1.0)
 	]
 	coclass PPFiltGoods {
@@ -5208,7 +5208,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(3BF2A757-2C49-45FC-B870-182208ED4FC1),
+		uuid(A37104E2-F216-4AEB-9A5F-F6A4C247E950),
 		version(1.0),
 		hidden
 	]
@@ -5218,7 +5218,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(DFF1C807-27E4-4927-80CA-061C0484076D),
+		uuid(8A3B58BC-516C-452C-8075-1F930474F043),
 		version(1.0)
 	]
 	coclass PPFiltGoodsStruc {
@@ -5227,7 +5227,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(3B7FFEDB-EF7E-4D97-A947-F451039A889F),
+		uuid(4E3A45BD-2754-4D18-85CA-DFDF4BF04E2C),
 		version(1.0),
 		hidden
 	]
@@ -5237,7 +5237,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(3517F6D1-D938-4265-A5B2-ABE1EB585E6B),
+		uuid(163928B2-0E13-47E4-A44A-3DA7411927C5),
 		version(1.0)
 	]
 	coclass PPFiltGoodsRest {
@@ -5246,7 +5246,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(276E18BE-DE4D-4537-B283-B5D1F65AFD1D),
+		uuid(A8136300-DA99-4CD9-A650-7D4AF3138420),
 		version(1.0),
 		hidden
 	]
@@ -5256,7 +5256,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(386A3A16-9F2C-45A5-B848-9D60E255EF27),
+		uuid(DEEF0C22-62CC-43E1-A1A2-5E9038C8EAEA),
 		version(1.0)
 	]
 	coclass PPFiltBill {
@@ -5265,7 +5265,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(38ED0C64-B8D5-48C6-A99A-386F436753B4),
+		uuid(D05C7CF2-BCE8-434A-BEEF-6385432A2F28),
 		version(1.0),
 		hidden
 	]
@@ -5275,7 +5275,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(8709A1F7-5D03-49C2-8603-E9F45884D606),
+		uuid(7072DB62-6FE4-4C53-ACF2-792A847BD0BD),
 		version(1.0)
 	]
 	coclass PPQuotation {
@@ -5284,7 +5284,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(1EB6CACB-5A35-4EAE-BCF7-9117BDC5E548),
+		uuid(D88D169F-7386-4611-B8DF-D27DEDD2B15E),
 		version(1.0)
 	]
 	coclass PPFiltGoodsOpAnlz {
@@ -5293,7 +5293,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(DA28C37A-23F2-4889-A0DC-13BDCD0F4CD3),
+		uuid(99EC2EA8-657C-4A89-BC2C-D90E6164FF06),
 		version(1.0),
 		hidden
 	]
@@ -5303,7 +5303,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(C9B878BD-D298-40C2-94FD-0AF067FDF542),
+		uuid(9B91AB9D-876B-4EE0-8C76-9779AC636022),
 		version(1.0)
 	]
 	coclass PPFiltTSession {
@@ -5312,7 +5312,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(40623FB1-28C8-4F61-A4F0-010228C1C099),
+		uuid(2B4EB71F-64D0-40E6-9DC5-D90223FE4659),
 		version(1.0),
 		hidden
 	]
@@ -5322,7 +5322,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(DF285B88-577D-4320-984B-C920B18F4C30),
+		uuid(1D19D756-76C6-44B1-9CF6-4E10AED674AF),
 		version(1.0)
 	]
 	coclass PPFiltPrjTask {
@@ -5331,7 +5331,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(EB4C5827-6E8E-461F-ACB4-791E8A9DC1E7),
+		uuid(4EFE3FF6-3323-4D0B-92BB-A7EAD1D71592),
 		version(1.0),
 		hidden
 	]
@@ -5341,7 +5341,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(A7B3F84B-4E56-411F-91F9-34A77596406C),
+		uuid(50DDD9B7-CB57-4DF7-B627-245014A699F1),
 		version(1.0)
 	]
 	coclass PPFiltProject {
@@ -5350,7 +5350,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(0C48F869-CBDB-4539-B40D-CAECA1235B99),
+		uuid(37801B12-D84A-40AA-9E4D-F771FB89388A),
 		version(1.0),
 		hidden
 	]
@@ -5360,7 +5360,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(B71032F5-B258-45C8-8616-65D1F483518F),
+		uuid(D4E70B7E-4692-4ADD-974A-E872D86B33EA),
 		version(1.0)
 	]
 	coclass PPFiltOpGrouping {
@@ -5369,7 +5369,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(54984C61-0A1F-4C71-81F5-6134805AB4E3),
+		uuid(134029EC-23E7-483E-A83A-A6D9DA2C3714),
 		version(1.0),
 		hidden
 	]
@@ -5379,7 +5379,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(B27F1C18-B8B3-41D1-AE74-E9B96B86D445),
+		uuid(17DE3BC7-79A6-4B67-A594-D892CF4DACBB),
 		version(1.0)
 	]
 	coclass PPFiltDebtTrnovr {
@@ -5388,7 +5388,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(33A3D371-5B9D-41C2-9BE0-236454BF831E),
+		uuid(370FC884-FB71-482C-96D7-D16E8C83B487),
 		version(1.0),
 		hidden
 	]
@@ -5398,7 +5398,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(21CF25EA-A4B6-4D52-9408-FA52ED6B96D6),
+		uuid(046EB695-EC9D-4B6A-8351-1B44637906A9),
 		version(1.0)
 	]
 	coclass PPFiltLotOp {
@@ -5407,7 +5407,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(02C3A700-4749-4B8A-8D70-F3D24F77040F),
+		uuid(5C33CCE1-D563-48E1-B10C-A1AA6770CC08),
 		version(1.0),
 		hidden
 	]
@@ -5417,7 +5417,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(FD843155-BAD3-419F-B086-BFA3E0DAF33B),
+		uuid(6B564348-9C82-4FBB-8227-5B8F24F3750A),
 		version(1.0),
 		hidden
 	]
@@ -5427,7 +5427,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(F861F80D-C010-46E1-8821-77CBF533A24E)
+		uuid(6E95348E-236D-4A2A-9449-BF4AEFAF1D4C)
 	]
 	coclass PPLotList {
 		interface ILotList;
@@ -5435,7 +5435,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(F7E81E8F-9FF1-43F2-8147-0168FCF05BAA),
+		uuid(C94D609E-7337-4CBA-A90E-9F8CC9CF912D),
 		version(1.0)
 	]
 	coclass AlcRepOpList {
@@ -5444,7 +5444,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(A62514E6-0FFB-4C99-88A5-2DC3A470068A),
+		uuid(EF6B222F-9432-482C-883E-7BBBC043F8B3),
 		version(1.0)
 	]
 	coclass LongList {
@@ -5453,7 +5453,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(A2411213-D197-408C-8D92-E80CC8EDF590),
+		uuid(E606692B-E152-4212-8E3C-800317418E7E),
 		version(1.0)
 	]
 	coclass PrcssrAlcReport {
@@ -5462,7 +5462,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(38306856-54F5-4211-8349-108E94262252),
+		uuid(A5C9A559-1592-4086-9DAB-63AE9063482B),
 		version(1.0)
 	]
 	coclass PPSysJournal {
@@ -5471,7 +5471,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(D13AA2BD-7CB9-4348-90FC-3E06919FF38D),
+		uuid(DEE5ADA1-882B-4FB6-A4F3-C12733354D88),
 		version(1.0)
 	]
 	coclass PPFias {
@@ -5480,7 +5480,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(A5F972A8-9733-4A7D-B1AF-CF86BDF62499),
+		uuid(1AEA7D43-8C8A-4246-857F-740408646C2B),
 		version(1.0)
 	]
 	coclass PPCCheckPacket {
@@ -5489,7 +5489,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(C3A1F9C1-75B7-4649-A242-0DAB61700654),
+		uuid(7E1B6680-B42C-4E1A-858C-FB19210F14E8),
 		version(1.0)
 	]
 	coclass PPObjCCheck {
@@ -5498,7 +5498,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(B9DC6ED4-83EF-48F1-9B9C-BDADE19335B1),
+		uuid(D3C82AD4-6136-474C-BC4F-29F98A6DE78F),
 		version(1.0)
 	]
 	coclass PPObjSCardSeries {
@@ -5507,7 +5507,7 @@ library PapyrusInterfaceLib {
 	};
 
 	[
-		uuid(E48E323E-65C2-45C0-AA33-E36191607F02),
+		uuid(7B57D3C7-B25D-4013-A175-628EF29DB773),
 		version(1.0)
 	]
 	coclass PPObjSCard {

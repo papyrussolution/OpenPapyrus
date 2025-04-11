@@ -18173,6 +18173,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 77  "StyloQ: подготовка данных для заказов" //PPUPRF_STYLOQ_CMD_ORDERPREREQ
 78  "StyloQ: подготовка данных для indoor-обслуживания" //PPUPRF_STYLOQ_CMD_INDOORSVCPREREQ
 79  "StyloQ: подготовка данных для резервирования услуг" //PPUPRF_STYLOQ_CMD_ATTENDANCEPREREQ
+80  "Функция EgaisMarkAutoselector (local)"
+81  "Функция EgaisMarkAutoselector (server)"
 
 [122]
 1   "@{err_curl}: не поддерживаемый протокол"

@@ -7798,8 +7798,10 @@ int ExportDialogs2(const char * pFileName)
 										symb.Z();
 									else if(!p_view->IsSubSign(TV_SUBSIGN_STATIC) && !is_image)
 										symb.Z();
-									else if(symb.ToLong())
-										symb.Z().Cat("CTL").CatChar('_').Cat(dlg_symb_body).CatChar('_').Cat("ST").CatChar('_').CatLongZ(symb.ToLong(), 3);
+									else if(symb.ToLong()) {
+										temp_buf.Z().CatLongZ(symb.ToLong(), 5);
+										symb.Z().Cat("CTL").CatChar('_').Cat(dlg_symb_body).CatChar('_').Cat("ST").CatChar('_').Cat(temp_buf);
+									}
 									line_buf.Tab().Cat(is_image ? "imageview" : "statictext").Space();
 									if(symb.NotEmpty())
 										line_buf.Cat(symb).Space();
@@ -8335,5 +8337,49 @@ IMPL_DIALOG_GETDTS(ExtStrContainerListDialog)
 /*virtual*/int ExtStrContainerListDialog::delItem(long pos, long id)
 {
 	int    ok = -1;
+	return ok;
+}
+//
+//
+//
+int Test_ExecuteDialogByDl600Description() // @construction
+{
+	int    ok = 0;
+	SString file_name;
+	PPGetFilePath(PPPATH_BIN, "ppdlg2.bin", file_name);
+	if(fileExists(file_name)) {
+		DlContext ctx;
+		if(ctx.Init(file_name)) {
+			const DlScope * p_scope = ctx.GetScopeByName_Const(DlScope::kUiView, "DLG_BIZPRCRT");
+			if(p_scope) {
+				ok = -1;
+			}
+#if 0 // {
+			if(Sc.GetFirstChildByKind(DlScope::kUiView, 1)) {
+				SFsPath ps;
+				ps.Split(InFileName);
+				ps.Nam.CatChar('-').Cat("out");
+				ps.Ext = "txt";
+				ps.Merge(temp_buf);
+				SFile f_view_out(temp_buf, SFile::mWrite);
+				for(uint fscidx = 0; fscidx < file_sc_list.getCount(); fscidx++) {
+					const long file_scope_id = file_sc_list.get(fscidx);
+					const DlScope * p_file_scope = GetScope(file_scope_id, 0);
+					if(p_file_scope) {
+						scope_id_list.freeAll();
+						p_file_scope->GetChildList(DlScope::kUiView, /*1*/0/*recursive*/, &scope_id_list);
+						for(i = 0; i < scope_id_list.getCount(); i++) {
+							const DlScope * p_scope = GetScope(scope_id_list.at(i), 0);
+							line_buf.Z();
+							if(Write_UiView(p_scope, 0, line_buf) > 0) {
+								f_view_out.WriteLine(line_buf.CR());
+							}
+						}
+					}
+				}
+			}
+#endif // } 0
+		}
+	}
 	return ok;
 }

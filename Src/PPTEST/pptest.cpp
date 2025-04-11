@@ -45,6 +45,7 @@ int  ClassfGoods();
 int  TestTddo();
 int  GetGoodsFromService(SString & rCode, PPGoodsPacket * pPack);
 int  TestSTree();
+int  Test_ExecuteDialogByDl600Description();
 //
 // 
 // 
@@ -1974,7 +1975,7 @@ int DoConstructionTest()
 //#endif
 	}
 #if(_MSC_VER >= 1900)
-	Test_Fts();
+	//Test_Fts();
 #endif
 #if 0 // {
 	{
@@ -1991,6 +1992,7 @@ int DoConstructionTest()
 		}
 	}
 #endif // } 0
+	Test_ExecuteDialogByDl600Description();
 	//Test_CsvSniffer();
 	//Test_Cristal2SetRetailGateway();
 	//PreprocessHFile();

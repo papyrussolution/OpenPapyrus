@@ -3100,6 +3100,7 @@ DLSYMBID DlContext::Helper_EnterViewScope(uint scopeKind, const char * pSymb)
 				}
 			}
 			else {
+				name_ = pSymb;
 				const DlScope * p_top_view_scope = 0;
 				const DlScope * p_par = p_cur_scope;
 				if(p_par->GetKind() == scope_kind) {
@@ -4805,7 +4806,7 @@ int DlContext::Write_UiView(const DlScope * pScope, uint indentTabCount, SString
 					float y1 = p_lp->GetAbsoluteLowY();
 					float sx = p_lp->GetAbsoluteSizeX();
 					float sy = p_lp->GetAbsoluteSizeY();
-
+					//rOutBuf.CR().Tab_(indentTabCount+1).Cat("rect").CatDiv(':', 2).Cat(temp_buf);
 					debug_mark = true;
 				}
 			}

@@ -47,8 +47,8 @@ class DeclareSymbList : public TSArray <DeclareSymb> {
 public:
 	DeclareSymbList();
 	int    AddSymb(int kind, const char * pSymb, long * pID);
-	int    SearchSymb(int kind, const char * pSymb, uint * pPos);
-	int    SearchSymbByID(int kind, long id, char * pBuf, size_t bufLen);
+	bool   SearchSymb(int kind, const char * pSymb, uint * pPos) const;
+	bool   SearchSymbByID(int kind, long id, char * pBuf, size_t bufLen) const;
 	SString & GetSymbKindName(int kind, SString & rBuf) const;
 private:
 	LAssocArray LastIdList;
