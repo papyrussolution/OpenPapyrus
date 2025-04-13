@@ -799,11 +799,17 @@ int ACS_ATOL::GetSessionData(int * pSessCount, int * pIsForwardSess, DateRange *
 
 int ACS_ATOL::ConvertWareList(const char * pImpPath, const char * pExpPath)
 {
-	int    ok = 1, ta = 0, field_no;
+	int    ok = 1;
+	int    ta = 0;
+	int    field_no;
 	uint   pos;
-	long   op_type, nsmena, cash_no, chk_no;
+	long   op_type;
+	long   nsmena;
+	long   cash_no;
+	long   chk_no;
 	long   count = 0;
-	PPID   grp_id = 0, goods_id = 0;
+	PPID   grp_id = 0;
+	PPID   goods_id = 0;
 	PPIDArray   new_goods;
 	LAssocArray zrep_ary; // Пара {номер_кассы; номер_смены}
 	LDATETIME dtm;
@@ -814,10 +820,9 @@ int ACS_ATOL::ConvertWareList(const char * pImpPath, const char * pExpPath)
 	SCardTbl::Rec sc_rec;
 	PPGoodsPacket gds_pack;
 	PPObjGoods    goods_obj;
-
-	SString   imp_file_name = PathRpt;
+	SString imp_file_name(PathRpt);
 	SFsPath::ReplacePath(imp_file_name, pImpPath, 1);
-	SFile     imp_file(imp_file_name, SFile::mRead); // PathRpt-->imp_file_name
+	SFile  imp_file(imp_file_name, SFile::mRead); // PathRpt-->imp_file_name
 	THROW(imp_file.IsValid());
 	for(pos = 0; pos < 3; pos++)
 		imp_file.ReadLine(buf);

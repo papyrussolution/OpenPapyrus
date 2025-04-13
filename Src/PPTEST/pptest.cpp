@@ -1992,9 +1992,9 @@ int DoConstructionTest()
 		}
 	}
 #endif // } 0
+	//Test_Cristal2SetRetailGateway();
 	Test_ExecuteDialogByDl600Description();
 	//Test_CsvSniffer();
-	//Test_Cristal2SetRetailGateway();
 	//PreprocessHFile();
 	//TestTransferFileToFtp();
 	//VkInterface::Test();

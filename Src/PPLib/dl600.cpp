@@ -1525,7 +1525,7 @@ DlContext::DlContext(int toCompile) : Ht(8192, 1), ScopeStack(sizeof(DLSYMBID)),
 		AddType("key",      MKSTYPE(S_INT, 4), MANGLE_BT_LONG);
 		AddType("variant",  T_VARIANT);
 		AddType("wchar",    MKSTYPE(S_WCHAR, 2));
-		AddType("wstring",  MKSTYPE(S_WZSTRING, 0), MANGLE_BT_WZSTRING); // @v8.6.2
+		AddType("wstring",  MKSTYPE(S_WZSTRING, 0), MANGLE_BT_WZSTRING);
 		AddType("note",     MKSTYPE(S_NOTE, 0));
 		AddType("raw",      MKSTYPE(S_RAW, 0));
 		AddType("blob",     MKSTYPE(S_BLOB, 0));
@@ -2307,7 +2307,7 @@ int DlContext::AddBCmpOps(uint implID, const char * pType)
 		AddBOp(dlopGe,  implID+5, "bool", pType, pType, 0));
 }
 
-int CDECL DlContext::AddBOp(int op, uint implID, const char * pRetType, ...)
+bool CDECL DlContext::AddBOp(int op, uint implID, const char * pRetType, ...)
 {
 	va_list arg_list;
 	va_start(arg_list, pRetType);
@@ -2315,23 +2315,23 @@ int CDECL DlContext::AddBOp(int op, uint implID, const char * pRetType, ...)
 	op_name[0] = '?';
 	op_name[1] = op;
 	op_name[2] = 0;
-	int ok = Helper_AddBFunc(op_name, implID, pRetType, arg_list);
+	bool   ok = Helper_AddBFunc(op_name, implID, pRetType, arg_list);
 	va_end(arg_list);
 	return ok;
 }
 
-int CDECL DlContext::AddBFunc(const char * pFuncName, uint implID, const char * pRetType, ...)
+bool CDECL DlContext::AddBFunc(const char * pFuncName, uint implID, const char * pRetType, ...)
 {
 	va_list arg_list;
 	va_start(arg_list, pRetType);
-	int    ok = Helper_AddBFunc(pFuncName, implID, pRetType, arg_list);
+	bool   ok = Helper_AddBFunc(pFuncName, implID, pRetType, arg_list);
 	va_end(arg_list);
 	return ok;
 }
 
-int DlContext::Helper_AddBFunc(const char * pFuncName, uint implID, const char * pRetType, va_list pArgList)
+bool DlContext::Helper_AddBFunc(const char * pFuncName, uint implID, const char * pRetType, va_list pArgList)
 {
-	int    ok = 1;
+	bool   ok = true;
 	DLSYMBID symb_id = 0;
 	DlFunc f;
 	f.Name.CatChar('?').Cat(pFuncName);
@@ -2342,7 +2342,7 @@ int DlContext::Helper_AddBFunc(const char * pFuncName, uint implID, const char *
 			if(SearchSymb(p_arg_typ, '@', &symb_id))
 				f.AddArg(symb_id, 0);
 			else
-				ok = 0;
+				ok = false;
 			p_arg_typ = va_arg(pArgList, const char *);
 		}
 		f.Flags |= DlFunc::fImplByID;
@@ -2351,7 +2351,7 @@ int DlContext::Helper_AddBFunc(const char * pFuncName, uint implID, const char *
 			Sc.AddFunc(&f);
 	}
 	else
-		ok = 0;
+		ok = false;
 	return ok;
 }
 
@@ -2377,6 +2377,7 @@ int DlContext::GetField(const CtmVar & rV, SdbField * pFld)
 
 int DlContext::GetConstData(const CtmExprConst & rC, void * pBuf, size_t bufLen) const
 {
+	memzero(pBuf, bufLen); // @v12.3.2
 	int    ok = 1;
 	TypeEntry te;
 	size_t s;

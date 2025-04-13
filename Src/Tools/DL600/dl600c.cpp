@@ -1194,7 +1194,7 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 	if(font_size > 0.0) {
 		CtmExprConst c;
 		AddConst(font_size, &c);
-		p_scope->AddConst(DlScope::cuifFontSize, c, 1);				
+		p_scope->AddConst(DlScope::cuifFontSize, c, 1);
 	}
 	if(label_relation) {
 		CtmExprConst c;
@@ -2950,15 +2950,17 @@ int DlContext::StoreUuidList()
 int DlContext::RestoreUuidList()
 {
 	int    ok = 1;
-	SString file_name = InFileName;
+	SString file_name(InFileName);
 	SFsPath::ReplaceExt(file_name, "uuid", 1);
 	SyncUuidNameList.Z();
 	SyncUuidList.freeAll();
 	if(fileExists(file_name)) {
-		SFile  f_out(file_name, SFile::mRead);
-		SString line_buf, name_buf, uuid_buf;
+		SString line_buf;
+		SString name_buf;
+		SString uuid_buf;
+		SFile f_out(file_name, SFile::mRead);
 		THROW(f_out.IsValid());
-		while(f_out.ReadLine(line_buf))
+		while(f_out.ReadLine(line_buf)) {
 			if(line_buf.Divide(';', name_buf, uuid_buf) > 0) {
 				SyncUuidAssoc entry;
 				MEMSZERO(entry);
@@ -2966,6 +2968,7 @@ int DlContext::RestoreUuidList()
 				THROW(entry.Uuid.FromStr(uuid_buf));
 				THROW(SyncUuidList.insert(&entry));
 			}
+		}
 	}
 	else
 		ok = -1;
@@ -2976,7 +2979,8 @@ int DlContext::RestoreUuidList()
 int DlContext::SetupScopeUUID(DLSYMBID scopeID, const char * pName, const S_GUID * pForceUUID)
 {
 	int    ok = 1;
-	uint   pos = 0, pos2 = 0;
+	uint   pos = 0;
+	uint   pos2 = 0;
 	S_GUID uuid;
 	if(!UuidList.Search(scopeID, 0, &pos)) {
 		if(pForceUUID)

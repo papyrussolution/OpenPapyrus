@@ -143,21 +143,15 @@ public:
 			}
 			uint   GetCount() const { return Items.getCount(); }
 			Item & GetItemByIdx(uint idx) { return Items.at(idx); }
-			int AddItem(const Item * pItem)
-			{
-				return (pItem) ? Items.insert(pItem) : 0;
-			}
-			int SetItemDiscount(long pos, double discount)
+			bool   AddItem(const Item * pItem) { return pItem ? Items.insert(pItem) : false; }
+			int    SetItemDiscount(long pos, double discount)
 			{
 				uint p = 0;
 				return Items.lsearch(&pos, &p, CMPF_LONG) ? (Items.at(p).Discount = discount, 1) : -1;
 			}
-			int GetHead(Header * pHead)
-			{
-				ASSIGN_PTR(pHead, Head);
-				return 1;
-			}
-			int EnumItems(long * pPos, Item * pItem)
+			void   GetHead(Header * pHead) const { ASSIGN_PTR(pHead, Head); }
+			const  Header & GetHeader() const { return Head; }
+			int    EnumItems(long * pPos, Item * pItem)
 			{
 				if(pPos && *pPos < Items.getCountI()) {
 					ASSIGN_PTR(pItem, Items.at((*pPos)++));
@@ -215,7 +209,7 @@ public:
 	int    ExportData__(int updOnly);
 	int    Prev_ExportData(int updOnly);
 
-	int    Cristal2SetRetailGateway_TranslateSales();
+	int    Cristal2SetRetailGateway_TranslateSales(const char * pCcOutPath);
 private:
 	enum {
 		filTypZRep = 0,
@@ -3665,7 +3659,7 @@ int ACS_CRCSHSRV::ConvertWareListV10(const SVector * pZRepList, const char * pPa
 		PPTransaction tra(1);
 		THROW(tra);
 		while(reader.Next(&pack) > 0) {
-			int    r   = 0;
+			int    r = 0;
 			long   cshr_id = 0;
 			PPID   id = 0;
 			PPID   scard_id = 0;
@@ -5358,41 +5352,142 @@ int Test_Cristal2SetRetailGateway()
 		if(cn_id) {
 			PPAsyncCashNode acn_pack;
 			if(cn_obj.GetAsync(cn_id, &acn_pack) > 0) {
-				ACS_CRCSHSRV driver(cn_id);
-				driver.Cristal2SetRetailGateway_TranslateSales();
+				if(tag_obj.SearchByName("Cristal2SetRetailGateway-ccpath", &tag_id, &tag_rec) > 0) {
+					SString cc_out_path;
+					acn_pack.TagL.GetItemStr(tag_id, cc_out_path);
+					if(cc_out_path.NotEmpty()) {
+						ACS_CRCSHSRV driver(cn_id);
+						driver.Cristal2SetRetailGateway_TranslateSales(cc_out_path);
+					}
+				}
 			}
 		}
 	}
 	return ok;
 }
 
-int ACS_CRCSHSRV::Cristal2SetRetailGateway_TranslateSales()
+int ACS_CRCSHSRV::Cristal2SetRetailGateway_TranslateSales(const char * pCcOutPath)
 {
 	int    ok = -1;
 	PPAsyncCashNode acn;
 	SString temp_buf;
 	SString in_path;
+	SString out_path(pCcOutPath);
 	SString base_path;
+	THROW(out_path.NotEmptyS()); // @todo @err
 	THROW(GetNodeData(&acn) > 0);
+	THROW(PrepareImpFileNameV10(filTypChkXml,  "purchases.xml", acn.ImpFiles));
+	THROW(PrepareImpFileNameV10(filTypZRepXml, "zreports.xml",  acn.ImpFiles));
 	acn.GetLogNumList(LogNumList);
 	{
+		out_path.SetLastSlash().Cat("crsales01.btr");
+		Cr_SaleTbl out_tbl(out_path);
 		SDirEntry sd_entry;
 		SFsPath sp(PathRpt[filTypChkXml]);
 		sp.Merge(SFsPath::fDrv|SFsPath::fDir, base_path);
 		sp.Nam.Cat("*");
 		sp.Merge(temp_buf);
-		for(SDirec sd(temp_buf); sd.Next(&sd_entry) > 0;) {
-			if(sd_entry.IsFile()) {
-				sd_entry.GetNameA(base_path, in_path);
-				DrfL.Add("chks", in_path);
-				//THROW(ConvertWareListV10(&zrep_list, data_path, wait_msg));
-				ACS_CRCSHSRV::CcXmlReader reader(in_path, &LogNumList, ModuleSubVer);
-				CcXmlReader::Packet pack;
-				{
-					while(reader.Next(&pack) > 0) {
+		{
+			PPTransaction tra(1);
+			THROW(tra);
+			for(SDirec sd(temp_buf); sd.Next(&sd_entry) > 0;) {
+				if(sd_entry.IsFile()) {
+					sd_entry.GetNameA(base_path, in_path);
+					DrfL.Add("chks", in_path);
+					//THROW(ConvertWareListV10(&zrep_list, data_path, wait_msg));
+					ACS_CRCSHSRV::CcXmlReader reader(in_path, &LogNumList, ModuleSubVer);
+					CcXmlReader::Packet pack;
+					{
+						/*
+							table Cr_Sale {
+								double  Quant;         // * Quantity
+								lstring Operation[2];  // * Код операции
+								date    DateOperation; // * Дата операции
+								double  Price;         // * Цена (руб)               // 22
+								lstring Store[7];      // Склад                      // 29
+								long    Ck_Number;     // * Номер чека               // 31
+								double  Ck_Curs;       // Курс валюты                // 39
+								lstring Ck_CurAbr[4];  // Аббревиатура валюты        // 43
+								double  Ck_Disg;       // Скидка на покупку в рублях //
+								double  Ck_Disc;       // * Скидка на чек в рублях
+								double  Quant_S;       //
+								int16   GrCode;        // Код группы товара
+								long    Code;          // * ИД товара
+								lstring Cassir[11];    // Кассир
+								long    Cash_Code;     // * Код кассы              ->Cr_ZReport.CashNumber
+								long    Ck_Card;       // * Код кредитной карты
+								lstring Contr_Code[8]; // Код поставщика
+								double  Contr_Cost;    // Цена поступления //
+								lstring Seria[11];
+								lstring BestB[11];
+								double  NDSx1;         // Ставка НДС, %
+								double  NDSx2;         // Ставка налога с продаж, %
+								time    Times;         // * Время продажи
+								double  Summa;         // * Сумма покупки (руб)
+								double  SumNDS;        // Сумма НДС (руб)
+								double  SumNSP;        // Сумма налога с продаж (руб)
+								double  PriceNSP;      // Продажная цена (руб)
+								long    NSmena;        // * Номер смены             ->Cr_ZReport.ZNumber
+							index:
+								DateOperation, GrCode, Cash_Code, Ck_Number (dup mod); // #0
+								GrCode, DateOperation, Cash_Code, Ck_Number (dup mod); // #1
+								Cash_Code, Ck_Number, GrCode, Code, Price   (dup mod); // #2
+								DateOperation, Cash_Code, Ck_Number         (dup mod); // #3 ! (по этому индексу будем дубликаты исключать)
+								DateOperation, Cassir, Cash_Code, Ck_Number (dup mod); // #4
+								Cassir, DateOperation, Cash_Code, Ck_Number (dup mod); // #5
+								DateOperation, GrCode, Code, Price          (dup mod); // #6
+								Code, DateOperation                         (dup mod); // #7
+								Cash_Code, NSmena                           (dup mod); // #8 *
+							file:
+								"sale.btr";
+							}
+						*/ 
+						while(reader.Next(&pack) > 0) {
+							Cr_SaleTbl::Key3 k3;
+							const CcXmlReader::Header & r_cch = pack.GetHeader();
+							k3.Cash_Code = r_cch.CashNum;
+							k3.Ck_Number = r_cch.ChkNum;
+							k3.DateOperation = r_cch.Dtm.d;
+							if(out_tbl.search(3, &k3, spEq)) {
+								; // Такая запись уже есть
+							}
+							else {
+								for(uint lidx = 0; lidx < pack.GetCount(); lidx++) {
+									CcXmlReader::Item & r_cci = pack.GetItemByIdx(lidx);
+									Cr_SaleTbl::Rec rec;
+									rec.Quant = r_cci.Qtty;
+									//rec.Operation
+									rec.DateOperation = r_cch.Dtm.d;
+									rec.Price = r_cci.Price;
+									//rec.Store
+									rec.Ck_Number = r_cch.ChkNum;
+									rec.Ck_Curs = 1.0; // ?
+									//rec.Ck_CurAbr
+									rec.Ck_Disg = 0.0;
+									rec.Ck_Disc = 0.0;
+									rec.Quant_S = 0.0;
+									rec.GrCode = 0;
+									rec.Code = 0; // Ид товара
+									//rec.Cassir
+									rec.Cash_Code = r_cch.CashNum;
+									rec.Ck_Card = 0;
+									//rec.Contr_Code
+									rec.Contr_Cost = 0.0;
+									//rec.Seria
+									//rec.BestB
+									rec.NDSx1 = 0.0;
+									rec.NDSx2 = 0.0;
+									rec.Times = r_cch.Dtm.t;
+									if(!out_tbl.insertRecBuf(&rec)) {
+										CALLEXCEPT();
+									}
+								}
+							}
+						}
 					}
 				}
 			}
+			THROW(tra.Commit());
 		}
 	}
 	CATCHZOK

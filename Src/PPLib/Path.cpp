@@ -1,5 +1,5 @@
 // PATH.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2013, 2015, 2016, 2017, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2013, 2015, 2016, 2017, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 // @Kernel
 //
@@ -505,6 +505,7 @@ void PPPaths::DumpToStr(SString & rBuf) const
 				case PPPATH_SRCROOT: rBuf.Cat("SRCROOT"); break; // @v11.9.4
 				case PPPATH_LOCAL: rBuf.Cat("LOCAL"); break;
 				case PPPATH_PACK: rBuf.Cat("PACK"); break;
+				case PPPATH_BUILDROOT: rBuf.Cat("BUILDROOT"); break; // @v12.3.2
 				default: rBuf.CatChar('#').Cat(p->ID); break;
 			}
 			rBuf.Eq().Cat(p->Path());

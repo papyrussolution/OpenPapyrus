@@ -709,11 +709,14 @@ int ACS_SHTRIHMFRK::GetZRepList(LAssocArray * pZRepList)
 
 int ACS_SHTRIHMFRK::ConvertWareList(const char * pImpPath, int numSmena)
 {
-	int    ok = 1, smena_found = 0;
+	int    ok = 1;
+	int    smena_found = 0;
 	uint   pos = 0;
 	long   op_type = 0;
-	long   count = 0, prev_smena_pos = 0;
-	PPID   grp_id = 0, goods_id = 0;
+	long   count = 0;
+	long   prev_smena_pos = 0;
+	PPID   grp_id = 0;
+	PPID   goods_id = 0;
 	LDATE  dt = ZERODATE;
 	LTIME  tm = ZEROTIME;
 	SString   buf, wait_msg;
@@ -721,8 +724,8 @@ int ACS_SHTRIHMFRK::ConvertWareList(const char * pImpPath, int numSmena)
 	SCardCore     sc_core;
 	PPGoodsPacket gds_pack;
 	PPObjGoods    goods_obj;
-	SString   imp_file_name(pImpPath);
-	SFile     imp_file(imp_file_name, SFile::mRead); // PathRpt-->imp_file_name
+	SString imp_file_name(pImpPath);
+	SFile  imp_file(imp_file_name, SFile::mRead); // PathRpt-->imp_file_name
 	PPSetAddedMsgString(imp_file_name);
 	THROW_SL(imp_file.IsValid());
 	{
@@ -738,16 +741,16 @@ int ACS_SHTRIHMFRK::ConvertWareList(const char * pImpPath, int numSmena)
 		while(imp_file.ReadLine(buf) > 0) {
 			ss.Z();
 			ss.add(buf);
-			ss.get(&(pos = 0), buf);                                                      // #1 Код транзакции (не используем)
-			ss.get(&pos, buf);                                                            // #2 Дата транзакции
-			ss.get(&pos, buf);                                                            // #3 Время транзакции
-			ss.get(&pos, buf);                                                            // #4 Тип транзакции (операции)
+			ss.get(&(pos = 0), buf);        // #1 Код транзакции (не используем)
+			ss.get(&pos, buf);              // #2 Дата транзакции
+			ss.get(&pos, buf);              // #3 Время транзакции
+			ss.get(&pos, buf);              // #4 Тип транзакции (операции)
 			op_type = buf.ToLong();
 			if(op_type == OPTYPE_ZREPORT) {
-				ss.get(&pos, buf);                                                        // #5 Номер ККМ - пропускаем
-				ss.get(&pos, buf);                                                        // #6 Пропускаем
-				ss.get(&pos, buf);                                                        // #7 Пропускаем
-				ss.get(&pos, buf);                                                        // #8 Номер смены
+				ss.get(&pos, buf);          // #5 Номер ККМ - пропускаем
+				ss.get(&pos, buf);          // #6 Пропускаем
+				ss.get(&pos, buf);          // #7 Пропускаем
+				ss.get(&pos, buf);          // #8 Номер смены
 				if(buf.ToLong() == numSmena) {
 					 smena_found = 1;
 					 break;
@@ -923,16 +926,18 @@ int ACS_SHTRIHMFRK::ConvertWareList(const char * pImpPath, int numSmena)
 					total_amount = total_discount = 0.0;
 				}
 				else if(op_type == OPTYPE_ZREPORT) {// Найдена запись z отчета (т.е. смена загружена в бд)
-					int    r = 0, h = 0, m = 0;
+					int    r = 0;
+					int    h = 0;
+					int    m = 0;
 					PPID   chk_id = 0;
 					double amount = 0.0;
 					LDATETIME dttm;
 					dttm.Set(dt, tm);
-					ss.get(&pos, buf);                // #8  - Пропускаем
-					ss.get(&pos, buf);                // #9  - Пропускаем
-					ss.get(&pos, buf);                // #10 - Пропускаем
-					ss.get(&pos, buf);                // #11 - Пропускаем
-					ss.get(&pos, buf);                // #12 - Сумма чека
+					ss.get(&pos, buf); // #8  - Пропускаем
+					ss.get(&pos, buf); // #9  - Пропускаем
+					ss.get(&pos, buf); // #10 - Пропускаем
+					ss.get(&pos, buf); // #11 - Пропускаем
+					ss.get(&pos, buf); // #12 - Сумма чека
 					amount = R2(buf.ToReal());
 					r = AddTempCheck(&chk_id, numSmena, CCHKF_ZCHECK, cash_no, chk_no, 0, 0, dttm, amount, 0);
 					THROW(r);

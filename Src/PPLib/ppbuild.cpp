@@ -997,6 +997,92 @@ int PrcssrSourceCodeMaintaining::Run()
 	return ok;
 }
 
+int PrcssrSourceCodeMaintaining::VerifyByPatterns(PPLogger * pLogger) // @construction
+{
+	int    ok = -1;
+	SString temp_buf;
+	SString pattern_path;
+	SString working_copy_path;
+	PPGetPath(PPPATH_TESTROOT, pattern_path);
+	pattern_path.SetLastSlash().Cat("data").SetLastSlash().Cat("pattern");
+	if(SFile::IsDir(pattern_path)) {
+		{
+			//
+			// Сверяем рабочий файл ppifc.uuid с образцом. Суть проверки заключается в том, что
+			// все символы, которые есть одновременно в рабочем файли и в образце должны иметь совпадающие GUID'ы
+			//
+			const char * p_file_name = "ppifc.uuid";
+			PPGetPath(PPPATH_SRCROOT, working_copy_path);
+			//D:\Papyrus\Src\Rsrc\dl600
+			working_copy_path.SetLastSlash().Cat("rsrc").SetLastSlash().Cat("dl600").SetLastSlash().Cat(p_file_name);
+			if(fileExists(working_copy_path)) {
+				(temp_buf = pattern_path).SetLastSlash().Cat(p_file_name);
+				if(fileExists(temp_buf)) {
+					SFile f_pattern(temp_buf, SFile::mRead);
+					SFile f_w(working_copy_path, SFile::mRead);
+					if(f_w.IsValid() && f_pattern.IsValid()) {
+						struct SymbToUuidAssoc {
+							SString Symb;
+							S_GUID Uuid;
+						};
+						TSCollection <SymbToUuidAssoc> pattern_list;
+						TSCollection <SymbToUuidAssoc> w_list;
+						SFile::ReadLineCsvContext csv_ctx(';');
+						StringSet ss;
+						int    rlcr = 0;
+						{
+							while((rlcr = f_pattern.ReadLineCsv(csv_ctx, ss)) != 0) {
+								uint   new_item_pos = 0;
+								SymbToUuidAssoc * p_new_item = pattern_list.CreateNewItem(&new_item_pos);
+								if(p_new_item) {
+									bool   local_ok = false;
+									uint   ssp = 0;
+									if(ss.get(&ssp, temp_buf)) {
+										p_new_item->Symb = temp_buf.Strip();
+										if(ss.get(&ssp, temp_buf)) {
+											if(p_new_item->Uuid.FromStr(temp_buf)) {
+												local_ok = true;
+											}
+										}
+									}
+									if(!local_ok) {
+										pattern_list.atFree(new_item_pos);
+									}
+								}
+							}
+						}
+						{
+							while((rlcr = f_w.ReadLineCsv(csv_ctx, ss)) != 0) {
+								uint   new_item_pos = 0;
+								SymbToUuidAssoc * p_new_item = w_list.CreateNewItem(&new_item_pos);
+								if(p_new_item) {
+									bool   local_ok = false;
+									uint   ssp = 0;
+									if(ss.get(&ssp, temp_buf)) {
+										p_new_item->Symb = temp_buf.Strip();
+										if(ss.get(&ssp, temp_buf)) {
+											if(p_new_item->Uuid.FromStr(temp_buf)) {
+												local_ok = true;
+											}
+										}
+									}
+									if(!local_ok) {
+										w_list.atFree(new_item_pos);
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			else {
+				// @todo @err Этот файл должен быть!
+			}
+		}
+	}
+	return ok;
+}
+
 int PrcssrSourceCodeMaintaining::FindSourceCodeWithNotUtf8Encoding(PPLogger * pLogger) // @v12.2.10 @construction
 {
 	int    ok = -1;

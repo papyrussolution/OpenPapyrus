@@ -2349,11 +2349,24 @@ int PPSession::Init(long flags, HINSTANCE hInst, const char * pUiDescriptionFile
 		}
 		THROW(PPInitStrings());
 		if(flags & PPSession::fInitPaths) {
-			SString path, root_path;
+			SString path;
+			SString root_path;
 			PPGetPath(PPPATH_SYSROOT, root_path);
 			{
-				path = (ini_file.Get(PPINISECT_PATH, PPINIPARAM_TEMP, temp_buf.Z()) > 0) ? temp_buf.cptr() : 0;
-				Helper_SetPath(PPPATH_TEMP, path);
+				//
+				// Здесь осуществляется простая инициализация путей (то есть, как в pp.ini файле прописано, так и инициализируем).
+				// Остальные пути требуют дополнительной обработки в случае отсутствия явного указания в pp.ini.
+				//
+				static const LAssoc SimplePathDeclList[] = { // key - PPPATH_XXX, val - PPINIPARAM_XXX
+					{ PPPATH_TEMP, PPINIPARAM_TEMP },
+					{ PPPATH_SPII, PPINIPARAM_SPII },
+					{ PPPATH_SARTREDB, PPINIPARAM_SARTREDB },
+					{ PPPATH_BUILDROOT, PPINIPARAM_BUILDROOT }, // @v12.3.2 
+				};
+				for(uint spdli = 0; spdli < SIZEOFARRAY(SimplePathDeclList); spdli++) {
+					path = (ini_file.Get(PPINISECT_PATH, SimplePathDeclList[spdli].Val, temp_buf.Z()) > 0) ? temp_buf.cptr() : 0;
+					Helper_SetPath(SimplePathDeclList[spdli].Key, path);
+				}
 			}
 			{
 				path = (ini_file.Get(PPINISECT_PATH, PPINIPARAM_LOG, temp_buf) > 0) ? temp_buf.cptr() : 0;
@@ -2371,14 +2384,6 @@ int PPSession::Init(long flags, HINSTANCE hInst, const char * pUiDescriptionFile
 				if(!path.NotEmptyS())
 					(path = root_path).SetLastSlash().Cat("PACK");
 				Helper_SetPath(PPPATH_PACK, path);
-			}
-			{
-				path = (ini_file.Get(PPINISECT_PATH, PPINIPARAM_SPII, temp_buf.Z()) > 0) ? temp_buf.cptr() : 0;
-				Helper_SetPath(PPPATH_SPII, path);
-			}
-			{
-				path = (ini_file.Get(PPINISECT_PATH, PPINIPARAM_SARTREDB, temp_buf.Z()) > 0) ? temp_buf.cptr() : 0;
-				Helper_SetPath(PPPATH_SARTREDB, path);
 			}
 			{
 				path = (ini_file.Get(PPINISECT_PATH, PPINIPARAM_WORKSPACE, temp_buf.Z()) > 0) ? temp_buf.cptr() : 0;
@@ -4916,10 +4921,17 @@ int PPSession::GetPath(PPID pathID, SString & rBuf)
 				// то нам нужен один уровень вверх и сразу в PPTEST (..\pptest).
 				//
 				SString temp_buf;
-				GetPath(PPPATH_BIN, temp_buf); // @recursion
-                SFsPath ps(temp_buf);
-                ps.Dir.SetLastSlash().Cat("..\\..\\src\\pptest");
-				ps.Merge(SFsPath::fDrv|SFsPath::fDir, rBuf);
+				GetPath(PPPATH_SRCROOT, temp_buf);
+				if(temp_buf.NotEmptyS() && SFile::IsDir(temp_buf)) {
+					(rBuf = temp_buf).SetLastSlash().Cat("pptest");
+				}
+				else {
+					GetPath(PPPATH_BIN, temp_buf); // @recursion
+					SFsPath ps(temp_buf);
+					ps.Dir.SetLastSlash().Cat("..\\..\\src\\pptest");
+					ps.Merge(SFsPath::fDrv|SFsPath::fDir, temp_buf);
+					SFsPath::NormalizePath(temp_buf, SFsPath::npfCompensateDotDot, rBuf);
+				}
 			}
 			break;
 		case PPPATH_SRCROOT: // @v11.9.4
@@ -4928,10 +4940,17 @@ int PPSession::GetPath(PPID pathID, SString & rBuf)
 				// Путь нужен для тестирования и отладки.
 				//
 				SString temp_buf;
-				GetPath(PPPATH_BIN, temp_buf); // @recursion
-                SFsPath ps(temp_buf);
-                ps.Dir.SetLastSlash().Cat("..\\..\\src");
-				ps.Merge(SFsPath::fDrv|SFsPath::fDir, rBuf);
+				GetPath(PPPATH_BUILDROOT, temp_buf);
+				if(temp_buf.NotEmptyS() && SFile::IsDir(temp_buf)) {
+					(rBuf = temp_buf).SetLastSlash().Cat("src");
+				}
+				else {
+					GetPath(PPPATH_BIN, temp_buf); // @recursion
+					SFsPath ps(temp_buf);
+					ps.Dir.SetLastSlash().Cat("..\\..\\src");
+					ps.Merge(SFsPath::fDrv|SFsPath::fDir, temp_buf);
+					SFsPath::NormalizePath(temp_buf, SFsPath::npfCompensateDotDot, rBuf);
+				}
 			}
 			break;
 		case PPPATH_SYSROOT:

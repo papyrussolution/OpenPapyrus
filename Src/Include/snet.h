@@ -455,38 +455,6 @@ private:
 //
 //
 //
-class SProxiAuthParam {
-public:
-	struct Entry {
-		Entry();
-		int32  Protocol; // InetUrl::protXXX
-		int32  Mode;     // SProxiAuthParam::kXXX
-		long   Flags;
-		InetAddr Addr;
-		SString  UserName;
-		SString  Password;
-	};
-
-	SProxiAuthParam();
-	SProxiAuthParam & Z();
-	int    SetEntry(SProxiAuthParam::Entry & rEntry);
-	int    GetEntry(int protocol, SProxiAuthParam::Entry & rEntry) const;
-	int    ToStr(long fmt, SString & rBuf) const;
-	int    FromStr(long fmt, const char * pStr);
-
-	enum {
-		kNone = 0,
-		kAuto,
-		kSys,
-		kManual
-	};
-	int32  Ver;
-private:
-	TSCollection <Entry> List;
-};
-//
-//
-//
 class SHttpProtocol {
 public:
 	enum  {

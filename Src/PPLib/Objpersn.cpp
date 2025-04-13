@@ -8573,6 +8573,66 @@ int PrcssrClientActivityStatistics::Run()
 	return ok;
 }
 
+int PrcssrClientActivityStatistics::Implement_ScanDetailedActivityListForSinglePerson_SCard(PPID personID, const PPIDArray * pSCardSerIdList, const DateRange & rPeriod, TSVector <ClientActivityDetailedEntry> & rList)
+{
+	int    ok = -1;
+	const  PPID zero_id = 0L;
+	PPObjSCardSeries scs_obj;
+	PPIDArray sc_list;
+	CCheckCore * p_cc = ScObj.P_CcTbl;
+	ScObj.P_Tbl->GetListByPerson(personID, 0L, &sc_list);
+	sc_list.sortAndUndup();
+	for(uint i = 0; i < sc_list.getCount(); i++) {
+		const PPID sc_id = sc_list.get(i);
+		SCardTbl::Rec sc_rec;
+		if(ScObj.Fetch(sc_id, &sc_rec) > 0) {
+			const PPID scs_id = sc_rec.SeriesID;
+			if(!pSCardSerIdList || pSCardSerIdList->lsearch(scs_id) || pSCardSerIdList->lsearch(zero_id)) {
+				PPSCardSeries scs_rec;
+				if(scs_obj.Fetch(scs_id, &scs_rec) > 0) {
+					switch(scs_rec.GetType()) {
+						case scstCredit: 
+						case scstBonus: 
+							{
+								constexpr long _f = SCardCore::OpBlock::fFreezing|SCardCore::OpBlock::fLeveling;
+								SCardOpTbl::Rec sco_rec;
+								for(LDATETIME dtm = ZERODATETIME; ScObj.P_Tbl->EnumOpByCard(sc_id, &dtm, &sco_rec) > 0;) {
+									const LDATE _dt = sco_rec.Dt;
+									if(!(sco_rec.Flags & _f) && rPeriod.CheckDate(_dt)) {
+										if(sco_rec.Amount < 0.0) { // нас интересуют только операции расхода, поскольку только они и формируют нашу прибыль
+											// Трудность обнаружилась - у операции по карте нет своего ObjID'а. Транзакцию идентифицируем 
+											// объектом карты и моментом времени операции по карте.
+											ClientActivityDetailedEntry new_entry;
+											new_entry.Dtm.Set(_dt, sco_rec.Tm);
+											new_entry.Oid.Set(ScObj.Obj, sc_id);
+											rList.insert(&new_entry);
+										}
+									}
+								}
+							}
+							break;
+						case scstDiscount:
+							{
+								CCheckTbl::Key4 k4;
+								MEMSZERO(k4);
+								k4.SCardID = sc_id;
+								if(p_cc->search(4, &k4, spGe) && p_cc->data.SCardID == sc_id) do {
+									const LDATE _dt = p_cc->data.Dt;
+									if(rPeriod.CheckDate(_dt)) {
+										ClientActivityDetailedEntry new_entry(PPObjID(PPOBJ_CCHECK, p_cc->data.ID), _dt);
+										rList.insert(&new_entry);												
+									}
+								} while(p_cc->search(4, &k4, spNext) && p_cc->data.SCardID == sc_id);
+							}
+							break;
+					}
+				}
+			}
+		}
+	}
+	return ok;
+}
+
 int PrcssrClientActivityStatistics::Implement_ScanDetailedActivityListForSinglePerson(PPViewBill * pBillV, PPID personID, TSVector <ClientActivityDetailedEntry> & rList)
 {
 	rList.clear();
@@ -8646,60 +8706,7 @@ int PrcssrClientActivityStatistics::Implement_ScanDetailedActivityListForSingleP
 			}
 			if(scs_list.getCount()) {
 				scs_list.sortAndUndup();
-				PPObjSCardSeries scs_obj;
-				for(uint scsi = 0; scsi < scs_list.getCount(); scsi++) {
-					const PPID scs_id = scs_list.get(scsi);
-					PPSCardSeries scs_rec;
-					if(scs_obj.Fetch(scs_id, &scs_rec) > 0) {
-						PPIDArray sc_list;
-						switch(scs_rec.GetType()) {
-							case scstCredit: 
-							case scstBonus: 
-								{
-									constexpr long _f = SCardCore::OpBlock::fFreezing | SCardCore::OpBlock::fLeveling;
-									ScObj.P_Tbl->GetListByPerson(personID, scs_id, &sc_list);
-									for(uint si = 0; si < sc_list.getCount(); si++) {
-										const PPID sc_id = sc_list.get(si);
-										SCardOpTbl::Rec sco_rec;
-										for(LDATETIME dtm = ZERODATETIME; ScObj.P_Tbl->EnumOpByCard(sc_id, &dtm, &sco_rec) > 0;) {
-											const LDATE _dt = sco_rec.Dt;
-											if(!(sco_rec.Flags & _f) && _period.CheckDate(_dt)) {
-												if(sco_rec.Amount < 0.0) { // нас интересуют только операции расхода, поскольку только они и формируют нашу прибыль
-													// Трудность обнаружилась - у операции по карте нет своего ObjID'а. Транзакцию идентифицируем 
-													// объектом карты и моментом времени операции по карте.
-													ClientActivityDetailedEntry new_entry;
-													new_entry.Dtm.Set(_dt, sco_rec.Tm);
-													new_entry.Oid.Set(ScObj.Obj, sc_id);
-													rList.insert(&new_entry);
-												}
-											}
-										}
-
-									}
-								}
-								break;
-							case scstDiscount:
-								{
-									ScObj.P_Tbl->GetListByPerson(personID, scs_id, &sc_list);
-									CCheckCore * p_cc = ScObj.P_CcTbl;
-									for(uint si = 0; si < sc_list.getCount(); si++) {
-										const PPID sc_id = sc_list.get(si);
-										CCheckTbl::Key4 k4;
-										MEMSZERO(k4);
-										k4.SCardID = sc_id;
-										if(p_cc->search(4, &k4, spGe) && p_cc->data.SCardID == sc_id) do {
-											const LDATE _dt = p_cc->data.Dt;
-											if(_period.CheckDate(_dt)) {
-												ClientActivityDetailedEntry new_entry(PPObjID(PPOBJ_CCHECK, p_cc->data.ID), _dt);
-												rList.insert(&new_entry);												
-											}
-										} while(p_cc->search(4, &k4, spNext) && p_cc->data.SCardID == sc_id);
-									}
-								}
-								break;
-						}
-					}
-				}
+				Implement_ScanDetailedActivityListForSinglePerson_SCard(personID, &scs_list, _period, rList);
 			}
 		}
 	}

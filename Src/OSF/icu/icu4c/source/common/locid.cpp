@@ -299,12 +299,12 @@ Locale::Locale(const char * newLanguage, const char * newCountry, const char * n
 		}
 		if(ksize != 0) {
 			if(sstrchr(newKeywords, '=')) {
-				togo.append('@', status); /* keyword parsing */
+				togo.append('@', status); // keyword parsing
 			}
 			else {
-				togo.append('_', status); /* Variant parsing with a script */
+				togo.append('_', status); // Variant parsing with a script
 				if(vsize == 0) {
-					togo.append('_', status); /* No country found */
+					togo.append('_', status); // No country found
 				}
 			}
 			togo.append(newKeywords, status);

@@ -902,10 +902,16 @@ void TView::changeBounds(const TRect & rBounds)
 	}
 }
 
-void TView::setBounds(const TRect & bounds)
+void TView::setBounds(const TRect & rBounds)
 {
-	ViewOrigin = bounds.a;
-	ViewSize = bounds.b - bounds.a;
+	ViewOrigin = rBounds.a;
+	ViewSize = rBounds.b - rBounds.a;
+}
+
+void TView::setBounds(const FRect & rBounds) // @v12.3.2
+{
+	ViewOrigin = rBounds.a;
+	ViewSize = rBounds.b - rBounds.a;
 }
 
 void TView::SetWordSelBlock(WordSel_ExtraBlock * pBlk)

@@ -3025,15 +3025,15 @@ table Cr_Sale {
 	double  PriceNSP;      // Продажная цена (руб)
 	long    NSmena;        // * Номер смены             ->Cr_ZReport.ZNumber
 index:
-	DateOperation, GrCode, Cash_Code, Ck_Number (dup mod);
-	GrCode, DateOperation, Cash_Code, Ck_Number (dup mod);
-	Cash_Code, Ck_Number, GrCode, Code, Price   (dup mod);
-	DateOperation, Cash_Code, Ck_Number         (dup mod);
-	DateOperation, Cassir, Cash_Code, Ck_Number (dup mod);
-	Cassir, DateOperation, Cash_Code, Ck_Number (dup mod);
-	DateOperation, GrCode, Code, Price          (dup mod);
-	Code, DateOperation (dup mod);
-	Cash_Code, NSmena   (dup mod);   // *
+	DateOperation, GrCode, Cash_Code, Ck_Number (dup mod); // #0
+	GrCode, DateOperation, Cash_Code, Ck_Number (dup mod); // #1
+	Cash_Code, Ck_Number, GrCode, Code, Price   (dup mod); // #2
+	DateOperation, Cash_Code, Ck_Number         (dup mod); // #3
+	DateOperation, Cassir, Cash_Code, Ck_Number (dup mod); // #4
+	Cassir, DateOperation, Cash_Code, Ck_Number (dup mod); // #5
+	DateOperation, GrCode, Code, Price          (dup mod); // #6
+	Code, DateOperation                         (dup mod); // #7
+	Cash_Code, NSmena                           (dup mod); // #8 // *
 file:
 	"sale.btr";
 }

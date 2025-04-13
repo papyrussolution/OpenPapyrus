@@ -1051,9 +1051,9 @@ private:
 	int    Helper_GetScopeList(int kind, int recursive, StrAssocArray * pList) const;
 	DlScope * GetCurDialogScope();
 	int    GetUiSymbSeries(const char * pSymb, SString & rSerBuf, DLSYMBID * pId);
-	int    Helper_AddBFunc(const char * pFuncName, uint implID, const char * pRetType, va_list pArgList);
-	int    CDECL AddBOp(int op, uint implID, const char * pRetType, ...);
-	int    CDECL AddBFunc(const char * pFuncName, uint implID, const char * pRetType, ...);
+	bool   Helper_AddBFunc(const char * pFuncName, uint implID, const char * pRetType, va_list pArgList);
+	bool   CDECL AddBOp(int op, uint implID, const char * pRetType, ...);
+	bool   CDECL AddBFunc(const char * pFuncName, uint implID, const char * pRetType, ...);
 	int    AddBCmpOps(uint implID, const char * pType);
 	int    AddBCvt(uint implID, int loss, const char * pRetType, const char * pSrcType);
 	int    FASTCALL BuiltinOp(const DlFunc * pF, SV_Uint32 *);

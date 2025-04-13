@@ -2413,7 +2413,8 @@ public:
 	void   STDCALL enableCommand(ushort command, bool toEnable);
 	void   getCommands(TCommandSet & commands) const;
 	void   setCommands(const TCommandSet & commands);
-	void   setBounds(const TRect & bounds);
+	void   setBounds(const TRect & rBounds);
+	void   setBounds(const FRect & rBounds); // @v12.3.2
 	void   changeBounds(const TRect & bounds);
 	bool   IsCommandValid(ushort command); // @v12.2.6
 	uint   getHelpCtx();
@@ -3750,7 +3751,17 @@ protected:
 	int    LinkCtrlsToDlgBorders(long ctrlResizeFlags, ...);
 	int    ResizeDlgToRect(const RECT * pRect);
 	int    ResizeDlgToFullScreen();
-	int    BuildEmptyWindow(); // @v12.2.5
+
+	struct BuildEmptyWindowParam {
+		BuildEmptyWindowParam() : FontSize(0)
+		{
+		}
+		SString FontFace;
+		int   FontSize;
+		TRect Bounds;
+	};
+
+	int    BuildEmptyWindow(const BuildEmptyWindowParam * pParam); // @v12.2.5
 	bool   ValidateCommand(TEvent & rEv); // @v12.2.6
 
 	UserSettings Settings;

@@ -499,6 +499,7 @@ public:
 	static constexpr const char * WrKey_Sessions = "Software\\Papyrus\\Sessions"; // @v11.4.4 (replaced PPRegKeys)
 	static constexpr const char * WrKey_WsCtl = "Software\\Papyrus\\WsCtl"; // @v11.7.2 HKEY_LOCAL_MACHINE
 	static constexpr const char * WrKey_SlTestApp = "Software\\Papyrus\\SlTestApp"; // @v11.8.2 HKEY_LOCAL_MACHINE && HKEY_CURRENT_USER
+	static constexpr const char * WrKey_RecentItems = "Software\\Papyrus\\RecentItems"; // @v12.3.2 moved from pptvutil.cpp
 	static constexpr const char * WrParam_ViewQuotsAsListBox = "ViewQuotsAsListBox";
 	static constexpr const char * WrParam_BillAddFilesFolder = "BillAddFilesFolder";
 	static constexpr const char * WrParam_CalcPriceParam = "CalcPriceParam";
@@ -41961,6 +41962,7 @@ public:
 private:
 	TSVector <ClientActivityDetailedEntry> & SortDetailedEntryList(TSVector <ClientActivityDetailedEntry> & rList);
 	int    Implement_ScanDetailedActivityListForSinglePerson(PPViewBill * pBillV, PPID personID, TSVector <ClientActivityDetailedEntry> & rList);
+	int    Implement_ScanDetailedActivityListForSinglePerson_SCard(PPID personID, const PPIDArray * pSCardSerIdList, const DateRange & rPeriod, TSVector <ClientActivityDetailedEntry> & rList);
 	int    EvaluateStorableStat(PPID personID, const TSVector <ClientActivityDetailedEntry> & rSrcList, PPObjPerson::ClientActivityStatistics & rTotalEntry, TSVector <uint16> & rDateList);
 	PPObjPerson PsnObj;
 	PPObjArticle ArObj;
@@ -61100,6 +61102,7 @@ private:
 	};
 	int    ParseWinRcForNativeText(PPLogger * pLogger);
 	int    FindSourceCodeWithNotUtf8Encoding(PPLogger * pLogger);
+	int    VerifyByPatterns(PPLogger * pLogger);
 
 	PrcssrSourceCodeMaintainingFilt P;
 	SString BuildRootPath;

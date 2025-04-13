@@ -434,7 +434,7 @@ int (* getUserControl)(TVRez*, TDialog*) = 0;
 	return ok;
 }
 
-int TDialog::BuildEmptyWindow() // @v12.2.5
+int TDialog::BuildEmptyWindow(const BuildEmptyWindowParam * pParam) // @v12.2.5
 {
 	int    ok = 0;
 	if(HW)

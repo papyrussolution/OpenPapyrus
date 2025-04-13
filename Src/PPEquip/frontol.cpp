@@ -1306,9 +1306,9 @@ int ACS_FRONTOL::ConvertWareList(const char * pImpPath)
 		// Необходим для предотвращения повторного сброса строк одного чека, если
 		// во входном файле дублируются чеки.
 	FrontolCcPayment cc_payment;
-	SString   imp_file_name = PathRpt;
+	SString imp_file_name(PathRpt);
 	// SFsPath::ReplacePath(imp_file_name, pImpPath, 1);
-	SFile     imp_file(pImpPath, SFile::mRead); // PathRpt-->imp_file_name
+	SFile  imp_file(pImpPath, SFile::mRead); // PathRpt-->imp_file_name
 	PPObjGoods::ReadConfig(&goods_cfg);
 	const  PPID def_goods_id = (goods_cfg.DefGoodsID && goods_obj.Fetch(goods_cfg.DefGoodsID, 0) > 0) ? goods_cfg.DefGoodsID : 0;
 	THROW(imp_file.IsValid());

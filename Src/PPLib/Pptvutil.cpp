@@ -3357,7 +3357,7 @@ LayoutedListDialog::LayoutedListDialog(const Param & rParam, ListBoxDef * pDef) 
 	if(!rParam.Bounds.IsEmpty()) {
 		TDialog::setBounds(rParam.Bounds);
 	}
-	TDialog::BuildEmptyWindow();
+	TDialog::BuildEmptyWindow(0);
 }
 	
 LayoutedListDialog::~LayoutedListDialog()
@@ -7329,7 +7329,7 @@ int PPCallHelp(void * hWnd, uint cmd, uint ctx)
 			PPGetFilePath(PPPATH_BIN, p_file_name, path);
 			if(fileExists(path)) {
 				SFsPath ps(path);
-				if(ps.Flags & SFsPath::fUNC || ((ps.Flags & SFsPath::fDrv) && GetDriveType(SUcSwitch(ps.Drv.SetLastSlash())) == DRIVE_REMOTE)) { // @unicodeproblem
+				if(ps.Flags & SFsPath::fUNC || ((ps.Flags & SFsPath::fDrv) && GetDriveType(SUcSwitch(ps.Drv.SetLastSlash())) == DRIVE_REMOTE)) {
 					//
 					// В связи с проблемой загрузки help'а с сетевого каталога коприруем файл в
 					// локальный каталог. При этом, чтобы избежать лишних копирований, проверяем, нет ли
@@ -7357,7 +7357,7 @@ int PPCallHelp(void * hWnd, uint cmd, uint ctx)
 							path = local_path;
 					}
 				}
-				ok = BIN(HtmlHelp(static_cast<HWND>(hWnd), SUcSwitch(path), cmd, ctx)); // @unicodeproblem
+				ok = BIN(HtmlHelp(static_cast<HWND>(hWnd), SUcSwitch(path), cmd, ctx));
 			}
 		}
 		else
@@ -7889,7 +7889,7 @@ int ExportDialogs2(const char * pFileName)
 //
 //
 //
-static const char * WrSubKey_RecentItems = "Software\\Papyrus\\RecentItems";
+// @v12.3.2 (replaced with PPConst::WrKey_RecentItems) static const char * WrSubKey_RecentItems = "Software\\Papyrus\\RecentItems";
 
 RecentItemsStorage::RecentItemsStorage(int ident, uint maxItems, CompFunc cf) : Ident(ident), MaxItems(maxItems), Cf(cf)
 {
@@ -7913,7 +7913,7 @@ int RecentItemsStorage::CheckIn(const char * pText)
 		else if(Ident > 0)
 			key.CatChar('#').Cat(Ident);
 		if(key.NotEmpty()) {
-			WinRegKey reg_key(HKEY_CURRENT_USER, WrSubKey_RecentItems, 0);
+			WinRegKey reg_key(HKEY_CURRENT_USER, PPConst::WrKey_RecentItems, 0);
 			StringSet ss;
 			SString temp_buf;
 			size_t rec_size = 0;
@@ -7951,7 +7951,7 @@ int RecentItemsStorage::GetList(StringSet & rSs)
 	else if(Ident > 0)
 		key.CatChar('#').Cat(Ident);
 	if(key.NotEmpty()) {
-		WinRegKey reg_key(HKEY_CURRENT_USER, WrSubKey_RecentItems, 0);
+		WinRegKey reg_key(HKEY_CURRENT_USER, PPConst::WrKey_RecentItems, 0);
 		StringSet ss;
 		SString temp_buf;
 		size_t rec_size = 0;
@@ -8228,37 +8228,6 @@ int BigTextDialog(uint maxLen, const char * pWindowTitle, const char * pSubTitle
 //
 //
 //
-#if 0 // @construction {
-class ProxiAuthDialog : public TDialog {
-public:
-	ProxiAuthDialog() : TDialog(DLG_NETPROXI)
-	{
-	}
-	int    setDTS(const SProxiAuthParam * pData)
-	{
-		int    ok = 1;
-		Data = *pData;
-
-		return ok;
-	}
-	int    getDTS(SProxiAuthParah * pData)
-	{
-		int    ok = 1;
-
-		ASSIGN_PTR(pData, Data);
-		return ok;
-	}
-private:
-	DECL_HANDLE_EVENT
-	{
-		TDialog::handleEvent(event);
-	}
-	SProxiAuthParam Data;
-};
-#endif // } 0 @construction
-//
-//
-//
 ExtStrContainerListDialog::ExtStrContainerListDialog(uint dlgId, uint listCtlId, const char * pTitle, bool readOnly, const SIntToSymbTabEntry * pDescrList, size_t descrListCount) : 
 	PPListDialog(dlgId, listCtlId), ReadOnly(readOnly), P_DescrList(pDescrList), DescrListCount(descrListCount)
 {
@@ -8342,44 +8311,142 @@ IMPL_DIALOG_GETDTS(ExtStrContainerListDialog)
 //
 //
 //
+class TDialogDL6_Construction : public TDialog {
+public:
+	TDialogDL6_Construction(DlContext & rCtx, const char * pSymb) : TDialog(0, TWindow::wbcDrawBuffer|TWindow::wbcStorableUserParams, TDialog::coEmpty),
+		Dl00Symb(pSymb)
+	{
+		Build(rCtx);
+	}
+private:
+	void   Build(DlContext & rCtx)
+	{
+		const DlScope * p_scope = rCtx.GetScopeByName_Const(DlScope::kUiView, "DLG_BIZPRCRT");
+		if(p_scope) {
+			BuildEmptyWindowParam bew_param;
+			char   c_buf[1024];
+			SUiLayoutParam __alb;
+			const SUiLayoutParam * p_alb = 0;
+			SString temp_buf;
+			{
+				CtmExprConst __c = p_scope->GetConst(DlScope::cuifCtrlText);
+				if(!!__c) {
+					if(rCtx.GetConstData(__c, c_buf, sizeof(c_buf))) {
+						temp_buf = reinterpret_cast<const char *>(c_buf);
+						setTitle(temp_buf);
+					}
+				}
+			}
+			{
+				CtmExprConst __c = p_scope->GetConst(DlScope::cuifLayoutBlock);
+				if(!!__c) {
+					if(rCtx.GetConstData(__c, c_buf, sizeof(c_buf))) {
+						__alb = *reinterpret_cast<const SUiLayoutParam *>(c_buf);
+						p_alb = &__alb;
+					}
+				}
+			}
+			if(p_alb) {
+				FRect rect;
+				rect.a.x = p_alb->GetAbsoluteLowX();
+				rect.a.y = p_alb->GetAbsoluteLowY();
+				{
+					SPoint2F sz;
+					p_alb->GetSizeX(&sz.x);
+					p_alb->GetSizeY(&sz.y);
+					if(sz.x > 0.0f) {
+						rect.b.x = rect.a.x + sz.x;
+					}
+					else 
+						rect.b.x = rect.a.x + 60.0f;
+					if(sz.y > 0.0f) {
+						rect.b.y = rect.a.y + sz.y;
+					}
+					else
+						rect.b.y = rect.a.y + 60.0f;
+				}
+				bew_param.Bounds.Set(rect);
+			}
+			/*{
+				CtmExprConst __c = p_scope->GetConst(DlScope::cuifCtrlRect);
+				if(!!__c) {
+					if(rCtx.GetConstData(__c, c_buf, sizeof(c_buf))) {
+						const UiRelRect * p_rect = reinterpret_cast<const UiRelRect *>(c_buf);
+						//temp_buf.Z();
+						//_RectToLine(*p_rect, temp_buf);
+						//rOutBuf.CR().Tab_(indentTabCount+1).Cat("rect").CatDiv(':', 2).Cat(temp_buf);
+					}
+				}
+			}*/
+			{
+				{
+					CtmExprConst __c = p_scope->GetConst(DlScope::cuifFont);
+					if(!!__c) {
+						if(rCtx.GetConstData(__c, c_buf, sizeof(c_buf))) {
+							bew_param.FontFace = reinterpret_cast<const char *>(c_buf);
+						}
+					}
+				}
+				{
+					CtmExprConst __c = p_scope->GetConst(DlScope::cuifFontSize);
+					if(!!__c) {
+						if(rCtx.GetConstData(__c, c_buf, sizeof(c_buf))) {
+							double font_size_real = *reinterpret_cast<const double *>(c_buf);
+							bew_param.FontSize = static_cast<int>(font_size_real);
+						}
+					}
+				}
+				if(temp_buf.NotEmpty()) {
+				}
+			}
+			//setBounds(rect);
+			BuildEmptyWindow(&bew_param);
+		}
+	}
+
+	SString Dl00Symb;
+};
+
 int Test_ExecuteDialogByDl600Description() // @construction
 {
 	int    ok = 0;
+	TDialogDL6_Construction * dlg = 0;
+	SString temp_buf;
 	SString file_name;
 	PPGetFilePath(PPPATH_BIN, "ppdlg2.bin", file_name);
 	if(fileExists(file_name)) {
 		DlContext ctx;
 		if(ctx.Init(file_name)) {
-			const DlScope * p_scope = ctx.GetScopeByName_Const(DlScope::kUiView, "DLG_BIZPRCRT");
-			if(p_scope) {
-				ok = -1;
-			}
+			dlg = new TDialogDL6_Construction(ctx, "DLG_BIZPRCRT");
+			ExecViewAndDestroy(dlg);
+			dlg = 0;
+			ok = -1;
+		}
 #if 0 // {
-			if(Sc.GetFirstChildByKind(DlScope::kUiView, 1)) {
-				SFsPath ps;
-				ps.Split(InFileName);
-				ps.Nam.CatChar('-').Cat("out");
-				ps.Ext = "txt";
-				ps.Merge(temp_buf);
-				SFile f_view_out(temp_buf, SFile::mWrite);
-				for(uint fscidx = 0; fscidx < file_sc_list.getCount(); fscidx++) {
-					const long file_scope_id = file_sc_list.get(fscidx);
-					const DlScope * p_file_scope = GetScope(file_scope_id, 0);
-					if(p_file_scope) {
-						scope_id_list.freeAll();
-						p_file_scope->GetChildList(DlScope::kUiView, /*1*/0/*recursive*/, &scope_id_list);
-						for(i = 0; i < scope_id_list.getCount(); i++) {
-							const DlScope * p_scope = GetScope(scope_id_list.at(i), 0);
-							line_buf.Z();
-							if(Write_UiView(p_scope, 0, line_buf) > 0) {
-								f_view_out.WriteLine(line_buf.CR());
-							}
+		if(Sc.GetFirstChildByKind(DlScope::kUiView, 1)) {
+			SFsPath ps;
+			ps.Split(InFileName);
+			ps.Nam.CatChar('-').Cat("out");
+			ps.Ext = "txt";
+			ps.Merge(temp_buf);
+			SFile f_view_out(temp_buf, SFile::mWrite);
+			for(uint fscidx = 0; fscidx < file_sc_list.getCount(); fscidx++) {
+				const long file_scope_id = file_sc_list.get(fscidx);
+				const DlScope * p_file_scope = GetScope(file_scope_id, 0);
+				if(p_file_scope) {
+					scope_id_list.freeAll();
+					p_file_scope->GetChildList(DlScope::kUiView, /*1*/0/*recursive*/, &scope_id_list);
+					for(i = 0; i < scope_id_list.getCount(); i++) {
+						const DlScope * p_scope = GetScope(scope_id_list.at(i), 0);
+						line_buf.Z();
+						if(Write_UiView(p_scope, 0, line_buf) > 0) {
+							f_view_out.WriteLine(line_buf.CR());
 						}
 					}
 				}
 			}
-#endif // } 0
 		}
+#endif // } 0
 	}
 	return ok;
 }

@@ -562,11 +562,6 @@ int FASTCALL DlScope::InitInheritance(const DlScope * pTopScope)
 	}
 #endif // } DL600C
 
-void FASTCALL DlScope::AddFunc(const DlFunc * pF)
-{
-	FuncPool.Add(pF);
-}
-
 int DlScope::GetFuncListByName(const char * pSymb, LongArray * pList) const
 {
 	int    ok = -1;
@@ -577,15 +572,9 @@ int DlScope::GetFuncListByName(const char * pSymb, LongArray * pList) const
 	return ok;
 }
 
-uint DlScope::GetFuncCount() const
-{
-	return FuncPool.GetCount();
-}
-
-int DlScope::GetFuncByPos(uint pos, DlFunc * pFunc) const
-{
-	return FuncPool.GetByPos(pos, pFunc);
-}
+void FASTCALL DlScope::AddFunc(const DlFunc * pF) { FuncPool.Add(pF); }
+uint DlScope::GetFuncCount() const { return FuncPool.GetCount(); }
+int  DlScope::GetFuncByPos(uint pos, DlFunc * pFunc) const { return FuncPool.GetByPos(pos, pFunc); }
 
 int DlScope::EnumFunctions(uint * pI, DlFunc * pFunc) const
 {
