@@ -937,6 +937,7 @@ int PrcssrSourceCodeMaintaining::EditParam(PPBaseFilt * pBaseFilt)
 		param = *static_cast<const PrcssrSourceCodeMaintainingFilt *>(pBaseFilt);
 		dlg->AddClusterAssoc(CTL_PRCRSRCC_FLAGS, 0, PrcssrSourceCodeMaintainingFilt::fParseWinRcForNativeText);
 		dlg->AddClusterAssoc(CTL_PRCRSRCC_FLAGS, 1, PrcssrSourceCodeMaintainingFilt::fFindSourceCodeWithNotUtf8Encoding);
+		dlg->AddClusterAssoc(CTL_PRCRSRCC_FLAGS, 2, PrcssrSourceCodeMaintainingFilt::fVerifySourceCodeByPatterns); // @v12.3.2
 		dlg->SetClusterData(CTL_PRCRSRCC_FLAGS, param.Flags);
 		while(ok <= 0 && ExecView(dlg) == cmOK) {
 			dlg->GetClusterData(CTL_PRCRSRCC_FLAGS, &param.Flags);
@@ -993,14 +994,48 @@ int PrcssrSourceCodeMaintaining::Run()
 			if(!FindSourceCodeWithNotUtf8Encoding(&logger))
 				PPError();
 		}
+		if(P.Flags & PrcssrSourceCodeMaintainingFilt::fVerifySourceCodeByPatterns) {
+			PPLoadString("prcssrsourcecodemaintaining_fverifysourcecodebypatterns", msg_buf);
+			if(msg_buf.NotEmpty())
+				logger.Log(msg_buf);
+			if(!VerifyByPatterns(&logger))
+				PPError();
+		}
 	}
 	return ok;
 }
 
-int PrcssrSourceCodeMaintaining::VerifyByPatterns(PPLogger * pLogger) // @construction
+struct SymbToUuidAssoc { // @flat
+	SymbToUuidAssoc() 
+	{
+		Symb[0] = 0;
+	}
+	char   Symb[128];
+	S_GUID Uuid;
+};
+
+class SymbToUuidAssocCollection : public TSVector <SymbToUuidAssoc> {
+public:
+	SymbToUuidAssocCollection() : TSVector <SymbToUuidAssoc>()
+	{
+	}
+	const SymbToUuidAssoc * SearchSymb(const char * pSymb, uint * pPos) const
+	{
+		const  SymbToUuidAssoc * p_result = 0;
+		uint   pos = 0;
+		if(lsearch(pSymb, &pos, PTR_CMPFUNC(PcharNoCase))) {
+			p_result = &at(pos);
+		}
+		ASSIGN_PTR(pPos, pos);
+		return p_result;
+	}
+};
+
+int PrcssrSourceCodeMaintaining::VerifyByPatterns(PPLogger * pLogger)
 {
-	int    ok = -1;
+	int    ok = 1;
 	SString temp_buf;
+	SString msg_buf;
 	SString pattern_path;
 	SString working_copy_path;
 	PPGetPath(PPPATH_TESTROOT, pattern_path);
@@ -1011,7 +1046,8 @@ int PrcssrSourceCodeMaintaining::VerifyByPatterns(PPLogger * pLogger) // @constr
 			// Сверяем рабочий файл ppifc.uuid с образцом. Суть проверки заключается в том, что
 			// все символы, которые есть одновременно в рабочем файли и в образце должны иметь совпадающие GUID'ы
 			//
-			const char * p_file_name = "ppifc.uuid";
+			uint   local_err_count = 0;
+			const  char * p_file_name = "ppifc.uuid";
 			PPGetPath(PPPATH_SRCROOT, working_copy_path);
 			//D:\Papyrus\Src\Rsrc\dl600
 			working_copy_path.SetLastSlash().Cat("rsrc").SetLastSlash().Cat("dl600").SetLastSlash().Cat(p_file_name);
@@ -1021,53 +1057,54 @@ int PrcssrSourceCodeMaintaining::VerifyByPatterns(PPLogger * pLogger) // @constr
 					SFile f_pattern(temp_buf, SFile::mRead);
 					SFile f_w(working_copy_path, SFile::mRead);
 					if(f_w.IsValid() && f_pattern.IsValid()) {
-						struct SymbToUuidAssoc {
-							SString Symb;
-							S_GUID Uuid;
-						};
-						TSCollection <SymbToUuidAssoc> pattern_list;
-						TSCollection <SymbToUuidAssoc> w_list;
+						SymbToUuidAssocCollection pattern_list;
+						SymbToUuidAssocCollection w_list;
 						SFile::ReadLineCsvContext csv_ctx(';');
 						StringSet ss;
 						int    rlcr = 0;
 						{
 							while((rlcr = f_pattern.ReadLineCsv(csv_ctx, ss)) != 0) {
-								uint   new_item_pos = 0;
-								SymbToUuidAssoc * p_new_item = pattern_list.CreateNewItem(&new_item_pos);
-								if(p_new_item) {
-									bool   local_ok = false;
-									uint   ssp = 0;
+								uint   ssp = 0;
+								if(ss.get(&ssp, temp_buf)) {
+									SymbToUuidAssoc new_item;
+									temp_buf.Strip();
+									STRNSCPY(new_item.Symb, temp_buf);
 									if(ss.get(&ssp, temp_buf)) {
-										p_new_item->Symb = temp_buf.Strip();
-										if(ss.get(&ssp, temp_buf)) {
-											if(p_new_item->Uuid.FromStr(temp_buf)) {
-												local_ok = true;
-											}
+										if(new_item.Uuid.FromStr(temp_buf)) {
+											pattern_list.insert(&new_item);
 										}
-									}
-									if(!local_ok) {
-										pattern_list.atFree(new_item_pos);
 									}
 								}
 							}
 						}
 						{
 							while((rlcr = f_w.ReadLineCsv(csv_ctx, ss)) != 0) {
-								uint   new_item_pos = 0;
-								SymbToUuidAssoc * p_new_item = w_list.CreateNewItem(&new_item_pos);
-								if(p_new_item) {
-									bool   local_ok = false;
-									uint   ssp = 0;
+								uint   ssp = 0;
+								if(ss.get(&ssp, temp_buf)) {
+									SymbToUuidAssoc new_item;
+									temp_buf.Strip();
+									STRNSCPY(new_item.Symb, temp_buf);
 									if(ss.get(&ssp, temp_buf)) {
-										p_new_item->Symb = temp_buf.Strip();
-										if(ss.get(&ssp, temp_buf)) {
-											if(p_new_item->Uuid.FromStr(temp_buf)) {
-												local_ok = true;
-											}
+										if(new_item.Uuid.FromStr(temp_buf)) {
+											w_list.insert(&new_item);
 										}
 									}
-									if(!local_ok) {
-										w_list.atFree(new_item_pos);
+								}
+							}
+						}
+						{
+							for(uint i = 0; i < w_list.getCount(); i++) {
+								const SymbToUuidAssoc & r_w_item = w_list.at(i);
+								const SymbToUuidAssoc * p_pattern_item = pattern_list.SearchSymb(r_w_item.Symb, 0);
+								if(p_pattern_item) {
+									if(p_pattern_item->Uuid != r_w_item.Uuid) {
+										// У нас большая проблема!
+										local_err_count++;
+										if(pLogger) {
+											PPLoadString(PPSTR_ERROR, PPERR_DEV_DL600IFC_UUID_MISMATCH, temp_buf);
+											msg_buf.Printf(temp_buf, r_w_item.Symb);
+											pLogger->Log(msg_buf);
+										}
 									}
 								}
 							}
@@ -1076,7 +1113,19 @@ int PrcssrSourceCodeMaintaining::VerifyByPatterns(PPLogger * pLogger) // @constr
 				}
 			}
 			else {
-				// @todo @err Этот файл должен быть!
+				// Этот файл должен быть!
+				local_err_count++;
+				if(pLogger) {
+					PPLoadString(PPSTR_ERROR, PPERR_DEV_FILEABSENCE, temp_buf);
+					msg_buf.Printf(temp_buf, working_copy_path.cptr());
+					pLogger->Log(msg_buf);
+				}
+			}
+			if(!local_err_count) {
+				if(pLogger) {
+					PPLoadText(PPTXT_DEV_DL600IFCUUIDFILEOK, msg_buf);
+					pLogger->Log(msg_buf);
+				}
 			}
 		}
 	}

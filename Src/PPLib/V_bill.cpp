@@ -9220,6 +9220,9 @@ int PPALDD_ContentBList::NextIteration(PPIterID iterId)
 			PPALDD_ContentBList_VIterState vis(I.BillID, IsDraftOp(item.OpID));
 			p_v->SetIterState(&vis, sizeof(vis));
 		}
+		else {
+			p_bobj->Fetch(I.BillID, &item); // @v12.3.2 @fix
+		}
 		int    r = 0;
 		PPALDD_ContentBList_VIterState * p_vis = static_cast<PPALDD_ContentBList_VIterState *>(p_v->GetIterState());
 		if(p_vis) {

@@ -261,7 +261,7 @@ int PPPaths::SetPath(PPID pathID, const char * pBuf, short flags, int replace)
 	return ok;
 }
 
-int PPPaths::Get(PPID obj, PPID id, PPID pathID, SString & rBuf)
+int PPPaths::Get__(PPID obj, PPID id, PPID pathID, SString & rBuf)
 {
 	int    ok = 1;
 	SFsPath ps;
@@ -278,46 +278,50 @@ int PPPaths::Get(PPID obj, PPID id, PPID pathID, SString & rBuf)
 			rBuf.Colon();
 	}
 	else {
-		ps.Split(rBuf.SetLastSlash());
-		if(!(ps.Flags & SFsPath::fDrv)) {
-			//
-			// Обработка неполного каталога
-			//
-			if(pathID == PPPATH_ROOT) {
+		if(rBuf.IsEmpty()) { // @v12.3.2 Если полученный путь пустой, то больше не надо что-то пытаться сделать
+			ok = 0;
+		}
+		else {
+			ps.Split(rBuf.SetLastSlash());
+			if(!(ps.Flags & SFsPath::fDrv)) {
 				//
-				// Если извлекаем корневой каталог, то остается добавить только драйвер
+				// Обработка неполного каталога
 				//
-				THROW(Get(0, 0, PPPATH_DRIVE, ps.Drv)); // @recursion
-				if(ps.Drv.NotEmpty()) {
-					ps.Flags |= SFsPath::fDrv;
-					if(!oneof2(ps.Dir.C(0), '/', '\\'))
-						ps.Dir.PadLeft(1, '\\');
-				}
-				ps.Merge(rBuf);
-			}
-			else {
-				//
-				// Если извлекаем что-то кроме корня или драйвера, то
-				// два случая:
-				//
-				if(ps.Flags & SFsPath::fDir && oneof2(ps.Dir.C(0), '/', '\\')) {
+				if(pathID == PPPATH_ROOT) {
 					//
-					// 1. Если путь rBuf содержит каталог и начинается с '\', то
-					//    добавляем к имени спереди только драйвер
+					// Если извлекаем корневой каталог, то остается добавить только драйвер
 					//
-					THROW(Get(0, 0, PPPATH_DRIVE, ps.Dir)); // @recursion
-					ps.Dir.RmvLastSlash();
+					THROW(Get__(0, 0, PPPATH_DRIVE, ps.Drv)); // @recursion
+					if(ps.Drv.NotEmpty()) {
+						ps.Flags |= SFsPath::fDrv;
+						if(!oneof2(ps.Dir.C(0), '/', '\\'))
+							ps.Dir.PadLeft(1, '\\');
+					}
+					ps.Merge(rBuf);
 				}
 				else {
 					//
-					// 2. В противном случае добавляем к имени спереди весь корневой каталог
+					// Если извлекаем что-то кроме корня или драйвера, то два случая:
 					//
-					THROW(Get(0, 0, PPPATH_ROOT, ps.Dir)); // @recursion
+					if(ps.Flags & SFsPath::fDir && oneof2(ps.Dir.C(0), '/', '\\')) {
+						//
+						// 1. Если путь rBuf содержит каталог и начинается с '\', то
+						//    добавляем к имени спереди только драйвер
+						//
+						THROW(Get__(0, 0, PPPATH_DRIVE, ps.Dir)); // @recursion
+						ps.Dir.RmvLastSlash();
+					}
+					else {
+						//
+						// 2. В противном случае добавляем к имени спереди весь корневой каталог
+						//
+						THROW(Get__(0, 0, PPPATH_ROOT, ps.Dir)); // @recursion
+					}
+					rBuf = ps.Dir.Cat(rBuf);
 				}
-				rBuf = ps.Dir.Cat(rBuf);
 			}
+			rBuf.SetLastSlash();
 		}
-		rBuf.SetLastSlash();
 	}
 	CATCH
 		ok = 0;
@@ -343,6 +347,7 @@ int PPPaths::Get(PPID securType, PPID securID)
 	SString sartredb_path;
 	SString reportdata_path;
 	SString workspace_path;
+	SString buildroot_path; // @v12.3.2
 	// @v12.1.5 {
 	struct IdToBufAssoc {
 		PPID   PathID;
@@ -356,6 +361,7 @@ int PPPaths::Get(PPID securType, PPID securID)
 		{ PPPATH_SARTREDB, sartredb_path },
 		{ PPPATH_REPORTDATA, reportdata_path },
 		{ PPPATH_WORKSPACE, workspace_path },
+		{ PPPATH_BUILDROOT, buildroot_path }, // @ v12.3.2
 	};
 	{
 		for(uint i = 0; i < SIZEOFARRAY(id_to_buf_list); i++) {

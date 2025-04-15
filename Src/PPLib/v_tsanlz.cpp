@@ -1,5 +1,5 @@
 // V_TSANLZ.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1033,9 +1033,8 @@ void PPViewTSessAnlz::PreprocessBrowser(PPViewBrowser * pBrw)
 				pBrw->insertColumn(col_no++, buf, 2, 0, 0, 0);
 			}
 			if(Filt.DiffMg) {
-				PPLoadString("mainware", buf); // @v10.9.4
-				// @v10.9.4 pBrw->InsColumnWord(col_no++, PPWORD_PRMRGOODS, 3, 0, 0, 0);
-				pBrw->insertColumn(col_no++, buf, 3, 0, 0, 0); // @v10.9.4
+				PPLoadString("mainware", buf);
+				pBrw->insertColumn(col_no++, buf, 3, 0, 0, 0);
 			}
 			if(Filt.Flags & TSessAnlzFilt::fCalcCompParts) {
 				pBrw->insertColumn(5+col_no++, "InPart",  10, 0, MKSFMTD(0, 2, NMBF_NOZERO), 0);

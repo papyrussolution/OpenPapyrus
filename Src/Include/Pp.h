@@ -2944,7 +2944,7 @@ public:
 	int    Remove(PPID securType, PPID securID);
 	int    GetPath(PPID pathID, short * pFlags, SString & rBuf) const;
 	int    SetPath(PPID pathID, const char * buf, short flags = 0, int replace = 1);
-	int    Get(PPID obj, PPID id, PPID pathID, SString & rBuf);
+	int    Get__(PPID obj, PPID id, PPID pathID, SString & rBuf);
 	void   DumpToStr(SString & rBuf) const;
 private:
 	size_t Size() const;
@@ -35862,7 +35862,8 @@ public:
 class PPObjVATBook : public PPObject {
 public:
 	static int EditConfig(PPID kind, VATBCfg * cfg);
-	static double FASTCALL GetVatRate(int);
+	static double FASTCALL GetVatRate(uint idx);
+	static bool   FASTCALL IsVatRate(uint idx, double rate);
 	//
 	// Descr: Извлекает базовое значение типа строки записи из (возможно) комбинированной
 	//   величины, хранящейся в записи VATBookTbl::Rec.
@@ -61079,7 +61080,8 @@ public:
     uint8  ReserveStart[128]; // @anchor
 	enum {
 		fParseWinRcForNativeText           = 0x0001,
-		fFindSourceCodeWithNotUtf8Encoding = 0x0002
+		fFindSourceCodeWithNotUtf8Encoding = 0x0002,
+		fVerifySourceCodeByPatterns        = 0x0004 // @v12.3.2 
 	};
 	long   Flags;
 	long   Reserve;          // @anchor	

@@ -2366,6 +2366,8 @@ PPERR_APTEKARU_AUTHFAULT_INVATTRS   "Ошибка авторизации на с
 PPERR_APTEKARU_AUTHFAULT            "Ошибка авторизации на сервисе @{brand_aptekaru}: %s"
 PPERR_INVSIGNONOBJSRLZRD            "Неверная сигнатура объекта '%s' при чтении сериализованных данных"
 PPERR_BILLBYIDENTNFOUND             "Документ по идентификатору '%s' не найден"
+PPERR_DEV_FILEABSENCE               "DEV: Отсутствует необходимый исходный файл '%s'"
+PPERR_DEV_DL600IFC_UUID_MISMATCH    "DEV: ppifc - интерфейсный символ '%s' отличается от образца по значению GUID"
 
 // LastError
 
@@ -5114,6 +5116,7 @@ PPTXT_PRNALLBILLS_FLTOPISPAYMWOINVCOPT "Печать всех первичных
 PPTXT_PRNALLBILLS_FLTOPGEN_NOCOMMOPTYP "Печать всех первичных документов выборки по обобщенной операции не доступна если в списке есть документы разных типов операции"
 PPTXT_PRNALLBILLS_FLTOPGEN_NOCOMMACS   "Печать всех первичных документов выборки по обобщенной операции не доступна если в обобщении есть разные таблицы статей"
 PPTXT_SCANFSDIR                        "Сканирование каталога '%s'"
+PPTXT_DEV_DL600IFCUUIDFILEOK           "DEV: список сопоставления интерфейсных символов значениям GUID успешно прошел сверку с образцом"
 //
 // LastText
 
@@ -14903,6 +14906,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @prcssrsourcecodemaintaining              "Процессинг исходных кодов проекта"
 @prcssrsourcecodemaintaining_fparsewinrcfornativetext            "Поиск native-текста в ppw.rc"
 @prcssrsourcecodemaintaining_ffindsourcecodewithnotutf8encoding  "Поиск файлов исходных кодов с не-utf кодировкой"
+@prcssrsourcecodemaintaining_fverifysourcecodebypatterns         "Верификация некоторых исходных файлов по образцам"
 
 @prcssrcliactivitystatistics              "Сбор статистики по активности клиентов" // @v12.2.2
 @prcssrcliactivitystatistics_period       "@{daterange}"

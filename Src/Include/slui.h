@@ -3758,7 +3758,7 @@ protected:
 		}
 		SString FontFace;
 		int   FontSize;
-		TRect Bounds;
+		//TRect Bounds;
 	};
 
 	int    BuildEmptyWindow(const BuildEmptyWindowParam * pParam); // @v12.2.5

@@ -12782,11 +12782,13 @@ STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSM
 CAPTION "@prcssrsourcecodemaintaining"
 FONT 8, "MS Shell Dlg", 0, 0, 0x0
 BEGIN
-    GROUPBOX        "",CTL_PRCRSRCC_FLAGS,10,10,260,45,WS_GROUP
+    GROUPBOX        "",CTL_PRCRSRCC_FLAGS,10,10,260,50,WS_GROUP
     CONTROL         "@prcssrsourcecodemaintaining_fparsewinrcfornativetext",5297,
                     "Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,20,250,10
     CONTROL         "@prcssrsourcecodemaintaining_ffindsourcecodewithnotutf8encoding",9393,
                     "Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,30,250,10
+    CONTROL         "@prcssrsourcecodemaintaining_fverifysourcecodebypatterns",13489,
+                    "Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,40,250,10
     DEFPUSHBUTTON   "@but_ok",STDCTL_OKBUTTON,155,65,50,13
     PUSHBUTTON      "@but_cancel",STDCTL_CANCELBUTTON,220,65,50,13
 END

@@ -8321,7 +8321,7 @@ public:
 private:
 	void   Build(DlContext & rCtx)
 	{
-		const DlScope * p_scope = rCtx.GetScopeByName_Const(DlScope::kUiView, "DLG_BIZPRCRT");
+		const DlScope * p_scope = rCtx.GetScopeByName_Const(DlScope::kUiView, Dl00Symb);
 		if(p_scope) {
 			BuildEmptyWindowParam bew_param;
 			char   c_buf[1024];
@@ -8346,14 +8346,16 @@ private:
 					}
 				}
 			}
-			if(p_alb) {
+			{
 				FRect rect;
-				rect.a.x = p_alb->GetAbsoluteLowX();
-				rect.a.y = p_alb->GetAbsoluteLowY();
+				rect.a.x = p_alb ? p_alb->GetAbsoluteLowX() : 0.0f;
+				rect.a.y = p_alb ? p_alb->GetAbsoluteLowY() : 0.0f;
 				{
 					SPoint2F sz;
-					p_alb->GetSizeX(&sz.x);
-					p_alb->GetSizeY(&sz.y);
+					if(p_alb) {
+						p_alb->GetSizeX(&sz.x);
+						p_alb->GetSizeY(&sz.y);
+					}
 					if(sz.x > 0.0f) {
 						rect.b.x = rect.a.x + sz.x;
 					}
@@ -8365,7 +8367,8 @@ private:
 					else
 						rect.b.y = rect.a.y + 60.0f;
 				}
-				bew_param.Bounds.Set(rect);
+				//bew_param.Bounds.Set(rect);
+				setBounds(rect);
 			}
 			/*{
 				CtmExprConst __c = p_scope->GetConst(DlScope::cuifCtrlRect);
@@ -8399,8 +8402,60 @@ private:
 				if(temp_buf.NotEmpty()) {
 				}
 			}
-			//setBounds(rect);
 			BuildEmptyWindow(&bew_param);
+			//
+			{
+				//
+				// Далее, мы должны вставить управляющие элементы в созданое окно диалога
+				//
+				const DlScopeList & r_cl = p_scope->GetChildList();
+				for(uint ci = 0; ci < r_cl.getCount(); ci++) {
+					const DlScope * p_item = r_cl.at(ci);
+					if(p_item) {
+						uint32 vk = 0;
+						CtmExprConst c_vk = p_item->GetConst(DlScope::cuifViewKind);
+						//cuifCtrlText
+						if(!!c_vk) {
+							if(rCtx.GetConstData(c_vk, c_buf, sizeof(c_buf))) {
+								vk = *reinterpret_cast<const uint32 *>(c_buf);
+							}
+						}
+						if(vk) {
+							//UiItemKind::GetSymbById(vk, temp_buf);
+							switch(vk) {
+								case UiItemKind::kInput:
+									break;
+								case UiItemKind::kStatic:
+									break;
+								case UiItemKind::kPushbutton: 
+									break;
+								case UiItemKind::kCheckbox: 
+									break;
+								case UiItemKind::kRadioCluster: 
+									break;
+								case UiItemKind::kCheckCluster: 
+									break;
+								case UiItemKind::kCombobox: 
+									break;
+								case UiItemKind::kListbox: 
+									break;
+								case UiItemKind::kTreeListbox: 
+									break;
+								case UiItemKind::kFrame: 
+									break;
+								case UiItemKind::kLabel: 
+									break;
+								case UiItemKind::kRadiobutton: 
+									break;
+								case UiItemKind::kGenericView: 
+									break;
+								case UiItemKind::kImageView: 
+									break;
+							}
+						}
+					}
+				}
+			}
 		}
 	}
 
@@ -8417,7 +8472,7 @@ int Test_ExecuteDialogByDl600Description() // @construction
 	if(fileExists(file_name)) {
 		DlContext ctx;
 		if(ctx.Init(file_name)) {
-			dlg = new TDialogDL6_Construction(ctx, "DLG_BIZPRCRT");
+			dlg = new TDialogDL6_Construction(ctx, "DLG_BILLFLT");
 			ExecViewAndDestroy(dlg);
 			dlg = 0;
 			ok = -1;

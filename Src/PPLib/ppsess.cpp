@@ -4985,7 +4985,7 @@ int PPSession::GetPath(PPID pathID, SString & rBuf)
 			GetLocalPath(rBuf);
 			break;
 		default:
-			ok = GetTLA().Paths.Get(0, 0, pathID, rBuf);
+			ok = GetTLA().Paths.Get__(0, 0, pathID, rBuf);
 			break;
 	}
 	if(ok > 0)

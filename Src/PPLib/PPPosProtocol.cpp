@@ -153,7 +153,7 @@ private:
 int ACS_PAPYRUS_APN::ImportSession(int sessN)
 {
 	int    ok = -1;
-    int    local_n = 0;
+	int    local_n = 0;
 	SString temp_buf;
 	SString wait_msg_tmpl, wait_msg;
 	const TSCollection <PPPosProtocol::ReadBlock> * p_rb_list = P_Pib ? static_cast<const TSCollection <PPPosProtocol::ReadBlock> *>(P_Pib->GetStoredReadBlocks()) : 0;
@@ -538,17 +538,17 @@ int PPPosProtocol::ExportDataForPosNode(PPID nodeID, int updOnly, PPID sinceDlsI
 				}
 			}
 			if(!dest_list_written) {
-                LongArray n_list;
-                cn_data.GetLogNumList(n_list);
-                for(uint i = 0; i < n_list.getCount(); i++) {
-                    const long n_item = n_list.get(i);
-                    if(n_item > 0) {
+				LongArray n_list;
+				cn_data.GetLogNumList(n_list);
+				for(uint i = 0; i < n_list.getCount(); i++) {
+					const long n_item = n_list.get(i);
+					if(n_item > 0) {
 						rb.Destroy();
 						rb.Code.Cat(n_item);
 						THROW(WriteRouteInfo(wb, "destination", rb));
 						dest_list_written = 2;
-                    }
-                }
+					}
+				}
 			}
 			THROW_PP_S(dest_list_written, PPERR_PPPP_CORRPOSLISTNEEDED, cn_data.Name);
 		}
@@ -571,7 +571,7 @@ int PPPosProtocol::ExportDataForPosNode(PPID nodeID, int updOnly, PPID sinceDlsI
 					// Единицы измерения
 					//
 					const PPIDArray * p_unit_list = acgi.GetRefList(PPOBJ_UNIT);
-                    if(SVectorBase::GetCount(p_unit_list)) {
+					if(SVectorBase::GetCount(p_unit_list)) {
 						const  PPID def_unit_id = GObj.GetConfig().DefUnitID;
 						PPIDArray unit_list(*p_unit_list);
 						uint i;
@@ -579,11 +579,11 @@ int PPPosProtocol::ExportDataForPosNode(PPID nodeID, int updOnly, PPID sinceDlsI
 						i = unit_list.getCount();
 						do {
 							const  PPID unit_id = unit_list.get(--i);
-                            if(goods_obj.FetchUnit(unit_id, &unit_rec) > 0) {
+							if(goods_obj.FetchUnit(unit_id, &unit_rec) > 0) {
 								PPUnit base_unit_rec;
-                            	if(unit_rec.BaseUnitID && goods_obj.FetchUnit(unit_rec.BaseUnitID, &base_unit_rec) > 0)
-                                    unit_list.add(unit_rec.BaseUnitID);
-                            }
+								if(unit_rec.BaseUnitID && goods_obj.FetchUnit(unit_rec.BaseUnitID, &base_unit_rec) > 0)
+									unit_list.add(unit_rec.BaseUnitID);
+							}
 						} while(i);
 						//
 						// Форсированно добавляем зарезервированную единицу LITER в список экспорта
@@ -594,7 +594,7 @@ int PPPosProtocol::ExportDataForPosNode(PPID nodeID, int updOnly, PPID sinceDlsI
 						unit_list.sortAndUndup();
 						for(i = 0; i < unit_list.getCount(); i++) {
 							const  PPID unit_id = unit_list.get(i);
-                            if(goods_obj.FetchUnit(unit_id, &unit_rec) > 0) {
+							if(goods_obj.FetchUnit(unit_id, &unit_rec) > 0) {
 								SXml::WNode w_s(wb.P_Xw, "unit");
 								w_s.PutInner("id", temp_buf.Z().Cat(unit_rec.ID));
 								w_s.PutInner("name", CorrectAndEncText(unit_rec.Name));
@@ -613,9 +613,9 @@ int PPPosProtocol::ExportDataForPosNode(PPID nodeID, int updOnly, PPID sinceDlsI
 									w_s.PutInner("base", temp_buf.Z().Cat(unit_rec.BaseUnitID));
 									w_s.PutInner("baseratio", temp_buf.Z().Cat(unit_rec.BaseRatio, MKSFMTD(0, 6, NMBF_NOTRAILZ)));
 								}
-                            }
+							}
 						}
-                    }
+					}
 				}
 				if(cn_data.Flags & CASHF_EXPGOODSGROUPS) {
 					AsyncCashGoodsGroupInfo acggi_info;
@@ -958,7 +958,7 @@ PPPosProtocol::PosNodeBlock::PosNodeBlock() : ObjectBlock(), CodeP(0), CodeI(0)
 
 PPPosProtocol::QuotKindBlock::QuotKindBlock() : ObjectBlock(), CodeP(0), Rank(0), Reserve(0)
 {
-    Period.Z();
+	Period.Z();
 	TimeRestriction.Z();
 	AmountRestriction.Z();
 }
@@ -1446,11 +1446,11 @@ const SString & FASTCALL PPPosProtocol::EncText(const char * pS)
 
 int PPPosProtocol::WritePosNode(WriteBlock & rB, const char * pScopeXmlTag, const PPCashNode & rInfo)
 {
-    int    ok = 1;
+	int    ok = 1;
 	SString temp_buf;
 	{
 		SXml::WNode w_s(rB.P_Xw, pScopeXmlTag);
-        w_s.PutInner("id", temp_buf.Z().Cat(rInfo.ID));
+		w_s.PutInner("id", temp_buf.Z().Cat(rInfo.ID));
 		// @v10.8.2 {
 		/* (не надо было этого делать) {
 			ObjTagItem tag_item;
@@ -1463,10 +1463,10 @@ int PPPosProtocol::WritePosNode(WriteBlock & rB, const char * pScopeXmlTag, cons
 			}
 		}*/
 		// } @v10.8.2 
-        w_s.PutInnerSkipEmpty("code", CorrectAndEncText(rInfo.Symb));
-        w_s.PutInnerSkipEmpty("name", CorrectAndEncText(rInfo.Name));
+		w_s.PutInnerSkipEmpty("code", CorrectAndEncText(rInfo.Symb));
+		w_s.PutInnerSkipEmpty("name", CorrectAndEncText(rInfo.Name));
 	}
-    return ok;
+	return ok;
 }
 
 int PPPosProtocol::WriteCSession(WriteBlock & rB, const char * pScopeXmlTag, const CSessionTbl::Rec & rInfo)
@@ -1497,19 +1497,19 @@ int PPPosProtocol::WriteCSession(WriteBlock & rB, const char * pScopeXmlTag, con
 		{
 			PPIDArray cc_list;
 			ArGoodsCodeArray ar_code_list;
-            CCheckCore * p_cc = ScObj.P_CcTbl;
-            if(p_cc) {
+			CCheckCore * p_cc = ScObj.P_CcTbl;
+			if(p_cc) {
 				CCheckPacket cc_pack;
 				SCardTbl::Rec sc_rec;
-                THROW(p_cc->GetListBySess(rInfo.ID, glbs_flags, cc_list));
+				THROW(p_cc->GetListBySess(rInfo.ID, glbs_flags, cc_list));
 				for(uint i = 0; i < cc_list.getCount(); i++) {
 					const  PPID cc_id = cc_list.get(i);
 					if(p_cc->LoadPacket(cc_id, 0, &cc_pack) > 0) {
 						const double cc_amount = MONEYTOLDBL(cc_pack.Rec.Amount);
 						const double cc_discount = MONEYTOLDBL(cc_pack.Rec.Discount);
 						SXml::WNode w_cc(rB.P_Xw, "cc");
-                        w_cc.PutInner("id",   temp_buf.Z().Cat(cc_pack.Rec.ID));
-                        w_cc.PutInner("code", temp_buf.Z().Cat(cc_pack.Rec.Code));
+						w_cc.PutInner("id",   temp_buf.Z().Cat(cc_pack.Rec.ID));
+						w_cc.PutInner("code", temp_buf.Z().Cat(cc_pack.Rec.Code));
 						w_cc.PutInner("time", EncText(temp_buf.Z().Cat(dtm.Set(cc_pack.Rec.Dt, cc_pack.Rec.Tm), DATF_ISO8601CENT, 0)));
 						if(cc_pack.Rec.Flags) {
 							w_cc.PutInner("flags", EncText(temp_buf.Z().CatHex(cc_pack.Rec.Flags)));
@@ -1576,8 +1576,8 @@ int PPPosProtocol::WriteCSession(WriteBlock & rB, const char * pScopeXmlTag, con
 							const double item_amount   = item_price * item_qtty;
 							const double item_sum_discount = item_discount * item_qtty;
 							SXml::WNode w_ccl(rB.P_Xw, "ccl");
-                            w_ccl.PutInner("id", temp_buf.Z().Cat(r_item.RByCheck));
-                            if(r_item.GoodsID) {
+							w_ccl.PutInner("id", temp_buf.Z().Cat(r_item.RByCheck));
+							if(r_item.GoodsID) {
 								Goods2Tbl::Rec goods_rec;
 								if(GObj.Search(r_item.GoodsID, &goods_rec) > 0) {
 									SXml::WNode w_w(rB.P_Xw, "ware");
@@ -1588,15 +1588,15 @@ int PPPosProtocol::WriteCSession(WriteBlock & rB, const char * pScopeXmlTag, con
 										is_there_codes = 1;
 									}
 									w_w.PutInner("innerid", temp_buf.Z().Cat(goods_rec.ID));
-                                    GObj.GetSingleBarcode(r_item.GoodsID, 0, temp_buf);
-                                    if(temp_buf.NotEmptyS()) {
+									GObj.GetSingleBarcode(r_item.GoodsID, 0, temp_buf);
+									if(temp_buf.NotEmptyS()) {
 										w_w.PutInner("code", CorrectAndEncText(temp_buf));
 										is_there_codes = 1;
 									}
 									if(!is_there_codes)
 										w_w.PutInner("name", CorrectAndEncText(temp_buf = goods_rec.Name));
 								}
-                            }
+							}
 							if(cc_pack.GetLineTextExt(ln_idx+1, CCheckPacket::lnextSerial, temp_buf) > 0 && temp_buf.NotEmpty())
 								w_ccl.PutInner("serial", CorrectAndEncText(temp_buf));
 							if(cc_pack.GetLineTextExt(ln_idx+1, CCheckPacket::lnextEgaisMark, temp_buf) > 0 && temp_buf.NotEmpty())
@@ -1605,9 +1605,9 @@ int PPPosProtocol::WriteCSession(WriteBlock & rB, const char * pScopeXmlTag, con
 								w_ccl.PutInner("chznmark", CorrectAndEncText(temp_buf));
 							if(cc_pack.GetLineTextExt(ln_idx+1, CCheckPacket::lnextRemoteProcessingTa, temp_buf) > 0 && temp_buf.NotEmpty())
 								w_ccl.PutInner("remoteprocessingta", CorrectAndEncText(temp_buf));
-                            w_ccl.PutInner("qtty", temp_buf.Z().Cat(item_qtty, MKSFMTD(0, 6, NMBF_NOTRAILZ)));
-                            w_ccl.PutInner("price", temp_buf.Z().Cat(item_price, MKSFMTD(0, 5, NMBF_NOTRAILZ)));
-                            if(item_discount != 0.0)
+							w_ccl.PutInner("qtty", temp_buf.Z().Cat(item_qtty, MKSFMTD(0, 6, NMBF_NOTRAILZ)));
+							w_ccl.PutInner("price", temp_buf.Z().Cat(item_price, MKSFMTD(0, 5, NMBF_NOTRAILZ)));
+							if(item_discount != 0.0)
 								w_ccl.PutInner("discount", temp_buf.Z().Cat(item_discount, MKSFMTD(0, 5, NMBF_NOTRAILZ)));
 							w_ccl.PutInner("amount", temp_buf.Z().Cat(item_amount, MKSFMTD(0, 5, NMBF_NOTRAILZ)));
 							if(item_sum_discount != 0.0)
@@ -1661,7 +1661,7 @@ int PPPosProtocol::WriteCSession(WriteBlock & rB, const char * pScopeXmlTag, con
 						}
 					}
 				}
-            }
+			}
 		}
 	}
 	CATCHZOK
@@ -1849,7 +1849,7 @@ int PPPosProtocol::WriteGoodsInfo(WriteBlock & rB, const char * pScopeXmlTag, co
 			}
 			lot_list.sort(PTR_CMPFUNC(Receipt_DtOprNo_Asc));
 			{
-                for(uint i = 0; i < lot_list.getCount(); i++) {
+				for(uint i = 0; i < lot_list.getCount(); i++) {
 					const ReceiptTbl::Rec & r_lot_rec = lot_list.at(i);
 					SXml::WNode w_l(rB.P_Xw, "lot");
 					w_l.PutInnerValidDate("date", r_lot_rec.Dt, DATF_ISO8601CENT);
@@ -1862,9 +1862,9 @@ int PPPosProtocol::WriteGoodsInfo(WriteBlock & rB, const char * pScopeXmlTag, co
 						w_l.PutInner("rest", temp_buf.Z().Cat(r_lot_rec.Rest, MKSFMTD(0, 6, NMBF_NOTRAILZ)));
 					if(P_BObj->GetSerialNumberByLot(r_lot_rec.ID, temp_buf, 1) > 0)
 						w_l.PutInnerSkipEmpty("serial", CorrectAndEncText(temp_buf));
-                }
+				}
 			}
-        }
+		}
 		if(pQList && pQList->getCount()) {
 			for(uint i = 0; i < pQList->getCount(); i++) {
 				WriteQuotInfo(rB, "quote", PPOBJ_GOODS, pQList->at(i));
@@ -1876,10 +1876,10 @@ int PPPosProtocol::WriteGoodsInfo(WriteBlock & rB, const char * pScopeXmlTag, co
 
 int PPPosProtocol::WriteQuotKindInfo(WriteBlock & rB, const char * pScopeXmlTag, const PPQuotKind & rInfo)
 {
-    int    ok = 1;
-    SString temp_buf;
+	int    ok = 1;
+	SString temp_buf;
 	TimeRange tr;
-    {
+	{
 		SXml::WNode w_s(rB.P_Xw, pScopeXmlTag);
 		w_s.PutInner("id", temp_buf.Z().Cat(rInfo.ID));
 		w_s.PutInner("name", CorrectAndEncText(rInfo.Name));
@@ -1910,13 +1910,13 @@ int PPPosProtocol::WriteQuotKindInfo(WriteBlock & rB, const char * pScopeXmlTag,
 					w_a.PutInner("upp", temp_buf.Z().Cat(rInfo.AmtRestr.upp));
 			}
 		}
-    }
-    return ok;
+	}
+	return ok;
 }
 
 int PPPosProtocol::WriteQuotInfo(WriteBlock & rB, const char * pScopeXmlTag, PPID parentObj, const PPQuot & rInfo)
 {
-    int    ok = -1;
+	int    ok = -1;
 	SString temp_buf;
 	if(rInfo.Kind && rInfo.GoodsID) {
 		PPQuotKindPacket qk_pack;
@@ -1947,12 +1947,12 @@ int PPPosProtocol::WriteQuotInfo(WriteBlock & rB, const char * pScopeXmlTag, PPI
 			}
 		}
 	}
-    return ok;
+	return ok;
 }
 
 int PPPosProtocol::WritePersonInfo(WriteBlock & rB, const char * pScopeXmlTag, PPID codeRegTypeID, const PPPersonPacket & rPack)
 {
-    int    ok = 1;
+	int    ok = 1;
 	SString temp_buf;
 	{
 		SXml::WNode w_s(rB.P_Xw, pScopeXmlTag);
@@ -1965,7 +1965,7 @@ int PPPosProtocol::WritePersonInfo(WriteBlock & rB, const char * pScopeXmlTag, P
             }
 		}
 	}
-    return ok;
+	return ok;
 }
 
 int PPPosProtocol::WriteSCardInfo(WriteBlock & rB, const char * pScopeXmlTag, const AsyncCashSCardInfo & rInfo)
@@ -2114,14 +2114,14 @@ int PPPosProtocol::StartElement(const char * pName, const char ** ppAttrList)
 		}
 	}
 	// } @v11.0.0 
-    (RdB.TempBuf = pName).ToLower();
-    int    tok = 0;
-    if(RdB.P_ShT) {
+	(RdB.TempBuf = pName).ToLower();
+	int    tok = 0;
+	if(RdB.P_ShT) {
 		uint _ut = 0;
 		RdB.P_ShT->Search(RdB.TempBuf, &_ut, 0);
 		tok = _ut;
-    }
-    if(tok == PPHS_PPPP_START) {
+	}
+	if(tok == PPHS_PPPP_START) {
 		RdB.State |= RdB.stHeaderOccured;
 	}
 	else {
@@ -2438,7 +2438,7 @@ int PPPosProtocol::StartElement(const char * pName, const char ** ppAttrList)
 		RdB.State |= RdB.stError;
 		ok = 0;
 	ENDCATCH
-    return ok;
+	return ok;
 }
 
 void FASTCALL PPPosProtocol::Helper_AddStringToPool(uint * pPos)

@@ -1,5 +1,5 @@
 // PPRIGHTS.CPP
-// Copyright (c) A.Sobolev, A.Starodub 1996, 1997, 1998, 1999, 2000-2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev, A.Starodub 1996, 1997, 1998, 1999, 2000-2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 // Права доступа
 //
@@ -827,8 +827,7 @@ private:
 	}
 	virtual void getExtText(PPID objID, long objFlags, SString & rBuf)
 	{
-		// @v10.4.10 PPLoadString((objFlags == 0) ? "no" : "yes", rBuf);
-		PPLoadString("yes", rBuf); // @v10.4.10
+		PPLoadString("yes", rBuf);
 	}
 	ObjRestrictArray Data;
 	PPObjCashNode CnObj;

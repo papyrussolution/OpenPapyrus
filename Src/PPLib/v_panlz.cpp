@@ -1,5 +1,5 @@
 // V_PANLZ.CPP
-// Copyright (c) A.Starodub 2005, 2006, 2007, 2008, 2009, 2010, 2015, 2016, 2017, 2018, 2019, 2020, 2024
+// Copyright (c) A.Starodub 2005, 2006, 2007, 2008, 2009, 2010, 2015, 2016, 2017, 2018, 2019, 2020, 2024, 2025
 //
 #include <pp.h>
 #pragma hdrstop
@@ -449,8 +449,7 @@ DBQuery * PPViewPriceAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 	if(pSubTitle) {
 		SString obj_name, temp_buf;
 		if(Filt.Flags & PriceAnlzFilt::fShowDiffAsPrc) {
-			// @v9.6.3 (*pSubTitle = "Разница цен в %").ToOem();
-			PPLoadString("priceanlzfilt_fshowdiffasprc", *pSubTitle); // @v9.6.3
+			PPLoadString("priceanlzfilt_fshowdiffasprc", *pSubTitle);
 		}
 		if(Filt.SupplID) {
 			PPLoadText(PPTXT_SUPPLTXT, temp_buf);
@@ -458,8 +457,7 @@ DBQuery * PPViewPriceAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 			pSubTitle->CatDivIfNotEmpty(';', 2).CatEq(temp_buf, obj_name);
 		}
 		if(Filt.GoodsGrpID) {
-			// @v10.7.10 PPGetWord(PPWORD_GROUP, 0, temp_buf);
-			PPLoadStringS("group", temp_buf); // @v10.7.10
+			PPLoadStringS("group", temp_buf);
 			GetObjectName(PPOBJ_GOODSGROUP, Filt.GoodsGrpID, obj_name);
 			pSubTitle->CatDivIfNotEmpty(';', 2).CatEq(temp_buf, obj_name);
 		}

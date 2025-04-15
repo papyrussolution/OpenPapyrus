@@ -81,6 +81,7 @@ static void DrawClientActivityStatistics(PPID psnID) // @v12.2.6 @construction
 					item.AddDataIndex(2);
 					plot.AddPlotItem(item);
 				}*/
+				/* Здесь я пытаюсь изобразить на графике среднее и сигму, но с gnuplot это не очень получается //
 				{
 					{
 						Generator_GnuPlot::Coord from_x(Generator_GnuPlot::Coord::csFirst, avg);
@@ -104,6 +105,7 @@ static void DrawClientActivityStatistics(PPID psnID) // @v12.2.6 @construction
 						plot.SetArrow(from_x, from_y, to_x, to_y, Generator_GnuPlot::arrhNoHead);
 					}
 				}
+				*/
 				plot.Plot(&param);
 				ok = plot.Run();
 				// set arrow from 0.5, graph 0 to 0.5, graph 3 nohead

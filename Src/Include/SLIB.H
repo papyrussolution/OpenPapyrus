@@ -15092,8 +15092,8 @@ struct FRect { // @persistent
 	double Square() const;
 	FRect & FASTCALL Union(const FRect & rR);
 
-	SPoint2F a;
-	SPoint2F b;
+	SPoint2F a; // Верхний левый угол 
+	SPoint2F b; // Нижний правый угол
 };
 
 class FShape { // @persistent @store(SSerializeContext)
@@ -15198,7 +15198,6 @@ public:
 	//   следующий метод просто возвращает преобразованную ссылку на this.
 	//
 	operator POINT & ();
-	//operator POINT() const;
 	SPoint2I & Z();
 	bool   IsZero() const { return (x == 0 && y == 0); }
 	int    x;
@@ -15323,8 +15322,8 @@ public:
 	bool   FASTCALL operator == (const TRect& r) const;
 	bool   FASTCALL operator != (const TRect& r) const;
 
-	SPoint2S a;
-	SPoint2S b;
+	SPoint2S a; // Левый верхний угол
+	SPoint2S b; // Нижний правый угол
 };
 //
 // Descr: Геометрический регион. Представляет собой комбинацию геометрических

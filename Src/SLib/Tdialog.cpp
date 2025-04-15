@@ -465,14 +465,22 @@ int TDialog::BuildEmptyWindow(const BuildEmptyWindowParam * pParam) // @v12.2.5
 		}
 		bool   set_font = true;
 		// FONT 8, "MS Shell Dlg", 0, 0, 0x0
+		const  char * p_font_face = "MS Shell Dlg";
 		uint16 font_size = 10;
-		SStringU font_face(L"MS Shell Dlg");
+		if(pParam) {
+			if(pParam->FontFace.NotEmpty())
+				p_font_face = pParam->FontFace;
+			if(pParam->FontSize > 0)
+				font_size = static_cast<uint16>(pParam->FontSize);
+		}
+		SStringU font_face_u;//(L"MS Shell Dlg");
+		font_face_u.CopyFromUtf8(p_font_face, sstrlen(p_font_face));
 		size_t buf_size = sizeof(DLGTEMPLATE);
 		buf_size += ((menu.Len()+1) * sizeof(wchar_t));
 		buf_size += ((wnd_cls.Len()+1) * sizeof(wchar_t));
 		buf_size += ((title.Len()+1) * sizeof(wchar_t));
 		if(set_font) {
-			buf_size += (sizeof(uint16) + ((font_face.Len()+1) * sizeof(wchar_t)));
+			buf_size += (sizeof(uint16) + ((font_face_u.Len()+1) * sizeof(wchar_t)));
 		}
 		DLGTEMPLATE * p_dlgt = static_cast<DLGTEMPLATE *>(SAlloc::M(buf_size));
 		if(p_dlgt) {
@@ -499,14 +507,22 @@ int TDialog::BuildEmptyWindow(const BuildEmptyWindowParam * pParam) // @v12.2.5
 			if(set_font) {
 				*reinterpret_cast<uint16 *>(PTR8(p_dlgt)+p) = font_size;
 				p += sizeof(uint16);
-				sstrcpy(reinterpret_cast<wchar_t *>(PTR8(p_dlgt)+p), font_face);
-				p += ((font_face.Len()+1) * sizeof(wchar_t));
+				sstrcpy(reinterpret_cast<wchar_t *>(PTR8(p_dlgt)+p), font_face_u);
+				p += ((font_face_u.Len()+1) * sizeof(wchar_t));
 			}
 			assert(p == buf_size);
 			HW = CreateDialogIndirectParamW(APPL->GetInst(), p_dlgt, APPL->H_TopOfStack, TDialog::DialogProc, reinterpret_cast<LPARAM>(this));
 			SAlloc::F(p_dlgt);
-			if(HW)
+			if(HW) {
+				::SetWindowPos(HW, HWND_TOP, ViewOrigin.x, ViewOrigin.y, ViewSize.x, ViewSize.y, SWP_SHOWWINDOW);
+				// @debug {
+				/*
+				RECT wr;
+				GetWindowRect(HW, &wr); 
+				*/
+				// } @debug 
 				ok = 1;
+			}
 		}
 	}
 	return ok;

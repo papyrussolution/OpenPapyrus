@@ -6,7 +6,6 @@
  *
  * Daniel Veillard <veillard@redhat.com>
  */
-
 /*
  * @todo 
  * - when types are redefined in includes, check that all
@@ -19704,7 +19703,6 @@ next_binding:
 internal_error:
 	return -1;
 }
-
 /**
  * xmlSchemaCheckCVCIDCKeyRef:
  * @vctxt: the WXS validation context
@@ -19716,18 +19714,18 @@ static int xmlSchemaCheckCVCIDCKeyRef(xmlSchemaValidCtxt * vctxt)
 {
 	xmlSchemaPSVIIDCBindingPtr bind;
 	xmlSchemaIDCMatcherPtr matcher = vctxt->inode->idcMatchers;
-	/*
-	 * Find a keyref.
-	 */
+	// 
+	// Find a keyref.
+	// 
 	while(matcher) {
 		if((matcher->idcType == XML_SCHEMA_TYPE_IDC_KEYREF) && matcher->targets && matcher->targets->nbItems) {
 			int i, j, k, res, nbFields, hasDupls;
 			xmlSchemaPSVIIDCKeyPtr * refKeys, * keys;
 			xmlSchemaPSVIIDCNodePtr refNode = NULL;
 			nbFields = matcher->aidc->def->nbFields;
-			/*
-			 * Find the IDC node-table for the referenced IDC key/unique.
-			 */
+			// 
+			// Find the IDC node-table for the referenced IDC key/unique.
+			// 
 			bind = vctxt->inode->idcTable;
 			while(bind) {
 				if((xmlSchemaIDC *)matcher->aidc->def->ref->item == bind->definition)
@@ -19754,16 +19752,14 @@ static int xmlSchemaCheckCVCIDCKeyRef(xmlSchemaValidCtxt * vctxt)
 							}
 						}
 						if(res == 1) {
-							/*
-							 * Match found.
-							 */
+							// Match found.
 							break;
 						}
 					}
 					if((res == 0) && hasDupls) {
-						/*
-						 * Search in duplicates
-						 */
+						// 
+						// Search in duplicates
+						// 
 						for(j = 0; j < bind->dupls->nbItems; j++) {
 							keys = ((xmlSchemaPSVIIDCNodePtr)bind->dupls->items[j])->keys;
 							for(k = 0; k < nbFields; k++) {
@@ -20237,7 +20233,8 @@ static xmlChar * FASTCALL xmlSchemaNormalizeValue(xmlSchemaType * type, const xm
 static int xmlSchemaValidateQName(xmlSchemaValidCtxt * vctxt, const xmlChar * value, xmlSchemaVal ** val, int valNeeded)
 {
 	const xmlChar * nsName;
-	xmlChar * local, * prefix = NULL;
+	xmlChar * local;
+	xmlChar * prefix = NULL;
 	int ret = xmlValidateQName(value, 1);
 	if(ret) {
 		if(ret == -1) {
@@ -20246,24 +20243,22 @@ static int xmlSchemaValidateQName(xmlSchemaValidCtxt * vctxt, const xmlChar * va
 		}
 		return ( XML_SCHEMAV_CVC_DATATYPE_VALID_1_2_1);
 	}
-	/*
-	 * NOTE: xmlSplitQName2 will always return a duplicated
-	 * strings.
-	 */
+	// 
+	// NOTE: xmlSplitQName2 will always return a duplicated strings.
+	// 
 	local = xmlSplitQName2(value, &prefix);
 	SETIFZ(local, sstrdup(value));
-	/*
-	 * OPTIMIZE TODO: Use flags for:
-	 *  - is there any namespace binding?
-	 *  - is there a default namespace?
-	 */
+	// 
+	// OPTIMIZE TODO: Use flags for:
+	//   - is there any namespace binding?
+	//   - is there a default namespace?
+	// 
 	nsName = xmlSchemaLookupNamespace(vctxt, prefix);
 	if(prefix) {
 		SAlloc::F(prefix);
-		/*
-		 * A namespace must be found if the prefix is
-		 * NOT NULL.
-		 */
+		// 
+		// A namespace must be found if the prefix is NOT NULL.
+		// 
 		if(nsName == NULL) {
 			ret = XML_SCHEMAV_CVC_DATATYPE_VALID_1_2_1;
 			xmlSchemaCustomErr(ACTXT_CAST vctxt, (xmlParserErrors)ret, NULL, WXS_BASIC_CAST xmlSchemaGetBuiltInType(XML_SCHEMAS_QNAME),
@@ -20278,14 +20273,14 @@ static int xmlSchemaValidateQName(xmlSchemaValidCtxt * vctxt, const xmlChar * va
 		SAlloc::F(local);
 	return 0;
 }
-/*
- * cvc-simple-type
- */
+//
+// cvc-simple-type
+//
 static int xmlSchemaVCheckCVCSimpleType(xmlSchemaAbstractCtxt * actxt, xmlNode * P_Node, xmlSchemaType * type,
     const xmlChar * value, xmlSchemaVal ** retVal, int fireErrors, int normalize, int isNormalized)
 {
 	int ret = 0;
-	int valNeeded = (retVal) ? 1 : 0;
+	int valNeeded = BIN(retVal);
 	xmlSchemaVal * val = NULL;
 	// xmlSchemaWhitespaceValueType ws; 
 	xmlChar * normValue = NULL;
@@ -20319,27 +20314,25 @@ static int xmlSchemaVCheckCVCSimpleType(xmlSchemaAbstractCtxt * actxt, xmlNode *
 	 * then every whitespace-delimited substring of the string must be a `declared
 	 * entity name`.
 	 */
-	/*
-	 * 2.3 otherwise no further condition applies.
-	 */
+	// 
+	// 2.3 otherwise no further condition applies.
+	//
 	if((!valNeeded) && (type->flags & XML_SCHEMAS_TYPE_FACETSNEEDVALUE))
 		valNeeded = 1;
 	if(!value)
 		value = reinterpret_cast<const xmlChar *>("");
 	if(WXS_IS_ANY_SIMPLE_TYPE(type) || WXS_IS_ATOMIC(type)) {
 		xmlSchemaType * biType; /* The built-in type. */
-		/*
-		 * SPEC (1.2.1) "if {variety} is `atomic` then the string must `match`
-		 * a literal in the `lexical space` of {base type definition}"
-		 */
-		/*
-		 * Whitespace-normalize.
-		 */
+		// 
+		// SPEC (1.2.1) "if {variety} is `atomic` then the string must `match` a literal in the `lexical space` of {base type definition}"
+		// 
+		// Whitespace-normalize.
+		// 
 		NORMALIZE(type);
 		if(type->type != XML_SCHEMA_TYPE_BASIC) {
-			/*
-			 * Get the built-in type.
-			 */
+			// 
+			// Get the built-in type.
+			// 
 			biType = type->baseType;
 			while(biType && (biType->type != XML_SCHEMA_TYPE_BASIC))
 				biType = biType->baseType;
@@ -20350,10 +20343,9 @@ static int xmlSchemaVCheckCVCSimpleType(xmlSchemaAbstractCtxt * actxt, xmlNode *
 		}
 		else
 			biType = type;
-		/*
-		 * NOTATIONs need to be processed here, since they need
-		 * to lookup in the hashtable of NOTATION declarations of the schema.
-		 */
+		// 
+		// NOTATIONs need to be processed here, since they need to lookup in the hashtable of NOTATION declarations of the schema.
+		// 
 		if(actxt->type == XML_SCHEMA_CTXT_VALIDATOR) {
 			switch(biType->builtInType) {
 				case XML_SCHEMAS_NOTATION:
@@ -20377,7 +20369,7 @@ static int xmlSchemaVCheckCVCSimpleType(xmlSchemaAbstractCtxt * actxt, xmlNode *
 				    ret = xmlSchemaValidateNotation(NULL, ((xmlSchemaParserCtxt *)actxt)->schema, P_Node, value, &val, valNeeded);
 				    break;
 				default:
-				    /* ws = xmlSchemaGetWhiteSpaceFacetValue(type); */
+				    // ws = xmlSchemaGetWhiteSpaceFacetValue(type);
 				    if(valNeeded)
 					    ret = xmlSchemaValPredefTypeNodeNoNorm(biType, value, &val, P_Node);
 				    else
@@ -20386,9 +20378,9 @@ static int xmlSchemaVCheckCVCSimpleType(xmlSchemaAbstractCtxt * actxt, xmlNode *
 			}
 		}
 		else {
-			/*
-			 * Validation via a public API is not implemented yet.
-			 */
+			// 
+			// Validation via a public API is not implemented yet.
+			// 
 			TODO
 			goto internal_error;
 		}
@@ -20403,9 +20395,9 @@ static int xmlSchemaVCheckCVCSimpleType(xmlSchemaAbstractCtxt * actxt, xmlNode *
 				ret = XML_SCHEMAV_CVC_DATATYPE_VALID_1_2_1;
 		}
 		if(!ret && type->flags & XML_SCHEMAS_TYPE_HAS_FACETS) {
-			/*
-			 * Check facets.
-			 */
+			// 
+			// Check facets.
+			// 
 			ret = xmlSchemaValidateFacets(actxt, P_Node, type, (xmlSchemaValType)biType->builtInType, value, val, 0, fireErrors);
 			if(ret) {
 				if(ret < 0) {
@@ -20428,19 +20420,18 @@ static int xmlSchemaVCheckCVCSimpleType(xmlSchemaAbstractCtxt * actxt, xmlNode *
 		unsigned long len = 0;
 		xmlSchemaVal * prevVal = NULL;
 		xmlSchemaVal * curVal = NULL;
-		/* 1.2.2 if {variety} is `list` then the string must be a sequence
-		 * of white space separated tokens, each of which `match`es a literal
-		 * in the `lexical space` of {item type definition}
-		 */
-		/*
-		 * Note that XML_SCHEMAS_TYPE_NORMVALUENEEDED will be set if
-		 * the list type has an enum or pattern facet.
-		 */
+		// 1.2.2 if {variety} is `list` then the string must be a sequence
+		// of white space separated tokens, each of which `match`es a literal
+		// in the `lexical space` of {item type definition}
+		// 
+		// 
+		// Note that XML_SCHEMAS_TYPE_NORMVALUENEEDED will be set if the list type has an enum or pattern facet.
+		// 
 		NORMALIZE(type);
-		/*
-		 * VAL TODO: Optimize validation of empty values.
-		 * VAL TODO: We do not have computed values for lists.
-		 */
+		// 
+		// VAL TODO: Optimize validation of empty values.
+		// VAL TODO: We do not have computed values for lists.
+		// 
 		itemType = WXS_LIST_ITEMTYPE(type);
 		cur = value;
 		do {
@@ -20884,7 +20875,6 @@ static void xmlSchemaClearAttrInfos(xmlSchemaValidCtxt * vctxt)
 		vctxt->nbAttrInfos = 0;
 	}
 }
-
 /*
  * 3.4.4 Complex Type Definition Validation Rules
  * Element Locally Valid (Complex Type) (cvc-complex-type)
@@ -20903,8 +20893,15 @@ static int xmlSchemaVAttributesComplex(xmlSchemaValidCtxt * vctxt)
 	xmlSchemaAttribute * attrDecl = NULL;
 	xmlSchemaAttrInfo * iattr;
 	xmlSchemaAttrInfo * tmpiattr;
-	int i, j, found, nbAttrs, nbUses;
-	int xpathRes = 0, res, wildIDs = 0, fixed;
+	int i = 0;
+	int j = 0;
+	int found = 0;
+	int nbAttrs = 0;
+	int nbUses = 0;
+	int xpathRes = 0;
+	int res;
+	int wildIDs = 0;
+	int fixed;
 	xmlNode * defAttrOwnerElem = NULL;
 	/*
 	 * SPEC (cvc-attribute)
@@ -21015,14 +21012,14 @@ static int xmlSchemaVAttributesComplex(xmlSchemaValidCtxt * vctxt)
 	}
 	if(vctxt->nbAttrInfos == 0)
 		return 0;
-	/*
-	 * Validate against the wildcard.
-	 */
+	// 
+	// Validate against the wildcard.
+	// 
 	if(type->attributeWildcard) {
-		/*
-		 * SPEC (cvc-complex-type)
-		 * (3.2.1) "There must be an {attribute wildcard}."
-		 */
+		// 
+		// SPEC (cvc-complex-type)
+		// (3.2.1) "There must be an {attribute wildcard}."
+		// 
 		for(i = 0; i < nbAttrs; i++) {
 			iattr = vctxt->attrInfos[i];
 			/*
@@ -21042,15 +21039,15 @@ static int xmlSchemaVAttributesComplex(xmlSchemaValidCtxt * vctxt)
 			 * Namespace Name ($3.10.4)."
 			 */
 			if(xmlSchemaCheckCVCWildcardNamespace(type->attributeWildcard, iattr->nsName) == 0) {
-				/*
-				 * Handle processContents.
-				 *
-				 * SPEC (cvc-wildcard):
-				 * processContents | context-determined declaration:
-				 * "strict"          "mustFind"
-				 * "lax"             "none"
-				 * "skip"            "skip"
-				 */
+				// 
+				// Handle processContents.
+				// 
+				// SPEC (cvc-wildcard):
+				// processContents | context-determined declaration:
+				// "strict"          "mustFind"
+				// "lax"             "none"
+				// "skip"            "skip"
+				// 
 				if(type->attributeWildcard->processContents == XML_SCHEMAS_ANY_SKIP) {
 					/*
 					 * context-determined declaration = "skip"
@@ -21062,9 +21059,9 @@ static int xmlSchemaVAttributesComplex(xmlSchemaValidCtxt * vctxt)
 					iattr->state = XML_SCHEMAS_ATTR_WILD_SKIP;
 					continue;
 				}
-				/*
-				 * Find an attribute declaration.
-				 */
+				// 
+				// Find an attribute declaration.
+				// 
 				iattr->decl = xmlSchemaGetAttributeDecl(vctxt->schema, iattr->localName, iattr->nsName);
 				if(iattr->decl) {
 					iattr->state = XML_SCHEMAS_ATTR_ASSESSED;
@@ -21113,8 +21110,7 @@ static int xmlSchemaVAttributesComplex(xmlSchemaValidCtxt * vctxt)
 						}
 					}
 				}
-				else if(type->attributeWildcard->processContents ==
-				    XML_SCHEMAS_ANY_LAX) {
+				else if(type->attributeWildcard->processContents == XML_SCHEMAS_ANY_LAX) {
 					iattr->state = XML_SCHEMAS_ATTR_WILD_LAX_NO_DECL;
 					/*
 					 * SPEC PSVI Assessment Outcome (Attribute)

@@ -78,10 +78,7 @@ void STDCALL SInflateRect(RECT & rRect, int cx, int cy)
 	return p;
 }*/
 
-SPoint2I::operator POINT & ()
-{
-	return *reinterpret_cast<POINT *>(this);
-}
+SPoint2I::operator POINT & () { return *reinterpret_cast<POINT *>(this); }
 
 SPoint2I & SPoint2I::Z()
 {
@@ -92,10 +89,8 @@ SPoint2I & SPoint2I::Z()
 //
 // SPoint2S
 //
-uint32 SPoint2S::towparam() const
-{
-	return MAKEWPARAM(x, y);
-}
+uint32 SPoint2S::towparam() const { return MAKEWPARAM(x, y); }
+bool   SPoint2S::IsZero() const { return (x == 0 && y == 0); }
 
 SPoint2S::operator POINT() const
 {
@@ -118,8 +113,6 @@ SPoint2S & SPoint2S::Z()
 	y = 0;
 	return *this;
 }
-
-bool SPoint2S::IsZero() const { return (x == 0 && y == 0); }
 
 SPoint2S FASTCALL SPoint2S::operator = (SPoint2S p)
 {
@@ -274,21 +267,14 @@ float  FRect::Width() const { return (b.x - a.x); }
 float  FRect::Height() const { return (b.y - a.y); }
 SPoint2F FRect::GetSize() const { return SPoint2F((b.x - a.x), (b.y - a.y)); }
 SPoint2F FRect::GetCenter() const { return SPoint2F((a.x + b.x) / 2.0f, (a.y + b.y) / 2.0f); }
-int    FRect::Contains(SPoint2F p) const 
-{ 
-	return (p.x >= a.x && p.x <= b.x && p.y >= a.y && p.y <= b.y); 
-}
+int    FRect::Contains(SPoint2F p) const { return (p.x >= a.x && p.x <= b.x && p.y >= a.y && p.y <= b.y); }
 int    FASTCALL FRect::Contains(const FRect & rR) const { return (Contains(rR.a) && Contains(rR.b)); }
+double FRect::Square() const { return (Width() * Height()); }
 
 double FRect::Ratio() const
 {
 	double w = Width();
 	return (w != 0.0) ? (Height() / w) : SMathConst::Max;
-}
-
-double FRect::Square() const
-{
-	return (Width() * Height());
 }
 
 FRect & FRect::Around(SPoint2F center, SPoint2F size)
@@ -964,16 +950,6 @@ TRect & TRect::grow(int aDX, int aDY)
 	b.y += aDY;
 	return *this;
 }
-
-/*
-void TRect::intersect(const TRect& r)
-{
-	a.x = MAX(a.x, r.a.x);
-	a.y = MAX(a.y, r.a.y);
-	b.x = MIN(b.x, r.b.x);
-	b.y = MIN(b.y, r.b.y);
-}
-*/
 
 int TRect::Intersect(const TRect & rD, TRect * pResult) const
 {
