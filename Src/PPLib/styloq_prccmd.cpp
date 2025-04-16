@@ -1333,7 +1333,8 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 									if(is_new_pack || (ddecl.ActionFlags & StyloQIncomingListParam::actionGoodsItemCorrection)) { // @v11.7.10 
 										if(p_item->GoodsID != r_ti.GoodsID)
 											r_ti.SetupGoods(p_item->GoodsID);
-										r_ti.Cost  = p_item->Set.Cost;
+										// Цену поступления не акцептируме поскольку мы ее не передавали клиенту (see comment in PPStyloQInterchange::Document::FromBillPacket)
+										// @v12.3.2 (see comment above) r_ti.Cost  = p_item->Set.Cost;
 										r_ti.Price = p_item->Set.Price;
 										r_ti.Discount = p_item->Set.Discount;
 										r_ti.Quantity_ = fabs(p_item->Set.Qtty);

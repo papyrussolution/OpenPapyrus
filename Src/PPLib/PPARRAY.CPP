@@ -127,7 +127,7 @@ int PPCycleArray::init2(DateRange * pPeriod, PPCycleFilt * pCycl)
 int PPCycleArray::concat(const PPCycleArray * pSrc)
 {
 	int    ok = 1;
-	if(Cycle == pSrc->Cycle) { // @v10.3.0 @fix (Cycle = pSrc->Cycle)-->(Cycle == pSrc->Cycle)
+	if(Cycle == pSrc->Cycle) {
 		Period.Set(MIN(Period.low, pSrc->Period.low), MAX(Period.upp, pSrc->Period.upp));
 		NumCycles += pSrc->NumCycles;
 		for(uint i = 0; i < pSrc->getCount(); i++)
@@ -233,7 +233,7 @@ void PPCycleArray::formatCycle(LDATE dt, char * pBuf, size_t bufLen) const
 				temp_buf.Cat(pos+1).Cat("-й год");
 		}
 	}
-	temp_buf.Transf(CTRANSF_UTF8_TO_INNER); // @v10.4.5 CTRANSF_OUTER_TO_INNER-->CTRANSF_UTF8_TO_INNER
+	temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 	strnzcpy(pBuf, temp_buf, bufLen);
 }
 
@@ -440,7 +440,7 @@ int FASTCALL ObjIdListFilt::CopyTo(PPIDArray * pList) const
 		if(P_List)
 			*pList = *P_List;
 		else
-			pList->clear(); // @v10.6.3 freeAll()-->clear()
+			pList->clear();
 	return 1;
 }
 

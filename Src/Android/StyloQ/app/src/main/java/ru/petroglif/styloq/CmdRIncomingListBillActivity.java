@@ -2168,63 +2168,56 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 				break;
 			case SLib.EV_BARCODERECEIVED:
 				if(subj != null && subj instanceof BusinessEntity.PreprocessBarcodeResult) {
-					StyloQApp app_ctx = (StyloQApp)getApplicationContext();
-					if(app_ctx != null) {
-						BusinessEntity.PreprocessBarcodeResult pbr = (BusinessEntity.PreprocessBarcodeResult) subj;
-						boolean done = false;
-						if(pbr.Oid != null && pbr.Oid.Type == SLib.PPOBJ_BILL) {
-							final boolean debug_mode = false; // @debug
-							Document selected_entry = null;
-							if(CPM.IncomingDocListData != null && CPM.IncomingDocListData.size() > 0) {
-								for(int i = 0; selected_entry == null && i < CPM.IncomingDocListData.size(); i++) {
-									Document doc_entry = CPM.IncomingDocListData.get(i);
-									if(doc_entry != null && doc_entry.H != null && doc_entry.H.ID == pbr.Oid.Id) {
-										selected_entry = doc_entry;
-									}
-								}
-								// @v12.2.12 @debug {
-								if(selected_entry == null && debug_mode) {
-									selected_entry = CPM.IncomingDocListData.get(0);
-								}
-								// } @v12.2.12 @debug
-							}
-							done = true;
-							if(selected_entry != null) {
-								CPM.ResetCurrentDocument();
-								CPM.SetIncomingDocument(selected_entry);
-								SetupCurrentDocument(true, false);
-							}
-							else {
-								app_ctx.DisplayError(this, app_ctx.GetErrorText(ppstr2.PPERR_BILLBYIDENTNFOUND, Integer.toString(pbr.Oid.Id)), 0);
-							}
-						}
-						if(!done)
-							AcceptBarcodeInput(pbr.OriginalCode);
-					}
+					AcceptBarcodeInput((BusinessEntity.PreprocessBarcodeResult)subj);
 				}
 				break;
 		}
 		return result;
 	}
-	private boolean AcceptBarcodeInput(String barcode)
+	private boolean AcceptBarcodeInput(/*String barcode*/BusinessEntity.PreprocessBarcodeResult pbr)
 	{
 		boolean ok = false;
-		int barcode_len = SLib.GetLen(barcode);
-		if(barcode_len > 0) {
-			StyloQApp app_ctx = (StyloQApp)getApplicationContext();
-			if(app_ctx != null) {
+		StyloQApp app_ctx = (StyloQApp)getApplicationContext();
+		if(app_ctx != null && pbr != null && SLib.GetLen(pbr.OriginalCode) > 0) {
+			//BusinessEntity.PreprocessBarcodeResult pbr = (BusinessEntity.PreprocessBarcodeResult) subj;
+			boolean done = false;
+			if(pbr.Oid != null && pbr.Oid.Type == SLib.PPOBJ_BILL) {
+				final boolean debug_mode = false; // @debug
+				Document selected_entry = null;
+				if(CPM.IncomingDocListData != null && CPM.IncomingDocListData.size() > 0) {
+					for(int i = 0; selected_entry == null && i < CPM.IncomingDocListData.size(); i++) {
+						Document doc_entry = CPM.IncomingDocListData.get(i);
+						if(doc_entry != null && doc_entry.H != null && doc_entry.H.ID == pbr.Oid.Id) {
+							selected_entry = doc_entry;
+						}
+					}
+					// @v12.2.12 @debug {
+					if(selected_entry == null && debug_mode) {
+						selected_entry = CPM.IncomingDocListData.get(0);
+					}
+					// } @v12.2.12 @debug
+				}
+				done = true;
+				if(selected_entry != null) {
+					CPM.ResetCurrentDocument();
+					CPM.SetIncomingDocument(selected_entry);
+					SetupCurrentDocument(true, false);
+				}
+				else {
+					app_ctx.DisplayError(this, app_ctx.GetErrorText(ppstr2.PPERR_BILLBYIDENTNFOUND, Integer.toString(pbr.Oid.Id)), 0);
+				}
+			}
+			if(!done) {
 				Document _doc = CPM.GetCurrentDocument();
 				if(_doc != null) {
-					GTIN gtin_chzn = GTIN.ParseChZnCode(barcode, 0);
-					if(gtin_chzn != null && gtin_chzn.GetChZnParseResult() > 0) {
-						String mark = GTIN.PreprocessChZnCode(barcode);
+					if(SLib.GetLen(pbr.ChZnMark) > 0) {
 						if(ScanSource == ScanType.Veriy) {
 							if(_doc.VXcL == null)
 								_doc.VXcL = new ArrayList<Document.LotExtCode>();
 							Document.LotExtCode lec = new Document.LotExtCode();
 							lec.Flags = 0;
 							lec.BoxRefN = 0;
-							lec.Code = mark;
+							lec.Code = pbr.ChZnMark;
 							_doc.VXcL.add(lec);
 							CPM.OnCurrentDocumentModification();
 							NotifyTabContentChanged(CommonPrereqModule.Tab.tabXclVerify, R.id.CTL_INCOMINGLIST_BILL_SCANMARKS_LIST);
@@ -2232,7 +2225,7 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 						}
 						else if(ScanSource == ScanType.Setting) {
 							try {
-								int amr = _doc.AssignGoodsMark(mark, CPM.GoodsListData);
+								int amr = _doc.AssignGoodsMark(pbr.ChZnMark, CPM.GoodsListData);
 								if(amr > 0) {
 									CPM.OnCurrentDocumentModification();
 									NotifyTabContentChanged(CommonPrereqModule.Tab.tabXclSetting, R.id.CTL_INCOMINGLIST_BILL_SCANMARKS_LIST);
@@ -2244,7 +2237,7 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 						}
 					}
 					else {
-						app_ctx.DisplayError(this, app_ctx.GetErrorText(ppstr2.PPERR_TEXTISNTCHZNMARK, barcode), 0);
+						app_ctx.DisplayError(this, app_ctx.GetErrorText(ppstr2.PPERR_TEXTISNTCHZNMARK, pbr.OriginalCode), 0);
 					}
 				}
 			}
@@ -2256,7 +2249,9 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 		String contents = activity_result.getContents();
 		Intent original_intent = activity_result.getOriginalIntent();
 		if(SLib.GetLen(contents) > 0) {
-			AcceptBarcodeInput(contents);
+			BusinessEntity.PreprocessBarcodeResult pbr = CPM.PreprocessBarcode(contents);
+			if(pbr != null)
+				AcceptBarcodeInput(pbr);
 		}
 		else {
 			if(original_intent == null) {
@@ -2277,13 +2272,15 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 			if(ScanDvc != null) {
 				String action = intent.getAction();
 				if(action.equals(/*SCAN_ACTION*/"scan.rcv.message")) {
-					byte[] bytes_contents = intent.getByteArrayExtra("barocode");
+					byte[] bytes_contents = intent.getByteArrayExtra("barocode"); // It's not a misprint: must be "barocode" not "barcode"!
 					//int barocode_len = intent.getIntExtra("length", 0);
 					//byte barcode_type = intent.getByteExtra("barcodeType", (byte) 0);
 					//byte[] aimid = intent.getByteArrayExtra("aimid");
 					if(SLib.GetLen(bytes_contents) > 0) {
 						String barcode_text = new String(bytes_contents);
-						AcceptBarcodeInput(barcode_text);
+						BusinessEntity.PreprocessBarcodeResult pbr = CPM.PreprocessBarcode(barcode_text);
+						if(pbr != null)
+							AcceptBarcodeInput(pbr);
 					}
 					ScanDvc.stopScan();
 					//UtilSound.play ();

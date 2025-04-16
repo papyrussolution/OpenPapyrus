@@ -498,12 +498,15 @@ public class BusinessEntity {
 		ArrayList <ExtText> ExtTextList;
 		String ImgBlob;
 	}
+	//
+	// Descr: Результат препроцессинга штрихкода
+	//
 	public static class PreprocessBarcodeResult {
-		String OriginalCode;
-		String FinalCode;
-		String ChZnMark;
-		SLib.PPObjID Oid;
-		double Qtty;
+		String OriginalCode; // Оригинальная строка кода
+		String FinalCode;    // Строка штрихкода после препроцессинга
+		String ChZnMark;     // Марак честный знак, содержащаяся в коде
+		SLib.PPObjID Oid;    // Если штрихкод содержит ссылку на объект данных, то это - он
+		double Qtty;         // Если штрихкод содержит значение количества товара, то оно - здесь
 	}
 	public static PreprocessBarcodeResult PreprocessBarcode(String code, String wghtPrefix, String cntPrefix)
 	{

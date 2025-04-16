@@ -9294,6 +9294,8 @@ int PPStyloQInterchange::Document::FromBillPacket(const PPBillPacket & rS, const
 				p_doc_ti->UnitID = goods_rec.UnitID;
 			}
 			p_doc_ti->Set.Qtty = fabs(r_ti.Qtty()); // @v11.7.2 fabs
+			// Цену поступления не передаем из соображений безопасности. Этот факт важно учитывать при обратном акцепте измененных документов
+			// функцией PPStyloQInterchange::ProcessCommand_PostDocument()
 			p_doc_ti->Set.Price = r_ti.Price;
 			p_doc_ti->Set.Discount = r_ti.Discount;
 			if(true/*param.ActionFlags & (StyloQIncomingListParam::actionDocSettingMarks|StyloQIncomingListParam::actionDocAcceptanceMarks)*/) {

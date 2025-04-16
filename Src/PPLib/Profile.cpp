@@ -930,7 +930,7 @@ int PPUserProfileCore::GetDbEntyList(TSArray <PPUserProfileCore::UfpDbEntry> & r
 	for(uint i = 0; i < StB.GetCount(); i++) {
 		if(StB.GetItem(i, stb_item)) {
 			UfpDbEntry new_entry;
-			if(!rList.lsearch(&stb_item.DbID, 0, PTR_CMPFUNC(S_GUID))) { // @v10.9.10
+			if(!rList.lsearch(&stb_item.DbID, 0, PTR_CMPFUNC(S_GUID))) {
 				new_entry.DbID = stb_item.DbID;
 				STRNSCPY(new_entry.DbSymb, stb_item.DbSymb);
 				THROW_SL(rList.insert(&new_entry));
@@ -1333,7 +1333,7 @@ int PPUserProfileCore::Load(const char * pPath)
 		}
 	}
 	{
-		LongArray seen_set; // @v10.9.12
+		LongArray seen_set;
 		THROW(ReadState());
 		for(uint i = 0; i < file_set_list.getCount(); i++) {
 			long   line_count_sess = 0;
@@ -1495,12 +1495,10 @@ int PPUserProfileCore::Load(const char * pPath)
 									}
 								}
 								PPWaitPercent(cntr.Increment(), msg_buf);
-								// @v10.9.12 {
 								if(finish_list.getCount() >= 1000000) {
 									THROW(Helper_StoreFinishList(p_set, &finish_list, ufp_line));
 									finish_list.clear();
 								}
-								// } @v10.9.12 
 							}
 							sti.FinishOffs = _f.Tell64();
 						}

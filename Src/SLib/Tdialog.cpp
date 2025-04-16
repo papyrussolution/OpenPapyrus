@@ -514,7 +514,10 @@ int TDialog::BuildEmptyWindow(const BuildEmptyWindowParam * pParam) // @v12.2.5
 			HW = CreateDialogIndirectParamW(APPL->GetInst(), p_dlgt, APPL->H_TopOfStack, TDialog::DialogProc, reinterpret_cast<LPARAM>(this));
 			SAlloc::F(p_dlgt);
 			if(HW) {
+				const bool preserve_wbc = LOGIC(WbCapability & wbcStorableUserParams);
+				WbCapability &= ~wbcStorableUserParams;
 				::SetWindowPos(HW, HWND_TOP, ViewOrigin.x, ViewOrigin.y, ViewSize.x, ViewSize.y, SWP_SHOWWINDOW);
+				SETFLAG(WbCapability, wbcStorableUserParams, preserve_wbc);
 				// @debug {
 				/*
 				RECT wr;

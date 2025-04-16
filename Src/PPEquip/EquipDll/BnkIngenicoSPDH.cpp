@@ -211,7 +211,7 @@ PPDRV_INSTANCE_ERRTAB(InpasTrmnl, 1, 0, PPDrvIngenicoTrmnl, _ErrMsgTab_DC);
 		msg.Z().Cat(TransErrStr);
 	else {
 		SIntToSymbTab_GetSymb(_ErrMsgTab_DC, SIZEOFARRAY(_ErrMsgTab_DC), LastError, msg);
-		msg.Transf(CTRANSF_UTF8_TO_OUTER); // @v10.4.5
+		msg.Transf(CTRANSF_UTF8_TO_OUTER);
 	}
 	if(msg.IsEmpty())
 		msg.Cat("Error").Space().Cat(LastError);
@@ -222,7 +222,7 @@ PPDRV_INSTANCE_ERRTAB(InpasTrmnl, 1, 0, PPDrvIngenicoTrmnl, _ErrMsgTab_DC);
 			SString temp_buf;
 			msg.CatDiv(':', 2);
 			if(SIntToSymbTab_GetSymb(_ErrMsgTab_DC, SIZEOFARRAY(_ErrMsgTab_DC), AddError, temp_buf)) {
-				temp_buf.Transf(CTRANSF_UTF8_TO_OUTER); // @v10.4.5
+				temp_buf.Transf(CTRANSF_UTF8_TO_OUTER);
 				msg.Cat(temp_buf);
 			}
 			else

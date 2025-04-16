@@ -19,7 +19,7 @@ PapyrusPrivateBlock::~PapyrusPrivateBlock()
 PapyrusPrivateBlock & PapyrusPrivateBlock::Z()
 {
 	MEMSZERO(H);
-	StructVer = 4; // @v9.4.8 1-->2 // @v10.9.6 2-->3 // @v11.0.2 3-->4
+	StructVer = 4; // @v11.0.2 3-->4
 	StartDevYear = 0;
 	LastDevYear = 0;
 	Ver.Set(0, 0, 0);
@@ -32,7 +32,7 @@ PapyrusPrivateBlock & PapyrusPrivateBlock::Z()
 	DefPassword.Obfuscate();
 	MsftTranslAcc.Obfuscate();
 	UhttAcc.Obfuscate();
-	VkAppIdent.Obfuscate(); // @v10.9.6
+	VkAppIdent.Obfuscate();
 	GoogleAppIdent.Obfuscate(); // @v11.0.2
 	return *this;
 }
@@ -77,7 +77,7 @@ int PapyrusPrivateBlock::Serialize(int dir, SBuffer & rBuf, SSerializeContext * 
 	THROW(pSCtx->Serialize(dir, DefPassword, rBuf));
 	THROW(pSCtx->Serialize(dir, MsftTranslAcc, rBuf));
 	THROW(pSCtx->Serialize(dir, UhttAcc, rBuf));
-	THROW(pSCtx->Serialize(dir, VkAppIdent, rBuf)); // @v10.9.6
+	THROW(pSCtx->Serialize(dir, VkAppIdent, rBuf));
 	// @v11.0.2 {
 	if(dir > 0 || StructVer >= 4) {
 		THROW(pSCtx->Serialize(dir, GoogleAppIdent, rBuf)); 
@@ -102,7 +102,7 @@ int PapyrusPrivateBlock::ReadFromIni(SIniFile & rIniFile)
 	rIniFile.GetParam("Version", "DefPassword", DefPassword);
 	rIniFile.GetParam("Version", "MsftTranslAcc", MsftTranslAcc);
 	rIniFile.GetParam("Version", "UhttAcc", UhttAcc);
-	rIniFile.GetParam("Version", "VkAppIdent", VkAppIdent); // @v10.9.6
+	rIniFile.GetParam("Version", "VkAppIdent", VkAppIdent);
 	rIniFile.GetParam("Version", "GoogleAppIdent", GoogleAppIdent); // @v11.0.2
 	{
 		int    mj = 0, mn = 0, r = 0, asmn = 0;
@@ -258,7 +258,7 @@ static int CreateVerRcFile2(const char * pInFileName, const char * pRcFileName, 
 		WritePrivateProfileString(_T("Version"), _T("MinRevision"), SUcSwitch(temp_buf.Z().Cat(min_rev)), SUcSwitch(pInFileNameOpen));
 		temp_buf.Z().Cat(assembly_n);
 		WritePrivateProfileString(_T("Version"), _T("AssemblyVer"), SUcSwitch(temp_buf), SUcSwitch(pInFileNameOpen));
-		WritePrivateProfileString(_T("Version"), _T("VkAppIdent"), SUcSwitch(temp_buf.Z().Cat(ppb.VkAppIdent)), SUcSwitch(pInFileNameOpen)); // @v10.9.6
+		WritePrivateProfileString(_T("Version"), _T("VkAppIdent"), SUcSwitch(temp_buf.Z().Cat(ppb.VkAppIdent)), SUcSwitch(pInFileNameOpen));
 		WritePrivateProfileString(_T("Version"), _T("GoogleAppIdent"), SUcSwitch(temp_buf.Z().Cat(ppb.GoogleAppIdent)), SUcSwitch(pInFileNameOpen)); // @v11.0.2
 	}
 	{

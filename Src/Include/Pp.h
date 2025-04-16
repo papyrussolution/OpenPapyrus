@@ -43946,7 +43946,7 @@ private:
 		PPID   Object2ID;
 		PPID   AgentID;
 		long   Flags;
-		PPID   LinkBillID; // @v10.5.2
+		PPID   LinkBillID; // Связанный документ
 	};
 	int    FetchBill(PPID billID, BillEntry * pEntry);
 
@@ -43954,7 +43954,7 @@ private:
 	int    IsGenAcc;                // @*Init_()
 	int    IsRegister;              // @*Init_()
 	int    IsGenAr;                 // @*Init_()
-	PPID   EffDlvrLocID;            // @v10.5.0 Проекция Filt.DlvrLocID (так как этот критерий применим ни при любых условиях, возможно EffDlvrLocID != Filt.DlvrLocID)
+	PPID   EffDlvrLocID;            // Проекция Filt.DlvrLocID (так как этот критерий применим ни при любых условиях, возможно EffDlvrLocID != Filt.DlvrLocID)
 	ObjRestrictArray ExtGenAccList; // @*Init_()
 	PPCycleArray CycleList;         // @*Init_()
 	AccAnlzTotal Total;

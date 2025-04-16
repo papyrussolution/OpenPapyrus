@@ -1,5 +1,5 @@
 // V_INV.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2024
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2024, 2025
 // @codepage UTF-8
 // PPViewInventory: отображение строк инвентаризации
 //
@@ -239,7 +239,7 @@ static int CheckInventoryLineForWrOff(long fltFlags, PPID billID, long lnFlags, 
 		const int is_bill_wroff = BIN(BillObj->Fetch(billID, &bill_rec) && bill_rec.Flags & BILLF_CLOSEDORDER);
 		if(f == InventoryFilt::fWrOff) {
 			if(!(lnFlags & INVENTF_WRITEDOFF)) {
-				if(!is_bill_wroff || /*diffQtty != 0.0*/(lnFlags & (INVENTF_LACK|INVENTF_SURPLUS))) // @v10.5.9
+				if(!is_bill_wroff || /*diffQtty != 0.0*/(lnFlags & (INVENTF_LACK|INVENTF_SURPLUS)))
 					ok = 0;
 			}
 		}
@@ -1025,13 +1025,11 @@ public:
 				PPLoadString("inventory_price", temp_buf);
 			setLabelText(CTL_INVITEM_PRICE, temp_buf);
 		}
-		// @v10.9.12 {
 		if(CConfig.Flags2 & CCFLG2_HIDEINVENTORYSTOCK) {
 			showCtrl(CTL_INVITEM_STOCKREST, 0);
 			showCtrl(CTL_INVITEM_DIFFREST, 0);
 			enableCommand(cmLot, 0);
 		}
-		// } @v10.9.12 
 	}
 	DECL_DIALOG_SETDTS()
 	{
@@ -1661,12 +1659,12 @@ static int AutoFillInventryDlg(AutoFillInvFilt * pFilt)
 			AddClusterAssoc(CTL_FLTAFINV_METHOD,  3, PPInventoryOpEx::afmByCurLotRest);
 			SetClusterData(CTL_FLTAFINV_METHOD, Data.Method);
 			AddClusterAssoc(CTL_FLTAFINV_FLAGS, 0, AutoFillInvFilt::fFillWithZeroQtty);
-			AddClusterAssoc(CTL_FLTAFINV_FLAGS, 1, AutoFillInvFilt::fRestrictZeroRestWithMtx); // @v10.5.6
+			AddClusterAssoc(CTL_FLTAFINV_FLAGS, 1, AutoFillInvFilt::fRestrictZeroRestWithMtx);
 			AddClusterAssoc(CTL_FLTAFINV_FLAGS, 2, AutoFillInvFilt::fExcludeZeroRestPassiv); // @v11.1.2
 			SetClusterData(CTL_FLTAFINV_FLAGS, Data.Flags);
 			{
 				PPObjGoods goods_obj;
-				DisableClusterItem(CTL_FLTAFINV_FLAGS, 1, !goods_obj.GetConfig().MtxQkID); // @v10.5.6
+				DisableClusterItem(CTL_FLTAFINV_FLAGS, 1, !goods_obj.GetConfig().MtxQkID);
 			}
 			return 1;
 		}
@@ -1797,7 +1795,7 @@ int PPViewInventory::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowse
 							if(sel_by_name) {
 								SString sub;
 								PPInputStringDialogParam isd_param;
-								isd_param.P_Wse = new TextHistorySelExtra("goodsnamefragment-common"); // @v10.7.8
+								isd_param.P_Wse = new TextHistorySelExtra("goodsnamefragment-common");
 								PPLoadText(PPTXT_SELGOODSBYNAME, isd_param.Title);
 								if(InputStringDialog(&isd_param, sub) > 0 && sub.NotEmptyS()) {
 									if(!GObj.P_Tbl->GetListBySubstring(sub, &goods_list, -1)) {
@@ -1808,7 +1806,7 @@ int PPViewInventory::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowse
 								else
 									sel_by_name = 0;
 							}
-							long   egsd_flags = ExtGoodsSelDialog::GetDefaultFlags(); // @v10.7.7
+							long   egsd_flags = ExtGoodsSelDialog::GetDefaultFlags();
 							SETFLAG(egsd_flags, ExtGoodsSelDialog::fExistsOnly, (Filt.Flags & InventoryFilt::fSelExistsGoodsOnly));
 							SETFLAG(egsd_flags, ExtGoodsSelDialog::fByName, Flags & fSelGoodsByName); // В диалоге будут полные наименования //
 							ExtGoodsSelDialog * dlg = new ExtGoodsSelDialog(bill_rec.OpID, 0, egsd_flags);
@@ -1974,7 +1972,7 @@ int PPViewInventory::CellStyleFunc_(const void * pData, long col, int paintActio
 					}
 				}
 				else if(r_col.OrgOffs == 10) { // Difference
-					if(!(CConfig.Flags2 & CCFLG2_HIDEINVENTORYSTOCK)) { // @v10.9.12
+					if(!(CConfig.Flags2 & CCFLG2_HIDEINVENTORYSTOCK)) {
 						if(p_hdr->Flags & INVENTF_LACK) {
 							pStyle->Color = GetColorRef(SClrRed);
 							pStyle->Flags |= BrowserWindow::CellStyle::fCorner;
@@ -1987,7 +1985,6 @@ int PPViewInventory::CellStyleFunc_(const void * pData, long col, int paintActio
 						}
 					}
 				}
-				// @v10.5.8 {
 				else if(r_col.OrgOffs == 14) { // Status
 					//if(p_hdr->Flags & INVENTF_WRITEDOFF) {
 					if(CheckInventoryLineForWrOff(Filt.fWrOff, p_hdr->BillID, p_hdr->Flags, /*diffQtty*/0.0)) {
@@ -2003,7 +2000,6 @@ int PPViewInventory::CellStyleFunc_(const void * pData, long col, int paintActio
 						ok = 1;
 					}
 				}
-				// } @v10.5.8
 			}
 		}
 	}
@@ -2146,7 +2142,7 @@ DBQuery * PPViewInventory::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 			it->Serial,     // #11 
 			dbe_barcode,    // #12 
 			dbe_strgloc,    // #13 
-			dbe_status,     // #14 // @v10.5.8
+			dbe_status,     // #14
 			dbe_bill_code,  // #15 // @v11.1.8
 			dbe_bill_date,  // #16 // @v11.1.8
 			0L).from(tbl_l[0], tbl_l[1], 0L));
@@ -2157,8 +2153,6 @@ DBQuery * PPViewInventory::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 			double maxv = Filt.MaxVal;
 			dbq = & (it->BillID == single_bill_id);
 			if(CheckXORFlags(Filt.Flags, InventoryFilt::fWrOff, InventoryFilt::fUnwrOff)) {
-				//dbq = ppcheckflag(dbq, it->Flags, INVENTF_WRITEDOFF, (Filt.Flags & InventoryFilt::fWrOff) ? +1 : -1);  //v10.5.6 BIN(Filt.Flags & InventoryFilt::fWrOff) => (Filt.Flags & InventoryFilt::fWrOff) ? +1 : -1
-				// @v10.5.9 {
 				dbe_wroff.init();
 				dbe_wroff.push(dbconst(Filt.Flags));
 				dbe_wroff.push(it->BillID);
@@ -2166,7 +2160,6 @@ DBQuery * PPViewInventory::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 				dbe_wroff.push(it->DiffQtty);
 				dbe_wroff.push(static_cast<DBFunc>(PPViewInventory::DynFuncInvLnWrOff));
 				dbq = &(*dbq && dbe_wroff == 1L);
-				// } @v10.5.9
 			}
 			if(Filt.Flags & (InventoryFilt::fLack|InventoryFilt::fSurplus))
 				if(Filt.Flags & InventoryFilt::fLack && Filt.Flags & InventoryFilt::fSurplus)
@@ -2256,11 +2249,11 @@ int PPALDD_Invent::NextIteration(PPIterID iterId)
 {
 	long   n = I.LineNo+1;
 	START_PPVIEW_ALDD_ITER(Inventory);
-	I.ItemBillID    = item.BillID; // @v10.7.1
+	I.ItemBillID    = item.BillID;
 	I.LineNo        = item.OprNo;
 	I.WritedOff     = BIN(item.Flags & INVENTF_WRITEDOFF);
 	I.ItemID        = item.GoodsID;
-	I.ItemFlags     = item.Flags; // @v10.7.3
+	I.ItemFlags     = item.Flags;
 	I.AutoLine      = (item.Flags & INVENTF_AUTOLINE) ? ((item.Flags & INVENTF_GENAUTOLINE) ? 1 : 2) : 0;
 	I.UnitPerPack   = item.UnitPerPack;
 	I.Quantity      = item.Quantity;

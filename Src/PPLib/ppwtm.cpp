@@ -2094,8 +2094,9 @@ int PPWhatmanWindow::InvalidateObjScope(const TWhatmanObject * pObj)
 int PPWhatmanWindow::Resize(int mode, SPoint2S p)
 {
 	int    ok = -1;
-	int    do_update_win = 0;
-	TRect  b, temp_rect;
+	bool   do_update_win = false;
+	TRect  b;
+	TRect  temp_rect;
 	if(mode == 1) {
 		//
 		// Запуск режима изменения размеров
@@ -2113,7 +2114,7 @@ int PPWhatmanWindow::Resize(int mode, SPoint2S p)
 						}
 						else if(St.Rsz.Kind == ResizeState::kMultObjMove) {
 							W.InvalidateMultSelContour(0);
-							do_update_win = 1;
+							do_update_win = true;
 						}
 						else if(St.Rsz.Kind == ResizeState::kObjDrag) {
 							::ReleaseCapture();
@@ -2133,7 +2134,7 @@ int PPWhatmanWindow::Resize(int mode, SPoint2S p)
 						}
 						if(St.Rsz.P_MovedObjCopy) {
 							InvalidateObjScope(St.Rsz.P_MovedObjCopy);
-							do_update_win = 1;
+							do_update_win = true;
 						}
 					}
 					else if(St.Rsz.Kind == ResizeState::kRectSelection) {
@@ -2167,7 +2168,7 @@ int PPWhatmanWindow::Resize(int mode, SPoint2S p)
 							W.MoveObject(St.Rsz.P_MovedObjCopy, b);
 							St.Rsz.Kind = ResizeState::kObjDragTarget;
 							InvalidateObjScope(St.Rsz.P_MovedObjCopy);
-							do_update_win = 1;
+							do_update_win = true;
 							ok = 1;
 						}
 					}
@@ -2190,7 +2191,7 @@ int PPWhatmanWindow::Resize(int mode, SPoint2S p)
 				if(St.Rsz.P_MovedObjCopy) {
 					St.Rsz.Flags |= ResizeState::fDontDrawMovedObj;
 					InvalidateObjScope(St.Rsz.P_MovedObjCopy);
-					do_update_win = 1;
+					do_update_win = true;
 				}
 				St.Rsz.Reset();
 				SetDefaultCursor();
@@ -2231,7 +2232,6 @@ int PPWhatmanWindow::Resize(int mode, SPoint2S p)
 							}
 							// } @v11.2.2 
 							W.MoveObject(p_obj, b);
-							// @v10.9.10 {
 							{
 								const int current_contaiter_candidate_idx = W.GetContaiterCandidateIdx();
 								if(current_contaiter_candidate_idx >= 0) {
@@ -2245,7 +2245,6 @@ int PPWhatmanWindow::Resize(int mode, SPoint2S p)
 									}
 								}
 							}
-							// } @v10.9.10
 							InvalidateObjScope(p_obj);
 							SLS.SetupDragndropObj(0, 0);
 						}
@@ -2264,7 +2263,6 @@ int PPWhatmanWindow::Resize(int mode, SPoint2S p)
 					if(p_obj) {
 						InvalidateObjScope(p_obj);
 						W.MoveObject(p_obj, St.Rsz.P_MovedObjCopy->GetBounds());
-						// @v10.9.8 {
 						{
 							const int current_contaiter_candidate_idx = W.GetContaiterCandidateIdx();
 							if(current_contaiter_candidate_idx >= 0) {
@@ -2278,7 +2276,6 @@ int PPWhatmanWindow::Resize(int mode, SPoint2S p)
 								}
 							}
 						}
-						// } @v10.9.8
 						InvalidateObjScope(p_obj);
 					}
 				}
@@ -2296,7 +2293,7 @@ int PPWhatmanWindow::Resize(int mode, SPoint2S p)
 					invalidateRegion(rgn, true);
 				}
 				W.SetSelArea(p, 0);
-				do_update_win = 1;
+				do_update_win = true;
 			}
 			else if(St.Rsz.Kind == ResizeState::kMultObjMove) {
 				const LongArray * p_list = W.GetMultSelIdxList();
@@ -2314,14 +2311,13 @@ int PPWhatmanWindow::Resize(int mode, SPoint2S p)
 					SPoint2S offs;
 					W.InvalidateMultSelContour(&(offs = St.Rsz.EndPt - St.Rsz.StartPt));
 				}
-				do_update_win = 1;
+				do_update_win = true;
 			}
 			if(St.Rsz.Kind == ResizeState::kObjDrag && St.Mode == modeToolbox) {
 				Dib.P_SrcWin = 0;
 				SLS.SetupDragndropObj(0, 0);
 			}
 			St.Rsz.Reset();
-			// @v10.9.7 {
 			{
 				const int current_contaiter_candidate_idx = W.GetContaiterCandidateIdx();
 				if(current_contaiter_candidate_idx >= 0) {
@@ -2330,8 +2326,7 @@ int PPWhatmanWindow::Resize(int mode, SPoint2S p)
 						InvalidateObjScope(p_cc_obj);
 				}
 			}
-			// } @v10.9.7 
-			W.SetupContainerCandidate(-1, false); // @v10.9.6 Сбрасываем признак контейнер-кандидат
+			W.SetupContainerCandidate(-1, false); // Сбрасываем признак контейнер-кандидат
 			SetDefaultCursor();
 		}
 	}
@@ -2357,7 +2352,6 @@ int PPWhatmanWindow::Resize(int mode, SPoint2S p)
 					if(St.Rsz.P_MovedObjCopy) {
 						InvalidateObjScope(St.Rsz.P_MovedObjCopy);
 						if(oneof2(St.Rsz.Kind, ResizeState::kObjMove, ResizeState::kObjDrag)) {
-							// @v10.9.7 {
 							const int current_contaiter_candidate_idx = W.GetContaiterCandidateIdx();
 							if(current_contaiter_candidate_idx >= 0) {
 								TWhatmanObject * p_cc_obj = W.GetObjectByIndex(current_contaiter_candidate_idx);
@@ -2366,9 +2360,7 @@ int PPWhatmanWindow::Resize(int mode, SPoint2S p)
 									InvalidateObjScope(p_cc_obj);
 								}
 							}
-							// } @v10.9.7 
 							W.MoveObject(St.Rsz.P_MovedObjCopy, (b = p_obj->GetBounds()).move(p.x - St.Rsz.StartPt.x, p.y - St.Rsz.StartPt.y));
-							// @v10.9.6 {
 							int container_candidate_idx = 0;
 							TWhatmanObject * p_container_candidate = 0;
 							if(W.FindContainerCandidateForObjectByPoint(p, p_obj, &container_candidate_idx)) {
@@ -2377,7 +2369,6 @@ int PPWhatmanWindow::Resize(int mode, SPoint2S p)
 								W.SetupContainerCandidate(container_candidate_idx, true);
 								InvalidateObjScope(p_container_candidate);
 							}
-							// } @v10.9.6 
 							InvalidateObjScope(St.Rsz.P_MovedObjCopy);
 						}
 					}
@@ -2391,10 +2382,9 @@ int PPWhatmanWindow::Resize(int mode, SPoint2S p)
 							W.ResizeObject(p_obj, St.Rsz.ObjRszDir, p, 0);
 						InvalidateObjScope(p_obj);
 					}
-					do_update_win = 1;
+					do_update_win = true;
 				}
 				else if(St.Rsz.Kind == ResizeState::kObjDragTarget && St.Rsz.P_MovedObjCopy) {
-					// @v10.9.10 {
 					const int current_contaiter_candidate_idx = W.GetContaiterCandidateIdx();
 					if(current_contaiter_candidate_idx >= 0) {
 						TWhatmanObject * p_cc_obj = W.GetObjectByIndex(current_contaiter_candidate_idx);
@@ -2403,13 +2393,11 @@ int PPWhatmanWindow::Resize(int mode, SPoint2S p)
 							InvalidateObjScope(p_cc_obj);
 						}
 					}
-					// } @v10.9.10 
 					InvalidateObjScope(St.Rsz.P_MovedObjCopy);
 					(b = St.Rsz.P_MovedObjCopy->GetBounds()).movecenterto(p);
 					b.a = W.TransformScreenToPoint(b.a);
 					b.b = W.TransformScreenToPoint(b.b);
 					W.MoveObject(St.Rsz.P_MovedObjCopy, b);
-					// @v10.9.10 {
 					int container_candidate_idx = 0;
 					TWhatmanObject * p_container_candidate = 0;
 					if(W.FindContainerCandidateForObjectByPoint(p, St.Rsz.P_MovedObjCopy, &container_candidate_idx)) {
@@ -2418,9 +2406,8 @@ int PPWhatmanWindow::Resize(int mode, SPoint2S p)
 						W.SetupContainerCandidate(container_candidate_idx, true);
 						InvalidateObjScope(p_container_candidate);
 					}
-					// } @v10.9.10 
 					InvalidateObjScope(St.Rsz.P_MovedObjCopy);
-					do_update_win = 1;
+					do_update_win = true;
 				}
 				else if(St.Rsz.Kind == ResizeState::kRectSelection) {
 					SRegion rgn;
@@ -2428,7 +2415,7 @@ int PPWhatmanWindow::Resize(int mode, SPoint2S p)
 					W.SetSelArea(p, 2);
 					rgn.AddFrame(W.GetSelArea(), 5, SCOMBINE_OR);
 					invalidateRegion(rgn, true);
-					do_update_win = 1;
+					do_update_win = true;
 				}
 			}
 			St.Rsz.EndPt = p;
@@ -2442,7 +2429,6 @@ int PPWhatmanWindow::Resize(int mode, SPoint2S p)
 void PPWhatmanWindow::MakeLayoutList(const WhatmanObjectLayoutBase * pItem, uint itemIdx, uint parentIdx, StrAssocArray & rList)
 {
 	assert(pItem != 0);
-
 	rList.Add(itemIdx, parentIdx, pItem->GetContainerIdent());
 	for(uint i = 0; i < W.GetObjectsCount(); i++) {
 		const WhatmanObjectLayoutBase * p_iter_layout_obj = W.GetObjectAsLayoutByIndexC(i);
@@ -2463,10 +2449,11 @@ int PPWhatmanWindow::LocalMenu(int objIdx)
 		menu.Add("@filesave", cmFileSave);
 		{
 			StrAssocArray * p_wtmo_list = TWhatmanObject::MakeStrAssocList();
-			if(p_wtmo_list && p_wtmo_list->getCount()) {
+			const uint wlc = p_wtmo_list ? p_wtmo_list->getCount() : 0;
+			if(wlc) {
 				menu.AddSeparator();
 				SString cmd_text;
-				for(uint i = 0; i < p_wtmo_list->getCount(); i++) {
+				for(uint i = 0; i < wlc; i++) {
 					StrAssocArray::Item item = p_wtmo_list->Get(i);
 					(cmd_text = item.Txt).Transf(CTRANSF_INNER_TO_OUTER);
 					menu.Add(cmd_text, MAKELONG(cmaInsert, (uint16)item.Id));

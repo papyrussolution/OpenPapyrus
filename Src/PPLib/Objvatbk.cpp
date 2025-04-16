@@ -13,15 +13,15 @@ VATBCfg::VATBCfg() : Kind(0), AccSheetID(0), Flags(0), AcctgBasis(0), AcctgBasis
 	Period.Z();
 }
 
-VATBCfg & FASTCALL VATBCfg::operator = (const VATBCfg & s)
+VATBCfg & FASTCALL VATBCfg::operator = (const VATBCfg & rS)
 {
-	List = s.List;
-	Kind = s.Kind;
-	AccSheetID = s.AccSheetID;
-	Flags      = s.Flags;
-	AcctgBasis = s.AcctgBasis;
-	AcctgBasisAtPeriod = s.AcctgBasisAtPeriod;
-	Period     = s.Period;
+	List = rS.List;
+	Kind = rS.Kind;
+	AccSheetID = rS.AccSheetID;
+	Flags      = rS.Flags;
+	AcctgBasis = rS.AcctgBasis;
+	AcctgBasisAtPeriod = rS.AcctgBasisAtPeriod;
+	Period     = rS.Period;
 	return *this;
 }
 
@@ -3070,7 +3070,7 @@ int PPViewVatBook::Export()
 					left.Space().Cat(ver.ToStr(temp_buf));
 					n_file.PutAttrib(g.GetToken_Ansi(PPHSC_RU_VERPROG), left);
 				}
-				n_file.PutAttrib(g.GetToken_Ansi(PPHSC_RU_VERFORM), "5.11"); // @v10.4.2 "5.04"-->"5.06" // @v11.2.12 "5.06"-->"5.08" // @v12.3.2 "5.08"-->"5.11"
+				n_file.PutAttrib(g.GetToken_Ansi(PPHSC_RU_VERFORM), "5.11"); // @v11.2.12 "5.06"-->"5.08" // @v12.3.2 "5.08"-->"5.11"
 				{
 					SXml::WNode n_doc(g.P_X, g.GetToken_Ansi(PPHSC_RU_DOCUMENT));
 					if(Filt.Kind == PPVTB_BUY) {
@@ -3178,9 +3178,9 @@ int PPViewVatBook::Export()
 							line_no++;
 
 							const double _vat0 = item.VAT0;
-							const double _vatn[3] = { item.VAT1, item.VAT2, item.VAT3 };
-							const double _svatn[3] = { item.SVAT1, item.SVAT2, item.SVAT3 };
-							const double _svat = _svatn[0] + _svatn[1] + _svatn[2];
+							const double _vatn[vat_rate_count] = { item.VAT1, item.VAT2, item.VAT3,  item.VAT4, item.VAT5 };
+							const double _svatn[vat_rate_count] = { item.SVAT1, item.SVAT2, item.SVAT3,  item.SVAT4, item.SVAT5 };
+							const double _svat = _svatn[0] + _svatn[1] + _svatn[2] + _svatn[3] + _svatn[4];
 							const double _amount = item.Amount;
                             {
                             	n_item.PutAttrib("НомерПор", temp_buf.Z().Cat(line_no));
@@ -3206,7 +3206,7 @@ int PPViewVatBook::Export()
 										n_item.PutAttrib("СтоимПродСФВ", temp_buf.Z().Cat(_amount, SFMT_MONEY)); // Сумма продаж в валюте
 									}
 									n_item.PutAttrib("СтоимПродСФ",  temp_buf.Z().Cat(_amount, SFMT_MONEY)); // Сумма продаж в рублях
-									for(i = 0; i < 3; i++) {
+									for(i = 0; i < vat_rate_count; i++) {
 										if(PPObjVATBook::IsVatRate(i, 18.0)) {
 											n_item.PutAttrib("СтоимПродСФ18", temp_buf.Z().Cat(_vatn[i], SFMT_MONEY)); // Сумма продаж по ставке НДС 18%
 											n_item.PutAttrib("СумНДССФ18", temp_buf.Z().Cat(_svatn[i], SFMT_MONEY)); // Сумма НДС по ставке 18%

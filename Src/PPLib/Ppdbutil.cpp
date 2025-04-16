@@ -226,7 +226,7 @@ static int CallbackBuLog(int event, const char * pInfo, void * extraPtr) // Back
 		case BACKUPLOG_ERR_COMPRESS:     msg_code = PPTXT_BACKUPLOG_ERR_COMPRESS;     break;
 		case BACKUPLOG_ERR_DECOMPRESS:   msg_code = PPTXT_BACKUPLOG_ERR_DECOMPRESS;   break;
 		case BACKUPLOG_SUC_REMOVE:       msg_code = PPTXT_BACKUPLOG_SUC_REMOVE;       break;
-		case BACKUPLOG_ERR_REMOVE:       msg_code = PPTXT_BACKUPLOG_ERR_REMOVE;       break; // @v10.8.6
+		case BACKUPLOG_ERR_REMOVE:       msg_code = PPTXT_BACKUPLOG_ERR_REMOVE;       break;
 		case BACKUPLOG_ERROR:
 			{
 				PPGetLastErrorMessage(1, err_msg_buf);
@@ -728,7 +728,7 @@ public:
 	struct Param {
 		long   Mode;       // 0 - read, 1 - write
 		long   TblID;      // Идентификатор единственной таблицы, которую следует обработать.
-		int32  SpcOb;      // @v10.0.05 Специальный объект дампирования (spcobXXX)
+		int32  SpcOb;      // Специальный объект дампирования (spcobXXX)
 		SString DbSymb;
 		SString TableName;
 		SString FileName;
@@ -749,7 +749,7 @@ private:
 		SVerT  Ver;
 		uint32 Flags;
 		int64  CtxOffs;
-		uint32 SpecialObject; // @v10.0.04
+		uint32 SpecialObject; //
 		uint8  Reserve[36];
 	};
 	struct TableEntry {
@@ -817,14 +817,12 @@ int PrcssrDbDump::EditParam(Param * pData)
 			AddClusterAssoc(CTL_DBDUMP_ACTION, 0, 1);
 			AddClusterAssoc(CTL_DBDUMP_ACTION, 1, 0);
 			SetClusterData(CTL_DBDUMP_ACTION, Data.Mode);
-			// @v10.0.05 {
 			AddClusterAssoc(CTL_DBDUMP_SPCOB, 0, spcobNone);
 			AddClusterAssoc(CTL_DBDUMP_SPCOB, 1, spcobQuot);
 			SetClusterData(CTL_DBDUMP_SPCOB, Data.SpcOb);
 			disableCtrl(CTLSEL_DBDUMP_TBL, Data.SpcOb != spcobNone);
 			DisableClusterItem(CTL_DBDUMP_ACTION, 1, (Data.SpcOb != spcobNone && !DS.GetConstTLA().IsAuth()));
 			DisableClusterItem(CTL_DBDUMP_SPCOB, 0, DS.GetConstTLA().IsAuth());
-			// } @v10.0.05
 			/*
 			DbLoginBlock blk;
 			if(Dbes.GetBySymb(Data.DbSymb, &blk)) {
@@ -1088,7 +1086,6 @@ int PrcssrDbDump::GetTableListInFile(const char * pFileName, StrAssocArray * pLi
 int PrcssrDbDump::Helper_Undump(long tblID)
 {
 	int    ok = 1;
-	// @v10.3.0 (never used) int    ref_allocated = 0;
 	uint   pos = 0;
 	SBuffer buffer;
 	THROW(P.Mode == 0);
@@ -1175,8 +1172,7 @@ int PrcssrDbDump::Helper_Dump(long tblID)
 	if(P.SpcOb == spcobNone) {
 		if(CurDict->GetTableInfo(tblID, &ts) && !(ts.Flags & XTF_DICT)) {
 			SBuffer lob_buf;
-			// @v10.6.8 char   key[MAXKEYLEN];
-			BtrDbKey key_; // @v10.6.8
+			BtrDbKey key_;
 			int64  local_count = 0; // Количество записей в отрезке
 			int64  chunk_count = 0; // Количество отрезков
 			int    has_lob = 0;
@@ -1460,10 +1456,8 @@ int ChangeDBListDialog::DoEditDB(PPID dbid)
 		Dbes.GetAttr(dbid, DbLoginBlock::attrPassword, temp_buf);
 		dlg->setCtrlString(CTL_CREATEDB_DBUSERPW, temp_buf);
 	}
-	// @v10.9.2 {
 	Dbes.GetAttr(dbid, DbLoginBlock::attrServerUrl, temp_buf);
 	dlg->setCtrlString(CTL_CREATEDB_SRVURL, temp_buf);
-	// } @v10.9.2 
 	FileBrowseCtrlGroup::Setup(dlg, CTLBRW_CREATEDB_DICT, CTL_CREATEDB_DICT, 1, PPTXT_TITLE_SELSYSPATH, 0, FileBrowseCtrlGroup::fbcgfPath);
 	FileBrowseCtrlGroup::Setup(dlg, CTLBRW_CREATEDB_DATA, CTL_CREATEDB_DATA, 2, PPTXT_TITLE_SELDATPATH, 0, FileBrowseCtrlGroup::fbcgfPath);
 	for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;) {
@@ -1490,10 +1484,8 @@ int ChangeDBListDialog::DoEditDB(PPID dbid)
 				dlg->getCtrlString(CTL_CREATEDB_DBUSERPW, temp_buf.Z());
 				dlb.SetAttr(DbLoginBlock::attrPassword, temp_buf);
 				temp_buf.Z();
-				// @v10.9.2 {
 				dlg->getCtrlString(CTL_CREATEDB_SRVURL, temp_buf.Z());
 				dlb.SetAttr(DbLoginBlock::attrServerUrl, temp_buf);
-				// } @v10.9.2 
 			}
 			if(Dbes.RegisterEntry(&F, &dlb) && Dbes.Add(0, &dlb, 1)) {
 				ok = valid_data = 1;
