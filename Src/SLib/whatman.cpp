@@ -2139,7 +2139,7 @@ TWhatmanToolArray & TWhatmanToolArray::Z()
 	PicSize = 32;
 	Ap.Init(DIREC_HORZ);
 	Dg.Clear();
-	ALB__.SetDefault();
+	ALB__.Z();
 	return *this;
 }
 

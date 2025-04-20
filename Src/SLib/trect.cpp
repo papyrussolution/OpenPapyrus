@@ -250,8 +250,8 @@ FRect & FRect::Set(float left, float top, float right, float bottom)
 
 FRect & FRect::Z()
 {
-	a.SetZero();
-	b.SetZero();
+	a.Z();
+	b.Z();
 	return *this;
 }
 
@@ -1044,9 +1044,17 @@ SPoint2F SPoint2F::Set(float _x, float _y)
 	return *this;
 }
 
+SPoint2F & SPoint2F::Z()
+{
+	x = 0.0f;
+	y = 0.0f;
+	return *this;
+}
+
 SPoint2F SPoint2F::SetZero()
 {
-	x = y = 0.0f;
+	x = 0.0f;
+	y = 0.0f;
 	return *this;
 }
 

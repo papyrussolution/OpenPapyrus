@@ -245,7 +245,7 @@ public:
 		setupAccSheet(CTLSEL_OPKINVE_WRDNOP, CTLSEL_OPKINVE_WRDNOBJ, Data.WrDnObj);
 		SetupPPObjCombo(this, CTLSEL_OPKINVE_WRUPOP, PPOBJ_OPRKIND, Data.WrUpOp, 0, reinterpret_cast<void *>(PPOPT_GOODSRECEIPT));
 		setupAccSheet(CTLSEL_OPKINVE_WRUPOP, CTLSEL_OPKINVE_WRUPOBJ, Data.WrUpObj);
-		SetupPPObjCombo(this, CTLSEL_OPKINVE_ONWROFFST, PPOBJ_BILLSTATUS, Data.OnWrOffStatusID, 0); // @v10.5.9
+		SetupPPObjCombo(this, CTLSEL_OPKINVE_ONWROFFST, PPOBJ_BILLSTATUS, Data.OnWrOffStatusID, 0);
 		//setCtrlData(CTL_OPKINVE_NOMINAL,    &(v = Data.Nominal));
 		//setCtrlData(CTL_OPKINVE_DEFREST,    &(v = Data.DefaultRest));
 		setCtrlData(CTL_OPKINVE_AUTOMETHOD, &(v = Data.AutoFillMethod));
@@ -275,7 +275,7 @@ public:
 		getCtrlData(CTLSEL_OPKINVE_WRDNOBJ, &Data.WrDnObj);
 		getCtrlData(CTLSEL_OPKINVE_WRUPOP,  &Data.WrUpOp);
 		getCtrlData(CTLSEL_OPKINVE_WRUPOBJ, &Data.WrUpObj);
-		getCtrlData(CTLSEL_OPKINVE_ONWROFFST, &Data.OnWrOffStatusID); // @v10.5.9
+		getCtrlData(CTLSEL_OPKINVE_ONWROFFST, &Data.OnWrOffStatusID);
 		getCtrlData(CTL_OPKINVE_AUTOMETHOD, &Data.AutoFillMethod);
 		getCtrlData(CTL_OPKINVE_CALCPRICE,  &Data.AmountCalcMethod);
 		GetClusterData(CTL_OPKINVE_FLAGS, &Data.Flags);
@@ -321,8 +321,6 @@ void PPObjBill::InvItem::Init(PPID goodsID, const char * pSerial)
 
 PPObjBill::InvBlock::InvBlock(long flags) : State(0), Flags(flags)
 {
-	// @v10.6.10 THISZERO();
-	// @v10.6.10 Flags = flags;
 }
 
 int PPObjBill::InitInventoryBlock(PPID billID, InvBlock & rBlk)
@@ -368,7 +366,6 @@ int PPObjBill::AcceptInventoryItem(const InvBlock & rBlk, InvItem * pItem, int u
 	}
 	else
 		pItem->FinalQtty = pItem->Qtty;
-	// @v10.5.6 {
 	if(p.Total.Rest <= 0.0) {
 		if(rBlk.Flags & InvBlock::fExcludeZeroRestPassiv && GObj.CheckFlag(pItem->GoodsID, GF_PASSIV)) { // @v11.1.2
 			skip = 1;
@@ -379,7 +376,6 @@ int PPObjBill::AcceptInventoryItem(const InvBlock & rBlk, InvItem * pItem, int u
 			}
 		}
 	}
-	// } @v10.5.6 
 	if(!skip) {
 		pItem->State = 0;
 		inv_rec.BillID      = rBlk.BillRec.ID;
@@ -933,7 +929,7 @@ int PPObjBill::AutoFillInventory(const AutoFillInvFilt * pFilt)
 	SETFLAG(ib_flags, InvBlock::fUseCurrent, (pFilt->Method == PPInventoryOpEx::afmByCurLotRest));
 	SETFLAG(ib_flags, InvBlock::fAutoLineAllowZero, (pFilt->Method == PPInventoryOpEx::afmAll));
 	SETFLAG(ib_flags, InvBlock::fAutoLineZero, (pFilt->Flags & AutoFillInvFilt::fFillWithZeroQtty));
-	SETFLAG(ib_flags, InvBlock::fRestrictZeroRestWithMtx, (pFilt->Flags & AutoFillInvFilt::fRestrictZeroRestWithMtx)); // @v10.5.6
+	SETFLAG(ib_flags, InvBlock::fRestrictZeroRestWithMtx, (pFilt->Flags & AutoFillInvFilt::fRestrictZeroRestWithMtx));
 	SETFLAG(ib_flags, InvBlock::fExcludeZeroRestPassiv, (pFilt->Flags & AutoFillInvFilt::fExcludeZeroRestPassiv)); // @v11.1.2
 	InvBlock blk(ib_flags);
 	InvItem inv_item;
@@ -1156,10 +1152,8 @@ int InventoryConversion::Run(PPID billID)
 								if(invOpEx.WrDnOp) {
 									const char * p_cvt_serial = 0;
 									uint  cvt_flags = CILTIF_DEFAULT;
-									// @v10.7.4 {
 									if(inv_rest == 0.0)
 										cvt_flags |= CILTIF_CUTRESTTOZERO;
-									// } @v10.7.4 
 									if(invOpEx.Flags & INVOPF_WROFFWODSCNT)
 										cvt_flags |= CILTIF_ZERODSCNT;
 									if(r_ir.Serial[0] == 0 && excl_serial.getDataLen()) {
@@ -1279,7 +1273,6 @@ int InventoryConversion::Run(PPID billID)
 			{
 				PPTransaction tra(1); // use_ta = 1 (TurnPackets закрывает свою транзакцию).
 				THROW(tra);
-				// @v10.5.9 {
 				if(invOpEx.OnWrOffStatusID) {
 					if(P_BObj->SetStatus(billID, invOpEx.OnWrOffStatusID, 0)) {
 						BillTbl::Rec bill_rec;
@@ -1294,7 +1287,6 @@ int InventoryConversion::Run(PPID billID)
 						logger.LogLastError();
 					}
 				}
-				// } @v10.5.9 
 				DS.LogAction(PPACN_INVENTWROFF, PPOBJ_BILL, invID, 0, 0); 
 				THROW(tra.Commit());
 			}
@@ -1478,7 +1470,7 @@ int PrcssrInvImport::Run()
 	PPImpExp ie(&IeParam, 0);
 	InventoryCore & r_inv_tbl = BillObj->GetInvT();
 	PPWaitStart();
-	THROW(IeParam.PreprocessImportFileSpec(ss_files)); // @v10.9.1
+	THROW(IeParam.PreprocessImportFileSpec(ss_files));
 	ss_files.sortAndUndup();
 	for(uint ssp = 0; ss_files.get(&ssp, filename);) {
 		THROW(ie.OpenFileForReading(filename));

@@ -7392,13 +7392,24 @@ static SString & _RectToLine(const RECT & rRect, SString & rBuf)
 		Cat(rRect.right).CatDiv(',', 2).Cat(rRect.bottom).CatChar(')');
 }
 
-static SString & _BBox(const RECT & rRect, SString & rBuf)
+static RECT & _AdjustRectToOrigin(RECT & rRect, const SPoint2I & rOrigin)
+{
+	rRect.left -= rOrigin.x;	
+	rRect.right -= rOrigin.x;	
+	rRect.top -= rOrigin.y;
+	rRect.bottom -= rOrigin.y;
+	return rRect;
+}
+
+static SString & _BBox(const RECT & rRect, SString & rBuf, int subType/*0 - no, 1 - label*/)
 {
 	//rBuf.Cat("bbox").CatDiv(':', 2);
 	//return _RectToLine(rRect, rBuf);
 	//
-	rBuf.Cat("origin").CatDiv(':', 2).CatChar('(').Cat(rRect.left).CatDiv(',', 2).Cat(rRect.top).CatChar(')').Space();
-	rBuf.Cat("size").CatDiv(':', 2).CatChar('(').Cat(rRect.right-rRect.left).CatDiv(',', 2).Cat(rRect.bottom-rRect.top).CatChar(')').Space();
+	const char * p_org_text = (subType == 1) ? "labelorigin" : "origin";
+	const char * p_sz_text = (subType == 1) ? "labelsize" : "size";
+	rBuf.Cat(p_org_text).CatDiv(':', 2).CatChar('(').Cat(rRect.left).CatDiv(',', 2).Cat(rRect.top).CatChar(')').Space();
+	rBuf.Cat(p_sz_text).CatDiv(':', 2).CatChar('(').Cat(rRect.right-rRect.left).CatDiv(',', 2).Cat(rRect.bottom-rRect.top).CatChar(')').Space();
 	return rBuf;
 }
 
@@ -7458,7 +7469,7 @@ int ExportDialogs2(const char * pFileName)
 		WINDOWINFO wi;
 		dlg = new TDialog(res_id, TDialog::coExport);
 		if(CheckDialogPtr(&dlg)) {
-			//char   text_buf[1024];
+			SPoint2I _origin;
 			seen_pos_list.Z();
 			child_list.clear();
 			dlg_symb_body.Z();
@@ -7480,7 +7491,8 @@ int ExportDialogs2(const char * pFileName)
 				line_buf.Cat("title").CatDiv(':', 2).CatQStr((temp_buf = dlg_title_buf).Transf(CTRANSF_OUTER_TO_UTF8));
 				INITWINAPISTRUCT(wi);
 				if(GetWindowInfo(dlg->H(), &wi)) {
-					_BBox(wi.rcWindow, line_buf.Space());
+					_BBox(wi.rcWindow, line_buf.Space(), 0);
+					_origin.Set(wi.rcClient.left, wi.rcClient.top);
 				}
 				{
 					HFONT h_f = reinterpret_cast<HFONT>(::SendMessage(dlg->H(), WM_GETFONT, 0, 0));
@@ -7550,7 +7562,7 @@ int ExportDialogs2(const char * pFileName)
 								if(GetWindowInfo(p_label->getHandle(), &label_wi)) {
 									TView::SGetWindowText(p_label->getHandle(), label_text);
 									label_text.ReplaceStr("\n", 0, 0);
-									label_rect = label_wi.rcWindow;
+									label_rect = _AdjustRectToOrigin(label_wi.rcWindow, _origin);
 									if(label_text.NotEmpty()) {
 										text_line_buf.Z().Cat(symb).Tab().Cat(label_text).CR();
 										f_out_text.WriteLine(text_line_buf);
@@ -7578,11 +7590,14 @@ int ExportDialogs2(const char * pFileName)
 										if(GetWindowInfo(h_combo, &wi_combo)) {
 											dlg->GetCtlSymb(p_cb->GetId(), symb);
 											line_buf.Tab().Cat("combobox").Space().Cat(symb).Space().CatChar('[');
+											_BBox(_AdjustRectToOrigin(wi.rcWindow, _origin), line_buf.Space(), 0);
 											line_buf.Cat("label").CatDiv(':', 2).CatQStr((temp_buf = ctl_text).Transf(CTRANSF_OUTER_TO_UTF8));
-											_BBox(wi.rcWindow, line_buf.Space());
 											if(p_label) {
+												/* @v12.3.2
 												line_buf.Space().Cat("labelbbox").CatDiv(':', 2);
 												_RectToLine(label_rect, line_buf);
+												*/
+												_BBox(label_rect, line_buf.Space(), 1/*subType*/); // @v12.3.2
 												//prop_list.Add(DlScope::cuifLabelRect, temp_buf);
 											}
 											//DlScope::PropListToLine(prop_list, 2, line_buf).Semicol().CR();
@@ -7604,9 +7619,7 @@ int ExportDialogs2(const char * pFileName)
 											prop_list.Add(DlScope::cuifReadOnly, temp_buf.Z());
 										}*/
 										line_buf.Tab().Cat("input").Space().Cat(symb).Space().CatChar('[');
-										_BBox(wi.rcWindow, line_buf);
-										if(ctl_text.NotEmpty())
-											line_buf.Space().Cat("label").CatDiv(':', 2).CatQStr((temp_buf = ctl_text).Transf(CTRANSF_OUTER_TO_UTF8));
+										_BBox(_AdjustRectToOrigin(wi.rcWindow, _origin), line_buf, 0);
 										{
 											static constexpr SIntToSymbTabEntry ws_symb_list[] = {
 												{ WS_TABSTOP, "tabstop" },
@@ -7621,9 +7634,14 @@ int ExportDialogs2(const char * pFileName)
 													line_buf.Space().Cat(ws_symb_list[i].P_Symb);
 											}
 										}
+										if(ctl_text.NotEmpty())
+											line_buf.Space().Cat("label").CatDiv(':', 2).CatQStr((temp_buf = ctl_text).Transf(CTRANSF_OUTER_TO_UTF8));
 										if(p_label) {
+											/* @v12.3.2
 											line_buf.Space().Cat("labelbbox").CatDiv(':', 2);
 											_RectToLine(label_rect, line_buf);
+											*/
+											_BBox(label_rect, line_buf.Space(), 1/*subType*/); // @v12.3.2
 											//prop_list.Add(DlScope::cuifLabelRect, temp_buf);
 										}
 										line_buf.CatChar(']');
@@ -7657,7 +7675,7 @@ int ExportDialogs2(const char * pFileName)
 											line_buf.Space().Cat("tabstop");
 										if(wi.dwStyle & WS_DISABLED)
 											line_buf.Space().Cat("disabled");
-										_BBox(wi.rcWindow, line_buf.Space());
+										_BBox(_AdjustRectToOrigin(wi.rcWindow, _origin), line_buf.Space(), 0);
 										line_buf.CatChar(']').Semicol();
 										f_out.WriteLine(line_buf.CR());
 										TakeInCountCtrl(h, child_list, seen_pos_list);
@@ -7686,7 +7704,7 @@ int ExportDialogs2(const char * pFileName)
 											line_buf.Z().Tab().Cat(p_kind).Space().Cat(symb).Space().CatChar('[');
 											if(ctl_text.NotEmpty())
 												line_buf.Cat("title").CatDiv(':', 2).CatQStr((temp_buf = ctl_text).Transf(CTRANSF_OUTER_TO_UTF8)).Space();
-											_BBox(wi.rcWindow, line_buf);
+											_BBox(_AdjustRectToOrigin(wi.rcWindow, _origin), line_buf, 0);
 											line_buf.CatChar(']');
 											line_buf.Space().CatChar('{');
 											f_out.WriteLine(line_buf.CR());
@@ -7703,13 +7721,13 @@ int ExportDialogs2(const char * pFileName)
 														if(p_clu->getKind() == RADIOBUTTONS) {
 															line_buf.Z().Tab_(2).Cat("radiobutton").Space().CatChar('[');
 															line_buf.Cat("title").CatDiv(':', 2).CatQStr((temp_buf = item_title_buf).Transf(CTRANSF_OUTER_TO_UTF8));
-															_BBox(wi_item.rcWindow, line_buf.Space());
+															_BBox(_AdjustRectToOrigin(wi_item.rcWindow, _origin), line_buf.Space(), 0);
 															line_buf.CatChar(']').Semicol();
 														}
 														else if(p_clu->getKind() == CHECKBOXES) {
 															line_buf.Z().Tab_(2).Cat("checkbox").Space().CatChar('[');
 															line_buf.Cat("title").CatDiv(':', 2).CatQStr((temp_buf = item_title_buf).Transf(CTRANSF_OUTER_TO_UTF8));
-															_BBox(wi_item.rcWindow, line_buf.Space());
+															_BBox(_AdjustRectToOrigin(wi_item.rcWindow, _origin), line_buf.Space(), 0);
 															line_buf.CatChar(']').Semicol();
 														}
 														f_out.WriteLine(line_buf.CR());
@@ -7747,7 +7765,7 @@ int ExportDialogs2(const char * pFileName)
 										line_buf.Tab().Cat("framebox").Space().CatChar('[');
 										if(ctl_text.NotEmpty())
 											line_buf.Cat("title").CatDiv(':', 2).CatQStr((temp_buf = ctl_text).Transf(CTRANSF_OUTER_TO_UTF8)).Space();
-										_BBox(wi.rcWindow, line_buf);
+										_BBox(_AdjustRectToOrigin(wi.rcWindow, _origin), line_buf, 0);
 										line_buf.CatChar(']').Semicol();
 										f_out.WriteLine(line_buf.CR());
 										TakeInCountCtrl(h, child_list, seen_pos_list);
@@ -7779,7 +7797,7 @@ int ExportDialogs2(const char * pFileName)
 											line_buf.Space().Cat("disabled");
 										if(bt == BS_DEFPUSHBUTTON)
 											line_buf.Space().Cat("defaultitem");
-										_BBox(wi.rcWindow, line_buf.Space());
+										_BBox(_AdjustRectToOrigin(wi.rcWindow, _origin), line_buf.Space(), 0);
 										line_buf.Space().Cat("command").CatDiv(':', 2).Cat(cmd_buf);
 										line_buf.CatChar(']');
 										line_buf.Semicol();
@@ -7809,7 +7827,7 @@ int ExportDialogs2(const char * pFileName)
 									if(ctl_text.NotEmpty()) {
 										line_buf.Cat("title").CatDiv(':', 2).CatQStr((temp_buf = ctl_text).Transf(CTRANSF_OUTER_TO_UTF8)).Space();
 									}
-									_BBox(wi.rcWindow, line_buf);
+									_BBox(_AdjustRectToOrigin(wi.rcWindow, _origin), line_buf, 0);
 									if(is_image) {
 										TImageView * p_iv = static_cast<TImageView *>(p_view);
 										if(p_iv->GetFigSymb().NotEmpty()) {
@@ -7835,7 +7853,7 @@ int ExportDialogs2(const char * pFileName)
 									if(ctl_text.NotEmpty()) {
 										line_buf.Cat("title").CatDiv(':', 2).CatQStr((temp_buf = ctl_text).Transf(CTRANSF_OUTER_TO_UTF8)).Space();
 									}
-									_BBox(wi.rcWindow, line_buf);
+									_BBox(_AdjustRectToOrigin(wi.rcWindow, _origin), line_buf, 0);
 									p_list->GetOrgColumnsDescr(temp_buf);
 									if(temp_buf.NotEmptyS()) {
 										line_buf.Space().Cat("columns").CatDiv(':', 2).CatQStr(temp_buf);
@@ -7855,7 +7873,7 @@ int ExportDialogs2(const char * pFileName)
 									line_buf.Tab().Cat("treelistbox").Space().Cat(symb).Space().CatChar('[');
 									if(ctl_text.NotEmpty())
 										line_buf.Cat("title").CatDiv(':', 2).CatQStr((temp_buf = ctl_text).Transf(CTRANSF_OUTER_TO_UTF8)).Space();
-									_BBox(wi.rcWindow, line_buf);
+									_BBox(_AdjustRectToOrigin(wi.rcWindow, _origin), line_buf, 0);
 									line_buf.CatChar(']');
 									line_buf.Semicol();
 									f_out.WriteLine(line_buf.CR());
@@ -8338,36 +8356,21 @@ private:
 				}
 			}
 			{
-				CtmExprConst __c = p_scope->GetConst(DlScope::cuifLayoutBlock);
-				if(!!__c) {
-					if(rCtx.GetConstData(__c, c_buf, sizeof(c_buf))) {
-						__alb = *reinterpret_cast<const SUiLayoutParam *>(c_buf);
-						p_alb = &__alb;
-					}
+				const SUiLayoutParam * p_lp = rCtx.GetConst_LayoutBlock(p_scope);
+				if(p_lp) {
+					__alb = *p_lp;
+					p_alb = &__alb;
 				}
 			}
 			{
 				FRect rect;
-				rect.a.x = p_alb ? p_alb->GetAbsoluteLowX() : 0.0f;
-				rect.a.y = p_alb ? p_alb->GetAbsoluteLowY() : 0.0f;
-				{
-					SPoint2F sz;
-					if(p_alb) {
-						p_alb->GetSizeX(&sz.x);
-						p_alb->GetSizeY(&sz.y);
-					}
-					if(sz.x > 0.0f) {
-						rect.b.x = rect.a.x + sz.x;
-					}
-					else 
-						rect.b.x = rect.a.x + 60.0f;
-					if(sz.y > 0.0f) {
-						rect.b.y = rect.a.y + sz.y;
-					}
-					else
-						rect.b.y = rect.a.y + 60.0f;
+				const uint gnrr = p_alb ? p_alb->GetNominalRect(rect) : 0;
+				if(rect.Width() <= 0.0f) {
+					rect.b.x = rect.a.x + 60.0f;
 				}
-				//bew_param.Bounds.Set(rect);
+				if(rect.Height() <= 0.0f) {
+					rect.b.y = rect.a.y + 60.0f;
+				}
 				setBounds(rect);
 			}
 			/*{
@@ -8408,6 +8411,8 @@ private:
 				//
 				// Далее, мы должны вставить управляющие элементы в созданое окно диалога
 				//
+				const TRect _def_rect(0, 0, 10, 10);
+				SString ctl_text;
 				const DlScopeList & r_cl = p_scope->GetChildList();
 				for(uint ci = 0; ci < r_cl.getCount(); ci++) {
 					const DlScope * p_item = r_cl.at(ci);
@@ -8422,12 +8427,74 @@ private:
 						}
 						if(vk) {
 							//UiItemKind::GetSymbById(vk, temp_buf);
+							const SUiLayoutParam * p_lp = rCtx.GetConst_LayoutBlock(p_item);
 							switch(vk) {
 								case UiItemKind::kInput:
+									{
+										TRect rc;
+										if(p_lp) {
+											FRect rect;
+											const uint gnrr = p_lp ? p_lp->GetNominalRect(rect) : 0;
+											if(rect.Width() <= 0.0f) {
+												rect.b.x = rect.a.x + 60.0f;
+											}
+											if(rect.Height() <= 0.0f) {
+												rect.b.y = rect.a.y + 60.0f;
+											}
+											rc.Set(rect);
+										}
+										TInputLine * p_ctl = new TInputLine(rc, 0, 0);
+										InsertCtlWithCorrespondingNativeItem(p_ctl, p_item->ID, 0, /*extraPtr*/0);
+										{
+											// Label
+											if(rCtx.GetConst_String(p_item, DlScope::cuifCtrlText, ctl_text)) {
+												//cuifCtrlLblRect,  // raw    Координаты текстового ярлыка, ассоциированного с управляющим элементом
+												//cuifCtrlLblSymb,  // string Символ текстового ярлыка, ассоциированного с управляющим элементом
+												//cuifLabelRect,    // raw(UiRelRect) Положение текстового ярлыка, ассоциированного с управляющим элементом
+											}
+										}
+									}
 									break;
 								case UiItemKind::kStatic:
+									{
+										TRect rc;
+										if(p_lp) {
+											FRect rect;
+											const uint gnrr = p_lp ? p_lp->GetNominalRect(rect) : 0;
+											if(rect.Width() <= 0.0f) {
+												rect.b.x = rect.a.x + 60.0f;
+											}
+											if(rect.Height() <= 0.0f) {
+												rect.b.y = rect.a.y + 60.0f;
+											}
+											rc.Set(rect);
+										}
+										TStaticText * p_ctl = new TStaticText(rc, 0);
+										InsertCtlWithCorrespondingNativeItem(p_ctl, p_item->ID, 0, /*extraPtr*/0);
+									}
 									break;
-								case UiItemKind::kPushbutton: 
+								case UiItemKind::kPushbutton:
+									{
+										TRect rc;
+										if(p_lp) {
+											FRect rect;
+											const uint gnrr = p_lp ? p_lp->GetNominalRect(rect) : 0;
+											if(rect.Width() <= 0.0f) {
+												rect.b.x = rect.a.x + 60.0f;
+											}
+											if(rect.Height() <= 0.0f) {
+												rect.b.y = rect.a.y + 60.0f;
+											}
+											rc.Set(rect);
+										}
+										uint32 cmd_id = 0;
+										SString cmd_symb;
+										rCtx.GetConst_Uint32(p_item, DlScope::cuifCtrlCmd, cmd_id); // uint32 ИД команды кнопки
+										rCtx.GetConst_String(p_item, DlScope::cuifCtrlCmdSymb, cmd_symb); // string Символ команды кнопки
+										rCtx.GetConst_String(p_item, DlScope::cuifCtrlText, ctl_text);
+										TButton * p_ctl = new TButton(rc, ctl_text, cmd_id, 0);
+										InsertCtlWithCorrespondingNativeItem(p_ctl, p_item->ID, 0, /*extraPtr*/0);
+									}
 									break;
 								case UiItemKind::kCheckbox: 
 									break;

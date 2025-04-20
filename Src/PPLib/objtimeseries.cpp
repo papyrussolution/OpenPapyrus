@@ -5956,7 +5956,7 @@ struct TsFindStrategiesBlock {
 				case PPTssModel::orsUndef:
 					if(r_tssm.Flags & PPTssModel::fOptRangeStepAsMkPart_) {
 						sf_step = ffloori(_real_item_count * static_cast<double>(r_tssm.OptRangeStep_) / 1000000.0);
-						sf_step_increment = 1; // @v10.8.5 10-->1
+						sf_step_increment = 1;
 						if(pRawResult) {
 							pRawResult->OptRangeStepAbs = sf_step;
 							pRawResult->OptRangeStepMkPart = r_tssm.OptRangeStep_;
@@ -5973,7 +5973,7 @@ struct TsFindStrategiesBlock {
 					break;
 				case PPTssModel::orsMkPart:
 					sf_step = ffloori(_real_item_count * static_cast<double>(r_tssm.OptRangeStep_) / 1000000.0);
-					sf_step_increment = 1; // @v10.8.5 10-->1
+					sf_step_increment = 1;
 					if(pRawResult) {
 						pRawResult->OptRangeStepAbs = sf_step;
 						pRawResult->OptRangeStepMkPart = r_tssm.OptRangeStep_;

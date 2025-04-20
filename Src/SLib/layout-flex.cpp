@@ -1,5 +1,5 @@
 // LAYOUT-FLEX.CPP
-// Copyright (c) A.Sobolev 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2020, 2021, 2022, 2023, 2025
 // @codepage UTF-8
 //
 // The code of Microsoft Flex is partialy used (https://github.com/xamarin/flex.git)
@@ -9,17 +9,19 @@
 #include <slib-internal.h>
 #pragma hdrstop
 
-SUiLayoutParam::SUiLayoutParam()
+static constexpr uint32 SUiLayoutParam_Version = 1;
+
+SUiLayoutParam::SUiLayoutParam() : Signature(SlConst::Signature_SUiLayoutParam), Ver(SUiLayoutParam_Version)
 {
-	SetDefault();
+	Z();
 }
 
-SUiLayoutParam::SUiLayoutParam(int direction, uint justifyContent, uint alignContent)
+SUiLayoutParam::SUiLayoutParam(int direction, uint justifyContent, uint alignContent) : Signature(SlConst::Signature_SUiLayoutParam), Ver(SUiLayoutParam_Version)
 {
 	assert(oneof2(direction, DIREC_HORZ, DIREC_VERT));
 	assert(oneof8(justifyContent, alignAuto, alignStretch, alignCenter, alignStart, alignEnd, alignSpaceBetween, alignSpaceAround, alignSpaceEvenly));
 	assert(oneof8(alignContent, alignAuto, alignStretch, alignCenter, alignStart, alignEnd, alignSpaceBetween, alignSpaceAround, alignSpaceEvenly));
-	SetDefault();
+	Z();
 	SetContainerDirection(direction);
 	if(justifyContent != alignAuto && oneof7(justifyContent, alignStretch, alignCenter, alignStart, alignEnd, alignSpaceBetween, alignSpaceAround, alignSpaceEvenly)) {
 		JustifyContent = justifyContent;
@@ -29,7 +31,34 @@ SUiLayoutParam::SUiLayoutParam(int direction, uint justifyContent, uint alignCon
 	}
 }
 
-SUiLayoutParam & SUiLayoutParam::SetDefault()
+SUiLayoutParam & FASTCALL SUiLayoutParam::operator = (const SUiLayoutParam & rS)
+{
+#define CPY_FLD(f) f = rS.f
+	CPY_FLD(Flags);
+	CPY_FLD(SzX);
+	CPY_FLD(SzY);
+	CPY_FLD(JustifyContent);
+	CPY_FLD(AlignContent);
+	CPY_FLD(AlignItems);
+	CPY_FLD(AlignSelf);
+	CPY_FLD(GravityX);
+	CPY_FLD(GravityY);
+	CPY_FLD(LinkRelation); // @v12.3.2 SIDE_XXX
+	CPY_FLD(Reserve);
+	CPY_FLD(Order);
+	CPY_FLD(Nominal);
+	CPY_FLD(Size);
+	CPY_FLD(Padding);
+	CPY_FLD(Margin);
+	CPY_FLD(GrowFactor);
+	CPY_FLD(ShrinkFactor);
+	CPY_FLD(Basis);
+	CPY_FLD(AspectRatio);
+#undef CPY_FLD
+	return *this;
+}
+
+SUiLayoutParam & SUiLayoutParam::Z()
 {
 	Flags = 0;
 	SzX = szUndef;
@@ -40,14 +69,13 @@ SUiLayoutParam & SUiLayoutParam::SetDefault()
 	AlignSelf = alignAuto;
 	GravityX = 0;
 	GravityY = 0;
+	LinkRelation = 0; // @v12.3.2 SIDE_XXX
+	Reserve = 0;
 	Order = 0;
-	Nominal.a.SetZero();
-	Nominal.b.SetZero();
-	Size.SetZero();
-	Padding.a.SetZero();
-	Padding.b.SetZero();
-	Margin.a.SetZero();
-	Margin.b.SetZero();
+	Nominal.Z();
+	Size.Z();
+	Padding.Z();
+	Margin.Z();
 	GrowFactor = 0.0f;
 	ShrinkFactor = 1.0f;
 	Basis = 0.0f;
@@ -69,7 +97,8 @@ bool FASTCALL SUiLayoutParam::IsEq(const SUiLayoutParam & rS) const
 	I(AlignItems);     
 	I(AlignSelf);      
 	I(GravityX);       
-	I(GravityY);       
+	I(GravityY);  
+	I(LinkRelation); // @v12.3.2
 	I(Order);          
 	I(Nominal);        
 	I(Size);           
@@ -109,18 +138,14 @@ int SUiLayoutParam::Validate() const
 	return ok;
 }
 
-/*static*/uint32 SUiLayoutParam::GetSerializeSignature() { return 0x15DE0522U; }
-
 int SUiLayoutParam::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
-	//const  uint32 valid_signature = 0x15DE0522U;
-	const  uint32 valid_version = 0U;
-	uint32 signature = SUiLayoutParam::GetSerializeSignature(); // Сигнатура для сериализации
-	uint32 version = 0;   // Версия сериализации
+	uint32 signature = Signature;
+	uint32 version = Ver;
 	THROW(pSCtx->Serialize(dir, signature, rBuf));
 	if(dir < 0) {
-		THROW(signature == SUiLayoutParam::GetSerializeSignature());
+		THROW(signature == Signature); // @todo @err
 	}
 	THROW(pSCtx->Serialize(dir, version, rBuf));
 	THROW(pSCtx->Serialize(dir, Flags, rBuf));
@@ -132,6 +157,9 @@ int SUiLayoutParam::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx
 	THROW(pSCtx->Serialize(dir, AlignSelf, rBuf));
 	THROW(pSCtx->Serialize(dir, GravityX, rBuf));
 	THROW(pSCtx->Serialize(dir, GravityY, rBuf));
+	if(!(dir < 0) || !(version < Ver)) {
+		THROW(pSCtx->Serialize(dir, LinkRelation, rBuf)); 
+	}
 	THROW(pSCtx->Serialize(dir, Order, rBuf));
 	THROW(pSCtx->Serialize(dir, Nominal, rBuf));
 	THROW(pSCtx->Serialize(dir, Size, rBuf));
@@ -639,6 +667,60 @@ bool SUiLayoutParam::IsPositionAbsoluteX() const
 	}
 	else if(IsNominalFullDefinedX())
 		result = true;
+	return result;
+}
+
+uint SUiLayoutParam::GetNominalRect(FRect & rR) const // @v12.3.2 @construction
+{
+	uint   result = 0;
+	float  x1 = 0.0f;
+	float  y1 = 0.0f;
+	float  cx = 0.0f;
+	float  cy = 0.0f;
+	{
+		if(Flags & fNominalDefL) {
+			x1 = Nominal.a.x;
+			result |= fNominalDefL;
+		}
+		else if(Flags & fNominalDefR && SzX == szFixed) {
+			x1 = (Nominal.b.x - Size.x);
+			result |= fNominalDefL;
+		}
+	}
+	{
+		if(Flags & fNominalDefT) {
+			y1 = Nominal.a.y;
+			result |= fNominalDefT;
+		}
+		else if(Flags & fNominalDefB && SzY == szFixed) {
+			y1 = (Nominal.b.y - Size.y);
+			result |= fNominalDefT;
+		}
+	}
+	{
+		if(SzX == szFixed) {
+			cx = Size.x;
+			result |= fNominalSzX;
+		}
+		else if(IsNominalFullDefinedX()) {
+			cx = Nominal.Width();
+			result |= fNominalSzX;
+		}
+	}
+	{
+		if(SzY == szFixed) {
+			cy = Size.y;
+			result |= fNominalSzY;
+		}
+		else if(IsNominalFullDefinedY()) {
+			cy = Nominal.Height();
+			result |= fNominalSzY;
+		}
+	}
+	rR.a.x = x1;
+	rR.a.y = y1;
+	rR.b.x = x1 + cx;
+	rR.b.y = y1 + cy;
 	return result;
 }
 

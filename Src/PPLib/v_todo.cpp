@@ -410,10 +410,9 @@ int VCalendar::PutTodoProperty(TodoProperty prop, const void * pVal, long addedP
 			if(prop == prpOwner) {
 				SString role_owner;
 				role_owner.GetSubFrom(PropAttrib, ';', prpatrRoleOwner);
-				// @v10.6.10 buf.Semicol().Cat(role_owner);
-				buf.Colon().Cat(temp_buf).Semicol().Cat(role_owner).Transf(CTRANSF_INNER_TO_UTF8).CR(); // @v10.6.10
+				buf.Colon().Cat(temp_buf).Semicol().Cat(role_owner).Transf(CTRANSF_INNER_TO_UTF8).CR();
 			}
-			else { // @v10.6.10 (else)
+			else {
 				buf.Colon().Cat(temp_buf).Transf(CTRANSF_INNER_TO_UTF8).CR();
 			}
 			P_Stream->WriteLine(buf);
@@ -681,7 +680,6 @@ int PrjTaskFilt::GetPriorList(PPIDArray * pList) const
 //
 PPViewPrjTask::PPViewPrjTask() : PPView(&TodoObj, &Filt, PPVIEW_PRJTASK, implChangeFilt, 0), P_TempOrd(0), P_TempTbl(0), Grid(this)
 {
-	// @v10.9.1 (redundunt) UpdateTaskList.freeAll();
 }
 
 PPViewPrjTask::~PPViewPrjTask()
@@ -1106,10 +1104,10 @@ int PPViewPrjTask::Init_(const PPBaseFilt * pFilt)
 	CrosstabProcessor * p_ct_prcssr = 0;
 	Grid.freeAll();
 	THROW(Helper_InitBaseFilt(pFilt));
-	Filt.Period.Actualize(ZERODATE); // @v10.7.2
-	Filt.StartPeriod.Actualize(ZERODATE); // @v10.7.2
-	Filt.EstFinishPeriod.Actualize(ZERODATE); // @v10.7.2
-	Filt.FinishPeriod.Actualize(ZERODATE); // @v10.7.2
+	Filt.Period.Actualize(ZERODATE);
+	Filt.StartPeriod.Actualize(ZERODATE);
+	Filt.EstFinishPeriod.Actualize(ZERODATE);
+	Filt.FinishPeriod.Actualize(ZERODATE);
 	TodoObj.LinkTaskID = Filt.LinkTaskID;
 	if(!(Filt.Flags & PrjTaskFilt::fNotShowPPWaitOnInit))
 		PPWaitStart();
@@ -1323,8 +1321,8 @@ int PrjTaskFiltDialog::setDTS(const PrjTaskFilt * pData)
 	SetupPersonCombo(this, CTLSEL_TODOFILT_CREATOR,  Data.CreatorID, 0, PPPRK_EMPL, 0);
 	SetupPersonCombo(this, CTLSEL_TODOFILT_EMPLOYER, Data.EmployerID, 0, PPPRK_EMPL, 0);
 	SetupPersonCombo(this, CTLSEL_TODOFILT_CLIENT,   Data.ClientID, 0, PPPRK_CLIENT, 0);
-	SetupPPObjCombo(this,  CTLSEL_TODOFILT_CITY,     PPOBJ_WORLD,     Data.CliCityID, OLW_WORDSELECTOR, PPObjWorld::MakeExtraParam(WORLDOBJ_CITY, 0, 0)); // @v10.7.8 OLW_WORDSELECTOR
-	SetupPPObjCombo(this, CTLSEL_TODOFILT_PRJ,       PPOBJ_PROJECT, Data.ProjectID, OLW_CANINSERT, 0); // @v10.7.0
+	SetupPPObjCombo(this,  CTLSEL_TODOFILT_CITY,     PPOBJ_WORLD,     Data.CliCityID, OLW_WORDSELECTOR, PPObjWorld::MakeExtraParam(WORLDOBJ_CITY, 0, 0));
+	SetupPPObjCombo(this, CTLSEL_TODOFILT_PRJ,       PPOBJ_PROJECT, Data.ProjectID, OLW_CANINSERT, 0);
 	SetupStringCombo(this, CTLSEL_TODOFILT_ORDER,    PPTXT_TODOORDER,     Data.Order);
 	SetupStringCombo(this, CTLSEL_TODOFILT_CROSSTAB, PPTXT_TODOCROSSTAB,  Data.TabType);
 	SetupStringCombo(this, CTLSEL_TODOFILT_CTPAR,    PPTXT_TODOCTPARAMS,  Data.TabParam);
@@ -1367,11 +1365,11 @@ int PrjTaskFiltDialog::getDTS(PrjTaskFilt * pData)
 	getCtrlData(CTLSEL_TODOFILT_EMPLOYER, &Data.EmployerID);
 	getCtrlData(CTLSEL_TODOFILT_CLIENT,   &Data.ClientID);
 	getCtrlData(CTLSEL_TODOFILT_CITY,     &Data.CliCityID);
-	getCtrlData(CTLSEL_TODOFILT_PRJ,      &Data.ProjectID); // @v10.7.0
+	getCtrlData(CTLSEL_TODOFILT_PRJ,      &Data.ProjectID);
 	getCtrlData(CTLSEL_TODOFILT_ORDER,    &Data.Order);
 	getCtrlData(CTLSEL_TODOFILT_CROSSTAB, &Data.TabType);
 	if(Data.StartPeriod.IsZero() && Data.TabType != PrjTaskFilt::crstNone) {
-		const LDATE oper_date = getcurdate_(); // @v10.8.10 LConfig.OperDate-->getcurdate_()
+		const LDATE oper_date = getcurdate_();
 		if(oneof2(Data.TabType, PrjTaskFilt::crstDateHour, PrjTaskFilt::crstEmployerHour))
 			Data.StartPeriod.low = Data.StartPeriod.upp = oper_date;
 		else {
@@ -1936,8 +1934,7 @@ DBQuery * PPViewPrjTask::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 			*dbe_status,    // #7
 			dbe_psn_cli,    // #8
 			dbe_psn_emp,    // #9
-			// @v10.7.2 t->Descr,       // #10
-			dbe_descr, // #10 @v10.7.2
+			dbe_descr,      // #10
 			0L).from(p_ord, t, 0L).where(*dbq);
 		delete dbe_prior;
 		delete dbe_status;

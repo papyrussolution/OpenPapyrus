@@ -1177,7 +1177,84 @@ PPViewVatBook::OpEntry::OpEntry() : OpID(0), AmtTypeID(0), SignFilt(0)
 {
 }
 
-PPViewVatBook::PPViewVatBook() : PPView(0, &Filt, PPVIEW_VATBOOK, 0, 0), P_BObj(BillObj), IsMainOrgVatFree(-1), P_GObj(0), P_ClbList(0)
+PPViewVatBook::MainOrgBlock::MainOrgBlock() : MainOrgID(0), SpecialTaxGroupID(0), Initialized(false), IsVatFree(false)
+{
+}
+		
+PPViewVatBook::MainOrgBlock & PPViewVatBook::MainOrgBlock::Z()
+{
+	MainOrgID = 0;
+	SpecialTaxGroupID = 0;
+	Initialized = false;
+	IsVatFree = false;
+	return *this;
+}
+
+bool PPViewVatBook::MainOrgBlock::FetchSpcTaxEntry(LDATE dt, PPGoodsTaxEntry & rGtx) const
+{
+	rGtx.Z();
+	return (Initialized && SpecialTaxGroupID && PPObjGoodsTax::Fetch(SpecialTaxGroupID, dt, 0, &rGtx) > 0);
+}
+
+bool PPViewVatBook::MainOrgBlock::IsVatFree_(LDATE dt) const
+{
+	bool   result = false;
+	PPGoodsTaxEntry gtx;
+	if(FetchSpcTaxEntry(dt, gtx) && (gtx.Flags & GTAXF_SPCVAT) && gtx.GetVatRate() == 0.0)
+		result = true;
+	else if(IsVatFree)
+		result = true;
+	return result;
+}
+
+bool PPViewVatBook::MainOrgBlock::IsSpecialVatRate(LDATE dt, double * pRate) const
+{
+	bool   result = false;
+	double vat_rate = 0.0;
+	PPGoodsTaxEntry gtx;
+	if(FetchSpcTaxEntry(dt, gtx) && (gtx.Flags & GTAXF_SPCVAT)) {
+		vat_rate = gtx.GetVatRate();
+		result = true;
+	}
+	else if(IsVatFree)
+		result = true;
+	ASSIGN_PTR(pRate, vat_rate);
+	return result;
+}
+
+int PPViewVatBook::MainOrgBlock::Init()
+{
+	int   result = -1;
+	if(!Initialized) {
+		PersonTbl::Rec psn_rec;
+		PPObjPerson psn_obj;
+		if(GetMainOrgID(&MainOrgID) > 0 && psn_obj.Fetch(MainOrgID, &psn_rec) > 0) {
+			if(psn_rec.Flags & PSNF_NOVATAX)
+				IsVatFree = true;
+			{
+				ObjTagItem tag_item;
+				if(PPRef->Ot.GetTag(PPOBJ_PERSON, MainOrgID, PPTAG_PERSON_SPCTAXGROUP, &tag_item) > 0) {
+					long  tax_grp_id = 0;
+					if(tag_item.GetInt(&tax_grp_id)) {
+						PPObjGoodsTax gtx_obj;
+						PPGoodsTax gtx_rec;
+						if(gtx_obj.Search(tax_grp_id, &gtx_rec) > 0) {
+							SpecialTaxGroupID = tax_grp_id;
+						}
+					}
+				}
+			}
+			Initialized = true;
+			result = 1;
+		}
+		else {
+			result = 0;
+		}
+	}
+	return result;
+}
+
+PPViewVatBook::PPViewVatBook() : PPView(0, &Filt, PPVIEW_VATBOOK, 0, 0), P_BObj(BillObj), P_GObj(0), P_ClbList(0)
 {
 }
 
@@ -1391,12 +1468,12 @@ int PPViewVatBook::CalcTotal(VatBookTotal * pTotal)
 
 void PPViewVatBook::ViewTotal()
 {
-	uint   res_id = (Filt.Kind == PPVTB_SIMPLELEDGER) ? DLG_SLEDGTOTAL : DLG_VATBOOKTOTAL;
+	const uint res_id = Filt.IsSimpleLedger() ? DLG_SLEDGTOTAL : DLG_VATBOOKTOTAL;
 	TDialog * dlg = 0;
 	if(Total.Count == 0)
 		CalcTotal(&Total);
 	if(CheckDialogPtrErr(&(dlg = new TDialog(res_id)))) {
-		if(Filt.Kind == PPVTB_SIMPLELEDGER) {
+		if(Filt.IsSimpleLedger()) {
 			dlg->setCtrlData(CTL_SLEDGTOTAL_COUNT, &Total.Count);
 			dlg->setCtrlData(CTL_SLEDGTOTAL_AMT,  &Total.Amount);
 			dlg->setCtrlData(CTL_SLEDGTOTAL_AMTV, &Total.Excise);
@@ -1507,18 +1584,15 @@ IMPL_HANDLE_EVENT(VATBFiltDialog)
 void VATBFiltDialog::SetupObj()
 {
 	ushort v = getCtrlUInt16(CTL_VATBFLT_WHAT);
-	// @v10.7.9 Data.ArticleID = 0;
 	// @v11.4.5 const  PPID acs_id = (v == 0) ? P_VBObj->GetConfig(PPVTB_SELL).AccSheetID : P_VBObj->GetConfig(PPVTB_BUY).AccSheetID;
 	const  PPID ledger_kind = (v == 0) ? PPVTB_SELL : ((v == 2) ? PPVTB_SIMPLELEDGER : PPVTB_BUY); // @v11.4.5
 	const  PPID acs_id = P_VBObj->GetConfig(ledger_kind).AccSheetID; // @v11.4.5
-	// @v10.7.9 {
 	if(Data.ArticleID) {
 		PPID   prev_ar_acs_id = 0;
 		GetArticleSheetID(Data.ArticleID, &prev_ar_acs_id, 0);
 		if(prev_ar_acs_id != acs_id)
 			Data.ArticleID = 0;
 	}
-	// } @v10.7.9 
 	SetupArCombo(this, CTLSEL_VATBFLT_OBJ, Data.ArticleID, OLW_LOADDEFONOPEN, acs_id, sacfDisableIfZeroSheet);
 }
 
@@ -1570,7 +1644,7 @@ DBQuery * PPViewVatBook::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	THROW(CheckTblPtr(vt));
 	PPDbqFuncPool::InitObjNameFunc(dbe_ar,  PPDbqFuncPool::IdObjNameAr,  vt->ArID);
 	PPDbqFuncPool::InitObjNameFunc(dbe_loc, PPDbqFuncPool::IdObjNameLoc, vt->LocID);
-	if(Filt.Kind == PPVTB_SIMPLELEDGER) {
+	if(Filt.IsSimpleLedger()) {
 		brw_id = BROWSER_SIMPLELEDGER;
 		PPDbqFuncPool::InitObjNameFunc(dbe_op, PPDbqFuncPool::IdObjNameOprKind, vt->OpID);
 		PPDbqFuncPool::InitObjNameFunc(dbe_bill_memo, PPDbqFuncPool::IdObjMemoBill, vt->LinkBillID);
@@ -1769,13 +1843,13 @@ int PPViewVatBook::_SetVATParams(VATBookTbl::Rec * pRec, const BVATAccmArray & r
 			rate = isSelling ? r_vati.PRate : r_vati.CRate;
 		}
 		else if(Filt.Kind == PPVTB_SELL) {
-			if(IsMainOrgVatFree > 0)
+			if(MOBlk.IsVatFree_(pRec->Dt))
 				pRec->Flags |= VATBF_VATFREE;
 			rate = isSelling ? r_vati.PRate : r_vati.CRate;
 		}
 		else {
 			rate = -1L;
-			if(Filt.Kind == PPVTB_SIMPLELEDGER && (VBObj.GetConfig(PPVTB_SIMPLELEDGER).Flags & VATBCfg::hfWoTax))
+			if(Filt.IsSimpleLedger() && (VBObj.GetConfig(PPVTB_SIMPLELEDGER).Flags & VATBCfg::hfWoTax))
 				amount -= s;
 		}
 		if(rate == 0.0) {
@@ -1808,59 +1882,38 @@ int PPViewVatBook::_SetVATParams(VATBookTbl::Rec * pRec, const BVATAccmArray & r
 					break;
 				}
 			}
-			/*
-			if(rate == PPObjVATBook::GetVatRate(0)) {
-				a += pRec->VAT1;
-				s += pRec->SVAT1;
-				pRec->VAT1 = a;
-				pRec->SVAT1 = s;
-			}
-			else if(rate == PPObjVATBook::GetVatRate(1)) {
-				a += pRec->VAT2;
-				s += pRec->SVAT2;
-				pRec->VAT2 = a;
-				pRec->SVAT2 = s;
-			}
-			else if(rate == PPObjVATBook::GetVatRate(2)) {
-				a += pRec->VAT3;
-				s += pRec->SVAT3;
-				pRec->VAT3 = a;
-				pRec->SVAT3 = s;
-			}
-			// @v12.2.8 {
-			else if(rate == PPObjVATBook::GetVatRate(3)) {
-				a += pRec->VAT4;
-				s += pRec->SVAT4;
-				pRec->VAT4 = a;
-				pRec->SVAT4 = s;
-			}
-			else if(feqeps(rate, PPObjVATBook::GetVatRate(4), 1E-7)) {
-				a += pRec->VAT5;
-				s += pRec->SVAT5;
-				pRec->VAT5 = a;
-				pRec->SVAT5 = s;
-			}
-			// } @v12.2.8 
-			*/
 		}
 	}
-	if(Filt.Kind == PPVTB_SIMPLELEDGER) {
+	if(Filt.IsSimpleLedger()) {
 		uint   pos = 0;
 		const  VATBCfg & r_vb_cfg = VBObj.GetConfig(PPVTB_SIMPLELEDGER);
 		const  bool is_vat_free = (r_vb_cfg.List.lsearch(&pRec->OpID, &pos, CMPF_LONG)) ? LOGIC(r_vb_cfg.List.at(pos).Flags & VATBCfg::fVATFree) : false;
 		amount = fabs(amount);
-		if(!isSelling && slUseCostVatAddendum && cvat > 0.0) {
-			//
-			// Для получения дополнительной записи по НДС поставщика в расходах функция будет
-			// вызвана повторно с параметром (slUseCostVatAddendum = 2). Но перед этим
-			// вызывающая функция должна получить сигнал в виде (return = 100) для повторного вызова.
-			//
-			if(slUseCostVatAddendum == 1) {
-				amount -= cvat;
-				result = 100;
+		if(isSelling) {
+			// @v12.3.2 {
+			if(slUseCostVatAddendum == 3) {
+				// С 2025 года если мы - на общей схеме уплаты НДС, то доходы (так же как и расходы) учитываются без НДС
+				amount -= pvat; // Запись просто без НДС
 			}
-			else if(slUseCostVatAddendum == 2) {
-				amount = cvat;
+			// } @v12.3.2 
+		}
+		else {
+			if(slUseCostVatAddendum && cvat > 0.0) {
+				//
+				// Для получения дополнительной записи по НДС поставщика в расходах функция будет
+				// вызвана повторно с параметром (slUseCostVatAddendum = 2). Но перед этим
+				// вызывающая функция должна получить сигнал в виде (return = 100) для повторного вызова.
+				//
+				if(slUseCostVatAddendum == 1) {
+					amount -= cvat; // Запись без НДС, а на следующем прогоне с параметром (slUseCostVatAddendum == 2) сформируется запись с суммой НДС.
+					result = 100;
+				}
+				else if(slUseCostVatAddendum == 2) {
+					amount = cvat;
+				}
+				else if(slUseCostVatAddendum == 3) {
+					amount -= cvat; // Запись просто без НДС
+				}
 			}
 		}
 		pRec->Amount = amount;
@@ -2015,7 +2068,6 @@ int PPViewVatBook::MRBB(PPID billID, BillTbl::Rec * pPaymRec, const TaxAmountIDs
 	int    ok = 1;
 	int    is_ebf_rec = 0;
 	const  VATBCfg & r_cfg = VBObj.GetConfig(Filt.Kind);
-	const  int sl_use_cost_vat_addendum = BIN(Filt.Kind == PPVTB_SIMPLELEDGER);
 	int    is_cost_vat_addendum_rec = 0;
 	double scale = 1.0;
 	LDATE  _dt = ZERODATE; // @v12.0.0
@@ -2032,7 +2084,9 @@ int PPViewVatBook::MRBB(PPID billID, BillTbl::Rec * pPaymRec, const TaxAmountIDs
 	SString bill_code;
 	THROW(VBObj.IsValidKind(Filt.Kind));
 	THROW(P_BObj->ExtractPacket(billID, &pack));
+	const int is_selling_op = IsSellingOp(pack.Rec.OpID);
 	{
+		const  int    sl_use_cost_vat_addendum = Filt.IsSimpleLedger() ? (MOBlk.IsSpecialVatRate(pack.Rec.Dt, 0/*pRate*/) ? 1 : 3) : 0;
 		const  double org_pack_amount = pack.Rec.Amount; // Значение номинала может измениться из-за подстановки суммы
 		bool   is_subst_amount = false;
 		bool   is_reckon = false; // @v12.0.0 Признак того, что запись относится к зачитывающему документу (оплате)
@@ -2078,7 +2132,7 @@ int PPViewVatBook::MRBB(PPID billID, BillTbl::Rec * pPaymRec, const TaxAmountIDs
 				paym_has_vat_amounts = true;
 			}
 		}
-		if(Filt.Kind == PPVTB_SIMPLELEDGER && rOpEntry.AmtTypeID) {
+		if(Filt.IsSimpleLedger() && rOpEntry.AmtTypeID) {
 			subst_amount = pack.Amounts.Get(rOpEntry.AmtTypeID, 0);
 			if(subst_amount != org_pack_amount) {
 				pack.Rec.Amount = subst_amount;
@@ -2137,10 +2191,7 @@ int PPViewVatBook::MRBB(PPID billID, BillTbl::Rec * pPaymRec, const TaxAmountIDs
 			if(!checkdate(_rcpt_dt))
 				_rcpt_dt = pack.Rec.Dt;
 			if(!checkdate(_invc_dt)) {
-				if(pack.Ext.InvoiceDate)
-					_invc_dt = pack.Ext.InvoiceDate;
-				else
-					_invc_dt = pack.Rec.Dt;
+				_invc_dt = pack.Ext.InvoiceDate ? pack.Ext.InvoiceDate : pack.Rec.Dt;
 			}
 			rec.ArID   = r_cfg.CheckFlag(pack.Rec.OpID, VATBCfg::fByExtObj) ? pack.Rec.Object2 : pack.Rec.Object;
 			rec.Ar2ID  = pack.Rec.Object2;
@@ -2194,7 +2245,7 @@ int PPViewVatBook::MRBB(PPID billID, BillTbl::Rec * pPaymRec, const TaxAmountIDs
 				else {
 					rec.LinkBillID = pack.Rec.ID;
 					rec.OpID   = pack.Rec.OpID;
-					if(Filt.Kind == PPVTB_SIMPLELEDGER) {
+					if(Filt.IsSimpleLedger()) {
 						if(!checkdate(_paym_dt))
 							_paym_dt = pack.Rec.Dt;
 					}
@@ -2207,7 +2258,7 @@ int PPViewVatBook::MRBB(PPID billID, BillTbl::Rec * pPaymRec, const TaxAmountIDs
 			if(mrbbf & mrbbfIsNeg)
 				scale = -scale;
 			int skip = 0;
-			if(Filt.Kind == PPVTB_SIMPLELEDGER) {
+			if(Filt.IsSimpleLedger()) {
 				int    set_vat_params_result = 0;
 				if(mrbbf & mrbbfIsNeg) {
 					double local_scale = scale;
@@ -2233,7 +2284,7 @@ int PPViewVatBook::MRBB(PPID billID, BillTbl::Rec * pPaymRec, const TaxAmountIDs
 							skip = 1;
 					}
 					else {
-						set_vat_params_result = _SetVATParams(&rec, vata, local_scale, (IsSellingOp(pack.Rec.OpID) > 0), sl_use_cost_vat_addendum);
+						set_vat_params_result = _SetVATParams(&rec, vata, local_scale, (is_selling_op != 0), sl_use_cost_vat_addendum); // @v12.3.2 (is_selling_op > 0)-->(is_selling_op != 0)
 					}
 					rec.Amount = 0.0;   // Доход
 					rec.Excise = 0.0;   // Доход для налогообложения //
@@ -2246,15 +2297,14 @@ int PPViewVatBook::MRBB(PPID billID, BillTbl::Rec * pPaymRec, const TaxAmountIDs
 						sl_cost_vat_addenum_rec.PaymDt   = _paym_dt;
 						// } @v12.0.8 @fix
 						sl_cost_vat_addenum_rec.LineSubType = 1;
-						_SetVATParams(&sl_cost_vat_addenum_rec, vata, local_scale, false/*isSelling*/, 2);
+						_SetVATParams(&sl_cost_vat_addenum_rec, vata, local_scale, false/*isSelling*/, 2/*slUseCostVatAddendum*/);
 						sl_cost_vat_addenum_rec.Amount = 0.0; // Доход
 						sl_cost_vat_addenum_rec.Excise = 0.0; // Доход для налогообложения //
 						is_cost_vat_addendum_rec = 1;
 					}
 				}
 				else {
-					int    isop = IsSellingOp(pack.Rec.OpID);
-					set_vat_params_result = _SetVATParams(&rec, vata, scale, (isop != 0), sl_use_cost_vat_addendum);
+					set_vat_params_result = _SetVATParams(&rec, vata, scale, (is_selling_op != 0), sl_use_cost_vat_addendum);
 					rec.VAT0 = 0.0;     // Расход
 					rec.Export = 0.0;   // Расход для налогообложения //
 					double amount = rec.Amount;
@@ -2290,9 +2340,13 @@ int PPViewVatBook::MRBB(PPID billID, BillTbl::Rec * pPaymRec, const TaxAmountIDs
 							ebf_rec.Amount = 0.0; // Доход
 							ebf_rec.Excise = 0.0; // Доход для налогообложения //
 							if(set_vat_params_result == 100) {
+								//
+								// По сигналу (set_vat_params_result == 100) вставляем дополнительную запись с суммой НДС
+								// (функция _SetVATParams с аргументом slUseCostVatAddendum==2)
+								//
 								sl_cost_vat_addenum_rec = ebf_rec;
 								sl_cost_vat_addenum_rec.LineSubType = 1;
-								_SetVATParams(&sl_cost_vat_addenum_rec, vata, temp_scale, false/*isSelling*/, 2);
+								_SetVATParams(&sl_cost_vat_addenum_rec, vata, temp_scale, false/*isSelling*/, 2/*slUseCostVatAddendum*/);
 								sl_cost_vat_addenum_rec.Amount = 0.0; // Доход
 								sl_cost_vat_addenum_rec.Excise = 0.0; // Доход для налогообложения //
 								is_cost_vat_addendum_rec = 2;
@@ -2303,7 +2357,7 @@ int PPViewVatBook::MRBB(PPID billID, BillTbl::Rec * pPaymRec, const TaxAmountIDs
 				}
 			}
 			else
-				_SetVATParams(&rec, vata, scale, (IsSellingOp(pack.Rec.OpID) > 0), 0);
+				_SetVATParams(&rec, vata, scale, (is_selling_op > 0), 0/*slUseCostVatAddendum*/);
 			rec.Dt       = _dt;
 			rec.RcptDt   = _rcpt_dt;
 			rec.InvcDt   = _invc_dt;
@@ -2569,6 +2623,11 @@ int PPViewVatBook::OpEntryVector::RemoveByAnotherList(const OpEntryVector & rOth
 	return ok;
 }
 
+void PPViewVatBook::ResetMainOrgBlock()
+{
+	MOBlk.Z();
+}
+ 
 int PPViewVatBook::AutoBuild()
 {
 	int    ok = 1;
@@ -2602,12 +2661,15 @@ int PPViewVatBook::AutoBuild()
 		OpEntryVector factbyshipm_exp_op_list_;
 		OpEntryVector as_paym_op_list_; // Список операций, имеющих признак VATBCfg::fAsPayment. Для таких операций по связанному документу формируется сторнирующая запись
 		PPWaitStart();
+		MOBlk.Init(); // @v12.3.2
+		/* @v12.3.2 
 		IsMainOrgVatFree = 0;
 		if(GetMainOrgID(&main_org_id) > 0) {
 			PersonTbl::Rec psn_rec;
 			if(PsnObj.Fetch(main_org_id, &psn_rec) > 0 && psn_rec.Flags & PSNF_NOVATAX)
 				IsMainOrgVatFree = 1;
 		}
+		*/
 		THROW(RemoveZeroBillLinks(1));
 		flt.ExtPeriod = r_cfg.Period;
 		//
@@ -2641,7 +2703,7 @@ int PPViewVatBook::AutoBuild()
 					inner_op_list.atInsert(0, &base_op_id);
 					for(uint inneropidx = 0; inneropidx < inner_op_list.getCount(); inneropidx++) {
 						const  PPID op_id = inner_op_list.get(inneropidx);
-						if(Filt.Kind == PPVTB_SIMPLELEDGER && r_item.Flags & VATBCfg::fExpendByFact) {
+						if(Filt.IsSimpleLedger() && r_item.Flags & VATBCfg::fExpendByFact) {
 							ebf_blk.AddOp(op_id);
 							if(r_item.Flags & VATBCfg::fNegative) {
 								inc_op_list_.AddEntry(op_id, r_item.MainAmtTypeID, r_item.SignFilt);
@@ -2671,7 +2733,7 @@ int PPViewVatBook::AutoBuild()
 			for(i = 0; i < r_cfg.List.getCount(); i++) {
 				const VATBCfg::Item & r_item = r_cfg.List.at(i);
 				const  PPID base_op_id = r_item.OpID;
-				const  PPID local_amt_type_id = (Filt.Kind == PPVTB_SIMPLELEDGER) ? r_item.MainAmtTypeID : 0;
+				const  PPID local_amt_type_id = Filt.IsSimpleLedger() ? r_item.MainAmtTypeID : 0;
 				if(!(r_item.Flags & VATBCfg::fExclude)) {
 					inner_op_list.clear();
 					op_obj.GetCorrectionOpList(base_op_id, &inner_op_list);
@@ -2681,7 +2743,7 @@ int PPViewVatBook::AutoBuild()
 						if(CheckOpFlags(base_op_id, OPKF_NEEDPAYMENT)) {
 							PPIDArray temp_op_list;
 							THROW(op_obj.GetPaymentOpList(op_id, &temp_op_list));
-							if(Filt.Kind == PPVTB_SIMPLELEDGER && r_item.Flags & VATBCfg::fExpendByFact) {
+							if(Filt.IsSimpleLedger() && r_item.Flags & VATBCfg::fExpendByFact) {
 								ebf_blk.AddOp(op_id);
 								ebf_blk.AddPaymOpList(temp_op_list);
 								if(r_item.Flags & VATBCfg::fNegative) {
@@ -2696,7 +2758,7 @@ int PPViewVatBook::AutoBuild()
 							else {
 								paym_op_list_.AddOpList(temp_op_list, local_amt_type_id, r_item.SignFilt);
 								//paym_op_list.addUnique(&temp_op_list);
-								if(Filt.Kind == PPVTB_SIMPLELEDGER) {
+								if(Filt.IsSimpleLedger()) {
 									if(r_item.Flags & VATBCfg::fNegative) {
 										neg_op_list_.AddOpList(temp_op_list, local_amt_type_id, r_item.SignFilt);
 										//neg_op_list.addUnique(&temp_op_list);
@@ -2719,7 +2781,7 @@ int PPViewVatBook::AutoBuild()
 						// книгу доходов/расходов устанавливаем соответствующий if().
 						// Тем не менее, я думаю, что этот блок нужен и для книг продаж/покупок
 						//
-						else if(Filt.Kind == PPVTB_SIMPLELEDGER) {
+						else if(Filt.IsSimpleLedger()) {
 							if(r_item.Flags & VATBCfg::fExpendByFact)
 								ebf_blk.AddOp(op_id);
 							else {
@@ -2742,11 +2804,8 @@ int PPViewVatBook::AutoBuild()
 			// Формируем список операций, перечисленных в конфигурации, и не требующих оплаты
 			//
 			// { см коммент [01] выше
-			if(Filt.Kind == PPVTB_SIMPLELEDGER) {
+			if(Filt.IsSimpleLedger()) {
 				inc_op_list_.RemoveByAnotherList(paym_op_list_);
-				/*for(i = inc_op_list.getCount(); i;)
-					if(paym_op_list.lsearch(inc_op_list.get(--i)))
-						inc_op_list.atFree(i);*/
 			}
 			else {
 			// }
@@ -2776,7 +2835,7 @@ int PPViewVatBook::AutoBuild()
 				const  PPID op_id = inc_op_list_.at(i).OpID;
 				const  int by_paym_param = r_cfg.CheckFlag(op_id, VATBCfg::fAsPayment) ? (r_cfg.CheckFlag(op_id, VATBCfg::fVATFromReckon) ? -2 : -1) : 0;
 				/*PPID   main_amt_type_id = 0;
-				if(Filt.Kind == PPVTB_SIMPLELEDGER) {
+				if(Filt.IsSimpleLedger()) {
 					for(uint j = 0; !main_amt_type_id && j < r_cfg.List.getCount(); j++) {
 						const VATBCfg::Item & r_item = r_cfg.List.at(j);
 						if(!(r_item.Flags & VATBCfg::fExclude) && r_item.OpID == op_id && r_item.MainAmtTypeID)

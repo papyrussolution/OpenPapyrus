@@ -114,9 +114,9 @@ int CallbackCompress(long, long, const char *, int)
 	S_GUID_Base uuid;
 	UiCoord uipos;
 	UiRelRect uirect;
-	/*IntRange*/int irange; // @v10.9.3
-	CtmProperty prop; // @v10.9.3
-	CtmPropertySheet propsheet; // @v10.9.3
+	/*IntRange*/int irange;
+	CtmProperty prop;
+	CtmPropertySheet propsheet;
 }
 
 %token T_AND
@@ -216,9 +216,9 @@ int CallbackCompress(long, long, const char *, int)
 
 %type <token>     view_decl_prefix // @v11.0.4
 %type <token>     real_or_int_const // @v11.0.4
-%type <prop>      brak_prop_entry // @v10.9.3
-%type <propsheet> brak_prop_list  // @v10.9.3
-%type <propsheet> brak_prop_sheet // @v10.9.3
+%type <prop>      brak_prop_entry
+%type <propsheet> brak_prop_list
+%type <propsheet> brak_prop_sheet
 %type <token>     layout_item_size_entry // @v11.0.4 U.UIC
 %type <token>     bounding_box_val // @v11.0.4
 %type <token>     bounding_box_pair // @v12.2.9

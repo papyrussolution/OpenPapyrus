@@ -57,9 +57,9 @@ RuleBasedTimeZone::RuleBasedTimeZone(const UnicodeString & id, InitialTimeZoneRu
 	fHistoricTransitions(NULL), fUpToDate(FALSE) {
 }
 
-RuleBasedTimeZone::RuleBasedTimeZone(const RuleBasedTimeZone& source)
-	: BasicTimeZone(source), fInitialRule(source.fInitialRule->clone()),
-	fHistoricTransitions(NULL), fUpToDate(FALSE) {
+RuleBasedTimeZone::RuleBasedTimeZone(const RuleBasedTimeZone& source) : BasicTimeZone(source), fInitialRule(source.fInitialRule->clone()),
+	fHistoricTransitions(NULL), fUpToDate(FALSE) 
+{
 	fHistoricRules = copyRules(source.fHistoricRules);
 	fFinalRules = copyRules(source.fFinalRules);
 	if(source.fUpToDate) {
@@ -73,7 +73,7 @@ RuleBasedTimeZone::~RuleBasedTimeZone() {
 	deleteRules();
 }
 
-RuleBasedTimeZone&RuleBasedTimeZone::operator = (const RuleBasedTimeZone& right) 
+RuleBasedTimeZone & RuleBasedTimeZone::operator = (const RuleBasedTimeZone & right) 
 {
 	if(*this != right) {
 		BasicTimeZone::operator = (right);

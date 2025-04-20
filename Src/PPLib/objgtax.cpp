@@ -31,6 +31,20 @@ int FASTCALL PPGoodsTaxEntry::IsEq(const PPGoodsTaxEntry & rS) const
 #undef CMP_FLD
 }
 
+PPGoodsTaxEntry & PPGoodsTaxEntry::Z()
+{
+	TaxGrpID = 0;
+	Period.Z();
+	OpID = 0;
+	VAT = 0;
+	Excise = 0;
+	SalesTax = 0;
+	Flags = 0;
+	Order = 0;
+	UnionVect = 0;
+	return *this;
+}
+
 double PPGoodsTaxEntry::GetVatRate() const { return fdiv100i(VAT); }
 
 SString & PPGoodsTaxEntry::FormatVAT(SString & rBuf) const

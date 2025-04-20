@@ -533,7 +533,9 @@ private:
 		// assert(!P_PageContent || P_PageContent->getCount() == PageCount)
 };
 
-struct SUiLayoutParam { // @persistent
+#pragma pack(push, 1)
+class SUiLayoutParam { // @persistent // @size=100
+public:
 	enum {
 		fContainerRow     = 0x0001, // Контейнер выстраивает дочерние элементы по строкам (ось X)
 		fContainerCol     = 0x0002, // Контейнер выстраивает дочерние элементы по колонкам (ось Y)
@@ -546,9 +548,13 @@ struct SUiLayoutParam { // @persistent
 		fNominalDefT      = 0x0080, // Определена номинальная граница TOP элемента    (Nominal.a.Y)
 		fNominalDefR      = 0x0100, // Определена номинальная граница RIGHT элемента  (Nominal.b.X)
 		fNominalDefB      = 0x0200, // Определена номинальная граница BOTTOM элемента (Nominal.b.Y)
-		fEvaluateScroller = 0x0400  // @v11.0.3 процессинговый флаг, предписывающий рассчитывать параметры скроллинга.
+		fEvaluateScroller = 0x0400, // @v11.0.3 процессинговый флаг, предписывающий рассчитывать параметры скроллинга.
 			// Если флаг не установлен, то скроллинг рассчитываться точно не будет. Если установлен, то - в зависимости
 			// от параметров контейнера. Рассчитанные параметры скроллинга сохраняются по указателю SUiLayout::Result::P_Scrlr.
+		fNominalSzX       = 0x0800, // @v12.3.2 Определен номинальный размер X. Этот флаг не применяется для определения внутреннего состояния, 
+			// но нужен для индикации результата вычислений (в частности, функцией GetNominalRect).
+		fNominalSzY       = 0x1000, // @v12.3.2 Определен номинальный размер Y. Этот флаг не применяется для определения внутреннего состояния, 
+			// но нужен для индикации результата вычислений (в частности, функцией GetNominalRect).
 	};
 	enum {
 		alignAuto = 0,
@@ -595,15 +601,16 @@ struct SUiLayoutParam { // @persistent
 	//
 	// Descr: Возвращает специальную 4-байтную сигнатуру, идентифицирующую объект в потоках сериализации.
 	//
-	static uint32 GetSerializeSignature();
+	static uint32 GetSerializeSignature() { return 0x15DE0522U; }
 	SUiLayoutParam();
 	//
 	// Descr: конструктор для контейнера с наиболее популярными аргументами.
 	//
 	explicit SUiLayoutParam(int direction, uint justifyContent = alignAuto, uint alignContent = alignAuto);
+	SUiLayoutParam & FASTCALL operator = (const SUiLayoutParam & rS);
 	bool   FASTCALL operator == (const SUiLayoutParam & rS) const;
 	bool   FASTCALL operator != (const SUiLayoutParam & rS) const;
-	SUiLayoutParam & SetDefault();
+	SUiLayoutParam & Z();
 	bool   FASTCALL IsEq(const SUiLayoutParam & rS) const;
 	//
 	// Descr: Проверяет параметры (возможно, не все) блока на непротиворечивость.
@@ -691,6 +698,13 @@ struct SUiLayoutParam { // @persistent
 	//   хотя бы одна из координат по оси.
 	//
 	bool   IsPositionAbsoluteX() const;
+	//
+	// Descr: Функция возвращает по ссылке rR номинальные границы объекта, если это возможно.
+	// Result:
+	//   Набор из флагов fNominalDefL, fNominalDefT, fNominalDefR, fNominalDefB в зависимости
+	//   от того какие координаты и размеры явно определены.
+	//
+	uint   GetNominalRect(FRect & rR) const;
 	float  GetAbsoluteLowX() const;
 	float  GetAbsoluteLowY() const;
 	float  GetAbsoluteSizeX() const;
@@ -718,6 +732,8 @@ struct SUiLayoutParam { // @persistent
 	int    SetVArea(int area);
 	static int RestrictVArea(int restrictingArea, const FRect & rRestrictingRect, int restrictedArea, FRect & rRestrictedRect);
 
+	const uint32 Signature; // @v12.3.2 for serialization
+	const uint32 Ver;       // @v12.3.2 for serialization
 	uint32 Flags;          // @flags fXXX
 	uint16 SzX;            // SUiLayoutParam::szXXX Опции расчета размера по оси X
 	uint16 SzY;            // SUiLayoutParam::szXXX Опции расчета размера по оси Y
@@ -727,6 +743,8 @@ struct SUiLayoutParam { // @persistent
 	uint16 AlignSelf;      // {alignAuto}    SUiLayoutParam::alignXXX
 	uint16 GravityX;       // Gravity of this entry by X-axis. 0 || SIDE_LEFT || SIDE_RIGHT || SIDE_CENTER
 	uint16 GravityY;       // Gravity of this entry by Y-axis. 0 || SIDE_TOP || SIDE_BOTTOM || SIDE_CENTER 
+	uint16 LinkRelation;   // @v12.3.2 SIDE_XXX Положение относительно связанного объекта. Сильно контекстно-зависимое поле. 
+	uint16 Reserve;        // @v12.3.2 @alignment
 	int32  Order;          // Порядковый номер элемента в линейном ряду потомков одного родителя //
 	FRect  Nominal;        // Номинальные границы элемента. Заданы или нет определяется флагами fNominalDefL, fNominalDefT, fNominalDefR, fNominalDefB
 	SPoint2F Size;         // Номинальный размер элемента. Если SzX != szFixed, то Size.X игнорируется, аналогично, если SzY != szFixed, то Size.Y игнорируется
@@ -736,9 +754,11 @@ struct SUiLayoutParam { // @persistent
 	float  ShrinkFactor;   //
 	float  Basis;          //
 	float  AspectRatio;    // {0.0} Отношение высоты к ширине. Используется в случае, если одна из размерностей не определена
+	uint8  Reserve2[32];   // @v12.3.2
 private:
 	int    ParseSizeStr(const SString & rStr, float & rS) const;
 };
+#pragma pack(pop)
 
 class SUiLayout {
 	friend class LayoutFlexProcessor;

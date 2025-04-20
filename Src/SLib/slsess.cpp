@@ -1,5 +1,5 @@
 // SLSESS.CPP
-// Copyright (c) A.Sobolev 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -220,10 +220,7 @@ SlSession::~SlSession()
 #endif
 }
 
-int SlSession::CheckStopFlag() const
-{
-	return BIN(StopFlag);
-}
+bool SlSession::CheckStopFlag() const { return LOGIC(StopFlag); }
 
 int SlSession::Stop()
 {
@@ -263,6 +260,10 @@ bool FASTCALL IsMadeOfEightDigitsFast(const uint8 * pS);
 static void InitTest()
 {
 	if(SlDebugMode::CT()) {
+		static_assert(SKILOBYTE(11) == 11 * 1024); // @v12.3.2
+		static_assert(SKILOBYTELL(100200300400500LL) == 100200300400500LL * 1024LL); // @v12.3.2
+		static_assert(SMEGABYTE(27) == 27 * 1024 * 1024); // @v12.3.2
+		static_assert(SMEGABYTELL(100200300400LL) == 100200300400LL * 1024LL * 1024LL); // @v12.3.2
 		{
 			//
 			// @paranoic (Эта проверка нужна мне для успокоения, ибо меня преследует фобия, что такое равенство не выполняется)
@@ -741,6 +742,7 @@ static void InitTest()
 			static_assert(SlConst::Epoch1600_1970_Offs_100Ns == SlConst::Epoch1600_1970_Offs_Mks * 10);
 			static_assert(SlConst::Epoch1600_1970_Offs_100Ns == SlConst::Epoch1600_1970_Offs_s * 10000000);
 		}
+		static_assert(sizeof(SUiLayoutParam) == 140U); // @v12.3.2
 	}
 }
 

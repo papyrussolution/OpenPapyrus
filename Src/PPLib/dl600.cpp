@@ -3010,6 +3010,73 @@ int DlContext::GetDialogList(StrAssocArray * pList) const
 { 
 	return Helper_GetScopeList(/*DlScope::kUiDialog*/DlScope::kUiView, DlScope::srchfRecursive|DlScope::srchfTopLevel, pList); 
 }
+
+const SUiLayoutParam * DlContext::GetConst_LayoutBlock(const DlScope * pScope) const
+{
+	const SUiLayoutParam * p_result = 0;
+	if(pScope) {
+		CtmExprConst __c = pScope->GetConst(DlScope::cuifLayoutBlock);
+		if(!!__c) {
+			uint8    c_buf[512];
+			static_assert(sizeof(c_buf) >= sizeof(SUiLayoutParam));
+			if(GetConstData(__c, c_buf, sizeof(c_buf))) {
+				p_result = reinterpret_cast<const SUiLayoutParam *>(c_buf);
+			}
+		}
+	}
+	return p_result;
+}
+
+bool DlContext::GetConst_String(const DlScope * pScope, DlScope::COption propId, SString & rBuf) const
+{
+	rBuf.Z();
+	bool   ok = false;
+	if(pScope) {
+		CtmExprConst __c = pScope->GetConst(propId);
+		if(!!__c) {
+			uint8    c_buf[2048];
+			if(GetConstData(__c, c_buf, sizeof(c_buf))) {
+				rBuf.CatN(reinterpret_cast<const char *>(c_buf), sizeof(c_buf));
+				ok = true;
+			}
+		}
+	}
+	return ok;
+}
+
+bool DlContext::GetConst_Int(const DlScope * pScope, DlScope::COption propId, int & rValue) const
+{
+	rValue = 0;
+	bool   ok = false;
+	if(pScope) {
+		CtmExprConst __c = pScope->GetConst(propId);
+		if(!!__c) {
+			uint8    c_buf[64];
+			if(GetConstData(__c, c_buf, sizeof(c_buf))) {
+				rValue = *reinterpret_cast<const int *>(c_buf);
+				ok = true;
+			}
+		}
+	}
+	return ok;
+}
+
+bool DlContext::GetConst_Uint32(const DlScope * pScope, DlScope::COption propId, uint32 & rValue) const
+{
+	rValue = 0;
+	bool   ok = false;
+	if(pScope) {
+		CtmExprConst __c = pScope->GetConst(propId);
+		if(!!__c) {
+			uint8    c_buf[64];
+			if(GetConstData(__c, c_buf, sizeof(c_buf))) {
+				rValue = *reinterpret_cast<const uint32 *>(c_buf);
+				ok = true;
+			}
+		}
+	}
+	return ok;
+}
 //
 //
 //

@@ -330,46 +330,47 @@ public:
 	//
 	// Descr: Идентификаторы констант, используемых для описания опций областей
 	//
-	enum COption {
+	enum COption { // @persistent
 		//
 		// Опции таблиц базы данных
 		//
-		cdbtFileName = 1, // string Имя файла таблицы базы данных
-		cdbtAcsName,      // string AlternateCollatingSequence file name
-		cdbtPageSize,     // uint32 Размер страницы таблицы базы данных
-		cdbtPrealloc,     // uint32 Количество страниц распределяемых при создании таблицы базы данных
-		cdbtPctThreshold, // uint32 BTRIEVE Процентный порог свободного места, оставляемого в странице VLR
-		cdbtAccess,       // uint32 Уровень доступа к таблице базы данных
+		cdbtFileName            =  1, // string Имя файла таблицы базы данных
+		cdbtAcsName             =  2, // string AlternateCollatingSequence file name
+		cdbtPageSize            =  3, // uint32 Размер страницы таблицы базы данных
+		cdbtPrealloc            =  4, // uint32 Количество страниц распределяемых при создании таблицы базы данных
+		cdbtPctThreshold        =  5, // uint32 BTRIEVE Процентный порог свободного места, оставляемого в странице VLR
+		cdbtAccess              =  6, // uint32 Уровень доступа к таблице базы данных
 		//
 		// Опции диалогов и других элементов UI
 		//
-		cuiRect,          // raw    Координаты области пользовательского интерфейса
-		cuifViewKind,     // uint32 Вид управляющего элемента
-		cuifCtrlText,     // string Текст управляющего элемента
-		cuifCtrlScope,    // uint32 Ассоциированная область управляющего элемента
-		cuifCtrlCmd,      // uint32 ИД команды кнопки
-		cuifCtrlCmdSymb,  // string Символ команды кнопки
-		cuifCtrlRect,     // raw    Координаты управляющего элемента
-		cuifCtrlListboxColDescr, // string Строка описания колонок списка
-		cuifSymbSeries,   // string Серия символов управляющих элементов диалога
-		cuifCtrlLblRect,  // raw    Координаты текстового ярлыка, ассоциированного с управляющим элементом
-		cuifCtrlLblSymb,  // string Символ текстового ярлыка, ассоциированного с управляющим элементом
-		cuifLabelRect,    // raw(UiRelRect) Положение текстового ярлыка, ассоциированного с управляющим элементом
-		cuifReadOnly,     // int8 // deprecated in favor of cuifFlags
-		cuifDisabled,     // int8 // deprecated in favor of cuifFlags
-		cuifAlignment,    // int8
-		cuifHidden,       // int8 // deprecated in favor of cuifFlags
-		cuifFont,         // string
-		cuifStaticEdge,   // int8 // deprecated in favor of cuifFlags
-		cuifLayoutType,   // int8 @construction
-		cuifViewTabStop,          // @v11.0.4 bool // deprecated in favor of cuifFlags
-		cuifLayoutBlock,          // @v11.0.5 SUiLayoutParam
-		cuifFlags,                // @v11.0.4 UiItemKind::fXXX 
-		cuifViewDataType,         // @v11.0.5 Тип данных, ассоциированный с элементом View
-		cuifCtrlLblRelation,      // @v11.0.5 uint8 Расположение этикетки относительно основного управляющего элемента
-		cuifViewDataIdent,        // @v11.0.5 string Символ данных, ассоциированных с областью view
-		cuifViewVariableIdent,    // @v11.0.5 string Символ переменной, ассоциированной с областью view
-		cuifFontSize              // @v11.0.5 double Размер шрифта  
+		cuiRect                 =  7, // raw    Координаты области пользовательского интерфейса
+		cuifViewKind            =  8, // uint32 Вид управляющего элемента
+		cuifCtrlText            =  9, // string Текст управляющего элемента
+		cuifCtrlScope           = 10, // uint32 Ассоциированная область управляющего элемента
+		cuifCtrlCmd             = 11, // uint32 ИД команды кнопки
+		cuifCtrlCmdSymb         = 12, // string Символ команды кнопки
+		cuifCtrlRect            = 13, // raw    Координаты управляющего элемента
+		cuifCtrlListboxColDescr = 14, // string Строка описания колонок списка
+		cuifSymbSeries          = 15, // string Серия символов управляющих элементов диалога
+		cuifCtrlLblRect         = 16, // raw    Координаты текстового ярлыка, ассоциированного с управляющим элементом
+		cuifCtrlLblSymb         = 17, // string Символ текстового ярлыка, ассоциированного с управляющим элементом
+		cuifLabelRect           = 18, // raw(UiRelRect) Положение текстового ярлыка, ассоциированного с управляющим элементом
+		cuifReadOnly            = 19, // int8 // deprecated in favor of cuifFlags
+		cuifDisabled            = 20, // int8 // deprecated in favor of cuifFlags
+		cuifAlignment           = 21, // int8
+		cuifHidden              = 22, // int8 // deprecated in favor of cuifFlags
+		cuifFont                = 23, // string
+		cuifStaticEdge          = 24, // int8 // deprecated in favor of cuifFlags
+		cuifLayoutType          = 25, // int8 @construction
+		cuifViewTabStop         = 26, // @v11.0.4 bool // deprecated in favor of cuifFlags
+		cuifLayoutBlock         = 27, // @v11.0.5 SUiLayoutParam
+		cuifFlags               = 28, // @v11.0.4 UiItemKind::fXXX 
+		cuifViewDataType        = 29, // @v11.0.5 Тип данных, ассоциированный с элементом View
+		cuifCtrlLblRelation     = 30, // @v11.0.5 uint8 Расположение этикетки относительно основного управляющего элемента
+		cuifViewDataIdent       = 31, // @v11.0.5 string Символ данных, ассоциированных с областью view
+		cuifViewVariableIdent   = 32, // @v11.0.5 string Символ переменной, ассоциированной с областью view
+		cuifFontSize            = 33, // @v11.0.5 double Размер шрифта  
+		cuifLblLayoutBlock      = 34, // @v12.3.2 SUiLayoutParam Разметка размещения текстовой метки относительно основного управляющего элемента
 	};
 	struct IfaceBase {
 		bool   FASTCALL IsEq(const IfaceBase & rS) const { return (ID == rS.ID && Flags == rS.Flags); }
@@ -1035,6 +1036,14 @@ public:
 	int    GetDbTableSpecList(StrAssocArray * pList) const;
 	int    Test_ReWr_Code(const DlContext & rPattern);
 	int    GetDialogList(StrAssocArray * pList) const;
+	//
+	// Descr: Возвращает указатель на блок лейаута области pScope, определенного констанантой DlScope::cuifLayoutBlock.
+	//
+	const  SUiLayoutParam * GetConst_LayoutBlock(const DlScope * pScope) const;
+	bool   GetConst_String(const DlScope * pScope, DlScope::COption propId, SString & rBuf) const;
+	bool   GetConst_Int(const DlScope * pScope, DlScope::COption propId, int & rValue) const;
+	bool   GetConst_Uint32(const DlScope * pScope, DlScope::COption propId, uint32 & rValue) const;
+
 	UUIDAssocArray TempUuidList; // @transient Временный список GUID'ов используемый при компиляции
 	int    Test();
 private:

@@ -515,6 +515,7 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 	SString prop_val;
 	//
 	SUiLayoutParam alb;
+	SUiLayoutParam alb_label; // @v12.3.2 Параметры ctrl-метки, привязанной к текущему управляющему элементу
 	SString class_ident;
 	SString font_ident;
 	SString var_ident;
@@ -527,25 +528,27 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 	// Следующие флаги устанавливаются в переменной occurence_flags для индикации факта, что
 	// свойство уже присутствует в списке.
 	enum {
-		occfNoWrap       = 0x00000001,
-		occfBBox         = 0x00000002,
-		occfGrowFactor   = 0x00000004,
-		occfShrinkFactor = 0x00000008,
-		occfReadOnly     = 0x00000010,
-		occfStaticEdge   = 0x00000020,
-		occfTabStop      = 0x00000040,
-		occfDisabled     = 0x00000080,
-		occfHidden       = 0x00000100,
-		occfLabelBBox    = 0x00000200,
-		occfMultiLine    = 0x00000400,
-		occfWantReturn   = 0x00000800,
-		occfPassword     = 0x00001000,
-		occfDefault      = 0x00002000,
-		occfFigureSymb   = 0x00004000,
-		occfBBoxOrigin   = 0x00008000, // @v12.2.9
-		occfBBoxSize     = 0x00010000, // @v12.2.10
-		occfWidth        = 0x00020000, // @v12.2.10
-		occfHeight       = 0x00040000, // @v12.2.10
+		occfNoWrap          = 0x00000001,
+		occfBBox         	= 0x00000002,
+		occfGrowFactor   	= 0x00000004,
+		occfShrinkFactor 	= 0x00000008,
+		occfReadOnly     	= 0x00000010,
+		occfStaticEdge   	= 0x00000020,
+		occfTabStop      	= 0x00000040,
+		occfDisabled     	= 0x00000080,
+		occfHidden       	= 0x00000100,
+		occfLabelBBox    	= 0x00000200,
+		occfMultiLine       = 0x00000400,
+		occfWantReturn      = 0x00000800,
+		occfPassword        = 0x00001000,
+		occfDefault         = 0x00002000,
+		occfFigureSymb      = 0x00004000,
+		occfBBoxOrigin      = 0x00008000, // @v12.2.9
+		occfBBoxSize        = 0x00010000, // @v12.2.10
+		occfWidth           = 0x00020000, // @v12.2.10
+		occfHeight          = 0x00040000, // @v12.2.10
+		occfLabelBBoxOrigin = 0x00080000, // @v12.3.2
+		occfLabelBBoxSize   = 0x00100000, // @v12.3.2
 	};
 	enum {
 		occsLeft         = 0x0001,
@@ -900,6 +903,7 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 						alb.Nominal.a.Set(p_prop->Value.U.Rect.L.X.Val, p_prop->Value.U.Rect.L.Y.Val);
 						alb.Nominal.b.Set(p_prop->Value.U.Rect.R.X.Val, p_prop->Value.U.Rect.R.Y.Val);
 						occurence_flags |= occfBBox;
+						alb.Flags |= (SUiLayoutParam::fNominalDefL|SUiLayoutParam::fNominalDefT|SUiLayoutParam::fNominalDefR|SUiLayoutParam::fNominalDefB); // @v12.3.2
 					}
 				}
 				else if(prop_key == "origin") { // @v12.2.9
@@ -918,6 +922,7 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 							alb.Nominal.b.x = local_x + w;
 							alb.Nominal.b.y = local_y + h;
 						}
+						alb.Flags |= (SUiLayoutParam::fNominalDefL|SUiLayoutParam::fNominalDefT); // @v12.3.2
 						occurence_flags |= occfBBoxOrigin;
 					}
 				}
@@ -930,12 +935,12 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 						const float local_y = p_prop->Value.U.Rect.L.Y.Val;
 						alb.Nominal.b.x = alb.Nominal.a.x + local_x;
 						alb.Nominal.b.y = alb.Nominal.a.y + local_y;
+						alb.Flags |= (SUiLayoutParam::fNominalDefR|SUiLayoutParam::fNominalDefB); // @v12.3.2
 						//
 						alb.SetFixedSizeX(local_x);
 						alb.SetFixedSizeY(local_y);
 						occurence_flags |= occfBBoxSize;
 					}
-					debug_mark = true;
 				}
 				else if(prop_key == "variable") {
 					if(var_ident.IsEmpty()) { // @err dup feature
@@ -977,13 +982,53 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 					else {
 						// @err invalid labelrelation value
 					}
+					alb_label.LinkRelation = label_relation; // @v12.3.2
 				}
 				else if(prop_key == "labelbbox") {
-					THROW(p_prop->Value.Code == CtmToken::acBoundingBox); // @err invalid bbox value
+					THROW(p_prop->Value.Code == CtmToken::acBoundingBox); // @err invalid labelbbox value
 					if(!(occurence_flags & occfLabelBBox)) { // @err dup feature
 						label_bbox.a.Set(p_prop->Value.U.Rect.L.X.Val, p_prop->Value.U.Rect.L.Y.Val);
 						label_bbox.b.Set(p_prop->Value.U.Rect.R.X.Val, p_prop->Value.U.Rect.R.Y.Val);
+						// @v12.3.2 {
+						alb_label.Nominal.a.Set(p_prop->Value.U.Rect.L.X.Val, p_prop->Value.U.Rect.L.Y.Val);
+						alb_label.Nominal.b.Set(p_prop->Value.U.Rect.R.X.Val, p_prop->Value.U.Rect.R.Y.Val);
+						alb_label.Flags |= (SUiLayoutParam::fNominalDefL|SUiLayoutParam::fNominalDefT|SUiLayoutParam::fNominalDefR|SUiLayoutParam::fNominalDefB); // @v12.3.2
+						// } @v12.3.2 
 						occurence_flags |= occfLabelBBox;
+					}
+				}
+				else if(prop_key == "labelorigin") { // @v12.3.2
+					THROW(p_prop->Value.Code == CtmToken::acBoundingBoxPair); // @err invalid labelorigin value
+					if(!(occurence_flags & (occfLabelBBox|occfLabelBBoxOrigin))) { // @err dup feature
+						const float local_x = p_prop->Value.U.Rect.L.X.Val;
+						const float local_y = p_prop->Value.U.Rect.L.Y.Val;
+						if(alb_label.Nominal.IsEmpty()) {
+							alb_label.Nominal.a.Set(local_x, local_y);
+						}
+						else {
+							const float w = alb_label.Nominal.Width();
+							const float h = alb_label.Nominal.Height();
+							alb_label.Nominal.a.x = local_x;
+							alb_label.Nominal.a.y = local_y;
+							alb_label.Nominal.b.x = local_x + w;
+							alb_label.Nominal.b.y = local_y + h;
+						}
+						alb_label.Flags |= (SUiLayoutParam::fNominalDefL|SUiLayoutParam::fNominalDefT);
+						occurence_flags |= occfLabelBBoxOrigin;
+					}
+				}
+				else if(prop_key == "labelsize") { // @v12.3.2
+					THROW(p_prop->Value.Code == CtmToken::acBoundingBoxPair); // @err invalid labelsize value
+					if(!(occurence_flags & (occfLabelBBox|occfLabelBBoxSize))) { // @err dup feature
+						const float local_x = p_prop->Value.U.Rect.L.X.Val;
+						const float local_y = p_prop->Value.U.Rect.L.Y.Val;
+						alb_label.Nominal.b.x = alb_label.Nominal.a.x + local_x;
+						alb_label.Nominal.b.y = alb_label.Nominal.a.y + local_y;
+						alb_label.Flags |= (SUiLayoutParam::fNominalDefR|SUiLayoutParam::fNominalDefB);
+						//
+						alb_label.SetFixedSizeX(local_x);
+						alb_label.SetFixedSizeY(local_y);
+						occurence_flags |= occfLabelBBoxSize;
 					}
 				}
 				else if(prop_key == "command") {
@@ -1206,6 +1251,13 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 		AddConst(&label_bbox, sizeof(label_bbox), &c);
 		p_scope->AddConst(DlScope::cuifLabelRect, c, 1);
 	}
+	// @v12.3.2 {
+	if(label_relation || (occurence_flags & occfLabelBBox)) {
+		CtmExprConst c;
+		AddConst(&alb_label, sizeof(alb_label), &c);
+		p_scope->AddConst(DlScope::cuifLblLayoutBlock, c, 1);		
+	}
+	// } @v12.3.2 
 	CATCHZOK
 	return ok;
 }
@@ -1448,7 +1500,7 @@ uint DlContext::AddUiButton(const CtmToken & rSymb, const CtmToken & rText, cons
 			{
 				DLSYMBID ss_id = 0; // Ид серии символов
 				DLSYMBID cmd_id = 0;
-				int    ss_r = GetUiSymbSeries(cmd_buf, symb_ser, &ss_id);
+				const  int ss_r = GetUiSymbSeries(cmd_buf, symb_ser, &ss_id);
 				THROW(ss_r);
 				THROW(cmd_id = CreateSymb(cmd_buf, '$', 0));
 				if(!UiSymbAssoc.SearchByVal(cmd_id, 0))

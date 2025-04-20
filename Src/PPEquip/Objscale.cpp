@@ -911,8 +911,7 @@ int CommLP15::SendPLU_16(const ScalePLU * pPLU)
 	THROW(CheckAckForPLU());
 	if(local_msg_code) {
 		const uint line_len = 50;
-		// @v10.5.0 const uint line_count = 8;
-		const uint line_count = (Data.Rec.MaxAddedLnCount > 0 && Data.Rec.MaxAddedLnCount <= 100) ? Data.Rec.MaxAddedLnCount : 8; // @v10.5.0
+		const uint line_count = (Data.Rec.MaxAddedLnCount > 0 && Data.Rec.MaxAddedLnCount <= 100) ? Data.Rec.MaxAddedLnCount : 8;
 		const size_t packet_size = (line_len * line_count) + 1 + 2;
 		THROW(CheckSync_16());
 		p = 0;
@@ -1390,7 +1389,7 @@ int CasCL5000J::SendData(const char * pBuf, size_t bufLen)
 	}
 	THROW(CheckAck());
 	CATCHZOK
-	delete [] p_buf; // @v10.5.0 @fix
+	delete [] p_buf;
 	return ok;
 }
 
@@ -2265,13 +2264,11 @@ int TCPIPMToledo::SetConnection()
 		THROW_PP((res = setsockopt(SocketHandle, SOL_SOCKET, SO_RCVTIMEO, (const char *)rcv_timeout, sstrleni(rcv_timeout))) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
 		THROW_PP((res = connect(SocketHandle, reinterpret_cast<sockaddr *>(&sin), sizeof(sin))) != SOCKET_ERROR, PPERR_SCALE_NOSYNC);
 		IsConnected = 1;
-		///* @v10.4.12
 		PPSetAddedMsgString(CrcDLLPath);
 		if(!TrfrDLLHandle) {
-			THROW_PP(TrfrDLLHandle = ::LoadLibrary(SUcSwitch(CrcDLLPath)), PPERR_SCALE_INITMTDLL); // @unicodeproblem
+			THROW_PP(TrfrDLLHandle = ::LoadLibrary(SUcSwitch(CrcDLLPath)), PPERR_SCALE_INITMTDLL);
 			THROW_PP(CalcCrcCall   = (MT_CalcCrcProc)GetProcAddress(TrfrDLLHandle, "?CalcCRC16@@YAGQBDI@Z"), PPERR_SCALE_INITMTDLL);
 		} 
-		//*/
 	}
 	else {
 		SString buf;
@@ -2279,7 +2276,7 @@ int TCPIPMToledo::SetConnection()
 		SETIFZ(P_DrvMT, InitDriver());
 		PPSetAddedMsgString(TrfrDLLPath);
 		if(!TrfrDLLHandle) {
-			THROW_PP(TrfrDLLHandle = ::LoadLibrary(SUcSwitch(TrfrDLLPath)), PPERR_SCALE_INITMTDLL); // @unicodeproblem
+			THROW_PP(TrfrDLLHandle = ::LoadLibrary(SUcSwitch(TrfrDLLPath)), PPERR_SCALE_INITMTDLL);
 			THROW_PP(TrfrDLLCall   = (MT_EthernetProc)GetProcAddress(TrfrDLLHandle, "Transfer_Ethernet"), PPERR_SCALE_INITMTDLL);
 		}
 		PPGetFilePath(PPPATH_BIN, PPFILNAM_MTSCALE_CFG, buf);
@@ -2518,7 +2515,7 @@ int TCPIPMToledo::NewAlgSendPLU(const ScalePLU * pPLU)
 			ushort  AddStrCode;
 			char    AddStrTxt[max_text];
 		} as_entry;
-		uint8 stk_pad[64]; // @padding @v10.5.1
+		uint8 stk_pad[64]; // @padding
 		memzero(stk_pad, sizeof(stk_pad));
 		//const size_t _add_str_size = sizeof(ushort) + max_text;
 		StringSet add_str("\x0A");
@@ -2907,7 +2904,6 @@ class DIGI : public PPScaleDevice {
 public:
 	DIGI(const PPScalePacket * pData) : PPScaleDevice(0, pData), P_ScaleData(0), IntGrpCode(0), SocketHandle(NULL), Connected(0)
 	{
-		// @v10.5.7 ExpPaths = pExpPaths;
 	}
 	~DIGI()
 	{
@@ -3093,8 +3089,7 @@ int DIGI::SendPLU(const ScalePLU * pScalePLU)
 	}
 	else if(Connected) {
 		const int line_len_limit = oneof2(Data.Rec.ProtocolVer, 500, 503) ? 48 : 25;
-		// @v10.5.0 const int max_added_lines = 8;
-		const int max_added_lines = (Data.Rec.MaxAddedLnCount > 0 && Data.Rec.MaxAddedLnCount <= 100) ? Data.Rec.MaxAddedLnCount : 8; // @v10.5.0
+		const int max_added_lines = (Data.Rec.MaxAddedLnCount > 0 && Data.Rec.MaxAddedLnCount <= 100) ? Data.Rec.MaxAddedLnCount : 8;
 		uint   j = 0;
 		size_t size_offs = 0;
 		char   result[16];
@@ -3186,7 +3181,7 @@ int DIGI::SendPLU(const ScalePLU * pScalePLU)
 			Бит 7 Приложенные данные PLU (0 - Нет; 1 - Да)
 		*/
 		char status1_flags = 0x04 | 0x10 | 0x40; // 0x54
-		if(pScalePLU->Flags & pScalePLU->fCountable) { // @v10.0.0
+		if(pScalePLU->Flags & pScalePLU->fCountable) {
 			status1_flags |= 0x01;
 		}
 		out_rec[len++] = status1_flags; // #9 PLU статус 1
@@ -3582,7 +3577,6 @@ int Bizerba::SendPLU(const ScalePLU * pScalePLU)
 			tfzu_texts = "@00@04";
 			empty_tfzu = "@00@04";
 			{
-				// @v10.5.0 const  uint msgs_count = 4;
 				const  uint msgs_count = (Data.Rec.MaxAddedLnCount > 0 && Data.Rec.MaxAddedLnCount <= 100) ? Data.Rec.MaxAddedLnCount : 4;
 				StringSet add_str("\n");
 				GetAddedMsgLines(pScalePLU, 63, msgs_count, 0, add_str);
@@ -4365,28 +4359,17 @@ int ScaleDialog::setDTS(const PPScalePacket * pData)
 	//ExpPaths = pExpPaths;
 	SetupStringCombo(this, CTLSEL_SCALE_TYPE, PPTXT_SCLT, Data.Rec.ScaleTypeID);
 	setCtrlData(CTL_SCALE_NAME,   Data.Rec.Name);
-	// @v10.5.7 {
 	Data.GetExtStrData(Data.extssPort, temp_buf);
 	setCtrlString(CTL_SCALE_PORT, temp_buf);
-	// @v10.5.7 {
-	/* @v10.5.7 if(Data.Rec.Flags & SCALF_TCPIP) {
-		char   ip[16];
-		memzero(ip, sizeof(ip));
-		PPObjScale::DecodeIP(Data.Rec.Port, ip);
-		setCtrlData(CTL_SCALE_PORT, ip);
-	}
-	else
-		setCtrlData(CTL_SCALE_PORT, Data.Rec.Port); */
 	setCtrlData(CTL_SCALE_PRTCLVER, &Data.Rec.ProtocolVer);
 	setCtrlData(CTL_SCALE_ID,     &Data.Rec.ID);
 	disableCtrl(CTL_SCALE_ID,     1 /* (int)Data.ID */);
 	setCtrlData(CTL_SCALE_LOGNUM, &Data.Rec.LogNum);
 	setCtrlData(CTL_SCALE_BCPREFIX, &Data.Rec.BcPrefix);
 	Data.GetExtStrData(Data.extssAddedMsgSign, temp_buf);
-	// @v10.5.7 setCtrlData(CTL_SCALE_ADDEDMSGSIGN, Data.Rec.AddedMsgSign);
-	setCtrlString(CTL_SCALE_ADDEDMSGSIGN, temp_buf); // @v10.5.7
+	setCtrlString(CTL_SCALE_ADDEDMSGSIGN, temp_buf);
 	setCtrlData(CTL_SCALE_ADDEDLINELEN, &Data.Rec.MaxAddedLn);
-	setCtrlData(CTL_SCALE_ADDEDLNCT,    &Data.Rec.MaxAddedLnCount); // @v10.5.0
+	setCtrlData(CTL_SCALE_ADDEDLNCT,    &Data.Rec.MaxAddedLnCount);
 	AddClusterAssoc(CTL_SCALE_FLAGS, 0, SCALF_STRIPWP);
 	AddClusterAssoc(CTL_SCALE_FLAGS, 1, SCALF_EXSGOODS);
 	AddClusterAssoc(CTL_SCALE_FLAGS, 2, SCALF_TCPIP);

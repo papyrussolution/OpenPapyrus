@@ -24888,6 +24888,7 @@ struct PPGoodsTaxEntry { // @flat
 	}
 	PPGoodsTaxEntry();
 	int    FASTCALL IsEq(const PPGoodsTaxEntry & rS) const;
+	PPGoodsTaxEntry & Z();
 	double GetVatRate() const;
 	SString & FormatVAT(SString & rBuf) const;
 	SString & FormatExcise(SString & rBuf) const;
@@ -24945,8 +24946,8 @@ public:
 	static long  GetDefaultOrder();
 	static int   ReplaceGoodsTaxGrp();
 	static int   IsIdentical(const PPGoodsTax * pRec1, const PPGoodsTax * pRec2);
-	static int   Fetch(PPID, LDATE, PPID opID, PPGoodsTaxEntry *);
-	static int   FetchByID(PPID, PPGoodsTaxEntry *);
+	static int   Fetch(PPID taxGroupID, LDATE dt, PPID opID, PPGoodsTaxEntry * pGtx);
+	static int   FetchByID(PPID taxGroupID, PPGoodsTaxEntry * pGtx);
 
 	explicit PPObjGoodsTax(void * extraPtr = 0);
 	virtual int  Edit(PPID * pID, void * extraPtr);
@@ -30588,6 +30589,7 @@ public:
 	int    FetchNameR(PPID goodsID, SString & rBuf);
 	int    FetchTax_(PPID goodsID, LDATE dt, PPID opID, PPGoodsTaxEntry * pGtx); // @v12.2.4 replaced with FetchTaxEntry2
 	//
+	// Descr: Извлекает схему налогообложения по набору факторов {товар, лот, налогоплательщик, дата, вид операции}.
 	// ARG(goodsID in): Идентификатор товара, налогообложение которого нас интересует
 	// ARG(lotID in): Идентификатор лота, по которому получен товар. Этот идентификатор нужен только в случае,
 	//   если необходимо расчитать входящий НДС (к зачету). Если интересует налогообложение при продаже товара,
@@ -43972,6 +43974,7 @@ class VatBookFilt : public PPBaseFilt {
 public:
 	VatBookFilt();
 	VatBookFilt & FASTCALL operator = (const VatBookFilt & s);
+	bool   IsSimpleLedger() const { return (Kind == PPVTB_SIMPLELEDGER); }
 
 	enum {
 		fShowLink     = 0x0001,
@@ -44078,6 +44081,14 @@ private:
 	// @v11.0.3 int    ProcessOp(uint, const PPIDArray *, const PPIDArray * pNegOpList,
 		// @v11.0.3 const AutoBuildFilt *, int byPayment, PPObjBill::PplBlock * pEbfBlk, PPID mainAmtTypeID);
 	int    ProcessOp2(const OpEntryVector & rList, uint listIdx, const OpEntryVector * pNegList, const AutoBuildFilt *, int byPayment, PPObjBill::PplBlock * pEbfBlk);
+	//
+	// ARG(slUseCostVatAddendum IN): параметр определяет специальный вариант формирования записей расходов с НДС для книги доходов/расходов
+	//   0 - нет специального формирования - запись расходов вносится с НДС
+	//   1 - запись расходов вносится без НДС, а функция возвращает 100 дабы вызывающая процедура вызвала снова эту же функцию 
+	//      с параметром slUseCostVatAddendum==2 для формирования дополнительной записи с суммой НДС
+	//   2 - специальный прогон функции для формирования записи расходос с суммой НДС (см. комментарий выше к значению аргумента 1)
+	//   3 - запись расходов вносится без НДС без дополнительной записи с суммой НДС
+	//
 	int    _SetVATParams(VATBookTbl::Rec *, const BVATAccmArray & rVatArray, double scale, bool isSelling, int slUseCostVatAddendum);
 	int    CheckBillRec(const AutoBuildFilt *, const BillTbl::Rec *);
 	int    RemoveZeroBillLinks(int use_ta);
@@ -44085,11 +44096,29 @@ private:
 	int    MRBB(PPID, BillTbl::Rec * pPaymRec, const TaxAmountIDs *, long mrbbf, PPObjBill::PplBlock * pEbfBlk, /*PPID mainAmtTypeID*/const OpEntry & rOpEntry);
 	int    NextInnerIteration(VatBookViewItem *);
 	int    LoadClbList(PPID billID);
+	void   ResetMainOrgBlock();
 	PPObjVATBook VBObj;
 	PPObjBill  * P_BObj;
 	VatBookFilt  Filt;
 	VatBookTotal Total;
-	int    IsMainOrgVatFree;
+
+	class MainOrgBlock {
+	public:
+		MainOrgBlock();
+		MainOrgBlock & Z();
+		int    Init();
+		bool   FetchSpcTaxEntry(LDATE dt, PPGoodsTaxEntry & rGtx) const;
+		bool   IsVatFree_(LDATE dt) const;
+		bool   IsSpecialVatRate(LDATE dt, double * pRate) const;
+	private:
+		PPID   MainOrgID;
+		PPID   SpecialTaxGroupID;
+		bool   Initialized;
+		bool   IsVatFree;
+		uint8  Reserve[2]; // @alignment
+	};
+	MainOrgBlock MOBlk;
+	//int    IsMainOrgVatFree;
 	UintHashTable AbBillList; // Список идентификаторов документов, которые уже были просмотрены при
 		// автоматическом построении книги. Необходим для того, чтобы избежать удаления записей, принадлежащих
 		// одному документу, но сформированных за один цикл.

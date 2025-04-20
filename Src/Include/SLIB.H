@@ -1352,6 +1352,7 @@ public:
 	static constexpr uint32 ListBoxDefSignature_DBQ = 0xABCD0005;      //0xABCD0005 // DBQListBoxDef
 	static constexpr uint32 ListBoxDefSignature_STDTREE2 = 0xABCD0006; //0xABCD0006 // StdTreeListBoxDef2
 	static constexpr uint32 Signature_SlThread = 0x09970199U; // @v11.8.2 Сигнатура потоков SlThread для идентификации консистентности
+	static constexpr uint32 Signature_SUiLayoutParam = 0x15DE0522U; // @v12.3.2 Сигнатура объекта SUiLayoutParam
 	static constexpr uint32 MagicHashPrime32 = 2654435761U; // @v11.3.10 Knuth multiplicative hashing.  (Sorting & Searching, p. 510). the closest prime number to (2**32)*golden_ratio, where golden_ratio = (sqrt(5) - 1)/2.
 	static constexpr uint32 GoldenRatioInt32 = 2654435769U; // @v11.3.12 The integral part of the Golden Ratio's fractional part 0.61803398875… (sqrt(5)-1)/2, multiplied by 2^32.
 		//0x9e3779b9 is the integral part of the Golden Ratio's fractional part 0.61803398875… (sqrt(5)-1)/2, multiplied by 2^32.
@@ -3877,6 +3878,7 @@ public:
 	constexpr SPoint2F(float _x, float _y) : x(_x), y(_y)
 	{
 	}
+	SPoint2F & Z();
 	SPoint2F & FASTCALL operator = (const SPoint2S & p);
 	SPoint2F & FASTCALL operator = (float f);
 	bool   FASTCALL operator == (const SPoint2F & rS) const;
@@ -3910,6 +3912,10 @@ public:
 	bool   IsPositive() const;
 	SPoint2F Set(float xy);
 	SPoint2F Set(float x, float y);
+	//
+	// Descr: Обнуляет оба компонента экземпляра класса. Функционально аналогична функции Z(),
+	//   но имеет семантическое отличие в том, что возвращает копию *this, а не ссылку на this.
+	//
 	SPoint2F SetZero();
 	SPoint2F Neg() const;
 	SPoint2F Scale(float);
@@ -17791,7 +17797,7 @@ public:
 	//
 	// Descr: Проверяет, находится ли класс в режиме останова процесса
 	//
-	int    CheckStopFlag() const;
+	bool   CheckStopFlag() const;
 	void   FASTCALL SetExecutionContext(const char * pInfo);
 	void   FASTCALL SetAddedMsgString(const char *);
 	//
@@ -17945,7 +17951,7 @@ private:
 	SString AppName;
 	HINSTANCE H_Inst;
 	ULONG_PTR GdiplusToken;
-	UiDescription * P_Uid; // @v11.9.2 @construction Дескрипторы пользовательского интерфейса
+	UiDescription * P_Uid; // @v11.9.2 Дескрипторы пользовательского интерфейса
 
 	class GlobalObjectArray : public SVector {
 	public:
