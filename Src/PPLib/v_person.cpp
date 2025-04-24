@@ -1772,10 +1772,13 @@ int PPViewPerson::Helper_NextIteration(uint flags, PersonViewItem * pItem)
 						ok = 1;
 					}
 				}
-				else if(PsnObj.Search(person_id, &item) > 0) {
+				else {
+					// @v12.3.3 @fix Не в том месте стояла проверка if(PsnObj.Search(person_id, &item) > 0) из-за чего поиск шел по нулевому person_id
 					person_id = P_TempPsn->data.ID;
 					item.AttrItem = P_TempPsn->data;
-					ok = 1;
+					if(PsnObj.Search(person_id, &item) > 0) {
+						ok = 1;
+					}
 				}
 			}
 			else {

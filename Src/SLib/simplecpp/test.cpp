@@ -1,22 +1,19 @@
-/*
- * simplecpp - A simple and high-fidelity C/C++ preprocessor library
- * Copyright (C) 2016-2023 simplecpp team
- */
-
+// simplecpp - A simple and high-fidelity C/C++ preprocessor library
+// Copyright (C) 2016-2023 simplecpp team
+// 
 #include <slib-internal.h>
 #pragma hdrstop
-#include "simplecpp.h"
-
 #include <cctype>
 #include <cstdlib>
 #include <cstring>
 #include <exception>
-#include <iostream>
 #include <map>
-#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <vector>
+#include <iostream>
+#include <sstream>
+#include "simplecpp.h"
 
 // @sobolev #define STRINGIZE_(x) #x
 // @sobolev (already defined at slib.h) #define STRINGIZE(x) STRINGIZE_(x)
@@ -121,72 +118,20 @@ static std::string toString(const simplecpp::OutputList &outputList)
 	for(const simplecpp::Output &output : outputList) {
 		ostr << "file" << output.location.fileIndex << ',' << output.location.line << ',';
 		switch(output.type) {
-			case simplecpp::Output::Type::ERROR_:
-			    ostr << "#error,";
-			    break;
-			case simplecpp::Output::Type::WARNING:
-			    ostr << "#warning,";
-			    break;
-			case simplecpp::Output::Type::MISSING_HEADER:
-			    ostr << "missing_header,";
-			    break;
-			case simplecpp::Output::Type::INCLUDE_NESTED_TOO_DEEPLY:
-			    ostr << "include_nested_too_deeply,";
-			    break;
-			case simplecpp::Output::Type::SYNTAX_ERROR:
-			    ostr << "syntax_error,";
-			    break;
-			case simplecpp::Output::Type::PORTABILITY_BACKSLASH:
-			    ostr << "portability_backslash,";
-			    break;
-			case simplecpp::Output::Type::UNHANDLED_CHAR_ERROR:
-			    ostr << "unhandled_char_error,";
-			    break;
-			case simplecpp::Output::Type::EXPLICIT_INCLUDE_NOT_FOUND:
-			    ostr << "explicit_include_not_found,";
-			    break;
-			case simplecpp::Output::Type::FILE_NOT_FOUND:
-			    ostr << "file_not_found,";
-			    break;
-			case simplecpp::Output::Type::DUI_ERROR:
-			    ostr << "dui_error,";
-			    break;
+			case simplecpp::Output::Type::ERROR_: ostr << "#error,"; break;
+			case simplecpp::Output::Type::WARNING: ostr << "#warning,"; break;
+			case simplecpp::Output::Type::MISSING_HEADER: ostr << "missing_header,"; break;
+			case simplecpp::Output::Type::INCLUDE_NESTED_TOO_DEEPLY: ostr << "include_nested_too_deeply,"; break;
+			case simplecpp::Output::Type::SYNTAX_ERROR: ostr << "syntax_error,"; break;
+			case simplecpp::Output::Type::PORTABILITY_BACKSLASH: ostr << "portability_backslash,"; break;
+			case simplecpp::Output::Type::UNHANDLED_CHAR_ERROR: ostr << "unhandled_char_error,"; break;
+			case simplecpp::Output::Type::EXPLICIT_INCLUDE_NOT_FOUND: ostr << "explicit_include_not_found,"; break;
+			case simplecpp::Output::Type::FILE_NOT_FOUND: ostr << "file_not_found,"; break;
+			case simplecpp::Output::Type::DUI_ERROR: ostr << "dui_error,"; break;
 		}
-
 		ostr << output.msg << '\n';
 	}
 	return ostr.str();
-}
-
-static void backslash()
-{
-	// <backslash><space><newline> preprocessed differently
-	simplecpp::OutputList outputList;
-
-	readfile("//123 \\\n456", &outputList);
-	ASSERT_EQUALS("", toString(outputList));
-	readfile("//123 \\ \n456", &outputList);
-	ASSERT_EQUALS("file0,1,portability_backslash,Combination 'backslash space newline' is not portable.\n", toString(outputList));
-
-	outputList.clear();
-	readfile("#define A \\\n123", &outputList);
-	ASSERT_EQUALS("", toString(outputList));
-	readfile("#define A \\ \n123", &outputList);
-	ASSERT_EQUALS("file0,1,portability_backslash,Combination 'backslash space newline' is not portable.\n", toString(outputList));
-}
-
-static void builtin()
-{
-	ASSERT_EQUALS("\"\" 1 0", preprocess("__FILE__ __LINE__ __COUNTER__"));
-	ASSERT_EQUALS("\n\n3", preprocess("\n\n__LINE__"));
-	ASSERT_EQUALS("\n\n0", preprocess("\n\n__COUNTER__"));
-	ASSERT_EQUALS("\n\n0 1", preprocess("\n\n__COUNTER__ __COUNTER__"));
-
-	ASSERT_EQUALS("\n0 + 0", preprocess("#define A(c)  c+c\n"
-	    "A(__COUNTER__)\n"));
-
-	ASSERT_EQUALS("\n0 + 0 + 1", preprocess("#define A(c)  c+c+__COUNTER__\n"
-	    "A(__COUNTER__)\n"));
 }
 
 static std::string testConstFold(const char code[])
@@ -199,249 +144,6 @@ static std::string testConstFold(const char code[])
 	} catch(std::exception &) {
 		return "exception";
 	}
-}
-
-static void characterLiteral()
-{
-	ASSERT_EQUALS('A', simplecpp::characterLiteralToLL("'A'"));
-
-	ASSERT_EQUALS('\'', simplecpp::characterLiteralToLL("'\\''"));
-	ASSERT_EQUALS('\"', simplecpp::characterLiteralToLL("'\\\"'"));
-	ASSERT_EQUALS('\?', simplecpp::characterLiteralToLL("'\\?'"));
-	ASSERT_EQUALS('\\', simplecpp::characterLiteralToLL("'\\\\'"));
-	ASSERT_EQUALS('\a', simplecpp::characterLiteralToLL("'\\a'"));
-	ASSERT_EQUALS('\b', simplecpp::characterLiteralToLL("'\\b'"));
-	ASSERT_EQUALS('\f', simplecpp::characterLiteralToLL("'\\f'"));
-	ASSERT_EQUALS('\n', simplecpp::characterLiteralToLL("'\\n'"));
-	ASSERT_EQUALS('\r', simplecpp::characterLiteralToLL("'\\r'"));
-	ASSERT_EQUALS('\t', simplecpp::characterLiteralToLL("'\\t'"));
-	ASSERT_EQUALS('\v', simplecpp::characterLiteralToLL("'\\v'"));
-
-	// GCC extension for ESC character
-	ASSERT_EQUALS(0x1b, simplecpp::characterLiteralToLL("'\\e'"));
-	ASSERT_EQUALS(0x1b, simplecpp::characterLiteralToLL("'\\E'"));
-
-	// more obscure GCC extensions
-	ASSERT_EQUALS('(', simplecpp::characterLiteralToLL("'\\('"));
-	ASSERT_EQUALS('[', simplecpp::characterLiteralToLL("'\\['"));
-	ASSERT_EQUALS('{', simplecpp::characterLiteralToLL("'\\{'"));
-	ASSERT_EQUALS('%', simplecpp::characterLiteralToLL("'\\%'"));
-
-	ASSERT_EQUALS('\0',   simplecpp::characterLiteralToLL("'\\0'"));
-	ASSERT_EQUALS('\1',   simplecpp::characterLiteralToLL("'\\1'"));
-	ASSERT_EQUALS('\10',  simplecpp::characterLiteralToLL("'\\10'"));
-	ASSERT_EQUALS('\010', simplecpp::characterLiteralToLL("'\\010'"));
-	ASSERT_EQUALS('\377', simplecpp::characterLiteralToLL("'\\377'"));
-
-	ASSERT_EQUALS('\x0',  simplecpp::characterLiteralToLL("'\\x0'"));
-	ASSERT_EQUALS('\x10', simplecpp::characterLiteralToLL("'\\x10'"));
-	ASSERT_EQUALS('\xff', simplecpp::characterLiteralToLL("'\\xff'"));
-
-	ASSERT_EQUALS('\u0012',     simplecpp::characterLiteralToLL("'\\u0012'"));
-	ASSERT_EQUALS('\U00000012', simplecpp::characterLiteralToLL("'\\U00000012'"));
-
-	ASSERT_EQUALS((static_cast<unsigned int>(static_cast<unsigned char>('b')) << 8) | static_cast<unsigned char>('c'),    simplecpp::characterLiteralToLL("'bc'"));
-	ASSERT_EQUALS((static_cast<unsigned int>(static_cast<unsigned char>('\x23')) << 8) | static_cast<unsigned char>('\x45'), simplecpp::characterLiteralToLL("'\\x23\\x45'"));
-	ASSERT_EQUALS((static_cast<unsigned int>(static_cast<unsigned char>('\11')) << 8) | static_cast<unsigned char>('\222'), simplecpp::characterLiteralToLL("'\\11\\222'"));
-	ASSERT_EQUALS((static_cast<unsigned int>(static_cast<unsigned char>('\a')) << 8) | static_cast<unsigned char>('\b'),   simplecpp::characterLiteralToLL("'\\a\\b'"));
-	if(sizeof(int) <= 4)
-		ASSERT_EQUALS(-1, simplecpp::characterLiteralToLL("'\\xff\\xff\\xff\\xff'"));
-	else
-		ASSERT_EQUALS(0xffffffff, simplecpp::characterLiteralToLL("'\\xff\\xff\\xff\\xff'"));
-
-	ASSERT_EQUALS('A', simplecpp::characterLiteralToLL("u8'A'"));
-	ASSERT_EQUALS('A', simplecpp::characterLiteralToLL("u'A'"));
-	ASSERT_EQUALS('A', simplecpp::characterLiteralToLL("L'A'"));
-	ASSERT_EQUALS('A', simplecpp::characterLiteralToLL("U'A'"));
-
-	ASSERT_EQUALS(0xff, simplecpp::characterLiteralToLL("u8'\\xff'"));
-	ASSERT_EQUALS(0xff, simplecpp::characterLiteralToLL("u'\\xff'"));
-	ASSERT_EQUALS(0xff, simplecpp::characterLiteralToLL("L'\\xff'"));
-	ASSERT_EQUALS(0xff, simplecpp::characterLiteralToLL("U'\\xff'"));
-
-	ASSERT_EQUALS(0xfedc,     simplecpp::characterLiteralToLL("u'\\xfedc'"));
-	ASSERT_EQUALS(0xfedcba98, simplecpp::characterLiteralToLL("L'\\xfedcba98'"));
-	ASSERT_EQUALS(0xfedcba98, simplecpp::characterLiteralToLL("U'\\xfedcba98'"));
-
-	ASSERT_EQUALS(0x12,       simplecpp::characterLiteralToLL("u8'\\u0012'"));
-	ASSERT_EQUALS(0x1234,     simplecpp::characterLiteralToLL("u'\\u1234'"));
-	ASSERT_EQUALS(0x00012345, simplecpp::characterLiteralToLL("L'\\U00012345'"));
-	ASSERT_EQUALS(0x00012345, simplecpp::characterLiteralToLL("U'\\U00012345'"));
-
-#ifdef __GNUC__
-	// BEGIN Implementation-specific results
-	ASSERT_EQUALS(static_cast<int>('AB'), simplecpp::characterLiteralToLL("'AB'"));
-	ASSERT_EQUALS(static_cast<int>('ABC'), simplecpp::characterLiteralToLL("'ABC'"));
-	ASSERT_EQUALS(static_cast<int>('ABCD'), simplecpp::characterLiteralToLL("'ABCD'"));
-	ASSERT_EQUALS('\134t', simplecpp::characterLiteralToLL("'\\134t'")); // cppcheck ticket #7452
-	// END Implementation-specific results
-#endif
-
-	ASSERT_THROW_EQUALS(simplecpp::characterLiteralToLL("'\\9'"), std::runtime_error, "invalid escape sequence");
-
-	// Input is manually encoded to (escaped) UTF-8 byte sequences
-	// to avoid dependence on source encoding used for this file
-	ASSERT_EQUALS(0xb5, simplecpp::characterLiteralToLL("U'\302\265'"));
-	ASSERT_EQUALS(0x157, simplecpp::characterLiteralToLL("U'\305\227'"));
-	ASSERT_EQUALS(0xff0f, simplecpp::characterLiteralToLL("U'\357\274\217'"));
-	ASSERT_EQUALS(0x3042, simplecpp::characterLiteralToLL("U'\343\201\202'"));
-	ASSERT_EQUALS(0x13000, simplecpp::characterLiteralToLL("U'\360\223\200\200'"));
-
-	ASSERT_EQUALS(0xb5, simplecpp::characterLiteralToLL("L'\302\265'"));
-	ASSERT_EQUALS(0x157, simplecpp::characterLiteralToLL("L'\305\227'"));
-	ASSERT_EQUALS(0xff0f, simplecpp::characterLiteralToLL("L'\357\274\217'"));
-	ASSERT_EQUALS(0x3042, simplecpp::characterLiteralToLL("L'\343\201\202'"));
-	ASSERT_EQUALS(0x13000, simplecpp::characterLiteralToLL("L'\360\223\200\200'"));
-
-	ASSERT_EQUALS(0xb5, simplecpp::characterLiteralToLL("u'\302\265'"));
-	ASSERT_EQUALS(0x157, simplecpp::characterLiteralToLL("u'\305\227'"));
-	ASSERT_EQUALS(0xff0f, simplecpp::characterLiteralToLL("u'\357\274\217'"));
-	ASSERT_EQUALS(0x3042, simplecpp::characterLiteralToLL("u'\343\201\202'"));
-	ASSERT_THROW_EQUALS(simplecpp::characterLiteralToLL("u'\360\223\200\200'"), std::runtime_error, "code point too large");
-
-	ASSERT_THROW_EQUALS(simplecpp::characterLiteralToLL("u8'\302\265'"), std::runtime_error, "code point too large");
-	ASSERT_THROW_EQUALS(simplecpp::characterLiteralToLL("u8'\305\227'"), std::runtime_error, "code point too large");
-	ASSERT_THROW_EQUALS(simplecpp::characterLiteralToLL("u8'\357\274\217'"), std::runtime_error, "code point too large");
-	ASSERT_THROW_EQUALS(simplecpp::characterLiteralToLL("u8'\343\201\202'"), std::runtime_error, "code point too large");
-	ASSERT_THROW_EQUALS(simplecpp::characterLiteralToLL("u8'\360\223\200\200'"), std::runtime_error, "code point too large");
-
-	ASSERT_EQUALS('\x89', simplecpp::characterLiteralToLL("'\x89'"));
-	ASSERT_THROW_EQUALS(simplecpp::characterLiteralToLL("U'\x89'"), std::runtime_error, "assumed UTF-8 encoded source, but sequence is invalid");
-
-	ASSERT_THROW_EQUALS(simplecpp::characterLiteralToLL("U'\xf4\x90\x80\x80'"), std::runtime_error, "code point too large");
-
-	// following examples based on https://www.cl.cam.ac.uk/~mgk25/ucs/examples/UTF-8-test.txt
-	ASSERT_EQUALS(0x80, simplecpp::characterLiteralToLL("U'\xc2\x80'"));
-	ASSERT_EQUALS(0x800, simplecpp::characterLiteralToLL("U'\xe0\xa0\x80'"));
-	ASSERT_EQUALS(0x10000, simplecpp::characterLiteralToLL("U'\xf0\x90\x80\x80'"));
-
-	ASSERT_EQUALS(0x7f, simplecpp::characterLiteralToLL("U'\x7f'"));
-	ASSERT_EQUALS(0x7ff, simplecpp::characterLiteralToLL("U'\xdf\xbf'"));
-	ASSERT_EQUALS(0xffff, simplecpp::characterLiteralToLL("U'\xef\xbf\xbf'"));
-
-	ASSERT_EQUALS(0xd7ff, simplecpp::characterLiteralToLL("U'\xed\x9f\xbf'"));
-	ASSERT_EQUALS(0xe000, simplecpp::characterLiteralToLL("U'\xee\x80\x80'"));
-	ASSERT_EQUALS(0xfffd, simplecpp::characterLiteralToLL("U'\xef\xbf\xbd'"));
-	ASSERT_EQUALS(0x10ffff, simplecpp::characterLiteralToLL("U'\xf4\x8f\xbf\xbf'"));
-
-	ASSERT_THROW_EQUALS(simplecpp::characterLiteralToLL("U'\x80'"), std::runtime_error, "assumed UTF-8 encoded source, but sequence is invalid");
-	ASSERT_THROW_EQUALS(simplecpp::characterLiteralToLL("U'\x80\x8f'"), std::runtime_error, "assumed UTF-8 encoded source, but sequence is invalid");
-	ASSERT_THROW_EQUALS(simplecpp::characterLiteralToLL("U'\x80\x8f\x8f'"), std::runtime_error, "assumed UTF-8 encoded source, but sequence is invalid");
-	ASSERT_THROW_EQUALS(simplecpp::characterLiteralToLL("U'\x80\x8f\x8f\x8f'"), std::runtime_error, "assumed UTF-8 encoded source, but sequence is invalid");
-
-	ASSERT_THROW_EQUALS(simplecpp::characterLiteralToLL("U'\xbf'"), std::runtime_error, "assumed UTF-8 encoded source, but sequence is invalid");
-	ASSERT_THROW_EQUALS(simplecpp::characterLiteralToLL("U'\xbf\x8f'"), std::runtime_error, "assumed UTF-8 encoded source, but sequence is invalid");
-	ASSERT_THROW_EQUALS(simplecpp::characterLiteralToLL("U'\xbf\x8f\x8f'"), std::runtime_error, "assumed UTF-8 encoded source, but sequence is invalid");
-	ASSERT_THROW_EQUALS(simplecpp::characterLiteralToLL("U'\xbf\x8f\x8f\x8f'"), std::runtime_error, "assumed UTF-8 encoded source, but sequence is invalid");
-
-	ASSERT_THROW_EQUALS(simplecpp::characterLiteralToLL("U'\xc0'"), std::runtime_error, "assumed UTF-8 encoded source, but sequence is invalid");
-	ASSERT_THROW_EQUALS(simplecpp::characterLiteralToLL("U'\xc0 '"), std::runtime_error, "assumed UTF-8 encoded source, but sequence is invalid");
-	ASSERT_THROW_EQUALS(simplecpp::characterLiteralToLL("U'\xe0\x8f'"), std::runtime_error, "assumed UTF-8 encoded source, but sequence is invalid");
-	ASSERT_THROW_EQUALS(simplecpp::characterLiteralToLL("U'\xe0\x8f '"), std::runtime_error, "assumed UTF-8 encoded source, but sequence is invalid");
-	ASSERT_THROW_EQUALS(simplecpp::characterLiteralToLL("U'\xf0\x8f\x8f'"), std::runtime_error, "assumed UTF-8 encoded source, but sequence is invalid");
-	ASSERT_THROW_EQUALS(simplecpp::characterLiteralToLL("U'\xf0\x8f\x8f '"), std::runtime_error, "assumed UTF-8 encoded source, but sequence is invalid");
-
-	ASSERT_THROW_EQUALS(simplecpp::characterLiteralToLL("U'\xf8'"), std::runtime_error, "assumed UTF-8 encoded source, but sequence is invalid");
-	ASSERT_THROW_EQUALS(simplecpp::characterLiteralToLL("U'\xff'"), std::runtime_error, "assumed UTF-8 encoded source, but sequence is invalid");
-
-	ASSERT_THROW_EQUALS(simplecpp::characterLiteralToLL("U'\xc0\xaf'"), std::runtime_error, "assumed UTF-8 encoded source, but sequence is invalid");
-	ASSERT_THROW_EQUALS(simplecpp::characterLiteralToLL("U'\xe0\x80\xaf'"), std::runtime_error, "assumed UTF-8 encoded source, but sequence is invalid");
-	ASSERT_THROW_EQUALS(simplecpp::characterLiteralToLL("U'\xf0\x80\x80\xaf'"), std::runtime_error, "assumed UTF-8 encoded source, but sequence is invalid");
-	ASSERT_THROW_EQUALS(simplecpp::characterLiteralToLL("U'\xc1\xbf'"), std::runtime_error, "assumed UTF-8 encoded source, but sequence is invalid");
-	ASSERT_THROW_EQUALS(simplecpp::characterLiteralToLL("U'\xe0\x9f\xbf'"), std::runtime_error, "assumed UTF-8 encoded source, but sequence is invalid");
-	ASSERT_THROW_EQUALS(simplecpp::characterLiteralToLL("U'\xf0\x8f\xbf\xbf'"), std::runtime_error, "assumed UTF-8 encoded source, but sequence is invalid");
-	ASSERT_THROW_EQUALS(simplecpp::characterLiteralToLL("U'\xc0\x80'"), std::runtime_error, "assumed UTF-8 encoded source, but sequence is invalid");
-	ASSERT_THROW_EQUALS(simplecpp::characterLiteralToLL("U'\xe0\x80\x80'"), std::runtime_error, "assumed UTF-8 encoded source, but sequence is invalid");
-	ASSERT_THROW_EQUALS(simplecpp::characterLiteralToLL("U'\xf0\x80\x80\x80'"), std::runtime_error, "assumed UTF-8 encoded source, but sequence is invalid");
-
-	ASSERT_THROW_EQUALS(simplecpp::characterLiteralToLL("U'\xed\xa0\x80'"), std::runtime_error, "assumed UTF-8 encoded source, but sequence is invalid");
-	ASSERT_THROW_EQUALS(simplecpp::characterLiteralToLL("U'\xed\xbf\xbf'"), std::runtime_error, "assumed UTF-8 encoded source, but sequence is invalid");
-}
-
-static void combineOperators_floatliteral()
-{
-	ASSERT_EQUALS("1.", preprocess("1."));
-	ASSERT_EQUALS("1.f", preprocess("1.f"));
-	ASSERT_EQUALS(".1", preprocess(".1"));
-	ASSERT_EQUALS(".1f", preprocess(".1f"));
-	ASSERT_EQUALS("3.1", preprocess("3.1"));
-	ASSERT_EQUALS("1E7", preprocess("1E7"));
-	ASSERT_EQUALS("1E-7", preprocess("1E-7"));
-	ASSERT_EQUALS("1E+7", preprocess("1E+7"));
-	ASSERT_EQUALS("1.e+7", preprocess("1.e+7"));
-	ASSERT_EQUALS("0x1E + 7", preprocess("0x1E+7"));
-	ASSERT_EQUALS("0x1ffp10", preprocess("0x1ffp10"));
-	ASSERT_EQUALS("0x0p-1", preprocess("0x0p-1"));
-	ASSERT_EQUALS("0x1.p0", preprocess("0x1.p0"));
-	ASSERT_EQUALS("0xf.p-1", preprocess("0xf.p-1"));
-	ASSERT_EQUALS("0x1.2p3", preprocess("0x1.2p3"));
-	ASSERT_EQUALS("0x1.ap3", preprocess("0x1.ap3"));
-	ASSERT_EQUALS("0x1.2ap3", preprocess("0x1.2ap3"));
-	ASSERT_EQUALS("0x1p+3", preprocess("0x1p+3"));
-	ASSERT_EQUALS("0x1p+3f", preprocess("0x1p+3f"));
-	ASSERT_EQUALS("0x1p+3L", preprocess("0x1p+3L"));
-	ASSERT_EQUALS("1p + 3", preprocess("1p+3"));
-	ASSERT_EQUALS("1.0_a . b", preprocess("1.0_a.b"));
-	ASSERT_EQUALS("1_a . b", preprocess("1_a.b"));
-}
-
-static void combineOperators_increment()
-{
-	ASSERT_EQUALS("; ++ x ;", preprocess(";++x;"));
-	ASSERT_EQUALS("; x ++ ;", preprocess(";x++;"));
-	ASSERT_EQUALS("1 + + 2", preprocess("1++2"));
-}
-
-static void combineOperators_coloncolon()
-{
-	ASSERT_EQUALS("x ? y : :: z", preprocess("x ? y : ::z"));
-}
-
-static void combineOperators_andequal()
-{
-	ASSERT_EQUALS("x &= 2 ;", preprocess("x &= 2;"));
-	ASSERT_EQUALS("void f ( x & = 2 ) ;", preprocess("void f(x &= 2);"));
-	ASSERT_EQUALS("f ( x &= 2 ) ;", preprocess("f(x &= 2);"));
-}
-
-static void combineOperators_ellipsis()
-{
-	ASSERT_EQUALS("void f ( int , ... ) ;", preprocess("void f(int, ...);"));
-	ASSERT_EQUALS("void f ( ) { switch ( x ) { case 1 ... 4 : } }", preprocess("void f() { switch(x) { case 1 ... 4: } }"));
-}
-
-static void comment()
-{
-	ASSERT_EQUALS("// abc", readfile("// abc"));
-	ASSERT_EQUALS("", preprocess("// abc"));
-	ASSERT_EQUALS("/*\n\n*/abc", readfile("/*\n\n*/abc"));
-	ASSERT_EQUALS("\n\nabc", preprocess("/*\n\n*/abc"));
-	ASSERT_EQUALS("* p = a / * b / * c ;", readfile("*p=a/ *b/ *c;"));
-	ASSERT_EQUALS("* p = a / * b / * c ;", preprocess("*p=a/ *b/ *c;"));
-}
-
-static void comment_multiline()
-{
-	const char code[] = "#define ABC {// \\\n"
-	    "}\n"
-	    "void f() ABC\n";
-	ASSERT_EQUALS("\n\nvoid f ( ) { }", preprocess(code));
-}
-
-static void constFold()
-{
-	ASSERT_EQUALS("7", testConstFold("1+2*3"));
-	ASSERT_EQUALS("15", testConstFold("1+2*(3+4)"));
-	ASSERT_EQUALS("123", testConstFold("+123"));
-	ASSERT_EQUALS("1", testConstFold("-123<1"));
-	ASSERT_EQUALS("6", testConstFold("14 & 7"));
-	ASSERT_EQUALS("29", testConstFold("13 ^ 16"));
-	ASSERT_EQUALS("25", testConstFold("24 | 1"));
-	ASSERT_EQUALS("2", testConstFold("1?2:3"));
-	ASSERT_EQUALS("24", testConstFold("010+020"));
-	ASSERT_EQUALS("1", testConstFold("010==8"));
-	ASSERT_EQUALS("exception", testConstFold("!1 ? 2 :"));
-	ASSERT_EQUALS("exception", testConstFold("?2:3"));
 }
 
 #ifdef __CYGWIN__
@@ -464,137 +166,6 @@ static void convertCygwinPath()
 }
 
 #endif
-
-static void define1()
-{
-	const char code[] = "#define A 1+2\n"
-	    "a=A+3;";
-	ASSERT_EQUALS("# define A 1 + 2\n"
-	    "a = A + 3 ;",
-	    readfile(code));
-	ASSERT_EQUALS("\na = 1 + 2 + 3 ;",
-	    preprocess(code));
-}
-
-static void define2()
-{
-	const char code[] = "#define ADD(A,B) A+B\n"
-	    "ADD(1+2,3);";
-	ASSERT_EQUALS("# define ADD ( A , B ) A + B\n"
-	    "ADD ( 1 + 2 , 3 ) ;",
-	    readfile(code));
-	ASSERT_EQUALS("\n1 + 2 + 3 ;",
-	    preprocess(code));
-}
-
-static void define3()
-{
-	const char code[] = "#define A   123\n"
-	    "#define B   A\n"
-	    "A B";
-	ASSERT_EQUALS("# define A 123\n"
-	    "# define B A\n"
-	    "A B",
-	    readfile(code));
-	ASSERT_EQUALS("\n\n123 123",
-	    preprocess(code));
-}
-
-static void define4()
-{
-	const char code[] = "#define A      123\n"
-	    "#define B(C)   A\n"
-	    "A B(1)";
-	ASSERT_EQUALS("# define A 123\n"
-	    "# define B ( C ) A\n"
-	    "A B ( 1 )",
-	    readfile(code));
-	ASSERT_EQUALS("\n\n123 123",
-	    preprocess(code));
-}
-
-static void define5()
-{
-	const char code[] = "#define add(x,y) x+y\n"
-	    "add(add(1,2),3)";
-	ASSERT_EQUALS("\n1 + 2 + 3", preprocess(code));
-}
-
-static void define6()
-{
-	const char code[] = "#define A() 1\n"
-	    "A()";
-	ASSERT_EQUALS("\n1", preprocess(code));
-}
-
-static void define7()
-{
-	const char code[] = "#define A(X) X+1\n"
-	    "A(1 /*23*/)";
-	ASSERT_EQUALS("\n1 + 1", preprocess(code));
-}
-
-static void define8()   // 6.10.3.10
-{
-	const char code[] = "#define A(X) \n"
-	    "int A[10];";
-	ASSERT_EQUALS("\nint A [ 10 ] ;", preprocess(code));
-}
-
-static void define9()
-{
-	const char code[] = "#define AB ab.AB\n"
-	    "AB.CD\n";
-	ASSERT_EQUALS("\nab . AB . CD", preprocess(code));
-}
-
-static void define10()   // don't combine prefix with space in macro
-{
-	const char code[] = "#define A u8 \"a b\"\n"
-	    "A;";
-	ASSERT_EQUALS("\nu8 \"a b\" ;", preprocess(code));
-}
-
-static void define11() // location of expanded argument
-{
-	const char code[] = "#line 4 \"version.h\"\n"
-	    "#define A(x) B(x)\n"
-	    "#define B(x) x\n"
-	    "#define VER A(1)\n"
-	    "\n"
-	    "#line 10 \"cppcheck.cpp\"\n"
-	    "VER;";
-	ASSERT_EQUALS("\n#line 10 \"cppcheck.cpp\"\n1 ;", preprocess(code));
-}
-
-static void define12()
-{
-	const char code[] = "struct foo x = {\n"
-	    "  #define V 0\n"
-	    "  .x = V,\n"
-	    "};\n";
-	ASSERT_EQUALS("struct foo x = {\n"
-	    "# define V 0\n"
-	    ". x = V ,\n"
-	    "} ;", readfile(code));
-	ASSERT_EQUALS("struct foo x = {\n"
-	    "\n"
-	    ". x = 0 ,\n"
-	    "} ;", preprocess(code));
-}
-
-static void define13()
-{
-	const char code[] = "#define M 180.\n"
-	    "extern void g();\n"
-	    "void f(double d) {\n"
-	    "    if (d > M) {}\n"
-	    "}\n";
-	ASSERT_EQUALS("\nextern void g ( ) ;\n"
-	    "void f ( double d ) {\n"
-	    "if ( d > 180. ) { }\n"
-	    "}", preprocess(code));
-}
 
 static void define_invalid_1()
 {
@@ -849,116 +420,6 @@ static void define_define_23() // #403 crash (infinite recursion)
 	ASSERT_EQUALS("\n\n\n\nYdieZ ( void ) ;", preprocess(code));
 }
 
-static void define_va_args_1()
-{
-	const char code[] = "#define A(fmt...) dostuff(fmt)\n"
-	    "A(1,2);";
-	ASSERT_EQUALS("\ndostuff ( 1 , 2 ) ;", preprocess(code));
-}
-
-static void define_va_args_2()
-{
-	const char code[] = "#define A(X,...) X(#__VA_ARGS__)\n"
-	    "A(f,123);";
-	ASSERT_EQUALS("\nf ( \"123\" ) ;", preprocess(code));
-}
-
-static void define_va_args_3()   // min number of arguments
-{
-	const char code[] = "#define A(x, y, z...) 1\n"
-	    "A(1, 2)\n";
-	ASSERT_EQUALS("\n1", preprocess(code));
-}
-
-static void define_va_args_4() // cppcheck trac #9754
-{
-	const char code[] = "#define A(x, y, ...) printf(x, y, __VA_ARGS__)\n"
-	    "A(1, 2)\n";
-	ASSERT_EQUALS("\nprintf ( 1 , 2 )", preprocess(code));
-}
-
-static void define_va_opt_1()
-{
-	const char code[] = "#define p1(fmt, args...) printf(fmt __VA_OPT__(,) args)\n"
-	    "p1(\"hello\");\n"
-	    "p1(\"%s\", \"hello\");\n";
-
-	ASSERT_EQUALS("\nprintf ( \"hello\" ) ;\n"
-	    "printf ( \"%s\" , \"hello\" ) ;",
-	    preprocess(code));
-}
-
-static void define_va_opt_2()
-{
-	const char code[] = "#define err(...)\\\n"
-	    "__VA_OPT__(\\\n"
-	    "printf(__VA_ARGS__);\\\n"
-	    ")\n"
-	    "#define err2(something, ...) __VA_OPT__(err(__VA_ARGS__))\n"
-	    "err2(test)\n"
-	    "err2(test, \"%d\", 2)\n";
-
-	ASSERT_EQUALS("\n\n\n\n\n\nprintf ( \"%d\" , 2 ) ;", preprocess(code));
-}
-
-static void define_va_opt_3()
-{
-	// non-escaped newline without closing parenthesis
-	const char code1[] = "#define err(...) __VA_OPT__(printf( __VA_ARGS__);\n"
-	    ")\n"
-	    "err()";
-
-	simplecpp::OutputList outputList;
-	ASSERT_EQUALS("", preprocess(code1, &outputList));
-	ASSERT_EQUALS("file0,1,syntax_error,failed to expand 'err', Missing parenthesis for __VA_OPT__(content)\n",
-	    toString(outputList));
-
-	outputList.clear();
-
-	// non-escaped newline without open parenthesis
-	const char code2[] = "#define err(...) __VA_OPT__\n"
-	    "(something)\n"
-	    "err()";
-
-	ASSERT_EQUALS("", preprocess(code2, &outputList));
-	ASSERT_EQUALS("file0,1,syntax_error,failed to expand 'err', Missing parenthesis for __VA_OPT__(content)\n",
-	    toString(outputList));
-}
-
-static void define_va_opt_4()
-{
-	// missing parenthesis
-	const char code1[] = "#define err(...) __VA_OPT__ something\n"
-	    "err()";
-
-	simplecpp::OutputList outputList;
-	ASSERT_EQUALS("", preprocess(code1, &outputList));
-	ASSERT_EQUALS("file0,1,syntax_error,failed to expand 'err', Missing parenthesis for __VA_OPT__(content)\n",
-	    toString(outputList));
-
-	outputList.clear();
-
-	// missing open parenthesis
-	const char code2[] = "#define err(...) __VA_OPT__ something)\n"
-	    "err()";
-
-	ASSERT_EQUALS("", preprocess(code2, &outputList));
-	ASSERT_EQUALS("file0,1,syntax_error,failed to expand 'err', Missing parenthesis for __VA_OPT__(content)\n",
-	    toString(outputList));
-}
-
-static void define_va_opt_5()
-{
-	// parenthesis not directly proceeding __VA_OPT__
-	const char code[] = "#define err(...) __VA_OPT__ something (something)\n"
-	    "err()";
-
-	simplecpp::OutputList outputList;
-	ASSERT_EQUALS("", preprocess(code, &outputList));
-	ASSERT_EQUALS("file0,1,syntax_error,failed to expand 'err', Missing parenthesis for __VA_OPT__(content)\n",
-	    toString(outputList));
-}
-
 static void define_ifdef()
 {
 	const char code[] = "#define A(X) X\n"
@@ -991,58 +452,6 @@ static void dollar()
 {
 	ASSERT_EQUALS("$ab", readfile("$ab"));
 	ASSERT_EQUALS("a$b", readfile("a$b"));
-}
-
-static void error1()
-{
-	const char code[] = "#error    hello world!\n";
-	simplecpp::OutputList outputList;
-	ASSERT_EQUALS("", preprocess(code, &outputList));
-	ASSERT_EQUALS("file0,1,#error,#error hello world!\n", toString(outputList));
-}
-
-static void error2()
-{
-	const char code[] = "#error   it's an error\n";
-	simplecpp::OutputList outputList;
-	ASSERT_EQUALS("", preprocess(code, &outputList));
-	ASSERT_EQUALS("file0,1,#error,#error it's an error\n", toString(outputList));
-}
-
-static void error3()
-{
-	const char code[] = "#error \"bla bla\\\n"
-	    " bla bla.\"\n";
-	std::vector<std::string> files;
-	simplecpp::OutputList outputList;
-	const simplecpp::TokenList rawtokens = makeTokenList(code, files, "test.c", &outputList);
-	ASSERT_EQUALS("", toString(outputList));
-}
-
-static void error4()
-{
-	// "#error x\n1"
-	const char code[] = "\xFE\xFF\x00\x23\x00\x65\x00\x72\x00\x72\x00\x6f\x00\x72\x00\x20\x00\x78\x00\x0a\x00\x31";
-	std::vector<std::string> files;
-	std::map<std::string, simplecpp::TokenList*> filedata;
-	simplecpp::OutputList outputList;
-	simplecpp::TokenList tokens2(files);
-	const simplecpp::TokenList rawtoken = makeTokenList(code, sizeof(code), files, "test.c");
-	simplecpp::preprocess(tokens2, rawtoken, files, filedata, simplecpp::DUI(), &outputList);
-	ASSERT_EQUALS("file0,1,#error,#error x\n", toString(outputList));
-}
-
-static void error5()
-{
-	// "#error x\n1"
-	const char code[] = "\xFF\xFE\x23\x00\x65\x00\x72\x00\x72\x00\x6f\x00\x72\x00\x20\x00\x78\x00\x0a\x00\x78\x00\x31\x00";
-	std::vector<std::string> files;
-	std::map<std::string, simplecpp::TokenList*> filedata;
-	simplecpp::OutputList outputList;
-	simplecpp::TokenList tokens2(files);
-	const simplecpp::TokenList rawtokens = makeTokenList(code, sizeof(code), files, "test.c");
-	simplecpp::preprocess(tokens2, rawtokens, files, filedata, simplecpp::DUI(), &outputList);
-	ASSERT_EQUALS("file0,1,#error,#error x\n", toString(outputList));
 }
 
 static void garbage()
@@ -1471,87 +880,6 @@ static void hashhash_universal_character()
 		toString(outputList));
 }
 
-static void has_include_1()
-{
-	const char code[] = "#ifdef __has_include\n"
-	    "  #if __has_include(\"simplecpp.h\")\n"
-	    "    A\n"
-	    "  #else\n"
-	    "    B\n"
-	    "  #endif\n"
-	    "#endif";
-	simplecpp::DUI dui;
-	dui.std = "c++17";
-	ASSERT_EQUALS("\n\nA", preprocess(code, dui));
-	dui.std = "c++14";
-	ASSERT_EQUALS("", preprocess(code, dui));
-	ASSERT_EQUALS("", preprocess(code));
-}
-
-static void has_include_2()
-{
-	const char code[] = "#if defined( __has_include)\n"
-	    "  #if /*comment*/ __has_include /*comment*/(\"simplecpp.h\") // comment\n"
-	    "    A\n"
-	    "  #else\n"
-	    "    B\n"
-	    "  #endif\n"
-	    "#endif";
-	simplecpp::DUI dui;
-	dui.std = "c++17";
-	ASSERT_EQUALS("\n\nA", preprocess(code, dui));
-	ASSERT_EQUALS("", preprocess(code));
-}
-
-static void has_include_3()
-{
-	const char code[] = "#ifdef __has_include\n"
-	    "  #if __has_include(<realFileName1.cpp>)\n"
-	    "    A\n"
-	    "  #else\n"
-	    "    B\n"
-	    "  #endif\n"
-	    "#endif";
-	simplecpp::DUI dui;
-	dui.std = "c++17";
-	// Test file not found...
-	ASSERT_EQUALS("\n\n\n\nB", preprocess(code, dui));
-	// Unless -I is set (preferably, we should differentiate -I and -isystem...)
-	dui.includePaths.push_back("./testsuite");
-	ASSERT_EQUALS("\n\nA", preprocess(code, dui));
-	ASSERT_EQUALS("", preprocess(code));
-}
-
-static void has_include_4()
-{
-	const char code[] = "#ifdef __has_include\n"
-	    "  #if __has_include(\"testsuite/realFileName1.cpp\")\n"
-	    "    A\n"
-	    "  #else\n"
-	    "    B\n"
-	    "  #endif\n"
-	    "#endif";
-	simplecpp::DUI dui;
-	dui.std = "c++17";
-	ASSERT_EQUALS("\n\nA", preprocess(code, dui));
-	ASSERT_EQUALS("", preprocess(code));
-}
-
-static void has_include_5()
-{
-	const char code[] = "#if defined( __has_include)\n"
-	    "  #if !__has_include(<testsuite/unrealFileName2.abcdef>)\n"
-	    "    A\n"
-	    "  #else\n"
-	    "    B\n"
-	    "  #endif\n"
-	    "#endif";
-	simplecpp::DUI dui;
-	dui.std = "c++17";
-	ASSERT_EQUALS("\n\nA", preprocess(code, dui));
-	ASSERT_EQUALS("", preprocess(code));
-}
-
 static void ifdef1()
 {
 	const char code[] = "#ifdef A\n"
@@ -1926,11 +1254,9 @@ static void systemInclude()
 	std::map<std::string, simplecpp::TokenList*> filedata;
 	filedata["limits.h"] = nullptr;
 	filedata["local/limits.h"] = &rawtokens;
-
 	simplecpp::OutputList outputList;
 	simplecpp::TokenList tokens2(files);
 	simplecpp::preprocess(tokens2, rawtokens, files, filedata, simplecpp::DUI(), &outputList);
-
 	ASSERT_EQUALS("", toString(outputList));
 }
 
@@ -2104,10 +1430,8 @@ static void include3()   // #16 - crash when expanding macro from header
 	std::map<std::string, simplecpp::TokenList *> filedata;
 	filedata["A.c"] = &rawtokens_c;
 	filedata["A.h"] = &rawtokens_h;
-
 	simplecpp::TokenList out(files);
 	simplecpp::preprocess(out, rawtokens_c, files, filedata, simplecpp::DUI());
-
 	ASSERT_EQUALS("\n1234", out.stringify());
 }
 
@@ -2115,25 +1439,19 @@ static void include4()   // #27 - -include
 {
 	const char code_c[] = "X\n";
 	const char code_h[] = "#define X 123\n";
-
 	std::vector<std::string> files;
-
 	simplecpp::TokenList rawtokens_c = makeTokenList(code_c, files, "27.c");
 	simplecpp::TokenList rawtokens_h = makeTokenList(code_h, files, "27.h");
-
 	ASSERT_EQUALS(2U, files.size());
 	ASSERT_EQUALS("27.c", files[0]);
 	ASSERT_EQUALS("27.h", files[1]);
-
 	std::map<std::string, simplecpp::TokenList *> filedata;
 	filedata["27.c"] = &rawtokens_c;
 	filedata["27.h"] = &rawtokens_h;
-
 	simplecpp::TokenList out(files);
 	simplecpp::DUI dui;
 	dui.includes.push_back("27.h");
 	simplecpp::preprocess(out, rawtokens_c, files, filedata, dui);
-
 	ASSERT_EQUALS("123", out.stringify());
 }
 
@@ -2141,40 +1459,29 @@ static void include5()    // #3 - handle #include MACRO
 {
 	const char code_c[] = "#define A \"3.h\"\n#include A\n";
 	const char code_h[] = "123\n";
-
 	std::vector<std::string> files;
-
 	simplecpp::TokenList rawtokens_c = makeTokenList(code_c, files, "3.c");
 	simplecpp::TokenList rawtokens_h = makeTokenList(code_h, files, "3.h");
-
 	ASSERT_EQUALS(2U, files.size());
 	ASSERT_EQUALS("3.c", files[0]);
 	ASSERT_EQUALS("3.h", files[1]);
-
 	std::map<std::string, simplecpp::TokenList *> filedata;
 	filedata["3.c"] = &rawtokens_c;
 	filedata["3.h"] = &rawtokens_h;
-
 	simplecpp::TokenList out(files);
 	simplecpp::preprocess(out, rawtokens_c, files, filedata, simplecpp::DUI());
-
 	ASSERT_EQUALS("\n#line 1 \"3.h\"\n123", out.stringify());
 }
 
 static void include6()   // #57 - incomplete macro  #include MACRO(,)
 {
 	const char code[] = "#define MACRO(X,Y) X##Y\n#include MACRO(,)\n";
-
 	std::vector<std::string> files;
-
 	simplecpp::TokenList rawtokens = makeTokenList(code, files, "57.c");
-
 	ASSERT_EQUALS(1U, files.size());
 	ASSERT_EQUALS("57.c", files[0]);
-
 	std::map<std::string, simplecpp::TokenList *> filedata;
 	filedata["57.c"] = &rawtokens;
-
 	simplecpp::TokenList out(files);
 	simplecpp::preprocess(out, rawtokens, files, filedata, simplecpp::DUI());
 }
@@ -2184,25 +1491,19 @@ static void include7()    // #include MACRO
 	const char code_c[] = "#define HDR  <3.h>\n"
 	    "#include HDR\n";
 	const char code_h[] = "123\n";
-
 	std::vector<std::string> files;
-
 	simplecpp::TokenList rawtokens_c = makeTokenList(code_c, files, "3.c");
 	simplecpp::TokenList rawtokens_h = makeTokenList(code_h, files, "3.h");
-
 	ASSERT_EQUALS(2U, files.size());
 	ASSERT_EQUALS("3.c", files[0]);
 	ASSERT_EQUALS("3.h", files[1]);
-
 	std::map<std::string, simplecpp::TokenList *> filedata;
 	filedata["3.c"] = &rawtokens_c;
 	filedata["3.h"] = &rawtokens_h;
-
 	simplecpp::TokenList out(files);
 	simplecpp::DUI dui;
 	dui.includePaths.push_back(".");
 	simplecpp::preprocess(out, rawtokens_c, files, filedata, dui);
-
 	ASSERT_EQUALS("\n#line 1 \"3.h\"\n123", out.stringify());
 }
 
@@ -2222,25 +1523,19 @@ static void include9()
 	    "#include HDR\n";
 	const char code_h[] = "/**/ #define X 1\n" // <- comment before hash should be ignored
 	    "x=X;";
-
 	std::vector<std::string> files;
-
 	simplecpp::TokenList rawtokens_c = makeTokenList(code_c, files, "1.c");
 	simplecpp::TokenList rawtokens_h = makeTokenList(code_h, files, "1.h");
-
 	ASSERT_EQUALS(2U, files.size());
 	ASSERT_EQUALS("1.c", files[0]);
 	ASSERT_EQUALS("1.h", files[1]);
-
 	std::map<std::string, simplecpp::TokenList *> filedata;
 	filedata["1.c"] = &rawtokens_c;
 	filedata["1.h"] = &rawtokens_h;
-
 	simplecpp::TokenList out(files);
 	simplecpp::DUI dui;
 	dui.includePaths.push_back(".");
 	simplecpp::preprocess(out, rawtokens_c, files, filedata, dui);
-
 	ASSERT_EQUALS("\n#line 2 \"1.h\"\nx = 1 ;", out.stringify());
 }
 
@@ -2410,23 +1705,17 @@ static void stringify1()
 	const char code_c[] = "#include \"A.h\"\n"
 	    "#include \"A.h\"\n";
 	const char code_h[] = "1\n2";
-
 	std::vector<std::string> files;
-
 	simplecpp::TokenList rawtokens_c = makeTokenList(code_c, files, "A.c");
 	simplecpp::TokenList rawtokens_h = makeTokenList(code_h, files, "A.h");
-
 	ASSERT_EQUALS(2U, files.size());
 	ASSERT_EQUALS("A.c", files[0]);
 	ASSERT_EQUALS("A.h", files[1]);
-
 	std::map<std::string, simplecpp::TokenList *> filedata;
 	filedata["A.c"] = &rawtokens_c;
 	filedata["A.h"] = &rawtokens_h;
-
 	simplecpp::TokenList out(files);
 	simplecpp::preprocess(out, rawtokens_c, files, filedata, simplecpp::DUI());
-
 	ASSERT_EQUALS("\n#line 1 \"A.h\"\n1\n2\n#line 1 \"A.h\"\n1\n2", out.stringify());
 }
 
@@ -2969,220 +2258,719 @@ static void fuzz_crash()
 	}
 }
 
-int SimpleCpp_Test_Main(int argc, char ** argv)
+int SimpleCpp_Test_Main2()
 {
-	TEST_CASE(backslash);
-	TEST_CASE(builtin);
-	TEST_CASE(characterLiteral);
-	TEST_CASE(combineOperators_floatliteral);
-	TEST_CASE(combineOperators_increment);
-	TEST_CASE(combineOperators_coloncolon);
-	TEST_CASE(combineOperators_andequal);
-	TEST_CASE(combineOperators_ellipsis);
-	TEST_CASE(comment);
-	TEST_CASE(comment_multiline);
-	TEST_CASE(constFold);
+	numberOfFailedAssertions = 0;
+	{ // backslash()
+		// <backslash><space><newline> preprocessed differently
+		simplecpp::OutputList outputList;
+
+		readfile("//123 \\\n456", &outputList);
+		ASSERT_EQUALS("", toString(outputList));
+		readfile("//123 \\ \n456", &outputList);
+		ASSERT_EQUALS("file0,1,portability_backslash,Combination 'backslash space newline' is not portable.\n", toString(outputList));
+
+		outputList.clear();
+		readfile("#define A \\\n123", &outputList);
+		ASSERT_EQUALS("", toString(outputList));
+		readfile("#define A \\ \n123", &outputList);
+		ASSERT_EQUALS("file0,1,portability_backslash,Combination 'backslash space newline' is not portable.\n", toString(outputList));
+	}
+	{ // builtin()
+		ASSERT_EQUALS("\"\" 1 0", preprocess("__FILE__ __LINE__ __COUNTER__"));
+		ASSERT_EQUALS("\n\n3", preprocess("\n\n__LINE__"));
+		ASSERT_EQUALS("\n\n0", preprocess("\n\n__COUNTER__"));
+		ASSERT_EQUALS("\n\n0 1", preprocess("\n\n__COUNTER__ __COUNTER__"));
+		ASSERT_EQUALS("\n0 + 0", preprocess("#define A(c)  c+c\n" "A(__COUNTER__)\n"));
+		ASSERT_EQUALS("\n0 + 0 + 1", preprocess("#define A(c)  c+c+__COUNTER__\n" "A(__COUNTER__)\n"));
+	}
+	{ // characterLiteral()
+		ASSERT_EQUALS('A', simplecpp::characterLiteralToLL("'A'"));
+
+		ASSERT_EQUALS('\'', simplecpp::characterLiteralToLL("'\\''"));
+		ASSERT_EQUALS('\"', simplecpp::characterLiteralToLL("'\\\"'"));
+		ASSERT_EQUALS('\?', simplecpp::characterLiteralToLL("'\\?'"));
+		ASSERT_EQUALS('\\', simplecpp::characterLiteralToLL("'\\\\'"));
+		ASSERT_EQUALS('\a', simplecpp::characterLiteralToLL("'\\a'"));
+		ASSERT_EQUALS('\b', simplecpp::characterLiteralToLL("'\\b'"));
+		ASSERT_EQUALS('\f', simplecpp::characterLiteralToLL("'\\f'"));
+		ASSERT_EQUALS('\n', simplecpp::characterLiteralToLL("'\\n'"));
+		ASSERT_EQUALS('\r', simplecpp::characterLiteralToLL("'\\r'"));
+		ASSERT_EQUALS('\t', simplecpp::characterLiteralToLL("'\\t'"));
+		ASSERT_EQUALS('\v', simplecpp::characterLiteralToLL("'\\v'"));
+
+		// GCC extension for ESC character
+		ASSERT_EQUALS(0x1b, simplecpp::characterLiteralToLL("'\\e'"));
+		ASSERT_EQUALS(0x1b, simplecpp::characterLiteralToLL("'\\E'"));
+
+		// more obscure GCC extensions
+		ASSERT_EQUALS('(', simplecpp::characterLiteralToLL("'\\('"));
+		ASSERT_EQUALS('[', simplecpp::characterLiteralToLL("'\\['"));
+		ASSERT_EQUALS('{', simplecpp::characterLiteralToLL("'\\{'"));
+		ASSERT_EQUALS('%', simplecpp::characterLiteralToLL("'\\%'"));
+
+		ASSERT_EQUALS('\0',   simplecpp::characterLiteralToLL("'\\0'"));
+		ASSERT_EQUALS('\1',   simplecpp::characterLiteralToLL("'\\1'"));
+		ASSERT_EQUALS('\10',  simplecpp::characterLiteralToLL("'\\10'"));
+		ASSERT_EQUALS('\010', simplecpp::characterLiteralToLL("'\\010'"));
+		ASSERT_EQUALS('\377', simplecpp::characterLiteralToLL("'\\377'"));
+
+		ASSERT_EQUALS('\x0',  simplecpp::characterLiteralToLL("'\\x0'"));
+		ASSERT_EQUALS('\x10', simplecpp::characterLiteralToLL("'\\x10'"));
+		ASSERT_EQUALS('\xff', simplecpp::characterLiteralToLL("'\\xff'"));
+
+		ASSERT_EQUALS('\u0012',     simplecpp::characterLiteralToLL("'\\u0012'"));
+		ASSERT_EQUALS('\U00000012', simplecpp::characterLiteralToLL("'\\U00000012'"));
+
+		ASSERT_EQUALS((static_cast<unsigned int>(static_cast<unsigned char>('b')) << 8) | static_cast<unsigned char>('c'),    simplecpp::characterLiteralToLL("'bc'"));
+		ASSERT_EQUALS((static_cast<unsigned int>(static_cast<unsigned char>('\x23')) << 8) | static_cast<unsigned char>('\x45'), simplecpp::characterLiteralToLL("'\\x23\\x45'"));
+		ASSERT_EQUALS((static_cast<unsigned int>(static_cast<unsigned char>('\11')) << 8) | static_cast<unsigned char>('\222'), simplecpp::characterLiteralToLL("'\\11\\222'"));
+		ASSERT_EQUALS((static_cast<unsigned int>(static_cast<unsigned char>('\a')) << 8) | static_cast<unsigned char>('\b'),   simplecpp::characterLiteralToLL("'\\a\\b'"));
+		if(sizeof(int) <= 4)
+			ASSERT_EQUALS(-1, simplecpp::characterLiteralToLL("'\\xff\\xff\\xff\\xff'"));
+		else
+			ASSERT_EQUALS(0xffffffff, simplecpp::characterLiteralToLL("'\\xff\\xff\\xff\\xff'"));
+
+		ASSERT_EQUALS('A', simplecpp::characterLiteralToLL("u8'A'"));
+		ASSERT_EQUALS('A', simplecpp::characterLiteralToLL("u'A'"));
+		ASSERT_EQUALS('A', simplecpp::characterLiteralToLL("L'A'"));
+		ASSERT_EQUALS('A', simplecpp::characterLiteralToLL("U'A'"));
+
+		ASSERT_EQUALS(0xff, simplecpp::characterLiteralToLL("u8'\\xff'"));
+		ASSERT_EQUALS(0xff, simplecpp::characterLiteralToLL("u'\\xff'"));
+		ASSERT_EQUALS(0xff, simplecpp::characterLiteralToLL("L'\\xff'"));
+		ASSERT_EQUALS(0xff, simplecpp::characterLiteralToLL("U'\\xff'"));
+
+		ASSERT_EQUALS(0xfedc,     simplecpp::characterLiteralToLL("u'\\xfedc'"));
+		ASSERT_EQUALS(0xfedcba98, simplecpp::characterLiteralToLL("L'\\xfedcba98'"));
+		ASSERT_EQUALS(0xfedcba98, simplecpp::characterLiteralToLL("U'\\xfedcba98'"));
+
+		ASSERT_EQUALS(0x12,       simplecpp::characterLiteralToLL("u8'\\u0012'"));
+		ASSERT_EQUALS(0x1234,     simplecpp::characterLiteralToLL("u'\\u1234'"));
+		ASSERT_EQUALS(0x00012345, simplecpp::characterLiteralToLL("L'\\U00012345'"));
+		ASSERT_EQUALS(0x00012345, simplecpp::characterLiteralToLL("U'\\U00012345'"));
+
+	#ifdef __GNUC__
+		// BEGIN Implementation-specific results
+		ASSERT_EQUALS(static_cast<int>('AB'), simplecpp::characterLiteralToLL("'AB'"));
+		ASSERT_EQUALS(static_cast<int>('ABC'), simplecpp::characterLiteralToLL("'ABC'"));
+		ASSERT_EQUALS(static_cast<int>('ABCD'), simplecpp::characterLiteralToLL("'ABCD'"));
+		ASSERT_EQUALS('\134t', simplecpp::characterLiteralToLL("'\\134t'")); // cppcheck ticket #7452
+		// END Implementation-specific results
+	#endif
+
+		ASSERT_THROW_EQUALS(simplecpp::characterLiteralToLL("'\\9'"), std::runtime_error, "invalid escape sequence");
+
+		// Input is manually encoded to (escaped) UTF-8 byte sequences
+		// to avoid dependence on source encoding used for this file
+		ASSERT_EQUALS(0xb5, simplecpp::characterLiteralToLL("U'\302\265'"));
+		ASSERT_EQUALS(0x157, simplecpp::characterLiteralToLL("U'\305\227'"));
+		ASSERT_EQUALS(0xff0f, simplecpp::characterLiteralToLL("U'\357\274\217'"));
+		ASSERT_EQUALS(0x3042, simplecpp::characterLiteralToLL("U'\343\201\202'"));
+		ASSERT_EQUALS(0x13000, simplecpp::characterLiteralToLL("U'\360\223\200\200'"));
+
+		ASSERT_EQUALS(0xb5, simplecpp::characterLiteralToLL("L'\302\265'"));
+		ASSERT_EQUALS(0x157, simplecpp::characterLiteralToLL("L'\305\227'"));
+		ASSERT_EQUALS(0xff0f, simplecpp::characterLiteralToLL("L'\357\274\217'"));
+		ASSERT_EQUALS(0x3042, simplecpp::characterLiteralToLL("L'\343\201\202'"));
+		ASSERT_EQUALS(0x13000, simplecpp::characterLiteralToLL("L'\360\223\200\200'"));
+
+		ASSERT_EQUALS(0xb5, simplecpp::characterLiteralToLL("u'\302\265'"));
+		ASSERT_EQUALS(0x157, simplecpp::characterLiteralToLL("u'\305\227'"));
+		ASSERT_EQUALS(0xff0f, simplecpp::characterLiteralToLL("u'\357\274\217'"));
+		ASSERT_EQUALS(0x3042, simplecpp::characterLiteralToLL("u'\343\201\202'"));
+		ASSERT_THROW_EQUALS(simplecpp::characterLiteralToLL("u'\360\223\200\200'"), std::runtime_error, "code point too large");
+
+		ASSERT_THROW_EQUALS(simplecpp::characterLiteralToLL("u8'\302\265'"), std::runtime_error, "code point too large");
+		ASSERT_THROW_EQUALS(simplecpp::characterLiteralToLL("u8'\305\227'"), std::runtime_error, "code point too large");
+		ASSERT_THROW_EQUALS(simplecpp::characterLiteralToLL("u8'\357\274\217'"), std::runtime_error, "code point too large");
+		ASSERT_THROW_EQUALS(simplecpp::characterLiteralToLL("u8'\343\201\202'"), std::runtime_error, "code point too large");
+		ASSERT_THROW_EQUALS(simplecpp::characterLiteralToLL("u8'\360\223\200\200'"), std::runtime_error, "code point too large");
+
+		ASSERT_EQUALS('\x89', simplecpp::characterLiteralToLL("'\x89'"));
+		ASSERT_THROW_EQUALS(simplecpp::characterLiteralToLL("U'\x89'"), std::runtime_error, "assumed UTF-8 encoded source, but sequence is invalid");
+
+		ASSERT_THROW_EQUALS(simplecpp::characterLiteralToLL("U'\xf4\x90\x80\x80'"), std::runtime_error, "code point too large");
+
+		// following examples based on https://www.cl.cam.ac.uk/~mgk25/ucs/examples/UTF-8-test.txt
+		ASSERT_EQUALS(0x80, simplecpp::characterLiteralToLL("U'\xc2\x80'"));
+		ASSERT_EQUALS(0x800, simplecpp::characterLiteralToLL("U'\xe0\xa0\x80'"));
+		ASSERT_EQUALS(0x10000, simplecpp::characterLiteralToLL("U'\xf0\x90\x80\x80'"));
+
+		ASSERT_EQUALS(0x7f, simplecpp::characterLiteralToLL("U'\x7f'"));
+		ASSERT_EQUALS(0x7ff, simplecpp::characterLiteralToLL("U'\xdf\xbf'"));
+		ASSERT_EQUALS(0xffff, simplecpp::characterLiteralToLL("U'\xef\xbf\xbf'"));
+
+		ASSERT_EQUALS(0xd7ff, simplecpp::characterLiteralToLL("U'\xed\x9f\xbf'"));
+		ASSERT_EQUALS(0xe000, simplecpp::characterLiteralToLL("U'\xee\x80\x80'"));
+		ASSERT_EQUALS(0xfffd, simplecpp::characterLiteralToLL("U'\xef\xbf\xbd'"));
+		ASSERT_EQUALS(0x10ffff, simplecpp::characterLiteralToLL("U'\xf4\x8f\xbf\xbf'"));
+
+		ASSERT_THROW_EQUALS(simplecpp::characterLiteralToLL("U'\x80'"), std::runtime_error, "assumed UTF-8 encoded source, but sequence is invalid");
+		ASSERT_THROW_EQUALS(simplecpp::characterLiteralToLL("U'\x80\x8f'"), std::runtime_error, "assumed UTF-8 encoded source, but sequence is invalid");
+		ASSERT_THROW_EQUALS(simplecpp::characterLiteralToLL("U'\x80\x8f\x8f'"), std::runtime_error, "assumed UTF-8 encoded source, but sequence is invalid");
+		ASSERT_THROW_EQUALS(simplecpp::characterLiteralToLL("U'\x80\x8f\x8f\x8f'"), std::runtime_error, "assumed UTF-8 encoded source, but sequence is invalid");
+
+		ASSERT_THROW_EQUALS(simplecpp::characterLiteralToLL("U'\xbf'"), std::runtime_error, "assumed UTF-8 encoded source, but sequence is invalid");
+		ASSERT_THROW_EQUALS(simplecpp::characterLiteralToLL("U'\xbf\x8f'"), std::runtime_error, "assumed UTF-8 encoded source, but sequence is invalid");
+		ASSERT_THROW_EQUALS(simplecpp::characterLiteralToLL("U'\xbf\x8f\x8f'"), std::runtime_error, "assumed UTF-8 encoded source, but sequence is invalid");
+		ASSERT_THROW_EQUALS(simplecpp::characterLiteralToLL("U'\xbf\x8f\x8f\x8f'"), std::runtime_error, "assumed UTF-8 encoded source, but sequence is invalid");
+
+		ASSERT_THROW_EQUALS(simplecpp::characterLiteralToLL("U'\xc0'"), std::runtime_error, "assumed UTF-8 encoded source, but sequence is invalid");
+		ASSERT_THROW_EQUALS(simplecpp::characterLiteralToLL("U'\xc0 '"), std::runtime_error, "assumed UTF-8 encoded source, but sequence is invalid");
+		ASSERT_THROW_EQUALS(simplecpp::characterLiteralToLL("U'\xe0\x8f'"), std::runtime_error, "assumed UTF-8 encoded source, but sequence is invalid");
+		ASSERT_THROW_EQUALS(simplecpp::characterLiteralToLL("U'\xe0\x8f '"), std::runtime_error, "assumed UTF-8 encoded source, but sequence is invalid");
+		ASSERT_THROW_EQUALS(simplecpp::characterLiteralToLL("U'\xf0\x8f\x8f'"), std::runtime_error, "assumed UTF-8 encoded source, but sequence is invalid");
+		ASSERT_THROW_EQUALS(simplecpp::characterLiteralToLL("U'\xf0\x8f\x8f '"), std::runtime_error, "assumed UTF-8 encoded source, but sequence is invalid");
+
+		ASSERT_THROW_EQUALS(simplecpp::characterLiteralToLL("U'\xf8'"), std::runtime_error, "assumed UTF-8 encoded source, but sequence is invalid");
+		ASSERT_THROW_EQUALS(simplecpp::characterLiteralToLL("U'\xff'"), std::runtime_error, "assumed UTF-8 encoded source, but sequence is invalid");
+
+		ASSERT_THROW_EQUALS(simplecpp::characterLiteralToLL("U'\xc0\xaf'"), std::runtime_error, "assumed UTF-8 encoded source, but sequence is invalid");
+		ASSERT_THROW_EQUALS(simplecpp::characterLiteralToLL("U'\xe0\x80\xaf'"), std::runtime_error, "assumed UTF-8 encoded source, but sequence is invalid");
+		ASSERT_THROW_EQUALS(simplecpp::characterLiteralToLL("U'\xf0\x80\x80\xaf'"), std::runtime_error, "assumed UTF-8 encoded source, but sequence is invalid");
+		ASSERT_THROW_EQUALS(simplecpp::characterLiteralToLL("U'\xc1\xbf'"), std::runtime_error, "assumed UTF-8 encoded source, but sequence is invalid");
+		ASSERT_THROW_EQUALS(simplecpp::characterLiteralToLL("U'\xe0\x9f\xbf'"), std::runtime_error, "assumed UTF-8 encoded source, but sequence is invalid");
+		ASSERT_THROW_EQUALS(simplecpp::characterLiteralToLL("U'\xf0\x8f\xbf\xbf'"), std::runtime_error, "assumed UTF-8 encoded source, but sequence is invalid");
+		ASSERT_THROW_EQUALS(simplecpp::characterLiteralToLL("U'\xc0\x80'"), std::runtime_error, "assumed UTF-8 encoded source, but sequence is invalid");
+		ASSERT_THROW_EQUALS(simplecpp::characterLiteralToLL("U'\xe0\x80\x80'"), std::runtime_error, "assumed UTF-8 encoded source, but sequence is invalid");
+		ASSERT_THROW_EQUALS(simplecpp::characterLiteralToLL("U'\xf0\x80\x80\x80'"), std::runtime_error, "assumed UTF-8 encoded source, but sequence is invalid");
+
+		ASSERT_THROW_EQUALS(simplecpp::characterLiteralToLL("U'\xed\xa0\x80'"), std::runtime_error, "assumed UTF-8 encoded source, but sequence is invalid");
+		ASSERT_THROW_EQUALS(simplecpp::characterLiteralToLL("U'\xed\xbf\xbf'"), std::runtime_error, "assumed UTF-8 encoded source, but sequence is invalid");
+	}
+	{ // combineOperators_floatliteral()
+		ASSERT_EQUALS("1.", preprocess("1."));
+		ASSERT_EQUALS("1.f", preprocess("1.f"));
+		ASSERT_EQUALS(".1", preprocess(".1"));
+		ASSERT_EQUALS(".1f", preprocess(".1f"));
+		ASSERT_EQUALS("3.1", preprocess("3.1"));
+		ASSERT_EQUALS("1E7", preprocess("1E7"));
+		ASSERT_EQUALS("1E-7", preprocess("1E-7"));
+		ASSERT_EQUALS("1E+7", preprocess("1E+7"));
+		ASSERT_EQUALS("1.e+7", preprocess("1.e+7"));
+		ASSERT_EQUALS("0x1E + 7", preprocess("0x1E+7"));
+		ASSERT_EQUALS("0x1ffp10", preprocess("0x1ffp10"));
+		ASSERT_EQUALS("0x0p-1", preprocess("0x0p-1"));
+		ASSERT_EQUALS("0x1.p0", preprocess("0x1.p0"));
+		ASSERT_EQUALS("0xf.p-1", preprocess("0xf.p-1"));
+		ASSERT_EQUALS("0x1.2p3", preprocess("0x1.2p3"));
+		ASSERT_EQUALS("0x1.ap3", preprocess("0x1.ap3"));
+		ASSERT_EQUALS("0x1.2ap3", preprocess("0x1.2ap3"));
+		ASSERT_EQUALS("0x1p+3", preprocess("0x1p+3"));
+		ASSERT_EQUALS("0x1p+3f", preprocess("0x1p+3f"));
+		ASSERT_EQUALS("0x1p+3L", preprocess("0x1p+3L"));
+		ASSERT_EQUALS("1p + 3", preprocess("1p+3"));
+		ASSERT_EQUALS("1.0_a . b", preprocess("1.0_a.b"));
+		ASSERT_EQUALS("1_a . b", preprocess("1_a.b"));
+	}
+	{ // combineOperators_increment()
+		ASSERT_EQUALS("; ++ x ;", preprocess(";++x;"));
+		ASSERT_EQUALS("; x ++ ;", preprocess(";x++;"));
+		ASSERT_EQUALS("1 + + 2", preprocess("1++2"));
+	}
+	{ // combineOperators_coloncolon()
+		ASSERT_EQUALS("x ? y : :: z", preprocess("x ? y : ::z"));
+	}
+	{ // combineOperators_andequal()
+		ASSERT_EQUALS("x &= 2 ;", preprocess("x &= 2;"));
+		ASSERT_EQUALS("void f ( x & = 2 ) ;", preprocess("void f(x &= 2);"));
+		ASSERT_EQUALS("f ( x &= 2 ) ;", preprocess("f(x &= 2);"));
+	}
+	{ // combineOperators_ellipsis()
+		ASSERT_EQUALS("void f ( int , ... ) ;", preprocess("void f(int, ...);"));
+		ASSERT_EQUALS("void f ( ) { switch ( x ) { case 1 ... 4 : } }", preprocess("void f() { switch(x) { case 1 ... 4: } }"));
+	}
+	{ // comment()
+		ASSERT_EQUALS("// abc", readfile("// abc"));
+		ASSERT_EQUALS("", preprocess("// abc"));
+		ASSERT_EQUALS("/*\n\n*/abc", readfile("/*\n\n*/abc"));
+		ASSERT_EQUALS("\n\nabc", preprocess("/*\n\n*/abc"));
+		ASSERT_EQUALS("* p = a / * b / * c ;", readfile("*p=a/ *b/ *c;"));
+		ASSERT_EQUALS("* p = a / * b / * c ;", preprocess("*p=a/ *b/ *c;"));
+	}
+	{ // comment_multiline()
+		const char code[] = "#define ABC {// \\\n"
+			"}\n"
+			"void f() ABC\n";
+		ASSERT_EQUALS("\n\nvoid f ( ) { }", preprocess(code));
+	}
+	{ //constFold()
+		ASSERT_EQUALS("7", testConstFold("1+2*3"));
+		ASSERT_EQUALS("15", testConstFold("1+2*(3+4)"));
+		ASSERT_EQUALS("123", testConstFold("+123"));
+		ASSERT_EQUALS("1", testConstFold("-123<1"));
+		ASSERT_EQUALS("6", testConstFold("14 & 7"));
+		ASSERT_EQUALS("29", testConstFold("13 ^ 16"));
+		ASSERT_EQUALS("25", testConstFold("24 | 1"));
+		ASSERT_EQUALS("2", testConstFold("1?2:3"));
+		ASSERT_EQUALS("24", testConstFold("010+020"));
+		ASSERT_EQUALS("1", testConstFold("010==8"));
+		ASSERT_EQUALS("exception", testConstFold("!1 ? 2 :"));
+		ASSERT_EQUALS("exception", testConstFold("?2:3"));
+	}
 #ifdef __CYGWIN__
-	TEST_CASE(convertCygwinPath);
+	convertCygwinPath();
 #endif
-	TEST_CASE(define1);
-	TEST_CASE(define2);
-	TEST_CASE(define3);
-	TEST_CASE(define4);
-	TEST_CASE(define5);
-	TEST_CASE(define6);
-	TEST_CASE(define7);
-	TEST_CASE(define8);
-	TEST_CASE(define9);
-	TEST_CASE(define10);
-	TEST_CASE(define11);
-	TEST_CASE(define12);
-	TEST_CASE(define13);
-	TEST_CASE(define_invalid_1);
-	TEST_CASE(define_invalid_2);
-	TEST_CASE(define_define_1);
-	TEST_CASE(define_define_2);
-	TEST_CASE(define_define_3);
-	TEST_CASE(define_define_4);
-	TEST_CASE(define_define_5);
-	TEST_CASE(define_define_6);
-	TEST_CASE(define_define_7);
-	TEST_CASE(define_define_8); // line break in nested macro call
-	TEST_CASE(define_define_9); // line break in nested macro call
-	TEST_CASE(define_define_10);
-	TEST_CASE(define_define_11);
-	TEST_CASE(define_define_11a);
-	TEST_CASE(define_define_12); // expand result of ##
-	TEST_CASE(define_define_13);
-	TEST_CASE(define_define_14);
-	TEST_CASE(define_define_15);
-	TEST_CASE(define_define_16);
-	TEST_CASE(define_define_17);
-	TEST_CASE(define_define_18);
-	TEST_CASE(define_define_19);
-	TEST_CASE(define_define_20); // 384 arg contains comma
-	TEST_CASE(define_define_21);
-	TEST_CASE(define_define_22); // #400
-	TEST_CASE(define_define_23); // #403 - crash, infinite recursion
-	TEST_CASE(define_va_args_1);
-	TEST_CASE(define_va_args_2);
-	TEST_CASE(define_va_args_3);
-	TEST_CASE(define_va_args_4);
-	TEST_CASE(define_va_opt_1);
-	TEST_CASE(define_va_opt_2);
-	TEST_CASE(define_va_opt_3);
-	TEST_CASE(define_va_opt_4);
-	TEST_CASE(define_va_opt_5);
+	{ //define1()
+		const char code[] = "#define A 1+2\n"
+			"a=A+3;";
+		ASSERT_EQUALS("# define A 1 + 2\n"
+			"a = A + 3 ;",
+			readfile(code));
+		ASSERT_EQUALS("\na = 1 + 2 + 3 ;",
+			preprocess(code));
+	}
+	{ //define2()
+		const char code[] = "#define ADD(A,B) A+B\n" "ADD(1+2,3);";
+		ASSERT_EQUALS("# define ADD ( A , B ) A + B\n" "ADD ( 1 + 2 , 3 ) ;", readfile(code));
+		ASSERT_EQUALS("\n1 + 2 + 3 ;", preprocess(code));
+	}
+	{ //define3()
+		const char code[] = "#define A   123\n"
+			"#define B   A\n"
+			"A B";
+		ASSERT_EQUALS("# define A 123\n"
+			"# define B A\n"
+			"A B",
+			readfile(code));
+		ASSERT_EQUALS("\n\n123 123", preprocess(code));
+	}
+	{ //define4()
+		const char code[] = "#define A      123\n"
+			"#define B(C)   A\n"
+			"A B(1)";
+		ASSERT_EQUALS("# define A 123\n"
+			"# define B ( C ) A\n"
+			"A B ( 1 )",
+			readfile(code));
+		ASSERT_EQUALS("\n\n123 123", preprocess(code));
+	}
+	{ //define5()
+		const char code[] = "#define add(x,y) x+y\n"
+			"add(add(1,2),3)";
+		ASSERT_EQUALS("\n1 + 2 + 3", preprocess(code));
+	}
+	{ //define6()
+		const char code[] = "#define A() 1\n" "A()";
+		ASSERT_EQUALS("\n1", preprocess(code));
+	}
+	{ //define7()
+		const char code[] = "#define A(X) X+1\n" "A(1 /*23*/)";
+		ASSERT_EQUALS("\n1 + 1", preprocess(code));
+	}
+	{ //define8()   // 6.10.3.10
+		const char code[] = "#define A(X) \n" "int A[10];";
+		ASSERT_EQUALS("\nint A [ 10 ] ;", preprocess(code));
+	}
+	{ //define9()
+		const char code[] = "#define AB ab.AB\n" "AB.CD\n";
+		ASSERT_EQUALS("\nab . AB . CD", preprocess(code));
+	}
+	{ //define10()   // don't combine prefix with space in macro
+		const char code[] = "#define A u8 \"a b\"\n" "A;";
+		ASSERT_EQUALS("\nu8 \"a b\" ;", preprocess(code));
+	}
+	{ //define11() // location of expanded argument
+		const char code[] = "#line 4 \"version.h\"\n"
+			"#define A(x) B(x)\n"
+			"#define B(x) x\n"
+			"#define VER A(1)\n"
+			"\n"
+			"#line 10 \"cppcheck.cpp\"\n"
+			"VER;";
+		ASSERT_EQUALS("\n#line 10 \"cppcheck.cpp\"\n1 ;", preprocess(code));
+	}
+	{ //define12()
+		const char code[] = "struct foo x = {\n"
+			"  #define V 0\n"
+			"  .x = V,\n"
+			"};\n";
+		ASSERT_EQUALS("struct foo x = {\n"
+			"# define V 0\n"
+			". x = V ,\n"
+			"} ;", readfile(code));
+		ASSERT_EQUALS("struct foo x = {\n"
+			"\n"
+			". x = 0 ,\n"
+			"} ;", preprocess(code));
+	}
+	{ //define13()
+		const char code[] = "#define M 180.\n"
+			"extern void g();\n"
+			"void f(double d) {\n"
+			"    if (d > M) {}\n"
+			"}\n";
+		ASSERT_EQUALS("\nextern void g ( ) ;\n"
+			"void f ( double d ) {\n"
+			"if ( d > 180. ) { }\n"
+			"}", preprocess(code));
+	}
+	define_invalid_1();
+	define_invalid_2();
+	define_define_1();
+	define_define_2();
+	define_define_3();
+	define_define_4();
+	define_define_5();
+	define_define_6();
+	define_define_7();
+	define_define_8(); // line break in nested macro call
+	define_define_9(); // line break in nested macro call
+	define_define_10();
+	define_define_11();
+	define_define_11a();
+	define_define_12(); // expand result of ##
+	define_define_13();
+	define_define_14();
+	define_define_15();
+	define_define_16();
+	define_define_17();
+	define_define_18();
+	define_define_19();
+	define_define_20(); // 384 arg contains comma
+	define_define_21();
+	define_define_22(); // #400
+	define_define_23(); // #403 - crash, infinite recursion
+	{ //define_va_args_1()
+		const char code[] = "#define A(fmt...) dostuff(fmt)\n"
+			"A(1,2);";
+		ASSERT_EQUALS("\ndostuff ( 1 , 2 ) ;", preprocess(code));
+	}
+	{//define_va_args_2()
+		const char code[] = "#define A(X,...) X(#__VA_ARGS__)\n"
+			"A(f,123);";
+		ASSERT_EQUALS("\nf ( \"123\" ) ;", preprocess(code));
+	}
+	{ //define_va_args_3()   // min number of arguments
+		const char code[] = "#define A(x, y, z...) 1\n"
+			"A(1, 2)\n";
+		ASSERT_EQUALS("\n1", preprocess(code));
+	}
+	{ //define_va_args_4() // cppcheck trac #9754
+		const char code[] = "#define A(x, y, ...) printf(x, y, __VA_ARGS__)\n"
+			"A(1, 2)\n";
+		ASSERT_EQUALS("\nprintf ( 1 , 2 )", preprocess(code));
+	}
+	{ //define_va_opt_1()
+		const char code[] = "#define p1(fmt, args...) printf(fmt __VA_OPT__(,) args)\n"
+			"p1(\"hello\");\n"
+			"p1(\"%s\", \"hello\");\n";
 
-	TEST_CASE(pragma_backslash); // multiline pragma directive
+		ASSERT_EQUALS("\nprintf ( \"hello\" ) ;\n"
+			"printf ( \"%s\" , \"hello\" ) ;",
+			preprocess(code));
+	}
+	{ //define_va_opt_2()
+		const char code[] = "#define err(...)\\\n"
+			"__VA_OPT__(\\\n"
+			"printf(__VA_ARGS__);\\\n"
+			")\n"
+			"#define err2(something, ...) __VA_OPT__(err(__VA_ARGS__))\n"
+			"err2(test)\n"
+			"err2(test, \"%d\", 2)\n";
 
+		ASSERT_EQUALS("\n\n\n\n\n\nprintf ( \"%d\" , 2 ) ;", preprocess(code));
+	}
+	{ //define_va_opt_3()
+		// non-escaped newline without closing parenthesis
+		const char code1[] = "#define err(...) __VA_OPT__(printf( __VA_ARGS__);\n"
+			")\n"
+			"err()";
+
+		simplecpp::OutputList outputList;
+		ASSERT_EQUALS("", preprocess(code1, &outputList));
+		ASSERT_EQUALS("file0,1,syntax_error,failed to expand 'err', Missing parenthesis for __VA_OPT__(content)\n",
+			toString(outputList));
+
+		outputList.clear();
+
+		// non-escaped newline without open parenthesis
+		const char code2[] = "#define err(...) __VA_OPT__\n"
+			"(something)\n"
+			"err()";
+
+		ASSERT_EQUALS("", preprocess(code2, &outputList));
+		ASSERT_EQUALS("file0,1,syntax_error,failed to expand 'err', Missing parenthesis for __VA_OPT__(content)\n",
+			toString(outputList));
+	}
+	{ //define_va_opt_4()
+		// missing parenthesis
+		const char code1[] = "#define err(...) __VA_OPT__ something\n"
+			"err()";
+
+		simplecpp::OutputList outputList;
+		ASSERT_EQUALS("", preprocess(code1, &outputList));
+		ASSERT_EQUALS("file0,1,syntax_error,failed to expand 'err', Missing parenthesis for __VA_OPT__(content)\n",
+			toString(outputList));
+
+		outputList.clear();
+
+		// missing open parenthesis
+		const char code2[] = "#define err(...) __VA_OPT__ something)\n"
+			"err()";
+
+		ASSERT_EQUALS("", preprocess(code2, &outputList));
+		ASSERT_EQUALS("file0,1,syntax_error,failed to expand 'err', Missing parenthesis for __VA_OPT__(content)\n",
+			toString(outputList));
+	}
+	{ //define_va_opt_5()
+		// parenthesis not directly proceeding __VA_OPT__
+		const char code[] = "#define err(...) __VA_OPT__ something (something)\n"
+			"err()";
+
+		simplecpp::OutputList outputList;
+		ASSERT_EQUALS("", preprocess(code, &outputList));
+		ASSERT_EQUALS("file0,1,syntax_error,failed to expand 'err', Missing parenthesis for __VA_OPT__(content)\n",
+			toString(outputList));
+	}
+	pragma_backslash(); // multiline pragma directive
 	// UB: #ifdef as macro parameter
-	TEST_CASE(define_ifdef);
-
-	TEST_CASE(dollar);
-
-	TEST_CASE(error1);
-	TEST_CASE(error2);
-	TEST_CASE(error3);
-	TEST_CASE(error4);
-	TEST_CASE(error5);
-
-	TEST_CASE(garbage);
-	TEST_CASE(garbage_endif);
-
-	TEST_CASE(hash);
-	TEST_CASE(hashhash1);
-	TEST_CASE(hashhash2);
-	TEST_CASE(hashhash3);
-	TEST_CASE(hashhash4);
-	TEST_CASE(hashhash4a); // #66, #130
-	TEST_CASE(hashhash5);
-	TEST_CASE(hashhash6);
-	TEST_CASE(hashhash7); // # ## #  (C standard; 6.10.3.3.p4)
-	TEST_CASE(hashhash8);
-	TEST_CASE(hashhash9);
-	TEST_CASE(hashhash10); // #108 : #define x # #
-	TEST_CASE(hashhash11); // #60: #define x # # #
-	TEST_CASE(hashhash12);
-	TEST_CASE(hashhash13);
-	TEST_CASE(hashhash_string_literal);
-	TEST_CASE(hashhash_string_wrapped);
-	TEST_CASE(hashhash_char_literal);
-	TEST_CASE(hashhash_multichar_literal);
-	TEST_CASE(hashhash_char_escaped);
-	TEST_CASE(hashhash_string_nothing);
-	TEST_CASE(hashhash_string_char);
-	TEST_CASE(hashhash_string_name);
-	TEST_CASE(hashhashhash_int_literal);
-	TEST_CASE(hashhash_int_literal);
-	TEST_CASE(hashhash_invalid_1);
-	TEST_CASE(hashhash_invalid_2);
-	TEST_CASE(hashhash_invalid_string_number);
-	TEST_CASE(hashhash_invalid_missing_args);
-	TEST_CASE(hashhash_null_stmt);
-	TEST_CASE(hashhash_empty_va_args);
+	define_ifdef();
+	dollar();
+	{ //error1()
+		const char code[] = "#error    hello world!\n";
+		simplecpp::OutputList outputList;
+		ASSERT_EQUALS("", preprocess(code, &outputList));
+		ASSERT_EQUALS("file0,1,#error,#error hello world!\n", toString(outputList));
+	}
+	{ //error2()
+		const char code[] = "#error   it's an error\n";
+		simplecpp::OutputList outputList;
+		ASSERT_EQUALS("", preprocess(code, &outputList));
+		ASSERT_EQUALS("file0,1,#error,#error it's an error\n", toString(outputList));
+	}
+	{ //error3()
+		const char code[] = "#error \"bla bla\\\n"
+			" bla bla.\"\n";
+		std::vector<std::string> files;
+		simplecpp::OutputList outputList;
+		const simplecpp::TokenList rawtokens = makeTokenList(code, files, "test.c", &outputList);
+		ASSERT_EQUALS("", toString(outputList));
+	}
+	{ //error4()
+		// "#error x\n1"
+		const char code[] = "\xFE\xFF\x00\x23\x00\x65\x00\x72\x00\x72\x00\x6f\x00\x72\x00\x20\x00\x78\x00\x0a\x00\x31";
+		std::vector<std::string> files;
+		std::map<std::string, simplecpp::TokenList*> filedata;
+		simplecpp::OutputList outputList;
+		simplecpp::TokenList tokens2(files);
+		const simplecpp::TokenList rawtoken = makeTokenList(code, sizeof(code), files, "test.c");
+		simplecpp::preprocess(tokens2, rawtoken, files, filedata, simplecpp::DUI(), &outputList);
+		ASSERT_EQUALS("file0,1,#error,#error x\n", toString(outputList));
+	}
+	{ //error5()
+		// "#error x\n1"
+		const char code[] = "\xFF\xFE\x23\x00\x65\x00\x72\x00\x72\x00\x6f\x00\x72\x00\x20\x00\x78\x00\x0a\x00\x78\x00\x31\x00";
+		std::vector<std::string> files;
+		std::map<std::string, simplecpp::TokenList*> filedata;
+		simplecpp::OutputList outputList;
+		simplecpp::TokenList tokens2(files);
+		const simplecpp::TokenList rawtokens = makeTokenList(code, sizeof(code), files, "test.c");
+		simplecpp::preprocess(tokens2, rawtokens, files, filedata, simplecpp::DUI(), &outputList);
+		ASSERT_EQUALS("file0,1,#error,#error x\n", toString(outputList));
+	}
+	garbage();
+	garbage_endif();
+	hash();
+	hashhash1();
+	hashhash2();
+	hashhash3();
+	hashhash4();
+	hashhash4a(); // #66, #130
+	hashhash5();
+	hashhash6();
+	hashhash7(); // # ## #  (C standard; 6.10.3.3.p4)
+	hashhash8();
+	hashhash9();
+	hashhash10(); // #108 : #define x # #
+	hashhash11(); // #60: #define x # # #
+	hashhash12();
+	hashhash13();
+	hashhash_string_literal();
+	hashhash_string_wrapped();
+	hashhash_char_literal();
+	hashhash_multichar_literal();
+	hashhash_char_escaped();
+	hashhash_string_nothing();
+	hashhash_string_char();
+	hashhash_string_name();
+	hashhashhash_int_literal();
+	hashhash_int_literal();
+	hashhash_invalid_1();
+	hashhash_invalid_2();
+	hashhash_invalid_string_number();
+	hashhash_invalid_missing_args();
+	hashhash_null_stmt();
+	hashhash_empty_va_args();
 	// C standard, 5.1.1.2, paragraph 4:
 	//    If a character sequence that matches the syntax of a universal
 	//    character name is produced by token concatenation (6.10.3.3),
 	//    the behavior is undefined."
-	TEST_CASE(hashhash_universal_character);
+	hashhash_universal_character();
 	// c++17 __has_include
-	TEST_CASE(has_include_1);
-	TEST_CASE(has_include_2);
-	TEST_CASE(has_include_3);
-	TEST_CASE(has_include_4);
-	TEST_CASE(has_include_5);
-	TEST_CASE(ifdef1);
-	TEST_CASE(ifdef2);
-	TEST_CASE(ifndef);
-	TEST_CASE(ifA);
-	TEST_CASE(ifCharLiteral);
-	TEST_CASE(ifDefined);
-	TEST_CASE(ifDefinedNoPar);
-	TEST_CASE(ifDefinedNested);
-	TEST_CASE(ifDefinedNestedNoPar);
-	TEST_CASE(ifDefinedInvalid1);
-	TEST_CASE(ifDefinedInvalid2);
-	TEST_CASE(ifDefinedHashHash);
-	TEST_CASE(ifDefinedHashHash2);
-	TEST_CASE(ifLogical);
-	TEST_CASE(ifSizeof);
-	TEST_CASE(elif);
-	TEST_CASE(ifif);
-	TEST_CASE(ifoverflow);
-	TEST_CASE(ifdiv0);
-	TEST_CASE(ifalt); // using "and", "or", etc
-	TEST_CASE(ifexpr);
-	TEST_CASE(location1);
-	TEST_CASE(location2);
-	TEST_CASE(location3);
-	TEST_CASE(location4);
-	TEST_CASE(location5);
-	TEST_CASE(missingHeader1);
-	TEST_CASE(missingHeader2);
-	TEST_CASE(missingHeader3);
-	TEST_CASE(missingHeader4);
-	TEST_CASE(nestedInclude);
-	TEST_CASE(systemInclude);
-	TEST_CASE(nullDirective1);
-	TEST_CASE(nullDirective2);
-	TEST_CASE(nullDirective3);
-	TEST_CASE(include1);
-	TEST_CASE(include2);
-	TEST_CASE(include3);
-	TEST_CASE(include4); // -include
-	TEST_CASE(include5); // #include MACRO
-	TEST_CASE(include6); // invalid code: #include MACRO(,)
-	TEST_CASE(include7); // #include MACRO
-	TEST_CASE(include8); // #include MACRO(X)
-	TEST_CASE(include9); // #include MACRO
-	TEST_CASE(multiline1);
-	TEST_CASE(multiline2);
-	TEST_CASE(multiline3);
-	TEST_CASE(multiline4);
-	TEST_CASE(multiline5); // column
-	TEST_CASE(multiline6); // multiline string in macro
-	TEST_CASE(multiline7); // multiline string in macro
-	TEST_CASE(multiline8); // multiline prefix string in macro
-	TEST_CASE(multiline9); // multiline prefix string in macro
-	TEST_CASE(multiline10);
-	TEST_CASE(readfile_nullbyte);
-	TEST_CASE(readfile_char);
-	TEST_CASE(readfile_char_error);
-	TEST_CASE(readfile_string);
-	TEST_CASE(readfile_string_error);
-	TEST_CASE(readfile_cpp14_number);
-	TEST_CASE(readfile_unhandled_chars);
-	TEST_CASE(readfile_error);
-	TEST_CASE(readfile_file_not_found);
-	TEST_CASE(stringify1);
-	TEST_CASE(tokenMacro1);
-	TEST_CASE(tokenMacro2);
-	TEST_CASE(tokenMacro3);
-	TEST_CASE(tokenMacro4);
-	TEST_CASE(tokenMacro5);
-	TEST_CASE(undef);
-	TEST_CASE(userdef);
+	{ //has_include_1()
+		const char code[] = "#ifdef __has_include\n"
+			"  #if __has_include(\"simplecpp.h\")\n"
+			"    A\n"
+			"  #else\n"
+			"    B\n"
+			"  #endif\n"
+			"#endif";
+		simplecpp::DUI dui;
+		dui.std = "c++17";
+		ASSERT_EQUALS("\n\nA", preprocess(code, dui));
+		dui.std = "c++14";
+		ASSERT_EQUALS("", preprocess(code, dui));
+		ASSERT_EQUALS("", preprocess(code));
+	}
+	{ //has_include_2()
+		const char code[] = "#if defined( __has_include)\n"
+			"  #if /*comment*/ __has_include /*comment*/(\"simplecpp.h\") // comment\n"
+			"    A\n"
+			"  #else\n"
+			"    B\n"
+			"  #endif\n"
+			"#endif";
+		simplecpp::DUI dui;
+		dui.std = "c++17";
+		ASSERT_EQUALS("\n\nA", preprocess(code, dui));
+		ASSERT_EQUALS("", preprocess(code));
+	}
+	{ //has_include_3()
+		const char code[] = "#ifdef __has_include\n"
+			"  #if __has_include(<realFileName1.cpp>)\n"
+			"    A\n"
+			"  #else\n"
+			"    B\n"
+			"  #endif\n"
+			"#endif";
+		simplecpp::DUI dui;
+		dui.std = "c++17";
+		// Test file not found...
+		ASSERT_EQUALS("\n\n\n\nB", preprocess(code, dui));
+		// Unless -I is set (preferably, we should differentiate -I and -isystem...)
+		dui.includePaths.push_back("./testsuite");
+		ASSERT_EQUALS("\n\nA", preprocess(code, dui));
+		ASSERT_EQUALS("", preprocess(code));
+	}
+	{ //has_include_4()
+		const char code[] = "#ifdef __has_include\n"
+			"  #if __has_include(\"testsuite/realFileName1.cpp\")\n"
+			"    A\n"
+			"  #else\n"
+			"    B\n"
+			"  #endif\n"
+			"#endif";
+		simplecpp::DUI dui;
+		dui.std = "c++17";
+		ASSERT_EQUALS("\n\nA", preprocess(code, dui));
+		ASSERT_EQUALS("", preprocess(code));
+	}
+	{ //has_include_5()
+		const char code[] = "#if defined( __has_include)\n"
+			"  #if !__has_include(<testsuite/unrealFileName2.abcdef>)\n"
+			"    A\n"
+			"  #else\n"
+			"    B\n"
+			"  #endif\n"
+			"#endif";
+		simplecpp::DUI dui;
+		dui.std = "c++17";
+		ASSERT_EQUALS("\n\nA", preprocess(code, dui));
+		ASSERT_EQUALS("", preprocess(code));
+	}
+	ifdef1();
+	ifdef2();
+	ifndef();
+	ifA();
+	ifCharLiteral();
+	ifDefined();
+	ifDefinedNoPar();
+	ifDefinedNested();
+	ifDefinedNestedNoPar();
+	ifDefinedInvalid1();
+	ifDefinedInvalid2();
+	ifDefinedHashHash();
+	ifDefinedHashHash2();
+	ifLogical();
+	ifSizeof();
+	elif();
+	ifif();
+	ifoverflow();
+	ifdiv0();
+	ifalt(); // using "and", "or", etc
+	ifexpr();
+	location1();
+	location2();
+	location3();
+	location4();
+	location5();
+	missingHeader1();
+	missingHeader2();
+	missingHeader3();
+	missingHeader4();
+	nestedInclude();
+	systemInclude();
+	nullDirective1();
+	nullDirective2();
+	nullDirective3();
+	include1();
+	include2();
+	include3();
+	include4(); // -include
+	include5(); // #include MACRO
+	include6(); // invalid code: #include MACRO(,)
+	include7(); // #include MACRO
+	include8(); // #include MACRO(X)
+	include9(); // #include MACRO
+	multiline1();
+	multiline2();
+	multiline3();
+	multiline4();
+	multiline5(); // column
+	multiline6(); // multiline string in macro
+	multiline7(); // multiline string in macro
+	multiline8(); // multiline prefix string in macro
+	multiline9(); // multiline prefix string in macro
+	multiline10();
+	readfile_nullbyte();
+	readfile_char();
+	readfile_char_error();
+	readfile_string();
+	readfile_string_error();
+	readfile_cpp14_number();
+	readfile_unhandled_chars();
+	readfile_error();
+	readfile_file_not_found();
+	stringify1();
+	tokenMacro1();
+	tokenMacro2();
+	tokenMacro3();
+	tokenMacro4();
+	tokenMacro5();
+	undef();
+	userdef();
 	// utf/unicode
-	TEST_CASE(utf8);
-	TEST_CASE(utf8_invalid);
-	TEST_CASE(unicode);
-	TEST_CASE(unicode_invalid);
-	TEST_CASE(warning);
+	utf8();
+	utf8_invalid();
+	unicode();
+	unicode_invalid();
+	warning();
 	// utility functions.
-	TEST_CASE(simplifyPath);
-	TEST_CASE(simplifyPath_cppcheck);
-	TEST_CASE(simplifyPath_New);
-	TEST_CASE(preprocessSizeOf);
-	TEST_CASE(timeDefine);
-	TEST_CASE(dateDefine);
-	TEST_CASE(stdcVersionDefine);
-	TEST_CASE(cpluscplusDefine);
-	TEST_CASE(invalidStd);
-	TEST_CASE(stdEnum);
-	TEST_CASE(stdValid);
-	TEST_CASE(token);
-	TEST_CASE(preprocess_files);
-	TEST_CASE(fuzz_crash);
+	simplifyPath();
+	simplifyPath_cppcheck();
+	simplifyPath_New();
+	preprocessSizeOf();
+	timeDefine();
+	dateDefine();
+	stdcVersionDefine();
+	cpluscplusDefine();
+	invalidStd();
+	stdEnum();
+	stdValid();
+	token();
+	preprocess_files();
+	fuzz_crash();
 	return numberOfFailedAssertions > 0 ? EXIT_FAILURE : EXIT_SUCCESS;
 }

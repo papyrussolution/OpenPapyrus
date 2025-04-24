@@ -303,7 +303,7 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 	SString text_buf;
 	TView::SGetWindowText(hwnd, text_buf);
 	if(text_buf.Len() > 1) {
-		SString temp_buf = text_buf;
+		SString temp_buf(text_buf);
 		int   do_replace = 0;
 		if(temp_buf.C(0) == '@') {
 			SLS.LoadString_(text_buf+1, temp_buf);
@@ -363,10 +363,10 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
     if(text_len > 0) {
     	void * p_text_ptr = 0;
     	int    is_allocated = 0;
-    	uint8  static_buf[4096]; // @v10.9.7 [1024]-->[4096]
+    	uint8  static_buf[4096];
 #ifdef UNICODE
 		if(text_len >= sizeof(static_buf)/sizeof(wchar_t)) {
-			p_text_ptr = SAlloc::M((text_len+16) * sizeof(wchar_t)); // @v10.9.7 @fix (text_len * sizeof(wchar_t) + 1)-->((text_len+16) * sizeof(wchar_t))
+			p_text_ptr = SAlloc::M((text_len+16) * sizeof(wchar_t));
 			is_allocated = 1;
 		}
 		else
@@ -462,22 +462,25 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 		}
 		if(hw_parent) {
 			struct LocalSetupFontBlock {
-				LocalSetupFontBlock() : H_Wnd(0), DoSetupFont(false)
+				LocalSetupFontBlock() /*: H_Wnd(0), DoSetupFont(false)*/
 				{
 				}
+				uint   GetCount() const { return HwList.getCount(); }
 				void   Set(HWND h)
 				{
 					if(h) {
-						H_Wnd = h;
-						DoSetupFont = true;
+						HwList.insert(&h);
+						//H_Wnd = h;
+						//DoSetupFont = true;
 					}
-					else {
+					/*else {
 						H_Wnd = 0;
 						DoSetupFont = false;
-					}
+					}*/
 				}
-				HWND   H_Wnd;
-				bool   DoSetupFont;
+				//HWND   H_Wnd;
+				TSVector <HWND> HwList;
+				//bool   DoSetupFont;
 			};
 			LocalSetupFontBlock setup_font_blk;
 			uint ctl_id = pV->GetId();
@@ -493,6 +496,45 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 						}
 					}
 					break;
+				case TV_SUBSIGN_CLUSTER: // @v12.2.3 @construction
+					{
+						TCluster * p_ctl = static_cast<TCluster *>(pV);
+						const int cluster_kind = p_ctl->getKind();
+						if(oneof2(cluster_kind, CHECKBOXES, RADIOBUTTONS)) {
+							hw = ::CreateWindowExW(WS_EX_NOPARENTNOTIFY, _T("BUTTON"), 0, WS_CHILD|WS_GROUP|WS_VISIBLE|BS_GROUPBOX, 
+								pV->ViewOrigin.x, pV->ViewOrigin.y, pV->ViewSize.x, pV->ViewSize.y, hw_parent, (HMENU)ctl_id, TProgram::GetInst(), 0);						
+							if(hw) {
+								for(uint cii = 0; cii < p_ctl->getNumItems(); cii++) {
+									const TCluster::Item * p_item = p_ctl->GetItemC(cii);
+									if(p_item) {
+										HWND hw_item = 0;
+										SPoint2S item_org;
+										SPoint2S item_sz;
+										item_org = p_item->Bounds.a;
+										item_sz.Set(p_item->Bounds.width(), p_item->Bounds.height());
+
+										uint item_id = MAKE_BUTTON_ID(ctl_id, cii+1);
+										DWORD item_style = WS_CHILD|WS_VISIBLE|WS_TABSTOP|BS_NOTIFY;
+										if(cluster_kind == CHECKBOXES) {
+											item_style |= BS_AUTOCHECKBOX;
+										}
+										else if(cluster_kind == RADIOBUTTONS) {
+											item_style |= BS_AUTORADIOBUTTON;
+										}
+										hw_item = ::CreateWindowExW(WS_EX_NOPARENTNOTIFY, _T("BUTTON"), 0, item_style, 
+											item_org.x, item_org.y, item_sz.x, item_sz.y, hw_parent, (HMENU)item_id, TProgram::GetInst(), 0);						
+										TView::SSetWindowText(hw_item, p_item->Text);
+										SetupWindowCtrlTextProc(hw_item, 0);
+										setup_font_blk.Set(hw_item);
+									}
+								}
+								TView::SetWindowUserData(hw, p_ctl);
+								//TView::SSetWindowText(hw, p_ctl->Text);
+								//SetupWindowCtrlTextProc(hw, 0);
+							}
+						}
+					}
+					break;
 				case TV_SUBSIGN_COMBOBOX:
 					{
 						ComboBox * p_cv = static_cast<ComboBox *>(pV);
@@ -502,7 +544,7 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 						TInputLine * p_il = p_cv->link();
 						if(p_il) {
 							p_il->Parent = hw_parent;
-							DWORD  style = WS_VISIBLE|WS_CHILD|WS_BORDER|WS_CLIPSIBLINGS|ES_AUTOHSCROLL;
+							DWORD  style = WS_VISIBLE|WS_CHILD|WS_BORDER|WS_CLIPSIBLINGS|WS_TABSTOP|ES_AUTOHSCROLL;
 							p_il->Parent = hw_parent;
 							HWND hw_il = ::CreateWindowEx(0, _T("EDIT"), 0, style, p_il->ViewOrigin.x,
 								p_il->ViewOrigin.y, p_il->ViewSize.x, p_il->ViewSize.y, hw_parent, (HMENU)p_il->GetId(), TProgram::GetInst(), 0);
@@ -611,13 +653,16 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 					}
 					break;
 			}
-			if(setup_font_blk.DoSetupFont) {
+			if(setup_font_blk.GetCount()) {
 				SPaintToolBox * p_tb = APPL->GetUiToolBox();
 				if(p_tb) {
 					SPaintObj::Font * p_f = p_tb->GetFont(SDrawContext(static_cast<HDC>(0)), TProgram::tbiControlFont);
 					if(p_f) {
 						HFONT f = static_cast<HFONT>(*p_f);
-						::SendMessageW(setup_font_blk.H_Wnd, WM_SETFONT, reinterpret_cast<WPARAM>(f), TRUE);
+						for(uint hwi = 0; hwi < setup_font_blk.GetCount(); hwi++) {
+							HWND local_hw = setup_font_blk.HwList.at(hwi);
+							::SendMessageW(local_hw, WM_SETFONT, reinterpret_cast<WPARAM>(f), TRUE);
+						}
 					}
 				}
 			}
@@ -1289,7 +1334,7 @@ int FASTCALL KeyDownCommand::SetCharU(wchar_t chr)
 int FASTCALL KeyDownCommand::SetChar(uint chr)
 {
 	int    ok = 1;
-	short r = VkKeyScanA(static_cast<char>(chr)); // @v10.4.6 VkKeyScan-->VkKeyScanA
+	short r = VkKeyScanA(static_cast<char>(chr));
 	//short r2 = VkKeyScanW(static_cast<char>(chr)); // @test
 	if(r == -1) {
 		ok = 0;
@@ -1313,24 +1358,21 @@ uint KeyDownCommand::GetChar() const
 {
 	uint   c = 0;
 	switch(Code) {
-		// @v10.8.10 case VK_OEM_PLUS:   c = '+'; break;
-		case VK_OEM_PLUS:   c = (State & stateShift) ? '+' : '='; break; // @v10.8.10
+		case VK_OEM_PLUS:   c = (State & stateShift) ? '+' : '='; break;
 		case VK_OEM_COMMA:  c = (State & stateShift) ? '<' : ','; break;
-		// @v10.9.0 case VK_OEM_MINUS:  c = '-'; break;
-		case VK_OEM_MINUS:  c = (State & stateShift) ? '_' : '-'; break; // @v10.9.0 
+		case VK_OEM_MINUS:  c = (State & stateShift) ? '_' : '-'; break;
 		case VK_OEM_PERIOD: c = (State & stateShift) ? '>' : '.'; break;
 		case VK_MULTIPLY:   c = '*'; break;
 		case VK_ADD:        c = '+'; break;
-		// @v10.8.10 case VK_SUBTRACT:   c = '-'; break;
-		case VK_SUBTRACT:   c = (State & stateShift) ? '_' : '-'; break; // @v10.8.10
+		case VK_SUBTRACT:   c = (State & stateShift) ? '_' : '-'; break;
 		case VK_DECIMAL:    c = '.'; break;
 		case VK_DIVIDE:     c = '/'; break;
 		case VK_RETURN:     c = '\x0D'; break;
 		case VK_OEM_1:      c = (State & stateShift) ? ':' : ';'; break;
-		case VK_OEM_2:      c = (State & stateShift) ? '?' : '/'; break; // @v10.8.0
-		case VK_OEM_4:      c = (State & stateShift) ? '{' : '['; break; // @v10.8.0
-		case VK_OEM_6:      c = (State & stateShift) ? '}' : ']'; break; // @v10.8.0
-		case VK_OEM_7:      c = (State & stateShift) ? '\"' : '\''; break; // @v10.8.0
+		case VK_OEM_2:      c = (State & stateShift) ? '?' : '/'; break;
+		case VK_OEM_4:      c = (State & stateShift) ? '{' : '['; break;
+		case VK_OEM_6:      c = (State & stateShift) ? '}' : ']'; break;
+		case VK_OEM_7:      c = (State & stateShift) ? '\"' : '\''; break;
 		default:
 			if(isdec(Code)) {
 				if(State & stateShift) {

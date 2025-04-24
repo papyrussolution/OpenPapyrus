@@ -547,9 +547,9 @@
 #define LOGIC(x)                    ((x)?true:false)
 #define BOOLXOR(p1,p2)              (((p1)&&(p2))||(!(p1)&&!(p2)))
 #define DELETEANDASSIGN(p, n)       ((delete (p)), (p) = (n))
-#define ZDELETE(p)                  DELETEANDASSIGN(p, 0)
-#define ZDELETEFAST(p) {if(p) ((delete (p)), (p) = 0);}
-#define ZDELETEARRAY(p)             ((delete [] (p)), (p) = 0)
+#define ZDELETE(p)                  DELETEANDASSIGN(p, nullptr)
+#define ZDELETEFAST(p) {if(p) ((delete (p)), (p) = nullptr);}
+#define ZDELETEARRAY(p)             ((delete [] (p)), (p) = nullptr)
 #define FREEANDASSIGN(p, n)         (SAlloc::F(p), (p) = (n))
 #define ZFREE(p)                    FREEANDASSIGN((p), 0)
 #define ZFREE_const(p)              (SAlloc::F((void *)p), (p) = 0)

@@ -50,8 +50,8 @@ int TDialog::setupPosition()
 		if(GetWindowRect(H(), &r)) {
 			int    x = Settings.Left;
 			int    y = Settings.Top;
-			int    sizex = r.right - r.left;
-			int    sizey = r.bottom - r.top;
+			const  int sizex = r.right - r.left;
+			const  int sizey = r.bottom - r.top;
 			const  int sx = GetSystemMetrics(SM_CXFULLSCREEN);
 			const  int sy = GetSystemMetrics(SM_CYFULLSCREEN);
 			SETMIN(x, sx-sizex);
@@ -291,7 +291,7 @@ int (* getUserControl)(TVRez*, TDialog*) = 0;
 						pRez->getString(cmd_symb, 0);
 						options = pRez->getUINT();
 						help_ctx = pRez->getUINT();
-						uint bmp_id = pRez->getUINT();
+						const uint bmp_id = pRez->getUINT();
 						dlg->InsertCtl(new TButton(r, buf, cmd, options, bmp_id), id, (flags & ldfDL600_Cvt) ? symb.cptr() : 0);
 						if(flags & ldfDL600_Cvt && cmd_symb.NotEmptyS())
 							dlg->SetCtlSymb(cmd+100000, cmd_symb);
@@ -309,7 +309,7 @@ int (* getUserControl)(TVRez*, TDialog*) = 0;
 							assert(p_cluster->getNumItems() < 36);
 							//fseek(pRez->getStream(), -((long)sizeof(uint16)), SEEK_CUR);
 							pRez->Seek(-((long)sizeof(uint16)), SEEK_CUR);
-							p_cluster->addItem(-1, pRez->getString(buf));
+							p_cluster->AddItem(-1, pRez->getString(buf), 0);
 						}
 						dlg->InsertCtl(p_cluster, id, (flags & ldfDL600_Cvt) ? symb.cptr() : 0);
 					}

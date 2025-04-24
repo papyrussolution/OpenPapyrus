@@ -523,6 +523,7 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 	SString command_ident;
 	SString title_text;
 	SString figure_symb;
+	SString cb_line_symb; // @v12.3.3
 	FRect  label_bbox;
 	double font_size = 0.0;
 	// Следующие флаги устанавливаются в переменной occurence_flags для индикации факта, что
@@ -549,6 +550,7 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 		occfHeight          = 0x00040000, // @v12.2.10
 		occfLabelBBoxOrigin = 0x00080000, // @v12.3.2
 		occfLabelBBoxSize   = 0x00100000, // @v12.3.2
+		occfCbLineSymb      = 0x00200000, // @v12.3.3
 	};
 	enum {
 		occsLeft         = 0x0001,
@@ -560,7 +562,6 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 	uint   occurence_margin = 0; // occsXXX
 	uint   occurence_padding = 0; // occsXXX
 	uint   control_flags = 0; // UiItemKind::fXXX
-	uint   label_relation = SOW_UNKN; 
 	bool   debug_mark = false; // @debug
 	//
 	struct ControlFlagEntry {
@@ -964,6 +965,7 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 					}
 				}
 				else if(prop_key == "labelrelation") {
+					uint   label_relation = SOW_UNKN; 
 					THROW(label_relation == 0); // @err dup feature
 					if(p_prop->Value.IsIdent() || p_prop->Value.IsString()) {
 						prop_val = p_prop->Value.U.S;
@@ -1029,6 +1031,18 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 						alb_label.SetFixedSizeX(local_x);
 						alb_label.SetFixedSizeY(local_y);
 						occurence_flags |= occfLabelBBoxSize;
+					}
+				}
+				else if(prop_key == "cblinesymb") { // @v12.3.3 Идентификационный символ строки при комбо-боксе
+					if(!(occurence_flags & occfCbLineSymb)) { // @err dup feature
+						if(p_prop->Value.IsIdent() || p_prop->Value.IsString()) {
+							prop_val = p_prop->Value.U.S;
+							(cb_line_symb = prop_val).Strip();
+						}
+						else {
+							// @err invalid variable value
+						}
+						occurence_flags |= occfCbLineSymb;
 					}
 				}
 				else if(prop_key == "command") {
@@ -1241,6 +1255,12 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 		AddConst(font_size, &c);
 		p_scope->AddConst(DlScope::cuifFontSize, c, 1);
 	}
+	if(cb_line_symb.NotEmpty()) { // @v12.3.3
+		CtmExprConst c;
+		AddConst(cb_line_symb, &c);
+		p_scope->AddConst(DlScope::cuifCbLineSymb, c, 1);
+	}
+	/* @v12.3.3 (элиминируем в пользу DlScope::cuifLblLayoutBlock)
 	if(label_relation) {
 		CtmExprConst c;
 		AddConst(static_cast<int8>(label_relation), &c);
@@ -1251,8 +1271,9 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 		AddConst(&label_bbox, sizeof(label_bbox), &c);
 		p_scope->AddConst(DlScope::cuifLabelRect, c, 1);
 	}
+	*/
 	// @v12.3.2 {
-	if(label_relation || (occurence_flags & occfLabelBBox)) {
+	if(alb_label.LinkRelation || (occurence_flags & (occfLabelBBox|occfLabelBBoxOrigin|occfLabelBBoxSize))) {
 		CtmExprConst c;
 		AddConst(&alb_label, sizeof(alb_label), &c);
 		p_scope->AddConst(DlScope::cuifLblLayoutBlock, c, 1);		

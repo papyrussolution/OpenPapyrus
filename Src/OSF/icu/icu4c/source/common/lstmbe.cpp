@@ -148,9 +148,9 @@ ConstArray2D::~ConstArray2D()
  */
 class Array1D : public ReadArray1D {
 public:
-	Array1D() : memory_(nullptr), data_(nullptr), d1_(0) {
+	Array1D() : memory_(nullptr), data_(nullptr), d1_(0) 
+	{
 	}
-
 	Array1D(int32_t d1, UErrorCode & status)
 		: memory_(uprv_malloc(d1 * sizeof(float))),
 		data_((float *)memory_), d1_(d1) {
@@ -172,17 +172,15 @@ public:
 	}
 
 	// ReadArray1D methods.
-	virtual int32_t d1() const override {
-		return d1_;
-	}
-
-	virtual float get(int32_t i) const override {
+	virtual int32_t d1() const override { return d1_; }
+	virtual float get(int32_t i) const override 
+	{
 		assert(i < d1_);
 		return data_[i];
 	}
-
 	// Return the index which point to the max data in the array.
-	inline int32_t maxIndex() const {
+	inline int32_t maxIndex() const 
+	{
 		int32_t index = 0;
 		float max = data_[0];
 		for(int32_t i = 1; i < d1_; i++) {
@@ -193,17 +191,17 @@ public:
 		}
 		return index;
 	}
-
 	// Slice part of the array to a new one.
-	inline Array1D slice(int32_t from, int32_t size) const {
+	inline Array1D slice(int32_t from, int32_t size) const 
+	{
 		assert(from >= 0);
 		assert(from < d1_);
 		assert(from + size <= d1_);
 		return Array1D(data_ + from, size);
 	}
-
 	// Add dot product of a 1D array and a 2D array into this one.
-	inline Array1D& addDotProduct(const ReadArray1D& a, const ReadArray2D& b) {
+	inline Array1D& addDotProduct(const ReadArray1D& a, const ReadArray2D& b) 
+	{
 		assert(a.d1() == b.d1());
 		assert(b.d2() == d1());
 		for(int32_t i = 0; i < d1(); i++) {
@@ -213,18 +211,18 @@ public:
 		}
 		return *this;
 	}
-
 	// Hadamard Product the values of another array of the same size into this one.
-	inline Array1D& hadamardProduct(const ReadArray1D& a) {
+	inline Array1D& hadamardProduct(const ReadArray1D& a) 
+	{
 		assert(a.d1() == d1());
 		for(int32_t i = 0; i < d1(); i++) {
 			data_[i] *= a.get(i);
 		}
 		return *this;
 	}
-
 	// Add the Hadamard Product of two arrays of the same size into this one.
-	inline Array1D& addHadamardProduct(const ReadArray1D& a, const ReadArray1D& b) {
+	inline Array1D& addHadamardProduct(const ReadArray1D& a, const ReadArray1D& b) 
+	{
 		assert(a.d1() == d1());
 		assert(b.d1() == d1());
 		for(int32_t i = 0; i < d1(); i++) {
@@ -232,18 +230,18 @@ public:
 		}
 		return *this;
 	}
-
 	// Add the values of another array of the same size into this one.
-	inline Array1D& add(const ReadArray1D& a) {
+	inline Array1D& add(const ReadArray1D& a) 
+	{
 		assert(a.d1() == d1());
 		for(int32_t i = 0; i < d1(); i++) {
 			data_[i] += a.get(i);
 		}
 		return *this;
 	}
-
 	// Assign the values of another array of the same size into this one.
-	inline Array1D& assign(const ReadArray1D& a) {
+	inline Array1D& assign(const ReadArray1D& a) 
+	{
 		assert(a.d1() == d1());
 		for(int32_t i = 0; i < d1(); i++) {
 			data_[i] = a.get(i);
@@ -252,21 +250,19 @@ public:
 	}
 
 	// Apply tanh to all the elements in the array.
-	inline Array1D& tanh() {
-		return tanh(*this);
-	}
-
+	inline Array1D& tanh() { return tanh(*this); }
 	// Apply tanh of a and store into this array.
-	inline Array1D& tanh(const Array1D& a) {
+	inline Array1D& tanh(const Array1D& a) 
+	{
 		assert(a.d1() == d1());
 		for(int32_t i = 0; i < d1_; i++) {
 			data_[i] = std::tanh(a.get(i));
 		}
 		return *this;
 	}
-
 	// Apply sigmoid to all the elements in the array.
-	inline Array1D& sigmoid() {
+	inline Array1D& sigmoid() 
+	{
 		for(int32_t i = 0; i < d1_; i++) {
 			data_[i] = 1.0f/(1.0f + expf(-data_[i]));
 		}
@@ -277,7 +273,6 @@ public:
 		memzero(data_, d1_ * sizeof(float));
 		return *this;
 	}
-
 private:
 	void * memory_;
 	float* data_;
@@ -711,14 +706,9 @@ int32_t LSTMBreakEngine::divideUpDictionaryRange(UText * text,
 		// Forward LSTM
 		// Calculate the result into forwardRow, which point to the data in the first half
 		// of fbRow.
-		compute(hunits,
-		    fData->fForwardW, fData->fForwardU, fData->fForwardB,
-		    fData->fEmbedding.row(indicesBuf[i]),
-		    forwardRow, c, ifco);
-
+		compute(hunits, fData->fForwardW, fData->fForwardU, fData->fForwardB, fData->fEmbedding.row(indicesBuf[i]), forwardRow, c, ifco);
 		// assign the data from hBackward.row(i) to second half of fbRowa.
 		backwardRow.assign(hBackward.row(i));
-
 		logp.assign(fData->fOutputB).addDotProduct(fbRow, fData->fOutputW);
 #ifdef LSTM_DEBUG
 		printf("backwardRow %d\n", i);

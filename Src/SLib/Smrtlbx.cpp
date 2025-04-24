@@ -81,7 +81,6 @@ INT_PTR CALLBACK TreeListBoxDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPAR
 		default:
 			break;
 	}
-	//return p_view ? CallWindowProc(p_view->PrevWindowProc, hWnd, uMsg, wParam, lParam) : 1;
 	return prev_wnd_proc ? CallWindowProc(prev_wnd_proc, hWnd, uMsg, wParam, lParam) : 1;
 }
 

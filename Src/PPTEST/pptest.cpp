@@ -46,6 +46,8 @@ int  TestTddo();
 int  GetGoodsFromService(SString & rCode, PPGoodsPacket * pPack);
 int  TestSTree();
 int  Test_ExecuteDialogByDl600Description();
+int  SimpleCpp_Test_Main(int argc, char ** argv);
+int  SimpleCpp_Test_Main2();
 //
 // 
 // 
@@ -74,7 +76,13 @@ static int PreprocessHFile()
 	ps.Merge(SFsPath::fDrv|SFsPath::fDir, temp_buf);
 	dui.includePaths.push_back(temp_buf.RmvLastSlash().cptr());
 	dui.removeComments = true;
-
+	//
+	// simplecpp.exe -I d:\papyrus\src\include -D _MSC_VER -D _MSC_FULL_VER -D _WIN32 -D _M_IX86 a.cpp   > a
+	// 
+	dui.defines.push_back("_MSC_VER");
+	dui.defines.push_back("_MSC_FULL_VER");
+	dui.defines.push_back("_WIN32");
+	dui.defines.push_back("_M_IX86");
 	SString code_buf;
 	simplecpp::OutputList output_list;
 	/*
@@ -86,17 +94,24 @@ static int PreprocessHFile()
 	*/
 	//static std::string preprocess(const char code[], const simplecpp::DUI &dui, simplecpp::OutputList * outputList)
 	{
-		code_buf = "#include <ppdefs.h>\nint a = CTL_CSPANEL_CSESSCLOSE;\n";
+		code_buf = "#include <ppdefs.h>\n" ;// "int a = CTL_CSPANEL_CSESSCLOSE;\n";
 
 		std::vector<std::string> files;
-		std::map<std::string, simplecpp::TokenList*> filedata;
+		//std::map<std::string, simplecpp::TokenList*> filedata;
 		//simplecpp::TokenList tokens = makeTokenList(code, files);
 		simplecpp::TokenList tokens(code_buf.cptr(), code_buf.Len(), files);
 		tokens.removeComments();
-		simplecpp::TokenList tokens2(files);
-		simplecpp::preprocess(tokens2, tokens, files, filedata, dui, &output_list);
-		std::string dump = tokens2.stringify();
+
+		std::map<std::string, simplecpp::TokenList*> loaded_map = simplecpp::load(tokens, files, dui, &output_list);
+
+		code_buf = "#include <ppdefs.h>\nint a = CTL_CSPANEL_CSESSCLOSE;\n";
+		simplecpp::TokenList tokens_(code_buf.cptr(), code_buf.Len(), files);
+
+		simplecpp::TokenList out_tokens(files);
+		simplecpp::preprocess(out_tokens, tokens_, files, /*filedata*/loaded_map, dui, &output_list);
+		std::string dump = out_tokens.stringify();
 		dump_buf.CatN(dump.data(), dump.length());
+		//
 	}
 	std::string input_h_file_name__(input_h_file_name);
 	std::vector<std::string> __file_names;
@@ -793,9 +808,9 @@ extern inline uint RngUniformInt (const Rng * pR, uint n)
 
 #endif // } HAVE_INLINE
 
-static inline uint MtGet (void * p_vstate);
-static double MtGetDouble (void * p_vstate);
-static void MtSet (void * p_state, uint s);
+static inline uint MtGet(void * p_vstate);
+static double MtGetDouble(void * p_vstate);
+static void MtSet(void * p_state, uint s);
 
 #define __N 624   //Period parameters
 #define __M 397
@@ -931,12 +946,12 @@ uint RngUniformInt (const Rng * pR, uint n)
 }
 #endif
 
-uint RngMax (const Rng * pR) {return pR->P_Type->Max;}
-uint RngMin (const Rng * pR) {return pR->P_Type->Min;}
-const char * RngName (const Rng * pR) {return pR->P_Type->P_Name;}
-size_t RngSize (const Rng * pR) {return pR->P_Type->Size;}
-void * RngState (const Rng * pR) {return pR->P_State;}
-void RngFree (Rng * pR)
+uint RngMax(const Rng * pR) {return pR->P_Type->Max;}
+uint RngMin(const Rng * pR) {return pR->P_Type->Min;}
+const char * RngName(const Rng * pR) {return pR->P_Type->P_Name;}
+size_t RngSize(const Rng * pR) {return pR->P_Type->Size;}
+void * RngState(const Rng * pR) {return pR->P_State;}
+void RngFree(Rng * pR)
 {
 	if(pR) {
 		SAlloc::F(pR->P_State);
@@ -1993,9 +2008,13 @@ int DoConstructionTest()
 	}
 #endif // } 0
 	//Test_Cristal2SetRetailGateway();
-	Test_ExecuteDialogByDl600Description();
+	//TestTddo();
+	{
+		SimpleCpp_Test_Main2();
+	}
+	PreprocessHFile();
+	//Test_ExecuteDialogByDl600Description();
 	//Test_CsvSniffer();
-	//PreprocessHFile();
 	//TestTransferFileToFtp();
 	//VkInterface::Test();
 	//Test_LayoutedListDialog();

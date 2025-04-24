@@ -3011,11 +3011,12 @@ int DlContext::GetDialogList(StrAssocArray * pList) const
 	return Helper_GetScopeList(/*DlScope::kUiDialog*/DlScope::kUiView, DlScope::srchfRecursive|DlScope::srchfTopLevel, pList); 
 }
 
-const SUiLayoutParam * DlContext::GetConst_LayoutBlock(const DlScope * pScope) const
+const SUiLayoutParam * DlContext::GetConst_LayoutBlock(const DlScope * pScope, DlScope::COption propId) const
 {
 	const SUiLayoutParam * p_result = 0;
 	if(pScope) {
-		CtmExprConst __c = pScope->GetConst(DlScope::cuifLayoutBlock);
+		//DlScope::cuifLayoutBlock
+		CtmExprConst __c = pScope->GetConst(propId);
 		if(!!__c) {
 			uint8    c_buf[512];
 			static_assert(sizeof(c_buf) >= sizeof(SUiLayoutParam));

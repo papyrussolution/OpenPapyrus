@@ -7591,8 +7591,8 @@ int ExportDialogs2(const char * pFileName)
 											dlg->GetCtlSymb(p_cb->GetId(), symb);
 											line_buf.Tab().Cat("combobox").Space().Cat(symb).Space().CatChar('[');
 											_BBox(_AdjustRectToOrigin(wi.rcWindow, _origin), line_buf.Space(), 0);
-											line_buf.Cat("label").CatDiv(':', 2).CatQStr((temp_buf = ctl_text).Transf(CTRANSF_OUTER_TO_UTF8));
 											if(p_label) {
+												line_buf.Cat("label").CatDiv(':', 2).CatQStr((temp_buf = ctl_text).Transf(CTRANSF_OUTER_TO_UTF8));
 												/* @v12.3.2
 												line_buf.Space().Cat("labelbbox").CatDiv(':', 2);
 												_RectToLine(label_rect, line_buf);
@@ -7601,6 +7601,17 @@ int ExportDialogs2(const char * pFileName)
 												//prop_list.Add(DlScope::cuifLabelRect, temp_buf);
 											}
 											//DlScope::PropListToLine(prop_list, 2, line_buf).Semicol().CR();
+											// @v12.3.3 {
+											{
+												const TInputLine * p_cb_line = p_cb->link();
+												if(p_cb_line) {
+													dlg->GetCtlSymb(p_cb_line->GetId(), symb);
+													if(symb.NotEmpty()) {
+														line_buf.Cat("cblinesymb").CatDiv(':', 2).Cat(symb).Space();
+													}
+												}
+											}
+											// } @v12.3.3 
 											line_buf.CatChar(']');
 											line_buf.Semicol();
 											f_out.WriteLine(line_buf.CR());
@@ -8339,6 +8350,7 @@ public:
 private:
 	void   Build(DlContext & rCtx)
 	{
+		bool   debug_mark = false; // @debug
 		const DlScope * p_scope = rCtx.GetScopeByName_Const(DlScope::kUiView, Dl00Symb);
 		if(p_scope) {
 			BuildEmptyWindowParam bew_param;
@@ -8356,7 +8368,7 @@ private:
 				}
 			}
 			{
-				const SUiLayoutParam * p_lp = rCtx.GetConst_LayoutBlock(p_scope);
+				const SUiLayoutParam * p_lp = rCtx.GetConst_LayoutBlock(p_scope, DlScope::cuifLayoutBlock);
 				if(p_lp) {
 					__alb = *p_lp;
 					p_alb = &__alb;
@@ -8414,36 +8426,24 @@ private:
 				const TRect _def_rect(0, 0, 10, 10);
 				SString ctl_text;
 				const DlScopeList & r_cl = p_scope->GetChildList();
-				for(uint ci = 0; ci < r_cl.getCount(); ci++) {
-					const DlScope * p_item = r_cl.at(ci);
-					if(p_item) {
-						uint32 vk = 0;
-						CtmExprConst c_vk = p_item->GetConst(DlScope::cuifViewKind);
-						//cuifCtrlText
-						if(!!c_vk) {
-							if(rCtx.GetConstData(c_vk, c_buf, sizeof(c_buf))) {
-								vk = *reinterpret_cast<const uint32 *>(c_buf);
-							}
-						}
-						if(vk) {
+				{
+					uint last_dyn_id = 1000000; 
+					for(uint ci = 0; ci < r_cl.getCount(); ci++) {
+						const DlScope * p_item = r_cl.at(ci);
+						if(p_item) {
+							uint32 vk = 0;
+							rCtx.GetConst_Uint32(p_item, DlScope::cuifViewKind, vk);
 							//UiItemKind::GetSymbById(vk, temp_buf);
-							const SUiLayoutParam * p_lp = rCtx.GetConst_LayoutBlock(p_item);
+							const SUiLayoutParam * p_lp = rCtx.GetConst_LayoutBlock(p_item, DlScope::cuifLayoutBlock);
 							switch(vk) {
 								case UiItemKind::kInput:
 									{
 										TRect rc;
-										if(p_lp) {
-											FRect rect;
-											const uint gnrr = p_lp ? p_lp->GetNominalRect(rect) : 0;
-											if(rect.Width() <= 0.0f) {
-												rect.b.x = rect.a.x + 60.0f;
-											}
-											if(rect.Height() <= 0.0f) {
-												rect.b.y = rect.a.y + 60.0f;
-											}
-											rc.Set(rect);
-										}
-										TInputLine * p_ctl = new TInputLine(rc, 0, 0);
+										FRect rect;
+										const uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(p_lp, rect, 60.0f, 21.0f);
+										rc.Set(rect);
+										//
+										TInputLine * p_ctl = new TInputLine(rc, 0/* @todo type */, 0);
 										InsertCtlWithCorrespondingNativeItem(p_ctl, p_item->ID, 0, /*extraPtr*/0);
 										{
 											// Label
@@ -8451,6 +8451,14 @@ private:
 												//cuifCtrlLblRect,  // raw    Координаты текстового ярлыка, ассоциированного с управляющим элементом
 												//cuifCtrlLblSymb,  // string Символ текстового ярлыка, ассоциированного с управляющим элементом
 												//cuifLabelRect,    // raw(UiRelRect) Положение текстового ярлыка, ассоциированного с управляющим элементом
+												//cuifLblLayoutBlock
+												const SUiLayoutParam * p_lp_label = rCtx.GetConst_LayoutBlock(p_item, DlScope::cuifLblLayoutBlock);
+												TRect rc_label;
+												FRect rect_label;
+												const uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(p_lp_label, rect_label, 60.0f, 13.0f);
+												rc_label.Set(rect_label);
+												TLabel * p_lbl = new TLabel(rc_label, ctl_text, p_ctl);
+												InsertCtlWithCorrespondingNativeItem(p_lbl, 0, 0, /*extraPtr*/0);
 											}
 										}
 									}
@@ -8458,17 +8466,9 @@ private:
 								case UiItemKind::kStatic:
 									{
 										TRect rc;
-										if(p_lp) {
-											FRect rect;
-											const uint gnrr = p_lp ? p_lp->GetNominalRect(rect) : 0;
-											if(rect.Width() <= 0.0f) {
-												rect.b.x = rect.a.x + 60.0f;
-											}
-											if(rect.Height() <= 0.0f) {
-												rect.b.y = rect.a.y + 60.0f;
-											}
-											rc.Set(rect);
-										}
+										FRect rect;
+										const uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(p_lp, rect, 60.0f, 60.0f);
+										rc.Set(rect);
 										TStaticText * p_ctl = new TStaticText(rc, 0);
 										InsertCtlWithCorrespondingNativeItem(p_ctl, p_item->ID, 0, /*extraPtr*/0);
 									}
@@ -8476,17 +8476,9 @@ private:
 								case UiItemKind::kPushbutton:
 									{
 										TRect rc;
-										if(p_lp) {
-											FRect rect;
-											const uint gnrr = p_lp ? p_lp->GetNominalRect(rect) : 0;
-											if(rect.Width() <= 0.0f) {
-												rect.b.x = rect.a.x + 60.0f;
-											}
-											if(rect.Height() <= 0.0f) {
-												rect.b.y = rect.a.y + 60.0f;
-											}
-											rc.Set(rect);
-										}
+										FRect rect;
+										const uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(p_lp, rect, 60.0f, 60.0f);
+										rc.Set(rect);
 										uint32 cmd_id = 0;
 										SString cmd_symb;
 										rCtx.GetConst_Uint32(p_item, DlScope::cuifCtrlCmd, cmd_id); // uint32 ИД команды кнопки
@@ -8497,18 +8489,115 @@ private:
 									}
 									break;
 								case UiItemKind::kCheckbox: 
-									break;
-								case UiItemKind::kRadioCluster: 
+									{
+										
+									}
 									break;
 								case UiItemKind::kCheckCluster: 
+									{
+										TRect rc;
+										FRect rect;
+										const uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(p_lp, rect, 60.0f, 60.0f);
+										rc.Set(rect);
+										TCluster * p_ctl = new TCluster(rc, CHECKBOXES, 0);
+										{
+											const DlScopeList & r_item_scope_list = p_item->GetChildList();
+											for(uint cii = 0; cii < r_item_scope_list.getCount(); cii++) {
+												const DlScope * p_ci = r_item_scope_list.at(cii);
+												if(p_ci) {
+													if(rCtx.GetConst_String(p_ci, DlScope::cuifCtrlText, temp_buf)) {
+														TRect rc_item;
+														FRect rect_item;
+														const SUiLayoutParam * p_lp_item = rCtx.GetConst_LayoutBlock(p_ci, DlScope::cuifLayoutBlock);
+														const uint gnrr_item = SUiLayoutParam::GetNominalRectWithDefaults(p_lp_item, rect_item, rect.Width() - 2.0f, 16.0f);
+														rc_item.Set(rect_item);
+														p_ctl->AddItem(-1, temp_buf, &rc_item);
+													}
+												}
+											}
+										}
+										InsertCtlWithCorrespondingNativeItem(p_ctl, p_item->ID, 0, /*extraPtr*/0);
+									}
+									break;
+								case UiItemKind::kRadioCluster: 
+									{
+										TRect rc;
+										FRect rect;
+										const uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(p_lp, rect, 60.0f, 60.0f);
+										rc.Set(rect);
+										TCluster * p_ctl = new TCluster(rc, RADIOBUTTONS, 0);
+										{
+											const DlScopeList & r_item_scope_list = p_item->GetChildList();
+											for(uint cii = 0; cii < r_item_scope_list.getCount(); cii++) {
+												const DlScope * p_ci = r_item_scope_list.at(cii);
+												if(p_ci) {
+													if(rCtx.GetConst_String(p_ci, DlScope::cuifCtrlText, temp_buf)) {
+														TRect rc_item;
+														FRect rect_item;
+														const SUiLayoutParam * p_lp_item = rCtx.GetConst_LayoutBlock(p_ci, DlScope::cuifLayoutBlock);
+														const uint gnrr_item = SUiLayoutParam::GetNominalRectWithDefaults(p_lp_item, rect_item, rect.Width() - 2.0f, 16.0f);
+														rc_item.Set(rect_item);
+														p_ctl->AddItem(-1, temp_buf, &rc_item);
+													}
+												}
+											}
+										}
+										InsertCtlWithCorrespondingNativeItem(p_ctl, p_item->ID, 0, /*extraPtr*/0);
+									}
 									break;
 								case UiItemKind::kCombobox: 
+									{
+										TRect rc;
+										FRect rect;
+										const uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(p_lp, rect, 60.0f, 60.0f);
+										rc.Set(rect);
+										if(rCtx.GetConst_String(p_item, DlScope::cuifCbLineSymb, temp_buf)) {
+											debug_mark = true;
+										}
+										TInputLine * p_il = new TInputLine(rc, S_ZSTRING, MKSFMT(128, 0));
+										p_il->SetId(++last_dyn_id);
+										TRect rc_cb;
+										rc_cb.a.x = rc.b.x+1;
+										rc_cb.b.x = rc_cb.a.x+1 + rc.height();
+										rc_cb.a.y = rc.a.y;
+										rc_cb.b.y = rc.b.y;
+										ComboBox * p_cb = new ComboBox(rc_cb, cbxAllowEmpty|cbxDisposeData|cbxListOnly, p_il);
+										p_cb->SetId(p_item->ID);
+										InsertCtlWithCorrespondingNativeItem(p_cb, p_item->ID, 0, /*extraPtr*/0);
+										{
+											// Label
+											if(rCtx.GetConst_String(p_item, DlScope::cuifCtrlText, ctl_text)) {
+												//cuifCtrlLblRect,  // raw    Координаты текстового ярлыка, ассоциированного с управляющим элементом
+												//cuifCtrlLblSymb,  // string Символ текстового ярлыка, ассоциированного с управляющим элементом
+												//cuifLabelRect,    // raw(UiRelRect) Положение текстового ярлыка, ассоциированного с управляющим элементом
+												//cuifLblLayoutBlock
+												const SUiLayoutParam * p_lp_label = rCtx.GetConst_LayoutBlock(p_item, DlScope::cuifLblLayoutBlock);
+												TRect rc_label;
+												FRect rect_label;
+												const uint gnrr_label = SUiLayoutParam::GetNominalRectWithDefaults(p_lp_label, rect_label, 60.0f, 13.0f);
+												rc_label.Set(rect_label);
+												TLabel * p_lbl = new TLabel(rc_label, ctl_text, p_il);
+												InsertCtlWithCorrespondingNativeItem(p_lbl, 0, 0, /*extraPtr*/0);
+											}
+										}
+									}
 									break;
 								case UiItemKind::kListbox: 
 									break;
 								case UiItemKind::kTreeListbox: 
 									break;
 								case UiItemKind::kFrame: 
+									if(0) {
+										TRect rc;
+										FRect rect;
+										const uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(p_lp, rect, 60.0f, 60.0f);
+										rc.Set(rect);
+										//rc.b.x = rc.a.x + 20; // @debug
+										//rc.b.y = rc.a.y + 20; // @debug
+
+										TGroupBox * p_gb = new TGroupBox(rc);
+										InsertCtlWithCorrespondingNativeItem(p_gb, p_item->ID, 0, /*extraPtr*/0);
+									}
 									break;
 								case UiItemKind::kLabel: 
 									break;
@@ -8522,6 +8611,41 @@ private:
 						}
 					}
 				}
+			}
+			{
+				{
+					CreateBlock cr_blk;
+					MEMSZERO(cr_blk);
+					RECT cr;
+					::GetClientRect(HW, &cr);
+					cr_blk.Coord = cr;
+					cr_blk.Param = this;
+					cr_blk.H_Process = 0;
+					cr_blk.Style = 0;
+					cr_blk.ExStyle = 0;
+					cr_blk.H_Parent = 0;
+					cr_blk.H_Menu = 0;
+					cr_blk.P_WndCls = 0;
+					cr_blk.P_Title = 0;
+					TView::messageCommand(this, cmInit, &cr_blk);
+				}
+				SetupCtrlTextProc(HW, 0);
+				//RemoveUnusedControls();
+				{
+					TView * v = 0;
+					if((v = P_Last) != 0) {
+						do {
+							HWND   ctrl = GetDlgItem(HW, v->GetId());
+							SETIFZ(ctrl, GetDlgItem(HW, MAKE_BUTTON_ID(v->GetId(), 1)));
+							if(IsWindow(ctrl)) {
+								v->Parent = HW;
+								v->handleWindowsMessage(WM_INITDIALOG, 0/*wParam*/, reinterpret_cast<LPARAM>(this));
+								EnableWindow(ctrl, !v->IsInState(sfDisabled));
+							}
+						} while((v = v->prev()) != P_Last);
+					}
+				}
+				EnumChildWindows(HW, SetupCtrlTextProc, 0);				
 			}
 		}
 	}

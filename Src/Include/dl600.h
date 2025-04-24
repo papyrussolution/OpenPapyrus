@@ -371,6 +371,7 @@ public:
 		cuifViewVariableIdent   = 32, // @v11.0.5 string Символ переменной, ассоциированной с областью view
 		cuifFontSize            = 33, // @v11.0.5 double Размер шрифта  
 		cuifLblLayoutBlock      = 34, // @v12.3.2 SUiLayoutParam Разметка размещения текстовой метки относительно основного управляющего элемента
+		cuifCbLineSymb          = 35, // @v12.3.3 string Символ строки ввода, связанной с комбо-боксом 
 	};
 	struct IfaceBase {
 		bool   FASTCALL IsEq(const IfaceBase & rS) const { return (ID == rS.ID && Flags == rS.Flags); }
@@ -1039,7 +1040,7 @@ public:
 	//
 	// Descr: Возвращает указатель на блок лейаута области pScope, определенного констанантой DlScope::cuifLayoutBlock.
 	//
-	const  SUiLayoutParam * GetConst_LayoutBlock(const DlScope * pScope) const;
+	const  SUiLayoutParam * GetConst_LayoutBlock(const DlScope * pScope, DlScope::COption propId) const;
 	bool   GetConst_String(const DlScope * pScope, DlScope::COption propId, SString & rBuf) const;
 	bool   GetConst_Int(const DlScope * pScope, DlScope::COption propId, int & rValue) const;
 	bool   GetConst_Uint32(const DlScope * pScope, DlScope::COption propId, uint32 & rValue) const;

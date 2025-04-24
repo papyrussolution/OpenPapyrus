@@ -521,7 +521,8 @@ void TInputLine::InputStat::CheckIn()
 			break;
 		*/
 	}
-	return CallWindowProc(p_view->PrevWindowProc, hWnd, uMsg, wParam, lParam);
+	return (p_view && p_view->PrevWindowProc && p_view->PrevWindowProc != TInputLine::DlgProc) ? 
+		CallWindowProc(p_view->PrevWindowProc, hWnd, uMsg, wParam, lParam) : 0;
 }
 
 int TInputLine::OnPaste()
@@ -611,7 +612,9 @@ void TInputLine::Setup(void * pThisHandle, void * pParentHandle)
 	Draw_();
 	//HWND h_wnd = getHandle();
 	TView::SetWindowProp(hw_this, GWLP_USERDATA, this);
-	PrevWindowProc = static_cast<WNDPROC>(TView::SetWindowProp(hw_this, GWLP_WNDPROC, TInputLine::DlgProc));
+	if(PrevWindowProc != TInputLine::DlgProc) { // @v12.3.3
+		PrevWindowProc = static_cast<WNDPROC>(TView::SetWindowProp(hw_this, GWLP_WNDPROC, TInputLine::DlgProc));
+	}
 	if(TView::SGetWindowStyle(hw_this) & ES_READONLY)
 		Sf |= sfReadOnly;
 }
@@ -1001,15 +1004,15 @@ static BOOL CALLBACK ClusterDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPAR
 	return ::CallWindowProc(p_view->PrevWindowProc, hWnd, uMsg, wParam, lParam);
 }
 
-TCluster::TCluster(const TRect & bounds, int aClusterKind, const StringSet * pStrings) : TView(bounds), Value(0), Sel(0), Kind(aClusterKind), DisableMask(0)
+TCluster::TCluster(const TRect & rBounds, int clusterKind, const StringSet * pStrings) : TView(rBounds), Value(0), Sel(0), Kind(clusterKind), DisableMask(0)
 {
-	assert(oneof2(aClusterKind, RADIOBUTTONS, CHECKBOXES));
+	assert(oneof2(clusterKind, RADIOBUTTONS, CHECKBOXES));
 	SubSign = TV_SUBSIGN_CLUSTER;
 	ViewOptions |= (ofSelectable|ofPreProcess|ofPostProcess);
 	if(pStrings) {
 		SString temp_buf;
 		for(uint i = 0; pStrings->get(&i, temp_buf);)
-			addItem(-1, temp_buf);
+			AddItem(-1, temp_buf, 0);
 	}
 }
 
@@ -1022,11 +1025,12 @@ TCluster::~TCluster()
 	// К сожалению, те же действия дублируются одновременно в самой подставной
 	// процедуре (по сообщению WM_DESTROY). Это приводит к некоторой запутанности кода.
 	//
-	if(PrevWindowProc)
+	if(PrevWindowProc) {
 		for(int i = 0; i < 33; i++) {
 			HWND   h_wnd = GetDlgItem(Parent, MAKE_BUTTON_ID(Id, i+1));
 			TView::SetWindowProp(h_wnd, GWLP_WNDPROC, PrevWindowProc);
 		}
+	}
 }
 
 #if 0 // @v9.1.3 {
@@ -1199,7 +1203,7 @@ int TCluster::TransmitData(int dir, void * pData)
 		if(Kind == RADIOBUTTONS)
 			Sel = Value;
 		WPARAM state;
-		for(uint i = 0; i < Strings.getCount(); i++) {
+		for(uint i = 0; i < ItemList.getCount(); i++) {
 			if(Kind == RADIOBUTTONS)
 				state = (static_cast<int>(i) == Sel) ? BST_CHECKED : BST_UNCHECKED;
 			else
@@ -1221,11 +1225,11 @@ void TCluster::setState(uint aState, bool enable)
 		DWORD dis = DisableMask;
 		if(IsInState(sfDisabled))
 			dis = 0xffffffff;
-		for(uint i = 0; i < Strings.getCount(); i++)
+		for(uint i = 0; i < ItemList.getCount(); i++)
 			EnableWindow(GetDlgItem(Parent, MAKE_BUTTON_ID(Id, i+1)), (dis &(1<<i))==0);
 	}
 	else if(aState == sfVisible) {
-		for(uint i = 0; i < Strings.getCount(); i++)
+		for(uint i = 0; i < ItemList.getCount(); i++)
 			ShowWindow(GetDlgItem(Parent, MAKE_BUTTON_ID(Id, i+1)), enable);
 	}
 	else if(aState == sfSelected)
@@ -1241,71 +1245,82 @@ void TCluster::press(ushort item)
 	MessageCommandToOwner(cmClusterClk);
 }
 
-int TCluster::isEnabled(ushort item) const
+bool TCluster::IsEnabled(uint itemIdx) const
 {
-	int    enabled = 1;
-	short  citem = BUTTON_ID(item) - 1;
+	bool   enabled = true;
+	uint   citem = BUTTON_ID(itemIdx) - 1;
 	DWORD  dis = DisableMask;
 	if(IsInState(sfDisabled))
 		dis = 0xffffffff;
 	if(dis & (1 << citem))
-		enabled = 0;
+		enabled = false;
 	return enabled;
 }
 
-int TCluster::isChecked(ushort item) const
+bool TCluster::IsChecked(uint itemIdx) const
 {
-	int    checked = 0;
-	short  citem = BUTTON_ID(item) - 1;
+	bool   checked = false;
+	uint   citem = BUTTON_ID(itemIdx) - 1;
 	if(Kind == RADIOBUTTONS)
-		checked = BIN(Value == citem);
-	else
+		checked = (Value == citem);
+	else {
 		if(Value & (1 << citem))
-			checked = 1;
+			checked = true;
+	}
 	return checked;
 }
-
+/*
 int TCluster::column(int item) const
 {
 	int    col = 0;
 	if(item >= ViewSize.y) {
 		col = -6;
-		for(int i = 0, l = 0, width = 0; i <= item; i++) {
+		int    _len = 0;
+		for(int i = 0, width = 0; i <= item; i++) {
 			if((i % ViewSize.y) == 0) {
 				col += width + 6;
 				width = 0;
 			}
-			if(i < static_cast<int>(Strings.getCount()))
-				l = sstrleni(Strings.at(i));
-			if(l > width)
-				width = l;
+			if(i < ItemList.getCountI()) {
+				const Item * p_item = ItemList.at(i);
+				_len = p_item ? sstrleni(p_item->Text) : 0;
+			}
+			if(_len > width)
+				width = _len;
 		}
 	}
 	return col;
 }
-
-int  TCluster::row(int item) const { return (item % ViewSize.y); }
-uint TCluster::getNumItems() const { return Strings.getCount(); }
+*/
+//int  TCluster::row(int item) const { return (item % ViewSize.y); }
+uint TCluster::getNumItems() const { return ItemList.getCount(); }
 bool TCluster::IsItemEnabled(int item) const { return !(DisableMask & (1U<<item)); }
-void TCluster::deleteAll() { Strings.freeAll(); }
+void TCluster::deleteAll() { ItemList.freeAll(); }
 int  TCluster::addAssoc(long pos, long val) { return ValAssoc.Update(pos, val, 0); }
 
-void TCluster::addItem(int item, const char * pStr)
+void TCluster::AddItem(int item, const char * pText, const TRect * pRect)
 {
-	char * p_dup_str = newStr(pStr);
-	if(p_dup_str) {
-		if(item == -1)
-			Strings.insert(p_dup_str);
-		else
-			Strings.atInsert(item, p_dup_str);
-		ViewSize.y = Strings.getCount();
+	if(pText) {
+		Item * p_new_item = new Item;
+		if(p_new_item) {
+			p_new_item->Text = pText;
+			if(pRect)
+				p_new_item->Bounds = *pRect;
+			if(item == -1) {
+				ItemList.insert(p_new_item);
+			}
+			else {
+				ItemList.atInsert(item, p_new_item);
+			}
+			// @v12.3.3 ViewSize.y = ItemList.getCount();
+		}
 	}
 }
 
 void TCluster::deleteItem(int item)
 {
-	Strings.atFree(item);
-	ViewSize.y = Strings.getCount();
+	ItemList.atFree(item);
+	ViewSize.y = ItemList.getCount();
 }
 
 void TCluster::disableItem(int item, bool disable)
@@ -1331,11 +1346,21 @@ int TCluster::GetText(int pos, SString & rBuf)
 int TCluster::SetText(int pos, const char * pText)
 {
 	int    ok = 0;
-	if(pos >= 0 && pos < static_cast<int>(getNumItems())) {
+	if(pos >= 0 && pos < ItemList.getCountI()) {
 		SString temp_buf(pText);
 		TView::SSetWindowText(GetDlgItem(Parent, MAKE_BUTTON_ID(Id, pos+1)), temp_buf.Transf(CTRANSF_INNER_TO_OUTER));
-		deleteItem(pos);
-		addItem(pos, pText);
+		Item * p_item = ItemList.at(pos);
+		if(p_item) {
+			p_item->Text = pText;
+		}
+		else {
+			Item * p_new_item = new Item;
+			if(p_new_item) {
+				p_new_item->Text = pText;
+				ItemList.atFree(pos);
+				ItemList.atInsert(pos, p_new_item);
+			}
+		}
 		ok = 1;
 	}
 	return ok;
@@ -1370,14 +1395,16 @@ int TCluster::setDataAssoc(long val)
 				def_val = p_assoc->Val;
 				break;
 			}
-		for(i = 0; !found && ValAssoc.enumItems(&i, (void **)&p_assoc);)
-			if(p_assoc->Key != -1)
+		for(i = 0; !found && ValAssoc.enumItems(&i, (void **)&p_assoc);) {
+			if(p_assoc->Key != -1) {
 				if(p_assoc->Val == val) {
 					v = (ushort)p_assoc->Key;
 					found = 1;
 				}
 				else if(p_assoc->Val == def_val)
 					def_key = p_assoc->Key;
+			}
+		}
 		if(!found)
 			v = (ushort)def_key;
 	}
@@ -1390,16 +1417,16 @@ int TCluster::setDataAssoc(long val)
 	return 1;
 }
 
-int TCluster::getDataAssoc(long * pVal)
+bool TCluster::getDataAssoc(long * pVal)
 {
-	int    ok = 0;
+	bool   ok = false;
 	ushort v = 0;
 	long   val = *pVal;
 	TransmitData(-1, &v);
 	if(Kind == RADIOBUTTONS) {
 		if(ValAssoc.Search(static_cast<long>(v), &val, 0) || ValAssoc.Search(-1, &val, 0)) {
-			*pVal = val;
-			ok = 1;
+			ASSIGN_PTR(pVal, val);
+			ok = true;
 		}
 	}
 	else if(Kind == CHECKBOXES) {
@@ -1408,8 +1435,8 @@ int TCluster::getDataAssoc(long * pVal)
 			if(ValAssoc.Search(i, &temp_val, 0))
 				SETFLAG(val, temp_val, (v & (1 << i)));
 		}
-		*pVal = val;
-		ok = 1;
+		ASSIGN_PTR(pVal, val);
+		ok = true;
 	}
 	return ok;
 }

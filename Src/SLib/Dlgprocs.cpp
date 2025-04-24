@@ -35,7 +35,7 @@ static const __KeyAssoc _KeyAssocTab[] = {
 	{ VK_DOWN,     kbDown,      0,          0,           0 },
 	{ VK_LEFT,     kbLeft,      0,          0,           0 }, 
 	{ VK_RIGHT,    kbRight,     0,          0,           0 },
-	{ VK_TAB,      kbTab,       kbShiftTab, kbCtrlTab,   0 }, // @v10.2.2
+	{ VK_TAB,      kbTab,       kbShiftTab, kbCtrlTab,   0 },
 };
 
 static uint16 FASTCALL __MapVk(uint32 vk, uint stateP)
@@ -140,7 +140,7 @@ void TDialog::RemoveUnusedControls()
 					cr_blk.P_Title = 0;
 					TView::messageCommand(p_dlg, cmInit, &cr_blk);
 				}
-				if(!export_mode) // @v11.0.4
+				if(!export_mode)
 					SetupCtrlTextProc(p_dlg->H(), 0);
 				p_dlg->RemoveUnusedControls();
 				if((v = p_dlg->P_Last) != 0) {
@@ -173,7 +173,7 @@ void TDialog::RemoveUnusedControls()
 		case WM_KILLFOCUS:
 			p_dlg = static_cast<TDialog *>(TView::GetWindowUserData(hwndDlg));
 			if(p_dlg) {
-				long prev_id = CLUSTER_ID(GetDlgCtrlID(reinterpret_cast<HWND>(lParam)));
+				const long prev_id = CLUSTER_ID(GetDlgCtrlID(reinterpret_cast<HWND>(lParam)));
 				v = p_dlg->P_Last;
 				if(v) do {
 					if(v->TestId(prev_id)) {

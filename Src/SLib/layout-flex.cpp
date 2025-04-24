@@ -670,6 +670,21 @@ bool SUiLayoutParam::IsPositionAbsoluteX() const
 	return result;
 }
 
+/*static*/uint SUiLayoutParam::GetNominalRectWithDefaults(const SUiLayoutParam * pLp, FRect & rR, float defWidth, float defHeight)
+{
+	rR.Z();
+	uint result = pLp ? pLp->GetNominalRect(rR) : 0;
+	if(rR.Width() <= 0.0f && defWidth != 0.0f) {
+		rR.b.x = rR.a.x + defWidth;
+		result |= fDefaultSzX;
+	}
+	if(rR.Height() <= 0.0f && defHeight != 0.0f) {
+		rR.b.y = rR.a.y + defHeight;
+		result |= fDefaultSzY;
+	}
+	return result;
+}
+
 uint SUiLayoutParam::GetNominalRect(FRect & rR) const // @v12.3.2 @construction
 {
 	uint   result = 0;

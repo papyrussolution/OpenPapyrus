@@ -1,11 +1,8 @@
+// rbtz.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *******************************************************************************
- * Copyright (C) 2007-2013, International Business Machines Corporation and
- * others. All Rights Reserved.
- *******************************************************************************
- */
+// Copyright (C) 2007-2013, International Business Machines Corporation and others. All Rights Reserved.
+//
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -52,9 +49,9 @@ static bool compareRules(UVector* rules1, UVector* rules2)
 
 UOBJECT_DEFINE_RTTI_IMPLEMENTATION(RuleBasedTimeZone)
 
-RuleBasedTimeZone::RuleBasedTimeZone(const UnicodeString & id, InitialTimeZoneRule* initialRule)
-	: BasicTimeZone(id), fInitialRule(initialRule), fHistoricRules(NULL), fFinalRules(NULL),
-	fHistoricTransitions(NULL), fUpToDate(FALSE) {
+RuleBasedTimeZone::RuleBasedTimeZone(const UnicodeString & id, InitialTimeZoneRule* initialRule) : 
+	BasicTimeZone(id), fInitialRule(initialRule), fHistoricRules(NULL), fFinalRules(NULL), fHistoricTransitions(NULL), fUpToDate(FALSE) 
+{
 }
 
 RuleBasedTimeZone::RuleBasedTimeZone(const RuleBasedTimeZone& source) : BasicTimeZone(source), fInitialRule(source.fInitialRule->clone()),
@@ -68,7 +65,8 @@ RuleBasedTimeZone::RuleBasedTimeZone(const RuleBasedTimeZone& source) : BasicTim
 	}
 }
 
-RuleBasedTimeZone::~RuleBasedTimeZone() {
+RuleBasedTimeZone::~RuleBasedTimeZone() 
+{
 	deleteTransitions();
 	deleteRules();
 }

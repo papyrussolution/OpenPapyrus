@@ -551,10 +551,14 @@ public:
 		fEvaluateScroller = 0x0400, // @v11.0.3 процессинговый флаг, предписывающий рассчитывать параметры скроллинга.
 			// Если флаг не установлен, то скроллинг рассчитываться точно не будет. Если установлен, то - в зависимости
 			// от параметров контейнера. Рассчитанные параметры скроллинга сохраняются по указателю SUiLayout::Result::P_Scrlr.
-		fNominalSzX       = 0x0800, // @v12.3.2 Определен номинальный размер X. Этот флаг не применяется для определения внутреннего состояния, 
-			// но нужен для индикации результата вычислений (в частности, функцией GetNominalRect).
-		fNominalSzY       = 0x1000, // @v12.3.2 Определен номинальный размер Y. Этот флаг не применяется для определения внутреннего состояния, 
-			// но нужен для индикации результата вычислений (в частности, функцией GetNominalRect).
+		//
+		// Следующие 4 флага не применяются для определения внутреннего состояния, но нужны для индикации результата вычислений
+		// (в частности, функциями GetNominalRect, GetNominalRectWithDefaults).
+		//
+		fNominalSzX       = 0x0800, // @v12.3.2 Определен номинальный размер X.
+		fNominalSzY       = 0x1000, // @v12.3.2 Определен номинальный размер Y.
+		fDefaultSzX       = 0x2000, // @v12.3.3 Применен горизонтальный размер по умолчанию
+		fDefaultSzY       = 0x4000, // @v12.3.3 Применен вертикальный размер по умолчанию
 	};
 	enum {
 		alignAuto = 0,
@@ -601,7 +605,8 @@ public:
 	//
 	// Descr: Возвращает специальную 4-байтную сигнатуру, идентифицирующую объект в потоках сериализации.
 	//
-	static uint32 GetSerializeSignature() { return 0x15DE0522U; }
+	static constexpr uint32 GetSerializeSignature() { return 0x15DE0522U; }
+	static uint   GetNominalRectWithDefaults(const SUiLayoutParam * pLp, FRect & rR, float defWidth, float defHeight);
 	SUiLayoutParam();
 	//
 	// Descr: конструктор для контейнера с наиболее популярными аргументами.
@@ -4017,7 +4022,15 @@ private:
 
 class TCluster : public TView {
 public:
-	TCluster(const TRect & bounds, int aKind, const StringSet * pStrings);
+	struct Item {
+		TRect Bounds;
+		SString Text;
+	};
+	//
+	// ARG(kind IN): Вид кластера. Либо RADIOBUTTONS, либо CHECKBOXES
+	//
+	TCluster(const TRect & rBounds, int kind, const StringSet * pStrings);
+	TCluster(const TRect & rBounds, int kind, const TSCollection <Item> & rItemList);
 	~TCluster();
 	virtual int    TransmitData(int dir, void * pData);
 	virtual void   setState(uint aState, bool enable);
@@ -4025,33 +4038,37 @@ public:
 	void   press(ushort item);
 	uint   getNumItems() const;
 	int    GetText(int pos, SString & rBuf);
-	int    SetText(int pos, const char *);
-	void   addItem(int, const char *);
+	int    SetText(int pos, const char * pText);
+	void   AddItem(int item, const char * pText, const TRect * pRect);
 	void   deleteItem(int);
 	void   disableItem(int pos /* 0.. */, bool disable);
 	bool   IsItemEnabled(int item) const; // item = номер элемента в списке 0..
 	void   deleteAll();
-	int    isChecked(ushort item) const;  // item = (ushort)GetWindowLong(hWnd, GWL_ID);
-	int    isEnabled(ushort item) const;  // item = (ushort)GetWindowLong(hWnd, GWL_ID);
+	bool   IsChecked(uint itemIdx) const;  // item = (ushort)GetWindowLong(hWnd, GWL_ID);
+	bool   IsEnabled(uint itemIdx) const;  // item = (ushort)GetWindowLong(hWnd, GWL_ID);
 	//
 	// Три функции для ассоциирования элементов кластера с прикладными значениями.
 	// pos == -1 соответствует значению по умолчанию.
 	//
 	int    addAssoc(long pos, long val);
 	int    setDataAssoc(long);
-	int    getDataAssoc(long *);
+	bool   getDataAssoc(long *);
 	int    getItemByAssoc(long val, int * pItem) const;
 	int    getKind() const { return static_cast<int>(Kind); }
+	const  Item * GetItemC(uint idx) const { return (idx < ItemList.getCount()) ? ItemList.at(idx) : 0; }
 protected:
 	virtual int    handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
-	int16  Kind;  // RADIOBUTTONS || CHECKBOXES
-	ushort Value;
-	int    Sel;
+
+	const  int32 Kind;  // RADIOBUTTONS || CHECKBOXES
+	uint16 Value;   // Это поле надо сделать типа uint32 но для этого необходимо аккуратно поменять все вызовы TCluster::TransmitData
+	uint16 Reserve; // @alignment
+	int    Sel;   // Выбранный элемент кластера (RADIOBUTTONS)
 	uint32 DisableMask; // @v11.6.2 int-->uint32
-	SStrCollection Strings;
+	// @v12.3.3 SStrCollection Strings;
+	TSCollection <Item> ItemList; // @v12.3.3
 private:
-	int    column(int item) const;
-	int    row(int item) const;
+	//int    column(int item) const;
+	//int    row(int item) const;
 	LAssocArray ValAssoc;
 };
 

@@ -1162,30 +1162,79 @@ int PPALDD_HttpPreprocessBase::InitData(PPFilt & rFilt, long rsrv)
 int TestTddo()
 {
 	int    ok = 1;
-	SString temp_buf, in_buf;
+	SString temp_buf;
+	SString in_buf;
 	SBuffer out_buf;
 	LongArray id_list;
 	StringSet ext_param_list;
 	Tddo tddo;
-	id_list.addUnique(55);
-	id_list.addUnique(3);
-	(temp_buf = "\\papyrus\\src\\pptest\\data").SetLastSlash().Cat("test.tddo");
-	SFile in_file(temp_buf, SFile::mRead);
-	tddo.SetInputFileName(temp_buf);
-	(temp_buf = "\\papyrus\\src\\pptest\\out").SetLastSlash().Cat("test-out.tddo");
-	SFile out_file(temp_buf, SFile::mWrite);
-	THROW_SL(in_file.IsValid());
-	THROW_SL(out_file.IsValid());
-	while(in_file.ReadLine(temp_buf))
-		in_buf.Cat(temp_buf);
-	for(uint i = 0; i < id_list.getCount(); i++) {
-		DlRtm::ExportParam ep;
-		PPFilt _pf(id_list.get(i));
-		ep.P_F = &_pf;
-		tddo.Process(0, in_buf, /*id_list.get(i), 0*/ep, &ext_param_list, out_buf);
-		out_buf.WriteByte('\n');
+	{
+		/*
+			public String getGoodsArCode(String token, String barcode, String inn) throws ArgumentException, AuthException, OperationException
+			{
+				String arcode = "";
+				if(SL.Empty(token))
+				throw new ArgumentException(ERR_NO_AUTH_TOKEN);
+				if(SL.Empty(barcode))
+					throw new ArgumentException(ERR_BARCODE_NOT_SPECIFIED);
+				if(SL.Empty(inn))
+					throw new ArgumentException(ERR_INN_NOT_SPECIFIED);
+				try {
+					AuthRecord authRecord = AuthManager.fetchAuthRecord(token);
+					ClientInfo clientInfo = authRecord.getClientInfo();
+					Data.Goods goods = null;
+					{
+						GoodsFilter filt = new GoodsFilter();
+						filt.Barcode = barcode;
+						goods = GoodsObj.selectFirst(filt, clientInfo, FLG_TRFFTA);
+					}
+					if(goods == null)
+						throw new OperationException("Товар с указанным штрих-кодом не найден");
+					Data.Person person = null;
+					{
+						PersonFilter filt = new PersonFilter();
+						filt.Register.Cr.Key = CR.CODE;
+						filt.Register.Cr.Value = "INN";
+						filt.Register.Number = inn;
+						person = PersonObj.selectFirst(filt, clientInfo, FLG_TRFFTA);
+					}
+					if(person == null)
+						throw new OperationException("Персоналия с указанным ИНН не найдена");
+					arcode = GoodsObj.getGoodsArCode(goods.ID, person.ID, clientInfo);
+				} catch(_Exception e) {
+					int _code = e.getCode();
+					if(_code == ERR_INVAUTHTOKEN)
+						throw new AuthException(ERR_INVAUTHTOKEN);
+					else
+						throw new OperationException(ERR_INTERNAL);
+				}
+				return arcode;
+			}
+		*/ 
+		//"GETTDDO INLINE ${@(Goods, ", goodsID, ").GetArCode(@(Global, 0).PersonToArticle(", personID, ", @(Global, 0).GetSupplAccSheet()).Id)}";
+		
 	}
-	out_file.Write(out_buf.constptr(), out_buf.GetAvailableSize());
+	{
+		id_list.addUnique(55);
+		id_list.addUnique(3);
+		(temp_buf = "\\papyrus\\src\\pptest\\data").SetLastSlash().Cat("test.tddo");
+		SFile in_file(temp_buf, SFile::mRead);
+		tddo.SetInputFileName(temp_buf);
+		(temp_buf = "\\papyrus\\src\\pptest\\out").SetLastSlash().Cat("test-out.tddo");
+		SFile out_file(temp_buf, SFile::mWrite);
+		THROW_SL(in_file.IsValid());
+		THROW_SL(out_file.IsValid());
+		while(in_file.ReadLine(temp_buf))
+			in_buf.Cat(temp_buf);
+		for(uint i = 0; i < id_list.getCount(); i++) {
+			DlRtm::ExportParam ep;
+			PPFilt _pf(id_list.get(i));
+			ep.P_F = &_pf;
+			tddo.Process(0, in_buf, /*id_list.get(i), 0*/ep, &ext_param_list, out_buf);
+			out_buf.WriteByte('\n');
+		}
+		out_file.Write(out_buf.constptr(), out_buf.GetAvailableSize());
+	}
 	CATCHZOK
 	return ok;
 }
