@@ -865,9 +865,6 @@
       <Filter>fnv-hash</Filter>
     </ClCompile>
     <ClCompile Include="..\SLib\slrecmgr.cpp" />
-    <ClCompile Include="..\SLib\simplecpp\main.cpp">
-      <Filter>SimpleCPP</Filter>
-    </ClCompile>
     <ClCompile Include="..\SLib\simplecpp\simplecpp.cpp">
       <Filter>SimpleCPP</Filter>
     </ClCompile>
