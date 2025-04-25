@@ -35864,8 +35864,8 @@ public:
 class PPObjVATBook : public PPObject {
 public:
 	static int EditConfig(PPID kind, VATBCfg * cfg);
-	static double FASTCALL GetVatRate(uint idx);
-	static bool   FASTCALL IsVatRate(uint idx, double rate);
+	static double FASTCALL GetVatRate(uint idx/*[0..4]*/);
+	static bool   FASTCALL IsVatRate(uint idx/*[0..4]*/, double rate);
 	//
 	// Descr: Извлекает базовое значение типа строки записи из (возможно) комбинированной
 	//   величины, хранящейся в записи VATBookTbl::Rec.

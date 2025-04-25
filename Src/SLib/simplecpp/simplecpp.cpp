@@ -1,7 +1,9 @@
-/*
- * simplecpp - A simple and high-fidelity C/C++ preprocessor library
- * Copyright (C) 2016-2023 simplecpp team
- */
+// SIMPLE.CPP
+// simplecpp - A simple and high-fidelity C/C++ preprocessor library
+// Copyright (C) 2016-2023 simplecpp team
+// @codepage UTF-8
+// For this module compiler option /EHsc must be set (Enable C++ exceptions) and precompiled headers must be off
+//
 #include <slib-internal.h>
 #pragma hdrstop
 
@@ -499,7 +501,7 @@ simplecpp::TokenList::~TokenList()
 	clear();
 }
 
-simplecpp::TokenList &simplecpp::TokenList::operator=(const TokenList &other)
+simplecpp::TokenList & simplecpp::TokenList::operator=(const TokenList &other)
 {
 	if(this != &other) {
 		clear();
@@ -882,11 +884,9 @@ void simplecpp::TokenList::constFold()
 		Token * tok = back();
 		while(tok && tok->op != '(')
 			tok = tok->previous;
-
 		// no '(', goto first token
 		if(!tok)
 			tok = front();
-
 		// Constant fold expression
 		constFoldUnaryNotPosNeg(tok);
 		constFoldMulDivRem(tok);
@@ -896,14 +896,11 @@ void simplecpp::TokenList::constFold()
 		constFoldBitwise(tok);
 		constFoldLogicalOp(tok);
 		constFoldQuestionOp(&tok);
-
 		// If there is no '(' we are done with the constant folding
 		if(tok->op != '(')
 			break;
-
 		if(!tok->next || !tok->next->next || tok->next->next->op != ')')
 			break;
-
 		tok = tok->next;
 		deleteToken(tok->previous);
 		deleteToken(tok->next);
@@ -1114,7 +1111,6 @@ void simplecpp::TokenList::constFoldMulDivRem(Token * tok)
 		}
 		else
 			continue;
-
 		tok = tok->previous;
 		tok->setstr(toString(result));
 		deleteToken(tok->next);
@@ -1271,12 +1267,14 @@ void simplecpp::TokenList::constFoldLogicalOp(Token * tok)
 void simplecpp::TokenList::constFoldQuestionOp(Token ** tok1)
 {
 	bool gotoTok1 = false;
-	for(Token * tok = *tok1; tok && tok->op != ')'; tok =  gotoTok1 ? *tok1 : tok->next) {
+	for(Token * tok = *tok1; tok && tok->op != ')'; tok = gotoTok1 ? *tok1 : tok->next) {
 		gotoTok1 = false;
 		if(tok->str() != "?")
 			continue;
-		if(!tok->previous || !tok->next || !tok->next->next)
+		if(!tok->previous || !tok->next || !tok->next->next) {
 			throw std::runtime_error("invalid expression");
+			break; // РќР° СЃР»СѓС‡Р°Р№, РµСЃР»Рё exception РЅРµ РїРѕРґРґРµСЂР¶РёРІР°СЋС‚СЃСЏ //
+		}
 		if(!tok->previous->number)
 			continue;
 		if(tok->next->next->op != ':')
@@ -1284,15 +1282,19 @@ void simplecpp::TokenList::constFoldQuestionOp(Token ** tok1)
 		Token * const condTok = tok->previous;
 		Token * const trueTok = tok->next;
 		Token * const falseTok = trueTok->next->next;
-		if(!falseTok)
+		if(!falseTok) {
 			throw std::runtime_error("invalid expression");
-		if(condTok == *tok1)
-			*tok1 = (condTok->str() != "0" ? trueTok : falseTok);
-		deleteToken(condTok->next); // ?
-		deleteToken(trueTok->next); // :
-		deleteToken(condTok->str() == "0" ? trueTok : falseTok);
-		deleteToken(condTok);
-		gotoTok1 = true;
+			break; // РќР° СЃР»СѓС‡Р°Р№, РµСЃР»Рё exception РЅРµ РїРѕРґРґРµСЂР¶РёРІР°СЋС‚СЃСЏ //
+		}
+		else {
+			if(condTok == *tok1)
+				*tok1 = (condTok->str() != "0" ? trueTok : falseTok);
+			deleteToken(condTok->next); // ?
+			deleteToken(trueTok->next); // :
+			deleteToken(condTok->str() == "0" ? trueTok : falseTok);
+			deleteToken(condTok);
+			gotoTok1 = true;
+		}
 	}
 }
 
@@ -2448,13 +2450,10 @@ static std::string realFilename(const std::string &f)
 	ret.reserve(f.size()); // this will be the final size
 	if(realFilePathMap.getCacheEntry(f, ret))
 		return ret;
-
 	// Current subpath
 	std::string subpath;
-
 	for(std::string::size_type pos = 0; pos < f.size(); ++pos) {
 		const uchar c = f[pos];
-
 		// Separator.. add subpath and separator
 		if(c == '/' || c == '\\') {
 			// if subpath is empty just add separator
@@ -2462,19 +2461,14 @@ static std::string realFilename(const std::string &f)
 				ret += c;
 				continue;
 			}
-
-			const bool isDriveSpecification =
-			    (pos == 2 && subpath.size() == 2 && std::isalpha(subpath[0]) && subpath[1] == ':');
-
+			const bool isDriveSpecification = (pos == 2 && subpath.size() == 2 && std::isalpha(subpath[0]) && subpath[1] == ':');
 			// Append real filename (proper case)
 			std::string f2;
 			if(!isDriveSpecification && realFileName(f.substr(0, pos), f2))
 				ret += f2;
 			else
 				ret += subpath;
-
 			subpath.clear();
-
 			// Append separator
 			ret += c;
 		}
@@ -2482,7 +2476,6 @@ static std::string realFilename(const std::string &f)
 			subpath += c;
 		}
 	}
-
 	if(!subpath.empty()) {
 		std::string f2;
 		if(realFileName(f, f2))
@@ -2490,7 +2483,6 @@ static std::string realFilename(const std::string &f)
 		else
 			ret += subpath;
 	}
-
 	realFilePathMap.addToCache(f, ret);
 	return ret;
 }
@@ -2605,7 +2597,6 @@ static void simplifySizeof(simplecpp::TokenList &expr, const std::map<std::strin
 				}
 			}
 		}
-
 		std::string type;
 		for(simplecpp::Token * typeToken = tok1; typeToken != tok2; typeToken = typeToken->next) {
 			if((typeToken->str() == "unsigned" || typeToken->str() == "signed") && typeToken->next->name)
@@ -2616,7 +2607,6 @@ static void simplifySizeof(simplecpp::TokenList &expr, const std::map<std::strin
 				type += ' ';
 			type += typeToken->str();
 		}
-
 		const std::map<std::string, std::size_t>::const_iterator it = sizeOfType.find(type);
 		if(it != sizeOfType.end())
 			tok->setstr(toString(it->second));
@@ -2961,7 +2951,7 @@ static void simplifyNumbers(simplecpp::TokenList &expr)
 	}
 }
 
-static void simplifyComments(simplecpp::TokenList &expr)
+static void simplifyComments(simplecpp::TokenList & expr)
 {
 	for(simplecpp::Token * tok = expr.front(); tok;) {
 		simplecpp::Token * const d = tok;
@@ -2980,10 +2970,10 @@ static int64 evaluate(simplecpp::TokenList &expr, const simplecpp::DUI &dui, con
 	simplifyNumbers(expr);
 	expr.constFold();
 	// TODO: handle invalid expressions
-	return expr.cfront() && expr.cfront() == expr.cback() && expr.cfront()->number ? stringToLL(expr.cfront()->str()) : 0LL;
+	return (expr.cfront() && expr.cfront() == expr.cback() && expr.cfront()->number) ? stringToLL(expr.cfront()->str()) : 0LL;
 }
 
-static const simplecpp::Token *gotoNextLine(const simplecpp::Token * tok)
+static const simplecpp::Token * gotoNextLine(const simplecpp::Token * tok)
 {
 	const uint line = tok->location.line;
 	const uint file = tok->location.fileIndex;
@@ -3230,7 +3220,492 @@ static std::string getTimeDefine(const struct tm * timep)
 	strftime(buf, sizeof(buf), "%T", timep);
 	return std::string("\"").append(buf).append("\"");
 }
+//
+//
+//
+simplecpp::PreprocessBlock::PreprocessBlock() : Flags(0), FileList(), OutputTokenList(FileList)
+{
+}
+		
+simplecpp::TokenList simplecpp::PreprocessBlock::MakeSourceTokenList(const char * pSrcBuf, const char * pSrcName)
+{
+	StdCharBufStream stream(reinterpret_cast<const uchar*>(pSrcBuf), strlen(pSrcBuf));
+	return TokenList(pSrcBuf, sstrlen(pSrcBuf), FileList, pSrcName, &MsgList);
+}
 
+static void MakeSizeOfTypeMap(std::map <std::string, std::size_t> rMap)
+{
+	rMap.insert(std::make_pair("char", sizeof(char)));
+	rMap.insert(std::make_pair("short", sizeof(short)));
+	rMap.insert(std::make_pair("short int", rMap["short"]));
+	rMap.insert(std::make_pair("int", sizeof(int)));
+	rMap.insert(std::make_pair("long", sizeof(long)));
+	rMap.insert(std::make_pair("long int", rMap["long"]));
+	rMap.insert(std::make_pair("long long", sizeof(long long)));
+	rMap.insert(std::make_pair("float", sizeof(float)));
+	rMap.insert(std::make_pair("double", sizeof(double)));
+	rMap.insert(std::make_pair("long double", sizeof(long double)));
+	rMap.insert(std::make_pair("char *", sizeof(char *)));
+	rMap.insert(std::make_pair("short *", sizeof(short *)));
+	rMap.insert(std::make_pair("short int *", rMap["short *"]));
+	rMap.insert(std::make_pair("int *", sizeof(int *)));
+	rMap.insert(std::make_pair("long *", sizeof(long *)));
+	rMap.insert(std::make_pair("long int *", rMap["long *"]));
+	rMap.insert(std::make_pair("long long *", sizeof(long long *)));
+	rMap.insert(std::make_pair("float *", sizeof(float *)));
+	rMap.insert(std::make_pair("double *", sizeof(double *)));
+	rMap.insert(std::make_pair("long double *", sizeof(long double *)));
+}
+
+static void MakePrereqMacrosMap(const simplecpp::DUI & rDui, simplecpp::MacroMap & rMap)
+{
+	std::vector<std::string> dummy; // use a dummy vector for the macros because as this is not part of the file and would add an empty entry - e.g. /usr/include/poll.h
+	for(std::list<std::string>::const_iterator it = rDui.defines.begin(); it != rDui.defines.end(); ++it) {
+		const std::string & macrostr = *it;
+		const std::string::size_type eq = macrostr.find('=');
+		const std::string::size_type par = macrostr.find('(');
+		const std::string macroname = macrostr.substr(0, std::min(eq, par));
+		if(rDui.undefined.find(macroname) != rDui.undefined.end())
+			continue;
+		const std::string lhs(macrostr.substr(0, eq));
+		const std::string rhs(eq==std::string::npos ? std::string("1") : macrostr.substr(eq+1));
+		const simplecpp::Macro macro(lhs, rhs, dummy);
+		rMap.insert(std::pair<simplecpp::TokenString, simplecpp::Macro>(macro.name(), macro));
+	}
+	rMap.insert(std::make_pair("__FILE__", simplecpp::Macro("__FILE__", "__FILE__", dummy)));
+	rMap.insert(std::make_pair("__LINE__", simplecpp::Macro("__LINE__", "__LINE__", dummy)));
+	rMap.insert(std::make_pair("__COUNTER__", simplecpp::Macro("__COUNTER__", "__COUNTER__", dummy)));
+	struct tm ltime = {};
+	getLocaltime(ltime);
+	rMap.insert(std::make_pair("__DATE__", simplecpp::Macro("__DATE__", getDateDefine(&ltime), dummy)));
+	rMap.insert(std::make_pair("__TIME__", simplecpp::Macro("__TIME__", getTimeDefine(&ltime), dummy)));
+}
+
+static void PostprocessMacroUsageList(const simplecpp::MacroMap & rMacros, 
+	std::map<std::string, std::list<simplecpp::Location> > & rMaybeUsedMacros, std::list <simplecpp::MacroUsage> & rMacroUsageList)
+{
+	for(simplecpp::MacroMap::const_iterator macroIt = rMacros.begin(); macroIt != rMacros.end(); ++macroIt) {
+		const simplecpp::Macro & macro = macroIt->second;
+		std::list <simplecpp::Location> usage = macro.usage();
+		const std::list <simplecpp::Location> & temp = rMaybeUsedMacros[macro.name()];
+		usage.insert(usage.end(), temp.begin(), temp.end());
+		for(std::list<simplecpp::Location>::const_iterator usageIt = usage.begin(); usageIt != usage.end(); ++usageIt) {
+			simplecpp::MacroUsage mu(usageIt->files, macro.valueDefinedInCode());
+			mu.macroName = macro.name();
+			mu.macroLocation = macro.defineLocation();
+			mu.useLocation = *usageIt;
+			rMacroUsageList.push_back(mu);
+		}
+	}
+}
+
+void simplecpp::ImplementPreprocess(PreprocessBlock & rBlk, const DUI & rDui, const TokenList & rSrcTokenList)
+{
+#ifdef SIMPLECPP_WINDOWS
+	if(rDui.clearIncludeCache)
+		nonExistingFilesCache.clear();
+#endif
+	std::map <std::string, std::size_t> sizeOfType(rSrcTokenList.sizeOfType);
+	MakeSizeOfTypeMap(sizeOfType);
+	std::vector<std::string> dummy; // use a dummy vector for the macros because as this is not part of the file and would add an empty entry - e.g. /usr/include/poll.h
+	const bool hasInclude = isCpp17OrLater(rDui);
+	MacroMap macros;
+	MakePrereqMacrosMap(rDui, macros);
+	if(!rDui.std.empty()) {
+		const cstd_t c_std = simplecpp::getCStd(rDui.std);
+		if(c_std != CUnknown) {
+			const std::string std_def = simplecpp::getCStdString(c_std);
+			if(!std_def.empty())
+				macros.insert(std::make_pair("__STDC_VERSION__", Macro("__STDC_VERSION__", std_def, dummy)));
+		}
+		else {
+			const cppstd_t cpp_std = simplecpp::getCppStd(rDui.std);
+			if(cpp_std == CPPUnknown) {
+				SString msg_;
+				msg_.Cat("unknown standard specified").CatDiv(':', 2).CatChar('\'').Cat(rDui.std.c_str()).CatChar('\'');
+				MakeOutputMessage(&rBlk.MsgList, rBlk.FileList, simplecpp::Output::DUI_ERROR, 0, msg_);
+				rBlk.OutputTokenList.clear();
+				return;
+			}
+			const std::string std_def = simplecpp::getCppStdString(cpp_std);
+			if(!std_def.empty())
+				macros.insert(std::make_pair("__cplusplus", Macro("__cplusplus", std_def, dummy)));
+		}
+	}
+	// True => code in current #if block should be kept
+	// ElseIsTrue => code in current #if block should be dropped. the code in the #else should be kept.
+	// AlwaysFalse => drop all code in #if and #else
+	enum IfState { 
+		True, 
+		ElseIsTrue, 
+		AlwaysFalse 
+	};
+	std::stack<int> ifstates;
+	ifstates.push(True);
+	std::stack<const Token *> includetokenstack;
+	std::set<std::string> pragmaOnce;
+	includetokenstack.push(rSrcTokenList.cfront());
+	for(std::list<std::string>::const_iterator it = rDui.includes.begin(); it != rDui.includes.end(); ++it) {
+		const std::map<std::string, TokenList*>::const_iterator f = rBlk.FileData.find(*it);
+		if(f != rBlk.FileData.end())
+			includetokenstack.push(f->second->cfront());
+	}
+	std::map<std::string, std::list<Location> > maybeUsedMacros;
+	for(const Token * rawtok = nullptr; rawtok || !includetokenstack.empty();) {
+		if(rawtok == nullptr) {
+			rawtok = includetokenstack.top();
+			includetokenstack.pop();
+			continue;
+		}
+		else {
+			if(rawtok->op == '#' && !sameline(rawtok->previousSkipComments(), rawtok)) {
+				if(!sameline(rawtok, rawtok->next)) {
+					rawtok = rawtok->next;
+					continue;
+				}
+				rawtok = rawtok->next;
+				if(!rawtok->name) {
+					rawtok = gotoNextLine(rawtok);
+					continue;
+				}
+				if(ifstates.size() <= 1U && (rawtok->str() == ELIF || rawtok->str() == ELSE || rawtok->str() == ENDIF)) {
+					SString msg_;
+					msg_.CatChar('#').Cat(rawtok->str().c_str()).Space().Cat("without #if");
+					MakeOutputMessage(&rBlk.MsgList, rBlk.FileList, simplecpp::Output::SYNTAX_ERROR, &rawtok->location, msg_);
+					rBlk.OutputTokenList.clear();
+					return;
+				}
+				if(ifstates.top() == True && (rawtok->str() == ERROR_ || rawtok->str() == WARNING)) {
+					if(rBlk.Flags & PreprocessBlock::fMsgList) {
+						simplecpp::Output err(rawtok->location.files);
+						err.type = rawtok->str() == ERROR_ ? Output::ERROR_ : Output::WARNING;
+						err.location = rawtok->location;
+						for(const Token * tok = rawtok->next; tok && sameline(rawtok, tok); tok = tok->next) {
+							if(!err.msg.empty() && isNameChar(tok->str()[0]))
+								err.msg += ' ';
+							err.msg += tok->str();
+						}
+						err.msg = '#' + rawtok->str() + ' ' + err.msg;
+						rBlk.MsgList.push_back(err);
+					}
+					if(rawtok->str() == ERROR_) {
+						rBlk.OutputTokenList.clear();
+						return;
+					}
+				}
+				if(rawtok->str() == DEFINE) {
+					if(ifstates.top() != True)
+						continue;
+					try {
+						const Macro & macro = Macro(rawtok->previous, rBlk.FileList);
+						if(rDui.undefined.find(macro.name()) == rDui.undefined.end()) {
+							const MacroMap::iterator it = macros.find(macro.name());
+							if(it == macros.end())
+								macros.insert(std::pair<TokenString, Macro>(macro.name(), macro));
+							else
+								it->second = macro;
+						}
+					} catch(const std::runtime_error &) {
+						MakeOutputMessage(&rBlk.MsgList, rBlk.FileList, simplecpp::Output::SYNTAX_ERROR, &rawtok->location, "Failed to parse #define");
+						rBlk.OutputTokenList.clear();
+						return;
+					}
+				}
+				else if(ifstates.top() == True && rawtok->str() == INCLUDE) {
+					TokenList inc1(rBlk.FileList);
+					for(const Token * inctok = rawtok->next; sameline(rawtok, inctok); inctok = inctok->next) {
+						if(!inctok->comment)
+							inc1.push_back(new Token(*inctok));
+					}
+					TokenList inc2(rBlk.FileList);
+					if(!inc1.empty() && inc1.cfront()->name) {
+						const Token * inctok = inc1.cfront();
+						if(!preprocessToken(inc2, &inctok, macros, rBlk.FileList, &rBlk.MsgList)) {
+							rBlk.OutputTokenList.clear();
+							return;
+						}
+					}
+					else {
+						inc2.takeTokens(inc1);
+					}
+					if(!inc1.empty() && !inc2.empty() && inc2.cfront()->op == '<' && inc2.cback()->op == '>') {
+						TokenString hdr;
+						// TODO: Sometimes spaces must be added in the string
+						// Somehow preprocessToken etc must be told that the location should be source location not destination location
+						for(const Token * tok = inc2.cfront(); tok; tok = tok->next) {
+							hdr += tok->str();
+						}
+						inc2.clear();
+						inc2.push_back(new Token(hdr, inc1.cfront()->location));
+						inc2.front()->op = '<';
+					}
+
+					if(inc2.empty() || inc2.cfront()->str().size() <= 2U) {
+						MakeOutputMessage(&rBlk.MsgList, rBlk.FileList, simplecpp::Output::SYNTAX_ERROR, &rawtok->location, "No header in #include");
+						rBlk.OutputTokenList.clear();
+						return;
+					}
+					const Token * const inctok = inc2.cfront();
+					const bool systemheader = (inctok->str()[0] == '<');
+					const std::string header(realFilename(inctok->str().substr(1U, inctok->str().size() - 2U)));
+					std::string header2 = getFileName(rBlk.FileData, rawtok->location.file(), header, rDui, systemheader);
+					if(header2.empty()) {
+						// try to load file..
+						std::ifstream f;
+						header2 = openHeader(f, rDui, rawtok->location.file(), header, systemheader);
+						if(f.is_open()) {
+							f.close();
+							TokenList * const tokens = new TokenList(header2, rBlk.FileList, &rBlk.MsgList);
+							if(rDui.removeComments)
+								tokens->removeComments();
+							rBlk.FileData[header2] = tokens;
+						}
+					}
+					if(header2.empty()) {
+						if(rBlk.Flags & PreprocessBlock::fMsgList) {
+							simplecpp::Output out(rBlk.FileList);
+							out.type = Output::MISSING_HEADER;
+							out.location = rawtok->location;
+							out.msg = "Header not found: " + inctok->str();
+							rBlk.MsgList.push_back(out);
+						}
+					}
+					else if(includetokenstack.size() >= 400) {
+						if(rBlk.Flags & PreprocessBlock::fMsgList) {
+							simplecpp::Output out(rBlk.FileList);
+							out.type = Output::INCLUDE_NESTED_TOO_DEEPLY;
+							out.location = rawtok->location;
+							out.msg = "#include nested too deeply";
+							rBlk.MsgList.push_back(out);
+						}
+					}
+					else if(pragmaOnce.find(header2) == pragmaOnce.end()) {
+						includetokenstack.push(gotoNextLine(rawtok));
+						const TokenList * const includetokens = rBlk.FileData.find(header2)->second;
+						rawtok = includetokens ? includetokens->cfront() : nullptr;
+						continue;
+					}
+				}
+				else if(rawtok->str() == IF || rawtok->str() == IFDEF || rawtok->str() == IFNDEF || rawtok->str() == ELIF) {
+					if(!sameline(rawtok, rawtok->next)) {
+						if(rBlk.Flags & PreprocessBlock::fMsgList) {
+							simplecpp::Output out(rBlk.FileList);
+							out.type = Output::SYNTAX_ERROR;
+							out.location = rawtok->location;
+							out.msg = "Syntax error in #" + rawtok->str();
+							rBlk.MsgList.push_back(out);
+						}
+						rBlk.OutputTokenList.clear();
+						return;
+					}
+					bool conditionIsTrue;
+					if(ifstates.top() == AlwaysFalse || (ifstates.top() == ElseIsTrue && rawtok->str() != ELIF))
+						conditionIsTrue = false;
+					else if(rawtok->str() == IFDEF) {
+						conditionIsTrue = (macros.find(rawtok->next->str()) != macros.end() || (hasInclude && rawtok->next->str() == HAS_INCLUDE));
+						maybeUsedMacros[rawtok->next->str()].push_back(rawtok->next->location);
+					}
+					else if(rawtok->str() == IFNDEF) {
+						conditionIsTrue = (macros.find(rawtok->next->str()) == macros.end() && !(hasInclude && rawtok->next->str() == HAS_INCLUDE));
+						maybeUsedMacros[rawtok->next->str()].push_back(rawtok->next->location);
+					}
+					else { /*if (rawtok->str() == IF || rawtok->str() == ELIF)*/
+						TokenList expr(rBlk.FileList);
+						for(const Token * tok = rawtok->next; tok && tok->location.sameline(rawtok->location); tok = tok->next) {
+							if(!tok->name) {
+								expr.push_back(new Token(*tok));
+								continue;
+							}
+							if(tok->str() == DEFINED) {
+								tok = tok->next;
+								const bool par = (tok && tok->op == '(');
+								if(par)
+									tok = tok->next;
+								maybeUsedMacros[rawtok->next->str()].push_back(rawtok->next->location);
+								if(tok) {
+									if(macros.find(tok->str()) != macros.end())
+										expr.push_back(new Token("1", tok->location));
+									else if(hasInclude && tok->str() == HAS_INCLUDE)
+										expr.push_back(new Token("1", tok->location));
+									else
+										expr.push_back(new Token("0", tok->location));
+								}
+								if(par)
+									tok = tok ? tok->next : nullptr;
+								if(!tok || !sameline(rawtok, tok) || (par && tok->op != ')')) {
+									if(rBlk.Flags & PreprocessBlock::fMsgList) {
+										Output out(rawtok->location.files);
+										out.type = Output::SYNTAX_ERROR;
+										out.location = rawtok->location;
+										out.msg = "failed to evaluate " + std::string(rawtok->str() == IF ? "#if" : "#elif") + " condition";
+										rBlk.MsgList.push_back(out);
+									}
+									rBlk.OutputTokenList.clear();
+									return;
+								}
+								continue;
+							}
+							if(hasInclude && tok->str() == HAS_INCLUDE) {
+								tok = tok->next;
+								const bool par = (tok && tok->op == '(');
+								if(par)
+									tok = tok->next;
+								bool closingAngularBracket = false;
+								if(tok) {
+									const std::string &sourcefile = rawtok->location.file();
+									const bool systemheader = (tok && tok->op == '<');
+									std::string header;
+									if(systemheader) {
+										while((tok = tok->next) && tok->op != '>')
+											header += tok->str();
+										// cppcheck-suppress selfAssignment - platform-dependent implementation
+										header = realFilename(header);
+										if(tok && tok->op == '>')
+											closingAngularBracket = true;
+									}
+									else {
+										header = realFilename(tok->str().substr(1U, tok->str().size() - 2U));
+										closingAngularBracket = true;
+									}
+									std::ifstream f;
+									const std::string header2 = openHeader(f, rDui, sourcefile, header, systemheader);
+									expr.push_back(new Token(header2.empty() ? "0" : "1", tok->location));
+								}
+								if(par)
+									tok = tok ? tok->next : nullptr;
+								if(!tok || !sameline(rawtok, tok) || (par && tok->op != ')') || (!closingAngularBracket)) {
+									if(rBlk.Flags & PreprocessBlock::fMsgList) {
+										Output out(rawtok->location.files);
+										out.type = Output::SYNTAX_ERROR;
+										out.location = rawtok->location;
+										out.msg = "failed to evaluate " + std::string(rawtok->str() == IF ? "#if" : "#elif") + " condition";
+										rBlk.MsgList.push_back(out);
+									}
+									rBlk.OutputTokenList.clear();
+									return;
+								}
+								continue;
+							}
+							maybeUsedMacros[rawtok->next->str()].push_back(rawtok->next->location);
+							const Token * tmp = tok;
+							if(!preprocessToken(expr, &tmp, macros, rBlk.FileList, &rBlk.MsgList)) {
+								rBlk.OutputTokenList.clear();
+								return;
+							}
+							if(!tmp)
+								break;
+							tok = tmp->previous;
+						}
+						try {
+							if(rBlk.Flags & PreprocessBlock::fIfCondList) {
+								std::string E;
+								for(const simplecpp::Token * tok = expr.cfront(); tok; tok = tok->next)
+									E += (E.empty() ? "" : " ") + tok->str();
+								const int64 result = evaluate(expr, rDui, sizeOfType);
+								conditionIsTrue = (result != 0);
+								rBlk.IfCondList.push_back(IfCond(rawtok->location, E, result));
+							}
+							else {
+								const int64 result = evaluate(expr, rDui, sizeOfType);
+								conditionIsTrue = (result != 0);
+							}
+						} catch(const std::exception &e) {
+							if(rBlk.Flags & PreprocessBlock::fMsgList) {
+								Output out(rawtok->location.files);
+								out.type = Output::SYNTAX_ERROR;
+								out.location = rawtok->location;
+								out.msg = "failed to evaluate " + std::string(rawtok->str() == IF ? "#if" : "#elif") + " condition";
+								if(e.what() && *e.what())
+									out.msg += std::string(", ") + e.what();
+								rBlk.MsgList.push_back(out);
+							}
+							rBlk.OutputTokenList.clear();
+							return;
+						}
+					}
+					if(rawtok->str() != ELIF) {
+						// push a new ifstate..
+						if(ifstates.top() != True)
+							ifstates.push(AlwaysFalse);
+						else
+							ifstates.push(conditionIsTrue ? True : ElseIsTrue);
+					}
+					else if(ifstates.top() == True) {
+						ifstates.top() = AlwaysFalse;
+					}
+					else if(ifstates.top() == ElseIsTrue && conditionIsTrue) {
+						ifstates.top() = True;
+					}
+				}
+				else if(rawtok->str() == ELSE) {
+					ifstates.top() = (ifstates.top() == ElseIsTrue) ? True : AlwaysFalse;
+				}
+				else if(rawtok->str() == ENDIF) {
+					ifstates.pop();
+				}
+				else if(rawtok->str() == UNDEF_) {
+					if(ifstates.top() == True) {
+						const Token * tok = rawtok->next;
+						while(sameline(rawtok, tok) && tok->comment)
+							tok = tok->next;
+						if(sameline(rawtok, tok))
+							macros.erase(tok->str());
+					}
+				}
+				else if(ifstates.top() == True && rawtok->str() == PRAGMA && rawtok->next && rawtok->next->str() == ONCE && sameline(rawtok, rawtok->next)) {
+					pragmaOnce.insert(rawtok->location.file());
+				}
+				rawtok = gotoNextLine(rawtok);
+				continue;
+			}
+			else if(ifstates.top() != True) {
+				// drop code
+				rawtok = gotoNextLine(rawtok);
+				continue;
+			}
+			else {
+				bool hash = false; // "#"
+				bool hashhash = false; // "##"
+				if(rawtok->op == '#' && sameline(rawtok, rawtok->next)) {
+					if(rawtok->next->op != '#') {
+						hash = true;
+						rawtok = rawtok->next; // skip '#'
+					}
+					else if(sameline(rawtok, rawtok->next->next)) {
+						hashhash = true;
+						rawtok = rawtok->next->next; // skip '#' '#'
+					}
+				}
+				const Location loc(rawtok->location);
+				TokenList tokens(rBlk.FileList);
+				if(!preprocessToken(tokens, &rawtok, macros, rBlk.FileList, &rBlk.MsgList)) {
+					rBlk.OutputTokenList.clear();
+					return;
+				}
+				else if(hash || hashhash) {
+					std::string s;
+					for(const Token * hashtok = tokens.cfront(); hashtok; hashtok = hashtok->next)
+						s += hashtok->str();
+					if(hash)
+						rBlk.OutputTokenList.push_back(new Token('\"' + s + '\"', loc));
+					else if(rBlk.OutputTokenList.back())
+						rBlk.OutputTokenList.back()->setstr(rBlk.OutputTokenList.cback()->str() + s);
+					else
+						rBlk.OutputTokenList.push_back(new Token(s, loc));
+				}
+				else {
+					rBlk.OutputTokenList.takeTokens(tokens);
+				}
+			}
+		}
+	}
+	if(rBlk.Flags & PreprocessBlock::fMacroUsageList) {
+		PostprocessMacroUsageList(macros, maybeUsedMacros, rBlk.MacroUsageList);
+	}
+}
+//
+//
+//
 void simplecpp::preprocess(simplecpp::TokenList & rOutput, const simplecpp::TokenList & rawtokens, std::vector<std::string> & files,
     std::map <std::string, simplecpp::TokenList *> & filedata, const simplecpp::DUI & dui,
     simplecpp::OutputList * outputList, std::list<simplecpp::MacroUsage> * macroUsage, std::list<simplecpp::IfCond> * ifCond)
@@ -3240,50 +3715,11 @@ void simplecpp::preprocess(simplecpp::TokenList & rOutput, const simplecpp::Toke
 		nonExistingFilesCache.clear();
 #endif
 	std::map<std::string, std::size_t> sizeOfType(rawtokens.sizeOfType);
-	sizeOfType.insert(std::make_pair("char", sizeof(char)));
-	sizeOfType.insert(std::make_pair("short", sizeof(short)));
-	sizeOfType.insert(std::make_pair("short int", sizeOfType["short"]));
-	sizeOfType.insert(std::make_pair("int", sizeof(int)));
-	sizeOfType.insert(std::make_pair("long", sizeof(long)));
-	sizeOfType.insert(std::make_pair("long int", sizeOfType["long"]));
-	sizeOfType.insert(std::make_pair("long long", sizeof(long long)));
-	sizeOfType.insert(std::make_pair("float", sizeof(float)));
-	sizeOfType.insert(std::make_pair("double", sizeof(double)));
-	sizeOfType.insert(std::make_pair("long double", sizeof(long double)));
-	sizeOfType.insert(std::make_pair("char *", sizeof(char *)));
-	sizeOfType.insert(std::make_pair("short *", sizeof(short *)));
-	sizeOfType.insert(std::make_pair("short int *", sizeOfType["short *"]));
-	sizeOfType.insert(std::make_pair("int *", sizeof(int *)));
-	sizeOfType.insert(std::make_pair("long *", sizeof(long *)));
-	sizeOfType.insert(std::make_pair("long int *", sizeOfType["long *"]));
-	sizeOfType.insert(std::make_pair("long long *", sizeof(long long *)));
-	sizeOfType.insert(std::make_pair("float *", sizeof(float *)));
-	sizeOfType.insert(std::make_pair("double *", sizeof(double *)));
-	sizeOfType.insert(std::make_pair("long double *", sizeof(long double *)));
+	MakeSizeOfTypeMap(sizeOfType);
 	std::vector<std::string> dummy; // use a dummy vector for the macros because as this is not part of the file and would add an empty entry - e.g. /usr/include/poll.h
 	const bool hasInclude = isCpp17OrLater(dui);
 	MacroMap macros;
-	for(std::list<std::string>::const_iterator it = dui.defines.begin(); it != dui.defines.end(); ++it) {
-		const std::string &macrostr = *it;
-		const std::string::size_type eq = macrostr.find('=');
-		const std::string::size_type par = macrostr.find('(');
-		const std::string macroname = macrostr.substr(0, std::min(eq, par));
-		if(dui.undefined.find(macroname) != dui.undefined.end())
-			continue;
-		const std::string lhs(macrostr.substr(0, eq));
-		const std::string rhs(eq==std::string::npos ? std::string("1") : macrostr.substr(eq+1));
-		const Macro macro(lhs, rhs, dummy);
-		macros.insert(std::pair<TokenString, Macro>(macro.name(), macro));
-	}
-
-	macros.insert(std::make_pair("__FILE__", Macro("__FILE__", "__FILE__", dummy)));
-	macros.insert(std::make_pair("__LINE__", Macro("__LINE__", "__LINE__", dummy)));
-	macros.insert(std::make_pair("__COUNTER__", Macro("__COUNTER__", "__COUNTER__", dummy)));
-	struct tm ltime = {};
-	getLocaltime(ltime);
-	macros.insert(std::make_pair("__DATE__", Macro("__DATE__", getDateDefine(&ltime), dummy)));
-	macros.insert(std::make_pair("__TIME__", Macro("__TIME__", getTimeDefine(&ltime), dummy)));
-
+	MakePrereqMacrosMap(dui, macros);
 	if(!dui.std.empty()) {
 		const cstd_t c_std = simplecpp::getCStd(dui.std);
 		if(c_std != CUnknown) {
@@ -3305,7 +3741,6 @@ void simplecpp::preprocess(simplecpp::TokenList & rOutput, const simplecpp::Toke
 				macros.insert(std::make_pair("__cplusplus", Macro("__cplusplus", std_def, dummy)));
 		}
 	}
-
 	// True => code in current #if block should be kept
 	// ElseIsTrue => code in current #if block should be dropped. the code in the #else should be kept.
 	// AlwaysFalse => drop all code in #if and #else
@@ -3673,19 +4108,7 @@ void simplecpp::preprocess(simplecpp::TokenList & rOutput, const simplecpp::Toke
 		}
 	}
 	if(macroUsage) {
-		for(simplecpp::MacroMap::const_iterator macroIt = macros.begin(); macroIt != macros.end(); ++macroIt) {
-			const Macro &macro = macroIt->second;
-			std::list<Location> usage = macro.usage();
-			const std::list<Location>& temp = maybeUsedMacros[macro.name()];
-			usage.insert(usage.end(), temp.begin(), temp.end());
-			for(std::list<Location>::const_iterator usageIt = usage.begin(); usageIt != usage.end(); ++usageIt) {
-				MacroUsage mu(usageIt->files, macro.valueDefinedInCode());
-				mu.macroName = macro.name();
-				mu.macroLocation = macro.defineLocation();
-				mu.useLocation = *usageIt;
-				macroUsage->push_back(mu);
-			}
-		}
+		PostprocessMacroUsageList(macros, maybeUsedMacros, *macroUsage);
 	}
 }
 
@@ -3787,8 +4210,8 @@ void SimpleCppPreprocess(simplecpp::TokenList & rOutput, const simplecpp::TokenL
 	#undef nullptr
 #endif
 //
-// Descr: В оригинале - main() 
-//   Головная процедура для реализации исполняемого модуля C++-препроцессора. Оставлена здесь в справочных целях.
+// Descr: Р’ РѕСЂРёРіРёРЅР°Р»Рµ - main() 
+//   Р“РѕР»РѕРІРЅР°СЏ РїСЂРѕС†РµРґСѓСЂР° РґР»СЏ СЂРµР°Р»РёР·Р°С†РёРё РёСЃРїРѕР»РЅСЏРµРјРѕРіРѕ РјРѕРґСѓР»СЏ C++-РїСЂРµРїСЂРѕС†РµСЃСЃРѕСЂР°. РћСЃС‚Р°РІР»РµРЅР° Р·РґРµСЃСЊ РІ СЃРїСЂР°РІРѕС‡РЅС‹С… С†РµР»СЏС….
 //
 int SimpleCpp_Main(int argc, char ** argv) 
 {

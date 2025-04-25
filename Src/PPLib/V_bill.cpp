@@ -6568,7 +6568,7 @@ int PPViewBill::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBro
 /*virtual*/int PPViewBill::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = (ppvCmd != PPVCMD_DETAIL && ppvCmd != PPVCMD_PRINT) ? PPView::ProcessCommand(ppvCmd, pHdr, pBrw) : -2;
-	uint   options = (Filt.Flags & BillFilt::fAsSelector) ? 0 : (OLW_CANEDIT|OLW_CANINSERT|OLW_CANDELETE);
+	const  uint options = (Filt.Flags & BillFilt::fAsSelector) ? 0 : (OLW_CANEDIT|OLW_CANINSERT|OLW_CANDELETE);
 	int    update = 0;
 	PPID   id = 0;
 	if(ok == -2) {

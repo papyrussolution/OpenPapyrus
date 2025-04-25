@@ -23,7 +23,7 @@ int LotFilt::InitInstance()
 	return Init(1, 0);
 }
 
-IMPLEMENT_PPFILT_FACTORY(Lot); LotFilt::LotFilt() : PPBaseFilt(PPFILT_LOT, 0, 3) // @v7.4.5 ver 0-->1 // @v8.4.11 1-->2 // @v10.6.8 2-->3
+IMPLEMENT_PPFILT_FACTORY(Lot); LotFilt::LotFilt() : PPBaseFilt(PPFILT_LOT, 0, 3)
 {
 	InitInstance();
 }
@@ -341,7 +341,7 @@ PPBaseFilt * PPViewLot::CreateFilt(const void * extraPtr) const
 	if(p_filt) {
 		if(reinterpret_cast<long>(extraPtr) == 1)
 			p_filt->Flags |= LotFilt::fOrders;
-		p_filt->Period.upp = getcurdate_(); // @v10.8.10 LConfig.OperDate-->getcurdate_()
+		p_filt->Period.upp = getcurdate_();
 	}
 	return p_filt;
 }
@@ -359,7 +359,7 @@ public:
 	};
  	explicit LotFiltDialog(uint dlgID) : TDialog(dlgID)
 	{
-		addGroup(ctrgroupLoc, new LocationCtrlGroup(CTLSEL_FLTLOT_LOC, 0, 0, cmLocList, 0, LocationCtrlGroup::fEnableSelUpLevel, 0)); // @v10.6.8
+		addGroup(ctrgroupLoc, new LocationCtrlGroup(CTLSEL_FLTLOT_LOC, 0, 0, cmLocList, 0, LocationCtrlGroup::fEnableSelUpLevel, 0));
 		addGroup(ctlgroupGoodsFilt, new GoodsFiltCtrlGroup(CTLSEL_FLTLOT_GOODS, CTLSEL_FLTLOT_GGRP, cmGoodsFilt));
 		SetupCalPeriod(CTLCAL_FLTLOT_PERIOD, CTL_FLTLOT_PERIOD);
 		SetupCalPeriod(CTLCAL_FLTLOT_OPERAT, CTL_FLTLOT_OPERAT);
@@ -758,16 +758,16 @@ static int RecoverLotsDialog(LotRecoverParam & rParam)
 		dlg->AddClusterAssoc(CTL_CORLOTS_FLAGS,  9, TLRF_REPAIRWOTAXFLAGS);
 		dlg->AddClusterAssoc(CTL_CORLOTS_FLAGS, 10, TLRF_SETALCCODETOGOODS);
 		dlg->AddClusterAssoc(CTL_CORLOTS_FLAGS, 11, TLRF_SETALCCODETOLOTS);
-		dlg->AddClusterAssoc(CTL_CORLOTS_FLAGS, 12, TLRF_SETINHQCERT); // @v10.4.10
-		dlg->AddClusterAssoc(CTL_CORLOTS_FLAGS, 13, TLRF_SETALCOMANUF); // @v10.9.1
+		dlg->AddClusterAssoc(CTL_CORLOTS_FLAGS, 12, TLRF_SETINHQCERT);
+		dlg->AddClusterAssoc(CTL_CORLOTS_FLAGS, 13, TLRF_SETALCOMANUF);
 		if(!(LConfig.Flags & CFGFLG_USEPACKAGE)) {
 			dlg->DisableClusterItem(CTL_CORLOTS_FLAGS, 1, 1);
 			rParam.Flags &= ~(TLRF_REPAIRPACK);
 		}
 		dlg->DisableClusterItem(CTL_CORLOTS_FLAGS, 6, BIN(PPObjBill::VerifyUniqSerialSfx(BillObj->GetConfig().UniqSerialSfx) <= 0));
 		if(!PPMaster) {
-			dlg->DisableClusterItem(CTL_CORLOTS_FLAGS, 3, 1); // @v10.8.6 @fix 2-->3
-			dlg->DisableClusterItem(CTL_CORLOTS_FLAGS, 4, 1); // @v10.8.6 @fix 3-->4
+			dlg->DisableClusterItem(CTL_CORLOTS_FLAGS, 3, 1);
+			dlg->DisableClusterItem(CTL_CORLOTS_FLAGS, 4, 1);
 			rParam.Flags &= ~(TLRF_REPAIRCOST | TLRF_REPAIRPRICE);
 		}
 		dlg->SetClusterData(CTL_CORLOTS_FLAGS, rParam.Flags);
@@ -794,7 +794,7 @@ int PPViewLot::RecoverLots()
 	int    frrl_tag = 0, r;
 	long   err_lot_count = 0;
 	int    modified = 0;
-	EgaisRefACore * p_refa_c = 0; // @v10.9.1
+	EgaisRefACore * p_refa_c = 0;
 	LotRecoverParam param;
 	PPLogger logger;
 	UintHashTable goods_list;
@@ -833,8 +833,7 @@ int PPViewLot::RecoverLots()
 				for(InitIteration(); NextIteration(&lv_item) > 0;)
 					lot_id_list.add(lv_item.ID);
 			}
-			// @v10.9.1 if(param.Flags) {
-			if(param.Flags & (TLRF_REPAIR|TLRF_ADJUNUQSERIAL|TLRF_SETALCCODETOGOODS|TLRF_SETALCCODETOLOTS)) { // @v10.9.1 
+			if(param.Flags & (TLRF_REPAIR|TLRF_ADJUNUQSERIAL|TLRF_SETALCCODETOGOODS|TLRF_SETALCCODETOLOTS)) {
 				THROW(PPStartTransaction(&ta, 1));
 				THROW(P_BObj->atobj->P_Tbl->LockingFRR(1, &frrl_tag, 0));
 				if(param.MinusCompensOpID && /*Filt.LocID*/LocList.getSingle()) {
@@ -917,7 +916,6 @@ int PPViewLot::RecoverLots()
 										// Справка А лота '%s' ссылается на импортера с кодом '%s', но соответствующая персоналия не в базе данных не найдена
 									}
 								}
-								// @v10.9.5 {
 								else if(is_foreign_country && shipper_rar_ident[0]) {
 									if(p_ref->Ot.SearchObjectsByStr(PPOBJ_PERSON, PPTAG_PERSON_FSRARID, shipper_rar_ident, &psn_ref_list) > 0) {
 										assert(psn_ref_list.getCount());
@@ -940,7 +938,6 @@ int PPViewLot::RecoverLots()
 										// Справка А лота '%s' ссылается на импортера с кодом '%s', но соответствующая персоналия не в базе данных не найдена
 									}
 								}
-								// } @v10.9.5 
 								else if(manuf_rar_ident[0]) {
 									if(p_ref->Ot.SearchObjectsByStr(PPOBJ_PERSON, PPTAG_PERSON_FSRARID, manuf_rar_ident, &psn_ref_list) > 0) {
 										assert(psn_ref_list.getCount());
@@ -1039,7 +1036,7 @@ int PPViewLot::RecoverLots()
 		PPRollbackWork(&ta);
 		ok = PPErrorZ();
 	ENDCATCH
-	delete p_refa_c; // @v10.9.1
+	delete p_refa_c;
 	return ok;
 }
 
@@ -1215,9 +1212,7 @@ int PPViewLot::Init_(const PPBaseFilt * pFilt)
 		if(Filt.Flags & LotFilt::fWithoutClb) {
 			SString native_country_name;
 			PPObjWorld::GetNativeCountryName(native_country_name);
-			// @v10.6.8 char   k[MAXKEYLEN];
-			// @v10.6.8 memzero(k, sizeof(k));
-			BtrDbKey k_; // @v10.6.8
+			BtrDbKey k_;
 			{
 				PersonTbl * p_psn_tbl = PsnObj.P_Tbl;
 				BExtQuery psn_cntr_q(p_psn_tbl, 0);
@@ -1452,8 +1447,7 @@ int PPViewLot::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pB
 						temp_filt.ExpiryPrd.Z();
 						temp_filt.QcExpiryPrd.Z();
 						temp_filt.GoodsID = item.GoodsID;
-						// @v10.6.8 temp_filt.LocID = item.LocID;
-						temp_filt.LocList.Add(item.LocID); // @v10.6.8
+						temp_filt.LocList.Add(item.LocID);
 						ViewLots(&temp_filt, 0, 1);
 					}
 				}
@@ -1617,7 +1611,7 @@ int PPViewLot::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pB
 						THROW(ep);
 						PPWaitStart();
 						if(selection == (PPEDIOP_EGAIS_ACTCHARGEONSHOP+1000)) {
-							// @v10.3.0 Защита на случай если ep.GetConfig().SupplRetOpID == ep.GetConfig().IntrExpndOpID
+							// Защита на случай если ep.GetConfig().SupplRetOpID == ep.GetConfig().IntrExpndOpID
 							const  PPID suppl_ret_op_id = ep.GetConfig().SupplRetOpID;
 							const  PPID intr_expnd_op_id = ep.GetConfig().IntrExpndOpID;
 							if(suppl_ret_op_id)
@@ -3334,12 +3328,12 @@ int PPLotExporter::Export(const LotViewItem * pItem)
 		ArticleTbl::Rec ar_rec;
 		if(ArObj.Fetch(Param.UhttGoodsCodeArID, &ar_rec) > 0) {
 			PPID   acs_id = 0;
-			PPID   psn_id = ObjectToPerson(ar_rec.ID, &acs_id);
+			const  PPID psn_id = ObjectToPerson(ar_rec.ID, &acs_id);
 			if(psn_id) {
 				SString inn;
 				PsnObj.GetRegNumber(psn_id, PPREGT_TPID, inn);
 				if(inn.NotEmptyS()) {
-					const int _cd = BIN(GObj.GetConfig().Flags & GCF_BCCHKDIG);
+					const bool _cd = LOGIC(GObj.GetConfig().Flags & GCF_BCCHKDIG);
 					SString org_code, adj_code;
 					BarcodeArray bc_list;
 					GObj.ReadBarcodes(pItem->GoodsID, bc_list);

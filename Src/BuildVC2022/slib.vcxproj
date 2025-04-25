@@ -2065,7 +2065,6 @@
     <ClCompile Include="..\SLib\sdrecord.cpp" />
     <ClCompile Include="..\SLib\sfilestorage.cpp" />
     <ClCompile Include="..\SLib\simplecpp\simplecpp.cpp" />
-    <ClCompile Include="..\SLib\simplecpp\test.cpp" />
     <ClCompile Include="..\SLib\slrecmgr.cpp" />
     <ClCompile Include="..\SLib\sltabs.cpp" />
     <ClCompile Include="..\SLib\smemchr.cpp" />

@@ -853,9 +853,6 @@
     <ClCompile Include="..\SLib\simplecpp\simplecpp.cpp">
       <Filter>SimpleCPP</Filter>
     </ClCompile>
-    <ClCompile Include="..\SLib\simplecpp\test.cpp">
-      <Filter>SimpleCPP</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\Slib.h">

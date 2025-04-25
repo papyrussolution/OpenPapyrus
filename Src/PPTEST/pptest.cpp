@@ -2009,9 +2009,6 @@ int DoConstructionTest()
 #endif // } 0
 	//Test_Cristal2SetRetailGateway();
 	//TestTddo();
-	{
-		SimpleCpp_Test_Main2();
-	}
 	PreprocessHFile();
 	//Test_ExecuteDialogByDl600Description();
 	//Test_CsvSniffer();

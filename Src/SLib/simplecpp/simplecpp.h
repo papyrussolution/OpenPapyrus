@@ -91,7 +91,6 @@ namespace simplecpp {
 	private:
 		static const std::string emptyFileName;
 	};
-
 	/**
 	 * token class.
 	 * @todo don't use std::string representation - for both memory and performance reasons
@@ -291,13 +290,13 @@ namespace simplecpp {
 	 * @param macroUsage output: macro usage
 	 * @param ifCond output: #if/#elif expressions
 	 */
-	void preprocess(TokenList & rOutput, const TokenList & rawtokens, std::vector<std::string> & files,
+	void preprocess(TokenList & rOutput, const TokenList & rawtokens, std::vector <std::string> & files,
 		std::map<std::string, TokenList*> & filedata, const DUI & dui, OutputList * outputList = nullptr, std::list<MacroUsage> * macroUsage = nullptr, std::list<IfCond> * ifCond = nullptr);
 
-	struct ResultBlock {
-		ResultBlock() : Flags(0)
-		{
-		}
+	struct PreprocessBlock {
+		PreprocessBlock();
+		TokenList MakeSourceTokenList(const char * pSrcBuf, const char * pSrcName);
+
 		enum {
 			fOutputTokenList = 0x0001,
 			fMsgList         = 0x0002,
@@ -305,12 +304,14 @@ namespace simplecpp {
 			fIfCondList      = 0x0008,
 		};
 		uint   Flags;
-		//TokenList  OutputTokenList;
+		std::vector <std::string> FileList;
+		std::map <std::string, TokenList *> FileData;
+		TokenList  OutputTokenList;
 		OutputList MsgList;
 		std::list <MacroUsage> MacroUsageList;
 		std::list <IfCond> IfCondList;
 	};
-	int    ImplementPreprocess();
+	void   ImplementPreprocess(PreprocessBlock & rBlk, const DUI & rDui, const TokenList & rSrcTokenList);
 	/**
 	 * Deallocate data
 	 */
