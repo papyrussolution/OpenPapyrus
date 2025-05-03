@@ -280,7 +280,7 @@ public:
 		sfHidden       = 0x0002, // COM-атрибут
 		sfRestricted   = 0x0004, // COM-атрибут
 		sfVersion      = 0x0008, // Для области определена версия //
-		sfUUID = 0x0010, // Для атрибута UUID
+		sfUUID         = 0x0010, // Для атрибута UUID
 		sfNoIDL        = 0x0020  // Не заносить описание объекта в IDL-файл
 	};
 	//
@@ -372,6 +372,15 @@ public:
 		cuifFontSize            = 33, // @v11.0.5 double Размер шрифта  
 		cuifLblLayoutBlock      = 34, // @v12.3.2 SUiLayoutParam Разметка размещения текстовой метки относительно основного управляющего элемента
 		cuifCbLineSymb          = 35, // @v12.3.3 string Символ строки ввода, связанной с комбо-боксом 
+		//
+		cucmSymbolIdent         = 36, // @v12.3.3 uint32 Идентификатор, ассоциированный с символом элемента. 
+			// Префикс cucm подразумевает, что константа может быть использована для областей разных видов.
+			// Инициирующая ситуация, потребовавшая ввод этой константы - небоходимость сопоставить с элементами пользовательского 
+			// интерфейса числовые идентификаторы, полученные из заголовчного файла по символу. Использовать для этого 
+			// основной иденти DlScope не удалось из-за требования сквозной уникальности DlScope::SdRecord::ID.
+		cuifCbLineSymbIdent     = 37, // @v12.3.3 uint32 Идентификатор символа строки ввода, связанной с комбо-боксом 
+		cuifImageSymb           = 38, // @v12.3.3 string Символ изображения //
+		cuifListBoxColumns      = 39, // @v12.3.3 string Определение колонок для ListView //
 	};
 	struct IfaceBase {
 		bool   FASTCALL IsEq(const IfaceBase & rS) const { return (ID == rS.ID && Flags == rS.Flags); }
@@ -827,6 +836,13 @@ public:
 	DlScope * GetCurScope();
 	const  DlScope * GetScope_Const(DLSYMBID scopeID, int checkKind = 0) const;
 	const  DlScope * GetScopeByName_Const(uint kind, const char * pName) const;
+	//
+	// Descr: Специальный вариант поиска области, относящейся к виду DlScope::kUiView
+	//   со значением константы DlScope::cuifViewKind == UiItemKind::kDialog и
+	//   константы DlScope::cucmSymbolIdent == symbolIdent
+	//
+	const  DlScope * GetDialogScopeBySymbolIdent_Const(uint symbolIdent) const;
+
 	enum {
 		crsymfCatCurScope = 0x0001,
 		crsymfErrorOnDup  = 0x0002
@@ -897,6 +913,10 @@ public:
 		cfSkipBtrDict   = 0x0100, // @v11.9.4 Не создавать словарь btrieve
 	};
 	int    Compile(const char * pInFileName, const char * pDictPath, const char * pDataPath, long cflags);
+	//
+	// Descr: Вызывается в ответ на директиву cinclude "file_name" в исходном файле.
+	//
+	int    AddCInclude(const char * pCIncFileName); // @v12.3.3
 	int    FindImportFile(const char * pFileName, SString & rPath);
 	int    SetInheritance(DLSYMBID scopeID, DLSYMBID baseID);
 	int    MangleType(DLSYMBID id, const STypEx &, SString & rBuf) const;
@@ -1189,10 +1209,30 @@ private:
 	int    StoreUuidList();
 	int    RestoreUuidList();
 	int    SetupScopeUUID(DLSYMBID scopeID, const char * pName, const S_GUID * pForceUUID);
+	//
+	//
+	//
+	class CPreprocBlock { // @v12.3.3 
+	public:
+		CPreprocBlock();
+		~CPreprocBlock();
+		bool   ResolveSymbol(const char * pSymb, SString * pResult, int * pResultInt);
+		int    AddCInclude(const char * pThisFilePath, const char * pCIncFileName);
+	private:
+		enum {
+			stInited = 0x0001,
+			stError  = 0x0002
+		};
+		void * P_Opaq;
+		StringSet CIncludeFileList; // Список h-файлов, включенных в компиляцию для получения идентификаторов символов.
+		uint   State;
+	};
 
 	TSVector <SyncUuidAssoc> SyncUuidList; // @transient Compile-time 
 	StringSet SyncUuidNameList;
 	LAssocArray UiSymbAssoc; // Ассоциации символов элементов UI с символами сериий.
+	//StringSet CIncludeFileList; // @v12.3.3 Список h-файлов, включенных в компиляцию для получения идентификаторов символов.
+	CPreprocBlock CppBlk; // @v12.3.3
 #else
 	TSVector <uint> Pss; // Run-time "Pushed String Stack" Стэк позиций строк, распределенных на стеке StP.
 		// Нужен для того, чтобы при освобождении стекового пространства освобождать соответствующие строки

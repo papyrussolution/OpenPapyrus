@@ -1,5 +1,5 @@
 // HASHFUNC.CPP
-// Copyright (c) A.Sobolev 2012, 2013, 2016, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 2012, 2013, 2016, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -1926,25 +1926,6 @@ SCRC32::~SCRC32()
 //
 // @construction CRC64 {
 //
-typedef uint64 (* crcfn64)(uint64, const void *, const uint64);
-
-// Fill in a CRC constants table. 
-static void crcspeed64le_init(crcfn64 crcfn, uint64 table[8][256]) 
-{
-	uint64 crc;
-	// generate CRCs for all single byte sequences 
-	for(int n = 0; n < 256; n++) {
-		table[0][n] = crcfn(0, &n, 1);
-	}
-	// generate nested CRC table for future slice-by-8 lookup 
-	for(int n = 0; n < 256; n++) {
-		crc = table[0][n];
-		for(int k = 1; k < 8; k++) {
-			crc = table[0][crc & 0xff] ^ (crc >> 8);
-			table[k][n] = crc;
-		}
-	}
-}
 //
 // Reverse the bytes in a 64-bit word. 
 //
@@ -1962,44 +1943,30 @@ static void crcspeed64le_init(crcfn64 crcfn, uint64 table[8][256])
 #endif
 }*/
 // 
-// This function is called once to initialize the CRC table for use on a
-// big-endian architecture. 
-// 
-static void crcspeed64be_init(crcfn64 fn, uint64 big_table[8][256]) 
-{
-	// Create the little endian table then reverse all the entires
-	crcspeed64le_init(fn, big_table);
-	for(int k = 0; k < 8; k++) {
-		for(int n = 0; n < 256; n++) {
-			big_table[k][n] = sbswap64(big_table[k][n]);
-		}
-	}
-}
-// 
 // Calculate a non-inverted CRC multiple bytes at a time on a little-endian
 // architecture. If you need inverted CRC, invert *before* calling and invert *after* calling.
 // 64 bit crc = process 8 bytes at once;
 // 
-static uint64 crcspeed64le(const uint64 pTableLE[8][256], uint64 crc, const void * buf, size_t len) 
+/*static*/uint64 SlHash::State::CrcSpeed64le(/*const uint64 pTableLE[8][256],*/uint64 crc, const void * buf, size_t len) 
 {
 	const uchar * next = static_cast<const uchar *>(buf);
 	// process individual bytes until we reach an 8-byte aligned pointer 
 	while(len && ((uintptr_t)next & 7) != 0) {
-		crc = pTableLE[0][(crc ^ *next++) & 0xff] ^ (crc >> 8);
+		crc = P_Tab_Crc64[0][(crc ^ *next++) & 0xff] ^ (crc >> 8);
 		len--;
 	}
 	// fast middle processing, 8 bytes (aligned!) per loop 
 	while(len >= 8) {
 		crc ^= *(uint64_t *)next;
-		crc = pTableLE[7][crc & 0xff] ^ pTableLE[6][(crc >> 8) & 0xff] ^ pTableLE[5][(crc >> 16) & 0xff] ^
-			pTableLE[4][(crc >> 24) & 0xff] ^ pTableLE[3][(crc >> 32) & 0xff] ^ pTableLE[2][(crc >> 40) & 0xff] ^
-			pTableLE[1][(crc >> 48) & 0xff] ^ pTableLE[0][crc >> 56];
+		crc = P_Tab_Crc64[7][crc & 0xff] ^ P_Tab_Crc64[6][(crc >> 8) & 0xff] ^ P_Tab_Crc64[5][(crc >> 16) & 0xff] ^
+			P_Tab_Crc64[4][(crc >> 24) & 0xff] ^ P_Tab_Crc64[3][(crc >> 32) & 0xff] ^ P_Tab_Crc64[2][(crc >> 40) & 0xff] ^
+			P_Tab_Crc64[1][(crc >> 48) & 0xff] ^ P_Tab_Crc64[0][crc >> 56];
 		next += 8;
 		len -= 8;
 	}
 	// process remaining bytes (can't be larger than 8) 
 	while(len) {
-		crc = pTableLE[0][(crc ^ *next++) & 0xff] ^ (crc >> 8);
+		crc = P_Tab_Crc64[0][(crc ^ *next++) & 0xff] ^ (crc >> 8);
 		len--;
 	}
 	return crc;
@@ -2007,52 +1974,27 @@ static uint64 crcspeed64le(const uint64 pTableLE[8][256], uint64 crc, const void
 // 
 // Calculate a non-inverted CRC eight bytes at a time on a big-endian architecture.
 // 
-static uint64 crcspeed64be(const uint64 pTableBE[8][256], uint64 crc, const void * buf, size_t len) 
+/*static*/uint64 SlHash::State::CrcSpeed64be(/*const uint64 pTableBE[8][256],*/uint64 crc, const void * buf, size_t len) 
 {
 	const uchar * next = static_cast<const uchar *>(buf);
 	crc = sbswap64(crc);
 	while(len && ((uintptr_t)next & 7) != 0) {
-		crc = pTableBE[0][(crc >> 56) ^ *next++] ^ (crc << 8);
+		crc = P_Tab_Crc64[0][(crc >> 56) ^ *next++] ^ (crc << 8);
 		len--;
 	}
 	while(len >= 8) {
 		crc ^= *(uint64_t *)next;
-		crc = pTableBE[0][crc & 0xff] ^ pTableBE[1][(crc >> 8) & 0xff] ^ pTableBE[2][(crc >> 16) & 0xff] ^
-			pTableBE[3][(crc >> 24) & 0xff] ^ pTableBE[4][(crc >> 32) & 0xff] ^ pTableBE[5][(crc >> 40) & 0xff] ^
-			pTableBE[6][(crc >> 48) & 0xff] ^ pTableBE[7][crc >> 56];
+		crc = P_Tab_Crc64[0][crc & 0xff] ^ P_Tab_Crc64[1][(crc >> 8) & 0xff] ^ P_Tab_Crc64[2][(crc >> 16) & 0xff] ^
+			P_Tab_Crc64[3][(crc >> 24) & 0xff] ^ P_Tab_Crc64[4][(crc >> 32) & 0xff] ^ P_Tab_Crc64[5][(crc >> 40) & 0xff] ^
+			P_Tab_Crc64[6][(crc >> 48) & 0xff] ^ P_Tab_Crc64[7][crc >> 56];
 		next += 8;
 		len -= 8;
 	}
 	while(len) {
-		crc = pTableBE[0][(crc >> 56) ^ *next++] ^ (crc << 8);
+		crc = P_Tab_Crc64[0][(crc >> 56) ^ *next++] ^ (crc << 8);
 		len--;
 	}
 	return sbswap64(crc);
-}
-// 
-// Return the CRC of buf[0..len-1] with initial crc, processing eight bytes
-// at a time using passed-in lookup table.
-// This selects one of two routines depending on the endianess of
-// the architecture.
-// 
-uint64 crcspeed64native(uint64 table[8][256], uint64 crc, void * buf, size_t len) 
-{
-	uint64 n = 1;
-	return *(char *)&n ? crcspeed64le(table, crc, buf, len) : crcspeed64be(table, crc, buf, len);
-}
-//
-// Initialize CRC lookup table in architecture-dependent manner. 
-//
-void crcspeed64native_init(crcfn64 fn, uint64 table[8][256]) 
-{
-	if(SLS.SSys.IsBigEndian) {
-		crcspeed64be_init(fn, table);
-	}
-	else {
-		crcspeed64le_init(fn, table);
-	}
-	//uint64 n = 1;
-	//*(char *)&n ? crcspeed64le_init(fn, table) : crcspeed64be_init(fn, table);
 }
 
 // @v12.3.1 (replaced with SlConst::CrcPoly_64_) #define POLY_CRC64 0xad93d23594c935a9ULL
@@ -2145,6 +2087,34 @@ uint64 _crc64_proc(uint64 crc, const void * in_data, const uint64_t len)
 	//return crc_reflect(crc, 64) ^ 0x0000000000000000;
 }
 
+/*static*/void SlHash::State::CrcSpeed64leInit(uint64 (*crcfn)(uint64, const void *, const uint64)/*, uint64 table[8][256]*/)
+{
+	uint64 crc;
+	// generate CRCs for all single byte sequences 
+	for(int n = 0; n < 256; n++) {
+		P_Tab_Crc64[0][n] = crcfn(0, &n, 1);
+	}
+	// generate nested CRC table for future slice-by-8 lookup 
+	for(int n = 0; n < 256; n++) {
+		crc = P_Tab_Crc64[0][n];
+		for(int k = 1; k < 8; k++) {
+			crc = P_Tab_Crc64[0][crc & 0xff] ^ (crc >> 8);
+			P_Tab_Crc64[k][n] = crc;
+		}
+	}
+}
+
+/*static*/void SlHash::State::CrcSpeed64beInit(uint64 (*crcfn)(uint64, const void *, const uint64)/*, uint64 big_table[8][256]*/)
+{
+	// Create the little endian table then reverse all the entires
+	CrcSpeed64leInit(crcfn/*, big_table*/);
+	for(int k = 0; k < 8; k++) {
+		for(int n = 0; n < 256; n++) {
+			P_Tab_Crc64[k][n] = sbswap64(P_Tab_Crc64[k][n]);
+		}
+	}
+}
+
 /*static*/uint64 STDCALL SlHash::CRC64(State * pS, const void * pData, size_t dataLen) // Реализация заимствована из redis
 {
 	uint64 result = 0;
@@ -2159,10 +2129,10 @@ uint64 _crc64_proc(uint64 crc, const void * in_data, const uint64_t len)
 				State::P_Tab_Crc64[i] = static_cast<uint64 *>(SAlloc::M(sizeof(uint64) * 256));
 			}
 			if(SLS.SSys.IsBigEndian) {
-				crcspeed64be_init(_crc64_proc, reinterpret_cast<uint64 (*)[256]>(State::P_Tab_Crc64));
+				State::CrcSpeed64beInit(_crc64_proc/*, reinterpret_cast<uint64 (*)[256]>(State::P_Tab_Crc64)*/);
 			}
 			else {
-				crcspeed64le_init(_crc64_proc, reinterpret_cast<uint64 (*)[256]>(State::P_Tab_Crc64));
+				State::CrcSpeed64leInit(_crc64_proc/*, reinterpret_cast<uint64 (*)[256]>(State::P_Tab_Crc64)*/);
 			}
 		}
 		//const uint64 * p_tab = State::P_Tab_Crc64;
@@ -2174,10 +2144,10 @@ uint64 _crc64_proc(uint64 crc, const void * in_data, const uint64_t len)
 		if(pData && dataLen) {
 			const uint8 * p_buf = PTR8C(pData);
 			if(SLS.SSys.IsBigEndian) {
-				result = crcspeed64be(reinterpret_cast<uint64 (*)[256]>(State::P_Tab_Crc64), result, pData, dataLen);
+				result = State::CrcSpeed64be(/*reinterpret_cast<uint64 (*)[256]>(State::P_Tab_Crc64),*/result, pData, dataLen);
 			}
 			else {
-				result = crcspeed64le(reinterpret_cast<uint64 (*)[256]>(State::P_Tab_Crc64), result, pData, dataLen);
+				result = State::CrcSpeed64le(/*reinterpret_cast<uint64 (*)[256]>(State::P_Tab_Crc64),*/result, pData, dataLen);
 			}
 		}
 		else {

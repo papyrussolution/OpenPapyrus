@@ -607,6 +607,7 @@ public:
 	//
 	static constexpr uint32 GetSerializeSignature() { return 0x15DE0522U; }
 	static uint   GetNominalRectWithDefaults(const SUiLayoutParam * pLp, FRect & rR, float defWidth, float defHeight);
+	static uint   GetNominalRectWithDefaults(const SUiLayoutParam * pLp, TRect & rR, float defWidth, float defHeight);
 	SUiLayoutParam();
 	//
 	// Descr: конструктор для контейнера с наиболее популярными аргументами.
@@ -3776,6 +3777,7 @@ protected:
 	int    LinkCtrlsToDlgBorders(long ctrlResizeFlags, ...);
 	int    ResizeDlgToRect(const RECT * pRect);
 	int    ResizeDlgToFullScreen();
+	void   InitControls(HWND hwndDlg, WPARAM wParam, LPARAM lParam);
 
 	struct BuildEmptyWindowParam {
 		BuildEmptyWindowParam() : FontSize(0)
@@ -3795,6 +3797,7 @@ protected:
 private:
 	void   Helper_Constructor(uint resID, DialogPreProcFunc dlgPreFunc, void * extraPtr, ConstructorOption co); // @<<TDialog::TDialog
 	void   RemoveUnusedControls();
+
 	uint   GrpCount;
 	CtrlGroup ** PP_Groups;
 	HWND   ToolTipsWnd;
@@ -3851,7 +3854,13 @@ class TInputLine : public TView, private Helper_WordSelector {
 public:
 	static LRESULT CALLBACK DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
-	TInputLine(const TRect& bounds, TYPEID aType, long fmt);
+	enum {
+		spcfReadOnly   = 0x0001,
+		spcfMultiline  = 0x0002,
+		spcfWantReturn = 0x0004
+	};
+
+	TInputLine(const TRect & rBounds, TYPEID aType, long fmt);
 	~TInputLine();
 	virtual int    TransmitData(int dir, void * pData);
 	virtual void   setState(uint aState, bool enable);
@@ -3899,7 +3908,7 @@ protected:
 	int    Implement_GetText();
 	void   Implement_Draw();
 
-	SString Data;
+	uint   SpcFlags; // spcfXXX // @v12.3.3 ushort flags-->uint ButtonFlags
 	uint32 MaxLen;
 	TYPEID Type;
 	long   Format;
@@ -3923,6 +3932,7 @@ protected:
 		double TmSqSum;
 	};
 	InputStat Stat;
+	SString Data;
 	ComboBox * P_Combo;
 private:
 	void   Init();
@@ -3933,7 +3943,7 @@ private:
 
 class TCalcInputLine : public TInputLine {
 public:
-	TCalcInputLine(uint virtButtonId, uint buttonCtrlId, TRect& bounds, TYPEID aType, long fmt);
+	TCalcInputLine(uint virtButtonId, uint buttonCtrlId, const TRect & rBounds, TYPEID aType, long fmt);
 	~TCalcInputLine();
 private:
 	struct VirtButtonWndEx {
@@ -3977,7 +3987,12 @@ private:
 
 class TButton : public TView {
 public:
-	TButton(const TRect& bounds, const char *aTitle, ushort aCommand, ushort aFlags, uint bmpID = 0);
+	enum {
+		spcfDefault   = 0x0001,
+		spcfLeftJust  = 0x0002,
+		spcfBroadcast = 0x0004
+	};
+	TButton(const TRect & rBounds, const char * pTitle, uint command, uint spcFlags, uint bmpID = 0);
 	~TButton();
 	virtual int    handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 	virtual int    TransmitData(int dir, void * pData);
@@ -3989,23 +4004,23 @@ public:
 	uint   GetBmpID() const;
 	int    LoadBitmap_(uint bmpID);
 	int    SetBitmap(uint bmpID);
-	ushort GetCommand() const;
-	int    IsDefault() const;
+	uint   GetCommand() const;
+	bool   IsDefault() const;
 	SString Title;
 private:
 	DECL_HANDLE_EVENT;
 
-	ushort command;
-	ushort flags;
+	uint   Command;  // @v12.3.3 ushort command-->uint Command
+	uint   SpcFlags; // spcfXXX // @v12.3.3 ushort flags-->uint ButtonFlags
 	uint   BmpID;
 	HBITMAP HBmp;
 };
 //
 //
 //
-class TGroupBox : public TView { // @v12.2.3 @construction Просто фрейм
+class TGroupBox : public TView { // @v12.2.3 Просто фрейм
 public:
-	TGroupBox(const TRect & rBounds);
+	explicit TGroupBox(const TRect & rBounds);
 	~TGroupBox();
 	virtual int    handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 	void   SetText(const char * pText);
@@ -4026,11 +4041,15 @@ public:
 		TRect Bounds;
 		SString Text;
 	};
+	enum {
+		spcfSingleItemWithoutFrame = 0x0001 // Специальная опция, идентифицирующая кластер как одиночный checkbox без рамки.
+			// Используется при динамическом формировании окна по внешнему описанию.
+	};
 	//
 	// ARG(kind IN): Вид кластера. Либо RADIOBUTTONS, либо CHECKBOXES
 	//
-	TCluster(const TRect & rBounds, int kind, const StringSet * pStrings);
-	TCluster(const TRect & rBounds, int kind, const TSCollection <Item> & rItemList);
+	TCluster(const TRect & rBounds, int kind, uint spcFlags, const StringSet * pStrings);
+	// @todo TCluster(const TRect & rBounds, int kind, uint spcFlags, const TSCollection <Item> & rItemList);
 	~TCluster();
 	virtual int    TransmitData(int dir, void * pData);
 	virtual void   setState(uint aState, bool enable);
@@ -4054,12 +4073,14 @@ public:
 	int    setDataAssoc(long);
 	bool   getDataAssoc(long *);
 	int    getItemByAssoc(long val, int * pItem) const;
-	int    getKind() const { return static_cast<int>(Kind); }
+	int    GetKind() const { return static_cast<int>(Kind); } // @v12.3.3 getKind()-->GetKind()
+	uint   GetSpcFlags() const { return SpcFlags; }
 	const  Item * GetItemC(uint idx) const { return (idx < ItemList.getCount()) ? ItemList.at(idx) : 0; }
 protected:
 	virtual int    handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 	const  int32 Kind;  // RADIOBUTTONS || CHECKBOXES
+	uint   SpcFlags; // @v12.3.3
 	uint16 Value;   // Это поле надо сделать типа uint32 но для этого необходимо аккуратно поменять все вызовы TCluster::TransmitData
 	uint16 Reserve; // @alignment
 	int    Sel;   // Выбранный элемент кластера (RADIOBUTTONS)
@@ -4069,12 +4090,15 @@ protected:
 private:
 	//int    column(int item) const;
 	//int    row(int item) const;
-	LAssocArray ValAssoc;
+	LAssocArray ValAssoc; // @todo Перебросить эти данные в ItemList
 };
 
 class TStaticText : public TView {
 public:
-	explicit TStaticText(const TRect & rBounds, const char * pText = 0);
+	enum {
+		spcfStaticEdge = 0x0001 // Элемент обрамлен явно выраженной рамкой
+	};
+	TStaticText(const TRect & rBounds, uint spcFlags, const char * pText);
 	const SString & GetRawText() const { return Text; }
 	//
 	// Descr: Возвращает текст, ассоциированный с native-элементом,
@@ -4084,10 +4108,12 @@ public:
 	//
 	SString & getText(SString & rBuf) const;
 	int    setText(const char *);
+	uint   GetSpcFlags() const { return SpcFlags; }
 protected:
 	DECL_HANDLE_EVENT; // @v12.2.5
 	virtual int handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
+	uint   SpcFlags; // @v12.3.3
 	SString Text;
 };
 

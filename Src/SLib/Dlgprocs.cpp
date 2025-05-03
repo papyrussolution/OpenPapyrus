@@ -106,6 +106,22 @@ void TDialog::RemoveUnusedControls()
 	} while(v != P_Last);
 }
 
+void TDialog::InitControls(HWND hwndDlg, WPARAM wParam, LPARAM lParam)
+{
+	TView * v = P_Last;
+	if(v) {
+		do {
+			HWND   ctrl = GetDlgItem(hwndDlg, v->GetId());
+			SETIFZ(ctrl, GetDlgItem(hwndDlg, MAKE_BUTTON_ID(v->GetId(), 1)));
+			if(IsWindow(ctrl)) {
+				v->Parent = hwndDlg;
+				v->handleWindowsMessage(WM_INITDIALOG, wParam, lParam);
+				EnableWindow(ctrl, !v->IsInState(sfDisabled));
+			}
+		} while((v = v->prev()) != P_Last);
+	}
+}
+
 /*static*/INT_PTR CALLBACK TDialog::DialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	TDialog * p_dlg;
@@ -143,17 +159,7 @@ void TDialog::RemoveUnusedControls()
 				if(!export_mode)
 					SetupCtrlTextProc(p_dlg->H(), 0);
 				p_dlg->RemoveUnusedControls();
-				if((v = p_dlg->P_Last) != 0) {
-					do {
-						HWND   ctrl = GetDlgItem(hwndDlg, v->GetId());
-						SETIFZ(ctrl, GetDlgItem(hwndDlg, MAKE_BUTTON_ID(v->GetId(), 1)));
-						if(IsWindow(ctrl)) {
-							v->Parent = hwndDlg;
-							v->handleWindowsMessage(uMsg, wParam, lParam);
-							EnableWindow(ctrl, !v->IsInState(sfDisabled));
-						}
-					} while((v = v->prev()) != p_dlg->P_Last);
-				}
+				p_dlg->InitControls(hwndDlg, wParam, lParam);
 				if(!export_mode)
 					EnumChildWindows(hwndDlg, SetupCtrlTextProc, 0);
 			}

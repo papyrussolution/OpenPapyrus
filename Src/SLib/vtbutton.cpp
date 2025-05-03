@@ -1,15 +1,12 @@
 // VTBUTTON.CPP
-// Copyright (c) V.Nasonov 2002, 2003, 2005, 2006, 2007, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2023, 2024
+// Copyright (c) V.Nasonov 2002, 2003, 2005, 2006, 2007, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <slib-internal.h>
 #pragma hdrstop
 #include <ppdefs.h>
-//
-// @v8.3.3 Удалены условия __WIN32__
-//
-// Prototype
-int showInputLineCalc(TDialog *, uint);
+
+int showInputLineCalc(TDialog *, uint); // Prototype
 
 #pragma warn -par
 
@@ -18,8 +15,8 @@ TCalcInputLine::VirtButtonWndEx::VirtButtonWndEx(const char * pSignature) : P_Dl
 	STRNSCPY(Signature, pSignature);
 }
 
-TCalcInputLine::TCalcInputLine(uint inputId, uint buttonId, TRect & bounds, TYPEID aType, long fmt) :
-	TInputLine(bounds, aType, fmt), Vbwe("papyruscalculator"), VirtButtonId(inputId)
+TCalcInputLine::TCalcInputLine(uint inputId, uint buttonId, const TRect & rBounds, TYPEID aType, long fmt) :
+	TInputLine(rBounds, aType, fmt), Vbwe("papyruscalculator"), VirtButtonId(inputId)
 {
 	Vbwe.ButtonCtrlId = buttonId;
 }

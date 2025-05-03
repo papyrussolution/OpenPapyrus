@@ -169,18 +169,14 @@ static void initializeLibxml2(void) {
 		xmlXPathContextSetCache(ctxtXPath, 0, -1, 0);
 	xmlSetStructuredErrorFunc(NULL, testErrorHandler);
 }
-
-/************************************************************************
-*									*
-*		Run the xmlconf test if found				*
-*									*
-************************************************************************/
-
-static int xmlconfTestInvalid(const char * id, const char * filename, int options) {
-	xmlDocPtr doc;
-	xmlParserCtxtPtr ctxt;
+// 
+// Run the xmlconf test if found
+// 
+static int xmlconfTestInvalid(const char * id, const char * filename, int options) 
+{
+	xmlDoc * doc;
+	xmlParserCtxt * ctxt;
 	int ret = 1;
-
 	ctxt = xmlNewParserCtxt();
 	if(ctxt == NULL) {
 		test_log("test %s : %s out of memory\n",
@@ -206,15 +202,13 @@ static int xmlconfTestInvalid(const char * id, const char * filename, int option
 	return(ret);
 }
 
-static int xmlconfTestValid(const char * id, const char * filename, int options) {
-	xmlDocPtr doc;
-	xmlParserCtxtPtr ctxt;
+static int xmlconfTestValid(const char * id, const char * filename, int options) 
+{
+	xmlDoc * doc;
 	int ret = 1;
-
-	ctxt = xmlNewParserCtxt();
+	xmlParserCtxt * ctxt = xmlNewParserCtxt();
 	if(ctxt == NULL) {
-		test_log("test %s : %s out of memory\n",
-		    id, filename);
+		test_log("test %s : %s out of memory\n", id, filename);
 		return(0);
 	}
 	doc = xmlCtxtReadFile(ctxt, filename, NULL, options);

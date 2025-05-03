@@ -2803,7 +2803,7 @@ IMPL_HANDLE_EVENT(SCalendarPicker)
 						InsertCtlWithCorrespondingNativeItem(new TButton(_def_rect, "..>>", cmPeriodResetRight, 0, 0), CTL_CALENDAR_RIGHTRESET, 0, /*extraPtr*/0);
 					}
 				}
-				InsertCtlWithCorrespondingNativeItem(new TButton(_def_rect, "@but_ok", cmOK, bfDefault, 0), STDCTL_OKBUTTON, 0, /*extraPtr*/0);
+				InsertCtlWithCorrespondingNativeItem(new TButton(_def_rect, "@but_ok", cmOK, TButton::spcfDefault, 0), STDCTL_OKBUTTON, 0, /*extraPtr*/0);
 				InsertCtlWithCorrespondingNativeItem(new TButton(_def_rect, "@but_cancel", cmCancel, 0, 0), STDCTL_CANCELBUTTON, 0, /*extraPtr*/0);
 			}
 			CreateLayout(ISD());

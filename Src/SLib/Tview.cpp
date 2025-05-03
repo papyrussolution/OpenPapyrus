@@ -305,7 +305,7 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 	if(text_buf.Len() > 1) {
 		SString temp_buf(text_buf);
 		int   do_replace = 0;
-		if(temp_buf.C(0) == '@') {
+		if(temp_buf.C(0) == '@' && temp_buf.C(1) != '{') { // @v12.3.3 (&& temp_buf.C(1) != '{')
 			SLS.LoadString_(text_buf+1, temp_buf);
 			temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
 			do_replace = 1;
@@ -487,25 +487,28 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 			switch(pV->GetSubSign()) {
 				case TV_SUBSIGN_GROUPBOX: // @v12.2.3
 					{
-						TGroupBox * p_gb = static_cast<TGroupBox *>(pV);
+						TGroupBox * p_ctl = static_cast<TGroupBox *>(pV);
 						pV->Parent = hw_parent;
 						hw = ::CreateWindowExW(WS_EX_NOPARENTNOTIFY, _T("BUTTON"), 0, WS_CHILD|BS_GROUPBOX, 
 							pV->ViewOrigin.x, pV->ViewOrigin.y, pV->ViewSize.x, pV->ViewSize.y, hw_parent, (HMENU)ctl_id, TProgram::GetInst(), 0);
 						if(hw) {
-							TView::SetWindowUserData(hw, p_gb);
+							TView::SetWindowUserData(hw, p_ctl);
+							TView::SSetWindowText(hw, p_ctl->GetText());
+							setup_font_blk.Set(hw);
+							SetupWindowCtrlTextProc(hw, 0);
 						}
 					}
 					break;
 				case TV_SUBSIGN_CLUSTER: // @v12.2.3 @construction
 					{
 						TCluster * p_ctl = static_cast<TCluster *>(pV);
-						const int cluster_kind = p_ctl->getKind();
+						const int cluster_kind = p_ctl->GetKind();
 						if(oneof2(cluster_kind, CHECKBOXES, RADIOBUTTONS)) {
-							hw = ::CreateWindowExW(WS_EX_NOPARENTNOTIFY, _T("BUTTON"), 0, WS_CHILD|WS_GROUP|WS_VISIBLE|BS_GROUPBOX, 
-								pV->ViewOrigin.x, pV->ViewOrigin.y, pV->ViewSize.x, pV->ViewSize.y, hw_parent, (HMENU)ctl_id, TProgram::GetInst(), 0);						
-							if(hw) {
-								for(uint cii = 0; cii < p_ctl->getNumItems(); cii++) {
-									const TCluster::Item * p_item = p_ctl->GetItemC(cii);
+							const uint spc_flags = p_ctl->GetSpcFlags();
+							if(spc_flags & TCluster::spcfSingleItemWithoutFrame) {
+								if(p_ctl->getNumItems()) {
+									assert(p_ctl->getNumItems() == 1);
+									const TCluster::Item * p_item = p_ctl->GetItemC(0);
 									if(p_item) {
 										HWND hw_item = 0;
 										SPoint2S item_org;
@@ -513,7 +516,7 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 										item_org = p_item->Bounds.a;
 										item_sz.Set(p_item->Bounds.width(), p_item->Bounds.height());
 
-										uint item_id = MAKE_BUTTON_ID(ctl_id, cii+1);
+										uint item_id = MAKE_BUTTON_ID(ctl_id, 1);
 										DWORD item_style = WS_CHILD|WS_VISIBLE|WS_TABSTOP|BS_NOTIFY;
 										if(cluster_kind == CHECKBOXES) {
 											item_style |= BS_AUTOCHECKBOX;
@@ -528,9 +531,39 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 										setup_font_blk.Set(hw_item);
 									}
 								}
-								TView::SetWindowUserData(hw, p_ctl);
-								//TView::SSetWindowText(hw, p_ctl->Text);
-								//SetupWindowCtrlTextProc(hw, 0);
+							}
+							else {
+								hw = ::CreateWindowExW(WS_EX_NOPARENTNOTIFY, _T("BUTTON"), 0, WS_CHILD|WS_GROUP|WS_VISIBLE|BS_GROUPBOX, 
+									pV->ViewOrigin.x, pV->ViewOrigin.y, pV->ViewSize.x, pV->ViewSize.y, hw_parent, (HMENU)ctl_id, TProgram::GetInst(), 0);						
+								if(hw) {
+									for(uint cii = 0; cii < p_ctl->getNumItems(); cii++) {
+										const TCluster::Item * p_item = p_ctl->GetItemC(cii);
+										if(p_item) {
+											HWND hw_item = 0;
+											SPoint2S item_org;
+											SPoint2S item_sz;
+											item_org = p_item->Bounds.a;
+											item_sz.Set(p_item->Bounds.width(), p_item->Bounds.height());
+
+											uint item_id = MAKE_BUTTON_ID(ctl_id, cii+1);
+											DWORD item_style = WS_CHILD|WS_VISIBLE|WS_TABSTOP|BS_NOTIFY;
+											if(cluster_kind == CHECKBOXES) {
+												item_style |= BS_AUTOCHECKBOX;
+											}
+											else if(cluster_kind == RADIOBUTTONS) {
+												item_style |= BS_AUTORADIOBUTTON;
+											}
+											hw_item = ::CreateWindowExW(WS_EX_NOPARENTNOTIFY, _T("BUTTON"), 0, item_style, 
+												item_org.x, item_org.y, item_sz.x, item_sz.y, hw_parent, (HMENU)item_id, TProgram::GetInst(), 0);						
+											TView::SSetWindowText(hw_item, p_item->Text);
+											SetupWindowCtrlTextProc(hw_item, 0);
+											setup_font_blk.Set(hw_item);
+										}
+									}
+									TView::SetWindowUserData(hw, p_ctl);
+									//TView::SSetWindowText(hw, p_ctl->Text);
+									//SetupWindowCtrlTextProc(hw, 0);
+								}
 							}
 						}
 					}
@@ -538,14 +571,10 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 				case TV_SUBSIGN_COMBOBOX:
 					{
 						ComboBox * p_cv = static_cast<ComboBox *>(pV);
-						pV->Parent = hw_parent;
-						hw = ::CreateWindowEx(0, _T("BUTTON"), 0, WS_CHILD|BS_OWNERDRAW|BS_PUSHBUTTON/*|BS_BITMAP|BS_FLAT*/, pV->ViewOrigin.x,
-							pV->ViewOrigin.y, pV->ViewSize.x, pV->ViewSize.y, hw_parent, (HMENU)ctl_id, TProgram::GetInst(), 0);
 						TInputLine * p_il = p_cv->link();
 						if(p_il) {
 							p_il->Parent = hw_parent;
 							DWORD  style = WS_VISIBLE|WS_CHILD|WS_BORDER|WS_CLIPSIBLINGS|WS_TABSTOP|ES_AUTOHSCROLL;
-							p_il->Parent = hw_parent;
 							HWND hw_il = ::CreateWindowEx(0, _T("EDIT"), 0, style, p_il->ViewOrigin.x,
 								p_il->ViewOrigin.y, p_il->ViewSize.x, p_il->ViewSize.y, hw_parent, (HMENU)p_il->GetId(), TProgram::GetInst(), 0);
 							if(hw_il) {
@@ -553,6 +582,10 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 								TView::SetWindowUserData(hw_il, p_il);
 							}
 						}
+						//
+						pV->Parent = hw_parent;
+						hw = ::CreateWindowEx(0, _T("BUTTON"), 0, WS_CHILD|BS_OWNERDRAW|BS_PUSHBUTTON/*|BS_BITMAP|BS_FLAT*/, pV->ViewOrigin.x,
+							pV->ViewOrigin.y, pV->ViewSize.x, pV->ViewSize.y, hw_parent, (HMENU)ctl_id, TProgram::GetInst(), 0);
 					}
 					break;
 				case TV_SUBSIGN_LISTBOX: // @v12.2.2 @construction
@@ -640,15 +673,29 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 					break;
 				case TV_SUBSIGN_STATIC:
 					{
-						TStaticText * p_st = static_cast<TStaticText *>(pV);
+						TStaticText * p_ctl = static_cast<TStaticText *>(pV);
+						pV->Parent = hw_parent;
+						const DWORD  style = WS_VISIBLE|WS_CHILD|WS_CLIPSIBLINGS|SS_LEFT;
+						const DWORD  ex_style = (p_ctl->GetSpcFlags() & TStaticText::spcfStaticEdge) ? WS_EX_STATICEDGE : 0;
+						hw = ::CreateWindowExW(ex_style, L"STATIC", 0, style, pV->ViewOrigin.x,
+							pV->ViewOrigin.y, pV->ViewSize.x, pV->ViewSize.y, hw_parent, (HMENU)ctl_id, TProgram::GetInst(), 0);
+						if(hw) {
+							setup_font_blk.Set(hw);
+							TView::SetWindowUserData(hw, p_ctl);
+						}
+					}
+					break;
+				case TV_SUBSIGN_IMAGEVIEW: // @v12.3.3
+					{
+						TImageView * p_ctl = static_cast<TImageView *>(pV);
 						pV->Parent = hw_parent;
 						const DWORD  style = WS_VISIBLE|WS_CHILD|WS_CLIPSIBLINGS|SS_LEFT;
 						const DWORD  ex_style = WS_EX_STATICEDGE;
 						hw = ::CreateWindowExW(ex_style, L"STATIC", 0, style, pV->ViewOrigin.x,
-							pV->ViewOrigin.y, pV->ViewSize.x, pV->ViewSize.y, hw_parent, (HMENU)ctl_id, TProgram::GetInst(), 0);						
+							pV->ViewOrigin.y, pV->ViewSize.x, pV->ViewSize.y, hw_parent, (HMENU)ctl_id, TProgram::GetInst(), 0);
 						if(hw) {
 							setup_font_blk.Set(hw);
-							TView::SetWindowUserData(hw, p_st);
+							TView::SetWindowUserData(hw, p_ctl);
 						}
 					}
 					break;

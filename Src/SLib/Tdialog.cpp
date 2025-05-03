@@ -304,7 +304,7 @@ int (* getUserControl)(TVRez*, TDialog*) = 0;
 						id = pRez->getUINT();
 						pRez->getString(symb, 0);
 						help_ctx = pRez->getUINT();
-						TCluster * p_cluster = new TCluster(r, (tag == TV_CHECKBOXES) ? CHECKBOXES : RADIOBUTTONS, 0);
+						TCluster * p_cluster = new TCluster(r, (tag == TV_CHECKBOXES) ? CHECKBOXES : RADIOBUTTONS, 0, 0);
 						while(pRez->getUINT() != TV_END) {
 							assert(p_cluster->getNumItems() < 36);
 							//fseek(pRez->getStream(), -((long)sizeof(uint16)), SEEK_CUR);
@@ -353,7 +353,7 @@ int (* getUserControl)(TVRez*, TDialog*) = 0;
 						if(sstreqi_ascii(columns_buf, "IMAGEVIEW"))
 							p_ctl = new TImageView(r, temp_buf);
 						else
-							p_ctl = new TStaticText(r, buf);
+							p_ctl = new TStaticText(r, 0/*spcFlags*/, buf);
 					}
 					dlg->InsertCtl(p_ctl, id, (flags & ldfDL600_Cvt) ? symb.cptr() : 0);
 					break;
@@ -887,7 +887,7 @@ int STDCALL TDialog::AddClusterAssocDef(uint ctlID, long pos, long val)
 	TCluster * p_clu = static_cast<TCluster *>(getCtrlView(ctlID));
 	if(p_clu) {
 		p_clu->addAssoc(pos, val);
-		if(pos >= 0 && p_clu->getKind() == RADIOBUTTONS)
+		if(pos >= 0 && p_clu->GetKind() == RADIOBUTTONS)
 			p_clu->addAssoc(-1, val);
 	}
 	else

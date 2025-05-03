@@ -14,8 +14,10 @@ IMPL_CMPFUNC(ILTIGGRP, i1, i2)
 	int    cmp = 0;
 	PPObjGoods goods_obj;
 	Goods2Tbl::Rec rec, grp_rec;
-	SString name1, name2;
-	SString grp_name1, grp_name2;
+	SString name1;
+	SString name2;
+	SString grp_name1;
+	SString grp_name2;
 	if(goods_obj.Fetch(item1->GoodsID, &rec) > 0) {
 		name1 = rec.Name;
 		goods_obj.Fetch(rec.ParentID, &grp_rec);
@@ -40,7 +42,8 @@ IMPL_CMPFUNC(ILTIGGRP, i1, i2)
 IMPL_CMPFUNC(ILTIGOODS, i1, i2)
 {
 	PPObjGoods goods_obj;
-	Goods2Tbl::Rec rec1, rec2;
+	Goods2Tbl::Rec rec1;
+	Goods2Tbl::Rec rec2;
 	goods_obj.Fetch(static_cast<const ILTI *>(i1)->GoodsID, &rec1);
 	goods_obj.Fetch(static_cast<const ILTI *>(i2)->GoodsID, &rec2);
 	const int cmp = stricmp866(rec1.Name, rec2.Name);

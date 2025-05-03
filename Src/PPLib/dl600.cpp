@@ -1558,7 +1558,8 @@ long DlContext::GetUniqCntr()
 DLSYMBID DlContext::Helper_CreateSymb(const char * pSymb, DLSYMBID newId, int prefix, long flags)
 {
 	DLSYMBID id = 0;
-	SString name, temp_buf;
+	SString temp_buf;
+	SString name;
 	name.CatChar(prefix).Cat(pSymb);
 	if(flags & crsymfCatCurScope) {
 		SString qualif;
@@ -2501,6 +2502,32 @@ const  DlScope * DlContext::GetScopeByName_Const(uint kind, const char * pName) 
 {
 	DLSYMBID parent_id = 0;
 	const DlScope * p_scope = Sc.SearchByName_Const(kind, pName, &parent_id);
+	return p_scope;
+}
+
+const DlScope * DlContext::GetDialogScopeBySymbolIdent_Const(uint symbolIdent) const
+{
+	const DlScope * p_scope = 0;
+	if(symbolIdent) {
+		StrAssocArray scope_list;
+		Helper_GetScopeList(DlScope::kUiView, DlScope::srchfRecursive|DlScope::srchfTopLevel, &scope_list); 
+		if(scope_list.getCount()) {
+			for(uint i = 0; !p_scope && i < scope_list.getCount(); i++) {
+				StrAssocArray::Item sl_item = scope_list.at_WithoutParent(i);
+				const DlScope * p_iter_scope = GetScope_Const(sl_item.Id, 0);
+				if(p_iter_scope) {
+					uint32 vk = 0;
+					uint32 symb_ident = 0;
+					GetConst_Uint32(p_iter_scope, DlScope::cuifViewKind, vk);
+					if(vk == UiItemKind::kDialog) {
+						GetConst_Uint32(p_iter_scope, DlScope::cucmSymbolIdent, symb_ident);
+						if(symb_ident == symbolIdent)
+							p_scope = p_iter_scope;
+					}
+				}
+			}
+		}
+	}
 	return p_scope;
 }
 

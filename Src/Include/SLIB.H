@@ -567,6 +567,7 @@
 #define THROW_V(expr,val)      {if(!(expr)){*__sexcept=val;goto __scatch;}}
 #define THROW_S(expr,val)      {if(!(expr)){SLS.SetError(val);goto __scatch;}}
 #define THROW_S_S(expr,val,s) {if(!(expr)){SLS.SetError(val, s);goto __scatch;}}
+#define THROW_S_LXML(expr, ctx) {if(!(expr)){SLS.SetLibXmlError(ctx);goto __scatch;}} // @v12.3.3 (аналог THROW_LXML(expr, ctx) из Papyrus)
 #define CATCH                  goto __sendcatch;__scatch:
 #define ENDCATCH               __sendcatch:;
 #define CATCHZOK               \
@@ -1186,6 +1187,7 @@ class  STokenRecognizer;
 class  SNaturalTokenArray;
 struct SNaturalTokenStat;
 class  UiDescription; // @v11.9.2
+struct xmlParserCtxt; // @v12.3.3
 //
 // Formats for date binary representation
 //
@@ -7344,6 +7346,23 @@ public:
 		uint32 GetResult32() const { return Result.R32; }
 		uint64 GetResult64() const { return Result.R64; }
 	private:
+		static void CrcSpeed64leInit(uint64 (*crcfn)(uint64, const void *, const uint64)/*, uint64 table[8][256]*/);
+		// 
+		// This function is called once to initialize the CRC table for use on a
+		// big-endian architecture. 
+		// 
+		static void CrcSpeed64beInit(uint64 (*crcfn)(uint64, const void *, const uint64)/*, uint64 big_table[8][256]*/);
+		// 
+		// Calculate a non-inverted CRC multiple bytes at a time on a little-endian
+		// architecture. If you need inverted CRC, invert *before* calling and invert *after* calling.
+		// 64 bit crc = process 8 bytes at once;
+		// 
+		static uint64 CrcSpeed64le(/*const uint64 pTableLE[8][256],*/uint64 crc, const void * pBuf, size_t len);
+		// 
+		// Calculate a non-inverted CRC eight bytes at a time on a big-endian architecture.
+		// 
+		static uint64 CrcSpeed64be(/*const uint64 pTableBE[8][256],*/uint64 crc, const void * pBuf, size_t len);
+
 		struct ShaCtx {
 			ShaCtx & Z();
 			uint32 H[8];
@@ -9214,12 +9233,12 @@ public:
 	//   !0 - элемент со значением ключа key найден
 	//   0  - в массиве нет элемента со значением ключа key
 	//
-	int    Search(long key, double * pVal, uint * pPos, int binary = 0) const;
-	int    FASTCALL Has(long key) const;
+	bool   Search(long key, double * pVal, uint * pPos, int binary = 0) const;
+	bool   FASTCALL Has(long key) const;
 	double Get(long key, int binary = 0) const; // @>>RAssocArray::Search
 	int    GetList(LongArray & rList, int unique) const;
 	void   Scale(double rate);
-	int    SearchMaxVal(uint * pPos) const;
+	bool   SearchMaxVal(uint * pPos) const;
 
 	enum {
 		dfRound = 0x0001, // Округлять каждое распределенное значение до точность prec
@@ -17814,6 +17833,7 @@ public:
 	// Returns: false
 	//
 	bool   FASTCALL SetError(int errCode);
+	int    FASTCALL SetLibXmlError(const xmlParserCtxt * pCtx);
 	//
 	// Returns: false
 	//

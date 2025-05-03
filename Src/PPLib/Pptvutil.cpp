@@ -3030,7 +3030,7 @@ void LayoutedListDialog_Base::OnInit2(TWindowBase::CreateBlock * pBlk)
 		//PPGetSubStr(PPTXT_FONTFACE, /*PPFONT_MSSANSSERIF*/PPFONT_ARIAL, font_face);
 		//TView::setFont(HW, font_face, 12);
 		if(P.Flags & fHeaderStaticText) {
-			TStaticText * p_st = new TStaticText(_def_rect, 0);
+			TStaticText * p_st = new TStaticText(_def_rect, 0/*spcFlags*/, 0);
 			P_TW->InsertCtlWithCorrespondingNativeItem(p_st, STDCTL_HEADERSTATICTEXT, 0, /*extraPtr*/0);
 		}
 		{
@@ -7698,7 +7698,7 @@ int ExportDialogs2(const char * pFileName)
 									if(TView::IsSubSign(p_view, TV_SUBSIGN_CLUSTER)) {
 										TCluster * p_clu = static_cast<TCluster *>(p_view);
 										const char * p_kind = 0;
-										if(p_clu->getKind() == RADIOBUTTONS) {
+										if(p_clu->GetKind() == RADIOBUTTONS) {
 											p_kind = "radiocluster";
 											{
 												// \item[\dlgradioc{Сортировать по}]
@@ -7708,7 +7708,7 @@ int ExportDialogs2(const char * pFileName)
 												f_out_manual.WriteLine(line_buf);
 											}
 										}
-										else if(p_clu->getKind() == CHECKBOXES) {
+										else if(p_clu->GetKind() == CHECKBOXES) {
 											p_kind = "checkcluster";
 										}
 										if(p_kind) {
@@ -7729,13 +7729,13 @@ int ExportDialogs2(const char * pFileName)
 													if(GetWindowInfo(h_item, &wi_item)) {
 														SString item_title_buf;
 														TView::SGetWindowText(h_item, item_title_buf);
-														if(p_clu->getKind() == RADIOBUTTONS) {
+														if(p_clu->GetKind() == RADIOBUTTONS) {
 															line_buf.Z().Tab_(2).Cat("radiobutton").Space().CatChar('[');
 															line_buf.Cat("title").CatDiv(':', 2).CatQStr((temp_buf = item_title_buf).Transf(CTRANSF_OUTER_TO_UTF8));
 															_BBox(_AdjustRectToOrigin(wi_item.rcWindow, _origin), line_buf.Space(), 0);
 															line_buf.CatChar(']').Semicol();
 														}
-														else if(p_clu->getKind() == CHECKBOXES) {
+														else if(p_clu->GetKind() == CHECKBOXES) {
 															line_buf.Z().Tab_(2).Cat("checkbox").Space().CatChar('[');
 															line_buf.Cat("title").CatDiv(':', 2).CatQStr((temp_buf = item_title_buf).Transf(CTRANSF_OUTER_TO_UTF8));
 															_BBox(_AdjustRectToOrigin(wi_item.rcWindow, _origin), line_buf.Space(), 0);
@@ -7746,14 +7746,14 @@ int ExportDialogs2(const char * pFileName)
 															text_line_buf.Z().Cat(symb).Tab().Cat(item_title_buf).CR();
 															f_out_text.WriteLine(text_line_buf);
 															{
-																if(p_clu->getKind() == RADIOBUTTONS) {
+																if(p_clu->GetKind() == RADIOBUTTONS) {
 																	// \item[\dlgradioc{Сортировать по}]
 																	PreprocessCtrlText(item_title_buf, ctl_text_processed);
 																	line_buf.Z().Tab_(2).BSlash().Cat("item").CatChar('[').BSlash().Cat("dlgradioi").
 																		CatChar('{').Cat(ctl_text_processed).CatChar('}').CatChar(']').CR().CR();
 																	f_out_manual.WriteLine(line_buf);
 																}
-																else if(p_clu->getKind() == CHECKBOXES) {
+																else if(p_clu->GetKind() == CHECKBOXES) {
 																	// \dlgflag{Просмотр}
 																	PreprocessCtrlText(item_title_buf, ctl_text_processed);
 																	line_buf.Z().Tab_(2).BSlash().Cat("dlgflag").CatChar('{').Cat(ctl_text_processed).CatChar('}').CR().CR();
@@ -8342,316 +8342,379 @@ IMPL_DIALOG_GETDTS(ExtStrContainerListDialog)
 //
 class TDialogDL6_Construction : public TDialog {
 public:
-	TDialogDL6_Construction(DlContext & rCtx, const char * pSymb) : TDialog(0, TWindow::wbcDrawBuffer|TWindow::wbcStorableUserParams, TDialog::coEmpty),
-		Dl00Symb(pSymb)
-	{
-		Build(rCtx);
-	}
+	TDialogDL6_Construction(DlContext & rCtx, const char * pSymb);
 private:
-	void   Build(DlContext & rCtx)
-	{
-		bool   debug_mark = false; // @debug
-		const DlScope * p_scope = rCtx.GetScopeByName_Const(DlScope::kUiView, Dl00Symb);
-		if(p_scope) {
-			BuildEmptyWindowParam bew_param;
-			char   c_buf[1024];
-			SUiLayoutParam __alb;
-			const SUiLayoutParam * p_alb = 0;
-			SString temp_buf;
-			{
-				CtmExprConst __c = p_scope->GetConst(DlScope::cuifCtrlText);
-				if(!!__c) {
-					if(rCtx.GetConstData(__c, c_buf, sizeof(c_buf))) {
-						temp_buf = reinterpret_cast<const char *>(c_buf);
-						setTitle(temp_buf);
-					}
-				}
-			}
-			{
-				const SUiLayoutParam * p_lp = rCtx.GetConst_LayoutBlock(p_scope, DlScope::cuifLayoutBlock);
-				if(p_lp) {
-					__alb = *p_lp;
-					p_alb = &__alb;
-				}
-			}
-			{
-				FRect rect;
-				const uint gnrr = p_alb ? p_alb->GetNominalRect(rect) : 0;
-				if(rect.Width() <= 0.0f) {
-					rect.b.x = rect.a.x + 60.0f;
-				}
-				if(rect.Height() <= 0.0f) {
-					rect.b.y = rect.a.y + 60.0f;
-				}
-				setBounds(rect);
-			}
-			/*{
-				CtmExprConst __c = p_scope->GetConst(DlScope::cuifCtrlRect);
-				if(!!__c) {
-					if(rCtx.GetConstData(__c, c_buf, sizeof(c_buf))) {
-						const UiRelRect * p_rect = reinterpret_cast<const UiRelRect *>(c_buf);
-						//temp_buf.Z();
-						//_RectToLine(*p_rect, temp_buf);
-						//rOutBuf.CR().Tab_(indentTabCount+1).Cat("rect").CatDiv(':', 2).Cat(temp_buf);
-					}
-				}
-			}*/
-			{
-				{
-					CtmExprConst __c = p_scope->GetConst(DlScope::cuifFont);
-					if(!!__c) {
-						if(rCtx.GetConstData(__c, c_buf, sizeof(c_buf))) {
-							bew_param.FontFace = reinterpret_cast<const char *>(c_buf);
-						}
-					}
-				}
-				{
-					CtmExprConst __c = p_scope->GetConst(DlScope::cuifFontSize);
-					if(!!__c) {
-						if(rCtx.GetConstData(__c, c_buf, sizeof(c_buf))) {
-							double font_size_real = *reinterpret_cast<const double *>(c_buf);
-							bew_param.FontSize = static_cast<int>(font_size_real);
-						}
-					}
-				}
-				if(temp_buf.NotEmpty()) {
-				}
-			}
-			BuildEmptyWindow(&bew_param);
-			//
-			{
-				//
-				// Далее, мы должны вставить управляющие элементы в созданое окно диалога
-				//
-				const TRect _def_rect(0, 0, 10, 10);
-				SString ctl_text;
-				const DlScopeList & r_cl = p_scope->GetChildList();
-				{
-					uint last_dyn_id = 1000000; 
-					for(uint ci = 0; ci < r_cl.getCount(); ci++) {
-						const DlScope * p_item = r_cl.at(ci);
-						if(p_item) {
-							uint32 vk = 0;
-							rCtx.GetConst_Uint32(p_item, DlScope::cuifViewKind, vk);
-							//UiItemKind::GetSymbById(vk, temp_buf);
-							const SUiLayoutParam * p_lp = rCtx.GetConst_LayoutBlock(p_item, DlScope::cuifLayoutBlock);
-							switch(vk) {
-								case UiItemKind::kInput:
-									{
-										TRect rc;
-										FRect rect;
-										const uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(p_lp, rect, 60.0f, 21.0f);
-										rc.Set(rect);
-										//
-										TInputLine * p_ctl = new TInputLine(rc, 0/* @todo type */, 0);
-										InsertCtlWithCorrespondingNativeItem(p_ctl, p_item->ID, 0, /*extraPtr*/0);
-										{
-											// Label
-											if(rCtx.GetConst_String(p_item, DlScope::cuifCtrlText, ctl_text)) {
-												//cuifCtrlLblRect,  // raw    Координаты текстового ярлыка, ассоциированного с управляющим элементом
-												//cuifCtrlLblSymb,  // string Символ текстового ярлыка, ассоциированного с управляющим элементом
-												//cuifLabelRect,    // raw(UiRelRect) Положение текстового ярлыка, ассоциированного с управляющим элементом
-												//cuifLblLayoutBlock
-												const SUiLayoutParam * p_lp_label = rCtx.GetConst_LayoutBlock(p_item, DlScope::cuifLblLayoutBlock);
-												TRect rc_label;
-												FRect rect_label;
-												const uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(p_lp_label, rect_label, 60.0f, 13.0f);
-												rc_label.Set(rect_label);
-												TLabel * p_lbl = new TLabel(rc_label, ctl_text, p_ctl);
-												InsertCtlWithCorrespondingNativeItem(p_lbl, 0, 0, /*extraPtr*/0);
-											}
-										}
-									}
-									break;
-								case UiItemKind::kStatic:
-									{
-										TRect rc;
-										FRect rect;
-										const uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(p_lp, rect, 60.0f, 60.0f);
-										rc.Set(rect);
-										TStaticText * p_ctl = new TStaticText(rc, 0);
-										InsertCtlWithCorrespondingNativeItem(p_ctl, p_item->ID, 0, /*extraPtr*/0);
-									}
-									break;
-								case UiItemKind::kPushbutton:
-									{
-										TRect rc;
-										FRect rect;
-										const uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(p_lp, rect, 60.0f, 60.0f);
-										rc.Set(rect);
-										uint32 cmd_id = 0;
-										SString cmd_symb;
-										rCtx.GetConst_Uint32(p_item, DlScope::cuifCtrlCmd, cmd_id); // uint32 ИД команды кнопки
-										rCtx.GetConst_String(p_item, DlScope::cuifCtrlCmdSymb, cmd_symb); // string Символ команды кнопки
-										rCtx.GetConst_String(p_item, DlScope::cuifCtrlText, ctl_text);
-										TButton * p_ctl = new TButton(rc, ctl_text, cmd_id, 0);
-										InsertCtlWithCorrespondingNativeItem(p_ctl, p_item->ID, 0, /*extraPtr*/0);
-									}
-									break;
-								case UiItemKind::kCheckbox: 
-									{
-										
-									}
-									break;
-								case UiItemKind::kCheckCluster: 
-									{
-										TRect rc;
-										FRect rect;
-										const uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(p_lp, rect, 60.0f, 60.0f);
-										rc.Set(rect);
-										TCluster * p_ctl = new TCluster(rc, CHECKBOXES, 0);
-										{
-											const DlScopeList & r_item_scope_list = p_item->GetChildList();
-											for(uint cii = 0; cii < r_item_scope_list.getCount(); cii++) {
-												const DlScope * p_ci = r_item_scope_list.at(cii);
-												if(p_ci) {
-													if(rCtx.GetConst_String(p_ci, DlScope::cuifCtrlText, temp_buf)) {
-														TRect rc_item;
-														FRect rect_item;
-														const SUiLayoutParam * p_lp_item = rCtx.GetConst_LayoutBlock(p_ci, DlScope::cuifLayoutBlock);
-														const uint gnrr_item = SUiLayoutParam::GetNominalRectWithDefaults(p_lp_item, rect_item, rect.Width() - 2.0f, 16.0f);
-														rc_item.Set(rect_item);
-														p_ctl->AddItem(-1, temp_buf, &rc_item);
-													}
-												}
-											}
-										}
-										InsertCtlWithCorrespondingNativeItem(p_ctl, p_item->ID, 0, /*extraPtr*/0);
-									}
-									break;
-								case UiItemKind::kRadioCluster: 
-									{
-										TRect rc;
-										FRect rect;
-										const uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(p_lp, rect, 60.0f, 60.0f);
-										rc.Set(rect);
-										TCluster * p_ctl = new TCluster(rc, RADIOBUTTONS, 0);
-										{
-											const DlScopeList & r_item_scope_list = p_item->GetChildList();
-											for(uint cii = 0; cii < r_item_scope_list.getCount(); cii++) {
-												const DlScope * p_ci = r_item_scope_list.at(cii);
-												if(p_ci) {
-													if(rCtx.GetConst_String(p_ci, DlScope::cuifCtrlText, temp_buf)) {
-														TRect rc_item;
-														FRect rect_item;
-														const SUiLayoutParam * p_lp_item = rCtx.GetConst_LayoutBlock(p_ci, DlScope::cuifLayoutBlock);
-														const uint gnrr_item = SUiLayoutParam::GetNominalRectWithDefaults(p_lp_item, rect_item, rect.Width() - 2.0f, 16.0f);
-														rc_item.Set(rect_item);
-														p_ctl->AddItem(-1, temp_buf, &rc_item);
-													}
-												}
-											}
-										}
-										InsertCtlWithCorrespondingNativeItem(p_ctl, p_item->ID, 0, /*extraPtr*/0);
-									}
-									break;
-								case UiItemKind::kCombobox: 
-									{
-										TRect rc;
-										FRect rect;
-										const uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(p_lp, rect, 60.0f, 60.0f);
-										rc.Set(rect);
-										if(rCtx.GetConst_String(p_item, DlScope::cuifCbLineSymb, temp_buf)) {
-											debug_mark = true;
-										}
-										TInputLine * p_il = new TInputLine(rc, S_ZSTRING, MKSFMT(128, 0));
-										p_il->SetId(++last_dyn_id);
-										TRect rc_cb;
-										rc_cb.a.x = rc.b.x+1;
-										rc_cb.b.x = rc_cb.a.x+1 + rc.height();
-										rc_cb.a.y = rc.a.y;
-										rc_cb.b.y = rc.b.y;
-										ComboBox * p_cb = new ComboBox(rc_cb, cbxAllowEmpty|cbxDisposeData|cbxListOnly, p_il);
-										p_cb->SetId(p_item->ID);
-										InsertCtlWithCorrespondingNativeItem(p_cb, p_item->ID, 0, /*extraPtr*/0);
-										{
-											// Label
-											if(rCtx.GetConst_String(p_item, DlScope::cuifCtrlText, ctl_text)) {
-												//cuifCtrlLblRect,  // raw    Координаты текстового ярлыка, ассоциированного с управляющим элементом
-												//cuifCtrlLblSymb,  // string Символ текстового ярлыка, ассоциированного с управляющим элементом
-												//cuifLabelRect,    // raw(UiRelRect) Положение текстового ярлыка, ассоциированного с управляющим элементом
-												//cuifLblLayoutBlock
-												const SUiLayoutParam * p_lp_label = rCtx.GetConst_LayoutBlock(p_item, DlScope::cuifLblLayoutBlock);
-												TRect rc_label;
-												FRect rect_label;
-												const uint gnrr_label = SUiLayoutParam::GetNominalRectWithDefaults(p_lp_label, rect_label, 60.0f, 13.0f);
-												rc_label.Set(rect_label);
-												TLabel * p_lbl = new TLabel(rc_label, ctl_text, p_il);
-												InsertCtlWithCorrespondingNativeItem(p_lbl, 0, 0, /*extraPtr*/0);
-											}
-										}
-									}
-									break;
-								case UiItemKind::kListbox: 
-									break;
-								case UiItemKind::kTreeListbox: 
-									break;
-								case UiItemKind::kFrame: 
-									if(0) {
-										TRect rc;
-										FRect rect;
-										const uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(p_lp, rect, 60.0f, 60.0f);
-										rc.Set(rect);
-										//rc.b.x = rc.a.x + 20; // @debug
-										//rc.b.y = rc.a.y + 20; // @debug
+	enum {
+		insertctrlstagePreprocess = 1,
+		insertctrlstageMain = 2,
+		insertctrlstagePostprocess = 3,
+	};
+	void   InsertControlItems(DlContext & rCtx, const DlScopeList & rScopeList, uint & rLastDynId, int stage);
+	void   Build(DlContext & rCtx);
 
-										TGroupBox * p_gb = new TGroupBox(rc);
-										InsertCtlWithCorrespondingNativeItem(p_gb, p_item->ID, 0, /*extraPtr*/0);
-									}
-									break;
-								case UiItemKind::kLabel: 
-									break;
-								case UiItemKind::kRadiobutton: 
-									break;
-								case UiItemKind::kGenericView: 
-									break;
-								case UiItemKind::kImageView: 
-									break;
+	SString Dl600Symb;
+};
+
+TDialogDL6_Construction::TDialogDL6_Construction(DlContext & rCtx, const char * pSymb) : TDialog(0, TWindow::wbcDrawBuffer|TWindow::wbcStorableUserParams, TDialog::coEmpty),
+	Dl600Symb(pSymb)
+{
+	Build(rCtx);
+}
+
+void TDialogDL6_Construction::InsertControlItems(DlContext & rCtx, const DlScopeList & rScopeList, uint & rLastDynId, int stage)
+{
+	bool   debug_mark = false; // @debug
+	SString temp_buf;
+	SString ctl_text;
+	for(uint ci = 0; ci < rScopeList.getCount(); ci++) {
+		const DlScope * p_item = rScopeList.at(ci);
+		if(p_item) {
+			uint32 vk = 0;
+			uint32 symb_ident = 0;
+			uint32 ui_flags = 0;
+			rCtx.GetConst_Uint32(p_item, DlScope::cuifViewKind, vk);
+			rCtx.GetConst_Uint32(p_item, DlScope::cucmSymbolIdent, symb_ident);
+			const uint32 item_id = NZOR(symb_ident, p_item->ID);
+			{
+				// cuifFlags
+				rCtx.GetConst_Uint32(p_item, DlScope::cuifFlags, ui_flags);
+				/*
+					{ UiItemKind::fReadOnly, occfReadOnly, "readonly" },
+					{ UiItemKind::fTabStop, occfTabStop, "tabstop" },
+					{ UiItemKind::fStaticEdge, occfStaticEdge, "staticedge" },
+					{ UiItemKind::fDisabled, occfDisabled, "disabled" },
+					{ UiItemKind::fHidden, occfHidden, "hidden" },
+					{ UiItemKind::fMultiLine,  occfMultiLine, "multiline" },
+					{ UiItemKind::fWantReturn, occfWantReturn, "wantreturn" },
+					{ UiItemKind::fPassword, occfPassword, "password" },
+					{ UiItemKind::fDefault, occfDefault, "defaultitem" },
+				*/
+			}
+			//UiItemKind::GetSymbById(vk, temp_buf);
+			const SUiLayoutParam * p_lp = rCtx.GetConst_LayoutBlock(p_item, DlScope::cuifLayoutBlock);
+			switch(vk) {
+				case UiItemKind::kInput:
+					if(stage == insertctrlstageMain) {
+						TRect rc;
+						const uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(p_lp, rc, 60.0f, 21.0f);
+						//
+						TInputLine * p_ctl = new TInputLine(rc, 0/* @todo type */, 0);
+						InsertCtlWithCorrespondingNativeItem(p_ctl, item_id, 0, /*extraPtr*/0);
+						{
+							// Label
+							if(rCtx.GetConst_String(p_item, DlScope::cuifCtrlText, ctl_text)) {
+								//cuifCtrlLblRect,  // raw    Координаты текстового ярлыка, ассоциированного с управляющим элементом
+								//cuifCtrlLblSymb,  // string Символ текстового ярлыка, ассоциированного с управляющим элементом
+								//cuifLabelRect,    // raw(UiRelRect) Положение текстового ярлыка, ассоциированного с управляющим элементом
+								//cuifLblLayoutBlock
+								const SUiLayoutParam * p_lp_label = rCtx.GetConst_LayoutBlock(p_item, DlScope::cuifLblLayoutBlock);
+								TRect rc_label;
+								const uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(p_lp_label, rc_label, 60.0f, 13.0f);
+								TLabel * p_lbl = new TLabel(rc_label, ctl_text, p_ctl);
+								InsertCtlWithCorrespondingNativeItem(p_lbl, 0, 0, /*extraPtr*/0);
 							}
 						}
 					}
-				}
-			}
-			{
-				{
-					CreateBlock cr_blk;
-					MEMSZERO(cr_blk);
-					RECT cr;
-					::GetClientRect(HW, &cr);
-					cr_blk.Coord = cr;
-					cr_blk.Param = this;
-					cr_blk.H_Process = 0;
-					cr_blk.Style = 0;
-					cr_blk.ExStyle = 0;
-					cr_blk.H_Parent = 0;
-					cr_blk.H_Menu = 0;
-					cr_blk.P_WndCls = 0;
-					cr_blk.P_Title = 0;
-					TView::messageCommand(this, cmInit, &cr_blk);
-				}
-				SetupCtrlTextProc(HW, 0);
-				//RemoveUnusedControls();
-				{
-					TView * v = 0;
-					if((v = P_Last) != 0) {
-						do {
-							HWND   ctrl = GetDlgItem(HW, v->GetId());
-							SETIFZ(ctrl, GetDlgItem(HW, MAKE_BUTTON_ID(v->GetId(), 1)));
-							if(IsWindow(ctrl)) {
-								v->Parent = HW;
-								v->handleWindowsMessage(WM_INITDIALOG, 0/*wParam*/, reinterpret_cast<LPARAM>(this));
-								EnableWindow(ctrl, !v->IsInState(sfDisabled));
-							}
-						} while((v = v->prev()) != P_Last);
+					break;
+				case UiItemKind::kStatic:
+					if(stage == insertctrlstageMain) {
+						TRect rc;
+						const uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(p_lp, rc, 60.0f, 60.0f);
+						uint   spc_flags = (ui_flags & UiItemKind::fStaticEdge) ? TStaticText::spcfStaticEdge : 0;
+						TStaticText * p_ctl = new TStaticText(rc, spc_flags, 0);
+						InsertCtlWithCorrespondingNativeItem(p_ctl, item_id, 0, /*extraPtr*/0);
 					}
-				}
-				EnumChildWindows(HW, SetupCtrlTextProc, 0);				
+					break;
+				case UiItemKind::kPushbutton:
+					if(stage == insertctrlstageMain) {
+						TRect rc;
+						const uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(p_lp, rc, 60.0f, 60.0f);
+						uint32 cmd_id = 0;
+						SString cmd_symb;
+						rCtx.GetConst_Uint32(p_item, DlScope::cuifCtrlCmd, cmd_id); // uint32 ИД команды кнопки
+						rCtx.GetConst_String(p_item, DlScope::cuifCtrlCmdSymb, cmd_symb); // string Символ команды кнопки
+						rCtx.GetConst_String(p_item, DlScope::cuifCtrlText, ctl_text);
+						TButton * p_ctl = new TButton(rc, ctl_text, cmd_id, 0);
+						InsertCtlWithCorrespondingNativeItem(p_ctl, item_id, 0, /*extraPtr*/0);
+					}
+					break;
+				case UiItemKind::kCheckbox: 
+					if(stage == insertctrlstageMain) {
+						TRect rc;
+						const uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(p_lp, rc, 60.0f, 60.0f);
+						TCluster * p_ctl = new TCluster(rc, CHECKBOXES, TCluster::spcfSingleItemWithoutFrame/*spcFlags*/, 0);
+						{
+							if(rCtx.GetConst_String(p_item, DlScope::cuifCtrlText, temp_buf)) {
+								//TRect rc_item;
+								//FRect rect_item;
+								//const SUiLayoutParam * p_lp_item = p_lp;
+								//const uint gnrr_item = SUiLayoutParam::GetNominalRectWithDefaults(p_lp_item, rect_item, rect.Width() - 2.0f, 16.0f);
+								//rc_item.Set(rect_item);
+								p_ctl->AddItem(-1, temp_buf, &rc);
+							}
+						}
+						InsertCtlWithCorrespondingNativeItem(p_ctl, item_id, 0, /*extraPtr*/0);
+					}
+					break;
+				case UiItemKind::kCheckCluster: 
+					if(stage == insertctrlstageMain) {
+						TRect rc;
+						const uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(p_lp, rc, 60.0f, 60.0f);
+						TCluster * p_ctl = new TCluster(rc, CHECKBOXES, 0/*spcFlags*/, 0);
+						{
+							const DlScopeList & r_item_scope_list = p_item->GetChildList();
+							for(uint cii = 0; cii < r_item_scope_list.getCount(); cii++) {
+								const DlScope * p_ci = r_item_scope_list.at(cii);
+								if(p_ci) {
+									if(rCtx.GetConst_String(p_ci, DlScope::cuifCtrlText, temp_buf)) {
+										TRect rc_item;
+										const SUiLayoutParam * p_lp_item = rCtx.GetConst_LayoutBlock(p_ci, DlScope::cuifLayoutBlock);
+										const uint gnrr_item = SUiLayoutParam::GetNominalRectWithDefaults(p_lp_item, rc_item, static_cast<float>(rc.width() - 2), 16.0f);
+										p_ctl->AddItem(-1, temp_buf, &rc_item);
+									}
+								}
+							}
+						}
+						InsertCtlWithCorrespondingNativeItem(p_ctl, item_id, 0, /*extraPtr*/0);
+					}
+					break;
+				case UiItemKind::kRadioCluster: 
+					if(stage == insertctrlstageMain) {
+						TRect rc;
+						const uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(p_lp, rc, 60.0f, 60.0f);
+						TCluster * p_ctl = new TCluster(rc, RADIOBUTTONS, 0/*spcFlags*/, 0);
+						{
+							const DlScopeList & r_item_scope_list = p_item->GetChildList();
+							for(uint cii = 0; cii < r_item_scope_list.getCount(); cii++) {
+								const DlScope * p_ci = r_item_scope_list.at(cii);
+								if(p_ci) {
+									if(rCtx.GetConst_String(p_ci, DlScope::cuifCtrlText, temp_buf)) {
+										TRect rc_item;
+										const SUiLayoutParam * p_lp_item = rCtx.GetConst_LayoutBlock(p_ci, DlScope::cuifLayoutBlock);
+										const uint gnrr_item = SUiLayoutParam::GetNominalRectWithDefaults(p_lp_item, rc_item, static_cast<float>(rc.width() - 2), 16.0f);
+										p_ctl->AddItem(-1, temp_buf, &rc_item);
+									}
+								}
+							}
+						}
+						InsertCtlWithCorrespondingNativeItem(p_ctl, item_id, 0, /*extraPtr*/0);
+					}
+					break;
+				case UiItemKind::kCombobox:
+					if(stage == insertctrlstageMain) {
+						TRect rc;
+						const uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(p_lp, rc, 60.0f, 60.0f);
+						uint32 cb_line_id = 0;
+						rCtx.GetConst_String(p_item, DlScope::cuifCbLineSymb, temp_buf);
+						rCtx.GetConst_Uint32(p_item, DlScope::cuifCbLineSymbIdent, cb_line_id);
+						TInputLine * p_il = new TInputLine(rc, S_ZSTRING, MKSFMT(128, 0));
+						p_il->SetId(cb_line_id ? cb_line_id : (++rLastDynId));
+						TRect rc_cb;
+						rc_cb.a.x = rc.b.x+1;
+						rc_cb.b.x = rc_cb.a.x+1 + rc.height();
+						rc_cb.a.y = rc.a.y;
+						rc_cb.b.y = rc.b.y;
+						ComboBox * p_cb = new ComboBox(rc_cb, cbxAllowEmpty|cbxDisposeData|cbxListOnly, p_il);
+						p_cb->SetId(item_id);
+						InsertCtlWithCorrespondingNativeItem(p_cb, item_id, 0, /*extraPtr*/0);
+						{
+							// Label
+							if(rCtx.GetConst_String(p_item, DlScope::cuifCtrlText, ctl_text)) {
+								//cuifCtrlLblRect,  // raw    Координаты текстового ярлыка, ассоциированного с управляющим элементом
+								//cuifCtrlLblSymb,  // string Символ текстового ярлыка, ассоциированного с управляющим элементом
+								//cuifLabelRect,    // raw(UiRelRect) Положение текстового ярлыка, ассоциированного с управляющим элементом
+								//cuifLblLayoutBlock
+								const SUiLayoutParam * p_lp_label = rCtx.GetConst_LayoutBlock(p_item, DlScope::cuifLblLayoutBlock);
+								TRect rc_label;
+								const uint gnrr_label = SUiLayoutParam::GetNominalRectWithDefaults(p_lp_label, rc_label, 60.0f, 13.0f);
+								TLabel * p_lbl = new TLabel(rc_label, ctl_text, p_il);
+								InsertCtlWithCorrespondingNativeItem(p_lbl, 0, 0, /*extraPtr*/0);
+							}
+						}
+					}
+					break;
+				case UiItemKind::kListbox: 
+					if(stage == insertctrlstageMain) {
+						TRect rc;
+						const uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(p_lp, rc, 60.0f, 60.0f);
+
+						SString column_description;
+						ListBoxDef * p_lb_def = 0;
+						SmartListBox * p_lb = column_description.NotEmpty() ? new SmartListBox(rc, p_lb_def, column_description) : new SmartListBox(rc, p_lb_def, false/*is_tree*/);
+						if(p_lb) {
+							//LldState |= lldsDefBailed;
+							InsertCtlWithCorrespondingNativeItem(p_lb, item_id, 0, /*extraPtr*/0);
+							//if(font_face.NotEmpty()) {
+								//SetCtrlFont(STDCTL_SINGLELISTBOX, font_face, /*16*//*22*/12);
+							//}
+						}
+					}
+					break;
+				case UiItemKind::kTreeListbox: 
+					if(stage == insertctrlstageMain) {
+						TRect rc;
+						const uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(p_lp, rc, 60.0f, 60.0f);
+
+						SString column_description;
+						ListBoxDef * p_lb_def = 0;
+						SmartListBox * p_lb = new SmartListBox(rc, p_lb_def, true/*is_tree*/);
+						if(p_lb) {
+							//LldState |= lldsDefBailed;
+							InsertCtlWithCorrespondingNativeItem(p_lb, item_id, 0, /*extraPtr*/0);
+							//if(font_face.NotEmpty()) {
+								//SetCtrlFont(STDCTL_SINGLELISTBOX, font_face, /*16*//*22*/12);
+							//}
+						}
+					}
+					break;
+				case UiItemKind::kFrame: 
+					if(stage == insertctrlstagePostprocess) {
+						TRect rc;
+						const uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(p_lp, rc, 60.0f, 60.0f);
+						//rc.b.x = rc.a.x + 20; // @debug
+						//rc.b.y = rc.a.y + 20; // @debug
+						rCtx.GetConst_String(p_item, DlScope::cuifCtrlText, ctl_text);
+						TGroupBox * p_gb = new TGroupBox(rc);
+						p_gb->SetText(ctl_text);
+						InsertCtlWithCorrespondingNativeItem(p_gb, item_id, 0, /*extraPtr*/0);
+					}
+					break;
+				case UiItemKind::kLabel: 
+					if(stage == insertctrlstageMain) {
+					}
+					break;
+				case UiItemKind::kRadiobutton: 
+					if(stage == insertctrlstageMain) {
+					}
+					break;
+				case UiItemKind::kGenericView: 
+					if(stage == insertctrlstageMain) {
+					}
+					break;
+				case UiItemKind::kImageView: 
+					if(stage == insertctrlstageMain) {
+						TRect rc;
+						const uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(p_lp, rc, 60.0f, 60.0f);
+							
+						SString img_symb;
+						rCtx.GetConst_String(p_item, DlScope::cuifImageSymb, img_symb);
+						rCtx.GetConst_String(p_item, DlScope::cuifCtrlText, ctl_text);
+						TImageView * p_ctl = new TImageView(rc, img_symb);
+						InsertCtlWithCorrespondingNativeItem(p_ctl, item_id, 0, /*extraPtr*/0);
+					}
+					break;
 			}
 		}
 	}
-
-	SString Dl00Symb;
-};
+}
+	
+void TDialogDL6_Construction::Build(DlContext & rCtx)
+{
+	bool   debug_mark = false; // @debug
+	const DlScope * p_scope = rCtx.GetScopeByName_Const(DlScope::kUiView, Dl600Symb);
+	if(p_scope) {
+		BuildEmptyWindowParam bew_param;
+		char   c_buf[1024];
+		SUiLayoutParam __alb;
+		const SUiLayoutParam * p_alb = 0;
+		SString temp_buf;
+		{
+			CtmExprConst __c = p_scope->GetConst(DlScope::cuifCtrlText);
+			if(!!__c) {
+				if(rCtx.GetConstData(__c, c_buf, sizeof(c_buf))) {
+					temp_buf = reinterpret_cast<const char *>(c_buf);
+					setTitle(temp_buf);
+				}
+			}
+		}
+		{
+			const SUiLayoutParam * p_lp = rCtx.GetConst_LayoutBlock(p_scope, DlScope::cuifLayoutBlock);
+			if(p_lp) {
+				__alb = *p_lp;
+				p_alb = &__alb;
+			}
+		}
+		{
+			FRect rect;
+			const uint gnrr = p_alb ? p_alb->GetNominalRect(rect) : 0;
+			if(rect.Width() <= 0.0f) {
+				rect.b.x = rect.a.x + 60.0f;
+			}
+			if(rect.Height() <= 0.0f) {
+				rect.b.y = rect.a.y + 60.0f;
+			}
+			setBounds(rect);
+		}
+		/*{
+			CtmExprConst __c = p_scope->GetConst(DlScope::cuifCtrlRect);
+			if(!!__c) {
+				if(rCtx.GetConstData(__c, c_buf, sizeof(c_buf))) {
+					const UiRelRect * p_rect = reinterpret_cast<const UiRelRect *>(c_buf);
+					//temp_buf.Z();
+					//_RectToLine(*p_rect, temp_buf);
+					//rOutBuf.CR().Tab_(indentTabCount+1).Cat("rect").CatDiv(':', 2).Cat(temp_buf);
+				}
+			}
+		}*/
+		{
+			{
+				CtmExprConst __c = p_scope->GetConst(DlScope::cuifFont);
+				if(!!__c) {
+					if(rCtx.GetConstData(__c, c_buf, sizeof(c_buf))) {
+						bew_param.FontFace = reinterpret_cast<const char *>(c_buf);
+					}
+				}
+			}
+			{
+				CtmExprConst __c = p_scope->GetConst(DlScope::cuifFontSize);
+				if(!!__c) {
+					if(rCtx.GetConstData(__c, c_buf, sizeof(c_buf))) {
+						double font_size_real = *reinterpret_cast<const double *>(c_buf);
+						bew_param.FontSize = static_cast<int>(font_size_real);
+					}
+				}
+			}
+			if(temp_buf.NotEmpty()) {
+			}
+		}
+		BuildEmptyWindow(&bew_param);
+		//
+		{
+			//
+			// Далее, мы должны вставить управляющие элементы в созданое окно диалога
+			//
+			const DlScopeList & r_cl = p_scope->GetChildList();
+			{
+				uint last_dyn_id = 1000000; 
+				// (@unused) InsertControlItems(rCtx, r_cl, last_dyn_id, insertctrlstagePreprocess);
+				InsertControlItems(rCtx, r_cl, last_dyn_id, insertctrlstageMain);
+				InsertControlItems(rCtx, r_cl, last_dyn_id, insertctrlstagePostprocess);
+			}
+		}
+		{
+			{
+				CreateBlock cr_blk;
+				MEMSZERO(cr_blk);
+				RECT cr;
+				::GetClientRect(HW, &cr);
+				cr_blk.Coord = cr;
+				cr_blk.Param = this;
+				cr_blk.H_Process = 0;
+				cr_blk.Style = 0;
+				cr_blk.ExStyle = 0;
+				cr_blk.H_Parent = 0;
+				cr_blk.H_Menu = 0;
+				cr_blk.P_WndCls = 0;
+				cr_blk.P_Title = 0;
+				TView::messageCommand(this, cmInit, &cr_blk);
+			}
+			SetupCtrlTextProc(HW, 0);
+			//RemoveUnusedControls();
+			InitControls(HW, 0/*wParam*/, reinterpret_cast<LPARAM>(this));
+			EnumChildWindows(HW, SetupCtrlTextProc, 0);				
+		}
+	}
+}
 
 int Test_ExecuteDialogByDl600Description() // @construction
 {
@@ -8663,7 +8726,10 @@ int Test_ExecuteDialogByDl600Description() // @construction
 	if(fileExists(file_name)) {
 		DlContext ctx;
 		if(ctx.Init(file_name)) {
-			dlg = new TDialogDL6_Construction(ctx, "DLG_BILLFLT");
+			// "DLG_ADDRESS" "DLG_BILLFLT" "DLG_PERSON" "DLG_PASSWORD"
+			const char * p_dlg_symb = "DLG_GGVIEW";
+			const DlScope * p_scope = ctx.GetDialogScopeBySymbolIdent_Const(DLG_GGVIEW);
+			dlg = new TDialogDL6_Construction(ctx, p_dlg_symb);
 			ExecViewAndDestroy(dlg);
 			dlg = 0;
 			ok = -1;

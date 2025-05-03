@@ -637,8 +637,7 @@ static int checkTestFile(const char * filename) {
  *
  * Returns 0 in case of success, an error code otherwise
  */
-static int recursiveDetectTest(const char * filename, const char * result ATTRIBUTE_UNUSED,
-    const char * err ATTRIBUTE_UNUSED, int options ATTRIBUTE_UNUSED) 
+static int recursiveDetectTest(const char * filename, const char * result ATTRIBUTE_UNUSED, const char * err ATTRIBUTE_UNUSED, int options ATTRIBUTE_UNUSED) 
 {
 	xmlDocPtr doc;
 	xmlParserCtxt * ctxt;
@@ -648,8 +647,7 @@ static int recursiveDetectTest(const char * filename, const char * result ATTRIB
 	/*
 	 * base of the test, parse with the old API
 	 */
-	doc = xmlCtxtReadFile(ctxt, filename, NULL,
-		XML_PARSE_NOENT | XML_PARSE_DTDLOAD);
+	doc = xmlCtxtReadFile(ctxt, filename, NULL, XML_PARSE_NOENT | XML_PARSE_DTDLOAD);
 	if((doc != NULL) || (ctxt->lastError.code != XML_ERR_ENTITY_LOOP)) {
 		fprintf(stderr, "Failed to detect recursion in %s\n", filename);
 		xmlFreeParserCtxt(ctxt);
@@ -657,7 +655,6 @@ static int recursiveDetectTest(const char * filename, const char * result ATTRIB
 		return(1);
 	}
 	xmlFreeParserCtxt(ctxt);
-
 	return(res);
 }
 
@@ -672,8 +669,7 @@ static int recursiveDetectTest(const char * filename, const char * result ATTRIB
  *
  * Returns 0 in case of success, an error code otherwise
  */
-static int notRecursiveDetectTest(const char * filename, const char * result ATTRIBUTE_UNUSED,
-    const char * err ATTRIBUTE_UNUSED, int options ATTRIBUTE_UNUSED) 
+static int notRecursiveDetectTest(const char * filename, const char * result ATTRIBUTE_UNUSED, const char * err ATTRIBUTE_UNUSED, int options ATTRIBUTE_UNUSED) 
 {
 	xmlDocPtr doc;
 	xmlParserCtxt * ctxt;
@@ -683,8 +679,7 @@ static int notRecursiveDetectTest(const char * filename, const char * result ATT
 	/*
 	 * base of the test, parse with the old API
 	 */
-	doc = xmlCtxtReadFile(ctxt, filename, NULL,
-		XML_PARSE_NOENT | XML_PARSE_DTDLOAD);
+	doc = xmlCtxtReadFile(ctxt, filename, NULL, XML_PARSE_NOENT | XML_PARSE_DTDLOAD);
 	if(doc == NULL) {
 		fprintf(stderr, "Failed to parse correct file %s\n", filename);
 		xmlFreeParserCtxt(ctxt);
@@ -692,7 +687,6 @@ static int notRecursiveDetectTest(const char * filename, const char * result ATT
 	}
 	xmlFreeDoc(doc);
 	xmlFreeParserCtxt(ctxt);
-
 	return(res);
 }
 

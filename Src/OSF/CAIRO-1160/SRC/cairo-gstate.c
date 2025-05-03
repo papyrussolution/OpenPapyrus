@@ -809,78 +809,44 @@ cairo_status_t _cairo_gstate_stroke(cairo_gstate_t * gstate, cairo_path_fixed_t 
 	cairo_pattern_union_t source_pattern;
 	cairo_stroke_style_t style;
 	double dash[2];
-	cairo_status_t status;
 	cairo_matrix_t aggregate_transform;
 	cairo_matrix_t aggregate_transform_inverse;
-
-	status = _cairo_gstate_get_pattern_status(gstate->source);
+	cairo_status_t status = _cairo_gstate_get_pattern_status(gstate->source);
 	if(UNLIKELY(status))
 		return status;
-
 	if(gstate->op == CAIRO_OPERATOR_DEST)
 		return CAIRO_STATUS_SUCCESS;
-
 	if(gstate->stroke_style.line_width <= 0.0)
 		return CAIRO_STATUS_SUCCESS;
-
 	if(_cairo_clip_is_all_clipped(gstate->clip))
 		return CAIRO_STATUS_SUCCESS;
-
 	assert(gstate->opacity == 1.0);
-
-	cairo_matrix_multiply(&aggregate_transform,
-	    &gstate->ctm,
-	    &gstate->target->device_transform);
-	cairo_matrix_multiply(&aggregate_transform_inverse,
-	    &gstate->target->device_transform_inverse,
-	    &gstate->ctm_inverse);
-
+	cairo_matrix_multiply(&aggregate_transform, &gstate->ctm, &gstate->target->device_transform);
+	cairo_matrix_multiply(&aggregate_transform_inverse, &gstate->target->device_transform_inverse, &gstate->ctm_inverse);
 	memcpy(&style, &gstate->stroke_style, sizeof(gstate->stroke_style));
 	if(_cairo_stroke_style_dash_can_approximate(&gstate->stroke_style, &aggregate_transform, gstate->tolerance)) {
 		style.dash = dash;
 		_cairo_stroke_style_dash_approximate(&gstate->stroke_style, &gstate->ctm, gstate->tolerance,
-		    &style.dash_offset,
-		    style.dash,
-		    &style.num_dashes);
+		    &style.dash_offset, style.dash, &style.num_dashes);
 	}
-
 	_cairo_gstate_copy_transformed_source(gstate, &source_pattern.base);
-
-	return _cairo_surface_stroke(gstate->target,
-		   gstate->op,
-		   &source_pattern.base,
-		   path,
-		   &style,
-		   &aggregate_transform,
-		   &aggregate_transform_inverse,
-		   gstate->tolerance,
-		   gstate->antialias,
-		   gstate->clip);
+	return _cairo_surface_stroke(gstate->target, gstate->op, &source_pattern.base, path,
+		&style, &aggregate_transform, &aggregate_transform_inverse, gstate->tolerance, gstate->antialias, gstate->clip);
 }
 
-cairo_status_t _cairo_gstate_in_stroke(cairo_gstate_t * gstate,
-    cairo_path_fixed_t * path,
-    double x,
-    double y,
-    boolint * inside_ret)
+cairo_status_t _cairo_gstate_in_stroke(cairo_gstate_t * gstate, cairo_path_fixed_t * path, double x, double y, boolint * inside_ret)
 {
 	cairo_status_t status;
 	cairo_rectangle_int_t extents;
 	cairo_box_t limit;
 	cairo_traps_t traps;
-
 	if(gstate->stroke_style.line_width <= 0.0) {
 		*inside_ret = FALSE;
 		return CAIRO_STATUS_SUCCESS;
 	}
-
 	_cairo_gstate_user_to_backend(gstate, &x, &y);
-
-	/* Before we perform the expensive stroke analysis,
-	 * check whether the point is within the extents of the path.
-	 */
-	_cairo_path_fixed_approximate_stroke_extents(path, &gstate->stroke_style,
-	    &gstate->ctm, gstate->target->is_vector, &extents);
+	// Before we perform the expensive stroke analysis, check whether the point is within the extents of the path.
+	_cairo_path_fixed_approximate_stroke_extents(path, &gstate->stroke_style, &gstate->ctm, gstate->target->is_vector, &extents);
 	if(x < extents.x || x > extents.x + extents.width || y < extents.y || y > extents.y + extents.height) {
 		*inside_ret = FALSE;
 		return CAIRO_STATUS_SUCCESS;
@@ -891,40 +857,26 @@ cairo_status_t _cairo_gstate_in_stroke(cairo_gstate_t * gstate,
 	limit.p2.y = limit.p1.y + 2;
 	_cairo_traps_init(&traps);
 	_cairo_traps_limit(&traps, &limit, 1);
-
-	status = _cairo_path_fixed_stroke_polygon_to_traps(path,
-		&gstate->stroke_style,
-		&gstate->ctm,
-		&gstate->ctm_inverse,
-		gstate->tolerance,
-		&traps);
+	status = _cairo_path_fixed_stroke_polygon_to_traps(path, &gstate->stroke_style, &gstate->ctm,
+		&gstate->ctm_inverse, gstate->tolerance, &traps);
 	if(UNLIKELY(status))
 		goto BAIL;
-
 	*inside_ret = _cairo_traps_contain(&traps, x, y);
-
 BAIL:
 	_cairo_traps_fini(&traps);
-
 	return status;
 }
 
 cairo_status_t _cairo_gstate_fill(cairo_gstate_t * gstate, cairo_path_fixed_t * path)
 {
-	cairo_status_t status;
-
-	status = _cairo_gstate_get_pattern_status(gstate->source);
+	cairo_status_t status = _cairo_gstate_get_pattern_status(gstate->source);
 	if(UNLIKELY(status))
 		return status;
-
 	if(gstate->op == CAIRO_OPERATOR_DEST)
 		return CAIRO_STATUS_SUCCESS;
-
 	if(_cairo_clip_is_all_clipped(gstate->clip))
 		return CAIRO_STATUS_SUCCESS;
-
 	assert(gstate->opacity == 1.0);
-
 	if(_cairo_path_fixed_fill_is_empty(path)) {
 		if(_cairo_operator_bounded_by_mask(gstate->op))
 			return CAIRO_STATUS_SUCCESS;
@@ -990,14 +942,10 @@ boolint _cairo_gstate_in_clip(cairo_gstate_t * gstate, double x, double y)
 	if(clip->path) {
 		cairo_clip_path_t * clip_path = clip->path;
 		do {
-			if(!_cairo_path_fixed_in_fill(&clip_path->path,
-			    clip_path->fill_rule,
-			    clip_path->tolerance,
-			    x, y))
+			if(!_cairo_path_fixed_in_fill(&clip_path->path, clip_path->fill_rule, clip_path->tolerance, x, y))
 				return FALSE;
 		} while((clip_path = clip_path->prev) != NULL);
 	}
-
 	return TRUE;
 }
 
@@ -1013,29 +961,18 @@ cairo_status_t _cairo_gstate_show_page(cairo_gstate_t * gstate)
 	return cairo_surface_status(gstate->target);
 }
 
-static void _cairo_gstate_extents_to_user_rectangle(cairo_gstate_t * gstate,
-    const cairo_box_t * extents,
-    double * x1, double * y1,
-    double * x2, double * y2)
+static void _cairo_gstate_extents_to_user_rectangle(cairo_gstate_t * gstate, const cairo_box_t * extents,
+    double * x1, double * y1, double * x2, double * y2)
 {
-	double px1, py1, px2, py2;
-
-	px1 = _cairo_fixed_to_double(extents->p1.x);
-	py1 = _cairo_fixed_to_double(extents->p1.y);
-	px2 = _cairo_fixed_to_double(extents->p2.x);
-	py2 = _cairo_fixed_to_double(extents->p2.y);
-
-	_cairo_gstate_backend_to_user_rectangle(gstate,
-	    &px1, &py1, &px2, &py2,
-	    NULL);
-	if(x1)
-		*x1 = px1;
-	if(y1)
-		*y1 = py1;
-	if(x2)
-		*x2 = px2;
-	if(y2)
-		*y2 = py2;
+	double px1 = _cairo_fixed_to_double(extents->p1.x);
+	double py1 = _cairo_fixed_to_double(extents->p1.y);
+	double px2 = _cairo_fixed_to_double(extents->p2.x);
+	double py2 = _cairo_fixed_to_double(extents->p2.y);
+	_cairo_gstate_backend_to_user_rectangle(gstate, &px1, &py1, &px2, &py2, NULL);
+	ASSIGN_PTR(x1, px1);
+	ASSIGN_PTR(y1, py1);
+	ASSIGN_PTR(x2, px2);
+	ASSIGN_PTR(y2, py2);
 }
 
 cairo_status_t _cairo_gstate_stroke_extents(cairo_gstate_t * gstate, cairo_path_fixed_t * path, double * x1, double * y1, double * x2, double * y2)

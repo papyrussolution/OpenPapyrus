@@ -234,7 +234,7 @@ int FASTCALL PPSetLibXmlError(const xmlParserCtxt * pCtx)
 	PPThreadLocalArea & tla = DS.GetTLA();
 	if(&tla && tla.IsConsistent()) {
 		tla.LastErr = PPERR_LIBXML;
-		tla.AddedMsgString = 0;
+		tla.AddedMsgString.Z();
 		if(pCtx) {
 			if(pCtx->lastError.code)
 				tla.AddedMsgString.CatDivIfNotEmpty(' ', 0).Cat(pCtx->lastError.code);

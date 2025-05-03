@@ -2,3 +2,7 @@ a:
 //server/
 c:\program files\the_best_company/the-best program
 \\server-reserved/etc/some-file.r
+d:temp/x.files
+..\temp\имя Файла на Русском (кодировка то ли 1251 то ли utf8).ext
+\some-dir\
+..\some-file-without-ext

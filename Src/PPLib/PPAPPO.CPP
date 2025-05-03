@@ -438,7 +438,6 @@ int PPApp::processCommand(uint cmd)
 		case cmCurrency:             ShowObjects(PPOBJ_CURRENCY, 0);          break;
 		case cmCurRateType:          ShowObjects(PPOBJ_CURRATETYPE, 0);       break;
 		case cmGoodsClass:           ShowObjects(PPOBJ_GOODSCLASS, 0);        break;
-		// @v10.9.3 case cmWoodBreed:            ShowObjects(PPOBJ_WOODBREED, 0);         break;
 		case cmPckgType:             ShowObjects(PPOBJ_PCKGTYPE, 0);          break;
 		case cmGoodsBasket:          ShowObjects(PPOBJ_GOODSBASKET, 0);	      break;
 		case cmBht:                  ShowObjects(PPOBJ_BHT, 0);               break;
@@ -943,14 +942,13 @@ int PPApp::processCommand(uint cmd)
 
 static int GetStartUpPath(PPID pi, SString & rArgBuf)
 {
-	int    ok = 0;
+	rArgBuf.Z();
+	int    suo = 0;
 	if(pi == PPPATH_IN)
-		ok = PPSession::GetStartUpOption(PPSession::cmdlIn, rArgBuf);
+		suo = PPSession::cmdlIn;
 	else if(pi == PPPATH_OUT)
-		ok = PPSession::GetStartUpOption(PPSession::cmdlOut, rArgBuf);
-	else
-		rArgBuf.Z();
-	return ok;
+		suo = PPSession::cmdlOut;
+	return suo ? PPSession::GetStartUpOption(suo, rArgBuf) : 0;
 }
 //
 // Prototype

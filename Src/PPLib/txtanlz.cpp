@@ -4061,6 +4061,7 @@ int ParseCpEncodingTables(const char * pPath, SUnicodeTable * pUt)
 
 	int SentencePieceExperiments()
 	{
+		// В базе товаров UHTT макс количество токенов около 100.
 		int    ok = 1;
 		bool   debug_mark = false;
 		// @todo проблема на строке 343416! символ с кодом 26 (decimal)
@@ -4112,11 +4113,13 @@ int ParseCpEncodingTables(const char * pPath, SUnicodeTable * pUt)
 				uint max_vec_dim = 0;
 				//TSCollection <TSVector <int16>> line_tok_vec_list;
 				if(status.ok()) {
-					SFile f_in(raw_input_file_path, SFile::mRead|SFile::mNoStd);
+					SFile f_in(raw_input_file_path, SFile::mRead|SFile::mNoStd|SFile::mBinary);
 					SFile f_vec_out(vec_file_path, SFile::mWrite);
 					SFile f_tok_out(tok_file_path, SFile::mWrite);
 					if(f_in.IsValid() && f_vec_out.IsValid() && f_tok_out.IsValid()) {
 						std::vector <int> seg_id_list;
+						RAssocArray token_freq_list;
+						uint   token_total_usage_count = 0; // Общее количество токенов (неуникальных)
 						while(true) {
 							int rlr = f_in.ReadLine(temp_buf, SFile::rlfChomp|SFile::rlfStrip);
 							if(!rlr) {
@@ -4125,7 +4128,10 @@ int ParseCpEncodingTables(const char * pPath, SUnicodeTable * pUt)
 							}
 							else {
 								line_no++;
-								if(temp_buf.NotEmpty()) {
+								if(temp_buf.IsEmpty()) {
+									debug_mark = true;
+								}
+								else {
 									seg_id_list.clear();
 									const auto enc_status = prc.Encode(temp_buf, &seg_id_list);
 									if(enc_status.ok()) {
@@ -4140,6 +4146,8 @@ int ParseCpEncodingTables(const char * pPath, SUnicodeTable * pUt)
 												tok_buf.Space();
 											}
 											vec_buf.Cat(seg_id);
+											token_freq_list.Add(seg_id, 1.0, 1, 0);
+											token_total_usage_count++;
 											//
 											const std::string piece = prc.IdToPiece(seg_id);
 											tok_buf.Cat(piece.c_str());
@@ -4154,6 +4162,26 @@ int ParseCpEncodingTables(const char * pPath, SUnicodeTable * pUt)
 									else {
 										vec_buf = "aaa";
 									}
+								}
+							}
+						}
+						if(token_freq_list.getCount() > 2) {
+							token_freq_list.SortByVal();
+							SString freq_file_path;
+							(freq_file_path = basis_path_wo_ext).DotCat("freq");
+							SFile f_freq_out(freq_file_path, SFile::mWrite);
+							if(f_freq_out.IsValid()) {
+								//temp_buf
+								vec_buf.Z();
+								vec_buf.CatEq("Max token per item count", max_vec_dim);
+								f_freq_out.WriteLine(vec_buf.CR());
+								vec_buf.Z();
+								for(uint fi = 0; fi < token_freq_list.getCount(); fi++) {
+									const RAssoc item = token_freq_list.at(fi);
+									const std::string piece = prc.IdToPiece(item.Key);
+									tok_buf.Z().Cat(piece.c_str());
+									vec_buf.Z().Cat(tok_buf).Tab().Cat(item.Key).Tab().Cat(item.Val / static_cast<double>(token_total_usage_count), MKSFMTD(0, 6, 0));
+									f_freq_out.WriteLine(vec_buf.CR());
 								}
 							}
 						}

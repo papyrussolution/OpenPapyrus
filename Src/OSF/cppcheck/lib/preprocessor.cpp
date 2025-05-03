@@ -710,13 +710,9 @@ void Preprocessor::setPlatformInfo(simplecpp::TokenList * tokens) const
 	tokens->sizeOfType["long double *"] = mSettings.sizeof_pointer;
 }
 
-simplecpp::TokenList Preprocessor::preprocess(const simplecpp::TokenList &tokens1,
-    const std::string &cfg,
-    std::vector<std::string> &files,
-    bool throwError)
+simplecpp::TokenList Preprocessor::preprocess(const simplecpp::TokenList &tokens1, const std::string &cfg, std::vector<std::string> &files, bool throwError)
 {
 	const simplecpp::DUI dui = createDUI(mSettings, cfg, files[0]);
-
 	simplecpp::OutputList outputList;
 	std::list<simplecpp::MacroUsage> macroUsage;
 	std::list<simplecpp::IfCond> ifCond;
@@ -724,22 +720,15 @@ simplecpp::TokenList Preprocessor::preprocess(const simplecpp::TokenList &tokens
 	simplecpp::preprocess(tokens2, tokens1, files, mTokenLists, dui, &outputList, &macroUsage, &ifCond);
 	mMacroUsage = macroUsage;
 	mIfCond = ifCond;
-
 	handleErrors(outputList, throwError);
-
 	tokens2.removeComments();
-
 	// ensure that guessed define macros without value are not used in the code
 	if(!validateCfg(cfg, macroUsage))
 		return simplecpp::TokenList(files);
-
 	return tokens2;
 }
 
-std::string Preprocessor::getcode(const simplecpp::TokenList &tokens1,
-    const std::string &cfg,
-    std::vector<std::string> &files,
-    const bool writeLocations)
+std::string Preprocessor::getcode(const simplecpp::TokenList &tokens1, const std::string &cfg, std::vector<std::string> &files, const bool writeLocations)
 {
 	simplecpp::TokenList tokens2 = preprocess(tokens1, cfg, files, false);
 	unsigned int prevfile = 0;
@@ -770,19 +759,15 @@ std::string Preprocessor::getcode(const std::string &filedata, const std::string
 {
 	simplecpp::OutputList outputList;
 	std::vector<std::string> files;
-
 	std::istringstream istr(filedata);
 	simplecpp::TokenList tokens1(istr, files, Path::simplifyPath(filename), &outputList);
 	inlineSuppressions(tokens1);
 	tokens1.removeComments();
 	removeComments();
 	setDirectives(tokens1);
-
 	reportOutput(outputList, true);
-
 	if(hasErrors(outputList))
 		return "";
-
 	std::string ret;
 	try {
 		ret = getcode(tokens1, cfg, files, filedata.find("#file") != std::string::npos);

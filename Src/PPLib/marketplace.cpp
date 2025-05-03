@@ -3012,6 +3012,7 @@ int PPMarketplaceInterface_Wildberries::RequestSalesReportDetailedByPeriod(const
 	SString temp_buf;
 	SString url_buf;
 	StrStrAssocArray hdr_flds;
+	StringSet ss_supplier_oper_name;
 	/*
 		Query parameters:
 
@@ -3053,58 +3054,89 @@ int PPMarketplaceInterface_Wildberries::RequestSalesReportDetailedByPeriod(const
 		ScURL c;
 		SString reply_buf;
 		SBuffer ack_buf;
-		SFile wr_stream(ack_buf, SFile::mWrite);
-		int   rep_limit = 10000;
-		THROW_SL(c.SetupDefaultSslOptions(0, SSystem::sslDefault, 0));
-		url_buf.CatChar('?').CatEq("dateFrom", period.low, DATF_ISO8601CENT).CatChar('&').CatEq("dateTo", period.upp, DATF_ISO8601CENT).
-			CatChar('&').CatEq("limit", rep_limit);
-		Lth.Log("req", url_buf, temp_buf.Z());
-		THROW_SL(c.HttpGet(url_buf, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, &wr_stream));
-		{
-			SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
-			if(p_ack_buf) {
-				reply_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
-				Lth.Log("rep", 0, reply_buf);
-				{
-					p_js_reply = SJson::Parse(reply_buf);
-					if(SJson::IsArray(p_js_reply)) {
-						for(const SJson * p_js_item = p_js_reply->P_Child; p_js_item; p_js_item = p_js_item->P_Next) {
-							if(SJson::IsObject(p_js_item)) {
-								uint   new_item_pos = 0;
-								SalesRepDbpEntry * p_new_item = rList.CreateNewItem(&new_item_pos);
-								if(p_new_item) {
-									if(!p_new_item->FromJsonObj(p_js_item)) {
-										rList.atFree(new_item_pos);
-									}
-								}
-							}
-						}
-						if(rList.getCount()) {
-							PPGetFilePath(PPPATH_OUT, "mpwb-supplier_oper_name.txt", temp_buf);
-							SFile f_out(temp_buf, SFile::mWrite);
-							for(uint i = 0; i < rList.getCount(); i++) {
-								const SalesRepDbpEntry * p_item = rList.at(i);
-								if(p_item) {
-									if(p_item->SupplOpName.NotEmpty()) {
-										f_out.WriteLine((temp_buf = p_item->SupplOpName).CR());
-									}
-								}
-							}
-						}
+		bool   do_more = false;
+		uint   query_no = 0;
+		int64  last_rrdid = 0LL;
+		clock_t last_clock = 0;
+		const  clock_t min_timeout_between_query = 60000;
+		const  SString preserve_url_buf(url_buf);
+		do {
+			query_no++;
+			ack_buf.Z();
+			SFile  wr_stream(ack_buf, SFile::mWrite);
+			uint   rep_limit = 5000;
+			uint   result_count = 0;
+			THROW_SL(c.SetupDefaultSslOptions(0, SSystem::sslDefault, 0));
+			url_buf = preserve_url_buf;
+			url_buf.CatChar('?').CatEq("dateFrom", period.low, DATF_ISO8601CENT).CatChar('&').CatEq("dateTo", period.upp, DATF_ISO8601CENT).
+				CatChar('&').CatEq("limit", rep_limit).CatChar('&').CatEq("rrdid", last_rrdid);
+			Lth.Log("req", url_buf, temp_buf.Z());
+			{
+				if(query_no > 1) {
+					const clock_t cc = clock();
+					if((cc - last_clock) < min_timeout_between_query) {
+						SDelay(min_timeout_between_query - (cc - last_clock) + 1000); // 1000 - ensurance
 					}
-					else {
-						if(err_status.FromJson(p_js_reply)) {
-							(temp_buf = "Error").CatDiv(':', 2).Cat(err_status.Status).Space().Cat(err_status.StatusText).Space().CatParStr(err_status.Detail);
-							R_Prc.GetLogger().Log(temp_buf);
+				}
+				last_clock = clock();
+			}
+			THROW_SL(c.HttpGet(url_buf, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, &wr_stream));
+			{
+				SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
+				if(p_ack_buf) {
+					reply_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
+					Lth.Log("rep", 0, reply_buf);
+					{
+						ZDELETE(p_js_reply);
+						p_js_reply = SJson::Parse(reply_buf);
+						if(SJson::IsArray(p_js_reply)) {
+							for(const SJson * p_js_item = p_js_reply->P_Child; ok && p_js_item; p_js_item = p_js_item->P_Next) {
+								if(SJson::IsObject(p_js_item)) {
+									result_count++;
+									uint   new_item_pos = 0;
+									SalesRepDbpEntry * p_new_item = rList.CreateNewItem(&new_item_pos);
+									if(p_new_item) {
+										if(p_new_item->FromJsonObj(p_js_item)) {
+											SETMAX(last_rrdid, p_new_item->RrdId);
+											ss_supplier_oper_name.add(p_new_item->SupplOpName);
+										}
+										else {
+											rList.atFree(new_item_pos);
+										}
+									}
+								}
+								else {
+									; // @todo @err
+									ok = 0;
+								}
+							}
 						}
-						ok = 0;
+						else {
+							if(err_status.FromJson(p_js_reply)) {
+								(temp_buf = "Error").CatDiv(':', 2).Cat(err_status.Status).Space().Cat(err_status.StatusText).Space().CatParStr(err_status.Detail);
+								R_Prc.GetLogger().Log(temp_buf);
+							}
+							ok = 0;
+						}
 					}
 				}
 			}
-		}
+			ss_supplier_oper_name.sortAndUndup();
+			do_more = LOGIC(ok && result_count && result_count >= rep_limit);
+		} while(do_more);
 	}
 	CATCHZOK
 	delete p_js_reply;
+	{
+		ss_supplier_oper_name.sortAndUndup();
+		if(ss_supplier_oper_name.getCount()) {
+			PPGetFilePath(PPPATH_OUT, "mpwb-supplier_oper_name.txt", temp_buf);
+			SFile f_out(temp_buf, SFile::mWrite);
+			for(uint ssp = 0; ss_supplier_oper_name.get(&ssp, temp_buf);) {
+				f_out.WriteLine(temp_buf.CR());
+			}
+		}
+	}
 	return ok;
 }
 
@@ -4623,7 +4655,7 @@ int PPMarketplaceInterface_Wildberries::ImportFinancialTransactions()
 		enum {
 			nativeopCargo               =  1, // Возмещение издержек по перевозке/по складским операциям с товаром
 			nativeopLogistics           =  2, // Логистика
-			nativeopAcceptance          =  3, // Пересчет платной приемки
+			nativeopAcceptanceRecalc    =  3, // Пересчет платной приемки
 			nativeopSales               =  4, // Продажа
 			nativeopDeduction           =  5, // Удержание
 			nativeopStorage             =  6, // Хранение
@@ -4633,6 +4665,7 @@ int PPMarketplaceInterface_Wildberries::ImportFinancialTransactions()
 			nativeopReturn              = 10, // @v12.2.0 Возврат
 			nativeopDamagesCompensation = 11, // @v12.2.1 Компенсация ущерба
 			nativeopReimbursementAtPUP  = 12, // @v12.2.10 Возмещение за выдачу и возврат товаров на ПВЗ
+			nativeopAcceptance          = 13, // @v12.3.3 Платная приемка
 		};
 		PPLoadTextUtf8(PPTXT_MPWB_NATIVEOPS, temp_buf);
 		const StringSet ss_native_ops(';', temp_buf);
@@ -4723,7 +4756,8 @@ int PPMarketplaceInterface_Wildberries::ImportFinancialTransactions()
 									}
 								}
 								break;
-							case nativeopAcceptance:
+							case nativeopAcceptanceRecalc:
+							case nativeopAcceptance: // @v12.3.3
 								// acceptance
 								if(p_entry->Acceptance != 0.0) {
 									bill_code.Z().Cat(p_entry->RrdId);
@@ -4749,6 +4783,7 @@ int PPMarketplaceInterface_Wildberries::ImportFinancialTransactions()
 												bpack_at.Turns.insert(&at);
 												bpack_at.Rec.Amount = at.Amount;
 												bpack_at.SetupEdiAttributes(0, "MP-WILDBERRIES", 0);
+												(bpack_at.SMemo = p_entry->SupplOpName).Transf(CTRANSF_UTF8_TO_INNER);
 												THROW(p_bobj->TurnPacket(&bpack_at, 0));
 											}
 											THROW(tra.Commit());

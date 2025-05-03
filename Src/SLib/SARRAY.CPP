@@ -1857,10 +1857,10 @@ RAssocArray & FASTCALL RAssocArray::operator = (const RAssocArray & s)
 	return *this;
 }
 
-int RAssocArray::Search(long key, double * pVal, uint * pPos, int binary) const
+bool RAssocArray::Search(long key, double * pVal, uint * pPos, int binary) const
 {
 	uint   pos = 0;
-	int    ok = binary ? bsearch(&key, &pos, CMPF_LONG) : lsearch(&key, &pos, CMPF_LONG);
+	bool   ok = binary ? bsearch(&key, &pos, CMPF_LONG) : lsearch(&key, &pos, CMPF_LONG);
 	if(ok) {
 		ASSIGN_PTR(pVal, at(pos).Val);
 		ASSIGN_PTR(pPos, pos);
@@ -1874,7 +1874,7 @@ double RAssocArray::Get(long key, int binary) const
 	return (Search(key, &val, 0, binary) > 0) ? val : 0;
 }
 
-int FASTCALL RAssocArray::Has(long key) const
+bool FASTCALL RAssocArray::Has(long key) const
 {
 	long   _key = key;
 	return lsearch(&_key, 0, CMPF_LONG);
@@ -1893,9 +1893,9 @@ int RAssocArray::GetList(LongArray & rList, int unique) const
 	return ok;
 }
 
-int RAssocArray::SearchMaxVal(uint * pPos) const
+bool RAssocArray::SearchMaxVal(uint * pPos) const
 {
-	int    ok = 0;
+	bool   ok = false;
 	double max_val = -SMathConst::Max;
 	uint   max_val_pos = 0;
 	for(uint i = 0; i < getCount(); i++) {
@@ -1903,7 +1903,7 @@ int RAssocArray::SearchMaxVal(uint * pPos) const
 		if(max_val < r_item.Val) {
 			max_val = r_item.Val;
 			max_val_pos = i;
-			ok = 1;
+			ok = true;
 		}
 	}
 	ASSIGN_PTR(pPos, max_val_pos);

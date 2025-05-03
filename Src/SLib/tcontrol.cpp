@@ -7,7 +7,7 @@
 //
 // TStaticText
 //
-TStaticText::TStaticText(const TRect & rBounds, const char * pText) : TView(rBounds), Text(pText)
+TStaticText::TStaticText(const TRect & rBounds, uint spcFlags, const char * pText) : TView(rBounds), SpcFlags(spcFlags), Text(pText)
 {
 	SubSign = TV_SUBSIGN_STATIC;
 	ViewOptions |= (ofPreProcess|ofPostProcess); // @v12.2.6 ???
@@ -74,7 +74,7 @@ int TStaticText::setText(const char * pText)
 //
 // TLabel
 //
-TLabel::TLabel(const TRect & bounds, const char * pText, TView * aLink) : TStaticText(bounds, pText), link(aLink)
+TLabel::TLabel(const TRect & bounds, const char * pText, TView * aLink) : TStaticText(bounds, 0, pText), link(aLink)
 {
 	SubSign = TV_SUBSIGN_LABEL;
 	ViewOptions |= (ofPreProcess|ofPostProcess);
@@ -219,12 +219,12 @@ static BOOL CALLBACK ButtonDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 const int cmGrabDefault    = 61;
 const int cmReleaseDefault = 62;
 
-TButton::TButton(const TRect& bounds, const char * pTitle, ushort aCommand, ushort aFlags, uint bmpID) : TView(bounds), 
-	flags(aFlags), command(aCommand), Title(pTitle), BmpID(bmpID), HBmp(0)
+TButton::TButton(const TRect & rBounds, const char * pTitle, uint command, uint spcFlags, uint bmpID) : TView(rBounds), 
+	SpcFlags(spcFlags), Command(command), Title(pTitle), BmpID(bmpID), HBmp(0)
 {
 	SubSign = TV_SUBSIGN_BUTTON;
 	ViewOptions |= (ofSelectable|ofPreProcess|ofPostProcess);
-	if(!commandEnabled(aCommand))
+	if(!commandEnabled(Command))
 		Sf |= sfDisabled;
 }
 
@@ -236,8 +236,8 @@ TButton::~TButton()
 
 HBITMAP TButton::GetBitmap() const { return HBmp; }
 uint    TButton::GetBmpID() const { return BmpID; }
-ushort  TButton::GetCommand() const { return command; }
-int     TButton::IsDefault() const { return BIN(flags & bfDefault); }
+uint    TButton::GetCommand() const { return Command; }
+bool    TButton::IsDefault() const { return LOGIC(SpcFlags & spcfDefault); }
 void    TButton::drawState(bool down) { TView::SSetWindowText(GetDlgItem(Parent, Id), Title); }
 
 int TButton::LoadBitmap_(uint bmpID)
@@ -305,21 +305,21 @@ IMPL_HANDLE_EVENT(TButton)
 		case TEvent::evBroadcast:
 			switch(TVCMD) {
 				case cmDefault:
-					if(flags & bfDefault) {
+					if(SpcFlags & spcfDefault) {
 						press();
 						clearEvent(event);
 					}
 					break;
 				case cmGrabDefault:
 				case cmReleaseDefault:
-					if(flags & bfDefault) {
-						SETFLAG(flags, bfDefault, TVCMD == cmReleaseDefault);
+					if(SpcFlags & spcfDefault) {
+						SETFLAG(SpcFlags, spcfDefault, TVCMD == cmReleaseDefault);
 						Draw_();
 					}
 					break;
 				case cmCommandSetChanged:
 					{
-						bool   is_enabled = LOGIC(P_Owner ? P_Owner->commandEnabled(command) : commandEnabled(command));
+						bool   is_enabled = LOGIC(P_Owner ? P_Owner->commandEnabled(Command) : commandEnabled(Command));
 						if((is_enabled && IsInState(sfDisabled)) || (!is_enabled && !IsInState(sfDisabled))) {
 							setState(sfDisabled, !is_enabled);
 							EnableWindow(getHandle(), !IsInState(sfDisabled));
@@ -328,7 +328,7 @@ IMPL_HANDLE_EVENT(TButton)
 					}
 					break;
 				case cmSearchButton:
-					if(command && event.message.infoPtr == reinterpret_cast<void *>(command))
+					if(Command && event.message.infoPtr == reinterpret_cast<void *>(Command))
 						clearEvent(event);
 					break;
 			}
@@ -339,12 +339,12 @@ IMPL_HANDLE_EVENT(TButton)
 int TButton::makeDefault(int enable, int sendMsg)
 {
 	if(sendMsg) {
-		if(!(flags & bfDefault))
+		if(!(SpcFlags & spcfDefault))
 			TView::messageBroadcast(P_Owner, enable ? cmGrabDefault : cmReleaseDefault, this);
 		if(enable)
 			::SendMessageW(Parent, DM_SETDEFID, (WPARAM)Id, 0);
 	}
-	SETFLAG(flags, bfDefault, enable);
+	SETFLAG(SpcFlags, spcfDefault, enable);
 	return 1;
 }
 
@@ -372,10 +372,10 @@ int TButton::TransmitData(int dir, void * pData)
 void TButton::press(ushort item)
 {
 	if(!IsInState(sfDisabled)) {
-		if(flags & bfBroadcast)
-			TView::messageBroadcast(P_Owner, command, this);
+		if(SpcFlags & spcfBroadcast)
+			TView::messageBroadcast(P_Owner, Command, this);
 		else
-			MessageCommandToOwner(command);
+			MessageCommandToOwner(Command);
 	}
 }
 //
@@ -489,12 +489,28 @@ void TInputLine::InputStat::CheckIn()
 			break;
 		case WM_NCPAINT:
 			{
+				/*
+		DRAWITEMSTRUCT * p_dis = reinterpret_cast<DRAWITEMSTRUCT *>(lParam);
+		TDrawItemData di;
+		di.CtlType = p_dis->CtlType;
+		di.CtlID   = p_dis->CtlID;
+		di.ItemID  = p_dis->itemID;
+		di.ItemAction = p_dis->itemAction;
+		di.ItemState  = p_dis->itemState;
+		di.H_Item   = p_dis->hwndItem;
+		di.H_DC     = p_dis->hDC;
+		di.ItemRect = p_dis->rcItem;
+		di.P_View   = getCtrlView(LOWORD(di.CtlID));
+		di.ItemData = p_dis->itemData;
+				*/ 
 				HWND   focus_hwnd = GetFocus();
 				DRAWITEMSTRUCT di;
 				MEMSZERO(di);
-				di.CtlID = GetDlgCtrlID(hWnd);
 				di.CtlType = ODT_EDIT;
+				di.CtlID = GetDlgCtrlID(hWnd);
 				di.hDC = GetWindowDC(hWnd);
+				di.itemID = 0;
+				di.itemAction = ODA_DRAWENTIRE; // @v12.3.3
 				GetWindowRect(hWnd, &di.rcItem);
 				di.rcItem.right  -= di.rcItem.left;
 				di.rcItem.bottom -= di.rcItem.top;
@@ -502,6 +518,10 @@ void TInputLine::InputStat::CheckIn()
 				di.rcItem.top     = 0;
 				SETFLAG(di.itemState, ODS_FOCUS, focus_hwnd == hWnd);
 				SETFLAG(di.itemState, ODS_DISABLED, !IsWindowEnabled(hWnd));
+				// @v12.3.3 {
+				if(p_view->P_Combo)
+					di.itemState |= ODS_COMBOBOXEDIT;
+				// } @v12.3.3 
 				lParam = reinterpret_cast<LPARAM>(&di);
 				if(APPL->DrawControl(hWnd, uMsg, wParam, reinterpret_cast<LPARAM>(&di)) > 0) {
 					ReleaseDC(hWnd, di.hDC);
@@ -697,7 +717,7 @@ int TInputLine::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 					if(Data.Len() == 0)
 						InlSt &= ~stPaste;
 				}
-				CALLPTRMEMB(P_WordSel, Refresh(Data)); // @v10.7.7 
+				CALLPTRMEMB(P_WordSel, Refresh(Data));
 				MessageCommandToOwner(cmInputUpdated);
 			}
 			break;
@@ -717,7 +737,7 @@ void TInputLine::Init()
 	InlSt = stValidStr;
 }
 
-TInputLine::TInputLine(const TRect & bounds, TYPEID typ, long fmt) : TView(bounds), Helper_WordSelector(0, 0)
+TInputLine::TInputLine(const TRect & rBounds, TYPEID typ, long fmt) : TView(rBounds), Helper_WordSelector(0, 0), SpcFlags(0)
 {
 	TInputLine::Init();
 	MaxLen = SFMTLEN(fmt);
@@ -1004,7 +1024,8 @@ static BOOL CALLBACK ClusterDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPAR
 	return ::CallWindowProc(p_view->PrevWindowProc, hWnd, uMsg, wParam, lParam);
 }
 
-TCluster::TCluster(const TRect & rBounds, int clusterKind, const StringSet * pStrings) : TView(rBounds), Value(0), Sel(0), Kind(clusterKind), DisableMask(0)
+TCluster::TCluster(const TRect & rBounds, int clusterKind, uint spcFlags, const StringSet * pStrings) : 
+	TView(rBounds), Value(0), Sel(0), Kind(clusterKind), SpcFlags(spcFlags), DisableMask(0)
 {
 	assert(oneof2(clusterKind, RADIOBUTTONS, CHECKBOXES));
 	SubSign = TV_SUBSIGN_CLUSTER;

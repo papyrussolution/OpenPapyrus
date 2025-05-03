@@ -380,10 +380,10 @@
 //
 // Button types
 //
-#define bfNormal           0x00
-#define bfDefault          0x01
-#define bfLeftJust         0x02
-#define bfBroadcast        0x04
+// @v12.3.3 (unused) #define bfNormal           0x00
+// @v12.3.3 (moved to TButton::spcfXXX) #define bfDefault          0x01
+// @v12.3.3 (unused) #define bfLeftJust         0x02
+// @v12.3.3 (moved to TButton::spcfXXX) #define bfBroadcast        0x04
 //
 //  TView State masks
 //

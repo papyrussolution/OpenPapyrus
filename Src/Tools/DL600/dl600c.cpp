@@ -6,6 +6,7 @@
 #include <pp.h>
 #include <dl600.h>
 #include "dl600c.tab.hpp"
+#include <..\slib\simplecpp\simplecpp.h>
 
 // Строка отладки для интерфейсов: ../rsrc/dl600/ppifc.dl6
 // Строка отладки для структуры БД: /dict:..\..\BASE\INIT_DL6 /oracle ..\rsrc\dl600\ppdbs.dl6
@@ -416,6 +417,150 @@ int DlContext::GetMacro(const char * pMacro, SString & rResult) const
 //
 //
 //
+DlContext::CPreprocBlock::CPreprocBlock() : State(0), P_Opaq(0)
+{
+}
+
+DlContext::CPreprocBlock::~CPreprocBlock()
+{
+	if(P_Opaq) {
+		delete static_cast<simplecpp::PreprocessBlock *>(P_Opaq);
+	}
+}
+
+int DlContext::CPreprocBlock::AddCInclude(const char * pThisFilePath, const char * pCIncFileName)
+{
+	int    ok = 0;
+	if(State & stInited) {
+		; // @todo @err
+	}
+	else if(isempty(pCIncFileName)) {
+		; // @todo @err
+	}
+	else if(!fileExists(pThisFilePath)) {
+		; // @todo @err
+	}
+	else {
+		//InFileName
+		SString temp_buf;
+		SFsPath ps_main_file(pThisFilePath);
+		SFsPath ps(pCIncFileName);
+		if(ps.Drv.IsEmpty())
+			ps.Drv = ps_main_file.Drv;
+		if(ps.Dir.IsEmpty())
+			ps.Dir = ps_main_file.Dir;
+		else {
+			if(!oneof2(ps.Dir.C(0), '/', '\\')) {
+				(temp_buf = ps_main_file.Dir).SetLastSlash().Cat(ps.Dir);
+				ps.Dir = temp_buf;
+			}
+		}
+		ps.Merge(temp_buf);
+		{
+			SString result_file_name;
+			SFsPath::NormalizePath(temp_buf, SFsPath::npfCompensateDotDot|SFsPath::npfSlash, result_file_name);
+			if(fileExists(result_file_name)) {
+				CIncludeFileList.add(result_file_name);
+				ok = 1;
+			}
+			else {
+				; // @todo @err 
+			}
+		}
+	}
+	return ok;	
+}
+
+bool DlContext::CPreprocBlock::ResolveSymbol(const char * pSymb, SString * pResult, int * pResultInt)
+{
+	bool   ok = false;
+	CALLPTRMEMB(pResult, Z());
+	ASSIGN_PTR(pResultInt, 0);
+	if(!isempty(pSymb)) {
+		SString temp_buf;
+		// @todo
+		if(!P_Opaq) {
+			if(State & stInited) {
+				; // nothing to do
+			}
+			else if(CIncludeFileList.getCount()) {
+				SString input_buf;
+				SString path_buf;
+				simplecpp::DUI dui;
+				StringSet ss_incl_path;
+				{
+					for(uint ssp = 0; CIncludeFileList.get(&ssp, temp_buf);) {
+						if(fileExists(temp_buf)) {
+							SFsPath::NormalizePath(temp_buf, SFsPath::npfCompensateDotDot|SFsPath::npfSlash, path_buf);
+							dui.includes.push_back(path_buf.cptr());
+							input_buf.Cat("#include").Space().CatQStr(path_buf).CR();
+							SFsPath ps(path_buf);
+							ps.Merge(SFsPath::fDrv|SFsPath::fDir, temp_buf);
+							SFsPath::NormalizePath(temp_buf, SFsPath::npfCompensateDotDot|SFsPath::npfSlash, path_buf);
+							if(!ss_incl_path.search(path_buf, 0, 1)) {
+								ss_incl_path.add(path_buf);
+							}
+						
+						}
+					}
+				}
+				if(input_buf.NotEmpty()) {
+					{
+						for(uint ssp = 0; ss_incl_path.get(&ssp, temp_buf);) {
+							dui.includePaths.push_back(temp_buf.RmvLastSlash().cptr());
+						}
+					}
+					dui.removeComments = true;
+					//
+					// simplecpp.exe -I d:\papyrus\src\include -D _MSC_VER -D _MSC_FULL_VER -D _WIN32 -D _M_IX86 a.cpp   > a
+					// 
+					dui.defines.push_back("_MSC_VER");
+					dui.defines.push_back("_MSC_FULL_VER");
+					dui.defines.push_back("_WIN32");
+					dui.defines.push_back("_M_IX86");
+					{
+						simplecpp::PreprocessBlock * p_pblk = new simplecpp::PreprocessBlock();
+						State |= stInited;
+						if(p_pblk) {
+							p_pblk->Flags |= (simplecpp::PreprocessBlock::fOutputTokenList|simplecpp::PreprocessBlock::fMsgList);
+							simplecpp::TokenList base_src_token_list = p_pblk->MakeSourceTokenList(input_buf, "dl600_cpreprocess.h");
+							if(simplecpp::Preprocess(*p_pblk, dui, base_src_token_list)) {
+								P_Opaq = p_pblk;
+							}
+							else {
+								; // @todo @err
+								State |= stError;
+								ZDELETE(p_pblk);
+							}
+						}
+						else 
+							State |= stError;
+					}
+				}
+			}		
+		}
+		if(P_Opaq) {
+			simplecpp::PreprocessBlock * p_pblk = static_cast<simplecpp::PreprocessBlock *>(P_Opaq);
+			simplecpp::TokenList src_token_list = p_pblk->MakeSourceTokenList(pSymb, "dl600_cpreprocess.h");
+			const simplecpp::Token * p_tmp_tok = src_token_list.cfront();
+			simplecpp::TokenList result_token_list(p_pblk->FileList);
+			if(p_pblk->PreprocessToken(result_token_list, &p_tmp_tok)) {
+				result_token_list.constFold();
+				std::string dump = result_token_list.stringify();
+				temp_buf.Z().CatN(dump.data(), dump.length());
+				ASSIGN_PTR(pResult, temp_buf);
+				if(pResultInt) {
+					*pResultInt = temp_buf.ToLong();
+				}
+				ok = true;
+			}
+		}
+	}
+	return ok;
+}
+//
+//
+//
 void DlContext::AddStrucDeclare(const char * pDecl)
 {
 	CurDeclList.add(pDecl);
@@ -524,6 +669,8 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 	SString title_text;
 	SString figure_symb;
 	SString cb_line_symb; // @v12.3.3
+	SString image_symb; // @v12.3.3
+	SString list_box_columns; // @v12.3.3
 	FRect  label_bbox;
 	double font_size = 0.0;
 	// Следующие флаги устанавливаются в переменной occurence_flags для индикации факта, что
@@ -551,6 +698,8 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 		occfLabelBBoxOrigin = 0x00080000, // @v12.3.2
 		occfLabelBBoxSize   = 0x00100000, // @v12.3.2
 		occfCbLineSymb      = 0x00200000, // @v12.3.3
+		occfImageSymb       = 0x00400000, // @v12.3.3
+		occfColumns         = 0x00800000, // @v12.3.3
 	};
 	enum {
 		occsLeft         = 0x0001,
@@ -1045,6 +1194,30 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 						occurence_flags |= occfCbLineSymb;
 					}
 				}
+				else if(prop_key == "imagesymb") { // @v12.3.3
+					if(!(occurence_flags & occfImageSymb)) { // @err dup feature
+						if(p_prop->Value.IsIdent() || p_prop->Value.IsString()) {
+							prop_val = p_prop->Value.U.S;
+							(image_symb = prop_val).Strip();
+						}
+						else {
+							// @err invalid variable value
+						}
+						occurence_flags |= occfImageSymb;
+					}
+				}
+				else if(prop_key == "columns") { // @v12.3.3
+					if(!(occurence_flags & occfColumns)) { // @err dup feature
+						if(p_prop->Value.IsString()) {
+							prop_val = p_prop->Value.U.S;
+							(list_box_columns = prop_val).Strip();
+						}
+						else {
+							// @err invalid variable value
+						}
+						occurence_flags |= occfColumns;
+					}
+				}
 				else if(prop_key == "command") {
 					if(command_ident.IsEmpty()) { // @err dup feature
 						if(p_prop->Value.IsIdent() || p_prop->Value.IsString()) {
@@ -1259,6 +1432,27 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 		CtmExprConst c;
 		AddConst(cb_line_symb, &c);
 		p_scope->AddConst(DlScope::cuifCbLineSymb, c, 1);
+		{
+			SString cpreproc_result_text;
+			int    cpreproc_result_int = 0;
+			if(CppBlk.ResolveSymbol(cb_line_symb, &cpreproc_result_text, &cpreproc_result_int)) {
+				if(cpreproc_result_int) {
+					CtmExprConst c2;
+					AddConst(static_cast<uint32>(cpreproc_result_int), &c2);
+					p_scope->AddConst(DlScope::cuifCbLineSymbIdent, c2, 1);
+				}
+			}
+		}
+	}
+	if(image_symb.NotEmpty()) { // @v12.3.3
+		CtmExprConst c;
+		AddConst(image_symb, &c);
+		p_scope->AddConst(DlScope::cuifImageSymb, c, 1);
+	}
+	if(list_box_columns.NotEmpty()) { // @v12.3.3
+		CtmExprConst c;
+		AddConst(list_box_columns, &c);
+		p_scope->AddConst(DlScope::cuifListBoxColumns, c, 1);
 	}
 	/* @v12.3.3 (элиминируем в пользу DlScope::cuifLblLayoutBlock)
 	if(label_relation) {
@@ -3160,6 +3354,7 @@ DLSYMBID DlContext::Helper_EnterViewScope(uint scopeKind, const char * pSymb)
 		assert(p_cur_scope); // Не может такого быть, что нет текущей области: значит мы вызывали функцию откуда-то не от туда.
 		if(p_cur_scope) {
 			DLSYMBID symb_id = 0;
+			DLSYMBID preproc_symb_id = 0;
 			SString name_;
 			if(isempty(pSymb)) {
 				S_GUID uuid;
@@ -3177,6 +3372,13 @@ DLSYMBID DlContext::Helper_EnterViewScope(uint scopeKind, const char * pSymb)
 				}
 			}
 			else {
+				// @v12.3.3 {
+				SString cpreproc_result_text;
+				int    cpreproc_result_int = 0;
+				if(CppBlk.ResolveSymbol(pSymb, &cpreproc_result_text, &cpreproc_result_int)) {
+					preproc_symb_id = cpreproc_result_int;
+				}
+				// } @v12.3.3 
 				name_ = pSymb;
 				const DlScope * p_top_view_scope = 0;
 				const DlScope * p_par = p_cur_scope;
@@ -3208,7 +3410,16 @@ DLSYMBID DlContext::Helper_EnterViewScope(uint scopeKind, const char * pSymb)
 					// область такого вида. Стало быть символ должет быть уникальным "насквозь".
 					//
 					if(!SearchSymb(pSymb, '^', &symb_id)) {
-						symb_id = CreateSymb(pSymb, '^', 0);
+						/*(не получается - все равно дубляж) if(cpreproc_result_int) {
+							//
+							// Если удалось из заголовочного h-файла извлечь идентификатор, соответствующий символу pSymb,
+							// то для топовой области используем этот идентификатор как ид области.
+							// 
+							symb_id = CreateSymbWithId(pSymb, cpreproc_result_int, '^', 0);
+						}
+						else*/{
+							symb_id = CreateSymb(pSymb, '^', 0);
+						}
 						THROW(symb_id);
 					}
 					else {
@@ -3218,6 +3429,19 @@ DLSYMBID DlContext::Helper_EnterViewScope(uint scopeKind, const char * pSymb)
 				}
 			}
 			id = EnterScope(scope_kind, name_, symb_id, 0);  // view {
+			// @v12.3.3 {
+			if(preproc_symb_id) {
+				if(id) {
+					DlScope * p_cur_scope_inner = GetCurScope();	
+					if(p_cur_scope_inner) {
+						assert(p_cur_scope_inner->ID == id);
+						CtmExprConst c;
+						AddConst(static_cast<uint32>(preproc_symb_id), &c);
+						p_cur_scope_inner->AddConst(DlScope::cucmSymbolIdent, c, 1);
+					}
+				}
+			}
+			// } @v12.3.3 
 		}
 	}
 	CATCH
@@ -3797,7 +4021,7 @@ int DlContext::Write_C_DeclFile(Generator_CPP & gen, const DlScope & rScope, lon
 					gen.Wr_EndDeclFunc(1, 1);
 				}
 				if(p_ds->CheckDvFlag(DlScope::declfDestroy)) {
-					gen.Wr_StartDeclFunc(Generator_CPP::fkOrdinary, Generator_CPP::fmVirtual, "void", "Destroy"); // @v9.6.4 "int"-->"void"
+					gen.Wr_StartDeclFunc(Generator_CPP::fkOrdinary, Generator_CPP::fmVirtual, "void", "Destroy");
 					gen.Wr_EndDeclFunc(1, 1);
 				}
 				if(p_ds->CheckDvFlag(DlScope::declfSet)) {
@@ -3822,13 +4046,14 @@ int DlContext::Write_C_DeclFile(Generator_CPP & gen, const DlScope & rScope, lon
 						MakeDlRecName(p_rec, 1, inst_name);
 						gen.Wr_StartClassDecl(Generator_CPP::clsStruct, cls_name, 0, Generator_CPP::acsPublic, 0);
 						gen.IndentInc();
-						for(uint fldidx = 0; p_rec->EnumFields(&fldidx, &fld);)
+						for(uint fldidx = 0; p_rec->EnumFields(&fldidx, &fld);) {
 							if(!(fld.T.Flags & STypEx::fFormula)) {
 								THROW(Format_C_Type(0, fld.T, fld.Name, fctfSourceOutput, fld_buf));
 								fld_buf.CR();
 								gen.Wr_Indent();
 								gen.WriteLine(fld_buf);
 							}
+						}
 						gen.IndentDec();
 						gen.Wr_CloseBrace(1, inst_name);
 					}
@@ -4074,22 +4299,19 @@ int DlContext::Write_C_ImplInterfaceFunc(Generator_CPP & gen, const SString & rC
 						t_stripped.Mod = 0;
 					gen.CatIndent(line_buf.Z());
 					if(st == S_DATE) {
-						// @v10.8.7 temp_buf.Printf("ASSIGN_PTR(%s_, %s);", arg_name.cptr(), arg_name.cptr());
-						temp_buf.Z().Cat("ASSIGN_PTR").CatChar('(').Cat(arg_name).CatChar('_').CatDiv(',', 2).Cat(arg_name).CatChar(')').Semicol(); // @v10.8.7 
+						temp_buf.Z().Cat("ASSIGN_PTR").CatChar('(').Cat(arg_name).CatChar('_').CatDiv(',', 2).Cat(arg_name).CatChar(')').Semicol();
 						gen.WriteLine(line_buf.Cat(temp_buf).CR());
 					}
 					else if(st == S_TIME) {
 					}
 					else if(st == S_DATETIME) {
-						// @v10.8.7 temp_buf.Printf("ASSIGN_PTR(%s_, %s);", arg_name.cptr(), arg_name.cptr());
-						temp_buf.Z().Cat("ASSIGN_PTR").CatChar('(').Cat(arg_name).CatChar('_').CatDiv(',', 2).Cat(arg_name).CatChar(')').Semicol(); // @v10.8.7 
+						temp_buf.Z().Cat("ASSIGN_PTR").CatChar('(').Cat(arg_name).CatChar('_').CatDiv(',', 2).Cat(arg_name).CatChar(')').Semicol();
 						gen.WriteLine(line_buf.Cat(temp_buf).CR());
 					}
 					else if(st == S_CHAR) {
 					}
 					else if(st == S_ZSTRING) {
-						// @v10.8.7 temp_buf.Printf("%s.CopyToOleStr(", arg_name.cptr());
-						temp_buf.Z().Cat(arg_name).Dot().Cat("CopyToOleStr").CatChar('('); // @v10.8.7 
+						temp_buf.Z().Cat(arg_name).Dot().Cat("CopyToOleStr").CatChar('(');
 						temp_buf.CatCharN('*', td.PtrList.GetCount());
 						temp_buf.Cat(arg_name).CatChar('_').CatChar(')').Semicol();
 						gen.WriteLine(line_buf.Cat(temp_buf).CR());
@@ -4622,6 +4844,8 @@ int DlContext::Write_Code()
 //
 //
 //
+int DlContext::AddCInclude(const char * pCIncFileName) { return CppBlk.AddCInclude(InFileName, pCIncFileName); } // @v12.3.3
+
 int DlContext::FindImportFile(const char * pFileName, SString & rPath)
 {
 	SFsPath ps, ps_s;

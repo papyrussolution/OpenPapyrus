@@ -1,5 +1,5 @@
 // TEST-SARRAY.CPP
-// Copyright (c) A.Sobolev 2023, 2024
+// Copyright (c) A.Sobolev 2023, 2024, 2025
 // Тестирование контейнеров (SVector, SArray, etc)
 //
 #include <pp.h>
@@ -469,6 +469,42 @@ SLTEST_FIXTURE(SVector, TestFixtureSArray)
 			}
 		}
 	}
+	// @v12.3.3 {
+	{
+		RAssocArray v; 
+		LongArray id_list;
+		SRandGenerator & r_rng = SLS.GetTLA().Rg;
+		{
+			for(long i = 1; i <= 100000; i++) {
+				id_list.add(i);
+			}
+			id_list.shuffle();
+		}
+		{
+			for(uint i = 0; i < id_list.getCount(); i++) {
+				const long id = id_list.get(i);
+				v.Add(id, 1.0, 1, 0);
+				double test_value = 0.0;
+				uint   test_idx = 0;
+				SLCHECK_NZ(v.Search(id, &test_value, &test_idx, 0));
+				SLCHECK_EQ(test_value, 1.0);
+				SLCHECK_EQ(test_idx, v.getCount()-1);
+				const ulong rn = r_rng.GetUniformIntPos(1000);
+				if((rn % 7) == 0) {
+					const uint preserve_count = v.getCount();
+					const uint dup_idx = (i >= 3) ? (i-3) : 0U;
+					const long dup_id = id_list.get(dup_idx);
+					SLCHECK_NZ(v.Add(dup_id, 1.0, 1, 0));
+					SLCHECK_EQ(v.getCount(), preserve_count);
+					//
+					SLCHECK_NZ(v.Search(dup_id, &test_value, &test_idx, 0));
+					SLCHECK_LT(1.0, test_value);
+					SLCHECK_EQ(test_idx, dup_idx);
+				}
+			}
+		}
+	}
+	// } @v12.3.3 
 	return CurrentStatus;
 }
 

@@ -2567,36 +2567,47 @@ int SFile::ReadLine(SString & rBuf, uint flags)
 				THROW(LB.Alloc(1024+2));
 				size_t act_size = 0;
 				LB[LB.GetSize()-2] = 0;
-				while(Read(LB, LB.GetSize()-2, &act_size) && act_size) {
-					p = static_cast<const char *>(smemchr(LB.vptr(), '\n', act_size)); // @v11.7.0 memchr-->smemchr
-					if(p) {
-						char * p_to_update = const_cast<char *>(p);
-						p_to_update[1] = 0;
-					}
-					else {
-						p = static_cast<const char *>(smemchr(LB.vptr(), 0x0D, act_size)); // @v11.7.0 memchr-->smemchr
-						// @v10.4.1 @fix 
-						if(p) {
-							char * p_to_update = const_cast<char *>(p);
-							if(p_to_update[1] == 0x0A)
-								p_to_update[2] = 0;
-							else
-								p_to_update[1] = 0;
+				{
+					// @v12.3.3 {
+					// Если файл открыт в текстовом режиме, то этот блок будет работат не правильно (пустую строку через один вызов будет возвращать)
+					// Для коменсации проблемы и служат следующие строчки.
+					{
+						if(IH >= 0) {
+							_setmode(IH, _O_BINARY);		
 						}
 					}
-					if(p) {
-						const size_t _len = sstrlen(LB.cptr());
-						rBuf.CatN(LB, _len);
-						Seek64(last_pos + _len);
-						break;
-					}
-					else {
-						LB[act_size] = 0;
-						rBuf.Cat(LB);
-						if(act_size < (LB.GetSize()-2))
+					// } @v12.3.3 
+					while(Read(LB, LB.GetSize()-2, &act_size) && act_size) {
+						p = static_cast<const char *>(smemchr(LB.vptr(), '\n', act_size)); // @v11.7.0 memchr-->smemchr
+						if(p) {
+							char * p_to_update = const_cast<char *>(p);
+							p_to_update[1] = 0;
+						}
+						else {
+							p = static_cast<const char *>(smemchr(LB.vptr(), 0x0D, act_size)); // @v11.7.0 memchr-->smemchr
+							// @v10.4.1 @fix 
+							if(p) {
+								char * p_to_update = const_cast<char *>(p);
+								if(p_to_update[1] == 0x0A)
+									p_to_update[2] = 0;
+								else
+									p_to_update[1] = 0;
+							}
+						}
+						if(p) {
+							const size_t _len = sstrlen(LB.cptr());
+							rBuf.CatN(LB, _len);
+							Seek64(last_pos + _len);
 							break;
+						}
+						else {
+							LB[act_size] = 0;
+							rBuf.Cat(LB);
+							if(act_size < (LB.GetSize()-2))
+								break;
+						}
+						last_pos = Tell64();
 					}
-					last_pos = Tell64();
 				}
 				THROW_S_S(rBuf.Len() || p, SLERR_READFAULT, Name);
 			}
@@ -3936,8 +3947,8 @@ int SFileFormat::IdentifyMime(const char * pMime)
 	Register(Pbxproj,    "pbxproj", 0);
 	Register(Gravity,    "gravity", 0);
 	Register(PapyruDbDivXchg, mtApplication, "x-papyrus", "pps", "50504F53");
-	Register(CodeBlocks_Cbp,  mtApplication, "xml",   "cbp", "T<?xml"); // @v10.9.9 Code::Blocks Project File
-	Register(M4,              mtText,        "plain", "m4", 0); // @v10.9.9 m4 macroporcessor
+	Register(CodeBlocks_Cbp,  mtApplication, "xml",   "cbp", "T<?xml"); // Code::Blocks Project File
+	Register(M4,              mtText,        "plain", "m4", 0); // m4 macroporcessor
 	Register(Webp,            mtImage,       "webp", "webp", "52494646 8:57454250"); // @v11.3.4 webp graphics
 	return ok;
 }
@@ -4649,5 +4660,302 @@ int Test_CsvSniffer()
 	path = "D:/DEV/etc/Microsoft/Leak-of-some-Bing-Bing_Maps-Cortana-source-code/CWBMM/src/CWBMM.Product/Maps_SBS/CustomWPSBS/Examples/CreateDirectionsWPSBSSample/DirectionsCandidates.tsv";
 	r = s.Run(path, result);
 	//
+	return ok;
+}
+//
+//
+//
+class Droid_FileSignatureDescription { // @v12.3.3 @construction @experimental
+public:
+	struct Header {
+		SString Name;
+		LDATE Dt;
+		int   Ver;
+	};
+	struct FileFormat {
+		int    ID;
+		int    MimeType;
+		SVerT  FormatVer; // Если версию формата удается представить в виде int[.int[.int]] то результат здесь. 
+			// Оригинальное представление версии всегда в поле FormatVerText 
+		SString Name;
+		SString MimeTypeText;
+		SString MimeSubType;
+		SString FormatVerText;
+		StringSet SsExt; // Список возможных расширений файлов
+		LongArray SignatureIdList;
+		LongArray PriorityOverFileFormatIdList; // HasPriorityOverFileFormatID
+	};
+
+	struct Fragment { // @flat
+		Fragment() : Side(0), MinOffs(0), MaxOffs(0), Position(0)
+		{
+			memzero(Seq, sizeof(Seq));
+		}
+		int   Side; //  SIDE_LEFT || SIDE_RIGHT
+		uint  MinOffs;
+		uint  MaxOffs;
+		uint  Position;
+		uchar Seq[64];  // 
+	};
+
+	struct Shift { // @flat
+		Shift() : Offs(0), Byte(0)
+		{
+		}
+		int    Offs; // Отрицательные значения при сравнении справа-налево (EOFOffset)
+		uchar  Byte;
+	};
+
+	struct SubSeq {
+		SubSeq() : MinFragLen(0), Position(0), SubSeqMinOffset(0), SubSeqMaxOffset(0), DefShift(0)
+		{
+			memzero(Seq, sizeof(Seq));
+		}
+		uint   MinFragLen;
+		uint   Position;
+		int    SubSeqMinOffset;
+		int    SubSeqMaxOffset;
+		int    DefShift; // Не понимаю назначения //
+		uchar  Seq[256]; // Общее представление сигнатуры (hex, если я не ошибаюсь)
+		TSVector <Fragment> FragmL;
+		TSVector <Shift> ShiftL;
+	};
+
+	struct ByteSeq {
+		ByteSeq() : Ref(refUnkn), Endianness(0)
+		{
+		}
+		ByteSeq(const ByteSeq & rS)
+		{
+			Copy(rS);
+		}
+		ByteSeq & FASTCALL operator = (const ByteSeq & rS)
+		{
+			return Copy(rS);
+		}
+		ByteSeq & FASTCALL Copy(const ByteSeq & rS)
+		{
+			Ref = rS.Ref;
+			Endianness = rS.Endianness;
+			TSCollection_Copy(SubSeqL, rS.SubSeqL);
+			return *this;
+		}
+		enum {
+			refUnkn = 0,
+			refBOFoffset = 1, // От начала файла
+			refEOFoffset = 2, // От конца файла
+			refNOoffset  = 3, // ?
+		};
+		int    Ref; // refXXX
+		int    Endianness; // 0 - undef, 1 - big-endian, 2 - low-endian
+		TSCollection <SubSeq> SubSeqL;
+	};
+
+	struct FileSignature {
+		FileSignature() : ID(0), Specificity(specUnkn)
+		{
+		}
+		enum {
+			specUnkn = 0,
+			specGeneric  = 1,
+			specSpecific = 2,
+		};
+		int    ID;
+		int    Specificity; // specXXX
+		TSCollection <ByteSeq> ByteSeqL;
+	};
+
+	Droid_FileSignatureDescription();
+	~Droid_FileSignatureDescription();
+	int    Read(const char * pFileName);
+	//int    FindRecentFile(const char * pPath, const char * pPrefix);
+private:
+	FileFormat * ReadFileFormat(const xmlNode * pNode);
+	FileSignature * ReadSignature(const xmlNode * pNode);
+
+	TSCollection <FileFormat> FormatL;
+	TSCollection <FileSignature> SignatureL;
+};
+
+Droid_FileSignatureDescription::Droid_FileSignatureDescription()
+{
+}
+
+Droid_FileSignatureDescription::~Droid_FileSignatureDescription()
+{
+}
+
+
+Droid_FileSignatureDescription::FileFormat * Droid_FileSignatureDescription::ReadFileFormat(const xmlNode * pNode)
+{
+	FileFormat * p_result = new FileFormat();
+	SString temp_buf;
+	if(SXml::GetAttrib(pNode, "ID", temp_buf)) {
+		p_result->ID = temp_buf.ToLong();
+	}
+	if(SXml::GetAttrib(pNode, "MIMEType", temp_buf)) {
+		p_result->MimeTypeText = temp_buf;
+	}
+	if(SXml::GetAttrib(pNode, "Name", temp_buf)) {
+		p_result->Name = temp_buf;
+	}
+	if(SXml::GetAttrib(pNode, "PUID", temp_buf)) {
+		;
+	}
+	if(SXml::GetAttrib(pNode, "Version", temp_buf)) {
+		p_result->FormatVerText = temp_buf;
+	}
+	for(const xmlNode * p_n = pNode->children; p_n; p_n = p_n->next) {
+		if(SXml::GetContentByName(p_n, "InternalSignatureID", temp_buf)) {
+			long s_id = temp_buf.ToLong();
+			if(s_id > 0) {
+				p_result->SignatureIdList.add(s_id);
+			}
+		}
+		else if(SXml::GetContentByName(p_n, "Extension", temp_buf)) {
+			if(temp_buf.NotEmptyS())
+				p_result->SsExt.add(temp_buf);
+		}
+	}
+	return p_result;
+}
+
+Droid_FileSignatureDescription::FileSignature * Droid_FileSignatureDescription::ReadSignature(const xmlNode * pNode)
+{
+	FileSignature * p_result = 0;
+	SString temp_buf;
+	if(SXml::GetAttrib(pNode, "ID", temp_buf)) {
+		p_result->ID = temp_buf.ToLong();
+	}
+	if(SXml::GetAttrib(pNode, "Specificity", temp_buf)) {
+		if(temp_buf.IsEqiAscii("Specific")) {
+			p_result->Specificity = FileSignature::specSpecific;
+		}
+		else {
+			assert(("todo", false));
+		}
+	}
+	for(const xmlNode * p_n = pNode->children; p_n; p_n = p_n->next) {
+		if(SXml::IsName(p_n, "ByteSequence")) {
+			for(const xmlNode * p_n2 = p_n->children; p_n2; p_n2 = p_n2->next) {
+				/*
+					struct SubSeq {
+						SubSeq() : MinFragLen(0), Position(0), SubSeqMinOffset(0), SubSeqMaxOffset(0), DefShift(0)
+						{
+							memzero(Seq, sizeof(Seq));
+						}
+						uint   MinFragLen;
+						uint   Position;
+						int    SubSeqMinOffset;
+						int    SubSeqMaxOffset;
+						int    DefShift; // Не понимаю назначения //
+						uchar  Seq[256]; // Общее представление сигнатуры (hex, если я не ошибаюсь)
+						TSVector <Fragment> FragmL;
+						TSVector <Shift> ShiftL;
+					};
+				*/ 
+				if(SXml::IsName(p_n2, "SubSequence")) {
+					SubSeq * p_new_subseq = new SubSeq();
+					for(const xmlNode * p_n3 = p_n2->children; p_n3; p_n3 = p_n3->next) {
+						if(SXml::GetAttrib(pNode, "MinFragLength", temp_buf)) {
+							const long v = temp_buf.ToLong();
+							if(v < 0) {
+								; // @todo Сигнал, что значение отрицательное, а мы определили тип MinFragLen как unsigned
+							}
+							else
+								p_new_subseq->MinFragLen = v;
+						}
+						if(SXml::GetAttrib(pNode, "Position", temp_buf)) {
+							const long v = temp_buf.ToLong();
+							if(v < 0) {
+								; // @todo Сигнал, что значение отрицательное, а мы определили тип Position как unsigned
+							}
+							else
+								p_new_subseq->Position = v;
+						}
+						if(SXml::GetAttrib(pNode, "SubSeqMinOffset", temp_buf)) {
+							p_new_subseq->SubSeqMinOffset = temp_buf.ToLong();
+						}
+						if(SXml::GetAttrib(pNode, "SubSeqMaxOffset", temp_buf)) {
+							p_new_subseq->SubSeqMaxOffset = temp_buf.ToLong();
+						}
+						if(SXml::GetContentByName(p_n3, "Sequence", temp_buf)) {
+							STRNSCPY(reinterpret_cast<char *>(p_new_subseq->Seq), temp_buf);
+							if(temp_buf.Len() >= SIZEOFARRAY(p_new_subseq->Seq)) {
+								; // Надо как-то просигнализировать что паттерн оказался длиннее, чем мы расчитывали
+							}
+						}
+						else if(SXml::GetContentByName(p_n3, "DefaultShift", temp_buf)) {
+							p_new_subseq->DefShift = temp_buf.ToLong();	
+						}
+						else if(SXml::IsName(p_n3, "LeftFragment")) {
+						}
+						else if(SXml::IsName(p_n3, "RightFragment")) {
+						}
+						else if(SXml::IsName(p_n3, "Shift")) {
+							bool local_ok = false;
+							Shift s;
+							SXml::GetContent(p_n3, temp_buf);
+							s.Offs = temp_buf.ToLong();
+							if(SXml::GetAttrib(p_n3, "Byte", temp_buf)) {
+								if(temp_buf.IsHex()) {
+									uint64 b = temp_buf.HexToUInt64();
+									if(b < 256) {
+										s.Byte = static_cast<uchar>(b);
+										local_ok = p_new_subseq->ShiftL.insert(&s);
+									}
+								}
+							}
+							if(!local_ok) {
+								; // @todo Надо как-то просигналить!
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return p_result;
+}
+	
+int Droid_FileSignatureDescription::Read(const char * pFileName)
+{
+	int    ok = 1;
+	xmlParserCtxt * p_ctx = 0;
+	xmlDoc * p_doc = 0;
+	THROW(fileExists(pFileName));
+	THROW(p_ctx = xmlNewParserCtxt());
+	{
+		const xmlNode * p_root = 0;
+		THROW_S_LXML((p_doc = xmlCtxtReadFile(p_ctx, pFileName, 0, XML_PARSE_NOENT)), p_ctx);
+		THROW(p_root = xmlDocGetRootElement(p_doc));
+		if(SXml::IsName(p_root, "FFSignatureFile")) {
+			for(const xmlNode * p_c = p_root->children; p_c; p_c = p_c->next) {
+				if(SXml::IsName(p_c, "InternalSignatureCollection")) {
+					for(const xmlNode * p_xml_item = p_c->children; p_xml_item; p_xml_item = p_xml_item->next) {
+						if(SXml::IsName(p_xml_item, "InternalSignature")) {
+							FileSignature * p_s = ReadSignature(p_xml_item);
+							if(p_s) {
+								SignatureL.insert(p_s);
+							}
+						}
+					}
+				}
+				else if(SXml::IsName(p_c, "FileFormatCollection")) {
+					for(const xmlNode * p_xml_item = p_c->children; p_xml_item; p_xml_item = p_xml_item->next) {
+						if(SXml::IsName(p_xml_item, "FileFormat")) {
+							FileFormat * p_f = ReadFileFormat(p_xml_item);
+							if(p_f) {
+								FormatL.insert(p_f);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	CATCHZOK
+	xmlFreeDoc(p_doc);
+	xmlFreeParserCtxt(p_ctx);
 	return ok;
 }

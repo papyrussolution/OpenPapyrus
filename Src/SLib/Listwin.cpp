@@ -11,7 +11,7 @@ ListWindow::ListWindow(ListBoxDef * pDef) : TDialog(0, 0), PrepareSearchLetter(0
 {
 	P_Lb = new ListWindowSmartListBox(TRect(0, 0, 11, 11), pDef);
 	setDef(pDef);
-	TButton * b = new TButton(TRect(0, 0, 20, 20), "OK", cmOK, bfDefault);
+	TButton * b = new TButton(TRect(0, 0, 20, 20), "OK", cmOK, TButton::spcfDefault);
 	Insert_(&b->SetId(IDOK)); /*CTLID_LISTBOXOKBUTTON*/
 }
 
@@ -406,7 +406,7 @@ WordSelector::WordSelector(WordSel_ExtraBlock * pBlk) : WsState(0), P_Blk(pBlk)
 	P_Lb = new WordSelectorSmartListBox(TRect(0, 0, 11, 11), P_Def);
 	P_Lb->SetOwnerDrawState();
 	setDef(P_Def);
-	TButton * b = new TButton(TRect(0, 0, 20, 20), "OK", cmOK, bfDefault);
+	TButton * b = new TButton(TRect(0, 0, 20, 20), "OK", cmOK, TButton::spcfDefault);
 	Insert_(&b->SetId(IDOK)); /*CTLID_LISTBOXOKBUTTON*/
 	Ptb.SetColor(clrFocus,  RGB(0x20, 0xAC, 0x90));
 	Ptb.SetColor(clrOdd,    RGB(0xDC, 0xED, 0xD5));

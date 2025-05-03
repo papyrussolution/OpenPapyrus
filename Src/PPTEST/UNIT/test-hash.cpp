@@ -155,6 +155,7 @@ SLTEST_R(BDT)
 			Helper_Test_Crypto_Vec(*this, in_file_name, "AES-256", SlCrypto::algAes, SlCrypto::kbl256, SlCrypto::algmodEcb);
 		}
 		// @v12.3.1 {
+		// @v12.3.3 Ошибка в SlHash::CRC64 - сбой при распределении памяти. Похоже на то, что функция где-то пишет не туда, куда нужно. Надо разбираться.
 		{
 			{
 				const char * p_data = "123456789";
@@ -174,6 +175,7 @@ SLTEST_R(BDT)
 				SLCHECK_EQ(h, 0xc7794709e69683b3ULL);
 			}
 		}
+		//*/
 		// } @v12.3.1 
 		{
 			(in_file_name = data_trasform_path).Cat("crc24.vec");

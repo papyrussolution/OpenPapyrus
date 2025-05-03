@@ -1,5 +1,5 @@
 // DL600C.Y
-// Copyright (c) A.Sobolev 2006-2007, 2008, 2009, 2010, 2011, 2016, 2020, 2021, 2023, 2024
+// Copyright (c) A.Sobolev 2006-2007, 2008, 2009, 2010, 2011, 2016, 2020, 2021, 2023, 2024, 2025
 // @codepage UTF-8
 //
 // debug cmdline: /dict:$(SolutionDir)..\..\BASE\INIT_DL6 /data:$(SolutionDir)..\..\BASE\INIT_DL6 /oracle $(SolutionDir)..\rsrc\dl600\ppdbs.dl6
@@ -30,7 +30,7 @@ Reserved words:
 	table
 	index
 	file
-	layout // @v10.9.3
+	layout
 */
 
 //abstract [marshal] ViewItem;
@@ -181,6 +181,7 @@ int CallbackCompress(long, long, const char *, int)
 %token <token>    T_VIEW // @v11.0.4 "view" 
 %token <token>    T_BYCONTAINER // @v11.0.4
 %token <token>    T_BYCONTENT // @v11.0.5
+%token <token>    T_CINCLIDE // @v12.3.3 cinclude "file_name" включение заголовочного c-файла для получения идентификаторов символов
 
 %type <sival>    parent_struc
 %type <sival>    expstruc_head
@@ -245,7 +246,8 @@ int CallbackCompress(long, long, const char *, int)
 
 target_list : target_list target | target
 
-target : decl_expstruc
+target : cinclude_rule
+| decl_expstruc
 | expstruc_head ';' {}
 | decl_interface_prototype
 | decl_interface
@@ -259,9 +261,15 @@ target : decl_expstruc
 //
 //
 //
+cinclude_rule : T_CINCLIDE T_CONST_STR { // @v12.3.3
+	DCtx.AddCInclude($2.U.S);
+	ZapToken2($1, $2);
+}
+
 version : T_VERSION '(' T_CONST_REAL ')'
 {
-	double i, fract = modf($3.U.FD, &i);
+	double i;
+	double fract = modf($3.U.FD, &i);
 	$$ = MakeLong((uint)i, (uint)fract);
 	ZapToken2($1, $3);
 }

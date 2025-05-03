@@ -905,6 +905,26 @@ bool FASTCALL SlSession::SetError(int errCode)
 	return false;
 }
 
+int FASTCALL SlSession::SetLibXmlError(const xmlParserCtxt * pCtx) // @v12.3.3 (практически полная копия PPSetLibXmlError(const xmlParserCtxt *))
+{
+	SlThreadLocalArea & r_tla = GetTLA();
+	if(&r_tla) {
+		r_tla.LastErr = SLERR_LIBXML;
+		r_tla.AddedMsgString.Z();
+		if(pCtx) {
+			if(pCtx->lastError.code)
+				r_tla.AddedMsgString.CatDivIfNotEmpty(' ', 0).Cat(pCtx->lastError.code);
+			if(!isempty(pCtx->lastError.message))
+				r_tla.AddedMsgString.CatDivIfNotEmpty(' ', 0).Cat(pCtx->lastError.message);
+			if(!isempty(pCtx->lastError.file))
+				r_tla.AddedMsgString.CatDivIfNotEmpty(' ', 0).Cat(pCtx->lastError.file);
+		}
+		if(!r_tla.AddedMsgString.NotEmptyS())
+			r_tla.AddedMsgString = "unknown";
+	}
+	return 0;
+}
+
 bool SlSession::SetOsError(int outerOsErrCode, const char * pAddedMsg)
 {
 	const int last_err = NZOR(outerOsErrCode, ::GetLastError());

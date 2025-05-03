@@ -24227,25 +24227,25 @@ private:
 
 #define GTCHZNPT_UNKN              -1 // @v11.5.0 Специальное интерфейсное значение, используемое для обозначения того, что товар маркируемый, но категория в терминах честного знака не ясна
 #define GTCHZNPT_UNDEF              0
-#define GTCHZNPT_FUR                1
-#define GTCHZNPT_TOBACCO            2
-#define GTCHZNPT_SHOE               3
-#define GTCHZNPT_MEDICINE           4
-#define GTCHZNPT_CARTIRE            5 // Автомобильные шины
-#define GTCHZNPT_TEXTILE            6 // Текстиль
-#define GTCHZNPT_PERFUMERY          7 // Парфюмерия
-#define GTCHZNPT_MILK               8 // Молоко
-#define GTCHZNPT_JEWELRY            9 // @v11.4.9 Ювелирные изделия //
-#define GTCHZNPT_WATER             10 // @v11.5.4 Вода питьевая //
-#define GTCHZNPT_ALTTOBACCO        11 // @v11.9.0 Альтернативная табачная продукция. Марки очень похожи на табак, но есть нюансы в обработке.
-#define GTCHZNPT_DRAFTBEER         12 // @v11.9.2 Пиво разливное
-#define GTCHZNPT_DRAFTBEER_AWR   1012 // @v12.0.5 Пиво разливное. Специальная модификация, предполагающая автоматическое списание 
-#define GTCHZNPT_DIETARYSUPPLEMENT 13 // @v11.9.6 БАДы
-#define GTCHZNPT_BEER              14 // @v12.0.3 Пиво фасованное 
-#define GTCHZNPT_ANTISEPTIC        15 // @v12.0.5 Антисептик
-#define GTCHZNPT_MEDICALDEVICES    16 // @v12.1.2 Изделия медицинского назначения
-#define GTCHZNPT_SOFTDRINKS        17 // @v12.1.10 Соковая продукция и безалкогольные напитки
-#define GTCHZNPT_NONALCBEER        18 // @v12.2.6 Пиво безалкогольное
+#define GTCHZNPT_FUR                UED::GetRawValue32(UED_RUCHZNPRODTYPE_FUR)/*1*/
+#define GTCHZNPT_TOBACCO            UED::GetRawValue32(UED_RUCHZNPRODTYPE_TOBACCO)/*2*/
+#define GTCHZNPT_SHOE               UED::GetRawValue32(UED_RUCHZNPRODTYPE_SHOE)/*3*/
+#define GTCHZNPT_MEDICINE           UED::GetRawValue32(UED_RUCHZNPRODTYPE_MEDICINE)/*4*/
+#define GTCHZNPT_CARTIRE            UED::GetRawValue32(UED_RUCHZNPRODTYPE_CARTIRE)/*5*/ // Автомобильные шины
+#define GTCHZNPT_TEXTILE            UED::GetRawValue32(UED_RUCHZNPRODTYPE_TEXTILE)/*6*/ // Текстиль
+#define GTCHZNPT_PERFUMERY          UED::GetRawValue32(UED_RUCHZNPRODTYPE_PERFUMERY)/*7*/ // Парфюмерия
+#define GTCHZNPT_MILK               UED::GetRawValue32(UED_RUCHZNPRODTYPE_MILK)/*8*/ // Молоко
+#define GTCHZNPT_JEWELRY            UED::GetRawValue32(UED_RUCHZNPRODTYPE_JEWELRY)/*9*/ // @v11.4.9 Ювелирные изделия //
+#define GTCHZNPT_WATER              UED::GetRawValue32(UED_RUCHZNPRODTYPE_WATER)/*10*/ // @v11.5.4 Вода питьевая //
+#define GTCHZNPT_ALTTOBACCO         UED::GetRawValue32(UED_RUCHZNPRODTYPE_ALTTOBACCO)/*11*/ // @v11.9.0 Альтернативная табачная продукция. Марки очень похожи на табак, но есть нюансы в обработке.
+#define GTCHZNPT_DRAFTBEER          UED::GetRawValue32(UED_RUCHZNPRODTYPE_DRAFTBEER)/*12*/ // @v11.9.2 Пиво разливное
+#define GTCHZNPT_DRAFTBEER_AWR      UED::GetRawValue32(UED_RUCHZNPRODTYPE_DRAFTBEER_AWR)/*1012*/ // @v12.0.5 Пиво разливное. Специальная модификация, предполагающая автоматическое списание 
+#define GTCHZNPT_DIETARYSUPPLEMENT  UED::GetRawValue32(UED_RUCHZNPRODTYPE_DIETARYSUPPLEMENT)/*13*/ // @v11.9.6 БАДы
+#define GTCHZNPT_BEER               UED::GetRawValue32(UED_RUCHZNPRODTYPE_BEER)/*14*/ // @v12.0.3 Пиво фасованное 
+#define GTCHZNPT_ANTISEPTIC         UED::GetRawValue32(UED_RUCHZNPRODTYPE_ANTISEPTIC)/*15*/ // @v12.0.5 Антисептик
+#define GTCHZNPT_MEDICALDEVICES     UED::GetRawValue32(UED_RUCHZNPRODTYPE_MEDICALDEVICES)/*16*/ // @v12.1.2 Изделия медицинского назначения
+#define GTCHZNPT_SOFTDRINKS         UED::GetRawValue32(UED_RUCHZNPRODTYPE_SOFTDRINKS)/*17*/ // @v12.1.10 Соковая продукция и безалкогольные напитки
+#define GTCHZNPT_NONALCBEER         UED::GetRawValue32(UED_RUCHZNPRODTYPE_NONALCBEER)/*18*/ // @v12.2.6 Пиво безалкогольное
 
 struct PPGoodsType2 {      // @persistent @store(Reference2Tbl+)
 	PPGoodsType2();

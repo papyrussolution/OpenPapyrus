@@ -63,7 +63,6 @@ int  SimpleCpp_Test_Main2();
 static int PreprocessHFile()
 {
 	int    ok = 1;
-	simplecpp::DUI dui;
 	SString temp_buf;
 	SString dump_buf;
 	SFsPath ps(__FILE__);
@@ -72,6 +71,7 @@ static int PreprocessHFile()
 	ps.Ext = "h";
 	SString input_h_file_name;
 	ps.Merge(input_h_file_name);
+	simplecpp::DUI dui;
 	dui.includes.push_back(input_h_file_name.cptr());
 	ps.Merge(SFsPath::fDrv|SFsPath::fDir, temp_buf);
 	dui.includePaths.push_back(temp_buf.RmvLastSlash().cptr());
@@ -84,6 +84,26 @@ static int PreprocessHFile()
 	dui.defines.push_back("_WIN32");
 	dui.defines.push_back("_M_IX86");
 	SString code_buf;
+	{
+		simplecpp::PreprocessBlock pblk;
+		pblk.Flags |= (simplecpp::PreprocessBlock::fOutputTokenList|simplecpp::PreprocessBlock::fMsgList);
+		simplecpp::TokenList base_src_token_list = pblk.MakeSourceTokenList("#include <ppdefs.h>\n", "test_buf.h");
+		simplecpp::Preprocess(pblk, dui, base_src_token_list);
+		std::string dump = pblk.OutputTokenList.stringify();
+		dump_buf.Z().CatN(dump.data(), dump.length());
+
+		//"CTL_CSPANEL_CSESSCLOSE"
+		{
+			simplecpp::TokenList src_token_list = pblk.MakeSourceTokenList("CTL_CSPANEL_CSESSCLOSE", "test_buf.h");
+			const simplecpp::Token * tmp = src_token_list.cfront();
+			simplecpp::TokenList result_token_list(pblk.FileList);
+			if(pblk.PreprocessToken(result_token_list, &tmp)) {
+				result_token_list.constFold();
+				dump = result_token_list.stringify();
+				dump_buf.Z().CatN(dump.data(), dump.length());
+			}
+		}
+	}
 	simplecpp::OutputList output_list;
 	/*
 	static simplecpp::TokenList makeTokenList(const char code[], std::size_t size, std::vector<std::string> &filenames, const std::string &filename = std::string(), simplecpp::OutputList * outputList = nullptr)
@@ -2009,13 +2029,13 @@ int DoConstructionTest()
 #endif // } 0
 	//Test_Cristal2SetRetailGateway();
 	//TestTddo();
-	PreprocessHFile();
-	//Test_ExecuteDialogByDl600Description();
+	//PreprocessHFile();
+	//SentencePieceExperiments();
+	Test_ExecuteDialogByDl600Description();
 	//Test_CsvSniffer();
 	//TestTransferFileToFtp();
 	//VkInterface::Test();
 	//Test_LayoutedListDialog();
-	//SentencePieceExperiments();
 	//TestGtinStruc();
 	//PPChZnPrcssr::Test();
 	//GumboTest();

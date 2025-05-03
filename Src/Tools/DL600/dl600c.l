@@ -1,6 +1,6 @@
 /*
 	DL600C.L
-	Copyright (c) A.Sobolev 2006, 2007, 2008, 2010, 2011, 2016, 2020, 2021, 2023
+	Copyright (c) A.Sobolev 2006, 2007, 2008, 2010, 2011, 2016, 2020, 2021, 2023, 2025
 	Part of project Papyrus
 	Lexer of DL600 language
 */
@@ -89,6 +89,7 @@ UUID        {HEXDIGIT}+\-{HEXDIGIT}+\-{HEXDIGIT}+\-{HEXDIGIT}+\-{HEXDIGIT}+
 "}"               { yybrak--; return T_RBR; }
 "IMPORT"          BEGIN(incl);
 "import"          BEGIN(incl);
+"cinclude"        { return TOKEN.Create(T_CINCLIDE);  } // @v12.3.3
 "data"            { return TOKEN.Create(T_EXPORTSTR); }
 "interface"       { return TOKEN.Create(T_INTERFACE); }
 "struct"          { return TOKEN.Create(T_ISTRUCT);   }

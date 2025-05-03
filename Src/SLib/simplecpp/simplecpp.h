@@ -81,7 +81,7 @@ namespace simplecpp {
 				return line < rhs.line;
 			return col < rhs.col;
 		}
-		bool sameline(const Location &other) const { return fileIndex == other.fileIndex && line == other.line; }
+		bool sameline(const Location & other) const { return fileIndex == other.fileIndex && line == other.line; }
 		const std::string& file() const { return fileIndex < files.size() ? files[fileIndex] : emptyFileName; }
 
 		const std::vector<std::string> &files;
@@ -181,13 +181,21 @@ namespace simplecpp {
 		class Stream;
 
 		explicit TokenList(std::vector<std::string> &filenames);
-		/** generates a token list from the given std::istream parameter */
+		//
+		// Descr: Generates a token list from the given std::istream parameter
+		//
 		TokenList(std::istream &istr, std::vector<std::string> &filenames, const std::string &filename = std::string(), OutputList * outputList = nullptr);
-		/** generates a token list from the given buffer */
+		//
+		// Descr: generates a token list from the given buffer
+		//
 		TokenList(const uchar * data, std::size_t size, std::vector<std::string> &filenames, const std::string &filename = std::string(), OutputList * outputList = nullptr);
-		/** generates a token list from the given buffer */
+		//
+		// Descr: generates a token list from the given buffer
+		//
 		TokenList(const char* data, std::size_t size, std::vector<std::string> &filenames, const std::string &filename = std::string(), OutputList * outputList = nullptr);
-		/** generates a token list from the given filename parameter */
+		//
+		// Descr: generates a token list from the given filename parameter
+		//
 		TokenList(const std::string &filename, std::vector<std::string> &filenames, OutputList * outputList = nullptr);
 		TokenList(const TokenList &other);
 	#if __cplusplus >= 201103L
@@ -237,8 +245,125 @@ namespace simplecpp {
 		Token * backToken;
 		std::vector<std::string> & files;
 	};
+	//
+	//
+	//
+	class Macro;
+	
+	#if __cplusplus >= 201103L
+		using MacroMap = std::unordered_map<TokenString, Macro>;
+	#else
+		typedef std::map<TokenString, Macro> MacroMap;
+	#endif
 
-	/** Tracking how macros are used */
+	class Macro {
+	public:
+		explicit Macro(std::vector<std::string> &f);
+		Macro(const Token * tok, std::vector<std::string> &f);
+		Macro(const std::string &name, const std::string &value, std::vector<std::string> &f);
+		Macro(const Macro & other);
+		Macro & operator = (const Macro &other);
+		bool valueDefinedInCode() const { return valueDefinedInCode_; }
+		/**
+		 * Expand macro. This will recursively expand inner macros.
+		 * @param output     destination tokenlist
+		 * @param rawtok     macro token
+		 * @param macros     list of macros
+		 * @param inputFiles the input files
+		 * @return token after macro
+		 * @throw Can throw wrongNumberOfParameters or invalidHashHash
+		 */
+		const Token * expand(TokenList * const pOutputList, const Token * pRawTok, const MacroMap & macros, std::vector<std::string> & rInputFiles) const;
+		/** macro name */
+		const TokenString & name() const { return nameTokDef->str(); }
+		/** location for macro definition */
+		const Location & defineLocation() const { return nameTokDef->location; }
+		/** how has this macro been used so far */
+		const std::list<Location> & usage() const { return usageList; }
+		/** is this a function like macro */
+		bool functionLike() const;
+		//
+		// Descr: base class for errors
+		//
+		struct Error {
+			Error(const Location &loc, const std::string &s) : location(loc), what(s) 
+			{
+			}
+			const Location location;
+			const std::string what;
+		};
+		//
+		// Descr: Struct that is thrown when macro is expanded with wrong number of parameters
+		//
+		struct wrongNumberOfParameters : public Error {
+			wrongNumberOfParameters(const Location &loc, const std::string &macroName);
+		};
+		//
+		// Descr: Struct that is thrown when there is invalid ## usage 
+		//
+		struct invalidHashHash : public Error {
+			static std::string format(const std::string &macroName, const std::string &message);
+			invalidHashHash(const Location &loc, const std::string &macroName, const std::string &message);
+			static invalidHashHash unexpectedToken(const Location &loc, const std::string &macroName, const Token * tokenA);
+			static invalidHashHash cannotCombine(const Location &loc, const std::string &macroName, const Token * tokenA, const Token * tokenB);
+			static invalidHashHash unexpectedNewline(const Location &loc, const std::string &macroName);
+			static invalidHashHash universalCharacterUB(const Location &loc, const std::string &macroName, const Token* tokenA, const std::string& strAB);
+		};
+	private:
+		/** Create new token where Token::macro is set for replaced tokens */
+		Token * newMacroToken(const TokenString &str, const Location &loc, bool replaced, const Token * expandedFromToken = nullptr) const;
+		bool parseDefine(const Token * nametoken);
+		uint getArgNum(const TokenString &str) const;
+		std::vector<const Token *> getMacroParameters(const Token * nameTokInst, bool calledInDefine) const;
+		const Token * appendTokens(TokenList * tokens, const Location &rawloc, const Token * const lpar, const MacroMap &macros,
+			const std::set<TokenString> &expandedmacros, const std::vector<const Token*> &parametertokens) const;
+		const Token * expand(TokenList * const output, const Location &loc, const Token * const nameTokInst, const MacroMap &macros, std::set<TokenString> expandedmacros) const;
+		const Token * recursiveExpandToken(TokenList * output, TokenList &temp, const Location &loc, const Token * tok,
+			const MacroMap &macros, const std::set<TokenString> &expandedmacros, const std::vector<const Token*> &parametertokens) const;
+		const Token * expandToken(TokenList * output, const Location &loc, const Token * tok, const MacroMap &macros, const std::set<TokenString> &expandedmacros,
+			const std::vector<const Token*> &parametertokens) const;
+		bool expandArg(TokenList * output, const Token * tok, const std::vector<const Token*> &parametertokens) const;
+		bool expandArg(TokenList * output, const Token * tok, const Location &loc, const MacroMap &macros, const std::set<TokenString> &expandedmacros, const std::vector<const Token*> &parametertokens) const;
+		/**
+		 * Expand #X => "X"
+		 * @param output  destination tokenlist
+		 * @param loc     location for expanded token
+		 * @param tok     The # token
+		 * @param expandedmacros   set with expanded macros, with this macro
+		 * @param parametertokens  parameters given when expanding this macro
+		 * @return token after the X
+		 */
+		const Token * expandHash(TokenList * output, const Location &loc, const Token * tok, const std::set<TokenString> &expandedmacros,
+			const std::vector<const Token*> &parametertokens) const;
+		/**
+		 * Expand A##B => AB
+		 * The A should already be expanded. Call this when you reach the first # token
+		 * @param output  destination tokenlist
+		 * @param loc     location for expanded token
+		 * @param tok     first # token
+		 * @param macros  all macros
+		 * @param expandedmacros   set with expanded macros, with this macro
+		 * @param parametertokens  parameters given when expanding this macro
+		 * @param expandResult     expand ## result i.e. "AB"?
+		 * @return token after B
+		 */
+		const Token * expandHashHash(TokenList * output, const Location &loc, const Token * tok, const MacroMap &macros,
+			const std::set<TokenString> &expandedmacros, const std::vector<const Token*> &parametertokens, bool expandResult = true) const;
+		static bool isReplaced(const std::set<std::string> & expandedmacros);
+
+		const Token * nameTokDef; /** name token in definition */
+		std::vector<TokenString> args; /** arguments for macro */
+		const Token * valueToken; /** first token in replacement string */
+		const Token * endToken; /** token after replacement string */
+		std::vector<std::string> &files; /** files */
+		TokenList tokenListDefine; /** this is used for -D where the definition is not seen anywhere in code */
+		mutable std::list<Location> usageList; /** usage of this macro */
+		bool variadic; /** is macro variadic? */
+		bool valueDefinedInCode_; /** was the value of this macro actually defined in the code? */
+	};
+	//
+	// Descr: Tracking how macros are used
+	//
 	struct MacroUsage {
 		explicit MacroUsage(const std::vector<std::string> &f, bool macroValueKnown_) : macroLocation(f), useLocation(f), macroValueKnown(macroValueKnown_) 
 		{
@@ -248,8 +373,9 @@ namespace simplecpp {
 		Location useLocation;
 		bool macroValueKnown;
 	};
-
-	/** Tracking #if/#elif expressions */
+	//
+	// Descr: Tracking #if/#elif expressions 
+	//
 	struct IfCond {
 		explicit IfCond(const Location& location, const std::string &E, int64 result) : location(location), E(E), result(result) 
 		{
@@ -258,10 +384,10 @@ namespace simplecpp {
 		std::string E; // preprocessed condition
 		int64 result; // condition result
 	};
-	/**
-	 * Command line preprocessor settings.
-	 * On the command line these are configured by -D, -U, -I, --include, -std
-	 */
+	// 
+	// Descr: Command line preprocessor settings.
+	//   On the command line these are configured by -D, -U, -I, --include, -std
+	// 
 	struct DUI {
 		DUI() : clearIncludeCache(false), removeComments(false) 
 		{
@@ -296,6 +422,7 @@ namespace simplecpp {
 	struct PreprocessBlock {
 		PreprocessBlock();
 		TokenList MakeSourceTokenList(const char * pSrcBuf, const char * pSrcName);
+		bool   PreprocessToken(TokenList & rOutputTokenList, const Token ** ppTok1);
 
 		enum {
 			fOutputTokenList = 0x0001,
@@ -308,15 +435,18 @@ namespace simplecpp {
 		std::map <std::string, TokenList *> FileData;
 		TokenList  OutputTokenList;
 		OutputList MsgList;
+		simplecpp::MacroMap MacroList;
 		std::list <MacroUsage> MacroUsageList;
 		std::list <IfCond> IfCondList;
 	};
-	void   ImplementPreprocess(PreprocessBlock & rBlk, const DUI & rDui, const TokenList & rSrcTokenList);
-	/**
-	 * Deallocate data
-	 */
+	int    Preprocess(PreprocessBlock & rBlk, const DUI & rDui, const TokenList & rSrcTokenList);
+	//
+	// Descr: Deallocate data
+	//
 	void cleanup(std::map<std::string, TokenList*> &filedata);
-	/** Simplify path */
+	//
+	// Descr: Simplify path 
+	//
 	std::string simplifyPath(std::string path);
 	/** Convert Cygwin path to Windows path */
 	std::string convertCygwinToWindowsPath(const std::string &cygwinPath);
