@@ -635,8 +635,7 @@ label:                                                        \
 // #include <string.h>
 // main()
 // {
-//   static const char Base64[] =
-//     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+//   static const char Base64[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 //   char* pos;
 //   int idx, i, j;
 //   printf("    ");

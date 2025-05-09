@@ -593,12 +593,9 @@ void WordStyleDlg::switchToTheme()
 		wcscpy_s(themeFileName, prevThemeName.c_str());
 		PathStripPath(themeFileName);
 		PathRemoveExtension(themeFileName);
-		int mb_response =
-		    ::MessageBox(_hSelf,
-			TEXT(" Unsaved changes are about to be discarded!\n")
+		int mb_response = ::MessageBox(_hSelf, TEXT(" Unsaved changes are about to be discarded!\n")
 			TEXT(" Do you want to save your changes before switching themes?"),
-			themeFileName,
-			MB_ICONWARNING | MB_YESNO | MB_APPLMODAL | MB_SETFOREGROUND);
+			themeFileName, MB_ICONWARNING | MB_YESNO | MB_APPLMODAL | MB_SETFOREGROUND);
 		if(mb_response == IDYES)
 			(NppParameters::getInstance()).writeStyles(_lsArray, _globalStyles);
 	}

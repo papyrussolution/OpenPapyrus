@@ -457,7 +457,7 @@ struct ExtParams_Before24 {
 		long id = 1;
 		StrAssocArray flag_list;
 		#define __ADD_FLAG(f) if(Flags & f) flag_list.Add(id++, STRINGIZE(f));
-		__ADD_FLAG(fWoBrand); // @v10.6.8
+		__ADD_FLAG(fWoBrand);
 		__ADD_FLAG(fIntUnitOnly);
 		__ADD_FLAG(fFloatUnitOnly);
 		__ADD_FLAG(fNegation);
@@ -471,7 +471,7 @@ struct ExtParams_Before24 {
 		__ADD_FLAG(fShowCargo);
 		__ADD_FLAG(fHidePassive);
 		__ADD_FLAG(fPassiveOnly);
-		__ADD_FLAG(fHideGeneric); // @v10.7.7
+		__ADD_FLAG(fHideGeneric);
 		__ADD_FLAG(fGenGoodsOnly);
 		__ADD_FLAG(fWOTaxGdsOnly);
 		__ADD_FLAG(fNoZeroRestOnLotPeriod);
@@ -541,7 +541,6 @@ bool GoodsFilt::IsEmpty() const
 {
 	const long nemp_fl = (fWithStrucOnly|fIntUnitOnly|fFloatUnitOnly|fHidePassive|
 		fPassiveOnly|fHideGeneric|fGenGoodsOnly|fWOTaxGdsOnly|fNoDisOnly|fRestrictByMatrix|fOutOfMatrix|fActualOnly|fHasImages|fUseIndepWtOnly|fWoBrand);
-		// @v10.6.8 fWoBrand // @v10.7.7 fHideGeneric
 	// Setup();
 	/*
 	return !(GrpID || ManufID || UnitID || SupplID || GoodsTypeID || BrandID || PhUnitID ||
@@ -1245,8 +1244,7 @@ int PPViewGoods::CellStyleFunc_(const void * pData, long col, int paintAction, B
 void PPViewGoods::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	if(!GObj.CheckFlag(Filt.GrpID, GF_DYNAMICALTGRP) && PPObjGoodsGroup::IsAlt(Filt.GrpID) > 0 && !(Filt.Flags & GoodsFilt::fNegation)) {
-		// @v10.6.4 pBrw->InsColumnWord(-1, PPWORD_PLU, 17, 0, MKSFMTD(0, 0, NMBF_NOZERO), 0);
-		pBrw->InsColumn(-1, "@plu", 18, 0, MKSFMTD(0, 0, NMBF_NOZERO), 0); // @v10.6.4 // @v11.5.8 17-->18
+		pBrw->InsColumn(-1, "@plu", 18, 0, MKSFMTD(0, 0, NMBF_NOZERO), 0); // @v11.5.8 17-->18
 	}
 	if(Filt.Flags & GoodsFilt::fShowBarcode) {
 		pBrw->InsColumn(-1, "@barcode", 7, 0, 0, 0);
@@ -1548,16 +1546,13 @@ DBQuery * PPViewGoods::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 				dbq = & (*dbq && g->TaxGrpID == Filt.TaxGrpID);
 		}
 		dbq = ppcheckflag(dbq, g->Flags, GF_PASSIV,  (Filt.Flags & GoodsFilt::fHidePassive) ? -1 : BIN(Filt.Flags & GoodsFilt::fPassiveOnly));
-		dbq = ppcheckflag(dbq, g->Flags, GF_GENERIC, (Filt.Flags & GoodsFilt::fHideGeneric) ? -1 : BIN(Filt.Flags & GoodsFilt::fGenGoodsOnly)); // @v10.7.7
-		// @v10.7.7 dbq = ppcheckflag(dbq, g->Flags, GF_GENERIC,      BIN(Filt.Flags & GoodsFilt::fGenGoodsOnly));
+		dbq = ppcheckflag(dbq, g->Flags, GF_GENERIC, (Filt.Flags & GoodsFilt::fHideGeneric) ? -1 : BIN(Filt.Flags & GoodsFilt::fGenGoodsOnly));
 		dbq = ppcheckflag(dbq, g->Flags, GF_PRICEWOTAXES, BIN(Filt.Flags & GoodsFilt::fWOTaxGdsOnly));
 		dbq = ppcheckflag(dbq, g->Flags, GF_NODISCOUNT,   BIN(Filt.Flags & GoodsFilt::fNoDisOnly));
 		dbq = ppcheckflag(dbq, g->Flags, GF_HASIMAGES,    BIN(Filt.Flags & GoodsFilt::fHasImages));
 		dbq = ppcheckflag(dbq, g->Flags, GF_USEINDEPWT,   BIN(Filt.Flags & GoodsFilt::fUseIndepWtOnly));
-		// @v10.6.8 {
 		if(Filt.Flags & GoodsFilt::fWoBrand)
 			dbq = &(*dbq && g->BrandID == 0L);
-		// } @v10.6.8
 		if(Filt.ManufID && grp_id >= 0)
 			dbq = & (*dbq && g->ManufID == Filt.ManufID);
 		if(p_bc_t)
@@ -1775,7 +1770,7 @@ bool PPViewGoods::IsTempTblNeeded()
 			else {
 				if(Filt.BarcodeLen.NotEmpty())
 					return true;
-				if(Filt.ManufID) // @v10.6.8
+				if(Filt.ManufID)
 					return true;
 				if(Filt.ManufCountryID)
 					return true;
@@ -2043,7 +2038,7 @@ int PPViewGoods::RemoveAll()
 			AddClusterAssoc(CTL_REMOVEALL_WHAT, 7, GoodsMoveParam::aChgMinStock);
 			AddClusterAssoc(CTL_REMOVEALL_WHAT, 8, GoodsMoveParam::aSplitBarcodeItems);
 			AddClusterAssoc(CTL_REMOVEALL_WHAT, 9, GoodsMoveParam::aMergeDiezNames);
-			AddClusterAssoc(CTL_REMOVEALL_WHAT, 10, GoodsMoveParam::aAssignCodeByTemplate); // @v10.7.6
+			AddClusterAssoc(CTL_REMOVEALL_WHAT, 10, GoodsMoveParam::aAssignCodeByTemplate);
 			AddClusterAssoc(CTL_REMOVEALL_WHAT, 11, GoodsMoveParam::aSetAlcoCategory); // @v11.3.8
 			SetClusterData(CTL_REMOVEALL_WHAT, Data.Action);
 			AddClusterAssoc(CTL_REMOVEALL_FLAGS, 0, GoodsMoveParam::fRemoveExtTextA);
@@ -2119,7 +2114,7 @@ int PPViewGoods::RemoveAll()
 						}
 					}
 					break;
-				case GoodsMoveParam::aAssignCodeByTemplate: // @v10.7.6
+				case GoodsMoveParam::aAssignCodeByTemplate:
 					getCtrlData(sel = CTLSEL_REMOVEALL_GRP, &Data.DestGrpID);
 					THROW_PP(Data.DestGrpID, PPERR_BARCODESTRUCNEEDED);
 					break;
@@ -2182,13 +2177,13 @@ int PPViewGoods::RemoveAll()
 						p_title_meta = "goods_type";
 						SetupPPObjCombo(this, CTLSEL_REMOVEALL_GRP, PPOBJ_GOODSTYPE, Data.DestGrpID, 0, 0);
 						break;
-					case GoodsMoveParam::aAssignCodeByTemplate: // @v10.7.6
+					case GoodsMoveParam::aAssignCodeByTemplate:
 						p_title_meta = "barcodestruc";
 						SetupPPObjCombo(this, CTLSEL_REMOVEALL_GRP, PPOBJ_BCODESTRUC, Data.DestGrpID, 0, 0);
 						break;
 					case GoodsMoveParam::aSetAlcoCategory: // @v11.3.8
 						break;
-					default: // @v10.7.6
+					default:
 						disable_grp_combo = 1;
 						break;
 				}
@@ -2366,12 +2361,12 @@ int PPViewGoods::RemoveAll()
 				IterCounter cntr;
 				for(InitIteration(OrdByDefault); NextIteration(&item) > 0;) {
 					if(GmParam.Clssfr.GoodsClsID == item.GdsClsID || item.GdsClsID == 0)
-						id_list.add(item.ID); // @v10.7.6 addUnique-->add
+						id_list.add(item.ID);
 					else
 						skip_count++;
 					PPWaitPercent(GetCounter());
 				}
-				id_list.sortAndUndup(); // @v10.7.6
+				id_list.sortAndUndup();
 				cntr.Init(id_list.getCount());
 				for(uint i = 0; i < id_list.getCount(); i++) {
 					PPID goods_id = id_list.get(i);
@@ -2422,9 +2417,9 @@ int PPViewGoods::RemoveAll()
 			PPID   assc_type = 0;
 			PPID   assc_owner_id = 0;
 			for(InitIteration(OrdByDefault); NextIteration(&item) > 0;)
-				id_list.add(item.ID); // @v10.7.6 addUnique-->add
+				id_list.add(item.ID);
 			if(id_list.getCount()) {
-				id_list.sortAndUndup(); // @v10.7.6
+				id_list.sortAndUndup();
 				ObjCollection oc;
 				oc.CreateFullList(gotlfExcludeDyn|gotlfExcludeObjBill|gotlfExcludeObsolete);
 				PPTransaction tra(1);
@@ -2471,7 +2466,7 @@ int PPViewGoods::RemoveAll()
 					ok = 1;
 			}
 		}
-		else if(GmParam.Action == GoodsMoveParam::aAssignCodeByTemplate) { // @v10.7.6
+		else if(GmParam.Action == GoodsMoveParam::aAssignCodeByTemplate) {
 			if(GmParam.DestGrpID) {
 				PPObjBarCodeStruc bcs_obj;
 				PPBarcodeStruc bcs_rec;
@@ -2999,7 +2994,7 @@ struct GoodsRecoverParam {
 	enum {
 		fCorrect              = 0x0001, // Исправлять ошибки
 		fCheckAlcoAttribs     = 0x0002, // Проверять алкогольные атрибуты
-		fBarcode              = 0x0004, // @v10.8.5 Проверять валидность штрихкодов. Если fCorrect, то добавлять или исправлять контрольную цифру
+		fBarcode              = 0x0004, // Проверять валидность штрихкодов. Если fCorrect, то добавлять или исправлять контрольную цифру
 		fCreateTechIfPossible = 0x0008, // @v11.3.2 Если для товара может быть создана технология (по существующей автотехнологии и по параметрам группы, то создавать)
 		fArCodeOutrInrFault   = 0x0010  // @v11.6.3 Специфическая проблема ошибки в кодировке кодов по статьям, возникшая из-за старого дефекта в функции импорта документов
 	};
@@ -3222,13 +3217,12 @@ int PPViewGoods::Repair(PPID /*id*/)
 								if(!oneof2(temp_buf.Len(), 3, 19) && !GObj.GetConfig().IsWghtPrefix(temp_buf)) {
 									int    diag = 0, std = 0;
 									int    r = PPObjGoods::DiagBarcode(temp_buf, &diag, &std, &valid_code);
-									if(r <= 0) { // @v10.8.5 (r == 0)-->(r <= 0)
+									if(r <= 0) {
 										PPObjGoods::GetBarcodeDiagText(diag, fmt_buf);
 										PPBarcode::GetStdName(std, temp_buf);
 										(msg_buf = pack.Rec.Name).CatDiv(':', 2).Cat(temp_buf).
 											Cat(pack.Codes.at(i).Code).Space().Cat("->").Space().Cat(valid_code).CatDiv('-', 1).Cat(fmt_buf);
 										logger.Log(msg_buf);
-										// @v10.8.5 {
 										if(param.Flags & GoodsRecoverParam::fCorrect) {
 											if(diag == PPObjGoods::cddInvCheckDigEan13) {
 												STRNSCPY(pack.Codes.at(i).Code, valid_code);
@@ -3241,7 +3235,6 @@ int PPViewGoods::Repair(PPID /*id*/)
 												}
 											}
 										}
-										// } @v10.8.5
 									}
 								}
 							}
@@ -3485,12 +3478,12 @@ int PPViewGoods::UpdateFlags()
 	dlg->AddClusterAssoc(CTL_UPDGOODSFLAGS_SET, 0, GF_NODISCOUNT);
 	dlg->AddClusterAssoc(CTL_UPDGOODSFLAGS_SET, 1, GF_PASSIV);
 	dlg->AddClusterAssoc(CTL_UPDGOODSFLAGS_SET, 2, GF_PRICEWOTAXES);
-	dlg->AddClusterAssoc(CTL_UPDGOODSFLAGS_SET, 3, GF_WANTVETISCERT); // @v10.1.12
+	dlg->AddClusterAssoc(CTL_UPDGOODSFLAGS_SET, 3, GF_WANTVETISCERT);
 	dlg->SetClusterData(CTL_UPDGOODSFLAGS_SET, setf);
 	dlg->AddClusterAssoc(CTL_UPDGOODSFLAGS_RESET, 0, GF_NODISCOUNT);
 	dlg->AddClusterAssoc(CTL_UPDGOODSFLAGS_RESET, 1, GF_PASSIV);
 	dlg->AddClusterAssoc(CTL_UPDGOODSFLAGS_RESET, 2, GF_PRICEWOTAXES);
-	dlg->AddClusterAssoc(CTL_UPDGOODSFLAGS_RESET, 3, GF_WANTVETISCERT); // @v10.1.12
+	dlg->AddClusterAssoc(CTL_UPDGOODSFLAGS_RESET, 3, GF_WANTVETISCERT);
 	dlg->SetClusterData(CTL_UPDGOODSFLAGS_RESET, resetf);
 	if(ExecView(dlg) == cmOK) {
 		setf = resetf = 0;
@@ -3684,11 +3677,11 @@ int PPViewGoods::ExportUhtt()
 					templated_code_pos_list.clear();
 					THROW(GObj.Search(goods_id, &goods_rec) > 0);
 					GObj.ReadBarcodes(goods_id, bc_list);
-					// @v10.0.0 Убираем из списка кодов коды алкогольной продукции ЕГАИС {
+					// Убираем из списка кодов коды алкогольной продукции ЕГАИС {
 					{
 						uint bcidx = bc_list.getCount();
 						if(bcidx) do {
-							const BarcodeTbl::Rec & r_bc_rec = bc_list.at(--bcidx); // @v10.0.02 @fix --i-->--bcidx
+							const BarcodeTbl::Rec & r_bc_rec = bc_list.at(--bcidx);
 							if(sstrlen(r_bc_rec.Code) == 19)
 								bc_list.atFree(bcidx);
 							else {
@@ -3707,8 +3700,8 @@ int PPViewGoods::ExportUhtt()
 							templated_code_pos_list.reverse(0, templated_code_pos_list.getCount());
 						}
 					}
-					// } @v10.0.0
-					if(bc_list.getCount()) { // @v10.0.0
+					// }
+					if(bc_list.getCount()) {
 						uhtt_id_list.clear();
 						ref_list.GetListByKey(goods_id, uhtt_id_list);
 						for(uint j = 0; j < uhtt_id_list.getCount(); j++) {
@@ -3779,7 +3772,7 @@ int PPViewGoods::ExportUhtt()
 										if(!uhtt_goods_id || is_private_code) {
 											assert(m < bc_list.getCount());
 											assert(private_code_pos < bc_list.getCount());
-											if(!is_private_code && templated_code_pos_list.getCount()) // @v10.7.6
+											if(!is_private_code && templated_code_pos_list.getCount())
 												m = templated_code_pos_list.get(0);
 											else
 												m = private_code_pos;
@@ -3794,22 +3787,11 @@ int PPViewGoods::ExportUhtt()
 										new_pack.ManufID = uhtt_manuf_id;
 										if(param.CategoryObject == PPObjGoods::ExportToGlbSvcParam::coTag) {
 											if(param.CategoryTagID) {
-												// @v10.7.9 {
 												{
 													UhttTagItem * p_new_item = uc.GetUhttTagText(PPOBJ_GOODS, goods_rec.ID, param.CategoryTagID, "OuterGroup");
 													if(p_new_item)
 														THROW_SL(new_pack.TagList.insert(p_new_item));
 												}
-												// } @v10.7.9
-												/* @v10.7.9 ObjTagItem tag_item;
-												if(p_ref->Ot.GetTag(PPOBJ_GOODS, goods_rec.ID, param.CategoryTagID, &tag_item) > 0) {
-													tag_item.GetStr(temp_buf);
-													if(temp_buf.NotEmptyS()) {
-														UhttTagItem * p_new_item = new UhttTagItem("OuterGroup", temp_buf);
-														THROW_MEM(p_new_item);
-														THROW_SL(new_pack.TagList.insert(p_new_item));
-													}
-												}*/
 											}
 										}
 										else if(param.CategoryObject == PPObjGoods::ExportToGlbSvcParam::coGoodsGrpName) {
@@ -4857,12 +4839,10 @@ void PPALDD_GoodsGroup::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmSta
 		}
 		_RET_LONG = sur_id;
 	}
-	// @v10.2.0 {
 	else if(pF->Name == "?GetFullName") {
 		PPObjGoods goods_obj;
 		goods_obj.P_Tbl->MakeFullName(H.ID, 0, _RET_STR);
 	}
-	// } @v10.2.0
 }
 //
 // Implementation of PPALDD_Goods
@@ -5008,13 +4988,11 @@ void PPALDD_Goods::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & 
 					sum_rest += rest;
 					sum_cost += rest * r_lot_rec.Cost;
 				}
-				// @v10.4.0 {
 				else {
 					const double qtty = fabs(r_lot_rec.Quantity);
 					sum_rest += qtty;
 					sum_cost += qtty * r_lot_rec.Cost;
 				}
-				// } @v10.4.0
 			}
 		}
 		_RET_DBL = (sum_rest > 0.0) ? (sum_cost / sum_rest) : 0.0;

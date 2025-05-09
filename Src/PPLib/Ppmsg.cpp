@@ -614,7 +614,7 @@ int PPOutputMessage(const char * pMsg, uint options)
 	if(DS.IsThreadInteractive()) {
 		if(SLS.CheckUiFlag(sluifUseLargeDialogs))
 			options |= mfLargeBox;
-		return messageBox(pMsg, options);
+		return SMessageBox(pMsg, options);
 	}
 	else {
 		if((options & mfConf) != mfConf)

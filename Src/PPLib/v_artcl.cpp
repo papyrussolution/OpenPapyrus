@@ -304,7 +304,7 @@ int PPViewArticle::Init_(const PPBaseFilt * pBaseFilt)
 								THROW_DB(P_TempTbl->updateRecBuf(&rec));
 							}
 							else {
-								MEMSZERO(rec);
+								rec.Clear();
 								rec.ArID = ar_rec.ID;
 								msg.CopyTo(rec.Msg, sizeof(rec.Msg));
 								THROW_DB(P_TempTbl->insertRecBuf(&rec));

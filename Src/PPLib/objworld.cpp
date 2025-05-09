@@ -37,14 +37,14 @@ int PPObjWorldObjStatus::Edit(PPID * pID, void * extraPtr)
 {
 	int    ok = cmCancel;
 	int    valid_data = 0;
-	PPWorldObjStatus rec;
+	PPWorldObjStatus2 rec;
 	TDialog * dlg = new TDialog(DLG_WOBJSTATUS);
 	THROW(CheckDialogPtr(&dlg));
 	if(*pID) {
 		THROW(Search(*pID, &rec) > 0);
 	}
 	else {
-		MEMSZERO(rec);
+		// @v12.3.3 @ctr MEMSZERO(rec);
 		rec.Kind = WORLDOBJ_CITY;
 	}
 	dlg->setCtrlData(CTL_WOBJSTATUS_NAME, rec.Name);
@@ -92,7 +92,7 @@ int PPObjWorldObjStatus::AddSimple(PPID * pID, const char * pName, const char * 
 	int    ok = -1;
 	long   h = -1;
 	PPID   id = 0;
-	PPWorldObjStatus rec;
+	PPWorldObjStatus2 rec;
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
@@ -2114,6 +2114,10 @@ public:
 	int Import(const char * pPath);
 
 	struct Country {
+		Country()
+		{
+			THISZERO();
+		}
 		uint32 Id;
 		PPID   PapyrusID;
 		uint   NameRuPos;
@@ -2121,6 +2125,10 @@ public:
 		char   Code2[4];
 	};
 	struct City {
+		City()
+		{
+			THISZERO();
+		}
 		uint32 Id;
 		PPID   PapyrusID;
 		uint32 CountryId;
@@ -2132,6 +2140,9 @@ public:
 		double Longitude;
 	};
 	struct IpRange {
+		IpRange() : ObjId(0), V4Low(0), V4Upp(0)
+		{
+		}
 		uint32 ObjId;
 		uint32 V4Low;
 		uint32 V4Upp;
@@ -2147,7 +2158,10 @@ public:
 int GeoCityImportBlock::Import(const char * pPath)
 {
 	int    ok = 1;
-	SString file_name, line_buf, fld_buf, name_buf;
+	SString file_name;
+	SString line_buf;
+	SString fld_buf;
+	SString name_buf;
 	StringSet ss("\t");
 	{
 		//
@@ -2160,21 +2174,13 @@ int GeoCityImportBlock::Import(const char * pPath)
 			GeoCityImportBlock::Country rec;
 			ss.setBuf(line_buf, line_buf.Len()+1);
 			uint ss_pos = 0;
-			MEMSZERO(rec);
+			// @v12.3.3 @ctr MEMSZERO(rec);
 			for(uint ss_pos = 0, fld_no = 0; ss.get(&ss_pos, fld_buf); fld_no++) {
 				switch(fld_no) {
-					case 0:
-						rec.Id = fld_buf.ToLong();
-						break;
-					case 1:
-						AddString(fld_buf.Strip(), &rec.NameRuPos);
-						break;
-					case 2:
-						AddString(fld_buf.Strip(), &rec.NameEnPos);
-						break;
-					case 3:
-						fld_buf.CopyTo(rec.Code2, sizeof(rec.Code2));
-						break;
+					case 0: rec.Id = fld_buf.ToLong(); break;
+					case 1: AddString(fld_buf.Strip(), &rec.NameRuPos); break;
+					case 2: AddString(fld_buf.Strip(), &rec.NameEnPos); break;
+					case 3: fld_buf.CopyTo(rec.Code2, sizeof(rec.Code2)); break;
 				}
 			}
 			if(rec.Id && (rec.NameRuPos || rec.NameEnPos))
@@ -2193,7 +2199,7 @@ int GeoCityImportBlock::Import(const char * pPath)
 			GeoCityImportBlock::City rec;
 			ss.setBuf(line_buf, line_buf.Len()+1);
 			uint ss_pos = 0;
-			MEMSZERO(rec);
+			// @v12.3.3 @ctr MEMSZERO(rec);
 			for(uint ss_pos = 0, fld_no = 0; ss.get(&ss_pos, fld_buf); fld_no++) {
 				switch(fld_no) {
 					case 0: rec.Id = fld_buf.ToLong(); break;
@@ -2294,23 +2300,12 @@ int GeoCityImportBlock::Import(const char * pPath)
 				GeoCityImportBlock::IpRange rec;
 				ss.setBuf(line_buf, line_buf.Len()+1);
 				uint ss_pos = 0;
-				MEMSZERO(rec);
+				// @v12.3.3 @ctr MEMSZERO(rec);
 				for(uint ss_pos = 0, fld_no = 0; ss.get(&ss_pos, fld_buf); fld_no++) {
-					struct IpRange {
-						uint32 ObjId;
-						uint32 V4Low;
-						uint32 V4Upp;
-					};
 					switch(fld_no) {
-						case 0:
-							rec.ObjId = fld_buf.ToLong();
-							break;
-						case 1:
-							rec.V4Low = fld_buf.ToULong();
-							break;
-						case 2:
-							rec.V4Upp = fld_buf.ToULong();
-							break;
+						case 0: rec.ObjId = fld_buf.ToLong(); break;
+						case 1: rec.V4Low = fld_buf.ToULong(); break;
+						case 2: rec.V4Upp = fld_buf.ToULong(); break;
 					}
 				}
 				uint city_pos = 0;

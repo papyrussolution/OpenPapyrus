@@ -7848,6 +7848,24 @@ SNaturalTokenStat & SNaturalTokenStat::Z()
 	return *this;
 }
 
+bool SNaturalTokenStat::IsChrListAsciiPatternMatched(const char * pPattern) const
+{
+	bool   result = true;
+	const size_t plen = sstrlen(pPattern);
+	if(plen) {
+		const uint clcount = ChrList.getCount();
+		for(uint i = 0; result && i < clcount; i++) {
+			const char c = static_cast<char>(ChrList.at(i).Key);
+			if(!sstrchr(pPattern, c)) {
+				result = false;
+			}
+		}
+	}
+	else
+		result = false;
+	return result;
+}
+
 static const SIntToSymbTabEntry SNTokSymb_List[] = {
 	{ SNTOK_NATURALWORD, "natural-word" },
 	{ SNTOK_DIGITCODE, "digit-code" },
@@ -7856,7 +7874,7 @@ static const SIntToSymbTabEntry SNTokSymb_List[] = {
 	{ SNTOK_UPCA, "upca" },
 	{ SNTOK_UPCE, "upce" },
 	{ SNTOK_RU_INN, "ru-inn" },
-	{ SNTOK_EGAISWARECODE, "egai-ware-code" },
+	{ SNTOK_EGAISWARECODE, "egais-ware-code" }, // @v12.3.3 @fix "egai-ware-code"-->"egais-ware-code"
 	{ SNTOK_EGAISMARKCODE, "eags-mark-code" },
 	{ SNTOK_LUHN, "luhn" },
 	{ SNTOK_DIGLAT, "dig-lat" },
@@ -7897,6 +7915,14 @@ static const SIntToSymbTabEntry SNTokSymb_List[] = {
 	{ SNTOK_GENERICTEXT_CP866, "generictext-cp866" }, // @v12.2.12
 	{ SNTOK_JSON, "json" }, // @v12.2.12
 	{ SNTOK_PLIDENT, "plident" }, // @v12.3.0
+	{ SNTOK_HASH_MD5, "hash-md5" }, // @v12.3.3
+	{ SNTOK_BASE32, "enc-base32" }, // @v12.3.3
+	{ SNTOK_BASE32_CROCKFORD, "enc-base32-crockford" }, // @v12.3.3
+	{ SNTOK_BASE58, "enc-base58" }, // @v12.3.3
+	{ SNTOK_BASE64, "enc-base64" }, // @v12.3.3
+	{ SNTOK_BASE64_URL, "enc-base32url" }, // @v12.3.3
+	{ SNTOK_BASE64_WP, "enc-base32-withpadding" }, // @v12.3.3
+	{ SNTOK_BASE64_URL_WP, "enc-base32url-withpadding" }, // @v12.3.3
 };
 
 SNaturalToken::SNaturalToken() : ID(0), Prob(0.0f), Count(0)
@@ -8031,7 +8057,7 @@ int SNaturalTokenArray::Intersect(const SNaturalTokenArray & rS) // @v12.2.11
 	return ret;
 }
 
-STokenRecognizer::STokenRecognizer() : SRegExpSet()
+STokenRecognizer::STokenRecognizer() : SRegExpSet(), ReBase32(0), ReBase32_Crockford(0), ReBase58(0), ReBase64(0), ReBase64_Wp(0), ReBase64_Url(0), ReBase64_Url_Wp(0)
 {
 }
 
@@ -8828,6 +8854,66 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 			}
 			// } @v11.6.0 
 			if(h & SNTOKSEQ_ASCII) {
+				{ // @v12.3.3 @construction
+					if(sstreq(pToken, "===")) {
+						rResultList.AddTok(SNTOK_BASE64_WP, 0.3, 0/*flags*/);
+						rResultList.AddTok(SNTOK_BASE64_URL_WP, 0.3, 0/*flags*/);
+					}
+					else {
+						static constexpr char p_chrset_base32[]           = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567=";
+						static constexpr char p_chrset_base32_crockford[] = "ABCDEFGHJKMNPQRSTVWXYZ0123456789";
+						static constexpr char p_chrset_base58[] = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz123456789";
+						static constexpr char p_chrset_base64[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+						static constexpr char p_chrset_base64_wp[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+						static constexpr char p_chrset_base64_url[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+						static constexpr char p_chrset_base64_url_wp[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_=";
+						static_assert(sizeof(p_chrset_base32) == 32+1+1);
+						static_assert(sizeof(p_chrset_base32_crockford) == 32+1);
+						static_assert(sizeof(p_chrset_base58) == 58+1);
+						static_assert(sizeof(p_chrset_base64) == 64+1);
+						static_assert(sizeof(p_chrset_base64_wp) == 64+1+1);
+						static_assert(sizeof(p_chrset_base64_url) == 64+1);
+						static_assert(sizeof(p_chrset_base64_url_wp) == 64+1+1);
+
+						struct TokRegExpTabEntry {
+							uint32   Token;
+							const char * P_ChrSet;
+							const char * P_RegExp;
+							long  &  R_RegExpHandler;
+							float    Prob;
+						};
+
+						TokRegExpTabEntry tok_re_tab[] = {
+							{ SNTOK_BASE32, p_chrset_base32, "^[A-Z2-7]+=*", ReBase32, 0.7f },
+							{ SNTOK_BASE32_CROCKFORD, p_chrset_base32_crockford, "^[A-HJKMNP-TV-Z0-9]+", ReBase32_Crockford, 0.7f },
+							{ SNTOK_BASE58, p_chrset_base58, "^[A-HJ-NP-Za-km-z1-9]*", ReBase58, 0.7f },
+							{ SNTOK_BASE64_WP, p_chrset_base64_wp, "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{4})", ReBase64_Wp, 0.95f },
+							{ SNTOK_BASE64, p_chrset_base64, "^[A-Za-z0-9+/]+", ReBase64, 0.7f },
+							{ SNTOK_BASE64_URL_WP, p_chrset_base64_url_wp, "^(?:[A-Za-z0-9_-]{4})*(?:[A-Za-z0-9_-]{2}==|[A-Za-z0-9_-]{3}=|[A-Za-z0-9_-]{4})", ReBase64_Url_Wp, 0.95f },
+							{ SNTOK_BASE64_URL, p_chrset_base64_url, "^[A-Za-z0-9_-]+", ReBase64_Url, 0.7f },
+						};
+
+						for(uint rti = 0; rti < SIZEOFARRAY(tok_re_tab); rti++) {
+							const TokRegExpTabEntry & r_entry = tok_re_tab[rti];
+							if(rIb.Stat.IsChrListAsciiPatternMatched(r_entry.P_ChrSet)) {
+								if(r_entry.R_RegExpHandler || RegisterRe(r_entry.P_RegExp, &r_entry.R_RegExpHandler)) {
+									SRegExp2::FindResult reresult;
+									SRegExp2 * p_re = ReList.at(r_entry.R_RegExpHandler-1);
+									if(p_re && p_re->Find(reinterpret_cast<const char *>(pToken), toklen, 0, &reresult)) {
+										assert(reresult.getCount());
+										if(reresult.getCount()) {
+											const uint f_pos = 0;
+											size_t _offs = reresult.at(f_pos).low;
+											size_t _len = reresult.at(f_pos).upp - reresult.at(f_pos).low;
+											if(_offs == 0 && _len == toklen)
+												rResultList.AddTok(r_entry.Token, r_entry.Prob, 0/*flags*/);
+										}
+									}
+								}
+							}
+						}
+					}
+				}
 				uint   pos = 0;
 				long   val = 0;
 				if(r_chr_list.BSearch(static_cast<long>('@'), &val, &pos) && val == 1 && InitReEmail()) {

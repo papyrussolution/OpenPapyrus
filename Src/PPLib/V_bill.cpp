@@ -6493,8 +6493,9 @@ int PPViewBill::UpdateTempTable(PPID id)
 				id_found = 1;
 		}
 	}
-	else
-		MEMSZERO(rec);
+	else {
+		rec.Clear();
+	}
 	if(P_TempOrd && oneof3(Filt.SortOrder, BillFilt::ordByCode, BillFilt::ordByObject, BillFilt::ordByDateCode)) { // @v11.0.11 BillFilt::ordByDateCode
 		BillTbl::Key0 k0;
 		k0.ID = id;

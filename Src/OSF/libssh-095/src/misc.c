@@ -838,7 +838,6 @@ int ssh_mkdir(const char * pathname, mode_t mode)
 #else
 	r = mkdir(pathname, mode);
 #endif
-
 	return r;
 }
 
@@ -1133,12 +1132,8 @@ int ssh_analyze_banner(ssh_session session, int server)
 				/* invalid minor */
 				goto done;
 			}
-
 			session->openssh = SSH_VERSION_INT(((int)major), ((int)minor), 0);
-
-			SSH_LOG(SSH_LOG_PROTOCOL,
-			    "We are talking to an OpenSSH client version: %lu.%lu (%x)",
-			    major, minor, session->openssh);
+			SSH_LOG(SSH_LOG_PROTOCOL, "We are talking to an OpenSSH client version: %lu.%lu (%x)", major, minor, session->openssh);
 		}
 	}
 
@@ -1148,11 +1143,10 @@ done:
 
 /* try the Monotonic clock if possible for perfs reasons */
 #ifdef _POSIX_MONOTONIC_CLOCK
-#define CLOCK CLOCK_MONOTONIC
+	#define CLOCK CLOCK_MONOTONIC
 #else
-#define CLOCK CLOCK_REALTIME
+	#define CLOCK CLOCK_REALTIME
 #endif
-
 /**
  * @internal
  * @brief initializes a timestamp to the current time
@@ -1173,7 +1167,6 @@ void ssh_timestamp_init(struct ssh_timestamp * ts)
 }
 
 #undef CLOCK
-
 /**
  * @internal
  * @brief gets the time difference between two timestamps in ms
@@ -1181,12 +1174,11 @@ void ssh_timestamp_init(struct ssh_timestamp * ts)
  * @param[in] new newer value
  * @returns difference in milliseconds
  */
-
 static int ssh_timestamp_difference(struct ssh_timestamp * old, struct ssh_timestamp * pNew)
 {
-	long seconds, usecs, msecs;
-	seconds = pNew->seconds - old->seconds;
-	usecs = pNew->useconds - old->useconds;
+	long msecs;
+	long seconds = pNew->seconds - old->seconds;
+	long usecs = pNew->useconds - old->useconds;
 	if(usecs < 0) {
 		seconds--;
 		usecs += 1000000;

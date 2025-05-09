@@ -535,7 +535,7 @@ int PPViewGoodsTaxAnalyze::Init_(const PPBaseFilt * pFilt)
 								THROW(r = SearchByKey(P_TempTbl, 0, &k, &rec));
 								if(r < 0) {
 									is_new_rec = true;
-									MEMSZERO(rec);
+									rec.Clear();
 									rec.Dt = entry_date;
 									rec.GoodsID = final_goods_id;
 									rec.GoodsGrpID = Filt.Sgg ? 0 : goods_rec.ParentID;

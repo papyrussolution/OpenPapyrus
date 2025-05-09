@@ -372,6 +372,54 @@ bool PPMarketplaceInterface_Wildberries::WareBase::FromJsonObj(const SJson * pJs
 	return ok;
 }
 
+PPMarketplaceInterface_Wildberries::WareOnPromotion::WareOnPromotion() : ID(0), UedCurrency(0), InAction(false), Price(0.0), Discount(0.0), PlanPrice(0.0), PlanDiscount(0.0)
+{
+}
+
+PPMarketplaceInterface_Wildberries::WareOnPromotion & PPMarketplaceInterface_Wildberries::WareOnPromotion::Z()
+{
+	ID = 0;
+	UedCurrency = 0;
+	Price = 0.0;
+	Discount = 0.0;
+	PlanPrice = 0.0;
+	PlanDiscount = 0.0;
+	InAction = false;
+	return *this;
+}
+
+bool PPMarketplaceInterface_Wildberries::WareOnPromotion::FromJsonObj(const SJson * pJs)
+{
+	Z();
+	bool   ok = false;
+	if(SJson::IsObject(pJs)) {
+		for(const SJson * p_cur = pJs->P_Child; p_cur; p_cur = p_cur->P_Next) {
+			if(p_cur->Text.IsEqiAscii("id")) {
+				ID = p_cur->P_Child->Text.ToInt64();
+			}
+			else if(p_cur->Text.IsEqiAscii("inAction")) {
+				if(SJson::IsTrue(p_cur->P_Child)) {
+					InAction = true;
+				}
+			}
+			else if(p_cur->Text.IsEqiAscii("price")) {
+				Price = p_cur->P_Child->Text.ToReal_Plain();
+			}
+			else if(p_cur->Text.IsEqiAscii("currencyCode")) {
+			}
+			else if(p_cur->Text.IsEqiAscii("planPrice"))
+				PlanPrice = p_cur->P_Child->Text.ToReal_Plain();
+			else if(p_cur->Text.IsEqiAscii("discount"))
+				Discount = p_cur->P_Child->Text.ToReal_Plain();
+			else if(p_cur->Text.IsEqiAscii("planDiscount"))
+				PlanDiscount = p_cur->P_Child->Text.ToReal_Plain();
+		}
+		if(ID)
+			ok = true;
+	}
+	return ok;
+}
+
 PPMarketplaceInterface_Wildberries::Promotion::Promotion() : ID(0), Type(tUndef),
 	InPromoActionLeftovers(0), InPromoActionTotal(0), NotInPromoActionLeftovers(0),
 	NotInPromoActionTotal(0), ParticipationPercentage(0), ExceptionProductsCount(0)
@@ -2571,7 +2619,7 @@ int PPMarketplaceInterface_Wildberries::RequestPromotionWareList(int64 actionId,
 																		WareOnPromotion * p_item = rList.at(list_item_idx);
 																		assert(p_item); // @paranoic
 																		if(p_item) { // @paranoic
-																			//p_item->FromJsonObj(p_js_item);
+																			p_item->FromJsonObj(p_js_item);
 																		}
 																	}
 																}

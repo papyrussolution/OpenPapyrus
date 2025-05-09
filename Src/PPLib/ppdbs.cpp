@@ -5,189 +5,1124 @@
 #include "ppdbs.h"
 
 DBTABLE_CONSTRUCTOR(Reference2, ObjType)
+Reference2Tbl::Rec & Reference2Tbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(Property, ObjType)
+PropertyTbl::Rec & PropertyTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(UuidRef, ID)
+UuidRefTbl::Rec & UuidRefTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(TextRef, ObjID)
+TextRefTbl::Rec & TextRefTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(UnxTextRef, ObjID)
+UnxTextRefTbl::Rec & UnxTextRefTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(ObjLikeness, ObjType)
+ObjLikenessTbl::Rec & ObjLikenessTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(ObjSync, DBID)
+ObjSyncTbl::Rec & ObjSyncTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(ObjSyncBu, ObjType)
+ObjSyncBuTbl::Rec & ObjSyncBuTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(ObjSyncQueue, ID)
+ObjSyncQueueTbl::Rec & ObjSyncQueueTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(ObjAssoc, ID)
+ObjAssocTbl::Rec & ObjAssocTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(ObjTag, ObjType)
+ObjTagTbl::Rec & ObjTagTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(EAddr, ID)
+EAddrTbl::Rec & EAddrTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(World, ID)
+WorldTbl::Rec & WorldTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(TempKLADR, ID__)
+TempKLADRTbl::Rec & TempKLADRTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(FiasAddrObj, RecUuID)
+FiasAddrObjTbl::Rec & FiasAddrObjTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(FiasHouseObj, IdUuRef)
+FiasHouseObjTbl::Rec & FiasHouseObjTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(GeoTrack, ObjType)
+GeoTrackTbl::Rec & GeoTrackTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(Person, ID)
+PersonTbl::Rec & PersonTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(PersonKind, KindID)
+PersonKindTbl::Rec & PersonKindTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(Register, ID)
+RegisterTbl::Rec & RegisterTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(PersonEvent, ID)
+PersonEventTbl::Rec & PersonEventTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(PersonPost, ID)
+PersonPostTbl::Rec & PersonPostTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(StaffCalendar, CalID)
+StaffCalendarTbl::Rec & StaffCalendarTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(TempStaffCal, ID__)
+TempStaffCalTbl::Rec & TempStaffCalTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(Salary, ID)
+SalaryTbl::Rec & SalaryTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(TempSalary, ID)
+TempSalaryTbl::Rec & TempSalaryTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(Goods2, ID)
+Goods2Tbl::Rec & Goods2Tbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(Barcode, GoodsID)
+BarcodeTbl::Rec & BarcodeTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(ArGoodsCode, GoodsID)
+ArGoodsCodeTbl::Rec & ArGoodsCodeTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(GoodsExt, GoodsID)
+GoodsExtTbl::Rec & GoodsExtTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(Package, ID)
+PackageTbl::Rec & PackageTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(PackageLink, PckgID)
+PackageLinkTbl::Rec & PackageLinkTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(SpecSeries, Serial)
+SpecSeriesTbl::Rec & SpecSeriesTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(SpecSeries2, ID)
+SpecSeries2Tbl::Rec & SpecSeries2Tbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(Location, ID)
+LocationTbl::Rec & LocationTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(CurrencyRate, Dt)
+CurrencyRateTbl::Rec & CurrencyRateTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(Bill, ID)
+BillTbl::Rec & BillTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(BillAmount, BillID)
+BillAmountTbl::Rec & BillAmountTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(PayPlan, BillID)
+PayPlanTbl::Rec & PayPlanTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(Receipt, ID)
+ReceiptTbl::Rec & ReceiptTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(CurRest, LocID)
+CurRestTbl::Rec & CurRestTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(LotCurRest, LDRest)
+LotCurRestTbl::Rec & LotCurRestTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(LotCurRest2, LDRestF)
+LotCurRest2Tbl::Rec & LotCurRest2Tbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(LotExtCode, LotID)
+LotExtCodeTbl::Rec & LotExtCodeTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(EgaisProduct, ID)
+EgaisProductTbl::Rec & EgaisProductTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(EgaisPerson, ID)
+EgaisPersonTbl::Rec & EgaisPersonTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(EgaisRefA, ID)
+EgaisRefATbl::Rec & EgaisRefATbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(VetisEntity, ID)
+VetisEntityTbl::Rec & VetisEntityTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(VetisProduct, EntityID)
+VetisProductTbl::Rec & VetisProductTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(VetisPerson, EntityID)
+VetisPersonTbl::Rec & VetisPersonTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(VetisDocument, EntityID)
+VetisDocumentTbl::Rec & VetisDocumentTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(Inventory, BillID)
+InventoryTbl::Rec & InventoryTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(TempInventorySubst, GoodsID)
+TempInventorySubstTbl::Rec & TempInventorySubstTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(Quotation, ID)
+QuotationTbl::Rec & QuotationTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(Quot2Rel, ID)
+Quot2RelTbl::Rec & Quot2RelTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(Quotation2, RelID)
+Quotation2Tbl::Rec & Quotation2Tbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(PriceList, ID)
+PriceListTbl::Rec & PriceListTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(PriceLine, ListID)
+PriceLineTbl::Rec & PriceLineTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(Transfer, LocID)
+TransferTbl::Rec & TransferTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(LocTransf, LocID)
+LocTransfTbl::Rec & LocTransfTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(TempLocTransf, ID__)
+TempLocTransfTbl::Rec & TempLocTransfTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(GoodsDebt, GoodsID)
+GoodsDebtTbl::Rec & GoodsDebtTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(CpTransf, BillID)
+CpTransfTbl::Rec & CpTransfTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(AdvBillItem, BillID)
+AdvBillItemTbl::Rec & AdvBillItemTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(Workbook, ID)
+WorkbookTbl::Rec & WorkbookTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(Project, ID)
+ProjectTbl::Rec & ProjectTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(PrjTask, ID)
+PrjTaskTbl::Rec & PrjTaskTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(SCard, ID)
+SCardTbl::Rec & SCardTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(TempSCard, ID)
+TempSCardTbl::Rec & TempSCardTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(SCardOp, SCardID)
+SCardOpTbl::Rec & SCardOpTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(CSession, ID)
+CSessionTbl::Rec & CSessionTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(TempCSessChecks, ID)
+TempCSessChecksTbl::Rec & TempCSessChecksTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(CCheck, ID)
+CCheckTbl::Rec & CCheckTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(CCheckExt, CheckID)
+CCheckExtTbl::Rec & CCheckExtTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(CCheckPaym, CheckID)
+CCheckPaymTbl::Rec & CCheckPaymTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(TempCCheckQtty, ID)
+TempCCheckQttyTbl::Rec & TempCCheckQttyTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(TempCCheckGrp, ID__)
+TempCCheckGrpTbl::Rec & TempCCheckGrpTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(TempCCheckGdsCorr, ID__)
+TempCCheckGdsCorrTbl::Rec & TempCCheckGdsCorrTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(TempCCheckLine, CheckID)
+TempCCheckLineTbl::Rec & TempCCheckLineTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(CCheckLine, CheckID)
+CCheckLineTbl::Rec & CCheckLineTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(CCheckLineExt, CheckID)
+CCheckLineExtTbl::Rec & CCheckLineExtTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(CGoodsLine, Dt)
+CGoodsLineTbl::Rec & CGoodsLineTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(DvcLoadingStat, ID)
+DvcLoadingStatTbl::Rec & DvcLoadingStatTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(DlsObj, DlsID)
+DlsObjTbl::Rec & DlsObjTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(QualityCert, ID)
+QualityCertTbl::Rec & QualityCertTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(Article, ID)
+ArticleTbl::Rec & ArticleTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(AcctRel, ID)
+AcctRelTbl::Rec & AcctRelTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(AccTurn, Acc)
+AccTurnTbl::Rec & AccTurnTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(Balance, Dt)
+BalanceTbl::Rec & BalanceTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(BudgetItem, ID)
+BudgetItemTbl::Rec & BudgetItemTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(VATBook, ID)
+VATBookTbl::Rec & VATBookTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(MrpTab, ID)
+MrpTabTbl::Rec & MrpTabTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(MrpLine, ID)
+MrpLineTbl::Rec & MrpLineTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(SysJournal, Dt)
+SysJournalTbl::Rec & SysJournalTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(SjRsrv, Dt)
+SjRsrvTbl::Rec & SjRsrvTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(GtaJournal, Dt)
+GtaJournalTbl::Rec & GtaJournalTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(ObjVer, ID)
+ObjVerTbl::Rec & ObjVerTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(Cr_PosLoad, Cash_Code)
+Cr_PosLoadTbl::Rec & Cr_PosLoadTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(Cr_CredoPay, BarCode)
+Cr_CredoPayTbl::Rec & Cr_CredoPayTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(Cr_ZReport, CashNumber)
+Cr_ZReportTbl::Rec & Cr_ZReportTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(Cr_Sale, Quant)
+Cr_SaleTbl::Rec & Cr_SaleTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(Cr_CashAuth, ShopIndex)
+Cr_CashAuthTbl::Rec & Cr_CashAuthTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(Cr_CashDCrd, ShopIndex)
+Cr_CashDCrdTbl::Rec & Cr_CashDCrdTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(PredictSales, GoodsID)
+PredictSalesTbl::Rec & PredictSalesTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(GoodsStat, Loc)
+GoodsStatTbl::Rec & GoodsStatTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(Processor, ID)
+ProcessorTbl::Rec & ProcessorTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(Tech, ID)
+TechTbl::Rec & TechTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(TSession, ID)
+TSessionTbl::Rec & TSessionTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(TSessLine, TSessID)
+TSessLineTbl::Rec & TSessLineTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(BizScore, ActualDate)
+BizScoreTbl::Rec & BizScoreTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(GlobalBizScore, UpdCounter)
+GlobalBizScoreTbl::Rec & GlobalBizScoreTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(BizScore2, ID)
+BizScore2Tbl::Rec & BizScore2Tbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(DebtStat, AccSheetID)
+DebtStatTbl::Rec & DebtStatTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(CheckOpJrnl, Dt)
+CheckOpJrnlTbl::Rec & CheckOpJrnlTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(UserFuncPrfSess, ID)
+UserFuncPrfSessTbl::Rec & UserFuncPrfSessTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(UserFuncPrf, SessID)
+UserFuncPrfTbl::Rec & UserFuncPrfTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(Event, ID)
+EventTbl::Rec & EventTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(StyloQSec, ID)
+StyloQSecTbl::Rec & StyloQSecTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(StyloQSettlement, Uid)
+StyloQSettlementTbl::Rec & StyloQSettlementTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(TsTaJournal, ID)
+TsTaJournalTbl::Rec & TsTaJournalTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(Reference_Obsolete, ObjType)
+Reference_ObsoleteTbl::Rec & Reference_ObsoleteTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(Country_Obsolete, ID)
+Country_ObsoleteTbl::Rec & Country_ObsoleteTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(Region_Obsolete, ID)
+Region_ObsoleteTbl::Rec & Region_ObsoleteTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(City_Obsolete, ID)
+City_ObsoleteTbl::Rec & City_ObsoleteTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(BankAccount_Pre9004, ID)
+BankAccount_Pre9004Tbl::Rec & BankAccount_Pre9004Tbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(StaffList_Pre9003, ID)
+StaffList_Pre9003Tbl::Rec & StaffList_Pre9003Tbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(HistGoods, ID)
+HistGoodsTbl::Rec & HistGoodsTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(HistBill, ID)
+HistBillTbl::Rec & HistBillTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(HistTrfr, HistBillID)
+HistTrfrTbl::Rec & HistTrfrTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(CCurPrice, CashID)
+CCurPriceTbl::Rec & CCurPriceTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(Account_Pre9004, ID)
+Account_Pre9004Tbl::Rec & Account_Pre9004Tbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(TempTSessRep, ID__)
+TempTSessRepTbl::Rec & TempTSessRepTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(TempPrcBusy, ID__)
+TempPrcBusyTbl::Rec & TempPrcBusyTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(TempPredictSales, Dt)
+TempPredictSalesTbl::Rec & TempPredictSalesTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(TempGoodsStat, GoodsID)
+TempGoodsStatTbl::Rec & TempGoodsStatTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(TempGoodsRest, ID__)
+TempGoodsRestTbl::Rec & TempGoodsRestTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(TempCSessExc, OrgGoodsID)
+TempCSessExcTbl::Rec & TempCSessExcTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(TempDeficit, Location)
+TempDeficitTbl::Rec & TempDeficitTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(TempShipmentAnlz, BillID)
+TempShipmentAnlzTbl::Rec & TempShipmentAnlzTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(TempGoodsOpr, ID__)
+TempGoodsOprTbl::Rec & TempGoodsOprTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(TempGoodsMov, Grp)
+TempGoodsMovTbl::Rec & TempGoodsMovTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(TempGoodsMov2, ID__)
+TempGoodsMov2Tbl::Rec & TempGoodsMov2Tbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(TempGoodsBillCmp, GoodsID)
+TempGoodsBillCmpTbl::Rec & TempGoodsBillCmpTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(TempAccTrnovr, Dt)
+TempAccTrnovrTbl::Rec & TempAccTrnovrTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(TempSellTrnovr, ID)
+TempSellTrnovrTbl::Rec & TempSellTrnovrTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(TempTrfrGrpng, ID__)
+TempTrfrGrpngTbl::Rec & TempTrfrGrpngTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(TempTrfrAnlz, ID__)
+TempTrfrAnlzTbl::Rec & TempTrfrAnlzTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(TempOpGrpng, ID__)
+TempOpGrpngTbl::Rec & TempOpGrpngTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(TempPerson, ID)
+TempPersonTbl::Rec & TempPersonTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(TempOrder, ID)
+TempOrderTbl::Rec & TempOrderTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(TempDoubleID, PrmrID)
+TempDoubleIDTbl::Rec & TempDoubleIDTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(TempAssoc, PrmrID)
+TempAssocTbl::Rec & TempAssocTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(TempAccturnGrpng, Dt)
+TempAccturnGrpngTbl::Rec & TempAccturnGrpngTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(TempAccAnlz, Dt)
+TempAccAnlzTbl::Rec & TempAccAnlzTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(TempBill, BillID)
+TempBillTbl::Rec & TempBillTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(TempFreight, BillID)
+TempFreightTbl::Rec & TempFreightTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(TempLot, LotID)
+TempLotTbl::Rec & TempLotTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(TempGoodsTaxAnlz, Dt)
+TempGoodsTaxAnlzTbl::Rec & TempGoodsTaxAnlzTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(TempPaymPlan, Dt)
+TempPaymPlanTbl::Rec & TempPaymPlanTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(TempSyncCmp, ObjType)
+TempSyncCmpTbl::Rec & TempSyncCmpTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(TempAsset, LotID)
+TempAssetTbl::Rec & TempAssetTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(TempQuotSerial, GoodsID)
+TempQuotSerialTbl::Rec & TempQuotSerialTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(TempQuot, ID__)
+TempQuotTbl::Rec & TempQuotTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(TempGoodsCargo, GoodsID)
+TempGoodsCargoTbl::Rec & TempGoodsCargoTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(TempPrjTask, TabID)
+TempPrjTaskTbl::Rec & TempPrjTaskTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(TempPriceAnlz, TabID)
+TempPriceAnlzTbl::Rec & TempPriceAnlzTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(TempPersonEvent, ID)
+TempPersonEventTbl::Rec & TempPersonEventTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(TempPersonRel, ID)
+TempPersonRelTbl::Rec & TempPersonRelTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(TempArAgt, ArID)
+TempArAgtTbl::Rec & TempArAgtTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(TempScale, ID)
+TempScaleTbl::Rec & TempScaleTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(TempLogFileMon, ID__)
+TempLogFileMonTbl::Rec & TempLogFileMonTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(TempCashNode, ID)
+TempCashNodeTbl::Rec & TempCashNodeTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(TempReport, ID)
+TempReportTbl::Rec & TempReportTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(TempPalm, ID)
+TempPalmTbl::Rec & TempPalmTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(TempLongOrder, ID)
+TempLongOrderTbl::Rec & TempLongOrderTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(TempTransport, ID)
+TempTransportTbl::Rec & TempTransportTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(TempBudget, ID)
+TempBudgetTbl::Rec & TempBudgetTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(TempBudgItem, ID)
+TempBudgItemTbl::Rec & TempBudgItemTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(TempBizScTempl, ID)
+TempBizScTemplTbl::Rec & TempBizScTemplTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(TempCCheck, ID)
+TempCCheckTbl::Rec & TempCCheckTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(TempSysJournal, ID)
+TempSysJournalTbl::Rec & TempSysJournalTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(TempGlobUserAcc, ID)
+TempGlobUserAccTbl::Rec & TempGlobUserAccTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(TempDBDiv, ID)
+TempDBDivTbl::Rec & TempDBDivTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(TempUserProfile, ID)
+TempUserProfileTbl::Rec & TempUserProfileTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(TestRef01, ID)
+TestRef01Tbl::Rec & TestRef01Tbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(TestRef02, ID)
+TestRef02Tbl::Rec & TestRef02Tbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(TestTa01, Dt)
+TestTa01Tbl::Rec & TestTa01Tbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}

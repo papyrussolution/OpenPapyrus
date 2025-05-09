@@ -1,5 +1,5 @@
 // OBJSYNC.CPP
-// Copyright (c) A.Sobolev 1997-2001, 2002, 2003, 2006, 2007, 2008, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 1997-2001, 2002, 2003, 2006, 2007, 2008, 2010, 2011, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2025
 // @codepage UTF-8
 // Поддержка синхронизации объектов в распределенной базе данных
 //
@@ -511,7 +511,7 @@ int ObjSyncQueueCore::AddFileRecord(PPID * pID, const ObjSyncQueueCore::FileInfo
 	ps.Split(rInfo.OrgFileName);
 	ps.Merge(0, SFsPath::fDrv|SFsPath::fDir, temp_buf);
 	name_buf.Semicol().Cat(temp_buf);
-	MEMSZERO(rec);
+	// @v12.3.3 @ctr MEMSZERO(rec);
 	name_buf.CopyTo(rec.ObjName, sizeof(rec.ObjName));
 	rec.ModDt = rInfo.Mod.d;
 	rec.ModTm = rInfo.Mod.t;

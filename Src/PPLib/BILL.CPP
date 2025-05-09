@@ -455,7 +455,7 @@ int ConvertBillExtRec_6407(PropertyTbl::Rec * pRec)
 	if(p_rec->CvtTag != 1) {
 		PPBillExtra_Strg_Before6407 * p_b6407 = reinterpret_cast<PPBillExtra_Strg_Before6407 *>(pRec);
 		BillCore::Extra_Strg rec;
-		MEMSZERO(rec);
+		// @v12.3.3 @ctr MEMSZERO(rec);
 #define __FLD(f) rec.f = p_b6407->f
 		__FLD(ObjType);
 		__FLD(ObjID);
@@ -477,7 +477,8 @@ int ConvertBillExtRec_6407(PropertyTbl::Rec * pRec)
 
 int BillCore::SetRecFlag(PPID billID, long flag, int set, int use_ta)
 {
-	int    ok = -1, do_update = 0;
+	int    ok = -1;
+	int    do_update = 0;
 	BillTbl::Rec rec;
 	if(flag) {
 		PPTransaction tra(use_ta);
@@ -542,7 +543,7 @@ int BillCore::PutExtraData(PPID id, const PPBillExt * pExt, int use_ta)
 		THROW(tra);
 		if(pExt && !pExt->IsEmpty()) {
 			BillCore::Extra_Strg rec;
-			MEMSZERO(rec);
+			// @v12.3.3 @ctr MEMSZERO(rec);
 			rec.AgentID = pExt->AgentID;
 			rec.PayerID = pExt->PayerID;
 			STRNSCPY(rec.InvoiceCode, pExt->InvoiceCode);

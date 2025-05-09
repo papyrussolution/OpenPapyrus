@@ -1058,6 +1058,99 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 					SLCHECK_LT(0.0f, nta.Has(SNTOK_CL_RUT));
 				}
 			}
+			{
+				{
+					const char * p_base64_wp_valid[] = {
+						"Zg==",
+						"Zm8=",
+						"Zm9v",
+						"Zm9vYg==",
+						"Zm9vYmE=",
+						"Zm9vYmFy",
+						"TG9yZW0gaXBzdW0gZG9sb3Igc2l0IGFtZXQsIGNvbnNlY3RldHVyIGFkaXBpc2NpbmcgZWxpdC4=",
+						"Vml2YW11cyBmZXJtZW50dW0gc2VtcGVyIHBvcnRhLg==",
+						"U3VzcGVuZGlzc2UgbGVjdHVzIGxlbw==",
+						"MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuMPNS1Ufof9EW/M98FNw"
+						"UAKrwflsqVxaxQjBQnHQmiI7Vac40t8x7pIb8gLGV6wL7sBTJiPovJ0V7y7oc0Ye"
+						"rhKh0Rm4skP2z/jHwwZICgGzBvA0rH8xlhUiTvcwDCJ0kc+fh35hNt8srZQM4619"
+						"FTgB66Xmp4EtVyhpQV+t02g6NzK72oZI0vnAvqhpkxLeLiMCyrI416wHm5Tkukhx"
+						"QmcL2a6hNOyu0ixX/x2kSFXApEnVrJ+/IxGyfyw8kf4N2IZpW5nEP847lpfj0SZZ"
+						"Fwrd1mnfnDbYohX2zRptLy2ZUn06Qo9pkG5ntvFEPo9bfZeULtjYzIl6K8gJ2uGZ"
+						"HQIDAQAB",
+					};
+					for(uint i = 0; i < SIZEOFARRAY(p_base64_wp_valid); i++) {
+						tr.Run((const uchar *)p_base64_wp_valid[i], -1, nta.Z(), 0);
+						SLCHECK_LT(0.0f, nta.Has(SNTOK_BASE64_WP));
+					}
+				}
+				{
+					const char * p_base64_wp_invalid[] = {
+						"12345",
+						"Vml2YW11cyBmZXJtZtesting123",
+						"Zg=",
+						"Z===",
+						"Zm=8",
+						"=m9vYg==",
+						"Zm9vYmFy====",
+					};
+					for(uint i = 0; i < SIZEOFARRAY(p_base64_wp_invalid); i++) {
+						tr.Run((const uchar *)p_base64_wp_invalid[i], -1, nta.Z(), 0);
+						SLCHECK_Z(nta.Has(SNTOK_BASE64_WP));
+					}
+				}
+				{
+					const char * p_base64_url_valid[] = {
+						"bGFkaWVzIGFuZCBnZW50bGVtZW4sIHdlIGFyZSBmbG9hdGluZyBpbiBzcGFjZQ",
+						"1234",
+						"bXVtLW5ldmVyLXByb3Vk",
+						"PDw_Pz8-Pg",
+						"VGhpcyBpcyBhbiBlbmNvZGVkIHN0cmluZw",
+					};
+					for(uint i = 0; i < SIZEOFARRAY(p_base64_url_valid); i++) {
+						tr.Run((const uchar *)p_base64_url_valid[i], -1, nta.Z(), 0);
+						SLCHECK_LT(0.0f, nta.Has(SNTOK_BASE64_URL));
+					}
+				}
+				{
+					const char * p_base64_url_invalid[] = {
+						" AA",
+						"\tAA",
+						"\rAA",
+						"\nAA",
+						"This+isa/bad+base64Url==",
+						"0K3RgtC+INC30LDQutC+0LTQuNGA0L7QstCw0L3QvdCw0Y8g0YHRgtGA0L7QutCw",
+					};
+					for(uint i = 0; i < SIZEOFARRAY(p_base64_url_invalid); i++) {
+						tr.Run((const uchar *)p_base64_url_invalid[i], -1, nta.Z(), 0);
+						SLCHECK_Z(0.0f, nta.Has(SNTOK_BASE64_URL));
+					}
+				}
+				{
+					const char * p_base64_url_wp_valid[] = {
+						"SGVsbG8=",
+						"U29mdHdhcmU=",
+						"YW55IGNhcm5hbCBwbGVhc3VyZS4=",
+						"SGVsbG8-",
+						"SGVsbG8_",
+					};
+					for(uint i = 0; i < SIZEOFARRAY(p_base64_url_wp_valid); i++) {
+						tr.Run((const uchar *)p_base64_url_wp_valid[i], -1, nta.Z(), 0);
+						SLCHECK_LT(0.0f, nta.Has(SNTOK_BASE64_URL_WP));
+					}
+				}
+				{
+					const char * p_base64_url_wp_invalid[] = {
+						"SGVsbG8===",
+						"SGVsbG8@",
+						"SGVsb G8=",
+						"====",
+					};
+					for(uint i = 0; i < SIZEOFARRAY(p_base64_url_wp_invalid); i++) {
+						tr.Run((const uchar *)p_base64_url_wp_invalid[i], -1, nta.Z(), 0);
+						SLCHECK_Z(0.0f, nta.Has(SNTOK_BASE64_URL_WP));
+					}
+				}
+			}
 		}
 	}
 	else {
@@ -1707,6 +1800,7 @@ SLTEST_R(StringSet)
 	return ok ? CurrentStatus : 0;
 }
 
+#if 0 // @v12.3.3 @obsolete {
 SLTEST_R(CRegExp)
 {
 	int    ok = 1;
@@ -1723,7 +1817,7 @@ SLTEST_R(CRegExp)
 		SFile out_file(MakeOutputFilePath(file_name), SFile::mWrite);
 		while(file.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
 			if(line_buf.NotEmpty()) {
-				StringSet ss(':', line_buf);
+				StringSet ss('\t', line_buf); // @v12.3.3 ':'-->'\t'
 				uint   ssp = 0;
 				ss.get(&ssp, re_buf);
 				ss.get(&ssp, text_buf);
@@ -1759,54 +1853,117 @@ SLTEST_R(CRegExp)
 	ENDCATCH
 	return CurrentStatus;
 }
+#endif // } 0 @v12.3.3 
 
 SLTEST_R(SRegExp)
 {
+	struct Entry {
+		const char * P_RegExp;
+		const char * P_Text;
+		uint   Count;
+	};
+
+	static const Entry entry_list[] = {
+		{ "{.*} ", "{abc{efg}} ", 1 },
+		{ "[ ]+", " My brather    like  me. ", 5 },
+		{ "\"[^\"]*\"", "There is \"quoted string\"", 1 },
+		{ "[+-]?[0-9]+", "10 barrels oil isn't too mach", 1 },
+		{ "[+-]?[0-9]*([\\.][0-9]*)([Ee][+-]?[0-9]+)?", "I think, 3.1415926 - near approach to pi-number", 1 },
+		{ "[+-]?[0-9]*([\\.][0-9]*)([Ee][+-]?[0-9]+)?", "Some number - -23.002", 1 },
+		{ "[+-]?[0-9]*([\\.][0-9]*)([Ee][+-]?[0-9]+)?", "Another number - +5.20021e-14", 1 },
+		{ "[0-9]+[ ]*\\,[ ]*[0-9]+", "Some example - 3  , 22233", 1 },
+		{ "\\[[ ]*[0-9]+(\\.[0-9]*)?[ ]*\\]", "[12.33  ] [ 192.1] [    41]", 3 },
+		{ "\\([ ]*[0-9]+(\\.[0-9]*)?[ ]*\\)", "(12.00 ) ( 192.168    ) ( 19  )", 3 },
+		{ "\\(.*\\)", " some text ( (nested text), (nested text2)) . ( [], ())", 1 },
+		{ "\\#\\@\\([^)]*\\)", "prefix text #@(abc), suffix text", 1 },
+		{ "[-A-Za-z0-9!#$%&'*+/=?^_`{|}~]+(\\.[-A-Za-z0-9!#$%&'*+/=?^_`{|}~]+)*\\@([A-Za-z0-9][-A-Za-z0-9]*\\.)+[a-z]+", " abc@mail.ru xy.z@dot.com -nik?&+$a.b.c02@yandex.ru", 3 },
+		{ "([+]?[0-9]+)?[ ]*([-(]*[0-9]+[-(])?[ ]*[0-9]+[- ]?[0-9]+[- ]?[0-9]+[ ]*([Ww][0-9]+)?", " +7(921)7002198 8(921)7002198 8(921)7002198 38-15-60 1-98-12", 5 },
+		{ "(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{4})", "TG9yZW0gaXBzdW0gZG9sb3Igc2l0IGFtZXQsIGNvbnNlY3RldHVyIGFkaXBpc2NpbmcgZWxpdC4=", 1 }
+	};
+
 	int    ok = 1;
-	SString file_name, temp_buf;
-	uint   arg_no = 0;
-	if(EnumArg(&arg_no, temp_buf))
-		file_name = temp_buf;
-	else
-		file_name = temp_buf = "cregexp.txt";
-	SFile file(MakeInputFilePath(file_name), SFile::mRead);
-	if(file.IsValid()) {
-		SString line_buf, re_buf, text_buf, temp_buf, out_line;
-		SFsPath::ReplaceExt(file_name, "out", 1);
-		SFile out_file(MakeOutputFilePath(file_name), SFile::mWrite);
-		while(file.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
-			if(line_buf.NotEmpty()) {
-				StringSet ss(':', line_buf);
-				uint   ssp = 0;
-				ss.get(&ssp, re_buf);
-				ss.get(&ssp, text_buf);
-				ss.get(&ssp, temp_buf);
-				const long right_count = temp_buf.ToLong();
-				long   count = 0;
-				SRegExp2 re;
-				THROW(SLCHECK_NZ(re.Compile(re_buf, cp1251, SRegExp2::syntaxDefault, 0)));
-				{
-					const char * p = text_buf;
-					out_line.Z().Cat(re_buf).CatDiv(':', 2).Cat(text_buf);
-					SStrScan scan(text_buf);
-					if(re.Find(&scan)) {
-						out_line.CatDiv(':', 2);
-						do {
-							scan.Get(temp_buf);
-							if(count)
-								out_line.CatDiv(',', 2);
-							out_line.CatQStr(temp_buf);
-							scan.IncrLen();
-							count++;
-						} while(re.Find(&scan));
+	SString file_name;
+	SString temp_buf;
+	SString out_line;
+	{
+		for(uint i = 0; i < SIZEOFARRAY(entry_list); i++) {
+			const char * p_regexp = entry_list[i].P_RegExp;
+			const char * p_text = entry_list[i].P_Text;
+			const uint valid_count = entry_list[i].Count;
+
+			uint  count = 0;
+			SRegExp2 re;
+			THROW(SLCHECK_NZ(re.Compile(p_regexp, cp1251, SRegExp2::syntaxDefault, 0)));
+			{
+				const char * p = p_text;
+				//out_line.Z().Cat(p_regexp).CatDiv(':', 2).Cat(p_text);
+				SStrScan scan(p_text);
+				if(re.Find(&scan)) {
+					out_line.CatDiv(':', 2);
+					do {
+						scan.Get(temp_buf);
+						if(count)
+							out_line.CatDiv(',', 2);
+						out_line.CatQStr(temp_buf);
+						scan.IncrLen();
+						count++;
+					} while(re.Find(&scan));
+				}
+				//out_line.CatDiv(':', 2).Cat(count).CR();
+				//out_file.WriteLine(out_line);
+				THROW(SLCHECK_EQ(count, valid_count));
+			}
+		}
+	}
+#if 0 // {
+	{
+		uint   arg_no = 0;
+		if(EnumArg(&arg_no, temp_buf))
+			file_name = temp_buf;
+		else
+			file_name = temp_buf = "cregexp.txt";
+		SFile file(MakeInputFilePath(file_name), SFile::mRead);
+		if(file.IsValid()) {
+			SString line_buf;
+			SString re_buf;
+			SString text_buf;
+			SFsPath::ReplaceExt(file_name, "out", 1);
+			SFile out_file(MakeOutputFilePath(file_name), SFile::mWrite);
+			while(file.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
+				if(line_buf.NotEmpty()) {
+					StringSet ss('\t', line_buf); // @v12.3.3 ':'-->'\t'
+					uint   ssp = 0;
+					ss.get(&ssp, re_buf);
+					ss.get(&ssp, text_buf);
+					ss.get(&ssp, temp_buf);
+					const long right_count = temp_buf.ToLong();
+					long   count = 0;
+					SRegExp2 re;
+					THROW(SLCHECK_NZ(re.Compile(re_buf, cp1251, SRegExp2::syntaxDefault, 0)));
+					{
+						const char * p = text_buf;
+						out_line.Z().Cat(re_buf).CatDiv(':', 2).Cat(text_buf);
+						SStrScan scan(text_buf);
+						if(re.Find(&scan)) {
+							out_line.CatDiv(':', 2);
+							do {
+								scan.Get(temp_buf);
+								if(count)
+									out_line.CatDiv(',', 2);
+								out_line.CatQStr(temp_buf);
+								scan.IncrLen();
+								count++;
+							} while(re.Find(&scan));
+						}
+						out_line.CatDiv(':', 2).Cat(count).CR();
+						out_file.WriteLine(out_line);
+						THROW(SLCHECK_EQ(count, right_count));
 					}
-					out_line.CatDiv(':', 2).Cat(count).CR();
-					out_file.WriteLine(out_line);
-					THROW(SLCHECK_EQ(count, right_count));
 				}
 			}
 		}
 	}
+#endif // 0 } 
 	CATCH
 		CurrentStatus = ok = 0;
 	ENDCATCH

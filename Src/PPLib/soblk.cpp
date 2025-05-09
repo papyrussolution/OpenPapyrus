@@ -2746,6 +2746,10 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 					int32 _c = 0;
 					PPViewPerson psn_view;
 					PersonViewItem vi;
+					// @v12.3.3 {
+					if(P_PsnF)
+						P_PsnF->Flags |= PersonFilt::fNoTempTable;
+					// } @v12.3.3
 					psn_view.Init_(P_PsnF);
 					for(psn_view.InitIteration(); psn_view.NextIteration(&vi) > 0;) {
 						int _t = IncAndTestCounterForPage(&_c);
@@ -4565,7 +4569,7 @@ int Backend_SelectObjectBlock::ResolveCrit_UhttStore(int subcriterion, const SSt
 	long   us_flags = 0;
 	PPObjUhttStore uhs_obj;
 	PPUhttStore rec;
-	MEMSZERO(rec);
+	// @v12.3.3 @ctr MEMSZERO(rec);
 	switch(subcriterion) {
 		case 0:
 		case scID:

@@ -424,7 +424,7 @@ int PPViewSysJournal::InitIteration()
 		k.tk1.ID2 = 0;
 	}
 	else if(P_TmpTbl) {
-		P_IterQuery = new BExtQuery(P_TmpTbl, 0, 512); // @v10.0.01 0)-->0, 512)
+		P_IterQuery = new BExtQuery(P_TmpTbl, 0, 512);
 		P_IterQuery->selectAll();
 	}
 	else {
@@ -432,7 +432,7 @@ int PPViewSysJournal::InitIteration()
 			idx = 1;
 		else
 			idx = 0;
-		P_IterQuery = new BExtQuery(P_Tbl, idx, 512); // @v10.0.01 0)-->0, 512)
+		P_IterQuery = new BExtQuery(P_Tbl, idx, 512);
 		P_IterQuery->selectAll();
 		dbq = & daterange(P_Tbl->Dt, &Filt.Period);
 		dbq = ppcheckfiltid(dbq, P_Tbl->ObjType, Filt.ObjType);
@@ -517,7 +517,7 @@ static IMPL_DBE_PROC(dbqf_objnamefromlist_ppvsj_iip)
 		PPObjID oid(params[0].lval, params[1].lval);
 		const PPViewSysJournal * p_view = static_cast<const PPViewSysJournal *>(params[2].ptrval);
 		if(p_view) {
-			SString & r_temp_buf = SLS.AcquireRvlStr(); // @v10.5.3 revolver
+			SString & r_temp_buf = SLS.AcquireRvlStr();
 			p_view->GetObjName(oid, r_temp_buf);
 			STRNSCPY(buf, r_temp_buf);
 		}
@@ -773,7 +773,6 @@ int PPViewSysJournal::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 				ViewBillHistory(R0i(hdr.Extra), ev_dtm);
 				ok = -1;
 			}
-			// @v10.5.3 {
 			else if(oneof2(hdr.Obj, PPOBJ_GOODS, PPOBJ_GOODSGROUP) && oneof2(hdr.Action, PPACN_OBJUPD, PPACN_OBJRMV)) {
 				PPObjGoods goods_obj;
 				goods_obj.ViewVersion(R0i(hdr.Extra));
@@ -789,15 +788,7 @@ int PPViewSysJournal::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 				sc_obj.ViewVersion(R0i(hdr.Extra));
 				ok = -1;
 			}
-			// } @v10.5.3 
 		}
-		/* @v10.5.3 else if(ppvCmd == PPVCMD_VIEWGOODSHISTORY) {
-			if(oneof2(hdr.Obj, PPOBJ_GOODS, PPOBJ_GOODSGROUP) && oneof2(hdr.Action, PPACN_OBJUPD, PPACN_OBJRMV)) {
-				PPObjGoods goods_obj;
-				goods_obj.ViewVersion(R0i(hdr.Extra));
-				ok = -1;
-			}
-		}*/
 		else if(ppvCmd == PPVCMD_RESTOREGOODS) {
 			if(oneof2(hdr.Obj, PPOBJ_GOODS, PPOBJ_GOODSGROUP) && oneof2(hdr.Action, PPACN_OBJUPD, PPACN_OBJRMV)) {
 				ok = -1;

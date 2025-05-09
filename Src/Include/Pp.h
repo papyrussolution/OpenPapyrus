@@ -17608,6 +17608,10 @@ private:
 #define MAXPREFELNKK        5  // Максимум предпочтительных адресов
 
 struct PPELinkKind2 {      // @persistent @store(Reference2Tbl+)
+	PPELinkKind2()
+	{
+		THISZERO();
+	}
 	PPID   Tag;            // Const=PPOBJ_ELINKKIND
 	PPID   ID;             // @id
 	char   Name[48];       // @name @!refname
@@ -17666,6 +17670,10 @@ private:
 // Валюты
 //
 struct PPCurrency2 {       // @persistent @store(Reference2Tbl+)
+	PPCurrency2()
+	{
+		THISZERO();
+	}
 	PPID   Tag;            // Const=PPOBJ_CURRENCY
 	PPID   ID;             // @id
 	char   Name[48];       // @name @!refname
@@ -21531,6 +21539,7 @@ public:
 		SString Code;      // Номер документа основания коррекции
 		SString Reason;    // Основание коррекции
 		SString Operator;  // Имя оператора
+		SString FiscalSign; // @v12.3.3 Фискальный признак чека
 	};
 
 	int    SyncPrintFiscalCorrection(const FiscalCorrection * pFc);
@@ -23770,6 +23779,10 @@ struct PPSendSmsParam {
 // @ModuleDecl(PPObjUhttStore)
 //
 struct PPUhttStore { // @size=sizeof(Reference2Tbl::Rec)
+	PPUhttStore()
+	{
+		THISZERO();
+	}
 	enum {
 		fUseGoodsPkg   = 0x0001, // Использовать емкость упаковки
 		fShowRest      = 0x0002, // Показывать остатки
@@ -25109,6 +25122,10 @@ public:
 #define REGTF_LOCATION    0x0100L // 'A' Регистр может быть использован для привязки к локациям
 
 struct PPRegisterType2 {   // @persistent @store(Reference2Tbl+)
+	PPRegisterType2()
+	{
+		THISZERO();
+	}
 	enum {
 		ggrpaOnlyGroup = 0,
 		ggrpaDenyGroup,
@@ -25662,6 +25679,10 @@ private:
 // @ModuleDecl(PPObjWorldObjStatus)
 //
 struct PPWorldObjStatus2 { // @persistent @store(Reference2Tbl+)
+	PPWorldObjStatus2()
+	{
+		THISZERO();
+	}
 	long   Tag;            // Const=PPOBJ_CITYSTATUS
 	long   ID;             // @id
 	char   Name[48];       // @name
@@ -27376,6 +27397,10 @@ protected:
 // @todo Реализовать синхронизацию объекта между разделами
 //
 struct PPStaffEntry {
+	PPStaffEntry()
+	{
+		THISZERO();
+	}
 	long   Tag;            // Const=PPOBJ_STAFFLIST
 	long   ID;             // @id
 	char   Name[48];       // @name @!refname
@@ -27796,6 +27821,10 @@ struct PPDutySchedEntry { // @flat
 };
 
 struct PPDutySched2 {      // @persistent @store(Reference2Tbl+)
+	PPDutySched2()
+	{
+		THISZERO();
+	}
 	PPID   Tag;            // Const=PPOBJ_DUTYSHED
 	PPID   ID;             // @id
 	char   Name[48];       // @name
@@ -27838,7 +27867,7 @@ public:
 	int    FASTCALL NextIteration(EnumParam * pEnum) const;
 	int    Test(const char * pOutFile) const;
 
-	PPDutySched Rec;
+	PPDutySched2 Rec;
 	TSVector <PPDutySchedEntry> List;
 	TSVector <PPDutyCountPoint> CpList;
 private:
@@ -28682,6 +28711,7 @@ struct PersonFilt : public PPBaseFilt {
 		fShowFiasRcgn     = 0x0200, // Показывать результаты распознавания адресов и сопоставления с ФИАС
 		// @v12.2.2 (замещено более общим функционалом анализа клиентской активности) fNewClientsOnly   = 0x0400, // Только новые клиенты (действует при не пустом NewCliPeriod)
 		fCliActivityStats = 0x0800, // @v12.2.2 Отображать статистику активности клиентов. 
+		fNoTempTable      = 0x1000, // @v12.3.3 @construction Не создавать временную таблицу, даже если условия фильтрации этого требуют
 	};
 	//
 	// Descr: Идентификаторы текстовых субполей, содержащихся в строке SrchStr_
@@ -28863,8 +28893,16 @@ private:
 	static const ExtEntry * FASTCALL Implement_SearchExtEntry(const TSVector <ExtEntry> * pExtList, PPID id);
 	const  ExtEntry * FASTCALL SearchExtEntry(PPID id) const;
 	ExtEntry * SearchExtEntryForUpdate(PPID id, uint * pIdx);
+	bool   SearchInternalViewItem(PPID personID, PPID tabID, uint * pPos) const;
 
 	PPID   DefaultTagID;
+	//
+	// Descr: Флаги состояния //
+	//
+	enum {
+		stUseInternalList = 0x0001, // Init_() вызвана с опцией фильтра PersonFilt::fNoTempTable. Вместо P_TempPsn используется InternalViewList
+	};
+	uint   State; // @v12.3.3
 	// @v12.2.10 UintHashTable NewCliList;
 	SStrGroup StrPool; // Пул строковых полей, на который ссылаются поля в TempPersonTbl
 	TempPersonTbl * P_TempPsn;
@@ -28874,8 +28912,27 @@ private:
 	PPObjTag   ObjTag;
 	PPObjWorld WObj;
 	PPFiasReference * P_Fr;
-	// @v12.2.10 LAssocArray * P_ClientActivityStateList; // @v12.2.2
-	TSVector <ExtEntry> ExtList; // @v12.2.10
+	TSVector <ExtEntry> ExtList;
+	//
+	// Descr: Структура для хранения элемента VIEW при отсутствии временной таблицы (Filt.Flags & PersonFilt::fNoTempTable)
+	//
+	struct InternalViewItem { // @v12.3.3 @construction @flat
+		InternalViewItem();
+		void   Setup(const TempPersonTbl::Rec & rRec);
+		PPID   PersonID;
+		PPID   TabID;
+		uint32 PhoneP;
+		uint32 EMailP;
+		uint32 AddressP;
+		uint32 RAddressP;
+		uint32 BnkNameP;
+		uint32 BnkAcctP;
+		uint32 RegSerialP;
+		uint32 FiasAddrGuidP;
+		uint32 FiasHouseGuidP;
+		uint32 AddrTypeP;
+	};
+	TSVector <InternalViewItem> InternalViewList; // @v12.3.3 @construction
 	//
 	static int DynFuncCheckClientActivityStatus; // @v12.2.2
 };
@@ -31304,6 +31361,10 @@ private:
 //
 //
 struct PPFreightPackageType {
+	PPFreightPackageType()
+	{
+		THISZERO();
+	}
 	enum {
 		fPassive = 0x0001
 	};
@@ -36901,6 +36962,10 @@ public:
 // @prefix=abk
 //
 struct PPAdvBillKind2 {    // @persistent @store(Reference2Tbl+)
+	PPAdvBillKind2()
+	{
+		THISZERO();
+	}
 	enum {
 		fSkipAccturn = 0x0001 // Для строки расширенного бух документа с таким видом не проводит бух проводку
 	};
@@ -41338,9 +41403,9 @@ public:
 		SString Brand;
 	};
 	struct WareOnPromotion {
-		WareOnPromotion() : ID(0), UedCurrency(0), InAction(false), Price(0.0), Discount(0.0), PlanPrice(0.0), PlanDiscount(0.0)
-		{
-		}
+		WareOnPromotion();
+		WareOnPromotion & Z();
+		bool   FromJsonObj(const SJson * pJs);
 		int64  ID;           // Ид товара 
 		uint64 UedCurrency;  // Валюта (в json - в формате ISO 4217)
 		double Price;        // Текущая розничная цена
@@ -41363,7 +41428,7 @@ public:
 		};
 		Promotion();
 		Promotion & Z();
-		bool FromJsonObj(const SJson * pJs);
+		bool   FromJsonObj(const SJson * pJs);
 
 		enum {
 			tUndef = 0,

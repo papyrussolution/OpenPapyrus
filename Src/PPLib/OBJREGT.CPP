@@ -1,5 +1,5 @@
 // OBJREGT.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2009, 2010, 2012, 2013, 2014, 2016, 2018, 2019, 2020, 2021, 2024
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2009, 2010, 2012, 2013, 2014, 2016, 2018, 2019, 2020, 2021, 2024, 2025
 //
 #include <pp.h>
 #pragma hdrstop
@@ -293,8 +293,8 @@ int PPObjRegisterType::ProcessReservedItem(TVRez & rez)
 	rez.getString(flags);
 	THROW(r = Search(id));
 	if(r < 0) {
-		PPRegisterType rec;
-		MEMSZERO(rec);
+		PPRegisterType2 rec;
+		// @v12.3.3 @ctr MEMSZERO(rec);
 		rec.ID = id;
 		STRNSCPY(rec.Name, name);
 		rec.RegOrgKind = PPPRK_BUSADMIN;

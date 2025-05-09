@@ -3038,9 +3038,11 @@ int DlContext::GetDialogList(StrAssocArray * pList) const
 	return Helper_GetScopeList(/*DlScope::kUiDialog*/DlScope::kUiView, DlScope::srchfRecursive|DlScope::srchfTopLevel, pList); 
 }
 
-const SUiLayoutParam * DlContext::GetConst_LayoutBlock(const DlScope * pScope, DlScope::COption propId) const
+//const SUiLayoutParam * DlContext::GetConst_LayoutBlock(const DlScope * pScope, DlScope::COption propId) const
+bool DlContext::GetLayoutBlock(const DlScope * pScope, DlScope::COption propId, SUiLayoutParam * pLp) const
 {
-	const SUiLayoutParam * p_result = 0;
+	CALLPTRMEMB(pLp, Z());
+	bool   ok = false;
 	if(pScope) {
 		//DlScope::cuifLayoutBlock
 		CtmExprConst __c = pScope->GetConst(propId);
@@ -3048,11 +3050,12 @@ const SUiLayoutParam * DlContext::GetConst_LayoutBlock(const DlScope * pScope, D
 			uint8    c_buf[512];
 			static_assert(sizeof(c_buf) >= sizeof(SUiLayoutParam));
 			if(GetConstData(__c, c_buf, sizeof(c_buf))) {
-				p_result = reinterpret_cast<const SUiLayoutParam *>(c_buf);
+				ASSIGN_PTR(pLp, *reinterpret_cast<const SUiLayoutParam *>(c_buf));
+				ok = true;
 			}
 		}
 	}
-	return p_result;
+	return ok;
 }
 
 bool DlContext::GetConst_String(const DlScope * pScope, DlScope::COption propId, SString & rBuf) const

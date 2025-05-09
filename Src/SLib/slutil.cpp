@@ -1,5 +1,6 @@
 // SLUTIL.CPP
 // Copyright (c) A.Sobolev 2013, 2014, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025
+// @codepage UTF-8
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -119,7 +120,7 @@ void FASTCALL IterCounter::Init(ulong total)
 //int IterCounter::Init(DBTable * pTbl)
 //{
 //	RECORDNUMBER num_recs = 0;
-//	return (!pTbl || pTbl->getNumRecs(&num_recs)) ? (Init(num_recs), 1) : 0; /*PPSetErrorDB()*/ // @todo œÓÂÍˆËˇ DBERR_XXX ‚ SLERR_XXX
+//	return (!pTbl || pTbl->getNumRecs(&num_recs)) ? (Init(num_recs), 1) : 0; /*PPSetErrorDB()*/ // @todo –ü—Ä–æ–µ–∫—Ü–∏—è DBERR_XXX –≤ SLERR_XXX
 //}
 //
 // SEnum

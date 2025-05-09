@@ -291,7 +291,6 @@ int SCDBObjGoods::SendQuotKindList()
 				int32  ID;
 				char   Name[30];
 			} rec;
-			MEMSZERO(rec);
 			rec.ID = SyncHostToHHDWord(QkList.at(i).ID);
 			STRNSCPY(rec.Name, QkList.at(i).Name);
 			DWORD rec_id = 0;

@@ -1,5 +1,5 @@
 // V_SELL.CPP
-// Copyright (c) A.Starodub, A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024
+// Copyright (c) A.Starodub, A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025
 //
 #include <pp.h>
 #pragma hdrstop
@@ -102,7 +102,7 @@ int PPViewPredictSales::Init_(const PPBaseFilt * pBaseFilt)
 			if(Filt.Flags & PredictSalesFilt::fShowNoData) {
 				if(prev && diffdate(this_date, prev) > 1) {
 					for(LDATE dt = plusdate(prev, 1); dt < this_date; dt = plusdate(dt, 1)) {
-						MEMSZERO(rec);
+						rec.Clear();
 						rec.Dt = dt;
 						rec.Flags |= 0x0001;
 						THROW_DB(p_bei->insert(&rec));

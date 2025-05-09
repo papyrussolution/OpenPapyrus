@@ -1,5 +1,5 @@
 // OBJSALAR.CPP
-// Copyright (c) A.Starodub, A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Starodub, A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1455,7 +1455,7 @@ int StaffCalDialog::addItem(long * pPos, long * pID)
 		uint   new_pos = 0;
 		if(Data.AddItem(&rec, &new_pos)) {
 			updateList(new_pos);
-			MEMSZERO(rec);
+			rec.Clear();
 			rec.CalID = Data.Rec.ID;
             ok = 1;
 		}
@@ -1799,7 +1799,7 @@ int PPObjStaffCal::SearchDate(PPID calID, LDATE dt, TSVector <StaffCalendarTbl::
 	rList.clear();
 	if(calID == PPSTCAL_STANDARD) {
 		if(checkdate(dt, 0)) {
-			MEMSZERO(rec);
+			rec.Clear();
 			rec.CalID = PPSTCAL_STANDARD;
 			rec.DtVal = cdt.v;
 			rec.TmStart = ZEROTIME;

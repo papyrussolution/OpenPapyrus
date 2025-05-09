@@ -1,5 +1,6 @@
 // SBRODEF.CPP
 // Copyright (c) Sobolev A. 1995, 1996, 1997, 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// @codepage UTF-8
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -55,7 +56,7 @@ int BrowserDef::addColumn(const BroColumn * pCol, int pos)
 	int    ok = 1;
 	if(pos == UNDEF)
 		pos = count;
-	BroColumn col = *pCol; // @attention Ïåðåäà÷à óêàçàòåëÿ BroColumn::text //
+	BroColumn col = *pCol; // @attention ÐŸÐµÑ€ÐµÐ´Ð°Ñ‡Ð° ÑƒÐºÐ°Ð·Ð°Ñ‚ÐµÐ»Ñ BroColumn::text //
 	SString subst;
 	if(SLS.SubstString(col.text, 0, subst) > 0) {
 		delete col.text;
@@ -80,16 +81,19 @@ int BrowserDef::addColumn(const BroColumn * pCol, int pos)
 	return ok;
 }
 
-int STDCALL BrowserDef::isColInGroup(uint col, uint * pIdx) const
+bool STDCALL BrowserDef::IsColInGroup(uint col, uint * pIdx) const
 {
-	for(uint i = 0, c = NumGroups; i < c; i++) {
+	bool   result = false;
+	uint   idx = 0;
+	for(uint i = 0, c = NumGroups; !result && i < c; i++) {
 		const BroGroup * p_group = GetGroup(i);
 		if(col >= p_group->First && col < p_group->NextColumn()) {
-			*pIdx = i;
-			return 1;
+			idx = i;
+			result = true;
 		}
 	}
-	return 0;
+	ASSIGN_PTR(pIdx, idx);
+	return result;
 }
 
 /*virtual*/int BrowserDef::insertColumn(int, const char *, uint, TYPEID, long, uint) { return 0; }
@@ -614,4 +618,3 @@ const void * FASTCALL AryBrowserDef::getRow(long row) const
 {
 	return (P_Array && row >= 0 && row < P_Array->getCountI()) ? P_Array->at((uint)row) : 0;
 }
-

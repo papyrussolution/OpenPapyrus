@@ -431,7 +431,7 @@ int PPViewSCard::CreateTempTable()
 		StrAssocArray n_list;
 		SCardTbl::Rec rec_;
 		PPIDArray incl_list;
-		int    use_list = 0;
+		bool   use_list = false;
 		if(P_TmpTbl)
 			THROW_MEM(p_bei = new BExtInsert(P_TmpTbl));
 		if(Filt.Number.NotEmpty()) {
@@ -440,7 +440,7 @@ int PPViewSCard::CreateTempTable()
 				StrAssocArray::Item n_list_item = n_list.at_WithoutParent(i);
 				incl_list.addUnique(n_list_item.Id);
 			}
-			use_list = 1;
+			use_list = true;
 		}
 		if(Filt.P_SjF && !Filt.P_SjF->IsEmpty()) {
 			SysJournal * p_sj = DS.GetTLA().P_SysJ;
@@ -450,7 +450,7 @@ int PPViewSCard::CreateTempTable()
 				&Filt.P_SjF->ActionIDList, &Filt.P_SjF->Period, local_list));
 			if(use_list) {
 				incl_list.intersect(&local_list);
-				use_list = 1;
+				use_list = true;
 			}
 		}
 		if(use_list) {

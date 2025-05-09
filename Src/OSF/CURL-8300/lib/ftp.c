@@ -2113,25 +2113,21 @@ static CURLcode ftp_state_retr(struct Curl_easy * data,
 	return result;
 }
 
-static CURLcode ftp_state_size_resp(struct Curl_easy * data,
-    int ftpcode,
-    ftpstate instate)
+static CURLcode ftp_state_size_resp(struct Curl_easy * data, int ftpcode, ftpstate instate)
 {
 	CURLcode result = CURLE_OK;
 	curl_off_t filesize = -1;
 	char * buf = data->state.buffer;
-
-	/* get the size from the ascii string: */
+	// get the size from the ascii string:
 	if(ftpcode == 213) {
-		/* To allow servers to prepend "rubbish" in the response string, we scan
-		   for all the digits at the end of the response and parse only those as a
-		   number. */
+		// To allow servers to prepend "rubbish" in the response string, we scan
+		// for all the digits at the end of the response and parse only those as a number.
 		char * start = &buf[4];
 		char * fdigit = sstrchr(start, '\r');
 		if(fdigit) {
-			do
+			do {
 				fdigit--;
-			while(isdec(*fdigit) && (fdigit > start));
+			} while(isdec(*fdigit) && (fdigit > start));
 			if(!isdec(*fdigit))
 				fdigit++;
 		}
@@ -2141,20 +2137,17 @@ static CURLcode ftp_state_size_resp(struct Curl_easy * data,
 		(void)curlx_strtoofft(fdigit, NULL, 10, &filesize);
 	}
 	else if(ftpcode == 550) { /* "No such file or directory" */
-		/* allow a SIZE failure for (resumed) uploads, when probing what command
-		   to use */
+		// allow a SIZE failure for (resumed) uploads, when probing what command to use
 		if(instate != FTP_STOR_SIZE) {
 			failf(data, "The file does not exist");
 			return CURLE_REMOTE_FILE_NOT_FOUND;
 		}
 	}
-
 	if(instate == FTP_SIZE) {
 #ifdef CURL_FTP_HTTPSTYLE_HEAD
 		if(-1 != filesize) {
 			char clbuf[128];
-			int clbuflen = msnprintf(clbuf, sizeof(clbuf),
-				"Content-Length: %" CURL_FORMAT_CURL_OFF_T "\r\n", filesize);
+			int clbuflen = msnprintf(clbuf, sizeof(clbuf), "Content-Length: %" CURL_FORMAT_CURL_OFF_T "\r\n", filesize);
 			result = Curl_client_write(data, CLIENTWRITE_BOTH, clbuf, clbuflen);
 			if(result)
 				return result;
@@ -2171,7 +2164,6 @@ static CURLcode ftp_state_size_resp(struct Curl_easy * data,
 		data->state.resume_from = filesize;
 		result = ftp_state_ul_setup(data, TRUE);
 	}
-
 	return result;
 }
 

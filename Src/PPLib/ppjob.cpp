@@ -2934,7 +2934,8 @@ int PPObjRFIDDevice::Test(const PPRFIDDevice & rRec, SString & rRetBuf)
 
 /*virtual*/int PPObjRFIDDevice::Edit(PPID * pID, void * extraPtr)
 {
-	int    ok = cmCancel, ta = 0;
+	int    ok = cmCancel;
+	int    ta = 0;
 	PPRFIDDevice rec;
 	RFIDDeviceDialog * p_dlg = 0;
 	if(pID && *pID) {

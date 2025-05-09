@@ -2286,7 +2286,7 @@ namespace simplecpp {
 		{
 			DeleteCriticalSection(&m_criticalSection);
 		}
-		CRITICAL_SECTION* lock() { return &m_criticalSection; }
+		CRITICAL_SECTION * lock() { return &m_criticalSection; }
 	private:
 		CRITICAL_SECTION m_criticalSection;
 	};
@@ -2302,9 +2302,9 @@ namespace simplecpp {
 			LeaveCriticalSection(m_mutex.lock());
 		}
 	private:
-		MyLock& operator=(const MyLock&);
+		MyLock & operator=(const MyLock&);
 		MyLock(const MyLock&);
-		T& m_mutex;
+		T & m_mutex;
 	};
 #endif
 
@@ -2313,7 +2313,7 @@ public:
 	RealFileNameMap() 
 	{
 	}
-	bool getCacheEntry(const std::string& path, std::string& returnPath) 
+	bool getCacheEntry(const std::string & path, std::string & returnPath) 
 	{
 		MyLock<MyMutex> lock(m_mutex);
 		const std::map<std::string, std::string>::iterator it = m_fileMap.find(path);
@@ -2491,7 +2491,6 @@ namespace simplecpp {
 				pos = (pos1 == 0) ? 1 : (pos1 - 1);
 			}
 		}
-
 		// Remove trailing '/'?
 		//if (path.size() > 1 && endsWith(path, "/"))
 		//    path.erase(path.size()-1);

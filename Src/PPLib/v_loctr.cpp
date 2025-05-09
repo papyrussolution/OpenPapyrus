@@ -1,5 +1,5 @@
 // V_LOCTR.CPP
-// Copyright (c) A.Sobolev 2008, 2009, 2010, 2011, 2012, 2013, 2016, 2017, 2019, 2020, 2021, 2022, 2024
+// Copyright (c) A.Sobolev 2008, 2009, 2010, 2011, 2012, 2013, 2016, 2017, 2019, 2020, 2021, 2022, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -486,7 +486,7 @@ int PPViewLocTransf::ProcessDispBill(PPID billID, BExtInsert * pBei, int use_ta)
 				PPTransferItem ti;
 				for(int rbb = 0; p_tr->EnumItems(billID, &rbb, &ti) > 0;) {
 					int    disposed = 0;
-					MEMSZERO(rec);
+					rec.Clear();
 					rec.BillID = billID;
 					rec.RByBill = rbb;
 					if(ti.GetSign(bill_rec.OpID) == TISIGN_PLUS)
@@ -517,7 +517,7 @@ int PPViewLocTransf::ProcessDispBill(PPID billID, BExtInsert * pBei, int use_ta)
 			for(uint j = 0; j < disp_list.getCount(); j++) {
 				if(!seen_list.lsearch((long)j)) {
 					LocTransfTbl::Rec & r_lt_rec = disp_list.at(j);
-					MEMSZERO(rec);
+					rec.Clear();
 					rec.BillID = billID;
 					MakeTempRec(r_lt_rec, rec);
 					THROW_DB(pBei->insert(&rec));
@@ -965,7 +965,7 @@ int PPViewLocTransf::EditItem(PPID tempRecID, PPID curLocID, long curRByLoc)
 					}
 				}
 				else {
-					MEMSZERO(rec);
+					rec.Clear();
 					rec.BillID = temp_rec.BillID;
 					rec.RByBill = temp_rec.RByBill;
 					rec.Op = temp_rec.Op;

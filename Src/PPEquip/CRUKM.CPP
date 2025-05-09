@@ -1,5 +1,5 @@
 // CRUKM.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2024
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2024, 2025
 // @codepage UTF-8
 // Интерфейс (асинхронный) к драйверу ККМ "Кристалл-УКМ" (ООО Кристалл Сервис)
 //
@@ -18,7 +18,7 @@ static int FASTCALL ZStrToLStr(char * pDest, const char * pSrc, size_t lStrBufSi
 {
 	size_t len = sstrlen(pSrc);
 	len = MIN(MIN(len, lStrBufSize-1), 255U);
-	PTR8(pDest)[0] = static_cast<uchar>(len);
+	pDest[0] = static_cast<uchar>(len);
 	memcpy(pDest+1, pSrc, len);
 	return 1;
 }
@@ -227,22 +227,24 @@ int ACS_CRUKM::ExportData(int updOnly)
 {
 	int    ok = 1;
 	int    check_dig = 0;
-	int    distrib_path = 0, export_section = 0;
+	int    distrib_path = 0;
+	int    export_section = 0;
 	uint   i;
-	char   /*path_goods[MAX_PATH], path_sccrd[MAX_PATH],*/ tempbuf[80];
-	SString path_goods, path_sccrd;
-	PPIDArray  cash_n_list;
+	char   tempbuf[80];
+	SString path_goods;
+	SString path_sccrd;
+	PPIDArray cash_n_list;
 	PPUnit unit_rec;
-	PPObjUnit  unit_obj;
-	PPID   prev_goods_id = 0, log_num;
+	PPObjUnit unit_obj;
+	PPID   prev_goods_id = 0;
+	PPID   log_num;
 	PPAsyncCashNode cn_data;
 	Cr_PosLoadTbl  * p_out_tbl = 0;
 	Cr_CredoPayTbl * p_sccrd_tbl = 0;
-	AsyncCashGoodsInfo       info;
+	AsyncCashGoodsInfo info;
 	AsyncCashGoodsIterator * p_iter = 0;
 	PPIDArray log_num_list;
 	Cr_PosLoadTbl::Rec rec;
-
 	PPWaitStart();
 	{
 		//
@@ -302,7 +304,7 @@ int ACS_CRUKM::ExportData(int updOnly)
 		THROW(tra);
 		for(i = 0; i < log_num_list.getCount(); i++) {
 			log_num = log_num_list.at(i);
-			MEMSZERO(rec);
+			rec.Clear();
 			ZStrToLStr(rec.Cash_Code, ltoa(log_num, tempbuf, 10), sizeof(rec.Cash_Code));
 			rec.DataType = 0;
 			THROW_DB(p_out_tbl->insertRecBuf(&rec));
@@ -317,7 +319,7 @@ int ACS_CRUKM::ExportData(int updOnly)
 			for(i = 0; i < log_num_list.getCount(); i++) {
 				log_num = log_num_list.at(i);
 				if(info.ID != prev_goods_id) {
-					MEMSZERO(rec);
+					rec.Clear();
 					ZStrToLStr(rec.Cash_Code, ltoa(log_num, tempbuf, 10), sizeof(rec.Cash_Code));
 					rec.DataType   = 1;
 					rec.KeyLongint = info.ID;
@@ -335,8 +337,7 @@ int ACS_CRUKM::ExportData(int updOnly)
 					rec.F_COST      = info.Price;
 					rec.F_PRESISION = (unit_rec.Flags & PPUnit::IntVal) ? 1 : fpow10i(-3);
 					//
-					// @v3.10.0 Загрузка фиксированных цен на товары,
-					// предоставляемых по дисконтным картам
+					// Загрузка фиксированных цен на товары, предоставляемых по дисконтным картам
 					//
 					if(info.ExtQuot > 0) {
 						rec.F_EXTRA_SUM = info.ExtQuot;
@@ -348,7 +349,7 @@ int ACS_CRUKM::ExportData(int updOnly)
 					//
 					if(info.NoDis > 0 || info.NoDis < 0) {
 						int    rmv_limit = BIN(info.NoDis < 0);
-						MEMSZERO(rec);
+						rec.Clear();
 						ZStrToLStr(rec.Cash_Code, ltoa(log_num, tempbuf, 10), sizeof(rec.Cash_Code));
 						rec.DataType   = 7;
 						rec.KeyLongint = info.ID;
@@ -362,7 +363,7 @@ int ACS_CRUKM::ExportData(int updOnly)
 					}
 				}
 				if(bclen != 0 && (info.ID == prev_goods_id || info.UnitPerPack != 1)) {
-					MEMSZERO(rec);
+					rec.Clear();
 					ZStrToLStr(rec.Cash_Code, ltoa(log_num, tempbuf, 10), sizeof(rec.Cash_Code));
 					rec.DataType = 2;
 					rec.KeyLongint = 0L;
@@ -407,7 +408,7 @@ int ACS_CRUKM::ExportData(int updOnly)
 					}
 					for(i = 0; i < log_num_list.getCount(); i++) {
 						log_num = log_num_list.at(i);
-						MEMSZERO(rec);
+						rec.Clear();
 						ZStrToLStr(rec.Cash_Code, ltoa(log_num, tempbuf, 10), sizeof(rec.Cash_Code));
 						rec.DataType = 3;
 						rec.KeyLongint = 0L;

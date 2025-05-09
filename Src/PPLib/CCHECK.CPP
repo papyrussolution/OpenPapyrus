@@ -925,21 +925,6 @@ int FASTCALL CCheckPacket::Copy(const CCheckPacket & rS)
 
 int CCheckPacket::IsEq(const CCheckPacket & rS, long options) const
 {
-	/*
-	struct Rec {
-		int32  ID;
-		int32  Code;
-		int32  CashID;
-		int32  UserID;
-		int32  SessID;
-		LDATE  Dt;
-		LTIME  Tm;
-		int32  Flags;
-		char   Amount[8];  // money[8.2]
-		char   Discount[8]; // money[8.2]
-		int32  SCardID;
-	} data;
-	*/
 	#define CMP_FLD(f) if(Rec.f != rS.Rec.f) return 0
 	if(options == 0) {
 		CMP_FLD(ID);

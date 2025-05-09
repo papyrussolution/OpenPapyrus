@@ -92,7 +92,7 @@ IMPL_CMPFUNC(PPDutyCountPoint_Dt, i1, i2) { return CMPFUNC(LDATE, &static_cast<c
 
 PPDutySchedPacket::PPDutySchedPacket()
 {
-	MEMSZERO(Rec);
+	// @v12.3.3 @ctr MEMSZERO(Rec);
 }
 
 int PPDutySchedPacket::Normalyze()

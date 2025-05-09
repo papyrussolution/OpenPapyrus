@@ -1748,7 +1748,7 @@ void BrowserWindow::Paint()
 				r.left    = c.x - 1;
 				r.right   = CellRight(c);
 				r.bottom  = YCell * p_def_->GetCapHeight();
-				r.top     = p_def_->isColInGroup(cn, &gidx) ? (YCell * p_def_->GetGroup(gidx)->Height + 1) : 0;
+				r.top     = p_def_->IsColInGroup(cn, &gidx) ? (YCell * p_def_->GetGroup(gidx)->Height + 1) : 0;
 				r.top    += hdr_width;
 				r.bottom += hdr_width;
 				DrawCapBk(ps.hdc, &r, FALSE);
@@ -2077,7 +2077,7 @@ int BrowserWindow::HeaderByPoint(SPoint2S point, int hdrzone, long * pVertPos) c
 	if(cx >= 0) {
 		uint   gidx = 0;
 		int    bottom  = YCell * P_Def->GetCapHeight();
-		int    top     = P_Def->isColInGroup(cx, &gidx) ? (YCell * P_Def->GetGroup(gidx)->Height + 1) : 0;
+		int    top     = P_Def->IsColInGroup(cx, &gidx) ? (YCell * P_Def->GetGroup(gidx)->Height + 1) : 0;
 		top    += hdr_width;
 		bottom += hdr_width;
 		if(hdrzone == hdrzoneSortPoint) {
@@ -2193,7 +2193,7 @@ void BrowserWindow::Resize(SPoint2S p, int mode)
 					SInflateRect(RectCursors.LineCursor, 3, 0);
 				}
 				uint   gidx;
-				if(P_Def->isColInGroup(ResizedCol - 1, &gidx)) {
+				if(P_Def->IsColInGroup(ResizedCol - 1, &gidx)) {
 					const BroGroup * p_grp = P_Def->GetGroup(gidx);
 					gidx = MAX(p_grp->First, Left);
 					r.left = P_Def->at(gidx).x + 1;

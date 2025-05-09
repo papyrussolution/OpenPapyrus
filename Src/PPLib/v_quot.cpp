@@ -1216,7 +1216,7 @@ int PPViewQuot::Helper_CreateTmpTblEntries(const QuotFilt * pFilt, PPQuotItemArr
 								THROW_DB(bei.insert(&rec));
 							}
 						}
-						MEMSZERO(rec);
+						rec.Clear();
 						rec.GoodsID   = r_item.GoodsID;
 						rec.LocID     = r_item.LocID;
 						rec.ArticleID = r_item.ArID;

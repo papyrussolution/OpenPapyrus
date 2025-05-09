@@ -1876,25 +1876,14 @@ int PPObjWorkbook::SetupItemCombo(TDialog * dlg, uint ctlID, int itemType, PPID 
 	int    ok = 0;
 	ComboBox * p_combo = static_cast<ComboBox *>(dlg->getCtrlView(ctlID));
 	if(p_combo) {
-		/* @v10.3.0 @fix (redundunt block with memory leak)
-		SString temp_buf;
-		StrAssocArray * p_list = new StrAssocArray;
-		WorkbookTbl::Rec rec;
-		for(SEnum en = P_Tbl->EnumByType(itemType, 0); en.Next(&rec) > 0;) {
-			GetItemPath(rec.ID, temp_buf);
-			p_list->Add(rec.ID, temp_buf);
+		PPObjListWindow * p_olw = 0;
+		PPObject * p_obj = GetPPObject(Obj, 0);
+		if(p_obj && (p_olw = new PPObjListWindow(p_obj, OLW_CANEDIT|OLW_CANINSERT|OLW_CANSELUPLEVEL, 0)) == 0) {
+			ok = PPSetErrorNoMem();
 		}
-		*/
-		{
-			PPObjListWindow * p_olw = 0;
-			PPObject * p_obj = GetPPObject(Obj, 0);
-			if(p_obj && (p_olw = new PPObjListWindow(p_obj, OLW_CANEDIT|OLW_CANINSERT|OLW_CANSELUPLEVEL, 0)) == 0) {
-				ok = PPSetErrorNoMem();
-			}
-			else {
-				p_combo->setListWindow(p_olw, itemID);
-				ok = 1;
-			}
+		else {
+			p_combo->setListWindow(p_olw, itemID);
+			ok = 1;
 		}
 	}
 	else

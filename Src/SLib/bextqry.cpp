@@ -211,8 +211,7 @@ int BExtQuery::initIteration(bool reverse, const void * pInitKey, int initSpMode
 		State |= stReverse;
 	InitSpMode = initSpMode;
 	if(pInitKey) {
-		// @v10.6.8 memcpy(InitKey, pInitKey, MAXKEYLEN);
-		memcpy(InitKey_, pInitKey, BTRMAXKEYLEN); // @v10.6.8 
+		memcpy(InitKey_, pInitKey, BTRMAXKEYLEN);
 	}
 	else
 		State |= stUndefInitKey;
@@ -279,7 +278,7 @@ int BExtQuery::search_first(const char * pInitKey, int initSpMode, int spMode)
 	RecSize = 0;
 	Cur = 0;
 	State &= ~stEOF;
-	if(Index_ >= 0) // @v10.4.4
+	if(Index_ >= 0)
 		P_Tbl->setIndex(Index_);
 	int    ok = 1, sp;
 	const  uint fields_count = Fields.GetCount();
@@ -421,7 +420,7 @@ __again:
 			else {
 				memcpy(Buf.vptr(), P_QBuf, P_QHead->bufLen);
 				P_Tbl->setDataBuf(Buf.vptr(), static_cast<RECORDSIZE>(Buf.GetSize()));
-				if(Index_ < 0) { // @v10.4.4
+				if(Index_ < 0) {
 					r = P_Tbl->stepExtended(spMode);
 				}
 				else {

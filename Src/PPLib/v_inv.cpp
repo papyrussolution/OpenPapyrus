@@ -1216,14 +1216,15 @@ int PPViewInventory::EditLine(PPID billID, long * pOprNo, PPID goodsID, const ch
 	int    skip_dialog = 0;
 	int    was_goods_replaced = 0;
 	SString temp_buf;
-	InventoryTbl::Rec rec, duprec;
+	InventoryTbl::Rec rec;
+	InventoryTbl::Rec duprec;
 	InventoryItemDialog * dlg = 0;
 	if(billID) {
 		PPBillPacket bpack;
 		THROW(P_BObj->ExtractPacket(billID, &bpack) > 0);
 		THROW_PP_S(!bpack.Rec.StatusID || !P_BObj->CheckStatusFlag(bpack.Rec.StatusID, BILSTF_DENY_MOD), PPERR_BILLST_DENY_MOD, PPObjBill::MakeCodeString(&bpack.Rec, 1, temp_buf));
 		if(*pOprNo == 0) {
-			MEMSZERO(rec);
+			rec.Clear();
 			rec.GoodsID = goodsID;
 			rec.Quantity = initQtty;
 			STRNSCPY(rec.Serial, pSerial);

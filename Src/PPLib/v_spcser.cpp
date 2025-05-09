@@ -408,11 +408,13 @@ int PPViewSpecSeries::ImportUhtt()
 	int    ok = 1;
 	long   accepted_count = 0;
 	uint   n_rec = 0;
-	SString temp_buf, fmt_buf, msg_buf;
+	SString temp_buf;
+	SString fmt_buf;
+	SString msg_buf;
 	PPUhttClient uc;
 	PPLogger     logger;
 	IterCounter  cntr;
-	SpecSeries2Tbl::Rec    rec;
+	SpecSeries2Tbl::Rec rec;
 	UhttSpecSeriesPacket * p_pack;
 	TSCollection <UhttSpecSeriesPacket> uhtt_series_list;
 	DateRange  date_rng;
@@ -448,7 +450,7 @@ int PPViewSpecSeries::ImportUhtt()
 				}
 			}
 			if(!dup) {
-				MEMSZERO(rec);
+				rec.Clear();
 				rec.ID = 0;
 				rec.GoodsID = p_pack->GoodsID;
 				rec.ManufID = p_pack->ManufID;
@@ -497,7 +499,9 @@ int PPViewSpecSeries::ExportUhtt()
 	SpecSeriesViewItem item;
 	PPUhttClient uc;
 	PPLogger logger;
-	SString  temp_buf, msg_buf, fmt_buf;
+	SString temp_buf;
+	SString msg_buf;
+	SString fmt_buf;
 	PPWaitStart();
 	THROW(uc.Auth());
 	THROW(InitIteration());

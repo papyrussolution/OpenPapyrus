@@ -1,5 +1,6 @@
 // LBXDEF.CPP
-// Copyright (c) Sobolev A. 1996, 1997, 2000, 2003, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) Sobolev A. 1996, 1997, 2000, 2003, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// @codepage UTF-8
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -19,7 +20,7 @@ ListBoxDef::ListBoxDef(uint aOptions, TYPEID aType) : Options(aOptions), Format(
 
 ListBoxDef::~ListBoxDef()
 {
-	Sign = 0; // Помечаем instance как разрушенный
+	Sign = 0; // РџРѕРјРµС‡Р°РµРј instance РєР°Рє СЂР°Р·СЂСѓС€РµРЅРЅС‹Р№
 	UserData.Destroy();
 }
 
@@ -223,7 +224,7 @@ void * ListBoxDef::CreateImageList(HINSTANCE hInst) // @v10.9.4 HIMAGELIST-->(vo
 							FRect pic_bounds(static_cast<float>(_w), static_cast<float>(_h));
 							//
 							canv.Rect(pic_bounds);
-							canv.Fill(SColor(255, 255, 255, 255), 0); // Прозрачный фон
+							canv.Fill(SColor(255, 255, 255, 255), 0); // РџСЂРѕР·СЂР°С‡РЅС‹Р№ С„РѕРЅ
 							canv.PushTransform();
 							p_fig->GetViewPort(&vp);
 							canv.AddTransform(vp.GetMatrix(pic_bounds, mtx));
@@ -253,8 +254,8 @@ void * ListBoxDef::CreateImageList(HINSTANCE hInst) // @v10.9.4 HIMAGELIST-->(vo
 
 void ListBoxDef::ClearImageAssocList()
 {
-	ImageAssoc.freeAll();
-	ImageIdxAssoc.freeAll();
+	ImageAssoc.clear(); // @v12.3.3 freeAll()-->clear()
+	ImageIdxAssoc.clear(); // @v12.3.3 freeAll()-->clear()
 }
 
 int ListBoxDef::ResetItemColor(long itemID)
@@ -525,14 +526,14 @@ int StdTreeListBoxDef::Helper_AddTreeItem(uint idx, UintHashTable & rAddedIdxLis
 		if(item_.ParentId) {
 			if(!T.Search(&item_.ParentId, &parent_p, CMPF_LONG)) {
 				//
-				// Если родительский элемент еще не попал в дерево, то
-				// рекурсивно вызываем функцию Helper_AddTreeItem для вставки родительского элемента.
+				// Р•СЃР»Рё СЂРѕРґРёС‚РµР»СЊСЃРєРёР№ СЌР»РµРјРµРЅС‚ РµС‰Рµ РЅРµ РїРѕРїР°Р» РІ РґРµСЂРµРІРѕ, С‚Рѕ
+				// СЂРµРєСѓСЂСЃРёРІРЅРѕ РІС‹Р·С‹РІР°РµРј С„СѓРЅРєС†РёСЋ Helper_AddTreeItem РґР»СЏ РІСЃС‚Р°РІРєРё СЂРѕРґРёС‚РµР»СЊСЃРєРѕРіРѕ СЌР»РµРјРµРЅС‚Р°.
 				//
 				uint   sa_parent_p = 0;
 				if(P_SaList->Search(item_.ParentId, &sa_parent_p)) {
 					int    r;
 					THROW(r = Helper_AddTreeItem(sa_parent_p, rAddedIdxList, &parent_p)); // @recursion
-					assert(r > 0); // Не может такого быть, чтобы не обнаруженный до этого элемент, уже был помечен как созданный.
+					assert(r > 0); // РќРµ РјРѕР¶РµС‚ С‚Р°РєРѕРіРѕ Р±С‹С‚СЊ, С‡С‚РѕР±С‹ РЅРµ РѕР±РЅР°СЂСѓР¶РµРЅРЅС‹Р№ РґРѕ СЌС‚РѕРіРѕ СЌР»РµРјРµРЅС‚, СѓР¶Рµ Р±С‹Р» РїРѕРјРµС‡РµРЅ РєР°Рє СЃРѕР·РґР°РЅРЅС‹Р№.
 				}
 				else
 					parent_p = 0;
@@ -1190,7 +1191,7 @@ long  DBQListBoxDef::GetRecsCount() const { return query ? (query->P_Frame->sran
 
 int DBQListBoxDef::getIdList(LongArray & rList)
 {
-	// @todo Реализовать метод
+	// @todo Р РµР°Р»РёР·РѕРІР°С‚СЊ РјРµС‚РѕРґ
 	return -1;
 }
 

@@ -1,5 +1,5 @@
 // OBJBIZSC.CPP
-// Copyright (c) A.Sobolev 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1053,7 +1053,7 @@ int BizScoreCore::SetItem(LDATE actualDate, PPID scID, PPID userID, long flags, 
 			}
 		}
 		else {
-			MEMSZERO(rec);
+			rec.Clear();
 			rec.ActualDate = actualDate;
 			getcurdatetime(&rec.Dt, &rec.Tm);
 			rec.UserID = userID;
@@ -1087,7 +1087,7 @@ int BizScoreCore::SetItem(LDATE actualDate, PPID scID, PPID userID, const char *
 			}
 		}
 		else {
-			MEMSZERO(rec);
+			rec.Clear();
 			rec.ActualDate = actualDate;
 			getcurdatetime(&rec.Dt, &rec.Tm);
 			rec.UserID = userID;
@@ -1122,7 +1122,7 @@ int BizScoreCore::SetItem(LDATE actualDate, PPID scID, PPID userID, PPObjID obj,
 			}
 		}
 		else {
-			MEMSZERO(rec);
+			rec.Clear();
 			rec.ActualDate = actualDate;
 			getcurdatetime(&rec.Dt, &rec.Tm);
 			rec.UserID = userID;
@@ -2218,7 +2218,7 @@ int GlobalBizScoreCore::SetItem(long counter, const GlobalBizScoreVal & rVal, in
 				}
 			}
 			else {
-				MEMSZERO(rec);
+				rec.Clear();
 				rec.UpdCounter = counter;
 				rec.ActualDate = rVal.ActualDate;
 				rec.Dt = rVal.Dtm.d;

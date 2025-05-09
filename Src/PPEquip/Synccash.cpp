@@ -626,6 +626,11 @@ int SCS_SYNCCASH::PrintFiscalCorrection(const PPCashMachine::FiscalCorrection * 
 	THROW(ArrAdd(Arr_In, DVCPARAM_CODE, pFc->Code));
 	THROW(ArrAdd(Arr_In, DVCPARAM_DATE, temp_buf.Z().Cat(pFc->Dt, DATF_ISO8601CENT)));
 	THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, (temp_buf = pFc->Reason).Transf(CTRANSF_INNER_TO_OUTER)));
+	// @v12.3.3 {
+	if(pFc->FiscalSign.NotEmpty()) {
+		THROW(ArrAdd(Arr_In, DVCCMD_FISCALSIGN, pFc->FiscalSign)); 
+	}
+	// } @v12.3.3 
 	if(pFc->Flags & pFc->fVatFree) {
 		THROW(ArrAdd(Arr_In, DVCPARAM_VATFREE, 1));
 		THROW(ArrAdd(Arr_In, DVCPARAM_VATFREEAMOUNT, (pFc->AmtCash+pFc->AmtBank+pFc->AmtPrepay+pFc->AmtPostpay)));

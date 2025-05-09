@@ -1,5 +1,5 @@
 // OBJUTIL.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -238,13 +238,13 @@ static PPObject * FASTCALL _GetPPObject(PPID obj, void * extraPtr)
 		case PPOBJ_UHTTSTORE:          p = new PPObjUhttStore(extraPtr); break; // @v7.6.1 @Muxa
 		case PPOBJ_GENERICDEVICE:      p = new PPObjGenericDevice(extraPtr); break; // @v7.8.0
 		case PPOBJ_WORKBOOK:           p = new PPObjWorkbook(extraPtr); break; // @Muxa
-		case PPOBJ_EDIPROVIDER:        p = new PPObjEdiProvider(extraPtr); break; // @v8.5.5
-		case PPOBJ_TIMESERIES:         p = new PPObjTimeSeries(extraPtr); break; // @v10.2.3
-		case PPOBJ_FREIGHTPACKAGETYPE: p = new PPObjFreightPackageType(extraPtr); break; // @v10.4.1
-		case PPOBJ_TAXSYSTEMKIND:      p = new PPObjTaxSystemKind(extraPtr); break; // @v10.6.0
-		case PPOBJ_TSSMODEL:           p = new PPObjTssModel(extraPtr); break; // @v10.7.4
-		case PPOBJ_EVENTSUBSCRIPTION:  p = new PPObjEventSubscription(extraPtr); break; // @v10.8.9
-		case PPOBJ_STYLOQBINDERY:      p = new PPObjStyloQBindery(extraPtr); break;     // @v11.1.7
+		case PPOBJ_EDIPROVIDER:        p = new PPObjEdiProvider(extraPtr); break;
+		case PPOBJ_TIMESERIES:         p = new PPObjTimeSeries(extraPtr); break;
+		case PPOBJ_FREIGHTPACKAGETYPE: p = new PPObjFreightPackageType(extraPtr); break;
+		case PPOBJ_TAXSYSTEMKIND:      p = new PPObjTaxSystemKind(extraPtr); break;
+		case PPOBJ_TSSMODEL:           p = new PPObjTssModel(extraPtr); break;
+		case PPOBJ_EVENTSUBSCRIPTION:  p = new PPObjEventSubscription(extraPtr); break;
+		case PPOBJ_STYLOQBINDERY:      p = new PPObjStyloQBindery(extraPtr); break; // @v11.1.7
 		case PPOBJ_SWPROGRAM:          p = new PPObjSwProgram(extraPtr); break; // @v11.9.12
 		case PPOBJ_COMPUTER:           p = new PPObjComputer(extraPtr); break; // @v12.0.0
 		default:

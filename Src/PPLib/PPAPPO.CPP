@@ -157,7 +157,8 @@ int RestoreGoods2()
 	GoodsCore goods_tbl;
 	PPObjUnit unit_obj;
 	PPObjPerson psn_obj;
-	Goods2Tbl::Rec rec, temp_rec;
+	Goods2Tbl::Rec rec;
+	Goods2Tbl::Rec temp_rec;
 	long recs_count = 0, update_count = 0;
 	long pos = 0;
 
@@ -171,7 +172,7 @@ int RestoreGoods2()
 	if(!out)
 		return 0;
 
-	MEMSZERO(rec);
+	rec.Clear();
 	pos = ftell(in);
 	while(fread(&rec, sizeof(rec), 1, in) == 1) {
 		int c = 1;
@@ -1420,7 +1421,8 @@ int PPVerHistory::Write(const char * pDataPath, const Info * pInfo)
 {
 	int    ok = -1;
 	uint32 crc = 0;
-	SString path, temp_buf;
+	SString temp_buf;
+	SString path;
 	SVerT hdr_minv;
 	(path = pDataPath).SetLastSlash().Cat(PPGetFileName(PPFILNAM_VERHIST, temp_buf));
 	SFile  f;
@@ -1465,11 +1467,14 @@ int PPVerHistory::Write(const char * pDataPath, const Info * pInfo)
 /*static*/int PPVerHistory::Log(const char * pDataPath, const char * pLogPath)
 {
 	int    ok = 0;
-	SString path, fname;
+	SString path;
+	SString fname;
 	PPGetFileName(PPFILNAM_VERHIST, fname);
 	path.CopyFrom(pDataPath).SetLastSlash().Cat(fname);
 	if(fileExists(path)) {
-		int    j = 0, m = 0, r = 0;
+		int    j = 0;
+		int    m = 0;
+		int    r = 0;
 		uint32 crc = 0;
 		const char * p_rectitle = "date time;mac address;version\n";
 		const char * p_hdrtitle = "current version;minimum version\n";

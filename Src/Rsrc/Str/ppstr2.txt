@@ -5813,7 +5813,6 @@ PPSSYM_FORMAT "int64;int;hex;real;sstr;zstr;date;time;datetime;person;goods;unit
 999 "@{err_crpe}: Неизвестная ошибка"
 
 #!{
-                               1
 [118]
 DVCCMD_INIT                    "INIT" // Инициализация устройства
 DVCCMD_RELEASE                 "RELEASE"
@@ -5859,6 +5858,7 @@ DVCCMD_PREPROCESSCHZNCODE      "PREPROCESSCHZNCODE" // @v11.1.10
 DVCCMD_ACCEPTCHZNCODE          "ACCEPTCHZNCODE" // @v11.1.11
 DVCCMD_REJECTCHZNCODE          "REJECTCHZNCODE" // @v11.1.11
 DVCCMD_OPENSESSION             "OPENSESSION" // @v11.3.12
+DVCCMD_FISCALSIGN              "FISCALSIGN" // @v12.3.3
 DVCPARAM_ID                    "ID"
 DVCPARAM_LOGNUM                "LOGNUM"
 DVCPARAM_PORT                  "PORT"

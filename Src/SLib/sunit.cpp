@@ -1,5 +1,6 @@
 // SUNIT.CPP
-// Copyright (c) A.Sobolev 2010, 2011, 2012, 2016, 2017, 2020, 2023, 2024
+// Copyright (c) A.Sobolev 2010, 2011, 2012, 2016, 2017, 2020, 2023, 2024, 2025
+// @codepage UTF-8
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -40,8 +41,8 @@ static ClsEntry __Cls[] = {
 	{ SUnit::clsLinearDensity,      0, "lineardensity" },
 	{ SUnit::clsViscosity,          0, "viscosity" },
 	{ SUnit::clsKinematicViscosity, 0, "kinematicviscosity" },
-	{ SUnit::clsInformation,        0, "information" }, // @v11.9.4 Количество информации
-	{ SUnit::clsVoltage,            0, "voltage" }, // @v11.9.4 Электрическое напряжение (разность потенциалов)
+	{ SUnit::clsInformation,        0, "information" }, // @v11.9.4 РљРѕР»РёС‡РµСЃС‚РІРѕ РёРЅС„РѕСЂРјР°С†РёРё
+	{ SUnit::clsVoltage,            0, "voltage" }, // @v11.9.4 Р­Р»РµРєС‚СЂРёС‡РµСЃРєРѕРµ РЅР°РїСЂСЏР¶РµРЅРёРµ (СЂР°Р·РЅРѕСЃС‚СЊ РїРѕС‚РµРЅС†РёР°Р»РѕРІ)
 };
 
 struct UnitEntry {
@@ -63,7 +64,7 @@ static UnitEntry __Units[] = {
 	{ SUOM_DAY,       SUnit::clsTime,   "day", 24.*60.*60. },
 	{ SUOM_HOUR,      SUnit::clsTime,   "hour", 60.*60. },
 	{ SUOM_SECOND,    SUnit::clsTime,   "second", 1.0 },
-	{ SUOM_MINUTE,    SUnit::clsTime,   "minute", 60.0 }, // @v7.5.8
+	{ SUOM_MINUTE,    SUnit::clsTime,   "minute", 60.0 },
 	{ SUOM_ITEM,      SUnit::clsItem,   "item", 1.0 },
 	{ SUOM_OZ,        SUnit::clsMass,   "oz", 0.0 },
 	{ SUOM_COLOR,     SUnit::clsItem,   "color", 1.0 },
@@ -79,23 +80,23 @@ static UnitEntry __Units[] = {
 	{ SUOM_RADIAN,    SUnit::clsAngle,  "radian", 1.0 },
 	{ SUOM_DEGREE,    SUnit::clsAngle,  "degree", SMathConst::PiDiv180 },
 	{ SUOM_GR_DIALOG, SUnit::clsLength, "dlg", 0.0 },
-	{ SUOM_TON,       SUnit::clsMass, "ton", 1000.0 }, // @v11.9.4 Тонна 
-	{ SUOM_DMETER,    SUnit::clsLength, "dm", 0.1 }, // @v11.9.4 Дециметр
-	{ SUOM_SQMETER,   SUnit::clsArea, "sqm", 1.0 }, // @v11.9.4 Квадратный метр
-	{ SUOM_SQCMETER,  SUnit::clsArea, "sqcm", 10000.0 }, // @v11.9.4 Квадратный сантиметр
-	{ SUOM_SQDMETER,  SUnit::clsArea, "sqdm", 100.0 },// @v11.9.4 Квадратный дециметр
-	{ SUOM_QMETER,    SUnit::clsVolume, "qm", 1000.0 }, // @v11.9.4 Кубический метр
-	{ SUOM_MLITER,    SUnit::clsVolume, "ml", 0.001 }, // @v11.9.4 Миллилитр
-	{ SUOM_KWATTH,    SUnit::clsEnergy, "kwh", 0.0 }, // @v11.9.4 Киловатт в час
-	{ SUOM_CALORIE,   SUnit::clsEnergy, "cal", 0.0 }, // @v11.9.4 Калория
-	{ SUOM_KCALORIE,  SUnit::clsEnergy, "kcal", 0.0 }, // @v11.9.4 Килокалория
-	{ SUOM_GCALORIE,  SUnit::clsEnergy, "gcal", 0.0 }, // @v11.9.4 Гигакалория
-	{ SUOM_BIT,       SUnit::clsInformation, "bit", 0.0 }, // @v11.9.4 Бит
-	{ SUOM_BYTE,      SUnit::clsInformation, "byte", 0.0 }, // @v11.9.4 Байт
-	{ SUOM_KIBIBYTE,  SUnit::clsInformation, "kib", 0.0 }, // @v11.9.4 Кибибайт (1024 байт)
-	{ SUOM_MEBIBYTE,  SUnit::clsInformation, "mib", 0.0 }, // @v11.9.4 Мебибайт (1024*1024 байт)
-	{ SUOM_GIBIBYTE,  SUnit::clsInformation, "gib", 0.0 }, // @v11.9.4 Гибибайт (1024*1024*1024 байт)
-	{ SUOM_TIBIBYTE,  SUnit::clsInformation, "tib", 0.0 }, // @v11.9.4 Тебибайт (1024*1024*1024*1024 байт)
+	{ SUOM_TON,       SUnit::clsMass, "ton", 1000.0 }, // @v11.9.4 РўРѕРЅРЅР° 
+	{ SUOM_DMETER,    SUnit::clsLength, "dm", 0.1 }, // @v11.9.4 Р”РµС†РёРјРµС‚СЂ
+	{ SUOM_SQMETER,   SUnit::clsArea, "sqm", 1.0 }, // @v11.9.4 РљРІР°РґСЂР°С‚РЅС‹Р№ РјРµС‚СЂ
+	{ SUOM_SQCMETER,  SUnit::clsArea, "sqcm", 10000.0 }, // @v11.9.4 РљРІР°РґСЂР°С‚РЅС‹Р№ СЃР°РЅС‚РёРјРµС‚СЂ
+	{ SUOM_SQDMETER,  SUnit::clsArea, "sqdm", 100.0 },// @v11.9.4 РљРІР°РґСЂР°С‚РЅС‹Р№ РґРµС†РёРјРµС‚СЂ
+	{ SUOM_QMETER,    SUnit::clsVolume, "qm", 1000.0 }, // @v11.9.4 РљСѓР±РёС‡РµСЃРєРёР№ РјРµС‚СЂ
+	{ SUOM_MLITER,    SUnit::clsVolume, "ml", 0.001 }, // @v11.9.4 РњРёР»Р»РёР»РёС‚СЂ
+	{ SUOM_KWATTH,    SUnit::clsEnergy, "kwh", 0.0 }, // @v11.9.4 РљРёР»РѕРІР°С‚С‚ РІ С‡Р°СЃ
+	{ SUOM_CALORIE,   SUnit::clsEnergy, "cal", 0.0 }, // @v11.9.4 РљР°Р»РѕСЂРёСЏ
+	{ SUOM_KCALORIE,  SUnit::clsEnergy, "kcal", 0.0 }, // @v11.9.4 РљРёР»РѕРєР°Р»РѕСЂРёСЏ
+	{ SUOM_GCALORIE,  SUnit::clsEnergy, "gcal", 0.0 }, // @v11.9.4 Р“РёРіР°РєР°Р»РѕСЂРёСЏ
+	{ SUOM_BIT,       SUnit::clsInformation, "bit", 0.0 }, // @v11.9.4 Р‘РёС‚
+	{ SUOM_BYTE,      SUnit::clsInformation, "byte", 0.0 }, // @v11.9.4 Р‘Р°Р№С‚
+	{ SUOM_KIBIBYTE,  SUnit::clsInformation, "kib", 0.0 }, // @v11.9.4 РљРёР±РёР±Р°Р№С‚ (1024 Р±Р°Р№С‚)
+	{ SUOM_MEBIBYTE,  SUnit::clsInformation, "mib", 0.0 }, // @v11.9.4 РњРµР±РёР±Р°Р№С‚ (1024*1024 Р±Р°Р№С‚)
+	{ SUOM_GIBIBYTE,  SUnit::clsInformation, "gib", 0.0 }, // @v11.9.4 Р“РёР±РёР±Р°Р№С‚ (1024*1024*1024 Р±Р°Р№С‚)
+	{ SUOM_TIBIBYTE,  SUnit::clsInformation, "tib", 0.0 }, // @v11.9.4 РўРµР±РёР±Р°Р№С‚ (1024*1024*1024*1024 Р±Р°Р№С‚)
 };
 
 /*static*/const void * FASTCALL SUnit::SearchEntry(int unitId)
@@ -231,7 +232,7 @@ int USize::FromStr(const char * pStr, int fmt)
 	if(scan.Skip().GetDotPrefixedNumber(temp_buf)) {
 		S = temp_buf.ToReal();
 		ok = 1;
-		// @note: единицы измерения должны следовать после значения без пробелов
+		// @note: РµРґРёРЅРёС†С‹ РёР·РјРµСЂРµРЅРёСЏ РґРѕР»Р¶РЅС‹ СЃР»РµРґРѕРІР°С‚СЊ РїРѕСЃР»Рµ Р·РЅР°С‡РµРЅРёСЏ Р±РµР· РїСЂРѕР±РµР»РѕРІ
 		if(scan.GetIdent(temp_buf)) {
 			//                              1  2  3  4  5  6  7  8  9
 			int    u = temp_buf.OneOf(';', "px;pt;in;cm;mm;pc;em;ex;%", 1);

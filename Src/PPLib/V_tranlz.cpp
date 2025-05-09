@@ -5445,7 +5445,7 @@ int PrcssrAlcReport::FetchRegister(PPID regID, PPID psnID, PPID locID, RegisterT
 		ProcessRegisterRec(&rec, psnID, locID);
     }
     else
-		MEMSZERO(rec);
+		rec.Clear();
 	ASSIGN_PTR(pRegRec, rec);
 	return ok;
 }

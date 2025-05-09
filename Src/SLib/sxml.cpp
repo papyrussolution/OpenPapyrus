@@ -1,10 +1,10 @@
 // SXML.CPP
 // Copyright (c) A.Sobolev, 2002, 2007, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
-// Вспомогательные механизмы для работы с XML
+// @codepage UTF-8
+// Р’СЃРїРѕРјРѕРіР°С‚РµР»СЊРЅС‹Рµ РјРµС…Р°РЅРёР·РјС‹ РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ XML
 //
 #include <slib-internal.h>
 #pragma hdrstop
-// @v11.7.0 #include <snet.h>
 #include <sxml.h>
 #include <libxml/xmlschemastypes.h>
 
@@ -18,7 +18,7 @@ struct SpcSymbEntry {
 // "\x2c\x2e\x2f\x5c"
 
 static const SpcSymbEntry SpcSymbTab[] = {
-	{ '\x26', 1, "amp"    },  // & @anchor Обязательно на первом месте (замещающие строки содержат &)
+	{ '\x26', 1, "amp"    },  // & @anchor РћР±СЏР·Р°С‚РµР»СЊРЅРѕ РЅР° РїРµСЂРІРѕРј РјРµСЃС‚Рµ (Р·Р°РјРµС‰Р°СЋС‰РёРµ СЃС‚СЂРѕРєРё СЃРѕРґРµСЂР¶Р°С‚ &)
 	{ '\x21', 0, "exclam" },  // !
 	{ '\x23', 0, "sharp"  },  // #
 	{ '\x25', 0, "pct"    },  // %
@@ -525,8 +525,8 @@ void SXmlSaxParser::SaxStop()
 /*virtual*/int SXmlSaxParser::Characters(const char * pS, size_t len)
 {
 	//
-	// Одна строка может быть передана несколькими вызовами. По этому StartElement обнуляет
-	// буфер RdB.TagValue, а здесь каждый вызов дополняет существующую строку входящими символами
+	// РћРґРЅР° СЃС‚СЂРѕРєР° РјРѕР¶РµС‚ Р±С‹С‚СЊ РїРµСЂРµРґР°РЅР° РЅРµСЃРєРѕР»СЊРєРёРјРё РІС‹Р·РѕРІР°РјРё. РџРѕ СЌС‚РѕРјСѓ StartElement РѕР±РЅСѓР»СЏРµС‚
+	// Р±СѓС„РµСЂ RdB.TagValue, Р° Р·РґРµСЃСЊ РєР°Р¶РґС‹Р№ РІС‹Р·РѕРІ РґРѕРїРѕР»РЅСЏРµС‚ СЃСѓС‰РµСЃС‚РІСѓСЋС‰СѓСЋ СЃС‚СЂРѕРєСѓ РІС…РѕРґСЏС‰РёРјРё СЃРёРјРІРѕР»Р°РјРё
 	//
 	TagValue.CatN(pS, len);
 	return 1;
@@ -965,7 +965,7 @@ int SXml::SearchVal(const char * pVal, uint32 * pID)
 //
 //
 //
-#if 0 // @construction { (Затянувшаяся разработка - очень вероятно, что на всегда)
+#if 0 // @construction { (Р—Р°С‚СЏРЅСѓРІС€Р°СЏСЃСЏ СЂР°Р·СЂР°Р±РѕС‚РєР° - РѕС‡РµРЅСЊ РІРµСЂРѕСЏС‚РЅРѕ, С‡С‚Рѕ РЅР° РІСЃРµРіРґР°)
 //
 // SOAP
 //
@@ -1021,22 +1021,22 @@ private:
 	struct InnerItem {
 		uint   NameP;
 		uint   TypeP;
-		uint   ValueP; // Индекс позиции значения. Если Flags & SOAPIF_STRUC, то это - индекс в
-			// ArrList[0], если Flags & SOAPIF_ARRAY, то - индекс массива в ArrList.
+		uint   ValueP; // РРЅРґРµРєСЃ РїРѕР·РёС†РёРё Р·РЅР°С‡РµРЅРёСЏ. Р•СЃР»Рё Flags & SOAPIF_STRUC, С‚Рѕ СЌС‚Рѕ - РёРЅРґРµРєСЃ РІ
+			// ArrList[0], РµСЃР»Рё Flags & SOAPIF_ARRAY, С‚Рѕ - РёРЅРґРµРєСЃ РјР°СЃСЃРёРІР° РІ ArrList.
 		uint   RefP;
 		uint   Dim;
 		TYPEID Typ;
 		long   Flags;   // SOAPIF_XXX
 	};
 
-	TSCollection <SoapPacketArray> ArrList; // Список внутренних массивов. Элемент с индексом 0 представляет
-		// внутренние одиночные структуры.
+	TSCollection <SoapPacketArray> ArrList; // РЎРїРёСЃРѕРє РІРЅСѓС‚СЂРµРЅРЅРёС… РјР°СЃСЃРёРІРѕРІ. Р­Р»РµРјРµРЅС‚ СЃ РёРЅРґРµРєСЃРѕРј 0 РїСЂРµРґСЃС‚Р°РІР»СЏРµС‚
+		// РІРЅСѓС‚СЂРµРЅРЅРёРµ РѕРґРёРЅРѕС‡РЅС‹Рµ СЃС‚СЂСѓРєС‚СѓСЂС‹.
 
 	int    Helper_Get(const InnerItem * pItem, SoapPacketItem & rItem) const;
 	int    ResolveRefs(const SoapPacketStruc & rResolveList);
 
 	uint   RefP;
-	uint   TypeP;  // Позиция наименования типа записи SOAP (attr arrayType)
+	uint   TypeP;  // РџРѕР·РёС†РёСЏ РЅР°РёРјРµРЅРѕРІР°РЅРёСЏ С‚РёРїР° Р·Р°РїРёСЃРё SOAP (attr arrayType)
 	SoapPacket & R_R;
 };
 
@@ -1048,10 +1048,10 @@ public:
 	SoapPacket();
 	SoapPacket & Clear();
 	//
-	// Descr: Разбирает результат вызова Soap-запроса.
+	// Descr: Р Р°Р·Р±РёСЂР°РµС‚ СЂРµР·СѓР»СЊС‚Р°С‚ РІС‹Р·РѕРІР° Soap-Р·Р°РїСЂРѕСЃР°.
 	// Returns:
-	//   1 - запрос успешно разобран
-	//   0 - error разбора
+	//   1 - Р·Р°РїСЂРѕСЃ СѓСЃРїРµС€РЅРѕ СЂР°Р·РѕР±СЂР°РЅ
+	//   0 - error СЂР°Р·Р±РѕСЂР°
 	//
 	int    Parse(const char * pMethodName, void * pXmlDoc, const char * pDebugFileName = 0); // really (xmlDoc *)
 	int    Write(const char * pUrn, const char * pMethodName, void ** ppXmlDoc, const char * pDebugFileName); // really (xmlDoc **)
@@ -1454,7 +1454,7 @@ int SoapPacket::Parse(const char * pMethodName, void * pDoc, const char * pDebug
 		}
 		if(p_child) {
 			int    response_detected = 0;
-			SoapPacketStruc resolve_items(*this); // Сюда временно сбрасываются разрешенные ссылки, которые потом разносятся по структурам
+			SoapPacketStruc resolve_items(*this); // РЎСЋРґР° РІСЂРµРјРµРЅРЅРѕ СЃР±СЂР°СЃС‹РІР°СЋС‚СЃСЏ СЂР°Р·СЂРµС€РµРЅРЅС‹Рµ СЃСЃС‹Р»РєРё, РєРѕС‚РѕСЂС‹Рµ РїРѕС‚РѕРј СЂР°Р·РЅРѕСЃСЏС‚СЃСЏ РїРѕ СЃС‚СЂСѓРєС‚СѓСЂР°Рј
 			(response_text = pMethodName).Cat("Response");
 			(return_text = pMethodName).Cat("Return");
 			fault_text = "Fault";
@@ -1606,7 +1606,7 @@ int SoapPacket::Parse(const char * pMethodName, void * pDoc, const char * pDebug
   						<soapenv:Body>
     						<soapenv:Fault>
       						<faultcode>soapenv:Server.userException</faultcode>
-      						<faultstring>java.rmi.RemoteException: Неверное имя пользователя или пароль</faultstring>
+      						<faultstring>java.rmi.RemoteException: РќРµРІРµСЂРЅРѕРµ РёРјСЏ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ РёР»Рё РїР°СЂРѕР»СЊ</faultstring>
       						<detail>
         						<ns1:hostname xmlns:ns1="http://xml.apache.org/axis/">UHTTSERVER-01</ns1:hostname>
       						</detail>

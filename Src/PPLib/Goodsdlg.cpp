@@ -1608,7 +1608,8 @@ int GoodsDialog::getBarcode()
 {
 	uint   count;
 	int    is_group_code = 0;
-	SString barcode, mark_buf;
+	SString barcode;
+	SString mark_buf;
 	BarcodeTbl::Rec rec;
 	if(getCtrlString(CTL_GOODS_BARCODE, barcode)) {
 		barcode.Strip();
@@ -1631,7 +1632,7 @@ int GoodsDialog::getBarcode()
 			count = Data.Codes.getCount();
 			if(barcode.NotEmptyS()) {
 				if(!count) {
-					MEMSZERO(rec);
+					rec.Clear();
 					rec.GoodsID = Data.Rec.ID;
 					rec.Qtty    = 1.0;
 					STRNSCPY(rec.Code, barcode);

@@ -83,15 +83,14 @@ int PPObjAssetWrOffGrp::Edit(PPID * pID, void * extraPtr)
 	int    valid_data = 0;
 	bool   is_new = false;
 	ushort v;
-	PPAssetWrOffGrp rec;
+	PPAssetWrOffGrp2 rec;
 	TDialog * dlg = 0;
 	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_AWOG))));
 	THROW(EditPrereq(pID, dlg, &is_new));
 	if(!is_new) {
 		THROW(Search(*pID, &rec) > 0);
 	}
-	else
-		MEMSZERO(rec);
+	// @v12.3.3 @ctr else { MEMSZERO(rec); }
 	dlg->setCtrlData(CTL_AWOG_NAME, rec.Name);
 	dlg->setCtrlData(CTL_AWOG_ID,   &rec.ID);
 	dlg->disableCtrl(CTL_AWOG_ID, (!PPMaster || rec.ID));

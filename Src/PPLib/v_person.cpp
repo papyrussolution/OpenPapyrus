@@ -223,7 +223,9 @@ bool PPViewPerson::IsTempTblNeeded()
 	StrPool.ClearS();
 	// @v12.2.10 ZDELETE(P_ClientActivityStateList); // @v12.2.2
 	ExtList.clear(); // @v12.2.10
+	InternalViewList.clear(); // @v12.3.3
 	PsnObj.DirtyConfig(); // @v12.2.4
+	State &= ~stUseInternalList; // @v12.3.3
 	// @v12.2.3 {
 	{
 		const LDATE actual_date = ValidDateOr(Filt.ClientActivityEvalDate, now_date);
@@ -236,7 +238,12 @@ bool PPViewPerson::IsTempTblNeeded()
 		IterCounter cntr;
 		PersonTbl * pt = PsnObj.P_Tbl;
 		PersonKindTbl * kt = & PsnObj.P_Tbl->Kind;
-		THROW(P_TempPsn = CreateTempPersonFile());
+		if(Filt.Flags & PersonFilt::fNoTempTable) { // @v12.3.3
+			State |= stUseInternalList;
+		}
+		else {
+			THROW(P_TempPsn = CreateTempPersonFile());
+		}
 		{
 			PPTransaction tra(ppDbDependTransaction, use_ta);
 			THROW(tra);
@@ -281,7 +288,14 @@ bool PPViewPerson::IsTempTblNeeded()
 							if(CreateAddrRec(loc_rec.ID, &loc_rec, "standalone", &vi) > 0) {
 								if(loc_rec.OwnerID && PsnObj.Fetch(loc_rec.OwnerID, &owner_rec) > 0)
 									STRNSCPY(vi.Name, owner_rec.Name);
-								THROW_DB(P_TempPsn->insertRecBuf(&vi));
+								if(P_TempPsn) {
+									THROW_DB(P_TempPsn->insertRecBuf(&vi));
+								}
+								else {
+									InternalViewItem ivi;
+									ivi.Setup(vi);
+									InternalViewList.insert(&ivi);
+								}
 							}
 						}
 					}
@@ -306,7 +320,14 @@ bool PPViewPerson::IsTempTblNeeded()
 								if(loc_rec.OwnerID && PsnObj.Fetch(loc_rec.OwnerID, &owner_rec) > 0) {
 									STRNSCPY(vi.Name, owner_rec.Name);
 								}
-								THROW_DB(P_TempPsn->insertRecBuf(&vi));
+								if(P_TempPsn) {
+									THROW_DB(P_TempPsn->insertRecBuf(&vi));
+								}
+								else {
+									InternalViewItem ivi;
+									ivi.Setup(vi);
+									InternalViewList.insert(&ivi);
+								}
 							}
 						}
 						PPWaitMsg(ideqvalstr(loc_rec.ID, msg_buf.Z()));
@@ -457,7 +478,14 @@ bool PPViewPerson::IsTempTblNeeded()
 							if(!p_used_loc_list->Has(static_cast<ulong>(loc_rec.ID))) {
 								PsnAttrViewItem vi;
 								if(CreateAddrRec(loc_rec.ID, 0, "@haddress", &vi) > 0) {
-									THROW_DB(P_TempPsn->insertRecBuf(&vi));
+									if(P_TempPsn) {
+										THROW_DB(P_TempPsn->insertRecBuf(&vi));
+									}
+									else {
+										InternalViewItem ivi;
+										ivi.Setup(vi);
+										InternalViewList.insert(&ivi);
+									}
 								}
 							}
 						}
@@ -560,7 +588,7 @@ int PPViewPerson::UpdateHungedAddr(PPID addrID)
 {
 	int    ok = 1;
 	LocationTbl::Rec loc_rec;
-	{
+	if(P_TempPsn) {
 		PsnAttrViewItem vi;
 		PersonTbl::Rec owner_rec;
 		PPTransaction tra(1);
@@ -1452,24 +1480,72 @@ int PPViewPerson::CreateTempRec(PersonTbl::Rec * pPsnRec, PPID tabID, PsnAttrVie
 	return ok;
 }
 
+PPViewPerson::InternalViewItem::InternalViewItem()
+{
+	THISZERO();
+}
+		
+void PPViewPerson::InternalViewItem::Setup(const TempPersonTbl::Rec & rRec)
+{
+	PersonID = rRec.ID;
+	TabID = rRec.TabID;
+	PhoneP = rRec.PhoneP;
+	EMailP = rRec.EMailP;
+	AddressP = rRec.AddressP;
+	RAddressP = rRec.RAddressP;
+	BnkAcctP = rRec.BnkAcctP;
+	RegSerialP = rRec.RegSerialP;
+	FiasAddrGuidP = rRec.FiasAddrGuidP;
+	FiasHouseGuidP = rRec.FiasHouseGuidP;
+	AddrTypeP = rRec.AddrTypeP;
+}
+
+bool PPViewPerson::SearchInternalViewItem(PPID personID, PPID tabID, uint * pPos) const
+{
+	bool   ok = false;
+	uint   pos = 0;
+	LAssoc key; // Тип LAssoc здесь используется ситуативно, поскольку просто содержит два long-поля //
+	key.Key = personID;
+	key.Val = tabID;
+	if(InternalViewList.lsearch(&key, &pos, PTR_CMPFUNC(_2long))) {
+		ok = true;
+	}
+	ASSIGN_PTR(pPos, pos);
+	return ok;
+}
+
 int PPViewPerson::Helper_InsertTempRec(const TempPersonTbl::Rec & rRec)
 {
 	int    ok = 1;
-	TempPersonTbl::Key0 k0;
-	k0.ID    = rRec.ID;
-	k0.TabID = rRec.TabID;
-	if(P_TempPsn->searchForUpdate(0, &k0, spEq)) {
-		ok = P_TempPsn->updateRecBuf(&rRec) ? 1 : PPSetErrorDB();
+	if(P_TempPsn) {
+		TempPersonTbl::Key0 k0;
+		k0.ID    = rRec.ID;
+		k0.TabID = rRec.TabID;
+		if(P_TempPsn->searchForUpdate(0, &k0, spEq)) {
+			ok = P_TempPsn->updateRecBuf(&rRec) ? 1 : PPSetErrorDB();
+		}
+		else
+			ok = P_TempPsn->insertRecBuf(&rRec) ? 1 : PPSetErrorDB();
 	}
-	else
-		ok = P_TempPsn->insertRecBuf(&rRec) ? 1 : PPSetErrorDB();
+	else {
+		uint   pos = 0;
+		InternalViewItem ivi;
+		ivi.Setup(rRec);
+		if(SearchInternalViewItem(rRec.ID, rRec.TabID, &pos)) {
+			InternalViewList.at(pos) = ivi;
+			ok = 1;
+		}
+		else {
+			ok = InternalViewList.insert(&ivi) ? 1 : PPSetErrorSLib();
+		}
+	}
 	return ok;
 }
 
 int PPViewPerson::AddTempRec(PPID id, UintHashTable * pUsedLocList, int use_ta)
 {
 	int    ok = -1;
-	if(P_TempPsn && id) {
+	if((P_TempPsn || (State & stUseInternalList)) && id) {
 		int    stop = 0;
 		const  bool is_crsst = LOGIC(Filt.Flags & PersonFilt::fTagsCrsstab);
 		uint   tags_count = 0;
@@ -1479,24 +1555,38 @@ int PPViewPerson::AddTempRec(PPID id, UintHashTable * pUsedLocList, int use_ta)
 		ObjTagList tags;
 		SString temp_buf;
 		SString buf2;
+		PsnAttrViewItem vi;
 		PPTransaction tra(ppDbDependTransaction, use_ta);
 		THROW(tra);
 		if(PsnObj.Search(id, &psn_rec) > 0 && CheckIDForFilt(id, &psn_rec)) {
 			if(is_crsst) {
+				vi.Clear();
 				THROW(PPRef->Ot.GetList(PPOBJ_PERSON, id, &tags));
 				for(uint i = 0; i < tags.GetCount(); i++) {
 					long   tab_id = DefaultTagID;
 					const  ObjTagItem * p_item = tags.GetItemByPos(i);
 					ObjTag.GetCurrTagVal(p_item, temp_buf);
 					tab_id = p_item->TagID;
-					k0.ID    = id;
-					k0.TabID = tab_id;
-					if(P_TempPsn->search(0, &k0, spEq))
-						ok = -2;
-					else if(CreateTempRec(&psn_rec, tab_id, &P_TempPsn->data) > 0) {
-						temp_buf.CopyTo(P_TempPsn->data.RegNumber, sizeof(P_TempPsn->data.RegNumber));
-						THROW_DB(P_TempPsn->insertRec());
-						ok = 1;
+					if(P_TempPsn) {
+						k0.ID    = id;
+						k0.TabID = tab_id;
+						if(P_TempPsn->search(0, &k0, spEq))
+							ok = -2;
+						else if(CreateTempRec(&psn_rec, tab_id, &vi) > 0) {
+							temp_buf.CopyTo(vi.RegNumber, sizeof(vi.RegNumber));
+							THROW_DB(P_TempPsn->insertRecBuf(&vi));
+							ok = 1;
+						}
+					}
+					else {
+						if(SearchInternalViewItem(id, tab_id, 0)) {
+							ok = -2;
+						}
+						else if(CreateTempRec(&psn_rec, tab_id, &vi) > 0) {
+							InternalViewItem ivi;
+							ivi.Setup(vi);
+							InternalViewList.insert(&ivi);
+						}
 					}
 				}
 			}
@@ -1511,7 +1601,7 @@ int PPViewPerson::AddTempRec(PPID id, UintHashTable * pUsedLocList, int use_ta)
 						if(psn_rec.MainLoc) {
 							CALLPTRMEMB(pUsedLocList, Add((ulong)psn_rec.MainLoc));
 							long   tab_id = psn_rec.MainLoc;
-							PsnAttrViewItem vi;
+							vi.Clear();
 							vi.ID = id;
 							STRNSCPY(vi.Name, psn_rec.Name);
 							if(CreateAddrRec(tab_id, 0, "@jaddress", &vi) > 0) {
@@ -1521,7 +1611,7 @@ int PPViewPerson::AddTempRec(PPID id, UintHashTable * pUsedLocList, int use_ta)
 						if(psn_rec.RLoc) {
 							CALLPTRMEMB(pUsedLocList, Add((ulong)psn_rec.RLoc));
 							long   tab_id = psn_rec.RLoc;
-							PsnAttrViewItem vi;
+							vi.Clear();
 							vi.ID = id;
 							STRNSCPY(vi.Name, psn_rec.Name);
 							if(CreateAddrRec(tab_id, 0, "@paddress", &vi) > 0) {
@@ -1531,7 +1621,7 @@ int PPViewPerson::AddTempRec(PPID id, UintHashTable * pUsedLocList, int use_ta)
 					}
 					for(i = 0; i < dlvr_addr_list.getCount(); i++) {
 						long   tab_id = dlvr_addr_list.get(i);
-						PsnAttrViewItem vi;
+						vi.Clear();
 						if(tab_id && pUsedLocList) {
 							pUsedLocList->Add((ulong)tab_id);
 						}
@@ -1563,7 +1653,7 @@ int PPViewPerson::AddTempRec(PPID id, UintHashTable * pUsedLocList, int use_ta)
 					}
 					if(rec_list.getCount() == 0) {
 						if(Filt.EmptyAttrib != EA_NOEMPTY && !Filt.CityID) {
-							PsnAttrViewItem vi;
+							vi.Clear();
 							vi.ID = id;
 							STRNSCPY(vi.Name, psn_rec.Name);
 							THROW(ok = Helper_InsertTempRec(vi));
@@ -1628,7 +1718,7 @@ int PPViewPerson::AddTempRec(PPID id, UintHashTable * pUsedLocList, int use_ta)
 					PsnObj.RegObj.GetBankAccountList(id, &bac_ary);
 					if(bac_ary.getCount() == 0) {
 						if(Filt.EmptyAttrib != EA_NOEMPTY) {
-							PsnAttrViewItem vi;
+							vi.Clear();
 							vi.ID = id;
 							vi.TabID = 0;
 							STRNSCPY(vi.Name, psn_rec.Name);
@@ -1640,7 +1730,7 @@ int PPViewPerson::AddTempRec(PPID id, UintHashTable * pUsedLocList, int use_ta)
 							PersonTbl::Rec bnk_rec;
 							for(uint pos = 0; pos < bac_ary.getCount(); pos++) {
 								const PPBankAccount & r_ba = bac_ary.at(pos);
-								PsnAttrViewItem vi;
+								vi.Clear();
 								vi.ID = id;
 								vi.TabID = r_ba.ID;
 								STRNSCPY(vi.Name, psn_rec.Name);
@@ -1665,13 +1755,27 @@ int PPViewPerson::AddTempRec(PPID id, UintHashTable * pUsedLocList, int use_ta)
 				}
 				else {
 					const long tab_id = DefaultTagID;
-					k0.ID    = id;
-					k0.TabID = tab_id;
-					if(P_TempPsn->search(0, &k0, spEq))
-						ok = -2;
-					else if(CreateTempRec(&psn_rec, tab_id, &P_TempPsn->data) > 0) {
-						THROW_DB(P_TempPsn->insertRec());
-						ok = 1;
+					if(P_TempPsn) {
+						k0.ID    = id;
+						k0.TabID = tab_id;
+						if(P_TempPsn->search(0, &k0, spEq))
+							ok = -2;
+						else {
+							if(CreateTempRec(&psn_rec, tab_id, &vi) > 0) {
+								THROW_DB(P_TempPsn->insertRecBuf(&vi));
+								ok = 1;
+							}
+						}
+					}
+					else {
+						if(SearchInternalViewItem(id, tab_id, 0)) {
+							ok = -2;
+						}
+						else if(CreateTempRec(&psn_rec, tab_id, &vi) > 0) {
+							InternalViewItem ivi;
+							ivi.Setup(vi);
+							InternalViewList.insert(&ivi);
+						}
 					}
 				}
 			}
@@ -1748,6 +1852,9 @@ int PPViewPerson::InitIteration()
 	if(P_TempPsn) {
 		THROW(InitPersonAttribIteration());
 	}
+	else if(State & stUseInternalList) { // @v12.3.3
+		InternalViewList.setPointer(0);
+	}
 	else {
 		THROW(InitPersonIteration());
 	}
@@ -1760,7 +1867,27 @@ int PPViewPerson::Helper_NextIteration(uint flags, PersonViewItem * pItem)
 	int    ok = -1;
 	PersonViewItem item;
 	MEMSZERO(item); // @v12.2.9
-	if(P_IterQuery) {
+	if(State & stUseInternalList) { // @v12.3.3
+		while(ok < 0 && InternalViewList.getPointer() < InternalViewList.getCount()) {
+			const InternalViewItem & r_ii = InternalViewList.at(InternalViewList.getPointer());
+			if(PsnObj.Search(r_ii.PersonID, &item) > 0) {
+				item.AttrItem.TabID = r_ii.TabID;
+				item.AttrItem.AddressP = r_ii.AddressP;
+				item.AttrItem.RAddressP = r_ii.RAddressP;
+				item.AttrItem.AddrTypeP = r_ii.AddrTypeP;
+				item.AttrItem.BnkAcctP = r_ii.BnkAcctP;
+				item.AttrItem.BnkNameP = r_ii.BnkNameP;
+				item.AttrItem.RegSerialP = r_ii.RegSerialP;
+				item.AttrItem.PhoneP = r_ii.PhoneP;
+				item.AttrItem.EMailP = r_ii.EMailP;
+				item.AttrItem.FiasAddrGuidP = r_ii.FiasAddrGuidP;
+				item.AttrItem.FiasHouseGuidP = r_ii.FiasHouseGuidP;
+				ok = 1;
+			}
+			InternalViewList.incPointer();
+		}
+	}
+	else if(P_IterQuery) {
 		while(ok < 0 && P_IterQuery->nextIteration() > 0) { // AHTOXA
 			PPID   person_id = 0;
 			if(P_TempPsn) {

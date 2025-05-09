@@ -1,5 +1,5 @@
 // ADVBILL.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2024
+// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -17,7 +17,7 @@ int PPObjAdvBillKind::Edit(PPID * pID, void * extraPtr)
 	int    valid_data = 0;
 	int    r = cmCancel;
 	bool   is_new = false;
-	PPAdvBillKind rec;
+	PPAdvBillKind2 rec;
 	PPIDArray op_type_list;
 	TDialog * dlg = new TDialog(DLG_ADVBILLKIND);
 	THROW(CheckDialogPtr(&dlg));
@@ -25,8 +25,7 @@ int PPObjAdvBillKind::Edit(PPID * pID, void * extraPtr)
 	if(!is_new) {
 		THROW(Search(*pID, &rec) > 0);
 	}
-	else
-		MEMSZERO(rec);
+	// @v12.3.3 @ctr else { MEMSZERO(rec); }
 	dlg->setCtrlData(CTL_ADVBILLKIND_NAME, rec.Name);
 	dlg->setCtrlLong(CTL_ADVBILLKIND_ID, rec.ID);
 	op_type_list.addzlist(PPOPT_ACCTURN, PPOPT_GOODSEXPEND, PPOPT_GOODSRECEIPT, 0L);

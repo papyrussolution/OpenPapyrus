@@ -1,5 +1,6 @@
 // SLIB-INTERNAL.H
-// Copyright (c) A.Sobolev 2020, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 2020, 2022, 2023, 2024, 2025
+// @codepage UTF-8
 //
 #ifndef __SLIB_INTERNAL_H
 #define __SLIB_INTERNAL_H
@@ -20,13 +21,13 @@ FORCEINLINE uint implement_iseol(const char * pIn, SEOLFormat eolf)
 	const char c = pIn[0];
 	if(oneof2(c, '\x0A', '\x0D')) {
 		switch(eolf) {
-			case eolAny: // @v11.3.6 Любая комбинация ('\x0D'; '\x0A'; '\x0D\x0A'; '\x0A\x0D') трактуется как конец строки
+			case eolAny: // @v11.3.6 Р›СЋР±Р°СЏ РєРѕРјР±РёРЅР°С†РёСЏ ('\x0D'; '\x0A'; '\x0D\x0A'; '\x0A\x0D') С‚СЂР°РєС‚СѓРµС‚СЃСЏ РєР°Рє РєРѕРЅРµС† СЃС‚СЂРѕРєРё
 				return ((c == '\x0D' && pIn[1] == '\x0A') || (c == '\x0A' && pIn[1] == '\x0D')) ? 2 : 1;
 			case eolUnix: return BIN(c == '\x0A');
 			case eolMac: return BIN(c == '\x0D');
 			case eolWindows: return (c == '\x0D' && (pIn[1] == '\x0A')) ? 2 : 0;
 			case eolUndef: return (c == '\x0D' && (pIn[1] == '\x0A')) ? 2 : 1;
-			case eolSpcICalendar: // @v11.0.3 (если после \xD\xA идет пробел, то это - продолжение текущей строки, но обслуживает ситуацию caller
+			case eolSpcICalendar: // @v11.0.3 (РµСЃР»Рё РїРѕСЃР»Рµ \xD\xA РёРґРµС‚ РїСЂРѕР±РµР», С‚Рѕ СЌС‚Рѕ - РїСЂРѕРґРѕР»Р¶РµРЅРёРµ С‚РµРєСѓС‰РµР№ СЃС‚СЂРѕРєРё, РЅРѕ РѕР±СЃР»СѓР¶РёРІР°РµС‚ СЃРёС‚СѓР°С†РёСЋ caller
 				return (c == '\x0D' && (pIn[1] == '\x0A')) ? 2 : 0;
 		}
 	}
@@ -34,4 +35,3 @@ FORCEINLINE uint implement_iseol(const char * pIn, SEOLFormat eolf)
 }
 
 #endif // __SLIB_INTERNAL_H
-

@@ -1058,9 +1058,9 @@ public:
 	int    Test_ReWr_Code(const DlContext & rPattern);
 	int    GetDialogList(StrAssocArray * pList) const;
 	//
-	// Descr: Возвращает указатель на блок лейаута области pScope, определенного констанантой DlScope::cuifLayoutBlock.
+	// Descr: Возвращает указатель на блок лейаута области pScope, определенного константой DlScope::cuifLayoutBlock.
 	//
-	const  SUiLayoutParam * GetConst_LayoutBlock(const DlScope * pScope, DlScope::COption propId) const;
+	bool   GetLayoutBlock(const DlScope * pScope, DlScope::COption propId, SUiLayoutParam * pLp) const;
 	bool   GetConst_String(const DlScope * pScope, DlScope::COption propId, SString & rBuf) const;
 	bool   GetConst_Int(const DlScope * pScope, DlScope::COption propId, int & rValue) const;
 	bool   GetConst_Uint32(const DlScope * pScope, DlScope::COption propId, uint32 & rValue) const;
@@ -1641,7 +1641,7 @@ int Use001(); // чтобы линковались модули с коклас�
 //
 #define DBTABLE_CONSTRUCTOR(tbl, firstField) \
 	tbl##Tbl::tbl##Tbl(const char * pFileName/*, int openMode*/) : DBTable(#tbl, pFileName, &firstField, &data, /*openMode*/omNormal) {}\
-	tbl##Tbl::Rec::Rec() { THISZERO(); }
+	tbl##Tbl::Rec::Rec() { Clear(); } // @v12.3.3 THISZERO()-->Clear()
 
 #ifdef DL600C // {
 //

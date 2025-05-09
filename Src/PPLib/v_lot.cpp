@@ -1755,7 +1755,7 @@ int PPViewLot::UpdateTempTable(PPID lotID)
 			LotViewItem item;
 			int    r = -1;
 			if(P_Tbl->Search(lotID, &lot_rec) > 0 && (r = AcceptViewItem(lot_rec, &item)) > 0) {
-				MEMSZERO(rec);
+				rec.Clear();
 				rec.LotID   = lot_rec.ID;
 				rec.Dt      = lot_rec.Dt;
 				rec.OrgID   = item.OrgLotID;

@@ -12218,6 +12218,14 @@ int FASTCALL ExtStrSrch(const char * pBuffer, const char * pPattern, uint flags)
 #define SNTOK_GENERICTEXT_CP866         46 // @v12.2.12
 #define SNTOK_JSON                      47 // @v12.2.12
 #define SNTOK_PLIDENT                   48 // @v12.3.0 Идентификатор во многих (но не всех) языках программирования. Все символы - ascii, первый символ - latin or '_', остальные - decimal or latin or '_'
+#define SNTOK_HASH_MD5                  49 // @v12.3.3 @todo
+#define SNTOK_BASE32                    50 // @v12.3.3
+#define SNTOK_BASE32_CROCKFORD          51 // @v12.3.3
+#define SNTOK_BASE58                    52 // @v12.3.3
+#define SNTOK_BASE64                    53 // @v12.3.3
+#define SNTOK_BASE64_URL                54 // @v12.3.3
+#define SNTOK_BASE64_WP                 55 // @v12.3.3 (with padding)
+#define SNTOK_BASE64_URL_WP             56 // @v12.3.3 (with padding)
 
 #define SNTOKSEQ_DEC                0x00000001 // 0-9
 #define SNTOKSEQ_LATLWR             0x00000002 // a-z
@@ -12248,6 +12256,15 @@ int FASTCALL ExtStrSrch(const char * pBuffer, const char * pPattern, uint flags)
 struct SNaturalTokenStat {
 	SNaturalTokenStat();
 	SNaturalTokenStat & Z();
+	//
+	// Descr: Функция выясняет соответствует ли список символов ChrList заданному набору ascii-символов pPattern
+	//   в том смысле, что в ChrList нет ни одного символа, который не был бы перечислен в pPattern.
+	//   Предполагается, что pPattern содержит только ascii символы.
+	//   Если ChrList пустой, то функция (в соответствии с логикой) возвращает true.
+	//   Если sstrlen(pPattern) == 0, то функция (в соответствии с логикой) возвращает false.
+	//
+	bool   IsChrListAsciiPatternMatched(const char * pPattern) const;
+
     uint32 Len;  // Длина токена в байтах
     uint32 Seq;
 	LAssocArray ChrList; // @v11.9.7
@@ -12298,6 +12315,7 @@ protected:
 		ImplementBlock();
 		ImplementBlock & Z();
 		void   Init(const uchar * pToken, int tokenLen /* (<0) - strlen(pToken) */);
+
 		long   F;
 		uint   DecCount; // Количество десятичных цифр
 		SNaturalTokenStat Stat;
@@ -12314,6 +12332,14 @@ protected:
 	virtual int PostImplement(ImplementBlock & rIb, const uchar * pToken, int len, SNaturalTokenArray & rResultList, SNaturalTokenStat * pStat);
 private:
 	static int FASTCALL IsUtf8(const uchar * p, size_t restLen);
+
+	long   ReBase32;
+	long   ReBase32_Crockford;
+	long   ReBase58;
+	long   ReBase64;
+	long   ReBase64_Wp;
+	long   ReBase64_Url;
+	long   ReBase64_Url_Wp;
 };
 //
 // Descr: wrapper-class for interface with libphonenumber

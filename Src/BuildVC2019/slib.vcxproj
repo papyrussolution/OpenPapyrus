@@ -1233,7 +1233,7 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">
       </PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="..\SLib\Dbf.cpp">
+    <ClCompile Include="..\SLib\dbf.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">
       </PrecompiledHeaderFile>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">
@@ -2326,7 +2326,7 @@
     <ClCompile Include="..\SLib\sarc.cpp" />
     <ClCompile Include="..\SLib\Sarray.cpp" />
     <ClCompile Include="..\SLib\saudio.cpp" />
-    <ClCompile Include="..\SLib\Sbrodef.cpp" />
+    <ClCompile Include="..\SLib\sbrodef.cpp" />
     <ClCompile Include="..\Slib\sbuffer.cpp">
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

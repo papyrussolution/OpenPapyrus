@@ -1,5 +1,5 @@
 // DBPRVDR.CPP
-// Copyright (c) A.Sobolev 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2025
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -730,19 +730,6 @@ int DbProvider::Implement_DeleteFrom(DBTable * pTbl, int useTa, DBQ & rQ)
 	DBQuery * q = & selectAll().from(pTbl, 0L).where(rQ);
 	q->setDestroyTablesMode(0);
 	if(!useTa || DBS.GetTLA().StartTransaction()) {
-		/* @v10.3.0 for(int dir = spFirst; ok && q->single_fetch(0, 0, dir); dir = spNext) {
-			uint8  key_buf[512];
-			DBRowId _dbpos;
-			if(!pTbl->getPosition(&_dbpos))
-				ok = 0;
-			else if(!pTbl->getDirectForUpdate(pTbl->getCurIndex(), key_buf, _dbpos))
-				ok = 0;
-			else {
-				if(pTbl->deleteRec() == 0) // @sfu
-					ok = 0;
-			}
-		}*/
-		// @v10.3.0 {
 		if(q->single_fetch(0, 0, spFirst)) do {
 			uint8  key_buf[512];
 			DBRowId _dbpos;
@@ -753,7 +740,6 @@ int DbProvider::Implement_DeleteFrom(DBTable * pTbl, int useTa, DBQ & rQ)
 			else if(pTbl->deleteRec() == 0) // @sfu
 				ok = 0;
 		} while(ok && q->single_fetch(0, 0, spNext));
-		// } @v10.3.0
 		if(q->error)
 			ok = 0;
 		if(useTa)

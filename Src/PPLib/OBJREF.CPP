@@ -1477,8 +1477,8 @@ int PPObjELinkKind::ProcessReservedItem(TVRez & rez)
 	pref = rez.getUINT();
 	THROW(r = Search(id));
 	if(r < 0) {
-		PPELinkKind rec;
-		MEMSZERO(rec);
+		PPELinkKind2 rec;
+		// @v12.3.3 @ctr MEMSZERO(rec);
 		rec.ID = id;
 		STRNSCPY(rec.Name, name);
 		switch(toupper(type.C(0))) {
@@ -1655,7 +1655,7 @@ int PPObjCurrency::Edit(PPID * pID, void * extraPtr)
 	int    ok = 1;
 	int    r = cmCancel;
 	int    valid_data = 0;
-	PPCurrency rec;
+	PPCurrency2 rec;
 	TDialog * dlg = 0;
 	THROW(CheckRightsModByID(pID));
 	dlg = new TDialog(DLG_CURRENCY);
@@ -1663,15 +1663,15 @@ int PPObjCurrency::Edit(PPID * pID, void * extraPtr)
 	if(*pID) {
 		THROW(Search(*pID, &rec) > 0);
 	}
-	else
-		MEMSZERO(rec);
+	// @v12.3.3 @ctr else { MEMSZERO(rec); }
 	dlg->setCtrlData(CTL_CURRENCY_NAME, rec.Name);
 	dlg->setCtrlData(CTL_CURRENCY_SYMB, rec.Symb);
 	dlg->setCtrlData(CTL_CURRENCY_CODE, &rec.Code);
 	dlg->setCtrlData(CTL_CURRENCY_ID,   &rec.ID);
 	dlg->disableCtrl(CTL_CURRENCY_ID, (!PPMaster || rec.ID));
 	while(!valid_data && (r = ExecView(dlg)) == cmOK) {
-		int    err = 0, sel = 0;
+		int    err = 0;
+		int    sel = 0;
 		dlg->getCtrlData(CTL_CURRENCY_NAME, rec.Name);
 		dlg->getCtrlData(CTL_CURRENCY_SYMB, rec.Symb);
 		dlg->getCtrlData(CTL_CURRENCY_CODE, &rec.Code);
@@ -4284,9 +4284,7 @@ int PPObjFreightPackageType::Edit(PPID * pID, void * extraPtr)
 	if(*pID) {
 		THROW(Search(*pID, &rec) > 0);
 	}
-	else {
-		MEMSZERO(rec);
-	}
+	// @v12.3.3 @ctr else { MEMSZERO(rec); }
 	THROW(CheckDialogPtr(&(dlg = new FreightPackageTypeDialog)));
 	dlg->setDTS(&rec);
 	while(!valid_data && (r = ExecView(dlg)) == cmOK) {
@@ -4414,9 +4412,7 @@ int PPObjComputerCategory::MakeReservedItem(PPID * pID, int use_ta)
 	if(*pID) {
 		THROW(Search(*pID, &rec) > 0);
 	}
-	else {
-		MEMSZERO(rec);
-	}
+	// @v12.3.3 @ctr else { MEMSZERO(rec); }
 	THROW(CheckDialogPtr(&(dlg = new ComputerCategoryDialog)));
 	dlg->setDTS(&rec);
 	while(!valid_data && (r = ExecView(dlg)) == cmOK) {

@@ -1,5 +1,5 @@
 // OBJASSOC.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2015, 2016, 2017, 2019, 2024
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2015, 2016, 2017, 2019, 2024, 2025
 // @Kernel
 //
 #include <pp.h>
@@ -227,7 +227,6 @@ int ObjAssoc::AddArray(PPID asscTyp, const LAssocArray * pList, int preRemove, i
 			BExtInsert bei(this);
 			for(uint i = 0; i < pList->getCount(); i++) {
 				ObjAssocTbl::Rec rec;
-				MEMSZERO(rec);
 				rec.AsscType = asscTyp;
 				rec.PrmrObjID = pList->at(i).Key;
 				rec.ScndObjID = pList->at(i).Val;

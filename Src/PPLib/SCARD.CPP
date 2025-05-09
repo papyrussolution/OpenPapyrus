@@ -857,13 +857,11 @@ int SCardCore::PutOpBlk(const OpBlock & rBlk, TSVector <UpdateRestNotifyEntry> *
 				rec.FreezingStart = rBlk.FreezingPeriod.low;
 				rec.FreezingEnd = rBlk.FreezingPeriod.upp;
 			}
-			// @v10.9.0 {
 			if(rBlk.Flags & rBlk.fLeveling)
 				rec.Flags |= SCARDOPF_LEVELING;
-			// } @v10.9.0 
 			THROW(PutOpRec(&rec, pNotifyList, 0));
 			if(rBlk.DestSCardID) {
-				MEMSZERO(rec);
+				rec.Clear();
 				rec.SCardID = rBlk.DestSCardID;
 				LDATETIME dtm = rBlk.Dtm;
 				dtm.addhs(10);
@@ -902,10 +900,13 @@ int SCardCore::PutOpBlk(const OpBlock & rBlk, TSVector <UpdateRestNotifyEntry> *
 
 int SCardCore::PutOpRec(const SCardOpTbl::Rec * pRec, TSVector <UpdateRestNotifyEntry> * pNotifyList, int use_ta)
 {
-	int    ok = 1, new_op = -1, r = -1;
+	int    ok = 1;
+	int    new_op = -1;
+	int    r = -1;
 	double rest;
 	long   frz_delta = 0;
-	SCardOpTbl::Rec exs_rec, rec = *pRec;
+	SCardOpTbl::Rec exs_rec;
+	SCardOpTbl::Rec rec(*pRec);
 	SCardOpTbl::Key0 k0;
 	SCardTbl::Rec sc_rec;
 	const LDATETIME now_dtm = getcurdatetime_();

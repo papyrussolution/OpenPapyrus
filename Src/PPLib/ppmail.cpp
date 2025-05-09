@@ -106,7 +106,7 @@ int PPObjInternetAccount::Browse(void * extraPtr)
 	};
 	int    ok = -1;
 	const  long extra_param = reinterpret_cast<const long>(extraPtr);
-	// @v10.7.11 if(extra_param == PPObjInternetAccount::filtfMail/*INETACCT_ONLYMAIL*/) {
+	{
 		MailAcctsView * p_dlg = 0;
 		if(CheckRights(PPR_READ) && CheckDialogPtr(&(p_dlg = new MailAcctsView(this, extraPtr)))) {
 			ExecView(p_dlg);
@@ -115,7 +115,7 @@ int PPObjInternetAccount::Browse(void * extraPtr)
 		}
 		else
 			ok = PPErrorZ();
-	// @v10.7.11 } else ok = PPObjReference::Browse(extraPtr);
+	}
 	return ok;
 }
 
@@ -405,7 +405,7 @@ public:
 		SString temp_buf;
 		getCtrlData(selctl = CTL_MAILACC_NAME, Data.Name);
 		THROW_PP(*strip(Data.Name) != 0, PPERR_NAMENEEDED);
-		getCtrlData(CTL_MAILACC_SYMB, Data.Symb); // @v10.7.12
+		getCtrlData(CTL_MAILACC_SYMB, Data.Symb);
 		GetExtStrData(this, &Data, CTL_MAILACC_FROMADDR, MAEXSTR_FROMADDRESS);
 		GetExtStrData(this, &Data, CTL_MAILACC_SENDSRV,  MAEXSTR_SENDSERVER);
 		GetExtIntData(this, &Data, CTL_MAILACC_SENDPORT, MAEXSTR_SENDPORT);
@@ -1603,20 +1603,25 @@ int ExportEmailAccts(const PPIDArray * pMailAcctsList)
 {
 	int    ok = 1;
 	uint   exported = 0;
-	SString path;
+	SString temp_buf;
 	PPInternetAccount account;
 	PPImpExp * p_ie = 0;
 	PPImpExpParam param;
 	PPObjInternetAccount mobj;
 	PPWaitStart();
-	PPGetFilePath(PPPATH_OUT, PPFILNAM_MAILACCTS, path);
-	THROW(InitImpExpParam(&param, path, 1));
+	PPGetFilePath(PPPATH_OUT, PPFILNAM_MAILACCTS, temp_buf);
+	THROW(InitImpExpParam(&param, temp_buf, 1));
 	THROW_MEM(p_ie = new PPImpExp(&param, 0));
 	THROW(p_ie->OpenFileForWriting(0, 1));
 	for(PPID id = 0; mobj.EnumItems(&id, &account) > 0;) {
 		if(!(account.Flags & PPInternetAccount::fFtpAccount) && (!pMailAcctsList || pMailAcctsList->lsearch(id))) {
 			Sdr_EmailAccount account_rec;
-			SString smtp, smtp_port, pop3, pop3_port, user, from;
+			SString smtp;
+			SString smtp_port;
+			SString pop3;
+			SString pop3_port;
+			SString user;
+			SString from;
 			THROW(mobj.Get(id, &account));
 			account.GetExtField(MAEXSTR_SENDSERVER,  smtp);
 			account.GetExtField(MAEXSTR_SENDPORT,    smtp_port);
@@ -1627,9 +1632,8 @@ int ExportEmailAccts(const PPIDArray * pMailAcctsList)
 			STRNSCPY(account_rec.Name, account.Name);
 			account_rec.Timeout = account.Timeout;
 			if(account.SmtpAuthType) {
-				SString auth;
-				PPGetSubStr(PPTXT_SMTPAUTHTYPES, account.SmtpAuthType - 1, auth);
-				STRNSCPY(account_rec.AuthType, auth.SearchChar(',', 0) + 1);
+				PPGetSubStr(PPTXT_SMTPAUTHTYPES, account.SmtpAuthType - 1, temp_buf);
+				STRNSCPY(account_rec.AuthType, temp_buf.SearchChar(',', 0) + 1);
 			}
 			smtp.CopyTo(account_rec.SmtpServer, sizeof(account_rec.SmtpServer));
 			account_rec.SmtpPort = (int16)smtp_port.ToLong();
@@ -1646,10 +1650,9 @@ int ExportEmailAccts(const PPIDArray * pMailAcctsList)
 	CATCHZOKPPERR
 	ZDELETE(p_ie);
 	{
-		SString buf, msg;
-		PPLoadText(PPTXT_EXPORTEDRECS, buf);
-		msg.Printf(buf, exported);
-		messageBox(msg, mfInfo|mfOK);
+		SString msg;
+		msg.Printf(PPLoadTextS(PPTXT_EXPORTEDRECS, temp_buf), exported);
+		SMessageBox(msg, mfInfo|mfOK);
 	}
 	return ok;
 }

@@ -33,7 +33,7 @@
     <ClCompile Include="..\SLib\Range.cpp" />
     <ClCompile Include="..\SLib\sarc.cpp" />
     <ClCompile Include="..\SLib\Sarray.cpp" />
-    <ClCompile Include="..\SLib\Sbrodef.cpp" />
+    <ClCompile Include="..\SLib\sbrodef.cpp" />
     <ClCompile Include="..\Slib\sbuffer.cpp" />
     <ClCompile Include="..\SLib\Scomport.cpp" />
     <ClCompile Include="..\SLib\sc_cfg.cpp" />
@@ -119,7 +119,7 @@
     <ClCompile Include="..\SLib\Dbbackup.cpp" />
     <ClCompile Include="..\SLib\Dbdict.cpp" />
     <ClCompile Include="..\SLib\Dbeop.cpp" />
-    <ClCompile Include="..\SLib\Dbf.cpp" />
+    <ClCompile Include="..\SLib\dbf.cpp" />
     <ClCompile Include="..\SLib\dboci.cpp" />
     <ClCompile Include="..\SLib\dbprvdr.cpp" />
     <ClCompile Include="..\SLib\Dbq.cpp" />

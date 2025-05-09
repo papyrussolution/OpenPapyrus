@@ -1113,7 +1113,7 @@ int PPObjStaffList::CreateFixedStaff(PPID * pID, PPID orgID, PPID divID, PPID fi
 				id = idx+1;
 			if(id == fixID) {
 				PPStaffEntry rec;
-				MEMSZERO(rec);
+				// @v12.3.3 @ctr MEMSZERO(rec);
 				STRNSCPY(rec.Name, name_str);
 				rec.OrgID      = orgID;
 				rec.DivisionID = divID;

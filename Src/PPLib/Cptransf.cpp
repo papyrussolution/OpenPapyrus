@@ -220,7 +220,7 @@ int CpTransfCore::PutItem(PPTransferItem * pTi, int16 forceRByBill, const CpTrfr
 				pTi->RByBill = forceRByBill;
 			}
 			else {
-				MEMSZERO(rec);
+				rec.Clear();
 				k.BillID = pTi->BillID;
 				k.RByBill = MAXSHORT;
 				pTi->RByBill = (search(0, &k, spLt) && k.BillID == pTi->BillID) ? (k.RByBill+1) : 1;

@@ -24,7 +24,6 @@ class  SrDatabase;
 struct TDrawItemData;
 class  TWhatman;
 //
-// @v10.9.6 
 // Макросы для блокировки локальных участков кода для предотвращения повторного 
 // вхождения по причине того, что код на этом участке может неявно генерировать события, инициирующие
 // рекурсию.
@@ -79,7 +78,7 @@ public:
 
 	enum {
 		fAlwaysSearchBySubStr = 0x0001,
-		fFreeText     = 0x0002 // @v10.7.7 Текст в основной строке вводится свободно без вызова окна поиска
+		fFreeText             = 0x0002 // Текст в основной строке вводится свободно без вызова окна поиска
 	};
 //protected:
 	long   Flags;
@@ -537,28 +536,28 @@ private:
 class SUiLayoutParam { // @persistent // @size=100
 public:
 	enum {
-		fContainerRow     = 0x0001, // Контейнер выстраивает дочерние элементы по строкам (ось X)
-		fContainerCol     = 0x0002, // Контейнер выстраивает дочерние элементы по колонкам (ось Y)
+		fContainerRow          = 0x00000001, // Контейнер выстраивает дочерние элементы по строкам (ось X)
+		fContainerCol          = 0x00000002, // Контейнер выстраивает дочерние элементы по колонкам (ось Y)
 			// if fContainerRow && fContainerCol, then no direction
-		fContainerReverseDir = 0x0004, // if horizontal then right-to-left, if vertical then bottom-to-top
-		fContainerWrap       = 0x0008, // Если все элементы не вмещаются в один ряд, то контейнер переносит последующие элементы на следующий ряд.
-		fContainerWrapReverse  = 0x0010, // ignored if !(Flags & fWrap)
-		fEntryPositionAbsolute = 0x0020, // else Relative
-		fNominalDefL      = 0x0040, // Определена номинальная граница LEFT элемента   (Nominal.a.X)
-		fNominalDefT      = 0x0080, // Определена номинальная граница TOP элемента    (Nominal.a.Y)
-		fNominalDefR      = 0x0100, // Определена номинальная граница RIGHT элемента  (Nominal.b.X)
-		fNominalDefB      = 0x0200, // Определена номинальная граница BOTTOM элемента (Nominal.b.Y)
-		fEvaluateScroller = 0x0400, // @v11.0.3 процессинговый флаг, предписывающий рассчитывать параметры скроллинга.
+		fContainerReverseDir   = 0x00000004, // if horizontal then right-to-left, if vertical then bottom-to-top
+		fContainerWrap         = 0x00000008, // Если все элементы не вмещаются в один ряд, то контейнер переносит последующие элементы на следующий ряд.
+		fContainerWrapReverse  = 0x00000010, // ignored if !(Flags & fWrap)
+		fEntryPositionAbsolute = 0x00000020, // else Relative
+		fNominalDefL           = 0x00000040, // Определена номинальная граница LEFT элемента   (Nominal.a.X)
+		fNominalDefT           = 0x00000080, // Определена номинальная граница TOP элемента    (Nominal.a.Y)
+		fNominalDefR           = 0x00000100, // Определена номинальная граница RIGHT элемента  (Nominal.b.X)
+		fNominalDefB           = 0x00000200, // Определена номинальная граница BOTTOM элемента (Nominal.b.Y)
+		fEvaluateScroller      = 0x00000400, // @v11.0.3 процессинговый флаг, предписывающий рассчитывать параметры скроллинга.
 			// Если флаг не установлен, то скроллинг рассчитываться точно не будет. Если установлен, то - в зависимости
 			// от параметров контейнера. Рассчитанные параметры скроллинга сохраняются по указателю SUiLayout::Result::P_Scrlr.
 		//
 		// Следующие 4 флага не применяются для определения внутреннего состояния, но нужны для индикации результата вычислений
 		// (в частности, функциями GetNominalRect, GetNominalRectWithDefaults).
 		//
-		fNominalSzX       = 0x0800, // @v12.3.2 Определен номинальный размер X.
-		fNominalSzY       = 0x1000, // @v12.3.2 Определен номинальный размер Y.
-		fDefaultSzX       = 0x2000, // @v12.3.3 Применен горизонтальный размер по умолчанию
-		fDefaultSzY       = 0x4000, // @v12.3.3 Применен вертикальный размер по умолчанию
+		fNominalSzX            = 0x00000800, // @v12.3.2 Определен номинальный размер X.
+		fNominalSzY            = 0x00001000, // @v12.3.2 Определен номинальный размер Y.
+		fDefaultSzX            = 0x00002000, // @v12.3.3 Применен горизонтальный размер по умолчанию
+		fDefaultSzY            = 0x00004000, // @v12.3.3 Применен вертикальный размер по умолчанию
 	};
 	enum {
 		alignAuto = 0,
@@ -4125,7 +4124,7 @@ protected:
 	TView * link;
 };
 
-ushort messageBox(const char *msg, ushort aOptions);
+ushort SMessageBox(const char * pMsg, ushort options);
 
 #define CLUSTER_ID(x) ((x)&4095)
 #define BUTTON_ID(x)  ((x)>>12)
@@ -5452,7 +5451,7 @@ public:
 	long   _topItem() const { return topItem; }
 	long   _curItem() const { return curItem; }
 	long   _curFrameItem() const { return (curItem - topItem); }
-	int    STDCALL isColInGroup(uint col, uint * idx) const;
+	bool   STDCALL IsColInGroup(uint col, uint * pIdx) const;
 	int    GetCapHeight() const;
 	bool   SetCapHeight(int height); // @v12.2.2
 	void   VerifyCapHeight();

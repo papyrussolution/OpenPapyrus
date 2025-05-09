@@ -1,5 +1,5 @@
 // QUOTCORE.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 // @Kernel
 //
@@ -917,7 +917,7 @@ int QuotationCore::SetCurr(PPID * pID, const PPQuot * pQuot, int logSj, int use_
 			THROW(gobj.CheckMatrixRestrict(pQuot->GoodsID, pQuot->LocID, (long)pQuot->Quot));
 		}
 		if(pQuot && (pQuot->Quot != 0.0 || (pQuot->Flags & (PPQuot::fPctDisabled|PPQuot::fZero)) || pQuot->IsRelative())) {
-			MEMSZERO(rec);
+			rec.Clear();
 			rec.Dt = getcurdate_();
 			THROW(IncDateKey(this, 1, rec.Dt, &rec.OprNo));
 			rec.GoodsID   = pQuot->GoodsID;
@@ -2644,7 +2644,7 @@ int Quotation2Core::GetRel(const PPQuot * pVal, PPID * pID, int createIfNExists,
 		ok = 1;
 	}
 	else if(createIfNExists) {
-		MEMSZERO(rec);
+		rec.Clear();
 		rec.QuotKindID = pVal->Kind;
 		rec.LocID = pVal->LocID;
 		rec.ArID  = pVal->ArID;

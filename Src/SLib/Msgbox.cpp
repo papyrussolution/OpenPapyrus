@@ -1,5 +1,6 @@
-// MSGBOX.CPP  Turbo Vision 1.0
-// Copyright (c) 1991 by Borland International
+// MSGBOX.CPP
+// Copyright (c) A.Sobolev 1996-2025
+// @codepage UTF-8
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -89,28 +90,28 @@ BOOL CALLBACK MessageBoxDialogFunc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARA
 	return ret;
 }
 
-ushort messageBox(const char * pMsg, ushort aOptions)
+ushort SMessageBox(const char * pMsg, ushort options)
 {
 	ushort ret = cmCancel;
 	uint   msg_flags = 0;
 	SString title_buf;
 	SString temp_buf;
 	HWND   hw_parent = APPL->H_TopOfStack;
-	if(!(aOptions & mfAll) && ((aOptions & 0xf) == mfInfo)) {
+	if(!(options & mfAll) && ((options & 0xf) == mfInfo)) {
 		msg_flags |= (MB_OK | MB_ICONINFORMATION | MB_TASKMODAL);
 		SLS.LoadString_(P_Titles[2], title_buf);
 		::MessageBox(hw_parent, SUcSwitch(ConvertMsgString(pMsg, temp_buf)), SUcSwitch(title_buf.Transf(CTRANSF_INNER_TO_OUTER)), msg_flags); // @unicodeproblem
 		SetForegroundWindow(hw_parent);
 		ret = cmOK;
 	}
-	else if((aOptions & (mfConf | mfLargeBox)) == mfConf) {
-		// аналогично else if((aOptions & mfConf) == mfConf && !(aOptions & mfLargeBox)) {
+	else if((options & (mfConf | mfLargeBox)) == mfConf) {
+		// Р°РЅР°Р»РѕРіРёС‡РЅРѕ else if((aOptions & mfConf) == mfConf && !(aOptions & mfLargeBox)) {
 		msg_flags = (MB_ICONEXCLAMATION | MB_TASKMODAL);
-		if((aOptions & mfYesNoCancel) == mfYesNoCancel)
+		if((options & mfYesNoCancel) == mfYesNoCancel)
 			msg_flags |= MB_YESNOCANCEL;
 		else
 			msg_flags |= MB_YESNO;
-		if(aOptions & mfDefaultYes)
+		if(options & mfDefaultYes)
 			msg_flags |= MB_DEFBUTTON1;
 		else
 			msg_flags |= MB_DEFBUTTON2;
@@ -122,8 +123,8 @@ ushort messageBox(const char * pMsg, ushort aOptions)
 	else {
 		MsgBoxDlgFuncParam msg_param;
 		msg_param.P_Msg = pMsg;
-		msg_param.Options = aOptions;
-		ret = APPL->DlgBoxParam((aOptions & mfLargeBox) ? DLGW_MSGBOX_L : DLGW_MSGBOX, hw_parent, 
+		msg_param.Options = options;
+		ret = APPL->DlgBoxParam((options & mfLargeBox) ? DLGW_MSGBOX_L : DLGW_MSGBOX, hw_parent, 
 			reinterpret_cast<DLGPROC>(MessageBoxDialogFunc), reinterpret_cast<LPARAM>(&msg_param));
 	}
 	return ret;

@@ -2338,7 +2338,6 @@ int GoodsCore::AssignGoodsToAltGrp(PPID goodsID, PPID altGrpID, long innerNum, i
 		THROW(Fetch(goodsID, &goods_rec) > 0);
 		if(P_Ref->Assc.Search(PPASS_ALTGOODSGRP, altGrpID, goodsID) < 0) {
 			ObjAssocTbl::Rec rec;
-			MEMSZERO(rec);
 			rec.AsscType  = PPASS_ALTGOODSGRP;
 			rec.PrmrObjID = altGrpID;
 			rec.ScndObjID = goodsID;

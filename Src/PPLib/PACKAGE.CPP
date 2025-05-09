@@ -1,5 +1,5 @@
 // PACKAGE.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2006, 2007, 2008, 2009, 2010, 2015, 2016, 2017, 2019, 2020, 2024
+// Copyright (c) A.Sobolev 2001, 2002, 2006, 2007, 2008, 2009, 2010, 2015, 2016, 2017, 2019, 2020, 2024, 2025
 // @Kernel
 //
 #include <pp.h>
@@ -424,7 +424,7 @@ int PackageCore::PutPckg(PPID id, const LPackage * pPckg, int use_ta)
 		if(Search(id, 0) > 0) {
 			if(pPckg) {
 				PPSetAddedMsgString(pPckg->Code);
-				MEMSZERO(rec);
+				rec.Clear();
 				rec.ID = id;
 				rec.PrevID = pPckg->PrevID;
 				rec.PckgTypeID = pPckg->PckgTypeID;
@@ -447,7 +447,7 @@ int PackageCore::PutPckg(PPID id, const LPackage * pPckg, int use_ta)
 			THROW(RemovePckgLink(id, 0));
 		}
 		else if(pPckg) {
-			MEMSZERO(rec);
+			rec.Clear();
 			rec.ID = id;
 			rec.PrevID = pPckg->PrevID;
 			rec.PckgTypeID = pPckg->PckgTypeID;

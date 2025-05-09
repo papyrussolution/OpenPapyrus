@@ -218,7 +218,7 @@ int PPViewGoodsBillCmp::PutBillToTempTable(PPID billID, int side /* 1 - lh, 2 - 
 				THROW_DB(P_TempTbl->updateRecBuf(&rec)); // @sfu
 			}
 			else {
-				MEMSZERO(rec);
+				rec.Clear();
 				rec.GoodsID = goods_id;
 				STRNSCPY(rec.GoodsName, GetGoodsName(goods_id, temp_buf));
 				GObj.GetSingleBarcode(goods_id, 0, temp_buf);

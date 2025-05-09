@@ -238,6 +238,31 @@ public:
 	int    PutData(const char * pCommand, const char * pData);
 	int    GetData(SString & rData, SString & rError);
 	//
+	// Descr: Печать реквизита для ОФД (0x57)
+	// ARG(reqCode IN): Код реквизита
+	//   1192 Дополнительный реквизит чека (БСО) (до 16 символов)
+	//   1262 Идентификатор ФОИВ (3 цифры)
+	//   1263 Дата документа основания (ддммгггг)
+	//   1264 Номер документа основания (до 32 символов)
+	//   1265 Значение отраслевого реквизита (до 256 символов)
+	//   1271 Идентификатор операции (3 цифры)
+	//   1272 Данные операции (до 64 символов)
+	//   1273 Дата операции (ддммгг) или дата/время (ддммггччмм)
+	// ARG(textAttr IN): Атрибуты текста
+	//   опциональный параметр, представляющий собой битовую маску.
+    //   0..3 бит - Номер шрифта
+	//     0 - Шрифт 12х24
+	//     1 - Шрифт 9х17
+	//     2 - Шрифт 8х14 (реализован в VikiPrint80+ версии 665.3.0)
+    //   4 бит - Печать двойной высоты текста
+    //   5 бит - Печать двойной ширины текста
+    //   6 бит - Если равен 1, то значение реквизита должно представлять собой число
+	// ARG(pReqDescr IN): Описание реквизита (должно быть непустым для реквизита 1192)
+	// ARG(pReqValue IN): Значение реквизита
+	// ARG(rError OUT):
+	//
+	int    PutOfdReq(int reqCode, int textAttr, const char * pReqDescr, const char * pReqValue, SString & rError); // @v12.3.3
+	//
 	// Для получения ответа при выполнении длинных операций (аннулирование, открытие, закрытие, внесение/изъятие наличности, открыть ящик)
 	//
 	int    GetWhile(SString & rOutData, SString & rError);
@@ -692,7 +717,8 @@ int PiritEquip::ExecCmd(const char * pHexCmd, const char * pInput, SString & rOu
 
 int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char * pOutputData, size_t outSize)
 {
-	int    ok = 0, val = 0;
+	int    ok = 0;
+	int    val = 0;
 	SString s_pair;
 	SString s_param;
 	SString param_val;
@@ -1325,6 +1351,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 				double Vat10_110Amt;
 				int    IsVatFree;
 				double VatRate;
+				char   FiscalSign[64]; // @v12.3.3
 			};
 			int    is_there_vatamt = 0;
 			CheckCorrectionBlock blk;
@@ -1333,6 +1360,9 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 				blk.CashAmt = R2(param_val.ToReal());
 			else if(pb.Get("PAYMCARD", param_val) > 0)
 				blk.BankAmt = R2(param_val.ToReal());
+			if(pb.Get("FISCALSIGN", param_val) > 0) { // @v12.3.3
+				STRNSCPY(blk.FiscalSign, param_val);
+			}
 			if(pb.Get("PREPAY", param_val) > 0) {
 			}
 			if(pb.Get("POSTPAY", param_val) > 0) {
@@ -1418,7 +1448,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 				// 4 	Единый сельскохозяйственный налог
 				// 5 	Патентная система налогообложения
 				//
-				const int vat_entry_n = (blk.IsVatFree || blk.VatRate >= 0.0) ? IdentifyTaxEntry(blk.VatRate, blk.IsVatFree) : -1;
+				const int vat_entry_n = (blk.IsVatFree || blk.VatRate >= 0.0) ? IdentifyTaxEntry(blk.VatRate, blk.IsVatFree) : 0/* @v12.3.3 (-1)-->(0)*/;
 				SETFLAG(correction_type, 0x10, vat_entry_n < 0);
 				SETFLAG(correction_type, 0x02, blk.CashAmt < 0.0 || blk.BankAmt < 0.0 || blk.PrepayAmt < 0.0);
 				SString in_data;
@@ -1442,6 +1472,21 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 				//   (Дробное число) Сумма расчета по расч. ставке 18/118
 				//   (Дробное число) Сумма расчета по расч. ставке 10/110
 				//
+				/* ???
+					// 
+					// CMD 0x58
+					// Parameters:
+					// (Имя оператора) Имя оператора
+					// (Строка) Зарезервировано
+					// (Строка) Зарезервировано
+					// (Строка) Зарезервировано
+					// (Строка) Зарезервировано
+					// (Строка) Зарезервировано
+					// (Число) Тип коррекции
+					// (Дата) Дата документа основания коррекции
+					// (Строка)[1..32] Номер документа основания коррекции
+					// 
+				*/
 				CreateStr(CshrName, in_data);
 				CreateStr(fabs(blk.CashAmt), in_data);
 				CreateStr(fabs(blk.BankAmt), in_data);
@@ -1474,6 +1519,11 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 					// 19/06/2019 11:51:02	58	start	Master197850000211061900001возврат нал. от 28/03300000
 					OpLogBlock __oplb(LogFileName, "58", in_data);
 					THROW(ExecCmd("58", in_data, out_data, r_error));
+				}
+				// @todo PutOfdReq
+				if(!isempty(blk.FiscalSign)) {
+					SString local_err_code;
+					THROW(PutOfdReq(1192, 12, "", blk.FiscalSign, local_err_code));
 				}
 			}
 		}
@@ -3057,6 +3107,19 @@ void PiritEquip::GetGlobalErrCode()
 	}
 }
 
+int PiritEquip::PutOfdReq(int reqCode, int textAttr, const char * pReqDescr, const char * pReqValue, SString & rError) // @v12.3.3
+{
+	int    ok = 1;
+	SString in_data;
+	SString out_data;
+	CreateStr(reqCode, in_data);
+	CreateStr(textAttr, in_data);
+	CreateStr(pReqDescr, in_data);
+	CreateStr(pReqValue, in_data);
+	ok = ExecCmd("57", in_data, out_data, rError);
+	return ok;
+}
+
 int PiritEquip::GetWhile(SString & rOutData, SString & rError)
 {
 	const  uint max_tries = 10;
@@ -3221,7 +3284,9 @@ int PiritEquip::GetStatus(SString & rStatus)
 	int    ok = 1;
 	long   status = 0;
 	int    flag = 0;
-	SString in_data, out_data, r_error;
+	SString in_data;
+	SString out_data;
+	SString r_error;
 	in_data.Z();
 	THROW(ExecCmd("04", in_data, out_data, r_error));
 	flag = out_data.ToLong();

@@ -9205,7 +9205,7 @@ int PPVetisInterface::PutBillRow(const PPBillPacket & rBp, uint rowIdx, long fla
 									THROW_DB(PeC.DT.updateRecBuf(&rec));
 									break;
 								}
-								if(ex_rec.VetisDocStatus == vetisdocstWITHDRAWN) { // @v10.2.1
+								if(ex_rec.VetisDocStatus == vetisdocstWITHDRAWN) {
 									; // go to the next record
 								}
 								else {
@@ -9379,7 +9379,7 @@ int PPVetisInterface::PutBillRow(const PPBillPacket & rBp, uint rowIdx, long fla
 												rPbrBlk.ManufIncomeDocEntityID = rec.EntityID;
 												break;
 											}
-											if(ex_rec.VetisDocStatus == vetisdocstWITHDRAWN) { // @v10.2.1
+											if(ex_rec.VetisDocStatus == vetisdocstWITHDRAWN) {
 												; // go to the next record
 											}
 											else {
@@ -9437,7 +9437,7 @@ int PPVetisInterface::PutBillRow(const PPBillPacket & rBp, uint rowIdx, long fla
 										THROW_DB(PeC.DT.updateRecBuf(&rec));
 										break;
 									}
-									if(ex_rec.VetisDocStatus == vetisdocstWITHDRAWN) { // @v10.2.1
+									if(ex_rec.VetisDocStatus == vetisdocstWITHDRAWN) {
 										; // go to the next record
 									}
 									else {
@@ -9539,9 +9539,9 @@ int PPVetisInterface::PutBillRow(const PPBillPacket & rBp, uint rowIdx, long fla
 							VetisApplicationBlock reply;
 							int rr = GetEntityQuery2(qtBusinessEntityByGuid, VGuidToStr(guid, temp_buf), reply);
 							if(rr > 0) {
-								for(uint j = 0; j < reply.BEntList.getCount(); j++) { // @v10.6.0 @fix EntItemList-->BEntList
+								for(uint j = 0; j < reply.BEntList.getCount(); j++) {
 									PPID   local_entity_id = 0;
-									THROW(PeC.Put(&local_entity_id, *reply.BEntList.at(j), 0, 0)); // @v10.6.0 @fix EntItemList-->BEntList
+									THROW(PeC.Put(&local_entity_id, *reply.BEntList.at(j), 0, 0));
 								}
 								if(PeC.GetEntityByGuid(rPbrBlk.PersonGuid, entity_to_person) > 0)
 									rec.ToEntityID = entity_to_person.ID;
@@ -9581,7 +9581,7 @@ int PPVetisInterface::PutBillRow(const PPBillPacket & rBp, uint rowIdx, long fla
 									THROW_DB(PeC.DT.updateRecBuf(&rec));
 									break;
 								}
-								if(ex_rec.VetisDocStatus == vetisdocstWITHDRAWN) { // @v10.2.1
+								if(ex_rec.VetisDocStatus == vetisdocstWITHDRAWN) {
 									; // go to the next record
 								}
 								else {
@@ -10125,7 +10125,7 @@ int EditVetisEnterprise(VetisEntityCore & rEc, VetisEnterprise & rData)
 						}
 					}
 					else
-						PPError(); // @v10.5.4
+						PPError();
 				}
 				clearEvent(event);
 			}
@@ -10398,7 +10398,7 @@ static int EditVetisVetDocument(VetisVetDocument & rData, PPID mainOrgID, PPID l
 					SetupNativeBill();
 				}
 			}
-			else if(event.isKeyDown(kbF10)) { // @v10.5.9 @debug
+			else if(event.isKeyDown(kbF10)) { // @debug
 				if(R_Data.VetDType == vetisdoctypSTOCK) {
 					PPVetisInterface::Param param(MainOrgID, LocID, 0);
 					if(PPVetisInterface::SetupParam(param)) {
@@ -10435,7 +10435,6 @@ static int EditVetisVetDocument(VetisVetDocument & rData, PPID mainOrgID, PPID l
 		SIntToSymbTab_GetSymb(VetisVetDocType_SymbTab, SIZEOFARRAY(VetisVetDocType_SymbTab), rData.VetDType, temp_buf);
 		dlg->setCtrlString(CTL_VETVDOC_VDTYPE, temp_buf);
 		dlg->setCtrlReal(CTL_VETVDOC_QTTY, r_bat.Volume);
-		// @v10.5.8 {
 		{
 			text_buf.Z();
 			if(PPVetisInterface::GoodsDateToString(r_bat.ExpiryDate.FirstDate, temp_buf) > 0)
@@ -10458,7 +10457,6 @@ static int EditVetisVetDocument(VetisVetDocument & rData, PPID mainOrgID, PPID l
 			dlg->AddClusterAssoc(CTL_VETVDOC_ACK, 2, VetisVetDocument::fRejected);
 			dlg->SetClusterData(CTL_VETVDOC_ACK, ack);
 		}
-		// } @v10.5.8
 		text_buf.Z();
 		if(!!r_crtc.Consignor.Enterprise.Guid) {
 			temp_buf.Z().Cat(r_crtc.Consignor.Enterprise.Guid, S_GUID::fmtIDL|S_GUID::fmtLower);

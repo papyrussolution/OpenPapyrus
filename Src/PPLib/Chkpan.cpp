@@ -7254,6 +7254,9 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 					if(CnSpeciality == PPCashNode::spApteka) { // @v11.8.7
 						SetCtrlToolTip(CTL_CHKPAN_DIVISION, PPLoadStringS("selection_bill", name).Transf(CTRANSF_INNER_TO_OUTER));
 					} 
+					else if(CnSpeciality == PPCashNode::spShop) { // @v12.3.3
+						//SetCtrlToolTip(CTL_CHKPAN_DIVISION, PPLoadStringS("selection_bill", name).Transf(CTRANSF_INNER_TO_OUTER)); // Так
+					}
 					else if(CnSpeciality == PPCashNode::spCafe) {
 						SetCtrlToolTip(CTL_CHKPAN_BYPRICE, PPLoadStringS("guestcount", name).Transf(CTRANSF_INNER_TO_OUTER));
 						SetCtrlToolTip(CTL_CHKPAN_DIVISION, PPLoadStringS("ftableorders", name).Transf(CTRANSF_INNER_TO_OUTER));
@@ -7574,7 +7577,7 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 			case cmGoodsDiv: /* cmChkPanF1 */
 				if(!Barrier()) {
 					const PPEquipConfig & r_cfg = CsObj.GetEqCfg();
-					if(CnSpeciality == PPCashNode::spApteka && (r_cfg.ChkPanImpOpID && r_cfg.ChkPanImpBillTagID)) { // @v11.8.7
+					if(oneof2(CnSpeciality, PPCashNode::spApteka, PPCashNode::spShop) && (r_cfg.ChkPanImpOpID && r_cfg.ChkPanImpBillTagID)) { // @v11.8.7 // @v12.3.3 spShop
 						if(IsState(sEMPTYLIST_EMPTYBUF)) {
 							PPID   bill_id = 0;
 							SString temp_buf;

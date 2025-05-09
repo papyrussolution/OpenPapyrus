@@ -1363,6 +1363,7 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 			uint32 view_kind = 0;
 			switch(pViewKind->Code) {
 				case T_DIALOG: view_kind = UiItemKind::kDialog; break;
+				case T_VIEW: view_kind = UiItemKind::kGenericView; break;
 				case T_INPUT: view_kind = UiItemKind::kInput; break;
 				case T_STATICTEXT: view_kind = UiItemKind::kStatic; break;
 				case T_IMAGEVIEW: view_kind = UiItemKind::kImageView; break;
@@ -4547,6 +4548,7 @@ int DlContext::Write_C_ImplFile(Generator_CPP & gen, const DlScope & rScope, lon
 	DlFunc func;
 	DlScope * p_ds = 0;
 	for(uint i = 0; rScope.EnumChilds(&i, &p_ds);) {
+		const SString & r_sc_name = p_ds->GetName();
 		if(p_ds->IsKind(DlScope::kIClass)) {
 			DlScope::IfaceBase ifb;
 			const DlScope * p_ifs;
@@ -4622,7 +4624,7 @@ int DlContext::Write_C_ImplFile(Generator_CPP & gen, const DlScope & rScope, lon
 				//
 				// constructor
 				//
-				fld_buf.Printf("PPALDD_CONSTRUCTOR(%s)", p_ds->GetName().cptr()).CR();
+				fld_buf.Printf("PPALDD_CONSTRUCTOR(%s)", r_sc_name.cptr()).CR();
 				gen.WriteLine(fld_buf);
 				gen.Wr_OpenBrace();
 				// code... {
@@ -4660,7 +4662,7 @@ int DlContext::Write_C_ImplFile(Generator_CPP & gen, const DlScope & rScope, lon
 				//
 				// destructor
 				//
-				fld_buf.Printf("PPALDD_DESTRUCTOR(%s)", p_ds->GetName().cptr()).CR();
+				fld_buf.Printf("PPALDD_DESTRUCTOR(%s)", r_sc_name.cptr()).CR();
 				gen.WriteLine(fld_buf);
 				gen.Wr_OpenBrace();
 				// code... {
@@ -4787,16 +4789,40 @@ int DlContext::Write_C_ImplFile(Generator_CPP & gen, const DlScope & rScope, lon
 			// Получаем самое первое поле для ссылки в конструкторе DBTable
 			//
 			fld_buf.Z();
-			for(k = 0; p_ds->EnumFields(&k, &fld);) {
-				fld_buf = fld.Name;
-				break;
+			uint   fld_no = 0;
+			bool   is_flat_rec = true; // @v12.3.3 Все поля записи имеют "плоскую" структуру (то есть никаких динамически распределенных хвостов и никаких virtual-table-ptr)
+			for(k = 0; p_ds->EnumFields(&k, &fld); fld_no++) {
+				if(fld_no == 0) {
+					fld_buf = fld.Name;
+					//break;
+				}
+				if(false) { // Пока все записи трактуем как плоские
+					is_flat_rec = false;
+				}
 			}
 			//
 			// Вызов макроса DBTABLE_CONSTRUCTOR
 			//
-			(func_name = "DBTABLE_CONSTRUCTOR").CatChar('(').Cat(p_ds->GetName()).
-				CatDiv(',', 2).Cat(fld_buf).CatChar(')').CR();
+			(func_name = "DBTABLE_CONSTRUCTOR").CatChar('(').Cat(r_sc_name).CatDiv(',', 2).Cat(fld_buf).CatChar(')').CR();
 			gen.WriteLine(func_name);
+			//
+			{
+				// @construction 
+				// Реализация функции Rec::Clear()
+				if(is_flat_rec) {
+					SString rec_cls_name;
+					rec_cls_name.Cat(r_sc_name).Cat("Tbl").Cat("::").Cat("Rec");
+					func_name.Z().Cat(rec_cls_name).Space().CatChar('&').Space().Cat(rec_cls_name).Cat("::").Cat("Clear()").CR();
+					func_name.CatChar('{').CR();
+					func_name.Tab().Cat("THISZERO()").Semicol().CR();
+					func_name.Tab().Cat("return *this").Semicol().CR();
+					func_name.CatChar('}').CR();
+					gen.WriteLine(func_name);
+				}
+				else {
+					// @todo
+				}
+			}
 		}
 		else {
 			THROW(ok = Write_C_ImplFile(gen, *p_ds, cflags)); // @recursion

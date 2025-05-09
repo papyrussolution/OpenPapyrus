@@ -1163,7 +1163,7 @@ int PPUserProfileCore::AddAggrRecs(BExtInsert * pBei, const UserFuncPrfTbl::Rec 
 	long func_id = (long)PPUserProfileFuncEntry::FromLoggedFuncId(rRec.FuncID, &func_ver)
 
 	PPLoadText(PPTXT_UFP_AVG_IDS, avg_ids);
-	MEMSZERO(rec);
+	rec.Clear();
 	rec.SeqID      = -1;
 	rec.FuncID     = func_id;
 	rec.Dt = rRec.Dt;

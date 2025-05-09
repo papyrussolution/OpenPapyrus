@@ -359,11 +359,11 @@ int ObjTagItem::SetStr(PPID tagID, const char * pStrVal)
 		SString text(pStrVal);
 		if(text.NotEmptyS()) {
 			if(TagEnumID) {
-				ReferenceTbl::Rec rec;
+				Reference2Tbl::Rec rec;
 				int    r = p_ref->SearchName(TagEnumID, &_id, text, &rec);
 				THROW(r);
 				if(r < 0) {
-					MEMSZERO(rec);
+					rec.Clear();
 					text.CopyTo(rec.ObjName, sizeof(rec.ObjName));
 					PPTransaction tra(-1);
 					THROW(tra);

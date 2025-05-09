@@ -619,15 +619,13 @@ parse_attribute_value:
 	return "end of data in attribute value";
 }
 
-static int FASTCALL startswith(const char * a, const char * b)
-{
-	return !fz_strncasecmp(a, b, strlen(b));
-}
+static int FASTCALL startswith(const char * a, const char * b) { return !fz_strncasecmp(a, b, strlen(b)); }
 
 static const ushort * find_xml_encoding(char * s)
 {
 	const ushort * table = NULL;
-	char * xml, * enc;
+	char * xml;
+	char * enc;
 	char * end = sstrchr(s, '>');
 	if(end) {
 		*end = 0;

@@ -2202,11 +2202,8 @@ INT_PTR CALLBACK LanguageSubDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM
 			    //
 			    case IDC_CHECK_LANGMENUCOMPACT:
 			{
-				nppGUI._isLangMenuCompact =
-				    (BST_CHECKED ==
-				    ::SendMessage(::GetDlgItem(_hSelf, IDC_CHECK_LANGMENUCOMPACT), BM_GETCHECK, 0, 0));
-				::MessageBox(_hSelf,
-				    nppGUI._isLangMenuCompact ? TEXT("This option will be enabled on the next launch.") : TEXT(
+				nppGUI._isLangMenuCompact = (BST_CHECKED == ::SendMessage(::GetDlgItem(_hSelf, IDC_CHECK_LANGMENUCOMPACT), BM_GETCHECK, 0, 0));
+				::MessageBox(_hSelf, nppGUI._isLangMenuCompact ? TEXT("This option will be enabled on the next launch.") : TEXT(
 					    "This option will be disabled on the next launch."),
 				    TEXT("Compact Language Menu"), MB_OK);
 				return TRUE;

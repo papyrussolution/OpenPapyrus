@@ -1348,7 +1348,8 @@ int ConvertRbcBnk(const char * pPath)
 		}
 	}
 	{
-		PPImpExpParam in_par, out_par;
+		PPImpExpParam in_par;
+		PPImpExpParam out_par;
 		in_par.Direction = 1;
 		in_par.DataFormat = PPImpExpParam::dfText;
 		in_par.TdfParam.FldDiv = "\t";

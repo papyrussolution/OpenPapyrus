@@ -1,5 +1,5 @@
 // V_BUDGET.CPP
-// Copyright (c) A.Starodub 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2024
+// Copyright (c) A.Starodub 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2024, 2025
 // @codepage UTF-8
 // PPViewBudget
 //
@@ -880,7 +880,8 @@ int PPObjBudget::InitItemsCycleList(const BudgetItemTbl::Rec * pRec, BudgetItems
 	pList->freeAll();
 	rec = *pRec;
 	if(rec.BudgetID && Search(rec.BudgetID, &budg_rec) > 0 && budg_rec.Cycle > 1) {
-		long beg = 1, end = 0;
+		long   beg = 1;
+		long   end = 0;
 		if(budg_rec.Cycle == 7)
 			end = 7;
 		else
@@ -889,7 +890,7 @@ int PPObjBudget::InitItemsCycleList(const BudgetItemTbl::Rec * pRec, BudgetItems
 			beg = CYCLE_BEG_YEAR;
 			end = CYCLE_END_YEAR;
 		}
-		MEMSZERO(rec);
+		rec.Clear();
 		rec.Acc      = pRec->Acc;
 		rec.BudgetID = pRec->BudgetID;
 		rec.Kind     = pRec->Kind;
