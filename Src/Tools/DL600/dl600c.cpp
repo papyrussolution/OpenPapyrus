@@ -1083,9 +1083,14 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 					if(!(occurence_flags & (occfBBox|occfBBoxSize))) { // @err dup feature
 						const float local_x = p_prop->Value.U.Rect.L.X.Val;
 						const float local_y = p_prop->Value.U.Rect.L.Y.Val;
-						alb.Nominal.b.x = alb.Nominal.a.x + local_x;
-						alb.Nominal.b.y = alb.Nominal.a.y + local_y;
-						alb.Flags |= (SUiLayoutParam::fNominalDefR|SUiLayoutParam::fNominalDefB); // @v12.3.2
+						if(alb.Flags & SUiLayoutParam::fNominalDefL) {
+							alb.Nominal.b.x = alb.Nominal.a.x + local_x;
+							alb.Flags |= SUiLayoutParam::fNominalDefR;
+						}
+						if(alb.Flags & SUiLayoutParam::fNominalDefT) {
+							alb.Nominal.b.y = alb.Nominal.a.y + local_y;
+							alb.Flags |= SUiLayoutParam::fNominalDefB;
+						}
 						//
 						alb.SetFixedSizeX(local_x);
 						alb.SetFixedSizeY(local_y);

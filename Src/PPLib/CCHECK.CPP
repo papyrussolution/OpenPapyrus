@@ -1046,6 +1046,18 @@ int CCheckPacket::GenerateGuid(S_GUID & rUuid)
 int CCheckPacket::GetPrescription(Prescription & rP) const { return CCheckPacket::GetPrescription(*this, rP); }
 int CCheckPacket::SetPrescription(const Prescription & rP) { return CCheckPacket::SetPrescription(*this, rP); }
 
+int CCheckPacket::GetCcOp() const
+{
+	int    ccop = CCOP_GENERAL;
+	if(oneof6(Ext.Op_, CCOP_GENERAL, CCOP_RETURN, CCOP_CORRECTION_SELL, CCOP_CORRECTION_SELLSTORNO, CCOP_CORRECTION_RET, CCOP_CORRECTION_RETSTORNO))
+		ccop = Ext.Op_;
+	else {
+		if(Rec.Flags & CCHKF_RETURN)
+			ccop = CCOP_RETURN;
+	}
+	return ccop;
+}
+
 uint  CCheckPacket::GetCount() const { return Items_.getCount(); }
 const CCheckLineTbl::Rec & FASTCALL CCheckPacket::GetLineC(uint pos) const { return Items_.at(pos); }
 CCheckLineTbl::Rec & FASTCALL CCheckPacket::GetLine(uint pos) { return Items_.at(pos); }

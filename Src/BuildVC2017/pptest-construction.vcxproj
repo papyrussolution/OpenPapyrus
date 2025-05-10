@@ -223,13 +223,19 @@
     <ClCompile Include="..\PPTEST\UNIT\test-process.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-sarc.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-sarray.cpp" />
-    <ClCompile Include="..\PPTEST\UNIT\test-simplecpp.cpp" />
+    <ClCompile Include="..\PPTEST\UNIT\test-simplecpp.cpp">
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Sync</ExceptionHandling>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Sync</ExceptionHandling>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Sync</ExceptionHandling>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Sync</ExceptionHandling>
+    </ClCompile>
     <ClCompile Include="..\PPTEST\UNIT\test-slui.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-sqlite.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-sqlparser.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-string.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-time.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-ued.cpp" />
+    <ClCompile Include="..\PPTEST\UNIT\test-utf8_h.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-xml.cpp" />
   </ItemGroup>
   <ItemGroup>

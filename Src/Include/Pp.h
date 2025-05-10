@@ -10338,6 +10338,10 @@ public:
 	// Descr: Возвращает !0 если есть не пустые поля расширения чека (Ext).
 	//
 	bool   HasExt() const;
+	//
+	// Descr: Возвращает ид чековой операции CCOP_XXX
+	//
+	int    GetCcOp() const;
 	uint   GetCount() const;
 	int    GetGuid(S_GUID & rUuid) const; 
 	int    SetGuid(const S_GUID * pUuid);
@@ -20128,21 +20132,29 @@ struct PPBizScorePacket {
 
 struct PPBizScore2 { // @v11.9.0 @construction
 	PPBizScore2();
-	long   Tag;           // Const=PPOBJ_BIZSCORE2
-	long   ID;            // @id
+	//
+	// Descr: Флаги записи
+	//
+	enum {
+		fNone = 0x0001
+	};
+	long   Tag;                 // Const=PPOBJ_BIZSCORE2
+	long   ID;                  // @id
 	char   Name[48];
 	char   Symb[20];
-	uint8  Reserve[40];
-	int32  DataType;
-	int16  TimeAggrFunc;  // Агрегирующая функция по временной шкале
-	int16  HierAggrFunc;  // Агрегирующая функция по иерархии
-	int16  TimeCycle; // PRD_XXX
-	uint16 Reserve2;
-	long   LinkObjType;
-	long   LinkExtID;
-	long   Flags;
-	long   ParentID;    // ->Ref(PPOBJ_BIZSCORE2)
-	long   AccSheetID;
+	uint8  Reserve[32];
+	int32  DataType;            // OTTYP_XXX (будем использовать ту же систему типов, что и в тегах объектов)
+	int16  TimeAggrFunc;        // Агрегирующая функция по временной шкале. Если 0, то показатель не агрегируется по времени.
+	int16  HierAggrFunc;        // Агрегирующая функция по иерархии. Если 0, то показатель не агрегируется по иерархии.
+	int16  ParticipantAggrFunc; // Агрегирующая функция по участникам. Если 0, то показатель не агрегируется по участникам.
+	int16  TimeCycle;           // PRD_XXX
+	long   ParticipantObjType;  // Тип объекта данных, определяющий участников распределенного сбора показателя
+	long   ParticipantExtID;    // Группа объектов типа ParticipantObjType, уточняющая привязку по участникам
+	long   LinkObjType;         // Тип объекта, к которому привязан показатель
+	long   LinkExtID;           // Группа объектов типа LinkObjType, уточняющая привязку показателя. 
+	long   Flags;               // @flags 
+	long   ParentID;            // ->Ref(PPOBJ_BIZSCORE2) Родительский элемент
+	long   AccSheetID;          //
 };
 
 struct PPBizScore2Packet {

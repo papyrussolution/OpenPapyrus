@@ -1050,6 +1050,7 @@
 #define PPOBJ_EVENTSUBSCRIPTION  82L // Подписка на события //
 	#define EVNTSUBSCRPRP_EXTENSION    1L
 #define PPOBJ_BIZSCORE2          83L // @v11.9.1 @construction 2-я версия определителей бизнес-показателей
+	#define BIZSC2PRP_EXTENSION        1L // @v12.3.3 Запись подробностей о бизнес-показателе   
 #define PPOBJ_SWPROGRAMCATEGORY  84L // @v11.9.12 Категория исполняемой программы. Простой вспомогательный справочник для объекта PPOBJ_SWPROGRAM
 #define PPOBJ_COMPUTERCATEGORY   85L // @v12.0.1 Категория компьютера. Простой вспомогательный справочник для объекта PPOBJ_COMPUTER
 	#define PPCOMPCAT_DEFAULT          1L // @v12.0.1 Зарезервированная запись категории компьютеров default

@@ -340,7 +340,7 @@ int PPSyncCashSession::CompleteSession(PPID sessID)
 		double running_total = 0.0;
 		const  bool is_vat_free = (CnObj.IsVatFree(SCn.ID) > 0);
 		const  bool is_correction = LOGIC(pPack->Rec.Flags & CCHKF_CORRECTION);
-		const  int  ccop = pPack->Ext.Op_; // @v12.2.12
+		const  int  ccop = pPack->GetCcOp(); // @v12.2.12
 		double real_fiscal = 0.0;
 		double real_nonfiscal = 0.0;
 		pPack->HasNonFiscalAmount(&real_fiscal, &real_nonfiscal);

@@ -36,5 +36,6 @@
     <ClCompile Include="..\PPTEST\UNIT\test-sqlite.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-xml.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-simplecpp.cpp" />
+    <ClCompile Include="..\PPTEST\UNIT\test-utf8_h.cpp" />
   </ItemGroup>
 </Project>

@@ -703,6 +703,7 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 		SlipDocCommonParam sdc_param;
 		PPID   tax_sys_id = 0;
 		OfdFactors ofdf; // @v11.3.12
+		const  int   ccop = pPack->GetCcOp(); // @v12.3.3
 		const  bool  is_vat_free = (CnObj.IsVatFree(NodeID) > 0);
 		double amt = fabs(R2(MONEYTOLDBL(pPack->Rec.Amount)));
 		double sum = fabs(pPack->_Cash) + 0.001;
@@ -716,330 +717,366 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 		const int is_al = BIN(r_al.getCount());
 		const double amt_bnk = is_al ? r_al.Get(CCAMTTYP_BANK) : ((pPack->Rec.Flags & CCHKF_BANKING) ? _fiscal : 0.0);
 		const double amt_cash = (PPConst::Flags & PPConst::fDoSeparateNonFiscalCcItems) ? (_fiscal - amt_bnk) : (is_al ? r_al.Get(CCAMTTYP_CASH) : (_fiscal - amt_bnk));
-		const double amt_ccrd = is_al ? r_al.Get(CCAMTTYP_CRDCARD) : (real_fiscal + real_nonfiscal - _fiscal); // @v10.4.1
+		const double amt_ccrd = is_al ? r_al.Get(CCAMTTYP_CRDCARD) : (real_fiscal + real_nonfiscal - _fiscal);
 		SString buyers_email;
 		SString buyers_phone;
 		bool  paperless = false; 
-		CCheckPacket::Prescription prescr; // @v11.8.0
-		pPack->GetPrescription(prescr); // @v11.8.0
-		GetOfdFactors(ofdf); // @v11.3.12
-		// @v11.3.6 {
-		{
-			pPack->GetExtStrData(CCheckPacket::extssBuyerPhone, temp_buf);
-			if(temp_buf.NotEmpty())
-				PPEAddr::Phone::NormalizeStr(temp_buf, PPEAddr::Phone::nsfPlus, buyers_phone);
-			else
-				buyers_phone.Z();
-			pPack->GetExtStrData(CCheckPacket::extssBuyerEMail, buyers_email);
-			paperless = (buyers_email.NotEmpty() || buyers_phone.NotEmpty()) ? LOGIC(pPack->Rec.Flags & CCHKF_PAPERLESS) : false;
+		// @v12.3.3 @construction {
+		if(oneof4(ccop, CCOP_CORRECTION_SELL, CCOP_CORRECTION_SELLSTORNO, CCOP_CORRECTION_RET, CCOP_CORRECTION_RETSTORNO)) {
+			PPCashMachine::FiscalCorrection fc;
+			/*
+				struct FiscalCorrection {
+					FiscalCorrection();
+					enum {
+						fIncome    = 0x0001, // Приход денег (отрицательная коррекция). Если не стоит, то - расход.
+						fByPrecept = 0x0002, // Коррекция по предписанию
+						fVatFree   = 0x0004  // Продавец освобожден от НДС
+					};
+					double AmtCash;    // @#{>=0} Сумма наличного платежа
+					double AmtBank;    // @#{>=0} Сумма электронного платежа
+					double AmtPrepay;  // @#{>=0} Сумма предоплатой
+					double AmtPostpay; // @#{>=0} Сумма постоплатой
+					double AmtVat20;   // Сумма налога по ставке 20%
+					double AmtVat18;   // Сумма налога по ставке 18%
+					double AmtVat10;   // Сумма налога по ставке 10%
+					double AmtVat07;   // @v12.2.5 Сумма налога по ставке 7%
+					double AmtVat05;   // @v12.2.5 Сумма налога по ставке 5%
+					double AmtVat00;   // Сумма расчета по ставке 0%
+					double AmtNoVat;   // Сумма расчета без налога
+					double VatRate;    // Единственная ставка НДС. Если VatRate != 0, тогда AmtVat18, AmtVat10, AmtVat00 и AmtNoVat игнорируются
+					LDATE  Dt;         // Дата документа основания коррекции
+					long   Flags;      // @flags
+					SString Code;      // Номер документа основания коррекции
+					SString Reason;    // Основание коррекции
+					SString Operator;  // Имя оператора
+					SString FiscalSign; // @v12.3.3 Фискальный признак чека
+				};
+			*/ 
+			//PrintFiscalCorrection(&fc);
 		}
-		// } @v11.3.6 
-		THROW(Connect());
-		THROW(AnnulateCheck());
-		PreprocessCCheckForOfd12(ofdf, pPack); // @v11.3.12 Блок, созданный в v11.1.11 замещен общей функцией базового класса
-		if(flags & PRNCHK_RETURN && amt_cash != 0.0) {
-			const int is_cash = CheckForCash(amt); // @v12.0.5 @fix amt-->amt_cash
-			THROW(is_cash);
-			THROW_PP(is_cash > 0, PPERR_SYNCCASH_NO_CASH);
-		}
-		if(P_SlipFmt) {
-			int    prn_total_sale = 1;
-			int    r = 0;
-			SString line_buf;
-			SlipLineParam sl_param;
-			const char * p_format_name = "CCheck";
-			THROW(r = P_SlipFmt->Init(p_format_name, &sdc_param));
-			if(r > 0) {
-				P_SlipFmt->InitIteration(pPack);
-				P_SlipFmt->NextIteration(line_buf, &sl_param);
-				is_format = 1;
-				if(sdc_param.PageWidth > static_cast<uint>(CheckStrLen))
-					WriteLogFile_PageWidthOver(p_format_name);
-				RibbonParam = 0;
-				Arr_In.Z();
-				CheckForRibbonUsing(sdc_param.RegTo, Arr_In);
-				{
-					PROFILE_START_S("DVCCMD_OPENCHECK");
-					THROW(ArrAdd(Arr_In, DVCPARAM_CHECKTYPE, (_fiscal != 0.0) ? ((flags & PRNCHK_RETURN) ? RETURNCHECK : SALECHECK) : SERVICEDOC));
-					THROW(ArrAdd(Arr_In, DVCPARAM_CHECKNUM, pPack->Rec.Code));
-					// @v11.2.3 {
-					{
-						LDATETIME ccts;
-						temp_buf.Z().Cat(ccts.Set(pPack->Rec.Dt, pPack->Rec.Tm), DATF_ISO8601CENT, 0);
-						THROW(ArrAdd(Arr_In, DVCPARAM_CHECKTIMESTAMP, temp_buf));
-					}
-					// } @v11.2.3 
-					THROW(ArrAdd(Arr_In, DVCPARAM_TAXSYSTEM, tax_sys_id));
-					temp_buf.Z();
-					if(!ofdf.OfdVer_.IsEmpty())
-						ofdf.OfdVer_.ToStr(temp_buf);
-					THROW(ArrAdd(Arr_In, DVCPARAM_OFDVER, temp_buf)); // @v11.1.9
-					// @v11.3.6 {
-					if(paperless) {
-						THROW(ArrAdd(Arr_In, DVCPARAM_PAPERLESS, 1)); 
-					}
-					// } @v11.3.6 
-					THROW(PutPrescription(prescr)); // @v11.8.0 // @v11.9.3 (one call)
-					THROW(ExecPrintOper(DVCCMD_OPENCHECK, Arr_In, Arr_Out));
-					PROFILE_END
-					if(_fiscal == 0.0 && !paperless) { // @v11.3.6
-						PROFILE_START_S("DVCCMD_PRINTTEXT")
-						Arr_In.Z();
-						THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, sdc_param.Title));
-						THROW(ExecPrintOper(DVCCMD_PRINTTEXT, Arr_In, Arr_Out));
-						PROFILE_END
-					}
-				}
-				Flags |= sfCheckOpened;
-				for(P_SlipFmt->InitIteration(pPack); P_SlipFmt->NextIteration(line_buf, &sl_param) > 0;) {
+		// } @v12.3.3 
+		else {
+			CCheckPacket::Prescription prescr; // @v11.8.0
+			pPack->GetPrescription(prescr); // @v11.8.0
+			GetOfdFactors(ofdf); // @v11.3.12
+			// @v11.3.6 {
+			{
+				pPack->GetExtStrData(CCheckPacket::extssBuyerPhone, temp_buf);
+				if(temp_buf.NotEmpty())
+					PPEAddr::Phone::NormalizeStr(temp_buf, PPEAddr::Phone::nsfPlus, buyers_phone);
+				else
+					buyers_phone.Z();
+				pPack->GetExtStrData(CCheckPacket::extssBuyerEMail, buyers_email);
+				paperless = (buyers_email.NotEmpty() || buyers_phone.NotEmpty()) ? LOGIC(pPack->Rec.Flags & CCHKF_PAPERLESS) : false;
+			}
+			// } @v11.3.6 
+			THROW(Connect());
+			THROW(AnnulateCheck());
+			PreprocessCCheckForOfd12(ofdf, pPack); // @v11.3.12 Блок, созданный в v11.1.11 замещен общей функцией базового класса
+			if(flags & PRNCHK_RETURN && amt_cash != 0.0) {
+				const int is_cash = CheckForCash(amt); // @v12.0.5 @fix amt-->amt_cash
+				THROW(is_cash);
+				THROW_PP(is_cash > 0, PPERR_SYNCCASH_NO_CASH);
+			}
+			if(P_SlipFmt) {
+				int    prn_total_sale = 1;
+				int    r = 0;
+				SString line_buf;
+				SlipLineParam sl_param;
+				const char * p_format_name = "CCheck";
+				THROW(r = P_SlipFmt->Init(p_format_name, &sdc_param));
+				if(r > 0) {
+					P_SlipFmt->InitIteration(pPack);
+					P_SlipFmt->NextIteration(line_buf, &sl_param);
+					is_format = 1;
+					if(sdc_param.PageWidth > static_cast<uint>(CheckStrLen))
+						WriteLogFile_PageWidthOver(p_format_name);
+					RibbonParam = 0;
 					Arr_In.Z();
-					if(sl_param.Flags & SlipLineParam::fRegFiscal) {
-						CheckForRibbonUsing(SlipLineParam::fRegRegular | SlipLineParam::fRegJournal, Arr_In);
-						const double _q = sl_param.Qtty;
-						const double _p = sl_param.Price;
-						running_total += (_q * _p);
-						PROFILE_START_S("DVCCMD_PRINTFISCAL")
-						THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, sl_param.Text));
-						THROW(ArrAdd(Arr_In, DVCPARAM_CODE, sl_param.Code));
-						THROW(ArrAdd(Arr_In, DVCPARAM_QUANTITY, _q));
-						// @v11.9.4 {
-						if(sl_param.PhQtty > 0.0) {
-							THROW(ArrAdd(Arr_In, DVCPARAM_PHQTTY, sl_param.PhQtty));
+					CheckForRibbonUsing(sdc_param.RegTo, Arr_In);
+					{
+						PROFILE_START_S("DVCCMD_OPENCHECK");
+						THROW(ArrAdd(Arr_In, DVCPARAM_CHECKTYPE, (_fiscal != 0.0) ? ((flags & PRNCHK_RETURN) ? RETURNCHECK : SALECHECK) : SERVICEDOC));
+						THROW(ArrAdd(Arr_In, DVCPARAM_CHECKNUM, pPack->Rec.Code));
+						// @v11.2.3 {
+						{
+							LDATETIME ccts;
+							temp_buf.Z().Cat(ccts.Set(pPack->Rec.Dt, pPack->Rec.Tm), DATF_ISO8601CENT, 0);
+							THROW(ArrAdd(Arr_In, DVCPARAM_CHECKTIMESTAMP, temp_buf));
 						}
-						if(sl_param.Flags & SlipLineParam::fDraftBeerSimplified && sl_param.Code.NotEmpty()) {
-							THROW(ArrAdd(Arr_In, DVCPARAM_DRAFTBEERSIMPLIFIED, sl_param.Code));
-							if(sl_param.ChZnGTIN.NotEmpty())
-								THROW(ArrAdd(Arr_In, DVCPARAM_CHZNGTIN, sl_param.ChZnGTIN));
+						// } @v11.2.3 
+						THROW(ArrAdd(Arr_In, DVCPARAM_TAXSYSTEM, tax_sys_id));
+						temp_buf.Z();
+						if(!ofdf.OfdVer_.IsEmpty())
+							ofdf.OfdVer_.ToStr(temp_buf);
+						THROW(ArrAdd(Arr_In, DVCPARAM_OFDVER, temp_buf)); // @v11.1.9
+						// @v11.3.6 {
+						if(paperless) {
+							THROW(ArrAdd(Arr_In, DVCPARAM_PAPERLESS, 1)); 
 						}
-						// } @v11.9.4 
-						// @v11.9.5 {
-						if(sl_param.UomId) {
-							THROW(ArrAdd(Arr_In, DVCPARAM_UOMID, sl_param.UomId));
-						}
-						// } @v11.9.5 
-						// @v11.2.6 {
-						if(sl_param.UomFragm > 0) {
-							THROW(ArrAdd(Arr_In, DVCPARAM_UOMFRAGM, static_cast<int>(sl_param.UomFragm)));
-						}
-						// } @v11.2.6 
-						THROW(ArrAdd(Arr_In, DVCPARAM_PRICE, fabs(_p)));
-						THROW(ArrAdd(Arr_In, DVCPARAM_DEPARTMENT, (sl_param.DivID > 16 || sl_param.DivID < 0) ? 0 :  sl_param.DivID));
-						if(is_vat_free) {
-							THROW(ArrAdd(Arr_In, DVCPARAM_VATFREE, 1));
-						}
-						else {
-							THROW(ArrAdd(Arr_In, DVCPARAM_VATRATE, fabs(sl_param.VatRate)));
-						}
-						if(sl_param.ChZnCode.NotEmptyS()) {
-							THROW(ArrAdd(Arr_In, DVCPARAM_CHZNCODE, sl_param.ChZnCode));
-							THROW(ArrAdd(Arr_In, DVCPARAM_CHZNGTIN, sl_param.ChZnGTIN));
-							THROW(ArrAdd(Arr_In, DVCPARAM_CHZNSERIAL, sl_param.ChZnSerial));
-							THROW(ArrAdd(Arr_In, DVCPARAM_CHZNPARTN, sl_param.ChZnPartN));
-							THROW(ArrAdd(Arr_In, DVCPARAM_CHZNPRODTYPE, sl_param.ChZnProductType));
-							// @v11.1.11 {
-							if(sl_param.PpChZnR.LineIdx > 0) {
-								THROW(ArrAdd(Arr_In, DVCPARAM_CHZNPPRESULT, sl_param.PpChZnR.CheckResult)); // @v11.1.11 Результат проверки марки честный знак на фазе препроцессинга
-								THROW(ArrAdd(Arr_In, DVCPARAM_CHZNPPSTATUS, sl_param.PpChZnR.Status)); // @v11.1.11 Статус, присвоенный марке честный знак на фазе препроцессинга
-							}
-							// } @v11.1.11
-							// @v11.2.4 {
-							if(ofdf.Sid.NotEmpty())
-								THROW(ArrAdd(Arr_In, DVCPARAM_CHZNSID, ofdf.Sid));
-							// } @v11.2.4
-							// @v12.1.1 {
-							if(!sl_param.ChZnPm_ReqId.IsZero() && sl_param.ChZnPm_ReqTimestamp != 0) {
-								THROW(ArrAdd(Arr_In, DVCPARAM_CHZNPMREQID, sl_param.ChZnPm_ReqId));
-								THROW(ArrAdd(Arr_In, DVCPARAM_CHZNPMREQTIMESTAMP, sl_param.ChZnPm_ReqTimestamp));
-							}
-							// } @v12.1.1
-						}
-						if(sl_param.PaymTermTag != CCheckPacket::pttUndef) {
-							uint   str_id = 0;
-							switch(sl_param.PaymTermTag) {
-								case CCheckPacket::pttFullPrepay: str_id = DVCPARAM_PTT_FULL_PREPAY; break;
-								case CCheckPacket::pttPrepay: str_id = DVCPARAM_PTT_PREPAY; break;
-								case CCheckPacket::pttAdvance: str_id = DVCPARAM_PTT_ADVANCE; break;
-								case CCheckPacket::pttFullPayment: str_id = DVCPARAM_PTT_FULLPAYMENT; break;
-								case CCheckPacket::pttPartial: str_id = DVCPARAM_PTT_PARTIAL; break;
-								case CCheckPacket::pttCreditHandOver: str_id = DVCPARAM_PTT_CREDITHANDOVER; break;
-								case CCheckPacket::pttCredit: str_id = DVCPARAM_PTT_CREDIT; break;
-							}
-							if(str_id) {
-								PPLoadString(PPSTR_ABDVCCMD, str_id, temp_buf);
-								THROW(ArrAdd(Arr_In, DVCPARAM_PAYMENTTERMTAG, temp_buf));
-							}
-						}
-						// @erikJ v10.4.12 {
-						if(sl_param.SbjTermTag != CCheckPacket::sttUndef) {
-							uint   str_id = 0;
-							switch(sl_param.SbjTermTag) {
-								case CCheckPacket::sttGood: str_id = DVCPARAM_STT_GOOD; break;
-								case CCheckPacket::sttExcisableGood: str_id = DVCPARAM_STT_EXCISABLEGOOD; break;
-								case CCheckPacket::sttExecutableWork: str_id = DVCPARAM_STT_EXECUTABLEWORK; break;
-								case CCheckPacket::sttService: str_id = DVCPARAM_STT_SERVICE; break;
-								case CCheckPacket::sttBetting: str_id = DVCPARAM_STT_BETTING; break;
-								case CCheckPacket::sttPaymentGambling: str_id = DVCPARAM_STT_PAYMENTGAMBLING; break;
-								case CCheckPacket::sttBettingLottery: str_id = DVCPARAM_STT_BETTINGLOTTERY; break;
-								case CCheckPacket::sttPaymentLottery: str_id = DVCPARAM_STT_PAYMENTLOTTERY; break;
-								case CCheckPacket::sttGrantRightsUseIntellectualActivity: str_id = DVCPARAM_STT_GRANTSRIGHTSUSEINTELLECTUALACTIVITY; break;
-								case CCheckPacket::sttAdvance: str_id = DVCPARAM_STT_ADVANCE; break;
-								case CCheckPacket::sttPaymentsPayingAgent: str_id = DVCPARAM_STT_PAYMENTSPAYINGAGENT; break;
-								case CCheckPacket::sttSubjTerm: str_id = DVCPARAM_STT_SUBJTERM; break;
-								case CCheckPacket::sttNotSubjTerm: str_id = DVCPARAM_STT_NOTSUBJTERM; break;
-								case CCheckPacket::sttTransferPropertyRights: str_id = DVCPARAM_STT_TRANSFERPROPERTYRIGHTS; break;
-								case CCheckPacket::sttNonOperatingIncome: str_id = DVCPARAM_STT_NONOPERATINGINCOME; break;
-								case CCheckPacket::sttExpensesReduceTax: str_id = DVCPARAM_STT_EXPENSESREDUCETAX; break;
-								case CCheckPacket::sttAmountMerchantFee: str_id = DVCPARAM_STT_AMOUNTMERCHANTFEE; break;
-								case CCheckPacket::sttResortFee: str_id = DVCPARAM_STT_RESORTFEE; break;
-								case CCheckPacket::sttDeposit: str_id = DVCPARAM_SUBJTERMTAG; break;
-							}
-							if(str_id) {
-								PPLoadString(PPSTR_ABDVCCMD, str_id, temp_buf);
-								THROW(ArrAdd(Arr_In, DVCPARAM_SUBJTERMTAG, temp_buf));
-							}
-						}
-						// } @erik v10.4.12
+						// } @v11.3.6 
 						THROW(PutPrescription(prescr)); // @v11.8.0 // @v11.9.3 (one call)
-						THROW(ExecPrintOper(DVCCMD_PRINTFISCAL, Arr_In, Arr_Out));
+						THROW(ExecPrintOper(DVCCMD_OPENCHECK, Arr_In, Arr_Out));
 						PROFILE_END
-						Flags |= sfCheckOpened;
-						prn_total_sale = 0;
-					}
-					else if(sl_param.Kind == sl_param.lkBarcode) {
-						;
-					}
-					else if(sl_param.Kind == sl_param.lkSignBarcode) {
-						if(!paperless) { // @v11.3.6
-							if(line_buf.NotEmptyS()) {
-								PROFILE(CheckForRibbonUsing(SlipLineParam::fRegRegular, Arr_In));
-								// type: EAN8 EAN13 UPCA UPCE CODE39 IL2OF5 CODABAR PDF417 QRCODE
-								// width (points)
-								// height (points)
-								// label : none below above
-								// text: code
-								PPBarcode::GetStdName(sl_param.BarcodeStd, temp_buf);
-								temp_buf.SetIfEmpty("qr"); // "pdf417";
-								PROFILE_START_S("DVCCMD_PRINTBARCODE")
-								ArrAdd(Arr_In, DVCPARAM_TYPE, temp_buf);
-								ArrAdd(Arr_In, DVCPARAM_WIDTH,  sl_param.BarcodeWd);
-								ArrAdd(Arr_In, DVCPARAM_HEIGHT, sl_param.BarcodeHt);
-								const char * p_label_place = (sl_param.Flags & sl_param.fBcTextBelow) ? "below" : ((sl_param.Flags & sl_param.fBcTextAbove) ? "above" : 0);
-								if(p_label_place)
-									ArrAdd(Arr_In, DVCPARAM_LABEL, p_label_place);
-								THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, line_buf));
-								THROW(ExecPrintOper(DVCCMD_PRINTBARCODE, Arr_In, Arr_Out));
-								PROFILE_END
-							}
-						}
-					}
-					else {
-						if(!paperless) { // @v11.3.6
-							PROFILE(CheckForRibbonUsing(sl_param.Flags, Arr_In));
+						if(_fiscal == 0.0 && !paperless) { // @v11.3.6
 							PROFILE_START_S("DVCCMD_PRINTTEXT")
-							THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, line_buf.Trim((sl_param.Font > 1) ? (CheckStrLen / 2) : CheckStrLen)));
-							THROW(ArrAdd(Arr_In, DVCPARAM_FONTSIZE, (sl_param.Font == 1) ? DEF_FONTSIZE : sl_param.Font));
+							Arr_In.Z();
+							THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, sdc_param.Title));
 							THROW(ExecPrintOper(DVCCMD_PRINTTEXT, Arr_In, Arr_Out));
 							PROFILE_END
 						}
 					}
-				}
-				Arr_In.Z();
-				running_total = fabs(running_total);
-				CheckForRibbonUsing(SlipLineParam::fRegRegular|SlipLineParam::fRegJournal, Arr_In);
-				if(prn_total_sale) {
-					if(_fiscal != 0.0) {
-						PROFILE_START_S("DVCCMD_PRINTFISCAL")
-						if(!pPack->GetCount()) {
-							THROW(ArrAdd(Arr_In, DVCPARAM_QUANTITY, 1L));
-							THROW(ArrAdd(Arr_In, DVCPARAM_PRICE, amt));
+					Flags |= sfCheckOpened;
+					for(P_SlipFmt->InitIteration(pPack); P_SlipFmt->NextIteration(line_buf, &sl_param) > 0;) {
+						Arr_In.Z();
+						if(sl_param.Flags & SlipLineParam::fRegFiscal) {
+							CheckForRibbonUsing(SlipLineParam::fRegRegular | SlipLineParam::fRegJournal, Arr_In);
+							const double _q = sl_param.Qtty;
+							const double _p = sl_param.Price;
+							running_total += (_q * _p);
+							PROFILE_START_S("DVCCMD_PRINTFISCAL")
+							THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, sl_param.Text));
+							THROW(ArrAdd(Arr_In, DVCPARAM_CODE, sl_param.Code));
+							THROW(ArrAdd(Arr_In, DVCPARAM_QUANTITY, _q));
+							// @v11.9.4 {
+							if(sl_param.PhQtty > 0.0) {
+								THROW(ArrAdd(Arr_In, DVCPARAM_PHQTTY, sl_param.PhQtty));
+							}
+							if(sl_param.Flags & SlipLineParam::fDraftBeerSimplified && sl_param.Code.NotEmpty()) {
+								THROW(ArrAdd(Arr_In, DVCPARAM_DRAFTBEERSIMPLIFIED, sl_param.Code));
+								if(sl_param.ChZnGTIN.NotEmpty())
+									THROW(ArrAdd(Arr_In, DVCPARAM_CHZNGTIN, sl_param.ChZnGTIN));
+							}
+							// } @v11.9.4 
+							// @v11.9.5 {
+							if(sl_param.UomId) {
+								THROW(ArrAdd(Arr_In, DVCPARAM_UOMID, sl_param.UomId));
+							}
+							// } @v11.9.5 
+							// @v11.2.6 {
+							if(sl_param.UomFragm > 0) {
+								THROW(ArrAdd(Arr_In, DVCPARAM_UOMFRAGM, static_cast<int>(sl_param.UomFragm)));
+							}
+							// } @v11.2.6 
+							THROW(ArrAdd(Arr_In, DVCPARAM_PRICE, fabs(_p)));
+							THROW(ArrAdd(Arr_In, DVCPARAM_DEPARTMENT, (sl_param.DivID > 16 || sl_param.DivID < 0) ? 0 :  sl_param.DivID));
+							if(is_vat_free) {
+								THROW(ArrAdd(Arr_In, DVCPARAM_VATFREE, 1));
+							}
+							else {
+								THROW(ArrAdd(Arr_In, DVCPARAM_VATRATE, fabs(sl_param.VatRate)));
+							}
+							if(sl_param.ChZnCode.NotEmptyS()) {
+								THROW(ArrAdd(Arr_In, DVCPARAM_CHZNCODE, sl_param.ChZnCode));
+								THROW(ArrAdd(Arr_In, DVCPARAM_CHZNGTIN, sl_param.ChZnGTIN));
+								THROW(ArrAdd(Arr_In, DVCPARAM_CHZNSERIAL, sl_param.ChZnSerial));
+								THROW(ArrAdd(Arr_In, DVCPARAM_CHZNPARTN, sl_param.ChZnPartN));
+								THROW(ArrAdd(Arr_In, DVCPARAM_CHZNPRODTYPE, sl_param.ChZnProductType));
+								// @v11.1.11 {
+								if(sl_param.PpChZnR.LineIdx > 0) {
+									THROW(ArrAdd(Arr_In, DVCPARAM_CHZNPPRESULT, sl_param.PpChZnR.CheckResult)); // @v11.1.11 Результат проверки марки честный знак на фазе препроцессинга
+									THROW(ArrAdd(Arr_In, DVCPARAM_CHZNPPSTATUS, sl_param.PpChZnR.Status)); // @v11.1.11 Статус, присвоенный марке честный знак на фазе препроцессинга
+								}
+								// } @v11.1.11
+								// @v11.2.4 {
+								if(ofdf.Sid.NotEmpty())
+									THROW(ArrAdd(Arr_In, DVCPARAM_CHZNSID, ofdf.Sid));
+								// } @v11.2.4
+								// @v12.1.1 {
+								if(!sl_param.ChZnPm_ReqId.IsZero() && sl_param.ChZnPm_ReqTimestamp != 0) {
+									THROW(ArrAdd(Arr_In, DVCPARAM_CHZNPMREQID, sl_param.ChZnPm_ReqId));
+									THROW(ArrAdd(Arr_In, DVCPARAM_CHZNPMREQTIMESTAMP, sl_param.ChZnPm_ReqTimestamp));
+								}
+								// } @v12.1.1
+							}
+							if(sl_param.PaymTermTag != CCheckPacket::pttUndef) {
+								uint   str_id = 0;
+								switch(sl_param.PaymTermTag) {
+									case CCheckPacket::pttFullPrepay: str_id = DVCPARAM_PTT_FULL_PREPAY; break;
+									case CCheckPacket::pttPrepay: str_id = DVCPARAM_PTT_PREPAY; break;
+									case CCheckPacket::pttAdvance: str_id = DVCPARAM_PTT_ADVANCE; break;
+									case CCheckPacket::pttFullPayment: str_id = DVCPARAM_PTT_FULLPAYMENT; break;
+									case CCheckPacket::pttPartial: str_id = DVCPARAM_PTT_PARTIAL; break;
+									case CCheckPacket::pttCreditHandOver: str_id = DVCPARAM_PTT_CREDITHANDOVER; break;
+									case CCheckPacket::pttCredit: str_id = DVCPARAM_PTT_CREDIT; break;
+								}
+								if(str_id) {
+									PPLoadString(PPSTR_ABDVCCMD, str_id, temp_buf);
+									THROW(ArrAdd(Arr_In, DVCPARAM_PAYMENTTERMTAG, temp_buf));
+								}
+							}
+							// @erikJ v10.4.12 {
+							if(sl_param.SbjTermTag != CCheckPacket::sttUndef) {
+								uint   str_id = 0;
+								switch(sl_param.SbjTermTag) {
+									case CCheckPacket::sttGood: str_id = DVCPARAM_STT_GOOD; break;
+									case CCheckPacket::sttExcisableGood: str_id = DVCPARAM_STT_EXCISABLEGOOD; break;
+									case CCheckPacket::sttExecutableWork: str_id = DVCPARAM_STT_EXECUTABLEWORK; break;
+									case CCheckPacket::sttService: str_id = DVCPARAM_STT_SERVICE; break;
+									case CCheckPacket::sttBetting: str_id = DVCPARAM_STT_BETTING; break;
+									case CCheckPacket::sttPaymentGambling: str_id = DVCPARAM_STT_PAYMENTGAMBLING; break;
+									case CCheckPacket::sttBettingLottery: str_id = DVCPARAM_STT_BETTINGLOTTERY; break;
+									case CCheckPacket::sttPaymentLottery: str_id = DVCPARAM_STT_PAYMENTLOTTERY; break;
+									case CCheckPacket::sttGrantRightsUseIntellectualActivity: str_id = DVCPARAM_STT_GRANTSRIGHTSUSEINTELLECTUALACTIVITY; break;
+									case CCheckPacket::sttAdvance: str_id = DVCPARAM_STT_ADVANCE; break;
+									case CCheckPacket::sttPaymentsPayingAgent: str_id = DVCPARAM_STT_PAYMENTSPAYINGAGENT; break;
+									case CCheckPacket::sttSubjTerm: str_id = DVCPARAM_STT_SUBJTERM; break;
+									case CCheckPacket::sttNotSubjTerm: str_id = DVCPARAM_STT_NOTSUBJTERM; break;
+									case CCheckPacket::sttTransferPropertyRights: str_id = DVCPARAM_STT_TRANSFERPROPERTYRIGHTS; break;
+									case CCheckPacket::sttNonOperatingIncome: str_id = DVCPARAM_STT_NONOPERATINGINCOME; break;
+									case CCheckPacket::sttExpensesReduceTax: str_id = DVCPARAM_STT_EXPENSESREDUCETAX; break;
+									case CCheckPacket::sttAmountMerchantFee: str_id = DVCPARAM_STT_AMOUNTMERCHANTFEE; break;
+									case CCheckPacket::sttResortFee: str_id = DVCPARAM_STT_RESORTFEE; break;
+									case CCheckPacket::sttDeposit: str_id = DVCPARAM_SUBJTERMTAG; break;
+								}
+								if(str_id) {
+									PPLoadString(PPSTR_ABDVCCMD, str_id, temp_buf);
+									THROW(ArrAdd(Arr_In, DVCPARAM_SUBJTERMTAG, temp_buf));
+								}
+							}
+							// } @erik v10.4.12
+							THROW(PutPrescription(prescr)); // @v11.8.0 // @v11.9.3 (one call)
 							THROW(ExecPrintOper(DVCCMD_PRINTFISCAL, Arr_In, Arr_Out));
+							PROFILE_END
 							Flags |= sfCheckOpened;
-							running_total += amt;
+							prn_total_sale = 0;
 						}
-						else /*if(fiscal != 0.0)*/ {
-							THROW(ArrAdd(Arr_In, DVCPARAM_QUANTITY, 1L));
-							THROW(ArrAdd(Arr_In, DVCPARAM_PRICE, _fiscal));
-							THROW(ExecPrintOper(DVCCMD_PRINTFISCAL, Arr_In, Arr_Out));
-							Flags |= sfCheckOpened;
-							running_total += _fiscal;
+						else if(sl_param.Kind == sl_param.lkBarcode) {
+							;
 						}
-						PROFILE_END
+						else if(sl_param.Kind == sl_param.lkSignBarcode) {
+							if(!paperless) { // @v11.3.6
+								if(line_buf.NotEmptyS()) {
+									PROFILE(CheckForRibbonUsing(SlipLineParam::fRegRegular, Arr_In));
+									// type: EAN8 EAN13 UPCA UPCE CODE39 IL2OF5 CODABAR PDF417 QRCODE
+									// width (points)
+									// height (points)
+									// label : none below above
+									// text: code
+									PPBarcode::GetStdName(sl_param.BarcodeStd, temp_buf);
+									temp_buf.SetIfEmpty("qr"); // "pdf417";
+									PROFILE_START_S("DVCCMD_PRINTBARCODE")
+									ArrAdd(Arr_In, DVCPARAM_TYPE, temp_buf);
+									ArrAdd(Arr_In, DVCPARAM_WIDTH,  sl_param.BarcodeWd);
+									ArrAdd(Arr_In, DVCPARAM_HEIGHT, sl_param.BarcodeHt);
+									const char * p_label_place = (sl_param.Flags & sl_param.fBcTextBelow) ? "below" : ((sl_param.Flags & sl_param.fBcTextAbove) ? "above" : 0);
+									if(p_label_place)
+										ArrAdd(Arr_In, DVCPARAM_LABEL, p_label_place);
+									THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, line_buf));
+									THROW(ExecPrintOper(DVCCMD_PRINTBARCODE, Arr_In, Arr_Out));
+									PROFILE_END
+								}
+							}
+						}
+						else {
+							if(!paperless) { // @v11.3.6
+								PROFILE(CheckForRibbonUsing(sl_param.Flags, Arr_In));
+								PROFILE_START_S("DVCCMD_PRINTTEXT")
+								THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, line_buf.Trim((sl_param.Font > 1) ? (CheckStrLen / 2) : CheckStrLen)));
+								THROW(ArrAdd(Arr_In, DVCPARAM_FONTSIZE, (sl_param.Font == 1) ? DEF_FONTSIZE : sl_param.Font));
+								THROW(ExecPrintOper(DVCCMD_PRINTTEXT, Arr_In, Arr_Out));
+								PROFILE_END
+							}
+						}
+					}
+					Arr_In.Z();
+					running_total = fabs(running_total);
+					CheckForRibbonUsing(SlipLineParam::fRegRegular|SlipLineParam::fRegJournal, Arr_In);
+					if(prn_total_sale) {
+						if(_fiscal != 0.0) {
+							PROFILE_START_S("DVCCMD_PRINTFISCAL")
+							if(!pPack->GetCount()) {
+								THROW(ArrAdd(Arr_In, DVCPARAM_QUANTITY, 1L));
+								THROW(ArrAdd(Arr_In, DVCPARAM_PRICE, amt));
+								THROW(ExecPrintOper(DVCCMD_PRINTFISCAL, Arr_In, Arr_Out));
+								Flags |= sfCheckOpened;
+								running_total += amt;
+							}
+							else /*if(fiscal != 0.0)*/ {
+								THROW(ArrAdd(Arr_In, DVCPARAM_QUANTITY, 1L));
+								THROW(ArrAdd(Arr_In, DVCPARAM_PRICE, _fiscal));
+								THROW(ExecPrintOper(DVCCMD_PRINTFISCAL, Arr_In, Arr_Out));
+								Flags |= sfCheckOpened;
+								running_total += _fiscal;
+							}
+							PROFILE_END
+						}
+					}
+					else if(running_total != amt) {
+						SString fmt_buf, msg_buf, added_buf;
+						PPLoadText(PPTXT_SHTRIH_RUNNGTOTALGTAMT, fmt_buf);
+						const char * p_sign = (running_total > amt) ? " > " : ((running_total < amt) ? " < " : " ?==? ");
+						added_buf.Z().Cat(running_total, MKSFMTD(0, 12, NMBF_NOTRAILZ)).Cat(p_sign).Cat(amt, MKSFMTD(0, 12, NMBF_NOTRAILZ));
+						msg_buf.Printf(fmt_buf, added_buf.cptr());
+						PPLogMessage(PPFILNAM_SHTRIH_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
 					}
 				}
-				else if(running_total != amt) {
-					SString fmt_buf, msg_buf, added_buf;
-					PPLoadText(PPTXT_SHTRIH_RUNNGTOTALGTAMT, fmt_buf);
-					const char * p_sign = (running_total > amt) ? " > " : ((running_total < amt) ? " < " : " ?==? ");
-					added_buf.Z().Cat(running_total, MKSFMTD(0, 12, NMBF_NOTRAILZ)).Cat(p_sign).Cat(amt, MKSFMTD(0, 12, NMBF_NOTRAILZ));
-					msg_buf.Printf(fmt_buf, added_buf.cptr());
-					PPLogMessage(PPFILNAM_SHTRIH_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
-				}
 			}
-		}
-		if(!is_format) {
-			CCheckLineTbl::Rec ccl;
-			for(uint pos = 0; pPack->EnumLines(&pos, &ccl);) {
-				int  division = (ccl.DivID >= CHECK_LINE_IS_PRINTED_BIAS) ? ccl.DivID - CHECK_LINE_IS_PRINTED_BIAS : ccl.DivID;
-				// Наименование товара
-				GetGoodsName(ccl.GoodsID, buf);
-				buf.Strip().Transf(CTRANSF_INNER_TO_OUTER).Trim(CheckStrLen);
+			if(!is_format) {
+				CCheckLineTbl::Rec ccl;
+				for(uint pos = 0; pPack->EnumLines(&pos, &ccl);) {
+					int  division = (ccl.DivID >= CHECK_LINE_IS_PRINTED_BIAS) ? ccl.DivID - CHECK_LINE_IS_PRINTED_BIAS : ccl.DivID;
+					// Наименование товара
+					GetGoodsName(ccl.GoodsID, buf);
+					buf.Strip().Transf(CTRANSF_INNER_TO_OUTER).Trim(CheckStrLen);
+					Arr_In.Z();
+					THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, buf));
+					THROW(ExecPrintOper(DVCCMD_PRINTTEXT, Arr_In, Arr_Out));
+					// Цена
+					Arr_In.Z();
+					THROW(ArrAdd(Arr_In, DVCPARAM_PRICE, R2(intmnytodbl(ccl.Price) - ccl.Dscnt)));
+					// Количество
+					THROW(ArrAdd(Arr_In, DVCPARAM_QUANTITY, R3(fabs(ccl.Quantity))));
+					// Отдел
+					THROW(ArrAdd(Arr_In, DVCPARAM_DEPARTMENT, (division > 16 || division < 0) ? 0 : division));
+					THROW(ExecPrintOper(DVCCMD_PRINTFISCAL, Arr_In, Arr_Out));
+					Flags |= sfCheckOpened;
+				}
+				// Информация о скидке
+				THROW(PrintDiscountInfo(pPack, flags));
+				buf.Z().CatCharN('=', CheckStrLen);
 				Arr_In.Z();
 				THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, buf));
 				THROW(ExecPrintOper(DVCCMD_PRINTTEXT, Arr_In, Arr_Out));
-				// Цена
-				Arr_In.Z();
-				THROW(ArrAdd(Arr_In, DVCPARAM_PRICE, R2(intmnytodbl(ccl.Price) - ccl.Dscnt)));
-				// Количество
-				THROW(ArrAdd(Arr_In, DVCPARAM_QUANTITY, R3(fabs(ccl.Quantity))));
-				// Отдел
-				THROW(ArrAdd(Arr_In, DVCPARAM_DEPARTMENT, (division > 16 || division < 0) ? 0 : division));
-				THROW(ExecPrintOper(DVCCMD_PRINTFISCAL, Arr_In, Arr_Out));
-				Flags |= sfCheckOpened;
 			}
-			// Информация о скидке
-			THROW(PrintDiscountInfo(pPack, flags));
-			buf.Z().CatCharN('=', CheckStrLen);
 			Arr_In.Z();
-			THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, buf));
-			THROW(ExecPrintOper(DVCCMD_PRINTTEXT, Arr_In, Arr_Out));
-		}
-		Arr_In.Z();
-		if(flags & PRNCHK_RETURN) {
-			if(amt_bnk != 0.0) { THROW(ArrAdd(Arr_In, DVCPARAM_PAYMCARD, fabs(amt_bnk))) }
-			if(amt_cash != 0.0) { THROW(ArrAdd(Arr_In, DVCPARAM_PAYMCASH, fabs(amt_cash))); }
-			if(amt_ccrd != 0.0) { THROW(ArrAdd(Arr_In, DVCPARAM_PAYMCCRD, fabs(amt_ccrd))); }
-		}
-		else {
-			if(amt_bnk > 0.0) { THROW(ArrAdd(Arr_In, DVCPARAM_PAYMCARD, amt_bnk)) }
-			if(amt_cash > 0.0) { THROW(ArrAdd(Arr_In, DVCPARAM_PAYMCASH, amt_cash)); }
-			if(amt_ccrd > 0.0) { THROW(ArrAdd(Arr_In, DVCPARAM_PAYMCCRD, amt_ccrd)); }
-		}
-		{
-			if(ofdf.Sid.NotEmpty())
-				THROW(ArrAdd(Arr_In, DVCPARAM_CHZNSID, ofdf.Sid));
-		}
-		// @v11.3.6 {
-		if(buyers_email.NotEmptyS()) {
-			THROW(ArrAdd(Arr_In, DVCPARAM_BUYERSEMAIL, buyers_email));
-		}
-		if(buyers_phone.NotEmptyS()) {
-			THROW(ArrAdd(Arr_In, DVCPARAM_BUYERSPHONE, buyers_phone));
-		}
-		// } @v11.3.6 
-		THROW(ExecPrintOper(DVCCMD_CLOSECHECK, Arr_In, Arr_Out)); // Всегда закрываем чек
-		Flags &= ~sfCheckOpened;
-		ErrCode = SYNCPRN_ERROR_AFTER_PRINT;
-		Arr_In.Z();
-		THROW(ArrAdd(Arr_In, DVCPARAM_CHECKNUM, 0));
-		THROW(ExecPrintOper(DVCCMD_GETCHECKPARAM, Arr_In, Arr_Out));
-		if(Arr_Out.getCount()) {
-			for(uint i = 0; Arr_Out.GetText(i, buf) > 0; i++) {
-				DestrStr(buf, param_name, param_val);
-				if(param_name.IsEqiAscii("CHECKNUM"))
-					pPack->Rec.Code = static_cast<int32>(param_val.ToInt64());
+			if(flags & PRNCHK_RETURN) {
+				if(amt_bnk != 0.0) { THROW(ArrAdd(Arr_In, DVCPARAM_PAYMCARD, fabs(amt_bnk))) }
+				if(amt_cash != 0.0) { THROW(ArrAdd(Arr_In, DVCPARAM_PAYMCASH, fabs(amt_cash))); }
+				if(amt_ccrd != 0.0) { THROW(ArrAdd(Arr_In, DVCPARAM_PAYMCCRD, fabs(amt_ccrd))); }
 			}
+			else {
+				if(amt_bnk > 0.0) { THROW(ArrAdd(Arr_In, DVCPARAM_PAYMCARD, amt_bnk)) }
+				if(amt_cash > 0.0) { THROW(ArrAdd(Arr_In, DVCPARAM_PAYMCASH, amt_cash)); }
+				if(amt_ccrd > 0.0) { THROW(ArrAdd(Arr_In, DVCPARAM_PAYMCCRD, amt_ccrd)); }
+			}
+			{
+				if(ofdf.Sid.NotEmpty())
+					THROW(ArrAdd(Arr_In, DVCPARAM_CHZNSID, ofdf.Sid));
+			}
+			// @v11.3.6 {
+			if(buyers_email.NotEmptyS()) {
+				THROW(ArrAdd(Arr_In, DVCPARAM_BUYERSEMAIL, buyers_email));
+			}
+			if(buyers_phone.NotEmptyS()) {
+				THROW(ArrAdd(Arr_In, DVCPARAM_BUYERSPHONE, buyers_phone));
+			}
+			// } @v11.3.6 
+			THROW(ExecPrintOper(DVCCMD_CLOSECHECK, Arr_In, Arr_Out)); // Всегда закрываем чек
+			Flags &= ~sfCheckOpened;
+			ErrCode = SYNCPRN_ERROR_AFTER_PRINT;
+			Arr_In.Z();
+			THROW(ArrAdd(Arr_In, DVCPARAM_CHECKNUM, 0));
+			THROW(ExecPrintOper(DVCCMD_GETCHECKPARAM, Arr_In, Arr_Out));
+			if(Arr_Out.getCount()) {
+				for(uint i = 0; Arr_Out.GetText(i, buf) > 0; i++) {
+					DestrStr(buf, param_name, param_val);
+					if(param_name.IsEqiAscii("CHECKNUM"))
+						pPack->Rec.Code = static_cast<int32>(param_val.ToInt64());
+				}
+			}
+			ErrCode = SYNCPRN_NO_ERROR;
 		}
-		ErrCode = SYNCPRN_NO_ERROR;
 	}
 	CATCH
 		if(Flags & sfCancelled) {

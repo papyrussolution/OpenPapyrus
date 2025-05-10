@@ -6062,11 +6062,11 @@ public:
 		Rec();
 		Rec & Clear();
 		int32  ID;
-		int32  UserID;
 		int32  ScoreID;
 		int32  ArID;
 		uint8  ActualTime[8]; // raw
 		int32  Flags;
+		int32  ParticipantID;
 		uint8  LinkOid[8]; // raw
 		uint8  Value[8];   // raw
 		uint8  Reserve[64]; // raw
@@ -6091,11 +6091,11 @@ public:
 		uint8  ActualTime[8];
 	};
 	DBField ID;
-	DBField UserID;
 	DBField ScoreID;
 	DBField ArID;
 	DBField ActualTime;
 	DBField Flags;
+	DBField ParticipantID;
 	DBField LinkOid;
 	DBField Value;
 	DBField Reserve;

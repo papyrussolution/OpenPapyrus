@@ -23,14 +23,24 @@ static SString & FASTCALL ConvertMsgString(const char * pMsg, SString & rBuf)
 
 BOOL CALLBACK MessageBoxDialogFunc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	struct StdButton {
+	/*struct StdButton {
 		const  char * P_Symb;
 		ushort Cmd;
+	};*/
+	// @v12.3.3 static const StdButton button_list[] = { { "but_yes", cmYes }, { "but_no", cmNo  }, { "but_ok", cmOK  }, { "but_cancel", cmCancel }, { "but_all", cmaAll } };
+	// @v12.3.3 {
+	static const SIntToSymbTabEntry button_list[] = {
+		{ cmYes, "but_yes"}, 
+		{ cmNo, "but_no" }, 
+		{ cmOK, "but_ok" }, 
+		{ cmCancel, "but_cancel" }, 
+		{ cmaAll, "but_all" }
 	};
-	static const StdButton button_list[] = { { "but_yes", cmYes }, { "but_no", cmNo  }, { "but_ok", cmOK  }, { "but_cancel", cmCancel }, { "but_all", cmaAll } };
+	// } @v12.3.3 
 	static const int8 button_n[4][4] = { {6,0,0,0}, {2,3,0,0}, {5,6,7,0}, {1,2,3,4} };
 	int    ret = FALSE;
-	int    i, j;
+	int    i;
+	int    j;
 	SString temp_buf;
 	MsgBoxDlgFuncParam * p_param = reinterpret_cast<MsgBoxDlgFuncParam *>(lParam);
 	switch(uMsg) {
@@ -59,7 +69,7 @@ BOOL CALLBACK MessageBoxDialogFunc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARA
 							HWND   w_ctl = GetDlgItem(hwndDlg, id);
 							if(SLS.LoadString_(button_list[i].P_Symb, title_buf) > 0) {
 								TView::SSetWindowText(w_ctl, title_buf.Transf(CTRANSF_INNER_TO_OUTER));
-								long   wl = TView::SGetWindowStyle(w_ctl);
+								const long wl = TView::SGetWindowStyle(w_ctl);
 								TView::SetWindowProp(w_ctl, GWL_STYLE, wl|WS_VISIBLE);
 							}
 						}
@@ -67,7 +77,7 @@ BOOL CALLBACK MessageBoxDialogFunc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARA
 				}
 				if((p_param->Options & mfConf) == mfConf)
 					TDialog::centerDlg(hwndDlg);
-				ret = (p_param->Options & mfNoFocus) ? FALSE : TRUE; // @v10.0.04
+				ret = (p_param->Options & mfNoFocus) ? FALSE : TRUE;
 			}
 			break;
 		case WM_COMMAND:
@@ -79,7 +89,7 @@ BOOL CALLBACK MessageBoxDialogFunc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARA
 				for(i = 0; i < SIZEOFARRAY(button_list); i++) {
 					if(SLS.LoadString_(button_list[i].P_Symb, title_buf) > 0) {
 						if(title_buf.Transf(CTRANSF_INNER_TO_OUTER) == temp_buf) {
-							EndDialog(hwndDlg, button_list[i].Cmd);
+							EndDialog(hwndDlg, button_list[i].Id);
 							break;
 						}
 					}

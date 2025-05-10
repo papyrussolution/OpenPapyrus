@@ -3348,11 +3348,11 @@ file:
 
 table BizScore2 { // @v11.9.1 @construction
 	long   ID;
-	long   UserID;
 	long   ScoreID;       // ->Ref(PPOBJ_BIZSCORE2)
 	long   ArID;          // ->Article.ID
 	raw    ActualTime[8]; // UED (@todo добавить тип uint64)
 	long   Flags;
+	long   ParticipantID; // Участник показателя (тип объекта определяется полем PPBizScore2::ParticipantObjType)
 	raw    LinkOid[8];    // UED
 	raw    Value[8];      // UED (@todo добавить тип uint64)
 	raw    Reserve[64];
