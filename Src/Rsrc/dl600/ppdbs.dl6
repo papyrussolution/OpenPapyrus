@@ -3350,17 +3350,19 @@ table BizScore2 { // @v11.9.1 @construction
 	long   ID;
 	long   ScoreID;       // ->Ref(PPOBJ_BIZSCORE2)
 	long   ArID;          // ->Article.ID
-	raw    ActualTime[8]; // UED (@todo добавить тип uint64)
+	date   ActualDt;      //
+	time   ActualTm;      //
 	long   Flags;
 	long   ParticipantID; // Участник показателя (тип объекта определяется полем PPBizScore2::ParticipantObjType)
-	raw    LinkOid[8];    // UED
-	raw    Value[8];      // UED (@todo добавить тип uint64)
+	long   LinkObjID;     // ИД связанного объекта (тип объекта определяется полем PPBizScore2::LinkObjType)
+	double RealVal;
+	long   IntVal;
 	raw    Reserve[64];
 index:
 	ID (unique);
-	ScoreID, ArID, ActualTime (unique mod);
-	ArID, ScoreID, ActualTime (unique mod);
-	LinkOid, ScoreID, ArID, ActualTime (unique mod);
+	ScoreID, ArID, ActualDt, ActualTm (unique mod);
+	ArID, ScoreID, ActualDt, ActualTm (unique mod);
+	LinkObjID, ScoreID, ArID, ActualDt, ActualTm (unique mod);
 file:
 	"bizsc2.btr";
 }
