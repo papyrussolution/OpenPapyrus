@@ -1036,14 +1036,14 @@ ClsdGoodsDialog::ClsdGoodsDialog(uint dlgID, PPGdsClsPacket * pGcPack, int modif
 	ZeroFlags(0), ModifyOnlyExtRec(modifyOnlyExtRec), GcPack(*pGcPack)
 {
 	if(ModifyOnlyExtRec) {
-		showCtrl(CTL_SG_FULLDLGBUTTON, 0);
+		showCtrl(CTL_SG_FULLDLGBUTTON, false);
 		enableCommand(cmFullGoodsDialog, 0);
 	}
 	if(ModifyOnlyExtRec != 2) {
-		showCtrl(CTL_SG_ZEROX, 0);
-		showCtrl(CTL_SG_ZEROY, 0);
-		showCtrl(CTL_SG_ZEROZ, 0);
-		showCtrl(CTL_SG_ZEROW, 0);
+		showCtrl(CTL_SG_ZEROX, false);
+		showCtrl(CTL_SG_ZEROY, false);
+		showCtrl(CTL_SG_ZEROZ, false);
+		showCtrl(CTL_SG_ZEROW, false);
 	}
 	disableCtrl(CTLSEL_SG_CLS, ModifyOnlyExtRec != 2);
 }
@@ -2626,9 +2626,9 @@ int GoodsCtrlGroup::setFlagExistsOnly(TDialog * dlg, int on)
 	return on;
 }
 
-int isComboCurrent(TDialog * dlg, TView * cb)
+static bool isComboCurrent(TDialog * dlg, TView * cb)
 {
-	return BIN(cb && (dlg->IsCurrentView(cb) || dlg->IsCurrentView(static_cast<ComboBox *>(cb)->link())) && !cb->IsInState(sfDisabled));
+	return (cb && (dlg->IsCurrentView(cb) || dlg->IsCurrentView(static_cast<ComboBox *>(cb)->GetLink())) && !cb->IsInState(sfDisabled));
 }
 
 void GoodsCtrlGroup::handleEvent(TDialog * dlg, TEvent & event)
@@ -2737,11 +2737,11 @@ public:
 			AddClusterAssoc(CTL_REPLGOODS_FLTF, 3, selfByManuf);
 			AddClusterAssoc(CTL_REPLGOODS_FLTF, 4, selfBySuppl);
 			SetClusterData(CTL_REPLGOODS_FLTF, SelectionFlags);
-			showCtrl(CTL_REPLGOODS_ALLDEST, 0);
+			showCtrl(CTL_REPLGOODS_ALLDEST, false);
 		}
 		else {
 			if(Data.DestList.getCount() > 1) {
-				showCtrl(CTL_REPLGOODS_ALLDEST, 1);
+				showCtrl(CTL_REPLGOODS_ALLDEST, true);
 				/* не следует по-умолчанию ставить эту галку - она опасная
 				setCtrlUInt16(CTL_REPLGOODS_ALLDEST, 1);
 				disableCtrl(CTLSEL_REPLGOODS_GRP2, 1);
@@ -2750,7 +2750,7 @@ public:
 				*/
 			}
 			else
-				showCtrl(CTL_REPLGOODS_ALLDEST, 0);
+				showCtrl(CTL_REPLGOODS_ALLDEST, false);
 		}
 		return 1;
 	}
@@ -3205,7 +3205,7 @@ public:
 		setCtrlString(CTL_GOODSFLT_BCLEN, Data.BarcodeLen);
 		if(Data.Flags & GoodsFilt::fNotUseViewOptions) {
 			Data.Flags &= ~(GoodsFilt::fShowBarcode|GoodsFilt::fShowCargo|GoodsFilt::fShowStrucType);
-			showCtrl(STDCTL_VIEWOPTBUTTON, 0);
+			showCtrl(STDCTL_VIEWOPTBUTTON, false);
 		}
 		SetupStringCombo(this, CTLSEL_GOODSFLT_ORDER, PPTXT_GOODSORDER, Data.InitOrder);
 		SetupCtrls();

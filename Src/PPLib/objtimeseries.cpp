@@ -8917,6 +8917,7 @@ SArray * PPViewTimSerDetail::CreateBrowserArray(uint * pBrwId, SString * pSubTit
 	p_array = new SArray(*P_DsList);
 	CATCH
 		ZDELETE(P_DsList);
+		ZDELETE(p_array);
 	ENDCATCH
 	ASSIGN_PTR(pBrwId, BROWSER_TIMSERDETAIL);
 	return p_array;

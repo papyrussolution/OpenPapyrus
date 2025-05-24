@@ -995,10 +995,7 @@ int PPViewBizScore::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser
 	return ok;
 }
 
-void * PPViewBizScore::GetEditExtraParam()
-{
-	return reinterpret_cast<void *>(Filt.UserID);
-}
+void * PPViewBizScore::GetEditExtraParam() { return reinterpret_cast<void *>(Filt.UserID); }
 //
 //
 //
@@ -1104,7 +1101,8 @@ int BizScoreCore::SetItem(LDATE actualDate, PPID scID, PPID userID, const char *
 
 int BizScoreCore::SetItem(LDATE actualDate, PPID scID, PPID userID, PPObjID obj, const char * pStr, int use_ta)
 {
-	int    ok = -1, r;
+	int    ok = -1;
+	int    r;
 	BizScoreTbl::Rec rec;
 	{
 		PPTransaction tra(use_ta);
@@ -1974,7 +1972,8 @@ int PrcssrBizScore::Helper_Calc(LDATE actualDate, PPLogger & rLogger, int use_ta
 
 int PrcssrBizScore::Run()
 {
-	int    ok = -1, r;
+	int    ok = -1;
+	int    r;
 	PPLogger logger;
 	SETIFZ(P_Resolver, new DL2_Resolver());
 	SString msg_buf;
@@ -2488,10 +2487,7 @@ PPALDD_DESTRUCTOR(UhttStatistic) { Destroy(); }
 int PPALDD_UhttStatistic::InitData(PPFilt & rFilt, long rsrv)
 {
 	int    ok = -1;
-	/* @v7.3.11 if(rFilt.ID == H.ID) {
-		ok = DlRtm::InitData(rFilt, rsrv);
-	}
-	else */ {
+	{
 		int    ggrps_n = 0;
 		int    goods_n = 0;
 		int    brands_n = 0;
@@ -2536,6 +2532,104 @@ int PPALDD_UhttStatistic::InitData(PPFilt & rFilt, long rsrv)
 //
 // BizScore2
 //
+BizScore2ValuePacket::BizScore2ValuePacket()
+{
+}
+
+BizScore2ValuePacket & BizScore2ValuePacket::Z()
+{
+	Rec.Clear();
+	Text.Z();
+	return *this;
+}
+
+bool FASTCALL BizScore2ValuePacket::IsEq(const BizScore2ValuePacket & rS) const
+{
+	bool   eq = true;
+#define I(f) if(Rec.f != rS.Rec.f) return false;
+	I(ID);
+	I(ScoreID);
+	I(ArID);
+	I(Dt);
+	I(PlanPeriodFn);
+	I(Flags);
+	I(AgentID);
+	I(LinkObjID);
+	I(IntVal);
+	I(RealVal);
+#undef I
+	if(Text != rS.Text)
+		eq = false;
+	return eq;
+}
+
+BizScore2Core::BizScore2Core() : BizScore2Tbl()
+{
+}
+
+int BizScore2Core::PutPacket(PPID * pID, BizScore2ValuePacket * pPack, int use_ta)
+{
+	int    ok = 1;
+	Reference * p_ref = PPRef;
+	constexpr PPID obj_type = PPOBJ_BIZSCORE2VAL;
+	SString temp_buf;
+	PPObjBizScore2 bs_obj;
+	THROW(bs_obj.ValidateValuePacket(pPack));
+	{
+		PPTransaction tra(use_ta);
+		THROW(tra);
+		if(*pID) {
+			if(pPack) {
+				BizScore2ValuePacket org_pack;
+				THROW(GetPacket(*pID, &org_pack) > 0);
+				if(pPack->IsEq(org_pack)) {
+					ok = -1;
+				}
+				else {
+					THROW(UpdateByID(this, obj_type, *pID, &pPack->Rec, 0));
+					(temp_buf = pPack->Text).Strip().Transf(CTRANSF_INNER_TO_UTF8);
+					THROW(p_ref->UtrC.SetText(TextRefIdent(obj_type, *pID, PPTRPROP_BIZSCORE2_TEXT), temp_buf, 0));
+					DS.LogAction(PPACN_OBJUPD, obj_type, *pID, 0, 0);
+				}
+			}
+			else {
+				THROW(RemoveByID(this, *pID, 0));
+				THROW(p_ref->UtrC.SetText(TextRefIdent(obj_type, *pID, PPTRPROP_BIZSCORE2_TEXT), static_cast<const char *>(0), 0));
+				DS.LogAction(PPACN_OBJRMV, obj_type, *pID, 0, 0);
+			}
+		}
+		else if(pPack) {
+			*pID = pPack->Rec.ID;
+			THROW(AddByID(this, pID, &pPack->Rec, 0));
+			(temp_buf = pPack->Text).Strip().Transf(CTRANSF_INNER_TO_UTF8);
+			THROW(p_ref->UtrC.SetText(TextRefIdent(obj_type, *pID, PPTRPROP_BIZSCORE2_TEXT), temp_buf, 0));
+			pPack->Rec.ID = *pID;
+		}
+		THROW(tra.Commit());
+	}
+	CATCHZOK
+	return ok;
+}
+
+int BizScore2Core::GetPacket(PPID id, BizScore2ValuePacket * pPack)
+{
+	CALLPTRMEMB(pPack, Z());
+	int    ok = -1;
+	Reference * p_ref = PPRef;
+	constexpr PPID obj_type = PPOBJ_BIZSCORE2VAL;
+	BizScore2Tbl::Rec rec;
+	const int sr = SearchByID(this, obj_type, id, &rec);
+	if(sr > 0) {
+		if(pPack) {
+			pPack->Rec = rec;
+			p_ref->UtrC.GetText(TextRefIdent(obj_type, id, PPTRPROP_BIZSCORE2_TEXT), pPack->Text);
+			pPack->Text.Transf(CTRANSF_UTF8_TO_INNER);
+		}
+		ok = 1;
+	}
+	return ok;
+}
+
 PPBizScore2::PPBizScore2()
 {
 	THISZERO();
@@ -2557,10 +2651,7 @@ int PPObjBizScore2::GetPacket(PPID id, PPBizScore2Packet * pPack)
 	int    r = P_Ref->GetItem(Obj, id, &pack.Rec);
 	THROW(r);
 	if(r > 0) {
-		//SString strg_buf;
-		//THROW(P_Ref->GetPropVlrString(Obj, id, BZSPRP_DESCR, strg_buf));
-		//PPGetExtStrData(BIZSCEXSTR_DESCR,   strg_buf, pack.Descr);
-		//PPGetExtStrData(BIZSCEXSTR_FORMULA, strg_buf, pack.Formula);
+		;
 	}
 	else
 		ok = -1;
@@ -2592,22 +2683,9 @@ int PPObjBizScore2::PutPacket(PPID * pID, PPBizScore2Packet * pPack, int use_ta)
 				THROW(P_Ref->AddItem(Obj, pID, &pPack->Rec, 0));
 				// Событие PPACN_OBJADD создано функцией P_Ref->AddItem : action не инициалазируем
 			}
-			/*{
-				SString strg_buf, prev_strg_buf;
-				PPPutExtStrData(BIZSCEXSTR_DESCR,   strg_buf, pPack->Descr);
-				PPPutExtStrData(BIZSCEXSTR_FORMULA, strg_buf, pPack->Formula);
-				THROW(P_Ref->GetPropVlrString(Obj, *pID, BZSPRP_DESCR, prev_strg_buf));
-				if(strg_buf.Cmp(prev_strg_buf, 0) != 0) {
-					THROW(P_Ref->PutPropVlrString(Obj, *pID, BZSPRP_DESCR, strg_buf));
-					if(ok < 0) {
-						//
-						// Заголовочная запись не изменилась, но изменилась формула либо описание.
-						//
-						ok = 1;
-						action = PPACN_OBJUPD;
-					}
-				}
-			}*/
+			{
+				;
+			}
 		}
 		else if(*pID) {
 			THROW(CheckRights(PPR_DEL));
@@ -2639,6 +2717,10 @@ public:
 		setCtrlData(CTL_BIZSC2_NAME, Data.Rec.Name);
 		setCtrlData(CTL_BIZSC2_SYMB, Data.Rec.Symb);
 		SetupPPObjCombo(this, CTLSEL_BIZSC2_PARENT, PPOBJ_BIZSCORE2, Data.Rec.ParentID, OLW_CANSELUPLEVEL);
+		AddClusterAssocDef(CTL_BIZSC2_DATATYPE, 0, OTTYP_NUMBER);
+		AddClusterAssoc(CTL_BIZSC2_DATATYPE, 1, OTTYP_INT);
+		AddClusterAssoc(CTL_BIZSC2_DATATYPE, 2, OTTYP_STRING);
+		SetClusterData(CTL_BIZSC2_DATATYPE, Data.Rec.DataType);
 		return 1;
 	}
 	DECL_DIALOG_GETDTS()
@@ -2649,6 +2731,7 @@ public:
 		THROW_PP(*strip(Data.Rec.Name), PPERR_NAMENEEDED);
 		getCtrlData(CTL_BIZSC2_SYMB, Data.Rec.Symb);
 		getCtrlData(CTLSEL_BIZSC2_PARENT, &Data.Rec.ParentID);
+		GetClusterData(CTL_BIZSC2_DATATYPE, &Data.Rec.DataType);
 		ASSIGN_PTR(pData, Data);
 		CATCHZOKPPERRBYDLG
 		return ok;
@@ -2748,4 +2831,491 @@ private:
 /*virtual*/int PPObjBizScore2::Browse(void * extraPtr /*userID*/)
 {
 	return -1;
+}
+
+int PPObjBizScore2::ValidateValuePacket(const BizScore2ValuePacket * pValuePack)
+{
+	int    ok = 1;
+	if(pValuePack) {
+		PPBizScore2Packet sc_pack;
+		THROW(oneof2(pValuePack->Rec.Kind, BizScore2ValuePacket::kRegular, BizScore2ValuePacket::kPlan)); // @todo @err
+		if(pValuePack->Rec.Kind == BizScore2ValuePacket::kPlan) {
+			THROW(checkdate(pValuePack->Rec.Dt) && checkdate(pValuePack->Rec.PlanPeriodFn)); // @todo @err
+			THROW(pValuePack->Rec.Dt <= pValuePack->Rec.PlanPeriodFn); // @todo @err
+		}
+		else if(pValuePack->Rec.Kind == BizScore2ValuePacket::kRegular) {
+			THROW(checkdate(pValuePack->Rec.Dt) ); // @todo @err
+		}
+		THROW(pValuePack->Rec.ScoreID); // @todo @err
+		THROW(GetPacket(pValuePack->Rec.ScoreID, &sc_pack) > 0);
+	}
+	else
+		ok = -1;
+	CATCHZOK
+	return ok;
+}
+
+int PPObjBizScore2::EditValuePacketDialog(BizScore2ValuePacket * pValuePack)
+{
+	class BizScore2ValueDialog : public TDialog {
+		DECL_DIALOG_DATA(BizScore2ValuePacket);
+	public:
+		BizScore2ValueDialog() : TDialog(DLG_BIZSC2V)
+		{
+			SetupCalDate(CTLCAL_BIZSC2V_DT, CTL_BIZSC2V_DT);
+		}
+		DECL_DIALOG_SETDTS()
+		{
+			int    ok = 1;
+			RVALUEPTR(Data, pData);
+			//
+			SetupPPObjCombo(this, CTLSEL_BIZSC2V_BSC, PPOBJ_BIZSCORE2, Data.Rec.ScoreID, 0);
+			setCtrlDate(CTL_BIZSC2V_DT, Data.Rec.Dt);
+			//setCtrlTime(CTL_BIZSC2V_TM, Data.Rec.Tm);
+			SetupIndicator();
+			return ok;
+		}
+		DECL_DIALOG_GETDTS()
+		{
+			int    ok = 1;
+			getCtrlData(CTLSEL_BIZSC2V_BSC, &Data.Rec.ScoreID);
+			getCtrlData(CTL_BIZSC2V_DT, &Data.Rec.Dt);
+			//getCtrlData(CTL_BIZSC2V_TM, &Data.Rec.Tm);
+			{
+				PPBizScore2Packet pack;
+				if(Data.Rec.ScoreID && Obj.GetPacket(Data.Rec.ScoreID, &pack) > 0) {
+					if(pack.Rec.DataType == OTTYP_NUMBER) {
+						getCtrlData(CTL_BIZSC2V_VAL_R, &Data.Rec.RealVal);
+					}
+					else if(pack.Rec.DataType == OTTYP_INT) {
+						getCtrlData(CTL_BIZSC2V_VAL_I, &Data.Rec.IntVal);
+					}
+					else if(pack.Rec.DataType == OTTYP_STRING) {
+						getCtrlString(CTL_BIZSC2V_VAL_T, Data.Text);
+					}
+				}
+			}
+			//
+			ASSIGN_PTR(pData, Data);
+			return ok;
+		}
+	private:
+		DECL_HANDLE_EVENT
+		{
+			TDialog::handleEvent(event);
+			if(event.isCbSelected(CTLSEL_BIZSC2V_BSC)) {
+				SetupIndicator();
+			}
+			else
+				return;
+			clearEvent(event);
+		}
+		void    SetupIndicator()
+		{
+			const PPID preserve_score_id = Data.Rec.ScoreID;
+			bool  hide_all_value_ctrls = true;
+			PPBizScore2Packet pack;
+			Data.Rec.ScoreID = getCtrlLong(CTLSEL_BIZSC2V_BSC);
+			if(Data.Rec.ScoreID && Obj.GetPacket(Data.Rec.ScoreID, &pack) > 0) {
+				if(pack.Rec.DataType == OTTYP_NUMBER) {
+					showCtrl(CTL_BIZSC2V_VAL_R, true);
+					showCtrl(CTL_BIZSC2V_VAL_I, false);
+					showCtrl(CTL_BIZSC2V_VAL_T, false);
+					setCtrlReal(CTL_BIZSC2V_VAL_R, Data.Rec.RealVal);
+					hide_all_value_ctrls = false;
+				}
+				else if(pack.Rec.DataType == OTTYP_INT) {
+					showCtrl(CTL_BIZSC2V_VAL_R, false);
+					showCtrl(CTL_BIZSC2V_VAL_I, true);
+					showCtrl(CTL_BIZSC2V_VAL_T, false);
+					setCtrlLong(CTL_BIZSC2V_VAL_I, Data.Rec.IntVal);
+					hide_all_value_ctrls = false;
+				}
+				else if(pack.Rec.DataType == OTTYP_STRING) {
+					showCtrl(CTL_BIZSC2V_VAL_R, false);
+					showCtrl(CTL_BIZSC2V_VAL_I, false);
+					showCtrl(CTL_BIZSC2V_VAL_T, true);
+					setCtrlString(CTL_BIZSC2V_VAL_T, Data.Text);
+					hide_all_value_ctrls = false;
+				}
+			}
+			if(hide_all_value_ctrls) {
+				showCtrl(CTL_BIZSC2V_VAL_R, false);
+				showCtrl(CTL_BIZSC2V_VAL_I, false);
+				showCtrl(CTL_BIZSC2V_VAL_T, false);
+			}
+		}
+		PPObjBizScore2 Obj;
+	};
+	return PPDialogProcBody <BizScore2ValueDialog, BizScore2ValuePacket> (pValuePack);
+}
+
+class BizScore2Cache : public ObjCache {
+public:
+	BizScore2Cache() : ObjCache(PPOBJ_BIZSCORE2, sizeof(Data)) {}
+private:
+	virtual int  FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/);
+	virtual void EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const;
+public:
+	struct Data : public ObjCacheEntry {
+		int32  DataType;
+		long   TypeEnumID;
+		long   TypeEnumExt;
+		int16  TimeAggrFunc;
+		int16  HierAggrFunc;
+		int16  AgentAggrFunc;
+		int16  TimeCycle;
+		long   AgentObjType;
+		long   AgentExtID;
+		long   LinkObjType;
+		long   LinkExtID;
+		long   Flags;
+		long   ParentID;
+		long   AccSheetID;
+	};
+};
+
+int BizScore2Cache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/)
+{
+	int    ok = 1;
+	Data * p_cache_rec = static_cast<Data *>(pEntry);
+	PPObjBizScore2 bs_obj;
+	PPBizScore2Packet pack;
+	if(bs_obj.GetPacket(id, &pack) > 0) {
+#define CPY_FLD(Fld) p_cache_rec->Fld=pack.Rec.Fld
+		CPY_FLD(DataType);
+		CPY_FLD(TypeEnumID);
+		CPY_FLD(TypeEnumExt);
+		CPY_FLD(TimeAggrFunc);
+		CPY_FLD(HierAggrFunc);
+		CPY_FLD(AgentAggrFunc);
+		CPY_FLD(TimeCycle);
+		CPY_FLD(AgentObjType);
+		CPY_FLD(AgentExtID);
+		CPY_FLD(LinkObjType);
+		CPY_FLD(LinkExtID);
+		CPY_FLD(Flags);
+		CPY_FLD(ParentID);
+		CPY_FLD(AccSheetID);
+#undef CPY_FLD
+		PPStringSetSCD ss;
+		ss.add(pack.Rec.Name);
+		ss.add(pack.Rec.Symb);
+		PutName(ss.getBuf(), p_cache_rec);
+	}
+	else
+		ok = -1;
+	return ok;
+}
+
+void BizScore2Cache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
+{
+	PPBizScore2Packet * p_data_pack = static_cast<PPBizScore2Packet *>(pDataRec);
+	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
+#define CPY_FLD(Fld) p_data_pack->Rec.Fld=p_cache_rec->Fld
+	p_data_pack->Rec.Tag = PPOBJ_BIZSCORE2;
+	CPY_FLD(ID);
+	CPY_FLD(DataType);
+	CPY_FLD(TypeEnumID);
+	CPY_FLD(TypeEnumExt);
+	CPY_FLD(TimeAggrFunc);
+	CPY_FLD(HierAggrFunc);
+	CPY_FLD(AgentAggrFunc);
+	CPY_FLD(TimeCycle);
+	CPY_FLD(AgentObjType);
+	CPY_FLD(AgentExtID);
+	CPY_FLD(LinkObjType);
+	CPY_FLD(LinkExtID);
+	CPY_FLD(Flags);
+	CPY_FLD(ParentID);
+	CPY_FLD(AccSheetID);
+#undef CPY_FLD
+	char   temp_buf[2048];
+	GetName(pEntry, temp_buf, sizeof(temp_buf));
+	PPStringSetSCD ss;
+	ss.setBuf(temp_buf, sstrlen(temp_buf)+1);
+	uint   p = 0;
+	ss.get(&p, p_data_pack->Rec.Name, sizeof(p_data_pack->Rec.Name));
+	ss.get(&p, p_data_pack->Rec.Symb, sizeof(p_data_pack->Rec.Symb));
+}
+
+int PPObjBizScore2::Fetch(PPID id, PPBizScore2Packet * pRec)
+{
+	BizScore2Cache * p_cache = GetDbLocalCachePtr <BizScore2Cache> (Obj);
+	return p_cache ? p_cache->Get(id, pRec) : GetPacket(id, pRec);
+}
+//
+//
+//
+IMPLEMENT_PPFILT_FACTORY(BizSc2Val); BizSc2ValFilt::BizSc2ValFilt() : PPBaseFilt(PPFILT_BIZSC2VAL, 0, 0)
+{
+	SetFlatChunk(offsetof(BizSc2ValFilt, ReserveStart),
+		offsetof(BizSc2ValFilt, ReserveEnd)-offsetof(BizSc2ValFilt, ReserveStart)+sizeof(ReserveEnd));
+	SetBranchSString(offsetof(BizSc2ValFilt, ExtString));
+	//
+	Init(1, 0);
+}
+
+BizSc2ValFilt & FASTCALL BizSc2ValFilt::operator = (const BizSc2ValFilt & rS)
+{
+	PPBaseFilt::Copy(&rS, 0);
+	return *this;
+}
+
+PPViewBizSc2Val::BrwItem::BrwItem()
+{
+	THISZERO();
+}
+
+PPViewBizSc2Val::PPViewBizSc2Val() : PPView(0, &Filt, PPVIEW_BIZSC2VAL, implBrowseArray, 0), P_DsList(0)
+{
+}
+
+PPViewBizSc2Val::~PPViewBizSc2Val()
+{
+	ZDELETE(P_DsList);
+	DBRemoveTempFiles();
+}
+
+/*virtual*/PPBaseFilt * PPViewBizSc2Val::CreateFilt(const void * extraPtr) const
+{
+	BizSc2ValFilt * p_filt = new BizSc2ValFilt;
+	return p_filt;
+}
+
+int PPViewBizSc2Val::EditBaseFilt(PPBaseFilt * pBaseFilt)
+{
+	class BizSc2ValFiltDialog : public TDialog {
+	public:
+		BizSc2ValFiltDialog() : TDialog(DLG_BIZSC2VFILT)
+		{
+			SetupCalPeriod(CTLCAL_BIZSC2VFILT_PERIOD, CTL_BIZSC2VFILT_PERIOD);
+		}
+		int    setDTS(const BizSc2ValFilt * pData)
+		{
+			RVALUEPTR(Data, pData);
+			SetupPPObjCombo(this, CTLSEL_BIZSC2VFILT_BSC, PPOBJ_BIZSCORE2, Data.ScID, 0);
+			//
+			return 1;
+		}
+		int    getDTS(BizSc2ValFilt * pData)
+		{
+			int    ok = 1;
+			uint   sel = 0;
+			getCtrlData(CTLSEL_BIZSC2VFILT_BSC, &Data.ScID);
+			//
+			ASSIGN_PTR(pData, Data);
+			//CATCHZOKPPERRBYDLG
+			return ok;
+		}
+	private:
+		BizSc2ValFilt Data;
+	};
+	if(!Filt.IsA(pBaseFilt))
+		return 0;
+	BizSc2ValFilt * p_filt = static_cast<BizSc2ValFilt *>(pBaseFilt);
+	DIALOG_PROC_BODY(BizSc2ValFiltDialog, p_filt);
+}
+
+/*virtual*/int PPViewBizSc2Val::Init_(const PPBaseFilt * pBaseFilt)
+{
+	int    ok = 1;
+	THROW(Helper_InitBaseFilt(pBaseFilt));
+	BExtQuery::ZDelete(&P_IterQuery);
+	Counter.Init();
+	CATCHZOK
+	return ok;
+}
+
+int PPViewBizSc2Val::MakeListEntry(const BizScore2Tbl::Rec & rRec, BrwItem & rEntry)
+{
+	int    ok = 1;
+	MEMSZERO(rEntry);
+	rEntry.ID = rRec.ID;
+	rEntry.ScoreID = rRec.ScoreID;
+	rEntry.Dt = rRec.Dt;
+	rEntry.AgentID = rRec.AgentID;
+	rEntry.ArID = rRec.ArID;
+	rEntry.Flags = rRec.Flags;
+	rEntry.LinkObjID = rRec.LinkObjID;
+	rEntry.PlanPeriodFn = rRec.PlanPeriodFn;
+	rEntry.RVal = rRec.RealVal;
+	rEntry.IVal = rRec.IntVal;
+	{
+		SString temp_buf;
+		PPRef->UtrC.GetText(TextRefIdent(PPOBJ_BIZSCORE2VAL, rRec.ID, PPTRPROP_BIZSCORE2_TEXT), temp_buf);
+		temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+		if(temp_buf.NotEmptyS()) {
+			StrPool.AddS(temp_buf, &rEntry.TextP);
+		}
+	}
+	return ok;
+}
+
+int PPViewBizSc2Val::MakeList(PPViewBrowser * pBrw)
+{
+	int    ok = -1;
+	if(P_DsList)
+		P_DsList->clear();
+	else
+		P_DsList = new SArray(sizeof(BrwItem));
+	{
+		union {;
+			BizScore2Tbl::Key1 k1;
+			BizScore2Tbl::Key2 k2;
+		} k;
+		int    idx = 1;
+		MEMSZERO(k);
+		DBQ * p_dbq = &(BscT.Kind == 0);
+		if(Filt.ScID) {
+			p_dbq = ppcheckfiltid(p_dbq, BscT.ScoreID, Filt.ScID);
+			idx = 2;
+			k.k2.ScoreID = Filt.ScID;
+		}
+		BExtQuery q(&BscT, idx);
+		q.where(*p_dbq);
+		q.selectAll();
+		for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
+			BrwItem new_item;
+			if(MakeListEntry(BscT.data, new_item) > 0) {
+				P_DsList->insert(&new_item);
+			}
+		}
+	}
+	return ok;
+}
+
+int PPViewBizSc2Val::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
+{
+	int    ok = 0;
+	if(pBlk->P_SrcData && pBlk->P_DestData) {
+		ok = 1;
+		const  BrwItem * p_item = static_cast<const BrwItem *>(pBlk->P_SrcData);
+		SString temp_buf;
+		PPBizScore2Packet bs_pack;
+		const int fr = BscObj.Fetch(p_item->ScoreID, &bs_pack);
+		switch(pBlk->ColumnN) {
+			case 0: pBlk->Set(p_item->ID); break; // @id
+			case 1: // @date
+				pBlk->Set(p_item->Dt); 
+				break; 
+			case 2: // @appellation
+				pBlk->Set(bs_pack.Rec.Name);
+				break; 
+			case 3:  // @value
+				temp_buf.Z();
+				if(bs_pack.Rec.DataType == OTTYP_NUMBER) {
+					temp_buf.Cat(p_item->RVal, MKSFMTD(0, 6, 0));
+				}
+				else if(bs_pack.Rec.DataType == OTTYP_INT) {
+					temp_buf.Cat(p_item->IVal);
+				}
+				else if(bs_pack.Rec.DataType == OTTYP_STRING) {
+					StrPool.GetS(p_item->TextP, temp_buf);
+				}
+				pBlk->Set(temp_buf);
+				break;
+		}
+	}
+	return ok;
+}
+
+/*static*/int FASTCALL PPViewBizSc2Val::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
+{
+	PPViewBizSc2Val * p_v = static_cast<PPViewBizSc2Val *>(pBlk->ExtraPtr);
+	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;
+}
+
+/*virtual*/SArray * PPViewBizSc2Val::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
+{
+	SArray * p_array = 0;
+	THROW(MakeList(0));
+	p_array = new SArray(*P_DsList);
+	CATCH
+		ZDELETE(p_array);
+		ZDELETE(P_DsList);
+	ENDCATCH
+	ASSIGN_PTR(pBrwId, BROWSER_BIZSCORE2VAL);
+	return p_array;
+}
+
+/*virtual*/DBQuery * PPViewBizSc2Val::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+{
+	DBQuery * p_result = 0;
+	return p_result;
+}
+	
+/*virtual*/void PPViewBizSc2Val::PreprocessBrowser(PPViewBrowser * pBrw)
+{
+	if(pBrw) {
+		pBrw->SetDefUserProc(PPViewBizSc2Val::GetDataForBrowser, this);
+	}
+}
+	
+/*virtual*/int PPViewBizSc2Val::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
+{
+	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
+	AryBrowserDef * p_def = pBrw ? static_cast<AryBrowserDef *>(pBrw->getDef()) : 0;
+	const  BrwItem * p_item = pHdr ? static_cast<const BrwItem *>(pHdr) : 0;
+	PPID   new_id = 0;
+	PPID   update_id = 0;
+	PPID   cur_id = p_item ? p_item->ID : 0;
+	if(ok == -2) {
+		const  long cur_pos = p_def ? p_def->_curItem() : 0;
+		long   update_pos = cur_pos;
+		switch(ppvCmd) {
+			case PPVCMD_ADDITEM:
+				{
+					BizScore2ValuePacket pack;
+					if(BscObj.EditValuePacketDialog(&pack) > 0) {
+						if(BscT.PutPacket(&new_id, &pack, 1)) {
+							update_id = new_id;
+							ok = 1;
+						}
+					}
+				}
+				break;
+			case PPVCMD_EDITITEM:
+				if(cur_id) {
+					BizScore2ValuePacket pack;
+					if(BscT.GetPacket(cur_id, &pack) > 0) {
+						if(BscObj.EditValuePacketDialog(&pack) > 0) {
+							if(BscT.PutPacket(&cur_id, &pack, 1)) {
+								update_id = cur_id;
+								ok = 1;
+							}
+						}
+					}
+				}
+				break;
+			case PPVCMD_DELETEITEM:
+				if(cur_id) {
+					if(BscT.PutPacket(&cur_id, 0, 1)) {
+						update_id = 0;
+						ok = 1;
+					}
+				}
+				break;
+		}
+	}
+	if(ok > 0) {
+		MakeList(pBrw);
+		if(pBrw) {
+			if(p_def) {
+				SArray * p_array = new SArray(*P_DsList);
+				p_def->setArray(p_array, 0, 1);
+				pBrw->setRange(p_array->getCount());
+				int    update_pos = -1;
+				uint   temp_pos = 0;
+				if(update_id > 0 && P_DsList->lsearch(&cur_id, &temp_pos, CMPF_LONG))
+					update_pos = temp_pos;
+				if(update_pos >= 0)
+					pBrw->go(update_pos);
+				else if(update_pos == MAXLONG)
+					pBrw->go(p_array->getCount() - 1);
+			}
+			pBrw->Update();
+		}
+	}
+	return ok;
 }

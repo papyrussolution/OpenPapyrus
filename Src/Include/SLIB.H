@@ -132,6 +132,7 @@
 		#pragma pack(pop)
 	#endif*/
 	#include <windows.h>
+	#include <versionhelpers.h> // @v12.3.4
 	// @v11.7.0 {
 	#ifndef RC_INVOKED
 		#include <ProfInfo.h> // @v11.7.12
@@ -281,14 +282,37 @@
 // @v11.2.3
 // Descr: Мнемоники специальных символов
 //
-#define CHR_SOH 0x01 // Start Of Heading
-#define CHR_STX 0x02 // Start Of Text
-#define CHR_ETX 0x03 // End Of Text
-#define CHR_EOT 0x04 // End Of Transmission
-#define CHR_ENQ 0x05 // Enquiry
-#define CHR_ACK 0x06 // Acknowledge
-#define CHR_NAK 0x15 // Negative Acknowledge
-#define CHR_CAN 0x18 // Прервать выполнение отчета
+#define CHR_SOH   0x01 // Start Of Heading
+#define CHR_STX   0x02 // Start Of Text
+#define CHR_ETX   0x03 // End Of Text
+#define CHR_EOT   0x04 // End Of Transmission
+#define CHR_ENQ   0x05 // Enquiry
+#define CHR_ACK   0x06 // Acknowledge
+#define CHR_ABELL 0x07 // Audible bell (^G) \a
+#define CHR_BS    0x08 // Backspace (^H)    \b
+#define CHR_TAB   0x09 // Horizontal tab (^I) \t
+#define CHR_LF    0x0A // Line feed (^J) \n
+#define CHR_VTAB  0x0B // Vertical tab (^K) \v
+#define CHR_FF    0x0C // Form feed (^L) \f
+#define CHR_CR    0x0D // Carriage return (^M) \r
+#define CHR_SHFO  0x0E // Shift out (^N)
+#define CHR_SHFI  0x0F // Shift in (^O)
+#define CHR_DLE   0x10 // Data link escape (^P)
+#define CHR_DCTL1 0x11 // Device control 1 (^Q)
+#define CHR_DCTL2 0x12 // Device control 2 (^R)
+#define CHR_DCTL3 0x13 // Device control 3 (^S)
+#define CHR_DCTL4 0x14 // Device control 4 (^T)
+#define CHR_NAK   0x15 // Negative Acknowledge
+#define CHR_SI    0x16 // Synchronous idle (^V)
+#define CHR_EOTB  0x17 // End of transmission block (^W)
+#define CHR_CAN   0x18 // Cancel (^X) Прервать выполнение отчета
+#define CHR_EOM   0x19 // End of medium (^Y)
+#define CHR_SUBST 0x1A // Substitute (^Z)
+#define CHR_ESC   0x1B // Escape (^[)
+#define CHR_FS    0x1C // File separator (^\)
+#define CHR_GS    0x1D // Group separator (^])
+#define	CHR_RS    0x1E // Record separator (^^)
+#define CHR_US    0x1F // Unit separator (^-)
 //
 // Descr: Далее следует список макроопределений, используемых в разнообразных формулах и парсерах.
 //   Крайне желательно при написании очередного парсера использовать именно эти определения.
@@ -1387,6 +1411,7 @@ public:
 	static constexpr int    SecsPerDay      = (24 * 60 * 60); // @v11.9.1
 	static constexpr int    SecsPerDay64    = (24LL * 60LL * 60LL); // @v11.9.1
 	static constexpr double SecsPerDayR     = (24.0 * 60.0 * 60.0); // @v11.9.1
+	static constexpr const char * P_DummyEanCode = "4600000000008"; // @v12.3.4 Просто валидный штрихкод ean-13 (надеюсь, имеющий минимальную вероятностью совпадения с реальными кодами)
 	static constexpr const char * P_WrKey_MsWin_DisallowRun = "Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\\DisallowRun"; // @v11.8.12 HKEY_CURRENT_USER
 	static constexpr const char * P_WrKey_MsWin_RestrictRun = "Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\\RestrictRun"; // @v11.8.12 HKEY_CURRENT_USER
 	static constexpr uint32 SLobSignature[4] = { 0x2efc, 0xd421, 0x426c, 0xee07 }; // @v12.2.3 Сигнатура объекта SLob, означающая, что буфер структурирован.
@@ -5497,16 +5522,6 @@ inline const wchar_t * FASTCALL SUcSwitchA(const wchar_t * pStr) { return pStr; 
 #else
 	#define SUcSwitch SUcSwitchA
 #endif
-//
-// Week days
-//
-#define WD_SUN              0
-#define WD_MON              1
-#define WD_TUE              2
-#define WD_WED              3
-#define WD_THU              4
-#define WD_FRI              5
-#define WD_SAT              6
 //
 // Periods
 //
@@ -12226,6 +12241,9 @@ int FASTCALL ExtStrSrch(const char * pBuffer, const char * pPattern, uint flags)
 #define SNTOK_BASE64_URL                54 // @v12.3.3
 #define SNTOK_BASE64_WP                 55 // @v12.3.3 (with padding)
 #define SNTOK_BASE64_URL_WP             56 // @v12.3.3 (with padding)
+#define SNTOK_AU_ABN                    57 // @v12.3.4 @todo https://abr.business.gov.au/Help/AbnFormat
+#define SNTOK_BG_EGN                    58 // @v12.3.4 @todo Болгария Единый Гражданский Код 
+#define SNTOK_CA_SIN                    59 // @v12.3.4 @todo Canada Social Insurance Number
 
 #define SNTOKSEQ_DEC                0x00000001 // 0-9
 #define SNTOKSEQ_LATLWR             0x00000002 // a-z
@@ -13031,6 +13049,9 @@ int    SFindFile2(const SFindFileParam & rP, SFileEntryPool & rResult);
 class SFindFile {
 public:
 	SFindFile(const char * pPath = 0, const char * pFileName = 0);
+	virtual ~SFindFile()
+	{
+	}
 	//
 	// Descr: Запускает механизм поиска. Предварительно должны быть инициализированы
 	//   необходимые поля.
@@ -15299,7 +15320,7 @@ public:
 	TRect(int ax, int ay, int bx, int by);
 	TRect(SPoint2S p1, SPoint2S p2);
 	explicit TRect(SPoint2S sz);
-	explicit TRect(const RECT &);
+	TRect(const RECT &);
 	explicit TRect(const FRect & rR, int roundOption = frtorrNearest);
 	TRect & FASTCALL operator = (const RECT &);
 	TRect & FASTCALL operator = (SPoint2S p);
@@ -16225,7 +16246,12 @@ public:
 	const  SString & GetFileName() const;
 	int    GetSections(StringSet * pSects);
 	int    IsSectExists(const char * pSect);
-	int    GetEntries(const char * pSect, StringSet * pEntries, int storeAllString = 0);
+	//
+	// Descr: Извлекает все ключи, относящиеся к секции pSect, и заносит их в сет pEntries.
+	//   Если аргумент storeAllString == true, то в сете сохраняются не просто ключи, а строки, содержащие
+	//   и ключ и значение, разделенные символом '='.
+	//
+	int    GetEntries(const char * pSect, StringSet * pEntries, bool storeAllString = false);
 	int    GetParam(const char * pSect, const char * pParam, SString & rBuf);
 	int    GetIntParam(const char * pSect, const char * param, int *);
 	int    GetDataSizeParam(const char * pSect, const char * pParam, int64 * pVal);

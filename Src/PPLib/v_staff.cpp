@@ -1,5 +1,5 @@
 // V_STAFF.CPP
-// Copyright (c) A.Sobolev 2007, 2009, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 2007, 2009, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -410,10 +410,7 @@ PPViewStaffPost::~PPViewStaffPost()
 	delete P_TempTbl;
 }
 
-void * PPViewStaffPost::GetEditExtraParam()
-{
-	return 0;
-}
+void * PPViewStaffPost::GetEditExtraParam() { return 0; }
 
 PPBaseFilt * PPViewStaffPost::CreateFilt(const void * extraPtr) const
 {

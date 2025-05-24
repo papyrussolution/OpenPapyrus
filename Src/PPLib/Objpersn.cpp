@@ -4008,9 +4008,9 @@ protected:
 			PPObjPersonStatus ps_obj;
 			PPPersonStatus ps_rec;
 			if(ps_obj.Fetch(Data.Rec.Status, &ps_rec) > 0 && ps_rec.Flags & PSNSTF_PRIVATE)
-				showCtrl(CTL_PERSON_GENDER, 1);
+				showCtrl(CTL_PERSON_GENDER, true);
 			else
-				showCtrl(CTL_PERSON_GENDER, 0);
+				showCtrl(CTL_PERSON_GENDER, false);
 		}
 		return ok;
 	}
@@ -4036,8 +4036,8 @@ protected:
 		PPObjPersonStatus ps_obj;
 		PPPersonStatus ps_rec;
 		if(ps_obj.Fetch(Data.Rec.Status, &ps_rec) > 0 && ps_rec.Flags & PSNSTF_PRIVATE) {
-			showCtrl(CTL_PERSON_DOB, 1);
-			showCtrl(CTLCAL_PERSON_DOB, 1);
+			showCtrl(CTL_PERSON_DOB, true);
+			showCtrl(CTLCAL_PERSON_DOB, true);
 			const ObjTagItem * p_dob_tag = Data.TagL.GetItem(PPTAG_PERSON_DOB);
 			if(p_dob_tag) {
 				LDATE  dob = ZERODATE;
@@ -4047,8 +4047,8 @@ protected:
 			}
 		}
 		else {
-			showCtrl(CTL_PERSON_DOB, 0);
-			showCtrl(CTLCAL_PERSON_DOB, 0);
+			showCtrl(CTL_PERSON_DOB, false);
+			showCtrl(CTLCAL_PERSON_DOB, false);
 		}
 		if(ok <= 0)
 			setCtrlDate(CTL_PERSON_DOB, ZERODATE);
@@ -4228,7 +4228,7 @@ private:
 	}
 	void   SetupCtrls()
 	{
-		showCtrl(CTL_PERSON_CSHRRIGHTS,   IsCashier);
+		showCtrl(CTL_PERSON_CSHRRIGHTS,   LOGIC(IsCashier));
 		showCtrl(CTL_PERSON_SELANALOGBUT, Data.Rec.ID == 0);
 	}
 	enum {
@@ -4425,7 +4425,7 @@ private:
 	int    AcceptSCard(uint * pSel);
 	void   SetupSCardRestInfo();
 	void   SetupSCard();
-	void   ShowSCardCtrls(int show);
+	void   ShowSCardCtrls(bool doShow);
 	int    SetupSCardSeries(int fromCtrl, int dontSeekCard);
 
 	PPID   KindID;
@@ -4684,14 +4684,14 @@ void ShortPersonDialog::SetupSCard()
 	}
 }
 
-void ShortPersonDialog::ShowSCardCtrls(int show)
+void ShortPersonDialog::ShowSCardCtrls(bool doShow)
 {
 	static constexpr ushort ctl_list[] = { CTL_PERSON_SCFRAME, CTL_PERSON_SCARD, CTL_PERSON_SCARDAUTO, CTL_PERSON_SCARDSER, CTLSEL_PERSON_SCARDSER,
 		CTL_PERSON_ST_SCARDINFO, CTL_PERSON_SCEXPIRY, CTLCAL_PERSON_SCEXPIRY, CTL_PERSON_SCDIS, CTL_PERSON_SCAG, CTLSEL_PERSON_SCAG, CTL_PERSON_SCTIME };
 	for(uint i = 0; i < SIZEOFARRAY(ctl_list); i++)
-		showCtrl(ctl_list[i], show);
-	showButton(cmFullSCardDialog, show);
-	enableCommand(cmFullSCardDialog, show);
+		showCtrl(ctl_list[i], doShow);
+	showButton(cmFullSCardDialog, doShow);
+	enableCommand(cmFullSCardDialog, doShow);
 }
 
 int ShortPersonDialog::SetupSCardSeries(int fromCtrl, int dontSeekCard)
@@ -4763,14 +4763,14 @@ int ShortPersonDialog::SetupSCardSeries(int fromCtrl, int dontSeekCard)
 				}
 			}
 		}
-		ShowSCardCtrls(1);
+		ShowSCardCtrls(true);
 		disableCtrl(CTL_PERSON_SCARDAUTO, !enable_auto_create);
 		setCtrlDate(CTL_PERSON_SCEXPIRY, sc_rec.Expiry);
 		setCtrlReal(CTL_PERSON_SCDIS, fdiv100i(sc_rec.PDis));
 		SetTimeRangeInput(this, CTL_PERSON_SCTIME, TIMF_HM, &sc_rec.UsageTmStart, &sc_rec.UsageTmEnd);
 	}
 	else
-		ShowSCardCtrls(0);
+		ShowSCardCtrls(false);
 	return ok;
 }
 //

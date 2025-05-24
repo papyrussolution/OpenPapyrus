@@ -623,7 +623,7 @@ public:
 	//   !0 - блок находится в консистентном состоянии
 	//    0 - некоторые параметры блока противоречивы
 	//
-	int    Validate() const;
+	bool   Validate() const;
 	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 	//
 	// Descr: Возвращает заданный размер по оси X.
@@ -684,6 +684,8 @@ public:
 	// Descr: Определяет являются ли координаты по оси Y фиксированными.
 	//
 	bool   IsNominalFullDefinedY() const;
+	void   CopySizeXParamTo(SUiLayoutParam & rDest) const;
+	void   CopySizeYParamTo(SUiLayoutParam & rDest) const;
 	//
 	// Descr: Вспомогательная функция, возвращающая кросс-направление относительно заданного
 	//   направления direction.
@@ -2471,7 +2473,7 @@ public:
 	// Note: Вместо этой функции рекомендуется использовать setState(sfVisible, doShow)
 	// ARG(doShow IN): !0 - показывает окно, 0 - скрывает окно
 	//
-	void   Show(int doShow);
+	void   Show(bool doShow);
 	void   FASTCALL clearEvent(TEvent & event);
 	void   FASTCALL NegativeReplyOnValidateCommand(TEvent & event);
 	HWND   getHandle() const;
@@ -2757,7 +2759,8 @@ public:
 	int    SetCtrlFont(uint ctlID, const SFontDescr & rFd);
 	int    SetCtrlsFont(const char * pFontName, int height, ...);
 	int    destroyCtrl(uint ctl);
-	TLabel * getCtlLabel(uint ctlID);
+	TLabel * FASTCALL GetCtrlLabel(uint ctlID);
+	TLabel * FASTCALL GetCtrlLabel(TView * pV);
 	int    getLabelText(uint ctlID, SString & rText);
 	int    setLabelText(uint ctlID, const char * pText);
 	//
@@ -2787,8 +2790,8 @@ public:
 	//
 	int    setSmartListBoxOption(uint ctlID, uint option);
 	void   FASTCALL drawCtrl(ushort ctlID);
-	void   showCtrl(ushort ctl, int s/*1 - show, 0 - hide*/);
-	void   showButton(uint cmd, int s/*1 - show, 0 - hide*/);
+	void   showCtrl(ushort ctl, bool s/*1 - show, 0 - hide*/);
+	void   showButton(uint cmd, bool s/*1 - show, 0 - hide*/);
 	int    setButtonText(uint cmd, const char * pText);
 	int    setButtonBitmap(uint cmd, uint bmpID);
 	void   FASTCALL setTitle(const char *);
@@ -4064,6 +4067,7 @@ public:
 	void   deleteAll();
 	bool   IsChecked(uint itemIdx) const;  // item = (ushort)GetWindowLong(hWnd, GWL_ID);
 	bool   IsEnabled(uint itemIdx) const;  // item = (ushort)GetWindowLong(hWnd, GWL_ID);
+	HWND   getItemHandle(uint itemIdx);
 	//
 	// Три функции для ассоциирования элементов кластера с прикладными значениями.
 	// pos == -1 соответствует значению по умолчанию.
@@ -4118,10 +4122,10 @@ protected:
 
 class TLabel : public TStaticText {
 public:
-	TLabel(const TRect& bounds, const char * pText, TView * pLink);
+	TLabel(const TRect & rBounds, const char * pText, TView * pLink);
 protected:
 	DECL_HANDLE_EVENT;
-	TView * link;
+	TView * P_Link;
 };
 
 ushort SMessageBox(const char * pMsg, ushort options);
@@ -4720,7 +4724,7 @@ public:
 	int    addItem(long id, const char * pS, long * pPos = 0);
 	int    removeItem(long pos);
 	void   freeAll();
-	TInputLine * link(void) const;
+	TInputLine * GetLink() const;
 	void   SetLink(TInputLine * pLink);
 private:
 	void   Init(long flags);

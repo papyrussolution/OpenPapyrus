@@ -1091,7 +1091,7 @@ static IMPL_DBE_PROC(dbqf_clientactivitystate_iddd) // @v12.2.2
 	st.NewCliPeriod.Set(params[2].dval, params[3].dval);
 	PPObjPerson psn_obj(SConstructorLite); // @v12.2.4 SConstructorLite
 	psn_obj.IdentifyClientActivityState(st);
-	result->init(st.State);
+	result->init(static_cast<int>(st.State));
 }
 
 static IMPL_DBE_PROC(dbqf_stafforgname_i)

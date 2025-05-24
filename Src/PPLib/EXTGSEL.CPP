@@ -279,8 +279,8 @@ ExtGoodsSelDialog::ExtGoodsSelDialog(PPID _op, PPID initGoodsID, long flags) : T
 	LocID = r_cfg.Location;
 	MEMSZERO(SerialData);
 	P_List = static_cast<SmartListBox *>(getCtrlView(CTL_EXTGSEL_LIST));
-	showCtrl(CTL_EXTGSEL_MTX_IND, 0);
-	showCtrl(CTL_EXTGSEL_INFO, 0);
+	showCtrl(CTL_EXTGSEL_MTX_IND, false);
+	showCtrl(CTL_EXTGSEL_INFO, false);
 	//
 	Ptb.SetBrush(brushModMode_Expend,   SPaintObj::bsSolid, GetColorRef(SClrOrangered), 0);
 	Ptb.SetBrush(brushModMode_Incoming, SPaintObj::bsSolid, GetColorRef(SClrMediumblue), 0);
@@ -288,7 +288,7 @@ ExtGoodsSelDialog::ExtGoodsSelDialog(PPID _op, PPID initGoodsID, long flags) : T
 	//
 	if(Flags & fSelectModifMode) {
 		SString temp_buf;
-		showCtrl(CTLSEL_EXTGSEL_MODIFMODE, 1);
+		showCtrl(CTLSEL_EXTGSEL_MODIFMODE, true);
 		StrAssocArray mod_item_list;
 		PPLoadString("expend", temp_buf);
 		mod_item_list.AddFast(TIDlgInitData::mmExpend, temp_buf);
@@ -300,7 +300,7 @@ ExtGoodsSelDialog::ExtGoodsSelDialog(PPID _op, PPID initGoodsID, long flags) : T
 		SetupStrAssocCombo(this, CTLSEL_EXTGSEL_MODIFMODE, mod_item_list, init_mm, 0, 0, 0);
 	}
 	else {
-		showCtrl(CTLSEL_EXTGSEL_MODIFMODE, 0);
+		showCtrl(CTLSEL_EXTGSEL_MODIFMODE, false);
 		selectCtrl(CTL_EXTGSEL_QTTY);
 	}
 	{
@@ -320,8 +320,8 @@ ExtGoodsSelDialog::ExtGoodsSelDialog(PPID _op, PPID initGoodsID, long flags) : T
 		if(UseBrand)
 			SetupPPObjCombo(this, CTLSEL_EXTGSEL_BRAND, PPOBJ_BRAND, 0, OLW_LOADDEFONOPEN, 0);
 		else {
-			showCtrl(CTLSEL_EXTGSEL_BRAND, 0);
-			showCtrl(CTL_EXTGSEL_BRAND, 0);
+			showCtrl(CTLSEL_EXTGSEL_BRAND, false);
+			showCtrl(CTL_EXTGSEL_BRAND, false);
 		}
 	}
 	if((Flags & fForceMatrixUsage) || ((r_cfg.Flags & CFGFLG_USEGOODSMATRIX) && OpID && CheckOpFlags(OpID, OPKF_RESTRICTBYMTX)))
@@ -390,20 +390,20 @@ void ExtGoodsSelDialog::setSelectionByGoodsList(const PPIDArray * pList, const c
 		selectCtrl(UseBrand ? CTLSEL_EXTGSEL_BRAND : CTLSEL_EXTGSEL_GGRP);
 	}
 	if(!isempty(pInfoText)) {
-		showCtrl(CTL_EXTGSEL_INFO, 1);
-		showCtrl(CTL_EXTGSEL_GGRP, 0);
-		showCtrl(CTLSEL_EXTGSEL_GGRP, 0);
-		showCtrl(CTL_EXTGSEL_BRAND, 0);
-		showCtrl(CTLSEL_EXTGSEL_BRAND, 0);
+		showCtrl(CTL_EXTGSEL_INFO, true);
+		showCtrl(CTL_EXTGSEL_GGRP, false);
+		showCtrl(CTLSEL_EXTGSEL_GGRP, false);
+		showCtrl(CTL_EXTGSEL_BRAND, false);
+		showCtrl(CTLSEL_EXTGSEL_BRAND, false);
 		setStaticText(CTL_EXTGSEL_INFO, pInfoText);
 	}
 	else {
-		showCtrl(CTL_EXTGSEL_INFO, 0);
-		showCtrl(CTL_EXTGSEL_GGRP, 1);
-		showCtrl(CTLSEL_EXTGSEL_GGRP, 1);
+		showCtrl(CTL_EXTGSEL_INFO, false);
+		showCtrl(CTL_EXTGSEL_GGRP, true);
+		showCtrl(CTLSEL_EXTGSEL_GGRP, true);
 		if(UseBrand) {
-			showCtrl(CTL_EXTGSEL_BRAND, 1);
-			showCtrl(CTLSEL_EXTGSEL_BRAND, 1);
+			showCtrl(CTL_EXTGSEL_BRAND, true);
+			showCtrl(CTLSEL_EXTGSEL_BRAND, true);
 		}
 	}
 	Flags |= fSelByList;
@@ -430,20 +430,20 @@ void ExtGoodsSelDialog::setSelectionByGoodsList(const StrAssocArray * pList, con
 		selectCtrl(UseBrand ? CTLSEL_EXTGSEL_BRAND : CTLSEL_EXTGSEL_GGRP);
 	}
 	if(!isempty(pInfoText)) {
-		showCtrl(CTL_EXTGSEL_INFO, 1);
-		showCtrl(CTL_EXTGSEL_GGRP, 0);
-		showCtrl(CTLSEL_EXTGSEL_GGRP, 0);
-		showCtrl(CTL_EXTGSEL_BRAND, 0);
-		showCtrl(CTLSEL_EXTGSEL_BRAND, 0);
+		showCtrl(CTL_EXTGSEL_INFO, true);
+		showCtrl(CTL_EXTGSEL_GGRP, false);
+		showCtrl(CTLSEL_EXTGSEL_GGRP, false);
+		showCtrl(CTL_EXTGSEL_BRAND, false);
+		showCtrl(CTLSEL_EXTGSEL_BRAND, false);
 		setStaticText(CTL_EXTGSEL_INFO, pInfoText);
 	}
 	else {
-		showCtrl(CTL_EXTGSEL_INFO, 0);
-		showCtrl(CTL_EXTGSEL_GGRP, 1);
-		showCtrl(CTLSEL_EXTGSEL_GGRP, 1);
+		showCtrl(CTL_EXTGSEL_INFO, false);
+		showCtrl(CTL_EXTGSEL_GGRP, true);
+		showCtrl(CTLSEL_EXTGSEL_GGRP, true);
 		if(UseBrand) {
-			showCtrl(CTL_EXTGSEL_BRAND, 1);
-			showCtrl(CTLSEL_EXTGSEL_BRAND, 1);
+			showCtrl(CTL_EXTGSEL_BRAND, true);
+			showCtrl(CTLSEL_EXTGSEL_BRAND, true);
 		}
 	}
 	Flags &= ~fSelByList;
@@ -460,7 +460,7 @@ void ExtGoodsSelDialog::setSelectionByGoodsList(const StrAssocArray * pList, con
 
 void ExtGoodsSelDialog::updateList(int pos)
 {
-	showCtrl(CTL_EXTGSEL_MTX_IND, 0);
+	showCtrl(CTL_EXTGSEL_MTX_IND, false);
 	if(P_List) {
 		ListBoxDef * p_def = 0;
 		const  PPID op_type_id = GetOpType(OpID);
@@ -500,7 +500,7 @@ void ExtGoodsSelDialog::updateList(int pos)
 			SETFLAG(_sel_options, PPObjGoods::selfHideGeneric, Flags & fHideGeneric); // @v10.7.7
 			SETFLAG(_sel_options, PPObjGoods::selfForcePassive, Flags & fForcePassive);
 			if(Flags & fMatrix) {
-				showCtrl(CTL_EXTGSEL_MTX_IND, 1);
+				showCtrl(CTL_EXTGSEL_MTX_IND, true);
 				SetCtrlBitmap(CTL_EXTGSEL_MTX_IND, BM_MATRIX);
 				_sel_options |= PPObjGoods::selfUseMatrix;
 				if(IsIntrExpndOp(OpID) && ArID)

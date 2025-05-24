@@ -1,5 +1,5 @@
 // OBJGS.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1222,9 +1222,9 @@ void GSDialog::SetupCtrls()
 		DisableClusterItem(CTL_GSTRUC_FLAGS, 4, !(Data.Rec.Flags & GSF_PRESENT));
 		DisableClusterItem(CTL_GSTRUC_FLAGS, 5, !(Data.Rec.Flags & GSF_PARTITIAL));
 		DisableClusterItem(CTL_GSTRUC_FLAGS, 6, !(Data.Rec.Flags & GSF_DECOMPL)); // @v11.6.2
-		showCtrl(CTL_GSTRUC_GIFTAMTRESTR, (Data.Rec.Flags & GSF_PRESENT));
-		showCtrl(CTLSEL_GSTRUC_GIFTQK,    (Data.Rec.Flags & GSF_PRESENT));
-		showCtrl(CTL_GSTRUC_GIFTLIMIT,    (Data.Rec.Flags & GSF_PRESENT));
+		showCtrl(CTL_GSTRUC_GIFTAMTRESTR, LOGIC(Data.Rec.Flags & GSF_PRESENT));
+		showCtrl(CTLSEL_GSTRUC_GIFTQK,    LOGIC(Data.Rec.Flags & GSF_PRESENT));
+		showCtrl(CTL_GSTRUC_GIFTLIMIT,    LOGIC(Data.Rec.Flags & GSF_PRESENT));
 		SetClusterData(CTL_GSTRUC_FLAGS, Data.Rec.Flags);
 		if(GObj.GetConfig().Flags & GCF_BANSTRUCCDONDECOMPL) {
 			disableCtrl(CTL_GSTRUC_COMMDENOM, (Data.Rec.Flags & GSF_DECOMPL) && !(Data.Rec.Flags & GSF_COMPL));

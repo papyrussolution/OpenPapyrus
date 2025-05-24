@@ -165,7 +165,7 @@ int EditCmdItem(const PPCommandGroup * pGrp, PPCommand * pData, /*int isDekstopC
 		}
 		void   SetupCtrls()
 		{
-			showCtrl(CTL_CMDITEM_CLEARFILT, BIN(Data.Param.GetAvailableSize()));
+			showCtrl(CTL_CMDITEM_CLEARFILT, LOGIC(Data.Param.GetAvailableSize()));
 		}
 
 		const PPCommandGroupCategory CmdGrpC;
@@ -606,7 +606,7 @@ int EditCommandGroup(PPCommandGroup * pData, const S_GUID & rInitUuid, PPCommand
 			uint   title_id = 0;
 			if(CmdGrpC == cmdgrpcDesktop) {
 				CurDict->GetDbSymb(DbSymb);
-				showCtrl(CTL_MENULIST_EDMBTN, 0);
+				showCtrl(CTL_MENULIST_EDMBTN, false);
 				title_id = PPTXT_EDITDESKTOP;
 				setSmartListBoxOption(CTL_MENULIST_LIST, lbtSelNotify);
 				addGroup(ctlgroupImg, new ImageBrowseCtrlGroup(CTL_MENULIST_IMAGE, cmAddImage, cmDelImage, 1));
@@ -619,15 +619,15 @@ int EditCommandGroup(PPCommandGroup * pData, const S_GUID & rInitUuid, PPCommand
 				::GetWindowRect(::GetDlgItem(H(), CTL_MENULIST_IMAGE), &img_rect);
 				rect.bottom -= (img_rect.bottom - img_rect.top);
 				::MoveWindow(H(), rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, 1);
-				showCtrl(CTL_MENULIST_EDASSCBTN,  0);
-				showCtrl(CTL_MENULIST_EDASSCCBTN, 0);
-				showCtrl(CTL_MENULIST_IMAGE,      0);
-				showCtrl(STDCTL_IMGADDBUTTON,     0);
-				showCtrl(STDCTL_IMGDELBUTTON,     0);
-				showCtrl(STDCTL_IMGPSTBUTTON,     0);
-				showCtrl(CTL_MENULIST_BKGND,      0);
-				showCtrl(CTLSEL_MENULIST_BKGND,   0);
-				showCtrl(CTL_MENULIST_SELBKGND,   0);
+				showCtrl(CTL_MENULIST_EDASSCBTN,  false);
+				showCtrl(CTL_MENULIST_EDASSCCBTN, false);
+				showCtrl(CTL_MENULIST_IMAGE,      false);
+				showCtrl(STDCTL_IMGADDBUTTON,     false);
+				showCtrl(STDCTL_IMGDELBUTTON,     false);
+				showCtrl(STDCTL_IMGPSTBUTTON,     false);
+				showCtrl(CTL_MENULIST_BKGND,      false);
+				showCtrl(CTLSEL_MENULIST_BKGND,   false);
+				showCtrl(CTL_MENULIST_SELBKGND,   false);
 				title_id = PPTXT_EDITMENU;
 				setupPosition();
 			}
@@ -915,7 +915,7 @@ int EditCommandGroup(PPCommandGroup * pData, const S_GUID & rInitUuid, PPCommand
 			}
 			return 1;
 		}
-		int    CheckRight(int rt) const { return (IsMaster || ObjRts.CheckDesktopID(0, rt)); }
+		bool   CheckRight(int rt) const { return (IsMaster || ObjRts.CheckDesktopID(0, rt)); }
 
 		const  int IsMaster;
 		const  PPCommandGroupCategory CmdGrpC;

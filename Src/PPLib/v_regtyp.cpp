@@ -191,7 +191,7 @@ SArray * PPViewRegisterType::CreateBrowserArray(uint * pBrwId, SString * pSubTit
 	return new SArray(Data);
 }
 
-int PPViewRegisterType::Transmit(int isCharry)
+int PPViewRegisterType::Transmit(bool isCharry)
 {
 	int    ok = -1;
 	PPWaitStart();
@@ -247,7 +247,7 @@ int PPViewRegisterType::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBro
 				break;
 			case PPVCMD_TRANSMIT:
 			case PPVCMD_TRANSMITCHARRY:
-				ok = Transmit(BIN(ppvCmd == PPVCMD_TRANSMITCHARRY));
+				ok = Transmit(ppvCmd == PPVCMD_TRANSMITCHARRY);
 				break;
 			case PPVCMD_REFRESHBYPERIOD:
 			case PPVCMD_REFRESH:

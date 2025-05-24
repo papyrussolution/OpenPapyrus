@@ -2118,7 +2118,7 @@ void SCalendarPicker::CreateLayout(LDATE selectedDate)
 			if(p && p->GetSubSign() == TV_SUBSIGN_COMBOBOX) {
 				SUiLayout * p_lo_inp2 = SUiLayout::CreateComplexLayout(SUiLayout::cmplxtInpLblBtn, /*SUiLayout::clfLabelLeft*/0, FixedCtrlHeight, p_lo_result);
 				if(p_lo_inp2) {
-					TInputLine * p_il = static_cast<ComboBox *>(p)->link();
+					TInputLine * p_il = static_cast<ComboBox *>(p)->GetLink();
 					{
 						SUiLayoutParam alb = p_lo_inp2->GetLayoutBlock();
 						alb.SetGrowFactor(1.4f).SetMargin(def_margin).SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
@@ -2131,7 +2131,7 @@ void SCalendarPicker::CreateLayout(LDATE selectedDate)
 					if(p_lo_btn)
 						p_lo_btn->SetCallbacks(0, InnerBlock::CalendarItem_SetupLayoutItemFrameProc, p);
 					SUiLayout * p_lo_lbl = p_lo_inp2->FindComplexComponentId(SUiLayout::cmlxcLabel);
-					TLabel * p_lbl = getCtlLabel(CTL_CALENDAR_FASTPRD);
+					TLabel * p_lbl = GetCtrlLabel(CTL_CALENDAR_FASTPRD);
 					if(p_lo_lbl && p_lbl)
 						p_lo_lbl->SetCallbacks(0, InnerBlock::CalendarItem_SetupLayoutItemFrameProc, p_lbl);							
 				}
@@ -2164,7 +2164,7 @@ void SCalendarPicker::CreateLayout(LDATE selectedDate)
 					if(p_lo_inp)
 						p_lo_inp->SetCallbacks(0, InnerBlock::CalendarItem_SetupLayoutItemFrameProc, p);							
 					SUiLayout * p_lo_lbl = p_lo_inp2->FindComplexComponentId(SUiLayout::cmlxcLabel);
-					TLabel * p_lbl = getCtlLabel(CTL_CALENDAR_PERIODEDIT);
+					TLabel * p_lbl = GetCtrlLabel(CTL_CALENDAR_PERIODEDIT);
 					if(p_lo_lbl && p_lbl)
 						p_lo_lbl->SetCallbacks(0, InnerBlock::CalendarItem_SetupLayoutItemFrameProc, p_lbl);							
 				}

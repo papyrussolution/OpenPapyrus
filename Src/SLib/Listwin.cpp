@@ -91,7 +91,7 @@ IMPL_HANDLE_EVENT(ListWindow)
 	if(event.isCmd(cmExecute)) {
 		const int lw_dlg_id = (DlgFlags & fLarge) ? DLGW_LBX_L : DLGW_LBX;
 		ComboBox * p_combo = P_Lb ? P_Lb->combo : 0;
-		HWND   hwnd_parent = p_combo ? p_combo->link()->Parent : APPL->H_MainWnd;
+		HWND   hwnd_parent = (p_combo && p_combo->GetLink()) ? p_combo->GetLink()->Parent : APPL->H_MainWnd;
 		MessageCommandToOwner(cmLBLoadDef);
 		Id = IsTreeList() ? DLGW_TREELBX : ((P_Def && P_Def->Options & lbtOwnerDraw) ? DLGW_OWNDRAWLBX : lw_dlg_id);
 		HW = APPL->CreateDlg(Id, hwnd_parent, TDialog::DialogProc, reinterpret_cast<LPARAM>(this));
@@ -157,8 +157,8 @@ IMPL_HANDLE_EVENT(ListWindow)
 		}
 		::DestroyWindow(H());
 		HW = 0;
-		if(p_combo)
-			SetFocus(GetDlgItem(p_combo->Parent, p_combo->link()->GetId()));
+		if(p_combo && p_combo->GetLink())
+			SetFocus(GetDlgItem(p_combo->Parent, p_combo->GetLink()->GetId()));
 		clearEvent(event);
 		event.message.infoLong = EndModalCmd;
 	}

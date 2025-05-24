@@ -743,6 +743,13 @@ static void InitTest()
 			static_assert(SlConst::Epoch1600_1970_Offs_100Ns == SlConst::Epoch1600_1970_Offs_s * 10000000);
 		}
 		static_assert(sizeof(SUiLayoutParam) == 140U); // @v12.3.2
+		// @v12.3.4 {
+		{
+			TRect r;
+			assert(r.a.x == 0 && r.a.y == 0 && r.b.x == 0 && r.b.y == 0);
+			assert(r.IsEmpty());
+		}
+		// } @v12.3.4 
 	}
 }
 

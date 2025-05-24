@@ -2896,7 +2896,8 @@ int CPosProcessor::TurnCorrectionStorno(PPID * pCcID, int ccOp /*CCOP_XXX*/, PPI
 														}
 														CCheckItem cc_item;
 														cc_item.GoodsID = p_te->GoodsID;
-														cc_item.Quantity = fabs(p_te->Qtty);
+														// @v12.3.4 cc_item.Quantity = fabs(p_te->Qtty); 
+														cc_item.Quantity = round(fabs(p_te->Qtty), 3, -1); // @v12.3.4 Округляем строго вниз чтоб не напороться на дефицит в доли миллилитра!
 														STRNSCPY(cc_item.EgaisMark, p_me->Mark);
 														cc_shadow_egais.InsertItem(cc_item);
 													}
@@ -2907,6 +2908,7 @@ int CPosProcessor::TurnCorrectionStorno(PPID * pCcID, int ccOp /*CCOP_XXX*/, PPI
 								}
 								if(is_ccs_inited) {
 									CCheckCore & r_cc = GetCc();
+									int eg_prc_pccr = 0; // Результат отправки чека в егаис (утм)
 									if(r_cc.TurnCheck(&cc_shadow_egais, 1)) {
 										// Для проведения чека через егаис нам нужен реальный кассовый узел, а не фейковый, каковым является PPPOSN_SHADOW
 										const PPID preserve_cn_id = cc_shadow_egais.Rec.PosNodeID;
@@ -2922,22 +2924,32 @@ int CPosProcessor::TurnCorrectionStorno(PPID * pCcID, int ccOp /*CCOP_XXX*/, PPI
 											if(p_eg_prc) {
 												const bool org_eg_test_mode = p_eg_prc->GetTestSendingMode();
 												p_eg_prc->SetTestSendingMode((EgaisMode == 2));
-												const int pccr = p_eg_prc->PutCCheck(cc_shadow_egais, CnLocID, true/*horecaAutoWo*/, eg_ack);
+												eg_prc_pccr = p_eg_prc->PutCCheck(cc_shadow_egais, CnLocID, true/*horecaAutoWo*/, eg_ack);
 												p_eg_prc->SetTestSendingMode(org_eg_test_mode);
-												THROW(pccr);
+												// @v12.3.4 THROW(eg_prc_pccr);
+												// @v12.3.4 {
+												if(!eg_prc_pccr) {
+													PPGetLastErrorMessage(1/*rmvSpcChrs*/, msg_buf);
+													PPLoadText(PPTXT_ERR_EGAIS_PUTCCSHADOW, fmt_buf);
+													fmt_buf.CatDiv(':', 2).Cat(msg_buf);
+													PPLogMessage(PPFILNAM_ERR_LOG, fmt_buf, LOGMSGF_TIME|LOGMSGF_USER);
+												}
+												// } @v12.3.4 
 											}
 											// } @v12.2.11 
 											// @v12.2.11 THROW(P_EgPrc_ToEliminate->PutCCheck(cc_shadow_egais, CnLocID, true/*horecaAutoWo*/, eg_ack));
 										}
 										cc_shadow_egais.Rec.PosNodeID = preserve_cn_id;
-										if(eg_ack.Sign[0] && eg_ack.SignSize) {
-											msg_buf.Z().CatN(reinterpret_cast<const char *>(eg_ack.Sign), eg_ack.SignSize);
-											cc_shadow_egais.PutExtStrData(CCheckPacket::extssSign, msg_buf);
-											local_do_update = true;
-										}
-										if(eg_ack.Url.NotEmpty()) {
-											cc_shadow_egais.PutExtStrData(CCheckPacket::extssEgaisUrl, eg_ack.Url);
-											local_do_update = true;
+										if(eg_prc_pccr) {
+											if(eg_ack.Sign[0] && eg_ack.SignSize) {
+												msg_buf.Z().CatN(reinterpret_cast<const char *>(eg_ack.Sign), eg_ack.SignSize);
+												cc_shadow_egais.PutExtStrData(CCheckPacket::extssSign, msg_buf);
+												local_do_update = true;
+											}
+											if(eg_ack.Url.NotEmpty()) {
+												cc_shadow_egais.PutExtStrData(CCheckPacket::extssEgaisUrl, eg_ack.Url);
+												local_do_update = true;
+											}
 										}
 										if(local_do_update) {
 											r_cc.UpdateCheck(&cc_shadow_egais, 1);
@@ -3745,10 +3757,10 @@ CheckPaneDialog::CheckPaneDialog(PPID cashNodeID, PPID checkID, CCheckPacket * p
 	SetupExt(P_ChkPack);
 	P_EGSDlg = 0;
 	disableCtrl(CTL_CHKPAN_INPUT, Flags & fNoEdit);
-	showCtrl(STDCTL_ALLBUTTON, Flags & fAsSelector);
-	showCtrl(STDCTL_SYSINFOBUTTON, !(Flags & fAsSelector));
-	showCtrl(STDCTL_OKBUTTON,  Flags & fAsSelector);
-	showCtrl(STDCTL_PRINT,    !(Flags & fAsSelector));
+	showCtrl(STDCTL_ALLBUTTON, LOGIC(Flags & fAsSelector));
+	showCtrl(STDCTL_SYSINFOBUTTON, !LOGIC(Flags & fAsSelector));
+	showCtrl(STDCTL_OKBUTTON,  LOGIC(Flags & fAsSelector));
+	showCtrl(STDCTL_PRINT,    !LOGIC(Flags & fAsSelector));
 	setupHint();
 	SetupInfo(0);
 	if(!SetupStrListBox(this, CTL_CHKPAN_LIST) || !LoadCheck(P_ChkPack, 0, false))
@@ -4224,16 +4236,16 @@ int CheckPaneDialog::ConfirmPosPaymBank(PosPaymentBlock & rPpl)
 			Ptb.SetBrush(brushEAddrPhone, SPaintObj::bsSolid, GetColorRef(SClrAqua),  0);
 			Ptb.SetBrush(brushEAddrEmail, SPaintObj::bsSolid, GetColorRef(SClrCadetblue),  0);
 			if(!DS.CheckExtFlag(ECF_PAPERLESSCHEQUE)) {
-				showCtrl(CTL_POSPAYMBNK_EADDR, 0);
-				showCtrl(CTL_POSPAYMBNK_EADDRINF, 0);
-				showCtrl(CTL_POSPAYMBNK_PAPERLESS, 0);
-				showCtrl(CTLFRAME_POSPAYMBNK_PAPERLESS, 0);
+				showCtrl(CTL_POSPAYMBNK_EADDR, false);
+				showCtrl(CTL_POSPAYMBNK_EADDRINF, false);
+				showCtrl(CTL_POSPAYMBNK_PAPERLESS, false);
+				showCtrl(CTLFRAME_POSPAYMBNK_PAPERLESS, false);
 			}
 			setCtrlReal(CTL_POSPAYMBNK_AMOUNT, Data.AmtToPaym);
 			// @v12.0.6 {
 			AddClusterAssoc(CTL_POSPAYMBNK_CLBPEQ, 0, PosPaymentBlock::fCashlessBypassEq);
 			SetClusterData(CTL_POSPAYMBNK_CLBPEQ, Data.Flags);
-			showCtrl(CTL_POSPAYMBNK_CLBPEQ, (Data.Flags & PosPaymentBlock::fCashlessBypassEqEnabled));
+			showCtrl(CTL_POSPAYMBNK_CLBPEQ, LOGIC(Data.Flags & PosPaymentBlock::fCashlessBypassEqEnabled));
 			// } @v12.0.6 
 			if(DS.CheckExtFlag(ECF_PAPERLESSCHEQUE)) { // @v11.3.7
 				if(Data.EAddr.IsEmpty())
@@ -4334,10 +4346,10 @@ int CheckPaneDialog::ConfirmPosPaymBank(PosPaymentBlock & rPpl)
 		if(CheckDialogPtrErr(&dlg)) {
 			// @v11.9.8 {
 			/*if(!DS.CheckExtFlag(ECF_PAPERLESSCHEQUE)) {
-				dlg->showCtrl(CTL_POSPAYMBNK_EADDR, 0);
-				dlg->showCtrl(CTL_POSPAYMBNK_EADDRINF, 0);
-				dlg->showCtrl(CTL_POSPAYMBNK_PAPERLESS, 0);
-				dlg->showCtrl(CTLFRAME_POSPAYMBNK_PAPERLESS, 0);
+				dlg->showCtrl(CTL_POSPAYMBNK_EADDR, false);
+				dlg->showCtrl(CTL_POSPAYMBNK_EADDRINF, false);
+				dlg->showCtrl(CTL_POSPAYMBNK_PAPERLESS, false);
+				dlg->showCtrl(CTLFRAME_POSPAYMBNK_PAPERLESS, false);
 			}*/
 			// } @v11.9.8
 			//dlg->setCtrlReal(CTL_POSPAYMBNK_AMOUNT, /*amount*/rPpl.AmtToPaym);
@@ -4862,9 +4874,9 @@ int CheckPaneDialog::Sleep()
 					if(r != 1 && CsObj.GetEqCfg().Flags & PPEquipConfig::fRecognizeCode) {
 						PPID   ar_id = 0;
 						PPID   reg_type_id = 0;
-						PPID   acs_id = GetAgentAccSheet();
-						if(acs_id && code[0] && PPObjArticle::GetSearchingRegTypeID(acs_id, 0, 0, &reg_type_id) > 0)
-							ArObj.SearchByRegCode(acs_id, reg_type_id, code, &ar_id, 0);
+						const  PPID agent_acs_id = GetAgentAccSheet();
+						if(agent_acs_id && code[0] && PPObjArticle::GetSearchingRegTypeID(agent_acs_id, 0, 0, &reg_type_id) > 0)
+							ArObj.SearchByRegCode(agent_acs_id, reg_type_id, code, &ar_id, 0);
 						if(ar_id) {
 							SetupAgent(ar_id, 0);
 							SetupInfo(0);
@@ -5348,8 +5360,8 @@ void SelCheckListDialog::Init(PPCashMachine * pCm)
 		}
 	}
 	else {
-		showCtrl(CTL_SELCHECK_FORMAT, 0);
-		showCtrl(CTLSEL_SELCHECK_FORMAT, 0);
+		showCtrl(CTL_SELCHECK_FORMAT, false);
+		showCtrl(CTLSEL_SELCHECK_FORMAT, false);
 	}
 }
 
@@ -8164,10 +8176,10 @@ int CheckPaneDialog::UpdateGList(int updGoodsList, PPID selGroupID)
 		showCtrl(CTL_CHKPAN_GRPLIST,    !updGoodsList);
 		disableCtrl(CTL_CHKPAN_GRPLIST,  updGoodsList);
 		ShowWindow(GetDlgItem(H(), MAKE_BUTTON_ID(CTL_CHKPAN_GRPLIST, 1)), updGoodsList ? SW_HIDE : SW_SHOW);
-		showCtrl(CTL_CHKPAN_GDSLIST,     updGoodsList);
+		showCtrl(CTL_CHKPAN_GDSLIST,     LOGIC(updGoodsList));
 		disableCtrl(CTL_CHKPAN_GDSLIST, !updGoodsList);
 		ShowWindow(GetDlgItem(H(), MAKE_BUTTON_ID(CTL_CHKPAN_GDSLIST, 1)), updGoodsList ? SW_SHOW : SW_HIDE);
-		enableCommand(cmaSelect, updGoodsList);
+		enableCommand(cmaSelect, LOGIC(updGoodsList));
 		LastCtrlID = ActiveListID;
 		setStaticText(CTL_CHKPAN_GRPNAME, grp_name);
 	}
@@ -10584,9 +10596,9 @@ public:
 		PPLoadStringS("check_pl", ChecksText).Transf(CTRANSF_INNER_TO_OUTER);
 		PPLoadStringS("op_pl", OperationsText).Transf(CTRANSF_INNER_TO_OUTER);
 		if(!(LocalState & stAsSelector))
-			showCtrl(STDCTL_OKBUTTON, 0);
-		showButton(cmActivate, 0);
-		showButton(cmVerify, 0);
+			showCtrl(STDCTL_OKBUTTON, false);
+		showButton(cmActivate, false);
+		showButton(cmVerify, false);
 		SetupMode(modeCheckView, 1);
 	}
 	int    setDTS(const  PPID * pData)
@@ -13237,8 +13249,8 @@ int CheckPaneDialog::PrintCashReports()
 		dlg = new CSPanel((DlgFlags & fLarge) ? DLG_CASHREPORTS_L : DLG_CASHREPORTS, CashNodeID, 0, csp_flags); // @newok
 		THROW(CheckDialogPtr(&dlg));
 		THROW(InitCashMachine());
-		dlg->showCtrl(CTL_CSPANEL_CSESSOPEN,  (Flags & fOnlyReports) ? 1 : 0);
-		dlg->showCtrl(CTL_CSPANEL_CSESSCLOSE, (Flags & fOnlyReports) ? 0 : 1);
+		dlg->showCtrl(CTL_CSPANEL_CSESSOPEN,  LOGIC(Flags & fOnlyReports));
+		dlg->showCtrl(CTL_CSPANEL_CSESSCLOSE, !LOGIC(Flags & fOnlyReports));
 		while((c = ExecView(dlg)) != cmCancel) {
 			switch(c) {
 				case cmCSOpen:
@@ -14118,7 +14130,7 @@ int InfoKioskDialog::SetupGoods(PPID goodsID, double qtty)
 
 int InfoKioskDialog::SetupLots(PPID goodsID)
 {
-	int    show_lots = BIN(Rec.Flags & GIF_SHOWLOTS);
+	const bool show_lots = LOGIC(Rec.Flags & GIF_SHOWLOTS);
 	if(show_lots) {
 		SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_INFKIOSK_LOTS));
 		if(p_list) {

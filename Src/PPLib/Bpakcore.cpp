@@ -229,12 +229,12 @@ bool FASTCALL PayPlanArray::IsEq(const PayPlanArray & rS) const
 		PayPlanTbl::Rec * p_e1, * p_e2;
 		LongArray saw_list;
 		for(uint i = 0; ok && enumItems(&i, reinterpret_cast<void**>(&p_e1));) {
-			int    found = 0;
+			bool   found = false;
 			for(uint j = 0; !found && rS.enumItems(&j, reinterpret_cast<void**>(&p_e2));) {
 				long   p = static_cast<long>(j);
 				if(!saw_list.lsearch(p) && memcmp(p_e1, p_e2, sizeof(*p_e1)) == 0) {
 					saw_list.add(p);
-					found = 1;
+					found = true;
 				}
 			}
 			if(!found)
@@ -246,12 +246,13 @@ bool FASTCALL PayPlanArray::IsEq(const PayPlanArray & rS) const
 
 int PayPlanArray::SearchDate(LDATE dt, uint * pPos, PayPlanTbl::Rec * pRec) const
 {
-	for(uint i = 0; i < getCount(); i++)
+	for(uint i = 0; i < getCount(); i++) {
 		if(at(i).PayDate == dt) {
 			ASSIGN_PTR(pPos, i);
 			ASSIGN_PTR(pRec, at(i));
 			return 1;
 		}
+	}
 	return 0;
 }
 
@@ -2876,8 +2877,7 @@ int PPBillPacket::_CreateBlank(PPID opID, PPID linkBillID, PPID locID, int dontI
 	destroy();
 	if(opID) {
 		PPID   op_counter_id = 0;
-		// @v10.2.3 THROW(ObjRts.CheckOpID(opID, PPR_INS));
-		THROW(BillObj->CheckRightsWithOp(opID, PPR_INS)); // @v10.2.3
+		THROW(BillObj->CheckRightsWithOp(opID, PPR_INS));
 		if(opID == PPOPK_CASHSESS)
 			op_rec.OpTypeID = PPOPT_CASHSESS;
 		else {
@@ -2955,7 +2955,7 @@ int PPBillPacket::_CreateBlank(PPID opID, PPID linkBillID, PPID locID, int dontI
 	ErrLine  = 0;
 	TiErrList.clear();
 	Rec.OpID = opID;
-	Rec.Dt   = getcurdate_(); // @v10.8.10 LConfig.OperDate-->getcurdate_()
+	Rec.Dt   = getcurdate_();
 	if(r_cfg.Cash && oneof2(opID, GetCashOp(), GetCashRetOp())) {
 		Rec.UserID = r_cfg.Cash;
 		Rec.Flags |= (BILLF_CASH | BILLF_NOATURN);

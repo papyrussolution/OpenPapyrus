@@ -833,10 +833,7 @@ int PPViewProject::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser 
 	return ok;
 }
 
-void * PPViewProject::GetEditExtraParam()
-{
-	return reinterpret_cast<void *>(Filt.ParentID);
-}
+void * PPViewProject::GetEditExtraParam() { return reinterpret_cast<void *>(Filt.ParentID); }
 
 int PPViewProject::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {

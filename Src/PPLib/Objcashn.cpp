@@ -2261,9 +2261,9 @@ IMPL_HANDLE_EVENT(AsyncCashNodeDialog)
 	}
 	else if(event.isCmd(cmInputUpdated) && event.isCtlEvent(CTL_CASHN_DEVICE)) {
 		const  PPID cash_type = getCtrlLong(CTLSEL_CASHN_DEVICE);
-		showCtrl(CTL_CASHN_IMPPARAM, BIN(cash_type == PPCMT_CRCSHSRV && UseAltImport));
+		showCtrl(CTL_CASHN_IMPPARAM, (cash_type == PPCMT_CRCSHSRV && UseAltImport));
 	}
-	else if(event.isCmd(cmCtlColor)) { // @v10.9.11
+	else if(event.isCmd(cmCtlColor)) {
 		TDrawCtrlData * p_dc = static_cast<TDrawCtrlData *>(TVINFOPTR);
 		if(p_dc) {
 			static const uint16 ctl_list[] = { CTL_CASHN_IMPFILES, CTL_CASHN_EXPPATHS };
@@ -2334,9 +2334,9 @@ IMPL_HANDLE_EVENT(AsyncCashNodeDialog)
 	clearEvent(event);
 }
 
-int PPObjCashNode::Validate(PPGenCashNode * pRec, long)
+bool PPObjCashNode::Validate(PPGenCashNode * pRec, long)
 {
-	int    ok = 1;
+	bool   ok = true;
 	THROW_PP(*strip(pRec->Name) != 0, PPERR_NAMENEEDED);
 	THROW(CheckDupName(pRec->ID, pRec->Name));
 	THROW(P_Ref->CheckUniqueSymb(Obj, pRec->ID, pRec->Symb, offsetof(PPCashNode, Symb)));

@@ -4691,18 +4691,10 @@ void Notepad_plus::fullScreenToggle()
 		//Set fullscreen window, highest non-top z-order, show the window and redraw it (refreshing the
 		// windowmanager cache aswell)
 		::ShowWindow(_pPublicInterface->getHSelf(), SW_SHOW);
-		::SetWindowPos(_pPublicInterface->getHSelf(),
-		    HWND_TOP,
-		    fullscreenArea.left,
-		    fullscreenArea.top,
-		    fullscreenArea.right,
-		    fullscreenArea.bottom,
-		    SWP_NOZORDER|SWP_DRAWFRAME|SWP_FRAMECHANGED);
+		::SetWindowPos(_pPublicInterface->getHSelf(), HWND_TOP, fullscreenArea.left, fullscreenArea.top, fullscreenArea.right, fullscreenArea.bottom, SWP_NOZORDER|SWP_DRAWFRAME|SWP_FRAMECHANGED);
 		::SetForegroundWindow(_pPublicInterface->getHSelf());
-
 		// show restore button
 		_restoreButton.doDialog(_nativeLangSpeaker.isRTL());
-
 		RECT rect;
 		GetWindowRect(_restoreButton.getHSelf(), &rect);
 		int w = rect.right - rect.left;
@@ -4733,22 +4725,14 @@ void Notepad_plus::fullScreenToggle()
 			_rebarTop.display(true);
 			_rebarBottom.display(true);
 		}
-
 		//Set old style if not fullscreen
 		if(!_beforeSpecialView._isPostIt) {
 			::SetWindowLongPtr(_pPublicInterface->getHSelf(), GWL_STYLE, _beforeSpecialView._preStyle);
 			//Redraw the window and refresh windowmanager cache, dont do anything else, sizing is done later
 			// on
-			::SetWindowPos(_pPublicInterface->getHSelf(),
-			    HWND_TOP,
-			    0,
-			    0,
-			    0,
-			    0,
-			    SWP_NOMOVE|SWP_NOSIZE|SWP_NOZORDER|SWP_DRAWFRAME|SWP_FRAMECHANGED);
+			::SetWindowPos(_pPublicInterface->getHSelf(), HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE|SWP_NOZORDER|SWP_DRAWFRAME|SWP_FRAMECHANGED);
 			::ShowWindow(_pPublicInterface->getHSelf(), SW_SHOW);
 		}
-
 		if(_beforeSpecialView._winPlace.length) {
 			if(_beforeSpecialView._winPlace.showCmd == SW_SHOWMAXIMIZED) {
 				::ShowWindow(_pPublicInterface->getHSelf(), SW_SHOWMAXIMIZED);
@@ -6942,16 +6926,16 @@ void Notepad_plus::refreshDarkMode(bool resetStyle)
 	if(resetStyle && NppDarkMode::isExperimentalSupported()) {
 		NppDarkMode::allowDarkModeForApp(NppDarkMode::isEnabled());
 		NppDarkMode::setDarkTitleBar(_pPublicInterface->getHSelf());
-		::SetWindowPos(_pPublicInterface->getHSelf(), nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+		::SetWindowPos(_pPublicInterface->getHSelf(), nullptr, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
 		for(auto & docCont : _dockingManager.getContainerInfo()) {
 			NppDarkMode::setDarkTitleBar(docCont->getCaptionWnd());
-			::SetWindowPos(docCont->getCaptionWnd(), nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+			::SetWindowPos(docCont->getCaptionWnd(), nullptr, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
 		}
 		for(auto & hwndDlg : _hModelessDlgs) {
 			NppDarkMode::setDarkTitleBar(hwndDlg);
 			::SendMessage(hwndDlg, NPPM_INTERNAL_REFRESHDARKMODE, 0, 0);
 			::RedrawWindow(hwndDlg, nullptr, nullptr, RDW_INVALIDATE | RDW_ERASE | RDW_FRAME | RDW_ALLCHILDREN);
-			::SetWindowPos(hwndDlg, nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+			::SetWindowPos(hwndDlg, nullptr, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
 		}
 	}
 	else {
@@ -6989,7 +6973,7 @@ void Notepad_plus::refreshDarkMode(bool resetStyle)
 	::RedrawWindow(_findInFinderDlg.getHSelf(), nullptr, nullptr, RDW_INVALIDATE | RDW_ERASE | RDW_FRAME | RDW_ALLCHILDREN);
 	if(resetStyle && NppDarkMode::isExperimentalSupported()) {
 		NppDarkMode::setDarkTitleBar(_findInFinderDlg.getHSelf());
-		::SetWindowPos(_findInFinderDlg.getHSelf(), nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+		::SetWindowPos(_findInFinderDlg.getHSelf(), nullptr, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
 	}
 	if(resetStyle) {
 		toolBarStatusType state = _toolBar.getState();

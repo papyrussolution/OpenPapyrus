@@ -1026,8 +1026,8 @@ public:
 			setLabelText(CTL_INVITEM_PRICE, temp_buf);
 		}
 		if(CConfig.Flags2 & CCFLG2_HIDEINVENTORYSTOCK) {
-			showCtrl(CTL_INVITEM_STOCKREST, 0);
-			showCtrl(CTL_INVITEM_DIFFREST, 0);
+			showCtrl(CTL_INVITEM_STOCKREST, false);
+			showCtrl(CTL_INVITEM_DIFFREST, false);
 			enableCommand(cmLot, 0);
 		}
 	}

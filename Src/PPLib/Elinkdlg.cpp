@@ -1,5 +1,5 @@
 // ELINKDLG.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2006, 2007, 2009, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2024
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2006, 2007, 2009, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2024, 2025
 // @codepage UTF-8
 // Диалоги редактирования электронных адресов
 //
@@ -335,11 +335,11 @@ int EditELinks(const char * pInfo, PPELinkArray * pList)
 				const uint ctl_id = CTL_ELNKSET_ACN1 + position;
 				const  PPID def_phn_svc_id = DS.GetConstTLA().DefPhnSvcID;
 				if(def_phn_svc_id && IsPhoneNumber(position, phone_buf)) {
-					showCtrl(ctl_id, 1);
+					showCtrl(ctl_id, true);
 					setButtonBitmap(cmELnkSetAction1+position, IDB_PHONEFORWARDED);
 				}
 				else
-					showCtrl(ctl_id, 0);
+					showCtrl(ctl_id, false);
 			}
 		}
 		void   Setup()

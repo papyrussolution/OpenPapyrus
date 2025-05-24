@@ -910,10 +910,10 @@ int PosPaymentBlock::EditDialog2()
 			Ptb.SetBrush(brushEAddrEmail, SPaintObj::bsSolid, GetColorRef(SClrCadetblue),  0);
 			// @v11.3.7 {
 			if(!DS.CheckExtFlag(ECF_PAPERLESSCHEQUE)) {
-				showCtrl(CTL_CPPAYM_EADDR, 0);
-				showCtrl(CTL_CPPAYM_EADDRINF, 0);
-				showCtrl(CTL_CPPAYM_PAPERLESS, 0);
-				showCtrl(CTLFRAME_CPPAYM_PAPERLESS, 0);
+				showCtrl(CTL_CPPAYM_EADDR, false);
+				showCtrl(CTL_CPPAYM_EADDRINF, false);
+				showCtrl(CTL_CPPAYM_PAPERLESS, false);
+				showCtrl(CTLFRAME_CPPAYM_PAPERLESS, false);
 			}
 			// } @v11.3.7
 		}
@@ -951,7 +951,7 @@ int PosPaymentBlock::EditDialog2()
 			// @v12.0.6 {
 			AddClusterAssoc(CTL_CPPAYM_CASHLESSBPEQ, 0, PosPaymentBlock::fCashlessBypassEq);
 			SetClusterData(CTL_CPPAYM_CASHLESSBPEQ, Data.Flags);
-			showCtrl(CTL_CPPAYM_CASHLESSBPEQ, (Data.Flags & PosPaymentBlock::fCashlessBypassEqEnabled));
+			showCtrl(CTL_CPPAYM_CASHLESSBPEQ, LOGIC(Data.Flags & PosPaymentBlock::fCashlessBypassEqEnabled));
 			// } @v12.0.6 
 			double bonus = Data.CcPl.GetBonusAmount(&ScObj);
 			if(R2(bonus) > 0.0099) {
@@ -963,14 +963,14 @@ int PosPaymentBlock::EditDialog2()
 				setCtrlUInt16(CTL_CPPAYM_USEBONUS, BIN(State & stEnableBonus));
 			}
 			else
-				showCtrl(CTL_CPPAYM_USEBONUS, 0);
+				showCtrl(CTL_CPPAYM_USEBONUS, false);
 			/* @v11.3.6 
-			showCtrl(CTL_CPPAYM_ALTCASHREG, BIN(Data.AltCashReg >= 0));
+			showCtrl(CTL_CPPAYM_ALTCASHREG, (Data.AltCashReg >= 0));
 			if(Data.AltCashReg >= 0)
 				setCtrlUInt16(CTL_CPPAYM_ALTCASHREG, BIN(Data.AltCashReg == 1));
 			*/
 			// @v11.3.6 {
-			showCtrl(CTL_CPPAYM_ALTCASHREG, BIN(Data.Flags & PosPaymentBlock::fAltCashRegEnabled)); 
+			showCtrl(CTL_CPPAYM_ALTCASHREG, LOGIC(Data.Flags & PosPaymentBlock::fAltCashRegEnabled)); 
 			if(Data.Flags & PosPaymentBlock::fAltCashRegEnabled)
 				setCtrlUInt16(CTL_CPPAYM_ALTCASHREG, BIN(Data.Flags & PosPaymentBlock::fAltCashRegUse));
 			if(DS.CheckExtFlag(ECF_PAPERLESSCHEQUE)) { // @v11.3.7

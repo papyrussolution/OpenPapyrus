@@ -159,12 +159,15 @@ DWORD GetDllVersion(LPCTSTR lpszDllName)
 
 BOOL IsWindowsXPorLater()
 {
+	/* @v12.3.4
 	OSVERSIONINFO versionInfo;
 	// get Windows version 
 	memzero(&versionInfo, sizeof(OSVERSIONINFO));
 	versionInfo.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
 	GetVersionEx(&versionInfo);
 	return ((versionInfo.dwMajorVersion > 5) || ((versionInfo.dwMajorVersion == 5) && (versionInfo.dwMinorVersion >= 1)));
+	*/
+	return IsWindowsXPOrGreater(); // @v12.3.4
 }
 
 char * appdata_directory()

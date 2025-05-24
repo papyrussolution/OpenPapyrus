@@ -160,7 +160,7 @@ int ViewSpoilList(SpecSeriesCore * pTbl, const char * pSerial, int useText)
 		for(uint i = 0; i < name_list.getCount(); i++)
 			dlg->addStringToList(i+1, name_list.Get(i).Txt);
 		if(!useText)
-			dlg->showCtrl(CTL_SPOILLIST_TEXT, 0);
+			dlg->showCtrl(CTL_SPOILLIST_TEXT, false);
 		if(ExecViewAndDestroy(dlg) == cmOK)
 			ok = 1;
 	}
@@ -1372,8 +1372,8 @@ void TrfrItemDialog::setupCtrlsOnGoodsSelection()
                 allow_dim_button = true;
 		}
 	}
-	showCtrl(CTL_LOT_PHQTTY, !(Item.Flags & PPTFR_INDEPPHQTTY));
-	showCtrl(CTL_LOT_INDEPPHQTTY, Item.Flags & PPTFR_INDEPPHQTTY);
+	showCtrl(CTL_LOT_PHQTTY, !LOGIC(Item.Flags & PPTFR_INDEPPHQTTY));
+	showCtrl(CTL_LOT_INDEPPHQTTY, LOGIC(Item.Flags & PPTFR_INDEPPHQTTY));
 	showCtrl(CTL_LOT_PCFORWTQTY, IsChZnCtWtEnabled()); // @v12.1.4
 	showButton(cmLotDim, allow_dim_button);
 	setStaticText(CTL_LOT_ST_GOODSTAXGRP, tax_grp_name);
@@ -1984,8 +1984,8 @@ int TrfrItemDialog::setDTS(const PPTransferItem * pItem)
 	if(St & stAllowSupplSel)
 		SetupArCombo(this, CTLSEL_LOT_SUPPL, Item.Suppl, OLW_LOADDEFONOPEN|OLW_CANINSERT, GetSupplAccSheet(), sacfNonGeneric);
 	else {
-		showCtrl(CTL_LOT_SUPPL, 0);
-		showCtrl(CTLSEL_LOT_SUPPL, 0);
+		showCtrl(CTL_LOT_SUPPL, false);
+		showCtrl(CTLSEL_LOT_SUPPL, false);
 	}
 	if(Item.Flags & PPTFR_RECEIPT) {
 		int    subtyp = GetOpSubType(OpID);
@@ -2025,13 +2025,13 @@ int TrfrItemDialog::setDTS(const PPTransferItem * pItem)
 		temp_buf.Z();
 		if(ItemNo >= 0)
 			P_Pack->LTagL.GetTagStr(ItemNo, PPTAG_LOT_SOURCESERIAL, temp_buf);
-		showCtrl(CTL_LOT_SOURCESERIAL, 1);
-		showButton(cmSourceSerial, 1);
+		showCtrl(CTL_LOT_SOURCESERIAL, true);
+		showButton(cmSourceSerial, true);
 		setCtrlString(CTL_LOT_SOURCESERIAL, temp_buf);
 	}
 	else {
-		showCtrl(CTL_LOT_SOURCESERIAL, 0);
-		showButton(cmSourceSerial, 0);
+		showCtrl(CTL_LOT_SOURCESERIAL, false);
+		showButton(cmSourceSerial, false);
 	}
 	if(P_Pack->OpTypeID == PPOPT_DRAFTQUOTREQ && Item.Lbr.ID > 0) {
 		long   seqqrack = CHKXORFLAGS(Item.TFlags, PPTransferItem::tfQrSeqAccepted, PPTransferItem::tfQrSeqRejected);
@@ -2630,18 +2630,18 @@ int TrfrItemDialog::_SetupLot(bool dontSetupPriceByLot)
 	if(Item.Flags & PPTFR_RECEIPT) {
 		P_Pack->LTagL.GetString(PPTAG_LOT_VETIS_UUID, ItemNo, temp_buf);
 		if(temp_buf.NotEmpty() || GObj.CheckFlag(Item.GoodsID, GF_WANTVETISCERT)) {
-			showCtrl(CTL_LOT_VETISIND, 1);
-			showCtrl(CTL_LOT_VETISMATCHBUTTON, 1);
+			showCtrl(CTL_LOT_VETISIND, true);
+			showCtrl(CTL_LOT_VETISMATCHBUTTON, true);
 		}
 		else {
-			showCtrl(CTL_LOT_VETISIND, 0);
-			showCtrl(CTL_LOT_VETISMATCHBUTTON, 0);
+			showCtrl(CTL_LOT_VETISIND, false);
+			showCtrl(CTL_LOT_VETISMATCHBUTTON, false);
 		}
 		drawCtrl(CTL_LOT_VETISIND);
 	}
 	else {
-		showCtrl(CTL_LOT_VETISIND, 0);
-		showCtrl(CTL_LOT_VETISMATCHBUTTON, 0);
+		showCtrl(CTL_LOT_VETISIND, false);
+		showCtrl(CTL_LOT_VETISMATCHBUTTON, false);
 	}
 	enableCommand(cmQCert, (Item.QCert && Item.LotID) || (Item.Flags & PPTFR_DRAFT));
 	setupQuantity(0, 0);

@@ -1295,7 +1295,7 @@ ushort PPDesktop::Execute()
 	UpdateWindow(H());
 	HwndTT = ::CreateWindowEx(WS_EX_TOPMOST, TOOLTIPS_CLASS, NULL, WS_POPUP|TTS_NOPREFIX|TTS_ALWAYSTIP,
 		CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, H(), NULL, TProgram::GetInst(), 0);
-	SetWindowPos(HwndTT, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+	SetWindowPos(HwndTT, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE | SWP_NOACTIVATE);
 	CreateServiceView(svcviewBizScore);
 	return (H() != 0);
 }
@@ -2048,7 +2048,7 @@ IMPL_HANDLE_EVENT(PPDesktop)
 			break;
 		case WM_SETFOCUS:
 			{
-				SetWindowPos(hWnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+				SetWindowPos(hWnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE);
 				APPL->NotifyFrame(0);
 				if(p_desk) {
 					APPL->SelectTabItem(p_desk);

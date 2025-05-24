@@ -38,75 +38,31 @@
 #include "cairo-tag-stack-private.h"
 
 /* Tagged PDF must have one of these tags at the top level */
-static const char * _cairo_tag_stack_tagged_pdf_top_level_element_list[] =
-{
-	"Document",
-	"Part",
-	"Art",
-	"Sect",
-	"Div",
-	NULL
+static const char * _cairo_tag_stack_tagged_pdf_top_level_element_list[] = {
+	"Document", "Part", "Art", "Sect", "Div", NULL
 };
 
 /* List of valid tag names. Table numbers reference PDF 32000 */
-static const char * _cairo_tag_stack_struct_pdf_list[] =
-{
+static const char * _cairo_tag_stack_struct_pdf_list[] = {
 	/* Table 333 - Grouping Elements */
-	"Document",
-	"Part",
-	"Art",
-	"Sect",
-	"Div",
-	"BlockQuote",
-	"Caption",
-	"TOC",
-	"TOCI",
-	"Index",
-	"NonStruct",
-	"Private",
-
+	"Document", "Part", "Art", "Sect", "Div", "BlockQuote", "Caption", "TOC", "TOCI", "Index", "NonStruct", "Private",
 	/* Table 335 - Standard structure types for paragraphlike elements */
-	"P", "H",
-	"H1", "H2", "H3", "H4", "H5", "H6",
-
+	"P", "H", "H1", "H2", "H3", "H4", "H5", "H6",
 	/* Table 336 - Standard structure types for list elements */
 	"L", "LI", "Lbl", "LBody",
-
 	/* Table 337 - Standard structure types for table elements */
-	"Table",
-	"TR", "TH", "TD",
-	"THead", "TBody", "TFoot",
-
+	"Table", "TR", "TH", "TD", "THead", "TBody", "TFoot",
 	/* Table 338 - Standard structure types for inline-level structure elements */
-	"Span",
-	"Quote",
-	"Note",
-	"Reference",
-	"BibEntry",
-	"Code",
-	"Link", /* CAIRO_TAG_LINK */
-	"Annot",
-	"Ruby",
-	"Warichu",
-
+	"Span", "Quote", "Note", "Reference", "BibEntry", "Code", "Link"/* CAIRO_TAG_LINK */, "Annot", "Ruby", "Warichu",
 	/* Table 339 - Standard structure types for Ruby and Warichu elements */
-	"RB", "RT", "RP",
-	"WT", "WP",
-
+	"RB", "RT", "RP", "WT", "WP", 
 	/* Table 340 - Standard structure types for illustration elements */
-	"Figure",
-	"Formula",
-	"Form",
-
+	"Figure", "Formula", "Form",
 	NULL
 };
 
 /* List of cairo specific tag names */
-static const char * _cairo_tag_stack_cairo_tag_list[] =
-{
-	CAIRO_TAG_DEST,
-	NULL
-};
+static const char * _cairo_tag_stack_cairo_tag_list[] = { CAIRO_TAG_DEST, NULL };
 
 void _cairo_tag_stack_init(cairo_tag_stack_t * stack)
 {
@@ -126,10 +82,7 @@ void _cairo_tag_stack_fini(cairo_tag_stack_t * stack)
 	}
 }
 
-cairo_tag_stack_structure_type_t _cairo_tag_stack_get_structure_type(cairo_tag_stack_t * stack)
-{
-	return stack->type;
-}
+cairo_tag_stack_structure_type_t _cairo_tag_stack_get_structure_type(cairo_tag_stack_t * stack) { return stack->type; }
 
 static boolint name_in_list(const char * name, const char ** list)
 {

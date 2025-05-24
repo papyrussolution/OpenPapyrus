@@ -290,8 +290,8 @@ Span<char> CordRepRing::GetPrependBuffer(size_t size) {
 	return {nullptr, 0};
 }
 
-CordRepRing* CordRepRing::CreateFromLeaf(CordRep* child, size_t offset,
-    size_t len, size_t extra) {
+CordRepRing* CordRepRing::CreateFromLeaf(CordRep* child, size_t offset, size_t len, size_t extra) 
+{
 	CordRepRing* rep = CordRepRing::New(1, extra);
 	rep->head_ = 0;
 	rep->tail_ = rep->advance(0);
@@ -302,7 +302,8 @@ CordRepRing* CordRepRing::CreateFromLeaf(CordRep* child, size_t offset,
 	return Validate(rep);
 }
 
-CordRepRing* CordRepRing::CreateSlow(CordRep* child, size_t extra) {
+CordRepRing* CordRepRing::CreateSlow(CordRep* child, size_t extra) 
+{
 	CordRepRing* rep = nullptr;
 	Consume(child, [&](CordRep* child_arg, size_t offset, size_t len) {
 				if(IsFlatOrExternal(child_arg)) {
@@ -396,11 +397,11 @@ CordRepRing* CordRepRing::AddRing(CordRepRing* rep, CordRepRing* ring,
 		rep->head_ = filler.head();
 		rep->begin_pos_ -= len;
 	}
-
 	return Validate(rep);
 }
 
-CordRepRing* CordRepRing::AppendSlow(CordRepRing* rep, CordRep* child) {
+CordRepRing* CordRepRing::AppendSlow(CordRepRing* rep, CordRep* child) 
+{
 	Consume(child, [&rep](CordRep* child_arg, size_t offset, size_t len) {
 				if(child_arg->IsRing()) {
 					rep = AddRing<AddMode::kAppend>(rep, child_arg->ring(), offset, len);

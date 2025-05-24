@@ -10,7 +10,6 @@
 #include <shellapi.h> // @v11.6.7
 #include <uxtheme.h> // @v11.6.7
 #include <dwmapi.h> // @v11.6.7
-#include <versionhelpers.h> // @v11.6.7
 
 ImVec2 FPointToImVec2(const SPoint2F & rP) { return ImVec2(rP.x, rP.y); }
 ImRect FRectToImRect(const FRect & rR) { return ImRect(FPointToImVec2(rR.a), FPointToImVec2(rR.b)); }

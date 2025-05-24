@@ -62,7 +62,7 @@ int BuildSentencePieceDictionary(const char * pPath, const char * pBasisName, in
 
 int main(int argc, char * argv[])
 {
-	int r = BuildSentencePieceDictionary("C:\\ppy\\out", "goodsnamelist-uhtt", /*vocabSize*/8000);
+	int r = BuildSentencePieceDictionary("C:\\ppy\\out", "goodsnamelist-uhtt", /*vocabSize*/32000);
 	return 0;
 }
 

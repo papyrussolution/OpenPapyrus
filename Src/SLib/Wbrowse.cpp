@@ -2699,7 +2699,7 @@ HWND FASTCALL GetNextBrowser(HWND hw, int reverse)
 			break;
 		case WM_SETFOCUS:
 			if(!(TView::SGetWindowStyle(hWnd) & WS_CAPTION)) {
-				SetWindowPos(hWnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+				SetWindowPos(hWnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE);
 				APPL->NotifyFrame(0);
 			}
 			if(p_view) {

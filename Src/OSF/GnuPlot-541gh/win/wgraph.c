@@ -619,9 +619,7 @@ void GraphStart(GW * lpgw, double pointsize)
 			return;
 		}
 #endif /* USE_MOUSE */
-		SetWindowPos(lpgw->hWndGraph,
-		    HWND_TOP, 0, 0, 0, 0,
-		    SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE);
+		SetWindowPos(lpgw->hWndGraph, HWND_TOP, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE|SWP_NOSIZE);
 	}
 }
 
@@ -3271,7 +3269,7 @@ void add_tooltip(GW * lpgw, PRECT rect, LPWSTR text)
 		::SendMessage(hwnd, TTM_ADDTOOLW, 0, (LPARAM)(LPTOOLINFO)&ti);
 		::SendMessage(hwnd, TTM_SETDELAYTIME, TTDT_INITIAL, (LPARAM)100);
 		::SendMessage(hwnd, TTM_SETDELAYTIME, TTDT_RESHOW, (LPARAM)100);
-		SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+		SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE | SWP_NOACTIVATE);
 	}
 }
 

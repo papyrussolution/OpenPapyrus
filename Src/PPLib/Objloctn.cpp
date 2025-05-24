@@ -756,9 +756,9 @@ int PPObjLocation::DeleteObj(PPID id)
 	return PutRecord(&id, 0, 0);
 }
 
-int PPObjLocation::Validate(LocationTbl::Rec * pRec, int /*chkRefs*/)
+bool PPObjLocation::Validate(LocationTbl::Rec * pRec, int /*chkRefs*/)
 {
-	int    ok = 1;
+	bool   ok = true;
 	if(pRec) {
 		PPID   id = 0;
 		long   t = pRec->Type;
@@ -1521,7 +1521,7 @@ public:
 		PPPersonConfig psn_cfg;
 		PPObjPerson::ReadConfig(&psn_cfg);
 		FieldNames = psn_cfg.DlvrAddrExtFldList;
-		showCtrl(STDCTL_INSBUTTON, 0);
+		showCtrl(STDCTL_INSBUTTON, false);
 	}
 	DECL_DIALOG_SETDTS()
 	{

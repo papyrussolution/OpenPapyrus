@@ -689,16 +689,16 @@ int PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, bool hor
 				_dtm = getcurdatetime_();
 			if(Cfg.E.Flags & Config::fEgaisVer4Fmt) {
 				SXml::WNode n_docs(_doc, SXml::nst("ns", "Documents"));
-					n_docs.PutAttrib(SXml::nst_xmlns("xsi"), InetUrl::MkHttp("www.w3.org", "2001/XMLSchema-instance"));
-					n_docs.PutAttrib(SXml::nst_xmlns("ns"), InetUrl::MkHttp("fsrar.ru", "WEGAIS/WB_DOC_SINGLE_01"));
-					if(horecaAutoWo) {
-						n_docs.PutAttrib(SXml::nst_xmlns("ck"), InetUrl::MkHttp("fsrar.ru", "WEGAIS/ChequeV4")); // @v12.0.12 WEGAIS/ChequeV3-->WEGAIS/ChequeV4
-					}
-					else {
-						n_docs.PutAttrib(SXml::nst_xmlns("ck"), InetUrl::MkHttp("fsrar.ru", "WEGAIS/ChequeV3"));
-					}
-					n_docs.PutAttrib(SXml::nst_xmlns("oref"), InetUrl::MkHttp("fsrar.ru", "WEGAIS/ClientRef_v2"));
-					n_docs.PutAttrib(SXml::nst_xmlns("pref"), InetUrl::MkHttp("fsrar.ru", "WEGAIS/ProductRef_v2"));
+				n_docs.PutAttrib(SXml::nst_xmlns("xsi"), InetUrl::MkHttp("www.w3.org", "2001/XMLSchema-instance"));
+				n_docs.PutAttrib(SXml::nst_xmlns("ns"), InetUrl::MkHttp("fsrar.ru", "WEGAIS/WB_DOC_SINGLE_01"));
+				if(horecaAutoWo) {
+					n_docs.PutAttrib(SXml::nst_xmlns("ck"), InetUrl::MkHttp("fsrar.ru", "WEGAIS/ChequeV4")); // @v12.0.12 WEGAIS/ChequeV3-->WEGAIS/ChequeV4
+				}
+				else {
+					n_docs.PutAttrib(SXml::nst_xmlns("ck"), InetUrl::MkHttp("fsrar.ru", "WEGAIS/ChequeV3"));
+				}
+				n_docs.PutAttrib(SXml::nst_xmlns("oref"), InetUrl::MkHttp("fsrar.ru", "WEGAIS/ClientRef_v2"));
+				n_docs.PutAttrib(SXml::nst_xmlns("pref"), InetUrl::MkHttp("fsrar.ru", "WEGAIS/ProductRef_v2"));
 				{
 					{
 						SXml::WNode n_ow(_doc, SXml::nst("ns", "Owner"));
@@ -758,7 +758,7 @@ int PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, bool hor
 															dbr = PPObjGoods::DiagBarcode(temp_buf, &diag, &std, &result_barcode);
 														}
 														if(dbr == 0 || !oneof4(result_barcode.Len(), 8, 12, 13, 14))
-															result_barcode = "4600000000008"; // dummy ean
+															result_barcode = SlConst::P_DummyEanCode;
 														n_b.PutInner(SXml::nst("ck", "EAN"), result_barcode);
 													}
 													{
@@ -790,7 +790,7 @@ int PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, bool hor
 															dbr = PPObjGoods::DiagBarcode(temp_buf, &diag, &std, &result_barcode);
 														}
 														if(dbr == 0 || !oneof4(result_barcode.Len(), 8, 12, 13, 14))
-															result_barcode = "4600000000008"; // dummy ean
+															result_barcode = SlConst::P_DummyEanCode;
 														n_b.PutInner(SXml::nst("ck", "EAN"), result_barcode);
 													}
 													{
@@ -828,7 +828,7 @@ int PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, bool hor
 																dbr = PPObjGoods::DiagBarcode(temp_buf, &diag, &std, &result_barcode);
 															}
 															if(dbr == 0 || !oneof4(result_barcode.Len(), 8, 12, 13, 14))
-																result_barcode = "4600000000008"; // dummy ean
+																result_barcode = SlConst::P_DummyEanCode;
 															n_nm.PutInner(SXml::nst("ck", "EAN"), result_barcode);
 														}
 														{
@@ -901,7 +901,7 @@ int PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, bool hor
 										dbr = PPObjGoods::DiagBarcode(temp_buf, &diag, &std, &result_barcode);
 									}
 									if(dbr == 0 || !oneof4(result_barcode.Len(), 8, 12, 13, 14))
-										result_barcode = "4600000000008"; // dummy ean
+										result_barcode = SlConst::P_DummyEanCode;
 									n_item.PutAttrib("ean", result_barcode);
 								}
 								n_item.PutAttrib("volume", EncText(temp_buf.Z().Cat(agi.Volume, MKSFMTD_030)));
@@ -933,7 +933,7 @@ int PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, bool hor
 									GObj.GetSingleBarcode(r_item.GoodsID, BarcodeArray::sifValidEanUpcOnly, temp_buf); // @v11.9.9 BarcodeArray::sifValidEanUpcOnly
 									if(temp_buf.IsEmpty()) { // @v11.9.9 
 										// @v11.9.9 if(!oneof4(temp_buf.Len(), 8, 12, 13, 14)) {
-										temp_buf = "4600000000008"; // dummy ean
+										temp_buf = SlConst::P_DummyEanCode;
 									}
 									n_item.PutAttrib("ean", temp_buf);
 								}
@@ -10640,6 +10640,17 @@ bool FASTCALL EgaisMarkAutoSelector::_TerminalEntry::Copy(const EgaisMarkAutoSel
 	return true;
 }
 
+uint EgaisMarkAutoSelector::_TerminalEntry::GetTerminalEntryCount() const
+{
+	uint   result = 0;
+	for(uint i = 0; i < ML.getCount(); i++) {
+		const _MarkEntry * p_entry = ML.at(i);
+		if(p_entry)
+			result++;
+	}
+	return result;
+}
+
 int EgaisMarkAutoSelector::_TerminalEntry::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx) // @v12.2.11
 {
 	int    ok = 1;
@@ -10681,6 +10692,17 @@ int EgaisMarkAutoSelector::Entry::Serialize(int dir, SBuffer & rBuf, SSerializeC
 	THROW(TSCollection_Serialize(Te, dir, rBuf, pSCtx));
 	CATCHZOK
 	return ok;
+}
+
+uint EgaisMarkAutoSelector::Entry::GetTerminalEntryCount() const
+{
+	uint   result = 0;
+	for(uint i = 0; i < Te.getCount(); i++) {
+		const _TerminalEntry * p_entry = Te.at(i);
+		if(p_entry)
+			result += p_entry->GetTerminalEntryCount();
+	}
+	return result;
 }
 
 const EgaisMarkAutoSelector::_TerminalEntry * EgaisMarkAutoSelector::Entry::SelectMark(uint * pMarkEntryIdx) const
@@ -10730,6 +10752,17 @@ bool FASTCALL EgaisMarkAutoSelector::DocItem::Copy(const DocItem & rS)
 	return true;
 }
 
+uint EgaisMarkAutoSelector::DocItem::GetTerminalEntryCount() const
+{
+	uint   result = 0;
+	for(uint i = 0; i < getCount(); i++) {
+		const Entry * p_entry = at(i);
+		if(p_entry)
+			result += p_entry->GetTerminalEntryCount();
+	}
+	return result;
+}
+
 int EgaisMarkAutoSelector::DocItem::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx) // @v12.2.11
 {
 	int    ok = 1;
@@ -10762,6 +10795,17 @@ bool FASTCALL EgaisMarkAutoSelector::ResultBlock::Copy(const ResultBlock & rS)
 	RetCode = rS.RetCode;
 	TSCollection_Copy(*this, rS);
 	return true;
+}
+
+uint EgaisMarkAutoSelector::ResultBlock::GetTerminalEntryCount() const
+{
+	uint result = 0;
+	for(uint i = 0; i < getCount(); i++) {
+		const DocItem * p_item = at(i);
+		if(p_item)
+			result += p_item->GetTerminalEntryCount();	
+	}
+	return result;
 }
 
 int EgaisMarkAutoSelector::ResultBlock::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx) // @v12.2.11

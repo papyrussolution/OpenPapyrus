@@ -1871,7 +1871,7 @@ bool RAssocArray::Search(long key, double * pVal, uint * pPos, int binary) const
 double RAssocArray::Get(long key, int binary) const
 {
 	double val = 0.0;
-	return (Search(key, &val, 0, binary) > 0) ? val : 0;
+	return Search(key, &val, 0, binary) ? val : 0.0;
 }
 
 bool FASTCALL RAssocArray::Has(long key) const
@@ -1962,13 +1962,8 @@ int RAssocArray::Add(long key, double val, int additive, int binary)
 {
 	int    ok = 0;
 	uint   pos = 0;
-	if(additive && Search(key, 0, &pos, binary) > 0) {
-		#ifdef _DEBUG
-		RAssoc & r_item = at(pos);
-		r_item.Val += val;
-		#else
+	if(additive && Search(key, 0, &pos, binary)) {
 		at(pos).Val += val;
-		#endif
 		ok = 2;
 	}
 	else {

@@ -43,11 +43,6 @@ int ViewQuotValueInfo(const PPQuot & rQuot)
 	return ok;
 }
 
-// @v11.4.4 #define GRP_LOC       1
-// @v11.4.4 #define GRP_ARTICLE   2
-// @v11.4.4 #define GRP_GOODS     3
-// @v11.4.4 #define GRP_GOODSFILT 4
-
 class QuotUpdDialog : public TDialog {
 	DECL_DIALOG_DATA(QuotUpdFilt);
 	enum {
@@ -194,10 +189,8 @@ public:
 		else
 			Data.Flags |= QuotUpdFilt::fExistOnly;
 		GetClusterData(CTL_QUOTUPD_WARN, &Data.Flags);
-		// @v10.5.9 {
 		if(!(CConfig.Flags2 & CCFLG2_DEVELOPMENT))
 			Data.Flags &= ~QuotUpdFilt::fTest;
-		// } @v10.5.9 
 		getCtrlString(sel = CTL_QUOTUPD_PCT, temp_buf.Z());
 		if(Data.ByWhat == QuotUpdFilt::byFormula) {
 			Data.Formula = temp_buf;

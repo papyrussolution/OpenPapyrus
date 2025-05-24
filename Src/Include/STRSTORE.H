@@ -107,10 +107,76 @@ private:
 		StrAssocArray List;       // Собственно строки, сопоставленные с идентификаторами
 		StrAssocArray DescrList;  // Список описаний к строкам (сопоставленны с идентификаторами строк)
 		LAssocArray DescrPosList; // Список сопоставлений идентификаторов строк с позицией в файле, по которой хранится подробное описание
-		LAssocArray HashAssocList; // @v9.6.4 Список ассоциаций хэширующих групп с идентификаторами строк, в них входящих.
+		LAssocArray HashAssocList; // Список ассоциаций хэширующих групп с идентификаторами строк, в них входящих.
 			// Хэширующая группа обеспечивает быстрый поиск любой строки, входящей в нее, по содержанию и возврат кода этой строки.
 			// Техника хэширующих групп необходима для разбора входящий потоков и команд.
 		StringStore2::Hash * P_PositionHash;
+	};
+	//
+	// Descr: Структура, определяющая исходный и результирующий файл, обработанные при предыдущем сеансе компиляции.
+	//   С файлами ассоциированы хэш-коды, что позволяет пропустить компиляцию в случае, если ничего не изменилось ни в 
+	//   исходном, ни в результирующем файлах.
+	//
+	struct HashEntry { // @v12.3.4
+		HashEntry();
+		~HashEntry();
+		HashEntry & Z();
+		
+		int   LangId;
+		SString SrcFileName; // Имя исходного файла без пути (name.ext)
+		SString BinFileName; // Имя скомпилированного файла без пути (name.ext)
+		SBinaryChunk SrcFileHash; // Хэш исходного файла 
+		SBinaryChunk BinFileHash; // Хэш скомпилированного файла
+	};
+
+	class HashBlock : public TSCollection <HashEntry> {
+	public:
+		HashBlock();
+		HashBlock & Z();
+		int    CreateEntry(int langId, const char * pSrcFilePath, const char * pBinFilePath);
+		bool   MakeFileHash(const char * pFilePath, SString * pResultFileName, SBinaryChunk & rHash) const;
+		bool   MakeCHdrHash(const char * pFilePath);
+		bool   MakeJavaHash(const char * pFilePath);
+		void   CopyCHdrHash(const HashBlock & rS);
+		void   CopyJavaHash(const HashBlock & rS);
+		bool   CopyEntry(int langId, const HashBlock & rS);
+		HashEntry * SearchLangEntry(int langId, uint * pPos) const;
+
+		int    HashFunc;
+		SString CHdrFileName; // Имя сгенерированного заголовочного (.h) файла 
+		SString JavaFileName; // Имя сгенерированного java файла 
+		SBinaryChunk CHdrFileHash; // Хэш сгенерированного заголовочного (.h) файла 
+		SBinaryChunk JavaFileHash; // Хэш сгенерированного java файла 
+	};
+	//
+	// Descr: Вспомогательный блок, управляющий набором данных, источником которых является базовый исходный файл, переданный в командной строке
+	//
+	class OrgSrcFileBlock {
+	public:
+		OrgSrcFileBlock(const char * pFileName, const char * pTranslateToLang);
+		bool   operator !() const { return (State & stError); }
+		void   MakeIdentFilePath(SString & rFilePath) const; // *.symb
+		void   MakeLangSrcFileSearchPattern(SString & rPattern) const;
+		void   MakeAutotranslateFilePath(SString & rFilePath) const;
+		SString & MakeSrcFilePath(int langId, SString & rFilePath, SString * pFileName) const;
+		SString & MakeBinFilePath(int langId, SString & rFilePath, SString * pFileName) const;
+		SString & MakeCHdrFilePath(SString & rFilePath, SString * pFileName) const;
+		SString & MakeJavaFilePath(SString & rFilePath, SString * pFileName) const;
+		const  SString & GetOrgName() const { return Ps.Nam; }
+		const  SString & GetOrgExt() const { return Ps.Ext; }
+
+		enum {
+			stError = 0x0001
+		};
+		uint   State;
+		int    PrivateErrCode;
+		int    AutoTranslLang;
+		const  SFsPath Ps; // Хранит структуру пути исходного файла
+		SString IdentFileName; // Имя файла, хранящего соответствия символов и идентификаторов
+		SString AutoTranslFile;
+		StrAssocArray FileLangList;
+	private:
+		SString & MakeFilePathByChangingExt(const char * pExt, SString & rFilePath, SString * pFileName) const;
 	};
 
 	int    InitParsing();
@@ -127,28 +193,13 @@ private:
 	int    Helper_GetString(long ident, SString & rBuf) const;
 	int    Helper_GetDescription(long ident, SString & rBuf); // @noncost
 	int    TranslationWanted(const uchar * pOrgText) const;
-	int    StoreState(const char * pFileName);
-	int    RestoreState(const char * pFileName);
-#ifndef _WIN32_WCE // {
+	int    StoreState(const char * pFileName, const HashBlock & rHashBlk);
+	int    RestoreState(const char * pFileName, const StrAssocArray & rFileLangList);
+	bool   VerifyHashEntry(int langId, const HashBlock & rHshBlk, const OrgSrcFileBlock & rOrgFileBlk);
+	bool   VerifyHashEntry_CHdr(const HashBlock & rHshBlk, const OrgSrcFileBlock & rOrgFileBlk);
+	bool   VerifyHashEntry_Java(const HashBlock & rHshBlk, const OrgSrcFileBlock & rOrgFileBlk);
 	int    Write(SFile & rF, LangStrCollItem * pData);
 	int    Read(SFile & rF);
-#endif // } _WIN32_WCE
-	enum {
-		fReadOnly         = 0x0001,
-		fError            = 0x0002,
-		fNoTranslateScope = 0x0004,  // 
-		fDescrScope       = 0x0008   // Процесс разбора находится в области текстового определения последней строки
-	};
-	long   Flags;
-	int    ErrCode;
-	int    ActiveLanguage;
-	SString LoadFileName; // Имя файла, из которого был успешно загружен ресурс функцией ::Load()
-
-	TSCollection <LangStrCollItem> StrList;
-	StrAssocArray SignatureList; // @persistent
-	SymbHashTable * P_SignatureHash;
-	SString ErrAddedMsg;
-	SString TempBuf;
 
 	struct StrgHeader {        // @persistent @size=64
 		char   Signature[4];   // Сигнатура файла "SC2B"
@@ -160,26 +211,21 @@ private:
 		uint32 DescrListOffs;  // Смещение от начала файла до DescrPosList (LAssocArray)
 		uint8  Reserve[36];    // @reserve // @v8.9.10 [48]-->[44] // @v9.0.2 [44]-->[40] // @v9.0.8 [40]-->[36]
 	};
-
-	StrAssocArray GrpSymbList; // 
-	LongArray HashGroupList;   // Список идентификаторов групп, которые определены как хэширующие
 	//
 	// Descr: Предварительно загруженая хэш-таблица символов
 	//
 	struct PreloadedHashGroupEntry {
-		PreloadedHashGroupEntry() : Group(0), P_Tab(0)
-		{
-		}
-		~PreloadedHashGroupEntry()
-		{
-			ZDELETE(P_Tab);
-		}
+		PreloadedHashGroupEntry();
+		~PreloadedHashGroupEntry();
+		
 		int    Group;
 		SymbHashTable * P_Tab;
 	};
-	TSCollection <PreloadedHashGroupEntry> PhgL;
-	//
+
 	struct ParseBlock {
+		ParseBlock();
+		~ParseBlock();
+		
 		SString InFileName;            // Имя разбираемого файла
 		uint   Line;                   // Номер разбираемой строки
 		long   LastAutoGrpCode;
@@ -193,7 +239,26 @@ private:
 		StrAssocArray Saved_SignatureList;
 		StrAssocArray Saved_GrpSymbList;
 		StrAssocArray Saved_StrSymbList;
+		HashBlock Saved_HashBlk; // @v12.3.4
 	};
+
+	enum {
+		fReadOnly         = 0x0001,
+		fError            = 0x0002,
+		fNoTranslateScope = 0x0004,  // 
+		fDescrScope       = 0x0008   // Процесс разбора находится в области текстового определения последней строки
+	};
+	long   Flags;
+	int    ErrCode;
+	int    ActiveLanguage;
+	SString LoadFileName; // Имя файла, из которого был успешно загружен ресурс функцией ::Load()
+	TSCollection <LangStrCollItem> StrList;
+	StrAssocArray SignatureList; // @persistent
+	SymbHashTable * P_SignatureHash;
+	SString ErrAddedMsg;
+	StrAssocArray GrpSymbList; // 
+	LongArray HashGroupList;   // Список идентификаторов групп, которые определены как хэширующие	
+	TSCollection <PreloadedHashGroupEntry> PhgL;
 	ParseBlock * P_Pb;
 };
 

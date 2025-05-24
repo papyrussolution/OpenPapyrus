@@ -61,6 +61,9 @@
     <ClInclude Include="..\Include\ppedi.h">
       <Filter>Header</Filter>
     </ClInclude>
+    <ClInclude Include="..\Include\pp-ifm.h">
+      <Filter>Header</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\PPMain\ppbrow-embed.rc" />

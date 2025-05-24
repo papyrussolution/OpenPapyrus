@@ -179,6 +179,28 @@ public:
 
 #pragma pack(push)
 #pragma pack(1)
+class ExtCodeRefTbl : public DBTable {
+public:
+	ExtCodeRefTbl(const char * pFileName = 0);
+
+	struct Rec {
+		Rec();
+		Rec & Clear();
+		char   Code[156];
+		uint8  Reserve[32]; // raw
+		TSLob <2048> VT;
+	} data;
+	struct Key0 {
+		char   Code[156];
+	};
+	DBField Code;
+	DBField Reserve;
+	DBField VT;
+};
+#pragma pack(pop)
+
+#pragma pack(push)
+#pragma pack(1)
 class ObjLikenessTbl : public DBTable {
 public:
 	ObjLikenessTbl(const char * pFileName = 0);
@@ -6062,42 +6084,44 @@ public:
 		Rec();
 		Rec & Clear();
 		int32  ID;
+		int16  Kind;
+		uint16 Reserve2;
 		int32  ScoreID;
 		int32  ArID;
-		uint8  ActualTime[8]; // raw
+		LDATE  Dt;
+		LDATE  PlanPeriodFn;
 		int32  Flags;
-		int32  ParticipantID;
-		uint8  LinkOid[8]; // raw
-		uint8  Value[8];   // raw
+		int32  AgentID;
+		int32  LinkObjID;
+		int32  IntVal;
+		double RealVal;
 		uint8  Reserve[64]; // raw
 	} data;
 	struct Key0 {
 		int32  ID;
 	};
 	struct Key1 {
+		int16  Kind;
+		LDATE  Dt;
 		int32  ScoreID;
-		int32  ArID;
-		uint8  ActualTime[8];
 	};
 	struct Key2 {
-		int32  ArID;
+		int16  Kind;
 		int32  ScoreID;
-		uint8  ActualTime[8];
-	};
-	struct Key3 {
-		uint8  LinkOid[8];
-		int32  ScoreID;
-		int32  ArID;
-		uint8  ActualTime[8];
+		LDATE  Dt;
 	};
 	DBField ID;
+	DBField Kind;
+	DBField Reserve2;
 	DBField ScoreID;
 	DBField ArID;
-	DBField ActualTime;
+	DBField Dt;
+	DBField PlanPeriodFn;
 	DBField Flags;
-	DBField ParticipantID;
-	DBField LinkOid;
-	DBField Value;
+	DBField AgentID;
+	DBField LinkObjID;
+	DBField IntVal;
+	DBField RealVal;
 	DBField Reserve;
 };
 #pragma pack(pop)

@@ -4339,14 +4339,14 @@ int PPViewGoods::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * 
 								if(ExecView(dlg) == cmOK) {
 									dest_ar_id = dlg->getCtrlLong(CTLSEL_MOVARCODE_DESTAR);
 									dlg->GetClusterData(CTL_MOVARCODE_FLAGS, &movarcodflags);
-									if(dest_ar_id) {
+									// @v12.3.4 if(dest_ar_id) {
 										PPLogger logger;
 										if(!GObj.P_Tbl->MoveArCodes(dest_ar_id, src_ar_id, grp_id, movarcodflags, &logger, 1))
 											PPError();
 										else {
 											ok = 1;
 										}
-									}
+									// @v12.3.4 }
 								}
 							}
 							delete dlg;

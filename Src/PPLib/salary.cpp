@@ -11,9 +11,9 @@ SalaryCore::SalaryCore() : SalaryTbl()
 {
 }
 
-int SalaryCore::Validate(const SalaryTbl::Rec * pRec)
+bool SalaryCore::Validate(const SalaryTbl::Rec * pRec)
 {
-	int    ok = 1;
+	bool   ok = true;
 	if(pRec) {
 		THROW(pRec->ID >= 0);
 		THROW_SL(checkdate(pRec->Beg));

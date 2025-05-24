@@ -23,7 +23,7 @@
 //
 
 //
-// Справочники
+// Descr: Справочники (небольшие и многочисленные)
 //
 table Reference2 {         // size=148
 	long   ObjType;        // Тип объекта
@@ -44,7 +44,7 @@ file:
 	access=3;
 }
 //
-// Свойства объектов
+// Descr: Свойства объектов
 //
 // Первые 500 идентификаторов свойств зарезервированы за главным приложением.
 // Следующие 500 - за сторонними приложениями. Пользовательские свойства начинаются с 1001.
@@ -81,7 +81,7 @@ file:
 	page=4096;
 }
 //
-// Индексированные текстовые записи
+// Descr: Индексированные текстовые записи
 //
 table TextRef {
 	long   ObjID;
@@ -99,7 +99,7 @@ file:
 	vlr;
 }
 //
-// Неиндексированные текстовые записи произвольной длины
+// Descr: Неиндексированные текстовые записи произвольной длины
 //
 table UnxTextRef {
 	long   ObjID;
@@ -112,6 +112,22 @@ index:
 	ObjType, Prop, ObjID, Lang (unique mod);
 file:
 	"unxtxref.btr";
+	vlr;
+}
+//
+// @v12.3.4
+// Descr: Таблица для индексации операция по маркам егаис и чзн.
+//   Необходима для ускорения выборки операций, связанных с конкретной маркой.
+//   Сейчас такая выбора осуществляется без индексации из-за чего может быть очень медленной. 
+//
+table ExtCodeRef { 
+	string Code[156];
+	raw    Reserve[32];
+	blob   VT[2048];	
+index:
+	Code (unique mod); // #0
+file:
+	"xcoderef.btr";
 	vlr;
 }
 //
@@ -3347,22 +3363,23 @@ file:
 }
 
 table BizScore2 { // @v11.9.1 @construction
-	long   ID;
+	autolong ID;          // @id
+	int16  Kind;          // Вид записи. 0 - регулярное значение, 1 - планируемое значение
+	uint16 Reserve2;      // @alignment
 	long   ScoreID;       // ->Ref(PPOBJ_BIZSCORE2)
 	long   ArID;          // ->Article.ID
-	date   ActualDt;      //
-	time   ActualTm;      //
+	date   Dt;            //
+	date   PlanPeriodFn;  // Для планируемого значения - конец периода планирования (началом периода планирования является Dt)
 	long   Flags;
-	long   ParticipantID; // Участник показателя (тип объекта определяется полем PPBizScore2::ParticipantObjType)
+	long   AgentID;       // Участник показателя (тип объекта определяется полем PPBizScore2::AgentObjType)
 	long   LinkObjID;     // ИД связанного объекта (тип объекта определяется полем PPBizScore2::LinkObjType)
-	double RealVal;
 	long   IntVal;
+	double RealVal;
 	raw    Reserve[64];
 index:
-	ID (unique);
-	ScoreID, ArID, ActualDt, ActualTm (unique mod);
-	ArID, ScoreID, ActualDt, ActualTm (unique mod);
-	LinkObjID, ScoreID, ArID, ActualDt, ActualTm (unique mod);
+	ID (unique);                       // #0
+	Kind, Dt, ScoreID (dup mod);       // #1
+	Kind, ScoreID, Dt (dup mod);       // #2
 file:
 	"bizsc2.btr";
 }

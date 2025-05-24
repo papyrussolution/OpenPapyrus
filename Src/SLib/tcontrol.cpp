@@ -16,9 +16,16 @@ TStaticText::TStaticText(const TRect & rBounds, uint spcFlags, const char * pTex
 
 int TStaticText::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+	bool    debug_mark = false; // @debug
 	if(uMsg == WM_INITDIALOG) {
 		SetupText(&Text);
 		return 1;
+	}
+	else if(uMsg == WM_MOVE) {
+		debug_mark = true;
+		int x_pos = (int)(short)LOWORD(lParam);   // horizontal position 
+		int y_pos = (int)(short)HIWORD(lParam);   // vertical position 
+		return 0;
 	}
 	else
 		return 0;
@@ -32,6 +39,14 @@ IMPL_HANDLE_EVENT(TStaticText)
 		HWND h = getHandle();
 		if(h) {
 			::SetWindowPos(h, 0, p_rc->a.x, p_rc->a.y, p_rc->width(), p_rc->height(), SWP_NOZORDER|SWP_NOCOPYBITS);
+			// @debug {
+			RECT rc_verify;
+			POINT rc_cli_lu;
+			GetWindowRect(h, &rc_verify);
+			rc_cli_lu.x = rc_verify.left;
+			rc_cli_lu.y = rc_verify.top;
+			ScreenToClient(Parent, &rc_cli_lu);
+			// } @debug 
 			clearEvent(event);
 		}
 	}
@@ -74,7 +89,7 @@ int TStaticText::setText(const char * pText)
 //
 // TLabel
 //
-TLabel::TLabel(const TRect & bounds, const char * pText, TView * aLink) : TStaticText(bounds, 0, pText), link(aLink)
+TLabel::TLabel(const TRect & bounds, const char * pText, TView * pLink) : TStaticText(bounds, 0, pText), P_Link(pLink)
 {
 	SubSign = TV_SUBSIGN_LABEL;
 	ViewOptions |= (ofPreProcess|ofPostProcess);
@@ -83,16 +98,16 @@ TLabel::TLabel(const TRect & bounds, const char * pText, TView * aLink) : TStati
 IMPL_HANDLE_EVENT(TLabel)
 {
 	TStaticText::handleEvent(event);
-	if(event.isCmd(cmSetBounds)) { // @v11.2.0
+	/* @v12.3.4 (TStaticText::handleEvent have done it) if(event.isCmd(cmSetBounds)) { // @v11.2.0
 		const TRect * p_rc = static_cast<const TRect *>(TVINFOPTR);
 		HWND h = getHandle();
 		if(h) {
-			::SetWindowPos(h, 0, p_rc->a.x, p_rc->a.y, p_rc->width(), p_rc->height(), SWP_NOZORDER/* @v10.9.3 |SWP_NOREDRAW*/|SWP_NOCOPYBITS);
+			::SetWindowPos(h, 0, p_rc->a.x, p_rc->a.y, p_rc->width(), p_rc->height(), SWP_NOZORDER|SWP_NOCOPYBITS);
 			clearEvent(event);
 		}
 	}
-	else if(TVBROADCAST)
-		if(TVCMD == cmSearchLabel && link && TVINFOVIEW == link)
+	else*/if(TVBROADCAST)
+		if(TVCMD == cmSearchLabel && P_Link && TVINFOVIEW == P_Link)
 			clearEvent(event);
 }
 //
@@ -837,7 +852,7 @@ int TInputLine::TransmitData(int dir, void * pData)
 		}
 		else {
 			if(pData == 0)
-				PTR32(temp)[0] = 0;
+				temp[0] = 0;
 			else {
 				const long f = MKSFMTD(0, SFMTPRC(Format), SFMTFLAG(Format)) & ~(SFALIGNMASK|STRF_PASSWORD);
 				sttostr(Type, pData, f, temp);
@@ -906,7 +921,7 @@ IMPL_HANDLE_EVENT(TInputLine)
 		const TRect * p_rc = static_cast<const TRect *>(TVINFOPTR);
 		HWND h = getHandle();
 		if(h) {
-			::SetWindowPos(h, 0, p_rc->a.x, p_rc->a.y, p_rc->width(), p_rc->height(), SWP_NOZORDER/* @v10.9.3 |SWP_NOREDRAW*/|SWP_NOCOPYBITS);
+			::SetWindowPos(h, 0, p_rc->a.x, p_rc->a.y, p_rc->width(), p_rc->height(), SWP_NOZORDER|SWP_NOCOPYBITS);
 			clearEvent(event);
 		}
 	}
@@ -1264,6 +1279,13 @@ void TCluster::press(ushort item)
 	const short citem = BUTTON_ID(item)-1;
 	Value = (Kind == RADIOBUTTONS) ? citem : Value ^ (1 << citem);
 	MessageCommandToOwner(cmClusterClk);
+}
+
+HWND TCluster::getItemHandle(uint itemIdx)
+{
+	const int button_id = MAKE_BUTTON_ID(Id, itemIdx+1);
+	HWND h = GetDlgItem(Parent, button_id);
+	return h;
 }
 
 bool TCluster::IsEnabled(uint itemIdx) const
@@ -1640,7 +1662,7 @@ int ComboBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 					State |= stExecSemaphore;
 					long   v = 0;
 					int    res = cmCancel;
-					HWND   w_link = GetDlgItem(Parent, link()->GetId());
+					HWND   w_link = GetDlgItem(Parent, GetLink()->GetId());
 					if(GetFocus() != w_link)
 						SetFocus(w_link);
 					if(!(State & stUndef))
@@ -1717,7 +1739,7 @@ void ComboBox::setUndefTag(int set) { SETFLAG(State, stUndef, set); }
 void ComboBox::setUndefID(long undefID) { NoDefID = undefID; }
 void ComboBox::selectItem(long) { MessageCommandToOwner(cmLBItemSelected); }
 void ComboBox::setRange(long aRange) { Range = aRange; }
-TInputLine * ComboBox::link() const { return P_ILink; }
+TInputLine * ComboBox::GetLink() const { return P_ILink; }
 void ComboBox::SetLink(TInputLine * pLink) { P_ILink = pLink; }
 
 int ComboBox::setDataByUndefID()
@@ -1819,7 +1841,7 @@ IMPL_HANDLE_EVENT(ComboBox)
 		const TRect * p_rc = static_cast<const TRect *>(TVINFOPTR);
 		HWND h = getHandle();
 		if(h) {
-			::SetWindowPos(h, 0, p_rc->a.x, p_rc->a.y, p_rc->width(), p_rc->height(), SWP_NOZORDER/* @v10.9.3 |SWP_NOREDRAW*/|SWP_NOCOPYBITS);
+			::SetWindowPos(h, 0, p_rc->a.x, p_rc->a.y, p_rc->width(), p_rc->height(), SWP_NOZORDER|SWP_NOCOPYBITS);
 			clearEvent(event);
 		}
 	}

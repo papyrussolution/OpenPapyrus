@@ -2992,11 +2992,11 @@ int PPViewTrfrAnlz::Detail(const void * pHdr, PPViewBrowser * pBrw)
 				flt.Sgp = sgpNone;
 				if(psn_id) {
 					if(Filt.Sgp == sgpBillAgent) {
-						const  PPID acc_sheet_id = GetAgentAccSheet();
-						if(acc_sheet_id) {
+						const  PPID acc_acs_id = GetAgentAccSheet();
+						if(acc_acs_id) {
 							PPID   agent_ar_id = 0;
 							flt.AgentList.Set(0);
-							flt.AgentList.Add(ArObj.P_Tbl->PersonToArticle(psn_id, acc_sheet_id, &agent_ar_id) ? agent_ar_id : rec.ArticleID);
+							flt.AgentList.Add(ArObj.P_Tbl->PersonToArticle(psn_id, acc_acs_id, &agent_ar_id) ? agent_ar_id : rec.ArticleID);
 						}
 					}
 					// @ не реализовано
@@ -3372,13 +3372,14 @@ int TrfrAnlzFiltDialog::getDTS(TrfrAnlzFilt * pData)
 
 void TrfrAnlzFiltDialog::SetSaldoInfo()
 {
-	int   show_saldo_info = 0;
+	bool  show_saldo_info = false;
 	PPID  ar_id = 0;
 	GoodsFiltCtrlGroup::Rec  rec;
 	getCtrlData(CTLSEL_GTO_OBJECT, &ar_id);
 	if(getGroupData(ctlgroupGoodsFilt, &rec) && rec.GoodsGrpID &&
 		((Data.Grp == TrfrAnlzFilt::gGoods && ar_id) || (Data.Grp == TrfrAnlzFilt::gCntragent && rec.GoodsID)) && Data.Sgg == sggNone && Data.Sgp == sgpNone) {
-		SString temp_buf, txt_buf;
+		SString temp_buf;
+		SString txt_buf;
 		LDATE  dt = ZERODATE;
 		GoodsSaldoCore GSCore;
 		GSCore.GetLastCalcDate(rec.GoodsGrpID, rec.GoodsID, ar_id, 0/*dlvrLocID*/, &dt);
@@ -3391,7 +3392,7 @@ void TrfrAnlzFiltDialog::SetSaldoInfo()
 			temp_buf.Cat(txt_buf);
 		}
 		setStaticText(CTL_GTO_SALDOINFO, temp_buf);
-		show_saldo_info = 1;
+		show_saldo_info = true;
 	}
 	showCtrl(CTL_GTO_SALDOINFO, show_saldo_info);
 }

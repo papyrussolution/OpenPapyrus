@@ -1093,8 +1093,8 @@ public:
 	{
 		RVALUEPTR(Cfg, pCfg);
 		SetupSpin(CTLSPN_CHKINPLIST_CNT, CTL_CHKINPLIST_CNT, 1, (Cfg.Capacity > 0) ? Cfg.Capacity : 10000, 1);
-		showCtrl(CTL_CHKINPLIST_CNT, 0);
-		showCtrl(CTLSPN_CHKINPLIST_CNT, 0);
+		showCtrl(CTL_CHKINPLIST_CNT, false);
+		showCtrl(CTLSPN_CHKINPLIST_CNT, false);
 	}
 	DECL_DIALOG_SETDTS()
 	{
@@ -1114,17 +1114,18 @@ private:
 		PPListDialog::handleEvent(event);
 		if(event.isCmd(cmLBItemFocused)) {
 			enableCommand(cmCCheck, CCheck(1) > 0);
-			long   pos = 0, id = 0;
+			long   pos = 0;
+			long   id = 0;
 			if(getCurItem(&pos, &id) > 0 && pos >= 0 && pos < (long)Data.GetCount()) {
-				showCtrl(CTL_CHKINPLIST_CNT, 1);
-				showCtrl(CTLSPN_CHKINPLIST_CNT, 1);
+				showCtrl(CTL_CHKINPLIST_CNT, true);
+				showCtrl(CTLSPN_CHKINPLIST_CNT, true);
 				const  PPCheckInPersonItem & r_item = Data.Get(pos);
 				int    count = static_cast<int>((r_item.Flags & PPCheckInPersonItem::fCheckedIn) ? r_item.CiCount : r_item.RegCount);
 				setCtrlData(CTL_CHKINPLIST_CNT, &count);
 			}
 			else {
-				showCtrl(CTL_CHKINPLIST_CNT, 0);
-				showCtrl(CTLSPN_CHKINPLIST_CNT, 0);
+				showCtrl(CTL_CHKINPLIST_CNT, false);
+				showCtrl(CTLSPN_CHKINPLIST_CNT, false);
 			}
 		}
 		else if(event.isCmd(cmInputUpdated)) {

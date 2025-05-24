@@ -9,7 +9,6 @@
 #include <shellapi.h> // @v11.6.7
 #include <uxtheme.h> // @v11.6.7
 #include <dwmapi.h> // @v11.6.7
-#include <versionhelpers.h> // @v11.6.7
 //
 #define CLOSEBTN_BITMAPID  132 // defined in ppdefs.h as IDB_CLOSE
 #define MENUTREE_LIST     1014
@@ -731,7 +730,7 @@ INT_PTR CALLBACK FrameWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 					hWt = ::GetNextWindow(hWt, GW_HWNDNEXT);
 				//if(hWt == h_close_wnd) hWt = ::GetNextWindow(hWt, GW_HWNDNEXT);
 				if(hWt) {
-					::SetWindowPos(hWt, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+					::SetWindowPos(hWt, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE);
 					::SendMessageW(hWnd, WM_USER, 0, 0);
 				}
 			}
@@ -941,7 +940,7 @@ void TProgram::HandleWindowNcCalcSize(/*struct window * data,*/WPARAM wParam, LP
 						if(p_pgm->H_ShortcutsWnd) {
 							HWND hwnd_tt = ::CreateWindowEx(WS_EX_TOPMOST, TOOLTIPS_CLASS, NULL, WS_POPUP|TTS_NOPREFIX|TTS_ALWAYSTIP|TTS_BALLOON,
 								CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, hWnd, NULL, TProgram::GetInst(), 0);
-							::SetWindowPos(hwnd_tt, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+							::SetWindowPos(hwnd_tt, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE|SWP_NOACTIVATE);
 							TabCtrl_SetToolTips(GetDlgItem(p_pgm->H_ShortcutsWnd, CTL_SHORTCUTS_ITEMS), hwnd_tt);
 						}
 					}
@@ -974,7 +973,7 @@ void TProgram::HandleWindowNcCalcSize(/*struct window * data,*/WPARAM wParam, LP
 								NULL, WS_POPUP|TTS_NOPREFIX|TTS_ALWAYSTIP|TTS_BALLOON,
 								CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
 								hWnd, NULL, TProgram::GetInst(), 0);
-							SetWindowPos(hwnd_tt, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+							SetWindowPos(hwnd_tt, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE | SWP_NOACTIVATE);
 							TabCtrl_SetToolTips(GetDlgItem(p_pgm->H_ShortcutsWnd, CTL_SHORTCUTS_ITEMS), hwnd_tt);
 						}
 					}

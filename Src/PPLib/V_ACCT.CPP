@@ -1,5 +1,5 @@
 // V_ACCT.CPP
-// Copyright (c) A.Sobolev, A.Starodub 2000-2002, 2003, 2004, 2005, 2006, 2007, 2008, 2011, 2016, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev, A.Starodub 2000-2002, 2003, 2004, 2005, 2006, 2007, 2008, 2011, 2016, 2018, 2019, 2020, 2021, 2025
 // @codepage UTF-8
 // PPViewAccount
 //
@@ -29,10 +29,7 @@ PPViewAccount::~PPViewAccount()
 	delete P_AnlzFilt;
 }
 
-/*virtual*/void * PPViewAccount::GetEditExtraParam()
-{
-	return reinterpret_cast<void *>(Filt.Type);
-}
+/*virtual*/void * PPViewAccount::GetEditExtraParam() { return reinterpret_cast<void *>(Filt.Type); }
 
 /*virtual*/PPBaseFilt * PPViewAccount::CreateFilt(const void * extraPtr) const
 {

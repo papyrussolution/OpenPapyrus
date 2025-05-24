@@ -4987,7 +4987,8 @@ int PPBillImporter::Helper_AcceptCokeData(const SCollection * pRowList, PPID opI
 		SString prev_order_ident;
 		SString temp_buf;
 		SString msg_buf;
-		SString left_buf, right_buf;
+		SString left_buf;
+		SString right_buf;
 		ArticleTbl::Rec ar_rec;
 		PPID   agent_tag_id = 0;
 		PPID   promo_lot_tag_id = 0;
@@ -7107,6 +7108,22 @@ int DocNalogRu_Generator::WriteWareInfoAddendum(const PPBillImpExpParam & rParam
 								is_mark_accepted = true;
 							}
 						}
+						// @v12.3.4 {
+						if(!is_mark_accepted && chzn_prod_type == GTCHZNPT_WATER) {
+							gts.GetToken(GtinStruc::fldOriginalText, &temp_buf);
+							if(temp_buf.NotEmptyS()) {
+								if(rParam.Flags & PPBillImpExpParam::fChZnMarkAsCDATA) {
+									// Для CDATA не следует экранировать символы (так же в марке нет русских символов). По-этому мы здесь не применяем EncText
+									SXml::WNode::CDATA(temp_buf);
+									n_marks.PutInner(GetToken_Ansi(PPHSC_RU_WAREIDENT_KIZ), temp_buf);
+								}
+								else {
+									n_marks.PutInner(GetToken_Ansi(PPHSC_RU_WAREIDENT_PACKCODE), EncText(temp_buf));
+								}
+								is_mark_accepted = true;
+							}
+						}
+						// } @v12.3.4 
 						if(!is_mark_accepted && ((rParam.Flags & PPBillImpExpParam::fChZnMarkGTINSER) || (Flags & fExpChZnMarksGTINSER))) {
 							if(PPChZnPrcssr::InterpretChZnCodeResult(pczcr) > 0) {
 								gts.GetToken(GtinStruc::fldGTIN14, &chzn_gtin14_buf);

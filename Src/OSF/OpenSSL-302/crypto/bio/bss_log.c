@@ -26,10 +26,10 @@
 /* Some compiler options may mask the declaration of "_malloc32". */
 #if __INITIAL_POINTER_SIZE && defined _ANSI_C_SOURCE
 #if __INITIAL_POINTER_SIZE == 64
-#   pragma pointer_size save
-#   pragma pointer_size 32
+#pragma pointer_size save
+#pragma pointer_size 32
 void * _malloc32(__size_t);
-#   pragma pointer_size restore
+#pragma pointer_size restore
 #endif /* __INITIAL_POINTER_SIZE == 64 */
 #endif                         /* __INITIAL_POINTER_SIZE && defined
                                 * _ANSI_C_SOURCE */
@@ -302,8 +302,8 @@ static void xsyslog(BIO * bp, int priority, const char * string)
 
 /* Arrange 32-bit pointer to opcdef buffer and malloc(), if needed. */
 #if __INITIAL_POINTER_SIZE == 64
-#   pragma pointer_size save
-#   pragma pointer_size 32
+#pragma pointer_size save
+#pragma pointer_size 32
 #define OPCDEF_TYPE __char_ptr32
 #define OPCDEF_MALLOC _malloc32
 #else                         /* __INITIAL_POINTER_SIZE == 64 */
@@ -314,7 +314,7 @@ static void xsyslog(BIO * bp, int priority, const char * string)
 	struct opcdef * opcdef_p;
 
 #if __INITIAL_POINTER_SIZE == 64
-#   pragma pointer_size restore
+#pragma pointer_size restore
 #endif /* __INITIAL_POINTER_SIZE == 64 */
 
 	char buf[10240];

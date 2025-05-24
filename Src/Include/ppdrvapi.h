@@ -58,11 +58,6 @@ private:
 
 class PPDrvSession {
 public:
-	/* @v10.4.5 The SIntToSymbTabEntry should be used from now on.
-	struct TextTableEntry {
-		int    Code;
-		const char * P_Text;
-	};*/
 	int    ImplementDllMain(HANDLE hModule, DWORD dwReason);
 
 	PPDrvSession(const char * pName, PPDrv_CreateInstanceProc proc, uint verMajor, uint verMinor, uint errMsgCount, const SIntToSymbTabEntry * pErrMsgTab);

@@ -25,10 +25,10 @@
 /* Some compiler options may mask the declaration of "_malloc32". */
 #if __INITIAL_POINTER_SIZE && defined _ANSI_C_SOURCE
 #if __INITIAL_POINTER_SIZE == 64
-#   pragma pointer_size save
-#   pragma pointer_size 32
+#pragma pointer_size save
+#pragma pointer_size 32
 void * _malloc32(__size_t);
-#   pragma pointer_size restore
+#pragma pointer_size restore
 #endif /* __INITIAL_POINTER_SIZE == 64 */
 #endif                         /* __INITIAL_POINTER_SIZE && defined
                                 * _ANSI_C_SOURCE */

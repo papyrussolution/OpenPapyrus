@@ -217,7 +217,7 @@ public:
 	virtual int CloseSession(PPID sessID);
 	virtual int PrintXReport(const CSessInfo *);
 	virtual int PrintZReportCopy(const CSessInfo *);
-	virtual int PrintIncasso(double sum, int isIncome);
+	virtual int PrintIncasso(double sum, bool isIncome);
 	virtual int GetPrintErrCode();
 	virtual int OpenBox();
 	virtual int CheckForSessionOver();
@@ -1752,7 +1752,7 @@ int SCS_SHTRIHFRF::PrintZReportCopy(const CSessInfo * pInfo)
 	return ok;
 }
 
-int SCS_SHTRIHFRF::PrintIncasso(double sum, int isIncome)
+int SCS_SHTRIHFRF::PrintIncasso(double sum, bool isIncome)
 {
 	int    ok = 1;
 	ResCode = RESCODE_NO_ERROR;
@@ -1764,8 +1764,8 @@ int SCS_SHTRIHFRF::PrintIncasso(double sum, int isIncome)
 		THROW(ExecFR(CashIncome));
 	}
 	else {
-		int    is_cash;
-		THROW(is_cash = CheckForCash(sum));
+		const int is_cash = CheckForCash(sum);
+		THROW(is_cash);
 		THROW_PP(is_cash > 0, PPERR_SYNCCASH_NO_CASH);
 		THROW(LineFeed(6, TRUE, FALSE));
 		THROW(ExecFR(CashOutcome));
@@ -1786,10 +1786,7 @@ int SCS_SHTRIHFRF::PrintIncasso(double sum, int isIncome)
 	return ok;
 }
 
-int SCS_SHTRIHFRF::GetPrintErrCode()
-{
-	return ErrCode;
-}
+int SCS_SHTRIHFRF::GetPrintErrCode() { return ErrCode; }
 
 int SCS_SHTRIHFRF::GetSummator(double * val)
 {

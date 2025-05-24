@@ -404,42 +404,24 @@ void DockingManager::reSizeTo(RECT & rc)
 
 	// set window positions of container
 	if(_vContainer[CONT_BOTTOM]->isVisible()) {
-		::SetWindowPos(_vContainer[CONT_BOTTOM]->getHSelf(), NULL,
-		    rcBottom.left,
-		    rcBottom.top,
-		    rcBottom.right,
-		    rcBottom.bottom,
-		    SWP_NOZORDER);
+		::SetWindowPos(_vContainer[CONT_BOTTOM]->getHSelf(), NULL, rcBottom.left, rcBottom.top, rcBottom.right, rcBottom.bottom, SWP_NOZORDER);
 		_vSplitter[CONT_BOTTOM]->display();
 	}
 
 	if(_vContainer[CONT_TOP]->isVisible()) {
 		::SetWindowPos(_vContainer[CONT_TOP]->getHSelf(), NULL,
-		    _dockData.rcRegion[CONT_TOP].left,
-		    _dockData.rcRegion[CONT_TOP].top,
-		    _dockData.rcRegion[CONT_TOP].right,
-		    _dockData.rcRegion[CONT_TOP].bottom,
-		    SWP_NOZORDER);
+		    _dockData.rcRegion[CONT_TOP].left, _dockData.rcRegion[CONT_TOP].top, _dockData.rcRegion[CONT_TOP].right, _dockData.rcRegion[CONT_TOP].bottom, SWP_NOZORDER);
 		_vSplitter[CONT_TOP]->display();
 	}
 
 	if(_vContainer[CONT_RIGHT]->isVisible()) {
-		::SetWindowPos(_vContainer[CONT_RIGHT]->getHSelf(), NULL,
-		    rcRight.left,
-		    rcRight.top,
-		    rcRight.right,
-		    rcRight.bottom,
-		    SWP_NOZORDER);
+		::SetWindowPos(_vContainer[CONT_RIGHT]->getHSelf(), NULL, rcRight.left, rcRight.top, rcRight.right, rcRight.bottom, SWP_NOZORDER);
 		_vSplitter[CONT_RIGHT]->display();
 	}
 
 	if(_vContainer[CONT_LEFT]->isVisible()) {
 		::SetWindowPos(_vContainer[CONT_LEFT]->getHSelf(), NULL,
-		    _dockData.rcRegion[CONT_LEFT].left,
-		    _dockData.rcRegion[CONT_LEFT].top,
-		    _dockData.rcRegion[CONT_LEFT].right,
-		    _dockData.rcRegion[CONT_LEFT].bottom,
-		    SWP_NOZORDER);
+		    _dockData.rcRegion[CONT_LEFT].left, _dockData.rcRegion[CONT_LEFT].top, _dockData.rcRegion[CONT_LEFT].right, _dockData.rcRegion[CONT_LEFT].bottom, SWP_NOZORDER);
 		_vSplitter[CONT_LEFT]->display();
 	}
 	(*_ppMainWindow)->reSizeTo(_rcWork);

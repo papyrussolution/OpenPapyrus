@@ -671,6 +671,7 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 	SString cb_line_symb; // @v12.3.3
 	SString image_symb; // @v12.3.3
 	SString list_box_columns; // @v12.3.3
+	SString unterm_error_addedmsg;
 	FRect  label_bbox;
 	double font_size = 0.0;
 	// Следующие флаги устанавливаются в переменной occurence_flags для индикации факта, что
@@ -744,6 +745,8 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 	DlScope * p_scope = GetScope(scopeID);
 	THROW(p_scope);
 	for(uint i = 0; i < _c; i++) {
+		int    unterm_errcode = 0;
+		unterm_error_addedmsg.Z();
 		const CtmProperty * p_prop = rS.P_List->at(i);
 		if(p_prop) {
 			bool    processed = false;
@@ -961,8 +964,13 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 					occurence_flags |= occfWidth;
 				}
 				else if(prop_key == "margin") {
-					THROW(p_prop->Value.Code == CtmToken::acBoundingBox); // @err invalid margin value
-					if(!(occurence_margin & (occsLeft|occsTop|occsRight|occsBottom))) { // @err dup feature
+					if(p_prop->Value.Code != CtmToken::acBoundingBox) {
+						unterm_errcode = PPERR_DL6_PROP_INVMARGINVAL;
+					}
+					else if(occurence_margin & (occsLeft|occsTop|occsRight|occsBottom)) { // @err dup feature
+						unterm_errcode = PPERR_DL6_PROP_PMARGINOCCURED;
+					}
+					else {
 						alb.Margin.a.Set(p_prop->Value.U.Rect.L.X.Val, p_prop->Value.U.Rect.L.Y.Val);
 						alb.Margin.b.Set(p_prop->Value.U.Rect.R.X.Val, p_prop->Value.U.Rect.R.Y.Val);
 						occurence_margin |= (occsLeft|occsTop|occsRight|occsBottom);
@@ -970,39 +978,64 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 				}
 				else if(prop_key == "margin_left") {
 					const float fv = p_prop->Value.GetFloat(0);
-					THROW(fv >= 32000.0f && fv <= 32000.0f); // @err invalid margin_left value
-					if(!(occurence_margin & (occsLeft))) { // @err dup feature
+					if(!(fv >= -32000.0f && fv <= 32000.0f)) {
+						unterm_errcode = PPERR_DL6_PROP_MARGINRANGEVIOL;
+					}
+					else if(occurence_margin & (occsLeft)) {
+						unterm_errcode = PPERR_DL6_PROP_PMARGINOCCURED;
+					}
+					else {
 						alb.Margin.a.x = fv;
 						occurence_margin |= occsLeft;
 					}
 				}
 				else if(prop_key == "margin_top") {
 					const float fv = p_prop->Value.GetFloat(0);
-					THROW(fv >= 32000.0f && fv <= 32000.0f); // @err invalid margin_top value
-					if(!(occurence_margin & (occsTop))) { // @err dup feature
+					if(!(fv >= -32000.0f && fv <= 32000.0f)) {
+						unterm_errcode = PPERR_DL6_PROP_MARGINRANGEVIOL;
+					}
+					else if(occurence_margin & (occsTop)) {
+						unterm_errcode = PPERR_DL6_PROP_PMARGINOCCURED;
+					}
+					else {
 						alb.Margin.a.y = fv;
 						occurence_margin |= occsTop;
 					}
 				}
 				else if(prop_key == "margin_right") {
 					const float fv = p_prop->Value.GetFloat(0);
-					THROW(fv >= 32000.0f && fv <= 32000.0f); // @err invalid margin_right value
-					if(!(occurence_margin & (occsRight))) { // @err dup feature
+					if(!(fv >= -32000.0f && fv <= 32000.0f)) {
+						unterm_errcode = PPERR_DL6_PROP_MARGINRANGEVIOL;
+					}
+					else if(occurence_margin & (occsRight)) {
+						unterm_errcode = PPERR_DL6_PROP_PMARGINOCCURED;
+					}
+					else {
 						alb.Margin.b.x = fv;
 						occurence_margin |= occsRight;
 					}
 				}
 				else if(prop_key == "margin_botton") {
 					const float fv = p_prop->Value.GetFloat(0);
-					THROW(fv >= 32000.0f && fv <= 32000.0f); // @err invalid margin_bottom value
-					if(!(occurence_margin & (occsBottom))) { // @err dup feature
+					if(!(fv >= -32000.0f && fv <= 32000.0f)) {
+						unterm_errcode = PPERR_DL6_PROP_MARGINRANGEVIOL;
+					}
+					else if(occurence_margin & (occsBottom)) {
+						unterm_errcode = PPERR_DL6_PROP_PMARGINOCCURED;
+					}
+					else {
 						alb.Margin.b.y = fv;
 						occurence_margin |= occsBottom;
 					}
 				}
 				else if(prop_key == "padding") {
-					THROW(p_prop->Value.Code == CtmToken::acBoundingBox); // @err invalid padding value
-					if(!(occurence_padding & (occsLeft|occsTop|occsRight|occsBottom))) { // @err dup feature
+					if(p_prop->Value.Code != CtmToken::acBoundingBox) {
+						unterm_errcode = PPERR_DL6_PROP_INVPADDINGVAL;
+					}
+					else if(occurence_padding & (occsLeft|occsTop|occsRight|occsBottom)) {
+						unterm_errcode = PPERR_DL6_PROP_PPADDINGOCCURED;
+					}
+					else {
 						alb.Padding.a.Set(p_prop->Value.U.Rect.L.X.Val, p_prop->Value.U.Rect.L.Y.Val);
 						alb.Padding.b.Set(p_prop->Value.U.Rect.R.X.Val, p_prop->Value.U.Rect.R.Y.Val);
 						occurence_padding |= (occsLeft|occsTop|occsRight|occsBottom);
@@ -1010,32 +1043,52 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 				}
 				else if(prop_key == "padding_left") {
 					const float fv = p_prop->Value.GetFloat(0);
-					THROW(fv >= 32000.0f && fv <= 32000.0f); // @err invalid padding_left value
-					if(!(occurence_padding & (occsLeft))) { // @err dup feature
+					if(!(fv >= -32000.0f && fv <= 32000.0f)) {
+						unterm_errcode = PPERR_DL6_PROP_PADDINGRANGEVIOL;
+					}
+					else if(occurence_padding & (occsLeft)) {
+						unterm_errcode = PPERR_DL6_PROP_PPADDINGOCCURED;
+					}
+					else {
 						alb.Padding.a.x = fv;
 						occurence_padding |= occsLeft;
 					}
 				}
 				else if(prop_key == "padding_top") {
 					const float fv = p_prop->Value.GetFloat(0);
-					THROW(fv >= 32000.0f && fv <= 32000.0f); // @err invalid padding_top value
-					if(!(occurence_padding & (occsTop))) { // @err dup feature
+					if(!(fv >= -32000.0f && fv <= 32000.0f)) {
+						unterm_errcode = PPERR_DL6_PROP_PADDINGRANGEVIOL;
+					}
+					else if(occurence_padding & (occsTop)) {
+						unterm_errcode = PPERR_DL6_PROP_PPADDINGOCCURED;
+					}
+					else {
 						alb.Padding.a.y = fv;
 						occurence_padding |= occsTop;
 					}
 				}
 				else if(prop_key == "padding_right") {
 					const float fv = p_prop->Value.GetFloat(0);
-					THROW(fv >= 32000.0f && fv <= 32000.0f); // @err invalid padding_right value
-					if(!(occurence_padding & (occsRight))) { // @err dup feature
+					if(!(fv >= -32000.0f && fv <= 32000.0f)) {
+						unterm_errcode = PPERR_DL6_PROP_PADDINGRANGEVIOL;
+					}
+					else if(occurence_padding & (occsRight)) {
+						unterm_errcode = PPERR_DL6_PROP_PPADDINGOCCURED;
+					}
+					else {
 						alb.Padding.b.x = fv;
 						occurence_padding |= occsRight;
 					}
 				}
 				else if(prop_key == "padding_bottom") {
 					const float fv = p_prop->Value.GetFloat(0);
-					THROW(fv >= 32000.0f && fv <= 32000.0f); // @err invalid padding_bottom value
-					if(!(occurence_padding & (occsBottom))) { // @err dup feature
+					if(!(fv >= -32000.0f && fv <= 32000.0f)) {
+						unterm_errcode = PPERR_DL6_PROP_PADDINGRANGEVIOL;
+					}
+					else if(occurence_padding & (occsBottom)) {
+						unterm_errcode = PPERR_DL6_PROP_PPADDINGOCCURED;
+					}
+					else {
 						alb.Padding.b.y = fv;
 						occurence_padding |= occsBottom;
 					}
@@ -1299,6 +1352,10 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 				else {
 					// @todo @err invalid property
 				}
+				//
+				if(unterm_errcode) {
+					Error(unterm_errcode, 0, erfLog);
+				}
 			}
 		}
 	}
@@ -1311,52 +1368,6 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 				; // @error invalid view kind
 			}
 			// } @v12.2.10 
-			/* @v12.2.10
-			if(prop_val.IsEqiAscii("view")) {
-				view_kind = UiItemKind::kGenericView;
-			}
-			else if(prop_val.IsEqiAscii("dialog")) {
-				view_kind = UiItemKind::kDialog;
-			}
-			else if(prop_val.IsEqiAscii("input")) {
-				view_kind = UiItemKind::kInput;
-			}
-			else if(prop_val.IsEqiAscii("statictext")) {
-				view_kind = UiItemKind::kStatic;
-			}
-			else if(prop_val.IsEqiAscii("imageview")) { // @v11.0.6
-				view_kind = UiItemKind::kImageView;
-			}
-			else if(prop_val.IsEqiAscii("frame")) {
-				view_kind = UiItemKind::kFrame;
-			}
-			else if(prop_val.IsEqiAscii("combobox")) {
-				view_kind = UiItemKind::kCombobox;
-			}
-			else if(prop_val.IsEqiAscii("button")) {
-				view_kind = UiItemKind::kPushbutton;
-			}
-			else if(prop_val.IsEqiAscii("checkbox")) {
-				view_kind = UiItemKind::kCheckbox;
-			}
-			else if(prop_val.IsEqiAscii("checkboxcluster")) {
-				view_kind = UiItemKind::kCheckCluster;
-			}
-			else if(prop_val.IsEqiAscii("radiocluster")) {
-				view_kind = UiItemKind::kRadioCluster;
-			}
-			else if(prop_val.IsEqiAscii("radiobutton")) {
-				view_kind = UiItemKind::kRadiobutton;
-			}
-			else if(prop_val.IsEqiAscii("listbox")) {
-				view_kind = UiItemKind::kListbox;
-			}
-			else if(prop_val.IsEqiAscii("treelistbox")) {
-				view_kind = UiItemKind::kTreeListbox;
-			}
-			else {
-				// @error invalid view kind
-			}*/
 			{
 				SETIFZ(view_kind, UiItemKind::kGenericView);
 				CtmExprConst c;

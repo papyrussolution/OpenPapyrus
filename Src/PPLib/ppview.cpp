@@ -463,6 +463,7 @@ int PPGetObjViewFiltMapping_Filt(int filtId, PPID * pObjType, int * pViewId)
 			case PPVIEW_LOGSMONITOR:	 p_v = new PPViewLogsMonitor;	break;
 			case PPVIEW_BIZSCORE:        p_v = new PPViewBizScore;       break;
 			case PPVIEW_BIZSCOREVAL:     p_v = new PPViewBizScoreVal;    break;
+			case PPVIEW_BIZSC2VAL:       p_v = new PPViewBizSc2Val;      break; // @v12.3.4
 			case PPVIEW_PREDICTSALES:    p_v = new PPViewPredictSales;   break;
 			case PPVIEW_GOODSTAXANALYZE: p_v = new PPViewGoodsTaxAnalyze; break;
 			case PPVIEW_DEBTORSTAT:      p_v = new PPViewDebtorStat;     break;

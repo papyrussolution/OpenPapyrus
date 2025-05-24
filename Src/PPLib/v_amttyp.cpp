@@ -1,5 +1,5 @@
 // V_AMTTYP.CPP
-// Copyright (c) A.Starodub 2010, 2012, 2015, 2016, 2017, 2018, 2020, 2021, 2022
+// Copyright (c) A.Starodub 2010, 2012, 2015, 2016, 2017, 2018, 2020, 2021, 2022, 2025
 // @codepage UTF-8
 // Типы сумм документа
 //
@@ -356,7 +356,7 @@ SArray * PPViewAmountType::CreateBrowserArray(uint * pBrwId, SString * pSubTitle
 	return new SArray(Data);
 }
 
-int PPViewAmountType::Transmit(int isCharry)
+int PPViewAmountType::Transmit(bool isCharry)
 {
 	int    ok = -1;
 	PPWaitStart();
@@ -396,7 +396,7 @@ int PPViewAmountType::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 				break;
 			case PPVCMD_TRANSMIT:
 			case PPVCMD_TRANSMITCHARRY:
-				ok = Transmit(BIN(ppvCmd == PPVCMD_TRANSMITCHARRY));
+				ok = Transmit(ppvCmd == PPVCMD_TRANSMITCHARRY);
 				break;
 		}
 	}

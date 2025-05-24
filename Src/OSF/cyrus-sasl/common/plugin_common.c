@@ -6,19 +6,18 @@
 #include <sasl-internal.h>
 #pragma hdrstop
 #ifndef macintosh
-#ifdef WIN32
-	#include <winsock2.h>
-	#include <versionhelpers.h>
-#else
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <netdb.h>
-#include <sys/utsname.h>
-#endif /* WIN32 */
+	#ifdef WIN32
+		#include <winsock2.h>
+	#else
+		#include <sys/socket.h>
+		#include <netinet/in.h>
+		#include <arpa/inet.h>
+		#include <netdb.h>
+		#include <sys/utsname.h>
+	#endif /* WIN32 */
 #endif /* macintosh */
 #ifdef HAVE_UNISTD_H
-#include <unistd.h>
+	#include <unistd.h>
 #endif
 #include <fcntl.h>
 #include <saslutil.h>

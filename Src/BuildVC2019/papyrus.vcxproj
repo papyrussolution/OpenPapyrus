@@ -1352,6 +1352,7 @@
     <ClInclude Include="..\Include\berkeleydb.h" />
     <ClInclude Include="..\Include\dl600.h" />
     <ClInclude Include="..\Include\frontol.h" />
+    <ClInclude Include="..\Include\pp-ifm.h" />
     <ClInclude Include="..\Include\Pp.h" />
     <ClInclude Include="..\Include\ppbrow.H" />
     <ClInclude Include="..\Include\ppdbs.h" />

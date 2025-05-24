@@ -4023,7 +4023,7 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 							SetExtFlag(ECF_DISABLEASYNCADVQUEUE, 0);
 						{
 							SetExtFlag(ECF_TRACESYNCLOT, 0);
-							if(ini_file.GetParam("config", "tracesynclot", temp_buf.Z()) > 0) {
+							if(ini_file.GetParam("config", "tracesynclot", temp_buf) > 0) {
 								const long tsl = temp_buf.ToLong();
 								if(tsl > 0)
 									SetExtFlag(ECF_TRACESYNCLOT, 1);

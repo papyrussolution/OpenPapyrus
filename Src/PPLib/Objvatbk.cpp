@@ -2118,7 +2118,7 @@ int PPViewVatBook::MRBB(PPID billID, BillTbl::Rec * pPaymRec, const TaxAmountIDs
 								}
 							}
 							THROW(r2 = reckon_pack.SetupVirtualTItems());
-							THROW(r = vata.CalcBill(&reckon_pack));
+							THROW(r = vata.CalcBill(reckon_pack));
 							if(r2 < 0)
 								vata.Scale_(mult, 0);
 							if(r > 0)
@@ -2128,7 +2128,7 @@ int PPViewVatBook::MRBB(PPID billID, BillTbl::Rec * pPaymRec, const TaxAmountIDs
 				}
 			}
 			if(!paym_has_vat_amounts && paym_pack.Amounts.HasVatSum(pTai)) {
-				THROW(vata.CalcBill(&paym_pack));
+				THROW(vata.CalcBill(paym_pack));
 				paym_has_vat_amounts = true;
 			}
 		}
@@ -2170,7 +2170,7 @@ int PPViewVatBook::MRBB(PPID billID, BillTbl::Rec * pPaymRec, const TaxAmountIDs
 			if(!paym_has_vat_amounts) {
 				if(!pack.Amounts.HasVatSum(pTai))
 					THROW(pack.SetupVirtualTItems());
-				THROW(vata.CalcBill(&pack));
+				THROW(vata.CalcBill(pack));
 			}
 			rec.LineType_ = static_cast<int16>(Filt.Kind);
 			rec.LineSubType = 0;

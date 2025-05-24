@@ -1518,7 +1518,7 @@ IMPL_CMPFUNC(Acct, k1, k2)
 	return si;
 }
 
-ListWindow * FASTCALL GetPPObjList(PPID obj, uint flags, void * extraPtr)
+ListWindow * STDCALL GetPPObjList(PPID obj, uint flags, void * extraPtr)
 {
 	PPObjListWindow * olw = 0;
 	PPObject * o = GetPPObject(obj, extraPtr);
@@ -1530,7 +1530,7 @@ ListWindow * FASTCALL GetPPObjList(PPID obj, uint flags, void * extraPtr)
 	return olw;
 }
 
-int FASTCALL SetupPPObjCombo(TDialog * dlg, uint ctl, PPID obj, PPID id, uint flags, void * extraPtr)
+int STDCALL SetupPPObjCombo(TDialog * dlg, uint ctl, PPID obj, PPID id, uint flags, void * extraPtr)
 {
 	int    ok = SetupPPObjCombo(static_cast<ComboBox *>(dlg->getCtrlView(ctl)), obj, id, flags, extraPtr);
 	if(ok && flags & OLW_WORDSELECTOR)
@@ -1538,7 +1538,7 @@ int FASTCALL SetupPPObjCombo(TDialog * dlg, uint ctl, PPID obj, PPID id, uint fl
 	return ok;
 }
 
-int FASTCALL SetupPPObjCombo(TDialog * dlg, uint ctl, PPID obj, PPID id, uint flags)
+int STDCALL SetupPPObjCombo(TDialog * dlg, uint ctl, PPID obj, PPID id, uint flags)
 {
 	int    ok = SetupPPObjCombo(static_cast<ComboBox *>(dlg->getCtrlView(ctl)), obj, id, flags, 0);
 	if(ok && flags & OLW_WORDSELECTOR)
@@ -1546,7 +1546,7 @@ int FASTCALL SetupPPObjCombo(TDialog * dlg, uint ctl, PPID obj, PPID id, uint fl
 	return ok;
 }
 
-int FASTCALL SetupPPObjCombo(ComboBox * pCombo, PPID obj, PPID id, uint flags, void * extraPtr)
+int STDCALL SetupPPObjCombo(ComboBox * pCombo, PPID obj, PPID id, uint flags, void * extraPtr)
 {
 	int    ok = 1;
 	if(pCombo) {
@@ -1581,7 +1581,7 @@ int FASTCALL SetupPPObjCombo(ComboBox * pCombo, PPID obj, PPID id, uint flags, v
 	return ok;
 }
 
-int FASTCALL SetupObjListCombo(TDialog * dlg, uint ctl, PPID id, const PPIDArray * pInclList)
+int STDCALL SetupObjListCombo(TDialog * dlg, uint ctl, PPID id, const PPIDArray * pInclList)
 {
 	ComboBox * p_cb = static_cast<ComboBox *>(dlg->getCtrlView(ctl));
 	if(p_cb) {
@@ -1651,7 +1651,7 @@ int FASTCALL ShowObjects(PPID obj, void * extraPtr)
 	return ok;
 }
 
-int FASTCALL SearchObject(PPID obj, PPID id, void * b)
+int STDCALL SearchObject(PPID obj, PPID id, void * b)
 {
 	int    r = -1;
 	if(obj) {

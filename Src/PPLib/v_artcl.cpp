@@ -31,10 +31,7 @@ PPViewArticle::~PPViewArticle()
 	delete P_TempTbl;
 }
 
-void * PPViewArticle::GetEditExtraParam()
-{
-	return const_cast<ArticleFilt *>(ArObj.GetCurrFilt()); // @badcast
-}
+void * PPViewArticle::GetEditExtraParam() { return const_cast<ArticleFilt *>(ArObj.GetCurrFilt()); /*@badcast*/ }
 
 PPBaseFilt * PPViewArticle::CreateFilt(const void * extraPtr) const
 {

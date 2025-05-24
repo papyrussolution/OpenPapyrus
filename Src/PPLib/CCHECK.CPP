@@ -662,6 +662,17 @@ int CCheckItem::SplitByQtty(double restQtty, CCheckItem & rNewItem)
 	return ok;
 }
 //
+//
+//
+CCheckLineArray::CCheckLineArray() : TSVector <CCheckLineTbl::Rec>()
+{
+}
+
+int CCheckLineArray::EvaluateVatAmounts(BVATAccmArray & rResult) const
+{
+	return rResult.CalcCCheckLineArray(*this);
+}
+//
 // CCheckPacket
 //
 CCheckPacket::BuersEAddr_::BuersEAddr_() : AddrType(0)
@@ -774,10 +785,7 @@ CCheckPacket::Prescription & CCheckPacket::Prescription::Z()
 	return *this;
 }
 
-bool CCheckPacket::Prescription::IsValid() const
-{
-	return checkdate(Dt, 1) ? true : PPSetErrorSLib();
-}
+bool CCheckPacket::Prescription::IsValid() const { return checkdate(Dt, 1) ? true : PPSetErrorSLib(); }
 //
 //
 //
@@ -1056,6 +1064,12 @@ int CCheckPacket::GetCcOp() const
 			ccop = CCOP_RETURN;
 	}
 	return ccop;
+}
+
+bool CCheckPacket::IsCorrection() const // @>>GetCcOp
+{
+	const int ccop = GetCcOp();
+	return oneof4(ccop, CCOP_CORRECTION_SELL, CCOP_CORRECTION_SELLSTORNO, CCOP_CORRECTION_RET, CCOP_CORRECTION_RETSTORNO);
 }
 
 uint  CCheckPacket::GetCount() const { return Items_.getCount(); }
@@ -2547,11 +2561,11 @@ int CCheckCore::LoadPacket(PPID id, long flags, CCheckPacket * pPack)
 	pPack->Z();
 	if(Search(id, &pPack->Rec) > 0) {
 		ok = 1;
+		SString text_buf;
 		MEMSZERO(pPack->Ext);
 		if(!(flags & lpfNoLines))
 			LoadLines(id, 0, pPack);
 		if(!(flags & lpfNoStrExt)) { // @v12.0.5
-			SString text_buf;
 			THROW(PPRef->UtrC.GetText(TextRefIdent(PPOBJ_CCHECK, id, PPTRPROP_CC_LNEXT), text_buf));
 			text_buf.Transf(CTRANSF_UTF8_TO_INNER);
 			pPack->UnpackTextExt(text_buf);
@@ -2560,10 +2574,11 @@ int CCheckCore::LoadPacket(PPID id, long flags, CCheckPacket * pPack)
 			int r = SearchByID(P_Ext, 0, id, &pPack->Ext);
 			THROW(r);
 			if(r < 0) {
-				SString fmt_buf, msg_buf, cchk_code;
+				SString fmt_buf;
+				SString cchk_code;
 				CCheckCore::MakeCodeString(&pPack->Rec, 0, cchk_code);
-				msg_buf.Printf(PPLoadTextS(PPTXT_LOG_CCHKEXTNFOUND, fmt_buf), cchk_code.cptr());
-				PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
+				text_buf.Z().Printf(PPLoadTextS(PPTXT_LOG_CCHKEXTNFOUND, fmt_buf), cchk_code.cptr());
+				PPLogMessage(PPFILNAM_ERR_LOG, text_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
 			}
 		}
 		THROW(GetPaymList(id, pPack->AL()));
@@ -3354,7 +3369,6 @@ int CCheckCore::GetListBySess(PPID sessID, long flags, PPIDArray & rList)
 int CCheckCore::GetSessTotal(PPID sessID, long flags, CSessTotal * pTotal, BVATAccmArray * pVatList)
 {
 	int    ok = 1;
-	const  LDATE now_date = getcurdate_();
 	CCheckPacket pack;
 	ObjIdListFilt check_list;
 	CCheckTbl::Key3 k;
@@ -3373,7 +3387,8 @@ int CCheckCore::GetSessTotal(PPID sessID, long flags, CSessTotal * pTotal, BVATA
 		if(!(data.Flags & CCHKF_SKIP) && (!(flags & gglfSkipUnprintedChecks) || (data.Flags & CCHKF_PRINTED))) {
 			if(flags & gglfUseFullCcPackets) {
 				if(LoadPacket(data.ID, 0, &pack) > 0) {
-					double fiscal = 0.0, nonfiscal = 0.0;
+					double fiscal = 0.0;
+					double nonfiscal = 0.0;
 					AddRecToSessTotal(&pack.Rec, pTotal);
 					pack.HasNonFiscalAmount(&fiscal, &nonfiscal);
 					pTotal->FiscalAmount += fiscal;
@@ -3389,25 +3404,9 @@ int CCheckCore::GetSessTotal(PPID sessID, long flags, CSessTotal * pTotal, BVATA
 		}
 	}
 	if(pVatList) {
-		PPObjGoods goods_obj;
 		CCheckLineArray cl_list;
 		THROW(LoadLinesByList(0, &check_list, &cl_list));
-		const uint c = cl_list.getCount();
-		for(uint i = 0; i < c; i++) {
-			const CCheckLineTbl::Rec & r_ln_rec = cl_list.at(i);
-			const double ln_p = intmnytodbl(r_ln_rec.Price);
-			const double ln_q = r_ln_rec.Quantity;
-			{
-				BVATAccm  bva_item;
-				PPGoodsTaxEntry gtx;
-				if(goods_obj.FetchTaxEntry2(r_ln_rec.GoodsID, 0/*lotID*/, 0/*taxPayerID*/, now_date, 0L, &gtx) > 0) // @v12.2.3 LConfig.OperDate-->now_date
-					bva_item.PRate = gtx.GetVatRate();
-				bva_item.PTrnovr  += ln_q * (ln_p - r_ln_rec.Dscnt);
-				bva_item.Discount += ln_q * r_ln_rec.Dscnt;
-				THROW(pVatList->Add(&bva_item));
-			}
-			ok = 1;
-		}
+		THROW(cl_list.EvaluateVatAmounts(*pVatList));
 	}
 	CATCHZOK
 	return ok;
@@ -3822,6 +3821,7 @@ int CCheckCore::CalcActiveExpendByGoods(PPID goodsID, PPID locID, const char * p
 		if(LoadChecksByList(&sess_list, 0, &check_list, 0) > 0) {
 			CCheckLineArray lines_list;
 			if(LoadLinesByList(goodsID, &check_list, &lines_list) > 0) {
+				Reference * p_ref = PPRef;
 				PPObjCashNode cn_obj;
 				PPCashNode cn_rec;
 				CSessionTbl::Rec cs_rec;
@@ -3849,7 +3849,7 @@ int CCheckCore::CalcActiveExpendByGoods(PPID goodsID, PPID locID, const char * p
 							if(isempty(pSerial)) {
 								result += r_line_rec.Quantity;
 							}
-							else if(PPRef->UtrC.GetText(TextRefIdent(PPOBJ_CCHECK, cc_id, PPTRPROP_CC_LNEXT), text_buf) > 0) {
+							else if(p_ref->UtrC.GetText(TextRefIdent(PPOBJ_CCHECK, cc_id, PPTRPROP_CC_LNEXT), text_buf) > 0) {
 								text_buf.Transf(CTRANSF_UTF8_TO_INNER);
 								CCheckPacket::Helper_UnpackTextExt(text_buf, 0, &ln_text_ext);
 								CCheckPacket::Helper_GetLineTextExt(r_line_rec.RByCheck, CCheckPacket::lnextSerial, ln_text_ext, serial_buf);
@@ -3862,9 +3862,6 @@ int CCheckCore::CalcActiveExpendByGoods(PPID goodsID, PPID locID, const char * p
 			}
 		}
 	}
-	/*
-	CATCHZOK
-	*/
 	ASSIGN_PTR(pResult, result);
 	return ok;
 }

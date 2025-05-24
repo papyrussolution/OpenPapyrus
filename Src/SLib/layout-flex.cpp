@@ -112,29 +112,29 @@ bool FASTCALL SUiLayoutParam::IsEq(const SUiLayoutParam & rS) const
 	return true;
 }
 
-int SUiLayoutParam::Validate() const
+bool SUiLayoutParam::Validate() const
 {
-	int    ok = 1;
+	bool   ok = true;
 	if(SzX == szFixed && IsNominalFullDefinedX()) {
 		if(!feqeps(Size.x, Nominal.Width(), 0.01))
-			ok = 0;
+			ok = false;
 	}
 	if(SzX == szByContainer) {
 		if(Size.x < 0.0f || Size.x > 1.0f)
-			ok = 0;
+			ok = false;
 	}
 	if(SzY == szFixed && IsNominalFullDefinedY()) {
 		if(!feqeps(Size.y, Nominal.Height(), 0.01))
-			ok = 0;
+			ok = false;
 	}
 	if(SzY == szByContainer) {
 		if(Size.y < 0.0f || Size.y > 1.0f)
-			ok = 0;
+			ok = false;
 	}	
 	if(!oneof4(GravityX, 0, SIDE_LEFT, SIDE_RIGHT, SIDE_CENTER))
-		ok = 0;
+		ok = false;
 	if(!oneof4(GravityY, 0, SIDE_TOP, SIDE_BOTTOM, SIDE_CENTER))
-		ok = 0;
+		ok = false;
 	return ok;
 }
 
@@ -632,6 +632,18 @@ bool SUiLayoutParam::IsNominalFullDefinedX() const { return ((Flags & (fNominalD
 // Descr: Определяет являются ли координаты по оси Y фиксированными.
 //
 bool SUiLayoutParam::IsNominalFullDefinedY() const { return ((Flags & (fNominalDefT|fNominalDefB)) == (fNominalDefT|fNominalDefB)); }
+
+void SUiLayoutParam::CopySizeXParamTo(SUiLayoutParam & rDest) const
+{
+	rDest.SzX = SzX;
+	rDest.Size.x = Size.x;
+}
+
+void SUiLayoutParam::CopySizeYParamTo(SUiLayoutParam & rDest) const
+{
+	rDest.SzY = SzY;
+	rDest.Size.y = Size.y;
+}
 //
 // Descr: Вспомогательная функция, возвращающая кросс-направление относительно заданного
 //   направления direction.
@@ -1378,7 +1390,7 @@ void SUiLayout::SetCallbacks(FlexSelfSizingProc selfSizingCb, FlexSetupProc setu
 int SUiLayout::SetLayoutBlock(const SUiLayoutParam & rAlb)
 {
 	int    ok = 1;
-	int    vr = rAlb.Validate();
+	const  bool vr = rAlb.Validate();
 	assert(vr);
 	if(vr)
 		ALB = rAlb;
@@ -1387,10 +1399,7 @@ int SUiLayout::SetLayoutBlock(const SUiLayoutParam & rAlb)
 	return ok;
 }
 
-int SUiLayout::GetOrder() const
-{
-	return ALB.Order;
-}
+int SUiLayout::GetOrder() const { return ALB.Order; }
 
 void SUiLayout::SetOrder(int o)
 {

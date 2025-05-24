@@ -276,7 +276,7 @@
 #define PPPATH_REPORTDATA    22 // [system]PPINIPARAM_REPORTDATAPATH
 #define PPPATH_UID           23 // @v11.9.3 Путь к каталогу с json-описаниями пользовательского интерфейса
 #define PPPATH_SRCROOT       24 // @v11.9.4 (для верификации сборки, отладки, тестирования) корневой каталог исходных кодов системы
-#define PPPATH_BUILDROOT     25 // @v12.3.2 (для верификации сборки, отладки, тестирования) корневой рабочий каталог разработки 
+#define PPPATH_BUILDROOT     25 // @v12.3.2 (для верификации сборки, отладки, тестирования) корневой рабочий каталог разработки
 
 #define PPPRP_PATHS          20L  //
 #define PPPRP_PRINTER        21L  // Принтер
@@ -1050,7 +1050,7 @@
 #define PPOBJ_EVENTSUBSCRIPTION  82L // Подписка на события //
 	#define EVNTSUBSCRPRP_EXTENSION    1L
 #define PPOBJ_BIZSCORE2          83L // @v11.9.1 @construction 2-я версия определителей бизнес-показателей
-	#define BIZSC2PRP_EXTENSION        1L // @v12.3.3 Запись подробностей о бизнес-показателе   
+	#define BIZSC2PRP_EXTENSION        1L // @v12.3.3 Запись подробностей о бизнес-показателе
 #define PPOBJ_SWPROGRAMCATEGORY  84L // @v11.9.12 Категория исполняемой программы. Простой вспомогательный справочник для объекта PPOBJ_SWPROGRAM
 #define PPOBJ_COMPUTERCATEGORY   85L // @v12.0.1 Категория компьютера. Простой вспомогательный справочник для объекта PPOBJ_COMPUTER
 	#define PPCOMPCAT_DEFAULT          1L // @v12.0.1 Зарезервированная запись категории компьютеров default
@@ -1259,6 +1259,7 @@
 	// вида 0xMJMNRR  где MJ - мажор, MN - минор, RR - релиз
 	// Например, после выполнения конвертации 6.4.06 появится запись с ИД 0x060406
 #define PPOBJ_ADVEVENTQUEUE 1101L   // Специальное значение для идентификации очереди системных событий
+#define PPOBJ_BIZSCORE2VAL  1102L   // @v12.3.4 @construction !PPObject значения бизнес-показателей (2-я версия).
 #define PPOBJ_SELFREFTEXT   2000L   // Специальное значение для записей в TextRef, представлющих только текст с автоматически назначенным идентификатором
 // LastObject
 //
@@ -11631,6 +11632,24 @@
 	#define CTL_BIZSC2_SYMB                (3 + WINDOWS_ID_BIAS)
 	#define CTL_BIZSC2_PARENT              (4 + WINDOWS_ID_BIAS)
 	#define CTLSEL_BIZSC2_PARENT           (5 + WINDOWS_ID_BIAS)
+	#define CTL_BIZSC2_LINKOBJ             (6 + WINDOWS_ID_BIAS)
+	#define CTLSEL_BIZSC2_LINKOBJ          (7 + WINDOWS_ID_BIAS)
+	#define CTL_BIZSC2_LINKEXT             (8 + WINDOWS_ID_BIAS)
+	#define CTLSEL_BIZSC2_LINKEXT          (9 + WINDOWS_ID_BIAS)
+	#define CTL_BIZSC2_AGENTOBJ            (10 + WINDOWS_ID_BIAS)
+	#define CTLSEL_BIZSC2_AGENTOBJ         (11 + WINDOWS_ID_BIAS)
+	#define CTL_BIZSC2_AGENTEXT            (12 + WINDOWS_ID_BIAS)
+	#define CTLSEL_BIZSC2_AGENTEXT         (13 + WINDOWS_ID_BIAS)
+	#define CTL_BIZSC2_TIMECYCLE           (15 + WINDOWS_ID_BIAS)
+	#define CTL_BIZSC2_DATATYPE            (16 + WINDOWS_ID_BIAS) // radio-cluster
+	#define CTL_BIZSC2_ENUM                (17 + WINDOWS_ID_BIAS) //
+	#define CTLSEL_BIZSC2_ENUM             (18 + WINDOWS_ID_BIAS) // Перечисление для типа данных OTTYP_ENUM or OTTYP_OBJLINK
+	#define CTL_BIZSC2_ENUMEXT             (19 + WINDOWS_ID_BIAS) //
+	#define CTLSEL_BIZSC2_ENUMEXT          (20 + WINDOWS_ID_BIAS) //
+	#define CTL_BIZSC2_AGGRFTM             (21 + WINDOWS_ID_BIAS) // Агрегирующая функция по времени
+	#define CTL_BIZSC2_AGGRFHR             (22 + WINDOWS_ID_BIAS) // Агрегирующая функция по иерархии
+	#define CTL_BIZSC2_AGGRFAG             (23 + WINDOWS_ID_BIAS) // Агрегирующая функция по участникам (агентам)
+
 #define DLG_SWPROGRAM             1438
 	#define CTL_SWPROGRAM_ID               (1 + WINDOWS_ID_BIAS)
 	#define CTL_SWPROGRAM_NAME             (2 + WINDOWS_ID_BIAS)
@@ -11737,6 +11756,25 @@
 // #define DLG_TAGVLOCLNK            1461 // occupied @v12.2.10 Диалог значения тега, ссылающегося на адрес персоналии
 #define DLG_STQTESTPARAM          1462 // @v12.3.1
 	#define CTL_STQTESTPARAM_REPLY       (1  + WINDOWS_ID_BIAS)
+#define DLG_BIZSC2VFILT           1463 // @v12.3.4 Фильтр по значениям бизнес-показателей 2
+	#define CTL_BIZSC2VFILT_BSC          (1 + WINDOWS_ID_BIAS)
+	#define CTLSEL_BIZSC2VFILT_BSC       (2 + WINDOWS_ID_BIAS)
+	#define CTL_BIZSC2VFILT_PERIOD       (3 + WINDOWS_ID_BIAS)
+	#define CTLCAL_BIZSC2VFILT_PERIOD    (4 + WINDOWS_ID_BIAS)
+#define DLG_BIZSC2V               1464 // @v12.3.4 Диалог редактирования значения BizScore2
+	#define CTL_BIZSC2V_BSC              (1 + WINDOWS_ID_BIAS)
+	#define CTLSEL_BIZSC2V_BSC           (2 + WINDOWS_ID_BIAS)
+	#define CTL_BIZSC2V_DT               (3 + WINDOWS_ID_BIAS)
+	#define CTLCAL_BIZSC2V_DT            (4 + WINDOWS_ID_BIAS)
+	#define CTL_BIZSC2V_TM               (5 + WINDOWS_ID_BIAS)
+	#define CTLTM_BIZSC2V_TM             (6 + WINDOWS_ID_BIAS)
+	#define CTL_BIZSC2V_AGENT            (7 + WINDOWS_ID_BIAS)
+	#define CTLSEL_BIZSC2V_AGENT         (8 + WINDOWS_ID_BIAS)
+	#define CTL_BIZSC2V_LINKOBJ          (9 + WINDOWS_ID_BIAS)
+	#define CTLSEL_BIZSC2V_LINKOBJ       (10 + WINDOWS_ID_BIAS)
+	#define CTL_BIZSC2V_VAL_R            (21 + WINDOWS_ID_BIAS)
+	#define CTL_BIZSC2V_VAL_I            (22 + WINDOWS_ID_BIAS)
+	#define CTL_BIZSC2V_VAL_T            (23 + WINDOWS_ID_BIAS)
 //
 // Win32 Dialog Identifiers
 //

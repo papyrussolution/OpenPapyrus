@@ -1025,8 +1025,8 @@ private:
 	{
 		int   not_retailed = 0;
 		getDTS(0);
-		const  PPID  acs_id = Data.Rec.AccSheetID;
-		const int   not_sell_accsheet = BIN(acs_id && acs_id != GetSellAccSheet() && acs_id != GetAgentAccSheet());
+		const PPID acs_id = Data.Rec.AccSheetID;
+		const bool not_sell_accsheet = (acs_id && acs_id != GetSellAccSheet() && acs_id != GetAgentAccSheet());
 		if(not_sell_accsheet) {
 			Data.Rec.Flags &= ~QUOTKF_RETAILED;
 			SetClusterData(CTL_QUOTKIND_FLAGS, Data.Rec.Flags);

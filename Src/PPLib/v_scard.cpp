@@ -38,9 +38,9 @@ void SCardSelPrcssrParam::Init()
 	SelFilt.Init(1, 0);
 }
 
-int SCardSelPrcssrParam::Validate(PPID srcSeriesID)
+bool SCardSelPrcssrParam::Validate(PPID srcSeriesID)
 {
-	int    ok = 1;
+	bool   ok = true;
 	SString msg_buf;
 	const  long valid_flags = PPObjSCard::GetValidFlags();
 	THROW_SL(checkdate(DtEnd, 1));
@@ -1132,10 +1132,7 @@ int PPViewSCard::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	return ok;
 }
 
-void * PPViewSCard::GetEditExtraParam()
-{
-	return reinterpret_cast<void *>(SeriesList.GetSingle());
-}
+void * PPViewSCard::GetEditExtraParam() { return reinterpret_cast<void *>(SeriesList.GetSingle()); }
 
 int PPViewSCard::DeleteItem(PPID id)
 {

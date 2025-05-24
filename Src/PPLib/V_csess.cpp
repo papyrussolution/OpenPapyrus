@@ -1583,7 +1583,7 @@ int PPViewCSess::CreateDraft(PPID ruleID, PPID sessID, const SString & rMsg1, co
 			}
 			goods.sort(PTR_CMPFUNC(EGOODSLOC));
 
-			const  int cost_nominal = BIN(IsSellingOp(rule.Rec.OpID) <= 0);
+			const  bool is_nominal_cost = (IsSellingOp(rule.Rec.OpID) <= 0);
 			long   pos  = 0;
 			long   prev_loc_id = goods.getCount() ? static_cast<const _E *>(goods.at(0))->LocID : def_loc_id;
 			double sum = 0.0;
@@ -1680,7 +1680,7 @@ int PPViewCSess::CreateDraft(PPID ruleID, PPID sessID, const SString & rMsg1, co
 					ti.Cost     = R5(ti.Cost);
 					ti.Price    = R5(ti.Price);
 					ti.Quantity_ = R6(ti.Quantity_);
-					add_sum = ti.Quantity_ * (cost_nominal ? ti.Cost : ti.Price);
+					add_sum = ti.Quantity_ * (is_nominal_cost ? ti.Cost : ti.Price);
 					if((rule.Rec.MaxPos && pos + 1 > rule.Rec.MaxPos) || (rule.Rec.MaxSum && sum + add_sum > rule.Rec.MaxSum) || new_doc_by_loc) {
 						if((!rule.Rec.MaxSum || sum <= rule.Rec.MaxSum) && (!rule.Rec.MaxPos || pos <= rule.Rec.MaxPos) || new_doc_by_loc) {
 							THROW(p_bobj->__TurnPacket(&b_pack, 0, 1, 0));

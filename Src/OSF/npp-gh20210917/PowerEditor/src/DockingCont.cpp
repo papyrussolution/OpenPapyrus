@@ -1057,11 +1057,8 @@ void DockingCont::onSize()
 				rcTemp.right -= _captionGapDynamic;
 				rcTemp.bottom -= iTabOff;
 			}
-
 			// set position of client area
-			::SetWindowPos(::GetDlgItem(_hSelf, IDC_CLIENT_TAB), NULL,
-			    rcTemp.left, rcTemp.top, rcTemp.right, rcTemp.bottom,
-			    SWP_NOZORDER | SWP_NOACTIVATE);
+			::SetWindowPos(::GetDlgItem(_hSelf, IDC_CLIENT_TAB), NULL, rcTemp.left, rcTemp.top, rcTemp.right, rcTemp.bottom, SWP_NOZORDER | SWP_NOACTIVATE);
 		}
 		// resize to float window
 		else {
@@ -1069,7 +1066,6 @@ void DockingCont::onSize()
 			for(size_t iTb = 0, len = _vTbData.size(); iTb < len; ++iTb) {
 				getWindowRect(_vTbData[iTb]->rcFloat);
 			}
-
 			// draw caption
 			if(iItemCnt >= 2) {
 				// resize tab if size of elements exceeds one
@@ -1105,7 +1101,6 @@ void DockingCont::onSize()
 void DockingCont::doClose(BOOL closeAll)
 {
 	int iItemCnt = static_cast<int32_t>(::SendMessage(_hContTab, TCM_GETITEMCOUNT, 0, 0));
-
 	// Always close active tab first
 	int iItemCur = getActiveTb();
 	TCITEM tcItem  = {0};
@@ -1118,7 +1113,6 @@ void DockingCont::doClose(BOOL closeAll)
 			hideToolbar((tTbData*)tcItem.lParam);
 		}
 	}
-
 	// Close all other tabs if requested
 	if(closeAll) {
 		iItemCnt = static_cast<int32_t>(::SendMessage(_hContTab, TCM_GETITEMCOUNT, 0, 0));

@@ -3983,7 +3983,7 @@ int PPObjTSession::Helper_WriteOff(PPID sessID, PUGL * pDfctList, PPLogger & rLo
 								cost  = R5(fabs(line_rec.Price) - line_rec.Discount);
 							// Для ускорения процедуры, определив цену, сохраняем ее в списке,
 							// для того, чтобы при следующей встрече с этим товаром, просто извлечь цену из списка.
-							if(price == 0 && price_list.Search(ilti.GoodsID, &price, 0) <= 0) {
+							if(price == 0.0 && !price_list.Search(ilti.GoodsID, &price, 0)) {
 								if(ilti.GoodsID == tec_goods_id && order_price > 0)
 									price = order_price;
 								else
@@ -3999,7 +3999,7 @@ int PPObjTSession::Helper_WriteOff(PPID sessID, PUGL * pDfctList, PPLogger & rLo
 							//
 							double package = 0.0;
 							GoodsStockExt gse;
-							if(pack_list.Search(ilti.GoodsID, &package, 0) > 0)
+							if(pack_list.Search(ilti.GoodsID, &package, 0))
 								ilti.UnitPerPack = package;
 							else if(GObj.GetStockExt(ilti.GoodsID, &gse) > 0 && gse.Package) {
 								pack_list.Add(ilti.GoodsID, gse.Package, 0);

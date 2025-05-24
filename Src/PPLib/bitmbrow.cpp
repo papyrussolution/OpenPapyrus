@@ -4591,7 +4591,7 @@ void BillItemBrowser::addItemExt(int mode)
 		selectPckg(0);
 	else {
 		StrAssocArray goods_list;
-		const int opened_only = BIN(IsExpendOp(op_id) > 0 || op_type_id == PPOPT_GOODSREVAL || (op_type_id == PPOPT_GOODSORDER && CheckOpFlags(op_id, OPKF_ORDEXSTONLY)));
+		const bool opened_only = (IsExpendOp(op_id) > 0 || op_type_id == PPOPT_GOODSREVAL || (op_type_id == PPOPT_GOODSORDER && CheckOpFlags(op_id, OPKF_ORDEXSTONLY)));
 		if(mode == 1) {
 			PPInputStringDialogParam isd_param;
 			isd_param.P_Wse = new TextHistorySelExtra("goodsnamefragment-common");
@@ -4605,7 +4605,8 @@ void BillItemBrowser::addItemExt(int mode)
 			}
 		}
 		else if(mode == 2) {
-			SString title, label;
+			SString title;
+			SString label;
 			if(InputNumberDialog(PPLoadTextS(PPTXT_SELGOODSBYPRICE, title), PPLoadTextS(PPTXT_INPUTPRICE, label), sel_price) > 0 && sel_price > 0.0) {
 			}
 			else {
@@ -4667,8 +4668,26 @@ void BillItemBrowser::addItemExt(int mode)
 						goods_list.Z();
 						dlg->setSelectionByGoodsList(&temp_array);
 					}
-					else
+					else {
+						// @v12.3.4 {
+						// При подборе товара по наименованию отображались все товары независимо от того, есть
+						// они на остатке или нет.
+						// Этот блок решает проблему, но у меня чувство такое, что он (блок) похож на костыль - возможно надо как-то изящнее сделать.
+						if(opened_only) {
+							UintHashTable ht;
+							PPIDArray temp_id_list;
+							goods_list.GetIdList(temp_id_list);
+							GObj.GetOpenedList(P_Pack->Rec.LocID, &temp_id_list, ht);
+							uint   iter_idx = goods_list.getCount();
+							if(iter_idx) do {
+								const PPID iter_ident = goods_list.at_WithoutParent(--iter_idx).Id;
+								if(!ht.Has(iter_ident))
+									goods_list.AtFree(iter_idx);
+							} while(iter_idx);
+						}
+						// } @v12.3.4 
 						dlg->setSelectionByGoodsList(&goods_list);
+					}
 				}
 				else if(mode == 2) {
 					dlg->setSelectionByPrice(sel_price);

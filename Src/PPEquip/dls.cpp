@@ -1,5 +1,5 @@
 // DLS.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2024
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2024, 2025
 //
 #include <pp.h>
 #pragma hdrstop
@@ -878,13 +878,13 @@ int PPViewDLSDetail::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowse
 						ok = 1;
 				}
 				break;
-			case PPVCMD_PUTTOBASKET: // @v10.4.10
+			case PPVCMD_PUTTOBASKET:
 				ok = -1;
 				if(hdr.ObjType == PPOBJ_GOODS && hdr.ObjID) {
 					AddGoodsToBasket(hdr.ObjID, 0, 1.0, hdr.Val);
 				}
 				break;
-			case PPVCMD_PUTTOBASKETALL: // @v10.4.10
+			case PPVCMD_PUTTOBASKETALL:
 				ok = -1;
 				if(Filt.ObjType == PPOBJ_GOODS) {
 					SelBasketParam param;

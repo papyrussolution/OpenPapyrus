@@ -305,8 +305,13 @@ bool SIniFile::IsValid() const { return (File.IsValid() || (Flags & fIniBufInite
 long SIniFile::GetFlags() const { return Flags; }
 const SString & SIniFile::GetFileName() const { return FileName; }
 int  SIniFile::Close() { return File.Close(); }
+
 int  SIniFile::GetParam(const char * pSect, const char * pParam, SString & rBuf)
-	{ return (Flags & fIniBufInited) ? P_IniBuf->GetParam(pSect, pParam, rBuf) : SearchParam(pSect, pParam, rBuf); }
+{ 
+	rBuf.Z(); // @v12.3.4
+	return (Flags & fIniBufInited) ? P_IniBuf->GetParam(pSect, pParam, rBuf) : SearchParam(pSect, pParam, rBuf); 
+}
+
 int  SIniFile::AppendIntParam(const char * pSect, const char * pParam, int val, int overwrite)
 	{ return AppendParam(pSect, pParam, TempBuf.Z().Cat((long)val), BIN(overwrite)); }
 int  SIniFile::RemoveSection(const char * pSect)
@@ -382,7 +387,7 @@ int SIniFile::InitIniBuf()
 		for(uint i = 0; ss.get(&i, sect_buf);) {
 			se.Z();
 			THROW(P_IniBuf->AddSect(sect_buf));
-			GetEntries(sect_buf, &se, 1);
+			GetEntries(sect_buf, &se, true);
 			for(uint j = 0; se.get(&j, par_buf);) {
 				par_buf.Divide('=', par, val);
 				//if(Flags & fWinCoding) val.Transf(CTRANSF_INNER_TO_OUTER);
@@ -543,11 +548,13 @@ int SIniFile::GetSections(StringSet * pSects)
 	return ok;
 }
 
-int SIniFile::GetEntries(const char * pSect, StringSet * pEntries, int storeAllString)
+int SIniFile::GetEntries(const char * pSect, StringSet * pEntries, bool storeAllString)
 {
 	int    ok = 1;
-	int    do_close = 0;
-	SString line_buf, temp_buf, val;
+	bool   do_close = false;
+	SString temp_buf;
+	SString line_buf;
+	SString val;
 	if(Flags & fIniBufInited) {
 		if(pEntries) {
 			SIniSectBuffer * p_sect_buf = P_IniBuf->GetSect(pSect);
@@ -567,7 +574,7 @@ int SIniFile::GetEntries(const char * pSect, StringSet * pEntries, int storeAllS
 		int    this_sect = 0;
 		const  int opnr = Open(FileName);
 		THROW(opnr);
-		do_close = BIN(opnr > 0);
+		do_close = (opnr > 0);
 		for(File.Seek(0); File.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip);) {
 			int    r = IsSection(line_buf, pSect, 0);
 			if(r > 0)

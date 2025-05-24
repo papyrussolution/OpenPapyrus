@@ -357,7 +357,7 @@ static /*inline*/ GravityValue convert_list2string(gravity_vm * vm, gravity_list
 		return gravity_zstring_to_value(vm, buffer);
 	}
 	else if(v.IsBool()) 
-		return gravity_zstring_to_value(vm, STextConst::GetBool(v.n));
+		return gravity_zstring_to_value(vm, STextConst::GetBool(BIN(v.n)));
 	else if(v.IsNull()) 
 		return gravity_zstring_to_value(vm, "null");
 	else if(v.IsUndefined()) 

@@ -1,5 +1,5 @@
 // GDSITER.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 // @Kernel
 //
@@ -272,7 +272,7 @@ int GoodsIterator::Helper_MakeListByGroup(const PPIDArray * pGrpList, PPID grpID
 								q.addField(p_t->Name);
 							dbq = & (p_t->ParentID == int_grp_id);
 							dbq = ppcheckfiltid(dbq, p_t->ManufID,  Filt.ManufID);
-							if(Filt.Flags & Filt.fWoBrand) // @v10.6.8
+							if(Filt.Flags & Filt.fWoBrand)
 								dbq = &(*dbq && p_t->BrandID == 0L);
 							else
 								dbq = ppcheckfiltid(dbq, p_t->BrandID,  Filt.GetResultBrandList().GetSingle());
@@ -879,7 +879,7 @@ int GoodsIterator::CreateIterQuery()
 	dbq = & (*dbq && p_t->Kind == PPGDSK_GOODS);
 	if(!(Filt.Flags & GoodsFilt::fNegation)) {
 		dbq = ppcheckfiltid(dbq, p_t->ManufID,  Filt.ManufID);
-		if(Filt.Flags & Filt.fWoBrand) // @v10.6.8
+		if(Filt.Flags & Filt.fWoBrand)
 			dbq = &(*dbq && p_t->BrandID == 0L);
 		else
 			dbq = ppcheckfiltid(dbq, p_t->BrandID,  Filt.GetResultBrandList().GetSingle());

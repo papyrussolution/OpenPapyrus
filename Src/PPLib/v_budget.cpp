@@ -1051,10 +1051,7 @@ PPViewBudget::~PPViewBudget()
 	delete P_TempBudgItemTbl;
 }
 
-/*virtual*/void * PPViewBudget::GetEditExtraParam()
-{
-	return reinterpret_cast<void *>(Filt.Kind);
-}
+/*virtual*/void * PPViewBudget::GetEditExtraParam() { return reinterpret_cast<void *>(Filt.Kind); }
 
 /*virtual*/PPBaseFilt * PPViewBudget::CreateFilt(const void * extraPtr) const
 {

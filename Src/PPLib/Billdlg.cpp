@@ -381,7 +381,7 @@ int BillExtraDialog(const PPBillPacket * pPack, PPBillExt * pData, ObjTagList * 
 		SetupArCombo(dlg, CTLSEL_BILLEXT_PAYER, pData->PayerID, OLW_CANINSERT|OLW_LOADDEFONOPEN, payer_acs_id, sacfDisableIfZeroSheet|sacfNonGeneric);
 		SetupArCombo(dlg, CTLSEL_BILLEXT_AGENT, pData->AgentID, OLW_CANINSERT|OLW_LOADDEFONOPEN, agent_acs_id, sacfDisableIfZeroSheet|sacfNonGeneric);
 		if(pData->OrderFulfillmentStatus < 0) 
-			dlg->showCtrl(CTL_BILLEXTFLT_ORDFFST, 0);
+			dlg->showCtrl(CTL_BILLEXTFLT_ORDFFST, false);
 		if(!asFilt) {
 			if(pPack) {
 				ComboBox * p_agt_combo = static_cast<ComboBox *>(dlg->getCtrlView(CTLSEL_BILLEXT_AGREEMENT));
@@ -2531,7 +2531,7 @@ int BillDialog::setupAdvanceRepTotal(const PPAdvanceRep * pAR)
 
 void BillDialog::setupHiddenButton(long opflag, uint cm, uint ctlId)
 {
-	int    s = BIN(opflag && CheckOpFlags(P_Pack->Rec.OpID, opflag));
+	const bool s = (opflag && CheckOpFlags(P_Pack->Rec.OpID, opflag));
 	enableCommand(cm, s);
 	showCtrl(ctlId, s);
 }
@@ -2540,7 +2540,8 @@ int BillDialog::setupDebt()
 {
 	int    ok = 1;
 	if(P_Pack->Rec.LinkBillID && IsOpPaym(P_Pack->Rec.OpID)) {
-		double amt, tmp;
+		double amt;
+		double tmp;
 		THROW(P_BObj->P_Tbl->GetAmount(P_Pack->Rec.LinkBillID, PPAMT_MAIN,    P_Pack->Rec.CurID, &amt));
 		THROW(P_BObj->P_Tbl->GetAmount(P_Pack->Rec.LinkBillID, PPAMT_PAYMENT, P_Pack->Rec.CurID, &tmp));
 		setCtrlReal(CTL_BILL_DEBTSUM, amt - tmp);
@@ -2678,9 +2679,9 @@ int BillDialog::setDTS(PPBillPacket * pPack)
 		SetupPPObjCombo(this, CTLSEL_BILL_LOCATION, PPOBJ_LOCATION, P_Pack->Rec.LocID, 0);
 	}
 	else {
-		showCtrl(CTL_BILL_LOCATION, 0);
-		showCtrl(CTLSEL_BILL_LOCATION, 0);
-		disableCtrl(CTLSEL_BILL_LOCATION, 1);
+		showCtrl(CTL_BILL_LOCATION, false);
+		showCtrl(CTLSEL_BILL_LOCATION, false);
+		disableCtrl(CTLSEL_BILL_LOCATION, true);
 	}
 	if(P_Pack->AccSheetID) {
 		if(P_Pack->Rec.Flags & BILLF_GEXPEND || oneof2(P_Pack->OpTypeID, PPOPT_DRAFTEXPEND, PPOPT_GOODSORDER))
@@ -2770,11 +2771,11 @@ int BillDialog::setDTS(PPBillPacket * pPack)
 	setupHiddenButton(OPKF_RENT,        cmRentCondition, CTL_BILL_RENTBUTTON);
 	setupHiddenButton(OPKF_BANKING,     cmPaymOrder,     CTL_BILL_PAYMORDBUTTON);
 	if(CheckOpFlags(P_Pack->Rec.OpID, OPKF_BANKING)) {
-		showCtrl(CTL_BILL_PAYMORD_IND, 1);
+		showCtrl(CTL_BILL_PAYMORD_IND, true);
 		SetCtrlBitmap(CTL_BILL_PAYMORD_IND, P_Pack->P_PaymOrder ? BM_GREEN : BM_RED);
 	}
 	else
-		showCtrl(CTL_BILL_PAYMORD_IND, 0);
+		showCtrl(CTL_BILL_PAYMORD_IND, false);
 	setupHiddenButton(P_BObj->CheckRights(BILLOPRT_MODFREIGHT, 1) ? OPKF_FREIGHT : 0, cmBillFreight, CTL_BILL_FREIGHTBUTTON);
 	setupHiddenButton(OPKF_ATTACHFILES, cmLinkFiles,   CTL_BILL_LINKFILESBUTTON);
 	if(P_Pack->OpTypeID == PPOPT_GOODSORDER) {
@@ -2795,13 +2796,13 @@ int BillDialog::setDTS(PPBillPacket * pPack)
 	if(op_pack.Rec.ExtFlags & OPKFX_CANBEDECLINED) {
 		AddClusterAssoc(CTL_BILL_DECLINE, 0, BILLF2_DECLINED);
 		SetClusterData(CTL_BILL_DECLINE, P_Pack->Rec.Flags2);
-		showCtrl(CTL_BILL_DECLINE, 1);
+		showCtrl(CTL_BILL_DECLINE, true);
 		disableCtrl(CTL_BILL_DECLINE, !P_BObj->CheckRights(BILLOPRT_REJECT, 1));
 	}
 	else
-		showCtrl(CTL_BILL_DECLINE, 0);
-	showCtrl(CTL_BILL_EDIACKRESP, 0);
-	showCtrl(CTL_BILL_EDIACKSTATUS, 0);
+		showCtrl(CTL_BILL_DECLINE, false);
+	showCtrl(CTL_BILL_EDIACKRESP, false);
+	showCtrl(CTL_BILL_EDIACKSTATUS, false);
 	showButton(cmEdiAckBill, 0);
 	if(P_Pack->OpTypeID == PPOPT_AGREEMENT)
 		showButton(cmDetail, 0);
@@ -2823,8 +2824,8 @@ int BillDialog::setDTS(PPBillPacket * pPack)
 					PPLoadString("rejected", recadv_status_text);
 				setStaticText(CTL_BILL_EDIACKSTATUS, recadv_status_text);
 			}
-			showCtrl(CTL_BILL_EDIACKRESP, 1);
-			showCtrl(CTL_BILL_EDIACKSTATUS, 1);
+			showCtrl(CTL_BILL_EDIACKRESP, true);
+			showCtrl(CTL_BILL_EDIACKSTATUS, true);
 			if(recadv_status == PPEDI_RECADV_STATUS_PARTACCEPT)
 				showButton(cmEdiAckBill, 1);
         }
@@ -4200,7 +4201,6 @@ public:
 	}
 	DECL_DIALOG_SETDTS()
 	{
-		int    s;
 		RVALUEPTR(Data, pData);
 		setCtrlLong(CTLSEL_LOTINFO_LOC, Data.LocID);
 		SetupPPObjCombo(this, CTLSEL_LOTINFO_GOODS, PPOBJ_GOODS, Data.GoodsID, OLW_LOADDEFONOPEN);
@@ -4230,7 +4230,7 @@ public:
 				CTL_LOTINFO_COST, CTL_LOTINFO_PRICE, CTL_LOTINFO_CLOSEDT, CTL_LOTINFO_CLOSED, 0);
 			enableCommand(cmOK, 0);
 		}
-		s = BIN(Chain.getCount() > 1);
+		const bool s = (Chain.getCount() > 1);
 		showCtrl(STDCTL_BACKBUTTON, s);
 		enableCommand(cmOK, !s);
 		enableCommand(cmPrevLot, (Data.PrevLotID != 0));

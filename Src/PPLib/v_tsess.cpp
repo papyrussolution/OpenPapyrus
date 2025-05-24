@@ -132,12 +132,13 @@ void * PPViewTSession::GetEditExtraParam()
 	return PPObjTSession::MakeExtraParam(Filt.SuperSessID, PrcList.GetSingle(), kind);
 }
 
-#define GRP_PRCTECH 2
-
 int PPViewTSession::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	class TSessFiltDialog : public TDialog {
 		DECL_DIALOG_DATA(TSessionFilt);
+		enum {
+			ctlgroupPrcTech = 2
+		};
 	public:
 		explicit TSessFiltDialog(uint dlgId) : TDialog(dlgId/*DLG_TSESSFILT*/)
 		{
@@ -155,10 +156,10 @@ int PPViewTSession::EditBaseFilt(PPBaseFilt * pBaseFilt)
 				PrcTechCtrlGroup * p_grp = new PrcTechCtrlGroup(CTLSEL_TSESSFILT_PRC, 0, 0, 0, 0, 0);
 				THROW_SL(p_grp);
 				p_grp->enableTechSelUpLevel(true); // @v11.7.6
- 				addGroup(GRP_PRCTECH, p_grp);
+ 				addGroup(ctlgroupPrcTech, p_grp);
 				if(Data.PrcID == 0)
 					ptcg_rec.PrcParentID = PRCEXDF_GROUP;
- 				setGroupData(GRP_PRCTECH, &ptcg_rec);
+ 				setGroupData(ctlgroupPrcTech, &ptcg_rec);
 			}
 			else {
 				PrcTechCtrlGroup * p_grp = new PrcTechCtrlGroup(CTLSEL_TSESSFILT_PRC, CTLSEL_TSESSFILT_TECH,
@@ -166,12 +167,12 @@ int PPViewTSession::EditBaseFilt(PPBaseFilt * pBaseFilt)
 				THROW_SL(p_grp);
 				p_grp->setIdleStatus(this, BIN(Data.Ft_Idle > 0));
 				p_grp->enableTechSelUpLevel(true); // @v11.7.6
- 				addGroup(GRP_PRCTECH, p_grp);
+ 				addGroup(ctlgroupPrcTech, p_grp);
 				ptcg_rec.TechID = Data.TechID;
 				ptcg_rec.ArID   = Data.ArID;
 				ptcg_rec.Ar2ID  = Data.Ar2ID;
 				ptcg_rec.IdleStatus = BIN(Data.Ft_Idle > 0);
- 				setGroupData(GRP_PRCTECH, &ptcg_rec);
+ 				setGroupData(ctlgroupPrcTech, &ptcg_rec);
 			}
 			AddClusterAssocDef(CTL_TSESSFILT_STATUS, 0, (1 << TSESST_PLANNED));
 			AddClusterAssoc(CTL_TSESSFILT_STATUS, 1, (1 << TSESST_PENDING));
@@ -209,7 +210,7 @@ int PPViewTSession::EditBaseFilt(PPBaseFilt * pBaseFilt)
 			}
 			else {
 				PrcTechCtrlGroup::Rec ptcg_rec;
-				getGroupData(GRP_PRCTECH, &ptcg_rec);
+				getGroupData(ctlgroupPrcTech, &ptcg_rec);
 				Data.PrcID  = ptcg_rec.PrcID;
 				Data.TechID = ptcg_rec.TechID;
 				Data.ArID   = ptcg_rec.ArID;
@@ -245,7 +246,7 @@ int PPViewTSession::EditBaseFilt(PPBaseFilt * pBaseFilt)
 			TDialog::handleEvent(event);
 			if(event.isClusterClk(CTL_TSESSFILT_IDLE)) {
 				const long temp_long = GetClusterData(CTL_TSESSFILT_IDLE);
-				PrcTechCtrlGroup * p_grp = static_cast<PrcTechCtrlGroup *>(getGroup(GRP_PRCTECH));
+				PrcTechCtrlGroup * p_grp = static_cast<PrcTechCtrlGroup *>(getGroup(ctlgroupPrcTech));
 				CALLPTRMEMB(p_grp, setIdleStatus(this, BIN(temp_long > 0)));
 				clearEvent(event);
 			}

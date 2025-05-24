@@ -115,24 +115,24 @@ void BVATAccmArray::Scale_(double part, int useRounding)
 	}
 }
 
-int BVATAccmArray::CalcBill(const PPBillPacket * pPack)
+int BVATAccmArray::CalcBill(const PPBillPacket & rPack)
 {
 	int    ok = 1;
 	bool   inited = false;
-	const  PPID op_type_id = GetOpType(pPack->Rec.OpID);
+	const  PPID op_type_id = GetOpType(rPack.Rec.OpID);
 	//
 	// Условие (!pPack->GetTCount() && pPack->Rec.Flags & BILLF_BILLF_FIXEDAMOUNTS)
 	// введено для обработки документов консолидирующей передачи из других разделов.
 	//
-	if(oneof2(op_type_id, PPOPT_ACCTURN, PPOPT_PAYMENT) || (!pPack->GetTCount() && pPack->Rec.Flags & BILLF_FIXEDAMOUNTS)) {
+	if(oneof2(op_type_id, PPOPT_ACCTURN, PPOPT_PAYMENT) || (!rPack.GetTCount() && rPack.Rec.Flags & BILLF_FIXEDAMOUNTS)) {
 		PPObjAmountType amtt_obj;
 		PPAmountType amtt_rec;
 		AmtEntry * p_ae;
-		double amt = pPack->GetBaseAmount();
+		double amt = rPack.GetBaseAmount();
 		int    num_vat_rates = 0;
 		bool   is_there_stax = false;
 		{
-			for(uint i = 0; pPack->Amounts.enumItems(&i, (void **)&p_ae);) {
+			for(uint i = 0; rPack.Amounts.enumItems(&i, (void **)&p_ae);) {
 				if(p_ae->Amt != 0.0 && amtt_obj.Fetch(p_ae->AmtTypeID, &amtt_rec) > 0)
 					if(amtt_rec.IsTax(GTAX_VAT))
 						num_vat_rates++;
@@ -143,7 +143,7 @@ int BVATAccmArray::CalcBill(const PPBillPacket * pPack)
 			}
 		}
 		if(num_vat_rates) {
-			for(uint i = 0; pPack->Amounts.enumItems(&i, (void **)&p_ae);) {
+			for(uint i = 0; rPack.Amounts.enumItems(&i, (void **)&p_ae);) {
 				if(p_ae->Amt != 0.0 && amtt_obj.Fetch(p_ae->AmtTypeID, &amtt_rec) > 0) {
 					if(amtt_rec.IsTax(GTAX_VAT)) {
 						BVATAccm item;
@@ -164,9 +164,9 @@ int BVATAccmArray::CalcBill(const PPBillPacket * pPack)
 		}
 	}
 	if(!inited) {
-		for(uint i = 0; i < pPack->GetTCount(); i++) {
-			const PPTransferItem & r_ti = pPack->ConstTI(i);
-			THROW(Add(r_ti, pPack->Rec.OpID));
+		for(uint i = 0; i < rPack.GetTCount(); i++) {
+			const PPTransferItem & r_ti = rPack.ConstTI(i);
+			THROW(Add(r_ti, rPack.Rec.OpID));
 			inited = true;
 		}
 	}
@@ -187,6 +187,33 @@ int BVATAccmArray::CalcBill(PPID id)
 				return 0;
 	}
 	return BIN(r);
+}
+
+int BVATAccmArray::CalcCCheckLineArray(const CCheckLineArray & rList)
+{
+	int    ok = 1;
+	const  uint _c = rList.getCount();
+	if(_c) {
+		const  LDATE now_date = getcurdate_();
+		for(uint i = 0; i < _c; i++) {
+			const CCheckLineTbl::Rec & r_ln_rec = rList.at(i);
+			const double ln_p = intmnytodbl(r_ln_rec.Price);
+			const double ln_q = r_ln_rec.Quantity;
+			{
+				BVATAccm bva_item;
+				PPGoodsTaxEntry gtx;
+				if(GObj.FetchTaxEntry2(r_ln_rec.GoodsID, 0/*lotID*/, 0/*taxPayerID*/, now_date, 0L, &gtx) > 0) // @v12.2.3 LConfig.OperDate-->now_date
+					bva_item.PRate = gtx.GetVatRate();
+				bva_item.PTrnovr  += ln_q * (ln_p - r_ln_rec.Dscnt);
+				bva_item.Discount += ln_q * r_ln_rec.Dscnt;
+				THROW(Add(&bva_item));
+			}
+		}
+	}
+	else
+		ok = -1;
+	CATCHZOK
+	return ok;	
 }
 
 int BVATAccmArray::IsVataxableSuppl(PPID suppl) { return (!(Flags & BVATF_IGNORESUPPL) && suppl && IsSupplVATFree(suppl) > 0) ? 0 : 1; }

@@ -251,7 +251,7 @@ public:
 			if(Data.ExtSize >= sizeof(uint32)) {
 				complex_lo_type = *reinterpret_cast<const uint32 *>(Data.ExtData);
 			}
-			showCtrl(CTLSEL_WTMTOOL_CLOT, 1);
+			showCtrl(CTLSEL_WTMTOOL_CLOT, true);
 			ComboBox * p_combo = static_cast<ComboBox *>(getCtrlView(CTLSEL_WTMTOOL_CLOT));
 			if(p_combo) {
 				StrAssocArray * p_cmpx_lo_types = new StrAssocArray;
@@ -262,7 +262,7 @@ public:
 			}
 		}
 		else {
-			showCtrl(CTLSEL_WTMTOOL_CLOT, 0);
+			showCtrl(CTLSEL_WTMTOOL_CLOT, false);
 		}
 		// } @v11.2.2 
 		setCtrlString(CTL_WTMTOOL_FIGPATH, Data.FigPath);

@@ -1122,7 +1122,7 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 					};
 					for(uint i = 0; i < SIZEOFARRAY(p_base64_url_invalid); i++) {
 						tr.Run((const uchar *)p_base64_url_invalid[i], -1, nta.Z(), 0);
-						SLCHECK_Z(0.0f, nta.Has(SNTOK_BASE64_URL));
+						SLCHECK_Z(nta.Has(SNTOK_BASE64_URL));
 					}
 				}
 				{
@@ -1147,7 +1147,7 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 					};
 					for(uint i = 0; i < SIZEOFARRAY(p_base64_url_wp_invalid); i++) {
 						tr.Run((const uchar *)p_base64_url_wp_invalid[i], -1, nta.Z(), 0);
-						SLCHECK_Z(0.0f, nta.Has(SNTOK_BASE64_URL_WP));
+						SLCHECK_Z(nta.Has(SNTOK_BASE64_URL_WP));
 					}
 				}
 			}

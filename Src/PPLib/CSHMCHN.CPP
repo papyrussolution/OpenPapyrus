@@ -176,11 +176,6 @@ int PPCashMachine::SyncOrAsync(int cashID, int & rS)
 	return BIN(GetRegEntry(cmtID, &p) && static_cast<CMRegArray *>(P_RegData)->at(p).flags & CMRegEntry::async);
 }
 
-PPCashMachine::FiscalCorrection::FiscalCorrection() : AmtCash(0.0), AmtBank(0.0), AmtPrepay(0.0), AmtPostpay(0.0),
-	AmtVat20(0.0), AmtVat18(0.0), AmtVat10(0.0), AmtVat07(0.0), AmtVat05(0.0), AmtVat00(0.0), AmtNoVat(0.0), VatRate(0.0), Dt(ZERODATE), Flags(0)
-{
-}
-
 PPCashMachine::PPCashMachine(PPID cashID) : P_SyncIntrf(0), P_AsyncIntrf(0), SyncPrintErrCode(0), NodeID(cashID), ParentNodeID(0)
 {
 	Valid = (GetNode() > 0);
@@ -974,7 +969,7 @@ int PPCashMachine::SyncPrintCheck(CCheckPacket * pCcPack, int addSummator)
 		NodeRec.Flags |= CASHF_LASTCHKCANCELLED;
 		THROW(UpdateNode(1));
 		// @v11.9.12 {
-		{
+		if(!pCcPack->IsCorrection()) {
 			const PPSyncCashNode & r_cn = P_SyncIntrf->GetPosNode();
 			// @v12.0.12 Здесь мы оставляем блок для случая r_cn.ChZnPermissiveMode == PPSyncCashNode::chznpmSoft,
 			// случай r_cn.ChZnPermissiveMode == PPSyncCashNode::chznpmStrict теперь обрабатывается при сканировании марки
@@ -1123,7 +1118,7 @@ int PPCashMachine::SyncPrintBnkTermReport(const char * pSlipText)
 	return ok;
 }
 
-int PPCashMachine::SyncPrintFiscalCorrection(const PPCashMachine::FiscalCorrection * pFc)
+int PPCashMachine::SyncPrintFiscalCorrection(const CcFiscalCorrection * pFc)
 {
 	int    ok = 0;
 	THROW(GetSyncIntrf());
@@ -1139,7 +1134,8 @@ int PPCashMachine::SyncPrintFiscalCorrection(const PPCashMachine::FiscalCorrecti
 
 int PPCashMachine::SyncPrintXReport()
 {
-	int    ok = 0, r = 0;
+	int    ok = 0;
+	int    r = 0;
 	PPObjCSession cs_obj;
 	//
 	// Проверка права должна осуществляться в вызывающей функции.
@@ -1197,7 +1193,7 @@ int PPCashMachine::SyncPrintIncasso()
 		v = dlg->getCtrlUInt16(CTL_INCASSO_TYPE);
 		if(sum > 0.0) {
 			THROW(GetSyncIntrf());
-			if(SyncSetPrintErrCode(P_SyncIntrf->PrintIncasso(sum, BIN(v)), 0))
+			if(SyncSetPrintErrCode(P_SyncIntrf->PrintIncasso(sum, LOGIC(v)), 0))
 				ok = 1;
 			else
 				PPError();
@@ -1381,7 +1377,7 @@ CSPanel::CSPanel(uint rezID, PPID aNodeID, char * nodeName, int fZReport) : TDia
 	cn_obj.Search(aNodeID, &cn_rec);
 	UseKeyboardWKey = BIN(fZReport >= 0 && (cn_rec.Flags & CASHF_KEYBOARDWKEY));
 	DefInputLine = CTL_CSPANEL_INPUT;
-	showCtrl(CTL_CSPANEL_INPUT, 0);
+	showCtrl(CTL_CSPANEL_INPUT, false);
 	enableCommand(cmCSClose, BIN(fZReport > 0 && (fZReport & fcspZReport)));
 	enableCommand(cmSCSZReportCopy, BIN(fZReport > 0 && (fZReport & fcspZRepCopy)));
 	enableCommand(cmSCSXReport, BIN(fZReport & fcspXReport));

@@ -1499,7 +1499,7 @@ void setBorder(HWND hwnd, bool border)
 
 	if(change) {
 		::SetWindowLongPtr(hwnd, GWL_STYLE, style);
-		::SetWindowPos(hwnd, nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+		::SetWindowPos(hwnd, nullptr, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
 	}
 }
 

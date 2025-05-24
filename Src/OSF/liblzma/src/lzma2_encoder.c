@@ -48,7 +48,7 @@ static void lzma2_header_lzma(lzma_lzma2_encoder_coder * coder)
 	coder->buf_pos = pos;
 	// Uncompressed size
 	size_t size = coder->uncompressed_size - 1;
-	coder->buf[pos++] += (size >> 16);
+	coder->buf[pos++] += static_cast<uint8>(size >> 16);
 	coder->buf[pos++] = (size >> 8) & 0xFF;
 	coder->buf[pos++] = size & 0xFF;
 	// Compressed size

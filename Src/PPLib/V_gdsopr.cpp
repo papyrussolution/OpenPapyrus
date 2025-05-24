@@ -1015,9 +1015,9 @@ IMPL_HANDLE_EVENT(GoodsOpAnlzFiltDialog)
 	}
 	else if(event.isCmd(cmBillExtra)) {
 		int    valid_data = 0;
-		PPID   suppl_sheet_id = GetSupplAccSheet();
-		PPID   agent_sheet_id = GetAgentAccSheet();
-		if(suppl_sheet_id || agent_sheet_id) {
+		const  PPID suppl_acs_id = GetSupplAccSheet();
+		const  PPID agent_acs_id = GetAgentAccSheet();
+		if(suppl_acs_id || agent_acs_id) {
 			GoodsOpAnlzExtFiltDialog * p_dlg = new GoodsOpAnlzExtFiltDialog();
 			GetClusterData(CTL_BILLFLT_DIFFBYPRICE, &Data.Flags);
 			GetPeriodInput(this, CTL_BILLFLT_PERIOD, &Data.Period);

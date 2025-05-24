@@ -670,7 +670,8 @@ int GoodsCore::MoveArCodes(PPID destArID, PPID srcArID, PPID grpID, uint flags, 
 {
 	int    ok = -1;
 	SString code_buf;
-	SString fmt_buf, msg_buf;
+	SString fmt_buf;
+	SString msg_buf;
 	if(srcArID >= 0) {
 		ArGoodsCodeArray list;
 		if(ReadArCodesByAr(0, srcArID, &list) > 0) {

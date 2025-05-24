@@ -1267,7 +1267,8 @@ int PPJobServer::Arrange(PPJobPool * pPool, LAssocArray * pPlan, PPIDArray * pOn
 
 void PPJobServer::Run()
 {
-	SString temp_buf, msg_buf;
+	SString temp_buf;
+	SString msg_buf;
 	STimer timer;
 	Evnt   stop_event(SLS.GetStopEventName(temp_buf), Evnt::modeOpen);
 	PPJobPool pool(&Mngr, 0, 1);

@@ -527,6 +527,7 @@ int PPApp::processCommand(uint cmd)
 		case cmPriceAnlz:            PPView::Execute(PPVIEW_PRICEANLZ,       0, PPView::exefModeless, 0); break;
 		case cmReport:               PPView::Execute(PPVIEW_REPORT,          0, PPView::exefModeless, 0); break;
 		case cmBizScoreVal:          PPView::Execute(PPVIEW_BIZSCOREVAL,     0, PPView::exefModeless, 0); break;
+		case cmBizScore2Val:         PPView::Execute(PPVIEW_BIZSC2VAL,       0, PPView::exefModeless, 0); break; // @v12.3.4
 		case cmDebtorStat:           PPView::Execute(PPVIEW_DEBTORSTAT,      0, PPView::exefModeless, 0); break;
 		case cmStyloPalm:            PPView::Execute(PPVIEW_PALM,            0, PPView::exefModeless, 0); break;
 		case cmLocTransf:            PPView::Execute(PPVIEW_LOCTRANSF,       0, PPView::exefModeless, 0); break;
@@ -1173,7 +1174,7 @@ static int PPLoginDialog(PPLoginDialogParam & rParam)
 								}
 							}
 							if(inv_text.NotEmpty()) {
-								showCtrl(p_iv->GetId(), 1);
+								showCtrl(p_iv->GetId(), true);
 								HWND h_iv = p_iv->getHandle();
 								if(h_iv) {
 									RECT img_rect;
@@ -1204,7 +1205,7 @@ static int PPLoginDialog(PPLoginDialogParam & rParam)
 								}
 							}
 							else {
-								showCtrl(p_iv->GetId(), 0);
+								showCtrl(p_iv->GetId(), false);
 								DoCheckOnetimePass = false;
 							}
 						}

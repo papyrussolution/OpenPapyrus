@@ -1824,15 +1824,7 @@ namespace NArchive {
 
 		// ---------- Section ----------
 
-		static const char * const kSection_VarsNames[] =
-		{
-			"Text"
-			, "InstTypes"
-			, "Flags"
-			, "Code"
-			, "CodeSize"
-			, "Size" // size in KB
-		};
+		static const char * const kSection_VarsNames[] = { "Text", "InstTypes", "Flags", "Code", "CodeSize", "Size"/*size in KB*/ };
 
 		void CInArchive::Add_SectOp(uint32 opType)
 		{

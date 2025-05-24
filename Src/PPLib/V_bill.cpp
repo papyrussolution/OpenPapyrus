@@ -737,7 +737,7 @@ void BillFiltDialog::ExtraFilt2()
 			SetupArCombo(this, CTLSEL_BILLEXT_PAYER, Data.PayerID, OLW_CANINSERT|OLW_LOADDEFONOPEN, PayerAcsID, sacfDisableIfZeroSheet|sacfNonGeneric);
 			SetupArCombo(this, CTLSEL_BILLEXT_AGENT, Data.AgentID, OLW_CANINSERT|OLW_LOADDEFONOPEN, AgentAcsID, sacfDisableIfZeroSheet|sacfNonGeneric);
 			if(Data.OrderFulfillmentStatus < 0) 
-				showCtrl(CTL_BILLEXTFLT_ORDFFST, 0);
+				showCtrl(CTL_BILLEXTFLT_ORDFFST, false);
 			PPAccessRestriction accsr;
 			const int own_bill_restr = ObjRts.GetAccessRestriction(accsr).GetOwnBillRestrict();
 			setCtrlUInt16(CTL_BILLEXTFLT_STAXTGGL, (Data.Ft_STax > 0) ? 1 : ((Data.Ft_STax < 0) ? 2 : 0));

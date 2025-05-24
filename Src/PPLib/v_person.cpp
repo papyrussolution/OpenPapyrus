@@ -617,14 +617,7 @@ int PPViewPerson::UpdateHungedAddr(PPID addrID)
 	return ok;
 }
 
-/*virtual*/void * PPViewPerson::GetEditExtraParam()
-{
-	void * p_result = 0;
-	if(Filt.PersonKindID) {
-		p_result = reinterpret_cast<void *>(Filt.PersonKindID);
-	}
-	return p_result;
-}
+/*virtual*/void * PPViewPerson::GetEditExtraParam() { return Filt.PersonKindID ? reinterpret_cast<void *>(Filt.PersonKindID) : 0; }
 
 int PPViewPerson::AddItem(PPID * pID)
 {
@@ -2628,6 +2621,11 @@ SString & FASTCALL PPViewPerson::GetFromStrPool(uint strP, SString & rBuf) const
 {
 	StrPool.GetS(strP, rBuf);
 	return rBuf;
+}
+
+PPViewPerson::ExtEntry::ExtEntry()
+{
+	THISZERO();
 }
 
 /*static*/int PPViewPerson::CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle, PPViewBrowser * pBrw)

@@ -7,7 +7,7 @@
 //
 //
 //
-int FASTCALL SetupArCombo(TDialog * dlg, uint ctlID, PPID id, uint flags, PPID _accSheetID, /*int disableIfZeroSheet*/long sacf)
+int STDCALL SetupArCombo(TDialog * dlg, uint ctlID, PPID id, uint flags, PPID _accSheetID, /*int disableIfZeroSheet*/long sacf)
 {
 	int    ok = 1;
 	int    create_ctl_grp = 0;

@@ -291,7 +291,7 @@ toolbar MAIN TB_GLOBAL {
 	cmGoodsBasket,      "@{cmd_goodsbasket}"        PPDV_SHOPPINGCART01
 	cmOprKind,          "@{cmd_oprkind}"            PPDV_OPLIST
 	separator
-	cmAccTurnList,      "@{cmd_accturn}",           PPDV_ATURNLIST
+	cmAccTurnList,      "@{cmd_accturnlist}",       PPDV_ATURNLIST
 	cmAccturnBillList,  "@{cmd_accturnbilllist}",   PPDV_DOCUMENTS_ACC
 	cmGoodsBillList,    "@{cmd_goodsbilllist}",     PPDV_DOCUMENTS_GOODS
 	cmGoodsOrder,       "@{cmd_goodsorder}",        PPDV_DOCUMENTS_ORDER
@@ -5902,6 +5902,24 @@ browser BIZSCOREVAL north(100), 3, 1, "@{view_bizscoreval}", OWNER|GRID, 0
 	}
 }
 
+browser BIZSCORE2VAL north(100), 3, 1, "@{view_bizscoreval}", OWNER|GRID, 0 // @v12.3.4
+{
+	"@id",             0, int32,        0,        6, BCO_USERPROC
+	"@date",           1, date,         DATF_DMY, 8, BCO_USERPROC
+	"@appellation",    2, zstring(48),  0,       20, BCO_USERPROC
+	"@value",          3, zstring(128), 0,       30, BCO_USERPROC
+	toolbar TB_FIRST_TOOLBAR {
+		ADDITEM       : kbIns,    PPDV_ADDFILE02,     "@{add}\tInsert"
+		EDITITEM      : kbEnter,  PPDV_EDITFILE02,    "@{edit}\tEnter"
+		DELETEITEM    : kbDel,    PPDV_DELETEFILE02,  "@{delete}\tDelete"
+		DELETEALL     : kbCtrlF8, PPDV_DELETEALL02,   "@{doremoveall}\tCtrl-F8"
+		VIEWBIZSCORE  : kbF2,     PPDV_NOICON,        "@{bizscore}\tF2"
+		CHARGE        : kbF6,     TBBM_CHARGE,        "@{calculation}\tF6"
+		separator
+		CHANGEFILT    : kbCtrlV,  PPDV_FILTER01,      "@{filter}\tCtrl-V"
+	}
+}
+
 browser DEBTORSTAT north(100), 3, 1, "@{view_debtorstat}", OWNER|GRID, 0
 {
 	"@appellation", 13, notype, 0, 20
@@ -7100,6 +7118,7 @@ cmd MarketplaceInterchange    { "@{cmd_marketplaceinterchange}"               PP
 cmd AptekaRuInterchange       { "@{cmd_aptekaruinterchange}"                  none                   none cmAptekaRuInterchange } // @v12.2.1
 cmd GatherClientActivityStat  { "@{cmd_gathercliactivitystatistics}"          none                   none cmGatherClientActivityStat } // @v12.2.2
 cmd SourceCodeProcessing      { "@{cmd_sourcecodeprocessing}"                 none                   none cmSourceCodeProcessing } // @v12.2.10
+cmd BizScore2Val              { "@{cmd_bizscore2val}"                         ICON_BIZSCORE          none cmBizScore2Val view = BizSc2Val } // @v12.3.4
 //
 // -------------- Описания серверных задач
 //
@@ -7306,6 +7325,7 @@ filter PrcssrClientActivityStatistics { "@{filter_prcssrclientactivitystatistics
 view   ClientActivityDetails { "@{view_clientactivitydetails}" } // @v12.2.8
 filter PrcssrSourceCodeMaintaining  { "@{filter_prcssrsourcecodemaintaining}" } // @v12.2.10
 filter StyloQTestCmdParam           { "@{filter_styloqtestcmdparam}" } // @v12.3.1
+view   BizSc2Val                    { "@{view_bizscore2val}" } // @v12.3.4
 //
 // lastviewfilter ATTENTION: put new VIEWS and FILTERS before this line!
 //

@@ -1456,6 +1456,7 @@
     <ClCompile Include="..\PPLib\Payment.cpp" />
     <ClCompile Include="..\PPLib\Person.cpp" />
     <ClCompile Include="..\PPLib\phnpan.cpp" />
+    <ClCompile Include="..\PPLib\pp-ifm.cpp" />
     <ClCompile Include="..\PPLib\pp-pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">Create</PrecompiledHeader>
@@ -1695,7 +1696,22 @@
     <ClCompile Include="..\PPLib\workbook.cpp" />
     <ClCompile Include="..\PPLib\wsctl.cpp" />
     <ClCompile Include="..\PPLib\zxing_client.cpp" />
-    <ClCompile Include="..\Pptest\pptest.cpp" />
+    <ClCompile Include="..\Pptest\pptest.cpp">
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Sync</ExceptionHandling>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">Sync</ExceptionHandling>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">Sync</ExceptionHandling>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">Sync</ExceptionHandling>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">Sync</ExceptionHandling>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Sync</ExceptionHandling>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">Sync</ExceptionHandling>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Sync</ExceptionHandling>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">Sync</ExceptionHandling>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">Sync</ExceptionHandling>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">Sync</ExceptionHandling>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">Sync</ExceptionHandling>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Sync</ExceptionHandling>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">Sync</ExceptionHandling>
+    </ClCompile>
     <ClCompile Include="..\Tools\Dl200\dl200.cpp" />
     <ClCompile Include="..\Tools\Dl200\dl200prs.cpp" />
     <ClCompile Include="..\Tools\Dl200\dl200r.cpp" />
@@ -1733,6 +1749,9 @@
     </ProjectReference>
     <ProjectReference Include="onig.vcxproj">
       <Project>{d115c575-b8ee-3bd7-8046-688a4d145686}</Project>
+    </ProjectReference>
+    <ProjectReference Include="OpenXLSX.vcxproj">
+      <Project>{c49f54c6-1b75-34ce-b0d7-d8ea5e1e5ed9}</Project>
     </ProjectReference>
     <ProjectReference Include="pcre.vcxproj">
       <Project>{d4b6d08a-d79e-428e-85ea-f9929c6aa367}</Project>

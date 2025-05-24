@@ -1,5 +1,6 @@
 // harfbuzz-internal.h
 //
+#include <slib.h> // @v12.3.4
 #include <locale.h>
 
 #include "hb.hh"

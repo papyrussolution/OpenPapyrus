@@ -3,6 +3,7 @@
 //
 #pragma hdrstop
 #include <ppdrvapi.h>
+#include <pp-ifm.h>
 
 BOOL APIENTRY DllMain(HANDLE hModule, DWORD dwReason, LPVOID lpReserved)
 {
@@ -19,7 +20,8 @@ BOOL APIENTRY DllMain(HANDLE hModule, DWORD dwReason, LPVOID lpReserved)
 #define THROWERR(expr,val)     {if(!(expr)){SetError(val);goto __scatch;}}
 
 static int ErrorCode = 0;
-static constexpr char FS = 0x1C;
+//static constexpr char FS = 0x1C;
+//#define	FS_STR	"\x1C"	// Символ-разделитель пар параметров
 
 // @v11.2.3 Следующие мнемоники заменены на CHR_XXX определенные в SLIB.H
 // Для формирования пакета данных
@@ -232,6 +234,7 @@ public:
 	// 3 - Печать текстовой строки
 	// 4 - Аннулировать чек
 	// 5 - Внесение/изъятие наличности
+	// 6 - Открыть чек коррекции // @v12.3.4
 	//	
 	int    RunCheck(int opertype);
 	int    ReturnCheckParam(const SString & rInput, char * output, size_t size);
@@ -346,7 +349,7 @@ private:
 					line_buf.CatChar('|').Space().Cat(Op).Semicol();
 					if(Param.NotEmpty()) {
 						SString temp_buf;
-						StringSet ss(FS, Param);
+						StringSet ss(CHR_FS, Param);
 						for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
 							line_buf.Cat(temp_buf).Semicol();
 						}
@@ -559,12 +562,10 @@ int Release()
 	return 1;
 }
 
-#define	FS_STR	"\x1C"	// Символ-разделитель пар параметров
-
-static void FASTCALL CreateStr(const char * pValue, SString & rDst) { rDst.Cat(pValue).Cat(FS_STR); }
+static void FASTCALL CreateStr(const char * pValue, SString & rDst) { rDst.Cat(pValue).CatChar(CHR_FS); }
 static void FASTCALL CreateChZnCode(const char * pValue, SString & rDst) 
 { 
-	//dst.Cat(pValue).Cat(FS_STR); 
+	//dst.Cat(pValue).CatChar(CHR_FS); 
 	const size_t len = sstrlen(pValue);
 	for(size_t i = 0; i < len; i++) {
 		const char c = pValue[i];
@@ -573,12 +574,12 @@ static void FASTCALL CreateChZnCode(const char * pValue, SString & rDst)
 		else
 			rDst.CatChar(c);
 	}
-	rDst.Cat(FS_STR);
+	rDst.CatChar(CHR_FS);
 }
-static void FASTCALL CreateStr(int value, SString & dst) { dst.Cat(value).Cat(FS_STR); }
-static void FASTCALL CreateStr(int64 value, SString & dst) { dst.Cat(value).Cat(FS_STR); }
-// @v11.2.11 static void FASTCALL CreateStr(double value, SString & dst) { dst.Cat(value, MKSFMTD(0, 3, NMBF_NOTRAILZ)).Cat(FS_STR); } // @v11.2.9 0-->MKSFMTD(0, 3, NMBF_NOTRAILZ)
-static void FASTCALL CreateStr(double value, SString & dst) { dst.Cat(value).Cat(FS_STR); } // @v11.2.9 0-->MKSFMTD(0, 3, NMBF_NOTRAILZ) // @v11.2.11
+static void FASTCALL CreateStr(int value, SString & dst) { dst.Cat(value).CatChar(CHR_FS); }
+static void FASTCALL CreateStr(int64 value, SString & dst) { dst.Cat(value).CatChar(CHR_FS); }
+// @v11.2.11 static void FASTCALL CreateStr(double value, SString & dst) { dst.Cat(value, MKSFMTD(0, 3, NMBF_NOTRAILZ)).CatChar(CHR_FS); } // @v11.2.9 0-->MKSFMTD(0, 3, NMBF_NOTRAILZ)
+static void FASTCALL CreateStr(double value, SString & dst) { dst.Cat(value).CatChar(CHR_FS); } // @v11.2.9 0-->MKSFMTD(0, 3, NMBF_NOTRAILZ) // @v11.2.11
 
 EXPORT int /*STDAPICALLTYPE*/ RunCommand(const char * pCmd, const char * pInputData, char * pOutputData, size_t outSize)
 {
@@ -830,7 +831,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 				71 	Вернуть рабочий идентификатор wifi 	Строка 	Формат x.y.z, где x,y,z - числа до 3х знаков
 			*/
 			SString result_buf;
-			StringSet dataset(FS, 0);
+			StringSet dataset(CHR_FS, 0);
 			{
 				CreateStr(1, str.Z());
 				ExecCmd("02", str, out_data, r_error); // заводской номер ККТ / Строка
@@ -1236,6 +1237,10 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 					strnzcpy(pOutputData, result_buf.cptr(), outSize);
 			}
 		}
+		else if(cmd.IsEqiAscii("OPENCHECK_CORRECTION")) { // @v12.3.4
+			// @todo
+			//THROW(RunCheck(6));
+		}
 		else if(cmd.IsEqiAscii("OPENCHECK")) {
 			SetLastItems(cmd, pInputData);
 			THROW(StartWork());
@@ -1324,44 +1329,16 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 			THROW(RunCheck(1));
 		}
 		else if(cmd.IsEqiAscii("CHECKCORRECTION")) {
-			struct CheckCorrectionBlock {
-				CheckCorrectionBlock()
-				{
-					THISZERO();
-					VatRate = -1.0;
-				}
-				char   OperName[32]; // CshrName
-				double CashAmt;
-				double BankAmt;
-				double PrepayAmt;
-				double PostpayAmt;
-				double ReckonAmt; // Сумма встречным представлением
-				int    Type;
-				LDATE  Dt;
-				char   DocNo[32];
-				char   DocMemo[64];
-				double Vat20Amt;
-				double Vat18Amt;
-				double Vat10Amt;
-				double Vat05Amt; // @v12.2.10
-				double Vat07Amt; // @v12.2.10
-				double Vat0Amt;
-				double VatFreeAmt;
-				double Vat18_118Amt;
-				double Vat10_110Amt;
-				int    IsVatFree;
-				double VatRate;
-				char   FiscalSign[64]; // @v12.3.3
-			};
 			int    is_there_vatamt = 0;
-			CheckCorrectionBlock blk;
-			STRNSCPY(blk.OperName, CshrName);
+			CcFiscalCorrection blk;
+			blk.VatRate = -1.0;
+			blk.Operator = CshrName;
 			if(pb.Get("PAYMCASH", param_val) > 0)
-				blk.CashAmt = R2(param_val.ToReal());
+				blk.AmtCash = R2(param_val.ToReal());
 			else if(pb.Get("PAYMCARD", param_val) > 0)
-				blk.BankAmt = R2(param_val.ToReal());
+				blk.AmtBank = R2(param_val.ToReal());
 			if(pb.Get("FISCALSIGN", param_val) > 0) { // @v12.3.3
-				STRNSCPY(blk.FiscalSign, param_val);
+				blk.FiscalSign = param_val;
 			}
 			if(pb.Get("PREPAY", param_val) > 0) {
 			}
@@ -1370,20 +1347,21 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 			if(pb.Get("RECKONPAY", param_val) > 0) {
 			}
 			if(pb.Get("CODE", param_val) > 0) {
-				STRNSCPY(blk.DocNo, param_val);
+				blk.Code = param_val;
 			}
 			if(pb.Get("DATE", param_val) > 0) {
 				blk.Dt = strtodate_(param_val, DATF_ISO8601CENT);
 			}
 			if(pb.Get("TEXT", param_val) > 0) {
-				STRNSCPY(blk.DocMemo, param_val);
+				blk.DocMemo = param_val;
 			}
 			if(pb.Get("VATRATE", param_val) > 0) {
 				blk.VatRate = R2(param_val.ToReal());
 			}
 			if(pb.Get("VATFREE", param_val) > 0) {
-				if(param_val.IsEmpty() || param_val.IsEqiAscii("yes") || param_val.IsEqiAscii("true") || param_val == "1")
-					blk.IsVatFree = 1;
+				if(param_val.IsEmpty() || param_val.IsEqiAscii("yes") || param_val.IsEqiAscii("true") || param_val == "1") {
+					blk.Flags |= CcFiscalCorrection::fVatFree;
+				}
 			}
 			{
 				struct VatAmtListEntry {
@@ -1391,14 +1369,14 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 					double * P_Var;
 				};
 				/*non-static*/const VatAmtListEntry vat_amt_list[] = {
-					{ "VATAMOUNT20", &blk.Vat20Amt },
-					{ "VATAMOUNT18", &blk.Vat18Amt },
-					{ "VATAMOUNT10", &blk.Vat10Amt },
-					{ "VATAMOUNT05", &blk.Vat05Amt },
-					{ "VATAMOUNT07", &blk.Vat07Amt },
-					{ "VATAMOUNT00", &blk.Vat0Amt },
-					{ "VATAMOUNT0",  &blk.Vat0Amt },
-					{ "VATFREEAMOUNT",  &blk.VatFreeAmt },
+					{ "VATAMOUNT20", &blk.AmtVat20 },
+					{ "VATAMOUNT18", &blk.AmtVat18 },
+					{ "VATAMOUNT10", &blk.AmtVat10 },
+					{ "VATAMOUNT05", &blk.AmtVat05 },
+					{ "VATAMOUNT07", &blk.AmtVat07 },
+					{ "VATAMOUNT00", &blk.AmtVat00 },
+					{ "VATAMOUNT0",  &blk.AmtVat00 },
+					{ "VATFREEAMOUNT",  &blk.AmtNoVat },
 				};
 				for(uint vli = 0; vli < SIZEOFARRAY(vat_amt_list); vli++) {
 					const VatAmtListEntry & r_entry = vat_amt_list[vli];
@@ -1412,19 +1390,19 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 				}
 			}
 			if(!is_there_vatamt) {
-				const double _amount = blk.BankAmt + blk.CashAmt;
+				const double _amount = blk.AmtBank + blk.AmtCash;
 				if(blk.VatRate == 20.0)
-					blk.Vat20Amt = _amount;
+					blk.AmtVat20 = _amount;
 				else if(blk.VatRate == 18.0)
-					blk.Vat18Amt = _amount;
+					blk.AmtVat18 = _amount;
 				else if(blk.VatRate == 10.0)
-					blk.Vat10Amt = _amount;
+					blk.AmtVat10 = _amount;
 				else if(feqeps(blk.VatRate, 5.0, 1E-6)) // @v12.2.10
-					blk.Vat05Amt = _amount;
+					blk.AmtVat05 = _amount;
 				else if(feqeps(blk.VatRate, 7.0, 1E-6)) // @v12.2.10
-					blk.Vat07Amt = _amount;
+					blk.AmtVat07 = _amount;
 				else if(blk.VatRate == 0.0)
-					blk.Vat0Amt = _amount;
+					blk.AmtVat00 = _amount;
 			}
 			if(!checkdate(blk.Dt))
 				blk.Dt = getcurdate_();
@@ -1448,9 +1426,10 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 				// 4 	Единый сельскохозяйственный налог
 				// 5 	Патентная система налогообложения
 				//
-				const int vat_entry_n = (blk.IsVatFree || blk.VatRate >= 0.0) ? IdentifyTaxEntry(blk.VatRate, blk.IsVatFree) : 0/* @v12.3.3 (-1)-->(0)*/;
+				const int vat_entry_n = ((blk.Flags & CcFiscalCorrection::fVatFree) || blk.VatRate >= 0.0) ? 
+					IdentifyTaxEntry(blk.VatRate, LOGIC(blk.Flags & CcFiscalCorrection::fVatFree)) : 0/* @v12.3.3 (-1)-->(0)*/;
 				SETFLAG(correction_type, 0x10, vat_entry_n < 0);
-				SETFLAG(correction_type, 0x02, blk.CashAmt < 0.0 || blk.BankAmt < 0.0 || blk.PrepayAmt < 0.0);
+				SETFLAG(correction_type, 0x02, blk.AmtCash < 0.0 || blk.AmtBank < 0.0 || blk.AmtPrepay < 0.0);
 				SString in_data;
 				//
 				// CMD 0x58
@@ -1488,14 +1467,14 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 					// 
 				*/
 				CreateStr(CshrName, in_data);
-				CreateStr(fabs(blk.CashAmt), in_data);
-				CreateStr(fabs(blk.BankAmt), in_data);
-				CreateStr(fabs(blk.PrepayAmt), in_data);
-				CreateStr(fabs(blk.PostpayAmt), in_data);
-				CreateStr(fabs(blk.ReckonAmt), in_data);
+				CreateStr(fabs(blk.AmtCash), in_data);
+				CreateStr(fabs(blk.AmtBank), in_data);
+				CreateStr(fabs(blk.AmtPrepay), in_data);
+				CreateStr(fabs(blk.AmtPostpay), in_data);
+				CreateStr(fabs(blk.AmtReckon), in_data);
 				CreateStr(correction_type, in_data);
 				CreateStr(temp_buf.Z().Cat(blk.Dt, DATF_DMY|DATF_NODIV), in_data);
-				CreateStr(blk.DocNo, in_data);
+				CreateStr(blk.Code, in_data);
 				CreateStr(blk.DocMemo, in_data);
 				if(vat_entry_n >= 0) {
 					CreateStr(vat_entry_n, in_data);
@@ -1506,12 +1485,12 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 					CreateStr(0.0, in_data);
 				}
 				else {
-					CreateStr(fabs(blk.Vat20Amt), in_data);
-					CreateStr(fabs(blk.Vat10Amt), in_data);
-					CreateStr(fabs(blk.Vat0Amt), in_data);
-					CreateStr(fabs(blk.VatFreeAmt), in_data);
-					CreateStr(fabs(blk.Vat18_118Amt), in_data);
-					CreateStr(fabs(blk.Vat10_110Amt), in_data);
+					CreateStr(fabs(blk.AmtVat20), in_data);
+					CreateStr(fabs(blk.AmtVat10), in_data);
+					CreateStr(fabs(blk.AmtVat00), in_data);
+					CreateStr(fabs(blk.AmtNoVat), in_data);
+					CreateStr(/*fabs(blk.AmtVat18_118)*/0.0, in_data);
+					CreateStr(/*fabs(blk.AmtVat10_110)*/0.0, in_data);
 				}
 				CreateStr("", in_data); // Дополнительный реквизит чека (БСО)
 				//
@@ -1768,7 +1747,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 			SString out_data;
 			SString r_error;
 			THROW(ExecCmd("13", in_data, out_data, r_error)); // Смотрим текщую дату/время на ККМ
-			out_data.Divide(FS, date_buf, time_buf);
+			out_data.Divide(CHR_FS, date_buf, time_buf);
 			LDATETIME dtm = ZERODATETIME;
 			strtodate(date_buf, DATF_DMY|DATF_NODIV, &dtm.d);
 			strtotime(time_buf, TIMF_HMS|TIMF_NODIV, &dtm.t);
@@ -1841,6 +1820,8 @@ SString & PiritEquip::LastErrorText(SString & rMsg)
 				cmd_str = "Печать X-отчета";
 			else if(LastCmd.IsEqiAscii("OPENCHECK"))
 				cmd_str = "Открытие чека";
+			else if(LastCmd.IsEqiAscii("OPENCHECK_CORRECTION")) // @v12.3.4
+				cmd_str = "Открытие чека коррекции";
 			else if(LastCmd.IsEqiAscii("CLOSECHECK"))
 				cmd_str = "Закрытие чека";
 			else if(LastCmd.IsEqiAscii("PRINTFISCAL"))
@@ -2081,7 +2062,7 @@ int PiritEquip::SetCfg()
 	{
 		THROW(ExecCmd("01", in_data, out_data, r_error)); // Запрос номера текущей сессии(смены)
 		{
-			//StringSet delim_out(FS, out_data);
+			//StringSet delim_out(CHR_FS, out_data);
 			uint   i = 0;
 			RetTknzr.setBuf(out_data);
 			RetTknzr.get(&i, out_data); // В out считан номер запроса
@@ -2113,7 +2094,7 @@ int PiritEquip::StartWork(bool force)
 		SString r_error;
 		SYSTEMTIME sys_dt_tm;
 		THROW(ExecCmd("13", in_data, out_data, r_error)); // Смотрим текщую дату/время на ККМ
-		out_data.Divide(FS, date, time);
+		out_data.Divide(CHR_FS, date, time);
 		CashDateTime.Z().Cat("Текущая дата на ККМ").CatDiv(':', 2).Cat(date).Space().Cat("Текущее время на ККМ").CatDiv(':', 2).Cat(time);
 		in_data.Z();
 		GetLocalTime(&sys_dt_tm);
@@ -2163,7 +2144,7 @@ int PiritEquip::GetCurFlags(int numFlags, int & rFlags)
 			count++;
 		}
 		{
-			StringSet fl_pack(FS, out_data);
+			StringSet fl_pack(CHR_FS, out_data);
 			int    fc = 0; // Считанное количество значений
 			uint    sp = 0;
 			if(fl_pack.get(&sp, out_data)) {
@@ -2309,7 +2290,7 @@ int PiritEquip::PreprocessChZnMark(const char * pMarkCode, double qtty, int uomI
 		}
 		THROW(ExecCmd("79", in_data, out_data, r_error)); // query=1
 		if(pResult) {
-			StringSet fl_pack(FS, out_data);
+			StringSet fl_pack(CHR_FS, out_data);
 			int    fc = 0; // Считанное количество значений
 			uint   sp = 0;
 			if(fl_pack.get(&sp, out_data)) {
@@ -2371,6 +2352,12 @@ int PiritEquip::RunCheck(int opertype)
 			if(Check.TaxSys >= 0 && Check.TaxSys <= 5)
 				CreateStr(inrangeordefault(static_cast<long>(Check.TaxSys), 0L, 5L, 0L), in_data);
 			THROW(ExecCmd("30", in_data, out_data, r_error));
+			break;
+		case 6: // Открыть чек коррекции
+			{
+				// @todo
+				// THROW(ExecCmd("58", in_data, out_data, r_error));
+			}
 			break;
 		case 1: // Закрыть документ
 			// Проверяем наличие открытого документа
@@ -2979,7 +2966,7 @@ int PiritEquip::ReturnCheckParam(const SString & rInput, char * pOutput, size_t 
 			CreateStr(1, in_data);
 			THROW(ExecCmd("03", in_data, out_data, r_error));
 			{
-				StringSet dataset(FS, out_data);
+				StringSet dataset(CHR_FS, out_data);
 				if(LogFileName.NotEmpty()) {
 					(str = "AMOUNT (Cmd=03 Arg=1)").CatDiv(':', 2).Cat(out_data);
 					SLS.LogMessage(LogFileName, str, 8192);
@@ -2994,7 +2981,7 @@ int PiritEquip::ReturnCheckParam(const SString & rInput, char * pOutput, size_t 
 			CreateStr(2, in_data);
 			THROW(ExecCmd("03", in_data, out_data, r_error));
 			{
-				StringSet dataset(FS, out_data);
+				StringSet dataset(CHR_FS, out_data);
 				if(LogFileName.NotEmpty()) {
 					(str = "CHECKNUM (Cmd=03 Arg=2)").CatDiv(':', 2).Cat(out_data);
 					SLS.LogMessage(LogFileName, str, 8192);
@@ -3048,7 +3035,7 @@ int PiritEquip::ReturnCheckParam(const SString & rInput, char * pOutput, size_t 
 				CreateStr(7, in_data);
 				THROW(ExecCmd("02", in_data, out_data, r_error));
 				{
-					StringSet dataset(FS, out_data);
+					StringSet dataset(CHR_FS, out_data);
 					const uint dsc = dataset.getCount();
 					if(dsc == 3) {
 						uint k = 0;

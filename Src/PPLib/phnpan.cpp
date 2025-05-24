@@ -96,18 +96,18 @@ private:
 				ar_obj.P_Tbl->PersonToArticle(Data.PersonID, GetSupplAccSheet(), &suppl_ar_id);
 			}
 			else {
-				showCtrl(CTL_SELACNBYPHN_PERSON, 0);
+				showCtrl(CTL_SELACNBYPHN_PERSON, false);
 			}
 			if(Data.SCardID) {
 				SCardTbl::Rec sc_rec;
-				temp_buf.Z();
-				if(ScObj.Fetch(Data.SCardID, &sc_rec) > 0) {
+				if(ScObj.Fetch(Data.SCardID, &sc_rec) > 0)
 					temp_buf = sc_rec.Code;
-				}
+				else
+					temp_buf.Z();
 				setCtrlString(CTL_SELACNBYPHN_SCARD, temp_buf);
 			}
 			else
-				showCtrl(CTL_SELACNBYPHN_SCARD, 0);
+				showCtrl(CTL_SELACNBYPHN_SCARD, false);
 			if(Data.LocID) {
 				LocationTbl::Rec loc_rec;
 				if(PsnObj.LocObj.Fetch(Data.LocID, &loc_rec) > 0) {
@@ -116,7 +116,7 @@ private:
 				}
 			}
 			else
-				showCtrl(CTL_SELACNBYPHN_LOC, 0);
+				showCtrl(CTL_SELACNBYPHN_LOC, false);
 			DisableClusterItem(CTL_SELACNBYPHN_WHAT, 0, !buyer_ar_id);
 			DisableClusterItem(CTL_SELACNBYPHN_WHAT, 1, !suppl_ar_id);
 			DisableClusterItem(CTL_SELACNBYPHN_WHAT, 2, !Data.PersonID);
@@ -473,14 +473,14 @@ int PhonePaneDialog::SetupInfo()
 			long   up_time = diffdatetimesec(getcurdatetime_(), S.SinceUp);
 			temp_buf.CatDivIfNotEmpty(';', 2).CatEq("UpTime", up_time);
 		}
-		showCtrl(CTL_PHNCPANE_AUTOCLOSE, 0);
+		showCtrl(CTL_PHNCPANE_AUTOCLOSE, false);
 	}
 	else {
 		temp_buf.CatDivIfNotEmpty(';', 2).Cat("DOWN");
 	}
 	setCtrlString(CTL_PHNCPANE_ST_INFO, temp_buf);
 	if(S.Status != PhnSvcChannelStatus::stUp) {
-		showCtrl(CTL_PHNCPANE_AUTOCLOSE, 1);
+		showCtrl(CTL_PHNCPANE_AUTOCLOSE, true);
 		if(!S.SinceDown) {
 			SetClusterData(CTL_PHNCPANE_AUTOCLOSE, 1);
 		}

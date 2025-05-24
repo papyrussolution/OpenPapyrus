@@ -345,7 +345,7 @@ int ArticleCtrlGroup::selectByCode(TDialog * pDlg)
 {
 	int    ok = -1;
 	ComboBox * p_combo = static_cast<ComboBox *>(pDlg->getCtrlView(CtlselAr));
-	if(Data.AcsID && p_combo && p_combo->link()) {
+	if(Data.AcsID && p_combo && p_combo->GetLink()) {
 		PPID   reg_type_id = 0, ar_id = 0;
 		if(PPObjArticle::GetSearchingRegTypeID(Data.AcsID, 0, 1, &reg_type_id) > 0) {
 			PPObjArticle ar_obj;
@@ -436,7 +436,7 @@ void ArticleCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 	}
 	else if(event.isKeyDown(kbF2)) {
 		ComboBox * p_combo = static_cast<ComboBox *>(pDlg->getCtrlView(CtlselAr));
-		if(p_combo && pDlg->IsCurrentView(p_combo->link())) {
+		if(p_combo && pDlg->IsCurrentView(p_combo->GetLink())) {
 			selectByCode(pDlg);
 			pDlg->clearEvent(event);
 		}

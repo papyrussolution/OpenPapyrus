@@ -256,7 +256,7 @@ public:
 		addGroup(ctlgroupPrcTech, new PrcTechCtrlGroup(CTLSEL_TSESS_PRC, CTLSEL_TSESS_TECH, CTL_TSESS_ST_GOODS,
 			CTLSEL_TSESS_OBJ, CTLSEL_TSESS_OBJ2, cmSelTechByGoods, cmCreateGoods));
 		if(!(TSesObj.GetConfig().Flags & PPTSessConfig::fUsePricing))
-			showCtrl(CTL_TSESS_AMOUNT, 0);
+			showCtrl(CTL_TSESS_AMOUNT, false);
 		MEMSZERO(TB);
 		TB.ToolingTime = -1;
 	}
@@ -357,7 +357,7 @@ int TSessionDialog::SetupPayment()
 	showCtrl(CTL_TSESS_ADDPAYMBUTT, (ok > 0));
 	showCtrl(CTL_TSESS_PAYMINFO, (ok > 0 || text_buf.NotEmpty()));
 	enableCommand(cmAddPaym, (ok > 0));
-	showCtrl(STDCTL_BILLSBUTTON, Data.Rec.ID);
+	showCtrl(STDCTL_BILLSBUTTON, LOGIC(Data.Rec.ID));
 	enableCommand(cmBills, Data.Rec.ID);
 	return ok;
 }
@@ -1608,11 +1608,11 @@ public:
 	{
 		SetupCalDate(CTLCAL_TSESSLN_DT, CTL_TSESSLN_DT);
 		addGroup(ctlgroupGoods, new GoodsCtrlGroup(CTLSEL_TSESSLN_GGRP, CTLSEL_TSESSLN_GOODS));
-		showCtrl(CTL_TSESSLN_ORGQTTY, 0); // @v11.0.7
+		showCtrl(CTL_TSESSLN_ORGQTTY, false); // @v11.0.7
 		if(!(TSesObj.GetConfig().Flags & PPTSessConfig::fUsePricing)) {
-			showCtrl(CTL_TSESSLN_PRICE, 0);
-			showCtrl(CTL_TSESSLN_DSCNT, 0);
-			showCtrl(CTL_TSESSLN_NETPRICE, 0);
+			showCtrl(CTL_TSESSLN_PRICE, false);
+			showCtrl(CTL_TSESSLN_DSCNT, false);
+			showCtrl(CTL_TSESSLN_NETPRICE, false);
 		}
 		else if(!TSesObj.CheckRights(TSESRT_MODPRICE))
 			disableCtrls(1, CTL_TSESSLN_PRICE, CTL_TSESSLN_DSCNT, 0);
@@ -1748,8 +1748,8 @@ void TSessLineDialog::SetupCtrlsOnGoodsSelection()
 	if(Data.GoodsID && GObj.Fetch(Data.GoodsID, &goods_rec) > 0 && GObj.FetchUnit(goods_rec.PhUnitID, &unit_rec) > 0)
 		setStaticText(CTL_TSESSLN_ST_PHQTTY, unit_rec.Name);
 	showCtrl(CTL_TSESSLN_PHQTTY, !(Data.Flags & TSESLF_INDEPPHQTTY));
-	showCtrl(CTL_TSESSLN_INDEPPHQTTY, Data.Flags & TSESLF_INDEPPHQTTY);
-	showCtrl(CTLMNU_TSESSLN_PHQTTY, Data.Flags & TSESLF_INDEPPHQTTY);
+	showCtrl(CTL_TSESSLN_INDEPPHQTTY, LOGIC(Data.Flags & TSESLF_INDEPPHQTTY));
+	showCtrl(CTLMNU_TSESSLN_PHQTTY, LOGIC(Data.Flags & TSESLF_INDEPPHQTTY));
 	disableCtrls(Data.Flags & TSESLF_RECOMPL, CTL_TSESSLN_QTTY, CTL_TSESSLN_SIGN, CTL_TSESSLN_ORGQTTY, 0); // @v11.0.7 CTL_TSESSLN_QTTY
 	SetupLotDimention(); // @v11.0.4
 }
@@ -1779,9 +1779,9 @@ void TSessLineDialog::SetupLotDimention()
 {
 	SString formula;
 	uint   dims_allowed = GetLotDimAllowence(&formula); // bit-mask X: 0x01, Y: 0x02, Z: 0x04
-	showCtrl(CTL_TSESSLN_LOTDIMX, dims_allowed & 0x01);
-	showCtrl(CTL_TSESSLN_LOTDIMY, dims_allowed & 0x02);
-	showCtrl(CTL_TSESSLN_LOTDIMZ, dims_allowed & 0x04);
+	showCtrl(CTL_TSESSLN_LOTDIMX, LOGIC(dims_allowed & 0x01));
+	showCtrl(CTL_TSESSLN_LOTDIMY, LOGIC(dims_allowed & 0x02));
+	showCtrl(CTL_TSESSLN_LOTDIMZ, LOGIC(dims_allowed & 0x04));
 	if(formula.NotEmptyS()) {
 		if(dims_allowed & 0x01)
 			selectCtrl(CTL_TSESSLN_LOTDIMX);

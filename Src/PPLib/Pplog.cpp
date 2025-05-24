@@ -100,7 +100,7 @@ LogListWindowSCI::LogListWindowSCI(TVMsgLog * pLog) : TWindow(TRect(0, 0, 100, 2
 	::UpdateWindow(H());
 	::PostMessage(H(), WM_SIZE, 0, 0);
 	::PostMessage(APPL->H_MainWnd, WM_SIZE, 0, 0);
-	::SetWindowPos(H(), HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+	::SetWindowPos(H(), HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE | SWP_NOACTIVATE);
 }
 
 void LogListWindowSCI::Refresh(long item)

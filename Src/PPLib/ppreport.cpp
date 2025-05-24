@@ -2344,9 +2344,9 @@ static int GetSvdtStrOpt(SvdtStrDlgAns * pSsda)
 			if(Data.EdRep)
 				setCtrlData(CTL_SAVEDATA_EDREP, &Data.EdRep);
 			else {
-				disableCtrl(CTL_SAVEDATA_EDREP, 1);
-				disableCtrl(CTL_SAVEDATA_EDREPPATH, 1);
-				showCtrl(CTLBRW_SAVEDATA_EDREPPTH, 0);
+				disableCtrl(CTL_SAVEDATA_EDREP, true);
+				disableCtrl(CTL_SAVEDATA_EDREPPATH, true);
+				showCtrl(CTLBRW_SAVEDATA_EDREPPTH, false);
 			}
 			return 1;
 		}

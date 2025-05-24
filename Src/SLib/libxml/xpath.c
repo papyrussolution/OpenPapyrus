@@ -8512,16 +8512,15 @@ void xmlXPathFloorFunction(xmlXPathParserContext * ctxt, int nargs)
 			ctxt->value->floatval = f - 1;
 	}
 }
-/**
- * xmlXPathCeilingFunction:
- * @ctxt:  the XPath Parser context
- * @nargs:  the number of arguments
- *
- * Implement the ceiling() XPath function
- *  number ceiling(number)
- * The ceiling function returns the smallest (closest to negative infinity)
- * number that is not less than the argument and that is an integer.
- */
+// 
+// xmlXPathCeilingFunction:
+// @ctxt:  the XPath Parser context
+// @nargs:  the number of arguments
+// 
+// Implement the ceiling() XPath function number ceiling(number)
+// The ceiling function returns the smallest (closest to negative infinity)
+// number that is not less than the argument and that is an integer.
+// 
 void xmlXPathCeilingFunction(xmlXPathParserContext * ctxt, int nargs) 
 {
 	double f;
@@ -8544,17 +8543,15 @@ void xmlXPathCeilingFunction(xmlXPathParserContext * ctxt, int nargs)
 	}
 #endif
 }
-/**
- * xmlXPathRoundFunction:
- * @ctxt:  the XPath Parser context
- * @nargs:  the number of arguments
- *
- * Implement the round() XPath function
- *  number round(number)
- * The round function returns the number that is closest to the
- * argument and that is an integer. If there are two such numbers,
- * then the one that is even is returned.
- */
+// 
+// xmlXPathRoundFunction:
+// @ctxt:  the XPath Parser context
+// @nargs:  the number of arguments
+// 
+// Implement the round() XPath function number round(number)
+// The round function returns the number that is closest to the
+// argument and that is an integer. If there are two such numbers, then the one that is even is returned.
+// 
 void xmlXPathRoundFunction(xmlXPathParserContext * ctxt, int nargs) 
 {
 	double f;

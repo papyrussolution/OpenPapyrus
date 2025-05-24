@@ -176,7 +176,7 @@ int PPIniFile::UpdateFromFile(const char * pSrcFileName)
 		THROW_SL(src_ini.GetSections(&sect_set));
 		for(uint sp = 0; sect_set.get(&sp, sect_buf);) {
 			entry_set.Z();
-			THROW(src_ini.GetEntries(sect_buf, &entry_set, 0));
+			THROW(src_ini.GetEntries(sect_buf, &entry_set, false));
 			for(uint ep = 0; entry_set.get(&ep, entry_buf);) {
 				src_ini.GetParam(sect_buf, entry_buf, val_buf);
 				if(!backup_done) {

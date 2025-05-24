@@ -914,9 +914,7 @@ int LotExtCodeCore::PutContainer(PPID billID, const PPLotExtCodeContainer * pC, 
 			int    is_found = 0;
 			for(uint i = 0; !is_found && i < pC->GetCount(); i++) {
 				pC->GetByIdx(i, citem);
-				//Item & r_item = *(Item *)at(i);
-				// @v10.2.9 if(r_item.RowIdx == pTbl->data.RByBill && r_item.Sign == pTbl->data.Sign) {
-				if(citem.RowIdx == data.RByBill && citem.Flags == data.Flags && citem.BoxId == data.BoxNo && citem.Num == data.Code) { // @v10.2.9
+				if(citem.RowIdx == data.RByBill && citem.Flags == data.Flags && citem.BoxId == data.BoxNo && citem.Num == data.Code) {
 					is_found = 1;
 					found_idx_list.add(i+1);
 				}
@@ -934,14 +932,11 @@ int LotExtCodeCore::PutContainer(PPID billID, const PPLotExtCodeContainer * pC, 
 				for(uint i = 0; i < pC->GetCount(); i++) {
 					if(!found_idx_list.bsearch(i+1)) {
 						pC->GetByIdx(i, citem);
-						//Item & r_item = *(Item *)at(i);
-						//GetS(r_item.CodeP, code_buf);
 						LotExtCodeTbl::Rec rec;
 						rec.BillID = billID;
 						rec.RByBill = citem.RowIdx;
-						// @v10.2.9 rec.Sign = r_item.Sign;
-						rec.Flags = citem.Flags; // @v10.2.9
-						rec.BoxNo = citem.BoxId; // @v10.2.9
+						rec.Flags = citem.Flags;
+						rec.BoxNo = citem.BoxId;
 						STRNSCPY(rec.Code, citem.Num);
 						THROW_DB(bei.insert(&rec));
 						ok = 1;
@@ -971,7 +966,6 @@ int LotExtCodeCore::GetContainer(PPID billID, PPLotExtCodeContainer & rC)
 		copyBufTo(&rec);
 		code_buf = rec.Code;
 		if(rec.BillID == billID && code_buf.NotEmptyS()) {
-			//THROW(rC.Add(rec.RByBill, rec.BoxNo, rec.Flags, code_buf, 0));
 			THROW(rC.Helper_Add(rec.RByBill, rec.BoxNo, rec.Flags, code_buf, 0, 0));
 			ok = 1;
 		}

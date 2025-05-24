@@ -1,10 +1,10 @@
 // STRSTORE.CPP
-// Copyright (c) A.Sobolev 1996-1999, 2000-2003, 2004, 2008, 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 1996-1999, 2000-2003, 2004, 2008, 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 //
+#pragma hdrstop
 #define SKIP_UED_ID_H
 #include <pp.h>
-#pragma hdrstop
 #include <strstore.h>
 //
 // Testing command line params:
@@ -433,7 +433,7 @@ const StringStore2::LangStrCollItem * FASTCALL StringStore2::GetList(int slang) 
 //#ifdef SC2C // {
 
 enum {
-	sc2eUsage    = PPERR_SC2_USAGE,             // Usage: SC2C inputFileName
+	sc2eUsage            = PPERR_SC2_USAGE,             // Usage: SC2C inputFileName
 	sc2eGrpCodeLimit     = PPERR_SC2_GRPCODELIMIT,      // Превышение максимального значения кода группы (0x7fff-1)
 	sc2eStrCodeLimit     = PPERR_SC2_STRCODELIMIT,      // Превышение максимального значения кода строки (0x7ffff-1)
 	sc2eDupSignature     = PPERR_SC2_DUPSIGNATURE,      // Дублирование сигнатуры строки
@@ -443,12 +443,12 @@ enum {
 	sc2eSrcFileOpenFault = PPERR_SC2_SRCFILEOPENFAULT,  // Ошибка открытия исходного файла
 	sc2eUnfinStrWrap     = PPERR_SC2_UNFINSTRWRAP,      // Перенос строки не завершен
 	sc2eUnexpEndOfStr    = PPERR_SC2_UNEXPENDOFSTR,     // Строка должна оканчиваться либо символом '\' либо '"'
-	sc2eStxGrp01 = PPERR_SC2_STXGRP01,          // Ошибка в определении группы строк (ожидается ']')
-	sc2eStxGrp02 = PPERR_SC2_STXGRP02,          // Ошибка в определении группы строк [symb=number]
+	sc2eStxGrp01         = PPERR_SC2_STXGRP01,          // Ошибка в определении группы строк (ожидается ']')
+	sc2eStxGrp02         = PPERR_SC2_STXGRP02,          // Ошибка в определении группы строк [symb=number]
 	sc2eStxEqAfterCode   = PPERR_SC2_STXEQAFTERCODE,    // Числовое значение не должно предшествовать символу '='
 	sc2eStxStrSymbStart  = PPERR_SC2_STXSTRSYMBSTART,   // Символ строки должен начинаться с прописной латинской буквы или '_'
 	sc2eStxStrSymbChr    = PPERR_SC2_STXSTRSYMBCHR,     // Символ строки должен содержать либо прописные латинские буквы либо цифры либо '_'
-	sc2eStxStr01 = PPERR_SC2_STXSTR01,          // Ошибка в определении строки (symb=number)
+	sc2eStxStr01         = PPERR_SC2_STXSTR01,          // Ошибка в определении строки (symb=number)
 	sc2eInvSlashX        = PPERR_SC2_INVSLASHX,         // Не оконченная конструкция '\x00'
 	sc2eInvSlashDigit    = PPERR_SC2_INVSLASHDIGIT,     // Не оконченная конструкция '\000'
 	sc2eStxLangGrp01     = PPERR_SC2_STXLANGGRP01,      // Ошибка в определении группы языка (ожидается '/')
@@ -519,13 +519,49 @@ int StringStore2::Error(int errCode, long flags)
 	return 0;
 }
 
-int StringStore2::StoreState(const char * pFileName)
+int StringStore2::StoreState(const char * pFileName, const HashBlock & rHashBlk)
 {
 	int    ok = 1;
 	uint   i;
 	SString temp_buf;
     SIniFile ini_file(pFileName, 1, 1, 1);
     THROW(ini_file.IsValid());
+	// @v12.3.4 {
+	{
+		SString key_buf;
+		SString val_buf;
+		for(uint i = 0; i < rHashBlk.getCount(); i++) {
+			const HashEntry * p_he= rHashBlk.at(i);
+			if(p_he) {
+				if(p_he->LangId == 0)
+					key_buf = "base";
+				else {
+					GetLinguaCode(p_he->LangId, temp_buf);
+					if(temp_buf.NotEmpty()) {
+						(key_buf = "lang").CatChar('-').Cat(temp_buf);
+					}
+					else {
+						(key_buf = "lang").CatChar('-').Cat(p_he->LangId);
+					}
+				}
+				val_buf.Z();
+				val_buf.Cat(p_he->SrcFileName).Comma().Cat(p_he->SrcFileHash.Mime64(temp_buf)).Comma().
+					Cat(p_he->BinFileName).Comma().Cat(p_he->BinFileHash.Mime64(temp_buf));
+				ini_file.AppendParam("hash", key_buf, val_buf, 1);
+			}
+		}
+		if(rHashBlk.CHdrFileName.NotEmpty() && rHashBlk.CHdrFileHash.Len()) {
+			key_buf = "chdr";
+			val_buf.Z().Cat(rHashBlk.CHdrFileName).Comma().Cat(rHashBlk.CHdrFileHash.Mime64(temp_buf));
+			ini_file.AppendParam("hash", key_buf, val_buf, 1);
+		}
+		if(rHashBlk.JavaFileName.NotEmpty() && rHashBlk.JavaFileHash.Len()) {
+			key_buf = "java";
+			val_buf.Z().Cat(rHashBlk.JavaFileName).Comma().Cat(rHashBlk.JavaFileHash.Mime64(temp_buf));
+			ini_file.AppendParam("hash", key_buf, val_buf, 1);
+		}
+	}
+	// } @v12.3.4 
     ini_file.AppendParam("common", "LastAutoGrpCode",   temp_buf.Z().Cat(P_Pb->LastAutoGrpCode), 1);
     ini_file.AppendParam("common", "LastSignatureCode", temp_buf.Z().Cat(P_Pb->LastSignatureCode), 1);
     //
@@ -558,22 +594,162 @@ int StringStore2::StoreState(const char * pFileName)
 	return ok;
 }
 
-int StringStore2::RestoreState(const char * pFileName)
+bool StringStore2::VerifyHashEntry(int langId, const HashBlock & rHshBlk, const OrgSrcFileBlock & rOrgFileBlk)
+{
+	bool   ok = false;
+	const HashEntry * p_entry = rHshBlk.SearchLangEntry(langId, 0);
+	if(p_entry) {
+		SString src_path;
+		SString bin_path;
+		SString src_fnm;
+		SString bin_fnm;
+		rOrgFileBlk.MakeSrcFilePath(langId, src_path, &src_fnm);
+		rOrgFileBlk.MakeBinFilePath(langId, bin_path, &bin_fnm);
+		if(fileExists(src_path) && fileExists(bin_path)) {
+			if(p_entry->SrcFileName.IsEqiAscii(src_fnm) && p_entry->BinFileName.IsEqiAscii(bin_fnm)) {
+				SBinaryChunk src_hash;
+				SBinaryChunk bin_hash;
+				if(rHshBlk.MakeFileHash(src_path, 0, src_hash) && src_hash == p_entry->SrcFileHash) {
+					if(rHshBlk.MakeFileHash(bin_path, 0, bin_hash) && bin_hash == p_entry->BinFileHash) {
+						ok = true;
+					}
+				}
+			}
+		}
+	}
+	return ok;
+}
+
+bool StringStore2::VerifyHashEntry_CHdr(const HashBlock & rHshBlk, const OrgSrcFileBlock & rOrgFileBlk)
+{
+	bool   ok = false;
+	SString path;
+	SString fnm;
+	SBinaryChunk hash;
+	rOrgFileBlk.MakeCHdrFilePath(path, &fnm);
+	if(fileExists(path)) {
+		ok = (rHshBlk.CHdrFileName.IsEqiAscii(fnm) && rHshBlk.MakeFileHash(path, 0, hash) && hash == rHshBlk.CHdrFileHash);
+	}
+	return ok;
+}
+
+bool StringStore2::VerifyHashEntry_Java(const HashBlock & rHshBlk, const OrgSrcFileBlock & rOrgFileBlk)
+{
+	bool   ok = false;
+	SString path;
+	SString fnm;
+	SBinaryChunk hash;
+	rOrgFileBlk.MakeJavaFilePath(path, &fnm);
+	if(fileExists(path)) {
+		ok = (rHshBlk.JavaFileName.IsEqiAscii(fnm) && rHshBlk.MakeFileHash(path, 0, hash) && hash == rHshBlk.JavaFileHash);
+	}
+	return ok;
+}
+
+int StringStore2::RestoreState(const char * pFileName, const StrAssocArray & rFileLangList)
 {
     int    ok = 1;
     if(fileExists(pFileName)) {
-		SString temp_buf, item_buf, key_buf, val_buf;
+		SString temp_buf;
+		SString item_buf;
+		SString key_buf;
+		SString val_buf;
         StringSet ss;
         SIniFile ini_file(pFileName, 0, 1, 1);
 		THROW(ini_file.IsValid());
-		ini_file.GetParam("common", "LastAutoGrpCode", temp_buf.Z());
+		// @v12.3.4 {
+		{
+			P_Pb->Saved_HashBlk.Z();
+			StringSet ss_hash;
+			StringSet ss_entry(",");
+			SString fnm;
+			SString hsh;
+			SString fnm_src;
+			SString fnm_bin;
+			SBinaryChunk bc_src;
+			SBinaryChunk bc_bin;
+			ini_file.GetEntries("hash", &ss_hash, false);
+			for(uint ssp = 0; ss_hash.get(&ssp, key_buf);) {
+				const int gpr = ini_file.GetParam("hash", key_buf, val_buf);
+				assert(gpr > 0); // Это - невозможно. Мы получили ключ только что методом GetEntries
+				if(gpr > 0) {
+					if(key_buf.IsEqiAscii("chdr")) {
+						if(val_buf.Divide(',', fnm, hsh) > 0) {
+							if(fnm.NotEmptyS() && P_Pb->Saved_HashBlk.CHdrFileHash.FromMime64(hsh)) {
+								P_Pb->Saved_HashBlk.CHdrFileName = fnm;	
+							}
+						}
+					}
+					else if(key_buf.IsEqiAscii("java")) {
+						if(val_buf.Divide(',', fnm, hsh) > 0) {
+							if(fnm.NotEmptyS() && P_Pb->Saved_HashBlk.JavaFileHash.FromMime64(hsh)) {
+								P_Pb->Saved_HashBlk.JavaFileName = fnm;	
+							}
+						}
+					}
+					else {
+						static constexpr char * p_lang_prefix = "lang-";
+						const bool is_base = key_buf.IsEqiAscii("base");
+						const bool is_lang = (!is_base && key_buf.HasPrefixIAscii(p_lang_prefix));
+						if(is_base || is_lang) {
+							ss_entry.setBuf(val_buf);
+							if(ss_entry.getCount() == 4) {
+								uint   ssep = 0;
+								bool   local_ok = false;
+								fnm_src.Z();
+								fnm_bin.Z();
+								if(ss_entry.get(&ssep, temp_buf) && temp_buf.NotEmpty()) {
+									fnm_src = temp_buf;
+									if(ss_entry.get(&ssep, temp_buf) && bc_src.FromMime64(temp_buf)) {
+										if(ss_entry.get(&ssep, temp_buf) && temp_buf.NotEmpty()) {
+											fnm_bin = temp_buf;
+											if(ss_entry.get(&ssep, temp_buf) && bc_bin.FromMime64(temp_buf)) {
+												HashEntry * p_new_entry = new HashEntry;
+												p_new_entry->SrcFileName = fnm_src;
+												p_new_entry->BinFileName = fnm_bin;
+												p_new_entry->SrcFileHash = bc_src;
+												p_new_entry->BinFileHash = bc_bin;
+												if(is_base) {
+													p_new_entry->LangId = 0;
+												}
+												else {
+													assert(is_lang);
+													key_buf.Sub(strlen(p_lang_prefix), key_buf.Len(), temp_buf);
+													p_new_entry->LangId = RecognizeLinguaSymb(temp_buf, 0);
+													if(!p_new_entry->LangId) {
+														ZDELETE(p_new_entry);
+													}
+												}
+												if(p_new_entry) {
+													HashEntry * p_ex_entry = P_Pb->Saved_HashBlk.SearchLangEntry(p_new_entry->LangId, 0);
+													if(p_ex_entry) {
+														// Вообще-то такого быть не может, но паранойя заставляет рассматривать все варианты
+														*p_ex_entry = *p_new_entry;
+													}
+													else {
+														P_Pb->Saved_HashBlk.insert(p_new_entry);
+													}
+													local_ok = true;
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		// } @v12.3.4 
+		ini_file.GetParam("common", "LastAutoGrpCode", temp_buf);
 		P_Pb->LastAutoGrpCode = temp_buf.ToLong();
-		ini_file.GetParam("common", "LastSignatureCode", temp_buf.Z());
+		ini_file.GetParam("common", "LastSignatureCode", temp_buf);
 		P_Pb->LastSignatureCode = temp_buf.ToULong();
 		//
 		{
 			P_Pb->LastAutoCodeList.clear();
-			ini_file.GetParam("common", "LastAutoCodeList", temp_buf.Z());
+			ini_file.GetParam("common", "LastAutoCodeList", temp_buf);
 			StringSet ss(';', temp_buf);
 			for(uint ssp = 0; ss.get(&ssp, item_buf);) {
 				if(item_buf.Divide(',', key_buf, val_buf) > 0) {
@@ -586,7 +762,7 @@ int StringStore2::RestoreState(const char * pFileName)
 			SignatureList.Z();
 			P_Pb->Saved_SignatureList.Z();
 			ss.Z();
-			ini_file.GetEntries("SignatureList", &ss, 1);
+			ini_file.GetEntries("SignatureList", &ss, true);
 			for(uint ssp = 0; ss.get(&ssp, item_buf);) {
                 if(item_buf.Divide('=', key_buf, val_buf) > 0) {
 					P_Pb->Saved_SignatureList.Add((long)val_buf.Strip().ToULong(), key_buf.Strip(), 1);
@@ -598,7 +774,7 @@ int StringStore2::RestoreState(const char * pFileName)
 			GrpSymbList.Z();
 			P_Pb->Saved_GrpSymbList.Z();
 			ss.Z();
-			ini_file.GetEntries("GrpSymbList", &ss, 1);
+			ini_file.GetEntries("GrpSymbList", &ss, true);
 			for(uint ssp = 0; ss.get(&ssp, item_buf);) {
                 if(item_buf.Divide('=', key_buf, val_buf) > 0) {
 					P_Pb->Saved_GrpSymbList.Add((long)val_buf.Strip().ToULong(), key_buf.Strip(), 1);
@@ -610,7 +786,7 @@ int StringStore2::RestoreState(const char * pFileName)
 			P_Pb->StrSymbList.Z();
 			P_Pb->Saved_StrSymbList.Z();
 			ss.Z();
-			ini_file.GetEntries("StrSymbList", &ss, 1);
+			ini_file.GetEntries("StrSymbList", &ss, true);
 			for(uint ssp = 0; ss.get(&ssp, item_buf);) {
                 if(item_buf.Divide('=', key_buf, val_buf) > 0) {
 					P_Pb->Saved_StrSymbList.Add((long)val_buf.Strip().ToULong(), key_buf.Strip(), 1);
@@ -792,6 +968,309 @@ static void RecoverAutotranslatedString(SString & rBuf, StrAssocArray & rAssocLi
 	rBuf.ElimDblSpaces();
 }
 
+StringStore2::PreloadedHashGroupEntry::PreloadedHashGroupEntry() : Group(0), P_Tab(0)
+{
+}
+
+StringStore2::PreloadedHashGroupEntry::~PreloadedHashGroupEntry()
+{
+	ZDELETE(P_Tab);
+}
+
+StringStore2::HashEntry::HashEntry() : LangId(0)
+{
+}
+
+StringStore2::HashEntry::~HashEntry()
+{
+}
+
+StringStore2::HashEntry & StringStore2::HashEntry::Z()
+{
+	LangId = 0;
+	SrcFileName.Z();
+	BinFileName.Z();
+	SrcFileHash.Z();
+	BinFileHash.Z();
+	return *this;
+}
+
+StringStore2::HashBlock::HashBlock() : TSCollection <HashEntry>(), HashFunc(SHASHF_SHA256)
+{
+}
+
+StringStore2::HashBlock & StringStore2::HashBlock::Z()
+{
+	CHdrFileName.Z();
+	JavaFileName.Z();
+	CHdrFileHash.Z();
+	JavaFileHash.Z();
+	freeAll();
+	return *this;
+}
+
+StringStore2::HashEntry * StringStore2::HashBlock::SearchLangEntry(int langId, uint * pPos) const
+{
+	HashEntry * p_entry = 0;
+	uint   pos = 0;
+	for(uint i = 0; !p_entry && i < getCount(); i++) {
+		HashEntry * p_iter_entry = at(i);
+		if(p_iter_entry && p_iter_entry->LangId == langId) {
+			pos = i;
+			p_entry = p_iter_entry;
+		}
+	}
+	ASSIGN_PTR(pPos, pos);
+	return p_entry;
+}
+
+void StringStore2::HashBlock::CopyCHdrHash(const HashBlock & rS)
+{
+	CHdrFileName = rS.CHdrFileName;
+	CHdrFileHash = rS.CHdrFileHash; 
+}
+
+void StringStore2::HashBlock::CopyJavaHash(const HashBlock & rS)
+{
+	JavaFileName = rS.JavaFileName;
+	JavaFileHash = rS.JavaFileHash; 
+}
+
+bool StringStore2::HashBlock::CopyEntry(int langId, const HashBlock & rS)
+{
+	bool   ok = false;
+	const  HashEntry * p_src_entry = rS.SearchLangEntry(langId, 0);
+	if(p_src_entry) {
+		HashEntry * p_ex_entry = SearchLangEntry(langId, 0);
+		if(p_ex_entry) {
+			*p_ex_entry = *p_src_entry;
+			ok = true;
+		}
+		else {
+			HashEntry * p_new_entry = new HashEntry(*p_src_entry);
+			ok = (p_new_entry && insert(p_new_entry));
+		}	
+	}
+	return ok;
+}
+
+bool StringStore2::HashBlock::MakeFileHash(const char * pFilePath, SString * pResultFileName, SBinaryChunk & rHash) const
+{
+	CALLPTRMEMB(pResultFileName, Z());
+	rHash.Z();
+	bool   ok = true;
+	SString file_path;
+	{
+		SFsPath::NormalizePath(pFilePath, SFsPath::npfCompensateDotDot, file_path);
+		SFile f(file_path, SFile::mRead|SFile::mBinary|SFile::mNoStd);
+		THROW(f.IsValid());
+		THROW(f.CalcHash(0, HashFunc, rHash));
+		if(pResultFileName) {
+			SFsPath ps(file_path);
+			ps.Merge(SFsPath::fNam|SFsPath::fExt, *pResultFileName);
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+bool StringStore2::HashBlock::MakeCHdrHash(const char * pFilePath) { return MakeFileHash(pFilePath, &CHdrFileName, CHdrFileHash); }
+bool StringStore2::HashBlock::MakeJavaHash(const char * pFilePath) { return MakeFileHash(pFilePath, &JavaFileName, JavaFileHash); }
+
+int StringStore2::HashBlock::CreateEntry(int langId, const char * pSrcFilePath, const char * pBinFilePath)
+{
+	int    ok = 1;
+	HashEntry * p_entry = 0;
+	SFsPath ps;
+	SString file_path;
+	assert(HashFunc);
+	THROW(HashFunc);
+	THROW(p_entry = new HashEntry);
+	p_entry->LangId = langId;
+	THROW(MakeFileHash(pSrcFilePath, &p_entry->SrcFileName, p_entry->SrcFileHash));
+	THROW(MakeFileHash(pBinFilePath, &p_entry->BinFileName, p_entry->BinFileHash));
+	{
+		HashEntry * p_ex_entry = SearchLangEntry(langId, 0);
+		if(p_ex_entry) {
+			*p_ex_entry = *p_entry;
+		}
+		else {
+			insert(p_entry);
+		}
+	}
+	CATCH
+		ok = 0;
+		ZDELETE(p_entry);
+	ENDCATCH
+	return ok;
+}
+
+StringStore2::ParseBlock::ParseBlock() : Line(0), LastAutoGrpCode(1000), LastSignatureCode(0x80000000)
+{
+}
+
+StringStore2::ParseBlock::~ParseBlock()
+{
+}
+
+SString & StringStore2::OrgSrcFileBlock::MakeSrcFilePath(int langId, SString & rFilePath, SString * pFileName) const
+{
+	rFilePath.Z();
+	CALLPTRMEMB(pFileName, Z());
+	if(!(State & stError)) {
+		SFsPath ps(Ps);
+		ps.Nam = GetOrgName();
+		if(langId) {
+			SString temp_buf;
+            GetLinguaCode(langId, temp_buf);
+			ps.Nam.CatChar('-').Cat(temp_buf);
+		}
+		ps.Ext = GetOrgExt();
+		ps.Merge(rFilePath);
+		if(pFileName)
+			ps.Merge(SFsPath::fNam|SFsPath::fExt, *pFileName);
+	}
+	return rFilePath;
+}
+
+SString & StringStore2::OrgSrcFileBlock::MakeBinFilePath(int langId, SString & rFilePath, SString * pFileName) const
+{
+	rFilePath.Z();
+	CALLPTRMEMB(pFileName, Z());
+	if(!(State & stError)) {
+		SFsPath ps(Ps);
+		ps.Nam = GetOrgName();
+		if(langId) {
+			SString temp_buf;
+            GetLinguaCode(langId, temp_buf);
+			ps.Nam.CatChar('-').Cat(temp_buf);
+		}
+		ps.Ext = "bin";
+		ps.Merge(rFilePath);
+		if(pFileName)
+			ps.Merge(SFsPath::fNam|SFsPath::fExt, *pFileName);
+	}
+	return rFilePath;
+}
+
+SString & StringStore2::OrgSrcFileBlock::MakeFilePathByChangingExt(const char * pExt, SString & rFilePath, SString * pFileName) const
+{
+	assert(!isempty(pExt));
+	rFilePath.Z();
+	CALLPTRMEMB(pFileName, Z());
+	if(!(State & stError)) {
+		SFsPath ps(Ps);
+		ps.Ext = pExt;
+		ps.Merge(rFilePath);
+		if(pFileName)
+			ps.Merge(SFsPath::fNam|SFsPath::fExt, *pFileName);
+	}
+	return rFilePath;
+}
+
+SString & StringStore2::OrgSrcFileBlock::MakeCHdrFilePath(SString & rFilePath, SString * pFileName) const
+{
+	return MakeFilePathByChangingExt("h", rFilePath, pFileName);
+}
+
+SString & StringStore2::OrgSrcFileBlock::MakeJavaFilePath(SString & rFilePath, SString * pFileName) const
+{
+	return MakeFilePathByChangingExt("java", rFilePath, pFileName);
+}
+
+void StringStore2::OrgSrcFileBlock::MakeIdentFilePath(SString & rFilePath) const // *.symb
+{
+	MakeFilePathByChangingExt("symb", rFilePath, 0);
+}
+
+void StringStore2::OrgSrcFileBlock::MakeLangSrcFileSearchPattern(SString & rPattern) const
+{
+	rPattern.Z();
+	if(!(State & stError)) {
+		SFsPath ps(Ps);
+		ps.Ext = GetOrgExt();
+		(ps.Nam = GetOrgName()).CatChar('-').CatChar('*');
+		ps.Merge(rPattern);
+	}
+}
+
+void StringStore2::OrgSrcFileBlock::MakeAutotranslateFilePath(SString & rFilePath) const
+{
+	rFilePath.Z();
+	if(!(State & stError) && AutoTranslLang) {
+		SString temp_buf;
+		GetLinguaCode(AutoTranslLang, temp_buf);
+		SFsPath ps(Ps);
+		ps.Nam.Z().Cat("auto").CatChar('-').Cat(GetOrgName()).CatChar('-').Cat(temp_buf);
+		ps.Ext = GetOrgExt();
+		ps.Merge(rFilePath);		
+	}
+}
+
+StringStore2::OrgSrcFileBlock::OrgSrcFileBlock(const char * pFileName, const char * pTranslateToLang) : State(0), AutoTranslLang(0), Ps(pFileName)
+{
+	EXCEPTVAR(PrivateErrCode);
+	
+	SString temp_buf;
+	THROW_V(fileExists(pFileName), sc2eSrcFileNotFound);
+	{
+		THROW_V(!Ps.Nam.HasChr('-'), sc2eSrcFileHasHyphen);
+		FileLangList.Add(0, pFileName);
+		//OrgName = Ps.Nam;
+		//OrgExt = Ps.Ext;
+		//
+		MakeIdentFilePath(IdentFileName);
+		MakeLangSrcFileSearchPattern(temp_buf);
+		{
+        	SString lang_symb;
+			SString _iter_file_name;
+			SDirEntry de;
+			SFsPath ps_lang;
+			SFsPath local_ps(Ps);
+			for(SDirec direc(temp_buf, 0); direc.Next(&de) > 0;) {
+				if(!de.IsFolder()) {
+					de.GetNameA(_iter_file_name);
+					size_t hyphen_pos = 0;
+					if(_iter_file_name.SearchChar('-', &hyphen_pos)) {
+						_iter_file_name.Sub(hyphen_pos+1, _iter_file_name.Len(), lang_symb.Z());
+						const int slang = RecognizeLinguaSymb(lang_symb, 0);
+						if(slang) {
+							ps_lang.Split(_iter_file_name);
+							local_ps.Nam = ps_lang.Nam;
+							local_ps.Ext = ps_lang.Ext;
+							local_ps.Merge(temp_buf);
+							FileLangList.Add(slang, temp_buf);
+						}
+					}
+				}
+			}
+		}
+	}
+	if(!isempty(pTranslateToLang)) {
+		THROW_V(AutoTranslLang = RecognizeLinguaSymb(pTranslateToLang, 0), PPERR_SC2_INVLANGSYMB);
+		MakeAutotranslateFilePath(AutoTranslFile);
+		//
+		// При необходимости автоперевода мы в первую очередь должны будем разобрать файл с тем
+		// языком, на который будет осуществляться перевод для того, чтобы при переводе
+		// можно было выяснять есть у нас перевод какой-то строки или нет.
+		// Контекст проблемы: после автоперевода результат доводится в ручную и складывается
+		// в регулярный файл строк на нужном языке.
+		// Что бы, не дай бог, не перезаписать результаты ручной правки мы будет переводить
+		// только строки, которые не были переведены ранее.
+		//
+		for(uint fli = 0; fli < FileLangList.getCount(); fli++) {
+			StrAssocArray::Item fl_item = FileLangList.Get(fli);
+			if(fl_item.Id == AutoTranslLang) {
+				FileLangList.Swap(0, fli);
+                break;
+			}
+		}
+	}
+	CATCH
+		State |= stError;
+	ENDCATCH
+}
+
 int StringStore2::Compile(const char * pFileName, long flags, const char * pTranslateToLang)
 {
 	EXCEPTVAR(ErrCode);
@@ -799,347 +1278,342 @@ int StringStore2::Compile(const char * pFileName, long flags, const char * pTran
 	//const  uint64 _ptstart = prfl.GetAbsTimeMicroseconds(); // @v11.1.11
 	const  int64 _clk_start = clock(); // @v11.1.11
 	int    ok = 1;
-	StrAssocArray file_lang_list;
-	SString ident_file_name; // Имя файла, хранящего соответствия символов и идентификаторов
 	SString temp_buf;
 	SString final_line_buf;
 	SString intr_at_text;
+	HashBlock actual_hash_block; // @v12.3.4
 	SFsPath ps;
-	SString org_nam, org_ext;
 	PPAutoTranslSvc_Microsoft * p_at = 0;
 	int    at_auth_error = 0;
-	THROW_V(fileExists(pFileName), sc2eSrcFileNotFound);
+	LAssocArray is_unmodif_list; // Key - lang_id; Val - is-unmodified tag
+	bool   is_unmodif_base = false;
+	bool   is_unmodif_chdr = false;
+	bool   is_unmodif_java = false;
+	bool   is_unmodif_all = false;
+	const  OrgSrcFileBlock org_file_blk(pFileName, pTranslateToLang);
+	THROW_V(org_file_blk, org_file_blk.PrivateErrCode);
 	THROW(InitParsing());
-	//THROW(s.ParseFile(pFileName));
-	{
-        ps.Split(pFileName);
-        THROW_V(!ps.Nam.HasChr('-'), sc2eSrcFileHasHyphen);
-        file_lang_list.Add(0, pFileName);
-
-		org_nam = ps.Nam;
-		org_ext = ps.Ext;
-		//
-		ps.Ext = "symb";
-		ps.Merge(ident_file_name);
-		//
-        ps.Ext = org_ext;
-        (ps.Nam = org_nam).CatChar('-').CatChar('*');
-        ps.Merge(temp_buf);
-        {
-        	SString lang_symb;
-			SDirEntry de;
-			SFsPath ps_lang;
-			for(SDirec direc(temp_buf, 0); direc.Next(&de) > 0;) {
-				if(!de.IsFolder()) {
-					de.GetNameA(temp_buf);
-					size_t hyphen_pos = 0;
-                    if(temp_buf.SearchChar('-', &hyphen_pos)) {
-                        temp_buf.Sub(hyphen_pos+1, temp_buf.Len(), lang_symb = 0);
-						int    slang = RecognizeLinguaSymb(lang_symb, 0);
-						if(slang) {
-							de.GetNameA(temp_buf);
-							ps_lang.Split(temp_buf);
-							ps.Nam = ps_lang.Nam;
-							ps.Ext = ps_lang.Ext;
-							ps.Merge(temp_buf);
-                            file_lang_list.Add(slang, temp_buf);
-						}
-                    }
-				}
-			}
-        }
-	}
 	{
 		SStrScan scan;
 		SString line_buf;
 		SString auto_transl_string;
-		SString auto_transl_file;
 		SString org_text;
 		SString string_to_translate;
 		StrAssocArray subst_list;
-		int    auto_transl_lang = 0;
-		if(!isempty(pTranslateToLang)) {
-			THROW_V(auto_transl_lang = RecognizeLinguaSymb(pTranslateToLang, 0), PPERR_SC2_INVLANGSYMB);
-			GetLinguaCode(auto_transl_lang, temp_buf);
-			auto_transl_file.Z().Cat("auto").CatChar('-').Cat(org_nam).CatChar('-').Cat(temp_buf);
-			ps.Nam = auto_transl_file;
-			ps.Ext = org_ext;
-			ps.Merge(auto_transl_file);
-			//
-			// При необходимости автоперевода мы в первую очередь должны будем разобрать файл с тем
-			// языком, на который будет осуществляться перевод для того, чтобы при переводе
-			// можно было выяснять есть у нас перевод какой-то строки или нет.
-			// Контекст проблемы: после автоперевода результат доводится в ручную и складывается
-			// в регулярный файл строк на нужном языке.
-			// Что бы, не дай бог, не перезаписать результаты ручной правки мы будет переводить
-			// только строки, которые не были переведены ранее.
-			//
-			for(uint fli = 0; fli < file_lang_list.getCount(); fli++) {
-				StrAssocArray::Item fl_item = file_lang_list.Get(fli);
-				if(fl_item.Id == auto_transl_lang) {
-					file_lang_list.Swap(0, fli);
-                    break;
+		//
+		THROW(RestoreState(org_file_blk.IdentFileName, org_file_blk.FileLangList));
+		{
+			is_unmodif_all = true; 
+			is_unmodif_chdr = VerifyHashEntry_CHdr(P_Pb->Saved_HashBlk, org_file_blk);
+			if(!is_unmodif_chdr)
+				is_unmodif_all = false;
+			is_unmodif_java = VerifyHashEntry_Java(P_Pb->Saved_HashBlk, org_file_blk);
+			if(!is_unmodif_java)
+				is_unmodif_all = false;
+			for(uint i = 0; i < org_file_blk.FileLangList.getCount(); i++) {
+				StrAssocArray::Item fl_item = org_file_blk.FileLangList.Get(i);
+				const bool is_unmodif = VerifyHashEntry(fl_item.Id, P_Pb->Saved_HashBlk, org_file_blk);
+				if(!is_unmodif)
+					is_unmodif_all = false;
+				is_unmodif_list.Add(fl_item.Id, is_unmodif);
+				if(fl_item.Id == 0) {
+					is_unmodif_base = is_unmodif;
 				}
 			}
 		}
-		THROW(RestoreState(ident_file_name));
-		for(uint fli = 0; fli < file_lang_list.getCount(); fli++) {
-			StrAssocArray::Item fl_item = file_lang_list.Get(fli);
-			StringStore2::ParseItem item;
-			StringStore2::ParseItem last_group;
-			StringStore2::ParseItem last_lang;
-			SetActiveLanguage(fl_item.Id);
-			const int local_auto_transl_lang = (fl_item.Id == 0) ? auto_transl_lang : 0;
-			long   last_string_id = 0;
-			long   last_string_lang = 0;
-            SFile f_at;
-			P_Pb->Line = 0;
-			P_Pb->InFileName = fl_item.Txt;
-			SFile f_in(P_Pb->InFileName, SFile::mRead);
-			ErrAddedMsg = P_Pb->InFileName;
-			THROW_V(f_in.IsValid(), sc2eSrcFileOpenFault); // @str Ошибка открытия исходного файла
-            if(local_auto_transl_lang) {
-				THROW(f_at.Open(auto_transl_file, SFile::mWrite));
-            }
-			while(f_in.ReadLine(line_buf)) {
-				int r;
-				++P_Pb->Line;
-				THROW(r = ParseString(line_buf, scan, item));
-				if(r > 0) {
-					if(item.Kind == StringStore2::ParseItem::kGroup) {
-						last_string_id = 0;
-						last_string_lang = 0;
-						THROW(AddGroup(item));
-						last_group = item;
-						if(local_auto_transl_lang) {
-							f_at.WriteLine(line_buf);
-						}
+		if(is_unmodif_all && !(flags & cfTranslateOnly)) {
+			temp_buf.Z().Cat("Nothing to do").CatDiv(':', 2).Cat("nothing changed");
+			puts(temp_buf);
+		}
+		else {
+			for(uint fli = 0; fli < org_file_blk.FileLangList.getCount(); fli++) {
+				StrAssocArray::Item fl_item = org_file_blk.FileLangList.Get(fli);
+				StringStore2::ParseItem item;
+				StringStore2::ParseItem last_group;
+				StringStore2::ParseItem last_lang;
+				SetActiveLanguage(fl_item.Id);
+				const  int local_auto_transl_lang = (fl_item.Id == 0) ? org_file_blk.AutoTranslLang : 0;
+				long   last_string_id = 0;
+				long   last_string_lang = 0;
+				bool   skip_iteration = false;
+				/*if(!local_auto_transl_lang) {
+					long is_unmodif_local = 0;
+					uint local_pos = 0;
+					if(is_unmodif_list.Search(fl_item.Id, &local_pos)) {
+						is_unmodif_local = is_unmodif_list.at(local_pos).Val;
 					}
-					else if(item.Kind == StringStore2::ParseItem::kScopeStart) {
-						if(item.Scope == item.scopeNoTranslate)
-                            Flags |= fNoTranslateScope;
-						else if(item.Scope == item.scopeDescr)
-							Flags |= fDescrScope;
+					if(is_unmodif_local) {
+						skip_iteration = true;
+						temp_buf.Z().Cat("Compilation of").Space().Cat(fl_item.Txt).Space().Cat("skipped due to lack of changes");
+						puts(temp_buf);
 					}
-					else if(item.Kind == StringStore2::ParseItem::kScopeEnd) {
-						if(item.Scope == item.scopeNoTranslate)
-                            Flags &= ~fNoTranslateScope;
-						else if(item.Scope == item.scopeDescr) {
-							Flags &= ~fDescrScope;
-							if(item.Str.NotEmpty() && last_string_id) {
-								item.Kind = StringStore2::ParseItem::kDescription;
-								{
-									uint   _pos = 0;
-									LangStrCollItem * p_coll_item = GetOrConstructList(last_string_lang);
-									THROW(p_coll_item);
-									THROW(p_coll_item->List.Search(last_string_id, &_pos)); // @todo @error
-									THROW(p_coll_item->DescrList.Add(last_string_id, item.Str));
+				}*/
+				if(!skip_iteration) {
+					{
+						temp_buf.Z().Cat("Compilation of").Space().Cat(fl_item.Txt);
+						puts(temp_buf);
+					}
+					SFile  f_at;
+					P_Pb->Line = 0;
+					P_Pb->InFileName = fl_item.Txt;
+					SFile f_in(P_Pb->InFileName, SFile::mRead);
+					ErrAddedMsg = P_Pb->InFileName;
+					THROW_V(f_in.IsValid(), sc2eSrcFileOpenFault); // @str Ошибка открытия исходного файла
+					if(local_auto_transl_lang) {
+						THROW(f_at.Open(org_file_blk.AutoTranslFile, SFile::mWrite));
+					}
+					while(f_in.ReadLine(line_buf)) {
+						++P_Pb->Line;
+						const int r = ParseString(line_buf, scan, item);
+						THROW(r);
+						if(r > 0) {
+							if(item.Kind == StringStore2::ParseItem::kGroup) {
+								last_string_id = 0;
+								last_string_lang = 0;
+								THROW(AddGroup(item));
+								last_group = item;
+								if(local_auto_transl_lang) {
+									f_at.WriteLine(line_buf);
 								}
 							}
-						}
-					}
-					else if(item.Kind == StringStore2::ParseItem::kGroupLang) {
-						SetActiveLanguage(item.SLang);
-					}
-					else if(item.Kind == StringStore2::ParseItem::kString && !(item.Flags & StringStore2::ParseItem::fNextLine)) {
-						int    dont_translate = BIN(Flags & fNoTranslateScope || item.Flags & item.fNoTranslate || !TranslationWanted(item.Str.ucptr()));
-						THROW(AddString(last_group.Group, item, &last_string_id));
-						last_string_lang = item.SLang;
-						if(!dont_translate && local_auto_transl_lang && ActiveLanguage == 0) {
-							//
-							// Непосредственно до вызова функции автоперевода проверим нет ли уже готового перевода нашей строки
-							//
-							const LangStrCollItem * p_coll_item = GetList(auto_transl_lang);
-							if(p_coll_item && p_coll_item->List.Search(last_string_id))
-								dont_translate = 1;
-						}
-						if(!dont_translate && local_auto_transl_lang && ActiveLanguage == 0) {
-							org_text = item.Str;
-							org_text.ReplaceStr("\\n\\003", " ", 0);
-							org_text.ReplaceStr("\003", "", 0);
-							org_text.ReplaceStr("\n", " ", 0);
-                            temp_buf.Z().Cat("\t//#org").Space().Cat(org_text).CR();
-                            f_at.WriteLine(temp_buf);
-                            //
-							final_line_buf.Z();
-                            if(item.CodeSymb.NotEmpty() && item.CodeSymb != P_StrSt_EmptyCodeSymb) {
-								final_line_buf.Cat(item.CodeSymb);
-                            }
-							else if(item.Signature.NotEmpty()) {
-								final_line_buf.CatChar('@').Cat(item.Signature);
+							else if(item.Kind == StringStore2::ParseItem::kScopeStart) {
+								if(item.Scope == item.scopeNoTranslate)
+									Flags |= fNoTranslateScope;
+								else if(item.Scope == item.scopeDescr)
+									Flags |= fDescrScope;
 							}
-							else {
-								THROW_V(item.Code != 0, sc2eStrNotIdentified);
-								final_line_buf.Cat(item.Code);
-							}
-							final_line_buf.Space();
-							{
-#ifdef SC2C // {
-								auto_transl_string = org_text;
-#else
-								if(!p_at && !at_auth_error) {
-									p_at = new PPAutoTranslSvc_Microsoft;
-									if(p_at) {
-										if(!Helper_PPAutoTranslSvc_Microsoft_Auth(*p_at)) {
-											ZDELETE(p_at);
-											at_auth_error = 1;
+							else if(item.Kind == StringStore2::ParseItem::kScopeEnd) {
+								if(item.Scope == item.scopeNoTranslate)
+									Flags &= ~fNoTranslateScope;
+								else if(item.Scope == item.scopeDescr) {
+									Flags &= ~fDescrScope;
+									if(item.Str.NotEmpty() && last_string_id) {
+										item.Kind = StringStore2::ParseItem::kDescription;
+										{
+											uint   _pos = 0;
+											LangStrCollItem * p_coll_item = GetOrConstructList(last_string_lang);
+											THROW(p_coll_item);
+											THROW(p_coll_item->List.Search(last_string_id, &_pos)); // @todo @error
+											THROW(p_coll_item->DescrList.Add(last_string_id, item.Str));
 										}
 									}
 								}
-								if(p_at) {
-									if(org_text.HasChr(';')) {
-										auto_transl_string.Z();
-										StringSet ss(';', org_text);
-										for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
-											if(auto_transl_string.NotEmpty())
-												auto_transl_string.CatChar(';');
-											{
-												//
-												// Специальный препроцессинг префиксов "number," (e.g. "2,...;3,...")
-												//
-												size_t _dec_count = 0;
-												if(isdec(temp_buf.C(_dec_count))) {
-													do {
-														_dec_count++;
-													} while(isdec(temp_buf.C(_dec_count)));
-													if(temp_buf.C(_dec_count) == ',') {
-														for(uint cidx = 0; cidx <= _dec_count; cidx++)
-															auto_transl_string.CatChar(temp_buf.C(cidx));
-														temp_buf.ShiftLeft(_dec_count+1);
+							}
+							else if(item.Kind == StringStore2::ParseItem::kGroupLang) {
+								SetActiveLanguage(item.SLang);
+							}
+							else if(item.Kind == StringStore2::ParseItem::kString && !(item.Flags & StringStore2::ParseItem::fNextLine)) {
+								bool   dont_translate = (Flags & fNoTranslateScope || item.Flags & item.fNoTranslate || !TranslationWanted(item.Str.ucptr()));
+								THROW(AddString(last_group.Group, item, &last_string_id));
+								last_string_lang = item.SLang;
+								if(!dont_translate && local_auto_transl_lang && ActiveLanguage == 0) {
+									//
+									// Непосредственно до вызова функции автоперевода проверим нет ли уже готового перевода нашей строки
+									//
+									const LangStrCollItem * p_coll_item = GetList(org_file_blk.AutoTranslLang);
+									if(p_coll_item && p_coll_item->List.Search(last_string_id))
+										dont_translate = true;
+								}
+								if(!dont_translate && local_auto_transl_lang && ActiveLanguage == 0) {
+									org_text = item.Str;
+									org_text.ReplaceStr("\\n\\003", " ", 0);
+									org_text.ReplaceStr("\003", "", 0);
+									org_text.ReplaceStr("\n", " ", 0);
+									temp_buf.Z().Cat("\t//#org").Space().Cat(org_text).CR();
+									f_at.WriteLine(temp_buf);
+									//
+									final_line_buf.Z();
+									if(item.CodeSymb.NotEmpty() && item.CodeSymb != P_StrSt_EmptyCodeSymb) {
+										final_line_buf.Cat(item.CodeSymb);
+									}
+									else if(item.Signature.NotEmpty()) {
+										final_line_buf.CatChar('@').Cat(item.Signature);
+									}
+									else {
+										THROW_V(item.Code != 0, sc2eStrNotIdentified);
+										final_line_buf.Cat(item.Code);
+									}
+									final_line_buf.Space();
+									{
+#ifdef SC2C // {
+										auto_transl_string = org_text;
+#else
+										if(!p_at && !at_auth_error) {
+											p_at = new PPAutoTranslSvc_Microsoft;
+											if(p_at) {
+												if(!Helper_PPAutoTranslSvc_Microsoft_Auth(*p_at)) {
+													ZDELETE(p_at);
+													at_auth_error = 1;
+												}
+											}
+										}
+										if(p_at) {
+											if(org_text.HasChr(';')) {
+												auto_transl_string.Z();
+												StringSet ss(';', org_text);
+												for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
+													if(auto_transl_string.NotEmpty())
+														auto_transl_string.CatChar(';');
+													{
+														//
+														// Специальный препроцессинг префиксов "number," (e.g. "2,...;3,...")
+														//
+														size_t _dec_count = 0;
+														if(isdec(temp_buf.C(_dec_count))) {
+															do {
+																_dec_count++;
+															} while(isdec(temp_buf.C(_dec_count)));
+															if(temp_buf.C(_dec_count) == ',') {
+																for(uint cidx = 0; cidx <= _dec_count; cidx++)
+																	auto_transl_string.CatChar(temp_buf.C(cidx));
+																temp_buf.ShiftLeft(_dec_count+1);
+															}
+														}
+													}
+													//
+													// Специальный препроцессинг подстановок (@symb or @{symb})
+													//
+													int    is_subst = 1;
+													if(temp_buf.C(0) == '@' && !temp_buf.HasChr(' ')) {
+														size_t c_first_pos = 1;
+														size_t c_last_pos = temp_buf.Len()-1;
+														if(temp_buf.C(c_first_pos) == '{' && temp_buf.C(c_last_pos) == '}') {
+															c_first_pos++;
+															c_last_pos--;
+														}
+														for(uint cidx = c_first_pos; is_subst && cidx <= c_last_pos; cidx++) {
+															const char c2 = temp_buf.C(cidx);
+															if(!isasciialnum(c2) && !oneof2(c2, '_', '-'))
+																is_subst = 0;
+														}
+													}
+													else
+														is_subst = 0;
+													if(is_subst) {
+														auto_transl_string.Cat(temp_buf);
+													}
+													else {
+														PreserveStringForAutotraslation(temp_buf, string_to_translate, subst_list);
+														if(p_at->Request(slangRU, org_file_blk.AutoTranslLang, /*temp_buf*/string_to_translate, intr_at_text) > 0) {
+															RecoverAutotranslatedString(intr_at_text, subst_list);
+															auto_transl_string.Cat(intr_at_text);
+														}
+														else
+															auto_transl_string.Cat("error-autotranslation");
 													}
 												}
 											}
-											//
-											// Специальный препроцессинг подстановок (@symb or @{symb})
-											//
-											int    is_subst = 1;
-											if(temp_buf.C(0) == '@' && !temp_buf.HasChr(' ')) {
-												size_t c_first_pos = 1;
-												size_t c_last_pos = temp_buf.Len()-1;
-												if(temp_buf.C(c_first_pos) == '{' && temp_buf.C(c_last_pos) == '}') {
-													c_first_pos++;
-													c_last_pos--;
-												}
-												for(uint cidx = c_first_pos; is_subst && cidx <= c_last_pos; cidx++) {
-													const char c2 = temp_buf.C(cidx);
-													if(!isasciialnum(c2) && !oneof2(c2, '_', '-'))
-														is_subst = 0;
-												}
-											}
-											else
-												is_subst = 0;
-											if(is_subst) {
-												auto_transl_string.Cat(temp_buf);
-											}
 											else {
-												PreserveStringForAutotraslation(temp_buf, string_to_translate, subst_list);
-												if(p_at->Request(slangRU, auto_transl_lang, /*temp_buf*/string_to_translate, intr_at_text) > 0) {
-													RecoverAutotranslatedString(intr_at_text, subst_list);
-													auto_transl_string.Cat(intr_at_text);
+												PreserveStringForAutotraslation(org_text, string_to_translate, subst_list);
+												if(p_at->Request(slangRU, org_file_blk.AutoTranslLang, /*org_text*/string_to_translate, auto_transl_string) > 0) {
+													RecoverAutotranslatedString(auto_transl_string, subst_list);
 												}
 												else
-													auto_transl_string.Cat("error-autotranslation");
+													auto_transl_string = "error-autotranslation";
 											}
-										}
-									}
-									else {
-										PreserveStringForAutotraslation(org_text, string_to_translate, subst_list);
-										if(p_at->Request(slangRU, auto_transl_lang, /*org_text*/string_to_translate, auto_transl_string) > 0) {
-											RecoverAutotranslatedString(auto_transl_string, subst_list);
 										}
 										else
 											auto_transl_string = "error-autotranslation";
-									}
-								}
-								else
-									auto_transl_string = "error-autotranslation";
 #endif
-								final_line_buf.CatQStr(auto_transl_string);
+										final_line_buf.CatQStr(auto_transl_string);
+									}
+									f_at.WriteLine(final_line_buf.CR());
+								}
 							}
-							f_at.WriteLine(final_line_buf.CR());
+						}
+						else if(local_auto_transl_lang) {
+							f_at.WriteLine(line_buf);
+						}
+					}
+					THROW_V(!(item.Flags & StringStore2::ParseItem::fNextLine), sc2eUnfinStrWrap); // @str Перенос строки не завершен
+				}
+			}
+			if(!(flags & cfTranslateOnly)) {
+				SString out_file_name;
+				SString src_file_name;
+				for(uint i = 0; i < StrList.getCount(); i++) {
+					LangStrCollItem * p_item = StrList.at(i);
+					if(p_item) {
+						bool skip_iteration = false;
+						{
+							long is_unmodif_local = 0;
+							uint local_pos = 0;
+							if(is_unmodif_list.Search(p_item->SLang, &local_pos)) {
+								is_unmodif_local = is_unmodif_list.at(local_pos).Val;
+							}
+							if(is_unmodif_local) {
+								skip_iteration = true;
+							}
+						}
+						if(skip_iteration) {
+							actual_hash_block.CopyEntry(p_item->SLang, P_Pb->Saved_HashBlk);
+						}
+						else {
+							org_file_blk.MakeBinFilePath(p_item->SLang, out_file_name, 0);
+							org_file_blk.MakeSrcFilePath(p_item->SLang, src_file_name, 0);
+							{
+								// Область выделена для того, чтобы файл закрылся перед тем, как будет считаться хэш этого файла вызовом actual_hash_block.CreateEntry()
+								SFile bin_file(out_file_name.ToLower(), SFile::mReadWriteTrunc|SFile::mBinary);
+								THROW(bin_file.IsValid());
+								THROW(Write(bin_file, p_item));
+							}
+							if(actual_hash_block.CreateEntry(p_item->SLang, src_file_name, out_file_name)) {
+								;
+							}
+							else {
+								;
+							}
 						}
 					}
 				}
-				else if(local_auto_transl_lang) {
-					f_at.WriteLine(line_buf);
-				}
-			}
-			THROW_V(!(item.Flags & StringStore2::ParseItem::fNextLine), sc2eUnfinStrWrap); // @str Перенос строки не завершен
-		}
-		if(!(flags & cfTranslateOnly)) {
-			THROW(StoreState(ident_file_name));
-		}
-	}
-	if(!(flags & cfTranslateOnly)) {
-		SString file_name(pFileName);
-		SString test_file_name;
-		for(uint i = 0; i < StrList.getCount(); i++) {
-			LangStrCollItem * p_item = StrList.at(i);
-			if(p_item) {
-				if(p_item->SLang == 0) {
-					ps.Nam = org_nam;
+				if(/*is_unmodif_chdr && is_unmodif_base*/false) {
+					actual_hash_block.CopyCHdrHash(P_Pb->Saved_HashBlk);
 				}
 				else {
-                    GetLinguaCode(p_item->SLang, temp_buf);
-					(ps.Nam = org_nam).CatChar('-').Cat(temp_buf);
+					THROW(GenerateHeaderFile(org_file_blk.MakeCHdrFilePath(out_file_name, 0).ToLower(), pFileName));
+					actual_hash_block.MakeCHdrHash(out_file_name);
 				}
-				ps.Ext = "bin";
-				ps.Merge(file_name);
-				SFile bin_file(file_name.ToLower(), SFile::mReadWriteTrunc|SFile::mBinary);
-				THROW(bin_file.IsValid());
-				THROW(Write(bin_file, p_item));
-			}
-		}
-		{
-			ps.Nam = org_nam;
-			ps.Ext = "h";
-			ps.Merge(file_name);
-			THROW(GenerateHeaderFile(file_name.ToLower(), pFileName));
-		}
-		// @v11.1.5 {
-		{
-			ps.Nam = org_nam;
-			ps.Ext = "java";
-			ps.Merge(file_name);
-			THROW(GenerateJavaFile(file_name.ToLower(), pFileName));
-		}
-		// } @v11.1.5
-		/* @v8.9.10
-		{
-			SFsPath::ReplaceExt(file_name, "rc", 1);
-			THROW(s.GenerateRcFile(file_name.ToLower(), pFileName));
-		}
-		*/
+				if(/*is_unmodif_java && is_unmodif_base*/false) {
+					actual_hash_block.CopyJavaHash(P_Pb->Saved_HashBlk);
+				}
+				else {
+					THROW(GenerateJavaFile(org_file_blk.MakeJavaFilePath(out_file_name, 0).ToLower(), pFileName)); // @v11.1.5
+					actual_hash_block.MakeJavaHash(out_file_name);
+				}
+				//
+				if(!is_unmodif_all) {
+					THROW(StoreState(org_file_blk.IdentFileName, actual_hash_block));
+				}
 #if 0 // {
-		//
-		// TEST
-		// Считываем созданный бинарный файл, затем записываем его в файл с тем же именем и
-		// расширением .TEST и сравниваем оригинальный файл с новым: они должны совпасть байт-в-байт.
-		//
-		// Начиная с версии 9.0.8 такой простой трюк не работает из-за того, что подробные описания строк
-		// теперь хранятся в файле и считываются только по запросу
-		//
-		{
-			StringStore2 test_s;
-			ps.Nam = org_nam;
-			ps.Ext = "bin";
-			ps.Merge(file_name);
-			SFile bin_file(file_name.ToLower(), SFile::mRead|SFile::mBinary);
-			THROW(test_s.Read(bin_file));
-			for(uint i = 0; i < StrList.getCount(); i++) {
-				LangStrCollItem * p_item = StrList.at(i);
-				if(p_item) {
-					test_file_name = file_name;
-					SFsPath::ReplaceExt(test_file_name, "test", 1);
-					SFile test_bin_file(test_file_name.ToLower(), SFile::mReadWriteTrunc|SFile::mBinary);
-					THROW(test_bin_file.IsValid());
-					THROW(test_s.Write(test_bin_file, p_item));
+				//
+				// TEST
+				// Считываем созданный бинарный файл, затем записываем его в файл с тем же именем и
+				// расширением .TEST и сравниваем оригинальный файл с новым: они должны совпасть байт-в-байт.
+				//
+				// Начиная с версии 9.0.8 такой простой трюк не работает из-за того, что подробные описания строк
+				// теперь хранятся в файле и считываются только по запросу
+				//
+				{
+					StringStore2 test_s;
+					org_file_blk.MakeBinFilePath(0, file_name);
+					SFile bin_file(file_name.ToLower(), SFile::mRead|SFile::mBinary);
+					THROW(test_s.Read(bin_file));
+					for(uint i = 0; i < StrList.getCount(); i++) {
+						LangStrCollItem * p_item = StrList.at(i);
+						if(p_item) {
+							test_file_name = file_name;
+							SFsPath::ReplaceExt(test_file_name, "test", 1);
+							SFile test_bin_file(test_file_name.ToLower(), SFile::mReadWriteTrunc|SFile::mBinary);
+							THROW(test_bin_file.IsValid());
+							THROW(test_s.Write(test_bin_file, p_item));
+						}
+					}
 				}
+				THROW(SFile::Compare(file_name, test_file_name, 0));
+				SFile::Remove(test_file_name);
+#endif // } 0
 			}
 		}
-		THROW(SFile::Compare(file_name, test_file_name, 0));
-		SFile::Remove(test_file_name);
-#endif // } 0
 	}
 	// @v11.1.11 {
 	{
@@ -1247,8 +1721,8 @@ int StringStore2::InitParsing()
 {
 	ZDELETE(P_Pb);
 	P_Pb = new ParseBlock;
-	P_Pb->LastAutoGrpCode = 1000;
-	P_Pb->LastSignatureCode = 0x80000000;
+	// @v12.3.4 @ctr P_Pb->LastAutoGrpCode = 1000;
+	// @v12.3.4 @ctr P_Pb->LastSignatureCode = 0x80000000;
 	return 1;
 }
 
@@ -1408,19 +1882,19 @@ int StringStore2::ParseString(const SString & rStr, SStrScan & rScan, StringStor
 	EXCEPTVAR(ErrCode);
 	int    ok = 1;
 	size_t pos;
-	SString left, right;
 	SString temp_buf;
-	(TempBuf = rStr).Chomp().Strip();
-	if(TempBuf.Search("//", 0, 0, &pos))
-		TempBuf.Trim(pos).Strip();
-	if(TempBuf.NotEmpty()) {
+	SString left;
+	SString right;
+	SString src_buf;
+	(src_buf = rStr).Chomp().Strip();
+	if(src_buf.Search("//", 0, 0, &pos))
+		src_buf.Trim(pos).Strip();
+	if(src_buf.NotEmpty()) {
 		if(rItem.Flags & StringStore2::ParseItem::fNextLine) {
 			rItem.Flags &= ~StringStore2::ParseItem::fNextLine;
-			// @v10.6.1 {
-			while(oneof2(TempBuf.C(0), ' ', '\t'))
-				TempBuf.ShiftLeft();
-			// } @v10.6.1
-			left = TempBuf;
+			while(oneof2(src_buf.C(0), ' ', '\t'))
+				src_buf.ShiftLeft();
+			left = src_buf;
 			if(left.Last() == '\\') {
 				rItem.Flags |= StringStore2::ParseItem::fNextLine;
 			}
@@ -1431,7 +1905,7 @@ int StringStore2::ParseString(const SString & rStr, SStrScan & rScan, StringStor
 			left.TrimRight();
 			rItem.Str.Cat(left);
 		}
-		else if(TempBuf.HasPrefix("#}")) {
+		else if(src_buf.HasPrefix("#}")) {
 			rItem.Kind = rItem.kScopeEnd;
 			rItem.Scope = rItem.scopeDescr;
 		}
@@ -1456,29 +1930,29 @@ int StringStore2::ParseString(const SString & rStr, SStrScan & rScan, StringStor
 		else {
 			StringStore2::ParseItem preserve_item = rItem;
 			rItem.Z();
-			if(TempBuf.HasPrefix("#{")) {
+			if(src_buf.HasPrefix("#{")) {
 				rItem.Kind = rItem.kScopeStart;
 				rItem.Scope = rItem.scopeDescr;
 			}
-			else if(TempBuf.HasPrefix("#!{")) {
+			else if(src_buf.HasPrefix("#!{")) {
 				rItem.Kind = rItem.kScopeStart;
 				rItem.Scope = rItem.scopeNoTranslate;
 			}
-			else if(TempBuf.HasPrefix("#!}")) {
+			else if(src_buf.HasPrefix("#!}")) {
 				rItem.Kind = rItem.kScopeEnd;
 				rItem.Scope = rItem.scopeNoTranslate;
 			}
-			else if(TempBuf.C(0) == '[') {
-				THROW_V(TempBuf.Last() == ']', sc2eStxGrp01); // @str Ошибка в определении группы строк (ожидается ']')
-				TempBuf.TrimRight().ShiftLeft(1).Strip();
-				if(TempBuf.C(0) == '/') {
+			else if(src_buf.C(0) == '[') {
+				THROW_V(src_buf.Last() == ']', sc2eStxGrp01); // @str Ошибка в определении группы строк (ожидается ']')
+				src_buf.TrimRight().ShiftLeft(1).Strip();
+				if(src_buf.C(0) == '/') {
 					int    slang = 0;
-					THROW_V(TempBuf.Last() == '/', sc2eStxLangGrp01); // @str Ошибка в определении группы языка (ожидается '/')
-					TempBuf.TrimRight().ShiftLeft(1).Strip();
-					if(TempBuf == "0" || TempBuf.IsEqiAscii("default"))
+					THROW_V(src_buf.Last() == '/', sc2eStxLangGrp01); // @str Ошибка в определении группы языка (ожидается '/')
+					src_buf.TrimRight().ShiftLeft(1).Strip();
+					if(src_buf == "0" || src_buf.IsEqiAscii("default"))
 						slang = 0;
 					else {
-						slang = RecognizeLinguaSymb(TempBuf, 0);
+						slang = RecognizeLinguaSymb(src_buf, 0);
 						THROW_V(slang != 0, sc2eInvLangSymb);
 					}
 					rItem.Kind = StringStore2::ParseItem::kGroupLang;
@@ -1486,21 +1960,21 @@ int StringStore2::ParseString(const SString & rStr, SStrScan & rScan, StringStor
 				}
 				else {
 					rItem.Kind = StringStore2::ParseItem::kGroup;
-					if(TempBuf.Divide('=', left, right) > 0) {
+					if(src_buf.Divide('=', left, right) > 0) {
 						rItem.GroupSymb = left.Strip();
 						rItem.Group = right.Strip().ToLong();
 						THROW_V(rItem.Group > 0, sc2eStxGrp02); // @str Ошибка в определении группы строк [symb=number]
 					}
-					else if(TempBuf.ToLong() != 0) {
-						rItem.Group = TempBuf.ToLong();
-                        if(TempBuf.Divide(':', left, right) > 0) {
+					else if(src_buf.ToLong() != 0) {
+						rItem.Group = src_buf.ToLong();
+                        if(src_buf.Divide(':', left, right) > 0) {
 							if(right == "hash")
                                 rItem.Flags |= rItem.fHashGroup;
                         }
 					}
 					else {
 						rItem.Group = 0;
-						rItem.GroupSymb = TempBuf;
+						rItem.GroupSymb = src_buf;
 					}
 					if(rItem.GroupSymb.NotEmpty()) {
                         if(rItem.GroupSymb.Divide(':', left, right) > 0) {
@@ -1511,14 +1985,14 @@ int StringStore2::ParseString(const SString & rStr, SStrScan & rScan, StringStor
 					}
 				}
 			}
-			else if(TempBuf.SearchChar('\"', &pos)) {
+			else if(src_buf.SearchChar('\"', &pos)) {
 				rItem.Kind = StringStore2::ParseItem::kString;
-				TempBuf.Sub(pos+1 /* кавычку пропускаем */, TempBuf.Len(), rItem.Str);
+				src_buf.Sub(pos+1 /* кавычку пропускаем */, src_buf.Len(), rItem.Str);
 				//
 				// Разбор идентификации строки {
 				//
-				TempBuf.Trim(pos).Strip();
-				rScan.Set(TempBuf, 0);
+				src_buf.Trim(pos).Strip();
+				rScan.Set(src_buf, 0);
 				int    slang = -1;
 				int    is_ident = 0; // Признак того, что строка идентифицирована
 				double symb_val = 0.0;
@@ -1612,13 +2086,13 @@ int StringStore2::ParseString(const SString & rStr, SStrScan & rScan, StringStor
 				}
 				rItem.Str.TrimRight();
 				{
-					TempBuf = rItem.Str;
+					src_buf = rItem.Str;
 					rItem.Str = 0;
-					size_t len = TempBuf.Len();
+					size_t len = src_buf.Len();
 					for(uint i = 0; i < len; i++) {
-						int    c = TempBuf.C(i);
+						int    c = src_buf.C(i);
 						if(c == '\\') {
-							c = TempBuf.C(++i);
+							c = src_buf.C(++i);
 							if(c == 'n')
 								c = '\n';
 							else if(c == 't')
@@ -1626,8 +2100,8 @@ int StringStore2::ParseString(const SString & rStr, SStrScan & rScan, StringStor
 							else if(oneof2(c, 'x', 'X')) {
 								uchar hex[4];
 								THROW_V(len > i+2, sc2eInvSlashX);
-								hex[0] = TempBuf.C(++i);
-								hex[1] = TempBuf.C(++i);
+								hex[0] = src_buf.C(++i);
+								hex[1] = src_buf.C(++i);
 								hex[2] = 0;
 								sscanf(_strupr(reinterpret_cast<char *>(hex)), "%X", &c);
 							}
@@ -1635,8 +2109,8 @@ int StringStore2::ParseString(const SString & rStr, SStrScan & rScan, StringStor
 								uchar oct[4];
 								oct[0] = c;
 								THROW_V(len > i+2, sc2eInvSlashDigit);
-								oct[1] = TempBuf.C(++i);
-								oct[2] = TempBuf.C(++i);
+								oct[1] = src_buf.C(++i);
+								oct[2] = src_buf.C(++i);
 								oct[3] = 0;
 								sscanf(reinterpret_cast<const char *>(oct), "%o", &c);
 							}
@@ -1652,78 +2126,6 @@ int StringStore2::ParseString(const SString & rStr, SStrScan & rScan, StringStor
 	CATCHZOK
 	return ok;
 }
-
-#if 0 // @v8.9.10 {
-int StringStore2::GenerateRcFile(const char * pFileName, const char * pSrcFileName)
-{
-	int    ok = 1;
-	uint   i;
-	long   last_grp = 0;
-	SString temp_buf, str_buf, symb_buf;
-	GrpSymbList.SortByID();
-	P_Pb->StrSymbList.SortByID();
-	if(P_Pb->StrSymbList.getCount()) {
-		/*
-		STRINGTABLE
-		BEGIN
-    		IDS_STRING371           "Тестовая строка в ресурсе"
-    		IDS_STRING372           "Yet another test string"
-		END
-		*/
-		uint   max_len = 0;
-		SFsPath ps;
-		Generator_CPP gen(pFileName);
-		THROW(gen.IsValid());
-		//
-		//
-		//
-		ps.Split(pFileName);
-		ps.Merge(0, SFsPath::fDrv|SFsPath::fDir, temp_buf);
-		gen.Wr_Comment(temp_buf.ToUpper());
-		temp_buf.Printf("This file was generated by SC2C.EXE from '%s'", pSrcFileName);
-		gen.Wr_Comment(temp_buf);
-		gen.Wr_Comment(0);
-		//
-		//
-		//
-		ps.Split(pSrcFileName);
-		ps.Ext = "h";
-		ps.Merge(0, SFsPath::fDrv|SFsPath::fDir, temp_buf);
-		gen.Wr_Include(temp_buf.ToLower(), 1);
-		gen.WriteBlancLine();
-		//
-		//
-		//
-		gen.WriteLine((temp_buf = "STRINGTABLE").CR());
-		gen.WriteLine((temp_buf = "BEGIN").CR());
-		gen.IndentInc();
-		P_Pb->StrSymbList.GetMaxLength(&max_len);
-		max_len = ALIGNSIZE(max_len+1, 2);
-		for(i = 0; i < P_Pb->StrSymbList.getCount(); i++) {
-			StrAssocArray::Item item = P_Pb->StrSymbList.at(i);
-			long grp = (long)HiWord(item.Id);
-			if(strcmp(item.Txt, P_StrSt_EmptyCodeSymb) != 0 && List.Get(item.Id, str_buf) > 0) {
-				long code = 0;
-				if(grp != last_grp) {
-					gen.Wr_Comment(0);
-					if(GrpSymbList.Get(grp, temp_buf) <= 0)
-						temp_buf.Z().Cat(grp);
-					gen.Wr_Comment(temp_buf);
-					gen.Wr_Comment(0);
-				}
-				temp_buf.Z();
-				gen.CatIndent(temp_buf).Cat((symb_buf = item.Txt).Align(max_len, ADJ_LEFT)).Cat(str_buf.Quot('\"', '\"')).CR();
-				gen.WriteLine(temp_buf);
-			}
-			last_grp = grp;
-		}
-		gen.IndentDec();
-		gen.WriteLine((temp_buf = "END").CR());
-	}
-	CATCHZOK
-	return ok;
-}
-#endif // } 0 @v8.9.10
 
 int StringStore2::GenerateJavaFile(const char * pFileName, const char * pSrcFileName) // @v11.1.5
 {

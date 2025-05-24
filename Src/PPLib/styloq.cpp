@@ -1246,10 +1246,10 @@ int StyloQCommandList::Set(uint idx, const Item * pItem)
 	return ok;
 }
 
-int StyloQCommandList::Validate(const Item * pSelectedItem) const
+bool StyloQCommandList::Validate(const Item * pSelectedItem) const
 {
 	//StyloQCommandList::sqbcRsrvPushIndexContent
-	int    ok = 1;
+	bool   ok = true;
 	bool   is_selected_item_member_of_list = false;
 	uint   indexing_cmd_count = 0;
 	SString selected_item_name;
@@ -8892,7 +8892,7 @@ public:
 	IncomingListParam_Base_Dialog(uint dlgId) : TDialog(dlgId)
 	{
 		if(CConfig.Flags & CCFLG_DEBUG) {
-			showCtrl(CTL_STQINLPARAM_PERIOD, 1);
+			showCtrl(CTL_STQINLPARAM_PERIOD, true);
 		}
 	}
 	DECL_DIALOG_SETDTS()

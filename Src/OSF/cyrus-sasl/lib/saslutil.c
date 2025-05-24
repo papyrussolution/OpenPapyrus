@@ -267,15 +267,12 @@ void getranddata(unsigned short ret[RPOOL_SIZE])
 		}
 	}
 #endif
-
 #ifdef HAVE_GETPID
-	ret[0] ^= (ushort)getpid();
+	ret[0] ^= (ushort)_getpid();
 #endif
-
 #ifdef HAVE_GETTIMEOFDAY
 	{
 		struct timeval tv;
-
 		/* xxx autoconf macro */
 #ifdef _SVID_GETTOD
 		if(!gettimeofday(&tv))
@@ -283,8 +280,7 @@ void getranddata(unsigned short ret[RPOOL_SIZE])
 		if(!gettimeofday(&tv, NULL))
 #endif
 		{
-			/* longs are guaranteed to be at least 32 bits; we need
-			   16 bits in each short */
+			/* longs are guaranteed to be at least 32 bits; we need 16 bits in each short */
 			ret[0] ^= (ushort)(tv.tv_sec & 0xFFFF);
 			ret[1] ^= (ushort)(clock() & 0xFFFF);
 			ret[1] ^= (ushort)(tv.tv_usec >> 16);

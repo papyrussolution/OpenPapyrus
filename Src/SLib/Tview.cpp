@@ -468,19 +468,10 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 				uint   GetCount() const { return HwList.getCount(); }
 				void   Set(HWND h)
 				{
-					if(h) {
+					if(h)
 						HwList.insert(&h);
-						//H_Wnd = h;
-						//DoSetupFont = true;
-					}
-					/*else {
-						H_Wnd = 0;
-						DoSetupFont = false;
-					}*/
 				}
-				//HWND   H_Wnd;
 				TSVector <HWND> HwList;
-				//bool   DoSetupFont;
 			};
 			LocalSetupFontBlock setup_font_blk;
 			uint ctl_id = pV->GetId();
@@ -571,7 +562,7 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 				case TV_SUBSIGN_COMBOBOX:
 					{
 						ComboBox * p_cv = static_cast<ComboBox *>(pV);
-						TInputLine * p_il = p_cv->link();
+						TInputLine * p_il = p_cv->GetLink();
 						if(p_il) {
 							p_il->Parent = hw_parent;
 							DWORD  style = WS_VISIBLE|WS_CHILD|WS_BORDER|WS_CLIPSIBLINGS|WS_TABSTOP|ES_AUTOHSCROLL;
@@ -655,18 +646,16 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 					break;
 				case TV_SUBSIGN_LABEL:
 					{
-						TLabel * p_cv = static_cast<TLabel *>(pV);
+						TLabel * p_ctl = static_cast<TLabel *>(pV);
 						pV->Parent = hw_parent;
-						const DWORD  style = WS_VISIBLE|WS_CHILD|WS_CLIPSIBLINGS;
+						const DWORD  style = WS_VISIBLE|WS_CHILD|WS_CLIPSIBLINGS|SS_LEFT|WS_GROUP; // WS_GROUP предполагает, что сразу после label будет вставлен 
+							// control, к которому относится эта метка.
 						hw = ::CreateWindowExW(0, L"STATIC", 0, style, pV->ViewOrigin.x,
 							pV->ViewOrigin.y, pV->ViewSize.x, pV->ViewSize.y, hw_parent, (HMENU)ctl_id, TProgram::GetInst(), 0);
 						if(hw) {
-							//SString temp_buf;
-							TView::SetWindowUserData(hw, p_cv);
-							//p_cv->setFont()
-							TView::SSetWindowText(hw, p_cv->GetRawText());
-							//::SendMessageW(hw, WM_SETTEXT, 0, reinterpret_cast<LPARAM>(SUcSwitch(p_cv->getText(temp_buf))));
 							setup_font_blk.Set(hw);
+							TView::SetWindowUserData(hw, p_ctl);
+							TView::SSetWindowText(hw, p_ctl->GetRawText());
 							SetupWindowCtrlTextProc(hw, 0);
 						}
 					}
@@ -682,6 +671,8 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 						if(hw) {
 							setup_font_blk.Set(hw);
 							TView::SetWindowUserData(hw, p_ctl);
+							TView::SSetWindowText(hw, p_ctl->GetRawText());
+							SetupWindowCtrlTextProc(hw, 0);
 						}
 					}
 					break;
@@ -796,7 +787,7 @@ TView * TView::prev() const
 }
 
 bool   FASTCALL TView::IsSubSign(uint sign) const { return (SubSign == sign); }
-void   TView::Show(int doShow) { ::ShowWindow(getHandle(), doShow ? SW_SHOW : SW_HIDE); }
+void   TView::Show(bool doShow) { ::ShowWindow(getHandle(), doShow ? SW_SHOW : SW_HIDE); }
 int    TView::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) { return  0; }
 TView * TView::nextView() const { return (this == P_Owner->GetLastView()) ? 0 : P_Next; }
 TView * TView::prevView() const { return (this == P_Owner->GetFirstView()) ? 0 : prev(); }

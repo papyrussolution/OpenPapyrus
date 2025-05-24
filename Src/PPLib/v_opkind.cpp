@@ -12,7 +12,7 @@ IMPLEMENT_PPFILT_FACTORY(OprKind); OprKindFilt::OprKindFilt() : PPBaseFilt(PPFIL
 	SetFlatChunk(offsetof(OprKindFilt, ReserveStart),
 		offsetof(OprKindFilt, Reserve)-offsetof(OprKindFilt, ReserveStart)+sizeof(Reserve));
 	Init(1, 0);
-	// Flags |= OPKF_USERANK;
+	// Flags |= fUseRank;
 }
 
 PPViewOprKind::PPViewOprKind() : PPView(&OpObj, &Filt, PPVIEW_OPRKIND, implBrowseArray, REPORT_OPRKINDLIST), OpListIdx(0), TmplsIdx(0), P_DsList(0)
@@ -100,11 +100,11 @@ int PPViewOprKind::EditBaseFilt(PPBaseFilt * pBaseFilt)
 		THROW(CheckDialogPtr(&(p_dlg = new TDialog(DLG_OPKINDFLT))));
 		SetupPPObjCombo(p_dlg, CTLSEL_OPKINDFLT_TYPE, PPOBJ_OPRTYPE, p_filt->OpTypeID, 0, 0);
 		SetupPPObjCombo(p_dlg, CTLSEL_OPKINDFLT_ACCSHT, PPOBJ_ACCSHEET,	p_filt->AccSheetID, OLW_CANINSERT, 0);
-		p_dlg->AddClusterAssoc(CTL_OPKINDFLT_FLAGS, 0, OPKF_PASSIVE);
-		p_dlg->AddClusterAssoc(CTL_OPKINDFLT_FLAGS, 1, OPKF_RECKON);
-		p_dlg->AddClusterAssoc(CTL_OPKINDFLT_FLAGS, 2, OPKF_PROFITABLE);
-		p_dlg->AddClusterAssoc(CTL_OPKINDFLT_FLAGS, 3, OPKF_NEEDPAYMENT);
-		p_dlg->AddClusterAssoc(CTL_OPKINDFLT_FLAGS, 4, OPKF_USERANK);
+		p_dlg->AddClusterAssoc(CTL_OPKINDFLT_FLAGS, 0, OprKindFilt::fOnlyPassive);
+		p_dlg->AddClusterAssoc(CTL_OPKINDFLT_FLAGS, 1, OprKindFilt::fOnlyReckon);
+		p_dlg->AddClusterAssoc(CTL_OPKINDFLT_FLAGS, 2, OprKindFilt::fOnlyProfitable);
+		p_dlg->AddClusterAssoc(CTL_OPKINDFLT_FLAGS, 3, OprKindFilt::fOnlyNeedPayment);
+		p_dlg->AddClusterAssoc(CTL_OPKINDFLT_FLAGS, 4, OprKindFilt::fUseRank);
 		p_dlg->SetClusterData(CTL_OPKINDFLT_FLAGS, p_filt->Flags);
 		if(p_filt->SortOrd == OprKindFilt::sortByTypeName)
 			v = 1;
@@ -287,10 +287,7 @@ int PPViewOprKind::OnExecBrowser(PPViewBrowser * pBrw)
 	return -1;
 }
 
-/*virtual*/void * PPViewOprKind::GetEditExtraParam()
-{
-	return Filt.OpTypeID ? reinterpret_cast<void *>(Filt.OpTypeID) : 0;
-}
+/*virtual*/void * PPViewOprKind::GetEditExtraParam() { return Filt.OpTypeID ? reinterpret_cast<void *>(Filt.OpTypeID) : 0; }
 
 int PPViewOprKind::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
@@ -360,17 +357,17 @@ int PPViewOprKind::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser 
 int PPViewOprKind::MakeEntry(const PPOprKind & rOpRec, OprKindBrwItem & rEntry)
 {
 	int    ok = -1;
-	int    accept_op = 0;
+	bool   accept_op = false;
 	MEMSZERO(rEntry);
 	accept_op = (CheckFiltID(Filt.OpTypeID, rOpRec.OpTypeID) && CheckFiltID(Filt.LinkOpID, rOpRec.LinkOpID));
 	accept_op = (accept_op && (!Filt.AccSheetID || Filt.AccSheetID == rOpRec.AccSheetID));
-	if(Filt.Flags & OPKF_PASSIVE)
+	if(Filt.Flags & OprKindFilt::fOnlyPassive)
 		accept_op = (accept_op && (rOpRec.Flags & OPKF_PASSIVE));
-	if(Filt.Flags & OPKF_PROFITABLE)
+	if(Filt.Flags & OprKindFilt::fOnlyProfitable)
 		accept_op = (accept_op &&  (rOpRec.Flags & OPKF_PROFITABLE));
-	if(Filt.Flags & OPKF_NEEDPAYMENT)
+	if(Filt.Flags & OprKindFilt::fOnlyNeedPayment)
 		accept_op = (accept_op && (rOpRec.Flags & OPKF_NEEDPAYMENT));
-	if(Filt.Flags & OPKF_RECKON)
+	if(Filt.Flags & OprKindFilt::fOnlyReckon)
 		accept_op = (accept_op && (rOpRec.Flags & OPKF_RECKON));
 	if(accept_op) {
 		SString temp_buf;
@@ -412,7 +409,7 @@ static IMPL_CMPFUNC(PPViewOprKindBrwItem, i1, i2)
 int PPViewOprKind::MakeList(PPViewBrowser * pBrw)
 {
 	int    ok = 1;
-	const  int is_sorting_needed = BIN(pBrw && pBrw->GetSettledOrderList().getCount());
+	const  bool is_sorting_needed = (pBrw && pBrw->GetSettledOrderList().getCount());
 	PPID   op_id = 0;
 	PPOprKind op_data;
 	OprKindBrwItem _e;
@@ -436,7 +433,7 @@ int PPViewOprKind::MakeList(PPViewBrowser * pBrw)
 			}
 		}
 		if(!sorting_done) {
-			if(Filt.Flags & OPKF_USERANK) {
+			if(Filt.Flags & OprKindFilt::fUseRank) {
 				if(Filt.SortOrd == OprKindFilt::sortByTypeName)
 					P_DsList->sort(PTR_CMPFUNC(OprKindBrwItemTypeNameRank));
 				else
@@ -526,10 +523,10 @@ PPALDD_DESTRUCTOR(OprKindList) { Destroy(); }
 int PPALDD_OprKindList::InitData(PPFilt & rFilt, long rsrv)
 {
 	INIT_PPVIEW_ALDD_DATA_U(OprKind, rsrv);
-	H.FltReckon      = BIN(p_filt->Flags & OPKF_RECKON);
-	H.FltProfitable  = BIN(p_filt->Flags & OPKF_PROFITABLE);
-	H.FltNeedPayment = BIN(p_filt->Flags & OPKF_NEEDPAYMENT);
-	H.FltPassive     = BIN(p_filt->Flags & OPKF_PASSIVE);
+	H.FltReckon      = BIN(p_filt->Flags & OprKindFilt::fOnlyReckon);
+	H.FltProfitable  = BIN(p_filt->Flags & OprKindFilt::fOnlyProfitable);
+	H.FltNeedPayment = BIN(p_filt->Flags & OprKindFilt::fOnlyNeedPayment);
+	H.FltPassive     = BIN(p_filt->Flags & OprKindFilt::fOnlyPassive);
 	H.FltAccSheet    = p_filt->AccSheetID;
 	H.FltOpType      = p_filt->OpTypeID;
 	{

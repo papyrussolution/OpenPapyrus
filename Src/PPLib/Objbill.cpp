@@ -1001,7 +1001,8 @@ int PPBillPacket::ConvertToCheck2(const ConvertToCCheckParam & rParam, CCheckPac
 								if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(chzn_mark, gts, 0)) > 0) {
 									// @v12.1.6 {
 									assert(chzn_mark.NotEmpty());
-									if(!is_return && (chzn_prod_type != GTCHZNPT_MEDICINE) && /*@v12.1.10*//*лекарственные средства проверять через разрешительный режим не надо (пока)*/
+									// @v12.3.4 if(!is_return && (chzn_prod_type != GTCHZNPT_MEDICINE) && /*@v12.1.10*//*лекарственные средства проверять через разрешительный режим не надо (пока)*/
+									if(!is_return && /* @v12.3.4 теперь надо проверять (chzn_prod_type != GTCHZNPT_MEDICINE)*/ 
 										(rParam.Flags_ & PPBillPacket::ConvertToCCheckParam::fDoChZnPm) && cn_rec.ChZnPermissiveMode == PPSyncCashNode::chznpmStrict && cn_rec.ChZnGuaID) {
 										PPChZnPrcssr::PermissiveModeInterface::CodeStatusCollection check_code_list;
 										{
@@ -1284,10 +1285,10 @@ static int _EditCcByBillParam(PPBillPacket::ConvertToCCheckParam & rParam)
 			Ptb.SetBrush(brushEAddrPhone, SPaintObj::bsSolid, GetColorRef(SClrAqua),  0);
 			Ptb.SetBrush(brushEAddrEmail, SPaintObj::bsSolid, GetColorRef(SClrCadetblue),  0);
 			if(!DS.CheckExtFlag(ECF_PAPERLESSCHEQUE)) {
-				showCtrl(CTL_CCBYBILL_EADDR, 0);
-				showCtrl(CTL_CCBYBILL_EADDRINF, 0);
-				showCtrl(CTL_CCBYBILL_PAPERLESS, 0);
-				showCtrl(CTLFRAME_CCBYBILL_PAPERLESS, 0);
+				showCtrl(CTL_CCBYBILL_EADDR, false);
+				showCtrl(CTL_CCBYBILL_EADDRINF, false);
+				showCtrl(CTL_CCBYBILL_PAPERLESS, false);
+				showCtrl(CTLFRAME_CCBYBILL_PAPERLESS, false);
 			}
 			// } @v11.3.7
 		}
@@ -1529,7 +1530,7 @@ int PPObjBill::PosPrintByBill(PPID billID)
 				THROW(p_cm->SyncAllowPrint());
 				THROW(p_cm->SyncCheckForSessionOver()); // @v11.9.10
 				if(_mode == 2) { // correction
-					PPCashMachine::FiscalCorrection fc;
+					CcFiscalCorrection fc;
 					fc.Dt = pack.Rec.Dt;
 					// @v11.1.12 BillCore::GetCode(fc.Code = pack.Rec.Code);
 					fc.Code = pack.Rec.Code; // @v11.1.12 
@@ -1539,7 +1540,7 @@ int PPObjBill::PosPrintByBill(PPID billID)
 					if((fc.AmtBank * fc.AmtCash) >= 0.0) {
 						const double _amount = (fc.AmtCash+fc.AmtBank);
 						if(_amount != 0.0) {
-							const  int is_vat_free = BIN(cn_obj.IsVatFree(param.PosNodeID) > 0);
+							const  bool is_vat_free = (cn_obj.IsVatFree(param.PosNodeID) > 0);
 							if(is_vat_free)
 								fc.Flags |= fc.fVatFree;
 							else if(prepay_goods_id) {
@@ -2400,7 +2401,7 @@ int PPObjBill::AddRetBill(PPID op, long link, PPID locID)
 
 int PPObjBill::AddGoodsBill(PPID * pBillID, const AddBlock * pBlk)
 {
-	const PPConfig & r_cfg = LConfig;
+	const  PPConfig & r_cfg = LConfig;
 	const  PPID preserve_loc = r_cfg.Location;
 
 	int    ok = 1;
@@ -2471,6 +2472,28 @@ int PPObjBill::AddGoodsBill(PPID * pBillID, const AddBlock * pBlk)
 					}
 				}
 			}
+			// @v12.3.4 {
+			if(op_rec.ExtFlags & OPKFX_SETCTXAGENT &&  op_rec.Flags & OPKF_USEEXT) {
+				const PPID agent_acs_id = GetAgentAccSheet();
+				PPObjAccSheet acs_obj;
+				PPAccSheet acs_rec;
+				if(agent_acs_id && acs_obj.Fetch(agent_acs_id, &acs_rec) > 0 && acs_rec.Assoc == PPOBJ_PERSON && acs_rec.ObjGroup) {
+					PPID   user_psn_id = 0;
+					if(PPObjPerson::GetCurUserPerson(&user_psn_id, 0) > 0) {
+						PPObjPerson psn_obj;
+						PersonTbl::Rec psn_rec;
+						if(psn_obj.Fetch(user_psn_id, &psn_rec) > 0) {
+							if(psn_obj.P_Tbl->IsBelongsToKind(user_psn_id, acs_rec.ObjGroup) > 0) {
+								PPID   agent_ar_id = 0;
+								if(ArObj.P_Tbl->PersonToArticle(user_psn_id, agent_acs_id, &agent_ar_id)) {
+									pack.Ext.AgentID = agent_ar_id;
+								}
+							}
+						}
+					}
+				}
+			}
+			// } @v12.3.4 
 			if(blk.FirstItemLotID) {
 				ReceiptTbl::Rec lot_rec;
 				if(trfr->Rcpt.Search(blk.FirstItemLotID, &lot_rec) > 0) {

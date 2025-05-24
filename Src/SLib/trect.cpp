@@ -772,7 +772,7 @@ TRect::TRect(SPoint2S sz)
 
 TRect::TRect()
 {
-	THISZERO();
+	//@v12.3.4 @ctr(SPoint2S) THISZERO();
 }
 
 TRect::TRect(const RECT & rS)

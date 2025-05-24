@@ -4569,7 +4569,7 @@ int PPDS_CrrOprKindEntry::InitData(Ido op, void * dataPtr, long addedParam)
 						case DSF_CRROPRKINDENTRY_OPKFATTACHFILES:
 							SETFLAGBYSAMPLE(pack.Rec.Flags, OPKF_ATTACHFILES, Data.Flags); break;
 						case DSF_CRROPRKINDENTRY_OPKFUSEPAYER:
-							SETFLAGBYSAMPLE(pack.Rec.Flags, OPKF_USEPAYER, Data.Flags); break;
+							SETFLAGBYSAMPLE(pack.Rec.Flags, OPKF_USEEXT, Data.Flags); break;
 						case DSF_CRROPRKINDENTRY_OPKFORDERBYLOC:
 							SETFLAGBYSAMPLE(pack.Rec.Flags, OPKF_ORDERBYLOC, Data.Flags); break;
 						case DSF_CRROPRKINDENTRY_OPKFNEEDVALUATION:
@@ -4747,7 +4747,7 @@ int PPDS_CrrOprKindEntry::TransferField(long fldID, Tfd dir, uint * pIter, SStri
 		case DSF_CRROPRKINDENTRY_OPKFATTACHFILES:
 			ok = TransferDataFlag(&Data.Flags, OPKF_ATTACHFILES, dir, rBuf); break;
 		case DSF_CRROPRKINDENTRY_OPKFUSEPAYER:
-			ok = TransferDataFlag(&Data.Flags, OPKF_USEPAYER, dir, rBuf); break;
+			ok = TransferDataFlag(&Data.Flags, OPKF_USEEXT, dir, rBuf); break;
 		case DSF_CRROPRKINDENTRY_OPKFORDERBYLOC:
 			ok = TransferDataFlag(&Data.Flags, OPKF_ORDERBYLOC, dir, rBuf); break;
 		case DSF_CRROPRKINDENTRY_OPKFNEEDVALUATION:

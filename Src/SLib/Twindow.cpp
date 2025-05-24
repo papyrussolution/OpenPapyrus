@@ -596,7 +596,7 @@ int TWindow::selectButton(ushort cmd)
 	return ok;
 }
 
-void TWindow::showButton(uint cmd, int s)
+void TWindow::showButton(uint cmd, bool s)
 {
 	TButton * p_view = SearchButton(cmd);
 	CALLPTRMEMB(p_view, Show(s));
@@ -637,22 +637,19 @@ int TWindow::destroyCtrl(uint ctlID)
 	return ok;
 }
 
-TLabel * TWindow::getCtlLabel(uint ctlID)
-{
-	TView  * v = getCtrlView(ctlID);
-	return v ? static_cast<TLabel *>(TView::messageBroadcast(this, cmSearchLabel, v)) : 0;
-}
+TLabel * FASTCALL TWindow::GetCtrlLabel(TView * pV) { return pV ? static_cast<TLabel *>(TView::messageBroadcast(this, cmSearchLabel, pV)) : 0; }
+TLabel * FASTCALL TWindow::GetCtrlLabel(uint ctlID) { return GetCtrlLabel(getCtrlView(ctlID)); }
 
 int TWindow::getLabelText(uint ctlID, SString & rText)
 {
 	rText.Z(); // @v11.3.1
-	TLabel * p_label = getCtlLabel(ctlID);
+	TLabel * p_label = GetCtrlLabel(ctlID);
 	return p_label ? (p_label->getText(rText), 1) : 0;
 }
 
 int TWindow::setLabelText(uint ctlID, const char * pText)
 {
-	TLabel * p_label = getCtlLabel(ctlID);
+	TLabel * p_label = GetCtrlLabel(ctlID);
 	return p_label ? p_label->setText(pText) : 0;
 }
 
@@ -877,7 +874,7 @@ int TWindow::setStaticText(ushort ctlID, const char * pText)
 	return ok;
 }
 
-void TWindow::showCtrl(ushort ctlID, int s)
+void TWindow::showCtrl(ushort ctlID, bool s)
 {
 	TView * v = getCtrlView(ctlID);
 	if(v)
@@ -1069,20 +1066,14 @@ void TWindow::setState(uint aState, bool enable)
 //
 TRect TWindow::getClientRect() const
 {
-	TRect ret;
 	RECT r;
-	if(::GetClientRect(HW, &r))
-		ret = r;
-	return ret;
+	return ::GetClientRect(HW, &r) ? r : TRect();
 }
 
 TRect TWindow::getRect() const
 {
-	TRect ret;
 	RECT r;
-	if(::GetWindowRect(HW, &r))
-		ret = r;
-	return ret;
+	return ::GetWindowRect(HW, &r) ? r : TRect();
 }
 
 void TWindow::invalidateRect(const TRect & rRect, bool erase)
@@ -1184,8 +1175,8 @@ int TWindow::InsertCtl(TView * pCtl, uint id, const char * pSymb)
 	if(pCtl) {
 		if(pCtl->IsSubSign(TV_SUBSIGN_COMBOBOX)) {
 			ComboBox * p_cb = static_cast<ComboBox *>(pCtl);
-			if(p_cb->link())
-				Insert_(p_cb->link());
+			if(p_cb->GetLink())
+				Insert_(p_cb->GetLink());
 		}
 		Insert_(&pCtl->SetId(id));
 		SetCtlSymb(id, pSymb);
@@ -1225,11 +1216,19 @@ SUiLayout * TWindow::GetLayout() { return P_Lfc; }
 
 void TWindow::EvaluateLayout(const TRect & rR)
 {
+	//SString json_buf; // @v12.3.4 @debug
 	if(P_Lfc) {
 		SUiLayout::Param evp;
 		evp.ForceSize.x = static_cast<float>(rR.width());
 		evp.ForceSize.y = static_cast<float>(rR.height());
 		P_Lfc->Evaluate(&evp);
+		// @v12.3.4 @debug {
+		/*{
+			SJson * p_js = P_Lfc->ToJsonObj();
+			if(p_js)
+				p_js->ToStr(json_buf);
+		}*/
+		// } @v12.3.4 @debug 
 	}
 }
 
@@ -1484,7 +1483,7 @@ IMPL_HANDLE_EVENT(TWindowBase)
 			else
 				Create(APPL->H_TopOfStack, coPopup/* @v11.2.0 | coMaxSize*/);
 		}
-		// @v11.2.7 SetWindowPos(HW, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE); // @v11.2.4
+		// @v11.2.7 SetWindowPos(HW, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE | SWP_NOACTIVATE); // @v11.2.4
 		// @v11.2.4 ::ShowWindow(HW, SW_SHOW); // @v11.2.4 SW_NORMAL-->SW_SHOW
 		// @v11.2.4 ::UpdateWindow(HW);
 		if(APPL->PushModalWindow(this, HW)) {

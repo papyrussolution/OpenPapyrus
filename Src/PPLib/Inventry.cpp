@@ -801,7 +801,7 @@ int PPObjBill::ViewInventoryTotal(const PPIDArray & rIdList, const InventoryFilt
 	{
 		THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_INVLINETOTAL))));
 		if(total.BillCount <= 1) {
-			dlg->showCtrl(CTL_INVLINETOTAL_BILLC, 0);
+			dlg->showCtrl(CTL_INVLINETOTAL_BILLC, false);
 		}
 		dlg->setCtrlLong(CTL_INVLINETOTAL_BILLC,   total.BillCount);
 		dlg->setCtrlLong(CTL_INVLINETOTAL_GOODSC,  total.GoodsCount);

@@ -432,25 +432,11 @@ INT_PTR CALLBACK ShortcutMapper::run_dlgProc(UINT message, WPARAM wParam, LPARAM
 		    HWND resizeHwnd = ::GetDlgItem(_hSelf, IDC_BABYGRID_INFO);
 		    ::GetWindowRect(resizeHwnd, &rect);
 		    ::MapWindowPoints(NULL, _hSelf, (LPPOINT)&rect, 2);
-		    ::SetWindowPos(resizeHwnd,
-			NULL,
-			rect.left,
-			rect.top + addHeight,
-			rect.right - rect.left + addWidth,
-			rect.bottom - rect.top,
-			flags);
-
+		    ::SetWindowPos(resizeHwnd, NULL, rect.left, rect.top + addHeight, rect.right - rect.left + addWidth, rect.bottom - rect.top, flags);
 		    resizeHwnd = ::GetDlgItem(_hSelf, IDC_BABYGRID_FILTER);
 		    ::GetWindowRect(resizeHwnd, &rect);
 		    ::MapWindowPoints(NULL, _hSelf, (LPPOINT)&rect, 2);
-		    ::SetWindowPos(resizeHwnd,
-			NULL,
-			rect.left,
-			rect.top + addHeight,
-			rect.right - rect.left + addWidth,
-			rect.bottom - rect.top,
-			flags);
-
+		    ::SetWindowPos(resizeHwnd, NULL, rect.left, rect.top + addHeight, rect.right - rect.left + addWidth, rect.bottom - rect.top, flags);
 		    break;
 	    }
 	    break;
@@ -464,28 +450,12 @@ INT_PTR CALLBACK ShortcutMapper::run_dlgProc(UINT message, WPARAM wParam, LPARAM
 				    _lastHomeRow[_currentState] = _babygrid.getHomeRow();
 				    _lastCursorRow[_currentState] = _babygrid.getSelectedRow();
 				    int index = TabCtrl_GetCurSel(_hTabCtrl);
-
-				    switch(index)
-				    {
-					    case 0:
-						_currentState = STATE_MENU;
-						break;
-
-					    case 1:
-						_currentState = STATE_MACRO;
-						break;
-
-					    case 2:
-						_currentState = STATE_USER;
-						break;
-
-					    case 3:
-						_currentState = STATE_PLUGIN;
-						break;
-
-					    case 4:
-						_currentState = STATE_SCINTILLA;
-						break;
+				    switch(index) {
+					    case 0: _currentState = STATE_MENU; break;
+					    case 1: _currentState = STATE_MACRO; break;
+					    case 2: _currentState = STATE_USER; break;
+					    case 3: _currentState = STATE_PLUGIN; break;
+					    case 4: _currentState = STATE_SCINTILLA; break;
 				    }
 				    fillOutBabyGrid();
 			    }

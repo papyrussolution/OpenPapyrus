@@ -31,7 +31,8 @@
 	int    ok = 1;
 	const  size_t buf_quant = 256;
 	assert(buf_quant >= pwBufSize);
-	char   temp_pw[buf_quant], temp_str[buf_quant*3+8];
+	char   temp_pw[buf_quant];
+	char   temp_str[buf_quant*3+8];
 	STRNSCPY(temp_str, pPw);
 	const size_t sl = sstrlen(temp_str);
 	if(sl != (pwBufSize*3) && (pwBufSize == 64 && sl == (20*3))) { // @v9.8.12 Специальный случай для обратной совместимости
@@ -212,12 +213,13 @@ Reference::~Reference()
 int Reference::AllocDynamicObj(PPID * pDynObjType, const char * pName, long flags, int use_ta)
 {
 	assert(pDynObjType != 0);
-	int    ok = 1, r;
+	int    ok = 1;
 	PPID   id = *pDynObjType;
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
-		if((r = _GetFreeID(PPOBJ_DYNAMICOBJS, &id, PPOBJ_FIRSTDYN)) > 0) {
+		const int r = _GetFreeID(PPOBJ_DYNAMICOBJS, &id, PPOBJ_FIRSTDYN);
+		if(r > 0) {
 			ReferenceTbl::Rec rec;
 			STRNSCPY(rec.ObjName, pName);
 			rec.Val1 = flags;
@@ -233,7 +235,8 @@ int Reference::AllocDynamicObj(PPID * pDynObjType, const char * pName, long flag
 
 int Reference::FreeDynamicObj(PPID dynObjType, int use_ta)
 {
-	int    ok = 1, r;
+	int    ok = 1;
+	int    r;
 	PPID   id = 0;
 	{
 		PPTransaction tra(use_ta);
@@ -254,7 +257,8 @@ int Reference::FreeDynamicObj(PPID dynObjType, int use_ta)
 
 int Reference::_GetFreeID(PPID objType, PPID * pID, PPID firstID)
 {
-	int    ok, r2;
+	int    ok;
+	int    r2;
 	if(*pID) {
 		ok = -_Search(objType, *pID, spEq, 0);
 	}
@@ -306,11 +310,11 @@ int Reference::GetFreeID(PPID obj, PPID * id)
 int Reference::AddItem(PPID obj, PPID * pID, const void * b, int use_ta)
 {
 	int    ok = 1;
-	int    r;
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
-		THROW(r = GetFreeID(obj, pID));
+		const int r = GetFreeID(obj, pID);
+		THROW(r);
 		THROW_PP(r > 0, PPERR_REFISBUSY);
 		copyBufFrom(b);
 		data.ObjType = obj;
@@ -391,10 +395,7 @@ int Reference::_Search(PPID obj, PPID id, int spMode, void * b)
 	return ok;
 }
 
-int Reference::GetItem(PPID obj, PPID id, void * b)
-{
-	return _Search(obj, id, spEq, b);
-}
+int Reference::GetItem(PPID obj, PPID id, void * b) { return _Search(obj, id, spEq, b); }
 
 int Reference::EnumItems(PPID obj, PPID * pID, void * b)
 {
@@ -456,15 +457,8 @@ int Reference::InitEnumByIdxVal(PPID objType, int valN, long val, long * pHandle
 	return ok;
 }
 
-int Reference::NextEnum(long enumHandle, void * pRec)
-{
-	return (EnumList.NextIter(enumHandle) > 0) ? (copyBufTo(pRec), 1) : -1;
-}
-
-int Reference::DestroyIter(long enumHandle)
-{
-	return EnumList.DestroyIterHandler(enumHandle);
-}
+int Reference::NextEnum(long enumHandle, void * pRec) { return (EnumList.NextIter(enumHandle) > 0) ? (copyBufTo(pRec), 1) : -1; }
+int Reference::DestroyIter(long enumHandle) { return EnumList.DestroyIterHandler(enumHandle); }
 
 SEnum::Imp * Reference::Enum(PPID objType, int options)
 {
@@ -594,7 +588,7 @@ int Reference::ReadPropBuf(void * b, size_t s, size_t * pActualSize)
 int Reference::PreparePropBuf(PPID obj, PPID id, PPID prop, const void * b, uint s)
 {
 	int    ok = 1;
-	RECORDSIZE fix_rec_size = Prop.getRecSize();
+	const  RECORDSIZE fix_rec_size = Prop.getRecSize();
 	if(b) {
 		Prop.copyBufFrom(b, fix_rec_size);
 		if(s)

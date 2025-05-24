@@ -492,7 +492,7 @@ public:
 	{
 		RVALUEPTR(Data, pData);
 		SString temp_buf;
-		const   PPID   agent_accsheet_id = GetAgentAccSheet();
+		const  PPID agent_acs_id = GetAgentAccSheet();
 		setCtrlData(CTL_PALM_NAME, Data.Rec.Name);
 		setCtrlData(CTL_PALM_SYMB, Data.Rec.Symb);
 		setCtrlData(CTL_PALM_ID,   &Data.Rec.ID);
@@ -504,7 +504,7 @@ public:
 			SetClusterData(CTL_PALM_DVCTYPE, dvc_type);
 		}
 		SetupPPObjCombo(this, CTLSEL_PALM_GROUP, PPOBJ_STYLOPALM, Data.Rec.GroupID, OLW_CANSELUPLEVEL, reinterpret_cast<void *>(PLMF_GENERIC));
-		SetupArCombo(this, CTLSEL_PALM_AGENT, Data.Rec.AgentID, OLW_CANINSERT, agent_accsheet_id, sacfDisableIfZeroSheet);
+		SetupArCombo(this, CTLSEL_PALM_AGENT, Data.Rec.AgentID, OLW_CANINSERT, agent_acs_id, sacfDisableIfZeroSheet);
 		{
 			LocationCtrlGroup::Rec l_rec(&Data.LocList);
 			setGroupData(ctlgroupLoc, &l_rec);
@@ -2298,11 +2298,11 @@ int PPObjStyloPalm::GetListByPerson(PPID personID, PPIDArray & rPalmList)
 	int    ok = -1;
 	rPalmList.Z();
 	if(personID) {
-		PPID   agent_accsheet_id = GetAgentAccSheet();
-		if(agent_accsheet_id) {
+		const  PPID agent_acs_id = GetAgentAccSheet();
+		if(agent_acs_id) {
 			PPObjArticle ar_obj;
 			PPID   ar_id = 0;
-			if(ar_obj.P_Tbl->PersonToArticle(personID, agent_accsheet_id, &ar_id) && ar_id) {
+			if(ar_obj.P_Tbl->PersonToArticle(personID, agent_acs_id, &ar_id) && ar_id) {
 				PPStyloPalm2 rec;
 				for(SEnum en = P_Ref->Enum(Obj, 0); en.Next(&rec) > 0;) {
 					if(rec.AgentID == ar_id) {

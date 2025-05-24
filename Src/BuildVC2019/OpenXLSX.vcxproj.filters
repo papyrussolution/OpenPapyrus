@@ -1,0 +1,142 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLCell.cpp" />
+    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLCellIterator.cpp" />
+    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLCellRange.cpp" />
+    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLCellReference.cpp" />
+    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLCellValue.cpp" />
+    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLColor.cpp" />
+    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLColumn.cpp" />
+    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLComments.cpp" />
+    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLContentTypes.cpp" />
+    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLDateTime.cpp" />
+    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLDocument.cpp" />
+    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLDrawing.cpp" />
+    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLFormula.cpp" />
+    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLMergeCells.cpp" />
+    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLProperties.cpp" />
+    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLRelationships.cpp" />
+    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLRow.cpp" />
+    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLRowData.cpp" />
+    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLSharedStrings.cpp" />
+    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLSheet.cpp" />
+    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLStyles.cpp" />
+    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLTables.cpp" />
+    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLWorkbook.cpp" />
+    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLXmlData.cpp" />
+    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLXmlFile.cpp" />
+    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLXmlParser.cpp" />
+    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLZipArchive.cpp" />
+    <ClCompile Include="..\OSF\OpenXLSX\SRC\OpenXLSX-pch.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header">
+      <UniqueIdentifier>{7a3f9d83-72ef-4fdb-97ea-ad749edb83ec}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\IZipArchive.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLCell.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLCellIterator.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLCellRange.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLCellReference.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLCellValue.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLColor.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLColumn.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLCommandQuery.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLComments.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLConstants.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLContentTypes.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLDateTime.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLDocument.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLDrawing.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLException.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLFormula.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLIterator.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLMergeCells.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLProperties.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLRelationships.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLRow.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLRowData.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLSharedStrings.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLSheet.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLStyles.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLTables.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLWorkbook.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLXmlData.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLXmlFile.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLXmlParser.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLZipArchive.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenXLSX\SRC\OpenXLSX.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\OpenXLSX-internal.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

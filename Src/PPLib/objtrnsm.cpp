@@ -2542,7 +2542,7 @@ public:
 			PPError();
 		if(!SetupStrListBox(this, CTL_OBJTRANSM_OBJLIST))
 			PPError();
-		showCtrl(CTL_OBJTRANSM_FILT, 0);
+		showCtrl(CTL_OBJTRANSM_FILT, false);
 	}
 	int    setDTS(const ObjTransmitParam *);
 	int    getDTS(ObjTransmitParam *);
@@ -2794,12 +2794,12 @@ int ObjTranDialog::setDTS(const ObjTransmitParam * pData)
 	AddClusterAssoc(CTL_OBJTRANSM_TRNSMFLAGS, 1, TRNSMF_DELOUTFILES);
 	SetClusterData(CTL_OBJTRANSM_TRNSMFLAGS, Data.TrnsmFlags);
 	if(Data.Flags & Data.fQueryInmassTransmission) {
-		showCtrl(CTL_OBJTRANSM_INMASS, 1);
+		showCtrl(CTL_OBJTRANSM_INMASS, true);
 		AddClusterAssoc(CTL_OBJTRANSM_INMASS, 0, Data.fInmassTransmission);
 		SetClusterData(CTL_OBJTRANSM_INMASS, Data.Flags);
 	}
 	else {
-		showCtrl(CTL_OBJTRANSM_INMASS, 0);
+		showCtrl(CTL_OBJTRANSM_INMASS, false);
 	}
 	if(Id == DLG_MODTRANSM)
 		updateList(0);
@@ -2882,7 +2882,7 @@ int ObjTranDialogExt::setDTS(const ObjTransmitParam * pParam, const PPBaseFilt *
 		if(P_Filt)
 			(*P_Filt) = (*pFilt);
 	}
-	showCtrl(CTL_OBJTRANSM_FILT, BIN(P_View && pFilt));
+	showCtrl(CTL_OBJTRANSM_FILT, LOGIC(P_View && pFilt));
 	return 1;
 }
 

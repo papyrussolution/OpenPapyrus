@@ -561,5 +561,6 @@
 #define cmRecoverHungedUpTags          667 // @v12.2.5 Корректировка (удаление) висячих тегов (то есть тех, чьи объекты отсутствуют)
 #define cmClientActivity               668 // @v12.2.8 Анализ клиентской активности
 #define cmSourceCodeProcessing         669 // @v12.2.10 Процессинг исходных кодов проекта (internal)
+#define cmBizScore2Val                 670 // @v12.3.4 Просмотр бизнес-показателей (версия 2)
 
 #endif /* __PPMENU_H */

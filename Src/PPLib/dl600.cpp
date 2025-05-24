@@ -3246,7 +3246,13 @@ int DlContext::Error(int errCode, const char * pAddedInfo, long flags /* erfXXX 
 		{PPERR_DL6_INVPROPSYMB,       "Неизвестное имя свойства '%s'" },
 		{PPERR_DL6_SYMBIDBUSY,        "Идентификатор символа занят: %s" },
 		{PPERR_DL6_INVPROPTYPE,       "Недопустимый тип данных для свойства '%s'" },
-		{PPERR_DL6_INVCONSTDESCR,     "Недопустимый дескриптор константы" }
+		{PPERR_DL6_INVCONSTDESCR,     "Недопустимый дескриптор константы" },
+		{PPERR_DL6_PROP_INVMARGINVAL,     "DL600 ошибка в свойстве 'margin' - ожидается 4-компонентное значение {l, t, r, b}" },
+		{PPERR_DL6_PROP_MARGINRANGEVIOL,  "DL600 ошибка в свойстве 'margin' - недопустимое значение одного или нескольких компонентов margin"  },
+		{PPERR_DL6_PROP_PMARGINOCCURED,   "DL600 ошибка в свойстве 'margin' - один из компонентов margin уже был определен" },
+		{PPERR_DL6_PROP_INVPADDINGVAL,    "DL600 ошибка в свойстве 'padding' - ожидается 4-компонентное значение {l, t, r, b}" }, 
+		{PPERR_DL6_PROP_PPADDINGOCCURED,  "DL600 ошибка в свойстве 'padding' - один из компонентов padding уже был определен" },
+		{PPERR_DL6_PROP_PADDINGRANGEVIOL, "DL600 ошибка в свойстве 'padding' - недопустимое значение одного или нескольких компонентов padding" },
 	};
 	SETIFZ(errCode, LastError);
 	const char * p_msg = SIntToSymbTab_GetSymbPtr(msg_list, SIZEOFARRAY(msg_list), errCode);

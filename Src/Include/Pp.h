@@ -146,7 +146,7 @@
 #include <stylopalm.h>
 #include <stylobhtii.h>
 #include <ppedi.h>
-// @v11.7.0 #include <wininet.h>
+#include <pp-ifm.h> // @v12.3.4
 #include <..\rsrc\str\ppstr2.h>
 #ifdef _MSC_VER
 	#pragma intrinsic (fabs)
@@ -9909,7 +9909,11 @@ public:
 //
 // CCheckPacket
 //
-typedef TSVector <CCheckLineTbl::Rec> CCheckLineArray;
+class CCheckLineArray : public TSVector <CCheckLineTbl::Rec> { // @v12.3.4 typedef-->class
+public:
+	CCheckLineArray();
+	int   EvaluateVatAmounts(BVATAccmArray & rResult) const;
+};
 
 class CTableOrder {
 public:
@@ -10342,6 +10346,7 @@ public:
 	// Descr: Возвращает ид чековой операции CCOP_XXX
 	//
 	int    GetCcOp() const;
+	bool   IsCorrection() const; // @>>GetCcOp
 	uint   GetCount() const;
 	int    GetGuid(S_GUID & rUuid) const; 
 	int    SetGuid(const S_GUID * pUuid);
@@ -10416,6 +10421,7 @@ public:
 	static int ParseBarcodeIdent(const char * pIdent, BarcodeIdentStruc * pResult);
 	CcAmountList & AL() { return CcAl; }
 	const CcAmountList & AL_Const() const { return CcAl; }
+	int   EvaluateVatAmounts(BVATAccmArray & rResult) const { return Items_.EvaluateVatAmounts(rResult); } // @v12.3.4
 	//
 	// Descr: Специальный метод, обходящий приватность строк с целью корректировки идентификатора товара в записи строки.
 	//
@@ -16003,8 +16009,7 @@ public:
 	bool   IsConsistent() const;
 	enum {
 		implChangeFilt          = 0x0001, // Порожденный класс самостоятельно обрабатывает команду PPVCMD_CHANGEFILT
-		implOnAddSetupPos       = 0x0002, // Базовый класс PPView должен установить позицию по новому идентификатору
-			// после обработки PPVCMD_ADDITEM.
+		implOnAddSetupPos       = 0x0002, // Базовый класс PPView должен установить позицию по новому идентификатору после обработки PPVCMD_ADDITEM.
 		implDontDelTempTables   = 0x0004, // Не удалять файлы временных данных
 		implDontSetupCtColumnsOnChgFilt = 0x0008, // Не устанавливать кросс-таб столбцы в функции PPView::ChangeFilt
 			// (порожденный класс самостоятельно сделает это функцией PreprocessBrowser).
@@ -19442,7 +19447,7 @@ public:
 #define OPKF_CHARGENEGPAYM     0x00004000L // Начисление ренты интерпретировать как отрицательную оплату основного документа
 #define OPKF_AUTOWL            0x00008000L // Автоматическая метка в документе
 #define OPKF_ATTACHFILES       0x00010000L // Присоединять файлы к документам
-#define OPKF_USEPAYER          0x00020000L // Использовать поле PPBill::Payer плательщика
+#define OPKF_USEEXT            0x00020000L // Ввод расширенной информации по документу (агент, плательщик, etc) // @v12.3.4 OPKF_USEEXT-->OPKF_USEEXT
 #define OPKF_ORDERBYLOC        0x00040000L // Заказ привязан к складу (заказ от подразделения)
 #define OPKF_NEEDVALUATION     0x00080000L // Операция требует расценки @only(PPOPT_GOODSRECEIPT)
 #define OPKF_OUTBALACCTURN     0x00100000L // Забалансовая бух проводка
@@ -19480,6 +19485,8 @@ public:
 #define OPKFX_ACCAUTOVAT       0x00010000L // @v11.6.6 Для бухгалтерских документов автоматически расчитывать суммы налогов 
 #define OPKFX_MNGPREFSUPPL     0x00020000L // @v12.0.8 (для заказов и, возможно, для драфт-документов) Применяется функционал 
 	// администрирования предпочтительного поставщика для дозаказа товара поставщику.
+#define OPKFX_SETCTXAGENT      0x00040000L // @v12.3.4 При создании документа присваивать ему агента в соответствии с контекстом (видимо, под контекстом пока
+	// будем подразумевать пользователя, который создает документ - дальше посмотрим как пойдет).
 
 #define OPKF_PRT_INCINVC       0x00000001L // Входящая счет-фактура на предоплату
 #define OPKF_PRT_NEGINVC       0x00000002L // Счет-фактура с отрицательными суммами
@@ -20103,11 +20110,6 @@ public:
 	int    DeleteItem(LDATE actualDate, PPID scID, PPID objID, int use_ta);
 };
 
-class BizScore2Core : public BizScore2Tbl { // @v11.9.1 @construction
-public:
-	BizScore2Core();
-};
-
 int GetBizScoresVals(const char * pUserName, const char * pPassword, TcpSocket * pSock);
 
 struct PPBizScore { // @flat
@@ -20128,37 +20130,6 @@ struct PPBizScorePacket {
 	PPBizScore Rec;
 	SString Descr;
 	SString Formula;
-};
-
-struct PPBizScore2 { // @v11.9.0 @construction
-	PPBizScore2();
-	//
-	// Descr: Флаги записи
-	//
-	enum {
-		fNone = 0x0001
-	};
-	long   Tag;                 // Const=PPOBJ_BIZSCORE2
-	long   ID;                  // @id
-	char   Name[48];
-	char   Symb[20];
-	uint8  Reserve[32];
-	int32  DataType;            // OTTYP_XXX (будем использовать ту же систему типов, что и в тегах объектов)
-	int16  TimeAggrFunc;        // Агрегирующая функция по временной шкале. Если 0, то показатель не агрегируется по времени.
-	int16  HierAggrFunc;        // Агрегирующая функция по иерархии. Если 0, то показатель не агрегируется по иерархии.
-	int16  ParticipantAggrFunc; // Агрегирующая функция по участникам. Если 0, то показатель не агрегируется по участникам.
-	int16  TimeCycle;           // PRD_XXX
-	long   ParticipantObjType;  // Тип объекта данных, определяющий участников распределенного сбора показателя
-	long   ParticipantExtID;    // Группа объектов типа ParticipantObjType, уточняющая привязку по участникам
-	long   LinkObjType;         // Тип объекта, к которому привязан показатель
-	long   LinkExtID;           // Группа объектов типа LinkObjType, уточняющая привязку показателя. 
-	long   Flags;               // @flags 
-	long   ParentID;            // ->Ref(PPOBJ_BIZSCORE2) Родительский элемент
-	long   AccSheetID;          //
-};
-
-struct PPBizScore2Packet {
-	PPBizScore2 Rec;
 };
 
 class PPObjBizScore : public PPObjReference {
@@ -20184,6 +20155,75 @@ private:
 	DL2_Resolver * P_Resolver;
 	BizScoreCore * P_ValTbl;
 };
+//
+//
+//
+class BizScore2ValuePacket {
+public:
+	BizScore2ValuePacket();
+	BizScore2ValuePacket & Z();
+	bool   FASTCALL IsEq(const BizScore2ValuePacket & rS) const;
+	//
+	// Descr: Виды записей индикаторов
+	//
+	enum {
+		kRegular = 0, // Регулярное значение
+		kPlan    = 1  // Планируемое значение
+	};
+
+	BizScore2Tbl::Rec Rec;
+	SString Text; // Текстовое значение индикатора
+};
+
+#define PPTRPROP_BIZSCORE2_TEXT (PPTRPROP_USER+1)
+
+class BizScore2Core : public BizScore2Tbl { // @v11.9.1 @construction
+public:
+	BizScore2Core();
+	int   PutPacket(PPID * pID, BizScore2ValuePacket * pPack, int use_ta);
+	int   GetPacket(PPID id, BizScore2ValuePacket * pPack);
+};
+
+struct PPBizScore2 { // @v11.9.0 @construction
+	PPBizScore2();
+	//
+	// Descr: Флаги записи
+	//
+	enum {
+		fNone        = 0x0001,
+		fRecentValue = 0x0002, // Хранится только последнее значение индикатора (история не нужна или не имеет смысла) 
+		fPlanned     = 0x0004, // Для индикатора допускается ввод планируемого значения //
+	};
+	long   Tag;                 // Const=PPOBJ_BIZSCORE2
+	long   ID;                  // @id
+	char   Name[48];
+	char   Symb[20];
+	uint8  Reserve[24];
+	int32  DataType;            // OTTYP_XXX (будем использовать ту же систему типов, что и в тегах объектов)
+	long   TypeEnumID;          // Тип ссылочного объекта для oneof2(DataType, OTTYP_ENUM, OTTYP_OBJLINK)
+	long   TypeEnumExt;         // Группа ссылочных объектов для DataType == OTTYP_OBJLINK
+	int16  TimeAggrFunc;        // Агрегирующая функция по временной шкале. Если 0, то показатель не агрегируется по времени.
+	int16  HierAggrFunc;        // Агрегирующая функция по иерархии. Если 0, то показатель не агрегируется по иерархии.
+	int16  AgentAggrFunc;       // Агрегирующая функция по участникам. Если 0, то показатель не агрегируется по участникам.
+	int16  TimeCycle;           // PRD_XXX
+	long   AgentObjType;        // Тип объекта данных, определяющий участников распределенного сбора показателя
+	long   AgentExtID;          // Группа объектов типа ParticipantObjType, уточняющая привязку по участникам
+	long   LinkObjType;         // Тип объекта, к которому привязан показатель
+	long   LinkExtID;           // Группа объектов типа LinkObjType, уточняющая привязку показателя. 
+	long   Flags;               // @flags 
+	long   ParentID;            // ->Ref(PPOBJ_BIZSCORE2) Родительский элемент
+	long   AccSheetID;          //
+};
+
+struct PPBizScore2Packet {
+	enum {
+		extssDescr   = 1,
+		extssMemo    = 2,
+		extssFormula = 3,
+	};
+	PPBizScore2 Rec;
+	SStrGroup StrPool; // Пул строковых полей
+};
 
 class PPObjBizScore2 : public PPObjReference { // @v11.9.1 @construction
 public:
@@ -20193,6 +20233,9 @@ public:
 	virtual int  Browse(void * extraPtr /*userID*/);
 	int    GetPacket(PPID id, PPBizScore2Packet * pPack);
 	int    PutPacket(PPID * pID, PPBizScore2Packet * pPack, int use_ta);
+	int    Fetch(PPID id, PPBizScore2Packet * pRec);
+	int    ValidateValuePacket(const BizScore2ValuePacket * pValuePack);
+	int    EditValuePacketDialog(BizScore2ValuePacket * pValuePack);
 private:
 	StrAssocArray * MakeStrAssocList(void * extraPtr);
 	virtual void * CreateObjListWin(uint flags, void * extraPtr);
@@ -20339,6 +20382,58 @@ private:
 
 	BizScoreCore Tbl;
 	BizScoreValFilt Filt;
+};
+//
+//
+//
+struct BizSc2ValFilt : public PPBaseFilt, public PPExtStrContainer {
+	BizSc2ValFilt();
+	BizSc2ValFilt & FASTCALL operator = (const BizSc2ValFilt & s);
+
+	uint8  ReserveStart[128]; // @anchor
+	DateRange Period;
+	PPID   ScID;              //
+	long   Flags;
+	long   Order;
+	long   ReserveEnd;        // @anchor
+};
+
+class PPViewBizSc2Val : public PPView { // @v12.3.4
+public:
+	struct BrwItem { // @persistent @store(Reference2Tbl) @flat
+		BrwItem();
+		PPID   ID;             // @id
+		PPID   ScoreID;
+		LDATE  Dt;
+		LDATE  PlanPeriodFn;
+		long   Flags;
+		PPID   ArID;
+		PPID   AgentID;
+		PPID   LinkObjID;
+		double RVal;
+		long   IVal;
+		uint   TextP; // Позиция строки в пуле StrPool
+	};
+	PPViewBizSc2Val();
+	~PPViewBizSc2Val();
+	virtual PPBaseFilt * CreateFilt(const void * extraPtr) const;
+	virtual int   EditBaseFilt(PPBaseFilt *);
+	virtual int   Init_(const PPBaseFilt * pBaseFilt);
+private:
+	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
+	virtual SArray * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
+	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
+	virtual void  PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual int   ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	int    MakeList(PPViewBrowser * pBrw);
+	int    MakeListEntry(const BizScore2Tbl::Rec & rRec, BrwItem & rEntry);
+	int    _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
+
+	BizSc2ValFilt Filt; // Оставляем старую структуру фильтра (будем ее расширять)
+	SStrGroup StrPool;  // Пул строковых полей, на который ссылаются поля в TempPersonTbl
+	SArray * P_DsList;
+	BizScore2Core BscT;
+	PPObjBizScore2 BscObj;
 };
 //
 // Descr: Структура для транзитного хранения глобального значения бизнес-показателя //
@@ -21391,7 +21486,7 @@ public:
 	int    EditDistrib(PPGenCashNode * pData);
 	int    Get(PPID id, PPGenCashNode * pPack, PPCashNode * pRec = 0);
 	int    Put(PPID * pID, PPGenCashNode * pPack, int use_ta);
-	int    Validate(PPGenCashNode * pRec, long);
+	bool   Validate(PPGenCashNode * pRec, long);
 	//
 	// Descr: Возвращает список кассовых узлов, привязанных к складу locID.
 	// Note: Функция не очищает массив rList. То есть, если до вызова в массиве были
@@ -21526,35 +21621,7 @@ public:
 	int    SyncPrintCheckCopy(CCheckPacket * pPack, const char * pFormatName);
 	int    SyncPrintSlipDocument(CCheckPacket * pPack, const char * pFormatName);
 	int    SyncPrintBnkTermReport(const char * pSlipText);
-
-	struct FiscalCorrection {
-		FiscalCorrection();
-		enum {
-			fIncome    = 0x0001, // Приход денег (отрицательная коррекция). Если не стоит, то - расход.
-			fByPrecept = 0x0002, // Коррекция по предписанию
-			fVatFree   = 0x0004  // Продавец освобожден от НДС
-		};
-		double AmtCash;    // @#{>=0} Сумма наличного платежа
-		double AmtBank;    // @#{>=0} Сумма электронного платежа
-		double AmtPrepay;  // @#{>=0} Сумма предоплатой
-		double AmtPostpay; // @#{>=0} Сумма постоплатой
-		double AmtVat20;   // Сумма налога по ставке 20%
-		double AmtVat18;   // Сумма налога по ставке 18%
-		double AmtVat10;   // Сумма налога по ставке 10%
-		double AmtVat07;   // @v12.2.5 Сумма налога по ставке 7%
-		double AmtVat05;   // @v12.2.5 Сумма налога по ставке 5%
-		double AmtVat00;   // Сумма расчета по ставке 0%
-		double AmtNoVat;   // Сумма расчета без налога
-		double VatRate;    // Единственная ставка НДС. Если VatRate != 0, тогда AmtVat18, AmtVat10, AmtVat00 и AmtNoVat игнорируются
-		LDATE  Dt;         // Дата документа основания коррекции
-		long   Flags;      // @flags
-		SString Code;      // Номер документа основания коррекции
-		SString Reason;    // Основание коррекции
-		SString Operator;  // Имя оператора
-		SString FiscalSign; // @v12.3.3 Фискальный признак чека
-	};
-
-	int    SyncPrintFiscalCorrection(const FiscalCorrection * pFc);
+	int    SyncPrintFiscalCorrection(const CcFiscalCorrection * pFc);
 	int    SyncPrintXReport();
 	int    SyncPrintZReportCopy(const CSessInfo * pInfo);
 	int    SyncPrintIncasso();
@@ -22358,12 +22425,12 @@ public:
 	//   обновляет счетчики ККМ. Если pPack == 0, то выводится пустой чек.
 	//
 	virtual int PrintCheck(CCheckPacket * pPack, uint flags) { return -1; }
-	virtual int PrintFiscalCorrection(const PPCashMachine::FiscalCorrection * pFc) { return -1; }
+	virtual int PrintFiscalCorrection(const CcFiscalCorrection * pFc) { return -1; }
 	virtual int PrintCheckCopy(const CCheckPacket * pPack, const char * pFormatName, uint flags) { return -1; }
 	virtual int PrintSlipDoc(const CCheckPacket * pPack, const char * pFormatName, uint flags) { return -1; }
 	virtual int PrintXReport(const CSessInfo *) { return -1; }
 	virtual int PrintZReportCopy(const CSessInfo *) { return -1; }
-	virtual int PrintIncasso(double sum, int isIncome) { return -1; }
+	virtual int PrintIncasso(double sum, bool isIncome) { return -1; }
 	virtual int GetDeviceTime(LDATETIME * pDtm) { ASSIGN_PTR(pDtm, ZERODATETIME); return -1; }
 	virtual int GetSummator(double * val) { return -1; }
 	virtual int EnableCashKeyb(int) { return -1; }
@@ -26296,7 +26363,7 @@ public:
 		mcsEmail        = 0x0080
 	};
 	SString & MakeCodeString(const LocationTbl::Rec * pRec, int options, SString & rBuf);
-	int    Validate(LocationTbl::Rec * pRec, int /*chkRefs*/);
+	bool   Validate(LocationTbl::Rec * pRec, int /*chkRefs*/);
 	int    FASTCALL Fetch(PPID id, LocationTbl::Rec * pRec); // @macrow
 	//
 	// Descr: Возвращает !0 если элемент склада id требует автоматического
@@ -28201,7 +28268,7 @@ private:
 class SalaryCore : public SalaryTbl {
 public:
 	SalaryCore();
-	int    Validate(const SalaryTbl::Rec * pRec);
+	bool   Validate(const SalaryTbl::Rec * pRec);
 	int    Search(PPID id, SalaryTbl::Rec * pRec);
 	int    Put(PPID * pID, SalaryTbl::Rec * pRec, int use_ta);
 	//
@@ -28849,10 +28916,7 @@ public:
 	// Descr: Элемент с дополнительной информацией о персоналии
 	//
 	struct ExtEntry { // @v12.2.10
-		ExtEntry()
-		{
-			THISZERO();
-		}
+		ExtEntry();
 		PPID   ID; // Person.ID
 		uint   ClientActivityState;
 		uint   PhoneP;         // Ссылка на строку телефона
@@ -33646,8 +33710,9 @@ class BVATAccmArray : public TSVector <BVATAccm> {
 public:
 	explicit BVATAccmArray(uint aFlags = 0);
 	BVATAccmArray(const BVATAccmArray & rS);
-	int    CalcBill(PPID);
-	int    CalcBill(const PPBillPacket *);
+	int    CalcBill(PPID billID);
+	int    CalcBill(const PPBillPacket & rPack);
+	int    CalcCCheckLineArray(const CCheckLineArray & rList);
 	void   Scale_(double part, int useRounding);
 	int    Add(const PPTransferItem &, PPID opID);
 	int    Add(const BVATAccm *, int dontRound = 0);
@@ -39792,7 +39857,7 @@ public:
 	int    ShowDetails(PPID billID);
 	int    ShowPoolDetail(const PPBillPacket &);
 	int    ChangeFlags();
-	int    PrintBill(PPID billID/* @v10.0.0 , int addCashSummator*/);
+	int    PrintBill(PPID billID);
 	int    PrintAllBills();
 	//
 	// transmitKind:
@@ -44953,6 +45018,7 @@ public:
 	const  CCheckViewItem * GetInnerIterItem() const;
 	const  LAssocArray & GetProblems() const;
 private:
+	static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr);
 	void   Helper_Construct();
 	virtual int ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
@@ -45972,7 +46038,7 @@ struct SCardSelPrcssrParam { // @persistent
 	SCardSelPrcssrParam();
 	bool   IsEmpty() const;
 	void   Init();
-	int    Validate(PPID srcSeriesID);
+	bool   Validate(PPID srcSeriesID);
 	int    Write(SBuffer & rBuf, long) const;
 	int    Read(SBuffer & rBuf, long);
 	//
@@ -46723,8 +46789,6 @@ struct PPInetConnConfig {  // @persistent @store(PropertyTbl)
 //
 // @ModuleDecl(PPViewOprKind)
 //
-#define OPKF_USERANK 0x80000000L // Используется при сортировке массива с данными
-
 struct OprKindFilt : public PPBaseFilt {
 	OprKindFilt();
 
@@ -46732,11 +46796,18 @@ struct OprKindFilt : public PPBaseFilt {
 		sortByName     = 1,
 		sortByTypeName = 2
 	};
+	enum {
+		fOnlyPassive     = 0x0001, // Показывать только операции с флагом OPKF_PASSIVE
+		fOnlyProfitable  = 0x0002, // Показывать только операции с флагом OPKF_PROFITABLE
+		fOnlyNeedPayment = 0x0004, // Показывать только операции с флагом OPKF_NEEDPAYMENT
+		fOnlyReckon      = 0x0008, // Показывать только операции с флагом OPKF_RECKON
+		fUseRank         = 0x1000  // При сортировке ранг операции является приоритетным критерием.
+	};
 	uint8  ReserveStart[32]; // @anchor
 	PPID   OpTypeID;
 	PPID   LinkOpID;
 	PPID   AccSheetID;
-	long   Flags;
+	long   Flags;            // OPKF_XXX Флаги видов операций для фильтрации (@todo надо пересматривать этот подход)
 	long   SortOrd;
 	long   Reserve;          // @anchor
 };
@@ -48547,7 +48618,7 @@ public:
 	//   0 - error
 	//  !0 - проверка пройдена успешно
 	//
-	int    Validate(const Item * pSelectedItem) const;
+	bool   Validate(const Item * pSelectedItem) const;
 	int    Store(const char * pFileName) const;
 	bool   Load(const char * pDbSymb, const char * pFileName);
 	StyloQCommandList * CreateSubListByContext(PPObjID oid, int baseCmdId, bool skipInternalCommands) const;
@@ -50266,7 +50337,7 @@ private:
 	int    _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	int    MakeListEntry(const PPAmountTypePacket * pPack, AmountTypeViewItem * pItem);
 	int    CheckForFilt(const PPAmountTypePacket * pPack) const;
-	int    Transmit(int isCharry);
+	int    Transmit(bool isCharry);
 
 	SArray            Data;
 	AmountTypeFilt    Filt;
@@ -50316,7 +50387,7 @@ private:
 	int    _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	int    MakeListEntry(const PPRegisterTypePacket * pPack, RegTypeViewItem * pItem);
 	int    CheckForFilt(const PPRegisterTypePacket * pPack) const;
-	int    Transmit(int isCharry);
+	int    Transmit(bool isCharry);
 
 	RegisterTypeFilt  Filt;
 	PPObjRegisterType ObjRegT;
@@ -58789,16 +58860,7 @@ public:
 		_TerminalEntry & FASTCALL operator = (const _TerminalEntry & rS);
 		bool   FASTCALL Copy(const _TerminalEntry & rS);
 		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx); // @v12.2.11
-		uint   GetTerminalEntryCount() const
-		{
-			uint   result = 0;
-			for(uint i = 0; i < ML.getCount(); i++) {
-				const _MarkEntry * p_entry = ML.at(i);
-				if(p_entry)
-					result++;
-			}
-			return result;
-		}
+		uint   GetTerminalEntryCount() const;
 
 		PPID   GoodsID;
 		PPID   LotID;
@@ -58813,16 +58875,7 @@ public:
 		bool   FASTCALL Copy(const Entry & rS);
 		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx); // @v12.2.11
 		const _TerminalEntry * SelectMark(uint * pMarkEntryIdx) const;
-		uint   GetTerminalEntryCount() const
-		{
-			uint   result = 0;
-			for(uint i = 0; i < Te.getCount(); i++) {
-				const _TerminalEntry * p_entry = Te.at(i);
-				if(p_entry)
-					result += p_entry->GetTerminalEntryCount();
-			}
-			return result;
-		}
+		uint   GetTerminalEntryCount() const;
 
 		PPID   GsID;     // Идентификатор структуры, из которой сформирован экземпляр this
 		//
@@ -58839,16 +58892,7 @@ public:
 		DocItem & FASTCALL operator = (const DocItem & rS);
 		bool   FASTCALL Copy(const DocItem & rS);
 		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx); // @v12.2.11
-		uint   GetTerminalEntryCount() const
-		{
-			uint   result = 0;
-			for(uint i = 0; i < getCount(); i++) {
-				const Entry * p_entry = at(i);
-				if(p_entry)
-					result += p_entry->GetTerminalEntryCount();
-			}
-			return result;
-		}
+		uint   GetTerminalEntryCount() const;
 
 		long   ItemId;  // Идентификатор для ссылки на исходный документ
 		PPID   GoodsID; // Стартовый товар (который был продан)
@@ -58862,16 +58906,7 @@ public:
 		ResultBlock & FASTCALL operator = (const ResultBlock & rS);
 		bool   FASTCALL Copy(const ResultBlock & rS);
 		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx); // @v12.2.11
-		uint   GetTerminalEntryCount() const
-		{
-			uint result = 0;
-			for(uint i = 0; i < getCount(); i++) {
-				const DocItem * p_item = at(i);
-				if(p_item)
-					result += p_item->GetTerminalEntryCount();	
-			}
-			return result;
-		}
+		uint   GetTerminalEntryCount() const;
 		
 		int    RetCode; // @v12.2.11 Результат работы функции EgaisMarkAutoSelector::Run. Нужен для серверного запуска фукции.
 	};
@@ -60576,7 +60611,7 @@ int    FASTCALL GetOpData(PPID opID, PPOprKind * pData);
 // Descr: Через кэш извлекает запись вида операции по символу pSymb.
 //
 int    FASTCALL GetOpBySymb(const char * pSymb, PPOprKind * pData);
-int    FASTCALL GetOpName(PPID opID, char * buf, size_t buflen); // @obsolete use GetOpName(PPID opID, SString &)
+int    STDCALL  GetOpName(PPID opID, char * buf, size_t buflen); // @obsolete use GetOpName(PPID opID, SString &)
 int    FASTCALL GetOpName(PPID opID, SString &);
 //
 // Descr: проверяет флаги операции opID по следующему алгоритму:
@@ -60585,7 +60620,7 @@ int    FASTCALL GetOpName(PPID opID, SString &);
 //   if (notF && (Flags & notF) == notF) return 0;
 //   In another cases return 1;
 //
-int    FASTCALL CheckOpFlags(PPID opID, long andF, long notF = 0);
+int    STDCALL  CheckOpFlags(PPID opID, long andF, long notF = 0);
 int    FASTCALL CheckOpPrnFlags(PPID opID, long andF);
 PPID   FASTCALL GetOpType(PPID opID, PPOprKind * = 0);
 int    FASTCALL GetOpSubType(PPID opID);
@@ -60606,7 +60641,7 @@ int    FASTCALL GetGenericOpList(PPID opID, ObjRestrictArray * pList);
 //
 int    FASTCALL GetGenericOpList(PPID opID, PPIDArray * pList);
 bool   FASTCALL IsOpBelongTo(PPID testOpID, PPID anotherOpID);
-int    FASTCALL GetOpCommonAccSheet(PPID opID, PPID * pAccSheetID, PPID * pAccSheet2ID);
+int    STDCALL  GetOpCommonAccSheet(PPID opID, PPID * pAccSheetID, PPID * pAccSheet2ID);
 //
 // Descr: Утилитная функция. Определяет, является ли операция возвратом либо
 //   оплатой. Эта проверка используется весьма часто.
@@ -60647,7 +60682,7 @@ int    FASTCALL IsIntrOp(PPID opID);
 bool   FASTCALL IsIntrExpndOp(PPID opID); // {IsIntrOp(opID) == INTREXPND}
 bool   FASTCALL IsDraftOp(PPID opID);
 bool   FASTCALL IsGoodsDetailOp(PPID opID);
-int    FASTCALL EnumOperations(PPID oprType, PPID * pID, PPOprKind * pRec = 0);
+int    STDCALL  EnumOperations(PPID oprType, PPID * pID, PPOprKind * pRec = 0);
 PPID   GetCashOp();
 PPID   GetCashRetOp();
 PPID   GetReceiptOp();
@@ -60667,17 +60702,17 @@ int    FASTCALL GetReckonOpList(PPIDArray *);
 //   на это не следует. Эта функция создает объект класса PPObject
 //   и передает его объекту PPObjListWindow, который разрушаясь удалит и созданный PPObject.
 //
-ListWindow * FASTCALL GetPPObjList(PPID obj, uint flags, void * extraPtr);
+ListWindow * STDCALL GetPPObjList(PPID obj, uint flags, void * extraPtr);
 //
 // Descr: Высокоуровневая функция настройки ComboBox'а. Полагается на то,
 //   что ComboBox и его строка подстроены под заданный obj.
 // Returns: Если параметр pCombo == 0, то возвращает (<0) ничего не делая.
 //   Если все OK, то возвращает (>0). Иначе - 0.
 //
-int    FASTCALL SetupPPObjCombo(ComboBox * pCombo, PPID objType, PPID initID, uint flags, void * extraPtr);
-int    FASTCALL SetupPPObjCombo(TDialog * pDlg, uint ctlId, PPID objType, PPID initID, uint flags, void * extraPtr);
-int    FASTCALL SetupPPObjCombo(TDialog * pDlg, uint ctlId, PPID objType, PPID initID, uint flags);
-int    FASTCALL SetupObjListCombo(TDialog *, uint, PPID, const PPIDArray * pInclList = 0);
+int    STDCALL SetupPPObjCombo(ComboBox * pCombo, PPID objType, PPID initID, uint flags, void * extraPtr);
+int    STDCALL SetupPPObjCombo(TDialog * pDlg, uint ctlId, PPID objType, PPID initID, uint flags, void * extraPtr);
+int    STDCALL SetupPPObjCombo(TDialog * pDlg, uint ctlId, PPID objType, PPID initID, uint flags);
+int    STDCALL SetupObjListCombo(TDialog *, uint, PPID, const PPIDArray * pInclList = 0);
 //
 // Descr: Специализированные флаги функции SetupArCombo
 //
@@ -60687,12 +60722,12 @@ enum {
 	sacfNonGeneric           = 0x0004  // Исключить выбор группирующих статей
 };
 
-int    FASTCALL SetupArCombo(TDialog * dlg, uint ctlID, PPID id, uint flags, PPID accSheetID, long /*disableIfZeroSheet*/sacf /*= 0*/);
+int    STDCALL SetupArCombo(TDialog * dlg, uint ctlID, PPID id, uint flags, PPID accSheetID, long /*disableIfZeroSheet*/sacf /*= 0*/);
 	// @>>SetupPPObjCombo
 int    SetupAmtTypeCombo(TDialog *, uint ctl, PPID id, uint flags, long options, PPIDArray * pInclList);
 int    SetupCurrencyCombo(TDialog *, uint ctl, PPID id, uint /*flags*/, int asSymb, PPIDArray * pInclList);
 int    SelectCurRate(PPID curID, PPID rateTypeID, double * pRate);
-int    FASTCALL SearchObject(PPID obj, PPID id, void * = 0);
+int    STDCALL SearchObject(PPID obj, PPID id, void * = 0);
 int    EditPPObj(PPID objType, PPID objID);
 //
 // Descr: Возвращает наименование типа объекта (напр. "Документы", "Товары")

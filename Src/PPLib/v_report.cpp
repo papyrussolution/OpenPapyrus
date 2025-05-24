@@ -644,7 +644,7 @@ int PPViewReport::CreateRptList(ReportViewItemArray * pList)
 			ReportViewItem item;
 			SString   entry;
 			StringSet entries("\n");
-			p_file->GetEntries(sect, &entries, 1);
+			p_file->GetEntries(sect, &entries, true);
 			for(uint j = 0; entries.get(&j, entry);) {
 				if(SplitLocalRptStr(p_file, LocalRptCodepage, sect, entry, &item) > 0)
 					THROW_SL(pList->insert(&item));

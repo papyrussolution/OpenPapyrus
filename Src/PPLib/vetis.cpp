@@ -9712,7 +9712,7 @@ int PPVetisInterface::SetupOutgoingEntries(PPID locID, const DateRange & rPeriod
 	const SetupOutgoingEntries_ControlBlock control_block_list[] = {
 		{ pbrfDiscrepancy, { alcr_cfg.RcptEtcOpID, alcr_cfg.ExpndEtcOpID, 0, 0, 0, 0 } },
 		{ pbrfManuf,       { alcr_cfg.E.ManufOpID, 0, 0, 0, 0, 0 } },
-		{ 0,               { alcr_cfg.ExpndOpID, alcr_cfg.IntrExpndOpID, 0, 0, 0, 0 } }
+		{ 0,               { alcr_cfg.ExpndOpID, alcr_cfg.IntrExpndOpID, alcr_cfg.SupplRetOpID, 0, 0, 0 } } // @v12.3.4 SupplRetOpID
 	};
 	{
 		THROW(PPVetisInterface::LockProcess(/*PPVETISICFUNC_SETUPOUTGOINGENTRIES*/PPVETISICFUNC_PROCESSOUTCOMING, false)); // @v11.3.2
@@ -10446,8 +10446,8 @@ static int EditVetisVetDocument(VetisVetDocument & rData, PPID mainOrgID, PPID l
 			dlg->setCtrlString(CTL_VETVDOC_EXPIRY, text_buf);
 		}
 		if(rData.Flags & rData.fFromMainOrg) {
-			dlg->showCtrl(CTL_VETVDOC_ACKQTTY, 0);
-			dlg->showCtrl(CTL_VETVDOC_ACK, 0);
+			dlg->showCtrl(CTL_VETVDOC_ACKQTTY, false);
+			dlg->showCtrl(CTL_VETVDOC_ACK, false);
 		}
 		else {
 			dlg->setCtrlReal(CTL_VETVDOC_ACKQTTY, r_bat.AckVolume);

@@ -534,7 +534,7 @@ int PPObjGoods::InitPacket(PPGoodsPacket * pPack, GoodsPacketKind gpk, PPID pare
 */
 int PPObjGoods::ValidatePacket(const PPGoodsPacket * pPack)
 {
-	int    ok = -1;
+	int    ok = 1;
 	if(pPack) {
 		SString temp_buf(pPack->Rec.Name);
 		THROW_PP(temp_buf.NotEmptyS(), PPERR_NAMENEEDED);
@@ -554,6 +554,8 @@ int PPObjGoods::ValidatePacket(const PPGoodsPacket * pPack)
 		}
 		THROW(CheckBarcodeList(pPack));
 	}
+	else
+		ok = -1;
 	CATCHZOK
 	return ok;
 }
@@ -4321,7 +4323,7 @@ double GoodsStockExt::GetMinStock(PPID locID, int useZeroLoc /*=1*/) const
 void GoodsStockExt::SetMinStock(PPID locID, double qtty)
 {
 	uint pos = 0;
-	if(MinStockList.Search(locID, 0, &pos, 1) > 0)
+	if(MinStockList.Search(locID, 0, &pos, 1))
 		MinStockList.at(pos).Val = qtty;
 	else
 		MinStockList.Add(locID, qtty, 0, 1);

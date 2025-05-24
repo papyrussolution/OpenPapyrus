@@ -1615,15 +1615,9 @@ LRESULT CALLBACK WndTextProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPar
 				WORD fwKeys = LOWORD(wParam);
 				short zDelta = HIWORD(wParam);
 				switch(fwKeys) {
-					case 0:
-						SendMessage(hwnd, WM_VSCROLL, (zDelta < 0) ? SB_LINEDOWN : SB_LINEUP, (LPARAM)0);
-						return 0;
-					case MK_SHIFT:
-						SendMessage(hwnd, WM_VSCROLL, (zDelta < 0) ? SB_PAGEDOWN : SB_PAGEUP, (LPARAM)0);
-						return 0;
-					case MK_CONTROL:
-						SendMessage(hwnd, WM_CHAR, (zDelta < 0) ? 0x0e/*CTRL-N*/ : 0x10/*CTRL-P*/, (LPARAM)0);
-						return 0;
+					case 0: SendMessage(hwnd, WM_VSCROLL, (zDelta < 0) ? SB_LINEDOWN : SB_LINEUP, (LPARAM)0); return 0;
+					case MK_SHIFT: SendMessage(hwnd, WM_VSCROLL, (zDelta < 0) ? SB_PAGEDOWN : SB_PAGEUP, (LPARAM)0); return 0;
+					case MK_CONTROL: SendMessage(hwnd, WM_CHAR, (zDelta < 0) ? 0x0e/*CTRL-N*/ : 0x10/*CTRL-P*/, (LPARAM)0); return 0;
 				}
 			}
 			break;
@@ -2225,17 +2219,25 @@ void ReadTextIni(TW * lptw)
 			if(GetACP() == 932) /* Japanese Shift-JIS */
 				_tcscpy(lptw->fontname, TEXT("MS Gothic"));
 			else {
+				//
+				// @v12.3.4 Заменил вызов GetVersionEx на рекомендованные microsoft новые методы
+				// 
 				// select a default type face depending on the OS version 
-				OSVERSIONINFO versionInfo;
-				memzero(&versionInfo, sizeof(OSVERSIONINFO));
-				versionInfo.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-				GetVersionEx(&versionInfo);
-				if(versionInfo.dwMajorVersion >= 6) /* Vista or later */
+				//OSVERSIONINFO versionInfo;
+				//memzero(&versionInfo, sizeof(OSVERSIONINFO));
+				//versionInfo.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+				//GetVersionEx(&versionInfo);
+				//if(versionInfo.dwMajorVersion >= 6) { /* Vista or later */
+				if(IsWindowsVistaOrGreater()) {
 					_tcscpy(lptw->fontname, TEXT("Consolas"));
-				else if((versionInfo.dwMajorVersion == 5) && (versionInfo.dwMinorVersion >= 1)) // Windows XP 
+				}
+				//else if((versionInfo.dwMajorVersion == 5) && (versionInfo.dwMinorVersion >= 1)) // Windows XP 
+				else if(IsWindowsXPOrGreater()) { // Windows XP 
 					_tcscpy(lptw->fontname, TEXT("Lucida Console"));
-				else /* Windows 2000 or earlier */
+				}
+				else { // Windows 2000 or earlier
 					_tcscpy(lptw->fontname, TEXT("Courier New"));
+				}
 			}
 		}
 	}

@@ -1880,7 +1880,7 @@ INT_PTR CALLBACK StylerDlg::dlgProc(HWND hwnd, UINT message, WPARAM wParam, LPAR
 		case NPPM_INTERNAL_REFRESHDARKMODE:
 		    NppDarkMode::setDarkTitleBar(hwnd);
 		    NppDarkMode::autoThemeChildControls(hwnd);
-		    ::SetWindowPos(hwnd, nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+		    ::SetWindowPos(hwnd, nullptr, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
 		    return TRUE;
 		case WM_COMMAND:
 	    {

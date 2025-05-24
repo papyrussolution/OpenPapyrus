@@ -2598,12 +2598,15 @@ DBQuery * PPViewCCheck::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	return p_q;
 }
 
-static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr)
+/*static*/int PPViewCCheck::CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr)
 {
 	int    ok = -1;
 	PPViewBrowser * p_brw = static_cast<PPViewBrowser *>(extraPtr);
-	if(p_brw && pData && pStyle) {
-		if(col == 3) {
+	const BrowserDef * p_def = p_brw ? p_brw->getDef() : 0;
+	if(p_def && pData && pStyle) {
+		PPViewCCheck * p_view = static_cast<PPViewCCheck *>(p_brw->P_View);
+		if(col >= 0 && col < p_def->getCountI()) {
+			const BroColumn & r_col = p_def->at(col);
 			struct _E {
 				long  ID;
 				LDATE Dt;
@@ -2612,7 +2615,21 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 				long  Flags;
 			};
 			const _E * p_row = static_cast<const _E *>(pData);
-			if(p_row) {
+			if(r_col.OrgOffs == 5) { // ccheck-code // @v12.3.4
+				if(p_row->CashID == PPPOSN_SHADOW) { // Зарезервированный ид кассового узла для теневых чеков егаис
+					SString temp_buf;
+					PPRef->UtrC.GetText(TextRefIdent(PPOBJ_CCHECK, p_row->ID, PPTRPROP_CC_LNEXT), temp_buf);
+					temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+					PPExtStrContainer sc;
+					CCheckPacket::Helper_UnpackTextExt(temp_buf, &sc, 0);
+					bool cc_sent_to_egais = (sc.GetExtStrData(CCheckPacket::extssSign, temp_buf) > 0 && temp_buf.NotEmpty());
+					if(!cc_sent_to_egais) {
+						pStyle->SetRightFigCircleColor(SClrRed);
+						ok = 1;
+					}
+				}
+			}
+			else if(r_col.OrgOffs == 9) { // pos-node
 				ok = 1;
 				pStyle->Flags = BrowserWindow::CellStyle::fCorner;
 				if(p_row->Flags & CCHKF_ORDER)
@@ -2636,7 +2653,6 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 					ok = 1;
 				}
 				{
-					PPViewCCheck * p_view = static_cast<PPViewCCheck *>(p_brw->P_View);
 					if(p_view && p_view->GetProblems().getCount()) {
 						long problems_val = 0;
 						if(p_view->GetProblems().Search(p_row->ID, &problems_val, 0))
@@ -2752,7 +2768,7 @@ void PPViewCCheck::PreprocessBrowser(PPViewBrowser * pBrw)
 				}
 			}
 			if(Filt.Grp == 0)
-				pBrw->SetCellStyleFunc(CellStyleFunc, pBrw);
+				pBrw->SetCellStyleFunc(PPViewCCheck::CellStyleFunc, pBrw);
 		}
 	}
 }

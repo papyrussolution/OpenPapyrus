@@ -5432,7 +5432,7 @@ int ScalePrepDlg::SetReadyStatus()
 				SetCtrlBitmap(CTL_SCALEPREP_READYCOLOR, is_ready ? BM_GREEN : BM_RED);
 			}
 		}
-		showCtrl(CTL_SCALEPREP_READYCOLOR, (is_ready < 0) ? 0 : 1);
+		showCtrl(CTL_SCALEPREP_READYCOLOR, (is_ready >= 0));
 		setStaticText(CTL_SCALEPREP_READY, ready);
 	}
 	return 1;

@@ -1415,7 +1415,7 @@ int PPImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, const StringSe
 	memzero(&ImpExpParamDll, sizeof(ImpExpParamDllStruct));
 	InetAccID = 0;
 	pFile->SetFlag(SIniFile::fWinCoding, 0);
-	pFile->GetEntries(Name, &param_list, 1);
+	pFile->GetEntries(Name, &param_list, true);
 	OtrRec.SetDescription(pSect); // @v11.9.8
 	for(uint pos = 0; param_list.get(&pos, ini_param);) {
 		uint   idx = 0;

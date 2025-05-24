@@ -911,6 +911,7 @@
   <ItemGroup>
     <ClCompile Include="..\PPEquip\EquipDll\Pirit.cpp" />
     <ClCompile Include="..\PPEquip\PPDrvAPI\ppdrvapi.cpp" />
+    <ClCompile Include="..\PPLib\pp-ifm.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

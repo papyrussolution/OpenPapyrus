@@ -8856,8 +8856,8 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 			if(h & SNTOKSEQ_ASCII) {
 				{ // @v12.3.3 @construction
 					if(sstreq(pToken, "===")) {
-						rResultList.AddTok(SNTOK_BASE64_WP, 0.3, 0/*flags*/);
-						rResultList.AddTok(SNTOK_BASE64_URL_WP, 0.3, 0/*flags*/);
+						rResultList.AddTok(SNTOK_BASE64_WP, 0.3f, 0/*flags*/);
+						rResultList.AddTok(SNTOK_BASE64_URL_WP, 0.3f, 0/*flags*/);
 					}
 					else {
 						static constexpr char p_chrset_base32[]           = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567=";

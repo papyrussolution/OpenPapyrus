@@ -1850,7 +1850,7 @@ private:
 	virtual void setChildPos(uint neighbourCtl);
 	void   showCtrlLabel(ushort ctlID, int s)
 	{
-		TLabel * p_label = getCtlLabel(ctlID);
+		TLabel * p_label = GetCtrlLabel(ctlID);
 		CALLPTRMEMB(p_label, Show(s));
 	}
 	int    HasPeriodVal() const
@@ -2407,7 +2407,7 @@ void QuotationDialog::updatePage()
 			Embed(dlg);
 			setChildPos(CTL_GQUOT_EMBED_WINDOW);
 			{
-				const int show = !ViewQuotsAsListBox;
+				const bool show = !ViewQuotsAsListBox;
 				for(uint ctrl_id = CTL_GQUOT_BASE, i = 0; i <= NUM_QUOTS_IN_DLG; i++) {
 					showCtrl(ctrl_id, show);
 					showCtrlLabel(ctrl_id++, show);

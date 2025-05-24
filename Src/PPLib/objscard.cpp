@@ -1650,19 +1650,19 @@ int PPObjSCardSeries::Edit(PPID * pID, void * extraPtr)
 				txt2_id = PPTXT_SCS_BONUSCHARGEGGRP;
 				init_grp_id = Data.Rec.BonusGrpID;
 				setCtrlLong(CTLSEL_SCARDSER_CRDGGRP, Data.Rec.BonusGrpID);
-				showCtrl(CTLSEL_SCARDSER_BONCGRP, 1);
-				showCtrl(CTL_SCARDSER_BONER, 1);
-				showCtrl(CTL_SCARDSER_BONERVAL, 1);
+				showCtrl(CTLSEL_SCARDSER_BONCGRP, true);
+				showCtrl(CTL_SCARDSER_BONER, true);
+				showCtrl(CTL_SCARDSER_BONERVAL, true);
 				SetupPPObjCombo(this, CTLSEL_SCARDSER_BONCGRP, PPOBJ_GOODSGROUP, Data.Rec.BonusChrgGrpID, OLW_CANINSERT|OLW_LOADDEFONOPEN);
 			}
 			else {
-				showCtrl(CTL_SCARDSER_BONER, 0);
-				showCtrl(CTL_SCARDSER_BONERVAL, 0);
+				showCtrl(CTL_SCARDSER_BONER, false);
+				showCtrl(CTL_SCARDSER_BONERVAL, false);
 				if(_type == scstCredit) {
 					txt_id = PPTXT_SCS_AUTOWROFFGGRP_CRD;
 					txt2_id = PPTXT_SCS_CHARGEGOODS;
 					init_grp_id = Data.Rec.CrdGoodsGrpID;
-					showCtrl(CTLSEL_SCARDSER_BONCGRP, 1);
+					showCtrl(CTLSEL_SCARDSER_BONCGRP, true);
 					{
 						PPSCardConfig sc_cfg;
 						PPObjSCardSeries::FetchConfig(&sc_cfg);
@@ -1680,7 +1680,7 @@ int PPObjSCardSeries::Edit(PPID * pID, void * extraPtr)
 					txt2_id = 0;
 					init_grp_id = Data.Rec.CrdGoodsGrpID;
 					setCtrlLong(CTLSEL_SCARDSER_CRDGGRP, Data.Rec.CrdGoodsGrpID);
-					showCtrl(CTLSEL_SCARDSER_BONCGRP, 0);
+					showCtrl(CTLSEL_SCARDSER_BONCGRP, false);
 				}
 			}
 			showCtrl(CTL_SCARDSER_FIXBON, oneof2(_type, scstCredit, scstBonus));

@@ -902,7 +902,7 @@ int PPObjArticle::EditClientAgreement(PPClientAgreement * agt)
 			else
 				SetupPPObjCombo(this, CTLSEL_CLIAGT_EXTOBJECT, PPOBJ_ACCSHEET, Data.ExtObjectID, 0, 0);
 			if(added_limit_val != 0.0) {
-				showCtrl(CTL_CLIAGT_ADDEDLIMITVAL, 1);
+				showCtrl(CTL_CLIAGT_ADDEDLIMITVAL, true);
 				SString fmt_buf, label_buf;
 				getLabelText(CTL_CLIAGT_ADDEDLIMITVAL, fmt_buf);
 				label_buf.Printf(fmt_buf, added_limit_term);
@@ -910,7 +910,7 @@ int PPObjArticle::EditClientAgreement(PPClientAgreement * agt)
 				setCtrlReal(CTL_CLIAGT_ADDEDLIMITVAL, added_limit_val);
 			}
 			else {
-				showCtrl(CTL_CLIAGT_ADDEDLIMITVAL, 0);
+				showCtrl(CTL_CLIAGT_ADDEDLIMITVAL, false);
 			}
 			SetupStringCombo(this, CTLSEL_CLIAGT_RETLIMPRD, PPTXT_CYCLELIST, Data.RetLimPrd);
 			setCtrlReal(CTL_CLIAGT_RETLIM, fdiv100i(Data.RetLimPart));

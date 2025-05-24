@@ -77,7 +77,7 @@ public:
 	}
 	virtual int CloseSession(PPID sessID) { return PrintReport(1); }
 	virtual int PrintZReportCopy(const CSessInfo *);
-	virtual int PrintIncasso(double sum, int isIncome);
+	virtual int PrintIncasso(double sum, bool isIncome);
 	virtual int OpenBox()
 	{
 		int     ok = -1;
@@ -2335,14 +2335,14 @@ int SCS_ATOLDRV::PrintZReportCopy(const CSessInfo * pInfo)
 	return ok;
 }
 
-int SCS_ATOLDRV::PrintIncasso(double sum, int isIncome)
+int SCS_ATOLDRV::PrintIncasso(double sum, bool isIncome)
 {
 	int    ok = 1;
 	StateBlock stb;
 	ResCode = RESCODE_NO_ERROR;
 	if(!isIncome) {
-		int is_cash = 0;
-		THROW(is_cash = CheckForCash(sum));
+		const int is_cash = CheckForCash(sum);
+		THROW(is_cash);
 		THROW_PP(is_cash > 0, PPERR_SYNCCASH_NO_CASH);
 	}
 	THROW(Connect(&stb));

@@ -1,8 +1,8 @@
 // PPSTR2.TXT
-// Copyright (c) A.Sobolev 1996-2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 1996-2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025 
 // Codepage=UTF-8
 //
-// Синтаксис:
+// Синтаксис: 
 // [number] - начало зоны. Чаще всего зоны идентифицируются зарезервированными числовыми значениями.
 //   На текущий момент определены следующие (ppdefs.h)
 //     PPMSG_ERROR                 1
@@ -1548,6 +1548,13 @@ PPERR_DL6_NOFUNCBYNAME             "DL600 Неопределенная функ�
 PPERR_DL6_UNMATCHQUESTTYPES        "DL600 Несовместимые типы в операторе '?:' (%s)"
 PPERR_DL6_STRUCNOTIMPL             "DL600 Структура данных '%s' не реализована"
 PPERR_DL6_SYMBIDBUSY               "DL600 Идентификатор символа занят: %s"
+PPERR_DL6_PROP_INVMARGINVAL        "DL600 ошибка в свойстве 'margin' - ожидается 4-компонентное значение {l, t, r, b}" 
+PPERR_DL6_PROP_MARGINRANGEVIOL     "DL600 ошибка в свойстве 'margin' - недопустимое значение одного или нескольких компонентов margin" 
+PPERR_DL6_PROP_PMARGINOCCURED      "DL600 ошибка в свойстве 'margin' - один из компонентов margin уже был определен" 
+PPERR_DL6_PROP_INVPADDINGVAL       "DL600 ошибка в свойстве 'padding' - ожидается 4-компонентное значение {l, t, r, b}" 
+PPERR_DL6_PROP_PPADDINGOCCURED     "DL600 ошибка в свойстве 'padding' - один из компонентов padding уже был определен" 
+PPERR_DL6_PROP_PADDINGRANGEVIOL    "DL600 ошибка в свойстве 'padding' - недопустимое значение одного или нескольких компонентов padding" 
+
 PPERR_UNABLETESTPSALESBYALLGOODS   "Не допускается тестирование таблицы продаж по всей выборке товаров"
 PPERR_INVPERIOD                    "Неверный период '%s'"
 PPERR_BUILD_UNDEFBUILDROOT         "В pp.ini не определен параметр [selfbuild] BuildRoot"
@@ -5109,7 +5116,6 @@ PPTXT_MP_FINTRA_WB_REQ               "Запрос отчета о продаж�
 PPTXT_MP_FINTRA_WB_REPEMPTY          "Сервер @{brand_wildberries} вернул пустой результат"
 PPTXT_MPWB_UNKN_NATIVEOP             "Неизвестный тип финансовой операции @{brand_wildberries} '%s'"
 PPTXT_ORDERCANCELLED                 "Заказ '%s' отменен"
-
 PPTXT_PRNALLBILLS_NOFLTOP              "Печать всех первичных документов выборки доступна лишь при выборе вида операции в фильтре"
 PPTXT_PRNALLBILLS_FLTOPISPOOL          "Печать всех первичных документов выборки не доступна для выборки пулов документов"
 PPTXT_PRNALLBILLS_FLTOPISPAYMWOINVCOPT "Печать всех первичных документов выборки оплат доступна только если вид операции имеет флаг 'Печатать счет-фактуру'"
@@ -5117,6 +5123,7 @@ PPTXT_PRNALLBILLS_FLTOPGEN_NOCOMMOPTYP "Печать всех первичных
 PPTXT_PRNALLBILLS_FLTOPGEN_NOCOMMACS   "Печать всех первичных документов выборки по обобщенной операции не доступна если в обобщении есть разные таблицы статей"
 PPTXT_SCANFSDIR                        "Сканирование каталога '%s'"
 PPTXT_DEV_DL600IFCUUIDFILEOK           "DEV: список сопоставления интерфейсных символов значениям GUID успешно прошел сверку с образцом"
+PPTXT_ERR_EGAIS_PUTCCSHADOW            "Ошибка отправки в @{brand_egais} чека автосписания алкоголя"
 //
 // LastText
 
@@ -5827,6 +5834,7 @@ DVCCMD_ZREPORT                 "ZREPORT"
 DVCCMD_OPENBOX                 "OPENBOX"
 DVCCMD_OPENCHECK               "OPENCHECK"
 DVCCMD_CLOSECHECK              "CLOSECHECK"
+DVCCMD_OPENCHECK_CORRECTION    "OPENCHECK_CORRECTION" // @v12.3.4
 DVCCMD_PRINTFISCAL             "PRINTFISCAL"
 DVCCMD_PRINTTEXT               "PRINTTEXT"    // Печать текста
 DVCCMD_PRINTBARCODE            "PRINTBARCODE" // Печать штрихкода
@@ -5858,7 +5866,6 @@ DVCCMD_PREPROCESSCHZNCODE      "PREPROCESSCHZNCODE" // @v11.1.10
 DVCCMD_ACCEPTCHZNCODE          "ACCEPTCHZNCODE" // @v11.1.11
 DVCCMD_REJECTCHZNCODE          "REJECTCHZNCODE" // @v11.1.11
 DVCCMD_OPENSESSION             "OPENSESSION" // @v11.3.12
-DVCCMD_FISCALSIGN              "FISCALSIGN" // @v12.3.3
 DVCPARAM_ID                    "ID"
 DVCPARAM_LOGNUM                "LOGNUM"
 DVCPARAM_PORT                  "PORT"
@@ -5887,6 +5894,8 @@ DVCPARAM_UOMID                 "UOMID"  // @v11.9.4 Идентификатор �
 DVCPARAM_PRICE                 "PRICE"
 DVCPARAM_PAYMCASH              "PAYMCASH"
 DVCPARAM_PAYMCARD              "PAYMCARD"
+DVCPARAM_PREPAY	               "PREPAY"
+DVCPARAM_POSTPAY	           "POSTPAY"
 DVCPARAM_AMOUNT                "AMOUNT"
 DVCPARAM_TEXT                  "TEXT"
 DVCPARAM_FONTSIZE              "FONTSIZE"
@@ -5903,8 +5912,6 @@ DVCPARAM_LABEL                 "LABEL"
 DVCPARAM_CODE                  "CODE"
 DVCPARAM_VATRATE               "VATRATE"
 DVCPARAM_VATFREE               "VATFREE"
-DVCPARAM_PREPAY	               "PREPAY"
-DVCPARAM_POSTPAY	           "POSTPAY"
 DVCPARAM_RECKONPAY	           "RECKONPAY"
 DVCPARAM_DATE	               "DATE"
 DVCPARAM_TAXSYSTEM             "TAXSYSTEM"
@@ -5968,6 +5975,7 @@ DVCPARAM_PRESCRNUMB                   "PRESCRNUMB"   // @v11.8.0 // Рецепт
 DVCPARAM_DRAFTBEERSIMPLIFIED          "DRAFTBEERSIMPLIFIED" // @v11.9.3 Признак упрощенного режима проведения продажи разливного пива через честный знак. В качестве значения передается штрихкод позиции.
 DVCPARAM_CHZNPMREQID                  "CHZNPMREQID"         // @v12.1.1 ответ разрешительного режима чзн: уникальный идентификатор запроса
 DVCPARAM_CHZNPMREQTIMESTAMP           "CHZNPMREQTIMESTAMP"  // @v12.1.1 ответ разрешительного режима чзн: дата и время формирования запроса
+DVCPARAM_FISCALSIGN                   "FISCALSIGN" // @v12.3.3
 
 [120]
 IMPEXPCMD_ORDRSP        "ORDRSP"
@@ -8805,6 +8813,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @view_logsmonitor                         "Монитор журналов"
 @view_bizscore                            "@{bizscore_pl}"
 @view_bizscoreval                         "Значения бизнес-показателей"
+@view_bizscore2val                        "Значения бизнес-показателей (версия 2)"
 @view_predictsales                        "Продажи товаров"
 @view_goodstaxanalyze                     "Налоговый анализ товарооборота"
 @view_goodstaxanalyze_indledger_ru        "Тетрадь индивидуального предпринимателя" // derivative of view_goodstaxanalyze
@@ -9000,6 +9009,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cmd_bizscorecalc                         "Расчет бизнес-показателей"
 @cmd_bizscoreval                          "Значения бизнес-показателей"
 @cmd_bizscvalbytempl                      "Значения бизнес-показателей по шаблону"
+@cmd_bizscore2val                         "Значения бизнес-показателей ii (construction)"
 @cmd_bnkacctype                           "Типы банковских счетов"
 @cmd_brand                                "@{brand_pl}"
 @cmd_browexpimpparams                     "Конфигурация форматов экспорта/импорта строк документов"
@@ -10141,6 +10151,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @bizscore_tag                             "@{tag}"
 @bizscore_user                            "@{user}"
 @bizscore_parent                          "Родительский элемент"  // @v11.9.1 bizscore2
+@bizscore_datatype                        "@{stypex}"             // @v12.3.4 bizscore2
 
 @bizscorefilt                             "Фильтр по бизнес-показателям"
 @bizscorevalfilt                          "Фильтр по значениям бизнес-показателей"
@@ -12516,7 +12527,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @oprkind_options                          "Опции вида операций" // generic
 @oprkind_supplementamounts                "@{addendumamount_pl}" // generic
 @oprkind_opkf_attachfiles                 "@{attachfiles}"
-@oprkind_opkf_advacc                      "Ввод расширенной информации"
+@oprkind_opkf_advacc                      "Ввод строк расширения бухгалтерского документа"
+@oprkind_opkf_useext                      "Ввод расширенной информации"
 @oprkind_opkf_autowl                      "Автоматическая метка в документе"
 @oprkind_opkf_banking                     "Банковский платежный документ"
 @oprkind_opkf_calcstaxes                  "Рассчитывать налоги"
@@ -12592,6 +12604,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @oprkind_opkfx_wrofftodraftord            "Списание только в драфт-документ"
 @oprkind_opkfx_accautovat                 "Автоматически рассчитывать суммы налогов"
 @oprkind_opkfx_mngprefsuppl               "Управление предпочтительным поставщиком для дозаказа"
+@oprkind_opkfx_setctxagent                "Устанавливать агента в новых документах по контексту" // @v12.3.4
 
 @oprkind_prnorder                         "Сортировка товарных строк"
 @oprkind_prnorder_default                 "@{bydefault}"

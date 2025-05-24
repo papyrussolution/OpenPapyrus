@@ -60,8 +60,8 @@
 #endif
 
 #ifdef _MSC_VER
-#   pragma warning(push)
-#   pragma warning(disable: 4251)
+#pragma warning(push)
+#pragma warning(disable: 4251)
 #endif
 
 #ifdef _WIN32
@@ -2316,7 +2316,7 @@ private:
 }       // tinyxml2
 
 #if defined(_MSC_VER)
-#   pragma warning(pop)
+#pragma warning(pop)
 #endif
 
 #endif // TINYXML2_INCLUDED

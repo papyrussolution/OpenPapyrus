@@ -446,7 +446,7 @@ void RepeatingDialog::test()
 RepeatingDialog::RepeatingDialog(uint options) : EmbedDialog(DLG_REPEATING), InitDate(ZERODATE), Options(options)
 {
 	P_Data = (Options & fEditTime) ? (new DateTimeRepeating) : (new DateRepeating);
-	showCtrl(CTL_REPEATING_DURATION, Options & fEditDuration);
+	showCtrl(CTL_REPEATING_DURATION, LOGIC(Options & fEditDuration));
 	SetupTimePicker(this, CTL_REPEATING_RUNTIME, CTLTM_REPEATING_RUNTIME);
 }
 
@@ -523,13 +523,13 @@ int RepeatingDialog::setDTS(const DateRepeating * pData)
 	}
 	else {
 		HWND   hwnd = ::GetDlgItem(H(), CTL_REPEATING_RUNTIME);
-		TLabel * p_label = getCtlLabel(CTL_REPEATING_RUNTIME);
+		TLabel * p_label = GetCtrlLabel(CTL_REPEATING_RUNTIME);
 		if(p_label) {
 			HWND hwnd_l = GetDlgItem(H(), p_label->GetId());
 			ShowWindow(hwnd_l, SW_HIDE);
 		}
 		ShowWindow(hwnd, SW_HIDE);
-		showCtrl(CTLTM_REPEATING_RUNTIME, 0);
+		showCtrl(CTLTM_REPEATING_RUNTIME, false);
 		*P_Data = *pData;
 	}
 	SETIFZ(P_Data->Prd, PRD_WEEK);

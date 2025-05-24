@@ -1005,7 +1005,7 @@ int TDialog::SetCtrlToolTip(uint ctrlID, const char * pToolTipText)
 		if(!ToolTipsWnd) {
 			ToolTipsWnd = ::CreateWindowExW(WS_EX_TOPMOST, TOOLTIPS_CLASS, NULL, WS_POPUP|TTS_NOPREFIX|TTS_ALWAYSTIP,
 				CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, ctrl_wnd, NULL, TProgram::GetInst(), 0);
-			SetWindowPos(ToolTipsWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+			SetWindowPos(ToolTipsWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE | SWP_NOACTIVATE);
 		}
 		RECT  ctrl_rect;
 		GetWindowRect(ctrl_wnd, &ctrl_rect);
@@ -1496,7 +1496,7 @@ int TDialog::Helper_ToResizeDlg(const RECT * pNewDlgRect)
 			ResizeParamEntry added_ctrl;
 			RECT  ctrl_rect, added_rect;
 			GetWindowRect(ctrl_wnd, &ctrl_rect);
-			TLabel * p_label = getCtlLabel(new_coord.CtrlID);
+			TLabel * p_label = GetCtrlLabel(new_coord.CtrlID);
 			if(p_label && p_label->GetId() && (ctrl_wnd = GetDlgItem(H(), p_label->GetId())) != 0) {
 				GetWindowRect(ctrl_wnd, &added_rect);
 				added_ctrl.CtrlID  = p_label->GetId();

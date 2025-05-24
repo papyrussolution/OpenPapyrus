@@ -34,6 +34,12 @@ UnxTextRefTbl::Rec & UnxTextRefTbl::Rec::Clear()
 	THISZERO();
 	return *this;
 }
+DBTABLE_CONSTRUCTOR(ExtCodeRef, Code)
+ExtCodeRefTbl::Rec & ExtCodeRefTbl::Rec::Clear()
+{
+	THISZERO();
+	return *this;
+}
 DBTABLE_CONSTRUCTOR(ObjLikeness, ObjType)
 ObjLikenessTbl::Rec & ObjLikenessTbl::Rec::Clear()
 {

@@ -50,7 +50,7 @@
 #ifdef OPENSSL_SYS_VMS          /* prototypes for sys$whatever */
 #include <starlet.h>
 #ifdef __DECC
-#   pragma message disable DOLLARID
+#pragma message disable DOLLARID
 #endif
 #endif
 

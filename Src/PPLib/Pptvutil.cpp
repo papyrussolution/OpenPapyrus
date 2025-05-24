@@ -2812,11 +2812,11 @@ int STDCALL SelectorDialog(uint dlgID, uint ctlID, uint * pVal /* IN,OUT */, con
 ListBoxSelDialog::ListBoxSelDialog(ListBoxDef * pDef, uint dlgID, uint flags/*PPListDialog::fXXX*/) :
 	PPListDialog((dlgID) ? dlgID : ((pDef && pDef->_isTreeList()) ? DLG_LBXSELT : DLG_LBXSEL), CTL_LBXSEL_LIST, flags), P_Def(pDef)
 {
-	showCtrl(STDCTL_INSBUTTON,  0);
-	showCtrl(STDCTL_EDITBUTTON, 0);
-	showCtrl(STDCTL_DELBUTTON,  0);
-	showCtrl(CTL_LBXSEL_UPBTN,   0);
-	showCtrl(CTL_LBXSEL_DOWNBTN, 0);
+	showCtrl(STDCTL_INSBUTTON,  false);
+	showCtrl(STDCTL_EDITBUTTON, false);
+	showCtrl(STDCTL_DELBUTTON,  false);
+	showCtrl(CTL_LBXSEL_UPBTN,   false);
+	showCtrl(CTL_LBXSEL_DOWNBTN, false);
 	updateList(-1);
 }
 
@@ -4782,7 +4782,7 @@ int PersonCtrlGroup::SelectByCode(TDialog * pDlg)
 {
 	int    ok = -1;
 	ComboBox * p_combo = static_cast<ComboBox *>(pDlg->getCtrlView(Ctlsel));
-	if(p_combo && p_combo->link()) {
+	if(p_combo && p_combo->GetLink()) {
 		PPPersonKind psn_kind_rec;
 		PPID   reg_type_id = 0;
 		if(SearchObject(PPOBJ_PERSONKIND, Data.PsnKindID, &psn_kind_rec) > 0)
@@ -4812,7 +4812,7 @@ void PersonCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 {
 	if(event.isKeyDown(kbF2)) {
 		ComboBox * p_combo = static_cast<ComboBox *>(pDlg->getCtrlView(Ctlsel));
-		if(p_combo && pDlg->IsCurrentView(p_combo->link())) {
+		if(p_combo && pDlg->IsCurrentView(p_combo->GetLink())) {
 			SelectByCode(pDlg);
 			pDlg->clearEvent(event);
 		}
@@ -4953,7 +4953,7 @@ int PersonListCtrlGroup::selectByCode(TDialog * pDlg)
 {
 	int    ok = -1;
 	ComboBox * p_combo = static_cast<ComboBox *>(pDlg->getCtrlView(Ctlsel));
-	if(p_combo && p_combo->link()) {
+	if(p_combo && p_combo->GetLink()) {
 		PPPersonKind psn_kind_rec;
 		PPID   reg_type_id = 0;
 		if(SearchObject(PPOBJ_PERSONKIND, Data.PsnKindID, &psn_kind_rec) > 0)
@@ -4982,7 +4982,7 @@ void PersonListCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 {
 	if(event.isKeyDown(kbF2)) {
 		ComboBox * p_combo = static_cast<ComboBox *>(pDlg->getCtrlView(Ctlsel));
-		if(p_combo && p_combo->link() && pDlg->current == p_combo->link()) {
+		if(p_combo && p_combo->GetLink() && pDlg->current == p_combo->GetLink()) {
 			selectByCode(pDlg);
 			pDlg->clearEvent(event);
 		}
@@ -5081,7 +5081,7 @@ int PersonListCtrlGroup::SelectByCode(TDialog * pDlg)
 {
 	int    ok = -1;
 	ComboBox * p_combo = static_cast<ComboBox *>(pDlg->getCtrlView(Ctlsel));
-	if(p_combo && p_combo->link()) {
+	if(p_combo && p_combo->GetLink()) {
 		PPPersonKind psn_kind_rec;
 		PPID   reg_type_id = 0;
 		if(SearchObject(PPOBJ_PERSONKIND, Data.PsnKindID, &psn_kind_rec) > 0)
@@ -5136,7 +5136,7 @@ void PersonListCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 	}
 	else if(event.isKeyDown(kbF2)) {
 		ComboBox * p_combo = static_cast<ComboBox *>(pDlg->getCtrlView(Ctlsel));
-		if(p_combo && pDlg->IsCurrentView(p_combo->link())) {
+		if(p_combo && pDlg->IsCurrentView(p_combo->GetLink())) {
 			SelectByCode(pDlg);
 			pDlg->clearEvent(event);
 		}
@@ -5993,10 +5993,10 @@ public:
 		SString subtitle;
 		PPLoadText(PPTXT_NOTIMPORTEDGOODS, subtitle);
 		setSubTitle(subtitle);
-		showCtrl(STDCTL_INSBUTTON,   0);
-		showCtrl(STDCTL_DELBUTTON,   0);
-		showCtrl(CTL_LBXSEL_UPBTN,   0);
-		showCtrl(CTL_LBXSEL_DOWNBTN, 0);
+		showCtrl(STDCTL_INSBUTTON,   false);
+		showCtrl(STDCTL_DELBUTTON,   false);
+		showCtrl(CTL_LBXSEL_UPBTN,   false);
+		showCtrl(CTL_LBXSEL_DOWNBTN, false);
 		GObj.ReadConfig(&GoodsCfg);
 		updateList(-1);
 	}
@@ -6267,8 +6267,8 @@ int ViewImageInfo(const char * pImagePath, const char * pInfo, const char * pWar
 		{
 			if(IsSimple) {
 				SetCtrlResizeParam(CTL_IMAGEINFO_IMAGE, 0, 0, 0, 0, crfResizeable);
-				showCtrl(STDCTL_OKBUTTON, 0);
-				showCtrl(STDCTL_CANCELBUTTON, 0);
+				showCtrl(STDCTL_OKBUTTON, false);
+				showCtrl(STDCTL_CANCELBUTTON, false);
 				ResizeDlgToFullScreen();
 			}
 		}
@@ -6287,7 +6287,7 @@ int ViewImageInfo(const char * pImagePath, const char * pInfo, const char * pWar
 			//p_dlg->enableCommand(cmOK, 0);
 		}
 		else
-			p_dlg->showCtrl(CTL_IMAGEINFO_PIC_WARN, 0);
+			p_dlg->showCtrl(CTL_IMAGEINFO_PIC_WARN, false);
 	}
 	if(ExecView(p_dlg) == cmOK)
 		ok = 1;
@@ -7024,8 +7024,8 @@ class EmailListDlg : public PPListDialog {
 public:
 	EmailListDlg() : PPListDialog(DLG_EMAILADDRS, CTL_EMAILADDRS_LIST)
 	{
-		showCtrl(CTL_LBXSEL_UPBTN,   0);
-		showCtrl(CTL_LBXSEL_DOWNBTN, 0);
+		showCtrl(CTL_LBXSEL_UPBTN,   false);
+		showCtrl(CTL_LBXSEL_DOWNBTN, false);
 		updateList(-1);
 	}
 	DECL_DIALOG_SETDTS()
@@ -7554,7 +7554,7 @@ int ExportDialogs2(const char * pFileName)
 							dlg->GetCtlSymb(ctl_id, symb);
 							if(symb.IsEmpty())
 								symb.Cat(ctl_id);
-							TLabel * p_label = dlg->getCtlLabel(ctl_id);
+							TLabel * p_label = dlg->GetCtrlLabel(ctl_id);
 							RECT   label_rect;
 							if(p_label) {
 								WINDOWINFO label_wi;
@@ -7603,7 +7603,7 @@ int ExportDialogs2(const char * pFileName)
 											//DlScope::PropListToLine(prop_list, 2, line_buf).Semicol().CR();
 											// @v12.3.3 {
 											{
-												const TInputLine * p_cb_line = p_cb->link();
+												const TInputLine * p_cb_line = p_cb->GetLink();
 												if(p_cb_line) {
 													dlg->GetCtlSymb(p_cb_line->GetId(), symb);
 													if(symb.NotEmpty()) {
@@ -8414,17 +8414,17 @@ void TDialogDL6_Construction::InsertControlItems(DlContext & rCtx, const DlScope
 	SString ctl_text;
 	const DlScopeList & r_scope_list = rParentScope.GetChildList();
 	for(uint ci = 0; ci < r_scope_list.getCount(); ci++) {
-		const DlScope * p_item = r_scope_list.at(ci);
-		if(p_item) {
+		const DlScope * p_scope = r_scope_list.at(ci);
+		if(p_scope) {
 			uint32 vk = 0;
 			uint32 symb_ident = 0;
 			uint32 ui_flags = 0;
-			rCtx.GetConst_Uint32(p_item, DlScope::cuifViewKind, vk);
-			rCtx.GetConst_Uint32(p_item, DlScope::cucmSymbolIdent, symb_ident);
-			const uint32 item_id = NZOR(symb_ident, p_item->ID);
+			rCtx.GetConst_Uint32(p_scope, DlScope::cuifViewKind, vk);
+			rCtx.GetConst_Uint32(p_scope, DlScope::cucmSymbolIdent, symb_ident);
+			const uint32 item_id = NZOR(symb_ident, p_scope->ID);
 			{
 				// cuifFlags
-				rCtx.GetConst_Uint32(p_item, DlScope::cuifFlags, ui_flags);
+				rCtx.GetConst_Uint32(p_scope, DlScope::cuifFlags, ui_flags);
 				/*
 					{ UiItemKind::fReadOnly, occfReadOnly, "readonly" },
 					{ UiItemKind::fTabStop, occfTabStop, "tabstop" },
@@ -8439,7 +8439,7 @@ void TDialogDL6_Construction::InsertControlItems(DlContext & rCtx, const DlScope
 			}
 			//UiItemKind::GetSymbById(vk, temp_buf);
 			SUiLayoutParam lp;
-			const bool glbr = rCtx.GetLayoutBlock(p_item, DlScope::cuifLayoutBlock, &lp);
+			const bool glbr = rCtx.GetLayoutBlock(p_scope, DlScope::cuifLayoutBlock, &lp);
 			switch(vk) {
 				case UiItemKind::kInput:
 					if(stage == insertctrlstageMain) {
@@ -8447,22 +8447,22 @@ void TDialogDL6_Construction::InsertControlItems(DlContext & rCtx, const DlScope
 						const uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(&lp, rc, 60.0f, 21.0f);
 						//
 						TInputLine * p_ctl = new TInputLine(rc, 0/* @todo type */, 0);
-						InsertCtlWithCorrespondingNativeItem(p_ctl, item_id, 0, /*extraPtr*/0);
 						{
-							// Label
-							if(rCtx.GetConst_String(p_item, DlScope::cuifCtrlText, ctl_text)) {
+							// Label надо вставить до поля ввода
+							if(rCtx.GetConst_String(p_scope, DlScope::cuifCtrlText, ctl_text)) {
 								//cuifCtrlLblRect,  // raw    Координаты текстового ярлыка, ассоциированного с управляющим элементом
 								//cuifCtrlLblSymb,  // string Символ текстового ярлыка, ассоциированного с управляющим элементом
 								//cuifLabelRect,    // raw(UiRelRect) Положение текстового ярлыка, ассоциированного с управляющим элементом
 								//cuifLblLayoutBlock
 								SUiLayoutParam lp_label;
-								const bool glb_label_r = rCtx.GetLayoutBlock(p_item, DlScope::cuifLblLayoutBlock, &lp_label);
+								const bool glb_label_r = rCtx.GetLayoutBlock(p_scope, DlScope::cuifLblLayoutBlock, &lp_label);
 								TRect rc_label;
 								const uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(&lp_label, rc_label, 60.0f, 13.0f);
 								TLabel * p_lbl = new TLabel(rc_label, ctl_text, p_ctl);
-								InsertCtlWithCorrespondingNativeItem(p_lbl, 0, 0, /*extraPtr*/0);
+								InsertCtlWithCorrespondingNativeItem(p_lbl, ++rLastDynId, 0, /*extraPtr*/0);
 							}
 						}
+						InsertCtlWithCorrespondingNativeItem(p_ctl, item_id, 0, /*extraPtr*/0);
 					}
 					break;
 				case UiItemKind::kStatic:
@@ -8470,7 +8470,8 @@ void TDialogDL6_Construction::InsertControlItems(DlContext & rCtx, const DlScope
 						TRect rc;
 						const uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(&lp, rc, 60.0f, 60.0f);
 						uint   spc_flags = (ui_flags & UiItemKind::fStaticEdge) ? TStaticText::spcfStaticEdge : 0;
-						TStaticText * p_ctl = new TStaticText(rc, spc_flags, 0);
+						rCtx.GetConst_String(p_scope, DlScope::cuifCtrlText, ctl_text);
+						TStaticText * p_ctl = new TStaticText(rc, spc_flags, ctl_text);
 						InsertCtlWithCorrespondingNativeItem(p_ctl, item_id, 0, /*extraPtr*/0);
 					}
 					break;
@@ -8480,9 +8481,9 @@ void TDialogDL6_Construction::InsertControlItems(DlContext & rCtx, const DlScope
 						const uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(&lp, rc, 60.0f, 60.0f);
 						uint32 cmd_id = 0;
 						SString cmd_symb;
-						rCtx.GetConst_Uint32(p_item, DlScope::cuifCtrlCmd, cmd_id); // uint32 ИД команды кнопки
-						rCtx.GetConst_String(p_item, DlScope::cuifCtrlCmdSymb, cmd_symb); // string Символ команды кнопки
-						rCtx.GetConst_String(p_item, DlScope::cuifCtrlText, ctl_text);
+						rCtx.GetConst_Uint32(p_scope, DlScope::cuifCtrlCmd, cmd_id); // uint32 ИД команды кнопки
+						rCtx.GetConst_String(p_scope, DlScope::cuifCtrlCmdSymb, cmd_symb); // string Символ команды кнопки
+						rCtx.GetConst_String(p_scope, DlScope::cuifCtrlText, ctl_text);
 						TButton * p_ctl = new TButton(rc, ctl_text, cmd_id, 0);
 						InsertCtlWithCorrespondingNativeItem(p_ctl, item_id, 0, /*extraPtr*/0);
 					}
@@ -8493,7 +8494,7 @@ void TDialogDL6_Construction::InsertControlItems(DlContext & rCtx, const DlScope
 						const uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(&lp, rc, 60.0f, 60.0f);
 						TCluster * p_ctl = new TCluster(rc, CHECKBOXES, TCluster::spcfSingleItemWithoutFrame/*spcFlags*/, 0);
 						{
-							if(rCtx.GetConst_String(p_item, DlScope::cuifCtrlText, temp_buf)) {
+							if(rCtx.GetConst_String(p_scope, DlScope::cuifCtrlText, temp_buf)) {
 								p_ctl->AddItem(-1, temp_buf, &rc);
 							}
 						}
@@ -8506,7 +8507,7 @@ void TDialogDL6_Construction::InsertControlItems(DlContext & rCtx, const DlScope
 						const uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(&lp, rc, 60.0f, 60.0f);
 						TCluster * p_ctl = new TCluster(rc, CHECKBOXES, 0/*spcFlags*/, 0);
 						{
-							const DlScopeList & r_item_scope_list = p_item->GetChildList();
+							const DlScopeList & r_item_scope_list = p_scope->GetChildList();
 							for(uint cii = 0; cii < r_item_scope_list.getCount(); cii++) {
 								const DlScope * p_ci = r_item_scope_list.at(cii);
 								if(p_ci) {
@@ -8529,7 +8530,7 @@ void TDialogDL6_Construction::InsertControlItems(DlContext & rCtx, const DlScope
 						const uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(&lp, rc, 60.0f, 60.0f);
 						TCluster * p_ctl = new TCluster(rc, RADIOBUTTONS, 0/*spcFlags*/, 0);
 						{
-							const DlScopeList & r_item_scope_list = p_item->GetChildList();
+							const DlScopeList & r_item_scope_list = p_scope->GetChildList();
 							for(uint cii = 0; cii < r_item_scope_list.getCount(); cii++) {
 								const DlScope * p_ci = r_item_scope_list.at(cii);
 								if(p_ci) {
@@ -8551,8 +8552,8 @@ void TDialogDL6_Construction::InsertControlItems(DlContext & rCtx, const DlScope
 						TRect rc;
 						const uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(&lp, rc, 60.0f, 60.0f);
 						uint32 cb_line_id = 0;
-						rCtx.GetConst_String(p_item, DlScope::cuifCbLineSymb, temp_buf);
-						rCtx.GetConst_Uint32(p_item, DlScope::cuifCbLineSymbIdent, cb_line_id);
+						rCtx.GetConst_String(p_scope, DlScope::cuifCbLineSymb, temp_buf);
+						rCtx.GetConst_Uint32(p_scope, DlScope::cuifCbLineSymbIdent, cb_line_id);
 						TInputLine * p_il = new TInputLine(rc, S_ZSTRING, MKSFMT(128, 0));
 						p_il->SetId(cb_line_id ? cb_line_id : (++rLastDynId));
 						TRect rc_cb;
@@ -8562,22 +8563,23 @@ void TDialogDL6_Construction::InsertControlItems(DlContext & rCtx, const DlScope
 						rc_cb.b.y = rc.b.y;
 						ComboBox * p_cb = new ComboBox(rc_cb, cbxAllowEmpty|cbxDisposeData|cbxListOnly, p_il);
 						p_cb->SetId(item_id);
-						InsertCtlWithCorrespondingNativeItem(p_cb, item_id, 0, /*extraPtr*/0);
 						{
 							// Label
-							if(rCtx.GetConst_String(p_item, DlScope::cuifCtrlText, ctl_text)) {
+							if(rCtx.GetConst_String(p_scope, DlScope::cuifCtrlText, ctl_text)) {
 								//cuifCtrlLblRect,  // raw    Координаты текстового ярлыка, ассоциированного с управляющим элементом
 								//cuifCtrlLblSymb,  // string Символ текстового ярлыка, ассоциированного с управляющим элементом
 								//cuifLabelRect,    // raw(UiRelRect) Положение текстового ярлыка, ассоциированного с управляющим элементом
 								//cuifLblLayoutBlock
 								SUiLayoutParam lp_label;
-								const bool glb_label_r = rCtx.GetLayoutBlock(p_item, DlScope::cuifLblLayoutBlock, &lp_label);
+								const bool glb_label_r = rCtx.GetLayoutBlock(p_scope, DlScope::cuifLblLayoutBlock, &lp_label);
 								TRect rc_label;
 								const uint gnrr_label = SUiLayoutParam::GetNominalRectWithDefaults(&lp_label, rc_label, 60.0f, 13.0f);
 								TLabel * p_lbl = new TLabel(rc_label, ctl_text, p_il);
+								p_lbl->SetId(++rLastDynId);
 								InsertCtlWithCorrespondingNativeItem(p_lbl, 0, 0, /*extraPtr*/0);
 							}
 						}
+						InsertCtlWithCorrespondingNativeItem(p_cb, item_id, 0, /*extraPtr*/0);
 					}
 					break;
 				case UiItemKind::kListbox: 
@@ -8620,13 +8622,13 @@ void TDialogDL6_Construction::InsertControlItems(DlContext & rCtx, const DlScope
 						const uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(&lp, rc, 60.0f, 60.0f);
 						//rc.b.x = rc.a.x + 20; // @debug
 						//rc.b.y = rc.a.y + 20; // @debug
-						rCtx.GetConst_String(p_item, DlScope::cuifCtrlText, ctl_text);
+						rCtx.GetConst_String(p_scope, DlScope::cuifCtrlText, ctl_text);
 						TGroupBox * p_gb = new TGroupBox(rc);
 						p_gb->SetText(ctl_text);
 						InsertCtlWithCorrespondingNativeItem(p_gb, item_id, 0, /*extraPtr*/0);
-						//
-						InsertControlItems(rCtx, *p_item, rLastDynId, stage); // @recursion
 					}
+					InsertControlItems(rCtx, *p_scope, rLastDynId, stage); // @recursion // Внутри могут быть элементы, которые вставляются на фазе insertctrlstageMain,
+						// по этому выводим данный вызов за рамки проверки if(stage == insertctrlstagePostprocess)
 					break;
 				case UiItemKind::kLabel: 
 					if(stage == insertctrlstageMain) {
@@ -8637,7 +8639,7 @@ void TDialogDL6_Construction::InsertControlItems(DlContext & rCtx, const DlScope
 					}
 					break;
 				case UiItemKind::kGenericView: 
-					InsertControlItems(rCtx, *p_item, rLastDynId, stage); // @recursion
+					InsertControlItems(rCtx, *p_scope, rLastDynId, stage); // @recursion
 					break;
 				case UiItemKind::kImageView: 
 					if(stage == insertctrlstageMain) {
@@ -8645,8 +8647,8 @@ void TDialogDL6_Construction::InsertControlItems(DlContext & rCtx, const DlScope
 						const uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(&lp, rc, 60.0f, 60.0f);
 							
 						SString img_symb;
-						rCtx.GetConst_String(p_item, DlScope::cuifImageSymb, img_symb);
-						rCtx.GetConst_String(p_item, DlScope::cuifCtrlText, ctl_text);
+						rCtx.GetConst_String(p_scope, DlScope::cuifImageSymb, img_symb);
+						rCtx.GetConst_String(p_scope, DlScope::cuifCtrlText, ctl_text);
 						TImageView * p_ctl = new TImageView(rc, img_symb);
 						InsertCtlWithCorrespondingNativeItem(p_ctl, item_id, 0, /*extraPtr*/0);
 					}
@@ -8675,7 +8677,125 @@ void TDialogDL6_Construction::InsertControlLayouts(DlContext & rCtx, const DlSco
 					const uint32 item_id = NZOR(symb_ident, p_scope->ID);
 					TView * p_view = getCtrlView(item_id);
 					if(p_view) {
-						p_lo = InsertCtrlLayout(pLoParent, p_view, lp);
+						bool   done = false;
+						if(vk == UiItemKind::kCheckCluster) {
+							if(p_view->IsSubSign(TV_SUBSIGN_CLUSTER)) {
+								TCluster * p_clu = static_cast<TCluster *>(p_view);
+								const float fixed_item_y = 16.0f;
+								int clu_direction = lp.GetContainerDirection();
+								if(clu_direction != DIREC_HORZ) {
+									clu_direction = DIREC_VERT;
+									lp.SetContainerDirection(clu_direction);
+								}
+								SUiLayoutParam glp(clu_direction); // Общий лейаут для всей группы
+								float cluster_size_y = 0.0f;
+								//glp.SetF
+								lp.CopySizeXParamTo(glp);
+								glp.SetFixedSizeY(20.0f); // Предварительный размер - позже уточним
+								SUiLayout * p_lo_grp = pLoParent->InsertItem(0, &glp);
+								for(uint item_idx = 0; item_idx < p_clu->getNumItems(); item_idx++) {
+									const TCluster::Item * p_item = p_clu->GetItemC(item_idx);
+									HWND  h_item = p_item ? p_clu->getItemHandle(item_idx) : 0;
+									if(h_item) {
+										SUiLayoutParam lp_item;
+										lp_item.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+										lp_item.SetFixedSizeY(fixed_item_y);
+										cluster_size_y += fixed_item_y;
+									}
+								}
+							}
+						}
+						else if(vk == UiItemKind::kCombobox) {
+							if(p_view->IsSubSign(TV_SUBSIGN_COMBOBOX)) {
+								ComboBox * p_cb = static_cast<ComboBox *>(p_view);
+								TInputLine * p_il = p_cb->GetLink();
+								if(p_il) {
+									TView * p_lbl = GetCtrlLabel(p_il);
+									if(p_lbl) {
+										SUiLayoutParam glp(DIREC_VERT); // Общий лейаут для всей группы
+										SUiLayoutParam lp_ib(DIREC_HORZ); // Лейаут для пары {поле ввода; кнопка}
+										SUiLayoutParam lp_label;
+										SUiLayoutParam lp_button;
+										SUiLayoutParam lp_il;
+										TRect  rc_label;
+
+										const float fixed_button_y = 21.0f;
+										const float fixed_button_x = fixed_button_y;
+										const float fixed_input_y = 21.0f;
+										const float fixed_label_y = 13.0f;
+
+										lp.CopySizeXParamTo(glp);
+										//const uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(&lp_label, rc_label, 60.0f, 13.0f);
+										lp_label.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+										lp_label.SetFixedSizeY(fixed_label_y);
+										lp_button.SetFixedSizeX(fixed_button_x);
+										lp_button.SetFixedSizeY(fixed_button_y);
+										lp_button.ShrinkFactor = 0.0f;
+										lp_il.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+										lp_il.SetFixedSizeY(fixed_input_y);
+										lp_ib.SetFixedSizeY(MAX(fixed_input_y, fixed_button_y));
+										glp.SetFixedSizeY(MAX(fixed_input_y, fixed_button_y) + fixed_label_y);
+
+										SUiLayout * p_lo_cb_grp = pLoParent->InsertItem(0, &glp);
+										InsertCtrlLayout(p_lo_cb_grp, p_lbl, lp_label);
+										SUiLayout * p_lo_ib_grp = p_lo_cb_grp->InsertItem(0, &lp_ib);
+										InsertCtrlLayout(p_lo_ib_grp, p_il, lp_il);
+										InsertCtrlLayout(p_lo_ib_grp, p_cb, lp_button);
+										done = true;
+									}
+									else {
+										
+									}
+								}
+							}
+						}
+						else if(vk == UiItemKind::kInput) {
+							if(p_view->IsSubSign(TV_SUBSIGN_INPUTLINE)) {
+								TInputLine * p_il = static_cast<TInputLine *>(p_view);
+								TView * p_lbl = GetCtrlLabel(p_il);
+								if(p_lbl) {
+									// Группирующий лейаут для строки ввода и подписи (label)
+									SUiLayoutParam glp(DIREC_VERT);
+									SUiLayoutParam lp_label;
+									// Параметры горизонтального измерения соответствуют полю ввода
+									lp.CopySizeXParamTo(glp);
+									TRect  rc_label;
+									//if(rCtx.GetLayoutBlock(p_scope, DlScope::cuifLblLayoutBlock, &lp_label)) {
+									const uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(&lp_label, rc_label, 60.0f, 13.0f);
+									//}
+									lp_label.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+									lp_label.SetFixedSizeY((rc_label.height() > 0.0f) ? static_cast<float>(rc_label.height()) : 13.0f);
+									//
+									float inp_height = 0.0f;
+									const int inp_szy = lp.GetSizeY(&inp_height);
+									if(inp_szy == SUiLayoutParam::szFixed) {
+										glp.SetFixedSizeY(inp_height + rc_label.height() + 4.0f);
+									}
+									else {
+										//lp.CopySizeYParamTo(glp);
+									}
+									glp.Flags &= ~(SUiLayoutParam::fContainerWrap|SUiLayoutParam::fContainerWrapReverse);
+									glp.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+									lp.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+									lp.SetFixedSizeY(21.0f); // default label height
+									glp.SetMargin(4.0f);
+									SUiLayout * p_lo_inp_grp = pLoParent->InsertItem(0, &glp);
+									if(p_lo_inp_grp) {
+										//lp_label.Flags &= ~(SUiLayoutParam::fNominalDefL|SUiLayoutParam::fNominalDefR|SUiLayoutParam::fNominalDefT|SUiLayoutParam::fNominalDefB);
+										InsertCtrlLayout(p_lo_inp_grp, p_lbl, lp_label);
+										InsertCtrlLayout(p_lo_inp_grp, p_il, lp);
+										done = true;
+									}
+								}
+								else {
+									p_lo = InsertCtrlLayout(pLoParent, p_il, lp);
+									done = true;
+								}
+							}
+						}
+						if(!done) {
+							p_lo = InsertCtrlLayout(pLoParent, p_view, lp);
+						}
 					}
 					else {
 						if(vk == UiItemKind::kGenericView) {
@@ -8765,13 +8885,12 @@ void TDialogDL6_Construction::Build(DlContext & rCtx)
 				p_lo_main->SetSymb(p_scope->GetName());
 			}
 			SetLayout(p_lo_main);
-			//
-			// Далее, мы должны вставить управляющие элементы в созданое окно диалога
-			//
-			const DlScopeList & r_cl = p_scope->GetChildList();
 			{
+				//
+				// Далее, мы должны вставить управляющие элементы в созданое окно диалога
+				//
 				uint last_dyn_id = 1000000; 
-				// (@unused) InsertControlItems(rCtx, r_cl, last_dyn_id, insertctrlstagePreprocess);
+				// (@unused) InsertControlItems(rCtx, *p_scope, last_dyn_id, insertctrlstagePreprocess);
 				InsertControlItems(rCtx, *p_scope, last_dyn_id, insertctrlstageMain);
 				InsertControlItems(rCtx, *p_scope, last_dyn_id, insertctrlstagePostprocess);
 			}
@@ -8805,6 +8924,33 @@ void TDialogDL6_Construction::Build(DlContext & rCtx)
 			EnumChildWindows(HW, SetupCtrlTextProc, 0);				
 		}
 		EvaluateLayout(getClientRect());
+		// @debug {
+		/*
+		TInputLine * p_il_debug = (TInputLine *)getCtrlView(CTL_LOCATION_ZIP);
+		TRect rc_il_debug;
+		TRect rc_lbl_debug;
+		if(p_il_debug) {
+			HWND h_il = p_il_debug->getHandle();
+			if(h_il) {
+				RECT local_rc;
+				if(GetWindowRect(h_il, &local_rc))
+					rc_il_debug = local_rc;
+			}
+				
+			//rc_il_debug = p_il_debug->
+			TLabel * p_lbl = GetCtrlLabel(p_il_debug);
+			if(p_lbl) {
+				HWND h_lbl = p_lbl->getHandle();
+				if(h_lbl) {
+					RECT local_rc;
+					if(GetWindowRect(h_lbl, &local_rc))
+						rc_lbl_debug = local_rc;
+				}
+			}
+		}
+		p_il_debug = 0;
+		*/
+		// } @debug 
 	}
 }
 

@@ -1883,7 +1883,12 @@ int PPTextAnalyzer::MakeGoodsNameList(const char * pOutFileName)
 		SFile f_out(pOutFileName, SFile::mWrite);
 		THROW(f_out.IsValid());
 		{
-			SString ident;
+			SString out_file_name_with_oids;
+			SFsPath ps(pOutFileName);
+			ps.Ext.CatChar('-').Cat("oid");
+			ps.Merge(out_file_name_with_oids);
+			SFile f_out_oid(out_file_name_with_oids, SFile::mWrite);
+			SString text_with_ident;
 			SString text;
 			PPObjGoods goods_obj;
 			Goods2Tbl * p_tbl = goods_obj.P_Tbl;
@@ -1895,6 +1900,9 @@ int PPTextAnalyzer::MakeGoodsNameList(const char * pOutFileName)
 				NormalizeGoodsName(text);
 				if(text.NotEmptyS()) {
 					f_out.WriteLine(text.CR());
+					//
+					text_with_ident.Z().Cat(PPOBJ_GOODS).Tab().Cat(p_tbl->data.ID).Tab().Cat(text);
+					f_out_oid.WriteLine(text_with_ident);
 				}
 			}
 		}
@@ -4061,9 +4069,15 @@ int ParseCpEncodingTables(const char * pPath, SUnicodeTable * pUt)
 
 	int SentencePieceExperiments()
 	{
+		enum {
+			actionMakeGoodsNameList = 1,
+			actionTrain             = 2,
+			actionProcessTokens     = 3,
+		};
 		// В базе товаров UHTT макс количество токенов около 100.
 		int    ok = 1;
 		bool   debug_mark = false;
+		const  int action = actionMakeGoodsNameList;
 		// @todo проблема на строке 343416! символ с кодом 26 (decimal)
 		SString temp_buf;
 		DbProvider * p_dict = CurDict;
@@ -4086,11 +4100,11 @@ int ParseCpEncodingTables(const char * pPath, SUnicodeTable * pUt)
 			(model_file_path = basis_path_wo_ext).DotCat("model");
 			(vec_file_path = basis_path_wo_ext).DotCat("vec");
 			(tok_file_path = basis_path_wo_ext).DotCat("tok");
-			/*{
+			if(action == actionMakeGoodsNameList) {
 				PPTextAnalyzer txta;
 				txta.MakeGoodsNameList(raw_input_file_path);
-			}*/
-			/*{
+			}
+			else if(action == actionTrain) {
 				SString cmd_line;
 				cmd_line.CatEq("--input", raw_input_file_path).Space().CatEq("--model_prefix", basis_path_wo_ext).Space().CatEq("--vocab_size", 4000).
 					Space().CatEq("--input_sentence_size", 500000).Space().CatEq("--shuffle_input_sentence", "true");
@@ -4103,8 +4117,8 @@ int ParseCpEncodingTables(const char * pPath, SUnicodeTable * pUt)
 				else {
 					; // @todo @err
 				}
-			}*/
-			{
+			}
+			else if(action == actionProcessTokens) {
 				sentencepiece::SentencePieceProcessor prc;
 				const auto status = prc.Load(model_file_path.cptr());
 				SString vec_buf;

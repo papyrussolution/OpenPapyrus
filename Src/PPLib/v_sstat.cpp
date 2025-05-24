@@ -88,9 +88,9 @@ public:
 		SetupCalDate(CTLCAL_SSTATFLT_RESTDATE, CTL_SSTATFLT_RESTDATE);
 		MEMSZERO(PrCfg);
 		PrcssrPrediction::GetPredictCfg(&PrCfg);
-		showCtrl(CTL_SSTATFLT_MTX_IND, 0);
+		showCtrl(CTL_SSTATFLT_MTX_IND, false);
 		if(LConfig.Flags & CFGFLG_USEGOODSMATRIX) {
-			showCtrl(CTL_SSTATFLT_MTX_IND, 1);
+			showCtrl(CTL_SSTATFLT_MTX_IND, true);
 			SetCtrlBitmap(CTL_SSTATFLT_MTX_IND, BM_MATRIX);
 		}
 	}

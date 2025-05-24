@@ -372,15 +372,23 @@ void GnuPlot::MultiplotEnd()
 		V.MarginT = MpLo.prev_tmargin;
 	}
 	// reset automatic multiplot layout 
-	MpLo.auto_layout = FALSE;
-	MpLo.auto_layout_margins = FALSE;
-	MpLo.xscale = MpLo.yscale = 1.0;
+	MpLo.auto_layout = false;
+	MpLo.auto_layout_margins = false;
+	MpLo.xscale = 1.0;
+	MpLo.yscale = 1.0;
 	MpLo.Offset.SetZero();
-	MpLo.lmargin.scalex = MpLo.rmargin.scalex = screen;
-	MpLo.bmargin.scalex = MpLo.tmargin.scalex = screen;
-	MpLo.lmargin.x = MpLo.rmargin.x = MpLo.bmargin.x = MpLo.tmargin.x = -1;
-	MpLo.xspacing.scalex = MpLo.yspacing.scalex = screen;
-	MpLo.xspacing.x = MpLo.yspacing.x = -1;
+	MpLo.lmargin.scalex = screen;
+	MpLo.rmargin.scalex = screen;
+	MpLo.bmargin.scalex = screen;
+	MpLo.tmargin.scalex = screen;
+	MpLo.lmargin.x = -1.0;
+	MpLo.rmargin.x = -1.0;
+	MpLo.bmargin.x = -1.0;
+	MpLo.tmargin.x = -1.0;
+	MpLo.xspacing.scalex = screen;
+	MpLo.yspacing.scalex = screen;
+	MpLo.xspacing.x = -1.0;
+	MpLo.yspacing.x = -1.0;
 	ZFREE(MpLo.title.text);
 }
 //
@@ -416,8 +424,8 @@ void GnuPlot::MpLayoutSizeAndOffset()
 			V.Offset.y *= (1.0f - MpLo.title_height);
 		}
 		// corrected for x/y-scaling factors and user defined offsets 
-		V.Offset.x -= (MpLo.xscale-1)/(2*MpLo.num_cols);
-		V.Offset.y -= (MpLo.yscale-1)/(2*MpLo.num_rows);
+		V.Offset.x -= static_cast<float>((MpLo.xscale-1.0) / (2 * MpLo.num_cols));
+		V.Offset.y -= static_cast<float>((MpLo.yscale-1.0) / (2 * MpLo.num_rows));
 		// fprintf(stderr, "  xoffset==%g  yoffset==%g\n", xoffset,yoffset); 
 		V.Offset.x += MpLo.Offset.x;
 		V.Offset.y += MpLo.Offset.y;
