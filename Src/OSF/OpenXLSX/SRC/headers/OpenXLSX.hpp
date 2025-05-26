@@ -5,6 +5,7 @@
 #define OPENXLSX_OPENXLSX_HPP
 
 #include <sl-packing-set_compiler_default.h>
+#include <string_view>
 #include <any>
 #include <variant>
 
