@@ -4039,8 +4039,22 @@ private:
 
 class TCluster : public TView {
 public:
+	static constexpr float DefItemHeight       = 16.0f; // Высота одного элемента кластера в пикселях по умолчанию
+	static constexpr float DefItemVerticalGap  = 1.0;  // Расстояние по вертикали между элементами (от нижней границы верхнего до верхней нижнего). При вертикальной раскладке.
+	static constexpr float DefClusterPaddigTop = 16.0f; // Расстояние по вертикали от верхней границы кластера до верхней кромки первого элемента. 
+	static constexpr float DefClusterPaddigBottom = 16.0f; // Расстояние по вертикали от нижней границы кластера до нижней кромки последнего элемента.
+	static constexpr float DefClusterPaddigLeft = 8.0f; // Расстояние по горизонтали от левой границы кластера до левой кромки первого элемента. 
+
 	struct Item {
-		TRect Bounds;
+		Item() : Flags(0), AssociatedValue(0)
+		{
+		}
+		enum {
+			fDefaultRadioButton = 0x0001 // Если установлен, то этот элемент radio-cluster'а является default'нтым
+		};
+		TRect  Bounds;
+		uint   Flags;
+		long   AssociatedValue; // Значение, сопоставленной клиентским вызовом с этим элементом кластера.
 		SString Text;
 	};
 	enum {
@@ -4050,11 +4064,12 @@ public:
 	//
 	// ARG(kind IN): Вид кластера. Либо RADIOBUTTONS, либо CHECKBOXES
 	//
-	TCluster(const TRect & rBounds, int kind, uint spcFlags, const StringSet * pStrings);
+	TCluster(const TRect & rBounds, int kind, uint spcFlags, const char * pTitle, const StringSet * pStrings);
 	// @todo TCluster(const TRect & rBounds, int kind, uint spcFlags, const TSCollection <Item> & rItemList);
 	~TCluster();
 	virtual int    TransmitData(int dir, void * pData);
 	virtual void   setState(uint aState, bool enable);
+	const  SString & GetRawText() const { return Text; }
 	bool   mark(int item);
 	void   press(ushort item);
 	uint   getNumItems() const;
@@ -4080,6 +4095,7 @@ public:
 	uint   GetSpcFlags() const { return SpcFlags; }
 	const  Item * GetItemC(uint idx) const { return (idx < ItemList.getCount()) ? ItemList.at(idx) : 0; }
 protected:
+	DECL_HANDLE_EVENT; // @v12.3.5
 	virtual int    handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 	const  int32 Kind;  // RADIOBUTTONS || CHECKBOXES
@@ -4091,9 +4107,11 @@ protected:
 	// @v12.3.3 SStrCollection Strings;
 	TSCollection <Item> ItemList; // @v12.3.3
 private:
+	void     ArrangeItems(int direction, bool tuneOnInit);
 	//int    column(int item) const;
 	//int    row(int item) const;
 	LAssocArray ValAssoc; // @todo Перебросить эти данные в ItemList
+	SString Text; // @v12.3.5 Текст заголовка для кластера. Если кластер состоит из единственного checkbox'а без фрейма, то этот заголовок не работает (фрейма нет)
 };
 
 class TStaticText : public TView {
@@ -4109,8 +4127,8 @@ public:
 	//   извлекает строку из соответсвующего native-объекта
 	//   (TView::SGetWindowText(GetDlgItem(Parent, Id), rBuf))
 	//
-	SString & getText(SString & rBuf) const;
-	int    setText(const char *);
+	SString & GetText(SString & rBuf) const;
+	int    SetText(const char *);
 	uint   GetSpcFlags() const { return SpcFlags; }
 protected:
 	DECL_HANDLE_EVENT; // @v12.2.5

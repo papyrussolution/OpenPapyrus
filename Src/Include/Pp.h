@@ -2789,8 +2789,8 @@ public:
 	TagFilt & FASTCALL operator = (const TagFilt & rS);
 	int    FASTCALL Check(const ObjTagList * pList) const;
 	int    CheckTagItemForRestrict(const ObjTagItem * pItem, const SString & rRestrict) const;
-	int    SelectIndicator(PPID objID, SColor & rClr) const;
-	int    SelectIndicator(const ObjTagList * pTagList, SColor & rClr) const;
+	bool   SelectIndicator(PPID objID, SColor & rClr) const;
+	bool   SelectIndicator(const ObjTagList * pTagList, SColor & rClr) const;
 
 	char   ReserveStart[32];    // @anchor
 	long   Flags;               // @flags
@@ -3467,8 +3467,8 @@ public:
 	int    FASTCALL Get_(const ObjTagTbl::Rec & rRec);
 	int    Put(PPID objType, PPID objID, long tagByObj, ObjTagTbl::Rec *) const;
 	int    FASTCALL Cmp(const ObjTagItem &) const;
-	int    IsZeroVal() const;
-	int    IsWarnVal() const;
+	bool   IsZeroVal() const;
+	bool   IsWarnVal() const;
 	ObjTagItem & FASTCALL operator = (const ObjTagItem &);
 	bool   FASTCALL operator == (const ObjTagItem & a) const;
 	bool   FASTCALL operator != (const ObjTagItem & a) const;

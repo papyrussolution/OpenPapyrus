@@ -14,7 +14,7 @@ XLXmlData::XLXmlData(XLDocument* parentDoc, const std::string& xmlPath, const st
 
 XLXmlData::~XLXmlData() = default;
 
-void XLXmlData::setRawData(const std::string& data) // NOLINT
+void XLXmlData::setRawData(const std::string& data)
 {
 	m_xmlDoc->load_string(data.c_str(), pugi_parse_settings);
 }

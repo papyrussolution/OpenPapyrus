@@ -2717,7 +2717,7 @@ int PPViewBill::CellStyleFunc_(const void * pData, long col, int paintAction, Br
 						const TagFilt & r_tag_filt = P_BObj->GetConfig().TagIndFilt;
 						if(!r_tag_filt.IsEmpty()) {
 							SColor clr;
-							if(r_tag_filt.SelectIndicator(p_hdr->ID, clr) > 0)
+							if(r_tag_filt.SelectIndicator(p_hdr->ID, clr))
 								ok = pStyle->SetLeftBottomCornerColor(static_cast<COLORREF>(clr));
 						}
 						if(P_BObj->GetConfig().Flags & BCF_PAINTSHIPPEDBILLS) {

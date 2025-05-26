@@ -59,22 +59,12 @@ std::string XLCellValue::typeAsString() const
  */
 XLCellValueProxy::XLCellValueProxy(XLCell* cell, XMLNode* cellNode) : m_cell(cell), m_cellNode(cellNode)
 {
-	assert(cell != nullptr);     // NOLINT
-//    assert(cellNode);                 // NOLINT
-//    assert(not cellNode->empty());    // NOLINT
+	assert(cell != nullptr);
+	//assert(cellNode);
+	//assert(not cellNode->empty());
 }
-
-/**
- * @details Destructor. Default implementation has been used.
- */
 XLCellValueProxy::~XLCellValueProxy() = default;
-/**
- * @details Copy constructor. Default implementation has been used.
- */
 XLCellValueProxy::XLCellValueProxy(const XLCellValueProxy& other) = default;
-/**
- * @details Move constructor. Default implementation has been used.
- */
 XLCellValueProxy::XLCellValueProxy(XLCellValueProxy&& other) noexcept = default;
 /**
  * @details Copy assignment operator. The function is implemented in terms of the templated
@@ -105,8 +95,8 @@ XLCellValueProxy::operator XLCellValue() const { return getValue(); }
 XLCellValueProxy& XLCellValueProxy::clear()
 {
 	// ===== Check that the m_cellNode is valid.
-	assert(m_cellNode != nullptr);  // NOLINT
-	assert(not m_cellNode->empty()); // NOLINT
+	assert(m_cellNode != nullptr);
+	assert(not m_cellNode->empty());
 	// ===== Remove the type attribute
 	m_cellNode->remove_attribute("t");
 	// ===== Disable space preservation (only relevant for strings).
@@ -126,8 +116,8 @@ XLCellValueProxy& XLCellValueProxy::clear()
 XLCellValueProxy& XLCellValueProxy::setError(const std::string &error)
 {
 	// ===== Check that the m_cellNode is valid.
-	assert(m_cellNode != nullptr);  // NOLINT
-	assert(not m_cellNode->empty()); // NOLINT
+	assert(m_cellNode != nullptr);
+	assert(not m_cellNode->empty());
 	// ===== If the cell node doesn't have a type attribute, create it.
 	if(!m_cellNode->attribute("t"))  m_cellNode->append_attribute("t");
 	// ===== Set the type to "e", i.e. error
@@ -150,8 +140,8 @@ XLCellValueProxy& XLCellValueProxy::setError(const std::string &error)
 XLValueType XLCellValueProxy::type() const
 {
 	// ===== Check that the m_cellNode is valid.
-	assert(m_cellNode != nullptr);  // NOLINT
-	assert(not m_cellNode->empty()); // NOLINT
+	assert(m_cellNode != nullptr);
+	assert(not m_cellNode->empty());
 	// ===== If neither a Type attribute or a getValue node is present, the cell is empty.
 	if(!m_cellNode->attribute("t") && !m_cellNode->child("v"))  
 		return XLValueType::Empty;
@@ -164,7 +154,7 @@ XLValueType XLCellValueProxy::type() const
 	}
 	// ===== If the cell is of type "s", the cell contains a shared string.
 	if(not m_cellNode->attribute("t").empty() && strcmp(m_cellNode->attribute("t").value(), "s") == 0)
-		return XLValueType::String; // NOLINT
+		return XLValueType::String;
 	// ===== If the cell is of type "inlineStr", the cell contains an inline string.
 	if(not m_cellNode->attribute("t").empty() && strcmp(m_cellNode->attribute("t").value(), "inlineStr") == 0)
 		return XLValueType::String;
@@ -197,11 +187,11 @@ std::string XLCellValueProxy::typeAsString() const
  * @pre The m_cellNode must not be null, and must point to a valid XMLNode object.
  * @post The underlying XMLNode has been updated correctly, representing an integer value.
  */
-void XLCellValueProxy::setInteger(int64_t numberValue) // NOLINT
+void XLCellValueProxy::setInteger(int64_t numberValue)
 {
 	// ===== Check that the m_cellNode is valid.
-	assert(m_cellNode != nullptr);  // NOLINT
-	assert(not m_cellNode->empty()); // NOLINT
+	assert(m_cellNode != nullptr);
+	assert(not m_cellNode->empty());
 	// ===== If the cell node doesn't have a value child node, create it.
 	if(m_cellNode->child("v").empty())  
 		m_cellNode->append_child("v");
@@ -221,11 +211,11 @@ void XLCellValueProxy::setInteger(int64_t numberValue) // NOLINT
  * @pre The m_cellNode must not be null, and must point to a valid XMLNode object.
  * @post The underlying XMLNode has been updated correctly, representing an bool value.
  */
-void XLCellValueProxy::setBoolean(bool numberValue) // NOLINT
+void XLCellValueProxy::setBoolean(bool numberValue)
 {
 	// ===== Check that the m_cellNode is valid.
-	assert(m_cellNode != nullptr);  // NOLINT
-	assert(not m_cellNode->empty()); // NOLINT
+	assert(m_cellNode != nullptr);
+	assert(not m_cellNode->empty());
 	// ===== If the cell node doesn't have a type child node, create it.
 	if(m_cellNode->attribute("t").empty())  
 		m_cellNode->append_attribute("t");
@@ -253,8 +243,8 @@ void XLCellValueProxy::setFloat(double numberValue)
 	// check for nan / inf
 	if(std::isfinite(numberValue)) {
 		// ===== Check that the m_cellNode is valid.
-		assert(m_cellNode != nullptr); // NOLINT
-		assert(not m_cellNode->empty()); // NOLINT
+		assert(m_cellNode != nullptr);
+		assert(not m_cellNode->empty());
 		// ===== If the cell node doesn't have a value child node, create it.
 		if(m_cellNode->child("v").empty())  
 			m_cellNode->append_child("v");
@@ -278,11 +268,11 @@ void XLCellValueProxy::setFloat(double numberValue)
  * @pre The m_cellNode must not be null, and must point to a valid XMLNode object.
  * @post The underlying XMLNode has been updated correctly, representing a string value.
  */
-void XLCellValueProxy::setString(const char* stringValue) // NOLINT
+void XLCellValueProxy::setString(const char* stringValue)
 {
 	// ===== Check that the m_cellNode is valid.
-	assert(m_cellNode != nullptr);  // NOLINT
-	assert(not m_cellNode->empty()); // NOLINT
+	assert(m_cellNode != nullptr);
+	assert(not m_cellNode->empty());
 	// ===== If the cell node doesn't have a type child node, create it.
 	if(m_cellNode->attribute("t").empty())  
 		m_cellNode->append_attribute("t");
@@ -323,8 +313,8 @@ void XLCellValueProxy::setString(const char* stringValue) // NOLINT
 XLCellValue XLCellValueProxy::getValue() const
 {
 	// ===== Check that the m_cellNode is valid.
-	assert(m_cellNode != nullptr);  // NOLINT
-	assert(not m_cellNode->empty()); // NOLINT
+	assert(m_cellNode != nullptr);
+	assert(not m_cellNode->empty());
 	switch(type()) {
 		case XLValueType::Empty: return XLCellValue().clear();
 		case XLValueType::Float: return XLCellValue { m_cellNode->child("v").text().as_double() };

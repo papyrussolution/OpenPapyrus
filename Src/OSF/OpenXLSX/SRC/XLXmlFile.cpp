@@ -23,7 +23,7 @@ XLXmlFile::~XLXmlFile() = default;
  * empty strings, which is not what we want. The downside is that whitespace characters such as \\n and \\t in the
  * input xml file may mess up the parsing.
  */
-void XLXmlFile::setXmlData(const std::string& xmlData) // NOLINT
+void XLXmlFile::setXmlData(const std::string& xmlData)
 {
 	m_xmlData->setRawData(xmlData);
 }
@@ -41,10 +41,9 @@ std::string XLXmlFile::relationshipID() const { return m_xmlData->getXmlID(); }
  */
 OXlXmlDoc & XLXmlFile::xmlDocument()
 {
-	return const_cast<OXlXmlDoc&>(static_cast<const XLXmlFile *>(this)->xmlDocumentC()); // NOLINT
+	return const_cast<OXlXmlDoc&>(static_cast<const XLXmlFile *>(this)->xmlDocumentC());
 	// return *m_xmlData->getXmlDocument();    // <- why not this easy version?
 }
-
 /**
  * @details This method returns a pointer to the underlying OXlXmlDoc resource as const.
  */

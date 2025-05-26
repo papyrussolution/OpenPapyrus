@@ -68,15 +68,12 @@ XLRow::operator bool() const { return m_rowNode && (not m_rowNode->empty() ); }
 /**
  * @details Returns the m_height member by getValue.
  */
-double XLRow::height() const
-{
-	return m_rowNode->attribute("ht").as_double(15.0);    // NOLINT
-}
+double XLRow::height() const { return m_rowNode->attribute("ht").as_double(15.0); }
 /**
  * @details Set the height of the row. This is done by setting the getValue of the 'ht' attribute and setting the
  * 'customHeight' attribute to true.
  */
-void XLRow::setHeight(float height)        // NOLINT
+void XLRow::setHeight(float height)
 {
 	// Set the 'ht' attribute for the Cell. If it does not exist, create it.
 	if(m_rowNode->attribute("ht").empty())
@@ -115,7 +112,7 @@ bool XLRow::isHidden() const { return m_rowNode->attribute("hidden").as_bool(fal
 /**
  * @details Set the hidden state by setting the 'hidden' attribute to true or false.
  */
-void XLRow::setHidden(bool state)        // NOLINT
+void XLRow::setHidden(bool state)
 {
 	// Set the 'hidden' attribute. If it does not exist, create it.
 	if(m_rowNode->attribute("hidden").empty())
@@ -227,8 +224,6 @@ bool XLRow::setFormat(XLStyleIndex cellFormatIndex)
 	return true;
 }
 
-// ---------- Private Member Functions ---------- //
-
 bool XLRow::isEqual(const XLRow& lhs, const XLRow& rhs)
 {
 	// 2024-05-28 BUGFIX: (!lhs.m_rowNode && rhs.m_rowNode) was not evaluated, triggering a segmentation fault on dereferencing
@@ -337,18 +332,15 @@ XLRowIterator& XLRowIterator::operator++()        // 2024-04-29: patched for whi
 {
 	if(m_endReached)
 		throw XLInputError("XLRowIterator: tried to increment beyond end operator");
-
 	if(m_currentRowNumber < m_lastRow)
 		++m_currentRowNumber;
 	else
 		m_endReached = true;
-
 	m_currentRowStatus = XLNotLoaded; // trigger a new attempt to locate / create the row via updateRowCell
-
 	return *this;
 }
 
-XLRowIterator XLRowIterator::operator++(int)        // NOLINT
+XLRowIterator XLRowIterator::operator++(int)
 {
 	auto oldIter(*this);
 	++(*this);

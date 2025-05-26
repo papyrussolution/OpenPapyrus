@@ -101,6 +101,7 @@
       <PrecompiledHeaderFile />
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
       <StringPooling>true</StringPooling>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_DEBUG;_WINDOWS;OPENXLSX_STATIC_DEFINE;ENABLE_NOWIDE;CHARCONV_ENABLED;CMAKE_INTDIR=\"Debug\"</PreprocessorDefinitions>
@@ -143,6 +144,7 @@
       </PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
       <StringPooling>true</StringPooling>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_DEBUG;_WINDOWS;OPENXLSX_STATIC_DEFINE;ENABLE_NOWIDE;CHARCONV_ENABLED;CMAKE_INTDIR=\"Debug\"</PreprocessorDefinitions>
@@ -181,6 +183,7 @@
       <PrecompiledHeaderFile />
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
       <StringPooling>true</StringPooling>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;OPENXLSX_STATIC_DEFINE;ENABLE_NOWIDE;CHARCONV_ENABLED;CMAKE_INTDIR=\"Release\"</PreprocessorDefinitions>
@@ -220,6 +223,7 @@
       </PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
       <StringPooling>true</StringPooling>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;OPENXLSX_STATIC_DEFINE;ENABLE_NOWIDE;CHARCONV_ENABLED;CMAKE_INTDIR=\"Release\"</PreprocessorDefinitions>
@@ -275,6 +279,7 @@
   <ItemGroup>
     <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\IZipArchive.hpp" />
     <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\OpenXLSX-internal.hpp" />
+    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\OpenXLSX.hpp" />
     <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLCell.hpp" />
     <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLCellIterator.hpp" />
     <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLCellRange.hpp" />
@@ -306,7 +311,7 @@
     <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLXmlFile.hpp" />
     <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLXmlParser.hpp" />
     <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLZipArchive.hpp" />
-    <ClInclude Include="..\OSF\OpenXLSX\SRC\OpenXLSX.hpp" />
+    <ClInclude Include="..\OSF\OpenXLSX\SRC\utilities\XLUtilities.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

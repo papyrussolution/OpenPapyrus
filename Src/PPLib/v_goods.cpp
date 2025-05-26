@@ -1206,7 +1206,7 @@ int PPViewGoods::CellStyleFunc_(const void * pData, long col, int paintAction, B
 					const TagFilt & r_tag_filt = GObj.GetConfig().TagIndFilt;
 					if(!r_tag_filt.IsEmpty()) {
 						SColor clr;
-						if(r_tag_filt.SelectIndicator(static_cast<const Goods_ *>(pData)->ID, clr) > 0)
+						if(r_tag_filt.SelectIndicator(static_cast<const Goods_ *>(pData)->ID, clr))
 							ok = pCellStyle->SetLeftBottomCornerColor(static_cast<COLORREF>(clr));
 					}
 				}

@@ -27,7 +27,7 @@ XLFormula::operator std::string() const { return get(); }
  */
 XLFormulaProxy::XLFormulaProxy(XLCell* cell, XMLNode* cellNode) : m_cell(cell), m_cellNode(cellNode)
 {
-	assert(cell); // NOLINT
+	assert(cell);
 }
 
 /**
@@ -85,9 +85,8 @@ std::string XLFormulaProxy::get() const { return getFormula().get(); }
 XLFormulaProxy& XLFormulaProxy::clear()
 {
 	// ===== Check that the m_cellNode is valid.
-	assert(m_cellNode != nullptr);  // NOLINT
-	assert(not m_cellNode->empty()); // NOLINT
-
+	assert(m_cellNode != nullptr);
+	assert(not m_cellNode->empty());
 	// ===== Remove the value node.
 	if(not m_cellNode->child("f").empty())  m_cellNode->remove_child("f");
 	return *this;
@@ -97,17 +96,15 @@ XLFormulaProxy& XLFormulaProxy::clear()
  * @details Convenience function for setting the formula. This method is called from the templated
  * string assignment operator.
  */
-void XLFormulaProxy::setFormulaString(const char* formulaString, bool resetValue) // NOLINT
+void XLFormulaProxy::setFormulaString(const char* formulaString, bool resetValue)
 {
 	// ===== Check that the m_cellNode is valid.
-	assert(m_cellNode != nullptr);  // NOLINT
-	assert(not m_cellNode->empty()); // NOLINT
-
+	assert(m_cellNode != nullptr);
+	assert(not m_cellNode->empty());
 	if(formulaString[0] == 0) { // if formulaString is empty
 		m_cellNode->remove_child("f"); // clear the formula node
 		return;                   // and exit
 	}
-
 	// ===== If the cell node doesn't have formula or value child nodes, create them.
 	if(m_cellNode->child("f").empty())  m_cellNode->append_child("f");
 	if(m_cellNode->child("v").empty())  m_cellNode->append_child("v");
@@ -138,14 +135,12 @@ void XLFormulaProxy::setFormulaString(const char* formulaString, bool resetValue
  */
 XLFormula XLFormulaProxy::getFormula() const
 {
-	assert(m_cellNode != nullptr);  // NOLINT
-	assert(not m_cellNode->empty()); // NOLINT
-
+	assert(m_cellNode != nullptr);
+	assert(not m_cellNode->empty());
 	const auto formulaNode = m_cellNode->child("f");
-
 	// ===== If the formula node doesn't exist, return an empty XLFormula object.
-	if(formulaNode.empty())  return XLFormula();
-
+	if(formulaNode.empty())  
+		return XLFormula();
 	// ===== If the formula type is 'shared' or 'array', throw an exception.
 	if(not formulaNode.attribute("t").empty() ) { // 2024-05-28: de-duplicated check (only relevant for performance,
 		                                      //  xml_attribute::value() returns an empty string for empty attributes)

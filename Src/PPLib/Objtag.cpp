@@ -25,8 +25,7 @@
 		ok = 2;
 	}
 	else {
-		if(pColorBuf)
-			pColorBuf->Z();
+		CALLPTRMEMB(pColorBuf, Z());
 		if(!pRestrictionBuf) {
 			ok = 1;
 		}
@@ -67,11 +66,11 @@
 	int    ok = -1;
 	CALLPTRMEMB(pList, clear());
 	if(rRestrictionBuf.HasPrefixIAscii(PPConst::P_TagValRestrict_List)) {
-		SString restrict = rRestrictionBuf;
-		restrict.ShiftLeft(sstrlen(PPConst::P_TagValRestrict_List)).Strip().ShiftLeftChr(':').Strip();
-		StringSet ss(';', restrict);
-		for(uint ssp = 0; ss.get(&ssp, restrict);) {
-			const  PPID restrict_val = restrict.ToLong();
+		SString restrict_buf(rRestrictionBuf);
+		restrict_buf.ShiftLeft(sstrlen(PPConst::P_TagValRestrict_List)).Strip().ShiftLeftChr(':').Strip();
+		StringSet ss(';', restrict_buf);
+		for(uint ssp = 0; ss.get(&ssp, restrict_buf);) {
+			const  PPID restrict_val = restrict_buf.ToLong();
 			if(restrict_val > 0) {
 				CALLPTRMEMB(pList, add(restrict_val));
 				ok = 2;
@@ -150,18 +149,18 @@ TagFilt & FASTCALL TagFilt::operator = (const TagFilt & rS)
 
 bool TagFilt::IsEmpty() const { return !TagsRestrict.getCount(); }
 
-static int CheckTagItemForRawRestriction(const ObjTagItem * pTagItem, const char * pRawRestrictionString, SColor & rClr)
+static bool CheckTagItemForRawRestriction(const ObjTagItem * pTagItem, const char * pRawRestrictionString, SColor & rClr)
 {
-	int    select_ok = 0;
+	bool   select_ok = false;
 	if(pTagItem) {
 		SString restriction;
 		TagFilt::GetRestriction(pRawRestrictionString, restriction);
 		if(restriction.IsEqiAscii(PPConst::P_TagValRestrict_Empty))
 			select_ok = pTagItem->IsZeroVal();
 		else if(restriction.IsEqiAscii(PPConst::P_TagValRestrict_Exist))
-			select_ok = 1;
+			select_ok = true;
 		else if(oneof3(pTagItem->TagDataType, OTTYP_BOOL, OTTYP_ENUM, OTTYP_OBJLINK))
-			select_ok = BIN(restriction.ToLong() == pTagItem->Val.IntVal);
+			select_ok = (restriction.ToLong() == pTagItem->Val.IntVal);
 		else if(pTagItem->TagDataType == OTTYP_NUMBER) {
 			RealRange rr;
 			strtorrng(restriction.cptr(), &rr.low, &rr.upp);
@@ -171,14 +170,14 @@ static int CheckTagItemForRawRestriction(const ObjTagItem * pTagItem, const char
 			size_t len = sstrlen(pTagItem->Val.PStr);
 			if(restriction.Len() && len) {
 				if(restriction.C(0) == '*')
-					select_ok = BIN(stristr866(pTagItem->Val.PStr, restriction.ShiftLeft()));
+					select_ok = LOGIC(stristr866(pTagItem->Val.PStr, restriction.ShiftLeft()));
 				else if(restriction.C(restriction.Len() - 1) == '*')
-					select_ok = BIN(strnicmp866(restriction, pTagItem->Val.PStr, restriction.Len() - 1) == 0);
+					select_ok = (strnicmp866(restriction, pTagItem->Val.PStr, restriction.Len() - 1) == 0);
 				else
-					select_ok = BIN(stricmp866(restriction, pTagItem->Val.PStr) == 0);
+					select_ok = (stricmp866(restriction, pTagItem->Val.PStr) == 0);
 			}
 			else
-				select_ok = BIN(!restriction.Len() && !len);
+				select_ok = (!restriction.Len() && !len);
 		}
 		else if(pTagItem->TagDataType == OTTYP_DATE) {
 			DateRange period;
@@ -192,9 +191,9 @@ static int CheckTagItemForRawRestriction(const ObjTagItem * pTagItem, const char
 	return select_ok;
 }
 
-int TagFilt::SelectIndicator(const ObjTagList * pTagList, SColor & rClr) const
+bool TagFilt::SelectIndicator(const ObjTagList * pTagList, SColor & rClr) const
 {
-	int    select_ok = 0;
+	bool   select_ok = false;
 	if(pTagList) {
 		for(uint i = 0; !select_ok && i < TagsRestrict.getCount(); i++) {
 			StrAssocArray::Item tr_item = TagsRestrict.at_WithoutParent(i);
@@ -204,9 +203,9 @@ int TagFilt::SelectIndicator(const ObjTagList * pTagList, SColor & rClr) const
 	return select_ok;
 }
 
-int TagFilt::SelectIndicator(PPID objID, SColor & rClr) const
+bool TagFilt::SelectIndicator(PPID objID, SColor & rClr) const
 {
-	int    select_ok = 0;
+	bool   select_ok = false;
 	PPObjTag tag_obj;
 	for(uint i = 0; !select_ok && i < TagsRestrict.getCount(); i++) {
 		StrAssocArray::Item tr_item = TagsRestrict.at_WithoutParent(i);
@@ -2065,7 +2064,7 @@ private:
 					msg.Z().CatChar('[').Cat(type_str).Space().CatCharN('.', 2).Space().Cat(type_str).CatChar(']');
 				else if(oneof3(tag.TagDataType, OTTYP_STRING, OTTYP_ENUM, OTTYP_OBJLINK))
 					msg.Z().CatBrackStr(type_str);
-				p_text->setText(msg);
+				p_text->SetText(msg);
 			}
 			enableCommand(cmSelEnum, oneof2(tag.TagDataType, OTTYP_ENUM, OTTYP_OBJLINK) && CheckRestrict);
 			disableCtrl(CTL_SELTAG_RESTRICT, oneof2(tag.TagDataType, OTTYP_ENUM, OTTYP_OBJLINK) || GetClusterData(CTL_SELTAG_OPTION) != 0);

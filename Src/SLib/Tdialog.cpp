@@ -304,14 +304,14 @@ int (* getUserControl)(TVRez*, TDialog*) = 0;
 						id = pRez->getUINT();
 						pRez->getString(symb, 0);
 						help_ctx = pRez->getUINT();
-						TCluster * p_cluster = new TCluster(r, (tag == TV_CHECKBOXES) ? CHECKBOXES : RADIOBUTTONS, 0, 0);
+						TCluster * p_clu = new TCluster(r, (tag == TV_CHECKBOXES) ? CHECKBOXES : RADIOBUTTONS, 0/*spcFlags*/, 0/*pTitle*/, 0);
 						while(pRez->getUINT() != TV_END) {
-							assert(p_cluster->getNumItems() < 36);
+							assert(p_clu->getNumItems() < 36);
 							//fseek(pRez->getStream(), -((long)sizeof(uint16)), SEEK_CUR);
 							pRez->Seek(-((long)sizeof(uint16)), SEEK_CUR);
-							p_cluster->AddItem(-1, pRez->getString(buf), 0);
+							p_clu->AddItem(-1, pRez->getString(buf), 0);
 						}
-						dlg->InsertCtl(p_cluster, id, (flags & ldfDL600_Cvt) ? symb.cptr() : 0);
+						dlg->InsertCtl(p_clu, id, (flags & ldfDL600_Cvt) ? symb.cptr() : 0);
 					}
 					break;
 				case TV_LISTBOX:

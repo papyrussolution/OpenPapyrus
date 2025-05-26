@@ -135,6 +135,16 @@ bool SUiLayoutParam::Validate() const
 		ok = false;
 	if(!oneof4(GravityY, 0, SIDE_TOP, SIDE_BOTTOM, SIDE_CENTER))
 		ok = false;
+	// @v12.3.4 {
+	if(Padding.a.x < 0.0f)
+		ok = false;
+	if(Padding.a.y < 0.0f)
+		ok = false;
+	if(Padding.b.x < 0.0f)
+		ok = false;
+	if(Padding.b.y < 0.0f)
+		ok = false;
+	// } @v12.3.4 
 	return ok;
 }
 
@@ -157,7 +167,7 @@ int SUiLayoutParam::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx
 	THROW(pSCtx->Serialize(dir, AlignSelf, rBuf));
 	THROW(pSCtx->Serialize(dir, GravityX, rBuf));
 	THROW(pSCtx->Serialize(dir, GravityY, rBuf));
-	if(!(dir < 0) || !(version < Ver)) {
+	if(!(dir < 0) || !(version < 1)) {
 		THROW(pSCtx->Serialize(dir, LinkRelation, rBuf)); 
 	}
 	THROW(pSCtx->Serialize(dir, Order, rBuf));
@@ -2216,7 +2226,10 @@ void SUiLayout::DoLayout(const Param & rP) const
 				// Initialize frame.
 				r_child.R.Frame[0] = 0.0f;
 				r_child.R.Frame[1] = 0.0f;
-				SPoint2F efsxy = r_child.ALB.CalcEffectiveSizeXY(rP.ForceSize.x, rP.ForceSize.y);
+				// @v12.3.4 Скорректировал размер контейнера на величины Padding для вычисления размера дочерних лейаутов
+				const float container_size_x = rP.ForceSize.x - (ALB.Padding.a.x + ALB.Padding.b.x); 
+				const float container_size_y = rP.ForceSize.y - (ALB.Padding.a.y + ALB.Padding.b.y);
+				SPoint2F efsxy = r_child.ALB.CalcEffectiveSizeXY(container_size_x, container_size_y);
 				r_child.R.Frame[2] = efsxy.x;
 				r_child.R.Frame[3] = efsxy.y;
 				//

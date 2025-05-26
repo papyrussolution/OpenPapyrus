@@ -1,23 +1,8 @@
-//
+// XLUtilities.hpp
 // Created by Kenneth Balslev on 24/08/2020.
 //
-
 #ifndef OPENXLSX_XLUTILITIES_HPP
 #define OPENXLSX_XLUTILITIES_HPP
-
-#include <fstream>
-//#include <pugixml.hpp>
-#include <string>       // 2024-04-25 needed for xml_node_type_string
-#include <string_view>  // std::string_view
-#include <vector>       // std::vector< std::string_view >
-
-#include "XLConstants.hpp"        // 2024-05-28 OpenXLSX::MAX_ROWS
-#include "XLCellReference.hpp"
-#include "XLCellValue.hpp"        // OpenXLSX::XLValueType
-#include "XLContentTypes.hpp"     // OpenXLSX::XLContentType
-#include "XLRelationships.hpp"    // OpenXLSX::XLRelationshipType
-#include "XLStyles.hpp"           // OpenXLSX::XLStyleIndex
-#include "XLXmlParser.hpp"
 
 namespace OpenXLSX {
 constexpr const bool XLRemoveAttributes = true;      // helper variables for appendAndSetNodeAttribute, parameter removeAttributes
@@ -259,8 +244,7 @@ inline void setDefaultCellAttributes(XMLNode cellNode, const std::string & cellR
  *         and can be used to avoid performance impact from lookup
  * @return The xml node representing the requested cell.
  */
-inline XMLNode getCellNode(XMLNode rowNode, uint16_t columnNumber, uint32_t rowNumber = 0,
-    /**/ std::vector<XLStyleIndex> const & colStyles = {})
+inline XMLNode getCellNode(XMLNode rowNode, uint16_t columnNumber, uint32_t rowNumber = 0, /**/ std::vector<XLStyleIndex> const & colStyles = {})
 {
 	if(columnNumber < 1 || columnNumber > OpenXLSX::MAX_COLS) {     // 2024-08-05: added range check
 		using namespace std::literals::string_literals;
@@ -318,6 +302,7 @@ inline XMLNode getCellNode(XMLNode rowNode, uint16_t columnNumber, uint32_t rowN
  *        a future c++20 build, a std::span could be used to have the node order in any OpenXLSX class be a constexpr
  */
 constexpr const int SORT_INDEX_NOT_FOUND = -1;
+
 inline int findStringInVector(std::string const & nodeName, std::vector< std::string_view > const & nodeOrder)
 {
 	for(int i = 0; static_cast< size_t >( i ) < nodeOrder.size(); ++i)
@@ -355,11 +340,11 @@ inline void copyLeadingWhitespaces(XMLNode & parent, XMLNode fromNode, XMLNode t
  */
 inline XMLNode appendAndGetNode(XMLNode & parent, std::string const & nodeName, std::vector< std::string_view > const & nodeOrder = {}, bool force_ns = false)
 {
-	if(parent.empty())  return XMLNode{};
-
+	if(parent.empty())  
+		return XMLNode{};
 	XMLNode nextNode = parent.first_child_of_type(pugi::node_element);
-	if(nextNode.empty())  return parent.prepend_child(nodeName.c_str(), force_ns); // nothing to sort, whitespaces "belong" to parent closing tag
-
+	if(nextNode.empty())  
+		return parent.prepend_child(nodeName.c_str(), force_ns); // nothing to sort, whitespaces "belong" to parent closing tag
 	XMLNode node{}; // empty until successfully created;
 
 	int nodeSortIndex = (nodeOrder.size() > 1 ? findStringInVector(nodeName, nodeOrder) : SORT_INDEX_NOT_FOUND);

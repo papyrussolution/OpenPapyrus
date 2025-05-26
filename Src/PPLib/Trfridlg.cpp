@@ -2979,7 +2979,7 @@ int SelLotBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 				const TagFilt & r_tag_filt = p_bobj->GetConfig().LotTagIndFilt;
 				if(!r_tag_filt.IsEmpty()) {
 					SColor clr;
-					if(r_tag_filt.SelectIndicator(p_item->LotID, clr) > 0) {
+					if(r_tag_filt.SelectIndicator(p_item->LotID, clr)) {
 						pStyle->Color2 = static_cast<COLORREF>(clr);
 						pStyle->Flags |= BrowserWindow::CellStyle::fLeftBottomCorner;
 						ok = 1;

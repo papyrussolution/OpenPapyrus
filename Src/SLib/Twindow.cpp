@@ -644,13 +644,13 @@ int TWindow::getLabelText(uint ctlID, SString & rText)
 {
 	rText.Z(); // @v11.3.1
 	TLabel * p_label = GetCtrlLabel(ctlID);
-	return p_label ? (p_label->getText(rText), 1) : 0;
+	return p_label ? (p_label->GetText(rText), 1) : 0;
 }
 
 int TWindow::setLabelText(uint ctlID, const char * pText)
 {
 	TLabel * p_label = GetCtrlLabel(ctlID);
-	return p_label ? p_label->setText(pText) : 0;
+	return p_label ? p_label->SetText(pText) : 0;
 }
 
 int STDCALL TWindow::setCtrlData(ushort ctlID, void * data)
@@ -739,7 +739,7 @@ int STDCALL TWindow::setCtrlString(uint ctlID, const SString & s)
 			ok = setCtrlData(ctlID, temp_buf);
 		}
 		else if(ctrl_subsign == TV_SUBSIGN_STATIC) {
-			static_cast<TStaticText *>(p_v)->setText(s);
+			static_cast<TStaticText *>(p_v)->SetText(s);
 		}
 	}
 	if(is_temp_allocated)
@@ -852,7 +852,7 @@ int TWindow::getStaticText(ushort ctlID, SString & rBuf)
 	int    ok = 0;
 	TView * p_v = getCtrlView(ctlID);
 	if(p_v && p_v->GetSubSign() == TV_SUBSIGN_STATIC) {
-		static_cast<TStaticText *>(p_v)->getText(rBuf);
+		static_cast<TStaticText *>(p_v)->GetText(rBuf);
 		ok = 1;
 	}
 	return ok;
@@ -864,7 +864,7 @@ int TWindow::setStaticText(ushort ctlID, const char * pText)
 	TView * p_v = getCtrlView(ctlID);
 	if(p_v) {
 		if(p_v->GetSubSign() == TV_SUBSIGN_STATIC) {
-			static_cast<TStaticText *>(p_v)->setText(pText);
+			static_cast<TStaticText *>(p_v)->SetText(pText);
 			ok = 1;
 		}
 		else if(p_v->GetSubSign() == TV_SUBSIGN_INPUTLINE) {

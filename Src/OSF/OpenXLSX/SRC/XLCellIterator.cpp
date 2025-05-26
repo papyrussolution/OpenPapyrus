@@ -244,7 +244,7 @@ XLCellIterator& XLCellIterator::operator++()
 	return *this;
 }
 
-XLCellIterator XLCellIterator::operator++(int)    // NOLINT
+XLCellIterator XLCellIterator::operator++(int)
 {
 	auto oldIter(*this);
 	++(*this);

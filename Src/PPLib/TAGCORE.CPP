@@ -604,7 +604,7 @@ int FASTCALL ObjTagItem::Cmp(const ObjTagItem & a) const
 	return r;
 }
 
-int ObjTagItem::IsZeroVal() const
+bool ObjTagItem::IsZeroVal() const
 {
 	switch(TagDataType) {
 		case OTTYP_NUMBER: return (Val.RealVal == 0.0);
@@ -677,7 +677,7 @@ int ObjTagItem::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 	return ok;
 }
 
-int ObjTagItem::IsWarnVal() const
+bool ObjTagItem::IsWarnVal() const
 {
 	if(TagDataType == OTTYP_NUMBER)
 		return (Val.RealVal <= 0.0);
@@ -685,7 +685,7 @@ int ObjTagItem::IsWarnVal() const
 		if(Val.PStr && Val.PStr[0])
 			return (atol(Val.PStr) <= 0);
 		else
-			return 1;
+			return true;
 	}
 	else if(TagDataType == OTTYP_DATE)
 		return (Val.DtVal == ZERODATE);

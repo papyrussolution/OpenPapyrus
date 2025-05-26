@@ -3,12 +3,6 @@
 //
 #include <OpenXLSX-internal.hpp>
 #pragma hdrstop
-#include <cstdint>      // uint32_t
-#include <cstring>      // strlen
-#include <memory>       // std::make_unique
-#include <random>       // std::mt19937, std::random_device
-#include "XLDocument.hpp"
-#include "XLRelationships.hpp"
 
 using namespace OpenXLSX;
 

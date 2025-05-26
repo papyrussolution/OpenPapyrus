@@ -1122,7 +1122,7 @@ int PPViewSStat::CellStyleFunc_(const void * pData, long col, int paintAction, B
 			if(col == 0) { // Наименование товара
 				const TagFilt & r_tag_filt = GObj.GetConfig().TagIndFilt;
 				SColor clr;
-				if(!r_tag_filt.IsEmpty() && r_tag_filt.SelectIndicator(goods_id, clr) > 0) {
+				if(!r_tag_filt.IsEmpty() && r_tag_filt.SelectIndicator(goods_id, clr)) {
 					pStyle->Flags |= BrowserWindow::CellStyle::fLeftBottomCorner;
 					pStyle->Color2 = (COLORREF)clr;
 					ok = 1;

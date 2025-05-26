@@ -942,12 +942,12 @@ XLWorksheet::XLWorksheet(XLXmlData* xmlData) : XLSheetBase(xmlData)
 			}
 			if(min != max) {
 				currentNode.attribute("min").set_value(max);
-				for(uint16_t i = min; i < max; i++) { // NOLINT
+				for(uint16_t i = min; i < max; i++) {
 					auto newnode = xmlDocument().document_element().child("cols").insert_child_before("col", currentNode);
 					auto attr    = currentNode.first_attribute();
-					while(not attr.empty()) { // NOLINT
+					while(not attr.empty()) {
 						newnode.append_attribute(attr.name()) = attr.value();
-						attr                                  = attr.next_attribute();
+						attr = attr.next_attribute();
 					}
 					newnode.attribute("min") = i;
 					newnode.attribute("max") = i;
@@ -1163,16 +1163,15 @@ XLColumn XLWorksheet::column(uint16_t columnNumber) const
 		columnNode                                 = xmlDocumentC().document_element().child("cols").insert_child_before("col", columnNode);
 		columnNode.append_attribute("min")         = columnNumber;
 		columnNode.append_attribute("max")         = columnNumber;
-		columnNode.append_attribute("width")       = 9.8;// NOLINT
+		columnNode.append_attribute("width")       = 9.8;
 		columnNode.append_attribute("customWidth") = 0;
 	}
-
 	// ===== Otherwise, the end of the list is reached, and a new node is appended
 	else if(columnNode.empty()) {
 		columnNode                                 = xmlDocumentC().document_element().child("cols").append_child("col");
 		columnNode.append_attribute("min")         = columnNumber;
 		columnNode.append_attribute("max")         = columnNumber;
-		columnNode.append_attribute("width")       = 9.8;// NOLINT
+		columnNode.append_attribute("width")       = 9.8;
 		columnNode.append_attribute("customWidth") = 0;
 	}
 
@@ -1274,7 +1273,7 @@ void XLWorksheet::updateSheetName(const std::string& oldName, const std::string&
 			// ===== Skip if formula contains a '[' and ']' (means that the defined refers to external workbook)
 			if(formula.find('[') == std::string::npos && formula.find(']') == std::string::npos) {
 				// ===== For all instances of the old sheet name in the formula, replace with the new name.
-				while(formula.find(oldNameTemp) != std::string::npos) { // NOLINT
+				while(formula.find(oldNameTemp) != std::string::npos) {
 					formula.replace(formula.find(oldNameTemp), oldNameTemp.length(), newNameTemp);
 				}
 				XLCell(cell, parentDoc().sharedStrings()).formula() = formula;

@@ -614,12 +614,10 @@ void XLDocument::create(const std::string& fileName, bool forceOverwrite)
 
 	// ===== Stream the binary data for an empty workbook to the output file.
 	// ===== Casting, in particular reinterpret_cast, is discouraged, but in this case it is unfortunately unavoidable.
-	outfile.write(reinterpret_cast<const char*>(templateData), templateSize); // NOLINT
+	outfile.write(reinterpret_cast<const char*>(templateData), templateSize);
 	outfile.close();
-
 	open(fileName);
 }
-
 /**
  * @details Legacy function to create a new document
  * @deprecated use instead XLDocument::create(const std::string& fileName, bool forceOverwrite)
@@ -798,7 +796,7 @@ bool getAppVersion(const std::string& versionString, int& majorVersion, int& min
  *
  * ```
  */
-void XLDocument::setProperty(XLProperty prop, const std::string& value)    // NOLINT
+void XLDocument::setProperty(XLProperty prop, const std::string& value)
 {
 	switch(prop) {
 		case XLProperty::Application:
@@ -897,13 +895,8 @@ void XLDocument::setProperty(XLProperty prop, const std::string& value)    // NO
  */
 void XLDocument::deleteProperty(XLProperty theProperty) { setProperty(theProperty, ""); }
 
-XLDocument::operator bool() const
-{
-	return m_archive.isValid(); // NOLINT
-}
-
+XLDocument::operator bool() const { return m_archive.isValid(); }
 bool XLDocument::isOpen() const { return this->operator bool(); }
-
 /**
  * @details fetch a reference to m_styles
  */
@@ -1380,9 +1373,7 @@ void XLDocument::cleanupSharedStrings()
 	if(static_cast<int32_t>(newStringCache.size()) != m_sharedStrings.rewriteXmlFromCache())
 		throw XLInternalError("XLDocument::cleanupSharedStrings: failed to rewrite shared string table - document would be corrupted");
 }
-//
-//           Protected Member Functions
-//
+
 std::string XLDocument::extractXmlFromArchive(const std::string& path)
 {
 	return (m_archive.hasEntry(path) ? m_archive.getEntry(path) : "");

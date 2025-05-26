@@ -2193,7 +2193,7 @@ int PPTestDbInfrastructure::_Case_TaxEvaluation()
 // Эксперименты с библиотекой OpenXLSX
 //
 #if 1 // @construction {
-#include <..\osf\OpenXLSX\SRC\OpenXLSX.hpp>
+#include <..\osf\OpenXLSX\SRC\headers\OpenXLSX.hpp>
 
 void Test_OpenXLSX()
 {

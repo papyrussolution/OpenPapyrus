@@ -1728,7 +1728,7 @@ void BrowserWindow::Paint()
 		r.right  = CliSz.x;
 		r.bottom = hdr_width - 1;
 		if(P_Header && SIntersectRect(ps.rcPaint, r)) {
-			static_cast<const TStaticText *>(P_Header)->getText(temp_buf);
+			static_cast<const TStaticText *>(P_Header)->GetText(temp_buf);
 			temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
 			STRNSCPY(tbuf, SUcSwitch(temp_buf));
 			::DrawText(ps.hdc, tbuf, sstrleni(tbuf), &r, DT_LEFT);

@@ -132,10 +132,13 @@
     <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLZipArchive.hpp">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\OSF\OpenXLSX\SRC\OpenXLSX.hpp">
+    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\OpenXLSX-internal.hpp">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\OpenXLSX-internal.hpp">
+    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\OpenXLSX.hpp">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\OpenXLSX\SRC\utilities\XLUtilities.hpp">
       <Filter>Header</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,5 +1,5 @@
 // STRSET.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2025
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -353,8 +353,9 @@ StringSet & StringSet::Z()
 
 void StringSet::sort()
 {
-	const uint org_count = getCount(); // @v11.4.8 see considerations at StringSet::sortAndUndup()
-	if(org_count > 1) { // @v11.4.8 
+	// @v12.3.5 const uint org_count = getCount(); // @v11.4.8 see considerations at StringSet::sortAndUndup()
+	// @v12.3.5 if(org_count > 1) { // @v11.4.8 
+	if(IsCountGreaterThan(1)) { // @v12.3.5
 		StrAssocArray temp_list;
 		SString str;
 		uint   i;
@@ -366,13 +367,14 @@ void StringSet::sort()
 		for(i = 0; i < temp_list.getCount(); i++)
 			add(temp_list.Get(i).Txt);
 	}
-	assert(getCount() == org_count); // @v11.4.8 дорогая проверка (из-за getCount()), но в релизе ее не будет 
+	// @v12.3.5 assert(getCount() == org_count); // @v11.4.8 дорогая проверка (из-за getCount()), но в релизе ее не будет 
 }
 
 void StringSet::shuffle()
 {
-	const uint org_count = getCount(); // @v11.4.8 see considerations at StringSet::sortAndUndup()
-	if(org_count > 1) {
+	// @v12.3.5 const uint org_count = getCount(); // @v11.4.8 see considerations at StringSet::sortAndUndup()
+	// @v12.3.5 if(org_count > 1) {
+	if(IsCountGreaterThan(1)) { // @v12.3.5
 		StrAssocArray temp_list;
 		SString str;
 		uint   i;
@@ -384,7 +386,7 @@ void StringSet::shuffle()
 		for(i = 0; i < temp_list.getCount(); i++)
 			add(temp_list.Get(i).Txt);
 	}
-	assert(getCount() == org_count); // дорогая проверка (из-за getCount()), но в релизе ее не будет 
+	// @v12.3.5 assert(getCount() == org_count); // дорогая проверка (из-за getCount()), но в релизе ее не будет 
 }
 
 void StringSet::sortAndUndup()
@@ -393,12 +395,17 @@ void StringSet::sortAndUndup()
 	// Эта функция достаточно дорогая - она преобразует сет в строковый массив StrAssocArray, затем сортирует этот массив
 	// и результат сбрасывает в оригинальный сет.
 	// Для того чтобы не делать холостых действий сначала проверяем количество элементов в сете: если их 0 или 1 то просто
-	// ничего не делаем. Увы, функция getCount() тоже дорогая - она пробегает все элементы сета, то есть, если
-	// количество элементов значительное то мы общую производительность ухудшаем. Но в качестве утешения замечу, что 
-	// подсчитав предварительно количество элеметов мы заполнили кэш процессора данными из сета и последующий перебор 
-	// в цикле #ref01 будет значительно быстрее.
-	const uint org_count = getCount(); // @v11.4.8 
-	if(org_count > 1) { // @v11.4.8
+	// ничего не делаем. 
+	// @v12.3.5 дальнейший текст более на актуален {
+	//   Увы, функция getCount() тоже дорогая - она пробегает все элементы сета, то есть, если
+	//   количество элементов значительное то мы общую производительность ухудшаем. Но в качестве утешения замечу, что 
+	//   подсчитав предварительно количество элеметов мы заполнили кэш процессора данными из сета и последующий перебор 
+	//   в цикле #ref01 будет значительно быстрее.
+	// }
+	//
+	// @v12.3.5 const uint org_count = getCount(); // @v11.4.8 
+	// @v12.3.5 if(org_count > 1) { // @v11.4.8
+	if(IsCountGreaterThan(1)) { // @v12.3.5
 		StrAssocArray temp_list;
 		SString str;
 		uint   i;
@@ -518,7 +525,7 @@ int StringSet::add(const char * pStr, uint * pPos)
 bool StringSet::search(const char * pPattern, uint * pPos, int ignoreCase) const
 {
 	uint   pos = DEREFPTRORZ(pPos);
-	SString & r_temp_buf = SLS.AcquireRvlStr(); // @v10.9.8 SLS.AcquireRvlStr()
+	SString & r_temp_buf = SLS.AcquireRvlStr();
 	for(uint prev_pos = pos; get(&pos, r_temp_buf); prev_pos = pos) {
 		if(r_temp_buf.Cmp(pPattern, ignoreCase) == 0) {
 			ASSIGN_PTR(pPos, prev_pos);
@@ -616,7 +623,7 @@ bool StringSet::search(const char * pPattern, CompFunc fcmp, uint * pPos, uint *
 size_t FASTCALL StringSet::getLen(uint pos) const
 {
 	uint   len = 0;
-	if(pos < DataLen)
+	if(pos < DataLen) {
 		if(Delim[0]) {
 			const char * c = strstr(P_Buf + pos, Delim);
 			if(c != 0)
@@ -626,14 +633,15 @@ size_t FASTCALL StringSet::getLen(uint pos) const
 		}
 		else
 			len = sstrlen(P_Buf + pos);
+	}
 	return len;
 }
 
-bool StringSet::get(uint * pos, char * str, size_t maxlen) const
+bool StringSet::get(uint * pPos, char * pStr, size_t maxlen) const
 {
 	bool   ok = true;
 	const  char * c = 0;
-	uint   p = *pos;
+	uint   p = *pPos;
 	uint   len = 0;
 	uint   delim_len = 0;
 	if(p < DataLen) {
@@ -663,17 +671,17 @@ bool StringSet::get(uint * pos, char * str, size_t maxlen) const
 	else
 		ok = false;
 	p += (len + delim_len);
-	if(str) {
+	if(pStr) {
 		if(maxlen)
 			len = MIN(len, maxlen-1);
 		if(c) {
-			memcpy(str, c, len);
-			str[len] = 0;
+			memcpy(pStr, c, len);
+			pStr[len] = 0;
 		}
 		else
-			str[0] = 0;
+			pStr[0] = 0;
 	}
-	*pos = p;
+	*pPos = p;
 	return ok;
 }
 
@@ -686,7 +694,7 @@ bool StringSet::get(uint * pPos, SString & s) const
 	uint   delim_len = 0;
 	if(p < DataLen) {
 		assert(P_Buf);
-		const size_t _dlen = strlen(Delim); // strlen чуть быстрее чем sstrlen и точно известно что аргумент не нулевой
+		const size_t _dlen = strlen(Delim); // strlen чуть быстрее чем sstrlen (точно известно что аргумент не нулевой)
 		if(_dlen) {
 			c = (_dlen == 1) ? sstrchr(P_Buf + p, Delim[0]) : strstr(P_Buf + p, Delim);
 			if(c) {
@@ -746,10 +754,24 @@ bool StringSet::getnz(uint pos, SString & rBuf) const
 
 uint StringSet::getCount() const
 {
-	uint   p = 0, count = 0;
+	uint   count = 0;
+	uint   p = 0;
 	while(get(&p, 0, 0))
 		count++;
 	return count;
+}
+
+bool FASTCALL StringSet::IsCountGreaterThan(uint t) const
+{
+	bool   result = false;
+	uint   count = 0;
+	uint   p = 0;
+	while(!result && get(&p, 0, 0)) {
+		count++;
+		if(count > t)
+			result = true;
+	}
+	return result;
 }
 
 const char * StringSet::getBuf() const { return P_Buf; }

@@ -88,7 +88,7 @@ void XLWorkbook::deleteSheet(const std::string& sheetName)    // 2024-05-02: whi
                                                               // CAUTION: execCommand on underlying XML with whitespaces not verified
 {
 	// ===== Determine ID and type of sheet, as well as current worksheet count.
-	std::string sheetID = sheetsNode(xmlDocumentC()).find_child_by_attribute("name", sheetName.c_str()).attribute("r:id").value(); // NOLINT
+	std::string sheetID = sheetsNode(xmlDocumentC()).find_child_by_attribute("name", sheetName.c_str()).attribute("r:id").value();
 	if(sheetID.length() == 0) { // 2025-01-12 BUGFIX: prevent segfault by throwing
 		using namespace std::literals::string_literals;
 		throw XLException("XLWorkbook::deleteSheet: workbook has no sheet with name \""s + sheetName + "\""s);
@@ -466,7 +466,7 @@ void XLWorkbook::updateSheetReferences(const std::string& oldName,
 		// ===== Skip if formula contains a '[' and ']' (means that the defined refers to external workbook)
 		if(formula.find('[') == std::string::npos && formula.find(']') == std::string::npos) {
 			// ===== For all instances of the old sheet name in the formula, replace with the new name.
-			while(formula.find(oldNameTemp) != std::string::npos) { // NOLINT
+			while(formula.find(oldNameTemp) != std::string::npos) {
 				formula.replace(formula.find(oldNameTemp), oldNameTemp.length(), newNameTemp);
 			}
 			definedName.text().set(formula.c_str());

@@ -2359,7 +2359,7 @@ int FASTCALL PPViewLot::NextIteration(LotViewItem * pItem)
 				const TagFilt & r_tag_filt = p_view->P_BObj->GetConfig().LotTagIndFilt;
 				if(!r_tag_filt.IsEmpty()) {
 					SColor clr;
-					if(r_tag_filt.SelectIndicator(p_hdr->ID, clr) > 0)
+					if(r_tag_filt.SelectIndicator(p_hdr->ID, clr))
 						ok = pStyle->SetLeftBottomCornerColor(static_cast<COLORREF>(clr));
 				}
 			}

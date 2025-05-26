@@ -514,7 +514,7 @@ int BillItemBrowser::GetColPos(ColumnPosBlock & rBlk)
 					if(!r_tag_filt.IsEmpty()) {
 						ObjTagList * p_lot_tag_list = p_pack->LTagL.Get(pos);
 						SColor clr;
-						if(r_tag_filt.SelectIndicator(p_lot_tag_list, clr) > 0)
+						if(r_tag_filt.SelectIndicator(p_lot_tag_list, clr))
 							ok = pStyle->SetLeftBottomCornerColor(static_cast<COLORREF>(clr));
 					}
 				}
@@ -527,7 +527,7 @@ int BillItemBrowser::GetColPos(ColumnPosBlock & rBlk)
 							const PPTransferItem & r_ti = p_pack->ConstTI(pos);
 							const  PPID goods_id = labs(r_ti.GoodsID);
 							SColor clr;
-							if(r_tag_filt.SelectIndicator(goods_id, clr) > 0)
+							if(r_tag_filt.SelectIndicator(goods_id, clr))
 								ok = pStyle->SetLeftBottomCornerColor(static_cast<COLORREF>(clr));
 						}
 					}

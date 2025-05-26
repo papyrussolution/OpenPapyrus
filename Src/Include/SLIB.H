@@ -4954,6 +4954,7 @@ public:
 	//
 	bool   isZeroDelim() const;
 	uint   getCount() const;
+	bool   FASTCALL IsCountGreaterThan(uint t) const;
 	int    add(const char * pStr, uint * pPos);
 	int    add(const char * pStr, ulong * pPos) { return add(pStr, reinterpret_cast<uint *>(pPos)); }
 	//

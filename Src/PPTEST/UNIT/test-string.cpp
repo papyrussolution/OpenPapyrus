@@ -1661,12 +1661,16 @@ SLTEST_R(StringSet)
 		{
 			int    ok = 1;
 			SString temp_buf;
-			uint sspos = 0;
+			char   c_buf[2048];
+			uint   sspos = 0;
 			for(uint i = 0; i < rStringList.getCount(); i++) {
 				const uint _prev_sspos = sspos;
 				THROW(rSs.get(&sspos, temp_buf));
+				sspos = _prev_sspos; // @v12.3.5
+				THROW(rSs.get(&sspos, c_buf, sizeof(c_buf))); // @v12.3.5
 				const char * p_str = rStringList.at(i);
 				THROW(temp_buf == p_str);
+				THROW(sstreq(p_str, c_buf)); // @v12.3.5
 				if(pPosList) {
 					THROW(pPosList->at(i) == static_cast<long>(_prev_sspos));
 				}
@@ -1694,8 +1698,10 @@ SLTEST_R(StringSet)
 			LongArray pos_list;
 			for(uint i = 0; i < string_list.getCount(); i++) {
 				uint pos = 0;
+				SLCHECK_Z(ss.IsCountGreaterThan(i)); // @v12.3.5
 				THROW(ss.add(string_list.at(i), &pos));
 				THROW(pos_list.add(static_cast<long>(pos)));
+				SLCHECK_NZ(ss.IsCountGreaterThan(i)); // @v12.3.5
 			}
 			THROW(SLCHECK_EQ(string_list.getCount(), ss.getCount()));
 			THROW(SLCHECK_EQ(pos_list.getCount(), ss.getCount()));
@@ -1718,8 +1724,10 @@ SLTEST_R(StringSet)
 			LongArray pos_list;
 			for(uint i = 0; i < string_list.getCount(); i++) {
 				uint pos = 0;
+				SLCHECK_Z(ss.IsCountGreaterThan(i)); // @v12.3.5
 				THROW(ss.add(string_list.at(i), &pos));
 				THROW(pos_list.add(static_cast<long>(pos)));
+				SLCHECK_NZ(ss.IsCountGreaterThan(i)); // @v12.3.5
 			}
 			THROW(SLCHECK_EQ(string_list.getCount(), ss.getCount()));
 			THROW(SLCHECK_EQ(pos_list.getCount(), ss.getCount()));

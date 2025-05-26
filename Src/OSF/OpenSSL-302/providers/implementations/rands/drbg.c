@@ -674,10 +674,9 @@ static int rand_drbg_restart(PROV_DRBG * drbg)
 }
 
 /* Provider support from here down */
-static const OSSL_DISPATCH * find_call(const OSSL_DISPATCH * dispatch,
-    int function)
+static const OSSL_DISPATCH * find_call(const OSSL_DISPATCH * dispatch, int function)
 {
-	if(dispatch != NULL)
+	if(dispatch)
 		while(dispatch->function_id != 0) {
 			if(dispatch->function_id == function)
 				return dispatch;
@@ -711,25 +710,17 @@ int ossl_drbg_enable_locking(void * vctx)
  *
  * Returns a pointer to the new DRBG instance on success, NULL on failure.
  */
-PROV_DRBG * ossl_rand_drbg_new(void * provctx, void * parent, const OSSL_DISPATCH * p_dispatch,
-    int (*dnew)(PROV_DRBG * ctx),
-    int (*instantiate)(PROV_DRBG * drbg,
-    const unsigned char * entropy, size_t entropylen,
-    const unsigned char * nonce, size_t noncelen,
-    const unsigned char * pers, size_t perslen),
-    int (*uninstantiate)(PROV_DRBG * ctx),
-    int (*reseed)(PROV_DRBG * drbg, const unsigned char * ent, size_t ent_len,
-    const unsigned char * adin, size_t adin_len),
-    int (*generate)(PROV_DRBG *, unsigned char * out, size_t outlen,
-    const unsigned char * adin, size_t adin_len))
+PROV_DRBG * ossl_rand_drbg_new(void * provctx, void * parent, const OSSL_DISPATCH * p_dispatch, int (*dnew)(PROV_DRBG * ctx),
+    int (*instantiate)(PROV_DRBG * drbg, const unsigned char * entropy, size_t entropylen,
+    const unsigned char * nonce, size_t noncelen, const unsigned char * pers, size_t perslen),
+    int (*uninstantiate)(PROV_DRBG * ctx), int (*reseed)(PROV_DRBG * drbg, const unsigned char * ent, size_t ent_len,
+    const unsigned char * adin, size_t adin_len), int (*generate)(PROV_DRBG *, unsigned char * out, size_t outlen, const unsigned char * adin, size_t adin_len))
 {
 	PROV_DRBG * drbg;
 	unsigned int p_str;
 	const OSSL_DISPATCH * pfunc;
-
 	if(!ossl_prov_is_running())
 		return NULL;
-
 	drbg = (PROV_DRBG *)OPENSSL_zalloc(sizeof(*drbg));
 	if(drbg == NULL) {
 		ERR_raise(ERR_LIB_PROV, ERR_R_MALLOC_FAILURE);
@@ -769,18 +760,13 @@ PROV_DRBG * ossl_rand_drbg_new(void * provctx, void * parent, const OSSL_DISPATC
 	drbg->reseed_counter = 1;
 	drbg->reseed_interval = RESEED_INTERVAL;
 	drbg->reseed_time_interval = TIME_INTERVAL;
-
 	if(!dnew(drbg))
 		goto err;
-
 	if(parent != NULL) {
 		if(!get_parent_strength(drbg, &p_str))
 			goto err;
 		if(drbg->strength > p_str) {
-			/*
-			 * We currently don't support the algorithm from NIST SP 800-90C
-			 * 10.1.2 to use a weaker DRBG as source
-			 */
+			// We currently don't support the algorithm from NIST SP 800-90C 10.1.2 to use a weaker DRBG as source
 			ERR_raise(ERR_LIB_PROV, PROV_R_PARENT_STRENGTH_TOO_WEAK);
 			goto err;
 		}
@@ -790,7 +776,6 @@ PROV_DRBG * ossl_rand_drbg_new(void * provctx, void * parent, const OSSL_DISPATC
 		goto err;
 #endif
 	return drbg;
-
 err:
 	ossl_rand_drbg_free(drbg);
 	return NULL;
@@ -798,49 +783,39 @@ err:
 
 void ossl_rand_drbg_free(PROV_DRBG * drbg)
 {
-	if(drbg == NULL)
-		return;
-
-	CRYPTO_THREAD_lock_free(drbg->lock);
-	OPENSSL_free(drbg);
+	if(drbg) {
+		CRYPTO_THREAD_lock_free(drbg->lock);
+		OPENSSL_free(drbg);
+	}
 }
 
 int ossl_drbg_get_ctx_params(PROV_DRBG * drbg, OSSL_PARAM params[])
 {
 	OSSL_PARAM * p;
-
 	p = OSSL_PARAM_locate(params, OSSL_RAND_PARAM_STATE);
 	if(p && !OSSL_PARAM_set_int(p, drbg->state))
 		return 0;
-
 	p = OSSL_PARAM_locate(params, OSSL_RAND_PARAM_STRENGTH);
 	if(p && !OSSL_PARAM_set_int(p, drbg->strength))
 		return 0;
-
 	p = OSSL_PARAM_locate(params, OSSL_RAND_PARAM_MAX_REQUEST);
 	if(p && !OSSL_PARAM_set_size_t(p, drbg->max_request))
 		return 0;
-
 	p = OSSL_PARAM_locate(params, OSSL_DRBG_PARAM_MIN_ENTROPYLEN);
 	if(p && !OSSL_PARAM_set_size_t(p, drbg->min_entropylen))
 		return 0;
-
 	p = OSSL_PARAM_locate(params, OSSL_DRBG_PARAM_MAX_ENTROPYLEN);
 	if(p && !OSSL_PARAM_set_size_t(p, drbg->max_entropylen))
 		return 0;
-
 	p = OSSL_PARAM_locate(params, OSSL_DRBG_PARAM_MIN_NONCELEN);
 	if(p && !OSSL_PARAM_set_size_t(p, drbg->min_noncelen))
 		return 0;
-
 	p = OSSL_PARAM_locate(params, OSSL_DRBG_PARAM_MAX_NONCELEN);
 	if(p && !OSSL_PARAM_set_size_t(p, drbg->max_noncelen))
 		return 0;
-
 	p = OSSL_PARAM_locate(params, OSSL_DRBG_PARAM_MAX_PERSLEN);
 	if(p && !OSSL_PARAM_set_size_t(p, drbg->max_perslen))
 		return 0;
-
 	p = OSSL_PARAM_locate(params, OSSL_DRBG_PARAM_MAX_ADINLEN);
 	if(p && !OSSL_PARAM_set_size_t(p, drbg->max_adinlen))
 		return 0;
@@ -854,7 +829,7 @@ int ossl_drbg_get_ctx_params(PROV_DRBG * drbg, OSSL_PARAM params[])
 	if(p && !OSSL_PARAM_set_time_t(p, drbg->reseed_time_interval))
 		return 0;
 	p = OSSL_PARAM_locate(params, OSSL_DRBG_PARAM_RESEED_COUNTER);
-	if(p != NULL && !OSSL_PARAM_set_uint(p, tsan_load(&drbg->reseed_counter)))
+	if(p && !OSSL_PARAM_set_uint(p, tsan_load(&drbg->reseed_counter)))
 		return 0;
 	return 1;
 }

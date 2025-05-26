@@ -8398,8 +8398,7 @@ SUiLayout * TDialogDL6_Construction::InsertCtrlLayout(SUiLayout * pLoParent, ush
 	else
 		p_result = InsertCtrlLayout(pLoParent, static_cast<TView *>(0), rP);
 	return p_result;
-}		
-
+}
 
 TDialogDL6_Construction::TDialogDL6_Construction(DlContext & rCtx, const char * pSymb) : TDialog(0, TWindow::wbcDrawBuffer|TWindow::wbcStorableUserParams, TDialog::coEmpty),
 	Dl600Symb(pSymb)
@@ -8492,7 +8491,7 @@ void TDialogDL6_Construction::InsertControlItems(DlContext & rCtx, const DlScope
 					if(stage == insertctrlstageMain) {
 						TRect rc;
 						const uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(&lp, rc, 60.0f, 60.0f);
-						TCluster * p_ctl = new TCluster(rc, CHECKBOXES, TCluster::spcfSingleItemWithoutFrame/*spcFlags*/, 0);
+						TCluster * p_ctl = new TCluster(rc, CHECKBOXES, TCluster::spcfSingleItemWithoutFrame/*spcFlags*/, 0/*pTitle*/, 0);
 						{
 							if(rCtx.GetConst_String(p_scope, DlScope::cuifCtrlText, temp_buf)) {
 								p_ctl->AddItem(-1, temp_buf, &rc);
@@ -8505,7 +8504,8 @@ void TDialogDL6_Construction::InsertControlItems(DlContext & rCtx, const DlScope
 					if(stage == insertctrlstageMain) {
 						TRect rc;
 						const uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(&lp, rc, 60.0f, 60.0f);
-						TCluster * p_ctl = new TCluster(rc, CHECKBOXES, 0/*spcFlags*/, 0);
+						rCtx.GetConst_String(p_scope, DlScope::cuifCtrlText, ctl_text);
+						TCluster * p_ctl = new TCluster(rc, CHECKBOXES, 0/*spcFlags*/, ctl_text, 0);
 						{
 							const DlScopeList & r_item_scope_list = p_scope->GetChildList();
 							for(uint cii = 0; cii < r_item_scope_list.getCount(); cii++) {
@@ -8528,7 +8528,8 @@ void TDialogDL6_Construction::InsertControlItems(DlContext & rCtx, const DlScope
 					if(stage == insertctrlstageMain) {
 						TRect rc;
 						const uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(&lp, rc, 60.0f, 60.0f);
-						TCluster * p_ctl = new TCluster(rc, RADIOBUTTONS, 0/*spcFlags*/, 0);
+						rCtx.GetConst_String(p_scope, DlScope::cuifCtrlText, ctl_text);
+						TCluster * p_ctl = new TCluster(rc, RADIOBUTTONS, 0/*spcFlags*/, ctl_text, 0);
 						{
 							const DlScopeList & r_item_scope_list = p_scope->GetChildList();
 							for(uint cii = 0; cii < r_item_scope_list.getCount(); cii++) {
@@ -8589,6 +8590,7 @@ void TDialogDL6_Construction::InsertControlItems(DlContext & rCtx, const DlScope
 
 						SString column_description;
 						ListBoxDef * p_lb_def = 0;
+						rCtx.GetConst_String(p_scope, DlScope::cuifListBoxColumns, column_description);
 						SmartListBox * p_lb = column_description.NotEmpty() ? new SmartListBox(rc, p_lb_def, column_description) : new SmartListBox(rc, p_lb_def, false/*is_tree*/);
 						if(p_lb) {
 							//LldState |= lldsDefBailed;
@@ -8678,32 +8680,38 @@ void TDialogDL6_Construction::InsertControlLayouts(DlContext & rCtx, const DlSco
 					TView * p_view = getCtrlView(item_id);
 					if(p_view) {
 						bool   done = false;
-						if(vk == UiItemKind::kCheckCluster) {
+						if(oneof2(vk, UiItemKind::kCheckCluster, UiItemKind::kRadioCluster)) {
 							if(p_view->IsSubSign(TV_SUBSIGN_CLUSTER)) {
 								TCluster * p_clu = static_cast<TCluster *>(p_view);
-								const float fixed_item_y = 16.0f;
+								const float fixed_item_y = TCluster::DefItemHeight;
+								const float item_gap_y = TCluster::DefItemVerticalGap;
+								const float padding_top = (lp.Padding.a.y > 0.0f) ? lp.Padding.a.y : TCluster::DefClusterPaddigTop;
+								const float padding_bottom = (lp.Padding.b.y > 0.0f) ? lp.Padding.b.y : TCluster::DefClusterPaddigBottom;
 								int clu_direction = lp.GetContainerDirection();
 								if(clu_direction != DIREC_HORZ) {
 									clu_direction = DIREC_VERT;
 									lp.SetContainerDirection(clu_direction);
 								}
-								SUiLayoutParam glp(clu_direction); // Общий лейаут для всей группы
-								float cluster_size_y = 0.0f;
-								//glp.SetF
-								lp.CopySizeXParamTo(glp);
-								glp.SetFixedSizeY(20.0f); // Предварительный размер - позже уточним
-								SUiLayout * p_lo_grp = pLoParent->InsertItem(0, &glp);
+								float cluster_size_y = padding_top;
 								for(uint item_idx = 0; item_idx < p_clu->getNumItems(); item_idx++) {
 									const TCluster::Item * p_item = p_clu->GetItemC(item_idx);
-									HWND  h_item = p_item ? p_clu->getItemHandle(item_idx) : 0;
-									if(h_item) {
-										SUiLayoutParam lp_item;
-										lp_item.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
-										lp_item.SetFixedSizeY(fixed_item_y);
-										cluster_size_y += fixed_item_y;
+									if(p_item) {
+										cluster_size_y += (fixed_item_y + item_gap_y);
 									}
 								}
+								cluster_size_y += padding_bottom;
+								lp.SetFixedSizeY(cluster_size_y);
+								InsertCtrlLayout(pLoParent, p_clu, lp);
+								done = true;
 							}
+						}
+						else if(vk == UiItemKind::kListbox) {
+							p_lo = InsertCtrlLayout(pLoParent, p_view, lp);
+							done = true;
+						}
+						else if(vk == UiItemKind::kTreeListbox) {
+							p_lo = InsertCtrlLayout(pLoParent, p_view, lp);
+							done = true;
 						}
 						else if(vk == UiItemKind::kCombobox) {
 							if(p_view->IsSubSign(TV_SUBSIGN_COMBOBOX)) {

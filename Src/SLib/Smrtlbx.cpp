@@ -1653,7 +1653,7 @@ void SmartListBox::CalculateColumnsWidth(int autoCalcVariant/*auotocalccolszXXX*
 {
 	const  HWND h_lb = getHandle();
 	const  uint cc = Columns.getCount();
-	if(h_lb && cc) {
+	if(P_Def && h_lb && cc) {
 		long   first_item = 0;
 		SString temp_buf;
 		SString cell_buf;

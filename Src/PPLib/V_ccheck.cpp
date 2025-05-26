@@ -2624,7 +2624,7 @@ DBQuery * PPViewCCheck::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 					CCheckPacket::Helper_UnpackTextExt(temp_buf, &sc, 0);
 					bool cc_sent_to_egais = (sc.GetExtStrData(CCheckPacket::extssSign, temp_buf) > 0 && temp_buf.NotEmpty());
 					if(!cc_sent_to_egais) {
-						pStyle->SetRightFigCircleColor(SClrRed);
+						pStyle->SetRightFigCircleColor(GetColorRef(SClrRed));
 						ok = 1;
 					}
 				}

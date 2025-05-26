@@ -552,8 +552,9 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 										}
 									}
 									TView::SetWindowUserData(hw, p_ctl);
-									//TView::SSetWindowText(hw, p_ctl->Text);
-									//SetupWindowCtrlTextProc(hw, 0);
+									TView::SSetWindowText(hw, p_ctl->GetRawText());
+									SetupWindowCtrlTextProc(hw, 0);
+									setup_font_blk.Set(hw);
 								}
 							}
 						}

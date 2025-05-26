@@ -52,13 +52,13 @@ IMPL_HANDLE_EVENT(TStaticText)
 	}
 }
 
-SString & TStaticText::getText(SString & rBuf) const
+SString & TStaticText::GetText(SString & rBuf) const
 {
 	TView::SGetWindowText(GetDlgItem(Parent, Id), rBuf);
 	return rBuf.Transf(CTRANSF_OUTER_TO_INNER);
 }
 
-int TStaticText::setText(const char * pText)
+int TStaticText::SetText(const char * pText)
 {
 	int    ok = -1;
 	if(isempty(pText))
@@ -1039,8 +1039,8 @@ static BOOL CALLBACK ClusterDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPAR
 	return ::CallWindowProc(p_view->PrevWindowProc, hWnd, uMsg, wParam, lParam);
 }
 
-TCluster::TCluster(const TRect & rBounds, int clusterKind, uint spcFlags, const StringSet * pStrings) : 
-	TView(rBounds), Value(0), Sel(0), Kind(clusterKind), SpcFlags(spcFlags), DisableMask(0)
+TCluster::TCluster(const TRect & rBounds, int clusterKind, uint spcFlags, const char * pTitle, const StringSet * pStrings) : 
+	TView(rBounds), Value(0), Sel(0), Kind(clusterKind), SpcFlags(spcFlags), DisableMask(0), Text(pTitle)
 {
 	assert(oneof2(clusterKind, RADIOBUTTONS, CHECKBOXES));
 	SubSign = TV_SUBSIGN_CLUSTER;
@@ -1067,6 +1067,23 @@ TCluster::~TCluster()
 			TView::SetWindowProp(h_wnd, GWLP_WNDPROC, PrevWindowProc);
 		}
 	}
+}
+
+IMPL_HANDLE_EVENT(TCluster)
+{
+	TView::handleEvent(event);
+	if(event.isCmd(cmSetBounds)) { // @v12.3.5
+		const TRect * p_rc = static_cast<const TRect *>(TVINFOPTR);
+		HWND h = getHandle();
+		if(h) {
+			::SetWindowPos(h, 0, p_rc->a.x, p_rc->a.y, p_rc->width(), p_rc->height(), SWP_NOZORDER|SWP_NOCOPYBITS);
+			ArrangeItems(DIREC_VERT, false);
+			clearEvent(event);
+		}
+	}
+	else
+		return;
+	clearEvent(event);
 }
 
 #if 0 // @v9.1.3 {
@@ -1129,6 +1146,68 @@ TCluster::~TCluster()
 }
 #endif // } 0 @v9.1.3
 
+void TCluster::ArrangeItems(int direction, bool tuneOnInit)
+{
+	const uint items_count = getNumItems();
+	HWND hw_cluster = getHandle();
+	HWND hw_parent = hw_cluster ? ::GetParent(hw_cluster) : 0;
+	if(hw_parent) {
+		RECT   rc_cluster;
+		::GetWindowRect(hw_cluster, &rc_cluster);
+		if(direction == DIREC_VERT || direction <= 0) {
+
+			const float fixed_item_y = TCluster::DefItemHeight;
+			const float item_gap_y = TCluster::DefItemVerticalGap;
+			const float padding_top = /*(lp.Padding.a.y > 0.0f) ? lp.Padding.a.y :*/TCluster::DefClusterPaddigTop;
+			const float padding_left = /*(lp.Padding.a.x > 0.0f) ? lp.Padding.a.x :*/TCluster::DefClusterPaddigLeft;
+			const float padding_right = /*(lp.Padding.b.x > 0.0f) ? lp.Padding.b.x :*/2.0f;
+
+			const float max_item_width = (rc_cluster.right - rc_cluster.left) - padding_left - padding_right;
+
+			int16  first_left = tuneOnInit ? 0 : 4;
+			int    next_y = rc_cluster.top + static_cast<int>(padding_top);
+			TRect  rc_prev; // Координаты предыдущего элемента
+			for(uint i = 0; i < items_count; i++) {
+				int    button_id = MAKE_BUTTON_ID(Id, i+1);
+				HWND   h_wnd = GetDlgItem(Parent, button_id);
+				if(h_wnd) {
+					int    y_offs = 0;
+					RECT   rc_temp;
+					::GetWindowRect(h_wnd, &rc_temp);
+					TRect rc_item(rc_temp);
+					if(tuneOnInit) {
+						if(!i)
+							first_left = rc_item.a.x;
+						else {
+							const int min_gap_y = 1;
+							if((rc_item.a.y - rc_prev.b.y) < min_gap_y)
+								y_offs = rc_prev.b.y + min_gap_y - rc_item.a.y;
+							if(y_offs || rc_item.a.x != first_left) {
+								POINT   pt_lu;
+								pt_lu.x = first_left; // rc_item.a.x;
+								pt_lu.y = rc_item.a.y + y_offs;
+								MapWindowPoints(NULL, hw_parent, &pt_lu, 1);
+								::MoveWindow(h_wnd, pt_lu.x, pt_lu.y, rc_item.width(), rc_item.height(), FALSE);
+								::GetWindowRect(h_wnd, &rc_temp);
+								rc_item = rc_temp;
+							}
+						}
+						rc_prev = rc_item;
+					}
+					else {
+						POINT   pt_lu;
+						pt_lu.x = rc_cluster.left + padding_left;
+						pt_lu.y = next_y;
+						MapWindowPoints(NULL, hw_parent, &pt_lu, 1);
+						::MoveWindow(h_wnd, pt_lu.x, pt_lu.y, static_cast<int>(max_item_width), rc_item.height(), FALSE);
+						next_y += (rc_item.height() + static_cast<int>(item_gap_y));
+					}
+				}
+			}
+		}
+	}
+}
+
 int TCluster::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	int    result = 1;
@@ -1138,7 +1217,6 @@ int TCluster::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 			{
 				HWND hw_cluster = getHandle();
 				if(hw_cluster) {
-					HWND hw_parent = ::GetParent(hw_cluster);
 					if(IsInState(sfDisabled)) {
 						EnableWindow(hw_cluster, 0);
 						DisableMask = 0xffffffffU;
@@ -1147,8 +1225,9 @@ int TCluster::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 					RECT  rc_temp;
 					::GetWindowRect(hw_cluster, &rc_temp);
 					const  TRect rc_cluster(rc_temp);
-					::GetWindowRect(hw_parent, &rc_temp);
-					const  TRect  rc_parent(rc_temp);
+					//HWND hw_parent = ::GetParent(hw_cluster);
+					//::GetWindowRect(hw_parent, &rc_temp);
+					//const  TRect  rc_parent(rc_temp);
 					TRect  rc_prev; // Координаты предыдущего элемента
 					int    dispersion_left = 0; // Разброс left-координат
 					int    dispersion_top = 0;  // Разброс top-координат
@@ -1187,35 +1266,7 @@ int TCluster::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 						direction = DIREC_VERT;
 					else if(dispersion_top <= 4)
 						direction = DIREC_HORZ;
-					if(direction == DIREC_VERT) {
-						int16  first_left = 0;
-						for(i = 0; i < items_count; i++) {
-							int    button_id = MAKE_BUTTON_ID(Id, i+1);
-							HWND   h_wnd = GetDlgItem(Parent, button_id);
-							if(h_wnd) {
-								int    y_offs = 0;
-								::GetWindowRect(h_wnd, &rc_temp);
-								TRect rc_item(rc_temp);
-								if(!i)
-									first_left = rc_item.a.x;
-								else {
-									const int min_gap_y = 1;
-									if((rc_item.a.y - rc_prev.b.y) < min_gap_y)
-										y_offs = rc_prev.b.y + min_gap_y - rc_item.a.y;
-									if(y_offs || rc_item.a.x != first_left) {
-										POINT   pt_lu;
-										pt_lu.x = first_left; // rc_item.a.x;
-										pt_lu.y = rc_item.a.y + y_offs;
-										MapWindowPoints(NULL, hw_parent, &pt_lu, 1);
-										::MoveWindow(h_wnd, pt_lu.x, pt_lu.y, rc_item.width(), rc_item.height(), FALSE);
-										::GetWindowRect(h_wnd, &rc_temp);
-										rc_item = rc_temp;
-									}
-								}
-								rc_prev = rc_item;
-							}
-						}
-					}
+					ArrangeItems(direction, true);
 				}
 			}
 			break;
@@ -1431,13 +1482,15 @@ int TCluster::setDataAssoc(long val)
 	if(Kind == RADIOBUTTONS) {
 		uint   i;
 		int    found = 0;
-		long   def_val = 0, def_key = 0;
+		long   def_val = 0;
+		long   def_key = 0;
 		// Находим значение по умолчанию
-		for(i = 0; ValAssoc.enumItems(&i, (void **)&p_assoc);)
+		for(i = 0; ValAssoc.enumItems(&i, (void **)&p_assoc);) {
 			if(p_assoc->Key == -1) {
 				def_val = p_assoc->Val;
 				break;
 			}
+		}
 		for(i = 0; !found && ValAssoc.enumItems(&i, (void **)&p_assoc);) {
 			if(p_assoc->Key != -1) {
 				if(p_assoc->Val == val) {

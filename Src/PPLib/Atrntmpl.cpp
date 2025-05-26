@@ -1130,15 +1130,15 @@ private:
 
 void ATurnTmplDialog::swapPrim()
 {
-	TCluster * clu = static_cast<TCluster *>(getCtrlView(CTL_ATRNTMPL_PRIMARY));
-	if(clu) {
+	TCluster * p_clu = static_cast<TCluster *>(getCtrlView(CTL_ATRNTMPL_PRIMARY));
+	if(p_clu) {
 		SString pt_buf;
 		SString ft_buf;
-		clu->GetText(0, pt_buf);
-		clu->GetText(1, ft_buf);
-		clu->SetText(0, ft_buf);
-		clu->SetText(1, pt_buf);
-		clu->Draw_();
+		p_clu->GetText(0, pt_buf);
+		p_clu->GetText(1, ft_buf);
+		p_clu->SetText(0, ft_buf);
+		p_clu->SetText(1, pt_buf);
+		p_clu->Draw_();
 	}
 }
 

@@ -3389,7 +3389,7 @@ int PPViewGoodsRest::CellStyleFunc_(const void * pData, long col, int paintActio
 						}
 						if(!r_tag_filt.IsEmpty()) {
 							SColor clr;
-							if(r_tag_filt.SelectIndicator(goods_id, clr) > 0)
+							if(r_tag_filt.SelectIndicator(goods_id, clr))
 								ok = pStyle->SetLeftBottomCornerColor(static_cast<COLORREF>(clr));
 						}
 					}

@@ -158,7 +158,7 @@ typedef int64_t OPJ_OFF_T;  /* 64-bit file offset type */
 #define OPJ_J2K_TCH_INFO    8   /**< Tile/Component information of all tiles */
 #define OPJ_J2K_MH_IND      16  /**< Codestream index based only on the main header */
 #define OPJ_J2K_TH_IND      32  /**< Tile index based on the current tile */
-/*FIXME #define OPJ_J2K_CSTR_IND    48*/    /**<  */
+/*FIXME #define OPJ_J2K_CSTR_IND    48*/
 #define OPJ_JP2_INFO        128 /**< JP2 file information */
 #define OPJ_JP2_IND         256 /**< JP2 file index */
 

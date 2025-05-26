@@ -4,9 +4,7 @@
 #include <OpenXLSX-internal.hpp>
 #pragma hdrstop
 
-// ========== XLRowDataIterator  ============================================ //
-namespace OpenXLSX
-{
+namespace OpenXLSX {
 /**
  * @details Constructor.
  * @pre The given range and location are both valid.
@@ -14,43 +12,26 @@ namespace OpenXLSX
  * @note 2024-05-28: added support for constructing with an empty m_cellNode from an empty rowDataRange which will allow obtaining
  *       an XLIteratorLocation::End for such a range so that iterations can fail in a controlled manner
  */
-XLRowDataIterator::XLRowDataIterator(const XLRowDataRange& rowDataRange, XLIteratorLocation loc)
-	: m_dataRange(std::make_unique<XLRowDataRange>(rowDataRange)),
-	m_cellNode(std::make_unique<XMLNode>(
-		    getCellNode((m_dataRange->size() ? *m_dataRange->m_rowNode : XMLNode {}), m_dataRange->m_firstCol))),
+XLRowDataIterator::XLRowDataIterator(const XLRowDataRange& rowDataRange, XLIteratorLocation loc) : 
+	m_dataRange(std::make_unique<XLRowDataRange>(rowDataRange)),
+	m_cellNode(std::make_unique<XMLNode>(getCellNode((m_dataRange->size() ? *m_dataRange->m_rowNode : XMLNode {}), m_dataRange->m_firstCol))),
 	m_currentCell(loc == XLIteratorLocation::End ? XLCell() : XLCell(*m_cellNode, m_dataRange->m_sharedStrings.get()))
-{}
-
+{
+}
 /**
  * @details Destructor. Default implementation.
- * @pre
- * @post
  */
 XLRowDataIterator::~XLRowDataIterator() = default;
-
 /**
  * @details Copy constructor. Trivial implementation with deep copy of pointer members.
- * @pre
- * @post
  */
-XLRowDataIterator::XLRowDataIterator(const XLRowDataIterator& other)
-	: m_dataRange(std::make_unique<XLRowDataRange>(*other.m_dataRange)),
-	m_cellNode(std::make_unique<XMLNode>(*other.m_cellNode)),
-	m_currentCell(other.m_currentCell)
-{}
+XLRowDataIterator::XLRowDataIterator(const XLRowDataIterator& other) : m_dataRange(std::make_unique<XLRowDataRange>(*other.m_dataRange)),
+	m_cellNode(std::make_unique<XMLNode>(*other.m_cellNode)), m_currentCell(other.m_currentCell)
+{
+}
 
-/**
- * @details Move constructor. Default implementation.
- * @pre
- * @post
- */
-XLRowDataIterator::XLRowDataIterator(XLRowDataIterator&& other) noexcept = default;        // NOLINT
+XLRowDataIterator::XLRowDataIterator(XLRowDataIterator&& other) noexcept = default;
 
-/**
- * @details Copy assignment operator. Implemented using copy-and-swap idiom.
- * @pre
- * @post
- */
 XLRowDataIterator& XLRowDataIterator::operator=(const XLRowDataIterator& other)
 {
 	if(&other != this) {
@@ -61,17 +42,10 @@ XLRowDataIterator& XLRowDataIterator::operator=(const XLRowDataIterator& other)
 	return *this;
 }
 
-/**
- * @details Move assignment operator. Default implementation.
- * @pre
- * @post
- */
 XLRowDataIterator& XLRowDataIterator::operator=(XLRowDataIterator&& other) noexcept = default;
 
 /**
  * @details Pre-increment operator. Advances the iterator one element.
- * @pre
- * @post
  */
 XLRowDataIterator& XLRowDataIterator::operator++()
 {
@@ -104,37 +78,25 @@ XLRowDataIterator& XLRowDataIterator::operator++()
 
 	return *this;
 }
-
 /**
  * @details Post-increment operator. Implemented in terms of the pre-increment operator.
- * @pre
- * @post
  */
-XLRowDataIterator XLRowDataIterator::operator++(int)        // NOLINT
+XLRowDataIterator XLRowDataIterator::operator++(int)
 {
 	auto oldIter(*this);
 	++(*this);
 	return oldIter;
 }
-
 /**
  * @details Dereferencing operator.
- * @pre
- * @post
  */
 XLCell& XLRowDataIterator::operator*() { return m_currentCell; }
-
 /**
  * @details Arrow operator.
- * @pre
- * @post
  */
 XLRowDataIterator::pointer XLRowDataIterator::operator->() { return &m_currentCell; }
-
 /**
  * @details Equality comparison operator.
- * @pre
- * @post
  */
 bool XLRowDataIterator::operator==(const XLRowDataIterator& rhs) const
 {
@@ -330,7 +292,7 @@ XLRowDataProxy& XLRowDataProxy::operator=(const std::vector<XLCellValue>& values
 	// ===== prepend new cell nodes to current row node
 	XMLNode curNode{};
 	uint16_t colNo = static_cast<uint16_t>(values.size());
-	for(auto value = values.rbegin(); value != values.rend(); ++value) {     // NOLINT
+	for(auto value = values.rbegin(); value != values.rend(); ++value) {
 		curNode = m_rowNode->prepend_child("c");
 		setDefaultCellAttributes(curNode, XLCellReference(static_cast<uint32_t>(m_row->rowNumber()), colNo).address(), *m_rowNode, colNo);
 		XLCell(curNode, m_row->m_sharedStrings.get()).value() = *value;
@@ -396,22 +358,16 @@ std::vector<XLCellValue> XLRowDataProxy::getValues() const        // 2024-04-30:
 	// ===== Return the resulting container.
 	return result;
 }
-
 /**
  * @details The function returns a reference to the XLSharedStrings object embedded in the m_row member.
  * This is required because the XLRow class internals is not visible in the header file.
- * @pre
- * @post
  */
 const XLSharedStrings& XLRowDataProxy::getSharedStrings() const { return m_row->m_sharedStrings.get(); }
-
 /**
  * @details The deleteCellValues is a convenience function used solely by the templated operator= function.
  * The purpose of a separate function is to keep details of xml_node out of the header file.
- * @pre
- * @post
  */
-void XLRowDataProxy::deleteCellValues(uint16_t count)        // NOLINT   // 2024-04-30: whitespace support
+void XLRowDataProxy::deleteCellValues(uint16_t count) // 2024-04-30: whitespace support
 {
 	// ===== Mark cell nodes for deletion
 	std::vector<XMLNode> toBeDeleted;
@@ -434,15 +390,12 @@ void XLRowDataProxy::deleteCellValues(uint16_t count)        // NOLINT   // 2024
 	// ===== Delete selected cell nodes
 	for(auto cellNodeToDelete : toBeDeleted)  m_rowNode->remove_child(cellNodeToDelete);
 }
-
 /**
  * @details The prependCellValue is a convenience function used solely by the templated operator= function.
  * The purpose of a separate function is to keep details of xml_node out of the header file.
  * Note that no checking on the column number is made.
- * @pre
- * @post
  */
-void XLRowDataProxy::prependCellValue(const XLCellValue& value, uint16_t col)        // NOLINT   // 2024-04-30: whitespace support
+void XLRowDataProxy::prependCellValue(const XLCellValue& value, uint16_t col) // 2024-04-30: whitespace support
 {
 	// ===== (disabled) Pretty formatting by inserting before an existing first child
 	// XMLNode first_child = m_rowNode->first_child_of_type(pugi::node_element);
@@ -457,5 +410,5 @@ void XLRowDataProxy::prependCellValue(const XLCellValue& value, uint16_t col)   
 	XLCell(curNode, m_row->m_sharedStrings.get()).value() = value;
 }
 
-void XLRowDataProxy::clear() { m_rowNode->remove_children(); }        // NOLINT
+void XLRowDataProxy::clear() { m_rowNode->remove_children(); }
 }    // namespace OpenXLSX

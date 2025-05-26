@@ -3,8 +3,8 @@
 //
 #include <OpenXLSX-internal.hpp>
 #pragma hdrstop
-#include "XLDocument.hpp"
-#include "XLSharedStrings.hpp"
+//#include "XLDocument.hpp"
+//#include "XLSharedStrings.hpp"
 
 namespace OpenXLSX {
 const XLSharedStrings XLSharedStringsDefaulted{};

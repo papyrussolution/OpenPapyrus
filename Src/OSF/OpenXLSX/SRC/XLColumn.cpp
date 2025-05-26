@@ -22,7 +22,7 @@ XLColumn& XLColumn::operator=(const XLColumn& other)
 
 float XLColumn::width() const { return columnNode().attribute("width").as_float(); }
 
-void XLColumn::setWidth(float width)    // NOLINT
+void XLColumn::setWidth(float width)
 {
 	// Set the 'Width' attribute for the Cell. If it does not exist, create it.
 	auto widthAtt = columnNode().attribute("width");
@@ -39,7 +39,7 @@ void XLColumn::setWidth(float width)    // NOLINT
 
 bool XLColumn::isHidden() const { return columnNode().attribute("hidden").as_bool(); }
 
-void XLColumn::setHidden(bool state)    // NOLINT
+void XLColumn::setHidden(bool state)
 {
 	auto hiddenAtt = columnNode().attribute("hidden");
 	if(hiddenAtt.empty())  hiddenAtt = columnNode().append_attribute("hidden");

@@ -54,7 +54,7 @@ void XLColor::set(const std::string& hexCode)
 		alpha = hexCode.substr(0, 2);
 		red   = hexCode.substr(2, 2);
 		green = hexCode.substr(4, 2);
-		blue  = hexCode.substr(6, 2);// NOLINT
+		blue  = hexCode.substr(6, 2);
 	}
 	else
 		throw XLInputError("Invalid color code");

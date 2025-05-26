@@ -76,7 +76,7 @@ XLCellReference& XLCellReference::operator++()
 }
 
 XLCellReference XLCellReference::operator++(int)
-{    // NOLINT
+{
 	auto oldRef(*this);
 	++(*this);
 	return oldRef;
@@ -100,7 +100,7 @@ XLCellReference& XLCellReference::operator--()
 }
 
 XLCellReference XLCellReference::operator--(int)
-{    // NOLINT
+{
 	auto oldRef(*this);
 	--(*this);
 	return oldRef;
@@ -167,7 +167,7 @@ void XLCellReference::setAddress(const std::string& address)
 std::string XLCellReference::rowAsString(uint32_t row)
 {
 #ifdef CHARCONV_ENABLED
-	std::array<char, 7> str {}; // NOLINT
+	std::array<char, 7> str {};
 	const auto*         p = std::to_chars(str.data(), str.data() + str.size(), row).ptr;
 	return std::string { str.data(), static_cast<uint16_t>(p - str.data()) };
 #else
@@ -187,7 +187,7 @@ uint32_t XLCellReference::rowAsNumber(const std::string& row)
 {
 #ifdef CHARCONV_ENABLED
 	uint32_t value = 0;
-	std::from_chars(row.data(), row.data() + row.size(), value); // NOLINT
+	std::from_chars(row.data(), row.data() + row.size(), value);
 	return value;
 #else
 	return stoul(row);
@@ -209,9 +209,9 @@ std::string XLCellReference::columnAsString(uint16_t column)
 	}
 	// ===== If there are three letters in the Column Name:
 	else {
-		result += static_cast<char>((column - 703) / (alphabetSize * alphabetSize) + asciiOffset + 1); // NOLINT
-		result += static_cast<char>(((column - 703) / alphabetSize) % alphabetSize + asciiOffset + 1); // NOLINT
-		result += static_cast<char>((column - 703) % alphabetSize + asciiOffset + 1);             // NOLINT
+		result += static_cast<char>((column - 703) / (alphabetSize * alphabetSize) + asciiOffset + 1);
+		result += static_cast<char>(((column - 703) / alphabetSize) % alphabetSize + asciiOffset + 1);
+		result += static_cast<char>((column - 703) % alphabetSize + asciiOffset + 1);
 	}
 	return result;
 }

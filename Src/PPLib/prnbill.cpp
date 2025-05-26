@@ -411,10 +411,10 @@ static int SelectForm(int interactive, long opPrnFlags, PPID arID, uint * pAmtTy
 	}
 	else {
 		bool do_exit = false;
-		TCluster * clu = 0;
+		TCluster * p_clu = 0;
 		dlg = new BillPrintDialog(res_id, oprType);
 		THROW(CheckDialogPtr(&dlg));
-		clu = static_cast<TCluster *>(dlg->getCtrlView(CTL_PRNGBILL_WHAT));
+		p_clu = static_cast<TCluster *>(dlg->getCtrlView(CTL_PRNGBILL_WHAT));
 		//
 		// Порядок пунктов в диалоге:
 		//    0. Накладная //
@@ -432,7 +432,7 @@ static int SelectForm(int interactive, long opPrnFlags, PPID arID, uint * pAmtTy
 		//    12. Универсальный передаточный документ
 		//
 		if(opPrnFlags & OPKF_PRT_EXTFORMFLAGS) {
-			if(clu) {
+			if(p_clu) {
 				/*
 				const LAssocBase flags_to_cluster_item_list[] = {
 					// { 0, 0 },                //    0. Накладная //
@@ -458,7 +458,7 @@ static int SelectForm(int interactive, long opPrnFlags, PPID arID, uint * pAmtTy
 				for(uint i = 0; i < SIZEOFARRAY(BillPrintFormList); i++) {
 					const BillPrintFormEntry & r_entry = BillPrintFormList[i];
 					if(!oneof2(r_entry.Flag, 0,  OPKF_PRT_LOCDISP) && !(opPrnFlags & r_entry.Flag)) {
-						clu->disableItem(i/*+1*/, r_entry.DialogEntryIdx);
+						p_clu->disableItem(i/*+1*/, r_entry.DialogEntryIdx);
 					}
 				}
 			}
@@ -504,7 +504,7 @@ static int SelectForm(int interactive, long opPrnFlags, PPID arID, uint * pAmtTy
 				const uint16 __v = dlg->getCtrlUInt16(CTL_PRNGBILL_ONLYPRCHNG);
 				SETFLAG(prn_flags, BillMultiPrintParam::fUpdatedPricesOnly, __v);
 				ASSIGN_PTR(pAmtTypes, p+1);
-				if(clu) {
+				if(p_clu) {
 					//v++;
 					//rSelAry.Add(static_cast<PPID>(v), 1, 0);
 					assert(v >= 0 && v < SIZEOFARRAY(BillPrintFormList));

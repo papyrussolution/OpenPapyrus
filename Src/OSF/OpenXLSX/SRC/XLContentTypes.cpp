@@ -3,7 +3,6 @@
 //
 #include <OpenXLSX-internal.hpp>
 #pragma hdrstop
-#include "XLContentTypes.hpp"
 
 using namespace OpenXLSX;
 
@@ -20,8 +19,9 @@ const std::string applicationMicrosoftOffice       = "application/vnd.ms-office"
  */
 XLContentType GetContentTypeFromString(const std::string& typeString)
 {
-	XLContentType type { XLContentType::Unknown };
-
+	XLContentType type { 
+		XLContentType::Unknown 
+	};
 	if(typeString == applicationMicrosoftExcel + ".sheet.macroEnabled.main+xml")
 		type = XLContentType::WorkbookMacroEnabled;
 	else if(typeString == applicationOpenXmlOfficeDocument + ".spreadsheetml.sheet.main+xml")
@@ -75,7 +75,6 @@ XLContentType GetContentTypeFromString(const std::string& typeString)
 std::string GetStringFromType(XLContentType type)
 {
 	std::string typeString;
-
 	if(type == XLContentType::WorkbookMacroEnabled)
 		typeString = applicationMicrosoftExcel + ".sheet.macroEnabled.main+xml";
 	else if(type == XLContentType::Workbook)
@@ -204,6 +203,5 @@ std::vector<XLContentItem> XLContentTypes::getContentItems()
 		if(strcmp(item.name(), "Override") == 0)  result.emplace_back(item);
 		item = item.next_sibling_of_type(pugi::node_element);
 	}
-
 	return result;
 }
