@@ -133,7 +133,7 @@ inline std::string XLRelationshipTypeString(OpenXLSX::XLRelationshipType const &
 /**
  * @details
  */
-inline XMLNode getRowNode(XMLNode sheetDataNode, uint32_t rowNumber)
+inline XMLNode getRowNode(XMLNode sheetDataNode, uint32 rowNumber)
 {
 	if(rowNumber < 1 || rowNumber > OpenXLSX::MAX_ROWS) {     // 2024-05-28: added range check
 		using namespace std::literals::string_literals;
@@ -191,7 +191,7 @@ inline XMLNode getRowNode(XMLNode sheetDataNode, uint32_t rowNumber)
  * @param colNo the column for which to obtain the style
  * @return the XLStyleIndex stored for the column, or XLDefaultCellFormat if none
  */
-inline XLStyleIndex getColumnStyle(XMLNode rowNode, uint16_t colNo)
+inline XLStyleIndex getColumnStyle(XMLNode rowNode, uint16 colNo)
 {
 	XMLNode cols = rowNode.parent().parent().child("cols");
 	if(not cols.empty()) {
@@ -215,7 +215,7 @@ inline XLStyleIndex getColumnStyle(XMLNode rowNode, uint16_t colNo)
  * @param colStyles an optional std::vector<XLStyleIndex> that contains all pre-evaluated column styles,
  *         and can be used to avoid performance impact from lookup
  */
-inline void setDefaultCellAttributes(XMLNode cellNode, const std::string & cellRef, XMLNode rowNode, uint16_t colNo,
+inline void setDefaultCellAttributes(XMLNode cellNode, const std::string & cellRef, XMLNode rowNode, uint16 colNo,
     /**/ std::vector<XLStyleIndex> const & colStyles = {})
 {
 	cellNode.append_attribute("r").set_value(cellRef.c_str());
@@ -244,7 +244,7 @@ inline void setDefaultCellAttributes(XMLNode cellNode, const std::string & cellR
  *         and can be used to avoid performance impact from lookup
  * @return The xml node representing the requested cell.
  */
-inline XMLNode getCellNode(XMLNode rowNode, uint16_t columnNumber, uint32_t rowNumber = 0, /**/ std::vector<XLStyleIndex> const & colStyles = {})
+inline XMLNode getCellNode(XMLNode rowNode, uint16 columnNumber, uint32 rowNumber = 0, /**/ std::vector<XLStyleIndex> const & colStyles = {})
 {
 	if(columnNumber < 1 || columnNumber > OpenXLSX::MAX_COLS) {     // 2024-08-05: added range check
 		using namespace std::literals::string_literals;
@@ -444,9 +444,11 @@ inline XMLAttribute appendAndSetNodeAttribute(XMLNode & parent, std::string cons
  */
 inline bool getBoolAttributeWhenOmittedMeansTrue(XMLNode & parent, std::string const & tagName, std::string const & attrName = "val")
 {
-	if(parent.empty())  return false;     // can't do anything
+	if(parent.empty())  
+		return false;     // can't do anything
 	XMLNode tagNode = parent.child(tagName.c_str());
-	if(tagNode.empty() )  return false;   // if tag does not exist: return false
+	if(tagNode.empty() )  
+		return false;   // if tag does not exist: return false
 	XMLAttribute valAttr = tagNode.attribute(attrName.c_str());
 	if(valAttr.empty() ) {                // if no attribute with attrName exists: default to true
 		appendAndSetAttribute(tagNode, attrName, "true"); // explicitly create & set attribute
@@ -455,6 +457,6 @@ inline bool getBoolAttributeWhenOmittedMeansTrue(XMLNode & parent, std::string c
 	// if execution gets here: attribute with attrName exists
 	return valAttr.as_bool(); // return attribute value
 }
-}    // namespace OpenXLSX
+} // namespace OpenXLSX
 
 #endif    // OPENXLSX_XLUTILITIES_HPP

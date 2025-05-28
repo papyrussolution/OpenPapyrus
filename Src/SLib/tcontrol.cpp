@@ -39,14 +39,6 @@ IMPL_HANDLE_EVENT(TStaticText)
 		HWND h = getHandle();
 		if(h) {
 			::SetWindowPos(h, 0, p_rc->a.x, p_rc->a.y, p_rc->width(), p_rc->height(), SWP_NOZORDER|SWP_NOCOPYBITS);
-			// @debug {
-			RECT rc_verify;
-			POINT rc_cli_lu;
-			GetWindowRect(h, &rc_verify);
-			rc_cli_lu.x = rc_verify.left;
-			rc_cli_lu.y = rc_verify.top;
-			ScreenToClient(Parent, &rc_cli_lu);
-			// } @debug 
 			clearEvent(event);
 		}
 	}
@@ -366,7 +358,7 @@ int TButton::makeDefault(int enable, int sendMsg)
 void TButton::setState(uint aState, bool enable)
 {
 	TView::setState(aState, enable);
-	if(aState & (sfSelected | sfActive))
+	if(aState & (sfSelected|sfActive))
 		Draw_();
 	if(aState & sfFocused)
 		makeDefault(enable);
@@ -2034,6 +2026,19 @@ TImageView::~TImageView()
 {
 	delete P_Fig;
 	RestoreOnDestruction();
+}
+
+IMPL_HANDLE_EVENT(TImageView)
+{
+	TView::handleEvent(event);
+	if(event.isCmd(cmSetBounds)) {
+		const TRect * p_rc = static_cast<const TRect *>(TVINFOPTR);
+		HWND h = getHandle();
+		if(h) {
+			::SetWindowPos(h, 0, p_rc->a.x, p_rc->a.y, p_rc->width(), p_rc->height(), SWP_NOZORDER|SWP_NOCOPYBITS);
+			clearEvent(event);
+		}
+	}
 }
 
 void TImageView::SetOuterFigure(SDrawFigure * pFig) // @v11.1.5

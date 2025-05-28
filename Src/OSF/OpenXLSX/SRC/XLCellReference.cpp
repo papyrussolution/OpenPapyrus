@@ -10,12 +10,11 @@ constexpr uint8_t alphabetSize = 26;
 constexpr uint8_t asciiOffset = 64;
 
 namespace {
-bool addressIsValid(uint32_t row, uint16_t column)
-{
-	return !(row < 1 || row > OpenXLSX::MAX_ROWS || column < 1 || column > OpenXLSX::MAX_COLS);
+	bool addressIsValid(uint32 row, uint16 column)
+	{
+		return !(row < 1 || row > OpenXLSX::MAX_ROWS || column < 1 || column > OpenXLSX::MAX_COLS);
+	}
 }
-}    // namespace
-
 /**
  * @details The constructor creates a new XLCellReference from a string, e.g. 'A1'. If there's no input,
  * the default reference will be cell A1.
@@ -36,9 +35,10 @@ XLCellReference::XLCellReference(const std::string& cellAddress)
  * @details This constructor creates a new XLCellReference from a given row and column number, e.g. 1,1 (=A1)
  * @todo consider swapping the arguments.
  */
-XLCellReference::XLCellReference(uint32_t row, uint16_t column)
+XLCellReference::XLCellReference(uint32 row, uint16 column)
 {
-	if(!addressIsValid(row, column))  throw XLCellAddressError("Cell reference is invalid");
+	if(!addressIsValid(row, column))  
+		throw XLCellAddressError("Cell reference is invalid");
 	setRowAndColumn(row, column);
 }
 
@@ -46,9 +46,10 @@ XLCellReference::XLCellReference(uint32_t row, uint16_t column)
  * @details This constructor creates a new XLCellReference from a row number and the column name (e.g. 1, A)
  * @todo consider swapping the arguments.
  */
-XLCellReference::XLCellReference(uint32_t row, const std::string& column)
+XLCellReference::XLCellReference(uint32 row, const std::string& column)
 {
-	if(!addressIsValid(row, columnAsNumber(column)))  throw XLCellAddressError("Cell reference is invalid");
+	if(!addressIsValid(row, columnAsNumber(column)))  
+		throw XLCellAddressError("Cell reference is invalid");
 	setRowAndColumn(row, columnAsNumber(column));
 }
 
@@ -108,27 +109,27 @@ XLCellReference XLCellReference::operator--(int)
 /**
  * @details Returns the m_row property.
  */
-uint32_t XLCellReference::row() const { return m_row; }
+uint32 XLCellReference::row() const { return m_row; }
 /**
  * @details Sets the row of the XLCellReference objects. If the number is larger than 16384 (the maximum),
  * the row is set to 16384.
  */
-void XLCellReference::setRow(uint32_t row)
+void XLCellReference::setRow(uint32 row)
 {
 	if(!addressIsValid(row, m_column))  
 		throw XLCellAddressError("Cell reference is invalid");
-	m_row         = row;
+	m_row = row;
 	m_cellAddress = columnAsString(m_column) + rowAsString(m_row);
 }
 /**
  * @details Returns the m_column property.
  */
-uint16_t XLCellReference::column() const { return m_column; }
+uint16 XLCellReference::column() const { return m_column; }
 /**
  * @details Sets the column of the XLCellReference object. If the number is larger than 1048576 (the maximum),
  * the column is set to 1048576.
  */
-void XLCellReference::setColumn(uint16_t column)
+void XLCellReference::setColumn(uint16 column)
 {
 	if(!addressIsValid(m_row, column))  
 		throw XLCellAddressError("Cell reference is invalid");
@@ -140,7 +141,7 @@ void XLCellReference::setColumn(uint16_t column)
  * @details Sets row and column of the XLCellReference object. Checks that row and column is less than
  * or equal to the maximum row and column numbers allowed by Excel.
  */
-void XLCellReference::setRowAndColumn(uint32_t row, uint16_t column)
+void XLCellReference::setRowAndColumn(uint32 row, uint16 column)
 {
 	if(!addressIsValid(row, column))  
 		throw XLCellAddressError("Cell reference is invalid");
@@ -164,12 +165,12 @@ void XLCellReference::setAddress(const std::string& address)
 	m_cellAddress    = address;
 }
 
-std::string XLCellReference::rowAsString(uint32_t row)
+std::string XLCellReference::rowAsString(uint32 row)
 {
 #ifdef CHARCONV_ENABLED
 	std::array<char, 7> str {};
 	const auto*         p = std::to_chars(str.data(), str.data() + str.size(), row).ptr;
-	return std::string { str.data(), static_cast<uint16_t>(p - str.data()) };
+	return std::string { str.data(), static_cast<uint16>(p - str.data()) };
 #else
 	std::string result;
 	while(row != 0) {
@@ -183,10 +184,10 @@ std::string XLCellReference::rowAsString(uint32_t row)
 #endif
 }
 
-uint32_t XLCellReference::rowAsNumber(const std::string& row)
+uint32 XLCellReference::rowAsNumber(const std::string& row)
 {
 #ifdef CHARCONV_ENABLED
-	uint32_t value = 0;
+	uint32 value = 0;
 	std::from_chars(row.data(), row.data() + row.size(), value);
 	return value;
 #else
@@ -196,7 +197,7 @@ uint32_t XLCellReference::rowAsNumber(const std::string& row)
 /**
  * @details Helper method to calculate the column letter from column number.
  */
-std::string XLCellReference::columnAsString(uint16_t column)
+std::string XLCellReference::columnAsString(uint16 column)
 {
 	std::string result;
 	// ===== If there is one letter in the Column Name:
@@ -220,10 +221,10 @@ std::string XLCellReference::columnAsString(uint16_t column)
  * @throws XLInputError
  * @note 2024-06-03: added check for valid address
  */
-uint16_t XLCellReference::columnAsNumber(const std::string& column)
+uint16 XLCellReference::columnAsNumber(const std::string& column)
 {
 	uint64_t letterCount = 0;
-	uint32_t colNo = 0;
+	uint32 colNo = 0;
 	for(const auto letter : column) {
 		if(letter >= 'A' && letter <= 'Z') { // allow only uppercase letters
 			++letterCount;
@@ -234,14 +235,14 @@ uint16_t XLCellReference::columnAsNumber(const std::string& column)
 	}
 	// ===== If the full string was decoded and colNo is within allowed range [1;MAX_COLS]
 	if(letterCount == column.length() && colNo > 0 && colNo <= MAX_COLS)
-		return static_cast<uint16_t>(colNo);
+		return static_cast<uint16>(colNo);
 	throw XLInputError("XLCellReference::columnAsNumber - column \"" + column + "\" is invalid");
 	/* 2024-06-19 OBSOLETE CODE:
-	   // uint16_t result = 0;
-	   // uint16_t factor = 1;
+	   // uint16 result = 0;
+	   // uint16 factor = 1;
 	   //
-	   // for (int16_t i = static_cast<int16_t>(column.size() - 1); i >= 0; --i) {
-	   //     result += static_cast<uint16_t>((column[static_cast<uint64_t>(i)] - asciiOffset) * factor);
+	   // for (int16 i = static_cast<int16>(column.size() - 1); i >= 0; --i) {
+	   //     result += static_cast<uint16>((column[static_cast<uint64_t>(i)] - asciiOffset) * factor);
 	   //     factor *= alphabetSize;
 	   // }
 	   //
@@ -257,7 +258,7 @@ uint16_t XLCellReference::columnAsNumber(const std::string& column)
 XLCoordinates XLCellReference::coordinatesFromAddress(const std::string& address)
 {
 	uint64_t letterCount = 0;
-	uint32_t colNo = 0;
+	uint32 colNo = 0;
 	for(const auto letter : address) {
 		if(letter >= 'A' && letter <= 'Z') { // allow only uppercase letters
 			++letterCount;

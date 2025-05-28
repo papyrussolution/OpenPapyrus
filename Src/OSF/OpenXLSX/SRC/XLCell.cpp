@@ -8,8 +8,8 @@ using namespace OpenXLSX;
 
 XLCell::XLCell() : m_cellNode(nullptr), m_sharedStrings(XLSharedStringsDefaulted),
 	m_valueProxy(XLCellValueProxy(this, m_cellNode.get())), m_formulaProxy(XLFormulaProxy(this, m_cellNode.get()))
-{}
-
+{
+}
 /**
  * @details This constructor creates a XLCell object based on the cell XMLNode input parameter, and is
  * intended for use when the corresponding cell XMLNode already exist.
@@ -20,21 +20,20 @@ XLCell::XLCell(const XMLNode& cellNode, const XLSharedStrings& sharedStrings) : 
 	m_sharedStrings(sharedStrings),
 	m_valueProxy(XLCellValueProxy(this, m_cellNode.get())),
 	m_formulaProxy(XLFormulaProxy(this, m_cellNode.get()))
-{}
+{
+}
 
-XLCell::XLCell(const XLCell& other)
-	: m_cellNode(other.m_cellNode ? std::make_unique<XMLNode>(*other.m_cellNode) : nullptr),
-	m_sharedStrings(other.m_sharedStrings),
-	m_valueProxy(XLCellValueProxy(this, m_cellNode.get())),
+XLCell::XLCell(const XLCell& other) : m_cellNode(other.m_cellNode ? std::make_unique<XMLNode>(*other.m_cellNode) : nullptr),
+	m_sharedStrings(other.m_sharedStrings), m_valueProxy(XLCellValueProxy(this, m_cellNode.get())),
 	m_formulaProxy(XLFormulaProxy(this, m_cellNode.get()))
-{}
+{
+}
 
-XLCell::XLCell(XLCell&& other) noexcept
-	: m_cellNode(std::move(other.m_cellNode)),
-	m_sharedStrings(std::move(other.m_sharedStrings)),
-	m_valueProxy(XLCellValueProxy(this, m_cellNode.get())),
+XLCell::XLCell(XLCell&& other) noexcept : m_cellNode(std::move(other.m_cellNode)),
+	m_sharedStrings(std::move(other.m_sharedStrings)), m_valueProxy(XLCellValueProxy(this, m_cellNode.get())),
 	m_formulaProxy(XLFormulaProxy(this, m_cellNode.get()))
-{}
+{
+}
 
 XLCell::~XLCell() = default;
 
@@ -44,7 +43,6 @@ XLCell& XLCell::operator=(const XLCell& other)
 		XLCell temp = other;
 		std::swap(*this, temp);
 	}
-
 	return *this;
 }
 
@@ -56,7 +54,6 @@ XLCell& XLCell::operator=(XLCell&& other) noexcept
 		m_valueProxy    = XLCellValueProxy(this, m_cellNode.get());
 		m_formulaProxy  = XLFormulaProxy(this, m_cellNode.get());// pull request #160
 	}
-
 	return *this;
 }
 
@@ -71,14 +68,11 @@ void XLCell::copyFrom(XLCell const& other)
 		m_formulaProxy  = XLFormulaProxy(this, m_cellNode.get());
 		return;
 	}
-
 	if((&other != this) && (*other.m_cellNode == *m_cellNode)) // nothing to do
 		return;
-
 	// ===== If m_cellNode points to a different XML node than other
 	if((&other != this) && (*other.m_cellNode != *m_cellNode)) {
 		m_cellNode->remove_children();
-
 		// ===== Copy all XML child nodes
 		for(XMLNode child = other.m_cellNode->first_child(); not child.empty(); child = child.next_sibling())  
 			m_cellNode->append_copy(child);
@@ -103,22 +97,18 @@ void XLCell::copyFrom(XLCell const& other)
 }
 
 bool XLCell::empty() const { return (!m_cellNode) || m_cellNode->empty(); }
-
 /**
- * @details
  * @todo 2024-08-10 TBD whether body can be replaced with !empty() (performance?)
  */
 XLCell::operator bool() const { return m_cellNode && (not m_cellNode->empty() ); } // ===== 2024-05-28: replaced explicit bool evaluation
-
 /**
  * @details This function returns a const reference to the cellReference property.
  */
 XLCellReference XLCell::cellReference() const { return XLCellReference { m_cellNode->attribute("r").value() }; }
-
 /**
  * @details This function returns a const reference to the cell reference by the offset from the current one.
  */
-XLCell XLCell::offset(uint16_t rowOffset, uint16_t colOffset) const
+XLCell XLCell::offset(uint16 rowOffset, uint16 colOffset) const
 {
 	const XLCellReference offsetRef(cellReference().row() + rowOffset, cellReference().column() + colOffset);
 	const auto rownode  = getRowNode(m_cellNode->parent().parent(), offsetRef.row());
@@ -126,13 +116,8 @@ XLCell XLCell::offset(uint16_t rowOffset, uint16_t colOffset) const
 	return XLCell { cellnode, m_sharedStrings.get() };
 }
 
-bool XLCell::hasFormula() const
-{
-	return (not m_cellNode->child("f").empty()); // evaluate child XMLNode as boolean
-}
-
+bool XLCell::hasFormula() const { return (not m_cellNode->child("f").empty()); /*evaluate child XMLNode as boolean*/ }
 XLFormulaProxy& XLCell::formula() { return m_formulaProxy; }
-
 /**
  * @details get the value of the s attribute of the cell node
  */
@@ -182,7 +167,7 @@ const XLFormulaProxy& XLCell::formula() const { return m_formulaProxy; }
 /**
  * @details clear cell contents except for those identified by keep
  */
-void XLCell::clear(uint32_t keep)
+void XLCell::clear(uint32 keep)
 {
 	// ===== Clear attributes
 	XMLAttribute attr = m_cellNode->first_attribute();
@@ -210,7 +195,8 @@ void XLCell::clear(uint32_t keep)
 				node = XMLNode{};                       // empty node won't get deleted
 		}
 		// ===== Remove all non-kept cell node children
-		if(not node.empty())  m_cellNode->remove_child(node);
+		if(not node.empty())  
+			m_cellNode->remove_child(node);
 		node = nextNode; // advance to previously determined next cell node child
 	}
 }

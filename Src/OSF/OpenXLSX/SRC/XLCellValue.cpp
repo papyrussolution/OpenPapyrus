@@ -119,7 +119,8 @@ XLCellValueProxy& XLCellValueProxy::setError(const std::string &error)
 	assert(m_cellNode != nullptr);
 	assert(not m_cellNode->empty());
 	// ===== If the cell node doesn't have a type attribute, create it.
-	if(!m_cellNode->attribute("t"))  m_cellNode->append_attribute("t");
+	if(!m_cellNode->attribute("t"))
+		m_cellNode->append_attribute("t");
 	// ===== Set the type to "e", i.e. error
 	m_cellNode->attribute("t").set_value("e");
 	// ===== If the cell node doesn't have a value child node, create it.
@@ -322,7 +323,7 @@ XLCellValue XLCellValueProxy::getValue() const
 		case XLValueType::String:
 			if(strcmp(m_cellNode->attribute("t").value(), "s") == 0)
 				return XLCellValue {
-					m_cell->m_sharedStrings.get().getString(static_cast<uint32_t>(m_cellNode->child("v").text().as_ullong()))
+					m_cell->m_sharedStrings.get().getString(static_cast<uint32>(m_cellNode->child("v").text().as_ullong()))
 				};
 			else if(strcmp(m_cellNode->attribute("t").value(), "str") == 0)
 				return XLCellValue { m_cellNode->child("v").text().get() };

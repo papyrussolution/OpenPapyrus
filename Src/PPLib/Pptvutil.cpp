@@ -8355,6 +8355,7 @@ private:
 	static void __stdcall SetupLayoutItemFrameProc(SUiLayout * pItem, const SUiLayout::Result & rR);
 	SUiLayout * InsertCtrlLayout(SUiLayout * pLoParent, TView * pView, const SUiLayoutParam & rP);
 	SUiLayout * InsertCtrlLayout(SUiLayout * pLoParent, ushort ctlId, const SUiLayoutParam & rP);
+	long   GetScopeID(const DlScope * pScope) const { return pScope ? (pScope->ID + 2000) : 0; }
 
 	SString Dl600Symb;
 };
@@ -8420,7 +8421,7 @@ void TDialogDL6_Construction::InsertControlItems(DlContext & rCtx, const DlScope
 			uint32 ui_flags = 0;
 			rCtx.GetConst_Uint32(p_scope, DlScope::cuifViewKind, vk);
 			rCtx.GetConst_Uint32(p_scope, DlScope::cucmSymbolIdent, symb_ident);
-			const uint32 item_id = NZOR(symb_ident, p_scope->ID);
+			const uint32 item_id = NZOR(symb_ident, GetScopeID(p_scope));
 			{
 				// cuifFlags
 				rCtx.GetConst_Uint32(p_scope, DlScope::cuifFlags, ui_flags);
@@ -8445,7 +8446,12 @@ void TDialogDL6_Construction::InsertControlItems(DlContext & rCtx, const DlScope
 						TRect rc;
 						const uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(&lp, rc, 60.0f, 21.0f);
 						//
-						TInputLine * p_ctl = new TInputLine(rc, 0/* @todo type */, 0);
+						uint32 type_id = 0;
+						rCtx.GetConst_Uint32(p_scope, DlScope::cuifViewDataType, type_id);
+						TInputLine * p_ctl = new TInputLine(rc, static_cast<TYPEID>(type_id), 0);
+						if(ui_flags & UiItemKind::fTabStop) {
+							p_ctl->setState(sfTabStop, true);
+						}
 						{
 							// Label надо вставить до поля ввода
 							if(rCtx.GetConst_String(p_scope, DlScope::cuifCtrlText, ctl_text)) {
@@ -8484,6 +8490,9 @@ void TDialogDL6_Construction::InsertControlItems(DlContext & rCtx, const DlScope
 						rCtx.GetConst_String(p_scope, DlScope::cuifCtrlCmdSymb, cmd_symb); // string Символ команды кнопки
 						rCtx.GetConst_String(p_scope, DlScope::cuifCtrlText, ctl_text);
 						TButton * p_ctl = new TButton(rc, ctl_text, cmd_id, 0);
+						if(ui_flags & UiItemKind::fTabStop) {
+							p_ctl->setState(sfTabStop, true);
+						}
 						InsertCtlWithCorrespondingNativeItem(p_ctl, item_id, 0, /*extraPtr*/0);
 					}
 					break;
@@ -8557,6 +8566,9 @@ void TDialogDL6_Construction::InsertControlItems(DlContext & rCtx, const DlScope
 						rCtx.GetConst_Uint32(p_scope, DlScope::cuifCbLineSymbIdent, cb_line_id);
 						TInputLine * p_il = new TInputLine(rc, S_ZSTRING, MKSFMT(128, 0));
 						p_il->SetId(cb_line_id ? cb_line_id : (++rLastDynId));
+						if(ui_flags & UiItemKind::fTabStop) {
+							p_il->setState(sfTabStop, true);
+						}
 						TRect rc_cb;
 						rc_cb.a.x = rc.b.x+1;
 						rc_cb.b.x = rc_cb.a.x+1 + rc.height();
@@ -8594,6 +8606,9 @@ void TDialogDL6_Construction::InsertControlItems(DlContext & rCtx, const DlScope
 						SmartListBox * p_lb = column_description.NotEmpty() ? new SmartListBox(rc, p_lb_def, column_description) : new SmartListBox(rc, p_lb_def, false/*is_tree*/);
 						if(p_lb) {
 							//LldState |= lldsDefBailed;
+							if(ui_flags & UiItemKind::fTabStop) {
+								p_lb->setState(sfTabStop, true);
+							}
 							InsertCtlWithCorrespondingNativeItem(p_lb, item_id, 0, /*extraPtr*/0);
 							//if(font_face.NotEmpty()) {
 								//SetCtrlFont(STDCTL_SINGLELISTBOX, font_face, /*16*//*22*/12);
@@ -8611,6 +8626,9 @@ void TDialogDL6_Construction::InsertControlItems(DlContext & rCtx, const DlScope
 						SmartListBox * p_lb = new SmartListBox(rc, p_lb_def, true/*is_tree*/);
 						if(p_lb) {
 							//LldState |= lldsDefBailed;
+							if(ui_flags & UiItemKind::fTabStop) {
+								p_lb->setState(sfTabStop, true);
+							}
 							InsertCtlWithCorrespondingNativeItem(p_lb, item_id, 0, /*extraPtr*/0);
 							//if(font_face.NotEmpty()) {
 								//SetCtrlFont(STDCTL_SINGLELISTBOX, font_face, /*16*//*22*/12);
@@ -8676,7 +8694,7 @@ void TDialogDL6_Construction::InsertControlLayouts(DlContext & rCtx, const DlSco
 					uint32 symb_ident = 0;
 					rCtx.GetConst_Uint32(p_scope, DlScope::cuifViewKind, vk);
 					rCtx.GetConst_Uint32(p_scope, DlScope::cucmSymbolIdent, symb_ident);
-					const uint32 item_id = NZOR(symb_ident, p_scope->ID);
+					const uint32 item_id = NZOR(symb_ident, GetScopeID(p_scope));
 					TView * p_view = getCtrlView(item_id);
 					if(p_view) {
 						bool   done = false;
@@ -8710,6 +8728,10 @@ void TDialogDL6_Construction::InsertControlLayouts(DlContext & rCtx, const DlSco
 							done = true;
 						}
 						else if(vk == UiItemKind::kTreeListbox) {
+							p_lo = InsertCtrlLayout(pLoParent, p_view, lp);
+							done = true;
+						}
+						else if(vk == UiItemKind::kImageView) {
 							p_lo = InsertCtrlLayout(pLoParent, p_view, lp);
 							done = true;
 						}
@@ -8766,27 +8788,48 @@ void TDialogDL6_Construction::InsertControlLayouts(DlContext & rCtx, const DlSco
 									SUiLayoutParam glp(DIREC_VERT);
 									SUiLayoutParam lp_label;
 									// Параметры горизонтального измерения соответствуют полю ввода
-									lp.CopySizeXParamTo(glp);
+									float inp_width = 0.0f;
+									const int inp_szx = lp.GetSizeX(&inp_width);
+									//lp.CopySizeXParamTo(glp);
+									if(inp_szx == SUiLayoutParam::szFixed) {
+										glp.SetFixedSizeX(inp_width + 2.0f);
+										lp.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+									}
+									else if(inp_szx == SUiLayoutParam::szByContainer) {
+										glp.SetVariableSizeX(SUiLayoutParam::szByContainer, inp_width);
+										lp.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+									}
+									else {
+										// полная ширина контейнера
+										glp.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+										lp.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+									}
 									TRect  rc_label;
 									//if(rCtx.GetLayoutBlock(p_scope, DlScope::cuifLblLayoutBlock, &lp_label)) {
-									const uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(&lp_label, rc_label, 60.0f, 13.0f);
+									const uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(&lp_label, rc_label, 60.0f, TInputLine::DefLabelHeight);
 									//}
 									lp_label.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
-									lp_label.SetFixedSizeY((rc_label.height() > 0.0f) ? static_cast<float>(rc_label.height()) : 13.0f);
+									lp_label.SetFixedSizeY((rc_label.height() > 0.0f) ? static_cast<float>(rc_label.height()) : TInputLine::DefLabelHeight);
+									lp_label.ShrinkFactor = 0.0f;
 									//
 									float inp_height = 0.0f;
 									const int inp_szy = lp.GetSizeY(&inp_height);
-									if(inp_szy == SUiLayoutParam::szFixed) {
-										glp.SetFixedSizeY(inp_height + rc_label.height() + 4.0f);
+									if(inp_szy == SUiLayoutParam::szFixed || inp_szy == 0) {
+										if(inp_height == 0.0f) {
+											inp_height = TInputLine::DefHeight;
+										}
+										glp.SetFixedSizeY(inp_height + rc_label.height() + 1.0f);
 									}
 									else {
 										//lp.CopySizeYParamTo(glp);
 									}
+									glp.ShrinkFactor = 0.0f;
 									glp.Flags &= ~(SUiLayoutParam::fContainerWrap|SUiLayoutParam::fContainerWrapReverse);
-									glp.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
-									lp.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
-									lp.SetFixedSizeY(21.0f); // default label height
-									glp.SetMargin(4.0f);
+									//glp.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+									//lp.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+									lp.SetFixedSizeY(inp_height);
+									lp.ShrinkFactor = 0.0f;
+									glp.SetMargin(2.0f);
 									SUiLayout * p_lo_inp_grp = pLoParent->InsertItem(0, &glp);
 									if(p_lo_inp_grp) {
 										//lp_label.Flags &= ~(SUiLayoutParam::fNominalDefL|SUiLayoutParam::fNominalDefR|SUiLayoutParam::fNominalDefT|SUiLayoutParam::fNominalDefB);
@@ -8889,7 +8932,7 @@ void TDialogDL6_Construction::Build(DlContext & rCtx)
 			SUiLayout * p_lo_main = 0;
 			if(oneof2(container_direc, DIREC_HORZ, DIREC_VERT)) {
 				p_lo_main = new SUiLayout(*p_alb);
-				p_lo_main->SetID(p_scope->ID);
+				p_lo_main->SetID(GetScopeID(p_scope));
 				p_lo_main->SetSymb(p_scope->GetName());
 			}
 			SetLayout(p_lo_main);
@@ -8897,17 +8940,12 @@ void TDialogDL6_Construction::Build(DlContext & rCtx)
 				//
 				// Далее, мы должны вставить управляющие элементы в созданое окно диалога
 				//
-				uint last_dyn_id = 1000000; 
+				uint last_dyn_id = 20000; 
 				// (@unused) InsertControlItems(rCtx, *p_scope, last_dyn_id, insertctrlstagePreprocess);
 				InsertControlItems(rCtx, *p_scope, last_dyn_id, insertctrlstageMain);
 				InsertControlItems(rCtx, *p_scope, last_dyn_id, insertctrlstagePostprocess);
 			}
-			{
-				//
-				// Теперь расставляем layout'ы
-				//
-				InsertControlLayouts(rCtx, *p_scope, p_lo_main);
-			}
+			InsertControlLayouts(rCtx, *p_scope, p_lo_main); // Теперь расставляем layout'ы
 		}
 		{
 			{
@@ -8927,38 +8965,10 @@ void TDialogDL6_Construction::Build(DlContext & rCtx)
 				TView::messageCommand(this, cmInit, &cr_blk);
 			}
 			SetupCtrlTextProc(HW, 0);
-			//RemoveUnusedControls();
 			InitControls(HW, 0/*wParam*/, reinterpret_cast<LPARAM>(this));
 			EnumChildWindows(HW, SetupCtrlTextProc, 0);				
 		}
 		EvaluateLayout(getClientRect());
-		// @debug {
-		/*
-		TInputLine * p_il_debug = (TInputLine *)getCtrlView(CTL_LOCATION_ZIP);
-		TRect rc_il_debug;
-		TRect rc_lbl_debug;
-		if(p_il_debug) {
-			HWND h_il = p_il_debug->getHandle();
-			if(h_il) {
-				RECT local_rc;
-				if(GetWindowRect(h_il, &local_rc))
-					rc_il_debug = local_rc;
-			}
-				
-			//rc_il_debug = p_il_debug->
-			TLabel * p_lbl = GetCtrlLabel(p_il_debug);
-			if(p_lbl) {
-				HWND h_lbl = p_lbl->getHandle();
-				if(h_lbl) {
-					RECT local_rc;
-					if(GetWindowRect(h_lbl, &local_rc))
-						rc_lbl_debug = local_rc;
-				}
-			}
-		}
-		p_il_debug = 0;
-		*/
-		// } @debug 
 	}
 }
 
@@ -8977,8 +8987,18 @@ int Test_ExecuteDialogByDl600Description() // @construction
 			const char * p_dlg_symb = "DLG_LO_EXPERIMENTAL";//"DLG_GGVIEW";
 			const DlScope * p_scope = ctx.GetDialogScopeBySymbolIdent_Const(DLG_GGVIEW);
 			dlg = new TDialogDL6_Construction(ctx, p_dlg_symb);
-			ExecViewAndDestroy(dlg);
-			dlg = 0;
+			//
+			int16 nr_in = 113;
+			int16 nr_out = 0;
+			SString text_in("abc");
+			SString text_out;
+			dlg->setCtrlString(CTL_LOCATION_NAME, text_in);
+			dlg->setCtrlData(CTL_LOCATION_NUMROWS, &nr_in);
+			if(ExecView(dlg) == cmOK) {
+				dlg->getCtrlString(CTL_LOCATION_NAME, text_out);
+				dlg->getCtrlData(CTL_LOCATION_NUMROWS, &nr_out);
+			}
+			ZDELETE(dlg);
 			ok = -1;
 		}
 #if 0 // {

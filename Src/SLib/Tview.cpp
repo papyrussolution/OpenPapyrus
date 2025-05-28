@@ -245,10 +245,10 @@ void TView::SendToParent(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		handleWindowsMessage(uMsg, wParam, lParam);
 }
 
-TView::TView(const TRect & bounds) : Sign(SIGN_TVIEW), SubSign(0), Id(0), Reserve(0), Sf(sfVisible | sfMsgToParent),
+TView::TView(const TRect & rBounds) : Sign(SIGN_TVIEW), SubSign(0), Id(0), Reserve(0), Sf(sfVisible | sfMsgToParent),
 	ViewOptions(0), EndModalCmd(0), HelpCtx(0), P_Next(0), P_Owner(0), Parent(0), PrevWindowProc(0), P_CmdSet(0), P_WordSelBlk(0)
 {
-	setBounds(bounds);
+	setBounds(rBounds);
 }
 
 TView::TView() : Sign(SIGN_TVIEW), SubSign(0), Id(0), Reserve(0), Sf(sfVisible | sfMsgToParent),
@@ -566,7 +566,9 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 						TInputLine * p_il = p_cv->GetLink();
 						if(p_il) {
 							p_il->Parent = hw_parent;
-							DWORD  style = WS_VISIBLE|WS_CHILD|WS_BORDER|WS_CLIPSIBLINGS|WS_TABSTOP|ES_AUTOHSCROLL;
+							DWORD  style = WS_VISIBLE|WS_CHILD|WS_BORDER|WS_CLIPSIBLINGS|ES_AUTOHSCROLL;
+							if(p_il->IsInState(sfTabStop))
+								style |= WS_TABSTOP;
 							HWND hw_il = ::CreateWindowEx(0, _T("EDIT"), 0, style, p_il->ViewOrigin.x,
 								p_il->ViewOrigin.y, p_il->ViewSize.x, p_il->ViewSize.y, hw_parent, (HMENU)p_il->GetId(), TProgram::GetInst(), 0);
 							if(hw_il) {
@@ -614,7 +616,10 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 					{
 						TButton * p_cv = static_cast<TButton *>(pV);
 						pV->Parent = hw_parent;
-						hw = ::CreateWindowEx(0, _T("BUTTON"), 0, WS_CHILD|BS_OWNERDRAW|BS_PUSHBUTTON/*|BS_BITMAP|BS_FLAT*/, pV->ViewOrigin.x,
+						DWORD style = WS_CHILD|BS_OWNERDRAW|BS_PUSHBUTTON/*|BS_BITMAP|BS_FLAT*/;
+						if(p_cv->IsInState(sfTabStop))
+							style |= WS_TABSTOP;
+						hw = ::CreateWindowEx(0, _T("BUTTON"), 0, style, pV->ViewOrigin.x,
 							pV->ViewOrigin.y, pV->ViewSize.x, pV->ViewSize.y, hw_parent, (HMENU)ctl_id, TProgram::GetInst(), 0);
 						if(hw) {
 							//::SetWindowText(hw, SUcSwitch(p_b->Title));
@@ -635,6 +640,8 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 					{
 						TInputLine * p_cv = static_cast<TInputLine *>(pV);
 						DWORD  style = WS_VISIBLE|WS_CHILD|WS_BORDER|WS_CLIPSIBLINGS|ES_AUTOHSCROLL/*|BS_OWNERDRAW*/;
+						if(p_cv->IsInState(sfTabStop))
+							style |= WS_TABSTOP;
 						//ES_UPPERCASE;
 						pV->Parent = hw_parent;
 						hw = ::CreateWindowExW(0, L"EDIT", 0, style, pV->ViewOrigin.x,

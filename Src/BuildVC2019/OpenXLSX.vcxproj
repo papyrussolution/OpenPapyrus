@@ -24,7 +24,7 @@
     <Platform>Win32</Platform>
     <ProjectName>OpenXLSX</ProjectName>
     <VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
-    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -277,40 +277,8 @@
     <ClCompile Include="..\OSF\OpenXLSX\SRC\XLZipArchive.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\IZipArchive.hpp" />
     <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\OpenXLSX-internal.hpp" />
     <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\OpenXLSX.hpp" />
-    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLCell.hpp" />
-    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLCellIterator.hpp" />
-    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLCellRange.hpp" />
-    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLCellReference.hpp" />
-    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLCellValue.hpp" />
-    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLColor.hpp" />
-    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLColumn.hpp" />
-    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLCommandQuery.hpp" />
-    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLComments.hpp" />
-    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLConstants.hpp" />
-    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLContentTypes.hpp" />
-    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLDateTime.hpp" />
-    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLDocument.hpp" />
-    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLDrawing.hpp" />
-    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLException.hpp" />
-    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLFormula.hpp" />
-    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLIterator.hpp" />
-    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLMergeCells.hpp" />
-    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLProperties.hpp" />
-    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLRelationships.hpp" />
-    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLRow.hpp" />
-    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLRowData.hpp" />
-    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLSharedStrings.hpp" />
-    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLSheet.hpp" />
-    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLStyles.hpp" />
-    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLTables.hpp" />
-    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLWorkbook.hpp" />
-    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLXmlData.hpp" />
-    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLXmlFile.hpp" />
-    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLXmlParser.hpp" />
-    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLZipArchive.hpp" />
     <ClInclude Include="..\OSF\OpenXLSX\SRC\utilities\XLUtilities.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

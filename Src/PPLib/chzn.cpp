@@ -450,6 +450,12 @@ DRAFTBEER HORECA @v11.9.4
 				ok = SNTOK_CHZN_SURROGATE_GTIN;
 			}
 		}
+		else if(temp_buf.HasPrefix("00") && temp_buf.Len() == (2+14+4) && temp_buf.IsDec()) { // @v12.3.5 Специальный случай: никакая не марка, но код паллеты комбинация 00 GTIN 9999
+			temp_buf.Sub(2, 14, sub_buf);
+			rS.Add(GtinStruc::fldGTIN14, sub_buf);
+			rS.Add(GtinStruc::fldOriginalText, pCode);
+			ok = SNTOK_CHZN_PALLET_GTIN;
+		}
 		if(!ok) /*else*/ /*if(temp_buf.HasPrefix("01") || temp_buf.HasPrefix("(01)") || temp_buf.HasPrefix("\x1D" "01"))*/ { // @v12.1.6 else-->if(!ok)
 			size_t serial_len_variant_idx = 0;
 			rS.AddSpecialStopChar(0x1D);

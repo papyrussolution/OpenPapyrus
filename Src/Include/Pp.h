@@ -58989,8 +58989,9 @@ public:
 	// Note: Значение больше нуля трактуется как марка, пригодная к обработке честным знаком
 	//
 	enum {
-		chznciNone = 0, // Код ни на что не похож. 
-		chznciReal = 1, // Валидный код марки честный знак
+		chznciNone      = 0, // Код ни на что не похож. 
+		chznciReal      = 1, // Валидный код марки честный знак
+		chznciPallet    = 2, // @v12.3.5 (SNTOK_CHZN_PALLET_GTIN) Код паллеты
 		chznciSurrogate = -1, // Суррогатный код (не является кодом марки, но из кода можно извлечь полезную информацию: GTIN и, возможно, количество)
 		chznciPretend   = 1000 // Разбор кода закончился ошибкой, но тем не менее в нем есть GTIN и серия.
 	};
@@ -58998,6 +58999,8 @@ public:
 	{
 		if(r == 1000)
 			return chznciPretend;
+		else if(r == SNTOK_CHZN_PALLET_GTIN) // @v12.3.5
+			return chznciPallet;
 		else if(oneof2(r, SNTOK_CHZN_SURROGATE_GTINCOUNT, SNTOK_CHZN_SURROGATE_GTIN))
 			return chznciSurrogate;
 		else if(oneof6(r, SNTOK_CHZN_ALTCIGITEM, SNTOK_CHZN_CIGITEM, SNTOK_CHZN_CIGBLOCK, SNTOK_CHZN_SIGN_SGTIN, SNTOK_CHZN_GS1_GTIN, SNTOK_CHZN_SSCC)) // @v11.9.0 SNTOK_CHZN_ALTCIGITEM

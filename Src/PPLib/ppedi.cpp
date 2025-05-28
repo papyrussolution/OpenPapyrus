@@ -677,7 +677,7 @@ int GtinStruc::Parse(const char * pCode)
 			uint    dpf = dpfBOL;
 			while(*p) {
 				uint  prefix_len = 0;
-				if(IsSpecialStopChar(p)) // @v10.9.9
+				if(IsSpecialStopChar(p))
 					p++;
 				int   prefix_id = DetectPrefix(p, dpf, -1, &prefix_len/*, prefix_*/);
 				dpf = 0;

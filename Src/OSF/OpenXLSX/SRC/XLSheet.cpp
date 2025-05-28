@@ -8,30 +8,24 @@ using namespace OpenXLSX;
 
 namespace OpenXLSX {
 // // Forward declaration. Implementation is in the XLUtilities.hpp file
-// XMLNode getRowNode(XMLNode sheetDataNode, uint32_t rowNumber);
+// XMLNode getRowNode(XMLNode sheetDataNode, uint32 rowNumber);
 
 /**
  * @brief Function for setting tab color.
- * @param xmlDocument OXlXmlDoc object
- * @param color Thr color to set
  */
 void setTabColor(const OXlXmlDoc& xmlDocument, const XLColor& color)
 {
-	if(!xmlDocument.document_element().child("sheetPr"))  xmlDocument.document_element().prepend_child("sheetPr");
-
+	if(!xmlDocument.document_element().child("sheetPr"))  
+		xmlDocument.document_element().prepend_child("sheetPr");
 	if(!xmlDocument.document_element().child("sheetPr").child("tabColor"))
 		xmlDocument.document_element().child("sheetPr").prepend_child("tabColor");
-
 	auto colorNode = xmlDocument.document_element().child("sheetPr").child("tabColor");
-	for(auto attr : colorNode.attributes())  colorNode.remove_attribute(attr);
-
+	for(auto attr : colorNode.attributes())  
+		colorNode.remove_attribute(attr);
 	colorNode.prepend_attribute("rgb").set_value(color.hex().c_str());
 }
-
 /**
  * @brief Set the tab selected property to desired value
- * @param xmlDocument
- * @param selected
  */
 void setTabSelected(const OXlXmlDoc& xmlDocument, bool selected)
 {        // 2024-04-30: whitespace support
@@ -42,7 +36,6 @@ void setTabSelected(const OXlXmlDoc& xmlDocument, bool selected)
 		tabSelected = sheetView.prepend_attribute("tabSelected"); // BUGFIX 2025-03-15 issue #337: assign tabSelected value with newly created attribute if it didn't exist
 	tabSelected.set_value(value);
 }
-
 /**
  * @brief Function for checking if the tab is selected.
  * @param xmlDocument
@@ -57,7 +50,6 @@ bool tabIsSelected(const OXlXmlDoc& xmlDocument)
 	       .attribute("tabSelected")
 	       .as_bool(); // BUGFIX 2024-05-01: .value() "0" was evaluating to true
 }
-
 /**
  * @brief get the correct XLCfType from the OOXML cfRule type attribute string
  * @param typeString the string as used in the OOXML
@@ -203,7 +195,7 @@ std::string XLCfTimePeriodToString(XLCfTimePeriod cfTimePeriod)
 		default:                        return "(invalid)";
 	}
 }
-}    // namespace OpenXLSX
+} // namespace OpenXLSX
 
 // ========== XLSheet Member Functions
 
@@ -346,7 +338,7 @@ void XLSheet::clone(const std::string& newName)
  * @details Get the index of the sheet, by calling the index() method in the underlying
  * sheet object (XLWorksheet or XLChartsheet), using the visitor pattern.
  */
-uint16_t XLSheet::index() const
+uint16 XLSheet::index() const
 {
 	return std::visit([](auto&& arg) {
 		return arg.index();
@@ -357,7 +349,7 @@ uint16_t XLSheet::index() const
  * @details This method sets the index of the sheet (i.e. move the sheet), by calling the setIndex()
  * member function of the underlying sheet object (XLWorksheet or XLChartsheet).
  */
-void XLSheet::setIndex(uint16_t index)
+void XLSheet::setIndex(uint16 index)
 {
 	std::visit([&](auto&& arg) {
 		arg.setIndex(index);
@@ -437,7 +429,7 @@ XLUnsupportedElement XLCfRule::extLst()     const { return XLUnsupportedElement{
  */
 XLCfType XLCfRule::type() const { return XLCfTypeFromString(m_cfRuleNode->attribute("type").value()); }
 XLStyleIndex XLCfRule::dxfId() const { return m_cfRuleNode->attribute("dxfId").as_uint(XLInvalidStyleIndex); }
-uint16_t XLCfRule::priority() const { return static_cast<uint16_t>(m_cfRuleNode->attribute("priority").as_uint(XLPriorityNotSet)); }
+uint16 XLCfRule::priority() const { return static_cast<uint16>(m_cfRuleNode->attribute("priority").as_uint(XLPriorityNotSet)); }
 bool XLCfRule::stopIfTrue() const { return m_cfRuleNode->attribute("stopIfTrue").as_bool(false); }
 // TODO TBD: how does true default value manifest itself for aboveAverage? Evaluate as true if aboveAverage=""?
 bool XLCfRule::aboveAverage() const { return m_cfRuleNode->attribute("aboveAverage").as_bool(false); }
@@ -446,8 +438,8 @@ bool XLCfRule::bottom() const { return m_cfRuleNode->attribute("bottom").as_bool
 XLCfOperator XLCfRule::Operator() const { return XLCfOperatorFromString(m_cfRuleNode->attribute("operator").value()); }
 std::string XLCfRule::text() const { return m_cfRuleNode->attribute("text").value(); }
 XLCfTimePeriod XLCfRule::timePeriod()   const { return XLCfTimePeriodFromString(m_cfRuleNode->attribute("timePeriod").value()); }
-uint16_t XLCfRule::rank() const { return static_cast<uint16_t>(m_cfRuleNode->attribute("rank").as_uint()); }
-int16_t XLCfRule::stdDev() const { return static_cast<uint16_t>(m_cfRuleNode->attribute("stdDev").as_int()); }
+uint16 XLCfRule::rank() const { return static_cast<uint16>(m_cfRuleNode->attribute("rank").as_uint()); }
+int16 XLCfRule::stdDev() const { return static_cast<uint16>(m_cfRuleNode->attribute("stdDev").as_int()); }
 bool XLCfRule::equalAverage() const { return m_cfRuleNode->attribute("equalAverage").as_bool(false); }
 
 /**
@@ -474,7 +466,7 @@ bool XLCfRule::setExtLst(XLUnsupportedElement const& newExtLst) { OpenXLSX::igno
  */
 bool XLCfRule::setType(XLCfType newType)         { return appendAndSetAttribute(*m_cfRuleNode, "type",         XLCfTypeToString(newType)).empty() == false; }
 bool XLCfRule::setDxfId(XLStyleIndex newDxfId)        { return appendAndSetAttribute(*m_cfRuleNode, "dxfId",        std::to_string(newDxfId)).empty() == false; }
-bool XLCfRule::setPriority(uint16_t newPriority)         { return appendAndSetAttribute(*m_cfRuleNode, "priority",     std::to_string(newPriority)).empty() == false; }
+bool XLCfRule::setPriority(uint16 newPriority)         { return appendAndSetAttribute(*m_cfRuleNode, "priority",     std::to_string(newPriority)).empty() == false; }
 // TODO TBD whether true / false work with MS Office booleans here, or if 1 and 0 are mandatory
 bool XLCfRule::setStopIfTrue(bool set)                     {
 	return appendAndSetAttribute(*m_cfRuleNode, "stopIfTrue",   (set ? "true" : "false")               ).empty() == false;
@@ -489,8 +481,8 @@ bool XLCfRule::setText(std::string const& newText)   { return appendAndSetAttrib
 bool XLCfRule::setTimePeriod(XLCfTimePeriod newTimePeriod) {
 	return appendAndSetAttribute(*m_cfRuleNode, "timePeriod",   XLCfTimePeriodToString(newTimePeriod)  ).empty() == false;
 }
-bool XLCfRule::setRank(uint16_t newRank)             { return appendAndSetAttribute(*m_cfRuleNode, "rank",         std::to_string(newRank)).empty() == false; }
-bool XLCfRule::setStdDev(int16_t newStdDev)            { return appendAndSetAttribute(*m_cfRuleNode, "stdDev",       std::to_string(newStdDev)).empty() == false; }
+bool XLCfRule::setRank(uint16 newRank)             { return appendAndSetAttribute(*m_cfRuleNode, "rank",         std::to_string(newRank)).empty() == false; }
+bool XLCfRule::setStdDev(int16 newStdDev)            { return appendAndSetAttribute(*m_cfRuleNode, "stdDev",       std::to_string(newStdDev)).empty() == false; }
 bool XLCfRule::setEqualAverage(bool set)                     {
 	return appendAndSetAttribute(*m_cfRuleNode, "equalAverage", (set ? "true" : "false")               ).empty() == false;
 }
@@ -550,12 +542,12 @@ bool XLCfRules::empty() const { return m_conditionalFormattingNode->empty(); }
 /**
  * @details Returns the maximum numerical priority value that a cfRule is using (= lowest rule priority)
  */
-uint16_t XLCfRules::maxPriorityValue() const
+uint16 XLCfRules::maxPriorityValue() const
 {
 	XMLNode node = m_conditionalFormattingNode->first_child_of_type(pugi::node_element);
 	while(not node.empty() && std::string(node.name()) != "cfRule")
 		node = node.next_sibling_of_type(pugi::node_element);
-	uint16_t maxPriority = XLPriorityNotSet;
+	uint16 maxPriority = XLPriorityNotSet;
 	while(not node.empty() && std::string(node.name()) == "cfRule") {
 		maxPriority = std::max(maxPriority, XLCfRule(node).priority());
 		node = node.next_sibling_of_type(pugi::node_element);
@@ -568,7 +560,7 @@ uint16_t XLCfRules::maxPriorityValue() const
  *  then assigns newPriority to the rule with cfRuleIndex
  * @note has a check for no-op if desired priority is already set
  */
-bool XLCfRules::setPriority(size_t cfRuleIndex, uint16_t newPriority)
+bool XLCfRules::setPriority(size_t cfRuleIndex, uint16 newPriority)
 {
 	XLCfRule affectedRule = cfRuleByIndex(cfRuleIndex);    // throws for cfRuleIndex out of bounds
 	if(newPriority == affectedRule.priority())  return true;// no-op if priority is already set
@@ -590,7 +582,7 @@ bool XLCfRules::setPriority(size_t cfRuleIndex, uint16_t newPriority)
 		while(not node.empty() && std::string(node.name()) == "cfRule") { // loop over cfRule elements
 			if(index != cfRuleIndex) { // for all rules that are not at cfRuleIndex: increase priority if >= newPriority
 				XLCfRule rule(node);
-				uint16_t prio = rule.priority();
+				uint16 prio = rule.priority();
 				if(prio >= newPriority)  rule.setPriority(prio + 1);
 			}
 			node = node.next_sibling_of_type(pugi::node_element);
@@ -604,12 +596,12 @@ bool XLCfRules::setPriority(size_t cfRuleIndex, uint16_t newPriority)
  * @details sort cfRule entries by priority and assign a continuous sequence of values using a given increment
  * @note this mimics the BASIC functionality of line renumbering
  */
-void XLCfRules::renumberPriorities(uint16_t increment)
+void XLCfRules::renumberPriorities(uint16 increment)
 {
 	if(increment == 0) // not allowed
 		throw XLException("XLCfRules::renumberPriorities: increment must not be 0");
 
-	std::multimap< uint16_t, XLCfRule > rules;
+	std::multimap< uint16, XLCfRule > rules;
 
 	XMLNode node = m_conditionalFormattingNode->first_child_of_type(pugi::node_element);
 	while(not node.empty() && std::string(node.name()) != "cfRule") // skip past non cfRule elements
@@ -621,13 +613,13 @@ void XLCfRules::renumberPriorities(uint16_t increment)
 		node = node.next_sibling_of_type(pugi::node_element);
 	}
 
-	if(rules.size() * increment > std::numeric_limits< uint16_t >::max()) { // first rule always gets assigned "1*increment"
+	if(rules.size() * increment > std::numeric_limits< uint16 >::max()) { // first rule always gets assigned "1*increment"
 		using namespace std::literals::string_literals;
 		throw XLException("XLCfRules::renumberPriorities: amount of rules "s + std::to_string(rules.size())
-		          /**/              + " with given increment "s + std::to_string(increment) + " exceeds max range of uint16_t"s);
+		          /**/              + " with given increment "s + std::to_string(increment) + " exceeds max range of uint16"s);
 	}
 
-	uint16_t prio = 0;
+	uint16 prio = 0;
 	for(auto& [key, rule]: rules) {
 		prio += increment;
 		rule.setPriority(prio);
@@ -678,8 +670,8 @@ XLCfRule XLCfRules::cfRuleByIndex(size_t index) const
  */
 size_t XLCfRules::create([[maybe_unused]] XLCfRule copyFrom, std::string cfRulePrefix)
 {
-	uint16_t maxPrio = maxPriorityValue();
-	if(maxPrio == std::numeric_limits< uint16_t >::max()) {
+	uint16 maxPrio = maxPriorityValue();
+	if(maxPrio == std::numeric_limits< uint16 >::max()) {
 		using namespace std::literals::string_literals;
 		throw XLException("XLCfRules::"s + __func__
 			  + ": can not create a new cfRule entry: no available priority value - please renumberPriorities or otherwise free up the highest value"s);
@@ -931,18 +923,18 @@ XLWorksheet::XLWorksheet(XLXmlData* xmlData) : XLSheetBase(xmlData)
 	if(xmlDocument().document_element().child("cols").type() != pugi::node_null) {
 		auto currentNode = xmlDocument().document_element().child("cols").first_child_of_type(pugi::node_element);
 		while(not currentNode.empty()) {
-			uint16_t min {};
-			uint16_t max {};
+			uint16 min {};
+			uint16 max {};
 			try {
-				min = static_cast<uint16_t>(std::stoi(currentNode.attribute("min").value()));
-				max = static_cast<uint16_t>(std::stoi(currentNode.attribute("max").value()));
+				min = static_cast<uint16>(std::stoi(currentNode.attribute("min").value()));
+				max = static_cast<uint16>(std::stoi(currentNode.attribute("max").value()));
 			}
 			catch(...) {
 				throw XLInternalError("Worksheet column min and/or max attributes are invalid.");
 			}
 			if(min != max) {
 				currentNode.attribute("min").set_value(max);
-				for(uint16_t i = min; i < max; i++) {
+				for(uint16 i = min; i < max; i++) {
 					auto newnode = xmlDocument().document_element().child("cols").insert_child_before("col", currentNode);
 					auto attr    = currentNode.first_attribute();
 					while(not attr.empty()) {
@@ -1022,7 +1014,7 @@ XLCellAssignable XLWorksheet::cell(const XLCellReference & ref) const { return c
  * @details This function returns a pointer to an XLCell object in the worksheet. This particular overload
  * also serves as the main function, called by the other overloads.
  */
-XLCellAssignable XLWorksheet::cell(uint32_t rowNumber, uint16_t columnNumber) const
+XLCellAssignable XLWorksheet::cell(uint32 rowNumber, uint16 columnNumber) const
 {
 	const XMLNode rowNode  = getRowNode(xmlDocumentC().document_element().child("sheetData"), rowNumber);
 	const XMLNode cellNode = getCellNode(rowNode, columnNumber, rowNumber);
@@ -1043,7 +1035,7 @@ XLCellAssignable XLWorksheet::findCell(const XLCellReference& ref) const { retur
 /**
  * @details This function attempts to find a cell, but creates neither the row nor the cell XML if missing - and returns an empty XLCellAssignable instead
  */
-XLCellAssignable XLWorksheet::findCell(uint32_t rowNumber, uint16_t columnNumber) const
+XLCellAssignable XLWorksheet::findCell(uint32 rowNumber, uint16 columnNumber) const
 {
 	return XLCellAssignable(XLCell(findCellNode(findRowNode(xmlDocumentC().document_element().child("sheetData"), rowNumber), columnNumber), parentDoc().sharedStrings()));
 }
@@ -1075,15 +1067,15 @@ XLRowRange XLWorksheet::rows() const    // 2024-04-29: patched for whitespace
 {
 	const auto sheetDataNode = xmlDocumentC().document_element().child("sheetData");
 	return XLRowRange(sheetDataNode, 1, (sheetDataNode.last_child_of_type(pugi::node_element).empty() ? 1 : 
-		static_cast<uint32_t>(sheetDataNode.last_child_of_type(pugi::node_element).attribute("r").as_ullong())), parentDoc().sharedStrings());
+		static_cast<uint32>(sheetDataNode.last_child_of_type(pugi::node_element).attribute("r").as_ullong())), parentDoc().sharedStrings());
 }
 
-XLRowRange XLWorksheet::rows(uint32_t rowCount) const
+XLRowRange XLWorksheet::rows(uint32 rowCount) const
 {
 	return XLRowRange(xmlDocumentC().document_element().child("sheetData"), 1, rowCount, parentDoc().sharedStrings());
 }
 
-XLRowRange XLWorksheet::rows(uint32_t firstRow, uint32_t lastRow) const
+XLRowRange XLWorksheet::rows(uint32 firstRow, uint32 lastRow) const
 {
 	return XLRowRange(xmlDocumentC().document_element().child("sheetData"), firstRow, lastRow, parentDoc().sharedStrings());
 }
@@ -1093,7 +1085,7 @@ XLRowRange XLWorksheet::rows(uint32_t firstRow, uint32_t lastRow) const
  * the corresponding row, and all rows have to be ordered in ascending order. If a row have no data, there may not be a
  * node for that row.
  */
-XLRow XLWorksheet::row(uint32_t rowNumber) const
+XLRow XLWorksheet::row(uint32 rowNumber) const
 {
 	return XLRow { getRowNode(xmlDocumentC().document_element().child("sheetData"), rowNumber), parentDoc().sharedStrings() };
 }
@@ -1103,7 +1095,7 @@ XLRow XLWorksheet::row(uint32_t rowNumber) const
  * column nodes do not hold any cell data. Columns are used solely to hold data regarding column formatting.
  * @todo Consider simplifying this function. Can any standard algorithms be used?
  */
-XLColumn XLWorksheet::column(uint16_t columnNumber) const
+XLColumn XLWorksheet::column(uint16 columnNumber) const
 {
 	using namespace std::literals::string_literals;
 
@@ -1120,11 +1112,11 @@ XLColumn XLWorksheet::column(uint16_t columnNumber) const
 		       node.attribute("min").as_int() > columnNumber;
 	});
 
-	uint16_t minColumn {};
-	uint16_t maxColumn {};
+	uint16 minColumn {};
+	uint16 maxColumn {};
 	if(not columnNode.empty()) {
-		minColumn = static_cast<uint16_t>(columnNode.attribute("min").as_int()); // only look it up once for multiple access
-		maxColumn = static_cast<uint16_t>(columnNode.attribute("max").as_int()); //   "
+		minColumn = static_cast<uint16>(columnNode.attribute("min").as_int()); // only look it up once for multiple access
+		maxColumn = static_cast<uint16>(columnNode.attribute("max").as_int()); //   "
 	}
 	// ===== If the node exists for the column, and only spans that column, then continue...
 	if(not columnNode.empty() && (minColumn == columnNumber) && (maxColumn == columnNumber)) {
@@ -1185,7 +1177,7 @@ XLColumn XLWorksheet::column(uint16_t columnNumber) const
 
 /**
  * @details Get the column with the given column reference by converting the columnRef into a column number
- * and forwarding the implementation to XLColumn XLWorksheet::column(uint16_t columnNumber) const
+ * and forwarding the implementation to XLColumn XLWorksheet::column(uint16 columnNumber) const
  */
 XLColumn XLWorksheet::column(std::string const& columnRef) const { return column(XLCellReference::columnAsNumber(columnRef)); }
 
@@ -1197,13 +1189,13 @@ XLCellReference XLWorksheet::lastCell() const noexcept { return { rowCount(), co
 /**
  * @details Iterates through the rows and finds the maximum number of cells.
  */
-uint16_t XLWorksheet::columnCount() const noexcept
+uint16 XLWorksheet::columnCount() const noexcept
 {
-	uint16_t maxCount = 0; // Pull request: Update XLSheet.cpp with correct type #176, Explicitely cast to unsigned short int #163
+	uint16 maxCount = 0; // Pull request: Update XLSheet.cpp with correct type #176, Explicitely cast to unsigned short int #163
 	XLRowRange rowsRange = rows();
 	for(XLRowIterator rowIt = rowsRange.begin(); rowIt != rowsRange.end(); ++rowIt ) {
 		if(rowIt.rowExists()) {
-			uint16_t cellCount = rowIt->cellCount();
+			uint16 cellCount = rowIt->cellCount();
 			maxCount = std::max(cellCount, maxCount);
 		}
 	}
@@ -1213,16 +1205,16 @@ uint16_t XLWorksheet::columnCount() const noexcept
 /**
  * @details Finds the last row (node) and returns the row number.
  */
-uint32_t XLWorksheet::rowCount() const noexcept
+uint32 XLWorksheet::rowCount() const noexcept
 {
-	return static_cast<uint32_t>(
+	return static_cast<uint32>(
 		xmlDocumentC().document_element().child("sheetData").last_child_of_type(pugi::node_element).attribute("r").as_ullong());
 }
 
 /**
  * @details finds a given row and deletes it
  */
-bool XLWorksheet::deleteRow(uint32_t rowNumber)
+bool XLWorksheet::deleteRow(uint32 rowNumber)
 {
 	XMLNode row = xmlDocument().document_element().child("sheetData").first_child_of_type(pugi::node_element);
 	XMLNode lastRow = xmlDocument().document_element().child("sheetData").last_child_of_type(pugi::node_element);
@@ -1354,14 +1346,14 @@ void XLWorksheet::unmergeCells(const std::string& rangeReference)
 /**
  * @details Retrieve the column's format
  */
-XLStyleIndex XLWorksheet::getColumnFormat(uint16_t columnNumber) const { return column(columnNumber).format(); }
+XLStyleIndex XLWorksheet::getColumnFormat(uint16 columnNumber) const { return column(columnNumber).format(); }
 XLStyleIndex XLWorksheet::getColumnFormat(const std::string& columnNumber) const { return getColumnFormat(XLCellReference::columnAsNumber(columnNumber)); }
 
 /**
  * @details Set the style for the identified column,
  *          then iterate over all rows to set the same style for existing cells in that column
  */
-bool XLWorksheet::setColumnFormat(uint16_t columnNumber, XLStyleIndex cellFormatIndex)
+bool XLWorksheet::setColumnFormat(uint16 columnNumber, XLStyleIndex cellFormatIndex)
 {
 	if(!column(columnNumber).setFormat(cellFormatIndex)) // attempt to set column format
 		return false; // early fail
@@ -1382,13 +1374,13 @@ bool XLWorksheet::setColumnFormat(const std::string& columnNumber, XLStyleIndex 
 /**
  * @details Retrieve the row's format
  */
-XLStyleIndex XLWorksheet::getRowFormat(uint16_t rowNumber) const { return row(rowNumber).format(); }
+XLStyleIndex XLWorksheet::getRowFormat(uint16 rowNumber) const { return row(rowNumber).format(); }
 
 /**
  * @details Set the style for the identified row,
  *          then iterate over all existing cells in the row to set the same style
  */
-bool XLWorksheet::setRowFormat(uint32_t rowNumber, XLStyleIndex cellFormatIndex)
+bool XLWorksheet::setRowFormat(uint32 rowNumber, XLStyleIndex cellFormatIndex)
 {
 	if(!row(rowNumber).setFormat(cellFormatIndex)) // attempt to set row format
 		return false; // early fail
@@ -1540,7 +1532,7 @@ XLVmlDrawing& XLWorksheet::vmlDrawing()
 		std::ignore = relationships(); // create sheet relationships if not existing
 
 		// ===== Trigger parentDoc to create drawing XML file and return it
-		uint16_t sheetXmlNo = sheetXmlNumber();
+		uint16 sheetXmlNo = sheetXmlNumber();
 		m_vmlDrawing = parentDoc().sheetVmlDrawing(sheetXmlNo); // fetch drawing for this worksheet
 		if(!m_vmlDrawing.valid())
 			throw XLException("XLWorksheet::vmlDrawing(): could not create drawing XML");
@@ -1572,7 +1564,7 @@ XLComments& XLWorksheet::comments()
 		std::ignore = vmlDrawing(); // create sheet VML drawing if not existing
 
 		// ===== Trigger parentDoc to create comment XML file and return it
-		uint16_t sheetXmlNo = sheetXmlNumber();
+		uint16 sheetXmlNo = sheetXmlNumber();
 		// std::cout << "worksheet comments for sheetId " << sheetXmlNo << std::endl;
 		m_comments = parentDoc().sheetComments(sheetXmlNo); // fetch comments for this worksheet
 		if(!m_comments.valid())
@@ -1595,7 +1587,7 @@ XLTables& XLWorksheet::tables()
 		std::ignore = relationships(); // create sheet relationships if not existing
 
 		// ===== Trigger parentDoc to create tables XML file and return it
-		uint16_t sheetXmlNo = sheetXmlNumber();
+		uint16 sheetXmlNo = sheetXmlNumber();
 		// std::cout << "worksheet tables for sheetId " << sheetXmlNo << std::endl;
 		m_tables = parentDoc().sheetTables(sheetXmlNo); // fetch tables for this worksheet
 		if(!m_tables.valid())
@@ -1607,11 +1599,10 @@ XLTables& XLWorksheet::tables()
 
 	return m_tables;
 }
-
 /**
  * @details perform a pattern matching on getXmlPath for (regex) .*xl/worksheets/sheet([0-9]*)\.xml$ and extract the numeric part \1
  */
-uint16_t XLWorksheet::sheetXmlNumber() const
+uint16 XLWorksheet::sheetXmlNumber() const
 {
 	constexpr const char * searchPattern = "xl/worksheets/sheet";
 	std::string xmlPath = getXmlPath();
@@ -1619,13 +1610,13 @@ uint16_t XLWorksheet::sheetXmlNumber() const
 	if(pos == std::string::npos)  return 0;
 	pos += strlen(searchPattern);
 	size_t pos2 = pos;
-	while(std::isdigit(xmlPath[pos2]))  ++pos2;               // find sheet number in xmlPath - aborts on end of string
-	if(pos2 == pos || xmlPath.substr(pos2) != ".xml")   return 0;// ensure compatibility with expected path
-
-	// success: convert the sheet number part of xmlPath to uint16_t
-	return static_cast<uint16_t>(std::stoi(xmlPath.substr(pos, pos2 - pos)));
+	while(std::isdigit(xmlPath[pos2]))
+		++pos2; // find sheet number in xmlPath - aborts on end of string
+	if(pos2 == pos || xmlPath.substr(pos2) != ".xml")
+		return 0;// ensure compatibility with expected path
+	// success: convert the sheet number part of xmlPath to uint16
+	return static_cast<uint16>(std::stoi(xmlPath.substr(pos, pos2 - pos)));
 }
-
 /**
  * @details fetches XLRelationships for the sheet - creates & assigns the class if empty
  */
@@ -1647,17 +1638,14 @@ XLColor XLChartsheet::getColor_impl() const
 {
 	return XLColor(xmlDocumentC().document_element().child("sheetPr").child("tabColor").attribute("rgb").value());
 }
-
 /**
  * @details Calls the setTabColor() free function.
  */
 void XLChartsheet::setColor_impl(const XLColor& color) { setTabColor(xmlDocument(), color); }
-
 /**
  * @details Calls the tabIsSelected() free function.
  */
 bool XLChartsheet::isSelected_impl() const { return tabIsSelected(xmlDocumentC()); }
-
 /**
  * @details Calls the setTabSelected() free function.
  */

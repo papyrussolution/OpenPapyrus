@@ -19,21 +19,23 @@
 	//
 	//#include "XLConstants.hpp"
 	namespace OpenXLSX {
-		inline constexpr uint16_t MAX_COLS = 16'384;
-		inline constexpr uint32_t MAX_ROWS = 1'048'576;
+		inline constexpr uint16 MAX_COLS = 16'384;
+		inline constexpr uint32 MAX_ROWS = 1'048'576;
 		// anchoring a comment shape below these values was not possible in LibreOffice - TBC with MS Office
-		inline constexpr uint16_t MAX_SHAPE_ANCHOR_COLUMN = 13067;      // column "SHO"
-		inline constexpr uint32_t MAX_SHAPE_ANCHOR_ROW    = 852177;
-	}
-	//
-	//#include "XLIterator.hpp"
-	namespace OpenXLSX {
-		enum class XLIteratorDirection { Forward, Reverse };
-		enum class XLIteratorLocation { Begin, End };
-	}
-	//
-	//#include "XLDateTime.hpp"
-	namespace OpenXLSX {
+		inline constexpr uint16 MAX_SHAPE_ANCHOR_COLUMN = 13067;      // column "SHO"
+		inline constexpr uint32 MAX_SHAPE_ANCHOR_ROW    = 852177;
+		//
+		//#include "XLIterator.hpp"
+		enum class XLIteratorDirection { 
+			Forward, 
+			Reverse 
+		};
+		enum class XLIteratorLocation { 
+			Begin, 
+			End 
+		};
+		//
+		//#include "XLDateTime.hpp"
 		class XLDateTime {
 		public:
 			XLDateTime();
@@ -96,10 +98,8 @@
 		private:
 			double m_serial { 1.0 };
 		};
-	}
-	//
-	//#include "XLException.hpp"
-	namespace OpenXLSX {
+		//
+		//#include "XLException.hpp"
 		class XLException : public std::runtime_error {
 		public:
 			explicit XLException(const std::string& err) : runtime_error(err) 
@@ -387,10 +387,8 @@
 			XMLNode document_element() const { return pugi::xml_document::document_element(); }
 			// ===== END: Wrappers for xml_document member functions
 		};
-	}
-	//
-	//#include "XLFormula.hpp"
-	namespace OpenXLSX {
+		//
+		//#include "XLFormula.hpp"
 		constexpr bool XLResetValue    = true;
 		constexpr bool XLPreserveValue = false;
 
@@ -585,29 +583,23 @@
 			XLCell*  m_cell;     /**< Pointer to the owning XLCell object. */
 			XMLNode* m_cellNode; /**< Pointer to corresponding XML cell node. */
 		};
-	}
 
-	namespace OpenXLSX {
 		inline bool operator==(const XLFormula& lhs, const XLFormula& rhs) { return lhs.m_formulaString == rhs.m_formulaString; }
 		inline bool operator!=(const XLFormula& lhs, const XLFormula& rhs) { return lhs.m_formulaString != rhs.m_formulaString; }
 		/**
 		 * @brief send a formula string to an ostream
 		 * @param os the output destination
 		 * @param value the formula to send to os
-		 * @return
 		 */
 		inline std::ostream& operator<<(std::ostream& os, const XLFormula& value) { return os << value.m_formulaString; }
 		/**
 		 * @brief send a formula string to an ostream
 		 * @param os the output destination
 		 * @param value the formula proxy whose formula to send to os
-		 * @return
 		 */
 		inline std::ostream& operator<<(std::ostream& os, const XLFormulaProxy& value) { return os << value.get(); }
-	}
-	//
-	//#include "XLColor.hpp"
-	namespace OpenXLSX {
+		//
+		//#include "XLColor.hpp"
 		class XLColor {
 			friend bool operator==(const XLColor& lhs, const XLColor& rhs);
 			friend bool operator!=(const XLColor& lhs, const XLColor& rhs);
@@ -635,22 +627,17 @@
 			uint8_t m_green { 0 };
 			uint8_t m_blue { 0 };
 		};
-	}
 
-	namespace OpenXLSX {
 		inline bool operator==(const XLColor& lhs, const XLColor& rhs)
 		{
 			return lhs.alpha() == rhs.alpha() && lhs.red() == rhs.red() && lhs.green() == rhs.green() && lhs.blue() == rhs.blue();
 		}
 
 		inline bool operator!=(const XLColor& lhs, const XLColor& rhs) { return !(lhs == rhs); }
-	}
-	//
-	//#include "XLXmlFile.hpp"
-	namespace OpenXLSX {
+		//
+		//#include "XLXmlFile.hpp"
 		class XLXmlData;
 		class XLDocument;
-
 		/**
 		 * @brief The XLUnsupportedElement class provides a stub implementation that can be used as function
 		 *  parameter or return type for currently unsupported XML features.
@@ -740,16 +727,14 @@
 		protected:                                // ===== PROTECTED MEMBER VARIABLES
 			XLXmlData * m_xmlData { nullptr }; /**< The underlying XML data object. */
 		};
-	}
-	//
-	//#include "XLStyles.hpp"
-	namespace OpenXLSX {
+		//
+		//#include "XLStyles.hpp"
 		using namespace std::literals::string_view_literals;    // enables sv suffix only
 		using XLStyleIndex = size_t;     // custom data type for XLStyleIndex
 
-		constexpr const uint32_t XLInvalidUInt16 = 0xffff;         // used to signal "value not defined" for uint16_t return types
-		constexpr const uint32_t XLInvalidUInt32 = 0xffffffff;     // used to signal "value not defined" for uint32_t return types
-		constexpr const uint32_t XLDeleteProperty = XLInvalidUInt32;      // when 0 or "" is not the same as "property does not exist", this value
+		constexpr const uint32 XLInvalidUInt16 = 0xffff;         // used to signal "value not defined" for uint16 return types
+		constexpr const uint32 XLInvalidUInt32 = 0xffffffff;     // used to signal "value not defined" for uint32 return types
+		constexpr const uint32 XLDeleteProperty = XLInvalidUInt32;      // when 0 or "" is not the same as "property does not exist", this value
 			//  can be passed to setter functions to delete the property from XML
 			//  currently supported in: XLDataBarColor::setTheme
 		constexpr const bool XLPermitXfID      = true;             // use with XLCellFormat constructor to enable xfId() getter and setXfId() setter
@@ -763,12 +748,12 @@
 		// ===== As pugixml attributes are not guaranteed to support value range of XLStyleIndex, use 32 bit unsigned int
 		constexpr const XLStyleIndex XLInvalidStyleIndex = XLInvalidUInt32;        // as a function return value, indicates no valid index
 
-		constexpr const uint32_t XLDefaultFontSize       = 12;             //
+		constexpr const uint32 XLDefaultFontSize       = 12;             //
 		constexpr const char *   XLDefaultFontColor      = "ff000000";     // default font color
 		constexpr const char *   XLDefaultFontColorTheme = "";             // TBD what this means / how it is used
 		constexpr const char *   XLDefaultFontName       = "Arial";        //
-		constexpr const uint32_t XLDefaultFontFamily     = 0;              // TBD what this means / how it is used
-		constexpr const uint32_t XLDefaultFontCharset    = 1;              // TBD what this means / how it is used
+		constexpr const uint32 XLDefaultFontFamily     = 0;              // TBD what this means / how it is used
+		constexpr const uint32 XLDefaultFontCharset    = 1;              // TBD what this means / how it is used
 
 		constexpr const char * XLDefaultLineStyle = "";     // empty string = line not set
 
@@ -888,7 +873,7 @@
 			XLAlignInvalid          = 255  // all other values
 		};
 
-		enum XLReadingOrder : uint32_t {
+		enum XLReadingOrder : uint32 {
 			XLReadingOrderContextual  = 0,
 			XLReadingOrderLeftToRight = 1,
 			XLReadingOrderRightToLeft = 2
@@ -914,7 +899,7 @@
 			 * @brief Get the id of the number format
 			 * @return The id for this number format
 			 */
-			uint32_t numberFormatId() const;
+			uint32 numberFormatId() const;
 			/**
 			 * @brief Get the code of the number format
 			 * @return The format code for this number format
@@ -925,7 +910,7 @@
 			 * @param value that shall be set
 			 * @return true for success, false for failure
 			 */
-			bool setNumberFormatId(uint32_t newNumberFormatId);
+			bool setNumberFormatId(uint32 newNumberFormatId);
 			bool setFormatCode(std::string newFormatCode);
 			/**
 			 * @brief Return a string summary of the number format
@@ -967,7 +952,6 @@
 			 * @return The amount of entries in the number formats
 			 */
 			size_t count() const;
-
 			/**
 			 * @brief Get the number format identified by index
 			 * @param index an array index within XLStyles::numberFormats()
@@ -985,20 +969,20 @@
 			 * @return An XLNumberFormat object
 			 * @throw XLException if no match for numberFormatId is found within m_numberFormats
 			 */
-			XLNumberFormat numberFormatById(uint32_t numberFormatId) const;
+			XLNumberFormat numberFormatById(uint32 numberFormatId) const;
 			/**
 			 * @brief Get the numFmtId from the number format identified by index
 			 * @param index an array index within XLStyles::numberFormats()
-			 * @return the uint32_t numFmtId corresponding to index
+			 * @return the uint32 numFmtId corresponding to index
 			 * @throw XLException when index is out of m_numberFormats range
 			 */
-			uint32_t numberFormatIdFromIndex(XLStyleIndex index) const;
+			uint32 numberFormatIdFromIndex(XLStyleIndex index) const;
 			/**
 			 * @brief Append a new XLNumberFormat, based on copyFrom, and return its index in numFmts node
 			 * @param copyFrom Can provide an XLNumberFormat to use as template for the new style
 			 * @param styleEntriesPrefix Prefix the newly created cell style XMLNode with this pugi::node_pcdata text
 			 * @returns The index of the new style as used by operator[]
-			 * @todo: TBD assign a unique, non-reserved uint32_t numFmtId. Alternatively, the user should configure it manually via setNumberFormatId
+			 * @todo: TBD assign a unique, non-reserved uint32 numFmtId. Alternatively, the user should configure it manually via setNumberFormatId
 			 * @todo: TBD implement a "getFreeNumberFormatId()" method that skips reserved identifiers and iterates over m_numberFormats to avoid
 			 *         all existing number format Ids.
 			 */
@@ -1229,8 +1213,8 @@
 			 * @brief currently unsupported getter stubs
 			 */
 			bool     automatic() const; // <color auto="true" />
-			uint32_t indexed()   const; // <color indexed="1" />
-			uint32_t theme()     const; // <color theme="1" />
+			uint32 indexed()   const; // <color indexed="1" />
+			uint32 theme()     const; // <color theme="1" />
 			/**
 			 * @brief Setter functions for data bar color parameters
 			 * @param value that shall be set
@@ -1240,8 +1224,8 @@
 			bool set(XLColor newColor) { return setRgb(newColor); }          // alias for setRgb
 			bool setTint(double newTint);
 			bool setAutomatic(bool set = true);
-			bool setIndexed(uint32_t newIndex);
-			bool setTheme(uint32_t newTheme);
+			bool setIndexed(uint32 newIndex);
+			bool setTheme(uint32 newTheme);
 			/**
 			 * @brief Return a string summary of the color properties
 			 * @return string with info about the color object
@@ -1388,13 +1372,11 @@
 			 * @return A reference to lhs object.
 			 */
 			XLFill& operator=(XLFill&& other) noexcept = default;
-
 			/**
 			 * @brief Get the name of the element describing a fill
 			 * @return The XLFillType derived from the name of the first child element of the fill node
 			 */
 			XLFillType fillType() const;
-
 			/**
 			 * @brief Create & set the base XML element describing the fill
 			 * @param newFillType that shall be set
@@ -1402,15 +1384,13 @@
 			 * @return true for success, false for failure
 			 */
 			bool setFillType(XLFillType newFillType, bool force = false);
-
-		private:                                             // ---------- Switch to private context for two Methods  --------- //
+		private: // ---------- Switch to private context for two Methods  --------- //
 			/**
 			 * @brief Throw XLException if fillType() matches typeToThrowOn
 			 * @param typeToThrowOn throw on this
 			 * @param functionName include this (calling function name) in the exception
 			 */
 			void throwOnFillType(XLFillType typeToThrowOn, const char * functionName) const;
-
 			/**
 			 * @brief Fetch a valid first element child of m_fillNode. Create with default if needed
 			 * @param fillTypeIfEmpty if no conflicting fill type exists, create a node with this fill type
@@ -1419,9 +1399,7 @@
 			 * @throw XLException if fillTypeIfEmpty is in conflict with a current fillType()
 			 */
 			XMLNode getValidFillDescription(XLFillType fillTypeIfEmpty, const char * functionName);
-
 		public:                                              // ---------- Switch back to public context ---------------------- //
-
 			/**
 			 * @brief Getter functions for gradientFill - will throwOnFillType(XLPatternFill, __func__)
 			 * @return The requested gradientFill property
@@ -1433,7 +1411,6 @@
 			double top();
 			double bottom();
 			XLGradientStops stops();
-
 			/**
 			 * @brief Getter functions for patternFill - will throwOnFillType(XLGradientFill, __func__)
 			 * @return The requested patternFill property
@@ -1792,7 +1769,7 @@
 			 * @brief Get the text rotation
 			 * @return A value in degrees (TBD: clockwise? counter-clockwise?)
 			 */
-			uint16_t textRotation() const;
+			uint16 textRotation() const;
 			/**
 			 * @brief Check whether text wrapping is enabled
 			 * @return true if enabled, false otherwise
@@ -1802,7 +1779,7 @@
 			 * @brief Get the indent setting
 			 * @return An integer value, where an increment of 1 represents 3 spaces.
 			 */
-			uint32_t indent() const;
+			uint32 indent() const;
 			/**
 			 * @brief Get the relative indent setting
 			 * @return An integer value, where an increment of 1 represents 1 space, in addition to indent()*3 spaces
@@ -1823,7 +1800,7 @@
 			 * @brief Get the reading order setting
 			 * @return An integer value: 0 - Context Dependent, 1 - Left-to-Right, 2 - Right-to-Left (any other value should be invalid)
 			 */
-			uint32_t readingOrder() const;
+			uint32 readingOrder() const;
 			/**
 			 * @brief Setter functions for style parameters
 			 * @param value that shall be set
@@ -1840,13 +1817,13 @@
 			 * Examples: setTextRotation( 45): / (text is formatted along a line from lower left to upper right)
 			 *           setTextRotation(135): \ (text is formatted along a line from upper left to lower right)
 			 */
-			bool setTextRotation(uint16_t newRotation);
+			bool setTextRotation(uint16 newRotation);
 			bool setWrapText(bool set = true);
-			bool setIndent(uint32_t newIndent);
+			bool setIndent(uint32 newIndent);
 			bool setRelativeIndent(int32_t newIndent);
 			bool setJustifyLastLine(bool set = true);
 			bool setShrinkToFit(bool set = true);
-			bool setReadingOrder(uint32_t newReadingOrder);    // can be used with XLReadingOrderContextual, XLReadingOrderLeftToRight, XLReadingOrderRightToLeft
+			bool setReadingOrder(uint32 newReadingOrder);    // can be used with XLReadingOrderContextual, XLReadingOrderLeftToRight, XLReadingOrderRightToLeft
 			/**
 			 * @brief Return a string summary of the alignment properties
 			 * @return string with info about the alignment object
@@ -1887,7 +1864,7 @@
 			 * @brief Get the number format id
 			 * @return The identifier of a number format, built-in (predefined by office) or defind in XLNumberFormats
 			 */
-			uint32_t numberFormatId() const;
+			uint32 numberFormatId() const;
 			/**
 			 * @brief Get the font index
 			 * @return The index(!) of a font as defined in XLFonts
@@ -1983,7 +1960,7 @@
 			 * @param value that shall be set
 			 * @return true for success, false for failure
 			 */
-			bool setNumberFormatId(uint32_t newNumFmtId);
+			bool setNumberFormatId(uint32 newNumFmtId);
 			bool setFontIndex(XLStyleIndex newFontIndex);
 			bool setFillIndex(XLStyleIndex newFillIndex);
 			bool setBorderIndex(XLStyleIndex newBorderIndex);
@@ -2116,13 +2093,13 @@
 			 * @return The built-in id of the cell style
 			 * @todo need to find a use case for this
 			 */
-			uint32_t builtinId() const;
+			uint32 builtinId() const;
 			/**
 			 * @brief Get the outline style id (attribute iLevel) of the cell style
 			 * @return The outline style id of the cell style
 			 * @todo need to find a use case for this
 			 */
-			uint32_t outlineStyle() const;
+			uint32 outlineStyle() const;
 			/**
 			 * @brief Get the hidden flag of the cell style
 			 * @return The hidden flag status (true: applications should not show this style)
@@ -2144,8 +2121,8 @@
 			 */
 			bool setName(std::string newName);
 			bool setXfId(XLStyleIndex newXfId);
-			bool setBuiltinId(uint32_t newBuiltinId);
-			bool setOutlineStyle(uint32_t newOutlineStyle);
+			bool setBuiltinId(uint32 newBuiltinId);
+			bool setOutlineStyle(uint32 newOutlineStyle);
 			bool setHidden(bool set = true);
 			bool setCustomBuiltin(bool set = true);
 			/**
@@ -2880,10 +2857,9 @@
 			XLCell*  m_cell;     /**< Pointer to the owning XLCell object. */
 			XMLNode* m_cellNode; /**< Pointer to corresponding XML cell node. */
 		};
-	}
-
-	// TODO: Consider comparison operators on fundamental datatypes
-	namespace OpenXLSX {
+		//
+		// TODO: Consider comparison operators on fundamental datatypes
+		//
 		inline bool operator==(const XLCellValue& lhs, const XLCellValue& rhs) { return lhs.m_value == rhs.m_value; }
 		inline bool operator!=(const XLCellValue& lhs, const XLCellValue& rhs) { return lhs.m_value != rhs.m_value; }
 		inline bool operator<(const XLCellValue& lhs, const XLCellValue& rhs) { return lhs.m_value < rhs.m_value; }
@@ -2926,7 +2902,7 @@
 	//
 	//#include "XLCellReference.hpp"
 	namespace OpenXLSX {
-		using XLCoordinates = std::pair<uint32_t, uint16_t>;
+		using XLCoordinates = std::pair<uint32, uint16>;
 
 		class XLCellReference final {
 			friend bool operator==(const XLCellReference& lhs, const XLCellReference& rhs);
@@ -2948,13 +2924,13 @@
 			 * @param row The row number of the cell.
 			 * @param column The column number of the cell.
 			 */
-			XLCellReference(uint32_t row, uint16_t column);
+			XLCellReference(uint32 row, uint16 column);
 			/**
 			 * @brief Constructor taking the row number and the column letter as arguments.
 			 * @param row The row number of the cell.
 			 * @param column The column letter of the cell.
 			 */
-			XLCellReference(uint32_t row, const std::string& column);
+			XLCellReference(uint32 row, const std::string& column);
 			/**
 			 * @brief Copy constructor
 			 * @param other The object to be copied.
@@ -2977,29 +2953,28 @@
 			 * @brief Get the row number of the XLCellReference.
 			 * @return The row.
 			 */
-			uint32_t row() const;
+			uint32 row() const;
 			/**
 			 * @brief Set the row number for the XLCellReference.
 			 * @param row The row number.
 			 */
-			void setRow(uint32_t row);
+			void setRow(uint32 row);
 			/**
 			 * @brief Get the column number of the XLCellReference.
 			 * @return The column number.
 			 */
-			uint16_t column() const;
+			uint16 column() const;
 			/**
 			 * @brief Set the column number of the XLCellReference.
 			 * @param column The column number.
 			 */
-			void setColumn(uint16_t column);
+			void setColumn(uint16 column);
 			/**
 			 * @brief Set both row and column number of the XLCellReference.
 			 * @param row The row number.
 			 * @param column The column number.
 			 */
-			void setRowAndColumn(uint32_t row, uint16_t column);
-
+			void setRowAndColumn(uint32 row, uint16 column);
 			/**
 			 * @brief Get the address of the XLCellReference
 			 * @return The address, e.g. 'A1'
@@ -3012,20 +2987,20 @@
 			 */
 			void setAddress(const std::string& address);
 			// private:
-			static std::string rowAsString(uint32_t row);
-			static uint32_t rowAsNumber(const std::string& row);
+			static std::string rowAsString(uint32 row);
+			static uint32 rowAsNumber(const std::string& row);
 			/**
 			 * @brief Static helper function to convert column number to column letter (e.g. column 1 becomes 'A')
 			 * @param column The column number.
 			 * @return The column letter
 			 */
-			static std::string columnAsString(uint16_t column);
+			static std::string columnAsString(uint16 column);
 			/**
 			 * @brief Static helper function to convert column letter to column number (e.g. column 'A' becomes 1)
 			 * @param column The column letter, e.g. 'A'
 			 * @return The column number.
 			 */
-			static uint16_t columnAsNumber(const std::string& column);
+			static uint16 columnAsNumber(const std::string& column);
 			/**
 			 * @brief Static helper function to convert cell address to coordinates.
 			 * @param address The address to be converted, e.g. 'A1'
@@ -3033,8 +3008,8 @@
 			 */
 			static XLCoordinates coordinatesFromAddress(const std::string& address);
 		private:
-			uint32_t m_row { 1 };               /**< The row */
-			uint16_t m_column { 1 };            /**< The column */
+			uint32 m_row { 1 };               /**< The row */
+			uint16 m_column { 1 };            /**< The column */
 			std::string m_cellAddress { "A1" }; /**< The address, e.g. 'A1' */
 		};
 		/**
@@ -3085,10 +3060,8 @@
 		 * @return true if lhs >= rhs; otherwise false.
 		 */
 		inline bool operator>=(const XLCellReference& lhs, const XLCellReference& rhs) { return !(lhs < rhs); }
-	}
-	//
-	//#include "XLSharedStrings.hpp"
-	namespace OpenXLSX {
+		//
+		//#include "XLSharedStrings.hpp"
 		constexpr size_t XLMaxSharedStrings = (std::numeric_limits< int32_t >::max)();       // pull request #261: wrapped max in parentheses to prevent expansion of windows.h "max" macro
 
 		class XLSharedStrings; // forward declaration
@@ -3151,16 +3124,14 @@
 		private:
 			std::deque<std::string>* m_stringCache {}; /** < Each string must have an unchanging memory address; hence the use of std::deque */
 		};
-	}
-	//
-	//#include "XLCell.hpp"
-	namespace OpenXLSX {
+		//
+		//#include "XLCell.hpp"
 		// ===== Flags that can be passed to XLCell::clear as parameter keep, flags can be combined with bitwise OR
 		//                                  // Do not clear the cell's:
-		constexpr const uint32_t XLKeepCellStyle   =  1;         // style (attribute s)
-		constexpr const uint32_t XLKeepCellType    =  2;    // type (attribute t)
-		constexpr const uint32_t XLKeepCellValue   =  4;     // value (child node v)
-		constexpr const uint32_t XLKeepCellFormula =  8;     // formula (child node f)
+		constexpr const uint32 XLKeepCellStyle   =  1;         // style (attribute s)
+		constexpr const uint32 XLKeepCellType    =  2;    // type (attribute t)
+		constexpr const uint32 XLKeepCellValue   =  4;     // value (child node v)
+		constexpr const uint32 XLKeepCellFormula =  8;     // formula (child node f)
 
 		class XLCellRange;
 		/**
@@ -3222,7 +3193,7 @@
 			 *              XLKeepCellValue, XLKeepCellFormula), flags can be combined with bitwise OR
 			 * @note due to the way OOXML separates comments from the cells, this function will *not* clear a cell comment - refer to XLComments& XLSheet::comments() for that
 			 */
-			void clear(uint32_t keep);
+			void clear(uint32 keep);
 			XLCellValueProxy& value();
 			const XLCellValueProxy& value() const;
 			/**
@@ -3234,7 +3205,7 @@
 			 * @brief get the XLCell object from the current cell offset
 			 * @return A reference to the XLCell object.
 			 */
-			XLCell offset(uint16_t rowOffset, uint16_t colOffset) const;
+			XLCell offset(uint16 rowOffset, uint16 colOffset) const;
 			/**
 			 * @brief test if cell has a formula (XML) node, even if it is an empty string
 			 * @return true if XML has a formula node, empty or not - otherwise false
@@ -3263,9 +3234,9 @@
 			static bool isEqual(const XLCell& lhs, const XLCell& rhs);
 
 			std::unique_ptr<XMLNode> m_cellNode;      /**< A pointer to the root XMLNode for the cell. */
-			XLSharedStringsRef m_sharedStrings;       /**< */
-			XLCellValueProxy m_valueProxy;            /**< */
-			XLFormulaProxy m_formulaProxy;            /**< */
+			XLSharedStringsRef m_sharedStrings;
+			XLCellValueProxy m_valueProxy;
+			XLFormulaProxy m_formulaProxy;
 		};
 
 		class XLCellAssignable : public XLCell {
@@ -3327,7 +3298,6 @@
 		 * @brief      ostream output of XLCell content as string
 		 * @param os   the ostream destination
 		 * @param c    the cell to output to the stream
-		 * @return
 		 */
 		inline std::ostream& operator<<(std::ostream& os, const XLCell& c)
 		{
@@ -3339,7 +3309,6 @@
 		 * @brief      ostream output of XLCellAssignable content as string
 		 * @param os   the ostream destination
 		 * @param c    the cell to output to the stream
-		 * @return
 		 */
 		inline std::ostream& operator<<(std::ostream& os, const XLCellAssignable& c)
 		{
@@ -3347,24 +3316,22 @@
 			// TODO: send to stream different data types based on cell data type
 			return os;
 		}
-	}
-	//
-	//#include "XLCellIterator.hpp"
-	namespace OpenXLSX {
+		//
+		//#include "XLCellIterator.hpp"
 		/**
 		 * @brief locate the XML row node within sheetDataNode for the row at rowNumber
 		 * @param sheetDataNode the XML sheetData node to search in
 		 * @param rowNumber the number of the row to locate
 		 * @return the XMLNode pointing to the row, or an empty XMLNode if the row does not exist
 		 */
-		XMLNode findRowNode(XMLNode sheetDataNode, uint32_t rowNumber);
+		XMLNode findRowNode(XMLNode sheetDataNode, uint32 rowNumber);
 		/**
 		 * @brief locate the XML cell node within rownode for the cell at columnNumber
 		 * @param rowNode the XML node of the row to search in
 		 * @param columnNumber the column number of the cell to locate
 		 * @return the XMLNode pointing to the cell, or an empty XMLNode if the cell does not exist
 		 */
-		XMLNode findCellNode(XMLNode rowNode, uint16_t columnNumber);
+		XMLNode findCellNode(XMLNode rowNode, uint16 columnNumber);
 
 		class XLCellIterator {
 		public:
@@ -3406,7 +3373,6 @@
 			bool cellExists();
 			/**
 			 * @brief determine whether iterator is at 1 beyond the last cell in range
-			 * @return
 			 * @note 28-07-2024: Removed const from return type (Troldal)
 			 */
 			bool endReached() const { return m_endReached; }
@@ -3418,27 +3384,26 @@
 			 */
 			std::string address() const;
 		private:
-			std::unique_ptr<XMLNode> m_dataNode; /**< */
+			std::unique_ptr<XMLNode> m_dataNode;
 			XLCellReference m_topLeft;           /**< The cell reference of the first cell in the range */
 			XLCellReference m_bottomRight;       /**< The cell reference of the last cell in the range */
-			XLSharedStringsRef m_sharedStrings;  /**< */
-			bool m_endReached;                   /**< */
+			XLSharedStringsRef m_sharedStrings;
+			bool m_endReached;
 			XMLNode m_hintNode;                  /**< The cell node of the last existing cell found up to current iterator position */
-			uint32_t m_hintRow;                  /**<   the row number for m_hintCell */
+			uint32 m_hintRow;                  /**<   the row number for m_hintCell */
 			XLCell m_currentCell;                /**< The cell to which the iterator is currently pointing, if it exists, otherwise an empty XLCell */
 			static constexpr const int XLNotLoaded  = 0; // code readability for m_currentCellStatus
 			static constexpr const int XLNoSuchCell = 1;
 			static constexpr const int XLLoaded     = 2;
 			int m_currentCellStatus;             /**< Status of m_currentCell: XLNotLoaded, XLNoSuchCell or XLLoaded */
-			uint32_t m_currentRow;
-			uint16_t m_currentColumn;
+			uint32 m_currentRow;
+			uint16 m_currentColumn;
 			std::vector<XLStyleIndex> const * m_colStyles;
 		};
 		/**
 		 * @brief      ostream output of XLIterator position as XLCellReference::address
 		 * @param os   the ostream destination
 		 * @param it    the XLIterator whose position to send to the stream
-		 * @return
 		 */
 		inline std::ostream& operator<<(std::ostream& os, const XLCellIterator& it)
 		{
@@ -3509,12 +3474,12 @@
 			 * @brief Get the number of rows in the range.
 			 * @return The number of rows.
 			 */
-			uint32_t numRows() const;
+			uint32 numRows() const;
 			/**
 			 * @brief Get the number of columns in the range.
 			 * @return The number of columns.
 			 */
-			uint16_t numColumns() const;
+			uint16 numColumns() const;
 			XLCellIterator begin() const;
 			XLCellIterator end() const;
 			void clear();
@@ -3531,7 +3496,8 @@
 			XLCellRange& operator=(T value)
 			{
 				// forward implementation to templated XLCellValue& XLCellValue::operator=(T value)
-				for(auto it = begin(); it != end(); ++it)  it->value() = value;
+				for(auto it = begin(); it != end(); ++it)  
+					it->value() = value;
 				return *this;
 			}
 			/**
@@ -3541,16 +3507,14 @@
 			 */
 			bool setFormat(XLStyleIndex cellFormatIndex);
 		private:
-			std::unique_ptr<XMLNode>  m_dataNode;      /**< */
+			std::unique_ptr<XMLNode>  m_dataNode;
 			XLCellReference m_topLeft;                 /**< reference to the first cell in the range */
 			XLCellReference m_bottomRight;             /**< reference to the last cell in the range */
 			XLSharedStringsRef m_sharedStrings;        /**< reference to the document shared strings table */
 			std::vector<XLStyleIndex> m_columnStyles;  /**< quick access to column styles in the range - populated by fetchColumnStyles() */
 		};
-	}
-	//
-	//#include "XLColumn.hpp"
-	namespace OpenXLSX {
+		//
+		//#include "XLColumn.hpp"
 		class XLColumn {
 		public:
 			explicit XLColumn(const XMLNode& columnNode);
@@ -3579,10 +3543,8 @@
 		private:
 			std::unique_ptr<XMLNode> m_columnNode; /**< A pointer to the XMLNode object for the column. */
 		};
-	}
-	//
-	//#include "IZipArchive.hpp"
-	namespace OpenXLSX {
+		//
+		//#include "IZipArchive.hpp"
 		/**
 		 * @brief This class functions as a wrapper around any class that provides the necessary functionality for
 		 * a zip archive.
@@ -3678,10 +3640,8 @@
 
 			std::unique_ptr<Concept> m_zipArchive;
 		};
-	}
-	//
-	//#include "XLCommandQuery.hpp"
-	namespace OpenXLSX {
+		//
+		//#include "XLCommandQuery.hpp"
 		enum class XLCommandType : uint8_t {
 			SetSheetName,
 			SetSheetColor,
@@ -3753,10 +3713,8 @@
 			std::any m_result;
 			std::map<std::string, std::any> m_params;
 		};
-	}
-	//
-	//#include "XLContentTypes.hpp"
-	namespace OpenXLSX {
+		//
+		//#include "XLContentTypes.hpp"
 		enum class XLContentType : uint8_t {
 			Workbook,
 			Relationships,
@@ -3802,7 +3760,7 @@
 			XLContentType type() const;
 			std::string path() const;
 		private:
-			std::unique_ptr<XMLNode> m_contentNode; /**< */
+			std::unique_ptr<XMLNode> m_contentNode;
 		};
 		/**
 		 * @brief The purpose of this class is to load, store add and save item in the [Content_Types].xml file.
@@ -3827,10 +3785,8 @@
 			XLContentItem contentItem(const std::string& path);
 			std::vector<XLContentItem> getContentItems();
 		};
-	}
-	//
-	//#include "XLXmlData.hpp"
-	namespace OpenXLSX {
+		//
+		//#include "XLXmlData.hpp"
 		constexpr const char * XLXmlDefaultVersion = "1.0";
 		constexpr const char * XLXmlDefaultEncoding = "UTF-8";
 		constexpr const bool XLXmlStandalone = true;
@@ -3986,10 +3942,9 @@
 			XLContentType m_xmlType {};                          /**< The type represented by the XML data. >*/
 			mutable std::unique_ptr<OXlXmlDoc> m_xmlDoc;       /**< The underlying OXlXmlDoc object. >*/
 		};
-	}
-	//
-	//#include "XLDrawing.hpp"
-	namespace OpenXLSX {
+		//
+		//#include "XLDrawing.hpp"
+		// 
 		// <v:fill o:detectmouseclick="t" type="solid" color2="#00003f"/>
 		// <v:shadow on="t" obscured="t" color="black"/>
 		// <v:stroke color="#3465a4" startarrow="block" startarrowwidth="medium" startarrowlength="medium" joinstyle="round" endcap="flat"/>
@@ -4056,8 +4011,8 @@
 			bool autoFill() const;          // element x:AutoFill - logic as in MoveWithCells
 			XLShapeTextVAlign textVAlign() const;   // element x:TextVAlign - Top, ???
 			XLShapeTextHAlign textHAlign() const;   // element x:TextHAlign - Left, ???
-			uint32_t row() const;           // element x:Row, 0-indexed row of cell to which this shape is linked
-			uint16_t column() const;        // element x:Column, 0-indexed column of cell to which this shape is linked
+			uint32 row() const;           // element x:Row, 0-indexed row of cell to which this shape is linked
+			uint16 column() const;        // element x:Column, 0-indexed column of cell to which this shape is linked
 			/**
 			 * @brief Setter functions
 			 */
@@ -4068,8 +4023,8 @@
 			bool setAutoFill(bool set = true);
 			bool setTextVAlign(XLShapeTextVAlign newTextVAlign);
 			bool setTextHAlign(XLShapeTextHAlign newTextHAlign);
-			bool setRow(uint32_t newRow);
-			bool setColumn(uint16_t newColumn);
+			bool setRow(uint32 newRow);
+			bool setColumn(uint16 newColumn);
 			// /**
 			//  * @brief Return a string summary of the x:ClientData properties
 			//  * @return string with info about the x:ClientData object
@@ -4113,7 +4068,7 @@
 			 * @return index of attribute in m_nodeOrder
 			 * @return -1 if not found
 			 */
-			int16_t attributeOrderIndex(std::string const& attributeName) const;
+			int16 attributeOrderIndex(std::string const& attributeName) const;
 			/**
 			 * @brief XLShapeStyle internal generic getter & setter functions
 			 */
@@ -4125,10 +4080,10 @@
 			 * @brief XLShapeStyle getter functions
 			 */
 			std::string position() const;
-			uint16_t marginLeft() const;
-			uint16_t marginTop() const;
-			uint16_t width() const;
-			uint16_t height() const;
+			uint16 marginLeft() const;
+			uint16 marginTop() const;
+			uint16 width() const;
+			uint16 height() const;
 			std::string msoWrapStyle() const;
 			std::string vTextAnchor() const;
 			bool hidden() const;
@@ -4138,10 +4093,10 @@
 			 * @brief XLShapeStyle setter functions
 			 */
 			bool setPosition(std::string newPosition);
-			bool setMarginLeft(uint16_t newMarginLeft);
-			bool setMarginTop(uint16_t newMarginTop);
-			bool setWidth(uint16_t newWidth);
-			bool setHeight(uint16_t newHeight);
+			bool setMarginLeft(uint16 newMarginLeft);
+			bool setMarginTop(uint16 newMarginTop);
+			bool setWidth(uint16 newWidth);
+			bool setHeight(uint16 newHeight);
 			bool setMsoWrapStyle(std::string newMsoWrapStyle);
 			bool setVTextAnchor(std::string newVTextAnchor);
 			bool hide(); // set visibility:hidden
@@ -4231,7 +4186,7 @@
 		private:
 			XMLNode firstShapeNode() const;
 			XMLNode lastShapeNode() const;
-			XMLNode shapeNode(uint32_t index) const;
+			XMLNode shapeNode(uint32 index) const;
 		public:
 			/**
 			 * @brief Get the shape XML node that is associated with the cell indicated by cellRef
@@ -4239,9 +4194,9 @@
 			 * @return the XMLNode that contains the desired shape, or an empty XMLNode if not found
 			 */
 			XMLNode shapeNode(std::string const& cellRef) const;
-			uint32_t shapeCount() const;
-			XLShape shape(uint32_t index) const;
-			bool deleteShape(uint32_t index);
+			uint32 shapeCount() const;
+			XLShape shape(uint32 index) const;
+			bool deleteShape(uint32 index);
 			bool deleteShape(std::string const& cellRef);
 			XLShape createShape(const XLShape& shapeTemplate = XLShape());
 			/**
@@ -4249,17 +4204,15 @@
 			 */
 			void print(std::basic_ostream<char>& ostr) const;
 		private:
-			uint32_t m_shapeCount{0};
-			uint32_t m_lastAssignedShapeId{0};
+			uint32 m_shapeCount{0};
+			uint32 m_lastAssignedShapeId{0};
 			std::string m_defaultShapeTypeId{};
 		};
-	}
-	//
-	//#include "XLComments.hpp"
-	// TODO:
-	//   add to [Content_Types].xml:
-	//     <Override PartName="/xl/comments1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.comments+xml"/>
-	namespace OpenXLSX {
+		//
+		//#include "XLComments.hpp"
+		// TODO:
+		//   add to [Content_Types].xml:
+		//     <Override PartName="/xl/comments1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.comments+xml"/>
 		/**
 		 * @brief An encapsulation of a comment element
 		 */
@@ -4296,12 +4249,12 @@
 			 */
 			std::string ref() const; // the cell reference of the comment
 			std::string text() const;
-			uint16_t authorId() const;
+			uint16 authorId() const;
 			/**
 			 * @brief Setter functions
 			 */
 			bool setText(std::string newText);
-			bool setAuthorId(uint16_t newAuthorId);
+			bool setAuthorId(uint16 newAuthorId);
 			// /**
 			//  * @brief Return a string summary of the comment properties
 			//  * @return string with info about the comment object
@@ -4330,20 +4283,20 @@
 			 */
 			bool setVmlDrawing(XLVmlDrawing &vmlDrawing);
 		private:
-			XMLNode authorNode(uint16_t index) const;
+			XMLNode authorNode(uint16 index) const;
 			XMLNode commentNode(size_t index) const;
 			XMLNode commentNode(const std::string& cellRef) const;
 		public:
-			uint16_t authorCount() const;
-			std::string author(uint16_t index) const;
-			bool deleteAuthor(uint16_t index);
-			uint16_t addAuthor(const std::string& authorName);
+			uint16 authorCount() const;
+			std::string author(uint16 index) const;
+			bool deleteAuthor(uint16 index);
+			uint16 addAuthor(const std::string& authorName);
 			/**
 			 * @brief get the amount of comments
 			 * @return the amount of comments for the worksheet
 			 */
 			size_t count() const;
-			uint16_t authorId(const std::string& cellRef) const;
+			uint16 authorId(const std::string& cellRef) const;
 			bool deleteComment(const std::string& cellRef);
 			/**
 			 * @brief get a comment by its index in the comment list
@@ -4364,7 +4317,7 @@
 			 * @param authorId_ set this author (underscore to avoid conflict with function name)
 			 * @return true upon success, false on failure
 			 */
-			bool set(std::string const& cellRef, std::string const& comment, uint16_t authorId_ = 0);
+			bool set(std::string const& cellRef, std::string const& comment, uint16 authorId_ = 0);
 			/**
 			 * @brief get the XLShape object for this comment
 			 */
@@ -4384,15 +4337,12 @@
 				"commentList"
 			};
 		};
-	}
-	//
-	//#include "XLProperties.hpp"
-	namespace OpenXLSX {
+		//
+		//#include "XLProperties.hpp"
 		class XLProperties : public XLXmlFile {
 		private:
 			/**
 			 * @brief constructor helper function: create core.xml content from template
-			 * @param workbook
 			 */
 			void createFromTemplate();
 		public:
@@ -4436,7 +4386,7 @@
 			 * @param increment change the sheet count by this (negative = decrement)
 			 * @throws XLInternalError when sheet count would become < 1
 			 */
-			void incrementSheetCount(int16_t increment);
+			void incrementSheetCount(int16 increment);
 			/**
 			 * @brief initialize <TitlesOfParts> to contain all and only entries from workbookSheetNames & ensure HeadingPairs entry for Worksheets has the correct count
 			 * @param workbookSheetNames the vector of sheet names as returned by XLWorkbook::sheetNames()
@@ -4456,10 +4406,8 @@
 			void prependSheetName(const std::string& sheetName);
 			void insertSheetName(const std::string& sheetName, unsigned int index);
 		};
-	}
-	//
-	//#include "XLRelationships.hpp"
-	namespace OpenXLSX {
+		//
+		//#include "XLRelationships.hpp"
 		/**
 		 * @brief Enable use of random (relationship) IDs
 		 */
@@ -4630,10 +4578,8 @@
 		private:
 			std::string m_path; // the path - within the XLSX file - to the relationships file on which this object is instantiated
 		};
-	}
-	//
-	//#include "XLTables.hpp"
-	namespace OpenXLSX {
+		//
+		//#include "XLTables.hpp"
 		/**
 		 * @brief The XLTables class is the base class for worksheet tables
 		 */
@@ -4654,10 +4600,8 @@
 			 */
 			void print(std::basic_ostream<char>& ostr) const;
 		};
-	}
-	//
-	//#include "XLWorkbook.hpp"
-	namespace OpenXLSX {
+		//
+		//#include "XLWorkbook.hpp"
 		// class XLSharedStrings;
 		class XLSheet;
 		class XLWorksheet;
@@ -4723,7 +4667,7 @@
 			 * @return A pointer to an XLAbstractSheet with the sheet at the index.
 			 * @note The index must be 1-based (rather than 0-based) as this is the default for Excel spreadsheets.
 			 */
-			XLSheet sheet(uint16_t index);
+			XLSheet sheet(uint16 index);
 			/**
 			 * @brief Get the sheet (worksheet or chartsheet) with the given name.
 			 * @param sheetName The name of the desired sheet.
@@ -4741,7 +4685,7 @@
 			 * @param index The index (1-based) at which the desired sheet is located.
 			 * @return
 			 */
-			XLWorksheet worksheet(uint16_t index);
+			XLWorksheet worksheet(uint16 index);
 			/**
 			 * @brief Get the chartsheet with the given name.
 			 * @param sheetName The name of the desired chartsheet.
@@ -4753,7 +4697,7 @@
 			 * @param index The index (1-based) at which the desired sheet is located.
 			 * @return
 			 */
-			XLChartsheet chartsheet(uint16_t index);
+			XLChartsheet chartsheet(uint16 index);
 			/**
 			 * @brief Delete sheet (worksheet or chartsheet) from the workbook.
 			 * @param sheetName Name of the sheet to delete.
@@ -4799,11 +4743,11 @@
 			 */
 			void print(std::basic_ostream<char>& ostr) const;
 		private:
-			uint16_t createInternalSheetID();
+			uint16 createInternalSheetID();
 			std::string sheetID(const std::string& sheetName);
 			std::string sheetName(const std::string& sheetID) const;
 			std::string sheetVisibility(const std::string& sheetID) const;
-			void prepareSheetMetadata(const std::string& sheetName, uint16_t internalID);
+			void prepareSheetMetadata(const std::string& sheetName, uint16 internalID);
 			void setSheetName(const std::string& sheetRID, const std::string& newName);
 			void setSheetVisibility(const std::string& sheetRID, const std::string& state);
 			bool sheetIsActive(const std::string& sheetRID) const;
@@ -4850,12 +4794,10 @@
 			std::string getEntry(const std::string& name) const;
 			bool hasEntry(const std::string& entryName) const;
 		private:
-			std::shared_ptr<Zippy::ZipArchive> m_archive; /**< */
+			std::shared_ptr<Zippy::ZipArchive> m_archive;
 		};
-	}
-	//
-	//#include "XLDocument.hpp"
-	namespace OpenXLSX {
+		//
+		//#include "XLDocument.hpp"
 		constexpr const unsigned int pugi_parse_settings = pugi::parse_default | pugi::parse_ws_pcdata;     // TBD: | pugi::parse_comments
 		constexpr const bool XLForceOverwrite = true;        // readability constant for 2nd parameter of XLDocument::saveAs
 		constexpr const bool XLDoNotOverwrite = false;       //  "
@@ -5013,49 +4955,49 @@
 			 * @param sheetXmlNo check for this sheet number # (xl/worksheets/_reals/sheet#.xml.rels)
 			 * @return true if relationships file exists
 			 */
-			bool hasSheetRelationships(uint16_t sheetXmlNo) const;
+			bool hasSheetRelationships(uint16 sheetXmlNo) const;
 			/**
 			 * @brief determine whether a worksheet vml drawing file exists for sheetXmlNo
 			 * @param sheetXmlNo check for this sheet number # (xl/drawings/vmlDrawing#.xml)
 			 * @return true if vml drawing file exists
 			 */
-			bool hasSheetVmlDrawing(uint16_t sheetXmlNo) const;
+			bool hasSheetVmlDrawing(uint16 sheetXmlNo) const;
 			/**
 			 * @brief determine whether a worksheet comments file exists for sheetXmlNo
 			 * @param sheetXmlNo check for this sheet number # (xl/comments#.xml)
 			 * @return true if comments file exists
 			 */
-			bool hasSheetComments(uint16_t sheetXmlNo) const;
+			bool hasSheetComments(uint16 sheetXmlNo) const;
 			/**
 			 * @brief determine whether a worksheet table(s) file exists for sheetXmlNo
 			 * @param sheetXmlNo check for this sheet number # (xl/tables/table#.xml)
 			 * @return true if table(s) file exists
 			 */
-			bool hasSheetTables(uint16_t sheetXmlNo) const;
+			bool hasSheetTables(uint16 sheetXmlNo) const;
 			/**
 			 * @brief fetch the worksheet relationships for sheetXmlNo, create the file if it does not exist
 			 * @param sheetXmlNo fetch for this sheet #
 			 * @return an XLRelationships object initialized with the sheet relationships
 			 */
-			XLRelationships sheetRelationships(uint16_t sheetXmlNo);
+			XLRelationships sheetRelationships(uint16 sheetXmlNo);
 			/**
 			 * @brief fetch the worksheet VML drawing for sheetXmlNo, create the file if it does not exist
 			 * @param sheetXmlNo fetch for this sheet #
 			 * @return an XLVmlDrawing object initialized with the sheet drawing
 			 */
-			XLVmlDrawing sheetVmlDrawing(uint16_t sheetXmlNo);
+			XLVmlDrawing sheetVmlDrawing(uint16 sheetXmlNo);
 			/**
 			 * @brief fetch the worksheet comments for sheetXmlNo, create the file if it does not exist
 			 * @param sheetXmlNo fetch for this sheet #
 			 * @return an XLComments object initialized with the sheet comments
 			 */
-			XLComments sheetComments(uint16_t sheetXmlNo);
+			XLComments sheetComments(uint16 sheetXmlNo);
 			/**
 			 * @brief fetch the worksheet tables for sheetXmlNo, create the file if it does not exist
 			 * @param sheetXmlNo fetch for this sheet #
 			 * @return an XLTables object initialized with the sheet tables
 			 */
-			XLTables sheetTables(uint16_t sheetXmlNo);
+			XLTables sheetTables(uint16 sheetXmlNo);
 		public:
 			/**
 			 * @brief validate whether sheetName is a valid Excel worksheet name
@@ -5073,7 +5015,6 @@
 			/**
 			 * @brief configure an alternative XML saving declaration to be used with pugixml
 			 * @param savingDeclaration An XLXmlSavingDeclaration object with the configuration to use
-			 * @return
 			 */
 			void setSavingDeclaration(XLXmlSavingDeclaration const& savingDeclaration);
 			const XLSharedStrings& sharedStrings() const { return m_sharedStrings; }
@@ -5131,7 +5072,7 @@
 		 * @param password the string to hash
 		 * @return the two byte value calculated according to the XLSX password hashing algorithm
 		 */
-		uint16_t ExcelPasswordHash(std::string password);
+		uint16 ExcelPasswordHash(std::string password);
 		/**
 		 * @brief Same as ExcelPasswordHash but format the output as a 4-digit hexadecimal string
 		 * @param password the string to hash
@@ -5153,10 +5094,8 @@
 		 * @throw XLInternalError upon invalid path - e.g. containing "//" or trying to escape via ".." beyond the context of path
 		 */
 		std::string eliminateDotAndDotDotFromPath(const std::string& path);
-	}
-	//
-	//#include "XLRowData.hpp"
-	namespace OpenXLSX {
+		//
+		//#include "XLRowData.hpp"
 		class XLRow;
 		class XLRowDataRange;
 		/**
@@ -5247,7 +5186,7 @@
 			 * @brief Get the size (length) of the range.
 			 * @return The size of the range.
 			 */
-			uint16_t size() const;
+			uint16 size() const;
 			/**
 			 * @brief Get an iterator to the first element.
 			 * @return An XLRowDataIterator pointing to the first element.
@@ -5282,15 +5221,14 @@
 			 * @param lastColumn The index of the last column.
 			 * @param sharedStrings A pointer to the shared strings repository.
 			 */
-			explicit XLRowDataRange(const XMLNode& rowNode, uint16_t firstColumn, uint16_t lastColumn, const XLSharedStrings& sharedStrings);
+			explicit XLRowDataRange(const XMLNode& rowNode, uint16 firstColumn, uint16 lastColumn, const XLSharedStrings& sharedStrings);
 			explicit XLRowDataRange();
 
-			std::unique_ptr<XMLNode> m_rowNode;        /**< */
-			uint16_t m_firstCol { 1 };                 /**< The cell reference of the first cell in the range */
-			uint16_t m_lastCol { 1 };                  /**< The cell reference of the last cell in the range */
-			XLSharedStringsRef m_sharedStrings;        /**< */
+			std::unique_ptr<XMLNode> m_rowNode;
+			uint16 m_firstCol { 1 };  /**< The cell reference of the first cell in the range */
+			uint16 m_lastCol { 1 };   /**< The cell reference of the last cell in the range */
+			XLSharedStringsRef m_sharedStrings;
 		};
-
 		/**
 		 * @brief The XLRowDataProxy is used as a proxy object when getting or setting row data. The class facilitates easy conversion
 		 * to/from containers.
@@ -5406,10 +5344,7 @@
 				std::is_base_of_v<std::bidirectional_iterator_tag,
 				typename std::iterator_traits<typename Container::iterator>::iterator_category>,
 				Container> >
-			explicit operator Container() const
-			{
-				return convertContainer<Container>();
-			}
+			explicit operator Container() const { return convertContainer<Container>(); }
 			/**
 			 * @brief Clears all values for the current row.
 			 */
@@ -5454,13 +5389,13 @@
 			 * @brief Convenience function for erasing the first 'count' numbers of values in the row.
 			 * @param count The number of values to erase.
 			 */
-			void deleteCellValues(uint16_t count);
+			void deleteCellValues(uint16 count);
 			/**
 			 * @brief Convenience function for prepending a row value with a given column number.
 			 * @param value The XLCellValue object.
 			 * @param col The column of the value.
 			 */
-			void prependCellValue(const XLCellValue& value, uint16_t col);
+			void prependCellValue(const XLCellValue& value, uint16 col);
 			/**
 			 * @brief Convenience function for converting the row data to a user-supplied container.
 			 * @details This function can convert row data to any user-supplied container that adheres to the design
@@ -5495,10 +5430,8 @@
 			XLRow * m_row { nullptr };     /**< Pointer to the parent XLRow object. */
 			XMLNode * m_rowNode { nullptr }; /**< Pointer the the XML node representing the row. */
 		};
-	}
-	//
-	//#include "XLRow.hpp"
-	namespace OpenXLSX {
+		//
+		//#include "XLRow.hpp"
 		class XLRowRange;
 		/**
 		 * @brief The XLRow class represent a row in an Excel spreadsheet. Using XLRow objects, various row formatting
@@ -5561,24 +5494,24 @@
 			 * @param state The state of the row.
 			 */
 			void setHidden(bool state);
-			uint32_t rowNumber() const;
+			uint32 rowNumber() const;
 			/**
 			 * @brief Get the number of cells in the row.
 			 * @return The number of cells in the row.
 			 */
-			uint16_t cellCount() const;
+			uint16 cellCount() const;
 			XLRowDataProxy& values();
 			const XLRowDataProxy& values() const;
 			template <typename T> T values() const { return static_cast<T>(values()); }
 			XLRowDataRange cells() const;
-			XLRowDataRange cells(uint16_t cellCount) const;
-			XLRowDataRange cells(uint16_t firstCell, uint16_t lastCell) const;
+			XLRowDataRange cells(uint16 cellCount) const;
+			XLRowDataRange cells(uint16 firstCell, uint16 lastCell) const;
 			/**
 			 * @brief Find a cell at columNumber, or return an empty cell
 			 * @param columNumber The column at which to check for an existing cell
 			 * @return An XLCell object (that bool-evaluates to false if cell was not found)
 			 */
-			XLCell findCell(uint16_t columNumber);
+			XLCell findCell(uint16 columNumber);
 			/**
 			 * @brief Get the array index of xl/styles.xml:<styleSheet>:<cellXfs> for the style assigned to the row.
 			 *        This value is stored in the row attributes like so: s="2"
@@ -5596,8 +5529,8 @@
 			static bool isLessThan(const XLRow& lhs, const XLRow& rhs);
 
 			std::unique_ptr<XMLNode> m_rowNode;       /**< The XMLNode object for the row. */
-			XLSharedStringsRef m_sharedStrings;       /**< */
-			XLRowDataProxy m_rowDataProxy;            /**< */
+			XLSharedStringsRef m_sharedStrings;
+			XLRowDataProxy m_rowDataProxy;
 		};
 
 		class XLRowIterator {
@@ -5636,7 +5569,6 @@
 			 * @return true if XML already has an entry for that cell, otherwise false
 			 */
 			bool rowExists();
-
 			/**
 			 * @brief determine whether iterator is at 1 beyond the last row in range
 			 * @return
@@ -5647,57 +5579,52 @@
 			 * @brief get the row number corresponding to the current iterator position
 			 * @return a row number, with m_lastRow + 1 for the beyond-the-end iterator
 			 */
-			uint32_t rowNumber() const { return m_endReached ? m_lastRow + 1 : m_currentRowNumber; }
-
+			uint32 rowNumber() const { return m_endReached ? m_lastRow + 1 : m_currentRowNumber; }
 		private:
-			std::unique_ptr<XMLNode> m_dataNode;       /**< */
-			uint32_t m_firstRow { 1 };                 /**< The cell reference of the first cell in the range */
-			uint32_t m_lastRow { 1 };                  /**< The cell reference of the last cell in the range */
-			XLRow m_currentRow;                        /**< */
-			XLSharedStringsRef m_sharedStrings;        /**< */
+			std::unique_ptr<XMLNode> m_dataNode;
+			uint32 m_firstRow { 1 }; /**< The cell reference of the first cell in the range */
+			uint32 m_lastRow { 1 };  /**< The cell reference of the last cell in the range */
+			XLRow m_currentRow;
+			XLSharedStringsRef m_sharedStrings;
 
 			// helper variables for non-creating iterator functionality
-			bool m_endReached;                               /**< */
+			bool m_endReached;
 			XMLNode m_hintRow;                               /**< The cell node of the last existing row found up to current iterator position */
-			uint32_t m_hintRowNumber;                        /**<   the row number for m_hintRow */
+			uint32 m_hintRowNumber;                        /**<   the row number for m_hintRow */
 			static constexpr const int XLNotLoaded  = 0;    // code readability for m_currentRowStatus
 			static constexpr const int XLNoSuchRow  = 1;    //   "
 			static constexpr const int XLLoaded     = 2;    //   "
 			int m_currentRowStatus;                         /**< Status of m_currentRow: XLNotLoaded, XLNoSuchRow or XLLoaded */
-			uint32_t m_currentRowNumber;
+			uint32 m_currentRowNumber;
 		};
 
 		class XLRowRange {
 			friend class XLRowIterator;
 		public:
-			explicit XLRowRange(const XMLNode& dataNode, uint32_t first, uint32_t last, const XLSharedStrings& sharedStrings);
+			explicit XLRowRange(const XMLNode& dataNode, uint32 first, uint32 last, const XLSharedStrings& sharedStrings);
 			XLRowRange(const XLRowRange& other);
 			XLRowRange(XLRowRange&& other) noexcept;
 			~XLRowRange();
 			XLRowRange& operator=(const XLRowRange& other);
 			XLRowRange& operator=(XLRowRange&& other) noexcept;
-			uint32_t rowCount() const;
+			uint32 rowCount() const;
 			XLRowIterator begin();
 			XLRowIterator end();
 		private:
-			std::unique_ptr<XMLNode> m_dataNode;      /**< */
-			uint32_t m_firstRow;                      /**< The cell reference of the first cell in the range */
-			uint32_t m_lastRow;                       /**< The cell reference of the last cell in the range */
-			XLSharedStringsRef m_sharedStrings;       /**< */
+			std::unique_ptr<XMLNode> m_dataNode;
+			uint32 m_firstRow;                      /**< The cell reference of the first cell in the range */
+			uint32 m_lastRow;                       /**< The cell reference of the last cell in the range */
+			XLSharedStringsRef m_sharedStrings;
 		};
-	}
 
-	namespace OpenXLSX {
 		inline bool operator==(const XLRow& lhs, const XLRow& rhs) { return XLRow::isEqual(lhs, rhs); }
 		inline bool operator!=(const XLRow& lhs, const XLRow& rhs) { return !(lhs.m_rowNode == rhs.m_rowNode); }
 		inline bool operator<(const XLRow& lhs, const XLRow& rhs) { return XLRow::isLessThan(lhs, rhs); }
 		inline bool operator>(const XLRow& lhs, const XLRow& rhs) { return (rhs < lhs); }
 		inline bool operator<=(const XLRow& lhs, const XLRow& rhs) { return !(lhs > rhs); }
 		inline bool operator>=(const XLRow& lhs, const XLRow& rhs) { return !(lhs < rhs); }
-	}    // namespace OpenXLSX
-	//
-	//#include "XLMergeCells.hpp"
-	namespace OpenXLSX {
+		//
+		//#include "XLMergeCells.hpp"
 		typedef int32_t XLMergeIndex;
 		constexpr const XLMergeIndex XLMergeNotFound = -1;
 
@@ -5787,17 +5714,19 @@
 			std::unique_ptr<XMLNode> m_mergeCellsNode; /**< An XMLNode object with the mergeCells item */
 			std::deque<std::string> m_referenceCache;
 		};
-	}
-	//
-	//#include "XLSheet.hpp"
-	namespace OpenXLSX {
+		//
+		//#include "XLSheet.hpp"
 		constexpr const bool XLEmptyHiddenCells = true;            // readability constant for XLWorksheet::mergeCells parameter emptyHiddenCells
 		/**
 		 * @brief The XLSheetState is an enumeration of the possible (visibility) states, e.g. Visible or Hidden.
 		 */
-		enum class XLSheetState : uint8_t { Visible, Hidden, VeryHidden };
+		enum class XLSheetState : uint8_t { 
+			Visible, 
+			Hidden, 
+			VeryHidden 
+		};
 
-		constexpr const uint16_t XLPriorityNotSet = 0;     // readability constant for XLCfRule::priority()
+		constexpr const uint16 XLPriorityNotSet = 0;     // readability constant for XLCfRule::priority()
 
 		enum class XLCfType : uint8_t {
 			Expression        =   0,
@@ -5969,16 +5898,16 @@
 			XLColor color() const { return static_cast<const T&>(*this).getColor_impl(); }
 			void setColor(const XLColor& color) { static_cast<T&>(*this).setColor_impl(color); }
 			/**
-			 * @brief look up sheet name via relationshipID, then attempt to match that to a sheet in XLWorkbook::sheet(uint16_t index), looping over index
+			 * @brief look up sheet name via relationshipID, then attempt to match that to a sheet in XLWorkbook::sheet(uint16 index), looping over index
 			 * @return the index by which the sheet could be accessed from XLWorkbook::sheet
 			 */
-			uint16_t index() const
+			uint16 index() const
 			{
 				XLQuery query(XLQueryType::QuerySheetIndex);
 				query.setParam("sheetID", relationshipID());
-				return static_cast<uint16_t>(std::stoi(parentDoc().execQuery(query).template result<std::string>()));
+				return static_cast<uint16>(std::stoi(parentDoc().execQuery(query).template result<std::string>()));
 			}
-			void setIndex(uint16_t index)
+			void setIndex(uint16 index)
 			{
 				parentDoc().execCommand(XLCommand(XLCommandType::SetSheetIndex).setParam("sheetID", relationshipID()).setParam("sheetIndex", index));
 			}
@@ -6069,7 +5998,7 @@
 			 */
 			XLCfType type() const;
 			XLStyleIndex dxfId() const;
-			uint16_t priority() const; // >= 1
+			uint16 priority() const; // >= 1
 			bool stopIfTrue() const;   // default: false
 			bool aboveAverage() const; // default: true
 			bool percent() const; // default: false
@@ -6077,8 +6006,8 @@
 			XLCfOperator Operator() const; // Valid only when @type = cellIs
 			std::string text() const; // The text value in a "text contains" conditional formatting rule. Valid only for @type = containsText.
 			XLCfTimePeriod timePeriod() const; // The applicable time period in a "date occurring..." conditional formatting rule. Valid only for @type = timePeriod.
-			uint16_t rank() const; // The value of "n" in a "top/bottom n" conditional formatting rule. Valid only for @type = top10.
-			int16_t stdDev() const; // The number of standard deviations to include above or below the average in the conditional formatting rule. Valid only for @type = aboveAverage
+			uint16 rank() const; // The value of "n" in a "top/bottom n" conditional formatting rule. Valid only for @type = top10.
+			int16 stdDev() const; // The number of standard deviations to include above or below the average in the conditional formatting rule. Valid only for @type = aboveAverage
 			bool equalAverage() const; // default: false. Flag indicating whether the 'aboveAverage' and 'belowAverage' criteria
 			//                             is inclusive of the average itself, or exclusive of that value. '1' indicates to include
 			//                             the average value in the criteria. Valid only for @type = aboveAverage.
@@ -6096,7 +6025,7 @@
 			bool setType(XLCfType newType);
 			bool setDxfId(XLStyleIndex newDxfId);
 		private:     // Protect setPriority from access by any but the parent XLCfRules class
-			bool setPriority(uint16_t newPriority); // internal function, user access through XLCfRules::setPriority
+			bool setPriority(uint16 newPriority); // internal function, user access through XLCfRules::setPriority
 		public:
 			bool setStopIfTrue(bool set = true);
 			bool setAboveAverage(bool set = true);
@@ -6105,8 +6034,8 @@
 			bool setOperator(XLCfOperator newOperator);
 			bool setText(std::string const& newText);
 			bool setTimePeriod(XLCfTimePeriod newTimePeriod);
-			bool setRank(uint16_t newRank);
-			bool setStdDev(int16_t newStdDev);
+			bool setRank(uint16 newRank);
+			bool setStdDev(int16 newStdDev);
 			bool setEqualAverage(bool set = true);
 			/**
 			 * @brief Return a string summary of the cfRule properties
@@ -6160,19 +6089,19 @@
 			 * @brief Get the count highest priority value currently in use by a rule
 			 * @return The highest value that a cfRule has set for attribute priority
 			 */
-			uint16_t maxPriorityValue() const;
+			uint16 maxPriorityValue() const;
 			/**
 			 * @brief Provide a duplication-free interface to setting rule priorities: if a newPriority value exists, increment all existing priorities >= newPriority by 1
 			 * @param cfRuleIndex the index of the rule for which to set the priority
 			 * @param newPriority the priority value to assign
 			 * @return true on success, false if ruleIndex does not exist
 			 */
-			bool setPriority(size_t cfRuleIndex, uint16_t newPriority);
+			bool setPriority(size_t cfRuleIndex, uint16 newPriority);
 			/**
 			 * @brief Renumber all existing rule priorities to a clean sequence in steps of increment
 			 * @param increment increase the priority value by this much between rules
 			 */
-			void renumberPriorities(uint16_t increment = 1);
+			void renumberPriorities(uint16 increment = 1);
 			/**
 			 * @brief Get the count of rules for this conditional formatting
 			 * @return The amount of <cfRule> nodes in the <conditionalFormatting> node
@@ -6371,17 +6300,15 @@
 			 * @param columnNumber The column number (index base 1).
 			 * @return A reference to the XLCell object at the given coordinates.
 			 */
-			XLCellAssignable cell(uint32_t rowNumber, uint16_t columnNumber) const;
+			XLCellAssignable cell(uint32 rowNumber, uint16 columnNumber) const;
 			/**
-			 * @brief overload for findCell(uint32_t rowNumber, uint16_t columnNumber)
+			 * @brief overload for findCell(uint32 rowNumber, uint16 columnNumber)
 			 * @param ref string with the address of the cell to find
-			 * @return
 			 */
 			XLCellAssignable findCell(const std::string& ref) const;
 			/**
-			 * @brief overload for findCell(uint32_t rowNumber, uint16_t columnNumber)
+			 * @brief overload for findCell(uint32 rowNumber, uint16 columnNumber)
 			 * @param ref An XLCellReference object with the address of the cell to find
-			 * @return
 			 */
 			XLCellAssignable findCell(const XLCellReference& ref) const;
 			/**
@@ -6393,7 +6320,7 @@
 			 * @warning This is a usability feature with bad performance. When testing a large amounts of cells or working with large worksheets,
 			 *           it is better to use an XLCellIterator with the cell range of interest.
 			 */
-			XLCellAssignable findCell(uint32_t rowNumber, uint16_t columnNumber) const;
+			XLCellAssignable findCell(uint32 rowNumber, uint16 columnNumber) const;
 			/**
 			 * @brief Get a range for the area currently in use (i.e. from cell A1 to the last cell being in use).
 			 * @return An XLCellRange object with the entire range.
@@ -6422,20 +6349,20 @@
 			 */
 			XLCellRange range(std::string const& rangeReference) const;
 			XLRowRange rows() const;
-			XLRowRange rows(uint32_t rowCount) const;
-			XLRowRange rows(uint32_t firstRow, uint32_t lastRow) const;
+			XLRowRange rows(uint32 rowCount) const;
+			XLRowRange rows(uint32 firstRow, uint32 lastRow) const;
 			/**
 			 * @brief Get the row with the given row number.
 			 * @param rowNumber The number of the row to retrieve.
 			 * @return A reference to the XLRow object.
 			 */
-			XLRow row(uint32_t rowNumber) const;
+			XLRow row(uint32 rowNumber) const;
 			/**
 			 * @brief Get the column with the given column number.
 			 * @param columnNumber The number of the column to retrieve.
 			 * @return A reference to the XLColumn object.
 			 */
-			XLColumn column(uint16_t columnNumber) const;
+			XLColumn column(uint16 columnNumber) const;
 			/**
 			 * @brief Get the column with the given column reference
 			 * @param columnRef The letters referencing the given column
@@ -6451,18 +6378,18 @@
 			 * @brief Get the number of columns in the worksheet.
 			 * @return The number of columns.
 			 */
-			uint16_t columnCount() const noexcept;
+			uint16 columnCount() const noexcept;
 			/**
 			 * @brief Get the number of rows in the worksheet.
 			 * @return The number of rows.
 			 */
-			uint32_t rowCount() const noexcept;
+			uint32 rowCount() const noexcept;
 			/**
 			 * @brief Delete the row with the given row number from the underlying OOXML.
 			 * @return true if a row entry existed in OOXML & was deleted, otherwise false
 			 * @warning this will break all existing references to that row (formulas etc)
 			 */
-			bool deleteRow(uint32_t rowNumber);
+			bool deleteRow(uint32 rowNumber);
 			void updateSheetName(const std::string& oldName, const std::string& newName);
 			/**
 			 * @brief get an XLMergeCells object to directly access the member functions
@@ -6500,7 +6427,7 @@
 			 * @param column The column letter(s) or index (1-based)
 			 * @returns The index of the applicable format style
 			 */
-			XLStyleIndex getColumnFormat(uint16_t column) const;
+			XLStyleIndex getColumnFormat(uint16 column) const;
 			XLStyleIndex getColumnFormat(const std::string& column) const;
 			/**
 			 * @brief set the column style as a reference to the array index of xl/styles.xml:<styleSheet>:<cellXfs>
@@ -6509,7 +6436,7 @@
 			 * @param cellFormatIndex the style to set, corresponding to the index of XLStyles::cellStyles()
 			 * @returns true on success, false on failure
 			 */
-			bool setColumnFormat(uint16_t column, XLStyleIndex cellFormatIndex);
+			bool setColumnFormat(uint16 column, XLStyleIndex cellFormatIndex);
 			bool setColumnFormat(const std::string& column, XLStyleIndex cellFormatIndex);
 			/**
 			 * @brief get the array index of xl/styles.xml:<styleSheet>:<cellXfs> for the style assigned to a row
@@ -6517,7 +6444,7 @@
 			 * @param row the row index (1-based)
 			 * @returns the index of the applicable format style
 			 */
-			XLStyleIndex getRowFormat(uint16_t row) const;
+			XLStyleIndex getRowFormat(uint16 row) const;
 			/**
 			 * @brief set the row style as a reference to the array index of xl/styles.xml:<styleSheet>:<cellXfs>
 			 *        Subsequently, set the same style for all existing(!) cells in that row
@@ -6525,7 +6452,7 @@
 			 * @param cellFormatIndex the style to set, corresponding to the index of XLStyles::cellStyles()
 			 * @returns true on success, false on failure
 			 */
-			bool setRowFormat(uint32_t row, XLStyleIndex cellFormatIndex);
+			bool setRowFormat(uint32 row, XLStyleIndex cellFormatIndex);
 			/**
 			 * @brief Get the conditional formats object
 			 * @return An XLConditionalFormats object
@@ -6644,7 +6571,7 @@
 			/**
 			 * @brief fetch the # number from the xml path xl/worksheets/sheet#.xml
 			 */
-			uint16_t sheetXmlNumber() const;
+			uint16 sheetXmlNumber() const;
 			/**
 			 * @brief fetch a reference to the worksheet relationships
 			 * @note private because transparent to the user
@@ -6743,11 +6670,11 @@
 			 * @brief Method for getting the index of the sheet.
 			 * @return An int with the index of the sheet.
 			 */
-			uint16_t index() const;
+			uint16 index() const;
 			/**
 			 * @brief Method for setting the index of the sheet. This effectively moves the sheet to a different position.
 			 */
-			void setIndex(uint16_t index);
+			void setIndex(uint16 index);
 			/**
 			 * @brief Method to retrieve the name of the sheet.
 			 * @return A std::string with the sheet name.
@@ -6769,8 +6696,7 @@
 			 * @brief Method to get the type of the sheet.
 			 * @return An XLSheetType enum object with the sheet type.
 			 */
-			template <
-				typename SheetType,
+			template <typename SheetType,
 				typename = std::enable_if_t<std::is_same_v<SheetType, XLWorksheet> || std::is_same_v<SheetType, XLChartsheet> > >
 			bool isType() const
 			{
@@ -6790,11 +6716,9 @@
 				try {
 					if constexpr(std::is_same<T, XLWorksheet>::value)
 						return std::get<XLWorksheet>(m_sheet);
-
 					else if constexpr(std::is_same<T, XLChartsheet>::value)
 						return std::get<XLChartsheet>(m_sheet);
 				}
-
 				catch(const std::bad_variant_access&) {
 					throw XLSheetError("XLSheet object does not contain the requested sheet type.");
 				}

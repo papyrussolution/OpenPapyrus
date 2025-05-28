@@ -15,7 +15,7 @@ XLFormula& XLFormula::operator=(const XLFormula& other) = default;
 XLFormula& XLFormula::operator=(XLFormula&& other) noexcept = default;
 std::string XLFormula::get() const { return m_formulaString; }
 
-XLFormula& XLFormula::clear()
+XLFormula & XLFormula::clear()
 {
 	m_formulaString = "";
 	return *this;
@@ -30,21 +30,9 @@ XLFormulaProxy::XLFormulaProxy(XLCell* cell, XMLNode* cellNode) : m_cell(cell), 
 	assert(cell);
 }
 
-/**
- * @details Destructor. Default implementation.
- */
 XLFormulaProxy::~XLFormulaProxy() = default;
-
-/**
- * @details Copy constructor. default implementation.
- */
 XLFormulaProxy::XLFormulaProxy(const XLFormulaProxy& other) = default;
-
-/**
- * @details Move constructor. Default implementation.
- */
 XLFormulaProxy::XLFormulaProxy(XLFormulaProxy&& other) noexcept = default;
-
 /**
  * @details Calls the templated string assignment operator.
  */
@@ -53,32 +41,22 @@ XLFormulaProxy& XLFormulaProxy::operator=(const XLFormulaProxy& other)
 	if(&other != this) {
 		*this = other.getFormula();
 	}
-
 	return *this;
 }
-
 /**
  * @details Move assignment operator. Default implementation.
  */
 XLFormulaProxy& XLFormulaProxy::operator=(XLFormulaProxy&& other) noexcept = default;
 
-/**
- * @details
- */
-XLFormulaProxy::operator std::string() const {
-	return get();
-}
-
+XLFormulaProxy::operator std::string() const { return get(); }
 /**
  * @details Returns the underlying XLFormula object, by calling getFormula().
  */
 XLFormulaProxy::operator XLFormula() const { return getFormula(); }
-
 /**
  * @details Call the .get() function in the underlying XLFormula object.
  */
 std::string XLFormulaProxy::get() const { return getFormula().get(); }
-
 /**
  * @details If a formula node exists, it will be erased.
  */
@@ -91,7 +69,6 @@ XLFormulaProxy& XLFormulaProxy::clear()
 	if(not m_cellNode->child("f").empty())  m_cellNode->remove_child("f");
 	return *this;
 }
-
 /**
  * @details Convenience function for setting the formula. This method is called from the templated
  * string assignment operator.

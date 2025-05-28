@@ -2026,7 +2026,7 @@ public:
 
 	struct Surface {
 		Surface();
-		void * HCtx;  // Контекст устройства // @v10.3.1 uint32-->void *
+		void * HCtx;  // Контекст устройства
 		SImageBuffer * P_Img;
 	};
 	struct Capability {
@@ -2423,7 +2423,7 @@ public:
 		forceSelect // same as normalSelect but don't check current selection
 	};
 
-	explicit TView(const TRect & bounds);
+	explicit TView(const TRect & rBounds);
 	TView();
 	virtual ~TView();
 	// @v12.2.6 virtual int    FASTCALL valid(ushort command);
@@ -2442,7 +2442,7 @@ public:
 	void   setCommands(const TCommandSet & commands);
 	void   setBounds(const TRect & rBounds);
 	void   setBounds(const FRect & rBounds); // @v12.3.2
-	void   changeBounds(const TRect & bounds);
+	void   changeBounds(const TRect & rBounds);
 	bool   IsCommandValid(ushort command); // @v12.2.6
 	uint   getHelpCtx();
 	TView & SetId(uint id);
@@ -3854,6 +3854,9 @@ protected:
 
 class TInputLine : public TView, private Helper_WordSelector {
 public:
+	static constexpr float DefHeight      = 21.0f; // Высота поля ввода в пикселях по умолчанию
+	static constexpr float DefLabelHeight = 13.0f; // Высота этикетки в пикселях по умолчанию
+
 	static LRESULT CALLBACK DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 	enum {
@@ -3980,6 +3983,7 @@ public:
 	//
 	void   SetOuterFigure(SDrawFigure * pFig); // @v11.1.5
 private:
+	DECL_HANDLE_EVENT;
 	static LRESULT CALLBACK DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	virtual int    handleWindowsMessage(UINT, WPARAM, LPARAM);
 	SDrawFigure * P_Fig;

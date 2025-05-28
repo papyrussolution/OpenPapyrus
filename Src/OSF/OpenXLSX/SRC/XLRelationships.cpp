@@ -7,16 +7,15 @@
 using namespace OpenXLSX;
 
 namespace { // anonymous namespace: do not export these symbols
-bool RandomIDs{false};                 // default: use sequential IDs
-bool RandomizerInitialized{false};     // will be initialized by GetNewRelsID, if XLRand32 / XLRand64 are used elsewhere, user should invoke XLInitRandom
-} // anonymous namespace
+	bool RandomIDs{false};                 // default: use sequential IDs
+	bool RandomizerInitialized{false};     // will be initialized by GetNewRelsID, if XLRand32 / XLRand64 are used elsewhere, user should invoke XLInitRandom
+}
 
 namespace OpenXLSX { // anonymous namespace: do not export these symbols
 /**
  * @details Set the module-local status variable RandomIDs to true
  */
 void UseRandomIDs() { RandomIDs = true; }
-
 /**
  * @details Set the module-local status variable RandomIDs to false
  */
@@ -49,8 +48,7 @@ void InitRandom(bool pseudoRandom)
 }
 } // namespace OpenXLSX
 
-namespace
-{
+namespace {
 const std::string relationshipDomainOpenXml2006          = "http://schemas.openxmlformats.org/officeDocument/2006";
 const std::string relationshipDomainOpenXml2006CoreProps = "http://schemas.openxmlformats.org/package/2006";
 const std::string relationshipDomainMicrosoft2006        = "http://schemas.microsoft.com/office/2006";
@@ -181,10 +179,10 @@ uint64_t GetNewRelsID(XMLNode relationshipsNode)
 			id = std::stoi(std::string(relationship.attribute("Id").value()).substr(3));
 		}
 		catch(std::invalid_argument const & e) { // expected stoi exception
-			throw XLInputError("GetNewRelsID could not convert attribute Id to uint32_t ("s + e.what() + ")"s);
+			throw XLInputError("GetNewRelsID could not convert attribute Id to uint32 ("s + e.what() + ")"s);
 		}
-		catch(...) { // catch all other errors during conversion of attribute to uint32_t
-			throw XLInputError("GetNewRelsID could not convert attribute Id to uint32_t"s);
+		catch(...) { // catch all other errors during conversion of attribute to uint32
+			throw XLInputError("GetNewRelsID could not convert attribute Id to uint32"s);
 		}
 		if(id >= newId)  newId = id + 1;
 		relationship = relationship.next_sibling_of_type(pugi::node_element);
@@ -254,8 +252,7 @@ bool XLRelationshipItem::empty() const { return m_relationshipNode->empty(); }
  *  The pathTo the relationships XML file will be verified & stored in m_path, which is subsequently
  *   used to return all relationship targets as absolute paths within the XLSX archive
  */
-XLRelationships::XLRelationships(XLXmlData* xmlData, std::string pathTo)
-	: XLXmlFile(xmlData)
+XLRelationships::XLRelationships(XLXmlData* xmlData, std::string pathTo) : XLXmlFile(xmlData)
 {
 	constexpr const char * relFolder = "_rels/"; // all relationships are stored in a (sub-)folder named "_rels/"
 	static const size_t relFolderLen = strlen(relFolder); // 2024-08-23: strlen seems to not be accepted in a constexpr in VS2019 with c++17
@@ -269,15 +266,13 @@ XLRelationships::XLRelationships(XLXmlData* xmlData, std::string pathTo)
 		using namespace std::literals::string_literals;
 		throw XLException("XLRelationships constructor: pathTo \""s + pathTo + "\" does not point to a file in a folder named \"" + relFolder + "\""s);
 	}
-
 	OXlXmlDoc & doc = xmlDocument();
 	if(doc.document_element().empty()) // handle a bad (no document element) relationships XML file
 		doc.load_string(
 			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
 			"<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"\n"
 			"</Relationships>",
-			pugi_parse_settings
-			);
+			pugi_parse_settings);
 }
 
 XLRelationships::~XLRelationships() = default;
@@ -289,7 +284,6 @@ XLRelationshipItem XLRelationships::relationshipById(const std::string& id) cons
 {
 	return XLRelationshipItem(xmlDocumentC().document_element().find_child_by_attribute("Id", id.c_str()));
 }
-
 /**
  * @details Returns the XLRelationshipItem with the requested target, by iterating through the items.
  * @note 2024-07-24: perform a match that is agnostic to relative vs. absolute (leading slash) paths
@@ -301,21 +295,20 @@ XLRelationshipItem XLRelationships::relationshipByTarget(const std::string& targ
 	XMLNode relationshipNode = xmlDocumentC().document_element().first_child_of_type(pugi::node_element);
 	while(not relationshipNode.empty()) {
 		std::string relationTarget = relationshipNode.attribute("Target").value();
-		if(relationTarget[0] != '/')  relationTarget = m_path + relationTarget;// turn relative path into an absolute
+		if(relationTarget[0] != '/')
+			relationTarget = m_path + relationTarget;// turn relative path into an absolute
 		relationTarget = eliminateDotAndDotDotFromPath(relationTarget);    // and resolve . and .. entries, if any
-
 		// ===== Attempt to match absoluteTarget & relationTarget
-		if(absoluteTarget == relationTarget)  return XLRelationshipItem(relationshipNode);// found!
+		if(absoluteTarget == relationTarget)
+			return XLRelationshipItem(relationshipNode);// found!
 		relationshipNode = relationshipNode.next_sibling_of_type(pugi::node_element);
 	}
-
 	if(throwIfNotFound) {
 		using namespace std::literals::string_literals;
 		throw XLException("XLRelationships::"s + __func__ + ": relationship with target \""s + target + "\" (absolute: \""s + absoluteTarget + "\" does not exist!"s);
 	}
 	return XLRelationshipItem(); // fail with an empty XLRelationshipItem return value -> can be tested for ::empty()
 }
-
 /**
  * @details Returns a const reference to the internal datastructure (std::vector)
  */
@@ -349,18 +342,15 @@ XLRelationshipItem XLRelationships::addRelationship(XLRelationshipType type, con
 {
 	const std::string typeString = OpenXLSX_XLRelationships::GetStringFromType(type);
 	// const std::string id         = "rId" + std::to_string(GetNewRelsID(xmlDocument().document_element()));
-	const std::string id         = GetNewRelsIDString(xmlDocument().document_element());// 2024-07-24: wrapper for relationship IDs with support for 64 bit random IDs
-
+	const std::string id = GetNewRelsIDString(xmlDocument().document_element());// 2024-07-24: wrapper for relationship IDs with support for 64 bit random IDs
 	XMLNode lastRelationship = xmlDocument().document_element().last_child_of_type(pugi::node_element); // see if there's a last element
 	XMLNode node{}; // scope declaration
-
 	// Create new node in the .rels file
 	if(lastRelationship.empty())
 		node = xmlDocument().document_element().prepend_child("Relationship");
 	else { // if last element found
 		// ===== Insert node after previous relationship
 		node = xmlDocument().document_element().insert_child_after("Relationship", lastRelationship);
-
 		// ===== Using whitespace nodes prior to lastRelationship as a template, insert whitespaces between lastRelationship and the new node
 		XMLNode copyWhitespaceFrom = lastRelationship; // start looking for whitespace nodes before previous relationship
 		XMLNode insertBefore = node;              // start inserting the same whitespace nodes before new relationship
@@ -375,14 +365,11 @@ XLRelationshipItem XLRelationships::addRelationship(XLRelationshipType type, con
 	node.append_attribute("Id").set_value(id.c_str());
 	node.append_attribute("Type").set_value(typeString.c_str());
 	node.append_attribute("Target").set_value(target.c_str());
-
 	if(type == XLRelationshipType::ExternalLinkPath) {
 		node.append_attribute("TargetMode").set_value("External");
 	}
-
 	return XLRelationshipItem(node);
 }
-
 /**
  * @details check whether relationshipByTarget finds an XLRelationshipItem or returns an empty one
  * @note 2024-07-24: let relationshipByTarget perform the find with a match that is agnostic to a potential leading slash

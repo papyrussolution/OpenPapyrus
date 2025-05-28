@@ -1401,9 +1401,21 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 		}
 	}
 	if(typeID) {
-		CtmExprConst c;
-		AddConst(static_cast<uint32>(typeID), &c);
-		p_scope->AddConst(DlScope::cuifViewDataType, c, 1);
+		TypeEntry te;
+		uint   type_pos = 0;
+		if(SearchTypeID(typeID, &type_pos, &te)) { // @v12.3.5
+			if(te.T.IsPure()) {
+				CtmExprConst c;
+				AddConst(static_cast<uint32>(te.T.Typ), &c);
+				p_scope->AddConst(DlScope::cuifViewDataType, c, 1);
+			}
+			else {
+				; // @todo Что-то сообщить, наверное, надо
+			}
+		}
+		else {
+			; // @todo @err
+		}
 	}
 	{
 		CtmExprConst c;
@@ -1418,7 +1430,18 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 	if(command_ident.NotEmpty()) {
 		CtmExprConst c;
 		AddConst(command_ident, &c);
-		p_scope->AddConst(DlScope::cuifCtrlCmdSymb, c, 1);		
+		p_scope->AddConst(DlScope::cuifCtrlCmdSymb, c, 1);
+		{
+			SString cpreproc_result_text;
+			int    cpreproc_result_int = 0;
+			if(CppBlk.ResolveSymbol(command_ident, &cpreproc_result_text, &cpreproc_result_int)) {
+				if(cpreproc_result_int) {
+					CtmExprConst c2;
+					AddConst(static_cast<uint32>(cpreproc_result_int), &c2);
+					p_scope->AddConst(DlScope::cuifCtrlCmd, c2, 1);
+				}
+			}
+		}
 	}
 	if(data_ident.NotEmpty()) {
 		CtmExprConst c;
@@ -2535,7 +2558,7 @@ int DlContext::AddDeclaration(DLSYMBID typeId, const CtmDclr & rDclr, CtmExpr * 
 		if(pExpr) {
 			THROW(ResolveExpr(CurScopeID, CurScopeID, 0, pExpr));
 			is_formula = 1;
-			pExpr->Pack(fld.InnerFormula); // @v10.9.1 Formula-->InnerFormula
+			pExpr->Pack(fld.InnerFormula);
 			typeId = pExpr->GetTypeID();
 			pExpr->Destroy();
 		}

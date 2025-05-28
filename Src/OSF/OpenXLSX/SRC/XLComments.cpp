@@ -7,45 +7,43 @@
 using namespace OpenXLSX;
 
 namespace {
-// module-local utility functions
-/**
- * @details TODO: write doxygen headers for functions in this module
- */
-std::string getCommentString(XMLNode const & commentNode)
-{
-	std::string result{};
-	using namespace std::literals::string_literals;
-	XMLNode textElement = commentNode.child("text").first_child_of_type(pugi::node_element);
-	while(not textElement.empty()) {
-		if(textElement.name() == "t"s) {
-			result += textElement.first_child().value();
-		}
-		else if(textElement.name() == "r"s) { // rich text
-			XMLNode richTextSubnode = textElement.first_child_of_type(pugi::node_element);
-			while(not richTextSubnode.empty()) {
-				if(textElement.name() == "t"s) {
-					result += textElement.first_child().value();
-				}
-				else if(textElement.name() == "rPr"s) {
-				}                             // ignore rich text formatting info
-				else {
-				} // ignore other nodes
-				richTextSubnode = richTextSubnode.next_sibling_of_type(pugi::node_element);
+	// module-local utility functions
+	/**
+	 * @details TODO: write doxygen headers for functions in this module
+	 */
+	std::string getCommentString(XMLNode const & commentNode)
+	{
+		std::string result{};
+		using namespace std::literals::string_literals;
+		XMLNode textElement = commentNode.child("text").first_child_of_type(pugi::node_element);
+		while(not textElement.empty()) {
+			if(textElement.name() == "t"s) {
+				result += textElement.first_child().value();
 			}
+			else if(textElement.name() == "r"s) { // rich text
+				XMLNode richTextSubnode = textElement.first_child_of_type(pugi::node_element);
+				while(not richTextSubnode.empty()) {
+					if(textElement.name() == "t"s) {
+						result += textElement.first_child().value();
+					}
+					else if(textElement.name() == "rPr"s) {
+					}                             // ignore rich text formatting info
+					else {
+					} // ignore other nodes
+					richTextSubnode = richTextSubnode.next_sibling_of_type(pugi::node_element);
+				}
+			}
+			else {
+			}   // ignore other elements (for now)
+			textElement = textElement.next_sibling_of_type(pugi::node_element);
 		}
-		else {
-		}   // ignore other elements (for now)
-		textElement = textElement.next_sibling_of_type(pugi::node_element);
+		return result;
 	}
-	return result;
 }
-}    // namespace
 
 // ========== XLComment Member Functions
 
-// XLComment::XLComment()
-//  : m_commentNode(std::make_unique<XMLNode>())
-//  {}
+// XLComment::XLComment() : m_commentNode(std::make_unique<XMLNode>()) {}
 
 XLComment::XLComment(const XMLNode& node) : m_commentNode(std::make_unique<XMLNode>(node))
 {
@@ -63,7 +61,7 @@ bool XLComment::valid() const { return m_commentNode != nullptr &&(not m_comment
  */
 std::string XLComment::ref() const { return m_commentNode->attribute("ref").value(); }
 std::string XLComment::text() const { return getCommentString(*m_commentNode); }
-uint16_t XLComment::authorId() const { return static_cast<uint16_t>(m_commentNode->attribute("authorId").as_uint()); }
+uint16 XLComment::authorId() const { return static_cast<uint16>(m_commentNode->attribute("authorId").as_uint()); }
 
 /**
  * @brief Setter functions
@@ -76,7 +74,7 @@ bool XLComment::setText(std::string newText)
 	return tNode.prepend_child(pugi::node_pcdata).set_value(newText.c_str()); // finally, insert <t> node_pcdata value
 }
 
-bool XLComment::setAuthorId(uint16_t newAuthorId) { return appendAndSetAttribute(*m_commentNode, "authorId", std::to_string(newAuthorId)).empty() == false; }
+bool XLComment::setAuthorId(uint16 newAuthorId) { return appendAndSetAttribute(*m_commentNode, "authorId", std::to_string(newAuthorId)).empty() == false; }
 
 // ========== XLComments Member Functions
 
@@ -169,10 +167,10 @@ bool XLComments::setVmlDrawing(XLVmlDrawing &vmlDrawing)
 /**
  * @details TODO: write doxygen headers for functions in this module
  */
-XMLNode XLComments::authorNode(uint16_t index) const
+XMLNode XLComments::authorNode(uint16 index) const
 {
 	XMLNode auth = m_authors.first_child_of_type(pugi::node_element);
-	uint16_t i = 0;
+	uint16 i = 0;
 	while(not auth.empty() && i != index) {
 		++i;
 		auth = auth.next_sibling_of_type(pugi::node_element);
@@ -214,10 +212,10 @@ XMLNode XLComments::commentNode(const std::string& cellRef) const
 /**
  * @details TODO: write doxygen headers for functions in this module
  */
-uint16_t XLComments::authorCount() const
+uint16 XLComments::authorCount() const
 {
 	XMLNode auth = m_authors.first_child_of_type(pugi::node_element);
-	uint16_t count = 0;
+	uint16 count = 0;
 	while(not auth.empty()) {
 		++count;
 		auth = auth.next_sibling_of_type(pugi::node_element);
@@ -228,7 +226,7 @@ uint16_t XLComments::authorCount() const
 /**
  * @details TODO: write doxygen headers for functions in this module
  */
-std::string XLComments::author(uint16_t index) const
+std::string XLComments::author(uint16 index) const
 {
 	XMLNode auth = authorNode(index);
 	if(auth.empty()) {
@@ -241,7 +239,7 @@ std::string XLComments::author(uint16_t index) const
 /**
  * @details TODO: write doxygen headers for functions in this module
  */
-bool XLComments::deleteAuthor(uint16_t index)
+bool XLComments::deleteAuthor(uint16 index)
 {
 	XMLNode auth = authorNode(index);
 	if(auth.empty()) {
@@ -259,10 +257,10 @@ bool XLComments::deleteAuthor(uint16_t index)
 /**
  * @details insert author and return index
  */
-uint16_t XLComments::addAuthor(const std::string& authorName)
+uint16 XLComments::addAuthor(const std::string& authorName)
 {
 	XMLNode auth = m_authors.first_child_of_type(pugi::node_element);
-	uint16_t index = 0;
+	uint16 index = 0;
 	while(not auth.next_sibling_of_type(pugi::node_element).empty()) {
 		++index;
 		auth = auth.next_sibling_of_type(pugi::node_element);
@@ -298,10 +296,10 @@ size_t XLComments::count() const
 /**
  * @details TODO: write doxygen headers for functions in this module
  */
-uint16_t XLComments::authorId(const std::string& cellRef) const
+uint16 XLComments::authorId(const std::string& cellRef) const
 {
 	XMLNode comment = commentNode(cellRef);
-	return static_cast<uint16_t>(comment.attribute("authorId").as_uint());
+	return static_cast<uint16>(comment.attribute("authorId").as_uint());
 }
 
 /**
@@ -344,11 +342,11 @@ std::string XLComments::get(const std::string& cellRef) const { return getCommen
 /**
  * @details TODO: write doxygen headers for functions in this module
  */
-bool XLComments::set(std::string const& cellRef, std::string const& commentText, uint16_t authorId_)
+bool XLComments::set(std::string const& cellRef, std::string const& commentText, uint16 authorId_)
 {
 	XLCellReference destRef(cellRef);
-	uint32_t destRow = destRef.row();
-	uint16_t destCol = destRef.column();
+	uint32 destRow = destRef.row();
+	uint16 destCol = destRef.column();
 	bool newCommentCreated = false; // if false, try to find an existing shape before creating one
 
 	using namespace std::literals::string_literals;
@@ -428,12 +426,12 @@ bool XLComments::set(std::string const& cellRef, std::string const& commentText,
 		clientData.setSizeWithCells();
 
 		{
-			constexpr const uint16_t leftColOffset = 1;
-			constexpr const uint16_t widthCols = 2;
-			constexpr const uint16_t topRowOffset = 1;
-			constexpr const uint16_t heightRows = 2;
+			constexpr const uint16 leftColOffset = 1;
+			constexpr const uint16 widthCols = 2;
+			constexpr const uint16 topRowOffset = 1;
+			constexpr const uint16 heightRows = 2;
 
-			uint16_t anchorLeftCol, anchorRightCol;
+			uint16 anchorLeftCol, anchorRightCol;
 			if(OpenXLSX::MAX_COLS - destCol > leftColOffset + widthCols) {
 				anchorLeftCol  = (destCol - 1) + leftColOffset;
 				anchorRightCol = (destCol - 1) + leftColOffset + widthCols;
@@ -443,7 +441,7 @@ bool XLComments::set(std::string const& cellRef, std::string const& commentText,
 				anchorRightCol = (destCol - 1) - leftColOffset;
 			}
 
-			uint32_t anchorTopRow, anchorBottomRow;
+			uint32 anchorTopRow, anchorBottomRow;
 			if(OpenXLSX::MAX_ROWS - destRow > topRowOffset + heightRows) {
 				anchorTopRow    = (destRow - 1) + topRowOffset;
 				anchorBottomRow = (destRow - 1) + topRowOffset + heightRows;
@@ -461,8 +459,8 @@ bool XLComments::set(std::string const& cellRef, std::string const& commentText,
 				        /**/          +                  std::to_string(MAX_SHAPE_ANCHOR_ROW) + " may not get displayed correctly (LO Calc, TBD in Excel)"s <<
 				    std::endl;
 
-			uint16_t anchorLeftOffsetInCell = 10, anchorRightOffsetInCell = 10;
-			uint16_t anchorTopOffsetInCell = 5, anchorBottomOffsetInCell = 5;
+			uint16 anchorLeftOffsetInCell = 10, anchorRightOffsetInCell = 10;
+			uint16 anchorTopOffsetInCell = 5, anchorBottomOffsetInCell = 5;
 
 			// clientData.setAnchor("3, 23, 0, 0, 4, 25, 3, 5");
 			using namespace std::literals::string_literals;

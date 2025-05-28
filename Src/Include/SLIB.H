@@ -12245,6 +12245,7 @@ int FASTCALL ExtStrSrch(const char * pBuffer, const char * pPattern, uint flags)
 #define SNTOK_AU_ABN                    57 // @v12.3.4 @todo https://abr.business.gov.au/Help/AbnFormat
 #define SNTOK_BG_EGN                    58 // @v12.3.4 @todo Болгария Единый Гражданский Код 
 #define SNTOK_CA_SIN                    59 // @v12.3.4 @todo Canada Social Insurance Number
+#define SNTOK_CHZN_PALLET_GTIN          60 // @v12.4.5 честный знак Специальная конструкция, не являющаяся маркой (00 GTIN14 9999)
 
 #define SNTOKSEQ_DEC                0x00000001 // 0-9
 #define SNTOKSEQ_LATLWR             0x00000002 // a-z

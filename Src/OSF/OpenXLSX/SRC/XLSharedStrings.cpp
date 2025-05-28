@@ -16,9 +16,7 @@ using namespace OpenXLSX;
  * @details Constructs a new XLSharedStrings object. Only one (common) object is allowed per XLDocument instance.
  * A filepath to the underlying XML file must be provided.
  */
-XLSharedStrings::XLSharedStrings(XLXmlData* xmlData, std::deque<std::string>* stringCache)
-	: XLXmlFile(xmlData),
-	m_stringCache(stringCache)
+XLSharedStrings::XLSharedStrings(XLXmlData* xmlData, std::deque<std::string>* stringCache) : XLXmlFile(xmlData), m_stringCache(stringCache)
 {
 	OXlXmlDoc & doc = xmlDocument();
 	if(doc.document_element().empty()) // handle a bad (no document element) xl/sharedStrings.xml
@@ -31,21 +29,16 @@ XLSharedStrings::XLSharedStrings(XLXmlData* xmlData, std::deque<std::string>* st
 			// "    <t/>\n"
 			// "  </si>\n"
 			"</sst>",
-			pugi_parse_settings
-			);
+			pugi_parse_settings);
 }
 
 XLSharedStrings::~XLSharedStrings() = default;
-
 /**
  * @details Look up a string index by the string content. If the string does not exist, the returned index is -1.
  */
 int32_t XLSharedStrings::getStringIndex(const std::string& str) const
 {
-	const auto iter = std::find_if(m_stringCache->begin(), m_stringCache->end(), [&](const std::string& s) {
-		return str == s;
-	});
-
+	const auto iter = std::find_if(m_stringCache->begin(), m_stringCache->end(), [&](const std::string& s) { return str == s; });
 	return iter == m_stringCache->end() ? -1 : static_cast<int32_t>(std::distance(m_stringCache->begin(), iter));
 }
 
@@ -59,7 +52,6 @@ const char* XLSharedStrings::getString(int32_t index) const
 	}
 	return (*m_stringCache)[index].c_str();
 }
-
 /**
  * @details Append a string by creating a new node in the XML file and adding the string to it. The index to the
  * shared string is returned
@@ -77,10 +69,8 @@ int32_t XLSharedStrings::appendString(const std::string& str) const
 		textNode.append_attribute("xml:space").set_value("preserve"); // pull request #161
 	textNode.text().set(str.c_str());
 	m_stringCache->emplace_back(textNode.text().get()); // index of this element = previous stringCacheSize
-
 	return static_cast<int32_t>(stringCacheSize);
 }
-
 /**
  * @details Print the underlying XML using pugixml::xml_node::print
  */

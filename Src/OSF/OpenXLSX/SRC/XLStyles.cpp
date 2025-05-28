@@ -6,400 +6,409 @@
 
 using namespace OpenXLSX;
 
-namespace     // anonymous namespace for module local functions
-{
-enum XLStylesEntryType : uint8_t {
-	XLStylesNumberFormats    =   0,
-	XLStylesFonts            =   1,
-	XLStylesFills            =   2,
-	XLStylesBorders          =   3,
-	XLStylesCellStyleFormats =   4,
-	XLStylesCellFormats      =   5,
-	XLStylesCellStyles       =   6,
-	XLStylesColors           =   7,
-	XLStylesDiffCellFormats  =   8,
-	XLStylesTableStyles      =   9,
-	XLStylesExtLst           =  10,
-	XLStylesInvalid          = 255
-};
+namespace { // anonymous namespace for module local functions
+	enum XLStylesEntryType : uint8_t {
+		XLStylesNumberFormats    =   0,
+		XLStylesFonts            =   1,
+		XLStylesFills            =   2,
+		XLStylesBorders          =   3,
+		XLStylesCellStyleFormats =   4,
+		XLStylesCellFormats      =   5,
+		XLStylesCellStyles       =   6,
+		XLStylesColors           =   7,
+		XLStylesDiffCellFormats  =   8,
+		XLStylesTableStyles      =   9,
+		XLStylesExtLst           =  10,
+		XLStylesInvalid          = 255
+	};
 
-XLStylesEntryType XLStylesEntryTypeFromString(std::string name)
-{
-	if(name == "numFmts")       return XLStylesNumberFormats;
-	if(name == "fonts")         return XLStylesFonts;
-	if(name == "fills")         return XLStylesFills;
-	if(name == "borders")       return XLStylesBorders;
-	if(name == "cellStyleXfs")  return XLStylesCellStyleFormats;
-	if(name == "cellXfs")       return XLStylesCellFormats;
-	if(name == "cellStyles")    return XLStylesCellStyles;
-	if(name == "colors")        return XLStylesColors;
-	if(name == "dxfs")          return XLStylesDiffCellFormats;
-	if(name == "tableStyles")   return XLStylesTableStyles;
-	if(name == "extLst")        return XLStylesExtLst;
-	return XLStylesEntryType::XLStylesInvalid;
-}
+	XLStylesEntryType XLStylesEntryTypeFromString(std::string name)
+	{
+		if(name == "numFmts")       return XLStylesNumberFormats;
+		if(name == "fonts")         return XLStylesFonts;
+		if(name == "fills")         return XLStylesFills;
+		if(name == "borders")       return XLStylesBorders;
+		if(name == "cellStyleXfs")  return XLStylesCellStyleFormats;
+		if(name == "cellXfs")       return XLStylesCellFormats;
+		if(name == "cellStyles")    return XLStylesCellStyles;
+		if(name == "colors")        return XLStylesColors;
+		if(name == "dxfs")          return XLStylesDiffCellFormats;
+		if(name == "tableStyles")   return XLStylesTableStyles;
+		if(name == "extLst")        return XLStylesExtLst;
+		return XLStylesEntryType::XLStylesInvalid;
+	}
 
-std::string XLStylesEntryTypeToString(XLStylesEntryType entryType)
-{
-	switch(entryType) {
-		case XLStylesNumberFormats:    return "numFmts";
-		case XLStylesFonts:            return "fonts";
-		case XLStylesFills:            return "fills";
-		case XLStylesBorders:          return "borders";
-		case XLStylesCellStyleFormats: return "cellStyleXfs";
-		case XLStylesCellFormats:      return "cellXfs";
-		case XLStylesCellStyles:       return "cellStyles";
-		case XLStylesColors:           return "colors";
-		case XLStylesDiffCellFormats:  return "dxfs";
-		case XLStylesTableStyles:      return "tableStyles";
-		case XLStylesExtLst:           return "extLst";
-		case XLStylesInvalid:          [[fallthrough]];
-		default:                       return "(invalid)";
+	std::string XLStylesEntryTypeToString(XLStylesEntryType entryType)
+	{
+		switch(entryType) {
+			case XLStylesNumberFormats:    return "numFmts";
+			case XLStylesFonts:            return "fonts";
+			case XLStylesFills:            return "fills";
+			case XLStylesBorders:          return "borders";
+			case XLStylesCellStyleFormats: return "cellStyleXfs";
+			case XLStylesCellFormats:      return "cellXfs";
+			case XLStylesCellStyles:       return "cellStyles";
+			case XLStylesColors:           return "colors";
+			case XLStylesDiffCellFormats:  return "dxfs";
+			case XLStylesTableStyles:      return "tableStyles";
+			case XLStylesExtLst:           return "extLst";
+			case XLStylesInvalid:          [[fallthrough]];
+			default:                       return "(invalid)";
+		}
+	}
+
+	XLUnderlineStyle XLUnderlineStyleFromString(std::string underline)
+	{
+		if(underline == ""
+			|| underline == "none")   return XLUnderlineNone;
+		if(underline == "single")  return XLUnderlineSingle;
+		if(underline == "double")  return XLUnderlineDouble;
+		std::cerr << __func__ << ": invalid underline style " << underline << std::endl;
+		return XLUnderlineInvalid;
+	}
+
+	std::string XLUnderlineStyleToString(XLUnderlineStyle underline)
+	{
+		switch(underline) {
+			case XLUnderlineNone: return "none";
+			case XLUnderlineSingle: return "single";
+			case XLUnderlineDouble: return "double";
+			case XLUnderlineInvalid: [[fallthrough]];
+			default: return "(invalid)";
+		}
+	}
+
+	XLFontSchemeStyle XLFontSchemeStyleFromString(std::string fontScheme)
+	{
+		if(fontScheme == "" || fontScheme == "none")  return XLFontSchemeNone;
+		if(fontScheme == "major")  return XLFontSchemeMajor;
+		if(fontScheme == "minor")  return XLFontSchemeMinor;
+		std::cerr << __func__ << ": invalid font scheme " << fontScheme << std::endl;
+		return XLFontSchemeInvalid;
+	}
+
+	std::string XLFontSchemeStyleToString(XLFontSchemeStyle fontScheme)
+	{
+		switch(fontScheme) {
+			case XLFontSchemeNone: return "none";
+			case XLFontSchemeMajor: return "major";
+			case XLFontSchemeMinor: return "minor";
+			case XLFontSchemeInvalid: [[fallthrough]];
+			default: return "(invalid)";
+		}
+	}
+
+	XLVerticalAlignRunStyle XLVerticalAlignRunStyleFromString(std::string vertAlign)
+	{
+		if(vertAlign == "" || vertAlign == "baseline")    
+			return XLBaseline;
+		if(vertAlign == "subscript")    
+			return XLSubscript;
+		if(vertAlign == "superscript")  
+			return XLSuperscript;
+		std::cerr << __func__ << ": invalid font vertical align run style " << vertAlign << std::endl;
+		return XLVerticalAlignRunInvalid;
+	}
+
+	std::string XLVerticalAlignRunStyleToString(XLVerticalAlignRunStyle vertAlign)
+	{
+		switch(vertAlign) {
+			case XLBaseline: return "baseline";
+			case XLSubscript: return "subscript";
+			case XLSuperscript: return "superscript";
+			case XLVerticalAlignRunInvalid: [[fallthrough]];
+			default: return "(invalid)";
+		}
+	}
+
+	XLFillType XLFillTypeFromString(std::string fillType)
+	{
+		if(fillType == "gradientFill")  
+			return XLGradientFill;
+		if(fillType == "patternFill")   
+			return XLPatternFill;
+		if(fillType != "")     // suppress error message for empty fillType (= no node exists yet)
+			std::cerr << __func__ << ": invalid fillType \"" << fillType << "\"" << std::endl;
+		return XLFillTypeInvalid;
+	}
+
+	std::string XLFillTypeToString(XLFillType fillType)
+	{
+		switch(fillType) {
+			case XLGradientFill: return "gradientFill";
+			case XLPatternFill: return "patternFill";
+			case XLFillTypeInvalid: [[fallthrough]];
+			default:                return "(invalid)";
+		}
+	}
+
+	XLGradientType XLGradientTypeFromString(std::string gradientType)
+	{
+		if(gradientType == "linear")  return XLGradientLinear;
+		if(gradientType == "path")    return XLGradientPath;
+		std::cerr << __func__ << ": invalid gradient type " << gradientType << std::endl;
+		return XLGradientTypeInvalid;
+	}
+
+	std::string XLGradientTypeToString(XLGradientType gradientType)
+	{
+		switch(gradientType) {
+			case XLGradientLinear: return "linear";
+			case XLGradientPath: return "path";
+			case XLGradientTypeInvalid: [[fallthrough]];
+			default:                    return "(invalid)";
+		}
+	}
+
+	XLPatternType XLPatternTypeFromString(std::string patternType)
+	{
+		if(patternType == ""
+			|| patternType == "none")            return XLPatternNone;
+		if(patternType == "solid")            return XLPatternSolid;
+		if(patternType == "mediumGray")       return XLPatternMediumGray;
+		if(patternType == "darkGray")         return XLPatternDarkGray;
+		if(patternType == "lightGray")        return XLPatternLightGray;
+		if(patternType == "darkHorizontal")   return XLPatternDarkHorizontal;
+		if(patternType == "darkVertical")     return XLPatternDarkVertical;
+		if(patternType == "darkDown")         return XLPatternDarkDown;
+		if(patternType == "darkUp")           return XLPatternDarkUp;
+		if(patternType == "darkGrid")         return XLPatternDarkGrid;
+		if(patternType == "darkTrellis")      return XLPatternDarkTrellis;
+		if(patternType == "lightHorizontal")  return XLPatternLightHorizontal;
+		if(patternType == "lightVertical")    return XLPatternLightVertical;
+		if(patternType == "lightDown")        return XLPatternLightDown;
+		if(patternType == "lightUp")          return XLPatternLightUp;
+		if(patternType == "lightGrid")        return XLPatternLightGrid;
+		if(patternType == "lightTrellis")     return XLPatternLightTrellis;
+		if(patternType == "gray125")          return XLPatternGray125;
+		if(patternType == "gray0625")         return XLPatternGray0625;
+		std::cerr << __func__ << ": invalid patternType " << patternType << std::endl;
+		return XLPatternTypeInvalid;
+	}
+
+	std::string XLPatternTypeToString(XLPatternType patternType)
+	{
+		switch(patternType) {
+			case XLPatternNone: return "none";
+			case XLPatternSolid: return "solid";
+			case XLPatternMediumGray: return "mediumGray";
+			case XLPatternDarkGray: return "darkGray";
+			case XLPatternLightGray: return "lightGray";
+			case XLPatternDarkHorizontal: return "darkHorizontal";
+			case XLPatternDarkVertical: return "darkVertical";
+			case XLPatternDarkDown: return "darkDown";
+			case XLPatternDarkUp: return "darkUp";
+			case XLPatternDarkGrid: return "darkGrid";
+			case XLPatternDarkTrellis: return "darkTrellis";
+			case XLPatternLightHorizontal: return "lightHorizontal";
+			case XLPatternLightVertical: return "lightVertical";
+			case XLPatternLightDown: return "lightDown";
+			case XLPatternLightUp: return "lightUp";
+			case XLPatternLightGrid: return "lightGrid";
+			case XLPatternLightTrellis: return "lightTrellis";
+			case XLPatternGray125: return "gray125";
+			case XLPatternGray0625: return "gray0625";
+			case XLPatternTypeInvalid: [[fallthrough]];
+			default:                       return "(invalid)";
+		}
+	}
+
+	#ifdef __GNUC__    // conditionally enable GCC specific pragmas to suppress unused function warning
+	#pragma GCC diagnostic push
+	#pragma GCC diagnostic ignored "-Wunused-function"
+	#endif // __GNUC__
+	XLLineType XLLineTypeFromString(std::string lineType)
+	{
+		if(lineType == "left")        return XLLineLeft;
+		if(lineType == "right")       return XLLineRight;
+		if(lineType == "top")         return XLLineTop;
+		if(lineType == "bottom")      return XLLineBottom;
+		if(lineType == "diagonal")    return XLLineDiagonal;
+		if(lineType == "vertical")    return XLLineVertical;
+		if(lineType == "horizontal")  return XLLineHorizontal;
+		std::cerr << __func__ << ": invalid line type" << lineType << std::endl;
+		return XLLineInvalid;
+	}
+
+	#ifdef __GNUC__    // conditionally enable GCC specific pragmas to suppress unused function warning
+	#pragma GCC diagnostic pop
+	#endif // __GNUC__
+
+	std::string XLLineTypeToString(XLLineType lineType)
+	{
+		switch(lineType) {
+			case XLLineLeft:       return "left";
+			case XLLineRight:      return "right";
+			case XLLineTop:        return "top";
+			case XLLineBottom:     return "bottom";
+			case XLLineDiagonal:   return "diagonal";
+			case XLLineVertical:   return "vertical";
+			case XLLineHorizontal: return "horizontal";
+			case XLLineInvalid:    [[fallthrough]];
+			default:               return "(invalid)";
+		}
+	}
+
+	XLLineStyle XLLineStyleFromString(std::string style)
+	{
+		if(style == "")                  return XLLineStyleNone;
+		if(style == "thin")              return XLLineStyleThin;
+		if(style == "medium")            return XLLineStyleMedium;
+		if(style == "dashed")            return XLLineStyleDashed;
+		if(style == "dotted")            return XLLineStyleDotted;
+		if(style == "thick")             return XLLineStyleThick;
+		if(style == "double")            return XLLineStyleDouble;
+		if(style == "hair")              return XLLineStyleHair;
+		if(style == "mediumDashed")      return XLLineStyleMediumDashed;
+		if(style == "dashDot")           return XLLineStyleDashDot;
+		if(style == "mediumDashDot")     return XLLineStyleMediumDashDot;
+		if(style == "dashDotDot")        return XLLineStyleDashDotDot;
+		if(style == "mediumDashDotDot")  return XLLineStyleMediumDashDotDot;
+		if(style == "slantDashDot")      return XLLineStyleSlantDashDot;
+		std::cerr << __func__ << ": invalid line style " << style << std::endl;
+		return XLLineStyleInvalid;
+	}
+
+	std::string XLLineStyleToString(XLLineStyle style)
+	{
+		switch(style) {
+			case XLLineStyleNone: return "";
+			case XLLineStyleThin: return "thin";
+			case XLLineStyleMedium: return "medium";
+			case XLLineStyleDashed: return "dashed";
+			case XLLineStyleDotted: return "dotted";
+			case XLLineStyleThick: return "thick";
+			case XLLineStyleDouble: return "double";
+			case XLLineStyleHair: return "hair";
+			case XLLineStyleMediumDashed: return "mediumDashed";
+			case XLLineStyleDashDot: return "dashDot";
+			case XLLineStyleMediumDashDot: return "mediumDashDot";
+			case XLLineStyleDashDotDot: return "dashDotDot";
+			case XLLineStyleMediumDashDotDot: return "mediumDashDotDot";
+			case XLLineStyleSlantDashDot: return "slantDashDot";
+			case XLLineStyleInvalid: [[fallthrough]];
+			default: return "(invalid)";
+		}
+	}
+
+	XLAlignmentStyle XLAlignmentStyleFromString(std::string alignment)
+	{
+		if(alignment == ""
+			|| alignment == "general")          return XLAlignGeneral;
+		if(alignment == "left")              return XLAlignLeft;
+		if(alignment == "right")             return XLAlignRight;
+		if(alignment == "center")            return XLAlignCenter;
+		if(alignment == "top")               return XLAlignTop;
+		if(alignment == "bottom")            return XLAlignBottom;
+		if(alignment == "fill")              return XLAlignFill;
+		if(alignment == "justify")           return XLAlignJustify;
+		if(alignment == "centerContinuous")  return XLAlignCenterContinuous;
+		if(alignment == "distributed")       return XLAlignDistributed;
+		std::cerr << __func__ << ": invalid alignment style " << alignment << std::endl;
+		return XLAlignInvalid;
+	}
+
+	std::string XLAlignmentStyleToString(XLAlignmentStyle alignment)
+	{
+		switch(alignment) {
+			case XLAlignGeneral: return "";
+			case XLAlignLeft: return "left";
+			case XLAlignRight: return "right";
+			case XLAlignCenter: return "center";
+			case XLAlignTop: return "top";
+			case XLAlignBottom: return "bottom";
+			case XLAlignFill: return "fill";
+			case XLAlignJustify: return "justify";
+			case XLAlignCenterContinuous: return "centerContinuous";
+			case XLAlignDistributed: return "distributed";
+			case XLAlignInvalid: [[fallthrough]];
+			default: return "(unknown)";
+		}
+	}
+
+	std::string XLReadingOrderToString(uint32 readingOrder)
+	{
+		switch(readingOrder) {
+			case XLReadingOrderContextual: return "contextual";
+			case XLReadingOrderLeftToRight: return "left-to-right";
+			case XLReadingOrderRightToLeft: return "right-to-left";
+			default: return "(unknown)";
+		}
+	}
+
+	void copyXMLNode(XMLNode & destination, XMLNode & source)
+	{
+		if(not source.empty()) {
+			// ===== Copy all XML child nodes
+			for(XMLNode child = source.first_child(); not child.empty(); child = child.next_sibling())
+				destination.append_copy(child);
+			// ===== Copy all XML attributes
+			for(XMLAttribute attr = source.first_attribute(); not attr.empty(); attr = attr.next_attribute())
+				destination.append_copy(attr);
+		}
+	}
+
+	void wrapNode(XMLNode parentNode, XMLNode & node, std::string const & prefix)
+	{
+		if(not node.empty() && prefix.length() > 0) {
+			parentNode.insert_child_before(pugi::node_pcdata, node).set_value(prefix.c_str()); // insert prefix before node opening tag
+			node.append_child(pugi::node_pcdata).set_value(prefix.c_str());                   // insert prefix before node closing tag (within node)
+		}
+	}
+
+	/**
+	 * @brief Format val as a string with decimalPlaces
+	 * @param val The value to format
+	 * @param decimalPlaces The amount of digits following the decimal separator that shall be included in the formatted string
+	 * @return The value formatted as a string with the desired amount of decimal places
+	 */
+	std::string formatDoubleAsString(double val, int decimalPlaces = 2)
+	{
+		std::string result = std::to_string(val);
+		size_t decimalPos = result.find_first_of('.');
+		if(decimalPos >= result.length())
+			throw XLException("formatDoubleAsString: return value of std::to_string(double val) contains no decimal separator - this should never happen");
+
+		// ===== Return the string representation of val with the decimal separator and decimalPlaces digits following
+		return result.substr(0, decimalPos + 1 + decimalPlaces);
+	}
+
+	/**
+	 * @brief Check that a double value is within range, and format it as a string with decimalPlaces
+	 * @param val The value to check & format
+	 * @param min The lower bound of the valid value range
+	 * @param max The upper bound of the valid value range 0 must be larger than min
+	 * @param absTolerance The tolerance for rounding errors when checking the valid range - must be positive
+	 * @param decimalPlaces The amount of digits following the decimal separator that shall be included in the formatted string
+	 * @return The value formatted as a string with the desired amount of decimal places
+	 * @return An empty string ""s if the value falls outside the valid range
+	 * @note values that fall outside the range but within the tolerance will be rounded to the nearest range bound
+	 */
+	std::string checkAndFormatDoubleAsString(double val, double min, double max, double absTolerance, int decimalPlaces = 2)
+	{
+		if(max <= min || absTolerance < 0.0)  
+			throw XLException("checkAndFormatDoubleAsString: max must be greater than min and absTolerance must be >= 0.0");
+		if(val < min - absTolerance || val > max + absTolerance)  
+			return ""; // range check
+		if(val < min)  
+			val = min; 
+		else if(val > max)  
+			val = max; // fix rounding errors within tolerance
+		return formatDoubleAsString(val, decimalPlaces);
 	}
 }
-
-XLUnderlineStyle XLUnderlineStyleFromString(std::string underline)
-{
-	if(underline == ""
-	    || underline == "none")   return XLUnderlineNone;
-	if(underline == "single")  return XLUnderlineSingle;
-	if(underline == "double")  return XLUnderlineDouble;
-	std::cerr << __func__ << ": invalid underline style " << underline << std::endl;
-	return XLUnderlineInvalid;
-}
-
-std::string XLUnderlineStyleToString(XLUnderlineStyle underline)
-{
-	switch(underline) {
-		case XLUnderlineNone: return "none";
-		case XLUnderlineSingle: return "single";
-		case XLUnderlineDouble: return "double";
-		case XLUnderlineInvalid: [[fallthrough]];
-		default: return "(invalid)";
-	}
-}
-
-XLFontSchemeStyle XLFontSchemeStyleFromString(std::string fontScheme)
-{
-	if(fontScheme == ""
-	    || fontScheme == "none")  return XLFontSchemeNone;
-	if(fontScheme == "major")  return XLFontSchemeMajor;
-	if(fontScheme == "minor")  return XLFontSchemeMinor;
-	std::cerr << __func__ << ": invalid font scheme " << fontScheme << std::endl;
-	return XLFontSchemeInvalid;
-}
-
-std::string XLFontSchemeStyleToString(XLFontSchemeStyle fontScheme)
-{
-	switch(fontScheme) {
-		case XLFontSchemeNone: return "none";
-		case XLFontSchemeMajor: return "major";
-		case XLFontSchemeMinor: return "minor";
-		case XLFontSchemeInvalid: [[fallthrough]];
-		default: return "(invalid)";
-	}
-}
-
-XLVerticalAlignRunStyle XLVerticalAlignRunStyleFromString(std::string vertAlign)
-{
-	if(vertAlign == ""
-	    || vertAlign == "baseline")    return XLBaseline;
-	if(vertAlign == "subscript")    return XLSubscript;
-	if(vertAlign == "superscript")  return XLSuperscript;
-	std::cerr << __func__ << ": invalid font vertical align run style " << vertAlign << std::endl;
-	return XLVerticalAlignRunInvalid;
-}
-
-std::string XLVerticalAlignRunStyleToString(XLVerticalAlignRunStyle vertAlign)
-{
-	switch(vertAlign) {
-		case XLBaseline: return "baseline";
-		case XLSubscript: return "subscript";
-		case XLSuperscript: return "superscript";
-		case XLVerticalAlignRunInvalid: [[fallthrough]];
-		default: return "(invalid)";
-	}
-}
-
-XLFillType XLFillTypeFromString(std::string fillType)
-{
-	if(fillType == "gradientFill")  return XLGradientFill;
-	if(fillType == "patternFill")   return XLPatternFill;
-	if(fillType != "")     // suppress error message for empty fillType (= no node exists yet)
-		std::cerr << __func__ << ": invalid fillType \"" << fillType << "\"" << std::endl;
-	return XLFillTypeInvalid;
-}
-
-std::string XLFillTypeToString(XLFillType fillType)
-{
-	switch(fillType) {
-		case XLGradientFill: return "gradientFill";
-		case XLPatternFill: return "patternFill";
-		case XLFillTypeInvalid: [[fallthrough]];
-		default:                return "(invalid)";
-	}
-}
-
-XLGradientType XLGradientTypeFromString(std::string gradientType)
-{
-	if(gradientType == "linear")  return XLGradientLinear;
-	if(gradientType == "path")    return XLGradientPath;
-	std::cerr << __func__ << ": invalid gradient type " << gradientType << std::endl;
-	return XLGradientTypeInvalid;
-}
-
-std::string XLGradientTypeToString(XLGradientType gradientType)
-{
-	switch(gradientType) {
-		case XLGradientLinear: return "linear";
-		case XLGradientPath: return "path";
-		case XLGradientTypeInvalid: [[fallthrough]];
-		default:                    return "(invalid)";
-	}
-}
-
-XLPatternType XLPatternTypeFromString(std::string patternType)
-{
-	if(patternType == ""
-	    || patternType == "none")            return XLPatternNone;
-	if(patternType == "solid")            return XLPatternSolid;
-	if(patternType == "mediumGray")       return XLPatternMediumGray;
-	if(patternType == "darkGray")         return XLPatternDarkGray;
-	if(patternType == "lightGray")        return XLPatternLightGray;
-	if(patternType == "darkHorizontal")   return XLPatternDarkHorizontal;
-	if(patternType == "darkVertical")     return XLPatternDarkVertical;
-	if(patternType == "darkDown")         return XLPatternDarkDown;
-	if(patternType == "darkUp")           return XLPatternDarkUp;
-	if(patternType == "darkGrid")         return XLPatternDarkGrid;
-	if(patternType == "darkTrellis")      return XLPatternDarkTrellis;
-	if(patternType == "lightHorizontal")  return XLPatternLightHorizontal;
-	if(patternType == "lightVertical")    return XLPatternLightVertical;
-	if(patternType == "lightDown")        return XLPatternLightDown;
-	if(patternType == "lightUp")          return XLPatternLightUp;
-	if(patternType == "lightGrid")        return XLPatternLightGrid;
-	if(patternType == "lightTrellis")     return XLPatternLightTrellis;
-	if(patternType == "gray125")          return XLPatternGray125;
-	if(patternType == "gray0625")         return XLPatternGray0625;
-	std::cerr << __func__ << ": invalid patternType " << patternType << std::endl;
-	return XLPatternTypeInvalid;
-}
-
-std::string XLPatternTypeToString(XLPatternType patternType)
-{
-	switch(patternType) {
-		case XLPatternNone: return "none";
-		case XLPatternSolid: return "solid";
-		case XLPatternMediumGray: return "mediumGray";
-		case XLPatternDarkGray: return "darkGray";
-		case XLPatternLightGray: return "lightGray";
-		case XLPatternDarkHorizontal: return "darkHorizontal";
-		case XLPatternDarkVertical: return "darkVertical";
-		case XLPatternDarkDown: return "darkDown";
-		case XLPatternDarkUp: return "darkUp";
-		case XLPatternDarkGrid: return "darkGrid";
-		case XLPatternDarkTrellis: return "darkTrellis";
-		case XLPatternLightHorizontal: return "lightHorizontal";
-		case XLPatternLightVertical: return "lightVertical";
-		case XLPatternLightDown: return "lightDown";
-		case XLPatternLightUp: return "lightUp";
-		case XLPatternLightGrid: return "lightGrid";
-		case XLPatternLightTrellis: return "lightTrellis";
-		case XLPatternGray125: return "gray125";
-		case XLPatternGray0625: return "gray0625";
-		case XLPatternTypeInvalid: [[fallthrough]];
-		default:                       return "(invalid)";
-	}
-}
-
-#ifdef __GNUC__    // conditionally enable GCC specific pragmas to suppress unused function warning
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-function"
-#endif // __GNUC__
-XLLineType XLLineTypeFromString(std::string lineType)
-{
-	if(lineType == "left")        return XLLineLeft;
-	if(lineType == "right")       return XLLineRight;
-	if(lineType == "top")         return XLLineTop;
-	if(lineType == "bottom")      return XLLineBottom;
-	if(lineType == "diagonal")    return XLLineDiagonal;
-	if(lineType == "vertical")    return XLLineVertical;
-	if(lineType == "horizontal")  return XLLineHorizontal;
-	std::cerr << __func__ << ": invalid line type" << lineType << std::endl;
-	return XLLineInvalid;
-}
-
-#ifdef __GNUC__    // conditionally enable GCC specific pragmas to suppress unused function warning
-#pragma GCC diagnostic pop
-#endif // __GNUC__
-
-std::string XLLineTypeToString(XLLineType lineType)
-{
-	switch(lineType) {
-		case XLLineLeft:       return "left";
-		case XLLineRight:      return "right";
-		case XLLineTop:        return "top";
-		case XLLineBottom:     return "bottom";
-		case XLLineDiagonal:   return "diagonal";
-		case XLLineVertical:   return "vertical";
-		case XLLineHorizontal: return "horizontal";
-		case XLLineInvalid:    [[fallthrough]];
-		default:               return "(invalid)";
-	}
-}
-
-XLLineStyle XLLineStyleFromString(std::string style)
-{
-	if(style == "")                  return XLLineStyleNone;
-	if(style == "thin")              return XLLineStyleThin;
-	if(style == "medium")            return XLLineStyleMedium;
-	if(style == "dashed")            return XLLineStyleDashed;
-	if(style == "dotted")            return XLLineStyleDotted;
-	if(style == "thick")             return XLLineStyleThick;
-	if(style == "double")            return XLLineStyleDouble;
-	if(style == "hair")              return XLLineStyleHair;
-	if(style == "mediumDashed")      return XLLineStyleMediumDashed;
-	if(style == "dashDot")           return XLLineStyleDashDot;
-	if(style == "mediumDashDot")     return XLLineStyleMediumDashDot;
-	if(style == "dashDotDot")        return XLLineStyleDashDotDot;
-	if(style == "mediumDashDotDot")  return XLLineStyleMediumDashDotDot;
-	if(style == "slantDashDot")      return XLLineStyleSlantDashDot;
-	std::cerr << __func__ << ": invalid line style " << style << std::endl;
-	return XLLineStyleInvalid;
-}
-
-std::string XLLineStyleToString(XLLineStyle style)
-{
-	switch(style) {
-		case XLLineStyleNone: return "";
-		case XLLineStyleThin: return "thin";
-		case XLLineStyleMedium: return "medium";
-		case XLLineStyleDashed: return "dashed";
-		case XLLineStyleDotted: return "dotted";
-		case XLLineStyleThick: return "thick";
-		case XLLineStyleDouble: return "double";
-		case XLLineStyleHair: return "hair";
-		case XLLineStyleMediumDashed: return "mediumDashed";
-		case XLLineStyleDashDot: return "dashDot";
-		case XLLineStyleMediumDashDot: return "mediumDashDot";
-		case XLLineStyleDashDotDot: return "dashDotDot";
-		case XLLineStyleMediumDashDotDot: return "mediumDashDotDot";
-		case XLLineStyleSlantDashDot: return "slantDashDot";
-		case XLLineStyleInvalid: [[fallthrough]];
-		default: return "(invalid)";
-	}
-}
-
-XLAlignmentStyle XLAlignmentStyleFromString(std::string alignment)
-{
-	if(alignment == ""
-	    || alignment == "general")          return XLAlignGeneral;
-	if(alignment == "left")              return XLAlignLeft;
-	if(alignment == "right")             return XLAlignRight;
-	if(alignment == "center")            return XLAlignCenter;
-	if(alignment == "top")               return XLAlignTop;
-	if(alignment == "bottom")            return XLAlignBottom;
-	if(alignment == "fill")              return XLAlignFill;
-	if(alignment == "justify")           return XLAlignJustify;
-	if(alignment == "centerContinuous")  return XLAlignCenterContinuous;
-	if(alignment == "distributed")       return XLAlignDistributed;
-	std::cerr << __func__ << ": invalid alignment style " << alignment << std::endl;
-	return XLAlignInvalid;
-}
-
-std::string XLAlignmentStyleToString(XLAlignmentStyle alignment)
-{
-	switch(alignment) {
-		case XLAlignGeneral: return "";
-		case XLAlignLeft: return "left";
-		case XLAlignRight: return "right";
-		case XLAlignCenter: return "center";
-		case XLAlignTop: return "top";
-		case XLAlignBottom: return "bottom";
-		case XLAlignFill: return "fill";
-		case XLAlignJustify: return "justify";
-		case XLAlignCenterContinuous: return "centerContinuous";
-		case XLAlignDistributed: return "distributed";
-		case XLAlignInvalid: [[fallthrough]];
-		default: return "(unknown)";
-	}
-}
-
-std::string XLReadingOrderToString(uint32_t readingOrder)
-{
-	switch(readingOrder) {
-		case XLReadingOrderContextual: return "contextual";
-		case XLReadingOrderLeftToRight: return "left-to-right";
-		case XLReadingOrderRightToLeft: return "right-to-left";
-		default: return "(unknown)";
-	}
-}
-
-void copyXMLNode(XMLNode & destination, XMLNode & source)
-{
-	if(not source.empty()) {
-		// ===== Copy all XML child nodes
-		for(XMLNode child = source.first_child(); not child.empty(); child = child.next_sibling())
-			destination.append_copy(child);
-		// ===== Copy all XML attributes
-		for(XMLAttribute attr = source.first_attribute(); not attr.empty(); attr = attr.next_attribute())
-			destination.append_copy(attr);
-	}
-}
-
-void wrapNode(XMLNode parentNode, XMLNode & node, std::string const & prefix)
-{
-	if(not node.empty() && prefix.length() > 0) {
-		parentNode.insert_child_before(pugi::node_pcdata, node).set_value(prefix.c_str()); // insert prefix before node opening tag
-		node.append_child(pugi::node_pcdata).set_value(prefix.c_str());                   // insert prefix before node closing tag (within node)
-	}
-}
-
-/**
- * @brief Format val as a string with decimalPlaces
- * @param val The value to format
- * @param decimalPlaces The amount of digits following the decimal separator that shall be included in the formatted string
- * @return The value formatted as a string with the desired amount of decimal places
- */
-std::string formatDoubleAsString(double val, int decimalPlaces = 2)
-{
-	std::string result = std::to_string(val);
-	size_t decimalPos = result.find_first_of('.');
-	if(decimalPos >= result.length())
-		throw XLException("formatDoubleAsString: return value of std::to_string(double val) contains no decimal separator - this should never happen");
-
-	// ===== Return the string representation of val with the decimal separator and decimalPlaces digits following
-	return result.substr(0, decimalPos + 1 + decimalPlaces);
-}
-
-/**
- * @brief Check that a double value is within range, and format it as a string with decimalPlaces
- * @param val The value to check & format
- * @param min The lower bound of the valid value range
- * @param max The upper bound of the valid value range 0 must be larger than min
- * @param absTolerance The tolerance for rounding errors when checking the valid range - must be positive
- * @param decimalPlaces The amount of digits following the decimal separator that shall be included in the formatted string
- * @return The value formatted as a string with the desired amount of decimal places
- * @return An empty string ""s if the value falls outside the valid range
- * @note values that fall outside the range but within the tolerance will be rounded to the nearest range bound
- */
-std::string checkAndFormatDoubleAsString(double val, double min, double max, double absTolerance, int decimalPlaces = 2)
-{
-	if(max <= min || absTolerance < 0.0)  throw XLException("checkAndFormatDoubleAsString: max must be greater than min and absTolerance must be >= 0.0");
-	if(val < min - absTolerance || val > max + absTolerance)  return ""; // range check
-	if(val < min)  val = min; else if(val > max)  val = max;             // fix rounding errors within tolerance
-	return formatDoubleAsString(val, decimalPlaces);
-}
-}    // anonymous namespace
-
 /**
  * @details Constructor. Initializes an empty XLNumberFormat object
  */
-XLNumberFormat::XLNumberFormat() : m_numberFormatNode(std::make_unique<XMLNode>()) {}
-
+XLNumberFormat::XLNumberFormat() : m_numberFormatNode(std::make_unique<XMLNode>()) 
+{
+}
 /**
  * @details Constructor. Initializes the member variables for the new XLNumberFormat object.
  */
-XLNumberFormat::XLNumberFormat(const XMLNode& node) : m_numberFormatNode(std::make_unique<XMLNode>(node)) {}
+XLNumberFormat::XLNumberFormat(const XMLNode& node) : m_numberFormatNode(std::make_unique<XMLNode>(node)) 
+{
+}
 
 XLNumberFormat::~XLNumberFormat() = default;
 
@@ -416,7 +425,7 @@ XLNumberFormat& XLNumberFormat::operator=(const XLNumberFormat& other)
 /**
  * @details Returns the numFmtId value
  */
-uint32_t XLNumberFormat::numberFormatId() const { return m_numberFormatNode->attribute("numFmtId").as_uint(XLInvalidUInt32); }
+uint32 XLNumberFormat::numberFormatId() const { return m_numberFormatNode->attribute("numFmtId").as_uint(XLInvalidUInt32); }
 
 /**
  * @details Returns the formatCode value
@@ -426,7 +435,7 @@ std::string XLNumberFormat::formatCode() const { return m_numberFormatNode->attr
 /**
  * @details Setter functions
  */
-bool XLNumberFormat::setNumberFormatId(uint32_t newNumberFormatId)
+bool XLNumberFormat::setNumberFormatId(uint32 newNumberFormatId)
 { return appendAndSetAttribute(*m_numberFormatNode, "numFmtId",   std::to_string(newNumberFormatId)).empty() == false; }
 bool XLNumberFormat::setFormatCode(std::string newFormatCode)
 { return appendAndSetAttribute(*m_numberFormatNode, "formatCode", newFormatCode.c_str()            ).empty() == false; }
@@ -511,7 +520,7 @@ XLNumberFormat XLNumberFormats::numberFormatByIndex(XLStyleIndex index) const
 /**
  * @details fetch XLNumberFormat from m_numberFormats by its numberFormatId
  */
-XLNumberFormat XLNumberFormats::numberFormatById(uint32_t numberFormatId) const
+XLNumberFormat XLNumberFormats::numberFormatById(uint32 numberFormatId) const
 {
 	for(XLNumberFormat fmt : m_numberFormats)
 		if(fmt.numberFormatId() == numberFormatId)
@@ -523,7 +532,7 @@ XLNumberFormat XLNumberFormats::numberFormatById(uint32_t numberFormatId) const
 /**
  * @details fetch a numFmtId from m_numberFormats by index
  */
-uint32_t XLNumberFormats::numberFormatIdFromIndex(XLStyleIndex index) const
+uint32 XLNumberFormats::numberFormatIdFromIndex(XLStyleIndex index) const
 {
 	if(index >= m_numberFormats.size()) {
 		using namespace std::literals::string_literals;
@@ -833,8 +842,8 @@ XLDataBarColor& XLDataBarColor::operator=(const XLDataBarColor& other)
 XLColor XLDataBarColor::rgb()       const { return XLColor(m_colorNode->attribute("rgb").as_string("ffffffff")); }
 double XLDataBarColor::tint()      const { return m_colorNode->attribute("tint").as_double(0.0); }
 bool XLDataBarColor::automatic() const { return m_colorNode->attribute("auto").as_bool(); }
-uint32_t XLDataBarColor::indexed()   const { return m_colorNode->attribute("indexed").as_uint(); }
-uint32_t XLDataBarColor::theme()     const { return m_colorNode->attribute("theme").as_uint(); }
+uint32 XLDataBarColor::indexed()   const { return m_colorNode->attribute("indexed").as_uint(); }
+uint32 XLDataBarColor::theme()     const { return m_colorNode->attribute("theme").as_uint(); }
 /**
  * @details Setter functions
  */
@@ -855,8 +864,8 @@ bool XLDataBarColor::setTint(double newTint)
 }
 
 bool XLDataBarColor::setAutomatic(bool set)        { return appendAndSetAttribute(*m_colorNode, "auto",      (set ? "true" : "false")     ).empty() == false; }
-bool XLDataBarColor::setIndexed(uint32_t newIndex) { return appendAndSetAttribute(*m_colorNode, "indexed",   std::to_string(newIndex)     ).empty() == false; }
-bool XLDataBarColor::setTheme(uint32_t newTheme)   {
+bool XLDataBarColor::setIndexed(uint32 newIndex) { return appendAndSetAttribute(*m_colorNode, "indexed",   std::to_string(newIndex)     ).empty() == false; }
+bool XLDataBarColor::setTheme(uint32 newTheme)   {
 	if(newTheme == XLDeleteProperty)   return m_colorNode->remove_attribute("theme");
 	return appendAndSetAttribute(*m_colorNode, "theme",     std::to_string(newTheme)     ).empty() == false;
 }
@@ -1077,10 +1086,9 @@ XLFillType XLFill::fillType() const { return XLFillTypeFromString(m_fillNode->fi
 bool XLFill::setFillType(XLFillType newFillType, bool force)
 {
 	XLFillType ft = fillType(); // determine once, use twice
-
 	// ===== If desired filltype is already set
-	if(ft == newFillType)  return true;// nothing to do
-
+	if(ft == newFillType)  
+		return true;// nothing to do
 	// ===== If force == true or fillType is just not set at all, delete existing child nodes, otherwise throw
 	if(!force && ft != XLFillTypeInvalid) {
 		using namespace std::literals::string_literals;
@@ -1093,7 +1101,6 @@ bool XLFill::setFillType(XLFillType newFillType, bool force)
 	m_fillNode->remove_children();
 	return (m_fillNode->append_child(XLFillTypeToString(newFillType).c_str()).empty() == false);
 }
-
 /**
  * @details Throw an XLException on a fill of typeToThrowOn
  */
@@ -1103,7 +1110,6 @@ void XLFill::throwOnFillType(XLFillType typeToThrowOn, const char * functionName
 	if(fillType() == typeToThrowOn)
 		throw XLException("XLFill::"s + functionName + " must not be invoked for a "s + XLFillTypeToString(typeToThrowOn));
 }
-
 /**
  * @details get the fill element XML, create element with default XLFillType if none exists
  */
@@ -1121,7 +1127,6 @@ XMLNode XLFill::getValidFillDescription(XLFillType fillTypeIfEmpty, const char *
 		fillDescription = m_fillNode->first_child_of_type(pugi::node_element); // fetch newly inserted description
 	return fillDescription;
 }
-
 /**
  * @details Getter functions for gradientFill
  */
@@ -1147,7 +1152,8 @@ XLPatternType XLFill::patternType()
 XLColor XLFill::color()
 {
 	XMLNode fillDescription = getValidFillDescription(XLPatternFill, __func__);
-	if(fillDescription.empty())  return XLColor{};// if no description could be fetched: fail
+	if(fillDescription.empty())  
+		return XLColor{};// if no description could be fetched: fail
 	XMLAttribute fgColorRGB = appendAndGetNodeAttribute(fillDescription, "fgColor", "rgb", XLDefaultPatternFgColor);
 	return XLColor(fgColorRGB.value());
 }
@@ -1155,11 +1161,11 @@ XLColor XLFill::color()
 XLColor XLFill::backgroundColor()
 {
 	XMLNode fillDescription = getValidFillDescription(XLPatternFill, __func__);
-	if(fillDescription.empty())  return XLColor{};// if no description could be fetched: fail
+	if(fillDescription.empty())  
+		return XLColor{};// if no description could be fetched: fail
 	XMLAttribute bgColorRGB = appendAndGetNodeAttribute(fillDescription, "bgColor", "rgb", XLDefaultPatternBgColor);
 	return XLColor(bgColorRGB.value());
 }
-
 /**
  * @details Setter functions for gradientFill
  */
@@ -1203,28 +1209,30 @@ bool XLFill::setBottom(double newBottom)
 	XMLNode fillDescription = getValidFillDescription(XLGradientFill, __func__);
 	return appendAndSetAttribute(fillDescription, "bottom", formatDoubleAsString(newBottom).c_str()).empty() == false;
 }
-
 /**
  * @details Setter functions for patternFill
  */
 bool XLFill::setPatternType(XLPatternType newFillPattern)
 {
 	XMLNode fillDescription = getValidFillDescription(XLPatternFill, __func__);
-	if(fillDescription.empty())  return false;// if no description could be fetched: fail
+	if(fillDescription.empty())  
+		return false;// if no description could be fetched: fail
 	return appendAndSetAttribute(fillDescription, "patternType", XLPatternTypeToString(newFillPattern)).empty() == false;
 }
 
 bool XLFill::setColor(XLColor newColor)
 {
 	XMLNode fillDescription = getValidFillDescription(XLPatternFill, __func__);
-	if(fillDescription.empty())  return false;// if no description could be fetched: fail
+	if(fillDescription.empty())  
+		return false;// if no description could be fetched: fail
 	return appendAndSetNodeAttribute(fillDescription, "fgColor", "rgb", newColor.hex(), XLRemoveAttributes).empty() == false;
 }
 
 bool XLFill::setBackgroundColor(XLColor newBgColor)
 {
 	XMLNode fillDescription = getValidFillDescription(XLPatternFill, __func__);
-	if(fillDescription.empty())  return false;// if no description could be fetched: fail
+	if(fillDescription.empty())  
+		return false;// if no description could be fetched: fail
 	return appendAndSetNodeAttribute(fillDescription, "bgColor", "rgb", newBgColor.hex(), XLRemoveAttributes).empty() == false;
 }
 
@@ -1669,7 +1677,7 @@ XLAlignmentStyle XLAlignment::horizontal() const { return XLAlignmentStyleFromSt
  */
 XLAlignmentStyle XLAlignment::vertical() const { return XLAlignmentStyleFromString(m_alignmentNode->attribute("vertical").value()); }
 
-uint16_t XLAlignment::textRotation() const { return static_cast<uint16_t>(m_alignmentNode->attribute("textRotation").as_uint()); }
+uint16 XLAlignment::textRotation() const { return static_cast<uint16>(m_alignmentNode->attribute("textRotation").as_uint()); }
 
 /**
  * @details check if text wrapping is enabled
@@ -1679,7 +1687,7 @@ bool XLAlignment::wrapText() const { return m_alignmentNode->attribute("wrapText
 /**
  * @details Returns the indent setting
  */
-uint32_t XLAlignment::indent() const { return m_alignmentNode->attribute("indent").as_uint(); }
+uint32 XLAlignment::indent() const { return m_alignmentNode->attribute("indent").as_uint(); }
 
 /**
  * @details Returns the relative indent setting
@@ -1699,7 +1707,7 @@ bool XLAlignment::shrinkToFit() const { return m_alignmentNode->attribute("shrin
 /**
  * @details Returns the reading order setting
  */
-uint32_t XLAlignment::readingOrder() const { return m_alignmentNode->attribute("readingOrder").as_uint(); }
+uint32 XLAlignment::readingOrder() const { return m_alignmentNode->attribute("readingOrder").as_uint(); }
 
 /**
  * @details Setter functions
@@ -1710,13 +1718,13 @@ bool XLAlignment::setHorizontal(XLAlignmentStyle newStyle) {
 bool XLAlignment::setVertical(XLAlignmentStyle newStyle) {
 	return appendAndSetAttribute(*m_alignmentNode, "vertical",        XLAlignmentStyleToString(newStyle).c_str()).empty() == false;
 }
-bool XLAlignment::setTextRotation(uint16_t newRotation)      {
+bool XLAlignment::setTextRotation(uint16 newRotation)      {
 	return appendAndSetAttribute(*m_alignmentNode, "textRotation",    std::to_string(newRotation)               ).empty() == false;
 }
 bool XLAlignment::setWrapText(bool set)                  {
 	return appendAndSetAttribute(*m_alignmentNode, "wrapText",        (set ? "true" : "false")                  ).empty() == false;
 }
-bool XLAlignment::setIndent(uint32_t newIndent)        {
+bool XLAlignment::setIndent(uint32 newIndent)        {
 	return appendAndSetAttribute(*m_alignmentNode, "indent",          std::to_string(newIndent)                 ).empty() == false;
 }
 bool XLAlignment::setRelativeIndent(int32_t newRelativeIndent) {
@@ -1728,7 +1736,7 @@ bool XLAlignment::setJustifyLastLine(bool set)                  {
 bool XLAlignment::setShrinkToFit(bool set)                  {
 	return appendAndSetAttribute(*m_alignmentNode, "shrinkToFit",     (set ? "true" : "false")                  ).empty() == false;
 }
-bool XLAlignment::setReadingOrder(uint32_t newReadingOrder)  {
+bool XLAlignment::setReadingOrder(uint32 newReadingOrder)  {
 	return appendAndSetAttribute(*m_alignmentNode, "readingOrder",    std::to_string(newReadingOrder)           ).empty() == false;
 }
 
@@ -1781,7 +1789,7 @@ XLCellFormat& XLCellFormat::operator=(const XLCellFormat& other)
  * @details determines the numberFormatId
  * @note returns XLInvalidUInt32 if attribute is not defined / set / empty
  */
-uint32_t XLCellFormat::numberFormatId() const { return m_cellFormatNode->attribute("numFmtId").as_uint(XLInvalidUInt32); }
+uint32 XLCellFormat::numberFormatId() const { return m_cellFormatNode->attribute("numFmtId").as_uint(XLInvalidUInt32); }
 
 /**
  * @details determines the fontIndex
@@ -1846,7 +1854,7 @@ XLAlignment XLCellFormat::alignment(bool createIfMissing) const
 /**
  * @details Setter functions
  */
-bool XLCellFormat::setNumberFormatId(uint32_t newNumFmtId)        { return appendAndSetAttribute(*m_cellFormatNode, "numFmtId", std::to_string(newNumFmtId)).empty() == false; }
+bool XLCellFormat::setNumberFormatId(uint32 newNumFmtId)        { return appendAndSetAttribute(*m_cellFormatNode, "numFmtId", std::to_string(newNumFmtId)).empty() == false; }
 bool XLCellFormat::setFontIndex(XLStyleIndex newXfIndex)     { return appendAndSetAttribute(*m_cellFormatNode, "fontId",   std::to_string(newXfIndex)).empty() == false; }
 bool XLCellFormat::setFillIndex(XLStyleIndex newFillIndex)   { return appendAndSetAttribute(*m_cellFormatNode, "fillId",   std::to_string(newFillIndex)).empty() == false; }
 bool XLCellFormat::setBorderIndex(XLStyleIndex newBorderIndex) { return appendAndSetAttribute(*m_cellFormatNode, "borderId", std::to_string(newBorderIndex)).empty() == false; }
@@ -2070,8 +2078,8 @@ bool XLCellStyle::empty() const { return m_cellStyleNode->empty(); }
  */
 std::string XLCellStyle::name() const { return m_cellStyleNode->attribute("name").value();                      }
 XLStyleIndex XLCellStyle::xfId() const { return m_cellStyleNode->attribute("xfId").as_uint(XLInvalidStyleIndex); }
-uint32_t XLCellStyle::builtinId() const { return m_cellStyleNode->attribute("builtinId").as_uint(XLInvalidUInt32);     }
-uint32_t XLCellStyle::outlineStyle() const { return m_cellStyleNode->attribute("iLevel").as_uint(XLInvalidUInt32);     }
+uint32 XLCellStyle::builtinId() const { return m_cellStyleNode->attribute("builtinId").as_uint(XLInvalidUInt32);     }
+uint32 XLCellStyle::outlineStyle() const { return m_cellStyleNode->attribute("iLevel").as_uint(XLInvalidUInt32);     }
 bool XLCellStyle::hidden() const { return m_cellStyleNode->attribute("hidden").as_bool();                    }
 bool XLCellStyle::customBuiltin() const { return m_cellStyleNode->attribute("customBuiltin").as_bool();                    }
 
@@ -2080,8 +2088,8 @@ bool XLCellStyle::customBuiltin() const { return m_cellStyleNode->attribute("cus
  */
 bool XLCellStyle::setName(std::string newName)      { return appendAndSetAttribute(*m_cellStyleNode, "name",          newName).empty() == false;                         }
 bool XLCellStyle::setXfId(XLStyleIndex newXfId)     { return appendAndSetAttribute(*m_cellStyleNode, "xfId",          std::to_string(newXfId)).empty() == false;         }
-bool XLCellStyle::setBuiltinId(uint32_t newBuiltinId)    { return appendAndSetAttribute(*m_cellStyleNode, "builtinId",     std::to_string(newBuiltinId)).empty() == false;    }
-bool XLCellStyle::setOutlineStyle(uint32_t newOutlineStyle) { return appendAndSetAttribute(*m_cellStyleNode, "iLevel",        std::to_string(newOutlineStyle)).empty() == false; }
+bool XLCellStyle::setBuiltinId(uint32 newBuiltinId)    { return appendAndSetAttribute(*m_cellStyleNode, "builtinId",     std::to_string(newBuiltinId)).empty() == false;    }
+bool XLCellStyle::setOutlineStyle(uint32 newOutlineStyle) { return appendAndSetAttribute(*m_cellStyleNode, "iLevel",        std::to_string(newOutlineStyle)).empty() == false; }
 bool XLCellStyle::setHidden(bool set)                 { return appendAndSetAttribute(*m_cellStyleNode, "hidden",        (set ? "true" : "false")).empty() == false;        }
 bool XLCellStyle::setCustomBuiltin(bool set)                 { return appendAndSetAttribute(*m_cellStyleNode, "customBuiltin", (set ? "true" : "false")).empty() == false;        }
 
@@ -2096,7 +2104,7 @@ bool XLCellStyle::setExtLst(XLUnsupportedElement const& newExtLst) { OpenXLSX::i
 std::string XLCellStyle::summary() const
 {
 	using namespace std::literals::string_literals;
-	uint32_t iLevel = outlineStyle();
+	uint32 iLevel = outlineStyle();
 	return "name="s + name()
 	       + ", xfId="s + std::to_string(xfId())
 	       + ", builtinId="s + std::to_string(builtinId())

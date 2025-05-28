@@ -8,7 +8,7 @@ using namespace OpenXLSX;
 
 namespace {
 	XMLNode sheetsNode(const OXlXmlDoc & doc) { return doc.document_element().child("sheets"); }
-}    // namespace
+}
 
 /**
  * @details The constructor initializes the member variables and calls the loadXMLData from the
@@ -44,12 +44,12 @@ XLSheet XLWorkbook::sheet(const std::string& sheetName)
  * @old-details Create a vector with sheet nodes, retrieve the node at the requested index, get sheet name and return the
  * corresponding sheet object.
  */
-XLSheet XLWorkbook::sheet(uint16_t index)    // 2024-04-30: whitespace support
+XLSheet XLWorkbook::sheet(uint16 index)    // 2024-04-30: whitespace support
 {
-	if(index < 1 || index > sheetCount())  throw XLInputError("Sheet index is out of bounds");
-
+	if(index < 1 || index > sheetCount())  
+		throw XLInputError("Sheet index is out of bounds");
 	// ===== Find the n-th node_element that corresponds to index
-	uint16_t curIndex = 0;
+	uint16 curIndex = 0;
 	for(XMLNode node = sheetsNode(xmlDocumentC()).first_child_of_type(pugi::node_element); not node.empty(); node = node.next_sibling_of_type(pugi::node_element)) {
 		if(++curIndex == index)  
 			return sheet(node.attribute("name").as_string());
@@ -60,9 +60,9 @@ XLSheet XLWorkbook::sheet(uint16_t index)    // 2024-04-30: whitespace support
 }
 
 XLWorksheet XLWorkbook::worksheet(const std::string& sheetName) { return sheet(sheetName).get<XLWorksheet>(); }
-XLWorksheet XLWorkbook::worksheet(uint16_t index) { return sheet(index).get<XLWorksheet>(); }
+XLWorksheet XLWorkbook::worksheet(uint16 index) { return sheet(index).get<XLWorksheet>(); }
 XLChartsheet XLWorkbook::chartsheet(const std::string& sheetName) { return sheet(sheetName).get<XLChartsheet>(); }
-XLChartsheet XLWorkbook::chartsheet(uint16_t index) { return sheet(index).get<XLChartsheet>(); }
+XLChartsheet XLWorkbook::chartsheet(uint16 index) { return sheet(index).get<XLChartsheet>(); }
 
 // bool XLWorkbook::hasSharedStrings() const
 // {
@@ -154,17 +154,17 @@ void XLWorkbook::cloneSheet(const std::string& existingName, const std::string& 
 	parentDoc().execCommand(XLCommand(XLCommandType::CloneSheet).setParam("sheetID", sheetID(existingName)).setParam("cloneName", newName));
 }
 
-uint16_t XLWorkbook::createInternalSheetID()    // 2024-04-30: whitespace support
+uint16 XLWorkbook::createInternalSheetID()    // 2024-04-30: whitespace support
 {
 	XMLNode sheet           = xmlDocument().document_element().child("sheets").first_child_of_type(pugi::node_element);
-	uint32_t maxSheetIdFound = 0;
+	uint32 maxSheetIdFound = 0;
 	while(not sheet.empty()) {
-		uint32_t thisSheetId = sheet.attribute("sheetId").as_uint();
+		uint32 thisSheetId = sheet.attribute("sheetId").as_uint();
 		if(thisSheetId > maxSheetIdFound)  
 			maxSheetIdFound = thisSheetId;
 		sheet = sheet.next_sibling_of_type(pugi::node_element);
 	}
-	return static_cast<uint16_t>(maxSheetIdFound + 1);
+	return static_cast<uint16>(maxSheetIdFound + 1);
 }
 
 std::string XLWorkbook::sheetID(const std::string& sheetName)
@@ -182,7 +182,7 @@ std::string XLWorkbook::sheetVisibility(const std::string& sheetID) const
 	return xmlDocumentC().document_element().child("sheets").find_child_by_attribute("r:id", sheetID.c_str()).attribute("state").value();
 }
 
-void XLWorkbook::prepareSheetMetadata(const std::string& sheetName, uint16_t internalID)
+void XLWorkbook::prepareSheetMetadata(const std::string& sheetName, uint16 internalID)
 {
 	// ===== Add new child node to the "sheets" node.
 	auto node = sheetsNode(xmlDocument()).append_child("sheet");
@@ -266,7 +266,7 @@ void XLWorkbook::setSheetIndex(const std::string& sheetName, unsigned int index)
 {
 	// ===== Determine the index of the active tab, if any
 	const XMLNode workbookView = xmlDocumentC().document_element().child("bookViews").first_child_of_type(pugi::node_element);
-	const uint32_t activeSheetIndex = 1 + workbookView.attribute("activeTab").as_uint(0); // use index in the 1.. range
+	const uint32 activeSheetIndex = 1 + workbookView.attribute("activeTab").as_uint(0); // use index in the 1.. range
 
 	// ===== Attempt to locate the sheet with sheetName, and look out for the sheet @index, and the sheet @activeIndex while iterating over
 	// the sheets
@@ -296,15 +296,14 @@ void XLWorkbook::setSheetIndex(const std::string& sheetName, unsigned int index)
 		++sheetIndex;
 		curSheet = curSheet.next_sibling_of_type(pugi::node_element);
 	}
-
 	// ===== If a sheet with sheetName was not found
-	if(sheetToMove.empty())  throw XLInputError(std::string(__func__) + std::string(": no worksheet exists with name ") + sheetName);
-
+	if(sheetToMove.empty())  
+		throw XLInputError(std::string(__func__) + std::string(": no worksheet exists with name ") + sheetName);
 	// ==== name was matched
 
 	// ===== If the new index is equal to the current, don't do anything
-	if(index == sheetToMoveIndex)  return;
-
+	if(index == sheetToMoveIndex)  
+		return;
 	// ===== Modify the node in the XML file
 	if(existingSheet.empty()) // new index is beyond last sheet
 		sheetsNode(xmlDocumentC()).append_move(sheetToMove);
@@ -314,7 +313,6 @@ void XLWorkbook::setSheetIndex(const std::string& sheetName, unsigned int index)
 		else // sheetToMoveIndex > index, because if equal, function never gets here
 			sheetsNode(xmlDocumentC()).insert_move_before(sheetToMove, existingSheet);
 	}
-
 	// ===== Updated defined names with worksheet scopes. TBD what this does
 	XMLNode definedName = xmlDocumentC().document_element().child("definedNames").first_child_of_type(pugi::node_element);
 	while(not definedName.empty()) {
@@ -322,13 +320,12 @@ void XLWorkbook::setSheetIndex(const std::string& sheetName, unsigned int index)
 		definedName.attribute("localSheetId").set_value(sheetToMoveIndex - 1);
 		definedName = definedName.next_sibling_of_type(pugi::node_element);
 	}
-
 	// ===== Update the activeTab attribute.
 	if((activeSheetIndex < std::min(index, sheetToMoveIndex)) ||
 	    (activeSheetIndex > std::max(index, sheetToMoveIndex))) // if active sheet was not within the set of sheets affected by the move
-		return;                                                // nothing to do
-
-	if(activeSheet_rId.length() > 0)  setSheetActive(activeSheet_rId);
+		return; // nothing to do
+	if(activeSheet_rId.length() > 0)  
+		setSheetActive(activeSheet_rId);
 }
 
 unsigned int XLWorkbook::indexOfSheet(const std::string& sheetName) const    // 2024-05-01: whitespace support
@@ -338,19 +335,20 @@ unsigned int XLWorkbook::indexOfSheet(const std::string& sheetName) const    // 
 	for(XMLNode sheet = sheetsNode(xmlDocumentC()).first_child_of_type(pugi::node_element);
 	    not sheet.empty();
 	    sheet         = sheet.next_sibling_of_type(pugi::node_element)) {
-		if(sheetName == sheet.attribute("name").value())  return index;
+		if(sheetName == sheet.attribute("name").value())  
+			return index;
 		index++;
 	}
-
 	// ===== If a match is not found, throw an exception.
 	throw XLInputError("Sheet does not exist");
 }
 
 XLSheetType XLWorkbook::typeOfSheet(const std::string& sheetName) const
 {
-	if(!sheetExists(sheetName))  throw XLInputError("Sheet with name \"" + sheetName + "\" doesn't exist.");
-
-	if(worksheetExists(sheetName))  return XLSheetType::Worksheet;
+	if(!sheetExists(sheetName))  
+		throw XLInputError("Sheet with name \"" + sheetName + "\" doesn't exist.");
+	if(worksheetExists(sheetName))  
+		return XLSheetType::Worksheet;
 	return XLSheetType::Chartsheet;
 }
 
@@ -530,12 +528,12 @@ bool XLWorkbook::setSheetActive(const std::string& sheetRID)    // 2024-04-30: w
 	// ===== 2024-06-19: Fail without action if sheet is not found or sheet is not visible
 	if(item.empty() || !isVisible(item))  return false;
 
-	// NOTE: XLSheet XLWorkbook::sheet(uint16_t index) is using a 1-based index, while the workbookView attribute activeTab is using a
+	// NOTE: XLSheet XLWorkbook::sheet(uint16 index) is using a 1-based index, while the workbookView attribute activeTab is using a
 	// 0-based index
 
 	// ===== If an active sheet was found, but sheetRID is not the same sheet: attempt to unselect the old active sheet.
 	if((activeTabIndex != -1) && (index != activeTabIndex))
-		sheet(static_cast<uint16_t>(activeTabIndex + 1)).setSelected(false);// see NOTE above
+		sheet(static_cast<uint16>(activeTabIndex + 1)).setSelected(false);// see NOTE above
 	// ===== Set the activeTab property for the workbook.xml sheets node
 	if(workbookView.attribute("activeTab").empty())
 		workbookView.append_attribute("activeTab");

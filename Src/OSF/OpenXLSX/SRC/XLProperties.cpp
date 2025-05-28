@@ -19,11 +19,10 @@ XMLNode prettyInsertXmlNodeBefore(std::string nodeNameToInsert, XMLNode insertBe
 	XMLNode parentNode = insertBeforeThis.parent();
 	if(parentNode.empty())
 		throw XLInternalError("prettyInsertXmlNodeBefore can not insert before a node that has no parent");
-
 	// ===== Find potential whitespaces preceeding insertBeforeThis
 	XMLNode whitespaces = insertBeforeThis;
-	while(whitespaces.previous_sibling().type() == pugi::node_pcdata)  whitespaces = whitespaces.previous_sibling();
-
+	while(whitespaces.previous_sibling().type() == pugi::node_pcdata)
+		whitespaces = whitespaces.previous_sibling();
 	// ===== Insert the nodeNameToInsert before insertBeforeThis, "hijacking" the preceeding whitespace nodes
 	XMLNode insertedNode = parentNode.insert_child_before(nodeNameToInsert.c_str(), insertBeforeThis);
 	// ===== Copy all hijacked whitespaces to also preceed (again) the node insertBeforeThis
@@ -244,17 +243,17 @@ void XLAppProperties::createFromTemplate(OXlXmlDoc const & workbookXml)
 	if(m_xmlData == nullptr)
 		throw XLInternalError("XLAppProperties m_xmlData is nullptr");
 
-	std::map< uint32_t, std::string > sheetsOrderedById;
+	std::map< uint32, std::string > sheetsOrderedById;
 
 	auto sheet = workbookXml.document_element().child("sheets").first_child_of_type(pugi::node_element);
 	while(not sheet.empty()) {
 		std::string sheetName = sheet.attribute("name").as_string();
-		uint32_t sheetId = sheet.attribute("sheetId").as_uint();
-		sheetsOrderedById.insert(std::pair<uint32_t, std::string>(sheetId, sheetName));
+		uint32 sheetId = sheet.attribute("sheetId").as_uint();
+		sheetsOrderedById.insert(std::pair<uint32, std::string>(sheetId, sheetName));
 		sheet = sheet.next_sibling_of_type();
 	}
 
-	uint32_t worksheetCount = 0;
+	uint32 worksheetCount = 0;
 	for(const auto & [key, value] : sheetsOrderedById) {
 		if(key != ++worksheetCount)
 			throw XLInputError("xl/workbook.xml is missing sheet with sheetId=\"" + std::to_string(worksheetCount) + "\"");
@@ -325,7 +324,7 @@ XLAppProperties::~XLAppProperties() = default;
  * @note increment == 0 is tolerated for now, used by alignWorksheets to add the value to HeadingPairs if not present
  *       However, generally this function should only be called with increment == -1 or increment == +1
  */
-void XLAppProperties::incrementSheetCount(int16_t increment)
+void XLAppProperties::incrementSheetCount(int16 increment)
 {
 	int32_t newCount = sheetCount(xmlDocument().document_element()).as_int() + increment;
 	if(newCount < 1)

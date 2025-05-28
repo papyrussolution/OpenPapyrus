@@ -3778,8 +3778,10 @@ int BillItemBrowser::EditExtCodeList(int rowIdx)
 						if(P_LotXcT) {
 							if(lot_id && P_LotXcT->FindMarkToTransfer(mark_buf, goods_id, lot_id, rSet) > 0)
 								ok = 1;
-							else
+							else {
+								// @todo Диагностика ошибки очень слабая - сообщение не говорит ничего осмысленного!
 								PPErrorByDialog(dlg, sel);
+							}
 						}
 						else {
 							PPSetError(PPERR_TEXTISNTEGAISMARK, mark_buf);

@@ -9998,7 +9998,7 @@ int CheckPaneDialog::PreprocessGoodsSelection(const PPID goodsID, PPID locID, Pg
 								}
 								// @v12.0.12 {
 								if(rBlk.ChZnMark.NotEmpty() && ChZnPermissiveMode == PPSyncCashNode::chznpmStrict && ChZnGuaID) {
-									if(gt_rec.ChZnProdType != GTCHZNPT_MEDICINE) { // @v12.1.10 лекарственные средства проверять через разрешительный режим не надо (пока)
+									{ // @v12.3.5 (теперь надо) if(gt_rec.ChZnProdType != GTCHZNPT_MEDICINE) { // @v12.1.10 лекарственные средства проверять через разрешительный режим не надо (пока)
 										PPChZnPrcssr::PermissiveModeInterface::CodeStatusCollection check_code_list;
 										{
 											temp_buf = rBlk.ChZnMark;

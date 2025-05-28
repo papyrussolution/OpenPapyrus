@@ -2612,118 +2612,112 @@ struct CSessExcAltGoodsParam {
 	double Price;
 };
 
-#define GRP_GOODS 1
-
 class CSessExcAltGoodsDialog : public TDialog {
+	DECL_DIALOG_DATA(CSessExcAltGoodsParam);
+	enum {
+		ctlgroupGoods = 1
+	};
 public:
 	CSessExcAltGoodsDialog(const PPEquipConfig & rCfg) : TDialog(DLG_CSEXCAG)
 	{
-		addGroup(GRP_GOODS, new GoodsCtrlGroup(CTLSEL_CSEXCAG_GGRP, CTLSEL_CSEXCAG_GOODS));
+		addGroup(ctlgroupGoods, new GoodsCtrlGroup(CTLSEL_CSEXCAG_GGRP, CTLSEL_CSEXCAG_GOODS));
 		disableCtrls(1, CTL_CSEXCAG_DFCTDT, CTL_CSEXCAG_DFCTCOST, CTL_CSEXCAG_DFCTPRICE,
 			CTL_CSEXCAG_ALGDT, CTL_CSEXCAG_ALGCOST, CTL_CSEXCAG_ALGPRICE, CTL_CSEXCAG_SELLPRICE, 0);
 		(SubstPriceRange = rCfg.DeficitSubstPriceDevRange).Scale(0.001);
 	}
-	int    setDTS(const CSessExcAltGoodsParam *);
-	int    getDTS(PPID * pAltGoodsID);
+	int setDTS(const CSessExcAltGoodsParam * pData)
+	{
+		Data = *pData;
+		PPObjGoods gobj;
+		Goods2Tbl::Rec goods_rec;
+		PPID   grp_id = 0;
+		if(gobj.Fetch(Data.GoodsID, &goods_rec) > 0) {
+			grp_id = goods_rec.ParentID;
+			setStaticText(CTL_CSEXCAG_ST_MAINGOODS, goods_rec.Name);
+		}
+		setCtrlUInt16(CTL_CSEXCAG_FLAGS, BIN(Data.SelExistsGoodsOnly));
+		GoodsCtrlGroup::Rec grp_rec(Data.AltGoodsID ? 0L : grp_id, Data.AltGoodsID, Data.LocID,
+			Data.SelExistsGoodsOnly ? GoodsCtrlGroup::existsGoodsOnly : 0);
+		setGroupData(ctlgroupGoods, &grp_rec);
+		SetupLastLotCtrs(Data.GoodsID, 1);
+		setCtrlReal(CTL_CSEXCAG_SELLPRICE, Data.Price);
+		SetupLastLotCtrs(Data.AltGoodsID, 0);
+		return 1;
+	}
+	int getDTS(PPID * pAltGoodsID)
+	{
+		int    ok = 1;
+		GoodsCtrlGroup::Rec grp_rec;
+		getGroupData(ctlgroupGoods, &grp_rec);
+		if(!SubstPriceRange.IsZero()) {
+			double new_price = 0.0;
+			SString msg_buf;
+			getCtrlData(CTL_CSEXCAG_ALGPRICE, &new_price);
+			msg_buf.Cat(SubstPriceRange.low*100.0, MKSFMTD(0, 1, NMBF_NOTRAILZ|NMBF_NOZERO)).
+				Dot().Dot().Cat(SubstPriceRange.upp*100.0, MKSFMTD(0, 1, NMBF_NOTRAILZ|NMBF_NOZERO));
+			double rel_diff = fdivnz(new_price - Data.Price, Data.Price);
+			THROW_PP_S(SubstPriceRange.CheckVal(rel_diff), PPERR_INVCOSTRANGE, msg_buf);
+		}
+		ASSIGN_PTR(pAltGoodsID, grp_rec.GoodsID);
+		CATCHZOK
+		return ok;
+	}
 private:
-	DECL_HANDLE_EVENT;
-	void   SetupLastLotCtrs(PPID goodsID, int isDfctGoods);
-	CSessExcAltGoodsParam Data;
+	DECL_HANDLE_EVENT
+	{
+		TDialog::handleEvent(event);
+		if(event.isCmd(cmLot)) {
+			GoodsCtrlGroup::Rec grp_rec;
+			getGroupData(ctlgroupGoods, &grp_rec);
+			if(grp_rec.GoodsID)
+				ViewLots(grp_rec.GoodsID, 0/*LocID*/, 0, 0, 0);
+		}
+		else if(event.isCmd(cmCBSelected)) {
+ 			GoodsCtrlGroup::Rec grp_rec;
+			getGroupData(ctlgroupGoods, &grp_rec);
+			SetupLastLotCtrs(grp_rec.GoodsID, 0);
+		}
+		else if(event.isClusterClk(CTL_CSEXCAG_FLAGS)) {
+			GoodsCtrlGroup * p_grp = static_cast<GoodsCtrlGroup *>(getGroup(ctlgroupGoods));
+			CALLPTRMEMB(p_grp, setFlagExistsOnly(this, getCtrlUInt16(CTL_CSEXCAG_FLAGS)));
+		}
+		else
+			return;
+		clearEvent(event);
+	}
+	void   SetupLastLotCtrs(PPID goodsID, int isDfctGoods)
+	{
+		LDATE  dt = ZERODATE;
+		double cost = 0.0;
+		double price = 0.0;
+		if(goodsID) {
+			ReceiptTbl::Rec lot_rec;
+			BillObj->trfr->Rcpt.GetCurrentGoodsPrice(goodsID, Data.LocID, GPRET_INDEF|GPRET_OTHERLOC, &price, &lot_rec); // @v12.3.5 0-->Data.LocID, GPRET_OTHERLOC
+			cost = lot_rec.Cost;
+			dt   = lot_rec.Dt;
+		}
+		if(isDfctGoods) {
+			setCtrlData(CTL_CSEXCAG_DFCTDT,    &dt);
+			setCtrlReal(CTL_CSEXCAG_DFCTCOST,  cost);
+			setCtrlReal(CTL_CSEXCAG_DFCTPRICE, price);
+		}
+		else {
+			enableCommand(cmLot, LOGIC(goodsID));
+			setCtrlData(CTL_CSEXCAG_ALGDT,    &dt);
+			setCtrlReal(CTL_CSEXCAG_ALGCOST,  cost);
+			setCtrlReal(CTL_CSEXCAG_ALGPRICE, price);
+		}
+	}
 	RealRange SubstPriceRange;
 };
 
-IMPL_HANDLE_EVENT(CSessExcAltGoodsDialog)
-{
-	TDialog::handleEvent(event);
-	if(event.isCmd(cmLot)) {
-		GoodsCtrlGroup::Rec grp_rec;
-		getGroupData(GRP_GOODS, &grp_rec);
-		if(grp_rec.GoodsID)
-			ViewLots(grp_rec.GoodsID, 0 /* LocID */, 0, 0, 0);
-	}
-	else if(event.isCmd(cmCBSelected)) {
- 		GoodsCtrlGroup::Rec grp_rec;
-		getGroupData(GRP_GOODS, &grp_rec);
-		SetupLastLotCtrs(grp_rec.GoodsID, 0);
-	}
-	else if(event.isClusterClk(CTL_CSEXCAG_FLAGS)) {
-		GoodsCtrlGroup * p_grp = static_cast<GoodsCtrlGroup *>(getGroup(GRP_GOODS));
-		CALLPTRMEMB(p_grp, setFlagExistsOnly(this, getCtrlUInt16(CTL_CSEXCAG_FLAGS)));
-	}
-	else
-		return;
-	clearEvent(event);
-}
-
-void CSessExcAltGoodsDialog::SetupLastLotCtrs(PPID goodsID, int isDfctGoods)
-{
-	LDATE  dt = ZERODATE;
-	double cost = 0.0;
-	double price = 0.0;
-	if(goodsID) {
-		ReceiptTbl::Rec lot_rec;
-		BillObj->trfr->Rcpt.GetCurrentGoodsPrice(goodsID, 0, GPRET_INDEF, &price, &lot_rec);
-		cost = lot_rec.Cost;
-		dt   = lot_rec.Dt;
-	}
-	if(isDfctGoods) {
-		setCtrlData(CTL_CSEXCAG_DFCTDT,    &dt);
-		setCtrlReal(CTL_CSEXCAG_DFCTCOST,  cost);
-		setCtrlReal(CTL_CSEXCAG_DFCTPRICE, price);
-	}
-	else {
-		enableCommand(cmLot, BIN(goodsID));
-		setCtrlData(CTL_CSEXCAG_ALGDT,    &dt);
-		setCtrlReal(CTL_CSEXCAG_ALGCOST,  cost);
-		setCtrlReal(CTL_CSEXCAG_ALGPRICE, price);
-	}
-}
-
-int CSessExcAltGoodsDialog::setDTS(const CSessExcAltGoodsParam * pData)
-{
-	Data = *pData;
-	PPObjGoods gobj;
-	Goods2Tbl::Rec goods_rec;
-	PPID   grp_id = 0;
-	if(gobj.Fetch(Data.GoodsID, &goods_rec) > 0) {
-		grp_id = goods_rec.ParentID;
-		setStaticText(CTL_CSEXCAG_ST_MAINGOODS, goods_rec.Name);
-	}
-	setCtrlUInt16(CTL_CSEXCAG_FLAGS, BIN(Data.SelExistsGoodsOnly));
-	GoodsCtrlGroup::Rec grp_rec(Data.AltGoodsID ? 0L : grp_id, Data.AltGoodsID, Data.LocID,
-		Data.SelExistsGoodsOnly ? GoodsCtrlGroup::existsGoodsOnly : 0);
-	setGroupData(GRP_GOODS, &grp_rec);
-	SetupLastLotCtrs(Data.GoodsID, 1);
-	setCtrlReal(CTL_CSEXCAG_SELLPRICE, Data.Price);
-	SetupLastLotCtrs(Data.AltGoodsID, 0);
-	return 1;
-}
-
-int CSessExcAltGoodsDialog::getDTS(PPID * pAltGoodsID)
-{
-	int    ok = 1;
-	GoodsCtrlGroup::Rec grp_rec;
-	getGroupData(GRP_GOODS, &grp_rec);
-	if(!SubstPriceRange.IsZero()) {
-		double new_price = 0.0;
-		SString msg_buf;
-		getCtrlData(CTL_CSEXCAG_ALGPRICE, &new_price);
-		msg_buf.Cat(SubstPriceRange.low*100.0, MKSFMTD(0, 1, NMBF_NOTRAILZ|NMBF_NOZERO)).
-			Dot().Dot().Cat(SubstPriceRange.upp*100.0, MKSFMTD(0, 1, NMBF_NOTRAILZ|NMBF_NOZERO));
-		double rel_diff = fdivnz(new_price - Data.Price, Data.Price);
-		THROW_PP_S(SubstPriceRange.CheckVal(rel_diff), PPERR_INVCOSTRANGE, msg_buf);
-	}
-	ASSIGN_PTR(pAltGoodsID, grp_rec.GoodsID);
-	CATCHZOK
-	return ok;
-}
-
 int PPViewCSessExc::SetAltGoods(int sign, PPID goodsID)
 {
-	int    ok = -1, r;
+	int    ok = -1;
+	int    r;
 	uint   i;
 	PPID   alt_goods_id = 0;
-	PPID   save_loc_id = LConfig.Location;
+	const  PPID save_loc_id = LConfig.Location;
 	CSessExcAltGoodsDialog * dlg = 0;
 	CSessDfctItem * p_item;
 	CSessDfctList cgl_list;
@@ -2778,7 +2772,8 @@ int PPViewCSessExc::SetAltGoods(int sign, PPID goodsID)
 
 int PPViewCSessExc::ConvertDeficitToBasket()
 {
-	int    ok = -1, r = 0;
+	int    ok = -1;
+	int    r = 0;
 	SelBasketParam param;
 	param.SelPrice = 1;
 	THROW(r = GetBasketByDialog(&param, GetSymb()));
