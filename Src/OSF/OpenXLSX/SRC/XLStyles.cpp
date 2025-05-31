@@ -7,7 +7,7 @@
 using namespace OpenXLSX;
 
 namespace { // anonymous namespace for module local functions
-	enum XLStylesEntryType : uint8_t {
+	enum XLStylesEntryType : uint8 {
 		XLStylesNumberFormats    =   0,
 		XLStylesFonts            =   1,
 		XLStylesFills            =   2,

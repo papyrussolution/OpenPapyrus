@@ -3369,17 +3369,18 @@ table BizScore2 { // @v11.9.1 @construction
 	long   ScoreID;       // ->Ref(PPOBJ_BIZSCORE2)
 	long   ArID;          // ->Article.ID
 	date   Dt;            //
+	time   Tm;            //
 	date   PlanPeriodFn;  // Для планируемого значения - конец периода планирования (началом периода планирования является Dt)
 	long   Flags;
-	long   AgentID;       // Участник показателя (тип объекта определяется полем PPBizScore2::AgentObjType)
+	long   AgentID;       // Участник показателя (тип объекта - PPOBJ_PERSON, вид персоналии определяется полем PPBizScore2::AgentPsnKindID)
 	long   LinkObjID;     // ИД связанного объекта (тип объекта определяется полем PPBizScore2::LinkObjType)
 	long   IntVal;
 	double RealVal;
 	raw    Reserve[64];
 index:
 	ID (unique);                       // #0
-	Kind, Dt, ScoreID (dup mod);       // #1
-	Kind, ScoreID, Dt (dup mod);       // #2
+	Kind, Dt, Tm, ScoreID (dup mod);   // #1
+	Kind, ScoreID, Dt, Tm (dup mod);   // #2
 file:
 	"bizsc2.btr";
 }

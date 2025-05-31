@@ -1147,15 +1147,12 @@ void TCluster::ArrangeItems(int direction, bool tuneOnInit)
 		RECT   rc_cluster;
 		::GetWindowRect(hw_cluster, &rc_cluster);
 		if(direction == DIREC_VERT || direction <= 0) {
-
 			const float fixed_item_y = TCluster::DefItemHeight;
 			const float item_gap_y = TCluster::DefItemVerticalGap;
 			const float padding_top = /*(lp.Padding.a.y > 0.0f) ? lp.Padding.a.y :*/TCluster::DefClusterPaddigTop;
 			const float padding_left = /*(lp.Padding.a.x > 0.0f) ? lp.Padding.a.x :*/TCluster::DefClusterPaddigLeft;
 			const float padding_right = /*(lp.Padding.b.x > 0.0f) ? lp.Padding.b.x :*/2.0f;
-
 			const float max_item_width = (rc_cluster.right - rc_cluster.left) - padding_left - padding_right;
-
 			int16  first_left = tuneOnInit ? 0 : 4;
 			int    next_y = rc_cluster.top + static_cast<int>(padding_top);
 			TRect  rc_prev; // Координаты предыдущего элемента

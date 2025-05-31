@@ -6,7 +6,6 @@ package ru.petroglif.styloq;
 
 public class GTIN {
 	// A.I. Описание Количество цифр и формат
-	public static final int fldOriginalText   =  0;  // Оригинальный текст, поданый для разбора
 	public static final int fldSscc18         =  1;  // 00 Серийный код транспортной упаковки (SSCC-18): 18 цифр
 	public static final int fldGTIN14         =  2;  // 01 непосредственно сам Глобальный номер товара (GTIN): 14 цифр
 	public static final int fldContainerCt    =  3;  // 02 Количество контейнеров, содержащихся в другой упаковке (используется совместно с АI 37): 14 цифр
@@ -102,6 +101,8 @@ public class GTIN {
 	public static final int fldInner8                = 93;  // 99 Внутренние коды компании 1?30 буквенно-цифровой
 	public static final int fldPriceRuTobacco        = 94;  // Собственный идентификатор - МРЦ сигарет (кодируется)
 	public static final int fldControlRuTobacco      = 95;  // Собственный идентификатор - контрольная последовательность в конце маркировки сигарет (Россия).
+	public static final int fldWeight                = 96;  // @v11.9.0 3103 Масса товара в единице (на сайте честный знак указана длина поля 9 символов, но фактически длина иная)
+	public static final int fldOriginalText          = 97;  // Оригинальный текст, поданый для разбора // @v12.3.5 moved from 0 (first elem) to here
 
 	private static class FixedLengthToken {
 		FixedLengthToken(int id, int fxLen)
@@ -117,9 +118,9 @@ public class GTIN {
 	private int [] OnlyTokenList;
 	int    ChZnParseResult; // Целочисленный индикатор результата вызова ParseChZnCode()
 	int    SpecialNaturalToken;  // При разборе может появиться специальный случай, отражаемый как NaturalToken (например, SNTOK_CHZN_CIGITEM)
-	char   SpecialStopChars[];   // @v10.9.9 Специальные символы-разделители токенов. Все символы в этом буфере, предшествующие 0 считаются разделителями.
+	char   SpecialStopChars[];   // Специальные символы-разделители токенов. Все символы в этом буфере, предшествующие 0 считаются разделителями.
 	SLib.LAssocVector SpecialFixedTokens; // Значение длины 1000 означает 'до конца строки' (UNTIL EOL)
-	SLib.LAssocVector SpecialMinLenTokens; // @v10.9.6 Специфицированные минимальные длины токенов
+	SLib.LAssocVector SpecialMinLenTokens; // Специфицированные минимальные длины токенов
 	private SLib.StrAssocArray L; // Результат разбора строки GTIN {id, value}
 
 	public GTIN()
@@ -593,7 +594,17 @@ public class GTIN {
 					STokenRecognizer tr = new STokenRecognizer();
 					int tokn = 0;
 					//tr.Run(code_buf.ucptr(), code_buf.Len(), nta, 0);
-					STokenRecognizer.TokenArray nta = tr.Run(code_buf);
+					STokenRecognizer.TokenArray nta = null;
+					String code_buf_without_spc_chars = "";
+					{
+						temp_buf = code_buf;
+						for(int i = 0; i < temp_buf.length(); i++) {
+							final char c = temp_buf.charAt(i);
+							if(!IsSpecialStopChar(c))
+								code_buf_without_spc_chars += c;
+						}
+						nta = tr.Run(code_buf_without_spc_chars);
+					}
 					if(nta.Has(STokenRecognizer.SNTOK_CHZN_CIGITEM) > 0.0f) {
 						assert (code_buf.length() == 29);
 						int offs = 0;
@@ -618,56 +629,43 @@ public class GTIN {
 					}
 					else if(nta.Has(STokenRecognizer.SNTOK_CHZN_CIGBLOCK) > 0.0f) {
 						// 0104600818007879 21t"XzgHU 8005095000 930p2J24014518552
-						//assert(oneof2(code_buf.Len(), 52, 35));
-						int prefix_len = code_buf.startsWith("01") ? 2 : (code_buf.startsWith("(01)") ? 4 : 0);
+						int prefix_len = code_buf_without_spc_chars.startsWith("01") ? 2 : (code_buf_without_spc_chars.startsWith("(01)") ? 4 : 0);
 						if(prefix_len > 0) {
-							//code_buf.ShiftLeft(prefix_len);
-							code_buf = code_buf.substring(prefix_len);
-							//temp_buf.Z().CatN(code_buf, 14);
-							temp_buf = code_buf.substring(0, 14);
+							code_buf_without_spc_chars = code_buf_without_spc_chars.substring(prefix_len);
+							temp_buf = code_buf_without_spc_chars.substring(0, 14);
 							AddToken(fldGTIN14, temp_buf);
-							//code_buf.ShiftLeft(14);
-							code_buf = code_buf.substring(14);
-							prefix_len = code_buf.startsWith("21") ? 2 : (code_buf.startsWith("(21)") ? 4 : 0);
+							code_buf_without_spc_chars = code_buf_without_spc_chars.substring(14);
+							prefix_len = code_buf_without_spc_chars.startsWith("21") ? 2 : (code_buf_without_spc_chars.startsWith("(21)") ? 4 : 0);
 							if(prefix_len > 0) {
-								//code_buf.ShiftLeft(prefix_len);
-								code_buf = code_buf.substring(prefix_len);
-								//temp_buf.Z().CatN(code_buf, 7);
-								temp_buf = code_buf.substring(0, 7);
+								code_buf_without_spc_chars = code_buf_without_spc_chars.substring(prefix_len);
+								temp_buf = code_buf_without_spc_chars.substring(0, 7);
 								AddToken(fldSerial, temp_buf);
-								//code_buf.ShiftLeft(7);
-								code_buf = code_buf.substring(7);
-								// @v11.4.9 prefix_len = code_buf.startsWith("8005") ? 4 : (code_buf.startsWith("(8005)") ? 6 : 0);
-								// @v11.4.9 {
+								code_buf_without_spc_chars = code_buf_without_spc_chars.substring(7);
 								boolean spcchr_cigblock_prefix = false;
-								if(code_buf.startsWith("8005"))
+								if(code_buf_without_spc_chars.startsWith("8005"))
 									prefix_len = 4;
-								else if(code_buf.startsWith("(8005)"))
+								else if(code_buf_without_spc_chars.startsWith("(8005)"))
 									prefix_len = 6;
-								else if(code_buf.startsWith("u001D8005")) {
+								else if(code_buf_without_spc_chars.startsWith("u001D8005")) {
 									prefix_len = 5;
 									spcchr_cigblock_prefix = true;
 								}
 								else
 									prefix_len = 0;
-								// } @v11.4.9
 								if(prefix_len > 0) {
-									//code_buf.ShiftLeft(prefix_len);
-									code_buf = code_buf.substring(prefix_len);
-									//temp_buf.Z().CatN(code_buf, 6);
-									temp_buf = code_buf.substring(0, 6);
+									code_buf_without_spc_chars = code_buf_without_spc_chars.substring(prefix_len);
+									temp_buf = code_buf_without_spc_chars.substring(0, 6);
 									AddToken(fldPrice, temp_buf);
-									//code_buf.ShiftLeft(6);
-									code_buf = code_buf.substring(6);
-									if(spcchr_cigblock_prefix && code_buf.startsWith("\u001D93")) {
-										code_buf = code_buf.substring(3);
-										temp_buf = "" + code_buf;
+									code_buf_without_spc_chars = code_buf_without_spc_chars.substring(6);
+									if(spcchr_cigblock_prefix && code_buf_without_spc_chars.startsWith("\u001D93")) {
+										code_buf_without_spc_chars = code_buf_without_spc_chars.substring(3);
+										temp_buf = "" + code_buf_without_spc_chars;
 										AddToken(fldControlRuTobacco, temp_buf);
 										SpecialNaturalToken = STokenRecognizer.SNTOK_CHZN_CIGBLOCK;
 									}
-									else if(code_buf.startsWith("93")) {
-										code_buf = code_buf.substring(2);
-										temp_buf = "" + code_buf;
+									else if(code_buf_without_spc_chars.startsWith("93")) {
+										code_buf_without_spc_chars = code_buf_without_spc_chars.substring(2);
+										temp_buf = "" + code_buf_without_spc_chars;
 										AddToken(fldControlRuTobacco, temp_buf);
 										SpecialNaturalToken = STokenRecognizer.SNTOK_CHZN_CIGBLOCK;
 									}
@@ -681,7 +679,7 @@ public class GTIN {
 						final int code_buf_len = code_buf.length();
 						int dpf = dpfBOL;
 						while(cidx < code_buf_len) {
-							if(IsSpecialStopChar(code_buf.charAt(cidx))) // @v10.9.9
+							if(IsSpecialStopChar(code_buf.charAt(cidx)))
 								cidx++;
 							//int prefix_len = 0;
 							//int prefix_id = DetectPrefix(code_buf.substring(cidx), dpf, -1, & prefix_len/*, prefix_*/);
@@ -707,7 +705,7 @@ public class GTIN {
 									//int next_prefix_len = 0;
 									//while(*p) {
 									while(cidx < code_buf_len) {
-										if(IsSpecialStopChar(code_buf.charAt(cidx))) { // @v10.9.9
+										if(IsSpecialStopChar(code_buf.charAt(cidx))) {
 											//p++; // Специальный стоп-символ пропускаем и завершаем акцепт токена
 											cidx++;
 											break;
@@ -807,6 +805,9 @@ public class GTIN {
 	{
 		GTIN result = new GTIN();
 		final int serial_len_variant_list[] = { 13, 12, 11, 8, 6 };
+		// @v12.3.5 (сейчас в Papyrus'е вот так) final int serial_len_variant_list[] = { 6, 7, 8, 11, 12, 13 }; // @v12.3.5
+		final int serial_len_variant_list_83[] = { 13 }; // @v12.3.5 Длины серии [21] для марок с длиной 83 байта
+
 		int serial_len_variant_idx = 0;
 		result.ChZnParseResult = 0;
 		result.AddSpecialStopChar('\u001D');
@@ -828,65 +829,99 @@ public class GTIN {
 		//result.AddOnlyToken(GtinStruc::fldPriceRuTobacco);
 		//result.AddOnlyToken(GtinStruc::fldPrice);
 		int   pr = 0;
+		//
+		String raw_buf;
+		String temp_buf;
+		byte [] code_bytes = code.getBytes(); // @debug
 		{
-			String raw_buf;
-			String temp_buf;
-			byte [] code_bytes = code.getBytes(); // @debug
-			{
-				temp_buf = "" + code;
-				//temp_buf.ShiftLeftChr('\xE8'); // @v10.9.9 Специальный символ. Может присутствовать в начале кода
-				if(temp_buf.charAt(0) == '\u00E8')
+			temp_buf = "" + code;
+			//temp_buf.ShiftLeftChr('\xE8'); // Специальный символ. Может присутствовать в начале кода
+			if(temp_buf.charAt(0) == '\u00E8')
+				temp_buf = temp_buf.substring(1);
+			// "]C1"
+			// @v11.0.1 {
+			//if(temp_buf.HasPrefixIAscii("]C1")) { // Выяснилось, что и такие служебные префиксы встречаются //
+			if(temp_buf.startsWith("]C1") || temp_buf.startsWith("]c1")) { // Выяснилось, что и такие служебные префиксы встречаются //
+				//temp_buf.ShiftLeft(3);
+				temp_buf = temp_buf.substring(3);
+				//temp_buf.ShiftLeftChr('\xE8'); // Черт его знает: на всякий случай снова проверим этого обдолбыша
+				if(temp_buf.charAt(0) == '\u00E8') // Черт его знает: на всякий случай снова проверим этого обдолбыша
 					temp_buf = temp_buf.substring(1);
-				// "]C1"
-				// @v11.0.1 {
-				//if(temp_buf.HasPrefixIAscii("]C1")) { // Выяснилось, что и такие служебные префиксы встречаются //
-				if(temp_buf.startsWith("]C1") || temp_buf.startsWith("]c1")) { // Выяснилось, что и такие служебные префиксы встречаются //
-					//temp_buf.ShiftLeft(3);
-					temp_buf = temp_buf.substring(3);
-					//temp_buf.ShiftLeftChr('\xE8'); // Черт его знает: на всякий случай снова проверим этого обдолбыша
-					if(temp_buf.charAt(0) == '\u00E8') // Черт его знает: на всякий случай снова проверим этого обдолбыша
-						temp_buf = temp_buf.substring(1);
-				}
-				code = temp_buf;
 			}
-			pr = result.Parse(code);
-			if(result.GetToken(fldGTIN14) != null) {
-				while(pr != 1 && serial_len_variant_idx < serial_len_variant_list.length) {
-					result.SetSpecialFixedToken(fldSerial, serial_len_variant_list[serial_len_variant_idx]); serial_len_variant_idx++;
-					pr = result.Parse(code);
-				}
-			}
-			/*if(pr != 1 && result.GetToken(fldGTIN14) != null) {
-				result.SetSpecialFixedToken(fldSerial, 12);
-				pr = result.Parse(code);
-				if(pr != 1 && result.GetToken(fldGTIN14) != null) {
-					result.SetSpecialFixedToken(fldSerial, 11);
-					pr = result.Parse(code);
-				}
-			}*/
-			if(pr == 1) {
-				if(result.GetToken(fldGTIN14) != null && (temp_buf = result.GetToken(fldSerial)) != null) {
-					if(result.GetSpecialNaturalToken() == STokenRecognizer.SNTOK_CHZN_CIGITEM)
-						result.ChZnParseResult = STokenRecognizer.SNTOK_CHZN_CIGITEM;
-					else if(result.GetSpecialNaturalToken() == STokenRecognizer.SNTOK_CHZN_CIGBLOCK)
-						result.ChZnParseResult = STokenRecognizer.SNTOK_CHZN_CIGBLOCK;
-					else if(temp_buf.length() == 13)
-						result.ChZnParseResult = STokenRecognizer.SNTOK_CHZN_SIGN_SGTIN;
-					else
-						result.ChZnParseResult = STokenRecognizer.SNTOK_CHZN_GS1_GTIN;
-				}
-			}
+			code = temp_buf;
 		}
-		if(result.ChZnParseResult == 0 && (flags & pchzncfPretendEverythingIsOk) != 0) {
-			//STokenRecognizer tr;
-			//SNaturalTokenArray nta;
-			//SNaturalTokenStat nts;
-			int tokn = 0;
-			STokenRecognizer tr = new STokenRecognizer();
-			STokenRecognizer.TokenArray nta = tr.Run(code);
-			//tr.Run(reinterpret_cast<const uchar *>(pCode), sstrlen(pCode), nta, &nts);
-			if(nta != null && (nta.S.Seq & STokenRecognizer.SNTOKSEQ_ASCII) != 0 && nta.S.Len >= 25)
-				result.ChZnParseResult = 100000;
+
+		final int code_len = SLib.GetLen(code);
+		if(code_len >= 16) {
+			if(code.startsWith("02") && code_len > (2+14+2)) { // Специальный случай: никакая не марка, но суррогатная комбинация 02 GTIN 37 QTY
+				String sub = code.substring(2, 16);
+				if(SLib.IsDecimal(sub)) {
+					if(code.substring(2+14, 4+14).equals("37")) {
+						String _count_buf = code.substring(2+14+2);
+						if(SLib.IsDecimal(_count_buf)) {
+							result.AddToken(GTIN.fldGTIN14, sub);
+							result.AddToken(GTIN.fldCount, _count_buf);
+							result.AddToken(GTIN.fldOriginalText, code);
+							result.ChZnParseResult = STokenRecognizer.SNTOK_CHZN_SURROGATE_GTINCOUNT;
+						}
+					}
+				}
+			}
+			else if(code.startsWith("02") && code_len == (2+14)) { // Специальный случай: никакая не марка, но суррогатная комбинация 02 GTIN
+				String sub = code.substring(2, 16);
+				if(SLib.IsDecimal(sub)) {
+					result.AddToken(GTIN.fldGTIN14, sub);
+					result.AddToken(GTIN.fldOriginalText, code);
+					result.ChZnParseResult = STokenRecognizer.SNTOK_CHZN_SURROGATE_GTIN;
+				}
+			}
+			else if(code.startsWith("00") && code_len == (2+14+4) && SLib.IsDecimal(code)) { // @v12.3.5 Специальный случай: никакая не марка, но код паллеты комбинация 00 GTIN 9999
+				String sub = code.substring(2, 16);
+				result.AddToken(GTIN.fldGTIN14, sub);
+				result.AddToken(GTIN.fldOriginalText, code);
+				result.ChZnParseResult = STokenRecognizer.SNTOK_CHZN_PALLET_GTIN;
+			}
+			if(result.ChZnParseResult == 0) {
+				pr = result.Parse(code);
+				if(result.GetToken(fldGTIN14) != null) {
+					while(pr != 1 && serial_len_variant_idx < serial_len_variant_list.length) {
+						result.SetSpecialFixedToken(fldSerial, serial_len_variant_list[serial_len_variant_idx]);
+						serial_len_variant_idx++;
+						pr = result.Parse(code);
+					}
+				}
+				/*if(pr != 1 && result.GetToken(fldGTIN14) != null) {
+					result.SetSpecialFixedToken(fldSerial, 12);
+					pr = result.Parse(code);
+					if(pr != 1 && result.GetToken(fldGTIN14) != null) {
+						result.SetSpecialFixedToken(fldSerial, 11);
+						pr = result.Parse(code);
+					}
+				}*/
+				if(pr == 1) {
+					if(result.GetToken(fldGTIN14) != null && (temp_buf = result.GetToken(fldSerial)) != null) {
+						if(result.GetSpecialNaturalToken() == STokenRecognizer.SNTOK_CHZN_CIGITEM)
+							result.ChZnParseResult = STokenRecognizer.SNTOK_CHZN_CIGITEM;
+						else if(result.GetSpecialNaturalToken() == STokenRecognizer.SNTOK_CHZN_CIGBLOCK)
+							result.ChZnParseResult = STokenRecognizer.SNTOK_CHZN_CIGBLOCK;
+						else if(temp_buf.length() == 13)
+							result.ChZnParseResult = STokenRecognizer.SNTOK_CHZN_SIGN_SGTIN;
+						else
+							result.ChZnParseResult = STokenRecognizer.SNTOK_CHZN_GS1_GTIN;
+					}
+				}
+				if(result.ChZnParseResult == 0 && (flags & pchzncfPretendEverythingIsOk) != 0) {
+					//STokenRecognizer tr;
+					//SNaturalTokenArray nta;
+					//SNaturalTokenStat nts;
+					int tokn = 0;
+					STokenRecognizer tr = new STokenRecognizer();
+					STokenRecognizer.TokenArray nta = tr.Run(code);
+					//tr.Run(reinterpret_cast<const uchar *>(pCode), sstrlen(pCode), nta, &nts);
+					if(nta != null && (nta.S.Seq & STokenRecognizer.SNTOKSEQ_ASCII) != 0 && nta.S.Len >= 25)
+						result.ChZnParseResult = 100000;
+				}
+			}
 		}
 		return result;
 	}

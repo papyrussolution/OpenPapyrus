@@ -696,7 +696,7 @@ int GtinStruc::Parse(const char * pCode)
 						int   next_prefix_id = -1;
 						uint  next_prefix_len = 0;
 						while(*p) {
-							if(IsSpecialStopChar(p)) { // @v10.9.9
+							if(IsSpecialStopChar(p)) {
 								p++; // Специальный стоп-символ пропускаем и завершаем акцепт токена
 								break;
 							}

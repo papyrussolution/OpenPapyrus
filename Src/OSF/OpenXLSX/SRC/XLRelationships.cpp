@@ -43,7 +43,7 @@ void InitRandom(bool pseudoRandom)
 		std::random_device rd;
 		rdSeed = rd();
 	}
-	Rand32.seed(static_cast<unsigned int>(rdSeed));
+	Rand32.seed(static_cast<uint>(rdSeed));
 	RandomizerInitialized = true;
 }
 } // namespace OpenXLSX

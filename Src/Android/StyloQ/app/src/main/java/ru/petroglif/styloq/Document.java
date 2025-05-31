@@ -1367,6 +1367,27 @@ public class Document {
 					else
 						result.put("ti_list", js_list);
 				}
+				// @v12.3.5 {
+				if(XcL_Unassigned != null && XcL_Unassigned.size() > 0) {
+					JSONArray js_xcl = null;
+					for(int xci = 0; xci < XcL_Unassigned.size(); xci++) {
+						JSONObject js_xce = new JSONObject();
+						LotExtCode xce = XcL_Unassigned.get(xci);
+						if(xce != null && SLib.GetLen(xce.Code) > 0) {
+							js_xce.put("cod", xce.Code);
+							if(xce.BoxRefN > 0)
+								js_xce.put("boxrefn", xce.BoxRefN);
+							if(xce.Flags != 0)
+								js_xce.put("flags", xce.Flags);
+							if(js_xcl == null)
+								js_xcl = new JSONArray();
+							js_xcl.put(js_xce);
+						}
+					}
+					if(js_xcl != null)
+						result.put("xcl_unassigned", js_xcl);
+				}
+				// } @v12.3.5
 				// @v11.4.8 {
 				if(VXcL != null && VXcL.size() > 0) {
 					JSONArray js_xcl = null;
@@ -1537,6 +1558,27 @@ public class Document {
 						}
 					}
 				}
+				// @v12.3.5 {
+				{
+					JSONArray js_xcl = jsObj.optJSONArray("xcl_unassigned");
+					if(js_xcl != null && js_xcl.length() > 0) {
+						for(int xci = 0; xci < js_xcl.length(); xci++) {
+							JSONObject js_xce = js_xcl.optJSONObject(xci);
+							if(js_xce != null) {
+								LotExtCode xce = new LotExtCode();
+								xce.Code = js_xce.optString("cod", null);
+								if(SLib.GetLen(xce.Code) > 0) {
+									xce.BoxRefN = js_xce.optInt("boxrefn", 0);
+									xce.Flags = js_xce.optInt("flags", 0);
+									if(XcL_Unassigned == null)
+										XcL_Unassigned = new ArrayList<LotExtCode>();
+									XcL_Unassigned.add(xce);
+								}
+							}
+						}
+					}
+				}
+				// } @v12.3.5
 				// @v11.4.8 {
 				{
 					JSONArray js_xcl = jsObj.optJSONArray("vxcl");

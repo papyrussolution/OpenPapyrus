@@ -367,16 +367,17 @@ int SGetTimeFromRemoteServer(const char * pServerName, LDATETIME * pDtm)
 	return ok;
 }
 
-int SGetComputerName(SString & rName)
+int SGetComputerName(bool utf8, SString & rName)
 {
+	rName.Z();
 	int    ok = 1;
-	rName = 0;
 #ifdef UNICODE
 	wchar_t buf[MAX_COMPUTERNAME_LENGTH + 1];
 	DWORD   sz = SIZEOFARRAY(buf);
 	if(::GetComputerName(buf, &sz)) {
 		rName.CopyUtf8FromUnicode(buf, sz, 0);
-		rName.Transf(CTRANSF_UTF8_TO_OUTER);
+		if(!utf8)
+			rName.Transf(CTRANSF_UTF8_TO_OUTER);
 	}
 	else {
 		ok = SLS.SetOsError(0, 0);
@@ -386,6 +387,8 @@ int SGetComputerName(SString & rName)
 	DWORD  sz = SIZEOFARRAY(buf);
 	if(::GetComputerName(buf, &sz)) {
 		rName = buf;
+		if(utf8)
+			rName.Transf(CTRANSF_OUTER_TO_UTF8);
 	}
 	else {
 		ok = SLS.SetOsError(0, 0);
@@ -393,3 +396,4 @@ int SGetComputerName(SString & rName)
 #endif
 	return ok;
 }
+

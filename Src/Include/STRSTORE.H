@@ -14,7 +14,7 @@ public:
 	StringStore2();
 	~StringStore2();
 	void   SetActiveLanguage(int slang);
-	int    Load(const char * pFileName, int selfTest);
+	bool   Load(const char * pFileName, bool selfTest);
 	int    GetString(int group, int code, SString & rBuf) const;
 	int    GetString(const char * pSignature, SString & rBuf) const;
 	//

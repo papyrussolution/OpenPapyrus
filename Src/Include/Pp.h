@@ -7657,6 +7657,11 @@ private:
 	int    MakeMachineID(MACAddr * pMachineID);
 	int    CheckLicense(MACAddr * pMachineID, int * pIsDemo);
 	int    SetupConfigByOps();
+	//
+	// Descr: Возвращает путь для локальных по отношению к данному компьютеру данных.
+	//   Сейчас этот подкаталог с именем, совпадающим с именем комьпютера, в каталоге BIN.
+	//   Путь формируется в кодировке ANSI.
+	//
 	int    GetLocalPath(SString & rBuf);
 	DlContext * Helper_GetInterfaceContext(DlContext ** ppCtx, uint fileId, int crit);
 	int    SetExtFlagByIniIntParam(PPIniFile & rIniFile, uint sect, uint param, long extFlags, int reqValue);
@@ -20205,9 +20210,9 @@ struct PPBizScore2 { // @v11.9.0 @construction
 	int16  TimeAggrFunc;        // Агрегирующая функция по временной шкале. Если 0, то показатель не агрегируется по времени.
 	int16  HierAggrFunc;        // Агрегирующая функция по иерархии. Если 0, то показатель не агрегируется по иерархии.
 	int16  AgentAggrFunc;       // Агрегирующая функция по участникам. Если 0, то показатель не агрегируется по участникам.
-	int16  TimeCycle;           // PRD_XXX
-	long   AgentObjType;        // Тип объекта данных, определяющий участников распределенного сбора показателя
-	long   AgentExtID;          // Группа объектов типа ParticipantObjType, уточняющая привязку по участникам
+	int16  TimeCycle;           // PRD_XXX Периодичность фиксации показателя.
+	uint32 Reserve2;            //  
+	long   AgentPsnKindID;      // Вид персоналии, соответствующий участникам, к которым привязывается индикатор
 	long   LinkObjType;         // Тип объекта, к которому привязан показатель
 	long   LinkExtID;           // Группа объектов типа LinkObjType, уточняющая привязку показателя. 
 	long   Flags;               // @flags 
@@ -20691,8 +20696,7 @@ public:
 	// равными неявным значениям c-enum'а. Новые элементы добавлять строго в конец списка с одновременной
 	// поддержкой идентичности в Stylo-Q.
 	enum { // A.I. Описание Количество цифр и формат
-		fldOriginalText = 0,      // Оригинальный текст, поданый для разбора
-		fldSscc18,                // 00 Серийный код транспортной упаковки (SSCC-18): 18 цифр
+		fldSscc18            = 1, // 00 Серийный код транспортной упаковки (SSCC-18): 18 цифр
 		fldGTIN14,                // 01 непосредственно сам Глобальный номер товара (GTIN): 14 цифр
 		fldContainerCt,           // 02 Количество контейнеров, содержащихся в другой упаковке (используется совместно с АI 37): 14 цифр
 		fldPart,                  // 10 Номер партии: 1?20 буквенно-цифровой
@@ -20787,7 +20791,8 @@ public:
 		fldInner8,                // 99 Внутренние коды компании 1?30 буквенно-цифровой
 		fldPriceRuTobacco,        // Собственный идентификатор - МРЦ сигарет (кодируется)
 		fldControlRuTobacco,      // 93 Собственный идентификатор - контрольная последовательность в конце маркировки сигарет (Россия).
-		fldWeight                 // @v11.9.0 3103 Масса товара в единице (на сайте честный знак указана длина поля 9 символов, но фактически длина иная)
+		fldWeight,                // @v11.9.0 3103 Масса товара в единице (на сайте честный знак указана длина поля 9 символов, но фактически длина иная)
+		fldOriginalText,          // Оригинальный текст, поданый для разбора // @v12.3.5 moved from 0 (first elem) to here
 	};
 	GtinStruc();
 	void   SetSpecialFixedToken(int token, int fixedLen /* 1000 - UNTIL EOL */);
@@ -53893,7 +53898,10 @@ public:
 	~PPViewBrowser();
 	void   Update(); // @>>PPViewBrowser::updateView()
 	int    SetRefreshPeriod(long);
-	int    Export();
+	//
+	// Descr: Экспортирует содержимое таблицы в Excel
+	//
+	int    Export(); 
 	int    SetupToolbarCombo(PPID objType, PPID id, uint flags, void * extraPtr);
 	int    SetupToolbarCombo(PPID objType, PPID id, uint flags, const PPIDArray & rObjList);
 	int    SetupToolbarStringCombo(uint strId, PPID id);
@@ -53939,6 +53947,14 @@ private:
 	int    GetToolbarComboRect(RECT * pRect);
 	int    Helper_SetupToolbarCombo(PPID objType, PPID id, uint flags, void * extraPtr, const PPIDArray * pObjList);
 	int    Helper_SetupToolbarStringCombo(uint strID, PPID id);
+	//
+	// Descr: Создает строку с именем результата экспорта. В этой строке исключены символы, недопустимые для имен файлов.
+	//   Само имя не содержит никакого расширения.
+	//
+	SString & Helper_Export_MakeResultName(bool toUtf8, SString & rBuf);
+	SString & Helper_Export_MakeResultFilePath(bool toUtf8, const char * pName, SString & rBuf);
+	int    Helper_Export_Excel(SString & rResultFileName);
+	int    Helper_Export_Excel_OXLSX(SString & rResultFileName);
 	//
 	// Returns:
 	//   !0 - хандлер родительского окна
@@ -60341,7 +60357,7 @@ DECL_CMPFUNC(ReceiptTbl_DtOprNo);
 //
 // Descr: Инициализирует глобальный объект, управляющий строковыми ресурсами.
 //
-int    PPInitStrings(const char * pFileName = 0);
+bool   PPInitStrings(const char * pFileName = 0);
 //
 // Descr: Разрушает глобальный объект, управляющий строковыми ресурсами.
 //

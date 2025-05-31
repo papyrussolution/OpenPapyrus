@@ -2360,7 +2360,7 @@ int PrcssrObjText::Init(const PPBaseFilt * pBaseFilt)
 			if(LogF.IsValid()) {
 				line_buf.Z().CatCurDateTime();
 				//
-				if(!SGetComputerName(temp_buf))
+				if(!SGetComputerName(false/*utf8*/, temp_buf))
 					temp_buf = "?COMP?";
 				line_buf.Tab().Cat(temp_buf);
 				//

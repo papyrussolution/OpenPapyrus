@@ -3737,11 +3737,11 @@ int BillItemBrowser::EditExtCodeList(int rowIdx)
 			SString temp_buf, info_buf;
 			ReceiptTbl::Rec lot_rec;
 			ReceiptCore & r_rcpt = p_bobj->trfr->Rcpt;
-			const int dont_veryfy_mark = BIN(p_bobj->GetConfig().Flags & BCF_DONTVERIFEXTCODECHAIN);
+			const bool dont_veryfy_mark = LOGIC(p_bobj->GetConfig().Flags & BCF_DONTVERIFEXTCODECHAIN);
 			const PPTransferItem * p_ti = (RowIdx > 0 && RowIdx <= P_Pack->GetTCountI()) ? &P_Pack->ConstTI(RowIdx-1) : 0;
-			const int  do_check = (dont_veryfy_mark || (P_Pack->IsDraft() || (!p_ti || p_ti->IsReceipt()))) ? 0 : 1;
-			const  PPID goods_id = (do_check && p_ti) ? labs(p_ti->GoodsID) : 0;
-			const  PPID lot_id = (do_check && p_ti) ? p_ti->LotID : 0;
+			const bool do_check = !(dont_veryfy_mark || (P_Pack->IsDraft() || (!p_ti || p_ti->IsReceipt())));
+			const PPID goods_id = (do_check && p_ti) ? labs(p_ti->GoodsID) : 0;
+			const PPID lot_id = (do_check && p_ti) ? p_ti->LotID : 0;
 			THROW(CheckDialogPtr(&dlg));
 			if(r_rcpt.Search(rRec.LotID, &lot_rec) <= 0)
 				MEMSZERO(lot_rec);

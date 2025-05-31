@@ -4,35 +4,31 @@
     android:id="@+id/CTL_INCOMINGLIST_BILL_SCANMARKS_LISTITEM"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
+    android:orientation="horizontal"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <TextView style="@style/GenericListItemText"
         android:id="@+id/CTL_INCOMINGLIST_BILL_SCANMARKS_MARK"
         android:layout_height="wrap_content"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:maxLines="1"
         android:fontFamily="sans-serif-condensed"
+        android:textSize="11sp"
         />
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:orientation="horizontal">
-        <View style="@style/FakeView"/>
-        <ImageButton style="@style/ToolbarButton"
-            android:id="@+id/CTL_BUTTON_MATCH"
-            android:layout_height="30dp"
-            android:layout_width="30dp"
-            android:layout_gravity="center_vertical"
-            android:onClick="OnButtonClk"
-            app:srcCompat="@drawable/ic_match01"
-            />
-        <ImageButton style="@style/ToolbarButton"
-            android:id="@+id/STDCTL_DELETEBUTTON"
-            android:layout_height="30dp"
-            android:layout_width="30dp"
-            android:layout_gravity="center_vertical"
-            android:onClick="OnButtonClk"
-            app:srcCompat="@drawable/ic_deletefile02"
-            />
-    </LinearLayout>
+    <View style="@style/FakeView"/>
+    <ImageButton style="@style/ToolbarButton"
+        android:id="@+id/CTL_BUTTON_MATCH"
+        android:layout_height="24dp"
+        android:layout_width="24dp"
+        android:layout_gravity="center_vertical"
+        android:onClick="OnButtonClk"
+        app:srcCompat="@drawable/ic_match01"
+        />
+    <ImageButton style="@style/ToolbarButton"
+        android:id="@+id/STDCTL_DELETEBUTTON"
+        android:layout_height="24dp"
+        android:layout_width="24dp"
+        android:layout_gravity="center_vertical"
+        android:onClick="OnButtonClk"
+        app:srcCompat="@drawable/ic_deletefile02"
+        />
 </LinearLayout>

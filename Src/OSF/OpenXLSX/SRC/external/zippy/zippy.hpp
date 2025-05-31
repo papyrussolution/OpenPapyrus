@@ -44,26 +44,22 @@ namespace Zippy
  * @details In case of an error in the Zippy library, an ZipRuntimeError object will be thrown, with a message
  * describing the details of the error.
  */
-class ZipRuntimeError : public std::runtime_error
-{
+class ZipRuntimeError : public std::runtime_error {
 public:
 	/**
 	 * @brief Constructor.
 	 * @param err A string with a description of the error.
 	 */
 	inline explicit ZipRuntimeError(const std::string& err) : runtime_error(err) {}
-
 	/**
 	 * @brief Destructor.
 	 */
 	inline ~ZipRuntimeError() override = default;
 };
-
 /**
  * @brief
  */
-class ZipLogicError : public std::logic_error
-{
+class ZipLogicError : public std::logic_error {
 public:
 	/**
 	 * @brief

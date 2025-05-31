@@ -256,13 +256,12 @@ void XLWorkbook::setSheetVisibility(const std::string& sheetRID, const std::stri
 		}
 	}
 }
-
 /**
  * @details
  * @done In some cases (eg. if a sheet is moved to the position before the selected sheet), multiple sheets are selected when opened
  * in Excel.
  */
-void XLWorkbook::setSheetIndex(const std::string& sheetName, unsigned int index)    // 2024-05-01: whitespace support
+void XLWorkbook::setSheetIndex(const std::string& sheetName, uint index) // 2024-05-01: whitespace support
 {
 	// ===== Determine the index of the active tab, if any
 	const XMLNode workbookView = xmlDocumentC().document_element().child("bookViews").first_child_of_type(pugi::node_element);
@@ -271,14 +270,12 @@ void XLWorkbook::setSheetIndex(const std::string& sheetName, unsigned int index)
 	// ===== Attempt to locate the sheet with sheetName, and look out for the sheet @index, and the sheet @activeIndex while iterating over
 	// the sheets
 	XMLNode sheetToMove      {};     // determine the sheet matching sheetName, if any
-	unsigned int sheetToMoveIndex = 0;
+	uint sheetToMoveIndex = 0;
 	XMLNode existingSheet    {};     // determine the sheet at index, if any
 	std::string activeSheet_rId  {}; // determine the r:id of the sheet at activeIndex, if any
-
-	unsigned int sheetIndex   = 1;
+	uint sheetIndex   = 1;
 	XMLNode curSheet = sheetsNode(xmlDocumentC()).first_child_of_type(pugi::node_element);
 	int thingsToFind = (activeSheetIndex > 0) ? 3 : 2;         // if there is no active tab configured, no need to search for its name
-
 	while(not curSheet.empty() && thingsToFind > 0) { // permit early loop exit when all sheets are located
 		if(sheetToMove.empty() && (curSheet.attribute("name").value() == sheetName)) {
 			sheetToMoveIndex = sheetIndex;
@@ -328,10 +325,10 @@ void XLWorkbook::setSheetIndex(const std::string& sheetName, unsigned int index)
 		setSheetActive(activeSheet_rId);
 }
 
-unsigned int XLWorkbook::indexOfSheet(const std::string& sheetName) const    // 2024-05-01: whitespace support
+uint XLWorkbook::indexOfSheet(const std::string& sheetName) const    // 2024-05-01: whitespace support
 {
 	// ===== Iterate through sheet nodes. When a match is found, return the index;
-	unsigned int index = 1;
+	uint index = 1;
 	for(XMLNode sheet = sheetsNode(xmlDocumentC()).first_child_of_type(pugi::node_element);
 	    not sheet.empty();
 	    sheet         = sheet.next_sibling_of_type(pugi::node_element)) {
@@ -352,9 +349,9 @@ XLSheetType XLWorkbook::typeOfSheet(const std::string& sheetName) const
 	return XLSheetType::Chartsheet;
 }
 
-XLSheetType XLWorkbook::typeOfSheet(unsigned int index) const    // 2024-05-01: whitespace support
+XLSheetType XLWorkbook::typeOfSheet(uint index) const    // 2024-05-01: whitespace support
 {
-	unsigned int thisIndex = 1;
+	uint thisIndex = 1;
 	for(XMLNode sheet = sheetsNode(xmlDocumentC()).first_child_of_type(pugi::node_element);
 	    not sheet.empty();
 	    sheet         = sheet.next_sibling_of_type(pugi::node_element)) {
@@ -366,16 +363,16 @@ XLSheetType XLWorkbook::typeOfSheet(unsigned int index) const    // 2024-05-01: 
 	throw XLInputError(std::string(__func__) + ": index "s + std::to_string(index) + " is out of range"s);
 }
 
-unsigned int XLWorkbook::sheetCount() const    // 2024-04-30: whitespace support
+uint XLWorkbook::sheetCount() const    // 2024-04-30: whitespace support
 {
-	unsigned int count = 0;
+	uint count = 0;
 	for(XMLNode node = sheetsNode(xmlDocumentC()).first_child_of_type(pugi::node_element); not node.empty(); node = node.next_sibling_of_type(pugi::node_element))
 		++count;
 	return count;
 }
 
-unsigned int XLWorkbook::worksheetCount() const { return static_cast<unsigned int>(worksheetNames().size()); }
-unsigned int XLWorkbook::chartsheetCount() const { return static_cast<unsigned int>(chartsheetNames().size()); }
+uint XLWorkbook::worksheetCount() const { return static_cast<uint>(worksheetNames().size()); }
+uint XLWorkbook::chartsheetCount() const { return static_cast<uint>(chartsheetNames().size()); }
 
 std::vector<std::string> XLWorkbook::sheetNames() const    // 2024-05-01: whitespace support
 {

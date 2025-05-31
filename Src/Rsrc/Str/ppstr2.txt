@@ -10152,6 +10152,16 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @bizscore_user                            "@{user}"
 @bizscore_parent                          "Родительский элемент"  // @v11.9.1 bizscore2
 @bizscore_datatype                        "@{stypex}"             // @v12.3.4 bizscore2
+@bizscore_typeenum                        ""
+@bizscore_typeenumext                     ""
+@bizscore_timeaggrfunc                    "Агрегирующая функция по времени"
+@bizscore_hieraggrfunc                    "Агрегирующая функция по иерархии"
+@bizscore_agentaggrfunc                   "Агрегирующая функция по участникам"
+@bizscore_agentpsnkind                    "Вид персоналии участников"
+@bizscore_linkobjtype                     "Тип связанного объекта"
+@bizscore_linkext                         "Группа связанных объектов"
+@bizscore_accsheet                        ""
+@bizscore_timecycle                       "Периодичность ввода"
 
 @bizscorefilt                             "Фильтр по бизнес-показателям"
 @bizscorevalfilt                          "Фильтр по значениям бизнес-показателей"

@@ -15,6 +15,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
+            <TextView style="@style/FormText" android:id="@+id/CTL_INCOMINGLIST_BILL_SCANMARKS_MARKCOUNT"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                />
             <View style="@style/FakeView"/>
             <ImageButton style="@style/ToolbarButton" android:id="@+id/tbButtonScanMark"
                 android:layout_gravity="center_vertical|right"

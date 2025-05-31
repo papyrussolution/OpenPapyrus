@@ -23,7 +23,7 @@ using namespace OpenXLSX;
 
 namespace {
 	constexpr int templateSize       = 7714;
-	constexpr unsigned char templateData[7714] = {
+	constexpr uchar templateData[7714] = {
 		0x50, 0x4b, 0x03, 0x04, 0x14, 0x00, 0x06, 0x00, 0x08, 0x00, 0x00, 0x00, 0x21, 0x00, 0xb5, 0x55, 0x30, 0x23, 0xf4, 0x00, 0x00, 0x00,
 		0x4c, 0x02, 0x00, 0x00, 0x0b, 0x00, 0x08, 0x02, 0x5f, 0x72, 0x65, 0x6c, 0x73, 0x2f, 0x2e, 0x72, 0x65, 0x6c, 0x73, 0x20, 0xa2, 0x04,
 		0x02, 0x28, 0xa0, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -1204,8 +1204,8 @@ bool XLDocument::execCommand(const XLCommand& command)
 
 		    // ===== 2024-12-15: handle absolute sheet path: ensure relative sheet path
 		    std::string sheetToClonePath = m_wbkRelationships.relationshipById(command.getParam<std::string>("sheetID")).target();
-		    if(sheetToClonePath.substr(0, 4) == "/xl/")  sheetToClonePath = sheetToClonePath.substr(4);
-
+		    if(sheetToClonePath.substr(0, 4) == "/xl/")  
+				sheetToClonePath = sheetToClonePath.substr(4);
 		    if(m_wbkRelationships.relationshipById(command.getParam<std::string>("sheetID")).type() == XLRelationshipType::Worksheet) {
 			    m_contentTypes.addOverride(sheetPath, XLContentType::Worksheet);
 			    m_wbkRelationships.addRelationship(XLRelationshipType::Worksheet, sheetPath.substr(4));
@@ -1279,23 +1279,17 @@ XLQuery XLDocument::execQuery(const XLQuery& query) const
 	    }
 		case XLQueryType::QuerySheetIsActive:
 		    return XLQuery(query).setResult(m_workbook.sheetIsActive(query.getParam<std::string>("sheetID")));
-
 		case XLQueryType::QuerySheetID:
 		    return XLQuery(query).setResult(m_workbook.sheetVisibility(query.getParam<std::string>("sheetID")));
-
 		case XLQueryType::QuerySheetRelsID:
-		    return XLQuery(query).setResult(
-			    m_wbkRelationships.relationshipByTarget(query.getParam<std::string>("sheetPath").substr(4)).id());
-
+		    return XLQuery(query).setResult(m_wbkRelationships.relationshipByTarget(query.getParam<std::string>("sheetPath").substr(4)).id());
 		case XLQueryType::QuerySheetRelsTarget:
 		    // ===== 2024-12-15: XLRelationshipItem::target() returns the unmodified Relationship "Target" property
 		    //                     - can be absolute or relative and must be handled by the caller
 		    //                   The only invocation as of today is in XLWorkbook::sheet(const std::string& sheetName) and handles this
 		    return XLQuery(query).setResult(m_wbkRelationships.relationshipById(query.getParam<std::string>("sheetID")).target());
-
 		case XLQueryType::QuerySharedStrings:
 		    return XLQuery(query).setResult(m_sharedStrings);
-
 		case XLQueryType::QueryXmlData: {
 		    const auto result = std::find_if(m_data.begin(), m_data.end(), [&](const XLXmlData& item) {
 				return item.getXmlPath() == query.getParam<std::string>("xmlPath");
@@ -1305,7 +1299,7 @@ XLQuery XLDocument::execQuery(const XLQuery& query) const
 		    return XLQuery(query).setResult(&*result);
 	    }
 		default:
-		    throw XLInternalError("XLDocument::execQuery: unknown query type " + std::to_string(static_cast<uint8_t>(query.type())));
+		    throw XLInternalError("XLDocument::execQuery: unknown query type " + std::to_string(static_cast<uint8>(query.type())));
 	}
 	return query; // Needed in order to suppress compiler warning
 }
@@ -1323,8 +1317,7 @@ void XLDocument::cleanupSharedStrings()
 	int32_t oldStringCount = m_sharedStringCache.size();
 	std::vector< int32_t > indexMap(oldStringCount, -1);  // indexMap[ oldIndex ] :== newIndex, -1 = not yet assigned
 	int32_t newStringCount = 1; // reserve index 0 for empty string, count here +1 for each unique shared string index that is in use in the worksheet
-
-	unsigned int worksheetCount = m_workbook.worksheetCount();
+	uint worksheetCount = m_workbook.worksheetCount();
 	for(uint16 wIndex = 1; wIndex <= worksheetCount; ++wIndex) {
 		XLWorksheet wks = m_workbook.worksheet(wIndex);
 		XLCellRange cellRange = wks.range();
@@ -1407,7 +1400,7 @@ namespace OpenXLSX {
  * @param value The number to convert, must be 0 <= value <= 15
  * @return 0 if value > 15, otherwise the hex digit equivalent to value, as a character
  */
-char hexDigit(unsigned int value)
+char hexDigit(uint value)
 {
 	if(value > 0xf)
 		return 0;
@@ -1423,7 +1416,7 @@ std::string BinaryAsHexString(const void * data, const size_t size)
 	// ===== Allocate memory for string assembly - each byte takes two hex digits = 2 characters in string
 	std::string strAssemble(size * 2, 0); // zero-initialize (alternative would be to default-construct a string and .reserve(size * 2);
 
-	const uint8_t * dataBytePtr = reinterpret_cast< const uint8_t * >( data );
+	const uint8 * dataBytePtr = reinterpret_cast< const uint8 * >( data );
 	// ===== assemble a string of hex digits
 	for(size_t pos = 0; pos < size * 2; ++pos) {
 		int valueByte = dataBytePtr[pos / 2];
@@ -1457,12 +1450,11 @@ uint16 ExcelPasswordHash(std::string password)
 std::string ExcelPasswordHashAsString(std::string password)
 {
 	uint16 pw = ExcelPasswordHash(password);
-	uint8_t hashData[2];
+	uint8 hashData[2];
 	hashData[0] = pw >> 8;   // MSB first
 	hashData[1] = pw & 0xff; // LSB second
 	return BinaryAsHexString(hashData, 2);
 }
-
 /**
  * @brief local function: split a path into a vector of strings each containing a subdirectory (or finally: a filename) - ignore leading and trailing slashes
  * @param path split this path by '/' characters
@@ -1487,7 +1479,7 @@ std::vector<std::string> disassemblePath(std::string const& path, bool eliminate
 				if(eliminateDots) {
 					// handle . and .. folders
 					if(dirEntry == ".") {
-					}       // no-op
+					} // no-op
 					else if(dirEntry == "..") {
 						if(result.size() > 0)
 							result.pop_back(); // remove previous folder from result
@@ -1509,26 +1501,25 @@ std::vector<std::string> disassemblePath(std::string const& path, bool eliminate
 std::string getPathARelativeToPathB(std::string const& pathA, std::string const& pathB)
 {
 	size_t startpos = 0;
-	while(pathA[startpos] == pathB[startpos])  ++startpos;          // find position where pathA and pathB differ
-	while(startpos > 0 && pathA[startpos - 1] != '/')  --startpos;  // then iterate back to last slash before that position
+	while(pathA[startpos] == pathB[startpos])
+		++startpos;          // find position where pathA and pathB differ
+	while(startpos > 0 && pathA[startpos - 1] != '/')
+		--startpos;  // then iterate back to last slash before that position
 	if(startpos == 0)
 		throw XLInternalError("getPathARelativeToPathB: pathA and pathB have no common beginning");
-
 	std::vector<std::string> dirEntriesB = disassemblePath(pathB.substr(startpos));   // disassemble unique part of pathB into a vector of strings
-	if(dirEntriesB.size() > 0 && pathB.back() != '/')  dirEntriesB.pop_back();        // a filename in pathB isn't needed for the relative path generation
-
+	if(dirEntriesB.size() > 0 && pathB.back() != '/')
+		dirEntriesB.pop_back();        // a filename in pathB isn't needed for the relative path generation
 	std::string result("");                                                           // assemble result:
 	for(auto it = dirEntriesB.rbegin(); it != dirEntriesB.rend(); ++it)               // for each subdirectory unique to pathB
 		result += "../";                                                             // add one ../ to escape it
 	result += pathA.substr(startpos);                                                 // finally, append unique part of pathA
-
 	return result;
 }
 
 std::string eliminateDotAndDotDotFromPath(const std::string& path)
 {
-	std::vector< std::string > dirEntries = disassemblePath(path);   // disassemble path into a vector of strings with subdirectory names
-
+	std::vector <std::string> dirEntries = disassemblePath(path);   // disassemble path into a vector of strings with subdirectory names
 	// assemble path from dirEntries
 	std::string result = path.front() == '/' ? "/" : "";
 	if(dirEntries.size() > 0) {
@@ -1538,7 +1529,6 @@ std::string eliminateDotAndDotDotFromPath(const std::string& path)
 			result += "/" + *it;
 		}                                                      // concatenate dirnames
 	}
-
 	// in return value: avoid appending a trailing slash if a path was already reduced to "/"
 	return ((result.length() > 1 || result.front() != '/') && path.back() == '/') ? result + "/" : result;
 }

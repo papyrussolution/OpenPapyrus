@@ -3383,7 +3383,7 @@ void WsCtl_ImGuiSceneBlock::BuildScene()
 									St.D_CompReg.GetData(st_data_compreg); // Обнуляем текущее состояние регистрации компьютера
 									St.D_CompCatList.GetData(st_data_compcat_list);
 									if(St.SidBlk.PrcName.IsEmpty()) {
-										SGetComputerName(St.SidBlk.PrcName);
+										SGetComputerName(false/*utf8*/, St.SidBlk.PrcName);
 									}
 									if(!st_data_compcat_list.DtmActual) {
 										P_CmdQ->Push(WsCtlReqQueue::Req(WsCtl_CliSession::reqidQueryComputerCategoryList));

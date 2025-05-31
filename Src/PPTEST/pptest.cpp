@@ -2028,6 +2028,7 @@ int DoConstructionTest()
 		}
 	}
 #endif // } 0
+	//PPChZnPrcssr::Test();
 	//Test_Cristal2SetRetailGateway();
 	//TestTddo();
 	//PreprocessHFile();
@@ -2039,7 +2040,6 @@ int DoConstructionTest()
 	//VkInterface::Test();
 	//Test_LayoutedListDialog();
 	//TestGtinStruc();
-	//PPChZnPrcssr::Test();
 	//GumboTest();
 	//Test_SSystemBackup();
 	//TestPow10Tab();
@@ -2189,73 +2189,3 @@ int PPTestDbInfrastructure::_Case_TaxEvaluation()
 	*/ 
 	return ok;
 }
-//
-// Эксперименты с библиотекой OpenXLSX
-//
-#if 1 // @construction {
-#include <..\osf\OpenXLSX\SRC\headers\OpenXLSX.hpp>
-
-void Test_OpenXLSX()
-{
-	SString path;
-	SString err_msg;
-	PPGetFilePath(PPPATH_OUT, "Test_OpenXLSX.xlsx", path);
-	try {
-		{
-			OpenXLSX::XLDocument doc;
-			doc.create(path.cptr(), OpenXLSX::XLForceOverwrite);
-			auto wks = doc.workbook().worksheet("Sheet1");
-			//
-			wks.cell("A1").value() = 3.14159265358979323846;
-			wks.cell("B1").value() = 42;
-			wks.cell("C1").value() = "  Hello OpenXLSX!  ";
-			wks.cell("D1").value() = true;
-			wks.cell("E1").value() = std::sqrt(-2); // Result is NAN, resulting in an error value in the Excel spreadsheet.
-
-			// As mentioned, the .value() method can also be used for getting tha value of a cell.
-			// The .value() method returns a proxy object that cannot be copied or assigned, but
-			// it can be implicitly converted to an XLCellValue object, as shown below.
-			// Unfortunately, it is not possible to use the 'auto' keyword, so the XLCellValue
-			// type has to be explicitly stated.
-			OpenXLSX::XLCellValue A1 = wks.cell("A1").value();
-			OpenXLSX::XLCellValue B1 = wks.cell("B1").value();
-			OpenXLSX::XLCellValue C1 = wks.cell("C1").value();
-			OpenXLSX::XLCellValue D1 = wks.cell("D1").value();
-			OpenXLSX::XLCellValue E1 = wks.cell("E1").value();
-
-			// The cell value can be implicitly converted to a basic c++ type. However, if the type does not
-			// match the type contained in the XLCellValue object (if, for example, floating point value is
-			// assigned to a std::string), then an XLValueTypeError exception will be thrown.
-			// To check which type is contained, use the .type() method, which will return a XLValueType enum
-			// representing the type. As a convenience, the .typeAsString() method returns the type as a string,
-			// which can be useful when printing to console.
-			double vA1 = wks.cell("A1").value();
-			int vB1 = wks.cell("B1").value();
-			std::string vC1 = wks.cell("C1").value();
-			bool vD1 = wks.cell("D1").value();
-			double vE1 = wks.cell("E1").value();
-
-			doc.save();
-			doc.close();
-		}
-		{
-			OpenXLSX::XLDocument doc;
-			doc.open(path.cptr());
-			auto wks = doc.workbook().worksheet("Sheet1");
-			OpenXLSX::XLCellValue A1 = wks.cell("A1").value();
-			OpenXLSX::XLCellValue B1 = wks.cell("B1").value();
-			OpenXLSX::XLCellValue C1 = wks.cell("C1").value();
-			OpenXLSX::XLCellValue D1 = wks.cell("D1").value();
-			OpenXLSX::XLCellValue E1 = wks.cell("E1").value();
-			double vA1 = wks.cell("A1").value();
-			int vB1 = wks.cell("B1").value();
-			std::string vC1 = wks.cell("C1").value();
-			bool vD1 = wks.cell("D1").value();
-			double vE1 = wks.cell("E1").value();
-			doc.close();
-		}
-	} catch(OpenXLSX::XLException exn) {
-		err_msg = exn.what();
-	}
-}
-#endif // } 0 @construction

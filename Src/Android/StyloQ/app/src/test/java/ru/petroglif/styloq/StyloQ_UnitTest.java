@@ -539,21 +539,47 @@ public class StyloQ_UnitTest {
 			"0104860102580369215VSQ93&b:dYA593HLkd", // вода
 			//"0104860102580369215WsZaD(p5nR+s)93xQ6Y", // вода
 		};
-		boolean debug_mark = false;
-		for(int i = 0; i < test_code_list.length; i++) {
-			final String code = test_code_list[i];
-			GTIN result = GTIN.ParseChZnCode(code, 0);
-			boolean is_valid_grade01 = (result != null && (result.GetChZnParseResult() > 0 && result.GetChZnParseResult() != 100000));
-			if(!is_valid_grade01) {
-				debug_mark = true;
+		{
+			boolean debug_mark = false;
+			for(int i = 0; i < test_code_list.length; i++) {
+				final String code = test_code_list[i];
+				GTIN result = GTIN.ParseChZnCode(code, 0);
+				boolean is_valid_grade01 = (result != null && (result.GetChZnParseResult() > 0 && result.GetChZnParseResult() != 100000));
+				if(!is_valid_grade01) {
+					debug_mark = true;
+				}
+				Assert.assertTrue(is_valid_grade01);
+				if(is_valid_grade01) {
+					String gtin14 = result.GetToken(GTIN.fldGTIN14);
+					Assert.assertTrue(gtin14 != null && gtin14.length() == 14);
+					//
+					String serial = result.GetToken(GTIN.fldSerial);
+					Assert.assertTrue(serial != null && serial.length() > 6);
+				}
 			}
-			Assert.assertTrue(is_valid_grade01);
-			if(is_valid_grade01) {
-				String gtin14 = result.GetToken(GTIN.fldGTIN14);
-				Assert.assertTrue(gtin14 != null && gtin14.length() == 14);
-				//
-				String serial = result.GetToken(GTIN.fldSerial);
-				Assert.assertTrue(serial != null && serial.length() > 6);
+		}
+		{
+			String test_chzn_pallet_list[] = {
+					"00146602560600005791",
+					"00146602560600006484",
+					"00146602560600006460",
+			};
+			boolean debug_mark = false;
+			for(int i = 0; i < test_chzn_pallet_list.length; i++) {
+				final String code = test_chzn_pallet_list[i];
+				GTIN result = GTIN.ParseChZnCode(code, 0);
+				boolean is_valid_grade01 = (result != null && (result.GetChZnParseResult() > 0 && result.GetChZnParseResult() != 100000));
+				if(!is_valid_grade01) {
+					debug_mark = true;
+				}
+				Assert.assertTrue(is_valid_grade01);
+				if(is_valid_grade01) {
+					String gtin14 = result.GetToken(GTIN.fldGTIN14);
+					String org = result.GetToken(GTIN.fldOriginalText);
+					Assert.assertTrue(result.ChZnParseResult == STokenRecognizer.SNTOK_CHZN_PALLET_GTIN);
+					Assert.assertTrue(gtin14 != null && gtin14.length() == 14);
+					Assert.assertTrue(org.equals(code));
+				}
 			}
 		}
 	}

@@ -6,8 +6,8 @@
 
 using namespace OpenXLSX;
 
-constexpr uint8_t alphabetSize = 26;
-constexpr uint8_t asciiOffset = 64;
+constexpr uint8 alphabetSize = 26;
+constexpr uint8 asciiOffset = 64;
 
 namespace {
 	bool addressIsValid(uint32 row, uint16 column)
@@ -178,7 +178,7 @@ std::string XLCellReference::rowAsString(uint32 row)
 		result += (rem > 9) ? (rem - 10) + 'a' : rem + '0';
 		row = row / 10;
 	}
-	for(unsigned int i = 0; i < result.length() / 2; i++)  
+	for(uint i = 0; i < result.length() / 2; i++)  
 		std::swap(result[i], result[result.length() - i - 1]);
 	return result;
 #endif

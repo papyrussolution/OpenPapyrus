@@ -57,16 +57,14 @@ static OSSL_CMP_severity parse_level(const char * level)
 	if(len > max_level_len)
 		return -1;
 	OPENSSL_strlcpy(level_copy, level, len + 1);
-	return
-		strcmp(level_copy, "EMERG") == 0 ? OSSL_CMP_LOG_EMERG :
-		strcmp(level_copy, "ALERT") == 0 ? OSSL_CMP_LOG_ALERT :
-		strcmp(level_copy, "CRIT") == 0 ? OSSL_CMP_LOG_CRIT :
-		strcmp(level_copy, "ERROR") == 0 ? OSSL_CMP_LOG_ERR :
-		strcmp(level_copy, "WARN") == 0 ? OSSL_CMP_LOG_WARNING :
-		strcmp(level_copy, "NOTE") == 0 ? OSSL_CMP_LOG_NOTICE :
-		strcmp(level_copy, "INFO") == 0 ? OSSL_CMP_LOG_INFO :
-		strcmp(level_copy, "DEBUG") == 0 ? OSSL_CMP_LOG_DEBUG :
-		-1;
+	return sstreq(level_copy, "EMERG") ? OSSL_CMP_LOG_EMERG :
+		sstreq(level_copy, "ALERT") ? OSSL_CMP_LOG_ALERT :
+		sstreq(level_copy, "CRIT") ? OSSL_CMP_LOG_CRIT :
+		sstreq(level_copy, "ERROR") ? OSSL_CMP_LOG_ERR :
+		sstreq(level_copy, "WARN") ? OSSL_CMP_LOG_WARNING :
+		sstreq(level_copy, "NOTE") ? OSSL_CMP_LOG_NOTICE :
+		sstreq(level_copy, "INFO") ? OSSL_CMP_LOG_INFO :
+		sstreq(level_copy, "DEBUG") ? OSSL_CMP_LOG_DEBUG : -1;
 }
 
 const char * ossl_cmp_log_parse_metadata(const char * buf, OSSL_CMP_severity * level, char ** func, char ** file, int * line)

@@ -344,5 +344,6 @@
     <ClCompile Include="..\PPLib\marketplace.cpp" />
     <ClCompile Include="..\PPLib\objbizsc2.cpp" />
     <ClCompile Include="..\PPLib\pp-ifm.cpp" />
+    <ClCompile Include="..\PPLib\ppexcelapp.cpp" />
   </ItemGroup>
 </Project>

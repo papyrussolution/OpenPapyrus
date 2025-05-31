@@ -68,7 +68,6 @@ XLContentType GetContentTypeFromString(const std::string& typeString)
 		type = XLContentType::VMLDrawing;
 	else
 		type = XLContentType::Unknown;
-
 	return type;
 }
 
@@ -121,7 +120,6 @@ std::string GetStringFromType(XLContentType type)
 		typeString = applicationOpenXmlOfficeDocument + ".vmlDrawing";
 	else
 		throw XLInternalError("Unknown ContentType");
-
 	return typeString;
 }
 }    // anonymous namespace
@@ -134,7 +132,8 @@ XLContentItem::~XLContentItem() = default;
 
 XLContentItem& XLContentItem::operator=(const XLContentItem& other)
 {
-	if(&other != this)  *m_contentNode = *other.m_contentNode;
+	if(&other != this)
+		*m_contentNode = *other.m_contentNode;
 	return *this;
 }
 
@@ -157,17 +156,14 @@ XLContentTypes& XLContentTypes::operator=(XLContentTypes&& other) noexcept = def
 void XLContentTypes::addOverride(const std::string& path, XLContentType type)
 {
 	const std::string typeString = GetStringFromType(type);
-
 	XMLNode lastOverride = xmlDocument().document_element().last_child_of_type(pugi::node_element); // see if there's a last element
 	XMLNode node{}; // scope declaration
-
 	// Create new node in the [Content_Types].xml file
 	if(lastOverride.empty())
 		node = xmlDocument().document_element().prepend_child("Override");
 	else { // if last element found
 		// ===== Insert node after previous override
 		node = xmlDocument().document_element().insert_child_after("Override", lastOverride);
-
 		// ===== Using whitespace nodes prior to lastOverride as a template, insert whitespaces between lastOverride and the new node
 		XMLNode copyWhitespaceFrom = lastOverride; // start looking for whitespace nodes before previous override
 		XMLNode insertBefore = node;          // start inserting the same whitespace nodes before new override
@@ -200,7 +196,8 @@ std::vector<XLContentItem> XLContentTypes::getContentItems()
 	std::vector<XLContentItem> result;
 	XMLNode item = xmlDocument().document_element().first_child_of_type(pugi::node_element);
 	while(not item.empty()) {
-		if(strcmp(item.name(), "Override") == 0)  result.emplace_back(item);
+		if(sstreq(item.name(), "Override"))
+			result.emplace_back(item);
 		item = item.next_sibling_of_type(pugi::node_element);
 	}
 	return result;

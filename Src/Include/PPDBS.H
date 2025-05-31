@@ -6089,6 +6089,7 @@ public:
 		int32  ScoreID;
 		int32  ArID;
 		LDATE  Dt;
+		LTIME  Tm;
 		LDATE  PlanPeriodFn;
 		int32  Flags;
 		int32  AgentID;
@@ -6103,12 +6104,14 @@ public:
 	struct Key1 {
 		int16  Kind;
 		LDATE  Dt;
+		LTIME  Tm;
 		int32  ScoreID;
 	};
 	struct Key2 {
 		int16  Kind;
 		int32  ScoreID;
 		LDATE  Dt;
+		LTIME  Tm;
 	};
 	DBField ID;
 	DBField Kind;
@@ -6116,6 +6119,7 @@ public:
 	DBField ScoreID;
 	DBField ArID;
 	DBField Dt;
+	DBField Tm;
 	DBField PlanPeriodFn;
 	DBField Flags;
 	DBField AgentID;

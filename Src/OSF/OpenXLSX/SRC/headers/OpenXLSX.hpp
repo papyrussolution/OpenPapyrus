@@ -605,27 +605,27 @@
 			friend bool operator!=(const XLColor& lhs, const XLColor& rhs);
 		public:
 			XLColor();
-			XLColor(uint8_t alpha, uint8_t red, uint8_t green, uint8_t blue);
-			XLColor(uint8_t red, uint8_t green, uint8_t blue);
+			XLColor(uint8 alpha, uint8 red, uint8 green, uint8 blue);
+			XLColor(uint8 red, uint8 green, uint8 blue);
 			explicit XLColor(const std::string& hexCode);
 			XLColor(const XLColor& other);
 			XLColor(XLColor&& other) noexcept;
 			~XLColor();
 			XLColor& operator=(const XLColor& other);
 			XLColor& operator=(XLColor&& other) noexcept;
-			void set(uint8_t alpha, uint8_t red, uint8_t green, uint8_t blue);
-			void set(uint8_t red = 0, uint8_t green = 0, uint8_t blue = 0);
+			void set(uint8 alpha, uint8 red, uint8 green, uint8 blue);
+			void set(uint8 red = 0, uint8 green = 0, uint8 blue = 0);
 			void set(const std::string& hexCode);
-			uint8_t alpha() const;
-			uint8_t red() const;
-			uint8_t green() const;
-			uint8_t blue() const;
+			uint8 alpha() const;
+			uint8 red() const;
+			uint8 green() const;
+			uint8 blue() const;
 			std::string hex() const;
 		private:
-			uint8_t m_alpha { 255 };
-			uint8_t m_red { 0 };
-			uint8_t m_green { 0 };
-			uint8_t m_blue { 0 };
+			uint8 m_alpha { 255 };
+			uint8 m_red { 0 };
+			uint8 m_green { 0 };
+			uint8 m_blue { 0 };
 		};
 
 		inline bool operator==(const XLColor& lhs, const XLColor& rhs)
@@ -774,35 +774,35 @@
 		class XLCellStyles;
 		class XLStyles;
 
-		enum XLUnderlineStyle : uint8_t {
+		enum XLUnderlineStyle : uint8 {
 			XLUnderlineNone    = 0,
 			XLUnderlineSingle  = 1,
 			XLUnderlineDouble  = 2,
 			XLUnderlineInvalid = 255
 		};
-		enum XLFontSchemeStyle : uint8_t {
+		enum XLFontSchemeStyle : uint8 {
 			XLFontSchemeNone    =   0, // <scheme val="none"/>
 			XLFontSchemeMajor   =   1, // <scheme val="major"/>
 			XLFontSchemeMinor   =   2, // <scheme val="minor"/>
 			XLFontSchemeInvalid = 255  // all other values
 		};
-		enum XLVerticalAlignRunStyle : uint8_t {
+		enum XLVerticalAlignRunStyle : uint8 {
 			XLBaseline                =   0, // <vertAlign val="baseline"/>
 			XLSubscript               =   1, // <vertAlign val="subscript"/>
 			XLSuperscript             =   2, // <vertAlign val="superscript"/>
 			XLVerticalAlignRunInvalid = 255
 		};
-		enum XLFillType : uint8_t {
+		enum XLFillType : uint8 {
 			XLGradientFill     =   0,    // <gradientFill />
 			XLPatternFill      =   1,    // <patternFill />
 			XLFillTypeInvalid  = 255,    // any child of <fill> that is not one of the above
 		};
-		enum XLGradientType : uint8_t {
+		enum XLGradientType : uint8 {
 			XLGradientLinear      =   0,
 			XLGradientPath        =   1,
 			XLGradientTypeInvalid = 255
 		};
-		enum XLPatternType: uint8_t {
+		enum XLPatternType: uint8 {
 			XLPatternNone            =   0,   // "none"
 			XLPatternSolid           =   1,   // "solid"
 			XLPatternMediumGray      =   2,   // "mediumGray"
@@ -830,7 +830,7 @@
 		constexpr const char * XLDefaultPatternFgColor = "ffffffff"; // child node fgcolor attribute rgb value
 		constexpr const char * XLDefaultPatternBgColor = "ff000000"; // child node bgcolor attribute rgb value
 
-		enum XLLineType: uint8_t {
+		enum XLLineType: uint8 {
 			XLLineLeft       =   0,
 			XLLineRight      =   1,
 			XLLineTop        =   2,
@@ -841,7 +841,7 @@
 			XLLineInvalid    = 255
 		};
 
-		enum XLLineStyle : uint8_t {
+		enum XLLineStyle : uint8 {
 			XLLineStyleNone             =   0,
 			XLLineStyleThin             =   1,
 			XLLineStyleMedium           =   2,
@@ -859,7 +859,7 @@
 			XLLineStyleInvalid          = 255
 		};
 
-		enum XLAlignmentStyle : uint8_t {
+		enum XLAlignmentStyle : uint8 {
 			XLAlignGeneral          =   0, // value="general",          horizontal only
 			XLAlignLeft             =   1, // value="left",             horizontal only
 			XLAlignRight            =   2, // value="right",            horizontal only
@@ -2689,7 +2689,7 @@
 			friend class XLDocument; // for reindexing shared strings
 		public:
 			~XLCellValueProxy();
-			XLCellValueProxy& operator=(const XLCellValueProxy& other);
+			XLCellValueProxy & operator = (const XLCellValueProxy & other);
 			/**
 			 * @brief Templated assignment operator
 			 * @tparam T The type of numberValue assigned to the object.
@@ -2700,7 +2700,7 @@
 					std::is_integral_v<T> || std::is_floating_point_v<T> || std::is_same_v<std::decay_t<T>, std::string> ||
 					std::is_same_v<std::decay_t<T>, std::string_view> || std::is_same_v<std::decay_t<T>, const char*> ||
 					std::is_same_v<std::decay_t<T>, char*> || std::is_same_v<T, XLCellValue> || std::is_same_v<T, XLDateTime> > >
-			XLCellValueProxy& operator=(T value)
+			XLCellValueProxy & operator = (T value)
 			{
 				if constexpr(std::is_integral_v<T> && std::is_same_v<T, bool>) // if bool
 					setBoolean(value);
@@ -3642,7 +3642,7 @@
 		};
 		//
 		//#include "XLCommandQuery.hpp"
-		enum class XLCommandType : uint8_t {
+		enum class XLCommandType : uint8 {
 			SetSheetName,
 			SetSheetColor,
 			SetSheetVisibility,
@@ -3679,7 +3679,7 @@
 			std::map<std::string, std::any> m_params;
 		};
 
-		enum class XLQueryType : uint8_t {
+		enum class XLQueryType : uint8 {
 			QuerySheetName,
 			QuerySheetIndex,
 			QuerySheetVisibility,
@@ -3715,7 +3715,7 @@
 		};
 		//
 		//#include "XLContentTypes.hpp"
-		enum class XLContentType : uint8_t {
+		enum class XLContentType : uint8 {
 			Workbook,
 			Relationships,
 			WorkbookMacroEnabled,
@@ -3957,7 +3957,7 @@
 		extern const std::string ShapeTypeNodeName;     // = "v:shapetype"
 
 		// NOTE: numerical values of XLShapeTextVAlign and XLShapeTextHAlign are shared with the same alignments from XLAlignmentStyle (XLStyles.hpp)
-		enum class XLShapeTextVAlign : uint8_t {
+		enum class XLShapeTextVAlign : uint8 {
 			Center           =   3, // value="center",           both
 			Top              =   4, // value="top",              vertical only
 			Bottom           =   5, // value="bottom",           vertical only
@@ -3966,7 +3966,7 @@
 
 		constexpr const XLShapeTextVAlign XLDefaultShapeTextVAlign = XLShapeTextVAlign::Top;
 
-		enum class XLShapeTextHAlign : uint8_t {
+		enum class XLShapeTextHAlign : uint8 {
 			Left             =   1, // value="left",             horizontal only
 			Right            =   2, // value="right",            horizontal only
 			Center           =   3, // value="center",           both
@@ -4404,7 +4404,7 @@
 			void deleteProperty(const std::string& name);
 			void appendSheetName(const std::string& sheetName);
 			void prependSheetName(const std::string& sheetName);
-			void insertSheetName(const std::string& sheetName, unsigned int index);
+			void insertSheetName(const std::string& sheetName, uint index);
 		};
 		//
 		//#include "XLRelationships.hpp"
@@ -4711,19 +4711,19 @@
 			/**
 			 * @param index The index (1-based) where the sheet shall be moved to
 			 */
-			void setSheetIndex(const std::string& sheetName, unsigned int index);
+			void setSheetIndex(const std::string& sheetName, uint index);
 			/**
 			 * @return The index (1-based) of the sheet with sheetName
 			 */
-			unsigned int indexOfSheet(const std::string& sheetName) const;
+			uint indexOfSheet(const std::string& sheetName) const;
 			XLSheetType typeOfSheet(const std::string& sheetName) const;
 			/**
 			 * @param index The index (1-based) at which the desired sheet is located.
 			 */
-			XLSheetType typeOfSheet(unsigned int index) const;
-			unsigned int sheetCount() const;
-			unsigned int worksheetCount() const;
-			unsigned int chartsheetCount() const;
+			XLSheetType typeOfSheet(uint index) const;
+			uint sheetCount() const;
+			uint worksheetCount() const;
+			uint chartsheetCount() const;
 			std::vector<std::string> sheetNames() const;
 			std::vector<std::string> worksheetNames() const;
 			std::vector<std::string> chartsheetNames() const;
@@ -4798,7 +4798,7 @@
 		};
 		//
 		//#include "XLDocument.hpp"
-		constexpr const unsigned int pugi_parse_settings = pugi::parse_default | pugi::parse_ws_pcdata;     // TBD: | pugi::parse_comments
+		constexpr const uint pugi_parse_settings = pugi::parse_default | pugi::parse_ws_pcdata;     // TBD: | pugi::parse_comments
 		constexpr const bool XLForceOverwrite = true;        // readability constant for 2nd parameter of XLDocument::saveAs
 		constexpr const bool XLDoNotOverwrite = false;       //  "
 		/**
@@ -5720,7 +5720,7 @@
 		/**
 		 * @brief The XLSheetState is an enumeration of the possible (visibility) states, e.g. Visible or Hidden.
 		 */
-		enum class XLSheetState : uint8_t { 
+		enum class XLSheetState : uint8 { 
 			Visible, 
 			Hidden, 
 			VeryHidden 
@@ -5728,7 +5728,7 @@
 
 		constexpr const uint16 XLPriorityNotSet = 0;     // readability constant for XLCfRule::priority()
 
-		enum class XLCfType : uint8_t {
+		enum class XLCfType : uint8 {
 			Expression        =   0,
 			CellIs            =   1,
 			ColorScale        =   2,
@@ -5750,7 +5750,7 @@
 			Invalid           = 255
 		};
 
-		enum class XLCfOperator : uint8_t {
+		enum class XLCfOperator : uint8 {
 			LessThan           =   0,
 			LessThanOrEqual    =   1,
 			Equal              =   2,
@@ -5766,7 +5766,7 @@
 			Invalid            = 255
 		};
 
-		enum class XLCfTimePeriod : uint8_t {
+		enum class XLCfTimePeriod : uint8 {
 			Today     =   0,
 			Yesterday =   1,
 			Tomorrow  =   2,

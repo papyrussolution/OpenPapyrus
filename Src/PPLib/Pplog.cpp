@@ -1203,7 +1203,7 @@ int PPSession::Log(const char * pFileName, const char * pStr, long options)
 			item.Prefix.Cat(GetCurUserName(temp_buf.Z())).Tab();
 		}
 		if(options & LOGMSGF_COMP) {
-			if(!SGetComputerName(temp_buf.Z()))
+			if(!SGetComputerName(false/*utf8*/, temp_buf))
 				temp_buf = "?COMP?";
 			item.Prefix.Cat(temp_buf).Tab();
 		}

@@ -2721,6 +2721,16 @@ public:
 		AddClusterAssoc(CTL_BIZSC2_DATATYPE, 1, OTTYP_INT);
 		AddClusterAssoc(CTL_BIZSC2_DATATYPE, 2, OTTYP_STRING);
 		SetClusterData(CTL_BIZSC2_DATATYPE, Data.Rec.DataType);
+		{
+			PPIDArray obj_type_list;
+			obj_type_list.addzlist(PPOBJ_GOODS, PPOBJ_PERSON, PPOBJ_BILL, 0);
+			SetupObjListCombo(this, CTLSEL_BIZSC2_LINKOBJ, Data.Rec.LinkObjType, &obj_type_list);
+		}
+		SetupPPObjCombo(this, CTLSEL_BIZSC2_AGENTPSNK, PPOBJ_PERSONKIND, Data.Rec.AgentPsnKindID, 0);
+		SetupStringCombo(this, CTLSEL_BIZSC2_AGGRFTM, PPTXT_AGGRFUNCNAMELIST, Data.Rec.TimeAggrFunc);
+		SetupStringCombo(this, CTLSEL_BIZSC2_AGGRFHR, PPTXT_AGGRFUNCNAMELIST, Data.Rec.HierAggrFunc);
+		SetupStringCombo(this, CTLSEL_BIZSC2_AGGRFAG, PPTXT_AGGRFUNCNAMELIST, Data.Rec.AgentAggrFunc);
+		SetupStringCombo(this, CTLSEL_BIZSC2_TIMECYCLE, PPTXT_CYCLELIST, Data.Rec.TimeCycle);
 		return 1;
 	}
 	DECL_DIALOG_GETDTS()
@@ -2732,6 +2742,12 @@ public:
 		getCtrlData(CTL_BIZSC2_SYMB, Data.Rec.Symb);
 		getCtrlData(CTLSEL_BIZSC2_PARENT, &Data.Rec.ParentID);
 		GetClusterData(CTL_BIZSC2_DATATYPE, &Data.Rec.DataType);
+		getCtrlData(CTLSEL_BIZSC2_LINKOBJ, &Data.Rec.LinkObjType);
+		getCtrlData(CTLSEL_BIZSC2_AGENTPSNK, &Data.Rec.AgentPsnKindID);
+		getCtrlData(CTLSEL_BIZSC2_AGGRFTM, &Data.Rec.TimeAggrFunc);
+		getCtrlData(CTLSEL_BIZSC2_AGGRFHR, &Data.Rec.HierAggrFunc);
+		getCtrlData(CTLSEL_BIZSC2_AGGRFAG, &Data.Rec.AgentAggrFunc);
+		getCtrlData(CTLSEL_BIZSC2_TIMECYCLE, &Data.Rec.TimeCycle);
 		ASSIGN_PTR(pData, Data);
 		CATCHZOKPPERRBYDLG
 		return ok;
@@ -2893,6 +2909,11 @@ int PPObjBizScore2::EditValuePacketDialog(BizScore2ValuePacket * pValuePack)
 					else if(pack.Rec.DataType == OTTYP_STRING) {
 						getCtrlString(CTL_BIZSC2V_VAL_T, Data.Text);
 					}
+					if(pack.Rec.AgentPsnKindID) {
+						getCtrlData(CTLSEL_BIZSC2V_AGENT, &Data.Rec.AgentID);
+					}
+					else
+						Data.Rec.AgentID = 0;
 				}
 			}
 			//
@@ -2944,6 +2965,7 @@ int PPObjBizScore2::EditValuePacketDialog(BizScore2ValuePacket * pValuePack)
 				showCtrl(CTL_BIZSC2V_VAL_I, false);
 				showCtrl(CTL_BIZSC2V_VAL_T, false);
 			}
+			SetupPersonCombo(this, CTLSEL_BIZSC2V_AGENT, Data.Rec.AgentID, 0, pack.Rec.AgentPsnKindID, 1);
 		}
 		PPObjBizScore2 Obj;
 	};
@@ -2965,8 +2987,7 @@ public:
 		int16  HierAggrFunc;
 		int16  AgentAggrFunc;
 		int16  TimeCycle;
-		long   AgentObjType;
-		long   AgentExtID;
+		long   AgentPsnKindID;
 		long   LinkObjType;
 		long   LinkExtID;
 		long   Flags;
@@ -2990,8 +3011,7 @@ int BizScore2Cache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraDa
 		CPY_FLD(HierAggrFunc);
 		CPY_FLD(AgentAggrFunc);
 		CPY_FLD(TimeCycle);
-		CPY_FLD(AgentObjType);
-		CPY_FLD(AgentExtID);
+		CPY_FLD(AgentPsnKindID);
 		CPY_FLD(LinkObjType);
 		CPY_FLD(LinkExtID);
 		CPY_FLD(Flags);
@@ -3022,8 +3042,7 @@ void BizScore2Cache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) 
 	CPY_FLD(HierAggrFunc);
 	CPY_FLD(AgentAggrFunc);
 	CPY_FLD(TimeCycle);
-	CPY_FLD(AgentObjType);
-	CPY_FLD(AgentExtID);
+	CPY_FLD(AgentPsnKindID);
 	CPY_FLD(LinkObjType);
 	CPY_FLD(LinkExtID);
 	CPY_FLD(Flags);

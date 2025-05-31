@@ -356,8 +356,8 @@ void XLAppProperties::alignWorksheets(std::vector<std::string> const & workbookS
 	// ===== If there are any excess sheet names, clean up.
 	if(not sheetName.empty()) {
 		// ===== Delete all whitespace nodes prior to the sheet names to be deleted
-		while(sheetName.previous_sibling().type() == pugi::node_pcdata)  titlesOfParts.remove_child(sheetName.previous_sibling());
-
+		while(sheetName.previous_sibling().type() == pugi::node_pcdata)  
+			titlesOfParts.remove_child(sheetName.previous_sibling());
 		XMLNode lastSheetName = titlesOfParts.last_child_of_type(pugi::node_element); // delete up to & including this node, preserve whitespaces after
 		if(sheetName != lastSheetName) { // If lastSheetName is a node *behind* sheetName
 			// ===== Delete all nodes (elements and whitespace) up until lastSheetName
@@ -376,7 +376,8 @@ void XLAppProperties::alignWorksheets(std::vector<std::string> const & workbookS
 
 void XLAppProperties::addSheetName(const std::string& title)
 {
-	if(m_xmlData == nullptr)  return;
+	if(m_xmlData == nullptr)  
+		return;
 	XMLNode theNode = sheetNames(xmlDocument().document_element()).append_child("vt:lpstr", XLForceNamespace);
 	theNode.text().set(title.c_str());
 	incrementSheetCount(+1);
@@ -384,7 +385,8 @@ void XLAppProperties::addSheetName(const std::string& title)
 
 void XLAppProperties::deleteSheetName(const std::string& title)
 {
-	if(m_xmlData == nullptr)  return;
+	if(m_xmlData == nullptr)  
+		return;
 	XMLNode theNode = sheetNames(xmlDocument().document_element()).first_child_of_type(pugi::node_element);
 	while(not theNode.empty()) {
 		if(theNode.child_value() == title) {
@@ -398,7 +400,8 @@ void XLAppProperties::deleteSheetName(const std::string& title)
 
 void XLAppProperties::setSheetName(const std::string& oldTitle, const std::string& newTitle)
 {
-	if(m_xmlData == nullptr)  return;
+	if(m_xmlData == nullptr)  
+		return;
 	XMLNode theNode = sheetNames(xmlDocument().document_element()).first_child_of_type(pugi::node_element);
 	while(not theNode.empty()) {
 		if(theNode.child_value() == oldTitle) {
@@ -411,14 +414,13 @@ void XLAppProperties::setSheetName(const std::string& oldTitle, const std::strin
 
 void XLAppProperties::addHeadingPair(const std::string& name, int value)
 {
-	if(m_xmlData == nullptr)  return;
-
+	if(m_xmlData == nullptr)  
+		return;
 	XMLNode HeadingPairsNode = headingPairsNode(xmlDocument().document_element());
 	XMLNode item             = HeadingPairsNode.first_child_of_type(pugi::node_element);
 	while(not item.empty() && item.first_child_of_type(pugi::node_element).child_value() != name)
 		item = item.next_sibling_of_type(pugi::node_element)
 		    .next_sibling_of_type(pugi::node_element);   // advance two elements to skip count node
-
 	XMLNode pairCategory = item; // could be an empty node
 	XMLNode pairValue {};       // initialize to empty node
 	if(not pairCategory.empty())
@@ -434,7 +436,6 @@ void XLAppProperties::addHeadingPair(const std::string& name, int value)
 		XMLNode pairValueParent = HeadingPairsNode.insert_child_after("vt:variant", pairCategory, XLForceNamespace);
 		pairValue               = pairValueParent.append_child("vt:i4", XLForceNamespace);
 	}
-
 	if(not pairValue.empty())
 		pairValue.text().set(std::to_string(value).c_str());
 	else {
@@ -446,14 +447,12 @@ void XLAppProperties::addHeadingPair(const std::string& name, int value)
 
 void XLAppProperties::deleteHeadingPair(const std::string& name)
 {
-	if(m_xmlData == nullptr)  return;
-
+	if(m_xmlData == nullptr)  
+		return;
 	XMLNode HeadingPairsNode = headingPairsNode(xmlDocument().document_element());
 	XMLNode item             = HeadingPairsNode.first_child_of_type(pugi::node_element);
 	while(not item.empty() && item.first_child_of_type(pugi::node_element).child_value() != name)
-		item = item.next_sibling_of_type(pugi::node_element)
-		    .next_sibling_of_type(pugi::node_element);   // advance two elements to skip count node
-
+		item = item.next_sibling_of_type(pugi::node_element).next_sibling_of_type(pugi::node_element);   // advance two elements to skip count node
 	// ===== If item with name was found, remove pair and update headingPairsSize
 	if(not item.empty()) {
 		const XMLNode count = item.next_sibling_of_type(pugi::node_element);
@@ -461,11 +460,9 @@ void XLAppProperties::deleteHeadingPair(const std::string& name)
 		if(not count.empty()) {
 			while(item.next_sibling() != count)
 				HeadingPairsNode.remove_child(item.next_sibling()); // remove nodes between item & count nodes to be deleted jointly
-
 			// ===== Delete all non-element nodes following the count node
 			while((not count.next_sibling().empty()) && (count.next_sibling().type() != pugi::node_element))
 				HeadingPairsNode.remove_child(count.next_sibling()); // remove all non-element nodes following a count node
-
 			HeadingPairsNode.remove_child(count);
 		}
 		// REMOVED: formatting doesn't get prettier by removing whitespaces on both sides of a pair
@@ -478,8 +475,8 @@ void XLAppProperties::deleteHeadingPair(const std::string& name)
 
 void XLAppProperties::setHeadingPair(const std::string& name, int newValue)
 {
-	if(m_xmlData == nullptr)  return;
-
+	if(m_xmlData == nullptr)  
+		return;
 	XMLNode pairValue = getHeadingPairsValue(xmlDocument().document_element(), name);
 	using namespace std::literals::string_literals;
 	if(not pairValue.empty() && (pairValue.raw_name() == "vt:i4"s))
@@ -490,9 +487,11 @@ void XLAppProperties::setHeadingPair(const std::string& name, int newValue)
 
 void XLAppProperties::setProperty(const std::string& name, const std::string& value)
 {
-	if(m_xmlData == nullptr)  return;
+	if(m_xmlData == nullptr)  
+		return;
 	auto property = xmlDocument().document_element().child(name.c_str());
-	if(property.empty())  xmlDocument().document_element().append_child(name.c_str());
+	if(property.empty())  
+		xmlDocument().document_element().append_child(name.c_str());
 	property.text().set(value.c_str());
 }
 
@@ -511,16 +510,18 @@ std::string XLAppProperties::property(const std::string& name) const
 
 void XLAppProperties::deleteProperty(const std::string& name)
 {
-	if(m_xmlData == nullptr)  return;
+	if(m_xmlData == nullptr)  
+		return;
 	const auto property = xmlDocument().document_element().child(name.c_str());
-	if(property.empty())  return;
-
+	if(property.empty())  
+		return;
 	xmlDocument().document_element().remove_child(property);
 }
 
 void XLAppProperties::appendSheetName(const std::string& sheetName)
 {
-	if(m_xmlData == nullptr)  return;
+	if(m_xmlData == nullptr)  
+		return;
 	auto theNode = sheetNames(xmlDocument().document_element()).append_child("vt:lpstr", XLForceNamespace);
 	theNode.text().set(sheetName.c_str());
 	incrementSheetCount(+1);
@@ -528,21 +529,21 @@ void XLAppProperties::appendSheetName(const std::string& sheetName)
 
 void XLAppProperties::prependSheetName(const std::string& sheetName)
 {
-	if(m_xmlData == nullptr)  return;
+	if(m_xmlData == nullptr)  
+		return;
 	auto theNode = sheetNames(xmlDocument().document_element()).prepend_child("vt:lpstr", XLForceNamespace);
 	theNode.text().set(sheetName.c_str());
 	incrementSheetCount(+1);
 }
 
-void XLAppProperties::insertSheetName(const std::string& sheetName, unsigned int index)
+void XLAppProperties::insertSheetName(const std::string& sheetName, uint index)
 {
-	if(m_xmlData == nullptr)  return;
-
+	if(m_xmlData == nullptr)  
+		return;
 	if(index <= 1) {
 		prependSheetName(sheetName);
 		return;
 	}
-
 	// ===== If sheet needs to be appended...
 	if(index > sheetCount(xmlDocument().document_element()).as_uint()) {
 		// ===== If at least one sheet node exists, apply some pretty formatting by appending new sheet name between last sheet and trailing
@@ -559,9 +560,10 @@ void XLAppProperties::insertSheetName(const std::string& sheetName, unsigned int
 		return;
 	}
 	XMLNode curNode = sheetNames(xmlDocument().document_element()).first_child_of_type(pugi::node_element);
-	unsigned idx = 1;
+	uint idx = 1;
 	while(not curNode.empty()) {
-		if(idx == index)  break;
+		if(idx == index)  
+			break;
 		curNode = curNode.next_sibling_of_type(pugi::node_element);
 		++idx;
 	}

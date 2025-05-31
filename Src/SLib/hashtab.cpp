@@ -444,7 +444,7 @@ int SymbHashTable::Add(const char * pSymb, uint val, uint * pPos)
 		const size_t h = Hash(pSymb);
 		c = P_Tab[h].SetVal(pos, val);
 		if(Flags & fUseAssoc)
-			THROW(Assoc.Add((long)val, static_cast<long>(pos), 0, ORDER_ASSOC));
+			THROW(Assoc.Add(static_cast<long>(val), static_cast<long>(pos), 0, ORDER_ASSOC));
 		AddCount++;
 		if(c > 1) {
 			CollCount++;
@@ -565,7 +565,8 @@ int SymbHashTable::Test_Cmp(const SymbHashTable & rPat) const
 {
 	int    ok = 1;
 	Iter   iter;
-	uint   val = 0, val_;
+	uint   val = 0;
+	uint   val_;
 	SString symb, symb_;
 	THROW((Flags & fUseAssoc) == (rPat.Flags & fUseAssoc));
 	for(InitIteration(&iter); NextIteration(&iter, &val, 0, &symb) > 0;) {

@@ -1822,7 +1822,7 @@ static int UseCopyContinouos(PPIniFile * pIniFile, PPDbEntrySet2 * pDbes)
 			if(ps.Flags & SFsPath::fUNC) {
 				(disk = ps.Drv).RmvLastSlash();
 				SString lcn; // local machine name
-				if(SGetComputerName(lcn) && disk.CmpNC(lcn) == 0)
+				if(SGetComputerName(false/*utf8*/, lcn) && disk.CmpNC(lcn) == 0)
 					r = 1;
 				// @todo Определять локальность диска через IP
 			}

@@ -8,8 +8,9 @@
 
 static StringStore2 * _PPStrStore = 0; // @global @threadsafe
 
-int PPInitStrings(const char * pFileName)
+bool PPInitStrings(const char * pFileName)
 {
+	bool   ok = false;
 	ENTER_CRITICAL_SECTION
 	if(_PPStrStore == 0) {
 		SString name;
@@ -54,7 +55,7 @@ int PPInitStrings(const char * pFileName)
         }
 		_PPStrStore = new StringStore2();
 		{
-			const int self_test = SlDebugMode::CT() ? 1 : 0;
+			const bool self_test = SlDebugMode::CT();
 			int    _done = 0;
 			for(uint i = 0; i < file_lang_list.getCount(); i++) {
 				name = file_lang_list.at_WithoutParent(i).Txt;
@@ -76,8 +77,9 @@ int PPInitStrings(const char * pFileName)
 			}
 		}
 	}
-	return BIN(_PPStrStore);
+	ok = LOGIC(_PPStrStore);
 	LEAVE_CRITICAL_SECTION
+	return ok;
 }
 
 void PPReleaseStrings()

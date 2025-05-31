@@ -398,7 +398,7 @@ int Profile::InitUserProfile(const char * pUserName)
 				line_buf.Semicol().Cat(UPSB.DbSymb);
 				line_buf.Semicol().Cat(pUserName);
 				{
-					SGetComputerName(temp_buf);
+					SGetComputerName(false/*utf8*/, temp_buf);
 					line_buf.Semicol().Cat(temp_buf);
 				}
 				{

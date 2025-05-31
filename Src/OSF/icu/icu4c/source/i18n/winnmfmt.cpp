@@ -1,15 +1,8 @@
+// WINNMFMT.CPP
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- ********************************************************************************
- *   Copyright (C) 2005-2016, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- ********************************************************************************
- *
- * File WINNMFMT.CPP
- *
- ********************************************************************************
- */
+// Copyright (C) 2005-2016, International Business Machines Corporation and others.  All Rights Reserved.
+//
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -42,7 +35,6 @@ UOBJECT_DEFINE_RTTI_IMPLEMENTATION(Win32NumberFormat)
 #define DELETE_ARRAY(array) uprv_free((void *)(array))
 
 #define STACK_BUFFER_SIZE 32
-
 /*
  * Turns a string of the form "3;2;0" into the grouping UINT
  * needed for NUMBERFMT and CURRENCYFMT. If the string does not
@@ -53,7 +45,6 @@ static UINT getGrouping(const wchar_t * grouping)
 {
 	UINT g = 0;
 	const wchar_t * s;
-
 	for(s = grouping; *s != L'\0'; s += 1) {
 		if(*s > L'0' && *s < L'9') {
 			g = g * 10 + (*s - L'0');
@@ -62,30 +53,23 @@ static UINT getGrouping(const wchar_t * grouping)
 			break;
 		}
 	}
-
 	if(*s != L'0') {
 		g *= 10;
 	}
-
 	return g;
 }
 
 static void getNumberFormat(NUMBERFMTW * fmt, const wchar_t * windowsLocaleName)
 {
 	wchar_t buf[10];
-
 	GetLocaleInfoEx(windowsLocaleName, LOCALE_RETURN_NUMBER|LOCALE_IDIGITS, (LPWSTR)&fmt->NumDigits, sizeof(UINT));
 	GetLocaleInfoEx(windowsLocaleName, LOCALE_RETURN_NUMBER|LOCALE_ILZERO,  (LPWSTR)&fmt->LeadingZero, sizeof(UINT));
-
 	GetLocaleInfoEx(windowsLocaleName, LOCALE_SGROUPING, (LPWSTR)buf, 10);
 	fmt->Grouping = getGrouping(buf);
-
 	fmt->lpDecimalSep = NEW_ARRAY(wchar_t, 6);
 	GetLocaleInfoEx(windowsLocaleName, LOCALE_SDECIMAL,  fmt->lpDecimalSep,  6);
-
 	fmt->lpThousandSep = NEW_ARRAY(wchar_t, 6);
 	GetLocaleInfoEx(windowsLocaleName, LOCALE_STHOUSAND, fmt->lpThousandSep, 6);
-
 	GetLocaleInfoEx(windowsLocaleName, LOCALE_RETURN_NUMBER|LOCALE_INEGNUMBER, (LPWSTR)&fmt->NegativeOrder, sizeof(UINT));
 }
 
@@ -100,22 +84,16 @@ static void freeNumberFormat(NUMBERFMTW * fmt)
 static void getCurrencyFormat(CURRENCYFMTW * fmt, const wchar_t * windowsLocaleName)
 {
 	wchar_t buf[10];
-
 	GetLocaleInfoEx(windowsLocaleName, LOCALE_RETURN_NUMBER|LOCALE_ICURRDIGITS, (LPWSTR)&fmt->NumDigits, sizeof(UINT));
 	GetLocaleInfoEx(windowsLocaleName, LOCALE_RETURN_NUMBER|LOCALE_ILZERO, (LPWSTR)&fmt->LeadingZero, sizeof(UINT));
-
 	GetLocaleInfoEx(windowsLocaleName, LOCALE_SMONGROUPING, (LPWSTR)buf, sizeof(buf));
 	fmt->Grouping = getGrouping(buf);
-
 	fmt->lpDecimalSep = NEW_ARRAY(wchar_t, 6);
 	GetLocaleInfoEx(windowsLocaleName, LOCALE_SMONDECIMALSEP,  fmt->lpDecimalSep,  6);
-
 	fmt->lpThousandSep = NEW_ARRAY(wchar_t, 6);
 	GetLocaleInfoEx(windowsLocaleName, LOCALE_SMONTHOUSANDSEP, fmt->lpThousandSep, 6);
-
 	GetLocaleInfoEx(windowsLocaleName, LOCALE_RETURN_NUMBER|LOCALE_INEGCURR,  (LPWSTR)&fmt->NegativeOrder, sizeof(UINT));
 	GetLocaleInfoEx(windowsLocaleName, LOCALE_RETURN_NUMBER|LOCALE_ICURRENCY, (LPWSTR)&fmt->PositiveOrder, sizeof(UINT));
-
 	fmt->lpCurrencySymbol = NEW_ARRAY(wchar_t, 8);
 	GetLocaleInfoEx(windowsLocaleName, LOCALE_SCURRENCY, (LPWSTR)fmt->lpCurrencySymbol, 8);
 }
@@ -135,7 +113,6 @@ static UErrorCode GetEquivalentWindowsLocaleName(const Locale & locale, UnicodeS
 {
 	UErrorCode status = U_ZERO_ERROR;
 	char asciiBCP47Tag[LOCALE_NAME_MAX_LENGTH] = {};
-
 	// Convert from names like "en_CA" and "de_DE@collation=phonebook" to "en-CA" and "de-DE-u-co-phonebk".
 	(void)uloc_toLanguageTag(locale.getName(), asciiBCP47Tag, SIZEOFARRAYi(asciiBCP47Tag), FALSE, &status);
 

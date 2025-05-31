@@ -257,6 +257,14 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 	private void NotifyTabContentChanged(CommonPrereqModule.Tab tabId, int innerViewId)
 	{
 		CPM.NotifyTabContentChanged(R.id.VIEWPAGER_INCOMINGLISTBILL, tabId, innerViewId);
+		// @v12.3.5 {
+		if(tabId == CommonPrereqModule.Tab.tabXclSetting || tabId == CommonPrereqModule.Tab.tabXclVerify) {
+			CommonPrereqModule.TabEntry tab_entry = SearchTabEntry(tabId);
+			if(tab_entry != null && tab_entry.TabView != null) {
+				HandleEvent(SLib.EV_SETVIEWDATA, tab_entry.TabView.getView(), null);
+			}
+		}
+		// } @v12.3.5
 	}
 	private void NotifyCurrentDocumentChanged()
 	{
@@ -1203,21 +1211,23 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 												if(cur_entry != null) {
 													View iv = ev_subj.RvHolder.itemView;
 													String title_text = null;
+													int    mark_count = (cur_entry.XcL != null) ? cur_entry.XcL.size() : 0;
+													String qtty_text = Integer.toString(mark_count);
 													if(cur_entry.Ti != null) {
 														CommonPrereqModule.WareEntry goods_entry = CPM.FindGoodsItemByGoodsID(cur_entry.Ti.GoodsID);
-														String qtty_text = null;
 														if(goods_entry != null && goods_entry.Item != null) {
 															title_text = goods_entry.Item.Name;
-															if(cur_entry.Ti.Set != null)
-																qtty_text = CPM.FormatQtty(cur_entry.Ti.Set.Qtty, goods_entry.Item.UomID, false);
+															if(cur_entry.Ti.Set != null) {
+																qtty_text += ("/" + CPM.FormatQtty(cur_entry.Ti.Set.Qtty, goods_entry.Item.UomID, false));
+															}
 														}
-														SLib.SetCtrlString(iv, R.id.CTL_DOCUMENT_TI_QTTY, qtty_text);
 													}
 													else {
 														StyloQApp app_ctx = GetAppCtx();
 														if(app_ctx != null)
 															title_text = app_ctx.GetString("unmatchedmarks");
 													}
+													SLib.SetCtrlString(iv, R.id.CTL_DOCUMENT_TI_QTTY, qtty_text);
 													SLib.SetCtrlString(iv, R.id.CTL_DOCUMENT_TI_GOODSNAME, title_text);
 													if(cur_entry.XcL != null) {
 														ListView mark_lv = (ListView) iv.findViewById(R.id.CTL_INCOMINGLIST_BILL_MARKSBYTI);
@@ -1387,7 +1397,18 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 					StyloQApp app_ctx = GetAppCtx();
 					ViewGroup vg = (ViewGroup) srcObj;
 					int vg_id = vg.getId();
-					if(vg_id == R.id.LAYOUT_INCOMINGLIST_BILL_SELECTED) {
+					if(vg_id == R.id.LAYOUT_INCOMINGLIST_BILL_SCANMARKS) { // @v12.3.5
+						Document _doc = CPM.GetCurrentDocument();
+						int mark_count = 0;
+						if(ScanSource == ScanType.Veriy) {
+							mark_count = (_doc == null || _doc.VXcL == null) ? 0 : _doc.VXcL.size();
+						}
+						else if(ScanSource == ScanType.Setting) {
+							mark_count = (_doc != null) ? _doc.GetGoodsMarkSettingListCount() : 0;
+						}
+						SLib.SetCtrlString(vg, R.id.CTL_INCOMINGLIST_BILL_SCANMARKS_MARKCOUNT, "#"+Integer.toString(mark_count));
+					}
+					else if(vg_id == R.id.LAYOUT_INCOMINGLIST_BILL_SELECTED) {
 						int status_image_rc_id = 0;
 						if(CPM.IsCurrentDocumentEmpty()) {
 							SLib.SetCtrlString(vg, R.id.CTL_DOCUMENT_CODE, "");

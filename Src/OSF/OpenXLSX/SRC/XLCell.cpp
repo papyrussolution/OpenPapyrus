@@ -201,6 +201,6 @@ void XLCell::clear(uint32 keep)
 	}
 }
 
-XLCellValueProxy& XLCell::value() { return m_valueProxy; }
-const XLCellValueProxy& XLCell::value() const { return m_valueProxy; }
+XLCellValueProxy & XLCell::value() { return m_valueProxy; }
+const XLCellValueProxy & XLCell::value() const { return m_valueProxy; }
 bool XLCell::isEqual(const XLCell& lhs, const XLCell& rhs) { return *lhs.m_cellNode == *rhs.m_cellNode; }

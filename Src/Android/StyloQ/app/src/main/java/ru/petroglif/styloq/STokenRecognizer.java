@@ -1,5 +1,5 @@
 // STokenRecognizer.java
-// Copyright (c) A.Sobolev
+// Copyright (c) A.Sobolev 2023, 2024, 2025
 //
 package ru.petroglif.styloq;
 
@@ -59,6 +59,29 @@ public class STokenRecognizer {
 	public static final int SNTOK_RU_BIC           = 35; // @v10.8.1 Российский банковский идентификационный код (БИК)
 	public static final int SNTOK_RU_KPP           = 36; // @v10.8.2 Российский код причины постановки на налоговый учет (КПП)
 	public static final int SNTOK_LINGUACODE       = 37; // @v11.3.12 Код естественного языка
+	public static final int SNTOK_CHZN_SURROGATE_GTIN      = 38; // честный знак Специальная суррогатная конструкция, не являющаяся маркой (02 GTIN14)
+	public static final int SNTOK_CHZN_SURROGATE_GTINCOUNT = 39; // честный знак Специальная суррогатная конструкция, не являющаяся маркой (02 GTIN14 37 COUNT)
+	public static final int SNTOK_CL_RUT                   = 40; // @v11.6.1 Чилийский налоговый код RUT
+	public static final int SNTOK_CHZN_ALTCIGITEM          = 41; // @v11.9.0 честный знак Маркировка альтернативной табачной продукции (розничная единица). Код аналогичен SNTOK_CHZN_CIGITEM, но на месте МРЦ стоит AAAA
+	public static final int SNTOK_AR_DNI                   = 42; // @v11.9.4 @construction Аргентинский идентификатор гражданина
+	public static final int SNTOK_GENERICTEXT_ASCII        = 43; // @v12.2.12
+	public static final int SNTOK_GENERICTEXT_UTF8         = 44; // @v12.2.12
+	public static final int SNTOK_GENERICTEXT_CP1251       = 45; // @v12.2.12
+	public static final int SNTOK_GENERICTEXT_CP866        = 46; // @v12.2.12
+	public static final int SNTOK_JSON                     = 47; // @v12.2.12
+	public static final int SNTOK_PLIDENT                  = 48; // @v12.3.0 Идентификатор во многих (но не всех) языках программирования. Все символы - ascii, первый символ - latin or '_', остальные - decimal or latin or '_'
+	public static final int SNTOK_HASH_MD5                 = 49; // @v12.3.3 @todo
+	public static final int SNTOK_BASE32                   = 50; // @v12.3.3
+	public static final int SNTOK_BASE32_CROCKFORD         = 51; // @v12.3.3
+	public static final int SNTOK_BASE58                   = 52; // @v12.3.3
+	public static final int SNTOK_BASE64                   = 53; // @v12.3.3
+	public static final int SNTOK_BASE64_URL               = 54; // @v12.3.3
+	public static final int SNTOK_BASE64_WP                = 55; // @v12.3.3 (with padding)
+	public static final int SNTOK_BASE64_URL_WP            = 56; // @v12.3.3 (with padding)
+	public static final int SNTOK_AU_ABN                   = 57; // @v12.3.4 @todo https://abr.business.gov.au/Help/AbnFormat
+	public static final int SNTOK_BG_EGN                   = 58; // @v12.3.4 @todo Болгария Единый Гражданский Код
+	public static final int SNTOK_CA_SIN                   = 59; // @v12.3.4 @todo Canada Social Insurance Number
+	public static final int SNTOK_CHZN_PALLET_GTIN         = 60; // @v12.4.5 честный знак Специальная конструкция, не являющаяся маркой (00 GTIN14 9999)
 
 	public static final int SNTOKSEQ_DEC        = 0x00000001; // 0-9
 	public static final int SNTOKSEQ_LATLWR     = 0x00000002; // a-z

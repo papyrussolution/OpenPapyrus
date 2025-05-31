@@ -1609,32 +1609,25 @@ U_CAPI const char * U_EXPORT2 uprv_getDefaultLocaleID()
 		correctedPOSIXLocale = nullptr;
 	}
 	posixID = gCorrectedPOSIXLocale;
-
 	if(correctedPOSIXLocale != nullptr) { /* Was already set - clean up. */
 		uprv_free(correctedPOSIXLocale);
 	}
-
 	return posixID;
-
 #elif U_PLATFORM_USES_ONLY_WIN32_API
 #define POSIX_LOCALE_CAPACITY 64
 	UErrorCode status = U_ZERO_ERROR;
 	char * correctedPOSIXLocale = nullptr;
-
 	// If we have already figured this out just use the cached value
 	if(gCorrectedPOSIXLocale != nullptr) {
 		return gCorrectedPOSIXLocale;
 	}
-
 	// No cached value, need to determine the current value
 	static WCHAR windowsLocale[LOCALE_NAME_MAX_LENGTH] = {};
 	int length = GetLocaleInfoEx(LOCALE_NAME_USER_DEFAULT, LOCALE_SNAME, windowsLocale, LOCALE_NAME_MAX_LENGTH);
-
 	// Now we should have a Windows locale name that needs converted to the POSIX style.
 	if(length > 0) { // If length is 0, then the GetLocaleInfoEx failed.
 		// First we need to go from UTF-16 to char (and also convert from _ to - while we're at it.)
 		char modifiedWindowsLocale[LOCALE_NAME_MAX_LENGTH] = {};
-
 		int32_t i;
 		for(i = 0; i < SIZEOFARRAYi(modifiedWindowsLocale); i++) {
 			if(windowsLocale[i] == '_') {
@@ -1643,18 +1636,15 @@ U_CAPI const char * U_EXPORT2 uprv_getDefaultLocaleID()
 			else {
 				modifiedWindowsLocale[i] = static_cast<char>(windowsLocale[i]);
 			}
-
 			if(modifiedWindowsLocale[i] == '\0') {
 				break;
 			}
 		}
-
 		if(i >= SIZEOFARRAYi(modifiedWindowsLocale)) {
 			// Ran out of room, can't really happen, maybe we'll be lucky about a matching
 			// locale when tags are dropped
 			modifiedWindowsLocale[SIZEOFARRAYi(modifiedWindowsLocale) - 1] = '\0';
 		}
-
 		// Now normalize the resulting name
 		correctedPOSIXLocale = static_cast<char *>(uprv_malloc(POSIX_LOCALE_CAPACITY + 1));
 		/* TODO: Should we just exit on memory allocation failure? */

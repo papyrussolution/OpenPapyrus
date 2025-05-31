@@ -16,8 +16,6 @@ XLCellValue& OpenXLSX::XLCellValue::operator=(OpenXLSX::XLCellValue&& other) noe
 /**
  * @details Clears the contents of the XLCellValue object. Setting the value to an empty string is not sufficient
  * (as an empty string is still a valid string). The m_type variable must also be set to XLValueType::Empty.
- * @pre
- * @post
  */
 XLCellValue& XLCellValue::clear()
 {
@@ -147,23 +145,23 @@ XLValueType XLCellValueProxy::type() const
 	if(!m_cellNode->attribute("t") && !m_cellNode->child("v"))  
 		return XLValueType::Empty;
 	// ===== If a Type attribute is not present, but a value node is, the cell contains a number.
-	if(m_cellNode->attribute("t").empty() || ((strcmp(m_cellNode->attribute("t").value(), "n") == 0) && not m_cellNode->child("v").empty())) {
+	if(m_cellNode->attribute("t").empty() || (sstreq(m_cellNode->attribute("t").value(), "n") && not m_cellNode->child("v").empty())) {
 		if(const std::string numberString = m_cellNode->child("v").text().get();
 		    numberString.find('.') != std::string::npos || numberString.find("E-") != std::string::npos || numberString.find("e-") != std::string::npos)
 			return XLValueType::Float;
 		return XLValueType::Integer;
 	}
 	// ===== If the cell is of type "s", the cell contains a shared string.
-	if(not m_cellNode->attribute("t").empty() && strcmp(m_cellNode->attribute("t").value(), "s") == 0)
+	if(not m_cellNode->attribute("t").empty() && sstreq(m_cellNode->attribute("t").value(), "s"))
 		return XLValueType::String;
 	// ===== If the cell is of type "inlineStr", the cell contains an inline string.
-	if(not m_cellNode->attribute("t").empty() && strcmp(m_cellNode->attribute("t").value(), "inlineStr") == 0)
+	if(not m_cellNode->attribute("t").empty() && sstreq(m_cellNode->attribute("t").value(), "inlineStr"))
 		return XLValueType::String;
 	// ===== If the cell is of type "str", the cell contains an ordinary string.
-	if(not m_cellNode->attribute("t").empty() && strcmp(m_cellNode->attribute("t").value(), "str") == 0)
+	if(not m_cellNode->attribute("t").empty() && sstreq(m_cellNode->attribute("t").value(), "str"))
 		return XLValueType::String;
 	// ===== If the cell is of type "b", the cell contains a boolean.
-	if(not m_cellNode->attribute("t").empty() && strcmp(m_cellNode->attribute("t").value(), "b") == 0)
+	if(not m_cellNode->attribute("t").empty() && sstreq(m_cellNode->attribute("t").value(), "b"))
 		return XLValueType::Boolean;
 	// ===== Otherwise, the cell contains an error.
 	return XLValueType::Error; // the m_typeAttribute has the ValueAsString "e"
@@ -205,7 +203,6 @@ void XLCellValueProxy::setInteger(int64_t numberValue)
 	// ===== Remove the is node (only relevant in case previous cell type was "inlineStr"). // pull request #188
 	m_cellNode->remove_child("is");
 }
-
 /**
  * @details Set the cell to a bool value. This is private helper function for setting the cell value
  * directly in the underlying XML file.
@@ -232,7 +229,6 @@ void XLCellValueProxy::setBoolean(bool numberValue)
 	// ===== Remove the is node (only relevant in case previous cell type was "inlineStr"). // pull request #188
 	m_cellNode->remove_child("is");
 }
-
 /**
  * @details Set the cell to a floating point value. This is private helper function for setting the cell value
  * directly in the underlying XML file.
@@ -269,7 +265,7 @@ void XLCellValueProxy::setFloat(double numberValue)
  * @pre The m_cellNode must not be null, and must point to a valid XMLNode object.
  * @post The underlying XMLNode has been updated correctly, representing a string value.
  */
-void XLCellValueProxy::setString(const char* stringValue)
+void XLCellValueProxy::setString(const char * stringValue)
 {
 	// ===== Check that the m_cellNode is valid.
 	assert(m_cellNode != nullptr);
@@ -321,13 +317,11 @@ XLCellValue XLCellValueProxy::getValue() const
 		case XLValueType::Float: return XLCellValue { m_cellNode->child("v").text().as_double() };
 		case XLValueType::Integer: return XLCellValue { m_cellNode->child("v").text().as_llong() };
 		case XLValueType::String:
-			if(strcmp(m_cellNode->attribute("t").value(), "s") == 0)
-				return XLCellValue {
-					m_cell->m_sharedStrings.get().getString(static_cast<uint32>(m_cellNode->child("v").text().as_ullong()))
-				};
-			else if(strcmp(m_cellNode->attribute("t").value(), "str") == 0)
+			if(sstreq(m_cellNode->attribute("t").value(), "s"))
+				return XLCellValue { m_cell->m_sharedStrings.get().getString(static_cast<uint32>(m_cellNode->child("v").text().as_ullong())) };
+			else if(sstreq(m_cellNode->attribute("t").value(), "str"))
 				return XLCellValue { m_cellNode->child("v").text().get() };
-			else if(strcmp(m_cellNode->attribute("t").value(), "inlineStr") == 0)
+			else if(sstreq(m_cellNode->attribute("t").value(), "inlineStr"))
 				return XLCellValue { m_cellNode->child("is").child("t").text().get() };
 			else
 				throw XLInternalError("Unknown string type");

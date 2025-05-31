@@ -321,8 +321,8 @@ Section "Файлы приложения" SEC01
 	File "${SRC_TARGET}\PPSoapUhtt.dll"       ; @v7.3.0
 	!ifndef OPENSOURCE
 		File "${SRC_TARGET}\PPSoapPepsi.dll"      ; @v9.2.3
-		File "${SRC_TARGET}\PPSoapEfes.dll"       ; @v9.5.5
-		File "${SRC_TARGET}\PPSoapSfaHeineken.dll" ; @v9.9.9
+		; @v12.3.5 File "${SRC_TARGET}\PPSoapEfes.dll"       ; @v9.5.5
+		; @v12.3.5 File "${SRC_TARGET}\PPSoapSfaHeineken.dll" ; @v9.9.9
 	!endif
 	File "${SRC_TARGET}\ppraw.res"
 	File "${SRC_TARGET}\pp.res"

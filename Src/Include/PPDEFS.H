@@ -11636,19 +11636,21 @@
 	#define CTLSEL_BIZSC2_LINKOBJ          (7 + WINDOWS_ID_BIAS)
 	#define CTL_BIZSC2_LINKEXT             (8 + WINDOWS_ID_BIAS)
 	#define CTLSEL_BIZSC2_LINKEXT          (9 + WINDOWS_ID_BIAS)
-	#define CTL_BIZSC2_AGENTOBJ            (10 + WINDOWS_ID_BIAS)
-	#define CTLSEL_BIZSC2_AGENTOBJ         (11 + WINDOWS_ID_BIAS)
-	#define CTL_BIZSC2_AGENTEXT            (12 + WINDOWS_ID_BIAS)
-	#define CTLSEL_BIZSC2_AGENTEXT         (13 + WINDOWS_ID_BIAS)
-	#define CTL_BIZSC2_TIMECYCLE           (15 + WINDOWS_ID_BIAS)
+	#define CTL_BIZSC2_AGENTPSNK           (12 + WINDOWS_ID_BIAS)
+	#define CTLSEL_BIZSC2_AGENTPSNK        (13 + WINDOWS_ID_BIAS)
 	#define CTL_BIZSC2_DATATYPE            (16 + WINDOWS_ID_BIAS) // radio-cluster
 	#define CTL_BIZSC2_ENUM                (17 + WINDOWS_ID_BIAS) //
 	#define CTLSEL_BIZSC2_ENUM             (18 + WINDOWS_ID_BIAS) // Перечисление для типа данных OTTYP_ENUM or OTTYP_OBJLINK
 	#define CTL_BIZSC2_ENUMEXT             (19 + WINDOWS_ID_BIAS) //
 	#define CTLSEL_BIZSC2_ENUMEXT          (20 + WINDOWS_ID_BIAS) //
 	#define CTL_BIZSC2_AGGRFTM             (21 + WINDOWS_ID_BIAS) // Агрегирующая функция по времени
-	#define CTL_BIZSC2_AGGRFHR             (22 + WINDOWS_ID_BIAS) // Агрегирующая функция по иерархии
-	#define CTL_BIZSC2_AGGRFAG             (23 + WINDOWS_ID_BIAS) // Агрегирующая функция по участникам (агентам)
+	#define CTLSEL_BIZSC2_AGGRFTM          (22 + WINDOWS_ID_BIAS) //
+	#define CTL_BIZSC2_AGGRFHR             (23 + WINDOWS_ID_BIAS) // Агрегирующая функция по иерархии
+	#define CTLSEL_BIZSC2_AGGRFHR          (24 + WINDOWS_ID_BIAS) // 
+	#define CTL_BIZSC2_AGGRFAG             (25 + WINDOWS_ID_BIAS) // Агрегирующая функция по участникам (агентам)
+	#define CTLSEL_BIZSC2_AGGRFAG          (26 + WINDOWS_ID_BIAS) //
+	#define CTL_BIZSC2_TIMECYCLE           (27 + WINDOWS_ID_BIAS)
+	#define CTLSEL_BIZSC2_TIMECYCLE        (28 + WINDOWS_ID_BIAS)
 
 #define DLG_SWPROGRAM             1438
 	#define CTL_SWPROGRAM_ID               (1 + WINDOWS_ID_BIAS)

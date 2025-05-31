@@ -10,7 +10,7 @@
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
         android:layout_marginLeft="2dp"
-        android:textSize="12sp"
+        android:textSize="11sp"
         android:textFontWeight="500"
         android:textColor="@color/TextPrimary"
         />
@@ -25,7 +25,7 @@
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
             android:minWidth="40dp"
-            android:textSize="12sp"
+            android:textSize="11sp"
             android:textFontWeight="600"
             android:layout_marginRight="8dp"
             android:textAlignment="viewEnd"

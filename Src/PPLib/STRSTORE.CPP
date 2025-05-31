@@ -120,9 +120,9 @@ void StringStore2::SetActiveLanguage(int slang)
 
 #ifndef SC2C // {
 
-int StringStore2::Load(const char * pFileName, int selfTest)
+bool StringStore2::Load(const char * pFileName, bool selfTest)
 {
-	int    ok = 1;
+	bool   ok = true;
 	LoadFileName.Z();
 	SFile bin_file(pFileName, SFile::mRead|SFile::mBinary);
 	THROW(bin_file.IsValid());
@@ -163,19 +163,50 @@ int StringStore2::Load(const char * pFileName, int selfTest)
 int StringStore2::CreateHash(int doTest)
 {
 	int    ok = -1;
+	/* @v12.3.5
+	bool   debug_mark = false; // @debug @v12.3.5
 	if(!P_SignatureHash) {
 		const uint slc = SignatureList.getCount();
 		if(slc > 16) { // Если количество сигнатур не больше 16 то нет смысла городить огород с хэшем
 			// Размер хэша должен быть точно больше количества сигнатур и при этом должен быть простым числом
-			size_t hash_size = GetPrimeGreaterThan(slc);
+			size_t hash_size = GetPrimeGreaterThan(slc*2); // @v12.3.5
 			THROW_MEM(P_SignatureHash = new SymbHashTable(hash_size, 0));
 			for(uint i = 0; i < slc; i++) {
 				StrAssocArray::Item item = SignatureList.at_WithoutParent(i);
+				// @v12.3.5 @debug {
+				if(sstreq(item.Txt, "bizscore_timeaggrfunc"))
+					debug_mark = true;
+				// } @v12.3.5 @debug 
 				THROW_SL(P_SignatureHash->Add(item.Txt, (uint)item.Id));
 			}
 			ok = 1;
 		}
 	}
+	*/
+	// @v12.3.5 {
+	{
+		const uint slc = SignatureList.getCount();
+		if(slc > 16) { // Если количество сигнатур не больше 16 то нет смысла городить огород с хэшем
+			// Размер хэша должен быть точно больше количества сигнатур и при этом должен быть простым числом
+			size_t hash_size = GetPrimeGreaterThan(slc*2); // @v12.3.5
+			if(!P_SignatureHash) {
+				THROW_MEM(P_SignatureHash = new SymbHashTable(hash_size, 0));
+			}
+			for(uint i = 0; i < slc; i++) {
+				StrAssocArray::Item item = SignatureList.at_WithoutParent(i);
+				uint   ex_val = 0;
+				uint   ex_pos = 0;
+				if(P_SignatureHash->Search(item.Txt, &ex_val, &ex_pos)) {
+					assert(ex_val == static_cast<uint>(item.Id));
+				}
+				else {
+					THROW_SL(P_SignatureHash->Add(item.Txt, static_cast<uint>(item.Id)));
+				}
+			}
+			ok = 1;
+		}
+	}
+	// } @v12.3.5
 	{
 		for(uint i = 0; i < StrList.getCount(); i++) {
 			LangStrCollItem * p_item = StrList.at(i);
@@ -688,7 +719,7 @@ int StringStore2::RestoreState(const char * pFileName, const StrAssocArray & rFi
 						}
 					}
 					else {
-						static constexpr char * p_lang_prefix = "lang-";
+						static const char * p_lang_prefix = "lang-";
 						const bool is_base = key_buf.IsEqiAscii("base");
 						const bool is_lang = (!is_base && key_buf.HasPrefixIAscii(p_lang_prefix));
 						if(is_base || is_lang) {

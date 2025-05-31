@@ -16537,7 +16537,11 @@ int    SCheckSystemCredentials(const char * pDomain, const char * pUserName, con
 //        а SLS.GetTLA().LastOsErr содержит код этой ошибки.
 //
 int    SGetTimeFromRemoteServer(const char * pServerName, LDATETIME * pDtm);
-int    SGetComputerName(SString & rName);
+//
+// Descr: Возвращает имя компьютера, на котором запущен текущий процесс.
+//   Если аргумент utf8 == false, то имя возвращается в кодировке ANSI иначе - UTF-8
+//
+int    SGetComputerName(bool utf8, SString & rName);
 //
 //
 //

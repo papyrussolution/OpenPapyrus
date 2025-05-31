@@ -29,7 +29,7 @@ void setTabColor(const OXlXmlDoc& xmlDocument, const XLColor& color)
  */
 void setTabSelected(const OXlXmlDoc& xmlDocument, bool selected)
 {        // 2024-04-30: whitespace support
-	unsigned int value       = (selected ? 1 : 0);
+	uint value       = (selected ? 1 : 0);
 	XMLNode sheetView   = xmlDocument.document_element().child("sheetViews").first_child_of_type(pugi::node_element);
 	XMLAttribute tabSelected = sheetView.attribute("tabSelected");
 	if(tabSelected.empty())

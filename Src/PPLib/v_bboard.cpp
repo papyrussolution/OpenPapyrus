@@ -220,7 +220,7 @@ int PPViewServerStat::StopThread(long tid)
 		PPJobSrvProtocol::StopThreadBlock blk;
 		blk.TId = tid;
 		GetFirstMACAddr(&blk.MAddr);
-		SGetComputerName(blk.HostName);
+		SGetComputerName(false/*utf8*/, blk.HostName);
 		GetCurUserName(blk.UserName);
 
 		cmd.StartWriting(PPSCMD_STOPTHREAD);

@@ -7629,6 +7629,7 @@ int ExportDialogs2(const char * pFileName)
 										/*if(wi.dwStyle & ES_READONLY) {
 											prop_list.Add(DlScope::cuifReadOnly, temp_buf.Z());
 										}*/
+										const TYPEID _type_id = p_il->getType();
 										line_buf.Tab().Cat("input").Space().Cat(symb).Space().CatChar('[');
 										_BBox(_AdjustRectToOrigin(wi.rcWindow, _origin), line_buf, 0);
 										{
@@ -7645,6 +7646,95 @@ int ExportDialogs2(const char * pFileName)
 													line_buf.Space().Cat(ws_symb_list[i].P_Symb);
 											}
 										}
+										{
+											long il_format = p_il->getFormat();
+											if(il_format) {
+												temp_buf.Z();
+												if(SFMTFLAG(il_format) & ALIGN_RIGHT)
+													temp_buf.CatDivIfNotEmpty(' ', 0).Cat("align_right");
+												if(SFMTFLAG(il_format) & ALIGN_LEFT)
+													temp_buf.CatDivIfNotEmpty(' ', 0).Cat("align_left");
+												if(SFMTFLAG(il_format) & ALIGN_CENTER)
+													temp_buf.CatDivIfNotEmpty(' ', 0).Cat("align_center");
+												if(SFMTFLAG(il_format) & COMF_FILLOVF)
+													temp_buf.CatDivIfNotEmpty(' ', 0).Cat("filloverflow");
+												if(SFMTFLAG(il_format) & COMF_SQL)
+													temp_buf.CatDivIfNotEmpty(' ', 0).Cat("sql");
+												switch(stbase(_type_id)) {
+													case BTS_STRING:
+														{
+															if(SFMTFLAG(il_format) & STRF_UPPER)
+																temp_buf.CatDivIfNotEmpty(' ', 0).Cat("uppercase");
+															if(SFMTFLAG(il_format) & STRF_LOWER)
+																temp_buf.CatDivIfNotEmpty(' ', 0).Cat("lowercase");
+															if(SFMTFLAG(il_format) & STRF_PASSWORD)
+																temp_buf.CatDivIfNotEmpty(' ', 0).Cat("password");
+															if(SFMTFLAG(il_format) & STRF_OEM)
+																temp_buf.CatDivIfNotEmpty(' ', 0).Cat("oem");
+															if(SFMTFLAG(il_format) & STRF_ANSI)
+																temp_buf.CatDivIfNotEmpty(' ', 0).Cat("ansi");
+														}
+														break;
+													case BTS_INT:
+													case BTS_INT64_:
+														{
+															if(SFMTFLAG(il_format) & INTF_BIN)
+																temp_buf.CatDivIfNotEmpty(' ', 0).Cat("binary");
+															else if(SFMTFLAG(il_format) & INTF_OCT)
+																temp_buf.CatDivIfNotEmpty(' ', 0).Cat("octal");
+															else if(SFMTFLAG(il_format) & INTF_HEX) {
+																temp_buf.CatDivIfNotEmpty(' ', 0).Cat("hex");
+																if(SFMTFLAG(il_format) & INTF_UPPERCASE) {
+																	temp_buf.Space().Cat("uppercase");
+																}
+															}
+															//
+															if(SFMTFLAG(il_format) & INTF_FORCEPOS)
+																temp_buf.CatDivIfNotEmpty(' ', 0).Cat("forceplus");
+															if(SFMTFLAG(il_format) & INTF_NOZERO)
+																temp_buf.CatDivIfNotEmpty(' ', 0).Cat("nozero");
+														}
+														break;
+													case BTS_REAL:
+														{
+															if(SFMTFLAG(il_format) & NMBF_NONEG)
+																temp_buf.CatDivIfNotEmpty(' ', 0).Cat("noneg");
+															if(SFMTFLAG(il_format) & NMBF_NEGPAR)
+																temp_buf.CatDivIfNotEmpty(' ', 0).Cat("negpar");
+															if(SFMTFLAG(il_format) & NMBF_FORCEPOS)
+																temp_buf.CatDivIfNotEmpty(' ', 0).Cat("forceplus");
+															if(SFMTFLAG(il_format) & NMBF_NOZERO)
+																temp_buf.CatDivIfNotEmpty(' ', 0).Cat("nozero");
+															if(SFMTFLAG(il_format) & NMBF_TRICOMMA)
+																temp_buf.CatDivIfNotEmpty(' ', 0).Cat("tricomma");
+															if(SFMTFLAG(il_format) & NMBF_TRIAPOSTR)
+																temp_buf.CatDivIfNotEmpty(' ', 0).Cat("triapostr");
+															if(SFMTFLAG(il_format) & NMBF_TRISPACE)
+																temp_buf.CatDivIfNotEmpty(' ', 0).Cat("trispace");
+															if(SFMTFLAG(il_format) & NMBF_NOTRAILZ) {
+																temp_buf.CatDivIfNotEmpty(' ', 0).Cat("notrailz");
+																if(SFMTFLAG(il_format) & NMBF_EXPLFLOAT)
+																	temp_buf.Space().Cat("explfloat");
+															}
+															if(SFMTFLAG(il_format) & NMBF_DECCOMMA)
+																temp_buf.CatDivIfNotEmpty(' ', 0).Cat("deccomma");
+															if(SFMTFLAG(il_format) & NMBF_OMITEPS)
+																temp_buf.CatDivIfNotEmpty(' ', 0).Cat("omiteps");
+														}
+														break;
+													case BTS_DATE:
+														break;
+													case BTS_TIME:
+														break;
+													case BTS_POINT2:
+														break;
+													case BTS_BOOL:
+														break;
+													default:
+														break;
+												}
+											}
+										}
 										if(ctl_text.NotEmpty())
 											line_buf.Space().Cat("label").CatDiv(':', 2).CatQStr((temp_buf = ctl_text).Transf(CTRANSF_OUTER_TO_UTF8));
 										if(p_label) {
@@ -7656,7 +7746,7 @@ int ExportDialogs2(const char * pFileName)
 											//prop_list.Add(DlScope::cuifLabelRect, temp_buf);
 										}
 										line_buf.CatChar(']');
-										GetBinaryTypeString(p_il->getType(), 1, temp_buf, "", 0);
+										GetBinaryTypeString(_type_id, 1, temp_buf, "", 0);
 										if(temp_buf.Cmp("unknown", 0) == 0) {
 											(temp_buf = "string").CatBrackStr("48");
 										}

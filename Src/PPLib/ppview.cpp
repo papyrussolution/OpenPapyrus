@@ -2521,126 +2521,22 @@ int PPViewBrowser::getCurHdr(void * pHdr)
 
 int PPViewBrowser::Export()
 {
+	constexpr bool use_oxlsx = true;
 	int    ok = 1;
-	SString name, path;
-	BrowserDef * p_def = getDef();
-	ComExcelApp * p_app = 0;
-	ComExcelWorksheet  * p_sheet  = 0;
-	ComExcelWorksheets * p_sheets = 0;
-	ComExcelWorkbook   * p_wkbook = 0;
-	PPWaitStart();
-	if(p_def) {
-		const  long cn_count = p_def->getCount();
-		long   sheets_count = 0;
-		long   beg_row = 1;
-		long   i = 0;
-		SString dec;
-		SString fmt;
-		SString fmt_rus;
-		SString temp_buf;
-		PPIDArray width_ary;
-		{
-			TCHAR  li_buf[64];
-			::GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_SDECIMAL, li_buf, SIZEOFARRAY(li_buf));
-			dec.Cat(SUcSwitch(li_buf));
-		}
-		THROW_MEM(p_app = new ComExcelApp);
-		THROW(p_app->Init() > 0);
-		THROW(p_wkbook = p_app->AddWkbook());
-		THROW(p_sheets = p_wkbook->Get());
-		(name = getTitle()).Transf(CTRANSF_INNER_TO_OUTER);
-		name.ReplaceChar('*', '#'); // Замена запрещенного символа в названии, если таковой имеется
-		sheets_count = p_sheets->GetCount();
-		for(i = sheets_count; i > 1; i--)
-			THROW(p_sheets->Delete(i) > 0);
-		THROW(p_sheet = p_sheets->Get(1L));
-		THROW(p_sheet->SetName(name));
-		// Выводим название групп столбцов
-		for(i = 0; i < (long)p_def->GetGroupCount(); i++) {
-			const BroGroup * p_grp = p_def->GetGroup(i);
-			(temp_buf = p_grp->P_Text).Transf(CTRANSF_INNER_TO_OUTER);
-			THROW(p_sheet->SetValue(beg_row, p_grp->First + 1, temp_buf) > 0);
-			THROW(p_sheet->SetBold(beg_row, p_grp->First + 1, 1) > 0);
-			/*
-			if(beg_row == 1)
-				beg_row++;
-			*/
-		}
-		if(p_def->GetGroupCount())
-			beg_row++;
-		// Выводим название столбцов
-		for(i = 0; i < cn_count; i++) {
-			const BroColumn & r_c = p_def->at(i);
-			const long type = GETSTYPE(r_c.T);
-			(temp_buf = r_c.text).Transf(CTRANSF_INNER_TO_OUTER);
-			width_ary.add((PPID)temp_buf.Len());
-			fmt.Z();
-			fmt_rus.Z();
-			if(type == S_DATE) {
-				// @v11.0.4 fmt.Cat("DD/MM/YY;@");
-				// @v11.0.4 fmt_rus.Cat("ДД/ММ/ГГ;@");
-				PPLoadString("fmt_excel_date", fmt); // @v11.0.4 
-				PPLoadString("fmt_excel_date_ru", fmt_rus); // @v11.0.4 
-				fmt_rus.Transf(CTRANSF_INNER_TO_OUTER); // @v11.0.4
-			}
-			else if(oneof3(type, S_INT, S_UINT, S_AUTOINC))
-				fmt.CatChar('0');
-			else if(type == S_FLOAT) {
-				size_t prec = SFMTPRC(r_c.format);
-				fmt_rus = fmt.CatChar('0').CatChar(dec.C(0)).CatCharN('0', prec);
-			}
-			else
-				fmt_rus = fmt.CatChar('@');
-			if(p_sheet->SetColumnFormat(i + 1, fmt) <= 0)
-				p_sheet->SetColumnFormat(i + 1, fmt_rus);
-			THROW(p_sheet->SetCellFormat(beg_row, i + 1, "@") > 0);
-			THROW(p_sheet->SetValue(beg_row, i + 1, temp_buf) > 0);
-			THROW(p_sheet->SetBold(beg_row, i + 1, 1) > 0);
-		}
-		beg_row++;
-		if(p_def->top() > 0) {
-			long row = 0;
-			SString val_buf;
-			do {
-				PROFILE_START
-				for(long cn = 0; cn < cn_count; cn++) {
-					COLORREF color;
-					p_def->getFullText(p_def->_curItem(), cn, val_buf);
-					val_buf.Strip().Transf(CTRANSF_INNER_TO_OUTER);
-					if(GETSTYPE(p_def->at(cn).T) == S_FLOAT) {
-						val_buf.ReplaceChar('.', dec.C(0));
-					}
-					THROW(p_sheet->SetValue(row + beg_row + 1, cn + 1, val_buf) > 0);
-					if(GetCellColor(p_def->_curItem(), cn, &color) > 0)
-						THROW(p_sheet->SetColor(row + beg_row + 1, cn + 1, color) > 0);
-					if(width_ary.at(cn) < (long)val_buf.Len())
-						width_ary.at(cn) = (PPID)val_buf.Len();
-				}
-				row++;
-				PROFILE_END
-			} while(p_def->step(1) > 0 && row < (USHRT_MAX-beg_row));
-			for(i = 0; i < (long)width_ary.getCount(); i++)
-				THROW(p_sheet->SetColumnWidth(i + 1, width_ary.at(i) + 2) > 0);
-		}
-		WMHScroll(SB_VERT, SB_BOTTOM, 0);
+	SString result_file_name;
+	SStringU result_file_name_u;
+	if(use_oxlsx) {
+		ok = Helper_Export_Excel_OXLSX(result_file_name);
+		result_file_name_u.CopyFromUtf8(result_file_name);
 	}
-	CATCHZOKPPERR
-	if(p_wkbook) {
-		PPGetPath(PPPATH_LOCAL, path);
-		path.SetLastSlash();
-		SFile::CreateDir(path);
-		path.Cat(name.ReplaceChar('/', ' ')).Cat(".xls");
-		SFile::Remove(path);
-		p_wkbook->_SaveAs(path);
-		p_wkbook->_Close();
-		ZDELETE(p_wkbook);
+	else {
+		ok = Helper_Export_Excel(result_file_name);
+		result_file_name_u.CopyFromMb_OUTER(result_file_name, result_file_name.Len());
 	}
-	PPWaitStop();
-	ZDELETE(p_sheets);
-	ZDELETE(p_sheet);
-	ZDELETE(p_app);
-	if(ok > 0)
-		::ShellExecute(0, _T("open"), SUcSwitch(path), NULL, NULL, SW_SHOWNORMAL);
+	if(!ok)
+		PPErrorZ();
+	else if(ok > 0)
+		::ShellExecuteW(0, L"open", result_file_name_u, NULL, NULL, SW_SHOWNORMAL);
 	return ok;
 }
 
@@ -3032,7 +2928,7 @@ PPTimeChunkBrowser::PPTimeChunkBrowser() : STimeChunkBrowser()
 			row = 1;
 			column = 2;
 			for(long quant = 0; ; quant++) {
-				const  LDATE  dt = plusdate(St.Bounds.Start.d, quant);
+				const LDATE dt = plusdate(St.Bounds.Start.d, quant);
 				if(dt <= St.Bounds.Finish.d) {
 					if(IsQuantVisible(quant)) {
 						GetDayOfWeekText(dowtRuFull, dayofweek(&dt, 1), dow_buf);
@@ -3049,7 +2945,7 @@ PPTimeChunkBrowser::PPTimeChunkBrowser() : STimeChunkBrowser()
 			}
 		}
 		{
-			uint   time_quant = 15 * 60; // 15 minuts
+			const uint time_quant = 15 * 60; // 15 minuts
 			STimeChunkAssocArray chunk_list(0);
 			SString cell_buf;
 			column = 1;

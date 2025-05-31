@@ -4897,7 +4897,7 @@ int PPDriveMapping::ConvertPathToUnc(SString & rPath) const
 int PPSession::GetLocalPath(SString & rBuf)
 {
 	SString comp_name;
-	if(!SGetComputerName(comp_name))
+	if(!SGetComputerName(false/*utf8*/, comp_name))
 		comp_name = "COMMON";
 	rBuf.Z();
 	GetPath(PPPATH_BIN, rBuf);
