@@ -600,6 +600,7 @@ struct CtmToken {
 	int    Create(uint code);
 	int    Create(uint code, const char * pStr);
 	int    Create(uint code, DLSYMBID id);
+	int    AddStringToSet(const char * pStr);
 	CtmToken & Copy(const CtmToken & rS);
 	bool   IsEmpty() const;
 	//
@@ -607,6 +608,7 @@ struct CtmToken {
 	//
 	bool   IsIdent() const;
 	bool   IsString() const;
+	bool   IsIdentSet() const; // @v12.3.5
 	double GetDouble(uint * pCastFlags) const;
 	float  GetFloat(uint * pCastFlags) const;
 	int    GetInt(uint * pCastFlags) const;
@@ -625,7 +627,8 @@ struct CtmToken {
 		LDATE  D;
 		LTIME  T;
 		DLSYMBID ID;
-		char * S;
+		char * S;         // oneof4(Code, T_IDENT, T_AT_IDENT, T_CONST_STR, T_FMT)
+		StringSet * P_Ss; // @v12.3.5 Для списка идентификаторов или строк
 		S_GUID_Base Uuid;
 		SColorBase Color; // @v11.0.4
 		int    I2[2];
@@ -642,12 +645,7 @@ struct CtmVar {
 };
 
 struct CtmFunc { // @noctr
-	CtmFunc & Z()
-	{
-		ScopeID = 0;
-		Pos = 0;
-		return *this;
-	}
+	CtmFunc & Z();
 	DLSYMBID ScopeID;
 	uint   Pos; // @#[0..] Позиция функции в области видимости
 };

@@ -1,9 +1,346 @@
 // SFORMAT.CPP
-// Copyright (c) A.Sobolev 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2020, 2021, 2022, 2023, 2025
 // @codepage UTF-8
 //
 #include <slib-internal.h>
 #pragma hdrstop
+
+int SFormat_TranslateFlagsToStringSet(long fmt, TYPEID typeId, StringSet & rSs)
+{
+	rSs.Z();
+	int    ok = 1;
+	const   int  bt = stbase(typeId);
+	{
+		if(SFMTFLAG(fmt) & ALIGN_RIGHT)
+			rSs.add("align_right");
+		if(SFMTFLAG(fmt) & ALIGN_LEFT)
+			rSs.add("align_left");
+		if(SFMTFLAG(fmt) & ALIGN_CENTER)
+			rSs.add("align_center");
+		if(SFMTFLAG(fmt) & COMF_FILLOVF)
+			rSs.add("filloverflow");
+		if(SFMTFLAG(fmt) & COMF_SQL)
+			rSs.add("sql");
+		switch(bt) {
+			case BTS_STRING:
+				{
+					if(SFMTFLAG(fmt) & STRF_UPPER)
+						rSs.add("uppercase");
+					if(SFMTFLAG(fmt) & STRF_LOWER)
+						rSs.add("lowercase");
+					if(SFMTFLAG(fmt) & STRF_PASSWORD) {
+						rSs.add("password");
+					}
+					if(SFMTFLAG(fmt) & STRF_OEM)
+						rSs.add("oem");
+					if(SFMTFLAG(fmt) & STRF_ANSI)
+						rSs.add("ansi");
+				}
+				break;
+			case BTS_INT:
+			case BTS_INT64_:
+				{
+					if(SFMTFLAG(fmt) & INTF_BIN)
+						rSs.add("binary");
+					else if(SFMTFLAG(fmt) & INTF_OCT)
+						rSs.add("octal");
+					else if(SFMTFLAG(fmt) & INTF_HEX) {
+						rSs.add("hex");
+						if(SFMTFLAG(fmt) & INTF_UPPERCASE) {
+							rSs.add("uppercase");
+						}
+					}
+					//
+					if(SFMTFLAG(fmt) & INTF_FORCEPOS)
+						rSs.add("forceplus");
+					if(SFMTFLAG(fmt) & INTF_NOZERO)
+						rSs.add("nozero");
+				}
+				break;
+			case BTS_REAL:
+				{
+					if(SFMTFLAG(fmt) & NMBF_NONEG)
+						rSs.add("noneg");
+					if(SFMTFLAG(fmt) & NMBF_NEGPAR)
+						rSs.add("negpar");
+					if(SFMTFLAG(fmt) & NMBF_FORCEPOS)
+						rSs.add("forceplus");
+					if(SFMTFLAG(fmt) & NMBF_NOZERO)
+						rSs.add("nozero");
+					if(SFMTFLAG(fmt) & NMBF_TRICOMMA)
+						rSs.add("tricomma");
+					if(SFMTFLAG(fmt) & NMBF_TRIAPOSTR)
+						rSs.add("triapostr");
+					if(SFMTFLAG(fmt) & NMBF_TRISPACE)
+						rSs.add("trispace");
+					if(SFMTFLAG(fmt) & NMBF_NOTRAILZ) {
+						rSs.add("notrailz");
+						if(SFMTFLAG(fmt) & NMBF_EXPLFLOAT)
+							rSs.add("explfloat");
+					}
+					if(SFMTFLAG(fmt) & NMBF_DECCOMMA)
+						rSs.add("deccomma");
+					if(SFMTFLAG(fmt) & NMBF_OMITEPS)
+						rSs.add("omiteps");
+				}
+				break;
+			case BTS_DATE:
+				{
+					const uint df = (SFMTFLAG(fmt) & 0x0f);
+					const char * p_df_symb = 0;
+					switch(df) {
+						case DATF_AMERICAN: p_df_symb = "american"; break;
+						case DATF_ANSI:     p_df_symb = "ansi";     break;
+						case DATF_BRITISH:  p_df_symb = "british";  break;
+						case DATF_FRENCH:   p_df_symb = "french";   break;
+						case DATF_GERMAN:   p_df_symb = "german";   break;
+						case DATF_ITALIAN:  p_df_symb = "italian";  break;
+						case DATF_JAPAN:    p_df_symb = "japan";    break;
+						case DATF_USA:      p_df_symb = "usa";      break;
+						case DATF_MDY:      p_df_symb = "mdy";      break;
+						case DATF_DMY:      p_df_symb = "dmy";      break;
+						case DATF_YMD:      p_df_symb = "ymd";      break;
+						case DATF_SQL:      p_df_symb = "sql";      break;
+						case DATF_INTERNET: p_df_symb = "internet"; break;
+						case DATF_ISO8601:  p_df_symb = "iso8601";  break; // @default
+					}
+					if(p_df_symb)
+						rSs.add(p_df_symb);
+					if(SFMTFLAG(fmt) & DATF_CENTURY)
+						rSs.add("century");
+					if(SFMTFLAG(fmt) & DATF_NOZERO)
+						rSs.add("nozero");
+					if(SFMTFLAG(fmt) & DATF_NODIV)
+						rSs.add("nodiv");
+				}
+				break;
+			case BTS_TIME:
+				{
+					const uint tf = (SFMTFLAG(fmt) & 0x07);
+					const char * p_tf_symb = 0;
+					switch(tf) {
+						case TIMF_HMS: p_tf_symb = "hms"; break; // @default
+						case TIMF_HM:  p_tf_symb = "hm"; break;
+						case TIMF_MS:  p_tf_symb = "ms"; break;
+						case TIMF_S:   p_tf_symb = "s"; break;
+						case TIMF_SQL: p_tf_symb = "sql"; break;
+					}
+					if(p_tf_symb)
+						rSs.add(p_tf_symb);
+					if(SFMTFLAG(fmt) & TIMF_MSEC)
+						rSs.add("msec");
+					if(SFMTFLAG(fmt) & TIMF_BLANK)
+						rSs.add("nozero");
+					if(SFMTFLAG(fmt) & TIMF_TIMEZONE)
+						rSs.add("timezone");
+					if(SFMTFLAG(fmt) & TIMF_NODIV)
+						rSs.add("nodiv");
+					if(SFMTFLAG(fmt) & TIMF_DOTDIV)
+						rSs.add("dotdiv");
+				}
+				break;
+			case BTS_POINT2:
+				break;
+			case BTS_BOOL:
+				break;
+			default:
+				break;
+		}
+	}
+	return ok;
+}
+
+long SFormat_TranslateFlagFromString(const char * pText, TYPEID typeId)
+{
+	long    flags = 0;
+	long    date_style = 0;
+	long    time_style = 0;
+	int     int_base = 0;
+	const   int  bt = stbase(typeId);
+	if(sstreqi_ascii(pText, "align_center")) {
+		flags = ALIGN_CENTER;
+	}
+	else if(sstreqi_ascii(pText, "align_left")) {
+		flags = ALIGN_LEFT;
+	}
+	else if(sstreqi_ascii(pText, "align_right")) {
+		flags = ALIGN_RIGHT;
+	}
+	else if(sstreqi_ascii(pText, "american")) {
+		date_style = DATF_AMERICAN;
+	}
+	else if(sstreqi_ascii(pText, "ansi")) { // 2dup
+		if(bt == BTS_DATE) {
+			flags = DATF_ANSI;
+		}
+		else if(bt == BTS_STRING) {
+			flags = STRF_ANSI;
+		}
+	}
+	else if(sstreqi_ascii(pText, "binary")) {
+		int_base = 2;
+	}
+	else if(sstreqi_ascii(pText, "british")) {
+		date_style = DATF_BRITISH;
+	}
+	else if(sstreqi_ascii(pText, "century")) {
+		flags = DATF_CENTURY;
+	}
+	else if(sstreqi_ascii(pText, "deccomma")) {
+		flags = NMBF_DECCOMMA;
+	}
+	else if(sstreqi_ascii(pText, "dmy")) {
+		date_style = DATF_DMY;
+	}
+	else if(sstreqi_ascii(pText, "dotdiv")) {
+		flags = TIMF_DOTDIV;
+	}
+	else if(sstreqi_ascii(pText, "explfloat")) {
+		flags = NMBF_EXPLFLOAT;
+	}
+	else if(sstreqi_ascii(pText, "filloverflow")) {
+		flags = COMF_FILLOVF;
+	}
+	else if(sstreqi_ascii(pText, "forceplus")) { // 2dup
+		if(bt == BTS_REAL)
+			flags = NMBF_FORCEPOS;
+		else if(oneof2(bt, BTS_INT, BTS_INT64_))
+			flags = INTF_FORCEPOS;
+	}
+	else if(sstreqi_ascii(pText, "french")) {
+		date_style = DATF_FRENCH;
+	}
+	else if(sstreqi_ascii(pText, "german")) {
+		date_style = DATF_GERMAN;
+	}
+	else if(sstreqi_ascii(pText, "hex")) {
+		int_base = 16;
+	}
+	else if(sstreqi_ascii(pText, "hm")) {
+		time_style = TIMF_HM;
+	}
+	else if(sstreqi_ascii(pText, "hms")) {
+		time_style = TIMF_HMS;
+	}
+	else if(sstreqi_ascii(pText, "internet")) {
+		date_style = DATF_INTERNET;
+	}
+	else if(sstreqi_ascii(pText, "iso8601")) {
+		date_style = DATF_ISO8601;
+	}
+	else if(sstreqi_ascii(pText, "italian")) {
+		date_style = DATF_ITALIAN;
+	}
+	else if(sstreqi_ascii(pText, "japan")) {
+		date_style = DATF_JAPAN;
+	}
+	else if(sstreqi_ascii(pText, "lowercase")) {
+		flags = STRF_LOWER;
+	}
+	else if(sstreqi_ascii(pText, "mdy")) {
+		date_style = DATF_MDY;
+	}
+	else if(sstreqi_ascii(pText, "ms")) {
+		time_style = TIMF_MS;
+	}
+	else if(sstreqi_ascii(pText, "msec")) {
+		flags = TIMF_MSEC;
+	}
+	else if(sstreqi_ascii(pText, "negpar")) {
+		flags = NMBF_NEGPAR;
+	}
+	else if(sstreqi_ascii(pText, "nodiv")) { // 2dup
+		flags = TIMF_NODIV;
+	}
+	else if(sstreqi_ascii(pText, "noneg")) {
+		flags = NMBF_NONEG;
+	}
+	else if(sstreqi_ascii(pText, "notrailz")) {
+		flags = NMBF_NOTRAILZ;
+	}
+	else if(sstreqi_ascii(pText, "nozero")) { // 4dup
+		if(bt == BTS_REAL)
+			flags = NMBF_NOZERO;
+		else if(oneof2(bt, BTS_INT, BTS_INT64_))
+			flags = INTF_NOZERO;
+		else if(bt == BTS_DATE)
+			flags = DATF_NOZERO;
+		else if(bt == BTS_TIME)
+			flags = TIMF_NOZERO;
+	}
+	else if(sstreqi_ascii(pText, "octal")) {
+		int_base = 8;
+	}
+	else if(sstreqi_ascii(pText, "oem")) {
+		flags = STRF_OEM;
+	}
+	else if(sstreqi_ascii(pText, "omiteps")) {
+		flags = NMBF_OMITEPS;
+	}
+	else if(sstreqi_ascii(pText, "password")) {
+		flags = STRF_PASSWORD;
+	}
+	else if(sstreqi_ascii(pText, "s")) {
+		time_style = TIMF_S;
+	}
+	else if(sstreqi_ascii(pText, "sql")) { // 3dup
+		if(bt == BTS_DATE)
+			flags = DATF_SQL;
+		else if(bt == BTS_TIME)
+			flags = TIMF_SQL;
+		else
+			flags = COMF_SQL;
+	}
+	else if(sstreqi_ascii(pText, "timezone")) {
+		flags = TIMF_TIMEZONE;
+	}
+	else if(sstreqi_ascii(pText, "triapostr")) {
+		flags = NMBF_TRIAPOSTR;
+	}
+	else if(sstreqi_ascii(pText, "tricomma")) {
+		flags = NMBF_TRICOMMA;
+	}
+	else if(sstreqi_ascii(pText, "trispace")) {
+		flags = NMBF_TRISPACE;
+	}
+	else if(sstreqi_ascii(pText, "uppercase")) { // 2dup
+		if(bt == BTS_STRING)
+			flags = STRF_UPPER;
+		else if(oneof2(bt, BTS_INT, BTS_INT64_))
+			flags = INTF_UPPERCASE;
+	}
+	else if(sstreqi_ascii(pText, "usa")) {
+		date_style = DATF_USA;
+	}
+	else if(sstreqi_ascii(pText, "ymd")) {
+		date_style = DATF_YMD;
+	}
+	{
+		uint  _ac = 0;
+		if(date_style)
+			_ac++;
+		if(time_style)
+			_ac++;
+		if(int_base)
+			_ac++;
+		assert(_ac == 0 || _ac == 1);
+		assert(_ac == 0 || flags == 0);
+	}
+	if(date_style)
+		flags = date_style;
+	else if(time_style)
+		flags = time_style;
+	else if(int_base == 2) {
+		flags = INTF_BIN;
+	}
+	else if(int_base == 8) {
+		flags = INTF_OCT;
+	}
+	else if(int_base == 16) {
+		flags = INTF_HEX;
+	}
+	return flags;
+}
 
 SFormatParam::SFormatParam() : Flags(0), FDate(DATF_DMY), FTime(TIMF_HMS), FStr(0), FReal(0)
 {

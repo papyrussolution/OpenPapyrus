@@ -3355,6 +3355,21 @@ struct STypEx { // @persistent @size=16
 	uint32 Link;    // Ссылка на связанный тип (oneof4(Mod, modPtr, modRef, modArray, modLink))
 };
 //
+//
+//
+inline constexpr TYPEID GetSTypeID(char)   { return MKSTYPE(S_INT, 1); }
+inline constexpr TYPEID GetSTypeID(int16)  { return MKSTYPE(S_INT, 2); }
+inline constexpr TYPEID GetSTypeID(int)    { return MKSTYPE(S_INT, 4); }
+inline constexpr TYPEID GetSTypeID(long)   { return MKSTYPE(S_INT, 4); }
+inline constexpr TYPEID GetSTypeID(float)  { return MKSTYPE(S_FLOAT, 4); }
+inline constexpr TYPEID GetSTypeID(double) { return MKSTYPE(S_FLOAT, 8); }
+inline constexpr TYPEID GetSTypeID(LDBL)   { return MKSTYPE(S_FLOAT, 10); }
+inline constexpr TYPEID GetSTypeID(char *, int s) { return MKSTYPE(S_ZSTRING, s); }
+inline constexpr TYPEID GetSTypeID(LDATE)  { return MKSTYPE(S_DATE, 4); }
+inline constexpr TYPEID GetSTypeID(LTIME)  { return MKSTYPE(S_TIME, 4); }
+inline constexpr TYPEID GetSTypeID(LDATETIME) { return MKSTYPE(S_DATETIME, 8); }
+inline constexpr bool FASTCALL btnumber(int bt) { return oneof3(bt, BTS_INT, BTS_REAL, BTS_INT64_); }
+//
 // Descr: Базовый класс, потомки которого реализуют функционал различных типов данных.
 //
 class DataType {
@@ -3383,25 +3398,13 @@ public:
 	virtual void   minval(void *) const;
 	virtual void   maxval(void *) const;
 	virtual int    Serialize(int dir, void * pData, uint8 * pInd, SBuffer & rBuf, SSerializeContext * pCtx);
-	int    isnumber() const { return (base() == BTS_INT || base() == BTS_REAL); }
+	bool   isnumber() const { return btnumber(base()); }
 
 	uint32 S; // Size or other specific data
 };
 
-inline TYPEID GetSTypeID(char)   { return MKSTYPE(S_INT, 1); }
-inline TYPEID GetSTypeID(int16) { return MKSTYPE(S_INT, 2); }
-inline TYPEID GetSTypeID(int)    { return MKSTYPE(S_INT, 4); }
-inline TYPEID GetSTypeID(long)   { return MKSTYPE(S_INT, 4); }
-inline TYPEID GetSTypeID(float) { return MKSTYPE(S_FLOAT, 4); }
-inline TYPEID GetSTypeID(double) { return MKSTYPE(S_FLOAT, 8); }
-inline TYPEID GetSTypeID(LDBL)   { return MKSTYPE(S_FLOAT, 10); }
-inline TYPEID GetSTypeID(char *,  int s) { return MKSTYPE(S_ZSTRING, s); }
-inline TYPEID GetSTypeID(LDATE) { return MKSTYPE(S_DATE, 4); }
-inline TYPEID GetSTypeID(LTIME) { return MKSTYPE(S_TIME, 4); }
-inline TYPEID GetSTypeID(LDATETIME) { return MKSTYPE(S_DATETIME, 8); }
 DataType & FASTCALL stype(TYPEID t, DataType *);
 TYPEID     FASTCALL bt2st(int baseType);
-int    FASTCALL btnumber(int bt);
 uint32 FASTCALL stsize(TYPEID t);
 int    FASTCALL stcomp(TYPEID t, const void * i1, const void * i2);
 char * FASTCALL sttostr(TYPEID t, const void * d, long f, char * b);
@@ -3410,7 +3413,7 @@ int    FASTCALL stbase(TYPEID t);
 void   FASTCALL sttobase(TYPEID t, const void * data, void * baseData);
 int    FASTCALL stbaseto(TYPEID t, void * data, const void * baseData);
 void   FASTCALL stdestroy(TYPEID t, void * d);
-int    FASTCALL stisnumber(TYPEID t);
+bool   FASTCALL stisnumber(TYPEID t);
 void   FASTCALL stminval(TYPEID t, void * d);
 void   FASTCALL stmaxval(TYPEID t, void * d);
 int    FASTCALL stcast(TYPEID st, TYPEID dt, const void * sd, void * dd, long f);
@@ -3452,6 +3455,16 @@ TYPEID FASTCALL IsSTypeName(SStrScan & rScan);
 // User-defined types support
 //
 void FASTCALL RegisterSType(TYPEID, const DataType *);
+//
+// Descr: Преобразует флаги форматирования fmt в набор строковых символов, которые заносит в rSs.
+//   Для разрешения неоднозначностей и проверки на ошибки необходимо передать тип данных typeId, для которого
+//   применяются эти флаги.
+//
+int  SFormat_TranslateFlagsToStringSet(long fmt, TYPEID typeId, StringSet & rSs);
+//
+// Descr: Пытается распознать строку pText как обозначение флага(флагов) форматирования для типа данных typeId.
+//
+long SFormat_TranslateFlagFromString(const char * pText, TYPEID typeId);
 //
 // } @ModuleDecl(SType)
 //

@@ -50,6 +50,8 @@ void CtmToken::Destroy()
 {
 	if(oneof4(Code, T_IDENT, T_AT_IDENT, T_CONST_STR, T_FMT))
 		delete U.S;
+	if(Code == T_IDENTSET)
+		delete U.P_Ss;
 	Code = 0;
 	MEMSZERO(U);
 }
@@ -94,12 +96,39 @@ int CtmToken::Create(uint code, DLSYMBID id)
 	return Code;
 }
 
+int CtmToken::AddStringToSet(const char * pStr)
+{
+	int    ok = 1;
+	if(Code == T_IDENTSET) {
+		if(isempty(pStr)) {
+			ok = -1;
+		}
+		else {
+			if(!U.P_Ss)
+				U.P_Ss = new StringSet;
+			if(U.P_Ss) {
+				U.P_Ss->add(pStr);
+			}
+			else
+				ok = 0;
+		}
+	}
+	else
+		ok = 0;
+	return ok;
+}
+
 CtmToken & CtmToken::Copy(const CtmToken & rS)
 {
 	Init();
 	Code = rS.Code;
 	if(oneof4(Code, T_IDENT, T_AT_IDENT, T_CONST_STR, T_FMT)) {
 		U.S = newStr(rS.U.S);
+	}
+	else if(Code == T_IDENTSET) { // @v12.3.5
+		if(rS.U.P_Ss) {
+			U.P_Ss = new StringSet(*rS.U.P_Ss);
+		}
 	}
 	else {
 		U = rS.U;
@@ -110,6 +139,7 @@ CtmToken & CtmToken::Copy(const CtmToken & rS)
 bool CtmToken::IsEmpty() const { return (Code == 0); }
 bool CtmToken::IsIdent() const { return (Code == T_IDENT); }
 bool CtmToken::IsString() const { return (Code == T_CONST_STR); }
+bool CtmToken::IsIdentSet() const { return (Code == T_IDENTSET); } // @v12.3.5
 
 double CtmToken::GetDouble(uint * pCastFlags) const
 {
@@ -215,7 +245,7 @@ void CtmDclr::AddDim(uint dim)
 void CtmProperty::Init()
 {
 	Key.Init();
-	Value.Destroy();
+	Value.Init(); // @v12.3.5 @fix Value.Destroy()-->Value.Init()
 }
 
 void CtmProperty::Destroy()
@@ -656,6 +686,7 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 	EXCEPTVAR(LastError);
 	int    ok = 1;
 	const  uint _c = SVectorBase::GetCount(rS.P_List);
+	SString temp_buf;
 	SString prop_key;
 	SString prop_val;
 	//
@@ -673,6 +704,8 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 	SString list_box_columns; // @v12.3.3
 	SString unterm_error_addedmsg;
 	FRect  label_bbox;
+	int    fmt_prec = 0;
+	long   fmt_flags = 0;
 	double font_size = 0.0;
 	// Следующие флаги устанавливаются в переменной occurence_flags для индикации факта, что
 	// свойство уже присутствует в списке.
@@ -701,6 +734,8 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 		occfCbLineSymb      = 0x00200000, // @v12.3.3
 		occfImageSymb       = 0x00400000, // @v12.3.3
 		occfColumns         = 0x00800000, // @v12.3.3
+		occfFmtPrec         = 0x01000000, // @v12.3.5
+		occfFmtFlags        = 0x02000000, // @v12.3.5
 	};
 	enum {
 		occsLeft         = 0x0001,
@@ -808,7 +843,49 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 				}
 			}
 			if(!processed) {
-				if(prop_key == "orientation") {
+				if(prop_key == "fmtf") { // @v12.3.5 
+					prop_val.Z();
+					if(p_prop->Value.IsIdentSet()) {
+						if(!(occurence_flags & occfFmtFlags)) {
+							if(p_prop->Value.U.P_Ss) {
+								bool   is_type_id_valid = false;
+								TypeEntry te;
+								if(typeID) {
+									uint   type_pos = 0;
+									if(SearchTypeID(typeID, &type_pos, &te)) {
+										is_type_id_valid = true;
+									}
+								}
+								if(is_type_id_valid) {
+									for(uint ssp = 0; p_prop->Value.U.P_Ss->get(&ssp, temp_buf);) {
+										long _f = SFormat_TranslateFlagFromString(temp_buf, te.T.Typ);
+										if(_f) {
+											fmt_flags |= _f;
+										}
+									}
+								}
+							}
+						}
+						else {
+							; // @err
+						}
+					}
+					else {
+						; // @err
+					}
+					occurence_flags |= occfFmtFlags;
+				}
+				else if(prop_key == "fmtprec") { // @v12.3.5
+					if(!(occurence_flags & occfFmtPrec)) {
+						uint    cast_flags = 0;
+						fmt_prec = p_prop->Value.GetInt(&cast_flags);
+					}
+					else {
+						; // @err
+					}
+					occurence_flags |= occfFmtPrec;
+				}
+				else if(prop_key == "orientation") {
 					prop_val.Z();
 					if(p_prop->Value.IsIdent() || p_prop->Value.IsString()) {
 						prop_val = p_prop->Value.U.S;

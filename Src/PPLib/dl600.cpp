@@ -407,6 +407,15 @@ int CtmConstList::Get(const CtmExprConst * pC, void * pBuf, size_t len) const
 	return ok;
 }
 //
+// 
+// 
+CtmFunc & CtmFunc::Z()
+{
+	ScopeID = 0;
+	Pos = 0;
+	return *this;
+}
+//
 //
 //
 void FASTCALL CtmExpr::Init(int kind)

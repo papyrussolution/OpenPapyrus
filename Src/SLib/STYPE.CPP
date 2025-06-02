@@ -29,8 +29,6 @@ DataType & FASTCALL stype(TYPEID t, DataType * pT)
 	return *pT;
 }
 
-int    FASTCALL btnumber(int bt) { return oneof3(bt, BTS_INT, BTS_REAL, BTS_INT64_); }
-
 uint32 FASTCALL stsize(TYPEID t) 
 { 
 	if(GETSTYPE(t) == S_LVAR) { // @v12.2.6 аварийный случай - для этого типа у нас нет манипулятора (и не будет, ибо экзотика)
@@ -49,7 +47,7 @@ int    FASTCALL stbase(TYPEID t) { DataType _t; return stype(t, &_t).base(); }
 void   FASTCALL sttobase(TYPEID t, const void * data, void * baseData) { DataType _t; stype(t, &_t).tobase(data, baseData); }
 int    FASTCALL stbaseto(TYPEID t, void * data, const void * baseData) { DataType _t; return stype(t, &_t).baseto(data, baseData); }
 void   FASTCALL stdestroy(TYPEID t, void * d) { DataType _t; stype(t, &_t).destroy(d); }
-int    FASTCALL stisnumber(TYPEID t) { DataType _t; return stype(t, &_t).isnumber(); }
+bool   FASTCALL stisnumber(TYPEID t) { DataType _t; return stype(t, &_t).isnumber(); }
 void   FASTCALL stminval(TYPEID t, void * d) { DataType _t; stype(t, &_t).minval(d); }
 void   FASTCALL stmaxval(TYPEID t, void * d) { DataType _t; stype(t, &_t).maxval(d); }
 //

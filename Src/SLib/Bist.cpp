@@ -167,7 +167,7 @@ public:
 	int    comp(const void *, const void *) const;
 	char * tostr(const void *, long, char *) const;
 	int    fromstr(void *, long, const char *) const;
-	int    base() const { return BTS_STRING; }
+	virtual int    base() const { return BTS_STRING; }
 	void   tobase(const void * s, void * b) const { tostr(s, 0L, static_cast<char *>(b)); }
 	int    baseto(void * s, const void * b) const { fromstr(s, 0L, static_cast<const char *>(b)); return 1; }
 	void   minval(void *) const;
@@ -180,7 +180,7 @@ public:
 	int    comp(const void *, const void *) const;
 	char * tostr(const void *, long, char *) const;
 	int    fromstr(void *, long, const char *) const;
-	int    base() const { return BTS_STRING; }
+	virtual int    base() const { return BTS_STRING; }
 	void   tobase(const void * s, void * b) const { tostr(s, 0L, static_cast<char *>(b)); }
 	int    baseto(void * s, const void * b) const { fromstr(s, 0L, static_cast<const char *>(b)); return 1; }
 	void   minval(void *) const;
@@ -199,7 +199,7 @@ public:
 	int    comp(const void *, const void *) const;
 	char * tostr(const void *, long, char *) const;
 	int    fromstr(void *, long, const char *) const;
-	int    base() const { return BTS_STRING; }
+	virtual int    base() const { return BTS_STRING; }
 	void   tobase(const void * s, void * b) const { tostr(s, 0L, static_cast<char *>(b)); }
 	int    baseto(void * s, const void * b) const { fromstr(s, 0L, static_cast<const char *>(b)); return 1; }
 	void   minval(void *) const;
@@ -212,7 +212,7 @@ public:
 	int    comp(const void *, const void *) const;
 	char * tostr(const void *, long, char *) const;
 	int    fromstr(void *, long, const char *) const;
-	int    base() const { return BTS_STRING; }
+	virtual int    base() const { return BTS_STRING; }
 	void   tobase(const void * s, void * b) const { tostr(s, 0L, static_cast<char *>(b)); }
 	int    baseto(void * s, const void * b) const { fromstr(s, 0L, static_cast<const char *>(b)); return 1; }
 	void   minval(void *) const;

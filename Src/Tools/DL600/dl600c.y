@@ -157,6 +157,7 @@ int CallbackCompress(long, long, const char *, int)
 %token <token>    T_CONST_COLORRGB
 %token <token>    T_IDENT
 %token <token>    T_AT_IDENT    // '@' ident (возвращает строку, в которой символ @ уже убран)
+%token <token>    T_IDENTSET    // @V12.3.5
 %token <token>    T_FMT
 %token <var>      T_VAR
 %token <token>    T_TABLE       // "table"
@@ -224,6 +225,8 @@ int CallbackCompress(long, long, const char *, int)
 %type <token>     bounding_box_val // @v11.0.4
 %type <token>     bounding_box_pair // @v12.2.9
 %type <token>     propval // @v11.0.4
+%type <token>     identlist // @v12.3.5
+%type <token>     ident_seq // @v12.3.5 helper for identlist
 
 %nonassoc IFXS
 %nonassoc IFX
@@ -1027,6 +1030,24 @@ bounding_box_pair : '(' real_or_int_const optional_divider_comma_space real_or_i
 	ZapToken2($2, $4);
 }
 
+ident_seq : T_IDENT 
+{
+	$$.Create(T_IDENTSET);
+	$$.AddStringToSet($1.U.S);
+	ZapToken($1);
+} | ident_seq T_IDENT
+{
+	$1.AddStringToSet($2.U.S);
+	ZapToken($2);
+}
+
+identlist : '(' ident_seq ')'
+{
+	$$.Create(T_IDENTSET);
+	$$.Copy($2);
+	ZapToken($2);
+}
+
 /*
 properties:
 	BOUNDINGBOX := ( left top right bottom )
@@ -1095,6 +1116,7 @@ propval : T_CONST_INT { $$ = $1; }
 | layout_item_size_entry { $$ = $1; } 
 | bounding_box_val { $$ = $1; }
 | bounding_box_pair { $$ = $1; }
+| identlist { $$ = $1; }
 
 brak_prop_entry : T_IDENT ':' propval
 {
