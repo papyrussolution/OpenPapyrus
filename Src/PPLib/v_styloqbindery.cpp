@@ -151,13 +151,8 @@ int PPViewStyloQBindery::MakeList(PPViewBrowser * pBrw)
 						}
 					}
 					{
-						uint32  face_tag_id = 0;
-						if(oneof2(pack.Rec.Kind, StyloQCore::kClient, StyloQCore::kForeignService))
-							face_tag_id = SSecretTagPool::tagFace;
-						else
-							face_tag_id = SSecretTagPool::tagSelfyFace;
 						face_chunk.Z();
-						if(face_tag_id && pack.Pool.Get(face_tag_id, &face_chunk)) {
+						if(pack.Pool.Get(pack.GetFaceTagID(), &face_chunk)) {
 							if(face_pack.FromJson(face_chunk.ToRawStr(temp_buf)) && face_pack.GetRepresentation(0, temp_buf)) {
 								assert(temp_buf.NotEmpty()); // face_pack.GetRepresentation() != 0 garantees this assertion
 								temp_buf.Transf(CTRANSF_UTF8_TO_INNER); // в базе данных лик хранится в utf-8

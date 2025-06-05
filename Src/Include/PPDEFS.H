@@ -11651,6 +11651,8 @@
 	#define CTLSEL_BIZSC2_AGGRFAG          (26 + WINDOWS_ID_BIAS) //
 	#define CTL_BIZSC2_TIMECYCLE           (27 + WINDOWS_ID_BIAS)
 	#define CTLSEL_BIZSC2_TIMECYCLE        (28 + WINDOWS_ID_BIAS)
+	#define CTL_BIZSC2_DESCR               (29 + WINDOWS_ID_BIAS)
+	#define CTL_BIZSC2_FORMULA             (30 + WINDOWS_ID_BIAS)
 
 #define DLG_SWPROGRAM             1438
 	#define CTL_SWPROGRAM_ID               (1 + WINDOWS_ID_BIAS)

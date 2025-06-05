@@ -109,8 +109,6 @@ int FASTCALL _decode_date_fmt(int style, int * pDiv)
 	}
 	return ord;
 }
-
-bool FASTCALL IsLeapYear_Gregorian(int y) { return ((y % 4) == 0 && ((y % 100) != 0 || (y % 400) == 0)); }
 //
 //  The following two tables map a month index to the number of days preceding
 //  the month in the year.  Both tables are zero based.  For example, 1 (Feb)
@@ -798,11 +796,16 @@ int FASTCALL checktime(LTIME tm)
 		return 1;
 }
 
-LTIME::operator OleDate() const
+OleDate LTIME::GetOleDate() const
 {
 	LDATETIME dtm;
 	dtm.Set(ZERODATE, *this);
 	return dtm;
+}
+
+LTIME::operator OleDate() const
+{
+	return GetOleDate();
 }
 
 LTIME LTIME::operator = (OleDate od)
@@ -1267,7 +1270,7 @@ LDATETIME FASTCALL LDATETIME::operator = (const FILETIME & rS)
 	return *this;
 };
 
-LDATETIME::operator OleDate() const
+OleDate LDATETIME::GetOleDate() const
 {
 	OleDate od;
 	if(d.v == 0 && t.v == 0)
@@ -1277,6 +1280,11 @@ LDATETIME::operator OleDate() const
 		SystemTimeToVariantTime(&Get(st), &od.v);
 	}
 	return od;
+}
+
+LDATETIME::operator OleDate() const
+{
+	return GetOleDate();
 }
 
 LDATETIME FASTCALL LDATETIME::operator = (OleDate od)
@@ -1318,13 +1326,13 @@ LDATETIME & FASTCALL LDATETIME::addhs(long n)
 		const long numdays = h / 24;
 		h = h % 24;
 		plusdate(d, numdays);
-		t = encodetime(h, t.minut(), t.sec(), t.hs()); // @v10.0.0 @fix (h % 24)-->h
+		t = encodetime(h, t.minut(), t.sec(), t.hs());
 	}
 	else if(h < 0) {
 		const long numdays = (h / 24) - 1;
 		h = (-h) % 24;
 		plusdate(d, numdays);
-		t = encodetime(h, t.minut(), t.sec(), t.hs()); // @v10.0.0 @fix (h % 24)-->h
+		t = encodetime(h, t.minut(), t.sec(), t.hs());
 	}
 	return *this;
 }

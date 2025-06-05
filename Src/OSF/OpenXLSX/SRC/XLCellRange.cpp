@@ -73,12 +73,12 @@ void XLCellRange::fetchColumnStyles()
 				      " must be set and min must not be larger than max"s);
 		}
 		if(maxCol > m_columnStyles.size())  
-			m_columnStyles.resize(maxCol);                // resize m_columnStyles if necessary
-		for( ; vecPos + 1 < minCol; ++vecPos ) 
-			m_columnStyles[ vecPos ] = XLDefaultCellFormat; // set all non-defined columns to default
+			m_columnStyles.resize(maxCol); // resize m_columnStyles if necessary
+		for(; vecPos + 1 < minCol; ++vecPos) 
+			m_columnStyles[vecPos] = XLDefaultCellFormat; // set all non-defined columns to default
 		XLStyleIndex colStyle = col.attribute("style").as_uint(XLDefaultCellFormat);      // acquire column style attribute
-		for( ; vecPos < maxCol; ++vecPos ) 
-			m_columnStyles[ vecPos ] = colStyle;       // set all covered columns to defined style
+		for(; vecPos < maxCol; ++vecPos) 
+			m_columnStyles[vecPos] = colStyle; // set all covered columns to defined style
 		col = col.next_sibling_of_type(pugi::node_element); // advance to next <col> entry, if any
 	}
 }

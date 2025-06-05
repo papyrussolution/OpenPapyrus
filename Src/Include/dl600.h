@@ -381,6 +381,7 @@ public:
 		cuifCbLineSymbIdent     = 37, // @v12.3.3 uint32 Идентификатор символа строки ввода, связанной с комбо-боксом 
 		cuifImageSymb           = 38, // @v12.3.3 string Символ изображения //
 		cuifListBoxColumns      = 39, // @v12.3.3 string Определение колонок для ListView //
+		cuifViewOutputFormat    = 40, // @v12.3. Формат вывода, ассоциированный с элементом View
 	};
 	struct IfaceBase {
 		bool   FASTCALL IsEq(const IfaceBase & rS) const { return (ID == rS.ID && Flags == rS.Flags); }
@@ -1347,7 +1348,7 @@ public:
 		SFileFormat OutputFormat;
 		SString DestPath;
 		SString Path;
-		const void * P_ViewDef; // v10.5.1
+		const void * P_ViewDef;
 	};
 	int    Export(ExportParam & rParam);
 	int    ExportXML(ExportParam & rParam, SString & rOutFileName);

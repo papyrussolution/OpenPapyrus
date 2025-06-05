@@ -483,7 +483,7 @@ int CalcPrice(CalcPriceParam * pParam)
 //
 class CalcDiffDialog : public TDialog {
 public:
-	CalcDiffDialog() : TDialog(DLG_CALCDIFF_L /* @v7.0.6 IsLargeDlg() ? DLG_CALCDIFF_L : DLG_CALCDIFF*/)
+	CalcDiffDialog() : TDialog(DLG_CALCDIFF_L)
 	{
 	}
 	int  setupDiff(); // Returns: !0 если цена в поле изменилась и 0 в противном случае.

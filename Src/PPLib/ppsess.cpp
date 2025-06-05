@@ -376,6 +376,7 @@ PPThreadLocalArea::~PPThreadLocalArea()
 	PtrVectDim = 0;
 	ZDELETE(P_ExpCtx);
 	ZDELETE(P_IfcCtx);
+	ZDELETE(P_UiViewCtx); // @v12.3.6
 	ZDELETE(P_SrDb);
 	ZDELETE(P_PhnSvcEvRespr);
 	ZDELETE(P_MqbEvRespr);
@@ -4865,7 +4866,8 @@ int PPDriveMapping::Load(PPIniFile * pIniFile)
 
 int PPDriveMapping::Get(int drive, SString & rMapping) const
 {
-	SString entry, drv;
+	SString entry;
+	SString drv;
 	for(uint i = 0; get(&i, entry);) {
 		if(entry.Divide('=', drv, rMapping) > 0 && toupper(drv[0]) == toupper(drive)) {
 			rMapping.Strip();
@@ -5111,7 +5113,7 @@ void PPRestoreErrContext() { DS.GetTLA().PopErrContext(); }
 
 DlContext * PPSession::Helper_GetInterfaceContext(DlContext ** ppCtx, uint fileId, int crit)
 {
-	int    is_allocated = 0;
+	bool   is_allocated = false;
 	SCriticalSection::Data * p_csd = 0;
 	if(*ppCtx == 0) {
 		if(crit) {
@@ -5124,7 +5126,7 @@ DlContext * PPSession::Helper_GetInterfaceContext(DlContext ** ppCtx, uint fileI
 			if(file_name.NotEmptyS()) {
 				THROW_SL(fileExists(file_name));
 				THROW_MEM(*ppCtx = new DlContext);
-				is_allocated = 1;
+				is_allocated = true;
 				THROW((*ppCtx)->Init(file_name));
 			}
 		}
@@ -5141,12 +5143,15 @@ DlContext * PPSession::Helper_GetInterfaceContext(DlContext ** ppCtx, uint fileI
 DlContext * PPSession::GetInterfaceContext(int ctxType)
 {
 	DlContext * p_ctx = 0;
-	if(oneof2(ctxType, ctxtExportData, ctxtInterface)) {
+	if(oneof3(ctxType, ctxtExportData, ctxtInterface, ctxUiView)) { // @v12.3.6 ctxUiView
 		PPThreadLocalArea & r_tla = DS.GetTLA();
 		if(ctxType == ctxtExportData)
 			p_ctx = Helper_GetInterfaceContext(&r_tla.P_ExpCtx, PPFILNAM_DL600EXP, 0);
 		else if(ctxType == ctxtInterface)
 			p_ctx = Helper_GetInterfaceContext(&r_tla.P_IfcCtx, PPFILNAM_DL600IFC, 0);
+		else if(ctxType == ctxUiView) { // @v12.3.6
+			p_ctx = Helper_GetInterfaceContext(&r_tla.P_IfcCtx, PPFILNAM_DL600UIVIEW, 0);
+		}
 	}
 	else if(ctxType == ctxDatabase)
 		p_ctx = Helper_GetInterfaceContext(&P_DbCtx, PPFILNAM_DL600DBS, 1);

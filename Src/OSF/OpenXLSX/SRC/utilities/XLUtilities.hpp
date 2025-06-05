@@ -309,7 +309,7 @@ namespace OpenXLSX {
 		// loop from back to front, inserting in the same order before toNode
 		while(fromNode.type() == pugi::node_pcdata) {  // loop ends on pugi::node_element or node_null
 			toNode = parent.insert_child_before(pugi::node_pcdata, toNode); // prepend as toNode a new pcdata node
-			toNode.set_value(fromNode.value());                           //  with the value of fromNode
+			toNode.set_value(fromNode.value()); //  with the value of fromNode
 			fromNode = fromNode.previous_sibling();
 		}
 	}
@@ -339,8 +339,8 @@ namespace OpenXLSX {
 			// ===== Evaluate search result
 			if(not nextNode.empty()) { // found nodeName or a node before which nodeName should be inserted
 				if(nextNode.name() == nodeName) // if nodeName was found
-					node = nextNode;      // use existing node
-				else {                     // else: a node was found before which nodeName must be inserted
+					node = nextNode; // use existing node
+				else { // else: a node was found before which nodeName must be inserted
 					node = parent.insert_child_before(nodeName.c_str(), nextNode, force_ns); // insert before nextNode without whitespaces
 					copyLeadingWhitespaces(parent, node, nextNode);
 				}
@@ -353,7 +353,7 @@ namespace OpenXLSX {
 			// ===== There is no reference to perform an ordered insert for nodeName
 			nextNode = parent.last_child_of_type(pugi::node_element);           // at least one element node must exist, tested at begin of function
 			node = parent.insert_child_after(nodeName.c_str(), nextNode, force_ns); // append as the last element node, but before final whitespaces
-			copyLeadingWhitespaces(parent, nextNode, node);                     // duplicate the prefix whitespaces of nextNode to node
+			copyLeadingWhitespaces(parent, nextNode, node); // duplicate the prefix whitespaces of nextNode to node
 		}
 		return node;
 	}

@@ -7,7 +7,7 @@
 
 // @v12.2.4 (более на актуально) static const TRect _DefLwRect(0, 0, /*80*/0, 25); // @v11.9.5 Из-за того, что ширина списка теперь определяется настройками в uid-papyrus.json здесь она должна быть равна 0
 
-ListWindow::ListWindow(ListBoxDef * pDef) : TDialog(0, 0), PrepareSearchLetter(0), TbId(0)
+ListWindow::ListWindow(ListBoxDef * pDef) : TDialog(0, 0, coNothing), PrepareSearchLetter(0), TbId(0)
 {
 	P_Lb = new ListWindowSmartListBox(TRect(0, 0, 11, 11), pDef);
 	setDef(pDef);
@@ -15,7 +15,7 @@ ListWindow::ListWindow(ListBoxDef * pDef) : TDialog(0, 0), PrepareSearchLetter(0
 	Insert_(&b->SetId(IDOK)); /*CTLID_LISTBOXOKBUTTON*/
 }
 
-ListWindow::ListWindow() : TDialog(0, 0), P_Def(0), PrepareSearchLetter(0), P_Lb(0), TbId(0)
+ListWindow::ListWindow() : TDialog(0, 0, coNothing), P_Def(0), PrepareSearchLetter(0), P_Lb(0), TbId(0)
 {
 }
 

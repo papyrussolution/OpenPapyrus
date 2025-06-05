@@ -48,39 +48,39 @@
 			 * @brief Constructor taking a std::tm struct as an argument.
 			 * @param timepoint A std::tm struct.
 			 */
-			explicit XLDateTime(const std::tm& timepoint);
+			explicit XLDateTime(const std::tm & timepoint);
 			/**
 			 * @brief Constructor taking a unixtime format (seconds since 1/1/1970) as an argument.
 			 * @param unixtime A time_t number.
 			 */
 			explicit XLDateTime(time_t unixtime);
-			XLDateTime(const XLDateTime& other);
-			XLDateTime(XLDateTime&& other) noexcept;
+			XLDateTime(const XLDateTime & other);
+			XLDateTime(XLDateTime && other) noexcept;
 			~XLDateTime();
 			/**
 			 * @brief Copy assignment operator.
 			 * @param other Object to be copied.
 			 * @return Reference to the copied-to object.
 			 */
-			XLDateTime& operator=(const XLDateTime& other);
+			XLDateTime & operator = (const XLDateTime& other);
 			/**
 			 * @brief Move assignment operator.
 			 * @param other Object to be moved.
 			 * @return Reference to the moved-to object.
 			 */
-			XLDateTime& operator=(XLDateTime&& other) noexcept;
+			XLDateTime & operator = (XLDateTime && other) noexcept;
 			/**
 			 * @brief Assignment operator taking an Excel date/time serial number as an argument.
 			 * @param serial A floating point value with the serial number.
 			 * @return Reference to the copied-to object.
 			 */
-			XLDateTime& operator=(double serial);
+			XLDateTime & operator = (double serial);
 			/**
 			 * @brief Assignment operator taking a std::tm object as an argument.
 			 * @param timepoint std::tm object with the time point
 			 * @return Reference to the copied-to object.
 			 */
-			XLDateTime & operator=(const std::tm& timepoint);
+			XLDateTime & operator = (const std::tm & timepoint);
 			/**
 			 * @brief Implicit conversion to Excel date/time serial number (any floating point type).
 			 * @tparam T Type to convert to (any floating point type).
@@ -737,24 +737,23 @@
 		constexpr const uint32 XLDeleteProperty = XLInvalidUInt32;      // when 0 or "" is not the same as "property does not exist", this value
 			//  can be passed to setter functions to delete the property from XML
 			//  currently supported in: XLDataBarColor::setTheme
-		constexpr const bool XLPermitXfID      = true;             // use with XLCellFormat constructor to enable xfId() getter and setXfId() setter
-		constexpr const bool XLCreateIfMissing = true;             // use with XLCellFormat::alignment(XLCreateIfMissing)
-		constexpr const bool XLDoNotCreate     = false;            // use with XLCellFormat::alignment(XLDoNotCreate)
+		constexpr const bool XLPermitXfID      = true;  // use with XLCellFormat constructor to enable xfId() getter and setXfId() setter
+		constexpr const bool XLCreateIfMissing = true;  // use with XLCellFormat::alignment(XLCreateIfMissing)
+		constexpr const bool XLDoNotCreate     = false; // use with XLCellFormat::alignment(XLDoNotCreate)
 		constexpr const bool XLForceFillType   = true;
-		constexpr const char * XLDefaultStylesPrefix       = "\n\t";       // indentation to use for newly created root level style node tags
-		constexpr const char * XLDefaultStyleEntriesPrefix = "\n\t\t";     // indentation to use for newly created style entry nodes
-		constexpr const XLStyleIndex XLDefaultCellFormat = 0;              // default cell format index in xl/styles.xml:<styleSheet>:<cellXfs>
+		constexpr const char * XLDefaultStylesPrefix       = "\n\t";   // indentation to use for newly created root level style node tags
+		constexpr const char * XLDefaultStyleEntriesPrefix = "\n\t\t"; // indentation to use for newly created style entry nodes
+		constexpr const XLStyleIndex XLDefaultCellFormat = 0;          // default cell format index in xl/styles.xml:<styleSheet>:<cellXfs>
 
 		// ===== As pugixml attributes are not guaranteed to support value range of XLStyleIndex, use 32 bit unsigned int
 		constexpr const XLStyleIndex XLInvalidStyleIndex = XLInvalidUInt32;        // as a function return value, indicates no valid index
 
-		constexpr const uint32 XLDefaultFontSize       = 12;             //
-		constexpr const char *   XLDefaultFontColor      = "ff000000";     // default font color
-		constexpr const char *   XLDefaultFontColorTheme = "";             // TBD what this means / how it is used
-		constexpr const char *   XLDefaultFontName       = "Arial";        //
-		constexpr const uint32 XLDefaultFontFamily     = 0;              // TBD what this means / how it is used
-		constexpr const uint32 XLDefaultFontCharset    = 1;              // TBD what this means / how it is used
-
+		constexpr const uint32 XLDefaultFontSize       = 12;           //
+		constexpr const char *   XLDefaultFontColor      = "ff000000"; // default font color
+		constexpr const char *   XLDefaultFontColorTheme = "";         // TBD what this means / how it is used
+		constexpr const char *   XLDefaultFontName       = "Arial";    //
+		constexpr const uint32 XLDefaultFontFamily     = 0;            // TBD what this means / how it is used
+		constexpr const uint32 XLDefaultFontCharset    = 1;            // TBD what this means / how it is used
 		constexpr const char * XLDefaultLineStyle = "";     // empty string = line not set
 
 		// forward declarations of all classes in this header
@@ -918,7 +917,7 @@
 			 */
 			std::string summary() const;
 		private:
-			std::unique_ptr<XMLNode> m_numberFormatNode; /**< An XMLNode object with the number format item */
+			std::unique_ptr <XMLNode> m_numberFormatNode; /**< An XMLNode object with the number format item */
 		};
 		/**
 		 * @brief An encapsulation of the XLSX number formats (numFmts)
@@ -939,14 +938,13 @@
 			 * @param other Right hand side of assignment operation.
 			 * @return A reference to the lhs object.
 			 */
-			XLNumberFormats& operator=(const XLNumberFormats& other);
+			XLNumberFormats & operator = (const XLNumberFormats& other);
 			/**
 			 * @brief Move assignment operator.
 			 * @param other Right hand side of assignment operation.
 			 * @return A reference to lhs object.
 			 */
-			XLNumberFormats& operator=(XLNumberFormats&& other) noexcept = default;
-
+			XLNumberFormats & operator = (XLNumberFormats&& other) noexcept = default;
 			/**
 			 * @brief Get the count of number formats
 			 * @return The amount of entries in the number formats
@@ -1003,11 +1001,11 @@
 			 * @param node An XMLNode object with the fonts XMLNode. If no input is provided, a null node is used.
 			 */
 			explicit XLFont(const XMLNode& node);
-			XLFont(const XLFont& other);
-			XLFont(XLFont&& other) noexcept = default;
+			XLFont(const XLFont & other);
+			XLFont(XLFont && other) noexcept = default;
 			~XLFont();
-			XLFont& operator=(const XLFont& other);
-			XLFont& operator=(XLFont&& other) noexcept = default;
+			XLFont & operator = (const XLFont & other);
+			XLFont & operator = (XLFont && other) noexcept = default;
 			/**
 			 * @brief Get the font name
 			 * @return The font name
@@ -1097,12 +1095,12 @@
 			bool setFontFamily(size_t newFamily);
 			bool setFontSize(size_t newSize);
 			bool setFontColor(XLColor newColor);
-			bool setBold(bool set = true);
-			bool setItalic(bool set = true);
-			bool setStrikethrough(bool set = true);
 			bool setUnderline(XLUnderlineStyle style = XLUnderlineSingle);
 			bool setScheme(XLFontSchemeStyle newScheme);
 			bool setVertAlign(XLVerticalAlignRunStyle newVertAlign);
+			bool setBold(bool set = true);
+			bool setItalic(bool set = true);
+			bool setStrikethrough(bool set = true);
 			bool setOutline(bool set = true);
 			bool setShadow(bool set = true);
 			bool setCondense(bool set = true);
@@ -1113,7 +1111,7 @@
 			 */
 			std::string summary() const;
 		private:
-			std::unique_ptr<XMLNode> m_fontNode;         /**< An XMLNode object with the font item */
+			std::unique_ptr <XMLNode> m_fontNode; /**< An XMLNode object with the font item */
 		};
 		/**
 		 * @brief An encapsulation of the XLSX fonts
@@ -1126,21 +1124,21 @@
 			 * @param node An XMLNode object with the styles item. If no input is provided, a null node is used.
 			 */
 			explicit XLFonts(const XMLNode& node);
-			XLFonts(const XLFonts& other);
-			XLFonts(XLFonts&& other);
+			XLFonts(const XLFonts & other);
+			XLFonts(XLFonts && other);
 			~XLFonts();
 			/**
 			 * @brief Copy assignment operator.
 			 * @param other Right hand side of assignment operation.
 			 * @return A reference to the lhs object.
 			 */
-			XLFonts& operator=(const XLFonts& other);
+			XLFonts & operator = (const XLFonts & other);
 			/**
 			 * @brief Move assignment operator.
 			 * @param other Right hand side of assignment operation.
 			 * @return A reference to lhs object.
 			 */
-			XLFonts& operator=(XLFonts&& other) noexcept = default;
+			XLFonts & operator=(XLFonts && other) noexcept = default;
 			/**
 			 * @brief Get the count of fonts
 			 * @return The amount of font entries
@@ -1166,8 +1164,8 @@
 			 */
 			XLStyleIndex create(XLFont copyFrom = XLFont{}, std::string styleEntriesPrefix = XLDefaultStyleEntriesPrefix);
 		private:
-			std::unique_ptr<XMLNode> m_fontsNode;        /**< An XMLNode object with the fonts item */
-			std::vector<XLFont> m_fonts;
+			std::unique_ptr <XMLNode> m_fontsNode; /**< An XMLNode object with the fonts item */
+			std::vector <XLFont> m_fonts;
 		};
 		/**
 		 * @brief An encapsulation of an XLSX Data Bar Color (CT_Color) item
@@ -1924,7 +1922,6 @@
 			 *       (e.g., 'text). In these cases, the quote is not stored in the Shared Strings Part.
 			 */
 			bool quotePrefix() const;
-
 			/**
 			 * @brief Report whether pivot button is applied
 			 * @return true for a setting enabled, or false if disabled
@@ -1932,19 +1929,16 @@
 			 * @todo need to find a use case for this
 			 */
 			bool pivotButton() const;
-
 			/**
 			 * @brief Report whether protection locked is applied
 			 * @return true for a setting enabled, or false if disabled
 			 */
 			bool locked() const;
-
 			/**
 			 * @brief Report whether protection hidden is applied
 			 * @return true for a setting enabled, or false if disabled
 			 */
 			bool hidden() const;
-
 			/**
 			 * @brief Return a reference to applicable alignment
 			 * @param createIfMissing triggers creation of alignment node - should be used with setter functions of XLAlignment
@@ -2000,22 +1994,22 @@
 			 * @param node An XMLNode object with the cell formats (cellXfs or cellStyleXfs) item. If no input is provided, a null node is used.
 			 * @param permitXfId Pass-through to XLCellFormat constructor: true (XLPermitXfID) -> setter setXfId is enabled, otherwise throws
 			 */
-			explicit XLCellFormats(const XMLNode& node, bool permitXfId = false);
-			XLCellFormats(const XLCellFormats& other);
-			XLCellFormats(XLCellFormats&& other);
+			explicit XLCellFormats(const XMLNode & node, bool permitXfId = false);
+			XLCellFormats(const XLCellFormats & other);
+			XLCellFormats(XLCellFormats && other);
 			~XLCellFormats();
 			/**
 			 * @brief Copy assignment operator.
 			 * @param other Right hand side of assignment operation.
 			 * @return A reference to the lhs object.
 			 */
-			XLCellFormats& operator=(const XLCellFormats& other);
+			XLCellFormats & operator=(const XLCellFormats& other);
 			/**
 			 * @brief Move assignment operator.
 			 * @param other Right hand side of assignment operation.
 			 * @return A reference to lhs object.
 			 */
-			XLCellFormats& operator=(XLCellFormats&& other) noexcept = default;
+			XLCellFormats & operator=(XLCellFormats&& other) noexcept = default;
 			/**
 			 * @brief Get the count of cell style format descriptions
 			 * @return The amount of cell style format description entries
@@ -2333,13 +2327,13 @@
 			 * @param other an existing styles object other will be also referred by this
 			 */
 			XLStyles(const XLStyles& other);
-			XLStyles& operator=(XLStyles&& other) noexcept;
-			XLStyles& operator=(const XLStyles& other);
+			XLStyles & operator=(XLStyles&& other) noexcept;
+			XLStyles & operator=(const XLStyles& other);
 			/**
 			 * @brief Get the number formats object
 			 * @return An XLNumberFormats object
 			 */
-			XLNumberFormats& numberFormats() const;
+			XLNumberFormats & numberFormats() const;
 			/**
 			 * @brief Get the fonts object
 			 * @return An XLFonts object
@@ -2349,7 +2343,7 @@
 			 * @brief Get the fills object
 			 * @return An XLFills object
 			 */
-			XLFills& fills() const;
+			XLFills & fills() const;
 			/**
 			 * @brief Get the borders object
 			 * @return An XLBorders object
@@ -2359,18 +2353,17 @@
 			 * @brief Get the cell style formats object
 			 * @return An XLCellFormats object
 			 */
-			XLCellFormats& cellStyleFormats() const;
+			XLCellFormats & cellStyleFormats() const;
 			/**
 			 * @brief Get the cell formats object
 			 * @return An XLCellFormats object
 			 */
-			XLCellFormats& cellFormats() const;
-
+			XLCellFormats & cellFormats() const;
 			/**
 			 * @brief Get the cell styles object
 			 * @return An XLCellStyles object
 			 */
-			XLCellStyles& cellStyles() const;
+			XLCellStyles & cellStyles() const;
 			/**
 			 * @brief Get the differential cell formats object
 			 * @return An XLDiffCellFormats object
@@ -3244,9 +3237,11 @@
 			/**
 			 * @brief Default constructor. Constructs a null object.
 			 */
-			XLCellAssignable() : XLCell() {}
-			XLCellAssignable (XLCell const & other);
-			XLCellAssignable (XLCell && other);
+			XLCellAssignable() : XLCell() 
+			{
+			}
+			XLCellAssignable(XLCell const & other);
+			XLCellAssignable(XLCell && other);
 			// /**
 			//  * @brief Inherit all constructors with parameters from XLCell
 			//  */
@@ -3432,8 +3427,8 @@
 		public:
 			XLCellRange();
 			explicit XLCellRange(const XMLNode & dataNode, const XLCellReference& topLeft, const XLCellReference& bottomRight, const XLSharedStrings& sharedStrings);
-			XLCellRange(const XLCellRange& other);
-			XLCellRange(XLCellRange&& other) noexcept;
+			XLCellRange(const XLCellRange & other);
+			XLCellRange(XLCellRange && other) noexcept;
 			~XLCellRange();
 			/**
 			 * @brief The copy assignment operator [default]
@@ -3442,14 +3437,14 @@
 			 * @throws A std::range_error if the source range and destination range are of different size and shape.
 			 * @note This implements the default copy assignment operator.
 			 */
-			XLCellRange& operator=(const XLCellRange& other);
+			XLCellRange & operator=(const XLCellRange& other);
 			/**
 			 * @brief The move assignment operator [default].
 			 * @param other The range object to be moved and assigned.
 			 * @return A reference to the new object.
 			 * @note This implements the default move assignment operator.
 			 */
-			XLCellRange& operator=(XLCellRange&& other) noexcept;
+			XLCellRange & operator = (XLCellRange&& other) noexcept;
 			/**
 			 * @brief populate the m_columnStyles
 			 * @return a const XLCellReference
@@ -3493,7 +3488,7 @@
 					std::is_integral_v<T> || std::is_floating_point_v<T> || std::is_same_v<std::decay_t<T>, std::string> ||
 					std::is_same_v<std::decay_t<T>, std::string_view> || std::is_same_v<std::decay_t<T>, const char*> ||
 					std::is_same_v<std::decay_t<T>, char*> || std::is_same_v<T, XLDateTime> > >
-			XLCellRange& operator=(T value)
+			XLCellRange & operator=(T value)
 			{
 				// forward implementation to templated XLCellValue& XLCellValue::operator=(T value)
 				for(auto it = begin(); it != end(); ++it)  
@@ -3507,11 +3502,11 @@
 			 */
 			bool setFormat(XLStyleIndex cellFormatIndex);
 		private:
-			std::unique_ptr<XMLNode>  m_dataNode;
+			std::unique_ptr <XMLNode> m_dataNode;
 			XLCellReference m_topLeft;                 /**< reference to the first cell in the range */
 			XLCellReference m_bottomRight;             /**< reference to the last cell in the range */
 			XLSharedStringsRef m_sharedStrings;        /**< reference to the document shared strings table */
-			std::vector<XLStyleIndex> m_columnStyles;  /**< quick access to column styles in the range - populated by fetchColumnStyles() */
+			std::vector <XLStyleIndex> m_columnStyles;  /**< quick access to column styles in the range - populated by fetchColumnStyles() */
 		};
 		//
 		//#include "XLColumn.hpp"
@@ -6274,7 +6269,7 @@
 		/**
 		 * @brief A class encapsulating an Excel worksheet. Access to XLWorksheet objects should be via the workbook object.
 		 */
-		class XLWorksheet final : public XLSheetBase<XLWorksheet> {
+		class XLWorksheet final : public XLSheetBase <XLWorksheet> {
 			friend class XLCell;
 			friend class XLRow;
 			friend class XLWorkbook;
@@ -6333,7 +6328,6 @@
 			 * @return An XLCellRange object with the requested range.
 			 */
 			XLCellRange range(const XLCellReference& topLeft, const XLCellReference& bottomRight) const;
-
 			/**
 			 * @brief Get a range with the given coordinates.
 			 * @param topLeft A std::string that is convertible to an XLCellReference to the top left cell

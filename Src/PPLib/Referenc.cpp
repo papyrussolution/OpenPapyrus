@@ -330,7 +330,7 @@ int Reference::AddItem(PPID obj, PPID * pID, const void * b, int use_ta)
 	return ok;
 }
 
-int Reference::UpdateItem(PPID obj, PPID id, const void * b, int logAction /*=1*/, int use_ta)
+int Reference::UpdateItem(PPID obj, PPID id, const void * b, int logAction/*=1*/, int use_ta)
 {
 	int    ok = 1;
 	int    r = 1;

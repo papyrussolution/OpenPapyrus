@@ -580,10 +580,22 @@ TDialog::TDialog(const char * pTitle, long wbCapability, ConstructorOption co) :
 	setTitle(pTitle);
 	Helper_Constructor(0, 0, 0, /*coNothing*/co); 
 }
+
 TDialog::TDialog(uint resID, DialogPreProcFunc dlgPreFunc, void * extraPtr) : TWindow(TRect())
-	{ Helper_Constructor(resID, dlgPreFunc, extraPtr, coNothing); }
-TDialog::TDialog(uint resID) : TWindow(TRect()) { Helper_Constructor(resID, 0, 0, coNothing); }
-TDialog::TDialog(uint resID, ConstructorOption co) : TWindow(TRect()) { Helper_Constructor(resID, 0, 0, co); }
+{ 
+	Helper_Constructor(resID, dlgPreFunc, extraPtr, coNothing); 
+}
+
+TDialog::TDialog(uint resID) : TWindow(TRect()) 
+{ 
+	Helper_Constructor(resID, 0, 0, coNothing); 
+}
+
+TDialog::TDialog(uint resID, ConstructorOption co) : TWindow(TRect()) 
+{ 
+	Helper_Constructor(resID, 0, 0, co); 
+}
+
 void TDialog::ToCascade() { DlgFlags |= fCascade; }
 bool FASTCALL TDialog::CheckFlag(long f) const { return LOGIC(DlgFlags & f); }
 

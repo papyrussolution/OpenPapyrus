@@ -1041,16 +1041,20 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 					occurence_flags |= occfWidth;
 				}
 				else if(prop_key == "margin") {
-					if(p_prop->Value.Code != CtmToken::acBoundingBox) {
-						unterm_errcode = PPERR_DL6_PROP_INVMARGINVAL;
-					}
-					else if(occurence_margin & (occsLeft|occsTop|occsRight|occsBottom)) { // @err dup feature
+					if(occurence_margin & (occsLeft|occsTop|occsRight|occsBottom)) { // @err dup feature
 						unterm_errcode = PPERR_DL6_PROP_PMARGINOCCURED;
 					}
-					else {
+					else if(p_prop->Value.Code == CtmToken::acBoundingBox) {
 						alb.Margin.a.Set(p_prop->Value.U.Rect.L.X.Val, p_prop->Value.U.Rect.L.Y.Val);
 						alb.Margin.b.Set(p_prop->Value.U.Rect.R.X.Val, p_prop->Value.U.Rect.R.Y.Val);
 						occurence_margin |= (occsLeft|occsTop|occsRight|occsBottom);
+					}
+					else if(p_prop->Value.Code == T_CONST_REAL) {
+						alb.Margin.Set(static_cast<float>(p_prop->Value.U.FD));
+						occurence_margin |= (occsLeft|occsTop|occsRight|occsBottom);
+					}
+					else {
+						unterm_errcode = PPERR_DL6_PROP_INVMARGINVAL;
 					}
 				}
 				else if(prop_key == "margin_left") {
@@ -1106,16 +1110,20 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 					}
 				}
 				else if(prop_key == "padding") {
-					if(p_prop->Value.Code != CtmToken::acBoundingBox) {
-						unterm_errcode = PPERR_DL6_PROP_INVPADDINGVAL;
-					}
-					else if(occurence_padding & (occsLeft|occsTop|occsRight|occsBottom)) {
+					if(occurence_padding & (occsLeft|occsTop|occsRight|occsBottom)) {
 						unterm_errcode = PPERR_DL6_PROP_PPADDINGOCCURED;
 					}
-					else {
+					else if(p_prop->Value.Code == CtmToken::acBoundingBox) {
 						alb.Padding.a.Set(p_prop->Value.U.Rect.L.X.Val, p_prop->Value.U.Rect.L.Y.Val);
 						alb.Padding.b.Set(p_prop->Value.U.Rect.R.X.Val, p_prop->Value.U.Rect.R.Y.Val);
 						occurence_padding |= (occsLeft|occsTop|occsRight|occsBottom);
+					}
+					else if(p_prop->Value.Code == T_CONST_REAL) {
+						alb.Padding.Set(static_cast<float>(p_prop->Value.U.FD));
+						occurence_padding |= (occsLeft|occsTop|occsRight|occsBottom);
+					}
+					else {
+						unterm_errcode = PPERR_DL6_PROP_INVPADDINGVAL;
 					}
 				}
 				else if(prop_key == "padding_left") {
@@ -1489,6 +1497,22 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 			else {
 				; // @todo Что-то сообщить, наверное, надо
 			}
+			// @v12.3.6 {
+			if(fmt_flags || (occurence_flags & occfFmtPrec)) {
+				long    format = 0;
+				const   int base_type = stbase(te.T.Typ);
+				if(base_type == BTS_REAL) {
+					int   _prec = (occurence_flags & occfFmtPrec) ? fmt_prec : 2;
+					format = MKSFMTD(0, _prec, fmt_flags);
+				}
+				else {
+					format = MKSFMT(0, fmt_flags);
+				}
+				CtmExprConst c;
+				AddConst(static_cast<uint32>(format), &c);
+				p_scope->AddConst(DlScope::cuifViewOutputFormat, c, 1);
+			}
+			// } @v12.3.6 
 		}
 		else {
 			; // @todo @err

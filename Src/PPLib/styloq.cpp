@@ -1808,7 +1808,7 @@ bool StyloQCore::StoragePacket::SetDocStatus_Intermediate(int flags)
 }
 */
 
-int StyloQCore::StoragePacket::GetFace(int tag, StyloQFace & rF) const
+int StyloQCore::StoragePacket::GetFace(uint32 tag, StyloQFace & rF) const
 {
 	rF.Z();
 	int    ok = -1;
@@ -3232,12 +3232,8 @@ int PPObjStyloQBindery::EditFace(PPID id)
 			StyloQFace face_pack;
 			SBinaryChunk bin_chunk;
 			bool    ex_item_got = false;
-			uint32  tag_id = 0;
-			if(oneof2(pack.Rec.Kind, StyloQCore::kClient, StyloQCore::kForeignService))
-				tag_id = SSecretTagPool::tagFace;
-			else 
-				tag_id = SSecretTagPool::tagSelfyFace;
-			if(pack.Pool.Get(tag_id, &bin_chunk)) {
+			const   uint32 face_tag_id = pack.GetFaceTagID();
+			if(pack.Pool.Get(face_tag_id, &bin_chunk)) {
 				if(face_pack.FromJson(bin_chunk.ToRawStr(temp_buf)))
 					ex_item_got = true;
 			}
@@ -3245,7 +3241,7 @@ int PPObjStyloQBindery::EditFace(PPID id)
 				SBinarySet::DeflateStrategy ds(512);
 				THROW(face_pack.ToJson(false, temp_buf));
 				bin_chunk.Put(temp_buf, temp_buf.Len());
-				pack.Pool.Put(tag_id, bin_chunk, &ds);
+				pack.Pool.Put(face_tag_id, bin_chunk, &ds);
 				THROW(P_Tbl->PutPeerEntry(&id, &pack, 1));
 				ok = 1;
 			}
@@ -9849,13 +9845,8 @@ bool PPStyloQInterchange::GetBlobInfo(const SBinaryChunk & rOwnIdent, PPObjID oi
 	if(oid.Obj == PPOBJ_STYLOQBINDERY) {
 		StyloQCore::StoragePacket pack;
 		if(P_T->GetPeerEntry(oid.Id, &pack) > 0) {
-			int face_tag_id = 0;
-			if(oneof2(pack.Rec.Kind, StyloQCore::kClient, StyloQCore::kForeignService))
-				face_tag_id = SSecretTagPool::tagFace;
-			else
-				face_tag_id = SSecretTagPool::tagSelfyFace;
 			StyloQFace face_pack;
-			if(pack.GetFace(face_tag_id, face_pack) > 0) {
+			if(pack.GetFace(pack.GetFaceTagID(), face_pack) > 0) {
 				int    img_format = 0;
 				if(face_pack.Get(StyloQFace::tagImage, 0, temp_buf) > 0) {
 					SString fmt_buf;

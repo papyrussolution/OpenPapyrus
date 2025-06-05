@@ -5,6 +5,37 @@
 #include <slib-internal.h>
 #pragma hdrstop
 //
+//
+//
+SBrowserDataProcBlock::SBrowserDataProcBlock() : ExtraPtr(0), ColumnN(0), TypeID(0), P_SrcData(0), DestBufSize(0), Color(0), P_DestData(0)
+{
+}
+
+SBrowserDataProcBlock & SBrowserDataProcBlock::Z()
+{
+	ExtraPtr = 0;
+	ColumnN = 0;
+	TypeID = 0;
+	P_SrcData = 0;
+	DestBufSize = 0;
+	Color = 0;
+	P_DestData = 0;
+	TempBuf.Z();
+	return *this;
+}
+
+SBrowserDataProcBlock & SBrowserDataProcBlock::Setup(const BroColumn & rC, const void * pSrcData, void * pDestBuf, size_t destBufSize, void * extraPtr)
+{
+	Z();
+	ExtraPtr = extraPtr;
+	ColumnN   = rC.Offs;
+	TypeID    = rC.T;
+	P_SrcData = pSrcData;
+	P_DestData = pDestBuf;
+	DestBufSize = destBufSize; // @v12.3.6
+	return *this;
+}
+
 void   SBrowserDataProcBlock::SetZero() { PTR8(P_DestData)[0] = 0; }
 void   FASTCALL SBrowserDataProcBlock::Set(int32 i) { *static_cast<int32 *>(P_DestData) = i; }
 void   SBrowserDataProcBlock::Set(double r) { *static_cast<double *>(P_DestData) = r; }
@@ -234,21 +265,16 @@ uint BrowserDef::groupWidth(const BroGroup * pGroup, uint atColumn) const
 uint BrowserDef::groupWidth(uint grpN, uint atColumn) const { return groupWidth(P_Groups + grpN, atColumn); }
 void BrowserDef::setViewHight(int newHight) { viewHight = newHight; }
 
-int BrowserDef::GetCellData(const void * pRow, int column, TYPEID * pType, void * pDataBuf, size_t dataBufLen)
+int BrowserDef::GetCellData(const void * pRowData, int column, TYPEID * pType, void * pDataBuf, size_t dataBufLen)
 {
 	int    ok = 0;
-	const char * p_src_data = static_cast<const char *>(pRow);
+	const char * p_src_data = static_cast<const char *>(pRowData);
 	if(p_src_data && column >= 0 && column < static_cast<int>(getCount())) {
 		const  BroColumn & c = at(column);
 		int    r = 1;
 		char   dest_data[1024];
 		const  char * p_final_data = dest_data;
-		DpB.ExtraPtr = ExtraPtr;
-		DpB.ColumnN   = c.Offs;
-		DpB.TypeID    = c.T;
-		DpB.P_SrcData = p_src_data;
-		DpB.Color     = 0;
-		DpB.P_DestData = dest_data;
+		DpB.Setup(c, p_src_data, dest_data, sizeof(dest_data), ExtraPtr);
 		if(c.Options & BCO_USERPROC) {
 			if(UserProc)
 				r = UserProc(&DpB);
@@ -261,7 +287,7 @@ int BrowserDef::GetCellData(const void * pRow, int column, TYPEID * pType, void 
 			p_final_data = p_src_data + c.Offs;
 		TYPEID typ = DpB.TypeID;
 		memcpy(pDataBuf, p_final_data, MIN(dataBufLen, stsize(typ)));
-		ASSIGN_PTR(pType, typ); // @v10.6.3 @fix
+		ASSIGN_PTR(pType, typ);
 		ok = 1;
 	}
 	return ok;
@@ -281,14 +307,9 @@ char * BrowserDef::getText(long row, int column, char * pBuf)
 			if(p_src_data) {
 				const  BroColumn & c = at(column);
 				int    r = 1;
-				char   dest_data[1024]; // @v10.6.3 [256]-->[1024]
+				char   dest_data[1024];
 				const  void * p_bin_data = 0;
-				DpB.ExtraPtr  = ExtraPtr;
-				DpB.ColumnN   = c.Offs;
-				DpB.TypeID    = c.T;
-				DpB.P_SrcData = p_src_data;
-				DpB.Color     = 0;
-				DpB.P_DestData = dest_data;
+				DpB.Setup(c, p_src_data, dest_data, sizeof(dest_data), ExtraPtr);
 				if(c.Options & BCO_USERPROC) {
 					if(UserProc)
 						r = UserProc(&DpB);
@@ -299,11 +320,10 @@ char * BrowserDef::getText(long row, int column, char * pBuf)
 					p_bin_data = dest_data;
 				}
 				else {
-					//DpB.P_DestData = p_src_data + c.Offs;
 					p_bin_data = p_src_data + c.Offs;
 				}
 				if(r)
-					sttostr(c.T, /*DpB.P_DestData*/p_bin_data, c.format, pBuf);
+					sttostr(c.T, p_bin_data, c.format, pBuf);
 			}
 		}
 	}
@@ -317,12 +337,7 @@ SString & BrowserDef::getFullText(const void * pRowData, int column, SString & r
 		const  BroColumn & r_c = at(column);
 		int    r = 1;
 		char   dest_data[1024];
-		DpB.ExtraPtr  = ExtraPtr;
-		DpB.ColumnN   = r_c.Offs;
-		DpB.TypeID    = r_c.T;
-		DpB.P_SrcData = pRowData;
-		DpB.Color     = 0;
-		DpB.P_DestData = dest_data;
+		DpB.Setup(r_c, pRowData, dest_data, sizeof(dest_data), ExtraPtr);
 		{
 			const uint8 * p_bin_data = 0;
 			if(r_c.Options & BCO_USERPROC) {
@@ -335,7 +350,6 @@ SString & BrowserDef::getFullText(const void * pRowData, int column, SString & r
 				p_bin_data = PTR8(DpB.P_DestData);
 			}
 			else {
-				//DpB.P_DestData = p_src_data + c.Offs;
 				p_bin_data = PTR8C(pRowData) + r_c.Offs;
 			}
 			if(r) {
@@ -429,12 +443,7 @@ char * BrowserDef::getMultiLinesText(long row, int column, char * pBuf, uint hei
 		const  BroColumn & c = at(column);
 		const void * p_bin_data = 0;
 		int    r = 1;
-		DpB.ExtraPtr  = ExtraPtr;
-		DpB.ColumnN   = c.Offs;
-		DpB.TypeID    = c.T;
-		DpB.P_SrcData = p_src_data;
-		DpB.Color     = 0;
-		DpB.P_DestData = ptr;
+		DpB.Setup(c, p_src_data, ptr, sizeof(ptr), ExtraPtr);
 		if(c.Options & BCO_USERPROC) {
 			if(UserProc)
 				r = UserProc(&DpB);
@@ -445,11 +454,10 @@ char * BrowserDef::getMultiLinesText(long row, int column, char * pBuf, uint hei
 			p_bin_data = ptr;
 		}
 		else {
-			//DpB.P_DestData = p_src_data + c.Offs;
 			p_bin_data = p_src_data + c.Offs;
 		}
 		if(r) {
-			sttostr(c.T, /*DpB.P_DestData*/p_bin_data, c.format, buf);
+			sttostr(c.T, p_bin_data, c.format, buf);
 			if((heightMult > 1 || pCalcHeight) && c.Options & BCO_RESIZEABLE) {
 				uint   text_height = 0;
 				strip(buf);

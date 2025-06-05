@@ -612,6 +612,10 @@ int PPObjQuotKind::PutPacket(PPID * pID, PPQuotKindPacket * pPack, int use_ta)
 					THROW(P_Ref->UtrC.SetText(TextRefIdent(Obj, *pID, PPTRPROP_QUOTKIND), ext_buffer.Transf(CTRANSF_INNER_TO_UTF8), 0));
 					// } @v12.0.10 
 				}
+				// @v12.3.6 {
+				else
+					ok = -1;
+				// } @v12.3.6 
 			}
 			else {
 				THROW(CheckRights(PPR_DEL));

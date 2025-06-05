@@ -2723,6 +2723,7 @@ struct LTIME { // @size=4
 	DECL_INVARIANT_C();
 	operator unsigned long() const { return v; }
 	operator OleDate() const;
+	OleDate GetOleDate() const;
 	LTIME  Z() { v = 0; return *this; }
 	LTIME  operator = (OleDate);
 	LTIME  operator = (double); // OleDate
@@ -2837,6 +2838,7 @@ struct LDATETIME {
 	bool   FASTCALL operator > (const LDATETIME & s) const;
 	operator LDATE () const { return d; }
 	operator OleDate() const;
+	OleDate GetOleDate() const;
 	LDATETIME FASTCALL operator = (OleDate);
 	LDATETIME & Set(LDATE _d, LTIME _t);
 	LDATETIME & Z();
@@ -5577,8 +5579,8 @@ void   STDCALL  encodedate(int, int, int, void *);
 void   STDCALL  decodedate(int *, int *, int *, const void *);
 void   STDCALL  decode_fat_datetime(uint16 fd, uint16 ft, LDATETIME *);
 void   STDCALL  encode_fat_datetime(uint16 * fd, uint16 * ft, const LDATETIME *);
-bool   FASTCALL IsLeapYear_Gregorian(int y);
-inline bool IsLeapYear_Julian(uint y) { return ((y % 4) == 0); }
+inline constexpr bool FASTCALL IsLeapYear_Gregorian(int y) { return ((y % 4) == 0 && ((y % 100) != 0 || (y % 400) == 0)); }
+inline constexpr bool FASTCALL IsLeapYear_Julian(uint y) { return ((y % 4) == 0); }
 int    FASTCALL checkdate(const void * pBinDate);
 //
 // Descr: Проверяет корректность даты dt. Если dt == ZERODATE и параметр zeroIsOk != 0,

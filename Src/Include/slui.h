@@ -23,6 +23,7 @@ class  WordSelector;
 class  SrDatabase;
 struct TDrawItemData;
 class  TWhatman;
+struct BroColumn;
 //
 // Макросы для блокировки локальных участков кода для предотвращения повторного 
 // вхождения по причине того, что код на этом участке может неявно генерировать события, инициирующие
@@ -3632,6 +3633,8 @@ struct UiItemKind { // @transient
 };
 
 class TDialog : public TWindow {
+	friend class PPDialogConstructor; // @v12.3.6 Этот класс получает доступ к внутренним полям и методам TDialog поскольку это необходимо
+		// для создания экземпляра класса TDialog с использованием инфраструктуры DL600, которая находится на уровне проекта Papyrus.
 public:
 	//
 	// Descr: Флаги функции TDialog::LoadDialog
@@ -3666,10 +3669,10 @@ public:
 	static  void centerDlg(HWND);
 	int     SetCtrlToolTip(uint ctrlID, const char * pToolTipText);
 	// @v12.2.4 TDialog(const TRect & rRect, const char * pTitle);
-	TDialog(const char * pTitle, long wbCapability, ConstructorOption co = coNothing); // @v12.2.4
+	TDialog(const char * pTitle, long wbCapability, ConstructorOption co/*= coNothing*/); // @v12.2.4
 	TDialog(uint resID, DialogPreProcFunc, void * extraPtr);
 	explicit TDialog(uint resID);
-	TDialog(uint resID, ConstructorOption); // special constructor.
+	TDialog(uint resID, ConstructorOption co); // special constructor.
 	~TDialog();
 	virtual int    TransmitData(int dir, void * pData);
 	// @v12.2.6 virtual int    FASTCALL valid(ushort command);
@@ -3787,7 +3790,6 @@ protected:
 		}
 		SString FontFace;
 		int   FontSize;
-		//TRect Bounds;
 	};
 
 	int    BuildEmptyWindow(const BuildEmptyWindowParam * pParam); // @v12.2.5
@@ -5373,6 +5375,9 @@ private:
 #define CLASSNAME_DESKTOPWINDOW "PPYDESKTOPWINDOW"
 
 struct SBrowserDataProcBlock {
+	SBrowserDataProcBlock();
+	SBrowserDataProcBlock & Z();
+	SBrowserDataProcBlock & Setup(const BroColumn & rC, const void * pSrcData, void * pDestBuf, size_t destBufSize, void * extraPtr);
 	void   SetZero();
 	void   FASTCALL Set(int32 i);
 	void   Set(double i);
@@ -5386,6 +5391,7 @@ struct SBrowserDataProcBlock {
 	int    ColumnN;          // IN
 	TYPEID TypeID;           // IN
 	const  void * P_SrcData; // IN
+	uint   DestBufSize;      // @v12.3.6 IN Размер буфера для получения данных, на который указывает P_DestData
 	uint32 Color;            // OUT
 	void * P_DestData;       // OUT
 	SString TempBuf;         // @allocreuse Может использоваться реализацией функции SBrowserDataProc для ускорения работы
@@ -5465,7 +5471,7 @@ public:
 	const  BroGroup * groupOf(uint column, uint * pGrpPos = 0) const;
 	uint   groupWidth(uint group, uint atColumn) const;
 	uint   groupWidth(const BroGroup *, uint atColumn) const;
-	int    GetCellData(const void * pRow, int column, TYPEID * pType, void * pDataBuf, size_t dataBufLen);
+	int    GetCellData(const void * pRowData, int column, TYPEID * pType, void * pDataBuf, size_t dataBufLen);
 	int    GetCellData(long row, int column, TYPEID * pType, void * pDataBuf, size_t dataBufLen);
 	char * getText(long row, int column, char * pBuf);
 	//

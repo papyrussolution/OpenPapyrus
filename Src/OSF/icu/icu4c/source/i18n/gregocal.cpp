@@ -356,10 +356,7 @@ void GregorianCalendar::handleComputeFields(int32_t julianDay, UErrorCode & stat
 	internalSet(UCAL_YEAR, eyear);
 }
 
-UDate GregorianCalendar::getGregorianChange() const
-{
-	return fGregorianCutover;
-}
+UDate GregorianCalendar::getGregorianChange() const { return fGregorianCutover; }
 
 bool GregorianCalendar::isLeapYear(int32_t year) const
 {

@@ -6534,6 +6534,7 @@ public:
 	SCodepageIdent DL600XmlCp;   // Кодовая страница для стандартного экспорта DL600 в XML
 	DlContext * P_ExpCtx;        // Контекст экспортных структур данных
 	DlContext * P_IfcCtx;        // Контекст COM-интерфейсов
+	DlContext * P_UiViewCtx;     // @v12.3.6 @construction Контекст описания диалогов и прочих объектов UI в формате DL600
 	//
 	// Далее идут поля, типы данных которых имеют конструкторы
 	//
@@ -7417,10 +7418,14 @@ public:
 		ldsCanUnload = 3
 	};
 	int    LockingDllServer(int cmd);
+	//
+	// Descr: Перечисление внутренних идентификаторов контекстов DL600, возвращаемых функцией GetInterfaceContext()
+	//
 	enum {
 		ctxtExportData = 1,
 		ctxtInterface,
-		ctxDatabase
+		ctxDatabase,
+		ctxUiView // @v12.3.6 @construction Контекст описаний диалогов и других объектов пользовательского интерфеса в формате DL600
 	};
 	//
 	// Descr: Возвращает контекст управления интерфейсными структурами или интерфейсными
@@ -20220,15 +20225,16 @@ struct PPBizScore2 { // @v11.9.0 @construction
 	long   AccSheetID;          //
 };
 
-struct PPBizScore2Packet {
+struct PPBizScore2Packet : public PPExtStrContainer {
 	enum {
 		extssDescr   = 1,
 		extssMemo    = 2,
 		extssFormula = 3,
 	};
 	PPBizScore2 Rec;
-	SStrGroup StrPool; // Пул строковых полей
 };
+
+#define PPTRPROP_BIZSCORE2  (PPTRPROP_USER+1) // @v12.3.6 Строки расширения бизнес-показателя II
 
 class PPObjBizScore2 : public PPObjReference { // @v11.9.1 @construction
 public:
@@ -20236,12 +20242,14 @@ public:
 	~PPObjBizScore2();
 	virtual int  Edit(PPID * pID, void * extraPtr /*userID*/);
 	virtual int  Browse(void * extraPtr /*userID*/);
+	int    IsPacketEq(const PPBizScore2Packet & rS1, const PPBizScore2Packet & rS2, long flags);
 	int    GetPacket(PPID id, PPBizScore2Packet * pPack);
 	int    PutPacket(PPID * pID, PPBizScore2Packet * pPack, int use_ta);
 	int    Fetch(PPID id, PPBizScore2Packet * pRec);
 	int    ValidateValuePacket(const BizScore2ValuePacket * pValuePack);
 	int    EditValuePacketDialog(BizScore2ValuePacket * pValuePack);
 private:
+	virtual int  RemoveObjV(PPID id, ObjCollection * pObjColl, uint options/* = rmv_default*/, void * pExtraParam);
 	StrAssocArray * MakeStrAssocList(void * extraPtr);
 	virtual void * CreateObjListWin(uint flags, void * extraPtr);
 };
@@ -20343,9 +20351,7 @@ struct BizScoreValTotal {
 };
 
 struct BzsVal { // @v12.1.6 
-	BzsVal() : Bzsi(0), Val(0.0)
-	{
-	}
+	BzsVal();
 	long   Bzsi;
 	double Val;
 };
@@ -48381,7 +48387,14 @@ public:
 		bool   IsValid() const;
 		bool   SetDocStatus(int styloqDocStatus);
 		int    GetDocStatus() const;
-		int    GetFace(int tag, StyloQFace & rF) const;
+		//
+		// Descr: Возвращает идентификатор лика в пуле пакета в зависимости от типа пакета.
+		//
+		uint32 GetFaceTagID() const 
+		{
+			return oneof2(Rec.Kind, kClient, kForeignService) ? SSecretTagPool::tagFace : SSecretTagPool::tagSelfyFace;
+		}
+		int    GetFace(uint32 tag, StyloQFace & rF) const;
 		const  uint32 Signature; // @v11.6.0 @transient сигнатура экземпляра для верификации корректности указателя, передаваемого как (void *)
 		StyloQSecTbl::Rec Rec;
 		SSecretTagPool Pool;

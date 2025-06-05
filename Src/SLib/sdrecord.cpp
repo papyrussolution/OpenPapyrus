@@ -1,5 +1,5 @@
 // SDRECORD.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -22,7 +22,7 @@ SdbField & SdbField::Z()
 	Name.Z();
 	Descr.Z();
 	OuterFormula.Z();
-	InnerFormula.Z(); // @v10.9.1
+	InnerFormula.Z();
 	return *this;
 }
 
@@ -36,7 +36,7 @@ bool FASTCALL SdbField::IsEq(const SdbField & rPat) const
 	THROW(Name == rPat.Name);
 	THROW(Descr == rPat.Descr);
 	THROW(OuterFormula == rPat.OuterFormula);
-	THROW(InnerFormula == rPat.InnerFormula); // @v10.9.1
+	THROW(InnerFormula == rPat.InnerFormula);
 	CATCHZOK
 	return ok;
 }
@@ -121,8 +121,8 @@ struct ReList {
 	}
 	SRegExp2 ReSize[3];
 	SRegExp2 ReSymb;
-	SRegExp2 ReQuotedSymb;  // @v10.9.1
-	SRegExp2 ReFormula;     // @v10.9.1   
+	SRegExp2 ReQuotedSymb;
+	SRegExp2 ReFormula;
 };
 
 static int GetNextToken(SStrScan & rScan, ReList & rRl, long * pVal, SString & rBuf)
