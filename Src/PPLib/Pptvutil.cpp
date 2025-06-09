@@ -8367,24 +8367,169 @@ IMPL_DIALOG_GETDTS(ExtStrContainerListDialog)
 //
 class PPDialogConstructor {
 public:
-	PPDialogConstructor(TDialog * pDlg, DlContext & rCtx, const char * pSymb)
+	PPDialogConstructor(TDialog * pDlg, DlContext & rCtx, const char * pSymb) : Status(0)
 	{
 		Build(pDlg, rCtx, pSymb);
 	}
+	PPDialogConstructor(TDialog * pDlg, DlContext & rCtx, uint symbId) : Status(0)
+	{
+		Build(pDlg, rCtx, symbId);
+	}
+	PPDialogConstructor(TDialog * pDlg, DlContext & rCtx, const DlScope * pScope) : Status(0)
+	{
+		Build(pDlg, rCtx, pScope);
+	}
+	bool   operator !() const { return LOGIC(Status & stError); }
 private:
 	enum {
 		insertctrlstagePreprocess = 1,
 		insertctrlstageMain = 2,
 		insertctrlstagePostprocess = 3,
 	};
+	void   Build(TDialog * pDlg, DlContext & rCtx, const DlScope * pScope);
+	void   Build(TDialog * pDlg, DlContext & rCtx, const char * pSymb);
+	void   Build(TDialog * pDlg, DlContext & rCtx, uint viewId);
 	void   InsertControlItems(TDialog * pDlg, DlContext & rCtx, const DlScope & rParentScope, uint & rLastDynId, int stage);
 	void   InsertControlLayouts(TDialog * pDlg, DlContext & rCtx, const DlScope & rParentScope, SUiLayout * pLoParent);
-	void   Build(TDialog * pDlg, DlContext & rCtx, const char * pSymb);
 	static void __stdcall SetupLayoutItemFrameProc(SUiLayout * pItem, const SUiLayout::Result & rR);
 	SUiLayout * InsertCtrlLayout(TDialog * pDlg, SUiLayout * pLoParent, TView * pView, const SUiLayoutParam & rP);
 	SUiLayout * InsertCtrlLayout(TDialog * pDlg, SUiLayout * pLoParent, ushort ctlId, const SUiLayoutParam & rP);
 	long   GetScopeID(const DlScope * pScope) const { return pScope ? (pScope->ID + 2000) : 0; }
+
+	enum {
+		stError         = 0x0001,
+		stScopeNotFound = 0x0002 // Дополнительный признак, означающий, что по переданному символу или идентификатору область определения диалога не найдена.
+	};
+	uint   Status;
 };
+
+void PPDialogConstructor::Build(TDialog * pDlg, DlContext & rCtx, const char * pSymb)
+{
+	if(pDlg && !isempty(pSymb)) {
+		const DlScope * p_scope = rCtx.GetScopeByName_Const(DlScope::kUiView, pSymb);
+		if(p_scope) {
+			Build(pDlg, rCtx, p_scope);
+		}
+		else {
+			Status |= (stError | stScopeNotFound);
+		}
+	}
+	else
+		Status |= stError;
+	
+}
+
+void PPDialogConstructor::Build(TDialog * pDlg, DlContext & rCtx, uint viewId)
+{
+	if(pDlg && viewId) {
+		const DlScope * p_scope = rCtx.GetDialogScopeBySymbolIdent_Const(viewId);
+		if(p_scope) {
+			Build(pDlg, rCtx, p_scope);
+		}
+		else {
+			Status |= (stError | stScopeNotFound);
+		}
+	}
+	else
+		Status |= stError;
+}
+
+void PPDialogConstructor::Build(TDialog * pDlg, DlContext & rCtx, const DlScope * pScope)
+{
+	if(pDlg && pScope && pScope->IsKind(DlScope::kUiView)) {
+		TDialog::BuildEmptyWindowParam bew_param;
+		char   c_buf[1024];
+		SString temp_buf;
+		SUiLayoutParam __alb;
+		const SUiLayoutParam * p_alb = rCtx.GetLayoutBlock(pScope, DlScope::cuifLayoutBlock, &__alb) ? &__alb : 0;
+		{
+			CtmExprConst __c = pScope->GetConst(DlScope::cuifCtrlText);
+			if(!!__c) {
+				if(rCtx.GetConstData(__c, c_buf, sizeof(c_buf))) {
+					temp_buf = reinterpret_cast<const char *>(c_buf);
+					pDlg->setTitle(temp_buf);
+				}
+			}
+		}
+		{
+			FRect rect;
+			const uint gnrr = p_alb ? p_alb->GetNominalRect(rect) : 0;
+			if(rect.Width() <= 0.0f) {
+				rect.b.x = rect.a.x + 60.0f;
+			}
+			if(rect.Height() <= 0.0f) {
+				rect.b.y = rect.a.y + 60.0f;
+			}
+			pDlg->setBounds(rect);
+		}
+		{
+			{
+				CtmExprConst __c = pScope->GetConst(DlScope::cuifFont);
+				if(!!__c) {
+					if(rCtx.GetConstData(__c, c_buf, sizeof(c_buf))) {
+						bew_param.FontFace = reinterpret_cast<const char *>(c_buf);
+					}
+				}
+			}
+			{
+				CtmExprConst __c = pScope->GetConst(DlScope::cuifFontSize);
+				if(!!__c) {
+					if(rCtx.GetConstData(__c, c_buf, sizeof(c_buf))) {
+						double font_size_real = *reinterpret_cast<const double *>(c_buf);
+						bew_param.FontSize = static_cast<int>(font_size_real);
+					}
+				}
+			}
+			if(temp_buf.NotEmpty()) {
+			}
+		}
+		pDlg->BuildEmptyWindow(&bew_param);
+		//
+		{
+			const int container_direc = p_alb ? p_alb->GetContainerDirection() : DIREC_UNKN;
+			SUiLayout * p_lo_main = 0;
+			if(oneof2(container_direc, DIREC_HORZ, DIREC_VERT)) {
+				p_lo_main = new SUiLayout(*p_alb);
+				p_lo_main->SetID(GetScopeID(pScope));
+				p_lo_main->SetSymb(pScope->GetName());
+			}
+			pDlg->SetLayout(p_lo_main);
+			{
+				//
+				// Далее, мы должны вставить управляющие элементы в созданое окно диалога
+				//
+				uint last_dyn_id = 20000; 
+				// (@unused) InsertControlItems(rCtx, *pScope, last_dyn_id, insertctrlstagePreprocess);
+				InsertControlItems(pDlg, rCtx, *pScope, last_dyn_id, insertctrlstageMain);
+				InsertControlItems(pDlg, rCtx, *pScope, last_dyn_id, insertctrlstagePostprocess);
+			}
+			InsertControlLayouts(pDlg, rCtx, *pScope, p_lo_main); // Теперь расставляем layout'ы
+		}
+		{
+			HWND h_wnd = pDlg->H();
+			{
+				TWindow::CreateBlock cr_blk;
+				MEMSZERO(cr_blk);
+				RECT cr;
+				::GetClientRect(h_wnd, &cr);
+				cr_blk.Coord = cr;
+				cr_blk.Param = this;
+				cr_blk.H_Process = 0;
+				cr_blk.Style = 0;
+				cr_blk.ExStyle = 0;
+				cr_blk.H_Parent = 0;
+				cr_blk.H_Menu = 0;
+				cr_blk.P_WndCls = 0;
+				cr_blk.P_Title = 0;
+				TView::messageCommand(pDlg, cmInit, &cr_blk);
+			}
+			pDlg->SetupCtrlTextProc(h_wnd, 0);
+			pDlg->InitControls(h_wnd, 0/*wParam*/, reinterpret_cast<LPARAM>(this));
+			EnumChildWindows(h_wnd, pDlg->SetupCtrlTextProc, 0);				
+		}
+		pDlg->EvaluateLayout(pDlg->getClientRect());
+	}
+}
 
 /*static*/void __stdcall PPDialogConstructor::SetupLayoutItemFrameProc(SUiLayout * pItem, const SUiLayout::Result & rR)
 {
@@ -8873,104 +9018,6 @@ void PPDialogConstructor::InsertControlLayouts(TDialog * pDlg, DlContext & rCtx,
 		}
 	}
 }
-
-void PPDialogConstructor::Build(TDialog * pDlg, DlContext & rCtx, const char * pSymb)
-{
-	const DlScope * p_scope = rCtx.GetScopeByName_Const(DlScope::kUiView, pSymb);
-	if(p_scope) {
-		TDialog::BuildEmptyWindowParam bew_param;
-		char   c_buf[1024];
-		SString temp_buf;
-		SUiLayoutParam __alb;
-		const SUiLayoutParam * p_alb = rCtx.GetLayoutBlock(p_scope, DlScope::cuifLayoutBlock, &__alb) ? &__alb : 0;
-		{
-			CtmExprConst __c = p_scope->GetConst(DlScope::cuifCtrlText);
-			if(!!__c) {
-				if(rCtx.GetConstData(__c, c_buf, sizeof(c_buf))) {
-					temp_buf = reinterpret_cast<const char *>(c_buf);
-					pDlg->setTitle(temp_buf);
-				}
-			}
-		}
-		{
-			FRect rect;
-			const uint gnrr = p_alb ? p_alb->GetNominalRect(rect) : 0;
-			if(rect.Width() <= 0.0f) {
-				rect.b.x = rect.a.x + 60.0f;
-			}
-			if(rect.Height() <= 0.0f) {
-				rect.b.y = rect.a.y + 60.0f;
-			}
-			pDlg->setBounds(rect);
-		}
-		{
-			{
-				CtmExprConst __c = p_scope->GetConst(DlScope::cuifFont);
-				if(!!__c) {
-					if(rCtx.GetConstData(__c, c_buf, sizeof(c_buf))) {
-						bew_param.FontFace = reinterpret_cast<const char *>(c_buf);
-					}
-				}
-			}
-			{
-				CtmExprConst __c = p_scope->GetConst(DlScope::cuifFontSize);
-				if(!!__c) {
-					if(rCtx.GetConstData(__c, c_buf, sizeof(c_buf))) {
-						double font_size_real = *reinterpret_cast<const double *>(c_buf);
-						bew_param.FontSize = static_cast<int>(font_size_real);
-					}
-				}
-			}
-			if(temp_buf.NotEmpty()) {
-			}
-		}
-		pDlg->BuildEmptyWindow(&bew_param);
-		//
-		{
-			const int container_direc = p_alb ? p_alb->GetContainerDirection() : DIREC_UNKN;
-			SUiLayout * p_lo_main = 0;
-			if(oneof2(container_direc, DIREC_HORZ, DIREC_VERT)) {
-				p_lo_main = new SUiLayout(*p_alb);
-				p_lo_main->SetID(GetScopeID(p_scope));
-				p_lo_main->SetSymb(p_scope->GetName());
-			}
-			pDlg->SetLayout(p_lo_main);
-			{
-				//
-				// Далее, мы должны вставить управляющие элементы в созданое окно диалога
-				//
-				uint last_dyn_id = 20000; 
-				// (@unused) InsertControlItems(rCtx, *p_scope, last_dyn_id, insertctrlstagePreprocess);
-				InsertControlItems(pDlg, rCtx, *p_scope, last_dyn_id, insertctrlstageMain);
-				InsertControlItems(pDlg, rCtx, *p_scope, last_dyn_id, insertctrlstagePostprocess);
-			}
-			InsertControlLayouts(pDlg, rCtx, *p_scope, p_lo_main); // Теперь расставляем layout'ы
-		}
-		{
-			HWND h_wnd = pDlg->H();
-			{
-				TWindow::CreateBlock cr_blk;
-				MEMSZERO(cr_blk);
-				RECT cr;
-				::GetClientRect(h_wnd, &cr);
-				cr_blk.Coord = cr;
-				cr_blk.Param = this;
-				cr_blk.H_Process = 0;
-				cr_blk.Style = 0;
-				cr_blk.ExStyle = 0;
-				cr_blk.H_Parent = 0;
-				cr_blk.H_Menu = 0;
-				cr_blk.P_WndCls = 0;
-				cr_blk.P_Title = 0;
-				TView::messageCommand(pDlg, cmInit, &cr_blk);
-			}
-			pDlg->SetupCtrlTextProc(h_wnd, 0);
-			pDlg->InitControls(h_wnd, 0/*wParam*/, reinterpret_cast<LPARAM>(this));
-			EnumChildWindows(h_wnd, pDlg->SetupCtrlTextProc, 0);				
-		}
-		pDlg->EvaluateLayout(pDlg->getClientRect());
-	}
-}
 //
 //
 //
@@ -8981,6 +9028,53 @@ public:
 		PPDialogConstructor ctr(this, rCtx, pSymb);
 	}
 };
+
+//typedef int (*InitializeDialogFunc)(TDialog * pThis, const void * pIdent, void * extraPtr); // @v12.3.6
+int PPInitializeDialogFunc(TDialog * pThis, const void * pIdent, void * extraPtr) // @v12.3.6 @construction
+{
+	int    ok = -1;
+	if(SlDebugMode::CT()) {
+		const DlScope * p_scope = 0;
+		DlContext * p_ctx = 0;
+		if(pIdent) {
+			size_t ident_len = strnlen(static_cast<const char *>(pIdent), 128);
+			if(sisascii(static_cast<const char *>(pIdent), ident_len)) {
+				SString ident_buf(static_cast<const char *>(pIdent));
+				if(ident_buf.IsDec()) {
+					uint   id = ident_buf.ToULong();
+					if(id) {
+						p_ctx = DS.GetInterfaceContext(PPSession::ctxUiViewLocal);
+						if(p_ctx) {
+							p_scope = p_ctx->GetDialogScopeBySymbolIdent_Const(id);
+						}
+						if(!p_scope) {
+							p_ctx = DS.GetInterfaceContext(PPSession::ctxUiView);
+							if(p_ctx)
+								p_scope = p_ctx->GetDialogScopeBySymbolIdent_Const(id);
+						}
+					}
+				}
+				else {
+					p_ctx = DS.GetInterfaceContext(PPSession::ctxUiViewLocal);
+					if(p_ctx) {
+						p_scope = p_ctx->GetScopeByName_Const(DlScope::kUiView, ident_buf);
+					}
+					if(!p_scope) {
+						p_ctx = DS.GetInterfaceContext(PPSession::ctxUiView);
+						if(p_ctx)
+							p_scope = p_ctx->GetScopeByName_Const(DlScope::kUiView, ident_buf);
+					}
+				}
+				if(p_scope) {
+					assert(p_ctx);
+					PPDialogConstructor ctr(pThis, *p_ctx, p_scope);
+					ok = 1;
+				}
+			}
+		}
+	}
+	return ok;
+}
 
 int Test_ExecuteDialogByDl600Description() // @construction
 {

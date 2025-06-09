@@ -8,7 +8,6 @@
 #include <string_view>
 #include <any>
 #include <variant>
-
 #include <../osf/pugixml/pugixml.hpp>
 //
 #ifdef _MSC_VER // conditionally enable MSVC specific pragmas to avoid other compilers warning about unknown pragmas
@@ -19,8 +18,8 @@
 	//
 	//#include "XLConstants.hpp"
 	namespace OpenXLSX {
-		inline constexpr uint16 MAX_COLS = 16'384;
-		inline constexpr uint32 MAX_ROWS = 1'048'576;
+		inline constexpr uint16 MAX_COLS = 16384;
+		inline constexpr uint32 MAX_ROWS = 1048576;
 		// anchoring a comment shape below these values was not possible in LibreOffice - TBC with MS Office
 		inline constexpr uint16 MAX_SHAPE_ANCHOR_COLUMN = 13067;      // column "SHO"
 		inline constexpr uint32 MAX_SHAPE_ANCHOR_ROW    = 852177;
@@ -238,18 +237,21 @@
 			// explicit OpenXLSX_xml_node(base b) : pugi::xml_node(b), name_begin(0) // TBD on explicit keyword
 			OpenXLSX_xml_node(base b) : pugi::xml_node(b), name_begin(0)
 			{
-				if(NO_XML_NS)  return;
+				if(NO_XML_NS)  
+					return;
 				const char * name = xml_node::name();
 				int pos = 0;
-				while(name[pos] && name[pos] != ':')  ++pos;// find name delimiter
-				if(name[pos] == ':')  name_begin = pos + 1;// if delimiter was found: update name_begin to point behind that position
+				while(name[pos] && name[pos] != ':')  
+					++pos;// find name delimiter
+				if(name[pos] == ':')
+					name_begin = pos + 1;// if delimiter was found: update name_begin to point behind that position
 			}
 			/**
 			 * @brief Strip any namespace from name_
 			 * @param name_ A node name which may be prefixed with any namespace like so "namespace:nodename"
 			 * @return The name_ stripped of a namespace prefix
 			 */
-			const pugi::char_t* name_without_namespace(const pugi::char_t* name_) const;
+			const pugi::char_t * name_without_namespace(const pugi::char_t* name_) const;
 			/**
 			 * @brief add this node's namespace to name_
 			 * @param name_ a node name which shall be prefixed with this node's current namespace
@@ -633,7 +635,7 @@
 			return lhs.alpha() == rhs.alpha() && lhs.red() == rhs.red() && lhs.green() == rhs.green() && lhs.blue() == rhs.blue();
 		}
 
-		inline bool operator!=(const XLColor& lhs, const XLColor& rhs) { return !(lhs == rhs); }
+		inline bool operator != (const XLColor& lhs, const XLColor& rhs) { return !(lhs == rhs); }
 		//
 		//#include "XLXmlFile.hpp"
 		class XLXmlData;
@@ -749,9 +751,9 @@
 		constexpr const XLStyleIndex XLInvalidStyleIndex = XLInvalidUInt32;        // as a function return value, indicates no valid index
 
 		constexpr const uint32 XLDefaultFontSize       = 12;           //
-		constexpr const char *   XLDefaultFontColor      = "ff000000"; // default font color
-		constexpr const char *   XLDefaultFontColorTheme = "";         // TBD what this means / how it is used
-		constexpr const char *   XLDefaultFontName       = "Arial";    //
+		constexpr const char * XLDefaultFontColor      = "ff000000"; // default font color
+		constexpr const char * XLDefaultFontColorTheme = "";         // TBD what this means / how it is used
+		constexpr const char * XLDefaultFontName       = "Arial";    //
 		constexpr const uint32 XLDefaultFontFamily     = 0;            // TBD what this means / how it is used
 		constexpr const uint32 XLDefaultFontCharset    = 1;            // TBD what this means / how it is used
 		constexpr const char * XLDefaultLineStyle = "";     // empty string = line not set
@@ -2391,7 +2393,16 @@
 		/**
 		 * @brief Enum defining the valid value types for a an Excel spreadsheet cell.
 		 */
-		enum class XLValueType { Empty, Boolean, Integer, Float, Error, String };
+		enum class XLValueType { 
+			Empty, 
+			Boolean, 
+			Integer, 
+			Float, 
+			Error, 
+			String 
+		};
+
+		std::string GetValueTypeSymb(XLValueType typ); // @sobolev
 		//
 		// Private Struct to enable XLValueType conversion to double
 		//
@@ -2401,18 +2412,7 @@
 			double operator()(double v) const { return v; }
 			double operator()(bool v) const { return v; }
 			// double operator()( struct timestamp v ) { /* to be implemented if this type ever gets supported */ }
-			double operator()(std::string v) const 
-			{
-				throw XLValueTypeError("string is not convertible to double."); // disable if implicit conversion of string to double shall be allowed
-				size_t pos;
-				double dVal = stod(v, &pos);
-				while(v[pos] == ' ' || v[pos] == '\t')  
-					++pos; // skip over potential trailing whitespaces
-				// NOTE: std::string zero-termination is guaranteed, so the above loop will halt
-				if(pos != v.length())
-					throw XLValueTypeError("string is not convertible to double."); // throw if the *full value* does not convert to double
-				return dVal;
-			}
+			double operator()(std::string v) const;
 		};
 		//
 		// Private Struct to enable XLValueType conversion to std::string
@@ -2605,12 +2605,15 @@
 			 */
 			double getDouble() const 
 			{
-				if(m_type == XLValueType::Error)  return static_cast<double>(std::nan("1"));
-				try {
-					return std::visit(VisitXLCellValueTypeToDouble(), m_value);
-				}
-				catch(...) {
-					throw XLValueTypeError("XLCellValue object is not convertible to double.");
+				if(m_type == XLValueType::Error)
+					return static_cast<double>(std::nan("1"));
+				else {
+					try {
+						return std::visit(VisitXLCellValueTypeToDouble(), m_value);
+					}
+					catch(...) {
+						throw XLValueTypeError("XLCellValue object is not convertible to double.");
+					}
 				}
 			}
 			/**
@@ -2715,10 +2718,10 @@
 				}
 				if constexpr(std::is_same_v<T, XLCellValue>) {
 					switch(value.type()) {
-						case XLValueType::Boolean: setBoolean(value.template get<bool>()); break;
-						case XLValueType::Integer: setInteger(value.template get<int64_t>()); break;
-						case XLValueType::Float: setFloat(value.template get<double>()); break;
-						case XLValueType::String: setString(value.template privateGet<const char*>()); break;
+						case XLValueType::Boolean: setBoolean(value.template get <bool>()); break;
+						case XLValueType::Integer: setInteger(value.template get <int64_t>()); break;
+						case XLValueType::Float: setFloat(value.template get <double>()); break;
+						case XLValueType::String: setString(value.template privateGet <const char*>()); break;
 						case XLValueType::Empty: clear(); break;
 						default: setError("#N/A"); break;
 					}
@@ -3371,7 +3374,7 @@
 			 * @note 28-07-2024: Removed const from return type (Troldal)
 			 */
 			bool endReached() const { return m_endReached; }
-			uint64_t distance(const XLCellIterator& last);
+			uint64 distance(const XLCellIterator& last);
 			/**
 			 * @brief get the XLCellReference::address corresponding to the current iterator position
 			 * @return an XLCellReference::address, with m_bottomRight.col() + 1 for the beyond-the-end iterator
@@ -4096,7 +4099,11 @@
 			bool setVTextAnchor(std::string newVTextAnchor);
 			bool hide(); // set visibility:hidden
 			bool show(); // set visibility:visible
-			bool setRaw(std::string newStyle) { m_style = newStyle; return true; }
+			bool setRaw(std::string newStyle) 
+			{ 
+				m_style = newStyle; 
+				return true; 
+			}
 		private:
 			mutable std::string m_style; // mutable so getter functions can update it from m_styleAttribute if the latter is not empty
 			std::unique_ptr<XMLAttribute> m_styleAttribute;
@@ -4420,7 +4427,7 @@
 		 * @brief Return a 64 bit random value (by invoking Rand32 twice)
 		 * @return A 64 bit random value
 		 */
-		uint64_t Rand64();
+		uint64 Rand64();
 		/**
 		 * @brief Initialize XLRand32 data source
 		 * @param pseudoRandom If true, sequence will be reproducible with a constant seed
@@ -6592,7 +6599,9 @@
 		class XLChartsheet final : public XLSheetBase<XLChartsheet> {
 			friend class XLSheetBase<XLChartsheet>;
 		public:
-			XLChartsheet() : XLSheetBase(nullptr) {};
+			XLChartsheet() : XLSheetBase(nullptr) 
+			{
+			}
 			explicit XLChartsheet(XLXmlData* xmlData);
 			XLChartsheet(const XLChartsheet& other) = default;
 			XLChartsheet(XLChartsheet&& other) noexcept = default;
@@ -6644,8 +6653,8 @@
 			 * @return A reference to the new object.
 			 * @note The default assignment operator is used, i.e. only shallow copying of pointer data members.
 			 */
-			XLSheet& operator=(const XLSheet& other) = default;
-			XLSheet& operator=(XLSheet&& other) noexcept = default;
+			XLSheet & operator = (const XLSheet& other) = default;
+			XLSheet & operator = (XLSheet&& other) noexcept = default;
 			/**
 			 * @brief Method for getting the current visibility state of the sheet.
 			 * @return An XLSheetState enum object, with the current sheet state.
@@ -6692,10 +6701,7 @@
 			 */
 			template <typename SheetType,
 				typename = std::enable_if_t<std::is_same_v<SheetType, XLWorksheet> || std::is_same_v<SheetType, XLChartsheet> > >
-			bool isType() const
-			{
-				return std::holds_alternative<SheetType>(m_sheet);
-			}
+			bool isType() const { return std::holds_alternative<SheetType>(m_sheet); }
 			/**
 			 * @brief Method for cloning the sheet.
 			 * @param newName A std::string with the name of the clone

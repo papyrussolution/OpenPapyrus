@@ -68,7 +68,7 @@ static void OutHelp(const char * pInvCmd)
 	SString line_buf;
 	if(pInvCmd)
 		printf("Invalid command '%s'\n", pInvCmd);
-	printf("Papyrus JobServer. Copyright (c) A.Sobolev 2005-2019\n");
+	printf("Papyrus JobServer. Copyright (c) A.Sobolev 2005-2025\n");
 	printf("Usage:\n");
 	printf(FormatCmdHelp(srvcmdInstall,   line_buf, 0).
 		Cat("[login_name] [login_password]\tservice installation").CR());

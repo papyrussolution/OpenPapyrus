@@ -30,68 +30,49 @@ int _sasldb_alloc_key(const sasl_utils_t * utils, const char * auth_identity, co
 	memcpy(*key + auth_id_len + 1, realm, realm_len);
 	(*key)[auth_id_len + realm_len + 1] = '\0';
 	memcpy(*key + auth_id_len + realm_len + 2, propName, prop_len);
-
 	return SASL_OK;
 }
-
 /*
  * decode a key
  */
-int _sasldb_parse_key(const char * key, const size_t key_len,
-    char * authid, const size_t max_authid,
-    char * realm, const size_t max_realm,
-    char * propName, const size_t max_propname)
+int _sasldb_parse_key(const char * key, const size_t key_len, char * authid, const size_t max_authid,
+    char * realm, const size_t max_realm, char * propName, const size_t max_propname)
 {
 	unsigned i = 0;
 	unsigned numnulls = 0;
 	size_t alen = 0, rlen = 0, pnlen = 0;
-
-	if(!key || !key_len
-	    || (authid && !max_authid)
-	    || (realm && !max_realm)
-	    || (propName && !max_propname))
+	if(!key || !key_len || (authid && !max_authid) || (realm && !max_realm) || (propName && !max_propname))
 		return SASL_BADPARAM;
-
 	for(i = 0; i<key_len; i++) {
-		if(key[i] == '\0') numnulls++;
+		if(key[i] == '\0') 
+			numnulls++;
 	}
-
 	if(numnulls != 2) return SASL_BADPARAM;
-
 	alen = strlen(key);
 	rlen = strlen(key + alen + 1);
 	pnlen = key_len - alen - rlen - 2;
-
 	if(authid) {
 		if(alen >= max_authid)
 			return SASL_BUFOVER;
 		strncpy(authid, key, max_authid);
 	}
-
 	if(realm) {
 		if(rlen >= max_realm)
 			return SASL_BUFOVER;
 		strncpy(realm, key + alen + 1, max_realm);
 	}
-
 	if(propName) {
 		if(pnlen >= max_propname)
 			return SASL_BUFOVER;
 		strncpy(propName, key + alen + rlen + 2, pnlen);
-
 		/* Have to add the missing NULL */
 		propName[pnlen] = '\0';
 	}
-
 	return SASL_OK;
 }
 
 /* These are more or less aliases to the correct functions */
-int _sasldb_getsecret(const sasl_utils_t * utils,
-    sasl_conn_t * context,
-    const char * authid,
-    const char * realm,
-    sasl_secret_t ** secret)
+int _sasldb_getsecret(const sasl_utils_t * utils, sasl_conn_t * context, const char * authid, const char * realm, sasl_secret_t ** secret)
 {
 	char buf[8192];
 	size_t len;
@@ -112,79 +93,48 @@ int _sasldb_getsecret(const sasl_utils_t * utils,
 		utils->seterror(context, 0, "Out of Memory in _sasldb_getsecret");
 		return SASL_NOMEM;
 	}
-
 	out->len = (uint)len;
 	memcpy(out->data, buf, len);
 	out->data[len] = '\0';
-
 	*secret = out;
-
 	return SASL_OK;
 }
 
-int _sasldb_putsecret(const sasl_utils_t * utils,
-    sasl_conn_t * context,
-    const char * authid,
-    const char * realm,
-    const sasl_secret_t * secret)
+int _sasldb_putsecret(const sasl_utils_t * utils, sasl_conn_t * context, const char * authid, const char * realm, const sasl_secret_t * secret)
 {
 	const char * param = SASL_AUX_PASSWORD;
 	param++; /* skip leading * */
-	return _sasldb_putdata(utils, context, authid, realm, param,
-		   (const char *)(secret ? secret->data : NULL),
-		   (secret ? secret->len : 0));
+	return _sasldb_putdata(utils, context, authid, realm, param, (const char *)(secret ? secret->data : NULL), (secret ? secret->len : 0));
 }
 
-int __sasldb_internal_list(const char * authid,
-    const char * realm,
-    const char * property,
-    void * rock __attribute__((unused)))
+int __sasldb_internal_list(const char * authid, const char * realm, const char * property, void * rock __attribute__((unused)))
 {
 	printf("%s@%s: %s\n", authid, realm, property);
-
 	return (SASL_OK);
 }
 
 /* List all users in database */
-int _sasldb_listusers(const sasl_utils_t * utils,
-    sasl_conn_t * context,
-    sasldb_list_callback_t callback,
-    void * callback_rock)
+int _sasldb_listusers(const sasl_utils_t * utils, sasl_conn_t * context, sasldb_list_callback_t callback, void * callback_rock)
 {
 	int result;
 	char key_buf[32768];
 	size_t key_len;
 	sasldb_handle dbh;
-
 	if(callback == NULL) {
 		callback = &__sasldb_internal_list;
 		callback_rock = NULL;
 	}
-
 	dbh = _sasldb_getkeyhandle(utils, context);
-
 	if(!dbh) {
 		utils->log(context, SASL_LOG_ERR, "_sasldb_getkeyhandle has failed");
 		return SASL_FAIL;
 	}
-
-	result = _sasldb_getnextkey(utils,
-		dbh,
-		key_buf,
-		32768,
-		&key_len);
-
+	result = _sasldb_getnextkey(utils, dbh, key_buf, 32768, &key_len);
 	while(result == SASL_CONTINUE) {
 		char authid_buf[16384];
 		char realm_buf[16384];
 		char property_buf[16384];
-		int ret;
-
-		ret = _sasldb_parse_key(key_buf, key_len,
-			authid_buf, 16384,
-			realm_buf, 16384,
-			property_buf, 16384);
-
+		int ret = _sasldb_parse_key(key_buf, key_len, authid_buf, 16384, realm_buf, 16384, property_buf, 16384);
 		if(ret == SASL_BUFOVER) {
 			utils->log(context, SASL_LOG_ERR, "Key is too large in _sasldb_parse_key");
 			continue;
@@ -193,29 +143,17 @@ int _sasldb_listusers(const sasl_utils_t * utils,
 			utils->log(context, SASL_LOG_ERR, "Bad Key in _sasldb_parse_key");
 			continue;
 		}
-
-		result = callback(authid_buf,
-			realm_buf,
-			property_buf,
-			callback_rock);
-
+		result = callback(authid_buf, realm_buf, property_buf, callback_rock);
 		if(result != SASL_OK && result != SASL_CONTINUE) {
 			break;
 		}
-
-		result = _sasldb_getnextkey(utils,
-			dbh,
-			key_buf,
-			32768,
-			&key_len);
+		result = _sasldb_getnextkey(utils, dbh, key_buf, 32768, &key_len);
 	}
-
 	if(result == SASL_BUFOVER) {
 		utils->log(context, SASL_LOG_ERR, "Key is too large in _sasldb_getnextkey");
 	}
 	else if(result != SASL_OK) {
 		utils->log(context, SASL_LOG_ERR, "DB failure in _sasldb_getnextkey");
 	}
-
 	return _sasldb_releasekeyhandle(utils, dbh);
 }

@@ -142,16 +142,12 @@ extern "C" {
 #define PE_ERR_BADSQLEXPRESSIONTEXT         639 // not a valid SQL expression
 #define PE_ERR_INVALIDDEFAULTVALUEINDEX     641 // invalid index for default value of a parameter.
 #define PE_ERR_NOMINMAXVALUE                642 // the specified PE_PF_* type does not have min/max values.
-#define PE_ERR_INCONSISTANTTYPES            643 // if both min and max values are specified in
-	                                        // PESetParameterMinMaxValue, the value types for the min and max must be the same.
-
+#define PE_ERR_INCONSISTANTTYPES            643 // if both min and max values are specified in PESetParameterMinMaxValue, the value types for the min and max must be the same.
 #define PE_ERR_CANNOTLINKTABLES             645
 #define PE_ERR_CREATEROUTER                 646
-
 #define PE_ERR_INVALIDFIELDINDEX            647
 #define PE_ERR_INVALIDGRAPHTITLETYPE        648
 #define PE_ERR_INVALIDGRAPHTITLEFONTTYPE    649
-
 #define PE_ERR_OTHERERROR                   997
 #define PE_ERR_INTERNALERROR                998 // programming error
 #define PE_ERR_NOTIMPLEMENTED               999

@@ -445,8 +445,8 @@ public:
 	DLSYMBID GetId() const;
 	DLSYMBID GetBaseId() const;
 	const  SString & GetName() const;
-	int    CheckDvFlag(long) const;
-	int    FASTCALL IsKind(const uint) const;
+	bool   CheckDvFlag(long) const;
+	bool   FASTCALL IsKind(const uint) const;
 	uint   GetKind() const;
 	//
 	// Descr: Возвращает номер версии области видимости. Используется для областей вида

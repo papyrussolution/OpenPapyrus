@@ -2330,6 +2330,7 @@ int PPSession::Init(long flags, HINSTANCE hInst, const char * pUiDescriptionFile
 		}
         epb.F_GetDefaultEncrKey = PPGetDefaultEncrKey;
         epb.F_QueryPath = PPQueryPathFunc;
+		epb.F_InitDialog = PPInitializeDialogFunc; // @v12.3.6
         SLS.SetExtraProcBlock(&epb);
 		//SLS.SetLoadStringFunc(PPLoadStringFunc);
 		//SLS.SetExpandStringFunc(PPExpandStringFunc);
@@ -5143,14 +5144,13 @@ DlContext * PPSession::Helper_GetInterfaceContext(DlContext ** ppCtx, uint fileI
 DlContext * PPSession::GetInterfaceContext(int ctxType)
 {
 	DlContext * p_ctx = 0;
-	if(oneof3(ctxType, ctxtExportData, ctxtInterface, ctxUiView)) { // @v12.3.6 ctxUiView
+	if(oneof3(ctxType, ctxtExportData, ctxtInterface, ctxUiView, ctxUiViewLocal)) { // @v12.3.6 ctxUiView, ctxUiViewLocal
 		PPThreadLocalArea & r_tla = DS.GetTLA();
-		if(ctxType == ctxtExportData)
-			p_ctx = Helper_GetInterfaceContext(&r_tla.P_ExpCtx, PPFILNAM_DL600EXP, 0);
-		else if(ctxType == ctxtInterface)
-			p_ctx = Helper_GetInterfaceContext(&r_tla.P_IfcCtx, PPFILNAM_DL600IFC, 0);
-		else if(ctxType == ctxUiView) { // @v12.3.6
-			p_ctx = Helper_GetInterfaceContext(&r_tla.P_IfcCtx, PPFILNAM_DL600UIVIEW, 0);
+		switch(ctxType) {
+			case ctxtExportData: p_ctx = Helper_GetInterfaceContext(&r_tla.P_ExpCtx, PPFILNAM_DL600EXP, 0); break;
+			case ctxtInterface: p_ctx = Helper_GetInterfaceContext(&r_tla.P_IfcCtx, PPFILNAM_DL600IFC, 0); break;
+			case ctxUiView: p_ctx = Helper_GetInterfaceContext(&r_tla.P_UiViewCtx, PPFILNAM_DL600UIVIEW, 0); break; // @v12.3.6
+			case ctxUiViewLocal: p_ctx = Helper_GetInterfaceContext(&r_tla.P_UiViewLocalCtx, PPFILNAM_DL600UIVIEWLOCAL, 0); break; // @v12.3.6
 		}
 	}
 	else if(ctxType == ctxDatabase)

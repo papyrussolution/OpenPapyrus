@@ -1,12 +1,11 @@
 // TREEWND.CPP
-// Modified by A.Starodub 2013, 2016, 2018, 2019, 2020, 2021, 2023
+// Modified by A.Starodub 2013, 2016, 2018, 2019, 2020, 2021, 2023, 2025
 // @codepage UTF-8
 // Древовидный список в левой части основного окна
 //
 #include <slib-internal.h>
 #pragma hdrstop
 #include <ppdefs.h>
-// @v11.7.5 #include <crpe.h>
 
 #define MENU_TREELIST 1014
 #define BTN_CLOSE     1015
@@ -149,8 +148,7 @@ void TreeWindow::ShortcutsWindow::AddItem(const char * pTitle, void * ptr)
 		TabCtrl_HighlightItem(hwnd_tab, idx, 1);
 		if(HwndTT && TabCtrl_GetItemRect(hwnd_tab, idx, &rc_item))	{
 			//
-			// @v10.5.2 Почему-то unicode-версия методов TOOLTIP не работает правильно. По-этому здесь явно используются //
-			// multibyte-методы.
+			// Почему-то unicode-версия методов TOOLTIP не работает правильно. По-этому здесь явно используются multibyte-методы.
 			//
 			TOOLINFOA t_i;
 			INITWINAPISTRUCT(t_i);
@@ -428,7 +426,7 @@ int TreeWindow::TranslateKeyCode(ushort keyCode, uint * pCmd) const
 	return (P_Toolbar) ? P_Toolbar->TranslateKeyCode(keyCode, pCmd) : 0;
 }
 
-void TreeWindow::SetupCmdList(HMENU hMenu, void * hP) // @v10.9.4 HTREEITEM-->(void *)
+void TreeWindow::SetupCmdList(HMENU hMenu, /*HTREEITEM*/void * hP)
 {
 	HTREEITEM hti;
 	SString temp_buf;

@@ -2521,7 +2521,11 @@ int PPViewBrowser::getCurHdr(void * pHdr)
 
 int PPViewBrowser::Export()
 {
+#if (_MSC_VER >= 1920)
 	constexpr bool use_oxlsx = true;
+#else
+	constexpr bool use_oxlsx = false;
+#endif
 	int    ok = 1;
 	SString result_file_name;
 	SStringU result_file_name_u;

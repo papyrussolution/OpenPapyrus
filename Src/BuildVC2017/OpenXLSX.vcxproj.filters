@@ -1,34 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLCell.cpp" />
-    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLCellIterator.cpp" />
-    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLCellRange.cpp" />
-    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLCellReference.cpp" />
-    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLCellValue.cpp" />
-    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLColor.cpp" />
-    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLColumn.cpp" />
-    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLComments.cpp" />
-    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLContentTypes.cpp" />
-    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLDateTime.cpp" />
-    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLDocument.cpp" />
-    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLDrawing.cpp" />
-    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLFormula.cpp" />
-    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLMergeCells.cpp" />
-    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLProperties.cpp" />
-    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLRelationships.cpp" />
-    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLRow.cpp" />
-    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLRowData.cpp" />
-    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLSharedStrings.cpp" />
-    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLSheet.cpp" />
-    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLStyles.cpp" />
-    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLTables.cpp" />
-    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLWorkbook.cpp" />
-    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLXmlData.cpp" />
-    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLXmlFile.cpp" />
-    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLXmlParser.cpp" />
-    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLZipArchive.cpp" />
-    <ClCompile Include="..\OSF\OpenXLSX\SRC\OpenXLSX-pch.cpp" />
+    <ClCompile Include="..\OSF\OpenXLSX\SRC\OpenXLSX.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header">

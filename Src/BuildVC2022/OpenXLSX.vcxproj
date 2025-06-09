@@ -90,7 +90,7 @@
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <Optimization>Disabled</Optimization>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <TreatSpecificWarningsAsErrors>4289</TreatSpecificWarningsAsErrors>
@@ -131,7 +131,7 @@
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <Optimization>Disabled</Optimization>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <TreatSpecificWarningsAsErrors>4289</TreatSpecificWarningsAsErrors>
@@ -170,7 +170,7 @@
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <Optimization>MaxSpeed</Optimization>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <UseFullPaths>false</UseFullPaths>
@@ -208,7 +208,7 @@
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <Optimization>MaxSpeed</Optimization>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <UseFullPaths>false</UseFullPaths>
@@ -238,75 +238,11 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\OSF\OpenXLSX\SRC\OpenXLSX-pch.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLCell.cpp" />
-    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLCellIterator.cpp" />
-    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLCellRange.cpp" />
-    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLCellReference.cpp" />
-    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLCellValue.cpp" />
-    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLColor.cpp" />
-    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLColumn.cpp" />
-    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLComments.cpp" />
-    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLContentTypes.cpp" />
-    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLDateTime.cpp" />
-    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLDocument.cpp" />
-    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLDrawing.cpp" />
-    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLFormula.cpp" />
-    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLMergeCells.cpp" />
-    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLProperties.cpp" />
-    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLRelationships.cpp" />
-    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLRow.cpp" />
-    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLRowData.cpp" />
-    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLSharedStrings.cpp" />
-    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLSheet.cpp" />
-    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLStyles.cpp" />
-    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLTables.cpp" />
-    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLWorkbook.cpp" />
-    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLXmlData.cpp" />
-    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLXmlFile.cpp" />
-    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLXmlParser.cpp" />
-    <ClCompile Include="..\OSF\OpenXLSX\SRC\XLZipArchive.cpp" />
+    <ClCompile Include="..\OSF\OpenXLSX\SRC\OpenXLSX.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\IZipArchive.hpp" />
     <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\OpenXLSX-internal.hpp" />
-    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLCell.hpp" />
-    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLCellIterator.hpp" />
-    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLCellRange.hpp" />
-    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLCellReference.hpp" />
-    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLCellValue.hpp" />
-    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLColor.hpp" />
-    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLColumn.hpp" />
-    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLCommandQuery.hpp" />
-    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLComments.hpp" />
-    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLConstants.hpp" />
-    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLContentTypes.hpp" />
-    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLDateTime.hpp" />
-    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLDocument.hpp" />
-    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLDrawing.hpp" />
-    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLException.hpp" />
-    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLFormula.hpp" />
-    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLIterator.hpp" />
-    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLMergeCells.hpp" />
-    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLProperties.hpp" />
-    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLRelationships.hpp" />
-    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLRow.hpp" />
-    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLRowData.hpp" />
-    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLSharedStrings.hpp" />
-    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLSheet.hpp" />
-    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLStyles.hpp" />
-    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLTables.hpp" />
-    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLWorkbook.hpp" />
-    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLXmlData.hpp" />
-    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLXmlFile.hpp" />
-    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLXmlParser.hpp" />
-    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\XLZipArchive.hpp" />
-    <ClInclude Include="..\OSF\OpenXLSX\SRC\OpenXLSX.hpp" />
+    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\OpenXLSX.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1049,8 +1049,10 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 						alb.Margin.b.Set(p_prop->Value.U.Rect.R.X.Val, p_prop->Value.U.Rect.R.Y.Val);
 						occurence_margin |= (occsLeft|occsTop|occsRight|occsBottom);
 					}
-					else if(p_prop->Value.Code == T_CONST_REAL) {
-						alb.Margin.Set(static_cast<float>(p_prop->Value.U.FD));
+					else if(oneof3(p_prop->Value.Code, CtmToken::acLayoutItemSizeEntry, T_CONST_REAL, T_CONST_INT)) {
+						uint local_cast_flags = 0;
+						double v = p_prop->Value.GetDouble(&local_cast_flags);
+						alb.Margin.Set(static_cast<float>(v));
 						occurence_margin |= (occsLeft|occsTop|occsRight|occsBottom);
 					}
 					else {
@@ -1118,8 +1120,10 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 						alb.Padding.b.Set(p_prop->Value.U.Rect.R.X.Val, p_prop->Value.U.Rect.R.Y.Val);
 						occurence_padding |= (occsLeft|occsTop|occsRight|occsBottom);
 					}
-					else if(p_prop->Value.Code == T_CONST_REAL) {
-						alb.Padding.Set(static_cast<float>(p_prop->Value.U.FD));
+					else if(oneof3(p_prop->Value.Code, CtmToken::acLayoutItemSizeEntry, T_CONST_REAL, T_CONST_INT)) {
+						uint local_cast_flags = 0;
+						double v = p_prop->Value.GetDouble(&local_cast_flags);
+						alb.Padding.Set(static_cast<float>(v));
 						occurence_padding |= (occsLeft|occsTop|occsRight|occsBottom);
 					}
 					else {

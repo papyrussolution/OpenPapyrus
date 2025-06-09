@@ -99,8 +99,8 @@ public class StyloQFace {
 	}
 	public @NonNull String GetSimpleText(int lang)
 	{
-		String result = GetText_LangTolerant(tagCommonName, lang);
-		if(result == null) {
+		String result = null;
+		{
 			String sn = GetText_LangTolerant(tagSurName, lang);
 			if(sn != null)
 				result = sn;
@@ -116,6 +116,9 @@ public class StyloQFace {
 					result += " ";
 				result += pn;
 			}
+		}
+		if(SLib.GetLen(result) == 0) {
+			result = GetText_LangTolerant(tagCommonName, lang);
 		}
 		if(SLib.GetLen(result) == 0)
 			result = Get(tagPhone, 0);

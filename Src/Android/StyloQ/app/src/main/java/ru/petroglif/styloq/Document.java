@@ -1024,19 +1024,40 @@ public class Document {
 		return amount;
 	}
 	//
+	// Descr: Возвращает общее количество марок, просканированных в режиме расстановки.
+	//
+	int GetGoodsMarkSettingItemsCount()
+	{
+		int result = 0;
+		if(XcL_Unassigned != null && XcL_Unassigned.size() > 0) {
+			result += XcL_Unassigned.size();
+		}
+		if(TiList != null) {
+			for(int i = 0; i < TiList.size(); i++) {
+				final TransferItem ti = TiList.get(i);
+				if(ti != null && ti.XcL != null && ti.XcL.size() > 0) {
+					result += ti.XcL.size();
+				}
+			}
+		}
+		return result;
+	}
+	//
 	// Следующие две функции (GetGoodsMarkSettingListCount и GetGoodsMarkSettingListItem)
 	// предназначены для управления отображением списка при присвоении марок позициям документа.
 	//
 	int GetGoodsMarkSettingListCount()
 	{
 		int result = 0;
-		if(XcL_Unassigned != null && XcL_Unassigned.size() > 0)
+		if(XcL_Unassigned != null && XcL_Unassigned.size() > 0) {
 			result++;
+		}
 		if(TiList != null) {
 			for(int i = 0; i < TiList.size(); i++) {
 				final TransferItem ti = TiList.get(i);
-				if(ti != null && ti.XcL != null && ti.XcL.size() > 0)
+				if(ti != null && ti.XcL != null && ti.XcL.size() > 0) {
 					result++;
+				}
 			}
 		}
 		return result;

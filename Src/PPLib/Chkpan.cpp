@@ -13084,7 +13084,9 @@ int CPosProcessor::PrintToLocalPrinters(int selPrnType, bool ignoreNonZeroAgentR
 				CCheckItem * p_item = 0;
 				DS.GetTLA().PrintDevice.Z();
 				CCheckItemArray saved_check(P);
-				uint   i, j, first_loc_assoc_pos = 0;
+				uint   i;
+				uint   j;
+				uint   first_loc_assoc_pos = 0;
 				PPID   loc_id;
 				LAssocArray pos_assoc_list;
 				PPIDArray printed_pos_list;
@@ -13130,7 +13132,7 @@ int CPosProcessor::PrintToLocalPrinters(int selPrnType, bool ignoreNonZeroAgentR
 					}
 					P.insert(&saved_check.at(r_assoc.Val));
 				}
-				if(P.getCount())
+				if(P.getCount()) {
 					if(lp_obj.GetPrinterByLocation(loc_id, prn_name, &loc_prn_rec) > 0) {
 						if(Print(1, &loc_prn_rec, 0) > 0) {
 							for(j = first_loc_assoc_pos; j < i; j++)
@@ -13142,6 +13144,7 @@ int CPosProcessor::PrintToLocalPrinters(int selPrnType, bool ignoreNonZeroAgentR
 					}
 					else
 						MakeDbgPrintLogList(1, buf_ulp, chk_code, prn_name, debug_rep_list);
+				}
 				for(i = 0; i < printed_pos_list.getCount(); i++)
 					saved_check.at(printed_pos_list.at(i)).Flags |= cifIsPrinted;
 				P = saved_check;

@@ -9,17 +9,23 @@
     <TextView style="@style/GenericListItemText"
         android:id="@+id/CTL_INCOMINGLIST_BILL_SCANMARKS_MARK"
         android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:maxLines="1"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:maxLines="2"
+        android:layout_marginLeft="2dp"
+        android:layout_marginTop="2dp"
+        android:layout_marginRight="2dp"
+        android:layout_marginBottom="2dp"
         android:fontFamily="sans-serif-condensed"
-        android:textSize="11sp"
+        android:textSize="9sp"
         />
-    <View style="@style/FakeView"/>
+    <!--<View style="@style/FakeView"/>-->
     <ImageButton style="@style/ToolbarButton"
         android:id="@+id/CTL_BUTTON_MATCH"
         android:layout_height="24dp"
         android:layout_width="24dp"
         android:layout_gravity="center_vertical"
+        android:layout_marginLeft="2dp"
         android:onClick="OnButtonClk"
         app:srcCompat="@drawable/ic_match01"
         />
@@ -28,6 +34,7 @@
         android:layout_height="24dp"
         android:layout_width="24dp"
         android:layout_gravity="center_vertical"
+        android:layout_marginLeft="2dp"
         android:onClick="OnButtonClk"
         app:srcCompat="@drawable/ic_deletefile02"
         />

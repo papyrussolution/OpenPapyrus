@@ -378,7 +378,7 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 						{
 							View btn = convertView.findViewById(R.id.STDCTL_DELETEBUTTON);
 							if(btn != null) {
-								if(_ctx instanceof SLib.SlActivity && Data != null && Data.Ti == null) {
+								if(_ctx instanceof SLib.SlActivity && Data != null/*&& Data.Ti == null*/) {
 									btn.setVisibility(View.VISIBLE);
 									btn.setOnClickListener(new View.OnClickListener() {
 										@Override public void onClick(View v)
@@ -1395,7 +1395,7 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 			case SLib.EV_SETVIEWDATA:
 				if(srcObj != null && srcObj instanceof ViewGroup) {
 					StyloQApp app_ctx = GetAppCtx();
-					ViewGroup vg = (ViewGroup) srcObj;
+					ViewGroup vg = (ViewGroup)srcObj;
 					int vg_id = vg.getId();
 					if(vg_id == R.id.LAYOUT_INCOMINGLIST_BILL_SCANMARKS) { // @v12.3.5
 						Document _doc = CPM.GetCurrentDocument();
@@ -1404,7 +1404,7 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 							mark_count = (_doc == null || _doc.VXcL == null) ? 0 : _doc.VXcL.size();
 						}
 						else if(ScanSource == ScanType.Setting) {
-							mark_count = (_doc != null) ? _doc.GetGoodsMarkSettingListCount() : 0;
+							mark_count = (_doc != null) ? _doc.GetGoodsMarkSettingItemsCount() : 0;
 						}
 						SLib.SetCtrlString(vg, R.id.CTL_INCOMINGLIST_BILL_SCANMARKS_MARKCOUNT, "#"+Integer.toString(mark_count));
 					}

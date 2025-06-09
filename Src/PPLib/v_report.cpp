@@ -415,7 +415,7 @@ int PPViewReport::GetAltPath(PPID type, const char * pPath, const char * pStdNam
 	}
 	else {
 		PPGetPath(PPPATH_BIN, rPath);
-		rPath.SetLastSlash().Cat("rpt").SetLastSlash().Cat(pStdName).Cat(".rpt");
+		rPath.SetLastSlash().Cat("rpt").SetLastSlash().Cat(pStdName).Dot().Cat("rpt");
 	}
 	return ok;
 }

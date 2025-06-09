@@ -516,7 +516,7 @@ int TDialog::BuildEmptyWindow(const BuildEmptyWindowParam * pParam) // @v12.2.5
 			if(HW) {
 				const bool preserve_wbc = LOGIC(WbCapability & wbcStorableUserParams);
 				WbCapability &= ~wbcStorableUserParams;
-				::SetWindowPos(HW, HWND_TOP, ViewOrigin.x, ViewOrigin.y, ViewSize.x, ViewSize.y, SWP_SHOWWINDOW);
+				::SetWindowPos(HW, HWND_TOP, ViewOrigin.x, ViewOrigin.y, ViewSize.x, ViewSize.y, /*SWP_SHOWWINDOW*/SWP_NOACTIVATE);
 				SETFLAG(WbCapability, wbcStorableUserParams, preserve_wbc);
 				// @debug {
 				/*
@@ -547,22 +547,33 @@ void TDialog::Helper_Constructor(uint resID, DialogPreProcFunc dlgPreFunc, void 
 	MEMSZERO(ToResizeRect);
 	DefInputLine  = 0;
 	if(resID) {
+		int    outer_initialize_result = 0;
 		if(co == coExport)
 			DlgFlags |= fExport;
-		TDialog::LoadDialog(P_SlRez, resID, this, (co == coExport) ? ldfDL600_Cvt : 0);
-		if(dlgPreFunc)
-			dlgPreFunc(this, extraPtr);
-		//
-		// @v4.2.5
-		// Операция по сохранению текущего окна необходима из-за того, что при создании
-		// диалога указатель APPL->P_DeskTop->P_Current обнуляется. Это, как правило не страшно,
-		// но делает неработоспособными некоторые функции (например, не срабатывает функция //
-		// TView::messageCommand(APPL->P_DeskTop, cmGetFocusedNumber, &c); в калькуляторе).
-		//
-		TView * preserve_current = APPL->P_DeskTop->GetCurrentView();
-		HW = APPL->CreateDlg(resourceID, APPL->H_TopOfStack, TDialog::DialogProc, reinterpret_cast<LPARAM>(this));
-		::ShowWindow(H(), SW_HIDE);
-		APPL->P_DeskTop->SetCurrentView(preserve_current, leaveSelect);
+		else {
+			SlExtraProcBlock epb;
+			SLS.GetExtraProcBlock(&epb);
+			if(epb.F_InitDialog) {
+				SString ident_buf;
+				outer_initialize_result = epb.F_InitDialog(this, ident_buf.Cat(resID).cptr(), 0);
+			}
+		}
+		if(outer_initialize_result <= 0) {
+			TDialog::LoadDialog(P_SlRez, resID, this, (co == coExport) ? ldfDL600_Cvt : 0);
+			if(dlgPreFunc)
+				dlgPreFunc(this, extraPtr);
+			//
+			// @v4.2.5
+			// Операция по сохранению текущего окна необходима из-за того, что при создании
+			// диалога указатель APPL->P_DeskTop->P_Current обнуляется. Это, как правило не страшно,
+			// но делает неработоспособными некоторые функции (например, не срабатывает функция //
+			// TView::messageCommand(APPL->P_DeskTop, cmGetFocusedNumber, &c); в калькуляторе).
+			//
+			TView * preserve_current = APPL->P_DeskTop->GetCurrentView();
+			HW = APPL->CreateDlg(resourceID, APPL->H_TopOfStack, TDialog::DialogProc, reinterpret_cast<LPARAM>(this));
+			::ShowWindow(H(), SW_HIDE);
+			APPL->P_DeskTop->SetCurrentView(preserve_current, leaveSelect);
+		}
 	}
 	else if(co == coEmpty) {
 		// Порожденный класс должен вызывать BuildEmptyWindow()

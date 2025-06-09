@@ -2561,16 +2561,11 @@ static int png_do_rgb_to_gray(png_structrp png_ptr, png_row_infop row_info, png_
 						red = png_ptr->gamma_to_1[red];
 						green = png_ptr->gamma_to_1[green];
 						blue = png_ptr->gamma_to_1[blue];
-
 						rgb_error |= 1;
-						*(dp++) = png_ptr->gamma_from_1[
-						    (rc*red + gc*green + bc*blue + 16384)>>15];
+						*(dp++) = png_ptr->gamma_from_1[(rc*red + gc*green + bc*blue + 16384)>>15];
 					}
-
 					else {
-						/* If there is no overall correction the table will not be
-						 * set.
-						 */
+						// If there is no overall correction the table will not be set.
 						if(png_ptr->gamma_table)
 							red = png_ptr->gamma_table[red];
 						*(dp++) = red;
@@ -2585,29 +2580,22 @@ static int png_do_rgb_to_gray(png_structrp png_ptr, png_row_infop row_info, png_
 				png_bytep sp = row;
 				png_bytep dp = row;
 				uint32 i;
-
 				for(i = 0; i < row_width; i++) {
 					uint8 red   = *(sp++);
 					uint8 green = *(sp++);
 					uint8 blue  = *(sp++);
-
 					if(red != green || red != blue) {
 						rgb_error |= 1;
-						/* NOTE: this is the historical approach which simply
-						 * truncates the results.
-						 */
+						// NOTE: this is the historical approach which simply truncates the results.
 						*(dp++) = (uint8)((rc*red + gc*green + bc*blue)>>15);
 					}
-
 					else
 						*(dp++) = red;
-
 					if(have_alpha != 0)
 						*(dp++) = *(sp++);
 				}
 			}
 		}
-
 		else { /* RGB bit_depth == 16 */
 #ifdef PNG_READ_GAMMA_SUPPORTED
 			if(png_ptr->gamma_16_to_1 && png_ptr->gamma_16_from_1) {
@@ -2651,18 +2639,14 @@ static int png_do_rgb_to_gray(png_structrp png_ptr, png_row_infop row_info, png_
 				png_bytep sp = row;
 				png_bytep dp = row;
 				uint32 i;
-
 				for(i = 0; i < row_width; i++) {
 					uint16 red, green, blue, gray16;
 					uint8 hi, lo;
-
 					hi = *(sp)++; lo = *(sp)++; red   = (uint16)((hi << 8) | (lo));
 					hi = *(sp)++; lo = *(sp)++; green = (uint16)((hi << 8) | (lo));
 					hi = *(sp)++; lo = *(sp)++; blue  = (uint16)((hi << 8) | (lo));
-
 					if(red != green || red != blue)
 						rgb_error |= 1;
-
 					/* From 1.5.5 in the 16-bit case do the accurate conversion even
 					 * in the 'fast' case - this is because this is where the code
 					 * ends up when handling linear 16-bit data.

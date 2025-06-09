@@ -9,12 +9,11 @@
 //
 static long FASTCALL MakeSdRecFlags(uint kind)
 {
-	if(kind == DlScope::kEnum)
-		return SdRecord::fEnum;
-	else if(kind == DlScope::kTypedefPool)
-		return SdRecord::fNoData;
-	else
-		return 0;
+	switch(kind) {
+		case DlScope::kEnum: return SdRecord::fEnum;
+		case DlScope::kTypedefPool: return SdRecord::fNoData;
+		default: return 0;
+	}
 }
 
 DlScope::DlScope(DLSYMBID id, uint kind, const char * pName, int prototype) : SdRecord(MakeSdRecFlags(kind)),
@@ -236,8 +235,8 @@ DLSYMBID DlScope::GetBaseId() const { return BaseId; }
 const  SString & DlScope::GetName() const { return Name; }
 uint   DlScope::GetKind() const { return Kind; }
 uint32 DlScope::GetVersion() const { return Version; }
-int    DlScope::CheckDvFlag(long f) const { return BIN(DvFlags & f); }
-int    FASTCALL DlScope::IsKind(const uint kind) const { return BIN(Kind == kind); }
+bool  DlScope::CheckDvFlag(long f) const { return LOGIC(DvFlags & f); }
+bool  FASTCALL DlScope::IsKind(const uint kind) const { return (Kind == kind); }
 const DlScope * DlScope::GetOwner() const { return P_Parent; }
 const DlScopeList & DlScope::GetChildList() const { return ChildList; }
 

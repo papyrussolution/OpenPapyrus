@@ -49,6 +49,7 @@ int  TestSTree();
 int  Test_ExecuteDialogByDl600Description();
 int  SimpleCpp_Test_Main(int argc, char ** argv);
 int  SimpleCpp_Test_Main2();
+int  TestCrr32SupportServer();
 //
 // 
 // 
@@ -2028,13 +2029,14 @@ int DoConstructionTest()
 		}
 	}
 #endif // } 0
+	TestCrr32SupportServer();
+	//Test_ExecuteDialogByDl600Description();
 	//PPChZnPrcssr::Test();
 	//Test_Cristal2SetRetailGateway();
 	//TestTddo();
 	//PreprocessHFile();
 	//SentencePieceExperiments();
 	//Test_OpenXLSX();
-	Test_ExecuteDialogByDl600Description();
 	//Test_CsvSniffer();
 	//TestTransferFileToFtp();
 	//VkInterface::Test();

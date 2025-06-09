@@ -50,10 +50,10 @@ int  SaveDataStruct(const char *pDataName, const char *pTempPath, const char *pR
 //
 //
 //
-static int FindExeByExt2(const char * pExt, SString & rResult, const char * pAddedSearchString)
+static bool FindExeByExt2(const char * pExt, SString & rResult, const char * pAddedSearchString)
 {
 	rResult.Z();
-	int    ok = 0;
+	bool   ok = false;
 	if(pExt) {
 		SString temp_buf;
 		SString val_buf;
@@ -82,7 +82,7 @@ static int FindExeByExt2(const char * pExt, SString & rResult, const char * pAdd
 							val_buf.Trim(space_pos);
 					}
 					rResult = val_buf;
-					ok = 1;
+					ok = true;
 				}
 			}
 		}
@@ -1035,7 +1035,7 @@ public:
 		AddClusterAssoc(CTL_PRINT2_ACTION, 4, PrnDlgAns::aPrepareData);
 		AddClusterAssoc(CTL_PRINT2_ACTION, 5, PrnDlgAns::aPrepareDataAndExecCR);
 		SetClusterData(CTL_PRINT2_ACTION, Data.Dest);
-		int    is_there_cr = FindExeByExt2(".rpt", cr_path_, "CrystalReports.9.1");
+		const bool is_there_cr = FindExeByExt2(".rpt", cr_path_, "CrystalReports.9.1");
 		if(!is_there_cr)
 			DisableClusterItem(CTL_PRINT2_ACTION, 5, 1);
 		THROW(Data.SetupReportEntries(0));
@@ -2177,11 +2177,13 @@ int SReport::printGroupHead(int kind, int grp)
 
 int SReport::checkval(int16 *flds, char **ptr)
 {
-	int     i, r;
-	uint    s, ofs;
+	int     i;
+	int     r;
+	uint    s;
+	uint    ofs;
 	TYPEID  t;
 	Field * f;
-	if(*ptr == 0)
+	if(*ptr == 0) {
 		if(flds && flds[0]) {
 			r = -1;
 			s = 0;
@@ -2191,7 +2193,8 @@ int SReport::checkval(int16 *flds, char **ptr)
 		}
 		else
 			r = 0;
-	else if(flds && flds[0])
+	}
+	else if(flds && flds[0]) {
 		for(ofs = r = 0, i = 1; i <= flds[0] && r == 0; i++) {
 			f = fields + flds[i] - 1;
 			t = f->type;
@@ -2200,9 +2203,10 @@ int SReport::checkval(int16 *flds, char **ptr)
 			else
 				ofs += stsize(t);
 		}
+	}
 	else
 		r = 0;
-	if(r && *ptr)
+	if(r && *ptr) {
 		for(ofs = 0, i = 1; i <= flds[0]; i++) {
 			f = fields + flds[i] - 1;
 			s = stsize(f->type);
@@ -2212,12 +2216,15 @@ int SReport::checkval(int16 *flds, char **ptr)
 				memzero((*ptr) + ofs, s);
 			ofs += s;
 		}
+	}
 	return r;
 }
 
 int SReport::printDetail()
 {
-	int     ok = 1, i, c;
+	int     ok = 1;
+	int     i;
+	int     c;
 	Band  * b;
 	Field * f = 0;
 	if(!(PrnOptions & SPRN_SKIPGRPS)) {
@@ -2234,9 +2241,10 @@ int SReport::printDetail()
 	}
 	for(b = searchBand(DETAIL_BODY, 0); enumFields(&f, b, &i);) {
 		if(f->type == 0) {
-			const char * p, * t;
+			const char * p;
+			const char * t;
 			p = t = P_Text+f->offs;
-			while((p = sstrchr(p, '\n')) != 0)
+			while((p = sstrchr(p, '\n')) != 0) {
 				if(P_Prn->pgl == 0 || line < (P_Prn->pgl - PageFtHt)) {
 					p++;
 					line++;
@@ -2248,6 +2256,7 @@ int SReport::printDetail()
 					t = ++p;
 					line++;
 				}
+			}
 			THROW(P_Prn->printLine(t, 0));
 		}
 		else
@@ -2269,9 +2278,10 @@ int SReport::printTitle(int kind)
 			page++;
 			line = 1;
 		}
-		while(enumFields(&f, b, &i))
+		while(enumFields(&f, b, &i)) {
 			if(f->type == 0) {
-				const char * p, * t;
+				const char * p;
+				const char * t;
 				p = t = P_Text+f->offs;
 				while((p = sstrchr(p, '\n')) != 0) {
 					if(P_Prn->pgl == 0 || line < P_Prn->pgl) {
@@ -2287,17 +2297,19 @@ int SReport::printTitle(int kind)
 				}
 				THROW(P_Prn->printLine(t, 0));
 			}
-			else
+			else {
 				THROW(printDataField(f));
+			}
+		}
 	}
 	CATCHZOK
 	return ok;
 }
 
-int SReport::getFieldName(SReport::Field * f, char * buf, size_t buflen)
+int SReport::getFieldName(SReport::Field * pFld, char * buf, size_t buflen)
 {
-	if(f->name >= 0) {
-		strnzcpy(buf, P_Text + f->name, buflen);
+	if(pFld->name >= 0) {
+		strnzcpy(buf, P_Text + pFld->name, buflen);
 		return 1;
 	}
 	else if(buf)
@@ -2745,7 +2757,7 @@ static int FASTCALL __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPRe
 						case PrnDlgAns::aPrepareDataAndExecCR:
 							{
 								SString cr_path_;
-								int    is_there_cr = FindExeByExt2(".rpt", cr_path_, "CrystalReports.9.1");
+								const bool is_there_cr = FindExeByExt2(".rpt", cr_path_, "CrystalReports.9.1");
 								if(is_there_cr) {
 									(temp_buf = cr_path_).Space().Cat(fn);
 									STempBuffer cmd_line((temp_buf.Len() + 32) * sizeof(TCHAR));
@@ -2792,7 +2804,7 @@ static int FASTCALL __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPRe
 					case PrnDlgAns::aPrepareDataAndExecCR:
 						{
 							SString cr_path_;
-							int    is_there_cr = FindExeByExt2(".rpt", cr_path_, "CrystalReports.9.1");
+							const bool is_there_cr = FindExeByExt2(".rpt", cr_path_, "CrystalReports.9.1");
 							if(is_there_cr) {
 								(temp_buf = cr_path_).Space().Cat(fn);
 								STempBuffer cmd_line((temp_buf.Len() + 32) * sizeof(TCHAR));
@@ -2915,3 +2927,126 @@ int FASTCALL PPExportDL600DataToJson(const char * pDataName, StrAssocArray * pSt
 //
 //
 SString & GetCrr32ProxiPipeName(SString & rBuf) { return rBuf.Z().Cat("\\\\.\\pipe\\").Cat(PPConst::PipeCrr32Proxi); } // @v11.9.5
+//
+//
+//
+class Crr32SupportClient {
+public:
+	Crr32SupportClient(const char * pPipeNameUtf8) : BusyPipeTimeoutMs(20000), WrBuf(SKILOBYTE(4)), RdBuf(SKILOBYTE(4))
+	{
+		PipeNameU.CopyFromUtf8Strict(pPipeNameUtf8, sstrlen(pPipeNameUtf8));
+	}
+	SIntHandle Connect()
+	{
+		SIntHandle result;
+		if(PipeNameU.NotEmpty()) {
+			bool do_exit = false;
+			do {
+				result = ::CreateFileW(PipeNameU, GENERIC_READ|GENERIC_WRITE, 0/*no sharing*/,
+					NULL/*default security attributes*/, OPEN_EXISTING/*opens existing pipe*/, 0/*default attributes*/, NULL/*no template file*/);
+				if(!result) {
+					if(GetLastError() == ERROR_PIPE_BUSY) {
+						boolint w_ok = ::WaitNamedPipeW(PipeNameU, BusyPipeTimeoutMs);
+						if(!w_ok) {
+							do_exit = true;
+						}
+					}
+					else {
+						do_exit = true;
+					}
+				}
+			} while(!result && !do_exit);
+			if(!!result) {
+				DWORD pipe_mode = PIPE_READMODE_MESSAGE; 
+				boolint _ok = SetNamedPipeHandleState(result, &pipe_mode/*new pipe mode*/, NULL/*don't set maximum bytes*/, NULL/*don't set maximum time*/);
+				if(!_ok) {
+					::CloseHandle(result);
+					result.Z();
+				}
+					
+			}
+		}
+		return result;
+	}
+	bool   SendQuitCommand(SIntHandle hPipe)
+	{
+		bool   ok = false;
+		SJson * p_js_reply = SendCommand(hPipe, "quit");
+		if(p_js_reply) {
+			ok = true;
+		}
+		return ok;
+	}
+	SJson * SendCommand(SIntHandle hPipe, const char * pCmdUtf8)
+	{
+		SJson * p_js_reply = 0;
+		SString temp_buf;
+		SString reply_buf;
+		THROW(hPipe); // @todo @err
+		THROW(!isempty(pCmdUtf8)); // @todo @err
+		{
+			SJson js_query(SJson::tOBJECT);
+			js_query.InsertString("cmd", pCmdUtf8);
+			//
+			DWORD wr_size = 0;
+			js_query.ToStr(temp_buf);
+			boolint wr_ok = WriteFile(hPipe, temp_buf.cptr(), temp_buf.Len()+1, &wr_size, NULL/*not overlapped*/);
+			if(wr_ok) {
+				reply_buf.Z();
+				bool more_data = false;
+				do {
+					more_data = false;
+					DWORD rd_size = 0;
+					RdBuf[0] = 0;
+					boolint rd_ok = ReadFile(hPipe, RdBuf, RdBuf.GetSize(), &rd_size, NULL/*not overlapped*/);
+					if(rd_ok) {
+						reply_buf.CatN(RdBuf, rd_size);
+					}
+					else if(GetLastError() == ERROR_MORE_DATA) {
+						more_data = true;
+					}
+					else {
+						; // real error
+					}
+				} while(more_data);
+				p_js_reply = SJson::Parse(reply_buf);
+			}
+		}
+		CATCH
+			ZDELETE(p_js_reply);
+		ENDCATCH
+		return p_js_reply;
+	}
+private:
+	SStringU PipeNameU;
+	uint   BusyPipeTimeoutMs;
+	STempBuffer WrBuf;
+	STempBuffer RdBuf;
+};
+
+int TestCrr32SupportServer()
+{
+	int    ok = 1;
+	SJson * p_js_reply = 0;
+	SString pipe_name;
+	GetCrr32ProxiPipeName(pipe_name);
+	Crr32SupportClient cli(pipe_name);
+	{
+		SIntHandle h_pipe = cli.Connect();
+		if(!h_pipe) {
+			ok = 0;
+		}
+		else {
+			for(uint i = 0; i < 10; i++) {
+				//slfprintf_stderr("Call on named-pipe #%u\n", i+1);
+				p_js_reply = cli.SendCommand(h_pipe, "test");
+				if(p_js_reply) {
+					ZDELETE(p_js_reply);
+				}
+			}
+			cli.SendQuitCommand(h_pipe);
+		}
+	}
+	ZDELETE(p_js_reply);
+	return ok;
+}

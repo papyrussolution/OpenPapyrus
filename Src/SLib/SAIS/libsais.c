@@ -1644,19 +1644,14 @@ static void libsais_radix_sort_lms_suffixes_32s_2k_block_sort(sa_sint_t * _RESTR
 		cache[i - 2].symbol = --induction_bucket[BUCKETS_INDEX2(cache[i - 2].symbol, 0)];
 		cache[i - 3].symbol = --induction_bucket[BUCKETS_INDEX2(cache[i - 3].symbol, 0)];
 	}
-
 	for(j -= prefetch_distance + 3; i >= j; i -= 1) {
 		cache[i].symbol = --induction_bucket[BUCKETS_INDEX2(cache[i].symbol, 0)];
 	}
 }
 
 static void libsais_radix_sort_lms_suffixes_32s_6k_block_omp(const sa_sint_t * _RESTRICT T,
-    sa_sint_t * _RESTRICT SA,
-    sa_sint_t * _RESTRICT induction_bucket,
-    LIBSAIS_THREAD_CACHE * _RESTRICT cache,
-    fast_sint_t block_start,
-    fast_sint_t block_size,
-    sa_sint_t threads)
+    sa_sint_t * _RESTRICT SA, sa_sint_t * _RESTRICT induction_bucket, LIBSAIS_THREAD_CACHE * _RESTRICT cache,
+    fast_sint_t block_start, fast_sint_t block_size, sa_sint_t threads)
 {
 #if defined(LIBSAIS_OPENMP)
     #pragma omp parallel num_threads(threads) if(threads > 1 && block_size >= 16384)

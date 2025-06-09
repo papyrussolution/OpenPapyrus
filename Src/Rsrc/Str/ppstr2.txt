@@ -1,8 +1,8 @@
 // PPSTR2.TXT
-// Copyright (c) A.Sobolev 1996-2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025 
+// Copyright (c) A.Sobolev 1996-2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // Codepage=UTF-8
 //
-// Синтаксис: 
+// Синтаксис:
 // [number] - начало зоны. Чаще всего зоны идентифицируются зарезервированными числовыми значениями.
 //   На текущий момент определены следующие (ppdefs.h)
 //     PPMSG_ERROR                 1
@@ -1549,11 +1549,11 @@ PPERR_DL6_UNMATCHQUESTTYPES        "DL600 Несовместимые типы в
 PPERR_DL6_STRUCNOTIMPL             "DL600 Структура данных '%s' не реализована"
 PPERR_DL6_SYMBIDBUSY               "DL600 Идентификатор символа занят: %s"
 PPERR_DL6_PROP_INVMARGINVAL        "DL600 ошибка в свойстве 'margin' - ожидается либо 4-компонентное значение {l, t, r, b}, либо единственная real-величина"
-PPERR_DL6_PROP_MARGINRANGEVIOL     "DL600 ошибка в свойстве 'margin' - недопустимое значение одного или нескольких компонентов margin" 
-PPERR_DL6_PROP_PMARGINOCCURED      "DL600 ошибка в свойстве 'margin' - один из компонентов margin уже был определен" 
+PPERR_DL6_PROP_MARGINRANGEVIOL     "DL600 ошибка в свойстве 'margin' - недопустимое значение одного или нескольких компонентов margin"
+PPERR_DL6_PROP_PMARGINOCCURED      "DL600 ошибка в свойстве 'margin' - один из компонентов margin уже был определен"
 PPERR_DL6_PROP_INVPADDINGVAL       "DL600 ошибка в свойстве 'padding' - ожидается либо 4-компонентное значение {l, t, r, b}, либо единственная real-величина"
-PPERR_DL6_PROP_PPADDINGOCCURED     "DL600 ошибка в свойстве 'padding' - один из компонентов padding уже был определен" 
-PPERR_DL6_PROP_PADDINGRANGEVIOL    "DL600 ошибка в свойстве 'padding' - недопустимое значение одного или нескольких компонентов padding" 
+PPERR_DL6_PROP_PPADDINGOCCURED     "DL600 ошибка в свойстве 'padding' - один из компонентов padding уже был определен"
+PPERR_DL6_PROP_PADDINGRANGEVIOL    "DL600 ошибка в свойстве 'padding' - недопустимое значение одного или нескольких компонентов padding"
 
 PPERR_UNABLETESTPSALESBYALLGOODS   "Не допускается тестирование таблицы продаж по всей выборке товаров"
 PPERR_INVPERIOD                    "Неверный период '%s'"
@@ -2314,7 +2314,7 @@ PPERR_LOCMUSTBEADDRORWAREHOUSE      "Локация должна быть адр
 PPERR_STQ_POSTDOCUMENTFAULT         "Ошибка передачи документа сервису"
 PPERR_STQ_MAPCLI2PSN_FAIL_USER      "Не удалось идентифицировать персоналию, ассоциированную с клиентом Stylo-Q сопоставленным с пользователем: %s"
 PPERR_STQ_MAPCLI2PSN_FAIL_UNMATCHED "Не удалось идентифицировать персоналию, ассоциированную с клиентом Stylo-Q, поскольку он не сопоставлен с объектами, допускающими такую идентификацию: %s"
-PPERR_STQ_UNDEFSTYLOPALMITEM_BYCLI  "Не удалось идентифицировать запись устройства Stylo-Palm по контексту клиента '%s'"  
+PPERR_STQ_UNDEFSTYLOPALMITEM_BYCLI  "Не удалось идентифицировать запись устройства Stylo-Palm по контексту клиента '%s'"
 PPERR_STQ_UNDEFSTYLOPALMITEM_BYCMD  "В команде формирования данных для заказов Stylo-Q (%s) не определен ид устройства Stylo-Palm"
 PPERR_STQ_BUYERNEEDED               "В агентском заказе необходимо выбрать покупателя и адрес доставки"
 PPERR_STQ_BEFOREPRCGOODSNEEDED      "Перед выбором процессора необходимо выбрать услугу"
@@ -3357,6 +3357,7 @@ PPFILNAM_DL600EXP              "ppexp.bin"
 PPFILNAM_DL600IFC              "ppifc.bin"
 PPFILNAM_DL600DBS              "ppdbs.bin"
 PPFILNAM_DL600UIVIEW           "uiview.bin" // @v12.3.6
+PPFILNAM_DL600UIVIEWLOCAL      "uiview-local.bin" // @v12.3.6
 PPFILNAM_STDSLIP_FMT           "stdslip.fmt"
 PPFILNAM_MTSCALE_SCPLU         "sc%i.plu"
 PPFILNAM_PPPAINTCLO_BIN        "pppcloth.bin"
@@ -8597,6 +8598,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @rtag_filesrights                         "Права на доступ к файлам"
 @rtag_billuuid                            "@{billuuid}"
 @rtag_goodskeywords                       "Ключевые слова товара"
+@rtag_personkeywords                      "Ключевые слова персоналии" // @v12.3.6
 @rtag_billkeywords                        "Ключевые слова документа"
 @rtag_pggtagsymb                          "Символ тега приватной товарной группы"
 @rtag_workbookkeywords                    "Ключевые слова рабочих книг"

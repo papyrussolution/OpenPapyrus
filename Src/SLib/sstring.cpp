@@ -6011,26 +6011,32 @@ static const char * FASTCALL SPathFindNextComponent(const char * pPath)
 				SString temp_buf;
 				SString new_result;
 				size_t p = 0;
-				while(rNormalizedPath.Search(dotdot_pattern, 0, 1, &p)) {
+				size_t start_pos = 0; // @v12.3.6
+				while(rNormalizedPath.Search(dotdot_pattern, start_pos, 1, &p)) {
 					char next_chr = rNormalizedPath.C(p+3);
 					if(p > 3 && oneof2(next_chr, 0, divider) && rNormalizedPath.C(p-1) != divider) {
-						size_t start_pos = 0; 
+						size_t local_start_pos = 0; 
 						size_t i = p-3;
 						if(i) {
 							do {
 								char c = rNormalizedPath.C(--i);
 								if(c == divider) {
-									// Намеренно инкрементируем значение дабы нулевая позиция отличалась от 0 для правильного выполнения условия if(start_pos) ниже
-									start_pos = i+1; 
+									// Намеренно инкрементируем значение дабы нулевая позиция отличалась от 0 для правильного выполнения условия if(local_start_pos) ниже
+									local_start_pos = i+1; 
 									break;
 								}
 							} while(i);
-							if(start_pos) {
-								--start_pos; // see comment above
-								rNormalizedPath.Excise(start_pos, p+3-start_pos);
+							if(local_start_pos) {
+								--local_start_pos; // see comment above
+								rNormalizedPath.Excise(local_start_pos, p+3-local_start_pos);
 							}
 						}
 					}
+					// @v12.3.6 @fix (бесконечный цикл на чем-то вроде "../../abc") {
+					else {
+						start_pos++;
+					}
+					// } @v12.3.6 @fix 
 				}
 			}
 		}

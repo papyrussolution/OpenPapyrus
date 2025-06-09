@@ -1212,6 +1212,7 @@ class  SNaturalTokenArray;
 struct SNaturalTokenStat;
 class  UiDescription; // @v11.9.2
 struct xmlParserCtxt; // @v12.3.3
+class  TDialog; // @v12.3.6
 //
 // Formats for date binary representation
 //
@@ -17760,6 +17761,14 @@ typedef int (*GetDefaultEncrKeyFunc)(SString & rBuf);
 //
 typedef int (*QueryPathFunc)(const char * pSignature, SString & rBuf);
 //
+// Descr: Функция внешней инициализации экземпляра класса TDialog.
+// Returns:
+//   >0 - инициализация завершилась успешно 
+//   <0 - не удалось обнаружить описание диалога по идентификатору pIdent
+//    0 - ошибка
+// 
+typedef int (*InitializeDialogFunc)(TDialog * pThis, const void * pIdent, void * extraPtr); // @v12.3.6
+//
 // Descr: Класс, содержащий функции, определенные вне модуля SLIB
 //
 class SlExtraProcBlock {
@@ -17776,6 +17785,7 @@ public:
 	GetGlobalSecureConfigFunc F_GetGlobalSecureConfig;
 	GetDefaultEncrKeyFunc F_GetDefaultEncrKey;
 	QueryPathFunc F_QueryPath;
+	InitializeDialogFunc F_InitDialog; // @v12.3.6
 };
 //
 // Descr: Флаги пользовательского интерфейса (SlThreadLocalArea::UiFlags)

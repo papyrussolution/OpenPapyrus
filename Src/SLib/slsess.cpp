@@ -77,6 +77,7 @@ void SlExtraProcBlock::Reset()
 	F_GetGlobalSecureConfig = 0;
 	F_GetDefaultEncrKey = 0;
 	F_QueryPath = 0;
+	F_InitDialog = 0;
 }
 
 void SlExtraProcBlock::Set(const SlExtraProcBlock * pS)
@@ -90,6 +91,7 @@ void SlExtraProcBlock::Set(const SlExtraProcBlock * pS)
 		F_GetGlobalSecureConfig = pS->F_GetGlobalSecureConfig;
 		F_GetDefaultEncrKey = pS->F_GetDefaultEncrKey;
 		F_QueryPath = pS->F_QueryPath;
+		F_InitDialog = pS->F_InitDialog; // @v12.3.6
 	}
 	else
 		Reset();

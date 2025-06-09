@@ -101,9 +101,10 @@ SString & PPViewBrowser::Helper_Export_MakeResultFilePath(bool toUtf8, const cha
 
 int PPViewBrowser::Helper_Export_Excel_OXLSX(SString & rResultFileName)
 {
-	using namespace OpenXLSX;
 	rResultFileName.Z();
 	int    ok = 1;
+#if (_MSC_VER >= 1920)
+	using namespace OpenXLSX;
 	SString temp_buf;
 	SString err_msg;
 	SString name;
@@ -397,6 +398,9 @@ int PPViewBrowser::Helper_Export_Excel_OXLSX(SString & rResultFileName)
 		}
 	}
 	//CATCHZOK
+#else
+	ok = 0;
+#endif
 	return ok;
 }
 

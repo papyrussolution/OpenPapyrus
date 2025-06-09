@@ -6535,6 +6535,7 @@ public:
 	DlContext * P_ExpCtx;        // Контекст экспортных структур данных
 	DlContext * P_IfcCtx;        // Контекст COM-интерфейсов
 	DlContext * P_UiViewCtx;     // @v12.3.6 @construction Контекст описания диалогов и прочих объектов UI в формате DL600
+	DlContext * P_UiViewLocalCtx; // @v12.3.6 @construction Контекст описания диалогов и прочих объектов UI в формате DL600 (локальный по отношению к инсталляции)
 	//
 	// Далее идут поля, типы данных которых имеют конструкторы
 	//
@@ -7425,7 +7426,8 @@ public:
 		ctxtExportData = 1,
 		ctxtInterface,
 		ctxDatabase,
-		ctxUiView // @v12.3.6 @construction Контекст описаний диалогов и других объектов пользовательского интерфеса в формате DL600
+		ctxUiView,      // @v12.3.6 @construction Контекст описаний диалогов и других объектов пользовательского интерфеса в формате DL600
+		ctxUiViewLocal, // @v12.3.6 @construction Контекст описаний диалогов и других объектов пользовательского интерфеса в формате DL600 (локальный по отношению к инсталляции)
 	};
 	//
 	// Descr: Возвращает контекст управления интерфейсными структурами или интерфейсными
@@ -60853,6 +60855,15 @@ enum {
 int    PPOpenFile(SString & rPath, const StringSet & rPatterns, long flags, HWND owner);
 int    PPOpenFile(uint strID, SString & rPath, long flags, HWND owner);
 int    PPOpenDir(SString & rPath, const char * pTitle, HWND owner);
+//
+// 
+//
+//typedef int (*InitializeDialogFunc)(TDialog * pThis, const void * pIdent, void * extraPtr); // @v12.3.6
+// Descr: Функция инициализации диалога средствами DL600. Указатель на эту функцию передается //
+//   модулю SLIB методом SlSession::SetExtraProcBlock() дабы класс TDialog мог воспользоваться техникой
+//   описания диалогом DL600.
+//
+int PPInitializeDialogFunc(TDialog * pThis, const void * pIdent, void * extraPtr); // @v12.3.6 @construction
 //
 //
 //
