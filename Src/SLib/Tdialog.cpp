@@ -277,7 +277,7 @@ int (* getUserControl)(TVRez*, TDialog*) = 0;
 						if(calc_inputline_id)
 							p_ctl = new TCalcInputLine(calc_inputline_id, calc_button_id, r, type, format);
 						else
-							p_ctl = new TInputLine(r, type, format);
+							p_ctl = new TInputLine(r, 0/*spcFlags*/, type, format);
 						dlg->InsertCtl(p_ctl, id, (flags & ldfDL600_Cvt) ? symb.cptr() : 0);
 					}
 					break;

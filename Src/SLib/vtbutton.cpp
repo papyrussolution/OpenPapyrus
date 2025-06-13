@@ -16,7 +16,7 @@ TCalcInputLine::VirtButtonWndEx::VirtButtonWndEx(const char * pSignature) : P_Dl
 }
 
 TCalcInputLine::TCalcInputLine(uint inputId, uint buttonId, const TRect & rBounds, TYPEID aType, long fmt) :
-	TInputLine(rBounds, aType, fmt), Vbwe("papyruscalculator"), VirtButtonId(inputId)
+	TInputLine(rBounds, 0/*spcFlags*/, aType, fmt), Vbwe("papyruscalculator"), VirtButtonId(inputId)
 {
 	Vbwe.ButtonCtrlId = buttonId;
 }

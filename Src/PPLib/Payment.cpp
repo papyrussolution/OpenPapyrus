@@ -481,7 +481,7 @@ int PPViewLinkedBill::MakeList()
 					}
 				}
 				break;
-			default: // @v10.3.6
+			default:
 				r = -1;
 				break;
 		}
@@ -1279,15 +1279,18 @@ int CfmReckoningDialog::getDateSettings()
 
 static int ConfirmReckoning(PPObjBill * pBObj, CfmReckoningParam * pCRP)
 {
-	int    ok = -1, valid_data = 0, r;
+	int    ok = -1;
+	int    valid_data = 0;
+	int    r;
 	CfmReckoningDialog * dlg = new CfmReckoningDialog((pCRP->DebtOrPaym ? DLG_CFM_RECKONDEBT : DLG_CFM_RECKONING), pBObj);
 	if(CheckDialogPtrErr(&dlg)) {
 		dlg->setDTS(pCRP);
-		while(!valid_data && ((r = ExecView(dlg)) == cmYes || r == cmRcknSelectedBill))
+		while(!valid_data && ((r = ExecView(dlg)) == cmYes || r == cmRcknSelectedBill)) {
 			if(dlg->getDTS(pCRP)) {
 				valid_data = 1;
 				ok = (r == cmYes) ? 1 : 2;
 			}
+		}
 	}
 	else
 		ok = 0;
@@ -1312,7 +1315,7 @@ static int SortBillListByDate(PPIDArray * pList, PPObjBill * pBObj)
 			THROW_SL(temp_list.insert(&item));
 		}
 	}
-	pList->clear(); // @v10.6.5 freeAll()->clear()
+	pList->clear();
 	temp_list.sort(PTR_CMPFUNC(_2long));
 	for(i = 0; i < temp_list.getCount(); i++)
 		THROW_SL(pList->add(static_cast<const _i *>(temp_list.at(i))->id));
@@ -1549,14 +1552,12 @@ int PPObjBill::ReckoningPaym(PPID billID, const ReckonParam & rParam, int use_ta
 									double __paym_amt = 0.0;
 									P_Tbl->GetAmount(billID, PPAMT_PAYMENT, bill_rec.CurID, &__paym_amt);
 									__paym_amt = R2(nominal - __paym_amt);
-									// @v10.3.2 {
-									if(__paym_amt == 0.0) // @v10.3.4
+									if(__paym_amt == 0.0)
 										effective_paym_amt = 0.0;
 									else if(__paym_amt > 0.0 && !reckon_neg_only)
 										effective_paym_amt = __paym_amt;
 									else if(__paym_amt < 0.0 && reckon_neg_only)
 										effective_paym_amt = -__paym_amt;
-									// } @v10.3.2
 								}
 								result_bill_list.add(&crp.ResultBillList);
 							}
@@ -1644,11 +1645,10 @@ int PPObjBill::GetPayableBillList_(const PPIDArray * pOpList, PPID arID, PPID cu
 {
 	int    ok = 1;
 	const  LDATE current_date = getcurdate_();
-	const  int by_links = 0;
+	const  PPID  single_op = pOpList ? pOpList->getSingle() : 0L;
+	const  int   by_links = 0;
 	uint   i;
 	double paym = 0.0;
-	// @v10.3.0 (never used) double amt = 0.0;
-	PPID   single_op = pOpList ? pOpList->getSingle() : 0L;
 	PayableBillListItem * p_item;
 	PayableBillList tmp_list;
 	BExtQuery q(P_Tbl, 3, 64);
@@ -1718,6 +1718,10 @@ int PPObjBill::GetReceivableBillList(PPID arID, PPID curID, PayableBillList * pL
 //
 //
 //
+PPObjBill::DebtBlock::DimItem::DimItem(PPID dimID, double debt, int expiry) : DimID(dimID), Debt(debt), MaxExpiry(expiry)
+{
+}
+
 PPObjBill::DebtBlock::DebtBlock() : Amount(0.0), Debt(0.0), HasMatured(0), MaxDelay(0), MaxExpiry(0)
 {
 }
@@ -1743,11 +1747,7 @@ int PPObjBill::DebtBlock::AddDimItem(PPID dimID, double debt, int expiry)
 		SETMAX(r_item.MaxExpiry, expiry);
 	}
 	else {
-		DimItem item;
-		MEMSZERO(item);
-		item.DimID = dimID;
-		item.Debt  = debt;
-		item.MaxExpiry = expiry;
+		DimItem item(dimID, debt, expiry);
 		DebtDimList.insert(&item);
 	}
 	return ok;
@@ -1784,8 +1784,10 @@ int PPObjBill::CalcClientDebt(PPID clientID, const DateRange * pPeriod, int diff
 	int    has_matured_debt = 0;
 	int    max_delay = 0;
 	int    max_expiry = 0;
-	const  LDATE curdate = LConfig.OperDate;
-	double a = 0.0, p = 0.0, t;
+	const  LDATE curdate = getcurdate_(); // @v12.3.6 LConfig.OperDate-->getcurdate_()
+	double a = 0.0;
+	double p = 0.0;
+	double t;
 	ArticleTbl::Rec ar_rec;
 	PPIDArray op_list;
 	DateRange period;
@@ -1797,7 +1799,7 @@ int PPObjBill::CalcClientDebt(PPID clientID, const DateRange * pPeriod, int diff
 		if(ArObj.Fetch(clientID, &ar_rec) > 0) {
 			P_OpObj->GetPayableOpList(ar_rec.AccSheetID, &op_list);
 			if(op_list.getCount()) {
-				const int use_omt_paymamt = BIN(CConfig.Flags2 & CCFLG2_USEOMTPAYMAMT);
+				const bool use_omt_paymamt = LOGIC(CConfig.Flags2 & CCFLG2_USEOMTPAYMAMT);
 				PROFILE_START
 				BillCore * p_t = P_Tbl;
 				PPObjDebtDim dd_obj;
@@ -1954,7 +1956,7 @@ int PPObjBill::CalcClientDebt(PPID clientID, const DateRange * pPeriod, int diff
 struct CBO_BillEntry { // @flat
 	CBO_BillEntry() : ID(0), Dt(ZERODATE), ArID(0), Ar2ID(0), Amount(0.0)
 	{
-		PTR32(Code)[0] = 0;
+		Code[0] = 0;
 	}
 	PPID   ID;
 	LDATE  Dt;

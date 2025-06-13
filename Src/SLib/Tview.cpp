@@ -608,6 +608,7 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 								pV->ViewOrigin.x, pV->ViewOrigin.y, pV->ViewSize.x, pV->ViewSize.y, hw_parent, (HMENU)ctl_id, TProgram::GetInst(), 0);
 						}
 						if(hw) {
+							setup_font_blk.Set(hw);
 							TView::SetWindowUserData(hw, p_lb);
 						}
 					}
@@ -642,6 +643,13 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 						DWORD  style = WS_VISIBLE|WS_CHILD|WS_BORDER|WS_CLIPSIBLINGS|ES_AUTOHSCROLL/*|BS_OWNERDRAW*/;
 						if(p_cv->IsInState(sfTabStop))
 							style |= WS_TABSTOP;
+						if(p_cv->GetSpcFlags() & TInputLine::spcfReadOnly)
+							style |= ES_READONLY;
+						if(p_cv->GetSpcFlags() & TInputLine::spcfMultiline)
+							style |= ES_MULTILINE;
+						if(p_cv->GetSpcFlags() & TInputLine::spcfWantReturn)
+							style |= ES_WANTRETURN;
+						//if(p_cv->)
 						//ES_UPPERCASE;
 						pV->Parent = hw_parent;
 						hw = ::CreateWindowExW(0, L"EDIT", 0, style, pV->ViewOrigin.x,

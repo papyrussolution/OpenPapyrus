@@ -744,7 +744,7 @@ void TInputLine::Init()
 	InlSt = stValidStr;
 }
 
-TInputLine::TInputLine(const TRect & rBounds, TYPEID typ, long fmt) : TView(rBounds), Helper_WordSelector(0, 0), SpcFlags(0)
+TInputLine::TInputLine(const TRect & rBounds, uint spcFlags, TYPEID typ, long fmt) : TView(rBounds), Helper_WordSelector(0, 0), SpcFlags(spcFlags)
 {
 	TInputLine::Init();
 	MaxLen = SFMTLEN(fmt);
@@ -967,7 +967,7 @@ int TInputLine::GetStatistics(Statistics * pStat) const
 //
 // ComboBoxInputLine
 //
-ComboBoxInputLine::ComboBoxInputLine(ushort aId) : TInputLine(TRect(), 0, 0)
+ComboBoxInputLine::ComboBoxInputLine(ushort aId) : TInputLine(TRect(), 0/*spcFlags*/, 0, 0)
 {
 	Id = aId;
 }

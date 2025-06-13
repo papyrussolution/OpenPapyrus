@@ -7,7 +7,7 @@
 //
 //
 //
-/*// @v12.2.8 (стали жаловаться, что диалог выбивает)*/#define USE_EXPERIMENTAL_LAYOUTEDDIALOG  // @v12.2.6 @construction 
+// @v12.3.6 /*// @v12.2.8 (стали жаловаться, что диалог выбивает)*/#define USE_EXPERIMENTAL_LAYOUTEDDIALOG  // @v12.2.6 @construction 
 
 #ifdef USE_EXPERIMENTAL_LAYOUTEDDIALOG
 class RegisterListDialog2 : public LayoutedListDialog {
@@ -905,86 +905,64 @@ int PPObjRegister::EditBankAccount(PPBankAccount * pRec, PPID psnKindID)
 //
 // BankAccountListDialog
 //
-class BankAccountListDialog2 : public LayoutedListDialog {
-	LayoutedListDialog_Base::Param GetListParam()
-	{
-		LayoutedListDialog_Base::Param p;
-		p.Bounds.Set(0, 0, 420, 160);
-		p.Title = "@bankaccount_pl";
-		p.Flags = LayoutedListDialog_Base::fcedCED|LayoutedListDialog_Base::fHeaderStaticText;
-		p.ColumnDescription = "@lbt_bankacclist";
-		p.Symb = "BankAccountListDialog2";
-		return p;
-	}
-public:
-	BankAccountListDialog2(PPPersonPacket * pPsnPack) : LayoutedListDialog(GetListParam(), new StrAssocListBoxDef(new StrAssocArray(), lbtDisposeData|lbtDblClkNotify|lbtFocNotify)),
-		P_PsnPack(0), P_Data(&StubData)
-	{
-		if(pPsnPack) {
-			P_PsnPack = pPsnPack;
-			P_Data = &pPsnPack->Regs;
-			setStaticText(STDCTL_HEADERSTATICTEXT, P_PsnPack->Rec.Name);
+#if 0 // @v12.3.6 (Этот блок отработал свою функцию - переходим на регулярное описание диалогов в DL00) {
+	class BankAccountListDialog2 : public LayoutedListDialog {
+		LayoutedListDialog_Base::Param GetListParam()
+		{
+			LayoutedListDialog_Base::Param p;
+			p.Bounds.Set(0, 0, 420, 160);
+			p.Title = "@bankaccount_pl";
+			p.Flags = LayoutedListDialog_Base::fcedCED|LayoutedListDialog_Base::fHeaderStaticText;
+			p.ColumnDescription = "@lbt_bankacclist";
+			p.Symb = "BankAccountListDialog2";
+			return p;
 		}
-		// see the comment to the function int moveItem(long, long, int) below
-		enableCommand(cmUp, 0);
-		enableCommand(cmDown, 0);
-		updateList(-1);
-	}
-private:
-	virtual int  setupList()
-	{
-		int    ok = 1;
-		SString sub;
-		StringSet ss(SLBColumnDelim);
-		for(uint i = 0; i < P_Data->getCount(); i++) {
-			const RegisterTbl::Rec & r_reg_rec = P_Data->at(i);
-			if(r_reg_rec.RegTypeID == PPREGT_BANKACCOUNT) {
-				PPBankAccount ba(r_reg_rec);
-				ss.Z();
-				sub.Z();
-				GetPersonName(ba.BankID, sub);
-				ss.add(sub);
-				ss.add(ba.Acct);
-				THROW(addStringToList(i+1, ss.getBuf()));
+	public:
+		BankAccountListDialog2(PPPersonPacket * pPsnPack) : LayoutedListDialog(GetListParam(), new StrAssocListBoxDef(new StrAssocArray(), lbtDisposeData|lbtDblClkNotify|lbtFocNotify)),
+			P_PsnPack(0), P_Data(&StubData)
+		{
+			if(pPsnPack) {
+				P_PsnPack = pPsnPack;
+				P_Data = &pPsnPack->Regs;
+				setStaticText(STDCTL_HEADERSTATICTEXT, P_PsnPack->Rec.Name);
 			}
+			// see the comment to the function int moveItem(long, long, int) below
+			enableCommand(cmUp, 0);
+			enableCommand(cmDown, 0);
+			updateList(-1);
 		}
-		CATCHZOK
-		return ok;
-	}
-	virtual int addItem(long * pPos, long * pID)
-	{
-		int    ok = -1;
-		if(RObj.CheckRights(PPR_INS)) {
-			PPBankAccount ba_rec;
-			PersonTbl::Rec psn_rec;
-			ba_rec.AccType = PPBAC_CURRENT;
-			while(ok < 0 && RObj.EditBankAccount(&ba_rec, 0) > 0) {
-				if(P_Data->CheckDuplicateBankAccount(&ba_rec, -1)) {
-					if(P_Data->SetBankAccount(&ba_rec, static_cast<uint>(-1))) {
-						ASSIGN_PTR(pID, P_Data->getCount());
-						ok = 1;
-					}
-					else
-						PPError();
+	private:
+		virtual int  setupList()
+		{
+			int    ok = 1;
+			SString sub;
+			StringSet ss(SLBColumnDelim);
+			for(uint i = 0; i < P_Data->getCount(); i++) {
+				const RegisterTbl::Rec & r_reg_rec = P_Data->at(i);
+				if(r_reg_rec.RegTypeID == PPREGT_BANKACCOUNT) {
+					PPBankAccount ba(r_reg_rec);
+					ss.Z();
+					sub.Z();
+					GetPersonName(ba.BankID, sub);
+					ss.add(sub);
+					ss.add(ba.Acct);
+					THROW(addStringToList(i+1, ss.getBuf()));
 				}
-				else
-					PPError();
 			}
+			CATCHZOK
+			return ok;
 		}
-		else
-			ok = PPErrorZ();
-		return ok;
-	}
-	virtual int  editItem(long pos, long id)
-	{
-		int    ok = -1;
-		if(id > 0 && id <= P_Data->getCountI()) {
-			RegisterTbl::Rec & r_reg_rec = P_Data->at(id-1);
-			if(r_reg_rec.RegTypeID == PPREGT_BANKACCOUNT) {
-				PPBankAccount ba_rec(r_reg_rec);
+		virtual int addItem(long * pPos, long * pID)
+		{
+			int    ok = -1;
+			if(RObj.CheckRights(PPR_INS)) {
+				PPBankAccount ba_rec;
+				PersonTbl::Rec psn_rec;
+				ba_rec.AccType = PPBAC_CURRENT;
 				while(ok < 0 && RObj.EditBankAccount(&ba_rec, 0) > 0) {
-					if(P_Data->CheckDuplicateBankAccount(&ba_rec, /*pos*/(id-1))) {
-						if(P_Data->SetBankAccount(&ba_rec, (uint)(id-1))) {
+					if(P_Data->CheckDuplicateBankAccount(&ba_rec, -1)) {
+						if(P_Data->SetBankAccount(&ba_rec, static_cast<uint>(-1))) {
+							ASSIGN_PTR(pID, P_Data->getCount());
 							ok = 1;
 						}
 						else
@@ -994,75 +972,99 @@ private:
 						PPError();
 				}
 			}
+			else
+				ok = PPErrorZ();
+			return ok;
 		}
-		return ok;
-	}
-	virtual int  delItem(long pos, long id)
-	{
-		int    ok = -1;
-		if(id > 0 && id <= P_Data->getCountI()) {
-			RegisterTbl::Rec & r_reg_rec = P_Data->at(id-1);
-			if(r_reg_rec.RegTypeID == PPREGT_BANKACCOUNT) {
-                PPBankAccount ba_rec(r_reg_rec);
-				THROW(!ba_rec.ID || RObj.CheckRights(PPR_DEL));
-				if(CONFIRM(PPCFM_DELETE)) {
-					THROW(P_Data->SetBankAccount(0, (uint)(id-1)));
-					ok = 1;
-				}
-			}
-		}
-		CATCHZOKPPERR
-		return ok;
-	}
-	//
-	// Попытка реализовать ручное изменение порядка следования счетов оказалась неудачной:
-	// в базе данных регистры, хранящие данные о счетах игнорируют это изменение порядка при обновлении 
-	// списка записей. В конструкторе мы запретили кнопки Up и Donw, сам же код пока оставим - может пригодится.
-	//
-	virtual int moveItem(long pos, long id, int up)
-	{
-		int    ok = -1;
-		if(P_Data) {
-			const long _c = P_Data->getCountI();
-			if(id > 0 && id <= _c) {
+		virtual int  editItem(long pos, long id)
+		{
+			int    ok = -1;
+			if(id > 0 && id <= P_Data->getCountI()) {
 				RegisterTbl::Rec & r_reg_rec = P_Data->at(id-1);
 				if(r_reg_rec.RegTypeID == PPREGT_BANKACCOUNT) {
-					const long this_idx = id-1;
-					if(up) {
-						long idx = this_idx;
-						if(idx > 0) do {
-							const RegisterTbl::Rec & r_reg_rec = P_Data->at(--idx);
-							if(r_reg_rec.RegTypeID == PPREGT_BANKACCOUNT) {
-								if(P_Data->swap(this_idx, idx)) {
-									ok = 1;
-								}
-								break;
+					PPBankAccount ba_rec(r_reg_rec);
+					while(ok < 0 && RObj.EditBankAccount(&ba_rec, 0) > 0) {
+						if(P_Data->CheckDuplicateBankAccount(&ba_rec, /*pos*/(id-1))) {
+							if(P_Data->SetBankAccount(&ba_rec, (uint)(id-1))) {
+								ok = 1;
 							}
-						} while(idx > 0);
-					}
-					else {
-						long idx = this_idx;
-						if(idx >= 0 && idx < (_c-1)) do {
-							const RegisterTbl::Rec & r_reg_rec = P_Data->at(++idx);
-							if(r_reg_rec.RegTypeID == PPREGT_BANKACCOUNT) {
-								if(P_Data->swap(this_idx, idx)) {
-									ok = 1;
-								}
-								break;
-							}
-						} while(idx < (_c-1));
+							else
+								PPError();
+						}
+						else
+							PPError();
 					}
 				}
 			}
+			return ok;
 		}
-		return ok;
-	}
-	PPObjPerson  PsnObj;
-	PPObjRegister RObj;
-	RegisterArray StubData;
-	RegisterArray * P_Data;
-	PPPersonPacket * P_PsnPack;
-};
+		virtual int  delItem(long pos, long id)
+		{
+			int    ok = -1;
+			if(id > 0 && id <= P_Data->getCountI()) {
+				RegisterTbl::Rec & r_reg_rec = P_Data->at(id-1);
+				if(r_reg_rec.RegTypeID == PPREGT_BANKACCOUNT) {
+					PPBankAccount ba_rec(r_reg_rec);
+					THROW(!ba_rec.ID || RObj.CheckRights(PPR_DEL));
+					if(CONFIRM(PPCFM_DELETE)) {
+						THROW(P_Data->SetBankAccount(0, (uint)(id-1)));
+						ok = 1;
+					}
+				}
+			}
+			CATCHZOKPPERR
+			return ok;
+		}
+		//
+		// Попытка реализовать ручное изменение порядка следования счетов оказалась неудачной:
+		// в базе данных регистры, хранящие данные о счетах игнорируют это изменение порядка при обновлении 
+		// списка записей. В конструкторе мы запретили кнопки Up и Donw, сам же код пока оставим - может пригодится.
+		//
+		virtual int moveItem(long pos, long id, int up)
+		{
+			int    ok = -1;
+			if(P_Data) {
+				const long _c = P_Data->getCountI();
+				if(id > 0 && id <= _c) {
+					RegisterTbl::Rec & r_reg_rec = P_Data->at(id-1);
+					if(r_reg_rec.RegTypeID == PPREGT_BANKACCOUNT) {
+						const long this_idx = id-1;
+						if(up) {
+							long idx = this_idx;
+							if(idx > 0) do {
+								const RegisterTbl::Rec & r_reg_rec = P_Data->at(--idx);
+								if(r_reg_rec.RegTypeID == PPREGT_BANKACCOUNT) {
+									if(P_Data->swap(this_idx, idx)) {
+										ok = 1;
+									}
+									break;
+								}
+							} while(idx > 0);
+						}
+						else {
+							long idx = this_idx;
+							if(idx >= 0 && idx < (_c-1)) do {
+								const RegisterTbl::Rec & r_reg_rec = P_Data->at(++idx);
+								if(r_reg_rec.RegTypeID == PPREGT_BANKACCOUNT) {
+									if(P_Data->swap(this_idx, idx)) {
+										ok = 1;
+									}
+									break;
+								}
+							} while(idx < (_c-1));
+						}
+					}
+				}
+			}
+			return ok;
+		}
+		PPObjPerson  PsnObj;
+		PPObjRegister RObj;
+		RegisterArray StubData;
+		RegisterArray * P_Data;
+		PPPersonPacket * P_PsnPack;
+	};
+#endif // } 0 @v12.3.6 (Этот блок отработал свою функцию - переходим на регулярное описание диалогов в DL00) {
 
 class BankAccountListDialog : public PPListDialog {
 public:

@@ -3867,11 +3867,12 @@ public:
 		spcfWantReturn = 0x0004
 	};
 
-	TInputLine(const TRect & rBounds, TYPEID aType, long fmt);
+	TInputLine(const TRect & rBounds, uint spcFlags, TYPEID aType, long fmt);
 	~TInputLine();
 	virtual int    TransmitData(int dir, void * pData);
 	virtual void   setState(uint aState, bool enable);
 	virtual int    handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
+	uint   GetSpcFlags() const { return SpcFlags; }
 	//
 	// Descr: Устанавливает максимальную длину текста поля ввода. 
 	// Returns: 

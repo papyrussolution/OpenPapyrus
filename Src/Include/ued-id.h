@@ -1,6 +1,6 @@
 // UED-ID-TEMP.H
-// version: 37
-// sha256: 5391a581dbc91aba56dc357cd0e52b2df4fb185c596a9898defd1021444d321e
+// version: 38
+// sha256: ac39a1a4887e714b2ddd5488df2c9c67750d0995fc17d442a7c582636c7dcd31
 //
 #ifndef __UED_ID_TEMP_H
 #define __UED_ID_TEMP_H
@@ -167,6 +167,7 @@
 	#define UED_UOM_DEGFAHRENHEIT                        0x80000006fULL
 	#define UED_UOM_DEGRANKINE                           0x800000070ULL
 	#define UED_UOM_DEGREAUMUR                           0x800000071ULL
+	#define UED_UOM_PIECE                                0x800000081ULL
 #define UED_META_PROP                                0x100000009ULL
 	#define UED_PROP_TYPE                                0x900000001ULL
 	#define UED_PROP_GROUP                               0x900000002ULL

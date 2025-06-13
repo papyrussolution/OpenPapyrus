@@ -238,6 +238,35 @@
 	#include <sl-packing-reset.h>
 	#include <sl-packing-set01.h> // @v11.7.7
 #endif
+//
+//
+//
+typedef signed char    int8;
+typedef signed short   int16;
+typedef signed long    int32;
+// @todo typedef signed int     int32; // @v11.6.8
+typedef unsigned char  uint8;
+typedef unsigned short uint16;
+// @v11.6.8 typedef unsigned long  uint32;
+typedef unsigned int  uint32; // @v11.6.8
+typedef __int64        int64;
+typedef unsigned __int64 uint64;
+typedef long double         LDBL;
+typedef unsigned char       uchar;
+typedef unsigned short      ushort;
+typedef unsigned int        uint;
+typedef unsigned long       ulong;
+typedef unsigned long long  ulonglong;
+typedef char                BCD4[4];
+typedef char                BCD8[8];
+typedef char                BCD10[10];
+typedef char   * BCD_T;
+typedef unsigned short      RECORDSIZE;
+typedef unsigned long       RECORDNUMBER;
+typedef unsigned char       xmlChar; // Определение из libxml и для libxml (libxml now includes slib.h)
+typedef int                 boolint; // Введен с целью унифицировать "рукотворные" целочисленные булевы типы в разных включенных библиотеках
+typedef int32               TYPEID;
+//
 //#if _MSC_VER >= 1910
 #if CXX_HAS_STATIC_ASSERT
 	#define STATIC_ASSERT static_assert
@@ -1130,34 +1159,6 @@
 #define T_BOOL             MKSTYPE(S_BOOL, 4)
 #define T_GUID             MKSTYPE(S_UUID_, 16)
 #define T_COLOR_RGBA       MKSTYPE(S_COLOR_RGBA, 4)
-//
-//
-//
-typedef signed char    int8;
-typedef signed short   int16;
-typedef signed long    int32;
-// @todo typedef signed int     int32; // @v11.6.8
-typedef unsigned char  uint8;
-typedef unsigned short uint16;
-// @v11.6.8 typedef unsigned long  uint32;
-typedef unsigned int  uint32; // @v11.6.8
-typedef __int64        int64;
-typedef unsigned __int64 uint64;
-typedef long double         LDBL;
-typedef unsigned char       uchar;
-typedef unsigned short      ushort;
-typedef unsigned int        uint;
-typedef unsigned long       ulong;
-typedef unsigned long long  ulonglong;
-typedef char                BCD4[4];
-typedef char                BCD8[8];
-typedef char                BCD10[10];
-typedef char   * BCD_T;
-typedef unsigned short      RECORDSIZE;
-typedef unsigned long       RECORDNUMBER;
-typedef unsigned char       xmlChar; // Определение из libxml и для libxml (libxml now includes slib.h)
-typedef int                 boolint; // Введен с целью унифицировать "рукотворные" целочисленные булевы типы в разных включенных библиотеках
-typedef int32               TYPEID;
 
 class  SBuffer;
 class  SString;
@@ -19695,6 +19696,7 @@ public:
 	int    _check_range(float a, float low, float upp, const char * pA, const char * pLow, const char * pUpp);
 	int    _check_mem(const void * pMem, size_t sz, uint8 pattern, const char * pV);
 	int    _check_math_result(SMathResult & r, double val, double tol, const char * pF);
+	int    _throw_expectation_fault(const char * pV); // @v12.3.6
 	//
 	//		Snippet:
 	//		{
@@ -19942,6 +19944,8 @@ extern "C" typedef STestCase * (*FN_SLTEST_FACTORY)(STestSuite * pSuite);
 #define SLCHECK_LE(a, b)             _check_le((a), (b), #a, #b)
 #define SLCHECK_CRANGE(a, low, upp)  _check_range((a), (low), (upp), #a, #low, #upp)
 #define SLCHECK_MEM(ptr, size, pattern) _check_mem((ptr), (size), (pattern), #ptr)
+
+#define SLCHECK_THROWS(f)            try { f; _throw_expectation_fault(#f); } catch(...) {} // @v12.3.6
 
 #define SLTEST_CLS(s)     SLTC_##s
 #define SLTEST_FACTORY(s) SLTCF_##s

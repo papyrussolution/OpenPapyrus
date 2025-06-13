@@ -1954,7 +1954,7 @@ public:
 
 bool SUiLayout::LayoutAlign(/*flex_align*/int align, float flexDim, uint childrenCount, float * pPos, float * pSpacing, bool stretchAllowed) const
 {
-	assert(flexDim > 0);
+	assert(flexDim > 0.0f);
 	float pos = 0.0f;
 	float spacing = 0.0f;
 	switch(align) {
@@ -2991,7 +2991,7 @@ SJson * SUiLayout::ToJsonObj() const
 	}
 	if(oneof4(ALB.AlignItems, SUiLayoutParam::alignEnd, SUiLayoutParam::alignCenter, SUiLayoutParam::alignStretch, SUiLayoutParam::alignStart)) {
 		const char * p_just = 0;
-		switch(ALB.AlignContent) {
+		switch(ALB.AlignItems) { // @v12.3.6 @fix ALB.AlignContent-->ALB.AlignItems
 			case SUiLayoutParam::alignStretch: p_just = "stretch"; break;
 			case SUiLayoutParam::alignCenter: p_just = "center"; break;
 			case SUiLayoutParam::alignStart: p_just = "start"; break;

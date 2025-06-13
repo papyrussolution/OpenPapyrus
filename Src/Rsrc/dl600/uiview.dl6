@@ -1,0 +1,203 @@
+// UIVIEW.DL6
+// Copyright (c) A.Sobolev 2025
+//
+cinclude "../../include/tvdefs.h"
+cinclude "../../include/ppdefs.h"
+
+dialog DLG_TAGVALVIEW [title: "@tagvalue_pl" vertical size: (507, 414) font: "MS Shell Dlg,8"] {
+	statictext CTL_TAGVALVIEW_OBJ [width: bycontainer(100) growfactor: 1 staticedge margin: 4];
+	listbox CTL_TAGVALVIEW_LIST [width: bycontainer(100) growfactor: 5 margin: 4 columns: "28,L,@tag;50,L,@value"];
+	view [horizontal width: bycontainer(100) height: 28] {
+		view [horizontal growfactor: 3 height: bycontainer(100) gravity: left justifycontent: start] {
+			button STDCTL_EDITBUTTON [title: "@but_edit" tabstop defaultitem size: (90, 21) margin: 4 command: cmaEdit];
+			button STDCTL_INSBUTTON [title: "@but_add" tabstop size: (90, 21) margin: 4 command: cmaInsert];
+			button STDCTL_DELBUTTON [title: "@but_delete" tabstop size: (90, 21) margin: 4 command: cmaDelete];
+		}
+		view [horizontal growfactor: 2 height: bycontainer(100) gravity: right justifycontent: end] {
+			button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 command: cmOK];
+			button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+		}
+	}
+}
+
+dialog DLG_REGLST [title: "@registerdocument_pl" vertical size: (649, 268) font: "MS Shell Dlg,8"] {
+	input CTL_REGLST_LINKOBJTEXT [width: bycontainer(100) height: 21 margin: 4 tabstop readonly] string[128];
+	listbox CTL_REGLST_LIST [width: bycontainer(100) growfactor: 1 margin: 4 columns: "38,L,@register_regtype;10,L,@series;28,L,@number;12,L,@register_dt;12,L,@validuntil"];
+	view [horizontal width: bycontainer(100) height: 28] {
+		view [horizontal growfactor: 3 height: bycontainer(100) gravity: left justifycontent: start] {
+			button STDCTL_EDITBUTTON [title: "@but_edit" tabstop defaultitem size: (90, 21) margin: 4 command: cmaEdit];
+			button STDCTL_INSBUTTON [title: "@but_add" tabstop size: (90, 21) margin: 4 command: cmaInsert];
+			button STDCTL_DELBUTTON [title: "@but_delete" tabstop size: (90, 21) margin: 4 command: cmaDelete];
+		}
+		view [horizontal growfactor: 2 height: bycontainer(100) gravity: right justifycontent: end] {
+			button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 command: cmOK];
+			button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+		}
+	}
+}
+
+dialog DLG_BACCLST [title: "@bankaccount_pl" vertical size: (528, 257)  font: "MS Shell Dlg,8"] {
+	input CTL_BACCLST_NAME [width: bycontainer(100) height: 21 margin: 4 tabstop readonly] string[128];
+	view [horizontal width: bycontainer(100) growfactor: 1] {
+		listbox CTL_BACCLST_LIST [growfactor: 1 height: bycontainer(100) margin: 4 columns: "48,L,@bank;28,L,@account"];
+		view [vertical width: 30 height: bycontainer(100) justifycontent: center] {
+			button STDCTL_UPBUTTON [title: "" tabstop size: (23, 21) margin: 4 command: cmUp];
+			button STDCTL_DOWNBUTTON [title: "" tabstop size: (23, 21) margin: 4 command: cmDown];
+		}
+	}
+	view [horizontal width: bycontainer(100) height: 28] {
+		view [horizontal growfactor: 3 height: bycontainer(100) gravity: left justifycontent: start] {
+			button STDCTL_EDITBUTTON [title: "@but_edit" tabstop defaultitem size: (90, 21) margin: 4 command: cmaEdit];
+			button STDCTL_INSBUTTON [title: "@but_add" tabstop size: (90, 21) margin: 4 command: cmaInsert];
+			button STDCTL_DELBUTTON [title: "@but_delete" tabstop size: (90, 21) margin: 4 command: cmaDelete];
+		}
+		view [horizontal growfactor: 2 height: bycontainer(100) gravity: right justifycontent: end] {
+			button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 command: cmOK];
+			button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+		}
+	}
+}
+
+dialog DLG_CCEXTLIST [title: "@ccextlist" vertical size: (663, 294)  font: "MS Shell Dlg 2,8"] {
+	listbox CTL_CCEXTLIST_LIST [width: bycontainer(100) growfactor: 1 margin: 4 columns: "30,L,@datafield;30,L,@value"];
+	view [horizontal width: bycontainer(100) height: 28] {
+		view [horizontal growfactor: 3 height: bycontainer(100) gravity: left justifycontent: start] {
+			button STDCTL_EDITBUTTON [title: "@but_edit" tabstop defaultitem size: (90, 21) margin: 4 command: cmaEdit];
+			button STDCTL_INSBUTTON [title: "@but_add" tabstop size: (90, 21) margin: 4 command: cmaInsert];
+			button STDCTL_DELBUTTON [title: "@but_delete" tabstop size: (90, 21) margin: 4 command: cmaDelete];
+		}
+		view [horizontal growfactor: 2 height: bycontainer(100) gravity: right justifycontent: end] {
+			button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 command: cmOK];
+			button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+		}
+	}	
+}
+
+dialog DLG_BIGTXTEDIT [vertical size: (811, 593) font: "MS Shell Dlg 2,8"] {
+	input CTL_BIGTXTEDIT_TITLE [width: bycontainer(100) height: 21 margin: 4 readonly] string[128];
+	input CTL_BIGTXTEDIT_TEXT [width: bycontainer(100) growfactor: 1 tabstop multiline wantreturn] string[64];
+	view [horizontal width: bycontainer(100) height: 28 justifycontent: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+
+dialog DLG_LOTXCLIST [title: "@lotxcodelist" vertical size: (1119, 424) font: "MS Shell Dlg,8"] {
+	input CTL_LOTXCLIST_INFO [width: bycontainer(100) height: 21 margin: 4 tabstop readonly] string[128];
+	listbox CTL_LOTXCLIST_LIST [width: bycontainer(100) growfactor: 1 margin: 4];
+	view [horizontal width: bycontainer(100) height: 28] {
+		view [horizontal width: 200 height: bycontainer(100) gravity: left justifycontent: start] {
+			button STDCTL_INSBUTTON [title: "@but_add" tabstop size: (90, 21) margin: 4 command: cmaInsert];
+			button STDCTL_DELBUTTON [title: "@but_delete" tabstop size: (90, 21) margin: 4 command: cmaDelete];
+		}
+		view [horizontal growfactor: 1 height: bycontainer(100) gravity: center justifycontent: spaceevenly] {
+			button CTL_CMD_COPYTOCLIPBOARD [title: "@lotxcodelist_cbcopy" tabstop size: (150, 21) margin: 4 command: cmCopyToClipboard];
+			button CTL_CMD_COPYTOCLIPBOARDALL [title: "@lotxcodelist_cbcopyall" tabstop size: (150, 21) margin: 4 command: cmCopyToClipboardAll];
+			button CTL_CMD_PASTEFROMCLIPBOARDALL [title: "@lotxcodelist_cbpaste" tabstop size: (150, 21) margin: 4 command: cmPasteFromClipboardAll];
+			button CTL_CMD_IMPORT [title: "Import..." tabstop size: (150, 21) margin: 4 command: cmImport];
+		}
+		view [horizontal width: 170 height: bycontainer(100) gravity: right justifycontent: end] {
+			button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 command: cmOK];
+			button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+		}
+	}
+}
+//
+// @todo Диалоги DLG_CFM_RECKONING и DLG_CFM_RECKONDEBT не отличаются друг от друга. Я не помню почему их дифференцировал изначално,
+// но, видимо, их надо объединять в один.
+//
+dialog DLG_CFM_RECKONING [title: "@confirm" vertical size: (519, 465)  font: "MS Shell Dlg,8"] {
+	statictext CTL_CFM_RECKONING_INFO [width: bycontainer(100) growfactor: 1 margin: 4 staticedge];
+	view [horizontal width: bycontainer(100) height: 104] {
+		radiocluster CTL_CFM_RECKONING_DTSEL [title: "@cfmrcknparam_dateoption" vertical height: bycontainer(100) growfactor: 1 margin: 4] {
+			radiobutton [title: "@cfmrcknparam_dateoption_curr" height: 16];
+			radiobutton [title: "@cfmrcknparam_dateoption_paym" height: 16];
+			radiobutton [title: "@cfmrcknparam_dateoption_debt" height: 16];
+			radiobutton [title: "@cfmrcknparam_dateoption_user" height: 16];
+		}
+		input CTL_CFM_RECKONING_DT [size: (68, 21) margin: (4, 10, 4, 20) tabstop fmtf: (dmy)] date; // @todo Здесь еще кнопка календаря должна быть
+	}
+	listbox CTL_CFM_RECKONING_LIST [width: bycontainer(100) growfactor: 3 columns: "9,L,@date;11,L,@number;15,R,@amount;15,R,@debt;30,L,@agent"];
+	view [vertical width: bycontainer(100) height: 52] {
+		statictext CTL_CFM_RECKONING_ST_04002 [title: "@cfmrcknparam_query" width: bycontainer(100) height: 13 margin: 4 ];
+		view [horizontal width: bycontainer(100) height: 28 justifycontent: start] {
+			button CTL_CFM_RECKONING_SELBUT [title: "@cfmrcknparam_sel_selected" tabstop size: (98, 21) margin: 4 command: cmRcknSelectedBill];
+			button CTL_CFM_RECKONING_ALLBUT [title: "@cfmrcknparam_sel_all" tabstop defaultitem size: (98, 21) margin: 4 command: cmYes];
+			button CTL_CMD_NO [title: "@cfmrcknparam_sel_cancel" tabstop size: (98, 21) margin: 4 command: cmNo];
+		}
+	}
+}
+
+dialog DLG_CFM_RECKONDEBT [title: "@confirm" vertical size: (519, 465)  font: "MS Shell Dlg,8"] {
+	statictext CTL_CFM_RECKONING_INFO [width: bycontainer(100) growfactor: 1 margin: 4 staticedge];
+	view [horizontal width: bycontainer(100) height: 104] {
+		radiocluster CTL_CFM_RECKONING_DTSEL [title: "@cfmrcknparam_dateoption" vertical height: bycontainer(100) growfactor: 1 margin: 4] {
+			radiobutton [title: "@cfmrcknparam_dateoption_curr" height: 16];
+			radiobutton [title: "@cfmrcknparam_dateoption_paym" height: 16];
+			radiobutton [title: "@cfmrcknparam_dateoption_debt" height: 16];
+			radiobutton [title: "@cfmrcknparam_dateoption_user" height: 16];
+		}
+		input CTL_CFM_RECKONING_DT [size: (68, 21) margin: (4, 10, 4, 20) tabstop fmtf: (dmy)] date; // @todo Здесь еще кнопка календаря должна быть
+	}
+	listbox CTL_CFM_RECKONING_LIST [width: bycontainer(100) growfactor: 3 columns: "9,L,@date;11,L,@number;15,R,@amount;15,R,@debt;30,L,@agent"];
+	view [vertical width: bycontainer(100) height: 52] {
+		statictext CTL_CFM_RECKONING_ST_04002 [title: "@cfmrcknparam_query" width: bycontainer(100) height: 13 margin: 4 ];
+		view [horizontal width: bycontainer(100) height: 28 justifycontent: start] {
+			button CTL_CFM_RECKONING_SELBUT [title: "@cfmrcknparam_sel_selected" tabstop size: (98, 21) margin: 4 command: cmRcknSelectedBill];
+			button CTL_CFM_RECKONING_ALLBUT [title: "@cfmrcknparam_sel_all" tabstop defaultitem size: (98, 21) margin: 4 command: cmYes];
+			button CTL_CMD_NO [title: "@cfmrcknparam_sel_cancel" tabstop size: (98, 21) margin: 4 command: cmNo];
+		}
+	}
+}
+
+dialog DLG_TLST2TLST [title: "" vertical size: (724, 431)  font: "MS Shell Dlg,8"] {
+	view [horizontal width: bycontainer(100) growfactor: 1] {
+		treelistbox CTL_LST2LST_LST1 [growfactor: 1 height: bycontainer(100)];
+		view [vertical width: 42 height: bycontainer(100) justifycontent: spaceevenly alignitems: center] {
+			button CTL_LST2LST_FW [title: "  >" tabstop size: (30, 21) margin: 4 command: cmForward];
+			button CTL_LST2LST_ALLFW [title: " >>" tabstop size: (30, 21) margin: 4 command: cmAllForward];
+			button CTL_LST2LST_BW [title: "<" tabstop size: (30, 21) margin: 4 command: cmBackward];
+			button CTL_LST2LST_ALLBW [title: " <<" tabstop size: (30, 21) margin: 4 command: cmAllBackward];
+		}
+		treelistbox CTL_LST2LST_LST2 [growfactor: 1 height: bycontainer(100)];
+	}
+	view [horizontal width: bycontainer(100) height: 32] {
+		view [horizontal growfactor: 1 height: bycontainer(100) justifycontent: start] {
+			button CTL_CMD_SELECTBYTAG [title: "@{selectbytag}..." tabstop size: (135, 21) margin: 4 command: cmSelectByTag];
+			button STDCTL_INSBUTTON [title: "@{addnew}... <Insert>" tabstop size: (173, 21) margin: 4 command: cmaInsert];
+		}
+		view [vertical width: 42 height: bycontainer(100) justifycontent: spaceevenly] { // Пустышка для выравнивания по верхней зоне списков
+		}
+		view [horizontal growfactor: 1 height: bycontainer(100) justifycontent: end] {
+			input CTL_LST2LST_CT2 [size: (63, 21) margin: 4 readonly fmtf: (nozero)] int32;
+			button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 command: cmOK];
+			button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+		}
+	}
+}
+
+dialog DLG_LST2LST [title: "" vertical size: (724, 431)  font: "MS Shell Dlg,8"] {
+	view [horizontal width: bycontainer(100) growfactor: 1] {
+		listbox CTL_LST2LST_LST1 [growfactor: 1 height: bycontainer(100)];
+		view [vertical width: 42 height: bycontainer(100) justifycontent: spaceevenly alignitems: center] {
+			button CTL_LST2LST_FW [title: "  >" tabstop size: (30, 21) margin: 4 command: cmForward];
+			button CTL_LST2LST_ALLFW [title: " >>" tabstop size: (30, 21) margin: 4 command: cmAllForward];
+			button CTL_LST2LST_BW [title: "<" tabstop size: (30, 21) margin: 4 command: cmBackward];
+			button CTL_LST2LST_ALLBW [title: " <<" tabstop size: (30, 21) margin: 4 command: cmAllBackward];
+		}
+		listbox CTL_LST2LST_LST2 [growfactor: 1 height: bycontainer(100)];
+	}
+	view [horizontal width: bycontainer(100) height: 32] {
+		view [horizontal growfactor: 1 height: bycontainer(100) justifycontent: start] {
+			button CTL_CMD_SELECTBYTAG [title: "@{selectbytag}..." tabstop size: (135, 21) margin: 4 command: cmSelectByTag];
+			button STDCTL_INSBUTTON [title: "@{addnew}... <Insert>" tabstop size: (173, 21) margin: 4 command: cmaInsert];
+		}
+		view [vertical width: 42 height: bycontainer(100) justifycontent: spaceevenly] { // Пустышка для выравнивания по верхней зоне списков
+		}
+		view [horizontal growfactor: 1 height: bycontainer(100) justifycontent: end] {
+			input CTL_LST2LST_CT2 [size: (63, 21) margin: 4 readonly fmtf: (nozero)] int32;
+			button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 command: cmOK];
+			button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+		}
+	}
+}

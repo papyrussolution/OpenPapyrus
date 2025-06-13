@@ -16,8 +16,9 @@ struct _GSItem {           // @persistent @store(ObjAssocTbl)
 	double Netto;          // Нетто количество компонента
 	char   Symb[20];       // Символ элемента структуры (для ссылки из формул)
 	// @v12.0.6 char   Reserve1[4];    // @v8.6.5 [8]-->[4]
-	PPID   AccSheetID;     // @v12.0.6 Таблица аналитический статей для указания статьи в поле ItemGoodsID (для PPGoodsStruc::kPricePlanning)
-	long   PrefInnefGsID;  // @v8.6.5
+	// @v12.3.6 PPID   AccSheetID;     // @v12.0.6 Таблица аналитический статей для указания статьи в поле ItemGoodsID (для PPGoodsStruc::kPricePlanning)
+	uint32 Reserve1;       // @v12.3.6
+	long   PrefInnefGsID;  // 
 	long   Flags;          // Флаги
 	double Median;         // Среднее значение
 	double Width;          // Ширина оценочного интервала
@@ -695,7 +696,7 @@ int FASTCALL PPGoodsStrucItem::IsEq(const PPGoodsStrucItem & rS) const
 	CMPF(Denom);
 	CMPF(Netto);
 	CMPF(ObjType); // @v12.0.7
-	CMPF(AccSheetID); // @v12.0.7
+	// @v12.3.6 CMPF(AccSheetID); // @v12.0.7
 #undef CMPF
 	if(!sstreq(Symb, rS.Symb))
 		return 0;
@@ -1335,7 +1336,8 @@ int GSDialog::setupList()
 	int    uncert = 0; // @v11.8.2 Признак того, что расчетная оценка стоимости комплекта неполная
 	uint   i = 0;
 	const  PPID loc_id = LConfig.Location; // @v11.7.11
-	PPObjArticle ar_obj;
+	//PPObjArticle ar_obj;
+	PPObjBizScore2 bs_obj;
 	while(Data.Items.enumItems(&i, (void **)&p_item)) {
 		double price = 0.0;
 		double sum = 0.0;
@@ -1344,10 +1346,12 @@ int GSDialog::setupList()
 		StringSet ss(SLBColumnDelim);
 		PPGoodsStruc inner_struc;
 		THROW(GObj.LoadGoodsStruc(PPGoodsStruc::Ident(p_item->GoodsID, GSF_COMPL, GSF_PARTITIAL), &inner_struc));
-		if(p_item->Flags & GSIF_ARTICLE) {
-			ArticleTbl::Rec ar_rec;
-			if(ar_obj.Fetch(p_item->GoodsID, &ar_rec) > 0) {
-				sub = ar_rec.Name;
+		if(p_item->Flags & GSIF_BIZSC2) {
+			// @v12.3.6 ArticleTbl::Rec ar_rec;
+			// @v12.3.6 if(ar_obj.Fetch(p_item->GoodsID, &ar_rec) > 0) {
+			PPBizScore2Packet bs_pack;
+			if(bs_obj.Fetch(p_item->GoodsID, &bs_pack) > 0) { // @v12.3.6
+				sub = bs_pack.Rec.Name;
 			}
 			else {
 				ideqvalstr(p_item->GoodsID, sub);
@@ -1462,7 +1466,7 @@ int GSDialog::moveItem(long pos, long id, int up)
 class GSPPItemDialog : public TDialog {
 	enum {
 		ctlgroupGoods = 1,
-		ctlgroupArticle = 2
+		// @v12.3.6 ctlgroupArticle = 2
 	};
 	DECL_DIALOG_DATA(PPGoodsStrucItem);
 	const PPGoodsStruc * P_Struc;
@@ -1471,15 +1475,15 @@ public:
 	GSPPItemDialog(const PPGoodsStruc * pStruc) : TDialog(DLG_GSPPITEM), P_Struc(pStruc), PreserveObjType(0)
 	{
 		addGroup(ctlgroupGoods, new GoodsCtrlGroup(CTLSEL_GSITEM_GGRP, CTLSEL_GSITEM_GOODS));
-		addGroup(ctlgroupArticle, new ArticleCtrlGroup(CTLSEL_GSITEM_GGRP, 0, CTLSEL_GSITEM_GOODS, 0, 0));
+		// @v12.3.6 addGroup(ctlgroupArticle, new ArticleCtrlGroup(CTLSEL_GSITEM_GGRP, 0, CTLSEL_GSITEM_GOODS, 0, 0));
 	}
 	DECL_DIALOG_SETDTS()
 	{
 		int    ok = 1;
 		SString temp_buf;
 		RVALUEPTR(Data, pData);
-		PreserveObjType = NZOR(Data.ObjType, PPOBJ_ARTICLE);
-		AddClusterAssocDef(CTL_GSITEM_SELOBJTYPE, 0, PPOBJ_ARTICLE);
+		PreserveObjType = NZOR(Data.ObjType, PPOBJ_BIZSCORE2); // @v12.3.6 PPOBJ_ARTICLE-->PPOBJ_BIZSCORE2
+		AddClusterAssocDef(CTL_GSITEM_SELOBJTYPE, 0, PPOBJ_BIZSCORE2); // @v12.3.6 PPOBJ_ARTICLE-->PPOBJ_BIZSCORE2
 		AddClusterAssoc(CTL_GSITEM_SELOBJTYPE, 1, PPOBJ_GOODS);
 		SetClusterData(CTL_GSITEM_SELOBJTYPE, Data.ObjType);
 		SetupItemObject(true);
@@ -1493,27 +1497,33 @@ public:
 		uint   sel = 0;
 		SString temp_buf;
 		PPID   obj_type = GetClusterData(sel = CTL_GSITEM_SELOBJTYPE);
-		THROW(oneof2(obj_type, PPOBJ_GOODS, PPOBJ_ARTICLE)); // @todo @err
+		THROW(oneof2(obj_type, PPOBJ_GOODS, PPOBJ_BIZSCORE2)); // @todo @err
 		if(obj_type == PPOBJ_GOODS) {
 			GoodsCtrlGroup::Rec rec;
 			getGroupData(ctlgroupGoods, &rec);
 			Data.ObjType = obj_type;
 			Data.GoodsID = rec.GoodsID;
-			Data.Flags &= ~GSIF_ARTICLE;
+			Data.Flags &= ~GSIF_BIZSC2;
 			THROW(Data.GoodsID); // @todo @err
 		}
-		else if(obj_type == PPOBJ_ARTICLE) {
+		else if(obj_type == PPOBJ_BIZSCORE2) { // @v12.3.6 PPOBJ_ARTICLE-->PPOBJ_BIZSCORE2
+			// @v12.3.6 {
+			getCtrlData(CTLSEL_GSITEM_GOODS, &Data.GoodsID);
+			Data.Flags |= GSIF_BIZSC2;
+			// } @v12.3.6 
+			/*
 			ArticleCtrlGroup::Rec rec;
 			getGroupData(ctlgroupArticle, &rec);
 			Data.ObjType = obj_type;
-			Data.AccSheetID = rec.AcsID;
+			// @v12.3.6 Data.AccSheetID = rec.AcsID;
 			Data.GoodsID = rec.ArList.GetSingle();
-			Data.Flags |= GSIF_ARTICLE;
+			Data.Flags |= GSIF_BIZSC2;
 			THROW(Data.GoodsID); // @todo @err
+			*/
 		}
 		{
 			getCtrlString(sel = CTL_GSITEM_FORMULA, temp_buf);
-			THROW(temp_buf.NotEmptyS()); // @todo @err
+			// @todo THROW(temp_buf.NotEmptyS()); // @todo @err
 			STRNSCPY(Data.Formula__, temp_buf);
 		}
 		ASSIGN_PTR(pData, Data);
@@ -1534,14 +1544,14 @@ private:
 	void SetupItemObject(bool onInit)
 	{
 		PPID obj_type = GetClusterData(CTL_GSITEM_SELOBJTYPE);
-		SETIFZ(obj_type, PPOBJ_ARTICLE);
+		SETIFZ(obj_type, PPOBJ_BIZSCORE2); // @v12.3.6 PPOBJ_ARTICLE-->PPOBJ_BIZSCORE2
 		if(onInit || obj_type != PreserveObjType) {
 			if(obj_type == PPOBJ_GOODS) {
 				//SetupPPObjCombo(this, CTLSEL_GSITEM_GGRP, )
 				CtrlGroup * p_ctlgrp_goods = getGroup(ctlgroupGoods);
-				CtrlGroup * p_ctlgrp_ar = getGroup(ctlgroupArticle);
+				// @v12.3.6 CtrlGroup * p_ctlgrp_ar = getGroup(ctlgroupArticle);
 				CALLPTRMEMB(p_ctlgrp_goods, SetActive());
-				CALLPTRMEMB(p_ctlgrp_ar, SetPassive());
+				// @v12.3.6 CALLPTRMEMB(p_ctlgrp_ar, SetPassive());
 				{
 					GoodsCtrlGroup::Rec rec;
 					if(onInit) {
@@ -1551,7 +1561,9 @@ private:
 				}
 				PreserveObjType = obj_type;
 			}
-			else if(obj_type = PPOBJ_ARTICLE) {
+			else if(obj_type = PPOBJ_BIZSCORE2) { // @v12.3.6 PPOBJ_ARTICLE-->PPOBJ_BIZSCORE2
+				SetupPPObjCombo(this, CTLSEL_GSITEM_GOODS, PPOBJ_BIZSCORE2, Data.GoodsID, 0);
+				/* @v12.3.6 
 				CtrlGroup * p_ctlgrp_goods = getGroup(ctlgroupGoods);
 				CtrlGroup * p_ctlgrp_ar = getGroup(ctlgroupArticle);
 				CALLPTRMEMB(p_ctlgrp_goods, SetPassive());
@@ -1565,6 +1577,7 @@ private:
 					setGroupData(ctlgroupArticle, &rec);
 				}
 				PreserveObjType = obj_type;
+				*/
 			}
 			else {
 				obj_type = PreserveObjType;
@@ -1854,7 +1867,7 @@ int GSDialog::addItemExt(long * pPos, long * pID)
 	int    ok = -1;
 	if(Data.GetKind() == PPGoodsStruc::kPricePlanning) {
 		PPGoodsStrucItem item;
-		item.Flags |= GSIF_ARTICLE;
+		item.Flags |= GSIF_BIZSC2;
 		item.ObjType = PPOBJ_ARTICLE;
 		if(editItemDialog(-1, &item) > 0) {
 			if(Data.Items.insert(&item)) {
@@ -2256,7 +2269,8 @@ int PPObjGoodsStruc::Helper_LoadItems(PPID id, PPGoodsStruc * pData)
 	int    ok = 1;
 	TSVector <ObjAssocTbl::Rec> raw_items_list;
 	_GSItem * p_raw_item;
-	SString temp_buf, formula;
+	SString temp_buf;
+	SString formula;
 	THROW(P_Ref->GetPropVlrString(Obj, id, GSPRP_EXTITEMSTR, temp_buf));
 	THROW(P_Ref->Assc.GetItemsListByPrmr(PPASS_GOODSSTRUC, id, &raw_items_list));
 	raw_items_list.sort(PTR_CMPFUNC(_GSItem));
@@ -2270,13 +2284,13 @@ int PPObjGoodsStruc::Helper_LoadItems(PPID id, PPGoodsStruc * pData)
 		item.GoodsID = p_raw_item->ItemGoodsID;
 		item.Flags   = p_raw_item->Flags;
 		// @v12.0.7 {
-		if(item.Flags & GSIF_ARTICLE) {
-			item.ObjType = PPOBJ_ARTICLE;
-			item.AccSheetID = p_raw_item->AccSheetID;
+		if(item.Flags & GSIF_BIZSC2) {
+			item.ObjType = PPOBJ_BIZSCORE2; // @v12.3.6 PPOBJ_ARTICLE-->PPOBJ_BIZSCORE2
+			// @v12.3.6 item.AccSheetID = p_raw_item->AccSheetID;
 		}
 		else {
 			item.ObjType = PPOBJ_GOODS;
-			item.AccSheetID = 0;
+			// @v12.3.6 item.AccSheetID = 0;
 		}
 		// } @v12.0.7 
 		item.Median  = p_raw_item->Median;
@@ -2403,13 +2417,13 @@ int PPObjGoodsStruc::Put(PPID * pID, PPGoodsStruc * pData, int use_ta)
 				gsi.Tag  = PPASS_GOODSSTRUC;
 				gsi.GSID = *pID;
 				gsi.ItemGoodsID = pi->GoodsID;
-				if(pi->ObjType == PPOBJ_ARTICLE) {
-					gsi.AccSheetID = pi->AccSheetID;
-					gsi.Flags |= GSIF_ARTICLE;
+				if(pi->ObjType == PPOBJ_BIZSCORE2) { // @v12.3.6 PPOBJ_ARTICLE-->PPOBJ_BIZSCORE2
+					// @v12.3.6 gsi.AccSheetID = pi->AccSheetID;
+					gsi.Flags |= GSIF_BIZSC2;
 				}
 				else {
-					gsi.AccSheetID = 0;
-					gsi.Flags &= ~GSIF_ARTICLE;
+					// @v12.3.6 gsi.AccSheetID = 0;
+					gsi.Flags &= ~GSIF_BIZSC2;
 				}
 				gsi.Flags  = pi->Flags;
 				gsi.Median = pi->Median;

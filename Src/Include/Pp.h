@@ -20061,8 +20061,23 @@ private:
 //
 // @ModuleDecl(PPObjBizScore)
 //
+
 //
-// Индикаторы бизнес-показателей
+// @v12.3.6
+// Descr: Классы бизнес-показателей. 
+//   Все классы зарезервированы.
+//
+#define BSCCLS_INC_SALE_UNIT           1 // Доходы от продажи единицы продукции
+#define BSCCLS_EXP_SALE_UNIT           2 // Расходы на продажу единицы продукции
+#define BSCCLS_EXP_PURCHASE_UNIT       3 // Расходы на закупку единицы продукции
+#define BSCCLS_EXP_TRANSFER_UNIT       4 // Расходы на передачу единицы продукции (с одного места хранения на другое, либо со склада покупателя, либо возврат от покупателя на склад etc)  
+#define BSCCLS_EXP_STORAGE_UNIT        5 // Расходы на хранение единицы продукции 
+#define BSCCLS_EXP_PRESALE_UNIT        6 // Расходы на предпродажную подготовку единицы продукции
+#define BSCCLS_EXP_PRESALE_SKU_TIME    7 // Расходы на предпродажную подготовку одного наименования продукции (в единицу времени)
+#define BSCCLS_EXP_PROMO_SKU_TIME      8 // Маркетинговые расходы на категорию продукции (в единицу времени)
+#define BSCCLS_EXP_PROMO_TIME          9 // Маркетинговые расходы не привязанные к продукции (в единицу времени)
+//
+// Descr: Индикаторы бизнес-показателей
 // 
 #define PPBZSI_NONE                    0 //
 #define PPBZSI_AMOUNT                  1 // "amount"    kBill, kPaym, kCCheck, kGoodsRest, kDebt, kBizScore
@@ -20210,7 +20225,8 @@ struct PPBizScore2 { // @v11.9.0 @construction
 	long   ID;                  // @id
 	char   Name[48];
 	char   Symb[20];
-	uint8  Reserve[24];
+	uint8  Reserve[16];
+	uint64 UedSpecificUnit;     // Если индикатор является удельной величиной, то это поле - единица измерения относительно которой указана величина.
 	int32  DataType;            // OTTYP_XXX (будем использовать ту же систему типов, что и в тегах объектов)
 	long   TypeEnumID;          // Тип ссылочного объекта для oneof2(DataType, OTTYP_ENUM, OTTYP_OBJLINK)
 	long   TypeEnumExt;         // Группа ссылочных объектов для DataType == OTTYP_OBJLINK
@@ -24575,7 +24591,7 @@ struct PPGoodsStrucHeader2 { // @persistent @store(Reference2Tbl+)
 	// товарная группа. Это необходимо для специальных подарков, распространяемых на целую товарную группу.
 #define GSIF_IDENTICAL   0x0200L // Для подарочных структур: заданное количество применимо только для одинаковых позиций.
 #define GSIF_QUERYEXPLOT 0x0400L // При автоматическом внесении компонента в документ как расходной строки запрашивать выбор лота
-#define GSIF_ARTICLE     0x0800L // @v12.0.6 Вместо товара в поле PPGoodsStrucItem::GoodsID установлена аналитическая статья. 
+#define GSIF_BIZSC2      0x0800L // @v12.0.6 Вместо товара в поле PPGoodsStrucItem::GoodsID установлен индикатор (бизнес-показатель). 
 	// Используется в структурах планирования стоимости продаж (GSF_PRICEPLANNING)
 
 struct PPGoodsStrucItem {  // @persistent(DBX) @size=52 @flat
@@ -24595,8 +24611,8 @@ struct PPGoodsStrucItem {  // @persistent(DBX) @size=52 @flat
 	int    GetQtty(double complQtty, double * pItemQtty) const;
 	int    GetQttyAsPrice(double complPriceSum, double * pItemPrice) const;
 
-	PPID   GoodsID;        // Если элемент принадлежит структуре типа PPGoodsStruc::kPricePlanning то здесь может быть аналитическая статья (соответствующая таблице AccSheetID)
-		// В этом случае Flags & GSIF_ARTICLE
+	PPID   GoodsID;        // Если элемент принадлежит структуре типа PPGoodsStruc::kPricePlanning то здесь может быть бизнес-показатель.
+		// В этом случае Flags & GSIF_BIZSC2
 	long   Flags;          // GSIF_XXX Флаги
 	double Median;         // Среднее значение оценочного интервала
 	double Width;          // Ширина оценочного интервала
@@ -24608,8 +24624,9 @@ struct PPGoodsStrucItem {  // @persistent(DBX) @size=52 @flat
 	char   Symb[20];       // Символ элемента структуры (для ссылки из формул)
 	PPID   ObjType;        // @v12.0.6 @todo @dbx Тип объекта, идентификатор которого указан в поле GoodsID.
 		// Это - переключатель, актуальный только для структур планирования цены товара. 
-		// Значение 0 трактуется как PPOBJ_GOODS (для обратной совместимости). Допускается: 0 || PPOBJ_GOODS || PPOBJ_ARTICLE
-	PPID   AccSheetID;     // @v12.0.6 @todo @dbx Таблица аналитический статей для указания статьи в поле ItemGoodsID (для PPGoodsStruc::kPricePlanning)
+		// Значение 0 трактуется как PPOBJ_GOODS (для обратной совместимости). Допускается: 0 || PPOBJ_GOODS || PPOBJ_ARTICLE || PPOBJ_BIZSCORE2
+	// @v12.3.6 PPID   AccSheetID;     // @v12.0.6 @todo @dbx Таблица аналитический статей для указания статьи в поле ItemGoodsID (для PPGoodsStruc::kPricePlanning)
+	PPID   Reserve; // @v12.3.6
 	char   Formula__[64];      // @transient
 };
 
@@ -34811,6 +34828,7 @@ public:
 		int    MaxDelay;   // Максимальная задержка между текущей датой и датой документа
 		int    MaxExpiry;  // Максимальная задержка между текущей датой и последним сроком оплаты по документу
 		struct DimItem { // @flat
+			DimItem(PPID dimID, double debt, int expiry);
 			PPID   DimID;
 			int    MaxExpiry;
 			double Debt;
@@ -55451,6 +55469,8 @@ protected:
 	void   updateList(long pos);
 	void   updateListById(long id);
 };
+
+#if 0 // @v12.3.6 (Этот блок отработал свою функцию - переходим на регулярное описание диалогов в DL00) {
 //
 // Descr: Базовая реализация эксперименталных диалоговых окон для работы со списками данных, реализованных посредством layout'ов
 // 
@@ -55519,6 +55539,7 @@ public:
 protected:
 	DECL_HANDLE_EVENT;
 };
+#endif // } 0 @v12.3.6 (Этот блок отработал свою функцию - переходим на регулярное описание диалогов в DL00) {
 //
 //
 //

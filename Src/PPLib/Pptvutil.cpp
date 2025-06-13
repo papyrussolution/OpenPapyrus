@@ -1204,7 +1204,7 @@ int Lst2LstObjDialog::setupRightTList()
 		THROW_SL(p_list->Add(id, parent_id, name_buf));
 	}
 	p_list->SortByText();
-	p_def = new StdTreeListBoxDef(p_list, lbtDisposeData | lbtDblClkNotify, 0);
+	p_def = new StdTreeListBoxDef(p_list, lbtDisposeData|lbtDblClkNotify, 0);
 	THROW_MEM(p_def);
 	p_r_lbx->setDef(p_def);
 	p_r_lbx->P_Def->go(0);
@@ -3001,6 +3001,8 @@ int  AdvComboBoxSelDialog(const StrAssocArray & rAry, SString & rTitle, SString 
 	return ok;
 }
 
+#if 0 // @v12.3.6 (Этот блок отработал свою функцию - переходим на регулярное описание диалогов в DL00) {
+
 // @construction {
 
 static const float FixedCtrlHeight = 21.0f;
@@ -3525,6 +3527,7 @@ IMPL_HANDLE_EVENT(LayoutedListDialog)
 	}
 }
 
+#if 0 // @v12.3.6 {
 static ListBoxDef * Test_LayoutedListDialog_MakeTestData(bool multiColumn, bool treeView, SString & rListColumnsDefinition)
 {
 	rListColumnsDefinition.Z();
@@ -3622,6 +3625,8 @@ int Test_LayoutedListDialog()
 	return ok;
 }
 // } @construction
+#endif // } @v12.3.6
+#endif // } 0 @v12.3.6 (Этот блок отработал свою функцию - переходим на регулярное описание диалогов в DL00) {
 
 /*static*/int STDCALL ListBoxSelDialog::Run(StrAssocArray * pAry, const char * pTitle, PPID * pID/*, uint flags*/)
 {
@@ -8599,9 +8604,16 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 						//
 						uint32 type_id = 0;
 						uint32 format = 0;
+						uint   spc_flags = 0;
 						rCtx.GetConst_Uint32(p_scope, DlScope::cuifViewDataType, type_id);
 						rCtx.GetConst_Uint32(p_scope, DlScope::cuifViewOutputFormat, format);
-						TInputLine * p_ctl = new TInputLine(rc, static_cast<TYPEID>(type_id), 0);
+						if(ui_flags & UiItemKind::fReadOnly)
+							spc_flags |= TInputLine::spcfReadOnly;
+						if(ui_flags & UiItemKind::fMultiLine)
+							spc_flags |= TInputLine::spcfMultiline;
+						if(ui_flags & UiItemKind::fWantReturn)
+							spc_flags |= TInputLine::spcfWantReturn;
+						TInputLine * p_ctl = new TInputLine(rc, spc_flags, static_cast<TYPEID>(type_id), 0);
 						if(format) {
 							p_ctl->setFormat(format);
 						}
@@ -8720,7 +8732,7 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 						uint32 cb_line_id = 0;
 						rCtx.GetConst_String(p_scope, DlScope::cuifCbLineSymb, temp_buf);
 						rCtx.GetConst_Uint32(p_scope, DlScope::cuifCbLineSymbIdent, cb_line_id);
-						TInputLine * p_il = new TInputLine(rc, S_ZSTRING, MKSFMT(128, 0));
+						TInputLine * p_il = new TInputLine(rc, 0/*spcFlags*/, S_ZSTRING, MKSFMT(128, 0));
 						p_il->SetId(cb_line_id ? cb_line_id : (++rLastDynId));
 						if(ui_flags & UiItemKind::fTabStop) {
 							p_il->setState(sfTabStop, true);
@@ -8778,7 +8790,7 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 						const uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(&lp, rc, 60.0f, 60.0f);
 
 						SString column_description;
-						ListBoxDef * p_lb_def = 0;
+						StdTreeListBoxDef * p_lb_def = new StdTreeListBoxDef(0, lbtDisposeData|lbtDblClkNotify, 0);
 						SmartListBox * p_lb = new SmartListBox(rc, p_lb_def, true/*is_tree*/);
 						if(p_lb) {
 							//LldState |= lldsDefBailed;
@@ -8880,6 +8892,9 @@ void PPDialogConstructor::InsertControlLayouts(TDialog * pDlg, DlContext & rCtx,
 							}
 						}
 						else if(vk == UiItemKind::kListbox) {
+							SmartListBox * p_lb = static_cast<SmartListBox *>(p_view);
+							if(!p_lb->IsMultiColumn() && !p_lb->IsTreeList()) // Припуск для скролл-бара не нужен для мультиколоночного списка и для treeview
+								lp.Margin.b.x += 20.0f; 
 							p_lo = InsertCtrlLayout(pDlg, pLoParent, p_view, lp);
 							done = true;
 						}
@@ -9021,19 +9036,11 @@ void PPDialogConstructor::InsertControlLayouts(TDialog * pDlg, DlContext & rCtx,
 //
 //
 //
-class TDialogDL6_Construction : public TDialog {
-public:
-	TDialogDL6_Construction(DlContext & rCtx, const char * pSymb) : TDialog(0, TWindow::wbcDrawBuffer|TWindow::wbcStorableUserParams, TDialog::coEmpty)
-	{
-		PPDialogConstructor ctr(this, rCtx, pSymb);
-	}
-};
-
 //typedef int (*InitializeDialogFunc)(TDialog * pThis, const void * pIdent, void * extraPtr); // @v12.3.6
 int PPInitializeDialogFunc(TDialog * pThis, const void * pIdent, void * extraPtr) // @v12.3.6 @construction
 {
 	int    ok = -1;
-	if(SlDebugMode::CT()) {
+	if(/*SlDebugMode::CT()*/true) {
 		const DlScope * p_scope = 0;
 		DlContext * p_ctx = 0;
 		if(pIdent) {
@@ -9078,6 +9085,13 @@ int PPInitializeDialogFunc(TDialog * pThis, const void * pIdent, void * extraPtr
 
 int Test_ExecuteDialogByDl600Description() // @construction
 {
+	class TDialogDL6_Construction : public TDialog {
+	public:
+		TDialogDL6_Construction(DlContext & rCtx, const char * pSymb) : TDialog(0, TWindow::wbcDrawBuffer|TWindow::wbcStorableUserParams, TDialog::coEmpty)
+		{
+			PPDialogConstructor ctr(this, rCtx, pSymb);
+		}
+	};
 	int    ok = 0;
 	const char * p_bin_file_name = "ppdlgs-local.bin"; //"ppdlg2.bin";
 	TDialogDL6_Construction * dlg = 0;

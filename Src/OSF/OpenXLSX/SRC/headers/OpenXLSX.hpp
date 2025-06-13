@@ -18,6 +18,37 @@
 	//
 	//#include "XLConstants.hpp"
 	namespace OpenXLSX {
+		class XLAlignment; 
+		class XLBorder; 
+		class XLBorders; 
+		class XLCell; 
+		class XLCellFormat; 
+		class XLCellFormats; 
+		class XLCellRange;
+		class XLCellStyle; 
+		class XLCellStyles; 
+		class XLCellValueProxy; 
+		class XLChartsheet; 
+		class XLDocument; 
+		class XLFill; 
+		class XLFills; 
+		class XLFont; 
+		class XLFonts; 
+		class XLFormulaProxy; 
+		class XLLine; 
+		class XLNumberFormat; 
+		class XLNumberFormats; 
+		class XLRelationshipItem; 
+		class XLRelationships; 
+		class XLRow; 
+		class XLRowDataRange; 
+		class XLRowRange; 
+		class XLSharedStrings; 
+		class XLSheet; 
+		class XLStyles; 
+		class XLWorksheet; 
+		class XLXmlData; 
+
 		inline constexpr uint16 MAX_COLS = 16384;
 		inline constexpr uint32 MAX_ROWS = 1048576;
 		// anchoring a comment shape below these values was not possible in LibreOffice - TBC with MS Office
@@ -224,9 +255,6 @@
 		// ===== Custom OpenXLSX_xml_node to add functionality to pugi::xml_node
 		class OpenXLSX_xml_node : public pugi::xml_node {
 		public:
-			/**
-			 * @brief Default constructor. Constructs a null object.
-			 */
 			OpenXLSX_xml_node() : pugi::xml_node(), name_begin(0) 
 			{
 			}
@@ -237,14 +265,14 @@
 			// explicit OpenXLSX_xml_node(base b) : pugi::xml_node(b), name_begin(0) // TBD on explicit keyword
 			OpenXLSX_xml_node(base b) : pugi::xml_node(b), name_begin(0)
 			{
-				if(NO_XML_NS)  
-					return;
-				const char * name = xml_node::name();
-				int pos = 0;
-				while(name[pos] && name[pos] != ':')  
-					++pos;// find name delimiter
-				if(name[pos] == ':')
-					name_begin = pos + 1;// if delimiter was found: update name_begin to point behind that position
+				if(!NO_XML_NS) {
+					const char * name = xml_node::name();
+					int pos = 0;
+					while(name[pos] && name[pos] != ':')  
+						++pos;// find name delimiter
+					if(name[pos] == ':')
+						name_begin = pos + 1;// if delimiter was found: update name_begin to point behind that position
+				}
 			}
 			/**
 			 * @brief Strip any namespace from name_
@@ -343,7 +371,6 @@
 			 * @return a valid sibling matching the node type or an empty XMLNode
 			 */
 			XMLNode previous_sibling_of_type(pugi::xml_node_type type_ = pugi::node_element) const;
-
 			/**
 			 * @brief get next node sibling that matches name_ and type
 			 * @param name_ the xml_node::name() to match
@@ -351,7 +378,6 @@
 			 * @return a valid sibling matching the node type or an empty XMLNode
 			 */
 			XMLNode next_sibling_of_type(const pugi::char_t* name_, pugi::xml_node_type type_ = pugi::node_element) const;
-
 			/**
 			 * @brief get previous node sibling that matches name_ and type
 			 * @param name_ the xml_node::name() to match
@@ -361,15 +387,12 @@
 			XMLNode previous_sibling_of_type(const pugi::char_t* name_, pugi::xml_node_type type_ = pugi::node_element) const;
 		private:
 			int name_begin;  // nameBegin holds the position in xml_node::name() where the actual node name begins - 0 for non-namespaced nodes
-							 // for nodes with a namespace: the position following namespace + delimiter colon, e.g. "x:c" -> nameBegin = 2
+				// for nodes with a namespace: the position following namespace + delimiter colon, e.g. "x:c" -> nameBegin = 2
 		};
 
 		// ===== Custom OpenXLSX_xml_document to override relevant pugi::xml_document member functions with OpenXLSX_xml_node return value
 		class OpenXLSX_xml_document : public pugi::xml_document {
 		public:
-			/**
-			 * @brief Default constructor. Constructs a null object.
-			 */
 			OpenXLSX_xml_document() : pugi::xml_document() 
 			{
 			}
@@ -393,9 +416,6 @@
 		//#include "XLFormula.hpp"
 		constexpr bool XLResetValue    = true;
 		constexpr bool XLPreserveValue = false;
-
-		class XLFormulaProxy;
-		class XLCell;
 		/**
 		 * @brief The XLFormula class encapsulates the concept of an Excel formula. The class is essentially
 		 * a wrapper around a std::string.
@@ -602,6 +622,7 @@
 		inline std::ostream& operator<<(std::ostream& os, const XLFormulaProxy& value) { return os << value.get(); }
 		//
 		//#include "XLColor.hpp"
+		//typedef SColor XLColor;
 		class XLColor {
 			friend bool operator==(const XLColor& lhs, const XLColor& rhs);
 			friend bool operator!=(const XLColor& lhs, const XLColor& rhs);
@@ -638,8 +659,6 @@
 		inline bool operator != (const XLColor& lhs, const XLColor& rhs) { return !(lhs == rhs); }
 		//
 		//#include "XLXmlFile.hpp"
-		class XLXmlData;
-		class XLDocument;
 		/**
 		 * @brief The XLUnsupportedElement class provides a stub implementation that can be used as function
 		 *  parameter or return type for currently unsupported XML features.
@@ -757,23 +776,6 @@
 		constexpr const uint32 XLDefaultFontFamily     = 0;            // TBD what this means / how it is used
 		constexpr const uint32 XLDefaultFontCharset    = 1;            // TBD what this means / how it is used
 		constexpr const char * XLDefaultLineStyle = "";     // empty string = line not set
-
-		// forward declarations of all classes in this header
-		class XLNumberFormat;
-		class XLNumberFormats;
-		class XLFont;
-		class XLFonts;
-		class XLFill;
-		class XLFills;
-		class XLLine;
-		class XLBorder;
-		class XLBorders;
-		class XLAlignment;
-		class XLCellFormat;
-		class XLCellFormats;
-		class XLCellStyle;
-		class XLCellStyles;
-		class XLStyles;
 
 		enum XLUnderlineStyle : uint8 {
 			XLUnderlineNone    = 0,
@@ -2069,10 +2071,6 @@
 			 * @return A reference to lhs object.
 			 */
 			XLCellStyle& operator=(XLCellStyle&& other) noexcept = default;
-			/**
-			 * @brief Test if this is an empty node
-			 * @return true if underlying XMLNode is empty
-			 */
 			bool empty() const;
 			/**
 			 * @brief Get the name of the cell style
@@ -2324,10 +2322,6 @@
 			 * @param other an existing styles object other will be assigned to this
 			 */
 			XLStyles(XLStyles&& other) noexcept;
-			/**
-			 * @brief The copy constructor.
-			 * @param other an existing styles object other will be also referred by this
-			 */
 			XLStyles(const XLStyles& other);
 			XLStyles & operator=(XLStyles&& other) noexcept;
 			XLStyles & operator=(const XLStyles& other);
@@ -2388,8 +2382,6 @@
 	typedef std::variant<std::string, int64_t, double, bool> XLCellValueType; // TBD: typedef std::variant< std::string, int64_t, double, bool, struct timestamp > XLCellValueType;
 
 	namespace OpenXLSX {
-		class XLCellValueProxy;
-		class XLCell;
 		/**
 		 * @brief Enum defining the valid value types for a an Excel spreadsheet cell.
 		 */
@@ -2441,6 +2433,7 @@
 			friend std::hash<OpenXLSX::XLCellValue>;
 		public:
 			XLCellValue();
+			bool empty() const { return type() == XLValueType::Empty; } // @sobolev
 			/**
 			 * @brief A templated constructor. Any value convertible to a valid cell value can be used as argument.
 			 * @tparam T The type of the argument (will be automatically deduced).
@@ -2455,12 +2448,12 @@
 			XLCellValue(T value)
 			{
 				// ===== If the argument is a bool, set the m_type attribute to Boolean.
-				if constexpr(std::is_integral_v<T> && std::is_same_v<T, bool>) {
+				if constexpr(std::is_same_v<T, bool>) {
 					m_type  = XLValueType::Boolean;
 					m_value = value;
 				}
 				// ===== If the argument is an integral type, set the m_type attribute to Integer.
-				else if constexpr(std::is_integral_v<T> && !std::is_same_v<T, bool>) {
+				else if constexpr(std::is_integral_v<T>) {
 					m_type  = XLValueType::Integer;
 					m_value = static_cast<int64_t>(value);
 				}
@@ -2491,11 +2484,11 @@
 					}
 				}
 			}
-			XLCellValue(const XLCellValue& other);
-			XLCellValue(XLCellValue&& other) noexcept;
+			XLCellValue(const XLCellValue & other);
+			XLCellValue(XLCellValue && other) noexcept;
 			~XLCellValue();
-			XLCellValue& operator=(const XLCellValue& other);
-			XLCellValue& operator=(XLCellValue&& other) noexcept;
+			XLCellValue & operator = (const XLCellValue& other);
+			XLCellValue & operator = (XLCellValue&& other) noexcept;
 			/**
 			 * @brief Templated assignment operator.
 			 * @tparam T The type of the value argument.
@@ -2507,13 +2500,13 @@
 					std::is_integral_v<T> || std::is_floating_point_v<T> || std::is_same_v<std::decay_t<T>, std::string> ||
 					std::is_same_v<std::decay_t<T>, std::string_view> || std::is_same_v<std::decay_t<T>, const char*> ||
 					std::is_same_v<std::decay_t<T>, char*> || std::is_same_v<T, XLDateTime> > >
-			XLCellValue& operator=(T value)
-			{
-				// ===== Implemented using copy-and-swap.
-				XLCellValue temp(value);
-				std::swap(*this, temp);
-				return *this;
-			}
+				XLCellValue & operator = (T value)
+				{
+					// ===== Implemented using copy-and-swap.
+					XLCellValue temp(value);
+					std::swap(*this, temp);
+					return *this;
+				}
 			/**
 			 * @brief Templated setter for integral and bool types.
 			 * @tparam T The type of the value argument.
@@ -2524,11 +2517,11 @@
 				std::is_same_v<std::decay_t<T>, std::string> || std::is_same_v<std::decay_t<T>, std::string_view> ||
 				std::is_same_v<std::decay_t<T>, const char*> || std::is_same_v<std::decay_t<T>, char*> ||
 				std::is_same_v<T, XLDateTime> > >
-			void set(T numberValue)
-			{
-				// ===== Implemented using the assignment operator.
-				*this = numberValue;
-			}
+				void set(T numberValue)
+				{
+					// ===== Implemented using the assignment operator.
+					*this = numberValue;
+				}
 			/**
 			 * @brief Templated getter.
 			 * @tparam T The type of the value to be returned.
@@ -2553,8 +2546,10 @@
 						static std::string s = std::get<std::string>(m_value);
 						return s.c_str();
 					}
-					// for all other template types, use the private getter:
-					return privateGet<T>();
+					else {
+						// for all other template types, use the private getter:
+						return privateGet<T>();
+					}
 				}
 				catch(const std::bad_variant_access&) {
 					throw XLValueTypeError("XLCellValue object does not contain the requested type.");
@@ -2575,22 +2570,22 @@
 			T privateGet() const
 			{
 				try {
-					if constexpr(std::is_integral_v<T> && std::is_same_v<T, bool>)  return std::get<bool>(m_value);
-
-					if constexpr(std::is_integral_v<T> && !std::is_same_v<T, bool>)  return static_cast<T>(std::get<int64_t>(m_value));
-
-					if constexpr(std::is_floating_point_v<T>) {
+					if constexpr(std::is_same_v<std::decay_t<T>, std::string> || std::is_same_v<std::decay_t<T>, std::string_view> ||
+						std::is_same_v<std::decay_t<T>, const char*> || (std::is_same_v<std::decay_t<T>, char*> && !std::is_same_v<T, bool>))
+						return std::get<std::string>(m_value).c_str();
+					else if(empty()) { // @sobolev
+						throw XLValueTypeError("XLCellValue object is empty.");
+					}
+					else if constexpr(std::is_same_v<T, bool>)
+						return std::get<bool>(m_value);
+					else if constexpr(std::is_integral_v<T>)
+						return static_cast<T>(std::get<int64_t>(m_value));
+					else if constexpr(std::is_floating_point_v<T>) {
 						return static_cast<T>(getDouble()); // 2025-01-10: allow implicit conversion of int and bool to double (string conversion disabled for now)
 						// if (m_type == XLValueType::Error) return static_cast<T>(std::nan("1"));
 						// return static_cast<T>(std::get<double>(m_value));
 					}
-
-					if constexpr(std::is_same_v<std::decay_t<T>, std::string> || std::is_same_v<std::decay_t<T>, std::string_view> ||
-						std::is_same_v<std::decay_t<T>, const char*> ||
-						(std::is_same_v<std::decay_t<T>, char*> && !std::is_same_v<T, bool>))
-						return std::get<std::string>(m_value).c_str();
-
-					if constexpr(std::is_same_v<T, XLDateTime>)
+					else if constexpr(std::is_same_v<T, XLDateTime>)
 						return XLDateTime(getDouble()); // 2025-01-10: allow implicit conversion of int and bool to double (string conversion disabled for now)
 				}
 				catch(const std::bad_variant_access&) {
@@ -2696,47 +2691,44 @@
 					std::is_integral_v<T> || std::is_floating_point_v<T> || std::is_same_v<std::decay_t<T>, std::string> ||
 					std::is_same_v<std::decay_t<T>, std::string_view> || std::is_same_v<std::decay_t<T>, const char*> ||
 					std::is_same_v<std::decay_t<T>, char*> || std::is_same_v<T, XLCellValue> || std::is_same_v<T, XLDateTime> > >
-			XLCellValueProxy & operator = (T value)
-			{
-				if constexpr(std::is_integral_v<T> && std::is_same_v<T, bool>) // if bool
-					setBoolean(value);
-				else if constexpr(std::is_integral_v<T> && !std::is_same_v<T, bool>) // if integer
-					setInteger(value);
-				else if constexpr(std::is_floating_point_v<T>) // if floating point
-					setFloat(value);
-				else if constexpr(std::is_same_v<T, XLDateTime>)
-					setFloat(value.serial());
-				else if constexpr(std::is_same_v<std::decay_t<T>, std::string> || std::is_same_v<std::decay_t<T>, std::string_view> ||
-					std::is_same_v<std::decay_t<T>, const char*> ||
-					(std::is_same_v<std::decay_t<T>, char*> && !std::is_same_v<T, bool> && !std::is_same_v<T, XLCellValue>)) {
-					if constexpr(std::is_same_v<std::decay_t<T>, const char*> || std::is_same_v<std::decay_t<T>, char*>)
-						setString(value);
-					else if constexpr(std::is_same_v<std::decay_t<T>, std::string_view>)
-						setString(std::string(value).c_str());
-					else
-						setString(value.c_str());
-				}
-				if constexpr(std::is_same_v<T, XLCellValue>) {
-					switch(value.type()) {
-						case XLValueType::Boolean: setBoolean(value.template get <bool>()); break;
-						case XLValueType::Integer: setInteger(value.template get <int64_t>()); break;
-						case XLValueType::Float: setFloat(value.template get <double>()); break;
-						case XLValueType::String: setString(value.template privateGet <const char*>()); break;
-						case XLValueType::Empty: clear(); break;
-						default: setError("#N/A"); break;
+				XLCellValueProxy & operator = (T value)
+				{
+					if constexpr(std::is_integral_v<T> && std::is_same_v<T, bool>) // if bool
+						setBoolean(value);
+					else if constexpr(std::is_integral_v<T> && !std::is_same_v<T, bool>) // if integer
+						setInteger(value);
+					else if constexpr(std::is_floating_point_v<T>) // if floating point
+						setFloat(value);
+					else if constexpr(std::is_same_v<T, XLDateTime>)
+						setFloat(value.serial());
+					else if constexpr(std::is_same_v<std::decay_t<T>, std::string> || std::is_same_v<std::decay_t<T>, std::string_view> ||
+						std::is_same_v<std::decay_t<T>, const char*> ||
+						(std::is_same_v<std::decay_t<T>, char*> && !std::is_same_v<T, bool> && !std::is_same_v<T, XLCellValue>)) {
+						if constexpr(std::is_same_v<std::decay_t<T>, const char*> || std::is_same_v<std::decay_t<T>, char*>)
+							setString(value);
+						else if constexpr(std::is_same_v<std::decay_t<T>, std::string_view>)
+							setString(std::string(value).c_str());
+						else
+							setString(value.c_str());
 					}
+					if constexpr(std::is_same_v<T, XLCellValue>) {
+						switch(value.type()) {
+							case XLValueType::Boolean: setBoolean(value.template get <bool>()); break;
+							case XLValueType::Integer: setInteger(value.template get <int64_t>()); break;
+							case XLValueType::Float: setFloat(value.template get <double>()); break;
+							case XLValueType::String: setString(value.template privateGet <const char*>()); break;
+							case XLValueType::Empty: clear(); break;
+							default: setError("#N/A"); break;
+						}
+					}
+					return *this;
 				}
-				return *this;
-			}
 			template <typename T,
 				typename = std::enable_if_t<
 					std::is_integral_v<T> || std::is_floating_point_v<T> || std::is_same_v<std::decay_t<T>, std::string> ||
 					std::is_same_v<std::decay_t<T>, std::string_view> || std::is_same_v<std::decay_t<T>, const char*> ||
 					std::is_same_v<std::decay_t<T>, char*> || std::is_same_v<T, XLCellValue> || std::is_same_v<T, XLDateTime> > >
-			void set(T value)
-			{
-				*this = value;
-			}
+				void set(T value) { *this = value; }
 			/**
 			 * @todo Is an explicit conversion operator needed as well?
 			 */
@@ -2745,10 +2737,7 @@
 					std::is_integral_v<T> || std::is_floating_point_v<T> || std::is_same_v<std::decay_t<T>, std::string> ||
 					std::is_same_v<std::decay_t<T>, std::string_view> || std::is_same_v<std::decay_t<T>, const char*> ||
 					std::is_same_v<std::decay_t<T>, char*> || std::is_same_v<T, XLDateTime> > >
-			T get() const
-			{
-				return getValue().get<T>();
-			}
+				T get() const { return getValue().get<T>(); }
 			/**
 			 * @brief Clear the contents of the cell.
 			 * @return A reference to the current object.
@@ -2779,24 +2768,13 @@
 					std::is_integral_v<T> || std::is_floating_point_v<T> || std::is_same_v<std::decay_t<T>, std::string> ||
 					std::is_same_v<std::decay_t<T>, std::string_view> || std::is_same_v<std::decay_t<T>, const char*> ||
 					std::is_same_v<std::decay_t<T>, char*> || std::is_same_v<T, XLDateTime> > >
-			operator T() const
-			{
-				return getValue().get<T>();
-			}
+				operator T() const { return getValue().get<T>(); }
 			/**
 			 * @brief get the cell value as a std::string, regardless of value type
 			 * @return A std::string representation of value
 			 * @throws XLValueTypeError if the XLCellValue object is not convertible to string.
 			 */
-			std::string getString() const    // pull request #158 is covered by this
-			{
-				try {
-					return std::visit(VisitXLCellValueTypeToString(), getValue().m_value);
-				}
-				catch(std::string s) {
-					throw XLValueTypeError("XLCellValue object is not convertible to string.");
-				}
-			}
+			std::string getString() const;
 		private:
 			/**
 			 * @brief Constructor
@@ -2811,26 +2789,10 @@
 			 * @param other Object to be moved
 			 * @return Reference to moved-to pbject.
 			 */
-			XLCellValueProxy& operator=(XLCellValueProxy&& other) noexcept;
-			/**
-			 * @brief Set cell to an integer value.
-			 * @param numberValue The value to be set.
-			 */
+			XLCellValueProxy & operator=(XLCellValueProxy && other) noexcept;
 			void setInteger(int64_t numberValue);
-			/**
-			 * @brief Set the cell to a bool value.
-			 * @param numberValue The value to be set.
-			 */
 			void setBoolean(bool numberValue);
-			/**
-			 * @brief Set the cell to a floating point value.
-			 * @param numberValue The value to be set.
-			 */
 			void setFloat(double numberValue);
-			/**
-			 * @brief Set the cell to a string value.
-			 * @param stringValue The value to be set.
-			 */
 			void setString(const char* stringValue);
 			/**
 			 * @brief Get a copy of the XLCellValue object for the cell.
@@ -2850,8 +2812,8 @@
 			 */
 			bool setStringIndex(int32_t newIndex);
 
-			XLCell*  m_cell;     /**< Pointer to the owning XLCell object. */
-			XMLNode* m_cellNode; /**< Pointer to corresponding XML cell node. */
+			XLCell  * m_cell;     /**< Pointer to the owning XLCell object. */
+			XMLNode * m_cellNode; /**< Pointer to corresponding XML cell node. */
 		};
 		//
 		// TODO: Consider comparison operators on fundamental datatypes
@@ -2914,7 +2876,7 @@
 			 * @details The constructor creates a new XLCellReference from a string, e.g. 'A1'. If there's no input,
 			 * the default reference will be cell A1.
 			 */
-			XLCellReference(const std::string& cellAddress = "");
+			XLCellReference(const std::string & cellAddress = "");
 			/**
 			 * @brief Constructor taking the cell coordinates as arguments.
 			 * @param row The row number of the cell.
@@ -3060,7 +3022,6 @@
 		//#include "XLSharedStrings.hpp"
 		constexpr size_t XLMaxSharedStrings = (std::numeric_limits< int32_t >::max)();       // pull request #261: wrapped max in parentheses to prevent expansion of windows.h "max" macro
 
-		class XLSharedStrings; // forward declaration
 		typedef std::reference_wrapper< const XLSharedStrings > XLSharedStringsRef;
 
 		extern const XLSharedStrings XLSharedStringsDefaulted;     // to be used for default initialization of all references of type XLSharedStrings
@@ -3128,8 +3089,6 @@
 		constexpr const uint32 XLKeepCellType    =  2;    // type (attribute t)
 		constexpr const uint32 XLKeepCellValue   =  4;     // value (child node v)
 		constexpr const uint32 XLKeepCellFormula =  8;     // formula (child node f)
-
-		class XLCellRange;
 		/**
 		 * @brief An implementation class encapsulating the properties and behaviours of a spreadsheet cell.
 		 */
@@ -3162,19 +3121,19 @@
 			 * @return A reference to the new object
 			 * @note Copies only the cell contents, not the pointer to parent worksheet etc.
 			 */
-			virtual XLCell& operator=(const XLCell& other);
+			virtual XLCell & operator=(const XLCell& other);
 			/**
 			 * @brief Move assignment operator
 			 * @param other The XLCell object to be move assigned
 			 * @return A reference to the new object
 			 * @note The move assignment constructor has been deleted, as it makes no sense to move a cell.
 			 */
-			virtual XLCell& operator=(XLCell&& other) noexcept;
+			virtual XLCell & operator = (XLCell&& other) noexcept;
 			/**
 			 * @brief Copy contents of a cell, value & formula
 			 * @param other The XLCell object from which to copy
 			 */
-			void copyFrom(XLCell const& other);
+			void copyFrom(XLCell const & other);
 			/**
 			 * @brief test if cell object has no (valid) content
 			 */
@@ -3190,8 +3149,8 @@
 			 * @note due to the way OOXML separates comments from the cells, this function will *not* clear a cell comment - refer to XLComments& XLSheet::comments() for that
 			 */
 			void clear(uint32 keep);
-			XLCellValueProxy& value();
-			const XLCellValueProxy& value() const;
+			XLCellValueProxy & value();
+			const XLCellValueProxy & value() const;
 			/**
 			 * @brief get the XLCellReference object for the cell.
 			 * @return A reference to the cells' XLCellReference object.
@@ -3207,7 +3166,7 @@
 			 * @return true if XML has a formula node, empty or not - otherwise false
 			 */
 			bool hasFormula() const;
-			XLFormulaProxy& formula();
+			XLFormulaProxy & formula();
 			const XLFormulaProxy& formula() const;
 			std::string getString() const { return value().getString(); }
 			/**
@@ -3237,13 +3196,11 @@
 
 		class XLCellAssignable : public XLCell {
 		public:
-			/**
-			 * @brief Default constructor. Constructs a null object.
-			 */
 			XLCellAssignable() : XLCell() 
 			{
 			}
-			XLCellAssignable(XLCell const & other);
+			XLCellAssignable(const XLCell & other);
+			XLCellAssignable(const XLCellAssignable & other);
 			XLCellAssignable(XLCell && other);
 			// /**
 			//  * @brief Inherit all constructors with parameters from XLCell
@@ -3253,23 +3210,22 @@
 			// // NOTE: BUG: explicit keyword triggers tons of compiler errors when << operator attempts to use an XLCell (implicit conversion works because << is overloaded for XLCellAssignable)
 			// XLCellAssignable(base b) : XLCell(b)
 			// {}
-
 			/**
 			 * @brief Copy assignment operator
 			 * @param other The XLCell object to be copy assigned
 			 * @return A reference to the new object
 			 * @note Copies only the cell contents, not the pointer to parent worksheet etc.
 			 */
-			XLCellAssignable& operator=(const XLCell& other) override;
-			XLCellAssignable& operator=(const XLCellAssignable& other);
+			XLCellAssignable & operator = (const XLCell & other) override;
+			XLCellAssignable & operator = (const XLCellAssignable & other);
 			/**
 			 * @brief Move assignment operator -> overrides XLCell copy operator, becomes a copy operator
 			 * @param other The XLCell object to be copy assigned
 			 * @return A reference to the new object
 			 * @note Copies only the cell contents, not the pointer to parent worksheet etc.
 			 */
-			XLCellAssignable& operator=(XLCell&& other) noexcept override;
-			XLCellAssignable& operator=(XLCellAssignable&& other) noexcept;
+			XLCellAssignable & operator=(XLCell&& other) noexcept override;
+			XLCellAssignable & operator=(XLCellAssignable&& other) noexcept;
 			/**
 			 * @brief Templated assignment operator.
 			 * @tparam T The type of the value argument.
@@ -3281,7 +3237,7 @@
 					std::is_integral_v<T> || std::is_floating_point_v<T> || std::is_same_v<std::decay_t<T>, std::string> ||
 					std::is_same_v<std::decay_t<T>, std::string_view> || std::is_same_v<std::decay_t<T>, const char*> ||
 					std::is_same_v<std::decay_t<T>, char*> || std::is_same_v<T, XLDateTime> > >
-			XLCellAssignable& operator=(T value)
+			XLCellAssignable & operator=(T value)
 			{
 				XLCell::value() = value; // forward implementation to templated XLCellValue& XLCellValue::operator=(T value)
 				return *this;
@@ -4433,9 +4389,6 @@
 		 * @param pseudoRandom If true, sequence will be reproducible with a constant seed
 		 */
 		void InitRandom(bool pseudoRandom = false);
-
-		class XLRelationships;
-		class XLRelationshipItem;
 		/**
 		 * @brief An enum of the possible relationship (or XML document) types used in relationship (.rels) XML files.
 		 */
@@ -4604,10 +4557,6 @@
 		};
 		//
 		//#include "XLWorkbook.hpp"
-		// class XLSharedStrings;
-		class XLSheet;
-		class XLWorksheet;
-		class XLChartsheet;
 		/**
 		 * @brief The XLSheetType class is an enumeration of the available sheet types, e.g. Worksheet (ordinary
 		 * spreadsheets), and Chartsheet (sheets with only a chart).
@@ -4856,8 +4805,8 @@
 			XLDocument(const XLDocument& other) = delete;
 			XLDocument(XLDocument&& other) noexcept = default;
 			~XLDocument();
-			XLDocument& operator=(const XLDocument& other) = delete;
-			XLDocument& operator=(XLDocument&& other) noexcept = default;
+			XLDocument & operator=(const XLDocument& other) = delete;
+			XLDocument & operator=(XLDocument&& other) noexcept = default;
 			/**
 			 * @brief ensure that warnings are shown (default setting)
 			 */
@@ -4870,7 +4819,7 @@
 			 * @brief Open the .xlsx file with the given path
 			 * @param fileName The path of the .xlsx file to open
 			 */
-			void open(const std::string& fileName);
+			void open(const std::string & fileName);
 			/**
 			 * @brief Create a new .xlsx file with the given name.
 			 * @param fileName The path of the new .xlsx file.
@@ -4878,14 +4827,14 @@
 			 * @throw XLException (OpenXLSX failed checks)
 			 * @throw ZipRuntimeError (zippy failed archive / file access)
 			 */
-			void create(const std::string& fileName, bool forceOverwrite);
-			/**
-			 * @brief Create a new .xlsx file with the given name. Legacy interface, invokes create( fileName, XLForceOverwrite )
-			 * @param fileName The path of the new .xlsx file.
-			 * @deprecated use instead void create(const std::string& fileName, bool forceOverwrite)
-			 * @warning Overwriting an existing file is retained as legacy behavior, but can lead to data loss!
-			 */
-			[[deprecated]] void create(const std::string& fileName);
+			void create(const std::string & fileName, bool forceOverwrite);
+			// 
+			// @brief Create a new .xlsx file with the given name. Legacy interface, invokes create( fileName, XLForceOverwrite )
+			// @param fileName The path of the new .xlsx file.
+			// @deprecated use instead void create(const std::string& fileName, bool forceOverwrite)
+			// @warning Overwriting an existing file is retained as legacy behavior, but can lead to data loss!
+			// 
+			// @sobolev [[deprecated]] void create(const std::string & fileName);
 			/**
 			 * @brief Close the current document
 			 */
@@ -4904,13 +4853,13 @@
 			 * @throw ZipRuntimeError (zippy failed archive / file access)
 			 */
 			void saveAs(const std::string& fileName, bool forceOverwrite);
-			/**
-			 * @brief Save the document with a new name. Legacy interface, invokes saveAs( fileName, XLForceOverwrite )
-			 * @param fileName The path of the file
-			 * @deprecated use instead void saveAs(const std::string& fileName, bool forceOverwrite)
-			 * @warning Overwriting an existing file is retained as legacy behavior, but can lead to data loss!
-			 */
-			[[deprecated]] void saveAs(const std::string& fileName);
+			// 
+			// @brief Save the document with a new name. Legacy interface, invokes saveAs( fileName, XLForceOverwrite )
+			// @param fileName The path of the file
+			// @deprecated use instead void saveAs(const std::string& fileName, bool forceOverwrite)
+			// @warning Overwriting an existing file is retained as legacy behavior, but can lead to data loss!
+			// 
+			// @sobolev [[deprecated]] void saveAs(const std::string& fileName);
 			/**
 			 * @brief Get the filename of the current document, e.g. "spreadsheet.xlsx".
 			 * @return A std::string with the filename.
@@ -5098,8 +5047,6 @@
 		std::string eliminateDotAndDotDotFromPath(const std::string& path);
 		//
 		//#include "XLRowData.hpp"
-		class XLRow;
-		class XLRowDataRange;
 		/**
 		 * @brief This class encapsulates a (non-const) iterator, for iterating over the cells in a row.
 		 * @todo Consider implementing a const iterator also
@@ -5434,7 +5381,6 @@
 		};
 		//
 		//#include "XLRow.hpp"
-		class XLRowRange;
 		/**
 		 * @brief The XLRow class represent a row in an Excel spreadsheet. Using XLRow objects, various row formatting
 		 * options can be set and modified.
@@ -5851,20 +5797,12 @@
 			 * possible via one of the derived classes.
 			 * @param xmlData
 			 */
-			explicit XLSheetBase(XLXmlData* xmlData) : XLXmlFile(xmlData) {}
-			/**
-			 * @brief The copy constructor.
-			 * @param other The object to be copied.
-			 * @note The default copy constructor is used, i.e. only shallow copying of pointer data members.
-			 */
+			explicit XLSheetBase(XLXmlData* xmlData) : XLXmlFile(xmlData) 
+			{
+			}
 			XLSheetBase(const XLSheetBase& other) = default;
 			XLSheetBase(XLSheetBase&& other) noexcept = default;
 			~XLSheetBase() = default;
-			/**
-			 * @brief Assignment operator
-			 * @return A reference to the new object.
-			 * @note The default assignment operator is used, i.e. only shallow copying of pointer data members.
-			 */
 			XLSheetBase& operator=(const XLSheetBase&) = default;
 			XLSheetBase& operator=(XLSheetBase&& other) noexcept = default;
 			XLSheetState visibility() const
@@ -6636,17 +6574,8 @@
 			 * @param xmlData
 			 */
 			explicit XLSheet(XLXmlData* xmlData);
-			/**
-			 * @brief The copy constructor.
-			 * @param other The object to be copied.
-			 * @note The default copy constructor is used, i.e. only shallow copying of pointer data members.
-			 */
 			XLSheet(const XLSheet& other) = default;
 			XLSheet(XLSheet&& other) noexcept = default;
-			/**
-			 * @brief The destructor
-			 * @note The default destructor is used, since cleanup of pointer data members is not required.
-			 */
 			~XLSheet() = default;
 			/**
 			 * @brief Assignment operator

@@ -108,7 +108,7 @@
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <StringPooling>true</StringPooling>
-      <ExceptionHandling>Sync</ExceptionHandling>
+      <ExceptionHandling>Async</ExceptionHandling>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <FunctionLevelLinking>false</FunctionLevelLinking>
@@ -139,7 +139,7 @@
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <StringPooling>true</StringPooling>
-      <ExceptionHandling>Sync</ExceptionHandling>
+      <ExceptionHandling>Async</ExceptionHandling>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <FunctionLevelLinking>false</FunctionLevelLinking>
@@ -171,7 +171,7 @@
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <StringPooling>true</StringPooling>
-      <ExceptionHandling>Sync</ExceptionHandling>
+      <ExceptionHandling>Async</ExceptionHandling>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <StructMemberAlignment>1Byte</StructMemberAlignment>
       <AssemblerOutput>AssemblyAndSourceCode</AssemblerOutput>
@@ -204,7 +204,7 @@
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <StringPooling>true</StringPooling>
-      <ExceptionHandling>Sync</ExceptionHandling>
+      <ExceptionHandling>Async</ExceptionHandling>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <StructMemberAlignment>1Byte</StructMemberAlignment>
       <CompileAs>CompileAsCpp</CompileAs>
@@ -270,6 +270,7 @@
     <ClCompile Include="..\PPTEST\UNIT\test-math.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-mem.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-onig.cpp" />
+    <ClCompile Include="..\PPTEST\UNIT\test-oxlsx.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-process.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-sarc.cpp" />
     <ClCompile Include="..\PPTEST\UNIT\test-sarray.cpp" />

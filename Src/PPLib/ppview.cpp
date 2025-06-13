@@ -2571,25 +2571,6 @@ int PPViewBrowser::GetToolbarComboRect(RECT * pRect)
 	return ok;
 }
 
-/*static int CreateComboBoxComplex(uint cbOptions, uint maxTextLen, TViewGroup * pOwner, TInputLine ** ppInp, ComboBox ** pCb)
-{
-	int    ok = 1;
-	TRect  r;
-	ComboBox * p_cb  = new ComboBox(r, cbOptions); //cbxAllowEmpty|cbxDisposeData|cbxListOnly
-	TInputLine * p_inp = new TInputLine(r, S_ZSTRING, MKSFMT(maxTextLen, 0));
-	p_cb->P_Owner = pOwner;
-	p_cb->setState(sfMsgToParent, false);
-	p_inp->setState(sfMsgToParent, false);
-	p_inp->Parent = parent;
-	p_inp->SetId(CTL_TOOLBAR_INPUTLI);
-	p_cb->SetId(CTL_TOOLBAR_BTN);
-	p_cb->Parent  = parent;
-	p_inp->setupCombo(P_ComboBox);
-	p_cb->handleWindowsMessage(WM_INITDIALOG,  0, 0);
-	p_inp->handleWindowsMessage(WM_INITDIALOG, 0, 0);
-	return ok;
-}*/
-
 void * PPViewBrowser::Helper_InitToolbarCombo()
 {
 #define CTL_TOOLBAR_BTN     1000
@@ -2617,7 +2598,7 @@ void * PPViewBrowser::Helper_InitToolbarCombo()
 		PPGetSubStr(PPTXT_FONTFACE, PPFONT_MSSANSSERIF, font_face);
 		ZDeleteWinGdiObject(&H_ComboFont);
 		H_ComboFont = TView::setFont(hwnd_li, font_face, 8);
-		P_InputLine = new TInputLine(r, S_ZSTRING, MKSFMT(128, 0));
+		P_InputLine = new TInputLine(r, 0/*spcFlags*/, S_ZSTRING, MKSFMT(128, 0));
 		P_ComboBox  = new ComboBox(r, cbxAllowEmpty|cbxDisposeData|cbxListOnly, P_InputLine);
 		P_ComboBox->P_Owner = this;
 		P_ComboBox->setState(sfMsgToParent, false);

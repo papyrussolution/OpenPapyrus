@@ -2772,7 +2772,7 @@ IMPL_HANDLE_EVENT(SCalendarPicker)
 					InsertCtlWithCorrespondingNativeItem(new TButton(_def_rect, "@currenttime", cmNow, 0, 0), CTL_CALENDAR_TODAY, 0, /*extraPtr*/0);
 				else if(Kind == kPeriod) {
 					{
-						TInputLine * p_il = new TInputLine(_def_rect, S_ZSTRING, MKSFMT(128, 0));
+						TInputLine * p_il = new TInputLine(_def_rect, 0/*spcFlags*/, S_ZSTRING, MKSFMT(128, 0));
 						ComboBox * p_cb = new ComboBox(_def_rect, cbxAllowEmpty|cbxDisposeData|cbxListOnly, p_il);
 						p_il->SetId(CTL_CALENDAR_FASTPRD);
 						p_cb->SetId(CTLSEL_CALENDAR_FASTPRD);
@@ -2792,7 +2792,7 @@ IMPL_HANDLE_EVENT(SCalendarPicker)
 						}
 					}
 					{
-						TInputLine * p_il = new TInputLine(_def_rect, MKSTYPE(S_ZSTRING, 256), MKSFMT(256, 0));
+						TInputLine * p_il = new TInputLine(_def_rect, 0/*spcFlags*/, MKSTYPE(S_ZSTRING, 256), MKSFMT(256, 0));
 						TLabel * p_lbl = new TLabel(_def_rect, "@daterange", p_il);
 						InsertCtlWithCorrespondingNativeItem(p_il, CTL_CALENDAR_PERIODEDIT, 0, /*extraPtr*/0);
 						InsertCtlWithCorrespondingNativeItem(p_lbl, 0, 0, /*extraPtr*/0);

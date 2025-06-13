@@ -102,37 +102,34 @@
 
 // If C++ is 2011 or higher, add 'override' qualifiers
 #ifndef PUGIXML_OVERRIDE
-#    if __cplusplus >= 201103
-#        define PUGIXML_OVERRIDE override
-#    elif defined(_MSC_VER) && _MSC_VER >= 1700
-#        define PUGIXML_OVERRIDE override
-#    else
-#        define PUGIXML_OVERRIDE
-#    endif
+	#if __cplusplus >= 201103
+		#define PUGIXML_OVERRIDE override
+	#elif defined(_MSC_VER) && _MSC_VER >= 1700
+		#define PUGIXML_OVERRIDE override
+	#else
+		#define PUGIXML_OVERRIDE
+	#endif
 #endif
-
 // If C++ is 2011 or higher, use 'nullptr'
 #ifndef PUGIXML_NULL
-#    if __cplusplus >= 201103
-#        define PUGIXML_NULL nullptr
-#    elif defined(_MSC_VER) && _MSC_VER >= 1600
-#        define PUGIXML_NULL nullptr
-#    else
-#        define PUGIXML_NULL 0
-#    endif
+	#if __cplusplus >= 201103
+		#define PUGIXML_NULL nullptr
+	#elif defined(_MSC_VER) && _MSC_VER >= 1600
+		#define PUGIXML_NULL nullptr
+	#else
+		#define PUGIXML_NULL 0
+	#endif
 #endif
-
 // Character interface macros
 #ifdef PUGIXML_WCHAR_MODE
-#    define PUGIXML_TEXT(t) L ## t
-#    define PUGIXML_CHAR wchar_t
+	#define PUGIXML_TEXT(t) L ## t
+	#define PUGIXML_CHAR wchar_t
 #else
-#    define PUGIXML_TEXT(t) t
-#    define PUGIXML_CHAR char
+	#define PUGIXML_TEXT(t) t
+	#define PUGIXML_CHAR char
 #endif
 
-namespace pugi
-{
+namespace pugi {
 // Character type used for all internal storage and operations; depends on PUGIXML_WCHAR_MODE
 typedef PUGIXML_CHAR char_t;
 

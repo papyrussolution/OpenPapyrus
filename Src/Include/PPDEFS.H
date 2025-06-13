@@ -411,7 +411,7 @@
 #define PPOBJ_USR                 4L  // $(PPSecur) Пользователи (struct PPSecur)
 	#define PPUSR_MASTER         1L
 #define PPOBJ_UNIT                5L  // $ Единицы измерения (struct PPUnit)
-	// @v11.9.4 Макро-определения PPUNT_XXX замещаются аналогичными SUOM_XXX. С этой целью значиния SUOM_XXX изменены с целью
+	// @v11.9.4 Макро-определения PPUNT_XXX замещаются аналогичными SUOM_XXX. С этой целью значения SUOM_XXX изменены чтобы
 	// обеспечить бинарную совместимость с существующими базами данных.
 	//#define PPUNT_KILOGRAM       1L
 	//#define PPUNT_METRE          2L

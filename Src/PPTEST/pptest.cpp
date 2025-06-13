@@ -34,7 +34,7 @@ int  Test_StyloQInvitation();
 int  Test_StrAssocTree();
 int  Test_Fts();
 //int  Test_ReadUed(const char * pFileName);
-int  Test_LayoutedListDialog();
+// @v12.3.6 int  Test_LayoutedListDialog();
 int  Test_Cristal2SetRetailGateway();
 int  ImportYYE(const char * pSrcPath);
 int  ImportSpecial(const char * pPath);

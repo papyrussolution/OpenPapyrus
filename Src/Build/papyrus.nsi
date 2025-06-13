@@ -329,6 +329,7 @@ Section "Файлы приложения" SEC01
 	File "${SRC_TARGET}\ppexp.bin"
 	File "${SRC_TARGET}\ppifc.bin"
 	File "${SRC_TARGET}\ppdbs.bin"
+	File "${SRC_TARGET}\uiview.bin"   ; @v12.3.6
 	File "${SRC_TARGET}\ppstr.bin"
 	File "${SRC_TARGET}\ppstr-en.bin" ; @v10.4.4
 	File "${SRC_TARGET}\ppstr-nl.bin" ; @v10.4.4

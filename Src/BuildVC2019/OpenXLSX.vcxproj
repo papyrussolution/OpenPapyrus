@@ -245,9 +245,7 @@
     <ClCompile Include="..\OSF\OpenXLSX\SRC\OpenXLSX.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\OpenXLSX-internal.hpp" />
     <ClInclude Include="..\OSF\OpenXLSX\SRC\headers\OpenXLSX.hpp" />
-    <ClInclude Include="..\OSF\OpenXLSX\SRC\utilities\XLUtilities.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

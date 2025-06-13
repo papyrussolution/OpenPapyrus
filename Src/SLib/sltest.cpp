@@ -152,6 +152,14 @@ int STestCase::_check_mem(const void * pMem, size_t sz, uint8 pattern, const cha
 	return 1;
 }
 
+int STestCase::_throw_expectation_fault(const char * pV)
+{
+	SString buf;
+	buf.Z().Cat("throw expected on").Space().Cat(pV);
+	SetInfo(buf, 0);
+	return 0;
+}
+
 enum {
 	smtfIncons = 0x0001,
 	smtfErrNeg = 0x0002,

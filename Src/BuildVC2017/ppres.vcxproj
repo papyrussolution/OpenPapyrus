@@ -1793,6 +1793,65 @@ COPY %(RootDir)%(Directory)%(Filename)-es.BIN $(OutDir)ppstr-es.bin
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
+    <CustomBuild Include="..\Rsrc\dl600\uiview.dl6">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\TOOLS\DL600C %(FullPath)
+XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">..\..\TOOLS\DL600C %(FullPath)
+XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">..\..\TOOLS\DL600C %(FullPath)
+XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">..\..\TOOLS\DL600C %(FullPath)
+XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">..\..\TOOLS\DL600C %(FullPath)
+XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\TOOLS\DL600C %(FullPath)
+XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">..\..\TOOLS\DL600C %(FullPath)
+XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\TOOLS\DL600C %(FullPath)
+XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">..\..\TOOLS\DL600C %(FullPath)
+XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">..\..\TOOLS\DL600C %(FullPath)
+XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">..\..\TOOLS\DL600C %(FullPath)
+XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">..\..\TOOLS\DL600C %(FullPath)
+XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\TOOLS\DL600C %(FullPath)
+XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">..\..\TOOLS\DL600C %(FullPath)
+XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">DL600 compiler (view definitions)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">DL600 compiler (view definitions)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">DL600 compiler (view definitions)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">DL600 compiler (view definitions)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">DL600 compiler (view definitions)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">DL600 compiler (view definitions)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">DL600 compiler (view definitions)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">DL600 compiler (view definitions)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">DL600 compiler (view definitions)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">DL600 compiler (view definitions)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">DL600 compiler (view definitions)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">DL600 compiler (view definitions)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">DL600 compiler (view definitions)</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">DL600 compiler (view definitions)</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)\%(Filename).bin</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">%(RootDir)%(Directory)\%(Filename).bin</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">%(RootDir)%(Directory)\%(Filename).bin</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">%(RootDir)%(Directory)\%(Filename).bin</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|Win32'">%(RootDir)%(Directory)\%(Filename).bin</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)\%(Filename).bin</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">%(RootDir)%(Directory)\%(Filename).bin</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(RootDir)%(Directory)\%(Filename).bin</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">%(RootDir)%(Directory)\%(Filename).bin</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">%(RootDir)%(Directory)\%(Filename).bin</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">%(RootDir)%(Directory)\%(Filename).bin</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">%(RootDir)%(Directory)\%(Filename).bin</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(RootDir)%(Directory)\%(Filename).bin</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">%(RootDir)%(Directory)\%(Filename).bin</Outputs>
+    </CustomBuild>
     <None Include="..\Rsrc\Style\uid-papyrus.json" />
     <None Include="..\Rsrc\Style\uid-wsctl.json" />
   </ItemGroup>
