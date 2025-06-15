@@ -3810,7 +3810,7 @@ int PrcssrDebtRate::Run()
 				const  PPID ar_id = ar_list.get(i);
 				int   do_set_stop = -1;
 				PPClientAgreement agt_rec;
-				MEMSZERO(ar_rec);
+				ar_rec.Clear();
 				if(ArObj.Fetch(ar_id, &ar_rec) > 0) {
 					double rckn = 0.0;
 					int    rckn_inited = 0;

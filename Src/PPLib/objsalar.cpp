@@ -120,12 +120,12 @@ IMPL_HANDLE_EVENT(SalChargeDialog)
 int SalChargeDialog::SetupEnumExt()
 {
 	if(Data.Rec.EnumObjType == PPOBJ_PERSONEVENT) {
-		disableCtrl(CTLSEL_SALCHARGE_ENUMEXT, 0);
+		disableCtrl(CTLSEL_SALCHARGE_ENUMEXT, false);
 		SetupPPObjCombo(this, CTLSEL_SALCHARGE_ENUMEXT, PPOBJ_PERSONOPKIND, Data.Rec.EnumExtVal, 0, 0);
 	}
 	else {
 		setCtrlLong(CTLSEL_SALCHARGE_ENUMEXT, Data.Rec.EnumExtVal = 0);
-		disableCtrl(CTLSEL_SALCHARGE_ENUMEXT, 1);
+		disableCtrl(CTLSEL_SALCHARGE_ENUMEXT, true);
 	}
 	return 1;
 }

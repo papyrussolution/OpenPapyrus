@@ -689,19 +689,6 @@ int PiritEquip::IdentifyTaxEntry(double vatRate, int isVatFree) const
 			}
 		}
 	}
-	// @debug {
-	/* @v11.9.0
-	if(LogFileName.NotEmpty()) {
-		SString temp_buf;
-		if(tax_entry_id_result < 0)
-			(temp_buf = "TaxEntry isn't identified").CatDiv(':', 2).Cat(_vat_rate);
-		else if(tax_entry_id_result == 0)
-			(temp_buf = "TaxEntry isn't found").CatDiv(':', 2).Cat(_vat_rate);
-		else if(tax_entry_id_result > 0)
-			(temp_buf = "TaxEntry is found").CatDiv(':', 2).Cat(tax_entry_id_result-1).CatDiv(',', 2).Cat(_vat_rate);
-		SLS.LogMessage(LogFileName, temp_buf);
-	}*/
-	// } @debug
 	return tax_entry_n;
 }
 

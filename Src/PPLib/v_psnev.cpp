@@ -684,7 +684,7 @@ void PPViewPersonEvent::ViewTotal()
 		InitIteration();
 		PPWaitStop();
 		p_dlg->setCtrlLong(CTL_PSNEVTTOTAL_COUNT, GetCounter().GetTotal());
-		p_dlg->disableCtrl(CTL_PSNEVTTOTAL_COUNT, 1);
+		p_dlg->disableCtrl(CTL_PSNEVTTOTAL_COUNT, true);
 		ExecViewAndDestroy(p_dlg);
 	}
 }

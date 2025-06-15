@@ -511,7 +511,7 @@ public:
 			if(p_combo) {
 				p_combo->setListWindow(CreateListWindow(TWhatmanObject::MakeStrAssocList(), lbtDisposeData|lbtDblClkNotify),
 					TWhatmanObject::GetRegIdBySymb(Data.WtmObjSymb));
-				disableCtrl(CTLSEL_WTMTOOL_WTMOBJ, 1);
+				disableCtrl(CTLSEL_WTMTOOL_WTMOBJ, true);
 			}
 		}
 		{

@@ -1756,7 +1756,7 @@ int PPTextAnalyzer::ProcessGoodsNN()
 							Reset(0);
 							p_tbl->ReadBarcodes(goods_rec.ID, codes);
 							if(codes.getCount() == 0) {
-								MEMSZERO(bc_rec);
+								bc_rec.Clear();
 								codes.insert(&bc_rec);
 							}
 							(ident = "#OBJ").Dot().Cat(PPOBJ_GOODS).Dot().Cat(goods_rec.ID);

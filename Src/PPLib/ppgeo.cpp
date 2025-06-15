@@ -1425,13 +1425,13 @@ PPViewGeoTracking::~PPViewGeoTracking()
 		void   SetupObjType()
 		{
 			if(Data.Oi.Obj == PPOBJ_STYLOPALM) {
-				disableCtrl(CTLSEL_GEOTRFILT_OBJ, 0);
+				disableCtrl(CTLSEL_GEOTRFILT_OBJ, false);
 				SetupPPObjCombo(this, CTLSEL_GEOTRFILT_OBJ, Data.Oi.Obj, Data.Oi.Id, 0, 0);
 			}
 			else {
-				disableCtrl(CTLSEL_GEOTRFILT_OBJ, 1);
+				disableCtrl(CTLSEL_GEOTRFILT_OBJ, true);
 			}
-			disableCtrl(CTLSEL_GEOTRFILT_EXTOBJ, 1);
+			disableCtrl(CTLSEL_GEOTRFILT_EXTOBJ, true);
 		}
 		PPIDArray ObjTypeList;
 		PPIDArray ExtObjTypeList;

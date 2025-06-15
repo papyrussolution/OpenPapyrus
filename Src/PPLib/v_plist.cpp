@@ -1422,10 +1422,10 @@ int PLineFiltDialog::setDTS(const PriceListFilt * pFilt)
 		SetupPPObjCombo(this, CTLSEL_PLINEFLT_GGRP, PPOBJ_GOODSGROUP, Data.GoodsGrpID, OLW_CANSELUPLEVEL, 0);
 		if(Data.GrpIDList.IsExists()) {
 			SetComboBoxListText(this, CTLSEL_PLINEFLT_GGRP);
-			disableCtrl(CTLSEL_PLINEFLT_GGRP, 1);
+			disableCtrl(CTLSEL_PLINEFLT_GGRP, true);
 		}
 		else
-			disableCtrl(CTLSEL_PLINEFLT_GGRP, 0);
+			disableCtrl(CTLSEL_PLINEFLT_GGRP, false);
 		setCtrlUInt16(CTL_PLINEFLT_EXCLGGRP, BIN(Data.Flags & PLISTF_EXCLGGRP));
 		setCtrlUInt16(CTL_PLINEFLT_FLAGS, BIN(Data.Flags & PLISTF_PRESENTONLY));
 		ok = 1;
@@ -1460,10 +1460,10 @@ IMPL_HANDLE_EVENT(PLineFiltDialog)
 				setCtrlData(CTLSEL_PLINEFLT_GGRP, &Data.GoodsGrpID);
 				if(Data.GrpIDList.IsExists()) {
 					SetComboBoxListText(this, CTLSEL_PLINEFLT_GGRP);
-					disableCtrl(CTLSEL_PLINEFLT_GGRP, 1);
+					disableCtrl(CTLSEL_PLINEFLT_GGRP, true);
 				}
 				else
-					disableCtrl(CTLSEL_PLINEFLT_GGRP, 0);
+					disableCtrl(CTLSEL_PLINEFLT_GGRP, false);
 			}
 			else
 				PPError();
@@ -1715,7 +1715,7 @@ public:
 		if(Data.QuotKindID >= 0)
 			SetupPPObjCombo(this, CTLSEL_PLINE_QUOTKIND, PPOBJ_QUOTKIND, Data.QuotKindID, 0, 0);
 		else
-			disableCtrl(CTLSEL_PLINE_QUOTKIND, 1);
+			disableCtrl(CTLSEL_PLINE_QUOTKIND, true);
 		setCtrlData(CTL_PLINE_UPP, &Data.UnitPerPack);
 		setCtrlData(CTL_PLINE_PRICE, &Data.Price);
 		setCtrlData(CTL_PLINE_AP1, &Data.AddPrice1);

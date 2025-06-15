@@ -3294,7 +3294,7 @@ int TrfrAnlzFiltDialog::setDTS(const TrfrAnlzFilt * pData)
 			default: v = 0; break;
 		}
 		if(Data.Flags & TrfrAnlzFilt::fGByDate) {
-			disableCtrl(CTL_GTO_ORDER, 1);
+			disableCtrl(CTL_GTO_ORDER, true);
 			v = 0;
 		}
 		setCtrlData(CTL_GTO_ORDER, &v);
@@ -4484,10 +4484,10 @@ public:
 		SetupPPObjCombo(this, CTLSEL_ALCREPCFG_IMPPSNK, PPOBJ_PERSONKIND, Data.E.ImporterPersonKindID, 0);
 		SetupArCombo(this, CTLSEL_ALCREPCFG_SPLAGT, Data.E.SupplAgentID, 0, GetAgentAccSheet(), sacfDisableIfZeroSheet); // @v11.0.8
 		if(Data.LotManufTagList.getCount() > 1) {
-			disableCtrl(CTLSEL_ALCREPCFG_MNFTAG, 1);
+			disableCtrl(CTLSEL_ALCREPCFG_MNFTAG, true);
 		}
 		else {
-			disableCtrl(CTLSEL_ALCREPCFG_MNFTAG, 0);
+			disableCtrl(CTLSEL_ALCREPCFG_MNFTAG, false);
 			ObjTagFilt ot_filt(PPOBJ_LOT);
 			SetupObjTagCombo(this, CTLSEL_ALCREPCFG_MNFTAG, Data.LotManufTagList.getSingle(), 0, &ot_filt);
 		}

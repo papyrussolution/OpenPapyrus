@@ -9,7 +9,7 @@
 #include <slib-internal.h>
 #pragma hdrstop
 
-static constexpr uint32 SUiLayoutParam_Version = 1;
+static constexpr uint32 SUiLayoutParam_Version = 2; // @v12.3.6 1-->2
 
 SUiLayoutParam::SUiLayoutParam() : Signature(SlConst::Signature_SUiLayoutParam), Ver(SUiLayoutParam_Version)
 {
@@ -54,6 +54,7 @@ SUiLayoutParam & FASTCALL SUiLayoutParam::operator = (const SUiLayoutParam & rS)
 	CPY_FLD(ShrinkFactor);
 	CPY_FLD(Basis);
 	CPY_FLD(AspectRatio);
+	CPY_FLD(MinSize); // @v12.3.6
 #undef CPY_FLD
 	return *this;
 }
@@ -80,6 +81,7 @@ SUiLayoutParam & SUiLayoutParam::Z()
 	ShrinkFactor = 1.0f;
 	Basis = 0.0f;
 	AspectRatio = 0.0f;
+	MinSize.Z(); // @v12.3.6
 	return *this;
 }
 
@@ -107,7 +109,8 @@ bool FASTCALL SUiLayoutParam::IsEq(const SUiLayoutParam & rS) const
 	I(GrowFactor);     
 	I(ShrinkFactor);   
 	I(Basis);          
-	I(AspectRatio);    
+	I(AspectRatio);
+	I(MinSize); // @v12.3.6
 	#undef I
 	return true;
 }
@@ -145,6 +148,12 @@ bool SUiLayoutParam::Validate() const
 	if(Padding.b.y < 0.0f)
 		ok = false;
 	// } @v12.3.4 
+	// @v12.3.6 {
+	if(MinSize.x < 0.0f)
+		ok = false;
+	if(MinSize.y < 0.0f)
+		ok = false;
+	// } @v12.3.6 
 	return ok;
 }
 
@@ -179,6 +188,11 @@ int SUiLayoutParam::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx
 	THROW(pSCtx->Serialize(dir, ShrinkFactor, rBuf));
 	THROW(pSCtx->Serialize(dir, Basis, rBuf));
 	THROW(pSCtx->Serialize(dir, AspectRatio, rBuf));
+	// @v12.3.6 {
+	if(!(dir < 0) || !(version < 2)) {
+		THROW(pSCtx->Serialize(dir, MinSize, rBuf));
+	}
+	// } @v12.3.6 
 	CATCHZOK
 	return ok;
 }

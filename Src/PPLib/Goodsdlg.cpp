@@ -435,7 +435,7 @@ int GoodsFiltCtrlGroup::IsGroupSelectionDisabled() const
 			SetupPPObjCombo(pDlg, CtlselGoods, PPOBJ_GOODS, Data.GoodsID, fl, reinterpret_cast<void *>(g));
 		}
 		if(DisableGroupSelection) {
-			pDlg->disableCtrl(CtlselGoodsGrp, 1);
+			pDlg->disableCtrl(CtlselGoodsGrp, true);
 			if(Cm)
 				pDlg->enableCommand(Cm, 0);
 		}
@@ -483,7 +483,7 @@ void GoodsFiltCtrlGroup::SetupCtrls(TDialog * pDlg)
 		// по-скольку выбор группы мог быть заблокирован выше на основании прав доступа,
 		// и в таком случае приведенный вариант разблокирует комбо-бокс.
 		//
-		// pDlg->disableCtrl(CtlselGoodsGrp, 1);
+		// pDlg->disableCtrl(CtlselGoodsGrp, true);
 		//
 		SString buf;
 		SetComboBoxLinkText(pDlg, CtlselGoodsGrp, PPGetWord(PPWORD_TEMPALTGRP, 0, buf));
@@ -795,7 +795,7 @@ public:
 		ArticleTbl::Rec ar_rec;
 		if(Data.ArID && ArObj.Fetch(Data.ArID, &ar_rec) > 0) {
 			AcsID = ar_rec.AccSheetID;
-			disableCtrl(CTLSEL_ARGOODSCODE_ACS, 1);
+			disableCtrl(CTLSEL_ARGOODSCODE_ACS, true);
 		}
 		else
 			AcsID = GetSupplAccSheet();
@@ -1839,7 +1839,7 @@ public:
 		if(v)
 			disableCtrls(1, CTL_GOODSVAD_SZWD, CTL_GOODSVAD_SZLN, CTL_GOODSVAD_SZHT, 0);
 		else
-			disableCtrl(CTL_GOODSVAD_VOLUME, 1);
+			disableCtrl(CTL_GOODSVAD_VOLUME, true);
 		setCtrlData(CTL_GOODSVAD_EXPIRYPRD, &Data.Stock.ExpiryPeriod);
 		setCtrlReal(CTL_GOODSVAD_MINSHQTTY,  Data.Stock.MinShippmQtty);
 		setCtrlUInt16(CTL_GOODSVAD_MULTMINSH, BIN(Data.Stock.GseFlags & GoodsStockExt::fMultMinShipm));
@@ -2150,13 +2150,13 @@ IMPL_HANDLE_EVENT(GoodsVadDialog)
 			getDimentions();
 			setCtrlReal(CTL_GOODSVAD_VOLUME, Data.Stock.CalcVolume(1));
 			disableCtrls(1, CTL_GOODSVAD_SZWD, CTL_GOODSVAD_SZLN, CTL_GOODSVAD_SZHT, 0);
-			disableCtrl(CTL_GOODSVAD_VOLUME, 0);
+			disableCtrl(CTL_GOODSVAD_VOLUME, false);
 		}
 		else {
 			Data.Stock.SetVolume(getCtrlReal(CTL_GOODSVAD_VOLUME));
 			setDimentions();
 			disableCtrls(0, CTL_GOODSVAD_SZWD, CTL_GOODSVAD_SZLN, CTL_GOODSVAD_SZHT, 0);
-			disableCtrl(CTL_GOODSVAD_VOLUME, 1);
+			disableCtrl(CTL_GOODSVAD_VOLUME, true);
 		}
 	}
 	else if(event.isCbSelected(CTLSEL_GOODSVAD_PLTTYPE)) {
@@ -2567,7 +2567,7 @@ int GoodsCtrlGroup::setData(TDialog * dlg, void * pData)
 	fl |= OLW_WORDSELECTOR;
 	SetupPPObjCombo(dlg, CtlselGrp, PPOBJ_GOODSGROUP, p_rec->GoodsGrpID, ((Flags & enableSelUpLevel) ? (fl|OLW_CANSELUPLEVEL) : fl), reinterpret_cast<void *>(prev_grp_level));
 	if(disable_group_selection)
-		dlg->disableCtrl(CtlselGrp, 1);
+		dlg->disableCtrl(CtlselGrp, true);
 	{
 		const  PPID ext_id = (Flags & existsGoodsOnly) ? (p_rec->GoodsGrpID ? -labs(p_rec->GoodsGrpID) : LONG_MIN) : labs(p_rec->GoodsGrpID);
 		fl = OLW_LOADDEFONOPEN;
@@ -2744,8 +2744,8 @@ public:
 				showCtrl(CTL_REPLGOODS_ALLDEST, true);
 				/* не следует по-умолчанию ставить эту галку - она опасная
 				setCtrlUInt16(CTL_REPLGOODS_ALLDEST, 1);
-				disableCtrl(CTLSEL_REPLGOODS_GRP2, 1);
-				disableCtrl(CTLSEL_REPLGOODS_GOODS2, 1);
+				disableCtrl(CTLSEL_REPLGOODS_GRP2, true);
+				disableCtrl(CTLSEL_REPLGOODS_GOODS2, true);
 				enableCommand(cmExchange, 0);
 				*/
 			}
@@ -3190,7 +3190,7 @@ public:
 		setCtrlUInt16(CTL_GOODSFLT_NOKIND, BIN(Data.Flags & GoodsFilt::fUndefType));
 		if(Data.GrpIDList.IsExists()) {
 			SetComboBoxListText(this, CTLSEL_GOODSFLT_GRP);
-			disableCtrl(CTLSEL_GOODSFLT_GRP, 1);
+			disableCtrl(CTLSEL_GOODSFLT_GRP, true);
 		}
 		{
 			Data.GetExtssData(Data.extssNameText, temp_buf.Z());
@@ -3287,7 +3287,7 @@ int GoodsFilterAdvDialog(GoodsFilt * pFilt, int disable)
 				setGroupData(ctlgroupLoc, &l_rec);
 			}
 			if(CtlDisableSuppl)
-				disableCtrl(CTLSEL_GFLTADVOPT_SUPPL, 1);
+				disableCtrl(CTLSEL_GFLTADVOPT_SUPPL, true);
 			else
 				SetupArCombo(this, CTLSEL_GFLTADVOPT_SUPPL, Data.SupplID, OLW_LOADDEFONOPEN, GetSupplAccSheet(), sacfDisableIfZeroSheet);
 			AddClusterAssoc(CTL_GFLTADVOPT_FLAGS, 0, GoodsFilt::fNewLots);
@@ -3497,7 +3497,7 @@ public:
 			ArticleTbl::Rec ar_rec;
 			if(Data.CodeArID && ArObj.Fetch(Data.CodeArID, &ar_rec) > 0) {
 				AcsID = ar_rec.AccSheetID;
-				disableCtrl(CTLSEL_GDSFVOPT_ACS, 1);
+				disableCtrl(CTLSEL_GDSFVOPT_ACS, true);
 			}
 			else
 				AcsID = GetSupplAccSheet();
@@ -3606,8 +3606,8 @@ private:
 		DisableClusterItem(CTL_GDSFVOPT_FLAGS, 2, disable_struc);
 		DisableClusterItem(CTL_GDSFVOPT_FLAGS, 3, /*!disable_cargo ||*/ disable_struc);
 		if(Data.Flags & GoodsFilt::fShowArCode) {
-			disableCtrl(CTL_GDSFVOPT_OWNCODES, 0);
-			disableCtrl(CTLSEL_GDSFVOPT_AR, 0);
+			disableCtrl(CTL_GDSFVOPT_OWNCODES, false);
+			disableCtrl(CTLSEL_GDSFVOPT_AR, false);
 			disableCtrl(CTLSEL_GDSFVOPT_ACS, BIN(getCtrlLong(CTLSEL_GDSFVOPT_AR)));
 			if(getCtrlUInt16(CTL_GDSFVOPT_OWNCODES) & 0x01) {
 				setCtrlLong(CTLSEL_GDSFVOPT_AR, 0);
@@ -3750,11 +3750,11 @@ void GoodsFiltDialog::setupVat()
 		if(Data.VatDate)
 			temp_buf.CatDiv('-', 1).Cat(Data.VatDate, MKSFMT(0, DATF_DMY));
 		SetComboBoxLinkText(this, CTLSEL_GOODSFLT_TAXGRP, temp_buf);
-		disableCtrl(CTLSEL_GOODSFLT_TAXGRP, 1);
+		disableCtrl(CTLSEL_GOODSFLT_TAXGRP, true);
 	}
 	else {
 		SetComboBoxLinkText(this, CTLSEL_GOODSFLT_TAXGRP, temp_buf);
-		disableCtrl(CTLSEL_GOODSFLT_TAXGRP, 0);
+		disableCtrl(CTLSEL_GOODSFLT_TAXGRP, false);
 		getCtrlData(CTLSEL_GOODSFLT_TAXGRP, &Data.TaxGrpID);
 		setCtrlData(CTLSEL_GOODSFLT_TAXGRP, &Data.TaxGrpID);
 	}
@@ -3764,12 +3764,12 @@ void GoodsFiltDialog::SetupCtrls()
 {
 	ushort v = getCtrlUInt16(CTL_GOODSFLT_NOKIND);
 	if(!v) {
-		disableCtrl(CTLSEL_GOODSFLT_KIND, 0);
+		disableCtrl(CTLSEL_GOODSFLT_KIND, false);
 		setCtrlData(CTLSEL_GOODSFLT_KIND, &Data.GoodsTypeID);
 	}
 	else {
 		setCtrlUInt16(CTLSEL_GOODSFLT_KIND, 0);
-		disableCtrl(CTLSEL_GOODSFLT_KIND, 1);
+		disableCtrl(CTLSEL_GOODSFLT_KIND, true);
 	}
 	long prev_flags = Data.Flags;
 	GetClusterData(CTL_GOODSFLT_FLAGS, &Data.Flags);

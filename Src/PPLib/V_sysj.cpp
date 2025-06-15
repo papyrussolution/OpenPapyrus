@@ -51,11 +51,11 @@ IMPL_HANDLE_EVENT(SysJFiltDialog)
 		if(ListToListDialog(&l2l_data) > 0)
 			if(Filt.ActionIDList.isList()) {
 				SetComboBoxListText(this, CTLSEL_SYSJFILT_ACTION);
-				disableCtrl(CTLSEL_SYSJFILT_ACTION, 1);
+				disableCtrl(CTLSEL_SYSJFILT_ACTION, true);
 			}
 			else {
 				setCtrlLong(CTLSEL_SYSJFILT_ACTION, Filt.ActionIDList.getSingle());
-				disableCtrl(CTLSEL_SYSJFILT_ACTION, 0);
+				disableCtrl(CTLSEL_SYSJFILT_ACTION, false);
 			}
 	}
 	else if(event.isCbSelected(CTLSEL_SYSJFILT_ACTION))
@@ -95,11 +95,11 @@ int SysJFiltDialog::setDTS(const SysJournalFilt * pFilt)
 	}
 	if(Filt.ActionIDList.isList()) {
 		SetComboBoxListText(this, CTLSEL_SYSJFILT_ACTION);
-		disableCtrl(CTLSEL_SYSJFILT_ACTION, 1);
+		disableCtrl(CTLSEL_SYSJFILT_ACTION, true);
 	}
 	else {
 		setCtrlLong(CTLSEL_SYSJFILT_ACTION, Filt.ActionIDList.getSingle());
-		disableCtrl(CTLSEL_SYSJFILT_ACTION, 0);
+		disableCtrl(CTLSEL_SYSJFILT_ACTION, false);
 	}
 	SetupStringCombo(this, CTLSEL_SYSJFILT_SUBST, PPTXT_SUBSTSYSJLIST, Filt.Sgsj);
 	SetupSubstDateCombo(this, CTLSEL_SYSJFILT_SUBSTDT, Filt.Sgd);
@@ -1253,11 +1253,11 @@ int PPViewGtaJournal::EditBaseFilt(PPBaseFilt * pBaseFilt)
 			}
 			if(Data.ActionIDList.isList()) {
 				SetComboBoxListText(this, CTLSEL_GTAJFILT_ACTION);
-				disableCtrl(CTLSEL_GTAJFILT_ACTION, 1);
+				disableCtrl(CTLSEL_GTAJFILT_ACTION, true);
 			}
 			else {
 				setCtrlLong(CTLSEL_GTAJFILT_ACTION, Data.ActionIDList.getSingle());
-				disableCtrl(CTLSEL_GTAJFILT_ACTION, 0);
+				disableCtrl(CTLSEL_GTAJFILT_ACTION, false);
 			}
 			return 1;
 		}
@@ -1285,11 +1285,11 @@ int PPViewGtaJournal::EditBaseFilt(PPBaseFilt * pBaseFilt)
 				if(ListToListDialog(&l2l_data) > 0)
 					if(Data.ActionIDList.isList()) {
 						SetComboBoxListText(this, CTLSEL_GTAJFILT_ACTION);
-						disableCtrl(CTLSEL_GTAJFILT_ACTION, 1);
+						disableCtrl(CTLSEL_GTAJFILT_ACTION, true);
 					}
 					else {
 						setCtrlLong(CTLSEL_GTAJFILT_ACTION, Data.ActionIDList.getSingle());
-						disableCtrl(CTLSEL_GTAJFILT_ACTION, 0);
+						disableCtrl(CTLSEL_GTAJFILT_ACTION, false);
 					}
 			}
 			else if(event.isCbSelected(CTLSEL_GTAJFILT_ACTION))

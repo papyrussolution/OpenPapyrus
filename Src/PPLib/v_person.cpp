@@ -895,14 +895,14 @@ private:
 			if(initZero)
 				Data.ExtObj = 0;
 			SetupPPObjCombo(this, CTLSEL_UPDPLIST_EXTOBJ, PPOBJ_PERSONKIND, Data.ExtObj, 0);
-			disableCtrl(CTL_UPDPLIST_YES, 1);
+			disableCtrl(CTL_UPDPLIST_YES, true);
 		}
 		if(Data.Action == Data.acnGenerateUUID) {
-			disableCtrl(CTL_UPDPLIST_YES, 1);
+			disableCtrl(CTL_UPDPLIST_YES, true);
 		}
 		else {
 			PPLoadString("updpersonlist_extobj", label_buf);
-			disableCtrl(CTL_UPDPLIST_YES, 0);
+			disableCtrl(CTL_UPDPLIST_YES, false);
 		}
 		setLabelText(CTL_UPDPLIST_EXTOBJ, label_buf);
 	}
@@ -2343,7 +2343,7 @@ public:
 		if(Data.GetAttribType())
 			setCtrlData(CTL_PSNFLT_EMPTY, &Data.EmptyAttrib);
 		else
-			disableCtrl(CTL_PSNFLT_EMPTY, 1);
+			disableCtrl(CTL_PSNFLT_EMPTY, true);
 		Data.GetExtssData(PersonFilt::extssNameText, temp_buf);
 		setCtrlString(CTL_PSNFLT_NAMESTR, temp_buf);
 		SetupWordSelector(CTL_PSNFLT_NAMESTR, new TextHistorySelExtra("personfilt-nametext-common"), 0, 2, WordSel_ExtraBlock::fFreeText);
@@ -2472,10 +2472,10 @@ private:
 			}
 			if(!Data.GetAttribType()) {
 				setCtrlUInt16(CTL_PSNFLT_EMPTY, 0);
-				disableCtrl(CTL_PSNFLT_EMPTY, 1);
+				disableCtrl(CTL_PSNFLT_EMPTY, true);
 			}
 			else
-				disableCtrl(CTL_PSNFLT_EMPTY, 0);
+				disableCtrl(CTL_PSNFLT_EMPTY, false);
 			DisableClusterItem(CTL_PSNFLT_FLAGS, 2, Data.GetAttribType() != PPPSNATTR_ALLADDR);
 			// @v12.1.10 DisableClusterItem(CTL_PSNFLT_FLAGS, 3, !Data.IsLocAttr());
 			{

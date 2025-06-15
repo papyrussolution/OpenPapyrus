@@ -109,15 +109,15 @@ IMPL_HANDLE_EVENT(StaffCalFiltDialog)
 				Data.LinkObjList.Set(&temp_list);
 				if(Data.LinkObjList.GetCount() == 1) {
 					setCtrlLong(CTLSEL_STAFFCALFLT_OBJ, Data.LinkObjList.GetSingle());
-					disableCtrl(CTLSEL_STAFFCALFLT_OBJ, 0);
+					disableCtrl(CTLSEL_STAFFCALFLT_OBJ, false);
 				}
 				else if(Data.LinkObjList.GetCount() == 0) {
 					setCtrlLong(CTLSEL_STAFFCALFLT_OBJ, 0);
-					disableCtrl(CTLSEL_STAFFCALFLT_OBJ, 0);
+					disableCtrl(CTLSEL_STAFFCALFLT_OBJ, false);
 				}
 				else {
 					SetComboBoxListText(this, CTLSEL_STAFFCALFLT_OBJ);
-					disableCtrl(CTLSEL_STAFFCALFLT_OBJ, 1);
+					disableCtrl(CTLSEL_STAFFCALFLT_OBJ, true);
 				}
 			}
 		}

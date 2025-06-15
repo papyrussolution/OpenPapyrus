@@ -132,11 +132,11 @@ int LogsMonitorFiltDialog::actionList()
 	if(ListToListDialog(&data) > 0) {
 		if(Filt.ActionIDList.isList()) {
 			SetComboBoxListText(this, CTLSEL_LOGSMON_ACTION);
-			disableCtrl(CTLSEL_LOGSMON_ACTION, 1);
+			disableCtrl(CTLSEL_LOGSMON_ACTION, true);
 		}
 		else {
 			setCtrlLong(CTLSEL_LOGSMON_ACTION, Filt.ActionIDList.getSingle());
-			disableCtrl(CTLSEL_LOGSMON_ACTION, 0);
+			disableCtrl(CTLSEL_LOGSMON_ACTION, false);
 		}
 		return 1;
 	}

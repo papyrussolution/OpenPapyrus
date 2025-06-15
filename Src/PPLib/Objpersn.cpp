@@ -4538,14 +4538,13 @@ IMPL_HANDLE_EVENT(ShortPersonDialog)
 			SCardID = 0;
 			setCtrlString(CTL_PERSON_SCARD, temp_buf.Z());
 			SetupSCardSeries(1, 1);
-			disableCtrl(CTL_PERSON_SCARD, 0);
-			showButton(cmCreateSCard, 0);
-			enableCommand(cmCreateSCard, 0);
+			disableCtrl(CTL_PERSON_SCARD, false);
+			showButton(cmCreateSCard, false);
+			enableCommand(cmCreateSCard, false);
 		}
 	}
 	else if(event.isClusterClk(CTL_PERSON_SCARDAUTO)) {
-		int    sca = BIN(getCtrlUInt16(CTL_PERSON_SCARDAUTO));
-		disableCtrl(CTL_PERSON_SCARD, sca);
+		disableCtrl(CTL_PERSON_SCARD, LOGIC(getCtrlUInt16(CTL_PERSON_SCARDAUTO)));
 		setCtrlString(CTL_PERSON_SCARD, temp_buf.Z());
 	}
 	else if(TVBROADCAST && TVCMD == cmChangedFocus && TVINFOVIEW->TestId(CTL_PERSON_NAME)) {
@@ -4723,7 +4722,7 @@ int ShortPersonDialog::SetupSCardSeries(int fromCtrl, int dontSeekCard)
 						if(ScObj.Search(sc_id, &sc_rec) > 0) {
 							SCardID = sc_id;
 							setCtrlData(CTL_PERSON_SCARD, sc_rec.Code);
-							disableCtrl(CTL_PERSON_SCARD, 1);
+							disableCtrl(CTL_PERSON_SCARD, true);
 							showButton(cmCreateSCard, 1);
 							enableCommand(cmCreateSCard, 1);
 							break;
@@ -4748,7 +4747,7 @@ int ShortPersonDialog::SetupSCardSeries(int fromCtrl, int dontSeekCard)
 			else
 				setCtrlLong(CTLSEL_PERSON_SCAG, 0);
 			if(!SCardID) {
-				disableCtrl(CTL_PERSON_SCARD, 0);
+				disableCtrl(CTL_PERSON_SCARD, false);
 				showButton(cmCreateSCard, 0);
 				enableCommand(cmCreateSCard, 0);
 				enable_auto_create = 1;
@@ -5419,8 +5418,8 @@ IMPL_HANDLE_EVENT(PersonDialog)
 							if(!obj_secur.CheckRights(PPR_MOD)) {
 								enableCommand(cmCashierPassword, 0);
 								enableCommand(cmOK, 0);
-								disableCtrl(CTL_CSHRRTS_RIGHTS, 1);
-								disableCtrl(CTL_CSHRRTS_RPTRIGHTS, 1);
+								disableCtrl(CTL_CSHRRTS_RIGHTS, true);
+								disableCtrl(CTL_CSHRRTS_RPTRIGHTS, true);
 								OnlyView = 1;
 							}
 						}
@@ -6099,7 +6098,7 @@ static int EditPersonRel(PersonLink * pData)
 		{
 			if(Data.Flags & (PersonLink::fLockScndList|PersonLink::fLockScnd)) {
 				SetupPersonCombo(this, CTLSEL_PERSONLINK_SCND, Data.ScndPersonList.getSingle(), OLW_CANINSERT, 0, 0);
-				disableCtrl(CTLSEL_PERSONLINK_KIND, 1);
+				disableCtrl(CTLSEL_PERSONLINK_KIND, true);
 				disableCtrl(CTLSEL_PERSONLINK_SCND,  Data.Flags & PersonLink::fLockScnd);
 				enableCommand(cmPersonList, 0);
 			}
@@ -6887,7 +6886,7 @@ int PPObjPersonKind::Edit(PPID * pID, void * extraPtr)
 	SetupPPObjCombo(dlg, CTLSEL_PSNKIND_DEFSTATUS, PPOBJ_PRSNSTATUS,   psnk.DefStatusID, 0, 0);
 	dlg->AddClusterAssoc(CTL_PSNKIND_FLAGS, 0, PPPersonKind::fUseShortPersonDialog);
 	dlg->SetClusterData(CTL_PSNKIND_FLAGS, psnk.Flags);
-	dlg->disableCtrl(CTL_PSNKIND_ID, 1);
+	dlg->disableCtrl(CTL_PSNKIND_ID, true);
 	if(ExecView(dlg) == cmOK) {
 		THROW(is_new || CheckRights(PPR_MOD));
 		dlg->getCtrlData(CTL_PSNKIND_NAME, psnk.Name);

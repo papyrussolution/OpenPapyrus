@@ -1212,7 +1212,7 @@ public:
 		v = Data.Rec.PairType;
 		setCtrlData(CTL_PSNOPK_PAIRTYPE, &v);
 		if(Data.Rec.PairOp == 0)
-			disableCtrl(CTL_PSNOPK_PAIRTYPE, 1);
+			disableCtrl(CTL_PSNOPK_PAIRTYPE, true);
 		if(Data.Rec.Flags & POKF_GROUP) {
 			disableCtrls(1, CTLSEL_PSNOPK_PAIR, CTLSEL_PSNOPK_REGTYP, CTL_PSNOPK_FLAGS, CTL_PSNOPK_PAIRTYPE, 0L);
 			enableCommand(cmPsnOpkPrmr,     0);
@@ -1408,7 +1408,7 @@ int EditPoClause(PPPsnOpKindPacket * pPokPack, PoClause_ * pClause)
 	public:
 		explicit PoClauseDialog(PPPsnOpKindPacket * pokPack) : TDialog(DLG_POVERB), PokPack(pokPack)
 		{
-			disableCtrl(CTLSEL_POVERB_LINK, 1);
+			disableCtrl(CTLSEL_POVERB_LINK, true);
 		}
 		DECL_DIALOG_SETDTS()
 		{
@@ -1512,43 +1512,43 @@ int EditPoClause(PPPsnOpKindPacket * pPokPack, PoClause_ * pClause)
 			switch(verb_id) {
 				case POVERB_ASSIGNKIND:
 				case POVERB_REVOKEKIND:
-					disableCtrl(CTLSEL_POVERB_LINK, 0);
+					disableCtrl(CTLSEL_POVERB_LINK, false);
 					SetupPPObjCombo(this, CTLSEL_POVERB_LINK, PPOBJ_PERSONKIND, Data.DirObj, 0, 0);
 					break;
 				case POVERB_SETTAG:
 					if(PokPack->Rec.ExValGrp != POKEVG_TAG)
 						ok = PPSetError(PPERR_INADMISSPOVERB);
 					else {
-						disableCtrl(CTLSEL_POVERB_LINK, 0);
+						disableCtrl(CTLSEL_POVERB_LINK, false);
 						SetupStrAssocCombo(this, CTLSEL_POVERB_LINK, TagList, Data.DirObj, 0);
 					}
 					break;
 				case POVERB_REMOVETAG:
-					disableCtrl(CTLSEL_POVERB_LINK, 0);
+					disableCtrl(CTLSEL_POVERB_LINK, false);
 					SetupPPObjCombo(this, CTLSEL_POVERB_LINK, PPOBJ_TAG, Data.DirObj, 0, 0);
 					//SetupObjTagCombo(this, CTLSEL_POVERB_LINK, data.DirObj, 0, 0);
 					break;
 				case POVERB_INCTAG:
 				case POVERB_DECTAG:
-					disableCtrl(CTLSEL_POVERB_LINK, 0);
+					disableCtrl(CTLSEL_POVERB_LINK, false);
 					SetupPPObjCombo(this, CTLSEL_POVERB_LINK, PPOBJ_TAG, Data.DirObj, 0, 0);
 					break;
 				case POVERB_ASSIGNPOST:
-					disableCtrl(CTLSEL_POVERB_LINK, 1);
+					disableCtrl(CTLSEL_POVERB_LINK, true);
 					if(PokPack->Rec.ExValGrp != POKEVG_POST)
 						ok = PPSetError(PPERR_INADMISSPOVERB);
 					break;
 				case POVERB_ADDRELATION:
 				case POVERB_REVOKERELATION:
-					disableCtrl(CTLSEL_POVERB_LINK, 0);
+					disableCtrl(CTLSEL_POVERB_LINK, false);
 					SetupPPObjCombo(this, CTLSEL_POVERB_LINK, PPOBJ_PERSONRELTYPE, Data.DirObj, 0, 0);
 					break;
 				case POVERB_REVOKEPOST:
 				case POVERB_ASSIGNREG:
-					disableCtrl(CTLSEL_POVERB_LINK, 1);
+					disableCtrl(CTLSEL_POVERB_LINK, true);
 					break;
 				case POVERB_REVOKEREG:
-					disableCtrl(CTLSEL_POVERB_LINK, 0);
+					disableCtrl(CTLSEL_POVERB_LINK, false);
 					SetupPPObjCombo(this, CTLSEL_POVERB_LINK, PPOBJ_REGISTERTYPE, Data.DirObj, 0, 0);
 					break;
 				case POVERB_SETCALENDAR:
@@ -1556,13 +1556,13 @@ int EditPoClause(PPPsnOpKindPacket * pPokPack, PoClause_ * pClause)
 				case POVERB_SETCALCONT:
 				case POVERB_SETCALCONT_SKIP:
 				case POVERB_RESETCALCONT:
-					disableCtrl(CTLSEL_POVERB_LINK, 0);
+					disableCtrl(CTLSEL_POVERB_LINK, false);
 					SetupPPObjCombo(this, CTLSEL_POVERB_LINK, PPOBJ_STAFFCAL, Data.DirObj, 0, 0);
 					break;
 				case POVERB_COMPLETECAL:
 				case POVERB_COMPLETECAL_SKIP:
 					if(oneof2(PokPack->Rec.PairType, POKPT_CLOSE, POKPT_NULLCLOSE)) {
-						disableCtrl(CTLSEL_POVERB_LINK, 0);
+						disableCtrl(CTLSEL_POVERB_LINK, false);
 						SetupPPObjCombo(this, CTLSEL_POVERB_LINK, PPOBJ_STAFFCAL, Data.DirObj, 0, 0);
 					}
 					else
@@ -1570,19 +1570,19 @@ int EditPoClause(PPPsnOpKindPacket * pPokPack, PoClause_ * pClause)
 					break;
 				case POVERB_INCSCARDOP:
 				case POVERB_DECSCARDOP:
-					disableCtrl(CTLSEL_POVERB_LINK, 0);
+					disableCtrl(CTLSEL_POVERB_LINK, false);
 					SetupPPObjCombo(this, CTLSEL_POVERB_LINK, PPOBJ_GOODS, Data.DirObj, OLW_LOADDEFONOPEN, 0);
 					break;
 				case POVERB_DEVICECMD:
-					disableCtrl(CTLSEL_POVERB_LINK, 0);
+					disableCtrl(CTLSEL_POVERB_LINK, false);
 					SetupPPObjCombo(this, CTLSEL_POVERB_LINK, PPOBJ_GENERICDEVICE, Data.DirObj, 0, 0);
 					break;
 				case POVERB_STYLODISPLAY:
-					disableCtrl(CTLSEL_POVERB_LINK, 0);
+					disableCtrl(CTLSEL_POVERB_LINK, false);
 					SetupPPObjCombo(this, CTLSEL_POVERB_LINK, PPOBJ_STYLOPALM, Data.DirObj, 0, 0);
 					break;
 				case POVERB_BEEP:
-					disableCtrl(CTLSEL_POVERB_LINK, 0);
+					disableCtrl(CTLSEL_POVERB_LINK, false);
 					break;
 			}
 			if(ok) {

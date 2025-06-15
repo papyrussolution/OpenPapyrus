@@ -297,10 +297,10 @@ void DraftWrOffDialog::setupDfctSelectors(PPID arID)
 	}
 	if(ok < 0) {
 		setCtrlLong(CTLSEL_DRAFTWROFF_DFCTAR, 0);
-		disableCtrl(CTLSEL_DRAFTWROFF_DFCTAR, 1);
+		disableCtrl(CTLSEL_DRAFTWROFF_DFCTAR, true);
 	}
 	else
-		disableCtrl(CTLSEL_DRAFTWROFF_DFCTAR, 0);
+		disableCtrl(CTLSEL_DRAFTWROFF_DFCTAR, false);
 }
 
 static int EditDraftWrOffItem(PPDraftWrOffEntry * pItem)
@@ -458,10 +458,10 @@ public:
 		if(Data.CSessList.getCount()) {
 			PPLoadText(PPTXT_WROFFDRAFTBYCSESSLIST, temp_buf);
 			setStaticText(CTL_DWOFILT_ST_INFO, temp_buf);
-			disableCtrl(CTL_DWOFILT_PERIOD, 1);
+			disableCtrl(CTL_DWOFILT_PERIOD, true);
 		}
 		else
-			disableCtrl(CTL_DWOFILT_PERIOD, 0);
+			disableCtrl(CTL_DWOFILT_PERIOD, false);
 		SetPeriodInput(this, CTL_DWOFILT_PERIOD, &Data.Period);
 		SetupPPObjCombo(this, CTLSEL_DWOFILT_DWO, PPOBJ_DRAFTWROFF, Data.DwoID, 0, 0);
 		SetupPPObjCombo(this, CTLSEL_DWOFILT_LOC, PPOBJ_LOCATION, Data.PoolLocID, 0, 0);

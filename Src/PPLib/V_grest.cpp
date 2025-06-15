@@ -843,7 +843,7 @@ int GoodsRestWPrgnFltDlg::setDTS(const GoodsRestFilt * pFilt)
 	LDATE  last_update = ZERODATE;
 	if(!RVALUEPTR(Filt, pFilt))
 		Filt.Init(1, 0);
-	disableCtrl(CTL_GRWPRGNFLT_FILLDATE, 1);
+	disableCtrl(CTL_GRWPRGNFLT_FILLDATE, true);
 	PredictSalesCore psc;
 	psc.GetTblUpdateDt(&last_update);
 	setCtrlData(CTL_GRWPRGNFLT_FILLDATE, &last_update);

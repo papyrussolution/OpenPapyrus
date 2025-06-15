@@ -62,12 +62,13 @@ int AccTurnDialog::setDTS(const PPAccTurn * pData, PPBillPacket * pPack, long te
 				PPError();
 	}
 	else
-		MEMSZERO(Data);
-	if(Data.Flags & PPAF_OUTBAL && Data.Flags & PPAF_OUTBAL_TRANSFER)
+		Data.Z();
+	if(Data.Flags & PPAF_OUTBAL && Data.Flags & PPAF_OUTBAL_TRANSFER) {
 		if(Data.Amount >= 0.0)
 			Data.SwapDbtCrd();
 		else
 			Data.Amount = -Data.Amount;
+	}
 	setCtrlData(CTL_ATURN_DATE, &Data.Date);
 	setCtrlData(CTL_ATURN_DOC,  Data.BillCode);
 	rec.AcctId      = Data.DbtID;
@@ -94,11 +95,11 @@ int AccTurnDialog::setDTS(const PPAccTurn * pData, PPBillPacket * pPack, long te
 	ca_rec.CRateDate = Data.Date;
 	setGroupData(GRP_CURAMT, &ca_rec);
 	setupCurrencyCombo();
-	disableCtrl(CTL_ATURN_DACC, BIN(templFlags & ATTF_DACCFIX));
-	disableCtrl(CTL_ATURN_DART, BIN(templFlags & ATTF_DARTFIX));
-	disableCtrl(CTL_ATURN_CACC, BIN(templFlags & ATTF_CACCFIX));
-	disableCtrl(CTL_ATURN_CART, BIN(templFlags & ATTF_CARTFIX));
-	disableCtrl(CTL_ATURN_BASEAMT, 1);
+	disableCtrl(CTL_ATURN_DACC, LOGIC(templFlags & ATTF_DACCFIX));
+	disableCtrl(CTL_ATURN_DART, LOGIC(templFlags & ATTF_DARTFIX));
+	disableCtrl(CTL_ATURN_CACC, LOGIC(templFlags & ATTF_CACCFIX));
+	disableCtrl(CTL_ATURN_CART, LOGIC(templFlags & ATTF_CARTFIX));
+	disableCtrl(CTL_ATURN_BASEAMT, true);
 	if(Data.Flags & PPAF_OUTBAL) {
 		ushort v = 0;
 		if(Data.Flags & PPAF_OUTBAL_WITHDRAWAL)
@@ -572,7 +573,7 @@ int BillPrelude(const PPIDArray * pOpList, uint opklFlags, PPID linkOpID, PPID *
 		dlg->SetupWordSelector(CTL_BILLPRELUDE_OPLIST, 0, 0, /*MIN_WORDSEL_SYMB*/2, WordSel_ExtraBlock::fAlwaysSearchBySubStr);
 		SetupPPObjCombo(dlg, CTLSEL_BILLPRELUDE_LOC, PPOBJ_LOCATION, loc_id, OLW_WORDSELECTOR);
 		if(loc_id && opklFlags & OPKLF_FIXEDLOC)
-			dlg->disableCtrl(CTLSEL_BILLPRELUDE_LOC, 1);
+			dlg->disableCtrl(CTLSEL_BILLPRELUDE_LOC, true);
 		for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;) {
 			dlg->getCtrlData(CTL_BILLPRELUDE_OPLIST, &op_id);
 			dlg->getCtrlData(CTLSEL_BILLPRELUDE_LOC, &loc_id);
@@ -864,8 +865,8 @@ BillDialog::BillDialog(uint dlgID, PPBillPacket * pPack, int isEdit) : PPListDia
 		// } @v11.8.1 
 		disableCtrl(CTL_BILL_AMOUNT, do_disable_amount);
 	}
-	disableCtrl(CTL_BILL_ADV_TOUT, 1);
-	disableCtrl(CTL_BILL_DEBTSUM, 1);
+	disableCtrl(CTL_BILL_ADV_TOUT, true);
+	disableCtrl(CTL_BILL_DEBTSUM, true);
 	setupPosition();
 	DefaultRect = getRect();
 	showLinkFilesList();
@@ -2721,7 +2722,7 @@ int BillDialog::setDTS(PPBillPacket * pPack)
 			dsbl_object = false;
 	}
 	disableCtrl(CTLSEL_BILL_OBJECT, dsbl_object);
-	disableCtrl(CTL_BILL_DEBTSUM, 1);
+	disableCtrl(CTL_BILL_DEBTSUM, true);
 	if(Flags & fExtMainCurAmount)
 		setCurGroupData();
 	else
@@ -3392,7 +3393,7 @@ int ChangeBillFlagsDialog(long * pSetFlags, long * pResetFlags, PPID * pStatusID
 		SetupPPObjCombo(dlg, CTLSEL_BILLF_STATUS, PPOBJ_BILLSTATUS, *pStatusID, 0);
 		if(!BillObj->CheckRights(BILLOPRT_MODSTATUS, 1)) {
 			*pStatusID = 0;
-			dlg->disableCtrl(CTLSEL_BILLF_STATUS, 1);
+			dlg->disableCtrl(CTLSEL_BILLF_STATUS, true);
 		}
 		for(bool valid_data = false; !valid_data && ExecView(dlg) == cmOK;) {
 			ushort    v1 = dlg->getCtrlUInt16(CTL_BILLF_SET);
@@ -3435,7 +3436,7 @@ int PPObjBill::EditFreightDialog(PPBillPacket & rPack)
 			AddClusterAssocDef(CTL_FREIGHT_TRTYP, 0, PPTRTYP_CAR);
 			AddClusterAssoc(CTL_FREIGHT_TRTYP, 1, PPTRTYP_SHIP);
 			SetClusterData(CTL_FREIGHT_TRTYP, Data.TrType);
-			disableCtrl(CTL_FREIGHT_TRTYP, BIN(Data.ShipID));
+			disableCtrl(CTL_FREIGHT_TRTYP, LOGIC(Data.ShipID));
 			disableCtrl(CTL_FREIGHT_COST, (R_Pack.Rec.ID && !BillObj->CheckRights(PPR_MOD)));
 			setCtrlData(CTL_FREIGHT_NAME, Data.Name);
 			SetupPPObjCombo(this, CTLSEL_FREIGHT_SHIP,     PPOBJ_TRANSPORT, Data.ShipID,  OLW_CANINSERT|OLW_LOADDEFONOPEN, reinterpret_cast<void *>(Data.TrType));
@@ -3546,10 +3547,10 @@ int PPObjBill::EditFreightDialog(PPBillPacket & rPack)
 				PPID   tr_id = getCtrlLong(CTLSEL_FREIGHT_SHIP);
 				if(tr_id && tr_obj.Get(tr_id, &tr_pack) > 0) {
 					setCtrlData(CTLSEL_FREIGHT_CAPTAIN, &tr_pack.Rec.CaptainID);
-					disableCtrl(CTL_FREIGHT_TRTYP, 1);
+					disableCtrl(CTL_FREIGHT_TRTYP, true);
 				}
 				else
-					disableCtrl(CTL_FREIGHT_TRTYP, 0);
+					disableCtrl(CTL_FREIGHT_TRTYP, false);
 			}
 			// @v11.2.9 {
 			else if(event.isCbSelected(CTLSEL_FREIGHT_DLVRLOC)) { 
@@ -4098,7 +4099,7 @@ void LotQCertDialog::generateSerial()
 		PPObjGoods goods_obj;
 		BillTbl::Rec bill_rec;
 		if(P_BObj->Search(lot_rec.BillID, &bill_rec) <= 0)
-			MEMSZERO(bill_rec);
+			bill_rec.Clear();
 		STRNSCPY(templt, goods_obj.IsAsset(lot_rec.GoodsID) ? P_BObj->Cfg.InvSnTemplt : P_BObj->Cfg.SnTemplt);
 		SString serial;
 		if(P_BObj->GetSnByTemplate(bill_rec.Code, labs(lot_rec.GoodsID), 0, templt, serial) > 0)
@@ -4223,7 +4224,7 @@ public:
 		setCtrlData(CTL_LOTINFO_PRICE,    &Data.Price);
 		setCtrlDate(CTL_LOTINFO_CLOSEDT, (Data.CloseDate == MAXDATE) ? ZERODATE : Data.CloseDate);
 		setCtrlUInt16(CTL_LOTINFO_CLOSED, BIN(Data.Closed));
-		disableCtrl(CTL_LOTINFO_ID, 1);
+		disableCtrl(CTL_LOTINFO_ID, true);
 		if(!CanEdit) {
 			disableCtrls(1, CTLSEL_LOTINFO_LOC, CTLSEL_LOTINFO_GOODS, CTLSEL_LOTINFO_SUPPL,
 				CTLSEL_LOTINFO_QCERT, CTL_LOTINFO_QTTY, CTL_LOTINFO_REST, CTL_LOTINFO_UPP,

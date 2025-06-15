@@ -29,10 +29,8 @@
  * This software is provided "as is" without express or implied warranty
  * to the extent permitted by applicable law.
 ]*/
-
 /*
  * AUTHORS
- *
  *   Maurice Castro
  *   Russell Lang
  */
@@ -53,9 +51,8 @@ extern "C" {
 // winmain.c 
 // #define PACKVERSION(major,minor) MAKELONG(minor,major)
 // (replaced with SDynLibrary::GetVersion) extern DWORD GetDllVersion(LPCTSTR lpszDllName);
-extern BOOL IsWindowsXPorLater();
-extern char *appdata_directory();
-extern FILE *open_printer();
+extern char * appdata_directory();
+extern FILE * open_printer();
 extern BOOL cp_changed;
 extern UINT cp_input;
 extern UINT cp_output;

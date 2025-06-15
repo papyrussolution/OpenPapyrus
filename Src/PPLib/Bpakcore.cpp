@@ -313,7 +313,7 @@ static int GetDefaultPaymPeriod(const PPBillPacket * pPack, int * pDays)
 	if(arobj.Fetch(pPack->Rec.Object, &ar_rec) > 0)
 		client_id = ar_rec.ID;
 	else
-		MEMSZERO(ar_rec);
+		ar_rec.Clear();
 	const  int    agt_kind = PPObjArticle::GetAgreementKind(&ar_rec);
 	if(agt_kind == 1) {
 		int    is_agreement = 0;

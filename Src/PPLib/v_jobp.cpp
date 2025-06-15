@@ -52,7 +52,7 @@ public:
 		SetupDBEntryComboBox(this, CTLSEL_JOBITEM_DBSYMB, &dbes, 0);
 		if(db_id == 0 && Data.DbSymb.NotEmpty())
 			setCtrlString(CTL_JOBITEM_DBSYMB, Data.DbSymb);
-		disableCtrl(CTLSEL_JOBITEM_DBSYMB, 1);
+		disableCtrl(CTLSEL_JOBITEM_DBSYMB, true);
 		P_Mngr->GetResourceList(1, cmd_txt_list);
 		cmd_txt_list.SortByText();
 		uint   pos = 0;

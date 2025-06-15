@@ -1667,7 +1667,7 @@ public:
 		ArID = Data.SupplID;
 		GetArticleName(Data.SupplID, ar_name);
 		setCtrlString(CTL_SUPPLAGT_SUPPLIER, ar_name);
-		disableCtrl(CTL_SUPPLAGT_SUPPLIER, 1);
+		disableCtrl(CTL_SUPPLAGT_SUPPLIER, true);
 		setCtrlData(CTL_SUPPLAGT_DATE,      &Data.BegDt);
 		setCtrlData(CTL_SUPPLAGT_EXPIRY,    &Data.Expiry);
 		setCtrlData(CTL_SUPPLAGT_PAYPERIOD, &Data.DefPayPeriod);

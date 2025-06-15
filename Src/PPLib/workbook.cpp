@@ -588,7 +588,7 @@ public:
 		Data = *pData;
 		SString temp_buf;
 		setCtrlLong(CTL_WORKBOOK_ID, Data.Rec.ID);
-		disableCtrl(CTL_WORKBOOK_ID, 1);
+		disableCtrl(CTL_WORKBOOK_ID, true);
 		setCtrlString(CTL_WORKBOOK_NAME, temp_buf = Data.Rec.Name);
 		setCtrlString(CTL_WORKBOOK_CODE, temp_buf = Data.Rec.Symb);
 		setCtrlLong(CTL_WORKBOOK_RANK, Data.Rec.Rank);
@@ -642,36 +642,36 @@ public:
 			{
 				ObjTagItem tag_kws;
 				if(tag_kws.Init(PPTAG_WORKBOOK_KWSYN)) {
-					disableCtrl(CTL_WORKBOOK_KWSYN, 0);
+					disableCtrl(CTL_WORKBOOK_KWSYN, false);
 					const ObjTagItem * p_tag = Data.TagL.GetItem(PPTAG_WORKBOOK_KWSYN);
 					if(p_tag && p_tag->GetStr(temp_buf))
 						setCtrlString(CTL_WORKBOOK_KWSYN, temp_buf);
 				}
 				else
-					disableCtrl(CTL_WORKBOOK_KWSYN, 1);
+					disableCtrl(CTL_WORKBOOK_KWSYN, true);
 			}
 			{
 				ObjTagItem tag_kwl;
 				if(tag_kwl.Init(PPTAG_WORKBOOK_KWLOC)) {
-					disableCtrl(CTL_WORKBOOK_KWLOC, 0);
+					disableCtrl(CTL_WORKBOOK_KWLOC, false);
 					const ObjTagItem * p_tag = Data.TagL.GetItem(PPTAG_WORKBOOK_KWLOC);
 					if(p_tag && p_tag->GetStr(temp_buf))
 						setCtrlString(CTL_WORKBOOK_KWLOC, temp_buf);
 				}
 				else
-					disableCtrl(CTL_WORKBOOK_KWLOC, 1);
+					disableCtrl(CTL_WORKBOOK_KWLOC, true);
 			}
 		}
 		else {
 			ObjTagItem tag_kw;
 			if(tag_kw.Init(PPTAG_WORKBOOK_KEYWORDS)) {
-				disableCtrl(CTL_WORKBOOK_KEYWORDS, 0);
+				disableCtrl(CTL_WORKBOOK_KEYWORDS, false);
 				const ObjTagItem * p_tag_kw = Data.TagL.GetItem(PPTAG_WORKBOOK_KEYWORDS);
 				if(p_tag_kw && p_tag_kw->GetStr(temp_buf))
 					setCtrlString(CTL_WORKBOOK_KEYWORDS, temp_buf);
 			}
 			else
-				disableCtrl(CTL_WORKBOOK_KEYWORDS, 1);
+				disableCtrl(CTL_WORKBOOK_KEYWORDS, true);
 		}
 		{
 			TInputLine * p_il = static_cast<TInputLine *>(getCtrlView(CTL_WORKBOOK_DESCR));
@@ -1180,11 +1180,11 @@ int PPObjWorkbook::SelectLink(PPObjWorkbook::SelectLinkBlock * pData)
 			if(wb_type)
 				WbObj.SetupItemCombo(this, CTLSEL_SELWBLINK_ITEM, wb_type, Data.ID);
 			else
-				disableCtrl(CTLSEL_SELWBLINK_ITEM, 1);
+				disableCtrl(CTLSEL_SELWBLINK_ITEM, true);
 			if(addendum_wb_type)
 				WbObj.SetupItemCombo(this, CTLSEL_SELWBLINK_IMGITEM, addendum_wb_type, Data.AddendumID);
 			else
-				disableCtrl(CTLSEL_SELWBLINK_IMGITEM, 1);
+				disableCtrl(CTLSEL_SELWBLINK_IMGITEM, true);
 			return 1;
 		}
 		DECL_DIALOG_GETDTS()

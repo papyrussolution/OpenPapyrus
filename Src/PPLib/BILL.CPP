@@ -1529,7 +1529,7 @@ int BillCore::UpdatePool(PPID billID, PPID pullType, PPID pullOwnerID, int use_t
 			THROW(p_ref->Assc.Update(assc_id, &assc_rec, use_ta));
 	}
 	else {
-		MEMSZERO(assc_rec);
+		assc_rec.Clear();
 		assc_rec.AsscType  = pullType;
 		assc_rec.PrmrObjID = pullOwnerID;
 		assc_rec.ScndObjID = billID;

@@ -483,7 +483,7 @@ void TrfrItemDialog::SetupCtrls() // Called from TrfrItemDialog::setDTS
 	if(!(r_cfg.Flags & CFGFLG_USEPACKAGE))
 		disableCtrls(1, CTL_LOT_UNITPERPACK, CTL_LOT_PACKS, 0);
 	else if(!(Item.Flags & PPTFR_RECEIPT) && OpTypeID != PPOPT_DRAFTRECEIPT)
-		disableCtrl(CTL_LOT_UNITPERPACK, 1);
+		disableCtrl(CTL_LOT_UNITPERPACK, true);
 	//
 	// Переоценка допускает ввод и цены и скидки (у скидки другое значение)
 	//
@@ -502,7 +502,7 @@ void TrfrItemDialog::SetupCtrls() // Called from TrfrItemDialog::setDTS
 			// @v9.2.9 Для заказа разрешается вводить скидку
 			//
 			if(r_cfg.Flags & CFGFLG_DISCOUNTBYSUM)
-				disableCtrl(CTL_LOT_DISCOUNT, 1);
+				disableCtrl(CTL_LOT_DISCOUNT, true);
 			//
 			// Поступление товара (с генерацией лота) однозначно допускает
 			// ввод цены реализации. С другой стороны внутреннее перемещение товара
@@ -510,7 +510,7 @@ void TrfrItemDialog::SetupCtrls() // Called from TrfrItemDialog::setDTS
 			// родительского лота только если установлен флаг CFGFLG_FREEPRICE.
 			//
 			else if(!(Item.Flags & PPTFR_RECEIPT) && !(IsIntrExpndOp(OpID) && r_cfg.Flags & CFGFLG_FREEPRICE))
-				disableCtrl(CTL_LOT_PRICE, 1);
+				disableCtrl(CTL_LOT_PRICE, true);
 		}
 	}
 	if((Item.Flags & PPTFR_ONORDER) || (EditMode && (!(Item.Flags & (PPTFR_RECEIPT|PPTFR_DRAFT)) || !P_BObj->CheckRights(BILLRT_MODGOODS)))) {
@@ -525,7 +525,7 @@ void TrfrItemDialog::SetupCtrls() // Called from TrfrItemDialog::setDTS
 	}
 	else if(IsIntrExpndOp(OpID)) {
 		disable_cost = true; // @v12.1.3 
-		// @v12.1.3 disableCtrl(CTL_LOT_COST, 1);
+		// @v12.1.3 disableCtrl(CTL_LOT_COST, true);
 	}
 	if(disable_goods || St & stGoodsFixed) {
 		St |= stGoodsFixed;
@@ -537,7 +537,7 @@ void TrfrItemDialog::SetupCtrls() // Called from TrfrItemDialog::setDTS
 		setCtrlReadOnly(CTL_LOT_SERIAL, 1);
 	}
 	if(St & stGoodsByPrice) {
-		disableCtrl(CTL_LOT_PRICE, 0);
+		disableCtrl(CTL_LOT_PRICE, false);
 		selectCtrl(CTL_LOT_PRICE);
 	}
 	if(Item.CurID) {
@@ -545,22 +545,22 @@ void TrfrItemDialog::SetupCtrls() // Called from TrfrItemDialog::setDTS
 			disableCtrls(1, CTL_LOT_PRICE, CTL_LOT_DISCOUNT, 0);
 		else {
 			disable_cost = true; // @v12.1.3 
-			// @v12.1.3 disableCtrl(CTL_LOT_COST, 1);
+			// @v12.1.3 disableCtrl(CTL_LOT_COST, true);
 		}
 	}
 	else
-		disableCtrl(CTL_LOT_CURPRICE, 1);
+		disableCtrl(CTL_LOT_CURPRICE, true);
 	//
 	// В переоценке количество изменять не допускается //
 	//
 	if(Item.Flags & PPTFR_REVAL) {
 		if(!(Item.Flags & PPTFR_CORRECTION))
-			disableCtrl(CTL_LOT_QUANTITY, 1);
+			disableCtrl(CTL_LOT_QUANTITY, true);
 		if(!Item.IsRecomplete()) {
-			disableCtrl(CTL_LOT_INDEPPHQTTY, 1);
+			disableCtrl(CTL_LOT_INDEPPHQTTY, true);
 			if(CheckOpFlags(OpID, OPKF_DENYREVALCOST, 0)) {
 				disable_cost = true; // @v12.1.3 
-				// @v12.1.3 disableCtrl(CTL_LOT_COST, 1);
+				// @v12.1.3 disableCtrl(CTL_LOT_COST, true);
 			}
 		}
 	}
@@ -773,7 +773,7 @@ int TrfrItemDialog::setupValuation()
 				SETFLAG(Item.Flags, PPTFR_COSTWOVAT, v);
 			if(Item.Valuation(r_cfg, 0, 0) > 0) {
 				setCtrlReal(CTL_LOT_PRICE, Item.Price);
-				disableCtrl(CTL_LOT_PRICE, 1);
+				disableCtrl(CTL_LOT_PRICE, true);
 				ok = 1;
 			}
 			locking = 0;
@@ -1249,7 +1249,7 @@ void TrfrItemDialog::replyGoodsGroupSelection()
 	getCtrlData(CTLSEL_LOT_GOODSGRP, &GoodsGrpID);
 	Item.SetupGoods(0, 0);
 	Item.QCert   = 0;
-	disableCtrl(CTLSEL_LOT_QCERT, 1);
+	disableCtrl(CTLSEL_LOT_QCERT, true);
 	setupGoodsList();
 	selectCtrl(CTL_LOT_GOODS);
 	messageToCtrl(CTLSEL_LOT_GOODS, cmCBActivate, 0);
@@ -1610,7 +1610,7 @@ int TrfrItemDialog::replyGoodsSelection(int recurse)
 			setCtrlReadOnly(CTL_LOT_SERIAL, !enbl_lot_ctrl);
 		}
 		if(P_Pack->OpTypeID != PPOPT_GOODSRETURN && OpID != _PPOPK_SUPPLRET)
-			disableCtrl(CTL_LOT_LOT, 0);
+			disableCtrl(CTL_LOT_LOT, false);
 		setupQttyFldPrec();
 		if(LConfig.Flags & CFGFLG_AUTOQUOT)
 			setupQuotation(0, 1);
@@ -1913,7 +1913,7 @@ int TrfrItemDialog::setDTS(const PPTransferItem * pItem)
 		GoodsGrpID = goods_rec.ParentID;
 	}
 	else {
-		disableCtrl(CTL_LOT_LOT, 1);
+		disableCtrl(CTL_LOT_LOT, true);
 		GoodsGrpID = 0;
 	}
 	if(St & stGoodsFixed && GoodsGrpID && GObj.Fetch(GoodsGrpID, &grp_rec) > 0)
@@ -1994,7 +1994,7 @@ int TrfrItemDialog::setDTS(const PPTransferItem * pItem)
 			SetClusterData(CTL_LOT_IMMASSETEXPL, Item.Flags);
 			if(Item.Quantity_ == 0.0 || Item.Quantity_ == 1.0) {
 				setCtrlReal(CTL_LOT_QUANTITY, Item.Quantity_ = 1.0);
-				disableCtrl(CTL_LOT_QUANTITY, 1);
+				disableCtrl(CTL_LOT_QUANTITY, true);
 			}
 		}
 	}
@@ -2697,13 +2697,13 @@ void TrfrItemDialog::setupQuotation(int reset, int autoQuot)
 			if(P_BObj->CheckRights(BILLOPRT_CANCELQUOT, 1)) {
 				Item.SetupQuot(0.0, 0);
 				if(!Item.CurID) {
-					disableCtrl(CTL_LOT_PRICE, 0);
+					disableCtrl(CTL_LOT_PRICE, false);
 					if(!(r_cfg.Flags & CFGFLG_DISCOUNTBYSUM))
-						disableCtrl(CTL_LOT_DISCOUNT, 0);
+						disableCtrl(CTL_LOT_DISCOUNT, false);
 					drawCtrl(CTL_LOT_PRICE);
 				}
 				else
-					disableCtrl(CTL_LOT_CURPRICE, 0);
+					disableCtrl(CTL_LOT_CURPRICE, false);
 			}
 		}
 	}
@@ -2799,7 +2799,7 @@ void TrfrItemDialog::setupQuotation(int reset, int autoQuot)
 				SETFLAG(Item.Flags, PPTFR_COSTWOVAT, v);
 			if(Item.Valuation(r_cfg, 0, 0) > 0) {
 				setCtrlReal(CTL_LOT_PRICE, Item.Price);
-				disableCtrl(CTL_LOT_PRICE, 1);
+				disableCtrl(CTL_LOT_PRICE, true);
 			}
 		}
 		else if(P_Pack->GetQuotExt(Item, &price) > 0)

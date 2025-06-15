@@ -289,12 +289,12 @@ void DBDivDialog::SetupAddr(const SString & rAddrList)
 	if(c > 1 || (c == 1 && rAddrList.Len() >= sizeof(data.Rec.Addr))) {
 		PPLoadString("list", temp_buf);
 		setCtrlString(CTL_DBDIV_ADDR, temp_buf);
-		disableCtrl(CTL_DBDIV_ADDR, 1);
+		disableCtrl(CTL_DBDIV_ADDR, true);
 		data.PutExtStrData(DBDIVEXSTR_GATEWAYLIST, rAddrList);
 	}
 	else {
 		setCtrlString(CTL_DBDIV_ADDR, temp_buf = rAddrList);
-		disableCtrl(CTL_DBDIV_ADDR, 0);
+		disableCtrl(CTL_DBDIV_ADDR, false);
 		data.PutExtStrData(DBDIVEXSTR_GATEWAYLIST, temp_buf.Z());
 	}
 }

@@ -2467,7 +2467,7 @@ int SelectPersonByCodeDialog::setDTS(const Rec * pData)
 	if(PsnScndKindRec.ID)
 		SetupPersonCombo(this, CTLSEL_SELPERSONC_PRSNSC, Data.ScndPsnID, 0, PsnScndKindRec.ID, 0);
 	else
-		disableCtrl(CTLSEL_SELPERSONC_PRSNSC, 1);
+		disableCtrl(CTLSEL_SELPERSONC_PRSNSC, true);
 	SetupCtrls();
 	return ok;
 }

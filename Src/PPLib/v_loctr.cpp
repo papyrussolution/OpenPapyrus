@@ -62,15 +62,15 @@ void PalletCtrlGroup::SetupPallet(TDialog * pDlg, int doSelect)
 		pDlg->setCtrlLong(CtlselPalletType, plt.PalletTypeID);
 		pDlg->setCtrlReal(CtlPallet, (double)plt.PacksPerLayer * plt.MaxLayers);
 		pDlg->setCtrlUInt16(CtlPalletCount, 0);
-		pDlg->disableCtrl(CtlPallet, 0);
-		pDlg->disableCtrl(CtlPalletCount, 0);
+		pDlg->disableCtrl(CtlPallet, false);
+		pDlg->disableCtrl(CtlPalletCount, false);
 	}
 	else {
 		pDlg->setCtrlLong(CtlselPalletType, Data.PalletTypeID = 0);
 		pDlg->setCtrlReal(CtlPallet, 0.0);
 		pDlg->setCtrlUInt16(CtlPalletCount, 0);
-		pDlg->disableCtrl(CtlPallet, 1);
-		pDlg->disableCtrl(CtlPalletCount, 1);
+		pDlg->disableCtrl(CtlPallet, true);
+		pDlg->disableCtrl(CtlPalletCount, true);
 	}
 	pDlg->disableCtrl(CtlselPalletType, Gse.PltList.getCount() < 2);
 	pDlg->setCtrlReal(CtlPckg, (Gse.Package > 0.0) ? Gse.Package : 0.0);

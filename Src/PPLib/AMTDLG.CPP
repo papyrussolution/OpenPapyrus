@@ -34,7 +34,7 @@ public:
 		if(Data.AmtTypeID == 0 && P_RestrictList && P_RestrictList->getCount() == 1)
 			Data.AmtTypeID = P_RestrictList->at(0);
 		SetupAmtTypeCombo(this, CTLSEL_BILLAMT_AMTTYPE, Data.AmtTypeID, OLW_CANINSERT, 0, P_RestrictList);
-		disableCtrl(CTL_BILLAMT_BASEAMT, 1);
+		disableCtrl(CTL_BILLAMT_BASEAMT, true);
 		disableCtrls(!CanEdit, CTLSEL_BILLAMT_AMTTYPE, CTLSEL_BILLAMT_CUR, 0);
 		disableCtrls(Data.AmtTypeID == PPAMT_CRATE, CTL_BILLAMT_CRATE, 0);
 		if(!CanEdit)
@@ -421,7 +421,7 @@ class BillTaxesDialog : public TDialog {
 public:
 	BillTaxesDialog() : TDialog(DLG_BILLTAX)
 	{
-		disableCtrl(CTL_BILLTAX_AMOUNT, 1);
+		disableCtrl(CTL_BILLTAX_AMOUNT, true);
 	}
 	int    setDTS(const AmtList * pData, const TaxAmountIDs * pTais);
 	int    getDTS(AmtList * pData);
@@ -534,7 +534,7 @@ void BillTaxesDialog::setBillTaxCtrl(PPID amtTypeID, uint ctlText, uint ctlInput
 		setCtrlReal(ctlInput, Data.Get(amtTypeID, 0L/*@curID*/));
 	}
 	else
-		disableCtrl(ctlInput, 1);
+		disableCtrl(ctlInput, true);
 }
 
 void BillTaxesDialog::getBillTaxCtrl(PPID amtTypeID, uint ctlInput)

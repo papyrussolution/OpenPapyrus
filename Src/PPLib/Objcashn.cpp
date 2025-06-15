@@ -1627,7 +1627,7 @@ public:
 		}
 		AddClusterAssoc(CTL_CASHN_PASSIVE, 0, CASHFX_PASSIVE);
 		SetClusterData(CTL_CASHN_PASSIVE, Data.ExtFlags);
-		//disableCtrl(CTL_CASHN_OVRFLW, 1);
+		//disableCtrl(CTL_CASHN_OVRFLW, true);
 		setCtrlData(CTL_CASHN_SLEEPTIMEOUT, &Data.SleepTimeout);
 		if(!Data.TableSelWhatman.NotEmptyS()) {
 			FileBrowseCtrlGroup * p_fbg = static_cast<FileBrowseCtrlGroup *>(getGroup(ctlgroupTblDgmPathy));

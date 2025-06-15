@@ -30,7 +30,7 @@ int EditCmdItem(const PPCommandGroup * pGrp, PPCommand * pData, /*int isDekstopC
 			CmdDescr.GetResourceList(1, CmdSymbList);
 			if(/*IsDesktopCmd*/CmdGrpC == cmdgrpcDesktop)
 				FileBrowseCtrlGroup::Setup(this, CTLBRW_CMDITEM_ICON, CTL_CMDITEM_ICON, ctlgroupFbg, PPTXT_SELCMDICON, PPTXT_FILPAT_ICONS, FileBrowseCtrlGroup::fbcgfFile);
-			disableCtrl(CTL_CMDITEM_ICON, 1);
+			disableCtrl(CTL_CMDITEM_ICON, true);
 			disableCtrl(CTL_CMDITEM_USEDEFICON, /*!IsDesktopCmd*/CmdGrpC != cmdgrpcDesktop);
 			disableCtrl(CTLBRW_CMDITEM_ICON, /*!IsDesktopCmd*/CmdGrpC != cmdgrpcDesktop);
 			enableCommand(cmCmdParam, /*IsDesktopCmd*/CmdGrpC == cmdgrpcDesktop);
@@ -54,7 +54,7 @@ int EditCmdItem(const PPCommandGroup * pGrp, PPCommand * pData, /*int isDekstopC
 			SetClusterData(CTL_CMDITEM_FLAGS, Data.Flags);
 			disableCtrl(CTLBRW_CMDITEM_ICON, Data.Icon.ToLong() || !Data.Icon.Len());
 			disableCtrl(CTLSEL_CMDITEM_CMD, Data.CmdID);
-			disableCtrl(CTL_CMDITEM_ID, 1);
+			disableCtrl(CTL_CMDITEM_ID, true);
 			if(Data.GetID() && CmdDescr.LoadResource(Data.CmdID) > 0)
 				enableCommand(cmCmdParam, !(CmdDescr.Flags & PPCommandDescr::fNoParam));
 			else
@@ -390,7 +390,7 @@ private:
 		{
 			PPCommandDescr cmd_descr;
 			cmd_descr.GetResourceList(1, CmdList);
-			disableCtrl(CTLSEL_DESKCMDA_DESKTOP, 1);
+			disableCtrl(CTLSEL_DESKCMDA_DESKTOP, true);
 		}
 		DECL_DIALOG_SETDTS()
 		{
@@ -1002,11 +1002,11 @@ int EditCommandGroupSingle(PPCommandGroup * pData)
 				}
 			}
 			else {
-				disableCtrl(CTL_CMDGROUP_FLAGS, 1);
-				disableCtrl(CTL_CMDGROUP_IMAGE, 1);
-				disableCtrl(CTL_CMDGROUP_BGCOLOR, 1);
-				disableCtrl(CTLSEL_CMDGROUP_BGCOLOR, 1);
-				disableCtrl(CTL_CMDGROUP_SELBGCOLOR, 1);
+				disableCtrl(CTL_CMDGROUP_FLAGS, true);
+				disableCtrl(CTL_CMDGROUP_IMAGE, true);
+				disableCtrl(CTL_CMDGROUP_BGCOLOR, true);
+				disableCtrl(CTLSEL_CMDGROUP_BGCOLOR, true);
+				disableCtrl(CTL_CMDGROUP_SELBGCOLOR, true);
 				enableCommand(cmAddImage, 0);
 				enableCommand(cmDelImage, 0);
 				enableCommand(cmPasteImage, 0);

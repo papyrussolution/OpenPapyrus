@@ -152,7 +152,7 @@ int BnkOrdTaxMarkersDialog::setDTS(const PPBankingOrder * pData)
 	}
 	setCtrlData(CTL_TXM_OKATO, Data.Txm.OKATO);
 	setCtrlString(CTL_TXM_TAXPERIOD, Data.Txm.Period.Format(buf.Z()));
-	disableCtrl(CTL_TXM_TAXPERIOD, 1);
+	disableCtrl(CTL_TXM_TAXPERIOD, true);
 	translateCode(0, PPTXT_TAXPAYMREASON, Data.Txm.Reason, &(id = 0));
 	SetupStringCombo(this, CTLSEL_TXM_REASON, PPTXT_TAXPAYMREASON, id);
 	setCtrlData(CTL_TXM_DOCNUMBER, Data.Txm.DocNumber);

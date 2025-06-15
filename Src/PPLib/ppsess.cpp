@@ -1536,7 +1536,6 @@ PPThread * FASTCALL PPSession::ThreadCollection::SearchBySessId(int32 sessId)
 PPThread * STDCALL PPSession::ThreadCollection::SearchByOuterSignature(int kind, const char * pSignature, const SBinaryChunk & rSvcIdent)
 {
 	PPThread * p_ret = 0;
-	bool   debug_mark = false; // @v12.3.1 @debug
 	{
 		SRWLOCKER(RwL, SReadWriteLocker::Read);
 		if(!isempty(pSignature)) {
@@ -1544,15 +1543,6 @@ PPThread * STDCALL PPSession::ThreadCollection::SearchByOuterSignature(int kind,
 			for(uint i = 0; i < c; i++) {
 				PPThread * p_thread = at(i);
 				if(p_thread && p_thread->IsConsistent() && (!kind || p_thread->GetKind() == kind) && p_thread->CheckOuterSignature(pSignature)) {
-					/*
-					if(!rSvcIdent.Len() || p_thread->CheckSvcIdent(rSvcIdent.PtrC(), rSvcIdent.Len())) {
-						p_ret = p_thread;
-						break;
-					}
-					else {
-						debug_mark = true;
-					}
-					*/
 					p_ret = p_thread;
 					break;
 				}
@@ -1567,9 +1557,6 @@ PPThread * STDCALL PPSession::ThreadCollection::SearchByOuterSignature(int kind,
 						if(!rSvcIdent.Len() || p_thread->CheckSvcIdent(rSvcIdent.PtrC(), rSvcIdent.Len())) {
 							p_ret = p_thread;
 							break;
-						}
-						else {
-							debug_mark = true;
 						}
 					}
 				}

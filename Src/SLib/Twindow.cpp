@@ -545,28 +545,28 @@ void FASTCALL TWindow::drawCtrl(ushort ctlID)
 	}
 }
 
-void STDCALL TWindow::disableCtrl(ushort ctlID, int enable)
+void STDCALL TWindow::disableCtrl(ushort ctlID, int toDisable)
 {
 	TView * v = getCtrlView(ctlID);
 	if(v) {
-		v->setState(sfDisabled, LOGIC(enable));
-		if(enable && P_Current && (P_Current->IsInState(sfDisabled) || P_Current == v)) // ((P_Current->state & sfDisabled))
+		v->setState(sfDisabled, LOGIC(toDisable));
+		if(toDisable && P_Current && (P_Current->IsInState(sfDisabled) || P_Current == v)) // ((P_Current->state & sfDisabled))
 			selectNext();
 		if(P_Lmp) {
 			uint   button_id = 0;
 			if(P_Lmp->GetButtonIdByCtrlId(ctlID, &button_id) && button_id != ctlID)
-				disableCtrl(button_id, enable); // @recursion
+				disableCtrl(button_id, toDisable); // @recursion
 		}
 	}
 }
 
-void cdecl TWindow::disableCtrls(int enable, ...)
+void cdecl TWindow::disableCtrls(int toDisable, ...)
 {
 	va_list p;
 	ushort ctl;
-	va_start(p, enable);
+	va_start(p, toDisable);
 	while((ctl = va_arg(p, ushort)) != 0)
-		disableCtrl(ctl, enable);
+		disableCtrl(ctl, toDisable);
 	va_end(p);
 }
 
@@ -1216,33 +1216,39 @@ SUiLayout * TWindow::GetLayout() { return P_Lfc; }
 
 void TWindow::EvaluateLayout(const TRect & rR)
 {
-	//SString json_buf; // @v12.3.4 @debug
 	if(P_Lfc) {
 		SUiLayout::Param evp;
 		evp.ForceSize.x = static_cast<float>(rR.width());
 		evp.ForceSize.y = static_cast<float>(rR.height());
 		P_Lfc->Evaluate(&evp);
-		// @v12.3.4 @debug {
-		/*{
-			SJson * p_js = P_Lfc->ToJsonObj();
-			if(p_js)
-				p_js->ToStr(json_buf);
-		}*/
-		// } @v12.3.4 @debug 
 	}
 }
 
 /*static*/void __stdcall TWindow::SetupLayoutItemFrame(SUiLayout * pItem, const SUiLayout::Result & rR)
 {
 	TView * p_view = static_cast<TView *>(SUiLayout::GetManagedPtr(pItem));
-	if(p_view) {
+	if(p_view)
 		p_view->changeBounds(TRect(rR));
-	}
 }
 
 void TWindow::SetStorableUserParamsSymb(const char * pSymb) // @v12.2.6
 {
 	StorableUserParamsSymb = pSymb;
+}
+
+bool TWindow::SetStorableUserParamsSymbSuffix(const char * pSuffix)
+{
+	bool   ok = false;
+	if(!isempty(pSuffix) && sisascii(pSuffix, sstrlen(pSuffix)) && StorableUserParamsSymb.NotEmpty()) {
+		const char * p_div = "::";
+		size_t fpos = 0;
+		if(StorableUserParamsSymb.Search(p_div, 0, 0, &fpos)) {
+			StorableUserParamsSymb.Trim(fpos);
+		}
+		StorableUserParamsSymb.Cat(p_div).Cat(pSuffix);
+		ok = true;
+	}
+	return ok;
 }
 
 static const char * P_StorableUserParams_SubKey = "Software\\Papyrus\\UI\\StorableUserParams";

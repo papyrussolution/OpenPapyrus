@@ -1566,7 +1566,7 @@ int PPViewSCard::ReplaceCardInChecks(PPID destCardID)
 		THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_REPLCARD))));
 		dlg->setCtrlData(CTL_REPLCARD_DESTCARD, dest_card_rec.Code);
 		dlg->setCtrlData(CTL_REPLCARD_SRCCARD, src_card_rec.Code);
-		dlg->disableCtrl(CTL_REPLCARD_DESTCARD, 1);
+		dlg->disableCtrl(CTL_REPLCARD_DESTCARD, true);
 		for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;) {
 			//dlg->getCtrlData(CTL_REPLCARD_DESTCARD, dest_card_rec.Code);
 			dlg->getCtrlData(CTL_REPLCARD_SRCCARD, src_card_rec.Code);

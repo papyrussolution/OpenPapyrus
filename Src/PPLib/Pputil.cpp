@@ -1585,7 +1585,7 @@ int PPChainDatabase(const char * pPassword)
 		bill_rec.OpID = PPOPK_UNASSIGNED;
 
 		// 3.
-		MEMSZERO(ar_rec);
+		ar_rec.Clear();
 		id_max = 0;
 		r = p_bobj->atobj->P_Tbl->Art.search(0, &id_max, spLast);
 		THROW_DB(r || BTROKORNFOUND);

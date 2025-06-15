@@ -2720,11 +2720,11 @@ private:
 	void   SetupObjGroupCombo(PPID objType)
 	{
 		if(objType == PPOBJ_PERSON) {
-			disableCtrl(CTLSEL_STQCLIMATCH_OG, 0);
+			disableCtrl(CTLSEL_STQCLIMATCH_OG, false);
 			SetupPPObjCombo(this, CTLSEL_STQCLIMATCH_OG, PPOBJ_PERSONKIND, 0, 0);
 		}
 		else {
-			disableCtrl(CTLSEL_STQCLIMATCH_OG, 1);
+			disableCtrl(CTLSEL_STQCLIMATCH_OG, true);
 		}
 		SetupPPObjCombo(this, CTLSEL_STQCLIMATCH_OBJ, Data.Oid.Obj, Data.Oid.Id, OLW_CANDELETE); // @v11.8.2 OLW_CANDELETE
 	}

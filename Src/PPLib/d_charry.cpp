@@ -3411,7 +3411,6 @@ int PPDS_CrrDraftWrOff::TransferField(long fldID, Tfd dir, uint * pIter, SString
 		case DSF_CRRDRAFTWROFF_DFCTCOMPENSARID:
 			if(dir == tfdDataToBuf) {
 			   	ArticleTbl::Rec ar_rec;
-				MEMSZERO(ar_rec);
 				if(ArObj.Search(Data.Rec.DfctCompensArID, &ar_rec) > 0)
 					ok = TransferData(ar_rec.Name, sizeof(ar_rec.Name), dir, rBuf);
 			}

@@ -1286,7 +1286,7 @@ public:
 	{
 		RVALUEPTR(Data, pData);
 		setCtrlLong(CTL_PRC_ID, Data.Rec.ID);
-		disableCtrl(CTL_PRC_ID, 1);
+		disableCtrl(CTL_PRC_ID, true);
 		setCtrlData(CTL_PRC_NAME, Data.Rec.Name);
 		setCtrlData(CTL_PRC_SYMB, Data.Rec.Code);
 		SetupPPObjCombo(this, CTLSEL_PRC_PARENT, PPOBJ_PROCESSOR, Data.Rec.ParentID, OLW_CANINSERT|OLW_CANSELUPLEVEL, reinterpret_cast<void *>(PRCEXDF_GROUP));
@@ -1324,9 +1324,9 @@ public:
 			if(Data.Rec.LinkObjType && Data.Rec.ID) {
 				const bool are_there_children = (PrcObj.GetChildIDList(Data.Rec.ID, 1, 0) > 0);
 				if(are_there_children) {
-					disableCtrl(CTL_PRC_ASSOC, 1);
+					disableCtrl(CTL_PRC_ASSOC, true);
 					if(Data.Rec.LinkObjID)
-						disableCtrl(CTLSEL_PRC_ASSOCGROUP, 1);
+						disableCtrl(CTLSEL_PRC_ASSOCGROUP, true);
 				}
 			}
 		}

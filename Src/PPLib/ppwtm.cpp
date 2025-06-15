@@ -147,7 +147,7 @@ public:
 			SetupStrAssocCombo(this, CTLSEL_LAYOENTRY_PARENT, layout_symb_list, init_parent_id, 0, 0, 0);
 		}
 		else {
-			disableCtrl(CTLSEL_LAYOENTRY_PARENT, 1);
+			disableCtrl(CTLSEL_LAYOENTRY_PARENT, true);
 		}
 		Data.SizeToString(temp_buf);
 		setCtrlString(CTL_LAYOENTRY_SIZE, temp_buf);
@@ -278,7 +278,7 @@ public:
 			if(p_combo) {
 				p_combo->setListWindow(CreateListWindow(TWhatmanObject::MakeStrAssocList(), lbtDisposeData|lbtDblClkNotify),
 					TWhatmanObject::GetRegIdBySymb(Data.WtmObjSymb));
-				disableCtrl(CTLSEL_WTMTOOL_WTMOBJ, 1);
+				disableCtrl(CTLSEL_WTMTOOL_WTMOBJ, true);
 			}
 		}
 		return ok;

@@ -147,18 +147,18 @@ private:
 		void   SetupCtrls()
 		{
 			if(Data.Action == Param::acnPersonalEvent) {
-				disableCtrl(CTLSEL_SELACNBYPHN_EXT, 0);
+				disableCtrl(CTLSEL_SELACNBYPHN_EXT, false);
 				SetupPPObjCombo(this, CTLSEL_SELACNBYPHN_EXT, PPOBJ_PERSONOPKIND,  Data.ExtSelector = 0, 0);
 			}
 			else if(Data.Action == Param::acnCcOrder) {
-				disableCtrl(CTLSEL_SELACNBYPHN_EXT, 0);
+				disableCtrl(CTLSEL_SELACNBYPHN_EXT, false);
 				PPObjCashNode::SelFilt f;
 				f.LocID = 0;
 				f.SyncGroup = 2; // only async nodes
 				SetupPPObjCombo(this, CTLSEL_SELACNBYPHN_EXT, PPOBJ_CASHNODE,  Data.ExtSelector = 0, 0, &f);
 			}
 			else
-				disableCtrl(CTLSEL_SELACNBYPHN_EXT, 1);
+				disableCtrl(CTLSEL_SELACNBYPHN_EXT, true);
 		}
 		PPObjSCard ScObj;
 		PPObjPerson PsnObj;
@@ -228,7 +228,7 @@ private:
 				Data.ExtSelector = 0;
 			switch(Data.Oid.Obj) {
 				case PPOBJ_PERSON:
-					disableCtrl(CTLSEL_SELOBJBYPHN_EXT, 0);
+					disableCtrl(CTLSEL_SELOBJBYPHN_EXT, false);
 					SetupPPObjCombo(this, CTLSEL_SELOBJBYPHN_EXT, PPOBJ_PERSONKIND, Data.ExtSelector, 0);
 					{
 						PersonSelExtra * p_se = new PersonSelExtra(0, Data.ExtSelector);
@@ -239,7 +239,7 @@ private:
 					}
 					break;
 				case PPOBJ_SCARD:
-					disableCtrl(CTLSEL_SELOBJBYPHN_EXT, 0);
+					disableCtrl(CTLSEL_SELOBJBYPHN_EXT, false);
 					SetupPPObjCombo(this, CTLSEL_SELOBJBYPHN_EXT, PPOBJ_SCARDSERIES, Data.ExtSelector, 0);
 					{
 						SCardSelExtra * p_se = new SCardSelExtra(Data.ExtSelector);
@@ -248,7 +248,7 @@ private:
 					}
 					break;
 				default:
-					disableCtrl(CTLSEL_SELOBJBYPHN_EXT, 1);
+					disableCtrl(CTLSEL_SELOBJBYPHN_EXT, true);
 					ResetWordSelector(CTL_SELOBJBYPHN_SRCH);
 					break;
 			}

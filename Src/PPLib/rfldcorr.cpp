@@ -143,10 +143,10 @@ static int EditFieldCorr(const SdRecord * pInnerRec, SdbField * pOuterField, int
 			getOuterType();
 			if(Data.T.Typ != BTS_REAL) {
 				prc = 0;
-				disableCtrl(CTL_FLDCORR_OUTERPRC, 1);
+				disableCtrl(CTL_FLDCORR_OUTERPRC, true);
 			}
 			else
-				disableCtrl(CTL_FLDCORR_OUTERPRC, 0);
+				disableCtrl(CTL_FLDCORR_OUTERPRC, false);
 			setCtrlData(CTL_FLDCORR_OUTERSZ,  &sz);
 			setCtrlData(CTL_FLDCORR_OUTERPRC, &prc);
 		}
@@ -1638,7 +1638,7 @@ ImpExpParamDialog::ImpExpParamDialog(uint dlgID, long options) : TDialog(dlgID),
 {
 	FileBrowseCtrlGroup::Setup(this, CTLBRW_IMPEXP_FILENAME, CTL_IMPEXP_FILENAME, 1, 0, 0, FileBrowseCtrlGroup::fbcgfFile);
 	if(Flags & fDisableName)
-		disableCtrl(CTL_IMPEXP_NAME, 1);
+		disableCtrl(CTL_IMPEXP_NAME, true);
 	if(Flags & fDisableExport)
 		DisableClusterItem(CTL_IMPEXP_DIR, 0, 1);
 	if(Flags & fDisableImport)

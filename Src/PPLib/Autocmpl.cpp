@@ -517,14 +517,15 @@ IMPL_HANDLE_EVENT(PuglDialog)
 
 void PuglDialog::SetupCtrls()
 {
-	ushort v1 = 999, v2 = 0;
+	ushort v1 = 999;
+	ushort v2 = 0;
 	if(Data.ActionsCount)
 		getCtrlData(CTL_MSGNCMPL_ACTION, &v1);
 	if(v1 != 0)
 		setCtrlData(CTL_MSGNCMPL_COSTALG, &v2);
 	else
 		getCtrlData(CTL_MSGNCMPL_COSTALG, &v2);
-	disableCtrl(CTL_MSGNCMPL_COSTALG, v1);
+	disableCtrl(CTL_MSGNCMPL_COSTALG, LOGIC(v1));
 	disableCtrl(CTL_MSGNCMPL_CPCTVAL, !v2);
 }
 

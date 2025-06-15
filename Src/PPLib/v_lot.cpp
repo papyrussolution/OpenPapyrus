@@ -460,7 +460,7 @@ IMPL_HANDLE_EVENT(LotFiltDialog)
 		if(CheckDialogPtrErr(&dlg)) {
 			dlg->disableCtrl(CTL_FLTLOT_EXPIRY, BIN(Data.Flags & LotFilt::fWithoutExpiry));
 			if(Data.Flags & LotFilt::fWithoutExpiry)
-				dlg->disableCtrl(CTLCAL_FLTLOT_EXPIRY, 1);
+				dlg->disableCtrl(CTLCAL_FLTLOT_EXPIRY, true);
 			else
 				dlg->SetupCalPeriod(CTLCAL_FLTLOT_EXPIRY, CTL_FLTLOT_EXPIRY);
 			dlg->SetupCalPeriod(CTLCAL_FLTLOT_QCEXPIRY, CTL_FLTLOT_QCEXPIRY);
@@ -1083,7 +1083,7 @@ int PPViewLot::EditLot(PPID id)
 	dlg->setCtrlString(CTL_EDITLOT_SUPPL,     suppl_name);
 	dlg->setCtrlData(CTL_EDITLOT_LOTID,       &id);
 	dlg->disableCtrl(CTL_EDITLOT_NAME,   1);
-	dlg->disableCtrl(CTL_EDITLOT_BILLNO, 1);
+	dlg->disableCtrl(CTL_EDITLOT_BILLNO, true);
 	dlg->disableCtrl(CTL_EDITLOT_SUPPL,  1);
 	dlg->disableCtrl(CTL_EDITLOT_LOTID,  1);
 	do {

@@ -400,7 +400,7 @@ int PPViewArticle::EditBaseFilt(PPBaseFilt * pBaseFilt)
 			RVALUEPTR(Data, pData);
 			setCtrlData(CTL_ARTICLEFLT_ORDER, &Data.Order);
 			SetupPPObjCombo(this, CTLSEL_ARTICLEFLT_ACCSID, PPOBJ_ACCSHEET, Data.AccSheetID, 0, 0);
-			//disableCtrl(CTLSEL_ARTICLEFLT_ACCSID, 1);
+			//disableCtrl(CTLSEL_ARTICLEFLT_ACCSID, true);
 			AddClusterAssocDef(CTL_ARTICLEFLT_FTCLOSED, 0, 0);
 			AddClusterAssoc(CTL_ARTICLEFLT_FTCLOSED, 1, -1);
 			AddClusterAssoc(CTL_ARTICLEFLT_FTCLOSED, 2, +1);
@@ -804,7 +804,7 @@ int PPViewArticle::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser 
 				if(id) {
 					ArticleTbl::Rec ar_rec;
 					if(ArObj.Search(id, &ar_rec) <= 0)
-						MEMSZERO(ar_rec);
+						ar_rec.Clear();
 					BillFilt bill_flt;
 					bill_flt.AccSheetID = ar_rec.AccSheetID;
 					bill_flt.ObjectID   = id;

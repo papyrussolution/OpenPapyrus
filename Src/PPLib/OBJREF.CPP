@@ -1202,7 +1202,7 @@ int PPObjPersonStatus::Edit(PPID * pID, void * extraPtr)
 	dlg->setCtrlData(CTL_PSNST_SYMB, rec.Symb);
 	dlg->setCtrlData(CTL_PSNST_ID,   &rec.ID);
 	if(rec.ID || !PPMaster)
-		dlg->disableCtrl(CTL_PSNST_ID, 1);
+		dlg->disableCtrl(CTL_PSNST_ID, true);
 	v = (rec.Flags & PSNSTF_PRIVATE) ? 0 : 1;
 	dlg->setCtrlData(CTL_PSNST_TYPE, &v);
 	while(!valid_data && (r = ExecView(dlg)) == cmOK) {
@@ -1397,7 +1397,7 @@ int PPObjELinkKind::Edit(PPID * pID, void * extraPtr)
 	dlg->setCtrlData(CTL_ELNKK_SYMB, rec.Symb);
 	dlg->setCtrlData(CTL_ELNKK_ID,   &rec.ID);
 	if(rec.ID || !PPMaster)
-		dlg->disableCtrl(CTL_ELNKK_ID, 1);
+		dlg->disableCtrl(CTL_ELNKK_ID, true);
 	dlg->AddClusterAssoc(CTL_ELNKK_TYPE, 0, ELNKRT_PHONE);
 	dlg->AddClusterAssoc(CTL_ELNKK_TYPE, 1, ELNKRT_FAX);
 	dlg->AddClusterAssoc(CTL_ELNKK_TYPE, 2, ELNKRT_PAGER);
@@ -2375,7 +2375,7 @@ public:
 		setCtrlData(CTL_GLOBUSERACC_NAME, Data.Rec.Name);
 		setCtrlData(CTL_GLOBUSERACC_SYMB, Data.Rec.Symb);
 		setCtrlLong(CTL_GLOBUSERACC_ID, Data.Rec.ID);
-		disableCtrl(CTL_GLOBUSERACC_ID, 1);
+		disableCtrl(CTL_GLOBUSERACC_ID, true);
 		Data.Rec.LocalDbUuid.ToStr(S_GUID::fmtIDL, temp_buf);
 		setCtrlString(CTL_GLOBUSERACC_DBUUID, temp_buf);
 		setCtrlLong(CTL_GLOBUSERACC_LOCALID, Data.Rec.LocalUserID);
@@ -2384,7 +2384,7 @@ public:
 		SetupStringCombo(this, CTLSEL_GLOBUSERACC_SVC, PPTXT_GLOBALSERVICELIST, Data.Rec.ServiceIdent);
 		//@erik {
 		if(!Data.Rec.ServiceIdent) {
-			disableCtrl(CTL_GS_SETTING, 1);
+			disableCtrl(CTL_GS_SETTING, true);
 		}
 		// } @erik
 		AddClusterAssoc(CTL_GLOBUSERACC_FLAGS, 0, PPGlobalUserAcc::fSandBox);
@@ -3139,7 +3139,7 @@ public:
 		RVALUEPTR(Data, pData);
 		SString temp_buf;
 		setCtrlLong(CTL_UHTTSTORE_ID, Data.Rec.ID);
-		disableCtrl(CTL_GLOBUSERACC_ID, 1);
+		disableCtrl(CTL_GLOBUSERACC_ID, true);
 		setCtrlData(CTL_UHTTSTORE_NAME, Data.Rec.Name);
 		setCtrlData(CTL_UHTTSTORE_SYMB, Data.Rec.Symb);
 		SetupPersonCombo(this, CTLSEL_UHTTSTORE_PSN, Data.Rec.PersonID, OLW_CANINSERT, (PPID)PPPRK_SUPPL, 0);
@@ -3379,7 +3379,7 @@ private:
 					PPObjGoodsClass gc_obj;
 					PPGdsClsPacket gc_pack;
 					if(gc_obj.GetPacket(Data.ClsID, &gc_pack) > 0) {
-						disableCtrl(CTL_UHTTSTSELITEM_GCCLSF, 0);
+						disableCtrl(CTL_UHTTSTSELITEM_GCCLSF, false);
 						SetupClsPropClusterItem(gc_pack, PPGdsCls::eX, 0);
 						SetupClsPropClusterItem(gc_pack, PPGdsCls::eY, 1);
 						SetupClsPropClusterItem(gc_pack, PPGdsCls::eZ, 2);
@@ -3391,25 +3391,25 @@ private:
 						SetClusterData(CTL_UHTTSTSELITEM_GCCLSF, Data.GcClsf);
 					}
 					else
-						disableCtrl(CTL_UHTTSTSELITEM_GCCLSF, 1);
+						disableCtrl(CTL_UHTTSTSELITEM_GCCLSF, true);
 				}
 				else
-					disableCtrl(CTL_UHTTSTSELITEM_GCCLSF, 1);
+					disableCtrl(CTL_UHTTSTSELITEM_GCCLSF, true);
 			}
 			void   SetupAttr()
 			{
 				if(Data.Attr == PPUhttStoreSelDescr::attrTag) {
-					disableCtrl(CTLSEL_UHTTSTSELITEM_EXT, 0);
+					disableCtrl(CTLSEL_UHTTSTSELITEM_EXT, false);
 					ObjTagFilt ot_filt(PPOBJ_GOODS);
 					ot_filt.Flags |= ObjTagFilt::fOnlyTags;
 					SetupObjTagCombo(this, CTLSEL_UHTTSTSELITEM_EXT, Data.TagID, 0, &ot_filt);
 				}
 				else if(Data.Attr == PPUhttStoreSelDescr::attrClass) {
-					disableCtrl(CTLSEL_UHTTSTSELITEM_EXT, 0);
+					disableCtrl(CTLSEL_UHTTSTSELITEM_EXT, false);
 					SetupPPObjCombo(this, CTLSEL_UHTTSTSELITEM_EXT, PPOBJ_GOODSCLASS, Data.ClsID, 0, 0);
 				}
 				else
-					disableCtrl(CTLSEL_UHTTSTSELITEM_EXT, 1);
+					disableCtrl(CTLSEL_UHTTSTSELITEM_EXT, true);
 				SetupClass();
 			}
 		};

@@ -191,7 +191,7 @@ class GoodsTaxListDialog : public PPListDialog {
 public:
 	GoodsTaxListDialog() : PPListDialog(DLG_GDSTAXLST, CTL_GDSTAXLST_LIST)
 	{
-		disableCtrl(CTL_GDSTAXLST_NAME, 1);
+		disableCtrl(CTL_GDSTAXLST_NAME, true);
 		updateList(-1);
 	}
 	DECL_DIALOG_SETDTS()
@@ -199,7 +199,7 @@ public:
 		RVALUEPTR(Data, pData);
 		setCtrlData(CTL_GDSTAXLST_NAME, Data.Rec.Name);
 		setCtrlData(CTL_GDSTAXLST_ID, &Data.Rec.ID);
-		disableCtrl(CTL_GDSTAXLST_ID, 1);
+		disableCtrl(CTL_GDSTAXLST_ID, true);
 		updateList(-1);
 		return 1;
 	}
@@ -266,7 +266,7 @@ int GoodsTaxListDialog::editItemDialog(int pos, PPGoodsTaxEntry * pEntry)
 	if(CheckDialogPtrErr(&dlg)) {
 		dlg->SetEntry(pEntry);
 		dlg->setCtrlData(CTL_GDSTAX_NAME, Data.Rec.Name);
-		dlg->disableCtrl(CTL_GDSTAX_NAME, 1);
+		dlg->disableCtrl(CTL_GDSTAX_NAME, true);
 		for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;)
 			if(dlg->GetEntry(pEntry) && Data.PutEntry(pos, pEntry))
 				ok = valid_data = 1;

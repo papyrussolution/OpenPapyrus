@@ -5097,6 +5097,7 @@ void RegisterSTAcct();
 //
 struct PPAccTurn { // @persistent
 	PPAccTurn();
+	PPAccTurn & Z();
 	void   SwapDbtCrd();
 	int    FASTCALL IsEq(const PPAccTurn & rS) const;
 
@@ -5898,7 +5899,7 @@ public:
 	int    GetSpecSeriesByPeriod(const char * pPeriod, TSCollection <UhttSpecSeriesPacket> & rResult);
 	int    CreateSpecSeries(long * pID, const UhttSpecSeriesPacket & rPack);
 	int    GetSCardByNumber(const char * pPeriodNumber, UhttSCardPacket & rResult);
-	int    CreateSCard(UhttSCardPacket & rPack); // @v10.1.4
+	int    CreateSCard(UhttSCardPacket & rPack);
 	int    CreateSCardCheck(const char * pLocSymb, const char * pSCardNumber, const UhttCheckPacket & rPack);
 	int    CreateBill(UhttBillPacket & rPack);
 	int    GetBill(const UhttBillFilter & rFilt, TSCollection <UhttBillPacket> & rResult);
@@ -6531,11 +6532,11 @@ public:
 	PPObjID  LastErrObj;         // Object's ID, by last generated error
 	PPLastInputData Lid;
 	int    PrnDirId;
-	SCodepageIdent DL600XmlCp;   // Кодовая страница для стандартного экспорта DL600 в XML
-	DlContext * P_ExpCtx;        // Контекст экспортных структур данных
-	DlContext * P_IfcCtx;        // Контекст COM-интерфейсов
-	DlContext * P_UiViewCtx;     // @v12.3.6 @construction Контекст описания диалогов и прочих объектов UI в формате DL600
-	DlContext * P_UiViewLocalCtx; // @v12.3.6 @construction Контекст описания диалогов и прочих объектов UI в формате DL600 (локальный по отношению к инсталляции)
+	SCodepageIdent DL600XmlCp;    // Кодовая страница для стандартного экспорта DL600 в XML
+	DlContext * P_ExpCtx;         // Контекст экспортных структур данных
+	DlContext * P_IfcCtx;         // Контекст COM-интерфейсов
+	DlContext * P_UiViewCtx;      // @v12.3.6 Контекст описания диалогов и прочих объектов UI в формате DL600
+	DlContext * P_UiViewLocalCtx; // @v12.3.6 Контекст описания диалогов и прочих объектов UI в формате DL600 (локальный по отношению к инсталляции)
 	//
 	// Далее идут поля, типы данных которых имеют конструкторы
 	//
@@ -7426,8 +7427,8 @@ public:
 		ctxtExportData = 1,
 		ctxtInterface,
 		ctxDatabase,
-		ctxUiView,      // @v12.3.6 @construction Контекст описаний диалогов и других объектов пользовательского интерфеса в формате DL600
-		ctxUiViewLocal, // @v12.3.6 @construction Контекст описаний диалогов и других объектов пользовательского интерфеса в формате DL600 (локальный по отношению к инсталляции)
+		ctxUiView,      // @v12.3.6 Контекст описаний диалогов и других объектов пользовательского интерфеса в формате DL600
+		ctxUiViewLocal, // @v12.3.6 Контекст описаний диалогов и других объектов пользовательского интерфеса в формате DL600 (локальный по отношению к инсталляции)
 	};
 	//
 	// Descr: Возвращает контекст управления интерфейсными структурами или интерфейсными
@@ -12997,8 +12998,7 @@ private:
 	// Функция ReceiptCore::GetCurrentGoodsPrice проверяет этот лот на принадлежность товару
 	// и складу, переданными соответствующими аргументами фукнции и, если они удовлетворительны
 	// то применяет именно этот лот.
-#define GPRET_INDEF        (GPRET_MOSTRECENT|GPRET_PRESENT|GPRET_CLOSEDLOTS) // Наиболее
-	// популярное сочетание флагов, используемое для нахождения последнего лота
+#define GPRET_INDEF        (GPRET_MOSTRECENT|GPRET_PRESENT|GPRET_CLOSEDLOTS) // Наиболее популярное сочетание флагов, используемое для нахождения последнего лота
 //
 // Флаги ReceiptTbl::Rec::Flags
 //
@@ -16739,7 +16739,7 @@ private:
 	TVRez  * P_Rez;
 	// Путь к файлу, в котором хранится пул задач. Мы сохраняем этот
 	//   путь в переменной потому что при обработке задач все нужно делать очень быстро.
-	// @v12.3.1 (obsolete) SString FilePath; // @*PPJobMngr::PPJobMngr
+	// @v12.3.1 (@obsolete) SString FilePath; // @*PPJobMngr::PPJobMngr
 	SString XmlFilePath; //@erik v10.7.4
 	LDATETIME LastLoading; // Время последнего вызова функции LoadPool. Используется для определения факта изменения файла пула с момена последней загрузки
 	long   LastId; // @persistent Используется для присвоения уникального идентификатора новым задачам
@@ -20077,15 +20077,15 @@ private:
 #define BSCCLS_EXP_PROMO_SKU_TIME      8 // Маркетинговые расходы на категорию продукции (в единицу времени)
 #define BSCCLS_EXP_PROMO_TIME          9 // Маркетинговые расходы не привязанные к продукции (в единицу времени)
 //
-// Descr: Индикаторы бизнес-показателей
+// Descr: Индикаторы бизнес-показателей.
 // 
 #define PPBZSI_NONE                    0 //
-#define PPBZSI_AMOUNT                  1 // "amount"    kBill, kPaym, kCCheck, kGoodsRest, kDebt, kBizScore
-#define PPBZSI_COST                    2 // "cost"      kBill, kPaym, kCCheck, kGoodsRest
-#define PPBZSI_PRICE                   3 // "price"     kBill, kPaym, kCCheck, kGoodsRest
-#define PPBZSI_DISCOUNT                4 // "discount"  kBill, kCCheck
-#define PPBZSI_NETPRICE                5 // "netprice"  kBill, kPaym, kCCheck, kGoodsRest
-#define PPBZSI_MARGIN                  6 // "margin"    kBill, kPaym, kCCheck, kGoodsRest
+#define PPBZSI_AMOUNT                  1 // Номинальная сумма "amount"    kBill, kPaym, kCCheck, kGoodsRest, kDebt, kBizScore
+#define PPBZSI_AMT_COST                2 // Сумма в ценах поступления "cost"      kBill, kPaym, kCCheck, kGoodsRest
+#define PPBZSI_AMT_PRICE               3 // Сумма в ценах реализации без учета скидки "price"     kBill, kPaym, kCCheck, kGoodsRest
+#define PPBZSI_AMT_DISCOUNT            4 // Сумма скидки "discount"  kBill, kCCheck
+#define PPBZSI_AMT_NETPRICE            5 // Сумма в ценах реализации с учетом скидки "netprice"  kBill, kPaym, kCCheck, kGoodsRest
+#define PPBZSI_AMT_MARGIN              6 // "margin"    kBill, kPaym, kCCheck, kGoodsRest
 #define PPBZSI_PCTINCOME               7 // "pctincome" kBill, kPaym, kCCheck, kGoodsRest
 #define PPBZSI_PCTMARGIN               8 // "pctmargin" kBill, kPaym, kCCheck, kGoodsRest
 #define PPBZSI_COUNT                   9 // "count"     kBill, kPaym, kCCheck, kGoodsRest, kPersonEvent, kDebt, kBizScore
@@ -20164,7 +20164,8 @@ public:
 	static const char * GetBzsiSymb(int bzsi, SString & rBuf);
 	static const char * GetBzsiDescr(int bzsi, SString & rBuf);
 	static int  RecognizeBzsiSymb(const char * pSymb);
-	static bool IsBzsiAdditive(int bzsi);
+	// @v12.3.6 static bool IsBzsiAdditive(int bzsi);
+	static uint GetBzsiAggrFunc(int bzsi); // @v12.3.6 
 
 	explicit PPObjBizScore(void * extraPtr = 0);
 	~PPObjBizScore();
@@ -20225,16 +20226,15 @@ struct PPBizScore2 { // @v11.9.0 @construction
 	long   ID;                  // @id
 	char   Name[48];
 	char   Symb[20];
-	uint8  Reserve[16];
-	uint64 UedSpecificUnit;     // Если индикатор является удельной величиной, то это поле - единица измерения относительно которой указана величина.
+	uint8  Reserve[24];
 	int32  DataType;            // OTTYP_XXX (будем использовать ту же систему типов, что и в тегах объектов)
 	long   TypeEnumID;          // Тип ссылочного объекта для oneof2(DataType, OTTYP_ENUM, OTTYP_OBJLINK)
 	long   TypeEnumExt;         // Группа ссылочных объектов для DataType == OTTYP_OBJLINK
-	int16  TimeAggrFunc;        // Агрегирующая функция по временной шкале. Если 0, то показатель не агрегируется по времени.
-	int16  HierAggrFunc;        // Агрегирующая функция по иерархии. Если 0, то показатель не агрегируется по иерархии.
-	int16  AgentAggrFunc;       // Агрегирующая функция по участникам. Если 0, то показатель не агрегируется по участникам.
+	int16  TimeAggrFunc;        // AGGRFUNC_XXX Агрегирующая функция по временной шкале. Если 0, то показатель не агрегируется по времени.
+	int16  HierAggrFunc;        // AGGRFUNC_XXX Агрегирующая функция по иерархии. Если 0, то показатель не агрегируется по иерархии.
+	int16  AgentAggrFunc;       // AGGRFUNC_XXX Агрегирующая функция по участникам. Если 0, то показатель не агрегируется по участникам.
 	int16  TimeCycle;           // PRD_XXX Периодичность фиксации показателя.
-	uint32 Reserve2;            //  
+	uint32 SpecificUnit;        // SUOM_XXX Если индикатор является удельной величиной, то это поле - единица измерения относительно которой указана величина.
 	long   AgentPsnKindID;      // Вид персоналии, соответствующий участникам, к которым привязывается индикатор
 	long   LinkObjType;         // Тип объекта, к которому привязан показатель
 	long   LinkExtID;           // Группа объектов типа LinkObjType, уточняющая привязку показателя. 
@@ -55209,12 +55209,13 @@ public:
 		PPID   TechID;
 		PPID   ArID;
 		PPID   Ar2ID;
-		int    IdleStatus;
+		bool   IdleStatus; // @v12.3.6 int-->bool
+		uint8  Reserve[3]; // @v12.3.6 @alignment
 	};
 	PrcTechCtrlGroup(uint ctlSelPrc, uint ctlSelTech, uint ctlStGoods, uint ctlSelAr, uint ctlSelAr2, uint cmdSelTechByGoods, uint cmdCreateGoods = 0);
 	virtual int    setData(TDialog *, void *);
 	virtual int    getData(TDialog *, void *);
-	void   setIdleStatus(TDialog *, int s);
+	void   setIdleStatus(TDialog *, bool s);
 	//
 	// Descr: Устанавливает возможность выбора группы процессоров в комбо-боксе процессора.
 	//   По умолчанию ВКЛЮЧЕНО.
@@ -55256,7 +55257,8 @@ private:
 		// становится видимой и доступной для использования.
 		//
 	Rec    Data;
-	int    IdleStatus;
+	bool   IdleStatus; // @v12.3.6 int-->bool
+	uint8  Reserve[3]; // @v12.3.6 @alignment
 	long   Flags;
 	PPObjGoods GObj;
 	PPObjTech  TecObj;
@@ -61343,7 +61345,7 @@ public:
 	~PPTestDbInfrastructure();
 	int    SetupDatabaseObjects();
 	
-	int    _Case_TaxEvaluation(); // Это будет первой задачей на нашего амбициозного субпроекта PPTestDbInfrastructure :)
+	int    _Case_TaxEvaluation(); // Это будет первой задачей для нашего амбициозного субпроекта PPTestDbInfrastructure :)
 private:
 };
 //

@@ -427,7 +427,7 @@ public:
 		AddClusterAssoc(CTL_TSSMODEL_SPPS, 4, PPTssModel::sppsShuffle);
 		AddClusterAssoc(CTL_TSSMODEL_SPPS, 5, PPTssModel::sppsStakeCount);
 		SetClusterData(CTL_TSSMODEL_SPPS, Data.Rec.StrategyPoolSortOrder);
-		disableCtrl(CTL_TSSMODEL_MINSIMIL, 1);
+		disableCtrl(CTL_TSSMODEL_MINSIMIL, true);
 		{
 			temp_buf.Z();
 			if(Data.E.AdoptSlShiftDn || Data.E.AdoptSlShiftUp) {

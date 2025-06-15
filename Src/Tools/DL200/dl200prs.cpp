@@ -82,19 +82,19 @@ public:
 				case PPBZSI_AMOUNT:
 					result = Total.Sum;
 					break;
-				case PPBZSI_COST:
+				case PPBZSI_AMT_COST:
 					result = Total.Amounts.Get(PPAMT_BUYING, 0);
 					break;
-				case PPBZSI_PRICE:
+				case PPBZSI_AMT_PRICE:
 					result = Total.Amounts.Get(PPAMT_SELLING, 0);
 					break;
-				case PPBZSI_DISCOUNT:
+				case PPBZSI_AMT_DISCOUNT:
 					result = Total.Amounts.Get(PPAMT_DISCOUNT, 0);
 					break;
-				case PPBZSI_NETPRICE:
+				case PPBZSI_AMT_NETPRICE:
 					result = Total.Amounts.Get(PPAMT_SELLING, 0) - Total.Amounts.Get(PPAMT_DISCOUNT, 0);
 					break;
-				case PPBZSI_MARGIN:
+				case PPBZSI_AMT_MARGIN:
 					cost = Total.Amounts.Get(PPAMT_BUYING, 0);
 					netprice = Total.Amounts.Get(PPAMT_SELLING, 0) - Total.Amounts.Get(PPAMT_DISCOUNT, 0);
 					result = netprice - cost;
@@ -191,11 +191,11 @@ public:
 			double result = 0.0;
 			switch(rS.Sub) {
 				case PPBZSI_AMOUNT:    result = Total.Amount; break;
-				case PPBZSI_COST:      result = Total.Amount; break;
-				case PPBZSI_PRICE:     result = Total.Amount + Total.Discount; break;
-				case PPBZSI_DISCOUNT:  result = Total.Discount; break;
-				case PPBZSI_NETPRICE:  result = Total.Amount; break;
-				case PPBZSI_MARGIN:    break;
+				case PPBZSI_AMT_COST:      result = Total.Amount; break;
+				case PPBZSI_AMT_PRICE:     result = Total.Amount + Total.Discount; break;
+				case PPBZSI_AMT_DISCOUNT:  result = Total.Discount; break;
+				case PPBZSI_AMT_NETPRICE:  result = Total.Amount; break;
+				case PPBZSI_AMT_MARGIN:    break;
 				case PPBZSI_PCTINCOME: break;
 				case PPBZSI_PCTMARGIN: break;
 				case PPBZSI_COUNT:     result = Total.Count; break;
@@ -267,11 +267,11 @@ public:
 			switch(rS.Sub) {
 				case PPBZSI_COUNT:    result = Total.Count; break;
 				case PPBZSI_AMOUNT:   result = Total.SumPrice; break;
-				case PPBZSI_COST:     result = Total.SumCost; break;
-				case PPBZSI_PRICE:    result = Total.SumPrice; break;
-				case PPBZSI_DISCOUNT: break;
-				case PPBZSI_NETPRICE: break;
-				case PPBZSI_MARGIN:   result = Total.SumPrice - Total.SumCost; break;
+				case PPBZSI_AMT_COST:     result = Total.SumCost; break;
+				case PPBZSI_AMT_PRICE:    result = Total.SumPrice; break;
+				case PPBZSI_AMT_DISCOUNT: break;
+				case PPBZSI_AMT_NETPRICE: break;
+				case PPBZSI_AMT_MARGIN:   result = Total.SumPrice - Total.SumCost; break;
 				case PPBZSI_PCTINCOME:
 					result = 100.0 * fdivnz(Total.SumPrice - Total.SumCost, Total.SumCost);
 					break;

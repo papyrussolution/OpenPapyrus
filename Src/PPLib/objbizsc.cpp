@@ -283,11 +283,11 @@ public:
 		/* @v12.1.
 		switch(Data.Sub) {
 			case PPBZSI_AMOUNT: v = 1; break;
-			case PPBZSI_COST: v = 2; break;
-			case PPBZSI_PRICE: v = 3; break;
-			case PPBZSI_DISCOUNT: v = 4; break;
-			case PPBZSI_NETPRICE: v = 5; break;
-			case PPBZSI_MARGIN: v = 6; break;
+			case PPBZSI_AMT_COST: v = 2; break;
+			case PPBZSI_AMT_PRICE: v = 3; break;
+			case PPBZSI_AMT_DISCOUNT: v = 4; break;
+			case PPBZSI_AMT_NETPRICE: v = 5; break;
+			case PPBZSI_AMT_MARGIN: v = 6; break;
 			case PPBZSI_PCTINCOME: v = 7; break;
 			case PPBZSI_PCTMARGIN: v = 8; break;
 			case PPBZSI_COUNT: v = 9; break;
@@ -299,11 +299,11 @@ public:
 		// @v12.1.6 {
 		AddClusterAssocDef(CTL_BIZPRCRT_MODIF,  0, PPBZSI_NONE);
 		AddClusterAssoc(CTL_BIZPRCRT_MODIF,  1, PPBZSI_AMOUNT);
-		AddClusterAssoc(CTL_BIZPRCRT_MODIF,  2, PPBZSI_COST);
-		AddClusterAssoc(CTL_BIZPRCRT_MODIF,  3, PPBZSI_PRICE);
-		AddClusterAssoc(CTL_BIZPRCRT_MODIF,  4, PPBZSI_DISCOUNT);
-		AddClusterAssoc(CTL_BIZPRCRT_MODIF,  5, PPBZSI_NETPRICE);
-		AddClusterAssoc(CTL_BIZPRCRT_MODIF,  6, PPBZSI_MARGIN);
+		AddClusterAssoc(CTL_BIZPRCRT_MODIF,  2, PPBZSI_AMT_COST);
+		AddClusterAssoc(CTL_BIZPRCRT_MODIF,  3, PPBZSI_AMT_PRICE);
+		AddClusterAssoc(CTL_BIZPRCRT_MODIF,  4, PPBZSI_AMT_DISCOUNT);
+		AddClusterAssoc(CTL_BIZPRCRT_MODIF,  5, PPBZSI_AMT_NETPRICE);
+		AddClusterAssoc(CTL_BIZPRCRT_MODIF,  6, PPBZSI_AMT_MARGIN);
 		AddClusterAssoc(CTL_BIZPRCRT_MODIF,  7, PPBZSI_PCTINCOME);
 		AddClusterAssoc(CTL_BIZPRCRT_MODIF,  8, PPBZSI_PCTMARGIN);
 		AddClusterAssoc(CTL_BIZPRCRT_MODIF,  9, PPBZSI_COUNT);
@@ -356,11 +356,11 @@ private:
 			getCtrlData(CTL_BIZPRCRT_MODIF, &(v = 0));
 			switch(v) {
 				case 1: Buf_Data.Sub = PPBZSI_AMOUNT; break;
-				case 2: Buf_Data.Sub = PPBZSI_COST; break;
-				case 3: Buf_Data.Sub = PPBZSI_PRICE; break;
-				case 4: Buf_Data.Sub = PPBZSI_DISCOUNT; break;
-				case 5: Buf_Data.Sub = PPBZSI_NETPRICE; break;
-				case 6: Buf_Data.Sub = PPBZSI_MARGIN; break;
+				case 2: Buf_Data.Sub = PPBZSI_AMT_COST; break;
+				case 3: Buf_Data.Sub = PPBZSI_AMT_PRICE; break;
+				case 4: Buf_Data.Sub = PPBZSI_AMT_DISCOUNT; break;
+				case 5: Buf_Data.Sub = PPBZSI_AMT_NETPRICE; break;
+				case 6: Buf_Data.Sub = PPBZSI_AMT_MARGIN; break;
 				case 7: Buf_Data.Sub = PPBZSI_PCTINCOME; break;
 				case 8: Buf_Data.Sub = PPBZSI_PCTMARGIN; break;
 				case 9: Buf_Data.Sub = PPBZSI_COUNT; break;

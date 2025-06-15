@@ -225,7 +225,7 @@ void AmtTypeFiltDialog::SetupCtrls()
 	//
 	if(Data.Flags & (PPAmountType::fManual|PPAmountType::fStaffAmount|PPAmountType::fDistribCost)) {
 		setCtrlUInt16(CTL_AMOUNTTYPE_REPLACE, 0);
-		disableCtrl(CTL_AMOUNTTYPE_REPLACE, 1);
+		disableCtrl(CTL_AMOUNTTYPE_REPLACE, true);
 		DisableClusterItem(CTL_AMOUNTTYPE_FLAGS, 3, 1);
 		if(Data.Flags & PPAmountType::fFormula) {
 			Data.Flags &= ~PPAmountType::fFormula;
@@ -233,7 +233,7 @@ void AmtTypeFiltDialog::SetupCtrls()
 		}
 	}
 	else {
-		disableCtrl(CTL_AMOUNTTYPE_REPLACE, 0);
+		disableCtrl(CTL_AMOUNTTYPE_REPLACE, false);
 		DisableClusterItem(CTL_AMOUNTTYPE_FLAGS, 3, 0);
 	}
 	DisableClusterItem(CTL_AMOUNTTYPE_FLAGS, 1, BIN(Data.Flags & PPAmountType::fFormula));
@@ -258,7 +258,7 @@ void AmtTypeFiltDialog::SetupCtrls()
 		// Запрет на признак замещающей суммы для ручных сумм
 		//
 		setCtrlUInt16(CTL_AMOUNTTYPE_REPLACE, 0);
-		disableCtrl(CTL_AMOUNTTYPE_REPLACE, 1);
+		disableCtrl(CTL_AMOUNTTYPE_REPLACE, true);
 	}
 	else {
 		//
@@ -266,7 +266,7 @@ void AmtTypeFiltDialog::SetupCtrls()
 		//
 		setCtrlLong(CTLSEL_AMOUNTTYPE_TAX, 0);
 		setCtrlReal(CTL_AMOUNTTYPE_TAXRATE, 0.0);
-		disableCtrl(CTL_AMOUNTTYPE_REPLACE, 0);
+		disableCtrl(CTL_AMOUNTTYPE_REPLACE, false);
 	}
 	if(!oneof2(v, 2, 3)) {
 		//

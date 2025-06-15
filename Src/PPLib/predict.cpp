@@ -451,7 +451,7 @@ PPPredictConfig::PPPredictConfig()
 		dlg->AddClusterAssoc(CTL_PREDICTCFG_FIXARCODE,  2, SStatFilt::fRestrictByArCode);
 		if(!(CConfig.Flags & CCFLG_USEARGOODSCODE)) {
 			cfg.FixArCodes = 0;
-			dlg->disableCtrl(CTL_PREDICTCFG_FIXARCODE, 1);
+			dlg->disableCtrl(CTL_PREDICTCFG_FIXARCODE, true);
 		}
 		dlg->SetClusterData(CTL_PREDICTCFG_FIXARCODE, (long)cfg.FixArCodes);
 	}

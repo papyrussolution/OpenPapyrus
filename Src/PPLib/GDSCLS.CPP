@@ -569,7 +569,7 @@ int GdsClsParamMask::Edit(long options)
 	if(CheckDialogPtrErr(&dlg)) {
 		SetupPPObjCombo(dlg, CTLSEL_GCDGM_GDSCLS, PPOBJ_GOODSCLASS, ClsID, 0, 0);
 		if(options & 0x0001)
-			dlg->disableCtrl(CTLSEL_GCDGM_GDSCLS, 1);
+			dlg->disableCtrl(CTLSEL_GCDGM_GDSCLS, true);
 		dlg->AddClusterAssoc(CTL_GCDGM_MASK, 0, 1<<(PPGdsCls::eKind-1));
 		dlg->AddClusterAssoc(CTL_GCDGM_MASK, 1, 1<<(PPGdsCls::eGrade-1));
 		dlg->AddClusterAssoc(CTL_GCDGM_MASK, 2, 1<<(PPGdsCls::eAdd-1));

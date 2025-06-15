@@ -736,6 +736,7 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 		occfColumns         = 0x00800000, // @v12.3.3
 		occfFmtPrec         = 0x01000000, // @v12.3.5
 		occfFmtFlags        = 0x02000000, // @v12.3.5
+		occfMinSize         = 0x04000000, // @v12.3.6
 	};
 	enum {
 		occsLeft         = 0x0001,
@@ -1219,8 +1220,6 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 					}
 				}
 				else if(prop_key == "size") { // @v12.2.9
-					// @todo
-					// acLayoutItemSize
 					THROW(p_prop->Value.Code == CtmToken::acBoundingBoxPair); // @err invalid bbox value
 					if(!(occurence_flags & (occfBBox|occfBBoxSize))) { // @err dup feature
 						const float local_x = p_prop->Value.U.Rect.L.X.Val;
@@ -1237,6 +1236,29 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 						alb.SetFixedSizeX(local_x);
 						alb.SetFixedSizeY(local_y);
 						occurence_flags |= occfBBoxSize;
+					}
+				}
+				else if(prop_key == "minsize") { // @v12.3.6
+					THROW(p_prop->Value.Code == CtmToken::acBoundingBoxPair); // @err invalid bbox value
+					if(!(occurence_flags & (occfMinSize))) { // @err dup feature
+						const float local_x = p_prop->Value.U.Rect.L.X.Val;
+						const float local_y = p_prop->Value.U.Rect.L.Y.Val;
+						if(local_x >= 0.0f) {
+							alb.MinSize.x = local_x;
+						}
+						else {
+							// @err
+						}
+						if(local_y >= 0.0f) {
+							alb.MinSize.y = local_y;
+						}
+						else {
+							// @err
+						}
+						occurence_flags |= occfMinSize;
+					}
+					else {
+						// @err
 					}
 				}
 				else if(prop_key == "variable") {

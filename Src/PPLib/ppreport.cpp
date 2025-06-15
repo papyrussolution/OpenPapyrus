@@ -1195,17 +1195,17 @@ private:
 			PPGetPath(PPPATH_REPORTDATA, path);
 			if(data_name.NotEmpty())
 				path.SetLastSlash().Cat(data_name);
-			disableCtrl(CTL_PRINT2_MAKEDATAPATH, 0);
+			disableCtrl(CTL_PRINT2_MAKEDATAPATH, false);
 		}
 		else if(oneof2(Data.Dest, PrnDlgAns::aExport, PrnDlgAns::aExportXML)) {
 			if(EnableEMail) {
 				enable_email = 1;
-				disableCtrl(CTL_PRINT2_MAKEDATAPATH, 0);
+				disableCtrl(CTL_PRINT2_MAKEDATAPATH, false);
 				path = Data.EmailAddr;
 			}
 		}
 		else {
-			disableCtrl(CTL_PRINT2_MAKEDATAPATH, 1);
+			disableCtrl(CTL_PRINT2_MAKEDATAPATH, true);
 		}
 		disableCtrl(CTL_PRINT2_DOMAIL, !enable_email);
 		SetupWordSelector(CTL_PRINT2_MAKEDATAPATH, (enable_email ? new TextHistorySelExtra("email-common") : 0), 0, 2, WordSel_ExtraBlock::fFreeText);
@@ -2494,7 +2494,7 @@ int MakeCRptDataFiles(int verifyAll /*=0*/)
 		PPGetPath(PPPATH_REPORTDATA, rpt_path);
 		if(verifyAll == 1) {
 			rpt_name = "ALL";
-			dlg->disableCtrl(CTL_MKRPTFLS_RPTNAME, 1);
+			dlg->disableCtrl(CTL_MKRPTFLS_RPTNAME, true);
 		}
 		dlg->setCtrlString(CTL_MKRPTFLS_RPTNAME, rpt_name);
 		dlg->setCtrlString(CTL_MKRPTFLS_RPTPATH, rpt_path);

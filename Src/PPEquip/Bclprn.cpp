@@ -1128,7 +1128,7 @@ static int EditBarcodeLabelPrintParam(BarcodeLabelPrinter::BarcodeLabelPrintPara
 			if(event.isCbSelected(CTLSEL_BCPLABEL_PRINTER)) {
 				PPObjBarcodePrinter bcp_obj;
 				PPBarcodePrinter rec;
-				PPID   printer_id = getCtrlLong(CTLSEL_BCPLABEL_PRINTER);
+				const PPID printer_id = getCtrlLong(CTLSEL_BCPLABEL_PRINTER);
 				if(bcp_obj.GetPacket(printer_id, &rec) > 0)
 					if(rec.PortEx.NotEmptyS())
 						setCtrlString(CTL_BCPLABEL_PORT, rec.PortEx);
@@ -1137,7 +1137,7 @@ static int EditBarcodeLabelPrintParam(BarcodeLabelPrinter::BarcodeLabelPrintPara
 				int16  num_copies;
 				ushort v = getCtrlUInt16(CTL_BCPLABEL_HOW);
 				setCtrlData(CTL_BCPLABEL_COUNT, &(num_copies = v ? 0 : 1));
-				disableCtrl(CTL_BCPLABEL_COUNT, v);
+				disableCtrl(CTL_BCPLABEL_COUNT, LOGIC(v));
 			}
 			else
 				return;

@@ -328,7 +328,7 @@ public:
 		VatCtlList[2].P_VatV = &Data.SVAT3;
 		VatCtlList[3].P_VatV = &Data.SVAT4;
 		VatCtlList[4].P_VatV = &Data.SVAT5;
-		disableCtrl(CTL_VATBOOK_AMT, 1);
+		disableCtrl(CTL_VATBOOK_AMT, true);
 		SetupCalDate(CTLCAL_VATBOOK_DT,      CTL_VATBOOK_DT);
 		SetupCalDate(CTLCAL_VATBOOK_INVCDT,  CTL_VATBOOK_INVCDT);
 		SetupCalDate(CTLCAL_VATBOOK_PAYMDT,  CTL_VATBOOK_PAYMDT);
@@ -1048,7 +1048,7 @@ int VATBCfgDialog::setDTS(const VATBCfg * pData)
 		SetClusterData(CTL_VATBCFG_BUY_FLAGS, Data.Flags);
 	}
 	else if(Data.Kind == PPVTB_SIMPLELEDGER) {
-		disableCtrl(CTL_VATBCFG_INCM, 1);
+		disableCtrl(CTL_VATBCFG_INCM, true);
 		DisableClusterItem(CTL_VATBCFG_BUY_FLAGS, 0, 1);
 		AddClusterAssoc(CTL_VATBCFG_BUY_FLAGS, 0, VATBCfg::hfDontStornReckon);
 		AddClusterAssoc(CTL_VATBCFG_BUY_FLAGS, 1, VATBCfg::hfWoTax);

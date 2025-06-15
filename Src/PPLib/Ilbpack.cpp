@@ -1782,12 +1782,6 @@ int ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLevel, Ob
 						int    rj = rows.at(j);
 						PPTransferItem & r_ti = rPack.TI(rj);
 						r_ti.SrcIltiPos = i; // Сохраним соответствие номера строки в this со строками в rPack
-						/* @debug
-						{
-							msg_buf.Z().CatEq("r_ti.SrcIltiPos", r_ti.SrcIltiPos);
-							__LogDebugMessage(pCtx, msg_buf);
-						}
-						*/
 						const  PPID lot_id = r_ti.LotID;
 						if(rconv == 100) {
 							r_ti.Flags |= PPTFR_LOTSYNC;

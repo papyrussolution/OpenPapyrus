@@ -1314,7 +1314,7 @@ static int _EditCcByBillParam(PPBillPacket::ConvertToCCheckParam & rParam)
 					SetClusterData(CTL_CCBYBILL_PAYMTYPE, cpmCash);
 				else if(__p & PPBillPacket::ConvertToCCheckParam::fBank)
 					SetClusterData(CTL_CCBYBILL_PAYMTYPE, cpmBank);
-				disableCtrl(CTL_CCBYBILL_PAYMTYPE, 1);
+				disableCtrl(CTL_CCBYBILL_PAYMTYPE, true);
 			}
 			else {
 				SetClusterData(CTL_CCBYBILL_PAYMTYPE, Data.PaymType);
@@ -2473,7 +2473,9 @@ int PPObjBill::AddGoodsBill(PPID * pBillID, const AddBlock * pBlk)
 				}
 			}
 			// @v12.3.4 {
-			if(op_rec.ExtFlags & OPKFX_SETCTXAGENT &&  op_rec.Flags & OPKF_USEEXT) {
+			// Операции, относящиеся к типу PPOPT_PAYMENT могут не иметь флага OPKF_USEEXT, но при этом кнопка расширения в их
+			// диалоге присутствует. Это, конечно, беспорядок и надо приводить в норму.
+			if(op_rec.ExtFlags & OPKFX_SETCTXAGENT && (op_rec.Flags & OPKF_USEEXT || op_rec.OpTypeID == PPOPT_PAYMENT)) {
 				const PPID agent_acs_id = GetAgentAccSheet();
 				PPObjAccSheet acs_obj;
 				PPAccSheet acs_rec;
@@ -10503,17 +10505,6 @@ int PPObjBill::ConvertUuid7601()
 	CATCHZOKPPERR
 	return ok;
 }
-
-/* @debug
-int TestPPObjBillParseText()
-{
-	SString templ, name;
-	templ = "@INN_@DLVRLOCID_@BILLNO_@FGDATE";
-	name = "1001135228_7982_AB260_18042015";
-	StrAssocArray result_list;
-	int    ok = PPObjBill::ParseText(name, templ, result_list);
-	return ok;
-}*/
 
 #if SLTEST_RUNNING // {
 

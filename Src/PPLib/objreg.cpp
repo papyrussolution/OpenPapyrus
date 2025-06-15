@@ -457,7 +457,7 @@ int PPObjRegister::Helper_EditDialog(RegisterTbl::Rec * pRec, const RegisterArra
 					selectCtrl(CTL_REG_NUMBER);
 				else
 					selectCtrl(CTL_REG_DATE);
-				disableCtrl(CTLSEL_REG_REGTYP, 1);
+				disableCtrl(CTLSEL_REG_REGTYP, true);
 				ValidateNumber();
 			}
 			setCtrlData(CTL_REG_DATE,     &Data.Dt);
@@ -661,7 +661,7 @@ int PPObjRegister::Helper_EditDialog(RegisterTbl::Rec * pRec, const RegisterArra
 			temp_buf.Z();
 			if(is_taxsystem) {
 				PPLoadString("register_taxsystem", temp_buf);
-				disableCtrl(CTLSEL_REG_ORGAN, 0);
+				disableCtrl(CTLSEL_REG_ORGAN, false);
 				SetupPPObjCombo(this, CTLSEL_REG_ORGAN, PPOBJ_TAXSYSTEMKIND, Data.ExtID, OLW_CANINSERT, 0);
 			}
 			else {

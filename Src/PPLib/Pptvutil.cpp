@@ -1508,6 +1508,11 @@ int FASTCALL ListToListDialog(ListToListData * pData)
 	int    r;
 	Lst2LstObjDialog * dlg = new Lst2LstObjDialog((pData && (pData->Flags & ListToListData::fIsTreeList)) ? DLG_TLST2TLST : DLG_LST2LST, pData);
 	if(CheckDialogPtr(&dlg)) {
+		if(pData && pData->ObjType) {
+			SString obj_type_symb;
+			DS.GetObjectTypeSymb(pData->ObjType, obj_type_symb);
+			dlg->SetStorableUserParamsSymbSuffix(obj_type_symb);
+		}
 		if((r = ExecView(dlg)) == cmOK)
 			if(!dlg->getDTS(pData->P_List))
 				r = 0;
@@ -2732,7 +2737,7 @@ int STDCALL BarcodeInputDialog(int initChar, SString & rBuf)
 	public:
 		BarcodeSrchDialog() : TDialog(DLG_SRCHBCODE)
 		{
-			disableCtrl(CTL_SRCHBCODE_CHKDIG, 1);
+			disableCtrl(CTL_SRCHBCODE_CHKDIG, true);
 			SetCtrlBitmap(CTL_SRCHBCODE_IMG, BM_BARCODE);
 		}
 	private:
@@ -4060,11 +4065,11 @@ int LocationCtrlGroup::EditLocList(TDialog * pDlg, uint ctlID, ObjIdListFilt * p
 				pLocList->Set(ary.getCount() ? &ary : 0);
 				if(pLocList->GetCount() > 1) {
 					SetComboBoxListText(pDlg, ctlID);
-					pDlg->disableCtrl(ctlID, 1);
+					pDlg->disableCtrl(ctlID, true);
 				}
 				else {
 					pDlg->setCtrlLong(ctlID, pLocList->GetSingle());
-					pDlg->disableCtrl(ctlID, 0);
+					pDlg->disableCtrl(ctlID, false);
 				}
 				ok = 1;
 			}
@@ -4159,11 +4164,11 @@ int LocationCtrlGroup::setData(TDialog * pDlg, void * pData)
 	}
 	if(Data.LocList.GetCount() > 1) {
 		SetComboBoxListText(pDlg, CtlselLoc);
-		pDlg->disableCtrl(CtlselLoc, 1);
+		pDlg->disableCtrl(CtlselLoc, true);
 	}
 	else {
 		pDlg->setCtrlLong(CtlselLoc, single_id);
-		pDlg->disableCtrl(CtlselLoc, 0);
+		pDlg->disableCtrl(CtlselLoc, false);
 	}
 	if(CtlPhone) {
 		long   pse_flags = (Flags & fStandaloneByPhone) ? PhoneSelExtra::lfStandaloneLocOnly : PhoneSelExtra::lfLocation;
@@ -5192,7 +5197,7 @@ int SCardCtrlGroup::Setup(TDialog * pDlg, int event)
 			}
 			card_id = pDlg->getCtrlLong(CtlSCard);
 		}
-		pDlg->disableCtrl(CtlselSCardSer, BIN(Data.SCardSerList.getCount() > 1));
+		pDlg->disableCtrl(CtlselSCardSer, (Data.SCardSerList.getCount() > 1));
 		pDlg->SetupWordSelector(CtlSCard, new SCardSelExtra(ser_id), card_id, SCARD_MIN_SYMBS, 0); // Выбор карты без комбобокса
 		ok = 1;
 	}
@@ -5445,11 +5450,11 @@ void QuotKindCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 			Data.List.Set(&ary);
 			if(Data.List.GetCount() > 1) {
 				SetComboBoxListText(pDlg, Ctlsel);
-				pDlg->disableCtrl(Ctlsel, 1);
+				pDlg->disableCtrl(Ctlsel, true);
 			}
 			else {
 				pDlg->setCtrlLong(Ctlsel, Data.List.GetSingle());
-				pDlg->disableCtrl(Ctlsel, 0);
+				pDlg->disableCtrl(Ctlsel, false);
 			}
 		}
 		pDlg->clearEvent(event);
@@ -5462,11 +5467,11 @@ int QuotKindCtrlGroup::setData(TDialog * pDlg, void * pData)
 	SetupPPObjCombo(pDlg, Ctlsel, PPOBJ_QUOTKIND, Data.List.GetSingle(), 0, 0);
 	if(Data.List.GetCount() > 1) {
 		SetComboBoxListText(pDlg, Ctlsel);
-		pDlg->disableCtrl(Ctlsel, 1);
+		pDlg->disableCtrl(Ctlsel, true);
 	}
 	else {
 		pDlg->setCtrlLong(Ctlsel, Data.List.GetSingle());
-		pDlg->disableCtrl(Ctlsel, 0);
+		pDlg->disableCtrl(Ctlsel, false);
 	}
 	return 1;
 }
@@ -5507,11 +5512,11 @@ void StaffCalCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 			Data.List.Set(&ary);
 			if(Data.List.GetCount() > 1) {
 				SetComboBoxListText(pDlg, Ctlsel);
-				pDlg->disableCtrl(Ctlsel, 1);
+				pDlg->disableCtrl(Ctlsel, true);
 			}
 			else {
 				pDlg->setCtrlLong(Ctlsel, Data.List.GetSingle());
-				pDlg->disableCtrl(Ctlsel, 0);
+				pDlg->disableCtrl(Ctlsel, false);
 			}
 		}
 		pDlg->clearEvent(event);
@@ -5524,11 +5529,11 @@ int StaffCalCtrlGroup::setData(TDialog * pDlg, void * pData)
 	SetupPPObjCombo(pDlg, Ctlsel, PPOBJ_STAFFCAL, Data.List.GetSingle(), 0, 0);
 	if(Data.List.GetCount() > 1) {
 		SetComboBoxListText(pDlg, Ctlsel);
-		pDlg->disableCtrl(Ctlsel, 1);
+		pDlg->disableCtrl(Ctlsel, true);
 	}
 	else {
 		pDlg->setCtrlLong(Ctlsel, Data.List.GetSingle());
-		pDlg->disableCtrl(Ctlsel, 0);
+		pDlg->disableCtrl(Ctlsel, false);
 	}
 	return 1;
 }
@@ -5575,11 +5580,11 @@ int PersonOpCtrlGroup::EditList(TDialog * pDlg)
 			Data.PsnOpList.Set(&ary);
 			if(Data.PsnOpList.GetCount() > 1) {
 				SetComboBoxListText(pDlg, CtlselPsnOp);
-				pDlg->disableCtrl(CtlselPsnOp, 1);
+				pDlg->disableCtrl(CtlselPsnOp, true);
 			}
 			else {
 				pDlg->setCtrlLong(CtlselPsnOp, Data.PsnOpList.GetSingle());
-				pDlg->disableCtrl(CtlselPsnOp, 0);
+				pDlg->disableCtrl(CtlselPsnOp, false);
 			}
 			ok = 1;
 			ReplySelection(pDlg);
@@ -5648,11 +5653,11 @@ int PersonOpCtrlGroup::setData(TDialog * pDlg, void * pData)
 	SetupPPObjCombo(pDlg, CtlselPsnOp, PPOBJ_PERSONOPKIND, Data.PsnOpList.GetSingle(), OLW_CANSELUPLEVEL, 0);
 	if(Data.PsnOpList.GetCount() > 1) {
 		SetComboBoxListText(pDlg, CtlselPsnOp);
-		pDlg->disableCtrl(CtlselPsnOp, 1);
+		pDlg->disableCtrl(CtlselPsnOp, true);
 	}
 	else {
 		pDlg->setCtrlLong(CtlselPsnOp, Data.PsnOpList.GetSingle());
-		pDlg->disableCtrl(CtlselPsnOp, 0);
+		pDlg->disableCtrl(CtlselPsnOp, false);
 	}
 	ReplySelection(pDlg);
 	return 1;
@@ -6306,10 +6311,10 @@ int SetupComboByBuddyList(TDialog * pDlg, uint ctlCombo, const ObjIdListFilt & r
 	pDlg->setCtrlLong(ctlCombo, rList.GetSingle());
 	if(rList.GetCount() > 1) {
 		SetComboBoxListText(pDlg, ctlCombo);
-		pDlg->disableCtrl(ctlCombo, 1);
+		pDlg->disableCtrl(ctlCombo, true);
 	}
 	else
-		pDlg->disableCtrl(ctlCombo, 0);
+		pDlg->disableCtrl(ctlCombo, false);
 	return 1;
 }
 
@@ -7598,15 +7603,9 @@ int ExportDialogs2(const char * pFileName)
 											_BBox(_AdjustRectToOrigin(wi.rcWindow, _origin), line_buf.Space(), 0);
 											if(p_label) {
 												line_buf.Cat("label").CatDiv(':', 2).CatQStr((temp_buf = ctl_text).Transf(CTRANSF_OUTER_TO_UTF8));
-												/* @v12.3.2
-												line_buf.Space().Cat("labelbbox").CatDiv(':', 2);
-												_RectToLine(label_rect, line_buf);
-												*/
-												_BBox(label_rect, line_buf.Space(), 1/*subType*/); // @v12.3.2
-												//prop_list.Add(DlScope::cuifLabelRect, temp_buf);
+												_BBox(label_rect, line_buf.Space(), 1/*subType*/);
 											}
 											//DlScope::PropListToLine(prop_list, 2, line_buf).Semicol().CR();
-											// @v12.3.3 {
 											{
 												const TInputLine * p_cb_line = p_cb->GetLink();
 												if(p_cb_line) {
@@ -7616,7 +7615,6 @@ int ExportDialogs2(const char * pFileName)
 													}
 												}
 											}
-											// } @v12.3.3 
 											line_buf.CatChar(']');
 											line_buf.Semicol();
 											f_out.WriteLine(line_buf.CR());
@@ -7678,12 +7676,7 @@ int ExportDialogs2(const char * pFileName)
 										if(ctl_text.NotEmpty())
 											line_buf.Space().Cat("label").CatDiv(':', 2).CatQStr((temp_buf = ctl_text).Transf(CTRANSF_OUTER_TO_UTF8));
 										if(p_label) {
-											/* @v12.3.2
-											line_buf.Space().Cat("labelbbox").CatDiv(':', 2);
-											_RectToLine(label_rect, line_buf);
-											*/
-											_BBox(label_rect, line_buf.Space(), 1/*subType*/); // @v12.3.2
-											//prop_list.Add(DlScope::cuifLabelRect, temp_buf);
+											_BBox(label_rect, line_buf.Space(), 1/*subType*/);
 										}
 										line_buf.CatChar(']');
 										GetBinaryTypeString(_type_id, 1, temp_buf, "", 0);
@@ -8533,6 +8526,8 @@ void PPDialogConstructor::Build(TDialog * pDlg, DlContext & rCtx, const DlScope 
 			EnumChildWindows(h_wnd, pDlg->SetupCtrlTextProc, 0);				
 		}
 		pDlg->EvaluateLayout(pDlg->getClientRect());
+		pDlg->WbCapability |= TWindow::wbcStorableUserParams;
+		pDlg->SetStorableUserParamsSymb(pScope->Name);
 	}
 }
 

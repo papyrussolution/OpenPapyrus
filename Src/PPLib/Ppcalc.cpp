@@ -410,7 +410,7 @@ public:
 		if(!(Data.Flags & CalcPriceParam::fCostWoVat))
 			setStaticText(CTL_CALCPRICE_COSTWOVAT, 0);
 		SetupPrice();
-		disableCtrl(CTL_CALCPRICE_COST, 1);
+		disableCtrl(CTL_CALCPRICE_COST, true);
 		selectCtrl(CTL_CALCPRICE_PERCENT);
 		TInputLine * p_il = static_cast<TInputLine *>(getCtrlView(CTL_CALCPRICE_PERCENT));
 		CALLPTRMEMB(p_il, selectAll(1));
@@ -681,7 +681,7 @@ int PPCalculator(void * hParentWnd, const char * pInitData)
 //
 //
 struct CalcTaxPriceParam {
-	CalcTaxPriceParam() : GoodsID(0), Dt(ZERODATE), OpID(0), PriceWoTaxes(0.0), Price(0.0), CalcWotaxByWtax(0)
+	CalcTaxPriceParam() : GoodsID(0), Dt(ZERODATE), OpID(0), PriceWoTaxes(0.0), Price(0.0), CalcWotaxByWtax(false)
 	{
 	}
 	PPID   GoodsID;
@@ -689,7 +689,8 @@ struct CalcTaxPriceParam {
 	PPID   OpID;
 	double PriceWoTaxes;
 	double Price;
-	int    CalcWotaxByWtax;
+	bool   CalcWotaxByWtax; // @v12.3.6 int-->bool
+	uint8  Reserve[3];      // @v12.3.6 @alignment
 };
 
 class CalcTaxPriceDialog : public TDialog {
@@ -718,8 +719,8 @@ public:
 		SetupPPObjCombo(this, CTLSEL_CALCTAXPRICE_OP, PPOBJ_OPRKIND, Data.OpID, 0, 0);
 		setCtrlData(CTL_CALCTAXPRICE_WOTAX,   &Data.PriceWoTaxes);
 		setCtrlData(CTL_CALCTAXPRICE_WTAX,    &Data.Price);
-		setCtrlUInt16(CTL_CALCTAXPRICE_CALCFLG, BIN(Data.CalcWotaxByWtax));
-		disableCtrl(CTL_CALCTAXPRICE_WOTAX,    Data.CalcWotaxByWtax);
+		setCtrlUInt16(CTL_CALCTAXPRICE_CALCFLG, Data.CalcWotaxByWtax);
+		disableCtrl(CTL_CALCTAXPRICE_WOTAX,   Data.CalcWotaxByWtax);
 		disableCtrl(CTL_CALCTAXPRICE_WTAX,    !Data.CalcWotaxByWtax);
 		calc();
 		return 1;
@@ -730,7 +731,7 @@ public:
 		getCtrlData(CTLSEL_CALCTAXPRICE_OP,   &Data.OpID);
 		getCtrlData(CTL_CALCTAXPRICE_WOTAX,   &Data.PriceWoTaxes);
 		getCtrlData(CTL_CALCTAXPRICE_WTAX,    &Data.Price);
-		Data.CalcWotaxByWtax = BIN(getCtrlUInt16(CTL_CALCTAXPRICE_CALCFLG));
+		Data.CalcWotaxByWtax = LOGIC(getCtrlUInt16(CTL_CALCTAXPRICE_CALCFLG));
 		ASSIGN_PTR(pData, Data);
 		return 1;
 	}

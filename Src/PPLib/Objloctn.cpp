@@ -1565,7 +1565,7 @@ int LocationExtFieldsDialog::Edit(SStringTag * pData)
 		explicit AddExtFldDialog(const StrAssocArray * pFieldNames) : TDialog(DLG_ADDEXTFLD)
 		{
 			RVALUEPTR(FieldNames, pFieldNames);
-			disableCtrl(CTLSEL_ADDEXTFLD_FLD, 1);
+			disableCtrl(CTLSEL_ADDEXTFLD_FLD, true);
 		}
 		DECL_DIALOG_SETDTS()
 		{
@@ -2012,7 +2012,7 @@ int LocationDialog::setDTS(const PPLocationPacket * pData)
 		LocationCore::GetAddress(Data, 0, temp_buf);
 		setStaticText(CTL_LOCATION_ST_ADDR, temp_buf);
 	}
-	disableCtrl(CTL_LOCATION_ID, 1);
+	disableCtrl(CTL_LOCATION_ID, true);
 	return ok;
 }
 
@@ -2141,7 +2141,7 @@ int PPObjLocation::EditDialog(PPID locTyp, PPLocationPacket * pData, long flags)
 			SETIFZ(pData->OwnerID, GetMainOrgID());
 		}
 		else if(locTyp == LOCTYP_WAREHOUSE && pData->OwnerID == 0)
-			dlg->disableCtrl(CTLSEL_LOCATION_OWNER, 1);
+			dlg->disableCtrl(CTLSEL_LOCATION_OWNER, true);
 		dlg->setDTS(pData);
 		for(int valid_data = 0; !valid_data && (ok = ExecView(dlg)) == cmOK;)
 			if(dlg->getDTS(pData) && Validate(pData, 0))

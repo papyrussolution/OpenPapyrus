@@ -388,11 +388,11 @@ int QuotUpdDialog::editAdvOptions()
 			SetupPPObjCombo(this, CTLSEL_QUOTUPDA_ACTION, PPOBJ_ACTION, 0, 0);
 			if(Data.EventList.GetCount() > 1) {
 				SetComboBoxListText(this, CTLSEL_QUOTUPDA_ACTION);
-				disableCtrl(CTLSEL_QUOTUPDA_ACTION, 1);
+				disableCtrl(CTLSEL_QUOTUPDA_ACTION, true);
 			}
 			else {
 				setCtrlLong(CTLSEL_QUOTUPDA_ACTION, Data.EventList.GetSingle());
-				disableCtrl(CTLSEL_QUOTUPDA_ACTION, 0);
+				disableCtrl(CTLSEL_QUOTUPDA_ACTION, false);
 			}
 			SetupPPObjCombo(this, CTLSEL_QUOTUPDA_TOKEN, PPOBJ_EVENTTOKEN, Data.EvTokID, OLW_CANINSERT);
 			return 1;
@@ -432,11 +432,11 @@ int QuotUpdDialog::editAdvOptions()
 						Data.EventList.Set(0);
 					if(Data.EventList.GetCount() > 1) {
 						SetComboBoxListText(this, CTLSEL_QUOTUPDA_ACTION);
-						disableCtrl(CTLSEL_QUOTUPDA_ACTION, 1);
+						disableCtrl(CTLSEL_QUOTUPDA_ACTION, true);
 					}
 					else {
 						setCtrlLong(CTLSEL_QUOTUPDA_ACTION, temp_list.getSingle());
-						disableCtrl(CTLSEL_QUOTUPDA_ACTION, 0);
+						disableCtrl(CTLSEL_QUOTUPDA_ACTION, false);
 					}
 				}
 				clearEvent(event);

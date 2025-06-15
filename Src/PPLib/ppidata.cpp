@@ -636,17 +636,16 @@ int WinInetFTP::GetFileList(const char * pDir, StrAssocArray * pFileList, const 
 			ok = CD(ps.Dir);
 	}
 	if(ok) {
-		// @debug const char * p_mask = isempty(pMask) ? "*.*" : pMask;
-		const char * p_mask = "*.*"; // @debug
+		const char * p_mask = isempty(pMask) ? "*.*" : pMask;
 		WIN32_FIND_DATA ff_info;
-		HINTERNET hf = FtpFindFirstFile(Connection, SUcSwitch(p_mask), &ff_info, 0, 0); // @unicodeproblem
+		HINTERNET hf = FtpFindFirstFile(Connection, SUcSwitch(p_mask), &ff_info, 0, 0);
 		if(hf) { 
 			long id = 1;
 			if(pFileList && !(ff_info.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
-				pFileList->Add(id++, SUcSwitch(ff_info.cFileName)); // @unicodeproblem
+				pFileList->Add(id++, SUcSwitch(ff_info.cFileName));
 			while(InternetFindNextFile(hf, &ff_info) > 0)
 				if(pFileList && !(ff_info.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
-					pFileList->Add(id++, SUcSwitch(ff_info.cFileName)); // @unicodeproblem
+					pFileList->Add(id++, SUcSwitch(ff_info.cFileName));
 		}
 		else {
 			const uint last_err = GetLastError();

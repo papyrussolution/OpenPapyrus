@@ -659,7 +659,7 @@ public:
 		setCtrlString(CTL_FILTITEM_NAME, Data.Name); // Поле "Наименование"
 		setCtrlString(CTL_FILTITEM_SYMB, Data.Symb); // Поле "Символ"
 		setCtrlLong(CTL_FILTITEM_ID, Data.ID);       // Поле "ID"
-		disableCtrl(CTL_FILTITEM_ID, 1);             // Идентификатор только отображается //
+		disableCtrl(CTL_FILTITEM_ID, true);             // Идентификатор только отображается //
 		view_id = Data.ViewID; // Может быть и ноль, если это создание (а не редактирование) именованного фильтра
 		//
 		// Инициализировать комбобокс:

@@ -180,10 +180,10 @@ void SecurDialog::getPaths()
 			st[2] = 0;
 			dlg->setStaticText(path_fld_list[i].IndFldId, st);
 		}
-		dlg->disableCtrl(CTL_PATH_DAT, 1); // @v10.7.8
-		dlg->disableCtrl(CTL_PATH_ARC, 1); // @v10.7.8
-		dlg->disableCtrl(CTL_PATH_BIN, 1); // @v10.7.8
-		dlg->disableCtrl(CTL_PATH_TMP, 1); // @v10.7.8
+		dlg->disableCtrl(CTL_PATH_DAT, true); // @v10.7.8
+		dlg->disableCtrl(CTL_PATH_ARC, true); // @v10.7.8
+		dlg->disableCtrl(CTL_PATH_BIN, true); // @v10.7.8
+		dlg->disableCtrl(CTL_PATH_TMP, true); // @v10.7.8
 		if(ExecView(dlg) == cmOK) {
 			for(i = 0; i < SIZEOFARRAY(path_fld_list); i++) {
 				//getPathFld(dlg, path_fld_list[i].PathID, path_fld_list[i].FldId);

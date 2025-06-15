@@ -1082,7 +1082,7 @@ int GetBasketByDialog(SelBasketParam * pParam, const char * pCallerSymb, uint dl
 				default: v = 0; break;
 			}
 			setCtrlUInt16(CTL_GBDATA_SELPRICE, v);
-			disableCtrl(CTL_GBDATA_SELPRICE, BIN(R_Data.Flags & SelBasketParam::fNotSelPrice));
+			disableCtrl(CTL_GBDATA_SELPRICE, LOGIC(R_Data.Flags & SelBasketParam::fNotSelPrice));
 			AddClusterAssocDef(CTL_GBDATA_REPLACE, 0, 1);
 			AddClusterAssoc(CTL_GBDATA_REPLACE, 1, 2);
 			AddClusterAssoc(CTL_GBDATA_REPLACE, 2, 3);
@@ -1637,7 +1637,7 @@ public:
 	GBDialog(PPID * pID, PPBasketCombine & rData, int action) : PPListDialog((action == 3) ? DLG_GBSTRUC_N : DLG_GBSTRUC, CTL_GBTRUC_LIST),
 		R_Data(rData), P_EGSDlg(0), P_ID(pID), Flags(0), LastInnerNum(0), InitBasketFlags(0)
 	{
-		disableCtrl(CTL_GBTRUC_TOTAL, 1);
+		disableCtrl(CTL_GBTRUC_TOTAL, true);
 		disableCtrls(BIN(action == 1), CTLSEL_GBTRUC_BASKET/*, CTLSEL_GBTRUC_SUPPL*/, 0);
 		enableCommand(cmAddFromBasket, BIN(action & 0x01));
 		if(action == 2)

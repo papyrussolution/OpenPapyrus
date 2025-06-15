@@ -1297,7 +1297,7 @@ public:
 			enableCommand(cmDump,    enable_cmds);
 		}
 		else
-			disableCtrl(CTLSEL_BU_PRELUDE_DB, 1);
+			disableCtrl(CTLSEL_BU_PRELUDE_DB, true);
 	}
 	int    getDTS(long * pDbID)
 	{

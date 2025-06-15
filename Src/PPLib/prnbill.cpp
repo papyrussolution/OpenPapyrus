@@ -48,7 +48,7 @@ public:
 		//dlg->setCtrlData(CTL_PRNGBILL_FDIVCOPIES, &div_copies);
 		if(OprType != PPOPT_GOODSRECEIPT || !(Data.FormBits & Data.pbPriceTag)) {
 			//only_price_chng = 0;
-			//dlg->disableCtrl(CTL_PRNGBILL_ONLYPRCHNG, 1);
+			//dlg->disableCtrl(CTL_PRNGBILL_ONLYPRCHNG, true);
 			Data.Flags &= ~BillMultiPrintParam::fUpdatedPricesOnly;
 			DisableClusterItem(CTL_PRNGBILL_FLAGS, 1, true);
 		}
@@ -115,7 +115,7 @@ private:
 					}
 				}
 				else
-					disableCtrl(CTL_PRNGBILL_ONLYPRCHNG, 1);
+					disableCtrl(CTL_PRNGBILL_ONLYPRCHNG, true);
 				clearEvent(event);
 			}
 		}
@@ -480,13 +480,13 @@ static int SelectForm(int interactive, long opPrnFlags, PPID arID, uint * pAmtTy
 				if(oprType != PPOPT_GOODSRECEIPT) {
 					//only_price_chng = 0;
 					prn_flags &= ~BillMultiPrintParam::fUpdatedPricesOnly;
-					dlg->disableCtrl(CTL_PRNGBILL_ONLYPRCHNG, 1);
+					dlg->disableCtrl(CTL_PRNGBILL_ONLYPRCHNG, true);
 				}
 				dlg->setCtrlUInt16(CTL_PRNGBILL_ONLYPRCHNG, /*&only_price_chng*/BIN(prn_flags & BillMultiPrintParam::fUpdatedPricesOnly));
 				dlg->disableCtrl(CTL_PRNGBILL_ONLYPRCHNG, BIN(oprType != PPOPT_GOODSRECEIPT));
 			}
 			else {
-				dlg->disableCtrl(CTL_PRNGBILL_ONLYPRCHNG, 1);
+				dlg->disableCtrl(CTL_PRNGBILL_ONLYPRCHNG, true);
 			}
 			dlg->setCtrlData(CTL_PRNGBILL_WHAT,  &v);
 			dlg->setCtrlData(CTL_PRNGBILL_PRICE, &p);

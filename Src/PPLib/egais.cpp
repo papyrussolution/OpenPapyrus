@@ -8734,9 +8734,9 @@ int PPEgaisProcessor::EditQueryParam(PPEgaisProcessor::QueryParam * pData)
 				SString msg_buf;
 				int   info_text_id = 0;
 				if(doc_type == (PPEDIOP_EGAIS_QUERYCLIENTS+2000))
-					disableCtrl(CTL_EGAISQ_ACTLZVAR, 0);
+					disableCtrl(CTL_EGAISQ_ACTLZVAR, false);
 				else {
-					disableCtrl(CTL_EGAISQ_ACTLZVAR, 1);
+					disableCtrl(CTL_EGAISQ_ACTLZVAR, true);
 					switch(doc_type) {
 						case PPEDIOP_EGAIS_QUERYBARCODE: info_text_id = PPTXT_HINT_EGAIS_QBARCODE; break;
 						case PPEDIOP_EGAIS_QUERYCLIENTS: info_text_id = PPTXT_HINT_EGAIS_QCLIENTS; break;

@@ -480,8 +480,9 @@ static void InitTest()
 				assert(!(ff & 0x08000000));
 			}
 		}
-		// } @v11.2.0 
-		static_assert(sizeof(SPoint2S) == sizeof(4)); // @v11.7.0
+		// } @v11.2.0
+		static_assert(sizeof(SPoint2F) == 8); // @v12.3.6
+		static_assert(sizeof(SPoint2S) == 4); // @v11.7.0
 		static_assert(sizeof(MACAddr) == 6); // @v11.7.0
 		static_assert(sizeof(KeyDownCommand) == 4); // @v11.7.0
 		static_assert(sizeof(SUiLayout::Result) == (24+sizeof(void *))); // @v11.7.0

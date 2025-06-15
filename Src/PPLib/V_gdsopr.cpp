@@ -528,7 +528,7 @@ public:
 		disableCtrls(Data.BillList.IsExists(), CTL_BILLFLT_OPRSET,
 			CTLSEL_BILLFLT_OBJECT, CTLSEL_BILLFLT_OPRKIND, CTL_BILLFLT_PERIOD, CTLCAL_BILLFLT_PERIOD, 0);
 		if(Data.BillList.IsExists()) {
-			disableCtrl(CTLSEL_BILLFLT_LOC, 1);
+			disableCtrl(CTLSEL_BILLFLT_LOC, true);
 			enableCommand(cmLocList, 0);
 		}
 		return ok;
@@ -706,7 +706,7 @@ public:
 		AddClusterAssoc(CTL_GOODSOPRE_FLAGS, 2, GoodsOpAnalyzeFilt::ffldDiff);
 		AddClusterAssoc(CTL_GOODSOPRE_PCTDIFF, 0, GoodsOpAnalyzeFilt::fComparePctDiff);
 		SetClusterData(CTL_GOODSOPRE_PCTDIFF, Data.Flags);
-		disableCtrl(CTL_GOODSOPRE_RESTDT, (Data.Flags & GoodsOpAnalyzeFilt::fCalcRest) ? 0 : 1);
+		disableCtrl(CTL_GOODSOPRE_RESTDT, !(Data.Flags & GoodsOpAnalyzeFilt::fCalcRest));
 		setCtrlData(CTL_GOODSOPRE_RESTDT, &Data.CmpRestCalcDate);
 		updateList(-1);
 		SetupFlags();
@@ -739,7 +739,7 @@ private:
 
 IMPL_HANDLE_EVENT(GoodsOpAnlzCmpFiltDialog)
 {
-	int is_crosstab = BIN(Data.Flags & GoodsOpAnalyzeFilt::fCrosstab);
+	const bool is_crosstab = LOGIC(Data.Flags & GoodsOpAnalyzeFilt::fCrosstab);
 	PPListDialog::handleEvent(event);
 	if(TVCOMMAND) {
 		if(TVCMD == cmLBItemSelected) {
@@ -852,9 +852,9 @@ public:
 		SetupPPObjCombo(this,  CTLSEL_BILLFLT_OBJCITY, PPOBJ_WORLD, Data.ObjCityID, OLW_LOADDEFONOPEN,
 			PPObjWorld::MakeExtraParam(WORLDOBJ_CITY, 0, 0));
 		SetupPPObjCombo(this, CTLSEL_BILLFLT_FRGHTAGNT, PPOBJ_PERSON, Data.FreightAgentID, OLW_LOADDEFONOPEN, reinterpret_cast<void *>(PPPRK_VESSELSAGENT));
-		disableCtrl(CTL_BILLFLT_RESTDATE, (Data.Flags & GoodsOpAnalyzeFilt::fCalcRest) ? 0 : 1);
+		disableCtrl(CTL_BILLFLT_RESTDATE, !(Data.Flags & GoodsOpAnalyzeFilt::fCalcRest));
 		setCtrlData(CTL_BILLFLT_RESTDATE, &Data.RestCalcDate);
-		int enbl = (Data.OpGrpID != GoodsOpAnalyzeFilt::ogInOutAnalyze &&(!(Data.Flags & GoodsOpAnalyzeFilt::fIntrReval)) &&
+		const bool enbl = (Data.OpGrpID != GoodsOpAnalyzeFilt::ogInOutAnalyze &&(!(Data.Flags & GoodsOpAnalyzeFilt::fIntrReval)) &&
 			(!(Data.Flags & GoodsOpAnalyzeFilt::fPriceDeviation)) && GetOpType(Data.OpID) != PPOPT_GOODSREVAL);
 		SetupPPObjCombo(this, CTLSEL_BILLFLT_QUOTKIND, PPOBJ_QUOTKIND, Data.QuotKindID, OLW_LOADDEFONOPEN);
 		disableCtrl(CTLSEL_BILLFLT_QUOTKIND, !enbl);
@@ -978,9 +978,9 @@ IMPL_HANDLE_EVENT(GoodsOpAnlzFiltDialog)
 			GetOpCommonAccSheet(Data.OpID, &acc_sheet_id, 0);
 			SetupAccSheet(acc_sheet_id);
 			if(IsIntrExpndOp(Data.OpID))
-				disableCtrl(CTL_BILLFLT_INTRREVAL, 0);
+				disableCtrl(CTL_BILLFLT_INTRREVAL, false);
 			else {
-				disableCtrl(CTL_BILLFLT_INTRREVAL, 1);
+				disableCtrl(CTL_BILLFLT_INTRREVAL, true);
 				setCtrlUInt16(CTL_BILLFLT_INTRREVAL, 0);
 			}
 		}
@@ -1032,7 +1032,7 @@ IMPL_HANDLE_EVENT(GoodsOpAnlzFiltDialog)
 					else
 						PPError();
 				}
-				disableCtrl(CTLSEL_BILLFLT_QUOTKIND, 0);
+				disableCtrl(CTLSEL_BILLFLT_QUOTKIND, false);
 			}
 			delete p_dlg;
 		}
@@ -1052,7 +1052,7 @@ void GoodsOpAnlzFiltDialog::ReplyOprGrpChanged()
 		SetupCtrls(Data.Flags);
 		SetupOpCombo();
 		if(!oneof2(Data.OpGrpID, GoodsOpAnalyzeFilt::ogSelected, GoodsOpAnalyzeFilt::ogInOutAnalyze)) {
-			disableCtrl(CTLSEL_BILLFLT_OPRKIND, 1);
+			disableCtrl(CTLSEL_BILLFLT_OPRKIND, true);
 			Data.OpID = 0;
 			if(getCtrlView(CTLSEL_BILLFLT_OBJECT)) {
 				PPID   last = 0;
@@ -1065,7 +1065,7 @@ void GoodsOpAnlzFiltDialog::ReplyOprGrpChanged()
 			}
 		}
 		else
-			disableCtrl(CTLSEL_BILLFLT_OPRKIND, 0);
+			disableCtrl(CTLSEL_BILLFLT_OPRKIND, false);
 	}
 }
 
@@ -1086,7 +1086,7 @@ int GoodsOpAnlzFiltDialog::EditABCAnlzFilt(ABCAnlzFilt * pFilt)
 	public:
 		ABCAnlzFiltDialog() : TDialog(DLG_ABCANLZ)
 		{
-			disableCtrl(CTL_ABCANLZ_FRSUM, 1);
+			disableCtrl(CTL_ABCANLZ_FRSUM, true);
 		}
 		DECL_DIALOG_SETDTS()
 		{
@@ -1504,7 +1504,8 @@ int PPViewGoodsOpAnalyze::CalcTotal(GoodsOpAnalyzeTotal * pTotal)
 			if(p_ind) {
 				for(uint i = 0; i < p_ind->getCount(); i++) {
 					const BzsVal & r_val = p_ind->at(i);
-					if(PPObjBizScore::IsBzsiAdditive(r_val.Bzsi)) {
+					//@v12.3. if(PPObjBizScore::IsBzsiAdditive(r_val.Bzsi)) {
+					if(PPObjBizScore::GetBzsiAggrFunc(r_val.Bzsi) == AGGRFUNC_SUM) { // @v12.3.6
 						Total.IndicatorVect.Add(r_val.Bzsi, r_val.Val);
 					}
 				}
@@ -4011,7 +4012,7 @@ void PPViewGoodsOpAnalyze::ViewTotal()
 								ss.add(PPLoadStringS("profit", temp_buf));
 								temp_buf.Z().Cat(value, MKSFMTD(0, 3, NMBF_NOTRAILZ));
 								ss.add(temp_buf);
-								p_lbx->addItem(PPBZSI_MARGIN, ss.getBuf());
+								p_lbx->addItem(PPBZSI_AMT_MARGIN, ss.getBuf());
 							}
 						}
 						p_lbx->Draw_();

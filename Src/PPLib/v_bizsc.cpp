@@ -420,7 +420,7 @@ public:
 		if(!RVALUEPTR(Data, pData))
 			MEMSZERO(Data);
 		setCtrlData(CTL_BIZSCTR_ID, &Data.Id);
-		disableCtrl(CTL_BIZSCTR_ID, 1);
+		disableCtrl(CTL_BIZSCTR_ID, true);
 		setCtrlData(CTL_BIZSCTR_NAME,   Data.Name);
 		setCtrlData(CTL_BIZSCTR_CODE,   Data.Symb);
 		SetupPPObjCombo(this, CTLSEL_BIZSCTR_BIZSC, PPOBJ_BIZSCORE, Data.BizScId, OLW_CANINSERT|OLW_CANEDIT, 0);
@@ -458,7 +458,7 @@ private:
 	}
 	void   SetupCtrl(PPID bizsc)
 	{
-		disableCtrl(CTL_BIZSCTR_FORMULA, BIN(bizsc));
+		disableCtrl(CTL_BIZSCTR_FORMULA, LOGIC(bizsc));
 	}
 	PPObjBizScore   BscObj;
 };
@@ -474,9 +474,9 @@ public:
 		if(!RVALUEPTR(Data, pData))
 			MEMSZERO(Data);
 		setCtrlData(CTL_BIZSCTC_COLID, &Data.ColId);
-		disableCtrl(CTL_BIZSCTC_COLID, 1);
+		disableCtrl(CTL_BIZSCTC_COLID, true);
 		setCtrlData(CTL_BIZSCTC_ROWID, &Data.RowId);
-		disableCtrl(CTL_BIZSCTC_ROWID, 1);
+		disableCtrl(CTL_BIZSCTC_ROWID, true);
 		SetupPPObjCombo(this, CTLSEL_BIZSCTC_BIZSC, PPOBJ_BIZSCORE, Data.BizScId, 0, 0);
 		setCtrlData(CTL_BIZSCTC_FORMULA, Data.Formula);
 		SetupCtrl(Data.BizScId);
@@ -512,7 +512,7 @@ private:
 	}
 	void   SetupCtrl(PPID bizsc)
 	{
-		disableCtrl(CTL_BIZSCTC_FORMULA, BIN(bizsc));
+		disableCtrl(CTL_BIZSCTC_FORMULA, LOGIC(bizsc));
 	}
 	PPObjBizScore    BscObj;
 };
@@ -532,7 +532,7 @@ public:
 	{
 		if(!RVALUEPTR(Data, pData))
 			Data.Init();
-		disableCtrl(CTL_BIZSCT_ID, 1);
+		disableCtrl(CTL_BIZSCT_ID, true);
 		setCtrlData(CTL_BIZSCT_ID, &Data.Rec.ID);
 		setCtrlString(CTL_BIZSCT_NAME, SString(Data.Rec.Name));
 		setCtrlString(CTL_BIZSCT_SYMB, SString(Data.Rec.Symb));

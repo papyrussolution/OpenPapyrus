@@ -567,7 +567,7 @@ public:
 		AddClusterAssoc(CTL_ACCAGGR_FLAGS, 0, ACF_SYSNUMBER);
 		AddClusterAssoc(CTL_ACCAGGR_FLAGS, 1, ACF_EXCLINNERTRNOVR);
 		SetClusterData(CTL_ACCAGGR_FLAGS, Data.Rec.Flags);
-		disableCtrl(CTL_ACCAGGR_NUMBER, BIN(Data.Rec.Flags & ACF_EXCLINNERTRNOVR));
+		disableCtrl(CTL_ACCAGGR_NUMBER, LOGIC(Data.Rec.Flags & ACF_EXCLINNERTRNOVR));
 		updateList(-1);
 		return 1;
 	}
@@ -629,7 +629,7 @@ int GenAccountDialog::addItem(long * pPos, long * pID)
 {
 	int    r = ObjRestrictListDialog::addItem(pPos, pID);
 	if(r > 0 && Data.GenList.getCount())
-		disableCtrl(CTLSEL_ACCAGGR_ACCSHEET, 1);
+		disableCtrl(CTLSEL_ACCAGGR_ACCSHEET, true);
 	return r;
 }
 
@@ -637,7 +637,7 @@ int GenAccountDialog::delItem(long pos, long id)
 {
 	int    r = ObjRestrictListDialog::delItem(pos, id);
 	if(r > 0 && !Data.GenList.getCount())
-		disableCtrl(CTLSEL_ACCAGGR_ACCSHEET, 0);
+		disableCtrl(CTLSEL_ACCAGGR_ACCSHEET, false);
 	return r;
 }
 
@@ -707,7 +707,7 @@ int GenAccountDialog::editItemDialog(ObjRestrictItem * pItem)
 		if(pItem->ObjID) {
 			dlg->disableCtrls(1, CTL_ACCAGGRI_ACC, CTLSEL_ACCAGGRI_ACCNAME, CTL_ACCAGGRI_ART, CTLSEL_ACCAGGRI_ARTNAME, 0);
 			if(aco == ACO_3)
-				dlg->disableCtrl(CTL_ACCAGGRI_ACCGRP, 1);
+				dlg->disableCtrl(CTL_ACCAGGRI_ACCGRP, true);
 		}
 		v = 0;
 		if(aco == ACO_1)
@@ -842,11 +842,11 @@ int AccountDialog::setDTS(const PPAccountPacket * pAccPack)
 	if(AccPack.Rec.ID && !PPMaster) {
 		disableCtrls(1, CTL_ACCOUNT_NUMBER, CTL_ACCOUNT_SUBNUMBER, 0);
 		if(AccPack.Rec.AccSheetID)
-			disableCtrl(CTLSEL_ACCOUNT_ACCSHEET, 1);
+			disableCtrl(CTLSEL_ACCOUNT_ACCSHEET, true);
 	}
 	setCtrlUInt16(CTL_ACCOUNT_FLAGS, BIN(AccPack.Rec.Flags & ACF_CURRENCY));
 	setCtrlUInt16(CTL_ACCOUNT_OUTBAL, BIN(AccPack.Rec.Type == ACY_OBAL));
-	disableCtrl(CTL_ACCOUNT_OUTBAL, 1);
+	disableCtrl(CTL_ACCOUNT_OUTBAL, true);
 	updateList(-1);
 	is_cur_acc = (AccPack.Rec.Flags & ACF_CURRENCY) ? 1 : 0;
 	disableCtrls(!is_cur_acc, CTL_ACCOUNT_CURLIST, 0);
@@ -858,7 +858,7 @@ int AccountDialog::setDTS(const PPAccountPacket * pAccPack)
 		disableCtrls(v, CTL_ACCOUNT_NUMBER, CTL_ACCOUNT_SUBNUMBER, 0);
 	}
 	if(AtObj.VerifyChangingAccsheetOfAccount(AccPack.Rec.ID)) {
-		disableCtrl(CTLSEL_ACCOUNT_ACCSHEET, 0);
+		disableCtrl(CTLSEL_ACCOUNT_ACCSHEET, false);
 		setStaticText(CTL_ACCOUNT_ST_ACSMSG, 0);
 	}
 	else if(DS.CheckExtFlag(ECF_AVERAGE) && PPMaster) {
@@ -867,7 +867,7 @@ int AccountDialog::setDTS(const PPAccountPacket * pAccPack)
 		setStaticText(CTL_ACCOUNT_ST_ACSMSG, msg_buf);
 	}
 	else
-		disableCtrl(CTLSEL_ACCOUNT_ACCSHEET, 1);
+		disableCtrl(CTLSEL_ACCOUNT_ACCSHEET, true);
 	if(AccPack.Rec.Type == ACY_BUDGET)
 		SetupPPObjCombo(this, CTLSEL_ACCOUNT_PARENT,  PPOBJ_ACCOUNT2, AccPack.Rec.ParentID, OLW_CANSELUPLEVEL, reinterpret_cast<void *>(ACY_SEL_BUDGET));
 	return 1;

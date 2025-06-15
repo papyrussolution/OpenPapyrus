@@ -84,7 +84,7 @@ PPJobMngr::PPJobMngr() : LckH(0), LastId(0), /*P_F(0),*/LastLoading(ZERODATETIME
 {
 	SString name;
 	P_Rez = new TVRez(makeExecPathFileName("pp", "res", name), 1);
-	// @v12.3.1 (obsolete) PPGetFilePath(PPPATH_BIN, PPFILNAM_JOBPOOL, FilePath);
+	// @v12.3.1 (@obsolete) PPGetFilePath(PPPATH_BIN, PPFILNAM_JOBPOOL, FilePath);
 //@erik v10.7.4
 	GetXmlPoolDir(XmlFilePath);
 	Sync.Init(XmlFilePath);
@@ -3861,7 +3861,7 @@ int TSessAutoSmsFiltDialog::setDTS(const TSessionFilt * pData)
 		ptcg_rec.TechID = Data.TechID;
 		ptcg_rec.ArID   = Data.ArID;
 		ptcg_rec.Ar2ID  = 0;
-		ptcg_rec.IdleStatus = 0;
+		ptcg_rec.IdleStatus = false;
  		setGroupData(grp_prctech, &ptcg_rec);
 	}
 	AddClusterAssocDef(CTL_JTSASMSFILT_STATUS, 0, (1 << TSESST_PLANNED));

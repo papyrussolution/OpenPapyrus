@@ -581,7 +581,7 @@ static int SelectObjTagType(PPObjectTag * pData, const ObjTagFilt * pObjTagF)
 				TagObjTypeList.addUnique(Data.ObjTypeID);
 			SetupObjListCombo(this, CTLSEL_OBJTAG_TAGOBJTYP, Data.ObjTypeID, &TagObjTypeList);
 			if(Data.ObjTypeID && !(Filt.Flags & ObjTagFilt::fAnyObjects))
-				disableCtrl(CTLSEL_OBJTAG_TAGOBJTYP, 1);
+				disableCtrl(CTLSEL_OBJTAG_TAGOBJTYP, true);
 			AddClusterAssoc(CTL_OBJTAG_TYPE, 0, OTTYP_GROUP);
 			AddClusterAssoc(CTL_OBJTAG_TYPE, 1, OTTYP_BOOL);
 			AddClusterAssoc(CTL_OBJTAG_TYPE, 2, OTTYP_STRING);
@@ -652,11 +652,11 @@ static int SelectObjTagType(PPObjectTag * pData, const ObjTagFilt * pObjTagF)
 		void   SetupObjType()
 		{
 			if(Data.TagDataType == OTTYP_OBJLINK && P_ObjTypeList && P_ObjTypeList->getCount()) {
-				disableCtrl(CTLSEL_OBJTAG_OBJTYP, 0);
+				disableCtrl(CTLSEL_OBJTAG_OBJTYP, false);
 				SetupObjListCombo(this, CTLSEL_OBJTAG_OBJTYP, Data.TagEnumID, P_ObjTypeList);
 			}
 			else
-				disableCtrl(CTLSEL_OBJTAG_OBJTYP, 1);
+				disableCtrl(CTLSEL_OBJTAG_OBJTYP, true);
 			SetupObjGroup();
 		}
 		void   SetupObjGroup()
@@ -1065,7 +1065,7 @@ int PPObjTag::Edit(PPID * pID, void * extraPtr)
 				setCtrlString(CTL_OBJTAG_HOTKEY, buf);
 			}
 			// } @v11.2.8 
-			disableCtrl(CTL_OBJTAG_TYPE, 1);
+			disableCtrl(CTL_OBJTAG_TYPE, true);
 			enableCommand(cmaMore, Data.Rec.TagDataType == OTTYP_ENUM);
 			return 1;
 		}

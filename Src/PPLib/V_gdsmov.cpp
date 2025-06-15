@@ -544,7 +544,7 @@ int PPViewGoodsMov::EditGoods(PPID goodsID)
 	public:
 		PrintGoodsMovDialog() : TDialog(DLG_PRNGOODSMOV)
 		{
-			disableCtrl(CTL_PRNGOODSMOV_SHRTMOVF, 1);
+			disableCtrl(CTL_PRNGOODSMOV_SHRTMOVF, true);
 		}
 	private:
 		DECL_HANDLE_EVENT

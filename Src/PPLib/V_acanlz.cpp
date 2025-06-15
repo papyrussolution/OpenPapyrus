@@ -134,7 +134,6 @@ public:
 	}
 	DECL_DIALOG_SETDTS()
 	{
-		ushort v;
 		AcctCtrlGroup::Rec  acc_rec;
 		CycleCtrlGroup::Rec cycle_rec;
 		Data.Init(1, 0);
@@ -174,13 +173,15 @@ public:
 
 		AddClusterAssoc(CTL_ACCANLZ_EXCLINNRT, 0, AccAnlzFilt::fExclInnerTrnovr);
 		SetClusterData(CTL_ACCANLZ_EXCLINNRT, Data.Flags);
-		v = BIN(Data.Flags & AccAnlzFilt::fExclInnerTrnovr);
-		disableCtrls(v, CTL_ACCANLZ_ACCGRP, CTLSEL_ACCANLZ_SUBST, CTL_ACCANLZ_CORACCGRP, 0);
-		disableCtrls(v, CTLSEL_ACCANLZ_CYCLE, CTL_ACCANLZ_NUMCYCLES, 0);
+		{
+			const bool do_disable = LOGIC(Data.Flags & AccAnlzFilt::fExclInnerTrnovr);
+			disableCtrls(do_disable, CTL_ACCANLZ_ACCGRP, CTLSEL_ACCANLZ_SUBST, CTL_ACCANLZ_CORACCGRP, 0);
+			disableCtrls(do_disable, CTLSEL_ACCANLZ_CYCLE, CTL_ACCANLZ_NUMCYCLES, 0);
+		}
 		ReplyAccSelected();
 		AddClusterAssoc(CTL_ACCANLZ_ALLCUR, 0, AccAnlzFilt::fAllCurrencies);
 		SetClusterData(CTL_ACCANLZ_ALLCUR, Data.Flags);
-		ReplyTrnovrSelected(Data.Flags & AccAnlzFilt::fTrnovrBySheet);
+		ReplyTrnovrSelected(LOGIC(Data.Flags & AccAnlzFilt::fTrnovrBySheet));
 		return 1;
 	}
 	DECL_DIALOG_GETDTS()
@@ -280,13 +281,13 @@ private:
 			SetupSubstRelCombo();
 		}
 		else if(event.isClusterClk(CTL_ACCANLZ_TRNOVR)) {
-			ReplyTrnovrSelected(getCtrlUInt16(CTL_ACCANLZ_TRNOVR) & 1);
+			ReplyTrnovrSelected(LOGIC(getCtrlUInt16(CTL_ACCANLZ_TRNOVR) & 1));
 		}
 		else if(event.isCbSelected(CTLSEL_ACCANLZ_SUBST)) {
 			Data.CorAco = getCtrlLong(CTLSEL_ACCANLZ_SUBST);
 			if(Data.CorAco)
 				setCtrlUInt16(CTL_ACCANLZ_ORDER, 0);
-			disableCtrl(CTL_ACCANLZ_ORDER, BIN(Data.CorAco));
+			disableCtrl(CTL_ACCANLZ_ORDER, LOGIC(Data.CorAco));
 		}
 		else if(event.isCmd(cmaMore)) {
 			TDialog * dlg = new TDialog(DLG_ACCANLZ2);
@@ -366,7 +367,7 @@ private:
 		if(acg_rec.AccSheetID)
 			disableCtrls(0, CTL_ACCANLZ_ACCGRP, CTL_ACCANLZ_TRNOVR, 0);
 		else {
-			disableCtrl(CTL_ACCANLZ_TRNOVR, 1);
+			disableCtrl(CTL_ACCANLZ_TRNOVR, true);
 			setCtrlUInt16(CTL_ACCANLZ_TRNOVR, 0);
 			disableCtrls(0, CTL_ACCANLZ_ACCGRP, CTLSEL_ACCANLZ_SUBST, CTL_ACCANLZ_CORACCGRP, 0);
 			disableCtrls(0, CTLSEL_ACCANLZ_CYCLE, CTL_ACCANLZ_NUMCYCLES, 0);
@@ -376,7 +377,7 @@ private:
 			PPAccount acc_rec;
 			ATObj->P_Tbl->GetExtentAccListByGen(acg_rec.AcctId.ac, &ext_gen_acc_list, &cur_list);
 			setCtrlUInt16(CTL_ACCANLZ_ACCGRP, 2);
-			disableCtrl(CTL_ACCANLZ_ACCGRP, 1);
+			disableCtrl(CTL_ACCANLZ_ACCGRP, true);
 			if(ATObj->P_Tbl->AccObj.Search(acg_rec.AcctId.ac, &acc_rec) > 0)
 				setCtrlUInt16(CTL_ACCANLZ_EXCLINNRT, BIN(acc_rec.Flags & ACF_EXCLINNERTRNOVR));
 		}
@@ -387,7 +388,7 @@ private:
 		::SetupCurrencyCombo(this, CTLSEL_ACCANLZ_CUR, cur_id, 0, 1, &cur_list);
 		SetupSubstRelCombo();
 	}
-	void   ReplyTrnovrSelected(int trnovr)
+	void   ReplyTrnovrSelected(bool trnovr)
 	{
 		if(trnovr) {
 			setCtrlUInt16(CTL_ACCANLZ_ACCGRP,    2); // By ACO_2
@@ -419,13 +420,13 @@ private:
 					SetupStrAssocCombo(this, CTLSEL_ACCANLZ_RELSUBST, list, Data.SubstRelTypeID, 0);
 					RelComboInited = 1;
 				}
-				disableCtrl(CTLSEL_ACCANLZ_RELSUBST, 0);
+				disableCtrl(CTLSEL_ACCANLZ_RELSUBST, false);
 			}
 			else
-				disableCtrl(CTLSEL_ACCANLZ_RELSUBST, 1);
+				disableCtrl(CTLSEL_ACCANLZ_RELSUBST, true);
 		}
 		else
-			disableCtrl(CTLSEL_ACCANLZ_RELSUBST, 1);
+			disableCtrl(CTLSEL_ACCANLZ_RELSUBST, true);
 	}
 	int    SetupSubstCombo()
 	{
@@ -2121,7 +2122,7 @@ public:
 		::SetupCurrencyCombo(this, CTLSEL_AANLZTOTAL_CUR, (cur_id > 0) ? cur_id : 0, 0, 1, 0);
 		setupCur((cur_id >= 0) ? cur_id : 0L);
 		if(cur_id >= 0)
-			disableCtrl(CTLSEL_AANLZTOTAL_CUR, 1);
+			disableCtrl(CTLSEL_AANLZTOTAL_CUR, true);
 	}
 private:
 	DECL_HANDLE_EVENT

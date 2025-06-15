@@ -1145,7 +1145,7 @@ int GoodsCfgDialog::setDTS(const PPGoodsConfig * pData, const SString & rGoodsEx
 	}
 	setCtrlString(CTL_GDSCFG_OWNACTMPL, SString(rOwnAcCntr.Head.CodeTemplate));
 	setCtrlLong(CTL_GDSCFG_OWNACCNTR, rOwnAcCntr.Head.Counter);
-	disableCtrl(CTL_GDSCFG_OWNACCNTR, 1);
+	disableCtrl(CTL_GDSCFG_OWNACCNTR, true);
 	return 1;
 }
 
@@ -1362,7 +1362,7 @@ int EditQuotVal(PPQuot * pQ, int quotCls)
 			if(UseQuot2)
 				SetupCalPeriod(CTLCAL_SETQUOT_PERIOD, CTL_SETQUOT_PERIOD);
 			else
-				disableCtrl(CTL_SETQUOT_PERIOD, 1);
+				disableCtrl(CTL_SETQUOT_PERIOD, true);
 		}
 		DECL_DIALOG_SETDTS()
 		{
@@ -1430,9 +1430,9 @@ int EditQuotVal(PPQuot * pQ, int quotCls)
 			ushort v = getCtrlUInt16(CTL_SETQUOT_HOW);
 			GetClusterData(CTL_SETQUOT_ZERO, &Data.Flags);
 			if(Data.Flags & PPQuot::fZero || v == 4)
-				disableCtrl(CTL_SETQUOT_VAL, 1);
+				disableCtrl(CTL_SETQUOT_VAL, true);
 			else
-				disableCtrl(CTL_SETQUOT_VAL, 0);
+				disableCtrl(CTL_SETQUOT_VAL, false);
 		}
 		DECL_HANDLE_EVENT
 		{
@@ -1754,7 +1754,7 @@ private:
 					}
 					if(HasPeriodVal()) {
 						ViewQuotsAsListBox = 1;
-						disableCtrl(CTL_GQUOT_VIEW, 1);
+						disableCtrl(CTL_GQUOT_VIEW, true);
 					}
 					else if(onInit) {
 						WinRegKey reg_key(HKEY_CURRENT_USER, PPConst::WrKey_SysSettings, /*readonly*/1);
@@ -1824,7 +1824,7 @@ public:
 				if(!(goods_rec.Flags & GF_PRICEWOTAXES))
 					setStaticText(CTL_GQUOT_GNOTE, 0);
 			}
-			disableCtrl(CTL_GQUOT_GOODS, 1);
+			disableCtrl(CTL_GQUOT_GOODS, true);
 			SetupPPObjCombo(this, CTLSEL_GQUOT_ACCSHEET, PPOBJ_ACCSHEET, AccSheetID, OLW_LOADDEFONOPEN, 0);
 			disableCtrl(CTLSEL_GQUOT_ACCSHEET, (Cls == PPQuot::clsSupplDeal));
 			SetupArCombo(this, CTLSEL_GQUOT_ARTICLE, SelArticleID, OLW_CANINSERT|OLW_LOADDEFONOPEN, AccSheetID, sacfDisableIfZeroSheet);
@@ -2811,7 +2811,7 @@ int PPObjGoods::SelectGoodsInPlaceOfRemoved(PPID rmvdGoodsID, PPID extGoodsID, P
 		goods_ctrl_grp.Flags = GoodsCtrlGroup::enableInsertGoods;
 		dlg->setGroupData(1, &goods_ctrl_grp);
 		dlg->setCtrlData(CTL_RMVDGDS_ID, &rmvdGoodsID);
-		dlg->disableCtrl(CTL_RMVDGDS_ID, 1);
+		dlg->disableCtrl(CTL_RMVDGDS_ID, true);
 		if(ExecView(dlg) == cmOK) {
 			dlg->getGroupData(1, &goods_ctrl_grp);
 			subst_id = goods_ctrl_grp.GoodsID;

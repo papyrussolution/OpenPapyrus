@@ -494,7 +494,7 @@ public:
 			setCtrlUInt16(CTL_CCHECKFLT_STARTSRVCP, BIN(Data.Flags & CCheckFilt::fStartOrderPeriod));
 		else {
 			Data.Flags &= ~CCheckFilt::fStartOrderPeriod;
-			disableCtrl(CTL_CCHECKFLT_STARTSRVCP, 1);
+			disableCtrl(CTL_CCHECKFLT_STARTSRVCP, true);
 		}
 		{
 			if(Data.NodeList.GetCount() == 0) {
@@ -661,17 +661,17 @@ private:
 		if(!oneof3(grp, CCheckFilt::gAmount, CCheckFilt::gQtty, CCheckFilt::gAmountNGoods)) {
 			Data.AmountQuant = 0.0;
 			setCtrlData(CTL_CCHECKFLT_AMTQUANT, &Data.AmountQuant);
-			disableCtrl(CTL_CCHECKFLT_AMTQUANT, 1);
+			disableCtrl(CTL_CCHECKFLT_AMTQUANT, true);
 		}
 		else
-			disableCtrl(CTL_CCHECKFLT_AMTQUANT, 0);
+			disableCtrl(CTL_CCHECKFLT_AMTQUANT, false);
 		disableCtrl(CTLSEL_CCHECKFLT_SUBST, !CCheckFilt::HasGoodsGrouping(grp));
 		if(grp == CCheckFilt::gNone) {
 			SetClusterData(CTL_CCHECKFLT_ORDER, Data.SortOrder = CCheckFilt::ordByDef);
-			disableCtrl(CTL_CCHECKFLT_ORDER, 1);
+			disableCtrl(CTL_CCHECKFLT_ORDER, true);
 		}
 		else {
-			disableCtrl(CTL_CCHECKFLT_ORDER, 0);
+			disableCtrl(CTL_CCHECKFLT_ORDER, false);
 			if(oneof2(grp, CCheckFilt::gQtty, CCheckFilt::gGoods)) {
 				DisableClusterItem(CTL_CCHECKFLT_ORDER, 2, 0);
 			}
@@ -3007,7 +3007,7 @@ static int SetGoodsCorr(CCheckFilt * pFilt)
 			SetupPPObjCombo(p_dlg, CTLSEL_GOODSCORR_EXCLGG, PPOBJ_GOODSGROUP, pFilt->GcoExcludeGrpID, OLW_LOADDEFONOPEN|OLW_CANSELUPLEVEL, 0);
 			SetupSubstGoodsCombo(p_dlg, CTLSEL_GOODSCORR_SUBST, pFilt->Sgg);
 			if(pFilt->Grp != CCheckFilt::gNone)
-				p_dlg->disableCtrl(CTLSEL_GOODSCORR_SUBST, 1);
+				p_dlg->disableCtrl(CTLSEL_GOODSCORR_SUBST, true);
 			if(ExecView(p_dlg) == cmOK) {
 				pFilt->GcoMinCount = p_dlg->getCtrlLong(CTL_GOODSCORR_MINQTTY);
 				p_dlg->GetClusterData(CTL_GOODSCORR_SORT, &pFilt->SortOrder);

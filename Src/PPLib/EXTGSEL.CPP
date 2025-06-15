@@ -313,7 +313,7 @@ ExtGoodsSelDialog::ExtGoodsSelDialog(PPID _op, PPID initGoodsID, long flags) : T
 		}
 		SetupPPObjCombo(this, CTLSEL_EXTGSEL_GGRP, PPOBJ_GOODSGROUP, initGoodsID, OLW_CANINSERT|OLW_WORDSELECTOR, 0);
 		if(disable_group_selection)
-			disableCtrl(CTLSEL_EXTGSEL_GGRP, 1);
+			disableCtrl(CTLSEL_EXTGSEL_GGRP, true);
 	}
 	{
 		UseBrand = BIN(GObj.GetConfig().Flags & GCF_USEBRANDINGSELEXTDLG);
@@ -356,7 +356,7 @@ void ExtGoodsSelDialog::setSelectionByPrice(double p)
 		disableCtrl(CTLSEL_EXTGSEL_GGRP,  1);
 		if(UseBrand) {
 			setCtrlLong(CTLSEL_EXTGSEL_BRAND, 0);
-			disableCtrl(CTLSEL_EXTGSEL_BRAND, 1);
+			disableCtrl(CTLSEL_EXTGSEL_BRAND, true);
 		}
 		updateList(0);
 		selectCtrl(CTL_EXTGSEL_LIST);
@@ -370,9 +370,9 @@ void ExtGoodsSelDialog::setSelectionByGroup()
 		Price = 0.0;
 		IdList.freeAll();
 		StrIdList.Z();
-		disableCtrl(CTLSEL_EXTGSEL_GGRP, 0);
+		disableCtrl(CTLSEL_EXTGSEL_GGRP, false);
 		if(UseBrand)
-			disableCtrl(CTLSEL_EXTGSEL_BRAND, 0);
+			disableCtrl(CTLSEL_EXTGSEL_BRAND, false);
 		updateList(0);
 		selectCtrl(UseBrand ? CTLSEL_EXTGSEL_BRAND : CTLSEL_EXTGSEL_GGRP);
 	}
@@ -383,9 +383,9 @@ void ExtGoodsSelDialog::setSelectionByGoodsList(const PPIDArray * pList, const c
 	if(Flags & fSelByPrice) {
 		Flags &= ~fSelByPrice;
 		Price = 0.0;
-		disableCtrl(CTLSEL_EXTGSEL_GGRP, 0);
+		disableCtrl(CTLSEL_EXTGSEL_GGRP, false);
 		if(UseBrand)
-			disableCtrl(CTLSEL_EXTGSEL_BRAND, 0);
+			disableCtrl(CTLSEL_EXTGSEL_BRAND, false);
 		updateList(0);
 		selectCtrl(UseBrand ? CTLSEL_EXTGSEL_BRAND : CTLSEL_EXTGSEL_GGRP);
 	}
@@ -411,9 +411,9 @@ void ExtGoodsSelDialog::setSelectionByGoodsList(const PPIDArray * pList, const c
 	StrIdList.Z();
 	if(!RVALUEPTR(IdList, pList))
 		IdList.freeAll();
-	disableCtrl(CTLSEL_EXTGSEL_GGRP, 1);
+	disableCtrl(CTLSEL_EXTGSEL_GGRP, true);
 	if(UseBrand)
-		disableCtrl(CTLSEL_EXTGSEL_BRAND, 1);
+		disableCtrl(CTLSEL_EXTGSEL_BRAND, true);
 	updateList(0);
 	selectCtrl(CTL_EXTGSEL_LIST);
 }
@@ -423,9 +423,9 @@ void ExtGoodsSelDialog::setSelectionByGoodsList(const StrAssocArray * pList, con
 	if(Flags & fSelByPrice) {
 		Flags &= ~fSelByPrice;
 		Price = 0.0;
-		disableCtrl(CTLSEL_EXTGSEL_GGRP, 0);
+		disableCtrl(CTLSEL_EXTGSEL_GGRP, false);
 		if(UseBrand)
-			disableCtrl(CTLSEL_EXTGSEL_BRAND, 0);
+			disableCtrl(CTLSEL_EXTGSEL_BRAND, false);
 		updateList(0);
 		selectCtrl(UseBrand ? CTLSEL_EXTGSEL_BRAND : CTLSEL_EXTGSEL_GGRP);
 	}
@@ -451,9 +451,9 @@ void ExtGoodsSelDialog::setSelectionByGoodsList(const StrAssocArray * pList, con
 	IdList.freeAll();
 	if(!RVALUEPTR(StrIdList, pList))
 		StrIdList.Z();
-	disableCtrl(CTLSEL_EXTGSEL_GGRP, 1);
+	disableCtrl(CTLSEL_EXTGSEL_GGRP, true);
 	if(UseBrand)
-		disableCtrl(CTLSEL_EXTGSEL_BRAND, 1);
+		disableCtrl(CTLSEL_EXTGSEL_BRAND, true);
 	updateList(0);
 	selectCtrl(CTL_EXTGSEL_LIST);
 }

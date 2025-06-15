@@ -628,11 +628,11 @@ public:
 		AddClusterAssoc(CTL_SCISEARCH_RF, 0, SSearchReplaceParam::fReplace);
 		SetClusterData(CTL_SCISEARCH_RF, Data.Flags);
 		if(Data.Flags & SSearchReplaceParam::fReplace) {
-			disableCtrl(CTL_SCISEARCH_REPLACE, 0);
+			disableCtrl(CTL_SCISEARCH_REPLACE, false);
 			setCtrlString(CTL_SCISEARCH_REPLACE, Data.Replacer);
 		}
 		else {
-			disableCtrl(CTL_SCISEARCH_REPLACE, 1);
+			disableCtrl(CTL_SCISEARCH_REPLACE, true);
 		}
 		AddClusterAssoc(CTL_SCISEARCH_FLAGS, 0, SSearchReplaceParam::fNoCase);
 		AddClusterAssoc(CTL_SCISEARCH_FLAGS, 1, SSearchReplaceParam::fWholeWords);

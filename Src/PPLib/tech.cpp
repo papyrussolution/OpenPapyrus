@@ -806,7 +806,7 @@ int PPObjTech::EditDialog(PPTechPacket * pData)
 					RVALUEPTR(Data, pData);
 					setCtrlData(CTL_TECH_CODE, Data.Rec.Code);
 					setCtrlData(CTL_TECH_ID,   &Data.Rec.ID);
-					disableCtrl(CTL_TECH_ID, 1);
+					disableCtrl(CTL_TECH_ID, true);
 					{
 						PrcCtrlGroup::Rec prc_grp_rec(Data.Rec.PrcID);
 						setGroupData(ctlgroupPrc, &prc_grp_rec);
@@ -880,7 +880,7 @@ int PPObjTech::EditDialog(PPTechPacket * pData)
 					RVALUEPTR(Data, pData);
 					setCtrlData(CTL_TECH_CODE, Data.Rec.Code);
 					setCtrlData(CTL_TECH_ID,   &Data.Rec.ID);
-					disableCtrl(CTL_TECH_ID, 1);
+					disableCtrl(CTL_TECH_ID, true);
 					if(Data.Rec.Kind == TECK_GENERAL) {
 						GoodsCtrlGroup::Rec rec(0, Data.Rec.GoodsID, 0, GoodsCtrlGroup::enableInsertGoods | GoodsCtrlGroup::disableEmptyGoods);
 						setGroupData(ctlgroupGoods, &rec);
@@ -1124,7 +1124,7 @@ int PPObjTech::EditDialog(PPTechPacket * pData)
 					RVALUEPTR(Data, pData);
 					setCtrlData(CTL_TECH_CODE, Data.Rec.Code);
 					setCtrlData(CTL_TECH_ID,   &Data.Rec.ID);
-					disableCtrl(CTL_TECH_ID, 1);
+					disableCtrl(CTL_TECH_ID, true);
 					PrcCtrlGroup::Rec prc_grp_rec(Data.Rec.PrcID);
 					setGroupData(ctlgroupPrc, &prc_grp_rec);
 					SetupPPObjCombo(this, CTLSEL_TECH_PARENT, PPOBJ_TECH, Data.Rec.ParentID, OLW_CANSELUPLEVEL, 0);

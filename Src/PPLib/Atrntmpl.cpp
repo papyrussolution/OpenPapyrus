@@ -11,6 +11,12 @@ PPAccTurn::PPAccTurn() : DbtSheet(0), CrdSheet(0), Date(ZERODATE), BillID(0), RB
 	BillCode[0] = 0;
 }
 
+PPAccTurn & PPAccTurn::Z()
+{
+	THISZERO();
+	return *this;
+}
+
 int FASTCALL PPAccTurn::IsEq(const PPAccTurn & rS) const
 {
 	// DbtSheet не участвует в проверке эквивалентности, поскольку есть избыточное поле и инициализируется по DbtID 

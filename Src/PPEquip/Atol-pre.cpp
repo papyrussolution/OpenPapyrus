@@ -932,7 +932,7 @@ int ACS_ATOL::ConvertWareList(const char * pImpPath, const char * pExpPath)
 			ss.get(&pos, buf);
 			goods_id = buf.ToLong(); // 8. Код товара
 			if(UseAltImport) {
-				BarcodeTbl::Rec  bc_rec;
+				BarcodeTbl::Rec bc_rec;
 				if(goods_obj.SearchByArticle(goods_id, &bc_rec) > 0)
 					goods_id = bc_rec.GoodsID;
 				else {
@@ -949,7 +949,7 @@ int ACS_ATOL::ConvertWareList(const char * pImpPath, const char * pExpPath)
 					buf.Z().CatEq("ID", goods_id);
 					buf.CopyTo(gds_pack.Rec.Name, sizeof(gds_pack.Rec.Name));
 					STRNSCPY(gds_pack.Rec.Abbr, gds_pack.Rec.Name);
-					MEMSZERO(bc_rec);
+					bc_rec.Clear();
 					buf.Z().CatChar('$').Cat(goods_id);
 					buf.CopyTo(bc_rec.Code, sizeof(bc_rec.Code));
 					bc_rec.Qtty = 1.0;
@@ -1069,7 +1069,7 @@ int ACS_ATOL::ConvertWareList(const char * pImpPath, const char * pExpPath)
 						gds_pack.Codes.insert(&bc_rec); // Добавляем артикул в список штрихкодов, т.к. GetPacket его пропускает
 						for(pos = 0; ss_comma.get(&pos, buf);) {
 							if(buf.NotEmptyS()) {
-								MEMSZERO(bc_rec);
+								bc_rec.Clear();
 								bc_rec.GoodsID = goods_id;
 								buf.CopyTo(bc_rec.Code, sizeof(bc_rec.Code));
 								bc_rec.Qtty = 1.0;

@@ -631,7 +631,7 @@ public:
 		setCtrlData(CTL_NOBJASSC_NAME, Data.Name);
 		setCtrlData(CTL_NOBJASSC_SYMB, Data.Symb);
 		setCtrlLong(CTL_NOBJASSC_ID, Data.ID);
-		disableCtrl(CTL_NOBJASSC_ID, 1);
+		disableCtrl(CTL_NOBJASSC_ID, true);
 		SetupScndObjGrp();
 		return ok;
 	}
@@ -680,7 +680,7 @@ void NamedObjAssocDialog::SetupScndObjGrp()
 		SetupPPObjCombo(this, CTLSEL_NOBJASSC_SCNDGRP, PPOBJ_ACCSHEET, Data.ScndObjGrp, 0, 0);
 	}
 	else if(Data.ScndObjType == PPOBJ_PERSON) {
-		disableCtrl(CTLSEL_NOBJASSC_SCNDGRP, 0);
+		disableCtrl(CTLSEL_NOBJASSC_SCNDGRP, false);
 		SetupPPObjCombo(this, CTLSEL_NOBJASSC_SCNDGRP, PPOBJ_PERSONKIND, Data.ScndObjGrp, 0, 0);
 	}
 	else

@@ -2557,7 +2557,7 @@ int GoodsCore::AssignGoodsToGen(PPID goodsID, PPID genID, int abbr, int use_ta)
 			THROW_PP(id == genID, PPERR_TOOGENGOODS);
 		}
 		else {
-			MEMSZERO(assc_rec);
+			assc_rec.Clear();
 			assc_rec.AsscType  = PPASS_GENGOODS;
 			assc_rec.PrmrObjID = genID;
 			assc_rec.ScndObjID = goodsID;

@@ -1065,6 +1065,28 @@ SPoint2F SPoint2F::Scale(float factor)
 	return *this;
 }
 
+float & FASTCALL SPoint2F::operator[](size_t idx)
+{ 
+	switch(idx) {
+		case 0: return x;
+		case 1: return y;
+		default:
+			assert(oneof2(idx, 0, 1));
+			return x;
+	}
+}
+
+float FASTCALL SPoint2F::operator[](size_t idx) const 
+{ 
+	switch(idx) {
+		case 0: return x;
+		case 1: return y;
+		default:
+			assert(oneof2(idx, 0, 1));
+			return 0.0f;
+	}
+}
+
 bool   FASTCALL SPoint2F::operator == (const SPoint2F & rS) const { return IsEq(rS); } // @v10.9.10
 bool   FASTCALL SPoint2F::operator != (const SPoint2F & rS) const { return !IsEq(rS); } // @v10.9.10
 bool   FASTCALL SPoint2F::IsEq(const SPoint2F & rS) const { return (x == rS.x && y == rS.y); } // @v10.9.10

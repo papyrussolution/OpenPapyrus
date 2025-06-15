@@ -1618,11 +1618,11 @@ int PPObjSCardSeries::Edit(PPID * pID, void * extraPtr)
 			if(Data.QuotKindList_.getCount() > 1) {
 				setCtrlLong(CTLSEL_SCARDSER_QUOTKIND, Data.Rec.QuotKindID_s = 0);
 				SetComboBoxListText(this, CTLSEL_SCARDSER_QUOTKIND);
-				disableCtrl(CTLSEL_SCARDSER_QUOTKIND, 1);
+				disableCtrl(CTLSEL_SCARDSER_QUOTKIND, true);
 				Data.Rec.QuotKindID_s = 0;
 			}
 			else {
-				disableCtrl(CTLSEL_SCARDSER_QUOTKIND, 0);
+				disableCtrl(CTLSEL_SCARDSER_QUOTKIND, false);
 				if(Data.QuotKindList_.getCount() == 1)
 					setCtrlLong(CTLSEL_SCARDSER_QUOTKIND, Data.Rec.QuotKindID_s = Data.QuotKindList_.get(0));
 				else if(byList)

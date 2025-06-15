@@ -5744,7 +5744,7 @@ PPID PrcssrMarketplaceInterchange::Helper_GetMarketplaceOpsAccSheetID(bool creat
 						const int snr = ArObj.P_Tbl->SearchNum(acs_id, ar_n, &ar_rec);
 						if(snr < 0) {
 							PPID new_id = 0;
-							MEMSZERO(ar_rec);
+							ar_rec.Clear();
 							ar_rec.Article = ar_n;
 							ar_rec.ObjID = ar_n;
 							ar_rec.AccSheetID = acs_id;

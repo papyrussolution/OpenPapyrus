@@ -803,7 +803,7 @@ int PPObjSmsAccount::Edit(PPID * pID, void * extraPtr)
 			setCtrlData(CTL_SMSACC_NAME, Data.Rec.Name);
 			setCtrlData(CTL_SMSACC_SYMB, Data.Rec.Symb);
 			setCtrlLong(CTL_SMSACC_ID, Data.Rec.ID);
-			disableCtrl(CTL_SMSACC_ID, 1);
+			disableCtrl(CTL_SMSACC_ID, true);
 			SetExtStrData(&Data, CTL_SMSACC_HOST, SMEXTSTR_HOST);
 			setCtrlLong(CTL_SMSACC_PORT, Data.Rec.ServerPort);
 			SetExtStrData(&Data, CTL_SMSACC_SYSTEMID, SMEXTSTR_SYSTEMID);
@@ -2519,7 +2519,7 @@ int VerifyPhoneNumberBySms(const char * pNumber, const char * pAddendum, uint * 
             setCtrlLong(CTL_VERIFMPHN_CCODE, (long)Data.CheckCode);
             Data.SendSmsStatus = -1;
 			if(CheckCodeInputOnly) {
-				disableCtrl(CTL_VERIFMPHN_PHONE, 1);
+				disableCtrl(CTL_VERIFMPHN_PHONE, true);
 				selectCtrl(CTL_VERIFMPHN_CCODE);
 				enableCommand(cmSendSms, 0);
 			}

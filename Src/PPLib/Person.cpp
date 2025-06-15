@@ -330,7 +330,7 @@ public:
 		setCtrlData(CTL_PSNRELTYPE_NAME, Data.Rec.Name);
 		setCtrlData(CTL_PSNRELTYPE_SYMB, Data.Rec.Symb);
 		setCtrlData(CTL_PSNRELTYPE_ID, &Data.Rec.ID);
-		disableCtrl(CTL_PSNRELTYPE_ID, 1);
+		disableCtrl(CTL_PSNRELTYPE_ID, true);
 
 		AddClusterAssoc(CTL_PSNRELTYPE_FLAGS, 0, PPPersonRelType::fInhAddr);
 		AddClusterAssoc(CTL_PSNRELTYPE_FLAGS, 1, PPPersonRelType::fInhRAddr);

@@ -438,7 +438,7 @@ public:
 		CycleCtrlGroup * p_cycle_grp = new CycleCtrlGroup(CTLSEL_BUDGET_CYCLE, 0, 0);
 		addGroup(GRP_CYCLE, p_cycle_grp);
 		SetupCalPeriod(CTLCAL_BUDGET_PERIOD, CTL_BUDGET_PERIOD);
-		disableCtrl(CTL_BUDGET_ID, 1);
+		disableCtrl(CTL_BUDGET_ID, true);
 	}
 	DECL_DIALOG_SETDTS()
 	{
@@ -635,11 +635,10 @@ int BudgetItemDialog::setDTS(const BudgetItemTbl::Rec * pData)
 	setCtrlData(CTL_BUDGITEM_AMOUNT,  &Data.Amount);
 	setCtrlData(CTL_BUDGITEM_MEMO,    Data.Memo);
 	disableCtrls(Data.ID, CTL_BUDGITEM_KIND, CTLSEL_BUDGITEM_ACCT, 0L);
-	disableCtrl(CTLSEL_BUDGITEM_BUDGET, 1);
+	disableCtrl(CTLSEL_BUDGITEM_BUDGET, true);
 	{
-		int disable_dt = 0;
 		PPBudget budg_rec;
-		disable_dt = BIN(Data.ID || P_Obj && P_Obj->Search(Data.BudgetID, &budg_rec) > 0 && budg_rec.Cycle != 1);
+		const bool disable_dt = (Data.ID || P_Obj && P_Obj->Search(Data.BudgetID, &budg_rec) > 0 && budg_rec.Cycle != 1);
 		disableCtrl(CTL_BUDGITEM_DT, disable_dt);
 		::ShowWindow(::GetDlgItem(H(), CTLCAL_BUDGITEM_DT), BIN(disable_dt == 0) ? SW_SHOW : SW_HIDE);
 	}
@@ -789,7 +788,7 @@ int BudgetItemsDialog::setDTS(const BudgetItemsList * pData)
 	AddClusterAssocDef(CTL_BUDGITEM_KIND, 0, 0);
 	AddClusterAssoc(CTL_BUDGITEM_KIND, 1, 1);
 	SetClusterData(CTL_BUDGITEM_KIND, rec.Kind);
-	disableCtrl(CTLSEL_BUDGITEM_BUDGET, 1);
+	disableCtrl(CTLSEL_BUDGITEM_BUDGET, true);
 	if(rec.Acc == 0)
 		sel = CTL_BUDGITEM_ACCT;
 	else

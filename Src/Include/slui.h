@@ -762,7 +762,8 @@ public:
 	float  ShrinkFactor;   //
 	float  Basis;          //
 	float  AspectRatio;    // {0.0} Отношение высоты к ширине. Используется в случае, если одна из размерностей не определена
-	uint8  Reserve2[32];   // @v12.3.2
+	SPoint2F MinSize;      // @v12.3.6 Минимальные размеры лейаута по ширине и высоте. Если значение в какой-то координате <= 0.0f, то значит в этом измерении ограничения нет
+	uint8  Reserve2[24];   // @v12.3.2 // @v12.3.6 [32]-->[24]
 private:
 	int    ParseSizeStr(const SString & rStr, float & rS) const;
 };
@@ -2867,6 +2868,11 @@ public:
 	int    InsertCtlWithCorrespondingNativeItem(TView * pCtl, uint id, const char * pSymb, void * extraPtr);
 	HWND   GetPrevInStackWindowHandle() const { return PrevInStack; }
 	void   SetPrevInStackWindowHandle(HWND h) { PrevInStack = h; }
+	//
+	// Descr: Устанавливает дополнительный суффикс для символа окна, используемого в качестве ключа
+	//   для сохранения пользовательских параметров окна.
+	//
+	bool   SetStorableUserParamsSymbSuffix(const char * pSufix);
 	//
 	//
 	//

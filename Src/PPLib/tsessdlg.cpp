@@ -5,21 +5,21 @@
 #include <pp.h>
 #pragma hdrstop
 
-static const int _TSesStatusTab[] = { TSESST_PLANNED, TSESST_PENDING, TSESST_INPROCESS, TSESST_CLOSED, TSESST_CANCELED };
+static constexpr int _TSesStatusTab[] = { TSESST_PLANNED, TSESST_PENDING, TSESST_INPROCESS, TSESST_CLOSED, TSESST_CANCELED };
 
-PrcTechCtrlGroup::Rec::Rec() : PrcID(0), PrcParentID(0), TechID(0), ArID(0), Ar2ID(0), IdleStatus(0)
+PrcTechCtrlGroup::Rec::Rec() : PrcID(0), PrcParentID(0), TechID(0), ArID(0), Ar2ID(0), IdleStatus(false)
 {
 }
 
 PrcTechCtrlGroup::PrcTechCtrlGroup(uint ctlSelPrc, uint ctlSelTech, uint ctlStGoods,
 	uint ctlSelAr, uint ctlSelAr2, uint cmdSelTechByGoods, uint cmdCreateGoods) : CtrlGroup(), CtlselPrc(ctlSelPrc), CtlselTech(ctlSelTech), 
 	CtlStGoods(ctlStGoods), CtlselAr(ctlSelAr), CtlselAr2(ctlSelAr2), CmdSelTechByGoods(cmdSelTechByGoods), CmdCreateGoods(cmdCreateGoods),
-	SelGoodsID(0), AutoGoodsGrpID(0), IdleStatus(0), Flags(0)
+	SelGoodsID(0), AutoGoodsGrpID(0), IdleStatus(false), Flags(0)
 {
 	Flags |= fEnablePrcSelUpLevel;
 }
 
-void PrcTechCtrlGroup::setIdleStatus(TDialog * pDlg, int s)
+void PrcTechCtrlGroup::setIdleStatus(TDialog * pDlg, bool s)
 {
 	if(IdleStatus != s) {
 		IdleStatus = s;
@@ -39,13 +39,13 @@ void PrcTechCtrlGroup::setupArticle(TDialog * pDlg, const ProcessorTbl::Rec * pP
 	PPOprKind op_rec;
 	GetOpData(pPrcRec->WrOffOpID, &op_rec);
 	SetupArCombo(pDlg, CtlselAr, Data.ArID, OLW_LOADDEFONOPEN|OLW_CANINSERT, op_rec.AccSheetID, sacfDisableIfZeroSheet);
-	int    was_idle_sheet_set = 0;
+	bool   was_idle_sheet_set = false;
 	if(IdleStatus) {
 		PPTSessConfig cfg;
 		PPObjTSession::ReadConfig(&cfg);
 		if(cfg.IdleAccSheetID) {
 			SetupArCombo(pDlg, CtlselAr2, Data.Ar2ID, OLW_LOADDEFONOPEN|OLW_CANINSERT, cfg.IdleAccSheetID, sacfDisableIfZeroSheet);
-			was_idle_sheet_set = 1;
+			was_idle_sheet_set = true;
 		}
 	}
 	if(!was_idle_sheet_set) {
@@ -63,17 +63,18 @@ void PrcTechCtrlGroup::setupArticle(TDialog * pDlg, const ProcessorTbl::Rec * pP
 void PrcTechCtrlGroup::onPrcSelection(TDialog * pDlg, int onIdleStatus)
 {
 	PPObjProcessor prc_obj;
-	ProcessorTbl::Rec prev_prc_rec, prc_rec;
+	ProcessorTbl::Rec prev_prc_rec;
 	if(prc_obj.GetRecWithInheritance(Data.PrcID, &prev_prc_rec, 1) <= 0)
-		MEMSZERO(prev_prc_rec);
+		prev_prc_rec.Clear();
 	if(onIdleStatus) {
 		setupArticle(pDlg, &prev_prc_rec);
 	}
 	else {
 		pDlg->getCtrlData(CtlselPrc, &Data.PrcID);
 		if(Data.PrcID != prev_prc_rec.ID) {
+			ProcessorTbl::Rec prc_rec;
 			if(prc_obj.GetRecWithInheritance(Data.PrcID, &prc_rec, 1) <= 0)
-				MEMSZERO(prc_rec);
+				prc_rec.Clear();
 			if(SelGoodsID) {
 				TecObj.CreateAutoTech(Data.PrcID, SelGoodsID, 0, 1);
 				PPObjTech::SetupCombo(pDlg, CtlselTech, Data.TechID, GetTechComboOlwFlags(), Data.PrcID, SelGoodsID);
@@ -92,7 +93,7 @@ void PrcTechCtrlGroup::selTechByGoods(TDialog * pDlg)
 {
 	const  PPID prc_id = pDlg->getCtrlLong(CtlselPrc);
 	if(prc_id) {
-		long   egsd_flags = ExtGoodsSelDialog::GetDefaultFlags(); // @v10.7.7
+		const long egsd_flags = ExtGoodsSelDialog::GetDefaultFlags();
 		ExtGoodsSelDialog * dlg = new ExtGoodsSelDialog(0, 0, egsd_flags);
 		if(CheckDialogPtrErr(&dlg)) {
 			PPIDArray goods_id_list;
@@ -1156,7 +1157,7 @@ IMPL_HANDLE_EVENT(TSessionDialog)
 		else if(event.isClusterClk(CTL_TSESS_IDLE)) {
 			GetClusterData(CTL_TSESS_IDLE, &Data.Rec.Flags);
 			PrcTechCtrlGroup * p_grp = static_cast<PrcTechCtrlGroup *>(getGroup(ctlgroupPrcTech));
-			CALLPTRMEMB(p_grp, setIdleStatus(this, BIN(Data.Rec.Flags & TSESF_IDLE)));
+			CALLPTRMEMB(p_grp, setIdleStatus(this, LOGIC(Data.Rec.Flags & TSESF_IDLE)));
 			SetupCCheckButton();
 		}
 		else if(event.isCbSelected(CTLSEL_TSESS_PRC)) {
@@ -1432,7 +1433,7 @@ int TSessionDialog::setDTS(const TSessionPacket * pData)
 		ptcg_rec.TechID = Data.Rec.TechID;
 		ptcg_rec.ArID   = Data.Rec.ArID;
 		ptcg_rec.Ar2ID  = Data.Rec.Ar2ID;
-		ptcg_rec.IdleStatus = BIN(Data.Rec.Flags & TSESF_IDLE);
+		ptcg_rec.IdleStatus = LOGIC(Data.Rec.Flags & TSESF_IDLE);
 	}
 	{
 		PrcTechCtrlGroup * p_grp = static_cast<PrcTechCtrlGroup *>(getGroup(ctlgroupPrcTech));
@@ -1661,7 +1662,7 @@ public:
 		setCtrlReal(CTL_TSESSLN_INDEPPHQTTY, Data.WtQtty);
 		SetupPricing(0);
 		setCtrlData(CTL_TSESSLN_SERIAL, Data.Serial);
-		disableCtrl(CTL_TSESSLN_SERIAL, 1);
+		disableCtrl(CTL_TSESSLN_SERIAL, true);
 		disableCtrl(CTL_TSESSLN_SIGN, Data.OprNo != 0);
 		disableCtrl(CTL_TSESSLN_FLAG_REST, Data.OprNo != 0);
 		if(Data.GoodsID)

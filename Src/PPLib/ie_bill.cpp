@@ -1737,7 +1737,7 @@ int PPBillImpExpBaseProcessBlock::Select(int import)
 					disableCtrls((P_Data->Flags & (PPBillImpExpBaseProcessBlock::fUhttImport|
 						PPBillImpExpBaseProcessBlock::fEgaisImpExp|PPBillImpExpBaseProcessBlock::fChZnImpExp)), CTLSEL_IEBILLSEL_BILL, CTLSEL_IEBILLSEL_BROW, 0L);
 					if(P_Data->Flags & (PPBillImpExpBaseProcessBlock::fEdiImpExp|PPBillImpExpBaseProcessBlock::fPaymOrdersExp))
-						disableCtrl(CTLSEL_IEBILLSEL_BROW, 1);
+						disableCtrl(CTLSEL_IEBILLSEL_BROW, true);
 					disableCtrls((P_Data->Flags & PPBillImpExpBaseProcessBlock::fEgaisImpExp), CTLSEL_IEBILLSEL_OP, 0L);
 					DisableClusterItem(CTL_IEBILLSEL_FLAGS, 2, !(P_Data->Flags & PPBillImpExpBaseProcessBlock::fEgaisImpExp));
 					if(SetupControlsForEdi() > 0) {

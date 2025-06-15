@@ -126,11 +126,11 @@ int PPViewCheckOpJrnl::EditBaseFilt(PPBaseFilt * pBaseFilt)
 			SetupStrAssocCombo(this, CTLSEL_CHKOPJFILT_ACTION, ActionList, 0, 0);
 			if(Data.ActionIDList.isList()) {
 				SetComboBoxListText(this, CTLSEL_CHKOPJFILT_ACTION);
-				disableCtrl(CTLSEL_CHKOPJFILT_ACTION, 1);
+				disableCtrl(CTLSEL_CHKOPJFILT_ACTION, true);
 			}
 			else {
 				setCtrlLong(CTLSEL_CHKOPJFILT_ACTION, Data.ActionIDList.getSingle());
-				disableCtrl(CTLSEL_CHKOPJFILT_ACTION, 0);
+				disableCtrl(CTLSEL_CHKOPJFILT_ACTION, false);
 			}
 			SetupArCombo(this, CTLSEL_CHKOPJFILT_AGENT, Data.AgentID, OLW_LOADDEFONOPEN, GetAgentAccSheet(), sacfDisableIfZeroSheet);
 			return 1;
@@ -159,11 +159,11 @@ int PPViewCheckOpJrnl::EditBaseFilt(PPBaseFilt * pBaseFilt)
 				if(ListToListDialog(&data) > 0) {
 					if(Data.ActionIDList.isList()) {
 						SetComboBoxListText(this, CTLSEL_CHKOPJFILT_ACTION);
-						disableCtrl(CTLSEL_CHKOPJFILT_ACTION, 1);
+						disableCtrl(CTLSEL_CHKOPJFILT_ACTION, true);
 					}
 					else {
 						setCtrlLong(CTLSEL_CHKOPJFILT_ACTION, Data.ActionIDList.getSingle());
-						disableCtrl(CTLSEL_CHKOPJFILT_ACTION, 0);
+						disableCtrl(CTLSEL_CHKOPJFILT_ACTION, false);
 					}
 				}
 			}

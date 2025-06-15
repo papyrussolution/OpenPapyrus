@@ -867,7 +867,7 @@ static void TextMakeFont(TW * lptw)
 	lf.lfOutPrecision = OUT_OUTLINE_PRECIS;
 	lf.lfClipPrecision = CLIP_DEFAULT_PRECIS;
 	/* ClearType quality is only supported on XP or later */
-	lf.lfQuality = IsWindowsXPorLater() ? CLEARTYPE_QUALITY : PROOF_QUALITY;
+	lf.lfQuality = ::IsWindowsXPOrGreater() ? CLEARTYPE_QUALITY : PROOF_QUALITY;
 	lf.lfCharSet = DEFAULT_CHARSET;
 	if((p = _tcsstr(lptw->fontname, TEXT(" Italic"))) != NULL) {
 		lf.lfFaceName[(uint)(p - lptw->fontname)] = '\0';

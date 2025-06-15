@@ -188,7 +188,7 @@ int PPObjCSession::Edit(PPID * pID, void * extraPtr)
 	dlg->setCtrlData(CTL_CSESS_SUPERSESSID, &rec.SuperSessID);
 	GetObjectName(PPOBJ_CSESSION, rec.SuperSessID, super_sess_text);
 	dlg->setCtrlString(CTL_CSESS_SUPERSESSTEXT, super_sess_text);
-	dlg->disableCtrl(CTL_CSESS_SUPERSESSTEXT, 1);
+	dlg->disableCtrl(CTL_CSESS_SUPERSESSTEXT, true);
 	dlg->setCtrlData(CTL_CSESS_NUMBER, &rec.SessNumber);
 	dlg->SetupCalDate(CTLCAL_CSESS_DATE, CTL_CSESS_DATE);
 	dlg->setCtrlData(CTL_CSESS_DATE, &rec.Dt);
@@ -199,7 +199,7 @@ int PPObjCSession::Edit(PPID * pID, void * extraPtr)
 	dlg->AddClusterAssocDef(CTL_CSESS_INCOMPL,  2, CSESSINCMPL_CHECKS);
 	dlg->SetClusterData(CTL_CSESS_INCOMPL, rec.Incomplete);
 	dlg->setCtrlUInt16(CTL_CSESS_TEMP, BIN(rec.Temporary));
-	dlg->disableCtrl(CTL_CSESS_ID, 1);
+	dlg->disableCtrl(CTL_CSESS_ID, true);
 	for(valid_data = 0; !valid_data && ExecView(dlg) == cmOK;) {
 		dlg->getCtrlData(CTL_CSESS_ID, &rec.ID);
 		dlg->getCtrlData(CTL_CSESS_SUPERSESSID, &rec.SuperSessID);

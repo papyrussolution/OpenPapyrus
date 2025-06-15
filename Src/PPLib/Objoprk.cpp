@@ -1609,7 +1609,7 @@ static int EditGenOpItem(ObjRestrictItem * pItem)
 			fl |= OPKLF_SHOWPASSIVE;
 		SetupOprKindCombo(dlg, CTLSEL_GENOPITEM_OP, pItem->ObjID, 0, &optype_list, fl);
 		if(pItem->ObjID) {
-			dlg->disableCtrl(CTLSEL_GENOPITEM_OP, 1);
+			dlg->disableCtrl(CTLSEL_GENOPITEM_OP, true);
 			dlg->selectCtrl(CTL_GENOPITEM_FLAGS);
 		}
 		dlg->AddClusterAssoc(CTL_GENOPITEM_FLAGS, 0, GOIF_NEGATIVE);
@@ -1833,14 +1833,18 @@ void OprKindDialog::prnOptDialog()
 //
 void OprKindDialog::editOptions2(uint dlgID, int useMainAmt, const PPIDArray * pSubTypeList, PPIDArray * pFlagsList, PPIDArray * pExtFlagsList)
 {
-	PPIDArray options, ext_options;
+	PPIDArray options;
+	PPIDArray ext_options;
 	int    valid_data = 0;
 	uint   i;
 	int    warn_noupdlotrestflagdisabled = 0;
 	ushort v = 0;
-	long   s, b, f = P_Data->Rec.Flags;
+	long   s;
+	long   b;
+	long   f = P_Data->Rec.Flags;
 	long   ext_f = P_Data->Rec.ExtFlags;
-	ulong  o, ext_o;
+	ulong  o;
+	ulong  ext_o;
 	TDialog * dlg = 0;
 	SString memo_tmpl;
 	SString obj2name;
@@ -2063,7 +2067,9 @@ void OprKindDialog::moreDialog()
 				break;
 			case PPOPT_PAYMENT:
 				options_list.addzlist(OPKF_PROFITABLE, OPKF_AUTOWL, OPKF_BANKING, OPKF_ATTACHFILES, 0L);
-				ext_options_list.addzlist(OPKFX_PAYMENT_CASH, OPKFX_PAYMENT_NONCASH, 0L); //@erik v10.5.9
+				// @attention: опции OPKFX_PAYMENT_CASH и OPKFX_PAYMENT_NONCASH обрабатываются специальным образом и
+				// должны быть строго в конце списка!
+				ext_options_list.addzlist(OPKFX_SETCTXAGENT, OPKFX_PAYMENT_CASH, OPKFX_PAYMENT_NONCASH, 0L); //@erik v10.5.9 // @v12.3.6 OPKFX_SETCTXAGENT
 				editOptions2(DLG_OPKMORE_PAY, 0, 0, &options_list, &ext_options_list);
 				break;
 			case PPOPT_CHARGE:

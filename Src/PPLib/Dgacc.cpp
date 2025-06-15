@@ -287,11 +287,11 @@ void ArticleCtrlGroup::SetupAccSheet(TDialog * pDlg)
 	SetupArCombo(pDlg, CtlselAr, single_id, flags, Data.AcsID, sacf);
 	if(Data.ArList.GetCount() > 1) {
 		SetComboBoxListText(pDlg, CtlselAr);
-		pDlg->disableCtrl(CtlselAr, 1);
+		pDlg->disableCtrl(CtlselAr, true);
 	}
 	else {
 		pDlg->setCtrlLong(CtlselAr, single_id);
-		pDlg->disableCtrl(CtlselAr, 0);
+		pDlg->disableCtrl(CtlselAr, false);
 	}
 }
 
@@ -393,11 +393,11 @@ static int EditArList(TDialog * pDlg, uint ctlID, PPID accSheetID, ObjIdListFilt
 			pArList->Set(ary.getCount() ? &ary : 0);
 			if(pArList->GetCount() > 1) {
 				SetComboBoxListText(pDlg, ctlID);
-				pDlg->disableCtrl(ctlID, 1);
+				pDlg->disableCtrl(ctlID, true);
 			}
 			else {
 				pDlg->setCtrlLong(ctlID, pArList->GetSingle());
-				pDlg->disableCtrl(ctlID, 0);
+				pDlg->disableCtrl(ctlID, false);
 			}
 			ok = 1;
 		}
@@ -478,7 +478,7 @@ void CurAmtCtrlGroup::setupCurRate(TDialog * pDlg, int fromBase)
 	if(DateCID)
 		pDlg->getCtrlData(DateCID, &Data.CRateDate);
 	if(cur_id) {
-		pDlg->disableCtrl(CRateCID, 0);
+		pDlg->disableCtrl(CRateCID, false);
 		if(fromBase) {
 			if(!P_AL || P_AL->Get(PPAMT_CRATE, cur_id, &crate) <= 0)
 				BillObj->GetCurRate(cur_id, &Data.CRateDate, &crate);
@@ -490,7 +490,7 @@ void CurAmtCtrlGroup::setupCurRate(TDialog * pDlg, int fromBase)
 	}
 	else {
 		pDlg->setCtrlReal(CRateCID, crate);
-		pDlg->disableCtrl(CRateCID, 1);
+		pDlg->disableCtrl(CRateCID, true);
 	}
 	if(SelCRateCmd)
 		pDlg->enableCommand(SelCRateCmd, BIN(cur_id));
@@ -501,7 +501,7 @@ int CurAmtCtrlGroup::setData(TDialog * pDlg, void * pData)
 {
 	int    use_same_crate = 0;
 	Data = *static_cast<const Rec *>(pData);
-	pDlg->disableCtrl(BaseAmtCID, 1);
+	pDlg->disableCtrl(BaseAmtCID, true);
 	SetupCurrencyCombo(pDlg, CurSelCID, Data.CurID, 0, 1, 0);
 	pDlg->setCtrlData(AmtCID, &Data.Amount);
 	if(Data.CRate > 0.0) {

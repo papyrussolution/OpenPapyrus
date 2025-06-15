@@ -1051,7 +1051,7 @@ public:
 		}
 		setCtrlString(CTL_INVITEM_SERIAL, Serial);
 		setCtrlData(CTL_INVITEM_WROFFPRICE, &Data.WrOffPrice);
-		disableCtrl(CTL_INVITEM_WROFFPRICE, 1);
+		disableCtrl(CTL_INVITEM_WROFFPRICE, true);
 		return ok;
 	}
 	DECL_DIALOG_GETDTS()

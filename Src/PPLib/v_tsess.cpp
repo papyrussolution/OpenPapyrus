@@ -165,13 +165,13 @@ int PPViewTSession::EditBaseFilt(PPBaseFilt * pBaseFilt)
 				PrcTechCtrlGroup * p_grp = new PrcTechCtrlGroup(CTLSEL_TSESSFILT_PRC, CTLSEL_TSESSFILT_TECH,
  					CTL_TSESSFILT_ST_GOODS, CTLSEL_TSESSFILT_AR, CTLSEL_TSESSFILT_AR2, cmSelTechByGoods);
 				THROW_SL(p_grp);
-				p_grp->setIdleStatus(this, BIN(Data.Ft_Idle > 0));
+				p_grp->setIdleStatus(this, (Data.Ft_Idle > 0));
 				p_grp->enableTechSelUpLevel(true); // @v11.7.6
  				addGroup(ctlgroupPrcTech, p_grp);
 				ptcg_rec.TechID = Data.TechID;
 				ptcg_rec.ArID   = Data.ArID;
 				ptcg_rec.Ar2ID  = Data.Ar2ID;
-				ptcg_rec.IdleStatus = BIN(Data.Ft_Idle > 0);
+				ptcg_rec.IdleStatus = (Data.Ft_Idle > 0);
  				setGroupData(ctlgroupPrcTech, &ptcg_rec);
 			}
 			AddClusterAssocDef(CTL_TSESSFILT_STATUS, 0, (1 << TSESST_PLANNED));
@@ -247,7 +247,7 @@ int PPViewTSession::EditBaseFilt(PPBaseFilt * pBaseFilt)
 			if(event.isClusterClk(CTL_TSESSFILT_IDLE)) {
 				const long temp_long = GetClusterData(CTL_TSESSFILT_IDLE);
 				PrcTechCtrlGroup * p_grp = static_cast<PrcTechCtrlGroup *>(getGroup(ctlgroupPrcTech));
-				CALLPTRMEMB(p_grp, setIdleStatus(this, BIN(temp_long > 0)));
+				CALLPTRMEMB(p_grp, setIdleStatus(this, (temp_long > 0)));
 				clearEvent(event);
 			}
 		}

@@ -1562,6 +1562,7 @@ private:
 				PreserveObjType = obj_type;
 			}
 			else if(obj_type = PPOBJ_BIZSCORE2) { // @v12.3.6 PPOBJ_ARTICLE-->PPOBJ_BIZSCORE2
+				disableCtrl(CTLSEL_GSITEM_GGRP, true);
 				SetupPPObjCombo(this, CTLSEL_GSITEM_GOODS, PPOBJ_BIZSCORE2, Data.GoodsID, 0);
 				/* @v12.3.6 
 				CtrlGroup * p_ctlgrp_goods = getGroup(ctlgroupGoods);
@@ -1599,7 +1600,7 @@ class GSItemDialog : public TDialog {
 public:
 	GSItemDialog(const PPGoodsStruc * pStruc) : TDialog(DLG_GSITEM), P_Struc(pStruc), Price(0.0), NettBruttCoeff(0.0)
 	{
-		disableCtrl(CTL_GSITEM_PRICE, 1);
+		disableCtrl(CTL_GSITEM_PRICE, true);
 		addGroup(ctlgroupGoods, new GoodsCtrlGroup(CTLSEL_GSITEM_GGRP, CTLSEL_GSITEM_GOODS));
 		DisableClusterItem(CTL_GSITEM_UNITS, 3, (P_Struc->Rec.Flags & GSF_PARTITIAL) ? 0 : 1);
 	}
@@ -1617,12 +1618,12 @@ public:
 			if(p_main_item && p_main_item->GoodsID != Data.GoodsID && !(Data.Flags & GSIF_MAINITEM))
 				DisableClusterItem(CTL_GSITEM_FLAGS, 2, 1);
 			if(P_Struc->GetKind() != PPGoodsStruc::kGift) {
-				disableCtrl(CTL_GSITEM_GROUPONLY, 1);
+				disableCtrl(CTL_GSITEM_GROUPONLY, true);
 				Data.Flags &= ~GSIF_GOODSGROUP;
 			}
 		}
 		else
-			disableCtrl(CTL_GSITEM_GROUPONLY, 1);
+			disableCtrl(CTL_GSITEM_GROUPONLY, true);
 		setCtrlUInt16(CTL_GSITEM_GROUPONLY, BIN(Data.Flags & GSIF_GOODSGROUP));
 		if(Data.Flags & GSIF_GOODSGROUP) {
 			goods_sel_flags &= ~GoodsCtrlGroup::disableEmptyGoods;

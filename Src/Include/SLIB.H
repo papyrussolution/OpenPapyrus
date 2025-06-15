@@ -3928,29 +3928,10 @@ public:
 	bool   FASTCALL operator == (const SPoint2F & rS) const;
 	bool   FASTCALL operator != (const SPoint2F & rS) const;
 	//
-	// Следующие две имплементации operator[] нужны для замещения типа ImVec2
-	// в модуле ImGui
+	// Следующие две имплементации operator[] нужны для замещения типа ImVec2 в модуле ImGui
 	//
-	float & operator[](size_t idx)
-	{ 
-		switch(idx) {
-			case 0: return x;
-			case 1: return y;
-			default:
-				assert(oneof2(idx, 0, 1));
-				return x;
-		}
-	}
-	float operator[](size_t idx) const 
-	{ 
-		switch(idx) {
-			case 0: return x;
-			case 1: return y;
-			default:
-				assert(oneof2(idx, 0, 1));
-				return 0.0f;
-		}
-	}
+	float & FASTCALL operator[](size_t idx);
+	float  FASTCALL operator[](size_t idx) const;
 	bool   FASTCALL IsEq(const SPoint2F & rS) const;
 	bool   IsZero() const;
 	bool   IsPositive() const;

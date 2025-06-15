@@ -1238,11 +1238,11 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData, cons
 		void   SetupObjGroupCombo(PPID objType)
 		{
 			if(objType == PPOBJ_PERSON) {
-				disableCtrl(CTLSEL_STQCMD_OGR, 0);
+				disableCtrl(CTLSEL_STQCMD_OGR, false);
 				SetupPPObjCombo(this, CTLSEL_STQCMD_OGR, PPOBJ_PERSONKIND, Data.ObjGroupRestriction, 0);
 			}
 			else {
-				disableCtrl(CTLSEL_STQCMD_OGR, 1);
+				disableCtrl(CTLSEL_STQCMD_OGR, true);
 			}
 			SetupObjCombo();
 		}
@@ -1251,15 +1251,15 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData, cons
 			getCtrlData(CTLSEL_STQCMD_OTR, &Data.ObjTypeRestriction);
 			getCtrlData(CTLSEL_STQCMD_OGR, &Data.ObjGroupRestriction);
 			if(Data.ObjTypeRestriction == PPOBJ_PERSON) {
-				disableCtrl(CTLSEL_STQCMD_OIR, 0);
+				disableCtrl(CTLSEL_STQCMD_OIR, false);
 				SetupPersonCombo(this, CTLSEL_STQCMD_OIR, Data.ObjIdRestriction, 0, Data.ObjGroupRestriction, true);
 			}
 			else if(Data.ObjTypeRestriction == PPOBJ_USR) {
-				disableCtrl(CTLSEL_STQCMD_OIR, 0);
+				disableCtrl(CTLSEL_STQCMD_OIR, false);
 				SetupPPObjCombo(this, CTLSEL_STQCMD_OIR, PPOBJ_USR, Data.ObjIdRestriction, 0);
 			}
 			else
-				disableCtrl(CTLSEL_STQCMD_OIR, 1);
+				disableCtrl(CTLSEL_STQCMD_OIR, true);
 		}
 		bool AutomakeName(SString & rResult)
 		{

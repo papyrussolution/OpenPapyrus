@@ -22,7 +22,7 @@ public:
 		SetupOprKindCombo(this, CTLSEL_ALBTRCFG_OPKINDID, Data.Hdr.OpID, 0, &op_type_list, 0);
 		SetupPPObjCombo(this, CTLSEL_ALBTRCFG_MAILACC, PPOBJ_INTERNETACCOUNT, Data.Hdr.MailAccID, OLW_CANINSERT, reinterpret_cast<void *>(PPObjInternetAccount::filtfMail));
 		SetupPPObjCombo(this, CTLSEL_ALBTRCFG_SMSACC, PPOBJ_SMSPRVACCOUNT, Data.Hdr.SmsAccID, OLW_CANINSERT, 0);
-		disableCtrl(CTL_ALBTRCFG_UHTTURN, 1);
+		disableCtrl(CTL_ALBTRCFG_UHTTURN, true);
 		Data.GetExtStrData(ALBATROSEXSTR_UHTTURLPFX, temp_buf);
 		setCtrlString(CTL_ALBTRCFG_UHTTURLPFX, temp_buf/*Data.UhttUrlPrefix*/);
 		Data.GetExtStrData(ALBATROSEXSTR_UHTTACC, temp_buf);

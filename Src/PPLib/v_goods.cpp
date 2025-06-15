@@ -2153,7 +2153,7 @@ int PPViewGoods::RemoveAll()
 			int    disable_grp_combo = 0;
 			if(Data.Action == GoodsMoveParam::aChgMinStock) {
 				showButton(cmLocList, 1);
-				//disableCtrl(CTLSEL_REMOVEALL_GRP, 0);
+				//disableCtrl(CTLSEL_REMOVEALL_GRP, false);
 				p_title_meta = "warehouse";
 				PPLoadString("minrest", rule_label_buf);
 				addGroup(ctlgroupLoc, new LocationCtrlGroup(CTLSEL_REMOVEALL_GRP, 0, 0, cmLocList, 0, 0, 0));
