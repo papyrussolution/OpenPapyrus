@@ -67,6 +67,7 @@ int CommCfgDialog::getAcc(uint ctl, Acct * pAcc)
 int CommCfgDialog::editSysParams()
 {
 	class SysParamsDialog : public TDialog {
+		DECL_DIALOG_DATA(PPCommConfig);
 	public:
 		enum {
 			usehistobjBill   = 0x0001,
@@ -77,7 +78,7 @@ int CommCfgDialog::editSysParams()
 		SysParamsDialog() : TDialog(DLG_CCFGSYS)
 		{
 		}
-		int    setDTS(const  PPCommConfig * pData)
+		DECL_DIALOG_SETDTS()
 		{
 			RVALUEPTR(Data, pData);
 			setCtrlData(CTL_CCFGSYS_MAXGBLINES, &Data.MaxGoodsBillLines);
@@ -133,7 +134,7 @@ int CommCfgDialog::editSysParams()
 			}
 			return 1;
 		}
-		int    getDTS(PPCommConfig * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			getCtrlData(CTL_CCFGSYS_MAXGBLINES, &Data.MaxGoodsBillLines);
 			getCtrlData(CTL_CCFGSYS_FRRLDAYS,   &Data.FRRL_Days);
@@ -143,12 +144,9 @@ int CommCfgDialog::editSysParams()
 			getCtrlData(CTL_CCFGSYS_CSFWPRD,    &Data.CSessFwAsscPeriod);
 			GetClusterData(CTL_CCFGSYS_FLAGS, &Data.Flags);
 			Data.LcrUsage = (int16)GetClusterData(CTL_CCFGSYS_LCRUSAGE);
-			// @v10.1.5 {
 			GetClusterData(CTL_CCFGSYS_LCRV2, &Data.Flags2);
 			getCtrlData(CTL_CCFGSYS_LCRSINCE, &Data.LcrUsageSince);
-			// } @v10.1.5
 			GetClusterData(CTL_CCFGSYS_FLAGS2, &Data.Flags2);
-			// @v10.5.3 {
 			{
 				long   usehistobj = GetClusterData(CTL_CCFGSYS_OBJHISTF);
 				SETFLAG(Data.Flags, CCFLG_USEHISTBILL, usehistobj & usehistobjBill);
@@ -156,7 +154,6 @@ int CommCfgDialog::editSysParams()
 				SETFLAG(Data.Flags2, CCFLG2_USEHISTPERSON, usehistobj & usehistobjPerson);
 				SETFLAG(Data.Flags2, CCFLG2_USEHISTSCARD, usehistobj & usehistobjSCard);
 			}
-			// } @v10.5.3 
 			ASSIGN_PTR(pData, Data);
 			return 1;
 		}
@@ -179,7 +176,6 @@ int CommCfgDialog::editSysParams()
 				clearEvent(event);
 			}
 		}
-		PPCommConfig Data;
 	};
 	DIALOG_PROC_BODY(SysParamsDialog, &Data);
 }

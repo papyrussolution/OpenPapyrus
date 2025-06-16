@@ -1338,13 +1338,15 @@ IMPLEMENT_JOB_HDL_FACTORY(DBMAINTAIN);
 // Закрытие кассовых сессий
 //
 struct CashNodeParam {
-	CashNodeParam()
+	CashNodeParam() : CashNodeID(0)
 	{
-		Init();
+		Period.Z();
 	}
-	void Init()
+	CashNodeParam & Z()
 	{
-		THISZERO();
+		CashNodeID = 0;
+		Period.Z();
+		return *this;
 	}
 	int Read(SBuffer & rBuf, long)
 	{
@@ -1378,46 +1380,42 @@ public:
 	CashNodeDialog() : TDialog(DLG_SELCNODE)
 	{
 	}
-	int    setDTS(const CashNodeParam *);
-	int    getDTS(CashNodeParam *);
+	DECL_DIALOG_SETDTS()
+	{
+		int    ok = 1;
+		int    r = 1;
+		PPID   id = 0;
+		StrAssocArray node_list;
+		PPCashNode node;
+		PPObjCashNode cn_obj;
+		if(!RVALUEPTR(Data, pData))
+			Data.Z();
+		for(id = 0; (r = cn_obj.EnumItems(&id, &node)) > 0;) {
+			if(PPCashMachine::IsAsyncCMT(node.CashType)) {
+				THROW_SL(node_list.Add(id, node.Name));
+			}
+		}
+		THROW(r);
+		SetupStrAssocCombo(this, CTLSEL_SELCNODE_CNODE, node_list, Data.CashNodeID, 0);
+		SetPeriod();
+		CATCHZOKPPERR
+		return ok;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		getCtrlData(CTLSEL_SELCNODE_CNODE, &Data.CashNodeID);
+		THROW_PP(Data.CashNodeID, PPERR_INVCASHNODEID);
+		THROW_PP(Data.CashNodeID != PPCMT_OKA500, PPERR_OKA500NOTSUPPORTED);
+		GetPeriod();
+		ASSIGN_PTR(pData, Data);
+		CATCHZOKPPERR
+		return ok;
+	}
 private:
 	int    GetPeriod();
 	int    SetPeriod();
 };
-
-int CashNodeDialog::setDTS(const CashNodeParam * pData)
-{
-	int    ok = 1;
-	int    r = 1;
-	PPID   id = 0;
-	StrAssocArray node_list;
-	PPCashNode node;
-	PPObjCashNode cn_obj;
-	if(!RVALUEPTR(Data, pData))
-		Data.Init();
-	for(id = 0; (r = cn_obj.EnumItems(&id, &node)) > 0;) {
-		if(PPCashMachine::IsAsyncCMT(node.CashType)) {
-			THROW_SL(node_list.Add(id, node.Name));
-		}
-	}
-	THROW(r);
-	SetupStrAssocCombo(this, CTLSEL_SELCNODE_CNODE, node_list, Data.CashNodeID, 0);
-	SetPeriod();
-	CATCHZOKPPERR
-	return ok;
-}
-
-int CashNodeDialog::getDTS(CashNodeParam * pData)
-{
-	int    ok = 1;
-	getCtrlData(CTLSEL_SELCNODE_CNODE, &Data.CashNodeID);
-	THROW_PP(Data.CashNodeID, PPERR_INVCASHNODEID);
-	THROW_PP(Data.CashNodeID != PPCMT_OKA500, PPERR_OKA500NOTSUPPORTED);
-	GetPeriod();
-	ASSIGN_PTR(pData, Data);
-	CATCHZOKPPERR
-	return ok;
-}
 
 int CashNodeDialog::SetPeriod()
 {

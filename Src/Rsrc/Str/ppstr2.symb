@@ -1,6 +1,6 @@
 
 [hash]
-base=ppstr2.txt,zAdw7wiJHYi6JMSsVMDL2ObnpzvKHgVTT6uwXup8i8g=,ppstr2.bin,yc7VlN9sribkPYweCEUaMUzjRjN/iyT1hALd2xoVlCs=
+base=ppstr2.txt,X7NvulUFpuDTYSHU1mFGbF+5tGExboXioEpjgzSOY7I=,ppstr2.bin,uGay+ov4TpOp/2Q2mXA1WkdmvReWk1zJYiS1tqTelrc=
 lang-de=ppstr2-de.txt,uiF+XJVJlyDjw7nInhf/AFcW9Tl0++UYflUahSBUK/Y=,ppstr2-de.bin,z5tTW3wrQRt4866sMd5LWX/oYCLHknIJxj6FbKYnSek=
 lang-en=ppstr2-en.txt,wNMuDQEJ8iXS8+Jpd9MAWdg8exLsMCYnqYI0euY1I0Y=,ppstr2-en.bin,5cMKdf3XAXJZe9nWJkS0b2yRiluKkMmBbOM4faM39TI=
 lang-es=ppstr2-es.txt,6DBYF21pt4umLyjG1Rx9bHiNzqHNfQg0oJPNpqQHaL8=,ppstr2-es.bin,jN0oN2zuyiQYf2BQ4rSZo9Fbb/rXRRQTRRg9UgDu54E=
@@ -11,7 +11,7 @@ java=ppstr2.java,1uuEuG+RS0WdFPYIjnT5ML56SFhItJu7lrPq5G3E39Q=
 
 [common]
 LastAutoGrpCode=1001
-LastSignatureCode=2147498992
+LastSignatureCode=2147498994
 LastAutoCodeList=1,12431;102,10179;103,10073;110,10000;111,13013;112,10000;119,10000;114,10012;7,10000;4,10000;6,10000;342,10000;118,10310;120,10010;1001,10000;121,10000;122,10000;123,10658;124,10795;125,10128
 
 [SignatureList]
@@ -547,8 +547,11 @@ addendum=2147484097
 value=2147484098
 value_pl=2147484099
 valuesign_s=2147484100
+evaluatedvalue=2147498993
+manualvalue=2147498994
 absolutevalue=2147484101
 defaultvalue=2147484102
+addendumvalue=2147485154
 usebydefault=2147484103
 difference=2147484104
 line=2147484105
@@ -1905,7 +1908,6 @@ addendumfields=2147485150
 addendumfieldstoload=2147485151
 addendumamount_pl=2147485152
 addendumoption_pl=2147485153
-addendumvalue=2147485154
 timeseries=2147485155
 timeseries_p=2147485156
 cafetable=2147485157

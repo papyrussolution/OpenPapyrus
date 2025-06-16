@@ -51848,39 +51848,6 @@ public:
 		kBizScore    = 8, // Бизнес-показатели
 		kMarketplace = 9, // @v12.1.6 Торговля через маркетплейс
 	};
-	/* @v12.1.6 (replaced with PPBZSI-constants)
-	enum {
-		subNone              =  0, //
-		subAmount            =  1, // "amount"    kBill, kPaym, kCCheck, kGoodsRest, kDebt, kBizScore
-		subCost              =  2, // "cost"      kBill, kPaym, kCCheck, kGoodsRest
-		subPrice             =  3, // "price"     kBill, kPaym, kCCheck, kGoodsRest
-		subDiscount          =  4, // "discount"  kBill, kCCheck
-		subNetPrice          =  5, // "netprice"  kBill, kPaym, kCCheck, kGoodsRest
-		subMargin            =  6, // "margin"    kBill, kPaym, kCCheck, kGoodsRest
-		subPctIncome         =  7, // "pctincome" kBill, kPaym, kCCheck, kGoodsRest
-		subPctMargin         =  8, // "pctmargin" kBill, kPaym, kCCheck, kGoodsRest
-		subCount             =  9, // "count"     kBill, kPaym, kCCheck, kGoodsRest, kPersonEvent, kDebt, kBizScore
-		subAverage           = 10, // "average"   kBizScore
-
-		subMpAcceptance           = 11, // @v12.1.6 Стоимость приемки товара на складе маркетплейса
-		subMpStorage              = 12, // @v12.1.6 Стоимость хранения товара на складе маркетплейса
-		subMpCommission           = 13, // @v12.1.6 Сумма комиссионного вознаграждения маркетплейса
-		subMpCommissionPct        = 14, // @v12.1.6 Процент комиссионного вознаграждения маркетплейса от суммы продажи
-		subMpSellersPart          = 15, // @v12.1.6 Сумма, перечисляемая маркетплейсом продавцу за проданный товар
-		subMpSellersPartPct       = 16, // @v12.1.6 Процент доли, перечисляемоей маркетплейсом продавцу за проданный товар, от суммы продажи
-		subMpAcquiring            = 17, // @v12.1.6 Стоимость экваринга на стороне маркетплейса, котороую маркетплейс переносит на поставщика 
-		subMpAcquiringPct         = 18, // @v12.1.6 Процент доли экваринга на стороне маркетплейса, котороую маркетплейс переносит на поставщика, от суммы продажи
-		subOrdCount               = 19, // "ordcount"  Количество документов заказа
-		subOrdQtty                = 20, // "ordqtty"   Заказанное количество торговых единиц  
-		subSaleCount              = 21, // "salecount" Количество документов продажи
-		subSaleQtty               = 22, // "saleqtty"  Проданное количество торговых единиц 
-		subOrdCancelledCount      = 23, // "ordcancelledcount" Количество заказоы которые были отменены
-		subOrdCancelledQtty       = 24, // "ordcancelledqtty"  Количество торговых единиц товара, заказы на которые были отменены
-		subOrdShipmDelayDaysAvg   = 25, // "ordshipmdelaydaysavg"   Средний период между заказом и продажей в днях
-		subOrdShipmDelayDaysMin   = 26, // "ordshipmdelaydaysmin"   Минимальный период между заказом и продажей в днях  
-		subOrdShipmDelayDaysMax   = 27, // "ordshipmdelaydaysmax"   Максимальный период между заказом и продажей в днях  
-		subSupplShipmDelayDaysAvg = 28, // "supplshipmdelaydaysavg" Средний период между поставкой и продажей в днях
-	};*/
 	enum {
 		subsubAverage      // "average"   kBill, kPaym, kCCheck, kGoodsRest
 	};
@@ -52105,7 +52072,6 @@ public:
 	//
 	int    Write(FILE *) const;
 	int    Read(FILE *);
-
 	int    Print(FILE *) const; // @debug
 private:
 	int    Push(const void * pSrc, size_t srcSize);
@@ -52252,7 +52218,7 @@ public:
 	int    SetPeriod(DateRange period);
 	int    SetActualDate(LDATE);
 	LDATE  GetActualDate() const;
-	int    SetCurArticle(long ar);
+	int    SetCurArticle(long arID);
 	long   GetCurArticle() const;
 	int    FASTCALL Log(const char * pMsg);
 	int    ReverseFormula(const char * pFormula, SString & rResult);
@@ -52262,7 +52228,7 @@ protected:
 	DL2_CI * Helper_Resolve(const DL2_Column * pCol, const DL2_CI * pCi);
 
 	DateRange CurPeriod;
-	long   CurAr;        // Номер аналитической статьи, используемый для подстановки вместо символа '*'
+	long   CurArID;      // Номер аналитической статьи, используемый для подстановки вместо символа '*'
 	long   Flags;
 	PPObjAccTurn AtObj;
 	PPObjPerson PsnObj;

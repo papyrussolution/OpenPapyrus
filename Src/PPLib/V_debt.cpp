@@ -1869,7 +1869,7 @@ int DebtTrnovrCycleDialog::embedChild()
 		DelayDialog * dlg = new DelayDialog;
 		if(CheckDialogPtrErr(&dlg)) {
 			Embed(dlg);
-			dlg->setData(&Data.Cf); // @v8.3.4
+			dlg->setData(&Data.Cf);
 		}
 		else
 			ok = 0;
@@ -1879,7 +1879,7 @@ int DebtTrnovrCycleDialog::embedChild()
 		CycleDialog * dlg = new CycleDialog(this, ctl_id);
 		if(CheckDialogPtrErr(&dlg)) {
 			Embed(dlg);
-			dlg->setData(&Data.Cf); // @v8.3.4
+			dlg->setData(&Data.Cf);
 		}
 		else
 			ok = 0;

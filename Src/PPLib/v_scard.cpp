@@ -1,5 +1,5 @@
 // V_SCARD.CPP
-// Copyright (c) A.Sobolev, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -914,6 +914,7 @@ int FASTCALL PPViewSCard::NextIteration(SCardViewItem * pItem)
 }
 
 class SCardFiltDialog : public TDialog {
+	DECL_DIALOG_DATA(SCardFilt);
 public:
 	SCardFiltDialog() : TDialog(DLG_SCARDFLT), LastFlagsState(0)
 	{
@@ -921,98 +922,93 @@ public:
 		SetupCalPeriod(CTLCAL_SCARDFLT_ISSUE, CTL_SCARDFLT_ISSUE);
 		SetupCalPeriod(CTLCAL_SCARDFLT_EXPIRY, CTL_SCARDFLT_EXPIRY);
 	}
-	int    setDTS(const SCardFilt *);
-	int    getDTS(SCardFilt *);
+	DECL_DIALOG_SETDTS()
+	{
+		if(!RVALUEPTR(Data, pData))
+			MEMSZERO(Data);
+		const double min_dis = R2(fdiv100r(Data.PDisR.low));
+		const double max_dis = R2(fdiv100r(Data.PDisR.upp));
+		SetupPPObjCombo(this, CTLSEL_SCARDFLT_SERIES, PPOBJ_SCARDSERIES, Data.SeriesID, 0);
+		SetupPPObjCombo(this, CTLSEL_SCARDFLT_EMPLOYER, PPOBJ_PERSON, Data.EmployerID, OLW_CANINSERT, reinterpret_cast<void *>(PPPRK_EMPLOYER));
+		SetupPerson(Data.SeriesID);
+		SetPeriodInput(this, CTL_SCARDFLT_ISSUE,  &Data.IssuePeriod);
+		SetPeriodInput(this, CTL_SCARDFLT_EXPIRY, &Data.ExpiryPeriod);
+		SetPeriodInput(this, CTL_SCARDFLT_TRNOVRPRD, &Data.TrnovrPeriod);
+		AddClusterAssoc(CTL_SCARDFLT_SINCE, 0, SCardFilt::fSinceLastPDisUpdating);
+		SetClusterData(CTL_SCARDFLT_SINCE, Data.Flags);
+		{
+			long   _f = 0;
+			if(Data.Ft_Closed < 0)
+				_f |= 0x01;
+			else if(Data.Ft_Closed > 0)
+				_f |= 0x02;
+			SETFLAG(_f, 0x04, (Data.Flags & SCardFilt::fShowOwnerAddrDetail));
+			SETFLAG(_f, 0x08, (Data.Flags & SCardFilt::fWithAddressOnly));
+			AddClusterAssoc(CTL_SCARDFLT_FLAGS, 0, 0x01);
+			AddClusterAssoc(CTL_SCARDFLT_FLAGS, 1, 0x02);
+			AddClusterAssoc(CTL_SCARDFLT_FLAGS, 2, 0x04);
+			AddClusterAssoc(CTL_SCARDFLT_FLAGS, 3, 0x08);
+			SetClusterData(CTL_SCARDFLT_FLAGS, _f);
+			DisableClusterItem(CTL_SCARDFLT_FLAGS, 3, !(_f & 0x04));
+			LastFlagsState = _f;
+		}
+		SetRealRangeInput(this, CTL_SCARDFLT_PDISRANGE,   min_dis, max_dis);
+		SetRealRangeInput(this, CTL_SCARDFLT_TRNOVRRANGE, &Data.TurnoverR);
+
+		AddClusterAssocDef(CTL_SCARDFLT_ORD,  0, PPViewSCard::OrdBySeries_Code);
+		AddClusterAssoc(CTL_SCARDFLT_ORD,  1, PPViewSCard::OrdByDiscount);
+		AddClusterAssoc(CTL_SCARDFLT_ORD,  2, PPViewSCard::OrdByTrnovr);
+		AddClusterAssoc(CTL_SCARDFLT_ORD,  3, PPViewSCard::OrdByPerson);
+		AddClusterAssoc(CTL_SCARDFLT_ORD,  4, PPViewSCard::OrdByExpiry);
+		SetClusterData(CTL_SCARDFLT_ORD, Data.Order);
+		setCtrlString(CTL_SCARDFLT_NUMBER, Data.Number);
+		AddClusterAssoc(CTL_SCARDFLT_WOOWNER, 0, SCardFilt::fWoOwner);
+		SetClusterData(CTL_SCARDFLT_WOOWNER, Data.Flags);
+		SetupCtrls();
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		double min_dis = R2(fdiv100r(Data.PDisR.low));
+		double max_dis = R2(fdiv100r(Data.PDisR.upp));
+		//long   v = 0;
+		getCtrlData(CTLSEL_SCARDFLT_SERIES,   &Data.SeriesID);
+		getCtrlData(CTLSEL_SCARDFLT_EMPLOYER, &Data.EmployerID);
+		getCtrlData(CTLSEL_SCARDFLT_PERSON,   &Data.PersonID);
+		GetPeriodInput(this, CTL_SCARDFLT_ISSUE,  &Data.IssuePeriod);
+		GetPeriodInput(this, CTL_SCARDFLT_EXPIRY, &Data.ExpiryPeriod);
+		GetPeriodInput(this, CTL_SCARDFLT_TRNOVRPRD, &Data.TrnovrPeriod);
+		GetClusterData(CTL_SCARDFLT_SINCE, &Data.Flags);
+		GetRealRangeInput(this, CTL_SCARDFLT_PDISRANGE, &min_dis, &max_dis);
+		Data.PDisR.Set(R0(min_dis * 100), R0(max_dis * 100));
+		GetRealRangeInput(this, CTL_SCARDFLT_TRNOVRRANGE, &Data.TurnoverR);
+		{
+			long   _f = 0;
+			GetClusterData(CTL_SCARDFLT_FLAGS, &_f);
+			if(_f & 0x01)
+				Data.Ft_Closed = -1;
+			else if(_f & 0x02)
+				Data.Ft_Closed = 1;
+			else
+				Data.Ft_Closed = 0;
+			SETFLAG(Data.Flags, SCardFilt::fShowOwnerAddrDetail, (_f & 0x04));
+			SETFLAG(Data.Flags, SCardFilt::fWithAddressOnly,     (_f & 0x08));
+		}
+		GetClusterData(CTL_SCARDFLT_ORD, &Data.Order);
+		getCtrlString(CTL_SCARDFLT_NUMBER, Data.Number);
+		GetClusterData(CTL_SCARDFLT_WOOWNER, &Data.Flags);
+		ASSIGN_PTR(pData, Data);
+		return ok;
+	}
 private:
 	DECL_HANDLE_EVENT;
 	void   SetupPerson(PPID series);
 	void   SetupCtrls();
 
 	long   LastFlagsState;
-	SCardFilt Data;
 	PPObjSCardSeries ObjSCardSer;
 };
-
-int SCardFiltDialog::setDTS(const SCardFilt * pData)
-{
-	if(!RVALUEPTR(Data, pData))
-		MEMSZERO(Data);
-	const double min_dis = R2(fdiv100r(Data.PDisR.low));
-	const double max_dis = R2(fdiv100r(Data.PDisR.upp));
-	SetupPPObjCombo(this, CTLSEL_SCARDFLT_SERIES, PPOBJ_SCARDSERIES, Data.SeriesID, 0);
-	SetupPPObjCombo(this, CTLSEL_SCARDFLT_EMPLOYER, PPOBJ_PERSON, Data.EmployerID, OLW_CANINSERT, reinterpret_cast<void *>(PPPRK_EMPLOYER));
-	SetupPerson(Data.SeriesID);
-	SetPeriodInput(this, CTL_SCARDFLT_ISSUE,  &Data.IssuePeriod);
-	SetPeriodInput(this, CTL_SCARDFLT_EXPIRY, &Data.ExpiryPeriod);
-	SetPeriodInput(this, CTL_SCARDFLT_TRNOVRPRD, &Data.TrnovrPeriod);
-	AddClusterAssoc(CTL_SCARDFLT_SINCE, 0, SCardFilt::fSinceLastPDisUpdating);
-	SetClusterData(CTL_SCARDFLT_SINCE, Data.Flags);
-	{
-		long   _f = 0;
-		if(Data.Ft_Closed < 0)
-			_f |= 0x01;
-		else if(Data.Ft_Closed > 0)
-			_f |= 0x02;
-		SETFLAG(_f, 0x04, (Data.Flags & SCardFilt::fShowOwnerAddrDetail));
-		SETFLAG(_f, 0x08, (Data.Flags & SCardFilt::fWithAddressOnly));
-		AddClusterAssoc(CTL_SCARDFLT_FLAGS, 0, 0x01);
-		AddClusterAssoc(CTL_SCARDFLT_FLAGS, 1, 0x02);
-		AddClusterAssoc(CTL_SCARDFLT_FLAGS, 2, 0x04);
-		AddClusterAssoc(CTL_SCARDFLT_FLAGS, 3, 0x08);
-		SetClusterData(CTL_SCARDFLT_FLAGS, _f);
-		DisableClusterItem(CTL_SCARDFLT_FLAGS, 3, !(_f & 0x04));
-		LastFlagsState = _f;
-	}
-	SetRealRangeInput(this, CTL_SCARDFLT_PDISRANGE,   min_dis, max_dis);
-	SetRealRangeInput(this, CTL_SCARDFLT_TRNOVRRANGE, &Data.TurnoverR);
-
-	AddClusterAssocDef(CTL_SCARDFLT_ORD,  0, PPViewSCard::OrdBySeries_Code);
-	AddClusterAssoc(CTL_SCARDFLT_ORD,  1, PPViewSCard::OrdByDiscount);
-	AddClusterAssoc(CTL_SCARDFLT_ORD,  2, PPViewSCard::OrdByTrnovr);
-	AddClusterAssoc(CTL_SCARDFLT_ORD,  3, PPViewSCard::OrdByPerson);
-	AddClusterAssoc(CTL_SCARDFLT_ORD,  4, PPViewSCard::OrdByExpiry);
-	SetClusterData(CTL_SCARDFLT_ORD, Data.Order);
-	setCtrlString(CTL_SCARDFLT_NUMBER, Data.Number);
-	AddClusterAssoc(CTL_SCARDFLT_WOOWNER, 0, SCardFilt::fWoOwner);
-	SetClusterData(CTL_SCARDFLT_WOOWNER, Data.Flags);
-	SetupCtrls();
-	return 1;
-}
-
-int SCardFiltDialog::getDTS(SCardFilt * pData)
-{
-	int    ok = 1;
-	double min_dis = R2(fdiv100r(Data.PDisR.low));
-	double max_dis = R2(fdiv100r(Data.PDisR.upp));
-	//long   v = 0;
-	getCtrlData(CTLSEL_SCARDFLT_SERIES,   &Data.SeriesID);
-	getCtrlData(CTLSEL_SCARDFLT_EMPLOYER, &Data.EmployerID);
-	getCtrlData(CTLSEL_SCARDFLT_PERSON,   &Data.PersonID);
-	GetPeriodInput(this, CTL_SCARDFLT_ISSUE,  &Data.IssuePeriod);
-	GetPeriodInput(this, CTL_SCARDFLT_EXPIRY, &Data.ExpiryPeriod);
-	GetPeriodInput(this, CTL_SCARDFLT_TRNOVRPRD, &Data.TrnovrPeriod);
-	GetClusterData(CTL_SCARDFLT_SINCE, &Data.Flags);
-	GetRealRangeInput(this, CTL_SCARDFLT_PDISRANGE, &min_dis, &max_dis);
-	Data.PDisR.Set(R0(min_dis * 100), R0(max_dis * 100));
-	GetRealRangeInput(this, CTL_SCARDFLT_TRNOVRRANGE, &Data.TurnoverR);
-	{
-		long   _f = 0;
-		GetClusterData(CTL_SCARDFLT_FLAGS, &_f);
-		if(_f & 0x01)
-			Data.Ft_Closed = -1;
-		else if(_f & 0x02)
-			Data.Ft_Closed = 1;
-		else
-			Data.Ft_Closed = 0;
-		SETFLAG(Data.Flags, SCardFilt::fShowOwnerAddrDetail, (_f & 0x04));
-		SETFLAG(Data.Flags, SCardFilt::fWithAddressOnly,     (_f & 0x08));
-	}
-	GetClusterData(CTL_SCARDFLT_ORD, &Data.Order);
-	getCtrlString(CTL_SCARDFLT_NUMBER, Data.Number);
-	GetClusterData(CTL_SCARDFLT_WOOWNER, &Data.Flags);
-	ASSIGN_PTR(pData, Data);
-	return ok;
-}
 
 IMPL_HANDLE_EVENT(SCardFiltDialog)
 {

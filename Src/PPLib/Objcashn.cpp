@@ -1996,11 +1996,12 @@ int PPObjCashNode::DiagnoseNode(const PPGenCashNode & rNode, StringSet & rSsResu
 int PPObjCashNode::EditGroup(PPGenCashNode * pGroup)
 {
 	class GroupCashNodeCfgDialog : public TDialog {
+		DECL_DIALOG_DATA(PPGenCashNode);
 	public:
 		GroupCashNodeCfgDialog() : TDialog(DLG_CASHNG)
 		{
 		}
-		int setDTS(const PPGenCashNode * pData)
+		DECL_DIALOG_SETDTS()
 		{
 			RVALUEPTR(Data, pData);
 			setCtrlData(CTL_CASHN_NAME, Data.Name);
@@ -2011,7 +2012,7 @@ int PPObjCashNode::EditGroup(PPGenCashNode * pGroup)
 			SetClusterData(CTL_CASHN_GRPFLAGS, Data.ExtFlags);
 			return 1;
 		}
-		int getDTS(PPGenCashNode * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
 			uint   sel = 0;
@@ -2030,8 +2031,6 @@ int PPObjCashNode::EditGroup(PPGenCashNode * pGroup)
 			CATCHZOKPPERRBYDLG
 			return ok;
 		}
-	private:
-		PPGenCashNode Data;
 	};
 	DIALOG_PROC_BODY(GroupCashNodeCfgDialog, pGroup);
 }

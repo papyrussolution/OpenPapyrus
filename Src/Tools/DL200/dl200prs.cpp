@@ -459,7 +459,7 @@ public:
 //
 //
 //
-DL2_Resolver::DL2_Resolver(long flags) : Flags(flags), ActualDate(ZERODATE), CurAr(-1)
+DL2_Resolver::DL2_Resolver(long flags) : Flags(flags), ActualDate(ZERODATE), CurArID(-1)
 {
 	SString buf;
 	PPLoadText(PPTXT_DL200_NAMEVARS, buf);
@@ -492,10 +492,8 @@ int DL2_Resolver::SetActualDate(LDATE actualDate)
 		return PPSetErrorSLib();
 }
 
-LDATE DL2_Resolver::GetActualDate() const
-{
-	return ActualDate;
-}
+LDATE DL2_Resolver::GetActualDate() const { return ActualDate; }
+long  DL2_Resolver::GetCurArticle() const { return CurArID; }
 
 int DL2_Resolver::SetPeriod(DateRange period)
 {
@@ -503,15 +501,10 @@ int DL2_Resolver::SetPeriod(DateRange period)
 	return 1;
 }
 
-int DL2_Resolver::SetCurArticle(long ar)
+int DL2_Resolver::SetCurArticle(long arID)
 {
-	CurAr = ar;
+	CurArID = arID;
 	return 1;
-}
-
-long DL2_Resolver::GetCurArticle() const
-{
-	return CurAr;
 }
 
 int DL2_Resolver::ResolveName(const char * pExpression, SString & rName)

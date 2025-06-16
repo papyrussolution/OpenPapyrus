@@ -26,7 +26,7 @@
 #ifdef HAVE_INTTYPES_H
 	#include <inttypes.h>
 #endif
-#include <unistd.h>
+// @v12.3.7 #include <unistd.h>
 #include <zbar.h>
 #include "thread.h"
 #include "event.h"

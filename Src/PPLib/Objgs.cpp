@@ -1474,7 +1474,7 @@ class GSPPItemDialog : public TDialog {
 public:
 	GSPPItemDialog(const PPGoodsStruc * pStruc) : TDialog(DLG_GSPPITEM), P_Struc(pStruc), PreserveObjType(0)
 	{
-		addGroup(ctlgroupGoods, new GoodsCtrlGroup(CTLSEL_GSITEM_GGRP, CTLSEL_GSITEM_GOODS));
+		//addGroup(ctlgroupGoods, new GoodsCtrlGroup(CTLSEL_GSITEM_GGRP, CTLSEL_GSITEM_GOODS));
 		// @v12.3.6 addGroup(ctlgroupArticle, new ArticleCtrlGroup(CTLSEL_GSITEM_GGRP, 0, CTLSEL_GSITEM_GOODS, 0, 0));
 	}
 	DECL_DIALOG_SETDTS()
@@ -1482,11 +1482,8 @@ public:
 		int    ok = 1;
 		SString temp_buf;
 		RVALUEPTR(Data, pData);
-		PreserveObjType = NZOR(Data.ObjType, PPOBJ_BIZSCORE2); // @v12.3.6 PPOBJ_ARTICLE-->PPOBJ_BIZSCORE2
-		AddClusterAssocDef(CTL_GSITEM_SELOBJTYPE, 0, PPOBJ_BIZSCORE2); // @v12.3.6 PPOBJ_ARTICLE-->PPOBJ_BIZSCORE2
-		AddClusterAssoc(CTL_GSITEM_SELOBJTYPE, 1, PPOBJ_GOODS);
-		SetClusterData(CTL_GSITEM_SELOBJTYPE, Data.ObjType);
-		SetupItemObject(true);
+		Data.ObjType = PPOBJ_BIZSCORE2;
+		SetupPPObjCombo(this, CTLSEL_GSITEM_BIZSCORE, PPOBJ_BIZSCORE2, Data.GoodsID, 0);
 		temp_buf = Data.Formula__;
 		setCtrlString(CTL_GSITEM_FORMULA, temp_buf);
 		return ok;
@@ -1496,31 +1493,9 @@ public:
 		int    ok = 1;
 		uint   sel = 0;
 		SString temp_buf;
-		PPID   obj_type = GetClusterData(sel = CTL_GSITEM_SELOBJTYPE);
-		THROW(oneof2(obj_type, PPOBJ_GOODS, PPOBJ_BIZSCORE2)); // @todo @err
-		if(obj_type == PPOBJ_GOODS) {
-			GoodsCtrlGroup::Rec rec;
-			getGroupData(ctlgroupGoods, &rec);
-			Data.ObjType = obj_type;
-			Data.GoodsID = rec.GoodsID;
-			Data.Flags &= ~GSIF_BIZSC2;
-			THROW(Data.GoodsID); // @todo @err
-		}
-		else if(obj_type == PPOBJ_BIZSCORE2) { // @v12.3.6 PPOBJ_ARTICLE-->PPOBJ_BIZSCORE2
-			// @v12.3.6 {
-			getCtrlData(CTLSEL_GSITEM_GOODS, &Data.GoodsID);
-			Data.Flags |= GSIF_BIZSC2;
-			// } @v12.3.6 
-			/*
-			ArticleCtrlGroup::Rec rec;
-			getGroupData(ctlgroupArticle, &rec);
-			Data.ObjType = obj_type;
-			// @v12.3.6 Data.AccSheetID = rec.AcsID;
-			Data.GoodsID = rec.ArList.GetSingle();
-			Data.Flags |= GSIF_BIZSC2;
-			THROW(Data.GoodsID); // @todo @err
-			*/
-		}
+		PPID   obj_type = PPOBJ_BIZSCORE2;
+		getCtrlData(CTLSEL_GSITEM_BIZSCORE, &Data.GoodsID);
+		Data.Flags |= GSIF_BIZSC2;
 		{
 			getCtrlString(sel = CTL_GSITEM_FORMULA, temp_buf);
 			// @todo THROW(temp_buf.NotEmptyS()); // @todo @err
@@ -1534,57 +1509,6 @@ private:
 	DECL_HANDLE_EVENT
 	{
 		TDialog::handleEvent(event);
-		if(event.isClusterClk(CTL_GSITEM_SELOBJTYPE)) {
-			SetupItemObject(false);
-		}
-		else
-			return;
-		clearEvent(event);
-	}
-	void SetupItemObject(bool onInit)
-	{
-		PPID obj_type = GetClusterData(CTL_GSITEM_SELOBJTYPE);
-		SETIFZ(obj_type, PPOBJ_BIZSCORE2); // @v12.3.6 PPOBJ_ARTICLE-->PPOBJ_BIZSCORE2
-		if(onInit || obj_type != PreserveObjType) {
-			if(obj_type == PPOBJ_GOODS) {
-				//SetupPPObjCombo(this, CTLSEL_GSITEM_GGRP, )
-				CtrlGroup * p_ctlgrp_goods = getGroup(ctlgroupGoods);
-				// @v12.3.6 CtrlGroup * p_ctlgrp_ar = getGroup(ctlgroupArticle);
-				CALLPTRMEMB(p_ctlgrp_goods, SetActive());
-				// @v12.3.6 CALLPTRMEMB(p_ctlgrp_ar, SetPassive());
-				{
-					GoodsCtrlGroup::Rec rec;
-					if(onInit) {
-						rec.GoodsID = Data.GoodsID;
-					}
-					setGroupData(ctlgroupGoods, &rec);
-				}
-				PreserveObjType = obj_type;
-			}
-			else if(obj_type = PPOBJ_BIZSCORE2) { // @v12.3.6 PPOBJ_ARTICLE-->PPOBJ_BIZSCORE2
-				disableCtrl(CTLSEL_GSITEM_GGRP, true);
-				SetupPPObjCombo(this, CTLSEL_GSITEM_GOODS, PPOBJ_BIZSCORE2, Data.GoodsID, 0);
-				/* @v12.3.6 
-				CtrlGroup * p_ctlgrp_goods = getGroup(ctlgroupGoods);
-				CtrlGroup * p_ctlgrp_ar = getGroup(ctlgroupArticle);
-				CALLPTRMEMB(p_ctlgrp_goods, SetPassive());
-				CALLPTRMEMB(p_ctlgrp_ar, SetActive());
-				{
-					ArticleCtrlGroup::Rec rec;
-					if(onInit) {
-						rec.AcsID = Data.AccSheetID;
-						rec.ArList.Add(Data.GoodsID);
-					}
-					setGroupData(ctlgroupArticle, &rec);
-				}
-				PreserveObjType = obj_type;
-				*/
-			}
-			else {
-				obj_type = PreserveObjType;
-				SetClusterData(CTL_GSITEM_SELOBJTYPE, obj_type);
-			}
-		}
 	}
 };
 

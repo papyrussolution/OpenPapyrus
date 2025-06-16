@@ -1404,45 +1404,41 @@ void PPViewPriceList::PreprocessBrowser(PPViewBrowser * pBrw)
 // PLineFiltDialog
 //
 class PLineFiltDialog : public TDialog {
+	DECL_DIALOG_DATA(PriceListFilt);
 public:
 	PLineFiltDialog() : TDialog(DLG_PLINEFLT)
 	{
 	}
-	int    setDTS(const PriceListFilt *);
-	int    getDTS(PriceListFilt *);
+	DECL_DIALOG_SETDTS()
+	{
+		int    ok = -1;
+		if(RVALUEPTR(Data, pData)) {
+			SetupPPObjCombo(this, CTLSEL_PLINEFLT_GGRP, PPOBJ_GOODSGROUP, Data.GoodsGrpID, OLW_CANSELUPLEVEL, 0);
+			if(Data.GrpIDList.IsExists()) {
+				SetComboBoxListText(this, CTLSEL_PLINEFLT_GGRP);
+				disableCtrl(CTLSEL_PLINEFLT_GGRP, true);
+			}
+			else
+				disableCtrl(CTLSEL_PLINEFLT_GGRP, false);
+			setCtrlUInt16(CTL_PLINEFLT_EXCLGGRP, BIN(Data.Flags & PLISTF_EXCLGGRP));
+			setCtrlUInt16(CTL_PLINEFLT_FLAGS, BIN(Data.Flags & PLISTF_PRESENTONLY));
+			ok = 1;
+		}
+		return ok;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		Data.ManufID = 0;
+		getCtrlData(CTLSEL_PLINEFLT_GGRP, &Data.GoodsGrpID);
+		SETFLAG(Data.Flags, PLISTF_PRESENTONLY, getCtrlUInt16(CTL_PLINEFLT_FLAGS));
+		SETFLAG(Data.Flags, PLISTF_EXCLGGRP,    getCtrlUInt16(CTL_PLINEFLT_EXCLGGRP));
+		ASSIGN_PTR(pData, Data);
+		return ok;
+	}
 private:
 	DECL_HANDLE_EVENT;
-	PriceListFilt Data;
 };
-
-int PLineFiltDialog::setDTS(const PriceListFilt * pFilt)
-{
-	int    ok = -1;
-	if(RVALUEPTR(Data, pFilt)) {
-		SetupPPObjCombo(this, CTLSEL_PLINEFLT_GGRP, PPOBJ_GOODSGROUP, Data.GoodsGrpID, OLW_CANSELUPLEVEL, 0);
-		if(Data.GrpIDList.IsExists()) {
-			SetComboBoxListText(this, CTLSEL_PLINEFLT_GGRP);
-			disableCtrl(CTLSEL_PLINEFLT_GGRP, true);
-		}
-		else
-			disableCtrl(CTLSEL_PLINEFLT_GGRP, false);
-		setCtrlUInt16(CTL_PLINEFLT_EXCLGGRP, BIN(Data.Flags & PLISTF_EXCLGGRP));
-		setCtrlUInt16(CTL_PLINEFLT_FLAGS, BIN(Data.Flags & PLISTF_PRESENTONLY));
-		ok = 1;
-	}
-	return ok;
-}
-
-int PLineFiltDialog::getDTS(PriceListFilt * pFilt)
-{
-	int    ok = 1;
-	Data.ManufID = 0;
-	getCtrlData(CTLSEL_PLINEFLT_GGRP, &Data.GoodsGrpID);
-	SETFLAG(Data.Flags, PLISTF_PRESENTONLY, getCtrlUInt16(CTL_PLINEFLT_FLAGS));
-	SETFLAG(Data.Flags, PLISTF_EXCLGGRP,    getCtrlUInt16(CTL_PLINEFLT_EXCLGGRP));
-	ASSIGN_PTR(pFilt, Data);
-	return ok;
-}
 
 IMPL_HANDLE_EVENT(PLineFiltDialog)
 {

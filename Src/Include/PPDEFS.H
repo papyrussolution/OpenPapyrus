@@ -4065,6 +4065,10 @@
 	#define CTL_GSITEM_GROUPONLY         (14 + WINDOWS_ID_BIAS)
 	#define CTL_GSITEM_NTBRTCOEF         (15 + WINDOWS_ID_BIAS)
 	#define CTL_GSITEM_SELOBJTYPE        (16 + WINDOWS_ID_BIAS) // @v12.0.6 radio-button выбора типа объекта для элемента планирования цены
+	#define CTL_GSITEM_BIZSCORE          (17 + WINDOWS_ID_BIAS)
+	#define CTLSEL_GSITEM_BIZSCORE       (18 + WINDOWS_ID_BIAS)
+	#define CTL_GSITEM_V_EVALED          (19 + WINDOWS_ID_BIAS) // @v12.3.7 Вычисленное значение (для планирование цены)
+	#define CTL_GSITEM_V_MANUAL          (20 + WINDOWS_ID_BIAS) // @v12.3.7 Ручное значение (для планирование цены)
 #define DLG_MSGNCMPL              287
 #define DLG_MSGZCMPL              288
 #define DLG_MSGNCMPL2             383

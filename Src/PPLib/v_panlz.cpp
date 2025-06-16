@@ -52,6 +52,7 @@ PPBaseFilt * PPViewPriceAnlz::CreateFilt(const void * extraPtr) const
 }
 
 class PriceAnlzFiltDialog : public TDialog {
+	DECL_DIALOG_DATA(PriceAnlzFilt);
 public:
 	enum {
 		ctlgroupGoodsFilt = 1,
@@ -63,13 +64,58 @@ public:
 		addGroup(ctlgroupLoc, new LocationCtrlGroup(CTLSEL_PANLZFLT_LOC, 0, 0, cmLocList, 0, 0, 0));
 		SetupCalPeriod(CTLCAL_PANLZFLT_PERIOD, CTL_PANLZFLT_PERIOD);
 	}
-	int    setDTS(const PriceAnlzFilt *);
-	int    getDTS(PriceAnlzFilt *);
+	DECL_DIALOG_SETDTS()
+	{
+		RVALUEPTR(Data, pData);
+		SetPeriodInput(this, CTL_PANLZFLT_PERIOD, &Data.Period);
+		SetupArCombo(this, CTLSEL_PANLZFLT_SUPPL, Data.SupplID, 0, GetSupplAccSheet(), sacfDisableIfZeroSheet);
+		GoodsFiltCtrlGroup::Rec gf_rec(Data.GoodsGrpID, 0, 0, GoodsCtrlGroup::enableSelUpLevel);
+		setGroupData(ctlgroupGoodsFilt, &gf_rec);
+		LocationCtrlGroup::Rec loc_rec(&Data.LocList);
+		setGroupData(ctlgroupLoc, &loc_rec);
+		AddClusterAssoc(CTL_PANLZFLT_COSTALG,  0, PriceAnlzFilt::caByFirstLot);
+		AddClusterAssoc(CTL_PANLZFLT_COSTALG,  1, PriceAnlzFilt::caByAverageLot);
+		AddClusterAssocDef(CTL_PANLZFLT_COSTALG,  2, PriceAnlzFilt::caByLastLot);
+		AddClusterAssoc(CTL_PANLZFLT_COSTALG,  3, PriceAnlzFilt::caByMinLot);
+		AddClusterAssoc(CTL_PANLZFLT_COSTALG,  4, PriceAnlzFilt::caByMinLoc);
+		SetClusterData(CTL_PANLZFLT_COSTALG, Data.CostAlg);
+		AddClusterAssocDef(CTL_PANLZFLT_BASE,  0, PriceAnlzFilt::bcByLoc);
+		AddClusterAssoc(CTL_PANLZFLT_BASE,  1, PriceAnlzFilt::bcByContract);
+		AddClusterAssoc(CTL_PANLZFLT_BASE,  2, PriceAnlzFilt::bcByAvgLocs);
+		SetClusterData(CTL_PANLZFLT_BASE, Data.BaseCost);
+		AddClusterAssoc(CTL_PANLZFLT_FLAGS, 0, PriceAnlzFilt::fShowDiffAsPrc);
+		AddClusterAssoc(CTL_PANLZFLT_FLAGS, 1, PriceAnlzFilt::fExclWOCntrCost);
+		AddClusterAssoc(CTL_PANLZFLT_FLAGS, 2, PriceAnlzFilt::fExclWOCostOREqualBaseCost);
+		AddClusterAssoc(CTL_PANLZFLT_FLAGS, 3, PriceAnlzFilt::fDivideBySuppl);
+		SetupPPObjCombo(this, CTLSEL_PANLZFLT_BASELOC, PPOBJ_LOCATION, Data.BaseLoc, 0, 0);
+		setupBaseLoc(Data.BaseCost);
+		SetClusterData(CTL_PANLZFLT_FLAGS, Data.Flags);
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		uint   sel = 0;
+		GoodsFiltCtrlGroup::Rec gf_rec;
+		LocationCtrlGroup::Rec loc_rec;
+		GetClusterData(CTL_PANLZFLT_BASE, &Data.BaseCost);
+		getCtrlData(sel = CTLSEL_PANLZFLT_BASELOC, &Data.BaseLoc);
+		THROW_PP(Data.BaseCost != PriceAnlzFilt::bcByLoc || Data.BaseLoc != 0, PPERR_LOCNEEDED);
+		THROW(GetPeriodInput(this, sel = CTL_PANLZFLT_PERIOD, &Data.Period));
+		getCtrlData(CTLSEL_PANLZFLT_SUPPL,    &Data.SupplID);
+		THROW(getGroupData(ctlgroupGoodsFilt, &gf_rec));
+		Data.GoodsGrpID = gf_rec.GoodsGrpID;
+		THROW(getGroupData(ctlgroupLoc, &loc_rec));
+		Data.LocList = loc_rec.LocList;
+		GetClusterData(CTL_PANLZFLT_COSTALG, &Data.CostAlg);
+		GetClusterData(CTL_PANLZFLT_FLAGS,    &Data.Flags);
+		ASSIGN_PTR(pData, Data);
+		CATCHZOKPPERRBYDLG
+		return ok;
+	}
 private:
 	DECL_HANDLE_EVENT;
 	void   setupBaseLoc(long baseCost);
-
-	PriceAnlzFilt Data;
 };
 
 IMPL_HANDLE_EVENT(PriceAnlzFiltDialog)
@@ -86,57 +132,6 @@ void PriceAnlzFiltDialog::setupBaseLoc(long baseCost)
 	disableCtrl(CTLSEL_PANLZFLT_BASELOC, baseCost != PriceAnlzFilt::bcByLoc);
 	if(baseCost != PriceAnlzFilt::bcByLoc)
 		setCtrlData(CTLSEL_PANLZFLT_BASELOC, 0);
-}
-
-int PriceAnlzFiltDialog::setDTS(const PriceAnlzFilt * pData)
-{
-	RVALUEPTR(Data, pData);
-	SetPeriodInput(this, CTL_PANLZFLT_PERIOD, &Data.Period);
-	SetupArCombo(this, CTLSEL_PANLZFLT_SUPPL, Data.SupplID, 0, GetSupplAccSheet(), sacfDisableIfZeroSheet);
-	GoodsFiltCtrlGroup::Rec gf_rec(Data.GoodsGrpID, 0, 0, GoodsCtrlGroup::enableSelUpLevel);
-	setGroupData(ctlgroupGoodsFilt, &gf_rec);
-	LocationCtrlGroup::Rec loc_rec(&Data.LocList);
-	setGroupData(ctlgroupLoc, &loc_rec);
-	AddClusterAssoc(CTL_PANLZFLT_COSTALG,  0, PriceAnlzFilt::caByFirstLot);
-	AddClusterAssoc(CTL_PANLZFLT_COSTALG,  1, PriceAnlzFilt::caByAverageLot);
-	AddClusterAssocDef(CTL_PANLZFLT_COSTALG,  2, PriceAnlzFilt::caByLastLot);
-	AddClusterAssoc(CTL_PANLZFLT_COSTALG,  3, PriceAnlzFilt::caByMinLot);
-	AddClusterAssoc(CTL_PANLZFLT_COSTALG,  4, PriceAnlzFilt::caByMinLoc);
-	SetClusterData(CTL_PANLZFLT_COSTALG, Data.CostAlg);
-	AddClusterAssocDef(CTL_PANLZFLT_BASE,  0, PriceAnlzFilt::bcByLoc);
-	AddClusterAssoc(CTL_PANLZFLT_BASE,  1, PriceAnlzFilt::bcByContract);
-	AddClusterAssoc(CTL_PANLZFLT_BASE,  2, PriceAnlzFilt::bcByAvgLocs);
-	SetClusterData(CTL_PANLZFLT_BASE, Data.BaseCost);
-	AddClusterAssoc(CTL_PANLZFLT_FLAGS, 0, PriceAnlzFilt::fShowDiffAsPrc);
-	AddClusterAssoc(CTL_PANLZFLT_FLAGS, 1, PriceAnlzFilt::fExclWOCntrCost);
-	AddClusterAssoc(CTL_PANLZFLT_FLAGS, 2, PriceAnlzFilt::fExclWOCostOREqualBaseCost);
-	AddClusterAssoc(CTL_PANLZFLT_FLAGS, 3, PriceAnlzFilt::fDivideBySuppl);
-	SetupPPObjCombo(this, CTLSEL_PANLZFLT_BASELOC, PPOBJ_LOCATION, Data.BaseLoc, 0, 0);
-	setupBaseLoc(Data.BaseCost);
-	SetClusterData(CTL_PANLZFLT_FLAGS, Data.Flags);
-	return 1;
-}
-
-int PriceAnlzFiltDialog::getDTS(PriceAnlzFilt * pData)
-{
-	int    ok = 1;
-	uint   sel = 0;
-	GoodsFiltCtrlGroup::Rec gf_rec;
-	LocationCtrlGroup::Rec loc_rec;
-	GetClusterData(CTL_PANLZFLT_BASE, &Data.BaseCost);
-	getCtrlData(sel = CTLSEL_PANLZFLT_BASELOC, &Data.BaseLoc);
-	THROW_PP(Data.BaseCost != PriceAnlzFilt::bcByLoc || Data.BaseLoc != 0, PPERR_LOCNEEDED);
-	THROW(GetPeriodInput(this, sel = CTL_PANLZFLT_PERIOD, &Data.Period));
-	getCtrlData(CTLSEL_PANLZFLT_SUPPL,    &Data.SupplID);
-	THROW(getGroupData(ctlgroupGoodsFilt, &gf_rec));
-	Data.GoodsGrpID = gf_rec.GoodsGrpID;
-	THROW(getGroupData(ctlgroupLoc, &loc_rec));
-	Data.LocList = loc_rec.LocList;
-	GetClusterData(CTL_PANLZFLT_COSTALG, &Data.CostAlg);
-	GetClusterData(CTL_PANLZFLT_FLAGS,    &Data.Flags);
-	ASSIGN_PTR(pData, Data);
-	CATCHZOKPPERRBYDLG
-	return ok;
 }
 
 int PPViewPriceAnlz::EditBaseFilt(PPBaseFilt * pBaseFilt)

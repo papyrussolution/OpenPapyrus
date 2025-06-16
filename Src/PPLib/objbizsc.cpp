@@ -1437,37 +1437,36 @@ PPBaseFilt * PPViewBizScoreVal::CreateFilt(const void * extraPtr) const
 int PPViewBizScoreVal::EditBaseFilt(PPBaseFilt * pBaseFilt)
 {
 	class BizScoreValFiltDialog : public TDialog {
+		DECL_DIALOG_DATA(BizScoreValFilt);
 	public:
 		BizScoreValFiltDialog() : TDialog(DLG_BIZSCVFILT)
 		{
 			SetupCalPeriod(CTLCAL_BIZSCVFILT_PERIOD, CTL_BIZSCVFILT_PERIOD);
 			SetupCalDate(CTLCAL_BIZSCVFILT_DT, CTL_BIZSCVFILT_DT);
 		}
-		int    setDTS(const BizScoreValFilt * pFilt)
+		DECL_DIALOG_SETDTS()
 		{
-			RVALUEPTR(Filt, pFilt);
-			SetPeriodInput(this, CTL_BIZSCVFILT_PERIOD, &Filt.Period);
-			setCtrlData(CTL_BIZSCVFILT_DT, &Filt.Since.d);
-			setCtrlData(CTL_BIZSCVFILT_TM, &Filt.Since.t);
-			SetupPPObjCombo(this, CTLSEL_BIZSCVFILT_USER, PPOBJ_USR,      Filt.UserID, 0, 0);
-			SetupPPObjCombo(this, CTLSEL_BIZSCVFILT_BSC,  PPOBJ_BIZSCORE, Filt.BizScoreID, 0, 0);
+			RVALUEPTR(Data, pData);
+			SetPeriodInput(this, CTL_BIZSCVFILT_PERIOD, &Data.Period);
+			setCtrlData(CTL_BIZSCVFILT_DT, &Data.Since.d);
+			setCtrlData(CTL_BIZSCVFILT_TM, &Data.Since.t);
+			SetupPPObjCombo(this, CTLSEL_BIZSCVFILT_USER, PPOBJ_USR, Data.UserID, 0, 0);
+			SetupPPObjCombo(this, CTLSEL_BIZSCVFILT_BSC,  PPOBJ_BIZSCORE, Data.BizScoreID, 0, 0);
 			return 1;
 		}
-		int    getDTS(BizScoreValFilt * pFilt)
+		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
 			uint   sel = 0;
-			THROW(GetPeriodInput(this, sel = CTL_BIZSCVFILT_PERIOD, &Filt.Period));
-			getCtrlData(CTL_BIZSCVFILT_DT, &Filt.Since.d);
-			getCtrlData(CTL_BIZSCVFILT_TM, &Filt.Since.t);
-			getCtrlData(CTLSEL_BIZSCVFILT_USER, &Filt.UserID);
-			getCtrlData(CTLSEL_BIZSCVFILT_BSC,  &Filt.BizScoreID);
-			ASSIGN_PTR(pFilt, Filt);
+			THROW(GetPeriodInput(this, sel = CTL_BIZSCVFILT_PERIOD, &Data.Period));
+			getCtrlData(CTL_BIZSCVFILT_DT, &Data.Since.d);
+			getCtrlData(CTL_BIZSCVFILT_TM, &Data.Since.t);
+			getCtrlData(CTLSEL_BIZSCVFILT_USER, &Data.UserID);
+			getCtrlData(CTLSEL_BIZSCVFILT_BSC,  &Data.BizScoreID);
+			ASSIGN_PTR(pData, Data);
 			CATCHZOKPPERRBYDLG
 			return ok;
 		}
-	private:
-		BizScoreValFilt Filt;
 	};
 	if(!Filt.IsA(pBaseFilt))
 		return 0;

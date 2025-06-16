@@ -1,5 +1,5 @@
 // BNKODLG.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2005, 2007, 2008, 2010, 2011, 2014, 2016, 2017, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2005, 2007, 2008, 2010, 2011, 2014, 2016, 2017, 2019, 2020, 2021, 2025
 // @codepage UTF-8
 // Диалог редактирования данных для банковских платежных документов
 //
@@ -158,7 +158,7 @@ int BnkOrdTaxMarkersDialog::setDTS(const PPBankingOrder * pData)
 	setCtrlData(CTL_TXM_DOCNUMBER, Data.Txm.DocNumber);
 	setCtrlData(CTL_TXM_DOCDATE, &Data.Txm.DocDate);
 	translateCode(0, PPTXT_TAXPAYMTYPE, Data.Txm.PaymType, &(id = 0));
-	setCtrlData(CTL_TXM_UIN, Data.Txm.UIN); // @v8.0.9
+	setCtrlData(CTL_TXM_UIN, Data.Txm.UIN);
 	SetupStringCombo(this, CTLSEL_TXM_PAYMTYPE, PPTXT_TAXPAYMTYPE, id);
 	return 1;
 }
@@ -171,7 +171,7 @@ int BnkOrdTaxMarkersDialog::getDTS(PPBankingOrder * pData)
 	translateCode(1, PPTXT_TAXPAYMREASON, Data.Txm.Reason, &id);
 	id = getCtrlLong(CTLSEL_TXM_PAYMTYPE);
 	translateCode(1, PPTXT_TAXPAYMTYPE, Data.Txm.PaymType, &id);
-	getCtrlData(CTL_TXM_UIN, Data.Txm.UIN); // @v8.0.9
+	getCtrlData(CTL_TXM_UIN, Data.Txm.UIN);
 	getCtrlData(CTL_TXM_DOCNUMBER, Data.Txm.DocNumber);
 	getCtrlData(CTL_TXM_DOCDATE, &Data.Txm.DocDate);
 	if(pData)
@@ -360,7 +360,7 @@ int BankingOrderDialog::setDTS(const PPBankingOrder * pData)
 	setCtrlData(CTL_BNKPAYM_METHOD, &v);
 	setCtrlData(CTL_BNKPAYM_PAYERSTATUS, &Data.PayerStatus);
 	setCtrlData(CTL_BNKPAYM_QUEUEING, &Data.BnkQueueing);
-	setCtrlData(CTL_BNKPAYM_FPURPS,   &Data.FormalPurpose); // @v10.7.9
+	setCtrlData(CTL_BNKPAYM_FPURPS,   &Data.FormalPurpose);
 	setCtrlData(CTL_BNKPAYM_AMOUNT,   &Data.Amount);
 	setCtrlData(CTL_BNKPAYM_VATRATE,  &Data.VATRate);
 	setCtrlData(CTL_BNKPAYM_VATSUM,   &Data.VATSum);
@@ -395,7 +395,7 @@ int BankingOrderDialog::getDTS(PPBankingOrder * pData)
 	}
 	getCtrlData(CTL_BNKPAYM_PAYERSTATUS, &Data.PayerStatus);
 	getCtrlData(CTL_BNKPAYM_QUEUEING, &Data.BnkQueueing);
-	getCtrlData(CTL_BNKPAYM_FPURPS,   &Data.FormalPurpose); // @v10.7.9
+	getCtrlData(CTL_BNKPAYM_FPURPS,   &Data.FormalPurpose);
 	getCtrlData(CTL_BNKPAYM_AMOUNT,   &Data.Amount);
 	Data.Amount = R2(Data.Amount);
 	getCtrlData(CTL_BNKPAYM_VATRATE,  &Data.VATRate);
