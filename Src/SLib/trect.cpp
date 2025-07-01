@@ -1539,14 +1539,15 @@ int FASTCALL SColorBase::FromStr(const char * pStr)
 	return ok;
 }
 
-SString & SColorBase::ToStr(SString & rBuf, int format) const
+SString & SColorBase::ToStr(uint fmt, SString & rBuf) const
 {
+	SETIFZ(fmt, fmtHEX);
 	rBuf.Z();
-	if(format & fmtName) {
+	if(fmt & fmtName) {
 		const uint32 c = (R << 16) | (G << 8) | B;
 		for(uint i = 0; i < SIZEOFARRAY(ColorNameList); i++) {
 			if(ColorNameList[i].C == c) {
-				if(format & fmtForceHashPrefix)
+				if(fmt & fmtForceHashPrefix)
 					rBuf.CatChar('#').Cat(ColorNameList[i].N);
 				else
 					rBuf = ColorNameList[i].N;
@@ -1554,9 +1555,9 @@ SString & SColorBase::ToStr(SString & rBuf, int format) const
 		}
 	}
 	if(rBuf.IsEmpty()) {
-		const long f = (format & ~(fmtName|fmtForceHashPrefix));
+		const uint f = (fmt & ~(fmtName|fmtForceHashPrefix));
 		if(f == fmtRGB) {
-			if(format & fmtForceHashPrefix)
+			if(fmt & fmtForceHashPrefix)
 				rBuf.CatChar('#');
 			rBuf.Cat("rgb").CatChar('(').Cat((uint)R).Comma().Cat((uint)G).Comma().Cat((uint)B).CatChar(')');
 		}

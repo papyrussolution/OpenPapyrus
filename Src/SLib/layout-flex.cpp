@@ -1430,6 +1430,35 @@ void SUiLayout::SetOrder(int o)
 	ALB.Order = o;
 	UpdateShouldOrderChildren();
 }
+
+uint SUiLayout::GetMinSize(SPoint2F * pMinSize) const
+{
+	// 
+	// @todo Если на прямую минимальный размер не задан, то эта функция должна пройтись по всем внутренним элементам лайаута и 
+	//   попытаться определить минимум исходя из их позиций и размеров. Но пока остановимся на самом простом варианте.
+	// 
+	uint   result = 0;
+	float  min_x = 0.0f;
+	float  min_y = 0.0f;
+	if(ALB.MinSize.x > 0.0f) {
+		min_x = ALB.MinSize.x;
+		result |= 0x01;
+	}
+	else {
+	}
+	//
+	if(ALB.MinSize.y > 0.0f) {
+		min_y = ALB.MinSize.y;
+		result |= 0x02;
+	}
+	else {
+	}
+	if(pMinSize) {
+		pMinSize->x = min_x;
+		pMinSize->y = min_y;
+	}
+	return result;
+}
 //
 // Descr: Вычисляет полную ширину элемента без рассмотрения его внутренних компонентов.
 //   Полная ширина включает собственно ширину, а так же левые и правые поля и набивки
@@ -2926,6 +2955,12 @@ int SUiLayout::Evaluate(const Param * pP)
 		// } @v11.9.2 
 	}
 	return ok;
+}
+
+const void * SUiLayout::GetHashKey(const void * pCtx, uint * pKeyLen) const
+{
+	ASSIGN_PTR(pKeyLen, sizeof(ID));
+	return &ID;
 }
 
 SJson * SUiLayout::ToJsonObj() const

@@ -21,8 +21,83 @@ struct _GSItem {           // @persistent @store(ObjAssocTbl)
 	long   PrefInnefGsID;  // 
 	long   Flags;          // Флаги
 	double Median;         // Среднее значение
-	double Width;          // Ширина оценочного интервала
+	// @v12.3.7 double Width;          // Ширина оценочного интервала
+	double ManualValue;    // @v12.3.7
 	double Denom;          // Знаменатель дроби qtty = Median / Denom
+};
+//
+// Descr: Вспомогательный класс, обеспечивающий кэширующий расчет значений, соответствующих элементам структуры по формулам.
+//
+class GoodsStructFormulaResolutionCache {
+public:
+	GoodsStructFormulaResolutionCache(const PPGoodsStruc & rGs) : R_Gs(rGs)
+	{
+	}
+	int    Resolve(uint itemIdx, double * pValue)
+	{
+		int    ok = -1;
+		double value = 0.0;
+		if(itemIdx < R_Gs.Items.getCount()) {
+			long   key = 0;
+			if(SearchCacheForResult(itemIdx, &key, &value)) {
+				ok = 1;
+			}
+			else {
+				if(R_Gs.ResolveItemFormula(R_Gs.Items.at(itemIdx), &value) > 0) {
+					ok = 2;
+				}
+				assert(!ResultCache.Has(key));
+				ResultCache.Add(key, value, 0, 0);
+			}
+		}
+		ASSIGN_PTR(pValue, value);
+		return ok;
+	}
+private:
+	//
+	// Descr: Рассчитывае параметр хэширования элемента структуры. Этот параметр должен учитывать
+	//   все важные факторы структуры дабы при изменении какого либо из них кэш утратил актуальность.
+	//
+	uint32  MakeStrucSeed() const
+	{
+		uint32   result = 0;
+		result = R_Gs.Rec.ID; // Пока безумно примитивный вариант реализации.
+		return result;
+	}
+	long    MakeItemKey(uint itemIdx) const
+	{
+		long   result = 0;
+		if(itemIdx < R_Gs.Items.getCount()) {
+			SBinaryChunk bc;
+			const PPGoodsStrucItem & r_item = R_Gs.Items.at(itemIdx);
+			bc.Cat(&r_item.GoodsID, sizeof(r_item.GoodsID));
+			bc.Cat(&r_item.Flags, sizeof(r_item.Flags));
+			bc.Cat(r_item.Formula__, sstrlen(r_item.Formula__));
+			result = static_cast<long>(SlHash::XX32(bc.PtrC(), bc.Len(), MakeStrucSeed()));
+			assert(result != 0);
+		}
+		return result;
+	}
+	bool   SearchCacheForResult(uint itemIdx, long * pKey, double * pValue) const
+	{
+		bool    ok = false;
+		double  value = 0.0;
+		const   long key = MakeItemKey(itemIdx);
+		if(key) {
+			uint    pos = 0;
+			if(ResultCache.lsearch(&key, &pos, CMPF_LONG)) {
+				value = ResultCache.at(pos).Val;
+				ok = true;
+			}
+		}
+		ASSIGN_PTR(pValue, value);
+		ASSIGN_PTR(pKey, key);
+		return ok;
+	}
+
+	PPObjBizScore2 BsObj;
+	const PPGoodsStruc & R_Gs;
+	RAssocArray ResultCache;
 };
 //
 //
@@ -324,6 +399,74 @@ int PPGoodsStruc::RecalcQttyByMainItemPh(double * pQtty) const
 	return ok;
 }
 
+int PPGoodsStruc::ResolveItemFormula(const PPGoodsStrucItem & rItem, double * pValue) const
+{
+	int    result = -1;
+	double value = 0.0;
+	//const PPGoodsStrucItem & r_item = R_Gs.Items.at(itemIdx);
+	SString temp_buf;
+	bool   is_evaluated = false;
+	if(rItem.Formula__[0]) {
+		GdsClsCalcExprContext ctx(this);
+		ctx.GoodsID = GoodsID;
+		if(PPCalcExpression(rItem.Formula__, &value, &ctx))
+			is_evaluated = true;
+		else
+			result = 0;
+	}
+	else {
+		if(rItem.Flags & GSIF_BIZSC2 && rItem.GoodsID) {
+			PPBizScore2Packet bs_pack;
+			PPObjBizScore2 bs_obj;
+			if(bs_obj.Fetch(rItem.GoodsID, &bs_pack) > 0) {
+				if(bs_pack.GetExtStrData(PPBizScore2Packet::extssFormula, temp_buf) && temp_buf.NotEmptyS()) {
+					GdsClsCalcExprContext ctx(this);
+					ctx.GoodsID = GoodsID;
+					if(PPCalcExpression(temp_buf, &value, &ctx))
+						is_evaluated = true;
+					else
+						result = 0;
+				}
+			}
+		}
+	}
+	if(is_evaluated) {
+		result = 1;
+	}
+	else {
+		value = 0.0;
+	}
+	ASSIGN_PTR(pValue, value);
+	return result;
+}
+
+int PPGoodsStruc::GetItemValue(uint itemIdx, GoodsStructFormulaResolutionCache * pRCache, double * pValue) const
+{
+	int    result = 0;
+	double value = 0.0;
+	if(GetKind() == kPricePlanning && itemIdx < Items.getCount()) {
+		const PPGoodsStrucItem & r_item = Items.at(itemIdx);
+		if(r_item.ManualValue != 0.0) {
+			value = r_item.ManualValue;
+			result = 1;
+		}
+		else {
+			if(pRCache) {
+				if(pRCache->Resolve(itemIdx, &value) > 0) {
+					result = 100;
+				}
+			}
+			else {
+				if(ResolveItemFormula(r_item, &value) > 0) {
+					result = 2;
+				}
+			}
+		}
+	}
+	ASSIGN_PTR(pValue, value);
+	return result;
+}
+
 int PPGoodsStruc::GetEstimationPrice(uint itemIdx, PPID locID, double * pPrice, double * pTotalPrice, ReceiptTbl::Rec * pRec) const
 {
 	int    ok = -1;
@@ -432,12 +575,14 @@ int PPGoodsStruc::SearchSymb(const char * pSymb, uint * pPos) const
 {
 	int    ok = 0;
 	PPGoodsStrucItem * p_item;
-	if(pSymb)
-		for(uint i = 0; !ok && Items.enumItems(&i, (void **)&p_item);)
+	if(!isempty(pSymb)) {
+		for(uint i = 0; !ok && Items.enumItems(&i, (void **)&p_item);) {
 			if(stricmp(p_item->Symb, pSymb) == 0) {
 				ASSIGN_PTR(pPos, i-1);
 				ok = 1;
 			}
+		}
+	}
 	return ok;
 }
 
@@ -692,7 +837,7 @@ int FASTCALL PPGoodsStrucItem::IsEq(const PPGoodsStrucItem & rS) const
 	CMPF(GoodsID);
 	CMPF(Flags);
 	CMPF(Median);
-	CMPF(Width);
+	CMPF(ManualValue);
 	CMPF(Denom);
 	CMPF(Netto);
 	CMPF(ObjType); // @v12.0.7
@@ -730,7 +875,7 @@ int PPGoodsStrucItem::SetEstimationString(const char * pStr)
 {
 	int    ok = 1;
 	Median = 0.0;
-	Width  = 0.0;
+	// @v12.3.7 Width  = 0.0;
 	Denom  = 1.0;
 	if(PPGoodsStruc::IsSimpleQttyString(pStr)) {
 		double v;
@@ -1004,13 +1149,14 @@ struct GoodsStrucCopyParam {
 class GSDialog : public PPListDialog {
 	DECL_DIALOG_DATA(PPGoodsStruc);
 	PPObjGoodsStruc GsObj;
-	PPObjGoods      GObj;
+	PPObjGoods GObj;
 	PPID   NewGoodsGrpID;
 	GoodsStrucCopyParam GscParam;
 	PPGoodsStruc RecurData;
 	int    Changed;
+	GoodsStructFormulaResolutionCache RCache;
 public:
-	GSDialog() : PPListDialog(DLG_GSTRUC, CTL_GSTRUC_LIST), NewGoodsGrpID(0), Changed(0)
+	GSDialog() : PPListDialog(DLG_GSTRUC, CTL_GSTRUC_LIST), NewGoodsGrpID(0), Changed(0), RCache(Data)
 	{
 		SetupCalPeriod(CTLCAL_GSTRUC_PERIOD, CTL_GSTRUC_PERIOD);
 		if(SmartListBox::IsValidS(P_Box))
@@ -1020,15 +1166,18 @@ public:
 	DECL_DIALOG_SETDTS()
 	{
 		SString temp_buf;
-		if(pData->GoodsID)
-			GetGoodsName(pData->GoodsID, temp_buf);
-		else if(pData->Rec.ID) {
-			PPID   goods_id = 0;
-			if(GObj.P_Tbl->SearchAnyRef(PPOBJ_GOODSSTRUC, pData->Rec.ID, &goods_id) > 0)
-				GetGoodsName(goods_id, temp_buf);
+		if(pData) {
+			if(pData->GoodsID)
+				GetGoodsName(pData->GoodsID, temp_buf);
+			else if(pData->Rec.ID) {
+				PPID   goods_id = 0;
+				if(GObj.P_Tbl->SearchAnyRef(PPOBJ_GOODSSTRUC, pData->Rec.ID, &goods_id) > 0)
+					GetGoodsName(goods_id, temp_buf);
+			}
+			Data = *pData;
 		}
 		setCtrlString(CTL_GSTRUC_GNAME, temp_buf);
-		Data = *pData;
+		//
 		temp_buf.Z();
 		if(Data.Rec.Flags & GSF_DYNGEN)
 			PPLoadText(PPTXT_DYNGENGSTRUC, temp_buf);
@@ -1037,7 +1186,7 @@ public:
 		setCtrlLong(CTL_GSTRUC_ID, Data.Rec.ID);
 		SetupObjListCombo(this, CTLSEL_GSTRUC_VAROBJ, Data.Rec.VariedPropObjType);
 		setCtrlData(CTL_GSTRUC_COMMDENOM, &Data.Rec.CommDenom);
-		SetPeriodInput(this, CTL_GSTRUC_PERIOD, &Data.Rec.Period);
+		SetPeriodInput(this, CTL_GSTRUC_PERIOD, Data.Rec.Period);
 
 		const long kind = Data.GetKind();
 		AddClusterAssocDef(CTL_GSTRUC_KIND, 0, PPGoodsStruc::kUndef);
@@ -1052,12 +1201,13 @@ public:
 		AddClusterAssoc(CTL_GSTRUC_FLAGS, 0, GSF_COMPL);
 		AddClusterAssoc(CTL_GSTRUC_FLAGS, 1, GSF_DECOMPL);
 		AddClusterAssoc(CTL_GSTRUC_FLAGS, 2, GSF_OUTPWOVAT);
-		AddClusterAssoc(CTL_GSTRUC_FLAGS, 3, GSF_GIFTPOTENTIAL);
-		AddClusterAssoc(CTL_GSTRUC_FLAGS, 4, GSF_OVRLAPGIFT);
-		AddClusterAssoc(CTL_GSTRUC_FLAGS, 5, GSF_POSMODIFIER);
-		AddClusterAssoc(CTL_GSTRUC_FLAGS, 6, GSF_AUTODECOMPL); // @v11.6.2
+		// @v12.3.7 AddClusterAssoc(CTL_GSTRUC_FLAGS, 3, GSF_GIFTPOTENTIAL);
+		// @v12.3.7 AddClusterAssoc(CTL_GSTRUC_FLAGS, 4, GSF_OVRLAPGIFT);
+		AddClusterAssoc(CTL_GSTRUC_FLAGS, 3, GSF_POSMODIFIER);             // @v12.3.7 5-->3
+		AddClusterAssoc(CTL_GSTRUC_FLAGS, 4, GSF_AUTODECOMPL); // @v11.6.2 // @v12.3.7 6-->4
 		SetClusterData(CTL_GSTRUC_FLAGS, Data.Rec.Flags);
 		SetupCtrls();
+		/* @v12.3.7 
 		setCtrlReal(CTL_GSTRUC_GIFTAMTRESTR, Data.Rec.GiftAmtRestrict);
 		{
 			ComboBox * p_cb = static_cast<ComboBox *>(getCtrlView(CTLSEL_GSTRUC_GIFTQK));
@@ -1079,6 +1229,7 @@ public:
 			}
 		}
 		setCtrlData(CTL_GSTRUC_GIFTLIMIT, &Data.Rec.GiftLimit);
+		*/
 		updateList(-1);
 		enableCommand(cmGStrucExpandReduce, Data.CanExpand());
 		enableEditRecurStruc();
@@ -1114,9 +1265,9 @@ public:
 			for(i = 0; i < Data.Items.getCount(); i++)
 				Data.Items.at(i).Flags &= ~0x8000L;
 			if(Data.Rec.Flags & GSF_PRESENT) {
-				Data.Rec.GiftAmtRestrict = getCtrlReal(CTL_GSTRUC_GIFTAMTRESTR);
-				Data.Rec.GiftQuotKindID = getCtrlLong(CTLSEL_GSTRUC_GIFTQK);
-				getCtrlData(CTL_GSTRUC_GIFTLIMIT, &Data.Rec.GiftLimit);
+				// @v12.3.7 Data.Rec.GiftAmtRestrict = getCtrlReal(CTL_GSTRUC_GIFTAMTRESTR);
+				// @v12.3.7 Data.Rec.GiftQuotKindID = getCtrlLong(CTLSEL_GSTRUC_GIFTQK);
+				// @v12.3.7 getCtrlData(CTL_GSTRUC_GIFTLIMIT, &Data.Rec.GiftLimit);
 			}
 			else {
 				Data.Rec.GiftAmtRestrict = 0.0;
@@ -1144,6 +1295,47 @@ private:
 	void   selNamedGS();
 	int    enableEditRecurStruc();
 	void   ViewHierarchy();
+	int    EditGiftParam()
+	{
+		int    ok = -1;
+		SString temp_buf;
+		TDialog * dlg = new TDialog(DLG_GSGIFT);
+		if(CheckDialogPtr(&dlg)) {
+			dlg->setCtrlReal(CTL_GSTRUC_GIFTAMTRESTR, Data.Rec.GiftAmtRestrict);
+			dlg->setCtrlData(CTL_GSTRUC_GIFTLIMIT, &Data.Rec.GiftLimit);
+			{
+				ComboBox * p_cb = static_cast<ComboBox *>(dlg->getCtrlView(CTLSEL_GSTRUC_GIFTQK));
+				if(p_cb) {
+					StrAssocArray * p_qk_list = new StrAssocArray;
+					if(p_qk_list) {
+						PPObjQuotKind qk_obj;
+						QuotKindFilt qk_filt;
+						qk_filt.Flags = QuotKindFilt::fAll;
+						qk_obj.MakeList(&qk_filt, p_qk_list);
+						PPLoadText(PPTXT_CHEAPESTITEMFREE, temp_buf);
+						p_qk_list->Add(GSGIFTQ_CHEAPESTITEMFREE, temp_buf);
+						PPLoadText(PPTXT_CHEAPESTITEMBYGIFTQ, temp_buf);
+						p_qk_list->Add(GSGIFTQ_CHEAPESTITEMBYGIFTQ, temp_buf);
+						PPLoadText(PPTXT_LASTITEMBYGIFTQ, temp_buf);
+						p_qk_list->Add(GSGIFTQ_LASTITEMBYGIFTQ, temp_buf);
+						p_cb->setListWindow(CreateListWindow(p_qk_list, lbtDisposeData|lbtDblClkNotify), Data.Rec.GiftQuotKindID);
+					}
+				}
+			}
+			dlg->AddClusterAssoc(CTL_GSTRUC_FLAGS, 0, GSF_GIFTPOTENTIAL);
+			dlg->AddClusterAssoc(CTL_GSTRUC_FLAGS, 1, GSF_OVRLAPGIFT);
+			dlg->SetClusterData(CTL_GSTRUC_FLAGS, Data.Rec.Flags);
+			if(ExecView(dlg) == cmOK) {
+				Data.Rec.GiftAmtRestrict = dlg->getCtrlReal(CTL_GSTRUC_GIFTAMTRESTR);
+				Data.Rec.GiftQuotKindID = dlg->getCtrlLong(CTLSEL_GSTRUC_GIFTQK);
+				dlg->getCtrlData(CTL_GSTRUC_GIFTLIMIT, &Data.Rec.GiftLimit);
+				dlg->GetClusterData(CTL_GSTRUC_FLAGS, &Data.Rec.Flags);
+				ok = 1;
+			}
+		}
+		delete dlg;
+		return ok;
+	}
 };
 
 void GSDialog::ViewHierarchy() // @v11.2.11
@@ -1183,7 +1375,8 @@ int GSDialog::IsChanged()
 
 int GSDialog::enableEditRecurStruc()
 {
-	int    ok = 1, enable = 0;
+	int    ok = 1;
+	bool   enable = false;
 	if(SmartListBox::IsValidS(P_Box)) {
 		long   pos = 0;
 		P_Box->P_Def->getCurID(&pos);
@@ -1191,7 +1384,7 @@ int GSDialog::enableEditRecurStruc()
 			int r = 0;
 			RecurData.Init();
 			THROW(r = GObj.LoadGoodsStruc(PPGoodsStruc::Ident(Data.Items.at(pos - 1).GoodsID, GSF_COMPL, GSF_PARTITIAL), &RecurData));
-			enable = BIN(r > 0 && RecurData.Rec.ID);
+			enable = (r > 0 && RecurData.Rec.ID);
 		}
 	}
 	CATCHZOK
@@ -1216,16 +1409,18 @@ void GSDialog::SetupCtrls()
 	}
 	if(!lock_changes) {
 		Data.SetKind(kind);
+		const bool is_gift = LOGIC(Data.Rec.Flags & GSF_PRESENT);
 		DisableClusterItem(CTL_GSTRUC_FLAGS, 0, !(Data.Rec.Flags & (GSF_COMPL|GSF_DECOMPL|GSF_PARTITIAL)));
 		DisableClusterItem(CTL_GSTRUC_FLAGS, 1, !(Data.Rec.Flags & (GSF_COMPL|GSF_DECOMPL|GSF_PARTITIAL)));
 		DisableClusterItem(CTL_GSTRUC_FLAGS, 2, !(Data.Rec.Flags & (GSF_COMPL|GSF_DECOMPL|GSF_PARTITIAL)));
-		DisableClusterItem(CTL_GSTRUC_FLAGS, 3, !(Data.Rec.Flags & GSF_PRESENT));
-		DisableClusterItem(CTL_GSTRUC_FLAGS, 4, !(Data.Rec.Flags & GSF_PRESENT));
-		DisableClusterItem(CTL_GSTRUC_FLAGS, 5, !(Data.Rec.Flags & GSF_PARTITIAL));
-		DisableClusterItem(CTL_GSTRUC_FLAGS, 6, !(Data.Rec.Flags & GSF_DECOMPL)); // @v11.6.2
-		showCtrl(CTL_GSTRUC_GIFTAMTRESTR, LOGIC(Data.Rec.Flags & GSF_PRESENT));
-		showCtrl(CTLSEL_GSTRUC_GIFTQK,    LOGIC(Data.Rec.Flags & GSF_PRESENT));
-		showCtrl(CTL_GSTRUC_GIFTLIMIT,    LOGIC(Data.Rec.Flags & GSF_PRESENT));
+		// @v12.3.7 DisableClusterItem(CTL_GSTRUC_FLAGS, 3, !is_gift);
+		// @v12.3.7 DisableClusterItem(CTL_GSTRUC_FLAGS, 4, !is_gift);
+		DisableClusterItem(CTL_GSTRUC_FLAGS, 3, !(Data.Rec.Flags & GSF_PARTITIAL)); // @v12.3.7 5-->3
+		DisableClusterItem(CTL_GSTRUC_FLAGS, 4, !(Data.Rec.Flags & GSF_DECOMPL)); // @v11.6.2 // @v12.3.7 6-->4
+		// @v12.3.7 showCtrl(CTL_GSTRUC_GIFTAMTRESTR, is_gift);
+		// @v12.3.7 showCtrl(CTLSEL_GSTRUC_GIFTQK,    is_gift);
+		// @v12.3.7 showCtrl(CTL_GSTRUC_GIFTLIMIT,    is_gift);
+		enableCommand(cmGiftParam, is_gift); // @v12.3.7
 		SetClusterData(CTL_GSTRUC_FLAGS, Data.Rec.Flags);
 		if(GObj.GetConfig().Flags & GCF_BANSTRUCCDONDECOMPL) {
 			disableCtrl(CTL_GSTRUC_COMMDENOM, (Data.Rec.Flags & GSF_DECOMPL) && !(Data.Rec.Flags & GSF_COMPL));
@@ -1284,6 +1479,9 @@ IMPL_HANDLE_EVENT(GSDialog)
 	else if(event.isCmd(cmTree)) { // @v11.2.11
 		ViewHierarchy();
 	}
+	else if(event.isCmd(cmGiftParam)) { // @v12.3.7
+		EditGiftParam();
+	}
 	else if(event.isKeyDown(KB_CTRLENTER)) {
 		if(IsInState(sfModal)) {
 			endModal(cmOK);
@@ -1329,54 +1527,90 @@ int GSDialog::setupList()
 	double t_qtty = 0.0;
 	double t_netto = 0.0;
 	double t_sum = 0.0;
-	PPGoodsStrucItem * p_item = 0;
 	SString sub;
 	long   qtty_fmt = MKSFMTD(0, 3, NMBF_NOZERO);
 	long   money_fmt = MKSFMTD(0, 2, NMBF_NOZERO);
 	int    uncert = 0; // @v11.8.2 Признак того, что расчетная оценка стоимости комплекта неполная
-	uint   i = 0;
+	double total_income = 0.0;
+	double total_expense = 0.0;
 	const  PPID loc_id = LConfig.Location; // @v11.7.11
-	//PPObjArticle ar_obj;
 	PPObjBizScore2 bs_obj;
-	while(Data.Items.enumItems(&i, (void **)&p_item)) {
+	PPBizScore2Packet bs_pack;
+	for(uint i = 0; i < Data.Items.getCount(); i++) {
+		const PPGoodsStrucItem & r_item = Data.Items.at(i);
 		double price = 0.0;
 		double sum = 0.0;
 		int    local_uncert = 0;
+		bool   is_bs_pack_inited = false;
 		Goods2Tbl::Rec goods_rec;
 		StringSet ss(SLBColumnDelim);
 		PPGoodsStruc inner_struc;
-		THROW(GObj.LoadGoodsStruc(PPGoodsStruc::Ident(p_item->GoodsID, GSF_COMPL, GSF_PARTITIAL), &inner_struc));
-		if(p_item->Flags & GSIF_BIZSC2) {
+
+		THROW(GObj.LoadGoodsStruc(PPGoodsStruc::Ident(r_item.GoodsID, GSF_COMPL, GSF_PARTITIAL), &inner_struc));
+		if(r_item.Flags & GSIF_BIZSC2) {
+
+			//@lbt_goodsstruc_pp                   "44,L,@component;20,R,@value;10,R,@income;10,R,@expense" // @v12.0.7
+
 			// @v12.3.6 ArticleTbl::Rec ar_rec;
-			// @v12.3.6 if(ar_obj.Fetch(p_item->GoodsID, &ar_rec) > 0) {
-			PPBizScore2Packet bs_pack;
-			if(bs_obj.Fetch(p_item->GoodsID, &bs_pack) > 0) { // @v12.3.6
+			// @v12.3.6 if(ar_obj.Fetch(r_item.GoodsID, &ar_rec) > 0) {
+			if(bs_obj.Fetch(r_item.GoodsID, &bs_pack) > 0) { // @v12.3.6
+				is_bs_pack_inited = true;
 				sub = bs_pack.Rec.Name;
 			}
 			else {
-				ideqvalstr(p_item->GoodsID, sub);
+				ideqvalstr(r_item.GoodsID, sub);
 			}
 		}
 		else {
-			if(GObj.Fetch(p_item->GoodsID, &goods_rec) > 0)
+			if(GObj.Fetch(r_item.GoodsID, &goods_rec) > 0)
 				sub = goods_rec.Name;
 			else {
 				MEMSZERO(goods_rec);
-				ideqvalstr(p_item->GoodsID, sub);
+				ideqvalstr(r_item.GoodsID, sub);
 			}
 		}
 		ss.add(sub);
 		if(Data.GetKind() == PPGoodsStruc::kPricePlanning) {
-			sub.Z().Cat(p_item->Formula__);
+			double value = 0.0;
+			double income = 0.0;
+			double expense = 0.0;
+			bool   is_income = false;
+			bool   is_expense = false;
+			sub.Z();
+			if(Data.GetItemValue(i, &RCache, &value) > 0) {
+				sub.Cat(value, MKSFMTD(0, 6, NMBF_NOTRAILZ));
+			}
 			ss.add(sub);
-			sub.Z().Cat("?price?"); // @todo
-			ss.add(sub);
+			if(is_bs_pack_inited && bs_pack.Rec.Cls) {
+				if(PPObjBizScore2::IsBscCls_Income(bs_pack.Rec.Cls)) {
+					income = value;
+					total_income += income;
+					is_income = true;
+				}
+				else if(PPObjBizScore2::IsBscCls_Expense(bs_pack.Rec.Cls)) {
+					expense = value;
+					total_expense += expense;
+					is_expense = true;
+				}
+			}
+			{
+				sub.Z();
+				if(is_income)
+					sub.Cat(income, MKSFMTD(0, 2, 0));
+				ss.add(sub);
+			}
+			{
+				sub.Z();
+				if(is_expense)
+					sub.Cat(expense, MKSFMTD(0, 2, 0));
+				ss.add(sub);
+			}
 		}
 		else {
-			p_item->GetEstimationString(sub, qtty_fmt);
-			if(p_item->Flags & GSIF_PCTVAL)
+			r_item.GetEstimationString(sub, qtty_fmt);
+			if(r_item.Flags & GSIF_PCTVAL)
 				sub.CatChar('%');
-			else if(p_item->Flags & GSIF_PHUVAL) {
+			else if(r_item.Flags & GSIF_PHUVAL) {
 				PPUnit u_rec;
 				sub.Space();
 				if(GObj.FetchUnit(goods_rec.PhUnitID, &u_rec) > 0)
@@ -1390,7 +1624,7 @@ int GSDialog::setupList()
 			if(inner_struc.Rec.ID) {
 				if(GsObj.CheckStruc(inner_struc.Rec.ID, 0) != 2) {
 					inner_struc.CalcEstimationPrice(loc_id, &price, &local_uncert, 1); // @bottleneck
-					p_item->GetQtty(price / Data.GetDenom(), &sum);
+					r_item.GetQtty(price / Data.GetDenom(), &sum);
 					if(local_uncert)
 						uncert = 1;
 				}
@@ -1400,16 +1634,16 @@ int GSDialog::setupList()
 				}
 			}
 			else {
-				if(Data.GetEstimationPrice(i-1, loc_id, &price, &sum, 0) > 0 && sum > 0.0) {
+				if(Data.GetEstimationPrice(i, loc_id, &price, &sum, 0) > 0 && sum > 0.0) {
 					;
 				}
 				else {
 					uncert = 1;
 				}
 			}
-			t_netto += p_item->Netto;
+			t_netto += r_item.Netto;
 			t_sum   += sum;
-			ss.add(sub.Z().Cat(p_item->Netto, qtty_fmt));
+			ss.add(sub.Z().Cat(r_item.Netto, qtty_fmt));
 			ss.add(sub.Z().Cat(price, money_fmt));
 			{
 				sub.Z();
@@ -1422,23 +1656,30 @@ int GSDialog::setupList()
 		if(inner_struc.Rec.ID)
 			sub.CatChar('R');
 		ss.add(sub);
-		THROW(addStringToList(i, ss.getBuf()));
+		THROW(addStringToList(i+1, ss.getBuf()));
 		show_total = true;
 	}
 	if(show_total) {
 		StringSet ss(SLBColumnDelim);
 		PPGetWord(PPWORD_TOTAL, 0, sub);
 		ss.add(sub.ToLower());
-		ss.add(sub.Z().Cat(t_qtty,  qtty_fmt));
-		ss.add(sub.Z().Cat(t_netto, qtty_fmt));
-		ss.add(0);
-		{
-			sub.Z();
-			if(t_sum != 0.0 && uncert)
-				sub.CatChar('?');
-			ss.add(sub.Cat(t_sum, money_fmt));
+		if(Data.GetKind() == PPGoodsStruc::kPricePlanning) {
+			ss.add(sub.Z());
+			ss.add(sub.Z().Cat(total_income, MKSFMTD(0, 2, 0)));
+			ss.add(sub.Z().Cat(total_expense, MKSFMTD(0, 2, 0)));
 		}
-		THROW(addStringToList(i+1, ss.getBuf()));
+		else {
+			ss.add(sub.Z().Cat(t_qtty,  qtty_fmt));
+			ss.add(sub.Z().Cat(t_netto, qtty_fmt));
+			ss.add(0);
+			{
+				sub.Z();
+				if(t_sum != 0.0 && uncert)
+					sub.CatChar('?');
+				ss.add(sub.Cat(t_sum, money_fmt));
+			}
+		}
+		THROW(addStringToList(Data.Items.getCount()+1, ss.getBuf()));
 	}
 	CATCHZOK
 	return ok;
@@ -1469,13 +1710,17 @@ class GSPPItemDialog : public TDialog {
 		// @v12.3.6 ctlgroupArticle = 2
 	};
 	DECL_DIALOG_DATA(PPGoodsStrucItem);
-	const PPGoodsStruc * P_Struc;
+	const PPGoodsStruc & R_Struc;
+	const int ItemIdx;
 	PPID  PreserveObjType;
+	GoodsStructFormulaResolutionCache & R_RCache;
 public:
-	GSPPItemDialog(const PPGoodsStruc * pStruc) : TDialog(DLG_GSPPITEM), P_Struc(pStruc), PreserveObjType(0)
+	GSPPItemDialog(const PPGoodsStruc & rStruc, int itemIdx, GoodsStructFormulaResolutionCache & rRCache) : 
+		TDialog(DLG_GSPPITEM), R_Struc(rStruc), ItemIdx(itemIdx), PreserveObjType(0), R_RCache(rRCache)
 	{
 		//addGroup(ctlgroupGoods, new GoodsCtrlGroup(CTLSEL_GSITEM_GGRP, CTLSEL_GSITEM_GOODS));
 		// @v12.3.6 addGroup(ctlgroupArticle, new ArticleCtrlGroup(CTLSEL_GSITEM_GGRP, 0, CTLSEL_GSITEM_GOODS, 0, 0));
+		setCtrlReadOnly(CTL_GSITEM_V_EVALED, true);
 	}
 	DECL_DIALOG_SETDTS()
 	{
@@ -1483,9 +1728,12 @@ public:
 		SString temp_buf;
 		RVALUEPTR(Data, pData);
 		Data.ObjType = PPOBJ_BIZSCORE2;
-		SetupPPObjCombo(this, CTLSEL_GSITEM_BIZSCORE, PPOBJ_BIZSCORE2, Data.GoodsID, 0);
+		setCtrlData(CTL_GSITEM_SYMB, Data.Symb);
+		SetupPPObjCombo(this, CTLSEL_GSITEM_BIZSCORE, PPOBJ_BIZSCORE2, Data.GoodsID, OLW_CANINSERT);
 		temp_buf = Data.Formula__;
 		setCtrlString(CTL_GSITEM_FORMULA, temp_buf);
+		setCtrlReal(CTL_GSITEM_V_MANUAL, Data.ManualValue);
+		selectCtrl(CTL_GSITEM_BIZSCORE);
 		return ok;
 	}
 	DECL_DIALOG_GETDTS()
@@ -1494,6 +1742,7 @@ public:
 		uint   sel = 0;
 		SString temp_buf;
 		PPID   obj_type = PPOBJ_BIZSCORE2;
+		getCtrlData(CTL_GSITEM_SYMB, Data.Symb);
 		getCtrlData(CTLSEL_GSITEM_BIZSCORE, &Data.GoodsID);
 		Data.Flags |= GSIF_BIZSC2;
 		{
@@ -1501,14 +1750,27 @@ public:
 			// @todo THROW(temp_buf.NotEmptyS()); // @todo @err
 			STRNSCPY(Data.Formula__, temp_buf);
 		}
+		getCtrlData(CTL_GSITEM_V_MANUAL, &Data.ManualValue);
 		ASSIGN_PTR(pData, Data);
-		CATCHZOKPPERRBYDLG
+		//CATCHZOKPPERRBYDLG
 		return ok;
 	}
 private:
 	DECL_HANDLE_EVENT
 	{
 		TDialog::handleEvent(event);
+		if(event.isKeyDown(kbF2)) {
+			if(isCurrCtlID(CTL_GSITEM_V_EVALED) && ItemIdx >= 0) {
+				SString temp_buf;
+				double value = 0.0;
+				getCtrlData(CTLSEL_GSITEM_BIZSCORE, &Data.GoodsID);
+				getCtrlString(CTL_GSITEM_FORMULA, temp_buf);
+				STRNSCPY(Data.Formula__, temp_buf);
+				if(R_RCache.Resolve(ItemIdx, &value) > 0) {
+					setCtrlReal(CTL_GSITEM_V_EVALED, value);
+				}
+			}
+		}
 	}
 };
 
@@ -1518,15 +1780,18 @@ class GSItemDialog : public TDialog {
 		ctlgroupGoods = 1
 	};
 	PPObjGoods GObj;
-	const PPGoodsStruc * P_Struc;
+	const PPGoodsStruc & R_Struc;
+	const int   ItemIdx;
 	double Price;
 	double NettBruttCoeff;
+	GoodsStructFormulaResolutionCache & R_RCache;
 public:
-	GSItemDialog(const PPGoodsStruc * pStruc) : TDialog(DLG_GSITEM), P_Struc(pStruc), Price(0.0), NettBruttCoeff(0.0)
+	GSItemDialog(const PPGoodsStruc & rStruc, int itemIdx, GoodsStructFormulaResolutionCache & rRCache) : 
+		TDialog(DLG_GSITEM), R_Struc(rStruc), ItemIdx(itemIdx), Price(0.0), NettBruttCoeff(0.0), R_RCache(rRCache)
 	{
 		disableCtrl(CTL_GSITEM_PRICE, true);
 		addGroup(ctlgroupGoods, new GoodsCtrlGroup(CTLSEL_GSITEM_GGRP, CTLSEL_GSITEM_GOODS));
-		DisableClusterItem(CTL_GSITEM_UNITS, 3, (P_Struc->Rec.Flags & GSF_PARTITIAL) ? 0 : 1);
+		DisableClusterItem(CTL_GSITEM_UNITS, 3, (R_Struc.Rec.Flags & GSF_PARTITIAL) ? 0 : 1);
 	}
 	DECL_DIALOG_SETDTS()
 	{
@@ -1537,23 +1802,21 @@ public:
 		long   goods_sel_flags = GoodsCtrlGroup::enableInsertGoods|GoodsCtrlGroup::disableEmptyGoods;
 		setCtrlReal(CTL_GSITEM_NETTO, Data.Netto);
 		setCtrlData(CTL_GSITEM_SYMB, Data.Symb);
-		if(P_Struc) {
-			const PPGoodsStrucItem * p_main_item = P_Struc->GetMainItem(0);
+		{
+			const PPGoodsStrucItem * p_main_item = R_Struc.GetMainItem(0);
 			if(p_main_item && p_main_item->GoodsID != Data.GoodsID && !(Data.Flags & GSIF_MAINITEM))
 				DisableClusterItem(CTL_GSITEM_FLAGS, 2, 1);
-			if(P_Struc->GetKind() != PPGoodsStruc::kGift) {
+			if(R_Struc.GetKind() != PPGoodsStruc::kGift) {
 				disableCtrl(CTL_GSITEM_GROUPONLY, true);
 				Data.Flags &= ~GSIF_GOODSGROUP;
 			}
 		}
-		else
-			disableCtrl(CTL_GSITEM_GROUPONLY, true);
 		setCtrlUInt16(CTL_GSITEM_GROUPONLY, BIN(Data.Flags & GSIF_GOODSGROUP));
 		if(Data.Flags & GSIF_GOODSGROUP) {
 			goods_sel_flags &= ~GoodsCtrlGroup::disableEmptyGoods;
 			goods_sel_flags |= GoodsCtrlGroup::enableSelUpLevel;
 		}
-		DisableClusterItem(CTL_GSITEM_FLAGS, 3, !P_Struc || !(P_Struc->Rec.Flags & GSF_PARTITIAL));
+		DisableClusterItem(CTL_GSITEM_FLAGS, 3, !(R_Struc.Rec.Flags & GSF_PARTITIAL));
 		GoodsCtrlGroup::Rec rec(0, Data.GoodsID, 0, goods_sel_flags);
 		setGroupData(ctlgroupGoods, &rec);
 		setCtrlString(CTL_GSITEM_VALUE, Data.GetEstimationString(temp_buf));
@@ -1611,7 +1874,7 @@ public:
 		getCtrlString(sel = CTL_GSITEM_VALUE, temp_buf.Z());
 		THROW(Data.SetEstimationString(temp_buf));
 		getCtrlString(sel = CTL_GSITEM_FORMULA, temp_buf.Z());
-		THROW(Data.SetFormula(temp_buf, P_Struc));
+		THROW(Data.SetFormula(temp_buf, &R_Struc));
 		getCtrlData(CTL_GSITEM_NETTO, &Data.Netto);
 		getCtrlData(CTL_GSITEM_SYMB, Data.Symb);
 		SETFLAG(Data.Flags, GSIF_GOODSGROUP, getCtrlUInt16(CTL_GSITEM_GROUPONLY));
@@ -1662,14 +1925,14 @@ private:
 			}
 		}
 		else if(event.isKeyDown(kbF6)) {
-			if(P_Struc && P_Struc->GoodsID && isCurrCtlID(CTL_GSITEM_VALUE)) {
+			if(R_Struc.GoodsID && isCurrCtlID(CTL_GSITEM_VALUE)) {
 				SString temp_buf;
 				double qtty = 0.0, phuperu;
 				PPGoodsStrucItem item;
 				getCtrlString(CTL_GSITEM_VALUE, temp_buf);
 				if(item.SetEstimationString(temp_buf) && item.GetQtty(1, &qtty) > 0) {
 					PPObjGoods goods_obj;
-					if(goods_obj.GetPhUPerU(P_Struc->GoodsID, 0, &phuperu) > 0) {
+					if(goods_obj.GetPhUPerU(R_Struc.GoodsID, 0, &phuperu) > 0) {
 						item.Median = qtty * phuperu;
 						item.Denom = 1.0;
 						setCtrlString(CTL_GSITEM_VALUE, item.GetEstimationString(temp_buf));
@@ -1680,7 +1943,7 @@ private:
 				return;
 		}
 		else if(event.isKeyDown(kbF4)) {
-			if(P_Struc && P_Struc->GoodsID && isCurrCtlID(CTL_GSITEM_VALUE)) {
+			if(R_Struc.GoodsID && isCurrCtlID(CTL_GSITEM_VALUE)) {
 				SString temp_buf;
 				double qtty = 0.0;
 				PPGoodsStrucItem item;
@@ -1709,50 +1972,50 @@ private:
 	}
 };
 
-static int Helper_EditGoodsStrucItem_Ordinary(const PPGoodsStruc * pStruc, PPGoodsStrucItem * pItem)
+static int EditGoodsStrucItem(const PPGoodsStruc & rStruc, int itemIdx, PPGoodsStrucItem * pItem, GoodsStructFormulaResolutionCache & rRCache)
 {
-	int    ok = -1;
-	int    valid_data = 0;
-	GSItemDialog * dlg = 0;
-	THROW(CheckDialogPtr(&(dlg = new GSItemDialog(pStruc))));
-	dlg->setDTS(pItem);
-	while(!valid_data && ExecView(dlg) == cmOK) {
-		ok = -1;
-		if(dlg->getDTS(pItem)) {
-			ok = valid_data = 1;
+	class Inner {
+	public:
+		static int EditGoodsStrucItem_Ordinary(const PPGoodsStruc & rStruc, int itemIdx, PPGoodsStrucItem * pItem, GoodsStructFormulaResolutionCache & rRCache)
+		{
+			int    ok = -1;
+			GSItemDialog * dlg = 0;
+			THROW(CheckDialogPtr(&(dlg = new GSItemDialog(rStruc, itemIdx, rRCache))));
+			dlg->setDTS(pItem);
+			while(ok < 0 && ExecView(dlg) == cmOK) {
+				if(dlg->getDTS(pItem))
+					ok = 1;
+			}
+			CATCHZOK
+			delete dlg;
+			return ok;
 		}
-	}
-	CATCHZOKPPERR
-	delete dlg;
-	return ok;
-}
-
-static int Helper_EditGoodsStrucItem_PricePlanning(const PPGoodsStruc * pStruc, PPGoodsStrucItem * pItem)
-{
-	int    ok = -1;
-	int    valid_data = 0;
-	GSPPItemDialog * dlg = 0;
-	THROW(CheckDialogPtr(&(dlg = new GSPPItemDialog(pStruc))));
-	dlg->setDTS(pItem);
-	while(!valid_data && ExecView(dlg) == cmOK) {
-		ok = -1;
-		if(dlg->getDTS(pItem)) {
-			ok = valid_data = 1;
+		static int EditGoodsStrucItem_PricePlanning(const PPGoodsStruc & rStruc, int itemIdx, PPGoodsStrucItem * pItem, GoodsStructFormulaResolutionCache & rRCache)
+		{
+			int    ok = -1;
+			GSPPItemDialog * dlg = 0;
+			THROW(CheckDialogPtr(&(dlg = new GSPPItemDialog(rStruc, itemIdx, rRCache))));
+			dlg->setDTS(pItem);
+			while(ok < 0 && ExecView(dlg) == cmOK) {
+				if(dlg->getDTS(pItem))
+					ok = 1;
+			}
+			CATCHZOK
+			delete dlg;
+			return ok;
 		}
-	}
-	CATCHZOKPPERR
-	delete dlg;
-	return ok;
-}
-
-static int EditGoodsStrucItem(const PPGoodsStruc * pStruc, PPGoodsStrucItem * pItem)
-{
+	};
 	int    ok = -1;
-	if(pStruc && pItem) {
-		if(pStruc->GetKind() == PPGoodsStruc::kPricePlanning)
-			ok = Helper_EditGoodsStrucItem_PricePlanning(pStruc, pItem);
-		else
-			ok = Helper_EditGoodsStrucItem_Ordinary(pStruc, pItem);
+	if(pItem) {
+		if(rStruc.GetKind() == PPGoodsStruc::kPricePlanning) {
+			ok = Inner::EditGoodsStrucItem_PricePlanning(rStruc, itemIdx, pItem, rRCache);
+		}
+		else {
+			ok = Inner::EditGoodsStrucItem_Ordinary(rStruc, itemIdx, pItem, rRCache);
+		}
+		if(!ok) {
+			PPError();
+		}
 	}
 	return ok;
 }
@@ -1775,13 +2038,14 @@ int GSDialog::editItemDialog(int pos, PPGoodsStrucItem * pData)
 		if(v & 4)
 			item.Flags |= GSIF_PCTVAL;
 	}
-	while(EditGoodsStrucItem(&Data, &item) > 0)
+	while(EditGoodsStrucItem(Data, pos, &item, RCache) > 0) {
 		if(!checkDupGoods(pos, &item))
 			PPError();
 		else {
 			*pData = item;
 			return 1;
 		}
+	}
 	return -1;
 }
 
@@ -1842,6 +2106,7 @@ int GSDialog::addItemExt(long * pPos, long * pID)
 int GSDialog::addItemBySample()
 {
 	class GoodsStrucCopyDialog : public TDialog {
+		DECL_DIALOG_DATA(GoodsStrucCopyParam);
 		enum {
 			ctlgroupGoods = 1
 		};
@@ -1850,7 +2115,7 @@ int GSDialog::addItemBySample()
 		{
 			addGroup(ctlgroupGoods, new GoodsCtrlGroup(CTLSEL_GSCOPY_GGRP, CTLSEL_GSCOPY_GOODS));
 		}
-		int    setDTS(const GoodsStrucCopyParam * pData)
+		DECL_DIALOG_SETDTS()
 		{
 			RVALUEPTR(Data, pData);
 			int    ok = 1;
@@ -1859,10 +2124,10 @@ int GSDialog::addItemBySample()
 			SetupPPObjCombo(this, CTLSEL_GSCOPY_GSTRUC, PPOBJ_GOODSSTRUC, Data.GStrucID, 0, reinterpret_cast<void *>(Data.GoodsID));
 			return ok;
 		}
-		int    getDTS(GoodsStrucCopyParam * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
-			uint   sel =0;
+			uint   sel = 0;
 			GoodsCtrlGroup::Rec rec;
 			getGroupData(ctlgroupGoods, &rec);
 			Data.GoodsID = rec.GoodsID;
@@ -1886,7 +2151,6 @@ int GSDialog::addItemBySample()
 				clearEvent(event);
 			}
 		}
-		GoodsStrucCopyParam Data;
 	};
 	int    ok = -1;
 	GoodsStrucCopyDialog * dlg = new GoodsStrucCopyDialog;
@@ -1900,17 +2164,19 @@ int GSDialog::addItemBySample()
 		}
 		GscParam.GStrucID = 0;
 		dlg->setDTS(&GscParam);
-		for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;)
+		for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;) {
 			if(dlg->getDTS(&GscParam)) {
 				PPGoodsStruc temp;
-				if(GsObj.Get(GscParam.GStrucID, &temp) > 0)
+				if(GsObj.Get(GscParam.GStrucID, &temp) > 0) {
 					if(Data.IsEmpty() || CONFIRM(PPCFM_SELNAMEDSTRUC)) {
 						Data.Items.freeAll();
 						Data.CopyItemsFrom(&temp);
 						updateList(-1);
 						ok = valid_data = 1;
 					}
+				}
 			}
+		}
 	}
 	delete dlg;
 	return ok;
@@ -1918,7 +2184,7 @@ int GSDialog::addItemBySample()
 
 int GSDialog::editItem(long pos, long)
 {
-	if(pos >= 0 && pos < (long)Data.Items.getCount() && editItemDialog((int)pos, &Data.Items.at(static_cast<uint>(pos))) > 0) {
+	if(pos >= 0 && pos < Data.Items.getCountI() && editItemDialog(pos, &Data.Items.at(static_cast<uint>(pos))) > 0) {
 		Changed = 1;
 		return 1;
 	}
@@ -2048,13 +2314,18 @@ void GSExtDialog::selNamedGS()
 
 int GSExtDialog::setupList()
 {
-	PPGoodsStruc * p_item = 0;
-	for(uint i = 0; Data.Children.enumItems(&i, (void **)&p_item);) {
+	//PPGoodsStruc * p_item = 0;
+	//for(uint i = 0; Data.Children.enumItems(&i, (void **)&p_item);) {
+	SString temp_buf;
+	StringSet ss(SLBColumnDelim);
+	for(uint i = 0; i < Data.Children.getCount(); i++) {
+		const PPGoodsStruc * p_item = Data.Children.at(i);
 		char   sub[128];
-		StringSet ss(SLBColumnDelim);
-		ss.add(STRNSCPY(sub, p_item->Rec.Name));
-		ss.add(periodfmt(&p_item->Rec.Period, sub));
-		if(!addStringToList(i, ss.getBuf()))
+		ss.Z();
+		ss.add(p_item->Rec.Name);
+		// @v12.3.7 ss.add(periodfmt(p_item->Rec.Period, sub));
+		ss.add(p_item->Rec.Period.ToStr(0, temp_buf)); // @v12.3.7
+		if(!addStringToList(i+1, ss.getBuf()))
 			return 0;
 	}
 	return 1;
@@ -2219,7 +2490,7 @@ int PPObjGoodsStruc::Helper_LoadItems(PPID id, PPGoodsStruc * pData)
 		}
 		// } @v12.0.7 
 		item.Median  = p_raw_item->Median;
-		item.Width   = p_raw_item->Width;
+		item.ManualValue = p_raw_item->ManualValue;
 		item.Denom   = p_raw_item->Denom;
 		item.Netto   = p_raw_item->Netto;
 		STRNSCPY(item.Symb, p_raw_item->Symb);
@@ -2233,7 +2504,8 @@ int PPObjGoodsStruc::Helper_LoadItems(PPID id, PPGoodsStruc * pData)
 
 int PPObjGoodsStruc::Get(PPID id, PPGoodsStruc * pData)
 {
-	int    ok = 1, r = 0;
+	int    ok = 1;
+	int    r = 0;
 	THROW(r = P_Ref->GetItem(Obj, id, &pData->Rec));
 	if(r > 0) {
 		pData->Items.clear(); // @v11.1.12 freeAll()-->clear()
@@ -2352,7 +2624,7 @@ int PPObjGoodsStruc::Put(PPID * pID, PPGoodsStruc * pData, int use_ta)
 				}
 				gsi.Flags  = pi->Flags;
 				gsi.Median = pi->Median;
-				gsi.Width  = pi->Width;
+				gsi.ManualValue = pi->ManualValue;
 				gsi.Denom  = pi->Denom;
 				gsi.Netto  = pi->Netto;
 				STRNSCPY(gsi.Symb, pi->Symb);
@@ -2473,7 +2745,7 @@ int PPObjGoodsStruc::SerializePacket(int dir, PPGoodsStruc * pPack, SBuffer & rB
 		THROW_SL(pSCtx->Serialize(dir, MKSTYPE(S_INT, sizeof(PPID)), &item.GoodsID, 0, rBuf));
 		THROW_SL(pSCtx->Serialize(dir, MKSTYPE(S_INT, sizeof(long)), &item.Flags, 0, rBuf));
 		THROW_SL(pSCtx->Serialize(dir, MKSTYPE(S_FLOAT, sizeof(item.Median)), &item.Median, 0, rBuf));
-		THROW_SL(pSCtx->Serialize(dir, MKSTYPE(S_FLOAT, sizeof(item.Width)), &item.Width, 0, rBuf));
+		THROW_SL(pSCtx->Serialize(dir, MKSTYPE(S_FLOAT, sizeof(item.ManualValue)), &item.ManualValue, 0, rBuf));
 		THROW_SL(pSCtx->Serialize(dir, MKSTYPE(S_FLOAT, sizeof(item.Denom)), &item.Denom, 0, rBuf));
 		THROW_SL(pSCtx->Serialize(dir, MKSTYPE(S_FLOAT, sizeof(item.Netto)), &item.Netto, 0, rBuf));
 		THROW_SL(pSCtx->Serialize(dir, MKSTYPE(S_ZSTRING, sizeof(item.Symb)), item.Symb, 0, rBuf));
@@ -2563,7 +2835,7 @@ int PPObjGoodsStruc::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int repla
 int PPObjGoodsStruc::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 {
 	int    ok = DBRPL_OK;
-	if(msg == DBMSG_OBJDELETE)
+	if(msg == DBMSG_OBJDELETE) {
 		if(_obj == PPOBJ_GOODS) {
 			ObjAssocTbl::Rec assc_rec;
 			SEnum en = P_Ref->Assc.Enum(PPASS_GOODSSTRUC, _id, 1);
@@ -2571,7 +2843,8 @@ int PPObjGoodsStruc::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 				ok = RetRefsExistsErr(Obj, assc_rec.PrmrObjID);
 			}
 		}
-	if(msg == DBMSG_OBJREPLACE)
+	}
+	if(msg == DBMSG_OBJREPLACE) {
 		if(_obj == PPOBJ_GOODS) {
 			ObjAssocTbl * t = &P_Ref->Assc;
 			if(!updateFor(t, 0, (t->AsscType == PPASS_GOODSSTRUC && t->ScndObjID == _id),
@@ -2579,6 +2852,7 @@ int PPObjGoodsStruc::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 				ok = PPSetErrorDB();
 			}
 		}
+	}
 	return ok;
 }
 
@@ -2622,7 +2896,7 @@ int GStrucIterator::LoadItems(const PPGoodsStruc * pStruc, PPID parentGoodsID, d
 {
 	int    ok = 1;
 	if(pStruc) {
-		long   fmt = MKSFMTD(0, 5, NMBF_NOTRAILZ);
+		const long fmt = MKSFMTD(0, 5, NMBF_NOTRAILZ);
 		double dest_qtty = 0.0;
 		SString s_qtty;
 		PPObjGoods g_obj;
@@ -2697,7 +2971,9 @@ int PPObjGoodsStruc::CheckStruct(PPIDArray * pGoodsIDs, PPIDArray * pStructIDs, 
 		const int gs_kind = PPGoodsStruc::GetStrucKind(pStruc->Rec.Flags);
 		SString fmt_buf;
 		SString buf;
-		SString g_name, cg_name, cstruc_name;
+		SString g_name;
+		SString cg_name;
+		SString cstruc_name;
 		SString struc_name;
 		PPObjGoods goods_obj;
 		ideqvalstr(pStruc->Rec.ID, struc_name);
@@ -2768,7 +3044,7 @@ int PPObjGoodsStruc::CheckStruct(PPIDArray * pGoodsIDs, PPIDArray * pStructIDs, 
 				THROW(goods_obj.LoadGoodsStruc(PPGoodsStruc::Ident(p_item->GoodsID), &gstruc));
 				if((g = pGoodsIDs->lsearch(p_item->GoodsID)) > 0 || (s = pStructIDs->lsearch(gstruc.Rec.ID)) > 0) {
 					recur = 1;
-					PPID   goods_id = (pGoodsIDs->getCount() > 0) ? pGoodsIDs->at(pGoodsIDs->getCount() - 1) : 0;
+					const PPID goods_id = pGoodsIDs->getCount() ? pGoodsIDs->at(pGoodsIDs->getCount()-1) : 0;
 					GetGoodsName(goods_id, g_name);
 					GetGoodsName(p_item->GoodsID, cg_name);
 					(cstruc_name = gstruc.Rec.Name).Strip();

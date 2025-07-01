@@ -1991,7 +1991,7 @@ SDataType_Color::SDataType_Color() : DataType(sizeof(SColorBase))
 char * SDataType_Color::tostr(const void * pData, long format, char * pBuf) const
 {
 	SString temp_buf;
-	static_cast<const SColorBase *>(pData)->ToStr(temp_buf, /*format*/0);
+	static_cast<const SColorBase *>(pData)->ToStr(0/*format*/, temp_buf);
 	temp_buf.CopyTo(pBuf, 0);
 	return pBuf;
 }
@@ -1999,7 +1999,7 @@ char * SDataType_Color::tostr(const void * pData, long format, char * pBuf) cons
 SString & SDataType_Color::ToStr(const void * pData, long format, SString & rBuf) const
 {
 	rBuf.Z();
-	static_cast<const SColorBase *>(pData)->ToStr(rBuf, /*format*/0);
+	static_cast<const SColorBase *>(pData)->ToStr(0/*format*/, rBuf);
 	return rBuf;
 }
 

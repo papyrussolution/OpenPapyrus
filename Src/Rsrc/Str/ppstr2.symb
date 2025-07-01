@@ -1,18 +1,18 @@
 
 [hash]
-base=ppstr2.txt,X7NvulUFpuDTYSHU1mFGbF+5tGExboXioEpjgzSOY7I=,ppstr2.bin,uGay+ov4TpOp/2Q2mXA1WkdmvReWk1zJYiS1tqTelrc=
+base=ppstr2.txt,uj5rFI9EbIig9fEu6RwlISX4urYv2i/VG/zxekdlhjw=,ppstr2.bin,RH5rFaJfnI0FHoR44P1skhABWYHqOwajYQw2LxckNpY=
 lang-de=ppstr2-de.txt,uiF+XJVJlyDjw7nInhf/AFcW9Tl0++UYflUahSBUK/Y=,ppstr2-de.bin,z5tTW3wrQRt4866sMd5LWX/oYCLHknIJxj6FbKYnSek=
 lang-en=ppstr2-en.txt,wNMuDQEJ8iXS8+Jpd9MAWdg8exLsMCYnqYI0euY1I0Y=,ppstr2-en.bin,5cMKdf3XAXJZe9nWJkS0b2yRiluKkMmBbOM4faM39TI=
 lang-es=ppstr2-es.txt,6DBYF21pt4umLyjG1Rx9bHiNzqHNfQg0oJPNpqQHaL8=,ppstr2-es.bin,jN0oN2zuyiQYf2BQ4rSZo9Fbb/rXRRQTRRg9UgDu54E=
 lang-nl=ppstr2-nl.txt,Zd2VsGPQmBS07XH9hMNEWniNNGEabqE6Uvt5JiQH7Z4=,ppstr2-nl.bin,AqlBiG6YphrbirG4xBKskUNJxcR7ddb/aAT3jXXGCw4=
 lang-pt=ppstr2-pt.txt,hd0YO5YgL7gA2GCadBf7ZRUbAkdgaMaUIQtpfOCrjyM=,ppstr2-pt.bin,jJjEwXMtYJKHJW0wLDUHUXHkn1XOj1KDsbw5UpAVBWw=
-chdr=ppstr2.h,wK+ludwavM4+wEmMKx5Z1gI5Uwj/xM+ZupMqma0wQJQ=
-java=ppstr2.java,1uuEuG+RS0WdFPYIjnT5ML56SFhItJu7lrPq5G3E39Q=
+chdr=ppstr2.h,Kb3n1AX3HrsCsYtOJ+6fOAqee8Lwg0i7/NyIZg28ciA=
+java=ppstr2.java,QXpbISghiv+NEZFXj0N2on7K2lXHL5na8pcSoKyLUHA=
 
 [common]
 LastAutoGrpCode=1001
-LastSignatureCode=2147498994
-LastAutoCodeList=1,12431;102,10179;103,10073;110,10000;111,13013;112,10000;119,10000;114,10012;7,10000;4,10000;6,10000;342,10000;118,10310;120,10010;1001,10000;121,10000;122,10000;123,10658;124,10795;125,10128
+LastSignatureCode=2147499004
+LastAutoCodeList=1,12433;102,10179;103,10073;110,10000;111,13022;112,10000;119,10000;114,10012;7,10000;4,10000;6,10000;342,10000;118,10310;120,10010;1001,10000;121,10000;122,10000;123,10659;124,10795;125,10128
 
 [SignatureList]
 testsign1=2147495071
@@ -30,6 +30,7 @@ lbt_arcodelist=2147483660
 lbt_araliasesubst=2147483661
 lbt_autonewprice=2147483662
 lbt_bnkacclist=2147483663
+lbt_bankacclist=2147483728
 lbt_billamtlist=2147483664
 lbt_bucfgselect=2147483665
 lbt_attchfilelist=2147483666
@@ -95,7 +96,6 @@ lbt_csessamtlist=2147483724
 lbt_mobclmnlist=2147483725
 lbt_draftwroff=2147483726
 lbt_articlealssubst=2147483727
-lbt_bankacclist=2147483728
 lbt_aturntempllist=2147483729
 lbt_gbasket=2147483730
 lbt_billvataxlist=2147483731
@@ -2136,6 +2136,7 @@ obj_goodstax=2147485276
 obj_freightpackagetype=2147485277
 obj_taxsystemkind=2147495201
 obj_tssmodel=2147495202
+obj_salesrestriction=2147498999
 tsks_planned=2147485280
 tsks_planned_tsesplan=2147485281
 tsks_pending=2147485282
@@ -2648,6 +2649,7 @@ rtag_lot_mp_stocktimestamp=2147495329
 rtag_person_spctaxgroup=2147495330
 rtag_bill_orgorderident=2147495331
 rtag_loc_spctaxgroup=2147495332
+rtag_goods_salesrestr=2147499004
 rregt_passport=2147485696
 rregt_regfree=2147485697
 rregt_tpid=2147495333
@@ -2817,6 +2819,7 @@ view_swprogram=2147495379
 view_computer=2147495380
 view_clientactivitydetails=2147495381
 view_clientactivity=2147495382
+view_unitec=2147498997
 filter_cashnodepane=2147485829
 filter_prcssrwroffdraftparam=2147485830
 filter_prcssrunifypriceparam=2147485831
@@ -3083,6 +3086,7 @@ cmd_goodstax=2147495474
 cmd_goodsturnover=2147495475
 cmd_goodstype=2147486028
 cmd_goodsvalrestr=2147495476
+cmd_salesrestriction=2147499003
 cmd_groups_n_users=2147486030
 cmd_gtajournal=2147495477
 cmd_impexplistconfig=2147495478
@@ -3356,6 +3360,7 @@ cmd_marketplacecfg=2147495589
 cmd_aptekaruinterchange=2147495590
 cmd_gathercliactivitystatistics=2147495591
 cmd_clientactivity=2147495592
+cmd_unitec=2147498998
 cmdpu_admin=2147486280
 cmdpu_salesanalyze=2147486281
 cmdpu_accounting=2147486282
@@ -4039,6 +4044,7 @@ bizscore_linkobjtype=2147498985
 bizscore_linkext=2147498986
 bizscore_accsheet=2147498990
 bizscore_timecycle=2147498991
+bizscore_cls=2147498996
 bizscorefilt=2147486917
 bizscorevalfilt=2147486918
 bizscorevalfilt_calcperiod=2147493938
@@ -5882,6 +5888,7 @@ goodsstruc_cmd_expand=2147488618
 goodsstruc_info_belongtodyngen=2147488619
 goodsstruc_reduct=2147488620
 goodsstruc_substruc=2147488621
+goodsstruc_giftparam=2147498995
 goodsstructotal=2147493906
 goodsstructotal_linecount=2147496623
 goodsstructotal_goodscount=2147493908
@@ -6468,6 +6475,9 @@ pallet_maxload=2147489144
 pallet_name=2147496826
 pallet_symb=2147496827
 pallet_tag=2147496828
+salesrestriction=2147499000
+salesrestriction_minage=2147499001
+salesrestriction_period=2147499002
 person_cat=2147496829
 person_division=2147496830
 person_flags=2147496831
@@ -13692,6 +13702,8 @@ PPERR_DL6_PROP_PPADDINGOCCURED=77964
 PPERR_DL6_PROP_PADDINGRANGEVIOL=77965
 PPERR_STQ_UNDEFSTYLOPALMITEM_BYCLI=77966
 PPERR_STQ_UNDEFSTYLOPALMITEM_BYCMD=77967
+PPERR_DL6_PROP_INVALIDSYMB=77968
+PPERR_DL6_UISUPPLEMENT_UNDEFKIND=77969
 PPCFM_TEXT_89=6694673
 PPCFM_TEXT_90=6694674
 PPCFM_DELUSRGRP=6694675
@@ -16089,6 +16101,15 @@ PPTXT_DEV_DL600IFCUUIDFILEOK=7287506
 PPTXT_ERR_EGAIS_PUTCCSHADOW=7287507
 PPFILNAM_DL600UIVIEW=7287508
 PPFILNAM_DL600UIVIEWLOCAL=7287509
+PPTXT_BSCCLS_INC_SALE_UNIT=7287510
+PPTXT_BSCCLS_EXP_SALE_UNIT=7287511
+PPTXT_BSCCLS_EXP_PURCHASE_UNIT=7287512
+PPTXT_BSCCLS_EXP_TRANSFER_UNIT=7287513
+PPTXT_BSCCLS_EXP_STORAGE_UNIT=7287514
+PPTXT_BSCCLS_EXP_PRESALE_UNIT=7287515
+PPTXT_BSCCLS_EXP_PRESALE_SKU_TIME=7287516
+PPTXT_BSCCLS_EXP_PROMO_SKU_TIME=7287517
+PPTXT_BSCCLS_EXP_PROMO_TIME=7287518
 PPSSYM_SYMB=7481111
 PPSSYM_ACCSIDE=7481112
 PPSSYM_CMDLINEOP=7481113
@@ -16582,6 +16603,7 @@ PPHS_TIMEZONES=8071583
 PPHS_EXECJOBIMM=8071584
 PPHS_GETDBINFO=8071585
 PPHS_EGAISMARKAUTOSELECTION=8071586
+PPHS_SALESRESTRICTION=8071587
 PPHSC_RU_FILE=8136866
 PPHSC_RU_IDFILE=8136867
 PPHSC_RU_VERPROG=8136868

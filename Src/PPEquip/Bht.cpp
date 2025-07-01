@@ -1262,7 +1262,7 @@ public:
 		AddClusterAssoc(CTL_SBIICFG_FLAGS, 6, StyloBhtIIConfig::fAllowUnknownGoods);
 		AddClusterAssoc(CTL_SBIICFG_FLAGS, 7, StyloBhtIIConfig::fInputBillRowNumber);
 		SetClusterData(CTL_SBIICFG_FLAGS, Data.Flags);
-		SetPeriodInput(this, CTL_SBIICFG_DOCPRD, &Data.ExportBillsPeriod);
+		SetPeriodInput(this, CTL_SBIICFG_DOCPRD, Data.ExportBillsPeriod);
 		SetupPPObjCombo(this, CTLSEL_SBIICFG_PRINTER, PPOBJ_BCODEPRINTER, Data.BcdPrinterID, OLW_CANEDIT);
 		disableCtrl(CTL_SBIICFG_WEIGHTPREFX, true);
 		updateList(-1);

@@ -2619,7 +2619,7 @@ static void FASTCALL _processFlags(TDialog * dlg, long flags)
 	int    sel = -1;
 	for(int i = 0; i < SIZEOFARRAY(_tab); i++) {
 		if(flags & _tab[i].f)
-			dlg->disableCtrl(_tab[i].c, 1);
+			dlg->disableCtrl(_tab[i].c, true);
 		else if(sel == -1)
 			sel = _tab[i].c;
 	}
@@ -5407,7 +5407,7 @@ int PPObjBill::SetupQuot(PPBillPacket * pPack, PPID forceArID)
 		PPID   loc_id = IsIntrExpndOp(pPack->Rec.OpID) ? PPObjLocation::ObjToWarehouse(ar_id) : pPack->Rec.LocID;
 		SArray * p_qbo_ary = qkobj.MakeListByIDList(&ql);
 		THROW(p_qbo_ary);
-		if(p_qbo_ary->getCount() > 0) {
+		if(p_qbo_ary->getCount()) {
 			for(uint i = 0; !is_quot && pPack->EnumTItems(&i, &p_ti);) {
 				//
 				// Проверяем, чтобы хотя бы для одного товара из документа существовала
@@ -10633,7 +10633,7 @@ SLTEST_R(PPBillFormula)
 			}
 		}
 	}
-	if(bill_list.getCount() > 0 && l_formula_list.getCount() > 0 && r_formula_list.getCount() == l_formula_list.getCount()) {
+	if(bill_list.getCount() && l_formula_list.getCount() && r_formula_list.getCount() == l_formula_list.getCount()) {
 		uint formulas_count = l_formula_list.getCount();
 		for(uint i = 0; i < bill_list.getCount(); i++) {
 			PPBillPacket bpack;

@@ -2081,18 +2081,12 @@ ComDispInterface * COMMassaKVer1::InitDriver()
 	return p_drv;
 }
 
-int COMMassaKVer1::SetMKProp(PPID id, long lVal)
-	{ return BIN(P_DrvMassaK && P_DrvMassaK->SetProperty(id, lVal) > 0); }
-int COMMassaKVer1::SetMKProp(PPID id, const char * pStrVal)
-	{ return BIN(P_DrvMassaK && P_DrvMassaK->SetProperty(id, pStrVal) > 0); }
-int COMMassaKVer1::SetParam(long lVal)
-	{ return BIN(P_DrvMassaK && P_DrvMassaK->SetParam(lVal) > 0); }
-int COMMassaKVer1::SetParam(const char * pStrVal)
-	{ return BIN(P_DrvMassaK && P_DrvMassaK->SetParam(pStrVal) > 0); }
-int COMMassaKVer1::GetMKProp(PPID id, int & rVal)
-	{ return BIN(P_DrvMassaK && P_DrvMassaK->GetProperty(id, &rVal) > 0); }
-int COMMassaKVer1::GetMKProp(PPID id, double & rVal)
-	{ return BIN(P_DrvMassaK && P_DrvMassaK->GetProperty(id, &rVal) > 0); }
+int COMMassaKVer1::SetMKProp(PPID id, long lVal) { return BIN(P_DrvMassaK && P_DrvMassaK->SetProperty(id, lVal) > 0); }
+int COMMassaKVer1::SetMKProp(PPID id, const char * pStrVal) { return BIN(P_DrvMassaK && P_DrvMassaK->SetProperty(id, pStrVal) > 0); }
+int COMMassaKVer1::SetParam(long lVal) { return BIN(P_DrvMassaK && P_DrvMassaK->SetParam(lVal) > 0); }
+int COMMassaKVer1::SetParam(const char * pStrVal) { return BIN(P_DrvMassaK && P_DrvMassaK->SetParam(pStrVal) > 0); }
+int COMMassaKVer1::GetMKProp(PPID id, int & rVal) { return BIN(P_DrvMassaK && P_DrvMassaK->GetProperty(id, &rVal) > 0); }
+int COMMassaKVer1::GetMKProp(PPID id, double & rVal) { return BIN(P_DrvMassaK && P_DrvMassaK->GetProperty(id, &rVal) > 0); }
 
 int COMMassaKVer1::ExecMKOper(PPID id)
 {
@@ -2144,7 +2138,8 @@ int COMMassaKVer1::CloseConnection_()
 int COMMassaKVer1::GetData(int * pGdsNo, double * pWeight)
 {
 	int    ok = 1;
-	int    division = 0, stable = 0;
+	int    division = 0;
+	int    stable = 0;
 	double weight = 0.0;
 	//char   ip[16];
 	SString port_buf;
@@ -2253,8 +2248,8 @@ int TCPIPMToledo::SetConnection()
 		long   res;
 		struct sockaddr_in sin;
 		THROW_PP((SocketHandle = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) != INVALID_SOCKET, PPERR_SCALE_NOSYNC);
-		sin.sin_family   = AF_INET;
-		sin.sin_port     = htons(3001);
+		sin.sin_family = AF_INET;
+		sin.sin_port   = htons(3001);
 		sin.sin_addr.S_un.S_addr = inet_addr(port_buf);
 		memzero(send_timeout, sizeof(send_timeout));
 		memzero(rcv_timeout,  sizeof(rcv_timeout));
@@ -2281,14 +2276,16 @@ int TCPIPMToledo::SetConnection()
 		}
 		PPGetFilePath(PPPATH_BIN, PPFILNAM_MTSCALE_CFG, buf);
 		PPSetAddedMsgString(buf);
-		THROW_PP(p_stream = fopen(buf, "w"), PPERR_CANTOPENFILE);
-		fprintf(p_stream, "[CONFIG]\nMEDIA=1\n");
-		fprintf(p_stream, "COMPORT=2\n");
-		fprintf(p_stream, "THREADNUM=1\n");
-		fprintf(p_stream, "[%i]\nNAME=%s\n", (int)Data.Rec.LogNum, Data.Rec.Name);
-		fprintf(p_stream, "IP=%s\n", port_buf.cptr());
-		fprintf(p_stream, "PORT=3001");
-		SFile::ZClose(&p_stream);
+		{
+			THROW_PP(p_stream = fopen(buf, "w"), PPERR_CANTOPENFILE);
+			fprintf(p_stream, "[CONFIG]\nMEDIA=1\n");
+			fprintf(p_stream, "COMPORT=2\n");
+			fprintf(p_stream, "THREADNUM=1\n");
+			fprintf(p_stream, "[%i]\nNAME=%s\n", (int)Data.Rec.LogNum, Data.Rec.Name);
+			fprintf(p_stream, "IP=%s\n", port_buf.cptr());
+			fprintf(p_stream, "PORT=3001");
+			SFile::ZClose(&p_stream);
+		}
 		PPGetFilePath(PPPATH_BIN, PPFILNAM_MTSCALE_DATA, buf);
 		PPSetAddedMsgString(buf);
 		THROW_PP(P_PLUStream = fopen(buf, "w"), PPERR_CANTOPENFILE);
@@ -4187,7 +4184,7 @@ public:
 	{
 		TButton * p_sys_btn = static_cast<TButton *>(getCtrlView(CTL_SCALE_SYSBTN));
 		if(p_sys_btn)
-			DefSysBtnText = p_sys_btn->Title;
+			DefSysBtnText = p_sys_btn->GetText();
 	}
 	int    setDTS(const PPScalePacket * pData);
 	int    getDTS(PPScalePacket * pData);
@@ -4312,8 +4309,7 @@ void ScaleDialog::ReplyScaleTypeSelection(PPID scaleTypeID)
 		else
 			sys_btn_text = DefSysBtnText;
 		sys_btn_text.Transf(CTRANSF_INNER_TO_OUTER);
-		p_sys_btn->Title = sys_btn_text;
-		TView::SSetWindowText(GetDlgItem(H(), CTL_SCALE_SYSBTN), p_sys_btn->Title);
+		p_sys_btn->SetText(sys_btn_text);
 	}
 }
 

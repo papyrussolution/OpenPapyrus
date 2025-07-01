@@ -1,11 +1,7 @@
-/*-
- * See the file LICENSE for redistribution information.
- *
- * Copyright (c) 1996, 2011 Oracle and/or its affiliates.  All rights reserved.
- *
- * $Id$
- */
-
+// See the file LICENSE for redistribution information.
+// Copyright (c) 1996, 2011 Oracle and/or its affiliates.  All rights reserved.
+// @codepage UTF-8
+//
 #ifndef _DB_LOG_H_
 #define	_DB_LOG_H_
 
@@ -137,7 +133,7 @@ struct __db_log {
 #define	DBLOG_RECOVER    0x0040 // We are in recovery. 
 #define	DBLOG_ZERO       0x0080 // Zero fill the log. 
 #define	DBLOG_VERIFYING  0x0100 // The log is being verified.
-#define	DBLOG_NOSYNC_    0x0800 // @bdb_v6223 Don't sync log files during flush. // В 6223 значения флагов изменились. DBLOG_NOSYNC равен 0x0040 (потому в конце символа - '_')
+#define	DBLOG_NOSYNC_    0x0800 // @bdb_v6223 Don't sync log files during flush. // Р’ 6223 Р·РЅР°С‡РµРЅРёСЏ С„Р»Р°РіРѕРІ РёР·РјРµРЅРёР»РёСЃСЊ. DBLOG_NOSYNC СЂР°РІРµРЅ 0x0040 (РїРѕС‚РѕРјСѓ РІ РєРѕРЅС†Рµ СЃРёРјРІРѕР»Р° - '_')
 	uint32 flags;
 };
 

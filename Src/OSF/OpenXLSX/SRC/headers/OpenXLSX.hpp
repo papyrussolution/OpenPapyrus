@@ -2571,15 +2571,56 @@
 			{
 				try {
 					if constexpr(std::is_same_v<std::decay_t<T>, std::string> || std::is_same_v<std::decay_t<T>, std::string_view> ||
-						std::is_same_v<std::decay_t<T>, const char*> || (std::is_same_v<std::decay_t<T>, char*> && !std::is_same_v<T, bool>))
-						return std::get<std::string>(m_value).c_str();
+						std::is_same_v<std::decay_t<T>, const char*> || (std::is_same_v<std::decay_t<T>, char*> && !std::is_same_v<T, bool>)) {
+						// @sobolev return std::get<std::string>(m_value).c_str();
+						// @sobolev {
+						if(m_type == XLValueType::Empty) {
+							return std::string("").c_str();
+						}
+						else if(oneof2(m_type, XLValueType::String, XLValueType::Error)) {
+							return std::get<std::string>(m_value).c_str();
+						}
+						else {
+							throw XLValueTypeError("XLCellValue object does not contain the requested type."); 
+						}
+						// } @sobolev 
+					}
 					else if(empty()) { // @sobolev
 						throw XLValueTypeError("XLCellValue object is empty.");
 					}
-					else if constexpr(std::is_same_v<T, bool>)
-						return std::get<bool>(m_value);
-					else if constexpr(std::is_integral_v<T>)
-						return static_cast<T>(std::get<int64_t>(m_value));
+					else if constexpr(std::is_same_v<T, bool>) {
+						if(m_type == XLValueType::Boolean) {
+							return std::get<bool>(m_value);
+						}
+						else if(m_type == XLValueType::String) {
+							const char * p_text = std::get<std::string>(m_value).c_str();
+							if(sstreqi_ascii(p_text, "true") || sstreqi_ascii(p_text, "yes") || sstreqi_ascii(p_text, ".t."))
+								return true;
+							else if(sstreqi_ascii(p_text, "false") || sstreqi_ascii(p_text, "no") || sstreqi_ascii(p_text, ".f."))
+								return false;
+							else 
+								throw XLValueTypeError("XLCellValue object does not contain the requested type."); 
+						}
+						else
+							throw XLValueTypeError("XLCellValue object does not contain the requested type."); 
+					}
+					else if constexpr(std::is_integral_v<T>) {
+						if(m_type == XLValueType::Integer) {
+							return static_cast<T>(std::get<int64_t>(m_value));
+						}
+						else if(m_type == XLValueType::Float) {
+							return static_cast<T>(getDouble());
+						}
+						else if(m_type == XLValueType::String) {
+							return satoi64(std::get<std::string>(m_value).c_str());
+						}
+						else if(m_type == XLValueType::Boolean) {
+							return static_cast<T>(std::get<bool>(m_value));
+						}
+						else {
+							throw XLValueTypeError("XLCellValue object does not contain the requested type."); 
+						}
+					}
 					else if constexpr(std::is_floating_point_v<T>) {
 						return static_cast<T>(getDouble()); // 2025-01-10: allow implicit conversion of int and bool to double (string conversion disabled for now)
 						// if (m_type == XLValueType::Error) return static_cast<T>(std::nan("1"));
@@ -2598,38 +2639,18 @@
 			 * @return A double representation of value
 			 * @throws XLValueTypeError if the XLCellValue object is not convertible to double.
 			 */
-			double getDouble() const 
-			{
-				if(m_type == XLValueType::Error)
-					return static_cast<double>(std::nan("1"));
-				else {
-					try {
-						return std::visit(VisitXLCellValueTypeToDouble(), m_value);
-					}
-					catch(...) {
-						throw XLValueTypeError("XLCellValue object is not convertible to double.");
-					}
-				}
-			}
+			double getDouble() const;
 			/**
 			 * @brief get the cell value as a std::string, regardless of value type
 			 * @return A std::string representation of value
 			 * @throws XLValueTypeError if the XLCellValue object is not convertible to string.
 			 */
-			std::string getString()    // pull request #158 is covered by this
-			{
-				try {
-					return std::visit(VisitXLCellValueTypeToString(), m_value);
-				}
-				catch(...) { // 2024-05-27: was catch( string s ) - must have been a typo, currently nothing throws a string here
-					throw XLValueTypeError("XLCellValue object is not convertible to string.");
-				}
-			}
+			std::string getString();
 			/**
 			 * @brief get the cell value as a std::variant of XLCellValueType
 			 * @return a const reference to m_value
 			 */
-			const XLCellValueType& getVariant() const { return m_value; } // pull request #127
+			const XLCellValueType & getVariant() const { return m_value; } // pull request #127
 			/**
 			 * @brief Explicit conversion operator for easy conversion to supported types.
 			 * @tparam T The type to cast to.
@@ -2641,20 +2662,17 @@
 					std::is_integral_v<T> || std::is_floating_point_v<T> || std::is_same_v<std::decay_t<T>, std::string> ||
 					std::is_same_v<std::decay_t<T>, std::string_view> || std::is_same_v<std::decay_t<T>, const char*> ||
 					std::is_same_v<std::decay_t<T>, char*> || std::is_same_v<T, XLDateTime> > >
-			operator T() const
-			{
-				return this->get<T>();
-			}
+			operator T() const { return this->get<T>(); }
 			/**
 			 * @brief Clears the contents of the XLCellValue object.
 			 * @return Returns a reference to the current object.
 			 */
-			XLCellValue& clear();
+			XLCellValue & clear();
 			/**
 			 * @brief Sets the value type to XLValueType::Error.
 			 * @return Returns a reference to the current object.
 			 */
-			XLCellValue& setError(const std::string& error);
+			XLCellValue & setError(const std::string& error);
 			/**
 			 * @brief Get the value type of the current object.
 			 * @return An XLValueType for the current object.
@@ -3559,7 +3577,7 @@
 				inline virtual std::unique_ptr<Concept> clone() const = 0;
 				inline virtual bool isValid() const = 0;
 				inline virtual bool isOpen() const = 0;
-				inline virtual void open(const std::string& fileName) = 0;
+				inline virtual void open(const std::string & fileName) = 0;
 				inline virtual void close() = 0;
 				inline virtual void save(const std::string& path) = 0;
 				inline virtual void addEntry(const std::string& name, const std::string& data) = 0;
@@ -3648,7 +3666,9 @@
 
 		class XLQuery {
 		public:
-			explicit XLQuery(XLQueryType type) : m_type(type) {}
+			explicit XLQuery(XLQueryType type) : m_type(type) 
+			{
+			}
 			template <typename T> XLQuery& setParam(const std::string& param, T value)
 			{
 				m_params[param] = value;
@@ -4805,8 +4825,8 @@
 			XLDocument(const XLDocument& other) = delete;
 			XLDocument(XLDocument&& other) noexcept = default;
 			~XLDocument();
-			XLDocument & operator=(const XLDocument& other) = delete;
-			XLDocument & operator=(XLDocument&& other) noexcept = default;
+			XLDocument & operator = (const XLDocument& other) = delete;
+			XLDocument & operator = (XLDocument&& other) noexcept = default;
 			/**
 			 * @brief ensure that warnings are shown (default setting)
 			 */
@@ -5159,7 +5179,7 @@
 					std::is_same_v<std::decay_t<T>, char*> || std::is_same_v<T, XLDateTime> > >
 			XLRowDataRange& operator=(T value)
 			{
-				// forward implementation to templated XLCellValue& XLCellValue::operator=(T value)
+				// forward implementation to templated XLCellValue & XLCellValue::operator=(T value)
 				for(auto it = begin(); it != end(); ++it)  it->value() = value;
 				return *this;
 			}
@@ -5191,19 +5211,19 @@
 			 * @param other Object to be copied.
 			 * @return A reference to the copied-to object.
 			 */
-			XLRowDataProxy& operator=(const XLRowDataProxy& other);
+			XLRowDataProxy & operator=(const XLRowDataProxy& other);
 			/**
 			 * @brief Assignment operator taking a std::vector of XLCellValues as an argument.
 			 * @param values A std::vector of XLCellValues representing the values to be assigned.
 			 * @return A reference to the copied-to object.
 			 */
-			XLRowDataProxy& operator=(const std::vector<XLCellValue>& values);
+			XLRowDataProxy & operator=(const std::vector<XLCellValue>& values);
 			/**
 			 * @brief Assignment operator taking a std::vector of bool values as an argument.
 			 * @param values A std::vector of bool values representing the values to be assigned.
 			 * @return A reference to the copied-to object.
 			 */
-			XLRowDataProxy& operator=(const std::vector<bool>& values);
+			XLRowDataProxy & operator=(const std::vector<bool>& values);
 			/**
 			 * @brief Templated assignment operator taking any container supporting bidirectional iterators.
 			 * @tparam T The container and value type (will be auto deducted by the compiler).
@@ -5229,8 +5249,7 @@
 					// ===== Then, prepend new cell nodes to current row node
 					auto colNo = values.size();
 					for(auto value = values.rbegin(); value != values.rend(); ++value) {
-						prependCellValue(*value, colNo); // 2024-04-30: whitespace support: this is safe because only prependCellValue (with
-														 // whitespace support) touches the row data
+						prependCellValue(*value, colNo); // 2024-04-30: whitespace support: this is safe because only prependCellValue (with whitespace support) touches the row data
 						--colNo;
 					}
 				}
@@ -5242,21 +5261,16 @@
 					while(true) {
 						dst->value() = *src;
 						++src;
-						if(src == values.end())  break;
+						if(src == values.end())  
+							break;
 						++dst; // 2024-04-30: whitespace support: XLRowDataIterator::operator++ is whitespace-safe
 					}
 				}
 				return *this;
 			}
 			// // BEGIN working template header
-			//         template<
-			//             typename T,
-			//             typename std::enable_if<
-			//                 !std::is_same_v< T, XLRowDataProxy >
-			//                  && std::is_base_of_v< XMLNode, T >,
-			//                 T
-			//             >::type* = nullptr
-			//         >
+			//         template<typename T, typename std::enable_if<!std::is_same_v< T, XLRowDataProxy > && std::is_base_of_v< XMLNode, T >,
+			//                 T >::type* = nullptr>
 			// // END working template header
 			//         XLRowDataProxy& operator=(const T& values)
 			//         {
@@ -5288,11 +5302,8 @@
 			 * @tparam Container The container (and value) type to convert the row data to.
 			 * @return The required container with the row data.
 			 */
-			template <typename Container, typename =
-				std::enable_if_t<!std::is_same_v<Container, XLRowDataProxy> &&
-				std::is_base_of_v<std::bidirectional_iterator_tag,
-				typename std::iterator_traits<typename Container::iterator>::iterator_category>,
-				Container> >
+			template <typename Container, typename = std::enable_if_t<!std::is_same_v<Container, XLRowDataProxy> &&
+				std::is_base_of_v<std::bidirectional_iterator_tag, typename std::iterator_traits<typename Container::iterator>::iterator_category>, Container> >
 			explicit operator Container() const { return convertContainer<Container>(); }
 			/**
 			 * @brief Clears all values for the current row.
@@ -5355,10 +5366,8 @@
 			 * @throws bad_variant_access if Container::value type is not XLCellValue and does not match the type contained.
 			 */
 			template <typename Container,
-				typename =
-				std::enable_if_t<!std::is_same_v<Container, XLRowDataProxy> &&
-				std::is_base_of_v<std::bidirectional_iterator_tag,
-				typename std::iterator_traits<typename Container::iterator>::iterator_category>,
+				typename = std::enable_if_t<!std::is_same_v<Container, XLRowDataProxy> &&
+				std::is_base_of_v<std::bidirectional_iterator_tag, typename std::iterator_traits<typename Container::iterator>::iterator_category>,
 				Container> >
 			Container convertContainer() const    // 2024-04-30: whitespace support
 			{

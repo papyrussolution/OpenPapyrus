@@ -10593,8 +10593,8 @@ public:
 	{
 		int    ok = 1;
 		RVALUEPTR(Data, pData);
-		SetPeriodInput(this, CTL_VETDOCFLT_PRD,   &Data.Period);
-		SetPeriodInput(this, CTL_VETDOCFLT_WBPRD, &Data.WayBillPeriod);
+		SetPeriodInput(this, CTL_VETDOCFLT_PRD,   Data.Period);
+		SetPeriodInput(this, CTL_VETDOCFLT_WBPRD, Data.WayBillPeriod);
 		AddClusterAssoc(CTL_VETDOCFLT_STATUS, 0, (1<<vetisdocstCREATED));
 		AddClusterAssoc(CTL_VETDOCFLT_STATUS, 1, (1<<vetisdocstCONFIRMED));
 		AddClusterAssoc(CTL_VETDOCFLT_STATUS, 2, (1<<vetisdocstWITHDRAWN));
@@ -10659,14 +10659,14 @@ public:
 		{
 			int    ok = 1;
 			RVALUEPTR(Data, pData);
-			SetPeriodInput(this, CTL_VETDOCFLT_PRD,   &Data.Period);
+			SetPeriodInput(this, CTL_VETDOCFLT_PRD, Data.Period);
 			SetupPersonCombo(this, CTLSEL_VETDOCFLT_MAINORG, 0, Data.MainOrgID, PPPRK_MAIN, 1);
 			SetupLocationCombo(this, CTLSEL_VETDOCFLT_WH, Data.LocID__, 0, LOCTYP_WAREHOUSE, 0);
 			AddClusterAssoc(CTL_VETDOCFLT_ACTIONS, 0, VetisDocumentFilt::icacnLoadUpdated);
 			AddClusterAssoc(CTL_VETDOCFLT_ACTIONS, 1, VetisDocumentFilt::icacnLoadStock);
 			AddClusterAssoc(CTL_VETDOCFLT_ACTIONS, 2, VetisDocumentFilt::icacnLoadAllDocs);
-			AddClusterAssoc(CTL_VETDOCFLT_ACTIONS, 3, VetisDocumentFilt::icacnPrepareOutgoing); // @v10.7.8
-			AddClusterAssoc(CTL_VETDOCFLT_ACTIONS, 4, VetisDocumentFilt::icacnSendOutgoing); // @v10.7.8
+			AddClusterAssoc(CTL_VETDOCFLT_ACTIONS, 3, VetisDocumentFilt::icacnPrepareOutgoing);
+			AddClusterAssoc(CTL_VETDOCFLT_ACTIONS, 4, VetisDocumentFilt::icacnSendOutgoing);
 			AddClusterAssoc(CTL_VETDOCFLT_ACTIONS, 5, VetisDocumentFilt::icacnRefsImport); // @v11.0.10
 			SetClusterData(CTL_VETDOCFLT_ACTIONS, Data.Actions);
 			// @v11.0.10 {
@@ -12264,15 +12264,15 @@ int PPViewVetisDocument::ProcessIncoming(PPID entityID)
 	return ok;
 }
 
-static int VetisDocumentUpdateSelectorDialog(uint * pAction, DateRange * pPeriod)
+static int VetisDocumentUpdateSelectorDialog(uint * pAction, DateRange & rPeriod)
 {
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_SELVDOCUPD);
 	if(CheckDialogPtrErr(&dlg)) {
 		dlg->setCtrlUInt16(STDCTL_SELECTOR_WHAT, *pAction);
-		SetPeriodInput(dlg, CTL_SELVDOCUPD_PERIOD, pPeriod);
+		SetPeriodInput(dlg, CTL_SELVDOCUPD_PERIOD, rPeriod);
 		if(ExecView(dlg) == cmOK) {
-			GetPeriodInput(dlg, CTL_SELVDOCUPD_PERIOD, pPeriod);
+			GetPeriodInput(dlg, CTL_SELVDOCUPD_PERIOD, &rPeriod);
 			*pAction = dlg->getCtrlUInt16(STDCTL_SELECTOR_WHAT);
 			ok = 1;
 		}
@@ -12303,7 +12303,7 @@ int PPViewVetisDocument::LoadDocuments()
 		const LDATE cd = getcurdate_();
 		period.Set(plusdate(cd, -1), cd);
 	}
-	if(VetisDocumentUpdateSelectorDialog(&v, &period) > 0) {
+	if(VetisDocumentUpdateSelectorDialog(&v, period) > 0) {
 		SString fmt_buf, msg_buf;
 		SString temp_buf;
 		PPVetisInterface ifc(&logger);

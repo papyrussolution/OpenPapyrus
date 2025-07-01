@@ -127,7 +127,7 @@ int SDecimal::FromStr(const char * pStr)
 	return ok;
 }
 
-SString & SDecimal::ToStr(long fmt, SString & rBuf) const
+SString & SDecimal::ToStr(uint fmt, SString & rBuf) const
 {
 	rBuf.Z();
 	if(IsZero())

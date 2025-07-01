@@ -563,7 +563,7 @@ public:
 		setCtrlData(CTL_ACCAGGR_NAME, Data.Rec.Name);
 		setCtrlData(CTL_ACCAGGR_NUMBER, &Data.Rec.A.Ac);
 		SetupPPObjCombo(this, CTLSEL_ACCAGGR_ACCSHEET, PPOBJ_ACCSHEET, Data.Rec.AccSheetID, 0, 0);
-		disableCtrl(CTLSEL_ACCAGGR_ACCSHEET, Data.GenList.getCount());
+		disableCtrl(CTLSEL_ACCAGGR_ACCSHEET, LOGIC(Data.GenList.getCount()));
 		AddClusterAssoc(CTL_ACCAGGR_FLAGS, 0, ACF_SYSNUMBER);
 		AddClusterAssoc(CTL_ACCAGGR_FLAGS, 1, ACF_EXCLINNERTRNOVR);
 		SetClusterData(CTL_ACCAGGR_FLAGS, Data.Rec.Flags);
@@ -618,7 +618,7 @@ IMPL_HANDLE_EVENT(GenAccountDialog)
 				Data.GenList.insert(&item);
 			}
 			selectCtrl(CTL_ACCAGGR_LIST);
-			disableCtrl(CTLSEL_ACCAGGR_ACCSHEET, Data.GenList.getCount());
+			disableCtrl(CTLSEL_ACCAGGR_ACCSHEET, LOGIC(Data.GenList.getCount()));
 			updateList(-1);
 		}
 		clearEvent(event);

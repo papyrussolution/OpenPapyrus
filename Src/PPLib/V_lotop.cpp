@@ -1,5 +1,5 @@
 // V_LOTOP.CPP
-// Copyright (c) A.Sobolev 1999, 2000-2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1999, 2000-2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2015, 2016, 2017, 2018, 2019, 2020, 2025
 //
 #include <pp.h>
 #pragma hdrstop
@@ -58,7 +58,6 @@ int FASTCALL PPViewLotOp::NextIteration(LotOpViewItem * pItem)
 	if(P_IterQuery && P_IterQuery->nextIteration() > 0) {
 		if(pItem) {
 			P_BObj->trfr->copyBufTo(pItem);
-			// @v10.7.4 {
 			pItem->OldQtty = 0.0;
 			pItem->OldCost = 0.0;
 			pItem->OldPrice = 0.0;
@@ -100,7 +99,6 @@ int FASTCALL PPViewLotOp::NextIteration(LotOpViewItem * pItem)
 				pItem->OldCost = old_cost;
 				pItem->OldPrice = old_price;
 			}
-			// } @v10.7.4 
 		}
 		return 1;
 	}
@@ -472,10 +470,8 @@ int PPALDD_LotOps::InitData(PPFilt & rFilt, long rsrv)
 	return DlRtm::InitData(rFilt, rsrv);
 }
 
-int PPALDD_LotOps::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
-{
-	INIT_PPVIEW_ALDD_ITER(LotOp);
-}
+void PPALDD_LotOps::Destroy() { DESTROY_PPVIEW_ALDD(LotOp); }
+int  PPALDD_LotOps::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/) { INIT_PPVIEW_ALDD_ITER(LotOp); }
 
 int PPALDD_LotOps::NextIteration(PPIterID iterId)
 {
@@ -490,13 +486,8 @@ int PPALDD_LotOps::NextIteration(PPIterID iterId)
 	I.Price    = TR5(item.Price);
 	I.Discount = TR5(item.Discount);
 	I.CurPrice = TR5(item.CurPrice);
-	// @v10.7.4 {
 	I.OldQtty = item.OldQtty;
 	I.OldCost = TR5(item.OldCost);
 	I.OldPrice = TR5(item.OldPrice);
-	// } @v10.7.4 
 	FINISH_PPVIEW_ALDD_ITER();
 }
-
-void PPALDD_LotOps::Destroy() { DESTROY_PPVIEW_ALDD(LotOp); }
-

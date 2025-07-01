@@ -100,7 +100,7 @@ int PPViewPersonEvent::EditBaseFilt(PPBaseFilt * pBaseFilt)
 			PPID   kind = 0;
 			PPPsnOpKindPacket pok_pack;
 			PPObjPsnOpKind    pok_obj;
-			SetPeriodInput(this, CTL_PSNEVFLT_PERIOD, &Data.Period);
+			SetPeriodInput(this, CTL_PSNEVFLT_PERIOD, Data.Period);
 			{
 				PersonOpCtrlGroup::Rec op_rec(&Data.PsnOpList, Data.PrmrID, Data.ScndID);
 				setGroupData(ctlgroupPsnOp, &op_rec);
@@ -852,10 +852,8 @@ int PPALDD_PersonEvent::InitData(PPFilt & rFilt, long rsrv)
 	return DlRtm::InitData(rFilt, rsrv);
 }
 
-int PPALDD_PersonEvent::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
-{
-	INIT_PPVIEW_ALDD_ITER(PersonEvent);
-}
+void PPALDD_PersonEvent::Destroy() { DESTROY_PPVIEW_ALDD(PersonEvent); }
+int  PPALDD_PersonEvent::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/) { INIT_PPVIEW_ALDD_ITER(PersonEvent); }
 
 int PPALDD_PersonEvent::NextIteration(PPIterID iterId)
 {
@@ -871,8 +869,6 @@ int PPALDD_PersonEvent::NextIteration(PPIterID iterId)
 	I.GrpCount = item.GrpCount;
 	FINISH_PPVIEW_ALDD_ITER();
 }
-
-void PPALDD_PersonEvent::Destroy() { DESTROY_PPVIEW_ALDD(PersonEvent); }
 //
 // Implementation of PPALDD_PsnOpKindView
 //

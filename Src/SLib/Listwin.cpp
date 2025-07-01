@@ -450,7 +450,7 @@ int WordSelector::Helper_PullDown(const char * pText, int recent)
 				temp_buf = pText;
 			p_data = P_Blk->GetList(temp_buf);
 		}
-		int    skip = BIN(!p_data || p_data->getCount() == 0);
+		bool   skip = (!p_data || p_data->getCount() == 0);
 		if(!skip && !recent && p_data->getCount() == 1 && (P_Blk->GetFlags() & WordSel_ExtraBlock::fFreeText)) {
 			//
 			// Специальный случай: в режиме fFreeText единственный доступный в списке элемент,
@@ -459,7 +459,7 @@ int WordSelector::Helper_PullDown(const char * pText, int recent)
 			StrAssocArray::Item sitem = p_data->Get(0);
 			(temp_buf = pText).Strip();
 			if(temp_buf.CmpNC(sitem.Txt) == 0)
-				skip = 1;
+				skip = true;
 		}
 		if(!skip) {
 			if(P_Def) {

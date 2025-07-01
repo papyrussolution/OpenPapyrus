@@ -1637,9 +1637,15 @@ public:
 	GBDialog(PPID * pID, PPBasketCombine & rData, int action) : PPListDialog((action == 3) ? DLG_GBSTRUC_N : DLG_GBSTRUC, CTL_GBTRUC_LIST),
 		R_Data(rData), P_EGSDlg(0), P_ID(pID), Flags(0), LastInnerNum(0), InitBasketFlags(0)
 	{
-		disableCtrl(CTL_GBTRUC_TOTAL, true);
-		disableCtrls(BIN(action == 1), CTLSEL_GBTRUC_BASKET/*, CTLSEL_GBTRUC_SUPPL*/, 0);
-		enableCommand(cmAddFromBasket, BIN(action & 0x01));
+		// @v12.3.7 disableCtrl(CTL_GBTRUC_TOTAL, true);
+		// @v12.3.7 {
+		disableCtrl(CTL_GBTRUC_PRIVATE, (action != 3));
+		disableCtrl(CTL_GBTRUC_FLAGS, (action != 3));
+		showCtrl(CTL_GBTRUC_PRIVATE, (action == 3));
+		showCtrl(CTL_GBTRUC_FLAGS, (action == 3));
+		// } @v12.3.7 
+		disableCtrls((action == 1), CTLSEL_GBTRUC_BASKET/*, CTLSEL_GBTRUC_SUPPL*/, 0);
+		enableCommand(cmAddFromBasket, LOGIC(action & 0x01));
 		if(action == 2)
 			ToCascade();
 		else if(action == 3)
@@ -1714,7 +1720,7 @@ public:
 		}
 		return ok;
 	}
-	int    IsChanged();
+	bool   IsChanged();
 private:
 	DECL_HANDLE_EVENT
 	{
@@ -1922,7 +1928,7 @@ int GBDialog::addFromBasket()
 			}
 			PPWaitPercent(i, bc.Pack.Lots.getCount());
 		}
-		if(bc.Pack.Lots.getCount() > 0)
+		if(bc.Pack.Lots.getCount())
 			Flags |= gbdfChanged;
 		updateList(-1);
 		PPWaitStop();
@@ -1963,7 +1969,7 @@ int GBDialog::DoDiscount()
 				if(price > 0.0)
 					p_item->Price = price;
 			}
-			if(R_Data.Pack.Lots.getCount() > 0)
+			if(R_Data.Pack.Lots.getCount())
 				Flags |= gbdfChanged;
 			updateList(-1);
 			PPWaitStop();
@@ -1989,18 +1995,18 @@ int GBDialog::CheckForSortingItems()
 	return ok;
 }
 
-int GBDialog::IsChanged()
+bool GBDialog::IsChanged()
 {
-	int  is_changed = 0;
+	bool   is_changed = false;
 	if(Flags & gbdfChanged)
-		is_changed = 1;
+		is_changed = true;
 	else if(Flags & gbdfEditNameNFlags) {
 		long  new_flags = 0;
 		GetClusterData(CTL_GBTRUC_FLAGS, &new_flags);
 		const ushort v = getCtrlUInt16(CTL_GBTRUC_PRIVATE);
 		SETFLAG(new_flags, GBASKF_PRIVATE, v);
 		if(new_flags != InitBasketFlags)
-			is_changed = 1;
+			is_changed = true;
 	}
 	return is_changed;
 }

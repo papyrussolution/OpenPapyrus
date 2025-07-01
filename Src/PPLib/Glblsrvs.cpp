@@ -2723,7 +2723,7 @@ int PrcssrAptekaRu::EditParam(PrcssrAptekaRuFilt * pParam)
 	TDialog * dlg = new TDialog(DLG_PRCRAPTRU);
 	if(CheckDialogPtr(&dlg)) {
 		dlg->SetupCalPeriod(CTLCAL_PRCRAPTRU_PERIOD, CTL_PRCRAPTRU_PERIOD);
-		SetPeriodInput(dlg, CTL_PRCRAPTRU_PERIOD, &data.Period);
+		SetPeriodInput(dlg, CTL_PRCRAPTRU_PERIOD, data.Period);
 		SetupPPObjCombo(dlg, CTLSEL_PRCRAPTRU_GUA, PPOBJ_GLOBALUSERACC, data.GuaID, 0, reinterpret_cast<void *>(PPGLS_APTEKARU));
 		SetupLocationCombo(dlg, CTLSEL_PRCRAPTRU_LOC, data.LocID, OLW_CANSELUPLEVEL, LOCTYP_WAREHOUSE, 0);
 		{

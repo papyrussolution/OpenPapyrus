@@ -1111,7 +1111,7 @@ int QuotKindDialog::EditRestr()
 	if(CheckDialogPtrErr(&dlg)) {
 		RealRange amt_range;
 		dlg->SetupCalPeriod(CTLCAL_QKRESTR_PERIOD, CTL_QKRESTR_PERIOD);
-		SetPeriodInput(dlg, CTL_QKRESTR_PERIOD, &Data.Rec.Period);
+		SetPeriodInput(dlg, CTL_QKRESTR_PERIOD, Data.Rec.Period);
 		Data.Rec.GetAmtRange(&amt_range);
 		SetRealRangeInput(dlg, CTL_QKRESTR_AMTRANGE, &amt_range);
 

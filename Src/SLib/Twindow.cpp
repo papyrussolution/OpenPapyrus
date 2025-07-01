@@ -465,29 +465,6 @@ void TWindow::close()
 
 static bool searchItem(TView * v, void * ptr) { return v->TestId(*static_cast<const ushort *>(ptr)); }
 
-const TView * FASTCALL TWindow::getCtrlViewC(ushort ctlID) const
-{
-	// Функция вызывается очень часто потому ради скорости исполнения развернута {
-	if(ctlID) {
-		const TView * p_temp = P_Last;
-		if(p_temp) {
-			const TView * p_term = P_Last;
-			do {
-				p_temp = p_temp->P_Next;
-				if(p_temp && p_temp->IsConsistent()) {
-					if(p_temp->GetId_Unsafe() == ctlID)
-						return p_temp;
-				}
-				else
-					return 0;
-			} while(p_temp != p_term);
-		}
-	}
-	return 0;
-}
-
-TView * FASTCALL TWindow::getCtrlView(ushort ctlID) { return const_cast<TView *>(getCtrlViewC(ctlID)); }
-
 TView * FASTCALL TWindow::getCtrlByHandle(HWND h)
 {
 	if(h) {
@@ -523,12 +500,12 @@ int TWindow::setSmartListBoxOption(uint ctlID, uint option)
 	return ok;
 }
 
-void STDCALL TWindow::setCtrlReadOnly(ushort ctlID, int enable)
+void STDCALL TWindow::setCtrlReadOnly(ushort ctlID, bool enable)
 {
 	TView * v = getCtrlView(ctlID);
 	if(v) {
-		v->setState(sfReadOnly, LOGIC(enable));
-		if(enable && (P_Current->IsInState(sfDisabled|sfReadOnly) || P_Current == v))
+		v->setState(sfReadOnly, enable);
+		if(enable && P_Current && (P_Current->IsInState(sfDisabled|sfReadOnly) || P_Current == v)) // @v12.3.7 @fix (&& P_Current)
 			selectNext();
 	}
 }
@@ -570,15 +547,6 @@ void cdecl TWindow::disableCtrls(int toDisable, ...)
 	va_end(p);
 }
 
-void FASTCALL TWindow::selectCtrl(ushort ctlID)
-{
-	if(ctlID) {
-		TView * p_v = getCtrlView(ctlID);
-		if(p_v)
-			SetCurrentView(p_v, normalSelect);
-	}
-}
-
 TButton * FASTCALL TWindow::SearchButton(uint cmd)
 {
 	TView * p_view = static_cast<TView *>(TView::messageBroadcast(this, cmSearchButton, reinterpret_cast<void *>(cmd)));
@@ -602,15 +570,12 @@ void TWindow::showButton(uint cmd, bool s)
 	CALLPTRMEMB(p_view, Show(s));
 }
 
-int TWindow::setButtonText(uint cmd, const char * pText)
+int TWindow::SetButtonText(uint cmd, const char * pText)
 {
 	int    ok = 1;
 	TButton * p_ctl = SearchButton(cmd);
-	const uint ctl_id = p_ctl ? p_ctl->GetId() : 0;
-	if(ctl_id) {
-		p_ctl->Title = pText;
-		TView::SSetWindowText(GetDlgItem(HW, ctl_id), p_ctl->Title);
-	}
+	if(p_ctl)
+		p_ctl->SetText(pText);
 	else
 		ok = 0;
 	return ok;

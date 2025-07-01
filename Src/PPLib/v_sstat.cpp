@@ -329,7 +329,7 @@ int PPViewSStat::EditBaseFilt(PPBaseFilt * pBaseFilt)
 		dlg->setGroupData(ctlgroupLoc, &loc_rec);
 		SetupSubstGoodsCombo(dlg, CTLSEL_SSTATFLT_SUBST, p_filt->Sgg);
 		dlg->SetupCalPeriod(CTLCAL_SSTATFLT_PERIOD, CTL_SSTATFLT_PERIOD);
-		SetPeriodInput(dlg, CTL_SSTATFLT_PERIOD, &p_filt->Period);
+		SetPeriodInput(dlg, CTL_SSTATFLT_PERIOD, p_filt->Period);
 
 		CycleCtrlGroup::Rec cycle_rec;
 		CycleCtrlGroup * p_grp = new CycleCtrlGroup(CTLSEL_SSTATFLT_CYCLE, CTL_SSTATFLT_PDC, CTL_SSTATFLT_NUMCYCLES, CTL_SSTATFLT_PERIOD);
@@ -833,7 +833,7 @@ int PPViewSStat::CreateTempTable(int use_ta)
 				id_list.clear();
 				THROW(Gsl.GetGoodsBySubstID(subst_id, &id_list));
 				if(id_list.getCount()) {
-					if(CycleList.getCount() > 0) {
+					if(CycleList.getCount()) {
 						THROW(AddStatByCycles(subst_id, &id_list, 0, &bei, 0));
 					}
 					else {

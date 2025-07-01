@@ -1565,9 +1565,9 @@ public:
 		Data = *pData;
 
 		int    ok = 1;
-		SetPeriodInput(this, CTL_SLLTOFLT_PERIOD,     &Data.Period);
-		SetPeriodInput(this, CTL_SLLTOFLT_EXPIRYPRD,  &Data.ExpiryPeriod);
-		SetPeriodInput(this, CTL_SLLTOFLT_PAYMPERIOD, &Data.PaymPeriod);
+		SetPeriodInput(this, CTL_SLLTOFLT_PERIOD,     Data.Period);
+		SetPeriodInput(this, CTL_SLLTOFLT_EXPIRYPRD,  Data.ExpiryPeriod);
+		SetPeriodInput(this, CTL_SLLTOFLT_PAYMPERIOD, Data.PaymPeriod);
 		setWL(BIN(Data.Flags & DebtTrnovrFilt::fLabelOnly));
 		SetupPPObjCombo(this, CTLSEL_SLLTOFLT_ACCSHEET, PPOBJ_ACCSHEET, Data.AccSheetID, OLW_LOADDEFONOPEN, 0);
 		SetupOp();
@@ -1667,9 +1667,9 @@ private:
 				PPErrorByDialog(this, sel);
 			}
 			else if(editCycles() > 0) {
-				SetPeriodInput(this, CTL_SLLTOFLT_PERIOD,     &Data.Period);
-				SetPeriodInput(this, CTL_SLLTOFLT_EXPIRYPRD,  &Data.ExpiryPeriod);
-				SetPeriodInput(this, CTL_SLLTOFLT_PAYMPERIOD, &Data.PaymPeriod);
+				SetPeriodInput(this, CTL_SLLTOFLT_PERIOD,     Data.Period);
+				SetPeriodInput(this, CTL_SLLTOFLT_EXPIRYPRD,  Data.ExpiryPeriod);
+				SetPeriodInput(this, CTL_SLLTOFLT_PAYMPERIOD, Data.PaymPeriod);
 				if(Data.CycleKind == DebtTrnovrFilt::ckPayments)
 					if(!(Data.Flags & DebtTrnovrFilt::fInclZeroDebt)) {
 						Data.Flags |= DebtTrnovrFilt::fInclZeroDebt;
@@ -1897,9 +1897,9 @@ int DebtTrnovrCycleDialog::setDTS(const DebtTrnovrFilt * pData)
 {
 	int    ok = 1;
 	Data = *pData;
-	SetPeriodInput(this, CTL_SLLTOFLT_PERIOD,     &Data.Period);
-	SetPeriodInput(this, CTL_SLLTOFLT_EXPIRYPRD,  &Data.ExpiryPeriod);
-	SetPeriodInput(this, CTL_SLLTOFLT_PAYMPERIOD, &Data.PaymPeriod);
+	SetPeriodInput(this, CTL_SLLTOFLT_PERIOD,     Data.Period);
+	SetPeriodInput(this, CTL_SLLTOFLT_EXPIRYPRD,  Data.ExpiryPeriod);
+	SetPeriodInput(this, CTL_SLLTOFLT_PAYMPERIOD, Data.PaymPeriod);
 	AddClusterAssoc(CTL_DEBTTOC_KIND, 0, DebtTrnovrFilt::ckNone);
 	AddClusterAssoc(CTL_DEBTTOC_KIND, 1, DebtTrnovrFilt::ckExpiry);
 	AddClusterAssoc(CTL_DEBTTOC_KIND, 2, DebtTrnovrFilt::ckDelay);
@@ -2648,7 +2648,7 @@ void PPALDD_DebtTrnovr::Destroy() { DESTROY_PPVIEW_ALDD(DebtTrnovr); }
 	dlg->AddClusterAssoc(CTL_DSTATCFG_FLAGS, 2, PPDebtorStatConfig::fLogRatingVal);
 	dlg->AddClusterAssoc(CTL_DSTATCFG_FLAGS, 3, PPDebtorStatConfig::fSimpleLimitAlg);
 	dlg->SetClusterData(CTL_DSTATCFG_FLAGS, cfg.Flags);
-	SetPeriodInput(dlg, CTL_DSTATCFG_PERIOD, &cfg.Period);
+	SetPeriodInput(dlg, CTL_DSTATCFG_PERIOD, cfg.Period);
 	dlg->setCtrlString(CTL_DSTATCFG_LASTTIME, temp_buf.Z().Cat(cfg.LastDtm, DATF_DMY|DATF_CENTURY, TIMF_HMS));
 	while(ok < 0 && ExecView(dlg) == cmOK) {
 		uint   sel = 0;

@@ -1151,7 +1151,7 @@ int PPGoodsExporter::ExportPacket(PPGoodsPacket * pPack, const char * pBarcode, 
 			if(P_GObj->IsAltGroup(altGrpID) > 0 && p_ref->Assc.Search(PPASS_ALTGOODSGRP, altGrpID, pPack->Rec.ID) > 0)
 				plu = p_ref->Assc.data.InnerNum;
 			sdr_goods.AltGrpPLU = plu;
-			GetObjectName(PPOBJ_GOODSGROUP, altGrpID, temp_buf.Z());
+			GetObjectName(PPOBJ_GOODSGROUP, altGrpID, temp_buf);
 			temp_buf.CopyTo(sdr_goods.GrpName, sizeof(sdr_goods.GrpName));
 			(temp_buf.Z().Cat(altGrpID)).CopyTo(sdr_goods.GrpCode, sizeof(sdr_goods.GrpCode));
 		}

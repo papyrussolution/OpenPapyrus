@@ -1717,12 +1717,16 @@ static IMPL_DBE_PROC(dbqf_formatcycle_di)
 
 static IMPL_DBE_PROC(dbqf_daterange_dd)
 {
-	char   buf[32];
+	char   buf[64];
 	if(!DbeInitSize(option, result, sizeof(buf))) {
 		DateRange period;
-		period.low = params[0].dval;
-		period.upp = params[1].dval;
-		periodfmtex(&period, buf, sizeof(buf));
+		period.Set(params[0].dval, params[1].dval);
+		// @v12.3.7 periodfmtex(period, buf, sizeof(buf));
+		// @v12.3.7 {
+		SString & r_temp_buf = SLS.AcquireRvlStr();
+		period.ToStr(DATRANGF_EXTENDED, r_temp_buf);
+		STRNSCPY(buf, r_temp_buf);
+		// } @v12.3.7 
 		result->init(buf);
 	}
 }

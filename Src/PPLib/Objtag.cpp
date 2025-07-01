@@ -110,7 +110,7 @@ void TagFilt::MergeString(const char * pRestrictionString, const char * pColorSt
 	SString rbuf, cbuf;
 	ParseString(rItemBuf, &rbuf, &cbuf);
 	if(pClr)
-		pClr->ToStr(cbuf, SColorBase::fmtHEX);
+		pClr->ToStr(SColorBase::fmtHEX, cbuf);
 	else
 		cbuf.Z();
 	MergeString(rbuf, cbuf, rItemBuf);
@@ -181,7 +181,7 @@ static bool CheckTagItemForRawRestriction(const ObjTagItem * pTagItem, const cha
 		}
 		else if(pTagItem->TagDataType == OTTYP_DATE) {
 			DateRange period;
-			strtoperiod(restriction, &period, 0);
+			period.FromStr(restriction, 0);
 			period.Actualize(pTagItem->Val.DtVal);
 			select_ok = period.CheckDate(pTagItem->Val.DtVal);
 		}
@@ -300,7 +300,7 @@ int TagFilt::CheckTagItemForRestrict(const ObjTagItem * pItem, const SString & r
 			}
 			else if(pItem->TagDataType == OTTYP_DATE) {
 				DateRange period;
-				strtoperiod(rRestrict, &period, strtoprdfEnableAnySign);
+				period.FromStr(rRestrict, strtoprdfEnableAnySign);
 				period.ActualizeCmp(/*pItem->Val.DtVal*/ZERODATE, pItem->Val.DtVal);
 				check_ok = period.CheckDate(pItem->Val.DtVal);
 			}

@@ -503,6 +503,14 @@ PPExprParser::State & FASTCALL PPExprParser::State::operator = (const PPExprPars
 PPExprParser::FuncBlock::FuncBlock() : Func(0)
 {
 }
+
+PPExprParser::FuncBlock & PPExprParser::FuncBlock::Z()
+{
+	Func = 0;
+	ExtToken.Z();
+	ClearSieve();
+	return *this;
+}
 		
 int   PPExprParser::FuncBlock::GetFuncId() const { return Func; }
 void  PPExprParser::FuncBlock::SetFuncId(int f) { Func = f; }
@@ -1481,6 +1489,8 @@ int GoodsContext::Resolve(const char * pSymb, double * pVal)
 			int    ref_dim = 0;
 			PPID   ref_goods_id = 0;
 			int    ref_gscb_item = -1;
+			int    ref_gs_item_idx = -1;
+			const  PPGoodsStrucItem * p_ref_gs_item = 0;
 			if(ref.IsEqiAscii("MAIN")) {
 				AllocGoodsStruc();
 				THROW_PP_S(P_Gs, PPERR_INVEXPRCTX_GS, pSymb);
@@ -1492,7 +1502,12 @@ int GoodsContext::Resolve(const char * pSymb, double * pVal)
 				const PPGoodsStrucItem * p_gsi = 0;
 				AllocGoodsStruc();
 				THROW_PP_S(P_Gs, PPERR_INVEXPRCTX_GS, pSymb);
-				THROW(p_gsi = P_Gs->GetMainItem(0));
+				{				
+					uint   gs_item_idx = 0;
+					THROW(p_gsi = P_Gs->GetMainItem(&gs_item_idx));
+					ref_gs_item_idx = static_cast<int>(gs_item_idx);
+					p_ref_gs_item = p_gsi; // @v12.3.7
+				}
 				ref_goods_id = p_gsi->GoodsID;
 				if(P_Gs->P_Cb) {
 					for(uint i = 0; ref_gscb_item < 0 && i < P_Gs->P_Cb->getCount(); i++) {
@@ -1521,7 +1536,9 @@ int GoodsContext::Resolve(const char * pSymb, double * pVal)
 					// Сначала выясняем, не является ли ссылка кодом элемента структуры
 					//
 					if(P_Gs->SearchSymb(ref, &gs_pos) > 0) {
-						ref_goods_id = P_Gs->Items.at(gs_pos).GoodsID;
+						ref_gs_item_idx = static_cast<int>(gs_pos);
+						p_ref_gs_item = &P_Gs->Items.at(gs_pos); // @v12.3.7
+						ref_goods_id = p_ref_gs_item->GoodsID;
 						if(P_Gs->P_Cb) {
 							for(uint i = 0; ref_gscb_item < 0 && i < P_Gs->P_Cb->getCount(); i++) {
 								const ComplItem & r_ci = P_Gs->P_Cb->at(i);
@@ -1565,10 +1582,10 @@ int GoodsContext::Resolve(const char * pSymb, double * pVal)
 				{
 					const double cost  = P_Ti ? P_Ti->Cost  : 0.0;
 					const double price = P_Ti ? P_Ti->Price : (P_Ci ? P_Ci->Price : 0.0);
-					const  PPID   loc_id = P_BillPack ? P_BillPack->Rec.LocID : P.LocID;
-					const  PPID   cur_id = P_BillPack ? P_BillPack->Rec.CurID : P.CurID;
-					const  PPID   ar_id  = P_BillPack ? P_BillPack->Rec.Object : P.ArID;
-					const  LDATE  _dt = P_BillPack ? P_BillPack->Rec.Dt : getcurdate_();
+					const PPID   loc_id = P_BillPack ? P_BillPack->Rec.LocID : P.LocID;
+					const PPID   cur_id = P_BillPack ? P_BillPack->Rec.CurID : P.CurID;
+					const PPID   ar_id  = P_BillPack ? P_BillPack->Rec.Object : P.ArID;
+					const LDATE  _dt = P_BillPack ? P_BillPack->Rec.Dt : getcurdate_();
 					GObj.GetQuotExt(P.GoodsID, QuotIdent(QIDATE(_dt), loc_id, qk_id, cur_id, ar_id), cost, price, &v, 0);
 				}
 			}
@@ -1633,6 +1650,17 @@ int GoodsContext::Resolve(const char * pSymb, double * pVal)
 			else if(ref.IsEqiAscii("PHQTTY") || ref.IsEqiAscii("PHQTY")) {
 				THROW(ResolveRefQtty(ref_goods_id, ref_gscb_item, 1, &v));
 			}
+			else if(ref.IsEqiAscii("VALUE")) { // @v12.3.7 Значение в элементе структуры
+				if(P_Gs && p_ref_gs_item) {
+					assert(ref_gs_item_idx >= 0 && ref_gs_item_idx < P_Gs->Items.getCountI());
+					if(P_Gs->GetKind() == PPGoodsStruc::kPricePlanning) {
+						double local_result = 0.0;
+						if(P_Gs->GetItemValue(ref_gs_item_idx, 0, &local_result)) {
+							v = local_result;
+						}
+					}
+				}
+			}
 			else if(ref.IsEqiAscii("QTTYCOM")) {
 				AllocGoodsStruc();
 				THROW_PP_S(P_Gs, PPERR_INVEXPRCTX_GS, pSymb);
@@ -1683,10 +1711,8 @@ int GoodsContext::Resolve(const char * pSymb, double * pVal)
 				else if(ref.IsEqiAscii("QTTY") || ref.IsEqiAscii("QTY")) {
 					if(P_Ti)
 						v = P_Ti->Quantity_;
-					// @v11.0.7 {
 					else if(P_TslRec)
 						v = P_TslRec->Qtty;
-					// } @v11.0.7 
 					else
 						v = P.Qtty;
 				}
@@ -1701,7 +1727,6 @@ int GoodsContext::Resolve(const char * pSymb, double * pVal)
 							v = P_Ti->Quantity_ * phuperu;
 						}
 					}
-					// @v11.0.7 {
 					else if(P_TslRec) {
 						if(P_TslRec->Flags & TSESLF_INDEPPHQTTY)
 							v = P_TslRec->WtQtty;
@@ -1713,7 +1738,6 @@ int GoodsContext::Resolve(const char * pSymb, double * pVal)
 							v = P_TslRec->Qtty * phuperu;
 						}
 					}
-					// } @v11.0.7 
 					else
 						v = 0.0;
 				}

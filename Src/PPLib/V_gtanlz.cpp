@@ -54,8 +54,8 @@ int PPViewGoodsTaxAnalyze::EditBaseFilt(PPBaseFilt * pBaseFilt)
 			PPID   acc_sheet_id = 0;
 			PPIDArray types;
 			ushort v = 0;
-			SetPeriodInput(this, CTL_GDSGRPRLZ_PERIOD,  &Data.Period);
-			SetPeriodInput(this, CTL_GDSGRPRLZ_LOTSPRD, &Data.LotsPeriod);
+			SetPeriodInput(this, CTL_GDSGRPRLZ_PERIOD,  Data.Period);
+			SetPeriodInput(this, CTL_GDSGRPRLZ_LOTSPRD, Data.LotsPeriod);
 			SetupPPObjCombo(this, CTLSEL_GDSGRPRLZ_LOC, PPOBJ_LOCATION, Data.LocID, 0, 0);
 			types.addzlist(PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_GOODSRETURN, PPOPT_GOODSREVAL, PPOPT_GOODSMODIF, PPOPT_PAYMENT, PPOPT_GENERIC, 0L);
 			SetupOprKindCombo(this, CTLSEL_GDSGRPRLZ_OP, Data.OpID, 0, &types, 0);

@@ -533,8 +533,8 @@ void TrfrItemDialog::SetupCtrls() // Called from TrfrItemDialog::setDTS
 	}
 	if(!(oneof2(OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_DRAFTRECEIPT) || IsModifPlus()) || !Item.GoodsID) {
 		disableCtrls(1, CTL_LOT_EXPIRY, CTLCAL_LOT_EXPIRY, CTLSEL_LOT_QCERT, 0);
-		setCtrlReadOnly(CTL_LOT_CLB, 1);
-		setCtrlReadOnly(CTL_LOT_SERIAL, 1);
+		setCtrlReadOnly(CTL_LOT_CLB, true);
+		setCtrlReadOnly(CTL_LOT_SERIAL, true);
 	}
 	if(St & stGoodsByPrice) {
 		disableCtrl(CTL_LOT_PRICE, false);
@@ -1604,7 +1604,7 @@ int TrfrItemDialog::replyGoodsSelection(int recurse)
 	setupRest();
 	if(Item.GoodsID) {
 		{
-			const int enbl_lot_ctrl = BIN(oneof2(OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_DRAFTRECEIPT) || IsModifPlus());
+			const bool enbl_lot_ctrl = (oneof2(OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_DRAFTRECEIPT) || IsModifPlus());
 			disableCtrls(!enbl_lot_ctrl, CTL_LOT_EXPIRY, CTLCAL_LOT_EXPIRY, CTLSEL_LOT_QCERT, CTL_LOT_CLB, 0);
 			setCtrlReadOnly(CTL_LOT_CLB, !enbl_lot_ctrl);
 			setCtrlReadOnly(CTL_LOT_SERIAL, !enbl_lot_ctrl);

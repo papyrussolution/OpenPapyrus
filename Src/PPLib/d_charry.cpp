@@ -347,14 +347,14 @@ int PPDS_Barcode::TransferField(long fldID, Tfd dir, uint * pIter, SString & rBu
 int PPDS_CrrGoods::ExtractOuterData()
 {
 	SString temp_buf;
-	GetObjectName(PPOBJ_UNIT, Data.Rec.UnitID, temp_buf.Z());
+	GetObjectName(PPOBJ_UNIT, Data.Rec.UnitID, temp_buf);
 	STRNSCPY(UnitName, temp_buf);
-	GetObjectName(PPOBJ_UNIT, Data.Rec.PhUnitID, temp_buf.Z());
+	GetObjectName(PPOBJ_UNIT, Data.Rec.PhUnitID, temp_buf);
 	STRNSCPY(PhUnitName, temp_buf);
 	PhUPerU = Data.Rec.PhUPerU;
-	GetObjectName(PPOBJ_GOODSGROUP, Data.Rec.ParentID, temp_buf.Z());
+	GetObjectName(PPOBJ_GOODSGROUP, Data.Rec.ParentID, temp_buf);
 	STRNSCPY(GroupName, temp_buf);
-	GetObjectName(PPOBJ_PERSON, Data.Rec.ManufID, temp_buf.Z());
+	GetObjectName(PPOBJ_PERSON, Data.Rec.ManufID, temp_buf);
 	STRNSCPY(ManufName, temp_buf);
 	{
 		PPCountryBlock country_blk;

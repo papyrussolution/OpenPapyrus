@@ -1390,7 +1390,7 @@ int EditQuotVal(PPQuot * pQ, int quotCls)
 			if(Data.Kind == PPQUOTK_BASE)
 				DisableClusterItem(CTL_SETQUOT_HOW, 3, 1);
 			if(UseQuot2)
-				SetPeriodInput(this, CTL_SETQUOT_PERIOD, &Data.Period);
+				SetPeriodInput(this, CTL_SETQUOT_PERIOD, Data.Period);
 			SetupVal();
 			return 1;
 		}
@@ -1732,7 +1732,7 @@ private:
 						QuotKindsOrder.add(static_cast<const RankNNameEntry *>(qlist.at(i))->ID);
 					disableCtrl(CTL_GQUOT_BASE, !RightsForUpdate);
 					for(i = 0; i < NUM_QUOTS_IN_DLG; i++) {
-						int    disable_input = !RightsForUpdate;
+						bool   disable_input = !RightsForUpdate;
 						int    used_entry = 0;
 						if(i < qlist.getCount()) {
 							const RankNNameEntry * p_e = static_cast<const RankNNameEntry *>(qlist.at(i));
@@ -1747,7 +1747,7 @@ private:
 						}
 						if(!used_entry) {
 							temp_buf.Z().Space();
-							disable_input = 1;
+							disable_input = true;
 						}
 						setLabelText(quotCtl(i), temp_buf);
 						disableCtrl(quotCtl(i), disable_input);

@@ -122,7 +122,7 @@ public:
 		AddClusterAssocDef(CTL_GSFILT_ORDER, 3, PPViewGoodsStruc::OrdByStrucTypePrmrGoodsName);
 		SetClusterData(CTL_GSFILT_ORDER, Data.InitOrder);
 		AddClusterAssoc(CTL_GSFILT_FLAGS, 0, GoodsStrucFilt::fShowUnrefs);
-		AddClusterAssoc(CTL_GSFILT_FLAGS, 1, GoodsStrucFilt::fSkipByPassiveOwner); // @v10.3.2
+		AddClusterAssoc(CTL_GSFILT_FLAGS, 1, GoodsStrucFilt::fSkipByPassiveOwner);
 		AddClusterAssoc(CTL_GSFILT_FLAGS, 2, GoodsStrucFilt::fShowTech); // @v11.7.6
 		AddClusterAssoc(CTL_GSFILT_FLAGS, 3, GoodsStrucFilt::fShowEstValue); // @v11.8.2
 		SetClusterData(CTL_GSFILT_FLAGS, Data.Flags);
@@ -210,7 +210,7 @@ static IMPL_CMPFUNC(ViewGoodsStruc_ItemEntry, i1, i2)
 int PPViewGoodsStruc::SortList(PPViewBrowser * pBrw)
 {
 	int    ok = 1;
-	const  int is_sorting_needed = BIN(pBrw && pBrw->GetSettledOrderList().getCount()); // @v10.7.5
+	const  int is_sorting_needed = BIN(pBrw && pBrw->GetSettledOrderList().getCount());
 	if(is_sorting_needed) {
 		Cb.ItemList.sort(PTR_CMPFUNC(ViewGoodsStruc_ItemEntry), pBrw);
 	}
@@ -231,7 +231,6 @@ int PPViewGoodsStruc::MakeList(PPViewBrowser * pBrw)
 	// } @v11.7.6 
 	if(Filt.Flags & Filt.fShowEstValue)
 		add_item_flags = GoodsStrucProcessingBlock::addifInitEstValue;
-	// @v10.8.2 const  int is_sorting_needed = BIN(pBrw && pBrw->GetSettledOrderList().getCount()); // @v10.7.5
 	Goods2Tbl::Rec grec;
 	if(Filt.PrmrGoodsID) {
 		if(Cb.GObj.Search(Filt.PrmrGoodsID, &grec) > 0) {
@@ -243,7 +242,7 @@ int PPViewGoodsStruc::MakeList(PPViewBrowser * pBrw)
 		goods_filt.GrpIDList.Add(Filt.PrmrGoodsGrpID);
 		goods_filt.Flags |= GoodsFilt::fWithStrucOnly;
 		for(GoodsIterator gi(&goods_filt, 0); gi.Next(&grec) > 0;) {
-			if(!(Filt.Flags & Filt.fSkipByPassiveOwner) || !(grec.Flags & GF_PASSIV)) { // @v10.3.2
+			if(!(Filt.Flags & Filt.fSkipByPassiveOwner) || !(grec.Flags & GF_PASSIV)) {
 				THROW(Cb.AddItem(grec.ID, grec.StrucID, Filt.ScndGoodsGrpID, Filt.ScndGoodsID, add_item_flags));
 			}
 			PPWaitPercent(gi.GetIterCounter());
@@ -269,12 +268,10 @@ int PPViewGoodsStruc::MakeList(PPViewBrowser * pBrw)
 		}
 	}
 	Cb.ItemList.sort(PTR_CMPFUNC(GoodsStrucView_ItemEntry_CurrentOrder), this);
-	// @v10.7.5 {
 	if(pBrw) {
 		pBrw->Helper_SetAllColumnsSortable();
 		SortList(pBrw);
 	}
-	// } @v10.7.5 
 	CATCHZOK
 	return ok;
 }
@@ -352,7 +349,7 @@ int GoodsStrucProcessingBlock::AddItem(PPID goodsID, PPID strucID, PPID filtScnd
 							// @v11.7.6 {
 							if((__flags & addifInitTech) && SETIFZ(P_TecObj, new PPObjTech())) {
 								P_TecObj->GetListByGoodsStruc(struc.Rec.ID, &tec_id_list);
-								if(tec_id_list.getCount() > 0) {
+								if(tec_id_list.getCount()) {
 									new_entry.SingleAssociatedTechID = tec_id_list.get(0);
 									if(tec_id_list.getCount() > 1)
 										new_entry.InternalFlags |= intfMultAssociatedTech;
@@ -499,7 +496,7 @@ int FASTCALL PPViewGoodsStruc::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 					pBlk->Set(0.0);
 				break;
 			case 7: pBlk->Set(p_item->ItemNo); break; // Номер строки внутри стурктуры
-			case 8: // @v10.7.5 Наименование структуры
+			case 8: // Наименование структуры
 				{
 					temp_buf.Z();
 					PPGoodsStrucHeader rec;
@@ -776,7 +773,7 @@ int PPViewGoodsStruc::Recover()
 									// Снимаем ссылку на структуру со всех товаров // (@v10.0.12 отменено) кроме последнего (с наибольшим идентификатором)
 									//
 									for(uint oidx = 0; oidx < owner_list.getCount(); oidx++) {
-										PPID goods_id = owner_list.get(oidx);
+										PPID   goods_id = owner_list.get(oidx);
 										PPGoodsPacket goods_pack;
 										THROW(Cb.GObj.GetPacket(goods_id, &goods_pack, 0) > 0);
 										if(goods_pack.Rec.StrucID == gs_id) {
@@ -811,7 +808,7 @@ int PPViewGoodsStruc::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 		else
 			MEMSZERO(brw_hdr);
 		switch(ppvCmd) {
-			case PPVCMD_USERSORT: SortList(pBrw); ok = 1; break; // @v10.7.5 The rest will be done below
+			case PPVCMD_USERSORT: SortList(pBrw); ok = 1; break; // The rest will be done below
 			case PPVCMD_EDITITEM:
 			case PPVCMD_EDITGOODS:
 			case PPVCMD_EDITITEMGOODS:
@@ -863,23 +860,23 @@ int PPViewGoodsStruc::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 						filt.OpGrpID = GoodsOpAnalyzeFilt::ogInOutAnalyze;
 						filt.Flags |= GoodsOpAnalyzeFilt::fLeaderInOutGoods;
 						filt.GoodsIdList.Add(goods_id);
-						filt.Period.low = getcurdate_(); // @v10.2.3
-						plusperiod(&filt.Period.low, PRD_ANNUAL, -1, 0); // @v10.2.3
+						filt.Period.low = getcurdate_();
+						plusperiod(&filt.Period.low, PRD_ANNUAL, -1, 0);
 						ViewGoodsOpAnalyze(&filt);
 					}
 				}
 				break;
-			case PPVCMD_SYSJ: // @v10.0.09
+			case PPVCMD_SYSJ:
 				if(brw_hdr.GStrucID) {
 					ViewSysJournal(PPOBJ_GOODSSTRUC, brw_hdr.GStrucID, 0);
 					ok = -1;
 				}
 				break;
-			case PPVCMD_TRANSMIT: // @v10.0.09
+			case PPVCMD_TRANSMIT:
 				ok = -1;
 				Transmit(0);
 				break;
-			case PPVCMD_DORECOVER: // @v10.0.09
+			case PPVCMD_DORECOVER:
 				ok = -1;
 				//GSObj.CheckStructs();
 				Recover();
@@ -1448,10 +1445,8 @@ int PPALDD_GoodsStrucList::InitData(PPFilt & rFilt, long rsrv)
 	return DlRtm::InitData(rFilt, rsrv);
 }
 
-int PPALDD_GoodsStrucList::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
-{
-	INIT_PPVIEW_ALDD_ITER(GoodsStruc);
-}
+void PPALDD_GoodsStrucList::Destroy() { DESTROY_PPVIEW_ALDD(GoodsStruc); }
+int  PPALDD_GoodsStrucList::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/) { INIT_PPVIEW_ALDD_ITER(GoodsStruc); }
 
 int PPALDD_GoodsStrucList::NextIteration(PPIterID iterId)
 {
@@ -1482,4 +1477,3 @@ int PPALDD_GoodsStrucList::NextIteration(PPIterID iterId)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-void PPALDD_GoodsStrucList::Destroy() { DESTROY_PPVIEW_ALDD(GoodsStruc); }

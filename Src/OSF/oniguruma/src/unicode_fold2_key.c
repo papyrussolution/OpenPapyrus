@@ -37,8 +37,7 @@ inline
 /*ARGSUSED*/
 static uint hash(OnigCodePoint codes[])
 {
-	static const uchar asso_values[] =
-	{
+	static const uchar asso_values[] = {
 		58, 57, 56, 55, 54, 53, 52, 16, 50, 59,
 		15, 59, 25, 59, 59, 59, 59, 59, 59,  3,
 		59, 59, 59, 59, 59, 59, 59, 59, 59, 59,

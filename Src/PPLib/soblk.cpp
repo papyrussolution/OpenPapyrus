@@ -4793,7 +4793,7 @@ int Backend_SelectObjectBlock::CheckInCriterion(int criterion, int subcriterion,
 					SETIFZ(P_BillF, new BillFilt);
 					switch(criterion) {
 						case cPeriod:
-							THROW(strtoperiod(rArg, &P_BillF->Period, 0));
+							THROW_SL(P_BillF->Period.FromStr(rArg, 0));
 							break;
 						case cDate:
 							{
@@ -5549,7 +5549,7 @@ int Backend_SelectObjectBlock::CheckInCriterion(int criterion, int subcriterion,
 				switch(criterion) {
 					case cCurrency: THROW(ResolveCrit_Cur(subcriterion, rArg, &P_CurRateF->CurID)); break;
 					case cActual: P_CurRateF->Flags |= CurRateFilt::fActualOnly; break;
-					case cPeriod: THROW(strtoperiod(rArg, &P_CurRateF->Period, 0)); break;
+					case cPeriod: THROW_SL(P_CurRateF->Period.FromStr(rArg, 0)); break;
 					case cType: THROW(ResolveCrit_CurRateType(subcriterion, rArg, &P_CurRateF->RateTypeID)); break;
 					case cPage: THROW(ResolveCrit_Page(rArg)); break;
 					default: CALLEXCEPT_PP(PPERR_CMDSEL_INVCRITERION); break;
@@ -5569,7 +5569,7 @@ int Backend_SelectObjectBlock::CheckInCriterion(int criterion, int subcriterion,
 				switch(criterion) {
 					case cCode: P_SpecSerF->Serial = rArg; break;
 					case cGoods: THROW(ResolveCrit_Goods(subcriterion, rArg, &P_SpecSerF->GoodsID)); break;
-					case cPeriod: THROW(strtoperiod(rArg, &P_SpecSerF->Period, 0)); break;
+					case cPeriod: THROW_SL(P_SpecSerF->Period.FromStr(rArg, 0)); break;
 					case cPage: THROW(ResolveCrit_Page(rArg)); break;
 					default: CALLEXCEPT_PP(PPERR_CMDSEL_INVCRITERION); break;
 				}
@@ -5914,7 +5914,7 @@ STYLOPALM
 				if(Operator == oSelect) {
 					SETIFZ(P_UhttSCardOpF, new UhttSCardOpFilt());
 					switch(criterion) {
-						case cPeriod: THROW(strtoperiod(rArg, &P_UhttSCardOpF->Period, 0)); break;
+						case cPeriod: THROW_SL(P_UhttSCardOpF->Period.FromStr(rArg, 0)); break;
 						case cGrouping: P_UhttSCardOpF->Grp = rArg.ToLong(); break;
 						default: CALLEXCEPT_PP(PPERR_CMDSEL_INVCRITERION); break;
 					}
@@ -6012,7 +6012,7 @@ STYLOPALM
 				if(Operator == oSelect) {
 					SETIFZ(P_GeoTrF, new GeoTrackingFilt);
 					switch(criterion) {
-						case cPeriod: THROW(strtoperiod(rArg, &P_GeoTrF->Period, 0)); break;
+						case cPeriod: THROW_SL(P_GeoTrF->Period.FromStr(rArg, 0)); break;
 						case cObjType:
 							{
 								long   objtypeext = 0;

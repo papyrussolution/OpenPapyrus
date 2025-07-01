@@ -1371,120 +1371,131 @@ int SReport::prepareData()
 {
 	page = line = 1;
 
-	int    ok = 1, i;
+	int    ok = 1;
+	int    i;
 	uint   di;
 	Field * f = 0;
 	SString dbfname;
 	SCollection fld_ids(/*DEFCOLLECTDELTA,*/aryPtrContainer);
 	DbfTable * dbf = 0;
-	createBodyDataFile(dbfname, &fld_ids);
-	dbf = new DbfTable(dbfname);
-	DbfRecord rec(dbf);
-	calcAggr(-1, 0);
-	if((i = iterator(1)) > 0)
-		do {
-			Count++;
-			int    fldn = 1;
+	{
+		createBodyDataFile(dbfname, &fld_ids);
+		dbf = new DbfTable(dbfname);
+		DbfRecord rec(dbf);
+		calcAggr(-1, 0);
+		if((i = iterator(1)) > 0) {
+			do {
+				Count++;
+				int    fldn = 1;
+				for(di = 0; di < fld_ids.getCount(); di++) {
+					f = static_cast<Field *>(fld_ids.at(di));
+					if(f->type != 0) {
+						char   buf[256];
+						if(!(PrnOptions & SPRN_SKIPGRPS)) {
+							for(int i = 0; i < grpCount; i++) {
+								const int c = checkval(groups[i].fields, &groups[i].lastval);
+								if(c > 0) {
+									// Значение изменилось
+									THROW(printGroupHead(GROUP_FOOT, i));
+									THROW(printGroupHead(GROUP_HEAD, i));
+								}
+								else if(c < 0) { // Первая запись
+									THROW(printGroupHead(GROUP_HEAD, i));
+								}
+							}
+						}
+						if(!(f->fldfmt & FLDFMT_SKIP)) {
+							if(f->data) {
+								int _s  = GETSSIZE(f->type);
+								int _sd = GETSSIZED(f->type);
+								switch (GETSTYPE(f->type)) {
+									case S_INT:
+										if(_s == 1)
+											rec.put(di+1, (long)*static_cast<const int8 *>(f->data));
+										else if(_s == 2)
+											rec.put(di+1, (long)*static_cast<const int16 *>(f->data));
+										else if(_s == 4)
+											rec.put(di+1, (long)*static_cast<int32 *>(f->data));
+										break;
+									case S_FLOAT:
+										if(_s == 4)
+											rec.put(di+1, (double)*static_cast<const float *>(f->data));
+										else if(_s == 8)
+											rec.put(di+1, *static_cast<const double *>(f->data));
+										break;
+									case S_DEC:
+									case S_MONEY: {
+											double _dbl_temp = dectobin(static_cast<const char *>(f->data), (int16)GETSSIZED(f->type),
+												(int16)GETSPRECD(f->type));
+											rec.put(di+1, _dbl_temp);
+										}
+										break;
+									case S_DATE: {
+											int _d, _m, _y;
+											DBFDate _dt_temp;
+											decodedate(&_d, &_m, &_y, f->data);
+											_dt_temp.day   = _d;
+											_dt_temp.month = _m;
+											_dt_temp.year  = _y;
+											rec.put(di+1, &_dt_temp);
+										}
+										break;
+									case S_TIME:
+										sttostr(f->type, f->data, f->format, buf);
+										rec.put(di+1, buf);
+										break;
+									case S_ZSTRING:
+										rec.put(di+1, static_cast<const char *>(f->data));
+										break;
+								}
+							}
+						}
+						else {
+							memset(buf, ' ', SFMTLEN(f->format));
+							buf[SFMTLEN(f->format)] = 0;
+							rec.put(di+1,buf);
+						}
+					}
+				}
+				if(i != 2)
+					calcAggr(-1, 1);
+				dbf->appendRec(&rec);
+			} while((i = iterator(0)) > 0);
+		}
+		if(!(PrnOptions & SPRN_SKIPGRPS)) {
+			for(i = 0; i < grpCount; i++) {
+				THROW(printGroupHead(GROUP_FOOT, i));
+			}
+		}
+		calcAggr(-1, 2);
+		dbf->close();
+		ZDELETE(dbf);
+	}
+	{
+		createVarDataFile(dbfname, &fld_ids);
+		dbf = new DbfTable(dbfname);
+		{
+			int    fldn = 0;
+			char   buf[256];
+			DbfRecord rec(dbf);
 			for(di = 0; di < fld_ids.getCount(); di++) {
 				f = static_cast<Field *>(fld_ids.at(di));
 				if(f->type != 0) {
-					char buf[256];
-					int c;
-					if(!(PrnOptions & SPRN_SKIPGRPS))
-						for(int i = 0; i < grpCount; i++)
-							if((c = checkval(groups[i].fields, &groups[i].lastval)) > 0) {
-								// Значение изменилось
-								THROW(printGroupHead(GROUP_FOOT, i));
-								THROW(printGroupHead(GROUP_HEAD, i));
-							}
-							else if(c < 0) { // Первая запись
-								THROW(printGroupHead(GROUP_HEAD, i));
-							}
-					if(!(f->fldfmt & FLDFMT_SKIP))
-						if(f->data) {
-							int _s  = GETSSIZE(f->type);
-							int _sd = GETSSIZED(f->type);
-							switch (GETSTYPE(f->type)) {
-								case S_INT:
-									if(_s == 1)
-										rec.put(di+1, (long)*static_cast<const int8 *>(f->data));
-									else if(_s == 2)
-										rec.put(di+1, (long)*static_cast<const int16 *>(f->data));
-									else if(_s == 4)
-										rec.put(di+1, (long)*static_cast<int32 *>(f->data));
-									break;
-								case S_FLOAT:
-									if(_s == 4)
-										rec.put(di+1, (double)*static_cast<const float *>(f->data));
-									else if(_s == 8)
-										rec.put(di+1, *static_cast<const double *>(f->data));
-									break;
-								case S_DEC:
-								case S_MONEY: {
-										double _dbl_temp = dectobin(static_cast<const char *>(f->data), (int16)GETSSIZED(f->type),
-											(int16)GETSPRECD(f->type));
-										rec.put(di+1, _dbl_temp);
-									}
-									break;
-								case S_DATE: {
-										int _d, _m, _y;
-										DBFDate _dt_temp;
-										decodedate(&_d, &_m, &_y, f->data);
-										_dt_temp.day   = _d;
-										_dt_temp.month = _m;
-										_dt_temp.year  = _y;
-										rec.put(di+1, &_dt_temp);
-									}
-									break;
-								case S_TIME:
-									sttostr(f->type, f->data, f->format, buf);
-									rec.put(di+1, buf);
-									break;
-								case S_ZSTRING:
-									rec.put(di+1, static_cast<const char *>(f->data));
-									break;
-							}
-						}
+					if(f->data) {
+						if(GETSTYPE(f->type) == S_ZSTRING)
+							STRNSCPY(buf, static_cast<const char *>(f->data));
+						else
+							sttostr(f->type, f->data, f->format, buf);
+					}
 					else {
 						memset(buf, ' ', SFMTLEN(f->format));
 						buf[SFMTLEN(f->format)] = 0;
-						rec.put(di+1,buf);
 					}
+					rec.put(di+1, buf);
 				}
 			}
-			if(i != 2)
-				calcAggr(-1, 1);
 			dbf->appendRec(&rec);
-		} while((i = iterator(0)) > 0);
-	if(!(PrnOptions & SPRN_SKIPGRPS))
-		for(i = 0; i < grpCount; i++) {
-			THROW(printGroupHead(GROUP_FOOT, i));
 		}
-	calcAggr(-1, 2);
-	dbf->close();
-	ZDELETE(dbf);
-	createVarDataFile(dbfname, &fld_ids);
-	dbf = new DbfTable(dbfname);
-	{
-		int  fldn = 0;
-		char buf[256];
-		DbfRecord rec(dbf);
-		for(di = 0; di < fld_ids.getCount(); di++) {
-			f = static_cast<Field *>(fld_ids.at(di));
-			if(f->type != 0) {
-				if(f->data)
-					if(GETSTYPE(f->type) == S_ZSTRING)
-						STRNSCPY(buf, static_cast<const char *>(f->data));
-					else
-						sttostr(f->type, f->data, f->format, buf);
-				else {
-					memset(buf, ' ', SFMTLEN(f->format));
-					buf[SFMTLEN(f->format)] = 0;
-				}
-				rec.put(di+1, buf);
-			}
-		}
-		dbf->appendRec(&rec);
 	}
 	CATCHZOK
 	delete dbf;
@@ -2223,12 +2234,11 @@ int SReport::checkval(int16 *flds, char **ptr)
 int SReport::printDetail()
 {
 	int     ok = 1;
-	int     i;
 	int     c;
 	Band  * b;
 	Field * f = 0;
 	if(!(PrnOptions & SPRN_SKIPGRPS)) {
-		for(i = 0; i < grpCount; i++) {
+		for(int i = 0; i < grpCount; i++) {
 			if((c = checkval(groups[i].fields, &groups[i].lastval)) > 0) {
 				// Значение изменилось
 				THROW(printGroupHead(GROUP_FOOT, i));
@@ -2239,28 +2249,31 @@ int SReport::printDetail()
 			}
 		}
 	}
-	for(b = searchBand(DETAIL_BODY, 0); enumFields(&f, b, &i);) {
-		if(f->type == 0) {
-			const char * p;
-			const char * t;
-			p = t = P_Text+f->offs;
-			while((p = sstrchr(p, '\n')) != 0) {
-				if(P_Prn->pgl == 0 || line < (P_Prn->pgl - PageFtHt)) {
-					p++;
-					line++;
+	{
+		int    i = 0;
+		for(b = searchBand(DETAIL_BODY, 0); enumFields(&f, b, &i);) {
+			if(f->type == 0) {
+				const char * p = P_Text+f->offs;
+				const char * t = p;
+				while((p = sstrchr(p, '\n')) != 0) {
+					if(P_Prn->pgl == 0 || line < (P_Prn->pgl - PageFtHt)) {
+						p++;
+						line++;
+					}
+					else {
+						THROW(P_Prn->printLine(t, 0));
+						THROW(printPageHead(PAGE_FOOT, 0));
+						THROW(printPageHead(PAGE_HEAD, 1));
+						t = ++p;
+						line++;
+					}
 				}
-				else {
-					THROW(P_Prn->printLine(t, 0));
-					THROW(printPageHead(PAGE_FOOT, 0));
-					THROW(printPageHead(PAGE_HEAD, 1));
-					t = ++p;
-					line++;
-				}
+				THROW(P_Prn->printLine(t, 0));
 			}
-			THROW(P_Prn->printLine(t, 0));
+			else {
+				THROW(printDataField(f));
+			}
 		}
-		else
-			THROW(printDataField(f));
 	}
 	CATCHZOK
 	return ok;
@@ -2280,9 +2293,8 @@ int SReport::printTitle(int kind)
 		}
 		while(enumFields(&f, b, &i)) {
 			if(f->type == 0) {
-				const char * p;
-				const char * t;
-				p = t = P_Text+f->offs;
+				const char * p = P_Text+f->offs;
+				const char * t = p;
 				while((p = sstrchr(p, '\n')) != 0) {
 					if(P_Prn->pgl == 0 || line < P_Prn->pgl) {
 						p++;

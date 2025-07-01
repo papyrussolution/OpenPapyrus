@@ -462,7 +462,7 @@ public:
 		}
 		else
 			disableCtrl(CTL_DWOFILT_PERIOD, false);
-		SetPeriodInput(this, CTL_DWOFILT_PERIOD, &Data.Period);
+		SetPeriodInput(this, CTL_DWOFILT_PERIOD, Data.Period);
 		SetupPPObjCombo(this, CTLSEL_DWOFILT_DWO, PPOBJ_DRAFTWROFF, Data.DwoID, 0, 0);
 		SetupPPObjCombo(this, CTLSEL_DWOFILT_LOC, PPOBJ_LOCATION, Data.PoolLocID, 0, 0);
 		AddClusterAssoc(CTL_DWOFILT_FLAGS, 0, PrcssrWrOffDraftFilt::fCreateMrpTab);

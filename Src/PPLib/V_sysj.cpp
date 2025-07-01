@@ -1,5 +1,6 @@
 // V_SYSJ.CPP
 // Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2023, 2024, 2025
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -84,13 +85,13 @@ void SysJFiltDialog::SetupCtrls()
 int SysJFiltDialog::setDTS(const SysJournalFilt * pFilt)
 {
 	Filt = *pFilt;
-	SetPeriodInput(this, CTL_SYSJFILT_PERIOD, &Filt.Period);
+	SetPeriodInput(this, CTL_SYSJFILT_PERIOD, Filt.Period);
 	SetupPPObjCombo(this, CTLSEL_SYSJFILT_USER, PPOBJ_USR, Filt.UserID, 0, 0);
 	SetupPPObjCombo(this, CTLSEL_SYSJFILT_ACTION, PPOBJ_ACTION, 0, 0, 0);
 	if(Id == DLG_SYSJFILT) {
 		SetupObjListCombo(this, CTLSEL_SYSJFILT_OBJ, Filt.ObjType);
 		AddClusterAssoc(CTL_SYSJFILT_FLAGS, 0, SysJournalFilt::fShowObjects);
-		AddClusterAssoc(CTL_SYSJFILT_FLAGS, 1, SysJournalFilt::fShowHistoryObj); // @v9.9.2
+		AddClusterAssoc(CTL_SYSJFILT_FLAGS, 1, SysJournalFilt::fShowHistoryObj);
 		SetClusterData(CTL_SYSJFILT_FLAGS, Filt.Flags);
 	}
 	if(Filt.ActionIDList.isList()) {
@@ -767,8 +768,8 @@ int PPViewSysJournal::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 			MEMSZERO(hdr);
 		if(ppvCmd == PPVCMD_VIEWHISTORY) {
 			if(hdr.Obj == PPOBJ_BILL && oneof2(hdr.Action, PPACN_UPDBILL, PPACN_RMVBILL)) {
-				// @todo Необходимо показывать состояние документа до изменения статуса (PPACN_BILLSTATUSUPD),
-				// но для этого дополнительный объект по событию должен быть иным (ид сохраненной копии документа)
+				// @todo РќРµРѕР±С…РѕРґРёРјРѕ РїРѕРєР°Р·С‹РІР°С‚СЊ СЃРѕСЃС‚РѕСЏРЅРёРµ РґРѕРєСѓРјРµРЅС‚Р° РґРѕ РёР·РјРµРЅРµРЅРёСЏ СЃС‚Р°С‚СѓСЃР° (PPACN_BILLSTATUSUPD),
+				// РЅРѕ РґР»СЏ СЌС‚РѕРіРѕ РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Р№ РѕР±СЉРµРєС‚ РїРѕ СЃРѕР±С‹С‚РёСЋ РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РёРЅС‹Рј (РёРґ СЃРѕС…СЂР°РЅРµРЅРЅРѕР№ РєРѕРїРёРё РґРѕРєСѓРјРµРЅС‚Р°)
 				LDATETIME ev_dtm = hdr.Dtm;
 				ViewBillHistory(R0i(hdr.Extra), ev_dtm);
 				ok = -1;
@@ -1040,7 +1041,7 @@ int PPViewSysJournal::RefreshTempTable(LDATETIME since)
 							THROW_DB(P_TmpTbl->insertRecBuf(&rec));
 						}
 					}
-					// @v9.9.0 @todo заменить следующий блок
+					// @v9.9.0 @todo Р·Р°РјРµРЅРёС‚СЊ СЃР»РµРґСѓСЋС‰РёР№ Р±Р»РѕРє
 					/* @v9.9.0 if(P_NamesTbl) {
 						TempDoubleIDTbl::Key1 k1;
 						const  PPID obj_type = rec.ObjType;
@@ -1243,7 +1244,7 @@ int PPViewGtaJournal::EditBaseFilt(PPBaseFilt * pBaseFilt)
 		DECL_DIALOG_SETDTS()
 		{
 			RVALUEPTR(Data, pData);
-			SetPeriodInput(this, CTL_GTAJFILT_PERIOD, &Data.Period);
+			SetPeriodInput(this, CTL_GTAJFILT_PERIOD, Data.Period);
 			SetupPPObjCombo(this, CTLSEL_GTAJFILT_USER, PPOBJ_GLOBALUSERACC, Data.GlobalUserID, 0, 0);
 			SetupPPObjCombo(this, CTLSEL_GTAJFILT_ACTION, PPOBJ_GTACTION, 0, 0, 0);
 			if(Id == DLG_GTAJFILT) {

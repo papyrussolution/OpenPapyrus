@@ -356,10 +356,7 @@ size_t FASTCALL SymbHashTable::Hash(const char * pSymb) const
 	return (size_t)(__h % Size);
 }
 
-int FASTCALL SymbHashTable::InitIteration(Iter * pI) const
-{
-	return HashTableBase::InitIteration(pI);
-}
+int FASTCALL SymbHashTable::InitIteration(Iter * pI) const { return HashTableBase::InitIteration(pI); }
 
 int SymbHashTable::NextIteration(Iter * pI, uint * pVal, uint * pPos, SString * pStr) const
 {
@@ -715,10 +712,7 @@ int LAssocHashTable::Search(long key, long * pVal) const
 	return ok;
 }
 
-int FASTCALL LAssocHashTable::InitIteration(Iter * pI) const
-{
-	return HashTableBase::InitIteration(pI);
-}
+int FASTCALL LAssocHashTable::InitIteration(Iter * pI) const { return HashTableBase::InitIteration(pI); }
 
 int LAssocHashTable::NextIteration(Iter * pI, long * pKey, long * pVal) const
 {
@@ -812,10 +806,7 @@ size_t FASTCALL GuidHashTable::Hash(const S_GUID & rUuid) const
 	return (size_t)(__h % Size);
 }
 
-int FASTCALL GuidHashTable::InitIteration(Iter * pI) const
-{
-	return HashTableBase::InitIteration(pI);
-}
+int FASTCALL GuidHashTable::InitIteration(Iter * pI) const { return HashTableBase::InitIteration(pI); }
 
 int GuidHashTable::NextIteration(Iter * pI, uint * pVal, S_GUID & rUuid) const
 {
@@ -1140,10 +1131,7 @@ int PtrHashTable::Search(const void * ptr, uint * pVal, uint * pPos) const
 	return ok;
 }
 
-int FASTCALL PtrHashTable::InitIteration(Iter * pI) const
-{
-	return HashTableBase::InitIteration(pI);
-}
+int FASTCALL PtrHashTable::InitIteration(Iter * pI) const { return HashTableBase::InitIteration(pI); }
 
 int PtrHashTable::NextIteration(Iter * pI, uint * pVal, void ** ppPtr) const
 {

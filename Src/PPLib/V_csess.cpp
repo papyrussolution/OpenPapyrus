@@ -86,7 +86,7 @@ public:
 		RVALUEPTR(Data, pData);
 		PosNodeCtrlGroup::Rec cn_rec(&Data.NodeList);
 		setGroupData(ctlgroupPosNode, &cn_rec);
-		SetPeriodInput(this, CTL_DFRULESEL_PERIOD, &Data.Period);
+		SetPeriodInput(this, CTL_DFRULESEL_PERIOD, Data.Period);
 		SetupPPObjCombo(this, CTLSEL_DFRULESEL_RULEGRP, PPOBJ_DFCREATERULE, Data.RuleGrpID, 0, reinterpret_cast<void *>(PPDFCRRULE_ONLYGROUPS));
 		SetupPPObjCombo(this, CTLSEL_DFRULESEL_RULE, PPOBJ_DFCREATERULE, Data.RuleID, 0, reinterpret_cast<void *>(PPDFCRRULE_ONLYRULES));
 		AddClusterAssoc(CTL_DFRULESEL_FLAGS, 0, CSessCrDraftParam::fAllSessions);
@@ -191,7 +191,7 @@ int PPViewCSess::EditBaseFilt(PPBaseFilt * pBaseFilt)
 			AddClusterAssoc(CTL_CSESSFILT_ORDER, 8, PPViewCSess::ordByAmount);
 			SetClusterData(CTL_CSESSFILT_ORDER, Data.InitOrder);
 			SetupCalPeriod(CTLCAL_CSESSFILT_PERIOD, CTL_CSESSFILT_PERIOD);
-			SetPeriodInput(this, CTL_CSESSFILT_PERIOD, &Data.Period);
+			SetPeriodInput(this, CTL_CSESSFILT_PERIOD, Data.Period);
 			if(Data.NodeList_.GetCount() == 0) {
 				PPObjCSession cs_obj;
 				if(cs_obj.GetEqCfg().DefCashNodeID)
@@ -2150,7 +2150,7 @@ void PPViewCSess::ViewTotal()
 	TDialog * dlg = new TDialog((Filt.Flags & CSessFilt::fExtBill) ? DLG_CSESSWRETTOTAL : DLG_CSESSTOTAL);
 	if(CheckDialogPtrErr(&dlg)) {
 		double  ret_amt = total.WORetAmount - total.Amount;
-		SetPeriodInput(dlg, CTL_CSESSTOTAL_PERIOD, &Filt.Period);
+		SetPeriodInput(dlg, CTL_CSESSTOTAL_PERIOD, Filt.Period);
 		dlg->setCtrlData(CTL_CSESSTOTAL_COUNT,    &total.SessCount);
 		dlg->setCtrlData(CTL_CSESSTOTAL_CHKCOUNT, &total.CheckCount);
 		dlg->setCtrlData(CTL_CSESSTOTAL_AMTWORET, &total.WORetAmount);
@@ -2243,7 +2243,7 @@ int PPViewCSessExc::EditBaseFilt(PPBaseFilt * pFilt)
 		GoodsCtrlGroup::Rec rec(p_filt->GoodsGrpID, p_filt->GoodsID, 0, GoodsCtrlGroup::enableSelUpLevel);
 		dlg->addGroup(GRP_GOODS, new GoodsCtrlGroup(CTLSEL_CSESSEXC_GGRP, CTLSEL_CSESSEXC_GOODS));
 		dlg->SetupCalPeriod(CTLCAL_CSESSEXC_PERIOD, CTL_CSESSEXC_PERIOD);
-		SetPeriodInput(dlg, CTL_CSESSEXC_PERIOD, &p_filt->Period);
+		SetPeriodInput(dlg, CTL_CSESSEXC_PERIOD, p_filt->Period);
 		dlg->setGroupData(GRP_GOODS, &rec);
 		SETIFZ(cashnode_id, CsObj.GetEqCfg().DefCashNodeID);
 		SetupPPObjCombo(dlg, CTLSEL_CSESSEXC_NODE, PPOBJ_CASHNODE, cashnode_id, 0, 0);
@@ -2844,7 +2844,7 @@ void PPViewCSessExc::ViewTotal()
 				total_altdiff -= item.AltDiff;
 			}
 		}
-		SetPeriodInput(dlg, CTL_CSESSEXCTOTAL_PERIOD, &Filt.Period);
+		SetPeriodInput(dlg, CTL_CSESSEXCTOTAL_PERIOD, Filt.Period);
 		dlg->setCtrlLong(CTL_CSESSEXCTOTAL_COUNT, count);
 		dlg->setCtrlReal(CTL_CSESSEXCTOTAL_QTTY,  total_rest);
 		dlg->setCtrlReal(CTL_CSESSEXCTOTAL_REST,  total_sumrest);
@@ -2929,10 +2929,8 @@ int PPALDD_CSessionView::InitData(PPFilt & rFilt, long rsrv)
 	return DlRtm::InitData(rFilt, rsrv);
 }
 
-int PPALDD_CSessionView::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
-{
-	INIT_PPVIEW_ALDD_ITER_ORD(CSess, sortId);
-}
+void PPALDD_CSessionView::Destroy() { DESTROY_PPVIEW_ALDD(CSess); }
+int  PPALDD_CSessionView::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/) { INIT_PPVIEW_ALDD_ITER_ORD(CSess, sortId); }
 
 int PPALDD_CSessionView::NextIteration(PPIterID iterId)
 {
@@ -2946,8 +2944,6 @@ int PPALDD_CSessionView::NextIteration(PPIterID iterId)
 	I.RetAmount       = item.WORetAmount - item.Amount;
 	FINISH_PPVIEW_ALDD_ITER();
 }
-
-void PPALDD_CSessionView::Destroy() { DESTROY_PPVIEW_ALDD(CSess); }
 //
 // Implementation of PPALDD_CSessExc
 //
@@ -2995,10 +2991,8 @@ int PPALDD_CSessExc::InitData(PPFilt & rFilt, long rsrv)
 	return DlRtm::InitData(rFilt, rsrv);
 }
 
-int PPALDD_CSessExc::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
-{
-	INIT_PPVIEW_ALDD_ITER(CSessExc);
-}
+void PPALDD_CSessExc::Destroy() { DESTROY_PPVIEW_ALDD(CSessExc); }
+int  PPALDD_CSessExc::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/) { INIT_PPVIEW_ALDD_ITER(CSessExc); }
 
 int PPALDD_CSessExc::NextIteration(PPIterID iterId)
 {
@@ -3016,5 +3010,3 @@ int PPALDD_CSessExc::NextIteration(PPIterID iterId)
 	I.AltDiff       = item.AltDiff;
 	FINISH_PPVIEW_ALDD_ITER();
 }
-
-void PPALDD_CSessExc::Destroy() { DESTROY_PPVIEW_ALDD(CSessExc); }

@@ -604,10 +604,10 @@ public class CommonPrereqModule {
 		CurrentOrder = null;
 		// @v11.7.0 {
 		if(Cs != null || SetupCurrentState(null)) {
-			if(Cs.OpenedDocID != 0) {
+			// @v12.3.7 () if(Cs.OpenedDocID != 0) {
 				Cs.OpenedDocID = 0;
 				RegisterCurrentStateModification(null);
-			}
+			// @v12.3.7 }
 		}
 		// } @v11.7.0
 	}
@@ -620,9 +620,11 @@ public class CommonPrereqModule {
 				CurrentOrder = Document.Copy(doc); // Важно: мы используем глубокую копию документа, а не его алиас,
 					// поскольку мы будем его менять не зная однозначно будут приняты эти изменения или нет.
 				CurrentOrder.H.OrgCmdUuid = CmdUuid;
-				int ex_status = CurrentOrder.GetDocStatus();
-				if(ex_status == 0)
-					CurrentOrder.SetDocStatus(StyloQDatabase.SecStoragePacket.styloqdocstINCOMINGMOD);
+				int _status = CurrentOrder.GetDocStatus();
+				if(_status == 0) {
+					_status = StyloQDatabase.SecStoragePacket.styloqdocstINCOMINGMOD;
+					CurrentOrder.SetDocStatus(_status);
+				}
 				ok = true;
 			}
 		}
@@ -666,7 +668,7 @@ public class CommonPrereqModule {
 		}
 		return ok;
 	}
-	protected boolean RestoreRecentIncomingModDocumentAsCurrent(/*int opID*/ArrayList <UUID> possibleDocUuidList)
+	protected boolean RestoreRecentIncomingModDocumentAsCurrent(ArrayList <UUID> possibleDocUuidList)
 	{
 		boolean result = false;
 		if(CurrentOrder == null) {
@@ -833,7 +835,7 @@ public class CommonPrereqModule {
 							if(reqStatus == StyloQDatabase.SecStoragePacket.styloqdocstINCOMINGMOD) {
 								CurrentOrder.H.ID = 0; // Мы получили от сервиса документ с идентификатором, актуальным для сервиса.
 									// Сохраняя этот док у себя в БД мы присваиваем ему собственный идент, сопоставлять с сервисом будем
-									// по GUID'у (сервис на своей стороне обязан позабодиться о том, чтобы переданный нам документ
+									// по GUID'у (сервис на своей стороне обязан позаботиться о том, чтобы переданный нам документ
 									// имел GUID.
 								direction = -1;
 							}

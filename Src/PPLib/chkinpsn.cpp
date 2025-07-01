@@ -907,8 +907,8 @@ public:
 		SetupCalDate(CTLCAL_CHKINP_CIDT, CTL_CHKINP_CIDT);
 		SetupTimePicker(this, CTL_CHKINP_REGTM, CTLTM_CHKINP_REGTM);
 		SetupTimePicker(this, CTL_CHKINP_CITM, CTLTM_CHKINP_CITM);
-		setCtrlReadOnly(CTL_CHKINP_PRICE, 1);
-		setCtrlReadOnly(CTL_CHKINP_AMOUNT, 1);
+		setCtrlReadOnly(CTL_CHKINP_PRICE, true);
+		setCtrlReadOnly(CTL_CHKINP_AMOUNT, true);
 		showButton(cmCCheck, Cfg.GoodsID);
 		enableCommand(cmCCheck, Cfg.GoodsID);
 	}

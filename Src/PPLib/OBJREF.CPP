@@ -12,8 +12,15 @@ static void FASTCALL set_rt_flag(PPObject * pObj, int * pRt, int flag)
 		(*pRt) |= flag;
 }
 
-ObjViewDialog::ObjViewDialog(uint dlgRez, PPObject * aObj, void * extraPtr) : TDialog(/*DLG_OBJVIEW*/dlgRez), P_Obj(aObj), ExtraPtr(extraPtr), Rt(0)
+ObjViewDialog::ObjViewDialog(uint dlgRez, PPObject * pObj, void * extraPtr) : TDialog(/*DLG_OBJVIEW*/dlgRez), P_Obj(pObj), ExtraPtr(extraPtr), Rt(0)
 {
+	// @v12.3.7 {
+	if(pObj && pObj->Obj) {
+		SString obj_type_symb;
+		DS.GetObjectTypeSymb(pObj->Obj, obj_type_symb);
+		SetStorableUserParamsSymbSuffix(obj_type_symb);
+	}
+	// } @v12.3.7 
 	set_rt_flag(P_Obj, &Rt, PPR_INS);
 	set_rt_flag(P_Obj, &Rt, PPR_MOD);
 	set_rt_flag(P_Obj, &Rt, PPR_DEL);
@@ -221,8 +228,16 @@ int RefObjView(PPObject * pObj, long charryID, void * extraPtr)
 {
 	int    ok = 1;
 	TDialog * dlg = new RefObjViewDialog(DLG_REFOBJVIEW, pObj, charryID, extraPtr);
-	if(CheckDialogPtrErr(&dlg))
+	if(CheckDialogPtrErr(&dlg)) {
+		// @v12.3.7 {
+		if(pObj && pObj->Obj) {
+			SString obj_type_symb;
+			DS.GetObjectTypeSymb(pObj->Obj, obj_type_symb);
+			dlg->SetStorableUserParamsSymbSuffix(obj_type_symb);
+		}
+		// } @v12.3.7 
 		ExecViewAndDestroy(dlg);
+	}
 	else
 		ok = 0;
 	return ok;
@@ -233,8 +248,7 @@ int RefObjView(PPObject * pObj, long charryID, void * extraPtr)
 int SimpleObjView(PPObject * pObj, void * extraPtr)
 {
 	int    ok = 1;
-	TDialog * dlg = new ObjViewDialog(((pObj->GetImplementFlags() & PPObject::implTreeSelector) ?
-		DLG_OBJVIEWT : DLG_OBJVIEW), pObj, extraPtr);
+	TDialog * dlg = new ObjViewDialog(((pObj->GetImplementFlags() & PPObject::implTreeSelector) ? DLG_OBJVIEWT : DLG_OBJVIEW), pObj, extraPtr);
 	if(CheckDialogPtrErr(&dlg))
 		ExecViewAndDestroy(dlg);
 	else

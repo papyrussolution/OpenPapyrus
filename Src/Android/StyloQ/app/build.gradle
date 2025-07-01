@@ -4,6 +4,7 @@ plugins {
 }
 
 android {
+	flavorDimensions "android-version"
     signingConfigs {
         debug {
             storeFile file('d:\\papyrus\\DISTRIB\\StyloQ\\styloq.keystore')
@@ -19,13 +20,32 @@ android {
         }
     }
     compileSdkVersion 30
-
+    productFlavors {
+        bht_crystal {
+            dimension "android-version"
+            minSdkVersion 29
+            targetSdkVersion 29
+            versionNameSuffix 'bhtcrystal'
+            signingConfig signingConfigs.release
+            versionName '0.8.8'
+            versionCode 113
+        }
+        standard {
+            dimension "android-version"
+            minSdkVersion 31
+            targetSdkVersion 31
+            versionNameSuffix 'std'
+            signingConfig signingConfigs.release
+            versionCode 113
+            versionName '0.8.8'
+        }
+    }
     defaultConfig {
         applicationId "ru.petroglif.styloq"
-        minSdkVersion 29
-        targetSdkVersion 29
-        versionCode 112
-        versionName '0.8.7'
+        minSdkVersion 31
+        targetSdkVersion 31
+        versionCode 113
+        versionName '0.8.8'
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         signingConfig signingConfigs.release
     }
@@ -73,7 +93,7 @@ dependencies {
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
-	implementation files('libs/SDK_release_v2.2.1.jar')
+	bht_crystalImplementation files('libs/SDK_release_v2.2.1.jar')
 }
 
 repositories {

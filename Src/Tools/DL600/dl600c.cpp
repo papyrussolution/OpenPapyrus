@@ -319,6 +319,24 @@ int CtmPropertySheet::Add(const CtmPropertySheet & rList)
 	return ok;
 }
 //
+// 
+// 
+void CtmUiSupplement::Init()
+{
+	Kind.Init();
+	Symb.Init();
+	CmdSymb.Init();
+	Text.Init();
+}
+	
+void CtmUiSupplement::Destroy()
+{
+	Kind.Destroy();
+	Symb.Destroy();
+	CmdSymb.Destroy();
+	Text.Destroy();
+}
+//
 //
 //
 union DL600_TempDecDim {
@@ -681,7 +699,7 @@ int DlContext::AddTypedef(const CtmToken & rSymb, DLSYMBID typeID, uint tdFlags)
 //
 //
 //
-int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, DLSYMBID typeID, const CtmPropertySheet & rS) // @v11.0.4
+int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, DLSYMBID typeID, const CtmPropertySheet & rS, const CtmUiSupplement & rSupplement) // @v11.0.4
 {
 	EXCEPTVAR(LastError);
 	int    ok = 1;
@@ -689,6 +707,7 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 	SString temp_buf;
 	SString prop_key;
 	SString prop_val;
+	SString cpreproc_result_text;
 	//
 	SUiLayoutParam alb;
 	SUiLayoutParam alb_label; // @v12.3.2 Параметры ctrl-метки, привязанной к текущему управляющему элементу
@@ -886,6 +905,18 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 					}
 					occurence_flags |= occfFmtPrec;
 				}
+				/*
+				else if(prop_key == "supplement") { // @v12.3.7 это не будет работать
+					// datecalbutton
+					// daterangecalbutton
+					// listbutton
+					// calcbutton
+					// timebutton
+					// asterbutton
+
+					// supplement: listbutton(symb cmd [title])
+				}
+				*/
 				else if(prop_key == "orientation") {
 					prop_val.Z();
 					if(p_prop->Value.IsIdent() || p_prop->Value.IsString()) {
@@ -1458,14 +1489,14 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 					alb.ShrinkFactor = fv;
 					occurence_flags |= occfShrinkFactor;
 				}
-				else if(prop_key == "format") {
-				}
 				else {
 					// @todo @err invalid property
+					unterm_errcode = PPERR_DL6_PROP_INVALIDSYMB; // "DL600 неизвестный символ свойства '%s'"
+					unterm_error_addedmsg = prop_key;
 				}
 				//
 				if(unterm_errcode) {
-					Error(unterm_errcode, 0, erfLog);
+					Error(unterm_errcode, unterm_error_addedmsg.cptr(), erfLog);
 				}
 			}
 		}
@@ -1559,7 +1590,6 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 		AddConst(command_ident, &c);
 		p_scope->AddConst(DlScope::cuifCtrlCmdSymb, c, 1);
 		{
-			SString cpreproc_result_text;
 			int    cpreproc_result_int = 0;
 			if(CppBlk.ResolveSymbol(command_ident, &cpreproc_result_text, &cpreproc_result_int)) {
 				if(cpreproc_result_int) {
@@ -1600,7 +1630,6 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 		AddConst(cb_line_symb, &c);
 		p_scope->AddConst(DlScope::cuifCbLineSymb, c, 1);
 		{
-			SString cpreproc_result_text;
 			int    cpreproc_result_int = 0;
 			if(CppBlk.ResolveSymbol(cb_line_symb, &cpreproc_result_text, &cpreproc_result_int)) {
 				if(cpreproc_result_int) {
@@ -1640,6 +1669,107 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 		p_scope->AddConst(DlScope::cuifLblLayoutBlock, c, 1);		
 	}
 	// } @v12.3.2 
+	{
+		if(!rSupplement.Kind.IsEmpty()) {
+			bool   local_fault = false;
+			if(rSupplement.Kind.IsIdent()) {
+				SUiCtrlSupplement sb;
+				const SString supplement_kind(rSupplement.Kind.U.S);
+				SString supplement_symb;
+				SString supplement_cmdsymb;
+				SString supplement_text;
+				if(supplement_kind.IsEqiAscii("datecalbutton")) {
+					sb.Kind = SUiCtrlSupplement::kDateCalendar;
+				}
+				else if(supplement_kind.IsEqiAscii("daterangecalbutton")) {
+					sb.Kind = SUiCtrlSupplement::kDateRangeCalendar;
+				}
+				else if(supplement_kind.IsEqiAscii("listbutton")) {
+					sb.Kind = SUiCtrlSupplement::kList;
+				}
+				else if(supplement_kind.IsEqiAscii("calcbutton")) {
+					sb.Kind = SUiCtrlSupplement::kCalc;
+				}
+				else if(supplement_kind.IsEqiAscii("timebutton")) {
+					sb.Kind = SUiCtrlSupplement::kTime;
+				}
+				else if(supplement_kind.IsEqiAscii("asterbutton")) {
+					sb.Kind = SUiCtrlSupplement::kAsterisk;
+				}
+				else {
+					Error(PPERR_DL6_UISUPPLEMENT_UNDEFKIND, supplement_kind.cptr(), erfLog);
+					local_fault = true;
+				}
+				if(sb.Kind) {
+					if(!rSupplement.Symb.IsEmpty()) {
+						if(rSupplement.Symb.IsIdent()) {
+							supplement_symb = rSupplement.Symb.U.S;
+							int    cpreproc_result_int = 0;
+							if(CppBlk.ResolveSymbol(supplement_symb, &cpreproc_result_text, &cpreproc_result_int)) {
+								if(cpreproc_result_int) {
+									sb.Ident = cpreproc_result_int;
+								}
+							}
+						}
+						else {
+							; // @err
+							local_fault = true;
+						}
+					}
+					if(!rSupplement.CmdSymb.IsEmpty()) {
+						if(rSupplement.CmdSymb.IsIdent()) {
+							supplement_cmdsymb = rSupplement.CmdSymb.U.S;
+							int    cpreproc_result_int = 0;
+							if(CppBlk.ResolveSymbol(supplement_cmdsymb, &cpreproc_result_text, &cpreproc_result_int)) {
+								if(cpreproc_result_int) {
+									sb.Cmd = cpreproc_result_int;
+								}
+							}
+						}
+						else {
+							; // @err
+							local_fault = true;
+						}
+					}
+					if(!rSupplement.Text.IsEmpty()) {
+						if(rSupplement.Text.IsString()) {
+							supplement_text = rSupplement.Text.U.S;
+						}
+						else {
+							; // @err
+							local_fault = true;
+						}
+					}
+					if(!local_fault) {
+						{
+							CtmExprConst c;
+							AddConst(&sb, sizeof(sb), &c);
+							p_scope->AddConst(DlScope::cuifSupplement, c, 1);
+						}
+						if(supplement_symb.NotEmpty()) {
+							CtmExprConst c;
+							AddConst(supplement_symb, &c);
+							p_scope->AddConst(DlScope::cuifSupplementSymb, c, 1);
+						}
+						if(supplement_cmdsymb.NotEmpty()) {
+							CtmExprConst c;
+							AddConst(supplement_cmdsymb, &c);
+							p_scope->AddConst(DlScope::cuifSupplementCmdSymb, c, 1);
+						}
+						if(supplement_text.NotEmpty()) {
+							CtmExprConst c;
+							AddConst(supplement_text, &c);
+							p_scope->AddConst(DlScope::cuifSupplementText, c, 1);
+						}
+					}
+				}
+			}
+			else {
+				; // @err
+				local_fault = true;
+			}
+		}
+	}
 	CATCHZOK
 	return ok;
 }

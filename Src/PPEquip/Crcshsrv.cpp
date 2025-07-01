@@ -2962,10 +2962,10 @@ int ACS_CRCSHSRV::GetSessionData(int * pSessCount, int * pIsForwardSess, DateRan
 			const LDATE oper_date = getcurdate_();
 			ChkRepPeriod.SetDate(oper_date);
 			dlg->SetupCalPeriod(CTLCAL_DATERNG_PERIOD, CTL_DATERNG_PERIOD);
-			SetPeriodInput(dlg, CTL_DATERNG_PERIOD, &ChkRepPeriod);
+			SetPeriodInput(dlg, CTL_DATERNG_PERIOD, ChkRepPeriod);
 			PPWaitStop();
 			for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;) {
-				if(dlg->getCtrlString(CTL_DATERNG_PERIOD, dt_buf) && strtoperiod(dt_buf, &ChkRepPeriod, 0) && !ChkRepPeriod.IsZero()) {
+				if(dlg->getCtrlString(CTL_DATERNG_PERIOD, dt_buf) && ChkRepPeriod.FromStr(dt_buf, 0) && !ChkRepPeriod.IsZero()) {
 					SETIFZ(ChkRepPeriod.upp, plusdate(oper_date, 2));
 					if(diffdate(ChkRepPeriod.upp, ChkRepPeriod.low) >= 0)
 						ok = valid_data = 1;

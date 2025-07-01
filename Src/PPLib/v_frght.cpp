@@ -103,9 +103,9 @@ public:
 		PPOprKind op_rec;
 		PPID   acc_sheet_id = 0;
 		PPID   op_id = 0;
-		SetPeriodInput(this, CTL_FRGHTFLT_PERIOD, &Data.BillPeriod);
-		SetPeriodInput(this, CTL_FRGHTFLT_SHIPMPERIOD, &Data.ShipmPeriod);
-		SetPeriodInput(this, CTL_FRGHTFLT_ARRVLPERIOD, &Data.ArrvlPeriod);
+		SetPeriodInput(this, CTL_FRGHTFLT_PERIOD, Data.BillPeriod);
+		SetPeriodInput(this, CTL_FRGHTFLT_SHIPMPERIOD, Data.ShipmPeriod);
+		SetPeriodInput(this, CTL_FRGHTFLT_ARRVLPERIOD, Data.ArrvlPeriod);
 		for(op_id = 0; EnumOperations(/*PPOPT_GOODSEXPEND*/0, &op_id, &op_rec) > 0;)
 			if(op_rec.Flags & OPKF_FREIGHT)
 				op_list.add(op_id);
@@ -894,10 +894,8 @@ int PPALDD_FreightList::InitData(PPFilt & rFilt, long rsrv)
 	return DlRtm::InitData(rFilt, rsrv);
 }
 
-int PPALDD_FreightList::InitIteration(PPIterID iterId, int sortId, long/*rsrv*/)
-{
-	INIT_PPVIEW_ALDD_ITER_ORD(Freight, static_cast<PPViewFreight::IterOrder>(sortId));
-}
+void PPALDD_FreightList::Destroy() { DESTROY_PPVIEW_ALDD(Freight); }
+int  PPALDD_FreightList::InitIteration(PPIterID iterId, int sortId, long/*rsrv*/) { INIT_PPVIEW_ALDD_ITER_ORD(Freight, static_cast<PPViewFreight::IterOrder>(sortId)); }
 
 int PPALDD_FreightList::NextIteration(PPIterID iterId)
 {
@@ -921,5 +919,4 @@ int PPALDD_FreightList::NextIteration(PPIterID iterId)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-void PPALDD_FreightList::Destroy() { DESTROY_PPVIEW_ALDD(Freight); }
 

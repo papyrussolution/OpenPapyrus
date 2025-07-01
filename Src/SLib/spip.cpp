@@ -106,7 +106,7 @@ static void GUID_to_InnerSUID27(const S_GUID_Base & rS, SString & rBuf)
 	rBuf = temp_buf;
 }*/
 
-SString & S_GUID_Base::ToStr(long fmt__, SString & rBuf) const
+SString & S_GUID_Base::ToStr(uint fmt__, SString & rBuf) const
 {
 	char   temp_buf[64];
 	uint   i;
@@ -420,14 +420,14 @@ int FASTCALL SVerT::Cmp(const SVerT * pVer) const
 	return ok;
 }
 
-SString FASTCALL SVerT::ToStr(SString & rBuf) const
+SString & FASTCALL SVerT::ToStr(SString & rBuf) const
 {
 	int    j, n, r;
 	Get(&j, &n, &r);
 	return rBuf.Z().CatDotTriplet(j, n, r);
 }
 
-SString SVerT::ToStr(uint fmt, SString & rBuf) const
+SString & SVerT::ToStr(uint fmt, SString & rBuf) const
 {	
 	rBuf.Z();
 	int    j, n, r;

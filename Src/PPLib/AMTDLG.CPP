@@ -307,7 +307,7 @@ public:
 		SetupAmtTypeCombo(this, CTLSEL_BILLAMT_AMTTYPE, Data.AmtTypeID, OLW_CANINSERT, PPObjAmountType::selStaffOnly, 0);
 		SetupCurrencyCombo(this, CTLSEL_BILLAMT_CUR,  Data.CurID, 0, 1, 0);
 		setCtrlReal(CTL_BILLAMT_AMOUNT, Data.Amt);
-		SetPeriodInput(this, CTL_BILLAMT_PERIOD, &Data.Period);
+		SetPeriodInput(this, CTL_BILLAMT_PERIOD, Data.Period);
 		return 1;
 	}
 	DECL_DIALOG_GETDTS()

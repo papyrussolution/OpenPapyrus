@@ -307,7 +307,7 @@ void ArticleCtrlGroup::SetupOp(TDialog * pDlg)
 	}
 	if(CtlselAcs) {
 		pDlg->setCtrlLong(CtlselAcs, Data.AcsID);
-		pDlg->disableCtrl(CtlselAcs, BIN(Data.AcsID));
+		pDlg->disableCtrl(CtlselAcs, LOGIC(Data.AcsID));
 	}
 	SetupAccSheet(pDlg);
 }

@@ -192,9 +192,9 @@ int PPViewTSession::EditBaseFilt(PPBaseFilt * pBaseFilt)
 			AddClusterAssocDef(CTL_TSESSFILT_WROFF, 2,  1);
 			SetClusterData(CTL_TSESSFILT_WROFF, Data.Ft_WritedOff);
 			// } @v11.0.6 
-			SetPeriodInput(this, CTL_TSESSFILT_STPERIOD, &Data.StPeriod);
+			SetPeriodInput(this, CTL_TSESSFILT_STPERIOD, Data.StPeriod);
 			setCtrlData(CTL_TSESSFILT_STTIME, &Data.StTime);
-			SetPeriodInput(this, CTL_TSESSFILT_FNPERIOD, &Data.FnPeriod);
+			SetPeriodInput(this, CTL_TSESSFILT_FNPERIOD, Data.FnPeriod);
 			setCtrlData(CTL_TSESSFILT_FNTIME, &Data.FnTime);
 			SetupStringCombo(this, CTLSEL_TSESSFILT_ORDER, PPTXT_TSESSORDER, Data.Order);
 			SetupPPObjCombo(this, CTLSEL_TSESSFILT_GDSGRP, PPOBJ_GOODSGROUP, Data.GoodsGroupID, OLW_CANSELUPLEVEL|OLW_WORDSELECTOR); // @v11.7.8

@@ -134,7 +134,7 @@ int ProcessorPlaceCodeTemplate::Parse(const char * pPattern)
 		SeqList.insert(&seq);
 	}
 	THROW(scan.Offs == pattern.Len());
-	THROW_PP_S(SeqList.getCount() > 0 && SeqList.getCount() <= PRCPLCCODESEQMAX, PPERR_PRCPLCCODE_TOOMANYSEG, pPattern);
+	THROW_PP_S(SeqList.getCount() && SeqList.getCount() <= PRCPLCCODESEQMAX, PPERR_PRCPLCCODE_TOOMANYSEG, pPattern);
 	CATCHZOK
 	return ok;
 }
@@ -190,7 +190,7 @@ int ProcessorPlaceCodeTemplate::Generate(StringSet & rSs) const
 	SString temp_buf, code;
 	uint32 counters[PRCPLCCODESEQMAX];
 	memzero(counters, sizeof(counters));
-	THROW_PP_S(SeqList.getCount() > 0 && _c <= PRCPLCCODESEQMAX, PPERR_PRCPLCCODE_TOOMANYSEG, "");
+	THROW_PP_S(SeqList.getCount() && _c <= PRCPLCCODESEQMAX, PPERR_PRCPLCCODE_TOOMANYSEG, "");
 	for(i = 0; i < _c; i++) {
 		const Seq & r_seq = SeqList.at(i);
 		if(oneof2(r_seq.Type, 1, 2)) {

@@ -612,7 +612,7 @@ void PPViewAccturn::FormatCycle(LDATE dt, char * pBuf, size_t bufLen)
 			CycleCtrlGroup::Rec cycle_rec;
 			if(!RVALUEPTR(Data, pData))
 				Data.Init(1, 0);
-			SetPeriodInput(this, CTL_ATFLT_PERIOD, &Data.Period);
+			SetPeriodInput(this, CTL_ATFLT_PERIOD, Data.Period);
 			types.addzlist(PPOPT_ACCTURN, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_GOODSRETURN,
 				PPOPT_GOODSREVAL, PPOPT_GOODSMODIF, PPOPT_PAYMENT, PPOPT_CHARGE, PPOPT_GOODSACK, PPOPT_POOL, PPOPT_GENERIC, 0L);
 			SetupOprKindCombo(this, CTLSEL_ATFLT_OPRKIND, Data.OpID, 0, &types, 0);

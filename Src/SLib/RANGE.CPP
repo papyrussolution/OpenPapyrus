@@ -634,6 +634,425 @@ int DateRange::SetPredefined(int predefPrdId, LDATE rel)
 //
 //
 //
+#define TOK_UNKNOWN   -1
+#define TOK_EOL        0
+#define TOK_NUMBER     1
+#define TOK_QUARTER    2
+#define TOK_DELIM      3
+#define TOK_DBLDOT     4
+#define TOK_DATE       5
+/*
+#define TOK_THISDAY    6
+#define TOK_THISWEEK   7
+#define TOK_THISMONTH  8
+#define TOK_THISQUART  9
+#define TOK_THISYEAR  10
+#define TOK_LASTDAY   11
+#define TOK_LASTWEEK  12
+#define TOK_LASTMONTH 13
+#define TOK_LASTQUART 14
+#define TOK_LASTYEAR  15
+*/
+
+/*
+static const char * macro[] = {
+	"thisday",
+	"thisweek",
+	"thismonth",
+	"thisquart",
+	"thisyear",
+	"lastday",
+	"lastweek",
+	"lastmonth",
+	"lastquart",
+	"lastyear"
+};
+*/
+/*struct TempVar {
+	int    D;
+	int    M;
+	int    Y;
+};*/
+
+static int FASTCALL get_strtoperiod_token(const char ** b, long * pNumber, SUniDate_Internal * pV, long flags)
+{
+	//static const char * quarters[4] = { "I", "II", "III", "IV" };
+	int    result = TOK_UNKNOWN;
+	//int    i;
+	char   buf[64];
+	char * t = buf;
+	while(oneof2(**b, ' ', '\t'))
+		(*b)++;
+	long   ret_flags = 0;
+	int    offs = _strtodate(*b, DATF_DMY, pV, &ret_flags);
+	if(ret_flags & (strtodatefAnyYear|strtodatefAnyMon|strtodatefAnyDay) && !(flags & strtoprdfEnableAnySign)) {
+		result = TOK_UNKNOWN;
+	}
+	else if(offs > 0 && ((ret_flags & (strtodatefRelAny|strtodatefAnyYear|strtodatefAnyMon|strtodatefAnyDay)) || (ret_flags == 0))) {
+		(*b) += offs;
+		result = TOK_DATE;
+	}
+	else if(**b == '.') {
+		(*b)++;
+		if(**b == '.') {
+			(*b)++;
+			result = TOK_DBLDOT;
+		}
+		else
+			result = TOK_DELIM;
+	}
+	else if(**b == ',') {
+		(*b)++;
+		if(**b == ',') {
+			(*b)++;
+			result = TOK_DBLDOT;
+		}
+		else
+			result = TOK_UNKNOWN;
+	}
+	else if(**b == '\0')
+		result = TOK_EOL;
+	else if(oneof2(**b, '/', '-')) {
+		(*b)++;
+		result = TOK_DELIM;
+	}
+	else if(isdec(**b)) {
+		do {
+			*t++ = *(*b)++;
+		} while(isdec(**b));
+		*t = 0;
+		ASSIGN_PTR(pNumber, atol(buf));
+		result = TOK_NUMBER;
+	}
+	else if(strnicmp(*b, "IV", 2) == 0) {
+		ASSIGN_PTR(pNumber, 3);
+		(*b) += 2;
+		result = TOK_QUARTER;
+	}
+	else if(strnicmp(*b, "III", 3) == 0) {
+		ASSIGN_PTR(pNumber, 2);
+		(*b) += 3;
+		result = TOK_QUARTER;
+	}
+	else if(strnicmp(*b, "II", 2) == 0) {
+		ASSIGN_PTR(pNumber, 1);
+		(*b) += 2;
+		result = TOK_QUARTER;
+	}
+	else if(strnicmp(*b, "I", 1) == 0) {
+		ASSIGN_PTR(pNumber, 0);
+		(*b) += 1;
+		result = TOK_QUARTER;
+	}
+	else {
+		(*b)++;
+		result = TOK_UNKNOWN;
+	}
+	return result;
+}
+
+static int STDCALL strtoperiod(const char * pStr, DateRange * pRange, long flags)
+{
+	int    ok = -1;
+	const  int _defyear  = DefaultYear;
+	const  int _defmonth = DefaultMonth;
+	const  char * p = pStr;
+	int    beg = 0;    // Признак того, что взята дата начала периода
+	int    dbldot = 0;
+	SUniDate_Internal _date;
+	int    q = 0;
+	SUniDate_Internal temp_dt;
+	int    nd;
+	long   number = 0;
+    pRange->Z();
+	while(ok < 0) {
+		switch(get_strtoperiod_token(&p, &number, &temp_dt, flags)) {
+			case TOK_DATE:
+				_date = temp_dt;
+				break;
+			case TOK_NUMBER:
+				if(_date.D == 0 && checkirange(number, 1L, 31L))
+					_date.D = number;
+				else if(_date.M == 0 && checkirange(number, 1L, 12L))
+					_date.M = number;
+				else if(_date.Y == 0) {
+					_date.Y = NZOR(number, 2000);
+					if(_date.Y > 31 && _date.M == 0 && _date.D) {
+						_date.M = _date.D;
+						_date.D = 0;
+					}
+					if(_date.Y < 100) {
+						if(_date.Y >= 50)
+							_date.Y += 1900;
+						else
+							_date.Y += 2000;
+					}
+					else if(checkirange(_date.Y, 200, 299))
+						_date.Y = 2000 + (_date.Y - 200);
+				}
+				else
+					ok = 0;
+				break;
+			case TOK_QUARTER:
+				if(q == 0 || beg) {
+					q = number + 1;
+					if(beg == 0) {
+						_date.D = 1;
+						_date.M = (q - 1) * 3 + 1;
+					}
+					else {
+						_date.D = daysPerMonth[q * 3 - 1];
+						_date.M = q * 3;
+					}
+				}
+				else
+					ok = 0;
+				break;
+			case TOK_DELIM:
+				if(_date.IsFullyNonZero() || _date.IsZero())
+					ok = 0;
+				break;
+			case TOK_DBLDOT:
+				if(dbldot)
+					ok = 0;
+				else {
+					if(_date.IsZero())
+						pRange->low = ZERODATE;
+					else {
+						SETIFZ(_date.D, 1);
+						SETIFZ(_date.M, _date.Y ? 1 : _defmonth);
+						SETIFZ(_date.Y, _defyear);
+						encodedate(_date.D, _date.M, _date.Y, &pRange->low);
+					}
+					beg = 1;
+					_date.Z();
+					dbldot = 1;
+				}
+				break;
+			case TOK_EOL:
+				if(beg == 0) {
+					if(q) {
+						encodedate(_date.D, _date.M, _date.Y ? _date.Y : _defyear, &pRange->low);
+						encodedate(daysPerMonth[q * 3 - 1], q * 3, _date.Y ? _date.Y : _defyear, &pRange->upp);
+					}
+					else if(_date.IsZero())
+						pRange->Z();
+					else if(_date.Y && !_date.M && !_date.D) {
+						encodedate(1, 1, _date.Y, &pRange->low);
+						encodedate(31, 12, _date.Y, &pRange->upp);
+					}
+					else if(_date.Y && _date.M && !_date.D) {
+						encodedate(1, _date.M, _date.Y, &pRange->low);
+						nd = dayspermonth(_date.M, _date.Y);
+						encodedate(nd, _date.M, _date.Y, &pRange->upp);
+					}
+					else {
+						encodedate(NZOR(_date.D, 1), NZOR(_date.M, (_date.Y ? 1 : _defmonth)), NZOR(_date.Y, _defyear), &pRange->low);
+						pRange->upp = pRange->low;
+					}
+				}
+				else if(beg == 1) {
+					if(_date.IsZero())
+						pRange->upp = ZERODATE;
+					else {
+						int _d, _m, _y;
+						decodedate(&_d, &_m, &_y, &pRange->low);
+						SETIFZ(_date.M, _date.Y ? 12 : NZOR(_m, _defmonth));
+						_date.Y = NZOR(_date.Y, NZOR(_y, _defyear));
+						SETIFZ(_date.D, dayspermonth(_date.M, _date.Y));
+						encodedate(_date.D, _date.M, _date.Y, &pRange->upp);
+					}
+				}
+				ok = 1;
+				break;
+			case TOK_UNKNOWN:
+				ok = 0;
+				break;
+		}
+	}
+	assert(oneof2(ok, 0, 1));
+	return ok;
+}
+
+int FASTCALL DateRange::FromStr(const char * pStr, uint flags/*strtoprdfXXX*/) // @v12.3.7
+{
+	return strtoperiod(pStr, this, flags);
+}
+
+int DateRange::GetMultiplicity() const
+{
+	int    result = PRD_UNDEF;
+	int    d1 = 0;
+	int    m1 = 0;
+	int    y1 = 0;
+	int    d2 = 0;
+	int    m2 = 0;
+	int    y2 = 0;
+	const  int  cls1 = low.getclass();
+	const  int  cls2 = upp.getclass();
+	if(cls1 != LDATE::cInvalid && cls2 != LDATE::cInvalid) {
+		const  bool non_zero1 = (cls1 != LDATE::cZero);
+		const  bool non_zero2 = (cls2 != LDATE::cZero);
+		if(non_zero1 & non_zero2) {
+			if(cls1 == LDATE::cNormal && cls2 == LDATE::cNormal) {
+				decodedate(&d1, &m1, &y1, &low);
+				decodedate(&d2, &m2, &y2, &upp);
+				if(d1 == 1 && (m2 && d2 == dayspermonth(m2, y2))) {
+					if(m1 == 1 && m2 == 12) {
+						result = PRD_ANNUAL;
+					}
+					else if((m1 == 1 && m2 == 6) || (m1 == 7 && m2 == 12)) {
+						result = PRD_SEMIAN;
+					}
+					else if(((m1-1) % 3) == 0 && (m2 % 3) == 0) {
+						result = PRD_QUART;
+					}
+					else {
+						result = PRD_MONTH;
+					}
+					assert(result != PRD_UNDEF);
+				}
+				else {
+					const int dow1 = low.GetDayOfWeek();
+					const int dow2 = upp.GetDayOfWeek();
+					if(dow1 == 1 && dow2 == 7)
+						result = PRD_WEEK;
+					else
+						result = PRD_DAY;
+				}
+			}
+		}
+		else if(non_zero1) {
+			if(cls1 == LDATE::cNormal)
+				result = PRD_BEGIN;
+		}
+		else if(non_zero2) {
+			if(cls2 == LDATE::cNormal)
+				result = PRD_END;
+		}
+	}
+	return result;
+}
+
+SString & DateRange::ToStr(uint fmt, SString & rBuf) const // @v12.3.7
+{
+	//SString & ToStr(uint fmt/*DATF_XXX, DATRANGF_EXTENDED*/, SString & rBuf) const; // @v12.3.7
+	rBuf.Z();
+	//periodfmt(*pData, b);
+	if(fmt & DATRANGF_EXTENDED) {
+		const uint local_fmt = NZOR((fmt & ~DATRANGF_EXTENDED), (DATF_DMY|DATF_CENTURY));
+		static const char * quart[4] = { "I", "II", "III", "IV" };
+		int    r = -1;
+		int    d1 = 0;
+		int    m1 = 0;
+		int    y1 = 0;
+		int    d2 = 0;
+		int    m2 = 0;
+		int    y2 = 0;
+		//char period[64];
+		//char * p = period;
+		decodedate(&d1, &m1, &y1, &low);
+		decodedate(&d2, &m2, &y2, &upp);
+		if(d1 == 1 && (m2 && d2 == dayspermonth(m2, y2))) {
+			if(m1 == 1 && m2 == 12) {
+				if(y1 == y2) {
+					//itoa(y1, p, 10);
+					rBuf.Cat(y1);
+				}
+				else if(y1 == 0) {
+					//*p++ = '.';
+					//*p++ = '.';
+					//itoa(y2, p, 10);
+					rBuf.Dot().Dot().Cat(y2);
+				}
+				else if(y2 == 0) {
+					//p += sstrlen(itoa(y1, p, 10));
+					//*p++ = '.';
+					//*p++ = '.';
+					//*p++ = 0;
+					rBuf.Cat(y1).Dot().Dot();
+				}
+				else {
+					//p += sstrlen(itoa(y1, p, 10));
+					//*p++ = '.';
+					//*p++ = '.';
+					//itoa(y2, p, 10);
+					rBuf.Cat(y1).Dot().Dot().Cat(y2);
+				}
+				r = PRD_ANNUAL;
+			}
+			else if(((m1-1) % 3) == 0 && (m2 % 3) == 0) {
+				if(y1 == y2 && abs(m1-m2) < 3) {
+					//sprintf(period, "%s/%d", quart[(m1-1)/3], y1);
+					rBuf.Cat(quart[(m1-1)/3]).Slash().Cat(y1);
+				}
+				else if(y1 == 0) {
+					//sprintf(period, "..%s/%d", quart[m2/3-1], y2);
+					rBuf.Dot().Dot().Cat(quart[m2/3-1]).Slash().Cat(y2);
+				}
+				else if(y2 == 0) {
+					//sprintf(period, "%s/%d..", quart[(m1-1)/3], y1);
+					rBuf.Cat(quart[(m1-1)/3]).Slash().Cat(y1).Dot().Dot();
+				}
+				else {
+					//sprintf(period, "%s/%d..%s/%d", quart[(m1-1)/3], y1, quart[m2/3-1], y2);
+					rBuf.Cat(quart[(m1-1)/3]).Slash().Cat(y1).Dot().Dot().Cat(quart[m2/3-1]).Slash().Cat(y2);
+				}
+				r = PRD_QUART;
+			}
+			else {
+				if(y1 == y2 && m1 == m2) {
+					//sprintf(period, "%d/%d", m1, y1);
+					rBuf.Cat(m1).Slash().Cat(y1);
+				}
+				else if(y1 == 0) {
+					//sprintf(period, "..%d/%d", m2, y2);
+					rBuf.Dot().Dot().Cat(m2).Slash().Cat(y2);
+				}
+				else if(y2 == 0) {
+					//sprintf(period, "%d/%d..", m1, y1);
+					rBuf.Cat(m1).Slash().Cat(y1).Dot().Dot();
+				}
+				else {
+					//sprintf(period, "%d/%d..%d/%d", m1, y1, m2, y2);
+					rBuf.Cat(m1).Slash().Cat(y1).Dot().Dot().Cat(m2).Slash().Cat(y2);
+				}
+				r = PRD_MONTH;
+			}
+			//strnzcpy(pBuf, period, bufLen);
+		}
+		else {
+			//periodfmt(rPeriod, period);
+			if(low) {
+				rBuf.Cat(low, local_fmt);
+			}
+			if(low != upp) {
+				rBuf.Dot().Dot();
+				if(upp)
+					rBuf.Cat(upp, local_fmt);
+			}
+			r = PRD_DAY;
+		}
+		//return r;
+	}
+	else {
+		const uint local_fmt = NZOR(fmt, (DATF_DMY|DATF_CENTURY));
+		{
+			if(low) {
+				rBuf.Cat(low, local_fmt);
+			}
+			if(low != upp) {
+				rBuf.Dot().Dot();
+				if(upp)
+					rBuf.Cat(upp, local_fmt);
+			}
+		}
+	}
+	return rBuf;
+}
+//
+//
+//
 void TimeRange::Set(LTIME lowTm, LTIME uppTm)
 {
 	low = lowTm;
@@ -666,7 +1085,7 @@ int FASTCALL TimeRange::Check(LTIME tm) const
 	}
 }
 
-SString & TimeRange::ToStr(long tmFormat, SString & rBuf) const
+SString & TimeRange::ToStr(uint tmFormat, SString & rBuf) const
 {
 	rBuf.Z();
 	if(low != ZEROTIME || upp != ZEROTIME) {

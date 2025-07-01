@@ -353,7 +353,7 @@ void ExtGoodsSelDialog::setSelectionByPrice(double p)
 		Flags |= fSelByPrice;
 		Price = p;
 		setCtrlLong(CTLSEL_EXTGSEL_GGRP,  0);
-		disableCtrl(CTLSEL_EXTGSEL_GGRP,  1);
+		disableCtrl(CTLSEL_EXTGSEL_GGRP,  true);
 		if(UseBrand) {
 			setCtrlLong(CTLSEL_EXTGSEL_BRAND, 0);
 			disableCtrl(CTLSEL_EXTGSEL_BRAND, true);

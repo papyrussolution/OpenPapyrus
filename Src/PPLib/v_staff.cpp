@@ -437,8 +437,8 @@ int PPViewStaffPost::EditBaseFilt(PPBaseFilt * pBaseFilt)
 		dlg->addGroup(GRP_DIV, new DivisionCtrlGroup(CTLSEL_PPOSTFLT_ORG, CTLSEL_PPOSTFLT_DIV, CTLSEL_PPOSTFLT_STAFF, 0));
 		DivisionCtrlGroup::Rec grp_rec(p_filt->OrgID, p_filt->DivID, p_filt->StaffID);
 		dlg->setGroupData(GRP_DIV, &grp_rec);
-		SetPeriodInput(dlg, CTL_PPOSTFLT_PERIOD, &p_filt->Period);
-		SetPeriodInput(dlg, CTL_PPOSTFLT_FNPERIOD, &p_filt->FnPeriod);
+		SetPeriodInput(dlg, CTL_PPOSTFLT_PERIOD, p_filt->Period);
+		SetPeriodInput(dlg, CTL_PPOSTFLT_FNPERIOD, p_filt->FnPeriod);
 		ushort v = 0;
 		long   f = CheckXORFlags(p_filt->Flags, StaffPostFilt::fOpenedOnly, StaffPostFilt::fClosedOnly);
 		if(f & StaffPostFilt::fOpenedOnly)
@@ -1389,7 +1389,7 @@ int FastEditDivBySumDlg::EditAmount(PPID divID, PPID amtID)
 	for(uint i = 0; amt_list.enumItems(&i, (void **)&p_entry);)
 		if(p_entry->AmtTypeID == amtID)
 			sel_amt_list.Add(i - 1, amt_name);
-	if(sel_amt_list.getCount() > 0) {
+	if(sel_amt_list.getCount()) {
 		if(sel_amt_list.getCount() > 1) {
 			SString title;
 			PPLoadText(PPTXT_SELSTAFFAMTTITLE, title);

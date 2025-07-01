@@ -1,5 +1,5 @@
 // V_USPROF.CPP
-// Copyright (c) A.Starodub 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2024
+// Copyright (c) A.Starodub 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2024, 2025
 // @codepage UTF-8
 // Профиль пользовательских функций
 //
@@ -54,7 +54,7 @@ public:
 		}
 		SetupStrAssocCombo(this, CTLSEL_FLTUSRPROF_DB, db_list, db_pos, 0);
 		SetupStrAssocCombo(this, CTLSEL_FLTUSRPROF_FUNC, func_list, Data.FuncID, 0);
-		SetPeriodInput(this, CTL_FLTUSRPROF_PRD, &Data.Period); // @v10.9.12 @fix CTLCAL_FLTUSRPROF_PRD-->CTL_FLTUSRPROF_PRD
+		SetPeriodInput(this, CTL_FLTUSRPROF_PRD, Data.Period);
 		SetTimeRangeInput(this, CTL_FLTUSRPROF_TIMEPRD, TIMF_HMS, &Data.TmPeriod);
 		return 1;
 	}
@@ -223,20 +223,23 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 
 int PPViewUserProfile::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBrowser * pBrw, void * extraProcPtr)
 {
-	int    ok = -1, update = 0, lock = 0;
+	int    ok = -1;
+	bool   lock = false;
 	PPIDArray id_list;
 	if(pEv) {
 		if(kind == PPAdviseBlock::evQuartz && ParserBusy == 0) {
 			ParserBusy = 1;
-			lock = 1;
+			lock = true;
 			THROW(LoadFromFile(&id_list));
 			ok = 1;
 		}
 	}
-	update = BIN(id_list.getCount() > 0);
-	if(ok > 0 && update && pBrw) {
-		// THROW(UpdateTempTable(&id_list));
-		pBrw->Refresh();
+	{
+		const bool do_update = (id_list.getCount() > 0);
+		if(ok > 0 && do_update && pBrw) {
+			// THROW(UpdateTempTable(&id_list));
+			pBrw->Refresh();
+		}
 	}
 	CATCHZOK
 	if(lock)

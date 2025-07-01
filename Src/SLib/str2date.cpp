@@ -17,7 +17,7 @@ static int * FASTCALL getnmb(int cnt, int ord, int * d, int * m, int * y)
 	}
 }
 
-int STDCALL _strtodate(const char * pBuf, int style, int * pDay, int * pMon, int * pYear, long * pRetFlags)
+int STDCALL _strtodate(const char * pBuf, int style, SUniDate_Internal * pData, long * pRetFlags)
 {
 	// DATF_DMY
 
@@ -257,26 +257,28 @@ int STDCALL _strtodate(const char * pBuf, int style, int * pDay, int * pMon, int
 		y = 0;
 		ret_flags |= strtodatefInvalid;
 	}
-	ASSIGN_PTR(pYear, y);
-	ASSIGN_PTR(pMon,  m);
-	ASSIGN_PTR(pDay,  d);
+	if(pData) {
+		pData->Y = y;
+		pData->M = m;
+		pData->D = d;
+	}
 	ASSIGN_PTR(pRetFlags, ret_flags);
 	return static_cast<int>(c - pBuf);
 }
 
 int STDCALL strtodate(const char * pBuf, long fmt, void * pDate)
 {
-	int    d, m, y;
-	_strtodate(pBuf, SFMTFLAG(fmt), &d, &m, &y);
-	_encodedate(d, m, y, pDate, BinDateFmt);
+	SUniDate_Internal _date;
+	_strtodate(pBuf, SFMTFLAG(fmt), &_date);
+	_encodedate(_date.D, _date.M, _date.Y, pDate, BinDateFmt);
 	return 1;
 }
 
 LDATE STDCALL strtodate_(const char * pBuf, long fmt)
 {
-	int    d, m, y;
-	_strtodate(pBuf, SFMTFLAG(fmt), &d, &m, &y);
-	return encodedate(d, m, y);
+	SUniDate_Internal _date;
+	_strtodate(pBuf, SFMTFLAG(fmt), &_date);
+	return encodedate(_date.D, _date.M, _date.Y);
 }
 
 int STDCALL strtodatetime(const char * pBuf, LDATETIME * pDtm, long datFmt, long timFmt)
@@ -321,246 +323,4 @@ int STDCALL strtodatetime(const char * pBuf, LDATETIME * pDtm, long datFmt, long
 	}
 	else
 		return 0;
-}
-//
-//
-//
-#define TOK_UNKNOWN   -1
-#define TOK_EOL        0
-#define TOK_NUMBER     1
-#define TOK_QUARTER    2
-#define TOK_DELIM      3
-#define TOK_DBLDOT     4
-#define TOK_DATE       5
-/*
-#define TOK_THISDAY    6
-#define TOK_THISWEEK   7
-#define TOK_THISMONTH  8
-#define TOK_THISQUART  9
-#define TOK_THISYEAR  10
-#define TOK_LASTDAY   11
-#define TOK_LASTWEEK  12
-#define TOK_LASTMONTH 13
-#define TOK_LASTQUART 14
-#define TOK_LASTYEAR  15
-*/
-
-/*
-static const char * macro[] = {
-	"thisday",
-	"thisweek",
-	"thismonth",
-	"thisquart",
-	"thisyear",
-	"lastday",
-	"lastweek",
-	"lastmonth",
-	"lastquart",
-	"lastyear"
-};
-*/
-
-struct TempVar {
-	int    D;
-	int    M;
-	int    Y;
-};
-
-static int FASTCALL gettoken(const char ** b, long * pNumber, TempVar * pV, long flags)
-{
-	//static const char * quarters[4] = { "I", "II", "III", "IV" };
-	int    result = TOK_UNKNOWN;
-	//int    i;
-	char   buf[64];
-	char * t = buf;
-	while(oneof2(**b, ' ', '\t'))
-		(*b)++;
-	long   ret_flags = 0;
-	int    offs = _strtodate(*b, DATF_DMY, &pV->D, &pV->M, &pV->Y, &ret_flags);
-	if(ret_flags & (strtodatefAnyYear|strtodatefAnyMon|strtodatefAnyDay) && !(flags & strtoprdfEnableAnySign)) {
-		result = TOK_UNKNOWN;
-	}
-	else if(offs > 0 && ((ret_flags & (strtodatefRelAny|strtodatefAnyYear|strtodatefAnyMon|strtodatefAnyDay)) || (ret_flags == 0))) { // @v9.8.3 || (ret_flags == 0)
-		(*b) += offs;
-		result = TOK_DATE;
-	}
-	else if(**b == '.') {
-		(*b)++;
-		if(**b == '.') {
-			(*b)++;
-			result = TOK_DBLDOT;
-		}
-		else
-			result = TOK_DELIM;
-	}
-	else if(**b == ',') {
-		(*b)++;
-		if(**b == ',') {
-			(*b)++;
-			result = TOK_DBLDOT;
-		}
-		else
-			result = TOK_UNKNOWN;
-	}
-	else if(**b == '\0')
-		result = TOK_EOL;
-	else if(oneof2(**b, '/', '-')) {
-		(*b)++;
-		result = TOK_DELIM;
-	}
-	else if(isdec(**b)) {
-		do {
-			*t++ = *(*b)++;
-		} while(isdec(**b));
-		*t = 0;
-		ASSIGN_PTR(pNumber, atol(buf));
-		result = TOK_NUMBER;
-	}
-	else if(strnicmp(*b, "IV", 2) == 0) {
-		ASSIGN_PTR(pNumber, 3);
-		(*b) += 2;
-		result = TOK_QUARTER;
-	}
-	else if(strnicmp(*b, "III", 3) == 0) {
-		ASSIGN_PTR(pNumber, 2);
-		(*b) += 3;
-		result = TOK_QUARTER;
-	}
-	else if(strnicmp(*b, "II", 2) == 0) {
-		ASSIGN_PTR(pNumber, 1);
-		(*b) += 2;
-		result = TOK_QUARTER;
-	}
-	else if(strnicmp(*b, "I", 1) == 0) {
-		ASSIGN_PTR(pNumber, 0);
-		(*b) += 1;
-		result = TOK_QUARTER;
-	}
-	else {
-		(*b)++;
-		result = TOK_UNKNOWN;
-	}
-	return result;
-}
-
-int STDCALL strtoperiod(const char * pStr, DateRange * pRange, long flags)
-{
-	const  int _defyear  = DefaultYear;
-	const  int _defmonth = DefaultMonth;
-	const  char * p = pStr;
-	int    beg = 0;    // Признак того, что взята дата начала периода
-	int    dbldot = 0;
-	int    d = 0;
-	int    m = 0;
-	int    y = 0;
-	int    q = 0;
-	TempVar temp_dt;
-	int    nd;
-	long   number = 0;
-    pRange->Z();
-	while(1) {
-		switch(gettoken(&p, &number, &temp_dt, flags)) {
-			case TOK_DATE:
-				d = temp_dt.D;
-				m = temp_dt.M;
-				y = temp_dt.Y;
-				break;
-			case TOK_NUMBER:
-				if(d == 0 && checkirange(number, 1L, 31L))
-					d = number;
-				else if(m == 0 && checkirange(number, 1L, 12L))
-					m = number;
-				else if(y == 0) {
-					y = NZOR(number, 2000);
-					if(y > 31 && m == 0 && d) {
-						m = d;
-						d = 0;
-					}
-					if(y < 100) {
-						if(y >= 50)
-							y += 1900;
-						else
-							y += 2000;
-					}
-					else if(checkirange(y, 200, 299))
-						y = 2000 + (y - 200);
-				}
-				else
-					return 0;
-				break;
-			case TOK_QUARTER:
-				if(q == 0 || beg) {
-					q = number + 1;
-					if(beg == 0) {
-						d = 1;
-						m = (q - 1) * 3 + 1;
-					}
-					else {
-						d = daysPerMonth[q * 3 - 1];
-						m = q * 3;
-					}
-				}
-				else
-					return 0;
-				break;
-			case TOK_DELIM:
-				if((d && m && y) || (!d && !m && !y))
-					return 0;
-				break;
-			case TOK_DBLDOT:
-				if(dbldot)
-					return 0;
-				else {
-					if(!d && !m && !y)
-						pRange->low = ZERODATE;
-					else {
-						SETIFZ(d, 1);
-						SETIFZ(m, y ? 1 : _defmonth);
-						SETIFZ(y, _defyear);
-						encodedate(d, m, y, &pRange->low);
-					}
-					beg = 1;
-					d = m = y = 0;
-					dbldot = 1;
-				}
-				break;
-			case TOK_EOL:
-				if(beg == 0) {
-					if(q) {
-						encodedate(d, m, y ? y : _defyear, &pRange->low);
-						encodedate(daysPerMonth[q * 3 - 1], q * 3, y ? y : _defyear, &pRange->upp);
-					}
-					else if(!d && !m && !y)
-						pRange->Z();
-					else if(y && !m && !d) {
-						encodedate(1, 1, y, &pRange->low);
-						encodedate(31, 12, y, &pRange->upp);
-					}
-					else if(y && m && !d) {
-						encodedate(1, m, y, &pRange->low);
-						nd = dayspermonth(m, y);
-						encodedate(nd, m, y, &pRange->upp);
-					}
-					else {
-						encodedate(NZOR(d, 1), NZOR(m, (y ? 1 : _defmonth)), NZOR(y, _defyear), &pRange->low);
-						pRange->upp = pRange->low;
-					}
-				}
-				else if(beg == 1) {
-					if(!d && !m && !y)
-						pRange->upp = ZERODATE;
-					else {
-						int _d, _m, _y;
-						decodedate(&_d, &_m, &_y, &pRange->low);
-						SETIFZ(m, y ? 12 : NZOR(_m, _defmonth));
-						y = NZOR(y, NZOR(_y, _defyear));
-						SETIFZ(d, dayspermonth(m, y));
-						encodedate(d, m, y, &pRange->upp);
-					}
-				}
-				return 1;
-			case TOK_UNKNOWN:
-				return 0;
-		}
-	}
 }

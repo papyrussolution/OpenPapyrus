@@ -2241,10 +2241,8 @@ int PPALDD_Invent::InitData(PPFilt & rFilt, long rsrv)
 	return DlRtm::InitData(rFilt, rsrv);
 }
 
-int PPALDD_Invent::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
-{
-	INIT_PPVIEW_ALDD_ITER(Inventory);
-}
+void PPALDD_Invent::Destroy() { DESTROY_PPVIEW_ALDD(Inventory); }
+int  PPALDD_Invent::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/) { INIT_PPVIEW_ALDD_ITER(Inventory); }
 
 int PPALDD_Invent::NextIteration(PPIterID iterId)
 {
@@ -2274,4 +2272,3 @@ int PPALDD_Invent::NextIteration(PPIterID iterId)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-void PPALDD_Invent::Destroy() { DESTROY_PPVIEW_ALDD(Inventory); }

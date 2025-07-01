@@ -485,7 +485,7 @@ void TSessionDialog::selectFreeEntry()
 			for(uint i = 0; i < FreeList.getCount(); i++) {
 				const PrcBusy & entry = *static_cast<const PrcBusy *>(FreeList.at(i));
 				ss.Z();
-				ss.add(entry.ToStr(sub.Z()));
+				ss.add(entry.ToStr(0, sub.Z()));
 				const long dur = entry.GetDuration();
 				sub.Z();
 				if(dur >= 0) {
@@ -1427,7 +1427,7 @@ int TSessionDialog::setDTS(const TSessionPacket * pData)
 			ptcg_rec.PrcParentID = PRCEXDF_GROUP;
 		DateRange period;
 		period.Set(Data.Rec.StDt, Data.Rec.FinDt);
-		SetPeriodInput(this, CTL_TSESS_PLANPERIOD, &period);
+		SetPeriodInput(this, CTL_TSESS_PLANPERIOD, period);
 	}
 	else {
 		ptcg_rec.TechID = Data.Rec.TechID;

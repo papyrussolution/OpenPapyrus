@@ -110,7 +110,7 @@ void ObjReceiveParamDialog::delItem()
 	uint   p = 0;
 	long   id;
 	SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_DBTRANSM_IN_LIST));
-	if(Data.SenderDbDivList.getCount() > 0 && p_list && p_list->getCurID(&id) && Data.SenderDbDivList.lsearch(id, &p)) {
+	if(Data.SenderDbDivList.getCount() && p_list && p_list->getCurID(&id) && Data.SenderDbDivList.lsearch(id, &p)) {
 		Data.SenderDbDivList.atFree(p);
 		updateList();
 	}

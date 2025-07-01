@@ -180,7 +180,7 @@ public:
 		SetupPPObjCombo(this, CTLSEL_AMOUNTTYPE_REFAMT, PPOBJ_AMOUNTTYPE, 0, 0, 0);
 		setCtrlData(CTLSEL_AMOUNTTYPE_TAX, &Data.Rec.Tax);
 		setCtrlString(CTL_AMOUNTTYPE_FORMULA, Data.Formula);
-		disableCtrl(CTL_AMOUNTTYPE_FORMULA, !BIN(flags & PPAmountType::fFormula));
+		disableCtrl(CTL_AMOUNTTYPE_FORMULA, !(flags & PPAmountType::fFormula));
 		if(flags & PPAmountType::fTax)
 			setCtrlReal(CTL_AMOUNTTYPE_TAXRATE, fdiv100i(Data.Rec.TaxRate)); // @divtax
 		else if(Data.Rec.IsComplementary())
@@ -316,7 +316,7 @@ void AmtTypeDialog::SetupCtrls()
 		DisableClusterItem(CTL_AMOUNTTYPE_FLAGS, 3, false);
 	}
 	DisableClusterItem(CTL_AMOUNTTYPE_FLAGS, 1, LOGIC(Data.Rec.Flags & PPAmountType::fFormula));
-	disableCtrl(CTL_AMOUNTTYPE_FORMULA, !BIN(Data.Rec.Flags & PPAmountType::fFormula));
+	disableCtrl(CTL_AMOUNTTYPE_FORMULA, !(Data.Rec.Flags & PPAmountType::fFormula));
 	//
 	//
 	//

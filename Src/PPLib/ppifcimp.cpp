@@ -804,7 +804,7 @@ int InnerExtraDbfCreateFlds::Add(SDbfCreateFld * pFld)
 int InnerExtraDbfCreateFlds::InitIteration()
 {
 	Idx = 0;
-	return (Flds_.getCount() > 0) ? 1 : -1;
+	return Flds_.getCount() ? 1 : -1;
 }
 
 int InnerExtraDbfCreateFlds::NextIteration(SDbfCreateFld * pFld)
@@ -1347,7 +1347,7 @@ SDateRange DL6ICLS_PPUtil::StrToDateRange(SString & str)
 	int    ok = 0;
 	SDateRange outer_period;
 	DateRange period;
-	if(strtoperiod(str, &period, 0)) {
+	if(period.FromStr(str, 0)) {
 		period.Actualize(ZERODATE);
 		if(checkdate(period.low, 1) && checkdate(period.upp, 1) && (!period.upp || diffdate(period.upp, period.low) >= 0)) {
 			outer_period.Low = period.low.GetOleDate();
@@ -1367,8 +1367,9 @@ SString & DL6ICLS_PPUtil::DateRangeToStr(LDATE low, LDATE upp)
 {
 	DateRange period;
 	period.Set(low, upp);
-	char   temp_buf[64];
-	RetStrBuf = periodfmt(&period, temp_buf);
+	// @v12.3.7 char   temp_buf[64];
+	// @v12.3.7 RetStrBuf = periodfmt(period, temp_buf);
+	period.ToStr(0, RetStrBuf); // @v12.3.7
 	return RetStrBuf;
 }
 

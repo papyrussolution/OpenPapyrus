@@ -3872,9 +3872,9 @@ int TSessAutoSmsFiltDialog::setDTS(const TSessionFilt * pData)
 	AddClusterAssoc(CTL_JTSASMSFILT_FLAGS, 0, TSessionFilt::fSuperSessOnly);
 	SetClusterData(CTL_JTSASMSFILT_FLAGS, Data.Flags);
 
-	SetPeriodInput(this, CTL_JTSASMSFILT_STPRD, &Data.StPeriod);
+	SetPeriodInput(this, CTL_JTSASMSFILT_STPRD, Data.StPeriod);
 	setCtrlData(CTL_JTSASMSFILT_STTIME, &Data.StTime);
-	SetPeriodInput(this, CTL_JTSASMSFILT_FNPRD, &Data.FnPeriod);
+	SetPeriodInput(this, CTL_JTSASMSFILT_FNPRD, Data.FnPeriod);
 	setCtrlData(CTL_JTSASMSFILT_FNTIME, &Data.FnTime);
 	return 1;
 }

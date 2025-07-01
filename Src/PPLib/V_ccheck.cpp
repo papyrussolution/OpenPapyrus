@@ -489,7 +489,7 @@ public:
 		GoodsFiltCtrlGroup::Rec grp_rec(Data.GoodsGrpID, Data.GoodsID);
 		SetupCalPeriod(CTLCAL_CCHECKFLT_PERIOD, CTL_CCHECKFLT_PERIOD);
 		disableCtrls(Data.SessIDList.getCount(), CTL_CCHECKFLT_PERIOD, /*CTL_CCHECKFLT_FLAGS,*/ 0);
-		SetPeriodInput(this, CTL_CCHECKFLT_PERIOD, &Data.Period);
+		SetPeriodInput(this, CTL_CCHECKFLT_PERIOD, Data.Period);
 		if(HasExt)
 			setCtrlUInt16(CTL_CCHECKFLT_STARTSRVCP, BIN(Data.Flags & CCheckFilt::fStartOrderPeriod));
 		else {
@@ -4758,10 +4758,8 @@ int PPALDD_CCheckView::InitData(PPFilt & rFilt, long rsrv)
 	return DlRtm::InitData(rFilt, rsrv);
 }
 
-int PPALDD_CCheckView::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
-{
-	INIT_PPVIEW_ALDD_ITER_ORD(CCheck, 0);
-}
+void PPALDD_CCheckView::Destroy() { DESTROY_PPVIEW_ALDD(CCheck); }
+int  PPALDD_CCheckView::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/) { INIT_PPVIEW_ALDD_ITER_ORD(CCheck, 0); }
 
 int PPALDD_CCheckView::NextIteration(PPIterID iterId)
 {
@@ -4807,8 +4805,6 @@ void PPALDD_CCheckView::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmSta
 			_RET_STR.Z();
 	}
 }
-
-void PPALDD_CCheckView::Destroy() { DESTROY_PPVIEW_ALDD(CCheck); }
 //
 // Implementation of PPALDD_CCheckViewDetail
 //
@@ -4830,10 +4826,7 @@ int PPALDD_CCheckViewDetail::InitData(PPFilt & rFilt, long rsrv)
 	return DlRtm::InitData(rFilt, rsrv);
 }
 
-int PPALDD_CCheckViewDetail::InitIteration(long iterId, int sortId, long rsrv)
-{
-	INIT_PPVIEW_ALDD_ITER_ORD(CCheck, CCheckFilt::ordIterLines);
-}
+int PPALDD_CCheckViewDetail::InitIteration(long iterId, int sortId, long rsrv) { INIT_PPVIEW_ALDD_ITER_ORD(CCheck, CCheckFilt::ordIterLines); }
 
 int PPALDD_CCheckViewDetail::NextIteration(long iterId)
 {

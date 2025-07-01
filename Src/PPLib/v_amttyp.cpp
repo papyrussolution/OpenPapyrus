@@ -90,7 +90,7 @@ int PPViewAmountType::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 			case 5: // Формула
 				pBlk->Set(p_item->Formula);
 				break;
-			case 6: // @v10.0.0 Символ
+			case 6: // Символ
 				{
 					PPAmountType amtt_rec;
 					if(ObjAmtT.Fetch(p_item->ID, &amtt_rec) > 0)

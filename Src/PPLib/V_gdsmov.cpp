@@ -97,7 +97,7 @@ int GoodsMovFiltDialog::setDTS(const GoodsMovFilt * pData)
 	if(!RVALUEPTR(Data, pData))
 		Data.Init(1, 0);
 	PPIDArray types;
-	SetPeriodInput(this, CTL_GTO_PERIOD, &Data.Period);
+	SetPeriodInput(this, CTL_GTO_PERIOD, Data.Period);
 	LocationCtrlGroup::Rec l_rec(&Data.LocList);
 	setGroupData(ctlgroupLoc, &l_rec);
 	SetupArCombo(this, CTLSEL_GTO_SUPPL, Data.SupplID, OLW_LOADDEFONOPEN, GetSupplAccSheet(), sacfDisableIfZeroSheet);

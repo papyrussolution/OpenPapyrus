@@ -761,7 +761,7 @@ void BillFiltDialog::ExtraFilt2()
 			disableCtrl(CTLSEL_BILLEXT_CREATOR, own_bill_restr);
 			SetupPPObjCombo(this, CTLSEL_BILLEXT_CREATOR, PPOBJ_USR, Data.CreatorID, OLW_CANSELUPLEVEL);
 			SetupCalPeriod(CTLCAL_BILLEXT_DUEPERIOD, CTL_BILLEXT_DUEPERIOD);
-			SetPeriodInput(this, CTL_BILLEXT_DUEPERIOD, &Data.DuePeriod);
+			SetPeriodInput(this, CTL_BILLEXT_DUEPERIOD, Data.DuePeriod);
 			SetupPPObjCombo(this, CTLSEL_BILLEXTFLT_GGRP, PPOBJ_GOODSGROUP, Data.GoodsGroupID, OLW_CANSELUPLEVEL|OLW_WORDSELECTOR); // @v11.0.11
 			SetupPPObjCombo(this, CTLSEL_BILLEXTFLT_CLICAT, PPOBJ_PRSNCATEGORY, Data.CliPsnCategoryID, 0); // @v11.1.9
 			 // @v11.9.4 {
@@ -848,7 +848,7 @@ void BillFiltDialog::ExtraFilt2()
 	//
 	if(PPDialogProcBody<BillFiltExtDialog, BillFilt>(&Data)) {
 		if(getCtrlView(CTL_BILLFLT_DUEPERIOD)) {
-			SetPeriodInput(this, CTL_BILLFLT_DUEPERIOD, &Data.DuePeriod);
+			SetPeriodInput(this, CTL_BILLFLT_DUEPERIOD, Data.DuePeriod);
 		}
 		int    disable_own_bill_only_tag = 0;
 		v = getCtrlUInt16(CTL_BILLFLT_FLAGS);
@@ -913,7 +913,7 @@ void BillFiltDialog::extraFilt()
 			Data.OrderFulfillmentStatus = (Data.Bbt == bbtOrderBills) ? ext.OrderFulfillmentStatus : -1; // @v11.1.8
 			Data.CliPsnCategoryID = ext.CliPsnCategoryID; // @v11.1.9
 			if(getCtrlView(CTL_BILLFLT_DUEPERIOD)) {
-				SetPeriodInput(this, CTL_BILLFLT_DUEPERIOD, &Data.DuePeriod);
+				SetPeriodInput(this, CTL_BILLFLT_DUEPERIOD, Data.DuePeriod);
 			}
 			int    disable_own_bill_only_tag = 0;
 			v = getCtrlUInt16(CTL_BILLFLT_FLAGS);
@@ -962,8 +962,8 @@ int BillFiltDialog::setDTS(const BillFilt * pFilt)
 		PPObjOprKind op_obj;
 		Data = *pFilt;
 		SetupLocationCombo();
-		SetPeriodInput(this, CTL_BILLFLT_PERIOD, &Data.Period);
-		SetPeriodInput(this, CTL_BILLFLT_DUEPERIOD, &Data.DuePeriod);
+		SetPeriodInput(this, CTL_BILLFLT_PERIOD, Data.Period);
+		SetPeriodInput(this, CTL_BILLFLT_DUEPERIOD, Data.DuePeriod);
 		if(Data.Flags & BillFilt::fOrderOnly)
 			types.addzlist(PPOPT_GOODSORDER, PPOPT_GENERIC, 0L);
 		else if(Data.Flags & BillFilt::fAccturnOnly) {

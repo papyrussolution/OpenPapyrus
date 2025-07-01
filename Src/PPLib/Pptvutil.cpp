@@ -179,13 +179,15 @@ SString & FASTCALL PPFormatPeriod(const LDATETIME & rBeg, const LDATETIME & rEnd
 	return rBuf; // @v12.2.4
 }
 
-void STDCALL SetPeriodInput(TDialog * dlg, uint fldID, const DateRange * rng)
+void STDCALL SetPeriodInput(TDialog * dlg, uint fldID, const DateRange & rPeriod)
 {
 	if(dlg) {
-		char   b[64];
-		b[0] = 0;
-		periodfmt(rng, b);
-		dlg->setCtrlData(fldID, b);
+		// @v12.3.7 char   b[64];
+		// @v12.3.7 b[0] = 0;
+		// @v12.3.7 periodfmt(rPeriod, b);
+		SString temp_buf;
+		rPeriod.ToStr(0, temp_buf);
+		dlg->setCtrlString(fldID, temp_buf);
 	}
 }
 
@@ -195,7 +197,7 @@ static int Helper_GetPeriodInput(TDialog * dlg, uint fldID, DateRange * pPeriod,
 	char   b[64];
 	b[0] = 0;
 	if(dlg && dlg->getCtrlData(fldID, b)) {
-		if(strtoperiod(b, pPeriod, strtoperiodFlags)) {
+		if(pPeriod->FromStr(b, strtoperiodFlags)) {
 			if(checkdate(pPeriod->low, 1) && checkdate(pPeriod->upp, 1)) {
 				const LDATE a_low = pPeriod->low.getactual(ZERODATE);
 				const LDATE a_upp = pPeriod->upp.getactual(ZERODATE);
@@ -405,7 +407,7 @@ void FASTCALL DisableOKButton(TDialog * dlg)
 {
 	if(dlg) {
 		dlg->enableCommand(cmOK, 0);
-		dlg->SetDefaultButton(STDCTL_CANCELBUTTON, 1);
+		dlg->SetDefaultButton(STDCTL_CANCELBUTTON, true);
 	}
 }
 
@@ -760,7 +762,7 @@ int DateAddDialog(DateAddDialogParam * pData)
 	DIALOG_PROC_BODY(__DateAddDialog, pData);
 }
 
-int DateRangeDialog(const char * pTitle, const char * pInputTitle, DateRange * pPeriod)
+int DateRangeDialog(const char * pTitle, const char * pInputTitle, DateRange & rPeriod)
 {
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_DATERNG);
@@ -769,9 +771,9 @@ int DateRangeDialog(const char * pTitle, const char * pInputTitle, DateRange * p
 		if(pInputTitle)
 			dlg->setLabelText(CTL_DATERNG_PERIOD, pInputTitle);
 		dlg->SetupCalPeriod(CTLCAL_DATERNG_PERIOD, CTL_DATERNG_PERIOD);
-		SetPeriodInput(dlg, CTL_DATERNG_PERIOD, pPeriod);
+		SetPeriodInput(dlg, CTL_DATERNG_PERIOD, rPeriod);
 		while(ok < 0 && ExecView(dlg) == cmOK)
-			if(GetPeriodInput(dlg, CTL_DATERNG_PERIOD, pPeriod))
+			if(GetPeriodInput(dlg, CTL_DATERNG_PERIOD, &rPeriod))
 				ok = 1;
 			else
 				PPError();
@@ -961,11 +963,11 @@ int Lst2LstDialogUI::setup()
 		setTitle(Data.P_Title);
 	SETIFZ(Data.LeftCtlId, CTL_LST2LST_LST1);
 	SETIFZ(Data.RightCtlId, CTL_LST2LST_LST2);
-	enableCommand(cmForward, 1);
-	enableCommand(cmAllForward, 1);
-	enableCommand(cmaInsert, Data.Flags & ListToListUIData::fCanInsertNewItem);
-	SetDefaultButton(CTL_LST2LST_FW, 1);
-	SetDefaultButton(CTL_LST2LST_BW, 0);
+	enableCommand(cmForward, true);
+	enableCommand(cmAllForward, true);
+	enableCommand(cmaInsert, LOGIC(Data.Flags & ListToListUIData::fCanInsertNewItem));
+	SetDefaultButton(CTL_LST2LST_FW, true);
+	SetDefaultButton(CTL_LST2LST_BW, false);
 	return 1;
 }
 
@@ -1948,7 +1950,7 @@ int CycleCtrlGroup::Recalc(TDialog * pDlg, uint leaderCtl)
 		ca.init(&prd, cf);
 		ca.getCycleParams(&prd, &cf);
 		if(!prd.IsEq(prev_prd) && (leaderCtl && leaderCtl != CtlPeriod))
-			SetPeriodInput(NZOR(P_PrdDialog, pDlg), CtlPeriod, &prd);
+			SetPeriodInput(NZOR(P_PrdDialog, pDlg), CtlPeriod, prd);
 		if(leaderCtl && leaderCtl != CtlNumCycles)
 			pDlg->setCtrlData(CtlNumCycles, &cf.NumCycles);
 	}
@@ -4918,7 +4920,7 @@ int PersonListCtrlGroup::Setup(TDialog * pDlg, PPID psnKindID, int force /*=0*/)
 	pDlg->enableCommand(CmPsnList, BIN(Data.PsnKindID));
 	{
 		PPID   id = (ListData.P_RList && ListData.P_RList->getCount() == 1) ? ((TaggedString*)ListData.P_RList->at(0))->Id : 0;
-		int    is_list = BIN(ListData.P_RList && ListData.P_RList->getCount() > 1);
+		const  bool is_list = (ListData.P_RList && ListData.P_RList->getCount() > 1);
 		if(is_list) {
 			PPLoadString("list", buf);
 			SetComboBoxLinkText(pDlg, Ctlsel, buf);
@@ -5047,7 +5049,7 @@ int PersonListCtrlGroup::Setup(TDialog * pDlg, PPID psnKindID, int force /*=0*/)
 		if(new_psn_kind_id != Data.PsnKindID || force) {
 			SetupPPObjCombo(pDlg, Ctlsel, PPOBJ_PERSON, Data.List.getSingle(), 0, reinterpret_cast<void *>(Data.PsnKindID = new_psn_kind_id));
 		}
-		pDlg->enableCommand(CmPsnList, BIN(Data.PsnKindID));
+		pDlg->enableCommand(CmPsnList, LOGIC(Data.PsnKindID));
 
 		PPID   id = Data.List.getSingle();
 		PPID   prev_id = pDlg->getCtrlLong(Ctlsel);
@@ -5055,7 +5057,7 @@ int PersonListCtrlGroup::Setup(TDialog * pDlg, PPID psnKindID, int force /*=0*/)
 			pDlg->setCtrlData(Ctlsel, &id);
 		if(Data.List.getCount() > 1)
 			SetComboBoxListText(pDlg, Ctlsel);
-		pDlg->disableCtrl(Ctlsel, BIN(Data.List.getCount() > 1));
+		pDlg->disableCtrl(Ctlsel, (Data.List.getCount() > 1));
 		ok = 1;
 	}
 	return 1;
@@ -5599,8 +5601,10 @@ int PersonOpCtrlGroup::ReplySelection(TDialog * pDlg)
 {
 	int    ok = 0;
 	if(pDlg) {
-		int    disable_psn1 = 0, disable_psn2 = 0;
-		PPID   prev_psn1k = 0, prev_psn2k = 0;
+		bool   disable_psn1 = false;
+		bool   disable_psn2 = false;
+		PPID   prev_psn1k = 0;
+		PPID   prev_psn2k = 0;
 		PersonOpCtrlGroup::Rec op_rec;
 		PPIDArray ary;
 		getData(pDlg, &op_rec);
@@ -5613,10 +5617,10 @@ int PersonOpCtrlGroup::ReplySelection(TDialog * pDlg)
 				PPID psn2k = pok_pack.PCScnd.PersonKindID;
 				SETIFZ(prev_psn1k, psn1k);
 				if(psn1k && prev_psn1k != psn1k)
-					disable_psn1 = 1;
+					disable_psn1 = true;
 				SETIFZ(prev_psn2k, psn2k);
 				if(psn2k && prev_psn2k != psn2k)
-					disable_psn2 = 1;
+					disable_psn2 = true;
 			}
 		}
 		if(CtlselPsn1) {
@@ -5784,7 +5788,7 @@ int BrandCtrlGroup::Setup(TDialog * pDlg)
 			pDlg->setCtrlData(Ctlsel, &id);
 		if(Data.List.getCount() > 1)
 			SetComboBoxListText(pDlg, Ctlsel);
-		pDlg->disableCtrl(Ctlsel, BIN(Data.List.getCount() > 1));
+		pDlg->disableCtrl(Ctlsel, (Data.List.getCount() > 1));
 		ok = 1;
 	}
 	return ok;
@@ -6864,7 +6868,7 @@ void SetupTimePicker(TDialog * pDlg, uint editCtlID, int buttCtlID)
 					{
 						const bool use_new_calendar = !(APPL->GetUiSettings().Flags & UserInterfaceSettings::fDateTimePickerBefore1124);						
 						if(use_new_calendar) 
-							SCalendarPicker::Exec(SCalendarPicker::kTime, p_cbwe->Dlg, p_cbwe->EditID);
+							SCalendarPicker::Exec(SUiCtrlSupplement::kTime, p_cbwe->Dlg, p_cbwe->EditID, 0);
 						else {
 							LTIME  tm = p_cbwe->Dlg->getCtrlTime(p_cbwe->EditID);
 							TimePickerDialog * dlg = new TimePickerDialog;
@@ -8289,7 +8293,7 @@ ExtStrContainerListDialog::ExtStrContainerListDialog(uint dlgId, uint listCtlId,
 		showCtrl(STDCTL_DELBUTTON, false);
 		showCtrl(STDCTL_EDITBUTTON, false);
 		showCtrl(STDCTL_OKBUTTON, false);
-		setButtonText(cmCancel, PPLoadStringS("close", temp_buf).Transf(CTRANSF_INNER_TO_OUTER));
+		SetButtonText(cmCancel, PPLoadStringS("close", temp_buf).Transf(CTRANSF_INNER_TO_OUTER));
 	}
 	setTitle(pTitle);
 	updateList(0);
@@ -8435,6 +8439,7 @@ void PPDialogConstructor::Build(TDialog * pDlg, DlContext & rCtx, uint viewId)
 void PPDialogConstructor::Build(TDialog * pDlg, DlContext & rCtx, const DlScope * pScope)
 {
 	if(pDlg && pScope && pScope->IsKind(DlScope::kUiView)) {
+		const UiDescription * p_uid = SLS.GetUiDescription();
 		TDialog::BuildEmptyWindowParam bew_param;
 		char   c_buf[1024];
 		SString temp_buf;
@@ -8478,6 +8483,25 @@ void PPDialogConstructor::Build(TDialog * pDlg, DlContext & rCtx, const DlScope 
 					}
 				}
 			}
+			// @v12.3.7 {
+			if(bew_param.FontFace.IsEmpty() || bew_param.FontSize == 0) {
+				const SFontDescr * p_fd = p_uid ? p_uid->GetFontDescrC("DialogFont") : 0;
+				if(p_fd) {
+					if(bew_param.FontFace.IsEmpty()) {
+						if(p_fd && p_fd->Face.NotEmpty())
+							bew_param.FontFace = p_fd->Face;
+						else
+							bew_param.FontFace = "MS Shell Dlg 2";
+					}
+					if(bew_param.FontSize == 0) {
+						if(p_fd && p_fd->Size != 0)
+							bew_param.FontSize = p_fd->Size;
+						else
+							bew_param.FontSize = 8;
+					}
+				}
+			}
+			// } @v12.3.7 
 			if(temp_buf.NotEmpty()) {
 			}
 		}
@@ -8577,6 +8601,8 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 	SString temp_buf;
 	SString ctl_text;
 	const DlScopeList & r_scope_list = rParentScope.GetChildList();
+	uint   def_button_ctl_id = 0;
+	SUiCtrlSupplement_With_Symbols supplement; // @v12.3.7
 	for(uint ci = 0; ci < r_scope_list.getCount(); ci++) {
 		const DlScope * p_scope = r_scope_list.at(ci);
 		if(p_scope) {
@@ -8591,6 +8617,21 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 			//UiItemKind::GetSymbById(vk, temp_buf);
 			SUiLayoutParam lp;
 			const bool glbr = rCtx.GetLayoutBlock(p_scope, DlScope::cuifLayoutBlock, &lp);
+			{
+				supplement.Z();
+				CtmExprConst __c = p_scope->GetConst(DlScope::cuifSupplement);
+				if(!!__c) {
+					uint8    c_buf[256];
+					if(rCtx.GetConstData(__c, c_buf, sizeof(c_buf))) {
+						supplement = *reinterpret_cast<const SUiCtrlSupplement *>(c_buf);
+						if(supplement.Kind) {
+							rCtx.GetConst_String(p_scope, DlScope::cuifSupplementSymb, supplement.Symb);
+							rCtx.GetConst_String(p_scope, DlScope::cuifSupplementCmdSymb, supplement.CmdSymb);
+							rCtx.GetConst_String(p_scope, DlScope::cuifSupplementText, supplement.Text);
+						}
+					}
+				}
+			}
 			switch(vk) {
 				case UiItemKind::kInput:
 					if(stage == insertctrlstageMain) {
@@ -8631,6 +8672,33 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 							}
 						}
 						pDlg->InsertCtlWithCorrespondingNativeItem(p_ctl, item_id, 0, /*extraPtr*/0);
+						if(oneof5(supplement.Kind, SUiCtrlSupplement::kDateCalendar, SUiCtrlSupplement::kDateRangeCalendar,
+							SUiCtrlSupplement::kTime, SUiCtrlSupplement::kCalc, SUiCtrlSupplement::kAsterisk)) {
+							if(supplement.Ident) {
+								TRect rc_sb;
+								rc_sb.a.x = rc.b.x+1;
+								rc_sb.a.y = rc.a.y;
+								rc_sb.b.x = rc_sb.a.x + 20;
+								rc_sb.b.y = rc_sb.a.y;
+								uint   pic_id = 0;
+								switch(supplement.Kind) {
+									case SUiCtrlSupplement::kDateCalendar: pic_id = PPDV_CALENDARDAY01; break;
+									case SUiCtrlSupplement::kDateRangeCalendar: pic_id = PPDV_CALENDAR03; break;
+									case SUiCtrlSupplement::kTime: pic_id = PPDV_CLOCK02; break;
+									case SUiCtrlSupplement::kCalc: pic_id = PPDV_CALCULATOR02; break;
+									case SUiCtrlSupplement::kAsterisk: pic_id = PPDV_ASTERISK01; break;
+								}
+								TButton * p_sb = new TButton(rc_sb, 0, supplement.Cmd, 0, pic_id);
+								p_sb->SetSupplementFactors(supplement.Kind, item_id);
+								pDlg->InsertCtlWithCorrespondingNativeItem(p_sb, supplement.Ident, 0, /*extraPtr*/0);
+								/*{
+									if(supplement.Kind == SUiCtrlSupplement::kDateCalendarButton)
+										pDlg->SetupCalDate_Internal(supplement.Ident, item_id);
+									else if(supplement.Kind == SUiCtrlSupplement::kDateRangeCalendarButton)
+										pDlg->SetupCalPeriod_Internal(supplement.Ident, item_id);
+								}*/
+							}
+						}
 					}
 					break;
 				case UiItemKind::kStatic:
@@ -8648,11 +8716,16 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 						TRect rc;
 						const uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(&lp, rc, 60.0f, 60.0f);
 						uint32 cmd_id = 0;
+						uint   spc_flags = 0;
 						SString cmd_symb;
 						rCtx.GetConst_Uint32(p_scope, DlScope::cuifCtrlCmd, cmd_id); // uint32 ИД команды кнопки
 						rCtx.GetConst_String(p_scope, DlScope::cuifCtrlCmdSymb, cmd_symb); // string Символ команды кнопки
 						rCtx.GetConst_String(p_scope, DlScope::cuifCtrlText, ctl_text);
-						TButton * p_ctl = new TButton(rc, ctl_text, cmd_id, 0);
+						if(ui_flags & UiItemKind::fDefault) {
+							spc_flags |= TButton::spcfDefault;
+							def_button_ctl_id = item_id;
+						}
+						TButton * p_ctl = new TButton(rc, ctl_text, cmd_id, spc_flags);
 						if(ui_flags & UiItemKind::fTabStop) {
 							p_ctl->setState(sfTabStop, true);
 						}
@@ -8751,8 +8824,7 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 								TRect rc_label;
 								const uint gnrr_label = SUiLayoutParam::GetNominalRectWithDefaults(&lp_label, rc_label, 60.0f, 13.0f);
 								TLabel * p_lbl = new TLabel(rc_label, ctl_text, p_il);
-								p_lbl->SetId(++rLastDynId);
-								pDlg->InsertCtlWithCorrespondingNativeItem(p_lbl, 0, 0, /*extraPtr*/0);
+								pDlg->InsertCtlWithCorrespondingNativeItem(p_lbl, ++rLastDynId, 0, /*extraPtr*/0);
 							}
 						}
 						pDlg->InsertCtlWithCorrespondingNativeItem(p_cb, item_id, 0, /*extraPtr*/0);
@@ -8766,6 +8838,9 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 						SString column_description;
 						ListBoxDef * p_lb_def = 0;
 						rCtx.GetConst_String(p_scope, DlScope::cuifListBoxColumns, column_description);
+						if(column_description.NotEmpty()) {
+							PPExpandString(column_description, CTRANSF_UTF8_TO_INNER);
+						}
 						SmartListBox * p_lb = column_description.NotEmpty() ? new SmartListBox(rc, p_lb_def, column_description) : new SmartListBox(rc, p_lb_def, false/*is_tree*/);
 						if(p_lb) {
 							//LldState |= lldsDefBailed;
@@ -8839,12 +8914,20 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 			}
 		}
 	}
+	if(def_button_ctl_id) {
+		pDlg->SetDefaultButton(def_button_ctl_id, true);
+	}
 }
 
 void PPDialogConstructor::InsertControlLayouts(TDialog * pDlg, DlContext & rCtx, const DlScope & rParentScope, SUiLayout * pLoParent)
 {
 	if(pLoParent) {
 		const DlScopeList & r_sc_list = rParentScope.GetChildList();
+		SUiCtrlSupplement_With_Symbols supplement; // @v12.3.7
+		const float fixed_button_y = 21.0f;
+		const float fixed_button_x = fixed_button_y;
+		const float fixed_input_y = 21.0f;
+		const float fixed_label_y = 13.0f;
 		for(uint i = 0; i < r_sc_list.getCount(); i++) {
 			const DlScope * p_scope = r_sc_list.at(i);
 			if(p_scope) {
@@ -8855,19 +8938,34 @@ void PPDialogConstructor::InsertControlLayouts(TDialog * pDlg, DlContext & rCtx,
 					SUiLayout * p_lo = 0;
 					uint32 vk = 0;
 					uint32 symb_ident = 0;
+					supplement.Z();
 					rCtx.GetConst_Uint32(p_scope, DlScope::cuifViewKind, vk);
 					rCtx.GetConst_Uint32(p_scope, DlScope::cucmSymbolIdent, symb_ident);
+					{
+						CtmExprConst __c = p_scope->GetConst(DlScope::cuifSupplement);
+						if(!!__c) {
+							uint8    c_buf[256];
+							if(rCtx.GetConstData(__c, c_buf, sizeof(c_buf))) {
+								supplement = *reinterpret_cast<const SUiCtrlSupplement *>(c_buf);
+								if(supplement.Kind) {
+									rCtx.GetConst_String(p_scope, DlScope::cuifSupplementSymb, supplement.Symb);
+									rCtx.GetConst_String(p_scope, DlScope::cuifSupplementCmdSymb, supplement.CmdSymb);
+									rCtx.GetConst_String(p_scope, DlScope::cuifSupplementText, supplement.Text);
+								}
+							}
+						}
+					}
 					const uint32 item_id = NZOR(symb_ident, GetScopeID(p_scope));
 					TView * p_view = pDlg->getCtrlView(item_id);
 					if(p_view) {
 						bool   done = false;
-						if(oneof2(vk, UiItemKind::kCheckCluster, UiItemKind::kRadioCluster)) {
+						if(oneof3(vk, UiItemKind::kCheckCluster, UiItemKind::kRadioCluster, UiItemKind::kCheckbox)) {
 							if(p_view->IsSubSign(TV_SUBSIGN_CLUSTER)) {
 								TCluster * p_clu = static_cast<TCluster *>(p_view);
 								const float fixed_item_y = TCluster::DefItemHeight;
 								const float item_gap_y = TCluster::DefItemVerticalGap;
-								const float padding_top = (lp.Padding.a.y > 0.0f) ? lp.Padding.a.y : TCluster::DefClusterPaddigTop;
-								const float padding_bottom = (lp.Padding.b.y > 0.0f) ? lp.Padding.b.y : TCluster::DefClusterPaddigBottom;
+								const float padding_top = /*(lp.Padding.a.y > 0.0f) ? lp.Padding.a.y :*/TCluster::DefClusterPaddigTop;
+								const float padding_bottom = /*(lp.Padding.b.y > 0.0f) ? lp.Padding.b.y :*/TCluster::DefClusterPaddigBottom;
 								int clu_direction = lp.GetContainerDirection();
 								if(clu_direction != DIREC_HORZ) {
 									clu_direction = DIREC_VERT;
@@ -8876,9 +8974,8 @@ void PPDialogConstructor::InsertControlLayouts(TDialog * pDlg, DlContext & rCtx,
 								float cluster_size_y = padding_top;
 								for(uint item_idx = 0; item_idx < p_clu->getNumItems(); item_idx++) {
 									const TCluster::Item * p_item = p_clu->GetItemC(item_idx);
-									if(p_item) {
+									if(p_item)
 										cluster_size_y += (fixed_item_y + item_gap_y);
-									}
 								}
 								cluster_size_y += padding_bottom;
 								lp.SetFixedSizeY(cluster_size_y);
@@ -8914,14 +9011,12 @@ void PPDialogConstructor::InsertControlLayouts(TDialog * pDlg, DlContext & rCtx,
 										SUiLayoutParam lp_button;
 										SUiLayoutParam lp_il;
 										TRect  rc_label;
-
-										const float fixed_button_y = 21.0f;
-										const float fixed_button_x = fixed_button_y;
-										const float fixed_input_y = 21.0f;
-										const float fixed_label_y = 13.0f;
-
+										glp.Margin = lp.Margin;
 										lp.CopySizeXParamTo(glp);
-										//const uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(&lp_label, rc_label, 60.0f, 13.0f);
+										// @v12.3.7 {
+										glp.SetGrowFactor(lp.GrowFactor); 
+										lp.GrowFactor = 0.0f;
+										// } @v12.3.7 
 										lp_label.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
 										lp_label.SetFixedSizeY(fixed_label_y);
 										lp_button.SetFixedSizeX(fixed_button_x);
@@ -8949,37 +9044,28 @@ void PPDialogConstructor::InsertControlLayouts(TDialog * pDlg, DlContext & rCtx,
 							if(p_view->IsSubSign(TV_SUBSIGN_INPUTLINE)) {
 								TInputLine * p_il = static_cast<TInputLine *>(p_view);
 								TView * p_lbl = pDlg->GetCtrlLabel(p_il);
+								TView * p_sv = 0; // supplemental-view
+								SUiLayoutParam __lp_ib(DIREC_HORZ); // Лейаут для пары {поле ввода; supplemental-кнопка}
+								SUiLayoutParam * p_lb_ib = 0;
+								SUiLayoutParam lp_supplement_button; // Лейаут для supplemental-кнопки
+								SPoint2F sb_sz; // Размер supplemental-button
+								float inp_width = 0.0f;
+								float inp_height = 0.0f;
+								const int inp_szx = lp.GetSizeX(&inp_width);
+								const int inp_szy = lp.GetSizeY(&inp_height);
+								if(supplement.Kind && supplement.Ident) {
+									p_sv = pDlg->getCtrlView(supplement.Ident);
+									if(!TView::IsSubSign(p_sv, TV_SUBSIGN_BUTTON))
+										p_sv = 0;
+								}
 								if(p_lbl) {
 									// Группирующий лейаут для строки ввода и подписи (label)
 									SUiLayoutParam glp(DIREC_VERT);
 									SUiLayoutParam lp_label;
-									// Параметры горизонтального измерения соответствуют полю ввода
-									float inp_width = 0.0f;
-									const int inp_szx = lp.GetSizeX(&inp_width);
-									//lp.CopySizeXParamTo(glp);
-									if(inp_szx == SUiLayoutParam::szFixed) {
-										glp.SetFixedSizeX(inp_width + 2.0f);
-										lp.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
-									}
-									else if(inp_szx == SUiLayoutParam::szByContainer) {
-										glp.SetVariableSizeX(SUiLayoutParam::szByContainer, inp_width);
-										lp.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
-									}
-									else {
-										// полная ширина контейнера
-										glp.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
-										lp.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
-									}
-									TRect  rc_label;
-									//if(rCtx.GetLayoutBlock(p_scope, DlScope::cuifLblLayoutBlock, &lp_label)) {
-									const uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(&lp_label, rc_label, 60.0f, TInputLine::DefLabelHeight);
-									//}
-									lp_label.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
-									lp_label.SetFixedSizeY((rc_label.height() > 0.0f) ? static_cast<float>(rc_label.height()) : TInputLine::DefLabelHeight);
-									lp_label.ShrinkFactor = 0.0f;
 									//
-									float inp_height = 0.0f;
-									const int inp_szy = lp.GetSizeY(&inp_height);
+									TRect  rc_label;
+									const uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(&lp_label, rc_label, 60.0f, TInputLine::DefLabelHeight);
+									//
 									if(inp_szy == SUiLayoutParam::szFixed || inp_szy == 0) {
 										if(inp_height == 0.0f) {
 											inp_height = TInputLine::DefHeight;
@@ -8987,26 +9073,122 @@ void PPDialogConstructor::InsertControlLayouts(TDialog * pDlg, DlContext & rCtx,
 										glp.SetFixedSizeY(inp_height + rc_label.height() + 1.0f);
 									}
 									else {
-										//lp.CopySizeYParamTo(glp);
+										; // ?
 									}
-									glp.ShrinkFactor = 0.0f;
-									glp.Flags &= ~(SUiLayoutParam::fContainerWrap|SUiLayoutParam::fContainerWrapReverse);
-									//glp.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
-									//lp.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
-									lp.SetFixedSizeY(inp_height);
-									lp.ShrinkFactor = 0.0f;
-									glp.SetMargin(2.0f);
-									SUiLayout * p_lo_inp_grp = pLoParent->InsertItem(0, &glp);
-									if(p_lo_inp_grp) {
-										//lp_label.Flags &= ~(SUiLayoutParam::fNominalDefL|SUiLayoutParam::fNominalDefR|SUiLayoutParam::fNominalDefT|SUiLayoutParam::fNominalDefB);
+									//
+									if(p_sv) {
+										p_lb_ib = &__lp_ib;
+										sb_sz.Set(20.0f, inp_height);
+									}
+									//
+									// Пока для случая supplement сделаем отдельную ветку кода. Потом унифицируем.
+									// 
+									if(p_lb_ib) {
+										SUiLayoutParam lp_sb;
+										SUiLayoutParam lp_il;
+										lp_sb.SetFixedSizeX(sb_sz.x);
+										lp_sb.SetFixedSizeY(sb_sz.y);
+										lp_sb.ShrinkFactor = 0.0f;
+
+										lp_il.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+										lp_il.SetFixedSizeY(fixed_input_y);
+
+										lp_label.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+										lp_label.SetFixedSizeY(static_cast<float>(rc_label.height()));
+
+										glp.Margin = lp.Margin;
+										lp.CopySizeXParamTo(glp);
+										glp.SetGrowFactor(lp.GrowFactor);
+										lp.GrowFactor = 0.0f; // @v12.3.7
+
+										SUiLayout * p_lo_inp_grp = pLoParent->InsertItem(0, &glp);
 										InsertCtrlLayout(pDlg, p_lo_inp_grp, p_lbl, lp_label);
-										InsertCtrlLayout(pDlg, p_lo_inp_grp, p_il, lp);
+										SUiLayout * p_lo_ib_grp = p_lo_inp_grp->InsertItem(0, p_lb_ib);
+										InsertCtrlLayout(pDlg, p_lo_ib_grp, p_il, lp_il);
+										InsertCtrlLayout(pDlg, p_lo_ib_grp, p_sv, lp_sb);
 										done = true;
+									}
+									else {
+										if(inp_szx == SUiLayoutParam::szFixed) {
+											glp.SetFixedSizeX(inp_width + 2.0f);
+											lp.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+										}
+										else if(inp_szx == SUiLayoutParam::szByContainer) {
+											glp.SetVariableSizeX(SUiLayoutParam::szByContainer, inp_width);
+											lp.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+										}
+										else if(lp.GrowFactor >= 0.0f) {
+											glp.SetGrowFactor(lp.GrowFactor);
+											lp.SetGrowFactor(0.0f);
+										}
+										else {
+											// полная ширина контейнера
+											glp.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+											lp.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+										}
+										//
+										lp_label.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+										lp_label.SetFixedSizeY((rc_label.height() > 0.0f) ? static_cast<float>(rc_label.height()) : TInputLine::DefLabelHeight);
+										lp_label.ShrinkFactor = 0.0f;
+										//
+										lp_supplement_button.SetFixedSizeX(20.0f); // @v12.3.7
+										glp.ShrinkFactor = 0.0f;
+										glp.Flags &= ~(SUiLayoutParam::fContainerWrap|SUiLayoutParam::fContainerWrapReverse);
+										lp.SetFixedSizeY(inp_height);
+										lp.ShrinkFactor = 0.0f;
+										glp.Margin = lp.Margin;
+										lp.Margin.Z();
+										SUiLayout * p_lo_inp_grp = pLoParent->InsertItem(0, &glp);
+										if(p_lo_inp_grp) {
+											InsertCtrlLayout(pDlg, p_lo_inp_grp, p_lbl, lp_label);
+											InsertCtrlLayout(pDlg, p_lo_inp_grp, p_il, lp);
+											done = true;
+										}
 									}
 								}
 								else {
-									p_lo = InsertCtrlLayout(pDlg, pLoParent, p_il, lp);
-									done = true;
+									if(p_sv) {
+										p_lb_ib = &__lp_ib;
+										sb_sz.Set(20.0f, inp_height);
+										//
+										if(inp_szy == SUiLayoutParam::szFixed || inp_szy == 0) {
+											if(inp_height == 0.0f) {
+												inp_height = TInputLine::DefHeight;
+											}
+											p_lb_ib->SetFixedSizeY(inp_height);
+										}
+										else {
+											; // ?
+										}
+										//
+										SUiLayoutParam lp_sb;
+										SUiLayoutParam lp_il;
+										lp_sb.SetFixedSizeX(sb_sz.x);
+										lp_sb.SetFixedSizeY(sb_sz.y);
+										lp_sb.ShrinkFactor = 0.0f;
+
+										lp_il.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+										lp_il.SetFixedSizeY(fixed_input_y);
+
+										//lp_label.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+										//lp_label.SetFixedSizeY(static_cast<float>(rc_label.height()));
+
+										p_lb_ib->Margin = lp.Margin;
+										lp.CopySizeXParamTo(*p_lb_ib);
+										p_lb_ib->SetGrowFactor(lp.GrowFactor);
+										lp.GrowFactor = 0.0f;
+
+										SUiLayout * p_lo_inp_grp = pLoParent->InsertItem(0, p_lb_ib);
+										//InsertCtrlLayout(pDlg, p_lo_inp_grp, p_lbl, lp_label);
+										//SUiLayout * p_lo_ib_grp = p_lo_inp_grp->InsertItem(0, p_lb_ib);
+										InsertCtrlLayout(pDlg, p_lo_inp_grp, p_il, lp_il);
+										InsertCtrlLayout(pDlg, p_lo_inp_grp, p_sv, lp_sb);
+										done = true;
+									}
+									else {
+										p_lo = InsertCtrlLayout(pDlg, pLoParent, p_il, lp);
+										done = true;
+									}
 								}
 							}
 						}

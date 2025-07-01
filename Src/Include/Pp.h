@@ -442,6 +442,7 @@ class PPBillImporter;
 class EgaisMarkAutoSelector;
 class PPMarketplaceInterface;
 class PrcssrMarketplaceInterchange;
+class GoodsStructFormulaResolutionCache;
 
 typedef struct bignum_st BIGNUM; // OpenSSL
 typedef int32 PPID; // @v11.6.8 long-->int32
@@ -1183,13 +1184,7 @@ private:
 	class FuncBlock {
 	public:
 		FuncBlock();
-		FuncBlock & Z()
-		{
-			Func = 0;
-			ExtToken.Z();
-			ClearSieve();
-			return *this;
-		}
+		FuncBlock & Z();
 		int   GetFuncId() const;
 		void  SetFuncId(int f);
 		void  ClearSieve();
@@ -1231,7 +1226,7 @@ struct GdsClsCalcExprContext {
 	GdsClsCalcExprContext(PPID goodsID, PPID prevGoodsID);
 	GdsClsCalcExprContext(const PPTransferItem * pTi, const PPBillPacket * pBillPack);
 	GdsClsCalcExprContext(const CCheckItem * pCi);
-	GdsClsCalcExprContext(const TSessLineTbl::Rec * pTslRec); // @v11.0.7
+	GdsClsCalcExprContext(const TSessLineTbl::Rec * pTslRec);
 
 	const  PPGdsClsPacket * P_GcPack;
 	const  PPGoodsPacket  * P_GPack;
@@ -1239,7 +1234,7 @@ struct GdsClsCalcExprContext {
 	const  PPBillPacket * P_BillPack;
 	const  PPTransferItem * P_Ti;
 	const  CCheckItem * P_Ci;
-	const  TSessLineTbl::Rec * P_TslRec; // @v11.0.7
+	const  TSessLineTbl::Rec * P_TslRec;
 	const  ReceiptTbl::Rec * P_LotRec; // @v11.1.12
 	PPID   TSessID;
 	double Par1;
@@ -20065,7 +20060,7 @@ private:
 //
 // @v12.3.6
 // Descr: Классы бизнес-показателей. 
-//   Все классы зарезервированы.
+//   Все классы зарезервированы. Нужны для того, чтобы можно было программно определить специфическое поведение конкретного бизнес-показателя //
 //
 #define BSCCLS_INC_SALE_UNIT           1 // Доходы от продажи единицы продукции
 #define BSCCLS_EXP_SALE_UNIT           2 // Расходы на продажу единицы продукции
@@ -20226,7 +20221,8 @@ struct PPBizScore2 { // @v11.9.0 @construction
 	long   ID;                  // @id
 	char   Name[48];
 	char   Symb[20];
-	uint8  Reserve[24];
+	uint8  Reserve[20];
+	long   Cls;                 // BSCCLS_XXX Класс показателя //
 	int32  DataType;            // OTTYP_XXX (будем использовать ту же систему типов, что и в тегах объектов)
 	long   TypeEnumID;          // Тип ссылочного объекта для oneof2(DataType, OTTYP_ENUM, OTTYP_OBJLINK)
 	long   TypeEnumExt;         // Группа ссылочных объектов для DataType == OTTYP_OBJLINK
@@ -20256,6 +20252,16 @@ struct PPBizScore2Packet : public PPExtStrContainer {
 
 class PPObjBizScore2 : public PPObjReference { // @v11.9.1 @construction
 public:
+	static uint GetBscClsLis(PPIDArray & rList);
+	static bool GetBscClsName(long cls, SString & rBuf);
+	//
+	// Descr: Возвращает true если класс cls бизнес-показателя олицетворяет доходные значения //
+	//
+	static bool IsBscCls_Income(long cls);
+	//
+	// Descr: Возвращает true если класс cls бизнес-показателя олицетворяет расходные значения //
+	//
+	static bool IsBscCls_Expense(long cls);
 	explicit PPObjBizScore2(void * extraPtr = 0);
 	~PPObjBizScore2();
 	virtual int  Edit(PPID * pID, void * extraPtr /*userID*/);
@@ -24409,6 +24415,29 @@ private:
 	virtual int  HandleMsg(int, PPID, PPID, void * extraPtr);
 };
 //
+// @ModuleDecl(PPObjSalesRestriction)
+// 
+struct PPSalesRestriction { // @flat @persistent @store(Reference2Tbl+)
+	PPSalesRestriction();
+	PPSalesRestriction & Z();
+	long   Tag;            // Const=PPOBJ_SALESRESTRICTION
+	long   ID;             //
+	char   Name[48];       // @name
+	char   Symb[20];       //
+	char   Reserve[48];    // @reserve
+	DateRange Period;      // Временные рамки действия ограничения
+	uint32 MinAge;         // Минимальный возвраст, с которого продажа возможна 
+	long   Flags;          //
+	PPID   Reserve2;       // @reserve
+	long   Reserve3;       // @reserve
+};
+
+class PPObjSalesRestriction : public PPObjReference {
+public:
+	PPObjSalesRestriction(void * extraPtr);
+	virtual int Edit(PPID * pID, void * extraPtr);
+};
+//
 // @ModuleDecl(PPObjGoodsValRestr)
 //
 struct PPGoodsValRestr { // @flat @persistent
@@ -24615,7 +24644,8 @@ struct PPGoodsStrucItem {  // @persistent(DBX) @size=52 @flat
 		// В этом случае Flags & GSIF_BIZSC2
 	long   Flags;          // GSIF_XXX Флаги
 	double Median;         // Среднее значение оценочного интервала
-	double Width;          // Ширина оценочного интервала
+	// @v12.3.7 (unused) double Width__;        // Ширина оценочного интервала
+	double ManualValue;    // @v12.3.7 Значение, установленное в ручную (для структур с флагом GSF_PRICEPLANNING)
 	double Denom;          // Знаменатель простой дроби, которая определяет количество компонента
 		// Если Denom == 0, то это эквивалентно Denom = 1
 	double Netto;          //
@@ -24692,6 +24722,15 @@ public:
 	//       имеет определенного коэффициента PhUPerU.
 	//
 	int    RecalcQttyByMainItemPh(double * pQtty) const;
+	//
+	// Descr: Получает эффективное значение по строке для структуры, имеющей вид kPricePlanning.
+	//   Если в строке задано ненулевое ручное значение, то возвращается оно, в противном случае, 
+	//   если в строке задана формула, то значение вычисляется по ней. Если же и локальной формулы не
+	//   задано, то функция обращается к показателю (PPObjBizScore2), который ассоциирован со строкой
+	//   и вычисляет значение показателя.
+	//
+	int    GetItemValue(uint itemIdx, GoodsStructFormulaResolutionCache * pRCache, double * pValue) const;
+	int    ResolveItemFormula(const PPGoodsStrucItem & rItem, double * pValue) const;
 	int    GetEstimationPrice(uint itemIdx, PPID locID, double * pPrice, double * pTotalPrice, ReceiptTbl::Rec * pLotRec) const;
 	void   CalcEstimationPrice(PPID locID, double * pPrice, int * pUncertainty, int calcInner) const;
 	int    FASTCALL HasGoods(PPID goodsID) const;
@@ -46005,6 +46044,66 @@ private:
 	MarketplaceDetailBlock MpDBlk;
 };
 //
+// Descr: unit-анализ (пока только по товарам)
+//
+class UnitEcFilt : public PPBaseFilt {
+public:
+	UnitEcFilt();
+	UnitEcFilt & FASTCALL operator = (const UnitEcFilt & rS);
+	uint8  ReserveStart[32]; // @anchor
+	DateRange Period;        //
+	PPID   GoodsGroupID;     // Товарная группа, ограничивающая список анализируемых товаров
+	long   Flags;            //
+	long   Reserve;          // @anchor
+};
+
+struct UnitEcViewItem {
+	PPID   ID;
+};
+
+class PPViewUnitEc : public PPView {
+public:
+	struct InitialGoodsEntry {
+		PPID   GoodsID;
+		double RcptQtty;
+		double ExpectedDemandPerWeek;
+	};
+	struct BrwItem {
+		PPID   ID;
+	};
+	PPViewUnitEc();
+	~PPViewUnitEc();
+	virtual int Init_(const PPBaseFilt * pBaseFilt);
+	virtual int EditBaseFilt(PPBaseFilt *);
+	int    InitIteration();
+	int    FASTCALL NextIteration(UnitEcViewItem * pItem);
+private:
+	static  int  FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
+	virtual SArray * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
+	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual int  OnExecBrowser(PPViewBrowser *);
+	virtual int  ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
+	int    _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
+	int    MakeList(PPViewBrowser * pBrw);
+	int    GetGoodsListForProcessing(PPIDArray & rIdList);
+
+	class IndicatorVector : public BzsValVector {
+	public:
+		IndicatorVector() : BzsValVector(), ID(0)
+		{
+		}
+		PPID   ID;
+	};
+	TSCollection <IndicatorVector> IndicatorList; // @v12.1.7
+	UnitEcFilt Filt;
+	PPIDArray GoodsIdList; // Список товаров, по которым проводится анализ
+	SArray * P_DsList;
+	TSVector <InitialGoodsEntry> IgeList;
+	//
+	PPObjGoods GObj;
+	PPObjGoodsStruc GsObj;
+};
+//
 // @ModuleDecl(PPViewSCard)
 //
 struct SCardFilt : public PPBaseFilt {
@@ -55507,7 +55606,7 @@ public:
 protected:
 	DECL_HANDLE_EVENT;
 };
-#endif // } 0 @v12.3.6 (Этот блок отработал свою функцию - переходим на регулярное описание диалогов в DL00) {
+#endif // } 0 @v12.3.6 (Этот блок отработал свою функцию - переходим на регулярное описание диалогов в DL600) {
 //
 //
 //
@@ -61005,7 +61104,7 @@ int    BillFilterDialog(uint rezID, BillFilt *, const char * addText = 0);
 int    BillFilterDialog(uint rezID, BillFilt *, TDialog ** d, const char * addText = 0);
 int    ViewStatus();
 int    ViewPredictSales(PredictSalesFilt *);
-void   STDCALL SetPeriodInput(TDialog *, uint fldID, const DateRange *);
+void   STDCALL SetPeriodInput(TDialog *, uint fldID, const DateRange & rPeriod);
 int    STDCALL GetPeriodInput(TDialog *, uint fldID, DateRange *);
 int    STDCALL GetPeriodInput(TDialog * dlg, uint fldID, DateRange * pPeriod, long strtoperiodFlags);
 void   STDCALL SetTimeRangeInput(TDialog *, uint ctl, long fmt, const TimeRange * pTimePeriod);
@@ -61106,22 +61205,22 @@ struct CalcPriceParam { // @{calcprice}
 //
 class SCalendarPicker : public TWindowBase {
 public:
-	struct DataBlock {
+	/* @v12.3.7 (replaced with SUiCtrlSupplement::DataBlock) struct DataBlock {
 		DataBlock();
 		LDATETIME Dtm;
 		DateRange Period;
-	};
+	};*/
 private:
-	DECL_DIALOG_DATA(DataBlock);
+	DECL_DIALOG_DATA(SUiCtrlSupplement::DataBlock);
 public:
-	enum {
+	/* @v12.3.7 (replaced with SUiCtrlSupplement::kXXX) enum {
 		kDate     = 1,
 		kPeriod   = 2,
 		kTime     = 3,
 		kDateTime = 4
-	};
-	static int Exec(const int kind, DataBlock & rData);
-	static int Exec(const int kind, TDialog * pParentDlg, uint inputCtlId);
+	}; */
+	// @v12.3.7 static int Exec(const int kind/*SUiCtrlSupplement::kXXX*/, SUiCtrlSupplement::DataBlock & rData);
+	static int Exec(const int kind/*SUiCtrlSupplement::kXXX*/, TDialog * pParentDlg, uint inputCtlId, SUiCtrlSupplement::DataBlock * pData);
 	explicit SCalendarPicker(int kind);
 	~SCalendarPicker();
 	DECL_DIALOG_SETDTS();
@@ -61166,7 +61265,7 @@ private:
 	void   SetupStartLoYear();
 	LDATE  ISD() const; // Inner selected date. Если Data.Dtm.d не валидно, то ISD возвращает текущую системную дату
 
-	const  int Kind;
+	const  int Kind; // SUiCtrlSupplement::kDateCalendar || SUiCtrlSupplement::kDateRangeCalendar || SUiCtrlSupplement::kTime
 	const  SUiLayout * P_LoFocused;
 	const  SVector LoExtraList;
 	int    FontId;
@@ -61428,7 +61527,7 @@ struct PPInputStringDialogParam {
 //
 int    FASTCALL InputStringDialog(PPInputStringDialogParam * pParam, SString & rBuf);
 int    InputDateDialog(const char * pTitle, const char * pInputTitle, LDATE * pDate);
-int    DateRangeDialog(const char * pTitle, const char * pInputTitle, DateRange *);
+int    DateRangeDialog(const char * pTitle, const char * pInputTitle, DateRange & rPeriod);
 
 struct DateAddDialogParam {
 	DateAddDialogParam();
@@ -61573,7 +61672,6 @@ int    DatabaseCutting();
 //   GetCalCtrlSignature, то кнопка относится к искомому типу.
 //
 const  char * GetCalCtrlSignature(int type);
-// @v11.2.4 (static now) void   STDCALL SetupCalCtrl(int, TDialog *, uint, uint);
 void   ShowCalCtrl(int buttCtlID, TDialog * pDlg, int show);
 int    Import(PPID objType, long extraParam = 0);
 int    ImportBanks();

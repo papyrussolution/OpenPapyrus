@@ -975,21 +975,13 @@ PPERR_DUPTASKCODE                  "Дублируемое значение ко
 PPERR_NOPRINT_CN_ISLOCKED          "Печать чека запрещена.\nКассовый узел заблокирован другим пользователем."
 PPERR_CCHKMUSTBEJUNK               "@{err_internal}: чек '%s' должен иметь признаки SUSPENDED | JUNK"
 PPERR_MAXDUPPSNREL                 "Максимальное количество отношений\n\003между двумя персоналиями не может превышать 4"
-PPERR_DL6_ICLSPARNOTIFACE          "DL600 База '%s' класса не является интерфейсом"
-PPERR_DL6_CLASSEXISTS              "DL600 Класс %s уже определен"
-PPERR_DL6_INVATTRLIB               "DL600 Недопустимый атрибут '%s' библиотеки типов"
 PPERR_CCHKNOMORESUSPENDED          "Чек '%s' открыт другим пользователем"
 PPERR_CCHKPRINTEDORSUSPENDED       "Чек '%s' отложенный или уже отпечатан - перерегистрация недопустима"
 PPERR_CHKPAN_SALERNEEDED           "Для выполнения операции необходимо выбрать агента"
 PPERR_DUPGOODS                     "Дублирование индекса в записи товара (%s)"
-PPERR_DL6_NOENUM                   "Попытка вставить элемент перечисления в структуру, не являющуюся перечислением"
 PPERR_UUIDNFOUND                   "UUID %s не найден"
-PPERR_DL6_INVSCOPEKIND             "@{err_internal}: область видимости DL600 '%s' принадлежит другому виду"
-PPERR_DL6_ICLSNOTIMPL              "DL600  Класс '%s' не реализован"
-PPERR_DL6_IMPFILENFOUND            "Импортируемый файл %s не найден"
 PPERR_NONPAIRPSNEVNT               "Нарушение парности персональной операции '%s'"
 PPERR_STAFFCALSYMBNFOUND           "Символ '%s' штатного календаря не найден"
-PPERR_DL6_DUPTYPEDEFINSCOPE        "DL600 Дублирование typedef-определения '%s' в области видимости"
 PPERR_INVINTRCORRLOC               "Недопустимое значение корреспондентского склада (%s) во внутренней передаче"
 PPERR_PSNDONTBELONGTOKIND          "Персоналия не принадлежит заданному виду"
 PPERR_PERSONBYREGNFOUND            "Персоналия по регистру '%s' не найдена"
@@ -997,12 +989,8 @@ PPERR_PERSONBYREGNKIND             "Персоналия '%s' по регист�
 PPERR_PERSONSBYREGNKIND            "Персоналии по регистру '%s' не соответствуют заданному виду"
 PPERR_FILTNEQTYPE                  "Несоответствующий тип фильтра"
 PPERR_PPIFCFUNCNSUPPORTED          "Функция интерфейса не поддерживается"
-PPERR_DL6_CLSNFOUND                "Кокласс '%s' не найден"
-PPERR_DL6_IFCUUIDNFOUND            "UUID интерфейса '%s' не найден"
-PPERR_DL6_CTXNINITED               "Контекст DL600 не инициализирован"
 PPERR_NOTLOGGEDIN                  "Сеанс не авторизован в базе данных"
 PPERR_UNKNOWNVIEWID                "Неопределенный тип объекта PPView '%s'"
-PPERR_DL6_ARGMUSTBECONST           "Аргумент должен быть константой"
 PPERR_BASEFILTUNSUPPORTED          "@{err_internal}: класс PPView не поддерживает PPBaseFilt"
 PPERR_UNDEFVIEWID                  "@{err_internal}: неопределенный идентификатор класса PPView"
 PPERR_INVSTRUCTAG                  "Неверная метка структуры. Должно быть %s"
@@ -1072,13 +1060,9 @@ PPERR_RCVRBNKACCEMPTY              "Не указан банковский сч�
 PPERR_DUPSCALEBCPREFIX             "Дублирование префикса штрихкода весов (%s)"
 PPERR_GENSCALECODEFAULT            "Не удалось сформировать правильный весовой код (%s)"
 PPERR_MATRIXRESTRICTION            "Превышено ограничение матрицы %s."
-PPERR_DL6_FUNCINVSCOPE             "Недопустимый вид области видимости для декларации функции"
 PPERR_FTPACCTUNDEF                 "FTP аккаунт не указан"
 PPERR_DBGUIDUNDEF                  "Не указан GUID базы данных"
 PPERR_INVDBGUIDINFILE              "Не верный GUID базы данных в файле"
-PPERR_DL6_INVPROPSYMB              "DL600 Неизвестное имя свойства '%s'"
-PPERR_DL6_INVPROPTYPE              "DL600 Недопустимый тип данных для свойства '%s'"
-PPERR_DL6_INVCONSTDESCR            "DL600 Недопустимый дескриптор константы"
 PPERR_NFSTRNGFORPOOL               "Именованный фильтр относится к другой БД и не может быть вставлен в этот пул"
 PPERR_NFPOOLISREADONLY             "Именованный фильтр не может быть вставлен в пул, поскольку пул 'только для чтения'"
 PPERR_INVNFCMD                     "Команда не задана или задана неверно"
@@ -1187,8 +1171,6 @@ PPERR_EMPTYPPOBJECT                "Не определены атрибуты �
 PPERR_ONLYGOODSGRPVIOL             "Доступ ограничен единственной товарной группой"
 PPERR_RMVPPOSTHASSALARY            "Удаление штатного назначения невозможно: существуют начисления по нему"
 PPERR_INVPREDICT_PMIN              "Недопустимое значение минимального числа точек прогноза (должно быть от нуля до P)"
-PPERR_DL6_SETUNSUPPORTED           "Структура DL600 '%s' не поддерживает метод Set"
-PPERR_DL6_INVLEFTOFREF             "Первым параметром оператора '@()' должна быть структура"
 PPERR_TDDO_INVMETA                 "Не известный метатег '%s'"
 PPERR_TDDO_UNDEFITERNAME           "Не определенный итератор '%s'"
 PPERR_TDDO_UNEXPECTED_END          "Неожиданное появление #end"
@@ -1510,6 +1492,24 @@ PPERR_DL200_INVOBJSYMBPFX          "DL200 - Недопустимый префи�
 PPERR_DL200_OBJSYMBPFXEXPECTED     "DL200 - Ожидается префикс типа объекта (%s)"
 PPERR_DL200_LPAREXPECTED           "DL200 - Ожидается открывающая скобка '(' (%s)"
 PPERR_DL200_RPARABS                "DL200 - Нет закрывающей скобки ')' (%s)"
+PPERR_DL6_NOENUM                   "Попытка вставить элемент перечисления в структуру, не являющуюся перечислением"
+PPERR_DL6_INVSCOPEKIND             "@{err_internal}: область видимости DL600 '%s' принадлежит другому виду"
+PPERR_DL6_IMPFILENFOUND            "Импортируемый файл %s не найден"
+PPERR_DL6_CLSNFOUND                "Кокласс '%s' не найден"
+PPERR_DL6_IFCUUIDNFOUND            "UUID интерфейса '%s' не найден"
+PPERR_DL6_CTXNINITED               "Контекст DL600 не инициализирован"
+PPERR_DL6_ARGMUSTBECONST           "Аргумент должен быть константой"
+PPERR_DL6_FUNCINVSCOPE             "Недопустимый вид области видимости для декларации функции"
+PPERR_DL6_SETUNSUPPORTED           "Структура DL600 '%s' не поддерживает метод Set"
+PPERR_DL6_INVLEFTOFREF             "Первым параметром оператора '@()' должна быть структура"
+PPERR_DL6_ICLSPARNOTIFACE          "DL600 База '%s' класса не является интерфейсом"
+PPERR_DL6_CLASSEXISTS              "DL600 Класс %s уже определен"
+PPERR_DL6_INVATTRLIB               "DL600 Недопустимый атрибут '%s' библиотеки типов"
+PPERR_DL6_ICLSNOTIMPL              "DL600 Класс '%s' не реализован"
+PPERR_DL6_DUPTYPEDEFINSCOPE        "DL600 Дублирование typedef-определения '%s' в области видимости"
+PPERR_DL6_INVPROPSYMB              "DL600 Неизвестное имя свойства '%s'"
+PPERR_DL6_INVPROPTYPE              "DL600 Недопустимый тип данных для свойства '%s'"
+PPERR_DL6_INVCONSTDESCR            "DL600 Недопустимый дескриптор константы"
 PPERR_DL6_DBFLDNOTINDBSCOPE        "DL600 Попытка создать поле '%s' базы данных вне области таблицы базы данных"
 PPERR_DL6_INVDECDIMUSAGE           "DL600 Недопустимое использование числовой размерности '%s'"
 PPERR_DL6_DUPDBIDXNAME             "DL600 Дублирование наименования индекса '%s'"
@@ -1554,6 +1554,8 @@ PPERR_DL6_PROP_PMARGINOCCURED      "DL600 ошибка в свойстве 'marg
 PPERR_DL6_PROP_INVPADDINGVAL       "DL600 ошибка в свойстве 'padding' - ожидается либо 4-компонентное значение {l, t, r, b}, либо единственная real-величина"
 PPERR_DL6_PROP_PPADDINGOCCURED     "DL600 ошибка в свойстве 'padding' - один из компонентов padding уже был определен"
 PPERR_DL6_PROP_PADDINGRANGEVIOL    "DL600 ошибка в свойстве 'padding' - недопустимое значение одного или нескольких компонентов padding"
+PPERR_DL6_PROP_INVALIDSYMB         "DL600 неизвестный символ свойства '%s'"
+PPERR_DL6_UISUPPLEMENT_UNDEFKIND   "DL600 неизвстный вид дополнения '%s' к управляющему элементу UI"
 
 PPERR_UNABLETESTPSALESBYALLGOODS   "Не допускается тестирование таблицы продаж по всей выборке товаров"
 PPERR_INVPERIOD                    "Неверный период '%s'"
@@ -2720,6 +2722,7 @@ PPINF_EGAISSHOPRETURNCR    "Создан документ возврата с р
 84   "@{swprogramcategory_pl}" // @v11.9.12 PPOBJ_SWPROGRAMCATEGORY
 85   "@{computercategory_pl}" // @v12.0.1 PPOBJ_COMPUTERCATEGORY
 86   "@{rawmaterial_pl}" // @v12.0.10 PPOBJ_RAWMATERIAL
+87   "@{obj_salesrestriction}" // @v12.3.7 PPOBJ_SALESRESTRICTION
 100  "@{dynobject_pl}"
 101  "Породы древесины"
 1000 /!/ "#UNASSIGNED"
@@ -5128,6 +5131,16 @@ PPTXT_PRNALLBILLS_FLTOPGEN_NOCOMMACS   "Печать всех первичных
 PPTXT_SCANFSDIR                        "Сканирование каталога '%s'"
 PPTXT_DEV_DL600IFCUUIDFILEOK           "DEV: список сопоставления интерфейсных символов значениям GUID успешно прошел сверку с образцом"
 PPTXT_ERR_EGAIS_PUTCCSHADOW            "Ошибка отправки в @{brand_egais} чека автосписания алкоголя"
+	// Далее - наименование классов бизнес-показателей
+PPTXT_BSCCLS_INC_SALE_UNIT             "Доход от продажи единицы продукции"
+PPTXT_BSCCLS_EXP_SALE_UNIT             "Расходы на продажу единицы продукции"
+PPTXT_BSCCLS_EXP_PURCHASE_UNIT         "Расходы на закупку единицы продукции"
+PPTXT_BSCCLS_EXP_TRANSFER_UNIT         "Расходы на перемещение единицы продукции"
+PPTXT_BSCCLS_EXP_STORAGE_UNIT          "Расходы на хранение единицы продукции"
+PPTXT_BSCCLS_EXP_PRESALE_UNIT          "Расходы на предпродажную подготовку единицы продукции"
+PPTXT_BSCCLS_EXP_PRESALE_SKU_TIME      "Расходы на предпродажную подготовку одного наименования продукции (в единицу времени)"
+PPTXT_BSCCLS_EXP_PROMO_SKU_TIME        "Маркетинговые расходы на категорию продукции (в единицу времени)"
+PPTXT_BSCCLS_EXP_PROMO_TIME            "Маркетинговые расходы не привязанные к продукции (в единицу времени)"
 //
 // LastText
 
@@ -5452,6 +5465,7 @@ PPSSYM_FORMAT "int64;int;hex;real;sstr;zstr;date;time;datetime;person;goods;unit
 464  "Файл с именем '%s' в хранилище SFileStorage отсутствует"
 465  "Недопустимая либо неподдерживаемая хэш-функция"
 466  "@{err_internal}: недопустимый тип экземпляра SFile"
+467  "Строка '%s' не соответствует правилам представления диапазона дат" // @v12.3.7 SLERR_INVDATERANGETEXT
 500  "Unable to open configuration file for reading"
 501  "Unable to open configuration file for writing"
 502  "Wrong version of configuration file"
@@ -6005,6 +6019,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @lbt_araliasesubst                   "20,L,@accountalias;38,L,@account" // DLG_ARTICLE2
 @lbt_autonewprice                    "56,L,@ware;10,R,@price;15,R,@{newprice};15,R,@difference" // DLG_AUTONEWP
 @lbt_bnkacclist                      "48,L,@bank;28,L,@account"                                 // DLG_BACCLST
+@lbt_bankacclist                     "48,L,@bank;28,L,@account"
 @lbt_billamtlist                     "32,L,@amounttype;6,L,@currency;12,R,@amount" // DLG_BILLINFO
 @lbt_bucfgselect                     "32,L,@scenario;31,L,@database" // DLG_BUCFG_SELECT
 @lbt_attchfilelist                   "68,L,@attachedfile"           // Диалоги заголовков документов
@@ -6050,7 +6065,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @lbt_prcplacelist                    "20,L,Места;30,L,@ware;20,L,@description"
 @lbt_opkgenlist                      "42,L,@oprkind;8,L,@flags"
 @lbt_goodsstruc                      "44,L,@component;12,R,@qtty;10,R,@netto;10,R,@price;10,R,@amount;4,C"
-@lbt_goodsstruc_pp                   "44,L,@component;20,L,@formula;10,@price;4,C" // @v12.0.7
+@lbt_goodsstruc_pp                   "44,L,@component;20,R,@value;10,R,@income;10,R,@expense" // @v12.0.7
 @lbt_extgoodsstruc                   "60,L,@appellation;15,L,@daterange"
 @lbt_barcodelist                     "24,L,@barcode;12,R,@qtty" // DLG_BARCODELIST
 @lbt_elinklist                       "27,L,@elinkkind;40,L,@address"
@@ -6070,7 +6085,6 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @lbt_mobclmnlist                     "20,L,Zone;20,L,@{datafieldname};40,L,@text;15,L,@total"
 @lbt_draftwroff                      "40,L,@draftwroffentry_op;30,L,@draftwroffentry_loc"
 @lbt_articlealssubst                 "20,L,@accountalias;38,L,@account"
-@lbt_bankacclist                     "48,L,@bank;28,L,@account"
 @lbt_aturntempllist                  "13,L,@debit;13,L,@credit;45,L,@formula"
 @lbt_gbasket                         "56,L,@ware;10,R,@qtty;8,R,@price;10,R,@amount"
 @lbt_billvataxlist                   "17,L,@vatrate;22,R,@intermcost;22,R,@intermprice"
@@ -8138,6 +8152,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @obj_freightpackagetype              "Тип транспортной упаковки"
 @obj_taxsystemkind                   "@{taxsystemkind}"
 @obj_tssmodel                        "@{tssmodel}"
+@obj_salesrestriction                "@{salesrestriction}"
 //
 // Наименования статусов задач и технологических сессий
 //
@@ -8709,6 +8724,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @rtag_person_spctaxgroup                  "Специальная налоговая группа персоналии"        // @v12.1.12
 @rtag_bill_orgorderident                  "Оригинальный идентификатор документа заказа"    // @v12.2.2
 @rtag_loc_spctaxgroup                     "Специальная налоговая группа локации"           // @v12.2.4
+@rtag_goods_salesrestr                    "@{salesrestriction}" // @v12.3.7
 //
 // Зарезервированные типы регистрационных документов
 //
@@ -8893,6 +8909,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @view_computer                            "@{managedcomputer_pl}"
 @view_clientactivitydetails               "Детализация клиентской активности"
 @view_clientactivity                      "Анализ клиентской активности" // derivative of @view_person
+@view_unitec                              "Unit-анализ"
 
 @filter_cashnodepane                      "Фильтр кассовой панели"
 @filter_prcssrwroffdraftparam             "Параметры списания драфт-документов"
@@ -9165,6 +9182,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cmd_goodsturnover 				          "@{view_goodstrnovr}"
 @cmd_goodstype 					          "Типы товаров"
 @cmd_goodsvalrestr 				          "@{goodsvalrestr}"
+@cmd_salesrestriction                     "@{salesrestriction}"
 @cmd_groups_n_users 			          "Группы и пользователи"
 @cmd_gtajournal 				          "@{gtajournal}"
 @cmd_impexplistconfig 			          "@{impexpparam_pl}"
@@ -9441,6 +9459,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cmd_aptekaruinterchange                  "Обмен данными с сервисом @{brand_aptekaru}"
 @cmd_gathercliactivitystatistics          "@{prcssrcliactivitystatistics}" // @v12.2.2
 @cmd_clientactivity                       "@{view_clientactivity}" // @v12.2.8
+@cmd_unitec                               "Unit-анализ" // @v12.3.7
 
 @cmdpu_admin           			          "Админ"
 @cmdpu_salesanalyze    			          "Анализ продаж"
@@ -10169,6 +10188,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @bizscore_linkext                         "Группа связанных объектов"
 @bizscore_accsheet                        ""
 @bizscore_timecycle                       "Периодичность ввода"
+@bizscore_cls                             "Класс бизнес-показателя"
 
 @bizscorefilt                             "Фильтр по бизнес-показателям"
 @bizscorevalfilt                          "Фильтр по значениям бизнес-показателей"
@@ -12115,6 +12135,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @goodsstruc_info_belongtodyngen           "Структура принадлежит динамическому обобщению"
 @goodsstruc_reduct                        "Редуцировать" // cmd
 @goodsstruc_substruc                      "Подструктура" // cmd
+@goodsstruc_giftparam                     "Параметры подарка" // generic
 
 @goodsstructotal                          "Итоги товарных структур"
 @goodsstructotal_linecount                "@{linecount}"
@@ -12750,6 +12771,10 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @pallet_name                              "@{appellation}"
 @pallet_symb                              "@{symbol}"
 @pallet_tag                               "@{tag}"
+
+@salesrestriction                         "Ограничения на продажу товаров"
+@salesrestriction_minage                  "Возраст, с которого разрешена продажа"
+@salesrestriction_period                  "Период действия ограничений"
 
 @person_cat                               "@{category}"
 @person_division                          "@{division}"
@@ -18523,6 +18548,7 @@ PPHS_RAWMATERIAL               "rawmaterial" // @v12.0.11
 PPHS_ACCOUNT                   "account" // @v12.1.3
 PPHS_GOODSTAX                  "goodstax" // @v12.1.12
 PPHS_LOGLOCKSTACK              "loglockstack"
+PPHS_SALESRESTRICTION          "salesrestriction" // @v12.3.7
 PPHS_PAYMENT                   "payment"
 PPHS_UNKN                      "unkn"
 PPHS_CASH                      "cash"

@@ -694,7 +694,7 @@ int PPComplBlock::Add(const PPGoodsStruc & rGs, uint srcGsPos, PPID parentGoodsI
 		s.PartQty = fdivnz(_qtty, Head.NeedQty);
 		s.FreeQty = 0.0;
 		THROW_SL(insert(&s));
-		assert(getCount() > 0); // @v11.2.5
+		assert(getCount()); // @v11.2.5
 		ASSIGN_PTR(pResultIdx, getCount()-1); // @v11.2.5
 		ok = 1;
 	}
@@ -1094,7 +1094,7 @@ int PPBillPacket::InsertPartitialStruc()
 								THROW_SL(sum_array.Add(gsi.GoodsID, price, 1));
 						}
 						else {
-							if(gsi.Formula__[0]) {
+							if(!isempty(gsi.Formula__)) {
 								double v = 0.0;
 								qtty = 0.0;
 								for(uint k = 0; k < local_pos_list.getCount(); k++) {

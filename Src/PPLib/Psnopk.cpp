@@ -1,5 +1,5 @@
 // PSNOPK.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2024
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2024, 2025
 // @codepage UTF-8
 // Виды персональных операций
 //
@@ -46,7 +46,8 @@ int PoClauseArray_::IsEq(const PoClauseArray_ & rS, int options) const
 	if(L.getCount() != rS.L.getCount())
 		return 0;
 	else {
-		PoClause_ c, sc;
+		PoClause_ c;
+		PoClause_ sc;
 		for(uint i = 0; i < L.getCount(); i++) {
 			Get(i, c);
 			rS.Get(i, sc);
@@ -64,10 +65,7 @@ PoClauseArray_ & PoClauseArray_::Z()
 	return *this;
 }
 
-uint PoClauseArray_::GetCount() const
-{
-	return L.getCount();
-}
+uint PoClauseArray_::GetCount() const { return L.getCount(); }
 
 int PoClauseArray_::Get(uint pos, PoClause_ & rItem) const
 {
@@ -322,7 +320,7 @@ PPPsnOpKindPacket::PsnConstr & PPPsnOpKindPacket::PsnConstr::Z()
 	Reserve1 = 0;
 	DefaultID = 0;
 	RestrictTagID = 0;
-	RestrictScSerList.freeAll();
+	RestrictScSerList.Z(); // @v12.3.7 freeAll()-->Z()
 	return *this;
 }
 
@@ -1090,7 +1088,6 @@ class PsnOpExVDialog : public PPListDialog {
 public:
 	PsnOpExVDialog() : PPListDialog(DLG_POKEXV, CTL_POKEXV_ALLOWEDTAGS)
 	{
-		// @v10.6.5 @ctr Data.destroy();
 	}
 	DECL_DIALOG_SETDTS()
 	{
@@ -1125,7 +1122,7 @@ private:
 	virtual int setupList();
 	virtual int addItem(long * pPos, long * pID);
 	virtual int delItem(long pos, long id);
-	void   disableTagsList(int disable);
+	void   disableTagsList(bool disable);
 };
 
 int PsnOpExVDialog::setupList()
@@ -1177,7 +1174,7 @@ int PsnOpExVDialog::delItem(long pos, long id)
 	return ok;
 }
 
-void PsnOpExVDialog::disableTagsList(int disable)
+void PsnOpExVDialog::disableTagsList(bool disable)
 {
 	disableCtrl(CTL_POKEXV_ALLOWEDTAGS, disable);
 	enableCommand(cmaInsert, !disable);

@@ -2205,7 +2205,7 @@ int PPSupplExchange_Baltika::Send()
 			AddClusterAssoc(CTL_SUPLEXPFLT_FLAGS, 4, SupplExpFilt::expDelRecentBills);
 			Data.Flags = (Data.Flags) ? Data.Flags : (SupplExpFilt::expDelRecentBills|SupplExpFilt::expBills);
 			SetClusterData(CTL_SUPLEXPFLT_FLAGS, Data.Flags);
-			SetPeriodInput(this, CTL_SUPLEXPFLT_PRD, &Data.Period);
+			SetPeriodInput(this, CTL_SUPLEXPFLT_PRD, Data.Period);
 			setGroupData(ctlgroupLoc, &loc_rec);
 			disableCtrls(SelOnlySuppl, CTL_SUPLEXPFLT_FLAGS, CTLSEL_SUPLEXPFLT_OP, CTLSEL_SUPLEXPFLT_GGRP, CTL_SUPLEXPFLT_PRD, CTLSEL_SUPLEXPFLT_LOC, 0);
 			enableCommand(cmLocList, !SelOnlySuppl);
@@ -2249,7 +2249,7 @@ int PPSupplExchange_Baltika::Send()
 					Data.OpListFromCfg(&suppl_agr.Ep);
 					// setCtrlData(CTLSEL_SUPLEXPFLT_OP, &suppl_agr.ExchCfg.OpID);
 					Data.Period.low = suppl_agr.Ep.LastDt;
-					SetPeriodInput(this, CTL_SUPLEXPFLT_PRD, &Data.Period);
+					SetPeriodInput(this, CTL_SUPLEXPFLT_PRD, Data.Period);
 					//InetAddr
 					Data.Port   = suppl_agr.Ep.ConnAddr.GetPort();
 					Data.IP     = static_cast<ulong>(suppl_agr.Ep.ConnAddr);
@@ -2312,7 +2312,7 @@ public:
 		AddClusterAssoc(CTL_SUPPLIX_FLAGS, 2, SupplInterchangeFilt::fTestMode);
 		AddClusterAssoc(CTL_SUPPLIX_FLAGS, 3, SupplInterchangeFilt::fExportTimeAsNominal); // @v11.6.7
 		SetClusterData(CTL_SUPPLIX_FLAGS, Data.Flags);
-		SetPeriodInput(this, CTL_SUPPLIX_EXPPRD, &Data.ExpPeriod);
+		SetPeriodInput(this, CTL_SUPPLIX_EXPPRD, Data.ExpPeriod);
 		{
 			LocationCtrlGroup::Rec loc_rec(&Data.LocList);
 			setGroupData(ctlgroupLoc, &loc_rec);
@@ -2354,7 +2354,7 @@ private:
 			const  PPID suppl_id = getCtrlLong(CTLSEL_SUPPLIX_SUPPL);
 			if(ArObj.GetSupplAgreement(suppl_id, &suppl_agr) > 0) {
 				Data.ExpPeriod.low = suppl_agr.Ep.LastDt;
-				SetPeriodInput(this, CTL_SUPPLIX_EXPPRD, &Data.ExpPeriod);
+				SetPeriodInput(this, CTL_SUPPLIX_EXPPRD, Data.ExpPeriod);
 			}
 			clearEvent(event);
 		}

@@ -628,7 +628,7 @@ IMPL_HANDLE_EVENT(PhonePaneDialog)
 						SString temp_buf;
 						p_button->SetBitmap(PPDV_CANCEL01);
 						PPLoadString("but_close", temp_buf);
-						setButtonText(cmClose, temp_buf.Transf(CTRANSF_INNER_TO_OUTER));
+						SetButtonText(cmClose, temp_buf.Transf(CTRANSF_INNER_TO_OUTER));
 						drawCtrl(STDCTL_CANCELBUTTON);
 					}
 					S.Flags &= ~S.fCloseButtonInMinimizeState;
@@ -641,7 +641,7 @@ IMPL_HANDLE_EVENT(PhonePaneDialog)
 						SString temp_buf;
 						p_button->SetBitmap(PPDV_MINIMIZEWINLEFT01);
 						PPLoadString("but_minimize", temp_buf);
-						setButtonText(cmClose, temp_buf.Transf(CTRANSF_INNER_TO_OUTER));
+						SetButtonText(cmClose, temp_buf.Transf(CTRANSF_INNER_TO_OUTER));
 						drawCtrl(STDCTL_CANCELBUTTON);
 					}
 					S.Flags |= S.fCloseButtonInMinimizeState;
@@ -650,7 +650,6 @@ IMPL_HANDLE_EVENT(PhonePaneDialog)
 			if(state == 0)
 				S.Channel.Z();
 			if(SetupInfo() == 100) {
-				// @v10.5.9 clearEvent(event);
 				return;
 			}
 		}

@@ -1429,13 +1429,37 @@ XLCellValue::XLCellValue() = default;
 XLCellValue::XLCellValue(const OpenXLSX::XLCellValue& other) = default;
 XLCellValue::XLCellValue(OpenXLSX::XLCellValue&& other) noexcept = default;
 XLCellValue::~XLCellValue() = default;
-XLCellValue& OpenXLSX::XLCellValue::operator=(const OpenXLSX::XLCellValue& other) = default;
-XLCellValue& OpenXLSX::XLCellValue::operator=(OpenXLSX::XLCellValue&& other) noexcept = default;
+XLCellValue & OpenXLSX::XLCellValue::operator=(const OpenXLSX::XLCellValue& other) = default;
+XLCellValue & OpenXLSX::XLCellValue::operator=(OpenXLSX::XLCellValue&& other) noexcept = default;
+
+double XLCellValue::getDouble() const 
+{
+	if(m_type == XLValueType::Error)
+		return static_cast<double>(std::nan("1"));
+	else {
+		try {
+			return std::visit(VisitXLCellValueTypeToDouble(), m_value);
+		}
+		catch(...) {
+			throw XLValueTypeError("XLCellValue object is not convertible to double.");
+		}
+	}
+}
+
+std::string XLCellValue::getString()
+{
+	try {
+		return std::visit(VisitXLCellValueTypeToString(), m_value);
+	}
+	catch(...) { // 2024-05-27: was catch( string s ) - must have been a typo, currently nothing throws a string here
+		throw XLValueTypeError("XLCellValue object is not convertible to string.");
+	}
+}
 /**
  * @details Clears the contents of the XLCellValue object. Setting the value to an empty string is not sufficient
  * (as an empty string is still a valid string). The m_type variable must also be set to XLValueType::Empty.
  */
-XLCellValue& XLCellValue::clear()
+XLCellValue & XLCellValue::clear()
 {
 	m_type  = XLValueType::Empty;
 	m_value = std::string("");
@@ -3177,7 +3201,7 @@ void XLDocument::open(const std::string & fileName)
 	for(auto& item : m_docRelationships.relationships()) {
 		if(item.type() == XLRelationshipType::Workbook) {
 			workbookPath = item.target();
-			if(workbookPath[ 0 ] == '/')
+			if(workbookPath[0] == '/')
 				workbookPath = workbookPath.substr(1);// NON STANDARD FORMATS: strip leading '/'
 			m_data.emplace_back(this, workbookPath, item.id(), XLContentType::Workbook);
 			workbookAdded = true;

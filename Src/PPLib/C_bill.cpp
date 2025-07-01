@@ -225,8 +225,8 @@ static int RecalcBillDialog(uint rezID, BillRecalcParam * pFilt)
 	if(CheckDialogPtr(&(dlg = new TDialog(rezID)))) {
 		FileBrowseCtrlGroup::Setup(dlg, CTLBRW_BILLFLT_LOGFILE, CTL_BILLFLT_LOGFILE, 1, 0, 0, FileBrowseCtrlGroup::fbcgfLogFile);
 		dlg->SetupCalPeriod(CTLCAL_BILLFLT_PERIOD, CTL_BILLFLT_PERIOD);
-		pFilt->Period.SetDate(getcurdate_()); // @v10.8.10 LConfig.OperDate-->getcurdate_()
-		SetPeriodInput(dlg, CTL_BILLFLT_PERIOD, &pFilt->Period);
+		pFilt->Period.SetDate(getcurdate_());
+		SetPeriodInput(dlg, CTL_BILLFLT_PERIOD, pFilt->Period);
 		dlg->setCtrlString(CTL_BILLFLT_LOGFILE, pFilt->LogFileName);
 		types.addzlist(PPOPT_ACCTURN, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_GOODSORDER,
 			PPOPT_PAYMENT, PPOPT_GOODSRETURN, PPOPT_GOODSREVAL, PPOPT_GOODSACK, PPOPT_GOODSMODIF, PPOPT_GENERIC, PPOPT_CORRECTION, 0L); // @v10.3.6 PPOPT_CORRECTION
@@ -388,7 +388,7 @@ int PrcssrAbsentBill::InitParam(Param * pParam)
 
 int PrcssrAbsentBill::EditParam(Param * pParam)
 {
-	return DateRangeDialog(0, 0, &pParam->Period);
+	return DateRangeDialog(0, 0, pParam->Period);
 }
 
 int PrcssrAbsentBill::Init(const Param * pParam)

@@ -1313,10 +1313,10 @@ int PrjTaskFiltDialog::setDTS(const PrjTaskFilt * pData)
 	AddClusterAssoc(CTL_TODOFILT_FLAGS, 1, PrjTaskFilt::fUnviewedOnly);
 	AddClusterAssoc(CTL_TODOFILT_FLAGS, 2, PrjTaskFilt::fUnviewedEmployerOnly);
 	SetClusterData(CTL_TODOFILT_FLAGS, Data.Flags);
-	SetPeriodInput(this, CTL_TODOFILT_PERIOD, &Data.Period);
-	SetPeriodInput(this, CTL_TODOFILT_START,  &Data.StartPeriod);
-	SetPeriodInput(this, CTL_TODOFILT_ESTFINISH, &Data.EstFinishPeriod);
-	SetPeriodInput(this, CTL_TODOFILT_FINISH,  &Data.FinishPeriod);
+	SetPeriodInput(this, CTL_TODOFILT_PERIOD, Data.Period);
+	SetPeriodInput(this, CTL_TODOFILT_START,  Data.StartPeriod);
+	SetPeriodInput(this, CTL_TODOFILT_ESTFINISH, Data.EstFinishPeriod);
+	SetPeriodInput(this, CTL_TODOFILT_FINISH,  Data.FinishPeriod);
 	SetupPPObjCombo(this,  CTLSEL_TODOFILT_TEMPLATE, PPOBJ_PRJTASK, Data.TemplateID, 0, reinterpret_cast<void *>(TODOKIND_TEMPLATE));
 	SetupPersonCombo(this, CTLSEL_TODOFILT_CREATOR,  Data.CreatorID, 0, PPPRK_EMPL, 0);
 	SetupPersonCombo(this, CTLSEL_TODOFILT_EMPLOYER, Data.EmployerID, 0, PPPRK_EMPL, 0);
@@ -1837,7 +1837,7 @@ int PPViewPrjTask::CreateByTemplate()
 	period.Z();
 	if(Filt.Kind == TODOKIND_TEMPLATE) {
 		PrjTaskViewItem item;
-		if(DateRangeDialog(0, 0, &period) > 0) {
+		if(DateRangeDialog(0, 0, period) > 0) {
 			PPTransaction tra(1);
 			THROW(tra);
 			for(InitIteration(); NextIteration(&item) > 0;) {
@@ -1851,7 +1851,7 @@ int PPViewPrjTask::CreateByTemplate()
 		}
 	}
 	else if(Filt.TemplateID) {
-		if(DateRangeDialog(0, 0, &period) > 0) {
+		if(DateRangeDialog(0, 0, period) > 0) {
 			PPTransaction tra(1);
 			THROW(tra);
 			THROW(r = TodoObj.CreateByTemplate(Filt.TemplateID, &period, &id_list, 0));

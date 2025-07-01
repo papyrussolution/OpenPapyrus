@@ -682,7 +682,7 @@ public:
 	{
 		int    ok = 1;
 		RVALUEPTR(Data, pData);
-		SetPeriodInput(this, CTL_EVNTFILT_PERIOD, &Data.Period);
+		SetPeriodInput(this, CTL_EVNTFILT_PERIOD, Data.Period);
 		SetupEventTypeCombo(this, CTLSEL_EVNTFILT_TYPE, Data.EventType);
 		SetupPPObjCombo(this, CTLSEL_EVNTFILT_SUBSCR, PPOBJ_EVENTSUBSCRIPTION, Data.EventSubscrID, 0);
 		SetupPPObjCombo(this, CTLSEL_EVNTFILT_USER, PPOBJ_USR, Data.UserID, 0);

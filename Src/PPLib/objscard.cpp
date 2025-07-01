@@ -1273,7 +1273,7 @@ SCardChargeRule::SCardChargeRule() : SerID(0), Period(0)
 			AddClusterAssocDef(CTL_SSAUTODIS_PRD,  1, SCARDSER_AUTODIS_THISPRD);
 			AddClusterAssoc(CTL_SSAUTODIS_PRD,  2, SCARDSER_AUTODIS_ARBITRARYPRD); // @v11.3.5
 			SetClusterData(CTL_SSAUTODIS_PRD, Data.Period);
-			SetPeriodInput(this, CTL_SSAUTODIS_AP, &Data.Ap);
+			SetPeriodInput(this, CTL_SSAUTODIS_AP, Data.Ap);
 			Setup();
 			return ok;
 		}
@@ -1332,7 +1332,7 @@ SCardChargeRule::SCardChargeRule() : SerID(0), Period(0)
 				long _p = prev_p;
 				PPLoadString("scardserrule_trnovrperiod", info_buf);
 				if(r_rule.TrnovrPeriod > 0) {
-					setCtrlReadOnly(CTL_SSAUTODIS_AP, 1);
+					setCtrlReadOnly(CTL_SSAUTODIS_AP, true);
 					DisableClusterItem(CTL_SSAUTODIS_PRD, 0, false);
 					DisableClusterItem(CTL_SSAUTODIS_PRD, 1, false);
 					DisableClusterItem(CTL_SSAUTODIS_PRD, 2, true);
@@ -1341,17 +1341,18 @@ SCardChargeRule::SCardChargeRule() : SerID(0), Period(0)
 					PPGetSubStrById(PPTXT_CYCLELIST, r_rule.TrnovrPeriod, temp_buf);
 					info_buf.CatDiv(':', 2).Cat(temp_buf);
 					{
-						char b[128];
+						// @v12.3.7 char b[128];
 						DateRange dr;
 						dr.SetPeriod(getcurdate_(), r_rule.TrnovrPeriod);
 						if(_p == SCARDSER_AUTODIS_PREVPRD)
 							dr.SetPeriod(plusdate(dr.low, -1), r_rule.TrnovrPeriod);
-						temp_buf = periodfmt(&dr, b);
+						// @v12.3.7 temp_buf = periodfmt(dr, b);
+						dr.ToStr(0, temp_buf); // @v12.3.7
 						setCtrlString(CTL_SSAUTODIS_AP, temp_buf);
 					}
 				}
 				else {
-					setCtrlReadOnly(CTL_SSAUTODIS_AP, 0);
+					setCtrlReadOnly(CTL_SSAUTODIS_AP, false);
 					DisableClusterItem(CTL_SSAUTODIS_PRD, 0, true);
 					DisableClusterItem(CTL_SSAUTODIS_PRD, 1, true);
 					DisableClusterItem(CTL_SSAUTODIS_PRD, 2, false);
@@ -1360,8 +1361,9 @@ SCardChargeRule::SCardChargeRule() : SerID(0), Period(0)
 					}
 					info_buf.CatDiv(':', 2).Cat(PPLoadStringS("undefined", temp_buf));
 					{
-						char b[128];
-						temp_buf = periodfmt(&Data.Ap, b);
+						// @v12.3.7 char b[128];
+						// @v12.3.7 temp_buf = periodfmt(Data.Ap, b);
+						Data.Ap.ToStr(0, temp_buf); // @v12.3.7
 						setCtrlString(CTL_SSAUTODIS_AP, temp_buf);
 					}
 				}
@@ -3131,7 +3133,7 @@ public:
 			}
 		}
 		if(Options & PPObjSCard::edfDisableCode)
-			setCtrlReadOnly(CTL_SCARD_CODE, 1);
+			setCtrlReadOnly(CTL_SCARD_CODE, true);
 	}
 	int    setDTS(const PPSCardPacket * pData, const PPSCardSerPacket * pScsPack);
 	int    getDTS(PPSCardPacket * pData);

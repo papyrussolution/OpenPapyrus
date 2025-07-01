@@ -5160,7 +5160,7 @@ int PrcssrTSessMaintenance::EditParam(PrcssrTSessMaintenance::Param * pP)
 		{
 			int    ok = 1;
 			RVALUEPTR(Data, pData);
-			SetPeriodInput(this, CTL_TSESMNT_PERIOD, &Data.Period);
+			SetPeriodInput(this, CTL_TSESMNT_PERIOD, Data.Period);
 			AddClusterAssoc(CTL_TSESMNT_ACTION, 0, PrcssrTSessMaintenance::Param::aCancelCip);
 			AddClusterAssoc(CTL_TSESMNT_ACTION, 1, PrcssrTSessMaintenance::Param::aMakeRepeating);
 			SetClusterData(CTL_TSESMNT_ACTION, Data.Action);

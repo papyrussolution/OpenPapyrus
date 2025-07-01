@@ -152,7 +152,7 @@ public:
 			else
 				PPError();
 		}
-		SetPeriodInput(this, CTL_ACCANLZ_PERIOD, &Data.Period);
+		SetPeriodInput(this, CTL_ACCANLZ_PERIOD, Data.Period);
 		setCtrlData(CTL_ACCANLZ_LEAF, &Data.LeafNo);
 		setCtrlUInt16(CTL_ACCANLZ_ACCGRP, (Data.Aco == ACO_1) ? 1 : ((Data.Aco == ACO_2) ? 2 : 0));
 		SetupSubstCombo();
@@ -467,13 +467,13 @@ int PPViewAccAnlz::EditSupplTrnovrFilt(AccAnlzFilt * pFilt)
 	THROW(search = SearchObject(PPOBJ_ACCSHEET, pFilt->AccSheetID, &acc_sheet_rec));
 	THROW_PP(search > 0, PPERR_INVACCSUPPL);
 	dlg->SetupCalPeriod(CTLCAL_SPLTOFLT_PERIOD, CTL_SPLTOFLT_PERIOD);
-	SetPeriodInput(dlg, CTL_SPLTOFLT_PERIOD, &pFilt->Period);
+	SetPeriodInput(dlg, CTL_SPLTOFLT_PERIOD, pFilt->Period);
 	SetupArCombo(dlg, CTLSEL_SPLTOFLT_SUPPL, pFilt->SingleArID, OLW_LOADDEFONOPEN, pFilt->AccSheetID, 0);
 	dlg->AddClusterAssoc(CTL_SPLTOFLT_FLAGS, 0, AccAnlzFilt::fSpprZTrnovr);
 	dlg->AddClusterAssoc(CTL_SPLTOFLT_FLAGS, 1, AccAnlzFilt::fSpprZSaldo);
 	dlg->SetClusterData(CTL_SPLTOFLT_FLAGS, pFilt->Flags);
 	SetupPPObjCombo(dlg, CTLSEL_SPLTOFLT_LOC, PPOBJ_LOCATION, pFilt->LocID, 0, 0);
-	while(!valid_data && ExecView(dlg) == cmOK)
+	while(!valid_data && ExecView(dlg) == cmOK) {
 		if(!GetPeriodInput(dlg, CTL_SPLTOFLT_PERIOD, &pFilt->Period))
 			PPErrorByDialog(dlg, CTL_SPLTOFLT_PERIOD);
 		else {
@@ -486,6 +486,7 @@ int PPViewAccAnlz::EditSupplTrnovrFilt(AccAnlzFilt * pFilt)
 			pFilt->AccID = pFilt->AcctId.ac;
 			ok = valid_data = 1;
 		}
+	}
 	CATCHZOKPPERR
 	delete dlg;
 	return ok;
@@ -504,11 +505,12 @@ int PPViewAccAnlz::EditSupplTrnovrFilt(AccAnlzFilt * pFilt)
 		AccAnlzFiltDialog * dlg = new AccAnlzFiltDialog(dlg_id, P_BObj->atobj);
 		if(CheckDialogPtrErr(&dlg)) {
 			dlg->setDTS(p_filt);
-			while(!valid_data && ExecView(dlg) == cmOK)
+			while(!valid_data && ExecView(dlg) == cmOK) {
 				if(dlg->getDTS(p_filt)) {
 					SETFLAG(p_filt->Flags, AccAnlzFilt::fGroupByCorAcc, p_filt->CorAco);
 					ok = valid_data = 1;
 				}
+			}
 		}
 		else
 			ok = 0;
@@ -2137,7 +2139,7 @@ private:
 	{
 		char   diff_buf[32];
 		SString acc_buf;
-		SetPeriodInput(this, CTL_AANLZTOTAL_PERIOD, &Filt.Period);
+		SetPeriodInput(this, CTL_AANLZTOTAL_PERIOD, Filt.Period);
 		setCtrlString(CTL_AANLZTOTAL_ACC, GetAccAnlzTitle(Filt.Aco, Filt.AccID, curID, acc_buf));
 		setCtrlLong(CTL_AANLZTOTAL_COUNT, Total.Count);
 		double val  = Total.InRest.Get(0, curID);
@@ -2483,10 +2485,7 @@ int PPALDD_AccAnlz::InitData(PPFilt & rFilt, long rsrv)
 	return DlRtm::InitData(rFilt, rsrv);
 }
 
-int PPALDD_AccAnlz::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
-{
-	INIT_PPVIEW_ALDD_ITER(AccAnlz);
-}
+int PPALDD_AccAnlz::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/) { INIT_PPVIEW_ALDD_ITER(AccAnlz); }
 
 int PPALDD_AccAnlz::NextIteration(PPIterID iterId)
 {
@@ -2551,10 +2550,7 @@ int PPALDD_AccturnList::InitData(PPFilt & rFilt, long rsrv)
 	return DlRtm::InitData(rFilt, rsrv);
 }
 
-int PPALDD_AccturnList::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
-{
-	INIT_PPVIEW_ALDD_ITER(Accturn);
-}
+int PPALDD_AccturnList::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/) { INIT_PPVIEW_ALDD_ITER(Accturn); }
 
 int PPALDD_AccturnList::NextIteration(PPIterID iterId)
 {
@@ -2596,10 +2592,7 @@ int PPALDD_AccountView::InitData(PPFilt & rFilt, long rsrv)
 	return DlRtm::InitData(rFilt, rsrv);
 }
 
-int PPALDD_AccountView::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
-{
-	INIT_PPVIEW_ALDD_ITER(Account);
-}
+int PPALDD_AccountView::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/) { INIT_PPVIEW_ALDD_ITER(Account); }
 
 int PPALDD_AccountView::NextIteration(PPIterID iterId)
 {
@@ -2747,10 +2740,8 @@ int PPALDD_CurRateView::InitData(PPFilt & rFilt, long rsrv)
 	return DlRtm::InitData(rFilt, rsrv);
 }
 
-int PPALDD_CurRateView::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
-{
-	INIT_PPVIEW_ALDD_ITER(CurRate);
-}
+void PPALDD_CurRateView::Destroy() { DESTROY_PPVIEW_ALDD(CurRate); }
+int  PPALDD_CurRateView::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/) { INIT_PPVIEW_ALDD_ITER(CurRate); }
 
 int PPALDD_CurRateView::NextIteration(PPIterID iterId)
 {
@@ -2762,8 +2753,6 @@ int PPALDD_CurRateView::NextIteration(PPIterID iterId)
 	I.Rate       = item.Rate;
 	FINISH_PPVIEW_ALDD_ITER();
 }
-
-void PPALDD_CurRateView::Destroy() { DESTROY_PPVIEW_ALDD(CurRate); }
 //
 // @Muxa {
 // Implementation of PPALDD_UhttCurRateIdent

@@ -2783,7 +2783,7 @@ int PPPosProtocol::EndElement(const char * pName)
 			case PPHS_PERIOD:
 				{
 					DateRange period;
-					if(strtoperiod(RdB.TagValue, &period, 0)) {
+					if(period.FromStr(RdB.TagValue, 0)) {
 						p_item = PeekRefItem(&ref_pos, &type);
 						if(type == obQuotKind) {
 							static_cast<QuotKindBlock *>(p_item)->Period = period;

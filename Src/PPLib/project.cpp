@@ -618,8 +618,8 @@ int PPViewProject::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_PRJFLT))));
 	dlg->SetupCalPeriod(CTLCAL_PRJFLT_PRDSTART, CTL_PRJFLT_PRDSTART);
 	dlg->SetupCalPeriod(CTLCAL_PRJFLT_PRDESTFINISH, CTL_PRJFLT_PRDESTFINISH);
-	SetPeriodInput(dlg, CTL_PRJFLT_PRDSTART, &filt.StartPeriod);
-	SetPeriodInput(dlg, CTL_PRJFLT_PRDESTFINISH, &filt.EstFinishPeriod);
+	SetPeriodInput(dlg, CTL_PRJFLT_PRDSTART, filt.StartPeriod);
+	SetPeriodInput(dlg, CTL_PRJFLT_PRDESTFINISH, filt.EstFinishPeriod);
 	SetupPersonCombo(dlg, CTLSEL_PRJFLT_CLIENT, filt.ClientID, 0, PPPRK_CLIENT, 0);
 	SetupPersonCombo(dlg, CTLSEL_PRJFLT_MNGR,   filt.MngrID,   0, PPPRK_EMPL,   0);
 	dlg->AddClusterAssoc(CTL_PRJFLT_FLAGS, 0, ProjectFilt::fShowNonActive);

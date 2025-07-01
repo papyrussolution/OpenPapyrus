@@ -9,30 +9,37 @@
 
 int svg_plot(struct ZintSymbol * symbol)
 {
-	int    block_width, latch, r, this_row;
+	int    block_width;
+	int    latch;
+	int    r;
+	int    this_row;
 	uint   i;
-	float  textpos, large_bar_height, preset_height, row_height, row_posn = 0.0;
+	float  textpos;
+	float  large_bar_height;
+	float  preset_height;
+	float  row_height = 0.0f;
+	float  row_posn = 0.0f;
 	FILE * fsvg;
-	int error_number = 0;
-	int textoffset, xoffset, yoffset, textdone, main_width;
-	char textpart[10], addon[6];
-	int large_bar_count, comp_offset;
-	float addon_text_posn;
-	float scaler = symbol->scale;
-	float default_text_posn;
+	int    error_number = 0;
+	int    textoffset;
+	int    xoffset;
+	int    yoffset;
+	int    textdone = 0;
+	char   textpart[10], addon[6];
+	int    large_bar_count;
+	int    comp_offset = 0;
+	float  addon_text_posn = 0.0f;
+	int    main_width = symbol->width;
+	float  scaler = symbol->scale;
+	float  default_text_posn;
 	SString temp_buf;
 	const char * locale = NULL;
 #ifndef _MSC_VER
 	uchar local_text[sstrlen(symbol->text) + 1];
 #else
-	uchar* local_text = (uchar *)_alloca(sstrlen(symbol->text) + 1);
+	uchar * local_text = (uchar *)_alloca(sstrlen(symbol->text) + 1);
 #endif
-	row_height = 0;
-	textdone = 0;
-	main_width = symbol->width;
 	sstrcpy(addon, "");
-	comp_offset = 0;
-	addon_text_posn = 0.0;
 	if(symbol->show_hrt) {
 		// Copy text from symbol 
 		sstrcpy(local_text, symbol->text);
@@ -169,15 +176,15 @@ int svg_plot(struct ZintSymbol * symbol)
 		fprintf(fsvg, "   <desc>Zint Generated Symbol\n");
 	}
 	fprintf(fsvg, "   </desc>\n");
-	fprintf(fsvg, "\n   <g id=\"barcode\" fill=\"%s\">\n", /*symbol->fgcolour*/symbol->ColorFg.ToStr(temp_buf, SColor::fmtHEX).cptr());
+	fprintf(fsvg, "\n   <g id=\"barcode\" fill=\"%s\">\n", /*symbol->fgcolour*/symbol->ColorFg.ToStr(SColor::fmtHEX, temp_buf).cptr());
 	if(symbol->Std != BARCODE_MAXICODE) {
 		fprintf(fsvg, "      <rect x=\"0\" y=\"0\" width=\"%d\" height=\"%d\" fill=\"%s\" />\n",
 		    fceili((symbol->width + xoffset + xoffset) * scaler),
-		    fceili((symbol->height + textoffset + yoffset + yoffset) * scaler), /*symbol->bgcolour*/symbol->ColorBg.ToStr(temp_buf, SColor::fmtHEX).cptr());
+		    fceili((symbol->height + textoffset + yoffset + yoffset) * scaler), /*symbol->bgcolour*/symbol->ColorBg.ToStr(SColor::fmtHEX, temp_buf).cptr());
 	}
 	else {
 		fprintf(fsvg, "      <rect x=\"0\" y=\"0\" width=\"%d\" height=\"%d\" fill=\"%s\" />\n",
-		    fceili((74.0F + xoffset + xoffset) * scaler), fceili((72.0F + yoffset + yoffset) * scaler), /*symbol->bgcolour*/symbol->ColorBg.ToStr(temp_buf, SColor::fmtHEX).cptr());
+		    fceili((74.0F + xoffset + xoffset) * scaler), fceili((72.0F + yoffset + yoffset) * scaler), /*symbol->bgcolour*/symbol->ColorBg.ToStr(SColor::fmtHEX, temp_buf).cptr());
 	}
 	if((symbol->output_options & BARCODE_BOX) || (symbol->output_options & BARCODE_BIND)) {
 		default_text_posn = (symbol->height + textoffset + symbol->border_width + symbol->border_width) * scaler;
@@ -206,12 +213,12 @@ int svg_plot(struct ZintSymbol * symbol)
 		}
 		{
 			const double _circle_y = (35.60 + yoffset) * scaler;
-			fprintf(fsvg, p_circle_fmt, (35.76 + xoffset) * scaler, _circle_y, 10.85 * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(temp_buf, SColor::fmtHEX).cptr());
-			fprintf(fsvg, p_circle_fmt, (35.76 + xoffset) * scaler, _circle_y, 8.97 * scaler, /*symbol->bgcolour*/symbol->ColorBg.ToStr(temp_buf, SColor::fmtHEX).cptr());
-			fprintf(fsvg, p_circle_fmt, (35.76 + xoffset) * scaler, _circle_y, 7.10 * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(temp_buf, SColor::fmtHEX).cptr());
-			fprintf(fsvg, p_circle_fmt, (35.76 + xoffset) * scaler, _circle_y, 5.22 * scaler, /*symbol->bgcolour*/symbol->ColorBg.ToStr(temp_buf, SColor::fmtHEX).cptr());
-			fprintf(fsvg, p_circle_fmt, (35.76 + xoffset) * scaler, _circle_y, 3.31 * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(temp_buf, SColor::fmtHEX).cptr());
-			fprintf(fsvg, p_circle_fmt, (35.76 + xoffset) * scaler, _circle_y, 1.43 * scaler, /*symbol->bgcolour*/symbol->ColorBg.ToStr(temp_buf, SColor::fmtHEX).cptr());
+			fprintf(fsvg, p_circle_fmt, (35.76 + xoffset) * scaler, _circle_y, 10.85 * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(SColor::fmtHEX, temp_buf).cptr());
+			fprintf(fsvg, p_circle_fmt, (35.76 + xoffset) * scaler, _circle_y, 8.97 * scaler, /*symbol->bgcolour*/symbol->ColorBg.ToStr(SColor::fmtHEX, temp_buf).cptr());
+			fprintf(fsvg, p_circle_fmt, (35.76 + xoffset) * scaler, _circle_y, 7.10 * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(SColor::fmtHEX, temp_buf).cptr());
+			fprintf(fsvg, p_circle_fmt, (35.76 + xoffset) * scaler, _circle_y, 5.22 * scaler, /*symbol->bgcolour*/symbol->ColorBg.ToStr(SColor::fmtHEX, temp_buf).cptr());
+			fprintf(fsvg, p_circle_fmt, (35.76 + xoffset) * scaler, _circle_y, 3.31 * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(SColor::fmtHEX, temp_buf).cptr());
+			fprintf(fsvg, p_circle_fmt, (35.76 + xoffset) * scaler, _circle_y, 1.43 * scaler, /*symbol->bgcolour*/symbol->ColorBg.ToStr(SColor::fmtHEX, temp_buf).cptr());
 		}
 		for(r = 0; r < symbol->rows; r++) {
 			for(i = 0; i < (uint)symbol->width; i++) {
@@ -265,7 +272,7 @@ int svg_plot(struct ZintSymbol * symbol)
 				for(i = 0; i < (uint)symbol->width; i++) {
 					if(module_is_set(symbol, this_row, i)) {
 						fprintf(fsvg, p_circle_fmt, ((i + xoffset) * scaler) + (scaler / 2.0), (row_posn * scaler) + (scaler / 2.0),
-						    (symbol->dot_size / 2.0) * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(temp_buf, SColor::fmtHEX).cptr());
+						    (symbol->dot_size / 2.0) * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(SColor::fmtHEX, temp_buf).cptr());
 					}
 				}
 			}
@@ -320,7 +327,7 @@ int svg_plot(struct ZintSymbol * symbol)
 			    textpart[4] = '\0';
 			    textpos = 17;
 			    fprintf(fsvg, p_text_fmt, (textpos + xoffset) * scaler, default_text_posn);
-			    fprintf(fsvg, p_font_fam_fmt, 11.0 * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(temp_buf, SColor::fmtHEX).cptr());
+			    fprintf(fsvg, p_font_fam_fmt, 11.0 * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(SColor::fmtHEX, temp_buf).cptr());
 			    fprintf(fsvg, p_text_body_fmt, textpart);
 			    fprintf(fsvg, p_endtext_fmt);
 			    for(i = 0; i < 4; i++) {
@@ -329,7 +336,7 @@ int svg_plot(struct ZintSymbol * symbol)
 			    textpart[4] = '\0';
 			    textpos = 50;
 			    fprintf(fsvg, p_text_fmt, (textpos + xoffset) * scaler, default_text_posn);
-			    fprintf(fsvg, p_font_fam_fmt, 11.0 * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(temp_buf, SColor::fmtHEX).cptr());
+			    fprintf(fsvg, p_font_fam_fmt, 11.0 * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(SColor::fmtHEX, temp_buf).cptr());
 			    fprintf(fsvg, p_text_body_fmt, textpart);
 			    fprintf(fsvg, p_endtext_fmt);
 			    textdone = 1;
@@ -337,14 +344,14 @@ int svg_plot(struct ZintSymbol * symbol)
 				    case 2:
 					textpos = (float)(xoffset + 86);
 					fprintf(fsvg, p_text_fmt, textpos * scaler, addon_text_posn * scaler);
-					fprintf(fsvg, p_font_fam_fmt, 11.0 * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(temp_buf, SColor::fmtHEX).cptr());
+					fprintf(fsvg, p_font_fam_fmt, 11.0 * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(SColor::fmtHEX, temp_buf).cptr());
 					fprintf(fsvg, p_text_body_fmt, addon);
 					fprintf(fsvg, p_endtext_fmt);
 					break;
 				    case 5:
 					textpos = (float)(xoffset + 100);
 					fprintf(fsvg, p_text_fmt, textpos * scaler,	addon_text_posn * scaler);
-					fprintf(fsvg, p_font_fam_fmt, 11.0 * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(temp_buf, SColor::fmtHEX).cptr());
+					fprintf(fsvg, p_font_fam_fmt, 11.0 * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(SColor::fmtHEX, temp_buf).cptr());
 					fprintf(fsvg, p_text_body_fmt, addon);
 					fprintf(fsvg, p_endtext_fmt);
 					break;
@@ -363,7 +370,7 @@ int svg_plot(struct ZintSymbol * symbol)
 			    textpart[1] = '\0';
 			    textpos = -7;
 			    fprintf(fsvg, p_text_fmt, (textpos + xoffset) * scaler, default_text_posn);
-			    fprintf(fsvg, p_font_fam_fmt, 11.0 * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(temp_buf, SColor::fmtHEX).cptr());
+			    fprintf(fsvg, p_font_fam_fmt, 11.0 * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(SColor::fmtHEX, temp_buf).cptr());
 			    fprintf(fsvg, p_text_body_fmt, textpart);
 			    fprintf(fsvg, p_endtext_fmt);
 			    for(i = 0; i < 6; i++) {
@@ -372,7 +379,7 @@ int svg_plot(struct ZintSymbol * symbol)
 			    textpart[6] = '\0';
 			    textpos = 24;
 			    fprintf(fsvg, p_text_fmt, (textpos + xoffset) * scaler, default_text_posn);
-			    fprintf(fsvg, p_font_fam_fmt, 11.0 * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(temp_buf, SColor::fmtHEX).cptr());
+			    fprintf(fsvg, p_font_fam_fmt, 11.0 * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(SColor::fmtHEX, temp_buf).cptr());
 			    fprintf(fsvg, p_text_body_fmt, textpart);
 			    fprintf(fsvg, p_endtext_fmt);
 			    for(i = 0; i < 6; i++) {
@@ -381,7 +388,7 @@ int svg_plot(struct ZintSymbol * symbol)
 			    textpart[6] = '\0';
 			    textpos = 71;
 			    fprintf(fsvg, p_text_fmt, (textpos + xoffset) * scaler, default_text_posn);
-			    fprintf(fsvg, p_font_fam_fmt, 11.0 * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(temp_buf, SColor::fmtHEX).cptr());
+			    fprintf(fsvg, p_font_fam_fmt, 11.0 * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(SColor::fmtHEX, temp_buf).cptr());
 			    fprintf(fsvg, p_text_body_fmt, textpart);
 			    fprintf(fsvg, p_endtext_fmt);
 			    textdone = 1;
@@ -389,14 +396,14 @@ int svg_plot(struct ZintSymbol * symbol)
 				    case 2:
 					textpos = (float)(xoffset + 114);
 					fprintf(fsvg, p_text_fmt, textpos * scaler, addon_text_posn * scaler);
-					fprintf(fsvg, p_font_fam_fmt, 11.0 * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(temp_buf, SColor::fmtHEX).cptr());
+					fprintf(fsvg, p_font_fam_fmt, 11.0 * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(SColor::fmtHEX, temp_buf).cptr());
 					fprintf(fsvg, p_text_body_fmt, addon);
 					fprintf(fsvg, p_endtext_fmt);
 					break;
 				    case 5:
 					textpos = (float)(xoffset + 128);
 					fprintf(fsvg, p_text_fmt, textpos * scaler, addon_text_posn * scaler);
-					fprintf(fsvg, p_font_fam_fmt, 11.0 * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(temp_buf, SColor::fmtHEX).cptr());
+					fprintf(fsvg, p_font_fam_fmt, 11.0 * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(SColor::fmtHEX, temp_buf).cptr());
 					fprintf(fsvg, p_text_body_fmt, addon);
 					fprintf(fsvg, p_endtext_fmt);
 					break;
@@ -444,7 +451,7 @@ int svg_plot(struct ZintSymbol * symbol)
 		textpart[1] = '\0';
 		textpos = -5;
 		fprintf(fsvg, p_text_fmt, (textpos + xoffset) * scaler, default_text_posn);
-		fprintf(fsvg, p_font_fam_fmt, 8.0 * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(temp_buf, SColor::fmtHEX).cptr());
+		fprintf(fsvg, p_font_fam_fmt, 8.0 * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(SColor::fmtHEX, temp_buf).cptr());
 		fprintf(fsvg, p_text_body_fmt, textpart);
 		fprintf(fsvg, p_endtext_fmt);
 		for(i = 0; i < 5; i++) {
@@ -453,7 +460,7 @@ int svg_plot(struct ZintSymbol * symbol)
 		textpart[5] = '\0';
 		textpos = 27;
 		fprintf(fsvg, p_text_fmt, (textpos + xoffset) * scaler, default_text_posn);
-		fprintf(fsvg, p_font_fam_fmt, 11.0 * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(temp_buf, SColor::fmtHEX).cptr());
+		fprintf(fsvg, p_font_fam_fmt, 11.0 * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(SColor::fmtHEX, temp_buf).cptr());
 		fprintf(fsvg, p_text_body_fmt, textpart);
 		fprintf(fsvg, p_endtext_fmt);
 		for(i = 0; i < 5; i++) {
@@ -462,14 +469,14 @@ int svg_plot(struct ZintSymbol * symbol)
 		textpart[6] = '\0';
 		textpos = 68;
 		fprintf(fsvg, p_text_fmt, (textpos + xoffset) * scaler, default_text_posn);
-		fprintf(fsvg, p_font_fam_fmt, 11.0 * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(temp_buf, SColor::fmtHEX).cptr());
+		fprintf(fsvg, p_font_fam_fmt, 11.0 * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(SColor::fmtHEX, temp_buf).cptr());
 		fprintf(fsvg, p_text_body_fmt, textpart);
 		fprintf(fsvg, p_endtext_fmt);
 		textpart[0] = local_text[11];
 		textpart[1] = '\0';
 		textpos = 100;
 		fprintf(fsvg, p_text_fmt, (textpos + xoffset) * scaler, default_text_posn);
-		fprintf(fsvg, p_font_fam_fmt, 8.0 * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(temp_buf, SColor::fmtHEX).cptr());
+		fprintf(fsvg, p_font_fam_fmt, 8.0 * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(SColor::fmtHEX, temp_buf).cptr());
 		fprintf(fsvg, p_text_body_fmt, textpart);
 		fprintf(fsvg, p_endtext_fmt);
 		textdone = 1;
@@ -477,14 +484,14 @@ int svg_plot(struct ZintSymbol * symbol)
 			case 2:
 			    textpos = (float)(xoffset + 116);
 			    fprintf(fsvg, p_text_fmt, textpos * scaler, addon_text_posn * scaler);
-			    fprintf(fsvg, p_font_fam_fmt, 11.0 * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(temp_buf, SColor::fmtHEX).cptr());
+			    fprintf(fsvg, p_font_fam_fmt, 11.0 * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(SColor::fmtHEX, temp_buf).cptr());
 			    fprintf(fsvg, p_text_body_fmt, addon);
 			    fprintf(fsvg, p_endtext_fmt);
 			    break;
 			case 5:
 			    textpos = (float)(xoffset + 130);
 			    fprintf(fsvg, p_text_fmt, textpos * scaler, addon_text_posn * scaler);
-			    fprintf(fsvg, p_font_fam_fmt, 11.0 * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(temp_buf, SColor::fmtHEX).cptr());
+			    fprintf(fsvg, p_font_fam_fmt, 11.0 * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(SColor::fmtHEX, temp_buf).cptr());
 			    fprintf(fsvg, p_text_body_fmt, addon);
 			    fprintf(fsvg, p_endtext_fmt);
 			    break;
@@ -501,7 +508,7 @@ int svg_plot(struct ZintSymbol * symbol)
 		textpart[1] = '\0';
 		textpos = -5;
 		fprintf(fsvg, p_text_fmt, (textpos + xoffset) * scaler, default_text_posn);
-		fprintf(fsvg, p_font_fam_fmt, 8.0 * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(temp_buf, SColor::fmtHEX).cptr());
+		fprintf(fsvg, p_font_fam_fmt, 8.0 * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(SColor::fmtHEX, temp_buf).cptr());
 		fprintf(fsvg, p_text_body_fmt, textpart);
 		fprintf(fsvg, p_endtext_fmt);
 		for(i = 0; i < 6; i++) {
@@ -510,14 +517,14 @@ int svg_plot(struct ZintSymbol * symbol)
 		textpart[6] = '\0';
 		textpos = 24;
 		fprintf(fsvg, p_text_fmt, (textpos + xoffset) * scaler, default_text_posn);
-		fprintf(fsvg, p_font_fam_fmt, 11.0 * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(temp_buf, SColor::fmtHEX).cptr());
+		fprintf(fsvg, p_font_fam_fmt, 11.0 * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(SColor::fmtHEX, temp_buf).cptr());
 		fprintf(fsvg, p_text_body_fmt, textpart);
 		fprintf(fsvg, p_endtext_fmt);
 		textpart[0] = local_text[7];
 		textpart[1] = '\0';
 		textpos = 55;
 		fprintf(fsvg, p_text_fmt, (textpos + xoffset) * scaler, default_text_posn);
-		fprintf(fsvg, p_font_fam_fmt, 8.0 * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(temp_buf, SColor::fmtHEX).cptr());
+		fprintf(fsvg, p_font_fam_fmt, 8.0 * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(SColor::fmtHEX, temp_buf).cptr());
 		fprintf(fsvg, p_text_body_fmt, textpart);
 		fprintf(fsvg, p_endtext_fmt);
 		textdone = 1;
@@ -525,14 +532,14 @@ int svg_plot(struct ZintSymbol * symbol)
 			case 2:
 			    textpos = (float)(xoffset + 70);
 			    fprintf(fsvg, p_text_fmt, textpos * scaler, addon_text_posn * scaler);
-			    fprintf(fsvg, p_font_fam_fmt, 11.0 * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(temp_buf, SColor::fmtHEX).cptr());
+			    fprintf(fsvg, p_font_fam_fmt, 11.0 * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(SColor::fmtHEX, temp_buf).cptr());
 			    fprintf(fsvg, p_text_body_fmt, addon);
 			    fprintf(fsvg, p_endtext_fmt);
 			    break;
 			case 5:
 			    textpos = (float)(xoffset + 84);
 			    fprintf(fsvg, p_text_fmt, textpos * scaler, addon_text_posn * scaler);
-			    fprintf(fsvg, p_font_fam_fmt, 11.0 * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(temp_buf, SColor::fmtHEX).cptr());
+			    fprintf(fsvg, p_font_fam_fmt, 11.0 * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(SColor::fmtHEX, temp_buf).cptr());
 			    fprintf(fsvg, p_text_body_fmt, addon);
 			    fprintf(fsvg, p_endtext_fmt);
 			    break;
@@ -580,7 +587,7 @@ int svg_plot(struct ZintSymbol * symbol)
 	if(!textdone && sstrlen(local_text)) {
 		textpos = symbol->width / 2.0f;
 		fprintf(fsvg, p_text_fmt, (textpos + xoffset) * scaler, default_text_posn);
-		fprintf(fsvg, p_font_fam_fmt, 8.0 * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(temp_buf, SColor::fmtHEX).cptr());
+		fprintf(fsvg, p_font_fam_fmt, 8.0 * scaler, /*symbol->fgcolour*/symbol->ColorFg.ToStr(SColor::fmtHEX, temp_buf).cptr());
 		fprintf(fsvg, p_text_body_fmt, local_text);
 		fprintf(fsvg, p_endtext_fmt);
 	}

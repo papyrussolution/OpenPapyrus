@@ -1,5 +1,5 @@
 // PPWG.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2010, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2024
+// Copyright (c) A.Sobolev 2006, 2007, 2010, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2024, 2025
 // @codepage UTF-8
 // Графики рабочего времени
 //
@@ -448,7 +448,7 @@ void DutySchedDialog::fillStaffCal()
 			if(CheckDialogPtrErr(&dlg)) {
 				dlg->SetupCalPeriod(CTLCAL_FILLSCDT_PERIOD, CTL_FILLSCDT_PERIOD);
 				SetupPPObjCombo(dlg, CTLSEL_FILLSCDT_CAL, PPOBJ_STAFFCAL, base_cal_id, 0, 0);
-				SetPeriodInput(dlg, CTL_FILLSCDT_PERIOD, &period);
+				SetPeriodInput(dlg, CTL_FILLSCDT_PERIOD, period);
 				while(r < 0 && ExecView(dlg) == cmOK) {
 					base_cal_id = dlg->getCtrlLong(CTLSEL_FILLSCDT_CAL);
 					GetPeriodInput(dlg, CTL_FILLSCDT_PERIOD, &period);

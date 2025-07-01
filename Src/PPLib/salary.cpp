@@ -266,7 +266,7 @@ int PPViewSalary::EditBaseFilt(PPBaseFilt * pBaseFilt)
 			CTLSEL_SALARYFLT_STAFF, CTLSEL_SALARYFLT_POST));
 		DivisionCtrlGroup::Rec grp_rec(p_filt->OrgID, p_filt->DivID, p_filt->StaffID, p_filt->PostID);
 		dlg->setGroupData(GRP_DIV, &grp_rec);
-		SetPeriodInput(dlg, CTL_SALARYFLT_PERIOD, &p_filt->Period);
+		SetPeriodInput(dlg, CTL_SALARYFLT_PERIOD, p_filt->Period);
 		SetupPPObjCombo(dlg, CTLSEL_SALARYFLT_CHARGE, PPOBJ_SALCHARGE, p_filt->SalChargeID, 0, 0);
 		while(!valid_data && ExecView(dlg) == cmOK)
 			if(dlg->getGroupData(GRP_DIV, &grp_rec)) {
@@ -318,7 +318,7 @@ public:
 		addGroup(ctlgroupDiv, new DivisionCtrlGroup(CTLSEL_SALARY_ORG, CTLSEL_SALARY_DIV, CTLSEL_SALARY_STAFF, 0));
 		DivisionCtrlGroup::Rec grp_rec(OrgID, DivID, StaffID);
 		setGroupData(ctlgroupDiv, &grp_rec);
-		SetPeriodInput(this, CTL_SALARY_PERIOD, &period);
+		SetPeriodInput(this, CTL_SALARY_PERIOD, period);
 		SetupPPObjCombo(this, CTLSEL_SALARY_CHARGE, PPOBJ_SALCHARGE, Data.SalChargeID, 0, reinterpret_cast<void *>(-10000));
 		PPObjStaffList::SetupPostCombo(this, CTLSEL_SALARY_POST, Data.PostID, 0, OrgID, DivID, StaffID);
 		setCtrlReal(CTL_SALARY_AMOUNT, Data.Amount);
@@ -1034,7 +1034,7 @@ int PrcssrSalary::EditParam(Param * pParam)
 		dlg->addGroup(GRP_DIV, new DivisionCtrlGroup(CTLSEL_PP_SALARY_ORG, CTLSEL_PP_SALARY_DIV, CTLSEL_PP_SALARY_STAFF, 0));
 		DivisionCtrlGroup::Rec grp_rec(param.OrgID, param.DivID, param.StaffID);
 		dlg->setGroupData(GRP_DIV, &grp_rec);
-		SetPeriodInput(dlg, CTL_PP_SALARY_PERIOD, &param.NominalPeriod);
+		SetPeriodInput(dlg, CTL_PP_SALARY_PERIOD, param.NominalPeriod);
 		dlg->AddClusterAssoc(CTL_PP_SALARY_FLAGS, 0, Param::fVerbose);
 		dlg->SetClusterData(CTL_PP_SALARY_FLAGS, param.Flags);
 		while(ok < 0 && ExecView(dlg) == cmOK)
@@ -2226,7 +2226,7 @@ int PrcssrSalary::TestCalcPeriod(PPID postID)
 			setCtrlString(CTL_TESTSTAFFCAL_POST, temp_buf);
 			setCtrlString(CTL_TESTSTAFFCAL_CSYM, Data.CalSymb);
 			setCtrlString(CTL_TESTSTAFFCAL_PCSYM, Data.ProjCalSymb);
-			SetPeriodInput(this, CTL_TESTSTAFFCAL_PERIOD, &Data.Period);
+			SetPeriodInput(this, CTL_TESTSTAFFCAL_PERIOD, Data.Period);
 			return 1;
 		}
 		DECL_DIALOG_GETDTS()

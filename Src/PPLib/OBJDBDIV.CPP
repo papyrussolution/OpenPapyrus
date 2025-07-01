@@ -96,17 +96,18 @@ PPObjDBDiv::PPObjDBDiv(void * extraPtr) : PPObjReference(PPOBJ_DBDIV, extraPtr)
 }
 
 class DBDivAddrListDialog : public PPListDialog {
+	DECL_DIALOG_DATA(SString);
 public:
 	DBDivAddrListDialog() : PPListDialog(DLG_DBDIVADDRLIST, CTL_DBDIVADDRLIST_LIST)
 	{
 	}
-	int    setDTS(const SString * pData)
+	DECL_DIALOG_SETDTS()
 	{
-		Data = *pData;
+		RVALUEPTR(Data, pData);
 		updateList(-1);
 		return 1;
 	}
-	int    getDTS(SString * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		ASSIGN_PTR(pData, Data);
 		return 1;
@@ -219,35 +220,94 @@ private:
 		Data = ss.getBuf();
 		return 1;
 	}
-	SString Data;
 };
 
 static int EditDBDivAddrList(SString * pData) { DIALOG_PROC_BODY(DBDivAddrListDialog, pData); }
 
 class DBDivDialog : public TDialog {
+	DECL_DIALOG_DATA(DBDivPack);
 public:
 	DBDivDialog() : TDialog(DLG_DBDIV)
 	{
 		if(!SetupStrListBox(this, CTL_DBDIV_LIST))
 			PPError();
 	}
-	int  setDTS(const DBDivPack *);
-	int  getDTS(DBDivPack *);
+	DECL_DIALOG_SETDTS()
+	{
+		RVALUEPTR(Data, pData);
+		SString temp_buf;
+		updateList();
+		setCtrlData(CTL_DBDIV_ID,   &Data.Rec.ID);
+		disableCtrl(CTL_DBDIV_ID,   LOGIC(Data.Rec.ID));
+		Data.Rec.Uuid.ToStr(S_GUID::fmtIDL, temp_buf);
+		setCtrlString(CTL_DBDIV_UUID, temp_buf.Strip());
+		setCtrlData(CTL_DBDIV_CNT,  &Data.Rec.OutCounter);
+		setCtrlData(CTL_DBDIV_NAME, Data.Rec.Name);
+		{
+			Data.GetExtStrData(DBDIVEXSTR_GATEWAYLIST, temp_buf);
+			temp_buf.SetIfEmpty(Data.Rec.Addr);
+			SetupAddr(temp_buf);
+		}
+		Data.GetExtStrData(DBDIVEXSTR_ACCLIST, temp_buf);
+		setCtrlString(CTL_DBDIV_ACCLIST, temp_buf);
+		SetupPPObjCombo(this, CTLSEL_DBDIV_INTRRCPT, PPOBJ_OPRKIND, Data.Rec.IntrRcptOpr, OLW_CANINSERT, reinterpret_cast<void *>(PPOPT_GOODSRECEIPT));
+		AddClusterAssoc(CTL_DBDIV_MQBEXCHG, 0, DBDIVF_MQBEXCHANGE);
+		SetClusterData(CTL_DBDIV_MQBEXCHG, Data.Rec.Flags); 
+		AddClusterAssoc(CTL_DBDIV_FLAGS, 0, DBDIVF_DISPATCH);
+		AddClusterAssoc(CTL_DBDIV_FLAGS, 1, DBDIVF_SCARDSONLY);
+		AddClusterAssoc(CTL_DBDIV_FLAGS, 2, DBDIVF_RCVCSESSANDWROFFBILLS);
+		AddClusterAssoc(CTL_DBDIV_FLAGS, 3, DBDIVF_CONSOLID);
+		AddClusterAssoc(CTL_DBDIV_FLAGS, 4, DBDIVF_PASSIVE);
+		SetClusterData(CTL_DBDIV_FLAGS, Data.Rec.Flags);
+		{
+			disableCtrl(CTL_DBDIV_ADDR, LOGIC(Data.Rec.Flags & DBDIVF_MQBEXCHANGE));
+			enableCommand(cmAddrList, !(Data.Rec.Flags & DBDIVF_MQBEXCHANGE));
+		}
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		int    ok = 1;
+		uint   sel = 0;
+		SString temp_buf;
+		getCtrlData(sel = CTL_DBDIV_ID, &Data.Rec.ID);
+		THROW_PP(Data.Rec.ID > 0 && Data.Rec.ID < 256, PPERR_INVDBDIVID);
+		getCtrlData(CTL_DBDIV_CNT, &Data.Rec.OutCounter);
+		getCtrlData(sel = CTL_DBDIV_NAME, Data.Rec.Name);
+		THROW_PP(*strip(Data.Rec.Name), PPERR_NAMENEEDED);
+		{
+			Data.GetExtStrData(DBDIVEXSTR_GATEWAYLIST, temp_buf);
+			StringSet ss(';', temp_buf);
+			const uint c = ss.getCount();
+			if(c > 1 || (c == 1 && temp_buf.Len() >= sizeof(Data.Rec.Addr)))
+				Data.Rec.Addr[0] = 0;
+			else
+				getCtrlData(CTL_DBDIV_ADDR, Data.Rec.Addr);
+		}
+		getCtrlData(sel = CTLSEL_DBDIV_INTRRCPT, &Data.Rec.IntrRcptOpr);
+		THROW_PP(IsIntrOp(Data.Rec.IntrRcptOpr) == INTRRCPT, PPERR_NOTINTRRCPTOP);
+		getCtrlString(CTL_DBDIV_ACCLIST, temp_buf);
+		Data.PutExtStrData(DBDIVEXSTR_ACCLIST, temp_buf);
+		GetClusterData(CTL_DBDIV_MQBEXCHG, &Data.Rec.Flags);
+		GetClusterData(CTL_DBDIV_FLAGS, &Data.Rec.Flags);
+		ASSIGN_PTR(pData, Data);
+		CATCHZOKPPERRBYDLG
+		return ok;
+	}
 private:
 	DECL_HANDLE_EVENT;
 	void   updateList();
 	void   addItem();
 	void   delItem();
 	void   SetupAddr(const SString & rAddrList);
-	DBDivPack data;
 };
 
 void DBDivDialog::addItem()
 {
 	PPID   id = 0;
-	int    r = PPSelectObject(PPOBJ_LOCATION, &id, PPTXT_SELECTLOCATION, 0);
-	if(r > 0 && !data.LocList.lsearch(id)) {
-		data.LocList.add(id);
+	const  int r = PPSelectObject(PPOBJ_LOCATION, &id, PPTXT_SELECTLOCATION, 0);
+	if(r > 0 && !Data.LocList.lsearch(id)) {
+		Data.LocList.add(id);
 		updateList();
 	}
 }
@@ -257,8 +317,8 @@ inline void DBDivDialog::delItem()
 	uint   p = 0;
 	PPID   id;
 	SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_DBDIV_LIST));
-	if(p_list && p_list->getCurID(&id) && data.LocList.lsearch(id, &p)) {
-		data.LocList.atFree(p);
+	if(p_list && p_list->getCurID(&id) && Data.LocList.lsearch(id, &p)) {
+		Data.LocList.atFree(p);
 		updateList();
 	}
 }
@@ -269,8 +329,8 @@ void DBDivDialog::updateList()
 	if(p_list) {
 		p_list->freeAll();
 		SString text;
-		for(uint i = 0; i < data.LocList.getCount(); i++) {
-			const  PPID id = data.LocList.at(i);
+		for(uint i = 0; i < Data.LocList.getCount(); i++) {
+			const  PPID id = Data.LocList.at(i);
 			GetLocationName(id, text);
 			if(!p_list->addItem(id, text)) {
 				PPError(PPERR_SLIB, 0);
@@ -286,16 +346,16 @@ void DBDivDialog::SetupAddr(const SString & rAddrList)
 	SString temp_buf;
 	StringSet ss(';', rAddrList);
 	const uint c = ss.getCount();
-	if(c > 1 || (c == 1 && rAddrList.Len() >= sizeof(data.Rec.Addr))) {
+	if(c > 1 || (c == 1 && rAddrList.Len() >= sizeof(Data.Rec.Addr))) {
 		PPLoadString("list", temp_buf);
 		setCtrlString(CTL_DBDIV_ADDR, temp_buf);
 		disableCtrl(CTL_DBDIV_ADDR, true);
-		data.PutExtStrData(DBDIVEXSTR_GATEWAYLIST, rAddrList);
+		Data.PutExtStrData(DBDIVEXSTR_GATEWAYLIST, rAddrList);
 	}
 	else {
 		setCtrlString(CTL_DBDIV_ADDR, temp_buf = rAddrList);
 		disableCtrl(CTL_DBDIV_ADDR, false);
-		data.PutExtStrData(DBDIVEXSTR_GATEWAYLIST, temp_buf.Z());
+		Data.PutExtStrData(DBDIVEXSTR_GATEWAYLIST, temp_buf.Z());
 	}
 }
 
@@ -307,8 +367,9 @@ IMPL_HANDLE_EVENT(DBDivDialog)
 	else if(event.isCmd(cmaDelete))
 		delItem();
 	else if(event.isCmd(cmAddrList)) {
-		SString addr_list, temp_buf;
-		data.GetExtStrData(DBDIVEXSTR_GATEWAYLIST, addr_list);
+		SString temp_buf;
+		SString addr_list;
+		Data.GetExtStrData(DBDIVEXSTR_GATEWAYLIST, addr_list);
 		if(!addr_list.NotEmptyS()) {
 			getCtrlString(CTL_DBDIV_ADDR, addr_list);
 		}
@@ -317,77 +378,13 @@ IMPL_HANDLE_EVENT(DBDivDialog)
 		}
 	}
 	else if(event.isClusterClk(CTL_DBDIV_MQBEXCHG)) {
-		GetClusterData(CTL_DBDIV_MQBEXCHG, &data.Rec.Flags); 
-		disableCtrl(CTL_DBDIV_ADDR, (data.Rec.Flags & DBDIVF_MQBEXCHANGE));
-		enableCommand(cmAddrList, !(data.Rec.Flags & DBDIVF_MQBEXCHANGE));
+		GetClusterData(CTL_DBDIV_MQBEXCHG, &Data.Rec.Flags); 
+		disableCtrl(CTL_DBDIV_ADDR, LOGIC(Data.Rec.Flags & DBDIVF_MQBEXCHANGE));
+		enableCommand(cmAddrList, !(Data.Rec.Flags & DBDIVF_MQBEXCHANGE));
 	}
 	else
 		return;
 	clearEvent(event);
-}
-
-int DBDivDialog::setDTS(const DBDivPack * p)
-{
-	data = *p;
-	SString temp_buf;
-	updateList();
-	setCtrlData(CTL_DBDIV_ID,   &data.Rec.ID);
-	disableCtrl(CTL_DBDIV_ID,   (int)data.Rec.ID);
-	data.Rec.Uuid.ToStr(S_GUID::fmtIDL, temp_buf);
-	setCtrlString(CTL_DBDIV_UUID, temp_buf.Strip());
-	setCtrlData(CTL_DBDIV_CNT,  &data.Rec.OutCounter);
-	setCtrlData(CTL_DBDIV_NAME, data.Rec.Name);
-	{
-		data.GetExtStrData(DBDIVEXSTR_GATEWAYLIST, temp_buf);
-		temp_buf.SetIfEmpty(data.Rec.Addr);
-		SetupAddr(temp_buf);
-	}
-	data.GetExtStrData(DBDIVEXSTR_ACCLIST, temp_buf);
-	setCtrlString(CTL_DBDIV_ACCLIST, temp_buf);
-	SetupPPObjCombo(this, CTLSEL_DBDIV_INTRRCPT, PPOBJ_OPRKIND, data.Rec.IntrRcptOpr, OLW_CANINSERT, reinterpret_cast<void *>(PPOPT_GOODSRECEIPT));
-	AddClusterAssoc(CTL_DBDIV_MQBEXCHG, 0, DBDIVF_MQBEXCHANGE);
-	SetClusterData(CTL_DBDIV_MQBEXCHG, data.Rec.Flags); 
-	AddClusterAssoc(CTL_DBDIV_FLAGS, 0, DBDIVF_DISPATCH);
-	AddClusterAssoc(CTL_DBDIV_FLAGS, 1, DBDIVF_SCARDSONLY);
-	AddClusterAssoc(CTL_DBDIV_FLAGS, 2, DBDIVF_RCVCSESSANDWROFFBILLS);
-	AddClusterAssoc(CTL_DBDIV_FLAGS, 3, DBDIVF_CONSOLID);
-	AddClusterAssoc(CTL_DBDIV_FLAGS, 4, DBDIVF_PASSIVE);
-	SetClusterData(CTL_DBDIV_FLAGS, data.Rec.Flags);
-	{
-		disableCtrl(CTL_DBDIV_ADDR, (data.Rec.Flags & DBDIVF_MQBEXCHANGE));
-		enableCommand(cmAddrList, !(data.Rec.Flags & DBDIVF_MQBEXCHANGE));
-	}
-	return 1;
-}
-
-int DBDivDialog::getDTS(DBDivPack * p)
-{
-	int    ok = 1;
-	uint   sel = 0;
-	SString temp_buf;
-	getCtrlData(sel = CTL_DBDIV_ID, &data.Rec.ID);
-	THROW_PP(data.Rec.ID > 0 && data.Rec.ID < 256, PPERR_INVDBDIVID);
-	getCtrlData(CTL_DBDIV_CNT, &data.Rec.OutCounter);
-	getCtrlData(sel = CTL_DBDIV_NAME, data.Rec.Name);
-	THROW_PP(*strip(data.Rec.Name), PPERR_NAMENEEDED);
-	{
-		data.GetExtStrData(DBDIVEXSTR_GATEWAYLIST, temp_buf);
-		StringSet ss(';', temp_buf);
-		const uint c = ss.getCount();
-		if(c > 1 || (c == 1 && temp_buf.Len() >= sizeof(data.Rec.Addr)))
-			data.Rec.Addr[0] = 0;
-		else
-			getCtrlData(CTL_DBDIV_ADDR, data.Rec.Addr);
-	}
-	getCtrlData(sel = CTLSEL_DBDIV_INTRRCPT, &data.Rec.IntrRcptOpr);
-	THROW_PP(IsIntrOp(data.Rec.IntrRcptOpr) == INTRRCPT, PPERR_NOTINTRRCPTOP);
-	getCtrlString(CTL_DBDIV_ACCLIST, temp_buf);
-	data.PutExtStrData(DBDIVEXSTR_ACCLIST, temp_buf);
-	GetClusterData(CTL_DBDIV_MQBEXCHG, &data.Rec.Flags);
-	GetClusterData(CTL_DBDIV_FLAGS, &data.Rec.Flags);
-	ASSIGN_PTR(p, data);
-	CATCHZOKPPERRBYDLG
-	return ok;
 }
 
 int PPObjDBDiv::Get(PPID id, DBDivPack * pPack)

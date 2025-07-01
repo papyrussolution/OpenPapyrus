@@ -72,9 +72,7 @@ CONSTEXPR_F int days_per_4years(int yi) noexcept { return 1460 + (yi == 0 || yi 
 CONSTEXPR_F int days_per_year(year_t y, month_t m) noexcept { return is_leap_year(y + (m > 2)) ? 366 : 365; }
 CONSTEXPR_F int days_per_month(year_t y, month_t m) noexcept 
 {
-	CONSTEXPR_D int k_days_per_month[1 + 12] = {
-		-1, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 // non leap year
-	};
+	CONSTEXPR_D int k_days_per_month[1 + 12] = { -1, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 }; // non leap year
 	return k_days_per_month[m] + (m == 2 && is_leap_year(y));
 }
 

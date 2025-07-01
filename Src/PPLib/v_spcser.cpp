@@ -1,5 +1,5 @@
 // V_SPCSER.CPP
-// Copyright (c) A.Starodub 2012, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2024
+// Copyright (c) A.Starodub 2012, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2024, 2025
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -53,7 +53,7 @@ int SpecSerFiltDlg::setDTS(const SpecSeriesFilt * pData)
 	AddClusterAssoc(CTL_SPCSERFLT_KIND, -1, SPCSERIK_SPOILAGE);
 	AddClusterAssoc(CTL_SPCSERFLT_KIND, 0, SPCSERIK_SPOILAGE);
 	SetClusterData(CTL_SPCSERFLT_KIND, Data.InfoKind);
-	SetPeriodInput(this, CTL_SPCSERFLT_PERIOD, &Data.Period);
+	SetPeriodInput(this, CTL_SPCSERFLT_PERIOD, Data.Period);
 	return 1;
 }
 
@@ -419,13 +419,15 @@ int PPViewSpecSeries::ImportUhtt()
 	TSCollection <UhttSpecSeriesPacket> uhtt_series_list;
 	DateRange  date_rng;
 	date_rng.Z();
-	if(DateRangeDialog(0, 0, &date_rng) > 0) {
+	if(DateRangeDialog(0, 0, date_rng) > 0) {
 		PPWaitStart();
+		StrAssocArray list;
 		SString    period;
 		{
-			char   pb[64];
-			periodfmt(&date_rng, pb);
-			period.Cat(pb);
+			// @v12.3.7 char   pb[64];
+			// @v12.3.7 periodfmt(date_rng, pb);
+			// @v12.3.7 period.Cat(pb);
+			date_rng.ToStr(0, period); // @v12.3.7
 		}
 		THROW(uc.Auth());
 		THROW(uc.GetSpecSeriesByPeriod(period, uhtt_series_list));
@@ -433,7 +435,7 @@ int PPViewSpecSeries::ImportUhtt()
 		cntr.Init(n_rec);
 		for(uint i = 0; i < n_rec; i++) {
 			int   dup = 0;
-			StrAssocArray list;
+			list.Z();
 			THROW(p_pack = uhtt_series_list.at(i));
 			THROW(Tbl.GetListBySerial(p_pack->InfoKind, p_pack->Serial, &list));
 			for(uint j = 0; j < list.getCount(); j++) {

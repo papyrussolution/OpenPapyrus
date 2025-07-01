@@ -538,16 +538,16 @@ void CashStatDialog::setup()
 		CALLPTRMEMB(il, setText("Error"));
 	}
 	setCtrlData(CTL_CASHDISP_DIFF, &v);
-	setCtrlReadOnly(CTL_CASHDISP_BEGSUM, 1);
-	setCtrlReadOnly(CTL_CASHDISP_INCOME, 1);
-	setCtrlReadOnly(CTL_CASHDISP_CURSUM, 1);
-	setCtrlReadOnly(CTL_CASHDISP_CASHSUM, 1);
-	setCtrlReadOnly(CTL_CASHDISP_DIFF, 1);
-	setCtrlReadOnly(CTL_CASHDISP_CASHAMT, 1);
-	setCtrlReadOnly(CTL_CASHDISP_BANKAMT, 1);
-	setCtrlReadOnly(CTL_CASHDISP_SCARDAMT, 1);
-	setCtrlReadOnly(CTL_CASHDISP_DSCNTAMT, 1);
-	setCtrlReadOnly(CTL_CASHDISP_RETAMT, 1);
+	setCtrlReadOnly(CTL_CASHDISP_BEGSUM, true);
+	setCtrlReadOnly(CTL_CASHDISP_INCOME, true);
+	setCtrlReadOnly(CTL_CASHDISP_CURSUM, true);
+	setCtrlReadOnly(CTL_CASHDISP_CASHSUM, true);
+	setCtrlReadOnly(CTL_CASHDISP_DIFF, true);
+	setCtrlReadOnly(CTL_CASHDISP_CASHAMT, true);
+	setCtrlReadOnly(CTL_CASHDISP_BANKAMT, true);
+	setCtrlReadOnly(CTL_CASHDISP_SCARDAMT, true);
+	setCtrlReadOnly(CTL_CASHDISP_DSCNTAMT, true);
+	setCtrlReadOnly(CTL_CASHDISP_RETAMT, true);
 }
 
 IMPL_HANDLE_EVENT(CashStatDialog)
@@ -1383,7 +1383,7 @@ CSPanel::CSPanel(uint rezID, PPID aNodeID, char * nodeName, int fZReport) : TDia
 	enableCommand(cmSCSXReport, BIN(fZReport & fcspXReport));
 	enableCommand(cmSCSPrintCheckCopy, BIN(fZReport & fcspCheckCopy));
 	setCtrlData(CTL_CSPANEL_NODE, nodeName);
-	setCtrlReadOnly(CTL_CSPANEL_NODE, 1);
+	setCtrlReadOnly(CTL_CSPANEL_NODE, true);
 }
 
 void CSPanel::ResetButtons()
@@ -1466,7 +1466,7 @@ int SelectCSession(PPID cashNodeID, PPID extCashNodeID, CSessInfo * pInfo)
 	TDialog * dlg = new TDialog(SLS.CheckUiFlag(sluifUseLargeDialogs) ? DLG_SELSESNO_L : DLG_SELSESNO);
 	THROW(CheckDialogPtr(&dlg));
 	dlg->SetupCalDate(CTLCAL_SELSESNO_DATE, CTL_SELSESNO_DATE);
-	dlg->disableCtrl(CTL_SELSESNO_EXTCASHNODE, extCashNodeID ? 0 : 1);
+	dlg->disableCtrl(CTL_SELSESNO_EXTCASHNODE, extCashNodeID == 0);
 	dlg->setCtrlData(CTL_SELSESNO_DATE, &dt);
 	while(!valid_data && ExecView(dlg) == cmOK) {
 		long   sess_no = dlg->getCtrlLong(CTL_SELSESNO_NUMBER);

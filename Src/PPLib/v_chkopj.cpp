@@ -1,5 +1,5 @@
 // V_CHKOPJ.CPP
-// Copyright (c) A.Starodub 2010, 2013, 2015, 2016, 2017, 2021, 2022, 2024
+// Copyright (c) A.Starodub 2010, 2013, 2015, 2016, 2017, 2021, 2022, 2024, 2025
 // @codepage UTF-8
 // Журнал чековых операций
 //
@@ -121,7 +121,7 @@ int PPViewCheckOpJrnl::EditBaseFilt(PPBaseFilt * pBaseFilt)
 		DECL_DIALOG_SETDTS()
 		{
 			RVALUEPTR(Data, pData);
-			SetPeriodInput(this, CTL_CHKOPJFILT_PERIOD, &Data.Period);
+			SetPeriodInput(this, CTL_CHKOPJFILT_PERIOD, Data.Period);
 			SetupPPObjCombo(this, CTLSEL_CHKOPJFILT_USER, PPOBJ_USR, Data.UserID, 0, 0);
 			SetupStrAssocCombo(this, CTLSEL_CHKOPJFILT_ACTION, ActionList, 0, 0);
 			if(Data.ActionIDList.isList()) {
@@ -370,10 +370,8 @@ int PPALDD_CheckOpJrnl::InitData(PPFilt & rFilt, long rsrv)
 	return DlRtm::InitData(rFilt, rsrv);
 }
 
-int PPALDD_CheckOpJrnl::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
-{
-	INIT_PPVIEW_ALDD_ITER(CheckOpJrnl);
-}
+void PPALDD_CheckOpJrnl::Destroy() { DESTROY_PPVIEW_ALDD(CheckOpJrnl); }
+int  PPALDD_CheckOpJrnl::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/) { INIT_PPVIEW_ALDD_ITER(CheckOpJrnl); }
 
 int PPALDD_CheckOpJrnl::NextIteration(PPIterID iterId)
 {
@@ -393,5 +391,3 @@ int PPALDD_CheckOpJrnl::NextIteration(PPIterID iterId)
 	// I.PrinterName;
 	FINISH_PPVIEW_ALDD_ITER();
 }
-
-void PPALDD_CheckOpJrnl::Destroy() { DESTROY_PPVIEW_ALDD(CheckOpJrnl); }

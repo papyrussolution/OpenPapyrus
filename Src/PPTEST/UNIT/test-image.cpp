@@ -121,7 +121,7 @@ SLTEST_R(BarcodeOutputAndRecognition)
 						TSCollection <PPBarcode::Entry> bc_list2;
 						if(SLCHECK_LT(0, PPBarcode::ZXing_RecognizeImage(bip.OutputFileName, bc_list2))) {
 							SLCHECK_EQ(bc_list2.getCount(), 1U);
-							if(bc_list2.getCount() > 0) {
+							if(bc_list2.getCount()) {
 								const PPBarcode::Entry * p_entry = bc_list2.at(0);
 								SLCHECK_EQ(p_entry->BcStd, bip.Std);
 								SLCHECK_EQ(p_entry->Code, code_buf);
@@ -130,7 +130,7 @@ SLTEST_R(BarcodeOutputAndRecognition)
 						//
 						if(SLCHECK_LT(0, PPBarcode::RecognizeImage(bip.OutputFileName, bc_list))) {
 							SLCHECK_EQ(bc_list.getCount(), 1U);
-							if(bc_list.getCount() > 0) {
+							if(bc_list.getCount()) {
 								const PPBarcode::Entry * p_entry = bc_list.at(0);
 								SLCHECK_EQ(p_entry->BcStd, bip.Std);
 								SLCHECK_EQ(p_entry->Code, code_buf);
@@ -150,7 +150,7 @@ SLTEST_R(BarcodeOutputAndRecognition)
 						TSCollection <PPBarcode::Entry> bc_list2;
 						if(SLCHECK_LT(0, PPBarcode::ZXing_RecognizeImage(bip.OutputFileName, bc_list2))) {
 							SLCHECK_LE(1U, bc_list2.getCount());
-							if(bc_list2.getCount() > 0) {
+							if(bc_list2.getCount()) {
 								for(uint bcidx = 0; bcidx < bc_list2.getCount(); bcidx++) {
 									const PPBarcode::Entry * p_entry = bc_list2.at(bcidx);
 									SLCHECK_EQ(p_entry->BcStd, bip.Std);
@@ -161,7 +161,7 @@ SLTEST_R(BarcodeOutputAndRecognition)
 						//
 						if(SLCHECK_LT(0, PPBarcode::RecognizeImage(bip.OutputFileName, bc_list))) {
 							SLCHECK_EQ(bc_list.getCount(), 1U);
-							if(bc_list.getCount() > 0) {
+							if(bc_list.getCount()) {
 								const PPBarcode::Entry * p_entry = bc_list.at(0);
 								SLCHECK_EQ(p_entry->BcStd, bip.Std);
 								SLCHECK_EQ(p_entry->Code, code_buf);
@@ -181,7 +181,7 @@ SLTEST_R(BarcodeOutputAndRecognition)
 						TSCollection <PPBarcode::Entry> bc_list2;
 						if(SLCHECK_LT(0, PPBarcode::ZXing_RecognizeImage(bip.OutputFileName, bc_list2))) {
 							SLCHECK_EQ(bc_list2.getCount(), 1U);
-							if(bc_list2.getCount() > 0) {
+							if(bc_list2.getCount()) {
 								const PPBarcode::Entry * p_entry = bc_list2.at(0);
 								SLCHECK_EQ(p_entry->BcStd, bip.Std);
 								SLCHECK_EQ(p_entry->Code, code_buf);
@@ -190,7 +190,7 @@ SLTEST_R(BarcodeOutputAndRecognition)
 						//
 						if(SLCHECK_LT(0, PPBarcode::RecognizeImage(bip.OutputFileName, bc_list))) {
 							SLCHECK_EQ(bc_list.getCount(), 1U);
-							if(bc_list.getCount() > 0) {
+							if(bc_list.getCount()) {
 								const PPBarcode::Entry * p_entry = bc_list.at(0);
 								SLCHECK_EQ(p_entry->BcStd, bip.Std);
 								SLCHECK_EQ(p_entry->Code, code_buf);

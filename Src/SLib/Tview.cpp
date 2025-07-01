@@ -567,9 +567,10 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 						if(p_il) {
 							p_il->Parent = hw_parent;
 							DWORD  style = WS_VISIBLE|WS_CHILD|WS_BORDER|WS_CLIPSIBLINGS|ES_AUTOHSCROLL;
+							DWORD  ex_style = WS_EX_NOPARENTNOTIFY|WS_EX_CLIENTEDGE;
 							if(p_il->IsInState(sfTabStop))
 								style |= WS_TABSTOP;
-							HWND hw_il = ::CreateWindowEx(0, _T("EDIT"), 0, style, p_il->ViewOrigin.x,
+							HWND hw_il = ::CreateWindowEx(ex_style, _T("EDIT"), 0, style, p_il->ViewOrigin.x,
 								p_il->ViewOrigin.y, p_il->ViewSize.x, p_il->ViewSize.y, hw_parent, (HMENU)p_il->GetId(), TProgram::GetInst(), 0);
 							if(hw_il) {
 								setup_font_blk.Set(hw_il);
@@ -620,6 +621,8 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 						DWORD style = WS_CHILD|BS_OWNERDRAW|BS_PUSHBUTTON/*|BS_BITMAP|BS_FLAT*/;
 						if(p_cv->IsInState(sfTabStop))
 							style |= WS_TABSTOP;
+						if(p_cv->IsDefault())
+							style |= BS_DEFPUSHBUTTON;
 						hw = ::CreateWindowEx(0, _T("BUTTON"), 0, style, pV->ViewOrigin.x,
 							pV->ViewOrigin.y, pV->ViewSize.x, pV->ViewSize.y, hw_parent, (HMENU)ctl_id, TProgram::GetInst(), 0);
 						if(hw) {
@@ -632,7 +635,7 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 									::SendMessageW(hw, WM_SETFONT, reinterpret_cast<WPARAM>(f), TRUE);
 								}
 							}*/
-							::SendMessageW(hw, WM_SETTEXT, 0, reinterpret_cast<LPARAM>(SUcSwitch(p_cv->Title)));
+							::SendMessageW(hw, WM_SETTEXT, 0, reinterpret_cast<LPARAM>(SUcSwitch(p_cv->GetText())));
 							SetupWindowCtrlTextProc(hw, 0);
 						}
 					}
@@ -641,6 +644,7 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 					{
 						TInputLine * p_cv = static_cast<TInputLine *>(pV);
 						DWORD  style = WS_VISIBLE|WS_CHILD|WS_BORDER|WS_CLIPSIBLINGS|ES_AUTOHSCROLL/*|BS_OWNERDRAW*/;
+						DWORD  ex_style = WS_EX_NOPARENTNOTIFY|WS_EX_CLIENTEDGE;
 						if(p_cv->IsInState(sfTabStop))
 							style |= WS_TABSTOP;
 						if(p_cv->GetSpcFlags() & TInputLine::spcfReadOnly)
@@ -652,7 +656,7 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 						//if(p_cv->)
 						//ES_UPPERCASE;
 						pV->Parent = hw_parent;
-						hw = ::CreateWindowExW(0, L"EDIT", 0, style, pV->ViewOrigin.x,
+						hw = ::CreateWindowExW(ex_style, L"EDIT", 0, style, pV->ViewOrigin.x,
 							pV->ViewOrigin.y, pV->ViewSize.x, pV->ViewSize.y, hw_parent, (HMENU)ctl_id, TProgram::GetInst(), 0);
 						if(hw) {
 							setup_font_blk.Set(hw);
@@ -1815,6 +1819,15 @@ void TViewGroup::redraw()
 		p->Draw_();
 }
 
+void FASTCALL TViewGroup::selectCtrl(ushort ctlID) // @v12.3.7 (moved to TViewGroup)
+{
+	if(ctlID) {
+		TView * p_v = getCtrlView(ctlID);
+		if(p_v)
+			SetCurrentView(p_v, normalSelect);
+	}
+}
+
 void TViewGroup::selectNext(/*Boolean forwards*/ /*false*/)
 {
 	if(P_Current) {
@@ -1877,3 +1890,26 @@ void TViewGroup::Insert_(TView * p) { insertBefore(p, GetFirstView()); }
 uint TViewGroup::GetCurrId() const { return P_Current ? P_Current->GetId() : 0; }
 bool FASTCALL TViewGroup::IsCurrentView(const TView * pV) const { return (pV && P_Current == pV); }
 bool FASTCALL TViewGroup::isCurrCtlID(uint ctlID) const { return (P_Current && P_Current->TestId(ctlID)); }
+
+const TView * FASTCALL TViewGroup::getCtrlViewC(ushort ctlID) const // @v12.3.7 moved from TWindow
+{
+	// Функция вызывается очень часто потому ради скорости исполнения развернута {
+	if(ctlID) {
+		const TView * p_temp = P_Last;
+		if(p_temp) {
+			const TView * p_term = P_Last;
+			do {
+				p_temp = p_temp->P_Next;
+				if(p_temp && p_temp->IsConsistent()) {
+					if(p_temp->GetId_Unsafe() == ctlID)
+						return p_temp;
+				}
+				else
+					return 0;
+			} while(p_temp != p_term);
+		}
+	}
+	return 0;
+}
+
+TView * FASTCALL TViewGroup::getCtrlView(ushort ctlID) { return const_cast<TView *>(getCtrlViewC(ctlID)); } // @v12.3.7 moved from TWindow

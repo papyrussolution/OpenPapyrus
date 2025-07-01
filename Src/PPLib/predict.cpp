@@ -563,7 +563,7 @@ public:
 		SetClusterData(CTL_PSALTST_GOODSSELKIND, mode);
 		{
 			DateRange period = Data.GetPeriod();
-			SetPeriodInput(this, CTL_PSALTST_PERIOD, &period);
+			SetPeriodInput(this, CTL_PSALTST_PERIOD, period);
 		}
 		return ok;
 	}

@@ -382,7 +382,7 @@ int PPViewPredictSales::EditBaseFilt(PPBaseFilt * pBaseFilt /*PredictSalesFilt *
 	{
 		dlg->SetupCalPeriod(CTLCAL_PSALESFLT_PERIOD, CTL_PSALESFLT_PERIOD);
 		dlg->SetupCalDate(CTLCAL_PSALESFLT_WATERSHED, CTL_PSALESFLT_WATERSHED);
-		SetPeriodInput(dlg, CTL_PSALESFLT_PERIOD, &p_filt->Period);
+		SetPeriodInput(dlg, CTL_PSALESFLT_PERIOD, p_filt->Period);
 		dlg->addGroup(ctlgroupGoods, new GoodsCtrlGroup(CTLSEL_PSALESFLT_GGROUP, CTLSEL_PSALESFLT_GOODS));
 		GoodsCtrlGroup::Rec rec(p_filt->GoodsGrpID, p_filt->GoodsID, 0, GoodsCtrlGroup::enableSelUpLevel);
 		dlg->setGroupData(1, &rec); // 1 == GRP_GOODS

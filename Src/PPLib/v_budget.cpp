@@ -458,7 +458,7 @@ public:
 		setCtrlString(CTL_BUDGET_NAME, SString(Data.Rec.Name));
 		setCtrlData(CTL_BUDGET_ID, &Data.Rec.ID);
 		period.Set(Data.Rec.LowDt, Data.Rec.UppDt);
-		SetPeriodInput(this, CTL_BUDGET_PERIOD, &period);
+		SetPeriodInput(this, CTL_BUDGET_PERIOD, period);
 		disableCtrl(CTLCAL_BUDGET_PERIOD, BIN(Data.Rec.ID));
 		disableCtrls(BIN(Data.EnumItems(&idx, 0) > 0), CTL_BUDGET_PERIOD, CTLSEL_BUDGET_CYCLE, 0L);
 		return 1;
@@ -1078,7 +1078,7 @@ int BudgetFiltDialog::setDTS(const BudgetFilt * pData)
 	if(!RVALUEPTR(Data, pData))
 		Data.Init(1, 0);
 	SetupPPObjCombo(this, CTLSEL_BUDGFLT_BUDGET, PPOBJ_BUDGET,  Data.BudgetID, 0, reinterpret_cast<void *>(SEL_ALL_BUDGETS));
-	SetPeriodInput(this, CTL_BUDGFLT_PERIOD, &Data.Period);
+	SetPeriodInput(this, CTL_BUDGFLT_PERIOD, Data.Period);
 	return 1;
 }
 

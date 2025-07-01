@@ -190,8 +190,8 @@ static BOOL CALLBACK ButtonDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 			break;
 		case WM_SETTEXT: // @debug
 			{
-				SString text;
-				text = reinterpret_cast<const char *>(lParam);
+				//SString text;
+				//text = reinterpret_cast<const char *>(lParam);
 			}
 			break;
 		case WM_GETDLGCODE:
@@ -203,7 +203,7 @@ static BOOL CALLBACK ButtonDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 						return (p_view->IsDefault() ? DLGC_DEFPUSHBUTTON : DLGC_UNDEFPUSHBUTTON);
 					}
 					else {
-						p_view->makeDefault(BIN(wParam & BS_DEFPUSHBUTTON), 0);
+						p_view->MakeDefault(LOGIC(wParam & BS_DEFPUSHBUTTON), false);
 						if(LOWORD(lParam)) { // do redraw
 							::InvalidateRect(hWnd, NULL, TRUE);
 							::UpdateWindow(hWnd);
@@ -213,6 +213,11 @@ static BOOL CALLBACK ButtonDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 				}
 			}
 			break;
+		// @v12.3.7 {
+		case WM_WINDOWPOSCHANGING:
+		case WM_WINDOWPOSCHANGED: 
+			return ::DefWindowProc(hWnd, uMsg, wParam, lParam);
+		// } @v12.3.7 
 		/*
 		case WM_INPUTLANGCHANGE: // @v6.4.4 AHTOXA
 			if(p_view->IsInState(sfMsgToParent))
@@ -227,7 +232,7 @@ const int cmGrabDefault    = 61;
 const int cmReleaseDefault = 62;
 
 TButton::TButton(const TRect & rBounds, const char * pTitle, uint command, uint spcFlags, uint bmpID) : TView(rBounds), 
-	SpcFlags(spcFlags), Command(command), Title(pTitle), BmpID(bmpID), HBmp(0)
+	SpcFlags(spcFlags), Command(command), Text(pTitle), BmpID(bmpID), HBmp_(0), SupplementRole(0), SupplementLinkCtrlId(0)
 {
 	SubSign = TV_SUBSIGN_BUTTON;
 	ViewOptions |= (ofSelectable|ofPreProcess|ofPostProcess);
@@ -237,21 +242,38 @@ TButton::TButton(const TRect & rBounds, const char * pTitle, uint command, uint 
 
 TButton::~TButton()
 {
-	ZDeleteWinGdiObject(&HBmp);
+	ZDeleteWinGdiObject(&HBmp_);
 	RestoreOnDestruction();
 }
 
-HBITMAP TButton::GetBitmap() const { return HBmp; }
+HBITMAP TButton::GetBitmap() const { return HBmp_; }
 uint    TButton::GetBmpID() const { return BmpID; }
 uint    TButton::GetCommand() const { return Command; }
 bool    TButton::IsDefault() const { return LOGIC(SpcFlags & spcfDefault); }
-void    TButton::drawState(bool down) { TView::SSetWindowText(GetDlgItem(Parent, Id), Title); }
+
+bool TButton::SetSupplementFactors(uint role/*SUiCtrlSupplement::kXXX*/, uint linkCtrlId)
+{
+	bool   ok = true;
+	if(SUiCtrlSupplement::IsValidKind(role)) {
+		if(role == SUiCtrlSupplement::kUndef) {
+			SupplementRole = role;
+			SupplementLinkCtrlId = 0;
+		}
+		else {
+			SupplementRole = role;
+			SupplementLinkCtrlId = linkCtrlId;			
+		}
+	}
+	else
+		ok = false;
+	return ok;
+}
 
 int TButton::LoadBitmap_(uint bmpID)
 {
 	BmpID = bmpID;
-	ZDeleteWinGdiObject(&HBmp);
-	HBmp = (BmpID > 32000) ? ::LoadBitmap(0, MAKEINTRESOURCE(BmpID)) : APPL->LoadBitmap_(BmpID);
+	ZDeleteWinGdiObject(&HBmp_);
+	HBmp_ = (BmpID > 32000) ? ::LoadBitmap(0, MAKEINTRESOURCE(BmpID)) : APPL->LoadBitmap_(BmpID);
 	return 1;
 }
 
@@ -259,7 +281,7 @@ int TButton::SetBitmap(uint bmpID)
 {
 	int    ok = LoadBitmap_(bmpID);
 	if(ok)
-		::SendMessageW(getHandle(), BM_SETIMAGE, IMAGE_BITMAP, reinterpret_cast<LPARAM>(HBmp));
+		::SendMessageW(getHandle(), BM_SETIMAGE, IMAGE_BITMAP, reinterpret_cast<LPARAM>(HBmp_));
 	return ok;
 }
 
@@ -275,13 +297,14 @@ int TButton::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 			PrevWindowProc = static_cast<WNDPROC>(TView::SetWindowProp(h_wnd, GWLP_WNDPROC, ButtonDialogProc));
 			if(BmpID > 0 && TView::SGetWindowStyle(h_wnd) & BS_BITMAP) {
 				LoadBitmap_(BmpID);
-				::SendDlgItemMessage(Parent, Id, BM_SETIMAGE, IMAGE_BITMAP, reinterpret_cast<LPARAM>(HBmp));
+				::SendDlgItemMessage(Parent, Id, BM_SETIMAGE, IMAGE_BITMAP, reinterpret_cast<LPARAM>(HBmp_));
 			}
-			SetupText(&Title);
+			SetupText(&Text);
 			break;
 		case WM_COMMAND:
-			if(HIWORD(wParam) == BN_CLICKED)
-				press(LOWORD(wParam));
+			if(HIWORD(wParam) == BN_CLICKED) {
+				Press();
+			}
 			break;
 		case WM_CHAR:
 		case WM_VKEYTOITEM:
@@ -313,7 +336,7 @@ IMPL_HANDLE_EVENT(TButton)
 			switch(TVCMD) {
 				case cmDefault:
 					if(SpcFlags & spcfDefault) {
-						press();
+						Press();
 						clearEvent(event);
 					}
 					break;
@@ -326,7 +349,7 @@ IMPL_HANDLE_EVENT(TButton)
 					break;
 				case cmCommandSetChanged:
 					{
-						bool   is_enabled = LOGIC(P_Owner ? P_Owner->commandEnabled(Command) : commandEnabled(Command));
+						const bool is_enabled = LOGIC(P_Owner ? P_Owner->commandEnabled(Command) : commandEnabled(Command));
 						if((is_enabled && IsInState(sfDisabled)) || (!is_enabled && !IsInState(sfDisabled))) {
 							setState(sfDisabled, !is_enabled);
 							EnableWindow(getHandle(), !IsInState(sfDisabled));
@@ -343,7 +366,14 @@ IMPL_HANDLE_EVENT(TButton)
 	}
 }
 
-int TButton::makeDefault(int enable, int sendMsg)
+void TButton::SetText(const char * pText)
+{
+	Text = pText;
+	if(Parent && Id)
+		TView::SSetWindowText(getHandle(), Text);
+}
+
+void TButton::MakeDefault(bool enable, bool sendMsg)
 {
 	if(sendMsg) {
 		if(!(SpcFlags & spcfDefault))
@@ -352,7 +382,6 @@ int TButton::makeDefault(int enable, int sendMsg)
 			::SendMessageW(Parent, DM_SETDEFID, (WPARAM)Id, 0);
 	}
 	SETFLAG(SpcFlags, spcfDefault, enable);
-	return 1;
 }
 
 void TButton::setState(uint aState, bool enable)
@@ -361,28 +390,91 @@ void TButton::setState(uint aState, bool enable)
 	if(aState & (sfSelected|sfActive))
 		Draw_();
 	if(aState & sfFocused)
-		makeDefault(enable);
+		MakeDefault(enable);
 }
 
 int TButton::TransmitData(int dir, void * pData)
 {
 	int    s = 0;
 	if(dir > 0) {
-		Title = static_cast<const char *>(pData);
-		TView::SSetWindowText(GetDlgItem(Parent, Id), Title);
+		Text = static_cast<const char *>(pData);
+		TView::SSetWindowText(GetDlgItem(Parent, Id), Text);
 	}
 	else
 		s = TView::TransmitData(dir, pData);
 	return s;
 }
 
-void TButton::press(ushort item)
+void TButton::Press()
 {
 	if(!IsInState(sfDisabled)) {
-		if(SpcFlags & spcfBroadcast)
-			TView::messageBroadcast(P_Owner, Command, this);
-		else
-			MessageCommandToOwner(Command);
+		bool   done = false;
+		if(oneof3(SupplementRole, SUiCtrlSupplement::kDateCalendar, SUiCtrlSupplement::kDateRangeCalendar, SUiCtrlSupplement::kTime)) {
+			if(P_Owner && SupplementLinkCtrlId) {
+				TView * p_view = P_Owner->getCtrlView(SupplementLinkCtrlId);
+				if(TView::IsSubSign(p_view, TV_SUBSIGN_INPUTLINE)) {
+					SlExtraProcBlock epb;
+					SLS.GetExtraProcBlock(&epb);
+					if(epb.F_UiSupplementWindow) {
+						bool   is_data_type_valid = false;
+						TInputLine * p_il = static_cast<TInputLine *>(p_view);
+						const TYPEID il_type_id = p_il->getType();
+						SUiCtrlSupplement::DataBlock dblk;
+						if(SupplementRole == SUiCtrlSupplement::kDateCalendar) {
+							if(il_type_id == T_DATE) {
+								p_il->TransmitData(-1, &dblk.Dtm.d);
+								is_data_type_valid = true;
+							}
+							else if(GETSTYPE(il_type_id) == S_ZSTRING) {
+							}
+						}
+						else if(SupplementRole == SUiCtrlSupplement::kDateRangeCalendar) {
+							p_il->GetDateRange(0, &dblk.Period);
+							is_data_type_valid = true;
+						}
+						else if(SupplementRole == SUiCtrlSupplement::kTime) {
+							if(il_type_id == T_TIME) {
+								p_il->TransmitData(-1, &dblk.Dtm.t);
+								is_data_type_valid = true;
+							}
+							else if(GETSTYPE(il_type_id) == S_ZSTRING) {
+							}
+						}
+						if(is_data_type_valid) {
+							done = true;
+							if(epb.F_UiSupplementWindow(SupplementRole, P_Owner, SupplementLinkCtrlId, &dblk) > 0) {
+								//ok = SetupDate(dblk.Dtm.d);
+								if(SupplementRole == SUiCtrlSupplement::kDateCalendar) {
+									if(il_type_id == T_DATE) {
+										p_il->TransmitData(+1, &dblk.Dtm.d);
+										is_data_type_valid = true;
+									}
+									else if(GETSTYPE(il_type_id) == S_ZSTRING) {
+									}
+								}
+								else if(SupplementRole == SUiCtrlSupplement::kDateRangeCalendar) {
+									p_il->SetDateRange(&dblk.Period);
+								}
+								else if(SupplementRole == SUiCtrlSupplement::kTime) {
+									if(il_type_id == T_TIME) {
+										p_il->TransmitData(+1, &dblk.Dtm.t);
+										is_data_type_valid = true;
+									}
+									else if(GETSTYPE(il_type_id) == S_ZSTRING) {
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		if(!done) {
+			if(SpcFlags & spcfBroadcast)
+				TView::messageBroadcast(P_Owner, Command, this);
+			else
+				MessageCommandToOwner(Command);
+		}
 	}
 }
 //
@@ -497,18 +589,18 @@ void TInputLine::InputStat::CheckIn()
 		case WM_NCPAINT:
 			{
 				/*
-		DRAWITEMSTRUCT * p_dis = reinterpret_cast<DRAWITEMSTRUCT *>(lParam);
-		TDrawItemData di;
-		di.CtlType = p_dis->CtlType;
-		di.CtlID   = p_dis->CtlID;
-		di.ItemID  = p_dis->itemID;
-		di.ItemAction = p_dis->itemAction;
-		di.ItemState  = p_dis->itemState;
-		di.H_Item   = p_dis->hwndItem;
-		di.H_DC     = p_dis->hDC;
-		di.ItemRect = p_dis->rcItem;
-		di.P_View   = getCtrlView(LOWORD(di.CtlID));
-		di.ItemData = p_dis->itemData;
+					DRAWITEMSTRUCT * p_dis = reinterpret_cast<DRAWITEMSTRUCT *>(lParam);
+					TDrawItemData di;
+					di.CtlType = p_dis->CtlType;
+					di.CtlID   = p_dis->CtlID;
+					di.ItemID  = p_dis->itemID;
+					di.ItemAction = p_dis->itemAction;
+					di.ItemState  = p_dis->itemState;
+					di.H_Item   = p_dis->hwndItem;
+					di.H_DC     = p_dis->hDC;
+					di.ItemRect = p_dis->rcItem;
+					di.P_View   = getCtrlView(LOWORD(di.CtlID));
+					di.ItemData = p_dis->itemData;
 				*/ 
 				HWND   focus_hwnd = GetFocus();
 				DRAWITEMSTRUCT di;
@@ -936,8 +1028,13 @@ IMPL_HANDLE_EVENT(TInputLine)
 void TInputLine::setState(uint aState, bool enable)
 {
 	TView::setState(aState, enable);
+	HWND h_wnd = getHandle();
 	if(aState == sfReadOnly)
-		::SendDlgItemMessage(Parent, Id, EM_SETREADONLY, BIN(enable), 0);
+		::SendMessage(h_wnd, EM_SETREADONLY, enable, 0);
+	// @v12.3.7 {
+	if(aState & (sfSelected|sfActive|sfDisabled))
+		::RedrawWindow(h_wnd, 0, 0, RDW_FRAME|RDW_INVALIDATE);
+	// } @v12.3.7 
 }
 
 int TInputLine::GetStatistics(Statistics * pStat) const
@@ -962,6 +1059,46 @@ int TInputLine::GetStatistics(Statistics * pStat) const
 	}
 	else
 		ok = 0;
+	return ok;
+}
+
+bool TInputLine::SetDateRange(const DateRange * pData)
+{
+	bool   ok = false;
+	if(oneof2(GETSTYPE(Type), S_ZSTRING, S_DATERANGE)) {
+		//char   b[64];
+		//b[0] = 0;
+		SString temp_buf;
+		if(pData) {
+			//periodfmt(*pData, b);
+			pData->ToStr(0, temp_buf);
+		}
+		setText(temp_buf/*b*/);
+	}
+	return ok;
+}
+
+bool TInputLine::GetDateRange(long strtoperiodFlags, DateRange * pData)
+{
+	bool   ok = false;
+	DateRange period;
+	period.Z();
+	{
+		SString temp_buf;
+		getText(temp_buf);
+		if(period.FromStr(temp_buf, strtoperiodFlags)) {
+			if(checkdate(period.low, 1) && checkdate(period.upp, 1)) {
+				const LDATE a_low = period.low.getactual(ZERODATE);
+				const LDATE a_upp = period.upp.getactual(ZERODATE);
+				ok = (!a_upp || !a_low || diffdate(a_upp, a_low) >= 0);
+			}
+		}
+		if(!ok) {
+			CALLPTRMEMB(P_Owner, SetCurrentView(this, normalSelect));
+			SLS.SetError(SLERR_INVDATERANGETEXT, temp_buf);
+		}
+	}
+	ASSIGN_PTR(pData, period);
 	return ok;
 }
 //
@@ -1071,6 +1208,13 @@ IMPL_HANDLE_EVENT(TCluster)
 			::SetWindowPos(h, 0, p_rc->a.x, p_rc->a.y, p_rc->width(), p_rc->height(), SWP_NOZORDER|SWP_NOCOPYBITS);
 			ArrangeItems(DIREC_VERT, false);
 			clearEvent(event);
+		}
+		else if(ItemList.getCount() == 1) {
+			h = GetDlgItem(Parent, MAKE_BUTTON_ID(Id, 1));
+			if(h) {
+				::SetWindowPos(h, 0, p_rc->a.x, p_rc->a.y, p_rc->width(), p_rc->height(), SWP_NOZORDER|SWP_NOCOPYBITS);
+				clearEvent(event);
+			}
 		}
 	}
 	else
@@ -1185,7 +1329,7 @@ void TCluster::ArrangeItems(int direction, bool tuneOnInit)
 					}
 					else {
 						POINT   pt_lu;
-						pt_lu.x = rc_cluster.left + padding_left;
+						pt_lu.x = rc_cluster.left + static_cast<int>(padding_left);
 						pt_lu.y = next_y;
 						MapWindowPoints(NULL, hw_parent, &pt_lu, 1);
 						::MoveWindow(h_wnd, pt_lu.x, pt_lu.y, static_cast<int>(max_item_width), rc_item.height(), FALSE);

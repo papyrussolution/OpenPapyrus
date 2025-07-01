@@ -1575,7 +1575,7 @@ int PPBillImpExpBaseProcessBlock::Select(int import)
 				SetupOprKindCombo(this, CTLSEL_IEBILLSEL_OP, init_op_id, 0, &op_types, 0);
 				SetupPPObjCombo(this, CTLSEL_IEBILLSEL_LOC, PPOBJ_LOCATION, P_Data->LocID, 0, 0);
 				SetupControlsForEdi();
-				SetPeriodInput(this, CTL_IEBILLSEL_PERIOD, &P_Data->Period);
+				SetPeriodInput(this, CTL_IEBILLSEL_PERIOD, P_Data->Period);
 				disableCtrls((P_Data->Flags & (PPBillImpExpBaseProcessBlock::fUhttImport|
 					PPBillImpExpBaseProcessBlock::fEgaisImpExp|PPBillImpExpBaseProcessBlock::fChZnImpExp)), CTLSEL_IEBILLSEL_BILL, CTLSEL_IEBILLSEL_BROW, 0);
 				disableCtrls((P_Data->Flags & (PPBillImpExpBaseProcessBlock::fEgaisImpExp|PPBillImpExpBaseProcessBlock::fChZnImpExp)), CTLSEL_IEBILLSEL_OP, 0L);
@@ -2973,7 +2973,7 @@ int PPBillImporter::AssignFnFieldToRecord(const /*StrAssocArray*/PPImpExpParam::
 								if(tag_rec.ObjTypeID == PPOBJ_LOCATION) {
 									PPIDArray loc_list;
 									if(PPRef->Ot.SearchObjectsByStr(PPOBJ_LOCATION, tag_rec.ID, token_text, &loc_list) > 0) {
-										assert(loc_list.getCount() > 0);
+										assert(loc_list.getCount());
 										if(loc_list.getCount()) {
 											pRecHdr->DlvrAddrID = loc_list.get(0);
 											pRecRow->DlvrAddrID = loc_list.get(0);

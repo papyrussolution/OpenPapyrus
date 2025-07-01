@@ -473,7 +473,7 @@ public:
 		PPID   acc_sheet_id = 0;
 		PPID   parent_grp_id = 0;
 		PPObjGoods goods_obj;
-		SetPeriodInput(this, CTL_BILLFLT_PERIOD, &Data.Period);
+		SetPeriodInput(this, CTL_BILLFLT_PERIOD, Data.Period);
 		SetupOpCombo();
 		GetOpCommonAccSheet(Data.OpID, &acc_sheet_id, 0);
 		SetupAccSheet(Data.AccSheetID ? Data.AccSheetID : acc_sheet_id);
@@ -700,7 +700,7 @@ public:
 			Data.Flags &= ~GoodsOpAnalyzeFilt::fComparePctDiff;
 		else if(Data.CmpPeriod.IsZero())
 			Data.Flags |= GoodsOpAnalyzeFilt::fComparePctDiff;
-		SetPeriodInput(this, CTL_GOODSOPRE_PERIOD, &Data.CmpPeriod);
+		SetPeriodInput(this, CTL_GOODSOPRE_PERIOD, Data.CmpPeriod);
 		AddClusterAssoc(CTL_GOODSOPRE_FLAGS, 0, GoodsOpAnalyzeFilt::ffldMainPeriod);
 		AddClusterAssoc(CTL_GOODSOPRE_FLAGS, 1, GoodsOpAnalyzeFilt::ffldCmpPeriod);
 		AddClusterAssoc(CTL_GOODSOPRE_FLAGS, 2, GoodsOpAnalyzeFilt::ffldDiff);
@@ -765,7 +765,7 @@ IMPL_HANDLE_EVENT(GoodsOpAnlzCmpFiltDialog)
 					if(Data.Period.upp != ZERODATE)
 						plusperiod(&(Data.CmpPeriod.upp = Data.Period.upp), period, -1, 0);
 				}
-				SetPeriodInput(this, CTL_GOODSOPRE_PERIOD, &Data.CmpPeriod);
+				SetPeriodInput(this, CTL_GOODSOPRE_PERIOD, Data.CmpPeriod);
 				clearEvent(event);
 			}
 			else if(TVKEY == kbF3 || TVKEY == kbF4 || TVKEY == kbF5) {

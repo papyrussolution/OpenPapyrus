@@ -1962,7 +1962,7 @@ int LocationDialog::setDTS(const PPLocationPacket * pData)
 			GetPersonName(Data.OwnerID, temp_buf);
 			setCtrlString(CTL_LOCATION_OWNERNAME, temp_buf);
 		}
-		setCtrlReadOnly(CTL_LOCATION_OWNERNAME, 1);
+		setCtrlReadOnly(CTL_LOCATION_OWNERNAME, true);
 	}
 	else if(oneof4(LocTyp, LOCTYP_WHZONE, LOCTYP_WHCOLUMN, LOCTYP_WHCELL, LOCTYP_WHCELLAUTOGEN)) {
 		PPID   par_wh_id = 0;

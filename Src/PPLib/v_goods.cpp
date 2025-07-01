@@ -4593,10 +4593,8 @@ int PPALDD_GoodsView::InitData(PPFilt & rFilt, long rsrv)
 	return DlRtm::InitData(rFilt, rsrv);
 }
 
-int PPALDD_GoodsView::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
-{
-	INIT_PPVIEW_ALDD_ITER(Goods);
-}
+void PPALDD_GoodsView::Destroy() { DESTROY_PPVIEW_ALDD(Goods); }
+int  PPALDD_GoodsView::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/) { INIT_PPVIEW_ALDD_ITER(Goods); }
 
 int PPALDD_GoodsView::NextIteration(PPIterID iterId)
 {
@@ -4607,8 +4605,6 @@ int PPALDD_GoodsView::NextIteration(PPIterID iterId)
 	PPWaitPercent(p_v->GetCounter());
 	FINISH_PPVIEW_ALDD_ITER();
 }
-
-void PPALDD_GoodsView::Destroy() { DESTROY_PPVIEW_ALDD(Goods); }
 //
 // Implementation of PPALDD_GoodsStruc
 //

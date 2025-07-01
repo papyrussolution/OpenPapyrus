@@ -431,8 +431,8 @@ PPListDialog::PPListDialog(uint rezID, uint aCtlList, long flags) : PPListDialog
 			P_Box->SetOwnerDrawState();
 	}
 	if(isCurrCtlID(CtlList) && (Options & oHasOkButton) && (Options & oHasEditButton)) {
-		SetDefaultButton(STDCTL_OKBUTTON,   0);
-	   	SetDefaultButton(STDCTL_EDITBUTTON, 1);
+		SetDefaultButton(STDCTL_OKBUTTON,   false);
+	   	SetDefaultButton(STDCTL_EDITBUTTON, true);
 	}
 	updateList(-1);
 }
@@ -541,12 +541,12 @@ IMPL_HANDLE_EVENT(PPListDialog)
 	else if(TVBROADCAST) {
 		if((Options & oHasOkButton) && (Options & oHasEditButton) && CtlList) {
 			if(TVCMD == cmReceivedFocus && event.isCtlEvent(CtlList)) {
-				SetDefaultButton(STDCTL_OKBUTTON,   0);
-				SetDefaultButton(STDCTL_EDITBUTTON, 1);
+				SetDefaultButton(STDCTL_OKBUTTON,   false);
+				SetDefaultButton(STDCTL_EDITBUTTON, true);
 			}
 			else if(TVCMD == cmReleasedFocus && event.isCtlEvent(CtlList)) {
-				SetDefaultButton(STDCTL_OKBUTTON,   1);
-				SetDefaultButton(STDCTL_EDITBUTTON, 0);
+				SetDefaultButton(STDCTL_OKBUTTON,   true);
+				SetDefaultButton(STDCTL_EDITBUTTON, false);
 			}
 		}
 		return;

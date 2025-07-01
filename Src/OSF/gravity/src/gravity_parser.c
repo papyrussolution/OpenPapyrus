@@ -318,7 +318,7 @@ gnode_t * parse_function(gravity_parser_t * parser, bool is_declaration, gtoken_
 	POP_DECLARATION();
 	// if func is declarared inside a variable declaration node then the semicolon check must be
 	// performed once at variable declaration node level ad not inside the func node
-	bool is_inside_var_declaration = ((parser->vdecl.getCount() > 0) && (parser->vdecl.getLast() == 1));
+	bool is_inside_var_declaration = (parser->vdecl.getCount() && parser->vdecl.getLast() == 1);
 	func->is_closure = is_inside_var_declaration;
 	// parse optional semicolon
 	if(!is_inside_var_declaration) 
@@ -2535,7 +2535,7 @@ gnode_t * gravity_parser_run(gravity_parser_t * parser, gravity_delegate_t * del
 		return NULL;
 	}
 	// if there are some open declarations then there should be an error somewhere
-	if(parser->declarations->getCount() > 0) 
+	if(parser->declarations->getCount()) 
 		return NULL;
 	// return ast
 	return gnode_block_stat_create(NODE_LIST_STAT, NO_TOKEN, parser->statements, NULL, 0);

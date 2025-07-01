@@ -2336,7 +2336,7 @@ int BillTransmDeficit::ProcessDeficit(ObjTransmContext * pCtx, int * pNextPassNe
 				}
 				else if(pCtx->Cfg.Flags & DBDXF_SUBSTDEFICITGOODS) {
 					PPIDArray goods_list;
-					if(GetGoodsDeficitList(&goods_list) > 0 && goods_list.getCount() > 0) {
+					if(GetGoodsDeficitList(&goods_list) > 0 && goods_list.getCount()) {
 						ResolveGoodsItemList list;
 						list = goods_list;
 						PPWaitStop();

@@ -2471,7 +2471,7 @@ int TProgram::DrawInputLine3(HWND hwnd, DRAWITEMSTRUCT * pDi)
 			}
 			{
 				FRect rect_elem_f(rect_elem);
-				rect_elem_f.Grow(-0.5f, -0.5f);
+				// @v12.3.7 rect_elem_f.Grow(-0.5f, -0.5f);
 				canv.RoundRect(rect_elem_f, /*3*/0, pen_id, 0/*brush_id*/);
 				//
 				/* test

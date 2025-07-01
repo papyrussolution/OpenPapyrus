@@ -117,6 +117,7 @@ int CallbackCompress(long, long, const char *, int)
 	/*IntRange*/int irange;
 	CtmProperty prop;
 	CtmPropertySheet propsheet;
+	CtmUiSupplement uisupplement;
 }
 
 %token T_AND
@@ -178,11 +179,12 @@ int CallbackCompress(long, long, const char *, int)
 %token <token>    T_TREELISTBOX
 %token <token>    T_DESCRIPT
 %token <token>    T_HANDLER
-//%token <token>    T_LAYOUT // @v10.9.3 "layout" 
-%token <token>    T_VIEW // @v11.0.4 "view" 
+//%token <token>    T_LAYOUT    // @v10.9.3 "layout" 
+%token <token>    T_VIEW        // @v11.0.4 "view" 
 %token <token>    T_BYCONTAINER // @v11.0.4
-%token <token>    T_BYCONTENT // @v11.0.5
-%token <token>    T_CINCLIDE // @v12.3.3 cinclude "file_name" включение заголовочного c-файла для получения идентификаторов символов
+%token <token>    T_BYCONTENT   // @v11.0.5
+%token <token>    T_CINCLIDE    // @v12.3.3 cinclude "file_name" включение заголовочного c-файла для получения идентификаторов символов
+%token <token>    T_SUPPLEMENT  // @v12.3.7 supplement (дополнение к UI-управляющему элементу)
 
 %type <sival>    parent_struc
 %type <sival>    expstruc_head
@@ -227,6 +229,7 @@ int CallbackCompress(long, long, const char *, int)
 %type <token>     propval // @v11.0.4
 %type <token>     identlist // @v12.3.5
 %type <token>     ident_seq // @v12.3.5 helper for identlist
+%type <uisupplement> uictrl_supplement_opt // @v12.3.7
 
 %nonassoc IFXS
 %nonassoc IFX
@@ -1169,7 +1172,7 @@ view_decl_prefix : T_VIEW { $$.Copy($1); ZapToken($1); }
 | T_LISTBOX { $$.Copy($1); ZapToken($1); } 
 | T_TREELISTBOX { $$.Copy($1); ZapToken($1); }
 // 
-view_decl_head : view_decl_prefix brak_prop_sheet uictrl_type_opt 
+view_decl_head : view_decl_prefix brak_prop_sheet uictrl_type_opt uictrl_supplement_opt
 {
 	DLSYMBID scope_id = 0;
 	if($1.Code == T_DIALOG) {
@@ -1181,11 +1184,12 @@ view_decl_head : view_decl_prefix brak_prop_sheet uictrl_type_opt
 	if(!scope_id)
 		DCtx.Error();
 	else {
-		DCtx.ApplyBrakPropList(scope_id, &$1, $3, $2);
+		DCtx.ApplyBrakPropList(scope_id, &$1, $3/*type*/, $2/*properties*/, $4/*supplement*/);
 	}
 	ZapToken($1);
 	$2.Destroy();
-} | view_decl_prefix T_IDENT brak_prop_sheet uictrl_type_opt 
+	$4.Destroy(); // supplement
+} | view_decl_prefix T_IDENT brak_prop_sheet uictrl_type_opt uictrl_supplement_opt
 {
 	SString name($2.U.S);
 	DLSYMBID scope_id = 0;
@@ -1198,10 +1202,11 @@ view_decl_head : view_decl_prefix brak_prop_sheet uictrl_type_opt
 	if(!scope_id)
 		DCtx.Error();
 	else {
-		DCtx.ApplyBrakPropList(scope_id, &$1, $4, $3);
+		DCtx.ApplyBrakPropList(scope_id, &$1, $4, $3, $5/*supplement*/);
 	}
 	ZapToken($1);
 	$3.Destroy();
+	$5.Destroy(); // supplement
 }
 
 view_decl_list : | decl_view { } | view_decl_list decl_view {}
@@ -1244,6 +1249,35 @@ uictrl_type : T_TYPE
 }
 
 uictrl_type_opt : uictrl_type { $$ = $1; } | { $$ = 0; }
+
+uictrl_supplement_opt : T_SUPPLEMENT T_IDENT '(' T_IDENT ')' 
+{
+	$$.Init();
+	$$.Kind = $2;
+	$$.Symb = $4;
+} | T_SUPPLEMENT T_IDENT '(' T_IDENT optional_divider_comma_space T_IDENT ')' 
+{
+	$$.Init();
+	$$.Kind = $2;
+	$$.Symb = $4;
+	$$.CmdSymb = $6;
+} | T_SUPPLEMENT T_IDENT '(' T_IDENT optional_divider_comma_space T_CONST_STR ')' 
+{
+	$$.Init();
+	$$.Kind = $2;
+	$$.Symb = $4;
+	$$.Text = $6;
+} | T_SUPPLEMENT T_IDENT '(' T_IDENT optional_divider_comma_space T_IDENT optional_divider_comma_space T_CONST_STR ')' 
+{
+	$$.Init();
+	$$.Kind = $2;
+	$$.Symb = $4;
+	$$.CmdSymb = $6;
+	$$.Text = $8;
+} |
+{
+	$$.Init();
+}
 
 /* @construction */
 %%

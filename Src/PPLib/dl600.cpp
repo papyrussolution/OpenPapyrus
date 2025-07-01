@@ -1542,6 +1542,7 @@ DlContext::DlContext(int toCompile) : Ht(8192, 1), ScopeStack(sizeof(DLSYMBID)),
 		AddType("ipoint2",  MKSTYPE(S_IPOINT2, sizeof(SPoint2S)));
 		AddType("fpoint2",  MKSTYPE(S_FPOINT2, sizeof(SPoint2F)));
 		AddType("guid",     MKSTYPE(S_UUID_, sizeof(S_GUID)));
+		AddType("daterange", MKSTYPE(S_DATERANGE, 8)); // @v12.3.7
 		BuiltinOp(0, 0);
 		AddMacro("Date2WStr", "date2wstr");
 		AddMacro("Date2Str",  "date2str");
@@ -3256,12 +3257,14 @@ int DlContext::Error(int errCode, const char * pAddedInfo, long flags /* erfXXX 
 		{PPERR_DL6_SYMBIDBUSY,        "Идентификатор символа занят: %s" },
 		{PPERR_DL6_INVPROPTYPE,       "Недопустимый тип данных для свойства '%s'" },
 		{PPERR_DL6_INVCONSTDESCR,     "Недопустимый дескриптор константы" },
-		{PPERR_DL6_PROP_INVMARGINVAL,     "DL600 ошибка в свойстве 'margin' - ожидается 4-компонентное значение {l, t, r, b}" },
-		{PPERR_DL6_PROP_MARGINRANGEVIOL,  "DL600 ошибка в свойстве 'margin' - недопустимое значение одного или нескольких компонентов margin"  },
-		{PPERR_DL6_PROP_PMARGINOCCURED,   "DL600 ошибка в свойстве 'margin' - один из компонентов margin уже был определен" },
-		{PPERR_DL6_PROP_INVPADDINGVAL,    "DL600 ошибка в свойстве 'padding' - ожидается 4-компонентное значение {l, t, r, b}" }, 
-		{PPERR_DL6_PROP_PPADDINGOCCURED,  "DL600 ошибка в свойстве 'padding' - один из компонентов padding уже был определен" },
-		{PPERR_DL6_PROP_PADDINGRANGEVIOL, "DL600 ошибка в свойстве 'padding' - недопустимое значение одного или нескольких компонентов padding" },
+		{PPERR_DL6_PROP_INVMARGINVAL,      "DL600 ошибка в свойстве 'margin' - ожидается 4-компонентное значение {l, t, r, b}" },
+		{PPERR_DL6_PROP_MARGINRANGEVIOL,   "DL600 ошибка в свойстве 'margin' - недопустимое значение одного или нескольких компонентов margin"  },
+		{PPERR_DL6_PROP_PMARGINOCCURED,    "DL600 ошибка в свойстве 'margin' - один из компонентов margin уже был определен" },
+		{PPERR_DL6_PROP_INVPADDINGVAL,     "DL600 ошибка в свойстве 'padding' - ожидается 4-компонентное значение {l, t, r, b}" }, 
+		{PPERR_DL6_PROP_PPADDINGOCCURED,   "DL600 ошибка в свойстве 'padding' - один из компонентов padding уже был определен" },
+		{PPERR_DL6_PROP_PADDINGRANGEVIOL,  "DL600 ошибка в свойстве 'padding' - недопустимое значение одного или нескольких компонентов padding" },
+		{PPERR_DL6_PROP_INVALIDSYMB,       "DL600 неизвестный символ свойства '%s'" }, // @v12.3.7
+		{PPERR_DL6_UISUPPLEMENT_UNDEFKIND, "DL600 неизвстный вид дополнения '%s' к управляющему элементу UI" }, // @v12.3.7
 	};
 	SETIFZ(errCode, LastError);
 	const char * p_msg = SIntToSymbTab_GetSymbPtr(msg_list, SIZEOFARRAY(msg_list), errCode);

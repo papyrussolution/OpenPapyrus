@@ -1162,10 +1162,8 @@ int PPALDD_LocTransfView::InitData(PPFilt & rFilt, long rsrv)
 	return DlRtm::InitData(rFilt, rsrv);
 }
 
-int PPALDD_LocTransfView::InitIteration(long iterId, int sortId, long rsrv)
-{
-	INIT_PPVIEW_ALDD_ITER(LocTransf);
-}
+void PPALDD_LocTransfView::Destroy() { DESTROY_PPVIEW_ALDD(LocTransf); }
+int  PPALDD_LocTransfView::InitIteration(long iterId, int sortId, long rsrv) { INIT_PPVIEW_ALDD_ITER(LocTransf); }
 
 int PPALDD_LocTransfView::NextIteration(long iterId)
 {
@@ -1191,4 +1189,3 @@ int PPALDD_LocTransfView::NextIteration(long iterId)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-void PPALDD_LocTransfView::Destroy() { DESTROY_PPVIEW_ALDD(LocTransf); }

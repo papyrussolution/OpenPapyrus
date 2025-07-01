@@ -1894,7 +1894,7 @@ int CTableTimeChunkGrid::GetText(int item, long id, SString & rBuf)
 			SCardTbl::Rec sc_rec;
 			PPLoadString("booking", temp_buf);
 			rBuf.Cat(temp_buf).CR();
-			ord.Chunk.ToStr(temp_buf.Z(), STimeChunk::fmtOmitSec);
+			ord.Chunk.ToStr(STimeChunk::fmtOmitSec, temp_buf.Z());
 			rBuf.Cat(temp_buf).CR();
 			temp_buf.Z();
 			if(ord.SCardID && P_To->GetSCard(ord.SCardID, &sc_rec) > 0) {

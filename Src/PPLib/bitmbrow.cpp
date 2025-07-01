@@ -3195,6 +3195,7 @@ public:
 			const long exstyle = TView::SGetWindowExStyle(H());
 			TView::SetWindowProp(H(), GWL_EXSTYLE, (exstyle | WS_EX_COMPOSITED));
 		}
+		selectCtrl(CTL_LOTXCCKLIST_LIST);
 		AddClusterAssoc(CTL_LOTXCCKLIST_FLAGS, 0, vfShowUncheckedItems);
 		SetClusterData(CTL_LOTXCCKLIST_FLAGS, 0);
 	}
@@ -3600,6 +3601,7 @@ int BillItemBrowser::EditExtCodeList(int rowIdx)
 		LotXCodeListDialog(/*const*/PPBillPacket * pPack, int rowIdx) : LotXCodeListDialog_Base(DLG_LOTXCLIST, CTL_LOTXCLIST_LIST, pPack, rowIdx, fOmitSearchByFirstChar)
 		{
 			ContextMenuID = CTRLMENU_LOTXCODELIST;
+			selectCtrl(CTL_LOTXCLIST_LIST);
 		}
 	private:
 		DECL_HANDLE_EVENT
@@ -3734,7 +3736,8 @@ int BillItemBrowser::EditExtCodeList(int rowIdx)
 			int    ok = -1;
 			uint   sel = 0;
 			TDialog * dlg = new TDialog(DLG_LOTEXTCODE);
-			SString temp_buf, info_buf;
+			SString temp_buf;
+			SString info_buf;
 			ReceiptTbl::Rec lot_rec;
 			ReceiptCore & r_rcpt = p_bobj->trfr->Rcpt;
 			const bool dont_veryfy_mark = LOGIC(p_bobj->GetConfig().Flags & BCF_DONTVERIFEXTCODECHAIN);

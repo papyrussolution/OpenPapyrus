@@ -616,7 +616,7 @@ int GoodsRestFiltDlg::setDTS(const GoodsRestFilt * pFilt)
 		disableCtrl(CTLSEL_GOODSREST_LOTTAG, Data.DiffParam != GoodsRestParam::_diffLotTag);
 	}
 	setWL(BIN(Data.Flags & GoodsRestFilt::fLabelOnly));
-	SetPeriodInput(this, CTL_GOODSREST_DRAFTPRD, &Data.DraftRcptPrd);
+	SetPeriodInput(this, CTL_GOODSREST_DRAFTPRD, Data.DraftRcptPrd);
 	SetupStringCombo(this, CTLSEL_GOODSREST_ORD, PPTXT_GOODSRESTORDER, Data.InitOrder); // @v11.4.6
 	SetupCtrls();
 	SetupCrosstab();
@@ -693,12 +693,12 @@ void GoodsRestFiltDlg::SetupCtrls()
 			LDATE dt = ZERODATE;
 			getCtrlData(CTL_GOODSREST_DATE, &dt);
 			Data.DraftRcptPrd.Set(dt, ZERODATE);
-			SetPeriodInput(this, CTL_GOODSREST_DRAFTPRD, &Data.DraftRcptPrd);
+			SetPeriodInput(this, CTL_GOODSREST_DRAFTPRD, Data.DraftRcptPrd);
 		}
 	}
 	else {
 		Data.DraftRcptPrd.Z();
-		SetPeriodInput(this, CTL_GOODSREST_DRAFTPRD, &Data.DraftRcptPrd);
+		SetPeriodInput(this, CTL_GOODSREST_DRAFTPRD, Data.DraftRcptPrd);
 	}
 	disableCtrl(CTL_GOODSREST_DRAFTPRD, !BIN(Data.Flags & GoodsRestFilt::fShowDraftReceipt));
 	::EnableWindow(::GetDlgItem(H(), CTLCAL_GOODSREST_DRAFTPRD), BIN(Data.Flags & GoodsRestFilt::fShowDraftReceipt));
@@ -831,7 +831,7 @@ IMPL_HANDLE_EVENT(GoodsRestWPrgnFltDlg)
 		if(num_days > 0 && dt) {
 			DateRange period;
 			period.Set(plusdate(dt, 1), plusdate(dt, num_days));
-			SetPeriodInput(this, CTL_GRWPRGNFLT_PRGNPRD, &period);
+			SetPeriodInput(this, CTL_GRWPRGNFLT_PRGNPRD, period);
 		}
 		clearEvent(event);
 	}
@@ -847,7 +847,7 @@ int GoodsRestWPrgnFltDlg::setDTS(const GoodsRestFilt * pFilt)
 	PredictSalesCore psc;
 	psc.GetTblUpdateDt(&last_update);
 	setCtrlData(CTL_GRWPRGNFLT_FILLDATE, &last_update);
-	SetPeriodInput(this, CTL_GRWPRGNFLT_PRGNPRD, &Filt.PrgnPeriod);
+	SetPeriodInput(this, CTL_GRWPRGNFLT_PRGNPRD, Filt.PrgnPeriod);
 	setCtrlData(CTL_GRWPRGNFLT_DATE, &Filt.Date);
 	GoodsFiltCtrlGroup::Rec gf_rec(Filt.GoodsGrpID, 0, 0, GoodsCtrlGroup::enableSelUpLevel);
 	setGroupData(ctlgroupGoodsFilt, &gf_rec);
@@ -3190,7 +3190,7 @@ int PPViewGoodsRest::CalcTotal(GoodsRestTotal * pTotal)
 int PPViewGoodsRest::ViewPrediction(PPID goodsID, PPID /*locID*/)
 {
 	DateRange prd = Filt.PrgnPeriod;
-	if(!(Filt.Flags2 & GoodsRestFilt::f2CalcPrognosis) && DateRangeDialog(0, 0, &prd) > 0) {
+	if(!(Filt.Flags2 & GoodsRestFilt::f2CalcPrognosis) && DateRangeDialog(0, 0, prd) > 0) {
 		if(prd.IsZero()) {
 			const LDATE now_date = getcurdate_();
 			prd.Set(now_date, plusdate(now_date, 6));
@@ -3202,7 +3202,7 @@ int PPViewGoodsRest::ViewPrediction(PPID goodsID, PPID /*locID*/)
 			if(CheckDialogPtrErr(&p_dlg)) {
 				SString goods_name;
 				p_dlg->setCtrlString(CTL_VIEWPRGN_GOODS, GetGoodsName(goodsID, goods_name));
-				SetPeriodInput(p_dlg, CTL_VIEWPRGN_PRDPRGN, &prd);
+				SetPeriodInput(p_dlg, CTL_VIEWPRGN_PRDPRGN, prd);
 				p_dlg->setCtrlData(CTL_VIEWPRGN_PROGNOSIS, &predict);
 				p_dlg->disableCtrls(1, CTL_VIEWPRGN_GOODS, CTL_VIEWPRGN_PRDPRGN, CTL_VIEWPRGN_PROGNOSIS, 0);
 				ExecViewAndDestroy(p_dlg);

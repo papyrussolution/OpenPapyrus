@@ -1036,7 +1036,7 @@ int VATBCfgDialog::setDTS(const VATBCfg * pData)
 	}
 	SetClusterData(CTL_VATBCFG_INCMPRD, Data.AcctgBasisAtPeriod);
 	SetupCalPeriod(CTLCAL_VATBCFG_PERIOD, CTL_VATBCFG_PERIOD);
-	SetPeriodInput(this, CTL_VATBCFG_PERIOD, &Data.Period);
+	SetPeriodInput(this, CTL_VATBCFG_PERIOD, Data.Period);
 	v = 0;
 	if(Data.Kind == PPVTB_SELL) {
 		AddClusterAssoc(CTL_VATBCFG_SELL_FLAGS, 0, VATBCfg::hfDontStornReckon);
@@ -1523,7 +1523,7 @@ public:
 		AddClusterAssoc(CTL_VATBFLT_WHAT, 1,  PPVTB_BUY);
 		AddClusterAssoc(CTL_VATBFLT_WHAT, 2,  PPVTB_SIMPLELEDGER);
 		SetClusterData(CTL_VATBFLT_WHAT, Data.Kind);
-		SetPeriodInput(this, CTL_VATBFLT_PERIOD, &Data.Period);
+		SetPeriodInput(this, CTL_VATBFLT_PERIOD, Data.Period);
 		SetupObj();
 		SETFLAG(v, 1, Data.Flags & VatBookFilt::fShowLink);
 		SETFLAG(v, 2, Data.Flags & VatBookFilt::fShowFree);
@@ -1606,7 +1606,7 @@ void VATBFiltDialog::SetupCtrls()
 			Data.Article2ID = Data.AccSheet2ID = 0;
 		SetupPPObjCombo(this, CTLSEL_VATBFLT_EOBJSHEET, PPOBJ_ACCSHEET, Data.AccSheet2ID, 0, 0);
 		SetupArCombo(this, CTLSEL_VATBFLT_EXTOBJ, Data.Article2ID, OLW_LOADDEFONOPEN, Data.AccSheet2ID, sacfDisableIfZeroSheet);
-		disableCtrl(CTLSEL_VATBFLT_EOBJSHEET, Data.Flags & VatBookFilt::fOnlyEmptyExtAr);
+		disableCtrl(CTLSEL_VATBFLT_EOBJSHEET, LOGIC(Data.Flags & VatBookFilt::fOnlyEmptyExtAr));
 	}
 	else {
 		Data.Article2ID = Data.AccSheet2ID = 0;
@@ -1988,9 +1988,9 @@ public:
 		if(!RVALUEPTR(Data, pData))
 			MEMSZERO(Data);
 		setWL(BIN(Data.Flags & PPViewVatBook::abfWL));
-		SetPeriodInput(this, CTL_VATBABFLT_PERIOD,   &Data.Period);
-		SetPeriodInput(this, CTL_VATBABFLT_SHIPMPRD, &Data.ShipmPeriod);
-		disableCtrl(CTL_VATBABFLT_SHIPMPRD, (Data.Flags & PPViewVatBook::abfByPayment) ? 0 : 1);
+		SetPeriodInput(this, CTL_VATBABFLT_PERIOD,   Data.Period);
+		SetPeriodInput(this, CTL_VATBABFLT_SHIPMPRD, Data.ShipmPeriod);
+		disableCtrl(CTL_VATBABFLT_SHIPMPRD, !(Data.Flags & PPViewVatBook::abfByPayment));
 		SetupArCombo(this, CTLSEL_VATBABFLT_OBJECT, Data.ObjectID,  OLW_LOADDEFONOPEN, Data.AccSheetID, sacfDisableIfZeroSheet);
 		if(Kind != PPVTB_SELL)
 			Data.Object2ID = Data.AccSheet2ID = 0;
@@ -2037,7 +2037,7 @@ private:
 				Data.AccSheet2ID = Data.Object2ID = 0;
 			SetupPPObjCombo(this, CTLSEL_VATBABFLT_SHEET2, PPOBJ_ACCSHEET, Data.AccSheet2ID, 0, 0);
 			SetupArCombo(this, CTLSEL_VATBABFLT_OBJECT2, Data.Object2ID, OLW_LOADDEFONOPEN, Data.AccSheet2ID, sacfDisableIfZeroSheet);
-			disableCtrl(CTLSEL_VATBABFLT_SHEET2, Data.Flags & PPViewVatBook::abfOnlyEmptyExtAr);
+			disableCtrl(CTLSEL_VATBABFLT_SHEET2, LOGIC(Data.Flags & PPViewVatBook::abfOnlyEmptyExtAr));
 		}
 		else {
 			disableCtrls(1, CTLSEL_VATBABFLT_SHEET2, CTLSEL_VATBABFLT_OBJECT2, 0);

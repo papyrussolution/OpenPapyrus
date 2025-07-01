@@ -658,7 +658,7 @@ public:
 		SetClusterData(CTL_ARTICLE_FLAGS, P_Data->Rec.Flags);
 
 		setCtrlData(CTL_ARTICLE_NAME, P_Data->Rec.Name);
-		setCtrlReadOnly(CTL_ARTICLE_NAME, BIN(P_Data->Options & ArticleDlgData::fDisableName));
+		setCtrlReadOnly(CTL_ARTICLE_NAME, LOGIC(P_Data->Options & ArticleDlgData::fDisableName));
 		if(!P_Data->Rec.ObjID || !P_Data->Rec.AccSheetID || !AccSheetFounded)
 			enableCommand(cmaMore, 0);
 		enableCommand(cmAgreement, AgtFlags & (ACSHF_USESUPPLAGT|ACSHF_USECLIAGT));
@@ -993,7 +993,7 @@ int PPObjArticle::EditDialog(ArticleDlgData * pData)
 	dlg->enableCommand(cmOK, CheckRights(PPR_MOD));
 	dlg->setCtrlLong(CTL_ARTICLE_ID, pData->Rec.ID);
 	dlg->setCtrlData(CTL_ARTICLE_SHEETNAME, acs_rec.Name);
-	dlg->setCtrlReadOnly(CTL_ARTICLE_SHEETNAME, 1);
+	dlg->setCtrlReadOnly(CTL_ARTICLE_SHEETNAME, true);
 	if(sel_linkobj) {
 		long   sel_extra = 0;
 		if(acs_rec.Assoc == PPOBJ_LOCATION)
@@ -1333,9 +1333,10 @@ int PPObjArticle::GetByPerson(PPID accSheetID, PPID psnID, PPID * pArID)
 	int    ok = -1;
 	PPID   ar_id = 0;
 	if(accSheetID && psnID) {
-		PPIDArray psn_list, ar_list;
+		PPIDArray psn_list;
+		PPIDArray ar_list;
 		psn_list.add(psnID);
-		if(GetByPersonList(accSheetID, &psn_list, &ar_list) && ar_list.getCount() > 0) {
+		if(GetByPersonList(accSheetID, &psn_list, &ar_list) && ar_list.getCount()) {
 			ar_id = ar_list.at(0);
 			ok = 1;
 		}
@@ -2425,7 +2426,7 @@ int DebtDimDialog::setDTS(const PPDebtDimPacket * pData)
 	setCtrlData(CTL_DEBTDIM_ID, &Data.Rec.ID);
 	setCtrlData(CTL_DEBTDIM_SYMB, Data.Rec.Symb);
 	setCtrlData(CTL_DEBTDIM_NAME, Data.Rec.Name);
-	disableCtrl(CTL_DEBTDIM_ID, Data.Rec.ID);
+	disableCtrl(CTL_DEBTDIM_ID, LOGIC(Data.Rec.ID));
 	updateList(-1);
 	return 1;
 }
@@ -2476,7 +2477,7 @@ int DebtDimDialog::editItem(long pos, long id)
 					PPIDArray agent_list2;
 					dd_pack.AgentList.CopyTo(&agent_list2);
 					agent_list2.intersect(&agent_list);
-					if(agent_list2.getCount() > 0) {
+					if(agent_list2.getCount()) {
 						GetObjectName(PPOBJ_ARTICLE, agent_list2.at(0), agent_name);
 						valid_data = 0;
 					}

@@ -1,5 +1,5 @@
 // ALCODECL-RU.CPP
-// Copyright (c) A.Sobolev 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 // Алкогольная декларация (Россия)
 //
@@ -675,7 +675,7 @@ public:
 		int    ok = 1;
 		RVALUEPTR(Data, pData);
 		//
-		SetPeriodInput(this, CTL_ALCODECL_PERIOD, &Data.Period);
+		SetPeriodInput(this, CTL_ALCODECL_PERIOD, Data.Period);
 		SetupPersonCombo(this, CTLSEL_ALCODECL_MAINORG, Data.MainOrgID, 0, PPPRK_MAIN, 1);
 		{
 			const  PPID main_org_id = NZOR(Data.MainOrgID, GetMainOrgID());

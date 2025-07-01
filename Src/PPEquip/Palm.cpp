@@ -525,12 +525,12 @@ public:
 		op_type_list.addzlist(PPOPT_GOODSORDER, PPOPT_GOODSEXPEND, 0L);
 		SetupOprKindCombo(this, CTLSEL_PALM_OP, Data.Rec.OrderOpID, 0, &op_type_list, 0);
 		if(getCtrlView(CTLSEL_PALM_INHBTAGVAL)) {
-			int    disable_inhtagval = 1;
+			bool   disable_inhtagval = true;
 			if(SpCfg.InhBillTagID) {
 				PPObjectTag tag_rec;
 				if(TagObj.Fetch(SpCfg.InhBillTagID, &tag_rec) > 0 && oneof2(tag_rec.TagDataType, OTTYP_OBJLINK, OTTYP_ENUM)) {
 					SetupPPObjCombo(this, CTLSEL_PALM_INHBTAGVAL, tag_rec.TagEnumID, Data.Rec.InhBillTagVal, OLW_CANINSERT, reinterpret_cast<void *>(tag_rec.LinkObjGrp));
-					disable_inhtagval = 0;
+					disable_inhtagval = false;
 				}
 			}
 			disableCtrl(CTLSEL_PALM_INHBTAGVAL, disable_inhtagval);

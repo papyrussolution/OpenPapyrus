@@ -2283,8 +2283,8 @@ static int EditRegFilt(PersonFilt * pFilt)
 			SetupExtRegCombo(this, CTLSEL_PFLTADVOPT_REG, &Data, sercfIdFromRegFilt|sercfRegsOnly);
 			setCtrlString(CTL_PFLTADVOPT_SERIAL, Reg.SerPattern);
 			setCtrlString(CTL_PFLTADVOPT_NUMBER, Reg.NmbPattern);
-			SetPeriodInput(this, CTL_PFLTADVOPT_REGPRD,    &Reg.RegPeriod);
-			SetPeriodInput(this, CTL_PFLTADVOPT_EXPIRYPRD, &Reg.ExpiryPeriod);
+			SetPeriodInput(this, CTL_PFLTADVOPT_REGPRD,    Reg.RegPeriod);
+			SetPeriodInput(this, CTL_PFLTADVOPT_EXPIRYPRD, Reg.ExpiryPeriod);
 			return 1;
 		}
 		DECL_DIALOG_GETDTS()
@@ -2363,7 +2363,7 @@ public:
 			DisableClusterItem(CTL_PSNFLT_FLAGS, 4, !(loc_cfg.Flags & PPLocationConfig::fUseFias) || !Data.IsLocAttr());
 		}
 		setCtrlData(CTL_PSNFLT_CASDT, &Data.ClientActivityEvalDate); // @v12.2.2
-		SetPeriodInput(this, CTL_PSNFLT_NEWCLIPERIOD, &Data.NewCliPeriod);
+		SetPeriodInput(this, CTL_PSNFLT_NEWCLIPERIOD, Data.NewCliPeriod);
 		// @v12.2.2 AddClusterAssoc(CTL_PSNFLT_NEWCLIONLY, 0, PersonFilt::fNewClientsOnly);
 		// @v12.2.2 SetClusterData(CTL_PSNFLT_NEWCLIONLY, Data.Flags);
 		// @v12.2.2 {
@@ -3511,7 +3511,7 @@ int PPViewPerson::SendMail(PPID mailAccId, const StrAssocArray * pMailList, PPLo
 {
 	int    ok = -1;
 	SendMailDialog * p_dlg = 0;
-	if(pMailList && pMailList->getCount() > 0) {
+	if(pMailList && pMailList->getCount()) {
 		SendMailDialog::Rec data;
 		THROW(CheckDialogPtr(&(p_dlg = new SendMailDialog())));
 		data.MailAccID = mailAccId;
@@ -4288,8 +4288,6 @@ int PPALDD_PersonList::NextIteration(PPIterID iterId)
 }
 
 void PPALDD_PersonList::Destroy() { DESTROY_PPVIEW_ALDD(Person); }
-
-#if 1 // @construction {
 //
 // Implementation of PPALDD_ClientActivity
 //
@@ -4314,10 +4312,8 @@ int PPALDD_ClientActivity::InitData(PPFilt & rFilt, long rsrv)
 	return DlRtm::InitData(rFilt, rsrv);
 }
 
-int PPALDD_ClientActivity::InitIteration(long iterId, int sortId, long/*rsrv*/)
-{
-	INIT_PPVIEW_ALDD_ITER(Person);
-}
+void PPALDD_ClientActivity::Destroy() { DESTROY_PPVIEW_ALDD(Person); }
+int  PPALDD_ClientActivity::InitIteration(long iterId, int sortId, long/*rsrv*/) { INIT_PPVIEW_ALDD_ITER(Person); }
 
 int PPALDD_ClientActivity::NextIteration(long iterId)
 {
@@ -4371,10 +4367,6 @@ int PPALDD_ClientActivity::NextIteration(long iterId)
 	*/
 	FINISH_PPVIEW_ALDD_ITER();
 }
-
-void PPALDD_ClientActivity::Destroy() { DESTROY_PPVIEW_ALDD(Person); }
-
-#endif // } 0 @construction
 //
 // Implementation of PPALDD_World
 //

@@ -672,7 +672,7 @@ private:
 
 void NamedObjAssocDialog::SetupScndObjGrp()
 {
-	int    dsbl_grp = 0;
+	bool   dsbl_grp = false;
 	if(Data.ScndObjType == PPOBJ_LOCATION) {
 		SetupStringCombo(this, CTLSEL_NOBJASSC_SCNDGRP, PPTXT_LOCTYPE, Data.ScndObjGrp);
 	}
@@ -684,7 +684,7 @@ void NamedObjAssocDialog::SetupScndObjGrp()
 		SetupPPObjCombo(this, CTLSEL_NOBJASSC_SCNDGRP, PPOBJ_PERSONKIND, Data.ScndObjGrp, 0, 0);
 	}
 	else
-		dsbl_grp = 1;
+		dsbl_grp = true;
 	disableCtrl(CTLSEL_NOBJASSC_SCNDGRP, dsbl_grp);
 }
 

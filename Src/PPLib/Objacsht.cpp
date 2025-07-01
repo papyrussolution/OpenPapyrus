@@ -112,8 +112,8 @@ void AccSheetDialog::checkLink()
 		if(!r)
 			PPError();
 		else {
-			const int has_link = (r < 0 || tmp_id == 1) ? 0 : 1;
-			disableCtrl(CTLSEL_ACCSHEET_GROUP, has_link);
+			const bool has_link = (r >= 0 && tmp_id != 1);
+			disableCtrl(CTLSEL_ACCSHEET_GROUP, has_link); // @verify
 		}
 	}
 }

@@ -27,7 +27,8 @@ int PPCFuncPaperRollOuterLayer(const StringSet * pParamList, char * pRes, size_t
 	int    ok = 1;
 	uint   pos = 0;
 	char   param[64];
-	double D = 0.0, W = 0.0;
+	double D = 0.0;
+	double W = 0.0;
 	long   N = 0;
 	double R = 0.0;
 	if(pParamList->get(&pos, param, sizeof(param))) {
@@ -57,7 +58,11 @@ int PPCFuncPaperRollUsagePart(const StringSet * pParamList, char * pRes, size_t 
 	int    ok = 1;
 	SString param;
 	uint   pos = 0;
-	double SD = 0.0, RD = 0.0, BD = 0.0, W = 0.0, R = 0.0;
+	double SD = 0.0;
+	double RD = 0.0;
+	double BD = 0.0;
+	double W = 0.0;
+	double R = 0.0;
 	THROW(pParamList->get(&pos, param));
 	SD = param.ToReal();
 	THROW(pParamList->get(&pos, param));
@@ -133,7 +138,7 @@ uint16 FASTCALL PPCalcFuncList::SearchFuncByName(const char * pName) const
 {
 	const uint c = getCount();
 	for(uint i = 0; i < c; i++) {
-		PPCalcFuncEntry * p_entry = at(i);
+		const PPCalcFuncEntry * p_entry = at(i);
 		if(p_entry->Name.CmpNC(pName) == 0)
 			return p_entry->FuncID;
 	}
@@ -493,8 +498,8 @@ private:
 
 int CalcDiffDialog::setupDiff()
 {
-	double old_diff = round(getCtrlReal(CTL_CALCDIFF_DIFF), 4);
-	double diff = round(getCtrlReal(CTL_CALCDIFF_CASH) - getCtrlReal(CTL_CALCDIFF_AMOUNT), 4);
+	const double old_diff = round(getCtrlReal(CTL_CALCDIFF_DIFF), 4);
+	const double diff = round(getCtrlReal(CTL_CALCDIFF_CASH) - getCtrlReal(CTL_CALCDIFF_AMOUNT), 4);
 	return (diff != old_diff) ? (setCtrlReal(CTL_CALCDIFF_DIFF, diff), 1) : 0;
 }
 
@@ -771,7 +776,7 @@ IMPL_HANDLE_EVENT(CalcTaxPriceDialog)
 		calc();
 	else if(event.isClusterClk(CTL_CALCTAXPRICE_CALCFLG)) {
 		ushort v = getCtrlUInt16(CTL_CALCTAXPRICE_CALCFLG);
-		disableCtrl(CTL_CALCTAXPRICE_WOTAX, v);
+		disableCtrl(CTL_CALCTAXPRICE_WOTAX, LOGIC(v));
 		disableCtrl(CTL_CALCTAXPRICE_WTAX, !v);
 	}
 	else if(TVBROADCAST)
@@ -941,14 +946,14 @@ int PosPaymentBlock::EditDialog2()
 			}
 			// } @v12.1.10 
 			SetClusterData(CTL_CPPAYM_KIND, Data.Kind);
-			disableCtrl(CTL_CPPAYM_CSHAMT, (Data.DisabledKinds & (1 << cpmCash)));
-			disableCtrl(CTL_CPPAYM_BNKAMT, (Data.DisabledKinds & (1 << cpmBank)));
-			disableCtrl(CTL_CPPAYM_CRDCARDAMT, (Data.DisabledKinds & (1 << cpmIncorpCrd)));
+			disableCtrl(CTL_CPPAYM_CSHAMT, LOGIC(Data.DisabledKinds & (1 << cpmCash)));
+			disableCtrl(CTL_CPPAYM_BNKAMT, LOGIC(Data.DisabledKinds & (1 << cpmBank)));
+			disableCtrl(CTL_CPPAYM_CRDCARDAMT, LOGIC(Data.DisabledKinds & (1 << cpmIncorpCrd)));
 			SetupKind(cpmUndef);
 			setCtrlReal(CTL_CPPAYM_CSHAMT, Data.CcPl.Get(CCAMTTYP_CASH));
 			setCtrlReal(CTL_CPPAYM_BNKAMT, Data.CcPl.Get(CCAMTTYP_BANK));
 			setCtrlReal(CTL_CPPAYM_CRDCARDAMT, 0.0);
-			setCtrlReadOnly(CTL_CPPAYM_CRDCARDAMT, 1);
+			setCtrlReadOnly(CTL_CPPAYM_CRDCARDAMT, true);
 			// @v12.0.6 {
 			AddClusterAssoc(CTL_CPPAYM_CASHLESSBPEQ, 0, PosPaymentBlock::fCashlessBypassEq);
 			SetClusterData(CTL_CPPAYM_CASHLESSBPEQ, Data.Flags);
@@ -1062,7 +1067,7 @@ int PosPaymentBlock::EditDialog2()
 									double nv = Data.CcPl.Replace(CCAMTTYP_CRDCARD, 0.0, _id, CCAMTTYP_CASH, CCAMTTYP_BANK);
 									SetupAmount(0);
 									{
-										setCtrlReadOnly(CTL_CPPAYM_CRDCARDAMT, 0);
+										setCtrlReadOnly(CTL_CPPAYM_CRDCARDAMT, false);
 										setCtrlReal(CTL_CPPAYM_CRDCARDAMT, r_entry.Amount);
 										selectCtrl(CTL_CPPAYM_CRDCARDAMT);
 									}
@@ -1394,7 +1399,7 @@ int PosPaymentBlock::EditDialog2()
 									to_replace_amt = input_amount;
 								if(to_replace_amt > 0.0) {
 									if(onScCodeInput) {
-										setCtrlReadOnly(CTL_CPPAYM_CRDCARDAMT, 0);
+										setCtrlReadOnly(CTL_CPPAYM_CRDCARDAMT, false);
 										setCtrlReal(CTL_CPPAYM_CRDCARDAMT, to_replace_amt);
 										selectCtrl(CTL_CPPAYM_CRDCARDAMT);
 									}
@@ -1414,7 +1419,7 @@ int PosPaymentBlock::EditDialog2()
 				}
 				if(!onScCodeInput) {
 					setCtrlString(CTL_CPPAYM_CRDCARD, temp_buf.Z());
-					setCtrlReadOnly(CTL_CPPAYM_CRDCARDAMT, 1);
+					setCtrlReadOnly(CTL_CPPAYM_CRDCARDAMT, true);
 					setCtrlReal(CTL_CPPAYM_CRDCARDAMT, 0.0);
 				}
 			}

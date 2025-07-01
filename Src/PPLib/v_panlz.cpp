@@ -67,7 +67,7 @@ public:
 	DECL_DIALOG_SETDTS()
 	{
 		RVALUEPTR(Data, pData);
-		SetPeriodInput(this, CTL_PANLZFLT_PERIOD, &Data.Period);
+		SetPeriodInput(this, CTL_PANLZFLT_PERIOD, Data.Period);
 		SetupArCombo(this, CTLSEL_PANLZFLT_SUPPL, Data.SupplID, 0, GetSupplAccSheet(), sacfDisableIfZeroSheet);
 		GoodsFiltCtrlGroup::Rec gf_rec(Data.GoodsGrpID, 0, 0, GoodsCtrlGroup::enableSelUpLevel);
 		setGroupData(ctlgroupGoodsFilt, &gf_rec);

@@ -504,10 +504,8 @@ int PPALDD_GoodsBillCmp::InitData(PPFilt & rFilt, long rsrv)
 	return DlRtm::InitData(rFilt, rsrv);
 }
 
-int PPALDD_GoodsBillCmp::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
-{
-	INIT_PPVIEW_ALDD_ITER(GoodsBillCmp);
-}
+void PPALDD_GoodsBillCmp::Destroy() { DESTROY_PPVIEW_ALDD(GoodsBillCmp); }
+int  PPALDD_GoodsBillCmp::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/) { INIT_PPVIEW_ALDD_ITER(GoodsBillCmp); }
 
 int PPALDD_GoodsBillCmp::NextIteration(PPIterID iterId)
 {
@@ -522,4 +520,3 @@ int PPALDD_GoodsBillCmp::NextIteration(PPIterID iterId)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-void PPALDD_GoodsBillCmp::Destroy() { DESTROY_PPVIEW_ALDD(GoodsBillCmp); }

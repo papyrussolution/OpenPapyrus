@@ -2319,6 +2319,9 @@ int PiritEquip::PreprocessChZnMark(const char * pMarkCode, double qtty, int uomI
 
 int PiritEquip::RunCheck(int opertype)
 {
+	constexpr bool fractional_medcine_to_1291 = false/*не работает*/; // @v12.3.7 Если true, то дробное количество лекарств передаются в поле
+		// количества команды 0x42 в виде n/m, в противном случае - в команде 0x24 в спец строке mdlp
+	
 	int    ok = 1;
 	int    flag = 0;
 	int    _halfbyte = 0;
@@ -2669,12 +2672,14 @@ int PiritEquip::RunCheck(int opertype)
 									CreateStr(str.Z(), in_data); // #1 (tag 1162) Код товарной номенклатуры (для офд 1.2 - пустая строка)
 									if(Check.ChZnProdType == 4) { // #2 (tag 1191) GTCHZNPT_MEDICINE
 										str = "mdlp";
-										if(Check.Qtty > 0.0 && Check.Qtty < 1.0 && Check.UomFragm > 0) {
-											double ip = 0.0;
-											double nmrtr = 0.0;
-											double dnmntr = 0.0;
-											if(fsplitintofractions(Check.Qtty, Check.UomFragm, 1E-5, &ip, &nmrtr, &dnmntr))
-												str.Cat(R0i(nmrtr)).Slash().Cat(R0i(dnmntr)).CatChar('&');
+										if(!fractional_medcine_to_1291) { // @v12.3.7
+											if(Check.Qtty > 0.0 && Check.Qtty < 1.0 && Check.UomFragm > 0) {
+												double ip = 0.0;
+												double nmrtr = 0.0;
+												double dnmntr = 0.0;
+												if(fsplitintofractions(Check.Qtty, Check.UomFragm, 1E-5, &ip, &nmrtr, &dnmntr))
+													str.Cat(R0i(nmrtr)).Slash().Cat(R0i(dnmntr)).CatChar('&');
+											}
 										}
 										CreateStr(str, in_data);
 									}
@@ -2770,6 +2775,7 @@ int PiritEquip::RunCheck(int opertype)
 								// @v11.2.6 {
 								str = "mdlp";
 								if(Check.Qtty > 0.0 && Check.Qtty < 1.0 && Check.UomFragm > 0) {
+									// Для ОФД пре-1.2 дробное количество передает так не зависимо от fractional_medcine_to_1291
 									double ip = 0.0;
 									double nmrtr = 0.0;
 									double dnmntr = 0.0;
@@ -2793,6 +2799,7 @@ int PiritEquip::RunCheck(int opertype)
 			(str = Check.Code).Trim(13); // [0..18]
 			CreateStr(str, in_data); // Артикул или штрихкод
 			{
+				bool   qtty_done = false; // @v12.3.7
 				double qtty = 0.0;
 				double price = 0.0;
 				if(Check.ChZnProdType == 1012 && Check.PhQtty > 0.0 && Check.UomId == SUOM_LITER) { // @v12.0.11 GTCHZNPT_DRAFTBEER_AWR
@@ -2803,7 +2810,26 @@ int PiritEquip::RunCheck(int opertype)
 					qtty = Check.Qtty;
 					price = Check.Price;
 				}
-				CreateStr(qtty, in_data);
+				// @v12.3.7 {
+				if(Check.ChZnProdType == 4) { // #2 (tag 1191) GTCHZNPT_MEDICINE
+					if(fractional_medcine_to_1291) { 
+						if(Check.Qtty > 0.0 && Check.Qtty < 1.0 && Check.UomFragm > 0) {
+							double ip = 0.0;
+							double nmrtr = 0.0;
+							double dnmntr = 0.0;
+							if(fsplitintofractions(Check.Qtty, Check.UomFragm, 1E-5, &ip, &nmrtr, &dnmntr)) {
+								str.Z().Cat(R0i(nmrtr)).Slash().Cat(R0i(dnmntr));
+								CreateStr(str, in_data);
+								qtty_done = true;
+							}
+						}
+					}
+				}
+				// } @v12.3.7 
+				if(!qtty_done) {
+					CreateStr(qtty, in_data);
+					qtty_done = true;
+				}
 				CreateStr(price, in_data);
 			}
 			CreateStr((int)Check.Tax, in_data); // Номер налоговой ставки

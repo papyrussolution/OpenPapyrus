@@ -601,7 +601,7 @@ private:
 AddrBookDialog::AddrBookDialog(int asSelector) : PPListDialog(DLG_ADDRBOOK, CTL_ADDRBOOK_LIST), Selection(0), AsSelector(asSelector)
 {
 	if(AsSelector)
-		setButtonText(cmOK, "Select");
+		SetButtonText(cmOK, "Select");
 	MEMSZERO(LastIdent);
 	updateList(0);
 }

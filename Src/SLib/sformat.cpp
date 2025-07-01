@@ -482,7 +482,6 @@ char * STDCALL _datefmt(int day, int mon, int year, int style, char * pBuf)
 	else if(day == 0 && mon == 0 && year == 0)
 		pBuf[0] = 0;
 	else {
-		int    d_ = 0, m_ = 0, y_ = 0;
 		int    shift;
 		char   sd[32], sm[32], sy[32];
 		sd[0] = sm[0] = sy[0] = 0;
@@ -606,16 +605,11 @@ char * STDCALL datefmt(const void * binDate, long fmt, char * txtDate)
 	return _commfmt(fmt, _datefmt(d, m, y, flag, txtDate));
 }
 
-char * FASTCALL periodfmt(const DateRange * pPeriod, char * pBuf)
+char * FASTCALL periodfmt(const DateRange & rPeriod, char * pBuf)
 {
 	char * p = pBuf;
-	LDATE  beg, end;
-	if(pPeriod) {
-		beg = pPeriod->low;
-		end = pPeriod->upp;
-	}
-	else
-		beg = end = ZERODATE;
+	const LDATE  beg = rPeriod.low;
+	const LDATE  end = rPeriod.upp;
 	if(beg)
 		p += sstrlen(datefmt(&beg, DATF_DMY|DATF_CENTURY, p));
 	if(beg != end) {
@@ -628,7 +622,8 @@ char * FASTCALL periodfmt(const DateRange * pPeriod, char * pBuf)
 	return pBuf;
 }
 
-int STDCALL periodfmtex(const DateRange * pPeriod, char * pBuf, size_t bufLen)
+#if 0 // @v12.3.7 (replaced with DateRange::ToStr) {
+int STDCALL periodfmtex(const DateRange & rPeriod, char * pBuf, size_t bufLen)
 {
 	static const char * quart[4] = { "I", "II", "III", "IV" };
 	int  r = -1;
@@ -640,8 +635,8 @@ int STDCALL periodfmtex(const DateRange * pPeriod, char * pBuf, size_t bufLen)
 	int  y2 = 0;
 	char period[64];
 	char * p = period;
-	decodedate(&d1, &m1, &y1, &pPeriod->low);
-	decodedate(&d2, &m2, &y2, &pPeriod->upp);
+	decodedate(&d1, &m1, &y1, &rPeriod.low);
+	decodedate(&d2, &m2, &y2, &rPeriod.upp);
 	if(d1 == 1 && (m2 && d2 == dayspermonth(m2, y2))) {
 		if(m1 == 1 && m2 == 12) {
 			if(y1 == y2)
@@ -689,12 +684,13 @@ int STDCALL periodfmtex(const DateRange * pPeriod, char * pBuf, size_t bufLen)
 		}
 	}
 	else {
-		periodfmt(pPeriod, period);
+		periodfmt(rPeriod, period);
 		r = PRD_DAY;
 	}
 	strnzcpy(pBuf, period, bufLen);
 	return r;
 }
+#endif // } 0 @v12.3.7 (replaced with DateRange::ToStr)
 //
 //
 //

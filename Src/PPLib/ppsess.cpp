@@ -1968,6 +1968,7 @@ static void InitTest()
 	STATIC_ASSERT(sizeof(PPComputerCategory) == sizeof(Reference2Tbl::Rec)); // @v12.0.10
 	STATIC_ASSERT(sizeof(PPRawMaterial) == sizeof(Reference2Tbl::Rec)); // @v12.0.10
 	STATIC_ASSERT(sizeof(PPGlobalUserAcc) == sizeof(Reference2Tbl::Rec)); // @v12.1.3
+	STATIC_ASSERT(sizeof(PPSalesRestriction) == sizeof(Reference2Tbl::Rec)); // @v12.3.7
 	{
         PPAccount::_A_ a1;
         PPAccount::_A_ a2;
@@ -2204,7 +2205,8 @@ static void FpeCatcher(int sig, int fpe)
 }
 
 int PPCallHelp(void * hWnd, uint cmd, uint ctx); // @prototype(pptvutil.cpp)
-int ExecDateCalendar(void * hParentWnd, LDATE * pDate); // @prototype(calendar.cpp)
+//@v12.3.7 int ExecDateCalendar(void * hParentWnd, LDATE * pDate); // @prototype(calendar.cpp)
+int PPExecSupplementWindow(int supplementKind, void * hParentWnd, uint linkCtlId, SUiCtrlSupplement::DataBlock * pData); // @v12.3.7 // @prototype(calendar.cpp)
 static int PPLoadStringFunc(const char * pSignature, SString & rBuf) { return PPLoadString(pSignature, rBuf); }
 static int PPExpandStringFunc(SString & rBuf, int ctransf) { return PPExpandString(rBuf, ctransf); }
 
@@ -2313,7 +2315,8 @@ int PPSession::Init(long flags, HINSTANCE hInst, const char * pUiDescriptionFile
 		if(!(flags & fWsCtlApp)) {
 			epb.F_CallHelp = PPCallHelp;
 			epb.F_CallCalc = PPCalculator;
-			epb.F_CallCalendar = ExecDateCalendar;
+			// @v12.3.7 epb.F_CallCalendar = ExecDateCalendar;
+			epb.F_UiSupplementWindow = PPExecSupplementWindow; // @v12.3.7 @todo
 		}
         epb.F_GetDefaultEncrKey = PPGetDefaultEncrKey;
         epb.F_QueryPath = PPQueryPathFunc;
@@ -5131,7 +5134,7 @@ DlContext * PPSession::Helper_GetInterfaceContext(DlContext ** ppCtx, uint fileI
 DlContext * PPSession::GetInterfaceContext(int ctxType)
 {
 	DlContext * p_ctx = 0;
-	if(oneof3(ctxType, ctxtExportData, ctxtInterface, ctxUiView, ctxUiViewLocal)) { // @v12.3.6 ctxUiView, ctxUiViewLocal
+	if(oneof4(ctxType, ctxtExportData, ctxtInterface, ctxUiView, ctxUiViewLocal)) { // @v12.3.6 ctxUiView, ctxUiViewLocal
 		PPThreadLocalArea & r_tla = DS.GetTLA();
 		switch(ctxType) {
 			case ctxtExportData: p_ctx = Helper_GetInterfaceContext(&r_tla.P_ExpCtx, PPFILNAM_DL600EXP, 0); break;
@@ -5353,6 +5356,7 @@ int PPSession::GetObjectTypeSymb(PPID objType, SString & rBuf)
 			case PPOBJ_RAWMATERIAL: val = PPHS_RAWMATERIAL; break; // @v12.0.11
 			case PPOBJ_ACCOUNT2: val = PPHS_ACCOUNT; break; // @v12.1.3
 			case PPOBJ_GOODSTAX: val = PPHS_GOODSTAX; break; // @v12.1.12
+			case PPOBJ_SALESRESTRICTION: val = PPHS_SALESRESTRICTION; break; // @v12.3.7
 		}
 		if(val)
 			ok = P_ObjIdentBlk->P_ShT->GetByAssoc(val, rBuf);
@@ -5420,6 +5424,7 @@ PPID PPSession::GetObjectTypeBySymb(const char * pSymb, long * pExtraParam)
 				case PPHS_RAWMATERIAL:    val = PPOBJ_RAWMATERIAL; break; // @v12.0.11
 				case PPHS_ACCOUNT:        val = PPOBJ_ACCOUNT2; break; // @v12.1.3
 				case PPHS_GOODSTAX:       val = PPOBJ_GOODSTAX; break; // @v12.1.12
+				case PPHS_SALESRESTRICTION: val = PPOBJ_SALESRESTRICTION; break; // @v12.3.7
 				default: PPSetError(PPERR_OBJTYPEBYSYMBNFOUND, pSymb); break;
 			}
 			obj_type = LoWord(val);

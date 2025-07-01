@@ -172,7 +172,7 @@ int ReportFiltDlg::setDTS(const ReportFilt * pData)
 	SetupStrAssocCombo(this, CTLSEL_REPORTFLT_STDNAME, StdReportList, _id, 0);
 	_id = (StrucList.SearchByTextNc(Data.StrucName, &pos) > 0) ? StrucList.Get(pos).Id : 0;
 	SetupStrAssocCombo(this, CTLSEL_REPORTFLT_STRUC, StrucList, _id, 0);
-	SetPeriodInput(this, CTL_REPORTFLT_PERIOD, &Data.Period);
+	SetPeriodInput(this, CTL_REPORTFLT_PERIOD, Data.Period);
 	AddClusterAssocDef(CTL_REPORTFLT_TYPE,  0, ReportFilt::rpttAll);
 	AddClusterAssoc(CTL_REPORTFLT_TYPE,  1, ReportFilt::rpttStandart);
 	AddClusterAssoc(CTL_REPORTFLT_TYPE,  2, ReportFilt::rpttLocal);
@@ -190,7 +190,7 @@ int ReportFiltDlg::getDTS(ReportFilt * pData)
 	uint   pos = 0;
 	StdReportList.GetText(getCtrlLong(CTLSEL_REPORTFLT_STDNAME), Data.StdName);
 	StrucList.GetText(getCtrlLong(CTLSEL_REPORTFLT_STRUC), Data.StrucName);
-	SetPeriodInput(this, CTL_REPORTFLT_PERIOD, &Data.Period);
+	SetPeriodInput(this, CTL_REPORTFLT_PERIOD, Data.Period);
 	GetClusterData(CTL_REPORTFLT_TYPE,  &Data.Type);
 	GetClusterData(CTL_REPORTFLT_ORDER, &Data.Order);
 	CALLPTRMEMB(pData, Copy(&Data, 1));

@@ -439,7 +439,7 @@ int PPViewPaymPlan::EditBaseFilt(PPBaseFilt * pBaseFilt)
 			RVALUEPTR(Data, pData);
 			CycleCtrlGroup::Rec cycle_rec;
 			SETIFZ(Data.AccSheetID, GetSellAccSheet());
-			SetPeriodInput(this, CTL_PAYPLANFLT_PERIOD, &Data.Period);
+			SetPeriodInput(this, CTL_PAYPLANFLT_PERIOD, Data.Period);
 			LocationCtrlGroup::Rec loc_rec(&Data.LocList);
 			setGroupData(ctlgroupLoc, &loc_rec);
 			SetupPPObjCombo(this, CTLSEL_PAYPLANFLT_SHEET, PPOBJ_ACCSHEET, Data.AccSheetID, 0, 0);
@@ -691,10 +691,8 @@ int PPALDD_PaymPlan::InitData(PPFilt & rFilt, long rsrv)
 	return DlRtm::InitData(rFilt, rsrv);
 }
 
-int PPALDD_PaymPlan::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
-{
-	INIT_PPVIEW_ALDD_ITER(PaymPlan);
-}
+void PPALDD_PaymPlan::Destroy() { DESTROY_PPVIEW_ALDD(PaymPlan); }
+int  PPALDD_PaymPlan::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/) { INIT_PPVIEW_ALDD_ITER(PaymPlan); }
 
 int PPALDD_PaymPlan::NextIteration(PPIterID iterId)
 {
@@ -710,5 +708,3 @@ int PPALDD_PaymPlan::NextIteration(PPIterID iterId)
 	PPWaitPercent(p_v->GetCounter());
 	FINISH_PPVIEW_ALDD_ITER();
 }
-
-void PPALDD_PaymPlan::Destroy() { DESTROY_PPVIEW_ALDD(PaymPlan); }

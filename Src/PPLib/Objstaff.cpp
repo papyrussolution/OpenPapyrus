@@ -908,7 +908,7 @@ public:
 		SetupCalDate(CTLCAL_PERSONPOST_DATE,   CTL_PERSONPOST_DATE);
 		SetupCalDate(CTLCAL_PERSONPOST_FINISH, CTL_PERSONPOST_FINISH);
 		enableCommand(cmAmounts, SlObj.CheckRights(PPObjStaffList::rtReadAmounts));
-		setCtrlReadOnly(CTL_PERSONPOST_ID, 1);
+		setCtrlReadOnly(CTL_PERSONPOST_ID, true);
 	}
 	int    setDTS(const PPPsnPostPacket * pData, long flags);
 	int    getDTS(PPPsnPostPacket * pData);
@@ -965,7 +965,7 @@ int PersonPostDialog::setDTS(const PPPsnPostPacket * pData, long flags)
 	dcgrec.StaffID = Data.Rec.StaffID;
 	setGroupData(GRP_DIV, &dcgrec);
 	disableCtrls(BIN(Flags & PPObjStaffList::epdfFixedPost), CTLSEL_PERSONPOST_ORG, CTLSEL_PERSONPOST_DIV, CTLSEL_PERSONPOST_POST, 0);
-	setCtrlReadOnly(CTL_PERSONPOST_ID, !BIN(Flags & PPObjStaffList::epdfRecover));
+	setCtrlReadOnly(CTL_PERSONPOST_ID, !(Flags & PPObjStaffList::epdfRecover));
 	setCtrlLong(CTL_PERSONPOST_ID, Data.Rec.ID);
 	SetupPPObjCombo(this, CTLSEL_PERSONPOST_PERSON, PPOBJ_PERSON, Data.Rec.PersonID, OLW_CANINSERT, reinterpret_cast<void *>(PPPRK_EMPL));
 	SetupPPObjCombo(this, CTLSEL_PERSONPOST_CHARGE, PPOBJ_SALCHARGE, Data.Rec.ChargeGrpID, OLW_CANINSERT, reinterpret_cast<void *>(-1000));

@@ -188,7 +188,7 @@ public:
 		SetClusterData(CTL_DBTEXP_FLAGS, Data.Flags);
 		SetupPPObjCombo(this, CTLSEL_DBTEXP_REFDBDIV, PPOBJ_DBDIV, Data.RefDbID, 0, 0);
 		setCtrlString(CTL_DBTEXP_PATH, Data.FileName);
-		disableCtrl(CTLSEL_DBTEXP_REFDBDIV, !BIN(Data.Flags & Data.fReplaceIdsBySync));
+		disableCtrl(CTLSEL_DBTEXP_REFDBDIV, !(Data.Flags & Data.fReplaceIdsBySync));
 		return ok;
 	}
 	DECL_DIALOG_GETDTS()
@@ -209,7 +209,7 @@ protected:
 		TDialog::handleEvent(event);
 		if(event.isClusterClk(CTL_DBTEXP_FLAGS)) {
 			GetClusterData(CTL_DBTEXP_FLAGS, &Data.Flags);
-			disableCtrl(CTLSEL_DBTEXP_REFDBDIV, !BIN(Data.Flags & Data.fReplaceIdsBySync));
+			disableCtrl(CTLSEL_DBTEXP_REFDBDIV, !(Data.Flags & Data.fReplaceIdsBySync));
 		}
 		else
 			return;
@@ -224,7 +224,7 @@ int PPDbTableXmlExportParam_TrfrBill::Edit(PPDbTableXmlExportParam_TrfrBill * pD
     if(CheckDialogPtrErr(&dlg)) {
 		dlg->SetupCalPeriod(CTLCAL_DBTEXP_PERIOD, CTL_DBTEXP_PERIOD);
 		dlg->setDTS(pData);
-        SetPeriodInput(dlg, CTL_DBTEXP_PERIOD, &pData->Period);
+        SetPeriodInput(dlg, CTL_DBTEXP_PERIOD, pData->Period);
         dlg->setCtrlString(CTL_DBTEXP_PATH, pData->FileName);
         while(ok < 0 && ExecView(dlg) == cmOK) {
 			uint   sel = 0;

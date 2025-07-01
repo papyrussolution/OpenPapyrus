@@ -2442,7 +2442,7 @@ IMPL_HANDLE_EVENT(SelectPersonByCodeDialog)
 void SelectPersonByCodeDialog::SetupCtrls()
 {
 	SString code;
-	PPID   psn_id = getCtrlLong(CTLSEL_SELPERSONC_PRSN);
+	const PPID psn_id = getCtrlLong(CTLSEL_SELPERSONC_PRSN);
 	if(psn_id) {
 		RegisterTbl::Rec reg_rec;
 		PsnObj.GetRegister(psn_id, PsnKindRec.CodeRegTypeID, &reg_rec);
@@ -2454,7 +2454,7 @@ void SelectPersonByCodeDialog::SetupCtrls()
 	}
 	else
 		showCtrl(CTLSEL_SELPERSONC_SCARD, false);
-	disableCtrl(CTL_SELPERSONC_CODEINP, psn_id);
+	disableCtrl(CTL_SELPERSONC_CODEINP, LOGIC(psn_id));
 	setCtrlString(CTL_SELPERSONC_CODEINP, code);
 }
 
@@ -3485,7 +3485,7 @@ public:
 				while(expr.Find(&scan, 0)) {
 					DateRange period;
 					scan.Get(temp_buf.Z());
-					if(strtoperiod(temp_buf, &period, 0)) {
+					if(period.FromStr(temp_buf, 0)) {
 						if(checkdate(period.low, 1)) {
 							LDATE dt_ = period.low.getactual(ZERODATE);
 							dt_list.add(dt_.v);

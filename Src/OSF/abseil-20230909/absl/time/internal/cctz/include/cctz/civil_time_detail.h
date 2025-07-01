@@ -83,32 +83,24 @@ CONSTEXPR_F bool is_leap_year(year_t y) noexcept {
 	return y % 4 == 0 && (y % 100 != 0 || y % 400 == 0);
 }
 
-CONSTEXPR_F int year_index(year_t y, month_t m) noexcept {
+CONSTEXPR_F int year_index(year_t y, month_t m) noexcept 
+{
 	const int yi = static_cast<int>((y + (m > 2)) % 400);
 	return yi < 0 ? yi + 400 : yi;
 }
 
-CONSTEXPR_F int days_per_century(int yi) noexcept {
-	return 36524 + (yi == 0 || yi > 300);
-}
+CONSTEXPR_F int days_per_century(int yi) noexcept { return 36524 + (yi == 0 || yi > 300); }
+CONSTEXPR_F int days_per_4years(int yi) noexcept { return 1460 + (yi == 0 || yi > 300 || (yi - 1) % 100 < 96); }
+CONSTEXPR_F int days_per_year(year_t y, month_t m) noexcept { return is_leap_year(y + (m > 2)) ? 366 : 365; }
 
-CONSTEXPR_F int days_per_4years(int yi) noexcept {
-	return 1460 + (yi == 0 || yi > 300 || (yi - 1) % 100 < 96);
-}
-
-CONSTEXPR_F int days_per_year(year_t y, month_t m) noexcept {
-	return is_leap_year(y + (m > 2)) ? 366 : 365;
-}
-
-CONSTEXPR_F int days_per_month(year_t y, month_t m) noexcept {
-	CONSTEXPR_D int k_days_per_month[1 + 12] = {
-		-1, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 // non leap year
-	};
+CONSTEXPR_F int days_per_month(year_t y, month_t m) noexcept 
+{
+	CONSTEXPR_D int k_days_per_month[1 + 12] = { -1, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 }; // non leap year
 	return k_days_per_month[m] + (m == 2 && is_leap_year(y));
 }
 
-CONSTEXPR_F fields n_day(year_t y, month_t m, diff_t d, diff_t cd, hour_t hh,
-    minute_t mm, second_t ss) noexcept {
+CONSTEXPR_F fields n_day(year_t y, month_t m, diff_t d, diff_t cd, hour_t hh, minute_t mm, second_t ss) noexcept 
+{
 	year_t ey = y % 400;
 	const year_t oey = ey;
 	ey += (cd / 146097) * 400;

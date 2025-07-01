@@ -1,5 +1,5 @@
 // OBJATURN.CPP
-// Copyright (c) A.Sobolev 1996-2000, 2001, 2002, 2003, 2004, 2005, 2006, 2009, 2010, 2013, 2015, 2016, 2017, 2019
+// Copyright (c) A.Sobolev 1996-2000, 2001, 2002, 2003, 2004, 2005, 2006, 2009, 2010, 2013, 2015, 2016, 2017, 2019, 2025
 //
 #include <pp.h>
 #pragma hdrstop
@@ -85,24 +85,24 @@ int PPObjAccTurn::CreateBlankAccTurnBySample(PPBillPacket * pPack, const PPBillP
 	long      f = 0;
 	PPAccTurnTemplArray att_list;
 	PPAccTurn at;
-	const PPAccTurn * p_sample_at = 0;
 	THROW(pPack->CreateBlankBySample(pSamplePack->Rec.ID, 1));
 	pPack->CreateAccTurn(at);
-	if(pSamplePack->Turns.getCount() > 0)
-		p_sample_at = & pSamplePack->Turns.at(0);
-	THROW(PPObjOprKind::GetATTemplList(pSamplePack->Rec.OpID, &att_list));
-	if(att_list.getCount()) {
-		PPAccTurnTempl & r_tmpl = att_list.at(0);
-		f = ATTF_TO_ATDF(r_tmpl.Flags);
-		at.DbtID = r_tmpl.DbtID;
-		at.CrdID = r_tmpl.CrdID;
-	}
-	if(p_sample_at) {
-		at.DbtID  = p_sample_at->DbtID;
-		at.CrdID  = p_sample_at->CrdID;
-		at.CurID  = p_sample_at->CurID;
-		at.CRate  = p_sample_at->CRate;
-		at.Amount = p_sample_at->Amount;
+	{
+		const PPAccTurn * p_sample_at = pSamplePack->Turns.getCount() ? &pSamplePack->Turns.at(0) : 0;
+		THROW(PPObjOprKind::GetATTemplList(pSamplePack->Rec.OpID, &att_list));
+		if(att_list.getCount()) {
+			PPAccTurnTempl & r_tmpl = att_list.at(0);
+			f = ATTF_TO_ATDF(r_tmpl.Flags);
+			at.DbtID = r_tmpl.DbtID;
+			at.CrdID = r_tmpl.CrdID;
+		}
+		if(p_sample_at) {
+			at.DbtID  = p_sample_at->DbtID;
+			at.CrdID  = p_sample_at->CrdID;
+			at.CurID  = p_sample_at->CurID;
+			at.CRate  = p_sample_at->CRate;
+			at.Amount = p_sample_at->Amount;
+		}
 	}
 	THROW(P_Tbl->AccObj.InitAccSheetForAcctID(&at.DbtID, &at.DbtSheet));
 	THROW(P_Tbl->AccObj.InitAccSheetForAcctID(&at.CrdID, &at.CrdSheet));
@@ -115,7 +115,8 @@ int PPObjAccTurn::CreateBlankAccTurnBySample(PPBillPacket * pPack, const PPBillP
 int PPObjAccTurn::SearchAccturnInPacketByCorrAcc(const PPBillPacket * pPack, int side, int ac, Acct * pCorrAcc, uint * pPos)
 {
 	for(uint i = 0; i < pPack->Turns.getCount(); i++) {
-		Acct   dbt, crd;
+		Acct   dbt;
+		Acct   crd;
 		PPID   cur_id = 0;
 		ConvertAcctID(pPack->Turns.at(i).DbtID, &dbt, &cur_id, 1 /* useCache */);
 		ConvertAcctID(pPack->Turns.at(i).CrdID, &crd, &cur_id, 1 /* useCache */);
@@ -184,7 +185,7 @@ int PPObjAccTurn::EditRecoverBalanceParam(RecoverBalanceParam * pParam)
 	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_CBAL))));
 	FileBrowseCtrlGroup::Setup(dlg, CTLBRW_CBAL_LOG, CTL_CBAL_LOG, 1, 0, 0, FileBrowseCtrlGroup::fbcgfLogFile);
 	dlg->SetupCalPeriod(CTLCAL_CBAL_PERIOD, CTL_CBAL_PERIOD);
-	SetPeriodInput(dlg, CTL_CBAL_PERIOD, &pParam->Period);
+	SetPeriodInput(dlg, CTL_CBAL_PERIOD, pParam->Period);
 	ConvertAcctID(acct_id, &acct, &cur_id, 1 /* useCache */);
 	dlg->setCtrlData(CTL_CBAL_BAL, &acct);
 	dlg->setCtrlString(CTL_CBAL_LOG, pParam->LogFileName);

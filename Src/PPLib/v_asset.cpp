@@ -52,8 +52,8 @@ int PPViewAsset::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	THROW(CheckDialogPtrErr(&dlg));
 	dlg->SetupCalPeriod(CTLCAL_ASSETFLT_PERIOD, CTL_ASSETFLT_PERIOD);
 	dlg->SetupCalPeriod(CTLCAL_ASSETFLT_OPERAT, CTL_ASSETFLT_OPERAT);
-	SetPeriodInput(dlg, CTL_ASSETFLT_PERIOD, &filt.Period);
-	SetPeriodInput(dlg, CTL_ASSETFLT_OPERAT, &filt.OperPeriod);
+	SetPeriodInput(dlg, CTL_ASSETFLT_PERIOD, filt.Period);
+	SetPeriodInput(dlg, CTL_ASSETFLT_OPERAT, filt.OperPeriod);
 	SetupPPObjCombo(dlg, CTLSEL_ASSETFLT_LOC, PPOBJ_LOCATION, filt.LocID, 0, 0);
 	dlg->addGroup(GRP_GOODSFILT, new GoodsFiltCtrlGroup(0, CTLSEL_ASSETFLT_GGRP, cmGoodsFilt));
 	{
@@ -599,10 +599,7 @@ int PPALDD_AssetView::InitData(PPFilt & rFilt, long rsrv)
 	return DlRtm::InitData(rFilt, rsrv);
 }
 
-int PPALDD_AssetView::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
-{
-	INIT_PPVIEW_ALDD_ITER_ORD(Asset, static_cast<PPViewAsset::IterOrder>(sortId));
-}
+int PPALDD_AssetView::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/) { INIT_PPVIEW_ALDD_ITER_ORD(Asset, static_cast<PPViewAsset::IterOrder>(sortId)); }
 
 int PPALDD_AssetView::NextIteration(PPIterID iterId)
 {

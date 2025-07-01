@@ -1,5 +1,5 @@
 // C_TRFR.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2020, 2021, 2023, 2024
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2020, 2021, 2023, 2024, 2025
 // @codepage UTF-8
 // Процедуры корректировки товарных проводок
 //
@@ -132,7 +132,7 @@ int Transfer::CorrectReverse()
 		TDialog * dlg = new TDialog(DLG_CORTRFRREV);
 		THROW(CheckDialogPtr(&dlg));
 		dlg->SetupCalPeriod(CTLCAL_CORTRFRREV_PERIOD, CTL_CORTRFRREV_PERIOD);
-		SetPeriodInput(dlg, CTL_CORTRFRREV_PERIOD, &param.Period);
+		SetPeriodInput(dlg, CTL_CORTRFRREV_PERIOD, param.Period);
 		FileBrowseCtrlGroup::Setup(dlg, CTLBRW_CORTRFRREV_LOG, CTL_CORTRFRREV_LOG, 1, 0, 0, FileBrowseCtrlGroup::fbcgfLogFile);
 		//PPGetFileName(PPFILNAM_ABSLOTS_LOG, log_fname);
 		dlg->setCtrlString(CTL_CORTRFRREV_LOG, param.LogFileName);
@@ -251,7 +251,7 @@ int RecoverAbsenceLots()
 	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_CABSLOTS))));
 	dlg->SetupCalPeriod(CTLCAL_CABSLOTS_PERIOD, CTL_CABSLOTS_PERIOD);
 	period.Z();
-	SetPeriodInput(dlg, CTL_CABSLOTS_PERIOD, &period);
+	SetPeriodInput(dlg, CTL_CABSLOTS_PERIOD, period);
 	FileBrowseCtrlGroup::Setup(dlg, CTLBRW_CABSLOTS_LOG, CTL_CABSLOTS_LOG, 1, 0, 0, FileBrowseCtrlGroup::fbcgfLogFile);
 	PPGetFileName(PPFILNAM_ABSLOTS_LOG, log_fname);
 	dlg->setCtrlString(CTL_CABSLOTS_LOG, log_fname);

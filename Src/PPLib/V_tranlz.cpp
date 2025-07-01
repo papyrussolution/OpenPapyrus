@@ -3257,9 +3257,9 @@ int TrfrAnlzFiltDialog::setDTS(const TrfrAnlzFilt * pData)
 	ushort v;
 	PPIDArray types;
 	PPID   acc_sheet_id = 0;
-	SetPeriodInput(this, CTL_GTO_PERIOD, &Data.Period);
-	SetPeriodInput(this, CTL_GTO_LOTPERIOD, &Data.LotsPeriod);
-	SetPeriodInput(this, CTL_GTO_DUEPERIOD, &Data.DueDatePeriod);
+	SetPeriodInput(this, CTL_GTO_PERIOD, Data.Period);
+	SetPeriodInput(this, CTL_GTO_LOTPERIOD, Data.LotsPeriod);
+	SetPeriodInput(this, CTL_GTO_DUEPERIOD, Data.DueDatePeriod);
 	{
 		LocationCtrlGroup::Rec loc_rec(&Data.LocList);
 		setGroupData(ctlgroupLoc, &loc_rec);

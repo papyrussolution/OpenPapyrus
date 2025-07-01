@@ -382,6 +382,10 @@ public:
 		cuifImageSymb           = 38, // @v12.3.3 string Символ изображения //
 		cuifListBoxColumns      = 39, // @v12.3.3 string Определение колонок для ListView //
 		cuifViewOutputFormat    = 40, // @v12.3. Формат вывода, ассоциированный с элементом View
+		cuifSupplement          = 41, // @v12.3.7 SUiCtrlSupplement
+		cuifSupplementSymb      = 42, // @v12.3.7 string
+		cuifSupplementCmdSymb   = 43, // @v12.3.7 string
+		cuifSupplementText      = 44, // @v12.3.7 string
 	};
 	struct IfaceBase {
 		bool   FASTCALL IsEq(const IfaceBase & rS) const { return (ID == rS.ID && Flags == rS.Flags); }
@@ -773,6 +777,16 @@ struct CtmPropertySheet {
 	TSCollection <CtmProperty> * P_List;
 };
 
+struct CtmUiSupplement { // @v12.3.7 Дополнительный управляющий элемент UI в декларации осноного элемента
+	void   Init();
+	void   Destroy();
+	
+	CtmToken Kind; // ident
+	CtmToken Symb;
+	CtmToken CmdSymb;
+	CtmToken Text;
+};
+
 class DlMacro {
 public:
 	DlMacro();
@@ -997,7 +1011,7 @@ public:
 	int    AddTempFldProp(const CtmToken & rSymb, double val);
 	int    AddTempFldProp(const CtmToken & rSymb, const char * pStr);
 	int    AddTempFldProp(const CtmToken & rSymb, const void * pData, size_t sz);
-	int    ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, DLSYMBID typeID, const CtmPropertySheet & rS);
+	int    ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, DLSYMBID typeID, const CtmPropertySheet & rS, const CtmUiSupplement & rSupplement);
 	//
 	// } Compile-time
 	// Run-time {

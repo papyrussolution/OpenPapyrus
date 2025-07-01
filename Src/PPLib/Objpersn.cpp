@@ -903,7 +903,7 @@ int ClientActivityDetectionListDialog::addItem(long * pPos, long * pID)
 	SString op_kind_name;
 	if(Edit(&item, op_kind_name) > 0) {
 		if(Data.ClientActivityDetectionList.insert(&item)) {
-			assert(Data.ClientActivityDetectionList.getCount() > 0);
+			assert(Data.ClientActivityDetectionList.getCount());
 			ASSIGN_PTR(pPos, (Data.ClientActivityDetectionList.getCountI() - 1));
 			ASSIGN_PTR(pID, item.Oi.Id);
 			ok = 1;
@@ -2711,7 +2711,7 @@ public:
 		}
 		if(psn_id && !kind_id) {
 			PPPerson    psn;
-			if(PsnObj.P_Tbl->Get(psn_id, &psn) > 0 && psn.Kinds.getCount() > 0)
+			if(PsnObj.P_Tbl->Get(psn_id, &psn) > 0 && psn.Kinds.getCount())
 				kind_id = psn.Kinds.at(0);
 		}
 		SetupPPObjCombo(this, CTLSEL_REPLPRSN_KIND1, PPOBJ_PERSONKIND, kind_id, 0);
@@ -4858,7 +4858,7 @@ int PPObjPerson::CheckDuplicateName(const char * pName, PPID * pID)
 				items_list.Add(person_id, temp_buf);
 			}
 		}
-		if(items_list.getCount() > 0) {
+		if(items_list.getCount()) {
 			if(ListBoxSelDialog::Run(DLG_DUPNAMES, &items_list, pID) > 0)
 				ok = 2;
 			else
@@ -8293,7 +8293,7 @@ int PrcssrClientActivityStatistics::EditParam(PrcssrClientActivityStatisticsFilt
 	TDialog * dlg = new TDialog(DLG_PRCRCLIACST);
 	if(CheckDialogPtr(&dlg)) {
 		dlg->SetupCalPeriod(CTLCAL_PRCRCLIACST_PRD, CTL_PRCRCLIACST_PRD);
-		SetPeriodInput(dlg, CTL_PRCRCLIACST_PRD, &pData->Period);
+		SetPeriodInput(dlg, CTL_PRCRCLIACST_PRD, pData->Period);
 		SetupPPObjCombo(dlg, CTLSEL_PRCRCLIACST_PK, PPOBJ_PERSONKIND, pData->PersonKindID, 0, 0);
 		while(ok < 0 && ExecView(dlg) == cmOK) {
 			GetPeriodInput(dlg, CTL_PRCRCLIACST_PRD, &pData->Period);

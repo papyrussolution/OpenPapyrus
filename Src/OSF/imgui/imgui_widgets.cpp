@@ -1,4 +1,6 @@
+// imgui_widgets.cpp
 // dear imgui, v1.89.5 WIP
+// @codepage UTF-8
 // (widgets code)
 /*
    Index of this file:
@@ -1950,7 +1952,7 @@ template <typename T> static bool DataTypeClampT(T* v, const T* v_min, const T* 
 	return false;
 }
 
-// @sobolev-note: Функция используется единожды в ImGui::TempInputScalar
+// @sobolev-note: Р¤СѓРЅРєС†РёСЏ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РµРґРёРЅРѕР¶РґС‹ РІ ImGui::TempInputScalar
 bool ImGui::DataTypeClamp(ImGuiDataType data_type, void* p_data, const void* p_min, const void* p_max)
 {
 	switch(data_type) {

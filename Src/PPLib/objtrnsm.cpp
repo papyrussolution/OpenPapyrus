@@ -2219,7 +2219,7 @@ public:
 			MEMSZERO(Data);
 		if(Data.Period.IsZero())
 			Data.Period.SetDate(LConfig.OperDate);
-		SetPeriodInput(this, CTL_BTRAN_PERIOD, &Data.Period);
+		SetPeriodInput(this, CTL_BTRAN_PERIOD, Data.Period);
 		op_list.addzlist(PPOPT_ACCTURN, PPOPT_DRAFTEXPEND, PPOPT_DRAFTRECEIPT, PPOPT_GOODSRECEIPT,
 			PPOPT_GOODSEXPEND, PPOPT_GOODSRETURN, PPOPT_GENERIC, PPOPT_DRAFTQUOTREQ, 0); // @v10.5.7 PPOPT_DRAFTQUOTREQ
 		SetupOprKindCombo(this, CTLSEL_BTRAN_OP, Data.OpID, 0, &op_list, 0);

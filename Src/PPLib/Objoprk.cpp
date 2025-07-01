@@ -117,7 +117,7 @@ int PPReckonOpEx::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 	return ok;
 }
 
-void PPReckonOpEx::PeriodToStr(SString & rBuf) const
+void PPReckonOpEx::PeriodToStr(SString & rBuf) const // @todo Убрать эту функцию и перейти на шаблонизированный период
 {
 	char   temp[64];
 	char * p = temp;
@@ -125,9 +125,8 @@ void PPReckonOpEx::PeriodToStr(SString & rBuf) const
 		if(Flags & ROXF_BEGISBILLDT)
 			*p++ = '@';
 	DateRange period;
-	period.low = Beg;
-	period.upp = End;
-	periodfmt(&period, p);
+	period.Set(Beg, End);
+	periodfmt(period, p);
 	if(!End) {
 		if(Flags & ROXF_ENDISBILLDT) {
 			if(*(p-1) != '@') {
@@ -165,8 +164,7 @@ int PPReckonOpEx::StrToPeriod(const char * pBuf)
 		at_end = 1;
 		temp[sstrlen(temp)-1] = 0;
 	}
-	period.Z();
-	strtoperiod(temp, &period, 0);
+	period.FromStr(temp, 0);
 	Beg = period.low;
 	End = period.upp;
 	SETFLAG(Flags, ROXF_BEGISBILLDT, !period.low && at_beg);

@@ -4379,14 +4379,10 @@ static _cmsTagLinkedList SupportedTags[] = {
 
 	{ cmsSigPreview0Tag,            { 1, 3,  { cmsSigLut16Type, cmsSigLutBtoAType, cmsSigLut8Type }, DecideLUTtypeB2A},
 	  &SupportedTags[30]},
-	{ cmsSigPreview1Tag,            { 1, 3,  { cmsSigLut16Type, cmsSigLutBtoAType, cmsSigLut8Type }, DecideLUTtypeB2A},
-	  &SupportedTags[31]},
-	{ cmsSigPreview2Tag,            { 1, 3,  { cmsSigLut16Type, cmsSigLutBtoAType, cmsSigLut8Type }, DecideLUTtypeB2A},
-	  &SupportedTags[32]},
+	{ cmsSigPreview1Tag,            { 1, 3,  { cmsSigLut16Type, cmsSigLutBtoAType, cmsSigLut8Type }, DecideLUTtypeB2A}, &SupportedTags[31]},
+	{ cmsSigPreview2Tag,            { 1, 3,  { cmsSigLut16Type, cmsSigLutBtoAType, cmsSigLut8Type }, DecideLUTtypeB2A}, &SupportedTags[32]},
 
-	{ cmsSigProfileDescriptionTag,
-	  { 1, 3, { cmsSigTextDescriptionType, cmsSigMultiLocalizedUnicodeType, cmsSigTextType}, DecideTextDescType},
-	  &SupportedTags[33]},
+	{ cmsSigProfileDescriptionTag, { 1, 3, { cmsSigTextDescriptionType, cmsSigMultiLocalizedUnicodeType, cmsSigTextType}, DecideTextDescType}, &SupportedTags[33]},
 	{ cmsSigProfileSequenceDescTag, { 1, 1, { cmsSigProfileSequenceDescType }, NULL},  &SupportedTags[34]},
 	{ cmsSigTechnologyTag,          { 1, 1, { cmsSigSignatureType }, NULL},  &SupportedTags[35]},
 
@@ -4403,9 +4399,7 @@ static _cmsTagLinkedList SupportedTags[] = {
 	{ cmsSigPs2CSATag,              { 1, 1, { cmsSigDataType }, NULL}, &SupportedTags[44]},
 	{ cmsSigPs2RenderingIntentTag,  { 1, 1, { cmsSigDataType }, NULL}, &SupportedTags[45]},
 
-	{ cmsSigViewingCondDescTag,
-	  { 1, 3, { cmsSigTextDescriptionType, cmsSigMultiLocalizedUnicodeType, cmsSigTextType}, DecideTextDescType},
-	  &SupportedTags[46]},
+	{ cmsSigViewingCondDescTag, { 1, 3, { cmsSigTextDescriptionType, cmsSigMultiLocalizedUnicodeType, cmsSigTextType}, DecideTextDescType}, &SupportedTags[46]},
 
 	{ cmsSigUcrBgTag,               { 1, 1, { cmsSigUcrBgType}, NULL},    &SupportedTags[47]},
 	{ cmsSigCrdInfoTag,             { 1, 1, { cmsSigCrdInfoType}, NULL},  &SupportedTags[48]},

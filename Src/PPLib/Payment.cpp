@@ -2163,10 +2163,8 @@ int PPALDD_PaymBillList::InitData(PPFilt & rFilt, long rsrv)
 	return DlRtm::InitData(rFilt, rsrv);
 }
 
-int PPALDD_PaymBillList::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
-{
-	INIT_PPVIEW_ALDD_ITER(LinkedBill);
-}
+void PPALDD_PaymBillList::Destroy() { DESTROY_PPVIEW_ALDD(PaymBill); }
+int  PPALDD_PaymBillList::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/) { INIT_PPVIEW_ALDD_ITER(LinkedBill); }
 
 int PPALDD_PaymBillList::NextIteration(PPIterID iterId)
 {
@@ -2184,5 +2182,3 @@ int PPALDD_PaymBillList::NextIteration(PPIterID iterId)
 	I.Rest       = item.Rest;
 	FINISH_PPVIEW_ALDD_ITER();
 }
-
-void PPALDD_PaymBillList::Destroy() { DESTROY_PPVIEW_ALDD(PaymBill); }

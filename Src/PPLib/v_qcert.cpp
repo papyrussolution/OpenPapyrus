@@ -1,5 +1,5 @@
 // V_QCERT.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2015, 2016, 2017, 2018, 2020, 2024
+// Copyright (c) A.Sobolev 1996, 1997, 1998-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2015, 2016, 2017, 2018, 2020, 2024, 2025
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -32,8 +32,8 @@ int PPViewQCert::EditBaseFilt(PPBaseFilt * pFilt)
 	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_QCERTFLT))));
 	dlg->SetupCalPeriod(CTLCAL_QCERTFLT_EXPIRY,   CTL_QCERTFLT_EXPIRY);
 	dlg->SetupCalPeriod(CTLCAL_QCERTFLT_INITDATE, CTL_QCERTFLT_INITDATE);
-	SetPeriodInput(dlg, CTL_QCERTFLT_EXPIRY,   &f.ExpiryPeriod);
-	SetPeriodInput(dlg, CTL_QCERTFLT_INITDATE, &f.InitPeriod);
+	SetPeriodInput(dlg, CTL_QCERTFLT_EXPIRY,   f.ExpiryPeriod);
+	SetPeriodInput(dlg, CTL_QCERTFLT_INITDATE, f.InitPeriod);
 	SetupPersonCombo(dlg, CTLSEL_QCERTFLT_ORGAN, f.RegOrgan, 0, PPPRK_BUSADMIN, 0);
 	dlg->setCtrlData(CTL_QCERTFLT_CODESTR,  f.CodeStr);
 	dlg->setCtrlData(CTL_QCERTFLT_INNERNUM, f.InnerCode);

@@ -935,10 +935,7 @@ IMPL_HANDLE_EVENT(GoodsGroupView)
 	clearEvent(event);
 }
 
-int GoodsGroupView::GetGrpType()
-{
-	return static_cast<int>(getCtrlUInt16(CTL_GGVIEW_GGRPTYPE));
-}
+int GoodsGroupView::GetGrpType() { return static_cast<int>(getCtrlUInt16(CTL_GGVIEW_GGRPTYPE)); }
 
 int GoodsGroupView::InitIteration()
 {

@@ -1346,14 +1346,16 @@ int PPAsyncCashSession::FlashTempCcLines(const SVector * pList, LAssocArray * pH
 				}
 			}
 		}
-		if(ccext_items.getCount() > 0) {
-			uint ext_count = ccext_items.getCount();
-			BExtInsert bei_ext(CC.P_LnExt, 0);
-			for(uint i = 0; i < ext_count; i++) {
-				CCheckLineExtTbl::Rec ext_rec = ccext_items.at(i);
-				THROW_DB(bei_ext.insert(&ext_rec));
+		{
+			const uint ext_count = ccext_items.getCount();
+			if(ext_count) {
+				BExtInsert bei_ext(CC.P_LnExt, 0);
+				for(uint i = 0; i < ext_count; i++) {
+					CCheckLineExtTbl::Rec ext_rec = ccext_items.at(i);
+					THROW_DB(bei_ext.insert(&ext_rec));
+				}
+				THROW_DB(bei_ext.flash());
 			}
-			THROW_DB(bei_ext.flash());
 		}
 	}
 	CATCHZOK

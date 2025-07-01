@@ -19,8 +19,8 @@ public:
 		GetLocationName(LConfig.Location, temp_buf);
 		setCtrlString(CTL_PRNGBILL_LOC, temp_buf);
 		//disableCtrls(1, CTL_PRNGBILL_MAINORG, CTL_PRNGBILL_LOC, 0);
-		setCtrlReadOnly(CTL_PRNGBILL_MAINORG, 1);
-		setCtrlReadOnly(CTL_PRNGBILL_LOC, 1);
+		setCtrlReadOnly(CTL_PRNGBILL_MAINORG, true);
+		setCtrlReadOnly(CTL_PRNGBILL_LOC, true);
 	}
 	long   GetNumCopies(uint ctl)
 	{
@@ -53,8 +53,8 @@ public:
 			DisableClusterItem(CTL_PRNGBILL_FLAGS, 1, true);
 		}
 		//dlg->setCtrlData(CTL_PRNGBILL_ONLYPRCHNG, &only_price_chng);
-		//dlg->disableCtrl(CTL_PRNGBILL_ONLYPRCHNG, BIN(oprType != PPOPT_GOODSRECEIPT || rpt_info_list.getCount() <= 7 || !rpt_info_list.at(7).Val));
-		//DisableClusterItem(CTL_PRNGBILL_FLAGS, 1, BIN(OprType != PPOPT_GOODSRECEIPT || !(Data.FormBits & Data.pbPriceTag)));
+		//dlg->disableCtrl(CTL_PRNGBILL_ONLYPRCHNG, (oprType != PPOPT_GOODSRECEIPT || rpt_info_list.getCount() <= 7 || !rpt_info_list.at(7).Val));
+		//DisableClusterItem(CTL_PRNGBILL_FLAGS, 1, (OprType != PPOPT_GOODSRECEIPT || !(Data.FormBits & Data.pbPriceTag)));
 		SetClusterData(CTL_PRNGBILL_FLAGS, Data.Flags);
 		//
 		return ok;
@@ -111,7 +111,7 @@ private:
 						EnableWindow(w_nc, checked);
 						EnableWindow(w_spin, checked);
 						if(c == BillMultiPrintParam::pbPriceTag) // AHTOXA Ценник
-							disableCtrl(CTL_PRNGBILL_ONLYPRCHNG, BIN(OprType != PPOPT_GOODSRECEIPT || !checked));
+							disableCtrl(CTL_PRNGBILL_ONLYPRCHNG, (OprType != PPOPT_GOODSRECEIPT || !checked));
 					}
 				}
 				else
@@ -322,7 +322,7 @@ static int SelectForm(int interactive, long opPrnFlags, PPID arID, uint * pAmtTy
 			if(event.isCmd(cmClusterClk)) {
 				if(event.isCtlEvent(CTL_PRNGBILL_WHAT)) {
 					TCluster * p_clu = static_cast<TCluster *>(getCtrlView(CTL_PRNGBILL_WHAT));
-					disableCtrl(CTL_PRNGBILL_ONLYPRCHNG, BIN(OprType != PPOPT_GOODSRECEIPT || !p_clu || !p_clu->mark(7)));
+					disableCtrl(CTL_PRNGBILL_ONLYPRCHNG, (OprType != PPOPT_GOODSRECEIPT || !p_clu || !p_clu->mark(7)));
 					clearEvent(event);
 				}
 			}
@@ -483,7 +483,7 @@ static int SelectForm(int interactive, long opPrnFlags, PPID arID, uint * pAmtTy
 					dlg->disableCtrl(CTL_PRNGBILL_ONLYPRCHNG, true);
 				}
 				dlg->setCtrlUInt16(CTL_PRNGBILL_ONLYPRCHNG, /*&only_price_chng*/BIN(prn_flags & BillMultiPrintParam::fUpdatedPricesOnly));
-				dlg->disableCtrl(CTL_PRNGBILL_ONLYPRCHNG, BIN(oprType != PPOPT_GOODSRECEIPT));
+				dlg->disableCtrl(CTL_PRNGBILL_ONLYPRCHNG, (oprType != PPOPT_GOODSRECEIPT));
 			}
 			else {
 				dlg->disableCtrl(CTL_PRNGBILL_ONLYPRCHNG, true);

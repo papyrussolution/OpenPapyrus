@@ -1,5 +1,5 @@
 // PPDS.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2005, 2007, 2009, 2010, 2015, 2016, 2017, 2018, 2021, 2023
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2005, 2007, 2009, 2010, 2015, 2016, 2017, 2018, 2021, 2023, 2025
 //
 #pragma hdrstop
 #ifdef PPDSC
@@ -241,7 +241,7 @@ int PPDeclStruc::TransferData(DateRange * pData, Tfd dir, SString & rBuf, int sk
 		rBuf.Z().Cat(*pData);
 	}
 	else if(dir == tfdBufToData)
-		strtoperiod(rBuf, pData, 0);
+		pData->FromStr(rBuf, 0);
 	else
 		ok = PPSetErrorInvParam();
 	return ok;

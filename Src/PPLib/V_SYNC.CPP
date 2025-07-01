@@ -1,5 +1,6 @@
 // V_SYNC.CPP
 // Copyright (c) A.Sobolev 2001-2003, 2006, 2007, 2008, 2009, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2024, 2025
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -145,7 +146,7 @@ int PPViewObjSync::Init_(const PPBaseFilt * pFilt)
 	BExtQuery::ZDelete(&P_IterQuery);
 	ZDELETE(P_TmpTbl);
 	THROW(Helper_InitBaseFilt(pFilt));
-	if(Filt.ObjIDList.getCount() > 0 || Filt.CommIDList.getCount() > 0) {
+	if(Filt.ObjIDList.getCount() || Filt.CommIDList.getCount()) {
 		PPWaitStart();
 		THROW(P_TmpTbl = CreateTempFile());
 		{
@@ -204,9 +205,9 @@ int PPViewObjSync::Init_(const PPBaseFilt * pFilt)
 					int  is_suitable = 1;
 					ObjSyncTbl::Rec  sync_rec;
 					P_Tbl->copyBufTo(&sync_rec);
-					if(Filt.ObjIDList.getCount() > 0)
+					if(Filt.ObjIDList.getCount())
 						is_suitable = Filt.ObjIDList.bsearch(sync_rec.ObjID);
-					if(is_suitable && Filt.CommIDList.getCount() > 0)
+					if(is_suitable && Filt.CommIDList.getCount())
 						is_suitable = Filt.CommIDList.SearchPair(sync_rec.CommIdPfx, sync_rec.CommID, 0);
 					if(is_suitable) {
 						THROW_DB(bei.insert(&sync_rec));
@@ -768,10 +769,8 @@ int PPALDD_ObjSyncCmp::InitData(PPFilt & rFilt, long rsrv)
 	return DlRtm::InitData(rFilt, rsrv);
 }
 
-int PPALDD_ObjSyncCmp::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
-{
-	INIT_PPVIEW_ALDD_ITER(ObjSyncCmp);
-}
+void PPALDD_ObjSyncCmp::Destroy() { DESTROY_PPVIEW_ALDD(ObjSyncCmp); }
+int  PPALDD_ObjSyncCmp::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/) { INIT_PPVIEW_ALDD_ITER(ObjSyncCmp); }
 
 int PPALDD_ObjSyncCmp::NextIteration(PPIterID iterId)
 {
@@ -799,8 +798,6 @@ int PPALDD_ObjSyncCmp::NextIteration(PPIterID iterId)
 	STRNSCPY(I.DestName, item.DestName);
 	FINISH_PPVIEW_ALDD_ITER();
 }
-
-void PPALDD_ObjSyncCmp::Destroy() { DESTROY_PPVIEW_ALDD(ObjSyncCmp); }
 //
 // @ModuleDecl(PPViewObjSyncQueue)
 //
@@ -923,7 +920,7 @@ int ViewObjSyncTab(PPObjID oid)
 			StringSet ss(SLBColumnDelim);
 			SString temp_buf;
 			for(uint i = 0; i < Data.getCount(); i++) {
-				// @lbt_objsynctab        "20,L,Ðàçäåë;8,R,Îáùèé ÈÄ;8,R,Ñîáñòâåííûé ÈÄ;12,L,Äàòà ìîäèôèêàöèè"
+				// @lbt_objsynctab        "20,L,Ð Ð°Ð·Ð´ÐµÐ»;8,R,ÐžÐ±Ñ‰Ð¸Ð¹ Ð˜Ð”;8,R,Ð¡Ð¾Ð±ÑÑ‚Ð²ÐµÐ½Ð½Ñ‹Ð¹ Ð˜Ð”;12,L,Ð”Ð°Ñ‚Ð° Ð¼Ð¾Ð´Ð¸Ñ„Ð¸ÐºÐ°Ñ†Ð¸Ð¸"
 				const _ObjSyncEntry & r_entry = Data.at(i);
 				ss.Z();
 				GetObjectName(PPOBJ_DBDIV, r_entry.DBDivID, temp_buf.Z());

@@ -620,6 +620,8 @@
 	#define HELP_BROWSER_STYLOQBINDERY                          287
 #define BROWSER_STYLOQCOMMANDS                         288 // @{view_styloqcommands}
 	#define HELP_BROWSER_STYLOQCOMMANDS                         288
+#define BROWSER_UNITEQ                                 289 // Unit-анализ
+	#define HELP_BROWSER_UNITEQ                                 289
 
 //
 // PPVIEW COMMAND definitions
@@ -1527,6 +1529,7 @@
 #define PPCMD_GATHERCLIENTACTIVITYSTAT              1356
 #define PPCMD_SOURCECODEPROCESSING                  1357
 #define PPCMD_BIZSCORE2VAL                          1358
+#define PPCMD_UNITEQ                                1359
 //
 // PPJOB definitions
 //
@@ -1951,6 +1954,9 @@
 #define PPVIEW_BIZSC2VAL                             1410
 	#define PPFILT_BIZSC2VAL                             1411
 	#define PPVIEWITEM_BIZSC2VAL                             1412
+#define PPVIEW_UNITEC                                1420
+	#define PPFILT_UNITEC                                1421
+	#define PPVIEWITEM_UNITEC                                1422
 //
 // RECORD definitions
 //

@@ -871,6 +871,7 @@ typedef int32               TYPEID;
 #define SLERR_FILSTRG_FILENFOUND               464 // @v11.3.7 Файл с именем '%s' в хранилище SFileStorage отсутствует
 #define SLERR_INVORUNSUPPHASHFUNC              465 // @v11.3.7 Недопустимая либо неподдерживаемая хэш-функция // 
 #define SLERR_INVALIDSFILTYP                   466 // @v11.4.3 Внутренняя ошибка: недопустимый тип экземпляра SFile
+#define SLERR_INVDATERANGETEXT                 467 // @v12.3.7 Строка '%s' не соответствует правилам представления диапазона дат
 
 #define SLERR_FANN_CANT_OPEN_CONFIG_R          500 // Unable to open configuration file for reading
 #define SLERR_FANN_CANT_OPEN_CONFIG_W          501 // Unable to open configuration file for writing
@@ -1128,7 +1129,7 @@ typedef int32               TYPEID;
 
 #define MKSTYPE(typ,siz)      (((static_cast<uint>(siz))<<16)|(typ))
 #define MKSTYPED(typ,siz,prc) (((prc)<<24)|((static_cast<uint>(siz))<<16)|(typ))
-#define GETSTYPE(typ)         ( (typ)&0x0000ffff)
+#define GETSTYPE(typ)         ((typ)&0x0000ffff)
 #define GETSSIZE(typ)         (((typ)&0xffff0000)>>16)
 #define GETSSIZED(typ)        (((typ)&0x00ff0000)>>16)
 #define GETSPRECD(typ)        (((typ)&0xff000000)>>24)
@@ -1159,6 +1160,7 @@ typedef int32               TYPEID;
 #define T_BOOL             MKSTYPE(S_BOOL, 4)
 #define T_GUID             MKSTYPE(S_UUID_, 16)
 #define T_COLOR_RGBA       MKSTYPE(S_COLOR_RGBA, 4)
+#define T_DATERANGE        MKSTYPE(S_DATERANGE, 8) // @v12.3.7
 
 class  SBuffer;
 class  SString;
@@ -1280,25 +1282,26 @@ class  TDialog; // @v12.3.6
 // Date format flags
 // @persistent
 //
-#define DATF_AMERICAN       1  // mm/dd/yy
-#define DATF_ANSI           2  // yy.mm.dd
-#define DATF_BRITISH        3  // dd/mm/yy
-#define DATF_FRENCH         4  // dd/mm/yy
-#define DATF_GERMAN         5  // dd.mm.yy
-#define DATF_ITALIAN        6  // dd-mm-yy
-#define DATF_JAPAN          7  // yy/mm/dd
-#define DATF_USA            8  // mm-dd-yy
-#define DATF_MDY            9  // mm/dd/yy
-#define DATF_DMY           10  // dd/mm/yy
-#define DATF_YMD           11  // yy/mm/dd
-#define DATF_SQL           12  // DATE 'YYYY-MM-DD'
-#define DATF_INTERNET      13  // Wed, 27 Feb 2008
-#define DATF_ISO8601       14  // yyyy-mm-dd
-#define DATF_CENTURY   0x0010  // Century flag
-#define DATF_NOZERO    0x0020  // Не отображать нулевое значение
-#define DATF_NODIV     0x0040  // день, месяц и год следуют друг за другом без разделителей.
-#define DATF_GERMANCENT    (DATF_GERMAN|DATF_CENTURY) // @v11.3.12
-#define DATF_ISO8601CENT   (DATF_ISO8601|DATF_CENTURY) // @v11.3.12
+#define DATF_AMERICAN          1  // mm/dd/yy
+#define DATF_ANSI              2  // yy.mm.dd
+#define DATF_BRITISH           3  // dd/mm/yy
+#define DATF_FRENCH            4  // dd/mm/yy
+#define DATF_GERMAN            5  // dd.mm.yy
+#define DATF_ITALIAN           6  // dd-mm-yy
+#define DATF_JAPAN             7  // yy/mm/dd
+#define DATF_USA               8  // mm-dd-yy
+#define DATF_MDY               9  // mm/dd/yy
+#define DATF_DMY              10  // dd/mm/yy
+#define DATF_YMD              11  // yy/mm/dd
+#define DATF_SQL              12  // DATE 'YYYY-MM-DD'
+#define DATF_INTERNET         13  // Wed, 27 Feb 2008
+#define DATF_ISO8601          14  // yyyy-mm-dd
+#define DATF_CENTURY      0x0010  // Century flag
+#define DATF_NOZERO       0x0020  // Не отображать нулевое значение
+#define DATRANGF_EXTENDED 0x0020  // @v12.3.7 Флаг форматирования диапазона дат. Намеряно использует то же значение, что и DATF_NOZERO
+#define DATF_NODIV        0x0040  // день, месяц и год следуют друг за другом без разделителей.
+#define DATF_GERMANCENT   (DATF_GERMAN|DATF_CENTURY)  // @v11.3.12
+#define DATF_ISO8601CENT  (DATF_ISO8601|DATF_CENTURY) // @v11.3.12
 	// Порядок следования определяется младшими битами (DATF_AMERICAN..DATF_YMD). Если установлен
 	// флаг DATF_CENTURY, то год должен быть полным (2011), в противном случае - только последние две
 	// цифры года (11).
@@ -2459,7 +2462,7 @@ struct SCodepageIdent {
 	bool   FASTCALL operator == (SCodepage cp) const;
 	bool   FASTCALL operator != (SCodepage cp) const;
 	int    FASTCALL FromStr(const char * pStr);
-	int    ToStr(int format, SString & rBuf) const;
+	SString & ToStr(uint fmt, SString & rBuf) const;
 
 	int32  Cp;
 };
@@ -2651,6 +2654,11 @@ struct LDATE { // @noctr
 	int    year() const { return static_cast<int>(v >> 16); }
 	int    weekno() const;
 	int    dayspermonth() const;
+	//
+	// Descr: Возвращает день недели даты (если getclass() == cNormal).
+	//   Если getclass() != cNormal, то возвращает -1, в противном случае значени [1..7], где 1 - понедельник, 7 - воскресение (Sunday)
+	// 
+	int    GetDayOfWeek() const; 
 	//
 	// Descr: Возвращает класс, к которому относится дата.
 	// Returns:
@@ -2968,7 +2976,7 @@ struct STimeChunk {
 	enum {
 		fmtOmitSec  = 0x0001  // Не выводить секунды
 	};
-	SString & ToStr(SString & rBuf, long fmt = 0) const;
+	SString & ToStr(uint fmt, SString & rBuf) const;
 
 	LDATETIME Start;
 	LDATETIME Finish;
@@ -3133,6 +3141,8 @@ struct SUniDate_Internal { // @v11.9.2
 	bool   SetSdnJulian(uint g);
 	int    GetSdnGregorian() const { return GregorianToSdn(Y, M, D); }
 	int    GetSdnJulian() const { return JulianToSdn(Y, M, D); }
+	bool   IsZero() const { return (Y == 0 && M == 0 && D == 0); }
+	bool   IsFullyNonZero() const { return (Y && M && D); }
 	SUniDate_Internal & Z();
 	bool   FASTCALL operator == (const SUniDate_Internal & rS) const { return (Y == rS.Y && M == rS.M && D == rS.D); }
 	int    Y; // @v11.9.2 uint-->int Год - signed int поскольку в некоторых системах представления даты отрицательное значение
@@ -3694,7 +3704,15 @@ struct RealRange { // @persistent @flat @noctr @novtbl @size=16
 	double low;
 	double upp;
 };
-
+//
+// Descr: Флаги функции DateRange::FromStr
+//
+enum {
+	strtoprdfEnableAnySign = 0x0001 // Допускается использование символа '?'
+};
+//
+// Descr: Диапазон дат.
+//
 struct DateRange { // @persistent @size=8
 	DECL_INVARIANT_C();
 	bool   FASTCALL operator == (const DateRange & rS) const { return IsEq(rS); }
@@ -3710,6 +3728,10 @@ struct DateRange { // @persistent @size=8
 	//   Для интевалов, нижняя граница которых превышает верхнюю возвращает отрицательное значение.
 	//
 	long   GetLength() const;
+	//
+	// Descr: Возвращает кратность периода в виде одной из констант PRD_XXX
+	//
+	int    GetMultiplicity() const;
 	bool   IsZero() const;
 	bool   FASTCALL CheckDate(LDATE) const;
 	int    FASTCALL Intersect(const DateRange *);
@@ -3761,6 +3783,16 @@ struct DateRange { // @persistent @size=8
 	//
 	DateRange & FASTCALL Actualize(LDATE rel);
 	DateRange & ActualizeCmp(LDATE rel, LDATE cmp);
+	//
+	// Descr: Преобразует строку pStr в экземпляр this.
+	//   Период в строке может быть определен со специальными шаблонами.
+	// Returns:
+	//   >0 - строка преобразована успешно
+	//   0  - ошибка
+	//
+	int    FASTCALL FromStr(const char * pStr, uint flags/*strtoprdfXXX*/); // @v12.3.7
+	SString & ToStr(uint fmt/*DATF_XXX, DATRANGF_EXTENDED*/, SString & rBuf) const; // @v12.3.7
+
 	LDATE  low;
 	LDATE  upp;
 };
@@ -3789,7 +3821,7 @@ struct TimeRange { // @persistent
 	// Returns:
 	//   rBuf
 	//
-	SString & ToStr(long tmFormat, SString & rBuf) const;
+	SString & ToStr(uint tmFormat, SString & rBuf) const;
 
 	LTIME  low;
 	LTIME  upp;
@@ -3840,7 +3872,7 @@ struct USize { // @noctr @novtbl
 	// Descr: Извлекает величину из строки.
 	//
 	int    FromStr(const char * pStr, int fmt = fmtDefault);
-	SString & ToStr(SString & rBuf, int fmt); // @notimplemented
+	SString & ToStr(uint fmt, SString & rBuf); // @notimplemented
 
 	double S;
 	int16  Unit;   // SUOM_XXX
@@ -5192,8 +5224,8 @@ struct SVerT { // @persistent Size=4
 		fmtMinorPadZero2   = 0x0001, // Минор версии двузначный с набивкой слева нулем (если <10). Например 5.03
 		fmtOmitZeroRelease = 0x0002, // Если релиз версии (последний компонент) == 0, то не выводить его
 	};
-	SString FASTCALL ToStr(SString & rBuf) const;
-	SString ToStr(uint fmt, SString & rBuf) const;
+	SString & FASTCALL ToStr(SString & rBuf) const;
+	SString & ToStr(uint fmt, SString & rBuf) const;
 	//
 	// Descr: Преобразует строковое представление версии в данный экземпляр объекта.
 	//   Возможен разбор 2 вариантов представления:
@@ -5600,19 +5632,13 @@ int    FASTCALL checktime(LTIME tm);
 
 SString & STDCALL SGetMonthText(int mon, long fmt, SString & rBuf);
 //
-// Descr: Флаги функции strtoperiod
-//
-enum {
-	strtoprdfEnableAnySign = 0x0001 // Допускается использование символа '?'
-};
-//
 // Descr: Преобразует строку pStr в период *pPeriod.
 //   Период в строке может быть определен со специальными шаблонами.
 // Returns:
 //   >0 - строка преобразована успешно
 //   0  - ошибка
 //
-int    STDCALL strtoperiod(const char * pStr, DateRange * pPeriod, long flags);
+// @v12.3.7 (static now. use DateRange::FromStr) int    STDCALL strtoperiod(const char * pStr, DateRange * pPeriod, long flags);
 //
 // Current date getting
 //
@@ -5647,7 +5673,11 @@ void   STDCALL _plusdate(void * pDest, int numdays, int format, int _360);
 //   при этом длительность года полагается равной 360 дням.
 //
 void   _plusperiod(void * pDest, int period, int numperiods, int format, int _360);
-int    FASTCALL _dayofweek(const void * pDate, int format); // 0..6 (0=Sunday)
+//
+// Descr: Возвращает день недели для даты pDate, заданой в бинарном формате, определенном аргументом format
+//   Валидный результат лежит в диапазоне [0..6], где 0 - воскресенье (Sunday).
+//
+int    FASTCALL _dayofweek(const void * pDate, int format); 
 long   STDCALL diffdate(const void *, const void *, int _360);
 void   STDCALL plusdate(void *, int, int _360);
 //
@@ -5837,8 +5867,8 @@ char * STDCALL  decfmt(const BCD_T val, int len, int prec, long fmt, char * pBuf
 char * STDCALL  datefmt(const void *, long fmt, char *);
 char * STDCALL  timefmt(LTIME, long fmt, char *);
 char * STDCALL  datetimefmt(LDATETIME dtm, long dtfmt, long tmfmt, char * pBuf, size_t bufLen);
-char * FASTCALL periodfmt(const DateRange *, char *);
-int    STDCALL  periodfmtex(const DateRange *, char *, size_t bufLen);
+char * FASTCALL periodfmt(const DateRange & rPeriod, char *);
+// @v12.3.7 (replaced with DateRange::ToStr) int    STDCALL  periodfmtex(const DateRange & rPeriod, char *, size_t bufLen);
 //
 // Descr: Флаги функции TimeZoneFmt
 //
@@ -5897,7 +5927,7 @@ enum {
 //   недопустимым символом считаются две следующие одна за другой точки.
 // Returns: смещение от начала строки до первого после принятой даты символа.
 //
-int   STDCALL _strtodate(const char * pBuf, int format, int * pDay, int * pMonth, int * pYear, long * pRetFlags = 0);
+int   STDCALL _strtodate(const char * pBuf, int format, SUniDate_Internal * pData, long * pRetFlags = 0);
 int   STDCALL strtodate(const char * pBuf, long fmt, void *);
 LDATE STDCALL strtodate_(const char * pBuf, long fmt);
 //
@@ -7103,7 +7133,7 @@ public:
 	bool   FASTCALL operator != (const S_GUID_Base &) const;
 	bool   IsZero() const;
 	S_GUID_Base & Z();
-	SString & ToStr(long fmt, SString &) const;
+	SString & ToStr(uint fmt, SString &) const;
 	//
 	// Descr: Преобразует строку pStr в GUID.
 	// Note: Если в преобразовать строку в GUID не удалось, то this обнуляется (SetZero())
@@ -11123,6 +11153,11 @@ public:
 		Ttf              = 129, // @v11.3.7 TrueType font file (00 01 00 00 00)
 		Ttc              = 130, // @v11.3.7 TrueType font Collection ttcf)
 		Dfont            = 131, // @v11.3.7 Mac OS X Data Fork Font
+		Xls              = 132, // @v12.3.7 MS Excel (OLE-format)               // @todo Сигнатуры
+		XlsX             = 133, // @v12.3.7 MS Excel (xml-format)               // @todo Сигнатуры
+		XlsM             = 134, // @v12.3.7 MS Excel (xml-format with macroses) // @todo Сигнатуры
+		WinWord          = 135, // @v12.3.7 MS Word (OLE-format)                // @todo Сигнатуры 
+		WinWordX         = 136, // @v12.3.7 MS Word (xml-format)                // @todo Сигнатуры 
 
 		FirstUser        = 10000
 	};
@@ -14107,7 +14142,7 @@ public:
 	int    Mul(const SDecimal & rA, const SDecimal & rB);
 	int    Mul(const SDecimal & rA, int64 b);
 	int    Div(const SDecimal & rA, const SDecimal & rB);
-	SString & ToStr(long fmt, SString & rBuf) const;
+	SString & ToStr(uint fmt, SString & rBuf) const;
 	int    FromStr(const char * pStr);
 	uint64 ToUed_NonConst(uint numBits);
 	uint64 ToUed_(uint64 uedMeta);
@@ -15730,7 +15765,10 @@ struct SColorBase { // @persistent
 			// fmtRgbHexWithoutPrefix имеет приоритет перед fmtForceHashPrefix!
 	};
 	int    FASTCALL FromStr(const char *);
-	SString & ToStr(SString & rBuf, int format = fmtHEX) const;
+	//
+	// ARG(fmt IN): Флаги форматирования. Значение 0 функция трактует как fmtHEX.
+	//
+	SString & ToStr(uint fmt, SString & rBuf) const;
 	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * SCtx);
 	//
 	// Порядок полей существенен. Эквивалентен RGBQUAD (+alpha).
@@ -17706,6 +17744,75 @@ FORCEINLINE void * FASTCALL SGetTls(const long idx)
 #endif
 }
 //
+// Descr: Блок, отвечающий за вспомогательные управляющие элементы пользовательского интерфейса.
+// Note: Этот блок должен быть в slui.h, но так как нам необходимы унифицированные определения для декларации
+//   высокоуровневой функции CallSupplementWindowFunc, которая будет реализована на более высоком уровне (вне slib),
+//   то пришлось эти определения воткнуть тут. 
+//
+class SUiCtrlSupplement { // @persistent @flat
+	static constexpr uint32 CurrentVersion = 0;
+public:
+	SUiCtrlSupplement();
+	SUiCtrlSupplement & Z();
+	SUiCtrlSupplement & FASTCALL Copy(const SUiCtrlSupplement & rS);
+	
+	enum {
+		kUndef             = 0,
+		kDateCalendar      = 1, // (ident) Кнопка вызова выбора даты
+		kDateRangeCalendar = 2, // (ident) Кнопка вызова выбора диапазона дат
+		kTime              = 3, // (ident) Кнопка вызова выбора времени
+		kList              = 4, // (ident cmd) Кнопка вызова диалога выбора набора элементов
+		kCalc              = 5, // (ident)     Кнопка вызова выбора калькулятора
+		kAsterisk          = 6, // (ident cmd)       Кнопка со звездочкой (действие определяется контекстом)
+		kText              = 7, // (ident cmd title) Кнопка с текстом (действие определяется контекстом)
+	};
+	uint32 Version; // Номер версии для сериализации. При изменении формата обязательно увеличить значение и предпринять меры для правильного считывания старых версий!
+	uint32 Kind; // kXXX
+	uint32 Ident;
+	uint32 Cmd;
+
+	static bool IsValidKind(int kind)
+	{
+		return oneof8(kind, kUndef, kDateCalendar, kDateRangeCalendar, kTime, kList, kCalc, kAsterisk, kText);
+	}
+
+	struct DataBlock {
+		DataBlock() : Dtm(ZERODATETIME), RValue(0.0)
+		{
+			Period.Z();
+		}
+		LDATETIME Dtm;
+		DateRange Period;
+		double RValue;
+	};
+};
+//
+// Descr: Спецификация функции, которая вызывается в ответ на нажание дополнительной кнопки для реализации
+//   необходимого функционала (выбор даты, или еще чего).
+// ARG(supplementKind IN): SUiCtrlSupplement::kXXX Вид дополнительной функции.
+// ARG(hParentWin     IN): Родительское окно относительно которого вызывается фукнция.
+// ARG(linkCtlId      IN): Ид управляющего элемента, к которому привязана дополнительная функция.
+// ARG(pData       INOUT): Блок для обмена данными, специфичными дополнительной функции.
+// Returns:
+//   >0 - вызов функции прошел успешно и пользователь (если требуется) подтвердил ввод. Блок pData (если не нулевой) содержит выбранные данные.
+//   <0 - вызов функции прошел успешно, но пользователь отказался от ввода
+//    0 - error
+//
+typedef int (*CallSupplementWindowFunc)(int supplementKind, void * hParentWnd, uint linkCtlId, SUiCtrlSupplement::DataBlock * pData);
+//
+// Descr: Расширение класса SUiCtrlSupplement, содержащее nonflat-поля. 
+//
+class SUiCtrlSupplement_With_Symbols : public SUiCtrlSupplement {
+public:
+	SUiCtrlSupplement_With_Symbols();
+	SUiCtrlSupplement_With_Symbols & Z();
+	SUiCtrlSupplement_With_Symbols & FASTCALL operator = (const SUiCtrlSupplement & rS);
+
+	SString Symb;
+	SString CmdSymb;
+	SString Text;
+};
+//
 // Descr: Тип функции, загружающей константные строки из внешнего хранилища.
 // ARG(pSignature IN): текстовая сигнатура строки.
 // ARG(rBuf      OUT): буфер, в который записывается загруженная строка. Если функция не смогла
@@ -17763,7 +17870,8 @@ public:
 	ExpandStringFunc F_ExpandString;
 	CallHelpFunc F_CallHelp;
 	CallCalculatorFunc F_CallCalc;
-	CallCalendarFunc F_CallCalendar;
+	// @v12.3.7 (элиминирован в пользу F_UiSupplementWindow) CallCalendarFunc F_CallCalendar;
+	CallSupplementWindowFunc F_UiSupplementWindow; // @v12.3.7
 	GetGlobalSecureConfigFunc F_GetGlobalSecureConfig;
 	GetDefaultEncrKeyFunc F_GetDefaultEncrKey;
 	QueryPathFunc F_QueryPath;

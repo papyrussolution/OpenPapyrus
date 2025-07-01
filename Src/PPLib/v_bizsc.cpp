@@ -144,7 +144,7 @@ int PPBizScTemplPacket::GetCellListInclEmpty(long colId, long rowId, TSVector <P
 int PPBizScTemplPacket::GetCellList(PPID colId, PPID rowId, TSVector <PPBizScTemplCell> * pCells)
 {
 	int    ok = -1;
-	uint   count = Cells.getCount();
+	const  uint   count = Cells.getCount();
 	CALLPTRMEMB(pCells, freeAll());
 	for(uint i = 0; i < count; i++) {
 		PPBizScTemplCell & r_cell = Cells.at(i);
@@ -172,10 +172,12 @@ int PPBizScTemplPacket::AddRow(uint * pPos, PPBizScTemplRow * pRow)
 {
 	int    ok = -1;
 	if(pRow) {
-		uint rows_count = Rows.getCount();
-		PPID new_id = 0L;
-		for(uint i = 0; i < rows_count; i++)
-			new_id = MAX(new_id, Rows.at(i).Id);
+		const  uint rows_count = Rows.getCount();
+		PPID   new_id = 0L;
+		for(uint i = 0; i < rows_count; i++) {
+			const long _iter_id = Rows.at(i).Id;
+			SETMAX(new_id, _iter_id);
+		}
 		pRow->Id = new_id + 1L;
 		Rows.insert(pRow);
 		ASSIGN_PTR(pPos, Rows.getCount() - 1);
@@ -359,7 +361,7 @@ public:
 		{
 			DateRange dtr;
 			dtr.Set(Data.DtLow, Data.DtUp);
-			SetPeriodInput(this, CTL_BIZSCTI_PERIOD, &dtr);
+			SetPeriodInput(this, CTL_BIZSCTI_PERIOD, dtr);
 		}
 		return 1;
 	}
@@ -643,8 +645,12 @@ int BizScTemplDialog::EditCell()
 
 int BizScTemplDialog::SetupCellInfo()
 {
-	long   col_id = 0L, row_id = 0L, col_pos = 0L, row_pos = 0L;
-	SString text, empty_word;
+	long   col_id = 0L;
+	long   row_id = 0L;
+	long   col_pos = 0L;
+	long   row_pos = 0L;
+	SString text;
+	SString empty_word;
 	TSVector <PPBizScTemplCell> cell_list;
 	GetCurItem(CTL_BIZSCT_LIST, &col_pos, &col_id);
 	GetCurItem(CTL_BIZSCT_ROWS, &row_pos, &row_id);
@@ -671,7 +677,8 @@ int BizScTemplDialog::SetupCellInfo()
 
 IMPL_HANDLE_EVENT(BizScTemplDialog)
 {
-	long   id = 0, pos = 0;
+	long   pos = 0;
+	long   id = 0;
 	PPListDialog::handleEvent(event);
 	if(event.isCmd(cmEditCell)) {
 		EditCell();
@@ -698,7 +705,8 @@ IMPL_HANDLE_EVENT(BizScTemplDialog)
 
 int BizScTemplDialog::GetCurItem(uint ctlList, long * pPos, long * pID)
 {
-	long pos = -1, id = -1;
+	long   pos = -1;
+	long   id = -1;
 	SmartListBox * p_box = static_cast<SmartListBox *>(getCtrlView(ctlList));
 	if(SmartListBox::IsValidS(p_box)) {
 		p_box->getCurID(&id);
@@ -998,7 +1006,6 @@ int PPViewBizScTempl::Init_(const PPBaseFilt * pFilt)
 			BExtInsert bei(P_TempTbl);
 			PPBizScTempl templ_rec;
 			PPTransaction tra(ppDbDependTransaction, 1);
-
 			THROW(tra);
 			for(PPID id = 0; Obj.EnumItems(&id, &templ_rec) > 0;) {
 				TempBizScTemplTbl::Rec rec;
@@ -1067,14 +1074,9 @@ DBQuery * PPViewBizScTempl::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 	DBQuery * q = 0;
 	DBQ * dbq = 0;
 	TempBizScTemplTbl * tt  = 0;
-
 	THROW(P_TempTbl);
 	THROW(CheckTblPtr(tt = new TempBizScTemplTbl(P_TempTbl->GetName())));
-	q = &select(
-		tt->ID,
-		tt->Name,
-		tt->Symb,
-		0L).from(tt, 0L).where(*dbq);
+	q = &select(tt->ID, tt->Name, tt->Symb, 0L).from(tt, 0L).where(*dbq);
 	brw_id = BROWSER_BIZSCTEMPL;
 	THROW(CheckQueryPtr(q));
 	CATCH
@@ -1311,7 +1313,7 @@ SArray * PPViewBizScValByTempl::CreateBrowserArray(uint * pBrwId, SString * pSub
 int PPViewBizScValByTempl::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
- 	PPID   id = (pHdr) ? *static_cast<const long *>(pHdr) : 0;
+ 	//PPID   id = (pHdr) ? *static_cast<const long *>(pHdr) : 0;
 	if(ok == -2) {
 		switch(ppvCmd) {
 			case PPVCMD_VIEWTEMPLATE:

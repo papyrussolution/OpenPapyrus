@@ -473,9 +473,9 @@ void TDialog::InitControls(HWND hwndDlg, WPARAM wParam, LPARAM lParam)
 								SString & r_temp_buf = SLS.AcquireRvlStr();
 								p_il->getText(r_temp_buf);
 								if(r_temp_buf.NotEmpty()) {
-									int    d, m, y;
 									long   sdret = 0;
-									_strtodate(r_temp_buf, p_il->getFormat(), &d, &m, &y, &sdret);
+									SUniDate_Internal _date;
+									_strtodate(r_temp_buf, p_il->getFormat(), &_date, &sdret);
 									if(sdret & strtodatefInvalid) {
 										SPaintToolBox * p_tb = APPL->GetUiToolBox();
 										if(p_tb)
@@ -490,9 +490,30 @@ void TDialog::InitControls(HWND hwndDlg, WPARAM wParam, LPARAM lParam)
 			}
 			// no break: ret FALSE by default
 		case WM_PAINT:
-			p_dlg = static_cast<TDialog *>(TView::GetWindowUserData(hwndDlg));
-			if(TView::messageCommand(p_dlg, cmPaint))
-				return FALSE;
+			{
+				p_dlg = static_cast<TDialog *>(TView::GetWindowUserData(hwndDlg));
+				if(TView::IsSubSign(p_dlg, TV_SUBSIGN_DIALOG) && p_dlg->IsConsistent()) {
+					// @v12.3.7 (Отрисовка уголка изменения размеров) {
+					if(p_dlg->P_Lfc) {
+						PAINTSTRUCT ps;
+						HDC hdc = ::BeginPaint(hwndDlg, &ps);
+						// Draw size grip only if resizable and not maximized
+						if((GetWindowLong(hwndDlg, GWL_STYLE) & WS_THICKFRAME) && !IsZoomed(hwndDlg)) {
+							RECT rc;
+							::GetClientRect(hwndDlg, &rc);
+							// Define grip area (bottom-right corner)
+							int grip_size = ::GetSystemMetrics(SM_CXVSCROLL);
+							RECT grip_rect = {rc.right - grip_size, rc.bottom - grip_size, rc.right, rc.bottom};
+							// Draw standard size grip
+							::DrawFrameControl(hdc, &grip_rect, DFC_SCROLL, DFCS_SCROLLSIZEGRIP);
+						}
+						::EndPaint(hwndDlg, &ps);
+					}
+					// } @v12.3.7 
+					if(TView::messageCommand(p_dlg, cmPaint))
+						return FALSE;
+				}
+			}
 		default:
 			return FALSE;
 	}

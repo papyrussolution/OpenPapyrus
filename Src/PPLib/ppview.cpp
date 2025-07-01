@@ -519,6 +519,7 @@ int PPGetObjViewFiltMapping_Filt(int filtId, PPID * pObjType, int * pViewId)
 			case PPVIEW_SWPROGRAM:       p_v = new PPViewSwProgram(); break; // @v11.9.12
 			case PPVIEW_COMPUTER:        p_v = new PPViewComputer(); break; // @v12.0.0
 			case PPVIEW_CLIENTACTIVITYDETAILS: p_v = new PPViewClientActivityDetails(); break; // @v12.2.8
+			case PPVIEW_UNITEC:          p_v = new PPViewUnitEc(); break; // @v12.3.7
 			default: ok = PPSetError(PPERR_UNDEFVIEWID);
 		}
 		if(p_v) {

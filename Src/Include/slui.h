@@ -828,11 +828,7 @@ public:
 	//
 	// Descr: Каноническая функция возвращающая ключ экземпляра для хэширования.
 	//
-	const void * GetHashKey(const void * pCtx, uint * pKeyLen) const
-	{
-		ASSIGN_PTR(pKeyLen, sizeof(ID));
-		return &ID;
-	}
+	const void * GetHashKey(const void * pCtx, uint * pKeyLen) const;
 	SJson * ToJsonObj() const;
 	int   FromJsonObj(const SJson * pJs);
 	//
@@ -908,6 +904,18 @@ public:
 	SUiLayout * FindById(int id);
 	const  SUiLayout * FindBySymbC(const char * pSymb) const;
 	SUiLayout * FindBySymb(const char * pSymb);
+	//
+	// Descr: Функция пытается вычислить минимальные допустимые размеры лейаута.
+	// ARG(pMinSize OUT): @#vptr0 Указатель на структуру, по которому присваиваются найденные
+	//   значения минимальных размеров по осям X и Y. Если по какой-либо из осей не удалось
+	//   определить минимум, то соответствующее поле будет равно 0.0f.
+	// Returns:
+	//   0    - не удалось определить минимальный размер ни по одной из размерностей
+	//   0x01 - удалось определить минимальный размер по оси X
+	//   0x02 - удалось определить минимальный размер по оси Y
+	//   0x03 - удалось определить минимальный размер по обеим осям координат
+	//
+	uint  GetMinSize(SPoint2F * pMinSize) const;
 	//
 	// Descr: Вычисляет полную ширину элемента без рассмотрения его внутренних компонентов.
 	//   Полная ширина включает собственно ширину, а так же левые и правые поля и набивки
@@ -2574,11 +2582,14 @@ public:
 	void   FASTCALL remove(TView * p);
 	void   removeView(TView * p);
 	void   selectNext();
+	void   FASTCALL selectCtrl(ushort ctlID); // @v12.3.7 (moved from TWindow)
 	void   forEach(void (*func)(TView *, void *), void *args);
 	void   insertBefore(TView *p, TView *Target);
 	TView * GetFirstView() const;
 	TView * GetCurrentView() const { return P_Current; }
 	TView * GetLastView() const { return P_Last; }
+	TView * FASTCALL getCtrlView(ushort ctl); // @v12.3.7 moved from TWindow
+	const TView * FASTCALL getCtrlViewC(ushort ctl) const; // @v12.3.7 moved from TWindow
 	void   redraw();
 	uint   GetCurrId() const;
 	bool   FASTCALL IsCurrentView(const TView * pV) const;
@@ -2745,15 +2756,13 @@ public:
 	long   GetWbCapability() const { return WbCapability; }
 	void   endModal(ushort command);
 	void * messageToCtrl(ushort ctl, ushort command, void * ptr);
-	TView * FASTCALL getCtrlView(ushort ctl);
-	const TView * FASTCALL getCtrlViewC(ushort ctl) const;
 	TView * FASTCALL getCtrlByHandle(HWND h);
 	HWND   H() const { return this ? HW : static_cast<HWND>(0); }
 	HWND   FASTCALL getCtrlHandle(ushort ctlID);
-	void   STDCALL  setCtrlReadOnly(ushort ctlID, int set);
+	void   STDCALL  setCtrlReadOnly(ushort ctlID, bool set);
 	void   STDCALL  disableCtrl(ushort ctl, int toDisable);
 	void   CDECL    disableCtrls(int toDisable, ...);
-	void   FASTCALL selectCtrl(ushort ctl);
+	// @v12.3.7 (moved to TViewGroup) void   FASTCALL selectCtrl(ushort ctl); 
 	int    selectButton(ushort cmd);
 	void   setCtrlOption(ushort id, ushort flag, int s);
 	int    SetFont(const SFontDescr & rFd);
@@ -2794,7 +2803,7 @@ public:
 	void   FASTCALL drawCtrl(ushort ctlID);
 	void   showCtrl(ushort ctl, bool s/*1 - show, 0 - hide*/);
 	void   showButton(uint cmd, bool s/*1 - show, 0 - hide*/);
-	int    setButtonText(uint cmd, const char * pText);
+	int    SetButtonText(uint cmd, const char * pText);
 	int    setButtonBitmap(uint cmd, uint bmpID);
 	void   FASTCALL setTitle(const char *);
 	void   FASTCALL setOrgTitle(const char *);
@@ -3718,7 +3727,7 @@ public:
 	void   DisableClusterItems(uint ctlID, const LongArray & rItemIdxList /* 0.. */, bool toDisable = true);
 	int    SetClusterItemText(uint ctlID, int itemNo /* 0.. */, const char * pText);
 	int    GetClusterItemByAssoc(uint ctlID, long val, int * pPos);
-	int    SetDefaultButton(uint ctlID, int setDefault);
+	int    SetDefaultButton(uint ctlID, bool setDefault);
 	int    SetCtrlBitmap(uint ctlID, uint bmID);
 	int    SetupInputLine(uint ctlID, TYPEID typ, long fmt);
 	void   SetupSpin(uint ctlID, uint buddyCtlID, int low, int upp, int cur);
@@ -3807,6 +3816,8 @@ protected:
 private:
 	void   Helper_Constructor(uint resID, DialogPreProcFunc dlgPreFunc, void * extraPtr, ConstructorOption co); // @<<TDialog::TDialog
 	void   RemoveUnusedControls();
+	void   SetupCalDate_Internal(uint calCtlID, uint inputCtlID);
+	void   SetupCalPeriod_Internal(uint calCtlID, uint inputCtlID);
 
 	uint   GrpCount;
 	CtrlGroup ** PP_Groups;
@@ -3853,7 +3864,7 @@ class Helper_WordSelector {
 protected:
 	Helper_WordSelector(WordSel_ExtraBlock * pBlk, uint inputCtlId);
 	~Helper_WordSelector();
-	int    IsWsVisible() const;
+	bool   IsWsVisible() const;
 
 	uint   InputCtlId;
 	WordSel_ExtraBlock * P_OuterWordSelBlk; // @notowner
@@ -3901,6 +3912,22 @@ public:
 	void   setText(const char *);
 	void   disableDeleteSelection(int _disable);
 	void   selectAll(int enable);
+	//
+	// Descr: Устанавливает в поле ввода текст, соответствующий диапазону дат pData.
+	//   Должен корректно работать с полями типа S_ZSTRING и S_DATERANGE.
+	// Returns:
+	//   true - success
+	//   false - error
+	//
+	bool   SetDateRange(const DateRange * pData);
+	//
+	// Descr: Получает из поля ввода значение диапазона дат pData.
+	//   Должен корректно работать с полями типа S_ZSTRING и S_DATERANGE.
+	// Returns:
+	//   true - success
+	//   false - error
+	//
+	bool   GetDateRange(long strtoperiodFlags, DateRange * pData);
 
 	struct Statistics {
 		enum {
@@ -4012,23 +4039,32 @@ public:
 	virtual int    handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 	virtual int    TransmitData(int dir, void * pData);
 	virtual void   setState(uint aState, bool enable);
-	void   press(ushort = 0);
-	void   drawState(bool down);
-	int    makeDefault(int enable, int sendMsg = 0);
+	void   MakeDefault(bool enable, bool sendMsg = false);
+	const  SString & GetText() const { return Text; }
+	void   SetText(const char * pText);
 	HBITMAP GetBitmap() const;
 	uint   GetBmpID() const;
 	int    LoadBitmap_(uint bmpID);
 	int    SetBitmap(uint bmpID);
 	uint   GetCommand() const;
 	bool   IsDefault() const;
-	SString Title;
+	bool   SetSupplementFactors(uint role/*SUiCtrlSupplement::kXXX*/, uint linkCtrlId);
 private:
 	DECL_HANDLE_EVENT;
+	//
+	// Descr: Функция реализует ответ на нажатие кнопки.
+	//   Вызывается из IMPL_HANDLE_EVENT(TButton) и TButton::handleWindowsMessage().
+	//
+	void   Press();
 
 	uint   Command;  // @v12.3.3 ushort command-->uint Command
 	uint   SpcFlags; // spcfXXX // @v12.3.3 ushort flags-->uint ButtonFlags
+	uint   SupplementRole;       // @v12.3.7 SUiCtrlSupplement::kXXX Если кнопка является вспомогательным дополнением к другому управляющему элементу,
+		// то в этом поле указана роль данной кнопки.
+	uint   SupplementLinkCtrlId; // @v12.3.7 Идентификатор управляющего элемента для которого эта кнопка является вспомогательной.
 	uint   BmpID;
-	HBITMAP HBmp;
+	HBITMAP HBmp_;
+	SString Text;
 };
 //
 //
@@ -4053,9 +4089,9 @@ private:
 class TCluster : public TView {
 public:
 	static constexpr float DefItemHeight       = 16.0f; // Высота одного элемента кластера в пикселях по умолчанию
-	static constexpr float DefItemVerticalGap  = 1.0;  // Расстояние по вертикали между элементами (от нижней границы верхнего до верхней нижнего). При вертикальной раскладке.
+	static constexpr float DefItemVerticalGap  = 2.0;  // Расстояние по вертикали между элементами (от нижней границы верхнего до верхней нижнего). При вертикальной раскладке.
 	static constexpr float DefClusterPaddigTop = 16.0f; // Расстояние по вертикали от верхней границы кластера до верхней кромки первого элемента. 
-	static constexpr float DefClusterPaddigBottom = 16.0f; // Расстояние по вертикали от нижней границы кластера до нижней кромки последнего элемента.
+	static constexpr float DefClusterPaddigBottom = 8.0f; // Расстояние по вертикали от нижней границы кластера до нижней кромки последнего элемента.
 	static constexpr float DefClusterPaddigLeft = 8.0f; // Расстояние по горизонтали от левой границы кластера до левой кромки первого элемента. 
 
 	struct Item {
@@ -4578,7 +4614,7 @@ public:
 	//   появлению окна поиска в ответ на ввод символьной клавиши.
 	//
 	void   SetOmitSearchByFirstChar();
-	int    HasState(long s) const;
+	bool   HasState(long s) const;
 	//
 	// Перемещает окно Scrollbar в соответствии со списком. При этом старое окно Scrollbar разрушается и создается новое
 	//

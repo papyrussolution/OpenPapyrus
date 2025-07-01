@@ -212,7 +212,7 @@ public:
 		int    ok = 1;
 		PPIDArray op_type_list;
 		RVALUEPTR(Data, pData);
-		SetPeriodInput(this, CTL_QUOTEREQFLT_PERIOD, &Data.Period);
+		SetPeriodInput(this, CTL_QUOTEREQFLT_PERIOD, Data.Period);
 		op_type_list.add(PPOPT_DRAFTQUOTREQ);
 		SetupOprKindCombo(this, CTLSEL_QUOTEREQFLT_OP, Data.OpID, 0, &op_type_list, 0);
 		{

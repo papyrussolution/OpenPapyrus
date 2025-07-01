@@ -296,7 +296,7 @@ int RtOpListDialog::editItemDialog(ObjRestrictItem * pItem)
 				if(op_id == Data.ObjID || !P_List || !P_List->SearchItemByID(op_id, 0))
 					op_list.add(op_id);
 			}
-			SetupOprKindCombo(this, CTLSEL_RTOPLI_OPRKIND, Data.ObjID, 0, &op_list, OPKLF_OPLIST|OPKLF_SHOWPASSIVE); // @v10.8.1 OPKLF_SHOWPASSIVE
+			SetupOprKindCombo(this, CTLSEL_RTOPLI_OPRKIND, Data.ObjID, 0, &op_list, OPKLF_OPLIST|OPKLF_SHOWPASSIVE);
 			{
 				const int comm = (Data.Flags & 0x80000000) ? 0 : 1;
 				{
@@ -308,7 +308,7 @@ int RtOpListDialog::editItemDialog(ObjRestrictItem * pItem)
 				AddClusterAssoc(CTL_RTOPLI_FLAGS, 2, PPR_MOD);
 				AddClusterAssoc(CTL_RTOPLI_FLAGS, 3, PPR_DEL);
 				SetClusterData(CTL_RTOPLI_FLAGS, Data.Flags);
-				disableCtrl(CTL_RTOPLI_FLAGS, comm);
+				disableCtrl(CTL_RTOPLI_FLAGS, LOGIC(comm));
 			}
 			return 1;
 		}
@@ -337,7 +337,7 @@ int RtOpListDialog::editItemDialog(ObjRestrictItem * pItem)
 			TDialog::handleEvent(event);
 			if(event.isClusterClk(CTL_RTOPLI_COMMRT)) {
 				const long comm = GetClusterData(CTL_RTOPLI_COMMRT);
-				disableCtrl(CTL_RTOPLI_FLAGS, comm);
+				disableCtrl(CTL_RTOPLI_FLAGS, LOGIC(comm));
 			}
 			else
 				return;
@@ -792,7 +792,7 @@ private:
 		StrAssocArray * p_list = 0;
 		TDialog * p_dlg = new TDialog(DLG_RTPOSLI);
 		if(CheckDialogPtrErr(&p_dlg)) {
-			int    others = BIN(pItem->ObjID == 0 && isNew == 0);
+			const bool others = (pItem->ObjID == 0 && isNew == 0);
 			p_list = CnObj.MakeStrAssocList(0);
 			if(p_list) {
 				for(uint i = 0; i < Data.getCount(); i++)
@@ -923,7 +923,7 @@ private:
 		StrAssocArray * p_list = 0;
 		TDialog * p_dlg = new TDialog(DLG_RTQKLI);
 		if(CheckDialogPtrErr(&p_dlg)) {
-			int    others = (pItem->ObjID == 0 && isNew == 0) ? 1 : 0;
+			const bool others = (pItem->ObjID == 0 && !isNew);
 			p_list = QkObj.MakeStrAssocList(0);
 			if(p_list) {
 				for(uint i = 0; i < Data.getCount(); i++)
@@ -1153,7 +1153,7 @@ int PPAccessRestriction::SetPeriodInputExt(TDialog * pDlg, uint ctrlID, int getR
 	assert(oneof2(getROrW, PPAccessRestriction::pparR, PPAccessRestriction::pparW));
 	if(oneof2(getROrW, PPAccessRestriction::pparR, PPAccessRestriction::pparW)) {
 		const DateRange period = (getROrW == PPAccessRestriction::pparR) ? RBillPeriod : WBillPeriod;
-		SetPeriodInput(pDlg, ctrlID, &period);
+		SetPeriodInput(pDlg, ctrlID, period);
 		ok = 1;
 	}
 	return ok;

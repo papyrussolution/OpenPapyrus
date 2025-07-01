@@ -7,6 +7,69 @@
 #pragma hdrstop
 #include <charry.h>
 //
+//
+//
+PPSalesRestriction::PPSalesRestriction()
+{
+	THISZERO();
+}
+	
+PPSalesRestriction & PPSalesRestriction::Z()
+{
+	THISZERO();
+	return *this;
+}
+
+PPObjSalesRestriction::PPObjSalesRestriction(void * extraPtr) : PPObjReference(PPOBJ_SALESRESTRICTION, extraPtr)
+{
+}
+
+/*virtual*/int PPObjSalesRestriction::Edit(PPID * pID, void * extraPtr)
+{
+	int    ok = cmCancel;
+	bool   is_new = false;
+	TDialog * dlg = 0;
+	PPSalesRestriction pack;
+	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_SALESRESTR))));
+	THROW(EditPrereq(pID, dlg, &is_new));
+	if(!is_new) {
+		THROW(Search(*pID, &pack) > 0);
+	}
+	else {
+		pack.Z();
+	}
+	dlg->setCtrlData(CTL_SALESRESTR_NAME, pack.Name);
+	dlg->setCtrlData(CTL_SALESRESTR_SYMB, pack.Symb);
+	dlg->setCtrlLong(CTL_SALESRESTR_ID,   pack.ID);
+	dlg->setCtrlLong(CTL_SALESRESTR_AGE,  pack.MinAge);
+	SetPeriodInput(dlg, CTL_SALESRESTR_PERIOD, pack.Period);
+	while(ok == cmCancel && ExecView(dlg) == cmOK) {
+		THROW(is_new || CheckRights(PPR_MOD));
+		dlg->getCtrlData(CTL_SALESRESTR_NAME, pack.Name);
+		dlg->getCtrlData(CTL_SALESRESTR_SYMB, pack.Symb);
+		if(!CheckName(*pID, strip(pack.Name), 0))
+			dlg->selectCtrl(CTL_SALESRESTR_NAME);
+		else if(*strip(pack.Symb) && !P_Ref->CheckUniqueSymb(Obj, pack.ID, pack.Symb, offsetof(PPSalesRestriction, Symb)))
+			PPErrorByDialog(dlg, CTL_SALESRESTR_SYMB);
+		else {
+			dlg->getCtrlData(CTL_SALESRESTR_ID, &pack.ID);
+			pack.MinAge = dlg->getCtrlLong(CTL_SALESRESTR_AGE);
+			GetPeriodInput(dlg, CTL_SALESRESTR_PERIOD, &pack.Period);
+			if(*pID)
+				*pID = pack.ID;
+			if(StoreItem(Obj, *pID, &pack, 1)) {
+				*pID = pack.ID;
+				ok = cmOK;
+			}
+			else
+				PPError();
+		}
+	}
+	CATCHZOKPPERR
+	delete dlg;
+	return ok;
+}
+//
 // @ModuleDef(PPObjGoodsType)
 //
 PPGoodsType2::PPGoodsType2()

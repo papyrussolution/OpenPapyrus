@@ -982,10 +982,15 @@ int TDialog::SetClusterItemText(uint ctlID, int itemNo /* 0.. */, const char * p
 	return p_clu ? p_clu->SetText(itemNo, pText) : 0;
 }
 
-int TDialog::SetDefaultButton(uint ctlID, int setDefault)
+int TDialog::SetDefaultButton(uint ctlID, bool setDefault)
 {
 	TButton * p_ctl = static_cast<TButton *>(getCtrlView(ctlID));
-	return p_ctl ? p_ctl->makeDefault(LOGIC(setDefault), 1) : 0;
+	if(p_ctl) {
+		p_ctl->MakeDefault(setDefault, true);
+		return 1;
+	}
+	else
+		return 0;
 }
 
 int TDialog::SetCtrlBitmap(uint ctlID, uint bmID)
@@ -1597,10 +1602,28 @@ int TDialog::ResizeDlgToFullScreen()
 
 void TDialog::SetDlgTrackingSize(MINMAXINFO * pMinMaxInfo)
 {
-	if(DlgFlags & fResizeable) {
+	// @v12.3.7 {
+	if(P_Lfc) {
+		SPoint2F min_size;
+		uint r = P_Lfc->GetMinSize(&min_size);
+		if(r & 0x01) {
+			pMinMaxInfo->ptMinTrackSize.x = static_cast<int>(min_size.x);
+		}
+		if(r & 0x02) {
+			pMinMaxInfo->ptMinTrackSize.y = static_cast<int>(min_size.y);
+		}
+	}
+	else {
+		if(DlgFlags & fResizeable) {
+			pMinMaxInfo->ptMinTrackSize.x = InitRect.width();
+			pMinMaxInfo->ptMinTrackSize.y = InitRect.height();
+		}
+	}
+	// } @v12.3.7 
+	/* @v12.3.7 if(DlgFlags & fResizeable) {
 		pMinMaxInfo->ptMinTrackSize.x = InitRect.width();
 		pMinMaxInfo->ptMinTrackSize.y = InitRect.height();
-	}
+	}*/
 }
 
 void TDialog::SetCtrlState(uint ctlID, uint state, bool enable)

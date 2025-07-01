@@ -11,6 +11,11 @@
 	},
 	"font_list": [
 		{
+			"symb": "DialogFont",
+			"face": "MS Shell Dlg 2",
+			"size": 8
+		},
+		{
 			"symb": "ControlFont",
 			"face": "Verdana",
 			"size": 11

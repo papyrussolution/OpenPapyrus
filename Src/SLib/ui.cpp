@@ -7,6 +7,52 @@
 //
 //
 //
+SUiCtrlSupplement::SUiCtrlSupplement() : Version(CurrentVersion), Kind(kUndef), Ident(0), Cmd(0)
+{
+}
+	
+SUiCtrlSupplement & SUiCtrlSupplement::Z()
+{
+	Version = CurrentVersion;
+	Kind = kUndef;
+	Ident = 0;
+	Cmd = 0;
+	return *this;
+}
+	
+SUiCtrlSupplement & FASTCALL SUiCtrlSupplement::Copy(const SUiCtrlSupplement & rS)
+{
+	Version = rS.Version;
+	Kind = rS.Kind;
+	Ident = rS.Ident;
+	Cmd = rS.Cmd;
+	return *this;
+}
+
+SUiCtrlSupplement_With_Symbols::SUiCtrlSupplement_With_Symbols() : SUiCtrlSupplement()
+{
+}
+	
+SUiCtrlSupplement_With_Symbols & SUiCtrlSupplement_With_Symbols::Z()
+{
+	SUiCtrlSupplement::Z();
+	Symb.Z();
+	CmdSymb.Z();
+	Text.Z();
+	return *this;
+}
+
+SUiCtrlSupplement_With_Symbols & FASTCALL SUiCtrlSupplement_With_Symbols::operator = (const SUiCtrlSupplement & rS)
+{
+	SUiCtrlSupplement::Copy(rS);
+	Symb.Z();
+	CmdSymb.Z();
+	Text.Z();
+	return *this;
+}
+//
+//
+//
 IMPL_INVARIANT_C(SScroller)
 {
 	S_INVARIANT_PROLOG(pInvP);
@@ -750,7 +796,7 @@ SString & SColorSet::ColorArg::ToStr(SString & rBuf) const
 		rBuf.CatChar('$').Cat(RefSymb);
 	}
 	else if(!C.IsEmpty()) {
-		C.ToStr(rBuf, SColor::fmtHEX|SColor::fmtName);
+		C.ToStr(SColor::fmtHEX|SColor::fmtName, rBuf);
 		if(C.Alpha < 255) {
 			rBuf.CatChar('|').Cat(C.Alpha);
 		}
@@ -861,7 +907,7 @@ SString & SColorSet::ComplexColorBlock::ToStr(SString & rBuf) const
 			rBuf.CatChar('|').Cat(C.Alpha);
 	}
 	else if(!C.IsEmpty()) {
-		C.ToStr(rBuf, SColor::fmtHEX|SColor::fmtName);
+		C.ToStr(SColor::fmtHEX|SColor::fmtName, rBuf);
 		if(C.Alpha < 255)
 			rBuf.CatChar('|').Cat(C.Alpha);
 	}
@@ -1280,7 +1326,7 @@ SJson * SColorSet::ToJsonObj() const
 				}
 			}
 			else {
-				p_entry->C.ToStr(val_buf, SColor::fmtName|SColor::fmtHEX|SColor::fmtForceHashPrefix);
+				p_entry->C.ToStr(SColor::fmtName|SColor::fmtHEX|SColor::fmtForceHashPrefix, val_buf);
 				if(p_entry->C.Alpha < 255)
 					val_buf.CatChar('|').Cat(p_entry->C.Alpha);
 			}
@@ -1491,19 +1537,13 @@ UiValueList::ValueUnion::ValueUnion()
 	THISZERO();
 }
 
-bool FASTCALL UiValueList::ValueUnion::IsEq(const ValueUnion & rS) const
-{
-	return (I == rS.I && R == rS.R && sstreq(T, rS.T));
-}
+bool FASTCALL UiValueList::ValueUnion::IsEq(const ValueUnion & rS) const { return (I == rS.I && R == rS.R && sstreq(T, rS.T)); }
 
 UiValueList::Entry::Entry() : Id(0)
 {
 }
 
-bool FASTCALL UiValueList::Entry::IsEq(const Entry & rS) const
-{
-	return (Id == rS.Id && V.IsEq(rS.V));
-}
+bool FASTCALL UiValueList::Entry::IsEq(const Entry & rS) const { return (Id == rS.Id && V.IsEq(rS.V)); }
 
 UiValueList::UiValueList()
 {
@@ -1989,4 +2029,4 @@ int UiDescription::FromJsonObj(const SJson * pJsObj)
 	return ok;
 }
 
-// } } @v11.7.10 @construction
+// } @v11.7.10 @construction

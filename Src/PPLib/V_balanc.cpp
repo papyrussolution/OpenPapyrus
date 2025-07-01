@@ -1,5 +1,5 @@
 // V_BALANCE.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2006, 2007, 2009, 2010, 2011, 2015, 2016, 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2006, 2007, 2009, 2010, 2011, 2015, 2016, 2018, 2019, 2020, 2021, 2022, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -224,7 +224,7 @@ public:
 			Data.AccType = ACY_BAL;
 		}
 		PPID   cur_id = Data.CurID;
-		SetPeriodInput(this, CTL_BALFORM_PERIOD, &Data.Period);
+		SetPeriodInput(this, CTL_BALFORM_PERIOD, Data.Period);
 		::SetupCurrencyCombo(this, CTLSEL_BALFORM_CUR, cur_id, 0, 1, 0);
 		ushort v = 0;
 		AddClusterAssoc(CTL_BALFORM_OPTIONS, 0, BALFORM_IGNOREZERO);
@@ -296,7 +296,7 @@ void PPViewBalance::ViewTotal()
 	if(CheckDialogPtrErr(&dlg)) {
 		char   diff_buf[32];
 		const  double diff = Total.InDbtRest - Total.InCrdRest + Total.DbtTrnovr - Total.CrdTrnovr - (Total.OutDbtRest - Total.OutCrdRest);
-		SetPeriodInput(dlg, CTL_BALTOTAL_PERIOD, &Filt.Period);
+		SetPeriodInput(dlg, CTL_BALTOTAL_PERIOD, Filt.Period);
 		dlg->setCtrlData(CTL_BALTOTAL_INREST_D, &Total.InDbtRest);
 		dlg->setCtrlData(CTL_BALTOTAL_INREST_C, &Total.InCrdRest);
 		dlg->setCtrlData(CTL_BALTOTAL_TRNOVR_D, &Total.DbtTrnovr);
@@ -452,10 +452,8 @@ int PPALDD_Balance::InitData(PPFilt & rFilt, long rsrv)
 	return DlRtm::InitData(rFilt, rsrv);
 }
 
-int PPALDD_Balance::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
-{
-	INIT_PPVIEW_ALDD_ITER(Balance);
-}
+void PPALDD_Balance::Destroy() { DESTROY_PPVIEW_ALDD(Balance); }
+int  PPALDD_Balance::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/) { INIT_PPVIEW_ALDD_ITER(Balance); }
 
 int PPALDD_Balance::NextIteration(PPIterID iterId)
 {
@@ -471,5 +469,3 @@ int PPALDD_Balance::NextIteration(PPIterID iterId)
 	I.OutCrdRest = item.OutCrdRest;
 	FINISH_PPVIEW_ALDD_ITER();
 }
-
-void PPALDD_Balance::Destroy() { DESTROY_PPVIEW_ALDD(Balance); }

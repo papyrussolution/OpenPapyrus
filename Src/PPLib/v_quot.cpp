@@ -254,7 +254,7 @@ public:
 		LocationCtrlGroup::Rec loc_rec(&Data.LocList);
 		setGroupData(ctlgroupLoc, &loc_rec);
 		setCtrlDate(CTL_QUOTFLT_EFFDATE, Data.EffDate);
-		SetPeriodInput(this, CTL_QUOTFLT_SETPRD, &Data.Period);
+		SetPeriodInput(this, CTL_QUOTFLT_SETPRD, Data.Period);
 		SetupSubstGoodsCombo(this, CTLSEL_QUOTFLT_SGG, Data.Sgg);
 		SetupCtrls();
 		return 1;

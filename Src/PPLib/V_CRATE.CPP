@@ -1,5 +1,5 @@
 // V_CRATE.CPP
-// Copyright (c) A.Sobolev 2000, 2003, 2004, 2005, 2006, 2007, 2008, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2000, 2003, 2004, 2005, 2006, 2007, 2008, 2015, 2016, 2017, 2018, 2019, 2020, 2025
 //
 #include <pp.h>
 #pragma hdrstop
@@ -43,7 +43,7 @@ int PPViewCurRate::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	p_filt = static_cast<CurRateFilt *>(pBaseFilt);
 	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_CRATEFLT))));
 	dlg->SetupCalPeriod(CTLCAL_CRATEFLT_PERIOD, CTL_CRATEFLT_PERIOD);
-	SetPeriodInput(dlg, CTL_CRATEFLT_PERIOD, &p_filt->Period);
+	SetPeriodInput(dlg, CTL_CRATEFLT_PERIOD, p_filt->Period);
 	SetupPPObjCombo(dlg, CTLSEL_CRATEFLT_CUR, PPOBJ_CURRENCY, p_filt->CurID, 0, 0);
 	SetupPPObjCombo(dlg, CTLSEL_CRATEFLT_RELCUR, PPOBJ_CURRENCY, p_filt->BaseCurID, 0, 0);
 	SetupPPObjCombo(dlg, CTLSEL_CRATEFLT_RATETYPE, PPOBJ_CURRATETYPE, p_filt->RateTypeID, 0, 0);

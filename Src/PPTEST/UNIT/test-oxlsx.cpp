@@ -474,7 +474,8 @@ SLTEST_R(OpenXLSX)
                 SLCHECK_NZ(value.type() == XLValueType::Float);
                 SLCHECK_NZ(value.typeAsString() == "float");
                 SLCHECK_THROWS(value.get<std::string>());
-                SLCHECK_THROWS(value.get<int>());
+                // @sobolev SLCHECK_THROWS(value.get<int>());
+                SLCHECK_NZ(value.get<int>() == 3); // @sobolev
                 SLCHECK_NZ(value.get<double>() == 3.14159);
                 SLCHECK_THROWS(value.get<bool>());
             }
@@ -486,7 +487,8 @@ SLTEST_R(OpenXLSX)
                 SLCHECK_NZ(value.typeAsString() == "integer");
                 SLCHECK_THROWS(value.get<std::string>());
                 SLCHECK_NZ(value.get<int>() == 42);
-                SLCHECK_THROWS(value.get<double>());
+                // @sobolev SLCHECK_THROWS(value.get<double>());
+                SLCHECK_NZ(value.get<double>() == 42.0); // @sobolev
                 SLCHECK_THROWS(value.get<bool>());
             }
             {
@@ -496,8 +498,10 @@ SLTEST_R(OpenXLSX)
                 SLCHECK_NZ(value.type() == XLValueType::Boolean);
                 SLCHECK_NZ(value.typeAsString() == "boolean");
                 SLCHECK_THROWS(value.get<std::string>());
-                SLCHECK_THROWS(value.get<int>());
-                SLCHECK_THROWS(value.get<double>());
+                // @sobolev SLCHECK_THROWS(value.get<int>());
+                SLCHECK_NZ(value.get<int>() == 1); // @sobolev
+                // @sobolev SLCHECK_THROWS(value.get<double>());
+                SLCHECK_NZ(value.get<double>() == 1.0); // @sobolev
                 SLCHECK_NZ(value.get<bool>() == true);
             }
             {
@@ -507,7 +511,8 @@ SLTEST_R(OpenXLSX)
                 SLCHECK_NZ(value.type() == XLValueType::String);
                 SLCHECK_NZ(value.typeAsString() == "string");
                 SLCHECK_NZ(value.get<std::string>() == "Hello OpenXLSX!");
-                SLCHECK_THROWS(value.get<int>());
+                // @sobolev SLCHECK_THROWS(value.get<int>());
+                SLCHECK_NZ(value.get<int>() == 0);
                 SLCHECK_THROWS(value.get<double>());
                 SLCHECK_THROWS(value.get<bool>());
             }
@@ -519,7 +524,8 @@ SLTEST_R(OpenXLSX)
                 SLCHECK_NZ(copy.type() == XLValueType::String);
                 SLCHECK_NZ(value.typeAsString() == "string");
                 SLCHECK_NZ(copy.get<std::string>() == "Hello OpenXLSX!");
-                SLCHECK_THROWS(copy.get<int>());
+                // @sobolev SLCHECK_THROWS(copy.get<int>());
+                SLCHECK_NZ(copy.get<int>() == 0); // @sobolev 
                 SLCHECK_THROWS(copy.get<double>());
                 SLCHECK_THROWS(copy.get<bool>());
             }
@@ -531,7 +537,8 @@ SLTEST_R(OpenXLSX)
                 SLCHECK_NZ(copy.type() == XLValueType::String);
                 SLCHECK_NZ(value.typeAsString() == "string");
                 SLCHECK_NZ(copy.get<std::string>() == "Hello OpenXLSX!");
-                SLCHECK_THROWS(copy.get<int>());
+                // @sobolev SLCHECK_THROWS(copy.get<int>());
+                SLCHECK_NZ(copy.get<int>() == 0); // @sobolev
                 SLCHECK_THROWS(copy.get<double>());
                 SLCHECK_THROWS(copy.get<bool>());
             }
@@ -544,7 +551,8 @@ SLTEST_R(OpenXLSX)
                 SLCHECK_NZ(copy.type() == XLValueType::String);
                 SLCHECK_NZ(value.typeAsString() == "string");
                 SLCHECK_NZ(copy.get<std::string>() == "Hello OpenXLSX!");
-                SLCHECK_THROWS(copy.get<int>());
+                // @sobolev SLCHECK_THROWS(copy.get<int>());
+                SLCHECK_NZ(copy.get<int>() == 0);
                 SLCHECK_THROWS(copy.get<double>());
                 SLCHECK_THROWS(copy.get<bool>());
             }
@@ -557,7 +565,8 @@ SLTEST_R(OpenXLSX)
                 SLCHECK_NZ(copy.type() == XLValueType::String);
                 SLCHECK_NZ(value.typeAsString() == "string");
                 SLCHECK_NZ(copy.get<std::string>() == "Hello OpenXLSX!");
-                SLCHECK_THROWS(copy.get<int>());
+                // @sobolev SLCHECK_THROWS(copy.get<int>());
+                SLCHECK_NZ(copy.get<int>() == 0);
                 SLCHECK_THROWS(copy.get<double>());
                 SLCHECK_THROWS(copy.get<bool>());
             }
@@ -569,7 +578,8 @@ SLTEST_R(OpenXLSX)
                 SLCHECK_NZ(value.type() == XLValueType::Float);
                 SLCHECK_NZ(value.typeAsString() == "float");
                 SLCHECK_THROWS(value.get<std::string>());
-                SLCHECK_THROWS(value.get<int>());
+                // @sobolev SLCHECK_THROWS(value.get<int>());
+                SLCHECK_NZ(value.get<int>() == 3); // @sobolev
                 SLCHECK_NZ(value.get<double>() == 3.14159);
                 SLCHECK_THROWS(value.get<bool>());
             }
@@ -582,7 +592,8 @@ SLTEST_R(OpenXLSX)
                 SLCHECK_NZ(value.typeAsString() == "integer");
                 SLCHECK_THROWS(value.get<std::string>());
                 SLCHECK_NZ(value.get<int>() == 42);
-                SLCHECK_THROWS(value.get<double>());
+                // @sobolev SLCHECK_THROWS(value.get<double>());
+                SLCHECK_NZ(value.get<double>() == 42.0);
                 SLCHECK_THROWS(value.get<bool>());
             }
             {
@@ -593,8 +604,10 @@ SLTEST_R(OpenXLSX)
                 SLCHECK_NZ(value.type() == XLValueType::Boolean);
                 SLCHECK_NZ(value.typeAsString() == "boolean");
                 SLCHECK_THROWS(value.get<std::string>());
-                SLCHECK_THROWS(value.get<int>());
-                SLCHECK_THROWS(value.get<double>());
+                // @sobolev SLCHECK_THROWS(value.get<int>());
+                // @sobolev SLCHECK_THROWS(value.get<double>());
+                SLCHECK_NZ(value.get<int>() == 1); // @sobolev
+                SLCHECK_NZ(value.get<double>() == 1.0); // @sobolev
                 SLCHECK_NZ(value.get<bool>() == true);
             }
             {
@@ -605,7 +618,8 @@ SLTEST_R(OpenXLSX)
                 SLCHECK_NZ(value.type() == XLValueType::String);
                 SLCHECK_NZ(value.typeAsString() == "string");
                 SLCHECK_NZ(value.get<std::string>() == "Hello OpenXLSX!");
-                SLCHECK_THROWS(value.get<int>());
+                // @sobolev SLCHECK_THROWS(value.get<int>());
+                SLCHECK_NZ(value.get<int>() == 0);
                 SLCHECK_THROWS(value.get<double>());
                 SLCHECK_THROWS(value.get<bool>());
             }
@@ -624,7 +638,8 @@ SLTEST_R(OpenXLSX)
                 SLCHECK_NZ(value.type() == XLValueType::String);
                 SLCHECK_NZ(value.typeAsString() == "string");
                 SLCHECK_NZ(value.get<std::string>() == "Hello OpenXLSX!");
-                SLCHECK_THROWS(value.get<int>());
+                // @sobolev SLCHECK_THROWS(value.get<int>());
+                SLCHECK_NZ(value.get<int>() == 0);
                 SLCHECK_THROWS(value.get<double>());
                 SLCHECK_THROWS(value.get<bool>());
 
@@ -633,7 +648,8 @@ SLTEST_R(OpenXLSX)
                 SLCHECK_NZ(value.type() == XLValueType::Float);
                 SLCHECK_NZ(value.typeAsString() == "float");
                 SLCHECK_THROWS(value.get<std::string>());
-                SLCHECK_THROWS(value.get<int>());
+                // @sobolev SLCHECK_THROWS(value.get<int>());
+                SLCHECK_NZ(value.get<int>() == 3); // @sobolev 
                 SLCHECK_NZ(value.get<double>() == 3.14159);
                 SLCHECK_THROWS(value.get<bool>());
 
@@ -643,7 +659,8 @@ SLTEST_R(OpenXLSX)
                 SLCHECK_NZ(value.typeAsString() == "integer");
                 SLCHECK_THROWS(value.get<std::string>());
                 SLCHECK_NZ(value.get<int>() == 42);
-                SLCHECK_THROWS(value.get<double>());
+                // @sobolev SLCHECK_THROWS(value.get<double>());
+                SLCHECK_NZ(value.get<double>() == 42.0);
                 SLCHECK_THROWS(value.get<bool>());
 
                 wks.cell("A1").value() = true;
@@ -651,8 +668,10 @@ SLTEST_R(OpenXLSX)
                 SLCHECK_NZ(value.type() == XLValueType::Boolean);
                 SLCHECK_NZ(value.typeAsString() == "boolean");
                 SLCHECK_THROWS(value.get<std::string>());
-                SLCHECK_THROWS(value.get<int>());
-                SLCHECK_THROWS(value.get<double>());
+                // @sobolev SLCHECK_THROWS(value.get<int>());
+                // @sobolev SLCHECK_THROWS(value.get<double>());
+                SLCHECK_NZ(value.get<int>() == 1);
+                SLCHECK_NZ(value.get<double>() == 1.0);
                 SLCHECK_NZ(value.get<bool>() == true);
             }
             {
@@ -663,7 +682,8 @@ SLTEST_R(OpenXLSX)
                 SLCHECK_NZ(value.type() == XLValueType::Float);
                 SLCHECK_NZ(value.typeAsString() == "float");
                 SLCHECK_THROWS(value.get<std::string>());
-                SLCHECK_THROWS(value.get<int>());
+                // @sobolev SLCHECK_THROWS(value.get<int>());
+                SLCHECK_NZ(value.get<int>() == 3);
                 SLCHECK_NZ(value.get<double>() == 3.14159);
                 SLCHECK_THROWS(value.get<bool>());
             }
@@ -676,7 +696,7 @@ SLTEST_R(OpenXLSX)
                 SLCHECK_NZ(value.typeAsString() == "error");
                 SLCHECK_NZ(value.get<std::string>() == "#NUM!");
                 SLCHECK_THROWS(value.get<int>());
-                //        SLCHECK_THROWS(value.get<double>());
+                // SLCHECK_THROWS(value.get<double>());
                 SLCHECK_THROWS(value.get<bool>());
             }
             {
@@ -700,7 +720,8 @@ SLTEST_R(OpenXLSX)
                 SLCHECK_NZ(value.typeAsString() == "integer");
                 SLCHECK_THROWS(value.get<std::string>());
                 SLCHECK_NZ(value.get<int>() == 42);
-                SLCHECK_THROWS(value.get<double>());
+                // @sobolev SLCHECK_THROWS(value.get<double>());
+                SLCHECK_NZ(value.get<double>() == 42.0);
                 SLCHECK_THROWS(value.get<bool>());
             }
             {

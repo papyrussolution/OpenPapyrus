@@ -856,8 +856,8 @@ int PPObjArticle::EditClientAgreement(PPClientAgreement * agt)
 			ArID = Data.ClientID;
 			GetArticleName(Data.ClientID, ar_name);
 			setCtrlString(CTL_CLIAGT_CLIENT, ar_name);
-			setCtrlReadOnly(CTL_CLIAGT_CLIENT, 1);
-			setCtrlReadOnly(CTL_CLIAGT_CURDEBT, 1);
+			setCtrlReadOnly(CTL_CLIAGT_CLIENT, true);
+			setCtrlReadOnly(CTL_CLIAGT_CURDEBT, true);
 			if(Data.ClientID) {
 				DateRange cdp;
 				PPObjBill::DebtBlock blk;
@@ -1887,14 +1887,14 @@ int SupplAgtDialog::EditOrdParamEntry(PPID arID, PPSupplAgreement::OrderParamEnt
 
 int SupplAgtDialog::SetupCtrls(long flags)
 {
-	int    to_disable = BIN(!(flags & AGTF_AUTOORDER));
+	const bool to_disable = !(flags & AGTF_AUTOORDER);
 	disableCtrl(CTL_SUPPLAGT_ORDPRD, to_disable);
 	enableCommand(cmOrdCalendar, !to_disable);
 	if(to_disable) {
 		setCtrlLong(CTL_SUPPLAGT_ORDPRD, 0L);
 		Data.Dr.Init(0, 0);
 	}
-	else if(!DateRepeating::IsValidPrd(Data.Dr.Prd)) { // @v8.3.12 if(!DateRepeating::IsValidPrd(Data.OrdDrPrd))
+	else if(!DateRepeating::IsValidPrd(Data.Dr.Prd)) {
 		Data.Dr.Init(PRD_DAY);
 	}
 	return 1;
@@ -2004,7 +2004,7 @@ static int EditSupplExchOpList(PPSupplAgreement::ExchangeParam * pData)
 		{
 			int    ok = -1;
 			PPDebtDim dd_rec;
-			PPID   sel_id = PPObjDebtDim::Select();
+			const  PPID sel_id = PPObjDebtDim::Select();
 			if(sel_id > 0 && DdObj.Search(sel_id, &dd_rec) > 0) {
 				if(Data.DebtDimList.Search(sel_id, 0, 0)) {
 					PPError(PPERR_DUPDEBTDIMINLIST, dd_rec.Name);
@@ -2044,7 +2044,7 @@ int SupplAgtDialog::EditExchangeCfg()
 			PPIDArray op_list;
 			if(!RVALUEPTR(Data, pData))
 				Data.Z();
-			SetupPPObjCombo(this, CTLSEL_SUPLEXCHCFG_GGRP,  PPOBJ_GOODSGROUP, Data.GoodsGrpID, OLW_CANSELUPLEVEL, 0);
+			SetupPPObjCombo(this, CTLSEL_SUPLEXCHCFG_GGRP,  PPOBJ_GOODSGROUP, Data.GoodsGrpID, OLW_CANSELUPLEVEL|OLW_WORDSELECTOR, 0); // @v12.3.7 OLW_WORDSELECTOR
 			SetupPPObjCombo(this, CTLSEL_SUPLEXCHCFG_STYLO, PPOBJ_STYLOPALM,  Data.Fb.StyloPalmID, OLW_CANSELUPLEVEL, 0);
 			for(PPID op_id = 0; EnumOperations(0, &op_id, &op_kind) > 0;)
 				if(oneof2(op_kind.OpTypeID, PPOPT_GOODSEXPEND, PPOPT_GENERIC))

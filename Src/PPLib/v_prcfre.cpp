@@ -1,5 +1,5 @@
 // V_PRCFRE.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -208,7 +208,7 @@ int PPViewPrcBusy::ProcessPrc(PPID prcID, BExtInsert * pBei)
 			else
 				temp_buf.CatCharN('#', 3);
 			temp_buf.CopyTo(rec.TxtDuration, sizeof(rec.TxtDuration));
-			entry.ToStr(temp_buf.Z()).CopyTo(rec.TxtPeriod, sizeof(rec.TxtPeriod));
+			entry.ToStr(0, temp_buf.Z()).CopyTo(rec.TxtPeriod, sizeof(rec.TxtPeriod));
 			if(pBei) {
 				THROW_DB(pBei->insert(&rec));
 			}
@@ -871,7 +871,7 @@ int PPViewPrcBusy::PrcBusyTimeChunkGrid::GetText(int item, long id, SString & rB
 			}
 			STimeChunkAssoc tca;
 			if(GetChunk(id, 0, &tca) > 0) {
-				tca.Chunk.ToStr(temp_buf.Z(), STimeChunk::fmtOmitSec);
+				tca.Chunk.ToStr(STimeChunk::fmtOmitSec, temp_buf.Z());
 				rBuf.CatDivIfNotEmpty('\n', 0).Cat(temp_buf);
 			}
 			{

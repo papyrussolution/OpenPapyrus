@@ -203,7 +203,7 @@ void HolidaysDialog::scan()
 		period.Z();
 		PrcssrPrediction::GetPredictCfg(&cfg);
 		PPID   loc_id = getCtrlLong(CTLSEL_HOLIDAYS_LOC);
-		if(loc_id && cfg.OpID && DateRangeDialog(0, 0, &period) > 0)
+		if(loc_id && cfg.OpID && DateRangeDialog(0, 0, period) > 0)
 			if(BillObj->P_Tbl->ScanHolidays(loc_id, cfg.OpID, &period, P_Driver) > 0)
 				updateList(-1);
 	}

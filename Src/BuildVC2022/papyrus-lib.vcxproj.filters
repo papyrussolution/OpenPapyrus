@@ -344,5 +344,6 @@
     <ClCompile Include="..\PPLib\objbizsc2.cpp" />
     <ClCompile Include="..\PPLib\pp-ifm.cpp" />
     <ClCompile Include="..\PPLib\ppexcelapp.cpp" />
+    <ClCompile Include="..\PPLib\v_unitec.cpp" />
   </ItemGroup>
 </Project>

@@ -1,5 +1,5 @@
 // V_MRP.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -37,7 +37,7 @@ int PPViewMrpTab::EditBaseFilt(PPBaseFilt * pBaseFilt)
 		PPObjMrpTab::SetupLinkObjTypeCombo(dlg, CTLSEL_MRPTABFLT_OBJTYPE, p_filt->LinkObjType);
 		SetupPPObjCombo(dlg, CTLSEL_MRPTABFLT_LOC, PPOBJ_LOCATION, p_filt->LocID, 0, 0);
 		dlg->SetupCalPeriod(CTLCAL_MRPTABFLT_PERIOD, CTL_MRPTABFLT_PERIOD);
-		SetPeriodInput(dlg, CTL_MRPTABFLT_PERIOD, &p_filt->Period);
+		SetPeriodInput(dlg, CTL_MRPTABFLT_PERIOD, p_filt->Period);
 		dlg->AddClusterAssoc(CTL_MRPTABFLT_FLAGS, 0, MrpTabFilt::fSkipChilds);
 		dlg->SetClusterData(CTL_MRPTABFLT_FLAGS, p_filt->Flags);
 		for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;) {
@@ -896,10 +896,8 @@ int PPALDD_MrpLines::InitData(PPFilt & rFilt, long rsrv)
 	return DlRtm::InitData(rFilt, rsrv);
 }
 
-int PPALDD_MrpLines::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
-{
-	INIT_PPVIEW_ALDD_ITER(MrpLine);
-}
+void PPALDD_MrpLines::Destroy() { DESTROY_PPVIEW_ALDD(MrpLine); }
+int  PPALDD_MrpLines::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/) { INIT_PPVIEW_ALDD_ITER(MrpLine); }
 
 int PPALDD_MrpLines::NextIteration(PPIterID iterId)
 {
@@ -914,5 +912,3 @@ int PPALDD_MrpLines::NextIteration(PPIterID iterId)
 	I.Deficit = item.DestDfct;
 	FINISH_PPVIEW_ALDD_ITER();
 }
-
-void PPALDD_MrpLines::Destroy() { DESTROY_PPVIEW_ALDD(MrpLine); }

@@ -31,9 +31,9 @@ int ReceiptCore::LotDimensions::EditTag(const PPGdsClsPacket * pGcPack, ObjTagIt
 				case 1: disable_flags = dfY|dfZ; break;
 				case 2: disable_flags = dfZ; break;
 			}
-			dlg->setCtrlReadOnly(CTL_TAGLOTDIM_X, (disable_flags & dfX));
-			dlg->setCtrlReadOnly(CTL_TAGLOTDIM_Y, (disable_flags & dfY));
-			dlg->setCtrlReadOnly(CTL_TAGLOTDIM_Z, (disable_flags & dfZ));
+			dlg->setCtrlReadOnly(CTL_TAGLOTDIM_X, LOGIC(disable_flags & dfX));
+			dlg->setCtrlReadOnly(CTL_TAGLOTDIM_Y, LOGIC(disable_flags & dfY));
+			dlg->setCtrlReadOnly(CTL_TAGLOTDIM_Z, LOGIC(disable_flags & dfZ));
 		}
         while(ok < 0 && ExecView(dlg) == cmOK) {
 			ld.X = dlg->getCtrlReal(CTL_TAGLOTDIM_X);

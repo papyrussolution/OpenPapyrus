@@ -3185,12 +3185,18 @@ SString & SString::CatCurDateTime(long datFmt/*= DATF_DMY*/, long timFmt/*= TIMF
 
 SString & SString::Cat(const DateRange & rPeriod, bool ext)
 {
+	// @v12.3.7 {
+	SString & r_temp_buf = SLS.AcquireRvlStr();
+	return Cat(rPeriod.ToStr((ext ? DATRANGF_EXTENDED : 0), r_temp_buf));
+	// } @v12.3.7 
+	/* @v12.3.7
 	char   temp_buf[128];
 	if(ext)
-		periodfmtex(&rPeriod, temp_buf, sizeof(temp_buf));
+		periodfmtex(rPeriod, temp_buf, sizeof(temp_buf));
 	else
-		periodfmt(&rPeriod, temp_buf);
+		periodfmt(rPeriod, temp_buf);
 	return Cat(temp_buf);
+	*/
 }
 
 SString & SString::Cat(const S_GUID & rUuid, int fmt)

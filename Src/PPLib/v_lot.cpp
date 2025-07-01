@@ -367,8 +367,8 @@ public:
 	DECL_DIALOG_SETDTS()
 	{
 		RVALUEPTR(Data, pData);
-		SetPeriodInput(this, CTL_FLTLOT_PERIOD, &Data.Period);
-		SetPeriodInput(this, CTL_FLTLOT_OPERAT, &Data.Operation);
+		SetPeriodInput(this, CTL_FLTLOT_PERIOD, Data.Period);
+		SetPeriodInput(this, CTL_FLTLOT_OPERAT, Data.Operation);
 		const  PPID suppl_acs_id = (Data.Flags & LotFilt::fOrders) ? GetSellAccSheet() : GetSupplAccSheet();
 		setCtrlData(CTL_FLTLOT_CLOSED, &Data.ClosedTag);
 		{
@@ -464,8 +464,8 @@ IMPL_HANDLE_EVENT(LotFiltDialog)
 			else
 				dlg->SetupCalPeriod(CTLCAL_FLTLOT_EXPIRY, CTL_FLTLOT_EXPIRY);
 			dlg->SetupCalPeriod(CTLCAL_FLTLOT_QCEXPIRY, CTL_FLTLOT_QCEXPIRY);
-			SetPeriodInput(dlg, CTL_FLTLOT_EXPIRY,   &temp_data.ExpiryPrd);
-			SetPeriodInput(dlg, CTL_FLTLOT_QCEXPIRY, &temp_data.QcExpiryPrd);
+			SetPeriodInput(dlg, CTL_FLTLOT_EXPIRY,   temp_data.ExpiryPrd);
+			SetPeriodInput(dlg, CTL_FLTLOT_QCEXPIRY, temp_data.QcExpiryPrd);
 			SetRealRangeInput(dlg, CTL_FLTLOT_COST,  &temp_data.CostRange);
 			SetRealRangeInput(dlg, CTL_FLTLOT_PRICE, &temp_data.PriceRange);
 			temp_data.GetExtssData(LotFilt::extssSerialText, temp_buf);

@@ -117,7 +117,7 @@ int GoodsTaxDialog::SetEntry(const PPGoodsTaxEntry * pEntry)
 	Entry = *pEntry;
 	SString temp_buf;
 	if(Entry.Flags & GTAXF_ENTRY) {
-		SetPeriodInput(this, CTL_GDSTAX_PERIOD, &Entry.Period);
+		SetPeriodInput(this, CTL_GDSTAX_PERIOD, Entry.Period);
 		SetupOprKindCombo(this, CTLSEL_GDSTAX_OP, Entry.OpID, 0, 0, 0);
 	}
 	setCtrlString(CTL_GDSTAX_VAT, Entry.FormatVAT(temp_buf));
@@ -235,9 +235,10 @@ int GoodsTaxListDialog::setupList()
 	StringSet ss(SLBColumnDelim);
 	for(uint i = 0; i < Data.GetCount(); i++) {
 		const PPGoodsTaxEntry & r_item = Data.Get(i);
-		char   sub[64];
+		// @v12.3.7 char   sub[64];
 		ss.Z();
-		ss.add(periodfmt(&r_item.Period, sub));
+		// @v12.3.7 ss.add(periodfmt(r_item.Period, sub));
+		ss.add(r_item.Period.ToStr(0, temp_buf)); // @v12.3.7
 		GetOpName(r_item.OpID, temp_buf);
 		ss.add(temp_buf);
 		ss.add(r_item.FormatExcise(temp_buf));

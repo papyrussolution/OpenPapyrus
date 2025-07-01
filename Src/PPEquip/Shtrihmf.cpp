@@ -405,7 +405,7 @@ int ACS_SHTRIHMFRK::ExportData(int updOnly)
 	//
 	// «агрузка дополнительных цен/котировок
 	//
-	if(goods_list.getCount() > 0 && quot_list.getCount() > 0) {
+	if(goods_list.getCount() && quot_list.getCount()) {
 		const LDATE cur_dt = getcurdate_();
 		uint quot_count = quot_list.getCount();
 		uint goods_count = goods_list.getCount();
@@ -471,10 +471,10 @@ int ACS_SHTRIHMFRK::GetSessionData(int * pSessCount, int * pIsForwardSess, DateR
 			SString dt_buf;
 			ChkRepPeriod.SetDate(LConfig.OperDate);
 			dlg->SetupCalPeriod(CTLCAL_DATERNG_PERIOD, CTL_DATERNG_PERIOD);
-			SetPeriodInput(dlg, CTL_DATERNG_PERIOD, &ChkRepPeriod);
+			SetPeriodInput(dlg, CTL_DATERNG_PERIOD, ChkRepPeriod);
 			PPWaitStop();
 			for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;) {
-				if(dlg->getCtrlString(CTL_DATERNG_PERIOD, dt_buf) && strtoperiod(dt_buf, &ChkRepPeriod, 0) && !ChkRepPeriod.IsZero()) {
+				if(dlg->getCtrlString(CTL_DATERNG_PERIOD, dt_buf) && ChkRepPeriod.FromStr(dt_buf, 0) && !ChkRepPeriod.IsZero()) {
 					SETIFZ(ChkRepPeriod.upp, plusdate(LConfig.OperDate, 2));
 					if(diffdate(ChkRepPeriod.upp, ChkRepPeriod.low) >= 0)
 						ok = valid_data = 1;

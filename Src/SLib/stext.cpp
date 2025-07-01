@@ -1367,7 +1367,7 @@ int SCodepageIdent::FromStr(const char * pStr)
 	return ok;
 }
 
-int SCodepageIdent::ToStr(int fmt, SString & rBuf) const
+SString & SCodepageIdent::ToStr(uint fmt, SString & rBuf) const
 {
 	rBuf.Z();
 	if(oneof2(fmt, fmtCLibLocale, fmtXML)) {
@@ -1396,7 +1396,7 @@ int SCodepageIdent::ToStr(int fmt, SString & rBuf) const
 			}
 		}
 	}
-	return rBuf.NotEmpty();
+	return rBuf;
 }
 //
 //

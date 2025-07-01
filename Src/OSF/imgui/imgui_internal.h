@@ -1,6 +1,8 @@
+// imgui_internal.h
 // dear imgui, v1.89.5 WIP
+// @codepage UTF-8
 // (internal structures/api)
-
+//
 // You may use this file to debug, understand or extend Dear ImGui features but we don't provide any guarantee of forward compatibility.
 // To implement maths operators for ImVec2 (disabled by default to not conflict with using IM_VEC2_CLASS_EXTRA with your own math types+operators), use:
 /*
@@ -3232,7 +3234,7 @@ void RenderTextEllipsis(ImDrawList* draw_list, const ImVec2 & pos_min, const ImV
 const char* text_end, const ImVec2* text_size_if_known);
 void RenderFrame(ImVec2 p_min, ImVec2 p_max, ImU32 fill_col, bool border = true, float rounding = 0.0f);
 //
-// Descr: ‘Î‡„Ë ÙÛÌÍˆËË RenderFrame2
+// Descr: –§–ª–∞–≥–∏ —Ñ—É–Ω–∫—Ü–∏–∏ RenderFrame2
 //
 enum {
 	imframefBorder = 0x0001,

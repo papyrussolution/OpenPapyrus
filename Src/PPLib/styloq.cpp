@@ -8897,7 +8897,7 @@ public:
 		int    ok = 1;
 		setCtrlData(CTL_STQINLPARAM_LBD, &Data.LookbackDays);
 		if(CConfig.Flags & CCFLG_DEBUG) {
-			SetPeriodInput(this, CTL_STQINLPARAM_PERIOD, &Data.Period);
+			SetPeriodInput(this, CTL_STQINLPARAM_PERIOD, Data.Period);
 		}
 		return ok;
 	}

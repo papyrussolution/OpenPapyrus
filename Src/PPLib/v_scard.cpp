@@ -931,9 +931,9 @@ public:
 		SetupPPObjCombo(this, CTLSEL_SCARDFLT_SERIES, PPOBJ_SCARDSERIES, Data.SeriesID, 0);
 		SetupPPObjCombo(this, CTLSEL_SCARDFLT_EMPLOYER, PPOBJ_PERSON, Data.EmployerID, OLW_CANINSERT, reinterpret_cast<void *>(PPPRK_EMPLOYER));
 		SetupPerson(Data.SeriesID);
-		SetPeriodInput(this, CTL_SCARDFLT_ISSUE,  &Data.IssuePeriod);
-		SetPeriodInput(this, CTL_SCARDFLT_EXPIRY, &Data.ExpiryPeriod);
-		SetPeriodInput(this, CTL_SCARDFLT_TRNOVRPRD, &Data.TrnovrPeriod);
+		SetPeriodInput(this, CTL_SCARDFLT_ISSUE,  Data.IssuePeriod);
+		SetPeriodInput(this, CTL_SCARDFLT_EXPIRY, Data.ExpiryPeriod);
+		SetPeriodInput(this, CTL_SCARDFLT_TRNOVRPRD, Data.TrnovrPeriod);
 		AddClusterAssoc(CTL_SCARDFLT_SINCE, 0, SCardFilt::fSinceLastPDisUpdating);
 		SetClusterData(CTL_SCARDFLT_SINCE, Data.Flags);
 		{
@@ -2473,7 +2473,7 @@ int PPViewSCardOp::EditBaseFilt(PPBaseFilt * pBaseFilt)
 			RVALUEPTR(Data, pData);
 			PPObjSCard::Filt sc_filt;
 			sc_filt.SeriesID = Data.SCardSerID;
-			SetPeriodInput(this, CTL_SCOPFLT_PERIOD, &Data.Period);
+			SetPeriodInput(this, CTL_SCOPFLT_PERIOD, Data.Period);
 			SetupPPObjCombo(this, CTLSEL_SCOPFLT_SCSER, PPOBJ_SCARDSERIES, Data.SCardSerID, OLW_LOADDEFONOPEN);
 			SetupPPObjCombo(this, CTLSEL_SCOPFLT_SC,    PPOBJ_SCARD,       Data.SCardID, OLW_LOADDEFONOPEN, &sc_filt);
 			SetRealRangeInput(this, CTL_SCOPFLT_AMTR, &Data.AmtR);
@@ -2594,7 +2594,7 @@ static int EditSCardOp(SCardCore::OpBlock & rBlk)
 				setStaticText(CTL_SCARDOP_ST_REST, temp_buf);
 			}
 			if(Freezing) {
-				SetPeriodInput(this, CTL_SCARDOP_FRZPERIOD, &Data.FreezingPeriod);
+				SetPeriodInput(this, CTL_SCARDOP_FRZPERIOD, Data.FreezingPeriod);
 				setCtrlDate(CTL_SCARDOP_EXPIRY, OrgExpiry);
 			}
 			else if(Data.DestSCardID && ScObj.Search(Data.DestSCardID, &sc_rec) > 0) {

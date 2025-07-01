@@ -1684,10 +1684,8 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 			const double amt_bnk = is_al ? r_al.Get(CCAMTTYP_BANK) : ((pPack->Rec.Flags & CCHKF_BANKING) ? _fiscal : 0.0);
 			const double amt_cash = (PPConst::Flags & PPConst::fDoSeparateNonFiscalCcItems) ? (_fiscal - amt_bnk) : (is_al ? r_al.Get(CCAMTTYP_CASH) : (_fiscal - amt_bnk));
 			const double amt_ccrd = is_al ? r_al.Get(CCAMTTYP_CRDCARD) : (real_fiscal + real_nonfiscal - _fiscal);
-			// @v11.0.0 {
 			if(SCn.LocID)
 				PPRef->Ot.GetTagStr(PPOBJ_LOCATION, SCn.LocID, PPTAG_LOC_CHZNCODE, chzn_sid);
-			// } @v11.0.0 
 			THROW(Connect(&stb));
 			THROW(AllowPrintOper_Fptr10());
 			if(flags & PRNCHK_LASTCHKANNUL) {

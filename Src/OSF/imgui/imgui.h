@@ -1,6 +1,7 @@
+// IMGUI.H
 // dear imgui, v1.89.5 WIP
-// (headers)
-
+// @codepage UTF-8
+//
 // Help:
 // - Read FAQ at http://dearimgui.com/faq
 // - Newcomers, read 'Programmer guide' in imgui.cpp for notes on how to setup Dear ImGui in your codebase.
@@ -902,10 +903,10 @@ int    GetFrameCount();                        // get global imgui frame count. 
 ImDrawListSharedData * GetDrawListSharedData();        // you may use this when creating your own ImDrawList instances.
 const char * GetStyleColorName(ImGuiCol idx);        // get a string corresponding to the enum value (for display, saving, etc.).
 //
-// Descr: ¬ÓÁ‚‡˘‡ÂÚ Ë‰ÂÌÚËÙËÍ‡ÚÓ ˆ‚ÂÚ‡, ÒÓÓÚ‚ÂÚÒÚ‚Û˛˘ËÈ ÒËÏ‚ÓÎÛ pImGuiColorName.
+// Descr: –í–æ–∑–≤—Ä–∞—â–∞–µ—Ç –∏–¥–µ–Ω—Ç–∏—Ñ–∏–∫–∞—Ç–æ—Ä —Ü–≤–µ—Ç–∞, —Å–æ–æ—Ç–≤–µ—Ç—Å—Ç–≤—É—é—â–∏–π —Å–∏–º–≤–æ–ª—É pImGuiColorName.
 // Returns:
-//   >=0 - ÒËÏ‚ÓÎ pImGuiColorName Ì‡È‰ÂÌ. «Ì‡˜ÂÌËÂ ÒÓÓÚ‚ÂÚÒÚ‚ÛÂÚ Â„Ó Ë‰ÂÌÚËÙËÍ‡ÚÓÛ.
-//   -1  - ÒËÏ‚ÓÎ pImGuiColorName ÌÂ Ì‡È‰ÂÌ.
+//   >=0 - —Å–∏–º–≤–æ–ª pImGuiColorName –Ω–∞–π–¥–µ–Ω. –ó–Ω–∞—á–µ–Ω–∏–µ —Å–æ–æ—Ç–≤–µ—Ç—Å—Ç–≤—É–µ—Ç –µ–≥–æ –∏–¥–µ–Ω—Ç–∏—Ñ–∏–∫–∞—Ç–æ—Ä—É.
+//   -1  - —Å–∏–º–≤–æ–ª pImGuiColorName –Ω–µ –Ω–∞–π–¥–µ–Ω.
 //
 int    GetStyleColorIdx(const char * pImGuiColorName);  // @sobolev 
 void   SetStateStorage(ImGuiStorage* storage); // replace current window storage with our own (if you want to manipulate it yourself, typically clear subsection of it)

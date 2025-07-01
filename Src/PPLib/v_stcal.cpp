@@ -1,5 +1,5 @@
 // V_STCAL.CPP
-// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2024
+// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2024, 2025
 //
 #include <pp.h>
 #pragma hdrstop
@@ -41,7 +41,7 @@ public:
 	DECL_DIALOG_SETDTS()
 	{
 		RVALUEPTR(Data, pData);
-		SetPeriodInput(this, CTL_STAFFCALFLT_PERIOD, &Data.Period);
+		SetPeriodInput(this, CTL_STAFFCALFLT_PERIOD, Data.Period);
 		PPIDArray obj_type_list;
 		obj_type_list.addzlist(PPOBJ_PERSON, PPOBJ_STAFFLIST2, PPOBJ_PERSONPOST, 0L);
 		SetupObjListCombo(this, CTLSEL_STAFFCALFLT_OT, Data.LinkObjType, &obj_type_list);

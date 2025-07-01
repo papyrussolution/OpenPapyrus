@@ -1101,10 +1101,7 @@ int PPALDD_ArticleView::InitData(PPFilt & rFilt, long rsrv)
 	return DlRtm::InitData(rFilt, rsrv);
 }
 
-int PPALDD_ArticleView::InitIteration(PPIterID iterId, int sortId, long)
-{
-	INIT_PPVIEW_ALDD_ITER(Article);
-}
+int PPALDD_ArticleView::InitIteration(PPIterID iterId, int sortId, long) { INIT_PPVIEW_ALDD_ITER(Article); }
 
 int PPALDD_ArticleView::NextIteration(PPIterID iterId)
 {

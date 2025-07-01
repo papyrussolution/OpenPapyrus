@@ -1389,7 +1389,7 @@ PPViewGeoTracking::~PPViewGeoTracking()
 		{
 			int    ok = 1;
 			RVALUEPTR(Data, pData);
-			SetPeriodInput(this, CTL_GEOTRFILT_PERIOD, &Data.Period);
+			SetPeriodInput(this, CTL_GEOTRFILT_PERIOD, Data.Period);
 			SetupObjListCombo(this, CTLSEL_GEOTRFILT_OBJT, Data.Oi.Obj, &ObjTypeList);
 			SetupObjListCombo(this, CTLSEL_GEOTRFILT_EXTOBJT, Data.ExtOi.Obj, &ExtObjTypeList);
 			SetupObjType();
@@ -1750,10 +1750,8 @@ int PPALDD_GeoTracking::InitData(PPFilt & rFilt, long rsrv)
 	return DlRtm::InitData(rFilt, rsrv);
 }
 
-int PPALDD_GeoTracking::InitIteration(long iterId, int sortId, long rsrv)
-{
-	INIT_PPVIEW_ALDD_ITER(GeoTracking);
-}
+void PPALDD_GeoTracking::Destroy() { DESTROY_PPVIEW_ALDD(GeoTracking); }
+int  PPALDD_GeoTracking::InitIteration(long iterId, int sortId, long rsrv) { INIT_PPVIEW_ALDD_ITER(GeoTracking); }
 
 int PPALDD_GeoTracking::NextIteration(long iterId)
 {
@@ -1773,8 +1771,6 @@ int PPALDD_GeoTracking::NextIteration(long iterId)
 	PPWaitPercent(p_v->GetCounter());
 	FINISH_PPVIEW_ALDD_ITER();
 }
-
-void PPALDD_GeoTracking::Destroy() { DESTROY_PPVIEW_ALDD(GeoTracking); }
 //
 //
 //

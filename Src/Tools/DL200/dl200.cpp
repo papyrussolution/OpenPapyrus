@@ -1,5 +1,6 @@
 // DL200.CPP
 // Copyright (c) A.Sobolev 2002, 2003, 2004, 2007, 2008, 2009, 2010, 2011, 2012, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025
+// @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
@@ -28,9 +29,10 @@ static int ReadSArrayFromFile(SArray * pAry, FILE * pStream)
 {
 	EXCEPTVAR(SLibError);
 	int    ok = 1;
-	uint16 i, c = 0;
-	size_t item_size = pAry->getItemSize();
-	long   beg_pos = ftell(pStream);
+	uint16 i;
+	uint16 c = 0;
+	const  size_t item_size = pAry->getItemSize();
+	const  long   beg_pos = ftell(pStream);
 	pAry->freeAll();
 	char * p_buf = static_cast<char *>(SAlloc::M(item_size));
 	THROW(p_buf);
@@ -351,7 +353,8 @@ int DL2_Entry::Write(DL2_Storage * pStrg) const
 {
 	int    ok = 1;
 	if(oneof3(EntryType, DL2ENT_DATA, DL2ENT_GROUP, DL2ENT_ROW)) {
-		uint32 l, t = (uint32)EntryType;
+		uint32 l;
+		const  uint32 t = (uint32)EntryType;
 		FILE * f = pStrg->P_Stream;
 		uint32 offs = (uint32)ftell(f);
 		THROW_SL(fwrite(&t, sizeof(t), 1, f) == 1);
@@ -384,7 +387,9 @@ int DL2_Entry::Read(FILE * pStream)
 {
 	int    ok = 1;
 	if(oneof3(EntryType, DL2ENT_DATA, DL2ENT_GROUP, DL2ENT_ROW)) {
-		uint32 t, l, dest_type = EntryType;
+		uint32 t;
+		uint32 l;
+		const uint32 dest_type = EntryType;
 		destroy();
 		THROW_PP(fread(&t, sizeof(t), 1, pStream) == 1, PPERR_DL200_READFAULT);
 		THROW_PP(dest_type == t, PPERR_DL200_INVENTRYTYPE);
@@ -537,7 +542,7 @@ uint DL2_Group::GetMaxNesting() const
 	for(uint i = 0; i < GetCount(); i++) {
 		DL2_Entry * p_entry = GetItem(i);
 		if(p_entry && oneof2(p_entry->EntryType, DL2ENT_GROUP, DL2ENT_DATA)) {
-			uint nesting = ((DL2_Group *)p_entry)->GetMaxNesting()+1;
+			const uint nesting = ((DL2_Group *)p_entry)->GetMaxNesting()+1;
 			if(nesting > max_nesting)
 				max_nesting = nesting;
 		}
@@ -552,15 +557,15 @@ size_t DL2_Group::GetMaxDescriptionSize(uint level) const
 		if(EntryType == DL2ENT_GROUP)
 			max_size = P_Descript ? (sstrlen(P_Descript)+1) : sizeof(Name);
 	}
-	else
+	else {
 		for(uint i = 0; i < GetCount(); i++) {
 			DL2_Entry * p_entry = GetItem(i);
 			if(p_entry && p_entry->EntryType == DL2ENT_GROUP) {
-				size_t size = ((DL2_Group *)p_entry)->GetMaxDescriptionSize(level-1);
-				if(size > max_size)
-					max_size = size;
+				const size_t size = ((DL2_Group *)p_entry)->GetMaxDescriptionSize(level-1);
+				SETMAX(max_size, size);
 			}
 		}
+	}
 	return max_size;
 }
 
@@ -584,11 +589,11 @@ int DL2_Group::Write(DL2_Storage * pStrg) const
 int DL2_Group::Read(FILE * pStream)
 {
 	int    ok = 1;
-	uint32 c, i = 0;
+	uint32 c;
 	THROW(DL2_Entry::Read(pStream));
 	THROW_PP(fread(&c, sizeof(c), 1, pStream) == 1, PPERR_DL200_READFAULT);
-	for(i = 0; i < c; i++) {
-		uint16 type = DL2_Entry::ReadEntryType(pStream);
+	for(uint32 i = 0; i < c; i++) {
+		const uint16 type = DL2_Entry::ReadEntryType(pStream);
 		THROW(type);
 		if(type == DL2ENT_GROUP) {
 			DL2_Group * p_group = new DL2_Group;
@@ -626,9 +631,8 @@ int DL2_Group::Print(FILE * pStream) const
 	return 1;
 }
 //
-DL2_Data::DL2_Data() : DL2_Group(DL2ENT_DATA)
+DL2_Data::DL2_Data() : DL2_Group(DL2ENT_DATA), P_Columns(0)
 {
-	P_Columns = 0;
 }
 
 DL2_Data::~DL2_Data()
@@ -897,7 +901,14 @@ int DL2_CI::ToStr(char * pBuf, size_t bufLen) const
 			timefmt(T, MKSFMT(0, TIMF_HMS), p);
 			break;
 		case DL2CIT_PERIOD:
-			periodfmt(&P, p);
+			{
+				// @v12.3.7 periodfmt(P, p);
+				// @v12.3.7 {
+				SString temp_buf;
+				P.ToStr(0, temp_buf);
+				STRNSCPY(buf, temp_buf);
+				// } @v12.3.7 
+			}
 			break;
 		case DL2CIT_STRING:
 			strnzcpy(p, (const char *)(this+1), sizeof(buf)-sstrlen(buf));
@@ -1061,7 +1072,7 @@ int DL2_ObjList::ToStr(int32 id, SString & rBuf) const
 		if(p_item->Id == id) {
 			int    is_first = 1;
 			int    is_list = 0;
-			if(p_item->Ss.getCount() > 0) {
+			if(p_item->Ss.IsCountGreaterThan(0)) { // @v12.3.7 (getCount() > 0) --> IsCountGreaterThan(0) - С‚Р°Рє РЅР°РјРЅРѕРіРѕ Р±С‹СЃС‚СЂРµРµ
 				GetObjToken(p_item->ObjType, temp_buf);
 				rBuf.CatChar('@').Cat(temp_buf).CatChar('(');
 				is_list = 1;
@@ -1150,7 +1161,7 @@ void DL2_Score::Init(DL2_Resolver * pCtx)
 int DL2_Score::ScanArg(SStrScan & rScan, SString & rBuf)
 {
 	int    ok = -1;
-	int    par = 0; // Счетчик внутренних скобок
+	int    par = 0; // РЎС‡РµС‚С‡РёРє РІРЅСѓС‚СЂРµРЅРЅРёС… СЃРєРѕР±РѕРє
 	rBuf.Z();
 	rScan.Skip();
 	do {
@@ -1194,7 +1205,7 @@ int DL2_Score::ScanArgList(const char * pStr, size_t * pOffs)
 		uint   arg_no = 0;
 		for(uint p = 0; arg_list.get(&p, temp_buf); arg_no++) {
 			if(arg_no == 0) {
-				THROW_SL(strtoperiod(temp_buf.Strip(), &Period, 0));
+				THROW_SL(Period.FromStr(temp_buf.Strip(), 0));
 			}
 			else if(arg_no == 1) {
 				if(oneof5(Kind, kBill, kPaym, kPersonEvent, kDebt, kBizScore)) {
@@ -1245,7 +1256,7 @@ int DL2_Score::ScanArgList(const char * pStr, size_t * pOffs)
 		ok = -1;
 	CATCH
 		ok = 0;
-		// BizScore: ошибка разрешения списка параметров
+		// BizScore: РѕС€РёР±РєР° СЂР°Р·СЂРµС€РµРЅРёСЏ СЃРїРёСЃРєР° РїР°СЂР°РјРµС‚СЂРѕРІ
 	ENDCATCH
 	ASSIGN_PTR(pOffs, scan.Offs);
 	return ok;
@@ -1284,7 +1295,7 @@ int DL2_Score::GetFromStr(const char * pStr, size_t * pOffs)
 				Kind = kBizScore;
 			}
 			else {
-				// BizScore: Не определенный примитив '%s'
+				// BizScore: РќРµ РѕРїСЂРµРґРµР»РµРЅРЅС‹Р№ РїСЂРёРјРёС‚РёРІ '%s'
 			}
 			scan.Skip();
 			if(scan[0] == '.') {
@@ -1306,8 +1317,9 @@ int DL2_Score::GetFromStr(const char * pStr, size_t * pOffs)
 
 int DL2_Score::PutToStr(SString & rBuf) const
 {
-	int    ok = 1;
 	rBuf.Z();
+	int    ok = 1;
+	SString temp_buf;
 	switch(Kind) {
 		case kBill: rBuf.Cat("@bill"); break;
 		case kPaym: rBuf.Cat("@paym"); break;
@@ -1321,7 +1333,6 @@ int DL2_Score::PutToStr(SString & rBuf) const
 	}
 	if(Sub) {
 		rBuf.Dot();
-		SString temp_buf;
 		if(PPObjBizScore::GetBzsiSymb(Sub, temp_buf))
 			rBuf.Cat(temp_buf);
 		else
@@ -1329,34 +1340,34 @@ int DL2_Score::PutToStr(SString & rBuf) const
 	}
 	rBuf.CatChar('(');
 	{
-		char   pb[64];
-		periodfmt(&Period, pb);
-		rBuf.Cat(pb);
+		// @v12.3.7 char   pb[64];
+		// @v12.3.7 periodfmt(Period, pb);
+		// @v12.3.7 rBuf.Cat(pb);
+		rBuf.Cat(Period.ToStr(0, temp_buf)); // @v12.3.7
 	}
 	if(oneof5(Kind, kBill, kPaym, kPersonEvent, kDebt, kBizScore)) {
 		rBuf.CatDiv(',', 2).Cat(OpCode);
 	}
 	{
-		SString list_buf;
 		if(LocListID) {
-			list_buf.Z();
+			temp_buf.Z();
 			if(P_Ctx) {
-				if(!P_Ctx->Oc.ToStr(LocListID, list_buf))
-					(list_buf = "@loclist").CatParStr("ERROR");
+				if(!P_Ctx->Oc.ToStr(LocListID, temp_buf))
+					(temp_buf = "@loclist").CatParStr("ERROR");
 			}
 			else
-				(list_buf = "@loclist").CatParStr("ERROR");
-			rBuf.CatDiv(',', 2).Cat(list_buf);
+				(temp_buf = "@loclist").CatParStr("ERROR");
+			rBuf.CatDiv(',', 2).Cat(temp_buf);
 		}
 		if(GoodsGrpListID) {
-			list_buf.Z();
+			temp_buf.Z();
 			if(P_Ctx) {
-				if(!P_Ctx->Oc.ToStr(GoodsGrpListID, list_buf))
-					(list_buf = "@goodsgroup").CatParStr("ERROR");
+				if(!P_Ctx->Oc.ToStr(GoodsGrpListID, temp_buf))
+					(temp_buf = "@goodsgroup").CatParStr("ERROR");
 			}
 			else
-				(list_buf = "@goodsgroup").CatParStr("ERROR");
-			rBuf.CatDiv(',', 2).Cat(list_buf);
+				(temp_buf = "@goodsgroup").CatParStr("ERROR");
+			rBuf.CatDiv(',', 2).Cat(temp_buf);
 		}
 	}
 	rBuf.CatChar(')');
@@ -1366,7 +1377,7 @@ int DL2_Score::PutToStr(SString & rBuf) const
 /*
 // @loclist(...)
 // @bill(period, op, [loc])
-// @paym(period, op, [loc]) // op - операция, к которой привязаны оплаты
+// @paym(period, op, [loc]) // op - РѕРїРµСЂР°С†РёСЏ, Рє РєРѕС‚РѕСЂРѕР№ РїСЂРёРІСЏР·Р°РЅС‹ РѕРїР»Р°С‚С‹
 // @personevent(period, op)
 // @ccheck(period, [loc])
 // @goodsrest.cost(period, [loc])

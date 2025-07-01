@@ -132,6 +132,7 @@ UUID        {HEXDIGIT}+\-{HEXDIGIT}+\-{HEXDIGIT}+\-{HEXDIGIT}+\-{HEXDIGIT}+
 "view"            { return TOKEN.Create(T_VIEW); } // @v11.0.4
 "bycontainer"     { return TOKEN.Create(T_BYCONTAINER); } // @v11.0.4
 "bycontent"       { return TOKEN.Create(T_BYCONTENT); } // @v11.0.4
+"supplement"      { return TOKEN.Create(T_SUPPLEMENT); } // @v12.3.7 (дополнение к UI-управл€ющему элементу)
 {IDENT}     {
 	DLSYMBID symb_id = 0;
 	if(DCtx.GetMacro(yytext, MacroSubst))

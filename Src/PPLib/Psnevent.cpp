@@ -1832,16 +1832,14 @@ int PsnEventDialog::setupPair()
 int PsnEventDialog::setDTS(const PPPsnEventPacket * p)
 {
 	int    ok = 1;
-	int    disable_taglist = 0;
-	int    disable_post = 0;
 	PPObjPsnOpKind pok_obj;
 	THROW_INVARG(p);
 	THROW_PP(p->Rec.OpID, PPERR_UNDEFPEOP);
 	THROW(pok_obj.GetPacket(p->Rec.OpID, &PokPack) > 0);
 	THROW(PokPack.CheckExVal());
 	Pack = *p;
-	disable_taglist = BIN(P.ExValGrp != POKEVG_TAG);
-	disable_post    = BIN(P.ExValGrp != POKEVG_POST);
+	const bool disable_taglist = (P.ExValGrp != POKEVG_TAG);
+	const bool disable_post    = (P.ExValGrp != POKEVG_POST);
 	if(Pack.Rec.ID == 0) {
 		SETIFZ(Pack.Rec.SecondID, PokPack.PCScnd.DefaultID);
 	}
@@ -1881,7 +1879,7 @@ int PsnEventDialog::setDTS(const PPPsnEventPacket * p)
 	if(PokPack.AllowedTags.IsExists()) {
 		PPIDArray allowed_tags = PokPack.AllowedTags.Get();
 		for(uint i = 0; i < allowed_tags.getCount(); i++) {
-			PPID   tag_id = allowed_tags.at(i);
+			const PPID tag_id = allowed_tags.at(i);
 			const ObjTagItem * p_item = Pack.TagL.GetItem(tag_id);
 			if(!p_item) {
 				ObjTagItem item;

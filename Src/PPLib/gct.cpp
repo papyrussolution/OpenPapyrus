@@ -112,7 +112,7 @@ int PPViewGoodsTrnovr::EditFilt(GoodsTrnovrFilt * pFilt)
 		{
 			RVALUEPTR(Data, pData);
 			PPIDArray types;
-			SetPeriodInput(this, CTL_GTO_PERIOD, &Data.Period);
+			SetPeriodInput(this, CTL_GTO_PERIOD, Data.Period);
 			{
 				LocationCtrlGroup::Rec l_rec(&Data.LocList);
 				setGroupData(ctlgroupLoc, &l_rec);
@@ -425,10 +425,8 @@ int PPALDD_GoodsTurnovr::InitData(PPFilt & rFilt, long rsrv)
 	return DlRtm::InitData(rFilt, rsrv);
 }
 
-int PPALDD_GoodsTurnovr::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
-{
-	INIT_PPVIEW_ALDD_ITER(GoodsTrnovr);
-}
+void PPALDD_GoodsTurnovr::Destroy() { DESTROY_PPVIEW_ALDD(GoodsTrnovr); }
+int  PPALDD_GoodsTurnovr::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/) { INIT_PPVIEW_ALDD_ITER(GoodsTrnovr); }
 
 int PPALDD_GoodsTurnovr::NextIteration(PPIterID iterId)
 {
@@ -447,4 +445,3 @@ int PPALDD_GoodsTurnovr::NextIteration(PPIterID iterId)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-void PPALDD_GoodsTurnovr::Destroy() { DESTROY_PPVIEW_ALDD(GoodsTrnovr); }

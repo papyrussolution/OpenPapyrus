@@ -1708,6 +1708,7 @@
     <ClCompile Include="..\PPLib\v_transp.cpp" />
     <ClCompile Include="..\PPLib\v_tsanlz.cpp" />
     <ClCompile Include="..\PPLib\v_tsess.cpp" />
+    <ClCompile Include="..\PPLib\v_unitec.cpp" />
     <ClCompile Include="..\PPLib\v_usprof.cpp" />
     <ClCompile Include="..\PPLib\workbook.cpp" />
     <ClCompile Include="..\PPLib\wsctl.cpp" />

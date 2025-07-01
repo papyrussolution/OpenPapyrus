@@ -1,5 +1,5 @@
 // RENT.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2020, 2021, 2022, 2024
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2020, 2021, 2022, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -303,7 +303,7 @@ int PPObjBill::AutoCharge(PPID id)
 	PPRentCondition rc;
 	period.Z();
 	if(P_Tbl->GetRentCondition(id, &rc) > 0 && rc.Cycle && !(rc.Flags & PPRentCondition::fClosed) && Search(id, &bill_rec) > 0) {
-		if(bill_rec.OpID && DateRangeDialog(0, 0, &period) > 0) {
+		if(bill_rec.OpID && DateRangeDialog(0, 0, period) > 0) {
 			PPOprKind op_rec;
 			for(PPID temp_id = 0; ok < 0 && EnumOperations(PPOPT_CHARGE, &temp_id, &op_rec) > 0;)
 				if(op_rec.LinkOpID == bill_rec.OpID) {
@@ -374,7 +374,7 @@ int RentChrgDialog(RentChrgFilt * pFlt)
 		DECL_DIALOG_SETDTS()
 		{
 			RVALUEPTR(Data, pData);
-			SetPeriodInput(this, CTL_RENTCHARGE_PERIOD, &Data.Period);
+			SetPeriodInput(this, CTL_RENTCHARGE_PERIOD, Data.Period);
 			SetupArCombo(this, CTLSEL_RENTCHARGE_OBJECT, Data.CntrgntID, OLW_LOADDEFONOPEN, GetSellAccSheet(), sacfNonGeneric);
 			return 1;
 		}

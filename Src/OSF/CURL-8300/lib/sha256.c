@@ -234,13 +234,10 @@ static CURLcode my_sha256_init(my_sha256_ctx * ctx)
 		ctx->hCryptProv = 0;
 		return CURLE_FAILED_INIT;
 	}
-
 	return CURLE_OK;
 }
 
-static void my_sha256_update(my_sha256_ctx * ctx,
-    const uchar * data,
-    uint length)
+static void my_sha256_update(my_sha256_ctx * ctx, const uchar * data, uint length)
 {
 	CryptHashData(ctx->hHash, (uchar *)data, length, 0);
 }
@@ -248,14 +245,11 @@ static void my_sha256_update(my_sha256_ctx * ctx,
 static void my_sha256_final(uchar * digest, my_sha256_ctx * ctx)
 {
 	unsigned long length = 0;
-
 	CryptGetHashParam(ctx->hHash, HP_HASHVAL, NULL, &length, 0);
 	if(length == SHA256_DIGEST_LENGTH)
 		CryptGetHashParam(ctx->hHash, HP_HASHVAL, digest, &length, 0);
-
 	if(ctx->hHash)
 		CryptDestroyHash(ctx->hHash);
-
 	if(ctx->hCryptProv)
 		CryptReleaseContext(ctx->hCryptProv, 0);
 }
@@ -335,9 +329,7 @@ static const unsigned long K[64] = {
 };
 
 /* Various logical functions */
-#define RORc(x, y) \
-	(((((ulong)(x) & 0xFFFFFFFFUL) >> (ulong)((y) & 31)) | \
-	((ulong)(x) << (ulong)(32 - ((y) & 31)))) & 0xFFFFFFFFUL)
+#define RORc(x, y) (((((ulong)(x) & 0xFFFFFFFFUL) >> (ulong)((y) & 31)) | ((ulong)(x) << (ulong)(32 - ((y) & 31)))) & 0xFFFFFFFFUL)
 #define Ch(x, y, z)   (z ^ (x & (y ^ z)))
 #define Maj(x, y, z)  (((x | y)&z) | (x &y))
 #define S(x, n)     RORc((x), (n))
@@ -348,12 +340,10 @@ static const unsigned long K[64] = {
 #define Gamma1(x)   (S(x, 17) ^ S(x, 19) ^ R(x, 10))
 
 /* Compress 512-bits */
-static int sha256_compress(struct sha256_state * md,
-    uchar * buf)
+static int sha256_compress(struct sha256_state * md, uchar * buf)
 {
 	unsigned long S[8], W[64];
 	int i;
-
 	/* Copy state into S */
 	for(i = 0; i < 8; i++) {
 		S[i] = md->state[i];

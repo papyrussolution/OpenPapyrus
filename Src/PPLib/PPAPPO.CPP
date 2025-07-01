@@ -478,6 +478,7 @@ int PPApp::processCommand(uint cmd)
 		case cmUhttStore:            ShowObjects(PPOBJ_UHTTSTORE, 0);         break;
 		case cmWorkbook:             ShowObjects(PPOBJ_WORKBOOK, 0);          break;
 		case cmGoodsValRestr:        ShowObjects(PPOBJ_GOODSVALRESTR, 0);     break;
+		case cmSalesRestriction:     ShowObjects(PPOBJ_SALESRESTRICTION, 0);  break; // @v12.3.7
 		case cmPallet:               ShowObjects(PPOBJ_PALLET, 0);            break;
 		case cmRFIDDevice:           ShowObjects(PPOBJ_RFIDDEVICE, 0);        break;
 		case cmDebtDim:              ShowObjects(PPOBJ_DEBTDIM, 0);           break;
@@ -564,7 +565,6 @@ int PPApp::processCommand(uint cmd)
 		case cmViewPhnSvcMonitor:    PPView::Execute(PPVIEW_PHNSVCMONITOR,   0, PPView::exefModeless, 0); break;
 		case cmVetisDocument:        PPView::Execute(PPVIEW_VETISDOCUMENT,   0, PPView::exefModeless, 0); break;
 		case cmQuoteReqAnalyze:      PPView::Execute(PPVIEW_QUOTEREQANALYZE, 0, PPView::exefModeless, 0); break;
-		case cmVetisInterchange:     PPViewVetisDocument::RunInterchangeProcess(0); break;
 		case cmEvents:               PPView::Execute(PPVIEW_EVENT,           0, PPView::exefModeless, 0); break;
 		case cmUserMenu:             PPView::Execute(PPVIEW_USERMENU,        0, PPView::exefModeless, 0); break;
 		case cmAlcoDeclRu:           PPView::Execute(PPVIEW_ALCODECLRU,      0, PPView::exefModeless, 0); break; // @v11.0.5
@@ -572,6 +572,7 @@ int PPApp::processCommand(uint cmd)
 		case cmStyloQCommands:       PPView::Execute(PPVIEW_STYLOQCOMMAND,   0, PPView::exefModeless, 0); break; // @v11.1.9
 		case cmSwProgram:            PPView::Execute(PPVIEW_SWPROGRAM,       0, PPView::exefModeless, 0); break; // @v11.9.12
 		case cmComputer:             PPView::Execute(PPVIEW_COMPUTER,        0, PPView::exefModeless, 0); break; // @v12.0.0
+		case cmVetisInterchange:     PPViewVetisDocument::RunInterchangeProcess(0); break;
 		case cmProcessUED: // @v11.6.6
 			{
 				//PPLogger logger;
@@ -670,7 +671,7 @@ int PPApp::processCommand(uint cmd)
 		case cmMaintainPrjTask:      MaintainPrjTask();               break;
 		case cmGotoSite:             TProgram::GotoSite();            break;
 		//case cmGotoVK:               GotoVK();                        break; //@erikTEMP v10.7.7 		
-		case cmOpenPhonePane:        OpenPhonePane();                 break; // @v10.5.8
+		case cmOpenPhonePane:        OpenPhonePane();                 break;
 		case cmViewNewVersionList:   PPUhttClient::ViewNewVerList(1); break;
 		case cmViewQuots:            ViewQuot(0);                     break;
 		case cmTech:                 ViewTech(0);                     break;

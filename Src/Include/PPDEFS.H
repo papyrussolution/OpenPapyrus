@@ -1055,6 +1055,7 @@
 #define PPOBJ_COMPUTERCATEGORY   85L // @v12.0.1 Категория компьютера. Простой вспомогательный справочник для объекта PPOBJ_COMPUTER
 	#define PPCOMPCAT_DEFAULT          1L // @v12.0.1 Зарезервированная запись категории компьютеров default
 #define PPOBJ_RAWMATERIAL        86L // @v12.0.10 Сырьевые материалы. Объект введен из-за необходимость рассчитывать параметры классифицированных товаров.
+#define PPOBJ_SALESRESTRICTION   87L // @v12.3.7  Ограничение на продажу товара.
 #define PPOBJ_DYNAMICOBJS  100L // Список динамических объектов
 //
 // Отраслевые справочники
@@ -1471,6 +1472,8 @@
 	// ставки НДС 5% и 7% в России с 2025года).
 #define PPTAG_POSNODE_TEST             128L // @v12.2.9 Признак тестовой конфигурации кассового узла. Строка. Трактуется так как вздумается в целях разработки.
 #define PPTAG_PERSON_KEYWORDS          129L // @v12.3.6 Ключевые слова персоналии, а также специальные метки.
+#define PPTAG_GOODS_SALESRESTR         130L // @v12.3.7 Ограничение на продажу товара. Ссылается на экземпляр объекта PPOBJ_SALESRESTRICTION.
+	// Необходим для напоминаний на Point-Of-Sale.
 //
 // Зарезервированные идентификаторы глобальных учетных записей
 //
@@ -4029,6 +4032,7 @@
 	#define cmGStrucExpandReduce      131 // Кнопка расширения/редукции структуры
 	#define cmSelNamedGS              601 // Кнопка выбора именованной структуры
 	#define cmEditStruct              132 // Кнопка редактирования структуры элемента
+	#define cmGiftParam               133 // @v12.3.7 Кнопка редактирования параметров подарочной структуры 
 	#define CTL_GSTRUC_GOODS             (1 + WINDOWS_ID_BIAS)
 	#define CTL_GSTRUC_LIST              (2 + WINDOWS_ID_BIAS)
 	#define CTL_GSTRUC_FLAGS             (3 + WINDOWS_ID_BIAS)
@@ -11658,6 +11662,8 @@
 	#define CTLSEL_BIZSC2_TIMECYCLE        (28 + WINDOWS_ID_BIAS)
 	#define CTL_BIZSC2_DESCR               (29 + WINDOWS_ID_BIAS)
 	#define CTL_BIZSC2_FORMULA             (30 + WINDOWS_ID_BIAS)
+	#define CTL_BIZSC2_CLS                 (31 + WINDOWS_ID_BIAS)
+	#define CTLSEL_BIZSC2_CLS              (32 + WINDOWS_ID_BIAS)
 
 #define DLG_SWPROGRAM             1438
 	#define CTL_SWPROGRAM_ID               (1 + WINDOWS_ID_BIAS)
@@ -11784,6 +11790,18 @@
 	#define CTL_BIZSC2V_VAL_R            (21 + WINDOWS_ID_BIAS)
 	#define CTL_BIZSC2V_VAL_I            (22 + WINDOWS_ID_BIAS)
 	#define CTL_BIZSC2V_VAL_T            (23 + WINDOWS_ID_BIAS)
+#define DLG_GSGIFT                1465 // Параметры подарка в товарной структуре
+	// Управляющие элементы CTL_GSTRUC_XXX
+#define DLG_UNITECFILT            1466 // @v12.3.7 Фильтр unit-анализа
+	#define CTL_UNITECFILT_PERIOD        (1 + WINDOWS_ID_BIAS)
+	#define CTLCAL_UNITECFILT_PERIOD     (2 + WINDOWS_ID_BIAS)
+#define DLG_SALESRESTR            1467 // @v12.3.7 PPSalesRestriction
+	#define CTL_SALESRESTR_NAME          (1 + WINDOWS_ID_BIAS)
+	#define CTL_SALESRESTR_SYMB          (2 + WINDOWS_ID_BIAS)
+	#define CTL_SALESRESTR_ID            (3 + WINDOWS_ID_BIAS)
+	#define CTL_SALESRESTR_AGE           (4 + WINDOWS_ID_BIAS)
+	#define CTL_SALESRESTR_PERIOD        (5 + WINDOWS_ID_BIAS)
+	#define CTLCAL_SALESRESTR_PERIOD     (6 + WINDOWS_ID_BIAS)
 //
 // Win32 Dialog Identifiers
 //

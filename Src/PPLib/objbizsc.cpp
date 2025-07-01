@@ -161,7 +161,8 @@ int PPObjBizScore::PutPacket(PPID * pID, PPBizScorePacket * pPack, int use_ta)
 				// Событие PPACN_OBJADD создано функцией P_Ref->AddItem : action не инициалазируем
 			}
 			{
-				SString strg_buf, prev_strg_buf;
+				SString strg_buf;
+				SString prev_strg_buf;
 				PPPutExtStrData(BIZSCEXSTR_DESCR,   strg_buf, pPack->Descr);
 				PPPutExtStrData(BIZSCEXSTR_FORMULA, strg_buf, pPack->Formula);
 				THROW(P_Ref->GetPropVlrString(Obj, *pID, BZSPRP_DESCR, prev_strg_buf));
@@ -253,8 +254,8 @@ public:
 		Buf_Data = *pData;
 		setCtrlString(CTL_BIZPRCRT_PRMTVNAME, BizScoreName);
 		// Выбор примитива
-		long id = 0;
-		uint pos = 0;
+		long   id = 0;
+		uint   pos = 0;
 		SString str;
 		PPGetSubStr(PPTXT_BIZSCORE_PRIMITIVES, BIZSCORE_PRIMITIVES_METAVAR, str);
 		Primitiv_List.Add(0, str);
@@ -312,7 +313,7 @@ public:
 		// } @v12.1.6 
 		// Аргументы
 		PPID   loc_id = 0;
-		SetPeriodInput(this, CTL_BIZPRCRT_PERIOD, &Data.Period);
+		SetPeriodInput(this, CTL_BIZPRCRT_PERIOD, Data.Period);
 		SetupPPObjCombo(this, CTLSEL_BIZPRCRT_LOC, PPOBJ_LOCATION, Data.LocListID, 0, 0);
 		SetupPPObjCombo(this, CTLSEL_BIZPRCRT_GOODSGRP, PPOBJ_GOODSGROUP, Data.GoodsGrpListID, 0, 0);
 		setCtrlData(CTL_BIZPRCRT_OPSYMB, Data.OpCode);
@@ -1407,7 +1408,7 @@ int GetBizScoresVals(const char * pUserName, const char * pPassword, TcpSocket *
 IMPLEMENT_PPFILT_FACTORY(BizScoreVal); BizScoreValFilt::BizScoreValFilt() : PPBaseFilt(PPFILT_BIZSCOREVAL, 0, 0)
 {
 	SetFlatChunk(offsetof(BizScoreValFilt, ReserveStart),
-		offsetof(BizScoreValFilt, Reserve)-offsetof(BizScoreFilt, ReserveStart)+sizeof(Reserve));
+		offsetof(BizScoreValFilt, Reserve)-offsetof(BizScoreValFilt, ReserveStart)+sizeof(Reserve));
 	Init(1, 0);
 }
 
@@ -1447,7 +1448,7 @@ int PPViewBizScoreVal::EditBaseFilt(PPBaseFilt * pBaseFilt)
 		DECL_DIALOG_SETDTS()
 		{
 			RVALUEPTR(Data, pData);
-			SetPeriodInput(this, CTL_BIZSCVFILT_PERIOD, &Data.Period);
+			SetPeriodInput(this, CTL_BIZSCVFILT_PERIOD, Data.Period);
 			setCtrlData(CTL_BIZSCVFILT_DT, &Data.Since.d);
 			setCtrlData(CTL_BIZSCVFILT_TM, &Data.Since.t);
 			SetupPPObjCombo(this, CTLSEL_BIZSCVFILT_USER, PPOBJ_USR, Data.UserID, 0, 0);
@@ -1862,7 +1863,7 @@ int PrcssrBizScore::EditParam(Param * pParam)
 		if(CheckDialogPtrErr(&dlg)) {
 			data = *pParam;
 			dlg->SetupCalPeriod(CTLCAL_BIZSCPRC_PERIOD, CTL_BIZSCPRC_PERIOD);
-			SetPeriodInput(dlg, CTL_BIZSCPRC_PERIOD, &data.Period);
+			SetPeriodInput(dlg, CTL_BIZSCPRC_PERIOD, data.Period);
 			dlg->AddClusterAssoc(CTL_BIZSCPRC_FLAGS, 0, Param::fExportXml);
 			dlg->AddClusterAssoc(CTL_BIZSCPRC_FLAGS, 1, Param::fSendToFTP);
 			dlg->SetClusterData(CTL_BIZSCPRC_FLAGS, data.Flags);
@@ -2359,12 +2360,10 @@ int PPALDD_BizScoreValView::InitData(PPFilt & rFilt, long rsrv)
 	return DlRtm::InitData(rFilt, rsrv);
 }
 
-int PPALDD_BizScoreValView::InitIteration(long iterId, int sortId, long rsrv)
-{
-	INIT_PPVIEW_ALDD_ITER(BizScoreVal);
-}
+void PPALDD_BizScoreValView::Destroy() { DESTROY_PPVIEW_ALDD(BizScoreVal); }
+int  PPALDD_BizScoreValView::InitIteration(long iterId, int sortId, long rsrv) { INIT_PPVIEW_ALDD_ITER(BizScoreVal); }
 
-int PPALDD_BizScoreValView::NextIteration(long iterId)
+int  PPALDD_BizScoreValView::NextIteration(long iterId)
 {
 	START_PPVIEW_ALDD_ITER(BizScoreVal);
 	I.ActualDate = item.ActualDate;
@@ -2385,8 +2384,6 @@ int PPALDD_BizScoreValView::NextIteration(long iterId)
 	STRNSCPY(I.Str, item.Str);
 	FINISH_PPVIEW_ALDD_ITER();
 }
-
-void PPALDD_BizScoreValView::Destroy() { DESTROY_PPVIEW_ALDD(BizScoreVal); }
 //
 // Implementation of PPALDD_GlobalUserAcc
 //
@@ -2638,6 +2635,52 @@ PPBizScore2::PPBizScore2()
 	THISZERO();
 }
 
+/*static*/uint PPObjBizScore2::GetBscClsLis(PPIDArray & rList)
+{
+	rList.Z();
+	const long cls_id_list[] = { BSCCLS_INC_SALE_UNIT, BSCCLS_EXP_SALE_UNIT, BSCCLS_EXP_PURCHASE_UNIT,
+		BSCCLS_EXP_TRANSFER_UNIT, BSCCLS_EXP_STORAGE_UNIT, BSCCLS_EXP_PRESALE_UNIT, BSCCLS_EXP_PRESALE_SKU_TIME,
+		BSCCLS_EXP_PROMO_SKU_TIME, BSCCLS_EXP_PROMO_TIME };
+	for(uint i = 0; i < SIZEOFARRAY(cls_id_list); i++)
+		rList.add(cls_id_list[i]);
+	return rList.getCount();
+}
+
+/*static*/bool PPObjBizScore2::IsBscCls_Income(long cls)
+{
+	return cls == BSCCLS_INC_SALE_UNIT;
+}
+
+/*static*/bool PPObjBizScore2::IsBscCls_Expense(long cls)
+{
+	return oneof8(cls, BSCCLS_EXP_SALE_UNIT, BSCCLS_EXP_PURCHASE_UNIT, BSCCLS_EXP_TRANSFER_UNIT, BSCCLS_EXP_STORAGE_UNIT, BSCCLS_EXP_PRESALE_UNIT, BSCCLS_EXP_PRESALE_SKU_TIME,
+		BSCCLS_EXP_PROMO_SKU_TIME, BSCCLS_EXP_PROMO_TIME);
+}
+
+/*static*/bool PPObjBizScore2::GetBscClsName(long cls, SString & rBuf)
+{
+	rBuf.Z();
+	bool   ok = false;
+	uint   txt_id = 0;
+	switch(cls) {
+		case BSCCLS_INC_SALE_UNIT:        txt_id = PPTXT_BSCCLS_INC_SALE_UNIT; break;
+		case BSCCLS_EXP_SALE_UNIT:        txt_id = PPTXT_BSCCLS_EXP_SALE_UNIT; break;
+		case BSCCLS_EXP_PURCHASE_UNIT:    txt_id = PPTXT_BSCCLS_EXP_PURCHASE_UNIT; break;
+		case BSCCLS_EXP_TRANSFER_UNIT:    txt_id = PPTXT_BSCCLS_EXP_TRANSFER_UNIT; break;
+		case BSCCLS_EXP_STORAGE_UNIT:     txt_id = PPTXT_BSCCLS_EXP_STORAGE_UNIT; break;
+		case BSCCLS_EXP_PRESALE_UNIT:     txt_id = PPTXT_BSCCLS_EXP_PRESALE_UNIT; break;
+		case BSCCLS_EXP_PRESALE_SKU_TIME: txt_id = PPTXT_BSCCLS_EXP_PRESALE_SKU_TIME; break;
+		case BSCCLS_EXP_PROMO_SKU_TIME:   txt_id = PPTXT_BSCCLS_EXP_PROMO_SKU_TIME; break;
+		case BSCCLS_EXP_PROMO_TIME:       txt_id = PPTXT_BSCCLS_EXP_PROMO_TIME; break;
+	}
+	if(txt_id) {
+		if(PPLoadText(txt_id, rBuf)) {
+			ok = true;
+		}
+	}
+	return ok;
+}
+
 PPObjBizScore2::PPObjBizScore2(void * extraPtr) : PPObjReference(PPOBJ_BIZSCORE2, extraPtr)
 {
 	ImplementFlags |= (implStrAssocMakeList|implTreeSelector);
@@ -2674,6 +2717,7 @@ int PPObjBizScore2::IsPacketEq(const PPBizScore2Packet & rS1, const PPBizScore2P
 	CMP_MEMB(ID);
 	CMP_MEMBS(Name);
 	CMP_MEMBS(Symb);
+	CMP_MEMB(Cls); // @v12.3.7
 	CMP_MEMB(DataType);
 	CMP_MEMB(TypeEnumID);
 	CMP_MEMB(TypeEnumExt);
@@ -2753,6 +2797,22 @@ int PPObjBizScore2::PutPacket(PPID * pID, PPBizScore2Packet * pPack, int use_ta)
 	return ok;
 }
 
+static void MakeBizScClsStrAssocList(StrAssocArray & rList)
+{
+	rList.Z();
+	PPIDArray cls_id_list;
+	PPObjBizScore2::GetBscClsLis(cls_id_list);
+	SString temp_buf;
+	for(uint i = 0; i < cls_id_list.getCount(); i++) {
+		const long cls_id = cls_id_list.get(i);
+		assert(cls_id > 0);
+		if(PPObjBizScore2::GetBscClsName(cls_id, temp_buf)) {
+			assert(temp_buf.NotEmpty());
+			rList.AddFast(cls_id, temp_buf);
+		}
+	}
+}
+
 class BizScore2Dialog : public TDialog {
 	DECL_DIALOG_DATA(PPBizScore2Packet);
 public:
@@ -2768,6 +2828,12 @@ public:
 		setCtrlData(CTL_BIZSC2_NAME, Data.Rec.Name);
 		setCtrlData(CTL_BIZSC2_SYMB, Data.Rec.Symb);
 		SetupPPObjCombo(this, CTLSEL_BIZSC2_PARENT, PPOBJ_BIZSCORE2, Data.Rec.ParentID, OLW_CANSELUPLEVEL);
+		{
+			StrAssocArray cls_list;
+			MakeBizScClsStrAssocList(cls_list);
+			cls_list.SortByText();
+			SetupStrAssocCombo(this, CTLSEL_BIZSC2_CLS, cls_list, Data.Rec.Cls, 0);
+		}
 		AddClusterAssocDef(CTL_BIZSC2_DATATYPE, 0, OTTYP_NUMBER);
 		AddClusterAssoc(CTL_BIZSC2_DATATYPE, 1, OTTYP_INT);
 		AddClusterAssoc(CTL_BIZSC2_DATATYPE, 2, OTTYP_STRING);
@@ -2798,6 +2864,7 @@ public:
 		THROW_PP(*strip(Data.Rec.Name), PPERR_NAMENEEDED);
 		getCtrlData(CTL_BIZSC2_SYMB, Data.Rec.Symb);
 		getCtrlData(CTLSEL_BIZSC2_PARENT, &Data.Rec.ParentID);
+		getCtrlData(CTLSEL_BIZSC2_CLS, &Data.Rec.Cls);
 		GetClusterData(CTL_BIZSC2_DATATYPE, &Data.Rec.DataType);
 		getCtrlData(CTLSEL_BIZSC2_LINKOBJ, &Data.Rec.LinkObjType);
 		getCtrlData(CTLSEL_BIZSC2_AGENTPSNK, &Data.Rec.AgentPsnKindID);
@@ -2850,6 +2917,7 @@ StrAssocArray * PPObjBizScore2::MakeStrAssocList(void * extraPtr)
 		THROW_SL(p_list->Add(rec.ID, parent_id, rec.Name));
 	}
 	p_list->SortByText();
+	p_list->RemoveRecursion(0);
 	CATCH
 		ZDELETE(p_list);
 	ENDCATCH
@@ -3086,6 +3154,7 @@ public:
 		long   Flags;
 		long   ParentID;
 		long   AccSheetID;
+		long   Cls; // @v12.3.7
 	};
 };
 
@@ -3110,10 +3179,16 @@ int BizScore2Cache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraDa
 		CPY_FLD(Flags);
 		CPY_FLD(ParentID);
 		CPY_FLD(AccSheetID);
+		CPY_FLD(Cls); // @v12.3.7
 #undef CPY_FLD
+		SString temp_buf;
 		PPStringSetSCD ss;
 		ss.add(pack.Rec.Name);
 		ss.add(pack.Rec.Symb);
+		{
+			pack.GetExtStrData(PPBizScore2Packet::extssFormula, temp_buf);
+			ss.add(temp_buf);
+		}
 		PutName(ss.getBuf(), p_cache_rec);
 	}
 	else
@@ -3141,6 +3216,7 @@ void BizScore2Cache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) 
 	CPY_FLD(Flags);
 	CPY_FLD(ParentID);
 	CPY_FLD(AccSheetID);
+	CPY_FLD(Cls); // @v12.3.7
 #undef CPY_FLD
 	char   temp_buf[2048];
 	GetName(pEntry, temp_buf, sizeof(temp_buf));
@@ -3149,6 +3225,11 @@ void BizScore2Cache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) 
 	uint   p = 0;
 	ss.get(&p, p_data_pack->Rec.Name, sizeof(p_data_pack->Rec.Name));
 	ss.get(&p, p_data_pack->Rec.Symb, sizeof(p_data_pack->Rec.Symb));
+	{
+		ss.get(&p, temp_buf, sizeof(temp_buf));
+		if(temp_buf[0])
+			p_data_pack->PutExtStrData(PPBizScore2Packet::extssFormula, temp_buf);
+	}
 }
 
 int PPObjBizScore2::Fetch(PPID id, PPBizScore2Packet * pRec)

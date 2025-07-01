@@ -1262,7 +1262,7 @@ bool SmartListBox::SetTreeListState(bool yes)
 void   SmartListBox::SetOwnerDrawState() { State |= stOwnerDraw; }
 void   SmartListBox::SetLBLnkToUISrchState() { State |= stLBIsLinkedUISrchTextBlock; }
 void   SmartListBox::SetOmitSearchByFirstChar() { State |= stOmitSearchByFirstChar; }
-int    SmartListBox::HasState(long s) const { return BIN(State & s); }
+bool   SmartListBox::HasState(long s) const { return LOGIC(State & s); }
 
 void SmartListBox::SelectTreeItem()
 {
@@ -1330,10 +1330,7 @@ Helper_WordSelector::~Helper_WordSelector()
 	ZDELETE(P_WordSel);
 }
 
-int Helper_WordSelector::IsWsVisible() const
-{
-	return P_WordSel ? P_WordSel->CheckVisible() : 0;
-}
+bool Helper_WordSelector::IsWsVisible() const { return (P_WordSel && P_WordSel->CheckVisible()); }
 //
 //
 //
@@ -1353,12 +1350,14 @@ UiSearchTextBlock::~UiSearchTextBlock()
 	int    r = cmCancel;
 	long   id = 0;
 	SString result_text;
-	if(pBlk && rText.Len() >= pBlk->MinSymbCount && pBlk->SearchText(rText, &id, result_text) > 0) {
-		pBlk->SetData(id, result_text);
-		rText = result_text;
-		r = cmOK;
+	if(pBlk && rText.Len() >= pBlk->MinSymbCount) {
+		if(pBlk->SearchText(rText, &id, result_text) > 0) {
+			pBlk->SetData(id, result_text);
+			rText = result_text;
+			r = cmOK;
+		}
 	}
-	else {
+	if(r != cmOK) {
 		char   text[512];
 		rText.CopyTo(text, sizeof(text));
 		UiSearchTextBlock sd(hWnd, ctlId, text, (isFirstLetter ? text[0] : 0), pBlk, linkToList);
@@ -1549,7 +1548,7 @@ void SmartListBox::search(char * pFirstLetter, int srchMode)
 	if((srchMode & ~srchFlags) == srchFirst) {
 		if(pFirstLetter)
 			srch_pattern = pFirstLetter;
-		SString preserve_srch_pattern = srch_pattern;
+		const  SString preserve_srch_pattern(srch_pattern);
 		int    r2 = UiSearchTextBlock::ExecDialog(getHandle(), Id, srch_pattern, BIN(pFirstLetter), P_WordSelBlk, HasState(stLBIsLinkedUISrchTextBlock));
 		if(preserve_srch_pattern.Cmp(srch_pattern, 0) != 0)
 			StrPool.add(srch_pattern, &SrchPatternPos);

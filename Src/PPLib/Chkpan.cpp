@@ -311,11 +311,7 @@ int CheckPaneDialog::LoadCheck(const CCheckPacket * pPack, bool makeRetCheck, bo
 				break;
 			}
 		}
-		// @v11.8.8 {
-		{
-			SetupExt(pPack);
-		}
-		// } @v11.8.8 
+		SetupExt(pPack); // @v11.8.8
 		if(!dontShow) {
 			if(P_ChkPack) {
 				setStaticText(CTL_CHKPAN_CHKID,   temp_buf.Z().Cat(P_ChkPack->Rec.ID));
@@ -522,20 +518,20 @@ int CPosProcessor::Packet::InitIteration()
 	// Расставляем нумерацию групп строк по признаку cifGrouped
 	//
 	int    grp_n = 0;
-	int    is_grp = 0;
+	bool   is_grp = false;
 	for(uint i = 0; i < getCount(); i++) {
 		CCheckItem & r_item = at(i);
 		if(r_item.Flags & cifGrouped) {
 			if(!is_grp) {
 				grp_n++;
-				is_grp = 1;
+				is_grp = true;
 				if(i > 0)
 					at(i-1).LineGrpN = grp_n;
 			}
 			r_item.LineGrpN = grp_n;
 		}
 		else
-			is_grp = 0;
+			is_grp = false;
 	}
 	return 1;
 }
@@ -3756,7 +3752,7 @@ CheckPaneDialog::CheckPaneDialog(PPID cashNodeID, PPID checkID, CCheckPacket * p
 	}
 	SetupExt(P_ChkPack);
 	P_EGSDlg = 0;
-	disableCtrl(CTL_CHKPAN_INPUT, Flags & fNoEdit);
+	disableCtrl(CTL_CHKPAN_INPUT, LOGIC(Flags & fNoEdit));
 	showCtrl(STDCTL_ALLBUTTON, LOGIC(Flags & fAsSelector));
 	showCtrl(STDCTL_SYSINFOBUTTON, !LOGIC(Flags & fAsSelector));
 	showCtrl(STDCTL_OKBUTTON,  LOGIC(Flags & fAsSelector));
@@ -5659,7 +5655,7 @@ int SelCheckListDialog::getDTS(_SelCheck * pSelCheck)
 						ss.add(temp_buf);
 					}
 					tm_chunk.Init(ext_chk_rec.StartOrdDtm, ext_chk_rec.EndOrdDtm);
-					ss.add(tm_chunk.ToStr(temp_buf.Z(), STimeChunk::fmtOmitSec));
+					ss.add(tm_chunk.ToStr(STimeChunk::fmtOmitSec, temp_buf.Z()));
 					if(r_chk_rec.SCardID && P_Srv->GetScObj().Fetch(r_chk_rec.SCardID, &sc_rec) > 0) {
 						scard_no = sc_rec.Code;
 						if(sc_rec.PersonID)
@@ -8174,7 +8170,7 @@ int CheckPaneDialog::UpdateGList(int updGoodsList, PPID selGroupID)
 			// @v11.4.5 (moved to InitGroupList) LastGrpListUpdTime = getcurdatetime_();
 		}
 		showCtrl(CTL_CHKPAN_GRPLIST,    !updGoodsList);
-		disableCtrl(CTL_CHKPAN_GRPLIST,  updGoodsList);
+		disableCtrl(CTL_CHKPAN_GRPLIST,  LOGIC(updGoodsList));
 		ShowWindow(GetDlgItem(H(), MAKE_BUTTON_ID(CTL_CHKPAN_GRPLIST, 1)), updGoodsList ? SW_HIDE : SW_SHOW);
 		showCtrl(CTL_CHKPAN_GDSLIST,     LOGIC(updGoodsList));
 		disableCtrl(CTL_CHKPAN_GDSLIST, !updGoodsList);
@@ -10969,14 +10965,14 @@ int SCardInfoDialog::SetupCard(PPID scardID, SCardSpecialTreatment::IdentifyRepl
 		}
 		showButton(cmActivate, (LocalState & stNeedActivation));
 		showButton(cmVerify, sc_phone.NotEmpty() && !(sc_pack.Rec.Flags & SCRDF_OWNERVERIFIED));
-		setButtonText(cmCreateSCard, PPLoadStringS("but_edit", temp_buf).Transf(CTRANSF_INNER_TO_OUTER));
+		SetButtonText(cmCreateSCard, PPLoadStringS("but_edit", temp_buf).Transf(CTRANSF_INNER_TO_OUTER));
 		OwnerList.Clear();
 		updateList(-1);
 	}
 	else {
 		SCardID = 0;
 		setGroupData(ctlgroupIBG, &ibg_rec);
-		setButtonText(cmCreateSCard, PPLoadStringS("new_fem", temp_buf).Transf(CTRANSF_INNER_TO_OUTER));
+		SetButtonText(cmCreateSCard, PPLoadStringS("new_fem", temp_buf).Transf(CTRANSF_INNER_TO_OUTER));
 	}
 	if(pStirb && SCardID && pStirb->ScID == SCardID && pStirb->SpecialTreatment) {
 		Stirb = *pStirb;
@@ -11101,12 +11097,12 @@ int SCardInfoDialog::SetupMode(long mode, int force)
 			if(P_Box) {
 				SString columns_buf, text, temp_buf;
 				if(Mode == modeCheckView) {
-					setButtonText(cmCheckOpSwitch, OperationsText);
+					SetButtonText(cmCheckOpSwitch, OperationsText);
 					setLabelText(CTL_SCARDVIEW_LIST, (text = ChecksText).Transf(CTRANSF_OUTER_TO_INNER));
 					columns_buf = "@lbt_scardcheck";
 				}
 				else if(Mode == modeOpView) {
-					setButtonText(cmCheckOpSwitch, ChecksText);
+					SetButtonText(cmCheckOpSwitch, ChecksText);
 					setLabelText(CTL_SCARDVIEW_LIST, (text = OperationsText).Transf(CTRANSF_OUTER_TO_INNER));
 					columns_buf = "@lbt_scardop";
 				}
@@ -13036,7 +13032,7 @@ int CPosProcessor::PrintToLocalPrinters(int selPrnType, bool ignoreNonZeroAgentR
 	int    ok = -1;
 	PPID   cur_chk_id = CheckID;
 	if(oneof2(GetState(), sEMPTYLIST_EMPTYBUF, sLIST_EMPTYBUF)) {
-		if(P.getCount() > 0) {
+		if(P.getCount()) {
 			int    to_local_prn = -1;
 			THROW_PP(ignoreNonZeroAgentReq || !(CnFlags & CASHF_DISABLEZEROAGENT) || P.GetAgentID(), PPERR_CHKPAN_SALERNEEDED);
 			if(selPrnType && (Flags & fLocPrinters)) {
@@ -13857,7 +13853,7 @@ void InfoKioskDialog::UpdateGList(int updGdsList)
 		else
 			PPGetSubStr(PPTXT_CHKPAN_INFO, PPCHKPAN_SELGROUP, grp_name);
 		showCtrl(CTL_INFKIOSK_GRPLIST,    !updGdsList);
-		disableCtrl(CTL_INFKIOSK_GRPLIST,  updGdsList);
+		disableCtrl(CTL_INFKIOSK_GRPLIST,  LOGIC(updGdsList));
 		::ShowWindow(::GetDlgItem(H(), MAKE_BUTTON_ID(CTL_INFKIOSK_GRPLIST, 1)), updGdsList ? SW_HIDE : SW_SHOW);
 		showCtrl(CTL_INFKIOSK_GDSLIST,     updGdsList);
 		disableCtrl(CTL_INFKIOSK_GDSLIST, !updGdsList);

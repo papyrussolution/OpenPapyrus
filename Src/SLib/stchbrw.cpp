@@ -1,12 +1,12 @@
 // STCHBRW.CPP
-// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 // TimeChunkBrowser
 //
 #include <slib-internal.h>
 #pragma hdrstop
 //
-int ExecDateCalendar(void * hParentWnd, LDATE * pDt); // @prototype
+// @v12.3.7 int ExecDateCalendar(void * hParentWnd, LDATE * pDt); // @prototype
 //
 //
 //
@@ -1119,8 +1119,17 @@ int STimeChunkBrowser::ProcessDblClk(SPoint2S p)
 			{
 				SlExtraProcBlock epb;
 				SLS.GetExtraProcBlock(&epb);
-				if(epb.F_CallCalendar && epb.F_CallCalendar(H(), &dt) > 0)
-					ok = SetupDate(dt);
+				// @v12.3.7 if(epb.F_CallCalendar && epb.F_CallCalendar(H(), &dt) > 0) { ok = SetupDate(dt); }
+				// @v12.3.7 {
+				/*
+					typedef int (*CallSupplementWindowFunc)(int supplementKind, void * hParentWnd, uint linkCtlId, SUiCtrlSupplement::DataBlock * pData);
+				*/ 
+				SUiCtrlSupplement::DataBlock dblk;
+				dblk.Dtm.d = dt;
+				if(epb.F_UiSupplementWindow && epb.F_UiSupplementWindow(SUiCtrlSupplement::kDateCalendar, H(), 0, &dblk) > 0) {
+					ok = SetupDate(dblk.Dtm.d);
+				}
+				// } @v12.3.7 
 			}
 		}
 		else if(loc.Kind == Loc::kLeftZone) {

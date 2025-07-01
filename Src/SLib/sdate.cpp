@@ -643,7 +643,7 @@ void _plusperiod(void * dest, int prd, int numperiods, int format, int _360)
 	}
 }
 
-int FASTCALL _dayofweek(const void * pDate, int format)
+int FASTCALL _dayofweek(const void * pDate, int format) // @todo Плохая имплементация - нужно что-то получше
 {
 	char   beg[32];
 	_encodedate(1, 1, 1970, beg, format); // 1/1/1970 - Thu (4)
@@ -1451,6 +1451,16 @@ int FASTCALL LDATE::setyear(uint y)
 		return 0;
 }
 
+int LDATE::GetDayOfWeek() const
+{
+	int    result = -1;
+	if(getclass() == cNormal) {
+		result = _dayofweek(this, DF_BTRIEVE);
+		result = result ? result : 7;
+	}
+	return result;
+}
+
 int LDATE::getclass() const
 {
 	if(v == 0)
@@ -1852,7 +1862,7 @@ bool FASTCALL STimeChunk::Intersect(const STimeChunk & test, STimeChunk * pResul
 	return is;
 }
 
-SString & STimeChunk::ToStr(SString & rBuf, long fmt) const
+SString & STimeChunk::ToStr(uint fmt, SString & rBuf) const
 {
 	const long datf = DATF_DMY;
 	const long timf = (fmt & fmtOmitSec) ? TIMF_HM : TIMF_HMS;

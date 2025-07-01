@@ -1064,7 +1064,7 @@ public:
 		AddClusterAssoc(CTL_ATRNTMPL_SKIPNEG, 5, ATTF_BYADVLINES);
 		AddClusterAssoc(CTL_ATRNTMPL_SKIPNEG, 6, ATTF_SKIPEMPTYALIAS);
 		SetClusterData(CTL_ATRNTMPL_SKIPNEG, Data.Flags);
-		SetPeriodInput(this, CTL_ATRNTMPL_PERIOD, &Data.Period);
+		SetPeriodInput(this, CTL_ATRNTMPL_PERIOD, Data.Period);
 		return 1;
 	}
 	DECL_DIALOG_GETDTS()

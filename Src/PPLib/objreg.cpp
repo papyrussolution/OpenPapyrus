@@ -448,7 +448,7 @@ int PPObjRegister::Helper_EditDialog(RegisterTbl::Rec * pRec, const RegisterArra
 					GetLocationName(Data.ObjID, obj_name);
 			}
 			setCtrlString(CTL_REG_PNAME, obj_name);
-			setCtrlReadOnly(CTL_REG_PNAME, 1);
+			setCtrlReadOnly(CTL_REG_PNAME, true);
 			SetupPPObjCombo(this, CTLSEL_REG_REGTYP, PPOBJ_REGISTERTYPE, Data.RegTypeID, OLW_CANINSERT, 0);
 			if(Data.RegTypeID) {
 				PPRegisterType    rt;

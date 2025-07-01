@@ -926,7 +926,7 @@ ROD_QUOTKIND PP_RCDATA {
 // {ID, Name, Symb, ObjType, DataType}
 //
 ROD_TAG PP_RCDATA {
-	121,
+	122,
 	 1, "@{rtag_lotclb}\0",                   "LOTCLB\0",             "LOT\0",        "STRING\0" // @v9.8.11
 	 2, "@{rtag_lotserial}\0",                "LOTSERIAL\0",          "LOT\0",        "STRING\0" // @v9.8.11
 	 4, "@{rtag_posrights}\0",                "POSRIGHTS\0",          "PERSON\0",     "STRING\0"
@@ -1048,7 +1048,7 @@ ROD_TAG PP_RCDATA {
 	127, "@{rtag_loc_spctaxgroup}\0",         "LOCSPCTAXGROUP\0",     "LOCATION\0",   "LINK:GOODSTAX\0" // @v12.2.4 Специальная налоговая ставка склада при продаже товаров
 	128, "@{testmode}\0",                     "POSNODETEST\0",        "POSNODE\0",    "STRING\0" // @v12.2.9 Признак тестовой конфигурации кассового узла. Трактуется так как вздумается в целях разработки.
 	129, "@{rtag_personkeywords}\0",          "PERSONKEYWORDS\0",     "PERSON\0",     "STRING\0" // @v12.3.6 Ключевые слова персоналии, а также специальные метки.
-
+	130, "@{rtag_goods_salesrestr}\0",        "GOODSSALESRESTR\0",    "GOODS\0",      "LINK:SALESRESTRICTION\0" // @v12.3.7 Ограничение на продажу товара. Ссылается на экземпляр объекта PPOBJ_SALESRESTRICTION.
 	//#define PPTAG_LOC_VETIS_REGIONGUID  99L // @v11.0.10 ВЕТИС-идент региона локации (склад или адрес доставки) // в терминах ВЕТИС - region GUID (не UUID)
 	// 40, "ФСРАР код товара\0",             "FSRARGOODSCODE\0",    "GOODS\0",      "STRING\0"
 	// @postponed 80, "@{rtag_locvetisentityguid}\0",       "LOCVETISENTITYGUID\0", "LOCATION\0",   "UUID\0"

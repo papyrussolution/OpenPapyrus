@@ -236,14 +236,14 @@ int EditRentCondition(PPRentCondition * pRc)
 		DECL_DIALOG_SETDTS()
 		{
 			RVALUEPTR(Data, pData);
-			SetPeriodInput(this, CTL_RENT_FROMTO, &Data.Period);
+			SetPeriodInput(this, CTL_RENT_FROMTO, Data.Period);
 			SetupStringCombo(this, CTLSEL_RENT_PERIOD, PPTXT_CYCLELIST, Data.Cycle);
 			ushort v = BIN(Data.Flags & PPRentCondition::fPercent);
 			setCtrlData(CTL_RENT_ISPERCENT, &v);
 			setCtrlData(CTL_RENT_PERCENT, &Data.Percent);
 			setCtrlData(CTL_RENT_SUMPRD,  &Data.PartAmount);
-			disableCtrl(CTL_RENT_PERCENT, (Data.Flags & PPRentCondition::fPercent) ? 0 : 1);
-			disableCtrl(CTL_RENT_SUMPRD,  (Data.Flags & PPRentCondition::fPercent) ? 1 : 0);
+			disableCtrl(CTL_RENT_PERCENT, !(Data.Flags & PPRentCondition::fPercent));
+			disableCtrl(CTL_RENT_SUMPRD,  LOGIC(Data.Flags & PPRentCondition::fPercent));
 			setCtrlData(CTL_RENT_ACMDATE, &Data.ChargeDayOffs);
 			return 1;
 		}
@@ -429,7 +429,7 @@ int BillExtraDialog(const PPBillPacket * pPack, PPBillExt * pData, ObjTagList * 
 		}
 		else if(asFilt == 2) {
 			PPAccessRestriction accsr;
-			const int own_bill_restr = ObjRts.GetAccessRestriction(accsr).GetOwnBillRestrict();
+			const bool own_bill_restr = LOGIC(ObjRts.GetAccessRestriction(accsr).GetOwnBillRestrict());
 			dlg->setCtrlUInt16(CTL_BILLEXTFLT_STAXTGGL, (pData->Ft_STax > 0) ? 1 : ((pData->Ft_STax < 0) ? 2 : 0));
 			dlg->setCtrlUInt16(CTL_BILLEXTFLT_DCLTGGL,  (pData->Ft_Declined > 0) ? 1 : ((pData->Ft_Declined < 0) ? 2 : 0));
 			dlg->setCtrlUInt16(CTL_BILLEXTFLT_CHECKPRST, (pData->Ft_CheckPrintStatus>0) ? 1 : ((pData->Ft_CheckPrintStatus<0) ? 2 : 0)); //@erik v10.6.13
@@ -451,7 +451,7 @@ int BillExtraDialog(const PPBillPacket * pPack, PPBillExt * pData, ObjTagList * 
 			dlg->disableCtrl(CTLSEL_BILLEXT_CREATOR, own_bill_restr);
 			SetupPPObjCombo(dlg, CTLSEL_BILLEXT_CREATOR, PPOBJ_USR, pData->CreatorID, OLW_CANSELUPLEVEL);
 			dlg->SetupCalPeriod(CTLCAL_BILLEXT_DUEPERIOD, CTL_BILLEXT_DUEPERIOD);
-			SetPeriodInput(dlg, CTL_BILLEXT_DUEPERIOD, &pData->DuePeriod);
+			SetPeriodInput(dlg, CTL_BILLEXT_DUEPERIOD, pData->DuePeriod);
 			SetupPPObjCombo(dlg, CTLSEL_BILLEXTFLT_GGRP, PPOBJ_GOODSGROUP, pData->GoodsGroupID, OLW_CANSELUPLEVEL|OLW_WORDSELECTOR); // @v11.0.11
 			SetupPPObjCombo(dlg, CTLSEL_BILLEXTFLT_CLICAT, PPOBJ_PRSNCATEGORY, pData->CliPsnCategoryID, 0); // @v11.1.9
 			// @v11.1.8 {
@@ -1923,7 +1923,7 @@ IMPL_HANDLE_EVENT(BillDialog)
 										setCtrlString(CTL_BILL_MEMO, P_Pack->SMemo); // @v11.1.12 
 										{
 											SString text;
-											setButtonText(cmLinkedBill, PPLoadStringS("but_linkbill", text).Transf(CTRANSF_INNER_TO_OUTER));
+											SetButtonText(cmLinkedBill, PPLoadStringS("but_linkbill", text).Transf(CTRANSF_INNER_TO_OUTER));
 											setupDebt();
 										}
 									}
@@ -2623,7 +2623,7 @@ int BillDialog::setDTS(PPBillPacket * pPack)
 	PPID   id = 0;
 	DateIter di;
 	BillTbl::Rec z_link_rec;
-	int    disabled_cntrag = 0;
+	bool   disabled_cntrag = false;
 	SString temp_buf;
 	P_Pack   = pPack;
 	Pattern  = pPack->Rec;
@@ -2648,7 +2648,7 @@ int BillDialog::setDTS(PPBillPacket * pPack)
 	enableCommand(cmExAmountList, BIN(Flags & fHasAmtIDList));
 	if(P_Pack->OpTypeID == PPOPT_PAYMENT) {
 		if(P_Pack->Rec.LinkBillID == 0) {
-			setButtonText(cmLinkedBill, PPLoadStringS("but_dolinkbill", temp_buf).Transf(CTRANSF_INNER_TO_OUTER));
+			SetButtonText(cmLinkedBill, PPLoadStringS("but_dolinkbill", temp_buf).Transf(CTRANSF_INNER_TO_OUTER));
 		}
 		else
 			enableCommand(cmLinkedBill, 1);
@@ -2664,7 +2664,7 @@ int BillDialog::setDTS(PPBillPacket * pPack)
 	if(GetOpSubType(P_Pack->Rec.OpID) == OPSUBT_TRADEPLAN) { // @v12.1.12
 		DateRange period;
 		period.Set(P_Pack->Rec.Dt, P_Pack->Rec.DueDate);
-		SetPeriodInput(this, CTL_BILL_TPLNPRD, &period);
+		SetPeriodInput(this, CTL_BILL_TPLNPRD, period);
 		SetupLocationCombo(this, CTLSEL_BILL_TPLNLOC, P_Pack->Ext.TradePlanLocID, OLW_CANSELUPLEVEL, LOCTYP_WAREHOUSE, 0);
 	}
 	else {
@@ -2674,7 +2674,7 @@ int BillDialog::setDTS(PPBillPacket * pPack)
 	{
 		DateRange period;
 		period.Set(P_Pack->Rec.PeriodLow, P_Pack->Rec.PeriodUpp);
-		SetPeriodInput(this, CTL_BILL_PERIOD, &period);
+		SetPeriodInput(this, CTL_BILL_PERIOD, period);
 	}
 	if(oneof4(P_Pack->OpTypeID, PPOPT_ACCTURN, PPOPT_DRAFTEXPEND, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTTRANSIT)) {
 		SetupPPObjCombo(this, CTLSEL_BILL_LOCATION, PPOBJ_LOCATION, P_Pack->Rec.LocID, 0);
@@ -2788,11 +2788,11 @@ int BillDialog::setDTS(PPBillPacket * pPack)
 	selectCtrl(CTL_BILL_DOC);
 	while(!disabled_cntrag && P_Pack->Rec.ID && P_BObj->P_Tbl->EnumLinks(P_Pack->Rec.ID, &di, BLNK_PAYMENT, &z_link_rec) > 0)
 		if(z_link_rec.ID && P_BObj->IsMemberOfPool(z_link_rec.ID, PPASS_PAYMBILLPOOL, &id) && id)
-			disabled_cntrag = 1;
+			disabled_cntrag = true;
 	while(!disabled_cntrag && P_Pack->Rec.ID && P_BObj->EnumMembersOfPool(PPASS_PAYMBILLPOOL, P_Pack->Rec.ID, &id) > 0)
 		if(P_BObj->Search(id, &z_link_rec) > 0 && GetOpType(z_link_rec.OpID) == PPOPT_PAYMENT)
 			if(P_BObj->Search(z_link_rec.LinkBillID) > 0)
-				disabled_cntrag = 1;
+				disabled_cntrag = true;
 	disableCtrl(CTLSEL_BILL_OBJECT, disabled_cntrag);
 	if(op_pack.Rec.ExtFlags & OPKFX_CANBEDECLINED) {
 		AddClusterAssoc(CTL_BILL_DECLINE, 0, BILLF2_DECLINED);
@@ -3007,7 +3007,7 @@ int BillDialog::setCurGroupData()
 		ca_cg_rec.Amount = P_Pack->GetAmount();
 		ca_cg_rec.CRate  = P_Pack->Amounts.Get(PPAMT_CRATE, P_Pack->Rec.CurID);
 		setGroupData(GRP_CURAMT, &ca_cg_rec);
-		disableCtrl(CTLSEL_BILL_CUR, BIN(P_Pack->Rec.ID && P_Pack->GetTCount() && P_Pack->OpTypeID != PPOPT_DRAFTQUOTREQ));
+		disableCtrl(CTLSEL_BILL_CUR, (P_Pack->Rec.ID && P_Pack->GetTCount() && P_Pack->OpTypeID != PPOPT_DRAFTQUOTREQ));
 		return 1;
 	}
 	else
@@ -3361,8 +3361,8 @@ int PPObjBill::ViewBillInfo(PPID billID)
 
 			SetBillFlagsCtrl(dlg, CTL_BILLINFO_FLAGS, pack.Rec.Flags);
 			if(!PPMaster) {
-				dlg->disableCtrls(1, CTL_BILLINFO_FLAGS, 0);
-				dlg->setCtrlReadOnly(CTL_BILLINFO_OMTPAYM, 1);
+				dlg->disableCtrls(true, CTL_BILLINFO_FLAGS, 0);
+				dlg->setCtrlReadOnly(CTL_BILLINFO_OMTPAYM, true);
 			}
 			if(ExecView(dlg) == cmOK) {
 				long   f2 = pack.Rec.Flags2;
@@ -4069,7 +4069,7 @@ int LotQCertDialog::setDTS(const LotQCertData * pData)
 	setGroupData(GRP_QCERT, &qc_rec);
 	setCtrlData(CTL_LOTQCERT_EXPIRY, &Data.Expiry);
 	setCtrlData(CTL_LOTQCERT_CLB, Data.CLB);
-	disableCtrl(CTL_LOTQCERT_CLB, Data.IsInheritedClb);
+	disableCtrl(CTL_LOTQCERT_CLB, LOGIC(Data.IsInheritedClb));
 	setCtrlData(CTL_LOTQCERT_SERIAL, Data.Serial);
 	return 1;
 }

@@ -1184,7 +1184,7 @@ public:
 		//setCtrlData(CTL_DL200P_DATANAME, Data.DataName);
 		setupFileCombo();
 		setupFormCombo();
-		SetPeriodInput(this, CTL_DL200P_PERIOD, &Data.Period);
+		SetPeriodInput(this, CTL_DL200P_PERIOD, Data.Period);
 		cycle_rec.C = Data.Cycl;
 		setGroupData(ctlgroupCycle, &cycle_rec);
 		return 1;
@@ -1340,14 +1340,16 @@ int PrcssrDL200::ProcessRow(const DL2_Row * pRow)
 {
 	int    ok = 1;
 	uint   i;
+	SString temp_buf; // @v12.3.7 
 	P_IterTbl->clearDataBuf();
 	char * p_buf = static_cast<char *>(P_IterTbl->getDataBuf());
 	_DL200_OutpIter * p_iterbuf = reinterpret_cast<_DL200_OutpIter *>(p_buf);
 	size_t p = 0;
 	p_iterbuf->Period = CurPeriod;
-	periodfmt(&CurPeriod, p_iterbuf->PeriodTxt);
+	// @v12.3.7 periodfmt(CurPeriod, p_iterbuf->PeriodTxt);
+	STRNSCPY(p_iterbuf->PeriodTxt, CurPeriod.ToStr(0, temp_buf)); // @v12.3.7 
 	p += sizeof(_DL200_OutpIter);
-	uint num_groups = D.GetMaxNesting();
+	const uint num_groups = D.GetMaxNesting();
 	for(i = 0; i < num_groups; i++) {
 		size_t max_descr_len = D.GetMaxDescriptionSize(i+1);
 		if(i < GStack.getPointer()) {

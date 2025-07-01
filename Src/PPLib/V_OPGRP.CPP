@@ -565,7 +565,7 @@ public:
 		RVALUEPTR(Data, pData);
 		LocationCtrlGroup::Rec l_rec(&Data.LocList);
 		setGroupData(ctlgroupLoc, &l_rec);
-		SetPeriodInput(this, CTL_GTO_PERIOD, &Data.Period);
+		SetPeriodInput(this, CTL_GTO_PERIOD, Data.Period);
 		const  PPID acs_id = GetSupplAccSheet();
 		SetupArCombo(this, CTLSEL_GTO_SUPPL, Data.SupplID, 0, acs_id, sacfDisableIfZeroSheet);
 		types.add(PPOPT_GENERIC);
@@ -639,7 +639,7 @@ int OpGroupingFiltDialog::EditAdvOptions()
 	TDialog * p_dlg = new TDialog(DLG_OPGRPNGFLTA);
 	THROW(CheckDialogPtr(&p_dlg));
 	p_dlg->SetupCalPeriod(CTLCAL_OPGRPNGFLTA_PRD, CTL_OPGRPNGFLTA_PRD);
-	SetPeriodInput(p_dlg, CTL_OPGRPNGFLTA_PRD, &Data.ShipmentPeriod);
+	SetPeriodInput(p_dlg, CTL_OPGRPNGFLTA_PRD, Data.ShipmentPeriod);
 	while(!valid_data && ExecView(p_dlg) == cmOK) {
 		if(GetPeriodInput(p_dlg, CTL_OPGRPNGFLTA_PRD, &Data.ShipmentPeriod) <= 0)
 			PPError();

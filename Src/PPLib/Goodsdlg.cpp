@@ -476,7 +476,7 @@ void GoodsFiltCtrlGroup::SetupCtrls(TDialog * pDlg)
 {
 	const bool by_filt = !Filt.IsEmpty();
 	pDlg->disableCtrl(CtlselGoods, by_filt);
-	pDlg->disableCtrl(CtlselGoodsGrp, BIN(DisableGroupSelection || by_filt));
+	pDlg->disableCtrl(CtlselGoodsGrp, (DisableGroupSelection || by_filt));
 	if(by_filt) {
 		//
 		// Группу нельзя блокировать вызовом pDlg->disableCtrl(CtlselGoodsGrp, by_filt)
@@ -1165,7 +1165,7 @@ void ClsdGoodsDialog::setupZeroDim(uint zeroCtlId, uint inpId, uint selCmd)
 {
 	if(ModifyOnlyExtRec == 2) {
 		const uint16 zero = getCtrlUInt16(zeroCtlId);
-		disableCtrl(inpId, zero);
+		disableCtrl(inpId, LOGIC(zero));
 		enableCommand(selCmd, !zero);
 	}
 }
@@ -2428,7 +2428,7 @@ IMPL_HANDLE_EVENT(GoodsDialog)
 				if(Data.Rec.ID) {
 					OpGroupingFilt filt;
 					filt.GoodsID = Data.Rec.ID;
-                    strtoperiod("^2..", &filt.Period, 0);
+                    filt.Period.FromStr("^2..", 0);
                     filt.Flags |= OpGroupingFilt::fCalcRest;
                     PPView::Execute(PPVIEW_OPGROUPING, &filt, 0, 0);
 				}
@@ -2794,8 +2794,8 @@ private:
 		else if(event.isClusterClk(CTL_REPLGOODS_ALLDEST)) {
 			if(Data.DestList.getCount() > 1) {
 				uint16 v = getCtrlUInt16(CTL_REPLGOODS_ALLDEST);
-				disableCtrl(CTLSEL_REPLGOODS_GRP2, (v & 1));
-				disableCtrl(CTLSEL_REPLGOODS_GOODS2, (v & 1));
+				disableCtrl(CTLSEL_REPLGOODS_GRP2, LOGIC(v & 1));
+				disableCtrl(CTLSEL_REPLGOODS_GOODS2, LOGIC(v & 1));
 				enableCommand(cmExchange, !(v & 1));
 				{
 					SString info_buf;
@@ -3167,7 +3167,7 @@ public:
 		setGroupData(ctlgroupBrand, &brand_grp_rec);
 		setCtrlUInt16(CTL_GOODSFLT_NOBRAND, BIN(Data.Flags & GoodsFilt::fWoBrand));
 		setGroupData(ctlgroupBrandOwner, &brandowner_grp_rec);
-		SetupPPObjCombo(this, CTLSEL_GOODSFLT_GRP,     PPOBJ_GOODSGROUP, Data.GrpID,       OLW_CANSELUPLEVEL|OLW_LOADDEFONOPEN|OLW_WORDSELECTOR); // @v11.1.10 OLW_WORDSELECTOR
+		SetupPPObjCombo(this, CTLSEL_GOODSFLT_GRP,     PPOBJ_GOODSGROUP, Data.GrpID,       OLW_CANSELUPLEVEL|/*OLW_LOADDEFONOPEN|*/OLW_WORDSELECTOR); // @v11.1.10 OLW_WORDSELECTOR
 		SetupPPObjCombo(this, CTLSEL_GOODSFLT_MANUF,   PPOBJ_PERSON,     Data.ManufID,     OLW_LOADDEFONOPEN, reinterpret_cast<void *>(PPPRK_MANUF));
 		SetupPPObjCombo(this, CTLSEL_GOODSFLT_COUNTRY, PPOBJ_COUNTRY,    Data.ManufCountryID, OLW_LOADDEFONOPEN, 0);
 		SetupPPObjCombo(this, CTLSEL_GOODSFLT_UNIT,    PPOBJ_UNIT,       Data.UnitID,      0, 0);
@@ -3281,7 +3281,7 @@ int GoodsFilterAdvDialog(GoodsFilt * pFilt, int disable)
 		{
 			ushort v = 0;
 			RVALUEPTR(Data, pData);
-			SetPeriodInput(this, CTL_GFLTADVOPT_LOTPERIOD, &Data.LotPeriod);
+			SetPeriodInput(this, CTL_GFLTADVOPT_LOTPERIOD, Data.LotPeriod);
 			{
 				LocationCtrlGroup::Rec l_rec(&Data.LocList);
 				setGroupData(ctlgroupLoc, &l_rec);
@@ -3608,7 +3608,7 @@ private:
 		if(Data.Flags & GoodsFilt::fShowArCode) {
 			disableCtrl(CTL_GDSFVOPT_OWNCODES, false);
 			disableCtrl(CTLSEL_GDSFVOPT_AR, false);
-			disableCtrl(CTLSEL_GDSFVOPT_ACS, BIN(getCtrlLong(CTLSEL_GDSFVOPT_AR)));
+			disableCtrl(CTLSEL_GDSFVOPT_ACS, LOGIC(getCtrlLong(CTLSEL_GDSFVOPT_AR)));
 			if(getCtrlUInt16(CTL_GDSFVOPT_OWNCODES) & 0x01) {
 				setCtrlLong(CTLSEL_GDSFVOPT_AR, 0);
 				disableCtrls(1, CTLSEL_GDSFVOPT_ACS, CTLSEL_GDSFVOPT_AR, 0);
@@ -3738,15 +3738,14 @@ void GoodsFiltDialog::GroupList()
 		setCtrlData(CTLSEL_GOODSFLT_GRP, &Data.GrpID);
 	if(Data.GrpIDList.GetCount() > 1)
 		SetComboBoxListText(this, CTLSEL_GOODSFLT_GRP);
-	disableCtrl(CTLSEL_GOODSFLT_GRP, BIN(Data.GrpIDList.GetCount() > 1));
+	disableCtrl(CTLSEL_GOODSFLT_GRP, (Data.GrpIDList.GetCount() > 1));
 }
 
 void GoodsFiltDialog::setupVat()
 {
 	SString temp_buf;
 	if(Data.VatRate) {
-		PPLoadString("vat", temp_buf);
-		temp_buf.CatDiv('-', 1).Cat(fdiv100i(Data.VatRate), MKSFMTD(0, 2, NMBF_NOTRAILZ));
+		PPLoadStringS("vat", temp_buf).CatDiv('-', 1).Cat(fdiv100i(Data.VatRate), MKSFMTD(0, 2, NMBF_NOTRAILZ));
 		if(Data.VatDate)
 			temp_buf.CatDiv('-', 1).Cat(Data.VatDate, MKSFMT(0, DATF_DMY));
 		SetComboBoxLinkText(this, CTLSEL_GOODSFLT_TAXGRP, temp_buf);

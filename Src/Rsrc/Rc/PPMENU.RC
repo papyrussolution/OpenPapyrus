@@ -154,12 +154,13 @@
 			MENUITEM "@cmd_viewqcert",					cmViewQCert
 			MENUITEM "@cmd_pckgtype",					cmPckgType
 			MENUITEM "@cmd_pallet",						cmPallet
-			MENUITEM "@cmd_freightpackagetype",         cmFreightPackageType // @v10.4.1
+			MENUITEM "@cmd_freightpackagetype",         cmFreightPackageType
 			MENUITEM SEPARATOR
 			MENUITEM "@cmd_goods2locassoc",				cmGoods2LocAssoc
 			MENUITEM "@cmd_goods2supplassoc",			cmGoods2SupplAssoc
 			MENUITEM "@cmd_goods2cashnodeassoc",		cmGoods2CashNodeAssoc
 			MENUITEM "@cmd_goodsvalrestr",				cmGoodsValRestr
+			MENUITEM "@cmd_salesrestriction",           cmSalesRestriction // @v12.3.7
 			MENUITEM "@cmd_suprware"					cmSuprWare
 			MENUITEM SEPARATOR
 			MENUITEM "@cmd_goodsbasket",				cmGoodsBasket

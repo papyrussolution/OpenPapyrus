@@ -6754,6 +6754,11 @@ browser STYLOQCOMMANDS north(100), 1, 0, "@{view_styloqcommands}", OWNER|GRID, 0
 		TEST           : kbCtrlT,     PPDV_TEST01,            "@{test}\tCtrl-T" // @debug
 	}
 }
+
+browser UNITEQ north(100), 3, 1, "Unit-анализ", OWNER|GRID, 0
+{
+	"@ware", 1, notype, 0, 30, BCO_USERPROC
+}
 //
 // -------------- Описания команд меню и рабочих столов
 //
@@ -7118,7 +7123,8 @@ cmd MarketplaceInterchange    { "@{cmd_marketplaceinterchange}"               PP
 cmd AptekaRuInterchange       { "@{cmd_aptekaruinterchange}"                  none                   none cmAptekaRuInterchange } // @v12.2.1
 cmd GatherClientActivityStat  { "@{cmd_gathercliactivitystatistics}"          none                   none cmGatherClientActivityStat } // @v12.2.2
 cmd SourceCodeProcessing      { "@{cmd_sourcecodeprocessing}"                 none                   none cmSourceCodeProcessing } // @v12.2.10
-cmd BizScore2Val              { "@{cmd_bizscore2val}"                         ICON_BIZSCORE          none cmBizScore2Val view = BizSc2Val } // @v12.3.4
+cmd BizScore2Val              { "@{cmd_bizscore2val}"                         ICON_BIZSCORE          none cmBizScore2Val view=BizSc2Val } // @v12.3.4
+cmd UnitEq                    { "@{cmd_unitec}"                               none                   none cmUnitEq view=UnitEc } // @v12.3.7
 //
 // -------------- Описания серверных задач
 //
@@ -7326,6 +7332,7 @@ view   ClientActivityDetails { "@{view_clientactivitydetails}" } // @v12.2.8
 filter PrcssrSourceCodeMaintaining  { "@{filter_prcssrsourcecodemaintaining}" } // @v12.2.10
 filter StyloQTestCmdParam           { "@{filter_styloqtestcmdparam}" } // @v12.3.1
 view   BizSc2Val                    { "@{view_bizscore2val}" } // @v12.3.4
+view   UnitEc                       { "@{view_unitec}" } // @v12.3.7
 //
 // lastviewfilter ATTENTION: put new VIEWS and FILTERS before this line!
 //

@@ -262,22 +262,22 @@ int PPViewCashNode::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser
 			case PPVCMD_OPPANEL:
 				{
 					MemLeakTracer mlt; // @debug
-					int    exec_panel = 0;
+					bool   exec_panel = false;
 					PPIDArray cash_list;
 					PPCashNode rec;
 					if(ppvCmd == PPVCMD_LOADDATA && ObjCashN.Search(id, &rec) > 0 && rec.CashType == PPCMT_CASHNGROUP) {
 						PPIDArray _cash_list;
 						ObjCashN.GetListByGroup(rec.ID, _cash_list);
 						for(uint i = 0; i < _cash_list.getCount(); i++) {
-							PPID child_id = _cash_list.at(i);
+							const PPID child_id = _cash_list.at(i);
 							if(ObjCashN.Search(child_id, &rec) > 0 && (rec.Flags & CASHF_ASYNC))
 								cash_list.add(child_id);
 						}
-						exec_panel = BIN(cash_list.getCount() > 0);
+						exec_panel = LOGIC(cash_list.getCount());
 					}
 					else if(ppvCmd == PPVCMD_OPPANEL || (ppvCmd == PPVCMD_LOADDATA && ObjCashN.Search(id, &rec) > 0 && (rec.Flags & CASHF_ASYNC))) {
 						cash_list.add(id);
-						exec_panel = 1;
+						exec_panel = true;
 					}
 					if(exec_panel) {
 						for(uint i = 0; i < cash_list.getCount(); i++) {

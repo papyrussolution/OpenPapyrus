@@ -126,6 +126,7 @@ static const ushort _Objects[] = {
 	PPOBJ_COMPUTER,           // @v12.0.0
 	PPOBJ_COMPUTERCATEGORY,   // @v12.0.1
 	PPOBJ_RAWMATERIAL,        // @v12.0.10
+	PPOBJ_SALESRESTRICTION,   // @v12.3.7
 };
 
 static PPObject * FASTCALL _GetPPObject(PPID obj, void * extraPtr)
@@ -230,6 +231,7 @@ static PPObject * FASTCALL _GetPPObject(PPID obj, void * extraPtr)
 		case PPOBJ_BIZSCORE2:          p = new PPObjBizScore2(extraPtr); break; // @v11.9.2 @construction
 		case PPOBJ_GLOBALUSERACC:      p = new PPObjGlobalUserAcc(extraPtr); break;
 		case PPOBJ_GOODSVALRESTR:      p = new PPObjGoodsValRestr(extraPtr); break;
+		case PPOBJ_SALESRESTRICTION:   p = new PPObjSalesRestriction(extraPtr); break; // @v12.3.7
 		case PPOBJ_BUDGET:             p = new PPObjBudget(extraPtr); break;
 		case PPOBJ_BIZSCTEMPL:         p = new PPObjBizScTempl(extraPtr); break;
 		case PPOBJ_RFIDDEVICE:         p = new PPObjRFIDDevice(extraPtr); break;

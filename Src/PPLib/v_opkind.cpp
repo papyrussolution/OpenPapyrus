@@ -537,10 +537,8 @@ int PPALDD_OprKindList::InitData(PPFilt & rFilt, long rsrv)
 	return DlRtm::InitData(rFilt, rsrv);
 }
 
-int PPALDD_OprKindList::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/)
-{
-	INIT_PPVIEW_ALDD_ITER(OprKind);
-}
+void PPALDD_OprKindList::Destroy() { DESTROY_PPVIEW_ALDD(OprKind); }
+int  PPALDD_OprKindList::InitIteration(PPIterID iterId, int sortId, long /*rsrv*/) { INIT_PPVIEW_ALDD_ITER(OprKind); }
 
 int PPALDD_OprKindList::NextIteration(PPIterID iterId)
 {
@@ -552,4 +550,3 @@ int PPALDD_OprKindList::NextIteration(PPIterID iterId)
 	FINISH_PPVIEW_ALDD_ITER();
 }
 
-void PPALDD_OprKindList::Destroy() { DESTROY_PPVIEW_ALDD(OprKind); }

@@ -61,19 +61,12 @@ typedef struct UXFXlsOptions {
 	                        //GroupFooter and there are more than one groups,
 	                        //we need to give the group number.
 	                        //The default value is 1.
-
 #if defined (__cplusplus)
 public:
-	UXFXlsOptions()
+	UXFXlsOptions() : structSize(sizeof(UXFXlsOptions)), bColumnHeadings(FALSE), bUseConstColWidth(FALSE), fConstColWidth(DEFAULT_COLUMN_WIDTH),
+		bTabularFormat(FALSE), baseAreaType(4/*PE_SECT_DETAIL*/), baseAreaGroupNum(1)
 	{
-		structSize = sizeof(UXFXlsOptions);
-		bColumnHeadings = FALSE;
-		bUseConstColWidth = FALSE;
-		fConstColWidth = DEFAULT_COLUMN_WIDTH;
-		bTabularFormat = FALSE;
-		baseAreaType = 4; // PE_SECT_DETAIL
-		baseAreaGroupNum = 1;
-	};
+	}
 #endif
 } UXFXlsOptions;
 
@@ -86,12 +79,9 @@ typedef struct UXFPdfOptions {
 	boolean UsePageRange;
 #if defined (__cplusplus)
 public:
-	UXFPdfOptions()
+	UXFPdfOptions() : structSize(sizeof(UXFPdfOptions)), FirstPage(0), LastPage(0), UsePageRange(false)
 	{
-		structSize = sizeof(UXFPdfOptions);
-		FirstPage = LastPage = 0;
-		UsePageRange = false;
-	};
+	}
 #endif
 } UXFPdfOptions;
 

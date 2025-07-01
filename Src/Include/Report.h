@@ -373,6 +373,31 @@ private:
 	char * P_Text;
 };
 //
+// Descr: Параметры экспорта данных отчета средствами Crystal Reports.
+//   Нужны для того, чтобы заменить интерактивные функции Crystal Reports в рамках перевода системы на arch-x64
+//
+struct CrystalReportExportParam { // @v12.3.7
+	enum {
+		crexpfmtPdf  = SFileFormat::Pdf,
+		crexpfmtRtf  = SFileFormat::Rtf,
+		crexpfmtHtml = SFileFormat::Html,
+		crexpfmtExcel = SFileFormat::Xls,
+		crexpfmtWinWord = SFileFormat::WinWord,
+	};
+	enum {
+		destFile = 1,
+		destApp  = 2,
+	};
+	enum {
+		fSelectedPages = 0x0001
+	};
+	uint    Flags;
+	uint    Format;
+	uint    Destination;
+	IntRange PageRange; // if Flags & fSelectedPages
+	SString DestFileName;
+};
+//
 // Descr: Структура параметров печати для реализации межпроцессного интерфейса для вывода 32-битного CrystalReports в отдельный процесс
 //
 class CrystalReportPrintParamBlock { // @v11.9.5 @construction

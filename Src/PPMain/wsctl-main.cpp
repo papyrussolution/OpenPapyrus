@@ -2820,7 +2820,7 @@ int WsCtl_ImGuiSceneBlock::LaunchClientSession()
 void WsCtl_ImGuiSceneBlock::EmitEvents()
 {
 	if(St.CheckSyncUpdateTimers(SyncReqList) > 0) {
-		assert(SyncReqList.getCount() > 0);
+		assert(SyncReqList.getCount());
 		for(uint i = 0; i < SyncReqList.getCount(); i++) {
 			const int sync_data_id = SyncReqList.get(i);
 			switch(sync_data_id) {
