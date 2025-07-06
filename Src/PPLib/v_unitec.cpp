@@ -19,6 +19,119 @@ UnitEcFilt & FASTCALL UnitEcFilt::operator = (const UnitEcFilt & rS)
 	return *this;
 }
 
+PPViewUnitEc::InitialGoodsParam::InitialGoodsParam() : RcptQtty(0.0), ExpectedDemandPerWeek(0.0)
+{
+}
+
+bool FASTCALL PPViewUnitEc::InitialGoodsParam::IsEq(const InitialGoodsParam & rS) const
+{
+	return (RcptQtty == rS.RcptQtty && ExpectedDemandPerWeek == rS.ExpectedDemandPerWeek);
+}
+
+PPViewUnitEc::Indicator::Indicator() : ID(0), Cls(0), Value(0.0)
+{
+}
+
+PPViewUnitEc::IndicatorVector::IndicatorVector() : TSVector <Indicator>(), ID(0), AddendumID(0)
+{
+}
+
+int PPViewUnitEc::IndicatorVector::Add(long bizScoreId, long bizScoreCls, double value)
+{
+	int    ok = -1;
+	if(bizScoreId) {
+		Indicator * p_entry = GetBsEntry(bizScoreId);
+		if(p_entry) {
+			p_entry->Value += value;
+		}
+		else {
+			Indicator new_entry;
+			new_entry.ID = bizScoreId;
+			new_entry.Cls = 0; // Даже если bizScoreCls != 0 здесь - 0 поскольку для класса существует отдельный группирующий элемент.
+			new_entry.Value = value;
+			insert(&new_entry);
+		}
+		ok = 1;
+	}
+	if(bizScoreCls) {
+		Indicator * p_entry = GetClsEntry(bizScoreCls);
+		if(p_entry) {
+			p_entry->Value += value;
+		}
+		else {
+			Indicator new_entry;
+			new_entry.ID = 0;
+			new_entry.Cls = bizScoreCls; 
+			new_entry.Value = value;
+			insert(&new_entry);
+		}
+		ok = 1;
+	}
+	return ok;
+}
+
+void PPViewUnitEc::IndicatorVector::GetClsList(LongArray & rList) const
+{
+	rList.Z();
+	for(uint i = 0; i < getCount(); i++) {
+		const PPViewUnitEc::Indicator & r_item = at(i);
+		if(r_item.Cls)
+			rList.add(r_item.Cls);
+	}
+	rList.sortAndUndup();
+}
+
+const PPViewUnitEc::Indicator * PPViewUnitEc::IndicatorVector::GetClsEntryC(long cls) const
+{
+	const PPViewUnitEc::Indicator * p_result = 0;
+	for(uint i = 0; !p_result && i < getCount(); i++) {
+		const PPViewUnitEc::Indicator & r_item = at(i);
+		if(r_item.Cls == cls) {
+			p_result = &r_item;
+		}
+	}
+	return p_result;
+}
+
+const PPViewUnitEc::Indicator * PPViewUnitEc::IndicatorVector::GetBsEntryC(long bsID) const
+{
+	const PPViewUnitEc::Indicator * p_result = 0;
+	for(uint i = 0; !p_result && i < getCount(); i++) {
+		const PPViewUnitEc::Indicator & r_item = at(i);
+		if(r_item.ID == bsID) {
+			p_result = &r_item;
+		}
+	}
+	return p_result;
+}
+
+PPViewUnitEc::Indicator * PPViewUnitEc::IndicatorVector::GetClsEntry(long cls)
+	{ return const_cast<PPViewUnitEc::Indicator *>(GetClsEntryC(cls)); }
+PPViewUnitEc::Indicator * PPViewUnitEc::IndicatorVector::GetBsEntry(long bsID)
+	{ return const_cast<PPViewUnitEc::Indicator *>(GetBsEntryC(bsID)); }
+
+double PPViewUnitEc::IndicatorVector::GetTotalIncome() const
+{
+	double result = 0.0;
+	for(uint i = 0; i < getCount(); i++) {
+		const PPViewUnitEc::Indicator & r_item = at(i);
+		if(r_item.Cls && PPObjBizScore2::IsBscCls_Income(r_item.Cls))
+			result += r_item.Value;
+	}
+	return result;
+}
+
+double PPViewUnitEc::IndicatorVector::GetTotalExpense() const
+{
+	double result = 0.0;
+	for(uint i = 0; i < getCount(); i++) {
+		const PPViewUnitEc::Indicator & r_item = at(i);
+		if(r_item.Cls && PPObjBizScore2::IsBscCls_Expense(r_item.Cls))
+			result += r_item.Value;
+	}
+	return result;
+}
+
 PPViewUnitEc::PPViewUnitEc() : PPView(0, &Filt, PPVIEW_UNITEC, (implBrowseArray), 0), P_DsList(0)
 {
 }
@@ -38,52 +151,13 @@ int FASTCALL PPViewUnitEc::NextIteration(UnitEcViewItem * pItem)
 	return 0;
 }
 
-int PPViewUnitEc::GetGoodsListForProcessing(PPIDArray & rIdList)
-{
-	rIdList.Z();
-	int    ok = -1;
-	GoodsFilt goods_filt;
-	Goods2Tbl::Rec goods_rec;
-	PPIDArray child_idlist;
-	if(Filt.GoodsGroupID)
-		goods_filt.GrpIDList.Add(Filt.GoodsGroupID);
-	goods_filt.Flags |= GoodsFilt::fWithStrucOnly;
-	for(GoodsIterator gi(&goods_filt, 0); gi.Next(&goods_rec) > 0;) {
-		if(!(goods_rec.Flags & GF_PASSIV)) {
-			PPGoodsStrucHeader2 gsh;
-			if(GsObj.Fetch(goods_rec.StrucID, &gsh) > 0) {
-				if(gsh.Flags & GSF_PRICEPLANNING) {
-					rIdList.add(goods_rec.ID);
-				}
-				else if(gsh.Flags & GSF_FOLDER) {
-					child_idlist.Z();
-					if(GsObj.GetChildIDList(gsh.ID, &child_idlist) > 0) {
-						for(uint i = 0; i < child_idlist.getCount(); i++) {
-							const PPID child_gs_id = child_idlist.get(i);
-							if(GsObj.Fetch(child_gs_id, &gsh) > 0) {
-								if(gsh.Flags & GSF_PRICEPLANNING) {
-									rIdList.add(goods_rec.ID);
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-		//PPWaitPercent(gi.GetIterCounter());
-	}
-	if(rIdList.getCount())
-		ok = 1;
-	return ok;
-}
-
 /*virtual*/int PPViewUnitEc::Init_(const PPBaseFilt * pBaseFilt)
 {
 	int    ok = -1;
 	if(Helper_InitBaseFilt(pBaseFilt)) {
 		IndicatorList.freeAll();
 		Filt.Period.Actualize(ZERODATE);
-		GetGoodsListForProcessing(GoodsIdList);
+		MakeProcessingList(IndicatorList);
 		ok = 1;
 	}
 	else
@@ -121,6 +195,211 @@ int PPViewUnitEc::GetGoodsListForProcessing(PPIDArray & rIdList)
 	DIALOG_PROC_BODY(UnitEcFiltDialog, p_filt);
 }
 
+int PPViewUnitEc::EvaluateFactors(const IndicatorVector * pVec, FactorSet & rSet)
+{
+	int    ok = -1;
+	if(pVec) {
+		if(checkdate(Filt.Period.low) && checkdate(Filt.Period.upp)) {
+			const long pl = Filt.Period.GetLength();
+			if(pl > 0)
+				rSet.DaysCount = static_cast<uint>(pl);
+		}
+		if(pVec->IgP.ExpectedDemandPerWeek > 0.0 && rSet.DaysCount) {
+			rSet.SaleQtty = (pVec->IgP.ExpectedDemandPerWeek * rSet.DaysCount) / 7.0;
+		}
+		if(pVec->IgP.RcptQtty > 0.0) {
+			rSet.RcptQtty = pVec->IgP.RcptQtty;
+			if(rSet.SaleQtty <= 0.0) {
+				rSet.SaleQtty = rSet.RcptQtty;
+			}
+		}
+		else {
+			if(rSet.SaleQtty <= 0.0) {
+				rSet.SaleQtty = 1.0;
+			}
+			rSet.RcptQtty = rSet.SaleQtty;
+		}
+	}
+	return ok;
+}
+
+int PPViewUnitEc::MakeEntry(IndicatorVector * pVec, BrwItem * pItem)
+{
+	int    ok = -1;
+	PPGoodsStruc gs;
+	if(pVec) {
+		pVec->SVector::clear();
+		const PPID struc_id = pVec->AddendumID;
+		if(GsObj.Get(struc_id, &gs) > 0 && gs.Rec.Flags & GSF_PRICEPLANNING) {
+			gs.GoodsID = pVec->ID; // @mandatory Товар может быть не определен в структуре, а формулы без товара не работают.
+			PPGoodsStruc::FormulaResolutionCache rcache(gs);
+			PPBizScore2Packet bs_pack;
+			if(pItem) {
+				pItem->ID = pVec->ID;
+				pItem->GStrucID = struc_id;
+			}
+			ok = 1;
+			for(uint i = 0; i < gs.Items.getCount(); i++) {
+				const PPGoodsStrucItem & r_item = gs.Items.at(i);
+				if(r_item.Flags & GSIF_BIZSC2) {
+					//
+					// Будем обрабатывать только те элементы структуры, для которых определен класс показателя.
+					// Просто пока не ясно как оперировать показателями без класса.
+					//
+					if(BsObj.Fetch(r_item.GoodsID, &bs_pack) > 0) {
+						if(bs_pack.Rec.Cls) { 
+							FactorSet factors;
+							double value = 0.0;
+							if(gs.GetItemValue(i, &rcache, &value) > 0) {
+								double result_value = 0.0;
+								EvaluateFactors(pVec, factors);
+								//
+								// Здесь будет грусто: придется перебрать все классы показателей и каждый обсчитать 
+								// отдельно, ибо она так задуманы, что каждый задает собственную схему расчета.
+								//
+								switch(bs_pack.Rec.Cls) {
+									case BSCCLS_INC_SALE_UNIT:
+										{
+											result_value = factors.SaleQtty * value;
+										}
+										break;
+									case BSCCLS_EXP_SALE_UNIT:
+										{
+											result_value = factors.SaleQtty * value;
+										}
+										break;
+									case BSCCLS_EXP_PURCHASE_UNIT:
+										{
+											result_value = factors.RcptQtty * value;
+										}
+										break;
+									case BSCCLS_EXP_TRANSFER_UNIT:
+										{
+											result_value = factors.RcptQtty * value;
+										}
+										break;
+									case BSCCLS_EXP_STORAGE_UNIT:
+										break;
+									case BSCCLS_EXP_PRESALE_UNIT:
+										{
+											result_value = factors.RcptQtty * value;
+										}
+										break;
+									case BSCCLS_EXP_PRESALE_SKU_TIME:
+										break;
+									case BSCCLS_EXP_PROMO_SKU_TIME:
+										break;
+									case BSCCLS_EXP_PROMO_TIME:
+										break;
+								}
+								pVec->Add(bs_pack.Rec.ID, bs_pack.Rec.Cls, result_value);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return ok;
+}
+
+int PPViewUnitEc::GetCommonIndicatorClsList(LongArray & rList)
+{
+	rList.Z();
+	int    ok = 1;
+	LongArray temp_list;
+	for(uint i = 0; i < IndicatorList.getCount(); i++) {
+		const IndicatorVector * p_vec = IndicatorList.at(i);
+		if(p_vec) {
+			p_vec->GetClsList(temp_list);
+			rList.add(&temp_list);
+		}
+	}
+	rList.sortAndUndup();
+	rList.SVector::sort(PTR_CMPFUNC(BscCls));
+	return ok;
+}
+
+const PPViewUnitEc::IndicatorVector * PPViewUnitEc::GetEntryByID_Const(long id) const
+{
+	const PPViewUnitEc::IndicatorVector * p_result = 0;
+	for(uint i = 0; !p_result && i < IndicatorList.getCount(); i++) {
+		const IndicatorVector * p_vec = IndicatorList.at(i);
+		if(p_vec && p_vec->ID == id)
+			p_result = p_vec;
+	}
+	return p_result;
+}
+
+PPViewUnitEc::IndicatorVector * PPViewUnitEc::GetEntryByID(long id)
+{
+	return const_cast<PPViewUnitEc::IndicatorVector *>(GetEntryByID_Const(id));
+}
+
+int PPViewUnitEc::MakeProcessingList(TSCollection <IndicatorVector> & rList)
+{
+	rList.freeAll();
+	int    ok = -1;
+	GoodsFilt goods_filt;
+	Goods2Tbl::Rec goods_rec;
+	PPIDArray child_idlist;
+	if(Filt.GoodsGroupID)
+		goods_filt.GrpIDList.Add(Filt.GoodsGroupID);
+	goods_filt.Flags |= GoodsFilt::fWithStrucOnly;
+	for(GoodsIterator gi(&goods_filt, 0); gi.Next(&goods_rec) > 0;) {
+		if(!(goods_rec.Flags & GF_PASSIV)) {
+			PPGoodsStrucHeader2 gsh;
+			if(GsObj.Fetch(goods_rec.StrucID, &gsh) > 0) {
+				if(gsh.Flags & GSF_PRICEPLANNING) {
+					IndicatorVector * p_new_item = rList.CreateNewItem();
+					THROW_SL(p_new_item);
+					p_new_item->ID = goods_rec.ID;
+					p_new_item->AddendumID = goods_rec.StrucID;
+					{
+						GoodsStockExt gse;
+						if(GObj.GetStockExt(goods_rec.ID, &gse, 1) > 0 && gse.Package > 0)
+							p_new_item->IgP.RcptQtty = gse.Package;
+						else
+							p_new_item->IgP.RcptQtty = 1.0;
+					}
+					MakeEntry(p_new_item, 0);
+				}
+				else if(gsh.Flags & GSF_FOLDER) {
+					child_idlist.Z();
+					if(GsObj.GetChildIDList(gsh.ID, &child_idlist) > 0) {
+						bool   local_done = false;
+						for(uint i = 0; !local_done && i < child_idlist.getCount(); i++) {
+							const PPID child_gs_id = child_idlist.get(i);
+							if(GsObj.Fetch(child_gs_id, &gsh) > 0) {
+								if(gsh.Flags & GSF_PRICEPLANNING) {
+									IndicatorVector * p_new_item = rList.CreateNewItem();
+									THROW_SL(p_new_item);
+									p_new_item->ID = goods_rec.ID;
+									p_new_item->AddendumID = child_gs_id;
+									{
+										GoodsStockExt gse;
+										if(GObj.GetStockExt(goods_rec.ID, &gse, 1) > 0 && gse.Package > 0)
+											p_new_item->IgP.RcptQtty = gse.Package;
+										else
+											p_new_item->IgP.RcptQtty = 1.0;
+									}
+									MakeEntry(p_new_item, 0);
+									local_done = true;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		//PPWaitPercent(gi.GetIterCounter());
+	}
+	if(rList.getCount())
+		ok = 1;
+	CATCHZOK
+	return ok;
+}
+
 int PPViewUnitEc::MakeList(PPViewBrowser * pBrw)
 {
 	int    ok = -1;
@@ -129,16 +408,43 @@ int PPViewUnitEc::MakeList(PPViewBrowser * pBrw)
 	else
 		P_DsList = new SArray(sizeof(BrwItem));
 	{
-		
+		for(uint i = 0; i < IndicatorList.getCount(); i++) {
+			const IndicatorVector * p_indicator_vec = IndicatorList.at(i);
+			if(p_indicator_vec) {
+				BrwItem bi;
+				bi.ID = p_indicator_vec->ID;
+				bi.GStrucID = p_indicator_vec->AddendumID;
+				P_DsList->insert(&bi);
+			}
+		}
 	}
 	return ok;
 }
 
 void PPViewUnitEc::PreprocessBrowser(PPViewBrowser * pBrw)
 {
-	/*
-		Здесь колонки добавлять будем
-	*/ 
+	SString temp_buf;
+	if(pBrw) {
+		pBrw->SetDefUserProc(PPViewUnitEc::GetDataForBrowser, this);
+		//pBrw->SetCellStyleFunc(CellStyleFunc, pBrw);
+	}
+	LongArray cls_list;
+	GetCommonIndicatorClsList(cls_list);
+	bool is_any_bscls = false;
+	for(uint i = 0; i < cls_list.getCount(); i++) {
+		const int cls = cls_list.get(i);
+		const int column_id = (cls + 2000);
+		PPObjBizScore2::GetBscClsResultName(cls, temp_buf);
+		if(temp_buf.IsEmpty())
+			temp_buf.CatChar('#').Cat("bscls").CatChar('-').Cat(cls);
+		pBrw->InsColumn(-1, temp_buf, column_id, T_DOUBLE, MKSFMTD(0, 2, 0), BCO_USERPROC);
+		is_any_bscls = true;
+	}
+	if(is_any_bscls) {
+		const int column_id = 4000;
+		PPLoadString("profit", temp_buf);
+		pBrw->InsColumn(-1, temp_buf, column_id, T_DOUBLE, MKSFMTD(0, 2, 0), BCO_USERPROC);
+	}
 }
 
 /*static*/int FASTCALL PPViewUnitEc::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
@@ -151,9 +457,52 @@ int PPViewUnitEc::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
 	int    ok = 0;
 	if(pBlk->P_SrcData && pBlk->P_DestData) {
+		ok = 1;
+		SString temp_buf;
+		const BrwItem * p_item = static_cast<const BrwItem *>(pBlk->P_SrcData);
 		switch(pBlk->ColumnN) {
 			case 1: 
-				break; // @stub
+				GetGoodsName(p_item->ID, temp_buf);
+				pBlk->Set(temp_buf);
+				break;
+			case 2: // InitialGoodsParam::RcptQtty
+				{
+					
+					const IndicatorVector * p_vec = GetEntryByID_Const(p_item->ID);
+					double value = p_vec ? p_vec->IgP.RcptQtty : 0.0;
+					pBlk->Set(value);
+				}
+				break;
+			case 3: // InitialGoodsParam::ExpectedDemandPerWeek
+				{
+					const IndicatorVector * p_vec = GetEntryByID_Const(p_item->ID);
+					double value = p_vec ? p_vec->IgP.ExpectedDemandPerWeek : 0.0;
+					pBlk->Set(value);
+				}
+				break;
+			default:
+				if(pBlk->ColumnN == 4000) {
+					double value = 0.0;
+					const IndicatorVector * p_vec = GetEntryByID_Const(p_item->ID);
+					if(p_vec) {
+						const double income = p_vec->GetTotalIncome();
+						const double expense = p_vec->GetTotalExpense();
+						value = income - expense;
+					}
+					pBlk->Set(value);
+				}
+				else if(pBlk->ColumnN > 2000) {
+					const int cls = (pBlk->ColumnN - 2000);
+					const IndicatorVector * p_vec = GetEntryByID_Const(p_item->ID);
+					double value = 0.0;
+					if(p_vec) {
+						const Indicator * p_ind = p_vec->GetClsEntryC(cls);
+						if(p_ind)
+							value = p_ind->Value;
+					}
+					pBlk->Set(value);
+				}
+				break;
 		}
 	}
 	return ok;
@@ -161,7 +510,6 @@ int PPViewUnitEc::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 
 /*virtual*/SArray * PPViewUnitEc::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
 {
-
 	SArray * p_array = 0;
 	THROW(MakeList(0));
 	p_array = new SArray(*P_DsList);
@@ -169,7 +517,7 @@ int PPViewUnitEc::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 		ZDELETE(p_array);
 		ZDELETE(P_DsList);
 	ENDCATCH
-	ASSIGN_PTR(pBrwId, BROWSER_UNITEQ);
+	ASSIGN_PTR(pBrwId, BROWSER_UNITEC);
 	return p_array;
 }
 
@@ -178,12 +526,60 @@ int PPViewUnitEc::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 	return -1; // @stub
 }
 
+/*virtual*/int PPViewUnitEc::Detail(const void *, PPViewBrowser * pBrw)
+{
+	int    ok = -1;
+	return ok;
+}
+
+int PPViewUnitEc::EditInitialGoodsParam(const BrwItem * pItem)
+{
+	int    ok = -1;
+	TDialog * dlg = 0;
+	if(pItem && pItem->ID) {
+		IndicatorVector * p_vec = GetEntryByID(pItem->ID);
+		if(p_vec) {
+			dlg = new TDialog(DLG_UNITECIGP);
+			if(CheckDialogPtr(&dlg)) {
+				const InitialGoodsParam preserve_igp(p_vec->IgP);
+				dlg->setCtrlReal(DLG_UNITECIGP_RCPTQTY, p_vec->IgP.RcptQtty);
+				dlg->setCtrlReal(DLG_UNITECIGP_EWDEMAND, p_vec->IgP.ExpectedDemandPerWeek);
+				while(ok < 0 && ExecView(dlg) == cmOK) {
+					p_vec->IgP.RcptQtty = dlg->getCtrlReal(DLG_UNITECIGP_RCPTQTY);
+					p_vec->IgP.ExpectedDemandPerWeek = dlg->getCtrlReal(DLG_UNITECIGP_EWDEMAND);
+					ok = 1;
+				}
+				if(p_vec->IgP == preserve_igp)
+					ok = -1;
+			}
+		}
+	}
+	delete dlg;
+	return ok;
+}
+
 /*virtual*/int PPViewUnitEc::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
+	const  BrwItem * p_item = static_cast<const BrwItem *>(pHdr);
 	if(ok == -2) {
 		switch(ppvCmd) {
-			case 0: break; // @stub
+			case PPVCMD_EDITGOODS: 
+				if(p_item && p_item->ID) {
+					PPID   temp_id = p_item->ID;
+					if(GObj.Edit(&temp_id, 0) == cmOK)
+						ok = 1;
+				}
+				break;
+			case PPVCMD_UNIIEC_IGP:
+				{
+					if(EditInitialGoodsParam(p_item) > 0) {
+						IndicatorVector * p_vec = GetEntryByID(p_item->ID);
+						MakeEntry(p_vec, 0);
+						ok = 1;
+					}
+				}
+				break;
 		}
 	}
 	return ok;

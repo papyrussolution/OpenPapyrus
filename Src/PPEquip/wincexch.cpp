@@ -467,6 +467,7 @@ int StyloBhtIIExchanger::SetTable(TcpSocket & rSo, int16 cmd, uint fileNameCode,
 int StyloBhtIIExchanger::FindGoods(PPID goodsID, const char * pBarcode, SBIIGoodsRec * pRec)
 {
 	int    ok = -1;
+	PPObjBill * p_bobj = BillObj;
 	int    is_serial = 0;
 	double rest = 0;
 	PPID   goods_id = 0;
@@ -475,13 +476,13 @@ int StyloBhtIIExchanger::FindGoods(PPID goodsID, const char * pBarcode, SBIIGood
 	PPIDArray lot_list;
 	Goods2Tbl::Rec goods_rec;
 	GoodsCodeSrchBlock srch_blk;
-	ReceiptCore & r_rcpt = BillObj->trfr->Rcpt;
+	ReceiptCore & r_rcpt = p_bobj->trfr->Rcpt;
 	if(pBarcode) {
 		STRNSCPY(srch_blk.Code, pBarcode);
 		srch_blk.Flags = GoodsCodeSrchBlock::fGoodsId;
 		if(GObj.SearchByCodeExt(&srch_blk) > 0)
 			goods_id = srch_blk.Rec.ID;
-		else if(BillObj->SearchLotsBySerial(pBarcode, &lot_list) > 0 && lot_list.getCount()) {
+		else if(p_bobj->SearchLotsBySerial(pBarcode, &lot_list) > 0 && lot_list.getCount()) {
 			ReceiptTbl::Rec lot_rec;
 			THROW(r_rcpt.Search(lot_list.at(0), &lot_rec) > 0);
 			goods_id = lot_rec.GoodsID;
@@ -586,6 +587,7 @@ int StyloBhtIIExchanger::AcceptLocOp(SBIILocOp * pRec)
 int StyloBhtIIExchanger::PrintBarcode(const char * pBarcode)
 {
 	int    ok = -1;
+	PPObjBill * p_bobj = BillObj;
 	bool   is_serial = false;
 	PPID   goods_id = 0;
 	SString temp_buf;
@@ -593,13 +595,13 @@ int StyloBhtIIExchanger::PrintBarcode(const char * pBarcode)
 	ReceiptTbl::Rec lot_rec;
 	RetailGoodsInfo rgi;
 	GoodsCodeSrchBlock srch_blk;
-	ReceiptCore & r_rcpt = BillObj->trfr->Rcpt;
+	ReceiptCore & r_rcpt = p_bobj->trfr->Rcpt;
 	THROW_PP(BhtPack.P_SBIICfg && BhtPack.P_SBIICfg->IsValid(), PPERR_SBII_UNDEFDEVICE);
 	STRNSCPY(srch_blk.Code, pBarcode);
 	srch_blk.Flags = GoodsCodeSrchBlock::fGoodsId;
 	if(GObj.SearchByCodeExt(&srch_blk) > 0)
 		goods_id = srch_blk.Rec.ID;
-	else if(BillObj->SearchLotsBySerial(pBarcode, &lot_list) > 0 && lot_list.getCount()) {
+	else if(p_bobj->SearchLotsBySerial(pBarcode, &lot_list) > 0 && lot_list.getCount()) {
 		THROW(r_rcpt.Search(lot_list.at(0), &lot_rec) > 0);
 		goods_id = lot_rec.GoodsID;
 		is_serial = true;
@@ -676,7 +678,8 @@ int StyloBhtIIExchanger::Log_(uint errCode, uint msgCode, const char * pAddInfo,
 
 int FASTCALL StyloBhtIIExchanger::ProcessSocketInput(TcpSocket & rSo)
 {
-	int    ok = 1, r = 0;
+	int    ok = 1;
+	int    r = 0;
 	//char * p_param_buf = 0;
 	SString temp_buf;
 	SBhtIICmdBuf cmd_buf;

@@ -121,7 +121,51 @@ public:
 private:
 	int    dummy;
 };
-
+//
+// Descr: Параметры экспорта данных отчета средствами Crystal Reports.
+//   Нужны для того, чтобы заменить интерактивные функции Crystal Reports в рамках перевода системы на arch-x64
+//
+struct CrystalReportExportParam { // @v12.3.7
+	enum {
+		crexpfmtPdf  = SFileFormat::Pdf,  // params: page-range
+		crexpfmtRtf  = SFileFormat::Rtf,  // params: page-range
+		crexpfmtHtml = SFileFormat::Html, // params: page-range, fHtmlPageNavigator, fHtmlSeparatePages, directory, base-file-name
+		crexpfmtExcel = SFileFormat::Xls,
+		crexpfmtWinWord = SFileFormat::WinWord, // params: page-range
+		crexpfmtCsv = SFileFormat::Csv,
+	};
+	enum {
+		destFile = 1,
+		destApp  = 2,
+	};
+	enum {
+		fSelectedPages             = 0x0001,
+		fHtmlPageNavigator         = 0x0002,
+		fHtmlSeparatePages         = 0x0004,
+		fXlsColumnHeadings         = 0x0008,
+		fXlsUseConstColumnWidth    = 0x0010,
+		fXlsTabularFormat          = 0x0020,
+		fXlsCreatePgBrkForEachPage = 0x0040,
+		fXlsCvtDateToString        = 0x0080,
+		fXlsShowGrid               = 0x0100,
+		fCsvUseReportNumberFormat  = 0x0200,
+		fCsvUseReportDateFormat    = 0x0400, 
+		fCsvQuoteText              = 0x0800,
+	};
+	uint    Flags;
+	uint    Format;
+	uint    Destination;
+	uint    XlsConstColumnWidth;
+	uint    XlsBaseAreaType;      // One of the 7 Section types defined in "Crpe.h". The default value is PE_SECT_DETAIL.
+	uint    XlsBaseAreaGroupNum;  // If baseAreaType is either GroupHeader or
+		//GroupFooter and there are more than one groups, we need to give the group number. The default value is 1.
+	uint    CsvFieldSeparator;
+	IntRange PageRange; // if Flags & fSelectedPages
+	SString DestFileName;
+};
+//
+//
+//
 struct ReportDescrEntry {
 	//
 	// Descr: Типы параметров описания отчетов в report.ini и stdrpt.ini
@@ -371,31 +415,6 @@ private:
 	int    NumCopies;
 	size_t TextLen;
 	char * P_Text;
-};
-//
-// Descr: Параметры экспорта данных отчета средствами Crystal Reports.
-//   Нужны для того, чтобы заменить интерактивные функции Crystal Reports в рамках перевода системы на arch-x64
-//
-struct CrystalReportExportParam { // @v12.3.7
-	enum {
-		crexpfmtPdf  = SFileFormat::Pdf,
-		crexpfmtRtf  = SFileFormat::Rtf,
-		crexpfmtHtml = SFileFormat::Html,
-		crexpfmtExcel = SFileFormat::Xls,
-		crexpfmtWinWord = SFileFormat::WinWord,
-	};
-	enum {
-		destFile = 1,
-		destApp  = 2,
-	};
-	enum {
-		fSelectedPages = 0x0001
-	};
-	uint    Flags;
-	uint    Format;
-	uint    Destination;
-	IntRange PageRange; // if Flags & fSelectedPages
-	SString DestFileName;
 };
 //
 // Descr: Структура параметров печати для реализации межпроцессного интерфейса для вывода 32-битного CrystalReports в отдельный процесс

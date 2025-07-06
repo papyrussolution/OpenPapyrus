@@ -426,7 +426,7 @@ void ArticleCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 		}
 	}
 	else if(CtlselAr && event.isCbSelected(CtlselAr)) {
-		PPID   ar_id = pDlg->getCtrlLong(CtlselAr);
+		const PPID ar_id = pDlg->getCtrlLong(CtlselAr);
 		if(ar_id)
 			MessagePersonBirthDay(pDlg, ObjectToPerson(ar_id, 0));
 	}
@@ -472,9 +472,10 @@ void CurAmtCtrlGroup::setupCurrencyCombo(TDialog * pDlg, PPIDArray * pCurList)
 
 void CurAmtCtrlGroup::setupCurRate(TDialog * pDlg, int fromBase)
 {
-	double crate = 0.0, base_amount = 0.0;
-	PPID   cur_id = pDlg->getCtrlLong(CurSelCID);
-	double amount = pDlg->getCtrlReal(AmtCID);
+	double crate = 0.0;
+	double base_amount = 0.0;
+	const  PPID   cur_id = pDlg->getCtrlLong(CurSelCID);
+	const  double amount = pDlg->getCtrlReal(AmtCID);
 	if(DateCID)
 		pDlg->getCtrlData(DateCID, &Data.CRateDate);
 	if(cur_id) {

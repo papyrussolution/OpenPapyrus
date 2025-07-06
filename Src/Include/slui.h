@@ -885,6 +885,25 @@ public:
 	const  SString & GetSymb() const;
 	int    SetSymb(const char * pSymb);
 	//
+	// Descr: Делает элемент исключенным из списка дочерних элементов родителя (не удаляя его 'физически').
+	//   То есть пересчет лейаутов будет работать так, будто этого элемента нет вообще.
+	// Returns:
+	//   true - статус элемента изменился //
+	//   false - статус элемента не изменился (возможно, он уже был исключенным или ошибка какая-то).
+	//
+	bool   SetExcludedStatus();
+	//
+	// Descr: Возвращает элементу статут присутствия в списке дочерних элементов родителя.
+	// Returns:
+	//   true - статус элемента изменился //
+	//   false - статус элемента не изменился (возможно, он уже был исключенным или ошибка какая-то).
+	//
+	bool   ResetExcludedStatus();
+	//
+	// Descr: Возвращает true если элемент исключен из рассмотрения среди дочерних элементов родителя.
+	//
+	bool   IsExcluded() const;
+	//
 	// Descr: Если идентификатора элемента (ID) нулевой, то инициализирует его так, чтобы он был уникальным
 	//   в области определения контейнера верхнего уровня.
 	//   Если идентфикатор уже не нулевой, то просто возвращает его значение.
@@ -991,15 +1010,9 @@ public:
 			vfGrowFactor
 		};
 		HomogeneousArray();
-		HomogeneousArray(const HomogeneousArray & rS) : TSVector <HomogeneousEntry>(rS), VariableFactor(rS.VariableFactor)
-		{
-		}
-		HomogeneousArray & FASTCALL operator = (const HomogeneousArray & rS)
-		{
-			TSVector <HomogeneousEntry>::operator = (rS);
-			VariableFactor = rS.VariableFactor;
-			return *this;
-		}
+		HomogeneousArray(const HomogeneousArray & rS);
+		HomogeneousArray & FASTCALL operator = (const HomogeneousArray & rS);
+
 		uint   VariableFactor;
 	};
 
@@ -1072,6 +1085,7 @@ private:
 	//     какие нет. Потому я в некотором замешательстве.
 	//
 	void   MakeIndex(IterIndex & rIndex) const;
+	bool   IsThereNotExcludedChildren() const;
 	//
 	// Descr: Получает указатель на элемент по позиции idxPos в индексе rIndex.
 	//   Если элемент является гомоморфной коллекцией, то возвращается указатель на суррогатный экземпляр.
@@ -1104,7 +1118,8 @@ private:
 	//
 	enum {
 		stShouldOrderChildren = 0x0001,
-		stHomogeneousItem     = 0x0002  // Элемент является виртуальным экземпляром, сформированным по шаблону из HomogeneousArray основного элемента
+		stHomogeneousItem     = 0x0002, // Элемент является виртуальным экземпляром, сформированным по шаблону из HomogeneousArray основного элемента
+		stExcluded            = 0x0004, // @v12.3.7 Элемент исключается из рассмотрения при пересчете. 
 	};
 	uint32 Signature; // non const. Инициализиуется в ctr, обнуляется в dtr.
 	SUiLayoutParam ALB;

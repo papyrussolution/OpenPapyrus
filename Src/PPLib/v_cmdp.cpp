@@ -28,6 +28,7 @@ int EditCmdItem(const PPCommandGroup * pGrp, PPCommand * pData, /*int isDekstopC
 		{
 			assert(oneof2(CmdGrpC, cmdgrpcMenu, cmdgrpcDesktop));
 			CmdDescr.GetResourceList(1, CmdSymbList);
+			CmdSymbList.SortByText(); // @v12.3.7
 			if(/*IsDesktopCmd*/CmdGrpC == cmdgrpcDesktop)
 				FileBrowseCtrlGroup::Setup(this, CTLBRW_CMDITEM_ICON, CTL_CMDITEM_ICON, ctlgroupFbg, PPTXT_SELCMDICON, PPTXT_FILPAT_ICONS, FileBrowseCtrlGroup::fbcgfFile);
 			disableCtrl(CTL_CMDITEM_ICON, true);
@@ -38,14 +39,14 @@ int EditCmdItem(const PPCommandGroup * pGrp, PPCommand * pData, /*int isDekstopC
 		DECL_DIALOG_SETDTS()
 		{
 			int    ok = 1;
-			StrAssocArray cmd_txt_list;
+			// @v12.3.7 (мы в конструкторе уже инициализировали такой объект CmdSymbList) StrAssocArray cmd_txt_list;
 			RVALUEPTR(Data, pData);
 			setCtrlString(CTL_CMDITEM_NAME, Data.Name);
 			setCtrlLong(CTL_CMDITEM_ID, Data.GetID());
-			CmdDescr.GetResourceList(1, cmd_txt_list);
+			// @v12.3.7 (мы в конструкторе уже инициализировали такой объект CmdSymbList) CmdDescr.GetResourceList(1, cmd_txt_list);
 			uint   pos = 0;
-			cmd_txt_list.SortByText();
-			SetupStrAssocCombo(this, CTLSEL_CMDITEM_CMD, cmd_txt_list, Data.CmdID, 0);
+			// @v12.3.7 (мы в конструкторе уже инициализировали такой объект CmdSymbList) cmd_txt_list.SortByText();
+			SetupStrAssocCombo(this, CTLSEL_CMDITEM_CMD, /*cmd_txt_list*/CmdSymbList, Data.CmdID, 0);
 			SetupWordSelector(CTLSEL_CMDITEM_CMD, 0, Data.CmdID, 2, WordSel_ExtraBlock::fAlwaysSearchBySubStr);
 			setCtrlString(CTL_CMDITEM_ICON, Data.Icon);
 			AddClusterAssoc(CTL_CMDITEM_USEDEFICON, 0, USEDEFICON);

@@ -868,7 +868,7 @@ SString & PPLotFaultArray::Message(uint p, SString & rBuf)
 			case PPLotFault::EgaisCodeAlone:       msg_id = PPERR_ELOT_EGAISCODEALONE; break;
 			case PPLotFault::NoEgaisCode:          msg_id = PPERR_ELOT_NOEGAISCODE; break;
 			case PPLotFault::NoEgaisCodeAmbig:     msg_id = PPERR_ELOT_NOEGAISCODEAMBIG; break;
-			case PPLotFault::ThereIsQCert:         msg_id = PPERR_ELOT_THEREISQCERT; break; // @v10.4.10
+			case PPLotFault::ThereIsQCert:         msg_id = PPERR_ELOT_THEREISQCERT; break;
 			default: msg_id = PPERR_ELOT_UNKNOWN; break;
 		}
 		SString b, lot_str, temp_buf;
@@ -903,7 +903,7 @@ SString & PPLotFaultArray::Message(uint p, SString & rBuf)
 				case PPLotFault::OpLocation:
 				case PPLotFault::InadqIndepPhFlagOn:
 				case PPLotFault::InadqIndepPhFlagOff:
-				case PPLotFault::NonSingleRcptOp: // @v8.5.7
+				case PPLotFault::NonSingleRcptOp:
 					rBuf.Printf(b, lot_str.cptr(), dtbuf, f.OprNo);
 					break;
 				case PPLotFault::CyclicLink:
@@ -2222,13 +2222,18 @@ int BadTrfrEntryListDialog::delItem(long pos, long id)
 
 int RecoverTransfer()
 {
-	int    ok = 1, ta = 0;
+	int    ok = 1;
+	int    ta = 0;
 	int    do_recover = 1;
 	const  double big = 1.e9;
-	SString fmt_buf, msg_buf, fp_err_var, added_msg;
+	SString fmt_buf;
+	SString msg_buf;
+	SString fp_err_var;
+	SString added_msg;
 	PPLogger logger;
 	PPObjGoods goods_obj;
-	PPIDArray temp_lot_list, abs_lot_list;
+	PPIDArray temp_lot_list;
+	PPIDArray abs_lot_list;
 	LAssocArray goods_list;
 	Transfer * p_trfr = BillObj->trfr;
 	TransferTbl::Rec & r_data = p_trfr->data;

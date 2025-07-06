@@ -620,8 +620,8 @@
 	#define HELP_BROWSER_STYLOQBINDERY                          287
 #define BROWSER_STYLOQCOMMANDS                         288 // @{view_styloqcommands}
 	#define HELP_BROWSER_STYLOQCOMMANDS                         288
-#define BROWSER_UNITEQ                                 289 // Unit-анализ
-	#define HELP_BROWSER_UNITEQ                                 289
+#define BROWSER_UNITEC                                 289 // Unit-анализ
+	#define HELP_BROWSER_UNITEC                                 289
 
 //
 // PPVIEW COMMAND definitions
@@ -1168,6 +1168,7 @@
 #define PPVCMD_FACE                                   296
 #define PPVCMD_INVITATION                             297
 #define PPVCMD_BUILDSVCSYMBMAP                        298
+#define PPVCMD_UNIIEC_IGP                             299
 //
 // PPCMD definitions
 //
@@ -1529,7 +1530,8 @@
 #define PPCMD_GATHERCLIENTACTIVITYSTAT              1356
 #define PPCMD_SOURCECODEPROCESSING                  1357
 #define PPCMD_BIZSCORE2VAL                          1358
-#define PPCMD_UNITEQ                                1359
+#define PPCMD_UNITEC                                1359
+#define PPCMD_CRISTAL2SETRETAILGATEWAY              1360
 //
 // PPJOB definitions
 //

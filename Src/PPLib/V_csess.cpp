@@ -854,6 +854,7 @@ int PPViewCSess::CalcCheckAmounts(TempCSessChecksTbl::Rec * pRec)
 int PPViewCSess::Add(BExtInsert * pBei, const CSessionTbl::Rec * pRec)
 {
 	int    ok = 1;
+	PPObjBill * p_bobj = BillObj;
 	TempCSessChecksTbl::Rec csch_rec;
 	csch_rec.ID  = pRec->ID;
 	csch_rec.SuperSessID = pRec->SuperSessID;
@@ -870,17 +871,17 @@ int PPViewCSess::Add(BExtInsert * pBei, const CSessionTbl::Rec * pRec)
 	csch_rec.WrOffAmount = pRec->WrOffAmount;
 	csch_rec.BnkAmount   = pRec->BnkAmount;     // @CSCardAmount
 	csch_rec.CSCardAmount = pRec->CSCardAmount;
-	if(BillObj->CheckRights(BILLRT_ACCSCOST)) {
+	if(p_bobj->CheckRights(BILLRT_ACCSCOST)) {
 		const  PPID ret_op_id = GetCashRetOp();
 		double cost_amount = 0.0;
 		PPIDArray bill_list;
-		BillObj->P_Tbl->GetPoolMembersList(PPASS_CSESSBILLPOOL, csch_rec.ID, &bill_list);
+		p_bobj->P_Tbl->GetPoolMembersList(PPASS_CSESSBILLPOOL, csch_rec.ID, &bill_list);
 		for(uint i = 0; i < bill_list.getCount(); i++) {
 			const  PPID member_id = bill_list.get(i);
 			BillTbl::Rec bill_rec;
-			if(BillObj->Fetch(member_id, &bill_rec) > 0) {
+			if(p_bobj->Fetch(member_id, &bill_rec) > 0) {
 				double amt = BR2(bill_rec.Amount);
-				BillObj->P_Tbl->GetAmount(member_id, PPAMT_BUYING, 0, &amt);
+				p_bobj->P_Tbl->GetAmount(member_id, PPAMT_BUYING, 0, &amt);
 				if(bill_rec.OpID == ret_op_id)
 					amt = -amt;
 				cost_amount += amt;

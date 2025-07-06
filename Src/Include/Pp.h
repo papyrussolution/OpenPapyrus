@@ -442,7 +442,6 @@ class PPBillImporter;
 class EgaisMarkAutoSelector;
 class PPMarketplaceInterface;
 class PrcssrMarketplaceInterchange;
-class GoodsStructFormulaResolutionCache;
 
 typedef struct bignum_st BIGNUM; // OpenSSL
 typedef int32 PPID; // @v11.6.8 long-->int32
@@ -20252,8 +20251,9 @@ struct PPBizScore2Packet : public PPExtStrContainer {
 
 class PPObjBizScore2 : public PPObjReference { // @v11.9.1 @construction
 public:
-	static uint GetBscClsLis(PPIDArray & rList);
+	static uint GetBscClsList(PPIDArray & rList);
 	static bool GetBscClsName(long cls, SString & rBuf);
+	static bool GetBscClsResultName(long cls, SString & rBuf);
 	//
 	// Descr: Возвращает true если класс cls бизнес-показателя олицетворяет доходные значения //
 	//
@@ -20376,7 +20376,7 @@ struct BizScoreValTotal {
 
 struct BzsVal { // @v12.1.6 
 	BzsVal();
-	long   Bzsi;
+	long   Bzsi; // @firstmember
 	double Val;
 };
 
@@ -24685,7 +24685,26 @@ public:
 		kComplex,      // Комплекс                        GSF_COMPLEX
 		kPricePlanning // @v12.0.6 @construction Планирование стоимости продаж GSF_PRICEPLANNING
 	};
+	//
+	// Descr: Вспомогательный класс, обеспечивающий кэширующий расчет значений, соответствующих элементам структуры по формулам.
+	//
+	class FormulaResolutionCache {
+	public:
+		FormulaResolutionCache(const PPGoodsStruc & rGs);
+		int    Resolve(uint itemIdx, double * pValue);
+	private:
+		//
+		// Descr: Рассчитывае параметр хэширования элемента структуры. Этот параметр должен учитывать
+		//   все важные факторы структуры дабы при изменении какого либо из них кэш утратил актуальность.
+		//
+		uint32 MakeStrucSeed() const;
+		long   MakeItemKey(uint itemIdx) const;
+		bool   SearchCacheForResult(uint itemIdx, long * pKey, double * pValue) const;
 
+		PPObjBizScore2 BsObj;
+		const PPGoodsStruc & R_Gs;
+		RAssocArray ResultCache;
+	};
 	static int FASTCALL IsSimpleQttyString(const char * pStr);
 	static int FASTCALL GetStrucKind(long flags);
 	static SString & MakeTypeString(PPID strucID, long flags, PPID parentStrucID, SString & rBuf);
@@ -24729,7 +24748,7 @@ public:
 	//   задано, то функция обращается к показателю (PPObjBizScore2), который ассоциирован со строкой
 	//   и вычисляет значение показателя.
 	//
-	int    GetItemValue(uint itemIdx, GoodsStructFormulaResolutionCache * pRCache, double * pValue) const;
+	int    GetItemValue(uint itemIdx, PPGoodsStruc::FormulaResolutionCache * pRCache, double * pValue) const;
 	int    ResolveItemFormula(const PPGoodsStrucItem & rItem, double * pValue) const;
 	int    GetEstimationPrice(uint itemIdx, PPID locID, double * pPrice, double * pTotalPrice, ReceiptTbl::Rec * pLotRec) const;
 	void   CalcEstimationPrice(PPID locID, double * pPrice, int * pUncertainty, int calcInner) const;
@@ -33028,7 +33047,7 @@ private:
 struct AsyncCashGoodsInfo { // @transient
 	DECL_INVARIANT_C();
 	AsyncCashGoodsInfo();
-	void   Init();
+	AsyncCashGoodsInfo & Z();
 	int    AdjustBarcode(int chkDig);
 
 	enum {
@@ -33063,13 +33082,15 @@ struct AsyncCashGoodsInfo { // @transient
 	long   GoodsFlags;       // Флаги записи товара
 	LDATE  Expiry;           // @v11.9.5 Срок истечения годности @todo
 	long   Flags_;           //
-	short  NoDis;            // Запрет скидки на товар (> 0 - без скидки, 0 - со скидкой, -1 - со скидкой (признак "без скидки" был снят)
-	int16  ChZnProdType;     // Тип маркированной продукции честный знак
-	long   DivN;             // Номер отдела
 	PPID   LocPrnID;         // ->Ref(PPOBJ_LOCPRINTER)
 	char   LocPrnSymb[20];   // Символ локального принтера LocPrnID
 	PPID   AsscPosNodeID;    // Ассоциированный с товаром кассовый аппарат
 	char   AsscPosNodeSymb[20]; // Символ ассоциированного с товаров кассового аппарата
+	char   SalesRestrSymb[20];  // @v12.3.7 Символ записи ограничения на продажу для товара ID (если задано)
+	uint16 SalesRestrAge;       // @v12.3.7 Минимальный возраст, с которого возможна продажа товара (из записи ограничения на продажу, если таковая есть)
+	int16  NoDis;            // Запрет скидки на товар (> 0 - без скидки, 0 - со скидкой, -1 - со скидкой (признак "без скидки" был снят)
+	int16  ChZnProdType;     // Тип маркированной продукции честный знак
+	int16  DivN;             // Номер отдела // @v12.3.7 long-->int16
 	double VatRate;          // Ставка НДС
 	RealRange AllowedPriceR; // Допустимый диапазон цен, рассчитанный на основании ограничений товарных величин.
 	S_GUID Uuid;             // UUID товара, извлеченный из тега PPTAG_GOODS_UUID
@@ -33100,9 +33121,8 @@ class AsyncCashGoodsIterator {
 public:
 	static int __GetDifferentPricesForLookBackPeriod(PPID goodsID, PPID locID, double basePrice, int lookBackPeriod, RealArray & rList);
 
-	AsyncCashGoodsIterator(PPID cashNodeID, long flags, PPID sinceDlsID, DeviceLoadingStat * pDls);
+	AsyncCashGoodsIterator(PPID posNodeID, long flags, PPID sinceDlsID, DeviceLoadingStat * pDls);
 	~AsyncCashGoodsIterator();
-	int    Init(PPID cashNodeID, long flags, PPID sinceDlsID, DeviceLoadingStat * pDls);
 	int    Next(AsyncCashGoodsInfo *);
 	const  IterCounter & GetIterCounter() const;
 	int    UpdateCPrice(PPID goodsID, double price);
@@ -33133,13 +33153,14 @@ public:
 	//
 	const PPIDArray * FASTCALL GetRefList(int refType) const;
 private:
+	int    Init(long flags);
 	int    SearchCPrice(PPID goodsID, double * price);
-	int    LotThreshold;   // Количество дней от последнего прихода, после которого товар, по которому остаток нулевой, не следует загружать на кассовые аппараты
-	long   Flags;          // ACGIF_XXX
-	PPID   CashNodeID;     // Кассовый узел для которого формируется список товаров
+	const  PPID PosNodeID;  // Кассовый узел для которого формируется список товаров
+	const  PPID SinceDlsID; // Ид записи статистики загрузки, начиная (включая) с которой следует выгрузить изменения //
+	int    LotThreshold;    // Количество дней от последнего прихода, после которого товар, по которому остаток нулевой, не следует загружать на кассовые аппараты
+	long   Flags;           // ACGIF_XXX
 	PPID   LocID;
 	PPID   UserOnlyGoodsGrpID;    // Товарная группа, которой ограничен пользователь при загрузке изменений.
-	PPID   SinceDlsID;            // Ид записи статистики загрузки, начиная (включая) с которой следует выгрузить изменения //
 	PPID   AlcoGoodsClsID;        //
 	PPID   TobaccoGoodsClsID;     //
 	PPID   GiftCardGoodsClsID;    //
@@ -33205,6 +33226,7 @@ private:
 	PPObjCashNode CnObj;          //
 	GoodsIterator Iter;           // Итератор по товарам
 	RetailPriceExtractor RetailExtr;
+	UintHashTable GoodsIdListWithSalesRestrTag; // @v12.3.7 Список идентификаторов товаров, у которых есть зарезервированный тег PPTAG_GOODS_SALESRESTR
 	DeviceLoadingStat * P_Dls;    // @notowned
 	GoodsToObjAssoc * P_G2OAssoc; //
 	GoodsToObjAssoc * P_G2DAssoc; // Ассоцииации {товар-кассовый узел} для загрузки номеров кассовый аппаратов, ассоциированных с товарами
@@ -46063,13 +46085,9 @@ struct UnitEcViewItem {
 
 class PPViewUnitEc : public PPView {
 public:
-	struct InitialGoodsEntry {
-		PPID   GoodsID;
-		double RcptQtty;
-		double ExpectedDemandPerWeek;
-	};
 	struct BrwItem {
 		PPID   ID;
+		PPID   GStrucID;
 	};
 	PPViewUnitEc();
 	~PPViewUnitEc();
@@ -46078,30 +46096,81 @@ public:
 	int    InitIteration();
 	int    FASTCALL NextIteration(UnitEcViewItem * pItem);
 private:
+	struct InitialGoodsParam {
+		InitialGoodsParam();
+		bool   FASTCALL operator == (const InitialGoodsParam & rS) const { return IsEq(rS); }
+		bool   FASTCALL operator != (const InitialGoodsParam & rS) const { return !IsEq(rS); }
+		bool   FASTCALL IsEq(const InitialGoodsParam & rS) const;
+		double RcptQtty;
+		double ExpectedDemandPerWeek;
+	};
+	struct Indicator {
+		Indicator();
+		long   ID;    // Ид бизнес-показателя (PPObjBizScore2)
+		long   Cls;   // Класс бизнес-показателя (если таковой определен для ID)
+		double Value;
+	};
+	class IndicatorVector : public TSVector <Indicator> {
+	public:
+		IndicatorVector();
+		int    Add(long bizScoreId, long bizScoreCls, double value);
+		void   GetClsList(LongArray & rList) const;
+		const  Indicator * GetClsEntryC(long cls) const;
+		const  Indicator * GetBsEntryC(long bsID) const;
+		Indicator * GetClsEntry(long cls);
+		Indicator * GetBsEntry(long bsID);
+		double GetTotalIncome() const;
+		double GetTotalExpense() const;
+		PPID   ID;
+		PPID   AddendumID; // Для товара это - ид структуры
+		InitialGoodsParam IgP;
+	};
+	//
+	// Descr: Набор факторов для расчета итоговых значений по бизнес-показателям.
+	//
+	struct FactorSet {
+		FactorSet() : DaysCount(0), SaleQtty(0.0), RcptQtty(0.0), StorageDaysQtty(0.0)
+		{
+		}
+		FactorSet & Z()
+		{
+			DaysCount = 0;
+			SaleQtty = 0.0;
+			RcptQtty = 0.0;
+			StorageDaysQtty = 0.0;
+			return *this;
+		}
+		uint   DaysCount;
+		double SaleQtty;
+		double RcptQtty;
+		double StorageDaysQtty;
+	};
+
 	static  int  FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	virtual SArray * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
 	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual int  OnExecBrowser(PPViewBrowser *);
 	virtual int  ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
+	virtual int  Detail(const void *, PPViewBrowser * pBrw);
 	int    _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
+	int    MakeEntry(IndicatorVector * pVec, BrwItem * pItem);
 	int    MakeList(PPViewBrowser * pBrw);
-	int    GetGoodsListForProcessing(PPIDArray & rIdList);
+	int    MakeProcessingList(TSCollection <IndicatorVector> & rList); 
+	int    EvaluateFactors(const IndicatorVector * pVec, FactorSet & rSet);
+	int    GetCommonIndicatorClsList(LongArray & rList);
+	const  IndicatorVector * GetEntryByID_Const(long id) const;
+	IndicatorVector * GetEntryByID(long id);
+	int    EditInitialGoodsParam(const BrwItem * pItem);
 
-	class IndicatorVector : public BzsValVector {
-	public:
-		IndicatorVector() : BzsValVector(), ID(0)
-		{
-		}
-		PPID   ID;
-	};
 	TSCollection <IndicatorVector> IndicatorList; // @v12.1.7
 	UnitEcFilt Filt;
-	PPIDArray GoodsIdList; // Список товаров, по которым проводится анализ
+	//PPIDArray GoodsIdList; // Список товаров, по которым проводится анализ
 	SArray * P_DsList;
-	TSVector <InitialGoodsEntry> IgeList;
+	//TSVector <InitialGoodsEntry> IgeList;
 	//
 	PPObjGoods GObj;
 	PPObjGoodsStruc GsObj;
+	PPObjBizScore2 BsObj;
 };
 //
 // @ModuleDecl(PPViewSCard)
@@ -60457,6 +60526,7 @@ DECL_CMPFUNC(PPTLBItem);
 DECL_CMPFUNC(Acct);
 DECL_CMPFUNC(DraftRcptItem);
 DECL_CMPFUNC(ReceiptTbl_DtOprNo);
+DECL_CMPFUNC(BscCls); // @v12.3.7 классы бизнес-показателей по рангу
 //
 // Descr: Инициализирует глобальный объект, управляющий строковыми ресурсами.
 //
@@ -61412,6 +61482,84 @@ public:
 	
 	int    _Case_TaxEvaluation(); // Это будет первой задачей для нашего амбициозного субпроекта PPTestDbInfrastructure :)
 private:
+};
+//
+// @v12.2.5 
+// Descr: Специальный модуль, реализующий шлюз между древней-предревней системой управления розничным магазином Кристалл и 
+//   кассовым модулем Set-Retail.
+//
+class Cristal2SetRetailGateway {
+public:
+	struct CmdParam {
+		CmdParam();
+		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
+
+		enum {
+			actReadCristalSrcData   = 0x0001, 
+			actWriteCristalDestData = 0x0002
+		};
+		uint32 Version;
+		int32  Actions;
+		uint32 Flags;
+		uint8  Reserve[64];
+	};
+	enum {
+		eefMinus = 0x0001 // Ведущее поле записи содержит '-' (а не '+')
+	};
+	//
+	// Descr: Элемент данных, импортируемый из системы Кристалл.
+	//   Здесь будут товары, группы товаров, дисконтные карты и, вероятно, еще что-то.
+	//
+	struct ErpGoodsEntry { // @flat
+		ErpGoodsEntry();
+
+		long   ID;
+		uint   Flags;
+		long   GoodsGroupID;
+		double Price;
+		double VatRate;
+		double AlcVolume;
+		double AlcProof;
+		char   GoodsNameS[128]; // Короткое наименование товара
+		char   GoodsNameF[128]; // Полное наименование товара (из 2 частей)
+		char   Barcode[32];
+		char   UomName[48];
+		char   GoodsGroupName[128];
+		char   MarkingSymb[32]; // Тут хранится символ типа товара chzn, а для крепкого алкоголя - какие-то непонятные числовые коды.
+	};
+	struct ErpWeightedGoodsEntry {
+		ErpWeightedGoodsEntry();
+		long   ID;	
+		uint   Flags;
+		long   PLU;
+		double Price; // Цена за 1кг
+		char   GoodsNameF[128]; // Полное наименование товара (из 2 частей)
+	};
+	struct ErpSCardEntry {
+		ErpSCardEntry();
+
+		uint   Flags;
+		double PctDis;
+		char   CodeRangeStart[32];
+		char   CodeRangeEnd[32];
+	};
+	class CristalImportBlock {
+	public:
+		TSVector <ErpGoodsEntry> List1;
+		TSVector <ErpWeightedGoodsEntry> List2; 
+		TSVector <ErpSCardEntry> List3;
+	};
+	Cristal2SetRetailGateway();
+	~Cristal2SetRetailGateway();
+	int    EditCmdParam(CmdParam & rData);
+	int    Process(const CmdParam & Param);
+	//
+	int    Helper_CristalImportDir(const char * pPathUtf8, Cristal2SetRetailGateway::CristalImportBlock & rIb, const char * pLogFilePath);
+	//
+	// Descr: Импортирует текстовый файл, подготовленный системой Кристалл.
+	//   Файлы в кодировке cp866, разделители полей '|'.
+	//
+	int    CristalImport(const char * pPathUtf8, Cristal2SetRetailGateway::CristalImportBlock & rIb);
 };
 //
 // Descr: Возвращает минимальный множитель, цены кратные которому

@@ -409,12 +409,12 @@ dialog DLG_GBSTRUC_N [title: "@basket" vertical size: (699, 546) minsize: (630, 
 	}
 }
 
-dialog DLG_BIZSC2 [vertical title: "@{bizscore}" size: (774, 481) minsize: (723, 480) font: "MS Shell Dlg 2,8"] {
+dialog DLG_BIZSC2 [vertical title: "@{bizscore}" size: (774, 492) minsize: (723, 492) font: "MS Shell Dlg 2,8"] {
 	view [horizontal width: bycontainer height: 140] {
 		view [vertical growfactor: 2 height: bycontainer justifycontent: start] {
-			input CTL_BIZSC2_NAME [width: bycontainer height: 21 margin: 4 tabstop label: "@appellation" labelsize: (0, 13) ] string[48];
-			combobox CTLSEL_BIZSC2_PARENT [width: bycontainer height: 21 margin: 4 label: "@bizscore_parent" labelsize: (0, 13) cblinesymb: CTL_BIZSC2_PARENT ];
-			combobox CTLSEL_BIZSC2_CLS [width: bycontainer height: 21 margin: 4 label: "@bizscore_cls" labelsize: (0, 13) cblinesymb: CTL_BIZSC2_CLS ];
+			input CTL_BIZSC2_NAME [tabstop width: bycontainer height: 21 margin: 4 label: "@appellation" labelsize: (0, 13) ] string[48];
+			combobox CTLSEL_BIZSC2_PARENT [tabstop width: bycontainer height: 21 margin: 4 label: "@bizscore_parent" labelsize: (0, 13) cblinesymb: CTL_BIZSC2_PARENT ];
+			combobox CTLSEL_BIZSC2_CLS [tabstop width: bycontainer height: 21 margin: 4 label: "@bizscore_cls" labelsize: (0, 13) cblinesymb: CTL_BIZSC2_CLS ];
 		}
 		view [vertical growfactor: 1 height: bycontainer justifycontent: start] {
 			view [horizontal width: bycontainer height: bycontainer justifycontent: start] {
@@ -447,7 +447,7 @@ dialog DLG_BIZSC2 [vertical title: "@{bizscore}" size: (774, 481) minsize: (723,
 		input CTL_BIZSC2_DESCR [width: bycontainer height: 21 margin: 4 tabstop label: "@description"] string[252];
 		input CTL_BIZSC2_FORMULA [width: bycontainer height: 21 margin: 4 tabstop label: "@formula"] string[252];
 	}
-	view [horizontal width: bycontainer height: 28 margin_top: 8 justifycontent: end alignitems: end] {
+	view [horizontal width: bycontainer growfactor: 1 margin_top: 8 margin_right: 12 justifycontent: end alignitems: end] {
 		button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 defaultitem command: cmOK];
 		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
 	}
@@ -475,6 +475,28 @@ dialog DLG_SALESRESTR [vertical title: "@obj_salesrestriction" size: (432, 276) 
 		input CTL_SALESRESTR_AGE [width: bycontainer(80) height: 21 margin: 4 tabstop fmtf: (nozero) label: "@salesrestriction_minage" labelsize: (0, 13) ] int32;
 		input CTL_SALESRESTR_PERIOD [width: bycontainer(80) height: 21 margin: 4 tabstop label: "@salesrestriction_period" labelsize: (0, 13) ] string[48] 
 			supplement daterangecalbutton(CTLCAL_SALESRESTR_PERIOD);
+	}
+	view [horizontal width: bycontainer(100) growfactor: 1 justifycontent: end alignitems: end margin_right: 12] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 defaultitem command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+
+dialog DLG_UNITECIGP [vertical title: "@unitec_igp" size: (400, 276) minsize: (300, 200) font: "MS Shell Dlg,8"] {
+	view [vertical width: bycontainer(100) height: 70 justifycontent: start alignitems: center] {
+		input DLG_UNITECIGP_RCPTQTY [width: 270 height: 21 margin: 4 tabstop label: "@unitec_igp_rcptqtty" labelsize: (0, 13) fmtf: (nozero notraiz) fmtprec: 3] double;
+		input DLG_UNITECIGP_EWDEMAND [width: 270 height: 21 margin: 4 tabstop label: "@unitec_igp_expecteddemandperweek" labelsize: (0, 13) fmtf: (nozero notraiz) fmtprec: 3] double;
+	}
+	view [horizontal width: bycontainer(100) growfactor: 1 justifycontent: end alignitems: end margin_right: 12] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 defaultitem command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+
+dialog DLG_CR2SRGWPARAM [vertical title: "@cristal2setretailgateway_runparam" size: (400, 276) minsize: (300, 200) font: "MS Shell Dlg,8" alignitems: center] {
+	checkcluster CTL_CR2SRGWPARAM_ACTIONS [vertical width: bycontainer(80) margin: 4] {
+		checkbox [title: "@cristal2setretailgateway_runparam_actreadcristalsrcdata" height: 16 margin: 4];
+		checkbox [title: "@cristal2setretailgateway_runparam_actwritecristaldestdata" height: 16 margin: 4];
 	}
 	view [horizontal width: bycontainer(100) growfactor: 1 justifycontent: end alignitems: end margin_right: 12] {
 		button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 defaultitem command: cmOK];

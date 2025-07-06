@@ -11802,6 +11802,11 @@
 	#define CTL_SALESRESTR_AGE           (4 + WINDOWS_ID_BIAS)
 	#define CTL_SALESRESTR_PERIOD        (5 + WINDOWS_ID_BIAS)
 	#define CTLCAL_SALESRESTR_PERIOD     (6 + WINDOWS_ID_BIAS)
+#define DLG_UNITECIGP             1468 // @v12.3.7 PPViewUnitEc::InitialGoodsParam
+	#define DLG_UNITECIGP_RCPTQTY        (1 + WINDOWS_ID_BIAS)
+	#define DLG_UNITECIGP_EWDEMAND       (2 + WINDOWS_ID_BIAS)
+#define DLG_CR2SRGWPARAM          1469 // @v12.3.7 Параметры запуска шлюза кристалл-setretail 
+	#define CTL_CR2SRGWPARAM_ACTIONS     (1 + WINDOWS_ID_BIAS)
 //
 // Win32 Dialog Identifiers
 //

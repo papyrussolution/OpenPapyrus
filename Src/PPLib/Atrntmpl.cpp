@@ -980,7 +980,8 @@ int PPAccTurnTempl::AccTemplFromStr(int side, const char * pBuf)
 	int    ok = 1;
 	AcctID acctid;
 	Acct   acct;
-	long   ac_fixed = 0, ar_fixed = 0;
+	long   ac_fixed = 0;
+	long   ar_fixed = 0;
 	char   temp_buf[32];
 	const  char * p = pBuf;
 	if(p == 0) {

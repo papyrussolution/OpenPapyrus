@@ -303,7 +303,7 @@ int PPViewCashNode::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser
 					PPView::Execute(PPVIEW_DVCLOADINGSTAT, &filt, 1, 0);
 				}
 				break;
-			case PPVCMD_PRINTZEROCHECK: // @v10.0.0
+			case PPVCMD_PRINTZEROCHECK:
 				ok = -1;
 				if(id) {
 					BillObj->PrintCheck__(0, id, 0);

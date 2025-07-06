@@ -4918,8 +4918,7 @@ int PPObjTSession::CallCheckPaneBySess(PPID sessID, int verifyOnly)
 	int    ok = -1;
 	PPCashMachine * p_cm = 0;
 	TSessionTbl::Rec rec;
-	if(BillObj->CheckRights(BILLRT_CASH) && Search(sessID, &rec) > 0 &&
-		rec.Status == TSESST_CLOSED && !rec.CCheckID_ && !(rec.Flags & TSESF_IDLE)) {
+	if(BillObj->CheckRights(BILLRT_CASH) && Search(sessID, &rec) > 0 && rec.Status == TSESST_CLOSED && !rec.CCheckID_ && !(rec.Flags & TSESF_IDLE)) {
 		ProcessorTbl::Rec prc_rec;
 		if(GetPrc(rec.PrcID, &prc_rec, 1, 1) > 0) {
 			PPID   cn_id = PPObjCashNode::Select(prc_rec.LocID, 1, 0, BIN(verifyOnly));

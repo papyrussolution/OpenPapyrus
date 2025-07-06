@@ -4827,3 +4827,54 @@ public:
 };
 
 IMPLEMENT_CMD_HDL_FACTORY(SOURCECODEPROCESSING);
+//
+//
+//
+class CMD_HDL_CLS(CRISTAL2SETRETAILGATEWAY) : public PPCommandHandler { // @v12.3.7
+public:
+	CMD_HDL_CLS(CRISTAL2SETRETAILGATEWAY)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
+	{
+	}
+	virtual int EditParam(SBuffer * pParam, long, void * extraPtr)
+	{
+		int    ok = -1;
+		size_t preserve_offs = 0;
+		SSerializeContext sctx;
+		if(pParam) {
+			Cristal2SetRetailGateway prc;
+			Cristal2SetRetailGateway::CmdParam param;
+			preserve_offs = pParam->GetRdOffs();
+			param.Serialize(-1, *pParam, &sctx);
+			if(prc.EditCmdParam(param) > 0) {
+				pParam->Z();
+				THROW(param.Serialize(+1, *pParam, &sctx));
+				ok = 1;
+			}
+		}
+		CATCH
+			CALLPTRMEMB(pParam, SetRdOffs(preserve_offs));
+			ok = 0;
+		ENDCATCH
+		return ok;
+	}
+	virtual int Run(SBuffer * pParam, long, void * extraPtr)
+	{
+		int    ok = -1;
+		Cristal2SetRetailGateway::CmdParam param;
+		/*
+		if(pParam && param.Read(*pParam, 0)) {
+			Cristal2SetRetailGateway prc;
+			if(!prc.Init(&param) || !prc.Run()) {
+				ok = PPErrorZ();
+			}
+		}
+		else {
+			//ok = DoSourceCodeMaintaining(0);
+		}
+		*/
+		return ok;
+	}
+};
+
+IMPLEMENT_CMD_HDL_FACTORY(CRISTAL2SETRETAILGATEWAY);
+//

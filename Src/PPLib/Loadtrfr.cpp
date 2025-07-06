@@ -1,5 +1,5 @@
 // LOADTRFR.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2013, 2015, 2016, 2017, 2018, 2019, 2021
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2013, 2015, 2016, 2017, 2018, 2019, 2021, 2025
 // @codepage UTF-8
 // @Kernel
 // Загрузка товарных строк документа
@@ -271,8 +271,7 @@ int Transfer::LoadItems(PPBillPacket & rPack, const PPIDArray * pGoodsList)
 							PPSetError(PPERR_INVFPVAL, fp_err_var);
 							PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
 						}
-						// @v9.5.1 if(data.CurID != rPack.Rec.CurID)
-							data.CurID = rPack.Rec.CurID;
+						data.CurID = rPack.Rec.CurID;
 #undef _FZEROINV
 					}
 					info.SetupByRec(&data);

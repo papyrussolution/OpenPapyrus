@@ -562,7 +562,7 @@
 #define cmClientActivity               668 // @v12.2.8 Анализ клиентской активности
 #define cmSourceCodeProcessing         669 // @v12.2.10 Процессинг исходных кодов проекта (internal)
 #define cmBizScore2Val                 670 // @v12.3.4 Просмотр бизнес-показателей (версия 2)
-#define cmUnitEq                       671 // @v12.3.7 Unit-анализ (не имеет отношения к единицам измерения)
+#define cmUnitEc                       671 // @v12.3.7 Unit-анализ (не имеет отношения к единицам измерения)
 #define cmSalesRestriction             672 // @v12.3.7 Ограничения на продажу PPOBJ_SALESRESTRICTION
 
 #endif /* __PPMENU_H */

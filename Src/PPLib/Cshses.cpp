@@ -1954,10 +1954,10 @@ int PPAsyncCashSession::DistributeFile_(const char * pFileName, const char * pEn
 //
 // AsyncCashGoodsIterator
 //
-AsyncCashGoodsIterator::AsyncCashGoodsIterator(PPID cashNodeID, long flags, PPID sinceDlsID, DeviceLoadingStat * pDls) :
-	P_Dls(0), P_G2OAssoc(0), P_G2DAssoc(0), P_AcggIter(0), P_AlcPrc(0), Algorithm(algDefault)
+AsyncCashGoodsIterator::AsyncCashGoodsIterator(PPID posNodeID, long flags, PPID sinceDlsID, DeviceLoadingStat * pDls) :
+	PosNodeID(posNodeID), SinceDlsID(sinceDlsID), P_Dls(pDls), P_G2OAssoc(0), P_G2DAssoc(0), P_AcggIter(0), P_AlcPrc(0), Algorithm(algDefault)
 {
-	Init(cashNodeID, flags, sinceDlsID, pDls);
+	Init(flags);
 }
 
 AsyncCashGoodsIterator::~AsyncCashGoodsIterator()
@@ -2043,27 +2043,26 @@ int AsyncCashGoodsIterator::GetAlcoGoodsExtension(PPID goodsID, PPID lotID, Prcs
 
 bool AsyncCashGoodsIterator::IsSimplifiedDraftBeer(PPID goodsID) const // @v11.9.6
 {
-	return PPSyncCashSession::IsSimplifiedDraftBeerPosition(CashNodeID, goodsID);	
+	return PPSyncCashSession::IsSimplifiedDraftBeerPosition(PosNodeID, goodsID);	
 }
 
-int AsyncCashGoodsIterator::Init(PPID cashNodeID, long flags, PPID sinceDlsID, DeviceLoadingStat * pDls)
+int AsyncCashGoodsIterator::Init(long flags)
 {
 	int    ok = 1;
+	Reference * p_ref = PPRef;
 	int    is_redo = 0; // Признак того, что выгрузка осуществляется в режиме REDO (товары, выгруженные ранее, начиная с заданной sinceDlsID)
 	SString temp_buf;
 	PPIniFile ini_file;
 	LDATETIME last_exp_moment = ZERODATETIME;
 	PPEquipConfig eq_cfg;
 	ReadEquipConfig(&eq_cfg);
-	P_Dls = pDls;
 	Flags = (flags & ~(ACGIF_EXCLALTFOLD|ACGIF_IGNOREGWODISTAG)); // ACGIF_EXCLALTFOLD ACGIF_IGNOREGWODISTAG - internal flags
 	SETFLAG(Flags, ACGIF_IGNOREGWODISTAG, eq_cfg.Flags & eq_cfg.fIgnoreNoDisGoodsTag);
-	CashNodeID = cashNodeID;
 	LocID    = 0;
 	CodePos  = 0;
 	GoodsPos = 0;
 	Algorithm = algDefault;
-	SinceDlsID = sinceDlsID;
+	//SinceDlsID = sinceDlsID;
 	CurDate  = getcurdate_();
 	GroupList.clear();
 	UnitList.clear();
@@ -2117,7 +2116,7 @@ int AsyncCashGoodsIterator::Init(PPID cashNodeID, long flags, PPID sinceDlsID, D
 	QuotByQttyList.freeAll();
 	NoDisToggleGoodsList.freeAll();
 	LotThreshold = GObj.GetConfig().ACGI_Threshold;
-	THROW(CnObj.GetAsync(CashNodeID, &AcnPack) > 0);
+	THROW(CnObj.GetAsync(PosNodeID, &AcnPack) > 0);
 	LocID = AcnPack.LocID;
 	{
 		Flags &= ~ACGIF_UNCONDBASEPRICE;
@@ -2156,12 +2155,19 @@ int AsyncCashGoodsIterator::Init(PPID cashNodeID, long flags, PPID sinceDlsID, D
 			rtlpf |= RTLPF_IGNCONDQUOTS;
 		RetailExtr.Init(LocID, &eqb, 0, ZERODATETIME, rtlpf);
 	}
-	Rec.Init();
+	Rec.Z();
 	BcPrefixList.freeAll();
 	if(GObj.GetConfig().Flags & GCF_USESCALEBCPREFIX) {
 		PPObjScale sc_obj;
 		sc_obj.GetListWithBcPrefix(&BcPrefixList);
 	}
+	// @v12.3.7 { Получение списка товаров, у которых есть тег PPTAG_GOODS_SALESRESTR 
+	// За счет предварительной операции мы сильно сократим число холостых поисков тегов товаров.
+	{
+		GoodsIdListWithSalesRestrTag.Clear();
+		p_ref->Ot.GetObjectList(PPOBJ_GOODS, PPTAG_GOODS_SALESRESTR, GoodsIdListWithSalesRestrTag);
+	}
+	// } @v12.3.7 
 	if(Flags & ACGIF_INITLOCPRN) {
 		LpObj.GetLocPrnAssoc(LocPrnAssoc);
 		ZDELETE(P_G2OAssoc);
@@ -2205,11 +2211,11 @@ int AsyncCashGoodsIterator::Init(PPID cashNodeID, long flags, PPID sinceDlsID, D
 				SysJournalTbl::Key1 k1;
 				MEMSZERO(k1);
 				k1.ObjType = PPOBJ_CASHNODE;
-				k1.ObjID = CashNodeID;
+				k1.ObjID = PosNodeID;
 				k1.Dt = moment.d;
 				k1.Tm = MAXTIME;
 				BExtQuery q(&SJ, 1);
-				q.selectAll().where(SJ.ObjType == PPOBJ_CASHNODE && SJ.ObjID == CashNodeID && SJ.UserID == LConfig.UserID);
+				q.selectAll().where(SJ.ObjType == PPOBJ_CASHNODE && SJ.ObjID == PosNodeID && SJ.UserID == LConfig.UserID);
 				for(q.initIteration(true, &k1, spLt); q.nextIteration() > 0;) {
 					if(cmp(moment, SJ.data.Dt, SJ.data.Tm) > 0) {
 						moment.Set(SJ.data.Dt, SJ.data.Tm);
@@ -2236,7 +2242,7 @@ int AsyncCashGoodsIterator::Init(PPID cashNodeID, long flags, PPID sinceDlsID, D
 		}
 		else {
 			while(SJ.GetLastEvent(PPACN_EXPCASHSESS, 0/*extraVal*/, &moment, 7) > 0) {
-				if(SJ.data.ObjType == PPOBJ_CASHNODE && SJ.data.ObjID == CashNodeID) {
+				if(SJ.data.ObjType == PPOBJ_CASHNODE && SJ.data.ObjID == PosNodeID) {
 					last_exp_moment = moment;
 					SysJournalTbl::Key0 sjk0;
 					sjk0.Dt = moment.d;
@@ -2360,7 +2366,7 @@ int AsyncCashGoodsIterator::Init(PPID cashNodeID, long flags, PPID sinceDlsID, D
 		}
 		if(AcnPack.GoodsGrpID && !(Flags & ACGIF_EXCLALTFOLD))
 			p_group_list = &GroupList;
-		THROW_MEM(P_AcggIter = new AsyncCashGoodsGroupIterator(CashNodeID, 0, P_Dls, p_group_list));
+		THROW_MEM(P_AcggIter = new AsyncCashGoodsGroupIterator(PosNodeID, 0, P_Dls, p_group_list));
 	}
 	GObj.P_Tbl->ClearQuotCache();
 	CATCH
@@ -2385,7 +2391,7 @@ int AsyncCashGoodsIterator::SearchCPrice(PPID goodsID, double * pPrice)
 {
 	int    ok = 1;
 	CCurPriceTbl::Key0 k;
-	k.CashID  = CashNodeID;
+	k.CashID  = PosNodeID;
 	k.GoodsID = goodsID;
 	if(CCP.search(0, &k, spEq)) {
 		if(pPrice) {
@@ -2403,7 +2409,8 @@ int AsyncCashGoodsIterator::SearchCPrice(PPID goodsID, double * pPrice)
 
 int AsyncCashGoodsIterator::UpdateCPrice(PPID goodsID, double price)
 {
-	int    ok = 1, r = 0;
+	int    ok = 1;
+	int    r = 0;
 	double p = price;
 	THROW(r = SearchCPrice(goodsID, &p));
 	if(r == 1) {
@@ -2411,7 +2418,7 @@ int AsyncCashGoodsIterator::UpdateCPrice(PPID goodsID, double price)
 		THROW_DB(CCP.updateRec());
 	}
 	else if(r < 0) {
-		CCP.data.CashID  = CashNodeID;
+		CCP.data.CashID  = PosNodeID;
 		CCP.data.GoodsID = goodsID;
 		LDBLTOMONEY(price, CCP.data.Price);
 		THROW_DB(CCP.insertRec());
@@ -2450,10 +2457,10 @@ int AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 				break;
 			}
 			else {
-				int    updated = 1;
+				bool   updated = true;
 				double old_price = 0.0;
 				RetailExtrItem rtl_ext_item;
-				Rec.Init();
+				Rec.Z();
 				rtl_ext_item.QuotList = pInfo->QuotList;
 				const int c = RetailExtr.GetPrice(grec.ID, 0, 0.0, &rtl_ext_item);
 				THROW(c);
@@ -2473,28 +2480,27 @@ int AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 					}
 				}
 				if(c == GPRET_CLOSEDLOTS && LotThreshold > 0 && diffdate(now_dtm.d, rtl_ext_item.CurLotDate) > LotThreshold) {
-					updated = 0;
+					updated = false;
 				}
 				else if(Flags & ACGIF_UPDATEDONLY) {
 					DlsObjTbl::Rec dlso_rec;
 					if(UserOnlyGoodsGrpID && !GObj.BelongToGroup(grec.ID, UserOnlyGoodsGrpID))
-						updated = 0;
+						updated = false;
 					else if(!UpdGoods.bsearch(grec.ID)) {
 						if(!P_Dls) {
 							old_price = price_;
 							THROW(r = SearchCPrice(grec.ID, &old_price));
 							if(r == 2)
-								updated = 0;
+								updated = false;
 						}
 						else if(P_Dls->GetLastObjInfo(PPOBJ_GOODS, grec.ID, CurDate, &dlso_rec) > 0) {
 							old_price = dlso_rec.Val;
 							if(dbl_cmp(old_price, price_) == 0)
-								updated = 0;
+								updated = false;
 						}
 					}
 				}
-				if(updated && (c > 0 || price_ > 0.0)) { // @v10.6.0 (price_ > 0.0)-->(c > 0) условие заменено для того, чтобы товар с валидной нулевой ценой загружался.
-						// @v10.7.10 (c > 0)-->(c > 0 || price_ > 0.0) Товары, у которых нет лотов, но есть валидная положительная цена должны загружаться
+				if(updated && (c > 0 || price_ > 0.0)) { // Товары, у которых нет лотов, но есть валидная положительная цена должны загружаться
 					uint  i;
 					PPUnit unit_rec;
 					PPGoodsTaxEntry gtx;
@@ -2553,15 +2559,15 @@ int AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 					//
 					Rec.DivN = 1;
 					if(AcnPack.Flags & CASHF_EXPDIVN && AcnPack.P_DivGrpList) {
-						long   default_div = 1;
-						int    use_default_div = 1;
+						int16  default_div = 1;
+						bool   use_default_div = true;
 						PPGenCashNode::DivGrpAssc * p_dg_item;
 						for(i = 0; AcnPack.P_DivGrpList->enumItems(&i, (void **)&p_dg_item);) {
 							if(p_dg_item->GrpID == 0)
 								default_div = p_dg_item->DivN;
 							else if(GObj.BelongToGroup(Rec.ID, p_dg_item->GrpID, 0) > 0) {
 								Rec.DivN = p_dg_item->DivN;
-								use_default_div = 0;
+								use_default_div = false;
 								break;
 							}
 						}
@@ -2610,7 +2616,7 @@ int AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 					}
 					if(AcnPack.Flags & CASHF_EXPGOODSREST) {
 						GoodsRestParam param;
-						param.Date    = /*LConfig.OperDate*/now_dtm.d;
+						param.Date    = now_dtm.d;
 						param.LocID   = LocID;
 						param.GoodsID = Rec.ID;
 						THROW(BillObj->trfr->GetCurRest(param));
@@ -2641,6 +2647,22 @@ int AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 					if(RmvGoods.lsearch(Rec.ID)) {
 						Rec.Flags_ |= AsyncCashGoodsInfo::fDeleted;
 					}
+					// @v12.3.7 {
+					if(GoodsIdListWithSalesRestrTag.Has(Rec.ID)) {
+						ObjTagItem tag_item;
+						if(p_ref->Ot.GetTag(PPOBJ_GOODS, Rec.ID, PPTAG_GOODS_SALESRESTR, &tag_item) > 0) {
+							PPID   sr_id = 0;
+							if(tag_item.GetInt(&sr_id) && sr_id > 0) {
+								PPObjSalesRestriction sr_obj(0);
+								PPSalesRestriction sr_rec;
+								if(sr_obj.Search(sr_id, &sr_rec) > 0) {
+									STRNSCPY(Rec.SalesRestrSymb, sr_rec.Symb);
+									Rec.SalesRestrAge = sr_rec.MinAge;
+								}
+							}
+						}
+					}
+					// } @v12.3.7 
 				}
 			}
 		}
@@ -2669,15 +2691,15 @@ int AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 
 AsyncCashGoodsInfo::AsyncCashGoodsInfo()
 {
-	Init();
+	Z();
 }
 
-void AsyncCashGoodsInfo::Init()
+AsyncCashGoodsInfo & AsyncCashGoodsInfo::Z()
 {
 	ID = 0;
-	memzero(Name, sizeof(Name));
-	memzero(BarCode, sizeof(BarCode));
-	memzero(PrefBarCode, sizeof(PrefBarCode));
+	Name[0] = 0;
+	BarCode[0] = 0;
+	PrefBarCode[0] = 0;
 	UnitID = 0;
 	PhUnitID = 0;
 	PhUPerU = 0.0;
@@ -2702,11 +2724,14 @@ void AsyncCashGoodsInfo::Init()
 	Uuid.Z();
 	AddedMsgList.Z();
 	LabelName.Z();
-	memzero(LocPrnSymb, sizeof(LocPrnSymb));
-	memzero(AsscPosNodeSymb, sizeof(AsscPosNodeSymb));
+	SalesRestrSymb[0] = 0; // @v12.3.7
+	SalesRestrAge = 0; // @v12.3.7
+	LocPrnSymb[0] = 0;
+	AsscPosNodeSymb[0] = 0;
 	for(uint i = 0; i < QuotList.getCount(); i++)
 		QuotList.at(i).Val = 0.0;
 	P_QuotByQttyList = 0;
+	return *this;
 }
 
 IMPL_INVARIANT_C(AsyncCashGoodsInfo)

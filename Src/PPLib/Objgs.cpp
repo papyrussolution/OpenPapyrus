@@ -26,79 +26,71 @@ struct _GSItem {           // @persistent @store(ObjAssocTbl)
 	double Denom;          // Знаменатель дроби qtty = Median / Denom
 };
 //
-// Descr: Вспомогательный класс, обеспечивающий кэширующий расчет значений, соответствующих элементам структуры по формулам.
 //
-class GoodsStructFormulaResolutionCache {
-public:
-	GoodsStructFormulaResolutionCache(const PPGoodsStruc & rGs) : R_Gs(rGs)
-	{
-	}
-	int    Resolve(uint itemIdx, double * pValue)
-	{
-		int    ok = -1;
-		double value = 0.0;
-		if(itemIdx < R_Gs.Items.getCount()) {
-			long   key = 0;
-			if(SearchCacheForResult(itemIdx, &key, &value)) {
-				ok = 1;
-			}
-			else {
-				if(R_Gs.ResolveItemFormula(R_Gs.Items.at(itemIdx), &value) > 0) {
-					ok = 2;
-				}
-				assert(!ResultCache.Has(key));
-				ResultCache.Add(key, value, 0, 0);
-			}
+//
+PPGoodsStruc::FormulaResolutionCache::FormulaResolutionCache(const PPGoodsStruc & rGs) : R_Gs(rGs)
+{
+}
+	
+int PPGoodsStruc::FormulaResolutionCache::Resolve(uint itemIdx, double * pValue)
+{
+	int    ok = -1;
+	double value = 0.0;
+	if(itemIdx < R_Gs.Items.getCount()) {
+		long   key = 0;
+		if(SearchCacheForResult(itemIdx, &key, &value)) {
+			ok = 1;
 		}
-		ASSIGN_PTR(pValue, value);
-		return ok;
-	}
-private:
-	//
-	// Descr: Рассчитывае параметр хэширования элемента структуры. Этот параметр должен учитывать
-	//   все важные факторы структуры дабы при изменении какого либо из них кэш утратил актуальность.
-	//
-	uint32  MakeStrucSeed() const
-	{
-		uint32   result = 0;
-		result = R_Gs.Rec.ID; // Пока безумно примитивный вариант реализации.
-		return result;
-	}
-	long    MakeItemKey(uint itemIdx) const
-	{
-		long   result = 0;
-		if(itemIdx < R_Gs.Items.getCount()) {
-			SBinaryChunk bc;
-			const PPGoodsStrucItem & r_item = R_Gs.Items.at(itemIdx);
-			bc.Cat(&r_item.GoodsID, sizeof(r_item.GoodsID));
-			bc.Cat(&r_item.Flags, sizeof(r_item.Flags));
-			bc.Cat(r_item.Formula__, sstrlen(r_item.Formula__));
-			result = static_cast<long>(SlHash::XX32(bc.PtrC(), bc.Len(), MakeStrucSeed()));
-			assert(result != 0);
-		}
-		return result;
-	}
-	bool   SearchCacheForResult(uint itemIdx, long * pKey, double * pValue) const
-	{
-		bool    ok = false;
-		double  value = 0.0;
-		const   long key = MakeItemKey(itemIdx);
-		if(key) {
-			uint    pos = 0;
-			if(ResultCache.lsearch(&key, &pos, CMPF_LONG)) {
-				value = ResultCache.at(pos).Val;
-				ok = true;
+		else {
+			if(R_Gs.ResolveItemFormula(R_Gs.Items.at(itemIdx), &value) > 0) {
+				ok = 2;
 			}
+			assert(!ResultCache.Has(key));
+			ResultCache.Add(key, value, 0, 0);
 		}
-		ASSIGN_PTR(pValue, value);
-		ASSIGN_PTR(pKey, key);
-		return ok;
 	}
+	ASSIGN_PTR(pValue, value);
+	return ok;
+}
 
-	PPObjBizScore2 BsObj;
-	const PPGoodsStruc & R_Gs;
-	RAssocArray ResultCache;
-};
+uint32 PPGoodsStruc::FormulaResolutionCache::MakeStrucSeed() const
+{
+	uint32   result = 0;
+	result = R_Gs.Rec.ID; // Пока безумно примитивный вариант реализации.
+	return result;
+}
+	
+long PPGoodsStruc::FormulaResolutionCache::MakeItemKey(uint itemIdx) const
+{
+	long   result = 0;
+	if(itemIdx < R_Gs.Items.getCount()) {
+		SBinaryChunk bc;
+		const PPGoodsStrucItem & r_item = R_Gs.Items.at(itemIdx);
+		bc.Cat(&r_item.GoodsID, sizeof(r_item.GoodsID));
+		bc.Cat(&r_item.Flags, sizeof(r_item.Flags));
+		bc.Cat(r_item.Formula__, sstrlen(r_item.Formula__));
+		result = static_cast<long>(SlHash::XX32(bc.PtrC(), bc.Len(), MakeStrucSeed()));
+		assert(result != 0);
+	}
+	return result;
+}
+	
+bool PPGoodsStruc::FormulaResolutionCache::SearchCacheForResult(uint itemIdx, long * pKey, double * pValue) const
+{
+	bool    ok = false;
+	double  value = 0.0;
+	const   long key = MakeItemKey(itemIdx);
+	if(key) {
+		uint    pos = 0;
+		if(ResultCache.lsearch(&key, &pos, CMPF_LONG)) {
+			value = ResultCache.at(pos).Val;
+			ok = true;
+		}
+	}
+	ASSIGN_PTR(pValue, value);
+	ASSIGN_PTR(pKey, key);
+	return ok;
+}
 //
 //
 //
@@ -440,7 +432,7 @@ int PPGoodsStruc::ResolveItemFormula(const PPGoodsStrucItem & rItem, double * pV
 	return result;
 }
 
-int PPGoodsStruc::GetItemValue(uint itemIdx, GoodsStructFormulaResolutionCache * pRCache, double * pValue) const
+int PPGoodsStruc::GetItemValue(uint itemIdx, PPGoodsStruc::FormulaResolutionCache * pRCache, double * pValue) const
 {
 	int    result = 0;
 	double value = 0.0;
@@ -1154,7 +1146,7 @@ class GSDialog : public PPListDialog {
 	GoodsStrucCopyParam GscParam;
 	PPGoodsStruc RecurData;
 	int    Changed;
-	GoodsStructFormulaResolutionCache RCache;
+	PPGoodsStruc::FormulaResolutionCache RCache;
 public:
 	GSDialog() : PPListDialog(DLG_GSTRUC, CTL_GSTRUC_LIST), NewGoodsGrpID(0), Changed(0), RCache(Data)
 	{
@@ -1713,9 +1705,9 @@ class GSPPItemDialog : public TDialog {
 	const PPGoodsStruc & R_Struc;
 	const int ItemIdx;
 	PPID  PreserveObjType;
-	GoodsStructFormulaResolutionCache & R_RCache;
+	PPGoodsStruc::FormulaResolutionCache & R_RCache;
 public:
-	GSPPItemDialog(const PPGoodsStruc & rStruc, int itemIdx, GoodsStructFormulaResolutionCache & rRCache) : 
+	GSPPItemDialog(const PPGoodsStruc & rStruc, int itemIdx, PPGoodsStruc::FormulaResolutionCache & rRCache) : 
 		TDialog(DLG_GSPPITEM), R_Struc(rStruc), ItemIdx(itemIdx), PreserveObjType(0), R_RCache(rRCache)
 	{
 		//addGroup(ctlgroupGoods, new GoodsCtrlGroup(CTLSEL_GSITEM_GGRP, CTLSEL_GSITEM_GOODS));
@@ -1784,9 +1776,9 @@ class GSItemDialog : public TDialog {
 	const int   ItemIdx;
 	double Price;
 	double NettBruttCoeff;
-	GoodsStructFormulaResolutionCache & R_RCache;
+	PPGoodsStruc::FormulaResolutionCache & R_RCache;
 public:
-	GSItemDialog(const PPGoodsStruc & rStruc, int itemIdx, GoodsStructFormulaResolutionCache & rRCache) : 
+	GSItemDialog(const PPGoodsStruc & rStruc, int itemIdx, PPGoodsStruc::FormulaResolutionCache & rRCache) : 
 		TDialog(DLG_GSITEM), R_Struc(rStruc), ItemIdx(itemIdx), Price(0.0), NettBruttCoeff(0.0), R_RCache(rRCache)
 	{
 		disableCtrl(CTL_GSITEM_PRICE, true);
@@ -1972,11 +1964,11 @@ private:
 	}
 };
 
-static int EditGoodsStrucItem(const PPGoodsStruc & rStruc, int itemIdx, PPGoodsStrucItem * pItem, GoodsStructFormulaResolutionCache & rRCache)
+static int EditGoodsStrucItem(const PPGoodsStruc & rStruc, int itemIdx, PPGoodsStrucItem * pItem, PPGoodsStruc::FormulaResolutionCache & rRCache)
 {
 	class Inner {
 	public:
-		static int EditGoodsStrucItem_Ordinary(const PPGoodsStruc & rStruc, int itemIdx, PPGoodsStrucItem * pItem, GoodsStructFormulaResolutionCache & rRCache)
+		static int EditGoodsStrucItem_Ordinary(const PPGoodsStruc & rStruc, int itemIdx, PPGoodsStrucItem * pItem, PPGoodsStruc::FormulaResolutionCache & rRCache)
 		{
 			int    ok = -1;
 			GSItemDialog * dlg = 0;
@@ -1990,7 +1982,7 @@ static int EditGoodsStrucItem(const PPGoodsStruc & rStruc, int itemIdx, PPGoodsS
 			delete dlg;
 			return ok;
 		}
-		static int EditGoodsStrucItem_PricePlanning(const PPGoodsStruc & rStruc, int itemIdx, PPGoodsStrucItem * pItem, GoodsStructFormulaResolutionCache & rRCache)
+		static int EditGoodsStrucItem_PricePlanning(const PPGoodsStruc & rStruc, int itemIdx, PPGoodsStrucItem * pItem, PPGoodsStruc::FormulaResolutionCache & rRCache)
 		{
 			int    ok = -1;
 			GSPPItemDialog * dlg = 0;

@@ -6755,9 +6755,16 @@ browser STYLOQCOMMANDS north(100), 1, 0, "@{view_styloqcommands}", OWNER|GRID, 0
 	}
 }
 
-browser UNITEQ north(100), 3, 1, "Unit-анализ", OWNER|GRID, 0
+browser UNITEC north(100), 3, 1, "Unit-анализ", OWNER|GRID, 0
 {
-	"@ware", 1, notype, 0, 30, BCO_USERPROC
+	"@ware",                             1, zstring(128), 0, 30, BCO_USERPROC
+	"@unitec_igp_rcptqtty",              2, double, 0, 10, BCO_USERPROC
+	"@unitec_igp_expecteddemandperweek", 3, double, 0, 10.1, BCO_USERPROC
+	toolbar TB_FIRST_TOOLBAR {
+		DETAIL        : kbEnter,   PPDV_LINS01,         "@{detail}\tEnter"
+		EDITGOODS     : kbF2,      PPDV_WARESINGLE01,   "@{ware}\tF2"
+		UNIIEC_IGP    : kbF3,      PPDV_NOICON,         "@{unitec_igp}\tF3"
+	}
 }
 //
 // -------------- Описания команд меню и рабочих столов
@@ -7124,7 +7131,8 @@ cmd AptekaRuInterchange       { "@{cmd_aptekaruinterchange}"                  no
 cmd GatherClientActivityStat  { "@{cmd_gathercliactivitystatistics}"          none                   none cmGatherClientActivityStat } // @v12.2.2
 cmd SourceCodeProcessing      { "@{cmd_sourcecodeprocessing}"                 none                   none cmSourceCodeProcessing } // @v12.2.10
 cmd BizScore2Val              { "@{cmd_bizscore2val}"                         ICON_BIZSCORE          none cmBizScore2Val view=BizSc2Val } // @v12.3.4
-cmd UnitEq                    { "@{cmd_unitec}"                               none                   none cmUnitEq view=UnitEc } // @v12.3.7
+cmd UnitEc                    { "@{cmd_unitec}"                               none                   none cmUnitEc view=UnitEc } // @v12.3.7
+cmd Cristal2SetRetailGateway  { "@{cristal2setretailgateway}"                 none                   none none } // @v12.3.7
 //
 // -------------- Описания серверных задач
 //

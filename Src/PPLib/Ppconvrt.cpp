@@ -1230,7 +1230,8 @@ public:
 
 int Convert4707()
 {
-	int    ok = 1, is_billobj_existed = 0;
+	int    ok = 1;
+	int    is_billobj_existed = 0;
 	PPWaitStart();
 	if(BillObj) {
 		ZDELETE(BillObj);

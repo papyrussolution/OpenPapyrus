@@ -3972,7 +3972,8 @@ static int EditBillCfgAddendum(PPBillConfig * pData) { DIALOG_PROC_BODY(BillConf
 	int    r;
 	int    valid_data = 0;
 	ushort v = 0;
-	char   sn_buf[48], invsn_buf[48];
+	char   sn_buf[48];
+	char   invsn_buf[48];
 	PPBillConfig cfg;
 	PPObjOpCounter opc_obj;
 	PPOpCounterPacket sn_cntr;

@@ -263,6 +263,7 @@ private:
 	{
 		ActionByPhoneDialog * dlg = new ActionByPhoneDialog;
 		if(CheckDialogPtrErr(&dlg)) {
+			PPObjBill * p_bobj = BillObj;
 			const char * p_phone = S.ConnectedLine.cptr();
 			ActionByPhoneDialog::Param param;
 			param.Phone = p_phone;
@@ -289,7 +290,7 @@ private:
 										{
 											S.Flags |= S.fLockAutoExit;
 											if(ab.OpID || BillPrelude(&op_list, OPKLF_OPLIST, 0, &ab.OpID, &ab.LocID) > 0) {
-												BillObj->AddGoodsBill(&new_bill_id, &ab);
+												p_bobj->AddGoodsBill(&new_bill_id, &ab);
 											}
 											S.Flags &= ~S.fLockAutoExit;
 										}
@@ -313,7 +314,7 @@ private:
 										{
 											S.Flags |= S.fLockAutoExit;
 											if(ab.OpID || BillPrelude(&op_list, OPKLF_OPLIST, 0, &ab.OpID, &ab.LocID) > 0) {
-												BillObj->AddGoodsBill(&new_bill_id, &ab);
+												p_bobj->AddGoodsBill(&new_bill_id, &ab);
 											}
 											S.Flags &= ~S.fLockAutoExit;
 										}

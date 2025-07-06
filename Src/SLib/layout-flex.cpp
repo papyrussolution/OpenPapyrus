@@ -1039,7 +1039,7 @@ int SUiLayout::SetID(int id)
 
 const  SString & SUiLayout::GetSymb() const { return Symb; }
 
-int    SUiLayout::SetSymb(const char * pSymb)
+int SUiLayout::SetSymb(const char * pSymb)
 {
 	if(isempty(pSymb))
 		Symb.Z();
@@ -1047,6 +1047,22 @@ int    SUiLayout::SetSymb(const char * pSymb)
 		Symb = pSymb;
 	return 1;
 }
+
+bool SUiLayout::SetExcludedStatus()
+{
+	const bool prev_state = LOGIC(State & stExcluded);
+	State |= stExcluded;
+	return LOGIC(State & stExcluded) != prev_state;
+}
+
+bool SUiLayout::ResetExcludedStatus()
+{
+	const bool prev_state = LOGIC(State & stExcluded);
+	State &= ~stExcluded;
+	return LOGIC(State & stExcluded) != prev_state;
+}
+
+bool SUiLayout::IsExcluded() const { return LOGIC(State & stExcluded); }
 //
 // Descr: Если идентификатора элемента (ID) нулевой, то инициализирует его так, чтобы он был уникальным
 //   в области определения контейнера верхнего уровня.
@@ -1794,6 +1810,20 @@ void SUiLayout::MakeIndex(IterIndex & rIndex) const
 	}
 }
 
+bool SUiLayout::IsThereNotExcludedChildren() const
+{
+	bool   result = false;
+	const uint _cc = SVectorBase::GetCount(P_Children);
+	if(_cc) {
+		for(uint i = 0; !result && i < _cc; i++) {
+			const SUiLayout * p_item = P_Children->at(i);
+			if(p_item && !p_item->IsExcluded())
+				result = true;
+		}
+	}
+	return result;
+}
+
 // @construction {
 const SUiLayout * SUiLayout::GetChildByIndex(const IterIndex & rIndex, uint idxPos) const
 {
@@ -2042,6 +2072,17 @@ SUiLayout::HomogeneousArray::HomogeneousArray() : VariableFactor(vfNone)
 {
 }
 
+SUiLayout::HomogeneousArray::HomogeneousArray(const HomogeneousArray & rS) : TSVector <HomogeneousEntry>(rS), VariableFactor(rS.VariableFactor)
+{
+}
+
+SUiLayout::HomogeneousArray & FASTCALL SUiLayout::HomogeneousArray::operator = (const SUiLayout::HomogeneousArray & rS)
+{
+	TSVector <HomogeneousEntry>::operator = (rS);
+	VariableFactor = rS.VariableFactor;
+	return *this;
+}
+
 int SUiLayout::InitHomogeneousArray(uint variableFactor /* HomogeneousArray::vfXXX */)
 {
 	int    ok = 1;
@@ -2118,97 +2159,99 @@ void SUiLayout::DoLayoutChildren(uint childBeginIdx, uint childEndIdx, uint chil
 		LongArray * p_scroller_content_list = 0; // @v11.7.12
 		for(uint i = childBeginIdx; i < childEndIdx; i++) {
 			const SUiLayout & r_child = p_layout->GetChildByIndex(this, i);
-			if(!r_child.ALB.IsPositionAbsolute(ALB.GetContainerDirection())) { // Isn't already positioned
-				// Grow or shrink the main axis item size if needed.
-				float flex_size = 0.0f;
-				if(p_layout->FlexDim > 0.0f) {
-					if(r_child.ALB.GrowFactor != 0.0f) {
-						r_child.R.Frame[p_layout->FrameSz1i] = 0.0f; // Ignore previous size when growing.
-						flex_size = (p_layout->FlexDim / p_layout->FlexGrows) * r_child.ALB.GrowFactor;
+			if(!r_child.IsExcluded()) { // @v12.3.7
+				if(!r_child.ALB.IsPositionAbsolute(ALB.GetContainerDirection())) { // Isn't already positioned
+					// Grow or shrink the main axis item size if needed.
+					float flex_size = 0.0f;
+					if(p_layout->FlexDim > 0.0f) {
+						if(r_child.ALB.GrowFactor != 0.0f) {
+							r_child.R.Frame[p_layout->FrameSz1i] = 0.0f; // Ignore previous size when growing.
+							flex_size = (p_layout->FlexDim / p_layout->FlexGrows) * r_child.ALB.GrowFactor;
+						}
 					}
+					else if(p_layout->FlexDim < 0.0f) {
+						if(r_child.ALB.ShrinkFactor != 0.0f) {
+							flex_size = (p_layout->FlexDim / p_layout->FlexShrinks) * r_child.ALB.ShrinkFactor;
+						}
+					}
+					r_child.R.Frame[p_layout->FrameSz1i] += flex_size;
+					// Set the cross axis position (and stretch the cross axis size if needed).
+					const float align_size = r_child.R.Frame[p_layout->FrameSz2i];
+					float align_pos = p_layout->Pos2 + 0.0f;
+					{
+						const int ca = GetChildAlign(r_child);
+						switch(ca) {
+							case SUiLayoutParam::alignEnd:
+								{
+									const float mar_b = CHILD_MARGIN_XY_(p_layout, r_child, b);
+									align_pos += (p_layout->LineDim - align_size - mar_b);
+								}
+								break;
+							case SUiLayoutParam::alignCenter:
+								{
+									const float mar_a = CHILD_MARGIN_XY_(p_layout, r_child, a);
+									const float mar_b = CHILD_MARGIN_XY_(p_layout, r_child, b);
+									align_pos += (p_layout->LineDim / 2.0f) - (align_size / 2.0f) + (mar_a - mar_b);
+								}
+								break;
+							case SUiLayoutParam::alignStretch:
+								if(align_size == 0) {
+									const float mar_a = CHILD_MARGIN_XY_(p_layout, r_child, a);
+									const float mar_b = CHILD_MARGIN_XY_(p_layout, r_child, b);
+									r_child.R.Frame[p_layout->FrameSz2i] = p_layout->LineDim - (mar_a + mar_b);
+								}
+							// @fallthrough
+							case SUiLayoutParam::alignStart:
+								{
+									const float mar_a = CHILD_MARGIN_XY_(p_layout, r_child, a);
+									align_pos += mar_a;
+								}
+								break;
+							default:
+								//assert(false && "incorrect align_self");
+								{
+									const float mar_a = CHILD_MARGIN_XY_(p_layout, r_child, a);
+									align_pos += mar_a; // По умолчанию пусть будет SUiLayoutParam::alignStart
+								}
+								break;
+						}
+					}
+					r_child.R.Frame[p_layout->FramePos2i] = align_pos;
+					// Set the main axis position.
+					{
+						const float mar_a = CHILD_MARGIN_YX_(p_layout, r_child, a);
+						const float mar_b = CHILD_MARGIN_YX_(p_layout, r_child, b);
+						const float item_size_1 = r_child.R.Frame[p_layout->FrameSz1i];
+						const float margin_yx_a = mar_a;
+						const float margin_yx_b = mar_b;
+						const float _s = (item_size_1 + margin_yx_a + margin_yx_b + spacing);
+						if(p_layout->Flags & LayoutFlexProcessor::fReverse) {
+							r_child.R.Frame[p_layout->FramePos1i] = (pos - (item_size_1 + margin_yx_b));
+							pos -= _s;
+						}
+						else {
+							r_child.R.Frame[p_layout->FramePos1i] = (pos + margin_yx_a);
+							pos += _s;
+						}
+						if(pSsb) {
+							pSsb->ItemCount++;
+							// @v11.7.12 {
+							SETIFZQ(p_scroller_content_list, pSsb->LineContent.CreateNewItem());
+							CALLPTRMEMB(p_scroller_content_list, add(static_cast<long>(i)));
+							// } @v11.7.12 
+							pSsb->ItemSizeList.add(_s);
+						}
+					}
+					if(r_child.ALB.AspectRatio > 0.0) {
+						if(r_child.R.Frame[2] == 0.0f && r_child.ALB.SzX == SUiLayoutParam::szUndef && r_child.R.Frame[3] > 0.0f) {
+							r_child.R.Frame[2] = r_child.R.Frame[3] / r_child.ALB.AspectRatio;
+						}
+						if(r_child.R.Frame[3] == 0.0f && r_child.ALB.SzY == SUiLayoutParam::szUndef && r_child.R.Frame[2] > 0.0f) {
+							r_child.R.Frame[3] = r_child.R.Frame[2] * r_child.ALB.AspectRatio;
+						}
+					}
+					r_child.Commit_(); // Now that the item has a frame, we can layout its children.
 				}
-				else if(p_layout->FlexDim < 0.0f) {
-					if(r_child.ALB.ShrinkFactor != 0.0f) {
-						flex_size = (p_layout->FlexDim / p_layout->FlexShrinks) * r_child.ALB.ShrinkFactor;
-					}
-				}
-				r_child.R.Frame[p_layout->FrameSz1i] += flex_size;
-				// Set the cross axis position (and stretch the cross axis size if needed).
-				const float align_size = r_child.R.Frame[p_layout->FrameSz2i];
-				float align_pos = p_layout->Pos2 + 0.0f;
-				{
-					const int ca = GetChildAlign(r_child);
-					switch(ca) {
-						case SUiLayoutParam::alignEnd:
-							{
-								const float mar_b = CHILD_MARGIN_XY_(p_layout, r_child, b);
-								align_pos += (p_layout->LineDim - align_size - mar_b);
-							}
-							break;
-						case SUiLayoutParam::alignCenter:
-							{
-								const float mar_a = CHILD_MARGIN_XY_(p_layout, r_child, a);
-								const float mar_b = CHILD_MARGIN_XY_(p_layout, r_child, b);
-								align_pos += (p_layout->LineDim / 2.0f) - (align_size / 2.0f) + (mar_a - mar_b);
-							}
-							break;
-						case SUiLayoutParam::alignStretch:
-							if(align_size == 0) {
-								const float mar_a = CHILD_MARGIN_XY_(p_layout, r_child, a);
-								const float mar_b = CHILD_MARGIN_XY_(p_layout, r_child, b);
-								r_child.R.Frame[p_layout->FrameSz2i] = p_layout->LineDim - (mar_a + mar_b);
-							}
-						// @fallthrough
-						case SUiLayoutParam::alignStart:
-							{
-								const float mar_a = CHILD_MARGIN_XY_(p_layout, r_child, a);
-								align_pos += mar_a;
-							}
-							break;
-						default:
-							//assert(false && "incorrect align_self");
-							{
-								const float mar_a = CHILD_MARGIN_XY_(p_layout, r_child, a);
-								align_pos += mar_a; // По умолчанию пусть будет SUiLayoutParam::alignStart
-							}
-							break;
-					}
-				}
-				r_child.R.Frame[p_layout->FramePos2i] = align_pos;
-				// Set the main axis position.
-				{
-					const float mar_a = CHILD_MARGIN_YX_(p_layout, r_child, a);
-					const float mar_b = CHILD_MARGIN_YX_(p_layout, r_child, b);
-					const float item_size_1 = r_child.R.Frame[p_layout->FrameSz1i];
-					const float margin_yx_a = mar_a;
-					const float margin_yx_b = mar_b;
-					const float _s = (item_size_1 + margin_yx_a + margin_yx_b + spacing);
-					if(p_layout->Flags & LayoutFlexProcessor::fReverse) {
-						r_child.R.Frame[p_layout->FramePos1i] = (pos - (item_size_1 + margin_yx_b));
-						pos -= _s;
-					}
-					else {
-						r_child.R.Frame[p_layout->FramePos1i] = (pos + margin_yx_a);
-						pos += _s;
-					}
-					if(pSsb) {
-						pSsb->ItemCount++;
-						// @v11.7.12 {
-						SETIFZQ(p_scroller_content_list, pSsb->LineContent.CreateNewItem());
-						CALLPTRMEMB(p_scroller_content_list, add(static_cast<long>(i)));
-						// } @v11.7.12 
-						pSsb->ItemSizeList.add(_s);
-					}
-				}
-				if(r_child.ALB.AspectRatio > 0.0) {
-					if(r_child.R.Frame[2] == 0.0f && r_child.ALB.SzX == SUiLayoutParam::szUndef && r_child.R.Frame[3] > 0.0f) {
-						r_child.R.Frame[2] = r_child.R.Frame[3] / r_child.ALB.AspectRatio;
-					}
-					if(r_child.R.Frame[3] == 0.0f && r_child.ALB.SzY == SUiLayoutParam::szUndef && r_child.R.Frame[2] > 0.0f) {
-						r_child.R.Frame[3] = r_child.R.Frame[2] * r_child.ALB.AspectRatio;
-					}
-				}
-				r_child.Commit_(); // Now that the item has a frame, we can layout its children.
 			}
 		}
 		if((p_layout->Flags & LayoutFlexProcessor::fWrap) && !(p_layout->Flags & LayoutFlexProcessor::fReverse2))
@@ -2248,92 +2291,95 @@ void SUiLayout::Commit_() const
 void SUiLayout::DoLayout(const Param & rP) const
 {
 	const uint _cc = GetChildrenCount();
+	const bool _is_there_somthing = IsThereNotExcludedChildren();
 	const int  _direction = ALB.GetContainerDirection();
 	const int  _cross_direction = SUiLayoutParam::GetCrossDirection(_direction);
-	if(_cc && oneof2(_direction, DIREC_HORZ, DIREC_VERT)) {
+	if(_is_there_somthing && oneof2(_direction, DIREC_HORZ, DIREC_VERT)) {
 		LayoutFlexProcessor layout_s(this, rP);
 		uint last_layout_child = 0;
 		uint relative_children_count = 0;
 		for(uint i = 0; i < _cc; i++) {
 			const SUiLayout & r_child = layout_s.GetChildByIndex(this, i);
-			// Items with an absolute position have their frames determined
-			// directly and are skipped during layout.
-			if(r_child.ALB.IsPositionAbsoluteX() && r_child.ALB.IsPositionAbsoluteY()) {
-				r_child.R.Frame[0] = r_child.ALB.GetAbsoluteLowX();
-				r_child.R.Frame[1] = r_child.ALB.GetAbsoluteLowY();
-				r_child.R.Frame[2] = r_child.ALB.GetAbsoluteSizeX();
-				r_child.R.Frame[3] = r_child.ALB.GetAbsoluteSizeY();
-				r_child.Commit_(); // @recursion // Now that the item has a frame, we can layout its children.
-			}
-			else {
-				// Initialize frame.
-				r_child.R.Frame[0] = 0.0f;
-				r_child.R.Frame[1] = 0.0f;
-				// @v12.3.4 Скорректировал размер контейнера на величины Padding для вычисления размера дочерних лейаутов
-				const float container_size_x = rP.ForceSize.x - (ALB.Padding.a.x + ALB.Padding.b.x); 
-				const float container_size_y = rP.ForceSize.y - (ALB.Padding.a.y + ALB.Padding.b.y);
-				SPoint2F efsxy = r_child.ALB.CalcEffectiveSizeXY(container_size_x, container_size_y);
-				r_child.R.Frame[2] = efsxy.x;
-				r_child.R.Frame[3] = efsxy.y;
-				//
-				// Main axis size defaults to 0.
-				//
-				// Cross axis size defaults to the parent's size (or line size in wrap mode, which is calculated later on).
-				if(fisnan(r_child.R.Frame[layout_s.FrameSz2i])) {
-					if(layout_s.Flags & LayoutFlexProcessor::fWrap)
-						layout_s.Flags |= LayoutFlexProcessor::fNeedLines;
-					else {
-						const float full_size = ((layout_s.Flags & LayoutFlexProcessor::fVertical) ? rP.ForceSize.x : rP.ForceSize.y);
-						const float mar_a = CHILD_MARGIN_XY_((&layout_s), r_child, a);
-						const float mar_b = CHILD_MARGIN_XY_((&layout_s), r_child, b);
-						r_child.R.Frame[layout_s.FrameSz2i] = full_size - mar_a - mar_b;
-					}
+			if(!r_child.IsExcluded()) {
+				// Items with an absolute position have their frames determined
+				// directly and are skipped during layout.
+				if(r_child.ALB.IsPositionAbsoluteX() && r_child.ALB.IsPositionAbsoluteY()) {
+					r_child.R.Frame[0] = r_child.ALB.GetAbsoluteLowX();
+					r_child.R.Frame[1] = r_child.ALB.GetAbsoluteLowY();
+					r_child.R.Frame[2] = r_child.ALB.GetAbsoluteSizeX();
+					r_child.R.Frame[3] = r_child.ALB.GetAbsoluteSizeY();
+					r_child.Commit_(); // @recursion // Now that the item has a frame, we can layout its children.
 				}
-				// Call the self_sizing callback if provided. Only non-NAN values
-				// are taken into account. If the item's cross-axis align property
-				// is set to stretch, ignore the value returned by the callback.
-				if(r_child.CbSelfSizing) {
-					float size[2] = { r_child.R.Frame[2], r_child.R.Frame[3] };
-					r_child.CbSelfSizing(&r_child, size);
-					for(uint j = 0; j < 2; j++) {
-						const uint size_off = j + 2;
-						if(size_off != layout_s.FrameSz2i || GetChildAlign(r_child) != SUiLayoutParam::alignStretch) {
-							float val = size[j];
-							if(!fisnanf(val))
-								r_child.R.Frame[size_off] = val;
+				else {
+					// Initialize frame.
+					r_child.R.Frame[0] = 0.0f;
+					r_child.R.Frame[1] = 0.0f;
+					// @v12.3.4 Скорректировал размер контейнера на величины Padding для вычисления размера дочерних лейаутов
+					const float container_size_x = rP.ForceSize.x - (ALB.Padding.a.x + ALB.Padding.b.x); 
+					const float container_size_y = rP.ForceSize.y - (ALB.Padding.a.y + ALB.Padding.b.y);
+					SPoint2F efsxy = r_child.ALB.CalcEffectiveSizeXY(container_size_x, container_size_y);
+					r_child.R.Frame[2] = efsxy.x;
+					r_child.R.Frame[3] = efsxy.y;
+					//
+					// Main axis size defaults to 0.
+					//
+					// Cross axis size defaults to the parent's size (or line size in wrap mode, which is calculated later on).
+					if(fisnan(r_child.R.Frame[layout_s.FrameSz2i])) {
+						if(layout_s.Flags & LayoutFlexProcessor::fWrap)
+							layout_s.Flags |= LayoutFlexProcessor::fNeedLines;
+						else {
+							const float full_size = ((layout_s.Flags & LayoutFlexProcessor::fVertical) ? rP.ForceSize.x : rP.ForceSize.y);
+							const float mar_a = CHILD_MARGIN_XY_((&layout_s), r_child, a);
+							const float mar_b = CHILD_MARGIN_XY_((&layout_s), r_child, b);
+							r_child.R.Frame[layout_s.FrameSz2i] = full_size - mar_a - mar_b;
 						}
 					}
-				}
-				// Honor the `basis' property which overrides the main-axis size.
-				if(r_child.ALB.Basis > 0.0f) {
-					//assert(r_child.ALB.Basis >= 0.0f);
-					r_child.R.Frame[layout_s.FrameSz1i] = r_child.ALB.Basis;
-				}
-				const float child_size = r_child.R.Frame[layout_s.FrameSz1i];
-				if(layout_s.Flags & LayoutFlexProcessor::fWrap) {
-					if(layout_s.FlexDim < child_size) {
-						// Not enough space for this child on this line, layout the remaining items and move it to a new line.
-						DoLayoutChildren(last_layout_child, i, relative_children_count, &layout_s, 0);
-						layout_s.Reset();
-						last_layout_child = i;
-						relative_children_count = 0;
+					// Call the self_sizing callback if provided. Only non-NAN values
+					// are taken into account. If the item's cross-axis align property
+					// is set to stretch, ignore the value returned by the callback.
+					if(r_child.CbSelfSizing) {
+						float size[2] = { r_child.R.Frame[2], r_child.R.Frame[3] };
+						r_child.CbSelfSizing(&r_child, size);
+						for(uint j = 0; j < 2; j++) {
+							const uint size_off = j + 2;
+							if(size_off != layout_s.FrameSz2i || GetChildAlign(r_child) != SUiLayoutParam::alignStretch) {
+								float val = size[j];
+								if(!fisnanf(val))
+									r_child.R.Frame[size_off] = val;
+							}
+						}
 					}
-					const float child_size2 = r_child.R.Frame[layout_s.FrameSz2i];
-					assert(!fisnanf(child_size2));
-					if(child_size2 > layout_s.LineDim)
-						layout_s.LineDim = child_size2;
-				}
-				{
-					assert(r_child.ALB.GrowFactor >= 0.0f);
-					assert(r_child.ALB.ShrinkFactor >= 0.0f);
-					layout_s.FlexGrows   += r_child.ALB.GrowFactor;
-					layout_s.FlexShrinks += r_child.ALB.ShrinkFactor;
-					const float mar_a = CHILD_MARGIN_YX_((&layout_s), r_child, a);
-					const float mar_b = CHILD_MARGIN_YX_((&layout_s), r_child, b);
-					layout_s.FlexDim     -= (child_size + (mar_a + mar_b));
-					relative_children_count++;
-					if(child_size > 0.0f && r_child.ALB.GrowFactor > 0.0f)
-						layout_s.ExtraFlexDim += child_size;
+					// Honor the `basis' property which overrides the main-axis size.
+					if(r_child.ALB.Basis > 0.0f) {
+						//assert(r_child.ALB.Basis >= 0.0f);
+						r_child.R.Frame[layout_s.FrameSz1i] = r_child.ALB.Basis;
+					}
+					const float child_size = r_child.R.Frame[layout_s.FrameSz1i];
+					if(layout_s.Flags & LayoutFlexProcessor::fWrap) {
+						if(layout_s.FlexDim < child_size) {
+							// Not enough space for this child on this line, layout the remaining items and move it to a new line.
+							DoLayoutChildren(last_layout_child, i, relative_children_count, &layout_s, 0);
+							layout_s.Reset();
+							last_layout_child = i;
+							relative_children_count = 0;
+						}
+						const float child_size2 = r_child.R.Frame[layout_s.FrameSz2i];
+						assert(!fisnanf(child_size2));
+						if(child_size2 > layout_s.LineDim)
+							layout_s.LineDim = child_size2;
+					}
+					{
+						assert(r_child.ALB.GrowFactor >= 0.0f);
+						assert(r_child.ALB.ShrinkFactor >= 0.0f);
+						layout_s.FlexGrows   += r_child.ALB.GrowFactor;
+						layout_s.FlexShrinks += r_child.ALB.ShrinkFactor;
+						const float mar_a = CHILD_MARGIN_YX_((&layout_s), r_child, a);
+						const float mar_b = CHILD_MARGIN_YX_((&layout_s), r_child, b);
+						layout_s.FlexDim     -= (child_size + (mar_a + mar_b));
+						relative_children_count++;
+						if(child_size > 0.0f && r_child.ALB.GrowFactor > 0.0f)
+							layout_s.ExtraFlexDim += child_size;
+					}
 				}
 			}
 		}

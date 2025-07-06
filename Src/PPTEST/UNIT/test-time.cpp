@@ -356,5 +356,79 @@ SLTEST_R(LDATE)
 			}
 		}
 	}
+	// @v12.3.7 {
+	{
+		struct DateRangeTestEntry {
+			const char * P_Text;
+			const char * P_Low;
+			const char * P_Upp;
+		};
+		const DateRangeTestEntry test_entries[] = {
+			{ "", "", "" },
+			{ "..31/12/2023", "", "31/12/2023" },
+			{ "31/12/2023..", "31/12/2023", "" },
+			{ "1/1/2021..31/12/2023", "1/1/2021", "31/12/2023" },
+			{ "2021..2023", "1/1/2021", "31/12/2023" },
+			{ "8/2023", "1/8/2023", "31/8/2023" },
+			{ "17/11/1918", "17/11/1918", "17/11/1918" },
+			{ "17/@/@", "17/@/@", "17/@/@" },
+			{ "..@-1", "", "@-1" },
+			{ "@", "@", "@" },
+			{ "1/@-1..1/1/@+1", "1/@-1", "1/1/@+1" },
+			{ "11/9/1969..@+1", "11/09/1969", "@+1" },
+			{ "1970", "1/1/1970", "31/12/1970" },
+		};
+		for(uint i = 0; i < SIZEOFARRAY(test_entries); i++) {
+			const DateRangeTestEntry & r_entry = test_entries[i];
+			DateRange dr;
+			dr.FromStr(r_entry.P_Text, 0);
+			dr.Actualize(ZERODATE);
+			LDATE dt_low;
+			LDATE dt_upp;
+			strtodate(r_entry.P_Low, DATF_DMY, &dt_low);
+			strtodate(r_entry.P_Upp, DATF_DMY, &dt_upp);
+			SLCHECK_EQ(dt_low.getactual(ZERODATE), dr.low);
+			SLCHECK_EQ(dt_upp.getactual(ZERODATE), dr.upp);
+		}
+	}
+	{
+		TSVector <LDATE> date_list;
+		const LDATE start_date = encodedate(1, 1, 1980);
+		const LDATE end_date = encodedate(31, 12, 2025);
+		{
+			for(LDATE iter_date = start_date; iter_date <= end_date; iter_date = plusdate(iter_date, 1)) {
+				date_list.insert(&iter_date);
+			}
+		}
+		SLCHECK_EQ(date_list.getCount(), static_cast<uint>(diffdate(end_date, start_date))+1U);
+		{
+			DateRange dr;
+			dr.Set(ZERODATE, encodedate(1, 1, 2024));
+			for(uint i = 0; i < date_list.getCount(); i++) {
+				const LDATE iter_date = date_list.at(i);
+				const bool _r = dr.CheckDate(iter_date);
+				SLCHECK_NZ(!_r || iter_date <= encodedate(1, 1, 2024));
+			}
+		}
+		{
+			DateRange dr;
+			dr.Set(encodedate(22, 5, 2001), ZERODATE);
+			for(uint i = 0; i < date_list.getCount(); i++) {
+				const LDATE iter_date = date_list.at(i);
+				const bool _r = dr.CheckDate(iter_date);
+				SLCHECK_NZ(!_r || iter_date >= encodedate(22, 5, 2001));
+			}
+		}
+		{
+			DateRange dr;
+			dr.Set(encodedate(22, 5, 2001), encodedate(31, 7, 2011));
+			for(uint i = 0; i < date_list.getCount(); i++) {
+				const LDATE iter_date = date_list.at(i);
+				const bool _r = dr.CheckDate(iter_date);
+				SLCHECK_NZ(!_r || (iter_date >= encodedate(22, 5, 2001) && iter_date <= encodedate(31, 7, 2011)));
+			}
+		}
+	}
+	// } @v12.3.7 
 	return CurrentStatus;
 }

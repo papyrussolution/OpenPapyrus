@@ -264,7 +264,8 @@ int GoodsGrpngArray::GetOutput(GoodsGrpngEntry & rEntry) const // @v11.5.11
 
 int AdjGdsGrpng::MakeBillIDList(const GCTFilt * pF, const PPIDArray * pOpList, int byReckon)
 {
-	int    ok = 1, r = 1;
+	int    ok = 1;
+	int    r = 1;
 	uint   i = 0;
 	PPID * p_op_id, id;
 	for(i = 0; r && pOpList->enumItems(&i, (void **)&p_op_id);) {

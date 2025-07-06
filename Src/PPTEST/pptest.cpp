@@ -1043,6 +1043,7 @@ double RandNumbGen::Gaussian(const Rng * P_r, const double sigma)
 int GenerateGoodsBills()
 {
 	int    ok = -1;
+	PPObjBill * p_bobj = BillObj;
 	PPViewOpGrouping * p_vop = 0;
 	PPViewGoodsOpAnalyze * p_vgoods = 0;
 	Rng * p_rng = 0;
@@ -1223,18 +1224,18 @@ int GenerateGoodsBills()
 							//
 							// цена реализации по последнему лоту
 							//
-							BillObj->trfr->Rcpt.GetCurrentGoodsPrice(goods_id, r_lcfg.Location, GPRET_INDEF, &price, &rcpt_rec);
+							p_bobj->trfr->Rcpt.GetCurrentGoodsPrice(goods_id, r_lcfg.Location, GPRET_INDEF, &price, &rcpt_rec);
 							cost = rcpt_rec.Cost; //цена поступления по товару
 							//ti.Discount = GetRandom(0, 10); //скидка по товару
 							//знак документа
 							sign = (op_type == PPOPT_GOODSRECEIPT) ? 1 : -1;
 							//добавление товарной строки
 							ilti.Setup(goods_id, sign, qtty, cost, price);
-							BillObj->ConvertILTI(&ilti, &bpack, 0, 0, 0);
+							p_bobj->ConvertILTI(&ilti, &bpack, 0, 0, 0);
 							bpack.InitAmounts();
 						}
 						//добавление документа
-						THROW(BillObj->TurnPacket(&bpack, 0));
+						THROW(p_bobj->TurnPacket(&bpack, 0));
 						//logger.Log("Bill was added");
 
 						op_id = 0;

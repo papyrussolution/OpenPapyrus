@@ -2635,48 +2635,100 @@ PPBizScore2::PPBizScore2()
 	THISZERO();
 }
 
-/*static*/uint PPObjBizScore2::GetBscClsLis(PPIDArray & rList)
+struct BscClsEntry {
+	long   Cls;
+	int    Direction; // +1 - income, -1 - expens, 0 - undef
+	int    Rank;      // Ранг класса для упорядочивания значений при пользовательском выводе. Чем меньше значение ранга, тем выше позиция показателя.
+	int    TextId;    // Базовое текстовое описание 
+	int    TextRId;   // Текстовое описание для результата расчета (в пересчете на контекстные параметры - количество, время etc)
+};
+
+static const BscClsEntry bsc_cls_list[] = {
+	{ BSCCLS_INC_SALE_UNIT,        +1, 1, PPTXT_BSCCLS_INC_SALE_UNIT,        PPTXT_BSCCLS_R_INC_SALE_UNIT        },
+	{ BSCCLS_EXP_SALE_UNIT,        -1, 2, PPTXT_BSCCLS_EXP_SALE_UNIT,        PPTXT_BSCCLS_R_EXP_SALE_UNIT        },
+	{ BSCCLS_EXP_PURCHASE_UNIT,    -1, 3, PPTXT_BSCCLS_EXP_PURCHASE_UNIT,    PPTXT_BSCCLS_R_EXP_PURCHASE_UNIT    },
+	{ BSCCLS_EXP_TRANSFER_UNIT,    -1, 4, PPTXT_BSCCLS_EXP_TRANSFER_UNIT,    PPTXT_BSCCLS_R_EXP_TRANSFER_UNIT    },
+	{ BSCCLS_EXP_STORAGE_UNIT,     -1, 5, PPTXT_BSCCLS_EXP_STORAGE_UNIT,     PPTXT_BSCCLS_R_EXP_STORAGE_UNIT     },
+	{ BSCCLS_EXP_PRESALE_UNIT,     -1, 6, PPTXT_BSCCLS_EXP_PRESALE_UNIT,     PPTXT_BSCCLS_R_EXP_PRESALE_UNIT     },
+	{ BSCCLS_EXP_PRESALE_SKU_TIME, -1, 7, PPTXT_BSCCLS_EXP_PRESALE_SKU_TIME, PPTXT_BSCCLS_R_EXP_PRESALE_SKU_TIME },
+	{ BSCCLS_EXP_PROMO_SKU_TIME,   -1, 8, PPTXT_BSCCLS_EXP_PROMO_SKU_TIME,   PPTXT_BSCCLS_R_EXP_PROMO_SKU_TIME   },
+	{ BSCCLS_EXP_PROMO_TIME,       -1, 9, PPTXT_BSCCLS_EXP_PROMO_TIME,       PPTXT_BSCCLS_R_EXP_PROMO_TIME       },
+};
+
+static int GetBscClsRank(long cls)
+{
+	int    rank = 0;
+	if(cls) {
+		for(uint i = 0; !rank && i < SIZEOFARRAY(bsc_cls_list); i++) {
+			if(bsc_cls_list[i].Cls == cls) {
+				rank = bsc_cls_list[i].Rank;
+			}
+		}
+	}
+	return NZOR(rank, 1000000);
+}
+
+IMPL_CMPFUNC(BscCls, i1, i2)
+{
+	const long * p_cls1 = static_cast<const long *>(i1);
+	const long * p_cls2 = static_cast<const long *>(i2);
+	int    rank1 = GetBscClsRank(*p_cls1);
+	int    rank2 = GetBscClsRank(*p_cls2);
+	return CMPSIGN(rank1, rank2);
+}
+
+static const BscClsEntry * SearchBscClsEntry(long cls)
+{
+	const BscClsEntry * p_result = 0;
+	for(uint i = 0; !p_result && i < SIZEOFARRAY(bsc_cls_list); i++) {
+		if(bsc_cls_list[i].Cls == cls) {
+			p_result = bsc_cls_list+i;
+		}
+	}
+	return p_result;
+}
+
+/*static*/uint PPObjBizScore2::GetBscClsList(PPIDArray & rList)
 {
 	rList.Z();
-	const long cls_id_list[] = { BSCCLS_INC_SALE_UNIT, BSCCLS_EXP_SALE_UNIT, BSCCLS_EXP_PURCHASE_UNIT,
-		BSCCLS_EXP_TRANSFER_UNIT, BSCCLS_EXP_STORAGE_UNIT, BSCCLS_EXP_PRESALE_UNIT, BSCCLS_EXP_PRESALE_SKU_TIME,
-		BSCCLS_EXP_PROMO_SKU_TIME, BSCCLS_EXP_PROMO_TIME };
-	for(uint i = 0; i < SIZEOFARRAY(cls_id_list); i++)
-		rList.add(cls_id_list[i]);
+	for(uint i = 0; i < SIZEOFARRAY(bsc_cls_list); i++) {
+		rList.add(bsc_cls_list[i].Cls);
+	}
 	return rList.getCount();
 }
 
 /*static*/bool PPObjBizScore2::IsBscCls_Income(long cls)
 {
-	return cls == BSCCLS_INC_SALE_UNIT;
+	const BscClsEntry * p_entry = SearchBscClsEntry(cls);
+	return (p_entry && p_entry->Direction > 0);
 }
 
 /*static*/bool PPObjBizScore2::IsBscCls_Expense(long cls)
 {
-	return oneof8(cls, BSCCLS_EXP_SALE_UNIT, BSCCLS_EXP_PURCHASE_UNIT, BSCCLS_EXP_TRANSFER_UNIT, BSCCLS_EXP_STORAGE_UNIT, BSCCLS_EXP_PRESALE_UNIT, BSCCLS_EXP_PRESALE_SKU_TIME,
-		BSCCLS_EXP_PROMO_SKU_TIME, BSCCLS_EXP_PROMO_TIME);
+	const BscClsEntry * p_entry = SearchBscClsEntry(cls);
+	return (p_entry && p_entry->Direction < 0);
 }
 
 /*static*/bool PPObjBizScore2::GetBscClsName(long cls, SString & rBuf)
 {
 	rBuf.Z();
 	bool   ok = false;
-	uint   txt_id = 0;
-	switch(cls) {
-		case BSCCLS_INC_SALE_UNIT:        txt_id = PPTXT_BSCCLS_INC_SALE_UNIT; break;
-		case BSCCLS_EXP_SALE_UNIT:        txt_id = PPTXT_BSCCLS_EXP_SALE_UNIT; break;
-		case BSCCLS_EXP_PURCHASE_UNIT:    txt_id = PPTXT_BSCCLS_EXP_PURCHASE_UNIT; break;
-		case BSCCLS_EXP_TRANSFER_UNIT:    txt_id = PPTXT_BSCCLS_EXP_TRANSFER_UNIT; break;
-		case BSCCLS_EXP_STORAGE_UNIT:     txt_id = PPTXT_BSCCLS_EXP_STORAGE_UNIT; break;
-		case BSCCLS_EXP_PRESALE_UNIT:     txt_id = PPTXT_BSCCLS_EXP_PRESALE_UNIT; break;
-		case BSCCLS_EXP_PRESALE_SKU_TIME: txt_id = PPTXT_BSCCLS_EXP_PRESALE_SKU_TIME; break;
-		case BSCCLS_EXP_PROMO_SKU_TIME:   txt_id = PPTXT_BSCCLS_EXP_PROMO_SKU_TIME; break;
-		case BSCCLS_EXP_PROMO_TIME:       txt_id = PPTXT_BSCCLS_EXP_PROMO_TIME; break;
-	}
-	if(txt_id) {
-		if(PPLoadText(txt_id, rBuf)) {
+	const BscClsEntry * p_entry = SearchBscClsEntry(cls);
+	if(p_entry && p_entry->TextId) {
+		if(PPLoadText(p_entry->TextId, rBuf))
 			ok = true;
-		}
+	}
+	return ok;
+}
+
+/*static*/bool PPObjBizScore2::GetBscClsResultName(long cls, SString & rBuf)
+{
+	rBuf.Z();
+	bool   ok = false;
+	const BscClsEntry * p_entry = SearchBscClsEntry(cls);
+	if(p_entry && p_entry->TextRId) {
+		if(PPLoadText(p_entry->TextRId, rBuf))
+			ok = true;
 	}
 	return ok;
 }
@@ -2801,7 +2853,7 @@ static void MakeBizScClsStrAssocList(StrAssocArray & rList)
 {
 	rList.Z();
 	PPIDArray cls_id_list;
-	PPObjBizScore2::GetBscClsLis(cls_id_list);
+	PPObjBizScore2::GetBscClsList(cls_id_list);
 	SString temp_buf;
 	for(uint i = 0; i < cls_id_list.getCount(); i++) {
 		const long cls_id = cls_id_list.get(i);

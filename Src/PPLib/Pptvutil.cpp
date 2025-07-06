@@ -8388,10 +8388,21 @@ private:
 		insertctrlstageMain = 2,
 		insertctrlstagePostprocess = 3,
 	};
+	//
+	// Descr: Блок, передаваемый в рекурсивную функцию InsertControlItems для нахождения первого элемента,
+	//   дабы сделать его selected при открытии диалога.
+	//
+	struct FIBlock {
+		FIBlock() : FirstTabbedItemId(0), FirstItemId(0)
+		{
+		}
+		uint   FirstTabbedItemId; // 
+		uint   FirstItemId; //		
+	};
 	void   Build(TDialog * pDlg, DlContext & rCtx, const DlScope * pScope);
 	void   Build(TDialog * pDlg, DlContext & rCtx, const char * pSymb);
 	void   Build(TDialog * pDlg, DlContext & rCtx, uint viewId);
-	void   InsertControlItems(TDialog * pDlg, DlContext & rCtx, const DlScope & rParentScope, uint & rLastDynId, int stage);
+	void   InsertControlItems(TDialog * pDlg, DlContext & rCtx, const DlScope & rParentScope, uint & rLastDynId, FIBlock & rFiBlk, int stage);
 	void   InsertControlLayouts(TDialog * pDlg, DlContext & rCtx, const DlScope & rParentScope, SUiLayout * pLoParent);
 	static void __stdcall SetupLayoutItemFrameProc(SUiLayout * pItem, const SUiLayout::Result & rR);
 	SUiLayout * InsertCtrlLayout(TDialog * pDlg, SUiLayout * pLoParent, TView * pView, const SUiLayoutParam & rP);
@@ -8522,8 +8533,16 @@ void PPDialogConstructor::Build(TDialog * pDlg, DlContext & rCtx, const DlScope 
 				//
 				uint last_dyn_id = 20000; 
 				// (@unused) InsertControlItems(rCtx, *pScope, last_dyn_id, insertctrlstagePreprocess);
-				InsertControlItems(pDlg, rCtx, *pScope, last_dyn_id, insertctrlstageMain);
-				InsertControlItems(pDlg, rCtx, *pScope, last_dyn_id, insertctrlstagePostprocess);
+				FIBlock fi_blk;
+				FIBlock fake_fi_blk;
+				InsertControlItems(pDlg, rCtx, *pScope, last_dyn_id, fi_blk, insertctrlstageMain);
+				InsertControlItems(pDlg, rCtx, *pScope, last_dyn_id, fake_fi_blk/*на этой стадии не надо*/, insertctrlstagePostprocess);
+				if(fi_blk.FirstTabbedItemId) {
+					pDlg->selectCtrl(fi_blk.FirstTabbedItemId);
+				}
+				else if(fi_blk.FirstItemId) {
+					pDlg->selectCtrl(fi_blk.FirstItemId);	
+				}
 			}
 			InsertControlLayouts(pDlg, rCtx, *pScope, p_lo_main); // Теперь расставляем layout'ы
 		}
@@ -8596,7 +8615,7 @@ SUiLayout * PPDialogConstructor::InsertCtrlLayout(TDialog * pDlg, SUiLayout * pL
 	return p_result;
 }
 
-void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, const DlScope & rParentScope, uint & rLastDynId, int stage)
+void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, const DlScope & rParentScope, uint & rLastDynId, FIBlock & rFiBlk, int stage)
 {
 	SString temp_buf;
 	SString ctl_text;
@@ -8632,6 +8651,7 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 					}
 				}
 			}
+			bool    is_inserted = false; // Признак того, что элемен включен в окно диалога
 			switch(vk) {
 				case UiItemKind::kInput:
 					if(stage == insertctrlstageMain) {
@@ -8672,6 +8692,7 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 							}
 						}
 						pDlg->InsertCtlWithCorrespondingNativeItem(p_ctl, item_id, 0, /*extraPtr*/0);
+						is_inserted = true;
 						if(oneof5(supplement.Kind, SUiCtrlSupplement::kDateCalendar, SUiCtrlSupplement::kDateRangeCalendar,
 							SUiCtrlSupplement::kTime, SUiCtrlSupplement::kCalc, SUiCtrlSupplement::kAsterisk)) {
 							if(supplement.Ident) {
@@ -8709,6 +8730,7 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 						rCtx.GetConst_String(p_scope, DlScope::cuifCtrlText, ctl_text);
 						TStaticText * p_ctl = new TStaticText(rc, spc_flags, ctl_text);
 						pDlg->InsertCtlWithCorrespondingNativeItem(p_ctl, item_id, 0, /*extraPtr*/0);
+						is_inserted = true;
 					}
 					break;
 				case UiItemKind::kPushbutton:
@@ -8730,6 +8752,7 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 							p_ctl->setState(sfTabStop, true);
 						}
 						pDlg->InsertCtlWithCorrespondingNativeItem(p_ctl, item_id, 0, /*extraPtr*/0);
+						is_inserted = true;
 					}
 					break;
 				case UiItemKind::kCheckbox: 
@@ -8743,6 +8766,7 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 							}
 						}
 						pDlg->InsertCtlWithCorrespondingNativeItem(p_ctl, item_id, 0, /*extraPtr*/0);
+						is_inserted = true;
 					}
 					break;
 				case UiItemKind::kCheckCluster: 
@@ -8767,6 +8791,7 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 							}
 						}
 						pDlg->InsertCtlWithCorrespondingNativeItem(p_ctl, item_id, 0, /*extraPtr*/0);
+						is_inserted = true;
 					}
 					break;
 				case UiItemKind::kRadioCluster: 
@@ -8791,6 +8816,7 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 							}
 						}
 						pDlg->InsertCtlWithCorrespondingNativeItem(p_ctl, item_id, 0, /*extraPtr*/0);
+						is_inserted = true;
 					}
 					break;
 				case UiItemKind::kCombobox:
@@ -8828,6 +8854,7 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 							}
 						}
 						pDlg->InsertCtlWithCorrespondingNativeItem(p_cb, item_id, 0, /*extraPtr*/0);
+						is_inserted = true;
 					}
 					break;
 				case UiItemKind::kListbox: 
@@ -8848,6 +8875,7 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 								p_lb->setState(sfTabStop, true);
 							}
 							pDlg->InsertCtlWithCorrespondingNativeItem(p_lb, item_id, 0, /*extraPtr*/0);
+							is_inserted = true;
 							//if(font_face.NotEmpty()) {
 								//SetCtrlFont(STDCTL_SINGLELISTBOX, font_face, /*16*//*22*/12);
 							//}
@@ -8868,6 +8896,7 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 								p_lb->setState(sfTabStop, true);
 							}
 							pDlg->InsertCtlWithCorrespondingNativeItem(p_lb, item_id, 0, /*extraPtr*/0);
+							is_inserted = true;
 							//if(font_face.NotEmpty()) {
 								//SetCtrlFont(STDCTL_SINGLELISTBOX, font_face, /*16*//*22*/12);
 							//}
@@ -8884,8 +8913,9 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 						TGroupBox * p_gb = new TGroupBox(rc);
 						p_gb->SetText(ctl_text);
 						pDlg->InsertCtlWithCorrespondingNativeItem(p_gb, item_id, 0, /*extraPtr*/0);
+						is_inserted = true;
 					}
-					InsertControlItems(pDlg, rCtx, *p_scope, rLastDynId, stage); // @recursion // Внутри могут быть элементы, которые вставляются на фазе insertctrlstageMain,
+					InsertControlItems(pDlg, rCtx, *p_scope, rLastDynId, rFiBlk, stage); // @recursion // Внутри могут быть элементы, которые вставляются на фазе insertctrlstageMain,
 						// по этому выводим данный вызов за рамки проверки if(stage == insertctrlstagePostprocess)
 					break;
 				case UiItemKind::kLabel: 
@@ -8897,7 +8927,8 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 					}
 					break;
 				case UiItemKind::kGenericView: 
-					InsertControlItems(pDlg, rCtx, *p_scope, rLastDynId, stage); // @recursion
+					InsertControlItems(pDlg, rCtx, *p_scope, rLastDynId, rFiBlk, stage); // @recursion
+					is_inserted = true;
 					break;
 				case UiItemKind::kImageView: 
 					if(stage == insertctrlstageMain) {
@@ -8909,13 +8940,24 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 						rCtx.GetConst_String(p_scope, DlScope::cuifCtrlText, ctl_text);
 						TImageView * p_ctl = new TImageView(rc, img_symb);
 						pDlg->InsertCtlWithCorrespondingNativeItem(p_ctl, item_id, 0, /*extraPtr*/0);
+						is_inserted = true;
 					}
 					break;
 			}
+			// @v12.3.7 {
+			if(item_id && is_inserted) {
+				if(!rFiBlk.FirstTabbedItemId && ui_flags & UiItemKind::fTabStop)
+					rFiBlk.FirstTabbedItemId = item_id;
+				if(!rFiBlk.FirstItemId)
+					rFiBlk.FirstItemId = item_id;
+			}
+			// @v12.3.7 {
 		}
 	}
-	if(def_button_ctl_id) {
-		pDlg->SetDefaultButton(def_button_ctl_id, true);
+	if(stage == insertctrlstageMain) {
+		if(def_button_ctl_id) {
+			pDlg->SetDefaultButton(def_button_ctl_id, true);
+		}
 	}
 }
 

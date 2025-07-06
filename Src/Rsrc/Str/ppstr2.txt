@@ -5141,6 +5141,16 @@ PPTXT_BSCCLS_EXP_PRESALE_UNIT          "Расходы на предпродаж
 PPTXT_BSCCLS_EXP_PRESALE_SKU_TIME      "Расходы на предпродажную подготовку одного наименования продукции (в единицу времени)"
 PPTXT_BSCCLS_EXP_PROMO_SKU_TIME        "Маркетинговые расходы на категорию продукции (в единицу времени)"
 PPTXT_BSCCLS_EXP_PROMO_TIME            "Маркетинговые расходы не привязанные к продукции (в единицу времени)"
+
+PPTXT_BSCCLS_R_INC_SALE_UNIT           "Доход от продажи"
+PPTXT_BSCCLS_R_EXP_SALE_UNIT           "Расходы на продажу"
+PPTXT_BSCCLS_R_EXP_PURCHASE_UNIT       "Расходы на закупку"
+PPTXT_BSCCLS_R_EXP_TRANSFER_UNIT       "Расходы на перемещение"
+PPTXT_BSCCLS_R_EXP_STORAGE_UNIT        "Расходы на хранение"
+PPTXT_BSCCLS_R_EXP_PRESALE_UNIT        "Расходы на предпродажную подготовку (переменные)"
+PPTXT_BSCCLS_R_EXP_PRESALE_SKU_TIME    "Расходы на предпродажную подготовку (фиксированные)"
+PPTXT_BSCCLS_R_EXP_PROMO_SKU_TIME      "Маркетинговые расходы на категорию продукции"
+PPTXT_BSCCLS_R_EXP_PROMO_TIME          "Маркетинговые расходы не привязанные к продукции"
 //
 // LastText
 
@@ -18169,6 +18179,14 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @billitemspcgenfunc_serial                    "Сгенерировать серийные номер"
 @billitemspcgenfunc_egaismarksforstock        "Получить марки ЕГАИС для документа остатков"
 
+@unitec_igp                                   "Факторы unit-планирования продаж товара"
+@unitec_igp_rcptqtty                          "Планируемая закупка, шт"
+@unitec_igp_expecteddemandperweek             "Ожидаемый еженедельный спрос, шт"
+
+@cristal2setretailgateway                     "Шлюз Кристалл <-> Set-Retail" // @v12.3.7 Специальный функционал
+@cristal2setretailgateway_runparam            "Парамеры запуска шлюза Кристалл <-> Set-Retail"
+@cristal2setretailgateway_runparam_actreadcristalsrcdata    "Импорт исходных данных системы Кристалл"
+@cristal2setretailgateway_runparam_actwritecristaldestdata  "Запись данных продаж для системы Кристалл"
 [121]
 1   "Вход"
 2	"@{session}"

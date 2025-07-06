@@ -256,8 +256,8 @@ static IMPL_DBE_PROC(dbqf_billdate_i)
 static IMPL_DBE_PROC(dbqf_billamount_ii)
 {
 	double amt = 0.0;
-	PPID   bill_id  = params[0].lval;
-	long   amt_type = params[1].lval;
+	const  PPID bill_id  = params[0].lval;
+	const  long amt_type = params[1].lval;
 	if(bill_id > 0 && amt_type > 0) {
 		BillObj->P_Tbl->GetAmount(bill_id, amt_type, 0, &amt);
 	}
