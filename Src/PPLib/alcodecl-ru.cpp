@@ -785,234 +785,226 @@ int FASTCALL PPViewAlcoDeclRu::NextIteration(AlcoDeclRuViewItem * pItem)
 
 int FASTCALL PPViewAlcoDeclRu::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
-	int    ok = 0;
-	if(pBlk->P_SrcData && pBlk->P_DestData) {
-		ok = 1;
-		SString temp_buf;
-		int    r = 0;
-		if(Filt.GetParentView()) {
-			/*
-				browser ALCODECLRU_DETAIL north(100), 1, 0, "@{view_alcodeclru}", OWNER|GRID, 0
-				{
-					"@division",                  1,  zstring(48),   0, 0, BCO_USERPROC
-					"@productcode",               2,  zstring(16),   0, 0, BCO_USERPROC
-					"@manufacturerorimporter",    3,  zstring(128),  0, 0, BCO_USERPROC
-					"@ware",                      4,  zstring(128),  0, 0, BCO_USERPROC
-					"@billid",                    5,  int32,   0, 0, BCO_USERPROC
-					"@billno",                    6,  zstring(32),   0, 0, BCO_USERPROC
-					"@billdate",                  7,  date,          DATF_DMY|DATF_CENTURY, 0, BCO_USERPROC
-					"@qtty",                      8,  double,        NMBF_NOZERO, 12.5, BCO_USERPROC
-				}
-			*/
-			const DetailEntry * p_item = static_cast<const DetailEntry *>(pBlk->P_SrcData);
-			switch(pBlk->ColumnN) {
-				case 1:
-					if(p_item->DivID) {
-						LocationTbl::Rec loc_rec;
-						if(Arp.PsnObj.LocObj.Fetch(p_item->DivID, &loc_rec) > 0)
-							temp_buf = loc_rec.Name;
-						else
-							ideqvalstr(p_item->DivID, temp_buf);
-					}
-					pBlk->Set(temp_buf);					
-					break;
-				case 2:
-					GetAlcoCode(p_item->AlcoCodeId, temp_buf);
-					pBlk->Set(temp_buf);
-					break;
-				case 3:
-					GetPersonName(p_item->ManufID, temp_buf);
-					pBlk->Set(temp_buf);
-					break;
-				case 4:
-					GetGoodsName(p_item->GoodsID, temp_buf);
-					pBlk->Set(temp_buf);
-					break;
-				case 5:
-					pBlk->Set(p_item->BillID);
-					break;
-				case 6:
-					{
-						BillTbl::Rec bill_rec;
-						if(P_BObj->Fetch(p_item->BillID, &bill_rec) > 0) {
-							temp_buf = bill_rec.Code;
-						}
-						pBlk->Set(temp_buf);
-					}
-					break;
-				case 7:
-					{
-						BillTbl::Rec bill_rec;
-						if(P_BObj->Fetch(p_item->BillID, &bill_rec) > 0)
-							pBlk->Set(bill_rec.Dt);
-						else
-							pBlk->Set(ZERODATE);
-					}
-					break;
-				case 8:
-					pBlk->Set(p_item->Qtty);
-					break;
-				case 9:
-					{
-						const char * p_text_symb = 0;
-						switch(p_item->OpCat) {
-							case DetailEntry::opcatStockBeg: p_text_symb = "oprcategory_stockbegin"; break;
-							case DetailEntry::opcatStockEnd: p_text_symb = "oprcategory_stockend"; break;
-							case DetailEntry::opcatRcptManuf: p_text_symb = "oprcategory_rcptmanufr"; break;
-							case DetailEntry::opcatRcptWhs: p_text_symb = "oprcategory_rcptwhsr"; break;
-							case DetailEntry::opcatRcptImp: p_text_symb = "oprcategory_rcptimporter"; break;
-							case DetailEntry::opcatSaleRet: p_text_symb = "oprcategory_retsale"; break;
-							case DetailEntry::opcatRcptEtc: p_text_symb = "oprcategory_rcptetc"; break;
-							case DetailEntry::opcatRcptIntr: p_text_symb = "oprcategory_intrrcpt"; break;
-							case DetailEntry::opcatExpRetail: p_text_symb = "oprcategory_expretail"; break;
-							case DetailEntry::opcatExpEtc: p_text_symb = "oprcategory_expetc"; break;
-							case DetailEntry::opcatSupplRet: p_text_symb = "oprcategory_retsuppl"; break;
-							case DetailEntry::opcatExpIntr: p_text_symb = "oprcategory_intrexpnd"; break;			
-						}
-						if(p_text_symb)
-							PPLoadString(p_text_symb, temp_buf);
-						pBlk->Set(temp_buf);
-					}
-					break;
-				case 10:
-					{
-						BillTbl::Rec bill_rec;
-						if(P_BObj->Fetch(p_item->BillID, &bill_rec) > 0)
-							GetOpName(bill_rec.OpID, temp_buf);
-						pBlk->Set(temp_buf);
-					}
-					break;
+	int    ok = 1;
+	assert(pBlk->P_SrcData && pBlk->P_DestData); // Функция вызывается только из одной локации и эти members != 0 равно как и pBlk != 0
+	SString temp_buf;
+	int    r = 0;
+	if(Filt.GetParentView()) {
+		/*
+			browser ALCODECLRU_DETAIL north(100), 1, 0, "@{view_alcodeclru}", OWNER|GRID, 0
+			{
+				"@division",                  1,  zstring(48),   0, 0, BCO_USERPROC
+				"@productcode",               2,  zstring(16),   0, 0, BCO_USERPROC
+				"@manufacturerorimporter",    3,  zstring(128),  0, 0, BCO_USERPROC
+				"@ware",                      4,  zstring(128),  0, 0, BCO_USERPROC
+				"@billid",                    5,  int32,   0, 0, BCO_USERPROC
+				"@billno",                    6,  zstring(32),   0, 0, BCO_USERPROC
+				"@billdate",                  7,  date,          DATF_DMY|DATF_CENTURY, 0, BCO_USERPROC
+				"@qtty",                      8,  double,        NMBF_NOZERO, 12.5, BCO_USERPROC
 			}
+		*/
+		const DetailEntry * p_item = static_cast<const DetailEntry *>(pBlk->P_SrcData);
+		switch(pBlk->ColumnN) {
+			case 1:
+				if(p_item->DivID) {
+					LocationTbl::Rec loc_rec;
+					if(Arp.PsnObj.LocObj.Fetch(p_item->DivID, &loc_rec) > 0)
+						temp_buf = loc_rec.Name;
+					else
+						ideqvalstr(p_item->DivID, temp_buf);
+				}
+				pBlk->Set(temp_buf);					
+				break;
+			case 2:
+				GetAlcoCode(p_item->AlcoCodeId, temp_buf);
+				pBlk->Set(temp_buf);
+				break;
+			case 3:
+				GetPersonName(p_item->ManufID, temp_buf);
+				pBlk->Set(temp_buf);
+				break;
+			case 4:
+				GetGoodsName(p_item->GoodsID, temp_buf);
+				pBlk->Set(temp_buf);
+				break;
+			case 5:
+				pBlk->Set(p_item->BillID);
+				break;
+			case 6:
+				{
+					BillTbl::Rec bill_rec;
+					if(P_BObj->Fetch(p_item->BillID, &bill_rec) > 0) {
+						temp_buf = bill_rec.Code;
+					}
+					pBlk->Set(temp_buf);
+				}
+				break;
+			case 7:
+				{
+					BillTbl::Rec bill_rec;
+					if(P_BObj->Fetch(p_item->BillID, &bill_rec) > 0)
+						pBlk->Set(bill_rec.Dt);
+					else
+						pBlk->Set(ZERODATE);
+				}
+				break;
+			case 8:
+				pBlk->Set(p_item->Qtty);
+				break;
+			case 9:
+				{
+					const char * p_text_symb = 0;
+					switch(p_item->OpCat) {
+						case DetailEntry::opcatStockBeg: p_text_symb = "oprcategory_stockbegin"; break;
+						case DetailEntry::opcatStockEnd: p_text_symb = "oprcategory_stockend"; break;
+						case DetailEntry::opcatRcptManuf: p_text_symb = "oprcategory_rcptmanufr"; break;
+						case DetailEntry::opcatRcptWhs: p_text_symb = "oprcategory_rcptwhsr"; break;
+						case DetailEntry::opcatRcptImp: p_text_symb = "oprcategory_rcptimporter"; break;
+						case DetailEntry::opcatSaleRet: p_text_symb = "oprcategory_retsale"; break;
+						case DetailEntry::opcatRcptEtc: p_text_symb = "oprcategory_rcptetc"; break;
+						case DetailEntry::opcatRcptIntr: p_text_symb = "oprcategory_intrrcpt"; break;
+						case DetailEntry::opcatExpRetail: p_text_symb = "oprcategory_expretail"; break;
+						case DetailEntry::opcatExpEtc: p_text_symb = "oprcategory_expetc"; break;
+						case DetailEntry::opcatSupplRet: p_text_symb = "oprcategory_retsuppl"; break;
+						case DetailEntry::opcatExpIntr: p_text_symb = "oprcategory_intrexpnd"; break;			
+					}
+					if(p_text_symb)
+						PPLoadString(p_text_symb, temp_buf);
+					pBlk->Set(temp_buf);
+				}
+				break;
+			case 10:
+				{
+					BillTbl::Rec bill_rec;
+					if(P_BObj->Fetch(p_item->BillID, &bill_rec) > 0)
+						GetOpName(bill_rec.OpID, temp_buf);
+					pBlk->Set(temp_buf);
+				}
+				break;
 		}
-		else if(Filt.Flags & AlcoDeclRuFilt::fShowAsRcpt) {
-			/*
-				browser ALCODECLRU_RCPT north(100), 1, 0, "", OWNER|GRID, 0
-				{
-					"Код продукции",              1,  zstring(16),   0, 0, BCO_USERPROC
-					"Производитель/импортер",     2,  zstring(128),  0, 0, BCO_USERPROC
-					"@billno",                    3,  zstring(32),   0, 0, BCO_USERPROC
-					"@billdate",                  4,  date,          DATF_DMY|DATF_CENTURY, 0, BCO_USERPROC
-					"@cargocustomsdeclaration_s", 5,  zstring(32),   0, 0, BCO_USERPROC
-					"@qtty",                      6,  double,        NMBF_NOZERO, 10.2, BCO_USERPROC
-				}
-			*/
-			const InnerRcptEntry * p_item = static_cast<const InnerRcptEntry *>(pBlk->P_SrcData);
-			switch(pBlk->ColumnN) {
-				case 1:
-					GetAlcoCode(p_item->AlcoCodeId, temp_buf);
-					pBlk->Set(temp_buf);
-					break;
-				case 2:
-					GetPersonName(p_item->ManufID, temp_buf);
-					pBlk->Set(temp_buf);
-					break;
-				case 3:
-					{
-						BillTbl::Rec bill_rec;
-						temp_buf.Z();
-						if(P_BObj->Fetch(p_item->BillID, &bill_rec) > 0)
-							temp_buf = bill_rec.Code;
-						pBlk->Set(temp_buf);
-					}
-					break;
-				case 4:
-					pBlk->Set(p_item->BillDt);
-					break;
-				case 5:
-					StrPool.GetS(p_item->ClbP, temp_buf);
-					pBlk->Set(temp_buf);
-					break;
-				case 6:
-					pBlk->Set(p_item->Qtty);
-					break;
-				case 7:
-					if(p_item->DivID) {
-						LocationTbl::Rec loc_rec;
-						if(Arp.PsnObj.LocObj.Fetch(p_item->DivID, &loc_rec) > 0)
-							temp_buf = loc_rec.Name;
-						else
-							ideqvalstr(p_item->DivID, temp_buf);
-					}
-					pBlk->Set(temp_buf);
-					break;
-				case 8: // supplier
-					if(p_item->SupplID)
-						GetPersonName(p_item->SupplID, temp_buf);
-					pBlk->Set(temp_buf);
-					break;
+	}
+	else if(Filt.Flags & AlcoDeclRuFilt::fShowAsRcpt) {
+		/*
+			browser ALCODECLRU_RCPT north(100), 1, 0, "", OWNER|GRID, 0
+			{
+				"Код продукции",              1,  zstring(16),   0, 0, BCO_USERPROC
+				"Производитель/импортер",     2,  zstring(128),  0, 0, BCO_USERPROC
+				"@billno",                    3,  zstring(32),   0, 0, BCO_USERPROC
+				"@billdate",                  4,  date,          DATF_DMY|DATF_CENTURY, 0, BCO_USERPROC
+				"@cargocustomsdeclaration_s", 5,  zstring(32),   0, 0, BCO_USERPROC
+				"@qtty",                      6,  double,        NMBF_NOZERO, 10.2, BCO_USERPROC
 			}
+		*/
+		const InnerRcptEntry * p_item = static_cast<const InnerRcptEntry *>(pBlk->P_SrcData);
+		switch(pBlk->ColumnN) {
+			case 1:
+				GetAlcoCode(p_item->AlcoCodeId, temp_buf);
+				pBlk->Set(temp_buf);
+				break;
+			case 2:
+				GetPersonName(p_item->ManufID, temp_buf);
+				pBlk->Set(temp_buf);
+				break;
+			case 3:
+				{
+					BillTbl::Rec bill_rec;
+					temp_buf.Z();
+					if(P_BObj->Fetch(p_item->BillID, &bill_rec) > 0)
+						temp_buf = bill_rec.Code;
+					pBlk->Set(temp_buf);
+				}
+				break;
+			case 4:
+				pBlk->Set(p_item->BillDt);
+				break;
+			case 5:
+				StrPool.GetS(p_item->ClbP, temp_buf);
+				pBlk->Set(temp_buf);
+				break;
+			case 6:
+				pBlk->Set(p_item->Qtty);
+				break;
+			case 7:
+				if(p_item->DivID) {
+					LocationTbl::Rec loc_rec;
+					if(Arp.PsnObj.LocObj.Fetch(p_item->DivID, &loc_rec) > 0)
+						temp_buf = loc_rec.Name;
+					else
+						ideqvalstr(p_item->DivID, temp_buf);
+				}
+				pBlk->Set(temp_buf);
+				break;
+			case 8: // supplier
+				if(p_item->SupplID)
+					GetPersonName(p_item->SupplID, temp_buf);
+				pBlk->Set(temp_buf);
+				break;
 		}
-		else {
-			/*
-				browser ALCODECLRU_MOV north(100), 1, 0, "", OWNER|GRID, 0
-				{
-					"Код продукции",             1,  zstring(16),   0, 0, BCO_USERPROC
-					"Производитель/импортер",    2,  zstring(128),  0, 0, BCO_USERPROC
-					"Остаток на начало",         3,  double,   NMBF_NOZERO, 10.2, BCO_USERPROC
-					"Остаток на конец",          4,  double,   NMBF_NOZERO, 10.2, BCO_USERPROC
-					"Приход от производителя",   5,  double,   NMBF_NOZERO, 10.2, BCO_USERPROC
-					"Приход от дистрибьютора",   6,  double,   NMBF_NOZERO, 10.2, BCO_USERPROC
-					"Приход от импортера",       7,  double,   NMBF_NOZERO, 10.2, BCO_USERPROC
-					"Межскладской приход",       8,  double,   NMBF_NOZERO, 10.2, BCO_USERPROC
-					"Прочий приход",             9,  double,   NMBF_NOZERO, 10.2, BCO_USERPROC
-					"@selling_retail",          10,  double,   NMBF_NOZERO, 10.2, BCO_USERPROC
-					"Прочий расход",            11,  double,   NMBF_NOZERO, 10.2, BCO_USERPROC
-					"Возврат поставщику",       12,  double,   NMBF_NOZERO, 10.2, BCO_USERPROC
-					"Возврат от покупателей",   13,  double,   NMBF_NOZERO, 10.2, BCO_USERPROC
-					"Межскладской расход",      14,  double,   NMBF_NOZERO, 10.2, BCO_USERPROC
-					"Баланс",                   15,  double,   NMBF_NOZERO, 10.2, BCO_USERPROC
-				}
-			*/
-			const InnerMovEntry * p_item = static_cast<const InnerMovEntry *>(pBlk->P_SrcData);
-			switch(pBlk->ColumnN) {
-				case 1:
-					GetAlcoCode(p_item->AlcoCodeId, temp_buf);
-					pBlk->Set(temp_buf);
-					break;
-				case 2:
-					GetPersonName(p_item->ManufID, temp_buf);
-					pBlk->Set(temp_buf);
-					break;
-				case 3: pBlk->Set(p_item->StockBeg); break;
-				case 4: pBlk->Set(p_item->StockEnd); break;
-				case 5: pBlk->Set(p_item->RcptManuf); break;
-				case 6: pBlk->Set(p_item->RcptWhs); break;
-				case 7: pBlk->Set(p_item->RcptImp); break;
-				case 8: pBlk->Set(p_item->RcptIntr); break;
-				case 9: pBlk->Set(p_item->RcptEtc); break;
-				case 10: pBlk->Set(p_item->ExpRetail); break;
-				case 11: pBlk->Set(p_item->ExpEtc); break;
-				case 12: pBlk->Set(p_item->SupplRet); break;
-				case 13: pBlk->Set(p_item->SaleRet); break;
-				case 14: pBlk->Set(p_item->ExpIntr); break;
-				case 15:
-					{
-						double balance = p_item->StockBeg - p_item->StockEnd + p_item->RcptManuf + p_item->RcptWhs + p_item->RcptImp +
-							p_item->RcptIntr + p_item->RcptEtc + p_item->SaleRet - p_item->ExpRetail - p_item->ExpIntr -
-							p_item->ExpEtc - p_item->SupplRet;
-						pBlk->Set(balance);
-					}
-					break;
-				case 16:
-					if(p_item->DivID) {
-						LocationTbl::Rec loc_rec;
-						if(Arp.PsnObj.LocObj.Fetch(p_item->DivID, &loc_rec) > 0)
-							temp_buf = loc_rec.Name;
-						else
-							ideqvalstr(p_item->DivID, temp_buf);
-					}
-					pBlk->Set(temp_buf);
-					break;
+	}
+	else {
+		/*
+			browser ALCODECLRU_MOV north(100), 1, 0, "", OWNER|GRID, 0
+			{
+				"Код продукции",             1,  zstring(16),   0, 0, BCO_USERPROC
+				"Производитель/импортер",    2,  zstring(128),  0, 0, BCO_USERPROC
+				"Остаток на начало",         3,  double,   NMBF_NOZERO, 10.2, BCO_USERPROC
+				"Остаток на конец",          4,  double,   NMBF_NOZERO, 10.2, BCO_USERPROC
+				"Приход от производителя",   5,  double,   NMBF_NOZERO, 10.2, BCO_USERPROC
+				"Приход от дистрибьютора",   6,  double,   NMBF_NOZERO, 10.2, BCO_USERPROC
+				"Приход от импортера",       7,  double,   NMBF_NOZERO, 10.2, BCO_USERPROC
+				"Межскладской приход",       8,  double,   NMBF_NOZERO, 10.2, BCO_USERPROC
+				"Прочий приход",             9,  double,   NMBF_NOZERO, 10.2, BCO_USERPROC
+				"@selling_retail",          10,  double,   NMBF_NOZERO, 10.2, BCO_USERPROC
+				"Прочий расход",            11,  double,   NMBF_NOZERO, 10.2, BCO_USERPROC
+				"Возврат поставщику",       12,  double,   NMBF_NOZERO, 10.2, BCO_USERPROC
+				"Возврат от покупателей",   13,  double,   NMBF_NOZERO, 10.2, BCO_USERPROC
+				"Межскладской расход",      14,  double,   NMBF_NOZERO, 10.2, BCO_USERPROC
+				"Баланс",                   15,  double,   NMBF_NOZERO, 10.2, BCO_USERPROC
 			}
+		*/
+		const InnerMovEntry * p_item = static_cast<const InnerMovEntry *>(pBlk->P_SrcData);
+		switch(pBlk->ColumnN) {
+			case 1:
+				GetAlcoCode(p_item->AlcoCodeId, temp_buf);
+				pBlk->Set(temp_buf);
+				break;
+			case 2:
+				GetPersonName(p_item->ManufID, temp_buf);
+				pBlk->Set(temp_buf);
+				break;
+			case 3: pBlk->Set(p_item->StockBeg); break;
+			case 4: pBlk->Set(p_item->StockEnd); break;
+			case 5: pBlk->Set(p_item->RcptManuf); break;
+			case 6: pBlk->Set(p_item->RcptWhs); break;
+			case 7: pBlk->Set(p_item->RcptImp); break;
+			case 8: pBlk->Set(p_item->RcptIntr); break;
+			case 9: pBlk->Set(p_item->RcptEtc); break;
+			case 10: pBlk->Set(p_item->ExpRetail); break;
+			case 11: pBlk->Set(p_item->ExpEtc); break;
+			case 12: pBlk->Set(p_item->SupplRet); break;
+			case 13: pBlk->Set(p_item->SaleRet); break;
+			case 14: pBlk->Set(p_item->ExpIntr); break;
+			case 15:
+				{
+					double balance = p_item->StockBeg - p_item->StockEnd + p_item->RcptManuf + p_item->RcptWhs + p_item->RcptImp +
+						p_item->RcptIntr + p_item->RcptEtc + p_item->SaleRet - p_item->ExpRetail - p_item->ExpIntr -
+						p_item->ExpEtc - p_item->SupplRet;
+					pBlk->Set(balance);
+				}
+				break;
+			case 16:
+				if(p_item->DivID) {
+					LocationTbl::Rec loc_rec;
+					if(Arp.PsnObj.LocObj.Fetch(p_item->DivID, &loc_rec) > 0)
+						temp_buf = loc_rec.Name;
+					else
+						ideqvalstr(p_item->DivID, temp_buf);
+				}
+				pBlk->Set(temp_buf);
+				break;
 		}
 	}
 	return ok;
-}
-
-/*static*/int FASTCALL PPViewAlcoDeclRu::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
-{
-	PPViewAlcoDeclRu * p_v = static_cast<PPViewAlcoDeclRu *>(pBlk->ExtraPtr);
-	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;
 }
 
 static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr)
@@ -1074,7 +1066,10 @@ int PPViewAlcoDeclRu::CellStyleFunc_(const void * pData, long col, int paintActi
 void PPViewAlcoDeclRu::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	if(pBrw) {
-		pBrw->SetDefUserProc(PPViewAlcoDeclRu::GetDataForBrowser, this);
+		pBrw->SetDefUserProc([](SBrowserDataProcBlock * pBlk) -> int
+			{
+				return (pBlk && pBlk->ExtraPtr) ? static_cast<PPViewAlcoDeclRu *>(pBlk->ExtraPtr)->_GetDataForBrowser(pBlk) : 0;				
+			}, this);
 		pBrw->SetCellStyleFunc(CellStyleFunc, pBrw);
 		pBrw->Helper_SetAllColumnsSortable();
 	}

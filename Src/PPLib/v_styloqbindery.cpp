@@ -188,77 +188,68 @@ int PPViewStyloQBindery::MakeList(PPViewBrowser * pBrw)
 int PPViewStyloQBindery::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
 	int    ok = 1;
-	if(pBlk->P_SrcData && pBlk->P_DestData) {
-		ok = 1;
-		const BrwItem * p_item = static_cast<const BrwItem *>(pBlk->P_SrcData);
-		int    r = 0;
-		switch(pBlk->ColumnN) {
-			case 0: pBlk->Set(p_item->ID); break; // @id
-			case 1: // kind
-				//pBlk->Set(p_item->Kind);
-				{
-					pBlk->TempBuf.Z();
-					const char * p_sign = 0;
-					switch(p_item->Kind) {
-						case StyloQCore::kNativeService: p_sign = "styloq_binderykind_nativeservice"; break;
-						case StyloQCore::kForeignService: p_sign = "styloq_binderykind_foreignservice"; break;
-						case StyloQCore::kClient: p_sign = "styloq_binderykind_client"; break;
-						case StyloQCore::kSession: p_sign = "styloq_binderykind_session"; break;
-						case StyloQCore::kFace: p_sign = "styloq_binderykind_face"; break;
-						case StyloQCore::kDocIncoming: p_sign = "styloq_binderykind_docincoming"; break;
-						case StyloQCore::kDocOutcoming: p_sign = "styloq_binderykind_docoutcominig"; break;
-					}
-					pBlk->TempBuf.CatChar('(').Cat(p_item->Kind).CatChar(')');
-					if(p_sign) {
-						SString & r_temp_buf = SLS.AcquireRvlStr();
-						PPLoadString(p_sign, r_temp_buf);
-						if(r_temp_buf.Len())
-							pBlk->TempBuf.Space().Cat(r_temp_buf);
-					}
-					pBlk->Set(pBlk->TempBuf);
-				}
-				break;
-			case 2: // stylo-q ident
-				pBlk->TempBuf.Z().EncodeMime64(p_item->BI, sizeof(p_item->BI));
-				pBlk->Set(pBlk->TempBuf);
-				break;
-			case 3: // expiry time
-				pBlk->Set(p_item->Expiration);
-				break;
-			case 4: // ext description
-				StyloQCore::MakeDocExtDescriptionText(p_item->DocType, p_item->Flags, pBlk->TempBuf);
-				pBlk->Set(pBlk->TempBuf);
-				break;
-			case 5: // correspond item
-				pBlk->Set(p_item->CorrespondID);
-				break;
-			case 6: // link obj type
+	assert(pBlk->P_SrcData && pBlk->P_DestData); // Функция вызывается только из одной локации и эти members != 0 равно как и pBlk != 0
+	const BrwItem * p_item = static_cast<const BrwItem *>(pBlk->P_SrcData);
+	int    r = 0;
+	switch(pBlk->ColumnN) {
+		case 0: pBlk->Set(p_item->ID); break; // @id
+		case 1: // kind
+			//pBlk->Set(p_item->Kind);
+			{
 				pBlk->TempBuf.Z();
-				if(p_item->LinkOid.Obj) {
-					GetObjectTitle(p_item->LinkOid.Obj, pBlk->TempBuf);
+				const char * p_sign = 0;
+				switch(p_item->Kind) {
+					case StyloQCore::kNativeService: p_sign = "styloq_binderykind_nativeservice"; break;
+					case StyloQCore::kForeignService: p_sign = "styloq_binderykind_foreignservice"; break;
+					case StyloQCore::kClient: p_sign = "styloq_binderykind_client"; break;
+					case StyloQCore::kSession: p_sign = "styloq_binderykind_session"; break;
+					case StyloQCore::kFace: p_sign = "styloq_binderykind_face"; break;
+					case StyloQCore::kDocIncoming: p_sign = "styloq_binderykind_docincoming"; break;
+					case StyloQCore::kDocOutcoming: p_sign = "styloq_binderykind_docoutcominig"; break;
+				}
+				pBlk->TempBuf.CatChar('(').Cat(p_item->Kind).CatChar(')');
+				if(p_sign) {
+					SString & r_temp_buf = SLS.AcquireRvlStr();
+					PPLoadString(p_sign, r_temp_buf);
+					if(r_temp_buf.Len())
+						pBlk->TempBuf.Space().Cat(r_temp_buf);
 				}
 				pBlk->Set(pBlk->TempBuf);
-				break;
-			case 7: // link obj name
-				pBlk->TempBuf.Z();
-				StrPool.GetS(p_item->ObjNameP, pBlk->TempBuf);
-				pBlk->Set(pBlk->TempBuf);
-				break;
-			case 8: // face
-				pBlk->TempBuf.Z();
-				StrPool.GetS(p_item->FaceP, pBlk->TempBuf);
-				pBlk->Set(pBlk->TempBuf);
-				break;
-		}
+			}
+			break;
+		case 2: // stylo-q ident
+			pBlk->TempBuf.Z().EncodeMime64(p_item->BI, sizeof(p_item->BI));
+			pBlk->Set(pBlk->TempBuf);
+			break;
+		case 3: // expiry time
+			pBlk->Set(p_item->Expiration);
+			break;
+		case 4: // ext description
+			StyloQCore::MakeDocExtDescriptionText(p_item->DocType, p_item->Flags, pBlk->TempBuf);
+			pBlk->Set(pBlk->TempBuf);
+			break;
+		case 5: // correspond item
+			pBlk->Set(p_item->CorrespondID);
+			break;
+		case 6: // link obj type
+			pBlk->TempBuf.Z();
+			if(p_item->LinkOid.Obj) {
+				GetObjectTitle(p_item->LinkOid.Obj, pBlk->TempBuf);
+			}
+			pBlk->Set(pBlk->TempBuf);
+			break;
+		case 7: // link obj name
+			pBlk->TempBuf.Z();
+			StrPool.GetS(p_item->ObjNameP, pBlk->TempBuf);
+			pBlk->Set(pBlk->TempBuf);
+			break;
+		case 8: // face
+			pBlk->TempBuf.Z();
+			StrPool.GetS(p_item->FaceP, pBlk->TempBuf);
+			pBlk->Set(pBlk->TempBuf);
+			break;
 	}
 	return ok;
-}
-
-//static
-int FASTCALL PPViewStyloQBindery::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
-{
-	PPViewStyloQBindery * p_v = static_cast<PPViewStyloQBindery *>(pBlk->ExtraPtr);
-	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;
 }
 
 /*static*/int PPViewStyloQBindery::CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr)
@@ -335,7 +326,10 @@ int PPViewStyloQBindery::CellStyleFunc_(const void * pData, long col, int paintA
 /*virtual*/void PPViewStyloQBindery::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	if(pBrw) {
-		pBrw->SetDefUserProc(PPViewStyloQBindery::GetDataForBrowser, this);
+		pBrw->SetDefUserProc([](SBrowserDataProcBlock * pBlk) -> int
+			{
+				return (pBlk && pBlk->ExtraPtr) ? static_cast<PPViewStyloQBindery *>(pBlk->ExtraPtr)->_GetDataForBrowser(pBlk) : 0;				
+			}, this);
 		pBrw->SetCellStyleFunc(CellStyleFunc, pBrw);
 		//pBrw->Helper_SetAllColumnsSortable();
 	}
@@ -620,7 +614,10 @@ int PPViewStyloQCommand::CellStyleFunc_(const void * pData, long col, int paintA
 /*virtual*/void PPViewStyloQCommand::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	if(pBrw) {
-		pBrw->SetDefUserProc(PPViewStyloQCommand::GetDataForBrowser, this);
+		pBrw->SetDefUserProc([](SBrowserDataProcBlock * pBlk) -> int
+			{
+				return (pBlk && pBlk->ExtraPtr) ? static_cast<PPViewStyloQCommand *>(pBlk->ExtraPtr)->_GetDataForBrowser(pBlk) : 0;				
+			}, this);
 		pBrw->SetCellStyleFunc(PPViewStyloQCommand::CellStyleFunc, pBrw);
 		//pBrw->Helper_SetAllColumnsSortable();
 	}
@@ -629,54 +626,46 @@ int PPViewStyloQCommand::CellStyleFunc_(const void * pData, long col, int paintA
 int PPViewStyloQCommand::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
 	int    ok = 1;
-	if(pBlk->P_SrcData && pBlk->P_DestData) {
-		const  uint idx = *static_cast<const uint *>(pBlk->P_SrcData);
-		int    r = 0;
-		const StyloQCommandList::Item * p_item = idx ? List.GetC(idx-1) : 0;
-		if(p_item) {
-			switch(pBlk->ColumnN) {
-				case 0: // uuid
-					pBlk->Set(pBlk->TempBuf.Z().Cat(p_item->Uuid, S_GUID::fmtIDL));
-					break;
-				case 1: // name
-					pBlk->Set((pBlk->TempBuf = p_item->Name).Transf(CTRANSF_UTF8_TO_INNER));
-					break;
-				case 2: // base command
-					pBlk->Set(StyloQCommandList::GetBaseCommandName(p_item->BaseCmdId, pBlk->TempBuf));
-					break;
-				case 3: // DbSymb
-					pBlk->Set(p_item->DbSymb);
-					break;
-				case 4: // ObjTypeRestriction
-					pBlk->TempBuf.Z();
-					if(p_item->ObjTypeRestriction) {
-						GetObjectTitle(p_item->ObjTypeRestriction, pBlk->TempBuf);
+	assert(pBlk->P_SrcData && pBlk->P_DestData); // Функция вызывается только из одной локации и эти members != 0 равно как и pBlk != 0
+	const  uint idx = *static_cast<const uint *>(pBlk->P_SrcData);
+	int    r = 0;
+	const StyloQCommandList::Item * p_item = idx ? List.GetC(idx-1) : 0;
+	if(p_item) {
+		switch(pBlk->ColumnN) {
+			case 0: // uuid
+				pBlk->Set(pBlk->TempBuf.Z().Cat(p_item->Uuid, S_GUID::fmtIDL));
+				break;
+			case 1: // name
+				pBlk->Set((pBlk->TempBuf = p_item->Name).Transf(CTRANSF_UTF8_TO_INNER));
+				break;
+			case 2: // base command
+				pBlk->Set(StyloQCommandList::GetBaseCommandName(p_item->BaseCmdId, pBlk->TempBuf));
+				break;
+			case 3: // DbSymb
+				pBlk->Set(p_item->DbSymb);
+				break;
+			case 4: // ObjTypeRestriction
+				pBlk->TempBuf.Z();
+				if(p_item->ObjTypeRestriction) {
+					GetObjectTitle(p_item->ObjTypeRestriction, pBlk->TempBuf);
+				}
+				pBlk->Set(pBlk->TempBuf);
+				break;
+			case 5: // ObjGroupRestriction
+				pBlk->TempBuf.Z();
+				if(p_item->ObjGroupRestriction) {
+					if(p_item->ObjTypeRestriction == PPOBJ_PERSON) {
+						GetObjectName(PPOBJ_PERSONKIND, p_item->ObjGroupRestriction, pBlk->TempBuf);
 					}
-					pBlk->Set(pBlk->TempBuf);
-					break;
-				case 5: // ObjGroupRestriction
-					pBlk->TempBuf.Z();
-					if(p_item->ObjGroupRestriction) {
-						if(p_item->ObjTypeRestriction == PPOBJ_PERSON) {
-							GetObjectName(PPOBJ_PERSONKIND, p_item->ObjGroupRestriction, pBlk->TempBuf);
-						}
-					}
-					pBlk->Set(pBlk->TempBuf);
-					break;
-				case 6: // Description
-					pBlk->Set((pBlk->TempBuf = p_item->Description).Transf(CTRANSF_UTF8_TO_INNER));
-					break;
-			}
+				}
+				pBlk->Set(pBlk->TempBuf);
+				break;
+			case 6: // Description
+				pBlk->Set((pBlk->TempBuf = p_item->Description).Transf(CTRANSF_UTF8_TO_INNER));
+				break;
 		}
 	}
 	return ok;
-}
-
-//static
-int FASTCALL PPViewStyloQCommand::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
-{
-	PPViewStyloQCommand * p_v = static_cast<PPViewStyloQCommand *>(pBlk->ExtraPtr);
-	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;
 }
 
 /*virtual*/int PPViewStyloQCommand::OnExecBrowser(PPViewBrowser *)

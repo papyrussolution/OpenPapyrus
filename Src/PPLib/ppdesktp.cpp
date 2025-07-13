@@ -12,7 +12,7 @@ using namespace Gdiplus;
 
 static const bool PPDesktop_Use_LayoutFlex = false;
 
-const char * PPDesktop::WndClsName = CLASSNAME_DESKTOPWINDOW;
+const char * PPDesktop::WndClsName = SlConst::WinClsName_Desktop;
 //
 //
 //

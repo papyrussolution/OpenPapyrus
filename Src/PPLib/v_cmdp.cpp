@@ -1728,62 +1728,57 @@ int PPViewUserMenu::MakeList(PPViewBrowser * pBrw)
 
 int PPViewUserMenu::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
-	int    ok = 0;
-	if(pBlk->P_SrcData && pBlk->P_DestData) {
-		ok = 1;
-		const  BrwItem * p_item = static_cast<const BrwItem *>(pBlk->P_SrcData);
-		int    r = 0;
-		/*
-			"ID",           0, int32,        0, 10, BCO_USERPROC
-			"UUID",         1, int32,        0, 10, BCO_USERPROC
-			"Kind",         2, zstring(20),  0, 10, BCO_USERPROC
-			"DbSymb",       3, zstring(48),  0, 10, BCO_USERPROC
-			"Name",         4, zstring(64),  0, 10, BCO_USERPROC
-		*/
-		switch(pBlk->ColumnN) {
-			case 0: pBlk->Set(p_item->ID); break; // @id
-			case 1: // @uuid
-				p_item->Uuid.ToStr(S_GUID::fmtIDL, pBlk->TempBuf);
-				pBlk->Set(pBlk->TempBuf);
-				break; 
-			case 2: // @kind
-				{
-					const char * p_tsign = 0;
-					if(p_item->Kind == UserMenuFilt::kDesktop)
-						pBlk->TempBuf = "desktop";
-					else if(p_item->Kind == UserMenuFilt::kMenu)
-						pBlk->TempBuf = "menu";
-					else
-						pBlk->TempBuf.Z();
-					if(p_item->Flags & p_item->fReservedMenu) {
-						pBlk->TempBuf.Space().Cat("reserved");
-					}
-					pBlk->Set(pBlk->TempBuf);
+	int    ok = 1;
+	assert(pBlk->P_SrcData && pBlk->P_DestData); // Функция вызывается только из одной локации и эти members != 0 равно как и pBlk != 0
+	const  BrwItem * p_item = static_cast<const BrwItem *>(pBlk->P_SrcData);
+	int    r = 0;
+	/*
+		"ID",           0, int32,        0, 10, BCO_USERPROC
+		"UUID",         1, int32,        0, 10, BCO_USERPROC
+		"Kind",         2, zstring(20),  0, 10, BCO_USERPROC
+		"DbSymb",       3, zstring(48),  0, 10, BCO_USERPROC
+		"Name",         4, zstring(64),  0, 10, BCO_USERPROC
+	*/
+	switch(pBlk->ColumnN) {
+		case 0: pBlk->Set(p_item->ID); break; // @id
+		case 1: // @uuid
+			p_item->Uuid.ToStr(S_GUID::fmtIDL, pBlk->TempBuf);
+			pBlk->Set(pBlk->TempBuf);
+			break; 
+		case 2: // @kind
+			{
+				const char * p_tsign = 0;
+				if(p_item->Kind == UserMenuFilt::kDesktop)
+					pBlk->TempBuf = "desktop";
+				else if(p_item->Kind == UserMenuFilt::kMenu)
+					pBlk->TempBuf = "menu";
+				else
+					pBlk->TempBuf.Z();
+				if(p_item->Flags & p_item->fReservedMenu) {
+					pBlk->TempBuf.Space().Cat("reserved");
 				}
-				break; 
-			case 3: // dbSymb
-				pBlk->TempBuf = p_item->DbSymb;
 				pBlk->Set(pBlk->TempBuf);
-				break; 
-			case 4: // name
-				pBlk->TempBuf = p_item->Name;
-				pBlk->Set(pBlk->TempBuf);
-				break; 
-		}
+			}
+			break; 
+		case 3: // dbSymb
+			pBlk->TempBuf = p_item->DbSymb;
+			pBlk->Set(pBlk->TempBuf);
+			break; 
+		case 4: // name
+			pBlk->TempBuf = p_item->Name;
+			pBlk->Set(pBlk->TempBuf);
+			break; 
 	}
 	return ok;
-}
-
-/*static*/int FASTCALL PPViewUserMenu::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
-{
-	PPViewUserMenu * p_v = static_cast<PPViewUserMenu *>(pBlk->ExtraPtr);
-	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;
 }
 
 void PPViewUserMenu::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	if(pBrw) {
-		pBrw->SetDefUserProc(PPViewUserMenu::GetDataForBrowser, this);
+		pBrw->SetDefUserProc([](SBrowserDataProcBlock * pBlk) -> int
+			{
+				return (pBlk && pBlk->ExtraPtr) ? static_cast<PPViewUserMenu *>(pBlk->ExtraPtr)->_GetDataForBrowser(pBlk) : 0;				
+			}, this);
 		//pBrw->SetCellStyleFunc(CellStyleFunc, pBrw);
 		pBrw->Helper_SetAllColumnsSortable(); // @v11.0.0
 	}

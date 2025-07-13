@@ -881,7 +881,7 @@ int PPViewQuot::Helper_CreateTmpTblEntries(const QuotFilt * pFilt, PPQuotItemArr
 	if(pFilt->QuotKindID)
 		qk_id_list.add(pFilt->QuotKindID);
 	else
-		QuotKindList.GetListByParent(0, 0, qk_id_list);
+		QuotKindList.GetListByParent(0, false, qk_id_list);
 	PPID   filt_group_as_goods = 0;
 	PPID   filt_group_id = 0;
 	if(pFilt->GoodsList.GetCount()) {
@@ -905,7 +905,7 @@ int PPViewQuot::Helper_CreateTmpTblEntries(const QuotFilt * pFilt, PPQuotItemArr
 				StrAssocArray * p_list = gg_obj.MakeStrAssocList(reinterpret_cast<void *>(filt_group_id));
 				if(p_list) {
 					PPIDArray grp_list;
-					p_list->GetListByParent(filt_group_id, 1, grp_list);
+					p_list->GetListByParent(filt_group_id, true, grp_list);
 					for(uint i = 0; i < grp_list.getCount(); i++)
 						goods_list.add(grp_list.get(i));
 				}
@@ -1623,7 +1623,7 @@ int PPViewQuot::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * p
 						else if(P_Qc2)
 							P_Qc2->GetCurrList(hdr.GoodsID, 0, 0, quot_list);
 						PPIDArray kind_list;
-						QuotKindList.GetListByParent(0, 1, kind_list);
+						QuotKindList.GetListByParent(0, true, kind_list);
 						uint i = quot_list.getCount();
 						if(i)
 							do {

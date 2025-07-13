@@ -5,6 +5,9 @@
 #include <ppdrvapi.h>
 #include <pp-ifm.h>
 
+static constexpr bool FractionalMedcineTo1291 = true/*не работает*/; // @v12.3.7 Если true, то дробное количество лекарств передаются в поле
+	// количества команды 0x42 в виде n/m, в противном случае - в команде 0x24 в спец строке mdlp
+
 BOOL APIENTRY DllMain(HANDLE hModule, DWORD dwReason, LPVOID lpReserved)
 {
 	switch(dwReason) {
@@ -2319,9 +2322,7 @@ int PiritEquip::PreprocessChZnMark(const char * pMarkCode, double qtty, int uomI
 
 int PiritEquip::RunCheck(int opertype)
 {
-	constexpr bool fractional_medcine_to_1291 = false/*не работает*/; // @v12.3.7 Если true, то дробное количество лекарств передаются в поле
-		// количества команды 0x42 в виде n/m, в противном случае - в команде 0x24 в спец строке mdlp
-	
+
 	int    ok = 1;
 	int    flag = 0;
 	int    _halfbyte = 0;
@@ -2672,7 +2673,7 @@ int PiritEquip::RunCheck(int opertype)
 									CreateStr(str.Z(), in_data); // #1 (tag 1162) Код товарной номенклатуры (для офд 1.2 - пустая строка)
 									if(Check.ChZnProdType == 4) { // #2 (tag 1191) GTCHZNPT_MEDICINE
 										str = "mdlp";
-										if(!fractional_medcine_to_1291) { // @v12.3.7
+										if(!FractionalMedcineTo1291) { // @v12.3.7
 											if(Check.Qtty > 0.0 && Check.Qtty < 1.0 && Check.UomFragm > 0) {
 												double ip = 0.0;
 												double nmrtr = 0.0;
@@ -2775,7 +2776,7 @@ int PiritEquip::RunCheck(int opertype)
 								// @v11.2.6 {
 								str = "mdlp";
 								if(Check.Qtty > 0.0 && Check.Qtty < 1.0 && Check.UomFragm > 0) {
-									// Для ОФД пре-1.2 дробное количество передает так не зависимо от fractional_medcine_to_1291
+									// Для ОФД пре-1.2 дробное количество передает так не зависимо от FractionalMedcineTo1291
 									double ip = 0.0;
 									double nmrtr = 0.0;
 									double dnmntr = 0.0;
@@ -2812,7 +2813,7 @@ int PiritEquip::RunCheck(int opertype)
 				}
 				// @v12.3.7 {
 				if(Check.ChZnProdType == 4) { // #2 (tag 1191) GTCHZNPT_MEDICINE
-					if(fractional_medcine_to_1291) { 
+					if(FractionalMedcineTo1291) { 
 						if(Check.Qtty > 0.0 && Check.Qtty < 1.0 && Check.UomFragm > 0) {
 							double ip = 0.0;
 							double nmrtr = 0.0;

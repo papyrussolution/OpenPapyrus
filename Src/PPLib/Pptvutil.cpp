@@ -1704,6 +1704,22 @@ int STDCALL SetupStringComboWithAddendum(TDialog * dlg, uint ctlID, const char *
 	return PPLoadString(pStrSignature, line_buf) ? Helper_SetupStringCombo(dlg, ctlID, line_buf, pAddendumList, initID) : 0;
 }
 
+int STDCALL SetupStrAssocTreeCombo(TWindow * dlg, uint ctlID, const StrAssocArray & rList, long initID, uint flags, int ownerDrawListBox/*= 0*/)
+{
+	int    ok = 1;
+	ListWindow * p_lw = 0;
+	ComboBox   * p_cb = static_cast<ComboBox *>(dlg->getCtrlView(ctlID));
+	if(p_cb) {
+		const uint options = ownerDrawListBox ? (lbtOwnerDraw|lbtDisposeData|lbtDblClkNotify) : (lbtDisposeData|lbtDblClkNotify);
+		StrAssocArray * p_list = new StrAssocArray(rList);
+		THROW_MEM(p_list);
+		THROW_MEM(p_lw = new ListWindow(new StdTreeListBoxDef(p_list, options, MKSTYPE(S_ZSTRING, 128))));
+		p_cb->setListWindow(p_lw, initID);
+	}
+	CATCHZOK
+	return ok;
+}
+
 int STDCALL SetupStrAssocCombo(TWindow * dlg, uint ctlID, const StrAssocArray & rList, long initID, uint flags, size_t offs, int ownerDrawListBox)
 {
 	int    ok = 1;
@@ -8652,6 +8668,7 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 				}
 			}
 			bool    is_inserted = false; // Признак того, что элемен включен в окно диалога
+			uint32  ctl_id_for_tab = item_id; // @v12.3.8
 			switch(vk) {
 				case UiItemKind::kInput:
 					if(stage == insertctrlstageMain) {
@@ -8827,7 +8844,11 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 						rCtx.GetConst_String(p_scope, DlScope::cuifCbLineSymb, temp_buf);
 						rCtx.GetConst_Uint32(p_scope, DlScope::cuifCbLineSymbIdent, cb_line_id);
 						TInputLine * p_il = new TInputLine(rc, 0/*spcFlags*/, S_ZSTRING, MKSFMT(128, 0));
-						p_il->SetId(cb_line_id ? cb_line_id : (++rLastDynId));
+						{
+							const uint32 local_ctl_id = cb_line_id ? cb_line_id : (++rLastDynId);
+							p_il->SetId(local_ctl_id);
+							ctl_id_for_tab = local_ctl_id;
+						}
 						if(ui_flags & UiItemKind::fTabStop) {
 							p_il->setState(sfTabStop, true);
 						}
@@ -8947,9 +8968,9 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 			// @v12.3.7 {
 			if(item_id && is_inserted) {
 				if(!rFiBlk.FirstTabbedItemId && ui_flags & UiItemKind::fTabStop)
-					rFiBlk.FirstTabbedItemId = item_id;
+					rFiBlk.FirstTabbedItemId = ctl_id_for_tab;
 				if(!rFiBlk.FirstItemId)
-					rFiBlk.FirstItemId = item_id;
+					rFiBlk.FirstItemId = ctl_id_for_tab;
 			}
 			// @v12.3.7 {
 		}

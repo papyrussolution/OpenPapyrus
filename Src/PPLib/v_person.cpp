@@ -4741,67 +4741,62 @@ int PPViewClientActivityDetails::MakeList()
 
 int PPViewClientActivityDetails::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
-	int    ok = 0;
-	if(pBlk->P_SrcData && pBlk->P_DestData) {
-		ok = 1;
-		const  BrwItem * p_item = static_cast<const BrwItem *>(pBlk->P_SrcData);
-		int    r = 0;
-		/*
-			"@date",           0, date,         0, 10, BCO_USERPROC
-			"@event",          1, zstring(128), 0, 30, BCO_USERPROC
-			"@op",             2, zstring(48),  0, 20, BCO_USERPROC
-			"@number",         3, zstring(48),  0, 20, BCO_USERPROC
-			"@addinfo",        4, zstring(64),  0, 20, BCO_USERPROC
-		*/ 
-		switch(pBlk->ColumnN) {
-			case 0: // date
-				pBlk->Set(p_item->Dtm.d);
-				break;
-			case 1: // event
-				{
-					switch(p_item->Oid.Obj) {
-						case PPOBJ_BILL:
-							pBlk->Set(PPLoadStringS("document", SLS.AcquireRvlStr()));
-							break;
-						case PPOBJ_SCARD:
-							pBlk->Set(PPLoadStringS("scard", SLS.AcquireRvlStr()));
-							break;
-						case PPOBJ_CCHECK:
-							pBlk->Set(PPLoadStringS("poscheck", SLS.AcquireRvlStr()));
-							break;
-						case PPOBJ_PERSONEVENT:
-							pBlk->Set(PPLoadStringS("personevent", SLS.AcquireRvlStr()));
-							break;
-						default:
-							pBlk->Set("unexpected-event-source-object");
-							break;							
-					}
+	int    ok = 1;
+	assert(pBlk->P_SrcData && pBlk->P_DestData); // Функция вызывается только из одной локации и эти members != 0 равно как и pBlk != 0
+	const  BrwItem * p_item = static_cast<const BrwItem *>(pBlk->P_SrcData);
+	int    r = 0;
+	/*
+		"@date",           0, date,         0, 10, BCO_USERPROC
+		"@event",          1, zstring(128), 0, 30, BCO_USERPROC
+		"@op",             2, zstring(48),  0, 20, BCO_USERPROC
+		"@number",         3, zstring(48),  0, 20, BCO_USERPROC
+		"@addinfo",        4, zstring(64),  0, 20, BCO_USERPROC
+	*/ 
+	switch(pBlk->ColumnN) {
+		case 0: // date
+			pBlk->Set(p_item->Dtm.d);
+			break;
+		case 1: // event
+			{
+				switch(p_item->Oid.Obj) {
+					case PPOBJ_BILL:
+						pBlk->Set(PPLoadStringS("document", SLS.AcquireRvlStr()));
+						break;
+					case PPOBJ_SCARD:
+						pBlk->Set(PPLoadStringS("scard", SLS.AcquireRvlStr()));
+						break;
+					case PPOBJ_CCHECK:
+						pBlk->Set(PPLoadStringS("poscheck", SLS.AcquireRvlStr()));
+						break;
+					case PPOBJ_PERSONEVENT:
+						pBlk->Set(PPLoadStringS("personevent", SLS.AcquireRvlStr()));
+						break;
+					default:
+						pBlk->Set("unexpected-event-source-object");
+						break;							
 				}
-				break;
-			case 2: // op
-				pBlk->Set(p_item->TransactionOp);
-				break;
-			case 3: // code 
-				pBlk->Set(p_item->TransactionCode);
-				break;
-			case 4: // etc
-				pBlk->Set(p_item->TransactionEtc);
-				break;
-		}
+			}
+			break;
+		case 2: // op
+			pBlk->Set(p_item->TransactionOp);
+			break;
+		case 3: // code 
+			pBlk->Set(p_item->TransactionCode);
+			break;
+		case 4: // etc
+			pBlk->Set(p_item->TransactionEtc);
+			break;
 	}
 	return ok;
-}
-
-/*static*/int FASTCALL PPViewClientActivityDetails::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
-{
-	PPViewClientActivityDetails * p_v = static_cast<PPViewClientActivityDetails *>(pBlk->ExtraPtr);
-	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;
 }
 
 /*virtual*/void PPViewClientActivityDetails::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	if(pBrw) {
-		pBrw->SetDefUserProc(PPViewClientActivityDetails::GetDataForBrowser, this);
+		pBrw->SetDefUserProc([](SBrowserDataProcBlock * pBlk) -> int
+			{
+				return (pBlk && pBlk->ExtraPtr) ? static_cast<PPViewClientActivityDetails *>(pBlk->ExtraPtr)->_GetDataForBrowser(pBlk) : 0;				
+			}, this);
 	}
 }
 

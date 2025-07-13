@@ -221,13 +221,13 @@ int STimeChunkGrid::MoveChunk(int mode, long id, long rowId, const STimeChunk & 
 //
 //
 //
-/*static*/const char * STimeChunkBrowser::WndClsName = "STimeChunkBrowser"; // @global
+// @v12.3.8 /*static*/const char * STimeChunkBrowser::WndClsName = "STimeChunkBrowser"; // @global
 
 /*static*/int STimeChunkBrowser::RegWindowClass(HINSTANCE hInst)
 {
 	WNDCLASSEX wc;
 	INITWINAPISTRUCT(wc);
-	wc.lpszClassName = SUcSwitch(STimeChunkBrowser::WndClsName);
+	wc.lpszClassName = SUcSwitch(SlConst::WinClsName_TimeChunkBrowser);
 	wc.hInstance     = hInst;
 	wc.lpfnWndProc   = STimeChunkBrowser::WndProc;
 	wc.style = CS_HREDRAW|CS_VREDRAW|CS_OWNDC|CS_DBLCLKS;
@@ -516,7 +516,7 @@ const STimeChunkBrowser::SRect * FASTCALL STimeChunkBrowser::SRectArray::SearchP
 	return 0;
 }
 
-STimeChunkBrowser::STimeChunkBrowser() : TBaseBrowserWindow(SUcSwitch(WndClsName)), BmpId_ModeGantt(0), BmpId_ModeHourDay(0), P_Tt(0), Flags(0)
+STimeChunkBrowser::STimeChunkBrowser() : TBaseBrowserWindow(SUcSwitch(SlConst::WinClsName_TimeChunkBrowser)), BmpId_ModeGantt(0), BmpId_ModeHourDay(0), P_Tt(0), Flags(0)
 {
 	P.Quant = 12 * 60;
 	P.PixQuant = 20;
@@ -568,7 +568,7 @@ STimeChunkBrowser::~STimeChunkBrowser()
 /*virtual*/TBaseBrowserWindow::IdentBlock & STimeChunkBrowser::GetIdentBlock(TBaseBrowserWindow::IdentBlock & rBlk)
 {
 	rBlk.IdBias = IdBiasTimeChunkBrowser;
-	rBlk.ClsName = STimeChunkBrowser::WndClsName;
+	rBlk.ClsName = SlConst::WinClsName_TimeChunkBrowser;
 	rBlk.InstanceIdent.Z().Cat(GetResID());
 	return rBlk;
 }
@@ -604,7 +604,7 @@ int STimeChunkBrowser::SaveParameters()
 				case kpTextZonePart: temp_buf.CatEq(item.Txt, St.TextZonePart).Semicol(); break;
 			}
 		}
-		(sub_key = "Software").SetLastSlash().Cat(SLS.GetAppName()).SetLastSlash().Cat("STimeChunkBrowser");
+		(sub_key = "Software").SetLastSlash().Cat(SLS.GetAppName()).SetLastSlash().Cat(SlConst::WinClsName_TimeChunkBrowser);
 		WinRegKey reg_key(HKEY_CURRENT_USER, sub_key, 0);
 		ok = BIN(reg_key.PutString(P.RegSaveParam, temp_buf));
 	}
@@ -621,7 +621,7 @@ int STimeChunkBrowser::RestoreParameters(STimeChunkBrowser::Param & rParam)
 		StrAssocArray param_list;
 		SString temp_buf, sub_key, left, right;
 		MakeParamKeyList(param_list);
-		(sub_key = "Software").SetLastSlash().Cat(SLS.GetAppName()).SetLastSlash().Cat("STimeChunkBrowser");
+		(sub_key = "Software").SetLastSlash().Cat(SLS.GetAppName()).SetLastSlash().Cat(SlConst::WinClsName_TimeChunkBrowser);
 		WinRegKey reg_key(HKEY_CURRENT_USER, sub_key, 1); // @v9.2.0 readonly 0-->1
 		if(reg_key.GetString(rParam.RegSaveParam, val_buf) > 0) {
 			SStrScan scan(val_buf);

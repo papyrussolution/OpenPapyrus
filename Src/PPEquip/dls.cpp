@@ -509,7 +509,7 @@ int PPViewDvcLoadingStat::Init_(const PPBaseFilt * pBaseFilt)
 	if(Filt.GoodsGrpID) {
 		PPObjGoodsGroup ggrp_obj;
 		THROW(p_ggrp_list = ggrp_obj.MakeStrAssocList(0));
-		p_ggrp_list->GetListByParent(Filt.GoodsGrpID, 0, GGrpList);
+		p_ggrp_list->GetListByParent(Filt.GoodsGrpID, false, GGrpList);
 		GGrpList.addUnique(Filt.GoodsGrpID);
 	}
 	CATCHZOK
@@ -851,8 +851,7 @@ DBQuery * PPViewDLSDetail::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 void PPViewDLSDetail::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	if(pBrw && Filt.DvcType == dvctScales) {
-		// @v10.6.4 pBrw->InsColumnWord(1, PPWORD_PLU, 3, 0L, MKSFMTD(5, 0, NMBF_NOZERO), 0);
-		pBrw->InsColumn(1, "@plu", 3, 0L, MKSFMTD(5, 0, NMBF_NOZERO), 0); // @v10.6.4
+		pBrw->InsColumn(1, "@plu", 3, 0L, MKSFMTD(5, 0, NMBF_NOZERO), 0);
 	}
 }
 

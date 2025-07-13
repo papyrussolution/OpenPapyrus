@@ -309,58 +309,54 @@ void PPViewBalance::ViewTotal()
 	}
 }
 
-// static
-int FASTCALL PPViewBalance::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
-{
-	PPViewBalance * p_v = static_cast<PPViewBalance *>(pBlk->ExtraPtr);
-	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;
-}
-
 int FASTCALL PPViewBalance::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
-	int    ok = 0;
-	if(pBlk->P_SrcData && pBlk->P_DestData) {
-		ok = 1;
-		SString temp_buf;
-		const BalanceViewItem * p_item = static_cast<const BalanceViewItem *>(pBlk->P_SrcData);
-		switch(pBlk->ColumnN) {
-			case 3: *static_cast<Acct *>(pBlk->P_DestData) = *reinterpret_cast<const Acct *>(&p_item->Ac); break; // Номер счета
-			case 4: // Символ валюты
-				if(p_item->CurID > 0) {
-					PPCurrency cur_rec;
-					if(CurObj.Fetch(p_item->CurID, &cur_rec) > 0)
-						pBlk->Set(cur_rec.Symb);
-					else
-						pBlk->Set(ideqvalstr(p_item->CurID, temp_buf));
-				}
+	int    ok = 1;
+	assert(pBlk->P_SrcData && pBlk->P_DestData); // Функция вызывается только из одной локации и эти members != 0 равно как и pBlk != 0
+	SString temp_buf;
+	const BalanceViewItem * p_item = static_cast<const BalanceViewItem *>(pBlk->P_SrcData);
+	switch(pBlk->ColumnN) {
+		case 3: *static_cast<Acct *>(pBlk->P_DestData) = *reinterpret_cast<const Acct *>(&p_item->Ac); break; // Номер счета
+		case 4: // Символ валюты
+			if(p_item->CurID > 0) {
+				PPCurrency cur_rec;
+				if(CurObj.Fetch(p_item->CurID, &cur_rec) > 0)
+					pBlk->Set(cur_rec.Symb);
 				else
-					pBlk->SetZero();
-				break;
-			case 5: pBlk->Set(p_item->InDbtRest); break; // Входящий дебет
-			case 6: pBlk->Set(p_item->InCrdRest); break; // Входящий кредит
-			case 7: pBlk->Set(p_item->DbtTrnovr); break; // Обороты дебет
-			case 8: pBlk->Set(p_item->CrdTrnovr); break; // Обороты кредит
-			case 9: pBlk->Set(p_item->OutDbtRest); break; // Исходящий дебет
-			case 10: pBlk->Set(p_item->OutCrdRest); break; // Исходящий кредит
-			case 11: // Наименование счета
-				if(p_item->AccID > 0) {
-					PPAccount acc_rec;
-					if(AccObj.Fetch(p_item->AccID, &acc_rec) > 0)
-						pBlk->Set(acc_rec.Name);
-					else
-						pBlk->Set(ideqvalstr(p_item->AccID, temp_buf));
-				}
+					pBlk->Set(ideqvalstr(p_item->CurID, temp_buf));
+			}
+			else
+				pBlk->SetZero();
+			break;
+		case 5: pBlk->Set(p_item->InDbtRest); break; // Входящий дебет
+		case 6: pBlk->Set(p_item->InCrdRest); break; // Входящий кредит
+		case 7: pBlk->Set(p_item->DbtTrnovr); break; // Обороты дебет
+		case 8: pBlk->Set(p_item->CrdTrnovr); break; // Обороты кредит
+		case 9: pBlk->Set(p_item->OutDbtRest); break; // Исходящий дебет
+		case 10: pBlk->Set(p_item->OutCrdRest); break; // Исходящий кредит
+		case 11: // Наименование счета
+			if(p_item->AccID > 0) {
+				PPAccount acc_rec;
+				if(AccObj.Fetch(p_item->AccID, &acc_rec) > 0)
+					pBlk->Set(acc_rec.Name);
 				else
-					pBlk->SetZero();
-				break;
-		}
+					pBlk->Set(ideqvalstr(p_item->AccID, temp_buf));
+			}
+			else
+				pBlk->SetZero();
+			break;
 	}
 	return ok;
 }
 
 void PPViewBalance::PreprocessBrowser(PPViewBrowser * pBrw)
 {
-	CALLPTRMEMB(pBrw, SetDefUserProc(PPViewBalance::GetDataForBrowser, this));
+	if(pBrw) {
+		pBrw->SetDefUserProc([](SBrowserDataProcBlock * pBlk) -> int
+			{
+				return (pBlk && pBlk->ExtraPtr) ? static_cast<PPViewBalance *>(pBlk->ExtraPtr)->_GetDataForBrowser(pBlk) : 0;				
+			}, this);
+	}
 }
 
 SArray * PPViewBalance::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)

@@ -1,5 +1,5 @@
 // DREAMKAS.CPP
-// Copyright (c) A.Sobolev 2018, 2019, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2018, 2019, 2020, 2021, 2022, 2025
 // @codepage UTF-8
 // Интерфейс с кассовым порталом DreamKas
 //
@@ -331,23 +331,21 @@ int ACS_DREAMKAS::ExportGoods(AsyncCashGoodsIterator & rIter, PPID gcAlcID)
 			else {
 			}
 			{
-				int    is_wght = 0; // @v10.8.4 Признак весового товара
+				bool   is_wght = false; // Признак весового товара
 				SJson * p_iter_obj = SJson::CreateObj();
 				THROW_SL(p_iter_obj);
 				THROW_SL(p_iter_obj->InsertString("id", temp_buf.Z().Cat(gds_info.Uuid, S_GUID::fmtIDL)));
 				THROW_SL(p_iter_obj->InsertString("name", temp_buf.Z().Cat(gds_info.Name).Escape().Transf(CTRANSF_INNER_TO_UTF8)));
-				// @v10.8.4 {
 				{
 					const PPGoodsConfig & gcfg = GetGoodsCfg();
 					if(gds_info.P_CodeList) {
 						for(uint i = 0; !is_wght && i < gds_info.P_CodeList->getCount(); i++) {
 							const BarcodeTbl::Rec & r_bc_item = gds_info.P_CodeList->at(i);
 							if(strlen(r_bc_item.Code) > 3 && gcfg.IsWghtPrefix(r_bc_item.Code))
-								is_wght = 1;
+								is_wght = true;
 						}
 					}
 				}
-				// } @v10.8.4 
 				THROW_SL(p_iter_obj->InsertString("type", is_wght ? "SCALABLE" : "COUNTABLE"));
 				THROW_SL(p_iter_obj->Insert("departmentId", /*json_new_number(temp_buf.Z().Cat(gds_info.DivN))*/new SJson(SJson::tNULL)));
 				THROW_SL(p_iter_obj->Insert("quantity", json_new_number(temp_buf.Z().Cat(1000))));
@@ -390,7 +388,7 @@ int ACS_DREAMKAS::ExportGoods(AsyncCashGoodsIterator & rIter, PPID gcAlcID)
 						SJson * p_array = SJson::CreateArr();
 						THROW_SL(json_insert_child(p_array, json_new_string(temp_buf.Z().Cat(gds_info.ID))));
 						if(etc_bc_pos_list.getCount()) {
-							for(uint j = 0; j < etc_bc_pos_list.getCount(); j++) { // @v10.7.1 @fix normal_bc_pos_list-->etc_bc_pos_list
+							for(uint j = 0; j < etc_bc_pos_list.getCount(); j++) {
 								(temp_buf = gds_info.P_CodeList->at(etc_bc_pos_list.get(j)-1).Code).Escape().Transf(CTRANSF_INNER_TO_UTF8);
 								THROW_SL(json_insert_child(p_array, json_new_string(temp_buf)));
 							}
@@ -617,8 +615,8 @@ int ACS_DREAMKAS::ExportGoods(AsyncCashGoodsIterator & rIter, PPID gcAlcID)
 									SessEntry sess_entry;
 									if(ParseSess(p_cur->P_Child, sess_entry)) {
 										Scb.SessList.insert(&sess_entry);
-										const LDATETIME open_dtm = sess_entry.ClosedTime; // @v10.7.3
-										const LDATETIME close_dtm = sess_entry.OpenedTime; // @v10.7.3
+										const LDATETIME open_dtm = sess_entry.ClosedTime;
+										const LDATETIME close_dtm = sess_entry.OpenedTime;
 										if(!!open_dtm) {
 											if(!Scb.PeriodToCheckQuery.Start || cmp(Scb.PeriodToCheckQuery.Start, open_dtm) > 0)
 												Scb.PeriodToCheckQuery.Start = open_dtm;
@@ -796,11 +794,9 @@ int ACS_DREAMKAS::AcceptCheck(const SJson * pJsonObj)
 							; // @todo message
 						}
 						//rCcPack.InsertItem(goods_id, qtty, price, discount, depart_no, 0);
-						qtty = (cc_flags & CCHKF_RETURN) ? -fabs(qtty) : fabs(qtty); // @v10.7.3
+						qtty = (cc_flags & CCHKF_RETURN) ? -fabs(qtty) : fabs(qtty);
 						SetupTempCcLineRec(0, cc_id, cc_number, cc_dtm.d, 0/*div_n*/, goods_id);
-						// @v10.7.3 SetTempCcLineValues(0, qtty, price, dscnt, 0/*pLnExtStrings*/);
-						// @v10.7.3 THROW_DB(P_TmpCclTbl->insertRec());
-						THROW(SetTempCcLineValuesAndInsert(P_TmpCclTbl, qtty, price, dscnt, 0/*pLnExtStrings*/)); // @v10.7.3
+						THROW(SetTempCcLineValuesAndInsert(P_TmpCclTbl, qtty, price, dscnt, 0/*pLnExtStrings*/));
 					}
 				}
 			}

@@ -1,18 +1,18 @@
 
 [hash]
-base=ppstr2.txt,9QE4hX0+Q5K7gLoUzUFSXgJ/bJxT0bJ/+E7LDDb0gIk=,ppstr2.bin,6X/zZUog8HDoNzTGnNww1Vhut+QAn4rqs5dyu9HNvWQ=
+base=ppstr2.txt,XWN/uUVmhwqSRTyRp+toqkZW2Z/Cx6oP3pZs7jROx1M=,ppstr2.bin,7i/bWDkkFlkXfvQmM411QUmgUvxP81ifvQT79uiMoLE=
 lang-de=ppstr2-de.txt,uiF+XJVJlyDjw7nInhf/AFcW9Tl0++UYflUahSBUK/Y=,ppstr2-de.bin,z5tTW3wrQRt4866sMd5LWX/oYCLHknIJxj6FbKYnSek=
 lang-en=ppstr2-en.txt,wNMuDQEJ8iXS8+Jpd9MAWdg8exLsMCYnqYI0euY1I0Y=,ppstr2-en.bin,5cMKdf3XAXJZe9nWJkS0b2yRiluKkMmBbOM4faM39TI=
 lang-es=ppstr2-es.txt,6DBYF21pt4umLyjG1Rx9bHiNzqHNfQg0oJPNpqQHaL8=,ppstr2-es.bin,jN0oN2zuyiQYf2BQ4rSZo9Fbb/rXRRQTRRg9UgDu54E=
 lang-nl=ppstr2-nl.txt,Zd2VsGPQmBS07XH9hMNEWniNNGEabqE6Uvt5JiQH7Z4=,ppstr2-nl.bin,AqlBiG6YphrbirG4xBKskUNJxcR7ddb/aAT3jXXGCw4=
 lang-pt=ppstr2-pt.txt,hd0YO5YgL7gA2GCadBf7ZRUbAkdgaMaUIQtpfOCrjyM=,ppstr2-pt.bin,jJjEwXMtYJKHJW0wLDUHUXHkn1XOj1KDsbw5UpAVBWw=
-chdr=ppstr2.h,as1SRCDVvKG+nRe/2EQOw1Sit7TNpyx4jhCmAFfdOUw=
-java=ppstr2.java,daWbMMoLu5HiVALV0yUvoiYakYlZ8fjO58rFvBbnOQw=
+chdr=ppstr2.h,b3H5RZSYtWV4igGBBRaRFftPaT/jJgWefwDqz5CNlaY=
+java=ppstr2.java,NgTfjtfkiFOul3dBjELDCyXjZW3Udvtg7Mvmhib/A38=
 
 [common]
 LastAutoGrpCode=1001
-LastSignatureCode=2147499011
-LastAutoCodeList=1,12433;102,10179;103,10073;110,10000;111,13031;112,10000;119,10000;114,10012;7,10000;4,10000;6,10000;342,10000;118,10310;120,10010;1001,10000;121,10000;122,10000;123,10659;124,10795;125,10128
+LastSignatureCode=2147499014
+LastAutoCodeList=1,12433;102,10179;103,10073;110,10000;111,13033;112,10000;119,10000;114,10012;7,10000;4,10000;6,10000;342,10000;118,10310;120,10010;1001,10000;121,10000;122,10000;123,10659;124,10795;125,10128
 
 [SignatureList]
 testsign1=2147495071
@@ -2895,6 +2895,7 @@ filter_styloqpersoneventparam=2147494660
 filter_styloqpersoneventparam_maxgeodist=2147494661
 filter_styloqpersoneventparam_packet=2147494662
 filter_styloqbindery=2147495407
+filter_marketplacegoodsselection=2147499014
 cmd_window=2147485847
 cmd_menutree=2147485848
 cmd_toolpane=2147485849
@@ -4314,6 +4315,7 @@ cashnode_scn_kitchenbell_cmd=2147496056
 cashnode_apncorr=2147487142
 cashnode_apncorr_pl=2147487143
 cashnode_apncorr_pl_s=2147487144
+cashnode_allowedpaymenttypes=2147499012
 ccheck_sysinfo=2147487145
 ccheck_deliveryinfo=2147493746
 ccheck_addendum=2147487146
@@ -11420,6 +11422,7 @@ cristal2setretailgateway=2147499008
 cristal2setretailgateway_runparam=2147499009
 cristal2setretailgateway_runparam_actreadcristalsrcdata=2147499010
 cristal2setretailgateway_runparam_actwritecristaldestdata=2147499011
+wildberries_publicgoodsselectionfilt=2147499013
 rtag_dimentions=2147498965
 rtag_locfreightpackage=2147498966
 dl2score_subnetprice=2147498967
@@ -16126,6 +16129,8 @@ PPTXT_BSCCLS_R_EXP_PRESALE_UNIT=7287524
 PPTXT_BSCCLS_R_EXP_PRESALE_SKU_TIME=7287525
 PPTXT_BSCCLS_R_EXP_PROMO_SKU_TIME=7287526
 PPTXT_BSCCLS_R_EXP_PROMO_TIME=7287527
+PPTXT_BSCCLS_EXP_FUNDINGCOST=7287528
+PPTXT_BSCCLS_R_EXP_FUNDINGCOST=7287529
 PPSSYM_SYMB=7481111
 PPSSYM_ACCSIDE=7481112
 PPSSYM_CMDLINEOP=7481113

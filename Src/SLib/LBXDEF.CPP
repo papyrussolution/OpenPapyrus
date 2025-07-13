@@ -725,7 +725,7 @@ int StdTreeListBoxDef::GoByID(long id)
 bool FASTCALL StdTreeListBoxDef::HasChildren(long id) const
 	{ return P_SaList ? P_SaList->HasChildren(id) : false; }
 int StdTreeListBoxDef::GetListByParent(long parentId, LongArray & rList) const
-	{ return P_SaList ? P_SaList->GetListByParent(parentId, 0, rList) : -1; }
+	{ return P_SaList ? P_SaList->GetListByParent(parentId, false, rList) : -1; }
 int StdTreeListBoxDef::GetParent(long child, long * pParent) const
 	{ return P_SaList ? (P_SaList->GetParent(child, pParent) > 0) : 0; }
 //
@@ -1039,7 +1039,7 @@ int StdTreeListBoxDef2_::GoByID(long id)
 bool FASTCALL StdTreeListBoxDef2_::HasChildren(long id) const
 	{ return P_SaList ? P_SaList->HasChildren(id) : false; }
 int StdTreeListBoxDef2_::GetListByParent(long parentId, LongArray & rList) const
-	{ return P_SaList ? P_SaList->GetListByParent(parentId, 0, rList) : -1; }
+	{ return P_SaList ? P_SaList->GetListByParent(parentId, false, rList) : -1; }
 int StdTreeListBoxDef2_::GetParent(long childId, long * pParentId) const
 	{ return P_SaList ? P_SaList->Search(childId, pParentId, 0) : 0; }
 #if 0 // @v11.2.5 {

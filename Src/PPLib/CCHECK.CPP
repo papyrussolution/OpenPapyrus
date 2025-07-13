@@ -6341,7 +6341,7 @@ int CCheckCore::MakeDate2MaxIdIndex(LAssocArray & rIndex)
 		for(q.initIteration(false, &k, spFirst); q.nextIteration() > 0;) {
 			//f_log.WriteLine(log_buf.Z().Cat(" ").Tab().Cat(data.Dt, DATF_DMY).Tab().Cat(data.ID).CR());
 			if(data.Dt != iter_dt) {
-				if(iter_max_id) {
+				if(iter_max_id && checkdate(iter_dt)) { // @v12.3.8 (&& checkdate(iter_dt))
 					rIndex.Add(iter_dt.v, iter_max_id);
 					//f_log.WriteLine(log_buf.Z().Cat("t").Tab().Cat(iter_dt, DATF_DMY).Tab().Cat(iter_max_id).CR());
 					prev_max_id = iter_max_id;
@@ -6350,7 +6350,7 @@ int CCheckCore::MakeDate2MaxIdIndex(LAssocArray & rIndex)
 			iter_dt = data.Dt;
 			SETMAX(iter_max_id, data.ID);
 		}
-		if(iter_max_id) {
+		if(iter_max_id && checkdate(iter_dt)) { // @v12.3.8 (&& checkdate(iter_dt))
 			rIndex.Add(iter_dt.v, iter_max_id);
 			//f_log.WriteLine(log_buf.Z().Cat("t").Tab().Cat(iter_dt, DATF_DMY).Tab().Cat(iter_max_id).CR());
 		}

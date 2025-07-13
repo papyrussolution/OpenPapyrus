@@ -158,7 +158,6 @@ private:
 	int    getCurItemPos();
 	void   selectPckg(PPID goodsID);
 	bool   isAllGoodsInPckg(PPID goodsID);
-	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	int    _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	enum {
 		cpdifRestrOnly = 0x0001
@@ -774,7 +773,7 @@ int BillItemBrowser::CheckRows()
 
 BillItemBrowser::BillItemBrowser(uint rezID, PPObjBill * pBObj, PPBillPacket * p,
 	PPBillPacket * pMainPack /* Продажа по ордеру */, int pckgPos, int asSelector, int editMode) :
-	AsSelector(asSelector), EditMode(editMode), BrowserWindow(rezID, static_cast<SArray *>(0)),
+	AsSelector(asSelector), EditMode(editMode), BrowserWindow(rezID, static_cast<SArray *>(0), 0),
 	P_BObj(pBObj), P_T(P_BObj->trfr), P_SpcCore(0), P_Pack(p), P_Pckg(0), State(0), CfgShowFlags(0), OrderBillID(0),
 	NewGoodsGrpID(0), CurLine(-1000), P_LinkPack(pMainPack), P_Ec(0)
 {
@@ -1328,393 +1327,392 @@ int BillItemBrowser::CalcShippedQtty(const BillGoodsBrwItem * pItem, const BillG
 int BillItemBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
 	int    ok = 0;
-	if(pBlk->P_SrcData && pBlk->P_DestData && P_Pack) {
-		SString temp_buf;
-		const BillGoodsBrwItem * p_item = static_cast<const BillGoodsBrwItem *>(pBlk->P_SrcData);
-		const  int is_total = (p_item->Pos == -1);
-		if(is_total || (p_item->Pos >= 0 && p_item->Pos < P_Pack->GetTCountI())) {
-			ok = 1;
-			AryBrowserDef * p_def = static_cast<AryBrowserDef *>(getDef());
-			BillGoodsBrwItemArray * p_list = p_def ? (BillGoodsBrwItemArray *)(p_def->getArray()) : 0; // @badcast
-			const PPTransferItem * p_ti = 0;
-			if(is_total) {
-				CurLine = -1;
-				MEMSZERO(ClGoodsRec);
-			}
-			else {
-				p_ti = &P_Pack->ConstTI(p_item->Pos);
-				if(p_item->Pos != CurLine) {
-					if(GObj.Fetch(p_ti->GoodsID, &ClGoodsRec) <= 0) {
-						MEMSZERO(ClGoodsRec);
-						ideqvalstr(p_ti->GoodsID, ClGoodsRec.Name, sizeof(ClGoodsRec.Name));
-					}
-					CurLine = p_item->Pos;
+	assert(pBlk->P_SrcData && pBlk->P_DestData); // Функция вызывается только из одной локации и эти members != 0 равно как и pBlk != 0
+	SString temp_buf;
+	const BillGoodsBrwItem * p_item = static_cast<const BillGoodsBrwItem *>(pBlk->P_SrcData);
+	const  int is_total = (p_item->Pos == -1);
+	if(is_total || (p_item->Pos >= 0 && p_item->Pos < P_Pack->GetTCountI())) {
+		ok = 1;
+		AryBrowserDef * p_def = static_cast<AryBrowserDef *>(getDef());
+		BillGoodsBrwItemArray * p_list = p_def ? (BillGoodsBrwItemArray *)(p_def->getArray()) : 0; // @badcast
+		const PPTransferItem * p_ti = 0;
+		if(is_total) {
+			CurLine = -1;
+			MEMSZERO(ClGoodsRec);
+		}
+		else {
+			p_ti = &P_Pack->ConstTI(p_item->Pos);
+			if(p_item->Pos != CurLine) {
+				if(GObj.Fetch(p_ti->GoodsID, &ClGoodsRec) <= 0) {
+					MEMSZERO(ClGoodsRec);
+					ideqvalstr(p_ti->GoodsID, ClGoodsRec.Name, sizeof(ClGoodsRec.Name));
 				}
+				CurLine = p_item->Pos;
 			}
-			double real_val = 0.0;
-			switch(pBlk->ColumnN) {
-				case 0: // Номер строки
-					if(is_total)
-						ok = 0;
-					else if(/*PPMaster*/1)
-						pBlk->Set((int32)p_item->RByBill);
-					else
-						pBlk->Set((int32)(p_item->Pos+1));
-					break;
-				case 1: // Наименование товара
-					if(is_total)
-						pBlk->Set(Total.Text);
-					else
-						pBlk->Set(ClGoodsRec.Name);
-					break;
-				case 2: // Количество по строке
-					if(is_total)
-						pBlk->Set(Total.Qtty);
-					else if(p_ti->IsCorrectionExp())
-						pBlk->Set(p_ti->Quantity_);
-					else
-						pBlk->Set(p_ti->SQtty(P_Pack->Rec.OpID));
-					break;
-				case 3: // Учетная цена поступления по строке (на одну единицу)
-					if(State & stAccsCost)
-						pBlk->Set(is_total ? Total.Cost : p_ti->Cost);
-					else
-						ok = 0;
-					break;
-				case 4: pBlk->Set(is_total ? Total.Price : p_ti->Price); break; // Учетная цена реализации по строке (на одну единицу)
-				case 5: pBlk->Set(is_total ? Total.Discount : p_ti->Discount); break; // Скидка по строке (на одну единицу)
-				case 6: // Сумма по строке
-					if(is_total)
-						real_val = Total.Amount;
-					else
-						real_val = p_ti->CurID ? p_ti->CalcCurAmount() : p_ti->CalcAmount(!(State & stAccsCost));
+		}
+		double real_val = 0.0;
+		switch(pBlk->ColumnN) {
+			case 0: // Номер строки
+				if(is_total)
+					ok = 0;
+				else if(/*PPMaster*/1)
+					pBlk->Set((int32)p_item->RByBill);
+				else
+					pBlk->Set((int32)(p_item->Pos+1));
+				break;
+			case 1: // Наименование товара
+				if(is_total)
+					pBlk->Set(Total.Text);
+				else
+					pBlk->Set(ClGoodsRec.Name);
+				break;
+			case 2: // Количество по строке
+				if(is_total)
+					pBlk->Set(Total.Qtty);
+				else if(p_ti->IsCorrectionExp())
+					pBlk->Set(p_ti->Quantity_);
+				else
+					pBlk->Set(p_ti->SQtty(P_Pack->Rec.OpID));
+				break;
+			case 3: // Учетная цена поступления по строке (на одну единицу)
+				if(State & stAccsCost)
+					pBlk->Set(is_total ? Total.Cost : p_ti->Cost);
+				else
+					ok = 0;
+				break;
+			case 4: pBlk->Set(is_total ? Total.Price : p_ti->Price); break; // Учетная цена реализации по строке (на одну единицу)
+			case 5: pBlk->Set(is_total ? Total.Discount : p_ti->Discount); break; // Скидка по строке (на одну единицу)
+			case 6: // Сумма по строке
+				if(is_total)
+					real_val = Total.Amount;
+				else
+					real_val = p_ti->CurID ? p_ti->CalcCurAmount() : p_ti->CalcAmount(!(State & stAccsCost));
+				pBlk->Set(real_val);
+				break;
+			case 7: // Физическое количество
+				if(is_total)
+					real_val = Total.PhQtty;
+				else if(p_ti->Flags & PPTFR_INDEPPHQTTY)
+					real_val = p_ti->WtQtty;
+				else if(GObj.GetPhUPerU(&ClGoodsRec, 0, &real_val) > 0)
+					real_val *= p_ti->SQtty(P_Pack->Rec.OpID);
+				pBlk->Set(real_val);
+				break;
+			case 8:  // Старая цена поступления (для переоценки) //
+				if(p_ti->Flags & PPTFR_REVAL)
+					pBlk->Set(p_ti->Quantity_);
+				else
+					ok = 0;
+				break;
+			case 9:  // Старая цена реализации (для переоценки)  //
+				if(is_total)
+					pBlk->Set(Total.OldPrice);
+				else if(p_ti->Flags & PPTFR_REVAL) {
+					real_val = p_ti->IsRecomplete() ? (p_ti->CurID ? p_ti->CurPrice : p_ti->Price) : p_ti->Discount;
 					pBlk->Set(real_val);
-					break;
-				case 7: // Физическое количество
-					if(is_total)
-						real_val = Total.PhQtty;
-					else if(p_ti->Flags & PPTFR_INDEPPHQTTY)
-						real_val = p_ti->WtQtty;
-					else if(GObj.GetPhUPerU(&ClGoodsRec, 0, &real_val) > 0)
-						real_val *= p_ti->SQtty(P_Pack->Rec.OpID);
+				}
+				else
+					ok = 0;
+				break;
+			case 10: // Валютная цена
+				if(is_total)
+					ok = 0;
+				else {
+					if(!(p_ti->Flags & PPTFR_REVAL) && p_ti->CurID)
+						real_val = p_ti->CurPrice;
 					pBlk->Set(real_val);
-					break;
-				case 8:  // Старая цена поступления (для переоценки) //
-					if(p_ti->Flags & PPTFR_REVAL)
-						pBlk->Set(p_ti->Quantity_);
-					else
-						ok = 0;
-					break;
-				case 9:  // Старая цена реализации (для переоценки)  //
-					if(is_total)
-						pBlk->Set(Total.OldPrice);
-					else if(p_ti->Flags & PPTFR_REVAL) {
-						real_val = p_ti->IsRecomplete() ? (p_ti->CurID ? p_ti->CurPrice : p_ti->Price) : p_ti->Discount;
+				}
+				break;
+			case 11: // Валютная сумма
+				if(is_total)
+					real_val = Total.CurAmount;
+				else if(!(p_ti->Flags & PPTFR_REVAL) && p_ti->CurID)
+					real_val = p_ti->CurPrice * p_ti->SQtty(P_Pack->Rec.OpID);
+				pBlk->Set(real_val);
+				break;
+			case 12: // Налоговая группа
+				if(is_total)
+					ok = 0;
+				else {
+					GetObjectName(PPOBJ_GOODSTAX, ClGoodsRec.TaxGrpID, pBlk->TempBuf);
+					pBlk->TempBuf.CopyTo(static_cast<char *>(pBlk->P_DestData), stsize(pBlk->TypeID));
+				}
+				break;
+			case 13: // Ставка НДС
+				if(!is_total && p_list) {
+					int    r = p_list->GetVat(p_item->Pos, &real_val, 0);
+					if(r > 0)
 						pBlk->Set(real_val);
-					}
 					else
 						ok = 0;
-					break;
-				case 10: // Валютная цена
-					if(is_total)
-						ok = 0;
-					else {
-						if(!(p_ti->Flags & PPTFR_REVAL) && p_ti->CurID)
-							real_val = p_ti->CurPrice;
+				}
+				else
+					ok = 0;
+				break;
+			case 14: // Сумма НДС
+				if(is_total)
+					pBlk->Set(Total.VatSum);
+				else if(p_list) {
+					int    r = p_list->GetVat(p_item->Pos, 0, &real_val);
+					if(r > 0)
 						pBlk->Set(real_val);
-					}
-					break;
-				case 11: // Валютная сумма
-					if(is_total)
-						real_val = Total.CurAmount;
-					else if(!(p_ti->Flags & PPTFR_REVAL) && p_ti->CurID)
-						real_val = p_ti->CurPrice * p_ti->SQtty(P_Pack->Rec.OpID);
-					pBlk->Set(real_val);
-					break;
-				case 12: // Налоговая группа
-					if(is_total)
-						ok = 0;
-					else {
-						GetObjectName(PPOBJ_GOODSTAX, ClGoodsRec.TaxGrpID, pBlk->TempBuf);
-						pBlk->TempBuf.CopyTo(static_cast<char *>(pBlk->P_DestData), stsize(pBlk->TypeID));
-					}
-					break;
-				case 13: // Ставка НДС
-					if(!is_total && p_list) {
-						int    r = p_list->GetVat(p_item->Pos, &real_val, 0);
-						if(r > 0)
-							pBlk->Set(real_val);
-						else
-							ok = 0;
-					}
 					else
 						ok = 0;
-					break;
-				case 14: // Сумма НДС
-					if(is_total)
-						pBlk->Set(Total.VatSum);
-					else if(p_list) {
-						int    r = p_list->GetVat(p_item->Pos, 0, &real_val);
-						if(r > 0)
-							pBlk->Set(real_val);
-						else
-							ok = 0;
-					}
-					else
-						ok = 0;
-					break;
-				case 15: // Срок годности
-					if(!is_total)
-						pBlk->Set(p_ti->Expiry);
-					else
-						ok = 0;
-					break;
-				case 16: // Штрихкод или серийный номер или артикул
-					if(!is_total && p_list) {
-						if(P_BObj->Cfg.Flags & BCF_SHOWBARCODESINGBLINES) {
-							if(p_list->GetCode(p_item->Pos, pBlk->TempBuf) < 0) {
-								if(State & stAltView && (CConfig.Flags & CCFLG_USEARGOODSCODE)) {
-									if(P_Pack && P_Pack->Rec.Object)
-										GObj.P_Tbl->GetArCode(P_Pack->Rec.Object, p_ti->GoodsID, temp_buf, 0);
-								}
-								else
-									GObj.FetchSingleBarcode(p_ti->GoodsID, temp_buf);
-								p_list->AddCode(p_item->Pos, temp_buf);
-								pBlk->Set(temp_buf);
+				}
+				else
+					ok = 0;
+				break;
+			case 15: // Срок годности
+				if(!is_total)
+					pBlk->Set(p_ti->Expiry);
+				else
+					ok = 0;
+				break;
+			case 16: // Штрихкод или серийный номер или артикул
+				if(!is_total && p_list) {
+					if(P_BObj->Cfg.Flags & BCF_SHOWBARCODESINGBLINES) {
+						if(p_list->GetCode(p_item->Pos, pBlk->TempBuf) < 0) {
+							if(State & stAltView && (CConfig.Flags & CCFLG_USEARGOODSCODE)) {
+								if(P_Pack && P_Pack->Rec.Object)
+									GObj.P_Tbl->GetArCode(P_Pack->Rec.Object, p_ti->GoodsID, temp_buf, 0);
 							}
-						}
-						else {
-							P_Pack->LTagL.GetString(PPTAG_LOT_SN, p_item->Pos, temp_buf);
+							else
+								GObj.FetchSingleBarcode(p_ti->GoodsID, temp_buf);
+							p_list->AddCode(p_item->Pos, temp_buf);
 							pBlk->Set(temp_buf);
 						}
 					}
-					else
-						ok = 0;
-					break;
-				case 17:
-					if(!is_total && p_ti->Flags & PPTFR_COSTWOVAT)
-						pBlk->Set("Y");
-					else
-						ok = 0;
-					break;
-				case 18:
-					if(!is_total && p_ti->Flags & PPTFR_PRICEWOTAXES)
-						pBlk->Set("Y");
-					else
-						ok = 0;
-					break;
-				case 19: // Отгружено по заказу
-					if(is_total)
-						pBlk->Set(Total.ShippedQtty);
-					else {
-						ok = CalcShippedQtty(p_item, p_list, &real_val);
-						pBlk->Set(real_val);
-					}
-					break;
-				case 20: // Остаток
-					if(is_total)
-						ok = 0;
-					else {
-						if(p_list->GetRest(p_item->Pos, &real_val) < 0) {
-							if(State & stOrderSelector) {
-								if(!(ClGoodsRec.Flags & GF_UNLIM) && P_LinkPack)
-									P_LinkPack->GoodsRest(labs(p_ti->GoodsID), 0, -1, &real_val);
-								else
-									real_val = 0.0;
-								p_list->SetRest(p_item->Pos, real_val);
-							}
-							else if(CfgShowFlags & cfgshowfPrefSuppl) { // @v12.0.11
-								if(!(ClGoodsRec.Flags & GF_UNLIM) && P_Pack)
-									P_Pack->GoodsRest(labs(p_ti->GoodsID), 0, -1, &real_val);
-								else
-									real_val = 0.0;
-								p_list->SetRest(p_item->Pos, real_val);
-							}
-							else
-								real_val = 0.0;
-						}
-						pBlk->Set(real_val);
-					}
-					break;
-				case 23: // Связанное количество
-					pBlk->Set(is_total ? Total.LinkQtty : GetLinkQtty(*p_ti));
-					break;
-				case 24: // Остаток по заказу
-					if(is_total)
-						pBlk->Set(Total.OrderRest);
-					else {
-						ok = CalcShippedQtty(p_item, p_list, 0);
-						p_list->GetOrderRest(p_item->Pos, &real_val);
-						pBlk->Set(real_val);
-					}
-					break;
-				case 25: // Распределенная себестоимость
-					pBlk->Set(is_total ? Total.ExtCost : p_ti->ExtCost);
-					break;
-				case 26: // Складская ячейка
-					if(is_total)
-						pBlk->SetZero();
-					else {
-						GetLocationName(p_ti->LocID, temp_buf);
-						pBlk->Set(temp_buf);
-					}
-					break;
-				case 27: // Штрихкод
-					if(is_total)
-						pBlk->SetZero();
-					else {
-						GObj.FetchSingleBarcode(p_ti->GoodsID, temp_buf);
-						pBlk->Set(temp_buf);
-					}
-					break;
-				case 28: // Серийный номер
-					if(is_total)
-						pBlk->SetZero();
 					else {
 						P_Pack->LTagL.GetString(PPTAG_LOT_SN, p_item->Pos, temp_buf);
 						pBlk->Set(temp_buf);
 					}
-					break;
-				case 29:
-					if(is_total) {
-						temp_buf.Z().Cat(Total.PckgCount, MKSFMTD(0, 0, NMBF_NOZERO));
-						pBlk->Set(temp_buf);
+				}
+				else
+					ok = 0;
+				break;
+			case 17:
+				if(!is_total && p_ti->Flags & PPTFR_COSTWOVAT)
+					pBlk->Set("Y");
+				else
+					ok = 0;
+				break;
+			case 18:
+				if(!is_total && p_ti->Flags & PPTFR_PRICEWOTAXES)
+					pBlk->Set("Y");
+				else
+					ok = 0;
+				break;
+			case 19: // Отгружено по заказу
+				if(is_total)
+					pBlk->Set(Total.ShippedQtty);
+				else {
+					ok = CalcShippedQtty(p_item, p_list, &real_val);
+					pBlk->Set(real_val);
+				}
+				break;
+			case 20: // Остаток
+				if(is_total)
+					ok = 0;
+				else {
+					if(p_list->GetRest(p_item->Pos, &real_val) < 0) {
+						if(State & stOrderSelector) {
+							if(!(ClGoodsRec.Flags & GF_UNLIM) && P_LinkPack)
+								P_LinkPack->GoodsRest(labs(p_ti->GoodsID), 0, -1, &real_val);
+							else
+								real_val = 0.0;
+							p_list->SetRest(p_item->Pos, real_val);
+						}
+						else if(CfgShowFlags & cfgshowfPrefSuppl) { // @v12.0.11
+							if(!(ClGoodsRec.Flags & GF_UNLIM) && P_Pack)
+								P_Pack->GoodsRest(labs(p_ti->GoodsID), 0, -1, &real_val);
+							else
+								real_val = 0.0;
+							p_list->SetRest(p_item->Pos, real_val);
+						}
+						else
+							real_val = 0.0;
 					}
-					else if(p_item->UnitPerPack > 0.0) {
-						char   temp_[256];
-						QttyToStr(p_ti->SQtty(P_Pack->Rec.OpID), p_item->UnitPerPack, QTTYF_COMPLPACK|QTTYF_FRACTION, temp_);
-						pBlk->Set(temp_);
+					pBlk->Set(real_val);
+				}
+				break;
+			case 23: // Связанное количество
+				pBlk->Set(is_total ? Total.LinkQtty : GetLinkQtty(*p_ti));
+				break;
+			case 24: // Остаток по заказу
+				if(is_total)
+					pBlk->Set(Total.OrderRest);
+				else {
+					ok = CalcShippedQtty(p_item, p_list, 0);
+					p_list->GetOrderRest(p_item->Pos, &real_val);
+					pBlk->Set(real_val);
+				}
+				break;
+			case 25: // Распределенная себестоимость
+				pBlk->Set(is_total ? Total.ExtCost : p_ti->ExtCost);
+				break;
+			case 26: // Складская ячейка
+				if(is_total)
+					pBlk->SetZero();
+				else {
+					GetLocationName(p_ti->LocID, temp_buf);
+					pBlk->Set(temp_buf);
+				}
+				break;
+			case 27: // Штрихкод
+				if(is_total)
+					pBlk->SetZero();
+				else {
+					GObj.FetchSingleBarcode(p_ti->GoodsID, temp_buf);
+					pBlk->Set(temp_buf);
+				}
+				break;
+			case 28: // Серийный номер
+				if(is_total)
+					pBlk->SetZero();
+				else {
+					P_Pack->LTagL.GetString(PPTAG_LOT_SN, p_item->Pos, temp_buf);
+					pBlk->Set(temp_buf);
+				}
+				break;
+			case 29:
+				if(is_total) {
+					temp_buf.Z().Cat(Total.PckgCount, MKSFMTD(0, 0, NMBF_NOZERO));
+					pBlk->Set(temp_buf);
+				}
+				else if(p_item->UnitPerPack > 0.0) {
+					char   temp_[256];
+					QttyToStr(p_ti->SQtty(P_Pack->Rec.OpID), p_item->UnitPerPack, QTTYF_COMPLPACK|QTTYF_FRACTION, temp_);
+					pBlk->Set(temp_);
+				}
+				else
+					pBlk->SetZero();
+				break;
+			case 30: // Информация об установленной котировке
+				if(is_total)
+					pBlk->SetZero();
+				else {
+					uint   qsip = 0;
+					if(P_Pack->P_QuotSetupInfoList && P_Pack->P_QuotSetupInfoList->lsearch(&p_item->Pos, &qsip, CMPF_LONG)) {
+						const PPBillPacket::QuotSetupInfoItem & r_qsi = P_Pack->P_QuotSetupInfoList->at(qsip);
+						if(r_qsi.Flags & r_qsi.fInvalidQuot)
+							pBlk->Set("!");
+						else if(r_qsi.Flags & r_qsi.fMissingQuot)
+							pBlk->Set("x");
+						else
+							pBlk->Set("*");
 					}
 					else
 						pBlk->SetZero();
-					break;
-				case 30: // Информация об установленной котировке
-					if(is_total)
-						pBlk->SetZero();
-					else {
-						uint   qsip = 0;
-						if(P_Pack->P_QuotSetupInfoList && P_Pack->P_QuotSetupInfoList->lsearch(&p_item->Pos, &qsip, CMPF_LONG)) {
-							const PPBillPacket::QuotSetupInfoItem & r_qsi = P_Pack->P_QuotSetupInfoList->at(qsip);
-							if(r_qsi.Flags & r_qsi.fInvalidQuot)
-								pBlk->Set("!");
-							else if(r_qsi.Flags & r_qsi.fMissingQuot)
-								pBlk->Set("x");
-							else
-								pBlk->Set("*");
-						}
-						else
-							pBlk->SetZero();
-					}
-					break;
-				case 31: // Заказанное количество (для документов отгрузки)
-					if(is_total) {
-						pBlk->Set(Total.OrderQtty);
+				}
+				break;
+			case 31: // Заказанное количество (для документов отгрузки)
+				if(is_total) {
+					pBlk->Set(Total.OrderQtty);
+				}
+				else {
+					const double ord_qtty = (p_ti->Flags & PPTFR_ONORDER) ? OrdQttyList.Get(p_ti->OrdLotID, 0) : 0.0;
+					pBlk->Set(ord_qtty);
+				}
+				break;
+			case 32: // GUID сертификата VETIS
+				if(is_total)
+					pBlk->SetZero();
+				else {
+					P_Pack->LTagL.GetString(PPTAG_LOT_VETIS_UUID, p_item->Pos, temp_buf);
+					if(temp_buf.IsEmpty()) {
+						Goods2Tbl::Rec goods_rec;
+						if(GObj.Fetch(p_ti->GoodsID, &goods_rec) > 0 && goods_rec.Flags & GF_WANTVETISCERT)
+							temp_buf = "none";
 					}
 					else {
-						const double ord_qtty = (p_ti->Flags & PPTFR_ONORDER) ? OrdQttyList.Get(p_ti->OrdLotID, 0) : 0.0;
-						pBlk->Set(ord_qtty);
-					}
-					break;
-				case 32: // GUID сертификата VETIS
-					if(is_total)
-						pBlk->SetZero();
-					else {
-						P_Pack->LTagL.GetString(PPTAG_LOT_VETIS_UUID, p_item->Pos, temp_buf);
-						if(temp_buf.IsEmpty()) {
-							Goods2Tbl::Rec goods_rec;
-							if(GObj.Fetch(p_ti->GoodsID, &goods_rec) > 0 && goods_rec.Flags & GF_WANTVETISCERT)
-								temp_buf = "none";
-						}
-						else {
-							long  expiry_val = 0;
-							if(!VetisExpiryList.Search(p_item->Pos, &expiry_val, 0)) {
-								S_GUID uuid;
-								if(uuid.FromStr(temp_buf) && !!uuid) {
-									if(SETIFZ(P_Ec, new VetisEntityCore)) {
-										VetisEntityCore::Entity vetis_entity;
-										if(P_Ec->GetEntityByUuid(uuid, vetis_entity) > 0 && vetis_entity.Kind == VetisEntityCore::kVetDocument) {
-											VetisDocumentTbl::Rec vr;
-											if(P_Ec->SearchDocument(vetis_entity.ID, &vr) > 0 && (vr.ExpiryTo || vr.ExpiryFrom)) {
-												SUniTime ut;
-												LDATETIME expiry_dtm;
-												ut.FromInt64(NZOR(vr.ExpiryTo, vr.ExpiryFrom));
-												if(ut.Get(expiry_dtm))
-													expiry_val = static_cast<long>(expiry_dtm.d);
-											}
+						long  expiry_val = 0;
+						if(!VetisExpiryList.Search(p_item->Pos, &expiry_val, 0)) {
+							S_GUID uuid;
+							if(uuid.FromStr(temp_buf) && !!uuid) {
+								if(SETIFZ(P_Ec, new VetisEntityCore)) {
+									VetisEntityCore::Entity vetis_entity;
+									if(P_Ec->GetEntityByUuid(uuid, vetis_entity) > 0 && vetis_entity.Kind == VetisEntityCore::kVetDocument) {
+										VetisDocumentTbl::Rec vr;
+										if(P_Ec->SearchDocument(vetis_entity.ID, &vr) > 0 && (vr.ExpiryTo || vr.ExpiryFrom)) {
+											SUniTime ut;
+											LDATETIME expiry_dtm;
+											ut.FromInt64(NZOR(vr.ExpiryTo, vr.ExpiryFrom));
+											if(ut.Get(expiry_dtm))
+												expiry_val = static_cast<long>(expiry_dtm.d);
 										}
 									}
 								}
-								VetisExpiryList.Add(p_item->Pos, expiry_val);
 							}
-						}
-						pBlk->Set(temp_buf);
-					}
-					break;
-				case 33: // ЕГАИС RefB         
-					if(is_total)
-						pBlk->SetZero();
-					else {
-						P_Pack->LTagL.GetString(PPTAG_LOT_FSRARINFB, p_item->Pos, temp_buf);
-						pBlk->Set(temp_buf);
-					}
-					break;
-				case 34: // ЕГАИС Код товара   
-					if(is_total)
-						pBlk->SetZero();
-					else {
-						P_Pack->LTagL.GetString(PPTAG_LOT_FSRARLOTGOODSCODE, p_item->Pos, temp_buf);
-						pBlk->Set(temp_buf);
-					}
-					break;
-				case 35: // Количество марок, ассоциированных со строкой
-					if(is_total) {
-						pBlk->Set(Total.MarkCount);
-					}
-					else {
-						PPLotExtCodeContainer::MarkSet ecs;
-						long  ecs_count = (P_Pack->XcL.Get(p_item->Pos+1, 0, ecs) > 0) ? ecs.GetCount() : 0;
-						pBlk->Set(ecs_count);
-					}
-					break;
-				case 36: // @v11.5.11 Процент наценки ((price-cost)/cost) @v11.5.11
-					if(State & stAccsCost) {
-						double margin = 0.0;
-						if(is_total)
-							margin = fdivnz(Total.Price - Total.Discount - Total.Cost, Total.Cost) * 100.0;
-						else
-							margin = fdivnz(p_ti->Price - p_ti->Discount - p_ti->Cost, p_ti->Cost) * 100.0;
-						pBlk->Set(margin);
-					}
-					else
-						ok = 0;
-					break;
-				case 37: // Предпочтительный поставщик // @v12.0.8
-					temp_buf.Z();
-					if(!is_total) {
-						const PPID suppl_id = P_Pack->GetPrefSupplForTi(p_item->Pos);
-						ArticleTbl::Rec ar_rec;
-						if(P_BObj->ArObj.Fetch(suppl_id, &ar_rec) > 0) {
-							temp_buf = ar_rec.Name;
+							VetisExpiryList.Add(p_item->Pos, expiry_val);
 						}
 					}
 					pBlk->Set(temp_buf);
-					break;
-				case 38: // Контрактная цена предпочтительного поставщика // @v12.0.8
-					real_val = 0.0;
-					if(!is_total && p_ti && p_ti->GoodsID) {
-						const PPID suppl_id = P_Pack->GetPrefSupplForTi(p_item->Pos);
-						if(suppl_id) {
-							const QuotIdent suppl_deal_qi(P_Pack->Rec.Dt, P_Pack->Rec.LocID, 0, 0, suppl_id);
-							PPSupplDeal sd;
-							GObj.GetSupplDeal(p_ti->GoodsID, suppl_deal_qi, &sd, 1);
-							real_val = sd.Cost;
-						}
-					}
-					pBlk->Set(real_val);
-					break;
-				default:
+				}
+				break;
+			case 33: // ЕГАИС RefB         
+				if(is_total)
+					pBlk->SetZero();
+				else {
+					P_Pack->LTagL.GetString(PPTAG_LOT_FSRARINFB, p_item->Pos, temp_buf);
+					pBlk->Set(temp_buf);
+				}
+				break;
+			case 34: // ЕГАИС Код товара   
+				if(is_total)
+					pBlk->SetZero();
+				else {
+					P_Pack->LTagL.GetString(PPTAG_LOT_FSRARLOTGOODSCODE, p_item->Pos, temp_buf);
+					pBlk->Set(temp_buf);
+				}
+				break;
+			case 35: // Количество марок, ассоциированных со строкой
+				if(is_total) {
+					pBlk->Set(Total.MarkCount);
+				}
+				else {
+					PPLotExtCodeContainer::MarkSet ecs;
+					long  ecs_count = (P_Pack->XcL.Get(p_item->Pos+1, 0, ecs) > 0) ? ecs.GetCount() : 0;
+					pBlk->Set(ecs_count);
+				}
+				break;
+			case 36: // @v11.5.11 Процент наценки ((price-cost)/cost) @v11.5.11
+				if(State & stAccsCost) {
+					double margin = 0.0;
+					if(is_total)
+						margin = fdivnz(Total.Price - Total.Discount - Total.Cost, Total.Cost) * 100.0;
+					else
+						margin = fdivnz(p_ti->Price - p_ti->Discount - p_ti->Cost, p_ti->Cost) * 100.0;
+					pBlk->Set(margin);
+				}
+				else
 					ok = 0;
-			}
+				break;
+			case 37: // Предпочтительный поставщик // @v12.0.8
+				temp_buf.Z();
+				if(!is_total) {
+					const PPID suppl_id = P_Pack->GetPrefSupplForTi(p_item->Pos);
+					ArticleTbl::Rec ar_rec;
+					if(P_BObj->ArObj.Fetch(suppl_id, &ar_rec) > 0) {
+						temp_buf = ar_rec.Name;
+					}
+				}
+				pBlk->Set(temp_buf);
+				break;
+			case 38: // Контрактная цена предпочтительного поставщика // @v12.0.8
+				real_val = 0.0;
+				if(!is_total && p_ti && p_ti->GoodsID) {
+					const PPID suppl_id = P_Pack->GetPrefSupplForTi(p_item->Pos);
+					if(suppl_id) {
+						const QuotIdent suppl_deal_qi(P_Pack->Rec.Dt, P_Pack->Rec.LocID, 0, 0, suppl_id);
+						PPSupplDeal sd;
+						GObj.GetSupplDeal(p_ti->GoodsID, suppl_deal_qi, &sd, 1);
+						real_val = sd.Cost;
+					}
+				}
+				pBlk->Set(real_val);
+				break;
+			default:
+				ok = 0;
 		}
 	}
 	return ok;
@@ -1748,7 +1746,9 @@ int BillItemBrowser::CmpSortIndexItems(const BillGoodsBrwItem * pItem1, const Bi
 				TYPEID typ2 = 0;
 				uint8  dest_data1[512];
 				uint8  dest_data2[512];
-				if(p_def->GetCellData(pItem1, labs(col)-1, &typ1, &dest_data1, sizeof(dest_data1)) && p_def->GetCellData(pItem2, labs(col)-1, &typ2, &dest_data2, sizeof(dest_data2))) {
+				const int r1 = p_def->GetCellData(pItem1, labs(col)-1, &typ1, &dest_data1, sizeof(dest_data1));
+				const int r2 = p_def->GetCellData(pItem2, labs(col)-1, &typ2, &dest_data2, sizeof(dest_data2));
+				if(r1 && r2) {
 					assert(typ1 == typ2);
 					if(typ1 == typ2) {
 						if(GETSTYPE(typ1) == S_ZSTRING)
@@ -1779,12 +1779,6 @@ double FASTCALL BillItemBrowser::GetLinkQtty(const PPTransferItem & rTi) const
 double FASTCALL BillItemBrowser::GetOrderedQtty(const PPTransferItem & rTi) const
 	{ return (rTi.Flags & PPTFR_ONORDER) ? OrdQttyList.Get(rTi.OrdLotID, 0) : 0.0; }
 
-/*static*/int FASTCALL BillItemBrowser::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
-{
-	BillItemBrowser * p_brw = static_cast<BillItemBrowser *>(pBlk->ExtraPtr);
-	return p_brw ? p_brw->_GetDataForBrowser(pBlk) : 0;
-}
-
 void BillItemBrowser::update(int pos)
 {
 	AryBrowserDef * p_def = static_cast<AryBrowserDef *>(getDef());
@@ -1810,7 +1804,10 @@ void BillItemBrowser::update(int pos)
 					org_current_pos = p_list->lsearch(&org_current_pos_in_bill, &lp, CMPF_LONG) ? static_cast<long>(lp) : -1;
 				}
 			}
-			p_def->SetUserProc(BillItemBrowser::GetDataForBrowser, this);
+			p_def->SetUserProc([](SBrowserDataProcBlock * pBlk) -> int
+				{
+					return (pBlk && pBlk->ExtraPtr) ? static_cast<BillItemBrowser *>(pBlk->ExtraPtr)->_GetDataForBrowser(pBlk) : 0;
+				}, this);
 			// {
             p_def->setArray(p_list, 0, 1);
 			setRange(p_list->getCount());
@@ -4884,7 +4881,7 @@ int PPObjBill::AddPckgToBillPacket(PPID pckgID, PPBillPacket * pPack)
 class CompleteBrowser : public BrowserWindow {
 public:
 	CompleteBrowser(PPObjBill * pBObj, const CompleteArray * s, int asSelector) :
-		AsSelector(asSelector), BrowserWindow(BROWSER_COMPLETE, (SArray *)0), Data(*s), P_BObj(pBObj), CmplAryPos(0), SelectedPos(-1)
+		AsSelector(asSelector), BrowserWindow(BROWSER_COMPLETE, static_cast<SArray *>(0), 0), Data(*s), P_BObj(pBObj), CmplAryPos(0), SelectedPos(-1)
 	{
 		AryBrowserDef * p_def = static_cast<AryBrowserDef *>(getDef());
 		if(p_def) {

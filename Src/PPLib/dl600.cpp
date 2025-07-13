@@ -780,14 +780,9 @@ int CtmExpr::SetResolvedVar(const CtmVar & rVar, DLSYMBID typeID)
 int FASTCALL CtmExpr::SetResolvedFunc(const CtmFunc & rFunc)
 {
 	if(oneof2(Kind, kFuncName, kOp)) {
-		/* @v10.2.11 Kind = kFunc;
-		if(Kind == kFuncName)
-			ZDELETE(U.S); */
-		// @v10.2.11 {
 		if(Kind == kFuncName)
 			ZDELETE(U.S);
 		Kind = kFunc;
-		// } @v10.2.11 
 		U.F = rFunc;
 		return 1;
 	}

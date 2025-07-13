@@ -264,57 +264,54 @@ int FASTCALL PPViewLinkedBill::NextIteration(LinkedBillViewItem * pItem)
 
 int PPViewLinkedBill::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
-	int    ok = 0;
-	if(pBlk->P_SrcData && pBlk->P_DestData) {
-		ok = 1;
-		SString temp_buf;
-		const Entry * p_item = static_cast<const Entry *>(pBlk->P_SrcData);
-		PPID   bill_id = p_item->ID;
-		BillTbl::Rec bill_rec;
-		PPBillStatus bs_rec;
-		//const  size_t src_data_size = stsize(pBlk->TypeID);
-		int    r = 0;
-		if(P_BObj->Fetch(bill_id, &bill_rec) > 0)
-			r = 1;
-		switch(pBlk->ColumnN) {
-			case 0: pBlk->Set(bill_id); break; // @id
-			case 1: pBlk->Set(bill_rec.Dt); break; // @date
-			case 2: pBlk->Set(bill_rec.Code); break; // @code
-			case 3: // @billstatus.name
-				if(BsObj.Fetch(bill_rec.StatusID, &bs_rec) > 0)
-					pBlk->Set(bs_rec.Name);
-				else
-					pBlk->SetZero();
-				break;
-			case 4: // @oprkind.name
-				GetOpName(bill_rec.OpID, temp_buf);
-				pBlk->Set(temp_buf);
-				break;
-			case 5: pBlk->Set(bill_rec.Amount); break; // @amount
-			case 6: pBlk->Set(p_item->Payment); break; // @payment
-			case 7: pBlk->Set(p_item->Rest); break; // @rest
-			case 8: // @memo
-				MemoList.GetText(bill_rec.ID, temp_buf);
-				pBlk->Set(temp_buf);
-				break;
-			case 9: // @v12.0.11 @contractor 
-				GetArticleName(bill_rec.Object, temp_buf);
-				pBlk->Set(temp_buf);
-				break;
-		}
+	int    ok = 1;
+	assert(pBlk->P_SrcData && pBlk->P_DestData); // Функция вызывается только из одной локации и эти members != 0 равно как и pBlk != 0
+	SString temp_buf;
+	const Entry * p_item = static_cast<const Entry *>(pBlk->P_SrcData);
+	PPID   bill_id = p_item->ID;
+	BillTbl::Rec bill_rec;
+	PPBillStatus bs_rec;
+	//const  size_t src_data_size = stsize(pBlk->TypeID);
+	int    r = 0;
+	if(P_BObj->Fetch(bill_id, &bill_rec) > 0)
+		r = 1;
+	switch(pBlk->ColumnN) {
+		case 0: pBlk->Set(bill_id); break; // @id
+		case 1: pBlk->Set(bill_rec.Dt); break; // @date
+		case 2: pBlk->Set(bill_rec.Code); break; // @code
+		case 3: // @billstatus.name
+			if(BsObj.Fetch(bill_rec.StatusID, &bs_rec) > 0)
+				pBlk->Set(bs_rec.Name);
+			else
+				pBlk->SetZero();
+			break;
+		case 4: // @oprkind.name
+			GetOpName(bill_rec.OpID, temp_buf);
+			pBlk->Set(temp_buf);
+			break;
+		case 5: pBlk->Set(bill_rec.Amount); break; // @amount
+		case 6: pBlk->Set(p_item->Payment); break; // @payment
+		case 7: pBlk->Set(p_item->Rest); break; // @rest
+		case 8: // @memo
+			MemoList.GetText(bill_rec.ID, temp_buf);
+			pBlk->Set(temp_buf);
+			break;
+		case 9: // @v12.0.11 @contractor 
+			GetArticleName(bill_rec.Object, temp_buf);
+			pBlk->Set(temp_buf);
+			break;
 	}
 	return ok;
 }
 
-/*static*/int FASTCALL PPViewLinkedBill::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
-{
-	PPViewLinkedBill * p_v = static_cast<PPViewLinkedBill *>(pBlk->ExtraPtr);
-	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;
-}
-
 void PPViewLinkedBill::PreprocessBrowser(PPViewBrowser * pBrw)
 {
-	CALLPTRMEMB(pBrw, SetDefUserProc(PPViewLinkedBill::GetDataForBrowser, this));
+	if(pBrw) {
+		pBrw->SetDefUserProc([](SBrowserDataProcBlock * pBlk) -> int
+			{
+				return (pBlk && pBlk->ExtraPtr) ? static_cast<PPViewLinkedBill *>(pBlk->ExtraPtr)->_GetDataForBrowser(pBlk) : 0;				
+			}, this);
+	}
 }
 
 int PPViewLinkedBill::OnExecBrowser(PPViewBrowser * pBrw)

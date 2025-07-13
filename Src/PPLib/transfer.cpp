@@ -1195,7 +1195,7 @@ int Transfer::EvaluateAverageRestByLot(PPID lotID, const DateRange & rPeriod, do
 							rest_qtty_list.add(iter_rest_qtty);
 						}
 					}
-					assert(rest_qtty_list.getCount() == period.GetLength()+1);
+					assert(rest_qtty_list.getCount() == period.GetLength());
 					if(rest_qtty_list.getCount()) {
 						avg_qtty = rest_qtty_list.Sum() / rest_qtty_list.getCount();
 					}

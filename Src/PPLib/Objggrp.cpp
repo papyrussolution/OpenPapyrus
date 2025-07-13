@@ -3064,25 +3064,17 @@ int PPViewBrand::MakeList()
 
 int PPViewBrand::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
-	int    ok = 0;
-	if(pBlk->P_SrcData && pBlk->P_DestData) {
-		ok = 1;
-		const  BrwItem * p_item = static_cast<const BrwItem *>(pBlk->P_SrcData);
-		int    r = 0;
-		switch(pBlk->ColumnN) {
-			case 0: pBlk->Set(p_item->ID); break; // @id
-			case 1: pBlk->Set(p_item->Name); break; // @name
-			case 2: pBlk->Set(p_item->OwnerName); break;
-			case 3: pBlk->Set(static_cast<int32>(p_item->LinkGoodsCount)); break;
-		}
+	int    ok = 1;
+	assert(pBlk->P_SrcData && pBlk->P_DestData); // Функция вызывается только из одной локации и эти members != 0 равно как и pBlk != 0
+	const  BrwItem * p_item = static_cast<const BrwItem *>(pBlk->P_SrcData);
+	int    r = 0;
+	switch(pBlk->ColumnN) {
+		case 0: pBlk->Set(p_item->ID); break; // @id
+		case 1: pBlk->Set(p_item->Name); break; // @name
+		case 2: pBlk->Set(p_item->OwnerName); break;
+		case 3: pBlk->Set(static_cast<int32>(p_item->LinkGoodsCount)); break;
 	}
 	return ok;
-}
-
-/*static*/int FASTCALL PPViewBrand::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
-{
-	PPViewBrand * p_v = static_cast<PPViewBrand *>(pBlk->ExtraPtr);
-	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;
 }
 
 static int PPViewBrand_CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr)
@@ -3119,7 +3111,10 @@ int PPViewBrand::CellStyleFunc_(const void * pData, long col, int paintAction, B
 void PPViewBrand::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	if(pBrw) {
-		pBrw->SetDefUserProc(PPViewBrand::GetDataForBrowser, this);
+		pBrw->SetDefUserProc([](SBrowserDataProcBlock * pBlk) -> int
+			{
+				return (pBlk && pBlk->ExtraPtr) ? static_cast<PPViewBrand *>(pBlk->ExtraPtr)->_GetDataForBrowser(pBlk) : 0;				
+			}, this);
 		pBrw->SetCellStyleFunc(PPViewBrand_CellStyleFunc, pBrw);
 		if(Filt.Flags & Filt.fShowGoodsCount) {
 			pBrw->InsColumn(-1, "@plucount", 3, MKSTYPE(S_UINT, 4), MKSFMT(10, ALIGN_RIGHT), BCO_USERPROC);

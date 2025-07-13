@@ -503,7 +503,7 @@ enum { // Параметр функции AdvBillItemBrowser::update
 };
 
 AdvBillItemBrowser::AdvBillItemBrowser(uint rezID, PPObjBill * pBObj, PPBillPacket * p, SetupAdvItemRowProc pSetEntry) : 
-	BrowserWindow(rezID, (SArray *)0), P_BObj(pBObj), P_Pack(p), P_SetEntry(pSetEntry)
+	BrowserWindow(rezID, static_cast<SArray *>(0), 0), P_BObj(pBObj), P_Pack(p), P_SetEntry(pSetEntry)
 {
 	IsWarrant  = BIN(GetOpSubType(P_Pack->Rec.OpID) == OPSUBT_WARRANT);
 	SString code;

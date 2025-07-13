@@ -1497,7 +1497,10 @@ int PPViewPhnSvcMonitor::Update()
 void PPViewPhnSvcMonitor::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	if(pBrw) {
-		pBrw->SetDefUserProc(PPViewPhnSvcMonitor::GetDataForBrowser, this);
+		pBrw->SetDefUserProc([](SBrowserDataProcBlock * pBlk) -> int
+			{
+				return (pBlk && pBlk->ExtraPtr) ? static_cast<PPViewPhnSvcMonitor *>(pBlk->ExtraPtr)->_GetDataForBrowser(pBlk) : 0;				
+			}, this);
 		pBrw->SetRefreshPeriod(1);
 		//pBrw->SetCellStyleFunc(CellStyleFunc, pBrw);
 	}
@@ -1505,49 +1508,41 @@ void PPViewPhnSvcMonitor::PreprocessBrowser(PPViewBrowser * pBrw)
 
 int PPViewPhnSvcMonitor::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
-	int    ok = 0;
-	if(pBlk->P_SrcData && pBlk->P_DestData) {
-		ok = 1;
-		uint   _pos = *(uint *)pBlk->P_SrcData;
-		if(_pos > 0 && _pos <= List.GetCount()) {
-			List.Get(_pos-1, TempStatusEntry);
-			switch(pBlk->ColumnN) {
-				case 0: pBlk->Set((long)_pos); break; // @id
-				case 1: pBlk->Set(TempStatusEntry.Channel); break; // Channel
-				case 2: // State
-					{
-						SString & r_temp_buf = SLS.AcquireRvlStr();
-						AsteriskAmiClient::GetStateText(TempStatusEntry.State, r_temp_buf);
-						pBlk->Set(r_temp_buf);
-					}
-					break;
-				case 3: pBlk->Set(TempStatusEntry.Priority); break; // Priority
-				case 4: pBlk->Set(TempStatusEntry.Seconds); break; // Seconds
-				case 5: pBlk->Set(TempStatusEntry.TimeToHungUp); break; // TimeToHungUp
-				case 6: pBlk->Set(TempStatusEntry.CallerId); break; // CallerId
-				case 7: // CallerName
-					pBlk->Set(TempStatusEntry.IdentifiedCallerName);
-					break;
-				case 8: pBlk->Set(TempStatusEntry.ConnectedLineNum); break; // ConnectedLineNum
-				case 9: pBlk->Set(TempStatusEntry.ConnectedLineName.Transf(CTRANSF_UTF8_TO_INNER)); break; // ConnectedLineName
-				case 10: pBlk->Set(TempStatusEntry.EffConnectedLineNum); break; // EffConnectedLineNum
-				case 11: pBlk->Set(TempStatusEntry.EffConnectedLineName.Transf(CTRANSF_UTF8_TO_INNER)); break; // EffConnectedLineName
-				case 12: pBlk->Set(TempStatusEntry.Context.Transf(CTRANSF_UTF8_TO_INNER)); break; // Context
-				case 13: pBlk->Set(TempStatusEntry.Exten); break; // Exten
-				case 14: pBlk->Set(TempStatusEntry.DnId); break; // DnId
-				case 15: pBlk->Set(TempStatusEntry.Application.Transf(CTRANSF_UTF8_TO_INNER)); break; // Application
-				case 16: pBlk->Set(TempStatusEntry.Data.Transf(CTRANSF_UTF8_TO_INNER)); break; // Data
-				case 17: pBlk->Set(TempStatusEntry.BridgeId); break; // BridgeId
-			}
+	int    ok = 1;
+	assert(pBlk->P_SrcData && pBlk->P_DestData); // Функция вызывается только из одной локации и эти members != 0 равно как и pBlk != 0
+	uint   _pos = *static_cast<const uint *>(pBlk->P_SrcData);
+	if(_pos > 0 && _pos <= List.GetCount()) {
+		List.Get(_pos-1, TempStatusEntry);
+		switch(pBlk->ColumnN) {
+			case 0: pBlk->Set((long)_pos); break; // @id
+			case 1: pBlk->Set(TempStatusEntry.Channel); break; // Channel
+			case 2: // State
+				{
+					SString & r_temp_buf = SLS.AcquireRvlStr();
+					AsteriskAmiClient::GetStateText(TempStatusEntry.State, r_temp_buf);
+					pBlk->Set(r_temp_buf);
+				}
+				break;
+			case 3: pBlk->Set(TempStatusEntry.Priority); break; // Priority
+			case 4: pBlk->Set(TempStatusEntry.Seconds); break; // Seconds
+			case 5: pBlk->Set(TempStatusEntry.TimeToHungUp); break; // TimeToHungUp
+			case 6: pBlk->Set(TempStatusEntry.CallerId); break; // CallerId
+			case 7: // CallerName
+				pBlk->Set(TempStatusEntry.IdentifiedCallerName);
+				break;
+			case 8: pBlk->Set(TempStatusEntry.ConnectedLineNum); break; // ConnectedLineNum
+			case 9: pBlk->Set(TempStatusEntry.ConnectedLineName.Transf(CTRANSF_UTF8_TO_INNER)); break; // ConnectedLineName
+			case 10: pBlk->Set(TempStatusEntry.EffConnectedLineNum); break; // EffConnectedLineNum
+			case 11: pBlk->Set(TempStatusEntry.EffConnectedLineName.Transf(CTRANSF_UTF8_TO_INNER)); break; // EffConnectedLineName
+			case 12: pBlk->Set(TempStatusEntry.Context.Transf(CTRANSF_UTF8_TO_INNER)); break; // Context
+			case 13: pBlk->Set(TempStatusEntry.Exten); break; // Exten
+			case 14: pBlk->Set(TempStatusEntry.DnId); break; // DnId
+			case 15: pBlk->Set(TempStatusEntry.Application.Transf(CTRANSF_UTF8_TO_INNER)); break; // Application
+			case 16: pBlk->Set(TempStatusEntry.Data.Transf(CTRANSF_UTF8_TO_INNER)); break; // Data
+			case 17: pBlk->Set(TempStatusEntry.BridgeId); break; // BridgeId
 		}
 	}
 	return ok;
-}
-
-/*static*/int FASTCALL PPViewPhnSvcMonitor::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
-{
-	PPViewPhnSvcMonitor * p_v = static_cast<PPViewPhnSvcMonitor *>(pBlk->ExtraPtr);
-	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;
 }
 
 SArray * PPViewPhnSvcMonitor::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)

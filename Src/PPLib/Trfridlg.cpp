@@ -2858,108 +2858,100 @@ IMPL_CMPFUNC(SelLotBrowser_Entry_dt_oprno, i1, i2)
 	return ok;
 }
 
-/*static*/int FASTCALL SelLotBrowser::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
-{
-	SelLotBrowser * p_brw = static_cast<SelLotBrowser *>(pBlk->ExtraPtr);
-	return p_brw ? p_brw->_GetDataForBrowser(pBlk) : 0;
-}
-
 int SelLotBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
-	int    ok = 0;
-	if(pBlk->P_SrcData && pBlk->P_DestData) {
-		SString temp_buf;
-		const  SelLotBrowser::Entry * p_item = static_cast<const SelLotBrowser::Entry *>(pBlk->P_SrcData);
-		{
-			ok = 1;
-			AryBrowserDef * p_def = static_cast<AryBrowserDef *>(getDef());
-			const SArray * p_list = p_def ? static_cast<const SArray *>(p_def->getArray()) : 0;
-			double real_val = 0.0;
-			Goods2Tbl::Rec goods_rec;
-			void * p_dest = pBlk->P_DestData;
-			temp_buf.Z();
-			switch(pBlk->ColumnN) {
-				case 0: pBlk->Set(p_item->LotID); break; // LotID
-				case 1: pBlk->Set(p_item->Dt);    break; // Lot date
-				case 2: // Supplier Name
-					if(P_BObj->CheckRights(BILLOPRT_ACCSSUPPL, 1))
-						GetArticleName(p_item->SupplID, temp_buf);
+	int    ok = 1;
+	assert(pBlk->P_SrcData && pBlk->P_DestData); // Функция вызывается только из одной локации и эти members != 0 равно как и pBlk != 0
+	SString temp_buf;
+	const  SelLotBrowser::Entry * p_item = static_cast<const SelLotBrowser::Entry *>(pBlk->P_SrcData);
+	{
+		AryBrowserDef * p_def = static_cast<AryBrowserDef *>(getDef());
+		const SArray * p_list = p_def ? static_cast<const SArray *>(p_def->getArray()) : 0;
+		double real_val = 0.0;
+		Goods2Tbl::Rec goods_rec;
+		void * p_dest = pBlk->P_DestData;
+		temp_buf.Z();
+		switch(pBlk->ColumnN) {
+			case 0: pBlk->Set(p_item->LotID); break; // LotID
+			case 1: pBlk->Set(p_item->Dt);    break; // Lot date
+			case 2: // Supplier Name
+				if(P_BObj->CheckRights(BILLOPRT_ACCSSUPPL, 1))
+					GetArticleName(p_item->SupplID, temp_buf);
+				pBlk->Set(temp_buf);
+				break;
+			case 3: pBlk->Set(p_item->Rest); break; // Rest
+			case 4: // Unit Name
+				if(GObj.Fetch(p_item->GoodsID, &goods_rec) > 0) {
+					PPUnit unit_rec;
+					if(GObj.FetchUnit(goods_rec.UnitID, &unit_rec) > 0)
+						temp_buf = unit_rec.Name;
+				}
+				pBlk->Set(temp_buf);
+				break;
+			case 5: pBlk->Set(p_item->Serial); break; // Serial
+			case 6: pBlk->Set(p_item->Cost);   break; // Cost
+			case 7: pBlk->Set(p_item->Price);  break; // Price
+			case 8: pBlk->Set(p_item->Expiry); break; // Expiry
+			case 9: // Goods Name
+				GetGoodsName(p_item->GoodsID, temp_buf);
+				pBlk->Set(temp_buf);
+				break;
+			case 10: // Alco code of lot
+				{
+					ObjTagItem tag_item;
+					if(TagObj.FetchTag(p_item->LotID, PPTAG_LOT_FSRARLOTGOODSCODE, &tag_item) > 0)
+						tag_item.GetStr(temp_buf);
 					pBlk->Set(temp_buf);
-					break;
-				case 3: pBlk->Set(p_item->Rest); break; // Rest
-				case 4: // Unit Name
-					if(GObj.Fetch(p_item->GoodsID, &goods_rec) > 0) {
-						PPUnit unit_rec;
-						if(GObj.FetchUnit(goods_rec.UnitID, &unit_rec) > 0)
-							temp_buf = unit_rec.Name;
+				}
+				break;
+			case 11: // Alco REF-A
+				{
+					ObjTagItem tag_item;
+					if(TagObj.FetchTag(p_item->LotID, PPTAG_LOT_FSRARINFA, &tag_item) > 0)
+						tag_item.GetStr(temp_buf);
+					pBlk->Set(temp_buf);
+				}
+				break;
+			case 12: // Alco REF-B
+				{
+					ObjTagItem tag_item;
+					if(TagObj.FetchTag(p_item->LotID, PPTAG_LOT_FSRARINFB, &tag_item) > 0)
+						tag_item.GetStr(temp_buf);
+					pBlk->Set(temp_buf);
+				}
+				break;
+			case 13: pBlk->Set(p_item->Barcode); break; // Barcode
+			case 14: pBlk->Set(p_item->Qtty); break; // Quantity
+			case 15: // Phisycal quantity
+				{
+					double phuperu = 0.0;
+					GObj.GetPhUPerU(p_item->GoodsID, 0, &phuperu);
+					pBlk->Set(p_item->Qtty * phuperu);
+				}
+				break;
+			case 16: // VETIS UUID лота
+				{
+					ObjTagItem tag_item;
+					if(PPRef->Ot.GetTag(PPOBJ_LOT, p_item->LotID, PPTAG_LOT_VETIS_UUID, &tag_item) > 0) { // Здесь намеренно не применяем кэшированный доступ к тегам
+						tag_item.GetStr(temp_buf);
 					}
 					pBlk->Set(temp_buf);
-					break;
-				case 5: pBlk->Set(p_item->Serial); break; // Serial
-				case 6: pBlk->Set(p_item->Cost);   break; // Cost
-				case 7: pBlk->Set(p_item->Price);  break; // Price
-				case 8: pBlk->Set(p_item->Expiry); break; // Expiry
-				case 9: // Goods Name
-					GetGoodsName(p_item->GoodsID, temp_buf);
+				}
+				break;
+			case 17: // Тег дата производства
+				{
+					ObjTagItem tag_item;
+					if(TagObj.FetchTag(p_item->LotID, PPTAG_LOT_MANUFTIME, &tag_item) > 0) {
+						LDATETIME dtm;
+						tag_item.GetTimestamp(&dtm);
+						if(checkdate(dtm.d))
+							temp_buf.Cat(dtm, DATF_DMY, TIMF_HM);
+					}
 					pBlk->Set(temp_buf);
-					break;
-				case 10: // Alco code of lot
-					{
-						ObjTagItem tag_item;
-						if(TagObj.FetchTag(p_item->LotID, PPTAG_LOT_FSRARLOTGOODSCODE, &tag_item) > 0)
-							tag_item.GetStr(temp_buf);
-						pBlk->Set(temp_buf);
-					}
-					break;
-				case 11: // Alco REF-A
-					{
-						ObjTagItem tag_item;
-						if(TagObj.FetchTag(p_item->LotID, PPTAG_LOT_FSRARINFA, &tag_item) > 0)
-							tag_item.GetStr(temp_buf);
-						pBlk->Set(temp_buf);
-					}
-					break;
-				case 12: // Alco REF-B
-					{
-						ObjTagItem tag_item;
-						if(TagObj.FetchTag(p_item->LotID, PPTAG_LOT_FSRARINFB, &tag_item) > 0)
-							tag_item.GetStr(temp_buf);
-						pBlk->Set(temp_buf);
-					}
-					break;
-				case 13: pBlk->Set(p_item->Barcode); break; // Barcode
-				case 14: pBlk->Set(p_item->Qtty); break; // Quantity
-				case 15: // Phisycal quantity
-					{
-						double phuperu = 0.0;
-						GObj.GetPhUPerU(p_item->GoodsID, 0, &phuperu);
-						pBlk->Set(p_item->Qtty * phuperu);
-					}
-					break;
-				case 16: // VETIS UUID лота
-					{
-						ObjTagItem tag_item;
-						if(PPRef->Ot.GetTag(PPOBJ_LOT, p_item->LotID, PPTAG_LOT_VETIS_UUID, &tag_item) > 0) { // Здесь намеренно не применяем кэшированный доступ к тегам
-							tag_item.GetStr(temp_buf);
-						}
-						pBlk->Set(temp_buf);
-					}
-					break;
-				case 17: // Тег дата производства
-					{
-						ObjTagItem tag_item;
-						if(TagObj.FetchTag(p_item->LotID, PPTAG_LOT_MANUFTIME, &tag_item) > 0) {
-							LDATETIME dtm;
-							tag_item.GetTimestamp(&dtm);
-							if(checkdate(dtm.d))
-								temp_buf.Cat(dtm, DATF_DMY, TIMF_HM);
-						}
-						pBlk->Set(temp_buf);
-					}
-					break;
-				default:
-					ok = 0;
-			}
+				}
+				break;
+			default:
+				ok = 0;
 		}
 	}
 	return ok;
@@ -3016,7 +3008,7 @@ int SelLotBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 	return ok;
 }
 
-SelLotBrowser::SelLotBrowser(PPObjBill * pBObj, SArray * pAry, uint pos, long flags) : BrowserWindow(BROWSER_SELECTLOT, pAry), State(0), Flags(flags), P_SpcCore(0)
+SelLotBrowser::SelLotBrowser(PPObjBill * pBObj, SArray * pAry, uint pos, long flags) : BrowserWindow(BROWSER_SELECTLOT, pAry, 0), State(0), Flags(flags), P_SpcCore(0)
 {
 	PPID   single_goods_id = 0;
 	SString single_serial;
@@ -3099,7 +3091,12 @@ SelLotBrowser::SelLotBrowser(PPObjBill * pBObj, SArray * pAry, uint pos, long fl
 	else if(single_serial.NotEmptyS())
 		setSubTitle(single_serial);
 	BrowserDef * p_def = getDef();
-	CALLPTRMEMB(p_def, SetUserProc(SelLotBrowser::GetDataForBrowser, this));
+	if(p_def) {
+		p_def->SetUserProc([](SBrowserDataProcBlock * pBlk) -> int
+			{
+				return (pBlk && pBlk->ExtraPtr) ? static_cast<SelLotBrowser *>(pBlk->ExtraPtr)->_GetDataForBrowser(pBlk) : 0;				
+			}, this);
+	}
 	SetCellStyleFunc(SelLotBrowser::StyleFunc, this);
 }
 

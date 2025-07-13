@@ -491,6 +491,7 @@ typedef int32               TYPEID;
 #define SUOM_GIBIBYTE        43 // @v11.9.4 Гибибайт (1024*1024*1024 байт)
 #define SUOM_TIBIBYTE        44 // @v11.9.4 Тебибайт (1024*1024*1024*1024 байт)
 #define SUOM_GR_EM           45 // Графическая единица: em // @v11.9.4 21-->45
+#define SUOM_WEEK            46 // @v12.3.8 неделя = 7 суток 
 //
 // Половая принадлежность
 // @persistent
@@ -1419,6 +1420,9 @@ public:
 	static constexpr const char * P_DummyEanCode = "4600000000008"; // @v12.3.4 Просто валидный штрихкод ean-13 (надеюсь, имеющий минимальную вероятностью совпадения с реальными кодами)
 	static constexpr const char * P_WrKey_MsWin_DisallowRun = "Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\\DisallowRun"; // @v11.8.12 HKEY_CURRENT_USER
 	static constexpr const char * P_WrKey_MsWin_RestrictRun = "Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\\RestrictRun"; // @v11.8.12 HKEY_CURRENT_USER
+	static constexpr const char * WinClsName_Desktop    = "PPYDESKTOPWINDOW"; // @v12.3.8
+	static constexpr const char * WinClsName_TextEditor = "STextBrowser"; // @v12.3.8
+	static constexpr const char * WinClsName_TimeChunkBrowser = "STimeChunkBrowser"; // @v12.3.8
 	static constexpr uint32 SLobSignature[4] = { 0x2efc, 0xd421, 0x426c, 0xee07 }; // @v12.2.3 Сигнатура объекта SLob, означающая, что буфер структурирован.
 };
 // @v11.7.4 extern const SlConstParam _SlConst_Removed;
@@ -9560,7 +9564,7 @@ public:
 	//   <0 - список this пустой (соответственно и rList при выходе из функции пуст)
 	//
 	int    GetIdList(LongArray & rList) const;
-	int    GetListByParent(long parentId, int recursive, LongArray &) const;
+	int    GetListByParent(long parentId, bool recursive, LongArray &) const;
 	bool   FASTCALL HasChildren(long id) const;
 	int    GetParent(long id, long * pParentId) const;
 	//

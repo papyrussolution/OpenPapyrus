@@ -10051,6 +10051,7 @@
 	#define CTL_CASHNSEXT_FLAGS        (7 + WINDOWS_ID_BIAS)
 	#define CTL_CASHNSEXT_NOTSF        (8 + WINDOWS_ID_BIAS)
 	#define CTL_CASHNSEXT_ZEROBONUS    (9 + WINDOWS_ID_BIAS) // @v11.4.9
+	#define CTL_CASHNSEXT_ALDPAYMT     (10 + WINDOWS_ID_BIAS) // @v12.3.8
 // DLG_CASHND                     1193 occupied
 #define DLG_GTAJFILT              1194
 	#define CTL_GTAJFILT_PERIOD        (1 + WINDOWS_ID_BIAS)
@@ -11807,6 +11808,9 @@
 	#define DLG_UNITECIGP_EWDEMAND       (2 + WINDOWS_ID_BIAS)
 #define DLG_CR2SRGWPARAM          1469 // @v12.3.7 Параметры запуска шлюза кристалл-setretail 
 	#define CTL_CR2SRGWPARAM_ACTIONS     (1 + WINDOWS_ID_BIAS)
+#define DLG_WBGOODSLISTFILT       1470 // @v12.3.8 @experimental Параметры получения списка товаров Wildberries
+	#define CTL_WBGOODSLISTFILT_CAT      (1 + WINDOWS_ID_BIAS)
+	#define CTLSEL_WBGOODSLISTFILT_CAT   (2 + WINDOWS_ID_BIAS)
 //
 // Win32 Dialog Identifiers
 //

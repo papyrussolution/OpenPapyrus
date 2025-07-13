@@ -60,46 +60,38 @@ int PPViewServerStat::Init_(const PPBaseFilt * pFilt)
 	return ok;
 }
 
-/*static*/int FASTCALL PPViewServerStat::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
-{
-	PPViewServerStat * p_v = static_cast<PPViewServerStat *>(pBlk->ExtraPtr);
-	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;
-}
-
 int PPViewServerStat::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
-	int    ok = 0;
-	if(pBlk->P_SrcData && pBlk->P_DestData) {
-		ok = 1;
-		SString temp_buf;
-		const ServerStatViewItem * p_item = static_cast<const ServerStatViewItem *>(pBlk->P_SrcData);
-		void * p_dest = pBlk->P_DestData;
-		switch(pBlk->ColumnN) {
-			case 0: // ИД потока
-				pBlk->Set((int32)p_item->TId);
-				break;
-			case 1: // Вид потока
-				PPThread::GetKindText(p_item->Kind, temp_buf);
-				pBlk->Set(temp_buf);
-				break;
-			case 2: // Время запуска
-				pBlk->Set(temp_buf.Cat(p_item->StartMoment, DATF_DMY, TIMF_HMS));
-				break;
-			case 3: // Время работы
-				{
-					const LDATETIME now_dtm = getcurdatetime_();
-					LTIME ctm;
-					ctm.settotalsec(diffdatetimesec(now_dtm, p_item->StartMoment));
-					pBlk->Set(ctm);
-				}
-				break;
-			case 4: // Наименование
-				pBlk->Set(p_item->Text);
-				break;
-			case 5: // Последнее сообщение
-				pBlk->Set(p_item->LastMsg);
-				break;
-		}
+	int    ok = 1;
+	assert(pBlk->P_SrcData && pBlk->P_DestData); // Функция вызывается только из одной локации и эти members != 0 равно как и pBlk != 0
+	SString temp_buf;
+	const ServerStatViewItem * p_item = static_cast<const ServerStatViewItem *>(pBlk->P_SrcData);
+	void * p_dest = pBlk->P_DestData;
+	switch(pBlk->ColumnN) {
+		case 0: // ИД потока
+			pBlk->Set((int32)p_item->TId);
+			break;
+		case 1: // Вид потока
+			PPThread::GetKindText(p_item->Kind, temp_buf);
+			pBlk->Set(temp_buf);
+			break;
+		case 2: // Время запуска
+			pBlk->Set(temp_buf.Cat(p_item->StartMoment, DATF_DMY, TIMF_HMS));
+			break;
+		case 3: // Время работы
+			{
+				const LDATETIME now_dtm = getcurdatetime_();
+				LTIME ctm;
+				ctm.settotalsec(diffdatetimesec(now_dtm, p_item->StartMoment));
+				pBlk->Set(ctm);
+			}
+			break;
+		case 4: // Наименование
+			pBlk->Set(p_item->Text);
+			break;
+		case 5: // Последнее сообщение
+			pBlk->Set(p_item->LastMsg);
+			break;
 	}
 	return ok;
 }
@@ -122,7 +114,10 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 void PPViewServerStat::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	if(pBrw) {
-		pBrw->SetDefUserProc(PPViewServerStat::GetDataForBrowser, this);
+		pBrw->SetDefUserProc([](SBrowserDataProcBlock * pBlk) -> int
+			{
+				return (pBlk && pBlk->ExtraPtr) ? static_cast<PPViewServerStat *>(pBlk->ExtraPtr)->_GetDataForBrowser(pBlk) : 0;				
+			}, this);
 		pBrw->SetRefreshPeriod(5);
 		pBrw->SetCellStyleFunc(CellStyleFunc, pBrw);
 	}

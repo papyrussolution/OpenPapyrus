@@ -2636,23 +2636,32 @@ PPBizScore2::PPBizScore2()
 }
 
 struct BscClsEntry {
+	//
+	// Descr: Флаги 
+	//
+	enum {
+		fIncome       = 0x0001, // Доходных индикатор
+		fExpense      = 0x0002, // Расходный индикатор
+		fPerUnitValue = 0x0004  // Значение индикатора представлено в расчете на одну торговую единицу товара (произведение на количество будет аддитивно)     
+	};
 	long   Cls;
-	int    Direction; // +1 - income, -1 - expens, 0 - undef
+	int    Flags;     // BscClsEntry::fXXX
 	int    Rank;      // Ранг класса для упорядочивания значений при пользовательском выводе. Чем меньше значение ранга, тем выше позиция показателя.
 	int    TextId;    // Базовое текстовое описание 
 	int    TextRId;   // Текстовое описание для результата расчета (в пересчете на контекстные параметры - количество, время etc)
 };
 
 static const BscClsEntry bsc_cls_list[] = {
-	{ BSCCLS_INC_SALE_UNIT,        +1, 1, PPTXT_BSCCLS_INC_SALE_UNIT,        PPTXT_BSCCLS_R_INC_SALE_UNIT        },
-	{ BSCCLS_EXP_SALE_UNIT,        -1, 2, PPTXT_BSCCLS_EXP_SALE_UNIT,        PPTXT_BSCCLS_R_EXP_SALE_UNIT        },
-	{ BSCCLS_EXP_PURCHASE_UNIT,    -1, 3, PPTXT_BSCCLS_EXP_PURCHASE_UNIT,    PPTXT_BSCCLS_R_EXP_PURCHASE_UNIT    },
-	{ BSCCLS_EXP_TRANSFER_UNIT,    -1, 4, PPTXT_BSCCLS_EXP_TRANSFER_UNIT,    PPTXT_BSCCLS_R_EXP_TRANSFER_UNIT    },
-	{ BSCCLS_EXP_STORAGE_UNIT,     -1, 5, PPTXT_BSCCLS_EXP_STORAGE_UNIT,     PPTXT_BSCCLS_R_EXP_STORAGE_UNIT     },
-	{ BSCCLS_EXP_PRESALE_UNIT,     -1, 6, PPTXT_BSCCLS_EXP_PRESALE_UNIT,     PPTXT_BSCCLS_R_EXP_PRESALE_UNIT     },
-	{ BSCCLS_EXP_PRESALE_SKU_TIME, -1, 7, PPTXT_BSCCLS_EXP_PRESALE_SKU_TIME, PPTXT_BSCCLS_R_EXP_PRESALE_SKU_TIME },
-	{ BSCCLS_EXP_PROMO_SKU_TIME,   -1, 8, PPTXT_BSCCLS_EXP_PROMO_SKU_TIME,   PPTXT_BSCCLS_R_EXP_PROMO_SKU_TIME   },
-	{ BSCCLS_EXP_PROMO_TIME,       -1, 9, PPTXT_BSCCLS_EXP_PROMO_TIME,       PPTXT_BSCCLS_R_EXP_PROMO_TIME       },
+	{ BSCCLS_INC_SALE_UNIT,         BscClsEntry::fIncome|BscClsEntry::fPerUnitValue,   1, PPTXT_BSCCLS_INC_SALE_UNIT,        PPTXT_BSCCLS_R_INC_SALE_UNIT        },
+	{ BSCCLS_EXP_SALE_UNIT,         BscClsEntry::fExpense|BscClsEntry::fPerUnitValue,  2, PPTXT_BSCCLS_EXP_SALE_UNIT,        PPTXT_BSCCLS_R_EXP_SALE_UNIT        },
+	{ BSCCLS_EXP_PURCHASE_UNIT,     BscClsEntry::fExpense|BscClsEntry::fPerUnitValue,  3, PPTXT_BSCCLS_EXP_PURCHASE_UNIT,    PPTXT_BSCCLS_R_EXP_PURCHASE_UNIT    },
+	{ BSCCLS_EXP_TRANSFER_UNIT,     BscClsEntry::fExpense|BscClsEntry::fPerUnitValue,  4, PPTXT_BSCCLS_EXP_TRANSFER_UNIT,    PPTXT_BSCCLS_R_EXP_TRANSFER_UNIT    },
+	{ BSCCLS_EXP_STORAGE_UNIT_TIME, BscClsEntry::fExpense,  5, PPTXT_BSCCLS_EXP_STORAGE_UNIT,     PPTXT_BSCCLS_R_EXP_STORAGE_UNIT     },
+	{ BSCCLS_EXP_PRESALE_UNIT,      BscClsEntry::fExpense|BscClsEntry::fPerUnitValue,  6, PPTXT_BSCCLS_EXP_PRESALE_UNIT,     PPTXT_BSCCLS_R_EXP_PRESALE_UNIT     },
+	{ BSCCLS_EXP_PRESALE_SKU_TIME,  BscClsEntry::fExpense,  7, PPTXT_BSCCLS_EXP_PRESALE_SKU_TIME, PPTXT_BSCCLS_R_EXP_PRESALE_SKU_TIME },
+	{ BSCCLS_EXP_PROMO_SKU_TIME,    BscClsEntry::fExpense,  8, PPTXT_BSCCLS_EXP_PROMO_SKU_TIME,   PPTXT_BSCCLS_R_EXP_PROMO_SKU_TIME   },
+	{ BSCCLS_EXP_PROMO_TIME,        BscClsEntry::fExpense,  9, PPTXT_BSCCLS_EXP_PROMO_TIME,       PPTXT_BSCCLS_R_EXP_PROMO_TIME       },
+	{ BSCCLS_EXP_FUNDINGCOST,       BscClsEntry::fExpense, 10, PPTXT_BSCCLS_EXP_FUNDINGCOST,      PPTXT_BSCCLS_R_EXP_FUNDINGCOST      },
 };
 
 static int GetBscClsRank(long cls)
@@ -2700,13 +2709,19 @@ static const BscClsEntry * SearchBscClsEntry(long cls)
 /*static*/bool PPObjBizScore2::IsBscCls_Income(long cls)
 {
 	const BscClsEntry * p_entry = SearchBscClsEntry(cls);
-	return (p_entry && p_entry->Direction > 0);
+	return (p_entry && (p_entry->Flags & BscClsEntry::fIncome));
 }
 
 /*static*/bool PPObjBizScore2::IsBscCls_Expense(long cls)
 {
 	const BscClsEntry * p_entry = SearchBscClsEntry(cls);
-	return (p_entry && p_entry->Direction < 0);
+	return (p_entry && (p_entry->Flags & BscClsEntry::fExpense));
+}
+
+/*static*/bool PPObjBizScore2::IsBscCls_PerUnitValue(long cls)
+{
+	const BscClsEntry * p_entry = SearchBscClsEntry(cls);
+	return (p_entry && (p_entry->Flags & BscClsEntry::fPerUnitValue));
 }
 
 /*static*/bool PPObjBizScore2::GetBscClsName(long cls, SString & rBuf)
@@ -3432,43 +3447,35 @@ int PPViewBizSc2Val::MakeList(PPViewBrowser * pBrw)
 
 int PPViewBizSc2Val::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
-	int    ok = 0;
-	if(pBlk->P_SrcData && pBlk->P_DestData) {
-		ok = 1;
-		const  BrwItem * p_item = static_cast<const BrwItem *>(pBlk->P_SrcData);
-		SString temp_buf;
-		PPBizScore2Packet bs_pack;
-		const int fr = BscObj.Fetch(p_item->ScoreID, &bs_pack);
-		switch(pBlk->ColumnN) {
-			case 0: pBlk->Set(p_item->ID); break; // @id
-			case 1: // @date
-				pBlk->Set(p_item->Dt); 
-				break; 
-			case 2: // @appellation
-				pBlk->Set(bs_pack.Rec.Name);
-				break; 
-			case 3:  // @value
-				temp_buf.Z();
-				if(bs_pack.Rec.DataType == OTTYP_NUMBER) {
-					temp_buf.Cat(p_item->RVal, MKSFMTD(0, 6, 0));
-				}
-				else if(bs_pack.Rec.DataType == OTTYP_INT) {
-					temp_buf.Cat(p_item->IVal);
-				}
-				else if(bs_pack.Rec.DataType == OTTYP_STRING) {
-					StrPool.GetS(p_item->TextP, temp_buf);
-				}
-				pBlk->Set(temp_buf);
-				break;
-		}
+	int    ok = 1;
+	assert(pBlk->P_SrcData && pBlk->P_DestData); // Функция вызывается только из одной локации и эти members != 0 равно как и pBlk != 0
+	const  BrwItem * p_item = static_cast<const BrwItem *>(pBlk->P_SrcData);
+	SString temp_buf;
+	PPBizScore2Packet bs_pack;
+	const int fr = BscObj.Fetch(p_item->ScoreID, &bs_pack);
+	switch(pBlk->ColumnN) {
+		case 0: pBlk->Set(p_item->ID); break; // @id
+		case 1: // @date
+			pBlk->Set(p_item->Dt); 
+			break; 
+		case 2: // @appellation
+			pBlk->Set(bs_pack.Rec.Name);
+			break; 
+		case 3:  // @value
+			temp_buf.Z();
+			if(bs_pack.Rec.DataType == OTTYP_NUMBER) {
+				temp_buf.Cat(p_item->RVal, MKSFMTD(0, 6, 0));
+			}
+			else if(bs_pack.Rec.DataType == OTTYP_INT) {
+				temp_buf.Cat(p_item->IVal);
+			}
+			else if(bs_pack.Rec.DataType == OTTYP_STRING) {
+				StrPool.GetS(p_item->TextP, temp_buf);
+			}
+			pBlk->Set(temp_buf);
+			break;
 	}
 	return ok;
-}
-
-/*static*/int FASTCALL PPViewBizSc2Val::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
-{
-	PPViewBizSc2Val * p_v = static_cast<PPViewBizSc2Val *>(pBlk->ExtraPtr);
-	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;
 }
 
 /*virtual*/SArray * PPViewBizSc2Val::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
@@ -3489,11 +3496,14 @@ int PPViewBizSc2Val::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 	DBQuery * p_result = 0;
 	return p_result;
 }
-	
+
 /*virtual*/void PPViewBizSc2Val::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	if(pBrw) {
-		pBrw->SetDefUserProc(PPViewBizSc2Val::GetDataForBrowser, this);
+		pBrw->SetDefUserProc([](SBrowserDataProcBlock * pBlk) -> int
+			{
+				return (pBlk && pBlk->ExtraPtr) ? static_cast<PPViewBizSc2Val *>(pBlk->ExtraPtr)->_GetDataForBrowser(pBlk) : 0;				
+			}, this);
 	}
 }
 	

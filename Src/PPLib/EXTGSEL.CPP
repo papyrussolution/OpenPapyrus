@@ -85,7 +85,7 @@ IMPL_CMPFUNC(PickLotBrowser_Entry_GoodsName, i1, i2)
 	return pAry ? (pAry->sort(PTR_CMPFUNC(PickLotBrowser_Entry_GoodsName)), 1) : 0;
 }
 
-PickLotBrowser::PickLotBrowser(SArray * pList) : BrowserWindow(BROWSER_PICKLOT, pList), P_BObj(BillObj)
+PickLotBrowser::PickLotBrowser(SArray * pList) : BrowserWindow(BROWSER_PICKLOT, pList, 0), P_BObj(BillObj)
 {
 }
 

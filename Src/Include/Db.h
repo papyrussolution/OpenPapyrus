@@ -448,7 +448,7 @@ public:
 			// В противном случае сопоставление идет по порядку следования записей и элементов SdRecord.
 		fCpOem       = 0x0010, // Текст имеет кодировку OEM
 		fQuotText    = 0x0020, // Текстовые поля обрамлены двойными кавычками
-		fCpUtf8      = 0x0040, // @v10.9.3 Текст имеет кодировку Utf8
+		fCpUtf8      = 0x0040, // Текст имеет кодировку Utf8
 	};
 	struct Param { // @persistent
 		Param(long flags = 0, const char * pFldDiv = 0, const char * pVertRecTerm = 0);
@@ -3442,11 +3442,11 @@ public:
 		tv   = BTS_TIME,
 		dtv  = BTS_DATETIME,
 		ptrv = BTS_PTR,
-		i64v = BTS_INT64_, // @v10.6.3
+		i64v = BTS_INT64_,
 	};
 	union {
 		long   lval;
-		int64  i64val; // @v10.6.3
+		int64  i64val;
 		double rval;
 		char * sptr;
 		const  void * ptrval;  // Экземпляр ни при каких обстоятельствах не владеет объектом по этому указателю
@@ -3487,14 +3487,14 @@ struct DBE : public DBItem {
 			dv = BTS_DATE,
 			tv = BTS_TIME,
 			ptrv = BTS_PTR,
-			i64v = BTS_INT64_, // @v10.6.3
+			i64v = BTS_INT64_,
 			fld = 101,
 			func = 102
 		} tag;
 		union {
 			DBFunc  function;
 			long    lval;
-			int64   i64val; // @v10.6.3
+			int64   i64val;
 			double  rval;
 			char *  sptr;
 			void *  ptrval;
@@ -4091,10 +4091,8 @@ private:
 	long   State;
 	SSqlStmt * P_Stmt;
 	int    InitSpMode;
-	BtrDbKey InitKey_; // @v10.6.8
-	BtrDbKey _Key_;    // @v10.6.8
-	// @v10.6.8 char   InitKey[ALIGNSIZE(MAXKEYLEN, 2)];
-	// @v10.6.8 char   _Key[ALIGNSIZE(MAXKEYLEN, 2)];
+	BtrDbKey InitKey_;
+	BtrDbKey _Key_;
 };
 //
 //
@@ -4172,7 +4170,7 @@ public:
 	enum {
 		ofReadOnly       = 0x0001, // Только для чтения //
 		ofExclusive      = 0x0002, // Эксклюзивный режим работы
-		ofReadUncommited = 0x0004  // @v10.1.8  DB_READ_UNCOMMITTED
+		ofReadUncommited = 0x0004  // DB_READ_UNCOMMITTED
 	};
 	class Config {
 	public:
@@ -4468,14 +4466,14 @@ public:
 		stLoggedIn = 0x0002,
 		stReadOnly = 0x0004, // Экземпляр базы данных создан в режиме READ-ONLY
 		stWriteStatOnClose = 0x0008, // При закрытии базы сохранять статистику по таблицам (проекция oWriteStatOnClose)
-		stExclusive        = 0x0010  // @v10.0.12 База данных открыта в эксклюзивном режиме
+		stExclusive        = 0x0010  // База данных открыта в эксклюзивном режиме
 	};
 	enum {
 		oRecover  = 0x00000001,
 		oPrivate  = 0x00000002, // окружение (ENVIRONMENT) BerkeleyDB не может быть использовано разными процессами
 		oReadOnly = 0x00000004, // База данных открывается в режиме READ-ONLY
 		oWriteStatOnClose = 0x00000008, // При закрытии базы сохранять статистику по таблицам
-		oExclusive        = 0x00000010, // @v10.0.12 База данных открывается в эксклюзивном режиме
+		oExclusive        = 0x00000010, // База данных открывается в эксклюзивном режиме
 	};
 	struct Config {
 		Config();

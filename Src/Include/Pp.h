@@ -17361,7 +17361,6 @@ public:
 	int    CmpSortIndexItems(PPViewBrowser * pBrw, const PPViewEvent::BrwItem * pItem1, const PPViewEvent::BrwItem * pItem2);
 	static int CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle, PPViewBrowser * pBrw);
 private:
-	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	virtual SArray * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
 	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual int  OnExecBrowser(PPViewBrowser *);
@@ -18742,7 +18741,6 @@ public:
 	int    CmpSortIndexItems(PPViewBrowser * pBrw, const PPViewTimeSeries::BrwItem * pItem1, const PPViewTimeSeries::BrwItem * pItem2);
 	static int CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle, PPViewBrowser * pBrw);
 private:
-	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	virtual SArray * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
 	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual int  OnExecBrowser(PPViewBrowser *);
@@ -18791,7 +18789,6 @@ public:
 	int    FASTCALL NextIteration(TimSerDetailViewItem *);
 	int    ViewGraph(const PPViewBrowser * pBrw);
 private:
-	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	virtual SArray * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
 	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual int  OnExecBrowser(PPViewBrowser *);
@@ -18804,42 +18801,6 @@ private:
 	PPObjTimeSeries Obj;
 	STimeSeries Ts;
 };
-
-#if 0 // @construction {
-
-class TimSerStrategyContainerFilt : public PPBaseFilt {
-public:
-	TimSerStrategyContainerFilt();
-
-	uint8  ReserveStart[128]; // @anchor
-	long   Flags;
-	PPID   TsID;             // Идент временной серии
-	long   Reserve;          // @anchor
-};
-
-class PPViewTimSerStrategyContainer : public PPView {
-public:
-	PPViewTimSerStrategyContainer();
-	~PPViewTimSerStrategyContainer();
-	virtual int Init_(const PPBaseFilt * pBaseFilt);
-	virtual int EditBaseFilt(PPBaseFilt * pBaseFilt);
-	int    InitIteration();
-	int    FASTCALL NextIteration(PPObjTimeSeries::Strategy *);
-private:
-	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
-	virtual SArray * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
-	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
-	virtual int  OnExecBrowser(PPViewBrowser *);
-	virtual int  ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
-	int    _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
-	int    MakeList(PPViewBrowser * pBrw);
-
-	SArray * P_DsList;
-	TimSerStrategyContainerFilt Filt;
-	PPObjTimeSeries::StrategyContainer Sc;
-	PPObjTimeSeries TsObj;
-};
-#endif // } 0 @construction
 //
 //
 //
@@ -18851,7 +18812,7 @@ public:
 	enum {
 		fFindOptMaxDuck    = 0x0001,
 		fFindStrategies    = 0x0002,
-		fForce     = 0x0004,
+		fForce             = 0x0004,
 		fProcessLong       = 0x0008,
 		fProcessShort      = 0x0010,
 		fAutodetectTargets = 0x0020, // Автоматически идентифицировать серии, модели по которым следует пересчитать
@@ -20065,11 +20026,12 @@ private:
 #define BSCCLS_EXP_SALE_UNIT           2 // Расходы на продажу единицы продукции
 #define BSCCLS_EXP_PURCHASE_UNIT       3 // Расходы на закупку единицы продукции
 #define BSCCLS_EXP_TRANSFER_UNIT       4 // Расходы на передачу единицы продукции (с одного места хранения на другое, либо со склада покупателя, либо возврат от покупателя на склад etc)  
-#define BSCCLS_EXP_STORAGE_UNIT        5 // Расходы на хранение единицы продукции 
+#define BSCCLS_EXP_STORAGE_UNIT_TIME   5 // Расходы на хранение единицы продукции (в сутки)
 #define BSCCLS_EXP_PRESALE_UNIT        6 // Расходы на предпродажную подготовку единицы продукции
-#define BSCCLS_EXP_PRESALE_SKU_TIME    7 // Расходы на предпродажную подготовку одного наименования продукции (в единицу времени)
+#define BSCCLS_EXP_PRESALE_SKU_TIME    7 // Расходы на предпродажную подготовку одного наименования продукции (в год)
 #define BSCCLS_EXP_PROMO_SKU_TIME      8 // Маркетинговые расходы на категорию продукции (в единицу времени)
 #define BSCCLS_EXP_PROMO_TIME          9 // Маркетинговые расходы не привязанные к продукции (в единицу времени)
+#define BSCCLS_EXP_FUNDINGCOST        10 // Стоимость фондирования (в годовых процентах)
 //
 // Descr: Индикаторы бизнес-показателей.
 // 
@@ -20262,6 +20224,10 @@ public:
 	// Descr: Возвращает true если класс cls бизнес-показателя олицетворяет расходные значения //
 	//
 	static bool IsBscCls_Expense(long cls);
+	//
+	// Descr: Возвращает true если значение индикатора класса cls представлено на одну единицу товара.
+	//
+	static bool IsBscCls_PerUnitValue(long cls);
 	explicit PPObjBizScore2(void * extraPtr = 0);
 	~PPObjBizScore2();
 	virtual int  Edit(PPID * pID, void * extraPtr /*userID*/);
@@ -20455,7 +20421,6 @@ public:
 	virtual int   EditBaseFilt(PPBaseFilt *);
 	virtual int   Init_(const PPBaseFilt * pBaseFilt);
 private:
-	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	virtual SArray * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual void  PreprocessBrowser(PPViewBrowser * pBrw);
@@ -21170,7 +21135,8 @@ extern "C" typedef PPAbstractDevice * (*FN_PPDEVICE_FACTORY)();
 	// 1. Ищется базовая котировка по складу, к которому привязан кассовый узел
 	// 2. Если на предыдущем шаге котировка не найдена, то ищется базовая котировка для всех складов
 	// 3. Если на предыдущем шаге котировка не найдена, то используется обычное правило определение цены по лотам
-#define CASHF_NOASKPAYMTYPE       0x00100000L // (sync)  не запрашивать вид оплаты
+#define CASHF_NOASKPAYMTYPE       0x00100000L // (sync)  не запрашивать вид оплаты // @v12.3.8 это флаг замещается полем PPSyncCashNode::AllowedPaymentTypes. 
+	// Но некоторое время будет работать в режиме совместимости.
 #define CASHF_SHOWREST            0x00200000L // (sync)  в панели ввода чеков показывать остаток
 #define CASHF_KEYBOARDWKEY        0x00400000L // (sync)  используется клавиатура с ключом
 #define CASHF_WORKWHENLOCK        0x00800000L // (sync)  разрешить работу с кассовой панелью при блокировке
@@ -21434,6 +21400,8 @@ public:
 	int16  ChZnPermissiveMode; // @v11.9.12 Варианты работы с разрешительным режимом честный знак. 0 - не использовать, 1 - строгое использование, 2 - мягкое использование.
 	uint16 BonusMaxPart;     // Максимальная часть чека, которая может быть оплачена бонусом
 		// Ограничение хранится в промилле. Example: 152 = 15.2% от суммы чека
+	int16  AllowedPaymentTypes; // @v12.3.8 CheckPaymMethod (1 << cpmXXX) Допустимые типы оплаты 
+	uint16 Reserve;          // @v12.3.8 @reserve
 	PPID   PhnSvcID;         // Телефонный сервис (для обслуживания заказов столов и доставки)
 	PPID   ChZnGuaID;        // @v11.9.12 Глобальная учетная запись для доступа к сервису честный знак (работа с разрешительным режимом)
 	SuspCheckFilt Scf;       // Фильтр отображения списка отложенных чеков
@@ -23553,7 +23521,6 @@ public:
 	//int    InitIteration();
 	//int    FASTCALL NextIteration(PhnSvcMonitorViewItem *);
 private:
-	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	virtual SArray  * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
 	virtual void   PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual int    ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
@@ -27834,7 +27801,6 @@ private:
 	virtual int    ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	virtual void * GetEditExtraParam();
 	virtual void   PreprocessBrowser(PPViewBrowser * pBrw);
-	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	int    _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	int    FetchData(PPID id);
 
@@ -31729,7 +31695,6 @@ public:
 	int    FASTCALL NextIteration(BrandViewItem *);
 	static int CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle, PPViewBrowser * pBrw);
 private:
-	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	virtual SArray * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
 	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual int  OnExecBrowser(PPViewBrowser *);
@@ -31941,7 +31906,6 @@ public:
 	int    FASTCALL NextIteration(ComputerViewItem *);
 	static int CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle, PPViewBrowser * pBrw);
 private:
-	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	virtual SArray * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
 	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual int  OnExecBrowser(PPViewBrowser *);
@@ -32041,7 +32005,6 @@ public:
 	int    FASTCALL NextIteration(SwProgramViewItem *);
 	static int CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle, PPViewBrowser * pBrw);
 private:
-	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	virtual SArray * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
 	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual int  OnExecBrowser(PPViewBrowser *);
@@ -32835,7 +32798,6 @@ public:
 	int    CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, PPViewBrowser * pBrw);
 	int    CmpSortIndexItems(PPViewBrowser * pBrw, const GoodsStrucProcessingBlock::ItemEntry * pItem1, const GoodsStrucProcessingBlock::ItemEntry * pItem2);
 private:
-	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	virtual SArray  * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
 	virtual int  ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
@@ -32899,7 +32861,6 @@ private:
 	virtual int   ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	virtual SArray * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
 	virtual void  PreprocessBrowser(PPViewBrowser * pBrw);
-	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	int    _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	int    AddItem(PPViewBrowser * pBrw);
 	int    EditItem(PPViewBrowser * pBrw, const BrwHdr *);
@@ -38844,12 +38805,12 @@ public:
 	void   SetOuterContext(const OuterContext * pOCtx);
 private:
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual int    ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
-	virtual int    Detail(const void * pHdr, PPViewBrowser * pBrw);
-	virtual int    Print(const void *);
-	virtual int    OnExecBrowser(PPViewBrowser * pBrw);
-	virtual void   PreprocessBrowser(PPViewBrowser * pBrw);
-	virtual int    HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBrowser * pBrw, void * extraProcPtr);
+	virtual int  ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int  Detail(const void * pHdr, PPViewBrowser * pBrw);
+	virtual int  Print(const void *);
+	virtual int  OnExecBrowser(PPViewBrowser * pBrw);
+	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual int  HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBrowser * pBrw, void * extraProcPtr);
 	int    ProcessPrc(PPID prcID, BExtInsert * pBei);
 	int    Update(const PPIDArray & rPrcList);
 	void   RecToViewItem(const TempPrcBusyTbl::Rec * pRec, PrcBusyViewItem * pItem) const;
@@ -40108,8 +40069,6 @@ public:
 	int    InitIteration();
 	int    FASTCALL NextIteration(LinkedBillViewItem * pItem);
 private:
-	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
-
 	struct Entry {
 		PPID   ID;
 		double Payment;
@@ -40352,7 +40311,6 @@ public:
 	static int CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle, PPViewBrowser * pBrw);
 	int    FASTCALL CmpBrwItems(int ord, const BrwItem * p1, const BrwItem * p2);
 private:
-	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	virtual SArray * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
 	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual int  OnExecBrowser(PPViewBrowser *);
@@ -41506,6 +41464,25 @@ private:
 	const  char * P_Symbol;
 };
 
+class MarketplaceGoodsSelectionFilt : public PPBaseFilt {
+public:
+	MarketplaceGoodsSelectionFilt();
+
+	enum {
+		ordUndef     = 0,
+		ordPopular   = 1, // "popular"
+		ordPriceUp   = 2, // "priceup"
+		ordPriceDown = 3, // "pricedown"
+		ordRate      = 4, // "rate"
+		ordNewly     = 5, // "newly"
+		ordBenefit   = 6  // "benefit"
+	};
+	uint8    ReserveStart[64];
+	int64    CatID;
+	int32    Order;
+	uint8    Reserve[64];
+};
+
 class PPMarketplaceInterface_Wildberries : public PPMarketplaceInterface {
 	// кВВ - коэффициент вознаграждения Вайлдберриз
 public:
@@ -41558,6 +41535,109 @@ public:
 		SString Name;
 		TSCollection <ProductCategory> SubjectList;
 	};
+	//
+	// Descr: Контейнер товарных категорий, полученных анонимным обращением по http-протоколу. 
+	// Attention: Учитывая опыт работы с разными объектами wildberries, могу предположить, что идентификаторы
+	//   и наименования не будут идентичны коллекции объектов ProductCategory полученной через API.
+	//
+	class CategoryPool : public SStrGroup {
+	public:
+		class Entry {
+		public:
+			Entry();
+			~Entry();
+			Entry & Z();
+			Entry & FASTCALL operator = (const Entry & rS);
+			bool   FASTCALL Copy(const Entry & rS);
+			bool   FromJsonObj(CategoryPool & rPool, const SJson * pJs);
+
+			enum {
+				fIsDenyLink = 0x0001, // "isDenyLink"
+				fIsDynamic  = 0x0002, // "dynamic"
+			};
+			int64  ID;
+			int64  ParentID;
+			uint   Flags;
+			uint   NameP;
+			uint   UrlP;
+			uint   ShardP;
+			uint   QueryP;
+			uint   SeoP;
+			uint   SnippetP;
+			uint   SearchQueryP;
+			Int64Array * P_DestList; // "dest"
+			TSCollection <Entry> Children;
+		};
+
+		CategoryPool();
+		CategoryPool & Z();
+		bool    FromJson(const SJson * pJs);
+		int     MakeShardList(StrAssocArray & rList) const;
+		const   Entry * GetByID(int64 id) const;
+
+		TSCollection <Entry> L;
+	private:
+		int     Helper_MakeShardList(const TSCollection <Entry> & rSrcList, long parentID, StrAssocArray & rList) const;
+		const   Entry * Helper_GetByID(const TSCollection <Entry> & rSrcList, int64 id) const;
+	};
+	//
+	// Descr: Данные о товарах, полученные http-запросом по url хакнутому с сайта
+	//
+	class PublicWarePool : public SStrGroup {
+	public:
+		struct Size {
+			Size();
+			Size & Z();
+			bool   FromJsonObj(PublicWarePool & rPool, const SJson * pJs);
+
+			int32  Wh;
+			uint   NameP;
+			uint   OrigNameP;
+			float  Rank;
+			int64  OptionId;
+			uint   Price100_Basic;
+			uint   Price100_Product;
+			uint   Price100_Logistics;
+			uint   Price100_Return;
+			uint64 SaleConditions;
+		};
+		class Entry { 
+		public:
+			Entry();
+			Entry & Z();
+			bool   FromJsonObj(PublicWarePool & rPool, const SJson * pJs);
+
+			int64  ID;
+			int32  Wh;
+			int64  BrandID;
+			int32  SupplID;
+			int32  SubjId;
+			int32  SubjParentId;
+			float  SupplRating;
+			uint32 SupplFlags;
+			uint   PicsCount;
+			float  Rating;
+			float  ReviewRating;
+			float  NmReviewRating;
+			uint   FeedbackCount;
+			uint   NmFeedbackCount;
+			uint   FeedbackPointCount;
+			double TotalStock;
+			uint   BrandP;
+			uint   NameP;
+			uint   EntityP;
+			uint   SupplP;
+
+			TSVector <Size> SizeL;
+		};
+
+		PublicWarePool();
+		PublicWarePool & Z();
+		bool    FromJson(const SJson * pJs, bool concatenate, uint * pReadCount, uint * pTotalCount);
+
+		TSCollection <Entry> L;
+	};
+
 	struct WareBase {
 		WareBase();
 		WareBase & Z();
@@ -41718,7 +41798,7 @@ public:
 		double Discount;
 		uint   Flags;
 	};
-	struct Income  {
+	struct Income {
 		Income();
 		Income & Z();
 		bool FromJsonObj(const SJson * pJs);
@@ -41908,8 +41988,18 @@ public:
 		uint64 Flags;
 		LDATETIME ExpiryDtm;
 	};
+
 	static int ParseApiToken(const char * pToken, ApiTokenDecodeResult * pResult);
 	static SString & MakeSerialIdent(int64 incomeId, const WareBase & rWare, SString & rBuf);
+	//
+	// Descr: Функция импортирует публично доступный (без API-key) справочник товарных категорий.
+	//
+	static int LoadPublicGoodsCategoryList(CategoryPool & rResult); // @v12.3.8
+	static int EditPublicGoodsSelectionFilt(const CategoryPool & rCatPool, MarketplaceGoodsSelectionFilt & rFilt);
+	//
+	// Descr: Функция импортирует публично доступный (без API-key) список товаров (фильтр требуется).
+	//
+	static int LoadPublicGoodsList(const CategoryPool & rCatPool, MarketplaceGoodsSelectionFilt & rFilt); // @v12.3.8
 
 	PPMarketplaceInterface_Wildberries(PrcssrMarketplaceInterchange & rPrc);
 	virtual ~PPMarketplaceInterface_Wildberries();
@@ -42832,8 +42922,6 @@ public:
 	int    InitIteration(int order);
 	int    FASTCALL NextIteration(StockOptViewItem *);
 private:
-	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
-
 	virtual SArray * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
 	virtual void   PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual int    ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
@@ -43846,7 +43934,6 @@ public:
 	//
 	int    Transmit(PPID id, int transmitKind);
 private:
-	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	static void FASTCALL MakeListEntry(const PPAccount & rSrc, PPViewAccount::BrwEntry & rEntry);
 	virtual int   ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	virtual SArray  * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
@@ -43956,7 +44043,6 @@ public:
 	int    InitIteration();
 	int    FASTCALL NextIteration(BalanceViewItem *);
 private:
-	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	int    FASTCALL _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	virtual SArray * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
 	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
@@ -45969,7 +46055,6 @@ public:
 	void   GetTabTitle(long tabID, SString & rBuf);
 	void   GetEditIds(const void * pRow, PPID * pLocID, PPID * pGoodsID, long col);
 private:
-	static  int  FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk); // @v12.1.7
 	virtual int  ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
@@ -46146,7 +46231,6 @@ private:
 		double StorageDaysQtty;
 	};
 
-	static  int  FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	virtual SArray * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
 	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual int  OnExecBrowser(PPViewBrowser *);
@@ -49765,7 +49849,6 @@ public:
 	int    CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle, PPViewBrowser * pBrw);
 	static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr); // @really-private
 private:
-	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	virtual SArray * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
 	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual int  OnExecBrowser(PPViewBrowser *);
@@ -49822,7 +49905,6 @@ public:
 	int    CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle, PPViewBrowser * pBrw);
 	static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr); // @really-private
 private:
-	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	virtual SArray * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
 	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual int  OnExecBrowser(PPViewBrowser *);
@@ -50230,7 +50312,6 @@ public:
 	int    InitIteration();
 	int    FASTCALL NextIteration(BizScValByTemplViewItem *);
 private:
-	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	virtual SArray * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
 	virtual int    ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	virtual void   PreprocessBrowser(PPViewBrowser * pBrw);
@@ -50436,7 +50517,6 @@ public:
 	//int    InitIteration();
 	//int    FASTCALL NextIteration(ServerStatViewItem *);
 private:
-	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	virtual SArray * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
 	virtual void   PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual int    ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
@@ -50535,7 +50615,6 @@ public:
 	int    InitIteration();
 	int    FASTCALL NextIteration(AmountTypeViewItem *);
 private:
-	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	virtual SArray * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
 	virtual int    ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	virtual void   PreprocessBrowser(PPViewBrowser * pBrw);
@@ -50585,7 +50664,6 @@ public:
 	int    InitIteration();
 	int    FASTCALL NextIteration(RegTypeViewItem *);
 private:
-	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	virtual SArray * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
 	virtual void   PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual int    ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
@@ -50839,7 +50917,6 @@ public:
 	int    InitIteration();
 	int    FASTCALL NextIteration(ClientActivityDetailsViewItem * pItem);
 	int    _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
-	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 private:
 	virtual SArray  * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
 	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
@@ -51022,7 +51099,6 @@ public:
 	int    EditItem(PPID);
 	int    DeleteItem(PPID);
 private:
-	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr);
 	virtual SArray  * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
 	virtual void   PreprocessBrowser(PPViewBrowser * pBrw);
@@ -51081,7 +51157,6 @@ public:
 	virtual int EditBaseFilt(PPBaseFilt * pBaseFilt);
 	int    CmpSortIndexItems(PPViewBrowser * pBrw, const BrwItem * pItem1, const BrwItem * pItem2);
 private:
-	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	int    MakeList(PPViewBrowser * pBrw);
 	int    _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	virtual SArray * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
@@ -51875,7 +51950,6 @@ private:
 		double Qtty;       // Количество (дал)
 		double Rest;       // Остаток после операции (дал)
 	};
-	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	virtual SArray  * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
 	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual int  ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
@@ -54084,6 +54158,7 @@ public:
 	int    ResetDataOwnership();
 	int    InsColumnWord(int atPos, uint wordId, uint fldNo, TYPEID typ, long fmt, uint opt);
 	int    InsColumn(int atPos, const char * pText, uint fldNo, TYPEID typ, long fmt, uint opt);
+	int    InsColumn(int atPos, const char * pText, uint fldNo, TYPEID typ, long fmt, uint opt, SBrowserDataProc proc); // @v12.3.8
 	//
 	// Descr: Устанавливает динамическую альтернативную товарную группу как временную.
 	//   Деструктор класса должен удалить все такие группы.
@@ -56090,7 +56165,6 @@ public:
 	~SelLotBrowser(); // @v11.1.8
 private:
 	DECL_HANDLE_EVENT;
-	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	static int StyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr);
 	int    _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 
@@ -56152,7 +56226,7 @@ enum {
 	fDisRoundDown          // В меньшую сторону
 };
 //
-// Методы оплаты чека
+// Descr: Методы оплаты чека
 //
 enum CheckPaymMethod {
 	cpmUndef     = 0,      // Неопределенный
@@ -56459,8 +56533,8 @@ public:
 	//
 	int    Backend_GetCCheckList(const DateRange * pPeriod, long ctblId, TSVector <CCheckViewItem> & rList);
 	int    Backend_GetGoodsList(PPIDArray & rList); // @v11.4.5
-	long   Backend_GetCnFlags() const { return CnFlags; }
-	long   Backend_GetCnExtFlags() const { return CnExtFlags; }
+	long   Backend_GetCnFlags() const { return PNP.CnFlags; }
+	long   Backend_GetCnExtFlags() const { return PNP.CnExtFlags; }
 	//
 	// Descr: Устанавливает или снимает ограничение на операции с чеком при неопределенном агенте.
 	// Note: Функция нужна для программного проведения импортированных чеков.
@@ -56477,6 +56551,7 @@ public:
 	int    AutosaveCheck();
 	CCheckCore & GetCc();
 	PPObjSCard & GetScObj();
+	const  LongArray & GetCTableList() const { return PNP.CTblList; }
 	//
 	// Descr: Реализует CalcSCardOpBonusAmount. Вынесена в отдельный блок для использования
 	//   другими модулями.
@@ -56485,7 +56560,7 @@ public:
 	static bool   IsValidOp(int op) { return oneof6(op, CCOP_GENERAL, CCOP_RETURN, CCOP_CORRECTION_SELL, CCOP_CORRECTION_SELLSTORNO, CCOP_CORRECTION_RET, CCOP_CORRECTION_RETSTORNO); }
 	static bool   IsCorrectionOp(int op) { return oneof4(op, CCOP_CORRECTION_SELL, CCOP_CORRECTION_SELLSTORNO, CCOP_CORRECTION_RET, CCOP_CORRECTION_RETSTORNO); }
 
-	LongArray CTblList;
+	// @v12.3.8 (moved into PosNodeParam) LongArray CTblList;
 	PPObjCSession CsObj;
 protected:
 	//
@@ -56756,7 +56831,7 @@ protected:
 		fError              = 0x00000002, // В строке статуса выводится сообщение об ошибке. Текст сообщения хранится в буфере ErrMsgBuf
 		fRetCheck           = 0x00000004, // Признак ввода чека возврата. Исключает fCorrection.
 		fPctDis             = 0x00000008, // Скидка указана в процентах
-		fBankingPayment     = 0x00000010, // Чек оплачивается банковской кредитной картой
+		fBankingPayment     = 0x00000010, // Чек оплачивается банковской картой
 		fWaitOnSCard        = 0x00000020, // Ожидание ввода дисконтной карты
 		fTouchScreen        = 0x00000040, // Используется TouchScreen
 		fSelByPrice         = 0x00000080, // Выбор по цене
@@ -56799,27 +56874,63 @@ protected:
 			// Например, сканером штрихкодов. Признак устанавливается и снимается функцией GetInput на основе
 			// анализа среднего времени между вводом символов. Если ввод осущствлялся методом PASTE, то флаг не устанавливается.
 	};
+	//
+	// Descr: Блок параметров кассового узла. Набор параметров выделен в этот блок с целью сделать 
+	//   его const внутри CPosProcessor (это еще предстоит сделать).
+	//
+	struct PosNodeParam { // @v12.3.8
+		explicit PosNodeParam(PPID posNodeID);
+		enum {
+			stError = 0x0001
+		};
+		const  PPID NodeID;
+		PPID   CnPhnSvcID;       // PPObjCashNode(CashNodeID).PhSvcID
+		long   CnFlags;          // @*CheckPaneDialog::CheckPaneDialog (PPObjCashNode(CashNodeID).Flags & (CASHF_SELALLGOODS | CASHF_USEQUOT | CASHF_NOASKPAYMTYPE))
+		long   CnExtFlags;       // @*CheckPaneDialog::CheckPaneDialog PPObjCashNode(CashNodeID).ExtFlags
+		long   CnSpeciality;     // PPObjCashNode(CashNodeID).Speciality
+		PPID   CnLocID;          // PPObjCashNode(CashNodeID).LocID
+		PPID   ExtCnLocID;       // PPObjCashNode(ExtCashNodeID).LocID
+		int    EgaisMode;        // Режим работы с ЕГАИС (0 - нет, 1 - использовать, 2 - тестовый режим, 3 - только сканировать марку).
+			// Извлекается из записи синхронного кассового узла (PPSyncCashNode::EgaisMode)
+			// Если EgaisMode != 0 и !(Flags & fNoEdit), то в конструкторе создается *P_EgPrc.
+		int    ChZnPermissiveMode; // @v11.9.12 Режим работы с разрешительным режимом честный знак.
+		PPID   ChZnGuaID;        // @v12.0.12 
+		PPID   AbstractGoodsID;  // Абстрактный товар для проведения строк по свободной цене.
+			// Если (CnExtFlags & CASHFX_ABSTRGOODSALLOWED), то равно PPGoodsConfig::DefGoodsID, в противном случае - 0.
+		uint   AllowedPaymentTypes; // 
+		uint   StatusFlags;      // 
+		PPSyncCashNode::SuspCheckFilt Scf;
+		SString CnName;          // Наименование кассового узла
+		SString CnSymb;          // Символ кассового узла
+		LongArray CTblList;
+	};
 
-	const  PPID CashNodeID;  // @*CheckPaneDialog::CheckPaneDialog
+	// @v12.3.8 (moved into CPosProcessor::PosNodeParam) const  PPID CashNodeID;  // @*CheckPaneDialog::CheckPaneDialog
+	// @v12.3.8 (moved into CPosProcessor::PosNodeParam) PPID   CnPhnSvcID;       // PPObjCashNode(CashNodeID).PhSvcID
+	// @v12.3.8 (moved into CPosProcessor::PosNodeParam) long   CnFlags;          // @*CheckPaneDialog::CheckPaneDialog (PPObjCashNode(CashNodeID).Flags & (CASHF_SELALLGOODS | CASHF_USEQUOT | CASHF_NOASKPAYMTYPE))
+	// @v12.3.8 (moved into CPosProcessor::PosNodeParam) long   CnExtFlags;       // @*CheckPaneDialog::CheckPaneDialog PPObjCashNode(CashNodeID).ExtFlags
+	// @v12.3.8 (moved into CPosProcessor::PosNodeParam) long   CnSpeciality;     // PPObjCashNode(CashNodeID).Speciality
+	// @v12.3.8 (moved into CPosProcessor::PosNodeParam) PPID   CnLocID;          // PPObjCashNode(CashNodeID).LocID
+	// @v12.3.8 (moved into CPosProcessor::PosNodeParam) PPID   ExtCnLocID;       // PPObjCashNode(ExtCashNodeID).LocID
+	// @v12.3.8 (moved into CPosProcessor::PosNodeParam) int    EgaisMode;        // Режим работы с ЕГАИС (0 - нет, 1 - использовать, 2 - тестовый режим, 3 - только сканировать марку).
+		// Извлекается из записи синхронного кассового узла (PPSyncCashNode::EgaisMode)
+		// Если EgaisMode != 0 и !(Flags & fNoEdit), то в конструкторе создается *P_EgPrc.
+	// @v12.3.8 (moved into CPosProcessor::PosNodeParam) int    ChZnPermissiveMode; // @v11.9.12 Режим работы с разрешительным режимом честный знак.
+	// @v12.3.8 (moved into CPosProcessor::PosNodeParam) PPID   ChZnGuaID;        // @v12.0.12 
+	// @v12.3.8 (moved into CPosProcessor::PosNodeParam) PPID   AbstractGoodsID;  // Абстрактный товар для проведения строк по свободной цене.
+		// Если (CnExtFlags & CASHFX_ABSTRGOODSALLOWED), то равно PPGoodsConfig::DefGoodsID, в противном случае - 0.
+	// @v12.3.8 (moved into CPosProcessor::PosNodeParam) PPSyncCashNode::SuspCheckFilt Scf;
+	// @v12.3.8 (moved into CPosProcessor::PosNodeParam) SString CnName;          // Наименование кассового узла
+	// @v12.3.8 (moved into CPosProcessor::PosNodeParam) SString CnSymb;          // Символ кассового узла
+	PosNodeParam PNP;        // @v12.3.8 
 	PPID   ExtCashNodeID;    // @*CheckPaneDialog::CheckPaneDialog
 	PPID   AltRegisterID;    // @*CheckPaneDialog::CheckPaneDialog
 	PPID   TouchScreenID;    // @*CheckPaneDialog::CheckPaneDialog
 	PPID   ScaleID;          // @*CheckPaneDialog::CheckPaneDialog
-	PPID   CnPhnSvcID;       // PPObjCashNode(CashNodeID).PhSvcID
-	long   CnFlags;          // @*CheckPaneDialog::CheckPaneDialog (PPObjCashNode(CashNodeID).Flags & (CASHF_SELALLGOODS | CASHF_USEQUOT | CASHF_NOASKPAYMTYPE))
-	long   CnExtFlags;       // @*CheckPaneDialog::CheckPaneDialog PPObjCashNode(CashNodeID).ExtFlags
-	long   CnSpeciality;     // PPObjCashNode(CashNodeID).Speciality
-	PPID   CnLocID;          // PPObjCashNode(CashNodeID).LocID
-	PPID   ExtCnLocID;       // PPObjCashNode(ExtCashNodeID).LocID
 	long   Flags;            // CheckPaneDialog::fXXX
 	long   UiFlags;          // CheckPaneDialog::uifXXX Флаги пользовательского интерфейса
 	int    State_p;          // CheckPaneDialog::sXXX
 	long   OperRightsFlags;  // CheckPaneDialog::orfXXX
-	int    EgaisMode;        // Режим работы с ЕГАИС (0 - нет, 1 - использовать, 2 - тестовый режим, 3 - только сканировать марку).
-		// Извлекается из записи синхронного кассового узла (PPSyncCashNode::EgaisMode)
-		// Если EgaisMode != 0 и !(Flags & fNoEdit), то в конструкторе создается *P_EgPrc.
-	int    ChZnPermissiveMode; // @v11.9.12 Режим работы с разрешительным режимом честный знак.
-	PPID   ChZnGuaID;        // @v12.0.12 
 	double BonusMaxPart;     // @*CPosProcessor::CPosProcessor()
 	long   OrgOperRights;    // Права доступа установленные в конструкторе либо по ключу.
 		// Так как агент может переопределять права доступа, то при изменении агента OperRightsFlags
@@ -56828,15 +56939,10 @@ protected:
 	PPID   CheckID;
 	PPID   SuspCheckID;      // Загружен отложенный чек с указанным идентификатором
 	PPID   AuthAgentID;      // Агент, который изначально авторизовался в сессии (для поддержки мобильного официанта)
-	PPID   AbstractGoodsID;  // Абстрактный товар для проведения строк по свободной цене.
-		// Если (CnExtFlags & CASHFX_ABSTRGOODSALLOWED), то равно PPGoodsConfig::DefGoodsID, в противном случае - 0.
 	PPObjID OuterOi;         // Внешний объект, к которому привязывается чек.
 	LDATETIME LastGrpListUpdTime;     // Время последнего обновления списка групп товаров
 	S_GUID SessUUID;
 	PPGenCashNode::RoundParam R__;      // Параметры округления //
-	PPSyncCashNode::SuspCheckFilt Scf;
-	SString CnName;          // Наименование кассового узла
-	SString CnSymb;          // Символ кассового узла
 	SString Input;
 	SString ErrMsgBuf;
 	SString TableSelWhatman;
@@ -61703,6 +61809,7 @@ int    SetupStringComboDevice(TDialog *, uint ctlID, uint dvcClass, long initID,
 int    GetDeviceTypeName(uint dvcClass, PPID deviceTypeID, SString & rBuf);
 int    GetStrFromDrvIni(PPIniFile & rIniFile, int iniSectID, long devTypeId, int numOfOldDev, SString & str); // @vmiller
 int    STDCALL SetupStrAssocCombo(TWindow * dlg, uint ctlID, const StrAssocArray & rList, long initID, uint flags, size_t offs = 0, int ownerDrawListBox = 0);
+int    STDCALL SetupStrAssocTreeCombo(TWindow * dlg, uint ctlID, const StrAssocArray & rList, long initID, uint flags, int ownerDrawListBox = 0);
 int    STDCALL SetupSCollectionComboBox(TDialog * dlg, uint ctl, SCollection * pSC, long initID);
 int    STDCALL ViewSysJournal(const SysJournalFilt *, int modeless);
 int    STDCALL ViewSysJournal(PPID objType, PPID objID, int modeless);

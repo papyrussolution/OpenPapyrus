@@ -47,58 +47,50 @@ int PPViewAmountType::CheckForFilt(const PPAmountTypePacket * pPack) const
 	return 1;
 }
 
-/*static*/int FASTCALL PPViewAmountType::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
-{
-	PPViewAmountType * p_v = static_cast<PPViewAmountType *>(pBlk->ExtraPtr);
-	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;
-}
-
 int PPViewAmountType::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
-	int    ok = 0;
-	if(pBlk->P_SrcData && pBlk->P_DestData) {
-		ok = 1;
-		SString temp_buf;
-		const AmountTypeViewItem * p_item = static_cast<const AmountTypeViewItem *>(pBlk->P_SrcData);
-		switch(pBlk->ColumnN) {
-			case 0: // ИД
-				pBlk->Set(p_item->ID);
-				break;
-			case 1: // Наименование
-				GetObjectName(PPOBJ_AMOUNTTYPE, p_item->ID, temp_buf);
-				if(temp_buf.Len() == 0)
-					ideqvalstr(p_item->ID, temp_buf);
+	int    ok = 1;
+	assert(pBlk->P_SrcData && pBlk->P_DestData); // Функция вызывается только из одной локации и эти members != 0 равно как и pBlk != 0
+	SString temp_buf;
+	const AmountTypeViewItem * p_item = static_cast<const AmountTypeViewItem *>(pBlk->P_SrcData);
+	switch(pBlk->ColumnN) {
+		case 0: // ИД
+			pBlk->Set(p_item->ID);
+			break;
+		case 1: // Наименование
+			GetObjectName(PPOBJ_AMOUNTTYPE, p_item->ID, temp_buf);
+			if(temp_buf.Len() == 0)
+				ideqvalstr(p_item->ID, temp_buf);
+			pBlk->Set(temp_buf);
+			break;
+		case 2: // Наименование типа налога
+			if(p_item->Tax == GTAX_VAT) {
+				PPLoadString("vat", temp_buf);
+			}
+			else if(p_item->Tax == GTAX_SALES) {
+			 	PPLoadString("salestax", temp_buf);
+			}
+			pBlk->Set(temp_buf);
+			break;
+		case 3: // Налоговая ставка %
+			pBlk->Set(p_item->TaxRate);
+			break;
+		case 4: // Комплементарная сумма
+			if(p_item->RefAmtTypeID)
+				GetObjectName(PPOBJ_AMOUNTTYPE, p_item->RefAmtTypeID, temp_buf);
+			pBlk->Set(temp_buf);
+			break;
+		case 5: // Формула
+			pBlk->Set(p_item->Formula);
+			break;
+		case 6: // Символ
+			{
+				PPAmountType amtt_rec;
+				if(ObjAmtT.Fetch(p_item->ID, &amtt_rec) > 0)
+					temp_buf = amtt_rec.Symb;
 				pBlk->Set(temp_buf);
-				break;
-			case 2: // Наименование типа налога
-				if(p_item->Tax == GTAX_VAT) {
-					PPLoadString("vat", temp_buf);
-				}
-				else if(p_item->Tax == GTAX_SALES) {
-			 		PPLoadString("salestax", temp_buf);
-				}
-				pBlk->Set(temp_buf);
-				break;
-			case 3: // Налоговая ставка %
-				pBlk->Set(p_item->TaxRate);
-				break;
-			case 4: // Комплементарная сумма
-				if(p_item->RefAmtTypeID)
-					GetObjectName(PPOBJ_AMOUNTTYPE, p_item->RefAmtTypeID, temp_buf);
-				pBlk->Set(temp_buf);
-				break;
-			case 5: // Формула
-				pBlk->Set(p_item->Formula);
-				break;
-			case 6: // Символ
-				{
-					PPAmountType amtt_rec;
-					if(ObjAmtT.Fetch(p_item->ID, &amtt_rec) > 0)
-						temp_buf = amtt_rec.Symb;
-					pBlk->Set(temp_buf);
-				}
-				break;
-		}
+			}
+			break;
 	}
 	return ok;
 }
@@ -347,7 +339,12 @@ int FASTCALL PPViewAmountType::NextIteration(AmountTypeViewItem * pItem)
 
 void PPViewAmountType::PreprocessBrowser(PPViewBrowser * pBrw)
 {
-	CALLPTRMEMB(pBrw, SetDefUserProc(PPViewAmountType::GetDataForBrowser, this));
+	if(pBrw) {
+		pBrw->SetDefUserProc([](SBrowserDataProcBlock * pBlk) -> int
+			{
+				return (pBlk && pBlk->ExtraPtr) ? static_cast<PPViewAmountType *>(pBlk->ExtraPtr)->_GetDataForBrowser(pBlk) : 0;				
+			}, this);
+	}
 }
 
 SArray * PPViewAmountType::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)

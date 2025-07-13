@@ -7,7 +7,7 @@
 //
 // PPObjBrowser
 //
-PPObjBrowser::PPObjBrowser(uint rezID, DBQuery * q, PPObject * pObj, uint _flags, void * extraPtr) : BrowserWindow(rezID, q), flags(_flags), ExtraPtr(extraPtr)
+PPObjBrowser::PPObjBrowser(uint rezID, DBQuery * q, PPObject * pObj, uint _flags, void * extraPtr) : BrowserWindow(rezID, q, 0), flags(_flags), ExtraPtr(extraPtr)
 {
 	SetPPObjPtr(pObj);
 }

@@ -1,5 +1,5 @@
 // V_JOBP.CPP
-// Copyright (c) A.Sobolev 2005, 2007, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 2005, 2007, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 // Редактирование списка задач JobServer'а
 //
@@ -582,27 +582,18 @@ int PPViewJob::DeleteItem(PPID id)
 
 int PPViewJob::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
-	int    ok = 0;
-	if(pBlk->P_SrcData && pBlk->P_DestData) {
-		ok = 1;
-		const  JobViewItem * p_item = static_cast<const JobViewItem *>(pBlk->P_SrcData);
-		int    r = 0;
-		switch(pBlk->ColumnN) {
-			case 0: pBlk->Set(p_item->ID); break; // @id
-			case 1: pBlk->Set(p_item->Name); break; // @name
-			case 2: pBlk->Set(p_item->Symb); break; // @symb
-			case 3: pBlk->Set(p_item->Dtr); break; // @datetime repeating
-			case 4: pBlk->Set(p_item->NextJob); break; // @next job
-			case 5: pBlk->Set(p_item->DbSymb); break; // @database symbol
-		}
+	int    ok = 1;
+	assert(pBlk->P_SrcData && pBlk->P_DestData); // Функция вызывается только из одной локации и эти members != 0 равно как и pBlk != 0
+	const  JobViewItem * p_item = static_cast<const JobViewItem *>(pBlk->P_SrcData);
+	switch(pBlk->ColumnN) {
+		case 0: pBlk->Set(p_item->ID); break; // @id
+		case 1: pBlk->Set(p_item->Name); break; // @name
+		case 2: pBlk->Set(p_item->Symb); break; // @symb
+		case 3: pBlk->Set(p_item->Dtr); break; // @datetime repeating
+		case 4: pBlk->Set(p_item->NextJob); break; // @next job
+		case 5: pBlk->Set(p_item->DbSymb); break; // @database symbol
 	}
 	return ok;
-}
-
-/*static*/int FASTCALL PPViewJob::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
-{
-	PPViewJob * p_v = static_cast<PPViewJob *>(pBlk->ExtraPtr);
-	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;
 }
 
 /*static*/int PPViewJob::CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr)
@@ -637,7 +628,10 @@ int PPViewJob::CellStyleFunc_(const void * pData, long col, int paintAction, Bro
 void PPViewJob::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	if(pBrw) {
-		pBrw->SetDefUserProc(PPViewJob::GetDataForBrowser, this);
+		pBrw->SetDefUserProc([](SBrowserDataProcBlock * pBlk) -> int
+			{
+				return (pBlk && pBlk->ExtraPtr) ? static_cast<PPViewJob *>(pBlk->ExtraPtr)->_GetDataForBrowser(pBlk) : 0;				
+			}, this);
 		pBrw->SetCellStyleFunc(PPViewJob::CellStyleFunc, pBrw);
 	}
 }

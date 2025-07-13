@@ -503,7 +503,7 @@ int PsnOpKindView::CopyList(PPID parentID, StrAssocArray * pSrc, StrAssocArray *
 {
 	if(pSrc && pDest && pSrc->getCount()) {
 		LongArray list;
-		pSrc->GetListByParent(parentID, 0, list);
+		pSrc->GetListByParent(parentID, false, list);
 		for(uint i = 0; i < list.getCount(); i++) {
 			uint pos = 0;
 			PPID id = list.at(i);

@@ -931,7 +931,7 @@ int SCardCore::PutOpRec(const SCardOpTbl::Rec * pRec, TSVector <UpdateRestNotify
 		DateRange frz_prd;
 		frz_prd.Set(rec.FreezingStart, rec.FreezingEnd);
 		THROW(OpBlock::CheckFreezingPeriod(frz_prd, sc_rec.Expiry));
-		frz_delta = (frz_prd.GetLength()+1);
+		frz_delta = frz_prd.GetLength();
 	}
 	{
 		PPTransaction tra(use_ta);
@@ -946,7 +946,7 @@ int SCardCore::PutOpRec(const SCardOpTbl::Rec * pRec, TSVector <UpdateRestNotify
 				DateRange frz_prd;
 				frz_prd.Set(exs_rec.FreezingStart, exs_rec.FreezingEnd);
 				if(OpBlock::CheckFreezingPeriod(frz_prd, ZERODATE)) {
-                    frz_delta -= (frz_prd.GetLength()+1);
+                    frz_delta -= frz_prd.GetLength();
 				}
             }
 			THROW_DB(ScOp.updateRecBuf(&rec));
@@ -993,7 +993,7 @@ int SCardCore::RemoveOp(PPID cardID, LDATE dt, LTIME tm, int use_ta)
 				DateRange frz_prd;
 				frz_prd.Set(org_rec.FreezingStart, org_rec.FreezingEnd);
 				if(OpBlock::CheckFreezingPeriod(frz_prd, ZERODATE)) {
-					long   delta = -(frz_prd.GetLength()+1);
+					const long delta = -frz_prd.GetLength();
 					THROW(UpdateExpiryDelta(cardID, delta, 0));
 				}
 			}

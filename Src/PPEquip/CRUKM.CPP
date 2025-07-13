@@ -850,9 +850,7 @@ int ACS_CRUKM::ImportSession(int sessIdx)
 						discount = 0L; // in_rec.Ck_Disc
 					}
 					line_amount = R2(line_amount);
-					// @v10.7.3 SetTempCcLineValues(0, qtty, price, discount, 0/*pLnExtStrings*/);
-					// @v10.7.3 THROW_DB(P_TmpCclTbl->insertRec());
-					THROW(SetTempCcLineValuesAndInsert(P_TmpCclTbl, qtty, price, discount, 0/*pLnExtStrings*/)); // @v10.7.3
+					THROW(SetTempCcLineValuesAndInsert(P_TmpCclTbl, qtty, price, discount, 0/*pLnExtStrings*/));
 					THROW(AddTempCheckAmounts(chk_id, line_amount, in_rec.Ck_Disc + in_rec.Ck_Disg));
 				} while(in_tbl.search(8, &k8, spNext) && k8.Cash_Code == p_entry->CashNo && k8.NSmena == p_entry->SessNo);
 				ok = 1;

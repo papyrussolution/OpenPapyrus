@@ -250,8 +250,7 @@ int Crosstab::GetCrossValues(DBTable * pTbl, const DBField & crssFld, STypArray 
 {
 	int    ok = 1;
 	STypArray * p_list = 0;
-	// @v10.6.8 char   temp_key[MAXKEYLEN];
-	BtrDbKey temp_key_; // @v10.6.8
+	BtrDbKey temp_key_;
 	const  size_t crss_fld_offs = crssFld.getField().Offs;
 	BExtQuery q(pTbl, 0);
 	DBFieldList flist;
@@ -483,8 +482,7 @@ int Crosstab::Create(int use_ta)
 {
 	int    ok = 1;
 	uint   i;
-	// @v10.6.8 char   temp_key[MAXKEYLEN];
-	BtrDbKey temp_key_; // @v10.6.8
+	BtrDbKey temp_key_;
 	char   buf[512];
 	SString msg_buf;
 	IterCounter cntr;
@@ -729,7 +727,7 @@ int Crosstab::SetupBrowserCtColumns(BrowserWindow * pBrw) const
 
 BrowserWindow * Crosstab::CreateBrowser(uint rezID, int dataOwner)
 {
-	BrowserWindow * p_brw = new BrowserWindow(rezID, CreateBrowserQuery());
+	BrowserWindow * p_brw = new BrowserWindow(rezID, CreateBrowserQuery(), 0);
 	SetupBrowserCtColumns(p_brw);
 	return p_brw;
 }

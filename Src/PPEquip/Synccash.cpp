@@ -536,6 +536,10 @@ int SCS_SYNCCASH::PreprocessChZnCode(int op, const char * pCode, double qtty, in
 						THROW(ArrAdd(Arr_In, DVCPARAM_UOMFRAGM, static_cast<int>(uomFragm)));
 					}
 					// } @v11.2.6 
+					// @v12.0.6 {
+					if(uomId)
+						THROW(ArrAdd(Arr_In, DVCPARAM_UOMID, uomId));
+					// } @v12.0.6 
 					THROW(ExecOper(DVCCMD_PREPROCESSCHZNCODE, Arr_In, Arr_Out));
 					for(uint i = 0; i < Arr_Out.getCount(); i++) {
 						StrAssocArray::Item item = Arr_Out.at_WithoutParent(i);

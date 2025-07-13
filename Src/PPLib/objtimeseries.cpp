@@ -1965,102 +1965,6 @@ int TimeSeries_OptEntryList_Graph(TimeSeries_OptEntryList_Graph_Param * pParam)
 //
 //
 //
-#if 0 // @construction {
-
-IMPLEMENT_PPFILT_FACTORY(TimSerStrategyContainer); TimSerStrategyContainerFilt::TimSerStrategyContainerFilt() : PPBaseFilt(PPFILT_TIMSERSTRATEGYCONTAINER, 0, 0)
-{
-	SetFlatChunk(offsetof(TimSerStrategyContainerFilt, ReserveStart),
-		offsetof(TimSerStrategyContainerFilt, Reserve)-offsetof(TimSerStrategyContainerFilt, ReserveStart)+sizeof(Reserve));
-	Init(1, 0);
-}
-
-PPViewTimSerStrategyContainer::PPViewTimSerStrategyContainer() : PPView(0, &Filt, PPVIEW_TIMSERSTRATEGYCONTAINER), P_DsList(0)
-{
-	ImplementFlags |= (implBrowseArray|implOnAddSetupPos|implDontEditNullFilter);
-}
-
-PPViewTimSerStrategyContainer::~PPViewTimSerStrategyContainer()
-{
-}
-
-int PPViewTimSerStrategyContainer::Init_(const PPBaseFilt * pBaseFilt)
-{
-	int    ok = 1;
-	THROW(Helper_InitBaseFilt(pBaseFilt));
-	BExtQuery::ZDelete(&P_IterQuery);
-	Counter.Init();
-	Sc.clear();
-	if(Filt.TsID) {
-		PPTimeSeriesPacket pack;
-		if(TsObj.GetPacket(Filt.TsID, &pack) > 0) {
-			PPObjTimeSeries::Strategy s;
-			TsObj.GetStrategies(Filt.TsID, PPObjTimeSeries::sstSelection, Sc);
-		}
-	}
-	CATCHZOK
-	return ok;
-}
-
-int PPViewTimSerStrategyContainer::EditBaseFilt(PPBaseFilt * pBaseFilt)
-{
-	int    ok = -1;
-	return ok;
-}
-
-int PPViewTimSerStrategyContainer::InitIteration()
-{
-	return 0;
-}
-
-int FASTCALL PPViewTimSerStrategyContainer::NextIteration(PPObjTimeSeries::Strategy *)
-{
-	return 0;
-}
-
-//static 
-int FASTCALL PPViewTimSerStrategyContainer::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
-{
-	int   ok = 0;
-	return ok;
-}
-
-/*virtual*/SArray * PPViewTimSerStrategyContainer::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
-{
-	SArray * p_result = 0;
-	return p_result;
-}
-
-/*virtual*/void PPViewTimSerStrategyContainer::PreprocessBrowser(PPViewBrowser * pBrw)
-{
-}
-
-/*virtual*/int  PPViewTimSerStrategyContainer::OnExecBrowser(PPViewBrowser *)
-{
-	int   ok = 0;
-	return ok;
-}
-
-/*virtual*/int  PPViewTimSerStrategyContainer::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
-{
-	int   ok = 0;
-	return ok;
-}
-
-int PPViewTimSerStrategyContainer::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
-{
-	int   ok = 0;
-	return ok;
-}
-
-int PPViewTimSerStrategyContainer::MakeList(PPViewBrowser * pBrw)
-{
-	int   ok = 0;
-	return ok;
-}
-#endif // } 0 @construction
-//
-//
-//
 IMPLEMENT_PPFILT_FACTORY(TimeSeries); TimeSeriesFilt::TimeSeriesFilt() : PPBaseFilt(PPFILT_TIMESERIES, 0, 0)
 {
 	SetFlatChunk(offsetof(TimeSeriesFilt, ReserveStart),
@@ -2116,12 +2020,6 @@ int FASTCALL PPViewTimeSeries::NextIteration(TimeSeriesViewItem * pItem)
 		P_DsList->incPointer();
 	}
 	return ok;
-}
-
-/*static*/int FASTCALL PPViewTimeSeries::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
-{
-	PPViewTimeSeries * p_v = static_cast<PPViewTimeSeries *>(pBlk->ExtraPtr);
-	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;
 }
 
 PPViewTimeSeries::BrwItem::BrwItem(const PPTimeSeriesPacket * pTs)
@@ -2201,23 +2099,21 @@ int PPViewTimeSeries::MakeList(PPViewBrowser * pBrw)
 
 int PPViewTimeSeries::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
-	int    ok = 0;
-	if(pBlk->P_SrcData && pBlk->P_DestData) {
-		ok = 1;
-		const  BrwItem * p_item = static_cast<const BrwItem *>(pBlk->P_SrcData);
-		int    r = 0;
-		switch(pBlk->ColumnN) {
-			case 0: pBlk->Set(p_item->ID); break; // @id
-			case 1: pBlk->Set(p_item->Symb); break; // @symb
-			case 2: pBlk->Set(p_item->Name); break; // @name
-			case 3: pBlk->Set(p_item->CurrencySymb); break;
-			case 4: pBlk->Set(static_cast<long>(p_item->Prec)); break;
-			case 5: pBlk->Set(p_item->BuyMarg); break;
-			case 6: pBlk->Set(p_item->SellMarg); break;
-			case 7: pBlk->Set(p_item->SpikeQuant_t); break;
-			case 8: pBlk->Set(p_item->AvgSpread); break;
-			case 9: pBlk->Set(p_item->ManualMarg); break;
-		}
+	int    ok = 1;
+	assert(pBlk->P_SrcData && pBlk->P_DestData); // Функция вызывается только из одной локации и эти members != 0 равно как и pBlk != 0
+	const  BrwItem * p_item = static_cast<const BrwItem *>(pBlk->P_SrcData);
+	int    r = 0;
+	switch(pBlk->ColumnN) {
+		case 0: pBlk->Set(p_item->ID); break; // @id
+		case 1: pBlk->Set(p_item->Symb); break; // @symb
+		case 2: pBlk->Set(p_item->Name); break; // @name
+		case 3: pBlk->Set(p_item->CurrencySymb); break;
+		case 4: pBlk->Set(static_cast<long>(p_item->Prec)); break;
+		case 5: pBlk->Set(p_item->BuyMarg); break;
+		case 6: pBlk->Set(p_item->SellMarg); break;
+		case 7: pBlk->Set(p_item->SpikeQuant_t); break;
+		case 8: pBlk->Set(p_item->AvgSpread); break;
+		case 9: pBlk->Set(p_item->ManualMarg); break;
 	}
 	return ok;
 }
@@ -2268,7 +2164,10 @@ int PPViewTimeSeries::CellStyleFunc_(const void * pData, long col, int paintActi
 void PPViewTimeSeries::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	if(pBrw) {
-		pBrw->SetDefUserProc(PPViewTimeSeries::GetDataForBrowser, this);
+		pBrw->SetDefUserProc([](SBrowserDataProcBlock * pBlk) -> int
+			{
+				return (pBlk && pBlk->ExtraPtr) ? static_cast<PPViewTimeSeries *>(pBlk->ExtraPtr)->_GetDataForBrowser(pBlk) : 0;				
+			}, this);
 		pBrw->SetCellStyleFunc(CellStyleFunc, pBrw);
 		pBrw->Helper_SetAllColumnsSortable();
 	}
@@ -8792,51 +8691,42 @@ int PPViewTimSerDetail::ViewGraph(const PPViewBrowser * pBrw)
 int PPViewTimSerDetail::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
 	int    ok = 1;
-	if(pBlk->P_SrcData && pBlk->P_DestData) {
-		ok = 1;
-		const  uint idx = *static_cast<const uint *>(pBlk->P_SrcData) - 1;
-		int    r = 0;
-		if(pBlk->ColumnN == 0)
-			pBlk->Set(static_cast<int32>(idx));
-		else {
-			if(pBlk->ColumnN == 1) {
+	assert(pBlk->P_SrcData && pBlk->P_DestData); // Функция вызывается только из одной локации и эти members != 0 равно как и pBlk != 0
+	const  uint idx = *static_cast<const uint *>(pBlk->P_SrcData) - 1;
+	int    r = 0;
+	if(pBlk->ColumnN == 0)
+		pBlk->Set(static_cast<int32>(idx));
+	else {
+		if(pBlk->ColumnN == 1) {
+			SUniTime ut;
+			LDATETIME dtm;
+			Ts.GetTime(idx, &ut);
+			ut.Get(dtm);
+			SString & r_temp_buf = SLS.AcquireRvlStr();
+			r_temp_buf.Cat(dtm, DATF_ISO8601CENT, 0);
+			pBlk->Set(r_temp_buf);
+		}
+		else if(pBlk->ColumnN == 2) {
+			int32 diffsec = 0;
+			if(idx > 0) {
 				SUniTime ut;
 				LDATETIME dtm;
+				LDATETIME dtm2;
 				Ts.GetTime(idx, &ut);
 				ut.Get(dtm);
-				SString & r_temp_buf = SLS.AcquireRvlStr();
-				r_temp_buf.Cat(dtm, DATF_ISO8601CENT, 0);
-				pBlk->Set(r_temp_buf);
+				Ts.GetTime(idx-1, &ut);
+				ut.Get(dtm2);
+				diffsec = diffdatetimesec(dtm, dtm2);
 			}
-			else if(pBlk->ColumnN == 2) {
-				int32 diffsec = 0;
-				if(idx > 0) {
-					SUniTime ut;
-					LDATETIME dtm;
-					LDATETIME dtm2;
-					Ts.GetTime(idx, &ut);
-					ut.Get(dtm);
-					Ts.GetTime(idx-1, &ut);
-					ut.Get(dtm2);
-					diffsec = diffdatetimesec(dtm, dtm2);
-				}
-				pBlk->Set(diffsec);
-			}
-			else if(pBlk->ColumnN > 2 && pBlk->ColumnN < static_cast<int>(Ts.GetValueVecCount()+3)) {
-				double value = 0.0;
-				Ts.GetValue(idx, pBlk->ColumnN-3, &value);
-				pBlk->Set(value);
-			}
+			pBlk->Set(diffsec);
+		}
+		else if(pBlk->ColumnN > 2 && pBlk->ColumnN < static_cast<int>(Ts.GetValueVecCount()+3)) {
+			double value = 0.0;
+			Ts.GetValue(idx, pBlk->ColumnN-3, &value);
+			pBlk->Set(value);
 		}
 	}
 	return ok;
-}
-
-//static
-int FASTCALL PPViewTimSerDetail::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
-{
-	PPViewTimSerDetail * p_v = static_cast<PPViewTimSerDetail *>(pBlk->ExtraPtr);
-	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;
 }
 
 void PPViewTimSerDetail::PreprocessBrowser(PPViewBrowser * pBrw)
@@ -8858,7 +8748,10 @@ void PPViewTimSerDetail::PreprocessBrowser(PPViewBrowser * pBrw)
 				}
 			}
 		}
-		pBrw->SetDefUserProc(PPViewTimSerDetail::GetDataForBrowser, this);
+		pBrw->SetDefUserProc([](SBrowserDataProcBlock * pBlk) -> int
+			{
+				return (pBlk && pBlk->ExtraPtr) ? static_cast<PPViewTimSerDetail *>(pBlk->ExtraPtr)->_GetDataForBrowser(pBlk) : 0;				
+			}, this);
 		//pBrw->SetCellStyleFunc(CellStyleFunc, pBrw);
 	}
 }

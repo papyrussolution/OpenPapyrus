@@ -633,11 +633,11 @@ int InetUrl::SetQueryParam(const char * pParam, const char * pValue)
 		StringSet ss('&', org_query);
 		StringSet ss_new("&");
 		SString left, right;
-		int    is_found = 0;
+		bool   is_found = false;
 		for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
 			if(temp_buf.NotEmptyS()) {
 				if(temp_buf.Divide('=', left, right) > 0 && left.Strip().IsEqiAscii(pParam)) {
-					is_found = 1;
+					is_found = true;
 					if(right == pValue)
 						ss_new.add(temp_buf);
 					else {

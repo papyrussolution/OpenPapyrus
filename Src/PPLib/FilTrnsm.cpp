@@ -549,7 +549,7 @@ int GetTransmitFiles(ObjReceiveParam * pParam)
 	const  PPConfig & r_cfg = LConfig;
 	int    check_email = 0;
 	int    check_ftp = 0;
-	int    check_mqb = 0; // @v10.5.4
+	int    check_mqb = 0;
 	uint   i;
 	SString dest, src, msg_buf, file_path;
 	SString dest_dir;
@@ -563,7 +563,7 @@ int GetTransmitFiles(ObjReceiveParam * pParam)
 	pattern_pps.CatChar('*').Cat(PPConst::FnExt_PPS);
 	PPGetPath(PPPATH_IN, dest);
 	THROW(obj_dbdiv.Get(r_cfg.DBDiv, &dbdiv_pack) > 0);
-	if(pParam->SsOnlyFileNames.getCount()) { // @v10.6.8
+	if(pParam->SsOnlyFileNames.getCount()) {
 		user_accept = 1;
 		for(uint ssp = 0; pParam->SsOnlyFileNames.get(&ssp, file_path);) {
 			if(fileExists(file_path)) {
@@ -572,7 +572,7 @@ int GetTransmitFiles(ObjReceiveParam * pParam)
 		}
 	}
 	else {
-		if(pParam->Flags & ObjReceiveParam::fCheckMqb && dbdiv_pack.Rec.Flags & DBDIVF_MQBEXCHANGE) // @v10.6.8 (pParam->Flags & ObjReceiveParam::fCheckMqb)
+		if(pParam->Flags & ObjReceiveParam::fCheckMqb && dbdiv_pack.Rec.Flags & DBDIVF_MQBEXCHANGE)
 			check_mqb = 1;
 		while(!(check_email && check_ftp) && obj_dbdiv.EnumItems(&db_div_id, &db_div_rec) > 0) {
 			if(db_div_id != r_cfg.DBDiv)
@@ -605,7 +605,6 @@ int GetTransmitFiles(ObjReceiveParam * pParam)
 			}
 			else
 				use_src = use_email = use_ftp = 1;
-			// @v10.5.4 {
 			if(check_mqb) {
 				PPMqbClient mqc;
 				SString data_domain;
@@ -638,7 +637,6 @@ int GetTransmitFiles(ObjReceiveParam * pParam)
 					}
 				}
 			}
-			// } @v10.5.4 
 			if(use_src && src.NotEmpty() && !IsEmailAddr(src) && !IsFtpAddr(src)) {
 				int    removable_drive = 0;
 				char   drive = 'C';
@@ -709,7 +707,7 @@ int GetTransmitFiles(ObjReceiveParam * pParam)
 			if(fep.Get(i, 0, &file_path)) {
 				PPObjectTransmit::Header hdr;
 				if(!PPObjectTransmit::GetHeader(file_path, &hdr)) {
-					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER|LOGMSGF_DBINFO); // @v10.6.8
+					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER|LOGMSGF_DBINFO);
 					to_remove_pos_list.add(/*i-1*/i);
 				}
 			}
@@ -846,7 +844,7 @@ int PutTransmitFiles(PPID dbDivID, long trnsmFlags)
 				}
 			} while(i);
 		}
-		if(fep.GetCount()) { // @v10.4.1
+		if(fep.GetCount()) {
 			// AHTOXA {
 			// Упаковка файлов перед отправкой
 			PPDBXchgConfig cfg;

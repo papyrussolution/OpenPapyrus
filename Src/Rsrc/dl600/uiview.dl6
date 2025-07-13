@@ -36,6 +36,22 @@ dialog DLG_REGLST [title: "@registerdocument_pl" vertical size: (649, 268) minsi
 	}
 }
 
+dialog DLG_ADDRLIST [vertical title: "@daddress_pl" size: (687, 309) font: "MS Shell Dlg,8"] {
+	input CTL_ADDRLIST_NAME [width: bycontainer(100) height: 21 margin: 4 readonly] string[128];
+	listbox CTL_ADDRLIST_LIST [width: bycontainer(100) growfactor: 1 margin: 4 columns: "@lbt_addrlist"];
+	view [horizontal width: bycontainer(100) height: 28] {
+		view [horizontal growfactor: 3 height: bycontainer(100) gravity: left justifycontent: start] {
+			button STDCTL_EDITBUTTON [title: "@but_edit" tabstop defaultitem size: (90, 21) margin: 4 command: cmaEdit];
+			button STDCTL_INSBUTTON [title: "@but_add" tabstop size: (90, 21) margin: 4 command: cmaInsert];
+			button STDCTL_DELBUTTON [title: "@but_delete" tabstop size: (90, 21) margin: 4 command: cmaDelete];
+		}
+		view [horizontal growfactor: 2 height: bycontainer(100) margin_right: 12 gravity: right justifycontent: end] {
+			button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 command: cmOK];
+			button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+		}
+	}
+}
+
 dialog DLG_BACCLST [title: "@bankaccount_pl" vertical size: (528, 257) minsize: (500, 200) font: "MS Shell Dlg,8"] {
 	input CTL_BACCLST_NAME [width: bycontainer(100) height: 21 margin: 4 tabstop readonly] string[128];
 	view [horizontal width: bycontainer(100) growfactor: 1] {
@@ -498,6 +514,14 @@ dialog DLG_CR2SRGWPARAM [vertical title: "@cristal2setretailgateway_runparam" si
 		checkbox [title: "@cristal2setretailgateway_runparam_actreadcristalsrcdata" height: 16 margin: 4];
 		checkbox [title: "@cristal2setretailgateway_runparam_actwritecristaldestdata" height: 16 margin: 4];
 	}
+	view [horizontal width: bycontainer(100) growfactor: 1 justifycontent: end alignitems: end margin_right: 12] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 defaultitem command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+
+dialog DLG_WBGOODSLISTFILT [vertical title: "@wildberries_publicgoodsselectionfilt" size: (400, 276) font: "MS Shell Dlg,8" alignitems: center] {
+	combobox CTLSEL_WBGOODSLISTFILT_CAT [tabstop width: bycontainer(100) height: 21 margin: 4 label: "@category" labelsize: (0, 13) cblinesymb: CTL_WBGOODSLISTFILT_CAT];
 	view [horizontal width: bycontainer(100) growfactor: 1 justifycontent: end alignitems: end margin_right: 12] {
 		button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 defaultitem command: cmOK];
 		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];

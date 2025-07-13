@@ -213,28 +213,15 @@ int xmlIsChar(uint ch) { return xmlIsCharQ(ch); }
 // 
 int xmlIsCombining(uint ch) { return xmlIsCombiningQ(ch); }
 // 
-// @ch:  character to validate
-// 
-// This function is DEPRECATED. Use xmlIsDigit_ch or xmlIsDigitQ instead
-// Returns true if argument valid, false otherwise
-// 
-// @v10.9.11 int xmlIsDigit(uint ch) { return xmlIsDigitQ(ch); }
-// 
-// @ch:  character to validate
-// 
 // This function is DEPRECATED. Use xmlIsExtender_ch or xmlIsExtenderQ instead
 // Returns true if argument valid, false otherwise
 // 
 int xmlIsExtender(uint ch) { return xmlIsExtenderQ(ch); }
 // 
-// @ch:  character to validate
-// 
 // This function is DEPRECATED. Use xmlIsIdeographicQ instead
 // Returns true if argument valid, false otherwise
 // 
 int xmlIsIdeographic(uint ch) { return xmlIsIdeographicQ(ch); }
-// 
-// @ch:  character to validate
 // 
 // This function is DEPRECATED. Use xmlIsPubidChar_ch or xmlIsPubidCharQ instead
 // Returns true if argument valid, false otherwise

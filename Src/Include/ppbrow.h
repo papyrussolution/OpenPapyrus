@@ -1959,6 +1959,10 @@
 #define PPVIEW_UNITEC                                1420
 	#define PPFILT_UNITEC                                1421
 	#define PPVIEWITEM_UNITEC                                1422
+#define PPVIEW_WBPUBLICGOODS                         1430
+	#define PPFILT_WBPUBLICGOODS                         1431
+	#define PPVIEWITEM_WBPUBLICGOODS                         1432
+#define PPFILT_MARKETPLACEGOODSSELECTION             1441
 //
 // RECORD definitions
 //

@@ -298,12 +298,6 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 	return ok;
 }
 
-/*static*/int FASTCALL PPViewQuoteReqAnalyze::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
-{
-	PPViewQuoteReqAnalyze * p_v = static_cast<PPViewQuoteReqAnalyze *>(pBlk->ExtraPtr);
-	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;
-}
-
 SArray * PPViewQuoteReqAnalyze::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
 {
 	SArray * p_array = 0;
@@ -319,7 +313,10 @@ SArray * PPViewQuoteReqAnalyze::CreateBrowserArray(uint * pBrwId, SString * pSub
 void PPViewQuoteReqAnalyze::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	if(pBrw) {
-		pBrw->SetDefUserProc(PPViewQuoteReqAnalyze::GetDataForBrowser, this);
+		pBrw->SetDefUserProc([](SBrowserDataProcBlock * pBlk) -> int
+			{
+				return (pBlk && pBlk->ExtraPtr) ? static_cast<PPViewQuoteReqAnalyze *>(pBlk->ExtraPtr)->_GetDataForBrowser(pBlk) : 0;				
+			}, this);
 		pBrw->SetCellStyleFunc(CellStyleFunc, pBrw);
 	}
 }
@@ -427,75 +424,39 @@ int PPViewQuoteReqAnalyze::Detail(const void *, PPViewBrowser * pBrw)
 int PPViewQuoteReqAnalyze::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
 	int    ok = 0;
-	if(pBlk->P_SrcData && pBlk->P_DestData) {
-		const  uint idx = *static_cast<const uint *>(pBlk->P_SrcData);
-		const  BrwItem * p_item = (idx > 0 && idx <= List.getCount()) ? &List.at(idx-1) : 0;
-		if(p_item) {
-			ok = 1;
-			int    r = 0;
-			BillTbl::Rec bill_rec;
-			SString temp_buf;
-			switch(pBlk->ColumnN) {
-				case 0: pBlk->Set(static_cast<int32>(idx)); break; // Index
-				case 1: pBlk->Set(p_item->LeadBillID); break; // LeadBillID
-				case 2: // LeadBillDate
-					pBlk->Set(p_item->LeadDt); 
-					break; 
-				case 3: // LeadBillCode
-					if(P_BObj->Fetch(p_item->LeadBillID, &bill_rec) > 0)
-						pBlk->Set(bill_rec.Code); 
-					break; 
-				case 4: // LeadContractor
-					GetArticleName(p_item->LeadArID, temp_buf);
-					pBlk->Set(temp_buf); 
-					break; 
-				case 5: // ware
-					pBlk->Set(GetGoodsName(p_item->GoodsID, temp_buf)); 
-					break; 
-				case 6: // ReqQtty
-					pBlk->Set(p_item->ReqQtty); 
-					break; 
-				case 7: // ReqCurrency
-					if(P_BObj->Fetch(p_item->LeadBillID, &bill_rec) > 0) {
-						if(bill_rec.CurID) {
-							PPCurrency cur_rec;
-							if(CurObj.Fetch(bill_rec.CurID, &cur_rec) > 0) {
-								if(cur_rec.Symb[0])
-									temp_buf = cur_rec.Symb;
-								else
-									temp_buf = cur_rec.Name;
-							}
-						}
-						pBlk->Set(temp_buf); 
-					}
-					break; 
-				case 8: // ReqPrice
-					pBlk->Set(p_item->ReqPrice); 
-					break; 
-				case 9: // ReqShipmTerm
-					if(p_item->ReqShipmTerm > 0) {
-						temp_buf.Cat(p_item->ReqShipmTerm).Cat("days");
-					}
-					pBlk->Set(temp_buf);
-					break; 
-				case 10: // LinkBillDate
-					pBlk->Set(p_item->LinkDt);
-					break; 
-				case 11: // LinkBillCode
-					if(P_BObj->Fetch(p_item->LinkBillID, &bill_rec) > 0)
-						pBlk->Set(bill_rec.Code); 
-					break; 
-				case 12: // LinkContractor
-					GetArticleName(p_item->LinkArID, temp_buf);
-					pBlk->Set(temp_buf); 
-					break; 
-				case 13: // RepQtty
-					pBlk->Set(p_item->RepQtty);
-					break; 
-				case 14: // RepCurrency
-					if(p_item->RepCurID) {
+	assert(pBlk->P_SrcData && pBlk->P_DestData); // Функция вызывается только из одной локации и эти members != 0 равно как и pBlk != 0
+	const  uint idx = *static_cast<const uint *>(pBlk->P_SrcData);
+	const  BrwItem * p_item = (idx > 0 && idx <= List.getCount()) ? &List.at(idx-1) : 0;
+	if(p_item) {
+		ok = 1;
+		int    r = 0;
+		BillTbl::Rec bill_rec;
+		SString temp_buf;
+		switch(pBlk->ColumnN) {
+			case 0: pBlk->Set(static_cast<int32>(idx)); break; // Index
+			case 1: pBlk->Set(p_item->LeadBillID); break; // LeadBillID
+			case 2: // LeadBillDate
+				pBlk->Set(p_item->LeadDt); 
+				break; 
+			case 3: // LeadBillCode
+				if(P_BObj->Fetch(p_item->LeadBillID, &bill_rec) > 0)
+					pBlk->Set(bill_rec.Code); 
+				break; 
+			case 4: // LeadContractor
+				GetArticleName(p_item->LeadArID, temp_buf);
+				pBlk->Set(temp_buf); 
+				break; 
+			case 5: // ware
+				pBlk->Set(GetGoodsName(p_item->GoodsID, temp_buf)); 
+				break; 
+			case 6: // ReqQtty
+				pBlk->Set(p_item->ReqQtty); 
+				break; 
+			case 7: // ReqCurrency
+				if(P_BObj->Fetch(p_item->LeadBillID, &bill_rec) > 0) {
+					if(bill_rec.CurID) {
 						PPCurrency cur_rec;
-						if(CurObj.Fetch(p_item->RepCurID, &cur_rec) > 0) {
+						if(CurObj.Fetch(bill_rec.CurID, &cur_rec) > 0) {
 							if(cur_rec.Symb[0])
 								temp_buf = cur_rec.Symb;
 							else
@@ -503,17 +464,52 @@ int PPViewQuoteReqAnalyze::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 						}
 					}
 					pBlk->Set(temp_buf); 
-					break; 
-				case 15: // RepPrice
-					pBlk->Set(p_item->RepPrice);
-					break; 
-				case 16: // RepShipmTerm
-					if(p_item->RepShipmTerm > 0) {
-						temp_buf.Cat(p_item->RepShipmTerm).Cat("days");
+				}
+				break; 
+			case 8: // ReqPrice
+				pBlk->Set(p_item->ReqPrice); 
+				break; 
+			case 9: // ReqShipmTerm
+				if(p_item->ReqShipmTerm > 0) {
+					temp_buf.Cat(p_item->ReqShipmTerm).Cat("days");
+				}
+				pBlk->Set(temp_buf);
+				break; 
+			case 10: // LinkBillDate
+				pBlk->Set(p_item->LinkDt);
+				break; 
+			case 11: // LinkBillCode
+				if(P_BObj->Fetch(p_item->LinkBillID, &bill_rec) > 0)
+					pBlk->Set(bill_rec.Code); 
+				break; 
+			case 12: // LinkContractor
+				GetArticleName(p_item->LinkArID, temp_buf);
+				pBlk->Set(temp_buf); 
+				break; 
+			case 13: // RepQtty
+				pBlk->Set(p_item->RepQtty);
+				break; 
+			case 14: // RepCurrency
+				if(p_item->RepCurID) {
+					PPCurrency cur_rec;
+					if(CurObj.Fetch(p_item->RepCurID, &cur_rec) > 0) {
+						if(cur_rec.Symb[0])
+							temp_buf = cur_rec.Symb;
+						else
+							temp_buf = cur_rec.Name;
 					}
-					pBlk->Set(temp_buf);
-					break; 
-			}
+				}
+				pBlk->Set(temp_buf); 
+				break; 
+			case 15: // RepPrice
+				pBlk->Set(p_item->RepPrice);
+				break; 
+			case 16: // RepShipmTerm
+				if(p_item->RepShipmTerm > 0) {
+					temp_buf.Cat(p_item->RepShipmTerm).Cat("days");
+				}
+				pBlk->Set(temp_buf);
+				break; 
 		}
 	}
 	return ok;

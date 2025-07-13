@@ -2687,10 +2687,10 @@ static int EditSCardOp(SCardCore::OpBlock & rBlk)
 					if(checkdate(OrgExpiry)) {
 						long org_delta = 0;
 						if(Data.Flags & Data.fEdit && SCardCore::OpBlock::CheckFreezingPeriod(OrgFreezingPeriod, ZERODATE)) {
-							org_delta = OrgFreezingPeriod.GetLength() + 1;
+							org_delta = OrgFreezingPeriod.GetLength();
 						}
 						if(GetPeriodInput(this, CTL_SCARDOP_FRZPERIOD, &Data.FreezingPeriod) && Data.CheckFreezingPeriod(OrgExpiry)) {
-							const LDATE new_expiry = plusdate(OrgExpiry, Data.FreezingPeriod.GetLength() + 1 - org_delta);
+							const LDATE new_expiry = plusdate(OrgExpiry, Data.FreezingPeriod.GetLength() - org_delta);
 							setCtrlDate(CTL_SCARDOP_EXPIRY, new_expiry);
 						}
 						else

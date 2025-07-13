@@ -1623,12 +1623,6 @@ int FASTCALL PPViewComputer::NextIteration(ComputerViewItem * pItem)
 	return -1; // @stub
 }
 	
-/*static*/int FASTCALL PPViewComputer::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
-{
-	PPViewComputer * p_v = static_cast<PPViewComputer *>(pBlk->ExtraPtr);
-	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;
-}
-	
 /*virtual*/SArray * PPViewComputer::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
 {
 	TSArray <BrwItem> * p_array = 0;
@@ -1652,11 +1646,14 @@ static int PPViewComputer_CellStyleFunc(const void * pData, long col, int paintA
 	}
 	return ok;
 }
-	
+
 /*virtual*/void PPViewComputer::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	if(pBrw) {
-		pBrw->SetDefUserProc(PPViewComputer::GetDataForBrowser, this);
+		pBrw->SetDefUserProc([](SBrowserDataProcBlock * pBlk) -> int
+			{
+				return (pBlk && pBlk->ExtraPtr) ? static_cast<PPViewComputer *>(pBlk->ExtraPtr)->_GetDataForBrowser(pBlk) : 0;				
+			}, this);
 		pBrw->SetCellStyleFunc(PPViewComputer_CellStyleFunc, pBrw);
 	}
 }
@@ -1717,32 +1714,30 @@ static int PPViewComputer_CellStyleFunc(const void * pData, long col, int paintA
 
 int PPViewComputer::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
-	int    ok = 0;
-	if(pBlk->P_SrcData && pBlk->P_DestData) {
-		ok = 1;
-		const  BrwItem * p_item = static_cast<const BrwItem *>(pBlk->P_SrcData);
-		int    r = 0;
-		switch(pBlk->ColumnN) {
-			case 0: pBlk->Set(p_item->ID); break; // @id
-			case 1: pBlk->Set(p_item->Name); break; // @name
-			case 2: pBlk->Set(p_item->CategoryName); break; // @v12.2.4 categoryname
-			case 3: // @v12.2.4 uuid
-				{
-					SString & r_buf = SLS.AcquireRvlStr();
-					if(!!p_item->Uuid)
-						p_item->Uuid.ToStr(S_GUID::fmtIDL, r_buf);
-					pBlk->Set(r_buf);
-				}
-				break;
-			case 4: // @v12.2.4 mac address
-				{
-					SString & r_buf = SLS.AcquireRvlStr();
-					if(!!p_item->MacAdr)
-						p_item->MacAdr.ToStr(0, r_buf);
-					pBlk->Set(r_buf);
-				}
-				break;
-		}
+	int    ok = 1;
+	assert(pBlk->P_SrcData && pBlk->P_DestData); // Функция вызывается только из одной локации и эти members != 0 равно как и pBlk != 0
+	const  BrwItem * p_item = static_cast<const BrwItem *>(pBlk->P_SrcData);
+	int    r = 0;
+	switch(pBlk->ColumnN) {
+		case 0: pBlk->Set(p_item->ID); break; // @id
+		case 1: pBlk->Set(p_item->Name); break; // @name
+		case 2: pBlk->Set(p_item->CategoryName); break; // @v12.2.4 categoryname
+		case 3: // @v12.2.4 uuid
+			{
+				SString & r_buf = SLS.AcquireRvlStr();
+				if(!!p_item->Uuid)
+					p_item->Uuid.ToStr(S_GUID::fmtIDL, r_buf);
+				pBlk->Set(r_buf);
+			}
+			break;
+		case 4: // @v12.2.4 mac address
+			{
+				SString & r_buf = SLS.AcquireRvlStr();
+				if(!!p_item->MacAdr)
+					p_item->MacAdr.ToStr(0, r_buf);
+				pBlk->Set(r_buf);
+			}
+			break;
 	}
 	return ok;
 }
@@ -2497,12 +2492,6 @@ static int PPViewSwProgram_CellStyleFunc(const void * pData, long col, int paint
 	return ok;
 }
 
-/*static*/int FASTCALL PPViewSwProgram::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
-{
-	PPViewSwProgram * p_v = static_cast<PPViewSwProgram *>(pBlk->ExtraPtr);
-	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;
-}
-	
 /*virtual*/SArray * PPViewSwProgram::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
 {
 	SArray * p_array = 0;
@@ -2515,11 +2504,14 @@ static int PPViewSwProgram_CellStyleFunc(const void * pData, long col, int paint
 	ASSIGN_PTR(pBrwId, BROWSER_SWPROGRAM);
 	return p_array;
 }
-	
+
 /*virtual*/void PPViewSwProgram::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	if(pBrw) {
-		pBrw->SetDefUserProc(PPViewSwProgram::GetDataForBrowser, this);
+		pBrw->SetDefUserProc([](SBrowserDataProcBlock * pBlk) -> int
+			{
+				return (pBlk && pBlk->ExtraPtr) ? static_cast<PPViewSwProgram *>(pBlk->ExtraPtr)->_GetDataForBrowser(pBlk) : 0;				
+			}, this);
 		pBrw->SetCellStyleFunc(PPViewSwProgram_CellStyleFunc, pBrw);
 	}
 }
@@ -2585,30 +2577,28 @@ static int PPViewSwProgram_CellStyleFunc(const void * pData, long col, int paint
 	
 int PPViewSwProgram::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
-	int    ok = 0;
-	if(pBlk->P_SrcData && pBlk->P_DestData) {
-		ok = 1;
-		const  BrwItem * p_item = static_cast<const BrwItem *>(pBlk->P_SrcData);
-		int    r = 0;
-		switch(pBlk->ColumnN) {
-			case 0: pBlk->Set(p_item->ID); break; // @id
-			case 1: pBlk->Set(p_item->Name); break; // @name
-			case 2: 
-				{
-					bool settled = false;
-					if(p_item->CategoryID) {
-						Reference2Tbl::Rec cat_rec;
-						if(PPRef->GetItem(PPOBJ_SWPROGRAMCATEGORY, p_item->CategoryID, &cat_rec) > 0) {
-							pBlk->Set(cat_rec.ObjName);
-							settled = true;
-						}
+	int    ok = 1;
+	assert(pBlk->P_SrcData && pBlk->P_DestData); // Функция вызывается только из одной локации и эти members != 0 равно как и pBlk != 0
+	const  BrwItem * p_item = static_cast<const BrwItem *>(pBlk->P_SrcData);
+	int    r = 0;
+	switch(pBlk->ColumnN) {
+		case 0: pBlk->Set(p_item->ID); break; // @id
+		case 1: pBlk->Set(p_item->Name); break; // @name
+		case 2: 
+			{
+				bool settled = false;
+				if(p_item->CategoryID) {
+					Reference2Tbl::Rec cat_rec;
+					if(PPRef->GetItem(PPOBJ_SWPROGRAMCATEGORY, p_item->CategoryID, &cat_rec) > 0) {
+						pBlk->Set(cat_rec.ObjName);
+						settled = true;
 					}
-					if(!settled)
-						pBlk->Set("");
 				}
-				break; // category
-			case 3: pBlk->Set(p_item->ExeFn); break; // exe file name
-		}
+				if(!settled)
+					pBlk->Set("");
+			}
+			break; // category
+		case 3: pBlk->Set(p_item->ExeFn); break; // exe file name
 	}
 	return ok;
 }

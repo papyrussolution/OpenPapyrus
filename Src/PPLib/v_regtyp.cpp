@@ -49,43 +49,34 @@ int PPViewRegisterType::CheckForFilt(const PPRegisterTypePacket * pPack) const
 	return 1;
 }
 
-// static
-int FASTCALL PPViewRegisterType::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
-{
-	PPViewRegisterType * p_v = static_cast<PPViewRegisterType *>(pBlk->ExtraPtr);
-	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;
-}
-
 int PPViewRegisterType::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
-	int    ok = 0;
-	if(pBlk->P_SrcData && pBlk->P_DestData) {
-		ok = 1;
-		SString temp_buf;
-		const RegTypeViewItem * p_item = static_cast<const RegTypeViewItem *>(pBlk->P_SrcData);
-		switch(pBlk->ColumnN) {
-			case 0: // ИД
-				pBlk->Set(p_item->ID);
-				break;
-			case 1: // Наименование
-				GetRegisterTypeName(p_item->ID, temp_buf);
-				pBlk->Set(temp_buf);
-				break;
-			case 2: // Вид регистрирующей организации
-				GetObjectName(PPOBJ_PERSONKIND, p_item->RegOrgKind, temp_buf);
-				pBlk->Set(temp_buf);
-				break;
-			case 3: // Вид разрешенной персоналии
-				GetObjectName(PPOBJ_PERSONKIND, p_item->PersonKindID, temp_buf);
-				pBlk->Set(temp_buf);
-				break;
-			case 4: // Период действия в днях
-				pBlk->Set((int32)p_item->ExpiryPrd);
-				break;
-			case 5: // Формат
-				pBlk->Set(p_item->Format);
-				break;
-		}
+	int    ok = 1;
+	assert(pBlk->P_SrcData && pBlk->P_DestData); // Функция вызывается только из одной локации и эти members != 0 равно как и pBlk != 0
+	SString temp_buf;
+	const RegTypeViewItem * p_item = static_cast<const RegTypeViewItem *>(pBlk->P_SrcData);
+	switch(pBlk->ColumnN) {
+		case 0: // ИД
+			pBlk->Set(p_item->ID);
+			break;
+		case 1: // Наименование
+			GetRegisterTypeName(p_item->ID, temp_buf);
+			pBlk->Set(temp_buf);
+			break;
+		case 2: // Вид регистрирующей организации
+			GetObjectName(PPOBJ_PERSONKIND, p_item->RegOrgKind, temp_buf);
+			pBlk->Set(temp_buf);
+			break;
+		case 3: // Вид разрешенной персоналии
+			GetObjectName(PPOBJ_PERSONKIND, p_item->PersonKindID, temp_buf);
+			pBlk->Set(temp_buf);
+			break;
+		case 4: // Период действия в днях
+			pBlk->Set((int32)p_item->ExpiryPrd);
+			break;
+		case 5: // Формат
+			pBlk->Set(p_item->Format);
+			break;
 	}
 	return ok;
 }
@@ -182,7 +173,12 @@ int FASTCALL PPViewRegisterType::NextIteration(RegTypeViewItem * pItem)
 
 void PPViewRegisterType::PreprocessBrowser(PPViewBrowser * pBrw)
 {
-	CALLPTRMEMB(pBrw, SetDefUserProc(PPViewRegisterType::GetDataForBrowser, this));
+	if(pBrw) {
+		pBrw->SetDefUserProc([](SBrowserDataProcBlock * pBlk) -> int
+			{
+				return (pBlk && pBlk->ExtraPtr) ? static_cast<PPViewRegisterType *>(pBlk->ExtraPtr)->_GetDataForBrowser(pBlk) : 0;				
+			}, this);
+	}
 }
 
 SArray * PPViewRegisterType::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)

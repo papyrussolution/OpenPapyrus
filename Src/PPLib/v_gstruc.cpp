@@ -457,98 +457,89 @@ int FASTCALL PPViewGoodsStruc::NextIteration(GoodsStrucViewItem * pItem)
 
 int FASTCALL PPViewGoodsStruc::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
-	int    ok = 0;
-	if(pBlk->P_SrcData && pBlk->P_DestData) {
-		ok = 1;
-		const GoodsStrucProcessingBlock::ItemEntry * p_item = static_cast<const GoodsStrucProcessingBlock::ItemEntry *>(pBlk->P_SrcData);
-		SString temp_buf;
-		int    r = 0;
-		switch(pBlk->ColumnN) {
-			case 0: pBlk->Set(p_item->GStrucID); break; // @id
-			case 1: // Primary goods name
-				if(p_item->StrucEntryP < Cb.StrucList.getCount())
-					pBlk->Set(GetGoodsName(Cb.StrucList.at(p_item->StrucEntryP).PrmrGoodsID, temp_buf));
-				break;
-			case 2: pBlk->Set(GetGoodsName(p_item->GoodsID, temp_buf)); break; // Secondary goods name
-			case 3: // Simple representation of component qtty per one primary ware item
-				{
-					double qtty = 0.0;
-					PPGoodsStrucItem::GetEffectiveQuantity(1.0, p_item->GoodsID, p_item->Median, p_item->Denom, p_item->Flags, &qtty);
-					pBlk->Set(temp_buf.Z().Cat(qtty, MKSFMTD(0, 6, NMBF_NOZERO)));
-				}
-				break;
-			case 4: // Text representation of flags
-				if(p_item->StrucEntryP < Cb.StrucList.getCount()) {
-					const GoodsStrucProcessingBlock::StrucEntry & r_entry = Cb.StrucList.at(p_item->StrucEntryP);
-					PPGoodsStruc::MakeTypeString(r_entry.GStrucID, r_entry.Flags, r_entry.ParentStrucID, temp_buf);
-				}
-				else
-					temp_buf.Z();
+	int    ok = 1;
+	assert(pBlk->P_SrcData && pBlk->P_DestData); // Функция вызывается только из одной локации и эти members != 0 равно как и pBlk != 0
+	const GoodsStrucProcessingBlock::ItemEntry * p_item = static_cast<const GoodsStrucProcessingBlock::ItemEntry *>(pBlk->P_SrcData);
+	SString temp_buf;
+	int    r = 0;
+	switch(pBlk->ColumnN) {
+		case 0: pBlk->Set(p_item->GStrucID); break; // @id
+		case 1: // Primary goods name
+			if(p_item->StrucEntryP < Cb.StrucList.getCount())
+				pBlk->Set(GetGoodsName(Cb.StrucList.at(p_item->StrucEntryP).PrmrGoodsID, temp_buf));
+			break;
+		case 2: pBlk->Set(GetGoodsName(p_item->GoodsID, temp_buf)); break; // Secondary goods name
+		case 3: // Simple representation of component qtty per one primary ware item
+			{
+				double qtty = 0.0;
+				PPGoodsStrucItem::GetEffectiveQuantity(1.0, p_item->GoodsID, p_item->Median, p_item->Denom, p_item->Flags, &qtty);
+				pBlk->Set(temp_buf.Z().Cat(qtty, MKSFMTD(0, 6, NMBF_NOZERO)));
+			}
+			break;
+		case 4: // Text representation of flags
+			if(p_item->StrucEntryP < Cb.StrucList.getCount()) {
+				const GoodsStrucProcessingBlock::StrucEntry & r_entry = Cb.StrucList.at(p_item->StrucEntryP);
+				PPGoodsStruc::MakeTypeString(r_entry.GStrucID, r_entry.Flags, r_entry.ParentStrucID, temp_buf);
+			}
+			else
+				temp_buf.Z();
+			pBlk->Set(temp_buf);
+			break;
+		case 5: pBlk->Set(p_item->Netto); break; // Netto
+		case 6: // Общий делитель структуры
+			if(p_item->StrucEntryP < Cb.StrucList.getCount()) {
+				const GoodsStrucProcessingBlock::StrucEntry & r_entry = Cb.StrucList.at(p_item->StrucEntryP);
+				pBlk->Set(r_entry.CommDenom);
+			}
+			else
+				pBlk->Set(0.0);
+			break;
+		case 7: pBlk->Set(p_item->ItemNo); break; // Номер строки внутри стурктуры
+		case 8: // Наименование структуры
+			{
+				temp_buf.Z();
+				PPGoodsStrucHeader rec;
+				if(Cb.GSObj.Fetch(p_item->GStrucID, &rec) > 0)
+					temp_buf = rec.Name;
 				pBlk->Set(temp_buf);
-				break;
-			case 5: pBlk->Set(p_item->Netto); break; // Netto
-			case 6: // Общий делитель структуры
+			}
+			break;
+		case 9: // @v11.7.6 Ассоциированная технология //
+			{
+				temp_buf.Z();
 				if(p_item->StrucEntryP < Cb.StrucList.getCount()) {
-					const GoodsStrucProcessingBlock::StrucEntry & r_entry = Cb.StrucList.at(p_item->StrucEntryP);
-					pBlk->Set(r_entry.CommDenom);
+					const GoodsStrucProcessingBlock::StrucEntry & r_se = Cb.StrucList.at(p_item->StrucEntryP);
+					if(r_se.SingleAssociatedTechID) {
+						if(SETIFZ(Cb.P_TecObj, new PPObjTech())) {
+							TechTbl::Rec tec_rec;
+							if(Cb.P_TecObj->Fetch(r_se.SingleAssociatedTechID, &tec_rec) > 0)
+								temp_buf = tec_rec.Code;
+							else
+								ideqvalstr(r_se.SingleAssociatedTechID, temp_buf);
+							if(r_se.InternalFlags & GoodsStrucProcessingBlock::intfMultAssociatedTech)
+								temp_buf.CatCharN('.', 3);
+							pBlk->Set(temp_buf);
+						}
+					}
 				}
-				else
-					pBlk->Set(0.0);
-				break;
-			case 7: pBlk->Set(p_item->ItemNo); break; // Номер строки внутри стурктуры
-			case 8: // Наименование структуры
-				{
-					temp_buf.Z();
-					PPGoodsStrucHeader rec;
-					if(Cb.GSObj.Fetch(p_item->GStrucID, &rec) > 0)
-						temp_buf = rec.Name;
+			}
+			break;
+		case 10: // @v11.9.2 Ожидаемая цена
+			{
+				temp_buf.Z();
+				if(p_item->StrucEntryP < Cb.StrucList.getCount()) {
+					if(p_item->InternalFlags & GoodsStrucProcessingBlock::intfUncertEstPrice) {
+						temp_buf.CatChar('?');
+					}
+					else if(p_item->EstPrice > 0.0) {
+						temp_buf.Cat(p_item->EstPrice, MKSFMTD_020);
+					}
 					pBlk->Set(temp_buf);
 				}
-				break;
-			case 9: // @v11.7.6 Ассоциированная технология //
-				{
-					temp_buf.Z();
-					if(p_item->StrucEntryP < Cb.StrucList.getCount()) {
-						const GoodsStrucProcessingBlock::StrucEntry & r_se = Cb.StrucList.at(p_item->StrucEntryP);
-						if(r_se.SingleAssociatedTechID) {
-							if(SETIFZ(Cb.P_TecObj, new PPObjTech())) {
-								TechTbl::Rec tec_rec;
-								if(Cb.P_TecObj->Fetch(r_se.SingleAssociatedTechID, &tec_rec) > 0)
-									temp_buf = tec_rec.Code;
-								else
-									ideqvalstr(r_se.SingleAssociatedTechID, temp_buf);
-								if(r_se.InternalFlags & GoodsStrucProcessingBlock::intfMultAssociatedTech)
-									temp_buf.CatCharN('.', 3);
-								pBlk->Set(temp_buf);
-							}
-						}
-					}
-				}
-				break;
-			case 10: // @v11.9.2 Ожидаемая цена
-				{
-					temp_buf.Z();
-					if(p_item->StrucEntryP < Cb.StrucList.getCount()) {
-						if(p_item->InternalFlags & GoodsStrucProcessingBlock::intfUncertEstPrice) {
-							temp_buf.CatChar('?');
-						}
-						else if(p_item->EstPrice > 0.0) {
-							temp_buf.Cat(p_item->EstPrice, MKSFMTD_020);
-						}
-						pBlk->Set(temp_buf);
-					}
-				}
-				break;
-		}
+			}
+			break;
 	}
 	return ok;
-}
-
-// static
-int FASTCALL PPViewGoodsStruc::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
-{
-	PPViewGoodsStruc * p_v = static_cast<PPViewGoodsStruc *>(pBlk->ExtraPtr);
-	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;
 }
 
 static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr)
@@ -605,7 +596,10 @@ int PPViewGoodsStruc::CellStyleFunc_(const void * pData, long col, int paintActi
 void PPViewGoodsStruc::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	if(pBrw) {
-		pBrw->SetDefUserProc(PPViewGoodsStruc::GetDataForBrowser, this);
+		pBrw->SetDefUserProc([](SBrowserDataProcBlock * pBlk) -> int
+			{
+				return (pBlk && pBlk->ExtraPtr) ? static_cast<PPViewGoodsStruc *>(pBlk->ExtraPtr)->_GetDataForBrowser(pBlk) : 0;				
+			}, this);
 		pBrw->SetCellStyleFunc(CellStyleFunc, pBrw);
 		if(Filt.Flags & GoodsStrucFilt::fShowEstValue) { // @v11.8.2
 			pBrw->InsColumn(-1, "@expectedprice", 10, MKSTYPE(S_ZSTRING, 64), MKSFMT(0, ALIGN_RIGHT), BCO_USERPROC); // #10 estimated price

@@ -1174,46 +1174,37 @@ int PPViewBizScValByTempl::EditBaseFilt(PPBaseFilt * pFilt) { DIALOG_PROC_BODYER
 
 int PPViewBizScValByTempl::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
-	int    ok = 0;
-	if(pBlk->P_SrcData && pBlk->P_DestData) {
-		ok = 1;
-		SString temp_buf;
-		const BizScValByTemplViewItem * p_item = static_cast<const BizScValByTemplViewItem *>(pBlk->P_SrcData);
-		switch(pBlk->ColumnN) {
-			case 0:
-				pBlk->Set(p_item->Id);
-				break;
-			case 1:
-				pBlk->Set(temp_buf = p_item->Name);
-				break;
-			default:
-				if((pBlk->ColumnN - 2) >= 0) {
-					int    found = 0;
-					StringSet ss(SLBColumnDelim);
-					ss.setBuf(p_item->P_Vals, sstrlen(p_item->P_Vals) + 1);
-					temp_buf.Z();
-					for(uint i = 0, p = 0; ss.get(&p, temp_buf); i++) {
-						if(i == pBlk->ColumnN - 2) {
-							found = 1;
-							break;
-						}
+	int    ok = 1;
+	assert(pBlk->P_SrcData && pBlk->P_DestData); // Функция вызывается только из одной локации и эти members != 0 равно как и pBlk != 0
+	SString temp_buf;
+	const BizScValByTemplViewItem * p_item = static_cast<const BizScValByTemplViewItem *>(pBlk->P_SrcData);
+	switch(pBlk->ColumnN) {
+		case 0:
+			pBlk->Set(p_item->Id);
+			break;
+		case 1:
+			pBlk->Set(temp_buf = p_item->Name);
+			break;
+		default:
+			if((pBlk->ColumnN - 2) >= 0) {
+				int    found = 0;
+				StringSet ss(SLBColumnDelim);
+				ss.setBuf(p_item->P_Vals, sstrlen(p_item->P_Vals) + 1);
+				temp_buf.Z();
+				for(uint i = 0, p = 0; ss.get(&p, temp_buf); i++) {
+					if(i == pBlk->ColumnN - 2) {
+						found = 1;
+						break;
 					}
-					if(found)
-						pBlk->Set(temp_buf);
-					else
-						pBlk->SetZero();
 				}
-				break;
-		}
+				if(found)
+					pBlk->Set(temp_buf);
+				else
+					pBlk->SetZero();
+			}
+			break;
 	}
 	return ok;
-}
-
-// static
-int FASTCALL PPViewBizScValByTempl::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
-{
-	PPViewBizScValByTempl * p_v = static_cast<PPViewBizScValByTempl *>(pBlk->ExtraPtr);
-	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;
 }
 
 int PPViewBizScValByTempl::FetchData()
@@ -1283,7 +1274,10 @@ void PPViewBizScValByTempl::PreprocessBrowser(PPViewBrowser * pBrw)
 	if(pBrw) {
 		SString name;
 		PPBizScTemplCol * p_col = 0;
-		pBrw->SetDefUserProc(PPViewBizScValByTempl::GetDataForBrowser, this);
+		pBrw->SetDefUserProc([](SBrowserDataProcBlock * pBlk) -> int
+			{
+				return (pBlk && pBlk->ExtraPtr) ? static_cast<PPViewBizScValByTempl *>(pBlk->ExtraPtr)->_GetDataForBrowser(pBlk) : 0;				
+			}, this);
 		for(uint i = 0; Pack.Cols.enumItems(&i, (void **)&p_col) > 0;) {
 			if(!(p_col->Flags & PPBizScTemplCol::fInvisible)) {
 				if(sstrlen(p_col->Name))

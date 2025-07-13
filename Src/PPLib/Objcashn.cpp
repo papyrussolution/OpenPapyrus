@@ -280,8 +280,9 @@ struct __PosNodeExt {       // @persistent
 	int32  ScfFlags;        //
 	uint16 ScfDaysPeriod;       // Параметр фильтрации отложенных чеков
 	int16  ScfDlvrItemsShowTag; // Параметр фильтрации отложенных чеков
-	uint16 BonusMaxPart;    //
-	uint16 Reserve3;        // @alignment
+	uint16 BonusMaxPart;        //
+	int16  AllowedPaymentTypes; // @v12.3.8 CheckPaymMethod (1 << cpmXXX) Допустимые типы оплаты 
+	// @v12.3.8 uint16 Reserve3;        // @alignment
 	int32  Reserve2;        // @reserve
 };
 #pragma pack(pop)
@@ -764,17 +765,31 @@ int PPObjCashNode::GetSync(PPID id, PPSyncCashNode * pSCN)
 				pSCN->Scf.DlvrItemsShowTag = pnext.ScfDlvrItemsShowTag;
 				pSCN->Scf.Flags = pnext.ScfFlags;
 				pSCN->BonusMaxPart = pnext.BonusMaxPart;
-				// @v10.9.6 {
 				if(pSCN->BonusMaxPart == 1)
 					pSCN->BonusMaxPart = 1000;
-				// } @v10.9.6
+				// @v12.3.8 {
+				pSCN->AllowedPaymentTypes = pnext.AllowedPaymentTypes;
+				SETIFZQ(pSCN->AllowedPaymentTypes, 0xffff);
+				// } @v12.3.8 
 			}
 			else {
 				pSCN->Scf.DaysPeriod = 0;
 				pSCN->Scf.DlvrItemsShowTag = 0;
 				pSCN->BonusMaxPart = 0;
+				pSCN->AllowedPaymentTypes = 0xffff; // @v12.3.8
 			}
 		}
+		// @v12.3.8 {
+		// Балансируем дублируемые по смыслу признаки
+		if((pSCN->AllowedPaymentTypes & ((1 << cpmCash)|(1 << cpmBank))) == ((1 << cpmCash)|(1 << cpmBank))) {
+			if(pSCN->Flags & CASHF_NOASKPAYMTYPE) {
+				pSCN->AllowedPaymentTypes = (1 << cpmCash);
+			}
+		}
+		else if(pSCN->AllowedPaymentTypes & ((1 << cpmCash))) {
+			pSCN->Flags |= CASHF_NOASKPAYMTYPE;
+		}
+		// } @v12.3.8 
 		pSCN->CTblList.clear();
 		P_Ref->GetPropArray(Obj, id, CNPRP_CTBLLIST, &pSCN->CTblList);
 		pSCN->LocalTouchScrID = 0;
@@ -1067,6 +1082,7 @@ int PPObjCashNode::Put(PPID * pID, PPGenCashNode * pCN, int use_ta)
 						pnext.ScfDlvrItemsShowTag = p_scn->Scf.DlvrItemsShowTag;
 						pnext.ScfFlags = p_scn->Scf.Flags;
 						pnext.BonusMaxPart = p_scn->BonusMaxPart;
+						pnext.AllowedPaymentTypes = p_scn->AllowedPaymentTypes; // @v12.3.8
 						THROW(P_Ref->PutProp(Obj, *pID, CNPRP_EXTRA, &pnext, sizeof(pnext)));
 					}
 					else {
@@ -1812,6 +1828,11 @@ int SyncCashNodeCfgDialog::editExt()
 			AddClusterAssoc(CTL_CASHNSEXT_FLAGS, 0, CASHFX_INPGUESTCFTBL);
 			AddClusterAssoc(CTL_CASHNSEXT_FLAGS, 1, CASHFX_USEGOODSMATRIX); // @v11.2.8
 			SetClusterData(CTL_CASHNSEXT_FLAGS, Data.ExtFlags);
+			// @v12.3.8 {
+			AddClusterAssoc(CTL_CASHNSEXT_ALDPAYMT, 0, (1 << cpmCash));
+			AddClusterAssoc(CTL_CASHNSEXT_ALDPAYMT, 1, (1 << cpmBank));
+			SetClusterData(CTL_CASHNSEXT_ALDPAYMT, Data.AllowedPaymentTypes);
+			// } @v12.3.8 
 			return ok;
 		}
 		DECL_DIALOG_GETDTS()
@@ -1835,6 +1856,7 @@ int SyncCashNodeCfgDialog::editExt()
 			Data.Scf.DlvrItemsShowTag = static_cast<int16>(GetClusterData(CTL_CASHNSEXT_SCF_DLVRT));
 			GetClusterData(CTL_CASHNSEXT_FLAGS, &Data.ExtFlags);
 			GetClusterData(CTL_CASHNSEXT_NOTSF, &Data.Scf.Flags);
+			GetClusterData(CTL_CASHNSEXT_ALDPAYMT, &Data.AllowedPaymentTypes); // @v12.3.8
 			ASSIGN_PTR(pData, Data);
 			CATCHZOKPPERRBYDLG
 			return ok;

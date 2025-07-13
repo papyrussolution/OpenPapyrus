@@ -207,70 +207,66 @@ int FASTCALL PPViewStaffList::NextIteration(StaffListViewItem * pItem)
 	return ok;
 }
 
-// static
-int FASTCALL PPViewStaffList::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
-{
-	PPViewStaffList * p_v = static_cast<PPViewStaffList *>(pBlk->ExtraPtr);
-	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;
-}
-
 int PPViewStaffList::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
-	int    ok = 0;
-	if(pBlk->P_SrcData && pBlk->P_DestData) {
-		ok = 1;
-		SString temp_buf;
-		const BrwEntry * p_item = static_cast<const BrwEntry *>(pBlk->P_SrcData);
-		switch(pBlk->ColumnN) {
-			case 0: // ИД
-				pBlk->Set(p_item->ID);
-				break;
-			case 1: // Наименование
-				{
-					PPStaffEntry se;
-					if(SlObj.Fetch(p_item->ID, &se) > 0)
-						temp_buf = se.Name;
-					else
-						ideqvalstr(p_item->ID, temp_buf.Z());
-					pBlk->Set(temp_buf);
-				}
-				break;
-			case 2: // Подразделение
-				if(p_item->DivisionID)
-					GetLocationName(p_item->DivisionID, temp_buf);
+	int    ok = 1;
+	assert(pBlk->P_SrcData && pBlk->P_DestData); // Функция вызывается только из одной локации и эти members != 0 равно как и pBlk != 0
+	SString temp_buf;
+	const BrwEntry * p_item = static_cast<const BrwEntry *>(pBlk->P_SrcData);
+	switch(pBlk->ColumnN) {
+		case 0: // ИД
+			pBlk->Set(p_item->ID);
+			break;
+		case 1: // Наименование
+			{
+				PPStaffEntry se;
+				if(SlObj.Fetch(p_item->ID, &se) > 0)
+					temp_buf = se.Name;
 				else
-					temp_buf.Z();
+					ideqvalstr(p_item->ID, temp_buf.Z());
 				pBlk->Set(temp_buf);
-				break;
-			case 3: // Rank
-				pBlk->Set(p_item->Rank);
-				break;
-			case 4: // Количество ставок
-				pBlk->Set((int32)p_item->VacancyCount);
-				break;
-			case 5: // Занято вакансий
-				pBlk->Set((int32)p_item->VacancyBusy);
-				break;
-			case 6: // Группа начислений
+			}
+			break;
+		case 2: // Подразделение
+			if(p_item->DivisionID)
+				GetLocationName(p_item->DivisionID, temp_buf);
+			else
 				temp_buf.Z();
-				if(p_item->ChargeGrpID) {
-					PPObjSalCharge sc_obj;
-					PPSalChargePacket sc_pack;
-					if(sc_obj.Fetch(p_item->ChargeGrpID, &sc_pack) > 0)
-						temp_buf = sc_pack.Rec.Name;
-					else
-						ideqvalstr(p_item->ChargeGrpID, temp_buf.Z());
-				}
-				pBlk->Set(temp_buf);
-				break;
-		}
+			pBlk->Set(temp_buf);
+			break;
+		case 3: // Rank
+			pBlk->Set(p_item->Rank);
+			break;
+		case 4: // Количество ставок
+			pBlk->Set((int32)p_item->VacancyCount);
+			break;
+		case 5: // Занято вакансий
+			pBlk->Set((int32)p_item->VacancyBusy);
+			break;
+		case 6: // Группа начислений
+			temp_buf.Z();
+			if(p_item->ChargeGrpID) {
+				PPObjSalCharge sc_obj;
+				PPSalChargePacket sc_pack;
+				if(sc_obj.Fetch(p_item->ChargeGrpID, &sc_pack) > 0)
+					temp_buf = sc_pack.Rec.Name;
+				else
+					ideqvalstr(p_item->ChargeGrpID, temp_buf.Z());
+			}
+			pBlk->Set(temp_buf);
+			break;
 	}
 	return ok;
 }
 
 void PPViewStaffList::PreprocessBrowser(PPViewBrowser * pBrw)
 {
-	CALLPTRMEMB(pBrw, SetDefUserProc(PPViewStaffList::GetDataForBrowser, this));
+	if(pBrw) {
+		pBrw->SetDefUserProc([](SBrowserDataProcBlock * pBlk) -> int
+			{
+				return (pBlk && pBlk->ExtraPtr) ? static_cast<PPViewStaffList *>(pBlk->ExtraPtr)->_GetDataForBrowser(pBlk) : 0;				
+			}, this);
+	}
 }
 
 SArray * PPViewStaffList::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)

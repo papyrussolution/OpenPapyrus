@@ -325,16 +325,17 @@ bool FASTCALL DateRange::IsEq(const DateRange & rS) const
 
 long DateRange::GetLength() const
 {
+	// @v12.3.8 Внес изменение: длина детерменированного периода должна быть на 1 больше, чем разница дат.
 	long   len = 0;
 	if(low == upp) {
-		len = (!low) ? (MAXLONG-1) : 0;
+		len = (!low) ? (MAXLONG-1) : 1; // @v12.3.8 0-->1
 	}
 	else if(!low)
 		len = diffdate(upp, encodedate(1, 1, 0));
 	else if(!upp)
 		len = (MAXLONG-2);
 	else
-		len = diffdate(upp, low);
+		len = diffdate(upp, low) + 1; // @v12.3.8 (+1)
 	return len;
 }
 

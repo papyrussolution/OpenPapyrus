@@ -206,72 +206,69 @@ int FASTCALL PPViewAccount::NextIteration(AccountViewItem * pItem)
 	return ok;
 }
 
-/*static*/int FASTCALL PPViewAccount::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
-{
-	PPViewAccount * p_v = static_cast<PPViewAccount *>(pBlk->ExtraPtr);
-	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;
-}
-
 int PPViewAccount::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
-	int    ok = 0;
-	if(pBlk->P_SrcData && pBlk->P_DestData) {
-		ok = 1;
-		SString temp_buf;
-		const BrwEntry * p_item = static_cast<const BrwEntry *>(pBlk->P_SrcData);
-		switch(pBlk->ColumnN) {
-			case 0: // ИД
-				pBlk->Set(p_item->ID);
-				break;
-			case 1: // Номер счета
-				pBlk->Set((long)p_item->A.Ac);
-				break;
-			case 2: // Номер субсчета
-				pBlk->Set((long)p_item->A.Sb);
-				break;
-			case 3: // Вид счета
-				PPGetSubStrById(PPTXT_ACCKIND, p_item->Kind, temp_buf);
-				pBlk->Set(temp_buf);
-				break;
-			case 4:
-				{
-					PPAccount acc_rec;
-					if(AccObj.Fetch(p_item->ID, &acc_rec) > 0)
-						temp_buf = acc_rec.Name;
-					else
-						ideqvalstr(p_item->ID, temp_buf.Z());
-				}
-				pBlk->Set(temp_buf);
-				break;
-			case 5:
-				temp_buf.Z();
-				if(p_item->AccSheetID) {
-					PPObjAccSheet acs_obj;
-					PPAccSheet acs_rec;
-					if(acs_obj.Fetch(p_item->AccSheetID, &acs_rec) > 0)
-						temp_buf = acs_rec.Name;
-					else
-						ideqvalstr(p_item->AccSheetID, temp_buf);
-				}
-				pBlk->Set(temp_buf);
-				break;
-			case 6:
-				pBlk->Set(temp_buf.Z().CatHex(p_item->Flags));
-				break;
-			case 7:
-				pBlk->Set(p_item->Frrl_Date);
-				break;
-			case 8:
-				pBlk->Set(p_item->Code);
-				break;
-		}
+	int    ok = 1;
+	assert(pBlk->P_SrcData && pBlk->P_DestData); // Функция вызывается только из одной локации и эти members != 0 равно как и pBlk != 0
+	SString temp_buf;
+	const BrwEntry * p_item = static_cast<const BrwEntry *>(pBlk->P_SrcData);
+	switch(pBlk->ColumnN) {
+		case 0: // ИД
+			pBlk->Set(p_item->ID);
+			break;
+		case 1: // Номер счета
+			pBlk->Set((long)p_item->A.Ac);
+			break;
+		case 2: // Номер субсчета
+			pBlk->Set((long)p_item->A.Sb);
+			break;
+		case 3: // Вид счета
+			PPGetSubStrById(PPTXT_ACCKIND, p_item->Kind, temp_buf);
+			pBlk->Set(temp_buf);
+			break;
+		case 4:
+			{
+				PPAccount acc_rec;
+				if(AccObj.Fetch(p_item->ID, &acc_rec) > 0)
+					temp_buf = acc_rec.Name;
+				else
+					ideqvalstr(p_item->ID, temp_buf.Z());
+			}
+			pBlk->Set(temp_buf);
+			break;
+		case 5:
+			temp_buf.Z();
+			if(p_item->AccSheetID) {
+				PPObjAccSheet acs_obj;
+				PPAccSheet acs_rec;
+				if(acs_obj.Fetch(p_item->AccSheetID, &acs_rec) > 0)
+					temp_buf = acs_rec.Name;
+				else
+					ideqvalstr(p_item->AccSheetID, temp_buf);
+			}
+			pBlk->Set(temp_buf);
+			break;
+		case 6:
+			pBlk->Set(temp_buf.Z().CatHex(p_item->Flags));
+			break;
+		case 7:
+			pBlk->Set(p_item->Frrl_Date);
+			break;
+		case 8:
+			pBlk->Set(p_item->Code);
+			break;
 	}
 	return ok;
 }
 
 void PPViewAccount::PreprocessBrowser(PPViewBrowser * pBrw)
 {
-	CALLPTRMEMB(pBrw, SetDefUserProc(PPViewAccount::GetDataForBrowser, this));
+	if(pBrw) {
+		pBrw->SetDefUserProc([](SBrowserDataProcBlock * pBlk) -> int
+			{
+				return (pBlk && pBlk->ExtraPtr) ? static_cast<PPViewAccount *>(pBlk->ExtraPtr)->_GetDataForBrowser(pBlk) : 0;				
+			}, this);
+	}
 }
 
 SArray * PPViewAccount::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)

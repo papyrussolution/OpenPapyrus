@@ -2053,10 +2053,12 @@ int PPView::Implement_CmpSortIndexItems_OnArray(PPViewBrowser * pBrw, const void
 		uint8  dest_data1[1024];
 		uint8  dest_data2[1024];
 		for(uint i = 0; !sn && i < pBrw->GetSettledOrderList().getCount(); i++) {
-			int    col = pBrw->GetSettledOrderList().get(i);
+			const  int col = pBrw->GetSettledOrderList().get(i);
 			TYPEID typ1 = 0;
 			TYPEID typ2 = 0;
-			if(p_def->GetCellData(pItem1, labs(col)-1, &typ1, &dest_data1, sizeof(dest_data1)) && p_def->GetCellData(pItem2, labs(col)-1, &typ2, &dest_data2, sizeof(dest_data2))) {
+			const  int r1 = p_def->GetCellData(pItem1, labs(col)-1, &typ1, &dest_data1, sizeof(dest_data1));
+			const  int r2 = p_def->GetCellData(pItem2, labs(col)-1, &typ2, &dest_data2, sizeof(dest_data2));
+			if(r1 && r2) {
 				assert(typ1 == typ2);
 				if(typ1 == typ2) {
 					sn = stcomp(typ1, dest_data1, dest_data2);
@@ -2379,13 +2381,13 @@ int PPView::DefaultCmdProcessor(uint ppvCmd, const void * pHdr, PPViewBrowser * 
 //
 //
 //
-PPViewBrowser::PPViewBrowser(uint brwId, DBQuery * pQ, PPView * pV, int dataOwner) : BrowserWindow(brwId, pQ), RefreshTimer(0),
+PPViewBrowser::PPViewBrowser(uint brwId, DBQuery * pQ, PPView * pV, int dataOwner) : BrowserWindow(brwId, pQ, 0), RefreshTimer(0),
 	P_View(pV), VbState(dataOwner ? vbsDataOwner : 0), P_ComboBox(0), P_InputLine(0), H_ComboFont(0)
 {
 	Advise();
 }
 
-PPViewBrowser::PPViewBrowser(uint brwId, SArray * pQ, PPView * pV, int dataOwner) : BrowserWindow(brwId, pQ), RefreshTimer(0),
+PPViewBrowser::PPViewBrowser(uint brwId, SArray * pQ, PPView * pV, int dataOwner) : BrowserWindow(brwId, pQ, 0), RefreshTimer(0),
 	P_View(pV), VbState(dataOwner ? vbsDataOwner : 0), P_ComboBox(0), P_InputLine(0), H_ComboFont(0)
 {
 	Advise();
@@ -2433,6 +2435,16 @@ int PPViewBrowser::InsColumn(int atPos, const char * pText, uint fldNo, TYPEID t
 	else
 		temp_buf = pText;
 	return insertColumn(atPos, temp_buf, fldNo, typ, fmt, opt);
+}
+
+int PPViewBrowser::InsColumn(int atPos, const char * pText, uint fldNo, TYPEID typ, long fmt, uint opt, SBrowserDataProc proc) // @v12.3.8
+{
+	SString temp_buf;
+	if(pText && pText[0] == '@')
+		PPLoadString(pText+1, temp_buf);
+	else
+		temp_buf = pText;
+	return insertColumn(atPos, temp_buf, fldNo, typ, fmt, opt, proc);	
 }
 
 int PPViewBrowser::Advise(int kind, PPID action, PPID objType, long flags)

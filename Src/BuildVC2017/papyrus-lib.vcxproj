@@ -1664,6 +1664,7 @@
     <ClCompile Include="..\PPLib\v_mrp.cpp" />
     <ClCompile Include="..\PPLib\v_opgrp.cpp" />
     <ClCompile Include="..\PPLib\v_opkind.cpp" />
+    <ClCompile Include="..\PPLib\v_outer.cpp" />
     <ClCompile Include="..\PPLib\v_palm.cpp" />
     <ClCompile Include="..\PPLib\v_panlz.cpp" />
     <ClCompile Include="..\PPLib\v_paypln.cpp" />

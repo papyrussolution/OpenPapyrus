@@ -14,7 +14,7 @@
 class GoodsTrnovrBrowser : public BrowserWindow {
 public:
 	GoodsTrnovrBrowser(uint rezID, SArray * a, PPViewGoodsTrnovr *pView, GCTFilt * f, int dataOwner) :
-		BrowserWindow(rezID, a), P_View(pView), IsDataOwner(dataOwner)
+		BrowserWindow(rezID, a, 0), P_View(pView), IsDataOwner(dataOwner)
 	{
 		const GoodsTrnovrFilt * p_filt = P_View ? static_cast<PPViewGoodsTrnovr *>(P_View)->GetFilt() : 0;
 		if(p_filt)

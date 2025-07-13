@@ -286,7 +286,7 @@ int FASTCALL StatusWinChange(int onLogon /*=0*/, long timer/*=-1*/)
 			if(h_curr_wnd) {
 				SString & r_temp_buf = SLS.AcquireRvlStr();
 				TView::SGetWindowClassName(h_curr_wnd, r_temp_buf.Z());
-				if(r_temp_buf == "STextBrowser") {
+				if(r_temp_buf == SlConst::WinClsName_TextEditor) {
 					STextBrowser * p_view = static_cast<STextBrowser *>(TView::GetWindowUserData(h_curr_wnd));
 					if(p_view && p_view->IsConsistent()) {
 						STextBrowser::StatusBlock sb;

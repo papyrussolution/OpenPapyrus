@@ -2330,7 +2330,7 @@ int StrAssocArray::GetIdList(LongArray & rList) const
 	return ok;
 }
 
-int StrAssocArray::GetListByParent(long parentId, int recursive, LongArray & rList) const
+int StrAssocArray::GetListByParent(long parentId, bool recursive, LongArray & rList) const
 {
 	int    ok = 1;
 	LongArray temp_list;
@@ -2339,7 +2339,7 @@ int StrAssocArray::GetListByParent(long parentId, int recursive, LongArray & rLi
 		for(uint i = 0; i < c; i++) {
 			const long id = LAssocArray::at(i).Key;
 			if(ParentList.SearchPair(id, parentId, 0))
-				temp_list.add(id); // @v10.7.9 addUnique-->add
+				temp_list.add(id);
 		}
 	}
 	else {
@@ -2348,10 +2348,10 @@ int StrAssocArray::GetListByParent(long parentId, int recursive, LongArray & rLi
 			const  long id = LAssocArray::at(i).Key;
 			long   p = 0;
 			if(!ParentList.Search(id, &p, 0) || p == 0)
-				temp_list.add(id); // @v10.7.9 addUnique-->add
+				temp_list.add(id);
 		}
 	}
-	temp_list.sortAndUndup(); // @v10.7.9 
+	temp_list.sortAndUndup();
 	if(recursive) {
 		const uint c = temp_list.getCount();
 		LongArray temp_list2;
@@ -2567,7 +2567,7 @@ int StrAssocArray::Helper_RemoveRecursion(long parentId, LongArray & rRecurList,
 {
 	int    ok = -1;
 	LongArray list;
-	GetListByParent(parentId, 0, list);
+	GetListByParent(parentId, false, list);
 	const uint c = list.getCount();
 	if(c) {
 		list.sort();
@@ -2997,7 +2997,7 @@ void StrAssocArray::SortByText()
 void StrAssocArray::Helper_SortByTextInTreeOrder(long parentId, StrAssocArray & rTempList)
 {
 	LongArray child_list;
-	GetListByParent(parentId, 0, child_list);
+	GetListByParent(parentId, false, child_list);
 	child_list.sort();
 	for(uint i = 0; i < getCount(); i++) {
 		const long key = GetKeyByIdx(i);

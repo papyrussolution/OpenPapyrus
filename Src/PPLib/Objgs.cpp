@@ -1574,15 +1574,17 @@ int GSDialog::setupList()
 			}
 			ss.add(sub);
 			if(is_bs_pack_inited && bs_pack.Rec.Cls) {
-				if(PPObjBizScore2::IsBscCls_Income(bs_pack.Rec.Cls)) {
-					income = value;
-					total_income += income;
-					is_income = true;
-				}
-				else if(PPObjBizScore2::IsBscCls_Expense(bs_pack.Rec.Cls)) {
-					expense = value;
-					total_expense += expense;
-					is_expense = true;
+				if(PPObjBizScore2::IsBscCls_PerUnitValue(bs_pack.Rec.Cls)) {
+					if(PPObjBizScore2::IsBscCls_Income(bs_pack.Rec.Cls)) {
+						income = value;
+						total_income += income;
+						is_income = true;
+					}
+					else if(PPObjBizScore2::IsBscCls_Expense(bs_pack.Rec.Cls)) {
+						expense = value;
+						total_expense += expense;
+						is_expense = true;
+					}
 				}
 			}
 			{
@@ -2454,6 +2456,7 @@ static IMPL_CMPFUNC(_GSItem, i1, i2) { return cmp_long(static_cast<const _GSItem
 
 int PPObjGoodsStruc::Helper_LoadItems(PPID id, PPGoodsStruc * pData)
 {
+	static_assert(sizeof(_GSItem) == sizeof(ObjAssocTbl::Rec));
 	int    ok = 1;
 	TSVector <ObjAssocTbl::Rec> raw_items_list;
 	_GSItem * p_raw_item;

@@ -281,40 +281,37 @@ int FASTCALL PPViewGoodsToObjAssoc::NextIteration(GoodsToObjAssocViewItem * pIte
 	return ok;
 }
 
-/*static*/int FASTCALL PPViewGoodsToObjAssoc::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
-{
-	PPViewGoodsToObjAssoc * p_v = static_cast<PPViewGoodsToObjAssoc *>(pBlk->ExtraPtr);
-	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;
-}
-
 int PPViewGoodsToObjAssoc::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
-	int    ok = 0;
-	if(pBlk->P_SrcData && pBlk->P_DestData) {
-		ok = 1;
-		SString temp_buf;
-		const LAssoc * p_item = static_cast<const LAssoc *>(pBlk->P_SrcData);
-		switch(pBlk->ColumnN) {
-			case 0: pBlk->Set(p_item->Key); break; // GoodsID
-			case 1: pBlk->Set(p_item->Val); break; // ObjID
-			case 2: // Наименование товара
-				CALLPTRMEMB(P_Assoc, GetKeyName(p_item->Key, temp_buf));
-				if(!temp_buf.NotEmpty())
-					ideqvalstr(p_item->Key, temp_buf);
-				pBlk->Set(temp_buf);
-				break;
-			case 3: // Наименование ассоциированного объекта
-				GetObjectName(Filt.ObjType, p_item->Val, temp_buf);
-				pBlk->Set(temp_buf);
-				break;
-		}
+	int    ok = 1;
+	assert(pBlk->P_SrcData && pBlk->P_DestData); // Функция вызывается только из одной локации и эти members != 0 равно как и pBlk != 0
+	SString temp_buf;
+	const LAssoc * p_item = static_cast<const LAssoc *>(pBlk->P_SrcData);
+	switch(pBlk->ColumnN) {
+		case 0: pBlk->Set(p_item->Key); break; // GoodsID
+		case 1: pBlk->Set(p_item->Val); break; // ObjID
+		case 2: // Наименование товара
+			CALLPTRMEMB(P_Assoc, GetKeyName(p_item->Key, temp_buf));
+			if(!temp_buf.NotEmpty())
+				ideqvalstr(p_item->Key, temp_buf);
+			pBlk->Set(temp_buf);
+			break;
+		case 3: // Наименование ассоциированного объекта
+			GetObjectName(Filt.ObjType, p_item->Val, temp_buf);
+			pBlk->Set(temp_buf);
+			break;
 	}
 	return ok;
 }
 
 void PPViewGoodsToObjAssoc::PreprocessBrowser(PPViewBrowser * pBrw)
 {
-	CALLPTRMEMB(pBrw, SetDefUserProc(PPViewGoodsToObjAssoc::GetDataForBrowser, this));
+	if(pBrw) {
+		pBrw->SetDefUserProc([](SBrowserDataProcBlock * pBlk) -> int
+			{
+				return (pBlk && pBlk->ExtraPtr) ? static_cast<PPViewGoodsToObjAssoc *>(pBlk->ExtraPtr)->_GetDataForBrowser(pBlk) : 0;				
+			}, this);
+	}
 }
 
 SArray * PPViewGoodsToObjAssoc::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)

@@ -105,10 +105,8 @@ const PPViewUnitEc::Indicator * PPViewUnitEc::IndicatorVector::GetBsEntryC(long 
 	return p_result;
 }
 
-PPViewUnitEc::Indicator * PPViewUnitEc::IndicatorVector::GetClsEntry(long cls)
-	{ return const_cast<PPViewUnitEc::Indicator *>(GetClsEntryC(cls)); }
-PPViewUnitEc::Indicator * PPViewUnitEc::IndicatorVector::GetBsEntry(long bsID)
-	{ return const_cast<PPViewUnitEc::Indicator *>(GetBsEntryC(bsID)); }
+PPViewUnitEc::Indicator * PPViewUnitEc::IndicatorVector::GetClsEntry(long cls) { return const_cast<PPViewUnitEc::Indicator *>(GetClsEntryC(cls)); }
+PPViewUnitEc::Indicator * PPViewUnitEc::IndicatorVector::GetBsEntry(long bsID) { return const_cast<PPViewUnitEc::Indicator *>(GetBsEntryC(bsID)); }
 
 double PPViewUnitEc::IndicatorVector::GetTotalIncome() const
 {
@@ -209,7 +207,10 @@ int PPViewUnitEc::EvaluateFactors(const IndicatorVector * pVec, FactorSet & rSet
 		}
 		if(pVec->IgP.RcptQtty > 0.0) {
 			rSet.RcptQtty = pVec->IgP.RcptQtty;
-			if(rSet.SaleQtty <= 0.0) {
+			if(rSet.SaleQtty > 0.0) {
+				SETMIN(rSet.SaleQtty, rSet.RcptQtty); // Мы не можем рассматривать продажи большие, чем поступившее количество (если оно определено)
+			}
+			else {
 				rSet.SaleQtty = rSet.RcptQtty;
 			}
 		}
@@ -239,6 +240,8 @@ int PPViewUnitEc::MakeEntry(IndicatorVector * pVec, BrwItem * pItem)
 				pItem->GStrucID = struc_id;
 			}
 			ok = 1;
+			PPIDArray deferred_funding_cost_idx_list; // [1..gs.Items.getCount()]
+			double funding_amount = 0.0;
 			for(uint i = 0; i < gs.Items.getCount(); i++) {
 				const PPGoodsStrucItem & r_item = gs.Items.at(i);
 				if(r_item.Flags & GSIF_BIZSC2) {
@@ -271,6 +274,7 @@ int PPViewUnitEc::MakeEntry(IndicatorVector * pVec, BrwItem * pItem)
 									case BSCCLS_EXP_PURCHASE_UNIT:
 										{
 											result_value = factors.RcptQtty * value;
+											funding_amount += result_value;
 										}
 										break;
 									case BSCCLS_EXP_TRANSFER_UNIT:
@@ -278,19 +282,103 @@ int PPViewUnitEc::MakeEntry(IndicatorVector * pVec, BrwItem * pItem)
 											result_value = factors.RcptQtty * value;
 										}
 										break;
-									case BSCCLS_EXP_STORAGE_UNIT:
+									case BSCCLS_EXP_STORAGE_UNIT_TIME:
+										{
+											//
+											// Стоимость хранения вычисляется как интеграл под кривой изменения запасов, умноженный на цену хранения
+											// единицы в сутки.
+											// Так как наша кривая изменения запасов очень незамысловатая, а именно, наклонная прямая от 
+											// начального количества (factors.RcptQtty) до нуля с тангенсом наклона (factors.RcptQtty / Dayly_Demand),
+											// то вычисление интеграла заменяется вычислением площади соответствующего прямоугольного треугольника.
+											// А именно (factors.RcptQtty * (factors.RcptQtty / Dayly_Demand)) / 2
+											// Если период времени, на который мы прогнозируем (factors.DaysCount), меньше чем (factors.RcptQtty / d), то
+											// формула такова:
+											// 
+											// S = a * t - (a * t^2) / (2 * b) (1)
+											// где t = factors.DaysCount
+											//   a = factors.RcptQtty
+											//   b = factors.RcptQtty / d
+											// С учетом этого (b = a/d) сокращаем выражение до:
+											// 
+											// S = a * t - d/2 * t^2 (2)
+											// 
+											// Ну и t заменяем на MIN(factors.DaysCount, (factors.RcptQtty / Dayly_Demand)) и 
+											// уравнение (2) становится инвариантным относительно того факта меньше расчетный период
+											// времени истощения запасов или нет.
+											//
+											if(pVec->IgP.ExpectedDemandPerWeek > 0.0) {
+												const double d = (pVec->IgP.ExpectedDemandPerWeek / 7.0);
+												const double t = smin(static_cast<double>(factors.DaysCount), factors.RcptQtty / d);
+												result_value = value * (factors.RcptQtty * t - d/2.0 * t * t);
+
+												//result_value = part * ((factors.RcptQtty * factors.RcptQtty) * value) / (2.0 * d);
+												
+												//const uint n = MIN(factors.DaysCount, round(factors.RcptQtty / d, 0, +1));
+												//double _E1 = (value * factors.RcptQtty * n);
+												//double _E2 = (value * d * ((n + n * n) / 2));
+												//result_value = _E1 - _E2;
+											}
+										}
+										break;
+									case BSCCLS_EXP_FUNDINGCOST:
+										deferred_funding_cost_idx_list.add(i+1);
 										break;
 									case BSCCLS_EXP_PRESALE_UNIT:
 										{
 											result_value = factors.RcptQtty * value;
+											funding_amount += result_value;
 										}
 										break;
 									case BSCCLS_EXP_PRESALE_SKU_TIME:
+										{
+											const double d = (pVec->IgP.ExpectedDemandPerWeek / 7.0);
+											const double t = smin(static_cast<double>(factors.DaysCount), factors.RcptQtty / d);
+											if(t > 0.0) {
+												result_value = value * t / 365.0;
+											}
+										}
 										break;
 									case BSCCLS_EXP_PROMO_SKU_TIME:
 										break;
 									case BSCCLS_EXP_PROMO_TIME:
 										break;
+								}
+								pVec->Add(bs_pack.Rec.ID, bs_pack.Rec.Cls, result_value);
+							}
+						}
+					}
+				}
+			}
+			if(deferred_funding_cost_idx_list.getCount() && funding_amount > 0.0 && pVec->IgP.ExpectedDemandPerWeek > 0.0) {
+				for(uint ri = 0; ri < deferred_funding_cost_idx_list.getCount(); ri++) {
+					const uint gs_item_idx = deferred_funding_cost_idx_list.get(ri) - 1;
+					assert(gs_item_idx >= 0 && gs_item_idx < gs.Items.getCount());
+					const PPGoodsStrucItem & r_item = gs.Items.at(gs_item_idx);
+					assert(r_item.Flags & GSIF_BIZSC2);
+					assert(BsObj.Fetch(r_item.GoodsID, &bs_pack) > 0);
+					assert(bs_pack.Rec.Cls);
+					if(r_item.Flags & GSIF_BIZSC2 && BsObj.Fetch(r_item.GoodsID, &bs_pack) > 0 && bs_pack.Rec.Cls) {
+						FactorSet factors;
+						double value = 0.0;
+						if(gs.GetItemValue(gs_item_idx, &rcache, &value) > 0) {
+							double result_value = 0.0;
+							EvaluateFactors(pVec, factors);
+							assert(bs_pack.Rec.Cls == BSCCLS_EXP_FUNDINGCOST);
+							if(bs_pack.Rec.Cls == BSCCLS_EXP_FUNDINGCOST) {
+								//
+								// Здесь при расчете те же соображения, что и при расчете стоимости хранения (see above BSCCLS_EXP_STORAGE_UNIT_TIME) //
+								//
+								const double _cost = funding_amount / factors.RcptQtty;
+								const double p = (value / (100.0 * 365.0));
+								//const double d = (pVec->IgP.ExpectedDemandPerWeek / 7.0);
+								//const uint n = MIN(factors.DaysCount, round(factors.RcptQtty / d, 0, +1));
+								//double _E1 = (p * factors.RcptQtty * _cost * n);
+								//double _E2 = (p * d * _cost * ((n + n * n) / 2));
+								//result_value = _E1 - _E2;
+								{
+									const double d = (pVec->IgP.ExpectedDemandPerWeek / 7.0);
+									const double t = smin(static_cast<double>(factors.DaysCount), factors.RcptQtty / d);
+									result_value = (_cost * p) * (factors.RcptQtty * t - d/2.0 * t * t);
 								}
 								pVec->Add(bs_pack.Rec.ID, bs_pack.Rec.Cls, result_value);
 							}
@@ -331,10 +419,7 @@ const PPViewUnitEc::IndicatorVector * PPViewUnitEc::GetEntryByID_Const(long id) 
 	return p_result;
 }
 
-PPViewUnitEc::IndicatorVector * PPViewUnitEc::GetEntryByID(long id)
-{
-	return const_cast<PPViewUnitEc::IndicatorVector *>(GetEntryByID_Const(id));
-}
+PPViewUnitEc::IndicatorVector * PPViewUnitEc::GetEntryByID(long id) { return const_cast<PPViewUnitEc::IndicatorVector *>(GetEntryByID_Const(id)); }
 
 int PPViewUnitEc::MakeProcessingList(TSCollection <IndicatorVector> & rList)
 {
@@ -425,7 +510,10 @@ void PPViewUnitEc::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	SString temp_buf;
 	if(pBrw) {
-		pBrw->SetDefUserProc(PPViewUnitEc::GetDataForBrowser, this);
+		pBrw->SetDefUserProc([](SBrowserDataProcBlock * pBlk) -> int
+			{
+				return (pBlk && pBlk->ExtraPtr) ? static_cast<PPViewUnitEc *>(pBlk->ExtraPtr)->_GetDataForBrowser(pBlk) : 0;				
+			}, this);
 		//pBrw->SetCellStyleFunc(CellStyleFunc, pBrw);
 	}
 	LongArray cls_list;
@@ -447,63 +535,55 @@ void PPViewUnitEc::PreprocessBrowser(PPViewBrowser * pBrw)
 	}
 }
 
-/*static*/int FASTCALL PPViewUnitEc::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
-{
-	PPViewUnitEc * p_v = static_cast<PPViewUnitEc *>(pBlk->ExtraPtr);
-	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;
-}
-
 int PPViewUnitEc::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
-	int    ok = 0;
-	if(pBlk->P_SrcData && pBlk->P_DestData) {
-		ok = 1;
-		SString temp_buf;
-		const BrwItem * p_item = static_cast<const BrwItem *>(pBlk->P_SrcData);
-		switch(pBlk->ColumnN) {
-			case 1: 
-				GetGoodsName(p_item->ID, temp_buf);
-				pBlk->Set(temp_buf);
-				break;
-			case 2: // InitialGoodsParam::RcptQtty
-				{
+	int    ok = 1;
+	assert(pBlk->P_SrcData && pBlk->P_DestData); // Функция вызывается только из одной локации и эти members != 0 равно как и pBlk != 0
+	SString temp_buf;
+	const BrwItem * p_item = static_cast<const BrwItem *>(pBlk->P_SrcData);
+	switch(pBlk->ColumnN) {
+		case 1: 
+			GetGoodsName(p_item->ID, temp_buf);
+			pBlk->Set(temp_buf);
+			break;
+		case 2: // InitialGoodsParam::RcptQtty
+			{
 					
-					const IndicatorVector * p_vec = GetEntryByID_Const(p_item->ID);
-					double value = p_vec ? p_vec->IgP.RcptQtty : 0.0;
-					pBlk->Set(value);
+				const IndicatorVector * p_vec = GetEntryByID_Const(p_item->ID);
+				double value = p_vec ? p_vec->IgP.RcptQtty : 0.0;
+				pBlk->Set(value);
+			}
+			break;
+		case 3: // InitialGoodsParam::ExpectedDemandPerWeek
+			{
+				const IndicatorVector * p_vec = GetEntryByID_Const(p_item->ID);
+				double value = p_vec ? p_vec->IgP.ExpectedDemandPerWeek : 0.0;
+				pBlk->Set(value);
+			}
+			break;
+		default:
+			if(pBlk->ColumnN == 4000) {
+				double value = 0.0;
+				const IndicatorVector * p_vec = GetEntryByID_Const(p_item->ID);
+				if(p_vec) {
+					const double income = p_vec->GetTotalIncome();
+					const double expense = p_vec->GetTotalExpense();
+					value = income - expense;
 				}
-				break;
-			case 3: // InitialGoodsParam::ExpectedDemandPerWeek
-				{
-					const IndicatorVector * p_vec = GetEntryByID_Const(p_item->ID);
-					double value = p_vec ? p_vec->IgP.ExpectedDemandPerWeek : 0.0;
-					pBlk->Set(value);
+				pBlk->Set(value);
+			}
+			else if(pBlk->ColumnN > 2000) {
+				const int cls = (pBlk->ColumnN - 2000);
+				const IndicatorVector * p_vec = GetEntryByID_Const(p_item->ID);
+				double value = 0.0;
+				if(p_vec) {
+					const Indicator * p_ind = p_vec->GetClsEntryC(cls);
+					if(p_ind)
+						value = p_ind->Value;
 				}
-				break;
-			default:
-				if(pBlk->ColumnN == 4000) {
-					double value = 0.0;
-					const IndicatorVector * p_vec = GetEntryByID_Const(p_item->ID);
-					if(p_vec) {
-						const double income = p_vec->GetTotalIncome();
-						const double expense = p_vec->GetTotalExpense();
-						value = income - expense;
-					}
-					pBlk->Set(value);
-				}
-				else if(pBlk->ColumnN > 2000) {
-					const int cls = (pBlk->ColumnN - 2000);
-					const IndicatorVector * p_vec = GetEntryByID_Const(p_item->ID);
-					double value = 0.0;
-					if(p_vec) {
-						const Indicator * p_ind = p_vec->GetClsEntryC(cls);
-						if(p_ind)
-							value = p_ind->Value;
-					}
-					pBlk->Set(value);
-				}
-				break;
-		}
+				pBlk->Set(value);
+			}
+			break;
 	}
 	return ok;
 }

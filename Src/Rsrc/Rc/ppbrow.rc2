@@ -7341,6 +7341,8 @@ filter PrcssrSourceCodeMaintaining  { "@{filter_prcssrsourcecodemaintaining}" } 
 filter StyloQTestCmdParam           { "@{filter_styloqtestcmdparam}" } // @v12.3.1
 view   BizSc2Val                    { "@{view_bizscore2val}" } // @v12.3.4
 view   UnitEc                       { "@{view_unitec}" } // @v12.3.7
+view   WbPublicGoods                { "" } // @v12.3.8
+filter MarketplaceGoodsSelection    { "@{filter_marketplacegoodsselection}" } // @v12.3.8
 //
 // lastviewfilter ATTENTION: put new VIEWS and FILTERS before this line!
 //

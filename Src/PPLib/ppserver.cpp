@@ -1857,9 +1857,9 @@ int CPosNodeBlock::Execute(uint cmd, const char * pParams, PPJobSrvReply & rRepl
 					THROW(P_Prcssr->SetupAgent(agent_id, 1));
 					P_Prcssr->SetupSessUuid(CmdBlk.U.CN.Uuid);
 					CTblList.freeAll();
-					for(i = 0; i < P_Prcssr->CTblList.getCount(); i++) {
+					for(i = 0; i < P_Prcssr->GetCTableList().getCount(); i++) {
 						Sdr_CPosTable sdr_ctbl;
-						sdr_ctbl._id = P_Prcssr->CTblList.at(i);
+						sdr_ctbl._id = P_Prcssr->GetCTableList().at(i);
 						PPLoadString("cafetable", temp_buf);
 						STRNSCPY(sdr_ctbl.Name, temp_buf.Space().Cat(sdr_ctbl._id));
 						CTblList.insert(&sdr_ctbl);
@@ -2517,7 +2517,7 @@ int PPWorkerSession::FinishReceivingFile(const PPJobSrvReply::TransmitFileBlock 
         if(oneof2(rBlk.ObjType, PPOBJ_WORKBOOK, PPOBJ_WORKBOOK_PRE813)) {
             PPObjWorkbook wb_obj;
             WorkbookTbl::Rec wb_rec;
-			ObjLinkFiles lf(rBlk.ObjType);
+			ObjLinkFiles lf(PPOBJ_WORKBOOK); // @v12.3.8 rBlk.ObjType-->PPOBJ_WORKBOOK
             THROW(wb_obj.Search(rBlk.ObjID, &wb_rec) > 0);
             THROW(lf.SetupZeroPositionFile(PPOBJ_WORKBOOK, rBlk.ObjID, rFilePath));
         }

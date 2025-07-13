@@ -392,7 +392,6 @@ int VerticalFileSwitcherListView::find(BufferID bufferID, int iView) const
 void VerticalFileSwitcherListView::insertColumn(const TCHAR * name, int width, int index)
 {
 	LVCOLUMN lvColumn;
-
 	lvColumn.mask = LVCF_TEXT | LVCF_WIDTH;
 	lvColumn.cx = width;
 	lvColumn.pszText = (TCHAR*)name;

@@ -274,9 +274,9 @@ int TBaseBrowserWindow::Insert()
 				if(hw) {
 					TBaseBrowserWindow * p_brw = static_cast<TBaseBrowserWindow *>(TView::GetWindowUserData(hw));
 					if(p_brw) {
-						if(ClsName == STimeChunkBrowser::WndClsName)
+						if(ClsName == SlConst::WinClsName_TimeChunkBrowser)
 							ResourceID = p_brw->GetResID() + TBaseBrowserWindow::IdBiasTimeChunkBrowser;
-						else if(ClsName == /*STextBrowser::WndClsName*/"STextBrowser")
+						else if(ClsName == SlConst::WinClsName_TextEditor)
 							ResourceID = p_brw->GetResID() + TBaseBrowserWindow::IdBiasTextBrowser;
 						else
 							ResourceID = p_brw->GetResID() + TBaseBrowserWindow::IdBiasBrowser;
@@ -296,9 +296,9 @@ void TBaseBrowserWindow::SetResID(uint res)
 {
 	ResourceID = res;
 	if(res && res < TBaseBrowserWindow::IdBiasBrowser) {
-		if(ClsName == STimeChunkBrowser::WndClsName)
+		if(ClsName == SlConst::WinClsName_TimeChunkBrowser)
 			ResourceID += TBaseBrowserWindow::IdBiasTimeChunkBrowser;
-		else if(ClsName == /*STextBrowser::WndClsName*/"STextBrowser")
+		else if(ClsName == SlConst::WinClsName_TextEditor)
 			ResourceID += TBaseBrowserWindow::IdBiasTextBrowser;
 		/*
 		if(ClsName == STimeChunkBrowser::WndClsName)
@@ -717,7 +717,7 @@ int BrowserWindow::LoadResource(uint rezID, void * pData, int dataKind, uint uOp
 						break;
 				}
 			}
-			/*// @v11.0.0*/ changeBounds(_bounds);
+			changeBounds(_bounds);
 			P_Def = p_def;
 			if(freeze)
 				SetFreeze(freeze);
@@ -853,6 +853,20 @@ BrowserWindow::BrowserWindow(uint _rezID, SArray * pAry, uint broDefOptions /*=0
 	LoadResource(_rezID, pAry, 1, broDefOptions);
 	ViewOptions |= ofSelectable;
 	HelpCtx = _rezID; // @Muxa
+}
+
+BrowserWindow::BrowserWindow(SArray * pDataArray, uint broDefOptions) : 
+	TBaseBrowserWindow(BrowserWindow::WndClsName), P_RowsHeightAry(0), P_Header(0), Font(0), DefFont(0), 
+	RezID(0), MainCursor(LoadCursor(NULL, IDC_ARROW)), ResizeCursor(LoadCursor(NULL, IDC_SIZEWE))
+{
+	__Init();
+	ResourceID = 0;
+	//LoadResource(_rezID, pAry, 1, broDefOptions);
+	{
+		P_Def = new AryBrowserDef(pDataArray, 0, 1/*hight*/, 0/*options*/);
+	}
+	ViewOptions |= ofSelectable;
+	HelpCtx = 0;
 }
 
 /*virtual*/TBaseBrowserWindow::IdentBlock & BrowserWindow::GetIdentBlock(TBaseBrowserWindow::IdentBlock & rBlk)
@@ -1159,16 +1173,20 @@ void BrowserWindow::CalcRight()
 {
 	BrowserDef * p_def_ = P_Def;
 	if(p_def_) {
-		uint   cnt = p_def_->getCount();
-		uint   i = 0;
+		const  uint cnt = p_def_->getCount();
 		int    x = 3;
-		BroColumn * c;
-		(c = &p_def_->at(0))->x = x;
-		while(i < Freeze && (x += (ChrSz.x*c->width + 3)) < CliSz.x)
-			(c = &p_def_->at(++i))->x = x;
-		(c = &p_def_->at(i = Left))->x = x;
-		while(++i < cnt && (x += (ChrSz.x*c->width + 3)) < CliSz.x)
-			(c = &p_def_->at(i))->x = x;
+		uint   i = 0;
+		BroColumn * p_column = &p_def_->at(i);
+		p_column->x = x;
+		while(i < Freeze && (x += (ChrSz.x * p_column->width + 3)) < CliSz.x) {
+			p_column = &p_def_->at(++i);
+			p_column->x = x;
+		}
+		(p_column = &p_def_->at(i = Left))->x = x;
+		while(++i < cnt && (x += (ChrSz.x * p_column->width + 3)) < CliSz.x) {
+			p_column = &p_def_->at(i);
+			p_column->x = x;
+		}
 		Right = i - 1;
 	}
 }
@@ -1355,6 +1373,16 @@ int BrowserWindow::insertColumn(int atPos, const char * pTxt, uint fldNo, TYPEID
 	return ok;
 }
 
+int BrowserWindow::insertColumn(int atPos, const char * pTxt, uint fldNo, TYPEID typ, long fmt, uint opt, SBrowserDataProc proc) // @v12.3.8
+{
+	int    ok = P_Def ? P_Def->insertColumn(atPos, pTxt, fldNo, typ, fmt, opt) : 0;
+	if(ok) {
+		CalcRight();
+		SetupScroll();
+	}
+	return ok;
+}
+
 int BrowserWindow::insertColumn(int atPos, const char * pTxt, const char * pFldName, TYPEID typ, long fmt, uint opt)
 {
 	int    ok = P_Def ? P_Def->insertColumn(atPos, pTxt, pFldName, typ, fmt, opt) : 0;
@@ -1509,13 +1537,14 @@ void BrowserWindow::Refresh()
 	invalidateAll(true);
 }
 
-int BrowserWindow::DrawTextUnderCursor(HDC hdc, char * pBuf, RECT * pTextRect, uint _fmt, int isLineCursor)
+bool BrowserWindow::DrawTextUnderCursor(HDC hdc, char * pBuf, RECT * pTextRect, uint _fmt, int isLineCursor)
 {
-	int    ok = 0;
+	bool   ok = false;
 	if(pTextRect && pBuf) {
-		uint32 schema_num = UICfg.GetBrwColorSchema();
-		COLORREF old_color = SetTextColor(hdc, isLineCursor ? BrwColorsSchemas[schema_num].LineCursorOverText : BrwColorsSchemas[schema_num].CursorOverText);
-		HFONT  old_font = 0, curs_over_txt_font = 0;
+		const  uint32 schema_num = UICfg.GetBrwColorSchema();
+		const  COLORREF old_color = SetTextColor(hdc, isLineCursor ? BrwColorsSchemas[schema_num].LineCursorOverText : BrwColorsSchemas[schema_num].CursorOverText);
+		HFONT  old_font = 0;
+		HFONT  curs_over_txt_font = 0;
 		TCHAR  buf[64];
 		LOGFONT log_font;
 		TEXTMETRIC metrics;
@@ -1536,19 +1565,26 @@ int BrowserWindow::DrawTextUnderCursor(HDC hdc, char * pBuf, RECT * pTextRect, u
 		if(old_font)
 			SelectObject(hdc, old_font);
 		ZDeleteWinGdiObject(&curs_over_txt_font);
-		ok = 1;
+		ok = true;
 	}
 	return ok;
 }
 
 void BrowserWindow::DrawMultiLinesText(HDC hdc, char * pBuf, RECT * pTextRect, uint _fmt)
 {
-	if(pTextRect && pBuf) {
-		SString temp_buf;
-		RECT   rect = *pTextRect;
-		StringSet ss('\n', pBuf);
-		for(uint i = 0; ss.get(&i, temp_buf); rect.top += YCell, rect.bottom += YCell)
-			::DrawText(hdc, SUcSwitch(temp_buf), static_cast<int>(temp_buf.Len()), &rect, _fmt);
+	if(pTextRect && !isempty(pBuf)) {
+		if(sstrchr(pBuf, '\n')) { // @v12.3.8
+			SString temp_buf;
+			RECT   rect = *pTextRect;
+			StringSet ss('\n', pBuf);
+			for(uint i = 0; ss.get(&i, temp_buf); rect.top += YCell, rect.bottom += YCell)
+				::DrawText(hdc, SUcSwitch(temp_buf), static_cast<int>(temp_buf.Len()), &rect, _fmt);
+		}
+		// @v12.3.8 {
+		else {
+			::DrawText(hdc, SUcSwitch(pBuf), strlen(pBuf), pTextRect, _fmt);
+		}
+		// } @v12.3.8 
 	}
 }
 
@@ -1719,8 +1755,7 @@ void BrowserWindow::Paint()
 				ps.fErase = 0;
 			}
 			if(ps.rcPaint.bottom == 0 || ps.rcPaint.right == 0) {
-				// @v11.2.6 GetClientRect(H(), &ps.rcPaint);
-				ps.rcPaint = cli_rect; // @v11.2.6 
+				ps.rcPaint = cli_rect;
 			}
 		}
 		r.top    = ToolBarWidth;
@@ -1879,8 +1914,9 @@ void BrowserWindow::Paint()
 					PaintCell(ps.hdc, paint_rect, row, -1, paint_action);
 					uint i = 0;
 					uint cn = Freeze ? 0 : Left;
+					const long _row_idx = p_def_->_topItem() + row;
 					for(; cn <= Right && cn < count; cn = (++i == Freeze) ? Left : (cn + 1)) {
-						int paint_action = (is_focused && cn == HScrollPos) ? BrowserWindow::paintFocused : BrowserWindow::paintNormal;
+						const int paint_action = (is_focused && cn == HScrollPos) ? BrowserWindow::paintFocused : BrowserWindow::paintNormal;
 						ItemRect(cn, row, &r, TRUE);
 						r.top    += hdr_width;
 						r.bottom += hdr_width;
@@ -1890,15 +1926,16 @@ void BrowserWindow::Paint()
 						r.top    += hdr_width;
 						r.bottom += hdr_width;
 						if(SIntersectRect(ps.rcPaint, r)) {
+							const BroColumn & r_bc = p_def_->at(cn);
 							const uint height_mult = GetRowHeightMult(row);
-							strip(p_def_->getMultiLinesText(p_def_->_topItem() + row, cn, cbuf, height_mult));
-							if(row > 0 && (p_def_->at(cn).Options & BCO_DONTSHOWDUPL)) {
+							strip(p_def_->getMultiLinesText(_row_idx, cn, cbuf, height_mult));
+							if(row > 0 && (r_bc.Options & BCO_DONTSHOWDUPL)) {
 								char   prev_buf[512];
-								strip(p_def_->getText(p_def_->_topItem() + row - 1, cn, prev_buf));
+								strip(p_def_->getText(_row_idx-1, cn, prev_buf));
 								if(sstreq(cbuf, prev_buf))
-									PTR32(cbuf)[0] = 0;
+									cbuf[0] = 0;
 							}
-							const  int opt = p_def_->at(cn).format;
+							const  int opt = r_bc.format;
 							const  int align = SFMTALIGN(opt);
 							uint   tfmt;
 							if(align == ALIGN_LEFT)
@@ -1913,12 +1950,12 @@ void BrowserWindow::Paint()
 							tfmt |= (DT_NOPREFIX | DT_SINGLELINE);
 							if(is_focused && cn == HScrollPos)
 								SetBkMode(ps.hdc, TRANSPARENT);
-							int    already_draw = 0;
+							bool   already_drawn = false;
 							if(SIntersectRect(RectCursors.CellCursor, r))
-								already_draw = DrawTextUnderCursor(ps.hdc, cbuf, &r, tfmt, 0);
+								already_drawn = DrawTextUnderCursor(ps.hdc, cbuf, &r, tfmt, 0);
 							else if(SIntersectRect(RectCursors.LineCursor, r))
-								already_draw = DrawTextUnderCursor(ps.hdc, cbuf, &r, tfmt, 1);
-							if(!already_draw) {
+								already_drawn = DrawTextUnderCursor(ps.hdc, cbuf, &r, tfmt, 1);
+							if(!already_drawn) {
 								ItemRect(cn, row, &paint_rect, TRUE);
 								paint_rect.top    += hdr_width;
 								paint_rect.bottom += hdr_width - 1;
@@ -2549,8 +2586,8 @@ static int IsBrowserWindow(HWND hWnd)
 {
 	SString cls_name;
 	TView::SGetWindowClassName(hWnd, cls_name);
-	return BIN(cls_name == SUcSwitch(BrowserWindow::WndClsName) || cls_name == STimeChunkBrowser::WndClsName ||
-		cls_name == /*STextBrowser::WndClsName*/"STextBrowser" || cls_name == CLASSNAME_DESKTOPWINDOW);
+	return BIN(cls_name == SUcSwitch(BrowserWindow::WndClsName) || cls_name == SlConst::WinClsName_TimeChunkBrowser ||
+		cls_name == SlConst::WinClsName_TextEditor || cls_name == SlConst::WinClsName_Desktop);
 }
 
 HWND FASTCALL GetNextBrowser(HWND hw, int reverse)

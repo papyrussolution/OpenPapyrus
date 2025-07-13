@@ -579,8 +579,15 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 						}
 						//
 						pV->Parent = hw_parent;
-						hw = ::CreateWindowEx(0, _T("BUTTON"), 0, WS_CHILD|BS_OWNERDRAW|BS_PUSHBUTTON/*|BS_BITMAP|BS_FLAT*/, pV->ViewOrigin.x,
+						DWORD button_style = WS_CHILD|BS_PUSHBUTTON/*|BS_BITMAP|BS_FLAT*/;
+						{
+							const int wvs = APPL->GetUiSettings().WindowViewStyle;
+							if(oneof2(wvs, UserInterfaceSettings::wndVKFancy, UserInterfaceSettings::wndVKVector))
+								button_style |= BS_OWNERDRAW;
+						}
+						hw = ::CreateWindowEx(0, _T("BUTTON"), 0, button_style, pV->ViewOrigin.x,
 							pV->ViewOrigin.y, pV->ViewSize.x, pV->ViewSize.y, hw_parent, (HMENU)ctl_id, TProgram::GetInst(), 0);
+						setup_font_blk.Set(hw);
 					}
 					break;
 				case TV_SUBSIGN_LISTBOX: // @v12.2.2 @construction
@@ -618,7 +625,11 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 					{
 						TButton * p_cv = static_cast<TButton *>(pV);
 						pV->Parent = hw_parent;
-						DWORD style = WS_CHILD|BS_OWNERDRAW|BS_PUSHBUTTON/*|BS_BITMAP|BS_FLAT*/;
+						DWORD style = WS_CHILD|BS_PUSHBUTTON/*|BS_BITMAP|BS_FLAT*/;
+						const int  wvs = APPL->GetUiSettings().WindowViewStyle;
+						const bool is_owner_draw_style = oneof2(wvs, UserInterfaceSettings::wndVKFancy, UserInterfaceSettings::wndVKVector);
+						if(is_owner_draw_style)
+							style |= BS_OWNERDRAW;
 						if(p_cv->IsInState(sfTabStop))
 							style |= WS_TABSTOP;
 						if(p_cv->IsDefault())
@@ -637,6 +648,8 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 							}*/
 							::SendMessageW(hw, WM_SETTEXT, 0, reinterpret_cast<LPARAM>(SUcSwitch(p_cv->GetText())));
 							SetupWindowCtrlTextProc(hw, 0);
+							if(!is_owner_draw_style)
+								setup_font_blk.Set(hw);
 						}
 					}
 					break;

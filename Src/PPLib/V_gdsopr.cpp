@@ -4145,200 +4145,193 @@ int PPViewGoodsOpAnalyze::ViewGraph()
 	return ok;
 }
 
-/*static*/int FASTCALL PPViewGoodsOpAnalyze::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
-{
-	PPViewGoodsOpAnalyze * p_v = static_cast<PPViewGoodsOpAnalyze *>(pBlk->ExtraPtr);
-	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;
-}
-
 int PPViewGoodsOpAnalyze::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
 	int    ok = 0;
-	if(pBlk->P_SrcData && pBlk->P_DestData) {
-		if(Filt.OpGrpID == GoodsOpAnalyzeFilt::ogMarketplaceSalesAnalyze) {
-			const BrwHdr * p_item = static_cast<const BrwHdr *>(pBlk->P_SrcData);
-			const IndicatorVector * p_ind = GetIndicatorEntryC(p_item->RowId);
-			double value = 0.0;
-			switch(pBlk->ColumnN) {
-				case 101: // PPBZSI_ORDCOUNT
-					if(p_ind) {
-						p_ind->Get(PPBZSI_ORDCOUNT, &value);
-						pBlk->Set(static_cast<int32>(value));
-						ok = 1;
+	assert(pBlk->P_SrcData && pBlk->P_DestData); // Функция вызывается только из одной локации и эти members != 0 равно как и pBlk != 0
+	if(Filt.OpGrpID == GoodsOpAnalyzeFilt::ogMarketplaceSalesAnalyze) {
+		const BrwHdr * p_item = static_cast<const BrwHdr *>(pBlk->P_SrcData);
+		const IndicatorVector * p_ind = GetIndicatorEntryC(p_item->RowId);
+		double value = 0.0;
+		switch(pBlk->ColumnN) {
+			case 101: // PPBZSI_ORDCOUNT
+				if(p_ind) {
+					p_ind->Get(PPBZSI_ORDCOUNT, &value);
+					pBlk->Set(static_cast<int32>(value));
+					ok = 1;
+				}
+				break; 
+			case 102: // PPBZSI_ORDQTTY
+				if(p_ind) {
+					p_ind->Get(PPBZSI_ORDQTTY, &value);
+					pBlk->Set(value);
+					ok = 1;
+				}
+				break;
+			case 103: // PPBZSI_SALECOUNT
+				if(p_ind) {
+					p_ind->Get(PPBZSI_SALECOUNT, &value);
+					pBlk->Set(static_cast<int32>(value));
+					ok = 1;
+				}
+				break;
+			case 104: // PPBZSI_SALEQTTY
+				if(p_ind) {
+					p_ind->Get(PPBZSI_SALEQTTY, &value);
+					pBlk->Set(value);
+					ok = 1;
+				}
+				break;
+			case 105: // PPBZSI_ORDCANCELLEDCOUNT
+				if(p_ind) {
+					p_ind->Get(PPBZSI_ORDCANCELLEDCOUNT, &value);
+					pBlk->Set(static_cast<int32>(value));
+					ok = 1;
+				}
+				break;
+			case 106: // PPBZSI_ORDCANCELLEDQTTY
+				if(p_ind) {
+					p_ind->Get(PPBZSI_ORDCANCELLEDQTTY, &value);
+					pBlk->Set(value);
+					ok = 1;
+				}
+				break;
+			case 1105: //PPBZSI_ORDCANCELLATIONRATE
+				//pBrw->insertColumn(-1, "CancellationRate",  1105, T_DOUBLE, MKSFMTD(0, 4, 0), BCO_CAPRIGHT|BCO_USERPROC);
+				if(p_ind) {
+					p_ind->GetCompound(PPBZSI_ORDCANCELLATIONRATE, &value);
+					pBlk->Set(value);
+					ok = 1;
+				}
+				break;
+			case 107: // PPBZSI_MPSELLERSPART
+				if(p_ind) {
+					p_ind->Get(PPBZSI_MPSELLERSPART, &value);
+					pBlk->Set(value);
+					ok = 1;
+				}
+				break;
+			case 108: // PPBZSI_MPCOMMISSION
+				if(p_ind) {
+					p_ind->Get(PPBZSI_MPCOMMISSION, &value);
+					pBlk->Set(value);
+					ok = 1;
+				}
+				break;
+			case 109: // PPBZSI_MPACQUIRING
+				if(p_ind) {
+					p_ind->Get(PPBZSI_MPACQUIRING, &value);
+					pBlk->Set(value);
+					ok = 1;
+				}
+				break;
+			case 1111: // PPBZSI_ORDSHIPMDELAYDAYSAVG
+				if(p_ind) {
+					p_ind->GetCompound(PPBZSI_ORDSHIPMDELAYDAYSAVG, &value);
+					pBlk->Set(value);
+					ok = 1;
+				}
+				break;
+			case 112: // PPBZSI_MPAMT_ORDPRICE
+				if(p_ind) {
+					p_ind->Get(PPBZSI_MPAMT_ORDPRICE, &value);
+					pBlk->Set(value);
+					ok = 1;
+				}
+				break;
+			case 113: // PPBZSI_MPAMT_ORDSELLERPRICE
+				if(p_ind) {
+					p_ind->Get(PPBZSI_MPAMT_ORDSELLERPRICE, &value);
+					pBlk->Set(value);
+					ok = 1;
+				}
+				break;
+			case 114: // PPBZSI_MPAMT_SHIPMPRICE
+				if(p_ind) {
+					p_ind->Get(PPBZSI_MPAMT_SHIPMPRICE, &value);
+					pBlk->Set(value);
+					ok = 1;
+				}
+				break;
+			case 115: // PPBZSI_MPAMT_SHIPMSELLERPRICE
+				if(p_ind) {
+					p_ind->Get(PPBZSI_MPAMT_SHIPMSELLERPRICE, &value);
+					pBlk->Set(value);
+					ok = 1;
+				}
+				break;
+			case 116: // PPBZSI_SALECOST
+				if(p_ind) {
+					p_ind->Get(PPBZSI_SALECOST, &value);
+					pBlk->Set(value);
+					ok = 1;
+				}					
+				break;
+			case 1116: // Income
+				if(p_ind) {
+					double earnings = 0.0;
+					double expenses = 0.0;
+					double temp_val = 0.0;
+					static const long expenses_indicator_list[] = { PPBZSI_SALECOST, PPBZSI_FREIGHT, PPBZSI_MPPROMOTION, PPBZSI_MPACCEPTANCE, PPBZSI_MPSTORAGE };
+					p_ind->Get(PPBZSI_MPSELLERSPART, &earnings);
+					for(uint eiidx = 0; eiidx < SIZEOFARRAY(expenses_indicator_list); eiidx++) {
+						p_ind->Get(expenses_indicator_list[eiidx], &temp_val);
+						expenses += temp_val;
 					}
-					break; 
-				case 102: // PPBZSI_ORDQTTY
-					if(p_ind) {
-						p_ind->Get(PPBZSI_ORDQTTY, &value);
-						pBlk->Set(value);
-						ok = 1;
-					}
-					break;
-				case 103: // PPBZSI_SALECOUNT
-					if(p_ind) {
-						p_ind->Get(PPBZSI_SALECOUNT, &value);
-						pBlk->Set(static_cast<int32>(value));
-						ok = 1;
-					}
-					break;
-				case 104: // PPBZSI_SALEQTTY
-					if(p_ind) {
-						p_ind->Get(PPBZSI_SALEQTTY, &value);
-						pBlk->Set(value);
-						ok = 1;
-					}
-					break;
-				case 105: // PPBZSI_ORDCANCELLEDCOUNT
-					if(p_ind) {
-						p_ind->Get(PPBZSI_ORDCANCELLEDCOUNT, &value);
-						pBlk->Set(static_cast<int32>(value));
-						ok = 1;
-					}
-					break;
-				case 106: // PPBZSI_ORDCANCELLEDQTTY
-					if(p_ind) {
-						p_ind->Get(PPBZSI_ORDCANCELLEDQTTY, &value);
-						pBlk->Set(value);
-						ok = 1;
-					}
-					break;
-				case 1105: //PPBZSI_ORDCANCELLATIONRATE
-					//pBrw->insertColumn(-1, "CancellationRate",  1105, T_DOUBLE, MKSFMTD(0, 4, 0), BCO_CAPRIGHT|BCO_USERPROC);
-					if(p_ind) {
-						p_ind->GetCompound(PPBZSI_ORDCANCELLATIONRATE, &value);
-						pBlk->Set(value);
-						ok = 1;
-					}
-					break;
-				case 107: // PPBZSI_MPSELLERSPART
-					if(p_ind) {
-						p_ind->Get(PPBZSI_MPSELLERSPART, &value);
-						pBlk->Set(value);
-						ok = 1;
-					}
-					break;
-				case 108: // PPBZSI_MPCOMMISSION
-					if(p_ind) {
-						p_ind->Get(PPBZSI_MPCOMMISSION, &value);
-						pBlk->Set(value);
-						ok = 1;
-					}
-					break;
-				case 109: // PPBZSI_MPACQUIRING
-					if(p_ind) {
-						p_ind->Get(PPBZSI_MPACQUIRING, &value);
-						pBlk->Set(value);
-						ok = 1;
-					}
-					break;
-				case 1111: // PPBZSI_ORDSHIPMDELAYDAYSAVG
-					if(p_ind) {
-						p_ind->GetCompound(PPBZSI_ORDSHIPMDELAYDAYSAVG, &value);
-						pBlk->Set(value);
-						ok = 1;
-					}
-					break;
-				case 112: // PPBZSI_MPAMT_ORDPRICE
-					if(p_ind) {
-						p_ind->Get(PPBZSI_MPAMT_ORDPRICE, &value);
-						pBlk->Set(value);
-						ok = 1;
-					}
-					break;
-				case 113: // PPBZSI_MPAMT_ORDSELLERPRICE
-					if(p_ind) {
-						p_ind->Get(PPBZSI_MPAMT_ORDSELLERPRICE, &value);
-						pBlk->Set(value);
-						ok = 1;
-					}
-					break;
-				case 114: // PPBZSI_MPAMT_SHIPMPRICE
-					if(p_ind) {
-						p_ind->Get(PPBZSI_MPAMT_SHIPMPRICE, &value);
-						pBlk->Set(value);
-						ok = 1;
-					}
-					break;
-				case 115: // PPBZSI_MPAMT_SHIPMSELLERPRICE
-					if(p_ind) {
-						p_ind->Get(PPBZSI_MPAMT_SHIPMSELLERPRICE, &value);
-						pBlk->Set(value);
-						ok = 1;
-					}
-					break;
-				case 116: // PPBZSI_SALECOST
-					if(p_ind) {
-						p_ind->Get(PPBZSI_SALECOST, &value);
-						pBlk->Set(value);
-						ok = 1;
-					}					
-					break;
-				case 1116: // Income
-					if(p_ind) {
-						double earnings = 0.0;
-						double expenses = 0.0;
-						double temp_val = 0.0;
-						static const long expenses_indicator_list[] = { PPBZSI_SALECOST, PPBZSI_FREIGHT, PPBZSI_MPPROMOTION, PPBZSI_MPACCEPTANCE, PPBZSI_MPSTORAGE };
-						p_ind->Get(PPBZSI_MPSELLERSPART, &earnings);
-						for(uint eiidx = 0; eiidx < SIZEOFARRAY(expenses_indicator_list); eiidx++) {
-							p_ind->Get(expenses_indicator_list[eiidx], &temp_val);
-							expenses += temp_val;
-						}
-						value = earnings - expenses;
-						pBlk->Set(value);
-						ok = 1;
-					}
-					break;
-				case 117: // PPBZSI_FREIGHT
-					if(p_ind) {
-						p_ind->Get(PPBZSI_FREIGHT, &value);
-						pBlk->Set(value);
-						ok = 1;
-					}
-					break;
-				case 121: // PPBZSI_SALERETCOUNT
-					if(p_ind) {
-						p_ind->Get(PPBZSI_SALERETCOUNT, &value);
-						pBlk->Set(value);
-						ok = 1;
-					}
-					break;
-				case 122: // PPBZSI_SALERETQTTY
-					if(p_ind) {
-						p_ind->Get(PPBZSI_SALERETQTTY, &value);
-						pBlk->Set(value);
-						ok = 1;
-					}
-					break;
-				case 123: // PPBZSI_SALERETCOST
-					if(p_ind) {
-						p_ind->Get(PPBZSI_SALERETCOST, &value);
-						pBlk->Set(value);
-						ok = 1;
-					}
-					break;
-				case 124: // PPBZSI_MPSTORAGE
-					if(p_ind) {
-						p_ind->Get(PPBZSI_MPSTORAGE, &value);
-						pBlk->Set(value);
-						ok = 1;
-					}
-					break;
-				case 125: // PPBZSI_MPACCEPTANCE
-					if(p_ind) {
-						p_ind->Get(PPBZSI_MPACCEPTANCE, &value);
-						pBlk->Set(value);
-						ok = 1;
-					}
-					break;
-				case 126: // PPBZSI_MPPROMOTION
-					if(p_ind) {
-						p_ind->Get(PPBZSI_MPPROMOTION, &value);
-						pBlk->Set(value);
-						ok = 1;
-					}
-					break;
-			}
+					value = earnings - expenses;
+					pBlk->Set(value);
+					ok = 1;
+				}
+				break;
+			case 117: // PPBZSI_FREIGHT
+				if(p_ind) {
+					p_ind->Get(PPBZSI_FREIGHT, &value);
+					pBlk->Set(value);
+					ok = 1;
+				}
+				break;
+			case 121: // PPBZSI_SALERETCOUNT
+				if(p_ind) {
+					p_ind->Get(PPBZSI_SALERETCOUNT, &value);
+					pBlk->Set(value);
+					ok = 1;
+				}
+				break;
+			case 122: // PPBZSI_SALERETQTTY
+				if(p_ind) {
+					p_ind->Get(PPBZSI_SALERETQTTY, &value);
+					pBlk->Set(value);
+					ok = 1;
+				}
+				break;
+			case 123: // PPBZSI_SALERETCOST
+				if(p_ind) {
+					p_ind->Get(PPBZSI_SALERETCOST, &value);
+					pBlk->Set(value);
+					ok = 1;
+				}
+				break;
+			case 124: // PPBZSI_MPSTORAGE
+				if(p_ind) {
+					p_ind->Get(PPBZSI_MPSTORAGE, &value);
+					pBlk->Set(value);
+					ok = 1;
+				}
+				break;
+			case 125: // PPBZSI_MPACCEPTANCE
+				if(p_ind) {
+					p_ind->Get(PPBZSI_MPACCEPTANCE, &value);
+					pBlk->Set(value);
+					ok = 1;
+				}
+				break;
+			case 126: // PPBZSI_MPPROMOTION
+				if(p_ind) {
+					p_ind->Get(PPBZSI_MPPROMOTION, &value);
+					pBlk->Set(value);
+					ok = 1;
+				}
+				break;
 		}
 	}
 	return ok;
@@ -4444,7 +4437,10 @@ void PPViewGoodsOpAnalyze::PreprocessBrowser(PPViewBrowser * pBrw)
 			}
 			pBrw->insertColumn(-1, "@profit", 1116, T_DOUBLE, SFMT_MONEY, BCO_USERPROC);
 			pBrw->insertColumn(-1, "@bzsi_ordshipmdelaydaysavg", 1111, T_DOUBLE, SFMT_MONEY, BCO_USERPROC);
-			CALLPTRMEMB(pBrw, SetDefUserProc(PPViewGoodsOpAnalyze::GetDataForBrowser, this));
+			pBrw->SetDefUserProc([](SBrowserDataProcBlock * pBlk) -> int
+				{
+					return (pBlk && pBlk->ExtraPtr) ? static_cast<PPViewGoodsOpAnalyze *>(pBlk->ExtraPtr)->_GetDataForBrowser(pBlk) : 0;				
+				}, this);
 		}
 		else if(brw_id == BROWSER_GOODSOPER && Filt.Flags & GoodsOpAnalyzeFilt::fCalcRest) {
 			pBrw->insertColumn(-1, "@rest", 16, 0, MKSFMTD(10, 6, NMBF_NOTRAILZ|NMBF_NOZERO|ALIGN_RIGHT), BCO_CAPRIGHT); // @v12.1.7 +1

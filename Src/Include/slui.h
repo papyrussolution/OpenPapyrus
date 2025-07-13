@@ -5430,7 +5430,7 @@ private:
 //
 //
 #define MIN_COLUMN_WIDTH        8
-#define CLASSNAME_DESKTOPWINDOW "PPYDESKTOPWINDOW"
+// @v12.3.8 (moved to SlConst) #define CLASSNAME_DESKTOPWINDOW "PPYDESKTOPWINDOW"
 
 struct SBrowserDataProcBlock {
 	SBrowserDataProcBlock();
@@ -5455,14 +5455,14 @@ struct SBrowserDataProcBlock {
 	SString TempBuf;         // @allocreuse Может использоваться реализацией функции SBrowserDataProc для ускорения работы
 };
 
-typedef int (FASTCALL * SBrowserDataProc)(SBrowserDataProcBlock * pBlk);
+typedef int (* SBrowserDataProc)(SBrowserDataProcBlock * pBlk); // @v12.3.8 (removed FASTCALL)
 
 struct BroColumn {
 	BroColumn();
 	// @nodestructor
 	TYPEID T;              // Data type
 	uint   Offs;           // Offset from begining of row
-	SBrowserDataProc UserProc;
+	SBrowserDataProc _ColumnUserProc; // @v12.3.8 UserProc-->_ColumnUserProc
 	long   format;         // Output format
 	uint   Options;        //
 	char * text;           // Column's title
@@ -5496,9 +5496,8 @@ public:
 	BrowserDef(int captionHight, uint aOptions, void * extraPtr = 0);
 	~BrowserDef();
 	//
-	// Descr: Функция должна добавлять колонку в конец списка колонок
-	// ARG(atPos IN): Позиция, в которую вставляется столбец. Если atPos < 0, то столбец
-	//   добавляется в конец таблицы
+	// Descr: Функция должна добавить новую колонку в список.
+	// ARG(atPos IN): Позиция, в которую вставляется столбец. Если atPos < 0, то столбец добавляется в конец таблицы
 	// ARG(pTxt  IN): Заголовок столбца. Может содержать символы \n для переноса на новую строку
 	// ARG(fldNo IN): Номер столбца в структуре данных или смещение (в зависимости от контекста)
 	// ARG(typ   IN): Тип данных. Если typ == 0, функция пытается самостоятельно опеределить тип
@@ -5572,6 +5571,7 @@ protected:
 	long   curItem;
 private:
 	virtual void FASTCALL freeItem(void *);
+	const void * Helper_GetCellData(const void * pRowData, int columnIdx, TYPEID * pTypeID, long * pFmt, uint * pCOptions, void * pOuterBuf, size_t outerBufSize);
 
 	SArray * P_CtList;         // Список кросс-таб столбцов
 	SBrowserDataProcBlock DpB;
@@ -5589,8 +5589,6 @@ public:
 	virtual int    insertColumn(int atPos, const char * pTxt, uint fldNo, TYPEID typ, long fmt, uint opt);
 	virtual long   GetRecsCount() const;
 	virtual const  void * FASTCALL getRow(long) const;
-	// @v10.9.0 virtual int   FASTCALL getData(void *);
-	// @v10.9.0 virtual int   FASTCALL setData(void *);
 protected:
 	SArray * P_Array;
 	BNFieldList * P_Fields;
@@ -5767,8 +5765,14 @@ public:
 
 	static LPCTSTR WndClsName;
 
-	BrowserWindow(uint resID, DBQuery *, uint broDefOptions = 0);
-	BrowserWindow(uint resID, SArray *, uint broDefOptions = 0);
+	BrowserWindow(uint resID, DBQuery * pDataQuery, uint broDefOptions);
+	BrowserWindow(uint resID, SArray * pDataArray, uint broDefOptions);
+	//
+	// Descr: Конструктор, содающий экземпляр с пустым BrowserDef (нет ресурса, из которого можно сформировать
+	//   колонки и прочие параметры таблицы).
+	//   Вызывающий модуль самостоятельно должен все сделать программно.
+	//
+	BrowserWindow(SArray * pDataArray, uint broDefOptions);
 	~BrowserWindow();
 	//
 	// Descr: Меняет запрос и, возможно, загружает другой ресурс таблицы для отображения.
@@ -5784,6 +5788,7 @@ public:
 	void   SetupScroll();
 	int    insertColumn(int atPos, const char * pTxt, uint fldNo, TYPEID typ, long fmt, uint opt);
 		// @>>BrowserDef::insertColumn(in, const char *, uint, TYPEID, long, uint)
+	int    insertColumn(int atPos, const char * pTxt, uint fldNo, TYPEID typ, long fmt, uint opt, SBrowserDataProc proc); // @v12.3.8
 	int    insertColumn(int atPos, const char * pTxt, const char * pFldName, TYPEID typ, long fmt, uint opt);
 	int    removeColumn(int atPos);
 	void   SetColumnWidth(int colNo, int width);
@@ -5890,7 +5895,7 @@ private:
 	//
 	int    PaintCell(HDC hdc, RECT r, long row, long col, int paintAction);
 	int    search(void * pPattern, CompFunc fcmp, int srchMode);
-	int    DrawTextUnderCursor(HDC hdc, char * pBuf, RECT * pTextRect, uint fmt, int isLineCursor);
+	bool   DrawTextUnderCursor(HDC hdc, char * pBuf, RECT * pTextRect, uint fmt, int isLineCursor);
 	void   AdjustCursorsForHdr();
 	int    CalcRowsHeight(long topItem, long bottom = 0);
 	void   DrawMultiLinesText(HDC hdc, char * pBuf, RECT * pTextRect, uint fmt);
@@ -6000,7 +6005,7 @@ public:
 		long   Flags;        //
 	};
 	static int RegWindowClass(HINSTANCE hInst);
-	static const char * WndClsName;
+	// @v12.3.8 static const char * WndClsName;
 
 	STimeChunkBrowser();
 	~STimeChunkBrowser();

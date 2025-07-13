@@ -930,7 +930,10 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 void PPViewEvent::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	if(pBrw) {
-		pBrw->SetDefUserProc(PPViewEvent::GetDataForBrowser, this);
+		pBrw->SetDefUserProc([](SBrowserDataProcBlock * pBlk) -> int
+			{
+				return (pBlk && pBlk->ExtraPtr) ? static_cast<PPViewEvent *>(pBlk->ExtraPtr)->_GetDataForBrowser(pBlk) : 0;				
+			}, this);
 		pBrw->SetCellStyleFunc(CellStyleFunc, pBrw);
 	}
 	pBrw->Advise(PPAdviseBlock::evSysJournalChanged, PPACN_EVENTDETECTION, PPOBJ_EVENTSUBSCRIPTION, 0);
@@ -943,65 +946,57 @@ int PPViewEvent::OnExecBrowser(PPViewBrowser * pBrw)
 
 int PPViewEvent::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
-	int    ok = 0;
-	if(pBlk->P_SrcData && pBlk->P_DestData) {
-		ok = 1;
-		const  BrwItem * p_item = static_cast<const BrwItem *>(pBlk->P_SrcData);
-		int    r = 0;
-		switch(pBlk->ColumnN) {
-			case 0: pBlk->Set(p_item->ID); break; // @id
-			case 1: // @time
-				pBlk->TempBuf.Z().Cat(p_item->Dtm, DATF_DMY, TIMF_HMS);
-				pBlk->Set(pBlk->TempBuf);
-				break; 
-			case 2: // @type
-				{
-					const char * p_tsign = 0;
-					switch(p_item->EventType) {
-						case PPEVENTTYPE_OBJCREATED: p_tsign = "eventtype_objcreated"; break;
-						case PPEVENTTYPE_OUTER: p_tsign = "eventtype_outer"; break;
-						case PPEVENTTYPE_SPCBILLCHANGE: p_tsign = "eventtype_spcbillchange"; break;
-						case PPEVENTTYPE_SYSJOURNAL: p_tsign = "eventtype_sysjournal"; break;
-						case PPEVENTTYPE_LOTEXPIRATION: p_tsign = "eventtype_lotexpiration"; break;
-					}
-					if(p_tsign)
-						PPLoadString(p_tsign, pBlk->TempBuf);
-					else
-						pBlk->TempBuf.Z();
-					pBlk->Set(pBlk->TempBuf);
+	int    ok = 1;
+	assert(pBlk->P_SrcData && pBlk->P_DestData); // Функция вызывается только из одной локации и эти members != 0 равно как и pBlk != 0
+	const  BrwItem * p_item = static_cast<const BrwItem *>(pBlk->P_SrcData);
+	int    r = 0;
+	switch(pBlk->ColumnN) {
+		case 0: pBlk->Set(p_item->ID); break; // @id
+		case 1: // @time
+			pBlk->TempBuf.Z().Cat(p_item->Dtm, DATF_DMY, TIMF_HMS);
+			pBlk->Set(pBlk->TempBuf);
+			break; 
+		case 2: // @type
+			{
+				const char * p_tsign = 0;
+				switch(p_item->EventType) {
+					case PPEVENTTYPE_OBJCREATED: p_tsign = "eventtype_objcreated"; break;
+					case PPEVENTTYPE_OUTER: p_tsign = "eventtype_outer"; break;
+					case PPEVENTTYPE_SPCBILLCHANGE: p_tsign = "eventtype_spcbillchange"; break;
+					case PPEVENTTYPE_SYSJOURNAL: p_tsign = "eventtype_sysjournal"; break;
+					case PPEVENTTYPE_LOTEXPIRATION: p_tsign = "eventtype_lotexpiration"; break;
 				}
-				break; 
-			case 3: // status
-				pBlk->TempBuf.Z();
+				if(p_tsign)
+					PPLoadString(p_tsign, pBlk->TempBuf);
+				else
+					pBlk->TempBuf.Z();
 				pBlk->Set(pBlk->TempBuf);
-				break; 
-			case 4: // object
-				StrPool.GetS(p_item->ObjNameP, pBlk->TempBuf);
+			}
+			break; 
+		case 3: // status
+			pBlk->TempBuf.Z();
+			pBlk->Set(pBlk->TempBuf);
+			break; 
+		case 4: // object
+			StrPool.GetS(p_item->ObjNameP, pBlk->TempBuf);
+			pBlk->Set(pBlk->TempBuf);
+			break; 
+		case 5: // text
+			StrPool.GetS(p_item->TextP, pBlk->TempBuf);
+			pBlk->Set(pBlk->TempBuf); 
+			break; 
+		case 6: // subscription
+			{
+				PPEventSubscriptionPacket es_pack;
+				if(EsObj.Fetch(p_item->EventSubscrID, &es_pack) > 0)
+					pBlk->TempBuf = es_pack.Rec.Name;
+				else
+					pBlk->TempBuf.Z();
 				pBlk->Set(pBlk->TempBuf);
-				break; 
-			case 5: // text
-				StrPool.GetS(p_item->TextP, pBlk->TempBuf);
-				pBlk->Set(pBlk->TempBuf); 
-				break; 
-			case 6: // subscription
-				{
-					PPEventSubscriptionPacket es_pack;
-					if(EsObj.Fetch(p_item->EventSubscrID, &es_pack) > 0)
-						pBlk->TempBuf = es_pack.Rec.Name;
-					else
-						pBlk->TempBuf.Z();
-					pBlk->Set(pBlk->TempBuf);
-				}
-				break;
-		}
+			}
+			break;
 	}
 	return ok;
-}
-
-/*static*/int FASTCALL PPViewEvent::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
-{
-	PPViewEvent * p_v = static_cast<PPViewEvent *>(pBlk->ExtraPtr);
-	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;
 }
 
 SArray * PPViewEvent::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
