@@ -75,25 +75,19 @@ char *curl_unescape(const char * string, int length)
 /* Escapes for URL the given unescaped string of given length.
  * 'data' is ignored since 7.82.0.
  */
-char *curl_easy_escape(struct Curl_easy * data, const char * string,
-    int inlength)
+char *curl_easy_escape(struct Curl_easy * data, const char * string, int inlength)
 {
 	size_t length;
 	struct dynbuf d;
 	(void)data;
-
 	if(inlength < 0)
 		return NULL;
-
 	Curl_dyn_init(&d, CURL_MAX_INPUT_LENGTH * 3);
-
-	length = (inlength?(size_t)inlength:strlen(string));
+	length = (inlength ? (size_t)inlength : strlen(string));
 	if(!length)
 		return strdup("");
-
 	while(length--) {
 		uchar in = *string++; /* treat the characters unsigned */
-
 		if(Curl_isunreserved(in)) {
 			/* append this */
 			if(Curl_dyn_addn(&d, &in, 1))
@@ -109,7 +103,6 @@ char *curl_easy_escape(struct Curl_easy * data, const char * string,
 				return NULL;
 		}
 	}
-
 	return Curl_dyn_ptr(&d);
 }
 

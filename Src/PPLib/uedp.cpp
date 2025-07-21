@@ -1,5 +1,5 @@
 // UEDP.CPP
-// Copyright (c) A.Sobolev 2023
+// Copyright (c) A.Sobolev 2023, 2025
 //
 #include <pp.h>
 #pragma hdrstop

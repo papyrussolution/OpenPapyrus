@@ -609,6 +609,7 @@ public:
 	static uint   GetNominalRectWithDefaults(const SUiLayoutParam * pLp, FRect & rR, float defWidth, float defHeight);
 	static uint   GetNominalRectWithDefaults(const SUiLayoutParam * pLp, TRect & rR, float defWidth, float defHeight);
 	SUiLayoutParam();
+	SUiLayoutParam(const SUiLayoutParam & rS);
 	//
 	// Descr: конструктор для контейнера с наиболее популярными аргументами.
 	//
@@ -617,6 +618,7 @@ public:
 	bool   FASTCALL operator == (const SUiLayoutParam & rS) const;
 	bool   FASTCALL operator != (const SUiLayoutParam & rS) const;
 	SUiLayoutParam & Z();
+	bool   FASTCALL Copy(const SUiLayoutParam & rS);
 	bool   FASTCALL IsEq(const SUiLayoutParam & rS) const;
 	//
 	// Descr: Проверяет параметры (возможно, не все) блока на непротиворечивость.
@@ -5438,6 +5440,7 @@ struct SBrowserDataProcBlock {
 	SBrowserDataProcBlock & Setup(const BroColumn & rC, const void * pSrcData, void * pDestBuf, size_t destBufSize, void * extraPtr);
 	void   SetZero();
 	void   FASTCALL Set(int32 i);
+	void   Set(int64 i); // @v12.3.9
 	void   Set(double i);
 	void   FASTCALL Set(const char * pS);
 	void   FASTCALL Set(const SString & rS);
@@ -5782,8 +5785,8 @@ public:
 	//   2 - запрос pQuery был установлен и загружен ресурс resID
 	//   0 - error
 	//
-	int    ChangeResource(uint resID, DBQuery * pQuery, int force = 0);
-	int    ChangeResource(uint resID, SArray * pArray, int force = 0);
+	int    ChangeResource(uint resID, uint extToolbarId, DBQuery * pQuery, bool force = false);
+	int    ChangeResource(uint resID, uint extToolbarId, SArray * pArray, bool force = false);
 	void   CalcRight();
 	void   SetupScroll();
 	int    insertColumn(int atPos, const char * pTxt, uint fldNo, TYPEID typ, long fmt, uint opt);

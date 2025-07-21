@@ -31,7 +31,7 @@ HRESULT SResToHRESULT(SRes res) throw()
 	return E_FAIL;
 }
 
-#define PROGRESS_UNKNOWN_VALUE (static_cast<uint64>(-1LL))
+#define PROGRESS_UNKNOWN_VALUE _FFFF64
 
 #define CONVERT_PR_VAL(x) (x == PROGRESS_UNKNOWN_VALUE ? NULL : &x)
 

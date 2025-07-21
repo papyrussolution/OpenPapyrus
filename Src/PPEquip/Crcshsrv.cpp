@@ -205,6 +205,7 @@ public:
 	virtual int  ImportSession(int);
 	virtual int  FinishImportSession(PPIDArray *);
 	virtual void CleanUpSession();
+	virtual int  InteractiveQuery();
 	int    ExportDataV10(int updOnly);
 	int    ExportData__(int updOnly);
 	int    Prev_ExportData(int updOnly);
@@ -217,7 +218,7 @@ private:
 		filTypChkRows,
 		filTypChkDscnt,
 		filTypZRepXml,
-		filTypChkXml
+		filTypChkXml,
 	};
 	virtual int IsReadyForExport();
 	int    ImportZRepList(SVector * pZRepList, bool useLocalFiles);
@@ -2920,7 +2921,8 @@ PPBillImpExpParam * ACS_CRCSHSRV::CreateImpExpParam(uint sdRecID)
 	p_param->Init();
 	THROW(GetImpExpSections(PPFILNAM_IMPEXP_INI, sdRecID, p_param, &sections, 0));
 	if(sections.getCount()) {
-		SString  ini_file_name, section;
+		SString ini_file_name;
+		SString section;
 		THROW(PPGetFilePath(PPPATH_BIN, PPFILNAM_IMPEXP_INI, ini_file_name));
 		{
 			uint  p = 0;
@@ -2930,7 +2932,7 @@ PPBillImpExpParam * ACS_CRCSHSRV::CreateImpExpParam(uint sdRecID)
 			if(p_param->ReadIni(&ini_file, section, 0)) {
 				p_param->Direction = 1;
 				SFsPath  sps(p_param->FileName);
-				SFsPath  def_sps(PathRpt[sdRecID - PPREC_CS_ZREP]);
+				SFsPath  def_sps(PathRpt[sdRecID-PPREC_CS_ZREP]);
 				if(!(sps.Flags & SFsPath::fDrv))
 					sps.Drv = def_sps.Drv;
 				if(!(sps.Flags & SFsPath::fDir)) {
@@ -4542,12 +4544,12 @@ void ACS_CRCSHSRV::Backup(const char * pPrefix, const char * pPath)
 		SString prev_path;
 		SString path;
 		for(long i = 1; i < _max_copies; i++) {
-			(path = backup_dir).Cat(prefix).CatLongZ(i, (int)(8 - pfx_len)).Dot().Cat(ext);
-			(prev_path = backup_dir).Cat(prefix).CatLongZ(i + 1, int(8 - pfx_len)).Dot().Cat(ext);
+			(path = backup_dir).Cat(prefix).CatLongZ(i, (int)(8 - pfx_len)).DotCat(ext);
+			(prev_path = backup_dir).Cat(prefix).CatLongZ(i + 1, int(8 - pfx_len)).DotCat(ext);
 			SFile::Remove(path);
 			SCopyFile(prev_path, path, 0, FILE_SHARE_READ, 0);
 		}
-		(dest_path = backup_dir).Cat(prefix).CatLongZ(_max_copies, (int)(8 - pfx_len)).Dot().Cat(ext);
+		(dest_path = backup_dir).Cat(prefix).CatLongZ(_max_copies, (int)(8 - pfx_len)).DotCat(ext);
 		SFile::Remove(dest_path);
 		MakeTempFileName(backup_dir, prefix, ext, &(start = 10), dest_path);
 	}
@@ -4686,6 +4688,160 @@ void ACS_CRCSHSRV::CleanUpSession()
 		}
 	}
 }
+
+/*virtual*/int ACS_CRCSHSRV::InteractiveQuery()
+{
+	struct QueryBlock { // @flat
+	public:
+		QueryBlock() : Q(qUnkn), Flags(0)
+		{
+			Period.Z();
+		}
+        enum {
+        	qUnkn = 0, // Не известный тип запроса
+        	qCSession = 1, // Запрос кассовых сессий
+        };
+        int    Q;
+        long   Flags;
+		DateRange Period;
+		LongArray SessNList; // Список номеров запрашиваемых сессий
+		LongArray DvcNList;  // Список номеров кассовых аппаратов, для которых запрашиваются сессии
+	private:
+		void   FASTCALL Init(int q);
+	};
+	class SetRetail_PosQueryDialog : public TDialog {
+		DECL_DIALOG_DATA(QueryBlock);
+	public:
+        SetRetail_PosQueryDialog() : TDialog(DLG_POSNQUERYSETR)
+        {
+        	SetupCalPeriod(CTLCAL_POSNQUERY_PERIOD, CTL_POSNQUERY_PERIOD);
+        }
+		DECL_DIALOG_SETDTS()
+        {
+        	int    ok = 1;
+			SString temp_buf;
+        	RVALUEPTR(Data, pData);
+			SetPeriodInput(this, CTL_POSNQUERY_PERIOD, Data.Period);
+			{
+				temp_buf.Z();
+				for(uint i = 0; i < Data.SessNList.getCount(); i++) {
+					const long sess_n = Data.SessNList.get(i);
+					if(sess_n > 0)
+						temp_buf.CatDivIfNotEmpty(',', 2).Cat(sess_n);
+				}
+				setCtrlString(CTL_POSNQUERY_SESSL, temp_buf);
+			}
+			{
+				temp_buf.Z();
+				for(uint i = 0; i < Data.DvcNList.getCount(); i++) {
+					const long sess_n = Data.DvcNList.get(i);
+					if(sess_n > 0)
+						temp_buf.CatDivIfNotEmpty(',', 2).Cat(sess_n);
+				}
+				setCtrlString(CTL_POSNQUERY_N, temp_buf);
+			}
+        	return ok;
+        }
+		DECL_DIALOG_GETDTS()
+        {
+        	int    ok = 1;
+			uint   sel = 0;
+			SString input_buf;
+			SString temp_buf;
+			Data.Q = Data.qCSession;
+			GetPeriodInput(this, CTL_POSNQUERY_PERIOD, &Data.Period);
+			{
+				getCtrlString(CTL_POSNQUERY_SESSL, input_buf);
+				StringSet ss;
+				Data.SessNList.Z();
+				input_buf.Tokenize(";, ", ss);
+				for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
+					const long n = temp_buf.ToLong();
+					if(n > 0)
+						Data.SessNList.add(n);
+				}
+				Data.SessNList.sortAndUndup();
+			}
+			{
+				getCtrlString(CTL_POSNQUERY_N, input_buf);
+				StringSet ss;
+				Data.DvcNList.Z();
+				input_buf.Tokenize(";, ", ss);
+				for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
+					const long n = temp_buf.ToLong();
+					if(n > 0)
+						Data.DvcNList.add(n);
+				}
+				Data.DvcNList.sortAndUndup();
+			}
+        	ASSIGN_PTR(pData, Data);
+			//CATCHZOKPPERRBYDLG
+        	return ok;
+        }
+	};
+
+	int    ok = -1;
+	SString temp_buf;
+	PPAsyncCashNode acn;
+	if(ModuleVer >= 10 && GetNodeData(&acn) > 0) {
+		acn.GetLogNumList(LogNumList);
+		QueryBlock qblk;
+		qblk.Q = QueryBlock::qCSession;
+		qblk.Period.SetDate(plusdate(getcurdate_(), -1));
+		if(PPDialogProcBody <SetRetail_PosQueryDialog, QueryBlock>(&qblk) > 0) {
+			if(!qblk.Period.IsZero()) {
+				(temp_buf = acn.ImpFiles).SetLastSlash().Cat("reports.request");
+				SFile f_out(temp_buf, SFile::mWrite);
+				if(f_out.IsValid()) {
+					SString query_buf;
+					{
+						if(!qblk.Period.low)
+							qblk.Period.low = qblk.Period.upp;
+						if(!qblk.Period.upp)
+							qblk.Period.upp = qblk.Period.low;
+						if(qblk.Period.low == qblk.Period.upp) {
+							query_buf.Cat("date").CatDiv(':', 2).Cat(qblk.Period.low, DATF_GERMANCENT);
+						}
+						else {
+							temp_buf.Z().Cat(qblk.Period.low, DATF_GERMANCENT).CatChar('-').Cat(qblk.Period.upp, DATF_GERMANCENT);
+							query_buf.Cat("dateRange").CatDiv(':', 2).Cat(temp_buf);
+						}
+					}
+					{
+						query_buf.CR();
+						query_buf.Cat("report").CatDiv(':', 2).Cat("Zreports").Comma().Cat("purchases");
+					}
+					if(qblk.DvcNList.getCount()) {
+						query_buf.CR();
+						query_buf.Cat("cash").CatDiv(':', 2);
+						for(uint i = 0; i < qblk.DvcNList.getCount(); i++) {
+							const long n = qblk.DvcNList.get(i);
+							if(i)
+								query_buf.Comma();
+							query_buf.Cat(n);
+						}
+					}
+					if(qblk.SessNList.getCount()) {
+						query_buf.CR();
+						query_buf.Cat("shift").CatDiv(':', 2);
+						for(uint i = 0; i < qblk.SessNList.getCount(); i++) {
+							const long n = qblk.SessNList.get(i);
+							if(i)
+								query_buf.Comma();
+							query_buf.Cat(n);
+						}
+					}
+					//
+					// 
+					//
+					f_out.WriteLine(query_buf);
+					ok = 1;
+				}
+			}
+		}
+	}
+	return ok;
+}
 //
 //
 //
@@ -4731,6 +4887,40 @@ int Cristal2SetRetailGateway::CmdParam::Serialize(int dir, SBuffer & rBuf, SSeri
 	THROW_SL(pSCtx->Serialize(dir, Actions, rBuf));
 	THROW_SL(pSCtx->Serialize(dir, Flags, rBuf));
 	CATCHZOK
+	return ok;
+}
+
+/*static*/int Cristal2SetRetailGateway::SearchPosNode(PPID * pID, PPAsyncCashNode * pAcnPack)
+{
+	int    ok = -1;
+	Reference * p_ref = PPRef;
+	PPObjTag tag_obj;
+	PPID   tag_id = 0;
+	PPObjectTag tag_rec;
+	PPObjCashNode cn_obj;
+	PPID   cn_id = 0;
+	if(tag_obj.SearchByName("Cristal2SetRetailGateway", &tag_id, &tag_rec) > 0) {
+		PPCashNode2 iter_cn_rec;
+		for(SEnum en = cn_obj.Enum(0); !cn_id && en.Next(&iter_cn_rec) > 0;) {
+			if(iter_cn_rec.CashType == PPCMT_CRCSHSRV) {
+				ObjTagItem tag_item;
+				if(p_ref->Ot.GetTag(PPOBJ_CASHNODE, iter_cn_rec.ID, tag_id, &tag_item) > 0)
+					cn_id = iter_cn_rec.ID;
+			}
+		}
+	}
+	if(cn_id) {
+		if(pAcnPack) {
+			if(cn_obj.GetAsync(cn_id, pAcnPack) > 0) {
+				ok = 2;
+			}
+			else
+				ok = 0;
+		}
+		else
+			ok = 1;
+	}
+	ASSIGN_PTR(pID, cn_id);
 	return ok;
 }
 
@@ -4800,6 +4990,51 @@ int Cristal2SetRetailGateway::Helper_CristalImportDir(const char * pPathUtf8, Cr
 			}
 		}
 	}
+	return ok;
+}
+
+int Cristal2SetRetailGateway::Process(const CmdParam & rParam)
+{
+	int    ok = -1;
+	Reference * p_ref = PPRef;
+	PPObjTag tag_obj;
+	PPObjectTag tag_rec;
+	SString src_path;
+	SString log_file_path;
+	PPID   cn_id = 0;
+	PPAsyncCashNode acn_pack;
+	if(Cristal2SetRetailGateway::SearchPosNode(&cn_id, &acn_pack) > 0) {
+		if(rParam.Actions & CmdParam::actReadCristalSrcData) {
+			CristalImportBlock ib;
+			PPID   tag_id = 0;
+			if(tag_obj.SearchByName("Cristal2SetRetailGateway-cripath", &tag_id, &tag_rec) > 0) {
+				SString src_path;
+				acn_pack.TagL.GetItemStr(tag_id, src_path);
+				if(src_path.NotEmpty()) {
+					Helper_CristalImportDir(src_path, ib, log_file_path);
+					if(ib.GoodsList.getCount()) {
+						ib.GoodsList.sort(CMPF_LONG);
+						ib.WeightedGoodsList.sort(CMPF_LONG);
+						for(uint i = 0; i < ib.GoodsList.getCount(); i++) {
+							//...
+						}
+					}
+				}
+			}
+		}
+		if(rParam.Actions & CmdParam::actWriteCristalDestData) {
+			PPID   tag_id = 0;
+			if(tag_obj.SearchByName("Cristal2SetRetailGateway-ccpath", &tag_id, &tag_rec) > 0) {
+				SString cc_out_path;
+				acn_pack.TagL.GetItemStr(tag_id, cc_out_path);
+				if(cc_out_path.NotEmpty()) {
+					ACS_CRCSHSRV driver(cn_id);
+					driver.Cristal2SetRetailGateway_TranslateSales(cc_out_path);
+				}
+			}
+		}
+	}
+	//CATCHZOK
 	return ok;
 }
 
@@ -5007,7 +5242,7 @@ int Cristal2SetRetailGateway::CristalImport(const char * pPathUtf8, Cristal2SetR
 										break;
 								}
 							}
-							rIb.List1.insert(&new_entry);
+							rIb.GoodsList.insert(&new_entry);
 						}
 						else if(file_type == 2) { // scale
 							uint fld_no = 0;
@@ -5046,7 +5281,7 @@ int Cristal2SetRetailGateway::CristalImport(const char * pPathUtf8, Cristal2SetR
 										break;
 								}
 							}
-							rIb.List2.insert(&new_entry);
+							rIb.WeightedGoodsList.insert(&new_entry);
 						}
 						else if(file_type == 3) { // scard
 							uint fld_no = 0;
@@ -5082,7 +5317,7 @@ int Cristal2SetRetailGateway::CristalImport(const char * pPathUtf8, Cristal2SetR
 										break;
 								}
 							}
-							rIb.List3.insert(&new_entry);
+							rIb.SCardList.insert(&new_entry);
 						}
 					}
 				}
@@ -5353,37 +5588,24 @@ int Test_Cristal2SetRetailGateway()
 		// Cash_Code DateOperation GrCode Ck_Number
 	//
 	Cristal2SetRetailGateway_CSessDictionaryOutput(p_dict_path, dict_info_file_path);
-	{
+	/* (moved to Cristal2SetRetailGateway::Process) {
 		Reference * p_ref = PPRef;
 		PPObjTag tag_obj;
 		PPID   tag_id = 0;
 		PPObjectTag tag_rec;
-		PPObjCashNode cn_obj;
 		PPID   cn_id = 0;
-		if(tag_obj.SearchByName("Cristal2SetRetailGateway", &tag_id, &tag_rec) > 0) {
-			PPCashNode2 iter_cn_rec;
-			for(SEnum en = cn_obj.Enum(0); !cn_id && en.Next(&iter_cn_rec) > 0;) {
-				if(iter_cn_rec.CashType == PPCMT_CRCSHSRV) {
-					ObjTagItem tag_item;
-					if(p_ref->Ot.GetTag(PPOBJ_CASHNODE, iter_cn_rec.ID, tag_id, &tag_item) > 0)
-						cn_id = iter_cn_rec.ID;
+		PPAsyncCashNode acn_pack;
+		if(Cristal2SetRetailGateway::SearchPosNode(&cn_id, &acn_pack) > 0) {
+			if(tag_obj.SearchByName("Cristal2SetRetailGateway-ccpath", &tag_id, &tag_rec) > 0) {
+				SString cc_out_path;
+				acn_pack.TagL.GetItemStr(tag_id, cc_out_path);
+				if(cc_out_path.NotEmpty()) {
+					ACS_CRCSHSRV driver(cn_id);
+					driver.Cristal2SetRetailGateway_TranslateSales(cc_out_path);
 				}
 			}
 		}
-		if(cn_id) {
-			PPAsyncCashNode acn_pack;
-			if(cn_obj.GetAsync(cn_id, &acn_pack) > 0) {
-				if(tag_obj.SearchByName("Cristal2SetRetailGateway-ccpath", &tag_id, &tag_rec) > 0) {
-					SString cc_out_path;
-					acn_pack.TagL.GetItemStr(tag_id, cc_out_path);
-					if(cc_out_path.NotEmpty()) {
-						ACS_CRCSHSRV driver(cn_id);
-						driver.Cristal2SetRetailGateway_TranslateSales(cc_out_path);
-					}
-				}
-			}
-		}
-	}
+	}*/
 	return ok;
 }
 
@@ -5514,3 +5736,4 @@ int ACS_CRCSHSRV::Cristal2SetRetailGateway_TranslateSales(const char * pCcOutPat
 	CATCHZOK
 	return ok;
 }
+

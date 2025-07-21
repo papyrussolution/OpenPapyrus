@@ -288,10 +288,7 @@ int SmartListBox::RemoveColumn(int pos)
 		return 0;
 }
 
-bool SmartListBox::GetOrgColumnsDescr(SString & rBuf) const
-{
-	return StrPool.getnz(ColumnsSpcPos, rBuf.Z());
-}
+bool SmartListBox::GetOrgColumnsDescr(SString & rBuf) const { return StrPool.getnz(ColumnsSpcPos, rBuf.Z()); }
 
 int SmartListBox::SetupColumns(const char * pColsBuf)
 {
@@ -306,7 +303,7 @@ int SmartListBox::SetupColumns(const char * pColsBuf)
 		SString right;
 		if(columns_buf.Strip().C(0) == '@' && SLS.LoadString_(columns_buf.ShiftLeft(), cstr) > 0)
 			columns_buf = cstr;
-		columns_buf.Transf(CTRANSF_INNER_TO_OUTER);
+		// @v12.3.9 columns_buf.Transf(CTRANSF_INNER_TO_OUTER);
 		StringSet columns_ss(';', columns_buf);
 		StringSet ss(",");
 		for(uint columns_pos = 0; columns_ss.get(&columns_pos, cstr);) {
@@ -316,7 +313,7 @@ int SmartListBox::SetupColumns(const char * pColsBuf)
 			uint   format = ALIGN_LEFT; // @v12.2.4 0-->ALIGN_LEFT
 			title_buf.Z();
 			if(ss.get(&pos, citem)) {
-				width = static_cast<uint16>((citem.Divide('w', left, right) > 0) ? right.ToLong() : citem.ToLong());
+				width = static_cast<uint>((citem.Divide('w', left, right) > 0) ? right.ToLong() : citem.ToLong());
 				SETIFZ(width, default_column_width); // @v12.2.4
 				if(ss.get(&pos, citem)) {
 					switch(toupper(citem.Strip().C(0))) {
@@ -328,7 +325,7 @@ int SmartListBox::SetupColumns(const char * pColsBuf)
 					ss.get(&pos, title_buf);
 				}
 			}
-			AddColumn(-1, title_buf, width, format|STRF_ANSI, 0);
+			AddColumn(-1, title_buf, width, format, 0); // @v12.3.9 (format|STRF_ANSI)-->(format)
 		}
 		StrPool.add(columns_buf, &ColumnsSpcPos);
 	}

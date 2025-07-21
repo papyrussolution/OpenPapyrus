@@ -11,10 +11,7 @@
 #define _USERPTR_C(ptr)  ((VFlags&aryPtrContainer)?(*reinterpret_cast<const void * const *>(ptr)):(ptr))
 #define _INTRPTR(ptr)    ((VFlags&aryPtrContainer)?&(ptr):(ptr))
 
-/*static*/uint FASTCALL SVectorBase::GetCount(const SVectorBase * pB)
-{
-	return pB ? pB->getCount() : 0;
-}
+/*static*/uint FASTCALL SVectorBase::GetCount(const SVectorBase * pB) { return pB ? pB->getCount() : 0; }
 
 SVectorBase::SVectorBase(uint itemSize, uint o) : isize(itemSize), VFlags(o), P_VData(0), count(0), pointer(0), Limit(0)
 {
@@ -882,48 +879,53 @@ bool SVectorBase::lsearch(const void * pcKey, uint * pIdx, CompFunc fcmp, size_t
 	const  uint8 * p_org = PTR8(P_VData);
 	if(VFlags & aryPtrContainer) {
 		// Для контейнера указателей специальная ветка!
-		for(; i < lim; i += sizeof(void *))
+		for(; i < lim; i += sizeof(void *)) {
 			if(fcmp(PTR8(*(void **)(p_org + i)) + ofs, pcKey, pExtraData) == 0) {
 				ASSIGN_PTR(pIdx, i / sizeof(void *));
 				return true;
 			}
+		}
 	}
 	else {
 		p_org += ofs;
 		if(fcmp == CMPF_LONG) {
 			// Так как функция сравнения 4-байтовых значений очень популярна, применяем для такого случая специальную обработку (без вызова, собственно, функции сравнения).
 			const uint32 test = *PTR32C(pcKey);
-			for(; i < lim; i += isize)
+			for(; i < lim; i += isize) {
 				if(*PTR32C(p_org + i) == test) {
 					ASSIGN_PTR(pIdx, i / isize);
 					return true;
 				}
+			}
 		}
-		else if(fcmp == CMPF_INT64) {
+		else if(oneof2(fcmp, CMPF_INT64, CMPF_UINT64)) { // @v12.3.9 CMPF_UINT64
 			// То же оптимизированный популярный вариант поиска по 8-байтовому ключу
 			const uint64 test = *PTR64C(pcKey);
-			for(; i < lim; i += isize)
+			for(; i < lim; i += isize) {
 				if(*PTR64C(p_org + i) == test) {
 					ASSIGN_PTR(pIdx, i / isize);
 					return true;
 				}
+			}
 		}
 		else {
-			for(; i < lim; i += isize)
+			for(; i < lim; i += isize) {
 				if(fcmp(p_org + i, pcKey, pExtraData) == 0) {
 					ASSIGN_PTR(pIdx, i / isize);
 					return true;
 				}
+			}
 		}
 	}
 #if 0 // old algorithm (proof) {
 	const  uint    lim = count * isize;
 	const  uint8 * p_org = PTR8(data)/* + ofs*/;
-	for(uint i = (pIdx ? (*pIdx * isize) : 0); i < lim; i += isize)
+	for(uint i = (pIdx ? (*pIdx * isize) : 0); i < lim; i += isize) {
 		if(fcmp(((const char *)_USERPTR(p_org + i)) + ofs, pcKey, extraData) == 0) {
 			ASSIGN_PTR(pIdx, i / isize);
 			return true;
 		}
+	}
 #endif // } 0
 	return SLS.SetError(SLERR_ARYITEMNFOUND);
 }
@@ -962,6 +964,15 @@ bool SVectorBase::lsearchGe(const void * pcKey, uint * pIdx, CompFunc fcmp, size
 					ASSIGN_PTR(pIdx, i / isize);
 					return true;
 				}
+		}
+		else if(fcmp == CMPF_UINT64) { // @v12.3.9
+			const uint64 test = *static_cast<const uint64 *>(pcKey);
+			for(; i < lim; i += isize) {
+				if(*reinterpret_cast<const uint64 *>(p_org + i) >= test) {
+					ASSIGN_PTR(pIdx, i / isize);
+					return true;
+				}
+			}
 		}
 		else {
 			for(; i < lim; i += isize) {
@@ -4184,26 +4195,13 @@ Int64Array & FASTCALL Int64Array::operator = (const Int64Array & rS)
 	return *this;
 }
 
-bool FASTCALL Int64Array::IsEq(const Int64Array * pS) const
-{
-	if(pS) {
-		const uint c = getCount();
-		if(pS->getCount() == c) {
-			for(uint i = 0; i < c; i++)
-				if(pS->at(i) != at(i))
-					return false;
-			return true;
-		}
-	}
-	return false;
-}
-
+bool   FASTCALL Int64Array::IsEq(const Int64Array * pS) const { return Implement_Simple_IsEq(pS); }
 bool   FASTCALL Int64Array::operator == (const Int64Array & rS) const { return IsEq(&rS); }
 bool   FASTCALL Int64Array::operator != (const Int64Array & rS) const { return !IsEq(&rS); }
 int64  FASTCALL Int64Array::get(uint pos) const { return at(pos); }
-bool   Int64Array::lsearch(int64 k, uint * pIdx) const { return SVector::lsearch(&k, pIdx, PTR_CMPFUNC(int64)); }
-bool   FASTCALL Int64Array::lsearch(int64 key) const { return SVector::lsearch(&key, 0, PTR_CMPFUNC(int64)); }
-bool   FASTCALL Int64Array::bsearch(int64 key) const { return SVector::bsearch(&key, 0, PTR_CMPFUNC(int64)); }
+bool   Int64Array::lsearch(int64 k, uint * pIdx) const { return SVector::lsearch(&k, pIdx, CMPF_INT64); }
+bool   FASTCALL Int64Array::lsearch(int64 key) const { return SVector::lsearch(&key, 0, CMPF_INT64); }
+bool   FASTCALL Int64Array::bsearch(int64 key) const { return SVector::bsearch(&key, 0, CMPF_INT64); }
 int    FASTCALL Int64Array::addUnique(int64 v) { return lsearch(v) ? -1 : add(v); }
 int    FASTCALL Int64Array::add(int64 v) { return insert(&v); }
 void   Int64Array::sort() { SVector::sort(CMPF_INT64); }
@@ -4244,6 +4242,74 @@ void Int64Array::intersect(const Int64Array * pList, int binary)
 		uint c = getCount();
 		if(c) do {
 			const int64 id = at(--c);
+			if((binary ? pList->bsearch(id) : pList->lsearch(id)) == 0)
+				atFree(c);
+		} while(c);
+	}
+}
+//
+//
+//
+Uint64Array::Uint64Array() : TSVector <uint64> ()
+{
+}
+
+Uint64Array::Uint64Array(const Uint64Array & rS) : TSVector <uint64> (rS)
+{
+}
+
+Uint64Array & FASTCALL Uint64Array::operator = (const Uint64Array & rS)
+{
+	copy(rS);
+	return *this;
+}
+
+bool FASTCALL Uint64Array::IsEq(const Uint64Array * pS) const { return Implement_Simple_IsEq(pS); }
+bool FASTCALL Uint64Array::operator == (const Uint64Array & rS) const { return IsEq(&rS); }
+bool FASTCALL Uint64Array::operator != (const Uint64Array & rS) const { return !IsEq(&rS); }
+void Uint64Array::sort() { SVector::sort(CMPF_UINT64); }
+uint64 FASTCALL Uint64Array::get(uint pos) const { return at(pos); }
+bool Uint64Array::lsearch(uint64 key, uint * pIdx) const { return SVector::lsearch(&key, pIdx, CMPF_UINT64); }
+bool FASTCALL Uint64Array::lsearch(uint64 key) const { return SVector::lsearch(&key, 0, CMPF_UINT64); }
+bool FASTCALL Uint64Array::bsearch(uint64 key) const { return SVector::bsearch(&key, 0, CMPF_UINT64); }
+int FASTCALL Uint64Array::add(uint64 v) { return insert(&v); }
+
+int FASTCALL Uint64Array::add(uint32 v)
+{
+	uint64 v64 = static_cast<uint64>(v);
+	return insert(&v64);
+}
+
+int FASTCALL Uint64Array::add(const Uint64Array * pS)
+{
+	const  uint _c = SVectorBase::GetCount(pS);
+	return _c ? insertChunk(_c, pS->dataPtr()) : 1;
+}
+
+void Uint64Array::sortAndUndup()
+{
+	uint   c = getCount();
+	SVector::sort(CMPF_UINT64);
+	assert(c == getCount()); // @paranoic
+	if(c > 1) {
+		uint64  prev = get(--c);
+		do {
+			const uint64 t = get(--c);
+			if(t == prev)
+				atFree(c+1);
+			prev = t;
+		} while(c);
+	}
+}
+
+void  Uint64Array::intersect(const Uint64Array * pList, int binary)
+{
+	if(!pList || !pList->getCount())
+		clear();
+	else {
+		uint c = getCount();
+		if(c) do {
+			const uint64 id = at(--c);
 			if((binary ? pList->bsearch(id) : pList->lsearch(id)) == 0)
 				atFree(c);
 		} while(c);

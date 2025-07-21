@@ -352,16 +352,13 @@ END:
 	// If DP is required, add the noise/clip the input.
 	if(trainer_spec_.enable_differential_privacy()) {
 		if(trainer_spec_.input_format() != "tsv") {
-			LOG(ERROR)
-				<< "Dp version will not work correctly with text input format.";
+			LOG(ERROR) << "Dp version will not work correctly with text input format.";
 		}
 		if(trainer_spec_.differential_privacy_noise_level() <= 0) {
-			LOG(WARNING) << "Private version with <=0 noise level will give "
-				"infinity epsilon guarantees.";
+			LOG(WARNING) << "Private version with <=0 noise level will give infinity epsilon guarantees.";
 		}
 		if(trainer_spec_.differential_privacy_clipping_threshold() <= 0) {
-			LOG(WARNING) << "Private version with <=0 clipping threshold will give "
-				"infinity epsilon guarantees.";
+			LOG(WARNING) << "Private version with <=0 clipping threshold will give infinity epsilon guarantees.";
 		}
 
 		// Add noise to all the sentences via threadpool.

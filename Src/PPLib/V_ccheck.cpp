@@ -2775,19 +2775,19 @@ void PPViewCCheck::PreprocessBrowser(PPViewBrowser * pBrw)
 
 int PPViewCCheck::OnExecBrowser(PPViewBrowser * pBrw)
 {
+	int    result = -1;
 	if(Filt.Flags & CCheckFilt::fImmOpenPanel && Filt.Flags & CCheckFilt::fActiveSess) {
 		int    r = AddItem();
 		if(r == 1) {
 			pBrw->Update();
-			return -1;
+			result = -1;
 		}
 		else if(r == 2) {
-			// Опция кассового узла CASHF_NOMODALCHECKVIEW предписывает после кассовой панели
-			// не входить в таблицу чеков
-			return cmCancel;
+			// Опция кассового узла CASHF_NOMODALCHECKVIEW предписывает после кассовой панели не входить в таблицу чеков
+			result = cmCancel;
 		}
 	}
-	return -1;
+	return result;
 }
 
 int PPViewCCheck::PosPrint(PPID checkID, long)
@@ -3047,7 +3047,7 @@ int PPViewCCheck::ChangeFilt(PPViewBrowser * pBrw)
 			if(Filt.GcoMinCount != prev_gco_min)
 				THROW(CreateGoodsCorrTbl());
 			THROW(p_q = CreateBrowserQuery(&brw_id, 0));
-			ok = pBrw->ChangeResource(brw_id, p_q);
+			ok = pBrw->ChangeResource(brw_id, 0/*extToolbarId*/, p_q);
 		}
 	}
 	else

@@ -177,7 +177,7 @@ HRESULT HashCalc(DECL_EXTERNAL_CODECS_LOC_VARS const NWildcard::CCensor &censor,
 	dirItems.Callback = callback;
 	if(options.StdInMode) {
 		CDirItem di;
-		di.Size = static_cast<uint64>(-1LL);
+		di.Size = _FFFF64;
 		di.Attrib = 0;
 		di.MTime.dwLowDateTime = 0;
 		di.MTime.dwHighDateTime = 0;

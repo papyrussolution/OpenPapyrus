@@ -275,13 +275,11 @@ generic_string VerticalFileSwitcherListView::getFullFilePath(size_t i) const
 	size_t nbItem = ListView_GetItemCount(_hSelf);
 	if(i > nbItem)
 		return TEXT("");
-
 	LVITEM item;
 	item.mask = LVIF_PARAM;
 	item.iItem = static_cast<int32_t>(i);
 	ListView_GetItem(_hSelf, &item);
 	TaskLstFnStatus * tlfs = (TaskLstFnStatus*)item.lParam;
-
 	return tlfs->_fn;
 }
 
@@ -339,7 +337,6 @@ int VerticalFileSwitcherListView::add(BufferID bufferID, int iView)
 		ListView_SetItemText(_hSelf, index, ++colIndex, drive);
 	}
 	ListView_SetItemState(_hSelf, index, LVIS_FOCUSED|LVIS_SELECTED, LVIS_FOCUSED|LVIS_SELECTED);
-
 	return index;
 }
 
@@ -357,14 +354,11 @@ void VerticalFileSwitcherListView::remove(int index)
 void VerticalFileSwitcherListView::removeAll()
 {
 	int nbItem = ListView_GetItemCount(_hSelf);
-
 	for(int i = nbItem - 1; i >= 0; --i) {
 		remove(i);
 	}
-
 	HWND colHeader = reinterpret_cast<HWND>(SendMessage(_hSelf, LVM_GETHEADER, 0, 0));
 	int columnCount = static_cast<int32_t>(SendMessage(colHeader, HDM_GETITEMCOUNT, 0, 0));
-
 	for(int i = 0; i < columnCount; ++i) {
 		ListView_DeleteColumn(_hSelf, 0);
 	}

@@ -722,6 +722,7 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 	SString image_symb; // @v12.3.3
 	SString list_box_columns; // @v12.3.3
 	SString unterm_error_addedmsg;
+	SString design; // @v12.3.9
 	FRect  label_bbox;
 	int    fmt_prec = 0;
 	long   fmt_flags = 0;
@@ -756,6 +757,8 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 		occfFmtPrec         = 0x01000000, // @v12.3.5
 		occfFmtFlags        = 0x02000000, // @v12.3.5
 		occfMinSize         = 0x04000000, // @v12.3.6
+		occfLabelWidth      = 0x08000000, // @v12.3.9
+		occfLabelHeight     = 0x10000000, // @v12.3.9
 	};
 	enum {
 		occsLeft         = 0x0001,
@@ -980,17 +983,22 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 					alb.Flags &= ~(alb.fContainerWrap|alb.fContainerWrapReverse);
 				}
 				else if(prop_key == "class") {
-					THROW(class_ident.IsEmpty()); // @err dup feature
-					if(p_prop->Value.IsIdent() || p_prop->Value.IsString()) {
-						prop_val = p_prop->Value.U.S;
-						(class_ident = prop_val).Strip();
+					if(class_ident.IsEmpty()) {
+						if(p_prop->Value.IsIdent() || p_prop->Value.IsString()) {
+							prop_val = p_prop->Value.U.S;
+							(class_ident = prop_val).Strip();
+						}
+						else {
+							// @err invalid class value
+						}
 					}
 					else {
-						// @err invalid class value
+						unterm_errcode = PPERR_DL6_PROP_REDEF;
+						unterm_error_addedmsg = prop_key;
 					}
 				}
 				else if(prop_key == "font") {
-					if(font_ident.IsEmpty()) { // @err dup feature
+					if(font_ident.IsEmpty()) {
 						if(p_prop->Value.IsIdent() || p_prop->Value.IsString()) {
 							prop_val = p_prop->Value.U.S;
 							SString left_buf, right_buf;
@@ -1006,6 +1014,10 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 							// @err invalid class value
 						}
 					}
+					else {
+						unterm_errcode = PPERR_DL6_PROP_REDEF;
+						unterm_error_addedmsg = prop_key;
+					}
 				}
 				else if(prop_key == "fontsize") {
 					uint cast_flags;
@@ -1015,7 +1027,7 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 					}
 				}
 				else if(prop_key == "title" || prop_key == "label") {
-					if(title_text.IsEmpty()) { // @err dup feature
+					if(title_text.IsEmpty()) {
 						if(p_prop->Value.IsIdent() || p_prop->Value.IsString()) {
 							prop_val = p_prop->Value.U.S;
 							(title_text = prop_val).Strip();
@@ -1024,9 +1036,13 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 							// @err invalid title or label value
 						}
 					}
+					else {
+						unterm_errcode = PPERR_DL6_PROP_REDEF;
+						unterm_error_addedmsg = prop_key;
+					}
 				}
 				else if(prop_key == "figuresymb" || prop_key == "figuresymbol") {
-					if(figure_symb.IsEmpty()) { // @err dup feature
+					if(figure_symb.IsEmpty()) {
 						if(p_prop->Value.IsIdent() || p_prop->Value.IsString()) {
 							prop_val = p_prop->Value.U.S;
 							(figure_symb = prop_val).Strip();
@@ -1035,42 +1051,10 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 							// @err invalid figuresymb value
 						}
 					}
-				}
-				else if(prop_key == "height") {
-					THROW(p_prop->Value.Code == CtmToken::acLayoutItemSizeEntry); // @err invalid height value
-					if(alb.GetSizeY(0) == SUiLayoutParam::szUndef) { // @err dup feature
-						const float fv = p_prop->Value.U.UIC.Val;
-						if(p_prop->Value.U.UIC.Flags & UiCoord::dfRel) {
-							THROW(fv > 0.0f && fv <= 100.0f); // @err invalid height value
-							alb.SetVariableSizeY(SUiLayoutParam::szByContainer, fv / 100.0f);
-						}
-						else if(p_prop->Value.U.UIC.Flags & UiCoord::dfContent) {
-							alb.SetVariableSizeY(SUiLayoutParam::szByContent, 0.0f);
-						}
-						else {
-							THROW(fv > 0.0f && fv <= 32000.0f); // @err invalid height value
-							alb.SetFixedSizeY(p_prop->Value.U.UIC.Val);
-						}
+					else {
+						unterm_errcode = PPERR_DL6_PROP_REDEF;
+						unterm_error_addedmsg = prop_key;
 					}
-					occurence_flags |= occfHeight;
-				}
-				else if(prop_key == "width") {
-					THROW(p_prop->Value.Code == CtmToken::acLayoutItemSizeEntry); // @err invalid width value
-					if(alb.GetSizeX(0) == SUiLayoutParam::szUndef) { // @err dup feature
-						const float fv = p_prop->Value.U.UIC.Val;
-						if(p_prop->Value.U.UIC.Flags & UiCoord::dfRel) {
-							THROW(fv > 0.0f && fv <= 100.0f); // @err invalid width value
-							alb.SetVariableSizeX(SUiLayoutParam::szByContainer, fv / 100.0f);
-						}
-						else if(p_prop->Value.U.UIC.Flags & UiCoord::dfContent) {
-							alb.SetVariableSizeX(SUiLayoutParam::szByContent, 0.0f);
-						}
-						else {
-							THROW(fv > 0.0f && fv <= 32000.0f); // @err invalid width value
-							alb.SetFixedSizeX(p_prop->Value.U.UIC.Val);
-						}
-					}
-					occurence_flags |= occfWidth;
 				}
 				else if(prop_key == "margin") {
 					if(occurence_margin & (occsLeft|occsTop|occsRight|occsBottom)) { // @err dup feature
@@ -1217,9 +1201,57 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 				else if(prop_key == "aspectratio") {
 					const float fv = p_prop->Value.GetFloat(0);
 					THROW(fv > 0.0f && fv <= 32000.0f); // @err invalid aspectratio value
-					if(alb.AspectRatio == 0.0f) { // @err dup feature
+					if(alb.AspectRatio == 0.0f) {
 						alb.AspectRatio = fv;
 					}
+					else {
+						unterm_errcode = PPERR_DL6_PROP_REDEF;
+						unterm_error_addedmsg = prop_key;
+					}
+				}
+				else if(prop_key == "height") {
+					THROW(p_prop->Value.Code == CtmToken::acLayoutItemSizeEntry); // @err invalid height value
+					if(alb.GetSizeY(0) == SUiLayoutParam::szUndef) {
+						const float fv = p_prop->Value.U.UIC.Val;
+						if(p_prop->Value.U.UIC.Flags & UiCoord::dfRel) {
+							THROW(fv > 0.0f && fv <= 100.0f); // @err invalid height value
+							alb.SetVariableSizeY(SUiLayoutParam::szByContainer, fv / 100.0f);
+						}
+						else if(p_prop->Value.U.UIC.Flags & UiCoord::dfContent) {
+							alb.SetVariableSizeY(SUiLayoutParam::szByContent, 0.0f);
+						}
+						else {
+							THROW(fv > 0.0f && fv <= 32000.0f); // @err invalid height value
+							alb.SetFixedSizeY(p_prop->Value.U.UIC.Val);
+						}
+					}
+					else {
+						unterm_errcode = PPERR_DL6_PROP_REDEF;
+						unterm_error_addedmsg = prop_key;
+					}
+					occurence_flags |= occfHeight;
+				}
+				else if(prop_key == "width") {
+					THROW(p_prop->Value.Code == CtmToken::acLayoutItemSizeEntry); // @err invalid width value
+					if(alb.GetSizeX(0) == SUiLayoutParam::szUndef) {
+						const float fv = p_prop->Value.U.UIC.Val;
+						if(p_prop->Value.U.UIC.Flags & UiCoord::dfRel) {
+							THROW(fv > 0.0f && fv <= 100.0f); // @err invalid width value
+							alb.SetVariableSizeX(SUiLayoutParam::szByContainer, fv / 100.0f);
+						}
+						else if(p_prop->Value.U.UIC.Flags & UiCoord::dfContent) {
+							alb.SetVariableSizeX(SUiLayoutParam::szByContent, 0.0f);
+						}
+						else {
+							THROW(fv > 0.0f && fv <= 32000.0f); // @err invalid width value
+							alb.SetFixedSizeX(p_prop->Value.U.UIC.Val);
+						}
+					}
+					else {
+						unterm_errcode = PPERR_DL6_PROP_REDEF;
+						unterm_error_addedmsg = prop_key;
+					}
+					occurence_flags |= occfWidth;
 				}
 				else if(prop_key == "bbox") {
 					THROW(p_prop->Value.Code == CtmToken::acBoundingBox); // @err invalid bbox value
@@ -1252,7 +1284,7 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 				}
 				else if(prop_key == "size") { // @v12.2.9
 					THROW(p_prop->Value.Code == CtmToken::acBoundingBoxPair); // @err invalid bbox value
-					if(!(occurence_flags & (occfBBox|occfBBoxSize))) { // @err dup feature
+					if(!(occurence_flags & (occfBBox|occfBBoxSize|occfWidth|occfHeight))) { // @err dup feature
 						const float local_x = p_prop->Value.U.Rect.L.X.Val;
 						const float local_y = p_prop->Value.U.Rect.L.Y.Val;
 						if(alb.Flags & SUiLayoutParam::fNominalDefL) {
@@ -1271,7 +1303,7 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 				}
 				else if(prop_key == "minsize") { // @v12.3.6
 					THROW(p_prop->Value.Code == CtmToken::acBoundingBoxPair); // @err invalid bbox value
-					if(!(occurence_flags & (occfMinSize))) { // @err dup feature
+					if(!(occurence_flags & (occfMinSize))) {
 						const float local_x = p_prop->Value.U.Rect.L.X.Val;
 						const float local_y = p_prop->Value.U.Rect.L.Y.Val;
 						if(local_x >= 0.0f) {
@@ -1289,11 +1321,12 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 						occurence_flags |= occfMinSize;
 					}
 					else {
-						// @err
+						unterm_errcode = PPERR_DL6_PROP_REDEF;
+						unterm_error_addedmsg = prop_key;
 					}
 				}
 				else if(prop_key == "variable") {
-					if(var_ident.IsEmpty()) { // @err dup feature
+					if(var_ident.IsEmpty()) {
 						if(p_prop->Value.IsIdent() || p_prop->Value.IsString()) {
 							prop_val = p_prop->Value.U.S;
 							(var_ident = prop_val).Strip();
@@ -1302,42 +1335,71 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 							// @err invalid variable value
 						}
 					}
+					else {
+						unterm_errcode = PPERR_DL6_PROP_REDEF;
+						unterm_error_addedmsg = prop_key;
+					}
 				}
 				else if(prop_key == "data") {
-					THROW(data_ident.IsEmpty()); // @err dup feature
-					if(p_prop->Value.IsIdent() || p_prop->Value.IsString()) {
-						prop_val = p_prop->Value.U.S;
-						(data_ident = prop_val).Strip();
-					}
-					else {
-						// @err invalid variable value
-					}
-				}
-				else if(prop_key == "labelrelation") {
-					uint   label_relation = SOW_UNKN; 
-					THROW(label_relation == 0); // @err dup feature
-					if(p_prop->Value.IsIdent() || p_prop->Value.IsString()) {
-						prop_val = p_prop->Value.U.S;
-						if(prop_val.IsEqiAscii("left"))
-							label_relation = SIDE_LEFT;
-						else if(prop_val.IsEqiAscii("top"))
-							label_relation = SIDE_TOP;
-						else if(prop_val.IsEqiAscii("right"))
-							label_relation = SIDE_RIGHT;
-						else if(prop_val.IsEqiAscii("bottom"))
-							label_relation = SIDE_BOTTOM;
+					if(data_ident.IsEmpty()) {
+						if(p_prop->Value.IsIdent() || p_prop->Value.IsString()) {
+							prop_val = p_prop->Value.U.S;
+							(data_ident = prop_val).Strip();
+						}
 						else {
-							// @err invalid labelrelation value
+							// @err invalid variable value
 						}
 					}
 					else {
-						// @err invalid labelrelation value
+						unterm_errcode = PPERR_DL6_PROP_REDEF;
+						unterm_error_addedmsg = prop_key;
 					}
-					alb_label.LinkRelation = label_relation; // @v12.3.2
+				}
+				else if(prop_key == "design") { // @v12.3.9
+					if(design.IsEmpty()) {
+						if(p_prop->Value.IsIdent() || p_prop->Value.IsString()) {
+							prop_val = p_prop->Value.U.S;
+							(design = prop_val).Strip();
+						}
+						else {
+							// @err invalid variable value
+						}
+					}
+					else {
+						unterm_errcode = PPERR_DL6_PROP_REDEF;
+						unterm_error_addedmsg = prop_key;
+					}
+				}
+				else if(prop_key == "labelrelation" || prop_key == "labelplace") {
+					uint   label_relation = SOW_UNKN; 
+					if(alb_label.LinkRelation == 0) {
+						if(p_prop->Value.IsIdent() || p_prop->Value.IsString()) {
+							prop_val = p_prop->Value.U.S;
+							if(prop_val.IsEqiAscii("left"))
+								label_relation = SIDE_LEFT;
+							else if(prop_val.IsEqiAscii("top"))
+								label_relation = SIDE_TOP;
+							else if(prop_val.IsEqiAscii("right"))
+								label_relation = SIDE_RIGHT;
+							else if(prop_val.IsEqiAscii("bottom"))
+								label_relation = SIDE_BOTTOM;
+							else {
+								// @err invalid labelrelation value
+							}
+							alb_label.LinkRelation = label_relation; // @v12.3.2
+						}
+						else {
+							; // @err invalid labelrelation value
+						}
+					}
+					else {
+						unterm_errcode = PPERR_DL6_PROP_REDEF;
+						unterm_error_addedmsg = prop_key;
+					}
 				}
 				else if(prop_key == "labelbbox") {
 					THROW(p_prop->Value.Code == CtmToken::acBoundingBox); // @err invalid labelbbox value
-					if(!(occurence_flags & occfLabelBBox)) { // @err dup feature
+					if(!(occurence_flags & occfLabelBBox)) {
 						label_bbox.a.Set(p_prop->Value.U.Rect.L.X.Val, p_prop->Value.U.Rect.L.Y.Val);
 						label_bbox.b.Set(p_prop->Value.U.Rect.R.X.Val, p_prop->Value.U.Rect.R.Y.Val);
 						// @v12.3.2 {
@@ -1347,10 +1409,14 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 						// } @v12.3.2 
 						occurence_flags |= occfLabelBBox;
 					}
+					else {
+						unterm_errcode = PPERR_DL6_PROP_REDEF;
+						unterm_error_addedmsg = prop_key;
+					}
 				}
 				else if(prop_key == "labelorigin") { // @v12.3.2
 					THROW(p_prop->Value.Code == CtmToken::acBoundingBoxPair); // @err invalid labelorigin value
-					if(!(occurence_flags & (occfLabelBBox|occfLabelBBoxOrigin))) { // @err dup feature
+					if(!(occurence_flags & (occfLabelBBox|occfLabelBBoxOrigin))) {
 						const float local_x = p_prop->Value.U.Rect.L.X.Val;
 						const float local_y = p_prop->Value.U.Rect.L.Y.Val;
 						if(alb_label.Nominal.IsEmpty()) {
@@ -1367,10 +1433,14 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 						alb_label.Flags |= (SUiLayoutParam::fNominalDefL|SUiLayoutParam::fNominalDefT);
 						occurence_flags |= occfLabelBBoxOrigin;
 					}
+					else {
+						unterm_errcode = PPERR_DL6_PROP_REDEF;
+						unterm_error_addedmsg = prop_key;
+					}
 				}
 				else if(prop_key == "labelsize") { // @v12.3.2
 					THROW(p_prop->Value.Code == CtmToken::acBoundingBoxPair); // @err invalid labelsize value
-					if(!(occurence_flags & (occfLabelBBox|occfLabelBBoxSize))) { // @err dup feature
+					if(!(occurence_flags & (occfLabelBBox|occfLabelBBoxSize))) {
 						const float local_x = p_prop->Value.U.Rect.L.X.Val;
 						const float local_y = p_prop->Value.U.Rect.L.Y.Val;
 						alb_label.Nominal.b.x = alb_label.Nominal.a.x + local_x;
@@ -1381,9 +1451,57 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 						alb_label.SetFixedSizeY(local_y);
 						occurence_flags |= occfLabelBBoxSize;
 					}
+					else {
+						unterm_errcode = PPERR_DL6_PROP_REDEF;
+						unterm_error_addedmsg = prop_key;
+					}
+				}
+				else if(prop_key == "labelwidth") { // @v12.3.9
+					THROW(p_prop->Value.Code == CtmToken::acLayoutItemSizeEntry); // @err invalid width value
+					if(alb_label.GetSizeX(0) == SUiLayoutParam::szUndef) {
+						const float fv = p_prop->Value.U.UIC.Val;
+						if(p_prop->Value.U.UIC.Flags & UiCoord::dfRel) {
+							THROW(fv > 0.0f && fv <= 100.0f); // @err invalid width value
+							alb_label.SetVariableSizeX(SUiLayoutParam::szByContainer, fv / 100.0f);
+						}
+						else if(p_prop->Value.U.UIC.Flags & UiCoord::dfContent) {
+							alb_label.SetVariableSizeX(SUiLayoutParam::szByContent, 0.0f);
+						}
+						else {
+							THROW(fv > 0.0f && fv <= 32000.0f); // @err invalid width value
+							alb_label.SetFixedSizeX(p_prop->Value.U.UIC.Val);
+						}
+						occurence_flags |= occfLabelWidth;
+					}
+					else {
+						unterm_errcode = PPERR_DL6_PROP_REDEF;
+						unterm_error_addedmsg = prop_key;
+					}
+				}
+				else if(prop_key == "labelheight") { // @v12.3.9
+					THROW(p_prop->Value.Code == CtmToken::acLayoutItemSizeEntry); // @err invalid width value
+					if(alb_label.GetSizeY(0) == SUiLayoutParam::szUndef) {
+						const float fv = p_prop->Value.U.UIC.Val;
+						if(p_prop->Value.U.UIC.Flags & UiCoord::dfRel) {
+							THROW(fv > 0.0f && fv <= 100.0f); // @err invalid height value
+							alb_label.SetVariableSizeY(SUiLayoutParam::szByContainer, fv / 100.0f);
+						}
+						else if(p_prop->Value.U.UIC.Flags & UiCoord::dfContent) {
+							alb_label.SetVariableSizeY(SUiLayoutParam::szByContent, 0.0f);
+						}
+						else {
+							THROW(fv > 0.0f && fv <= 32000.0f); // @err invalid height value
+							alb_label.SetFixedSizeY(p_prop->Value.U.UIC.Val);
+						}
+					}
+					else {
+						unterm_errcode = PPERR_DL6_PROP_REDEF;
+						unterm_error_addedmsg = prop_key;
+					}
+					occurence_flags |= occfLabelHeight;
 				}
 				else if(prop_key == "cblinesymb") { // @v12.3.3 Идентификационный символ строки при комбо-боксе
-					if(!(occurence_flags & occfCbLineSymb)) { // @err dup feature
+					if(!(occurence_flags & occfCbLineSymb)) {
 						if(p_prop->Value.IsIdent() || p_prop->Value.IsString()) {
 							prop_val = p_prop->Value.U.S;
 							(cb_line_symb = prop_val).Strip();
@@ -1393,9 +1511,13 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 						}
 						occurence_flags |= occfCbLineSymb;
 					}
+					else {
+						unterm_errcode = PPERR_DL6_PROP_REDEF;
+						unterm_error_addedmsg = prop_key;
+					}
 				}
 				else if(prop_key == "imagesymb") { // @v12.3.3
-					if(!(occurence_flags & occfImageSymb)) { // @err dup feature
+					if(!(occurence_flags & occfImageSymb)) {
 						if(p_prop->Value.IsIdent() || p_prop->Value.IsString()) {
 							prop_val = p_prop->Value.U.S;
 							(image_symb = prop_val).Strip();
@@ -1405,9 +1527,13 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 						}
 						occurence_flags |= occfImageSymb;
 					}
+					else {
+						unterm_errcode = PPERR_DL6_PROP_REDEF;
+						unterm_error_addedmsg = prop_key;
+					}
 				}
 				else if(prop_key == "columns") { // @v12.3.3
-					if(!(occurence_flags & occfColumns)) { // @err dup feature
+					if(!(occurence_flags & occfColumns)) {
 						if(p_prop->Value.IsString()) {
 							prop_val = p_prop->Value.U.S;
 							(list_box_columns = prop_val).Strip();
@@ -1417,9 +1543,13 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 						}
 						occurence_flags |= occfColumns;
 					}
+					else {
+						unterm_errcode = PPERR_DL6_PROP_REDEF;
+						unterm_error_addedmsg = prop_key;
+					}
 				}
 				else if(prop_key == "command") {
-					if(command_ident.IsEmpty()) { // @err dup feature
+					if(command_ident.IsEmpty()) {
 						if(p_prop->Value.IsIdent() || p_prop->Value.IsString()) {
 							prop_val = p_prop->Value.U.S;
 							(command_ident = prop_val).Strip();
@@ -1428,9 +1558,13 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 							// @err invalid variable value
 						}
 					}
+					else {
+						unterm_errcode = PPERR_DL6_PROP_REDEF;
+						unterm_error_addedmsg = prop_key;
+					}
 				}
 				else if(prop_key == "gravity") {
-					if(!alb.GravityX && !alb.GravityY) { // @err dup feature
+					if(!alb.GravityX && !alb.GravityY) {
 						if(p_prop->Value.IsIdent() || p_prop->Value.IsString()) {
 							prop_val = p_prop->Value.U.S;
 							if(prop_val.IsEqiAscii("left")) {
@@ -1474,23 +1608,36 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 							}
 						}
 					}
+					else {
+						unterm_errcode = PPERR_DL6_PROP_REDEF;
+						unterm_error_addedmsg = prop_key;
+					}
 				}
 				else if(prop_key == "growfactor") {
 					const float fv = p_prop->Value.GetFloat(0);
 					THROW(fv >= 0.0f && fv <= 32000.0f); // @err invalid growfactor value
-					THROW(!(occurence_flags & occfGrowFactor)); // @err dup feature
-					alb.GrowFactor = fv;
-					occurence_flags |= occfGrowFactor;
+					if(!(occurence_flags & occfGrowFactor)) {
+						alb.GrowFactor = fv;
+						occurence_flags |= occfGrowFactor;
+					}
+					else {
+						unterm_errcode = PPERR_DL6_PROP_REDEF;
+						unterm_error_addedmsg = prop_key;
+					}
 				}
 				else if(prop_key == "shrinkfactor") {
 					const float fv = p_prop->Value.GetFloat(0);
 					THROW(fv >= 0.0f && fv <= 32000.0f); // @err invalid shrinkfactor value
-					THROW(!(occurence_flags & occfShrinkFactor)); // @err dup feature
-					alb.ShrinkFactor = fv;
-					occurence_flags |= occfShrinkFactor;
+					if(!(occurence_flags & occfShrinkFactor)) {
+						alb.ShrinkFactor = fv;
+						occurence_flags |= occfShrinkFactor;
+					}
+					else {
+						unterm_errcode = PPERR_DL6_PROP_REDEF;
+						unterm_error_addedmsg = prop_key;
+					}
 				}
 				else {
-					// @todo @err invalid property
 					unterm_errcode = PPERR_DL6_PROP_INVALIDSYMB; // "DL600 неизвестный символ свойства '%s'"
 					unterm_error_addedmsg = prop_key;
 				}
@@ -1649,6 +1796,11 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 		CtmExprConst c;
 		AddConst(list_box_columns, &c);
 		p_scope->AddConst(DlScope::cuifListBoxColumns, c, 1);
+	}
+	if(design.NotEmpty()) { // @v12.3.9
+		CtmExprConst c;
+		AddConst(design, &c);
+		p_scope->AddConst(DlScope::cuifDesign, c, 1);		
 	}
 	/* @v12.3.3 (элиминируем в пользу DlScope::cuifLblLayoutBlock)
 	if(label_relation) {

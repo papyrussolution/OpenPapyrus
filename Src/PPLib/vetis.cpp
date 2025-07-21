@@ -11776,8 +11776,7 @@ public:
 int PPViewVetisDocument::ProcessOutcoming(PPID entityID__)
 {
 	int    ok = -1;
-	// @v10.5.9 { Если !0 то использовать новый алгоритм отправки запросов
-	int    use_alg2 = 0;
+	int    use_alg2 = 0; // Если !0 то использовать новый алгоритм отправки запросов
 	{
 		PPIniFile ini_file;
 		int    cfg_val = 0;
@@ -11788,7 +11787,6 @@ int PPViewVetisDocument::ProcessOutcoming(PPID entityID__)
 				use_alg2 = 100;
 		}
 	}
-	// } @v10.5.9
 	Reference * p_ref = PPRef;
 	PPObjBill * p_bobj = BillObj;
 	VetisDocumentViewItem vi;
@@ -11804,7 +11802,7 @@ int PPViewVetisDocument::ProcessOutcoming(PPID entityID__)
 	_VetisRegionRoutArray regroute_list; // Список уникальных ассоциация откуда->куда. Откуда - предприятие-отправитель (чаще всего, главная организация).
 	PPVetisInterface ifc(&logger);
 	PPVetisInterface::Param param(0, Filt.LocID__, 0);
-	PPVetisInterface::OutcomingList work_list; // @v10.5.9
+	PPVetisInterface::OutcomingList work_list;
 	VetisApplicationBlock pi_reply;
 	BillTbl::Rec link_bill_rec;
 	bool is_locked = false;

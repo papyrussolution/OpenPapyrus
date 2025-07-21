@@ -1,5 +1,5 @@
 // PPSOAPCLIENT.H
-// Copyright (c) A.Sobolev 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2025
 // @codepage UTF-8
 //
 #include <slib.h>
@@ -299,8 +299,8 @@ public:
 	int    OwnerID;
 	SString Code;
 	SString Hash;
-	SString Phone; // @v10.1.3
-	SString Memo;  // @v10.1.4
+	SString Phone;
+	SString Memo;
 	UhttDateTime IssueDate;
 	UhttDateTime Expiry;
 	double PDis;
@@ -897,7 +897,7 @@ struct iSalesTransferStatus {
 		ifcOrder,      // ORDS
 		ifcInvoice,    // DOCL
 		ifcReceipt,    // DOCS
-		ifcReturnReq   // @v10.8.12 VDOC 
+		ifcReturnReq   // VDOC 
 	};
 	int    Ifc;
 	SString Ident; // Идентификатор созданного на принимающей стороне объекта (принимающая стороная отправляет iSalesTransferStatus)
@@ -907,7 +907,7 @@ typedef TSCollection <iSalesGoodsPacket> * (*ISALESGETGOODSLIST_PROC)(PPSoapClie
 typedef TSCollection <iSalesRoutePacket> * (*ISALESGETROUTELIST_PROC)(PPSoapClientSession & rSess, const char * pUser, const char * pPassw, const DateRange * pPeriod);
 typedef TSCollection <iSalesBillPacket>  * (*ISALESGETORDERLIST_PROC)(PPSoapClientSession & rSess, const char * pUser, const char * pPassw, const DateRange * pPeriod, int inclProcessedItems);
 typedef TSCollection <iSalesBillPacket>  * (*ISALESGETRECEIPTLIST_PROC)(PPSoapClientSession & rSess, const char * pUser, const char * pPassw, const DateRange * pPeriod, int inclProcessedItems);
-typedef TSCollection <iSalesBillPacket>  * (*ISALESGETVDOCLIST_PROC)(PPSoapClientSession & rSess, const char * pUser, const char * pPassw, const DateRange * pPeriod, int inclProcessedItems); // @v10.8.12
+typedef TSCollection <iSalesBillPacket>  * (*ISALESGETVDOCLIST_PROC)(PPSoapClientSession & rSess, const char * pUser, const char * pPassw, const DateRange * pPeriod, int inclProcessedItems);
 typedef TSCollection <iSalesBillDebt>    * (*ISALESGETUNCLOSEDBILLLIST_PROC)(PPSoapClientSession & rSess, const char * pUser, const char * pPassw, const DateRange * pPeriod);
 typedef SString * (*ISALESPUTSTOCKCOUNTING_PROC)(PPSoapClientSession & rSess, const char * pUser, const char * pPassw, const TSCollection <iSalesStockCountingWhPacket> * pItems);
 typedef SString * (*ISALESPUTPRICES_PROC)(PPSoapClientSession & rSess, const char * pUser, const char * pPassw, const TSCollection <iSalesPriceListPacket> * pItems);
@@ -1104,9 +1104,9 @@ struct SfaHeinekenDistributorDelivery {
 
 struct SfaHeinekenSalePointDelivery {
 	SString InnerOrderCode;
-	SString DistributorOrderID; // @v10.4.4 Для отправки приходных документов
+	SString DistributorOrderID; // Для отправки приходных документов
 	int    InnerDlvrLocID;
-	int    ForeignLocID; // Склад @v10.0.08
+	int    ForeignLocID; // Склад
 	SString DlvrLocName;
 	SString DlvrLocAddr;
 	TSCollection <SfaHeinekenDeliveryPosition> DeliveryList;
@@ -1131,9 +1131,9 @@ struct SfaHeinekenInvoice {
 	};
 	struct SalePointDelivery {
 		SString InnerOrderCode;
-		SString DistributorOrderID; // @v10.4.4 Для отправки приходных документов
+		SString DistributorOrderID; // Для отправки приходных документов
 		int    InnerDlvrLocID;
-		int    ForeignLocID; // Склад @v10.0.08
+		int    ForeignLocID; // Склад
 		SString DlvrLocName;
 		SString DlvrLocAddr;
 		TSCollection <DeliveryPosition> DeliveryList;

@@ -628,7 +628,7 @@ int __ListArchiveContent(const char * pFileName)
 				uint64 id;
 				HRESULT res = codecs->GetCodec_Id(j, id);
 				if(res != S_OK)
-					id = static_cast<uint64>(-1LL);
+					id = _FFFF64;
 				PrintHexId(so, id);
 				so << ' ' << codecs->GetCodec_Name(j) << endl;
 			}

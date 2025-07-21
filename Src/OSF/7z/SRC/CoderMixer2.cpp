@@ -97,7 +97,7 @@ namespace NCoderMixer2 {
 			if(getInStreamProcessedSize) {
 				uint64 processed;
 				RINOK(getInStreamProcessedSize->GetInStreamProcessedSize(&processed));
-				if(processed != static_cast<uint64>(-1LL)) {
+				if(processed != _FFFF64) {
 					const uint64 size = PackSizes[0];
 					if(processed < size && Finish)
 						dataAfterEnd_Error = true;
@@ -115,7 +115,7 @@ namespace NCoderMixer2 {
 				if(PackSizePointers[i]) {
 					uint64 processed;
 					RINOK(getInStreamProcessedSize2->GetInStreamProcessedSize2(i, &processed));
-					if(processed != static_cast<uint64>(-1LL)) {
+					if(processed != _FFFF64) {
 						const uint64 size = PackSizes[i];
 						if(processed < size && Finish)
 							dataAfterEnd_Error = true;

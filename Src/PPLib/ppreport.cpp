@@ -291,7 +291,7 @@ int SReport::createDataFiles(const char * pDataName, const char * pRptPath)
 		ep.Flags |= DlRtm::ExportParam::fForceDDF;
 		THROW(p_rtm->Export(ep));
 	}
-	else if(getDataName()[0]) {
+	else if(getDataName().NotEmpty()) {
 		DlContext ctx;
 		DlRtm::ExportParam ep;
 		THROW(ctx.InitSpecial(DlContext::ispcExpData));
@@ -299,12 +299,12 @@ int SReport::createDataFiles(const char * pDataName, const char * pRptPath)
 		ep.Flags |= DlRtm::ExportParam::fForceDDF;
 		THROW(p_rtm->Export(ep));
 	}
-	else {
+	/* @v12.3.9 @obsolete else {
 		SString fname;
-		SCollection fld_ids(/*DEFCOLLECTDELTA,*/aryPtrContainer);
+		SCollection fld_ids(aryPtrContainer);
 		createBodyDataFile(fname, &fld_ids);
 		createVarDataFile(fname, &fld_ids);
-	}
+	}*/
 	ok = 1;
 	CATCHZOK
 	delete p_rtm;
@@ -734,6 +734,41 @@ int LoadExportOptions(const char * pReportName, PEExportOptions * pOptions, bool
 	return ok;
 }
 
+CrystalReportExportParam::CrystalReportExportParam() : Flags(0), Format(0), Destination(0), XlsConstColumnWidth(0), XlsBaseAreaType(0), 
+	XlsBaseAreaGroupNum(0), CsvFieldSeparator(0)
+{
+}
+	
+CrystalReportExportParam & FASTCALL CrystalReportExportParam::Z()
+{
+	Flags = 0;
+	Format = 0;
+	Destination = 0;
+	XlsConstColumnWidth = 0;
+	XlsBaseAreaType = 0;
+	XlsBaseAreaGroupNum = 0;
+	CsvFieldSeparator = 0;
+	PageRange.Z();
+	DestFileName.Z();
+	return *this;
+}
+	
+bool FASTCALL CrystalReportExportParam::Copy(const CrystalReportExportParam & rS)
+{
+	#define I(f) f = rS.f
+	I(Flags);
+	I(Format);
+	I(Destination);
+	I(XlsConstColumnWidth);
+	I(XlsBaseAreaType);
+	I(XlsBaseAreaGroupNum);
+	I(CsvFieldSeparator);
+	I(PageRange);
+	I(DestFileName);
+	#undef I
+	return true;
+}
+
 ReportDescrEntry::ReportDescrEntry() : Flags(0)
 {
 }
@@ -1028,6 +1063,26 @@ public:
 			LoadExportOptions(Data.ReportName, 0, &silent, temp_buf.Z());
 			EnableEMail = 1;
 		}
+		{
+			const SrUedContainer_Rt * p_uedc = DS.GetUedContainer();
+			if(p_uedc) {
+				StrAssocArray expfmt_list;
+				const long fmt_id_list[] = {
+					CrystalReportExportParam::crexpfmtPdf, CrystalReportExportParam::crexpfmtRtf, CrystalReportExportParam::crexpfmtHtml,
+					CrystalReportExportParam::crexpfmtExcel, CrystalReportExportParam::crexpfmtWinWord, CrystalReportExportParam::crexpfmtCsv 
+				};
+				for(uint i = 0; i < SIZEOFARRAY(fmt_id_list); i++) {
+					const long fmt_id = fmt_id_list[i];
+					const uint64 ued = UED::ApplyMetaToRawValue32(UED_META_DATAFORMAT, fmt_id);
+					if(ued && p_uedc->GetText(ued, UED_LINGUALOCUS_EN, temp_buf)) {
+						expfmt_list.AddFast(fmt_id, temp_buf);
+					}
+				}
+				if(expfmt_list.getCount()) {
+					SetupStrAssocCombo(this, CTLSEL_PRINT2_EXPFMT, expfmt_list, Data.ExpParam.Format, 0);
+				}
+			}
+		}
 		AddClusterAssoc(CTL_PRINT2_ACTION, 0, PrnDlgAns::aPrint);
 		AddClusterAssoc(CTL_PRINT2_ACTION, 1, PrnDlgAns::aExport);
 		AddClusterAssoc(CTL_PRINT2_ACTION, 2, PrnDlgAns::aPreview);
@@ -1169,8 +1224,9 @@ private:
 	void   SetupReportEntry()
 	{
 		uint   id = static_cast<uint>(getCtrlLong(CTLSEL_PRINT2_REPORT));
-		int    enable_email = 0;
-		SString data_name, path;
+		bool   enable_email = false;
+		SString data_name;
+		SString path;
 		GetClusterData(CTL_PRINT2_ACTION, &Data.Dest);
 		if(id <= Data.Entries.getCount()) {
 			SString stat_buf;
@@ -1199,7 +1255,7 @@ private:
 		}
 		else if(oneof2(Data.Dest, PrnDlgAns::aExport, PrnDlgAns::aExportXML)) {
 			if(EnableEMail) {
-				enable_email = 1;
+				enable_email = true;
 				disableCtrl(CTL_PRINT2_MAKEDATAPATH, false);
 				path = Data.EmailAddr;
 			}
@@ -1207,6 +1263,7 @@ private:
 		else {
 			disableCtrl(CTL_PRINT2_MAKEDATAPATH, true);
 		}
+		disableCtrl(CTLSEL_PRINT2_EXPFMT, Data.Dest != PrnDlgAns::aExport); // @v12.3.9
 		disableCtrl(CTL_PRINT2_DOMAIL, !enable_email);
 		SetupWordSelector(CTL_PRINT2_MAKEDATAPATH, (enable_email ? new TextHistorySelExtra("email-common") : 0), 0, 2, WordSel_ExtraBlock::fFreeText);
 		setCtrlString(CTL_PRINT2_MAKEDATAPATH, path);
@@ -1228,9 +1285,11 @@ static SString & GetTempFileName_(const char * pFileName, SString & rDest)
 	return rDest.SetLastSlash().Cat(pFileName);
 }
 
+#if 0 // @v12.3.9 @obsolete {
 int SReport::createBodyDataFile(SString & rFileName, SCollection * fldIDs)
 {
-	int    ok = 1, i;
+	int    ok = 1;
+	int    i;
 	Band * b;
 	page = line = 1;
 	Field * f = 0;
@@ -1501,6 +1560,7 @@ int SReport::prepareData()
 	delete dbf;
 	return ok;
 }
+#endif // } 0 @v12.3.9 @obsolete
 
 void ReportError(short printJob)
 {

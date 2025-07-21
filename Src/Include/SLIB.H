@@ -197,7 +197,6 @@
 	#include <unordered_set>
 	#include <tuple>
 	#include <array>
-	#include <deque>
 	#include <stack>
 	#include <cctype>
 	#include <cstdint>
@@ -1483,6 +1482,7 @@ typedef int (* CompFunc)(const void *, const void *, void * pExtraData);
 #define CMPFUNC(typ,p1,p2)       Cmp_##typ(p1,p2,0)
 #define CMPF_LONG                Cmp_long
 #define CMPF_INT64               Cmp_int64
+#define CMPF_UINT64              Cmp_uint64
 
 // @v11.4.1 #define CMPSIGN(p1, p2) ((p1)>(p2))?+1:(((p1)<(p2))?-1:0)
 template <class T> int CMPSIGN(T p1, T p2) { return ((p1)>(p2))?+1:(((p1)<(p2))?-1:0); } // @v11.4.1 (размер бинарного кода стал меньше; скорость, очевидно, будет выше)
@@ -8454,6 +8454,23 @@ public:
 	TSVector() : SVector(sizeof(T)) {}
 	TSVector(const TSVector & rS) : SVector(rS) {}
 	T &    FASTCALL at(uint pos) const { return *reinterpret_cast<T *>(SVector::at(pos)); }
+protected:
+	bool   FASTCALL Implement_Simple_IsEq(const TSVector <T> * pS) const
+	{
+		bool    result = false;
+		if(pS) {
+			const uint c = getCount();
+			if(pS->getCount() == c) {
+				result = true;
+				for(uint i = 0; result && i < c; i++) {
+					if(!(pS->at(i) == at(i))) {
+						result = false;
+					}
+				}
+			}
+		}
+		return result;
+	}
 };
 //
 // SArray
@@ -8871,6 +8888,7 @@ DECL_CMPFUNC(int);
 DECL_CMPFUNC(int16);
 DECL_CMPFUNC(long);
 DECL_CMPFUNC(int64);
+DECL_CMPFUNC(uint64); // @v12.3.9
 DECL_CMPFUNC(uint);
 DECL_CMPFUNC(double);
 DECL_CMPFUNC(_2long);
@@ -9040,10 +9058,30 @@ public:
 	void   sortAndUndup();
 	void   intersect(const Int64Array * pList, int binary = 0);
 };
+
+class Uint64Array : public TSVector <uint64> {
+public:
+	Uint64Array();
+	Uint64Array(const Uint64Array & s);
+	Uint64Array & FASTCALL operator = (const Uint64Array & s);
+	bool   FASTCALL operator == (const Uint64Array & rS) const;
+	bool   FASTCALL operator != (const Uint64Array & rS) const;
+	bool   FASTCALL IsEq(const Uint64Array * pS) const;
+	uint64 FASTCALL get(uint pos) const;
+	bool   lsearch(uint64 key, uint * pPos) const;
+	bool   FASTCALL lsearch(uint64 key) const;
+	bool   FASTCALL bsearch(uint64 key) const;
+	int    FASTCALL add(uint64);
+	int    FASTCALL add(uint32);
+	int    FASTCALL addUnique(uint64);
+	int    FASTCALL add(const Uint64Array *);
+	void   sort();
+	void   sortAndUndup();
+	void   intersect(const Uint64Array * pList, int binary = 0);
+};
 //
 //
 //
-//typedef TSVector <S_GUID> UuidArray;
 class UuidArray : public TSVector <S_GUID> {
 public:
 	UuidArray();

@@ -506,35 +506,6 @@ int PPViewUnitEc::MakeList(PPViewBrowser * pBrw)
 	return ok;
 }
 
-void PPViewUnitEc::PreprocessBrowser(PPViewBrowser * pBrw)
-{
-	SString temp_buf;
-	if(pBrw) {
-		pBrw->SetDefUserProc([](SBrowserDataProcBlock * pBlk) -> int
-			{
-				return (pBlk && pBlk->ExtraPtr) ? static_cast<PPViewUnitEc *>(pBlk->ExtraPtr)->_GetDataForBrowser(pBlk) : 0;				
-			}, this);
-		//pBrw->SetCellStyleFunc(CellStyleFunc, pBrw);
-	}
-	LongArray cls_list;
-	GetCommonIndicatorClsList(cls_list);
-	bool is_any_bscls = false;
-	for(uint i = 0; i < cls_list.getCount(); i++) {
-		const int cls = cls_list.get(i);
-		const int column_id = (cls + 2000);
-		PPObjBizScore2::GetBscClsResultName(cls, temp_buf);
-		if(temp_buf.IsEmpty())
-			temp_buf.CatChar('#').Cat("bscls").CatChar('-').Cat(cls);
-		pBrw->InsColumn(-1, temp_buf, column_id, T_DOUBLE, MKSFMTD(0, 2, 0), BCO_USERPROC);
-		is_any_bscls = true;
-	}
-	if(is_any_bscls) {
-		const int column_id = 4000;
-		PPLoadString("profit", temp_buf);
-		pBrw->InsColumn(-1, temp_buf, column_id, T_DOUBLE, MKSFMTD(0, 2, 0), BCO_USERPROC);
-	}
-}
-
 int PPViewUnitEc::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
 	int    ok = 1;
@@ -588,6 +559,35 @@ int PPViewUnitEc::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 	return ok;
 }
 
+void PPViewUnitEc::PreprocessBrowser(PPViewBrowser * pBrw)
+{
+	SString temp_buf;
+	if(pBrw) {
+		pBrw->SetDefUserProc([](SBrowserDataProcBlock * pBlk) -> int
+			{
+				return (pBlk && pBlk->ExtraPtr) ? static_cast<PPViewUnitEc *>(pBlk->ExtraPtr)->_GetDataForBrowser(pBlk) : 0;				
+			}, this);
+		//pBrw->SetCellStyleFunc(CellStyleFunc, pBrw);
+	}
+	LongArray cls_list;
+	GetCommonIndicatorClsList(cls_list);
+	bool is_any_bscls = false;
+	for(uint i = 0; i < cls_list.getCount(); i++) {
+		const int cls = cls_list.get(i);
+		const int column_id = (cls + 2000);
+		PPObjBizScore2::GetBscClsResultName(cls, temp_buf);
+		if(temp_buf.IsEmpty())
+			temp_buf.CatChar('#').Cat("bscls").CatChar('-').Cat(cls);
+		pBrw->InsColumn(-1, temp_buf, column_id, T_DOUBLE, MKSFMTD(0, 2, 0), BCO_USERPROC);
+		is_any_bscls = true;
+	}
+	if(is_any_bscls) {
+		const int column_id = 4000;
+		PPLoadString("profit", temp_buf);
+		pBrw->InsColumn(-1, temp_buf, column_id, T_DOUBLE, MKSFMTD(0, 2, 0), BCO_USERPROC);
+	}
+}
+
 /*virtual*/SArray * PPViewUnitEc::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
 {
 	SArray * p_array = 0;
@@ -601,16 +601,7 @@ int PPViewUnitEc::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 	return p_array;
 }
 
-/*virtual*/int PPViewUnitEc::OnExecBrowser(PPViewBrowser *)
-{
-	return -1; // @stub
-}
-
-/*virtual*/int PPViewUnitEc::Detail(const void *, PPViewBrowser * pBrw)
-{
-	int    ok = -1;
-	return ok;
-}
+/*virtual*/int PPViewUnitEc::Detail(const void *, PPViewBrowser * pBrw) { return -1; } // @stub
 
 int PPViewUnitEc::EditInitialGoodsParam(const BrwItem * pItem)
 {
@@ -622,11 +613,11 @@ int PPViewUnitEc::EditInitialGoodsParam(const BrwItem * pItem)
 			dlg = new TDialog(DLG_UNITECIGP);
 			if(CheckDialogPtr(&dlg)) {
 				const InitialGoodsParam preserve_igp(p_vec->IgP);
-				dlg->setCtrlReal(DLG_UNITECIGP_RCPTQTY, p_vec->IgP.RcptQtty);
-				dlg->setCtrlReal(DLG_UNITECIGP_EWDEMAND, p_vec->IgP.ExpectedDemandPerWeek);
+				dlg->setCtrlReal(CTL_UNITECIGP_RCPTQTY, p_vec->IgP.RcptQtty);
+				dlg->setCtrlReal(CTL_UNITECIGP_EWDEMAND, p_vec->IgP.ExpectedDemandPerWeek);
 				while(ok < 0 && ExecView(dlg) == cmOK) {
-					p_vec->IgP.RcptQtty = dlg->getCtrlReal(DLG_UNITECIGP_RCPTQTY);
-					p_vec->IgP.ExpectedDemandPerWeek = dlg->getCtrlReal(DLG_UNITECIGP_EWDEMAND);
+					p_vec->IgP.RcptQtty = dlg->getCtrlReal(CTL_UNITECIGP_RCPTQTY);
+					p_vec->IgP.ExpectedDemandPerWeek = dlg->getCtrlReal(CTL_UNITECIGP_EWDEMAND);
 					ok = 1;
 				}
 				if(p_vec->IgP == preserve_igp)

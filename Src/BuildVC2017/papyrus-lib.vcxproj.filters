@@ -219,9 +219,7 @@
     <ClCompile Include="..\PPLib\dlscope.cpp" />
     <ClCompile Include="..\PPLib\Draftwof.cpp" />
     <ClCompile Include="..\PPEquip\DreamKas.cpp" />
-    <ClCompile Include="..\PPEquip\Ecr930.cpp" />
     <ClCompile Include="..\PPLib\egais.cpp" />
-    <ClCompile Include="..\PPEquip\El92aq.cpp" />
     <ClCompile Include="..\PPLib\Elinkdlg.cpp" />
     <ClCompile Include="..\PPEquip\emu_scs.cpp" />
     <ClCompile Include="..\PPLib\Extgsel.cpp" />

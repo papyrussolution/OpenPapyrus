@@ -11,6 +11,7 @@ IMPLEMENT_PPFILT_FACTORY(MarketplaceGoodsSelection); MarketplaceGoodsSelectionFi
 {
 	SetFlatChunk(offsetof(MarketplaceGoodsSelectionFilt, ReserveStart),
 		offsetof(MarketplaceGoodsSelectionFilt, Reserve) + sizeof(Reserve) - offsetof(MarketplaceGoodsSelectionFilt, ReserveStart));
+	SetBranchSString(offsetof(MarketplaceGoodsSelectionFilt, SearchPatternUtf8));
 	Init(1, 0);
 }
 
@@ -572,6 +573,85 @@ bool PPMarketplaceInterface_Wildberries::CategoryPool::FromJson(const SJson * pJ
 //
 //
 //
+PPMarketplaceInterface_Wildberries::PublicWarePool::Size::Size() :
+	Wh(0), NameP(0), OrigNameP(0), Rank(0.0f), OptionId(0), Price100_Basic(0), Price100_Product(0), Price100_Logistics(0), Price100_Return(0), SaleConditions(0)
+{
+}
+
+PPMarketplaceInterface_Wildberries::PublicWarePool::Size & PPMarketplaceInterface_Wildberries::PublicWarePool::Size::Z()
+{
+	Wh = 0;
+	NameP = 0;
+	OrigNameP = 0;
+	Rank = 0.0f;
+	OptionId = 0;
+	Price100_Basic = 0;
+	Price100_Product = 0;
+	Price100_Logistics = 0;
+	Price100_Return = 0;
+	SaleConditions = 0;
+	return *this;
+}
+
+bool PPMarketplaceInterface_Wildberries::PublicWarePool::Size::FromJsonObj(PublicWarePool & rPool, const SJson * pJs)
+{
+	bool   ok = true;
+	if(SJson::IsObject(pJs)) {
+		SString temp_buf;
+		for(const SJson * p_f = pJs->P_Child; p_f; p_f = p_f->P_Next) {
+			if(p_f->Text.IsEqiAscii("name")) {
+				(temp_buf = p_f->P_Child->Text).Unescape();
+				rPool.AddS(temp_buf, &NameP);
+			}
+			else if(p_f->Text.IsEqiAscii("origName")) {
+				(temp_buf = p_f->P_Child->Text).Unescape();
+				rPool.AddS(temp_buf, &OrigNameP);
+			}
+			else if(p_f->Text.IsEqiAscii("rank")) {
+				Rank = p_f->P_Child->Text.ToFloat();
+			}
+			else if(p_f->Text.IsEqiAscii("optionId")) {
+				OptionId = p_f->P_Child->Text.ToInt64();
+			}
+			else if(p_f->Text.IsEqiAscii("wh")) {
+				Wh = p_f->P_Child->Text.ToLong();
+			}
+			else if(p_f->Text.IsEqiAscii("time1")) {
+			}
+			else if(p_f->Text.IsEqiAscii("time2")) {
+			}
+			else if(p_f->Text.IsEqiAscii("dtype")) {
+			}
+			else if(p_f->Text.IsEqiAscii("price")) {
+				if(SJson::IsObject(p_f->P_Child)) {
+					for(const SJson * p_jsn = p_f->P_Child->P_Child; p_jsn; p_jsn = p_jsn->P_Next) {
+						if(p_jsn->Text.IsEqiAscii("basic")) {
+							Price100_Basic = p_jsn->P_Child->Text.ToULong();
+						}
+						else if(p_jsn->Text.IsEqiAscii("product")) {
+							Price100_Product = p_jsn->P_Child->Text.ToULong();
+						}
+						else if(p_jsn->Text.IsEqiAscii("logistics")) {
+							Price100_Logistics = p_jsn->P_Child->Text.ToULong();
+						}
+						else if(p_jsn->Text.IsEqiAscii("return")) {
+							Price100_Return = p_jsn->P_Child->Text.ToULong();
+						}
+					}
+				}
+			}
+			else if(p_f->Text.IsEqiAscii("saleConditions")) {
+				SaleConditions = p_f->P_Child->Text.ToUInt64();
+			}
+			else if(p_f->Text.IsEqiAscii("payload")) {
+			}
+		}
+	}
+	else
+		ok = false;
+	return ok;
+}
+
 PPMarketplaceInterface_Wildberries::PublicWarePool::Entry::Entry()
 {
 	Z();
@@ -655,6 +735,8 @@ bool PPMarketplaceInterface_Wildberries::PublicWarePool::Entry::FromJsonObj(Publ
 				rPool.AddS(temp_buf, &NameP);
 			}
 			else if(p_f->Text.IsEqiAscii("entity")) {
+				(temp_buf = p_f->P_Child->Text).Unescape();
+				rPool.AddS(temp_buf, &EntityP);
 			}
 			else if(p_f->Text.IsEqiAscii("matchId")) {
 			}
@@ -696,9 +778,16 @@ bool PPMarketplaceInterface_Wildberries::PublicWarePool::Entry::FromJsonObj(Publ
 			}
 			else if(p_f->Text.IsEqiAscii("sizes")) {
 				if(SJson::IsArray(p_f->P_Child)) {
+					for(const SJson * p_js_item = p_f->P_Child->P_Child; p_js_item; p_js_item = p_js_item->P_Next) {
+						Size new_size;
+						if(new_size.FromJsonObj(rPool, p_js_item)) {
+							SizeL.insert(&new_size);
+						}
+					}
 				}
 			}
 			else if(p_f->Text.IsEqiAscii("totalQuantity")) {
+				TotalStock = p_f->P_Child->Text.ToReal_Plain();
 			}
 			else if(p_f->Text.IsEqiAscii("logs")) {
 			}
@@ -714,7 +803,7 @@ bool PPMarketplaceInterface_Wildberries::PublicWarePool::Entry::FromJsonObj(Publ
 	return ok;
 }
 
-PPMarketplaceInterface_Wildberries::PublicWarePool::PublicWarePool()
+PPMarketplaceInterface_Wildberries::PublicWarePool::PublicWarePool() : TotalCountOnServer(0)
 {
 }
 
@@ -722,7 +811,18 @@ PPMarketplaceInterface_Wildberries::PublicWarePool & PPMarketplaceInterface_Wild
 {
 	SStrGroup::ClearS();
 	L.freeAll();
+	TotalCountOnServer = 0;
 	return *this;
+}
+
+PPMarketplaceInterface_Wildberries::PublicWarePool::Entry * PPMarketplaceInterface_Wildberries::PublicWarePool::GetEntry(uint i)
+{
+	return (i < L.getCount()) ? L.at(i) : 0;
+}
+
+const PPMarketplaceInterface_Wildberries::PublicWarePool::Entry * PPMarketplaceInterface_Wildberries::PublicWarePool::GetEntryC(uint i) const
+{
+	return (i < L.getCount()) ? L.at(i) : 0;
 }
 
 bool PPMarketplaceInterface_Wildberries::PublicWarePool::FromJson(const SJson * pJs, bool concatenate, uint * pReadCount, uint * pTotalCount)
@@ -730,6 +830,8 @@ bool PPMarketplaceInterface_Wildberries::PublicWarePool::FromJson(const SJson * 
 	bool   ok = true;
 	uint   read_count = 0;
 	uint   total_count = 0;
+	if(!concatenate)
+		TotalCountOnServer = 0;
 	THROW(SJson::IsObject(pJs));
 	{
 		for(const SJson * p_jsn = pJs->P_Child; p_jsn; p_jsn = p_jsn->P_Next) {
@@ -753,6 +855,7 @@ bool PPMarketplaceInterface_Wildberries::PublicWarePool::FromJson(const SJson * 
 			}
 		}		
 	}
+	TotalCountOnServer = total_count;
 	CATCHZOK
 	ASSIGN_PTR(pReadCount, read_count);
 	ASSIGN_PTR(pTotalCount, total_count);
@@ -1902,8 +2005,10 @@ bool PPMarketplaceInterface_Wildberries::SalesRepDbpEntry::FromJsonObj(const SJs
 	return rBuf.Z().Cat(incomeId).CatChar('-').Cat(rWare.ID);
 }
 
-/*static*/int PPMarketplaceInterface_Wildberries::LoadPublicGoodsCategoryList(CategoryPool & rResult) // @v12.3.8
+/*static*/int PPMarketplaceInterface_Wildberries::LoadPublicGoodsCategoryList(CategoryPool & rResult, bool useCache) // @v12.3.8
 {
+	constexpr long cache_expiration_time_sec = (3 * 24 * 3600);
+	const  LDATETIME now_dtm = getcurdatetime_();
 	rResult.Z();
 	//
 	// url = 'https://static-basket-01.wbbasket.ru/vol0/data/main-menu-ru-ru-v3.json'
@@ -1911,16 +2016,42 @@ bool PPMarketplaceInterface_Wildberries::SalesRepDbpEntry::FromJsonObj(const SJs
 	//
 	int    ok = -1;
 	SJson * p_js_cat = 0;
-	{
+	SString temp_buf;
+	SString cache_file_name;
+	if(GetLocalCachePath(cache_file_name)) {
+		assert(cache_file_name.NotEmpty());
+		cache_file_name.SetLastSlash().Cat("public-goods-category-list.json");
+	}
+	else {
+		cache_file_name.Z();
+	}
+	if(useCache && cache_file_name.NotEmpty()) {
+		SFile::Stat st;
+		if(SFile::GetStat(cache_file_name, 0, &st, 0)) {
+			LDATETIME file_dtm;
+			file_dtm.SetNs100(st.ModTm_);
+			long s = diffdatetimesec(now_dtm, file_dtm);
+			if(s <= cache_expiration_time_sec) {
+				p_js_cat = SJson::ParseFile(cache_file_name);
+				if(rResult.FromJson(p_js_cat))
+					ok = 2;
+			}
+		}
+	}
+	if(ok < 0) {
 		SUniformFileTransmParam param;
-		param.SrcPath = "https://static-basket-01.wbbasket.ru/vol0/data/main-menu-ru-ru-v3.json";
+		//param.SrcPath = "https://static-basket-01.wbbasket.ru/vol0/data/main-menu-ru-ru-v3.json";
+		param.SrcPath = InetUrl::MkHttps("static-basket-01.wbbasket.ru", "vol0/data/main-menu-ru-ru-v3.json");
 		PPGetFilePath(PPPATH_OUT, "wildberries-goodscategory-list.json", param.DestPath);
 		param.Flags = 0;
 		param.Format = SFileFormat::Unkn;
 		if(param.Run(0, 0)) {
 			p_js_cat = SJson::ParseFile(param.DestPath);
-			if(rResult.FromJson(p_js_cat))
+			if(rResult.FromJson(p_js_cat)) {
+				if(cache_file_name.NotEmpty())
+					SCopyFile(param.DestPath, cache_file_name, 0, FILE_SHARE_READ, 0);
 				ok = 1;
+			}
 		}
 	}
 	delete p_js_cat;
@@ -1930,13 +2061,27 @@ bool PPMarketplaceInterface_Wildberries::SalesRepDbpEntry::FromJsonObj(const SJs
 /*static*/int PPMarketplaceInterface_Wildberries::EditPublicGoodsSelectionFilt(const CategoryPool & rCatPool, MarketplaceGoodsSelectionFilt & rFilt)
 {
 	int    ok = -1;
+	SString temp_buf;
 	TDialog * dlg = new TDialog(DLG_WBGOODSLISTFILT);
 	if(CheckDialogPtr(&dlg)) {
+		const long cat_id = static_cast<long>(rFilt.CatID);
 		StrAssocArray category_list;
 		rCatPool.MakeShardList(category_list);
-		SetupStrAssocTreeCombo(dlg, CTLSEL_WBGOODSLISTFILT_CAT, category_list, static_cast<long>(rFilt.CatID), 0);
+		SetupStrAssocTreeCombo(dlg, CTLSEL_WBGOODSLISTFILT_CAT, category_list, cat_id, 0);
+		dlg->SetupWordSelector(CTLSEL_WBGOODSLISTFILT_CAT, 0, cat_id, 3, WordSel_ExtraBlock::fAlwaysSearchBySubStr);
+		dlg->setCtrlString(CTL_WBGOODSLISTFILT_SRCH, (temp_buf = rFilt.SearchPatternUtf8).Transf(CTRANSF_UTF8_TO_INNER));
+		dlg->AddClusterAssocDef(CTL_WBGOODSLISTFILT_ORD, 0, MarketplaceGoodsSelectionFilt::ordPopular);
+		dlg->AddClusterAssoc(CTL_WBGOODSLISTFILT_ORD, 1, MarketplaceGoodsSelectionFilt::ordPriceUp);
+		dlg->AddClusterAssoc(CTL_WBGOODSLISTFILT_ORD, 2, MarketplaceGoodsSelectionFilt::ordPriceDown);
+		dlg->AddClusterAssoc(CTL_WBGOODSLISTFILT_ORD, 3, MarketplaceGoodsSelectionFilt::ordRate);
+		dlg->AddClusterAssoc(CTL_WBGOODSLISTFILT_ORD, 4, MarketplaceGoodsSelectionFilt::ordNewly);
+		dlg->AddClusterAssoc(CTL_WBGOODSLISTFILT_ORD, 5, MarketplaceGoodsSelectionFilt::ordBenefit);
+		dlg->SetClusterData(CTL_WBGOODSLISTFILT_ORD, rFilt.Order);
 		if(ExecView(dlg) == cmOK) {
 			rFilt.CatID = dlg->getCtrlLong(CTLSEL_WBGOODSLISTFILT_CAT);
+			dlg->getCtrlString(CTL_WBGOODSLISTFILT_SRCH, temp_buf);
+			rFilt.SearchPatternUtf8 = temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
+			dlg->GetClusterData(CTL_WBGOODSLISTFILT_ORD, &rFilt.Order);
 			ok = 1;
 		}
 	}
@@ -1949,8 +2094,55 @@ bool PPMarketplaceInterface_Wildberries::SalesRepDbpEntry::FromJsonObj(const SJs
 	https://card.wb.ru/cards/v4/detail?appType=1&curr=rub&dest=123585633&spp=30&hide_dtype=13&ab_testing=false&lang=ru&nm=462198542
 	rep: {"products":[{"id":462198542,"root":461257172,"kindId":0,"brand":"doTERRA","brandId":35290,"siteBrandId":0,"colors":[],"subjectId":2259,"subjectParentId":49,"name":"Эфирное масло Перечная мята, 15 мл","entity":"эфирные масла","matchId":0,"supplier":"AROMA13","supplierId":250019953,"supplierRating":4.5,"supplierFlags":12240,"pics":3,"rating":0,"reviewRating":0,"nmReviewRating":0,"feedbacks":0,"nmFeedbacks":0,"volume":1,"viewFlags":1318914,"isNew":true,"promotions":[63484,193792],"sizes":[{"name":"","origName":"0","rank":0,"optionId":650298819,"stocks":[{"wh":157848,"dtype":6597069766657,"dist":1770,"qty":19,"priority":48981,"time1":60,"time2":53}],"time1":60,"time2":53,"wh":157848,"dtype":6597069766657,"dist":1770,"price":{"basic":196000,"product":153900,"logistics":200,"return":0},"saleConditions":134217728,"payload":"A1TrAaw1I+pb/PylVFczX65L+gzJ4PCAEztq58sbQJ6uJtp98RgrL9Qk2BF4U/Z83iGZJJyW7Tv2vj+fyUn2tXfqaCm/Hwi0AixmxhJUdoPmRMalGVjw/7Pi+4pkamlPJGaF6h5hrQrMWwtn+CUoH3paxIlTDd7MZ8DMOQZ9xV9jKUAKGQfjwQ"}],"totalQuantity":19,"time1":60,"time2":53,"wh":157848,"dtype":6597069766657,"dist":1770}]}
 */ 
+
+/*static*/int PPMarketplaceInterface_Wildberries::Helper_QueryPublicGoodsList(const SString & rUrlBuf, const char * pOutpFileNameSuffix, int pageNo, PublicWarePool & rResult)
+{
+	int    ok = -1;
+	uint   local_read_count = 0; // Количество записей товаров, считанных из результата запроса
+	uint   local_total_count = 0; // Общее количество товаров на сервере, соответствующих запросу
+	SString temp_buf;
+	SBuffer reply_buf;
+	SString reply_js_string;
+	SFile wr_stream(reply_buf, SFile::mWrite);
+	InetUrl url(rUrlBuf);
+	StrStrAssocArray hdr_flds;
+	SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrUserAgent, "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0)");
+	ScURL c;
+	int r = c.HttpGet(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, &wr_stream);
+	if(r) {
+		SBuffer * p_reply_buf = static_cast<SBuffer *>(wr_stream);
+		if(p_reply_buf && p_reply_buf->GetAvailableSize()) {
+			reply_js_string.Z().CatN(p_reply_buf->GetBufC(), p_reply_buf->GetAvailableSize());
+			{
+				SJson * p_js = SJson::Parse(reply_js_string);
+				if(p_js) {
+					rResult.FromJson(p_js, true/*concat*/, &local_read_count, &local_total_count);
+					delete p_js;
+				}
+			}
+			{
+				SString out_file_name;
+				(temp_buf = "wildberries-goods-list");
+				if(!isempty(pOutpFileNameSuffix))
+					temp_buf.CatChar('-').Cat(pOutpFileNameSuffix);
+				if(pageNo > 0)
+					temp_buf.CatChar('-').Cat(pageNo);
+				temp_buf.DotCat("json");
+				//(temp_buf = "wildberries-goods-list-search").CatChar('-').Cat(rFilt.CatID).CatChar('-').Cat(page_no).Dot().Cat("json");
+				PPGetFilePath(PPPATH_OUT, temp_buf, out_file_name);
+				SFile f_out(out_file_name, SFile::mWrite|SFile::mBinary);
+				if(f_out.IsValid()) {
+					f_out.Write(reply_js_string.cptr(), reply_js_string.Len());
+				}
+			}
+		}
+	}
+	if(local_read_count > 0)
+		ok = 1;
+	return ok;
+}
 	
-/*static*/int PPMarketplaceInterface_Wildberries::LoadPublicGoodsList(const CategoryPool & rCatPool, MarketplaceGoodsSelectionFilt & rFilt) // @v12.3.8
+/*static*/int PPMarketplaceInterface_Wildberries::LoadPublicGoodsList(const CategoryPool & rCatPool, const MarketplaceGoodsSelectionFilt & rFilt, PublicWarePool & rResult) // @v12.3.8
 {
 	/*
 		url = f'https://catalog.wb.ru/catalog/{shard}/catalog?appType=1&curr=rub' \
@@ -1987,33 +2179,157 @@ bool PPMarketplaceInterface_Wildberries::SalesRepDbpEntry::FromJsonObj(const SJs
     Наконец-то что-то интересное. Это подкатегории товаров, которые можно получить в фильтрах по категории.
 
 	https://catalog.wb.ru/catalog/electronic43/v4/catalog?ab_testing=false&appType=1&curr=rub&dest=123585633&hide_dtype=13&lang=ru&page=1&sort=popular&spp=30&subject=2290
-
 	*/ 
+	rResult.Z();
 	int    ok = -1;
 	bool   debug_mark = false; // @debug
-	const  char * p_base_url = "https://catalog.wb.ru/catalog";
 	SString temp_buf;
 	SString reply_js_string;
-	PublicWarePool goods_pool;
-	if(rFilt.CatID) {
+	SString url_buf;
+	SString out_file_name;
+	SBuffer reply_buf;
+	if(rFilt.SearchPatternUtf8.NotEmpty()) {
+		//https://search.wb.ru/exactmatch/ru/common/v14/search?ab_testing=false&appType=1&curr=rub&dest=123585633&hide_dtype=13&lang=ru&
+			//page=1&query=%D1%81%D0%BC%D0%B0%D1%80%D1%82%D1%84%D0%BE%D0%BD%20samsung&
+			//resultset=catalog&sort=popular&spp=30&suppressSpellcheck=false
+		const  SString base_url(InetUrl::MkHttps("search.wb.ru", "exactmatch"));
+		for(int page_no = 1; page_no <= 100; page_no++) {
+			uint   local_read_count = 0; // Количество записей товаров, считанных из результата запроса
+			uint   local_total_count = 0; // Общее количество товаров на сервере, соответствующих запросу
+
+			(url_buf = base_url).SetLastDSlash().Cat("ru").SetLastDSlash().Cat("common").SetLastDSlash().Cat("v14").SetLastDSlash().Cat("search").CatChar('?');
+			url_buf.CatEq("ab_testing", "false");
+			url_buf.CatChar('&').CatEq("appType", 1);
+			url_buf.CatChar('&').CatEq("curr", "rub");
+			url_buf.CatChar('&').CatEq("dest", 123585633);
+			url_buf.CatChar('&').CatEq("hide_dtype", 1);
+			url_buf.CatChar('&').CatEq("lang", "ru");
+			url_buf.CatChar('&').CatEq("page", page_no);
+			url_buf.CatChar('&').CatEq("query", (temp_buf = rFilt.SearchPatternUtf8).ToUrl());
+			url_buf.CatChar('&').CatEq("resultset", "catalog");
+			{
+				const char * p_order = 0;
+				switch(rFilt.Order) {
+					case MarketplaceGoodsSelectionFilt::ordPopular: p_order = "popular"; break;
+					case MarketplaceGoodsSelectionFilt::ordNewly: p_order = "newly"; break;
+					case MarketplaceGoodsSelectionFilt::ordPriceDown: p_order = "pricedown"; break;
+					case MarketplaceGoodsSelectionFilt::ordPriceUp: p_order = "priceup"; break;
+					case MarketplaceGoodsSelectionFilt::ordBenefit: p_order = "benefit"; break;
+					case MarketplaceGoodsSelectionFilt::ordRate: p_order = "rate"; break;
+					default: p_order = "popular"; break;
+				}
+				assert(!isempty(p_order));
+				url_buf.CatChar('&').CatEq("sort", p_order);
+			}
+			url_buf.CatChar('&').CatEq("spp", 30);
+			url_buf.CatChar('&').CatEq("suppressSpellcheck", "false");
+			//
+			temp_buf.Z().Cat("search").CatChar('(').Cat(SlHash::XX32(rFilt.SearchPatternUtf8, rFilt.SearchPatternUtf8.Len(), 9)).CatChar(')');
+			const int qr = Helper_QueryPublicGoodsList(url_buf, temp_buf, page_no, rResult);
+			if(qr > 0) {
+				//
+			}
+			else {
+				break;
+			}
+		}
+	}
+	else if(rFilt.SupplID) { // @construction
+		//https://catalog.wb.ru/sellers/v4/catalog?ab_testid=no_reranking&appType=1&curr=rub&dest=123585633&hide_dtype=13&lang=ru&page=1&sort=popular&spp=30&supplier=44496
+		const  SString base_url(InetUrl::MkHttps("catalog.wb.ru", "sellers/v4/catalog"));
+		for(int page_no = 1; page_no <= 100; page_no++) {
+			uint   local_read_count = 0; // Количество записей товаров, считанных из результата запроса
+			uint   local_total_count = 0; // Общее количество товаров на сервере, соответствующих запросу
+			(url_buf = base_url).CatChar('?');
+			url_buf.CatEq("ab_testing", "no_reranking");
+			url_buf.CatChar('&').CatEq("appType", 1);
+			url_buf.CatChar('&').CatEq("curr", "rub");
+			url_buf.CatChar('&').CatEq("dest", 123585633);
+			url_buf.CatChar('&').CatEq("hide_dtype", 13);
+			url_buf.CatChar('&').CatEq("lang", "ru");
+			url_buf.CatChar('&').CatEq("page", page_no);
+			{
+				const char * p_order = 0;
+				switch(rFilt.Order) {
+					case MarketplaceGoodsSelectionFilt::ordPopular: p_order = "popular"; break;
+					case MarketplaceGoodsSelectionFilt::ordNewly: p_order = "newly"; break;
+					case MarketplaceGoodsSelectionFilt::ordPriceDown: p_order = "pricedown"; break;
+					case MarketplaceGoodsSelectionFilt::ordPriceUp: p_order = "priceup"; break;
+					case MarketplaceGoodsSelectionFilt::ordBenefit: p_order = "benefit"; break;
+					case MarketplaceGoodsSelectionFilt::ordRate: p_order = "rate"; break;
+					default: p_order = "popular"; break;
+				}
+				assert(!isempty(p_order));
+				url_buf.CatChar('&').CatEq("sort", p_order);
+			}
+			url_buf.CatChar('&').CatEq("spp", 30);
+			url_buf.CatChar('&').CatEq("supplier", rFilt.SupplID);
+			//
+			temp_buf.Z().Cat("suppl").CatChar('(').Cat(rFilt.SupplID).CatChar(')');
+			const int qr = Helper_QueryPublicGoodsList(url_buf, temp_buf, page_no, rResult);
+			if(qr > 0) {
+				//
+			}
+			else {
+				break;
+			}
+		}
+	}
+	else if(rFilt.BrandID) {
+		//https://catalog.wb.ru/brands/v4/catalog?ab_testing=false&appType=1&brand=9282&curr=rub&dest=123585633&hide_dtype=13;14&lang=ru&page=1&sort=popular&spp=30
+		const  SString base_url(InetUrl::MkHttps("catalog.wb.ru", "brands/v4/catalog"));
+		for(int page_no = 1; page_no <= 100; page_no++) {
+			uint   local_read_count = 0; // Количество записей товаров, считанных из результата запроса
+			uint   local_total_count = 0; // Общее количество товаров на сервере, соответствующих запросу
+			(url_buf = base_url).CatChar('?');
+			url_buf.CatEq("ab_testing", "no_reranking");
+			url_buf.CatChar('&').CatEq("appType", 1);
+			url_buf.CatChar('&').CatEq("brand", rFilt.BrandID);
+			url_buf.CatChar('&').CatEq("curr", "rub");
+			url_buf.CatChar('&').CatEq("dest", 123585633);
+			url_buf.CatChar('&').CatEq("hide_dtype", "13;14");
+			url_buf.CatChar('&').CatEq("lang", "ru");
+			url_buf.CatChar('&').CatEq("page", page_no);
+			{
+				const char * p_order = 0;
+				switch(rFilt.Order) {
+					case MarketplaceGoodsSelectionFilt::ordPopular: p_order = "popular"; break;
+					case MarketplaceGoodsSelectionFilt::ordNewly: p_order = "newly"; break;
+					case MarketplaceGoodsSelectionFilt::ordPriceDown: p_order = "pricedown"; break;
+					case MarketplaceGoodsSelectionFilt::ordPriceUp: p_order = "priceup"; break;
+					case MarketplaceGoodsSelectionFilt::ordBenefit: p_order = "benefit"; break;
+					case MarketplaceGoodsSelectionFilt::ordRate: p_order = "rate"; break;
+					default: p_order = "popular"; break;
+				}
+				assert(!isempty(p_order));
+				url_buf.CatChar('&').CatEq("sort", p_order);
+			}
+			url_buf.CatChar('&').CatEq("spp", 30);
+			//
+			temp_buf.Z().Cat("brand").CatChar('(').Cat(rFilt.BrandID).CatChar(')');
+			const int qr = Helper_QueryPublicGoodsList(url_buf, temp_buf, page_no, rResult);
+			if(qr > 0) {
+				//
+			}
+			else {
+				break;
+			}
+		}
+	}
+	else if(rFilt.CatID) {
+		const  SString base_url(InetUrl::MkHttps("catalog.wb.ru", "catalog"));
 		const CategoryPool::Entry * p_entry = rCatPool.GetByID(rFilt.CatID);
 		if(p_entry) {
-			SString url_buf;
 			SString shard;
 			SString sub_query;
-			SString out_file_name;
-			(url_buf = p_base_url).SetLastDSlash();
+			(url_buf = base_url).SetLastDSlash();
 			rCatPool.GetS(p_entry->ShardP, shard);
 			rCatPool.GetS(p_entry->QueryP, sub_query);
 			if(shard.NotEmpty()) {
-				ScURL c;
-				SBuffer reply_buf;
 				for(int page_no = 1; page_no <= 100; page_no++) {
-
 					uint   local_read_count = 0; // Количество записей товаров, считанных из результата запроса
 					uint   local_total_count = 0; // Общее количество товаров на сервере, соответствующих запросу
-
-					(url_buf = p_base_url).SetLastDSlash().Cat(shard).SetLastDSlash().Cat("v4").SetLastDSlash().Cat("catalog").CatChar('?');
+					(url_buf = base_url).SetLastDSlash().Cat(shard).SetLastDSlash().Cat("v4").SetLastDSlash().Cat("catalog").CatChar('?');
 					// fbrand=id
 					url_buf.CatEq("ab_testing", "false");
 					url_buf.CatChar('&').CatEq("appType", 1);
@@ -2025,13 +2341,13 @@ bool PPMarketplaceInterface_Wildberries::SalesRepDbpEntry::FromJsonObj(const SJs
 					{
 						const char * p_order = 0;
 						switch(rFilt.Order) {
-							case MarketplaceGoodsSelectionFilt::ordPopular: p_order = "popular";
-							case MarketplaceGoodsSelectionFilt::ordNewly: p_order = "newly";
-							case MarketplaceGoodsSelectionFilt::ordPriceDown: p_order = "pricedown";
-							case MarketplaceGoodsSelectionFilt::ordPriceUp: p_order = "priceup";
-							case MarketplaceGoodsSelectionFilt::ordBenefit: p_order = "benefit";
-							case MarketplaceGoodsSelectionFilt::ordRate: p_order = "rate";
-							default: p_order = "popular";
+							case MarketplaceGoodsSelectionFilt::ordPopular: p_order = "popular"; break;
+							case MarketplaceGoodsSelectionFilt::ordNewly: p_order = "newly"; break;
+							case MarketplaceGoodsSelectionFilt::ordPriceDown: p_order = "pricedown"; break;
+							case MarketplaceGoodsSelectionFilt::ordPriceUp: p_order = "priceup"; break;
+							case MarketplaceGoodsSelectionFilt::ordBenefit: p_order = "benefit"; break;
+							case MarketplaceGoodsSelectionFilt::ordRate: p_order = "rate"; break;
+							default: p_order = "popular"; break;
 						}
 						assert(!isempty(p_order));
 						url_buf.CatChar('&').CatEq("sort", p_order);
@@ -2044,35 +2360,15 @@ bool PPMarketplaceInterface_Wildberries::SalesRepDbpEntry::FromJsonObj(const SJs
 					// next line works!
 					// url_buf = "https://catalog.wb.ru/catalog/electronic43/v4/catalog?ab_testing=false&appType=1&curr=rub&dest=123585633&hide_dtype=13&lang=ru&page=1&sort=popular&spp=30&subject=2290";
 
-					reply_buf.Z();
-					SFile wr_stream(reply_buf, SFile::mWrite);
-					InetUrl url(url_buf);
-					StrStrAssocArray hdr_flds;
-					SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrUserAgent, "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0)");
-					int r = c.HttpGet(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, &wr_stream);
-					if(r) {
-						SBuffer * p_reply_buf = static_cast<SBuffer *>(wr_stream);
-						if(p_reply_buf && p_reply_buf->GetAvailableSize()) {
-							reply_js_string.Z().CatN(p_reply_buf->GetBufC(), p_reply_buf->GetAvailableSize());
-							{
-								SJson * p_js = SJson::Parse(reply_js_string);
-								if(p_js) {
-									goods_pool.FromJson(p_js, true/*concat*/, &local_read_count, &local_total_count);
-									delete p_js;
-								}
-							}
-							{
-								(temp_buf = "wildberries-goods-list").CatChar('-').Cat(rFilt.CatID).CatChar('-').Cat(page_no).Dot().Cat("json");
-								PPGetFilePath(PPPATH_OUT, temp_buf, out_file_name);
-								SFile f_out(out_file_name, SFile::mWrite|SFile::mBinary);
-								if(f_out.IsValid()) {
-									f_out.Write(reply_js_string.cptr(), reply_js_string.Len());
-								}
-							}
-						}
+					//
+					temp_buf.Z().Cat("cat").CatChar('(').Cat(rFilt.CatID).CatChar(')');
+					const int qr = Helper_QueryPublicGoodsList(url_buf, temp_buf, page_no, rResult);
+					if(qr > 0) {
+						;
 					}
-					if(local_read_count == 0)
+					else {
 						break;
+					}
 				}
 			}
 		}
@@ -2098,7 +2394,7 @@ PPMarketplaceInterface_Wildberries::PPMarketplaceInterface_Wildberries(PrcssrMar
 	return ok;
 }
 
-int PPMarketplaceInterface_Wildberries::GetLocalCachePath(SString & rBuf)
+/*static*/int PPMarketplaceInterface_Wildberries::GetLocalCachePath(SString & rBuf)
 {
 	rBuf.Z();
 	int    ok = 1;
@@ -2137,9 +2433,10 @@ int PPMarketplaceInterface_Wildberries::ParseJson_WarehouseList(const SJson * pJ
 
 int PPMarketplaceInterface_Wildberries::FetchWarehouseList(TSCollection <Warehouse> & rList)
 {
+	constexpr long cache_expiration_time_sec = (3 * 24 * 3600);
+	const  LDATETIME now_dtm = getcurdatetime_();
 	int    ok = 1;
 	bool   do_request = true;
-	const  LDATETIME now_dtm = getcurdatetime_();
 	SString local_cache_path;
 	if(GetLocalCachePath(local_cache_path)) {
 		local_cache_path.SetLastSlash().Cat("warehouselist.json");
@@ -2148,7 +2445,7 @@ int PPMarketplaceInterface_Wildberries::FetchWarehouseList(TSCollection <Warehou
 			LDATETIME file_dtm;
 			file_dtm.SetNs100(st.ModTm_);
 			long s = diffdatetimesec(now_dtm, file_dtm);
-			if(s <= (3 * 24 * 3600)) {
+			if(s <= cache_expiration_time_sec) {
 				SJson * p_js = SJson::ParseFile(local_cache_path);
 				if(ParseJson_WarehouseList(p_js, rList)) {
 					do_request = false;
@@ -6681,11 +6978,12 @@ int TestMarketplace()
 	if(do_test) {
 		{
 			PPMarketplaceInterface_Wildberries::CategoryPool cat_pool;
+			PPMarketplaceInterface_Wildberries::PublicWarePool goods_pool;
 			MarketplaceGoodsSelectionFilt filt;
-			PPMarketplaceInterface_Wildberries::LoadPublicGoodsCategoryList(cat_pool);
+			PPMarketplaceInterface_Wildberries::LoadPublicGoodsCategoryList(cat_pool, true);
 			if(PPMarketplaceInterface_Wildberries::EditPublicGoodsSelectionFilt(cat_pool, filt) > 0) {
 				if(filt.CatID) {
-					PPMarketplaceInterface_Wildberries::LoadPublicGoodsList(cat_pool, filt);
+					PPMarketplaceInterface_Wildberries::LoadPublicGoodsList(cat_pool, filt, goods_pool);
 				}
 			}
 			return 1; // !

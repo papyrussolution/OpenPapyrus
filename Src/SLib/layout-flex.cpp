@@ -16,6 +16,11 @@ SUiLayoutParam::SUiLayoutParam() : Signature(SlConst::Signature_SUiLayoutParam),
 	Z();
 }
 
+SUiLayoutParam::SUiLayoutParam(const SUiLayoutParam & rS) : Signature(SlConst::Signature_SUiLayoutParam), Ver(SUiLayoutParam_Version)
+{
+	Copy(rS);
+}
+
 SUiLayoutParam::SUiLayoutParam(int direction, uint justifyContent, uint alignContent) : Signature(SlConst::Signature_SUiLayoutParam), Ver(SUiLayoutParam_Version)
 {
 	assert(oneof2(direction, DIREC_HORZ, DIREC_VERT));
@@ -33,29 +38,7 @@ SUiLayoutParam::SUiLayoutParam(int direction, uint justifyContent, uint alignCon
 
 SUiLayoutParam & FASTCALL SUiLayoutParam::operator = (const SUiLayoutParam & rS)
 {
-#define CPY_FLD(f) f = rS.f
-	CPY_FLD(Flags);
-	CPY_FLD(SzX);
-	CPY_FLD(SzY);
-	CPY_FLD(JustifyContent);
-	CPY_FLD(AlignContent);
-	CPY_FLD(AlignItems);
-	CPY_FLD(AlignSelf);
-	CPY_FLD(GravityX);
-	CPY_FLD(GravityY);
-	CPY_FLD(LinkRelation); // @v12.3.2 SIDE_XXX
-	CPY_FLD(Reserve);
-	CPY_FLD(Order);
-	CPY_FLD(Nominal);
-	CPY_FLD(Size);
-	CPY_FLD(Padding);
-	CPY_FLD(Margin);
-	CPY_FLD(GrowFactor);
-	CPY_FLD(ShrinkFactor);
-	CPY_FLD(Basis);
-	CPY_FLD(AspectRatio);
-	CPY_FLD(MinSize); // @v12.3.6
-#undef CPY_FLD
+	Copy(rS);
 	return *this;
 }
 
@@ -87,6 +70,35 @@ SUiLayoutParam & SUiLayoutParam::Z()
 
 bool FASTCALL SUiLayoutParam::operator == (const SUiLayoutParam & rS) const { return IsEq(rS); }
 bool FASTCALL SUiLayoutParam::operator != (const SUiLayoutParam & rS) const { return !IsEq(rS); }
+
+bool FASTCALL SUiLayoutParam::Copy(const SUiLayoutParam & rS)
+{
+	bool   ok = true;
+#define CPY_FLD(f) f = rS.f
+	CPY_FLD(Flags);
+	CPY_FLD(SzX);
+	CPY_FLD(SzY);
+	CPY_FLD(JustifyContent);
+	CPY_FLD(AlignContent);
+	CPY_FLD(AlignItems);
+	CPY_FLD(AlignSelf);
+	CPY_FLD(GravityX);
+	CPY_FLD(GravityY);
+	CPY_FLD(LinkRelation); // @v12.3.2 SIDE_XXX
+	CPY_FLD(Reserve);
+	CPY_FLD(Order);
+	CPY_FLD(Nominal);
+	CPY_FLD(Size);
+	CPY_FLD(Padding);
+	CPY_FLD(Margin);
+	CPY_FLD(GrowFactor);
+	CPY_FLD(ShrinkFactor);
+	CPY_FLD(Basis);
+	CPY_FLD(AspectRatio);
+	CPY_FLD(MinSize); // @v12.3.6
+#undef CPY_FLD
+	return ok;
+}
 
 bool FASTCALL SUiLayoutParam::IsEq(const SUiLayoutParam & rS) const
 {

@@ -37,9 +37,9 @@ void PPEds::GetEncryptedFileName(const char * pFileName, SString & rEncryptFileN
 	rEncryptFileName.Sub(rEncryptFileName.Len() - count, count, ext);
     rEncryptFileName.Z().CopyFromN(pFileName, sstrlen(pFileName) - count);
 	if(sameFile)
-		rEncryptFileName.Cat("_1").Dot().Cat(ext);
+		rEncryptFileName.Cat("_1").DotCat(ext);
 	else
-		rEncryptFileName.Cat("_encoded").Dot().Cat(ext);
+		rEncryptFileName.Cat("_encoded").DotCat(ext);
 }
 
 void PPEds::GetSignFileName(const char * pDocName, SString & rSignFileName)

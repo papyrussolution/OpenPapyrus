@@ -143,7 +143,6 @@ private:
 	int    ExportSpoilageRest(PPID locID, uint filesIdx);
 	int    ExportBills(const BillExpParam &, const char * pClientCode, PPLogger & rLogger);
 	int    ExportSaldo2(const PPIDArray & rExclArList, const char * pClientCode, PPLogger * pLog);
-	// @v10.3.1 (inlined) void   DelFiles(const char * pFileName);
 	PPID   GetSaleChannelTagID();
 	PPID   GetConsigLocGroupID();
 	long   GetSaleChannelExtFld();
@@ -829,10 +828,9 @@ int PPSupplExchange_Baltika::ExportRestParties()
 							uint   idx = 0;
 							line_rec.Quantity = item.Rest;
 							STRNSCPY(line_rec.UnitId, GetEaText());
-							// @v10.1.7 STRNSCPY(line_rec.PartNumber, item.Serial);
 							ltoa(loc_list.at(i), line_rec.WareHouseId, 10);
 							GetInfoByLot(item.LotID, 0, &(line_rec.DocumentDate = filt.Date), &line_rec.ProductionDate, &line_rec.ExpirationDate, &temp_buf);
-							STRNSCPY(line_rec.PartNumber, temp_buf); // @v10.1.7
+							STRNSCPY(line_rec.PartNumber, temp_buf);
 							if(bc_pack > 1.0) {
 								line_rec.Quantity = R6(line_rec.Quantity / bc_pack);
 							}
@@ -1180,7 +1178,7 @@ int PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, const c
 	PPID   tare_ggrpid = 0;
 	PPID   consig_loc_grp = 0L;
 	PPID   order_number_tag_id = 0;
-	PPID   promo_tag_id = 0; // @v10.3.11
+	PPID   promo_tag_id = 0;
 	LDATE  consig_parent_dt = ZERODATE;
 	SString path, log_msg;
 	SString consig_parent_code;
@@ -1197,7 +1195,7 @@ int PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, const c
 	BillFilt filt;
 	PPIDArray loss_op_list, invrcpt_op_list, spoilage_loc_list;
 	TSVector <Sdr_BaltikaBillItemAttrs> items_attrs_list;
-	TSVector <Sdr_BaltikaBillPricePromo> promo_item_list; // @v10.3.11
+	TSVector <Sdr_BaltikaBillPricePromo> promo_item_list;
 	BillViewItem item;
 	PPObjTag   obj_tag;
 	PPObjWorld obj_world;
@@ -1513,7 +1511,6 @@ int PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, const c
 								items_list.at(idx).Quantity += line_rec.Quantity;
 							else
 								items_list.insert(&line_rec);
-							// @v10.3.11 {
 							if(promo_label.NotEmpty()) {
 								double nominal_price = trfr_item.Price;
 								double temp_qtty_val = fabs(trfr_item.Qtty());
@@ -1536,7 +1533,6 @@ int PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, const c
 									promo_item_list.insert(&promo_rec);
 								}
 							}
-							// } @v10.3.11 
 							if(!oneof2(item.OpID, Ep.MovOutOp, Ep.MovInOp) && client_id && dlvr_addr_id)
 								if(!dlvr_addr_list.lsearch(&dlvr_addr_id, 0, CMPF_LONG, sizeof(long)))
 									dlvr_addr_list.Add(client_id, dlvr_addr_id, 0);
@@ -1557,7 +1553,6 @@ int PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, const c
 									items_attrs_list.at(idx).Quantity += line_rec.Quantity;
 								else
 									items_attrs_list.insert(&line_attrs_rec);
-								// @v10.1.9 {
 								if(oneof2(item.OpID, Ep.MovInOp, Ep.MovOutOp)) {
 									Sdr_BaltikaBillItemAttrs line_attrs_mirror_rec;
 									memcpy(&line_attrs_mirror_rec, &line_attrs_rec, sizeof(line_attrs_rec));
@@ -1578,7 +1573,6 @@ int PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, const c
 									else*/
 										items_attrs_list.insert(&line_attrs_mirror_rec);
 								}
-								// } @v10.1.9
 							}
 							count++;
 						}
@@ -1669,7 +1663,6 @@ int PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, const c
 			if(j > 0)
 				soap_e.EndRecBlock();
 		}
-		// @v10.3.11 {
 		if(promo_item_list.getCount()) {
 			for(uint promoidx = 0; promoidx < promo_item_list.getCount(); promoidx++) {
 				Sdr_BaltikaBillPricePromo promo_item_rec = promo_item_list.at(promoidx);
@@ -1678,7 +1671,6 @@ int PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, const c
 			}
 			soap_e.EndRecBlock();
 		}
-		// } @v10.3.11 
 	}
 	CATCHZOK
 	soap_e.EndDocument(ok > 0 && count);
@@ -2535,7 +2527,7 @@ private:
 		stGoodsMappingInited = 0x0004
 	};
 	long   State;
-	long   UnknAgentID; // @v10.8.11 Специальный идентификатор агента, не закрепленного за поставщиком 
+	long   UnknAgentID; // Специальный идентификатор агента, не закрепленного за поставщиком 
 	SDynLibrary * P_Lib;
 	void * P_DestroyFunc;
 	SString SvcUrl;
@@ -2572,7 +2564,7 @@ iSalesPepsi::~iSalesPepsi()
 int iSalesPepsi::Init()
 {
 	State = 0;
-	UnknAgentID = 0; // @v10.8.11
+	UnknAgentID = 0;
 	SvcUrl.Z();
 	UserName.Z();
 	Password.Z();
@@ -2584,7 +2576,6 @@ int iSalesPepsi::Init()
 		State |= stEpDefined;
 	}
 	InitGoodsList(0);
-	// @v10.8.11 {
 	if(P.SupplID) {
 		PPID suppl_psn_id = ObjectToPerson(P.SupplID, 0);
 		if(suppl_psn_id) {
@@ -2604,7 +2595,6 @@ int iSalesPepsi::Init()
 			}
 		}
 	}
-	// } @v10.8.11
 	State |= stInited;
 	return ok;
 }
@@ -3038,7 +3028,7 @@ void iSalesPepsi::SetupLocalPeriod(DateRange & rPeriod) const
 int iSalesPepsi::ReceiveVDocs()
 {
     int    ok = -1;
-	int    treat_duedate_as_maindate = 0; // @v10.8.11
+	int    treat_duedate_as_maindate = 0;
 	PPSoapClientSession sess;
 	SString temp_buf;
 	SString msg_buf;
@@ -3050,14 +3040,12 @@ int iSalesPepsi::ReceiveVDocs()
 	SString tech_buf;
 	SetupLocalPeriod(period);
 	Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssTechSymbol, tech_buf);
-	// @v10.8.11 {
 	if(Ep.Fb.StyloPalmID) {
 		PPObjStyloPalm sp_obj;
 		PPStyloPalmPacket sp_pack;
 		if(sp_obj.GetPacket(Ep.Fb.StyloPalmID, &sp_pack) > 0 && sp_pack.Rec.Flags & PLMF_TREATDUEDATEASDATE)
 			treat_duedate_as_maindate = 1;
 	}
-	// } @v10.8.11 
 	PPWaitMsg(PPFormatT(PPTXT_LOG_SUPPLIX_IMPORD_S, &msg_buf, tech_buf.cptr()));
 	THROW(State & stInited);
 	THROW(State & stEpDefined);
@@ -3547,7 +3535,7 @@ int iSalesPepsi::ReceiveOrder_Csv(const char * pInBuf, size_t inBufLen)
 int iSalesPepsi::ReceiveOrders()
 {
     int    ok = -1;
-	int    treat_duedate_as_maindate = 0; // @v10.8.11
+	int    treat_duedate_as_maindate = 0;
 	PPSoapClientSession sess;
 	SString temp_buf;
 	SString msg_buf;
@@ -3559,14 +3547,12 @@ int iSalesPepsi::ReceiveOrders()
 	SString tech_buf;
 	SetupLocalPeriod(period);
 	Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssTechSymbol, tech_buf);
-	// @v10.8.11 {
 	if(Ep.Fb.StyloPalmID) {
 		PPObjStyloPalm sp_obj;
 		PPStyloPalmPacket sp_pack;
 		if(sp_obj.GetPacket(Ep.Fb.StyloPalmID, &sp_pack) > 0 && sp_pack.Rec.Flags & PLMF_TREATDUEDATEASDATE)
 			treat_duedate_as_maindate = 1;
 	}
-	// } @v10.8.11 
 	PPWaitMsg(PPFormatT(PPTXT_LOG_SUPPLIX_IMPORD_S, &msg_buf, tech_buf.cptr()));
 	THROW(State & stInited);
 	THROW(State & stEpDefined);
@@ -3848,7 +3834,7 @@ int iSalesPepsi::SendDebts()
 	PPSoapClientSession sess;
 	SString temp_buf;
 	TSCollection <iSalesBillDebt> outer_debt_list;
-	const  PPID bill_ack_tag_id = NZOR(Ep.Fb.BillAckTagID, PPTAG_BILL_EDIACK); // @v10.9.0
+	const  PPID bill_ack_tag_id = NZOR(Ep.Fb.BillAckTagID, PPTAG_BILL_EDIACK);
 	THROW(ReceiveUnclosedInvoices(outer_debt_list));
 	if(outer_debt_list.getCount()) {
 		PPIDArray processed_id_list;
@@ -3869,7 +3855,7 @@ int iSalesPepsi::SendDebts()
 					BillTbl::Rec bill_rec;
 					for(DateIter di(prev_date, prev_date); P_BObj->P_Tbl->EnumByDate(&di, &bill_rec) > 0;) {
 						if(bill_rec.Amount > 0.0 && GetOpType(bill_rec.OpID) != PPOPT_GOODSORDER && !processed_id_list.lsearch(bill_rec.ID)) {
-							if(p_ref->Ot.GetTagStr(PPOBJ_BILL, bill_rec.ID, bill_ack_tag_id, temp_buf) > 0) { // @v10.9.0
+							if(p_ref->Ot.GetTagStr(PPOBJ_BILL, bill_rec.ID, bill_ack_tag_id, temp_buf) > 0) {
 								// @v11.1.12 BillCore::GetCode(temp_buf = bill_rec.Code);
 								temp_buf = bill_rec.Code; // @v11.1.12 
 								int    found = 0;
@@ -3883,8 +3869,8 @@ int iSalesPepsi::SendDebts()
 										*p_new_item = *p_temp_item;
 										p_new_item->Code.Transf(CTRANSF_INNER_TO_UTF8);
 										p_new_item->Debt = (payment >= p_new_item->Amount) ? 0.0 : (p_new_item->Amount - payment);
-										processed_id_list.add(bill_rec.ID); // @v10.9.0
-										processed_outer_list.add(p_temp_item->iSalesId); // @v10.9.1
+										processed_id_list.add(bill_rec.ID);
+										processed_outer_list.add(p_temp_item->iSalesId);
 										found = 1;
 									}
 								}
@@ -4160,7 +4146,7 @@ int iSalesPepsi::SendStocks()
 				}
 			}
 		}
-		if(!(P.Flags & P.fTestMode) && outp_packet.getCount()) { // @v10.8.7
+		if(!(P.Flags & P.fTestMode) && outp_packet.getCount()) {
 			SString * p_result = 0;
 			ISALESPUTSTOCKCOUNTING_PROC func = 0;
 			THROW_SL(func = reinterpret_cast<ISALESPUTSTOCKCOUNTING_PROC>(P_Lib->GetProcAddr("iSalesPutStockCounting")));
@@ -4381,7 +4367,7 @@ int iSalesPepsi::Helper_MakeBillEntry(PPID billID, PPBillPacket * pBp, int outer
 				p_new_pack->ShipTo = own_code;
 				p_new_pack->DestLocCode.Cat(pBp->Rec.LocID);
 				//
-				const int transmit_linkret_as_unlink = 0; // @v10.8.9 1-->0
+				const int transmit_linkret_as_unlink = 0;
 				if(!transmit_linkret_as_unlink && oneof2(pBp->OpTypeID, PPOPT_GOODSRETURN, PPOPT_CORRECTION) && link_bill_rec.ID) {
 					iSalesBillRef * p_new_ref = p_new_pack->Refs.CreateNewItem();
 					THROW_SL(p_new_ref);
@@ -4427,10 +4413,8 @@ int iSalesPepsi::Helper_MakeBillEntry(PPID billID, PPBillPacket * pBp, int outer
 			}
 			if(pBp->Ext.AgentID) {
 				PPID agent_psn_id = ObjectToPerson(pBp->Ext.AgentID, 0);
-				// @v10.8.11 {
 				if(UnknAgentID && pRegisteredAgentList && !pRegisteredAgentList->lsearch(agent_psn_id))
 					agent_psn_id = UnknAgentID;
-				// } @v10.8.11 
 				if(agent_psn_id) {
 					p_new_pack->AgentCode.Cat(agent_psn_id);
 				}
@@ -4517,8 +4501,7 @@ int iSalesPepsi::Helper_MakeBillEntry(PPID billID, PPBillPacket * pBp, int outer
 						}
 						iSalesBillItem * p_new_item = p_new_pack->Items.CreateNewItem();
 						THROW_SL(p_new_item);
-						// @v10.8.9 const double qtty = fabs(ti.Quantity_);
-						const double qtty = fabs(ti.GetEffCorrectionExpQtty()); // @v10.8.9
+						const double qtty = fabs(ti.GetEffCorrectionExpQtty());
 						assert(!ti.IsCorrectionExp() || outerDocType == 5);
 						p_new_item->LineN = tiiterpos; // ti.RByBill;
 						p_new_item->OuterGoodsCode = temp_buf; // ti_pos_item.Txt;
@@ -4650,11 +4633,11 @@ int iSalesPepsi::Helper_MakeBillList(PPID opID, int outerDocType, const PPIDArra
 			b_filt.ObjectID = P.SupplID;
 		}
 		b_filt.Period = P.ExpPeriod;
-		SETIFZ(b_filt.Period.low, encodedate(1, 1, 2020)); // @v10.8.8 2016-->2020
+		SETIFZ(b_filt.Period.low, encodedate(1, 1, 2020));
 		{
 			PPIDArray upd_bill_list;
-			PPIDArray rmvd_bill_list; // @v10.9.2 Список документов, которые были удалены
-			if(!(P.Flags & P.fTestMode)) { // @v10.9.1
+			PPIDArray rmvd_bill_list; // Список документов, которые были удалены
+			if(!(P.Flags & P.fTestMode)) {
 				SString org_isales_code;
 				LDATETIME since;
 				since.Set(b_filt.Period.low, ZEROTIME);
@@ -4749,7 +4732,7 @@ int iSalesPepsi::Helper_MakeBillList(PPID opID, int outerDocType, const PPIDArra
 				if(outerDocType == 6 && !P_BObj->CheckStatusFlag(view_item.StatusID, BILSTF_READYFOREDIACK))
 					dont_send = 1; // Статус не допускает отправку
 				else {
-					if(!(P.Flags & P.fTestMode)) { // @v10.9.0 При подготовке файла сверки нельзя пропускать документы, которые уже были отправлены
+					if(!(P.Flags & P.fTestMode)) { // При подготовке файла сверки нельзя пропускать документы, которые уже были отправлены
 						if(p_ref->Ot.GetTagStr(PPOBJ_BILL, view_item.ID, bill_ack_tag_id, temp_buf) > 0 && !test_uuid.FromStr(temp_buf))
 							dont_send = 1; // не отправляем документы, которые уже были отправлены ранее
 					}
@@ -4927,7 +4910,6 @@ int iSalesPepsi::SendInvoices()
 		for(uint i = 0; i < outp_packet.getCount(); i++) {
 			const iSalesBillPacket * p_bill_item = outp_packet.at(i);
 			if(p_bill_item) {
-				// @v10.8.12 {
 				double debt_amount = 0.0;
 				{
 					BillTbl::Rec bill_rec;
@@ -4937,7 +4919,6 @@ int iSalesPepsi::SendInvoices()
 						debt_amount = bill_rec.Amount - paym_amount;
 					}
 				}
-				// } @v10.8.12 
 				for(uint j = 0; j < p_bill_item->Items.getCount(); j++) {
 					const iSalesBillItem * p_item = p_bill_item->Items.at(j);
 					if(p_item) {
@@ -5077,7 +5058,7 @@ int iSalesPepsi::SendInvoices()
 			//R_Logger.Log(msg_buf);
 			PPWaitMsg(msg_buf);
 		}
-		const  uint max_fraction_size = 10; // @v10.0.02 20-->10
+		const  uint max_fraction_size = 10;
 		long   total_error_count = 0;
 		ISALESPUTBILLS_PROC func = 0;
 		THROW_SL(func = reinterpret_cast<ISALESPUTBILLS_PROC>(P_Lib->GetProcAddr("iSalesPutBills")));
@@ -6895,7 +6876,6 @@ int SfaHeineken::SendReceipts()
 		DestroyResult(reinterpret_cast<void **>(&p_result));
 		ok = 1;
 	}
-	// @v10.4.9 {
 	if(to_delete_list.getCount()) {
 		sess.Setup(SvcUrl, UserName, Password);
 		THROW_SL(func_delete = reinterpret_cast<SFAHEINEKENDELETESELLIN_PROC>(P_Lib->GetProcAddr("SfaHeineken_DeleteSellin")));
@@ -6908,7 +6888,6 @@ int SfaHeineken::SendReceipts()
 			}
 		}
 	}
-	// } @v10.4.9 
 	CATCHZOK
 	return ok;
 }

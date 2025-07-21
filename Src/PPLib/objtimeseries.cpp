@@ -2186,11 +2186,6 @@ SArray * PPViewTimeSeries::CreateBrowserArray(uint * pBrwId, SString * pSubTitle
 	return p_array;
 }
 
-int PPViewTimeSeries::OnExecBrowser(PPViewBrowser *)
-{
-	return -1;
-}
-
 int PPViewTimeSeries::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = -1;
@@ -8754,11 +8749,6 @@ void PPViewTimSerDetail::PreprocessBrowser(PPViewBrowser * pBrw)
 			}, this);
 		//pBrw->SetCellStyleFunc(CellStyleFunc, pBrw);
 	}
-}
-
-int PPViewTimSerDetail::OnExecBrowser(PPViewBrowser * pBrw)
-{
-	return -1;
 }
 
 int PPViewTimSerDetail::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)

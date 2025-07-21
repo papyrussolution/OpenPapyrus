@@ -1988,7 +1988,7 @@ HRESULT UpdateArchive(CCodecs * codecs, const CObjectVector<COpenType> &types, c
 	if(options.StdInMode) {
 		CDirItem di;
 		di.Name = options.StdInFileName;
-		di.Size = static_cast<uint64>(-1LL);
+		di.Size = _FFFF64;
 		di.Attrib = 0;
 		NTime::GetCurUtcFileTime(di.MTime);
 		di.CTime = di.ATime = di.MTime;

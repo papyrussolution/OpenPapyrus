@@ -500,8 +500,8 @@ dialog DLG_SALESRESTR [vertical title: "@obj_salesrestriction" size: (432, 276) 
 
 dialog DLG_UNITECIGP [vertical title: "@unitec_igp" size: (400, 276) minsize: (300, 200) font: "MS Shell Dlg,8"] {
 	view [vertical width: bycontainer(100) height: 70 justifycontent: start alignitems: center] {
-		input DLG_UNITECIGP_RCPTQTY [width: 270 height: 21 margin: 4 tabstop label: "@unitec_igp_rcptqtty" labelsize: (0, 13) fmtf: (nozero notraiz) fmtprec: 3] double;
-		input DLG_UNITECIGP_EWDEMAND [width: 270 height: 21 margin: 4 tabstop label: "@unitec_igp_expecteddemandperweek" labelsize: (0, 13) fmtf: (nozero notraiz) fmtprec: 3] double;
+		input CTL_UNITECIGP_RCPTQTY [width: 270 height: 21 margin: 4 tabstop label: "@unitec_igp_rcptqtty" labelsize: (0, 13) fmtf: (nozero notraiz) fmtprec: 3] double;
+		input CTL_UNITECIGP_EWDEMAND [width: 270 height: 21 margin: 4 tabstop label: "@unitec_igp_expecteddemandperweek" labelsize: (0, 13) fmtf: (nozero notraiz) fmtprec: 3] double;
 	}
 	view [horizontal width: bycontainer(100) growfactor: 1 justifycontent: end alignitems: end margin_right: 12] {
 		button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 defaultitem command: cmOK];
@@ -519,11 +519,91 @@ dialog DLG_CR2SRGWPARAM [vertical title: "@cristal2setretailgateway_runparam" si
 		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
 	}
 }
-
-dialog DLG_WBGOODSLISTFILT [vertical title: "@wildberries_publicgoodsselectionfilt" size: (400, 276) font: "MS Shell Dlg,8" alignitems: center] {
-	combobox CTLSEL_WBGOODSLISTFILT_CAT [tabstop width: bycontainer(100) height: 21 margin: 4 label: "@category" labelsize: (0, 13) cblinesymb: CTL_WBGOODSLISTFILT_CAT];
+//
+// Запрос сессий для кассового модуля Papyrus
+//
+dialog DLG_POSNQUERY [vertical title: "@posnquery" size: (363, 416)  minsize: (363, 416) font: "MS Shell Dlg,8"] {
+	input CTL_POSNQUERY_N [width: bycontainer height: 21 margin: 4 tabstop label: "@posnquery_dvcnumlist" labelsize: (0, 13)] string[128];
+	radiocluster CTL_POSNQUERY_Q [vertical width: 315 margin: 4] {
+		radiobutton [title: "@posnquery_qvlastsession" height: 16];
+		radiobutton [title: "@posnquery_qvcurrsession" height: 16];
+		radiobutton [title: "@posnquery_qvsessbyperiod" height: 16];
+		radiobutton [title: "@posnquery_qvsessbynumber" height: 16];
+		radiobutton [title: "@posnquery_qvsessbyid" height: 16];
+		radiobutton [title: "@posnquery_qvrefs" height: 16];
+		radiobutton [title: "@posnquery_qvtest" height: 16];
+	}
+	input CTL_POSNQUERY_SESSL [width: bycontainer height: 21 margin: 4 tabstop label: "@posnquery_sessnumlist" labelsize: (0, 13) ] string[128];
+	input CTL_POSNQUERY_PERIOD [size: (180, 21) margin: 4 tabstop label: "@posnquery_sessperiod" labelsize: (0, 13) ] string[32]
+		supplement daterangecalbutton(CTLCAL_POSNQUERY_PERIOD);
+	statictext CTL_POSNQUERY_INFO [width: bycontainer height: 21 margin: 4 staticedge];
 	view [horizontal width: bycontainer(100) growfactor: 1 justifycontent: end alignitems: end margin_right: 12] {
 		button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 defaultitem command: cmOK];
 		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+//
+// Запрос сессий для кассового модуля Set-Retail
+//
+dialog DLG_POSNQUERYSETR [vertical title: "@posnquery" size: (360, 235)  minsize: (360, 235) font: "MS Shell Dlg,8"] {
+	input CTL_POSNQUERY_PERIOD [size: (180, 21) margin: 4 tabstop label: "@posnquery_sessperiod" labelsize: (0, 13) ] string[32]
+		supplement daterangecalbutton(CTLCAL_POSNQUERY_PERIOD);
+	input CTL_POSNQUERY_N [width: bycontainer height: 21 margin: 4 tabstop label: "@posnquery_dvcnumlist" labelsize: (0, 13)] string[128];
+	input CTL_POSNQUERY_SESSL [width: bycontainer height: 21 margin: 4 tabstop label: "@posnquery_sessnumlist" labelsize: (0, 13) ] string[128];
+	statictext CTL_POSNQUERY_INFO [width: bycontainer height: 21 margin: 4 staticedge];
+	view [horizontal width: bycontainer(100) growfactor: 1 justifycontent: end alignitems: end margin_right: 12] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 defaultitem command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+//
+// Фильтр выборки товаров Wildberries
+//
+dialog DLG_WBGOODSLISTFILT [vertical title: "@wildberries_publicgoodsselectionfilt" size: (400, 300) minsize: (380, 300) font: "MS Shell Dlg,8" alignitems: center] {
+	combobox CTLSEL_WBGOODSLISTFILT_CAT [tabstop width: bycontainer(100) height: 21 margin: 4 label: "@category" labelsize: (0, 13) cblinesymb: CTL_WBGOODSLISTFILT_CAT];
+	input CTL_WBGOODSLISTFILT_SRCH [width: bycontainer(100) height: 21 margin: 4 tabstop label: "@wildberries_publicgoodsselectionfilt_srch" labelsize: (0, 13)] string[252];
+	radiocluster CTL_WBGOODSLISTFILT_ORD [vertical width: bycontainer(100) margin: 4] {
+		radiobutton [title: "@mpgoodssort_popular" height: 16];
+		radiobutton [title: "@mpgoodssort_priceup" height: 16];
+		radiobutton [title: "@mpgoodssort_pricedown" height: 16];
+		radiobutton [title: "@mpgoodssort_rate" height: 16];
+		radiobutton [title: "@mpgoodssort_newly" height: 16];
+		radiobutton [title: "@mpgoodssort_benefit" height: 16];
+	}
+	view [horizontal width: bycontainer(100) growfactor: 1 justifycontent: end alignitems: end margin_right: 12] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 defaultitem command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+//
+// Итоги выборки товаров Wildberries
+//
+dialog DLG_WBGOODSLISTTOTAL [vertical title: "@wildberries_publicgoodsselectiontotal" size: (600, 400) font: "MS Shell Dlg,8"] {
+	input CTL_WBGOODSLISTTOTAL_SCOUNT [design: B width: 80 height: 21 margin: 8 readonly tabstop label: "@wildberries_publicgoodsselectiontotal_scount" fmtf: (align_right nozero)] uint;
+	input CTL_WBGOODSLISTTOTAL_COUNT  [design: B width: 80 height: 21 margin: 8 readonly tabstop label: "@wildberries_publicgoodsselectiontotal_count" fmtf: (align_right nozero)] uint;
+	input CTL_WBGOODSLISTTOTAL_BCOUNT [design: B width: 80 height: 21 margin: 8 readonly tabstop label: "@wildberries_publicgoodsselectiontotal_bcount" fmtf: (align_right nozero)] uint;
+	input CTL_WBGOODSLISTTOTAL_VCOUNT [design: B width: 80 height: 21 margin: 8 readonly tabstop label: "@wildberries_publicgoodsselectiontotal_vcount" fmtf: (align_right nozero)] uint;
+	view [horizontal width: bycontainer(100) growfactor: 1 justifycontent: end alignitems: end margin_right: 12] {
+		button STDCTL_CANCELBUTTON [title: "@but_close" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+//
+// Детализация товара Wildberries
+//
+dialog DLG_WBGOODSLISTDETAIL [vertical title: "" size: (600, 600) font: "MS Shell Dlg,8"] {
+	framebox [title: "@ware" horizontal width: bycontainer(100) height: 58 margin: 4 padding: 4 justifycontent: spaceevenly alignitems: center] {	
+		input CTL_WBGOODSLISTDETAIL_ID      [width: 80 height: 21 margin: 8 readonly tabstop label: "@id" fmtf: (align_right nozero)] int64;
+		input CTL_WBGOODSLISTDETAIL_NAME    [growfactor: 1 height: 21 margin: 8 readonly tabstop label: "@appellation"] string[200];
+	}
+	framebox [title: "@brand" horizontal width: bycontainer(100) height: 58 margin: 4 padding: 4 justifycontent: spaceevenly alignitems: center] {	
+		input CTL_WBGOODSLISTDETAIL_BRANDID [width: 80 height: 21 margin: 8 readonly tabstop label: "@id" fmtf: (align_right nozero)] int64;
+		input CTL_WBGOODSLISTDETAIL_BRAND   [growfactor: 1 height: 21 margin: 8 readonly tabstop label: "@appellation"] string[200];
+	}
+	framebox [title: "@supplier" horizontal width: bycontainer(100) height: 58 margin: 4 padding: 4 justifycontent: spaceevenly alignitems: center] {	
+		input CTL_WBGOODSLISTDETAIL_SUPPLID [width: 80 height: 21 margin: 8 readonly tabstop label: "@id" fmtf: (align_right nozero)] long;
+		input CTL_WBGOODSLISTDETAIL_SUPPL   [growfactor: 1 height: 21 margin: 8 readonly tabstop label: "@appellation"] string[200];
+	}
+	view [horizontal width: bycontainer(100) growfactor: 1 justifycontent: end alignitems: end margin_right: 12] {
+		button STDCTL_CANCELBUTTON [title: "@but_close" tabstop size: (75, 21) margin: 4 command: cmCancel];
 	}
 }

@@ -520,6 +520,7 @@ int PPGetObjViewFiltMapping_Filt(int filtId, PPID * pObjType, int * pViewId)
 			case PPVIEW_COMPUTER:        p_v = new PPViewComputer(); break; // @v12.0.0
 			case PPVIEW_CLIENTACTIVITYDETAILS: p_v = new PPViewClientActivityDetails(); break; // @v12.2.8
 			case PPVIEW_UNITEC:          p_v = new PPViewUnitEc(); break; // @v12.3.7
+			case PPVIEW_WBPUBLICGOODS:   p_v = new PPViewWbPublicGoods(); break; // @v12.3.9
 			default: ok = PPSetError(PPERR_UNDEFVIEWID);
 		}
 		if(p_v) {
@@ -2122,7 +2123,7 @@ int PPView::ChangeFilt(int refreshOnly, PPViewBrowser * pW)
 		THROW(Helper_Init(p_filt, ExecFlags));
 		if(ImplementFlags & implBrowseArray) {
 			THROW(p_array = CreateBrowserArray(&brw_id, &sub_title));
-			if(pW->ChangeResource(brw_id, p_array, 1) == 2) {
+			if(pW->ChangeResource(brw_id, ExtToolbarId, p_array, true) == 2) {
 				if(DS.CheckExtFlag(ECF_PREPROCBRWONCHGFILT)) {
 					PreprocessBrowser(pW);
 					pW->LoadToolbarResource(ExtToolbarId);
@@ -2144,7 +2145,7 @@ int PPView::ChangeFilt(int refreshOnly, PPViewBrowser * pW)
 				// Если до этого у нас был кросстаб, то изменяем ресурс броузера с признаком force,
 				// то есть, броузер будет загружен заново даже если его ID совпадает с предыдущим.
 				//
-				r = pW->ChangeResource(brw_id, p_q, 1/*was_ct*/);
+				r = pW->ChangeResource(brw_id, ExtToolbarId, p_q, true/*was_ct*/);
 				if(r > 0) {
 					if(r == 2) {
 						if(DS.CheckExtFlag(ECF_PREPROCBRWONCHGFILT)) {
@@ -2167,7 +2168,7 @@ int PPView::ChangeFilt(int refreshOnly, PPViewBrowser * pW)
 			}
 			else {
 				THROW_PP(p_q != PPView::CrosstabDbQueryStub, PPERR_INVPPVIEWQUERY);
-				if(pW->ChangeResource(brw_id, p_q, 1/*force*/) == 2) {
+				if(pW->ChangeResource(brw_id, ExtToolbarId, p_q, true/*force*/) == 2) {
 					if(DS.CheckExtFlag(ECF_PREPROCBRWONCHGFILT)) {
 						PreprocessBrowser(pW);
 						pW->LoadToolbarResource(ExtToolbarId);

@@ -302,7 +302,6 @@ void DefaultValueObjectWriter::Node::PopulateChildren(const TypeInfo* typeinfo) 
 
 	for(int i = 0; i < type_->fields_size(); ++i) {
 		const google::protobuf::Field& field = type_->fields(i);
-
 		// This code is checking if the field to be added to the tree should be
 		// scrubbed or not by calling the field_scrub_callback_ callback function.
 		std::vector <std::string> path;
@@ -313,9 +312,7 @@ void DefaultValueObjectWriter::Node::PopulateChildren(const TypeInfo* typeinfo) 
 		if(field_scrub_callback_ && field_scrub_callback_(path, &field)) {
 			continue;
 		}
-
-		std::unordered_map<std::string, int>::iterator found =
-		    orig_children_map.find(field.name());
+		std::unordered_map<std::string, int>::iterator found = orig_children_map.find(field.name());
 		// If the child field has already been set, we just add it to the new list
 		// of children.
 		if(found != orig_children_map.end()) {

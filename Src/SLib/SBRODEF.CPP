@@ -38,6 +38,7 @@ SBrowserDataProcBlock & SBrowserDataProcBlock::Setup(const BroColumn & rC, const
 
 void   SBrowserDataProcBlock::SetZero() { PTR8(P_DestData)[0] = 0; }
 void   FASTCALL SBrowserDataProcBlock::Set(int32 i) { *static_cast<int32 *>(P_DestData) = i; }
+void   SBrowserDataProcBlock::Set(int64 i) { *static_cast<int64 *>(P_DestData) = i; } // @v12.3.9
 void   SBrowserDataProcBlock::Set(double r) { *static_cast<double *>(P_DestData) = r; }
 void   FASTCALL SBrowserDataProcBlock::Set(const char * pS) { strnzcpy(static_cast<char *>(P_DestData), pS, stsize(TypeID)); }
 void   FASTCALL SBrowserDataProcBlock::Set(const SString & rS) { rS.CopyTo(static_cast<char *>(P_DestData), stsize(TypeID)); }
@@ -75,11 +76,6 @@ BrowserDef::~BrowserDef()
 			delete static_cast<BroCrosstab *>(P_CtList->at(i))->P_Text;
 		delete P_CtList;
 	}
-}
-
-BroColumn & FASTCALL BrowserDef::at(uint pos) const
-{
-	return *static_cast<BroColumn *>(SArray::at(pos));
 }
 
 int BrowserDef::addColumn(const BroColumn * pCol, int pos)
@@ -127,6 +123,7 @@ bool STDCALL BrowserDef::IsColInGroup(uint col, uint * pIdx) const
 	return result;
 }
 
+BroColumn & FASTCALL BrowserDef::at(uint pos) const { return *static_cast<BroColumn *>(SArray::at(pos)); }
 /*virtual*/int BrowserDef::insertColumn(int, const char *, uint, TYPEID, long, uint) { return 0; }
 /*virtual*/int BrowserDef::insertColumn(int atPos, const char * pTxt, const char * pFldName, TYPEID typ, long fmt, uint opt) { return 0; }
 int BrowserDef::removeColumn(int pos) { return atFree(pos); }
@@ -172,15 +169,19 @@ int BrowserDef::AddColumnGroup(BroGroup * pGroup)
 	return ok;
 }
 
-int BrowserDef::AddCrosstab(BroCrosstab * pCt)
-{
-	return SETIFZ(P_CtList, new SArray(sizeof(BroCrosstab))) ? P_CtList->insert(pCt) : 0;
-}
-
-uint  BrowserDef::GetCrosstabCount() const
-	{ return SVectorBase::GetCount(P_CtList); }
-const BroCrosstab * BrowserDef::GetCrosstab(uint ctN) const
-	{ return (P_CtList && ctN < P_CtList->getCount()) ? static_cast<const BroCrosstab *>(P_CtList->at(ctN)) : 0; }
+int    BrowserDef::AddCrosstab(BroCrosstab * pCt) { return SETIFZ(P_CtList, new SArray(sizeof(BroCrosstab))) ? P_CtList->insert(pCt) : 0; }
+uint   BrowserDef::GetCrosstabCount() const { return SVectorBase::GetCount(P_CtList); }
+const  BroCrosstab * BrowserDef::GetCrosstab(uint ctN) const { return (P_CtList && ctN < P_CtList->getCount()) ? static_cast<const BroCrosstab *>(P_CtList->at(ctN)) : 0; }
+int    BrowserDef::GetCapHeight() const { return capHight; }
+void   BrowserDef::VerifyCapHeight() { capHight = MIN(2, capHight); }
+uint   BrowserDef::GetGroupCount() const { return NumGroups; }
+const  BroGroup * FASTCALL BrowserDef::GetGroup(uint grpN) const { return (grpN < NumGroups) ? (P_Groups+grpN) : 0; }
+uint * BrowserDef::GetGroupIndexPtr(uint grpN) { return (grpN < NumGroups) ? &P_Groups[grpN].Index : 0; }
+bool   BrowserDef::IsBOQ() const { return isBOQ; }
+bool   BrowserDef::IsEOQ() const { return isEOQ; }
+bool   BrowserDef::CheckFlag(uint f) const { return LOGIC(options & f); }
+uint   BrowserDef::groupWidth(uint grpN, uint atColumn) const { return groupWidth(P_Groups + grpN, atColumn); }
+void   BrowserDef::setViewHight(int newHight) { viewHight = newHight; }
 
 int BrowserDef::FreeAllCrosstab()
 {
@@ -210,21 +211,11 @@ bool   BrowserDef::SetCapHeight(int height) // @v12.2.2
 	return ok;
 }
 
-int    BrowserDef::GetCapHeight() const { return capHight; }
-void   BrowserDef::VerifyCapHeight() { capHight = MIN(2, capHight); }
-uint   BrowserDef::GetGroupCount() const { return NumGroups; }
-const  BroGroup * FASTCALL BrowserDef::GetGroup(uint grpN) const { return (grpN < NumGroups) ? (P_Groups+grpN) : 0; }
-
 void BrowserDef::ClearGroupIndexies()
 {
 	for(uint i = 0; i < NumGroups; i++)
 		P_Groups[i].Index = 0;
 }
-
-uint * BrowserDef::GetGroupIndexPtr(uint grpN) { return (grpN < NumGroups) ? &P_Groups[grpN].Index : 0; }
-bool   BrowserDef::IsBOQ() const { return isBOQ; }
-bool   BrowserDef::IsEOQ() const { return isEOQ; }
-bool   BrowserDef::CheckFlag(uint f) const { return LOGIC(options & f); }
 
 void BrowserDef::SetUserProc(SBrowserDataProc proc, void * extraPtr)
 {
@@ -261,9 +252,6 @@ uint BrowserDef::groupWidth(const BroGroup * pGroup, uint atColumn) const
 	wd += (_n - 1) * 3;
 	return wd;
 }
-
-uint BrowserDef::groupWidth(uint grpN, uint atColumn) const { return groupWidth(P_Groups + grpN, atColumn); }
-void BrowserDef::setViewHight(int newHight) { viewHight = newHight; }
 
 const void * BrowserDef::Helper_GetCellData(const void * pRowData, int columnIdx, TYPEID * pTypeID, long * pFmt, uint * pCOptions, void * pOuterBuf, size_t outerBufSize)
 {
@@ -483,10 +471,8 @@ int FASTCALL BrowserDef::go(long row)
 			topItem = curItem;
 		else if(row >= topItem + viewHight)
 			topItem = (curItem - viewHight + 1);
-		if(topItem < 0)
-			topItem = 0;
-		if(curItem < 0)
-			curItem = 0;
+		SETMAX(topItem, 0);
+		SETMAX(curItem, 0);
 		return reply;
 	}
 	return 0;
@@ -497,12 +483,13 @@ int BrowserDef::search2(const void * data, CompFunc cmpFunc, int srchMode, size_
 	int    found = 0;
 	if(data) {
 		int    r = (srchMode == srchFirst) ? top() : step(1);
-		if(r)
+		if(r) {
 			do {
 				const char * p = static_cast<const char *>(getRow(_curItem()));
 				if(p && cmpFunc(p + offs, data, 0) == 0)
 					found = 1;
 			} while(!found && step(1) > 0);
+		}
 	}
 	return found;
 }

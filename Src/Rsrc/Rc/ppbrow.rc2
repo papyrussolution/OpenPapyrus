@@ -1052,9 +1052,23 @@ toolbar export LIST_GOODSSTRUC TB_FIRST_TOOLBAR {
 	//separator
 	//cmSysJournalByObj, "@{view_sysjournal}\tCtrl-J",  PPDV_SYSJOURNAL
 }
+
+toolbar export WBPUBLICGOODS TB_FIRST_TOOLBAR {
+	DETAIL     : kbEnter, PPDV_LINS02,      "@{detail}\tEnter"
+	WWWLINK    : kbF2,    PPDV_LINK01,      "@{dogotoitemwebpage}\tF2"
+	SIMILARITY : kbCtrlY, PPDV_NOICON,      "Подобие по текущей колонке\tCtrl-Y"
+	TOTAL      : kbF9,    PPDV_SIGMA02,     "@{totals}\tF9"
+	CHANGEFILT : kbCtrlV, PPDV_FILTER01,    "@{filter}\tCtrl-V"
+}
 //
 //
 //
+browser EMPTY north(100), 1, 1, "", OWNER|GRID, 0
+{
+	toolbar TB_FIRST_TOOLBAR {
+	}
+}
+
 browser PERSON north(100), 1, 1, "@{person_pl} {%s}", OWNER|GRID, 0
 {
 	"@id",       0, notype, 0,  4
@@ -7133,6 +7147,7 @@ cmd SourceCodeProcessing      { "@{cmd_sourcecodeprocessing}"                 no
 cmd BizScore2Val              { "@{cmd_bizscore2val}"                         ICON_BIZSCORE          none cmBizScore2Val view=BizSc2Val } // @v12.3.4
 cmd UnitEc                    { "@{cmd_unitec}"                               none                   none cmUnitEc view=UnitEc } // @v12.3.7
 cmd Cristal2SetRetailGateway  { "@{cristal2setretailgateway}"                 none                   none none } // @v12.3.7
+cmd WbPublicGoods             { "@{view_wbpublicgoods}"                       PPDV_LOGOWILDBERRIES   none none view=WbPublicGoods } // @v12.3.9
 //
 // -------------- Описания серверных задач
 //

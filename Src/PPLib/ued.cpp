@@ -1009,6 +1009,46 @@ static int GetTimeZoneOffsetSec(uint64 * pRaw, uint bits, int * pOffs)
 //
 //
 //
+SrUedContainer_Base::UedLocaleEntry::UedLocaleEntry() : Ued(0ULL), Locale(0U)
+{
+}
+		
+SrUedContainer_Base::UedLocaleEntry::UedLocaleEntry(uint64 ued, uint locale) : Ued(ued), Locale(locale)
+{
+}
+
+SrUedContainer_Base::UedLocaleEntry::UedLocaleEntry(const UedLocaleEntry & rS) : Ued(rS.Ued), Locale(rS.Locale)
+{
+}
+
+SrUedContainer_Base::UedLocaleEntry & FASTCALL SrUedContainer_Base::UedLocaleEntry::operator = (const SrUedContainer_Base::UedLocaleEntry & rS)
+{
+	Ued = rS.Ued;
+	Locale = rS.Locale;
+	return *this;
+}
+
+bool FASTCALL SrUedContainer_Base::UedLocaleEntry::operator == (const SrUedContainer_Base::UedLocaleEntry & rS) const
+{
+	return (Ued == rS.Ued && Locale == rS.Locale);
+}
+
+SrUedContainer_Base::UedLocaleEntry & SrUedContainer_Base::UedLocaleEntry::Set(uint64 ued, uint locale)
+{
+	Ued = ued;
+	Locale = locale;
+	return *this;
+}
+
+SrUedContainer_Base::UedLocaleEntry & SrUedContainer_Base::UedLocaleEntry::Z()
+{
+	Ued = 0ULL;
+	Locale = 0U;
+	return *this;
+}
+//
+//
+//
 static IMPL_CMPFUNC(SrUedContainer_TextEntry, p1, p2)
 {
 	const SrUedContainer_Base::TextEntry * p_e1 = static_cast<const SrUedContainer_Base::TextEntry *>(p1);
@@ -1060,7 +1100,30 @@ uint64 SrUedContainer_Base::SearchSymb(const char * pSymb, uint64 meta) const
 	return result;
 }
 
-bool   SrUedContainer_Base::SearchBaseId(uint64 id, SString & rSymb) const
+bool SrUedContainer_Base::GetText(uint64 ued, uint64 uedLinguaLocus, SString & rText) const
+{
+	rText.Z();
+	bool   ok = false;
+	if(ued && uedLinguaLocus) {
+		if(UED::BelongToMeta(uedLinguaLocus, UED_META_LINGUALOCUS)) {
+			const uint32 ll32 = UED::GetRawValue32(uedLinguaLocus);
+			UedLocaleEntry key;
+			key.Ued = ued;
+			key.Locale = ll32;
+			auto it = TextHt.find(key);
+			uint   text_pos = 0;
+			if(it != TextHt.end()) {
+				text_pos = it->second;
+				if(GetS(text_pos, rText)) {
+					ok = true;
+				}
+			}
+		}
+	}
+	return ok;
+}
+
+bool SrUedContainer_Base::SearchBaseId(uint64 id, SString & rSymb) const
 {
 	rSymb.Z();
 	bool   ok = false;
@@ -1445,7 +1508,7 @@ int SrUedContainer_Base::RegisterProtoPropList(const ProtoPropList_SingleUed & r
 	return ok;
 }
 
-int SrUedContainer_Base::ReadSource(const char * pFileName, uint flags, PPLogger * pLogger)
+int SrUedContainer_Base::ReadSource(const char * pFileName, uint flags, const StringSet * pSsLang, PPLogger * pLogger)
 {
 	int    ok = 1;
 	uint   line_no = 0;
@@ -1458,20 +1521,7 @@ int SrUedContainer_Base::ReadSource(const char * pFileName, uint flags, PPLogger
 	uint   last_linglocus_temp_id = 0;
 	SymbHashTable temporary_linglocus_tab(512);
 	SStrScan scan;
-	struct UedLinguaPair {
-		UedLinguaPair() : Ued(0), LocaleId(0)
-		{
-		}
-		UedLinguaPair & Set(uint64 ued, int localeId)
-		{
-			Ued = ued;
-			LocaleId = localeId;
-			return *this;
-		}
-		uint64 Ued;
-		int   LocaleId;
-	};
-	UedLinguaPair last_key;
+	UedLocaleEntry last_key;
 	PropertyListParsingBlock plp_blk;
 	SFile f_in(pFileName, SFile::mRead);
 	THROW(f_in.IsValid());
@@ -1600,13 +1650,16 @@ int SrUedContainer_Base::ReadSource(const char * pFileName, uint flags, PPLogger
 								}
 								else if(ssc == 3) {
 									if(lang_id) {
-										TextEntry new_entry;
-										new_entry.LineNo = line_no; // @v11.7.8
-										new_entry.Ued = id;
-										new_entry.Locale = lang_id;
-										AddS(text_buf, &new_entry.TextP);
-										TL.insert(&new_entry);
-										last_key.Set(new_entry.Ued, new_entry.Locale);
+										const bool skip_because_lang = (pSsLang && !pSsLang->searchNcAscii(lang_buf, 0));
+										if(!skip_because_lang) {
+											TextEntry new_entry;
+											new_entry.LineNo = line_no; // @v11.7.8
+											new_entry.Ued = id;
+											new_entry.Locale = lang_id;
+											AddS(text_buf, &new_entry.TextP);
+											TL.insert(&new_entry);
+											last_key.Set(new_entry.Ued, new_entry.Locale);
+										}
 									}
 								}
 							}
@@ -1615,7 +1668,7 @@ int SrUedContainer_Base::ReadSource(const char * pFileName, uint flags, PPLogger
 							// @todo @err
 						}
 						if(curly_bracket_left) {
-							if(plp_blk.Start(last_key.Ued, last_key.LocaleId)) {
+							if(plp_blk.Start(last_key.Ued, last_key.Locale)) {
 								int plpr = plp_blk.Do(*this, scan);
 								if(plpr > 0) {
 									RegisterProtoPropList(plp_blk.GetResult());
@@ -1637,6 +1690,14 @@ int SrUedContainer_Base::ReadSource(const char * pFileName, uint flags, PPLogger
 	Ht.BuildAssoc();
 	THROW_SL(temporary_linglocus_tab.BuildAssoc());
 	THROW(ReplaceSurrogateLocaleIds(temporary_linglocus_tab, pLogger));
+	// @v12.3.9 {
+	if(!(flags & rsfCompileTime)) {
+		for(uint i = 0; i < TL.getCount(); i++) {
+			const TextEntry & r_entry = TL.at(i);
+			TextHt.emplace(r_entry, r_entry.TextP); 
+		}
+	}
+	// } @v12.3.9 
 	if(flags & rsfCompileTime) {
 		THROW(ProcessProperties());
 	}
@@ -1665,7 +1726,7 @@ int SrUedContainer_Base::GetPropList(TSCollection <PropIdxEntry> & rList) const
 	return ok;
 }
 
-int SrUedContainer_Base::Helper_PutProperties(const UedLocaleEntry & rUedEntry, const TSVector <uint64> & rRawPropList)
+int SrUedContainer_Base::Helper_PutProperties(const UedLocaleEntry & rUedEntry, const Uint64Array & rRawPropList)
 {
 	int    ok = 1;
 	if(rUedEntry.Ued != 0ULL && rRawPropList.getCount()) {
@@ -1702,7 +1763,7 @@ int SrUedContainer_Base::ProcessProperties()
 	SString temp_buf;
 	SString prop_item_text;
 	SStrScan scan;
-	TSVector <uint64> raw_prop_list;
+	Uint64Array raw_prop_list;
 	for(uint i = 0; i < ProtoPropList.getCount(); i++) {
 		const ProtoProp * p_pp = ProtoPropList.at(i);
 		if(p_pp) {
@@ -1836,7 +1897,7 @@ bool SrUedContainer_Base::ReadSingleProp(SStrScan & rScan)
 {
 	bool   ok = true;
 	UedLocaleEntry ued_entry;
-	TSVector <uint64> raw_prop_list;
+	Uint64Array raw_prop_list;
 	SString temp_buf;
 	SString lingua_buf;
 	rScan.Skip();
@@ -2503,7 +2564,7 @@ SrUedContainer_Ct::~SrUedContainer_Ct()
 
 int SrUedContainer_Ct::Read(const char * pFileName, PPLogger * pLogger)
 {
-	return SrUedContainer_Base::ReadSource(pFileName, rsfCompileTime, pLogger);
+	return SrUedContainer_Base::ReadSource(pFileName, rsfCompileTime, 0, pLogger);
 }
 
 int SrUedContainer_Ct::Write(const char * pFileName, const SBinaryChunk * pPrevHash, SBinaryChunk * pHash)
@@ -2518,8 +2579,9 @@ int SrUedContainer_Ct::WriteProps(const char * pFileName, const SBinaryChunk * p
 //
 //
 //
-SrUedContainer_Rt::SrUedContainer_Rt() : SrUedContainer_Base()
+SrUedContainer_Rt::SrUedContainer_Rt(const StringSet * pSsLang) : SrUedContainer_Base()
 {
+	RVALUEPTR(SsLang, pSsLang);
 }
 
 SrUedContainer_Rt::~SrUedContainer_Rt()
@@ -2528,7 +2590,7 @@ SrUedContainer_Rt::~SrUedContainer_Rt()
 	
 int SrUedContainer_Rt::Read(const char * pFileName)
 {
-	return SrUedContainer_Base::ReadSource(pFileName, 0, 0);
+	return SrUedContainer_Base::ReadSource(pFileName, 0, (SsLang.getCount() ? &SsLang : 0), 0);
 }
 
 bool SrUedContainer_Rt::GetSymb(uint64 ued, SString & rSymb) const

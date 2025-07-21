@@ -22,7 +22,7 @@ CPercentPrinterState::CPercentPrinterState() : Completed(0), Total((uint64)(int6
 void CPercentPrinterState::ClearCurState()
 {
 	Completed = 0;
-	Total = static_cast<uint64>(-1LL);
+	Total = _FFFF64;
 	Files = 0;
 	Command.Empty();
 	FileName.Empty();
@@ -33,10 +33,7 @@ void CPercentPrinter::ClosePrint(bool needFlush)
 	uint num = _printedString.Len();
 	if(num != 0) {
 		uint i;
-
-		/* '\r' in old MAC OS means "new line".
-		   So we can't use '\r' in some systems */
-
+		/* '\r' in old MAC OS means "new line". So we can't use '\r' in some systems */
   #ifdef _WIN32
 		char * start = _temp.GetBuf(num  + 2);
 		char * p = start;
@@ -67,7 +64,7 @@ void CPercentPrinter::GetPercents()
 	{
 		char c = '%';
 		uint64 val = 0;
-		if(Total == static_cast<uint64>(-1LL)) {
+		if(Total == _FFFF64) {
 			val = Completed >> 20;
 			c = 'M';
 		}

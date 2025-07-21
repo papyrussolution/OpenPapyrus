@@ -7909,6 +7909,7 @@ int ExportDialogs2(const char * pFileName)
 									}
 									_BBox(_AdjustRectToOrigin(wi.rcWindow, _origin), line_buf, 0);
 									p_list->GetOrgColumnsDescr(temp_buf);
+									temp_buf.Transf(CTRANSF_INNER_TO_OUTER); // @v12.3.9
 									if(temp_buf.NotEmptyS()) {
 										line_buf.Space().Cat("columns").CatDiv(':', 2).CatQStr(temp_buf);
 									}
@@ -8423,6 +8424,7 @@ private:
 	static void __stdcall SetupLayoutItemFrameProc(SUiLayout * pItem, const SUiLayout::Result & rR);
 	SUiLayout * InsertCtrlLayout(TDialog * pDlg, SUiLayout * pLoParent, TView * pView, const SUiLayoutParam & rP);
 	SUiLayout * InsertCtrlLayout(TDialog * pDlg, SUiLayout * pLoParent, ushort ctlId, const SUiLayoutParam & rP);
+	bool   MakeComplexLayout_InputLine(TDialog * pDlg, TView * pView, SUiLayoutParam & rLp, DlContext & rCtx, const DlScope * pScope, SUiLayout * pLoParent);
 	long   GetScopeID(const DlScope * pScope) const { return pScope ? (pScope->ID + 2000) : 0; }
 
 	enum {
@@ -8982,15 +8984,284 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 	}
 }
 
+static const float FixedButtonY = 21.0f;
+static const float FixedButtonX = FixedButtonY;
+static const float FixedInputY = 21.0f;
+static const float FixedLabelY = 13.0f;
+
+bool PPDialogConstructor::MakeComplexLayout_InputLine(TDialog * pDlg, TView * pView, SUiLayoutParam & rLp, DlContext & rCtx, const DlScope * pScope, SUiLayout * pLoParent)
+{
+	//
+	// Descr: Варианты дизайна комплекса {строка ввода, этикетка, [supplement]}
+	//
+	enum {
+		designA = 1, // этикетка над строкой ввода
+		designB = 2, // этикетка слева от строки ввода
+	};
+	bool   done = false;
+	SString temp_buf;
+	if(TView::IsSubSign(pView, TV_SUBSIGN_INPUTLINE)) {
+		int    design = designA;
+		SUiCtrlSupplement_With_Symbols supplement;
+		{
+			rCtx.GetConst_String(pScope, DlScope::cuifDesign, temp_buf);
+			if(temp_buf.IsEqiAscii("B"))
+				design = designB;
+			else 
+				design = designA;
+		}
+		{
+			CtmExprConst __c = pScope->GetConst(DlScope::cuifSupplement);
+			if(!!__c) {
+				uint8    c_buf[256];
+				if(rCtx.GetConstData(__c, c_buf, sizeof(c_buf))) {
+					supplement = *reinterpret_cast<const SUiCtrlSupplement *>(c_buf);
+					if(supplement.Kind) {
+						rCtx.GetConst_String(pScope, DlScope::cuifSupplementSymb, supplement.Symb);
+						rCtx.GetConst_String(pScope, DlScope::cuifSupplementCmdSymb, supplement.CmdSymb);
+						rCtx.GetConst_String(pScope, DlScope::cuifSupplementText, supplement.Text);
+					}
+				}
+			}
+		}
+		TInputLine * p_il = static_cast<TInputLine *>(pView);
+		TView * p_lbl = pDlg->GetCtrlLabel(p_il);
+		TView * p_supplemental_view = 0; // supplemental-view
+		SUiLayoutParam __lp_ib(DIREC_HORZ); // Лейаут для пары {поле ввода; supplemental-кнопка}
+		SUiLayoutParam * p_lb_ib = 0; // Указатель на лейаут для пары {поле ввода; supplemental-кнопка}. if p_lb_ib != 0 then нужно воткнуть supplement-button
+		//SUiLayoutParam lp_supplement_button; // Лейаут для supplemental-кнопки
+		SPoint2F sb_sz; // Размер supplemental-button
+		float inp_width = 0.0f;
+		float inp_height = 0.0f;
+		float label_width = 0.0f;
+		float label_height = 0.0f;
+		const int inp_szx = rLp.GetSizeX(&inp_width);
+		const int inp_szy = rLp.GetSizeY(&inp_height);
+
+		SUiLayoutParam lp_label_org; // Параметры label, созданные описанием
+		const bool glb_label_org_r = rCtx.GetLayoutBlock(pScope, DlScope::cuifLblLayoutBlock, &lp_label_org);
+		const int label_szx = lp_label_org.GetSizeX(&label_width);
+		const int label_szy = lp_label_org.GetSizeY(&label_height);
+		if(lp_label_org.LinkRelation) {
+			;//debug_mark = true;
+		}
+		if(supplement.Kind && supplement.Ident) {
+			p_supplemental_view = pDlg->getCtrlView(supplement.Ident);
+			if(!TView::IsSubSign(p_supplemental_view, TV_SUBSIGN_BUTTON))
+				p_supplemental_view = 0;
+		}
+		if(p_lbl) {
+			// SUiLayoutParam lp_label(lp_label_org); // @v12.3.9 lp_label()-->lp_label(glb_label_org_r)
+			SUiLayoutParam lp_label;
+			//
+			TRect  rc_label;
+			const uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(&lp_label, rc_label, 60.0f, TInputLine::DefLabelHeight);
+			if(inp_szy == SUiLayoutParam::szFixed || inp_szy == 0) {
+				if(inp_height == 0.0f) {
+					inp_height = TInputLine::DefHeight;
+				}
+			}
+			else {
+				; // ?
+			}
+			//
+			if(p_supplemental_view) {
+				p_lb_ib = &__lp_ib;
+				sb_sz.Set(20.0f, inp_height);
+			}
+			if(design == designB) {
+				/*
+					Дизайн B предполагает следующее:
+					-- весь комплекс располагается горизонтально. 
+					-- полная ширина (size_x) комплекса определяется шириной контейнера!
+					-- Ширина поля ввода:
+						-- if ширина поля ввода (основной size_x) задана фиксированной, то принимается эта величина
+						-- elseif growfactor поля ввода (основной growfactor) задан, то он применяется собственно к полю ввода внутри комплекса
+						-- else ???
+					-- Ширина этикетки:
+						-- if ширина этикетки (labelsize_x) задана фиксированной, то принимается она
+				*/ 
+				SUiLayoutParam glp(DIREC_HORZ); // Группирующий лейаут для строки ввода и подписи (label)
+				//
+				glp.SetFixedSizeY(inp_height);
+				glp.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+				glp.Margin = rLp.Margin;
+				rLp.Margin.Z();
+				SUiLayout * p_lo_inp_grp = pLoParent->InsertItem(0, &glp);
+				if(p_lo_inp_grp) {
+					SUiLayoutParam lp_il; // inputline
+					lp_label.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
+					lp_il.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
+					if(p_lb_ib) {
+						// @todo Сейчас этот участок повторяет случай (!p_lb_ib). Надо supplement-button воткнуть.
+						if(inp_szx == SUiLayoutParam::szFixed) {
+							lp_il.SetFixedSizeX(inp_width);
+							lp_label.SetFixedSizeX(0.0f);
+							lp_label.GrowFactor = 1.0;
+						}
+						else if(label_szx == SUiLayoutParam::szFixed) {
+							lp_il.SetFixedSizeX(0.0f);
+							lp_il.Margin.a.x = 4.0f;
+							lp_label.SetFixedSizeX(label_width);
+						}
+						else {
+							lp_il.SetFixedSizeX(0.0f);
+							lp_label.SetFixedSizeX(0.0f);
+							lp_label.GrowFactor = 1.0;							
+						}
+						lp_il.Margin.a.x = 4.0f;
+						InsertCtrlLayout(pDlg, p_lo_inp_grp, p_lbl, lp_label);
+						InsertCtrlLayout(pDlg, p_lo_inp_grp, p_il, lp_il);
+						done = true;
+					}
+					else {
+						if(inp_szx == SUiLayoutParam::szFixed) {
+							lp_il.SetFixedSizeX(inp_width);
+							lp_label.SetFixedSizeX(0.0f);
+							lp_label.GrowFactor = 1.0;
+						}
+						else if(label_szx == SUiLayoutParam::szFixed) {
+							lp_il.SetFixedSizeX(0.0f);
+							lp_il.Margin.a.x = 4.0f;
+							lp_label.SetFixedSizeX(label_width);
+						}
+						else {
+							lp_il.SetFixedSizeX(0.0f);
+							lp_label.SetFixedSizeX(0.0f);
+							lp_label.GrowFactor = 1.0;							
+						}
+						lp_il.Margin.a.x = 4.0f;
+						InsertCtrlLayout(pDlg, p_lo_inp_grp, p_lbl, lp_label);
+						InsertCtrlLayout(pDlg, p_lo_inp_grp, p_il, lp_il);
+						done = true;
+					}
+				}
+			}
+			else if(design == designA) {
+				SUiLayoutParam glp(DIREC_VERT); // Группирующий лейаут для строки ввода и подписи (label)
+				//
+				glp.SetFixedSizeY(inp_height + rc_label.height() + 1.0f);
+				//
+				// Пока для случая supplement сделаем отдельную ветку кода. Потом унифицируем.
+				// 
+				if(p_lb_ib) {
+					SUiLayoutParam lp_sb; // supplement-button
+					SUiLayoutParam lp_il; // inputline
+					lp_sb.SetFixedSizeX(sb_sz.x);
+					lp_sb.SetFixedSizeY(sb_sz.y);
+					lp_sb.ShrinkFactor = 0.0f;
+
+					lp_il.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+					lp_il.SetFixedSizeY(FixedInputY);
+
+					lp_label.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+					lp_label.SetFixedSizeY(static_cast<float>(rc_label.height()));
+
+					glp.Margin = rLp.Margin;
+					rLp.CopySizeXParamTo(glp);
+					glp.SetGrowFactor(rLp.GrowFactor);
+					rLp.GrowFactor = 0.0f; // @v12.3.7
+
+					SUiLayout * p_lo_inp_grp = pLoParent->InsertItem(0, &glp);
+					InsertCtrlLayout(pDlg, p_lo_inp_grp, p_lbl, lp_label);
+					SUiLayout * p_lo_ib_grp = p_lo_inp_grp->InsertItem(0, p_lb_ib);
+					InsertCtrlLayout(pDlg, p_lo_ib_grp, p_il, lp_il);
+					InsertCtrlLayout(pDlg, p_lo_ib_grp, p_supplemental_view, lp_sb);
+					done = true;
+				}
+				else {
+					if(inp_szx == SUiLayoutParam::szFixed) {
+						glp.SetFixedSizeX(inp_width + 2.0f);
+						rLp.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+					}
+					else if(inp_szx == SUiLayoutParam::szByContainer) {
+						glp.SetVariableSizeX(SUiLayoutParam::szByContainer, inp_width);
+						rLp.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+					}
+					else if(rLp.GrowFactor >= 0.0f) {
+						glp.SetGrowFactor(rLp.GrowFactor);
+						rLp.SetGrowFactor(0.0f);
+					}
+					else {
+						// полная ширина контейнера
+						glp.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+						rLp.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+					}
+					//
+					lp_label.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+					lp_label.SetFixedSizeY((rc_label.height() > 0.0f) ? static_cast<float>(rc_label.height()) : TInputLine::DefLabelHeight);
+					lp_label.ShrinkFactor = 0.0f;
+					//
+					//lp_supplement_button.SetFixedSizeX(20.0f); // @v12.3.7
+					glp.ShrinkFactor = 0.0f;
+					glp.Flags &= ~(SUiLayoutParam::fContainerWrap|SUiLayoutParam::fContainerWrapReverse);
+					rLp.SetFixedSizeY(inp_height);
+					rLp.ShrinkFactor = 0.0f;
+					glp.Margin = rLp.Margin;
+					rLp.Margin.Z();
+					SUiLayout * p_lo_inp_grp = pLoParent->InsertItem(0, &glp);
+					if(p_lo_inp_grp) {
+						InsertCtrlLayout(pDlg, p_lo_inp_grp, p_lbl, lp_label);
+						InsertCtrlLayout(pDlg, p_lo_inp_grp, p_il, rLp);
+						done = true;
+					}
+				}
+			}
+		}
+		else { // Этикетки нет 
+			if(p_supplemental_view) {
+				p_lb_ib = &__lp_ib;
+				sb_sz.Set(20.0f, inp_height);
+				//
+				if(inp_szy == SUiLayoutParam::szFixed || inp_szy == 0) {
+					if(inp_height == 0.0f) {
+						inp_height = TInputLine::DefHeight;
+					}
+					p_lb_ib->SetFixedSizeY(inp_height);
+				}
+				else {
+					; // ?
+				}
+				//
+				SUiLayoutParam lp_sb;
+				SUiLayoutParam lp_il;
+				lp_sb.SetFixedSizeX(sb_sz.x);
+				lp_sb.SetFixedSizeY(sb_sz.y);
+				lp_sb.ShrinkFactor = 0.0f;
+
+				lp_il.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+				lp_il.SetFixedSizeY(FixedInputY);
+
+				//lp_label.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+				//lp_label.SetFixedSizeY(static_cast<float>(rc_label.height()));
+
+				p_lb_ib->Margin = rLp.Margin;
+				rLp.CopySizeXParamTo(*p_lb_ib);
+				p_lb_ib->SetGrowFactor(rLp.GrowFactor);
+				rLp.GrowFactor = 0.0f;
+
+				SUiLayout * p_lo_inp_grp = pLoParent->InsertItem(0, p_lb_ib);
+				//InsertCtrlLayout(pDlg, p_lo_inp_grp, p_lbl, lp_label);
+				//SUiLayout * p_lo_ib_grp = p_lo_inp_grp->InsertItem(0, p_lb_ib);
+				InsertCtrlLayout(pDlg, p_lo_inp_grp, p_il, lp_il);
+				InsertCtrlLayout(pDlg, p_lo_inp_grp, p_supplemental_view, lp_sb);
+				done = true;
+			}
+			else {
+				SUiLayout * p_lo = InsertCtrlLayout(pDlg, pLoParent, p_il, rLp);
+				done = true;
+			}
+		}
+	}
+	return done;
+}
+
 void PPDialogConstructor::InsertControlLayouts(TDialog * pDlg, DlContext & rCtx, const DlScope & rParentScope, SUiLayout * pLoParent)
 {
+	bool   debug_mark = false; // @debug
 	if(pLoParent) {
 		const DlScopeList & r_sc_list = rParentScope.GetChildList();
 		SUiCtrlSupplement_With_Symbols supplement; // @v12.3.7
-		const float fixed_button_y = 21.0f;
-		const float fixed_button_x = fixed_button_y;
-		const float fixed_input_y = 21.0f;
-		const float fixed_label_y = 13.0f;
 		for(uint i = 0; i < r_sc_list.getCount(); i++) {
 			const DlScope * p_scope = r_sc_list.at(i);
 			if(p_scope) {
@@ -9081,14 +9352,14 @@ void PPDialogConstructor::InsertControlLayouts(TDialog * pDlg, DlContext & rCtx,
 										lp.GrowFactor = 0.0f;
 										// } @v12.3.7 
 										lp_label.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
-										lp_label.SetFixedSizeY(fixed_label_y);
-										lp_button.SetFixedSizeX(fixed_button_x);
-										lp_button.SetFixedSizeY(fixed_button_y);
+										lp_label.SetFixedSizeY(FixedLabelY);
+										lp_button.SetFixedSizeX(FixedButtonX);
+										lp_button.SetFixedSizeY(FixedButtonY);
 										lp_button.ShrinkFactor = 0.0f;
 										lp_il.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
-										lp_il.SetFixedSizeY(fixed_input_y);
-										lp_ib.SetFixedSizeY(MAX(fixed_input_y, fixed_button_y));
-										glp.SetFixedSizeY(MAX(fixed_input_y, fixed_button_y) + fixed_label_y);
+										lp_il.SetFixedSizeY(FixedInputY);
+										lp_ib.SetFixedSizeY(MAX(FixedInputY, FixedButtonY));
+										glp.SetFixedSizeY(MAX(FixedInputY, FixedButtonY) + FixedLabelY);
 
 										SUiLayout * p_lo_cb_grp = pLoParent->InsertItem(0, &glp);
 										InsertCtrlLayout(pDlg, p_lo_cb_grp, p_lbl, lp_label);
@@ -9104,156 +9375,7 @@ void PPDialogConstructor::InsertControlLayouts(TDialog * pDlg, DlContext & rCtx,
 							}
 						}
 						else if(vk == UiItemKind::kInput) {
-							if(p_view->IsSubSign(TV_SUBSIGN_INPUTLINE)) {
-								TInputLine * p_il = static_cast<TInputLine *>(p_view);
-								TView * p_lbl = pDlg->GetCtrlLabel(p_il);
-								TView * p_sv = 0; // supplemental-view
-								SUiLayoutParam __lp_ib(DIREC_HORZ); // Лейаут для пары {поле ввода; supplemental-кнопка}
-								SUiLayoutParam * p_lb_ib = 0;
-								SUiLayoutParam lp_supplement_button; // Лейаут для supplemental-кнопки
-								SPoint2F sb_sz; // Размер supplemental-button
-								float inp_width = 0.0f;
-								float inp_height = 0.0f;
-								const int inp_szx = lp.GetSizeX(&inp_width);
-								const int inp_szy = lp.GetSizeY(&inp_height);
-								if(supplement.Kind && supplement.Ident) {
-									p_sv = pDlg->getCtrlView(supplement.Ident);
-									if(!TView::IsSubSign(p_sv, TV_SUBSIGN_BUTTON))
-										p_sv = 0;
-								}
-								if(p_lbl) {
-									// Группирующий лейаут для строки ввода и подписи (label)
-									SUiLayoutParam glp(DIREC_VERT);
-									SUiLayoutParam lp_label;
-									//
-									TRect  rc_label;
-									const uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(&lp_label, rc_label, 60.0f, TInputLine::DefLabelHeight);
-									//
-									if(inp_szy == SUiLayoutParam::szFixed || inp_szy == 0) {
-										if(inp_height == 0.0f) {
-											inp_height = TInputLine::DefHeight;
-										}
-										glp.SetFixedSizeY(inp_height + rc_label.height() + 1.0f);
-									}
-									else {
-										; // ?
-									}
-									//
-									if(p_sv) {
-										p_lb_ib = &__lp_ib;
-										sb_sz.Set(20.0f, inp_height);
-									}
-									//
-									// Пока для случая supplement сделаем отдельную ветку кода. Потом унифицируем.
-									// 
-									if(p_lb_ib) {
-										SUiLayoutParam lp_sb;
-										SUiLayoutParam lp_il;
-										lp_sb.SetFixedSizeX(sb_sz.x);
-										lp_sb.SetFixedSizeY(sb_sz.y);
-										lp_sb.ShrinkFactor = 0.0f;
-
-										lp_il.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
-										lp_il.SetFixedSizeY(fixed_input_y);
-
-										lp_label.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
-										lp_label.SetFixedSizeY(static_cast<float>(rc_label.height()));
-
-										glp.Margin = lp.Margin;
-										lp.CopySizeXParamTo(glp);
-										glp.SetGrowFactor(lp.GrowFactor);
-										lp.GrowFactor = 0.0f; // @v12.3.7
-
-										SUiLayout * p_lo_inp_grp = pLoParent->InsertItem(0, &glp);
-										InsertCtrlLayout(pDlg, p_lo_inp_grp, p_lbl, lp_label);
-										SUiLayout * p_lo_ib_grp = p_lo_inp_grp->InsertItem(0, p_lb_ib);
-										InsertCtrlLayout(pDlg, p_lo_ib_grp, p_il, lp_il);
-										InsertCtrlLayout(pDlg, p_lo_ib_grp, p_sv, lp_sb);
-										done = true;
-									}
-									else {
-										if(inp_szx == SUiLayoutParam::szFixed) {
-											glp.SetFixedSizeX(inp_width + 2.0f);
-											lp.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
-										}
-										else if(inp_szx == SUiLayoutParam::szByContainer) {
-											glp.SetVariableSizeX(SUiLayoutParam::szByContainer, inp_width);
-											lp.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
-										}
-										else if(lp.GrowFactor >= 0.0f) {
-											glp.SetGrowFactor(lp.GrowFactor);
-											lp.SetGrowFactor(0.0f);
-										}
-										else {
-											// полная ширина контейнера
-											glp.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
-											lp.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
-										}
-										//
-										lp_label.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
-										lp_label.SetFixedSizeY((rc_label.height() > 0.0f) ? static_cast<float>(rc_label.height()) : TInputLine::DefLabelHeight);
-										lp_label.ShrinkFactor = 0.0f;
-										//
-										lp_supplement_button.SetFixedSizeX(20.0f); // @v12.3.7
-										glp.ShrinkFactor = 0.0f;
-										glp.Flags &= ~(SUiLayoutParam::fContainerWrap|SUiLayoutParam::fContainerWrapReverse);
-										lp.SetFixedSizeY(inp_height);
-										lp.ShrinkFactor = 0.0f;
-										glp.Margin = lp.Margin;
-										lp.Margin.Z();
-										SUiLayout * p_lo_inp_grp = pLoParent->InsertItem(0, &glp);
-										if(p_lo_inp_grp) {
-											InsertCtrlLayout(pDlg, p_lo_inp_grp, p_lbl, lp_label);
-											InsertCtrlLayout(pDlg, p_lo_inp_grp, p_il, lp);
-											done = true;
-										}
-									}
-								}
-								else {
-									if(p_sv) {
-										p_lb_ib = &__lp_ib;
-										sb_sz.Set(20.0f, inp_height);
-										//
-										if(inp_szy == SUiLayoutParam::szFixed || inp_szy == 0) {
-											if(inp_height == 0.0f) {
-												inp_height = TInputLine::DefHeight;
-											}
-											p_lb_ib->SetFixedSizeY(inp_height);
-										}
-										else {
-											; // ?
-										}
-										//
-										SUiLayoutParam lp_sb;
-										SUiLayoutParam lp_il;
-										lp_sb.SetFixedSizeX(sb_sz.x);
-										lp_sb.SetFixedSizeY(sb_sz.y);
-										lp_sb.ShrinkFactor = 0.0f;
-
-										lp_il.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
-										lp_il.SetFixedSizeY(fixed_input_y);
-
-										//lp_label.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
-										//lp_label.SetFixedSizeY(static_cast<float>(rc_label.height()));
-
-										p_lb_ib->Margin = lp.Margin;
-										lp.CopySizeXParamTo(*p_lb_ib);
-										p_lb_ib->SetGrowFactor(lp.GrowFactor);
-										lp.GrowFactor = 0.0f;
-
-										SUiLayout * p_lo_inp_grp = pLoParent->InsertItem(0, p_lb_ib);
-										//InsertCtrlLayout(pDlg, p_lo_inp_grp, p_lbl, lp_label);
-										//SUiLayout * p_lo_ib_grp = p_lo_inp_grp->InsertItem(0, p_lb_ib);
-										InsertCtrlLayout(pDlg, p_lo_inp_grp, p_il, lp_il);
-										InsertCtrlLayout(pDlg, p_lo_inp_grp, p_sv, lp_sb);
-										done = true;
-									}
-									else {
-										p_lo = InsertCtrlLayout(pDlg, pLoParent, p_il, lp);
-										done = true;
-									}
-								}
-							}
+							done = MakeComplexLayout_InputLine(pDlg, p_view, lp, rCtx, p_scope, pLoParent);
 						}
 						if(!done) {
 							p_lo = InsertCtrlLayout(pDlg, pLoParent, p_view, lp);

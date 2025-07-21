@@ -30,10 +30,10 @@
 #define FRONTOL_OPTYPE_CHKCLOSED   55   // Закрытие чека
 #define FRONTOL_OPTYPE_CANCEL      56   // Отмена чека
 #define FRONTOL_OPTYPE_ZREPORT     61   // Z-отчет
-#define FRONTOL_OPTYPE_ZREPORT_2   63   // @v10.8.3 Отчет с гашением
+#define FRONTOL_OPTYPE_ZREPORT_2   63   // Отчет с гашением
 
 struct _FrontolZRepEntry {
-	_FrontolZRepEntry(long posN, long zrepN, long sessID) : PosN(posN), ZRepN(zrepN), SessID(sessID) // @v10.8.2 
+	_FrontolZRepEntry(long posN, long zrepN, long sessID) : PosN(posN), ZRepN(zrepN), SessID(sessID)
 	{
 	}
 	long   PosN;

@@ -1295,16 +1295,15 @@ static CURLMcode multi_wait(struct Curl_multi * multi,
 		else { /* now wait... if not ready during the pre-check (pollrc == 0) */
 			WSAWaitForMultipleEvents(1, &multi->wsa_event, FALSE, timeout_ms, FALSE);
 		}
-		/* With WinSock, we have to run the following section unconditionally
-		   to call WSAEventSelect(fd, event, 0) on all the sockets */
+		// With WinSock, we have to run the following section unconditionally to call WSAEventSelect(fd, event, 0) on all the sockets 
 		{
 #endif
 			/* copy revents results from the poll to the curl_multi_wait poll
 			   struct, the bit values of the actual underlying poll() implementation
 			   may not be the same as the ones in the public libcurl API! */
 			for(i = 0; i < extra_nfds; i++) {
-				unsigned r = ufds[curlfds + i].revents;
-				unsigned short mask = 0;
+				uint   r = ufds[curlfds + i].revents;
+				ushort mask = 0;
 #ifdef USE_WINSOCK
 				curl_socket_t s = extra_fds[i].fd;
 				wsa_events.lNetworkEvents = 0;

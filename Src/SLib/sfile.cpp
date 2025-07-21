@@ -3704,9 +3704,9 @@ static const SIntToSymbTabEntry MimeTypeNameList[] = {
 {
 	rMime.Z();
 	int    ok = 0;
-	if(id == Unkn) { // @v9.7.12
+	if(id == Unkn) {
 		rMime = "application/octet-stream";
-		ok = 2; // @v9.8.12 -1-->2
+		ok = 2;
 	}
 	else if(GloBaseIdx) {
 		const FileFormatRegBase * p_reg = static_cast<const FileFormatRegBase *>(SLS.GetGlobalObject(GloBaseIdx));
@@ -3808,12 +3808,12 @@ int SFileFormat::IdentifyMime(const char * pMime)
 	Register(Ico,    mtImage, "x-icon", "ico", "0001");             // ICO
 	Register(Cur,    mtApplication, "octet-stream", "cur", "0002"); // CUR
 	Register(Xml,    mtApplication, "xml", "xml", "T<?xml");        // XML
-	Register(Xsd,    mtApplication, "xml", "xsd", "T<?xml");        // XSD @v10.8.0
+	Register(Xsd,    mtApplication, "xml", "xsd", "T<?xml");        // XSD
 	Register(Svg,    mtImage, "svg+xml",   "svg", "T<?xml"); // SVG // @todo Необходимо проверить XML-контент на наличие тега <svg>
 	Register(Html,   mtText,  "html",  "html;htm", "T<!DOCTYPE HTML"); // HTML
 	Register(Ini,    mtText,  "plain", "ini", static_cast<const char *>(0));  // INI
-	Register(Csv,    mtText,  "csv",   "csv", 0); // @v10.8.0
-	Register(Tsv,    mtText,  "tsv",   "tsv", 0); // @v10.9.9 tab-separated-values
+	Register(Csv,    mtText,  "csv",   "csv", 0); // 
+	Register(Tsv,    mtText,  "tsv",   "tsv", 0); // tab-separated-values
 	Register(Latex,  mtApplication, "x-latex", "tex", static_cast<const char *>(0));  // LATEX
 	Register(Latex,            "latex", static_cast<const char *>(0));         // LATEX
 	Register(TxtBomUTF8,       "txt;csv", "EFBBBF");

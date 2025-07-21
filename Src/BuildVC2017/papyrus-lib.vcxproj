@@ -1301,8 +1301,6 @@
     <ClCompile Include="..\PPEquip\Custdisp.cpp" />
     <ClCompile Include="..\PPEquip\dls.cpp" />
     <ClCompile Include="..\PPEquip\DreamKas.cpp" />
-    <ClCompile Include="..\PPEquip\Ecr930.cpp" />
-    <ClCompile Include="..\PPEquip\El92aq.cpp" />
     <ClCompile Include="..\PPEquip\emu_scs.cpp" />
     <ClCompile Include="..\PPEquip\frontol.cpp" />
     <ClCompile Include="..\PPEquip\Objscale.cpp" />

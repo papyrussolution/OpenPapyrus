@@ -7,6 +7,7 @@
 	#define IN_LIBXML
 	#define LIBXML_STATIC
 	#define ZLIB_INTERNAL
+	#define SLIB_INCLUDE_CPPSTDLIBS // @v12.3.9
 	#include <slib.h>
 	#ifndef SKIP_UED_ID_H // @v12.2.1
 		#include <ued-id.h> // @v11.8.9

@@ -1545,7 +1545,7 @@ int ACS_FRONTOL::ConvertWareList(const char * pImpPath)
 									line_amount = R2(qtty * src_dscnt_price);
 								else {
 									line_amount = R2(qtty * src_dscnt_price);
-									dscnt       = R2(qtty * (price - src_dscnt_price)); // @v10.8.8 @fix (qtty * price - dscnt)-->(qtty * (price - dscnt))
+									dscnt       = R2(qtty * (price - src_dscnt_price));
 								}
 								THROW(AddTempCheckAmounts(chk_id, line_amount, dscnt));
 							}

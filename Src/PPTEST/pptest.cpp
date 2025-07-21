@@ -1966,6 +1966,14 @@ int DoConstructionTest()
 		//uint abc_s = sbswap32()
 	}
 #ifndef NDEBUG
+	{
+		const SrUedContainer_Rt * p_uedc = DS.GetUedContainer();
+		if(p_uedc) {
+			SString text;
+			bool r = p_uedc->GetText(UED_DIMENSION_CONDUCTANCE, UED_LINGUALOCUS_RU, text);
+		}
+		ok = -1;
+	}
 //#if 1
 	/*{
 		class Foo {

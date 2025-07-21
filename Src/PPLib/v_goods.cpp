@@ -1154,11 +1154,8 @@ int PPViewGoods::EditBaseFilt(PPBaseFilt * pBaseFilt)
 
 int PPViewGoods::OnExecBrowser(PPViewBrowser * pBrw)
 {
-	int    disable_group_selection = 0;
 	PPAccessRestriction accsr;
-	if(ObjRts.GetAccessRestriction(accsr).OnlyGoodsGrpID && accsr.CFlags & PPAccessRestriction::cfStrictOnlyGoodsGrp) {
-		disable_group_selection = 1;
-	}
+	const bool disable_group_selection = (ObjRts.GetAccessRestriction(accsr).OnlyGoodsGrpID && accsr.CFlags & PPAccessRestriction::cfStrictOnlyGoodsGrp);
 	if(!disable_group_selection)
 		pBrw->SetupToolbarCombo(PPOBJ_GOODSGROUP, Filt.GrpID, OLW_CANSELUPLEVEL|OLW_LOADDEFONOPEN, 0);
 	return -1;

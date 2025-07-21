@@ -164,6 +164,11 @@ PPAsyncCashNode::PPAsyncCashNode() : PPGenCashNode()
 {
 }
 
+PPAsyncCashNode::PPAsyncCashNode(const PPAsyncCashNode & rS) : PPGenCashNode()
+{
+	Copy(rS);
+}
+
 PPAsyncCashNode & FASTCALL PPAsyncCashNode::operator = (const PPAsyncCashNode & rS)
 {
 	Copy(rS);

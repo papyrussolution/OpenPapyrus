@@ -939,11 +939,6 @@ void PPViewEvent::PreprocessBrowser(PPViewBrowser * pBrw)
 	pBrw->Advise(PPAdviseBlock::evSysJournalChanged, PPACN_EVENTDETECTION, PPOBJ_EVENTSUBSCRIPTION, 0);
 }
 
-int PPViewEvent::OnExecBrowser(PPViewBrowser * pBrw)
-{
-	return -1;
-}
-
 int PPViewEvent::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
 	int    ok = 1;

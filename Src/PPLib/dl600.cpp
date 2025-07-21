@@ -3260,6 +3260,7 @@ int DlContext::Error(int errCode, const char * pAddedInfo, long flags /* erfXXX 
 		{PPERR_DL6_PROP_PADDINGRANGEVIOL,  "DL600 ошибка в свойстве 'padding' - недопустимое значение одного или нескольких компонентов padding" },
 		{PPERR_DL6_PROP_INVALIDSYMB,       "DL600 неизвестный символ свойства '%s'" }, // @v12.3.7
 		{PPERR_DL6_UISUPPLEMENT_UNDEFKIND, "DL600 неизвстный вид дополнени€ '%s' к управл€ющему элементу UI" }, // @v12.3.7
+		{PPERR_DL6_PROP_REDEF,             "DL600 ошибка в свойстве '%s' - это свойство уже определено" }, // @v12.3.9
 	};
 	SETIFZ(errCode, LastError);
 	const char * p_msg = SIntToSymbTab_GetSymbPtr(msg_list, SIZEOFARRAY(msg_list), errCode);

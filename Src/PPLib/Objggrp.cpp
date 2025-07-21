@@ -3135,11 +3135,6 @@ SArray * PPViewBrand::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
 	return p_array;
 }
 
-int PPViewBrand::OnExecBrowser(PPViewBrowser *)
-{
-	return -1;
-}
-
 int PPViewBrand::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	// @v12.1.10 id и preserve_id перенесены наверх дабы правильно спозиционировать курсор после изменения данных общими механизмами PPView

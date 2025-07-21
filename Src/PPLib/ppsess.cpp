@@ -4415,7 +4415,11 @@ const SrUedContainer_Rt * PPSession::GetUedContainer() // @cs // @v11.8.4 @const
 			GetExecPath(file_name);
 			file_name.SetLastSlash().Cat("ued-id.dat");
 			if(fileExists(file_name)) {
-				P_UedC = new SrUedContainer_Rt();
+				StringSet ss_lang;
+				ss_lang.add("ru");
+				ss_lang.add("en");
+				//lang_ued_list.insert()
+				P_UedC = new SrUedContainer_Rt(&ss_lang);
 				if(P_UedC) {
 					if(!P_UedC->Read(file_name)) {
 						// @todo @err (Здесь надо что-то в лог pperror.log написать)

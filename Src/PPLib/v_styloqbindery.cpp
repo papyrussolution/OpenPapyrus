@@ -335,11 +335,6 @@ int PPViewStyloQBindery::CellStyleFunc_(const void * pData, long col, int paintA
 	}
 }
 
-/*virtual*/int PPViewStyloQBindery::OnExecBrowser(PPViewBrowser *)
-{
-	return -1;
-}
-
 int PPViewStyloQBindery::Invitation()
 {
 	int    ok = -1;
@@ -666,11 +661,6 @@ int PPViewStyloQCommand::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 		}
 	}
 	return ok;
-}
-
-/*virtual*/int PPViewStyloQCommand::OnExecBrowser(PPViewBrowser *)
-{
-	return -1;
 }
 
 int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData, const StyloQCommandList & rWholeList)

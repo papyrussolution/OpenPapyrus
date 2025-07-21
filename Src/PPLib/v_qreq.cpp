@@ -321,11 +321,6 @@ void PPViewQuoteReqAnalyze::PreprocessBrowser(PPViewBrowser * pBrw)
 	}
 }
 
-int PPViewQuoteReqAnalyze::OnExecBrowser(PPViewBrowser * pBrw)
-{
-	return -1;
-}
-
 int PPViewQuoteReqAnalyze::CreateLinkedRequest(PPID leadBillID, int leadRbb)
 {
 	int    ok = -1;

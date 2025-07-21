@@ -16047,7 +16047,7 @@ public:
 	//   <0  - PPViewBrowser::execute должен реализовать свое исполнение в обычном режиме
 	//   >=0 - PPViewBrowser::execute должен прекратить исполнение и вернуть это значение (ushort)
 	//
-	virtual int   OnExecBrowser(PPViewBrowser *);
+	virtual int   OnExecBrowser(PPViewBrowser * pBrw);
 	virtual int   Browse(int modeless);
 	virtual int   ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	virtual int   HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBrowser * pBrw, void * extraProcPtr);
@@ -17363,7 +17363,6 @@ public:
 private:
 	virtual SArray * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
 	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
-	virtual int  OnExecBrowser(PPViewBrowser *);
 	virtual int  ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual int  HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBrowser * pBrw, void * extraProcPtr);
 	virtual int  Detail(const void * pHdr, PPViewBrowser * pBrw);
@@ -18743,7 +18742,6 @@ public:
 private:
 	virtual SArray * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
 	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
-	virtual int  OnExecBrowser(PPViewBrowser *);
 	virtual int  ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual int  Detail(const void *, PPViewBrowser * pBrw);
 	int    _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
@@ -18791,7 +18789,6 @@ public:
 private:
 	virtual SArray * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
 	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
-	virtual int  OnExecBrowser(PPViewBrowser *);
 	virtual int  ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	int    _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	int    MakeList(PPViewBrowser * pBrw);
@@ -21327,7 +21324,8 @@ public:
 class PPAsyncCashNode : public PPGenCashNode {
 public:
 	PPAsyncCashNode();
-	PPAsyncCashNode & FASTCALL operator = (const PPAsyncCashNode &);
+	PPAsyncCashNode(const PPAsyncCashNode & rS);
+	PPAsyncCashNode & FASTCALL operator = (const PPAsyncCashNode & rS);
 	int    FASTCALL Copy(const PPAsyncCashNode & rS);
 	int    FASTCALL GetLogNumList(PPIDArray & rList) const;
 	const  PosIdentEntry * FASTCALL SearchPosIdentEntryByGUID(const S_GUID & rUuid) const;
@@ -28990,7 +28988,7 @@ public:
 	static bool CheckClientActivityState(PPID personID, long filtFlags, const TSVector <ExtEntry> * pExtList);
 private:
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual int   OnExecBrowser(PPViewBrowser *);
+	virtual int   OnExecBrowser(PPViewBrowser * pBrw);
 	virtual void  PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual void * GetEditExtraParam();
 	virtual int   Print(const void *);
@@ -31697,7 +31695,6 @@ public:
 private:
 	virtual SArray * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
 	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
-	virtual int  OnExecBrowser(PPViewBrowser *);
 	virtual int  ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual void ViewTotal();
 	int    _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
@@ -31908,7 +31905,6 @@ public:
 private:
 	virtual SArray * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
 	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
-	virtual int  OnExecBrowser(PPViewBrowser *);
 	virtual int  ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual void ViewTotal();
 	int    _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
@@ -32007,7 +32003,6 @@ public:
 private:
 	virtual SArray * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
 	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
-	virtual int  OnExecBrowser(PPViewBrowser *);
 	virtual int  ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual void ViewTotal();
 	int    _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
@@ -32657,7 +32652,7 @@ public:
 	int    CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle, PPViewBrowser * pBrw);
 private:
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
-	virtual int  OnExecBrowser(PPViewBrowser *);
+	virtual int  OnExecBrowser(PPViewBrowser * pBrw);
 	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual int  ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	virtual int  Print(const void *);
@@ -33258,7 +33253,7 @@ private:
 	virtual int ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
-	virtual int  OnExecBrowser(PPViewBrowser *);
+	virtual int  OnExecBrowser(PPViewBrowser * pBrw);
 	virtual int  Print(const void * pHdr);
 	virtual void ViewTotal();
 	int    UpdateTempTable(PPID goodsID, int use_ta);
@@ -40313,7 +40308,6 @@ public:
 private:
 	virtual SArray * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
 	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
-	virtual int  OnExecBrowser(PPViewBrowser *);
 	virtual int  ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual int  Detail(const void *, PPViewBrowser * pBrw);
 	int    _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
@@ -41477,10 +41471,13 @@ public:
 		ordNewly     = 5, // "newly"
 		ordBenefit   = 6  // "benefit"
 	};
-	uint8    ReserveStart[64];
-	int64    CatID;
-	int32    Order;
-	uint8    Reserve[64];
+	uint8  ReserveStart[64];
+	int64  CatID;
+	int64  BrandID;
+	int32  SupplID;
+	int32  Order;
+	uint8  Reserve[64];
+	SString SearchPatternUtf8;
 };
 
 class PPMarketplaceInterface_Wildberries : public PPMarketplaceInterface {
@@ -41571,6 +41568,7 @@ public:
 
 		CategoryPool();
 		CategoryPool & Z();
+		uint    GetCount() const { return L.getCount(); }
 		bool    FromJson(const SJson * pJs);
 		int     MakeShardList(StrAssocArray & rList) const;
 		const   Entry * GetByID(int64 id) const;
@@ -41585,7 +41583,7 @@ public:
 	//
 	class PublicWarePool : public SStrGroup {
 	public:
-		struct Size {
+		struct Size { // @flat
 			Size();
 			Size & Z();
 			bool   FromJsonObj(PublicWarePool & rPool, const SJson * pJs);
@@ -41633,8 +41631,12 @@ public:
 
 		PublicWarePool();
 		PublicWarePool & Z();
+		uint    GetCount() const { return L.getCount(); }
+		Entry * GetEntry(uint i);
+		const   Entry * GetEntryC(uint i) const;
 		bool    FromJson(const SJson * pJs, bool concatenate, uint * pReadCount, uint * pTotalCount);
 
+		uint    TotalCountOnServer; // Общее количество результов запроса на серверах WB (реально возвращается обычно значительно меньше)
 		TSCollection <Entry> L;
 	};
 
@@ -41994,12 +41996,12 @@ public:
 	//
 	// Descr: Функция импортирует публично доступный (без API-key) справочник товарных категорий.
 	//
-	static int LoadPublicGoodsCategoryList(CategoryPool & rResult); // @v12.3.8
+	static int LoadPublicGoodsCategoryList(CategoryPool & rResult, bool useCache); // @v12.3.8
 	static int EditPublicGoodsSelectionFilt(const CategoryPool & rCatPool, MarketplaceGoodsSelectionFilt & rFilt);
 	//
 	// Descr: Функция импортирует публично доступный (без API-key) список товаров (фильтр требуется).
 	//
-	static int LoadPublicGoodsList(const CategoryPool & rCatPool, MarketplaceGoodsSelectionFilt & rFilt); // @v12.3.8
+	static int LoadPublicGoodsList(const CategoryPool & rCatPool, const MarketplaceGoodsSelectionFilt & rFilt, PublicWarePool & rResult); // @v12.3.8
 
 	PPMarketplaceInterface_Wildberries(PrcssrMarketplaceInterchange & rPrc);
 	virtual ~PPMarketplaceInterface_Wildberries();
@@ -42067,7 +42069,8 @@ public:
 	int   ImportFinancialTransactions();
 	int   ImportStocks();
 private:
-	int   GetLocalCachePath(SString & rBuf);
+	static int GetLocalCachePath(SString & rBuf);
+	static int Helper_QueryPublicGoodsList(const SString & rUrlBuf, const char * pOutpFileNameSuffix, int pageNo, PublicWarePool & rResult);
 	int   FetchWarehouseList(TSCollection <Warehouse> & rList);
 	int   ParseJson_WarehouseList(const SJson * pJs, TSCollection <Warehouse> & rList);
 	int   Helper_RequestWarehouseList(int meth/*methWarehouses||methWarehouses2*/, TSCollection <Warehouse> & rList, const char * pFileNameToStoreJson, FaultStatusResult * pError);
@@ -42232,6 +42235,41 @@ private:
 	PPMarketplaceConfig Cfg;
 	PPObjArticle ArObj;
 	PPLogger Logger;
+};
+
+struct WbPublicGoodsTotal {
+	WbPublicGoodsTotal() : CountOnServer(0), Count(0), BrandCount(0), VendorCount(0)
+	{
+	}
+	uint   CountOnServer;
+	uint   Count;
+	uint   BrandCount;
+	uint   VendorCount;
+};
+
+class PPViewWbPublicGoods : public PPView {
+public:
+	PPViewWbPublicGoods();
+	~PPViewWbPublicGoods();
+	virtual int  ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
+	virtual int  EditBaseFilt(PPBaseFilt *);
+	virtual PPBaseFilt * CreateFilt(const void * extraPtr) const;
+	virtual int  Init_(const PPBaseFilt * pBaseFilt);
+	int    CmpSortIndexItems(PPViewBrowser * pBrw, const uint * pItem1, const uint * pItem2);
+private:
+	virtual SArray * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
+	virtual void  PreprocessBrowser(PPViewBrowser * pBrw);
+	virtual int   Detail(const void * pHdr, PPViewBrowser * pBrw);
+	virtual void  ViewTotal();
+	int    _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
+	int    MakeList(PPViewBrowser * pBrw);
+	void   CalcTotal(WbPublicGoodsTotal * pTotal);
+
+	MarketplaceGoodsSelectionFilt Filt;
+	uint   TotalResultCountOnServer; // Общее количество результов запроса на серверах WB (реально возвращается обычно значительно меньше)
+	PPMarketplaceInterface_Wildberries::CategoryPool CatPool;
+	PPMarketplaceInterface_Wildberries::PublicWarePool GoodsPool;
+	SArray * P_DsList;
 };
 //
 //
@@ -45201,7 +45239,7 @@ private:
 	virtual int ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
-	virtual int  OnExecBrowser(PPViewBrowser *);
+	virtual int  OnExecBrowser(PPViewBrowser * pBrw);
 	virtual int  Detail(const void *, PPViewBrowser * pBrw);
 	virtual void ViewTotal();
 	virtual int  Print(const void *);
@@ -46233,7 +46271,6 @@ private:
 
 	virtual SArray * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
 	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
-	virtual int  OnExecBrowser(PPViewBrowser *);
 	virtual int  ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual int  Detail(const void *, PPViewBrowser * pBrw);
 	int    _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
@@ -46563,7 +46600,7 @@ private:
 	virtual void * GetEditExtraParam();
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual void  PreprocessBrowser(PPViewBrowser * pBrw);
-	virtual int   OnExecBrowser(PPViewBrowser * pBrw); // @v10.2.8
+	virtual int   OnExecBrowser(PPViewBrowser * pBrw);
 	virtual int   Print(const void *);
 	int    UpdateTempTable(PPID arID);
 	int    EditLinkObject(PPID arID);
@@ -47128,7 +47165,7 @@ private:
 	int    InnerIteration(OprKindViewItem * pItem);
 	virtual SArray  * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
 	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
-	virtual int  OnExecBrowser(PPViewBrowser *);
+	virtual int  OnExecBrowser(PPViewBrowser * pBrw);
 	virtual int  ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual void * GetEditExtraParam();
 	int    MakeEntry(const PPOprKind & rOpRec, OprKindBrwItem & rEntry);
@@ -49851,7 +49888,6 @@ public:
 private:
 	virtual SArray * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
 	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
-	virtual int  OnExecBrowser(PPViewBrowser *);
 	virtual int  ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual int  Detail(const void *, PPViewBrowser * pBrw);
 	int    MakeList(PPViewBrowser * pBrw);
@@ -49907,7 +49943,6 @@ public:
 private:
 	virtual SArray * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
 	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
-	virtual int  OnExecBrowser(PPViewBrowser *);
 	virtual int  ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	int    MakeList(PPViewBrowser * pBrw);
 	int    _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
@@ -61651,14 +61686,17 @@ public:
 	};
 	class CristalImportBlock {
 	public:
-		TSVector <ErpGoodsEntry> List1;
-		TSVector <ErpWeightedGoodsEntry> List2; 
-		TSVector <ErpSCardEntry> List3;
+		TSVector <ErpGoodsEntry> GoodsList;
+		TSVector <ErpWeightedGoodsEntry> WeightedGoodsList;
+		TSVector <ErpSCardEntry> SCardList;
 	};
+
+	static int SearchPosNode(PPID * pID, PPAsyncCashNode * pAcnPack);
+
 	Cristal2SetRetailGateway();
 	~Cristal2SetRetailGateway();
 	int    EditCmdParam(CmdParam & rData);
-	int    Process(const CmdParam & Param);
+	int    Process(const CmdParam & rParam);
 	//
 	int    Helper_CristalImportDir(const char * pPathUtf8, Cristal2SetRetailGateway::CristalImportBlock & rIb, const char * pLogFilePath);
 	//

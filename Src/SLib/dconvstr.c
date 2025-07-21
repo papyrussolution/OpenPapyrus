@@ -25,8 +25,8 @@ const int SIEEE754::DefaultPrecision = 6; // DCONVSTR_DEFAULT_PRECISION
 // 2^63 < binary_mantissa < 2^64, mantissa has been rounded to nearest integer.
 // Covers entire range of IEEE 754 double, including denormals, plus small spare.
 struct power_of_ten {
-	int16  decimal_exponent; // @v10.8.1 int32-->int16
-	int16  binary_exponent;  // @v10.8.1 int32-->int16
+	int16  decimal_exponent; 
+	int16  binary_exponent;
 	uint64 binary_mantissa;
 };
 

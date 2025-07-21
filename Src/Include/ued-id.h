@@ -1,6 +1,6 @@
 // UED-ID-TEMP.H
-// version: 38
-// sha256: ac39a1a4887e714b2ddd5488df2c9c67750d0995fc17d442a7c582636c7dcd31
+// version: 2
+// sha256: 17f5111657d2df7e13bb086b75adcf72a9e3da5e9264af7deb69224160f700a0
 //
 #ifndef __UED_ID_TEMP_H
 #define __UED_ID_TEMP_H
@@ -377,29 +377,6 @@
 	#define UED_LINGUA_BG                                0x330000003aULL
 	#define UED_LINGUA_BHO                               0x330000003bULL
 	#define UED_LINGUA_BI                                0x330000003cULL
-	#define UED_LINGUA_BIK                               0x330000003dULL
-	#define UED_LINGUA_BIN                               0x330000003eULL
-	#define UED_LINGUA_BJN                               0x330000003fULL
-	#define UED_LINGUA_BKM                               0x3300000040ULL
-	#define UED_LINGUA_BLA                               0x3300000041ULL
-	#define UED_LINGUA_BM                                0x3300000042ULL
-	#define UED_LINGUA_BN                                0x3300000043ULL
-	#define UED_LINGUA_BO                                0x3300000044ULL
-	#define UED_LINGUA_BPY                               0x3300000045ULL
-	#define UED_LINGUA_BQI                               0x3300000046ULL
-	#define UED_LINGUA_BR                                0x3300000047ULL
-	#define UED_LINGUA_BRA                               0x3300000048ULL
-	#define UED_LINGUA_BRH                               0x3300000049ULL
-	#define UED_LINGUA_BRX                               0x330000004aULL
-	#define UED_LINGUA_BS                                0x330000004bULL
-	#define UED_LINGUA_BSS                               0x330000004cULL
-	#define UED_LINGUA_BUA                               0x330000004dULL
-	#define UED_LINGUA_BUG                               0x330000004eULL
-	#define UED_LINGUA_BUM                               0x330000004fULL
-	#define UED_LINGUA_BYN                               0x3300000050ULL
-	#define UED_LINGUA_BYV                               0x3300000051ULL
-	#define UED_LINGUA_CA                                0x3300000052ULL
-	#define UED_LINGUA_CAD                               0x3300000053ULL
 	#define UED_LINGUA_CAR                               0x3300000054ULL
 	#define UED_LINGUA_CAY                               0x3300000055ULL
 	#define UED_LINGUA_CCH                               0x3300000056ULL
@@ -2528,6 +2505,11 @@
 	#define UED_DATAFORMAT_TTF                           0x4900000081ULL
 	#define UED_DATAFORMAT_TTC                           0x4900000082ULL
 	#define UED_DATAFORMAT_DFONT                         0x4900000083ULL
+	#define UED_DATAFORMAT_XLS                           0x4900000084ULL
+	#define UED_DATAFORMAT_XLSX                          0x4900000085ULL
+	#define UED_DATAFORMAT_XLSM                          0x4900000086ULL
+	#define UED_DATAFORMAT_WINWORD                       0x4900000087ULL
+	#define UED_DATAFORMAT_WINWORDX                      0x4900000088ULL
 	#define UED_DATAFORMAT_PRV_PAPYRUDBDIVXCHG           0x4900010001ULL
 #define UED_META_URISCHEME                           0x10000004aULL
 #define UED_META_BRAND                               0x10000004bULL

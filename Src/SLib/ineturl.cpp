@@ -1,5 +1,5 @@
 // INETURL.CPP
-// Copyright (c) A.Sobolev 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -453,7 +453,6 @@ int InetUrl::Parse(const char * pUrl)
 				//   Этот блок требует значительных уточнений, в том числе касательно очень специальных случаев
 				//   вроде \\.\COM1
 				//
-				// @v10.9.2 {
 				STokenRecognizer tr;
 				SNaturalTokenArray nta;
 				SNaturalTokenStat nts;
@@ -496,7 +495,6 @@ int InetUrl::Parse(const char * pUrl)
 						}
 					}
 				}
-				// } @v10.9.2 
 				if(!_done) {
 					if(_url[1] == ':' && isasciialpha(_url[0])) {
 						// Путь файловой системы

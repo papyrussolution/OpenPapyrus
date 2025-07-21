@@ -386,6 +386,7 @@ public:
 		cuifSupplementSymb      = 42, // @v12.3.7 string
 		cuifSupplementCmdSymb   = 43, // @v12.3.7 string
 		cuifSupplementText      = 44, // @v12.3.7 string
+		cuifDesign              = 45, // @v12.3.9 string Вариант дизайна комплексного UI-элемента
 	};
 	struct IfaceBase {
 		bool   FASTCALL IsEq(const IfaceBase & rS) const { return (ID == rS.ID && Flags == rS.Flags); }

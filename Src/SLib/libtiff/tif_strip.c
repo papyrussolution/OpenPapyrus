@@ -129,11 +129,11 @@ tmsize_t TIFFRawStripSize(TIFF * tif, uint32 strip)
 	static const char module[] = __FUNCTION__;
 	tmsize_t n;
 	uint64 m = TIFFRawStripSize64(tif, strip);
-	if(m == static_cast<uint64>(-1LL))
+	if(m == _FFFF64)
 		n = (tmsize_t)(-1);
 	else {
 		n = (tmsize_t)m;
-		if((uint64)n!=m) {
+		if((uint64)n != m) {
 			TIFFErrorExt(tif->tif_clientdata, module, "Integer overflow");
 			n = 0;
 		}

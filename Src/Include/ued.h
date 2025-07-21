@@ -161,20 +161,23 @@ public:
 	//   Часто применяется при разборе исходных файлов.
 	//
 	struct UedLocaleEntry {
-		UedLocaleEntry() : Ued(0ULL), Locale(0U)
-		{
-		}
-		UedLocaleEntry(uint64 ued, uint locale) : Ued(ued), Locale(locale)
-		{
-		}
-		UedLocaleEntry & Z()
-		{
-			Ued = 0ULL;
-			Locale = 0U;
-			return *this;
-		}
+		UedLocaleEntry();
+		UedLocaleEntry(const UedLocaleEntry & rS);
+		UedLocaleEntry(uint64 ued, uint locale);
+		UedLocaleEntry & Set(uint64 ued, uint locale);
+		UedLocaleEntry & Z();
+		UedLocaleEntry & FASTCALL operator = (const UedLocaleEntry & rS);
+		bool   FASTCALL operator == (const UedLocaleEntry & rS) const;
+
 		uint64 Ued;
-		uint32 Locale;
+		uint32 Locale; // UED_META_LINGUALOCUS без сигнатуры типа. Во время чтения исходного файла методом SrUedContainer_Base::ReadSource 
+			// до вызова ReplaceSurrogateLocaleIds здесь содержится временный идентификатор сопоставленный с символом локали.
+	};
+	//
+	// Descr: Функция нужна для определения unordered_map внизу класса.
+	//
+	struct UedLocaleEntry_Hash { 
+		size_t operator()(const UedLocaleEntry & key) const { return SlHash::BobJenc(this, sizeof(*this)); }
 	};
 	struct BaseEntry {
 		uint64 Id;
@@ -197,6 +200,7 @@ public:
 	//
 	int    Verify(const char * pPath, long ver, SBinaryChunk * pHash) const;
 	uint64 SearchSymb(const char * pSymb, uint64 meta) const;
+	bool   GetText(uint64 ued, uint64 uedLinguaLocus, SString & rText) const;
 	//
 	// Descr: Флаги функции Recognize
 	//
@@ -218,7 +222,7 @@ protected:
 			// считывание осуществляется в run-time-режиме.
 	};
 
-	int    ReadSource(const char * pFileName, uint flags, PPLogger * pLogger);
+	int    ReadSource(const char * pFileName, uint flags, const StringSet * pSsLang, PPLogger * pLogger);
 	int    ReadProps(const char * pFileName);
 	int    WriteSource(const char * pFileName, const SBinaryChunk * pPrevHash, SBinaryChunk * pHash);
 	int    WriteProps(const char * pFileName, const SBinaryChunk * pPrevHash, SBinaryChunk * pHash);
@@ -307,7 +311,7 @@ private:
 	int    ReplaceSurrogateLocaleIds(const SymbHashTable & rT, PPLogger * pLogger);
 	int    RegisterProtoPropList(const ProtoPropList_SingleUed & rList);
 	int    ProcessProperties();
-	int    Helper_PutProperties(const UedLocaleEntry & rUedEntry, const TSVector <uint64> & rRawPropList);
+	int    Helper_PutProperties(const UedLocaleEntry & rUedEntry, const Uint64Array & rRawPropList);
 	//
 	// Descr: Хелпер, считывающий одно свойство из файла standalone-описания свойств
 	//
@@ -316,6 +320,7 @@ private:
 	SymbHashTable Ht; // Хэш-таблица символов из списка BL
 	uint   LastSymbHashId;
 	PropertySet PropS;
+	std::unordered_map <UedLocaleEntry, uint, UedLocaleEntry_Hash> TextHt; // @v12.3.9 Хэш-таблица для быстрого поиска текста, ассоциированного с идентификатором и языком.
 };
 //
 // Descr: Класс контейнера UED-объектов, реализующий функционал компиляции и сборки.
@@ -340,10 +345,12 @@ public:
 //
 class SrUedContainer_Rt : public SrUedContainer_Base {
 public:
-	SrUedContainer_Rt();
+	explicit SrUedContainer_Rt(const StringSet * pSsLang);
 	~SrUedContainer_Rt();
 	int    Read(const char * pFileName);
 	bool   GetSymb(uint64 ued, SString & rSymb) const;
+private:
+	StringSet SsLang; // Список символов языков, для которых загружаются тексты.
 };
 
 enum {

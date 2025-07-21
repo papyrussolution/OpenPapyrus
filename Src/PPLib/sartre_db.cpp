@@ -2724,7 +2724,7 @@ int SrDatabase::StoreGeoNodeList(const TSVector <PPOsm::Node> & rList, const LLA
 	const  uint _count = rList.getCount();
 	if(_count) {
 		TSCollection <PPOsm::NodeCluster> cluster_list;
-		TSVector <uint64> outer_id_list;
+		Uint64Array outer_id_list;
 		TSVector <PPOsm::Node> test_list;
 		PPOsm::NodeCluster ex_cluster;
 		TSVector <PPOsm::Node> ex_list;

@@ -126,13 +126,17 @@ private:
 //   Нужны для того, чтобы заменить интерактивные функции Crystal Reports в рамках перевода системы на arch-x64
 //
 struct CrystalReportExportParam { // @v12.3.7
+	CrystalReportExportParam();
+	CrystalReportExportParam & FASTCALL Z();
+	bool   FASTCALL Copy(const CrystalReportExportParam & rS);
+
 	enum {
-		crexpfmtPdf  = SFileFormat::Pdf,  // params: page-range
-		crexpfmtRtf  = SFileFormat::Rtf,  // params: page-range
-		crexpfmtHtml = SFileFormat::Html, // params: page-range, fHtmlPageNavigator, fHtmlSeparatePages, directory, base-file-name
-		crexpfmtExcel = SFileFormat::Xls,
-		crexpfmtWinWord = SFileFormat::WinWord, // params: page-range
-		crexpfmtCsv = SFileFormat::Csv,
+		crexpfmtPdf     = SFileFormat::Pdf,     // (UXFPdfType) params: page-range
+		crexpfmtRtf     = SFileFormat::Rtf,     // (UXFRichTextFormatType) params: page-range
+		crexpfmtHtml    = SFileFormat::Html,    // params: page-range, fHtmlPageNavigator, fHtmlSeparatePages, directory, base-file-name
+		crexpfmtExcel   = SFileFormat::Xls,     // (UXFXls7ExtType)
+		crexpfmtWinWord = SFileFormat::WinWord, // (UXFWordWinType) params: page-range
+		crexpfmtCsv     = SFileFormat::Csv,     // (UXFCommaSeparatedType, UXFTabSeparatedType, UXFCharSeparatedType)
 	};
 	enum {
 		destFile = 1,
@@ -154,7 +158,7 @@ struct CrystalReportExportParam { // @v12.3.7
 	};
 	uint    Flags;
 	uint    Format;
-	uint    Destination;
+	uint    Destination;          // destXXX 
 	uint    XlsConstColumnWidth;
 	uint    XlsBaseAreaType;      // One of the 7 Section types defined in "Crpe.h". The default value is PE_SECT_DETAIL.
 	uint    XlsBaseAreaGroupNum;  // If baseAreaType is either GroupHeader or
@@ -205,8 +209,8 @@ struct ReportDescrEntry {
 };
 
 struct PrnDlgAns {
-	PrnDlgAns(const char * pReportName);
-	PrnDlgAns(const PrnDlgAns & rS);
+	explicit PrnDlgAns(const char * pReportName);
+	explicit PrnDlgAns(const PrnDlgAns & rS);
 	~PrnDlgAns();
 	PrnDlgAns & FASTCALL operator = (const PrnDlgAns & rS);
 	int    SetupReportEntries(const char * pContextSymb);
@@ -237,8 +241,9 @@ struct PrnDlgAns {
 	SString Printer;
 	SString EmailAddr;
 	SString ContextSymb;
+	CrystalReportExportParam ExpParam; // @v12.3.9
 	TSCollection <ReportDescrEntry> Entries;
-	DEVMODEA * P_DevMode; // @v10.4.10
+	DEVMODEA * P_DevMode;
 private:
 	int    PreprocessReportFileName(const char * pFileName, ReportDescrEntry * pEntry);
 };
@@ -373,9 +378,9 @@ public:
 	int    Export();
 	int    preview();
 private:
-	int    prepareData();
-	int    createBodyDataFile(SString & rFileName, SCollection * fldIDs);
-	int    createVarDataFile(SString & rFileName, SCollection * fldIDs);
+	// @v12.3.9 @obsolete int    prepareData();
+	// @v12.3.9 @obsolete int    createBodyDataFile(SString & rFileName, SCollection * fldIDs);
+	// @v12.3.9 @obsolete int    createVarDataFile(SString & rFileName, SCollection * fldIDs);
 public:
 	enum rptFlags {
 		DisableGrouping = 0x0001,

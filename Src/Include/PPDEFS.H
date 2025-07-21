@@ -1,8 +1,7 @@
 // PPDEFS.H
 // Copyright (c) Sobolev A. 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
-//
-// Файл содержит только define-определения. Используется для включения в исходные файлы ресурсов
+// Файл содержит только define-определения. Используется, кроме прочего, для включения в исходные файлы ресурсов
 //
 #ifndef __PPDEFS_H
 #define __PPDEFS_H
@@ -9377,7 +9376,8 @@
 	#define CTL_VCALPAR_FILE           (7 + WINDOWS_ID_BIAS)
 	#define CTLBRW_VCALPAR_FILE        (8 + WINDOWS_ID_BIAS)
 #define DLG_PRINT2                  1082 // PRINT2
-	#define cmPrntCfg            101 //@erik v10.4.10
+	#define cmPrntCfg            101 // @erik v10.4.10
+	#define cmPrintExportParam   102 // @v12.3.9 Команда выбора специфических параметров экспорта
 	#define CTL_PRINT2_ACTION          (1 + WINDOWS_ID_BIAS)
 	#define CTL_PRINT2_REPORT          (2 + WINDOWS_ID_BIAS)
 	#define CTLSEL_PRINT2_REPORT       (3 + WINDOWS_ID_BIAS)
@@ -9391,6 +9391,8 @@
 	#define CTLSEL_PRINT2_PRINTER      (11 + WINDOWS_ID_BIAS)
 	#define CTL_PRINT2_DOMAIL          (12 + WINDOWS_ID_BIAS)
 	#define CTL_PRINT2_DUPLEX          (13 + WINDOWS_ID_BIAS)
+	#define CTL_PRINT2_EXPFMT          (14 + WINDOWS_ID_BIAS) // @v12.3.9
+	#define CTLSEL_PRINT2_EXPFMT       (15 + WINDOWS_ID_BIAS) // @v12.3.9
 #define DLG_DBDUMP                  1083 // dbdump
 	#define CTL_DBDUMP_DB              (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_DBDUMP_DB           (2 + WINDOWS_ID_BIAS)
@@ -11804,13 +11806,55 @@
 	#define CTL_SALESRESTR_PERIOD        (5 + WINDOWS_ID_BIAS)
 	#define CTLCAL_SALESRESTR_PERIOD     (6 + WINDOWS_ID_BIAS)
 #define DLG_UNITECIGP             1468 // @v12.3.7 PPViewUnitEc::InitialGoodsParam
-	#define DLG_UNITECIGP_RCPTQTY        (1 + WINDOWS_ID_BIAS)
-	#define DLG_UNITECIGP_EWDEMAND       (2 + WINDOWS_ID_BIAS)
+	#define CTL_UNITECIGP_RCPTQTY        (1 + WINDOWS_ID_BIAS)
+	#define CTL_UNITECIGP_EWDEMAND       (2 + WINDOWS_ID_BIAS)
 #define DLG_CR2SRGWPARAM          1469 // @v12.3.7 Параметры запуска шлюза кристалл-setretail 
 	#define CTL_CR2SRGWPARAM_ACTIONS     (1 + WINDOWS_ID_BIAS)
 #define DLG_WBGOODSLISTFILT       1470 // @v12.3.8 @experimental Параметры получения списка товаров Wildberries
 	#define CTL_WBGOODSLISTFILT_CAT      (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_WBGOODSLISTFILT_CAT   (2 + WINDOWS_ID_BIAS)
+	#define CTL_WBGOODSLISTFILT_SRCH     (3 + WINDOWS_ID_BIAS)
+	#define CTL_WBGOODSLISTFILT_ORD      (4 + WINDOWS_ID_BIAS)
+#define DLG_POSNQUERYSETR         1471 // @v12.3.9 Диалог запроса к кассовому модулю SetRetail
+	// CTL_POSNQUERY_XXX
+#define DLG_WBGOODSLISTTOTAL      1472 // @v12.3.9 Итоги выборки товаров Wildberries
+	#define CTL_WBGOODSLISTTOTAL_SCOUNT  (1 + WINDOWS_ID_BIAS)
+	#define CTL_WBGOODSLISTTOTAL_COUNT   (2 + WINDOWS_ID_BIAS)
+	#define CTL_WBGOODSLISTTOTAL_BCOUNT  (3 + WINDOWS_ID_BIAS)
+	#define CTL_WBGOODSLISTTOTAL_VCOUNT  (4 + WINDOWS_ID_BIAS)
+#define DLG_WBGOODSLISTDETAIL     1473 // @v12.3.9 Детализация товара Wildberries
+	#define CTL_WBGOODSLISTDETAIL_ID            (1 + WINDOWS_ID_BIAS)
+	#define CTL_WBGOODSLISTDETAIL_WH            (2 + WINDOWS_ID_BIAS)
+	#define CTL_WBGOODSLISTDETAIL_BRANDID       (3 + WINDOWS_ID_BIAS)
+	#define CTL_WBGOODSLISTDETAIL_BRAND         (4 + WINDOWS_ID_BIAS)
+	#define CTL_WBGOODSLISTDETAIL_SUPPLID       (5 + WINDOWS_ID_BIAS)
+	#define CTL_WBGOODSLISTDETAIL_SUPPL         (6 + WINDOWS_ID_BIAS) 
+	#define CTL_WBGOODSLISTDETAIL_SUBJID        (7 + WINDOWS_ID_BIAS)
+	#define CTL_WBGOODSLISTDETAIL_SUBJPARID     (8 + WINDOWS_ID_BIAS) 
+	#define CTL_WBGOODSLISTDETAIL_SUPPLRATING   (9 + WINDOWS_ID_BIAS)
+	#define CTL_WBGOODSLISTDETAIL_PICSCOUNT     (10 + WINDOWS_ID_BIAS)
+	#define CTL_WBGOODSLISTDETAIL_RATING        (11 + WINDOWS_ID_BIAS)
+	#define CTL_WBGOODSLISTDETAIL_REVIERATING   (12 + WINDOWS_ID_BIAS)
+	#define CTL_WBGOODSLISTDETAIL_NMREVIERATING (13 + WINDOWS_ID_BIAS)
+	#define CTL_WBGOODSLISTDETAIL_FEEDBKCOUNT   (14 + WINDOWS_ID_BIAS)
+	#define CTL_WBGOODSLISTDETAIL_NMFEEDBKCOUNT (15 + WINDOWS_ID_BIAS)
+	#define CTL_WBGOODSLISTDETAIL_FEEDBKPTCOUNT (16 + WINDOWS_ID_BIAS)   
+	#define CTL_WBGOODSLISTDETAIL_TOTALSTOCK    (17 + WINDOWS_ID_BIAS)
+	#define CTL_WBGOODSLISTDETAIL_NAME          (18 + WINDOWS_ID_BIAS)
+	#define CTL_WBGOODSLISTDETAIL_ENT           (19 + WINDOWS_ID_BIAS) 
+#define DLG_CRREXPPARAM_PDF       1474
+#define DLG_CRREXPPARAM_RTF       1475
+#define DLG_CRREXPPARAM_HTML      1476
+#define DLG_CRREXPPARAM_EXCEL     1477
+#define DLG_CRREXPPARAM_WINWORD   1478
+#define DLG_CRREXPPARAM_CSV       1479
+	#define CTL_CRREXPPARAM_INFO                (1 + WINDOWS_ID_BIAS)
+	#define CTL_CRREXPPARAM_DEST                (2 + WINDOWS_ID_BIAS)
+	#define CTL_CRREXPPARAM_FILE                (3 + WINDOWS_ID_BIAS)
+	#define CTLBRW_CRREXPPARAM_FILE             (4 + WINDOWS_ID_BIAS)
+	#define CTL_CRREXPPARAM_PGRANGE             (5 + WINDOWS_ID_BIAS)
+	#define CTL_CRREXPPARAM_CSVFS               (6 + WINDOWS_ID_BIAS)
+	#define CTL_CRREXPPARAM_FLAGS               (7 + WINDOWS_ID_BIAS) // Набор флагов, зависящий от формата данных
 //
 // Win32 Dialog Identifiers
 //

@@ -1,13 +1,12 @@
 // DBSQL-SQLITE.CPP
-// Copyright (c) A.Sobolev 2021, 2022, 2023, 2024
+// Copyright (c) A.Sobolev 2021, 2022, 2023, 2024, 2025
 // Модуль интерфейса с DBMS Sqlite3
 // @construction
 //
 #include <slib-internal.h>
 #pragma hdrstop
-#include <ued.h>
-//#include <snet.h>
 #include <..\osf\SQLite\sqlite3.h>
+#include <ued.h>
 
 #ifndef NDEBUG
 	#define DEBUG_LOG(msg) SLS.LogMessage("dbsqlite.log", msg, 0)

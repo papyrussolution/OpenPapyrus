@@ -151,7 +151,7 @@ int PPMqbClient::RoutingParamEntry::SetupReserved(int rsrv, const char * pDomain
 			{
 				THROW_S_S(!isempty(pDomain), SLERR_INVPARAM, __FUNCTION__"/pDomain");
 				THROW(destId > 0);
-				QueueName.Z().Cat(symb).Dot().Cat(pDomain).Dot().Cat(destId);
+				QueueName.Z().Cat(symb).DotCat(pDomain).Dot().Cat(destId);
 				(RoutingKey = pDomain).Dot().Cat(destId);
 				ExchangeName = symb;
 				QueueFlags = 0;

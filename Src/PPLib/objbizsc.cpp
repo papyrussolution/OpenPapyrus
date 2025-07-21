@@ -965,7 +965,7 @@ int PPViewBizScore::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser
 		switch(ppvCmd) {
 			case PPVCMD_ADDBYSAMPLE:
 				{
-					PPID   sample_id = id;
+					const PPID sample_id = id;
 					id = 0;
 					ok = -1;
 					if(sample_id && BscObj.AddBySample(&id, sample_id) > 0)
@@ -1020,7 +1020,8 @@ int BizScoreCore::Search(LDATE actualDate, PPID scID, PPID objID, BizScoreTbl::R
 
 int BizScoreCore::DeleteItem(LDATE actualDate, PPID scID, PPID objID, int use_ta)
 {
-	int    ok = -1, r;
+	int    ok = -1;
+	int    r;
 	BizScoreTbl::Rec rec;
 	{
 		PPTransaction tra(use_ta);
@@ -1038,7 +1039,8 @@ int BizScoreCore::DeleteItem(LDATE actualDate, PPID scID, PPID objID, int use_ta
 
 int BizScoreCore::SetItem(LDATE actualDate, PPID scID, PPID userID, long flags, double val, int use_ta)
 {
-	int    ok = -1, r;
+	int    ok = -1;
+	int    r;
 	BizScoreTbl::Rec rec;
 	{
 		PPTransaction tra(use_ta);
@@ -1073,7 +1075,8 @@ int BizScoreCore::SetItem(LDATE actualDate, PPID scID, PPID userID, long flags, 
 
 int BizScoreCore::SetItem(LDATE actualDate, PPID scID, PPID userID, const char * pStr, int use_ta)
 {
-	int    ok = -1, r;
+	int    ok = -1;
+	int    r;
 	BizScoreTbl::Rec rec;
 	{
 		PPTransaction tra(use_ta);

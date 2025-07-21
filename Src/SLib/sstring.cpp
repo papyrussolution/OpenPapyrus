@@ -2912,10 +2912,7 @@ SString & FASTCALL SString::Cat(const char * pS)
 	return *this;
 }
 
-SString & FASTCALL SString::DotCat(const char * pS)
-{
-	return Dot().Cat(pS);
-}
+SString & FASTCALL SString::DotCat(const char * pS) { return Dot().Cat(pS); }
 
 SString & FASTCALL SString::CatN(const char * pS, size_t maxLen)
 {

@@ -11,7 +11,7 @@
 #define LINK_CMT(t)     Registrar_##t R_##t
 #define DYN_LINK_CMT(t) _Register_##t()
 
-DECLARE_CMT(EL92AQ);
+// @v12.3.9 DECLARE_CMT(EL92AQ);
 // @v10.4.5 DECLARE_CMT(AMC100);
 DECLARE_CMT(SMUKM30);
 // @v10.4.5 DECLARE_CMT(AMC200);
@@ -93,7 +93,7 @@ int PPCashMachine::SyncOrAsync(int cashID, int & rS)
 {
 	int    idx = 0, s = 0; // @vmiller
 	if(P_RegData == 0) {
-		DYN_LINK_CMT(EL92AQ);
+		// @v12.3.9 DYN_LINK_CMT(EL92AQ);
 		// @v10.4.5 DYN_LINK_CMT(AMC100);
 		DYN_LINK_CMT(SMUKM30);
 		// @v10.4.5 DYN_LINK_CMT(AMC200);

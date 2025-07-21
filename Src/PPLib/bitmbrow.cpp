@@ -916,7 +916,8 @@ BillItemBrowser::BillItemBrowser(uint rezID, PPObjBill * pBObj, PPBillPacket * p
 		}
 	}
 	*/
-	uint   i, pos;
+	uint   i;
+	uint   pos;
 	temp_buf.Z();
 	if(pckgPos >= 0) {
 		P_Pckg = P_Pack->P_PckgList->GetByIdx(pckgPos);
@@ -4678,13 +4679,22 @@ void BillItemBrowser::addItemExt(int mode)
 						if(opened_only) {
 							UintHashTable ht;
 							PPIDArray temp_id_list;
+							Goods2Tbl::Rec goods_rec;
 							goods_list.GetIdList(temp_id_list);
 							GObj.GetOpenedList(P_Pack->Rec.LocID, &temp_id_list, ht);
 							uint   iter_idx = goods_list.getCount();
 							if(iter_idx) do {
 								const PPID iter_ident = goods_list.at_WithoutParent(--iter_idx).Id;
-								if(!ht.Has(iter_ident))
-									goods_list.AtFree(iter_idx);
+								if(!ht.Has(iter_ident)) {
+									bool   local_skip = false;
+									// @v12.3.9 {
+									if(GObj.Fetch(iter_ident, &goods_rec) > 0 && (goods_rec.Flags | (GF_UNLIM|GF_AUTOCOMPL))) {
+										local_skip = true;
+									}
+									// } @v12.3.9 
+									if(!local_skip)
+										goods_list.AtFree(iter_idx);
+								}
 							} while(iter_idx);
 						}
 						// } @v12.3.4 

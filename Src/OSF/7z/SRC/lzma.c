@@ -34,7 +34,7 @@ void FASTCALL LzmaEncProps_Init(CLzmaEncProps * p)
 {
 	p->level = 5;
 	p->dictSize = p->mc = 0;
-	p->reduceSize = static_cast<uint64>(-1LL);
+	p->reduceSize = _FFFF64;
 	p->lc = p->lp = p->pb = p->algo = p->fb = p->btMode = p->numHashBytes = p->numThreads = -1;
 	p->writeEndMark = 0;
 }

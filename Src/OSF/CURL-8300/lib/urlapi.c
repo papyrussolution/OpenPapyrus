@@ -948,8 +948,7 @@ static CURLUcode parseurl(const char * url, CURLU * u, uint flags)
 			if(ptr[0] != '/' && !STARTS_WITH_URL_DRIVE_PREFIX(ptr)) {
 				/* the URL includes a host name, it must match "localhost" or
 				   "127.0.0.1" to be valid */
-				if(checkprefix("localhost/", ptr) ||
-				    checkprefix("127.0.0.1/", ptr)) {
+				if(checkprefix("localhost/", ptr) || checkprefix("127.0.0.1/", ptr)) {
 					ptr += 9; /* now points to the slash after the host */
 				}
 				else {
@@ -1281,8 +1280,7 @@ fail:
 	return NULL;
 }
 
-CURLUcode curl_url_get(const CURLU * u, CURLUPart what,
-    char ** part, uint flags)
+CURLUcode curl_url_get(const CURLU * u, CURLUPart what, char ** part, uint flags)
 {
 	const char * ptr;
 	CURLUcode ifmissing = CURLUE_UNKNOWN_PART;
@@ -1332,29 +1330,23 @@ CURLUcode curl_url_get(const CURLU * u, CURLUPart what,
 		    ifmissing = CURLUE_NO_PORT;
 		    urldecode = FALSE; /* never for port */
 		    if(!ptr && (flags & CURLU_DEFAULT_PORT) && u->scheme) {
-			    /* there's no stored port number, but asked to deliver
-			       a default one for the scheme */
-			    const struct Curl_handler * h =
-				Curl_builtin_scheme(u->scheme, CURL_ZERO_TERMINATED);
+			    /* there's no stored port number, but asked to deliver a default one for the scheme */
+			    const struct Curl_handler * h = Curl_builtin_scheme(u->scheme, CURL_ZERO_TERMINATED);
 			    if(h) {
 				    msnprintf(portbuf, sizeof(portbuf), "%u", h->defport);
 				    ptr = portbuf;
 			    }
 		    }
 		    else if(ptr && u->scheme) {
-			    /* there is a stored port number, but ask to inhibit if
-			       it matches the default one for the scheme */
-			    const struct Curl_handler * h =
-				Curl_builtin_scheme(u->scheme, CURL_ZERO_TERMINATED);
-			    if(h && (h->defport == u->portnum) &&
-				(flags & CURLU_NO_DEFAULT_PORT))
+			    /* there is a stored port number, but ask to inhibit if it matches the default one for the scheme */
+			    const struct Curl_handler * h = Curl_builtin_scheme(u->scheme, CURL_ZERO_TERMINATED);
+			    if(h && (h->defport == u->portnum) && (flags & CURLU_NO_DEFAULT_PORT))
 				    ptr = NULL;
 		    }
 		    break;
 		case CURLUPART_PATH:
 		    ptr = u->path;
-		    if(!ptr)
-			    ptr = "/";
+			SETIFZQ(ptr, "/");
 		    break;
 		case CURLUPART_QUERY:
 		    ptr = u->query;
@@ -1374,10 +1366,7 @@ CURLUcode curl_url_get(const CURLU * u, CURLUPart what,
 		    punycode = (flags & CURLU_PUNYCODE)?1:0;
 		    depunyfy = (flags & CURLU_PUNY2IDN)?1:0;
 		    if(u->scheme && sstreqi_ascii("file", u->scheme)) {
-			    url = aprintf("file://%s%s%s",
-				    u->path,
-				    u->fragment? "#": "",
-				    u->fragment? u->fragment : "");
+			    url = aprintf("file://%s%s%s", u->path, u->fragment? "#": "", u->fragment? u->fragment : "");
 		    }
 		    else if(!u->host)
 			    return CURLUE_NO_HOST;
@@ -1406,18 +1395,15 @@ CURLUcode curl_url_get(const CURLU * u, CURLUPart what,
 					(flags & CURLU_NO_DEFAULT_PORT))
 					    port = NULL;
 			    }
-
 			    if(h && !(h->flags & PROTOPT_URLOPTIONS))
 				    options = NULL;
-
 			    if(u->host[0] == '[') {
 				    if(u->zoneid) {
 					    /* make it '[ host %25 zoneid ]' */
 					    struct dynbuf enc;
 					    size_t hostlen = strlen(u->host);
 					    Curl_dyn_init(&enc, CURL_MAX_INPUT_LENGTH);
-					    if(Curl_dyn_addf(&enc, "%.*s%%25%s]", (int)hostlen - 1, u->host,
-						u->zoneid))
+					    if(Curl_dyn_addf(&enc, "%.*s%%25%s]", (int)hostlen - 1, u->host, u->zoneid))
 						    return CURLUE_OUT_OF_MEMORY;
 					    allochost = Curl_dyn_ptr(&enc);
 				    }
@@ -1434,8 +1420,7 @@ CURLUcode curl_url_get(const CURLU * u, CURLUPart what,
 #else
 					    CURLcode result = Curl_idn_decode(u->host, &allochost);
 					    if(result)
-						    return (result == CURLE_OUT_OF_MEMORY) ?
-							   CURLUE_OUT_OF_MEMORY : CURLUE_BAD_HOSTNAME;
+						    return (result == CURLE_OUT_OF_MEMORY) ? CURLUE_OUT_OF_MEMORY : CURLUE_BAD_HOSTNAME;
 #endif
 				    }
 			    }
@@ -1447,12 +1432,10 @@ CURLUcode curl_url_get(const CURLU * u, CURLUPart what,
 					    CURLcode result = Curl_idn_encode(u->host, &allochost);
 					    if(result)
 						    /* this is the most likely error */
-						    return (result == CURLE_OUT_OF_MEMORY) ?
-							   CURLUE_OUT_OF_MEMORY : CURLUE_BAD_HOSTNAME;
+						    return (result == CURLE_OUT_OF_MEMORY) ? CURLUE_OUT_OF_MEMORY : CURLUE_BAD_HOSTNAME;
 #endif
 				    }
 			    }
-
 			    url = aprintf("%s://%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
 				    scheme,
 				    u->user ? u->user : "",

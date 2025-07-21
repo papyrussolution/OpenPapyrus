@@ -22,9 +22,11 @@ PPViewCashNode::PPViewCashNode() : PPView(&ObjCashN, &Filt, PPVIEW_CASHNODE, imp
 {
 	PPLoadText(PPTXT_CMT, CashTypeNames);
 	// @vmiller {
-	int    s = 0, a = 0;
+	int    s = 0;
+	int    a = 0;
 	SString line_buf;
-	SString symbol, drv_name;
+	SString symbol;
+	SString drv_name;
 	SString path;
 	PPGetFilePath(PPPATH_BIN, "ppdrv.ini", path);
 	PPIniFile ini_file(path);

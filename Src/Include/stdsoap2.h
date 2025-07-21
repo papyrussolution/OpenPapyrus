@@ -1005,13 +1005,6 @@ extern const char soap_base64i[];
  #ifndef DBL_NINFTY
   #define DBL_NINFTY (-DBL_PINFTY)
  #endif
- // @v10.9.11 #ifndef soap_isnan
-  // @v10.9.11 #ifdef HAVE_ISNAN
-   // @v10.9.11 #define soap_isnan(n) isnan(n)
-  // @v10.9.11 #else
-   // @v10.9.11 #define soap_isnan(n) ((n) != (n))
-  // @v10.9.11 #endif
- // @v10.9.11 #endif
  #ifndef soap_isinf
   #ifdef HAVE_ISINF
    #define soap_isinf(n) isinf(n)

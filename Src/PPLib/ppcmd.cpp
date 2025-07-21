@@ -138,11 +138,13 @@ PPCommandHandler * PPCommandDescr::CreateInstance(long cmdDescrID)
 	THROW(LoadResource(cmdDescrID));
 	PPSetAddedMsgString(Text);
 	FN_CMD_FACTORY f = reinterpret_cast<FN_CMD_FACTORY>(GetProcAddress(SLS.GetHInst(), GetFactoryFuncName(ffn)));
-	if(!f && MenuCm) {
-		SString def_factory_name;
-		def_factory_name = P_FactoryPrfx;
-		def_factory_name.Cat("default").ToUpper();
-		f = reinterpret_cast<FN_CMD_FACTORY>(GetProcAddress(SLS.GetHInst(), def_factory_name));
+	if(!f) {
+		if(MenuCm || ViewId) { // @v12.3.9 (|| ViewId)
+			SString def_factory_name;
+			def_factory_name = P_FactoryPrfx;
+			def_factory_name.Cat("default").ToUpper();
+			f = reinterpret_cast<FN_CMD_FACTORY>(GetProcAddress(SLS.GetHInst(), def_factory_name));
+		}
 	}
 	THROW(f);
 	THROW(p_h = f(this));
@@ -4126,7 +4128,7 @@ public:
 IMPLEMENT_CMD_HDL_FACTORY(SENDBILLS);
 //
 //
-// @v10.4.1 {
+//
 class CMD_HDL_CLS(SENDBILLSWITHFILT) : public PPCommandHandler {
 public:
 	CMD_HDL_CLS(SENDBILLSWITHFILT)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
@@ -4183,7 +4185,7 @@ public:
 };
 
 IMPLEMENT_CMD_HDL_FACTORY(SENDBILLSWITHFILT);
-// } @v10.4.1
+//
 //
 //
 class CMD_HDL_CLS(EXPORTDBTBLTRANSFER) : public PPCommandHandler {
@@ -4860,6 +4862,68 @@ public:
 	virtual int Run(SBuffer * pParam, long, void * extraPtr)
 	{
 		int    ok = -1;
+		SSerializeContext sctx;
+		Cristal2SetRetailGateway prc;
+		Cristal2SetRetailGateway::CmdParam param;
+		if(pParam) {
+			if(param.Serialize(-1, *pParam, &sctx)) {
+				if(prc.Process(param)) {
+					ok = 1;
+				}
+				else {
+					ok = PPErrorZ();
+				}
+			}
+		}
+		else {
+			if(prc.EditCmdParam(param) > 0) {
+				if(prc.Process(param)) {
+					ok = 1;
+				}
+				else {
+					ok = PPErrorZ();
+				}
+			}
+		}
+		return ok;
+	}
+};
+
+IMPLEMENT_CMD_HDL_FACTORY(CRISTAL2SETRETAILGATEWAY);
+//
+//
+//
+#if 0 // {
+class CMD_HDL_CLS(WBPUBLICGOODS) : public PPCommandHandler { // @v12.3.9
+public:
+	CMD_HDL_CLS(WBPUBLICGOODS)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
+	{
+	}
+	virtual int EditParam(SBuffer * pParam, long, void * extraPtr)
+	{
+		int    ok = -1;
+		size_t preserve_offs = 0;
+		SSerializeContext sctx;
+		if(pParam) {
+			Cristal2SetRetailGateway prc;
+			Cristal2SetRetailGateway::CmdParam param;
+			preserve_offs = pParam->GetRdOffs();
+			param.Serialize(-1, *pParam, &sctx);
+			if(prc.EditCmdParam(param) > 0) {
+				pParam->Z();
+				THROW(param.Serialize(+1, *pParam, &sctx));
+				ok = 1;
+			}
+		}
+		CATCH
+			CALLPTRMEMB(pParam, SetRdOffs(preserve_offs));
+			ok = 0;
+		ENDCATCH
+		return ok;
+	}
+	virtual int Run(SBuffer * pParam, long, void * extraPtr)
+	{
+		int    ok = -1;
 		Cristal2SetRetailGateway::CmdParam param;
 		/*
 		if(pParam && param.Read(*pParam, 0)) {
@@ -4876,5 +4940,5 @@ public:
 	}
 };
 
-IMPLEMENT_CMD_HDL_FACTORY(CRISTAL2SETRETAILGATEWAY);
-//
+IMPLEMENT_CMD_HDL_FACTORY(WBPUBLICGOODS);
+#endif // } 0

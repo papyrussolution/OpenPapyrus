@@ -3247,13 +3247,11 @@ void GoodsCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) cons
 		p_data_rec->StrucID  = p_cache_rec->StrucID;
 		p_data_rec->Flags    = p_cache_rec->Flags;
 		GetName(pEntry, p_data_rec->Name, sizeof(p_data_rec->Name));
-		// @v10.4.3 {
 		if(p_data_rec->Name[0] == 0) {
 			if(oneof5(p_data_rec->Kind, PPGDSK_GOODS, PPGDSK_GROUP, PPGDSK_BRAND, PPGDSK_BRANDGROUP, PPGDSK_SUPRWARE)) {
 				EntryToDataFailed = 1;
 			}
 		}
-		// } @v10.4.3 
 	}
 }
 //

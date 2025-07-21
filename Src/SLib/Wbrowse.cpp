@@ -877,7 +877,7 @@ BrowserWindow::BrowserWindow(SArray * pDataArray, uint broDefOptions) :
 	return rBlk;
 }
 
-int BrowserWindow::ChangeResource(uint resID, DBQuery * pQuery, int force)
+int BrowserWindow::ChangeResource(uint resID, uint extToolbarId, DBQuery * pQuery, bool force)
 {
 	int    ok = 1;
 	if(force || resID != RezID) {
@@ -893,6 +893,10 @@ int BrowserWindow::ChangeResource(uint resID, DBQuery * pQuery, int force)
 		RezID = ResourceID = resID;
 		P_Header = 0;
 		LoadResource(resID, pQuery, 2, 0);
+		// @v12.3.9 {
+		if(extToolbarId)
+			LoadToolbarResource(extToolbarId);
+		// } @v12.3.9 
 		ViewOptions |= ofSelectable;
 		WMHCreate();
 		ok = 2;
@@ -903,7 +907,7 @@ int BrowserWindow::ChangeResource(uint resID, DBQuery * pQuery, int force)
 	return ok;
 }
 
-int BrowserWindow::ChangeResource(uint resID, SArray * pAry, int force)
+int BrowserWindow::ChangeResource(uint resID, uint extToolbarId, SArray * pAry, bool force)
 {
 	int    ok = 1;
 	if(force || resID != RezID) {
@@ -919,6 +923,10 @@ int BrowserWindow::ChangeResource(uint resID, SArray * pAry, int force)
 		RezID = ResourceID = resID;
 		P_Header = 0;
 		LoadResource(resID, pAry, 1, 0);
+		// @v12.3.9 {
+		if(extToolbarId)
+			LoadToolbarResource(extToolbarId);
+		// } @v12.3.9 
 		ViewOptions |= ofSelectable;
 		WMHCreate();
 		ok = 2;
@@ -1172,7 +1180,7 @@ IMPL_HANDLE_EVENT(BrowserWindow)
 void BrowserWindow::CalcRight()
 {
 	BrowserDef * p_def_ = P_Def;
-	if(p_def_) {
+	if(p_def_ && p_def_->getCount()) { // @v12.3.9 (&& p_def_->getCount())
 		const  uint cnt = p_def_->getCount();
 		int    x = 3;
 		uint   i = 0;
@@ -1409,55 +1417,65 @@ int BrowserWindow::removeColumn(int atPos)
 void BrowserWindow::SetFreeze(uint numFreezeCols)
 {
 	//
-	// По крайней мере один столбец
-	// должен оставаться незамороженным
+	// По крайней мере один столбец должен оставаться незамороженным
 	//
 	Freeze = P_Def->getCount() ? MIN(numFreezeCols, P_Def->getCount() - 1) : 0;
-	for(uint i = 0; i < Freeze; i++)
+	for(uint i = 0; i < Freeze; i++) {
 		if(P_Def->groupOf(i)) { // Замороженные столбцы не должны быть в группе
 			Freeze = i;
 			break;
 		}
+	}
 	Left = Freeze;
 	CalcRight();
 }
 
-LPRECT BrowserWindow::ItemRect(int hPos, int vPos, LPRECT rect, BOOL isFocus) const
+LPRECT BrowserWindow::ItemRect(int hPos, int vPos, LPRECT pRect, BOOL isFocus) const
 {
-	const BroColumn & c = P_Def->at(hPos);
-	if(P_RowsHeightAry && vPos < static_cast<long>(P_RowsHeightAry->getCount())) {
-		rect->top    = CapOffs + static_cast<const RowHeightInfo *>(P_RowsHeightAry->at(vPos))->Top;
-		rect->bottom = rect->top + ChrSz.y + YCell * (static_cast<const RowHeightInfo *>(P_RowsHeightAry->at(vPos))->HeightMult-1);
+	if(hPos >= 0 && hPos < P_Def->getCountI()) {
+		const BroColumn & c = P_Def->at(hPos);
+		if(P_RowsHeightAry && vPos < static_cast<long>(P_RowsHeightAry->getCount())) {
+			pRect->top    = CapOffs + static_cast<const RowHeightInfo *>(P_RowsHeightAry->at(vPos))->Top;
+			pRect->bottom = pRect->top + ChrSz.y + YCell * (static_cast<const RowHeightInfo *>(P_RowsHeightAry->at(vPos))->HeightMult-1);
+		}
+		else {
+			pRect->top    = CapOffs + (YCell * vPos);
+			pRect->bottom = pRect->top + ChrSz.y;
+		}
+		pRect->left   = c.x + 1;
+		pRect->right  = CellRight(c) - 1;
+		if(isFocus) {
+			SInflateRect(*pRect, 3, 2);
+			pRect->bottom--;
+		}
 	}
 	else {
-		rect->top    = CapOffs + (YCell * vPos);
-		rect->bottom = rect->top + ChrSz.y;
+		memzero(pRect, sizeof(*pRect));
 	}
-	rect->left   = c.x + 1;
-	rect->right  = CellRight(c) - 1;
-	if(isFocus) {
-		SInflateRect(*rect, 3, 2);
-		rect->bottom--;
-	}
-	return rect;
+	return pRect;
 }
 
-LPRECT BrowserWindow::LineRect(int vPos, LPRECT rect, BOOL isFocus)
+LPRECT BrowserWindow::LineRect(int vPos, LPRECT pRect, BOOL isFocus)
 {
 	BrowserDef * p_def_ = P_Def;
-	uint   left_pos = Freeze ? 0 : Left;
-	uint   count = p_def_->getCount();
-	rect->top    = CapOffs + GetRowTop(vPos);
-	rect->bottom = rect->top + ChrSz.y + YCell * (GetRowHeightMult(vPos)-1);
-	rect->left = p_def_->at(left_pos).x + 1;
-	rect->right = 0;
-	const uint _right = (Right < count) ? Right : (count-1);
-	rect->right = CellRight(p_def_->at(_right)) - 1;
-	if(isFocus) {
-		SInflateRect(*rect, 3, 2);
-		rect->bottom--;
+	const  uint count = p_def_->getCount();
+	if(count) {
+		const  uint left_pos = Freeze ? 0 : Left;
+		pRect->top    = CapOffs + GetRowTop(vPos);
+		pRect->bottom = pRect->top + ChrSz.y + YCell * (GetRowHeightMult(vPos)-1);
+		pRect->left = p_def_->at(left_pos).x + 1;
+		pRect->right = 0;
+		const uint _right = (Right < count) ? Right : (count-1);
+		pRect->right = CellRight(p_def_->at(_right)) - 1;
+		if(isFocus) {
+			SInflateRect(*pRect, 3, 2);
+			pRect->bottom--;
+		}
 	}
-	return rect;
+	else {
+		memzero(pRect, sizeof(*pRect));
+	}
+	return pRect;
 }
 
 void BrowserWindow::DrawFocus(HDC hDC, const RECT * lpRect, BOOL DrawOrClear, BOOL isCellCursor)
@@ -1891,158 +1909,160 @@ void BrowserWindow::Paint()
 			}
 			SetBkColor(ps.hdc, oldColor);
 		}
-		{
-			const uint view_height = (P_RowsHeightAry && P_RowsHeightAry->getCount()) ? P_RowsHeightAry->getCount() : ViewHeight;
-			for(uint row = 0; row < view_height; row++) {
-				ItemRect(Left, row, &r, FALSE);
-				r.left    = 0;
-				r.right   = CliSz.x;
-				r.top    += hdr_width;
-				r.bottom += hdr_width;
-				if(SIntersectRect(ps.rcPaint, r)) {
-					int    is_focused = BIN(row == static_cast<UINT>(p_def_->_curFrameItem()));
-					int    paint_action = is_focused ? BrowserWindow::paintFocused : BrowserWindow::paintNormal;
-					RECT   paint_rect;
-					if(is_focused)
-						paint_rect = RectCursors.LineCursor;
-					else {
-						LineRect(row, &paint_rect, TRUE);
-						paint_rect.top    += hdr_width;
-						paint_rect.bottom += hdr_width - 1;
-						paint_rect.right -= 2;
-					}
-					PaintCell(ps.hdc, paint_rect, row, -1, paint_action);
-					uint i = 0;
-					uint cn = Freeze ? 0 : Left;
-					const long _row_idx = p_def_->_topItem() + row;
-					for(; cn <= Right && cn < count; cn = (++i == Freeze) ? Left : (cn + 1)) {
-						const int paint_action = (is_focused && cn == HScrollPos) ? BrowserWindow::paintFocused : BrowserWindow::paintNormal;
-						ItemRect(cn, row, &r, TRUE);
-						r.top    += hdr_width;
-						r.bottom += hdr_width;
-						if(SIntersectRect(ps.rcPaint, r))
-							PaintCell(ps.hdc, r, row, cn, paint_action);
-						ItemRect(cn, row, &r, FALSE);
-						r.top    += hdr_width;
-						r.bottom += hdr_width;
-						if(SIntersectRect(ps.rcPaint, r)) {
-							const BroColumn & r_bc = p_def_->at(cn);
-							const uint height_mult = GetRowHeightMult(row);
-							strip(p_def_->getMultiLinesText(_row_idx, cn, cbuf, height_mult));
-							if(row > 0 && (r_bc.Options & BCO_DONTSHOWDUPL)) {
-								char   prev_buf[512];
-								strip(p_def_->getText(_row_idx-1, cn, prev_buf));
-								if(sstreq(cbuf, prev_buf))
-									cbuf[0] = 0;
-							}
-							const  int opt = r_bc.format;
-							const  int align = SFMTALIGN(opt);
-							uint   tfmt;
-							if(align == ALIGN_LEFT)
-								tfmt = DT_LEFT;
-							else if(align == ALIGN_RIGHT)
-								tfmt = DT_RIGHT;
-							else if(align == ALIGN_CENTER)
-								tfmt = DT_CENTER;
-							else
-								tfmt = DT_LEFT;
-							SOemToChar(cbuf);
-							tfmt |= (DT_NOPREFIX | DT_SINGLELINE);
-							if(is_focused && cn == HScrollPos)
-								SetBkMode(ps.hdc, TRANSPARENT);
-							bool   already_drawn = false;
-							if(SIntersectRect(RectCursors.CellCursor, r))
-								already_drawn = DrawTextUnderCursor(ps.hdc, cbuf, &r, tfmt, 0);
-							else if(SIntersectRect(RectCursors.LineCursor, r))
-								already_drawn = DrawTextUnderCursor(ps.hdc, cbuf, &r, tfmt, 1);
-							if(!already_drawn) {
-								ItemRect(cn, row, &paint_rect, TRUE);
-								paint_rect.top    += hdr_width;
-								paint_rect.bottom += hdr_width - 1;
-								paint_rect.right -= 2;
-								PaintCell(ps.hdc, paint_rect, row, cn, BrowserWindow::paintNormal);
-								DrawMultiLinesText(ps.hdc, cbuf, &r, tfmt);
+		if(P_Def->getCount()) {
+			{
+				const uint view_height = (P_RowsHeightAry && P_RowsHeightAry->getCount()) ? P_RowsHeightAry->getCount() : ViewHeight;
+				for(uint row = 0; row < view_height; row++) {
+					ItemRect(Left, row, &r, FALSE);
+					r.left    = 0;
+					r.right   = CliSz.x;
+					r.top    += hdr_width;
+					r.bottom += hdr_width;
+					if(SIntersectRect(ps.rcPaint, r)) {
+						int    is_focused = BIN(row == static_cast<UINT>(p_def_->_curFrameItem()));
+						int    paint_action = is_focused ? BrowserWindow::paintFocused : BrowserWindow::paintNormal;
+						RECT   paint_rect;
+						if(is_focused)
+							paint_rect = RectCursors.LineCursor;
+						else {
+							LineRect(row, &paint_rect, TRUE);
+							paint_rect.top    += hdr_width;
+							paint_rect.bottom += hdr_width - 1;
+							paint_rect.right -= 2;
+						}
+						PaintCell(ps.hdc, paint_rect, row, -1, paint_action);
+						uint i = 0;
+						uint cn = Freeze ? 0 : Left;
+						const long _row_idx = p_def_->_topItem() + row;
+						for(; cn <= Right && cn < count; cn = (++i == Freeze) ? Left : (cn + 1)) {
+							const int paint_action = (is_focused && cn == HScrollPos) ? BrowserWindow::paintFocused : BrowserWindow::paintNormal;
+							ItemRect(cn, row, &r, TRUE);
+							r.top    += hdr_width;
+							r.bottom += hdr_width;
+							if(SIntersectRect(ps.rcPaint, r))
+								PaintCell(ps.hdc, r, row, cn, paint_action);
+							ItemRect(cn, row, &r, FALSE);
+							r.top    += hdr_width;
+							r.bottom += hdr_width;
+							if(SIntersectRect(ps.rcPaint, r)) {
+								const BroColumn & r_bc = p_def_->at(cn);
+								const uint height_mult = GetRowHeightMult(row);
+								strip(p_def_->getMultiLinesText(_row_idx, cn, cbuf, height_mult));
+								if(row > 0 && (r_bc.Options & BCO_DONTSHOWDUPL)) {
+									char   prev_buf[512];
+									strip(p_def_->getText(_row_idx-1, cn, prev_buf));
+									if(sstreq(cbuf, prev_buf))
+										cbuf[0] = 0;
+								}
+								const  int opt = r_bc.format;
+								const  int align = SFMTALIGN(opt);
+								uint   tfmt;
+								if(align == ALIGN_LEFT)
+									tfmt = DT_LEFT;
+								else if(align == ALIGN_RIGHT)
+									tfmt = DT_RIGHT;
+								else if(align == ALIGN_CENTER)
+									tfmt = DT_CENTER;
+								else
+									tfmt = DT_LEFT;
+								SOemToChar(cbuf);
+								tfmt |= (DT_NOPREFIX | DT_SINGLELINE);
+								if(is_focused && cn == HScrollPos)
+									SetBkMode(ps.hdc, TRANSPARENT);
+								bool   already_drawn = false;
+								if(SIntersectRect(RectCursors.CellCursor, r))
+									already_drawn = DrawTextUnderCursor(ps.hdc, cbuf, &r, tfmt, 0);
+								else if(SIntersectRect(RectCursors.LineCursor, r))
+									already_drawn = DrawTextUnderCursor(ps.hdc, cbuf, &r, tfmt, 1);
+								if(!already_drawn) {
+									ItemRect(cn, row, &paint_rect, TRUE);
+									paint_rect.top    += hdr_width;
+									paint_rect.bottom += hdr_width - 1;
+									paint_rect.right -= 2;
+									PaintCell(ps.hdc, paint_rect, row, cn, BrowserWindow::paintNormal);
+									DrawMultiLinesText(ps.hdc, cbuf, &r, tfmt);
+								}
 							}
 						}
 					}
 				}
 			}
-		}
-		//
-		// Drawing grid
-		//
-		{
-			ItemRect(Left, 0, &r, FALSE);
-			//uint   r_h_count = P_RowsHeightAry ? P_RowsHeightAry->getCount() : 0;
-			const  uint r_h_count = SVectorBase::GetCount(P_RowsHeightAry);
-			const  uint sel_col_count = SelectedColumns.getCount();
-			long   last_fill_row = 0;
-			r.top += hdr_width - 2 + YCell * GetRowHeightMult(0);
-			r.left = 0;
-			const uint _right = (Right < p_def_->getCount()) ? Right : (p_def_->getCount()-1);
-			const BroColumn & c = p_def_->at(_right);
-			const int  bottom = smin(ViewHeight, static_cast<uint>(p_def_->GetRecsCount()));
-			uint   view_height = r_h_count ? r_h_count : ViewHeight;
-			r.right = smin(static_cast<int>(CliSz.x), CellRight(c));
-			HPEN   old_pen = static_cast<HPEN>(SelectObject(ps.hdc, Pens.GridHorzPen));
-			view_height = (!r_h_count && sel_col_count) ? (view_height - 1) : view_height;
-			for(uint row = 0; row < view_height; row++) {
-				MoveToEx(ps.hdc, r.left, r.top, 0);
-				LineTo(ps.hdc, r.right, r.top);
-				r.top += ((r_h_count && (row+1) < view_height) ? (YCell * GetRowHeightMult(row+1)) : YCell);
-			}
-			const  int  topold = (!r_h_count && sel_col_count) ? r.top : r.top - YCell;
-			long   prev_left = r.left;
-			ItemRect(Left, 0, &r, FALSE);
-			HPEN   black_pen = ::CreatePen(PS_SOLID, 1, GetColorRef(SClrBlack));
-			HPEN   dot_line_pen = ::CreatePen(PS_SOLID, 3, GetColorRef(SClrBlack));
-			r.bottom = topold;
-			r.top   += hdr_width - 2;
-			uint   i = 0;
-			SelectObject(ps.hdc, Pens.GridVertPen);
-			for(uint cn = Freeze ? 0 : Left; cn <= Right && cn < count;) {
-				int  dot_line = 0;
-				long dot_line_delta = 6;
-				r.left = CellRight(p_def_->at(cn));
-				if(sel_col_count) {
-					const bool selected      = SelectedColumns.bsearch(static_cast<long>(cn), 0);
-					const bool next_selected = SelectedColumns.bsearch(static_cast<long>(cn) + 1, 0);
-					dot_line = ((!next_selected && selected) || (next_selected && !selected));
-					if(selected) {
-						SelectObject(ps.hdc, dot_line_pen);
-						// нарисуем последнюю линию броузера пунктиром
-						for(long left = prev_left; left < r.left; left += dot_line_delta + 2) {
-							MoveToEx(ps.hdc, left, r.bottom, 0);
-							LineTo(ps.hdc, ((left + dot_line_delta < r.left) ? left + dot_line_delta : r.left), r.bottom);
-						}
-						SelectObject(ps.hdc, Pens.GridVertPen);
-					}
-					else {
-						SelectObject(ps.hdc, Pens.GridHorzPen);
-						// нарисуем последнюю линию броузера
-						MoveToEx(ps.hdc, prev_left, r.bottom, 0);
-						LineTo(ps.hdc, r.left, r.bottom);
-						SelectObject(ps.hdc, Pens.GridVertPen);
-					}
-				}
-				if(dot_line) {
-					SelectObject(ps.hdc, dot_line_pen);
-					for(long top = r.top; top < r.bottom; top += dot_line_delta + 2) {
-						MoveToEx(ps.hdc, r.left, top, 0);
-						LineTo(ps.hdc, r.left, ((top + dot_line_delta < r.bottom) ? top + dot_line_delta : r.bottom));
-					}
-					SelectObject(ps.hdc, Pens.GridVertPen);
-				}
-				else {
+			//
+			// Drawing grid
+			//
+			{
+				ItemRect(Left, 0, &r, FALSE);
+				//uint   r_h_count = P_RowsHeightAry ? P_RowsHeightAry->getCount() : 0;
+				const  uint r_h_count = SVectorBase::GetCount(P_RowsHeightAry);
+				const  uint sel_col_count = SelectedColumns.getCount();
+				long   last_fill_row = 0;
+				r.top += hdr_width - 2 + YCell * GetRowHeightMult(0);
+				r.left = 0;
+				const uint _right = (Right < p_def_->getCount()) ? Right : (p_def_->getCount()-1);
+				const BroColumn & c = p_def_->at(_right);
+				const int  bottom = smin(ViewHeight, static_cast<uint>(p_def_->GetRecsCount()));
+				uint   view_height = r_h_count ? r_h_count : ViewHeight;
+				r.right = smin(static_cast<int>(CliSz.x), CellRight(c));
+				HPEN   old_pen = static_cast<HPEN>(SelectObject(ps.hdc, Pens.GridHorzPen));
+				view_height = (!r_h_count && sel_col_count) ? (view_height - 1) : view_height;
+				for(uint row = 0; row < view_height; row++) {
 					MoveToEx(ps.hdc, r.left, r.top, 0);
-					LineTo(ps.hdc, r.left, r.bottom);
+					LineTo(ps.hdc, r.right, r.top);
+					r.top += ((r_h_count && (row+1) < view_height) ? (YCell * GetRowHeightMult(row+1)) : YCell);
 				}
-				cn = (++i == Freeze) ? Left : (cn + 1);
-				prev_left = r.left;
+				const  int  topold = (!r_h_count && sel_col_count) ? r.top : r.top - YCell;
+				long   prev_left = r.left;
+				ItemRect(Left, 0, &r, FALSE);
+				HPEN   black_pen = ::CreatePen(PS_SOLID, 1, GetColorRef(SClrBlack));
+				HPEN   dot_line_pen = ::CreatePen(PS_SOLID, 3, GetColorRef(SClrBlack));
+				r.bottom = topold;
+				r.top   += hdr_width - 2;
+				uint   i = 0;
+				SelectObject(ps.hdc, Pens.GridVertPen);
+				for(uint cn = Freeze ? 0 : Left; cn <= Right && cn < count;) {
+					int  dot_line = 0;
+					long dot_line_delta = 6;
+					r.left = CellRight(p_def_->at(cn));
+					if(sel_col_count) {
+						const bool selected      = SelectedColumns.bsearch(static_cast<long>(cn), 0);
+						const bool next_selected = SelectedColumns.bsearch(static_cast<long>(cn) + 1, 0);
+						dot_line = ((!next_selected && selected) || (next_selected && !selected));
+						if(selected) {
+							SelectObject(ps.hdc, dot_line_pen);
+							// нарисуем последнюю линию броузера пунктиром
+							for(long left = prev_left; left < r.left; left += dot_line_delta + 2) {
+								MoveToEx(ps.hdc, left, r.bottom, 0);
+								LineTo(ps.hdc, ((left + dot_line_delta < r.left) ? left + dot_line_delta : r.left), r.bottom);
+							}
+							SelectObject(ps.hdc, Pens.GridVertPen);
+						}
+						else {
+							SelectObject(ps.hdc, Pens.GridHorzPen);
+							// нарисуем последнюю линию броузера
+							MoveToEx(ps.hdc, prev_left, r.bottom, 0);
+							LineTo(ps.hdc, r.left, r.bottom);
+							SelectObject(ps.hdc, Pens.GridVertPen);
+						}
+					}
+					if(dot_line) {
+						SelectObject(ps.hdc, dot_line_pen);
+						for(long top = r.top; top < r.bottom; top += dot_line_delta + 2) {
+							MoveToEx(ps.hdc, r.left, top, 0);
+							LineTo(ps.hdc, r.left, ((top + dot_line_delta < r.bottom) ? top + dot_line_delta : r.bottom));
+						}
+						SelectObject(ps.hdc, Pens.GridVertPen);
+					}
+					else {
+						MoveToEx(ps.hdc, r.left, r.top, 0);
+						LineTo(ps.hdc, r.left, r.bottom);
+					}
+					cn = (++i == Freeze) ? Left : (cn + 1);
+					prev_left = r.left;
+				}
+				SelectObject(ps.hdc, old_pen);
+				ZDeleteWinGdiObject(&black_pen);
+				ZDeleteWinGdiObject(&dot_line_pen);
 			}
-			SelectObject(ps.hdc, old_pen);
-			ZDeleteWinGdiObject(&black_pen);
-			ZDeleteWinGdiObject(&dot_line_pen);
 		}
 		::EndPaint(H(), &ps);
 	}
