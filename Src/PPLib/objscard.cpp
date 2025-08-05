@@ -13,7 +13,7 @@ PPSCardPacket::PPSCardPacket() : PPExtStrContainer()
 
 PPSCardPacket & PPSCardPacket::Z()
 {
-	MEMSZERO(Rec);
+	Rec.Clear();
     SetBuffer(0);
 	return *this;
 }

@@ -389,7 +389,7 @@ int BillExtraDialog(const PPBillPacket * pPack, PPBillExt * pData, ObjTagList * 
 				if(p_agt_combo) {
 					PPIDArray agt_list;
 					if(pData->AgtBillID || pPack->Rec.Object) {
-						p_bobj->P_Tbl->GetListOfActualAgreemts(pPack->Rec.Object, pPack->Rec.Dt, 365*10, 20, agt_list);
+						p_bobj->P_Tbl->GetListOfActualAgreemts(pPack->Rec.Object, pPack->Rec.Object2, pPack->Rec.Dt, 365*10, 20, agt_list);
 						agt_list.addnz(pData->AgtBillID);
 					}
 					if(agt_list.getCount()) {
@@ -1981,6 +1981,11 @@ IMPL_HANDLE_EVENT(BillDialog)
 					P_Pack->Ext.IsShipped = BIN(P_Pack->Rec.Flags & BILLF_SHIPPED);
 					P_Pack->Ext.SCardID = P_Pack->Rec.SCardID;
 					P_Pack->Ext.AgtBillID = P_Pack->Rec.AgtBillID;
+					// @v12.3.9 {
+					// Следующие 2 вызова нужны для извлечения выбранных статей документа для правильной работы функции BillExtraDialog()
+					getCtrlData(CTLSEL_BILL_OBJECT, &P_Pack->Rec.Object);
+					getCtrlData(CTLSEL_BILL_OBJ2, &P_Pack->Rec.Object2);
+					// } @v12.3.9 
 					for(int r = 0; !r && BillExtraDialog(P_Pack, &P_Pack->Ext, &P_Pack->BTagL, 0) > 0;) {
 						r = 1;
 						if(P_Pack->Ext.AgentID != prev_agent_id) {

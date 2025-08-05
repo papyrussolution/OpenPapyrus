@@ -624,7 +624,6 @@ private:
 	int    Edit(SStringTag * pItem);
 };
 
-//int ExtFieldsDialog::Edit(TaggedString * pItem)
 int ExtFieldsDialog::Edit(SStringTag * pItem)
 {
 	class ExtFldCfgDialog : public TDialog {
@@ -1810,8 +1809,9 @@ int PPObjPerson::GetPersonReq(PPID id, PersonReq * pPersonReq)
 	if(id && GetPacket(id, &pack, PGETPCKF_USEINHERITENCE) > 0) {
 		SString temp_buf;
 		STRNSCPY(pPersonReq->Name, pack.Rec.Name);
-		if(pack.GetExtName(temp_buf) > 0)
+		if(pack.GetExtName(temp_buf) && temp_buf.Chomp().NotEmptyS()) { // @v12.3.9 (&& temp_buf.Chomp().NotEmptyS()) - после импорте возникла проблема из-за единичного перевода каретки в строке.
 			temp_buf.CopyTo(pPersonReq->ExtName, sizeof(pPersonReq->ExtName));
+		}
 		else
 			STRNSCPY(pPersonReq->ExtName, pack.Rec.Name);
 		// @v11.1.12 STRNSCPY(pPersonReq->Memo, pack.Rec.Memo);
@@ -3081,9 +3081,10 @@ int PPObjPerson::GetPacket(PPID id, PPPersonPacket * pPack, uint flags)
 		}
 		else
 			MEMSZERO(pPack->CshrInfo);
-		for(i = 0; i < dlvr_loc_list.getCount(); i++)
+		for(i = 0; i < dlvr_loc_list.getCount(); i++) {
 			if(LocObj.GetPacket(dlvr_loc_list.at(i), &loc_pack) > 0)
 				pPack->AddDlvrLoc(loc_pack);
+		}
 		THROW(P_Tbl->GetELinks(id, pPack->ELA));
 		THROW(GetExtName(id, ext_str_buf));
 		pPack->SetExtName(ext_str_buf);
@@ -3505,7 +3506,7 @@ int PPObjPerson::PutPacket(PPID * pID, PPPersonPacket * pPack, int use_ta)
 						THROW(p_ref->PutProp(Obj, id, PSNPRP_CASHIERINFO, (pPack->CshrInfo.Flags & CIF_CASHIER) ? &cshr_prop : 0));
 					}
 					//
-					pPack->GetExtName(temp_buf.Z());
+					pPack->GetExtName(temp_buf);
 					THROW(p_ref->PutPropVlrString(Obj, id, PSNPRP_EXTSTRDATA, temp_buf));
 					//
 					if(pPack->LinkFiles.IsChanged(id, 0L)) {
@@ -5510,14 +5511,16 @@ MainOrg2Dialog::MainOrg2Dialog(int dlgID, PPPersonPacket * pData, PPObjPerson * 
 int MainOrg2Dialog::setDTS()
 {
 	int    ok = 1;
-	char   buf[128], bic[128], corr[128], inn[128];
+	char   buf[128];
+	char   bic[128];
+	char   corr[128];
+	char   inn[128];
 	SString temp_buf;
 	PPID   bnk_id = 0;
 	int    pos;
 	uint   i;
 	PPCommConfig cfg;
 	THROW(GetCommConfig(&cfg));
-
 	SetupPPObjCombo(this, CTLSEL_MAINORG2_STATUS, PPOBJ_PRSNSTATUS, P_Pack->Rec.Status, OLW_CANINSERT, 0);
 	setCtrlData(CTL_MAINORG2_NAME, P_Pack->Rec.Name);
 	P_Pack->GetExtName(temp_buf);

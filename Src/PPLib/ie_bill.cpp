@@ -7682,7 +7682,7 @@ int DocNalogRu_Generator::WriteParticipant(const char * pHeaderTag, PPID psnID, 
 			}
 			else if(inn.Len() == 10) { // Юридическое лицо
 				SXml::WNode n__(P_X, GetToken_Ansi(PPHSC_RU_ORGINFO));
-				if(psn_pack.GetExtName(temp_buf) <= 0)
+				if(!psn_pack.GetExtName(temp_buf))
 					temp_buf = psn_pack.Rec.Name;
 				n__.PutAttrib(GetToken_Ansi(PPHSC_RU_NAMEOFORG), EncText(temp_buf));
 				n__.PutAttrib(GetToken_Ansi(PPHSC_RU_INNJUR), EncText(inn));
@@ -7967,17 +7967,19 @@ int DocNalogRu_Generator::WriteAddress(const PPLocationPacket & rP, int regionCo
 				SXml::WNode n_i(P_X, GetToken_Ansi(PPHSC_RU_ADDR_OFFSHR));
 				n_i.PutAttrib(GetToken_Ansi(PPHSC_RU_ADDR_COUNTRYCODE), p_country_code);
 				// @v12.3.0 {
-				temp_buf.Z();
-				if(sstreq(p_country_code, "643")) {
-					PPLoadString("nativecountry", temp_buf);
+				if(IsVer503()) { // @v12.3.9 (condition)
+					temp_buf.Z();
+					if(sstreq(p_country_code, "643")) {
+						PPLoadString("nativecountry", temp_buf);
+					}
+					else if(cb.Name.NotEmpty()) {
+						temp_buf = cb.Name;
+					}
+					else {
+						temp_buf = p_country_code;
+					}
+					n_i.PutAttrib(GetToken_Ansi(PPHSC_RU_ADDR_COUNTRYNAME), EncText(temp_buf)); 
 				}
-				else if(cb.Name.NotEmpty()) {
-					temp_buf = cb.Name;
-				}
-				else {
-					temp_buf = p_country_code;
-				}
-				n_i.PutAttrib(GetToken_Ansi(PPHSC_RU_ADDR_COUNTRYNAME), EncText(temp_buf)); 
 				// } @v12.3.0 
 				n_i.PutAttrib(GetToken_Ansi(PPHSC_RU_ADDR_TEXT), EncText(addr_text));
 			}
@@ -8150,7 +8152,7 @@ int DocNalogRu_Generator::WriteOrgInfo(const char * pScopeXmlTag, PPID personID,
 			}
 			else {
 				SXml::WNode n_p(P_X, GetToken_Ansi(PPHSC_RU_JURINFO));
-				if(psn_pack.GetExtName(temp_buf) <= 0)
+				if(!psn_pack.GetExtName(temp_buf))
 					temp_buf = psn_pack.Rec.Name;
 				n_p.PutAttrib(GetToken_Ansi(PPHSC_RU_NAMEOFORG), EncText(temp_buf));
 				n_p.PutAttrib(GetToken_Ansi(PPHSC_RU_INNJUR), inn);
@@ -8238,9 +8240,15 @@ DocNalogRu_WriteBillBlock::DocNalogRu_WriteBillBlock(const PPBillImpExpParam & r
 		// Блок определения версии форматы исходящего файла
 		//
 		SVerT output_format_ver;
-		if(R_P.OuterFormatVer.NotEmpty()) {
-			const int vfsr = output_format_ver.FromStr(R_P.OuterFormatVer);
-			assert(vfsr || output_format_ver.IsEmpty());
+		// @v12.3.9 {
+		if(rParam.PredefFormat == piefNalogR_ON_NKORSCHFDOPPR) {
+			output_format_ver.Set(5, 1, 0);
+		}
+		else { // } @v12.3.9 
+			if(R_P.OuterFormatVer.NotEmpty()) {
+				const int vfsr = output_format_ver.FromStr(R_P.OuterFormatVer);
+				assert(vfsr || output_format_ver.IsEmpty());
+			}
 		}
 		output_format_ver = G.SetupOutputFormatVer(output_format_ver); // Если v.IsEmpty() то функция будет использовать версию формата по умолчанию
 		assert(!output_format_ver.IsEmpty());
@@ -8460,10 +8468,7 @@ int DocNalogRu_WriteBillBlock::Do_Invoice2(SString & rResultFileName)
 			PPPersonPacket psn_pack;
 			temp_buf.Z();
 			if(G.PsnObj.GetPacket(MainOrgID, &psn_pack, 0) > 0) {
-				if(psn_pack.GetExtName(temp_buf) > 0) {
-					;
-				}
-				else
+				if(!psn_pack.GetExtName(temp_buf))
 					temp_buf = psn_pack.Rec.Name;
 			}
 			// } @v11.5.9 

@@ -12989,8 +12989,17 @@ private:
 //
 class CsvSniffer {
 public:
+	struct Param {
+		Param();
+		enum {
+			fDebugOutput = 0x0001
+		};
+		uint   Flags;
+		uint   MaxLineCount; // Максимальное количество строк, которые следует сканировать для идентификации структуры файла. 0 - все!
+	};
 	struct Result {
 		struct ColumnStat {
+			//CsvSniffer::Result::ColumnStat
 			ColumnStat() : N(0), NECount(0), FirstRowLen(0), LenAvg(0.0), LenStdDev(0.0)
 			{
 			}
@@ -13015,7 +13024,8 @@ public:
 		uint   Flags;
 		uint   TitleRow_VTest_ColumnCount; // Количество столбцов, для которых первая строка имеет эксклюзивные токены по сравнению с остальными строками.
 			// Используется для оценки вероятности того, что первая строка является заголовочной.
-		uint64 LineCount;
+		uint64 LineCount;      // Количество непустых строк в файле (если Param::MaxLineCount > 0, то LineCount не может быть более чем Param::MaxLineCount)
+		uint64 EmptyLineCount; // Количество пустых строк в файле
 		double FieldCountExpectation;
 		uint32 SnTokSeq_Common; // flags SNTOKSEQ_FFFF общие для всех строк
 		uint32 SnTokSeq_First;  // flags SNTOKSEQ_FFFF для первой строки
@@ -13023,7 +13033,7 @@ public:
 	};
 	CsvSniffer();
 	~CsvSniffer();
-	int    Run(const char * pFileName, Result & rR);
+	int    Run(const char * pFileName, const Param & rP, Result & rR);
 };
 //
 //

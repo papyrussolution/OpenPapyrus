@@ -28,7 +28,7 @@ PPPerson & FASTCALL PPPerson::operator = (const PPPerson & rS)
 
 PPPerson & PPPerson::Z()
 {
-	MEMSZERO(Rec);
+	Rec.Clear();
 	SMemo.Z(); // @v11.1.12
 	Kinds.Z();
 	RelList.clear();
@@ -772,21 +772,21 @@ void   FASTCALL PPPersonPacket::SetExtName(const char * pName) { ExtString = pNa
 void   PPPersonPacket::ClearDlvrLocList() { DlvrLocList.freeAll(); }
 const  PPSCardPacket * PPPersonPacket::GetSCard() const { return P_SCardPack; }
 
-int PPPersonPacket::GetSrchRegNumber(PPID * pRegTypeID, SString & rBuf) const
+bool PPPersonPacket::GetSrchRegNumber(PPID * pRegTypeID, SString & rBuf) const
 {
 	rBuf.Z();
-
-	int    ok = -1;
+	bool   ok = false;
 	PPID   reg_type_id = 0;
 	PPObjPersonKind pk_obj;
-	PPPersonKind pk_rec;
-	for(uint i = 0; ok < 0 && i < Kinds.getCount(); i++)
+	PPPersonKind2 pk_rec;
+	for(uint i = 0; !ok && i < Kinds.getCount(); i++) {
 		if(pk_obj.Fetch(Kinds.at(i), &pk_rec) > 0 && pk_rec.CodeRegTypeID) {
 			if(GetRegNumber(pk_rec.CodeRegTypeID, rBuf) > 0) {
 				reg_type_id = pk_rec.CodeRegTypeID;
-				ok = 1;
+				ok = true;
 			}
 		}
+	}
 	ASSIGN_PTR(pRegTypeID, reg_type_id);
 	return ok;
 }
@@ -828,10 +828,10 @@ int PPPersonPacket::GetCurrBnkAcct(PPBankAccount * pRec) const
 	return ok;
 }
 
-int FASTCALL PPPersonPacket::GetExtName(SString & rBuf) const
+bool FASTCALL PPPersonPacket::GetExtName(SString & rBuf) const
 {
 	rBuf = ExtString;
-	return rBuf.NotEmptyS() ? 1 : -1;
+	return rBuf.NotEmptyS();
 }
 
 int PPPersonPacket::AddRegister(PPID regTypeID, const char * pNumber, int checkUnique /* = 1 */)
@@ -842,7 +842,7 @@ int PPPersonPacket::AddRegister(PPID regTypeID, const char * pNumber, int checkU
 	PPObjRegister reg_obj;
 	STRNSCPY(temp_buf, pNumber);
 	if(*strip(temp_buf)) {
-		int    reg_exists = 0;
+		bool   reg_exists = false;
 		reg_rec.RegTypeID = regTypeID;
 		STRNSCPY(reg_rec.Num, temp_buf);
 		PPObjRegisterType obj_regt;
@@ -853,7 +853,7 @@ int PPPersonPacket::AddRegister(PPID regTypeID, const char * pNumber, int checkU
 			uint   pos = 0;
 			while(Regs.GetRegister(reg_rec.RegTypeID, &pos, &test_rec) > 0) {
 				if(sstreq(test_rec.Num, reg_rec.Num))
-					reg_exists = 1;
+					reg_exists = true;
 				else
 					Regs.atFree(--pos);
 			}

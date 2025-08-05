@@ -450,6 +450,7 @@ static PPID SetSingleRefAsEnumProp(PPID objTypeID, PPID * pRefID)
 
 int PPObjGoods::InitPacket(PPGoodsPacket * pPack, GoodsPacketKind gpk, PPID parentID, PPID clsID, const char * pBarcode)
 {
+	int    ok = 1;
 	MEMSZERO(pPack->Rec);
 	MEMSZERO(pPack->ExtRec);
 	pPack->Codes.freeAll();
@@ -514,9 +515,14 @@ int PPObjGoods::InitPacket(PPGoodsPacket * pPack, GoodsPacketKind gpk, PPID pare
 			pPack->Rec.GdsClsID = 0;
 	}
 	if(oneof3(gpk, gpkndOrdinaryGroup, gpkndFolderGroup, gpkndAltGroup))
-		return BIN(pPack->SetGroupCode(pBarcode));
-	else
-		return BIN(pPack->AddCode(pBarcode, 0, 1));
+		ok = BIN(pPack->SetGroupCode(pBarcode));
+	else {
+		if(pPack->AddCode(pBarcode, 0, 1) != 0)
+			ok = 1;
+		else
+			ok = 0;
+	}
+	return ok;
 }
 /*
 	PPERR_NAMENEEDED

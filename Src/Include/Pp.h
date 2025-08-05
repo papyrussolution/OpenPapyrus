@@ -3990,13 +3990,13 @@ struct PPQuot { // @persistent(DBX see Note above)
 		fPctDisabled   = 0x0008, // Заблокированная котировка                      'X' //
 		fPctOnBase     = 0x0010, // Наценка в процентах к базовой котировке        'Q' //
 		fWithoutTaxes  = 0x0020, // @construction Цена указана без налогов 'F' //
-		fZero  = 0x0040, // Явно заданное нулевое значение.
+		fZero          = 0x0040, // Явно заданное нулевое значение.
 		fActual        = 0x0080, // @transient Специализированный флаг -
 			// используется для индикации признака актуальной котировки во временных структурах.
 			// В базе данных не сохраняется.
-		fDbUpd = 0x0100, // @transient Устанавливается функциями изменения списка котировок
+		fDbUpd         = 0x0100, // @transient Устанавливается функциями изменения списка котировок
 			// в тех элемента PPQuotArray, которые были реально изменены в БД.
-		fAggrCount     = 0x0200, // @v10.1.3 @transient Специальный флаг, указывающий, что значение хранит
+		fAggrCount     = 0x0200, // @transient Специальный флаг, указывающий, что значение хранит
 			// аггрегированное суммарное количество котировок, соответствующих заданным критериям.
 			// Используется только в отчетах
 		fDbMask        = (fPctOnCost|fPctOnPrice|fPctOnAddition|fPctDisabled|fPctOnBase|fWithoutTaxes|fZero)
@@ -7677,6 +7677,7 @@ private:
 	//    0 = set unavailability
 	//
 	int    Helper_Process_HostAvailability_Query(const char * pHost, int query);
+	bool   LoadUedContainer(); // @v12.3.9
 
 	struct ObjIdentBlock {
 		ObjIdentBlock();
@@ -7710,6 +7711,7 @@ private:
 	long   ExtFlags_;      // ECF_XXX
 	mutable SMtLock ExtFlagsLck;   // Блокировка доступа к ExtFlags
 	SMtLock ExtCfgDbLock;  // Блокировка доступа к P_ExtCfgDb
+	SMtLock LoadUedCLock;  // @v12.3.9 Блокировка P_UedC на время загрузки данных из исходного файла.
 	//
 	DbLocalCacheMng CMng;  // Менеджер локальных по отношению к базе данных объектных кэшей
 	PPAdviseList AdvList;  // Подписка на извещения о событиях.
@@ -9883,7 +9885,7 @@ public:
 struct StaffAmtEntry { // @flat
 	DECL_INVARIANT_C();
 	explicit StaffAmtEntry(PPID amtTypeID = 0, PPID curID = 0, double amt = 0.0);
-	int    FASTCALL IsEq(const StaffAmtEntry & rS) const;
+	bool   FASTCALL IsEq(const StaffAmtEntry & rS) const;
 
 	PPID   AmtTypeID; // ->Ref(PPOBJ_AMOUNTTYPE)
 	PPID   CurID;     // ->Ref(PPOBJ_CURRENCY)
@@ -9896,7 +9898,7 @@ struct StaffAmtEntry { // @flat
 class StaffAmtList : public TSVector <StaffAmtEntry> {
 public:
 	StaffAmtList();
-	int    FASTCALL IsEq(const StaffAmtList & rS) const;
+	bool   FASTCALL IsEq(const StaffAmtList & rS) const;
 	int    Search(PPID amtTypeID, PPID curID, LDATE dt, uint * pPos) const;
 	int    Search(PPID amtTypeID, uint * pPos) const;
 	//
@@ -12775,7 +12777,7 @@ public:
 	//    0 - error
 	//
 	int    GetListOfOrdersByLading(PPID billID, PPIDArray & rOrderBillList);
-	int    GetListOfActualAgreemts(PPID arID, LDATE dt, int maxDays, int maxItems, PPIDArray & rList);
+	int    GetListOfActualAgreemts(PPID arID, PPID addendumArID, LDATE dt, int maxDays, int maxItems, PPIDArray & rList);
 	int    GetTrnovrBySCard(PPID cardID, const DateRange * pPeriod, PPID restrGoodsGrpID, double * pDbt, double * pCrd);
 	int    CreateSCardsTurnoverList(const DateRange *, RAssocArray *);
 	int    CalcPayment(PPID billID, int byLinks, const DateRange *, PPID curID, double * pPaymentAmount);
@@ -24338,6 +24340,7 @@ private:
 #define GTCHZNPT_MEDICALDEVICES     UED::GetRawValue32(UED_RUCHZNPRODTYPE_MEDICALDEVICES)/*16*/ // @v12.1.2 Изделия медицинского назначения
 #define GTCHZNPT_SOFTDRINKS         UED::GetRawValue32(UED_RUCHZNPRODTYPE_SOFTDRINKS)/*17*/ // @v12.1.10 Соковая продукция и безалкогольные напитки
 #define GTCHZNPT_NONALCBEER         UED::GetRawValue32(UED_RUCHZNPRODTYPE_NONALCBEER)/*18*/ // @v12.2.6 Пиво безалкогольное
+#define GTCHZNPT_PETFOOD            UED::GetRawValue32(UED_RUCHZNPRODTYPE_PETFOOD)/*19*/ // @v12.3.9 Корм для животных
 
 struct PPGoodsType2 {      // @persistent @store(Reference2Tbl+)
 	PPGoodsType2();
@@ -26940,16 +26943,38 @@ public:
 	PPPersonPacket & Z();
 	int    GetRegister(PPID regTyp, uint * pos) const;
 	int    GetRegNumber(PPID regTyp, SString & rBuf) const;
-	int    GetSrchRegNumber(PPID * pRegTypeID, SString & rBuf) const;
+	//
+	// Descr: Находит в пакете номер поискового регистрового документа. Под поисковым регистровым 
+	//   документом подразумевается тот регистр, которых определен для одного из видов, которому
+	//   принадлежит данная персоналия, как поисковый регистр (PPPersonKind2::CodeRegTypeID).
+	//   В общем случае, персоналия может содержать более одного поискового регистра, поскольку может
+	//   принадлежать нескольким видам. Эта функция возвращает первый же встретившийся не пустой
+	//   номер поискового регистра.
+	// ARG(pRegTypeID OUT): по этому указателю (if pRegTypeID != 0) присваивается идентификатор типа поискового регистрационного
+	//   документа, соответствующий номер для которого найден в пакете.
+	//   Если поисковый регистр в пакете отсутствует, то значение по указателю обнуляется (if pRegTypeID != 0)
+	// ARG(rBuf OUT): по этой ссыке присваивается номер поискового регистра, определенный в пакете персоналии.
+	//   Если поисковый регистр в пакете отсутствует, то строка по ссылке очищается.
+	// Returns:
+	//   true - найден не пустой номер поискового регистра
+	//   false - в пакете персоналии нет ни одного поискового регистра.
+	//
+	bool   GetSrchRegNumber(PPID * pRegTypeID, SString & rBuf) const;
 	int    GetAddress(uint, SString & rBuf);
 	int    GetRAddress(uint, SString & rBuf);
 	int    GetPhones(uint maxCount, SString & rBuf);
 	int    GetCurrBnkAcct(PPBankAccount *) const;
 	void   FASTCALL SetExtName(const char * pName);
-	int    FASTCALL GetExtName(SString & rBuf) const;
+	//
+	// Descr: Получает из пакета расширенное имя персоналии и присваивает его по ссылке rBuf.
+	// Returns:
+	//   true - в пакете определено не пустое расширенное наименование (с точностью до ведущих и хвостовых пробелов)
+	//   false - пакет не содержит осмысленного (не пустого с точностью до ведущих и хвостовых пробелов) расширенного наименования //
+	//
+	bool   FASTCALL GetExtName(SString & rBuf) const;
 	int    AddRegister(PPID regTypeID, const char * pNumber, int checkUnique = 1);
 	//
-	// Descr: Возвращает информацию об адересе доставки из внутреннего списка по индексу *pPos
+	// Descr: Возвращает информацию об адресе доставки из внутреннего списка по индексу *pPos
 	//   и, в случае успеха, увеличивает значение индекса *pPos на единицу.
 	//   !0 - адрес успешно присвоен по указателю pPack. Индекс по указателю pPos увеличен на 1.
 	//    0 - позиция pos выходит за пределы [0..GetDlvrLocCount()]
@@ -27311,7 +27336,7 @@ public:
 	//   Если персоналия не найдена либо не имеет адреса, то rBuf = 0.
 	//
 	int    GetAddress(PPID id, SString & rBuf);
-	int    GetExtName(PPID, SString & rBuf);
+	int    GetExtName(PPID id, SString & rBuf);
 	int    FormatRegister(PPID, PPID regTypeID, char * buf, size_t buflen);
 	int    GetBnkAcctData(PPID bnkAcctID, const PPBankAccount *, BnkAcctData *);
 	int    GetPersonReq(PPID, PersonReq *);
@@ -27561,7 +27586,7 @@ public:
 class PPPsnPostPacket {
 public:
 	PPPsnPostPacket();
-	void   Init();
+	PPPsnPostPacket & Z();
 	PPPsnPostPacket & FASTCALL operator = (const PPPsnPostPacket &);
 
 	PersonPostTbl::Rec Rec;
@@ -27586,6 +27611,12 @@ public:
 		rtModAmounts  = 0x0200  // Изменение сумм штатной должности либо назначения //
 	};
 	struct Filt {
+		Filt() : OrgID(0), DivID(0)
+		{
+		}
+		Filt(PPID orgID, PPID divID) : OrgID(orgID), DivID(divID)
+		{
+		}
 		PPID   OrgID;
 		PPID   DivID;
 	};
@@ -33306,7 +33337,7 @@ private:
 
 struct PPScale2 {          // @persistent @store(Reference2Tbl+)
 	PPScale2();
-	int    IsValidBcPrefix() const;
+	bool   IsValidBcPrefix() const;
 
 	long   Tag;              // Const=PPOBJ_SCALE
 	long   ID;               // @id
@@ -33355,11 +33386,9 @@ class PPObjScale : public PPObjReference {
 public:
 	struct Stat {
 		uint   NumSendPluColl;      // Количество коллизий в функции PPObjScale::SendPlu
-		uint   MaxSendPluCollIters; // Максимальное количество итерациий, вызыванных при обработке
-			// коллизий в функции PPObjScale::SendPlu
+		uint   MaxSendPluCollIters; // Максимальное количество итерациий, вызыванных при обработке коллизий в функции PPObjScale::SendPlu
 		uint   NumGetColl;          // Количество коллизий в функции PPScaleDevice::GetChr()
-		uint   MaxGetCollIters;     // Максимальное количество итераций, вызванных при обработке
-			// коллизий в функции PPScaleDevice::GetChr()
+		uint   MaxGetCollIters;     // Максимальное количество итераций, вызванных при обработке коллизий в функции PPScaleDevice::GetChr()
 	};
 	//
 	// Флаги функции PPObjScale::TransmitData
@@ -33379,6 +33408,11 @@ public:
 	virtual int Edit(PPID * pID, void * extraPtr);
 	virtual int Browse(void * extraPtr);
 	virtual StrAssocArray * MakeStrAssocList(void * extraPtr);
+	//
+	// Descr: Ищет все записи весов, имеющие логический номер равный logicN.
+	//   Если параметр logicN <= 0, то ничего не делает и немедленно возврашает -1.
+	//
+	int    SearchByLogicN(long logicN, PPIDArray & rIdList);
 	int    IsPacketEq(const PPScalePacket & rS1, const PPScalePacket & rS2, long flags);
 	int    PutPacket(PPID * pID, PPScalePacket * pPack, int use_ta);
 	int    GetPacket(PPID id, PPScalePacket * pPack);
@@ -36988,18 +37022,17 @@ struct AsyncCashSCardInfo {
 	AsyncCashSCardInfo & Z();
 
 	SCardTbl::Rec Rec;
-	//int    IsClosed;
 	enum {
 		fClosed = 0x0001,
 		fDisableSendPaperlassCCheck = 0x0002
 	};
 	long   Flags;
-	LDATE  PsnDOB;   // @v11.3.5 День рождения персоналии 
-	double Rest;     // Остаток по кредитной карте
-	SString PsnName; // Наименование персоналии-владельца //
-	SString Phone;   // @V10.6.3 Номер телефона, ассоциированный с картой (не с персоналией)
-	SString PsnPhone; // @v11.3.5 Номер телефона персоналии
-	SString Email;    // @v11.3.5 Электронная почта персоналии
+	LDATE  PsnDOB;     // @v11.3.5 День рождения персоналии 
+	double Rest;       // Остаток по кредитной карте
+	SString PsnName;   // Наименование персоналии-владельца //
+	SString Phone;     // Номер телефона, ассоциированный с картой (не с персоналией)
+	SString PsnPhone;  // @v11.3.5 Номер телефона персоналии
+	SString Email;     // @v11.3.5 Электронная почта персоналии
 };
 
 class AsyncCashSCardsIterator {
@@ -61654,7 +61687,8 @@ public:
 	struct ErpGoodsEntry { // @flat
 		ErpGoodsEntry();
 
-		long   ID;
+		long   NativeID;   // @firstmember Идентификатор товара в системе Кристалл
+		long   PpyID;      // Идентификатор товара в Papyrus
 		uint   Flags;
 		long   GoodsGroupID;
 		double Price;
@@ -61670,10 +61704,13 @@ public:
 	};
 	struct ErpWeightedGoodsEntry {
 		ErpWeightedGoodsEntry();
-		long   ID;	
-		uint   Flags;
-		long   PLU;
-		double Price; // Цена за 1кг
+		long   NativeID;        // @firstmember Идентификатор товара в системе Кристалл
+		long   PpyID;           // Идентификатор товара в Papyrus
+		uint   Flags;           //   
+		long   DeviceNo;        // Номер весового устройства
+		long   PLU;             //
+		long   ShelfLifeDays;   // Срок годности в днях
+		double Price;           // Цена за 1кг
 		char   GoodsNameF[128]; // Полное наименование товара (из 2 частей)
 	};
 	struct ErpSCardEntry {
@@ -61698,12 +61735,16 @@ public:
 	int    EditCmdParam(CmdParam & rData);
 	int    Process(const CmdParam & rParam);
 	//
-	int    Helper_CristalImportDir(const char * pPathUtf8, Cristal2SetRetailGateway::CristalImportBlock & rIb, const char * pLogFilePath);
-	//
 	// Descr: Импортирует текстовый файл, подготовленный системой Кристалл.
 	//   Файлы в кодировке cp866, разделители полей '|'.
 	//
 	int    CristalImport(const char * pPathUtf8, Cristal2SetRetailGateway::CristalImportBlock & rIb);
+private:
+	static SString & FASTCALL MakeCodeByNativeGoodsID(long nativeID, SString & rBuf);
+	int    SearchNativeGoodsID(long nativeID, Goods2Tbl::Rec * pRec);
+	int    Helper_CristalImportDir(const char * pPathUtf8, Cristal2SetRetailGateway::CristalImportBlock & rIb, PPLogger * pLogger);
+
+	PPObjGoods GObj;
 };
 //
 // Descr: Возвращает минимальный множитель, цены кратные которому

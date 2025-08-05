@@ -493,7 +493,7 @@ void ArticleAutoAddDialog::init(PPID sheetID)
 	//int    r;
 	//PPAccSheet acs_rec;
 	THROW(SearchObject(PPOBJ_ACCSHEET, sheetID, &AcsRec) > 0);
-	MEMSZERO(Rec);
+	Rec.Clear();
 	Rec.AccSheetID = sheetID;
 	THROW(ArObj.GetFreeArticle(&Rec.Article, sheetID));
 	//Assoc = acs_rec.Assoc;

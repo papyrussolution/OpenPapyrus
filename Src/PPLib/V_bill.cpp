@@ -3376,6 +3376,19 @@ int PPViewBill::AddItem(PPID * pID, PPID opID)
 						op_type_list.addzlist(PPOPT_WAREHOUSE, 0L);
 					else
 						op_type_list.addzlist(PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_GOODSREVAL, PPOPT_GOODSMODIF, PPOPT_PAYMENT, 0L);
+					// @v12.3.9 {
+					if(!op_id && Filt.OpID && !IsGenericOp(Filt.OpID)) {
+						if(Filt.AccSheetID)	{
+							if(op_type_list.lsearch(Filt.OpID))
+								op_id = Filt.OpID;
+						}
+						else {
+							const PPID local_op_type_id = GetOpType(Filt.OpID);
+							if(op_type_list.lsearch(local_op_type_id))
+								op_id = Filt.OpID;
+						}
+					}
+					// } @v12.3.9 
 					if(BillPrelude(&op_type_list, (Filt.AccSheetID ? OPKLF_OPLIST : 0), 0, &op_id, &loc_id) > 0)
 						DS.SetLocation(loc_id);
 					else

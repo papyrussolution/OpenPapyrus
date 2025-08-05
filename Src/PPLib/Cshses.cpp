@@ -2768,8 +2768,7 @@ AsyncCashSCardInfo::AsyncCashSCardInfo() : Flags(0), Rest(0.0), PsnDOB(ZERODATE)
 
 AsyncCashSCardInfo & AsyncCashSCardInfo::Z()
 {
-	MEMSZERO(Rec);
-	//IsClosed = 0;
+	Rec.Clear();
 	Flags = 0;
 	Rest = 0.0;
 	PsnDOB = ZERODATE;

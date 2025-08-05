@@ -765,7 +765,7 @@ int BillCore::Edit(PPID * pID, PPBill * pInfo, int use_ta)
 		THROW(PutBillProp(*pID, BILLPRP_PAYMORDER, (pInfo->Rec.Flags & BILLF_BANKING), pInfo->P_PaymOrder, sizeof(PPBankingOrder)));
 		THROW(PutBillProp(*pID, BILLPRP_FREIGHT, (pInfo->Rec.Flags & BILLF_FREIGHT), pInfo->P_Freight, sizeof(PPFreight)));
 		THROW(PutBillProp(*pID, BILLPRP_ADVANCEREP, (pInfo->Rec.Flags & BILLF_ADVANCEREP), pInfo->P_AdvRep, sizeof(PPAdvanceRep)));
-		THROW(PutBillProp(*pID, BILLPRP_AGREEMENT, GetOpType(pInfo->Rec.OpID) == PPOPT_AGREEMENT, pInfo->P_Agt, sizeof(PPBill::Agreement))); // @v10.1.12
+		THROW(PutBillProp(*pID, BILLPRP_AGREEMENT, GetOpType(pInfo->Rec.OpID) == PPOPT_AGREEMENT, pInfo->P_Agt, sizeof(PPBill::Agreement)));
 		if(is_new) {
 			{
 				//
@@ -955,19 +955,24 @@ int BillCore::GetListOfOrdersByLading(PPID billID, PPIDArray & rOrderBillList)
 	return ok;
 }
 
-int BillCore::GetListOfActualAgreemts(PPID arID, LDATE dt, int maxDays, int maxItems, PPIDArray & rList)
+int BillCore::GetListOfActualAgreemts(PPID arID, PPID addendumArID, LDATE dt, int maxDays, int maxItems, PPIDArray & rList)
 {
 	rList.clear();
     int    ok = -1;
 	if(arID) {
 		PPObjArticle ar_obj;
 		ArticleTbl::Rec ar_rec;
+		ArticleTbl::Rec ar2_rec;
 		if(ar_obj.Fetch(arID, &ar_rec) > 0) {
+			const PPID acs_id = ar_rec.AccSheetID;
+			const PPID acs2_id = (ar_obj.Fetch(addendumArID, &ar2_rec) > 0) ? ar2_rec.AccSheetID : 0;
 			PPIDArray op_list;
 			PPOprKind op_rec;
 			for(PPID op_id = 0; EnumOperations(PPOPT_AGREEMENT, &op_id, &op_rec) > 0;) {
-				if(op_rec.AccSheetID == ar_rec.AccSheetID) {
-					op_list.add(op_rec.ID);
+				if(op_rec.AccSheetID == acs_id) {
+					if(!op_rec.AccSheet2ID || op_rec.AccSheet2ID == acs2_id) { // @v12.3.9
+						op_list.add(op_rec.ID);
+					}
 				}
 			}
 			if(op_list.getCount()) {
@@ -976,11 +981,18 @@ int BillCore::GetListOfActualAgreemts(PPID arID, LDATE dt, int maxDays, int maxI
 				MEMSZERO(k3);
 				k3.Object = arID;
 				k3.Dt = dt;
+				k3.BillNo = MAXINT;
 				if(search(3, &k3, spLe) && data.Object == arID) do {
+					bool suitable = false;
 					if(!(data.Flags2 & BILLF2_DECLINED) && op_list.bsearch(data.OpID)) {
+						if(GetOpData(data.OpID, &op_rec) > 0 && (!op_rec.AccSheet2ID || data.Object2 == addendumArID)) { // @v12.3.9
+							suitable = true;
+						}
+					}
+					if(suitable) {
 						rList.add(data.ID);
 						ok = 1;
-						if(maxItems > 0 && (int)rList.getCount() >= maxItems)
+						if(maxItems > 0 && rList.getCountI() >= maxItems)
 							break;
 					}
 					else if(dt && maxDays > 0 && diffdate(dt, data.Dt) > maxDays)

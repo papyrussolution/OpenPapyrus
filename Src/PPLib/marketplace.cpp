@@ -4530,6 +4530,9 @@ int PPMarketplaceInterface_Wildberries::ImportReceipts()
 
 bool PPMarketplaceInterface_Wildberries::MakeTargetUrl_(int meth, int * pReq/*SHttpProtocol::reqXXX*/, SString & rResult) const
 {
+	// ПВЗ : https://static-basket-01.wbbasket.ru/vol0/data/all-poo-fr-v11.json 
+	//
+	//
 	static const SIntToSymbTabEntry api_list[] = {
 		{ apiCommon, "common-api" },
 		{ apiStatistics, "statistics-api" },

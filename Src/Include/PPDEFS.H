@@ -493,7 +493,7 @@
 	#define PPOPT_DRAFTEXPEND   16L // Draft goods expend bill
 	#define PPOPT_WAREHOUSE     17L // Документы складских операций. Строки этиъ документов выполняют товарные транзакции над ячейками склада.
 	#define PPOPT_EXTERNAL      18L // Специализированный тип операции, определяющий документ, содержащий внешний документ (обычно, файл).
-	#define PPOPT_AGREEMENT     19L // @v7.0.0 @construction Соглашение (договор) с покупателем или поставщиком
+	#define PPOPT_AGREEMENT     19L // @v7.0.0 Соглашение (договор) с покупателем или поставщиком
 	#define PPOPT_CORRECTION    20L // Корректирующий документ
 	#define PPOPT_DRAFTTRANSIT  21L // Специальная категория драфт-документов, которые
 		// отражают транзакции и отчеты сторонних контрагентов, для обмена друг с другом посредством системы, но
@@ -11810,6 +11810,7 @@
 	#define CTL_UNITECIGP_EWDEMAND       (2 + WINDOWS_ID_BIAS)
 #define DLG_CR2SRGWPARAM          1469 // @v12.3.7 Параметры запуска шлюза кристалл-setretail 
 	#define CTL_CR2SRGWPARAM_ACTIONS     (1 + WINDOWS_ID_BIAS)
+	#define CTL_CR2SRGWPARAM_INFO        (2 + WINDOWS_ID_BIAS)
 #define DLG_WBGOODSLISTFILT       1470 // @v12.3.8 @experimental Параметры получения списка товаров Wildberries
 	#define CTL_WBGOODSLISTFILT_CAT      (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_WBGOODSLISTFILT_CAT   (2 + WINDOWS_ID_BIAS)

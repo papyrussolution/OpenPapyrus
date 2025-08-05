@@ -1011,18 +1011,15 @@ int PPObjGoodsGroup::AddSimple(PPID * pID, GoodsPacketKind kind, PPID parentID, 
 	PPID   id = 0;
 	Goods2Tbl::Rec rec;
 	GoodsPacketKind inner_kind = NZOR(kind, gpkndOrdinaryGroup);
-	char   code[32], name[512];
-	code[0] = 0;
-	name[0] = 0;
-	strip(STRNSCPY(name, pName));
-	strip(STRNSCPY(code, pCode));
-	if(name[0]) {
+	SString code(pCode);
+	SString name(pName);
+	if(name.NotEmptyS()) {
 		BarcodeTbl::Rec bc_rec;
 		if(SearchByName(name, &id, &rec) > 0) {
 			THROW_PP_S(PPObjGoods::GetRecKind(&rec) == inner_kind, PPERR_UNMATCHGGRPKIND, rec.Name);
 			ok = 2;
 		}
-		else if(code[0] && SearchCode(code, &bc_rec) > 0) {
+		else if(code.NotEmptyS() && SearchCode(code, &bc_rec) > 0) {
 			id = bc_rec.GoodsID;
 			THROW(Fetch(id, &rec) > 0);
 			THROW_PP_S(PPObjGoods::GetRecKind(&rec) == inner_kind, PPERR_UNMATCHGGRPKIND, rec.Name);

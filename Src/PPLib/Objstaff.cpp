@@ -10,10 +10,7 @@
 //
 int SetupStaffListCombo(TDialog * dlg, uint ctl, PPID id, uint flags, PPID orgID, PPID divID)
 {
-	PPObjStaffList::Filt flt;
-	MEMSZERO(flt);
-	flt.OrgID = orgID;
-	flt.DivID = divID;
+	PPObjStaffList::Filt flt(orgID, divID);
 	return SetupPPObjCombo(dlg, ctl, PPOBJ_STAFFLIST2, id, flags, &flt);
 }
 //
@@ -34,17 +31,17 @@ StaffAmtEntry::StaffAmtEntry(PPID amtTypeID, PPID curID, double amt) : AmtTypeID
 	Period.Z();
 }
 
-int FASTCALL StaffAmtEntry::IsEq(const StaffAmtEntry & rS) const
+bool FASTCALL StaffAmtEntry::IsEq(const StaffAmtEntry & rS) const
 {
-	int    eq = 1;
+	bool   eq = true;
 	if(AmtTypeID != rS.AmtTypeID)
-		eq = 0;
+		eq = false;
 	else if(CurID != rS.CurID)
-		eq = 0;
+		eq = false;
 	else if(Period != rS.Period)
-		eq = 0;
+		eq = false;
 	else if(Amt != rS.Amt)
-		eq = 0;
+		eq = false;
 	return eq;
 }
 //
@@ -54,19 +51,19 @@ StaffAmtList::StaffAmtList() : TSVector <StaffAmtEntry>()
 {
 }
 
-int FASTCALL StaffAmtList::IsEq(const StaffAmtList & rS) const
+bool FASTCALL StaffAmtList::IsEq(const StaffAmtList & rS) const
 {
-	int    eq = 1;
+	bool   eq = true;
 	const  uint c = getCount();
 	const  uint c2 = rS.getCount();
 	if(c != c2)
-		eq = 0;
+		eq = false;
 	else {
 		for(uint i = 0; eq && i < c; i++) {
 			const StaffAmtEntry & r_rec = at(i);
 			const StaffAmtEntry & r_rec2 = rS.at(i);
 			if(!r_rec.IsEq(r_rec2))
-				eq = 0;
+				eq = false;
 		}
 	}
 	return eq;
@@ -201,13 +198,13 @@ PPStaffPacket & FASTCALL PPStaffPacket::operator = (const PPStaffPacket & rSrc)
 
 PPPsnPostPacket::PPPsnPostPacket()
 {
-	Init();
 }
 
-void PPPsnPostPacket::Init()
+PPPsnPostPacket & PPPsnPostPacket::Z()
 {
-	MEMSZERO(Rec);
+	Rec.Clear();
 	Amounts.freeAll();
+	return *this;
 }
 
 PPPsnPostPacket & FASTCALL PPPsnPostPacket::operator = (const PPPsnPostPacket & rSrc)
@@ -439,7 +436,6 @@ int PPObjStaffList::PutPostPacket(PPID * pID, PPPsnPostPacket * pPack, int use_t
 				// Если запись не изменилась, то и суетиться не следует
 				//
 				int    was_updated = 0;
-				// @v10.3.0 (never used) int    was_list_updated = 0;
 				if(memcmp(&org_rec, &pPack->Rec, sizeof(PersonPostTbl::Rec)) != 0) {
 					was_updated = 1;
 					//
@@ -956,7 +952,7 @@ int PersonPostDialog::setDTS(const PPPsnPostPacket * pData, long flags)
 	if(pData)
 		Data = *pData;
 	else
-		Data.Init();
+		Data.Z();
 	PrevClosedVal = Data.Rec.Closed;
 	if(SlObj.Fetch(Data.Rec.StaffID, &sl_rec) > 0) {
 		dcgrec.OrgID = sl_rec.OrgID;
@@ -1596,4 +1592,3 @@ int32 DL6ICLS_PPObjStaff::Update(int32 id, long flags, PPYOBJREC rec)
 	ENDCATCH
 	return ok;
 }
-

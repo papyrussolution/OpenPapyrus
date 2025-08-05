@@ -2439,10 +2439,21 @@ uint SFile::ReadLineCsvContext::ImplementScan(const char * pLine, StringSet & rS
 				else {
 					last_divider = false;
 					if(Scan[0] == '\"') {
-						THROW(Scan.GetQuotedString(SFileFormat::Csv, FldBuf));
-						if(Scan.Skip(1)[0] == FieldDivider) {
-							Scan.Incr();
-							last_divider = true;
+						const int gqsr = Scan.GetQuotedString(SFileFormat::Csv, FldBuf);
+						if(gqsr) {
+							if(Scan.Skip(1)[0] == FieldDivider) {
+								Scan.Incr();
+								last_divider = true;
+							}
+						}
+						else {
+							// Увы, в файле может быть поле, содержащее одинокую кавычку. В этом случае действуем по сценарию будто это и не кавычка вообще
+							// (то есть код аналогичен блоку else {} ниже).
+							Scan.GetUntil(FieldDivider, FldBuf);
+							if(Scan[0] == FieldDivider) {
+								Scan.Incr();
+								last_divider = true;
+							}
 						}
 					}
 					else {
@@ -3589,7 +3600,8 @@ int FileFormatRegBase::Identify(const char * pFileName, int * pFmtId, SString * 
 	return ok;
 }
 
-CsvSniffer::Result::Result() : FieldDivisor(0), Flags(0), SnTokSeq_Common(0), SnTokSeq_First(0), LineCount(0), FieldCountExpectation(0.0), TitleRow_VTest_ColumnCount(0)
+CsvSniffer::Result::Result() : FieldDivisor(0), Flags(0), SnTokSeq_Common(0), SnTokSeq_First(0), LineCount(0), 
+	EmptyLineCount(0), FieldCountExpectation(0.0), TitleRow_VTest_ColumnCount(0)
 {
 }
 		
@@ -3597,6 +3609,7 @@ CsvSniffer::Result & CsvSniffer::Result::Z()
 {
 	FieldDivisor = 0;
 	Flags = 0;
+	EmptyLineCount = 0;
 	LineCount = 0;
 	TitleRow_VTest_ColumnCount = 0;
 	SnTokSeq_Common = 0;
@@ -4280,6 +4293,10 @@ SIntHandle SFile::ForceCreateFile(const wchar_t * pPath, uint mode, uint share, 
 //
 //
 //
+CsvSniffer::Param::Param() : Flags(0), MaxLineCount(0)
+{
+}
+
 CsvSniffer::CsvSniffer()
 {
 }
@@ -4308,6 +4325,27 @@ public:
 
 	TemporaryCsvDataCollector() : LastSymbID(0), HT(SMEGABYTE(32), 0)
 	{
+	}
+	int    SetupCsvSnifferColumnStatList(TSCollection <CsvSniffer::Result::ColumnStat> & rDestList) const
+	{
+		int    ok = 1;
+		rDestList.freeAll();
+		for(uint i = 0; i < ColumnStatList.getCount(); i++) {
+			const ColumnStat * p_item = ColumnStatList.at(i);
+			if(p_item) {
+				auto * p_new_item = rDestList.CreateNewItem();
+				if(p_new_item) {
+					p_new_item->N = p_item->N;
+					p_new_item->NECount = p_item->NECount;
+					p_new_item->FirstRowLen = p_item->FirstRowLen;
+					p_new_item->LenAvg = p_item->LenStat.GetExp();
+					p_new_item->LenStdDev = p_item->LenStat.GetStdDev();
+					p_new_item->NtaFirstRow = p_item->NtaFirstRow;
+					p_new_item->NtaCommon = p_item->NtaCommon;
+				}
+			}
+		}
+		return ok;
 	}
 	ColumnStat * GetColumn(uint fldNo)
 	{
@@ -4347,11 +4385,11 @@ public:
 	}
 };
 
-int CsvSniffer::Run(const char * pFileName, Result & rR) // @construction
+int CsvSniffer::Run(const char * pFileName, const Param & rP, Result & rR) // @construction
 {
 	rR.Z();
 	int    ok = -1;
-	uint   max_lines = 100;
+	const  uint max_lines = (rP.MaxLineCount > 0) ? rP.MaxLineCount : 100;
 	SString temp_buf;
 	TemporaryCsvDataCollector data_collector;
 	THROW(!isempty(pFileName));
@@ -4382,6 +4420,8 @@ int CsvSniffer::Run(const char * pFileName, Result & rR) // @construction
 					first_line_seq = p_nts->Seq;
 			}
 		}
+		rR.LineCount = line_no;
+		rR.EmptyLineCount = empty_line_count;
 		rR.SnTokSeq_Common = common_seq;
 		rR.SnTokSeq_First = first_line_seq;
 		{
@@ -4393,10 +4433,12 @@ int CsvSniffer::Run(const char * pFileName, Result & rR) // @construction
 				StatBase S;
 			};
 			TSCollection <PotentialDivisor> potential_div_list;
-			potential_div_list.insert(new PotentialDivisor(','));
-			potential_div_list.insert(new PotentialDivisor(';'));
-			potential_div_list.insert(new PotentialDivisor('\t'));
+			// Порядок следования включения элементов в коллекции важен! Чем меньше индекс, тем больше вероятность, что
+			// при прочих равных условиях этот символ является разделителем, нежели его конкурент с большим индексом!
 			potential_div_list.insert(new PotentialDivisor('|'));
+			potential_div_list.insert(new PotentialDivisor('\t'));
+			potential_div_list.insert(new PotentialDivisor(';'));
+			potential_div_list.insert(new PotentialDivisor(','));
 			potential_div_list.insert(new PotentialDivisor(' '));
 			{
 				// Собираем статистику появления потенциального символа-разделителя.
@@ -4438,9 +4480,15 @@ int CsvSniffer::Run(const char * pFileName, Result & rR) // @construction
 						double sd = p_pd->S.GetStdDev();
 						assert(exp > 0.0);
 						if(sd == 0.0) {
-							max_exp_to_dev_rel.Key = pdidx;
-							max_exp_to_dev_rel.Val = 1000000.0;
-							field_count_expectation = exp+1.0;
+							if(max_exp_to_dev_rel.Key >= 0) {
+								; // У нас более одного претендента. Предпочитаем тот елемент, у которого индекс (pdidx) меньше. То есть, здесь ничего не делаем 
+								// see comment below declaration of potential_div_list
+							}
+							else {
+								max_exp_to_dev_rel.Key = pdidx;
+								max_exp_to_dev_rel.Val = 1000000.0;
+								field_count_expectation = exp+1.0;
+							}
 						}
 						else {
 							if(max_exp_to_dev_rel.Val < (exp / sd)) {
@@ -4464,7 +4512,7 @@ int CsvSniffer::Run(const char * pFileName, Result & rR) // @construction
 			SNaturalTokenStat nts;
 			SNaturalTokenArray first_column_combined_nta;
 			line_no = 0;
-			while(true) {
+			while(line_no < max_lines) {
 				int rlr = f_in.ReadLineCsv(ctx, ss_line);
 				if(!rlr)
 					break;
@@ -4497,45 +4545,48 @@ int CsvSniffer::Run(const char * pFileName, Result & rR) // @construction
 				}
 			}
 			const uint column_count = data_collector.ColumnStatList.getCount();
-			{
-				bool   all_columns_have_text_in_first_row = true;
-				static const int sntok_text_list[] = { SNTOK_GENERICTEXT_ASCII, SNTOK_GENERICTEXT_UTF8, 
-					SNTOK_GENERICTEXT_CP1251, SNTOK_GENERICTEXT_CP866, SNTOK_PLIDENT, SNTOK_NATURALWORD };
-				for(uint i = 0; i < column_count; i++) {
-					TemporaryCsvDataCollector::ColumnStat * p_cs = data_collector.ColumnStatList.at(i);
-					if(p_cs) {
-						p_cs->LenStat.Finish();
-						{
-							bool is_there_text = false;
-							for(uint tli = 0; !is_there_text && tli < SIZEOFARRAY(sntok_text_list); tli++) {
-								if(p_cs->NtaFirstRow.Has(sntok_text_list[tli]) > 0.0f)
-									is_there_text = true;
+			if(rR.LineCount > 1) { // Если количество непустых строк менее 2, то определить является это заголовком или данными (почти) не возможно 
+				{
+					bool   all_columns_have_text_in_first_row = true;
+					static const int sntok_text_list[] = { SNTOK_GENERICTEXT_ASCII, SNTOK_GENERICTEXT_UTF8, 
+						SNTOK_GENERICTEXT_CP1251, SNTOK_GENERICTEXT_CP866, SNTOK_PLIDENT, SNTOK_NATURALWORD };
+					for(uint i = 0; i < column_count; i++) {
+						TemporaryCsvDataCollector::ColumnStat * p_cs = data_collector.ColumnStatList.at(i);
+						if(p_cs) {
+							p_cs->LenStat.Finish();
+							{
+								bool is_there_text = false;
+								for(uint tli = 0; !is_there_text && tli < SIZEOFARRAY(sntok_text_list); tli++) {
+									if(p_cs->NtaFirstRow.Has(sntok_text_list[tli]) > 0.0f)
+										is_there_text = true;
+								}
+								if(!is_there_text)
+									all_columns_have_text_in_first_row = false;	
 							}
-							if(!is_there_text)
-								all_columns_have_text_in_first_row = false;	
-						}
-						first_column_combined_nta.Combine(p_cs->NtaFirstRow);
-					}
-				}
-				if(all_columns_have_text_in_first_row)
-					rR.Flags |= Result::fTitleRow_HTest;
-			}
-			{
-				uint   exclusive_nta_count = 0; // Количество столбцов, в которых p_cs->NtaFirstRow.IsThereAnyItemsThatAreNotInOther(p_cs->NtaCommon) > 0
-				for(uint i = 0; i < column_count; i++) {
-					TemporaryCsvDataCollector::ColumnStat * p_cs = data_collector.ColumnStatList.at(i);
-					if(p_cs) {
-						if(p_cs->NtaFirstRow.IsThereAnyItemsThatAreNotInOther(p_cs->NtaCommon) > 0) {
-							exclusive_nta_count++;
+							first_column_combined_nta.Combine(p_cs->NtaFirstRow);
 						}
 					}
+					if(all_columns_have_text_in_first_row)
+						rR.Flags |= Result::fTitleRow_HTest;
 				}
-				rR.TitleRow_VTest_ColumnCount = exclusive_nta_count;
-				if(exclusive_nta_count >= (column_count / 2)) {
-					rR.Flags |= Result::fTitleRow_VTest;
+				{
+					uint   exclusive_nta_count = 0; // Количество столбцов, в которых p_cs->NtaFirstRow.IsThereAnyItemsThatAreNotInOther(p_cs->NtaCommon) > 0
+					for(uint i = 0; i < column_count; i++) {
+						TemporaryCsvDataCollector::ColumnStat * p_cs = data_collector.ColumnStatList.at(i);
+						if(p_cs) {
+							if(p_cs->NtaFirstRow.IsThereAnyItemsThatAreNotInOther(p_cs->NtaCommon) > 0) {
+								exclusive_nta_count++;
+							}
+						}
+					}
+					rR.TitleRow_VTest_ColumnCount = exclusive_nta_count;
+					if(exclusive_nta_count >= (column_count / 2)) {
+						rR.Flags |= Result::fTitleRow_VTest;
+					}
 				}
 			}
-			{
+			data_collector.SetupCsvSnifferColumnStatList(rR.ColumnStatList);
+			if(rP.Flags & Param::fDebugOutput) {
 				SString out_file_path;
 				SLS.QueryPath("testroot", out_file_path);
 				if(out_file_path.NotEmpty()) {
@@ -4648,17 +4699,20 @@ int Test_CsvSniffer()
 	CsvSniffer s;
 	int r = 0;
 	CsvSniffer::Result result;
-	r = s.Run((path = base_path).SetLastSlash().Cat("test_goods.csv"), result);
-	r = s.Run((path = base_path).SetLastSlash().Cat("gpdata001.dat"), result);
-	r = s.Run((path = base_path).SetLastSlash().Cat("ts-eurusd.csv"), result);
-	r = s.Run((path = base_path).SetLastSlash().Cat("test-input-csv-semicol-utf8.csv"), result);
-	r = s.Run((path = base_path).SetLastSlash().Cat("csv-vbar-notitle-866.csv"), result);
+	CsvSniffer::Param param;
+	param.MaxLineCount = 1000;
+	param.Flags |= CsvSniffer::Param::fDebugOutput;
+	r = s.Run((path = base_path).SetLastSlash().Cat("test_goods.csv"), param, result);
+	r = s.Run((path = base_path).SetLastSlash().Cat("gpdata001.dat"), param, result);
+	r = s.Run((path = base_path).SetLastSlash().Cat("ts-eurusd.csv"), param, result);
+	r = s.Run((path = base_path).SetLastSlash().Cat("test-input-csv-semicol-utf8.csv"), param, result);
+	r = s.Run((path = base_path).SetLastSlash().Cat("csv-vbar-notitle-866.csv"), param, result);
 	{
 		(path = base_path).SetLastSlash().Cat("..\\..\\Rsrc\\Data").SetLastSlash().Cat("ru-region.csv");
-		r = s.Run(path, result);
+		r = s.Run(path, param, result);
 	}
 	path = "D:/DEV/etc/Microsoft/Leak-of-some-Bing-Bing_Maps-Cortana-source-code/CWBMM/src/CWBMM.Product/Maps_SBS/CustomWPSBS/Examples/CreateDirectionsWPSBSSample/DirectionsCandidates.tsv";
-	r = s.Run(path, result);
+	r = s.Run(path, param, result);
 	//
 	return ok;
 }

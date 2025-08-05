@@ -1537,6 +1537,7 @@
 #define PPCMD_UNITEC                                1359
 #define PPCMD_CRISTAL2SETRETAILGATEWAY              1360
 #define PPCMD_WBPUBLICGOODS                         1361
+#define PPCMD_CHECKCHZNMARK                         1362
 //
 // PPJOB definitions
 //

@@ -1465,11 +1465,14 @@ void TCluster::press(ushort item)
 	MessageCommandToOwner(cmClusterClk);
 }
 
+uint TCluster::GetItemId(uint itemIdx) const
+{
+	return MAKE_BUTTON_ID(Id, itemIdx+1);
+}
+
 HWND TCluster::getItemHandle(uint itemIdx)
 {
-	const int button_id = MAKE_BUTTON_ID(Id, itemIdx+1);
-	HWND h = GetDlgItem(Parent, button_id);
-	return h;
+	return GetDlgItem(Parent, GetItemId(itemIdx));
 }
 
 bool TCluster::IsEnabled(uint itemIdx) const

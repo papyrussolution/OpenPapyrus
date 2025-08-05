@@ -491,12 +491,13 @@ int PPViewOprKind::ViewBills(PPID opID)
 		switch(GetOpType(opID)) {
 			case PPOPT_DRAFTEXPEND:
 			case PPOPT_DRAFTRECEIPT:
-			case PPOPT_DRAFTQUOTREQ: // @v10.5.7
+			case PPOPT_DRAFTQUOTREQ:
 			case PPOPT_DRAFTTRANSIT: flt.Bbt = bbtDraftBills; break;
 			case PPOPT_ACCTURN: flt.Bbt = bbtAccturnBills; break;
 			case PPOPT_INVENTORY: flt.Bbt = bbtInventoryBills; break;
 			case PPOPT_GOODSORDER: flt.Bbt = bbtOrderBills; break;
 			case PPOPT_POOL: flt.Bbt = bbtPoolBills;
+			case PPOPT_AGREEMENT: flt.Bbt = bbtAccturnBills; break; // @v12.3.9
 		}
 		flt.SetupBrowseBillsType(flt.Bbt);
 		flt.OpID = opID;

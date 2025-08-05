@@ -5871,10 +5871,11 @@ struct UhttLocationBlock {
 	UhttLocationBlock() : State(stFetch)
 	{
 	}
-	void Clear()
+	UhttLocationBlock & Z()
 	{
-		MEMSZERO(Rec);
+		Rec.Clear();
 		State = stFetch;
+		return *this;
 	}
 	PPObjLocation LObj;
 	LocationTbl::Rec Rec;
@@ -5900,7 +5901,7 @@ int PPALDD_UhttLocation::InitData(PPFilt & rFilt, long rsrv)
 {
 	int   ok = -1;
 	UhttLocationBlock & r_blk = *static_cast<UhttLocationBlock *>(Extra[0].Ptr);
-	r_blk.Clear();
+	r_blk.Z();
 	MEMSZERO(H);
 	if(r_blk.LObj.Search(rFilt.ID, &r_blk.Rec) > 0) {
 		SString temp_buf;
@@ -5933,7 +5934,7 @@ int PPALDD_UhttLocation::Set(long iterId, int commit)
 	int    ok = 1;
 	UhttLocationBlock & r_blk = *static_cast<UhttLocationBlock *>(Extra[0].Ptr);
 	if(r_blk.State != UhttLocationBlock::stSet) {
-		r_blk.Clear();
+		r_blk.Z();
 		r_blk.State = UhttLocationBlock::stSet;
 	}
 	if(commit == 0) {
@@ -5977,7 +5978,7 @@ int PPALDD_UhttLocation::Set(long iterId, int commit)
 	}
 	CATCHZOK
 	if(commit || !ok)
-		r_blk.Clear();
+		r_blk.Z();
 	return ok;
 }
 //
@@ -5991,11 +5992,12 @@ struct UhttStoreBlock {
 	UhttStoreBlock() : TagPos(0), State(stFetch)
 	{
 	}
-	void Clear()
+	UhttStoreBlock & Z()
 	{
 		Pack.destroy();
 		TagPos = 0;
 		State = stFetch;
+		return *this;
 	}
 	PPObjUhttStore UhttStoreObj;
 	PPObjTag TagObj;
@@ -6023,7 +6025,7 @@ int PPALDD_UhttStore::InitData(PPFilt & rFilt, long rsrv)
 {
 	int   ok = -1;
 	UhttStoreBlock & r_blk = *static_cast<UhttStoreBlock *>(Extra[0].Ptr);
-	r_blk.Clear();
+	r_blk.Z();
 	MEMSZERO(H);
 	if(r_blk.UhttStoreObj.GetPacket(rFilt.ID, &r_blk.Pack) > 0) {
 		H.ID        = r_blk.Pack.Rec.ID;
@@ -6087,7 +6089,7 @@ int PPALDD_UhttStore::Set(long iterId, int commit)
 	int    ok = 1;
 	UhttStoreBlock & r_blk = *static_cast<UhttStoreBlock *>(Extra[0].Ptr);
 	if(r_blk.State != UhttStoreBlock::stSet) {
-		r_blk.Clear();
+		r_blk.Z();
 		r_blk.State = UhttStoreBlock::stSet;
 	}
 	if(commit == 0) {
@@ -6125,7 +6127,7 @@ int PPALDD_UhttStore::Set(long iterId, int commit)
 	}
 	CATCHZOK
 	if(commit || !ok)
-		r_blk.Clear();
+		r_blk.Z();
 	return ok;
 }
 //

@@ -493,6 +493,7 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 				case TV_SUBSIGN_CLUSTER: // @v12.2.3 @construction
 					{
 						TCluster * p_ctl = static_cast<TCluster *>(pV);
+						pV->Parent = hw_parent;
 						const int cluster_kind = p_ctl->GetKind();
 						if(oneof2(cluster_kind, CHECKBOXES, RADIOBUTTONS)) {
 							const uint spc_flags = p_ctl->GetSpcFlags();

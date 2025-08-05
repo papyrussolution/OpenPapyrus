@@ -57,9 +57,9 @@ PPScale2::PPScale2()
 	THISZERO();
 }
 
-int PPScale::IsValidBcPrefix() const
+bool PPScale::IsValidBcPrefix() const
 {
-	return BIN((BcPrefix >= 200 && BcPrefix <= 299) || (BcPrefix >= 20 && BcPrefix <= 29));
+	return ((BcPrefix >= 200 && BcPrefix <= 299) || (BcPrefix >= 20 && BcPrefix <= 29));
 }
 
 struct ScalePLU { // @transient
@@ -3377,14 +3377,10 @@ ComDispInterface * Bizerba::InitDriver()
 	return p_drv;
 }
 
-int Bizerba::SetParam(int iVal)
-	{ return BIN(P_DrvBizerba && P_DrvBizerba->SetParam(iVal) > 0); }
-int Bizerba::SetParam(long lVal)
-	{ return BIN(P_DrvBizerba && P_DrvBizerba->SetParam(lVal) > 0); }
-int Bizerba::SetParam(double dVal)
-	{ return BIN(P_DrvBizerba && P_DrvBizerba->SetParam(dVal) > 0); }
-int Bizerba::SetParam(const char * pStrVal)
-	{ return BIN(P_DrvBizerba && P_DrvBizerba->SetParam(pStrVal) > 0); }
+int Bizerba::SetParam(int iVal) { return BIN(P_DrvBizerba && P_DrvBizerba->SetParam(iVal) > 0); }
+int Bizerba::SetParam(long lVal) { return BIN(P_DrvBizerba && P_DrvBizerba->SetParam(lVal) > 0); }
+int Bizerba::SetParam(double dVal) { return BIN(P_DrvBizerba && P_DrvBizerba->SetParam(dVal) > 0); }
+int Bizerba::SetParam(const char * pStrVal) { return BIN(P_DrvBizerba && P_DrvBizerba->SetParam(pStrVal) > 0); }
 
 int Bizerba::ExecBZOper(PPID id)
 {
@@ -4456,7 +4452,7 @@ int ScaleDialog::getDTS(PPScalePacket * pData)
 int PPObjScale::CheckDup(PPID objID, const PPScalePacket * pPack)
 {
 	if(pPack->Rec.Flags & SCALF_TCPIP || pPack->Rec.BcPrefix) {
-		PPScale rec;
+		PPScale2 rec;
 		SString buf1;
 		SString buf2;
 		for(PPID id = 0; EnumItems(&id, &rec) > 0;) {
@@ -4478,33 +4474,21 @@ int PPObjScale::CheckDup(PPID objID, const PPScalePacket * pPack)
 	return 1;
 }
 
-/*
-struct PPScale2 {          // @persistent @store(Reference2Tbl+)
-	long   Tag
-	long   ID
-	char   Name[48]
-	char   Symb[20]
-	PPID   ParentID
-	char   AddedMsgSign[8]
-	int16  MaxAddedLn
-	int16  MaxAddedLnCount
-	char   Reserve[8]
-	char   Port[8]
-	uint16 Get_NumTries
-	uint16 Get_Delay
-	uint16 Put_NumTries
-	uint16 Put_Delay
-	int16  BcPrefix
-	uint16 Reserve2
-	PPID   QuotKindID
-	PPID   ScaleTypeID
-	long   ProtocolVer
-	long   LogNum
-	long   Flags
-	long   Location
-	long   AltGoodsGrp
-};
-*/
+int PPObjScale::SearchByLogicN(long logicN, PPIDArray & rIdList)
+{
+	rIdList.Z();
+	int    ok = -1;
+	if(logicN > 0) {
+		PPScale2 sc_rec;
+		for(SEnum en = Enum(0); en.Next(&sc_rec) > 0;) {
+			if(sc_rec.LogNum == logicN) {
+				if(rIdList.add(sc_rec.ID))
+					ok = 1;
+			}
+		}
+	}
+	return ok;
+}
 
 int PPObjScale::IsPacketEq(const PPScalePacket & rS1, const PPScalePacket & rS2, long flags)
 {

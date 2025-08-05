@@ -1,6 +1,6 @@
 // UED-ID-TEMP.H
-// version: 2
-// sha256: 17f5111657d2df7e13bb086b75adcf72a9e3da5e9264af7deb69224160f700a0
+// version: 3
+// sha256: 058243f8eec6eb38b8b8b88a961b0cb6674d638368390548d9eb090dd7d9cbe4
 //
 #ifndef __UED_ID_TEMP_H
 #define __UED_ID_TEMP_H
@@ -3614,6 +3614,7 @@
 	#define UED_RUCHZNPRODTYPE_MEDICALDEVICES            0x8500000010ULL
 	#define UED_RUCHZNPRODTYPE_SOFTDRINKS                0x8500000011ULL
 	#define UED_RUCHZNPRODTYPE_NONALCBEER                0x8500000012ULL
+	#define UED_RUCHZNPRODTYPE_PETFOOD                   0x8500000013ULL
 	#define UED_RUCHZNPRODTYPE_DRAFTBEER_AWR             0x85000003f4ULL
 #define UED_META_NLWCLS                              0x100000101ULL
 	#define UED_NLWCLS_ALPHA                             0x10100000001ULL

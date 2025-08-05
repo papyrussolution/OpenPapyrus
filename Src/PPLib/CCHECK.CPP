@@ -881,7 +881,7 @@ CCheckPacket & CCheckPacket::Z()
 	_Cash    = 0.0;
 	_OrdPrepay  = 0.0;
 	MEMSZERO(Ext);
-	MEMSZERO(Rec);
+	Rec.Clear();
 	Items_.clear();
 	ExtList.clear();
 	LnTextList.Z();

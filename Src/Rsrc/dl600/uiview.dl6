@@ -510,6 +510,7 @@ dialog DLG_UNITECIGP [vertical title: "@unitec_igp" size: (400, 276) minsize: (3
 }
 
 dialog DLG_CR2SRGWPARAM [vertical title: "@cristal2setretailgateway_runparam" size: (400, 276) minsize: (300, 200) font: "MS Shell Dlg,8" alignitems: center] {
+	input CTL_CR2SRGWPARAM_INFO [readonly width: bycontainer height: 21 margin: 4] string[128];
 	checkcluster CTL_CR2SRGWPARAM_ACTIONS [vertical width: bycontainer(80) margin: 4] {
 		checkbox [title: "@cristal2setretailgateway_runparam_actreadcristalsrcdata" height: 16 margin: 4];
 		checkbox [title: "@cristal2setretailgateway_runparam_actwritecristaldestdata" height: 16 margin: 4];
@@ -603,7 +604,57 @@ dialog DLG_WBGOODSLISTDETAIL [vertical title: "" size: (600, 600) font: "MS Shel
 		input CTL_WBGOODSLISTDETAIL_SUPPLID [width: 80 height: 21 margin: 8 readonly tabstop label: "@id" fmtf: (align_right nozero)] long;
 		input CTL_WBGOODSLISTDETAIL_SUPPL   [growfactor: 1 height: 21 margin: 8 readonly tabstop label: "@appellation"] string[200];
 	}
+	input CTL_WBGOODSLISTDETAIL_ENT [width: bycontainer(100) height: 21 margin: 8 readonly tabstop label: "@category"] string[200];
 	view [horizontal width: bycontainer(100) growfactor: 1 justifycontent: end alignitems: end margin_right: 12] {
 		button STDCTL_CANCELBUTTON [title: "@but_close" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+
+dialog DLG_PRINT2 [vertical title: "@printrpt" size: (615, 450) minsize: (613, 428) font: "MS Shell Dlg 2,8"] {
+	framebox [vertical width: bycontainer(100) height: 180 margin: 4 padding: 4 justifycontent: spaceevenly alignitems: center] {	
+		view [horizontal width: bycontainer growfactor: 1] {
+			radiocluster CTL_PRINT2_ACTION [vertical growfactor: 3 tabstop] {
+				radiobutton [title: "@printrpt_dest_print"];
+				radiobutton [title: "@printrpt_dest_export"];
+				radiobutton [title: "@printrpt_dest_preview"];
+				radiobutton [title: "@printrpt_dest_exportxml"];
+				radiobutton [title: "@printrpt_dest_preparedata"];
+				radiobutton [title: "@printrpt_dest_preparedataandexeccr"];
+			}
+			view [vertical growfactor: 2 height: bycontainer justifycontent: end] {
+				checkbox CTL_PRINT2_DOMAIL [title: "@printrpt_femail" tabstop width: bycontainer height: 21 margin: 4];
+				checkbox CTL_PRINT2_DUPLEX [title: "@printrpt_fuseduplexprinting" tabstop width: bycontainer height: 21 margin: 4];
+			}
+		}
+		input CTL_PRINT2_MAKEDATAPATH [width: bycontainer height: 21 margin: 4 tabstop] string[252];
+	}
+	framebox [horizontal width: bycontainer(100) height: 48 margin: 4 padding: 4 justifycontent: start alignitems: center] {	
+		combobox CTLSEL_PRINT2_EXPFMT [tabstop width: bycontainer(40) height: 21 margin: 4 label: "@printrpt_exportformat" labelsize: (0, 13) cblinesymb: CTL_PRINT2_EXPFMT ];		
+	}
+	combobox CTLSEL_PRINT2_REPORT [tabstop width: bycontainer height: 21 margin: 4 label: "@printrpt_selection" labelsize: (0, 13) cblinesymb: CTL_PRINT2_REPORT];
+	statictext CTL_PRINT2_ST_FILENAME [title: "Report File Name" width: bycontainer height: 16 margin: 4 staticedge];
+	statictext CTL_PRINT2_ST_FILEDTTM [title: "Report File DateTime" width: bycontainer height: 16 margin: 4 staticedge];
+	statictext CTL_PRINT2_ST_DATANAME [title: "Report Data Struct Name" width: bycontainer height: 16 margin: 4 staticedge];
+	view [horizontal width: bycontainer height: 48] {
+		combobox CTLSEL_PRINT2_PRINTER [tabstop growfactor: 1 height: 21 margin: 4 label: "@printrpt_printer" labelsize: (0, 13) cblinesymb: CTL_PRINT2_PRINTER ];
+		input CTL_PRINT2_NUMCOPIES [width: 165 height: 21 margin: 4 tabstop label: "@printrpt_numcopies" labelsize: (0, 13) ] int32;
+	}
+	view [horizontal width: bycontainer(100) growfactor: 1] {
+		view [horizontal growfactor: 1 height: bycontainer(100) gravity: left justifycontent: start alignitems: end] {
+			button CTL_CMD_PRNTCFG [title: "@{printrpt_printersettings}..." tabstop size: (150, 21) margin: 4 command: cmPrntCfg];
+		}
+		view [horizontal growfactor: 2 height: bycontainer(100) margin_right: 12 gravity: right justifycontent: end alignitems: end] {
+			button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 defaultitem command: cmOK];
+			button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+		}
+	}
+}
+
+dialog DLG_BILLPRELUDE [vertical title: "@billprelude" size: (384, 463) minsize: (240, 270) font: "MS Shell Dlg,8"] {
+	listbox CTL_BILLPRELUDE_OPLIST [tabstop width: bycontainer growfactor: 1 margin: 4];
+	combobox CTLSEL_BILLPRELUDE_LOC [tabstop width: bycontainer height: 21 margin: 4 label: "@warehouse" labelsize: (0, 13) cblinesymb: CTL_BILLPRELUDE_LOC];
+	view [horizontal width: bycontainer height: 28 margin_right: 12 gravity: right justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 defaultitem command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
 	}
 }

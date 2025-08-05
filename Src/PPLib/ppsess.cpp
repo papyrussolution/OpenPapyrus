@@ -2525,6 +2525,7 @@ int PPSession::Init(long flags, HINSTANCE hInst, const char * pUiDescriptionFile
 	}
 #endif
 	// } @v11.4.1
+	// (Пока не будем этого делать из-за задержки исполнения) LoadUedContainer(); // @v12.3.9 Вызывает поток для загрузки UED-контейнера
 	if(!(flags & fWsCtlApp) && !(flags & fNoInstalledInfrastructure)) {
 		// @v11.4.4 {
 		// Регистрация специальных типов View. Я не уверен, что нашел удачную точку для такой регистрации, но надо по-быстрому :(
@@ -4406,10 +4407,60 @@ int PPSession::Unregister()
 	return reg_key.DeleteValue(HKEY_CURRENT_USER, PPConst::WrKey_Sessions, uuid_buf);
 }
 
-const SrUedContainer_Rt * PPSession::GetUedContainer() // @cs // @v11.8.4 @construction 
+bool PPSession::LoadUedContainer() // @v12.3.9
 {
+	class LoadUedContainerThread : public PPThread { 
+	public:
+		LoadUedContainerThread(SrUedContainer_Rt & rUedC, const char * pFileName, SMtLock & rLck) : 
+			PPThread(PPThread::kCasualJob, 0, 0), R_C(rUedC), FileName(pFileName), R_Lck(rLck)
+		{
+			InitStartupSignal();
+		}
+		virtual void Run()
+		{
+			// R_Lock блокировать не надо: вызывающая функция уже вызвала блокировку 
+			if(!R_C.Read(FileName)) {
+				// @todo @err (Здесь надо что-то в лог pperror.log написать)
+				//ZDELETE(P_UedC);
+			}
+			R_Lck.Unlock(); // Снять блокировку обязательно! PPSession сможет обратиться к загруженному контейнеру только если нет блокировки.
+		}
+	private:
+		virtual void Startup()
+		{
+			PPThread::Startup();
+			SignalStartup();
+		}
+		SString FileName;
+		SrUedContainer_Rt & R_C;
+		SMtLock & R_Lck;
+	};
 	if(!P_UedC) {
-		ENTER_CRITICAL_SECTION
+		if(LoadUedCLock.TryLock()) {
+			SString file_name;
+			GetExecPath(file_name);
+			file_name.SetLastSlash().Cat("ued-id.dat");
+			if(fileExists(file_name)) {
+				StringSet ss_lang;
+				ss_lang.add("ru");
+				ss_lang.add("en");
+				{
+					P_UedC = new SrUedContainer_Rt(&ss_lang);
+					if(P_UedC) {
+						LoadUedContainerThread * p_thr = new LoadUedContainerThread(*P_UedC, file_name, LoadUedCLock);
+						p_thr->Start(1);
+					}
+				}
+			}
+		}
+	}
+	return true;
+}
+
+const SrUedContainer_Rt * PPSession::GetUedContainer() // @cs
+{
+	const SrUedContainer_Rt * p_result = 0;
+	if(LoadUedCLock.TryLock()) {
 		if(!P_UedC) {
 			SString file_name;
 			GetExecPath(file_name);
@@ -4418,19 +4469,19 @@ const SrUedContainer_Rt * PPSession::GetUedContainer() // @cs // @v11.8.4 @const
 				StringSet ss_lang;
 				ss_lang.add("ru");
 				ss_lang.add("en");
-				//lang_ued_list.insert()
-				P_UedC = new SrUedContainer_Rt(&ss_lang);
-				if(P_UedC) {
-					if(!P_UedC->Read(file_name)) {
-						// @todo @err (Здесь надо что-то в лог pperror.log написать)
-						ZDELETE(P_UedC);
+				{
+					SrUedContainer_Rt * p_uedc = new SrUedContainer_Rt(&ss_lang);
+					if(p_uedc && !p_uedc->Read(file_name)) {
+						ZDELETE(p_uedc);
 					}
+					P_UedC = p_uedc;
 				}
-			}
+			}			
 		}
-		LEAVE_CRITICAL_SECTION
+		p_result = P_UedC;
+		LoadUedCLock.Unlock();
 	}
-	return P_UedC;
+	return p_result;
 }
 
 const SrSyntaxRuleSet * PPSession::GetSrSyntaxRuleSet()

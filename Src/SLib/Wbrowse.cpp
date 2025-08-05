@@ -407,8 +407,8 @@ const BrowserColorsSchema BrwColorsSchemas[NUMBRWCOLORSCHEMA] = {
 	COLORREF GridVertical;
 	*/
 	{1, 
-		RGB(0xD6, 0xD3, 0xCE), 
-		RGB(0x90, 0x90, 0x90), 
+		/*RGB(0xD6, 0xD3, 0xCE)*/RGB(182, 221, 232),
+		/*RGB(0x90, 0x90, 0x90)*/GetColorRef(SClrWhite),
 		RGB(0xFF, 0xFF, 0xFF), 
 		RGB(0x00, 0x00, 0x00),
 		RGB(0x80, 0x80, 0x80), 
@@ -419,8 +419,8 @@ const BrowserColorsSchema BrwColorsSchemas[NUMBRWCOLORSCHEMA] = {
 		RGB(0x90, 0x90, 0x90)
 	},
 	{2, 
-		RGB(0xD6, 0xD3, 0xCE), 
-		RGB(0x90, 0x90, 0x90), 
+		/*RGB(0xD6, 0xD3, 0xCE)*/RGB(182, 221, 232),
+		/*RGB(0x90, 0x90, 0x90)*/GetColorRef(SClrWhite),
 		RGB(0xFF, 0xFB, 0xF0), 
 		RGB(0x00, 0x00, 0x00),
 		RGB(0x29, 0x69, 0x9C), 
@@ -1478,11 +1478,11 @@ LPRECT BrowserWindow::LineRect(int vPos, LPRECT pRect, BOOL isFocus)
 	return pRect;
 }
 
-void BrowserWindow::DrawFocus(HDC hDC, const RECT * lpRect, BOOL DrawOrClear, BOOL isCellCursor)
+void BrowserWindow::DrawFocus(HDC hDC, const RECT & rR, bool drawOrClear, bool isCellCursor)
 {
 	HPEN   pen;
 	HBRUSH brush;
-	if(DrawOrClear) {
+	if(drawOrClear) {
 		pen   = Pens.DrawFocusPen;
 		brush = (isCellCursor ? Brushes.CursorBrush : Brushes.DrawBrush);
 	}
@@ -1490,49 +1490,48 @@ void BrowserWindow::DrawFocus(HDC hDC, const RECT * lpRect, BOOL DrawOrClear, BO
 		pen = Pens.ClearFocusPen;
 		brush = Brushes.ClearBrush;
 	}
-	SelectObject(hDC, pen);
-	SelectObject(hDC, brush);
-	Rectangle(hDC, lpRect->left, lpRect->top, lpRect->right, lpRect->bottom);
-	if(DrawOrClear) {
+	::SelectObject(hDC, pen);
+	::SelectObject(hDC, brush);
+	::Rectangle(hDC, rR.left, rR.top, rR.right, rR.bottom);
+	if(drawOrClear) {
 		HPEN   old_pen = static_cast<HPEN>(SelectObject(hDC, Pens.FocusOuterPen));
-		MoveToEx(hDC, lpRect->left + 1, lpRect->top + 1, 0);
-		LineTo(hDC, lpRect->right - 3,  lpRect->top + 1);
-		LineTo(hDC, lpRect->right - 3,  lpRect->bottom - 2);
-		LineTo(hDC, lpRect->left + 1,   lpRect->bottom - 2);
-		LineTo(hDC, lpRect->left + 1,   lpRect->top);
+		MoveToEx(hDC, rR.left + 1, rR.top + 1, 0);
+		LineTo(hDC, rR.right - 3,  rR.top + 1);
+		LineTo(hDC, rR.right - 3,  rR.bottom - 2);
+		LineTo(hDC, rR.left + 1,   rR.bottom - 2);
+		LineTo(hDC, rR.left + 1,   rR.top);
 		if(old_pen)
-			SelectObject(hDC, old_pen);
+			::SelectObject(hDC, old_pen);
 	}
 }
 
-void BrowserWindow::DrawCapBk(HDC hDC, const RECT * lpRect, BOOL isPressed)
+void BrowserWindow::DrawCapBk(HDC hDC, const RECT & rR, bool isPressed)
 {
-	RECT   r = *lpRect;
 	if(!isPressed) {
-		const  HPEN  old_pen = static_cast<HPEN>(SelectObject(hDC, Pens.TitlePen));
+		const  HPEN  old_pen = static_cast<HPEN>(::SelectObject(hDC, Pens.TitlePen));
 		POINT  points[6];
-		points[0].x = r.right;
-		points[0].y = r.top;
-		points[1].x = r.right;
-		points[1].y = r.bottom;
-		points[2].x = r.left;
-		points[2].y = r.bottom;
-		points[3].x = r.left + 1;
-		points[3].y = r.bottom - 1;
-		points[4].x = r.right - 1;
-		points[4].y = r.bottom - 1;
-		points[5].x = r.right - 1;
-		points[5].y = r.top + 1;
-		Polygon(hDC, points, SIZEOFARRAY(points));
-		SelectObject(hDC, old_pen);
+		points[0].x = rR.right;
+		points[0].y = rR.top;
+		points[1].x = rR.right;
+		points[1].y = rR.bottom;
+		points[2].x = rR.left;
+		points[2].y = rR.bottom;
+		points[3].x = rR.left + 1;
+		points[3].y = rR.bottom - 1;
+		points[4].x = rR.right - 1;
+		points[4].y = rR.bottom - 1;
+		points[5].x = rR.right - 1;
+		points[5].y = rR.top + 1;
+		::Polygon(hDC, points, SIZEOFARRAY(points));
+		::SelectObject(hDC, old_pen);
 	}
-	FillRect(hDC, &r, Brushes.TitleBrush);
+	::FillRect(hDC, &rR, Brushes.TitleBrush);
 }
 
-void BrowserWindow::ClearFocusRect(LPRECT pRect)
+void BrowserWindow::ClearFocusRect(const RECT & rR)
 {
-	::InvalidateRect(H(), pRect, FALSE);
-	DrawFocus(::GetDC(H()), pRect, FALSE);
+	::InvalidateRect(H(), &rR, false);
+	DrawFocus(::GetDC(H()), rR, false);
 }
 
 static int FASTCALL GetCapAlign(int option)
@@ -1647,9 +1646,9 @@ int BrowserWindow::PaintCell(HDC hdc, RECT r, long row, long col, int paintActio
 			if(style.Flags & (CellStyle::fCorner|CellStyle::fLeftBottomCorner|CellStyle::fRightFigCircle|CellStyle::fRightFigTriangle)) {
 				if(oneof2(paintAction, BrowserWindow::paintFocused, BrowserWindow::paintClear))
 					if(paintAction == BrowserWindow::paintClear)
-						ClearFocusRect(&r);
+						ClearFocusRect(r);
 					else
-						DrawFocus(hdc, &r, TRUE, BIN(col != -1));
+						DrawFocus(hdc, r, true, (col != -1));
 				POINT points[4];
 				if(style.Flags & CellStyle::fCorner) {
 					COLORREF color = style.Color;
@@ -1744,9 +1743,9 @@ int BrowserWindow::PaintCell(HDC hdc, RECT r, long row, long col, int paintActio
 		}
 		else if(oneof2(paintAction, BrowserWindow::paintFocused, BrowserWindow::paintClear))
 			if(paintAction == BrowserWindow::paintClear)
-				ClearFocusRect(&r);
+				ClearFocusRect(r);
 			else
-				DrawFocus(hdc, &r, TRUE, BIN(col != -1));
+				DrawFocus(hdc, r, true, (col != -1));
 	}
 	return ok;
 }
@@ -1804,7 +1803,7 @@ void BrowserWindow::Paint()
 				r.top     = p_def_->IsColInGroup(cn, &gidx) ? (YCell * p_def_->GetGroup(gidx)->Height + 1) : 0;
 				r.top    += hdr_width;
 				r.bottom += hdr_width;
-				DrawCapBk(ps.hdc, &r, FALSE);
+				DrawCapBk(ps.hdc, r, false);
 				int   sort_status = 0;
 				if(c.Options & BCO_SORTABLE) {
 					uint soidx = 0;
@@ -1886,7 +1885,7 @@ void BrowserWindow::Paint()
 				r.left    = r.right + 4;
 				r.right   = CliSz.x;
 				r.bottom += hdr_width;
-				DrawCapBk(ps.hdc, &r, TRUE);
+				DrawCapBk(ps.hdc, r, true);
 			}
 			for(i = 0; i < p_def_->GetGroupCount(); i++) {
 				const BroGroup * p_grp = p_def_->GetGroup(i);
@@ -1898,7 +1897,7 @@ void BrowserWindow::Paint()
 					r.top     = hdr_width;
 					r.bottom  = YCell * p_grp->Height + hdr_width;
 					const uint tfmt = DT_CENTER|DT_EXTERNALLEADING;
-					DrawCapBk(ps.hdc, &r, FALSE);
+					DrawCapBk(ps.hdc, r, false);
 					r.left++;
 					r.top++;
 					r.right--;
@@ -2469,11 +2468,11 @@ void BrowserWindow::WMHScroll(int sbType, int sbEvent, int thumbPos)
 					InvalidateRect(H(), &r, TRUE);
 				// AHTOXA {
 				if(prev_line_rect.top != RectCursors.LineCursor.top) {
-					ClearFocusRect(&prev_line_rect);
+					ClearFocusRect(prev_line_rect);
 					InvalidateRect(H(), &RectCursors.LineCursor, FALSE);
 				}
 				if(prev_cell_rect.top != RectCursors.CellCursor.top || prev_cell_rect.left != RectCursors.CellCursor.left) {
-					ClearFocusRect(&prev_cell_rect);
+					ClearFocusRect(prev_cell_rect);
 					InvalidateRect(H(), &RectCursors.CellCursor, FALSE);
 				}
 				::UpdateWindow(H());
@@ -2523,8 +2522,8 @@ void BrowserWindow::WMHScroll(int sbType, int sbEvent, int thumbPos)
 					}
 				}
 				SendMessage(GetParent(H()), BRO_ROWCHANGED, reinterpret_cast<WPARAM>(H()), MAKELPARAM(HScrollPos, 0));
-				ClearFocusRect(&RectCursors.CellCursor);
-				ClearFocusRect(&RectCursors.LineCursor);
+				ClearFocusRect(RectCursors.CellCursor);
+				ClearFocusRect(RectCursors.LineCursor);
 				ItemRect(HScrollPos, p_def_->_curFrameItem(), &RectCursors.CellCursor, TRUE);
 				LineRect(p_def_->_curFrameItem(), &RectCursors.LineCursor, TRUE);
 				AdjustCursorsForHdr();

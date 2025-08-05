@@ -1273,7 +1273,7 @@ int ClsdGoodsDialog::getDTS(PPGoodsPacket * pPack)
 GoodsDialog::GoodsDialog(uint rezID) : TDialog(rezID), St(0), gpk(gpkndUndef)
 {
 	const  long ccflags = CConfig.Flags;
-	int    use_gdscls = BIN(ccflags & CCFLG_USEGDSCLS);
+	const  bool use_gdscls = LOGIC(ccflags & CCFLG_USEGDSCLS);
 	Ptb.SetBrush(brushPriorBarcode, SPaintObj::bsSolid, GetColorRef(SClrGreen), 0);
 	enableCommand(cmGoodsExt, use_gdscls);
 	enableCommand(cmArGoodsCodeList, (ccflags & CCFLG_USEARGOODSCODE));

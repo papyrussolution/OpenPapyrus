@@ -1567,7 +1567,7 @@ int PPEgaisProcessor::WriteOrgInfo(SXml::WDoc & rXmlDoc, const char * pScopeXmlT
 				}
 			}
 			else {
-				if(psn_pack.GetExtName(temp_buf.Z()) <= 0)
+				if(!psn_pack.GetExtName(temp_buf))
 					temp_buf = psn_pack.Rec.Name;
 				w_s.PutInner(SXml::nst("oref", "FullName"), EncText(temp_buf));
 				w_s.PutInner(SXml::nst("oref", "ShortName"), EncText((temp_buf = psn_pack.Rec.Name).Trim(64)));
@@ -1613,7 +1613,7 @@ int PPEgaisProcessor::WriteOrgInfo(SXml::WDoc & rXmlDoc, const char * pScopeXmlT
 			// oref:
 			w_s.PutInner(SXml::nst("oref", "Identity"), temp_buf.Z().Cat(personID));
 			w_s.PutInnerSkipEmpty(SXml::nst("oref", "ClientRegId"), EncText(rar_id));
-			if(psn_pack.GetExtName(temp_buf.Z()) <= 0)
+			if(!psn_pack.GetExtName(temp_buf))
 				temp_buf = psn_pack.Rec.Name;
 			w_s.PutInner(SXml::nst("oref", "FullName"), EncText(temp_buf));
 			w_s.PutInner(SXml::nst("oref", "ShortName"), EncText((temp_buf = psn_pack.Rec.Name).Trim(64)));

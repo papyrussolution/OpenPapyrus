@@ -640,7 +640,7 @@ void PPBill::BaseDestroy()
 	Pays.clear();
 	Amounts.clear();
 	SMemo.Z(); // @v11.1.12
-	MEMSZERO(Rec);
+	Rec.Clear();
 	MEMSZERO(Rent);
 	MEMSZERO(Ext);
 	ZDELETE(P_PaymOrder);

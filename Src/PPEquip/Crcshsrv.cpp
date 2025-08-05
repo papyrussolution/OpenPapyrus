@@ -843,6 +843,7 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, bool goodsIdAsArticle, 
 										case GTCHZNPT_SOFTDRINKS: p_mark_type = "WATER_AND_BEVERAGES"; break; // @v12.1.10
 										case GTCHZNPT_NONALCBEER: p_mark_type = "NONALCOHOLIC_BEER"; break; // @v12.2.6 
 										case GTCHZNPT_DIETARYSUPPLEMENT: p_mark_type = "DIETARYSUP"; break; // @v12.2.6
+										case GTCHZNPT_PETFOOD: p_mark_type = "PET_FOOD"; break; // @v12.3.9
 									}
 									if(p_mark_type)
 										p_writer->PutElement("mark-type", p_mark_type);
@@ -4845,7 +4846,7 @@ void ACS_CRCSHSRV::CleanUpSession()
 //
 //
 //
-Cristal2SetRetailGateway::ErpGoodsEntry::ErpGoodsEntry() : ID(0), Flags(0), GoodsGroupID(0), Price(0.0), VatRate(0.0), AlcVolume(0.0), AlcProof(0.0)
+Cristal2SetRetailGateway::ErpGoodsEntry::ErpGoodsEntry() : NativeID(0), PpyID(0), Flags(0), GoodsGroupID(0), Price(0.0), VatRate(0.0), AlcVolume(0.0), AlcProof(0.0)
 {
 	GoodsNameS[0] = 0;
 	GoodsNameF[0] = 0;
@@ -4855,7 +4856,7 @@ Cristal2SetRetailGateway::ErpGoodsEntry::ErpGoodsEntry() : ID(0), Flags(0), Good
 	MarkingSymb[0] = 0;
 }
 
-Cristal2SetRetailGateway::ErpWeightedGoodsEntry::ErpWeightedGoodsEntry() : ID(0), Flags(0), PLU(0), Price(0.0)
+Cristal2SetRetailGateway::ErpWeightedGoodsEntry::ErpWeightedGoodsEntry() : NativeID(0), PpyID(0), Flags(0), DeviceNo(0), PLU(0), ShelfLifeDays(0), Price(0.0)
 {
 	GoodsNameF[0] = 0;
 }
@@ -4914,11 +4915,15 @@ int Cristal2SetRetailGateway::CmdParam::Serialize(int dir, SBuffer & rBuf, SSeri
 			if(cn_obj.GetAsync(cn_id, pAcnPack) > 0) {
 				ok = 2;
 			}
-			else
-				ok = 0;
+			else {
+				ok = PPSetError(PPERR_CR2SRGW_POSNODENFOUND);
+			}
 		}
 		else
 			ok = 1;
+	}
+	else {
+		ok = PPSetError(PPERR_CR2SRGW_POSNODENFOUND);
 	}
 	ASSIGN_PTR(pID, cn_id);
 	return ok;
@@ -4937,6 +4942,16 @@ int Cristal2SetRetailGateway::EditCmdParam(CmdParam & rData)
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_CR2SRGWPARAM);
 	if(CheckDialogPtr(&dlg)) {
+		SString info_buf;
+		PPID   cn_id = 0;
+		PPAsyncCashNode acn_pack;
+		if(Cristal2SetRetailGateway::SearchPosNode(&cn_id, &acn_pack) > 0) {
+			info_buf = acn_pack.Name;
+		}
+		else {
+			PPLoadError(PPErrCode, info_buf, 0);
+		}
+		dlg->setCtrlString(CTL_CR2SRGWPARAM_INFO, info_buf);
 		dlg->AddClusterAssoc(CTL_CR2SRGWPARAM_ACTIONS, 0, CmdParam::actReadCristalSrcData);
 		dlg->AddClusterAssoc(CTL_CR2SRGWPARAM_ACTIONS, 1, CmdParam::actWriteCristalDestData);
 		dlg->SetClusterData(CTL_CR2SRGWPARAM_ACTIONS, rData.Actions);
@@ -4949,7 +4964,7 @@ int Cristal2SetRetailGateway::EditCmdParam(CmdParam & rData)
 	return ok;
 }
 
-int Cristal2SetRetailGateway::Helper_CristalImportDir(const char * pPathUtf8, Cristal2SetRetailGateway::CristalImportBlock & rIb, const char * pLogFilePath)
+int Cristal2SetRetailGateway::Helper_CristalImportDir(const char * pPathUtf8, Cristal2SetRetailGateway::CristalImportBlock & rIb, PPLogger * pLogger)
 {
 	int    ok = 1;
 	if(SFile::IsDir(pPathUtf8)) {
@@ -4967,7 +4982,8 @@ int Cristal2SetRetailGateway::Helper_CristalImportDir(const char * pPathUtf8, Cr
 						inner_file_path.Z().Cat(pPathUtf8).SetLastSlash().Cat(temp_buf);
 						int r = CristalImport(inner_file_path, rIb);
 						if(r > 0) {
-							if(!isempty(pLogFilePath)) {
+							if(pLogger) {
+							//if(!isempty(pLogFilePath)) {
 								(log_msg_buf = inner_file_path).CatDiv('-', 1);
 								if(r == 1)
 									log_msg_buf.Cat("goods");
@@ -4977,7 +4993,8 @@ int Cristal2SetRetailGateway::Helper_CristalImportDir(const char * pPathUtf8, Cr
 									log_msg_buf.Cat("scard");
 								else
 									log_msg_buf.Cat("UNKN");
-								PPLogMessage(pLogFilePath, log_msg_buf, LOGMSGF_TIME|LOGMSGF_DBINFO);
+								//PPLogMessage(pLogFilePath, log_msg_buf, LOGMSGF_TIME|LOGMSGF_DBINFO);
+								pLogger->Log(log_msg_buf);
 							}
 						}
 					}
@@ -4985,9 +5002,31 @@ int Cristal2SetRetailGateway::Helper_CristalImportDir(const char * pPathUtf8, Cr
 				else if(de.IsFolder()) {
 					de.GetNameUtf8(temp_buf);
 					inner_file_path.Z().Cat(pPathUtf8).SetLastSlash().Cat(temp_buf);
-					Helper_CristalImportDir(inner_file_path, rIb, pLogFilePath); // @recursion
+					Helper_CristalImportDir(inner_file_path, rIb, pLogger); // @recursion
 				}
 			}
+		}
+	}
+	return ok;
+}
+
+/*static*/SString & FASTCALL Cristal2SetRetailGateway::MakeCodeByNativeGoodsID(long nativeID, SString & rBuf)
+{
+	rBuf.Z();
+	if(nativeID > 0) {
+		rBuf.CatLongZ(nativeID, 8);
+	}
+	return rBuf;
+}
+
+int Cristal2SetRetailGateway::SearchNativeGoodsID(long nativeID, Goods2Tbl::Rec * pRec)
+{
+	int    ok = -1;
+	SString code_buf;
+	MakeCodeByNativeGoodsID(nativeID, code_buf);
+	if(code_buf.NotEmpty()) {
+		if(GObj.P_Tbl->SearchByArCode(0, code_buf, 0, pRec) > 0) {
+			ok = 1;
 		}
 	}
 	return ok;
@@ -4999,10 +5038,15 @@ int Cristal2SetRetailGateway::Process(const CmdParam & rParam)
 	Reference * p_ref = PPRef;
 	PPObjTag tag_obj;
 	PPObjectTag tag_rec;
+	PPObjGoodsGroup gg_obj;
+	PPObjUnit u_obj;
+	PPObjScale scale_obj;
+	SString temp_buf;
 	SString src_path;
 	SString log_file_path;
 	PPID   cn_id = 0;
 	PPAsyncCashNode acn_pack;
+	PPLogger logger;
 	if(Cristal2SetRetailGateway::SearchPosNode(&cn_id, &acn_pack) > 0) {
 		if(rParam.Actions & CmdParam::actReadCristalSrcData) {
 			CristalImportBlock ib;
@@ -5011,12 +5055,259 @@ int Cristal2SetRetailGateway::Process(const CmdParam & rParam)
 				SString src_path;
 				acn_pack.TagL.GetItemStr(tag_id, src_path);
 				if(src_path.NotEmpty()) {
-					Helper_CristalImportDir(src_path, ib, log_file_path);
+					Helper_CristalImportDir(src_path, ib, &logger);
 					if(ib.GoodsList.getCount()) {
 						ib.GoodsList.sort(CMPF_LONG);
 						ib.WeightedGoodsList.sort(CMPF_LONG);
 						for(uint i = 0; i < ib.GoodsList.getCount(); i++) {
-							//...
+							ErpGoodsEntry & r_src_entry = ib.GoodsList.at(i);
+							Goods2Tbl::Rec goods_rec;
+							PPGoodsPacket goods_pack;
+							PPID   goods_grp_id = 0;
+							PPID   uom_id = 0;
+							PPID   result_goods_id = 0;
+							//temp_buf.Z().Cat
+							MakeCodeByNativeGoodsID(r_src_entry.GoodsGroupID, temp_buf);
+							const int ggasr = gg_obj.AddSimple(&goods_grp_id, gpkndOrdinaryGroup, 0/*parentID*/, r_src_entry.GoodsGroupName, temp_buf/*code*/, 0/*unitID*/, 1/*use_ta*/);
+							if(ggasr <= 0) {
+								; // 
+							}
+							else {
+								if(!isempty(r_src_entry.UomName)) {
+									(temp_buf = r_src_entry.UomName).Transf(CTRANSF_INNER_TO_UTF8);
+									if(temp_buf.IsEqiUtf8("кг")) // codepage of this module is utf8
+										uom_id = SUOM_KILOGRAM;
+									else {
+										int uasr = u_obj.AddSimple(&uom_id, r_src_entry.UomName, 0, 1/*use_ta*/);
+									}
+								}
+								if(SearchNativeGoodsID(r_src_entry.NativeID, &goods_rec) > 0) {
+									r_src_entry.PpyID = goods_rec.ID;
+									const int gpr = GObj.GetPacket(goods_rec.ID, &goods_pack, 0);
+									if(gpr > 0) {
+										bool   do_update_packet = false;
+										if(goods_pack.AddCode(r_src_entry.Barcode, 0, 1.0) > 0) {
+											do_update_packet = true;
+										}
+										if(!goods_pack.Rec.UnitID && uom_id) {
+											goods_pack.Rec.UnitID = uom_id;
+											do_update_packet = true;
+										}
+										if(do_update_packet) {
+											PPID   temp_id = goods_pack.Rec.ID;
+											if(GObj.PutPacket(&temp_id, &goods_pack, 1) > 0) {
+												result_goods_id = temp_id;
+											}
+											else {
+												; // @todo @err
+											}
+										}
+										else {
+											result_goods_id = goods_pack.Rec.ID;
+										}
+									}
+									else {
+										; // Мы никак не можем сюда попасть ибо SearchNativeGoodsID отработала. Если все ж попали - пиздец! Я не знаю что с этим делать
+										constexpr bool PPObjGoods_GetPacket_fault_but_SearchByArCode_has_worked = false;
+										assert(PPObjGoods_GetPacket_fault_but_SearchByArCode_has_worked);
+									}
+								}
+								else {
+									if(GObj.InitPacket(&goods_pack, gpkndGoods, goods_grp_id, 0, r_src_entry.Barcode)) {
+										STRNSCPY(goods_pack.Rec.Name, r_src_entry.GoodsNameF);
+										STRNSCPY(goods_pack.Rec.Abbr, r_src_entry.GoodsNameF);
+										{
+											ArGoodsCodeTbl::Rec ar_code_rec;
+											ar_code_rec.ArID = 0;
+											ar_code_rec.Pack = 1000; // 1.0
+											if(MakeCodeByNativeGoodsID(r_src_entry.NativeID, temp_buf).NotEmpty()) {
+												STRNSCPY(ar_code_rec.Code, temp_buf);
+												goods_pack.ArCodes.insert(&ar_code_rec);
+											}
+										}
+										goods_pack.Rec.ParentID = goods_grp_id;
+										goods_pack.Rec.UnitID = uom_id;
+										PPID   temp_id = 0;
+										if(GObj.PutPacket(&temp_id, &goods_pack, 1) > 0) {
+											result_goods_id = temp_id;
+										}
+										else {
+											; // @todo @err
+										}
+									}
+								}
+								if(result_goods_id) {
+									if(r_src_entry.Price > 0.0) {
+										PPQuot quot(result_goods_id);
+										quot.Kind = PPQUOTK_BASE;
+										quot.LocID = 0;
+										quot.ArID = 0;
+										quot.Quot = r_src_entry.Price;
+										quot.Flags = 0;
+										if(GObj.P_Tbl->SetQuot(quot, 1) > 0) {
+											;
+										}
+										else {
+											; // @todo @err
+										}
+									}
+								}
+								if(result_goods_id) {
+									uint   wgl_idx = 0;
+									if(ib.WeightedGoodsList.bsearch(&r_src_entry.NativeID, &wgl_idx, CMPF_LONG)) {
+										//
+										// Один товар может относится к нескольким весам. Поэтому гоним цикл do { } while()
+										// перебирая все записи ib.WeightedGoodsList для товара с идентификатором r_src_entry.NativeID.
+										// Обращаю внимание на то, что спецификация SVector::bsearch гарантирует, что мы попадем на 
+										// самый первый элемент, в котором ErpWeightedGoodsEntry::NativeID == r_src_entry.NativeID.
+										// 
+										do {
+											ErpWeightedGoodsEntry & r_wgl_entry = ib.WeightedGoodsList.at(wgl_idx++); // about increment (wgl_idx++) - see "} while();" below.
+											if(r_wgl_entry.NativeID != r_src_entry.NativeID) {
+												break;
+											}
+											else if(r_wgl_entry.DeviceNo > 0 && r_wgl_entry.PLU > 0) {
+												PPID   scale_id = 0;
+												PPID   goodsgroup_for_scale_id = 0;
+												PPScalePacket scale_pack;
+												PPIDArray scale_id_list;
+												if(scale_obj.SearchByLogicN(r_wgl_entry.DeviceNo, scale_id_list) > 0) {
+													if(scale_id_list.getCount() == 1) {
+														scale_id = scale_id_list.get(0);
+														if(scale_obj.Fetch(scale_id, &scale_pack) > 0) {
+															goodsgroup_for_scale_id = scale_pack.Rec.AltGoodsGrp;
+														}
+														else {
+															scale_id = 0;
+															scale_pack.Z();
+														}
+													}
+													else {
+														// @todo @problem
+													}
+												}
+												else {
+													PPID   goodsgroup_folder_for_scale_id = 0;
+													const  char * p_goodsgroup_folder_for_scale_code = "391AC7A5";
+													const  char * p_goodsgroup_folder_for_scale_name = "#Cristal2SetRetailGateway-ScaleGoods";
+													{
+														Goods2Tbl::Rec goodsgroup_folder_for_scale_rec;
+														BarcodeTbl::Rec bc_goodsgroup_folder_for_scale;
+														if(gg_obj.SearchCode(p_goodsgroup_folder_for_scale_code, &bc_goodsgroup_folder_for_scale) > 0) {
+															if(gg_obj.Search(bc_goodsgroup_folder_for_scale.GoodsID, &goodsgroup_folder_for_scale_rec) > 0) {
+																if(goodsgroup_folder_for_scale_rec.Kind == PPGDSK_GROUP && goodsgroup_folder_for_scale_rec.Flags & GF_FOLDER) {
+																	goodsgroup_folder_for_scale_id = bc_goodsgroup_folder_for_scale.GoodsID;
+																}
+																else {
+																	goodsgroup_folder_for_scale_id = 0;
+																}
+															}
+														}
+														else if(gg_obj.SearchByName(p_goodsgroup_folder_for_scale_name, &goodsgroup_folder_for_scale_id, &goodsgroup_folder_for_scale_rec) > 0) {
+															if(goodsgroup_folder_for_scale_rec.Kind == PPGDSK_GROUP && goodsgroup_folder_for_scale_rec.Flags & GF_FOLDER) {
+																assert(goodsgroup_folder_for_scale_id > 0);
+															}
+															else {
+																goodsgroup_folder_for_scale_id = 0;
+															}
+														}
+														else {
+															assert(goodsgroup_folder_for_scale_id == 0);
+															goodsgroup_folder_for_scale_id = 0; // @paranoic
+															PPGoodsPacket goodsgroup_folder_for_scale_pack;
+															gg_obj.InitPacket(&goodsgroup_folder_for_scale_pack, gpkndFolderGroup, 0, 0, p_goodsgroup_folder_for_scale_code);
+															STRNSCPY(goodsgroup_folder_for_scale_pack.Rec.Name, p_goodsgroup_folder_for_scale_name);
+															if(gg_obj.PutPacket(&goodsgroup_folder_for_scale_id, &goodsgroup_folder_for_scale_pack, 1)) {
+																;
+															}
+															else {
+																assert(goodsgroup_folder_for_scale_id == 0);
+															}
+														}
+													}
+													if(goodsgroup_folder_for_scale_id) {
+														SString scale_name;
+														SString scale_code; // На самом деле - код альтернативной товарной группы для весов
+														scale_name.Z().Cat("Scale").Space().CatEq("N", r_wgl_entry.DeviceNo);
+														scale_code.Z().Cat(p_goodsgroup_folder_for_scale_code).CatChar('-').Cat(r_wgl_entry.DeviceNo);
+														{
+															Goods2Tbl::Rec goodsgroup_for_scale_rec;
+															BarcodeTbl::Rec bc_goodsgroup_for_scale;
+															if(gg_obj.SearchCode(scale_code, &bc_goodsgroup_for_scale) > 0) {
+																if(gg_obj.Search(bc_goodsgroup_for_scale.GoodsID, &goodsgroup_for_scale_rec) > 0) {
+																	if(goodsgroup_for_scale_rec.Kind == PPGDSK_GROUP && goodsgroup_for_scale_rec.Flags & GF_ALTGROUP) {
+																		goodsgroup_for_scale_id = bc_goodsgroup_for_scale.GoodsID;
+																	}
+																	else {
+																		goodsgroup_for_scale_id = 0;
+																	}
+																}
+															}
+															else if(gg_obj.SearchByName(scale_name, &goodsgroup_for_scale_id, &goodsgroup_for_scale_rec) > 0) {
+																if(goodsgroup_for_scale_rec.Kind == PPGDSK_GROUP && goodsgroup_for_scale_rec.Flags & GF_ALTGROUP) {
+																	assert(goodsgroup_for_scale_id > 0);
+																}
+																else {
+																	goodsgroup_for_scale_id = 0;
+																}
+															}
+															else {
+																assert(goodsgroup_for_scale_id == 0);
+																goodsgroup_for_scale_id = 0; // @paranoic
+																PPGoodsPacket goodsgroup_for_scale_pack;
+																gg_obj.InitPacket(&goodsgroup_for_scale_pack, gpkndAltGroup, goodsgroup_folder_for_scale_id, 0, scale_code);
+																STRNSCPY(goodsgroup_for_scale_pack.Rec.Name, scale_name);
+																if(gg_obj.PutPacket(&goodsgroup_for_scale_id, &goodsgroup_for_scale_pack, 1)) {
+																	;
+																}
+																else {
+																	assert(goodsgroup_for_scale_id == 0);
+																}
+															}
+														}
+														if(goodsgroup_for_scale_id) {
+															PPID   temp_scale_id = 0;
+															PPScale2 new_scale_rec;
+															STRNSCPY(new_scale_rec.Name, scale_name);
+															new_scale_rec.Ver_Signature = DS.GetVersion();
+															new_scale_rec.ScaleTypeID = PPSCLT_EXPORTTOFILE;
+															new_scale_rec.Location = acn_pack.LocID;
+															new_scale_rec.LogNum = r_wgl_entry.DeviceNo;
+															new_scale_rec.AltGoodsGrp = goodsgroup_for_scale_id;
+															if(scale_obj.AddItem(&temp_scale_id, &new_scale_rec, 1)) {
+																if(scale_obj.Fetch(temp_scale_id, &scale_pack) > 0) {
+																	scale_id = temp_scale_id;
+																}
+																else {
+																	// Ума не приложу, как поток исполнения может сюда попасть, но 
+																	// "береженого бог бережет сказала монахиня, одевая презерватив на свечку"
+																	scale_id = 0;
+																	scale_pack.Z();
+																}
+															}
+															else {
+																; // @todo @err
+															}
+														}
+													}
+												}
+												if(goodsgroup_for_scale_id) {
+													Goods2Tbl::Rec scale_gg_rec;
+													if(gg_obj.Fetch(goodsgroup_for_scale_id, &scale_gg_rec) > 0 && scale_gg_rec.Kind == PPGDSK_GROUP &&
+														(scale_gg_rec.Flags & GF_ALTGROUP) && !(scale_gg_rec.Flags & GF_DYNAMIC)) {
+														if(GObj.P_Tbl->AssignGoodsToAltGrp(result_goods_id, goodsgroup_for_scale_id, r_wgl_entry.PLU, 1)) {
+															;
+														}
+														else {
+															;
+														}
+													}
+												}
+											}
+										} while(wgl_idx < ib.WeightedGoodsList.getCount());
+									}
+								}
+							}
 						}
 					}
 				}
@@ -5045,279 +5336,249 @@ int Cristal2SetRetailGateway::CristalImport(const char * pPathUtf8, Cristal2SetR
 	// CRS - весовые товары
 	//
 	int    file_type = 0; // -1 - probably it's our file (goods, scale, etc), 0 - undef, 1 - goods, 2 - scale, 3 - scard
+	bool   debug_mark = false;
 	SString temp_buf;
 	SString src_path(pPathUtf8);
 	if(fileExists(src_path)) {
-		StringSet ss;
-		SFile::ReadLineCsvContext csv_ctx('|');
-		SFile f_in(src_path, SFile::mRead);
-		uint   bad_lines_count = 0;
-		if(f_in.IsValid()) {
-			{
-				//
-				// Прежде всего определим что за файл перед нами
-				//
-				file_type = -1;
-				LongArray file_type_assumption_by_line;
-				uint   line_no = 0;
-				while(file_type != 0 && line_no < 100 && f_in.ReadLineCsv(csv_ctx, ss) > 0) {
-					line_no++;
-					if(ss.getCount()) {
-						int    leading_3_fields_are_decimal = -1;
-						bool   is_fld4_percent = false;
-						uint   fld_no = 0;
-						file_type = -1;
-						for(uint ssp = 0; file_type != 0 && ss.get(&ssp, temp_buf);) {
-							fld_no++;
-							if(fld_no == 1) {
-								if(temp_buf == "+" || temp_buf == "-") {
-								}
-								else {
-									file_type = 0;
-								}
-							}
-							else if(fld_no == 2) {
-								if(!temp_buf.IsDec()) {
-									file_type = 0;
-								}
-								else {
-									leading_3_fields_are_decimal++;
-								}
-							}
-							else if(fld_no == 3) {
-								if(temp_buf.IsDec()) {
-									leading_3_fields_are_decimal++;
-								}
-							}
-							else if(fld_no == 4) {
-								if(temp_buf.IsDec()) {
-									leading_3_fields_are_decimal++;
-								}
-								if(leading_3_fields_are_decimal == 3) {
-									file_type = 2;
-								}
-								else 
-									file_type = 1;
-							}
-							else
-								break;
-						}
-						if(file_type > 0) {
-							file_type_assumption_by_line.add(file_type);
-						}
-					}
-				}
-				if(file_type) {
-					if(file_type_assumption_by_line.getCount()) {
-						file_type_assumption_by_line.sortAndUndup();
-						if(file_type_assumption_by_line.getCount() == 1) {
-							file_type = file_type_assumption_by_line.get(0);
-						}
-					}
+		CsvSniffer::Param csvsp;
+		CsvSniffer::Result csvsr;
+		CsvSniffer csvs;
+		csvsp.MaxLineCount = 1000;
+		csvsp.Flags |= CsvSniffer::Param::fDebugOutput;
+		csvs.Run(src_path, csvsp, csvsr);
+		if(csvsr.FieldDivisor == '|' && csvsr.LineCount > 0) {
+			SFsPath ps(src_path);
+			if(ps.Nam.HasPrefixIAscii("CRG")) {
+				if(csvsr.ColumnStatList.getCount() >= 28) {
+					file_type = 1;
 				}
 			}
-			if(oneof3(file_type, 1, 2, 3)) {
-				SString goods_name_f;
-				SString goods_name_s;
-				f_in.Seek(0);
-				while(f_in.ReadLineCsv(csv_ctx, ss) > 0) {
-					if(ss.getCount()) {
-//1       3                                5       6        9                11  12                    14 15   16      17    18   19    20                21                              22  23    24 25 26       
-//+|4004 |Приправа д/рыбы с лимон 25Кота|1|125.00 |20|0|шт.|9001414019290|23|87 |Специи               |0 |0.00|1.000|0|1.000|0.00|1.000|Приправа для рыбы|с лимоном 25г."Котани"         |0  |0.000|0 |22|0         |  |
-//+|16491|Капуста Кимчи 340г Лукашинские|1|145.00 |20|0|с/б|4607936772184|10|149|Остальные консервы   |0 |0.00|1.000|0|1.000|0.00|1.000|Капуста "Кимчи"|340г "Лукашинские"               |0  |0.000|0 |1 |0         |  |
-//+|85728|Сырок гл.Ростаг.м.ш.ван.6*25г |2|327.00 |10|0|шт.|4660043858776|54|262|Сырки глазированные  |0 |0.00|1.000|0|1.000|0.00|1.000|Сырок гл."Росмтагрокомпл|екс" 15% в мол.шок.с ван|0  |0.000|0 |1 |MILK      |1 |931||1|
-//+|87835|Масса тв.Ростагрок.23% изюм100|2|143.00 |10|0|шт.|4660043858936|54|256|Масса творожная      |0 |0.00|1.000|0|1.000|0.00|1.000|Масса творожная особая"Р|остагрокомплекс"23% 100г|0  |0.000|0 |1 |MILK      |1 |931||1|
-//+|37047|Водка Архангел.Сев.выд 0,5 40%|2|390.00 |20|0|бут|4601775003478|31|113|Водка отеч.          |0 |0.00|1.000|0|1.000|0.00|1.000|Водка "Архангельская|Север.выдержка" 0,5л 40%    |0  |0.500|40|1 |713       |  |
-//+|22533|Коньяк Армянский 10л 0,5л змея|2|1151.00|20|0|п/у|4850036870711|31|117|Коньяк,бренди импорт.|0 |0.00|1.000|0|1.000|0.00|1.000|Коньяк "Армянский"|10лет 0,5л 40% змея           |0  |0.500|0 |52|799       |  |
-//+|11966|Вино Страккали Примит.к.п/с750|2|1050.00|20|0|бут|8000475009661|31|112|Вина натуральные имп.|0 |0.00|1.000|0|1.000|0.00|1.000|Вино "Страккали Примитив|о" к.п/сух.0,75л 14%    |0  |0.750|0 |10|0         |  |
-//+|91005|Сок мультифруктовый 1л АВС бел|1|149.00 |20|0|шт.|4810282016998|1 |1  |Соки импортные       |0 |0.00|1.000|0|1.000|0.00|1.000|Сок|мультифруктовый 1л "АВС"                     |0  |0.000|0 |1 |DIETARYSUP|57|987||2|
-//+|69906|Морковь мытая                 |1|75.00  |10|0|кг |2369906      |20|160|Овощи свежие         |1 |0.00|0.001|0|1.000|0.00|0.001|Морковь|мытая                                    |30 |1.000|0.|57|0         |  |
-//+|62646|Хлебцы Бежицкие постные       |3|288.00 |10|0|кг |2362646      |9 |15 |Печенье, вафли отеч. |1 |0.00|0.001|0|1.000|0.00|0.001|Хлебцы Бежицкие|постные" ПК Бежицкий"            |180|1.000|0 |1 |0         |  |
-// 
-//+|94340|Компот виш.мал.0,2л Фрутоняня|1|55.00|10|0|шт.|4600338006239|39|24|Ост.фр,овощн,мясные смеси,соки|0|0.00|1.000|0|1.000|0.00|1.000|Компот из вишни и|малины 0,2л "Фрутоняня"    |0  |0.000|0 |1 |987       |  |
-// 
-// Далее следует непонятный мне формат. Что это за данные? - Похоже на загрузку весов
-//
-// # Расшифровка номеров полей :
-// # 1  - код отдела
-// # 2  - номер весов
-// # 3  - PLU
-// # 4  - код товара
-// # 5  - наименование (строка 1)
-// # 6  - наименование (строка 2)
-// # 7  - цена за единицу
-// # 8  - Срок реализации в днях
-// # 9  - Код товара с весовым префиксом
-// # 10 - Признак удаления товара (1 - удалить)
-// #    - Номеp сообщения
-// #    - Текст сообщения
-// # !!! Шрифт наименования товара, формат этикетки и форма штрих-кода
-// #     указываются явно
-// 
-//1 2  3   4     5                                     7      8  9   10   
-//+|16|207|74064|Пряники "Ржаные"|"Воронежская КК Дон"|394.00|23|60 |3|
-//+|3 |924|48006|Яблоки|"Голден"                      |139.00|23|14 |1|
-//+|21|142|48006|Яблоки|"Голден"                      |139.00|23|14 |1|
-//+|3 |793|97711|Баклажаны|тепличные                  |339.00|23|10 |1|
-//+|7 |25 |51871|Утка|филе грудки охл."Озерка"        |855.00|23|   |1|
-//+|15|11 |62646|Хлебцы Бежицкие|постные" ПК Бежицкий"|288.00|23|180|3|
-//
-// Дисконтные карты
-//1 2               3               4    5 6    7    8    9 10
-//+|7770000204397  |777000020439   |7.00|0|1   |0.00|220 |0|        |
-//+|7770000204403  |777000020440   |7.00|0|1   |0.00|221 |0|        |
-//+|780500462611001|780500462611001|3.00|0|7705|0.00|8077|0|01/01/20|
-//+|780500462611002|780500462611002|3.00|0|7706|0.00|8078|0|        |
-//
-
-						goods_name_f.Z();
-						goods_name_s.Z();
-						if(file_type == 1) { // goods
-							uint fld_no = 0;
-							ErpGoodsEntry new_entry;
-							for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
-								fld_no++;
-								switch(fld_no) {
-									case 1: // +/-
-										if(temp_buf == "+") {
-											;
-										}
-										else if(temp_buf == "-")
-											new_entry.Flags |= eefMinus;
-										break;
-									case 2: // goodsid
-										new_entry.ID = temp_buf.ToLong();
-										break;
-									case 3: // goodsname
-										goods_name_s = temp_buf;
-										break;
-									case 4: break;
-									case 5: // price
-										new_entry.Price = temp_buf.ToReal_Plain();
-										break;
-									case 6: // vat rate
-										new_entry.VatRate = temp_buf.ToReal_Plain();
-										break;
-									case 7: break;
-									case 8: // uom name
-										STRNSCPY(new_entry.UomName, temp_buf);
-										break;
-									case 9: // barcode
-										STRNSCPY(new_entry.Barcode, temp_buf);
-										break;
-									case 10: 
-										break;
-									case 11: // goodsgroup id
-										new_entry.GoodsGroupID = temp_buf.ToLong();
-										break;
-									case 12: // goodsgroup name
-										STRNSCPY(new_entry.GoodsGroupName, temp_buf);
-										break;
-									case 13: break;
-									case 14: break;
-									case 15: // Кратность (1.000 - шт; 0.001 - kg)
-										break;
-									case 16: break;
-									case 17: break;
-									case 18: break;
-									case 19: // Кратность продажи (1.0 - по штуке, 0.001 - по граммам). Странно: одно и то же значение еще и в поле 15 (see above)
-										break;
-									case 20: // goodsname line1
-										goods_name_f = temp_buf;
-										break;
-									case 21: // goodsname line2
-										goods_name_f.Space().Cat(temp_buf);
-										break;
-									case 22:  // ?Срок годности в днях
-										break;
-									case 23: // Alc volume (liter)
-										break;
-									case 24: // Alc proof (vol%) Обнаружил для водки и коньяка. Для вина нет крепости.
-										break;
-									case 25: break;
-									case 26: // chzn product type
-										// MILK,
-										break;
-									case 27: 
-										break;
+			else if(ps.Nam.HasPrefixIAscii("CRS")) {
+				if(csvsr.ColumnStatList.getCount() >= 11) {
+					file_type = 2;
+				}
+			}
+			else if(ps.Nam.HasPrefixIAscii("DC")) {
+				if(csvsr.ColumnStatList.getCount() >= 11) {
+					file_type = 3;
+				}
+			}
+			StringSet ss;
+			SFile::ReadLineCsvContext csv_ctx(csvsr.FieldDivisor);
+			SFile f_in(src_path, SFile::mRead);
+			uint   bad_lines_count = 0;
+			if(f_in.IsValid()) {
+				if(oneof3(file_type, 1, 2, 3)) {
+					uint   line_no = 0;
+					SString goods_name_f;
+					SString goods_name_s;
+					f_in.Seek(0);
+					while(f_in.ReadLineCsv(csv_ctx, ss) > 0) {
+						line_no++;
+						if(ss.getCount()) {
+	//1       3                                5       6        9                11  12                    14 15   16      17    18   19    20                21                              22  23    24 25 26       
+	//+|4004 |Приправа д/рыбы с лимон 25Кота|1|125.00 |20|0|шт.|9001414019290|23|87 |Специи               |0 |0.00|1.000|0|1.000|0.00|1.000|Приправа для рыбы|с лимоном 25г."Котани"         |0  |0.000|0 |22|0         |  |
+	//+|16491|Капуста Кимчи 340г Лукашинские|1|145.00 |20|0|с/б|4607936772184|10|149|Остальные консервы   |0 |0.00|1.000|0|1.000|0.00|1.000|Капуста "Кимчи"|340г "Лукашинские"               |0  |0.000|0 |1 |0         |  |
+	//+|85728|Сырок гл.Ростаг.м.ш.ван.6*25г |2|327.00 |10|0|шт.|4660043858776|54|262|Сырки глазированные  |0 |0.00|1.000|0|1.000|0.00|1.000|Сырок гл."Росмтагрокомпл|екс" 15% в мол.шок.с ван|0  |0.000|0 |1 |MILK      |1 |931||1|
+	//+|87835|Масса тв.Ростагрок.23% изюм100|2|143.00 |10|0|шт.|4660043858936|54|256|Масса творожная      |0 |0.00|1.000|0|1.000|0.00|1.000|Масса творожная особая"Р|остагрокомплекс"23% 100г|0  |0.000|0 |1 |MILK      |1 |931||1|
+	//+|37047|Водка Архангел.Сев.выд 0,5 40%|2|390.00 |20|0|бут|4601775003478|31|113|Водка отеч.          |0 |0.00|1.000|0|1.000|0.00|1.000|Водка "Архангельская|Север.выдержка" 0,5л 40%    |0  |0.500|40|1 |713       |  |
+	//+|22533|Коньяк Армянский 10л 0,5л змея|2|1151.00|20|0|п/у|4850036870711|31|117|Коньяк,бренди импорт.|0 |0.00|1.000|0|1.000|0.00|1.000|Коньяк "Армянский"|10лет 0,5л 40% змея           |0  |0.500|0 |52|799       |  |
+	//+|11966|Вино Страккали Примит.к.п/с750|2|1050.00|20|0|бут|8000475009661|31|112|Вина натуральные имп.|0 |0.00|1.000|0|1.000|0.00|1.000|Вино "Страккали Примитив|о" к.п/сух.0,75л 14%    |0  |0.750|0 |10|0         |  |
+	//+|91005|Сок мультифруктовый 1л АВС бел|1|149.00 |20|0|шт.|4810282016998|1 |1  |Соки импортные       |0 |0.00|1.000|0|1.000|0.00|1.000|Сок|мультифруктовый 1л "АВС"                     |0  |0.000|0 |1 |DIETARYSUP|57|987||2|
+	//+|69906|Морковь мытая                 |1|75.00  |10|0|кг |2369906      |20|160|Овощи свежие         |1 |0.00|0.001|0|1.000|0.00|0.001|Морковь|мытая                                    |30 |1.000|0.|57|0         |  |
+	//+|62646|Хлебцы Бежицкие постные       |3|288.00 |10|0|кг |2362646      |9 |15 |Печенье, вафли отеч. |1 |0.00|0.001|0|1.000|0.00|0.001|Хлебцы Бежицкие|постные" ПК Бежицкий"            |180|1.000|0 |1 |0         |  |
+	// 
+	//+|94340|Компот виш.мал.0,2л Фрутоняня|1|55.00|10|0|шт.|4600338006239|39|24|Ост.фр,овощн,мясные смеси,соки|0|0.00|1.000|0|1.000|0.00|1.000|Компот из вишни и|малины 0,2л "Фрутоняня"    |0  |0.000|0 |1 |987       |  |
+	// 
+	// Далее следует непонятный мне формат. Что это за данные? - Похоже на загрузку весов
+	//
+	// # Расшифровка номеров полей :
+	// # 1  - код отдела
+	// # 2  - номер весов
+	// # 3  - PLU
+	// # 4  - код товара
+	// # 5  - наименование (строка 1)
+	// # 6  - наименование (строка 2)
+	// # 7  - цена за единицу
+	// # 8  - Срок реализации в днях
+	// # 9  - Код товара с весовым префиксом
+	// # 10 - Признак удаления товара (1 - удалить)
+	// #    - Номеp сообщения
+	// #    - Текст сообщения
+	// # !!! Шрифт наименования товара, формат этикетки и форма штрих-кода
+	// #     указываются явно
+	// 
+	//1 2  3   4     5                                     7      8  9   10   
+	//+|16|207|74064|Пряники "Ржаные"|"Воронежская КК Дон"|394.00|23|60 |3|
+	//+|3 |924|48006|Яблоки|"Голден"                      |139.00|23|14 |1|
+	//+|21|142|48006|Яблоки|"Голден"                      |139.00|23|14 |1|
+	//+|3 |793|97711|Баклажаны|тепличные                  |339.00|23|10 |1|
+	//+|7 |25 |51871|Утка|филе грудки охл."Озерка"        |855.00|23|   |1|
+	//+|15|11 |62646|Хлебцы Бежицкие|постные" ПК Бежицкий"|288.00|23|180|3|
+	//
+	// Дисконтные карты
+	//1 2               3               4    5 6    7    8    9 10
+	//+|7770000204397  |777000020439   |7.00|0|1   |0.00|220 |0|        |
+	//+|7770000204403  |777000020440   |7.00|0|1   |0.00|221 |0|        |
+	//+|780500462611001|780500462611001|3.00|0|7705|0.00|8077|0|01/01/20|
+	//+|780500462611002|780500462611002|3.00|0|7706|0.00|8078|0|        |
+	//
+							goods_name_f.Z();
+							goods_name_s.Z();
+							if(file_type == 1) { // goods
+								uint fld_no = 0;
+								ErpGoodsEntry new_entry;
+								for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
+									fld_no++;
+									switch(fld_no) {
+										case 1: // +/-
+											if(temp_buf == "+") {
+												;
+											}
+											else if(temp_buf == "-")
+												new_entry.Flags |= eefMinus;
+											break;
+										case 2: // goodsid
+											new_entry.NativeID = temp_buf.ToLong();
+											break;
+										case 3: // goodsname
+											goods_name_s = temp_buf;
+											break;
+										case 4: break;
+										case 5: // price
+											new_entry.Price = temp_buf.ToReal_Plain();
+											break;
+										case 6: // vat rate
+											new_entry.VatRate = temp_buf.ToReal_Plain();
+											break;
+										case 7: break;
+										case 8: // uom name
+											STRNSCPY(new_entry.UomName, temp_buf);
+											break;
+										case 9: // barcode
+											STRNSCPY(new_entry.Barcode, temp_buf);
+											break;
+										case 10: 
+											break;
+										case 11: // goodsgroup id
+											new_entry.GoodsGroupID = temp_buf.ToLong();
+											break;
+										case 12: // goodsgroup name
+											STRNSCPY(new_entry.GoodsGroupName, temp_buf);
+											break;
+										case 13: break;
+										case 14: break;
+										case 15: // Кратность (1.000 - шт; 0.001 - kg)
+											break;
+										case 16: break;
+										case 17: break;
+										case 18: break;
+										case 19: // Кратность продажи (1.0 - по штуке, 0.001 - по граммам). Странно: одно и то же значение еще и в поле 15 (see above)
+											break;
+										case 20: // goodsname line1
+											goods_name_f = temp_buf;
+											break;
+										case 21: // goodsname line2
+											goods_name_f.Space().Cat(temp_buf);
+											break;
+										case 22:  // ?Срок годности в днях
+											break;
+										case 23: // Alc volume (liter)
+											break;
+										case 24: // Alc proof (vol%) Обнаружил для водки и коньяка. Для вина нет крепости.
+											break;
+										case 25: break;
+										case 26: // chzn product type
+											// MILK,
+											break;
+										case 27: 
+											break;
+									}
 								}
+								STRNSCPY(new_entry.GoodsNameS, goods_name_s);
+								STRNSCPY(new_entry.GoodsNameF, goods_name_f);
+								rIb.GoodsList.insert(&new_entry);
 							}
-							rIb.GoodsList.insert(&new_entry);
-						}
-						else if(file_type == 2) { // scale
-							uint fld_no = 0;
-							ErpWeightedGoodsEntry new_entry;
-							for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
-								fld_no++;
-								switch(fld_no) {
-									case 1: // +/-
-										if(temp_buf == "+") {
-											;
-										}
-										else if(temp_buf == "-")
-											new_entry.Flags |= eefMinus;
-										break;
-									case 2: 
-										break;
-									case 3: 
-										break;
-									case 4: // goodsid
-										new_entry.ID = temp_buf.ToLong();
-										break;
-									case 5: // goodsname line1
-										goods_name_f = temp_buf;
-										break;
-									case 6: // goodsname line2
-										goods_name_f.Space().Cat(temp_buf);
-										break;
-									case 7: // price
-										new_entry.Price = temp_buf.ToReal();
-										break;
-									case 8: 
-										break;
-									case 9: 
-										break;
-									case 10: 
-										break;
+							else if(file_type == 2) { // scale
+								uint fld_no = 0;
+								ErpWeightedGoodsEntry new_entry;
+								for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
+									fld_no++;
+									switch(fld_no) {
+										case 1: // +/-
+											if(temp_buf == "+") {
+												;
+											}
+											else if(temp_buf == "-")
+												new_entry.Flags |= eefMinus;
+											break;
+										case 2: // Scale device number 
+											new_entry.DeviceNo = temp_buf.ToLong();
+											break;
+										case 3: // PLU
+											new_entry.PLU = temp_buf.ToLong();
+											break;
+										case 4: // goodsid
+											new_entry.NativeID = temp_buf.ToLong();
+											break;
+										case 5: // goodsname line1
+											goods_name_f = temp_buf;
+											break;
+										case 6: // goodsname line2
+											goods_name_f.Space().Cat(temp_buf);
+											break;
+										case 7: // price
+											new_entry.Price = temp_buf.ToReal();
+											break;
+										case 8: // shelf life (days)
+											new_entry.ShelfLifeDays = temp_buf.ToLong();
+											break;
+										case 9: // ???
+											break;
+										case 10: // ???
+											break;
+										case 11: // ???
+											break;
+									}
 								}
+								rIb.WeightedGoodsList.insert(&new_entry);
 							}
-							rIb.WeightedGoodsList.insert(&new_entry);
-						}
-						else if(file_type == 3) { // scard
-							uint fld_no = 0;
-							ErpSCardEntry new_entry;
-							for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
-								fld_no++;
-								switch(fld_no) {
-									case 1: // +/-
-										if(temp_buf == "+") {
-											;
-										}
-										else if(temp_buf == "-")
-											new_entry.Flags |= eefMinus;
-										break;
-									case 2: 
-										break;
-									case 3: 
-										break;
-									case 4: // discount
-										new_entry.PctDis = temp_buf.ToReal();
-										break;
-									case 5:
-										break;
-									case 6:
-										break;
-									case 7:
-										break;
-									case 8: 
-										break;
-									case 9: 
-										break;
-									case 10: 
-										break;
+							else if(file_type == 3) { // scard
+								uint fld_no = 0;
+								ErpSCardEntry new_entry;
+								for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
+									fld_no++;
+									switch(fld_no) {
+										case 1: // +/-
+											if(temp_buf == "+") {
+												;
+											}
+											else if(temp_buf == "-")
+												new_entry.Flags |= eefMinus;
+											break;
+										case 2: 
+											break;
+										case 3: 
+											break;
+										case 4: // discount
+											new_entry.PctDis = temp_buf.ToReal();
+											break;
+										case 5:
+											break;
+										case 6:
+											break;
+										case 7:
+											break;
+										case 8: 
+											break;
+										case 9: 
+											break;
+										case 10: 
+											break;
+									}
 								}
+								rIb.SCardList.insert(&new_entry);
 							}
-							rIb.SCardList.insert(&new_entry);
 						}
 					}
 				}
@@ -5492,9 +5753,10 @@ int Test_Cristal2SetRetailGateway()
 	SString dict_info_file_path;
 	Cristal2SetRetailGateway g;
 	Cristal2SetRetailGateway::CristalImportBlock ib;
+	PPLogger logger;
 	PPGetFilePath(PPPATH_OUT, "test-tallinsky-import.txt", log_file_path);
 	PPGetFilePath(PPPATH_OUT, "test-tallinsky-dictinfo.txt", dict_info_file_path);
-	g.Helper_CristalImportDir(p_src_path, ib, log_file_path);
+	//g.Helper_CristalImportDir(p_src_path, ib, &logger);
 	//
 	// CASHAUTH.BTR 
 		//double Summa

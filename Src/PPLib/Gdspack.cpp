@@ -27,8 +27,8 @@ PPGoodsPacket & PPGoodsPacket::Z()
 {
 	UpdFlags = 0;
 	ClsDimZeroFlags = 0;
-	MEMSZERO(Rec);
-	MEMSZERO(ExtRec);
+	Rec.Clear();
+	ExtRec.Clear();
 	Stock.Z();
 	Codes.clear();
 	ArCodes.clear();
@@ -79,17 +79,32 @@ int PPGoodsPacket::GetExtStrData(int fldID, SString & rBuf) const { return PPGet
 int PPGoodsPacket::PutExtStrData(int fldID, const SString & rBuf) { return PPPutExtStrData(fldID, ExtString, rBuf); }
 GoodsPacketKind PPGoodsPacket::GetPacketKind() const { return PPObjGoods::GetRecKind(&Rec); }
 
-int PPGoodsPacket::AddCode(const char * code, long codeType, double uPerP)
+int PPGoodsPacket::AddCode(const char * pCode, long codeType, double uPerP)
 {
-	if(code && code[0]) {
-	   	BarcodeTbl::Rec bcrec;
-		strip(STRNSCPY(bcrec.Code, code));
-		bcrec.Qtty = uPerP;
-		bcrec.BarcodeType = codeType;
-		return Codes.insert(&bcrec) ? 1 : PPSetErrorSLib();
+	int    ok = -1;
+	if(!isempty(pCode)) {
+		// @todo Здесь вообще то надо проверить валидность pCode (длина, символы etc)
+		// 
+		// @v12.3.9 Внесена поправка, запрещающая вставку кода, который уже есть в пакете (уникальной по всей базе этой функцией 
+		// не проверяется поскольку она находится на другом уровне абстракции).
+		bool   found = false;
+		for(uint i = 0; !found && i < Codes.getCount(); i++) {
+			if(sstreq(Codes.at(i).Code, pCode))
+				found = true;
+		}
+		if(found)
+			ok = -1;
+		else {
+	   		BarcodeTbl::Rec bcrec;
+			strip(STRNSCPY(bcrec.Code, pCode));
+			bcrec.Qtty = uPerP;
+			bcrec.BarcodeType = codeType;
+			ok = Codes.insert(&bcrec) ? 1 : PPSetErrorSLib();
+		}
 	}
 	else
-		return -1;
+		ok = -2;
+	return ok;
 }
 
 int FASTCALL PPGoodsPacket::GetGroupCode(SString & rBuf) const

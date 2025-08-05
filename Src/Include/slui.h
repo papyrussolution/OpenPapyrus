@@ -4148,6 +4148,7 @@ public:
 	void   deleteAll();
 	bool   IsChecked(uint itemIdx) const;  // item = (ushort)GetWindowLong(hWnd, GWL_ID);
 	bool   IsEnabled(uint itemIdx) const;  // item = (ushort)GetWindowLong(hWnd, GWL_ID);
+	uint   GetItemId(uint itemIdx) const;
 	HWND   getItemHandle(uint itemIdx);
 	//
 	// Три функции для ассоциирования элементов кластера с прикладными значениями.
@@ -5889,9 +5890,9 @@ private:
 	void   WMHCreate();
 	long   CalcHdrWidth(int plusToolbar) const;
 	int    IsLastPage(uint viewHeight); // AHTOXA
-	void   ClearFocusRect(LPRECT);
-	void   DrawCapBk(HDC, const RECT *, BOOL);
-	void   DrawFocus(HDC, const RECT *, BOOL DrawOrClear, BOOL isCellCursor = 0);
+	void   ClearFocusRect(const RECT & rR);
+	void   DrawCapBk(HDC, const RECT & rR, bool);
+	void   DrawFocus(HDC, const RECT & rR, bool drawOrClear, bool isCellCursor = false);
 	void   Paint();
 	//
 	// col = -1 - раскрашивать строчку целиком

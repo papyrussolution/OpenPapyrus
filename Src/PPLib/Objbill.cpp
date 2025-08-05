@@ -947,7 +947,7 @@ int PPBillPacket::ConvertToCheck2(const ConvertToCCheckParam & rParam, CCheckPac
 			if(psn_pack.Regs.GetRegNumber(PPREGT_TPID, Rec.Dt, temp_buf) && temp_buf.NotEmptyS()) {
 				cp.PutExtStrData(CCheckPacket::extssBuyerINN, temp_buf);
 			}
-			if(psn_pack.GetExtName(temp_buf) <= 0)
+			if(!psn_pack.GetExtName(temp_buf))
 				temp_buf = psn_pack.Rec.Name;
 			cp.PutExtStrData(CCheckPacket::extssBuyerName, temp_buf);
 		}

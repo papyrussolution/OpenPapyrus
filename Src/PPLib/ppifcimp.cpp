@@ -1637,8 +1637,10 @@ int32 DL6ICLS_PPUtil::GetTagValueExt(PpyObjectIdent objType, int32 objID, int32 
 				{
 					LDATETIME dtm;
 					tag_item.GetTimestamp(&dtm);
-					pValue->VDt = dtm.d;
-					pValue->VTm = dtm.t;
+					// @v12.3.9 pValue->VDt = dtm.d; 
+					// @v12.3.9 pValue->VTm = dtm.t;
+					pValue->VDt = dtm.d.GetOleDate(); // @v12.3.9
+					pValue->VTm = dtm.t.GetOleDate(); // @v12.3.9
 				}
 				if(tag_item.TagDataType == OTTYP_ENUM) {
 					tag_item.GetEnumData(0, 0, 0, &temp_buf);

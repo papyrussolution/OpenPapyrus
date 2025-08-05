@@ -247,6 +247,8 @@ void PPViewWbPublicGoods::CalcTotal(WbPublicGoodsTotal * pTotal)
 			dlg->setCtrlData(CTL_WBGOODSLISTDETAIL_SUPPLID, &p_entry->SupplID);
 			GoodsPool.GetS(p_entry->SupplP, temp_buf);
 			dlg->setCtrlString(CTL_WBGOODSLISTDETAIL_SUPPL, temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
+			GoodsPool.GetS(p_entry->EntityP, temp_buf);
+			dlg->setCtrlString(CTL_WBGOODSLISTDETAIL_ENT, temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
 			ExecViewAndDestroy(dlg);
 		}
 	}

@@ -2398,10 +2398,11 @@ struct GlobalUserAccBlock {
 	GlobalUserAccBlock() : State(stFetch)
 	{
 	}
-	void Clear()
+	GlobalUserAccBlock & Z()
 	{
 		MEMSZERO(Rec);
 		State = stFetch;
+		return *this;
 	}
 	PPObjGlobalUserAcc GuaObj;
 	PPGlobalUserAcc Rec;
@@ -2426,7 +2427,7 @@ int PPALDD_GlobalUserAcc::InitData(PPFilt & rFilt, long rsrv)
 {
 	int    ok = -1;
 	GlobalUserAccBlock & r_blk = *static_cast<GlobalUserAccBlock *>(Extra[0].Ptr);
-	r_blk.Clear();
+	r_blk.Z();
 	MEMSZERO(H);
 	if(r_blk.GuaObj.Search(rFilt.ID, &r_blk.Rec) > 0) {
 		H.ID = r_blk.Rec.ID;
@@ -2446,7 +2447,7 @@ int PPALDD_GlobalUserAcc::Set(long iterId, int commit)
 	int    ok = 1;
 	GlobalUserAccBlock & r_blk = *static_cast<GlobalUserAccBlock *>(Extra[0].Ptr);
 	if(r_blk.State != GlobalUserAccBlock::stSet) {
-		r_blk.Clear();
+		r_blk.Z();
 		r_blk.State = GlobalUserAccBlock::stSet;
 	}
 	if(commit == 0) {
@@ -2465,7 +2466,7 @@ int PPALDD_GlobalUserAcc::Set(long iterId, int commit)
 	}
 	CATCHZOK
 	if(commit || !ok)
-		r_blk.Clear();
+		r_blk.Z();
 	return ok;
 }
 

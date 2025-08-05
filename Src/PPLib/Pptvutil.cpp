@@ -8785,6 +8785,7 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 							}
 						}
 						pDlg->InsertCtlWithCorrespondingNativeItem(p_ctl, item_id, 0, /*extraPtr*/0);
+						ctl_id_for_tab = item_id; // @v12.3.9
 						is_inserted = true;
 					}
 					break;
@@ -8810,6 +8811,7 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 							}
 						}
 						pDlg->InsertCtlWithCorrespondingNativeItem(p_ctl, item_id, 0, /*extraPtr*/0);
+						ctl_id_for_tab = item_id; // @v12.3.9
 						is_inserted = true;
 					}
 					break;
@@ -8835,6 +8837,7 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 							}
 						}
 						pDlg->InsertCtlWithCorrespondingNativeItem(p_ctl, item_id, 0, /*extraPtr*/0);
+						ctl_id_for_tab = item_id; // @v12.3.9
 						is_inserted = true;
 					}
 					break;
@@ -8898,6 +8901,7 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 								p_lb->setState(sfTabStop, true);
 							}
 							pDlg->InsertCtlWithCorrespondingNativeItem(p_lb, item_id, 0, /*extraPtr*/0);
+							ctl_id_for_tab = item_id; // @v12.3.9
 							is_inserted = true;
 							//if(font_face.NotEmpty()) {
 								//SetCtrlFont(STDCTL_SINGLELISTBOX, font_face, /*16*//*22*/12);
@@ -8919,6 +8923,7 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 								p_lb->setState(sfTabStop, true);
 							}
 							pDlg->InsertCtlWithCorrespondingNativeItem(p_lb, item_id, 0, /*extraPtr*/0);
+							ctl_id_for_tab = item_id; // @v12.3.9
 							is_inserted = true;
 							//if(font_face.NotEmpty()) {
 								//SetCtrlFont(STDCTL_SINGLELISTBOX, font_face, /*16*//*22*/12);
@@ -9296,10 +9301,11 @@ void PPDialogConstructor::InsertControlLayouts(TDialog * pDlg, DlContext & rCtx,
 						if(oneof3(vk, UiItemKind::kCheckCluster, UiItemKind::kRadioCluster, UiItemKind::kCheckbox)) {
 							if(p_view->IsSubSign(TV_SUBSIGN_CLUSTER)) {
 								TCluster * p_clu = static_cast<TCluster *>(p_view);
+								const bool is_single = LOGIC(p_clu->GetSpcFlags() & TCluster::spcfSingleItemWithoutFrame);
 								const float fixed_item_y = TCluster::DefItemHeight;
 								const float item_gap_y = TCluster::DefItemVerticalGap;
-								const float padding_top = /*(lp.Padding.a.y > 0.0f) ? lp.Padding.a.y :*/TCluster::DefClusterPaddigTop;
-								const float padding_bottom = /*(lp.Padding.b.y > 0.0f) ? lp.Padding.b.y :*/TCluster::DefClusterPaddigBottom;
+								const float padding_top = is_single ? 0.0f : TCluster::DefClusterPaddigTop;
+								const float padding_bottom = is_single ? 0.0f : TCluster::DefClusterPaddigBottom;
 								int clu_direction = lp.GetContainerDirection();
 								if(clu_direction != DIREC_HORZ) {
 									clu_direction = DIREC_VERT;
