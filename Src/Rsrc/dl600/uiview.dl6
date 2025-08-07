@@ -610,7 +610,7 @@ dialog DLG_WBGOODSLISTDETAIL [vertical title: "" size: (600, 600) font: "MS Shel
 	}
 }
 
-dialog DLG_PRINT2 [vertical title: "@printrpt" size: (615, 450) minsize: (613, 428) font: "MS Shell Dlg 2,8"] {
+dialog DLG_PRINT2 [vertical title: "@printrpt" size: (615, 470) minsize: (613, 470) font: "MS Shell Dlg 2,8"] {
 	framebox [vertical width: bycontainer(100) height: 180 margin: 4 padding: 4 justifycontent: spaceevenly alignitems: center] {	
 		view [horizontal width: bycontainer growfactor: 1] {
 			radiocluster CTL_PRINT2_ACTION [vertical growfactor: 3 tabstop] {

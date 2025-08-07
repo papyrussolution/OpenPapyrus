@@ -3558,18 +3558,24 @@ int PPViewGoods::PrintPLabel(PPID goodsID)
 
 int PPViewGoods::Export(const PPGoodsImpExpParam * pExpCfg)
 {
-	int    ok = 1, r;
+	int    ok = 1;
 	PPGoodsExporter g_e;
 	StringSet result_file_list;
-	THROW(r = g_e.Init(pExpCfg, &result_file_list));
+	const int r = g_e.Init(pExpCfg, &result_file_list);
 	if(r > 0) {
 		PPWaitStart();
 		GoodsViewItem item;
 		for(InitIteration(OrdByDefault); NextIteration(&item) > 0;) {
 			PPGoodsPacket gpack;
-			THROW(GObj.GetPacket(item.ID, &gpack, 0));
-			strip(item.Barcode);
-			THROW(g_e.ExportPacket(&gpack, item.Barcode));
+			if(GObj.GetPacket(item.ID, &gpack, 0) > 0) {
+				strip(item.Barcode);
+				if(!g_e.ExportPacket(&gpack, item.Barcode, 0/*altGrpID*/, &Filt)) {
+					; // @todo @err-log
+				}
+			}
+			else {
+				; // @todo @err-log
+			}
 			PPWaitPercent(GetCounter());
 		}
 		if(g_e.P_IEGoods) {
@@ -3578,7 +3584,9 @@ int PPViewGoods::Export(const PPGoodsImpExpParam * pExpCfg)
 		}
 		PPWaitStop();
 	}
-	CATCHZOKPPERR
+	else {
+		ok = PPErrorZ();
+	}
 	return ok;
 }
 

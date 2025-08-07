@@ -1133,7 +1133,7 @@ int PPViewSStat::CellStyleFunc_(const void * pData, long col, int paintAction, B
 					const  DBQuery * p_q = p_def->getQuery();
 					short  is_trust = 0;
 					long   stat_count = -1;
-					int    is_new_goods = 0;
+					bool   is_new_goods = false;
 					if(p_q) {
 						if(p_q->fldCount > 15) { // #15 - поле запроса, содержащее признак доверия к прогнозу
 							size_t offs = 0;
@@ -1149,10 +1149,10 @@ int PPViewSStat::CellStyleFunc_(const void * pData, long col, int paintAction, B
 						}
 					}
 					if(stat_count == 0) {
-						PPID  loc_id = Filt.LocList.GetSingle();
+						const PPID  loc_id = Filt.LocList.GetSingle();
 						ReceiptCore & r_rcpt = BillObj->trfr->Rcpt;
 						if(r_rcpt.GetLastLot(goods_id, loc_id, MAXDATE, 0) <= 0)
-							is_new_goods = 1;
+							is_new_goods = true;
 					}
 					if(is_new_goods) {
 						pStyle->Color = (COLORREF)SColor(SClrBlue);

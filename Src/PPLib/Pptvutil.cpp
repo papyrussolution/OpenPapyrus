@@ -8640,6 +8640,8 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 	const DlScopeList & r_scope_list = rParentScope.GetChildList();
 	uint   def_button_ctl_id = 0;
 	SUiCtrlSupplement_With_Symbols supplement; // @v12.3.7
+	UserInterfaceSettings ui_cfg;
+	const bool is_ui_cfg_valid = (ui_cfg.Restore() > 0);
 	for(uint ci = 0; ci < r_scope_list.getCount(); ci++) {
 		const DlScope * p_scope = r_scope_list.at(ci);
 		if(p_scope) {
@@ -8901,6 +8903,11 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 								p_lb->setState(sfTabStop, true);
 							}
 							pDlg->InsertCtlWithCorrespondingNativeItem(p_lb, item_id, 0, /*extraPtr*/0);
+							// @v12.3.10 {
+							if(is_ui_cfg_valid && ui_cfg.ListFont.IsDefined()) {
+								pDlg->SetCtrlFont(item_id, ui_cfg.ListFont);
+							}
+							// } @v12.3.10 
 							ctl_id_for_tab = item_id; // @v12.3.9
 							is_inserted = true;
 							//if(font_face.NotEmpty()) {
@@ -9405,52 +9412,49 @@ void PPDialogConstructor::InsertControlLayouts(TDialog * pDlg, DlContext & rCtx,
 //
 //
 //typedef int (*InitializeDialogFunc)(TDialog * pThis, const void * pIdent, void * extraPtr); // @v12.3.6
-int PPInitializeDialogFunc(TDialog * pThis, const void * pIdent, void * extraPtr) // @v12.3.6 @construction
+int PPInitializeDialogFunc(TDialog * pThis, const void * pIdent, void * extraPtr) // @v12.3.6
 {
 	int    ok = -1;
-	if(/*SlDebugMode::CT()*/true) {
+	const size_t ident_len = sstrnlen(static_cast<const char *>(pIdent), 128);
+	if(ident_len && sisascii(static_cast<const char *>(pIdent), ident_len)) {
 		const DlScope * p_scope = 0;
 		DlContext * p_ctx = 0;
-		if(pIdent) {
-			size_t ident_len = strnlen(static_cast<const char *>(pIdent), 128);
-			if(sisascii(static_cast<const char *>(pIdent), ident_len)) {
-				SString ident_buf(static_cast<const char *>(pIdent));
-				if(ident_buf.IsDec()) {
-					uint   id = ident_buf.ToULong();
-					if(id) {
-						p_ctx = DS.GetInterfaceContext(PPSession::ctxUiViewLocal);
-						if(p_ctx) {
-							p_scope = p_ctx->GetDialogScopeBySymbolIdent_Const(id);
-						}
-						if(!p_scope) {
-							p_ctx = DS.GetInterfaceContext(PPSession::ctxUiView);
-							if(p_ctx)
-								p_scope = p_ctx->GetDialogScopeBySymbolIdent_Const(id);
-						}
-					}
+		SString ident_buf(static_cast<const char *>(pIdent));
+		if(ident_buf.IsDec()) {
+			uint   id = ident_buf.ToULong();
+			if(id) {
+				p_ctx = DS.GetInterfaceContext(PPSession::ctxUiViewLocal);
+				if(p_ctx) {
+					p_scope = p_ctx->GetDialogScopeBySymbolIdent_Const(id);
 				}
-				else {
-					p_ctx = DS.GetInterfaceContext(PPSession::ctxUiViewLocal);
-					if(p_ctx) {
-						p_scope = p_ctx->GetScopeByName_Const(DlScope::kUiView, ident_buf);
-					}
-					if(!p_scope) {
-						p_ctx = DS.GetInterfaceContext(PPSession::ctxUiView);
-						if(p_ctx)
-							p_scope = p_ctx->GetScopeByName_Const(DlScope::kUiView, ident_buf);
-					}
-				}
-				if(p_scope) {
-					assert(p_ctx);
-					PPDialogConstructor ctr(pThis, *p_ctx, p_scope);
-					ok = 1;
+				if(!p_scope) {
+					p_ctx = DS.GetInterfaceContext(PPSession::ctxUiView);
+					if(p_ctx)
+						p_scope = p_ctx->GetDialogScopeBySymbolIdent_Const(id);
 				}
 			}
+		}
+		else {
+			p_ctx = DS.GetInterfaceContext(PPSession::ctxUiViewLocal);
+			if(p_ctx) {
+				p_scope = p_ctx->GetScopeByName_Const(DlScope::kUiView, ident_buf);
+			}
+			if(!p_scope) {
+				p_ctx = DS.GetInterfaceContext(PPSession::ctxUiView);
+				if(p_ctx)
+					p_scope = p_ctx->GetScopeByName_Const(DlScope::kUiView, ident_buf);
+			}
+		}
+		if(p_scope) {
+			assert(p_ctx);
+			PPDialogConstructor ctr(pThis, *p_ctx, p_scope);
+			ok = 1;
 		}
 	}
 	return ok;
 }
 
+#if 0 // @v12.3.10 {
 int Test_ExecuteDialogByDl600Description() // @construction
 {
 	class TDialogDL6_Construction : public TDialog {
@@ -9518,3 +9522,4 @@ int Test_ExecuteDialogByDl600Description() // @construction
 	}
 	return ok;
 }
+#endif // } 0 @v12.3.10

@@ -1538,6 +1538,7 @@
 #define PPCMD_CRISTAL2SETRETAILGATEWAY              1360
 #define PPCMD_WBPUBLICGOODS                         1361
 #define PPCMD_CHECKCHZNMARK                         1362
+#define PPCMD_EXPORTGOODS                           1363
 //
 // PPJOB definitions
 //

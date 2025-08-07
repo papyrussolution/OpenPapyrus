@@ -4893,6 +4893,55 @@ IMPLEMENT_CMD_HDL_FACTORY(CRISTAL2SETRETAILGATEWAY);
 //
 //
 //
+class CMD_HDL_CLS(EXPORTGOODS) : public PPCommandHandler {
+public:
+	CMD_HDL_CLS(EXPORTGOODS)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
+	{
+	}
+	virtual int EditParam(SBuffer * pParam, long, void * extraPtr)
+	{
+		int    ok = -1;
+		ExportGoodsParam param;
+		const size_t preserve_offs = pParam ? pParam->GetRdOffs() : 0;
+		THROW_INVARG(pParam);
+		if(pParam->GetAvailableSize() != 0)
+			param.Read(*pParam, 0);
+		if(ExportGoodsParam::Edit(param) > 0) {
+			THROW(param.Write(pParam->Z(), 0));
+			ok = 1;
+		}
+		else {
+			pParam->SetRdOffs(preserve_offs);
+		}
+		CATCH
+			CALLPTRMEMB(pParam, SetRdOffs(preserve_offs));
+			ok = 0;
+		ENDCATCH
+		return ok;
+	}
+	virtual int Run(SBuffer * pParam, long, void * extraPtr)
+	{
+		int    ok = -1;
+		ExportGoodsParam param;
+		CoInitialize(NULL);
+		if(param.Read(*pParam, 0) > 0) {
+			PPViewGoods view;
+			PPGoodsImpExpParam ie_param;
+			THROW(ExportGoodsParam::GetExportParamByName(param.ExpCfg, &ie_param));
+			THROW(view.Init_(&param.Filt));
+			ie_param.LocID = param.LocID;
+			ok = view.Export(&ie_param);
+		}
+		CATCHZOK
+		CoUninitialize();
+		return ok;
+	}
+};
+
+IMPLEMENT_CMD_HDL_FACTORY(EXPORTGOODS);
+//
+//
+//
 #if 0 // {
 class CMD_HDL_CLS(WBPUBLICGOODS) : public PPCommandHandler { // @v12.3.9
 public:

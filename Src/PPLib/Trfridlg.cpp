@@ -1384,12 +1384,12 @@ int TrfrItemDialog::replyGoodsSelection(int recurse)
 {
 	int    ok = 1;
 	int    r;
-	int    again = 0;
 	int    dir = 0;
-	int    all_lots_in_pckg = 0;
+	bool   again = false;
+	bool   all_lots_in_pckg = false;
 	double quot = 0.0;
 	double suppl_deal_cost = 0.0;
-	int    op_subtype = GetOpSubType(OpID);
+	const  int op_subtype = GetOpSubType(OpID);
 	SString temp_buf;
 	ReceiptTbl::Rec lot_rec;
 	LotArray lot_list;
@@ -1399,11 +1399,11 @@ int TrfrItemDialog::replyGoodsSelection(int recurse)
 	Item.Flags &= ~PPTFR_AUTOCOMPL;
 	getCtrlData(CTLSEL_LOT_GOODS, &Item.GoodsID);
 	if(Item.GoodsID == 0) {
-		again = 1;
+		again = true;
 		CALLEXCEPT_PP(PPERR_USERINPUT);
 	}
 	else if(Item.SetupGoods(Item.GoodsID, TISG_SETPWOTF) <= 0) {
-		again = 1;
+		again = true;
 		CALLEXCEPT();
 	}
 	//
@@ -1414,7 +1414,7 @@ int TrfrItemDialog::replyGoodsSelection(int recurse)
 	//
 	if(oneof2(op_subtype, OPSUBT_ASSETEXPL, OPSUBT_ASSETRCV)) {
 		if(!GObj.IsAsset(Item.GoodsID)) {
-			again = 1;
+			again = true;
 			CALLEXCEPT_PP(PPERR_ASSETGOODSNEEDED);
 		}
 	}
@@ -1422,14 +1422,14 @@ int TrfrItemDialog::replyGoodsSelection(int recurse)
 		const QuotIdent qi(Item.LocID, 0, Item.CurID, P_Pack->Rec.Object);
 		GObj.GetSupplDeal(Item.GoodsID, qi, &Sd, 1);
 		if(Sd.IsDisabled) {
-			again = 1;
+			again = true;
 			CALLEXCEPT_PP(PPERR_GOODSRCPTDISABLED);
 		}
 		else
 			suppl_deal_cost = Sd.Cost;
 	}
 	if(!P_Pack->CheckGoodsForRestrictions(ItemNo, Item.GoodsID, Item.GetSign(OpID), 0.0, (PPBillPacket::cgrfAll&~(PPBillPacket::cgrfQtty)), 0)) {
-		again = 1;
+		again = true;
 		CALLEXCEPT();
 	}
 	if(Item.Flags & PPTFR_UNLIM && !(OpTypeID == PPOPT_GOODSRECEIPT)) {
@@ -1443,10 +1443,10 @@ int TrfrItemDialog::replyGoodsSelection(int recurse)
 					THROW(GObj.GetQuot(Item.GoodsID, qi, 0L, 0L, &quot) > 0);
 				}
 				else
-					again = 1;
+					again = true;
 			}
 			else
-				again = 1;
+				again = true;
 			if(again)
 				CALLEXCEPT_PP(recurse ? 0 : PPERR_QUOTNEEDED);
 		}
@@ -1515,9 +1515,9 @@ int TrfrItemDialog::replyGoodsSelection(int recurse)
 			if(lot_idx < lot_list.getCount()) {
 				lot_rec = lot_list.at(lot_idx++);
 				Item.LotID = lot_rec.ID;
-				all_lots_in_pckg = 0;
+				all_lots_in_pckg = false;
 				if(Item.Flags & PPTFR_MINUS && P_BObj->IsLotInPckg(Item.LotID)) {
-					all_lots_in_pckg = 1;
+					all_lots_in_pckg = true;
 					continue;
 				}
 				else {
@@ -1550,7 +1550,7 @@ int TrfrItemDialog::replyGoodsSelection(int recurse)
 			else if(Item.Flags & PPTFR_RECEIPT)
 				Item.LotID = 0;
 			else if(all_lots_in_pckg) {
-				again = 1;
+				again = true;
 				CALLEXCEPT_PP(PPERR_ALLLOTSINPCKG);
 			}
 			else if(Item.Flags & PPTFR_MINUS && GObj.CheckFlag(Item.GoodsID, GF_AUTOCOMPL)) {
@@ -1558,7 +1558,7 @@ int TrfrItemDialog::replyGoodsSelection(int recurse)
 				Item.LotID  = 0;
 			}
 			else {
-				again = 1;
+				again = true;
 				CALLEXCEPT_PP_S(PPERR_NOGOODS, GetGoodsName(Item.GoodsID, temp_buf));
 			}
 		}

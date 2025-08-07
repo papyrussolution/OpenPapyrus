@@ -46,7 +46,7 @@ int  ClassfGoods();
 int  TestTddo();
 int  GetGoodsFromService(SString & rCode, PPGoodsPacket * pPack);
 int  TestSTree();
-int  Test_ExecuteDialogByDl600Description();
+// @v12.3.10 int  Test_ExecuteDialogByDl600Description();
 int  SimpleCpp_Test_Main(int argc, char ** argv);
 int  SimpleCpp_Test_Main2();
 int  TestCrr32SupportServer();

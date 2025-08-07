@@ -352,6 +352,91 @@ int ReceiptCore::EnumLastLots(PPID goodsID, PPID locID, LDATE * pDt, long * pOpr
 	return PPDbSearchError();
 }
 
+int ReceiptCore::Helper_GetLastLot_ByLocList(PPID goodsID, const PPIDArray * pLocList, LDATE dt, ReceiptTbl::Rec * pRec) // @v12.3.10
+{
+	int    ok = -1;
+	ReceiptTbl::Rec last_rec;
+	if(!pLocList || pLocList->getCount()) {
+		ReceiptTbl::Key2 k;
+		k.GoodsID = goodsID;
+		k.Dt      = dt;
+		k.OprNo   = MAXLONG;
+		if(search(2, &k, spLt) && data.GoodsID == goodsID) {
+			if(!pLocList || pLocList->lsearch(data.LocID)) {
+				last_rec = data;
+				ok = 1;
+			}
+			else {
+				assert(last_rec.ID == 0); // @ctr
+				assert(pLocList != 0); // В этом блоке точно (locID != 0)
+				for(uint loc_idx = 0; loc_idx < pLocList->getCount(); loc_idx++) {
+					const  PPID loc_id = pLocList->get(loc_idx);
+					uint   r = 0;
+					ReceiptTbl::Rec rec[2];
+					ReceiptTbl::Key3 k3;
+					{
+						MEMSZERO(k3);
+						k3.Closed   = 0;
+						k3.GoodsID  = goodsID;
+						k3.LocID    = loc_id;
+						k3.Dt       = dt;
+						k3.OprNo    = MAXLONG;
+						if(search(3, &k3, spLt) && data.GoodsID == goodsID && data.LocID == loc_id) {
+							copyBufTo(&rec[0]);
+							r |= 1;
+						}
+					}
+					{
+						MEMSZERO(k3);
+						k3.Closed   = 1;
+						k3.GoodsID  = goodsID;
+						k3.LocID    = loc_id;
+						k3.Dt       = dt;
+						k3.OprNo    = MAXLONG;
+						if(search(3, &k3, spLt) && data.GoodsID == goodsID && data.LocID == loc_id) {
+							copyBufTo(&rec[1]);
+							r |= 2;
+						}
+					}
+					if(r == (1|2)) {
+						if(rec[0].Dt > rec[1].Dt)
+							r = 1;
+						else if(rec[0].Dt < rec[1].Dt)
+							r = 2;
+						else if(rec[0].OprNo > rec[1].OprNo)
+							r = 1;
+						else if(rec[0].OprNo < rec[1].OprNo)
+							r = 2;
+						else
+							r = 1;
+					}
+					if(r == 1) {
+						//
+						// Второй вызов search переписал буфер данных таблицы в результате, вызывающая функция может использовать не верное значение.
+						//
+						if(rec[0].Dt > last_rec.Dt || (rec[0].Dt == last_rec.Dt && rec[0].OprNo > last_rec.OprNo)) {
+							last_rec = rec[0];
+						}
+						//copyBufFrom(&rec[0]);
+						//ASSIGN_PTR(pRec, rec[0]);
+						ok = 1;
+					}
+					else if(r == 2) {
+						if(rec[1].Dt > last_rec.Dt || (rec[1].Dt == last_rec.Dt && rec[1].OprNo > last_rec.OprNo)) {
+							last_rec = rec[1];
+						}
+						//ASSIGN_PTR(pRec, rec[1]);
+						ok = 1;
+					}
+				}
+			}
+		}
+	}
+	assert(ok <= 0 || last_rec.ID);
+	ASSIGN_PTR(pRec, last_rec);
+	return ok;
+}
+
 int ReceiptCore::Helper_GetLastLot(PPID goodsID, PPID locID, LDATE dt, ReceiptTbl::Rec * pRec)
 {
 	int    ok = -1;
@@ -368,90 +453,58 @@ int ReceiptCore::Helper_GetLastLot(PPID goodsID, PPID locID, LDATE dt, ReceiptTb
 			ok = 1;
 		}
 		else {
-			//
-			// В этом блоке точно (locID != 0)
-			//
-
-			//
-			// @v6.3.14
-			// Похоже, следующий участок кода все-таки дает значительную задержку при
-			// большом количестве лотов.
-			// В связи с этим заменяем его на блок ниже.
-			//
-#if 0 // {
+			assert(locID != 0); // В этом блоке точно (locID != 0)
+			uint   r = 0;
+			ReceiptTbl::Rec rec[2];
+			ReceiptTbl::Key3 k3;
 			{
-				//
-				// Попытка быстро найти лот, соответствующий нашим требованиям провалилась.
-				// Так как лоты по товару, соответствующие заданному складу могут быть разбросаны
-				// очень хаотично, то отдадим серверу задачу по нахождению требуемой записи.
-				// Он с этим справится намного быстрее чем мы, перебирающие запись за записью.
-				//
-				// Обращаю внимание на параметр reverse = 1 в функции initIteration: нам надо
-				// перебирать лоты в порядке, обратном к индексации.
-				//
-				BExtQuery q(this, 2, 1);
-				q.selectAll().where(this->GoodsID == goodsID && this->Dt <= dt && this->LocID == locID);
-				if(q.initIteration(true, 0, -1) && q.nextIteration() > 0) {
-					copyBufTo(pRec);
-					ok = 1;
+				MEMSZERO(k3);
+				k3.Closed   = 0;
+				k3.GoodsID  = goodsID;
+				k3.LocID    = locID;
+				k3.Dt       = dt;
+				k3.OprNo    = MAXLONG;
+				if(search(3, &k3, spLt) && data.GoodsID == goodsID && data.LocID == locID) {
+					copyBufTo(&rec[0]);
+					r |= 1;
 				}
 			}
-#else // }{
 			{
-				uint   r = 0;
-				ReceiptTbl::Rec rec[2];
-				ReceiptTbl::Key3 k3;
-				{
-					MEMSZERO(k3);
-					k3.Closed   = 0;
-					k3.GoodsID  = goodsID;
-					k3.LocID    = locID;
-					k3.Dt       = dt;
-					k3.OprNo    = MAXLONG;
-					if(search(3, &k3, spLt) && data.GoodsID == goodsID && data.LocID == locID) {
-						copyBufTo(&rec[0]);
-						r |= 1;
-					}
-				}
-				{
-					MEMSZERO(k3);
-					k3.Closed   = 1;
-					k3.GoodsID  = goodsID;
-					k3.LocID    = locID;
-					k3.Dt       = dt;
-					k3.OprNo    = MAXLONG;
-					if(search(3, &k3, spLt) && data.GoodsID == goodsID && data.LocID == locID) {
-						copyBufTo(&rec[1]);
-						r |= 2;
-					}
-				}
-				if(r == (1|2)) {
-					if(rec[0].Dt > rec[1].Dt)
-						r = 1;
-					else if(rec[0].Dt < rec[1].Dt)
-						r = 2;
-					else if(rec[0].OprNo > rec[1].OprNo)
-						r = 1;
-					else if(rec[0].OprNo < rec[1].OprNo)
-						r = 2;
-					else
-						r = 1;
-				}
-				if(r == 1) {
-					//
-					// Второй вызов search переписал буфер данных таблицы
-					// в результате, вызывающая функция может использовать не верное значение.
-					//
-					copyBufFrom(&rec[0]);
-					ASSIGN_PTR(pRec, rec[0]);
-					ok = 1;
-				}
-				else if(r == 2) {
-					ASSIGN_PTR(pRec, rec[1]);
-					ok = 1;
+				MEMSZERO(k3);
+				k3.Closed   = 1;
+				k3.GoodsID  = goodsID;
+				k3.LocID    = locID;
+				k3.Dt       = dt;
+				k3.OprNo    = MAXLONG;
+				if(search(3, &k3, spLt) && data.GoodsID == goodsID && data.LocID == locID) {
+					copyBufTo(&rec[1]);
+					r |= 2;
 				}
 			}
-#endif // }
+			if(r == (1|2)) {
+				if(rec[0].Dt > rec[1].Dt)
+					r = 1;
+				else if(rec[0].Dt < rec[1].Dt)
+					r = 2;
+				else if(rec[0].OprNo > rec[1].OprNo)
+					r = 1;
+				else if(rec[0].OprNo < rec[1].OprNo)
+					r = 2;
+				else
+					r = 1;
+			}
+			if(r == 1) {
+				//
+				// Второй вызов search переписал буфер данных таблицы в результате, вызывающая функция может использовать не верное значение.
+				//
+				copyBufFrom(&rec[0]);
+				ASSIGN_PTR(pRec, rec[0]);
+				ok = 1;
+			}
+			else if(r == 2) {
+				ASSIGN_PTR(pRec, rec[1]);
+				ok = 1;
+			}
 		}
 	}
 	return (BTROKORNFOUND) ? ok : PPSetErrorDB();
@@ -462,15 +515,27 @@ int ReceiptCore::GetLastLot(PPID goodsID, PPID locID, LDATE date, ReceiptTbl::Re
 	int    ok = -1;
 	PROFILE_START
 	if(locID < 0) {
-		int    r = Helper_GetLastLot(goodsID, labs(locID), date, pLotRec);
+		const int r = Helper_GetLastLot(goodsID, labs(locID), date, pLotRec);
 		if(r >= 0)
 			ok = r;
 		else
 			ok = Helper_GetLastLot(goodsID, 0, date, pLotRec);
 	}
-	else
+	else {
 		ok = Helper_GetLastLot(goodsID, locID, date, pLotRec);
+	}
 	PROFILE_END
+	return ok;
+}
+
+int ReceiptCore::GetLastLot_ByLocList(PPID goodsID, const PPIDArray * pLocList, LDATE date, ReceiptTbl::Rec * pLotRec) // @v12.3.10
+{
+	int    ok = -1;
+	if(!pLocList || pLocList->getCount()) {
+		PROFILE_START
+		ok = Helper_GetLastLot_ByLocList(goodsID, pLocList, date, pLotRec);
+		PROFILE_END
+	}
 	return ok;
 }
 

@@ -91,7 +91,8 @@ int PPCashMachine::SyncOrAsync(int cashID, int & rS)
 
 /*static*/int PPCashMachine::GetRegEntry(PPID cmtID, uint * pPos)
 {
-	int    idx = 0, s = 0; // @vmiller
+	int    idx = 0;
+	int    s = 0; // @vmiller
 	if(P_RegData == 0) {
 		// @v12.3.9 DYN_LINK_CMT(EL92AQ);
 		// @v10.4.5 DYN_LINK_CMT(AMC100);
@@ -116,7 +117,7 @@ int PPCashMachine::SyncOrAsync(int cashID, int & rS)
 		// @vmiller {
 		if(PPCashMachine::SyncOrAsync(cmtID, s) > 0) {
 			if(s == 1) {
-				ASSIGN_PTR(pPos, 12); // Соответствует типу SYNCCASH
+				ASSIGN_PTR(pPos, 11); // Соответствует типу SYNCCASH // @v12.3.10 12-->11 (удален старый тип EL92AQ)
 				return 1;
 			}
 		}

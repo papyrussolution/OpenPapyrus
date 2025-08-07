@@ -246,7 +246,6 @@ class  ListWindow;
 class  ListBoxDef;
 class  AccTurnDialog;
 class  TVRez;
-class  BrowserWindow;
 class  AccAnlzFilt;
 class  BhtProtocol;
 class  CipherProtocol;
@@ -13098,7 +13097,7 @@ public:
 	int    EnumLots(PPID goodsID, PPID locID, DateIter *, void * = 0);
 	int    EnumLastLots(PPID goodsID, PPID locID, LDATE *, long * oprno, ReceiptTbl::Rec * pRec = 0);
 	int    GetLastLot(PPID goodsID, PPID locID, LDATE date, ReceiptTbl::Rec * pLotRec);
-		// @>>ReceiptCore::EnumLastLots(goodsID, locID, &date, &(o = MAXDATE), pLotRec)
+	int    GetLastLot_ByLocList(PPID goodsID, const PPIDArray * pLocList, LDATE date, ReceiptTbl::Rec * pLotRec); // @v12.3.10
 	int    GetLastOpenedLot(PPID goodsID, PPID locID, LDATE, void * = 0);
 		// @<<ReceiptCore::GetCurrentGoodsPrice
 	int    GetFirstLot(PPID goodsID, PPID locID, ReceiptTbl::Rec * pLotRec);
@@ -13215,6 +13214,7 @@ protected:
 	int    _SearchLot(int closed, PPID goods, PPID loc, LDATE, long oprno, int spMode);
 private:
 	int    Helper_GetLastLot(PPID goodsID, PPID locID, LDATE dt, ReceiptTbl::Rec * pRec);
+	int    Helper_GetLastLot_ByLocList(PPID goodsID, const PPIDArray * pLocList, LDATE dt, ReceiptTbl::Rec * pRec); // @v12.3.10
 	int    Helper_GetCurrentGoodsPrice(PPID goodsID, PPID locID, LDATE date, uint flags, double * pPrice, ReceiptTbl::Rec * pRec);
 	int    Helper_GetList(PPID goodsID, PPID locID, PPID supplID, LDATE beforeDt, /*int closedTag, int nzRestOnly,*/uint flags, LotArray * pRecList);
 	int    Helper_SearchOrigin(const ReceiptTbl::Rec * pInitLotRec, PPID lotID, PPID * pOrgLotID, ReceiptTbl::Rec * pThisRec, ReceiptTbl::Rec * pOrgRec);
@@ -57576,8 +57576,8 @@ public:
 	const  int IsInited() { return Inited; }
 	// pDllName - полный путь к dll
 	// op - операция. 1 - экспорт, 2 - импорт
-	int InitLibrary(const char * pDllName, uint op);
-	void ReleaseLibrary();
+	int    InitLibrary(const char * pDllName, uint op);
+	void   ReleaseLibrary();
 
 	InitExpProc InitExport;
 	SetExpObjProc SetExportObj;
@@ -57672,7 +57672,7 @@ public:
 		fAnalyzeBarcode   = 0x0002,
 		fAnalyzeName      = 0x0004,
 		fAnalyzeOnly      = 0x0008,
-		fUHTT     = 0x0010,
+		fUHTT             = 0x0010,
 		fForceSnglBarcode = 0x0020,
 		fImportImages     = 0x0040,
 		fForceUpdateManuf = 0x0080,
@@ -57695,13 +57695,37 @@ public:
 	int32   MatrixAction;
 	SString SubCode;
 };
+//
+// Descr: Специализированный блок параметризации экспорта товаров для серверной задачи и команды рабочего стола.
+// Note: Ранее эта структура была локальна к модулю ppjob.cpp, но с версии 12.3.10 стала публичной из-за необходимости
+//   реализовать команду рабочего стола с тем же функционалом.
+//
+class ExportGoodsParam { // @persistent
+private:
+	static const uint32 Signature;// = 49FA91B4;
+public:
+	static int GetExportParamByName(const char * pParamName, PPGoodsImpExpParam * pParam);
+	static int Edit(ExportGoodsParam & rData);
+
+	ExportGoodsParam();
+	ExportGoodsParam & Z();
+	int    Read(SBuffer & rBuf, long);
+	int    Write(SBuffer & rBuf, long);
+
+	PPID   LocID;
+	SString ExpCfg;
+	GoodsFilt Filt;
+};
 
 class PPGoodsExporter {
 public:
 	PPGoodsExporter();
 	~PPGoodsExporter();
 	int    Init(const PPGoodsImpExpParam * pParam, StringSet * pResultFileList);
-	int    ExportPacket(PPGoodsPacket * pPack, const char * pBarcode, PPID altGrpID = 0); // realy pPack - const
+	//
+	// Descr: Экспортирует единственный товар, которому соответствует пакет pPack
+	//
+	int    ExportPacket(PPGoodsPacket * pPack, const char * pBarcode, PPID altGrpID, const GoodsFilt * pFilt); // realy pPack - const
 	PPGoodsImpExpParam Param;
 	PPImpExp * P_IEGoods;
 private:
@@ -61258,7 +61282,7 @@ ushort FASTCALL ExecView(TBaseBrowserWindow * v);
 bool   FASTCALL GetModelessStatus(bool outerModeless = true);
 void   FASTCALL DisableOKButton(TDialog *);
 int    STDCALL  SetupPhoneButton(TDialog * pDlg, uint inputCtlId, uint btnCmd);
-int    STDCALL SetupGeoLocButton(TDialog * pDlg, uint inputCtlId, uint btnCmd); // @v11.6.2 @construction
+int    STDCALL  SetupGeoLocButton(TDialog * pDlg, uint inputCtlId, uint btnCmd); // @v11.6.2 @construction
 int    FASTCALL PPWait(int begin);
 void   PPWaitStart(); // @v11.0.3 PPWait(1)
 void   PPWaitStop(); // @v11.0.3 PPWait(0)

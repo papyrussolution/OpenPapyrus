@@ -495,6 +495,127 @@ int PPObjGoods::ImportQuot(const char * pCfgName, int use_ta)
 //
 //
 //
+/*static*/const uint32 ExportGoodsParam::Signature = 0x49FA91B4UL;
+
+ExportGoodsParam::ExportGoodsParam() : LocID(0)
+{
+}
+	
+ExportGoodsParam & ExportGoodsParam::Z()
+{
+	LocID = 0;
+	Filt.Init(1, 0);
+	ExpCfg.Z();
+	return *this;
+}
+	
+int ExportGoodsParam::Read(SBuffer & rBuf, long)
+{
+	int    ok = 1;
+	if(rBuf.GetAvailableSize()) {
+		uint32 _signature = 0;
+		THROW_SL(rBuf.Read(_signature));
+		if(_signature == ExportGoodsParam::Signature) {
+			THROW_SL(rBuf.Read(LocID));				
+		}
+		else {
+			rBuf.Unread(sizeof(_signature));
+		}
+		THROW(Filt.Read(rBuf, 0));
+		THROW(rBuf.Read(ExpCfg));
+	}
+	CATCHZOK
+	return ok;
+}
+
+int ExportGoodsParam::Write(SBuffer & rBuf, long)
+{
+	int    ok = 1;
+	uint32 _signature = ExportGoodsParam::Signature; 
+	THROW_SL(rBuf.Write(_signature));
+	THROW_SL(rBuf.Write(LocID));
+	THROW(Filt.Write(rBuf, 0));
+	THROW(rBuf.Write(ExpCfg));
+	CATCHZOK
+	return ok;
+}
+
+/*static*/int ExportGoodsParam::GetExportParamByName(const char * pParamName, PPGoodsImpExpParam * pParam)
+{
+	int    ok = 0;
+	SString ini_file_name;
+	THROW(PPGetFilePath(PPPATH_BIN, PPFILNAM_IMPEXP_INI, ini_file_name));
+	if(pParamName && pParam) {
+		SString sect;
+		PPIniFile ini_file(ini_file_name, 0, 1, 1);
+		THROW(LoadSdRecord(PPREC_GOODS2, &pParam->InrRec));
+		pParam->Direction = 0;
+		pParam->ProcessName(1, (sect = pParamName));
+		THROW_PP_S(pParam->ReadIni(&ini_file, sect, 0) > 0, PPERR_INVGOODSEXPCFG, pParamName);
+		pParam->ProcessName(2, (sect = pParamName));
+		pParam->Name = sect;
+		ok = 1;
+	}
+	CATCHZOK
+	return ok;
+}
+
+/*static*/int ExportGoodsParam::Edit(ExportGoodsParam & rData)
+{
+	class ExportGoodsFiltDialog : public TDialog {
+		DECL_DIALOG_DATA(ExportGoodsParam);
+	public:
+		ExportGoodsFiltDialog() : TDialog(DLG_GOODSEXPFILT)
+		{
+			PPGoodsImpExpParam param;
+			GetImpExpSections(PPFILNAM_IMPEXP_INI, PPREC_GOODS2, &param, &CfgList, 1);
+		}
+		DECL_DIALOG_SETDTS()
+		{
+			int    ok = 1;
+			RVALUEPTR(Data, pData);
+			{
+				uint    p  = 0;
+				PPGoodsImpExpParam param;
+				ExportGoodsParam::GetExportParamByName(Data.ExpCfg, &param);
+				const uint id = (CfgList.SearchByTextNc(param.Name, &p) > 0) ? static_cast<uint>(CfgList.Get(p).Id) : 0;
+				SetupStrAssocCombo(this, CTLSEL_GOODSEXPFILT_CFG, CfgList, static_cast<long>(id), 0);
+				SetupLocationCombo(this, CTLSEL_GOODSEXPFILT_LOC, Data.LocID, 0, 0);
+			}
+			return ok;
+		}
+		DECL_DIALOG_GETDTS()
+		{
+			int    ok = 1;
+			uint   sel = 0;
+			long   id = 0;
+			SString sect;
+			getCtrlData(sel = CTLSEL_GOODSEXPFILT_CFG, &id);
+			THROW_PP(id, PPERR_INVGOODSIMPEXPCFG);
+			CfgList.GetText(id, sect);
+			Data.ExpCfg = sect;
+			getCtrlData(CTLSEL_GOODSEXPFILT_LOC, &Data.LocID);
+			ASSIGN_PTR(pData, Data);
+			CATCHZOKPPERRBYDLG
+			return ok;
+		}
+	private:
+		DECL_HANDLE_EVENT
+		{
+			TDialog::handleEvent(event);
+			if(event.isCmd(cmGoodsFilt)) {
+				PPViewGoods v_goods;
+				v_goods.EditBaseFilt(&Data.Filt);
+				clearEvent(event);
+			}
+		}
+		StrAssocArray CfgList;
+	};
+	DIALOG_PROC_BODYERR(ExportGoodsFiltDialog, &rData);
+}
+//
+//
+//
 IMPLEMENT_IMPEXP_HDL_FACTORY(GOODS2, PPGoodsImpExpParam);
 
 PPGoodsImpExpParam::PPGoodsImpExpParam(uint recId, long flags) : PPImpExpParam(recId, flags),
@@ -908,19 +1029,20 @@ static void FASTCALL PreprocessGoodsExtText(SString & rBuf, char * pDestBuf, siz
     strnzcpy(pDestBuf, rBuf, destBufLen);
 }
 
-int PPGoodsExporter::ExportPacket(PPGoodsPacket * pPack, const char * pBarcode, PPID altGrpID /*=0*/)
+int PPGoodsExporter::ExportPacket(PPGoodsPacket * pPack, const char * pBarcode, PPID altGrpID, const GoodsFilt * pFilt)
 {
 	int    ok = 1;
 	SString temp_buf;
 	THROW_MEM(P_GObj && P_PsnObj && P_QcObj);
 	THROW_INVARG(pPack && P_IEGoods);
 	if(Param.Flags & PPGoodsImpExpParam::fImportImages) {
-		uint count = pPack->Codes.getCount();
+		const uint count = pPack->Codes.getCount();
 		if(count) {
 			pPack->LinkFiles.Init(PPOBJ_GOODS);
 			pPack->LinkFiles.Load(pPack->Rec.ID, 0L);
 			if(pPack->LinkFiles.GetCount()) {
-				SString img_path, ext_buf;
+				SString img_path;
+				SString ext_buf;
 				pPack->LinkFiles.At(0, img_path);
 				if(fileExists(img_path)) {
 					SFileFormat ff;
@@ -981,7 +1103,13 @@ int PPGoodsExporter::ExportPacket(PPGoodsPacket * pPack, const char * pBarcode, 
 			{
 				GoodsRestParam rp;
 				rp.GoodsID = pPack->Rec.ID;
-				rp.LocList.addnz(Param.LocID);
+				if(Param.LocID)
+					rp.LocList.addnz(Param.LocID);
+				// @v12.3.10 {
+				else if(pFilt && pFilt->LocList.GetCount()) {
+					pFilt->LocList.Get(rp.LocList);
+				}
+				// } @v12.3.10 
 				p_bobj->trfr->GetCurRest(rp);
 				sdr_goods.Rest = rp.Total.Rest;
 			}

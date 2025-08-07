@@ -2454,125 +2454,6 @@ IMPLEMENT_JOB_HDL_FACTORY(EXPORTBILLS);
 //
 //
 //
-class ExportGoodsParam { // @persistent
-private:
-	static const uint32 Signature;// = 49FA91B4;
-public:
-	ExportGoodsParam() : LocID(0)
-	{
-	}
-	ExportGoodsParam & Z()
-	{
-		LocID = 0;
-		Filt.Init(1, 0);
-		ExpCfg.Z();
-		return *this;
-	}
-	int Read(SBuffer & rBuf, long)
-	{
-		int    ok = 1;
-		if(rBuf.GetAvailableSize()) {
-			uint32 _signature = 0;
-			THROW_SL(rBuf.Read(_signature));
-			if(_signature == ExportGoodsParam::Signature) {
-				THROW_SL(rBuf.Read(LocID));				
-			}
-			else {
-				rBuf.Unread(sizeof(_signature));
-			}
-			THROW(Filt.Read(rBuf, 0));
-			THROW(rBuf.Read(ExpCfg));
-		}
-		CATCHZOK
-		return ok;
-	}
-	int Write(SBuffer & rBuf, long)
-	{
-		int    ok = 1;
-		uint32 _signature = ExportGoodsParam::Signature; 
-		THROW_SL(rBuf.Write(_signature));
-		THROW_SL(rBuf.Write(LocID));
-		THROW(Filt.Write(rBuf, 0));
-		THROW(rBuf.Write(ExpCfg));
-		CATCHZOK
-		return ok;
-	}
-	PPID   LocID;
-	SString ExpCfg;
-	GoodsFilt Filt;
-};
-
-/*static*/const uint32 ExportGoodsParam::Signature = 0x49FA91B4UL;
-
-class ExportGoodsFiltDialog : public TDialog {
-	DECL_DIALOG_DATA(ExportGoodsParam);
-public:
-	static int GetParamByName(const char * pParamName, PPGoodsImpExpParam * pParam)
-	{
-		int    ok = 0;
-		SString ini_file_name;
-		THROW(PPGetFilePath(PPPATH_BIN, PPFILNAM_IMPEXP_INI, ini_file_name));
-		if(pParamName && pParam) {
-			SString sect;
-			PPIniFile ini_file(ini_file_name, 0, 1, 1);
-			THROW(LoadSdRecord(PPREC_GOODS2, &pParam->InrRec));
-			pParam->Direction = 0;
-			pParam->ProcessName(1, (sect = pParamName));
-			THROW_PP_S(pParam->ReadIni(&ini_file, sect, 0) > 0, PPERR_INVGOODSEXPCFG, pParamName);
-			pParam->ProcessName(2, (sect = pParamName));
-			pParam->Name = sect;
-			ok = 1;
-		}
-		CATCHZOK
-		return ok;
-	}
-	ExportGoodsFiltDialog() : TDialog(DLG_GOODSEXPFILT)
-	{
-		PPGoodsImpExpParam param;
-		GetImpExpSections(PPFILNAM_IMPEXP_INI, PPREC_GOODS2, &param, &CfgList, 1);
-	}
-	DECL_DIALOG_SETDTS()
-	{
-		int    ok = 1;
-		RVALUEPTR(Data, pData);
-		{
-			uint    p  = 0;
-			PPGoodsImpExpParam param;
-			GetParamByName(Data.ExpCfg, &param);
-			const uint id = (CfgList.SearchByTextNc(param.Name, &p) > 0) ? static_cast<uint>(CfgList.Get(p).Id) : 0;
-			SetupStrAssocCombo(this, CTLSEL_GOODSEXPFILT_CFG, CfgList, static_cast<long>(id), 0);
-			SetupLocationCombo(this, CTLSEL_GOODSEXPFILT_LOC, Data.LocID, 0, 0);
-		}
-		return ok;
-	}
-	DECL_DIALOG_GETDTS()
-	{
-		int    ok = 1;
-		uint   sel = 0;
-		long   id = 0;
-		SString sect;
-		getCtrlData(sel = CTLSEL_GOODSEXPFILT_CFG, &id);
-		THROW_PP(id, PPERR_INVGOODSIMPEXPCFG);
-		CfgList.GetText(id, sect);
-		Data.ExpCfg = sect;
-		getCtrlData(CTLSEL_GOODSEXPFILT_LOC, &Data.LocID);
-		ASSIGN_PTR(pData, Data);
-		CATCHZOKPPERRBYDLG
-		return ok;
-	}
-private:
-	DECL_HANDLE_EVENT
-	{
-		TDialog::handleEvent(event);
-		if(event.isCmd(cmGoodsFilt)) {
-			PPViewGoods v_goods;
-			v_goods.EditBaseFilt(&Data.Filt);
-			clearEvent(event);
-		}
-	}
-	StrAssocArray CfgList;
-};
-
 class JOB_HDL_CLS(EXPORTGOODS) : public PPJobHandler {
 public:
 	JOB_HDL_CLS(EXPORTGOODS)(PPJobDescr * pDescr) : PPJobHandler(pDescr)
@@ -2582,29 +2463,21 @@ public:
 	{
 		int    ok = -1;
 		ExportGoodsParam param;
-		ExportGoodsFiltDialog * dlg = new ExportGoodsFiltDialog;
-		size_t sav_offs = pParam->GetRdOffs();
+		const size_t preserve_offs = pParam ? pParam->GetRdOffs() : 0;
 		THROW_INVARG(pParam);
-		THROW(CheckDialogPtr(&dlg));
 		if(pParam->GetAvailableSize() != 0)
 			param.Read(*pParam, 0);
-		dlg->setDTS(&param);
-		while(ok < 0 && ExecView(dlg) == cmOK) {
-			if(dlg->getDTS(&param) > 0)
-				ok = 1;
-			else
-				PPError();
-		}
-		if(ok > 0) {
+		if(ExportGoodsParam::Edit(param) > 0) {
 			THROW(param.Write(pParam->Z(), 0));
+			ok = 1;
 		}
-		else
-			pParam->SetRdOffs(sav_offs);
+		else {
+			pParam->SetRdOffs(preserve_offs);
+		}
 		CATCH
-			CALLPTRMEMB(pParam, SetRdOffs(sav_offs));
+			CALLPTRMEMB(pParam, SetRdOffs(preserve_offs));
 			ok = 0;
 		ENDCATCH
-		delete dlg;
 		return ok;
 	}
 	virtual int Run(SBuffer * pParam, void * extraPtr)
@@ -2615,7 +2488,7 @@ public:
 		if(param.Read(*pParam, 0) > 0) {
 			PPViewGoods view;
 			PPGoodsImpExpParam ie_param;
-			THROW(ExportGoodsFiltDialog::GetParamByName(param.ExpCfg, &ie_param));
+			THROW(ExportGoodsParam::GetExportParamByName(param.ExpCfg, &ie_param));
 			THROW(view.Init_(&param.Filt));
 			ie_param.LocID = param.LocID;
 			ok = view.Export(&ie_param);

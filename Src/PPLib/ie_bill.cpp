@@ -6325,7 +6325,7 @@ int PPBillExporter::PutPacket(PPBillPacket * pPack, int sessId /*=0*/, ImpExpDll
 int PPBillExporter::BillRecToBill(const PPBillPacket * pPack, Sdr_Bill * pBill)
 {
 	int    ok = 0;
-	SString temp_buf, str_city;
+	SString temp_buf;
 	if(pBill && pPack) {
 		ArticleTbl::Rec ar_rec;
 		LocationTbl::Rec loc_rec;
@@ -6362,7 +6362,7 @@ int PPBillExporter::BillRecToBill(const PPBillPacket * pPack, Sdr_Bill * pBill)
 					PPID   psn_id = ObjectToPerson(pPack->Rec.Object, 0);
 					PPPersonPacket psn_pack;
 					if(PsnObj.GetPacket(psn_id, &psn_pack, 0) > 0) {
-						if(psn_pack.GetSrchRegNumber(0, temp_buf) > 0)
+						if(psn_pack.GetSrchRegNumber(0, temp_buf))
 							temp_buf.CopyTo(pBill->RegistryCode, sizeof(pBill->RegistryCode));
                         psn_pack.ELA.GetSinglePhone(temp_buf, 0);
                         STRNSCPY(pBill->CntragPhone, temp_buf);
@@ -6391,11 +6391,12 @@ int PPBillExporter::BillRecToBill(const PPBillPacket * pPack, Sdr_Bill * pBill)
 		(temp_buf = pPack->SMemo).Transf(CTRANSF_INNER_TO_OUTER); // @v11.1.12
 		STRNSCPY(pBill->Memo, temp_buf);
 		if(LocObj.Search(pPack->Rec.LocID, &loc_rec) > 0) {
+			SString city_name_buf;
 			ltoa(loc_rec.ID, pBill->LocID, 10);
 			(temp_buf = loc_rec.Name).Transf(CTRANSF_INNER_TO_OUTER).CopyTo(pBill->LocName, sizeof(pBill->LocName));
 			(temp_buf = loc_rec.Code).Transf(CTRANSF_INNER_TO_OUTER).CopyTo(pBill->LocCode, sizeof(pBill->LocCode));
-			LocObj.GetCity(loc_rec.ID, 0, &str_city, 1);
-			str_city.Transf(CTRANSF_INNER_TO_OUTER).CopyTo(pBill->City, sizeof(pBill->City));
+			LocObj.GetCity(loc_rec.ID, 0, &city_name_buf, 1);
+			city_name_buf.Transf(CTRANSF_INNER_TO_OUTER).CopyTo(pBill->City, sizeof(pBill->City));
 			LocationCore::GetExField(&loc_rec, LOCEXSTR_FULLADDR, temp_buf);
 			if(temp_buf.NotEmptyS())
 				temp_buf.Transf(CTRANSF_INNER_TO_OUTER).CopyTo(pBill->Addr, sizeof(pBill->Addr));

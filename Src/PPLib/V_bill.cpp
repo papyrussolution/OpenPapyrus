@@ -2967,7 +2967,7 @@ int PPViewBill::CellStyleFunc_(const void * pData, long col, int paintAction, Br
 
 DBQuery * PPViewBill::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
-	const int  use_omt_paymamt = BIN(CConfig.Flags2 & CCFLG2_USEOMTPAYMAMT);
+	const bool use_omt_paymamt = LOGIC(CConfig.Flags2 & CCFLG2_USEOMTPAYMAMT);
 	const PPID single_loc_id = LocList_.getSingle();
 	BillTbl  * bll  = 0;
 	TempBillTbl   * bllt = 0;

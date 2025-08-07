@@ -1301,6 +1301,7 @@ public:
 	SFontDescr();
 	SFontDescr(const char * pFace, int size, int flags);
 	SFontDescr & Z();
+	bool   IsDefined() const { return (Face.NotEmpty() && Size != 0); } // @v12.3.10
 	bool   FASTCALL operator == (const SFontDescr & rS) const { return IsEq(rS); }
 	bool   FASTCALL IsEq(const SFontDescr & rS) const;
 	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
@@ -4984,7 +4985,7 @@ struct BrowserColorsSchema {   // size=42
 };
 
 #define NUMBRWCOLORSCHEMA        3
-extern const BrowserColorsSchema BrwColorsSchemas[NUMBRWCOLORSCHEMA]; // @global
+// @v12.3.10 extern const BrowserColorsSchema BrwColorsSchemas[NUMBRWCOLORSCHEMA]; // @global
 
 #define UISETTINGS_VERSION_MAJOR  1
 #define UISETTINGS_VERSION_MINOR 10 // @v11.5.11 9-->10
@@ -5038,7 +5039,7 @@ public:
 	UserInterfaceSettings();
 	void   Init();
 	void   SetVersion();
-	uint32 GetBrwColorSchema() const;
+	uint32 GetBrwColorSchemaIdx() const;
 	int    Save();
 	int    Restore();
 	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
@@ -5396,7 +5397,7 @@ public:
 		fPreserveFocus     = 0x00002000,
 		fLargeText         = 0x00004000, // Крупный текст (default * 2)
 		fMaxImgSize        = 0x00008000, // Максимальный размер окна для подробного отображения картинки
-		fShowOnRUCorner    = 0x00010000, // @v10.9.0 Отображать окно в правом верхнем углу
+		fShowOnRUCorner    = 0x00010000, // Отображать окно в правом верхнем углу
 	};
 	//
 	// Descr: Разрушает все окна сообщений, которые имеют родительское окно parent.
@@ -5837,7 +5838,6 @@ public:
 	int    GetCurColumn() const;
 	void   SetCurColumn(int col);
 	void   setInitPos(long p);
-	void   SetColorsSchema(uint32 schemaNum);
 	int    CopyToClipboard();
 	//
 	// For modeless
@@ -5914,6 +5914,9 @@ private:
 	HGDIOBJ Font;
 	BrowserPens Pens;
 	BrowserBrushes Brushes;
+	SColor  _ClrTitle; // @v12.3.10
+	SColor  _ClrLineCursorOverText; // @v12.3.10
+	SColor  _ClrCursorOverText;     // @v12.3.10
 	HFONT   DefFont;
 	HCURSOR MainCursor;
 	HCURSOR ResizeCursor;

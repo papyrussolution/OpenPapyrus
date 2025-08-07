@@ -7149,6 +7149,7 @@ cmd UnitEc                    { "@{cmd_unitec}"                               no
 cmd Cristal2SetRetailGateway  { "@{cristal2setretailgateway}"                 none                   none none } // @v12.3.7
 cmd WbPublicGoods             { "@{view_wbpublicgoods}"                       PPDV_LOGOWILDBERRIES   none none view=WbPublicGoods } // @v12.3.9
 cmd CheckChZnMark             { "@{cmd_checkchznmark}"                        PPDV_LOGOCHZN          none cmCheckChZnMark } // @v12.3.9
+cmd ExportGoods               { "@{job_exportgoods}"                          PPDV_EXPORT01          none none } // @v12.3.10
 //
 // -------------- Описания серверных задач
 //

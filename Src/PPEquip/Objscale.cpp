@@ -4125,9 +4125,8 @@ int ExportToFile::SendPLU(const ScalePLU * pScalePLU)
 	if(pScalePLU && P_GoodsExp) {
 		PPGoodsPacket pack;
 		if(GObj.GetPacket(pScalePLU->GoodsID, &pack, 0) > 0) {
-			SString barcode;
-			barcode.Cat(pScalePLU->Barcode);
-			ok = P_GoodsExp->ExportPacket(&pack, barcode.cptr(), Data.Rec.AltGoodsGrp);
+			SString barcode(pScalePLU->Barcode);
+			ok = P_GoodsExp->ExportPacket(&pack, barcode.cptr(), Data.Rec.AltGoodsGrp, 0);
 		}
 	}
 	return ok;

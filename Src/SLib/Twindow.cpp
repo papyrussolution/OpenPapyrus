@@ -768,7 +768,7 @@ int TWindow::SetCtrlFont(uint ctlID, const SFontDescr & rFd)
 {
 	int    ok = 0;
 	HWND   h_ctl = GetDlgItem(H(), ctlID);
-	if(h_ctl && rFd.Face.NotEmpty() && rFd.Size) {
+	if(h_ctl && rFd.IsDefined()) {
 		HFONT new_font = static_cast<HFONT>(TView::CreateFont_(rFd));
 		if(new_font) {
 			ok = SETIFZ(P_FontsAry, new SVector(sizeof(HFONT))) ? P_FontsAry->insert(&new_font) : 0;

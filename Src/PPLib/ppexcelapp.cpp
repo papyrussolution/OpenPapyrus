@@ -79,6 +79,10 @@ SString & PPViewBrowser::Helper_Export_MakeResultName(bool toUtf8, SString & rBu
 {
 	rBuf.Z();
 	rBuf = getTitle();
+	if(rBuf.IsEmpty()) {
+		if(P_View)
+			rBuf = P_View->GetSymb();
+	}
 	rBuf.Transf(toUtf8 ? CTRANSF_INNER_TO_UTF8 : CTRANSF_INNER_TO_OUTER);
 	rBuf.ReplaceChar('*', '#'); // Замена запрещенного символа в названии, если таковой имеется
 	return rBuf;
@@ -104,6 +108,7 @@ int PPViewBrowser::Helper_Export_Excel_OXLSX(SString & rResultFileName)
 	rResultFileName.Z();
 	int    ok = 1;
 #if (_MSC_VER >= 1920)
+	PPWait(1);
 	using namespace OpenXLSX;
 	SString temp_buf;
 	SString err_msg;
@@ -327,6 +332,7 @@ int PPViewBrowser::Helper_Export_Excel_OXLSX(SString & rResultFileName)
 						}
 						row++;
 						PROFILE_END
+						PPWaitLong(row);
 					} while(p_def->step(1) > 0 && row < 1000000);
 					{
 						for(uint i = 0; i < width_ary.getCount(); i++) {
@@ -397,6 +403,7 @@ int PPViewBrowser::Helper_Export_Excel_OXLSX(SString & rResultFileName)
 			ok = 0;
 		}
 	}
+	PPWait(0);
 	//CATCHZOK
 #else
 	ok = 0;

@@ -2767,7 +2767,7 @@ void UserInterfaceSettings::Init()
 	SpecialInputDeviceSymb.Z();
 }
 
-uint32 UserInterfaceSettings::GetBrwColorSchema() const
+uint32 UserInterfaceSettings::GetBrwColorSchemaIdx() const
 {
 	return (TableViewStyle >= 0 && TableViewStyle < NUMBRWCOLORSCHEMA) ? TableViewStyle : 0;
 }

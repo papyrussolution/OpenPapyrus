@@ -2553,8 +2553,19 @@ int PPViewBrowser::Export()
 	}
 	if(!ok)
 		PPErrorZ();
-	else if(ok > 0)
+	else if(ok > 0) {
+		// @v12.3.10 {
+		{
+			SString msg_buf;
+			SString fmt_buf;
+			PPLoadText(PPTXT_FILEOPENLAUNCHNOTIF, fmt_buf);
+			msg_buf.Printf(fmt_buf, result_file_name.cptr());
+			const long ttmsgf = SMessageWindow::fTopmost|SMessageWindow::fSizeByText|SMessageWindow::fPreserveFocus;
+			PPTooltipMessage(msg_buf, 0, 0, 20000, GetColorRef(SClrGreen), ttmsgf);
+		}
+		// } @v12.3.10 
 		::ShellExecuteW(0, L"open", result_file_name_u, NULL, NULL, SW_SHOWNORMAL);
+	}
 	return ok;
 }
 

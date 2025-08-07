@@ -1,5 +1,5 @@
 // STOOLTI.CPP
-// Copyright (c) A.Starodub 2008, 2009, 2010, 2011, 2016, 2017, 2018, 2019, 2020, 2021, 2023
+// Copyright (c) A.Starodub, A.Sobolev 2008, 2009, 2010, 2011, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2025
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -315,7 +315,7 @@ void SMessageWindow::Move()
 			toolt_h = 100;
 			toolt_w = 100;
 			if(Flags & SMessageWindow::fSizeByText) {
-				const  int  max_w = (parent_rect.right - parent_rect.left) / 5;
+				const  int  max_w = (parent_rect.right - parent_rect.left) / 4; // @v12.3.10 (/5)-->(/4)
 				int    w = 0;
 				int    h = 0;
 				HDC    hdc = GetDC(h_ctl);

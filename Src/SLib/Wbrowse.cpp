@@ -313,16 +313,17 @@ IMPL_HANDLE_EVENT(TBaseBrowserWindow)
 {
 	if(event.isCmd(cmExecute)) {
 		ushort last_command = 0;
-		SString buf = getTitle();
+		SString buf(getTitle());
 		buf.Transf(CTRANSF_INNER_TO_OUTER);
-		RECT   parent, r;
+		RECT   parent;
+		RECT   r;
 		long   tree_width = 0;
 		HWND   h_main_wnd = APPL->H_MainWnd;
-		if(IsIconic(h_main_wnd))
-			ShowWindow(h_main_wnd, SW_MAXIMIZE);
+		if(::IsIconic(h_main_wnd))
+			::ShowWindow(h_main_wnd, SW_MAXIMIZE);
 		APPL->GetStatusBarRect(&r);
 		long   status_height = r.bottom - r.top;
-		GetWindowRect(h_main_wnd, &parent);
+		::GetWindowRect(h_main_wnd, &parent);
 		if(APPL->IsTreeVisible()) {
 			APPL->GetTreeRect(r);
 			tree_width = r.right - r.left;
@@ -374,7 +375,7 @@ IMPL_HANDLE_EVENT(TBaseBrowserWindow)
 			::ShowWindow(H(), SW_NORMAL);
 			::UpdateWindow(H());
 			if(APPL->PushModalWindow(this, H())) {
-				EnableWindow(PrevInStack, 0);
+				::EnableWindow(PrevInStack, 0);
 				APPL->MsgLoop(this, EndModalCmd);
 				last_command = EndModalCmd;
 				EndModalCmd = 0;
@@ -393,57 +394,6 @@ IMPL_HANDLE_EVENT(TBaseBrowserWindow)
 //
 // BrowseWindow
 //
-const BrowserColorsSchema BrwColorsSchemas[NUMBRWCOLORSCHEMA] = {
-	/*
-	COLORREF Title;
-	COLORREF TitleDelim;
-	COLORREF Background;
-	COLORREF Text;
-	COLORREF Cursor;
-	COLORREF CursorOverText;
-	COLORREF LineCursor;
-	COLORREF LineCursorOverText;
-	COLORREF GridHorizontal;
-	COLORREF GridVertical;
-	*/
-	{1, 
-		/*RGB(0xD6, 0xD3, 0xCE)*/RGB(182, 221, 232),
-		/*RGB(0x90, 0x90, 0x90)*/GetColorRef(SClrWhite),
-		RGB(0xFF, 0xFF, 0xFF), 
-		RGB(0x00, 0x00, 0x00),
-		RGB(0x80, 0x80, 0x80), 
-		RGB(0xFF, 0xFF, 0xFF), 
-		RGB(0xC0, 0xC0, 0xC0), 
-		RGB(0x00, 0x00, 0x00),
-		RGB(0xC0, 0xC0, 0xC0), 
-		RGB(0x90, 0x90, 0x90)
-	},
-	{2, 
-		/*RGB(0xD6, 0xD3, 0xCE)*/RGB(182, 221, 232),
-		/*RGB(0x90, 0x90, 0x90)*/GetColorRef(SClrWhite),
-		RGB(0xFF, 0xFB, 0xF0), 
-		RGB(0x00, 0x00, 0x00),
-		RGB(0x29, 0x69, 0x9C), 
-		RGB(0xFF, 0xFF, 0xFF), 
-		RGB(0xC0, 0xC0, 0xC0), 
-		RGB(0x00, 0x00, 0x00),
-		RGB(0xB5, 0xCB, 0xC6), 
-		RGB(0xFF, 0xB6, 0xE7)
-	},
-	{3, 
-		RGB(0xDE, 0xD7, 0xB5), 
-		RGB(0xC6, 0xBA, 0x9C), 
-		RGB(0xD6, 0xE3, 0xCE), 
-		RGB(0x00, 0x00, 0x00),
-		RGB(0xC6, 0xA7, 0x86), 
-		RGB(0xFF, 0xFF, 0xFF), 
-		RGB(0xC6, 0xBA, 0x9C), 
-		RGB(0x00, 0x00, 0x00),
-		RGB(0xC6, 0xBA, 0x9C), 
-		RGB(0xC6, 0xBA, 0x9C)
-	}
-};
-
 BrowserPens::BrowserPens()
 {
 	THISZERO();
@@ -1225,28 +1175,58 @@ void BrowserWindow::SetupScroll()
 	::SendMessage(H(), WM_VSCROLL, SB_THUMBPOSITION, 0);
 }
 
-void BrowserWindow::SetColorsSchema(uint32 schemaNum)
-{
-	HDC    dc = GetDC(H());
-	Pens.Destroy();
-	Brushes.Destroy();
-	schemaNum = (schemaNum < NUMBRWCOLORSCHEMA) ? schemaNum : 0;
-	SetTextColor(dc, BrwColorsSchemas[schemaNum].Text);
-	SetBkColor(dc, BrwColorsSchemas[schemaNum].Background);
-	Pens.GridHorzPen    = CreatePen(PS_SOLID, 1, BrwColorsSchemas[schemaNum].GridHorizontal);
-	Pens.GridVertPen    = CreatePen(PS_SOLID, 1, BrwColorsSchemas[schemaNum].GridVertical);
-	Pens.TitlePen       = CreatePen(PS_SOLID, 1, BrwColorsSchemas[schemaNum].TitleDelim);
-	Pens.DrawFocusPen   = CreatePen(/*PS_INSIDEFRAME*/PS_NULL, 2, GetTextColor(dc));
-	Pens.ClearFocusPen  = CreatePen(/*PS_INSIDEFRAME*/PS_NULL, 2, GetBkColor(dc));
-	Pens.FocusOuterPen  = CreatePen(PS_SOLID, 1, GetGrayColorRef(0.35f)/*RGB(90, 90, 90)*/);
-	Brushes.DrawBrush   = CreateSolidBrush(BrwColorsSchemas[schemaNum].LineCursor);
-	Brushes.ClearBrush  = CreateSolidBrush(BrwColorsSchemas[schemaNum].Background);
-	Brushes.TitleBrush  = CreateSolidBrush(BrwColorsSchemas[schemaNum].Title);
-	Brushes.CursorBrush = CreateSolidBrush(BrwColorsSchemas[schemaNum].Cursor);
-}
-
 void BrowserWindow::EvaluateSomeMetricsOnInit()
 {
+	static const BrowserColorsSchema BrwColorsSchemas[NUMBRWCOLORSCHEMA] = {
+		/*
+		COLORREF Title;
+		COLORREF TitleDelim;
+		COLORREF Background;
+		COLORREF Text;
+		COLORREF Cursor;
+		COLORREF CursorOverText;
+		COLORREF LineCursor;
+		COLORREF LineCursorOverText;
+		COLORREF GridHorizontal;
+		COLORREF GridVertical;
+		*/
+		{1, 
+			RGB(0xD6, 0xD3, 0xCE),
+			RGB(0x90, 0x90, 0x90),
+			RGB(0xFF, 0xFF, 0xFF), 
+			RGB(0x00, 0x00, 0x00),
+			RGB(0x80, 0x80, 0x80), 
+			RGB(0xFF, 0xFF, 0xFF), 
+			RGB(0xC0, 0xC0, 0xC0), 
+			RGB(0x00, 0x00, 0x00),
+			RGB(0xC0, 0xC0, 0xC0), 
+			RGB(0x90, 0x90, 0x90)
+		},
+		{2, 
+			/*RGB(0xD6, 0xD3, 0xCE)*/RGB(0xB6, 0xDD, 0xE8),
+			/*RGB(0x90, 0x90, 0x90)*/GetColorRef(SClrWhite),
+			RGB(0xFF, 0xFB, 0xF0), 
+			RGB(0x00, 0x00, 0x00),
+			RGB(0x29, 0x69, 0x9C), 
+			RGB(0xFF, 0xFF, 0xFF), 
+			RGB(0xC0, 0xC0, 0xC0), 
+			RGB(0x00, 0x00, 0x00),
+			RGB(0xB5, 0xCB, 0xC6), 
+			RGB(0xFF, 0xB6, 0xE7)
+		},
+		{3, 
+			RGB(0xDE, 0xD7, 0xB5), 
+			RGB(0xC6, 0xBA, 0x9C), 
+			RGB(0xD6, 0xE3, 0xCE), 
+			RGB(0x00, 0x00, 0x00),
+			RGB(0xC6, 0xA7, 0x86), 
+			RGB(0xFF, 0xFF, 0xFF), 
+			RGB(0xC6, 0xBA, 0x9C), 
+			RGB(0x00, 0x00, 0x00),
+			RGB(0xC6, 0xBA, 0x9C), 
+			RGB(0xC6, 0xBA, 0x9C)
+		}
+	};
 	HDC  dc = GetDC(H());
 	if(DefFont)
 		::SelectObject(dc, DefFont);
@@ -1274,41 +1254,92 @@ void BrowserWindow::EvaluateSomeMetricsOnInit()
 	YCell = ChrSz.y + 2;
 	P_Def->VerifyCapHeight();
 	CapOffs = YCell * P_Def->GetCapHeight() + 4;
-	SetColorsSchema(UICfg.GetBrwColorSchema());
+	{
+		const uint scheme_idx = UICfg.GetBrwColorSchemaIdx();
+		const char * p_scheme_symb = 0;
+		switch(scheme_idx) {
+			case 0: p_scheme_symb = "gridscheme_01"; break;
+			case 1: p_scheme_symb = "gridscheme_02"; break;
+			case 2: p_scheme_symb = "gridscheme_03"; break;
+		}
+		const UiDescription * p_uid = p_scheme_symb ? SLS.GetUiDescription() : 0;
+		const SColorSet * p_cs = p_uid ? p_uid->GetColorSetC(p_scheme_symb) : 0;
+		{
+			if(!p_cs || !p_cs->Get("grid_title", &p_uid->ClrList, _ClrTitle))
+				_ClrTitle = BrwColorsSchemas[scheme_idx].Title;
+			if(!p_cs || !p_cs->Get("grid_curline_fg", &p_uid->ClrList, _ClrLineCursorOverText))
+				_ClrLineCursorOverText = BrwColorsSchemas[scheme_idx].LineCursorOverText;
+			if(!p_cs || !p_cs->Get("grid_curcell_fg", &p_uid->ClrList, _ClrCursorOverText))
+				_ClrCursorOverText = BrwColorsSchemas[scheme_idx].CursorOverText;
+		}
+		Pens.Destroy();
+		Brushes.Destroy();
+		{
+			SColor _color;
+			if(!p_cs || !p_cs->Get("grid_fg", &p_uid->ClrList, _color))
+				_color = BrwColorsSchemas[scheme_idx].Text;
+			SetTextColor(dc, _color);
+		}
+		{
+			SColor _color;
+			if(!p_cs || !p_cs->Get("grid_bg", &p_uid->ClrList, _color))
+				_color = BrwColorsSchemas[scheme_idx].Background;
+			SetBkColor(dc, _color);
+		}
+		{
+			SColor _color;
+			if(!p_cs || !p_cs->Get("grid_gridhorz", &p_uid->ClrList, _color))
+				_color = BrwColorsSchemas[scheme_idx].GridHorizontal;
+			Pens.GridHorzPen    = CreatePen(PS_SOLID, 1, _color);
+		}
+		{
+			SColor _color;
+			if(!p_cs || !p_cs->Get("grid_gridvert", &p_uid->ClrList, _color))
+				_color = BrwColorsSchemas[scheme_idx].GridVertical;
+			Pens.GridVertPen    = CreatePen(PS_SOLID, 1, _color);
+		}
+		{
+			SColor _color;
+			if(!p_cs || !p_cs->Get("grid_titledelim", &p_uid->ClrList, _color))
+				_color = BrwColorsSchemas[scheme_idx].TitleDelim;
+			Pens.TitlePen       = CreatePen(PS_SOLID, 1, _color);
+		}
+		{
+			Pens.DrawFocusPen   = CreatePen(/*PS_INSIDEFRAME*/PS_NULL, 2, GetTextColor(dc));
+		}
+		{
+			Pens.ClearFocusPen  = CreatePen(/*PS_INSIDEFRAME*/PS_NULL, 2, GetBkColor(dc));
+		}
+		{
+			SColor _color;
+			if(!p_cs || !p_cs->Get("grid_focusouter", &p_uid->ClrList, _color))
+				_color = SColor(0.35f);
+			Pens.FocusOuterPen  = CreatePen(PS_SOLID, 1, _color/*GetGrayColorRef(0.35f)*//*RGB(90, 90, 90)*/);
+		}
+		{
+			SColor _color;
+			if(!p_cs || !p_cs->Get("grid_curline_bg", &p_uid->ClrList, _color))
+				_color = BrwColorsSchemas[scheme_idx].LineCursor;
+			Brushes.DrawBrush   = CreateSolidBrush(_color);
+		}
+		{
+			SColor _color;
+			if(!p_cs || !p_cs->Get("grid_bg", &p_uid->ClrList, _color))
+				_color = BrwColorsSchemas[scheme_idx].Background;
+			Brushes.ClearBrush  = CreateSolidBrush(_color);
+		}
+		Brushes.TitleBrush  = CreateSolidBrush(_ClrTitle);
+		{
+			SColor _color;
+			if(!p_cs || !p_cs->Get("grid_curcell_bg", &p_uid->ClrList, _color))
+				_color = BrwColorsSchemas[scheme_idx].Cursor;
+			Brushes.CursorBrush = CreateSolidBrush(_color);
+		}
+	}
 }
 
 void BrowserWindow::WMHCreate()
 {
-	/* @v12.2.2
-	HDC  dc = GetDC(H());
-	if(DefFont)
-		::SelectObject(dc, DefFont);
-	if(Pens.DefPen)
-		::SelectObject(dc, Pens.DefPen);
-	if(Brushes.DefBrush)
-		::SelectObject(dc, Brushes.DefBrush);
-	ZDeleteWinGdiObject(&Font);
-	Pens.DefPen = static_cast<HPEN>(GetCurrentObject(dc, OBJ_PEN));
-	DefFont     = static_cast<HFONT>(GetCurrentObject(dc, OBJ_FONT));
-	Brushes.DefBrush = static_cast<HBRUSH>(GetCurrentObject(dc, OBJ_BRUSH));
-	UserInterfaceSettings ui_cfg;
-	if(ui_cfg.Restore() > 0)
-		UICfg = ui_cfg;
-	if(labs(UICfg.TableFont.Size) > 0 && UICfg.TableFont.Face.NotEmpty())
-		Font = TView::CreateFont_(UICfg.TableFont);
-	else
-		Font = static_cast<HFONT>(GetStockObject(DEFAULT_GUI_FONT));
-	::SelectObject(dc, Font);
-	{
-		TEXTMETRICW txtm;
-		GetTextMetricsW(dc, &txtm);
-		ChrSz.Set(txtm.tmAveCharWidth, txtm.tmHeight + txtm.tmExternalLeading);
-	}
-	YCell = ChrSz.y + 2;
-	P_Def->VerifyCapHeight();
-	CapOffs = YCell * P_Def->GetCapHeight() + 4;
-	SetColorsSchema(UICfg.GetBrwColorSchema());
-	*/
 	EvaluateSomeMetricsOnInit(); // @v12.2.2
 	TView::SetWindowUserData(H(), static_cast<BrowserWindow *>(this));
 	SetCursor(MainCursor);
@@ -1558,8 +1589,9 @@ bool BrowserWindow::DrawTextUnderCursor(HDC hdc, char * pBuf, RECT * pTextRect, 
 {
 	bool   ok = false;
 	if(pTextRect && pBuf) {
-		const  uint32 schema_num = UICfg.GetBrwColorSchema();
-		const  COLORREF old_color = SetTextColor(hdc, isLineCursor ? BrwColorsSchemas[schema_num].LineCursorOverText : BrwColorsSchemas[schema_num].CursorOverText);
+		const  uint32 schema_num = UICfg.GetBrwColorSchemaIdx();
+		// @v12.3.10 const  COLORREF old_color = SetTextColor(hdc, isLineCursor ? BrwColorsSchemas[schema_num].LineCursorOverText : BrwColorsSchemas[schema_num].CursorOverText);
+		const  COLORREF old_color = SetTextColor(hdc, isLineCursor ? _ClrLineCursorOverText : _ClrCursorOverText); // @v12.3.10
 		HFONT  old_font = 0;
 		HFONT  curs_over_txt_font = 0;
 		TCHAR  buf[64];
@@ -1791,8 +1823,8 @@ void BrowserWindow::Paint()
 		r.top    += hdr_width;
 		r.bottom += hdr_width;
 		if(SIntersectRect(ps.rcPaint, r)) {
-			uint32 schema_num = UICfg.GetBrwColorSchema();
-			const COLORREF oldColor = SetBkColor(ps.hdc, BrwColorsSchemas[schema_num].Title);
+			const uint32 schema_num = UICfg.GetBrwColorSchemaIdx();
+			const COLORREF oldColor = SetBkColor(ps.hdc, _ClrTitle/*BrwColorsSchemas[schema_num].Title*/);
 			uint   i = 0;
 			for(uint cn = Freeze ? 0 : Left; cn <= Right && cn < count;) {
 				const  BroColumn & c = p_def_->at(cn);

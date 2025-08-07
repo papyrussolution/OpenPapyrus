@@ -5159,6 +5159,8 @@ PPTXT_BSCCLS_R_EXP_PRESALE_SKU_TIME    "Расходы на предпродаж
 PPTXT_BSCCLS_R_EXP_PROMO_SKU_TIME      "Маркетинговые расходы на категорию продукции"
 PPTXT_BSCCLS_R_EXP_PROMO_TIME          "Маркетинговые расходы не привязанные к продукции"
 PPTXT_BSCCLS_R_EXP_FUNDINGCOST         "Стоимость фондирования"
+
+PPTXT_FILEOPENLAUNCHNOTIF              "Запускается приложение для просмотра файла\n'%s'"
 //
 // LastText
 
