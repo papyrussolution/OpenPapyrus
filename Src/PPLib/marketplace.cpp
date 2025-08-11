@@ -571,6 +571,154 @@ bool PPMarketplaceInterface_Wildberries::CategoryPool::FromJson(const SJson * pJ
 	return ok;
 }
 //
+// 
+// 
+PPMarketplaceInterface_Wildberries::PickUpPointPool::Entry::Entry()
+{
+	THISZERO();
+}
+			
+PPMarketplaceInterface_Wildberries::PickUpPointPool::Entry & PPMarketplaceInterface_Wildberries::PickUpPointPool::Entry::Z()
+{
+	THISZERO();
+	return *this;
+}
+			
+bool PPMarketplaceInterface_Wildberries::PickUpPointPool::Entry::FromJsonObj(PickUpPointPool & rPool, const SJson * pJs)
+{
+	Z();
+	bool   ok = false;
+	SString temp_buf;
+	/*
+		"rate": 5,
+		"name": "",
+		"workTime": "Ежедневно: 10:00-21:00",
+		"fittingRooms": 6,
+		"address": "Гомель, улица Малайчука 4/4",
+		"id": 248,
+		"typePoint": 34,
+		"coordinates": [
+			52.459072, 30.991978
+		],
+		"dest": 123587251,
+		"dest3": -163244,
+		"sign": "FNvLYmbxkJw=",
+		"props": 33
+	*/ 
+	if(SJson::IsObject(pJs)) {
+		for(const SJson * p_js_f = pJs->P_Child; p_js_f; p_js_f = p_js_f->P_Next) {
+			if(p_js_f->P_Child) {
+				if(p_js_f->Text.IsEqiAscii("rate")) {
+					Rate = static_cast<float>(p_js_f->P_Child->Text.ToReal_Plain());
+				}
+				else if(p_js_f->Text.IsEqiAscii("name")) {
+					SJson::GetChildTextUnescaped(p_js_f, temp_buf);
+					rPool.AddS(temp_buf, &NameP);
+				}
+				else if(p_js_f->Text.IsEqiAscii("workTime")) {
+					SJson::GetChildTextUnescaped(p_js_f, temp_buf);
+					rPool.AddS(temp_buf, &WorkTimeP);
+				}
+				else if(p_js_f->Text.IsEqiAscii("fittingRooms")) {
+					FittingRoomCount = static_cast<uint16>(p_js_f->P_Child->Text.ToULong());
+				}
+				else if(p_js_f->Text.IsEqiAscii("address")) {
+					SJson::GetChildTextUnescaped(p_js_f, temp_buf);
+					rPool.AddS(temp_buf, &AddrP);
+				}
+				else if(p_js_f->Text.IsEqiAscii("id")) {
+					ID = p_js_f->P_Child->Text.ToLong();
+				}
+				else if(p_js_f->Text.IsEqiAscii("typePoint")) {
+					TypePoint = static_cast<uint16>(p_js_f->P_Child->Text.ToULong());
+				}
+				else if(p_js_f->Text.IsEqiAscii("coordinates")) {
+					if(SJson::IsArray(p_js_f->P_Child)) {
+						uint   inner_item_no = 0;
+						SGeoPosLL geoloc;
+						for(const SJson * p_c_item = p_js_f->P_Child->P_Child; p_c_item; p_c_item = p_c_item->P_Next) {
+							inner_item_no++;
+							if(SJson::IsNumber(p_c_item)) {
+								if(inner_item_no == 1) {
+									geoloc.Lat = p_c_item->Text.ToReal_Plain();
+								}
+								else if(inner_item_no == 2) {
+									geoloc.Lon = p_c_item->Text.ToReal_Plain();
+								}
+							}
+						}
+						if(geoloc.IsValid()) {
+							UedGeoLoc = UED::SetRaw_GeoLoc(geoloc);
+						}
+					}
+				}
+				else if(p_js_f->Text.IsEqiAscii("dest")) {
+					Dest = p_js_f->P_Child->Text.ToInt64();
+				}
+				else if(p_js_f->Text.IsEqiAscii("dest3")) {
+					Dest3 = p_js_f->P_Child->Text.ToInt64();
+				}
+				else if(p_js_f->Text.IsEqiAscii("sign")) {
+					SJson::GetChildTextUnescaped(p_js_f, temp_buf);
+					assert(temp_buf.Len() < sizeof(Sign));
+					STRNSCPY(Sign, temp_buf);
+				}
+				else if(p_js_f->Text.IsEqiAscii("props")) {
+					PropCount = static_cast<uint16>(p_js_f->P_Child->Text.ToULong());
+				}
+			}
+		}
+	}
+	if(AddrP && ID && Dest) {
+		ok = true;
+	}
+	return ok;
+}
+
+PPMarketplaceInterface_Wildberries::PickUpPointPool::PickUpPointPool()
+{
+}
+		
+PPMarketplaceInterface_Wildberries::PickUpPointPool & PPMarketplaceInterface_Wildberries::PickUpPointPool::Z()
+{
+	SStrGroup::ClearS();
+	L.freeAll();
+	return *this;
+}
+
+bool PPMarketplaceInterface_Wildberries::PickUpPointPool::FromJson(const SJson * pJs, uint * pReadCount)
+{
+	bool    ok = false;
+	Z();
+	if(SJson::IsArray(pJs)) {
+		for(const SJson * p_js_item = pJs->P_Child; p_js_item; p_js_item = p_js_item->P_Next) {
+			if(SJson::IsObject(p_js_item)) {
+				uint64 ued_country = 0;
+				for(const SJson * p_cur = p_js_item->P_Child; p_cur; p_cur = p_cur->P_Next) {
+					if(p_cur->Text.IsEqiAscii("country")) {
+						; // @todo init ued_country
+					}
+					else if(p_cur->Text.IsEqiAscii("items")) {
+						if(SJson::IsArray(p_cur->P_Child)) {
+							for(const SJson * p_pup_item = p_cur->P_Child->P_Child; p_pup_item; p_pup_item = p_pup_item->P_Next) {
+								Entry new_entry;
+								if(new_entry.FromJsonObj(*this, p_pup_item)) {
+									new_entry.UedCountry = ued_country;
+									THROW_SL(L.insert(&new_entry));
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		if(L.getCount())
+			ok = true;
+	}
+	CATCHZOK
+	return ok;
+}
+//
 //
 //
 PPMarketplaceInterface_Wildberries::PublicWarePool::Size::Size() :
@@ -2003,6 +2151,54 @@ bool PPMarketplaceInterface_Wildberries::SalesRepDbpEntry::FromJsonObj(const SJs
 /*static*/SString & PPMarketplaceInterface_Wildberries::MakeSerialIdent(int64 incomeId, const WareBase & rWare, SString & rBuf)
 {
 	return rBuf.Z().Cat(incomeId).CatChar('-').Cat(rWare.ID);
+}
+
+/*static*/int PPMarketplaceInterface_Wildberries::LoadPublicPickUpPointList(PickUpPointPool & rResult, bool useCache)
+{
+	constexpr long cache_expiration_time_sec = (7 * 24 * 3600);
+	const  LDATETIME now_dtm = getcurdatetime_();
+	rResult.Z();
+	// ПВЗ : https://static-basket-01.wbbasket.ru/vol0/data/all-poo-fr-v11.json 
+	int    ok = -1;
+	SJson * p_js_result = 0;
+	SString cache_file_name;
+	if(GetLocalCachePath(cache_file_name)) {
+		assert(cache_file_name.NotEmpty());
+		cache_file_name.SetLastSlash().Cat("public-pickuppoint-list.json");
+	}
+	else {
+		cache_file_name.Z();
+	}
+	if(useCache && cache_file_name.NotEmpty()) {
+		SFile::Stat st;
+		if(SFile::GetStat(cache_file_name, 0, &st, 0)) {
+			LDATETIME file_dtm;
+			file_dtm.SetNs100(st.ModTm_);
+			long s = diffdatetimesec(now_dtm, file_dtm);
+			if(s <= cache_expiration_time_sec) {
+				p_js_result = SJson::ParseFile(cache_file_name);
+				if(rResult.FromJson(p_js_result, 0))
+					ok = 2;
+			}
+		}
+	}
+	if(ok < 0) {
+		SUniformFileTransmParam param;
+		param.SrcPath = InetUrl::MkHttps("static-basket-01.wbbasket.ru", "vol0/data/all-poo-fr-v11.json");
+		PPGetFilePath(PPPATH_OUT, "wildberries-pickuppoint-list.json", param.DestPath);
+		param.Flags = 0;
+		param.Format = SFileFormat::Unkn;
+		if(param.Run(0, 0)) {
+			p_js_result = SJson::ParseFile(param.DestPath);
+			if(rResult.FromJson(p_js_result, 0)) {
+				if(cache_file_name.NotEmpty())
+					SCopyFile(param.DestPath, cache_file_name, 0, FILE_SHARE_READ, 0);
+				ok = 1;
+			}
+		}
+	}
+	delete p_js_result;
+	return ok;
 }
 
 /*static*/int PPMarketplaceInterface_Wildberries::LoadPublicGoodsCategoryList(CategoryPool & rResult, bool useCache) // @v12.3.8
@@ -4530,9 +4726,6 @@ int PPMarketplaceInterface_Wildberries::ImportReceipts()
 
 bool PPMarketplaceInterface_Wildberries::MakeTargetUrl_(int meth, int * pReq/*SHttpProtocol::reqXXX*/, SString & rResult) const
 {
-	// ПВЗ : https://static-basket-01.wbbasket.ru/vol0/data/all-poo-fr-v11.json 
-	//
-	//
 	static const SIntToSymbTabEntry api_list[] = {
 		{ apiCommon, "common-api" },
 		{ apiStatistics, "statistics-api" },

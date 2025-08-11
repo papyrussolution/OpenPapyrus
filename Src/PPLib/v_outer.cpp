@@ -44,6 +44,10 @@ PPViewWbPublicGoods::PPViewWbPublicGoods() : PPView(0, &Filt, PPVIEW_WBPUBLICGOO
 {
 	int    ok = -1;
 	if(Helper_InitBaseFilt(pBaseFilt)) {
+		if(0) { // @debug
+			PPMarketplaceInterface_Wildberries::PickUpPointPool pupp;
+			PPMarketplaceInterface_Wildberries::LoadPublicPickUpPointList(pupp, true/*useCache*/); 
+		}
 		TotalResultCountOnServer = 0;
 		if(Filt.SearchPatternUtf8.NotEmptyS()) {
 			PPMarketplaceInterface_Wildberries::LoadPublicGoodsList(CatPool, Filt, GoodsPool);
@@ -187,6 +191,9 @@ int PPViewWbPublicGoods::MakeList(PPViewBrowser * pBrw)
 	p_array = new SArray(*P_DsList);
 	SetExtToolbar(TOOLBAR_WBPUBLICGOODS);
 	ASSIGN_PTR(pBrwId, BROWSER_EMPTY);
+	if(pSubTitle) {
+		PPLoadString("marketplaceexplorer", *pSubTitle);
+	}
 	CATCH
 		ZDELETE(P_DsList);
 	ENDCATCH

@@ -42,12 +42,16 @@ int FASTCALL SSqliteDbProvider::ProcessError(int status)
 	int    ok = 1;
 	if(!oneof3(status, SQLITE_OK, SQLITE_ROW, SQLITE_DONE)) {
 		// @todo
+		const char * p_msg = sqlite3_errmsg(static_cast<sqlite3 *>(H));
+		if(!isempty(p_msg)) {
+			DBS.SetError(BE_SQLITE_TEXT, p_msg);
+		}
 		ok = 0;
 	}
 	return ok;	
 }
 
-int SSqliteDbProvider::GetFileStat(const char * pFileName, long reqItems, DbTableStat * pStat)
+int SSqliteDbProvider::GetFileStat(const char * pFileName/*регистр символов важен!*/, long reqItems, DbTableStat * pStat)
 {
 	/*
 		CREATE TABLE sqlite_schema(
@@ -70,8 +74,7 @@ int SSqliteDbProvider::GetFileStat(const char * pFileName, long reqItems, DbTabl
 	} rec_buf;
 	MEMSZERO(rec_buf);
 	char   name[128];
-	STRNSCPY(name, pFileName);
-	strlwr(name);
+	STRNSCPY(name, pFileName); // ѕоиск чувствителен к регистру!
 	fld_list.addField("type", MKSTYPE(S_ZSTRING, 128));
 	fld_list.addField("name", MKSTYPE(S_ZSTRING, 128));
 	fld_list.addField("tbl_name", MKSTYPE(S_ZSTRING, 128));
@@ -196,7 +199,8 @@ int SSqliteDbProvider::GetFileStat(const char * pFileName, long reqItems, DbTabl
 	const  char * p_ztail = 0;
 	sqlite3_stmt * p_stmt = 0;
 	THROW_S_S(!isempty(pText), SLERR_INVPARAM, __FUNCTION__"/pText");
-	THROW(ProcessError(sqlite3_prepare_v3(static_cast<sqlite3 *>(H), pText, sstrleni(pText), prep_flags, &p_stmt, &p_ztail)));
+	const int text_len = sstrleni(pText);
+	THROW(ProcessError(sqlite3_prepare_v3(static_cast<sqlite3 *>(H), pText, text_len, prep_flags, &p_stmt, &p_ztail)));
 	pS->H = p_stmt;
 	/*
 	OH h = OhAlloc(OCI_HTYPE_STMT);
@@ -383,10 +387,12 @@ int SSqliteDbProvider::ProcessBinding_SimpleType(int action, uint count, SSqlStm
 	const  size_t sz = stsize(pBind->Typ);
 	uint16 out_typ = 0;
 	sqlite3_stmt * h_stmt = StmtHandle(*pStmt);
-	void * p_data = pStmt->GetBindOuterPtr(pBind, 0);
-	pBind->NtvSize = static_cast<uint16>(sz); // default value
+	// (Ёти 2 строчки должны быть перед вызовом pStmt->GetBindOuterPtr поскольку он полагаетс€ на поле pBind->Dim) {
 	if(action == 0)
 		pBind->Dim = count;
+	// {
+	void * p_data = pStmt->GetBindOuterPtr(pBind, 0);
+	pBind->NtvSize = static_cast<uint16>(sz); // default value
 	const int idx = abs(pBind->Pos);
 	const int t = GETSTYPE(pBind->Typ);
 	const uint s = GETSSIZE(pBind->Typ);

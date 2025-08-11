@@ -39,7 +39,7 @@
 #define TOOLBAR_LIST_WORKBOOK                 35
 #define TOOLBAR_LIST_GOODSSTRUC               36
 #define TOOLBAR_WBPUBLICGOODS                 37
-#define BROWSER_EMPTY                                    1 // 
+#define BROWSER_EMPTY                                    1 // %s
 	#define HELP_BROWSER_EMPTY                                    1
 #define BROWSER_PERSON                                   2 // @{person_pl} {%s}
 	#define HELP_BROWSER_PERSON                                   2

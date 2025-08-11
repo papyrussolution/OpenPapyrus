@@ -8714,8 +8714,8 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 						}
 						pDlg->InsertCtlWithCorrespondingNativeItem(p_ctl, item_id, 0, /*extraPtr*/0);
 						is_inserted = true;
-						if(oneof5(supplement.Kind, SUiCtrlSupplement::kDateCalendar, SUiCtrlSupplement::kDateRangeCalendar,
-							SUiCtrlSupplement::kTime, SUiCtrlSupplement::kCalc, SUiCtrlSupplement::kAsterisk)) {
+						if(oneof6(supplement.Kind, SUiCtrlSupplement::kDateCalendar, SUiCtrlSupplement::kDateRangeCalendar,
+							SUiCtrlSupplement::kTime, SUiCtrlSupplement::kCalc, SUiCtrlSupplement::kAsterisk, SUiCtrlSupplement::kFileBrowse)) { // @v12.3.10 SUiCtrlSupplement::kFileBrowse
 							if(supplement.Ident) {
 								TRect rc_sb;
 								rc_sb.a.x = rc.b.x+1;
@@ -8729,6 +8729,7 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 									case SUiCtrlSupplement::kTime: pic_id = PPDV_CLOCK02; break;
 									case SUiCtrlSupplement::kCalc: pic_id = PPDV_CALCULATOR02; break;
 									case SUiCtrlSupplement::kAsterisk: pic_id = PPDV_ASTERISK01; break;
+									case SUiCtrlSupplement::kFileBrowse: pic_id = PPDV_FOLDER02; break;
 								}
 								TButton * p_sb = new TButton(rc_sb, 0, supplement.Cmd, 0, pic_id);
 								p_sb->SetSupplementFactors(supplement.Kind, item_id);

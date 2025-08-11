@@ -1063,7 +1063,7 @@ toolbar export WBPUBLICGOODS TB_FIRST_TOOLBAR {
 //
 //
 //
-browser EMPTY north(100), 1, 1, "", OWNER|GRID, 0
+browser EMPTY north(100), 1, 1, "%s", OWNER|GRID, 0
 {
 	toolbar TB_FIRST_TOOLBAR {
 	}
@@ -9397,6 +9397,9 @@ drawvector "..\rsrc\svg" #000000 {
 	PPDV_ARCHIVE01                    // @v12.2.2
 	PPDV_CLOSE01                      // @v12.2.12
 }
+
+// @todo При добавлении новой иконки в верхний реестр сбиваются идентификаторы нижнего реестра. Это надо исправлять!
+
 //
 // Следующие изображения используются без замещения цвета
 //

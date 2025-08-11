@@ -1438,7 +1438,7 @@ int TrfrItemDialog::replyGoodsSelection(int recurse)
 		THROW(r = GObj.GetQuot(Item.GoodsID, qi, 0.0, 0.0, &quot));
 		if(r < 0) {
 			if(PPMessage(mfConf|mfYes|mfNo, PPCFM_SETUPQUOT) == cmYes) {
-				THROW(r = GObj.EditQuotations(Item.GoodsID, 0, Item.CurID, 0 /* ArID */, PPQuot::clsGeneral));
+				THROW(r = GObj.EditQuotations(Item.GoodsID, 0, Item.CurID, 0/*ArID*/, PPQuot::clsGeneral));
 				if(r > 0) {
 					THROW(GObj.GetQuot(Item.GoodsID, qi, 0L, 0L, &quot) > 0);
 				}

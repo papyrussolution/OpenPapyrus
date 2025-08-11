@@ -211,15 +211,61 @@ int ReceiptCore::_SearchLot(int closed, PPID goodsID, PPID locID, LDATE dt, long
 	return search(3, &k, sp) ? 1 : PPDbSearchError();
 }
 
-int ReceiptCore::GetLastOpenedLot(PPID goodsID, PPID locID, LDATE date, void * b)
+int ReceiptCore::GetLastOpenedLot(PPID goodsID, const PPIDArray * pLocList, LDATE date, ReceiptTbl::Rec * pLotRec/*=0*/)
 {
-	int    r = _SearchLot(0, goodsID, locID, NZOR(date, encodedate(31, 12, 2999)), MAXLONG, spLt);
-	if(r > 0 && data.Closed == 0 && data.GoodsID == goodsID && data.LocID == locID) {
-		copyBufTo(b);
-		return 1;
+	int    ok = -1;
+	const  LDATE _date = checkdate(date) ? date : encodedate(31, 12, 2999);
+	ReceiptTbl::Rec last_lot_rec;
+	ReceiptTbl::Key3 k;
+	if(!pLocList) {
+		MEMSZERO(k);
+		k.GoodsID = goodsID;
+		BExtQuery q(this, 3);
+		DBQ * dbq = &(this->Closed == 0L && this->GoodsID == goodsID && this->Dt <= _date);
+		q.selectAll().where(*dbq);
+		for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
+			if(data.Dt > last_lot_rec.Dt || (data.Dt == last_lot_rec.Dt && data.OprNo > last_lot_rec.OprNo)) {
+				last_lot_rec = data;
+				ok = 1;
+			}
+		}
 	}
-	else
-		return r ? -1 : 0;
+	else {
+		const PPID single_loc_id = pLocList->getSingle();
+		if(single_loc_id) {
+			MEMSZERO(k);
+			k.GoodsID  = goodsID;
+			k.LocID    = single_loc_id;
+			k.Dt       = _date;
+			k.OprNo    = MAXLONG;
+			int    r = search(3, &k, spLt) ? 1 : PPDbSearchError();
+			if(r > 0 && data.Closed == 0 && data.GoodsID == goodsID && data.LocID == single_loc_id) {
+				last_lot_rec = data;
+				ok = 1;
+			}
+			else
+				ok = r ? -1 : 0;
+		}
+		else {
+			for(uint i = 0; i < pLocList->getCount(); i++) {
+				const PPID loc_id = pLocList->get(i);
+				MEMSZERO(k);
+				k.GoodsID  = goodsID;
+				k.LocID    = loc_id;
+				k.Dt       = _date;
+				k.OprNo    = MAXLONG;
+				int    r = search(3, &k, spLt) ? 1 : PPDbSearchError();
+				if(r > 0 && data.Closed == 0 && data.GoodsID == goodsID && data.LocID == loc_id) {
+					if(data.Dt > last_lot_rec.Dt || (data.Dt == last_lot_rec.Dt && data.OprNo > last_lot_rec.OprNo)) {
+						last_lot_rec = data;
+						ok = 1;
+					}
+				}
+			}
+		}
+	}
+	ASSIGN_PTR(pLotRec, last_lot_rec);
+	return ok;
 }
 
 int ReceiptCore::GetCurrentGoodsPrice(PPID goodsID, PPID locID, uint flags, double * pPrice, ReceiptTbl::Rec * pRec)
@@ -227,11 +273,14 @@ int ReceiptCore::GetCurrentGoodsPrice(PPID goodsID, PPID locID, uint flags, doub
 int ReceiptCore::GetGoodsPrice(PPID goodsID, PPID locID, LDATE date, uint flags, double * pPrice, ReceiptTbl::Rec * pRec)
 	{ return Helper_GetCurrentGoodsPrice(goodsID, locID, date, flags, pPrice, pRec); }
 
+int ReceiptCore::GetCurrentGoodsPrice_ByLocList(PPID goodsID, const PPIDArray * pLocList, uint flags, double * pPrice, ReceiptTbl::Rec * pRec/*=0*/) // @v12.3.10
+	{ return Helper_GetCurrentGoodsPrice_ByLocList(goodsID, pLocList, MAXDATE, flags, pPrice, pRec); }
+
 int ReceiptCore::Helper_GetCurrentGoodsPrice(PPID goodsID, PPID locID, LDATE date, uint flags, double * pPrice, ReceiptTbl::Rec * pRec)
 {
 	int    r  = GPRET_NOLOTS;
 	PROFILE_START
-	int    use_mostrecent = BIN(flags & GPRET_MOSTRECENT);
+	bool   use_mostrecent = LOGIC(flags & GPRET_MOSTRECENT);
 	flags  &= ~GPRET_MOSTRECENT;
 	LDATE  dt = date;
 	long   o  = 0;
@@ -259,26 +308,99 @@ int ReceiptCore::Helper_GetCurrentGoodsPrice(PPID goodsID, PPID locID, LDATE dat
 				IgnoreGpretMostRecentFlags = (goods_obj.GetConfig().Flags & GCF_RETAILPRICEBYMOSTRECENTLOT) ? 0 : 1;
 			}
 			if(IgnoreGpretMostRecentFlags > 0)
-				use_mostrecent = 0;
+				use_mostrecent = false;
 		}
 		ReceiptTbl::Rec lot_rec;
 		if(use_mostrecent && GetLastLot(goodsID, locID, dt, &lot_rec) > 0)
 			r = lot_rec.Closed ? GPRET_CLOSEDLOTS : GPRET_PRESENT;
-		else if((r = GetLastOpenedLot(goodsID, locID, dt, &lot_rec)) > 0)
-			r = GPRET_PRESENT;
-		else if(!flags || (flags & (GPRET_OTHERLOC | GPRET_CLOSEDLOTS)))
-			if((r = GetLastLot(goodsID, locID, MAXDATE, &lot_rec)) > 0) {
-				if(locID == 0 && !lot_rec.Closed) {
-					if(!flags || (flags & GPRET_OTHERLOC))
+		else {
+			PPIDArray loc_list;
+			PPIDArray * p_loc_list = (loc_list.addnz(locID) > 0) ? &loc_list : 0;
+			if((r = GetLastOpenedLot(goodsID, p_loc_list, dt, &lot_rec)) > 0)
+				r = GPRET_PRESENT;
+			else if(!flags || (flags & (GPRET_OTHERLOC | GPRET_CLOSEDLOTS))) {
+				if((r = GetLastLot(goodsID, locID, MAXDATE, &lot_rec)) > 0) {
+					if(locID == 0 && !lot_rec.Closed) {
+						if(!flags || (flags & GPRET_OTHERLOC))
+							r = GPRET_OTHERLOC;
+					}
+					else if(!flags || (flags & GPRET_CLOSEDLOTS))
+						r = GPRET_CLOSEDLOTS;
+				}
+				else if(!flags || (flags & GPRET_OTHERLOC)) {
+					if((r = GetLastLot(goodsID, 0L, MAXDATE, &lot_rec)) > 0)
 						r = GPRET_OTHERLOC;
 				}
-				else if(!flags || (flags & GPRET_CLOSEDLOTS))
-					r = GPRET_CLOSEDLOTS;
 			}
-			else if(!flags || (flags & GPRET_OTHERLOC)) {
-				if((r = GetLastLot(goodsID, 0L, MAXDATE, &lot_rec)) > 0)
-					r = GPRET_OTHERLOC;
+		}
+		if(r > 0) {
+			ASSIGN_PTR(pPrice, R5(lot_rec.Price));
+			ASSIGN_PTR(pRec, lot_rec);
+		}
+		else {
+			memzero(pRec, sizeof(*pRec));
+			r = (r < 0) ? GPRET_NOLOTS : GPRET_ERROR;
+		}
+	}
+	PROFILE_END
+	return r;
+}
+
+int ReceiptCore::Helper_GetCurrentGoodsPrice_ByLocList(PPID goodsID, const PPIDArray * pLocList, LDATE date, uint flags, double * pPrice, ReceiptTbl::Rec * pRec) // @v12.3.10
+{
+	int    r  = GPRET_NOLOTS;
+	PROFILE_START
+	bool   use_mostrecent = LOGIC(flags & GPRET_MOSTRECENT);
+	flags  &= ~GPRET_MOSTRECENT;
+	LDATE  dt = date;
+	long   o  = 0;
+	ASSIGN_PTR(pPrice, 0.0);
+	if(flags & GPRET_FORCELOTID) {
+		if(pRec && pRec->ID) {
+			ReceiptTbl::Rec lot_rec;
+			if(Search(pRec->ID, &lot_rec) > 0) {
+				if(labs(lot_rec.GoodsID) == labs(goodsID)) {
+					if(!pLocList || pLocList->lsearch(lot_rec.LocID) || flags & GPRET_OTHERLOC) {
+						if(lot_rec.Rest > 0.0 || flags & GPRET_CLOSEDLOTS) {
+							ASSIGN_PTR(pPrice, R5(lot_rec.Price));
+							ASSIGN_PTR(pRec, lot_rec);
+							r = GPRET_FORCELOTID;
+						}
+					}
+				}
 			}
+		}
+	}
+	if(r == GPRET_NOLOTS) {
+		if(use_mostrecent) {
+			if(IgnoreGpretMostRecentFlags < 0) {
+				PPObjGoods goods_obj;
+				IgnoreGpretMostRecentFlags = (goods_obj.GetConfig().Flags & GCF_RETAILPRICEBYMOSTRECENTLOT) ? 0 : 1;
+			}
+			if(IgnoreGpretMostRecentFlags > 0)
+				use_mostrecent = false;
+		}
+		ReceiptTbl::Rec lot_rec;
+		if(use_mostrecent && GetLastLot_ByLocList(goodsID, pLocList, dt, &lot_rec) > 0)
+			r = lot_rec.Closed ? GPRET_CLOSEDLOTS : GPRET_PRESENT;
+		else {
+			if((r = GetLastOpenedLot(goodsID, pLocList, dt, &lot_rec)) > 0)
+				r = GPRET_PRESENT;
+			else if(!flags || (flags & (GPRET_OTHERLOC | GPRET_CLOSEDLOTS))) {
+				if((r = GetLastLot_ByLocList(goodsID, pLocList, MAXDATE, &lot_rec)) > 0) {
+					if(pLocList == 0 && !lot_rec.Closed) {
+						if(!flags || (flags & GPRET_OTHERLOC))
+							r = GPRET_OTHERLOC;
+					}
+					else if(!flags || (flags & GPRET_CLOSEDLOTS))
+						r = GPRET_CLOSEDLOTS;
+				}
+				else if(!flags || (flags & GPRET_OTHERLOC)) {
+					if((r = GetLastLot_ByLocList(goodsID, 0, MAXDATE, &lot_rec)) > 0)
+						r = GPRET_OTHERLOC;
+				}
+			}
+		}
 		if(r > 0) {
 			ASSIGN_PTR(pPrice, R5(lot_rec.Price));
 			ASSIGN_PTR(pRec, lot_rec);
@@ -598,14 +720,15 @@ int ReceiptCore::GetFirstLot(PPID goodsID, PPID locID, ReceiptTbl::Rec * pLotRec
 	return ok;
 }
 
-int ReceiptCore::EnumLots(PPID goods, PPID loc, DateIter * iter, void * b)
+int ReceiptCore::EnumLots(PPID goods, PPID locID, DateIter * pIter, void * b)
 {
-	int    r = _SearchLot(0, goods, loc, iter->dt, iter->oprno, spGt);
-	if(r > 0 && !data.Closed && data.GoodsID == goods && data.LocID == loc && iter->Advance(data.Dt, data.OprNo) > 0) {
+	int    r = _SearchLot(0, goods, locID, pIter->dt, pIter->oprno, spGt);
+	if(r > 0 && !data.Closed && data.GoodsID == goods && data.LocID == locID && pIter->Advance(data.Dt, data.OprNo) > 0) {
 		copyBufTo(b);
 		return 1;
 	}
-	return r ? -1 : 0;
+	else
+		return r ? -1 : 0;
 }
 
 int ReceiptCore::EnumByGoods(PPID goodsID, DateIter * pIter, ReceiptTbl::Rec * pRec)

@@ -7166,6 +7166,24 @@ struct DlGoodsBillBaseBlock {
 		VatSum_OldPrice = 0.0;
 		VatSum_NewPrice = 0.0;
 	}
+	bool   IsStockExhausted() 
+	{
+		bool   result = false;
+		if(P_Pack) {
+			const PPTransferItem & r_ti = Iter.GetTi();
+			const int sign = r_ti.GetSign(P_Pack->Rec.OpID);
+			if(sign == TISIGN_MINUS) {
+				GoodsRestParam gp;
+				gp.GoodsID = labs(r_ti.GoodsID);
+				gp.Date = P_Pack->Rec.Dt;
+				gp.LocID = P_Pack->Rec.LocID;
+				BillObj->trfr->GetRest(gp);
+				if(gp.Total.Rest <= 0.0)
+					result = true;
+			}
+		}
+		return result;
+	}
 	PPBillPacket * P_Pack; // @notowned
 	TiIter Iter;
 	PPBillPacket::TiItemExt Item; // Последняя сканированная итератором строка (используется функциями)
@@ -7671,6 +7689,7 @@ void PPALDD_GoodsBillBase::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, Rtm
 	#define _ARG_STR(n)  (**static_cast<const SString **>(rS.GetPtr(pApl->Get(n))))
 	#define _RET_DBL     (*static_cast<double *>(rS.GetPtr(pApl->Get(0))))
 	#define _RET_INT     (*static_cast<int *>(rS.GetPtr(pApl->Get(0))))
+	PPObjBill * p_bobj = BillObj;
 	DlGoodsBillBaseBlock * p_extra = static_cast<DlGoodsBillBaseBlock *>(Extra[0].Ptr);
 	PPBillPacket * p_pack = p_extra ? p_extra->P_Pack : 0;
 	if(pF->Name == "?CalcInSaldo") {
@@ -7678,7 +7697,6 @@ void PPALDD_GoodsBillBase::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, Rtm
 		if(p_pack) {
 			const  PPID goods_id = _ARG_INT(1);
 			if(H.ObjectID && goods_id) {
-				PPObjBill * p_bobj = BillObj;
 				PPTransferItem * p_ti;
 				long   oprno = 0;
 				double qtty = 0.0;
@@ -7701,8 +7719,20 @@ void PPALDD_GoodsBillBase::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, Rtm
 	else if(pF->Name == "?UnlimGoodsOnly") {
 		_RET_INT = BIN(p_pack && p_pack->ProcessFlags & PPBillPacket::pfAllGoodsUnlim);
 	}
+	else if(pF->Name == "?GetClientDebt") { // @v12.3.10
+		double result = 0.0;
+		if(p_pack && p_pack->Rec.Object) {
+			PPObjBill::DebtBlock blk;
+			p_bobj->CalcClientDebt(p_pack->Rec.Object, 0, 0, blk);
+			result = blk.Debt;
+		}
+		_RET_DBL = result;
+	}
 	else if(pF->Name == "?GetRowAmount") { // iterator
 		_RET_DBL = p_extra ? p_extra->GetValueBySymb(_ARG_STR(1)) : 0.0;
+	}
+	else if(pF->Name == "?IsStockExhausted") { // @v12.3.10 iterator
+		_RET_INT = p_extra ? p_extra->IsStockExhausted() : 0;
 	}
 }
 //

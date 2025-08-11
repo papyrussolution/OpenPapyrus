@@ -628,16 +628,26 @@ long PPMsgLog::EnumMessages(long nmsg, void * buff, int16 bsize, int16 * rsize, 
 {
 	if((!nmsg && CurMsg > GetCount()) || nmsg > GetCount())
 		return 0;
-	CurMsg = NZOR(nmsg, (CurMsg+1));
-	if(CurMsg > AllCount)
-		return 0;
-	lseek(Stream, GetLogIdx(CurMsg-1).address, SEEK_SET);
-	_read(Stream, hsize, sizeof(int16));
-	int    len = (int)(GetLogIdx(CurMsg).address - GetLogIdx(CurMsg-1).address) - sizeof(int16);
-	*rsize = _read(Stream, buff, len > bsize ? bsize : len); // exception was here!
-	char * bb = static_cast<char *>(buff);
-	bb[((*rsize >= bsize) ? (*rsize - 1) : *rsize)] = 0;
-	return CurMsg;
+	else {
+		CurMsg = NZOR(nmsg, (CurMsg+1));
+		if(CurMsg > AllCount)
+			return 0;
+		else {
+			const PPLogIdx _idx0 = GetLogIdx(CurMsg);
+			const PPLogIdx _idx1 = GetLogIdx(CurMsg-1);
+			lseek(Stream, _idx1.address, SEEK_SET);
+			_read(Stream, hsize, sizeof(int16));
+			int    len = (int)(_idx0.address - _idx1.address) - sizeof(int16);
+			if(len > 0) {
+				*rsize = _read(Stream, buff, (len > bsize) ? bsize : len); // exception was here!
+				char * bb = static_cast<char *>(buff);
+				bb[((*rsize >= bsize) ? (*rsize - 1) : *rsize)] = 0;
+				return CurMsg;
+			}
+			else
+				return 0;
+		}
+	}
 }
 
 int PPMsgLog::SaveLogFile(const char * pFileName, long options)

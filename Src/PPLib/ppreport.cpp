@@ -129,6 +129,7 @@ PrnDlgAns & FASTCALL PrnDlgAns::Copy(const PrnDlgAns & rS)
 	Printer = rS.Printer;
 	EmailAddr = rS.EmailAddr;
 	ContextSymb = rS.ContextSymb;
+	ExpParam = rS.ExpParam; // @v12.3.10
 	TSCollection_Copy(Entries, rS.Entries);
 	ZDELETE(P_DevMode);
 	if(rS.P_DevMode) {
@@ -517,6 +518,255 @@ static const int row_band_types[] = { DETAIL_BODY, GROUP_HEAD, GROUP_FOOT };
 //
 //
 //
+int CrystalReportExportParam::LoadFromIniFile(const char * pReportName)
+{
+	Z();
+	int    ok = -1;
+	SString temp_buf;
+	SString fname;
+	PPGetFilePath(PPPATH_BIN, PPFILNAM_REPORT_INI, fname);
+	if(fileExists(fname)) {
+		int   r = 0;
+		int   int_val = 0;
+		const char * p_ext = 0;
+		SString param_symb;
+		SString left_buf, right_buf;
+		PPIniFile ini_file(fname);
+		PPIniFile::GetParamSymb(PPINIPARAM_REPORT_SILENT, param_symb);
+		if(ini_file.GetIntParam(pReportName, param_symb, &int_val) > 0) {
+			SETFLAG(Flags, fSilent, int_val == 1);
+		}
+		else if(ini_file.GetIntParam("default", param_symb, &int_val) > 0) {
+			SETFLAG(Flags, fSilent, int_val == 1);
+		}
+		//
+		{
+			bool   format_defined = false;
+			PPIniFile::GetParamSymb(PPINIPARAM_REPORT_FORMAT, param_symb);
+			if(ini_file.GetParam(pReportName, param_symb, temp_buf) > 0) {
+				format_defined = true;
+			}
+			else if(ini_file.GetParam("default", param_symb, temp_buf) > 0) {
+				format_defined = true;
+			}
+			if(format_defined) {
+				StringSet ss(',', temp_buf);
+				uint    ssp = 0;
+				if(ss.get(&ssp, temp_buf)) {
+					uint internal_param_no = 0;
+					if(temp_buf.IsEqiAscii("pdf")) {
+						Format = crexpfmtPdf;
+						p_ext = "pdf";
+						// no-params 
+						/*while(ss.get(&ssp, temp_buf)) {
+							internal_param_no++;
+							//
+						}*/
+					}
+					else if(temp_buf.IsEqiAscii("doc") || temp_buf.IsEqiAscii("wordwin") || temp_buf.IsEqiAscii("winword") || temp_buf.IsEqiAscii("word")) {
+						Format = crexpfmtWinWord;
+						p_ext = "doc";
+						// no-params 
+						/*while(ss.get(&ssp, temp_buf)) {
+							internal_param_no++;
+							//
+						}*/
+					}
+					else if(temp_buf.IsEqiAscii("rtf") || temp_buf.IsEqiAscii("RichTextFormat")) {
+						Format = crexpfmtRtf;
+						p_ext = "rtf";
+						// no-params 
+						/*while(ss.get(&ssp, temp_buf)) {
+							internal_param_no++;
+							//
+						}*/
+					}
+					else if(temp_buf.IsEqiAscii("xls")) {
+						Format = crexpfmtExcel;
+						p_ext = "xls";
+						while(ss.get(&ssp, temp_buf)) {
+							internal_param_no++;
+							if(temp_buf.Divide('=', left_buf, right_buf) > 0) {
+								right_buf.Strip().ToLower();
+								if(left_buf.IsEqiAscii("constcolumnwidth")) {
+									XlsConstColumnWidth = right_buf.ToLong();
+								}
+								else if(left_buf.IsEqiAscii("columnheadings")) {
+									if(oneof3(right_buf, "yes", "1", "true"))
+										Flags |= fXlsColumnHeadings;
+								}
+								else if(left_buf.IsEqiAscii("tabularformat")) {
+									if(oneof3(right_buf, "yes", "1", "true"))
+										Flags |= fXlsUseConstColumnWidth;
+								}
+								else if(left_buf.IsEqiAscii("pagebreak")) {
+									if(oneof3(right_buf, "yes", "1", "true"))
+										Flags |= fXlsCreatePgBrkForEachPage;
+								}
+								else if(left_buf.IsEqiAscii("datetostring")) {
+									if(oneof3(right_buf, "yes", "1", "true"))
+										Flags |= fXlsCvtDateToString;
+								}
+								else if(left_buf.IsEqiAscii("showgrid")) {
+									if(oneof3(right_buf, "yes", "1", "true"))
+										Flags |= fXlsShowGrid;
+								}
+							}
+							else if(left_buf.NotEmptyS()) {
+								if(left_buf.IsEqiAscii("columnheadings")) {
+									Flags |= fXlsColumnHeadings;
+								}
+								else if(left_buf.IsEqiAscii("tabularformat")) {
+									Flags |= fXlsUseConstColumnWidth;
+								}
+								else if(left_buf.IsEqiAscii("pagebreak")) {
+									Flags |= fXlsCreatePgBrkForEachPage;
+								}
+								else if(left_buf.IsEqiAscii("datetostring")) {
+									Flags |= fXlsCvtDateToString;
+								}
+								else if(left_buf.IsEqiAscii("showgrid")) {
+									Flags |= fXlsShowGrid;
+								}
+							}
+							//
+							/*
+								fXlsColumnHeadings         = 0x0008,
+								fXlsUseConstColumnWidth    = 0x0010,
+								fXlsTabularFormat          = 0x0020,
+								fXlsCreatePgBrkForEachPage = 0x0040,
+								fXlsCvtDateToString        = 0x0080,
+								fXlsShowGrid               = 0x0100,
+							*/ 
+						}
+					}
+					else if(temp_buf.IsEqiAscii("csv") || temp_buf.IsEqiAscii("CommaSeparated")) {
+						Format = crexpfmtCsv;
+						CsvFieldSeparator = ';';
+						p_ext = "csv";
+						while(ss.get(&ssp, temp_buf)) {
+							internal_param_no++;
+							if(temp_buf.Divide('=', left_buf, right_buf) > 0) {
+								right_buf.Strip().ToLower();
+								if(left_buf.IsEqiAscii("div")) {
+									if(oneof5(right_buf, ",", ";", "|", "\t", " ")) {
+										CsvFieldSeparator = right_buf.C(0);
+									}
+								}
+								else if(left_buf.IsEqiAscii("userepnumformat")) {
+									if(oneof3(right_buf, "yes", "1", "true"))
+										Flags |= fCsvUseReportNumberFormat;
+								}
+								else if(left_buf.IsEqiAscii("userepdateformat")) {
+									if(oneof3(right_buf, "yes", "1", "true"))
+										Flags |= fCsvUseReportDateFormat;
+								}
+								else if(left_buf.IsEqiAscii("quotetext")) {
+									if(oneof3(right_buf, "yes", "1", "true"))
+										Flags |= fCsvQuoteText;
+								}
+							}
+							else if(left_buf.NotEmptyS()) {
+								if(left_buf.IsEqiAscii("userepnumformat"))
+									Flags |= fCsvUseReportNumberFormat;
+								else if(left_buf.IsEqiAscii("userepdateformat"))
+									Flags |= fCsvUseReportDateFormat;
+								else if(left_buf.IsEqiAscii("quotetext"))
+									Flags |= fCsvQuoteText;
+							}
+						}
+					}
+					else if(temp_buf.IsEqiAscii("tsv") || temp_buf.IsEqiAscii("TabSeparated")) {
+						Format = crexpfmtCsv;
+						CsvFieldSeparator = '\t';
+						p_ext = "tsv";
+						while(ss.get(&ssp, temp_buf)) {
+							internal_param_no++;
+							if(temp_buf.Divide('=', left_buf, right_buf) > 0) {
+								right_buf.Strip().ToLower();
+								if(left_buf.IsEqiAscii("div")) {
+									if(oneof5(right_buf, ",", ";", "|", "\t", " ")) {
+										CsvFieldSeparator = right_buf.C(0);
+									}
+								}
+								else if(left_buf.IsEqiAscii("userepnumformat")) {
+									if(oneof3(right_buf, "yes", "1", "true"))
+										Flags |= fCsvUseReportNumberFormat;
+								}
+								else if(left_buf.IsEqiAscii("userepdateformat")) {
+									if(oneof3(right_buf, "yes", "1", "true"))
+										Flags |= fCsvUseReportDateFormat;
+								}
+								else if(left_buf.IsEqiAscii("quotetext")) {
+									if(oneof3(right_buf, "yes", "1", "true"))
+										Flags |= fCsvQuoteText;
+								}
+							}
+							else if(left_buf.NotEmptyS()) {
+								if(left_buf.IsEqiAscii("userepnumformat"))
+									Flags |= fCsvUseReportNumberFormat;
+								else if(left_buf.IsEqiAscii("userepdateformat"))
+									Flags |= fCsvUseReportDateFormat;
+								else if(left_buf.IsEqiAscii("quotetext"))
+									Flags |= fCsvQuoteText;
+							}
+						}
+					}
+					else
+						format_defined = false;
+				}
+			}
+		}
+		if(Format) {
+			// Destination=Disk,d:/temp/zajavka$$$.pdf
+			{
+				bool   destination_defined = false;
+				PPIniFile::GetParamSymb(PPINIPARAM_REPORT_DESTINATION, param_symb);
+				if(ini_file.GetParam(pReportName, param_symb, temp_buf) > 0) {
+					destination_defined = true;
+				}
+				else if(ini_file.GetParam("default", param_symb, temp_buf) > 0) {
+					destination_defined = true;
+				}
+				if(destination_defined) {
+					StringSet ss(',', temp_buf);
+					uint ssp = 0;
+					if(ss.get(&ssp, temp_buf)) { // тип назначения (файл или приложение)
+						//PPTXT_EXPORT_DESTTYPES                /!/ "Application;Disk;MAPI"
+						if(temp_buf.IsEqiAscii("application") || temp_buf.IsEqiAscii("app")) {
+							Destination = destApp;
+						}
+						else if(temp_buf.IsEqiAscii("disk") || temp_buf.IsEqiAscii("file")) {
+							Destination = destFile;
+						}
+						else {
+							Destination = destFile;
+						}
+						if(ss.get(&ssp, temp_buf)) { // имя файла назначения //
+							SString dir;
+							if(temp_buf.NotEmptyS()) {
+								if(SFile::IsDir(temp_buf.RmvLastSlash())) {
+									MakeTempFileName(dir = temp_buf, "exp", p_ext, 0, temp_buf);
+								}
+								else {
+									SFsPath::ReplaceExt(temp_buf, p_ext, 1);
+								}
+							}
+							else {
+								PPGetPath(PPPATH_OUT, dir);
+								MakeTempFileName(dir, "exp", p_ext, 0, temp_buf);
+							}
+							DestFileName = temp_buf;
+						}
+					}
+				}
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
 int LoadExportOptions(const char * pReportName, PEExportOptions * pOptions, bool * pSilent, SString & rPath)
 {
 	int    ok = 1;
@@ -527,20 +777,26 @@ int LoadExportOptions(const char * pReportName, PEExportOptions * pOptions, bool
 	MEMSZERO(options);
 	options.StructSize = sizeof(options);
 	if(fileExists(fname)) {
-		int    idx = -1, r = 0;
+		int    idx = -1;
+		int    r = 0;
 		uint   i = 0;
-		SString types, format, dest, buf;
+		SString types;
+		SString format;
+		SString dest;
+		SString buf;
 		SString param_symb;
 		PPIniFile ini_file(fname);
 		PPIniFile::GetParamSymb(PPINIPARAM_REPORT_SILENT, param_symb);
 		THROW(r = ini_file.GetIntParam(pReportName, param_symb, &silent));
-		if(r == -1)
+		if(r == -1) {
 			THROW(ini_file.GetIntParam("default", param_symb, &silent));
+		}
 		if(silent) {
 			PPIniFile::GetParamSymb(PPINIPARAM_REPORT_FORMAT, param_symb);
 			THROW(ini_file.GetParam(pReportName, param_symb, format));
-			if(!format.NotEmptyS())
+			if(!format.NotEmptyS()) {
 				THROW(ini_file.GetParam("default", param_symb, format));
+			}
 			PPLoadText(PPTXT_EXPORT_FORMATTYPES, types);
 			{
 				StringSet ss(',', format);
@@ -734,9 +990,47 @@ int LoadExportOptions(const char * pReportName, PEExportOptions * pOptions, bool
 	return ok;
 }
 
+/*static*/bool CrystalReportExportParam::GetFormatDll(uint format, SString & rDllModuleName)
+{
+//PPTXT_EXPORT_FORMATDLL32              /!/ "u2fwordw;u2frtf;u2fsepv;u2fsepv;u2fsepv;u2ftext;u2fxls;u2fpdf"
+//PPTXT_EXPORT_DESTDLL32                /!/ "u2dapp;u2ddisk;u2dmapi"
+	rDllModuleName.Z();
+	switch(format) {
+		case crexpfmtPdf: rDllModuleName = "u2fpdf"; break;
+		case crexpfmtRtf: rDllModuleName = "u2frtf"; break;
+		case crexpfmtHtml: rDllModuleName = "u2fhtml"; break;
+		case crexpfmtExcel: rDllModuleName = "u2fxls"; break;
+		case crexpfmtWinWord: rDllModuleName = "u2fwordw"; break;
+		case crexpfmtCsv: rDllModuleName = "u2fsepv"; break;
+	}
+	return rDllModuleName.NotEmpty();
+}
+
+/*static*/bool CrystalReportExportParam::GetDestDll(uint dest, SString & rDllModuleName)
+{
+	rDllModuleName.Z();
+	switch(dest) {
+		case destApp: rDllModuleName = "u2dapp"; break;
+		case destFile: rDllModuleName = "u2ddisk"; break;
+	}
+	return rDllModuleName.NotEmpty();
+}
+
 CrystalReportExportParam::CrystalReportExportParam() : Flags(0), Format(0), Destination(0), XlsConstColumnWidth(0), XlsBaseAreaType(0), 
 	XlsBaseAreaGroupNum(0), CsvFieldSeparator(0)
 {
+}
+
+CrystalReportExportParam::CrystalReportExportParam(const CrystalReportExportParam & rS) : Flags(rS.Flags), Format(rS.Format), 
+	Destination(rS.Destination), XlsConstColumnWidth(rS.XlsConstColumnWidth), XlsBaseAreaType(rS.XlsBaseAreaType), 
+	XlsBaseAreaGroupNum(rS.XlsBaseAreaGroupNum), CsvFieldSeparator(rS.CsvFieldSeparator)
+{
+}
+
+CrystalReportExportParam & FASTCALL CrystalReportExportParam::operator = (const CrystalReportExportParam & rS)
+{
+	Copy(rS);
+	return *this;
 }
 	
 CrystalReportExportParam & FASTCALL CrystalReportExportParam::Z()
@@ -1172,6 +1466,11 @@ public:
 		}
 		else
 			getCtrlString(CTL_PRINT2_MAKEDATAPATH, Data.PrepareDataPath);
+		// @v12.3.10 {
+		if(Data.Dest == PrnDlgAns::aExport) {
+			Data.ExpParam.Format = static_cast<uint>(getCtrlLong(CTLSEL_PRINT2_EXPFMT));
+		}
+		// } @v12.3.10 
 		GetClusterData(CTL_PRINT2_DUPLEX, &Data.Flags);
 		long   sel_id = getCtrlLong(CTLSEL_PRINT2_PRINTER);
 		Data.Printer = (sel_id && sel_id <= PrnList.getCountI()) ? PrnList.at(sel_id-1).PrinterName : 0;
@@ -1190,6 +1489,30 @@ private:
 		if(event.isCbSelected(CTLSEL_PRINT2_REPORT) || event.isClusterClk(CTL_PRINT2_ACTION)) {
 			SetupReportEntry();
 			clearEvent(event);
+		}
+		else if(event.isCbSelected(CTLSEL_PRINT2_EXPFMT)) { // @v12.3.10
+			Data.ExpParam.Format = static_cast<uint>(getCtrlLong(CTLSEL_PRINT2_EXPFMT));
+			enableCommand(cmPrintExportParam, Data.Dest == PrnDlgAns::aExport && Data.ExpParam.Format); 
+		}
+		else if(event.isCmd(cmPrintExportParam)) {
+			Data.ExpParam.Format = static_cast<uint>(getCtrlLong(CTLSEL_PRINT2_EXPFMT));
+			uint   dlg_id = 0;
+			switch(Data.ExpParam.Format) {
+				case CrystalReportExportParam::crexpfmtPdf: dlg_id = DLG_CRREXPPARAM_PDF; break;
+				case CrystalReportExportParam::crexpfmtRtf: dlg_id = DLG_CRREXPPARAM_RTF; break;
+				case CrystalReportExportParam::crexpfmtHtml: dlg_id = DLG_CRREXPPARAM_HTML; break;
+				case CrystalReportExportParam::crexpfmtExcel: dlg_id = DLG_CRREXPPARAM_EXCEL; break;
+				case CrystalReportExportParam::crexpfmtWinWord: dlg_id = DLG_CRREXPPARAM_WINWORD; break;
+				case CrystalReportExportParam::crexpfmtCsv: dlg_id = DLG_CRREXPPARAM_CSV; break;
+			}
+			if(dlg_id) {
+				TDialog * dlg = new TDialog(dlg_id);
+				SetIntRangeInput(dlg, CTL_CRREXPPARAM_PGRANGE, &Data.ExpParam.PageRange);
+				if(ExecView(dlg) == cmOK) {
+					;
+				}
+				delete dlg;
+			}
 		}
 		// @erik v10.4.10 {
 		else if(event.isCmd(cmPrntCfg)) {
@@ -1264,6 +1587,7 @@ private:
 			disableCtrl(CTL_PRINT2_MAKEDATAPATH, true);
 		}
 		disableCtrl(CTLSEL_PRINT2_EXPFMT, Data.Dest != PrnDlgAns::aExport); // @v12.3.9
+		enableCommand(cmPrintExportParam, Data.Dest == PrnDlgAns::aExport && Data.ExpParam.Format); // @v12.3.10
 		disableCtrl(CTL_PRINT2_DOMAIL, !enable_email);
 		SetupWordSelector(CTL_PRINT2_MAKEDATAPATH, (enable_email ? new TextHistorySelExtra("email-common") : 0), 0, 2, WordSel_ExtraBlock::fFreeText);
 		setCtrlString(CTL_PRINT2_MAKEDATAPATH, path);
@@ -1967,19 +2291,16 @@ int CrystalReportPrint2(const CrystalReportPrintParamBlock & rBlk, CrystalReport
 int CrystalReportPrint(const char * pReportPath, const char * pDir, const char * pPrinter, int numCopies, int options, const DEVMODEA * pDevMode) // @erik v10.4.10 {
 {
 	// __@erik v10.4.10 {
-	//char   printer_tmp[128];
 	SString inner_printer_buf;
 	const char * p_inner_printer = 0;
 	if(pDevMode) {
 		inner_printer_buf = reinterpret_cast<const char *>(pDevMode->dmDeviceName);
 		if(inner_printer_buf.NotEmptyS())
 			p_inner_printer = inner_printer_buf;
-		//STRNSCPY(printer_tmp, reinterpret_cast<const char *>(pDevMode->dmDeviceName));
 		numCopies = (pDevMode->dmCopies > 0 && pDevMode->dmCopies <= 1000) ? pDevMode->dmCopies : 1;
 	}
 	else {
 		p_inner_printer = pPrinter;
-		//STRNSCPY(printer_tmp, pPrinter);
 	}
 	// } __@erik v10.4.10
 	int    ok = 1;
@@ -2627,8 +2948,8 @@ static int FASTCALL __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPRe
 {
 	MemLeakTracer mlt;
 	int    ok = 1;
-	int    inherited_tbl_names = 0;
-	int    diffidbyscope = 0;
+	bool   inherited_tbl_names = false;
+	bool   diffidbyscope = false;
 	DlRtm   * p_rtm = 0;
 	SString data_name, fn;
 	SString printer_name;
@@ -2657,7 +2978,7 @@ static int FASTCALL __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPRe
 				fn = p_entry->ReportPath_;
 				data_name = p_entry->DataName_;
 				rpt.PrnDest = (pEnv->PrnFlags & SReport::XmlExport) ? PrnDlgAns::aExportXML : PrnDlgAns::aPrint;
-				diffidbyscope = BIN(p_entry->Flags & ReportDescrEntry::fDiff_ID_ByScope);
+				diffidbyscope = LOGIC(p_entry->Flags & ReportDescrEntry::fDiff_ID_ByScope);
 			}
 		}
 		else
@@ -2672,8 +2993,8 @@ static int FASTCALL __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPRe
 				// @v11.2.8 fn = p_sel_entry->ReportPath_;
 				SFsPath::NormalizePath(p_sel_entry->ReportPath_, SFsPath::npfCompensateDotDot, fn); // @v11.2.8 
 				data_name     = p_sel_entry->DataName_;
-				inherited_tbl_names = BIN(p_sel_entry->Flags & ReportDescrEntry::fInheritedTblNames);
-				diffidbyscope = BIN(p_sel_entry->Flags & ReportDescrEntry::fDiff_ID_ByScope);
+				inherited_tbl_names = LOGIC(p_sel_entry->Flags & ReportDescrEntry::fInheritedTblNames);
+				diffidbyscope = LOGIC(p_sel_entry->Flags & ReportDescrEntry::fDiff_ID_ByScope);
 				rpt.PrnDest   = pans.Dest;
 				printer_name  = pans.Printer;
 				SETFLAG(rpt.PrnOptions, SPRN_USEDUPLEXPRINTING, BIN(pans.Flags & PrnDlgAns::fUseDuplexPrinting));
@@ -2802,6 +3123,7 @@ static int FASTCALL __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPRe
 					req.Printer = printer_name;
 					if(rpt.PrnDest == PrnDlgAns::aExport) {
 						req.Action = CrystalReportPrintParamBlock::actionExport;
+						req.ExpParam = pans.ExpParam;
 						if(pans.Flags & pans.fEMail && pans.EmailAddr.NotEmptyS())
 							req.EmailAddr =  pans.EmailAddr;
 					}
@@ -2821,7 +3143,7 @@ static int FASTCALL __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPRe
 					ok = CrystalReportPrint2(req, rep);
 				}
 				else {
-					switch(rpt.PrnDest) { //@erik v10.4.10
+					switch(rpt.PrnDest) { // @erik v10.4.10
 						case PrnDlgAns::aExportXML:
 						case PrnDlgAns::aExportTDDO:
 						case PrnDlgAns::aPrepareData:

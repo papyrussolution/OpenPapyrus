@@ -2310,6 +2310,10 @@ data GoodsBillBase {
 	//   (как правило, услугами).
 	//
 	int    UnlimGoodsOnly();
+	//
+	// Descr: ¬озвращает текущий долг клиента (если данный документ долговой, то он тоже включен в сумму долга).
+	//
+	double GetClientDebt(); // @v12.3.10
 
 	iteration {
 		long   nn;                      // ѕор€дковый номер строки.
@@ -2364,7 +2368,12 @@ data GoodsBillBase {
 		//   "pricevat"
 		//   "pricevatsum"
 		//
-		double GetRowAmount(string amtSymb[32]); // @v10.3.6 @construction
+		double GetRowAmount(string amtSymb[32]);
+		//
+		// Descr: ¬озвращает !0 если после отгрузки этой накладной остаток товара обнул€етс€ (то есть, мы забрали последние остатки товара этим документом).
+		//   ≈сли текуща€ строка документа не €вл€етс€ расходной, то функци€ автоматически возвращает 0.
+		//
+		int    IsStockExhausted(); // @v12.3.10
 	}
 }
 //

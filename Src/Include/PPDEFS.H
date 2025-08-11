@@ -11856,6 +11856,7 @@
 	#define CTL_CRREXPPARAM_PGRANGE             (5 + WINDOWS_ID_BIAS)
 	#define CTL_CRREXPPARAM_CSVFS               (6 + WINDOWS_ID_BIAS)
 	#define CTL_CRREXPPARAM_FLAGS               (7 + WINDOWS_ID_BIAS) // Набор флагов, зависящий от формата данных
+	#define CTL_CRREXPPARAM_XLSCONSTCOLWD       (8 + WINDOWS_ID_BIAS)
 //
 // Win32 Dialog Identifiers
 //

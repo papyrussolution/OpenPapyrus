@@ -611,9 +611,11 @@ int SIniFile::SearchParam(const char * pSect, const char * pParam, SString & rVa
 		ok = (P_IniBuf->GetParam(pSect, pParam, rVal) > 0) ? 1 : -1;
 	else {
 		int    this_sect = 0;
+		SString temp_buf;
 		SString sect(pSect);
 		SString key(pParam);
-		SString line_buf, temp_buf, val;
+		SString line_buf;
+		SString val;
 		const int opnr = Open(FileName);
 		THROW(opnr);
 		do_close_file = BIN(opnr > 0);

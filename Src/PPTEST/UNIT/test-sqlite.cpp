@@ -18,6 +18,8 @@ SLTEST_R(SQLite)
 		THROW(SLCHECK_NZ(dbp.Login(&dblb, 0)));
 	}
 	{
+		int efer = dbp.IsFileExists_("TestTa01");
+
 		// Создать таблицу
 		DBTable dbt;
 		if(dbp.LoadTableSpec(&dbt, "TestTa01", "TestTa01", /*createIfNExists*/0)) {

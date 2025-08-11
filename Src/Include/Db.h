@@ -927,6 +927,7 @@ int btrnfound__();
 #define BE_BDB_INVALID_TABLE               9002 // Внутренняя ошибка: объект таблицы BDB разрушен
 #define BE_BDB_INVALID_CURSOR              9003 // Внутренняя ошибка: объект курсора BDB разрушен
 #define BE_BDB_NOMEM                       9004 // Ошибка BerkeleyDB: недостаточно памяти.
+#define BE_SQLITE_TEXT                     9005 // @v12.3.10 Ошибка SQLITE. Текст сообщения заносится в DBS.AddedMsgString
 //
 // Коды ошибок, формируемые модулем интерфейса с BerkeleyDB
 //
@@ -1461,7 +1462,13 @@ public:
 	// Note: Должна вызываться перед BindData()
 	//
 	int    BindRowId(int pos, uint count, DBRowId * pDataBuf);
+	//
+	// ARG(dir IN): >0 - данные считываются из запроса, <0 - данные передаются в запрос для изменения в базе данных
+	//
 	int    BindData(int dir, uint count, const BNFieldList & rFldList, const void * pDataBuf, DBLobBlock *);
+	//
+	// ARG(dir IN): >0 - данные считываются из запроса, <0 - данные передаются в запрос для изменения в базе данных
+	//
 	int    BindData(int dir, uint count, const DBFieldList & rFldList, const void * pDataBuf, DBLobBlock *);
 	int    BindKey(const BNKeyList & rKeyList, int idxN, const void * pDataBuf);
 	//
@@ -2945,7 +2952,7 @@ public:
 private:
 	int    FASTCALL ProcessError(int status);
 	static sqlite3_stmt * FASTCALL StmtHandle(const SSqlStmt & rS);
-	int    GetFileStat(const char * pFileName, long reqItems, DbTableStat * pStat);
+	int    GetFileStat(const char * pFileName/*регистр символов важен!*/, long reqItems, DbTableStat * pStat);
 	int    ProcessBinding_SimpleType(int action, uint count, SSqlStmt * pStmt, SSqlStmt::Bind * pBind, uint ntvType);
 	long   Flags;
 	void * H;

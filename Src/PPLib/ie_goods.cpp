@@ -1100,22 +1100,30 @@ int PPGoodsExporter::ExportPacket(PPGoodsPacket * pPack, const char * pBarcode, 
 		{
 			PPObjBill * p_bobj = BillObj;
 			ReceiptTbl::Rec rcpt_rec;
+			PPIDArray loc_list;
+			PPIDArray * p_loc_list = 0;
+			if(Param.LocID) {
+				loc_list.addnz(Param.LocID);
+				p_loc_list = &loc_list;
+			}
+			else if(pFilt && pFilt->LocList.GetCount()) {
+				pFilt->LocList.Get(loc_list);
+				p_loc_list = &loc_list;
+			}
+			else
+				p_loc_list = 0;
 			{
 				GoodsRestParam rp;
 				rp.GoodsID = pPack->Rec.ID;
-				if(Param.LocID)
-					rp.LocList.addnz(Param.LocID);
-				// @v12.3.10 {
-				else if(pFilt && pFilt->LocList.GetCount()) {
-					pFilt->LocList.Get(rp.LocList);
-				}
-				// } @v12.3.10 
+				if(p_loc_list)
+					rp.LocList = *p_loc_list;
 				p_bobj->trfr->GetCurRest(rp);
 				sdr_goods.Rest = rp.Total.Rest;
 			}
 			double price_by_open_lot = 0.0;
-			::GetCurGoodsPrice(pPack->Rec.ID, Param.LocID, 0/*flags*/, &price_by_open_lot, 0);
-			if(p_bobj->trfr->Rcpt.GetLastLot(pPack->Rec.ID, Param.LocID, MAXDATE, &rcpt_rec) > 0) {
+			p_bobj->trfr->Rcpt.ReceiptCore::GetCurrentGoodsPrice_ByLocList(pPack->Rec.ID, p_loc_list, 0/*flags*/, &price_by_open_lot, 0); // @v12.3.10 
+			// @v12.3.10 ::GetCurGoodsPrice(pPack->Rec.ID, Param.LocID, 0/*flags*/, &price_by_open_lot, 0);
+			if(p_bobj->trfr->Rcpt.GetLastLot_ByLocList(pPack->Rec.ID, p_loc_list, MAXDATE, &rcpt_rec) > 0) {
 				QualityCertTbl::Rec qcert_rec;
 				sdr_goods.Price = rcpt_rec.Price;
 				sdr_goods.Cost  = rcpt_rec.Cost;

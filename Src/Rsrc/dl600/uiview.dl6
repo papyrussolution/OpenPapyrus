@@ -610,6 +610,74 @@ dialog DLG_WBGOODSLISTDETAIL [vertical title: "" size: (600, 600) font: "MS Shel
 	}
 }
 
+dialog DLG_CRREXPPARAM_PDF [vertical size: (400, 200) title: "@printrpt_exportparams" font: "MS Shell Dlg 2,8"] { // @construction
+	input CTL_CRREXPPARAM_FILE [width: bycontainer height: 21 margin: 4 tabstop label: "@printrpt_exportparams_filename"] string[252] supplement filebrowsebutton(CTLBRW_CRREXPPARAM_FILE);	
+	input CTL_CRREXPPARAM_PGRANGE [design: B width: 100 height: 21 margin: 4 tabstop label: "@printrpt_exportparams_pagerange"] string[32];
+	view [horizontal width: bycontainer growfactor: 1 margin_right: 12 gravity: right justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 defaultitem command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}	
+}
+
+dialog DLG_CRREXPPARAM_RTF [vertical size: (400, 200) title: "@printrpt_exportparams" font: "MS Shell Dlg 2,8"] { // @construction
+	input CTL_CRREXPPARAM_FILE [width: bycontainer height: 21 margin: 4 tabstop] string[252] supplement filebrowsebutton(CTLBRW_CRREXPPARAM_FILE);
+	input CTL_CRREXPPARAM_PGRANGE [design: B width: 100 height: 21 margin: 4 tabstop label: "@printrpt_exportparams_pagerange"] string[32];
+	view [horizontal width: bycontainer growfactor: 1 margin_right: 12 gravity: right justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 defaultitem command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}	
+}
+
+dialog DLG_CRREXPPARAM_HTML [vertical size: (400, 200) title: "@printrpt_exportparams" font: "MS Shell Dlg 2,8"] { // @construction
+	input CTL_CRREXPPARAM_FILE [width: bycontainer height: 21 margin: 4 tabstop] string[252] supplement filebrowsebutton(CTLBRW_CRREXPPARAM_FILE);
+	input CTL_CRREXPPARAM_PGRANGE [design: B width: 100 height: 21 margin: 4 tabstop label: "@printrpt_exportparams_pagerange"] string[32];
+	view [horizontal width: bycontainer growfactor: 1 margin_right: 12 gravity: right justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 defaultitem command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}	
+}
+
+dialog DLG_CRREXPPARAM_EXCEL [vertical size: (400, 300) title: "@printrpt_exportparams" font: "MS Shell Dlg 2,8"] { // @construction
+	input CTL_CRREXPPARAM_FILE [width: bycontainer height: 21 margin: 4 tabstop] string[252] supplement filebrowsebutton(CTLBRW_CRREXPPARAM_FILE);	
+	input CTL_CRREXPPARAM_PGRANGE [design: B width: 100 height: 21 margin: 4 tabstop label: "@printrpt_exportparams_pagerange"] string[32];
+	checkcluster CTL_CRREXPPARAM_FLAGS [vertical width: bycontainer margin: 4] {
+		checkbox [title: "@printrpt_exportparams_xlsf_tabfmt" height: 16 margin: 4];
+		checkbox [title: "@printrpt_exportparams_xlsf_colheadings" height: 16 margin: 4];
+		checkbox [title: "@printrpt_exportparams_xlsf_crpgbrforeachpg" height: 16 margin: 4];
+		checkbox [title: "@printrpt_exportparams_xlsf_cvtdatetostr" height: 16 margin: 4];
+		checkbox [title: "@printrpt_exportparams_xlsf_showgrid" height: 16 margin: 4];
+	}
+	input CTL_CRREXPPARAM_XLSCONSTCOLWD [design: B width: 60 height: 21 margin: 4 tabstop label: "@printrpt_exportparams_xls_constcolwidth"] uint;
+	view [horizontal width: bycontainer growfactor: 1 margin_right: 12 gravity: right justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 defaultitem command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}	
+}
+
+dialog DLG_CRREXPPARAM_WINWORD [vertical size: (400, 200) title: "@printrpt_exportparams" font: "MS Shell Dlg 2,8"] { // @construction
+	input CTL_CRREXPPARAM_FILE [width: bycontainer height: 21 margin: 4 tabstop] string[252] supplement filebrowsebutton(CTLBRW_CRREXPPARAM_FILE);	
+	input CTL_CRREXPPARAM_PGRANGE [design: B width: 100 height: 21 margin: 4 tabstop label: "@printrpt_exportparams_pagerange"] string[32];
+	view [horizontal width: bycontainer growfactor: 1 margin_right: 12 gravity: right justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 defaultitem command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}	
+}
+
+dialog DLG_CRREXPPARAM_CSV [vertical size: (400, 300) title: "@printrpt_exportparams" font: "MS Shell Dlg 2,8"] { // @construction
+	input CTL_CRREXPPARAM_FILE [width: bycontainer height: 21 margin: 4 tabstop] string[252] supplement filebrowsebutton(CTLBRW_CRREXPPARAM_FILE);	
+	input CTL_CRREXPPARAM_PGRANGE [design: B width: 100 height: 21 margin: 4 tabstop label: "@printrpt_exportparams_pagerange"] string[32];
+	input CTL_CRREXPPARAM_CSVFS [design: B width: 60 height: 21 margin: 4 tabstop label: "@printrpt_exportparams_csv_fldsep"] string[16];
+	checkcluster CTL_CRREXPPARAM_FLAGS [vertical width: bycontainer margin: 4] {
+		checkbox [title: "@printrpt_exportparams_csvf_repnumfmt" height: 16 margin: 4];
+		checkbox [title: "@printrpt_exportparams_csvf_repdatfmt" height: 16 margin: 4];
+		checkbox [title: "@printrpt_exportparams_csvf_quotetext" height: 16 margin: 4];
+	}
+	view [horizontal width: bycontainer growfactor: 1 margin_right: 12 gravity: right justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 defaultitem command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}	
+}
+
 dialog DLG_PRINT2 [vertical title: "@printrpt" size: (615, 470) minsize: (613, 470) font: "MS Shell Dlg 2,8"] {
 	framebox [vertical width: bycontainer(100) height: 180 margin: 4 padding: 4 justifycontent: spaceevenly alignitems: center] {	
 		view [horizontal width: bycontainer growfactor: 1] {
@@ -629,7 +697,8 @@ dialog DLG_PRINT2 [vertical title: "@printrpt" size: (615, 470) minsize: (613, 4
 		input CTL_PRINT2_MAKEDATAPATH [width: bycontainer height: 21 margin: 4 tabstop] string[252];
 	}
 	framebox [horizontal width: bycontainer(100) height: 48 margin: 4 padding: 4 justifycontent: start alignitems: center] {	
-		combobox CTLSEL_PRINT2_EXPFMT [tabstop width: bycontainer(40) height: 21 margin: 4 label: "@printrpt_exportformat" labelsize: (0, 13) cblinesymb: CTL_PRINT2_EXPFMT ];		
+		combobox CTLSEL_PRINT2_EXPFMT [tabstop width: bycontainer(40) height: 21 margin: 4 label: "@printrpt_exportformat" labelsize: (0, 13) cblinesymb: CTL_PRINT2_EXPFMT ];
+		button CTL_CMD_EXPORTPARAMS [title: "@{printrpt_exportparams}..." tabstop size: (150, 21) margin: (4, 10, 4, 4) command: cmPrintExportParam];
 	}
 	combobox CTLSEL_PRINT2_REPORT [tabstop width: bycontainer height: 21 margin: 4 label: "@printrpt_selection" labelsize: (0, 13) cblinesymb: CTL_PRINT2_REPORT];
 	statictext CTL_PRINT2_ST_FILENAME [title: "Report File Name" width: bycontainer height: 16 margin: 4 staticedge];

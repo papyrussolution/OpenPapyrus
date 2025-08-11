@@ -126,9 +126,20 @@ private:
 //   Нужны для того, чтобы заменить интерактивные функции Crystal Reports в рамках перевода системы на arch-x64
 //
 struct CrystalReportExportParam { // @v12.3.7
+	//
+	// Descr: Возвращает имя dll-модуля, отвечающего за вывод в формате format
+	//
+	static bool GetFormatDll(uint format, SString & rDllModuleName);
+	//
+	// Descr: Возвращает имя dll-модуля, отвечающего за вывод результат в виде, определенном аргументом dest (destApp || destFile)
+	//
+	static bool GetDestDll(uint dest, SString & rDllModuleName);
 	CrystalReportExportParam();
+	CrystalReportExportParam(const CrystalReportExportParam & rS);
+	CrystalReportExportParam & FASTCALL operator = (const CrystalReportExportParam & rS);
 	CrystalReportExportParam & FASTCALL Z();
 	bool   FASTCALL Copy(const CrystalReportExportParam & rS);
+	int    LoadFromIniFile(const char * pReportName);
 
 	enum {
 		crexpfmtPdf     = SFileFormat::Pdf,     // (UXFPdfType) params: page-range
@@ -155,6 +166,7 @@ struct CrystalReportExportParam { // @v12.3.7
 		fCsvUseReportNumberFormat  = 0x0200,
 		fCsvUseReportDateFormat    = 0x0400, 
 		fCsvQuoteText              = 0x0800,
+		fSilent                    = 0x1000  // Не интерактивный режим
 	};
 	uint    Flags;
 	uint    Format;
@@ -449,6 +461,7 @@ public:
 	SString EmailAddr;   // for Action == actionExport
 	SString Dir;
 	SString Printer;
+	CrystalReportExportParam ExpParam; // @v12.3.10
 };
 
 class CrystalReportPrintReply {

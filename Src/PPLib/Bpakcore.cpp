@@ -5055,12 +5055,13 @@ int TiIter::Init(const PPBillPacket * pPack, long flags, long filtGrpID, Order o
 {
 	Flags = flags;
 	Flags &= ~ETIEF_LABELQUOTPRICE; // internal flag
+	Ti.Init(0); // @v12.3.10
 	I = PckgI = PckgItemI = 0;
 	FiltGrpID = filtGrpID;
-	Seen.freeAll();
-	Index.freeAll();
-	SaldoList.freeAll();
-	DispList.freeAll();
+	Seen.clear();
+	Index.clear();
+	SaldoList.clear();
+	DispList.clear();
 	UseIndex = 0;
 	int    ok = -1;
 	PPObjBill * p_bobj = BillObj;
@@ -5194,7 +5195,8 @@ int PPBillPacket::GetNextPLU(TiIter * pI, long * pPLU, SString & rObjAsscName)
 
 int PPBillPacket::EnumTItemsExt(TiIter * pI, PPTransferItem * pTI, TiItemExt * pExt)
 {
-	PPTransferItem ti, * p_ti;
+	PPTransferItem ti;
+	PPTransferItem * p_ti = 0;
 	TiIter * p_i = NZOR(pI, P_Iter);
 	CALLPTRMEMB(pExt, Clear());
 	if(p_i) {
@@ -5206,6 +5208,7 @@ int PPBillPacket::EnumTItemsExt(TiIter * pI, PPTransferItem * pTI, TiItemExt * p
 				while(p_pckg->EnumItems(&p_i->PckgItemI, &idx, 0) > 0) {
 					if(!p_i->IsPassedIdx(idx)) {
 						*pTI = ConstTI(idx);
+						p_i->Ti = ConstTI(idx); // @v12.3.10
 						pTI->RByBill = idx;
 						p_i->Seen.add(idx);
 						if(pExt) {
@@ -5263,6 +5266,7 @@ int PPBillPacket::EnumTItemsExt(TiIter * pI, PPTransferItem * pTI, TiItemExt * p
 					else
 						p_i->Seen.add(_idx);
 					*pTI = ti;
+					p_i->Ti = ti; // @v12.3.10
 					if(!p_i->IsAccsCost())
 						pTI->Cost = 0.0;
 					if(pExt) {
@@ -5286,6 +5290,7 @@ int PPBillPacket::EnumTItemsExt(TiIter * pI, PPTransferItem * pTI, TiItemExt * p
 					else if(pExt)
 						pExt->MergePosList.add(_idx);
 					*pTI = ti;
+					p_i->Ti = ti; // @v12.3.10
 					p_i->Seen.add(_idx);
 					if(!p_i->IsAccsCost())
 						pTI->Cost = 0;

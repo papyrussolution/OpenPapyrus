@@ -7677,7 +7677,7 @@ int GazpromNeft::GetWarehouses()
 										more = true;
 								}
 								else if(p_itm->Text.IsEqiAscii("items")) {
-									if(p_itm->P_Child && SJson::IsArray(p_itm->P_Child)) {
+									if(SJson::IsArray(p_itm->P_Child)) {
 										for(const SJson * p_js_ware = p_itm->P_Child->P_Child; p_js_ware; p_js_ware = p_js_ware->P_Next) {
 											if(SJson::IsObject(p_js_ware)) {
 												struct WarehouseEntry {
@@ -7836,7 +7836,7 @@ int GazpromNeft::GetProducts(bool useStorage)
 												more = true;
 										}
 										else if(p_itm->Text.IsEqiAscii("items")) {
-											if(p_itm->P_Child && SJson::IsArray(p_itm->P_Child)) {
+											if(SJson::IsArray(p_itm->P_Child)) {
 												for(const SJson * p_js_ware = p_itm->P_Child->P_Child; p_js_ware; p_js_ware = p_js_ware->P_Next) {
 													if(SJson::IsObject(p_js_ware)) {
 														uint entry_idx = 0;
@@ -8001,7 +8001,7 @@ int GazpromNeft::GetClients()
 											more = true;
 									}
 									else if(p_itm->Text.IsEqiAscii("items")) {
-										if(p_itm->P_Child && SJson::IsArray(p_itm->P_Child)) {
+										if(SJson::IsArray(p_itm->P_Child)) {
 											for(const SJson * p_js_ware = p_itm->P_Child->P_Child; p_js_ware; p_js_ware = p_js_ware->P_Next) {
 												if(SJson::IsObject(p_js_ware)) {
 													uint entry_idx = 0;

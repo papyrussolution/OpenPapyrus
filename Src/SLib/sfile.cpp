@@ -2481,9 +2481,9 @@ uint SFile::ReadLineCsvContext::ImplementScan(const char * pLine, StringSet & rS
 			}
 		}
 	}
-	CATCH
-		result = 0;
-	ENDCATCH
+	//CATCH
+		//result = 0;
+	//ENDCATCH
 	return result;
 }
 

@@ -11789,6 +11789,7 @@ public:
 	int    Init(const PPBillPacket *, long flags, long filtGrpID, Order = ordDefault);
 	int    FASTCALL IsPassedIdx(int idx) const;
 	int    IsAccsCost() const { return AccsCost; }
+	const  PPTransferItem & GetTi() const { return Ti; }
 private:
 	struct IndexItem {
 		IndexItem(long tiPos, long ext, long disposePos);
@@ -11801,7 +11802,9 @@ private:
 
 	friend class PPBillPacket;
 	long   Flags;
-	uint   I, PckgI, PckgItemI;
+	uint   I;
+	uint   PckgI;
+	uint   PckgItemI;
 	int    UseIndex;
 	int    AccsCost;       // Если 0, то доступ к ценам поступления запрещен
 	PPID   FiltGrpID;      // Товарная группа, ограничивающая выборку.
@@ -11809,6 +11812,7 @@ private:
 	TSVector <IndexItem> Index; //
 	RAssocArray SaldoList; // Список товаров, принадлежащих группе FiltGrpID и ассоциированных с величной сальдо по контаргенту.
 	TSVector <LocTransfTbl::Rec> DispList; //
+	PPTransferItem Ti; // @v12.3.10
 };
 //
 //
@@ -13098,7 +13102,7 @@ public:
 	int    EnumLastLots(PPID goodsID, PPID locID, LDATE *, long * oprno, ReceiptTbl::Rec * pRec = 0);
 	int    GetLastLot(PPID goodsID, PPID locID, LDATE date, ReceiptTbl::Rec * pLotRec);
 	int    GetLastLot_ByLocList(PPID goodsID, const PPIDArray * pLocList, LDATE date, ReceiptTbl::Rec * pLotRec); // @v12.3.10
-	int    GetLastOpenedLot(PPID goodsID, PPID locID, LDATE, void * = 0);
+	int    GetLastOpenedLot(PPID goodsID, const PPIDArray * pLocList, LDATE date, ReceiptTbl::Rec * pLotRec = 0);
 		// @<<ReceiptCore::GetCurrentGoodsPrice
 	int    GetFirstLot(PPID goodsID, PPID locID, ReceiptTbl::Rec * pLotRec);
 	//
@@ -13187,6 +13191,7 @@ public:
 	//   Некоторые подробности использования флагов см выше в декларации самих флагов GPRET_XXX
 	//
 	int    GetCurrentGoodsPrice(PPID goodsID, PPID locID, uint flags, double * pPrice, ReceiptTbl::Rec * = 0);
+	int    GetCurrentGoodsPrice_ByLocList(PPID goodsID, const PPIDArray * pLocList, uint flags, double * pPrice, ReceiptTbl::Rec * = 0); // @v12.3.10
 	//
 	// Descr: То же, что и GetCurrentGoodsPrice только ищет лоты, которые пришли не позднее чем date.
 	//
@@ -13216,6 +13221,7 @@ private:
 	int    Helper_GetLastLot(PPID goodsID, PPID locID, LDATE dt, ReceiptTbl::Rec * pRec);
 	int    Helper_GetLastLot_ByLocList(PPID goodsID, const PPIDArray * pLocList, LDATE dt, ReceiptTbl::Rec * pRec); // @v12.3.10
 	int    Helper_GetCurrentGoodsPrice(PPID goodsID, PPID locID, LDATE date, uint flags, double * pPrice, ReceiptTbl::Rec * pRec);
+	int    Helper_GetCurrentGoodsPrice_ByLocList(PPID goodsID, const PPIDArray * pLocList, LDATE date, uint flags, double * pPrice, ReceiptTbl::Rec * pRec); // @v12.3.10
 	int    Helper_GetList(PPID goodsID, PPID locID, PPID supplID, LDATE beforeDt, /*int closedTag, int nzRestOnly,*/uint flags, LotArray * pRecList);
 	int    Helper_SearchOrigin(const ReceiptTbl::Rec * pInitLotRec, PPID lotID, PPID * pOrgLotID, ReceiptTbl::Rec * pThisRec, ReceiptTbl::Rec * pOrgRec);
 
@@ -41611,6 +41617,36 @@ public:
 		int     Helper_MakeShardList(const TSCollection <Entry> & rSrcList, long parentID, StrAssocArray & rList) const;
 		const   Entry * Helper_GetByID(const TSCollection <Entry> & rSrcList, int64 id) const;
 	};
+
+	class PickUpPointPool : public SStrGroup {
+	public:
+		struct Entry { // @flat
+			Entry();
+			Entry & Z();
+			bool   FromJsonObj(PickUpPointPool & rPool, const SJson * pJs);
+
+			int    ID;
+			int64  Dest;
+			int64  Dest3;
+			float  Rate;
+			uint64 UedCountry;
+			uint64 UedGeoLoc;
+			uint   NameP;
+			uint   AddrP;
+			uint   WorkTimeP;
+			uint16 FittingRoomCount;
+			uint16 PropCount;
+			uint16 TypePoint;
+			uint16 Reserve;          // @alignment
+			char   Sign[32];
+		};
+		PickUpPointPool();
+		PickUpPointPool & Z();
+		uint    GetCount() const { return L.getCount(); }
+		bool    FromJson(const SJson * pJs, uint * pReadCount);
+
+		TSVector <Entry> L;
+	};
 	//
 	// Descr: Данные о товарах, полученные http-запросом по url хакнутому с сайта
 	//
@@ -42035,6 +42071,7 @@ public:
 	// Descr: Функция импортирует публично доступный (без API-key) список товаров (фильтр требуется).
 	//
 	static int LoadPublicGoodsList(const CategoryPool & rCatPool, const MarketplaceGoodsSelectionFilt & rFilt, PublicWarePool & rResult); // @v12.3.8
+	static int LoadPublicPickUpPointList(PickUpPointPool & rResult, bool useCache);
 
 	PPMarketplaceInterface_Wildberries(PrcssrMarketplaceInterchange & rPrc);
 	virtual ~PPMarketplaceInterface_Wildberries();

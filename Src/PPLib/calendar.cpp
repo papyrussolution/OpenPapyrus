@@ -1690,6 +1690,9 @@ int PPExecSupplementWindow(int supplementKind, void * hParentWnd, uint linkCtlId
 		if(ok > 0)
 			ASSIGN_PTR(pData, data);
 	}
+	else if(supplementKind == SUiCtrlSupplement::kFileBrowse) { // @v12.3.10
+		;
+	}
 	else {
 		; //
 	}

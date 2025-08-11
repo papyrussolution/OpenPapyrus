@@ -1437,15 +1437,11 @@ int PrcssrDL200::ProcessGroup(const DL2_Group * pGrp)
 int PrcssrDL200::Print()
 {
 	int    ok = -1;
-	int    reply = 0;
-	short  hJob = 0;
-	long   fl = 0;
-	SString fn;
 	SString report_name;
 	(report_name = "DL2_").Cat(D.Name).ToUpper();
 	PrnDlgAns pans(report_name);
 	if(EditPrintParam(&pans) > 0) {
-		fn = pans.Entries.at(pans.Selection)->ReportPath_;
+		const SString fn(pans.Entries.at(pans.Selection)->ReportPath_);
 		switch(pans.Dest) {
 			case PrnDlgAns::aPrint:
 				ok = CrystalReportPrint(fn, OutPath, pans.Printer, pans.NumCopies, SPRN_DONTRENAMEFILES, 0);
