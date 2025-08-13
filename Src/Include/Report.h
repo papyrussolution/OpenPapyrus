@@ -6,6 +6,7 @@
 #define __REPORT_H
 
 class TVRez;
+struct PEExportOptions;
 //
 // Встроенные переменные
 //
@@ -140,6 +141,7 @@ struct CrystalReportExportParam { // @v12.3.7
 	CrystalReportExportParam & FASTCALL Z();
 	bool   FASTCALL Copy(const CrystalReportExportParam & rS);
 	int    LoadFromIniFile(const char * pReportName);
+	int    TranslateToCrrExportOptions(PEExportOptions & rEo);
 
 	enum {
 		crexpfmtPdf     = SFileFormat::Pdf,     // (UXFPdfType) params: page-range

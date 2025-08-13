@@ -235,12 +235,10 @@ static size_t lha_check_header_format(const void * h)
 		case 'd':
 		case 's':
 		    next_skip_bytes = 4;
-
 		    /* b0 == 0 means the end of an LHa archive file.	*/
 		    if(p[0] == 0)
 			    break;
-		    if(p[H_METHOD_OFFSET] != '-' || p[H_METHOD_OFFSET+1] != 'l'
-			||  p[H_METHOD_OFFSET+4] != '-')
+		    if(p[H_METHOD_OFFSET] != '-' || p[H_METHOD_OFFSET+1] != 'l' ||  p[H_METHOD_OFFSET+4] != '-')
 			    break;
 
 		    if(p[H_METHOD_OFFSET+2] == 'h') {
@@ -256,9 +254,7 @@ static size_t lha_check_header_format(const void * h)
 			    /* LArc extensions: -lzs-,-lz4- and -lz5- */
 			    if(p[H_LEVEL_OFFSET] != 0)
 				    break;
-			    if(p[H_METHOD_OFFSET+3] == 's'
-				|| p[H_METHOD_OFFSET+3] == '4'
-				|| p[H_METHOD_OFFSET+3] == '5')
+			    if(p[H_METHOD_OFFSET+3] == 's' || p[H_METHOD_OFFSET+3] == '4' || p[H_METHOD_OFFSET+3] == '5')
 				    return 0;
 		    }
 		    break;
@@ -278,8 +274,7 @@ static int archive_read_format_lha_bid(ArchiveRead * a, int best_bid)
 	const void * buff;
 	ssize_t bytes_avail, offset, window;
 	size_t next;
-	/* If there's already a better bid than we can ever
-	   make, don't bother testing. */
+	/* If there's already a better bid than we can ever make, don't bother testing. */
 	if(best_bid > 30)
 		return -1;
 	if((p = static_cast<const char *>(__archive_read_ahead(a, H_SIZE, NULL))) == NULL)
@@ -291,8 +286,7 @@ static int archive_read_format_lha_bid(ArchiveRead * a, int best_bid)
 		offset = 0;
 		window = 4096;
 		while(offset < (1024 * 20)) {
-			buff = __archive_read_ahead(a, offset + window,
-				&bytes_avail);
+			buff = __archive_read_ahead(a, offset + window, &bytes_avail);
 			if(buff == NULL) {
 				// Remaining bytes are less than window
 				window >>= 1;

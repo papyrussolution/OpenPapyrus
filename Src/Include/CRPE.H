@@ -1150,15 +1150,15 @@ BOOL CRPE_API PEGetPrintOptions(short printJob, PEPrintOptions * options);
 // Controlling print to file and export
 //
 typedef struct PEExportOptions {
-	WORD StructSize;           // initialize to PE_SIZEOF_EXPORT_OPTIONS
-	char formatDLLName [PE_DLL_NAME_LEN];
-	DWORD formatType;
+	WORD   StructSize;           // initialize to PE_SIZEOF_EXPORT_OPTIONS
+	char   formatDLLName[PE_DLL_NAME_LEN];
+	DWORD  formatType;
 	void * formatOptions;
-	char destinationDLLName [PE_DLL_NAME_LEN];
-	DWORD destinationType;
+	char   destinationDLLName[PE_DLL_NAME_LEN];
+	DWORD  destinationType;
 	void * destinationOptions;
-	WORD nFormatOptionsBytes;  // Set by 'PEGetExportOptions' ignored by 'PEExportTo'.
-	WORD nDestinationOptionsBytes; // Set by 'PEGetExportOptions' ignored by 'PEExportTo'.
+	WORD   nFormatOptionsBytes;  // Set by 'PEGetExportOptions' ignored by 'PEExportTo'.
+	WORD   nDestinationOptionsBytes; // Set by 'PEGetExportOptions' ignored by 'PEExportTo'.
 }
 
 PEExportOptions;

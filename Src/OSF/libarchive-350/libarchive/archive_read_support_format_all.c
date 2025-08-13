@@ -30,7 +30,6 @@ int archive_read_support_format_all(Archive * a)
 	 * If you implement the above, please return the list below
 	 * to alphabetic order.
 	 */
-
 	/*
 	 * These bidders are all pretty cheap; they just examine a
 	 * small initial part of the archive.  If one of these bids
@@ -45,7 +44,6 @@ int archive_read_support_format_all(Archive * a)
 	archive_read_support_format_tar(a);
 	archive_read_support_format_xar(a);
 	archive_read_support_format_warc(a);
-
 	/*
 	 * Install expensive bidders last.  By doing them last, we
 	 * increase the chance that a high bid from someone else will

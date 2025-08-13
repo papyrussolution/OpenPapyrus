@@ -201,6 +201,8 @@ bool FASTCALL SFile::IsDir(const wchar_t * pStr)
 {
 	bool yes = false;
 	if(!isempty(pStr)) {
+		//SStringU cur_dir; // @debug
+		//SFile::GetCurrentDir(cur_dir); // @debug
 		SStringU & r_temp_buf_u = SLS.AcquireRvlStrU();
 		r_temp_buf_u = pStr;
 		WIN32_FIND_DATAW fd;

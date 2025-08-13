@@ -1727,15 +1727,15 @@ struct ImGuiOldColumns {
 // ImGuiViewport Private/Internals fields (cardinal sin: we are using inheritance!)
 // Every instance of ImGuiViewport is in fact a ImGuiViewportP.
 struct ImGuiViewportP : public ImGuiViewport {
-	int DrawListsLastFrame[2];              // Last frame number the background (0) and foreground (1) draw lists were used
-	ImDrawList*         DrawLists[2];       // Convenience background (0) and foreground (1) draw lists. We use them to draw software mouser cursor when io.MouseDrawCursor is set and to draw most debug overlays.
+	int DrawListsLastFrame[2]; // Last frame number the background (0) and foreground (1) draw lists were used
+	ImDrawList * DrawLists[2]; // Convenience background (0) and foreground (1) draw lists. We use them to draw software mouser cursor when io.MouseDrawCursor is set and to draw most debug overlays.
 	ImDrawData DrawDataP;
 	ImDrawDataBuilder DrawDataBuilder;
 
-	ImVec2 WorkOffsetMin;                   // Work Area: Offset from Pos to top-left corner of Work Area. Generally (0,0) or (0,+main_menu_bar_height). Work Area is Full Area but without menu-bars/status-bars (so WorkArea always fit inside Pos/Size!)
-	ImVec2 WorkOffsetMax;                   // Work Area: Offset from Pos+Size to bottom-right corner of Work Area. Generally (0,0) or (0,-status_bar_height).
-	ImVec2 BuildWorkOffsetMin;              // Work Area: Offset being built during current frame. Generally >= 0.0f.
-	ImVec2 BuildWorkOffsetMax;              // Work Area: Offset being built during current frame. Generally <= 0.0f.
+	ImVec2 WorkOffsetMin;      // Work Area: Offset from Pos to top-left corner of Work Area. Generally (0,0) or (0,+main_menu_bar_height). Work Area is Full Area but without menu-bars/status-bars (so WorkArea always fit inside Pos/Size!)
+	ImVec2 WorkOffsetMax;      // Work Area: Offset from Pos+Size to bottom-right corner of Work Area. Generally (0,0) or (0,-status_bar_height).
+	ImVec2 BuildWorkOffsetMin; // Work Area: Offset being built during current frame. Generally >= 0.0f.
+	ImVec2 BuildWorkOffsetMax; // Work Area: Offset being built during current frame. Generally <= 0.0f.
 
 	ImGuiViewportP()    
 	{

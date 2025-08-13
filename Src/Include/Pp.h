@@ -786,6 +786,8 @@ public:
 	SString VkAppIdent;    // @v10.9.6 Идентификатор приложения Papyrus в ВКонтакте
 	SString GoogleAppIdent; // @v11.0.2 Идентификатор приложения Papyrus в Google
 	SString FacebookAppIdent; // @v11.0.7 Идентификатор приложения Papyrus в Facebook
+	SString StyloQ_VerCode;   // @v12.3.10 Код версии Stylo-Q (gradle). Обычно целое число.
+	SString StyloQ_VerName;   // @v12.3.10 Наименование версии Stylo-Q (gradle). Обычно версионный формат eg: 0.8.8
 };
 //
 // Descr: Блок информации о версии системы.
@@ -7653,6 +7655,10 @@ public:
 	bool   RunNginxServerThread(bool forceReboot);
 	const  TWhatmanToolArray & GetVectorTools() const { return DvToolList_; } // @v11.9.2
 	SPaintToolBox & GetUiToolBox() { return UiToolBox_; } // @v11.9.2
+	//
+	//
+	//
+	bool   GetSurrogateUserAgentString(SString & rBuf); // @v12.3.10
 private:
 	int    Helper_SetPath(int pathId, SString & rPath);
 	int    MakeMachineID(MACAddr * pMachineID);
@@ -41510,7 +41516,12 @@ public:
 		ordNewly     = 5, // "newly"
 		ordBenefit   = 6  // "benefit"
 	};
-	uint8  ReserveStart[64];
+	enum {
+		vkGoods        = 1,
+		vkPickUpPoints = 2
+	};
+	uint8  ReserveStart[60];
+	int32  ViewKind; // @v12.3.10 vkXXX
 	int64  CatID;
 	int64  BrandID;
 	int32  SupplID;
@@ -41625,7 +41636,7 @@ public:
 			Entry & Z();
 			bool   FromJsonObj(PickUpPointPool & rPool, const SJson * pJs);
 
-			int    ID;
+			long   ID;
 			int64  Dest;
 			int64  Dest3;
 			float  Rate;
@@ -41643,6 +41654,8 @@ public:
 		PickUpPointPool();
 		PickUpPointPool & Z();
 		uint    GetCount() const { return L.getCount(); }
+		Entry * GetEntry(uint i);
+		const   Entry * GetEntryC(uint i) const;
 		bool    FromJson(const SJson * pJs, uint * pReadCount);
 
 		TSVector <Entry> L;
@@ -42339,6 +42352,7 @@ private:
 	uint   TotalResultCountOnServer; // Общее количество результов запроса на серверах WB (реально возвращается обычно значительно меньше)
 	PPMarketplaceInterface_Wildberries::CategoryPool CatPool;
 	PPMarketplaceInterface_Wildberries::PublicWarePool GoodsPool;
+	PPMarketplaceInterface_Wildberries::PickUpPointPool PupPool; // @v12.3.10
 	SArray * P_DsList;
 };
 //

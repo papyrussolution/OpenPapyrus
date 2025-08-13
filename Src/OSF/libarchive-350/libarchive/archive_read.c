@@ -493,15 +493,15 @@ static int _archive_read_next_header2(Archive * _a, ArchiveEntry * entry)
 			return ARCHIVE_FATAL;
 		}
 	}
-	/* Record start-of-header offset in uncompressed stream. */
+	// Record start-of-header offset in uncompressed stream.
 	a->header_position = a->filter->position;
 	++_a->file_count;
 	r2 = (a->format->read_header)(a, entry);
-	/*
-	 * EOF and FATAL are persistent at this layer.  By
-	 * modifying the state, we guarantee that future calls to
-	 * read a header or read data will fail.
-	 */
+	// 
+	// EOF and FATAL are persistent at this layer.  By
+	// modifying the state, we guarantee that future calls to
+	// read a header or read data will fail.
+	// 
 	switch(r2) {
 		case ARCHIVE_EOF:
 		    a->archive.state = ARCHIVE_STATE_EOF;
@@ -514,7 +514,7 @@ static int _archive_read_next_header2(Archive * _a, ArchiveEntry * entry)
 	}
 	__archive_reset_read_data(&a->archive);
 	a->data_start_node = a->client.cursor;
-	/* EOF always wins; otherwise return the worst error. */
+	// EOF always wins; otherwise return the worst error.
 	return (r2 < r1 || r2 == ARCHIVE_EOF) ? r2 : r1;
 }
 

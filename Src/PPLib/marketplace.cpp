@@ -686,6 +686,16 @@ PPMarketplaceInterface_Wildberries::PickUpPointPool & PPMarketplaceInterface_Wil
 	return *this;
 }
 
+PPMarketplaceInterface_Wildberries::PickUpPointPool::Entry * PPMarketplaceInterface_Wildberries::PickUpPointPool::GetEntry(uint i)
+{
+	return (i < L.getCount()) ? &L.at(i) : 0;
+}
+
+const PPMarketplaceInterface_Wildberries::PickUpPointPool::Entry * PPMarketplaceInterface_Wildberries::PickUpPointPool::GetEntryC(uint i) const
+{
+	return (i < L.getCount()) ? &L.at(i) : 0;
+}
+
 bool PPMarketplaceInterface_Wildberries::PickUpPointPool::FromJson(const SJson * pJs, uint * pReadCount)
 {
 	bool    ok = false;
@@ -2256,10 +2266,39 @@ bool PPMarketplaceInterface_Wildberries::SalesRepDbpEntry::FromJsonObj(const SJs
 
 /*static*/int PPMarketplaceInterface_Wildberries::EditPublicGoodsSelectionFilt(const CategoryPool & rCatPool, MarketplaceGoodsSelectionFilt & rFilt)
 {
+	class WbGoodsListFiltDialog : public TDialog {
+	public:
+		WbGoodsListFiltDialog() : TDialog(DLG_WBGOODSLISTFILT)
+		{
+		}
+		void    SetupCtrls()
+		{
+			long   view_kind = GetClusterData(CTL_WBGOODSLISTFILT_VK);
+			disableCtrl(CTLSEL_WBGOODSLISTFILT_CAT, view_kind == MarketplaceGoodsSelectionFilt::vkPickUpPoints);
+			disableCtrl(CTL_WBGOODSLISTFILT_SRCH, view_kind == MarketplaceGoodsSelectionFilt::vkPickUpPoints);
+			disableCtrl(CTL_WBGOODSLISTFILT_ORD, view_kind == MarketplaceGoodsSelectionFilt::vkPickUpPoints);
+		}
+	private:
+		DECL_HANDLE_EVENT
+		{
+			TDialog::handleEvent(event);
+			if(event.isClusterClk(CTL_WBGOODSLISTFILT_VK)) {
+				SetupCtrls();
+				clearEvent(event);
+			}
+		}
+	};
 	int    ok = -1;
 	SString temp_buf;
-	TDialog * dlg = new TDialog(DLG_WBGOODSLISTFILT);
+	WbGoodsListFiltDialog * dlg = new WbGoodsListFiltDialog();
 	if(CheckDialogPtr(&dlg)) {
+		// @v12.3.10 {
+		{
+			dlg->AddClusterAssocDef(CTL_WBGOODSLISTFILT_VK, 0, MarketplaceGoodsSelectionFilt::vkGoods);
+			dlg->AddClusterAssoc(CTL_WBGOODSLISTFILT_VK, 1, MarketplaceGoodsSelectionFilt::vkPickUpPoints);
+			dlg->SetClusterData(CTL_WBGOODSLISTFILT_VK, rFilt.ViewKind);
+		}
+		// } @v12.3.10 
 		const long cat_id = static_cast<long>(rFilt.CatID);
 		StrAssocArray category_list;
 		rCatPool.MakeShardList(category_list);
@@ -2273,7 +2312,9 @@ bool PPMarketplaceInterface_Wildberries::SalesRepDbpEntry::FromJsonObj(const SJs
 		dlg->AddClusterAssoc(CTL_WBGOODSLISTFILT_ORD, 4, MarketplaceGoodsSelectionFilt::ordNewly);
 		dlg->AddClusterAssoc(CTL_WBGOODSLISTFILT_ORD, 5, MarketplaceGoodsSelectionFilt::ordBenefit);
 		dlg->SetClusterData(CTL_WBGOODSLISTFILT_ORD, rFilt.Order);
+		dlg->SetupCtrls();
 		if(ExecView(dlg) == cmOK) {
+			dlg->GetClusterData(CTL_WBGOODSLISTFILT_VK, &rFilt.ViewKind);
 			rFilt.CatID = dlg->getCtrlLong(CTLSEL_WBGOODSLISTFILT_CAT);
 			dlg->getCtrlString(CTL_WBGOODSLISTFILT_SRCH, temp_buf);
 			rFilt.SearchPatternUtf8 = temp_buf.Transf(CTRANSF_INNER_TO_UTF8);

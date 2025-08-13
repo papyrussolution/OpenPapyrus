@@ -1343,6 +1343,39 @@ SLTEST_R(SFile)
 	int    ok = 1;
 	SFile file;
 	SString file_path;
+	{
+		// Тестирование открытия и чтения сжатых файлов gz
+		// src/rsrc/data/user-agents.json.gz
+		STempBuffer rd_buf(101);
+		SBuffer _file_data;
+		PPGetPath(PPPATH_SRCROOT, file_path);
+		file_path.SetLastSlash().Cat("rsrc").SetLastSlash().Cat("data").SetLastSlash().Cat("user-agents.json.gz");
+		SFile f(file_path, SFile::mReadCompressed);
+		if(SLCHECK_NZ(f.IsValid())) {
+			bool rd_done = false;
+			int  r = 0;
+			do {
+				size_t actual_size = 0;
+				r = f.Read(rd_buf, rd_buf.GetSize(), &actual_size);
+				if(r <= 0)
+					rd_done = true;
+				else {
+					_file_data.Write(rd_buf, actual_size);
+				}
+			} while(!rd_done);
+			SLCHECK_NZ(r);
+			if(r) {
+				_file_data.WriteByte(0);
+				SJson * p_js = SJson::Parse(_file_data.GetBufC());
+				SLCHECK_NZ(p_js);
+				delete p_js;
+			}
+		}
+	}
+	{
+		// Тестирование открытия и чтения сжатых файлов bz2
+	}
+	//
 	SString file_name(MakeOutputFilePath("open_for_write_test.txt"));
 	{ // @v11.5.9
 		// Тестирование функции ReadLineCsv()

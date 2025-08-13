@@ -982,7 +982,11 @@ int PrcssrPPTex2Html::ResolvePict(const char * pOrgSymb, const char * pName, uin
 	uint   pos = 0;
 	const  StateBlock::PictItem * p_result = 0;
 	WorkbookTbl::Rec wb_rec;
-	SString in_pic_path, out_pic_path, out_file_name, temp_buf, anchor_prefix;
+	SString temp_buf;
+	SString in_pic_path;
+	SString out_pic_path;
+	SString out_file_name;
+	SString anchor_prefix;
 	SString org_symb(pOrgSymb);
 	org_symb.Strip().ToLower();
 	if(org_symb.NotEmpty()) {

@@ -1226,52 +1226,40 @@ XCOPY /Y %(RootDir)%(Directory)%(Filename).BIN $(OutDir)
       <Message Condition="'$(Configuration)|$(Platform)'=='Universe-HTT|x64'">Сборка диалогов</Message>
     </CustomBuild>
     <CustomBuild Include="..\Rsrc\Version\genver.dat">
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Filename)%(Extension)</Message>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(Filename)%(Extension)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\TOOLS\GENVER %(FullPath) ..\INCLUDE\PRIVATE\VERDATA.INC ..\PPMAIN\ppw_ver.rc
-</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\TOOLS\GENVER %(FullPath) ..\INCLUDE\PRIVATE\VERDATA.INC ..\PPMAIN\ppw_ver.rc
-</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\TOOLS\GENVER %(FullPath) ..\INCLUDE\PRIVATE\VERDATA.INC ..\PPMAIN\ppw_ver.rc /styloq_source_path:..\Android\StyloQ</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\TOOLS\GENVER %(FullPath) ..\INCLUDE\PRIVATE\VERDATA.INC ..\PPMAIN\ppw_ver.rc /styloq_source_path:..\Android\StyloQ</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\TOOLS\GENVER %(FullPath) ..\INCLUDE\PRIVATE\VERDATA.INC ..\PPMAIN\ppw_ver.rc /styloq_source_path:..\Android\StyloQ</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\TOOLS\GENVER %(FullPath) ..\INCLUDE\PRIVATE\VERDATA.INC ..\PPMAIN\ppw_ver.rc /styloq_source_path:..\Android\StyloQ</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\INCLUDE\PRIVATE\VERDATA.INC;..\PPMAIN\ppw_ver.rc;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\INCLUDE\PRIVATE\VERDATA.INC;..\PPMAIN\ppw_ver.rc;%(Outputs)</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">%(Filename)%(Extension)</Message>
-      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">%(Filename)%(Extension)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">..\..\TOOLS\GENVER %(FullPath) ..\INCLUDE\PRIVATE\VERDATA.INC ..\PPMAIN\ppw_ver.rc
-</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">..\..\TOOLS\GENVER %(FullPath) ..\INCLUDE\PRIVATE\VERDATA.INC ..\PPMAIN\ppw_ver.rc
-</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">..\..\TOOLS\GENVER %(FullPath) ..\INCLUDE\PRIVATE\VERDATA.INC ..\PPMAIN\ppw_ver.rc /styloq_source_path:..\Android\StyloQ</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">..\..\TOOLS\GENVER %(FullPath) ..\INCLUDE\PRIVATE\VERDATA.INC ..\PPMAIN\ppw_ver.rc /styloq_source_path:..\Android\StyloQ</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">..\..\TOOLS\GENVER %(FullPath) ..\INCLUDE\PRIVATE\VERDATA.INC ..\PPMAIN\ppw_ver.rc /styloq_source_path:..\Android\StyloQ</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">..\..\TOOLS\GENVER %(FullPath) ..\INCLUDE\PRIVATE\VERDATA.INC ..\PPMAIN\ppw_ver.rc /styloq_source_path:..\Android\StyloQ</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">..\INCLUDE\PRIVATE\VERDATA.INC;..\PPMAIN\ppw_ver.rc;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|x64'">..\INCLUDE\PRIVATE\VERDATA.INC;..\PPMAIN\ppw_ver.rc;%(Outputs)</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">%(Filename)%(Extension)</Message>
-      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">%(Filename)%(Extension)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">..\..\TOOLS\GENVER %(FullPath) ..\INCLUDE\PRIVATE\VERDATA.INC ..\PPMAIN\ppw_ver.rc
-</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">..\..\TOOLS\GENVER %(FullPath) ..\INCLUDE\PRIVATE\VERDATA.INC ..\PPMAIN\ppw_ver.rc
-</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">..\..\TOOLS\GENVER %(FullPath) ..\INCLUDE\PRIVATE\VERDATA.INC ..\PPMAIN\ppw_ver.rc /styloq_source_path:..\Android\StyloQ</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">..\..\TOOLS\GENVER %(FullPath) ..\INCLUDE\PRIVATE\VERDATA.INC ..\PPMAIN\ppw_ver.rc /styloq_source_path:..\Android\StyloQ</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">..\..\TOOLS\GENVER %(FullPath) ..\INCLUDE\PRIVATE\VERDATA.INC ..\PPMAIN\ppw_ver.rc /styloq_source_path:..\Android\StyloQ</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">..\..\TOOLS\GENVER %(FullPath) ..\INCLUDE\PRIVATE\VERDATA.INC ..\PPMAIN\ppw_ver.rc /styloq_source_path:..\Android\StyloQ</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|Win32'">..\INCLUDE\PRIVATE\VERDATA.INC;..\PPMAIN\ppw_ver.rc;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='MtDllRelease|x64'">..\INCLUDE\PRIVATE\VERDATA.INC;..\PPMAIN\ppw_ver.rc;%(Outputs)</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Filename)%(Extension)</Message>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(Filename)%(Extension)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\TOOLS\GENVER %(FullPath) ..\INCLUDE\PRIVATE\VERDATA.INC ..\PPMAIN\ppw_ver.rc
-</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\TOOLS\GENVER %(FullPath) ..\INCLUDE\PRIVATE\VERDATA.INC ..\PPMAIN\ppw_ver.rc
-</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\TOOLS\GENVER %(FullPath) ..\INCLUDE\PRIVATE\VERDATA.INC ..\PPMAIN\ppw_ver.rc /styloq_source_path:..\Android\StyloQ</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\TOOLS\GENVER %(FullPath) ..\INCLUDE\PRIVATE\VERDATA.INC ..\PPMAIN\ppw_ver.rc /styloq_source_path:..\Android\StyloQ</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\TOOLS\GENVER %(FullPath) ..\INCLUDE\PRIVATE\VERDATA.INC ..\PPMAIN\ppw_ver.rc /styloq_source_path:..\Android\StyloQ</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\TOOLS\GENVER %(FullPath) ..\INCLUDE\PRIVATE\VERDATA.INC ..\PPMAIN\ppw_ver.rc /styloq_source_path:..\Android\StyloQ</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\INCLUDE\PRIVATE\VERDATA.INC;..\PPMAIN\ppw_ver.rc;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\INCLUDE\PRIVATE\VERDATA.INC;..\PPMAIN\ppw_ver.rc;%(Outputs)</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">%(Filename)%(Extension)</Message>
-      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">%(Filename)%(Extension)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">..\..\TOOLS\GENVER %(FullPath) ..\INCLUDE\PRIVATE\VERDATA.INC ..\PPMAIN\ppw_ver.rc
-</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">..\..\TOOLS\GENVER %(FullPath) ..\INCLUDE\PRIVATE\VERDATA.INC ..\PPMAIN\ppw_ver.rc
-</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">..\..\TOOLS\GENVER %(FullPath) ..\INCLUDE\PRIVATE\VERDATA.INC ..\PPMAIN\ppw_ver.rc /styloq_source_path:..\Android\StyloQ</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">..\..\TOOLS\GENVER %(FullPath) ..\INCLUDE\PRIVATE\VERDATA.INC ..\PPMAIN\ppw_ver.rc /styloq_source_path:..\Android\StyloQ</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">..\..\TOOLS\GENVER %(FullPath) ..\INCLUDE\PRIVATE\VERDATA.INC ..\PPMAIN\ppw_ver.rc /styloq_source_path:..\Android\StyloQ</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">..\..\TOOLS\GENVER %(FullPath) ..\INCLUDE\PRIVATE\VERDATA.INC ..\PPMAIN\ppw_ver.rc /styloq_source_path:..\Android\StyloQ</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">..\INCLUDE\PRIVATE\VERDATA.INC;..\PPMAIN\ppw_ver.rc;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerDebug|x64'">..\INCLUDE\PRIVATE\VERDATA.INC;..\PPMAIN\ppw_ver.rc;%(Outputs)</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">%(Filename)%(Extension)</Message>
-      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">%(Filename)%(Extension)</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">..\..\TOOLS\GENVER %(FullPath) ..\INCLUDE\PRIVATE\VERDATA.INC ..\PPMAIN\ppw_ver.rc
-</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">..\..\TOOLS\GENVER %(FullPath) ..\INCLUDE\PRIVATE\VERDATA.INC ..\PPMAIN\ppw_ver.rc
-</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">..\..\TOOLS\GENVER %(FullPath) ..\INCLUDE\PRIVATE\VERDATA.INC ..\PPMAIN\ppw_ver.rc /styloq_source_path:..\Android\StyloQ</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">..\..\TOOLS\GENVER %(FullPath) ..\INCLUDE\PRIVATE\VERDATA.INC ..\PPMAIN\ppw_ver.rc /styloq_source_path:..\Android\StyloQ</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">..\..\TOOLS\GENVER %(FullPath) ..\INCLUDE\PRIVATE\VERDATA.INC ..\PPMAIN\ppw_ver.rc /styloq_source_path:..\Android\StyloQ</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">..\..\TOOLS\GENVER %(FullPath) ..\INCLUDE\PRIVATE\VERDATA.INC ..\PPMAIN\ppw_ver.rc /styloq_source_path:..\Android\StyloQ</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">..\INCLUDE\PRIVATE\VERDATA.INC;..\PPMAIN\ppw_ver.rc;%(Outputs)</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">..\INCLUDE\PRIVATE\VERDATA.INC;..\PPMAIN\ppw_ver.rc;%(Outputs)</Outputs>
     </CustomBuild>

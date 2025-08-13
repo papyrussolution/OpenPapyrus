@@ -1,5 +1,5 @@
 // GENVER.CPP
-// Copyright (c) A.Sobolev 2001, 2011, 2015, 2016, 2017, 2018, 2020, 2021, 2022
+// Copyright (c) A.Sobolev 2001, 2011, 2015, 2016, 2017, 2018, 2020, 2021, 2022, 2025
 //
 // For private use only. Redistribution prohibited !
 //
@@ -19,7 +19,7 @@ PapyrusPrivateBlock::~PapyrusPrivateBlock()
 PapyrusPrivateBlock & PapyrusPrivateBlock::Z()
 {
 	MEMSZERO(H);
-	StructVer = 4; // @v11.0.2 3-->4
+	StructVer = 5; // @v11.0.2 3-->4 // @v12.3.10 4-->5
 	StartDevYear = 0;
 	LastDevYear = 0;
 	Ver.Set(0, 0, 0);
@@ -34,6 +34,8 @@ PapyrusPrivateBlock & PapyrusPrivateBlock::Z()
 	UhttAcc.Obfuscate();
 	VkAppIdent.Obfuscate();
 	GoogleAppIdent.Obfuscate(); // @v11.0.2
+	StyloQ_VerCode.Z(); // @v12.3.10
+	StyloQ_VerName.Z(); // @v12.3.10
 	return *this;
 }
 
@@ -82,7 +84,13 @@ int PapyrusPrivateBlock::Serialize(int dir, SBuffer & rBuf, SSerializeContext * 
 	if(dir > 0 || StructVer >= 4) {
 		THROW(pSCtx->Serialize(dir, GoogleAppIdent, rBuf)); 
 	}
-	// } @v11.0.2 
+	// } @v11.0.2
+	// @v12.3.10 {
+	if(dir > 0 || StructVer >= 5) {
+		THROW(pSCtx->Serialize(dir, StyloQ_VerCode, rBuf));
+		THROW(pSCtx->Serialize(dir, StyloQ_VerName, rBuf));
+	}
+	// } @v12.3.10 
 	CATCHZOK
 	return ok;
 }
@@ -120,6 +128,12 @@ int PapyrusPrivateBlock::ReadFromIni(SIniFile & rIniFile)
 		rIniFile.GetIntParam("Version", "MinRevision", &min_r);
 		MinVer.Set(min_mj, min_mn, min_r);
 	}
+	// @v12.3.10 {
+	{
+		rIniFile.GetParam("Version", "StyloQ_VersionCode", StyloQ_VerCode);
+		rIniFile.GetParam("Version", "StyloQ_VersionName", StyloQ_VerName);
+	}
+	// } @v12.3.10 
 	{
 		int    d = 0;
 		int    o = 0;
@@ -139,9 +153,6 @@ int PapyrusPrivateBlock::ReadFromIni(SIniFile & rIniFile)
 }
 
 #ifdef GENVERC // {
-
-//int PPErrCode;
-
 /*
 [version]
 Signature    = 46V9FLAG19CZ5GPF
@@ -230,6 +241,10 @@ static int CreateVerSrcFile2(const char * pInFileName, const char * pOutFileName
 
 static int CreateVerRcFile2(const char * pInFileName, const char * pRcFileName, const char * pInFileNameOpen)
 {
+	//StyloQ_VersionCode=113
+	//StyloQ_VersionName=0.8.8
+
+	constexpr auto * p_version_text = _T("Version");
 	int    ok = 1;
 	SString temp_buf;
 	SString line_buf;
@@ -245,21 +260,25 @@ static int CreateVerRcFile2(const char * pInFileName, const char * pRcFileName, 
 	{
 		assembly_n = ppb.AssemblyN+1;
 		temp_buf.Z().Cat(assembly_n);
-		WritePrivateProfileString(_T("Version"), _T("AssemblyVer"), SUcSwitch(temp_buf), SUcSwitch(pInFileName));
+		WritePrivateProfileString(p_version_text, _T("AssemblyVer"), SUcSwitch(temp_buf), SUcSwitch(pInFileName));
 	}
 	if(!isempty(pInFileNameOpen) && fileExists(pInFileNameOpen)) {
 		int    min_maj, min_min, min_rev;
 		ppb.MinVer.Get(&min_maj, &min_min, &min_rev);
-		WritePrivateProfileString(_T("Version"), _T("MajorVer"), SUcSwitch(temp_buf.Z().Cat(maj)), SUcSwitch(pInFileNameOpen));
-		WritePrivateProfileString(_T("Version"), _T("MinorVer"), SUcSwitch(temp_buf.Z().Cat(min)), SUcSwitch(pInFileNameOpen));
-		WritePrivateProfileString(_T("Version"), _T("Revision"), SUcSwitch(temp_buf.Z().Cat(rev)), SUcSwitch(pInFileNameOpen));
-		WritePrivateProfileString(_T("Version"), _T("MinMajorVer"), SUcSwitch(temp_buf.Z().Cat(min_maj)), SUcSwitch(pInFileNameOpen));
-		WritePrivateProfileString(_T("Version"), _T("MinMinorVer"), SUcSwitch(temp_buf.Z().Cat(min_min)), SUcSwitch(pInFileNameOpen));
-		WritePrivateProfileString(_T("Version"), _T("MinRevision"), SUcSwitch(temp_buf.Z().Cat(min_rev)), SUcSwitch(pInFileNameOpen));
+		WritePrivateProfileString(p_version_text, _T("MajorVer"), SUcSwitch(temp_buf.Z().Cat(maj)), SUcSwitch(pInFileNameOpen));
+		WritePrivateProfileString(p_version_text, _T("MinorVer"), SUcSwitch(temp_buf.Z().Cat(min)), SUcSwitch(pInFileNameOpen));
+		WritePrivateProfileString(p_version_text, _T("Revision"), SUcSwitch(temp_buf.Z().Cat(rev)), SUcSwitch(pInFileNameOpen));
+		WritePrivateProfileString(p_version_text, _T("MinMajorVer"), SUcSwitch(temp_buf.Z().Cat(min_maj)), SUcSwitch(pInFileNameOpen));
+		WritePrivateProfileString(p_version_text, _T("MinMinorVer"), SUcSwitch(temp_buf.Z().Cat(min_min)), SUcSwitch(pInFileNameOpen));
+		WritePrivateProfileString(p_version_text, _T("MinRevision"), SUcSwitch(temp_buf.Z().Cat(min_rev)), SUcSwitch(pInFileNameOpen));
+		// @v12.3.10 {
+		WritePrivateProfileString(p_version_text, _T("StyloQ_VersionCode"), SUcSwitch(temp_buf.Z().Cat(ppb.StyloQ_VerCode)), SUcSwitch(pInFileNameOpen));
+		WritePrivateProfileString(p_version_text, _T("StyloQ_VersionName"), SUcSwitch(temp_buf.Z().Cat(ppb.StyloQ_VerName)), SUcSwitch(pInFileNameOpen));
+		// } @v12.3.10 
 		temp_buf.Z().Cat(assembly_n);
-		WritePrivateProfileString(_T("Version"), _T("AssemblyVer"), SUcSwitch(temp_buf), SUcSwitch(pInFileNameOpen));
-		WritePrivateProfileString(_T("Version"), _T("VkAppIdent"), SUcSwitch(temp_buf.Z().Cat(ppb.VkAppIdent)), SUcSwitch(pInFileNameOpen));
-		WritePrivateProfileString(_T("Version"), _T("GoogleAppIdent"), SUcSwitch(temp_buf.Z().Cat(ppb.GoogleAppIdent)), SUcSwitch(pInFileNameOpen)); // @v11.0.2
+		WritePrivateProfileString(p_version_text, _T("AssemblyVer"), SUcSwitch(temp_buf), SUcSwitch(pInFileNameOpen));
+		WritePrivateProfileString(p_version_text, _T("VkAppIdent"), SUcSwitch(temp_buf.Z().Cat(ppb.VkAppIdent)), SUcSwitch(pInFileNameOpen));
+		WritePrivateProfileString(p_version_text, _T("GoogleAppIdent"), SUcSwitch(temp_buf.Z().Cat(ppb.GoogleAppIdent)), SUcSwitch(pInFileNameOpen)); // @v11.0.2
 	}
 	{
 		SFile f_out(pRcFileName, SFile::mWrite);
@@ -309,15 +328,20 @@ static int CreateVerRcFile2(const char * pInFileName, const char * pRcFileName, 
 
 int main(int argc, char * argv[])
 {
+	SString temp_buf;
+	SString line_buf;
 	SString in_file_name;
 	SString in_file_name_open; // Дублер входящего файла для OpenSource-ветки
 	SString out_file_name;
 	SString rc_file_name;
+	SString styloq_src_path;
+	SString left_buf;
+	SString right_buf;
 	SLS.Init("PPGENVER");
 	if(argc < 2) {
 		printf("genver - helper utility for Project Papyrus\n");
-		printf("Copyright (c) A.Sobolev, 2001-2021\n");
-		printf("Usage: genver input_file_name[.ini] [output_file_name[.c] [rc_file_name[.rc]]]\n");
+		printf("Copyright (c) A.Sobolev, 2001-2025\n");
+		printf("Usage: genver input_file_name[.ini] [output_file_name[.c] [rc_file_name[.rc]]] [/styloq_source_path:path]\n");
 		return -1;
 	}
 	else {
@@ -346,8 +370,195 @@ int main(int argc, char * argv[])
 			(rc_file_name = argv[3]).Strip();
 			SFsPath::ReplaceExt(rc_file_name, "rc", 0);
 		}
-		CreateVerRcFile2(in_file_name, rc_file_name, in_file_name_open);
-		CreateVerSrcFile2(in_file_name, out_file_name);
+		if(argc >= 5) {
+			for(int argidx = 4; argidx < argc; argidx++) {
+				if((temp_buf = argv[argidx]).Divide(':', left_buf, right_buf) > 0) {
+					if(left_buf.IsEqiAscii("/styloq_source_path")) {
+						styloq_src_path = right_buf;
+					}
+				}
+			}
+		}
+		{
+			PapyrusPrivateBlock ppb;
+			SIniFile ini_file(in_file_name);
+			if(!ini_file.IsValid()) {
+				; // @todo @err
+			}
+			else if(!ppb.ReadFromIni(ini_file)) {
+				; // @todo @err
+			}
+			else {
+				//CreateVerRcFile2(in_file_name, rc_file_name, in_file_name_open);
+				//static int CreateVerRcFile2(const char * pInFileName, const char * pRcFileName, const char * pInFileNameOpen)
+				{
+					//StyloQ_VersionCode=113
+					//StyloQ_VersionName=0.8.8
+
+					constexpr auto * p_version_text = _T("Version");
+					//int    ok = 1;
+					//SString temp_buf;
+					//PapyrusPrivateBlock ppb;
+					int    maj, min, rev;
+					int    assembly_n = 0;
+					//{
+						//SIniFile ini_file(pInFileName);
+						//THROW(ini_file.IsValid());
+						//THROW(ppb.ReadFromIni(ini_file));
+					//}
+					ppb.Ver.Get(&maj, &min, &rev);
+					{
+						assembly_n = ppb.AssemblyN+1;
+						temp_buf.Z().Cat(assembly_n);
+						WritePrivateProfileString(p_version_text, _T("AssemblyVer"), SUcSwitch(temp_buf), SUcSwitch(in_file_name_open));
+					}
+					if(!isempty(in_file_name_open) && fileExists(in_file_name_open)) {
+						int    min_maj, min_min, min_rev;
+						ppb.MinVer.Get(&min_maj, &min_min, &min_rev);
+						WritePrivateProfileString(p_version_text, _T("MajorVer"), SUcSwitch(temp_buf.Z().Cat(maj)), SUcSwitch(in_file_name_open));
+						WritePrivateProfileString(p_version_text, _T("MinorVer"), SUcSwitch(temp_buf.Z().Cat(min)), SUcSwitch(in_file_name_open));
+						WritePrivateProfileString(p_version_text, _T("Revision"), SUcSwitch(temp_buf.Z().Cat(rev)), SUcSwitch(in_file_name_open));
+						WritePrivateProfileString(p_version_text, _T("MinMajorVer"), SUcSwitch(temp_buf.Z().Cat(min_maj)), SUcSwitch(in_file_name_open));
+						WritePrivateProfileString(p_version_text, _T("MinMinorVer"), SUcSwitch(temp_buf.Z().Cat(min_min)), SUcSwitch(in_file_name_open));
+						WritePrivateProfileString(p_version_text, _T("MinRevision"), SUcSwitch(temp_buf.Z().Cat(min_rev)), SUcSwitch(in_file_name_open));
+						// @v12.3.10 {
+						if(ppb.StyloQ_VerCode.NotEmpty())
+							WritePrivateProfileString(p_version_text, _T("StyloQ_VersionCode"), SUcSwitch(temp_buf.Z().Cat(ppb.StyloQ_VerCode)), SUcSwitch(in_file_name_open));
+						if(ppb.StyloQ_VerName.NotEmpty())
+							WritePrivateProfileString(p_version_text, _T("StyloQ_VersionName"), SUcSwitch(temp_buf.Z().Cat(ppb.StyloQ_VerName)), SUcSwitch(in_file_name_open));
+						// } @v12.3.10 
+						temp_buf.Z().Cat(assembly_n);
+						WritePrivateProfileString(p_version_text, _T("AssemblyVer"), SUcSwitch(temp_buf), SUcSwitch(in_file_name_open));
+						WritePrivateProfileString(p_version_text, _T("VkAppIdent"), SUcSwitch(temp_buf.Z().Cat(ppb.VkAppIdent)), SUcSwitch(in_file_name_open));
+						WritePrivateProfileString(p_version_text, _T("GoogleAppIdent"), SUcSwitch(temp_buf.Z().Cat(ppb.GoogleAppIdent)), SUcSwitch(in_file_name_open)); // @v11.0.2
+					}
+					{
+						SFile f_out(rc_file_name, SFile::mWrite);
+						if(!f_out.IsValid()) {
+							; // @todo @err
+						}
+						else {
+							line_buf.Z().Cat("#include <afxres.h>").CR().CR();
+							line_buf.Cat("VS_VERSION_INFO").Space().Cat("VERSIONINFO").CR();
+							line_buf.Cat("FILEVERSION").Space().Cat(maj).CatChar(',').Cat(min).CatChar(',').Cat(rev).CatChar(',').Cat(assembly_n).CR();
+							line_buf.Cat("PRODUCTVERSION").Space().Cat(maj).CatChar(',').Cat(min).CatChar(',').Cat(rev).CatChar(',').Cat(assembly_n).CR();
+							line_buf.Cat("FILEFLAGSMASK").Space().Cat("0x3fL").CR();
+							line_buf.Cat("#ifdef _DEBUG").CR();
+							line_buf.Tab().Cat("FILEFLAGS").Space().Cat("0x1L").CR();
+							line_buf.Cat("#else").CR();
+							line_buf.Tab().Cat("FILEFLAGS").Space().Cat("0x0L").CR();
+							line_buf.Cat("#endif").CR();
+							line_buf.Cat("FILEOS").Space().Cat(/*"VOS__WINDOWS32"*/"0x40004L").CR(); // @v9.4.8 0x40004L-->VOS__WINDOWS32
+							line_buf.Cat("FILETYPE").Space().Cat(/*"VFT_APP"*/"0x1L").CR(); // @v9.4.8 0x1L-->VFT_APP
+							line_buf.Cat("FILESUBTYPE").Space().Cat(/*"VFT2_UNKNOWN"*/"0x0L").CR(); // @v9.4.8 0x0L-->VFT2_UNKNOWN
+							line_buf.Cat("BEGIN").CR();
+								line_buf.Tab().Cat("BLOCK").Space().CatQStr("StringFileInfo").CR();
+								line_buf.Tab().Cat("BEGIN").CR();
+									line_buf.Tab_(2).Cat("BLOCK").Space().CatQStr("041904e3").CR();
+									line_buf.Tab_(2).Cat("BEGIN").CR();
+										line_buf.Tab_(3).Cat("VALUE").Space().CatQStr("Comments").CatDiv(',', 2).CatQStr("Система управления предприятием").CR();
+										line_buf.Tab_(3).Cat("VALUE").Space().CatQStr("CompanyName").CatDiv(',', 2).CatQStr("Petroglif").CR();
+										line_buf.Tab_(3).Cat("VALUE").Space().CatQStr("FileDescription").CatDiv(',', 2).CatQStr(ppb.ProductName).CR();
+										line_buf.Tab_(3).Cat("VALUE").Space().CatQStr("FileVersion").CatDiv(',', 2).CatQStr(ppb.Ver.ToStr(temp_buf.Z())).CR();
+										line_buf.Tab_(3).Cat("VALUE").Space().CatQStr("InternalName").CatDiv(',', 2).CatQStr("pp").CR();
+										// fprintf(pF, "\t\t\tVALUE \"LegalCopyright\", \"Copyright %c %s %d - %d\"\n", ch, team, start, last);
+										temp_buf.Z().Cat("Copyright").Space().CatChar(169).Space().Cat(ppb.Team).Space().
+											Cat(ppb.StartDevYear).CatDiv('-', 1).Cat(ppb.LastDevYear);
+										line_buf.Tab_(3).Cat("VALUE").Space().CatQStr("LegalCopyright").CatDiv(',', 2).CatQStr(temp_buf).CR();
+										line_buf.Tab_(3).Cat("VALUE").Space().CatQStr("OriginalFilename").CatDiv(',', 2).CatQStr("ppw.exe").CR();
+										line_buf.Tab_(3).Cat("VALUE").Space().CatQStr("ProductName").CatDiv(',', 2).CatQStr("Papyrus").CR();
+										line_buf.Tab_(3).Cat("VALUE").Space().CatQStr("ProductVersion").CatDiv(',', 2).CatQStr(ppb.Ver.ToStr(temp_buf.Z())).CR();
+									line_buf.Tab_(2).Cat("END").CR();
+									line_buf.Tab_(2).Cat("BLOCK").Space().CatQStr("VarFileInfo").CR();
+									line_buf.Tab_(2).Cat("BEGIN").CR();
+										line_buf.Tab_(3).Cat("VALUE").Space().CatQStr("Translation").CatDiv(',', 2).Cat("0x419").CatDiv(',', 2).Cat("1251").CR();
+									line_buf.Tab_(2).Cat("END").CR();
+								line_buf.Tab().Cat("END").CR();
+							line_buf.Cat("END").CR();
+							f_out.WriteLine(line_buf);
+						}
+					}
+					//CATCHZOK
+					//return ok;
+				}
+				//CreateVerSrcFile2(in_file_name, out_file_name);
+				if(!ppb.WriteToSrc(out_file_name)) {
+					; // @todo @err
+				}
+				{
+					if(ppb.StyloQ_VerCode.NotEmpty() && ppb.StyloQ_VerName.NotEmpty()) {
+						if(SFile::IsDir(styloq_src_path)) {
+							SString app_path;
+							(app_path = styloq_src_path).SetLastSlash().Cat("app");
+							(temp_buf = app_path).SetLastSlash().Cat("build.gradle");
+							SFile f_bg(temp_buf, SFile::mReadWrite|mDenyWrite);
+							if(f_bg.IsValid()) {
+								long   temp_file_n = 0;
+								MakeTempFileName(app_path, "build_gradle", 0, &temp_file_n, temp_buf);
+								SFile f_temp(temp_buf, SFile::mWrite);
+								if(!f_temp.IsValid()) {
+									; // @todo @err
+								}
+								else {
+									bool   is_updated = false;
+									const char * pp_target_params[] = { "versionCode", "versionName" };
+									SString indent_salvage;
+									SString version_name;
+									version_name.CatChar('\'').Cat(ppb.StyloQ_VerName).CatChar('\'');
+									while(f_bg.ReadLine(line_buf)) {
+										// versionCode 113
+										// versionName '0.8.8'
+										bool    local_is_updated = false;
+										for(uint tpi = 0; !local_is_updated && tpi < SIZEOFARRAY(pp_target_params); tpi++) {
+											const char * p_target = pp_target_params[tpi];
+											if(line_buf.Search(p_target, 0, 1, 0)) {
+												(temp_buf = line_buf).Chomp().Strip();
+												while(oneof2(temp_buf.C(0), ' ', '\t'))
+													temp_buf.ShiftLeft();
+												if(temp_buf.Divide(' ', left_buf, right_buf) > 0) {
+													if(left_buf.IsEqiAscii(p_target)) {
+														{
+															indent_salvage.Z();
+															for(uint _ip = 0; oneof2(line_buf.C(_ip), ' ', '\t'); _ip++) {
+																indent_salvage.CatChar(line_buf.C(_ip));
+															}
+														}
+														const char * p_value = 0;
+														if(tpi == 0)
+															p_value = ppb.StyloQ_VerCode;
+														else if(tpi == 1)
+															p_value = version_name;
+														if(!isempty(p_value)) {
+															if(!right_buf.IsEq(p_value)) {
+																line_buf.Z().Cat(indent_salvage).Cat(p_target).Space().Cat(p_value).CR();
+																local_is_updated = true;
+															}
+														}
+													}
+												}
+											}
+										}
+										if(local_is_updated)
+											is_updated = true;
+										f_temp.WriteLine(line_buf);
+									}
+									const SString src_file_name = f_temp.GetName();
+									f_temp.Close();
+									if(is_updated) {
+										const SString dest_file_name = f_bg.GetName();
+										f_bg.Close();
+										if(!SCopyFile(src_file_name, dest_file_name, 0, FILE_SHARE_READ, 0)) {
+											; // @todo @err
+										}
+									}
+									SFile::Remove(src_file_name);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
 		return 0;
 	}
 }

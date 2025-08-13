@@ -529,90 +529,105 @@ static void extract(const char *filename)
 	Archive * p_larc = 0;
 	SString temp_buf;
 	if(provider == providerLA) {
-		p_larc = archive_read_new();
-		LaCbBlock cb_blk(0, SKILOBYTE(512));
-		THROW(cb_blk.F.Open(pName, SFile::mRead | (SFile::mBinary|SFile::mNoStd)));
-		//archive_read_support_compression_all(p_larc);
-		archive_read_support_filter_all(p_larc);
-		archive_read_support_format_all(p_larc);
-		archive_read_support_format_empty(p_larc); // @v11.7.0
-		archive_read_set_seek_callback(p_larc, LaCbSeek);
-		const int r = archive_read_open2(p_larc, &cb_blk, LaCbOpen, LaCbRead, LaCbSkip, LaCbClose);
-		THROW(r == 0);
-		{
-			ArchiveEntry * p_entry = 0;
-			const wchar_t * p_entry_name = 0;
-			SFileEntryPool::Entry fep_entry;
-			SString base_path;
-			SString final_path;
-			SString fepentry_full_path;
-			if(!isempty(pDestPath)) {
-				(base_path = pDestPath).Strip();
+		SFileFormat ff;
+		const int fir = ff.Identify(pName, 0);
+		if(oneof2(fir, 2, 3) && ff == SFileFormat::Gz) {
+			// @v12.3.10 @construction {
+			/*
+			gzFile f = gzopen64(pName, "r");
+			if(f) {
+				//
+				gzclose(f);
 			}
-			else {
-				SFile::GetCurrentDir(base_path);
-				//base_path.Z();
-			}
-			base_path.RmvLastSlash();
-			const SFsPath ps_base(base_path);
-			while(archive_read_next_header(p_larc, &p_entry) == ARCHIVE_OK) {
-				ConvertLaEntry(p_entry, fep_entry, &temp_buf);
-				SFsPath::NormalizePath(temp_buf, SFsPath::npfSlash|SFsPath::npfCompensateDotDot, fepentry_full_path);
-				bool suited = false;
-				if(!isempty(pWildcard)) {
-					if(fepentry_full_path.IsEqiUtf8(pWildcard)) // @v12.1.6
-						suited = true;
-					else if(SFile::WildcardMatch(pWildcard, fep_entry.Name))
-						suited = true;
+			*/
+			// } @v12.3.10 @construction 
+		}
+		else {
+			p_larc = archive_read_new();
+			LaCbBlock cb_blk(0, SKILOBYTE(512));
+			THROW(cb_blk.F.Open(pName, SFile::mRead | (SFile::mBinary|SFile::mNoStd)));
+			//archive_read_support_compression_all(p_larc);
+			archive_read_support_filter_all(p_larc);
+			archive_read_support_format_all(p_larc);
+			archive_read_support_format_empty(p_larc); // @v11.7.0
+			archive_read_set_seek_callback(p_larc, LaCbSeek);
+			const int r = archive_read_open2(p_larc, &cb_blk, LaCbOpen, LaCbRead, LaCbSkip, LaCbClose);
+			THROW(r == 0);
+			{
+				ArchiveEntry * p_entry = 0;
+				const wchar_t * p_entry_name = 0;
+				SFileEntryPool::Entry fep_entry;
+				SString base_path;
+				SString final_path;
+				SString fepentry_full_path;
+				if(!isempty(pDestPath)) {
+					(base_path = pDestPath).Strip();
 				}
-				else
-					suited = true;
-				if(suited) {
-					//rPool.Add(fep_entry);
-					{
-						const void * p_buf;
-						size_t buf_size;
-						int64 offset;
-						int local_ok = 0;
-						int rd_result = archive_read_data_block(p_larc, &p_buf, &buf_size, &offset);
-						if(rd_result == ARCHIVE_OK) {
-							const SFsPath ps_src(fepentry_full_path);
-							SFsPath ps_dest(ps_base);
-							if(ps_src.Dir.NotEmpty() && !(flags & fInflateWithoutSub)) {
-								(temp_buf = ps_src.Dir).ShiftLeftChr('\\').ShiftLeftChr('/');
-								ps_dest.Dir.SetLastSlash().Cat(temp_buf);
-							}
-							ps_dest.Nam = ps_src.Nam;
-							ps_dest.Ext = ps_src.Ext;
-							ps_dest.Merge(final_path);
-							temp_buf.Z();
-							ps_dest.Merge(SFsPath::fDrv|SFsPath::fDir, temp_buf);
-							if(!SFile::CreateDir(temp_buf)) {
-								; // @todo @err
-							}
-							else {
-								SFile f_out(final_path, SFile::mWrite|SFile::mBinary|SFile::mNoStd);
-								do {
-									if(!f_out.Write(p_buf, buf_size)) {
-										rd_result = ARCHIVE_FAILED;
-										; // @todo @err
+				else {
+					SFile::GetCurrentDir(base_path);
+					//base_path.Z();
+				}
+				base_path.RmvLastSlash();
+				const SFsPath ps_base(base_path);
+				while(archive_read_next_header(p_larc, &p_entry) == ARCHIVE_OK) {
+					ConvertLaEntry(p_entry, fep_entry, &temp_buf);
+					SFsPath::NormalizePath(temp_buf, SFsPath::npfSlash|SFsPath::npfCompensateDotDot, fepentry_full_path);
+					bool suited = false;
+					if(!isempty(pWildcard)) {
+						if(fepentry_full_path.IsEqiUtf8(pWildcard)) // @v12.1.6
+							suited = true;
+						else if(SFile::WildcardMatch(pWildcard, fep_entry.Name))
+							suited = true;
+					}
+					else
+						suited = true;
+					if(suited) {
+						//rPool.Add(fep_entry);
+						{
+							const void * p_buf;
+							size_t buf_size;
+							int64 offset;
+							int local_ok = 0;
+							int rd_result = archive_read_data_block(p_larc, &p_buf, &buf_size, &offset);
+							if(rd_result == ARCHIVE_OK) {
+								const SFsPath ps_src(fepentry_full_path);
+								SFsPath ps_dest(ps_base);
+								if(ps_src.Dir.NotEmpty() && !(flags & fInflateWithoutSub)) {
+									(temp_buf = ps_src.Dir).ShiftLeftChr('\\').ShiftLeftChr('/');
+									ps_dest.Dir.SetLastSlash().Cat(temp_buf);
+								}
+								ps_dest.Nam = ps_src.Nam;
+								ps_dest.Ext = ps_src.Ext;
+								ps_dest.Merge(final_path);
+								temp_buf.Z();
+								ps_dest.Merge(SFsPath::fDrv|SFsPath::fDir, temp_buf);
+								if(!SFile::CreateDir(temp_buf)) {
+									; // @todo @err
+								}
+								else {
+									SFile f_out(final_path, SFile::mWrite|SFile::mBinary|SFile::mNoStd);
+									do {
+										if(!f_out.Write(p_buf, buf_size)) {
+											rd_result = ARCHIVE_FAILED;
+											; // @todo @err
+										}
+										else
+											rd_result = archive_read_data_block(p_larc, &p_buf, &buf_size, &offset);
+									} while(rd_result == ARCHIVE_OK);
+									if(rd_result == ARCHIVE_EOF) {
+										f_out.SetDateTime(0LL, 0LL, fep_entry.ModTm_);
+										f_out.Close();
+										CALLPTRMEMB(pResultFnSet, add(final_path));
+										local_ok = 1;
 									}
-									else
-										rd_result = archive_read_data_block(p_larc, &p_buf, &buf_size, &offset);
-								} while(rd_result == ARCHIVE_OK);
-								if(rd_result == ARCHIVE_EOF) {
-									f_out.SetDateTime(0LL, 0LL, fep_entry.ModTm_);
-									f_out.Close();
-									CALLPTRMEMB(pResultFnSet, add(final_path));
-									local_ok = 1;
 								}
 							}
 						}
 					}
-				}
-			}				
+				}				
+			}
+			ok = 1;
 		}
-		ok = 1;
 	}
 	else {
 		// @notimpelemted

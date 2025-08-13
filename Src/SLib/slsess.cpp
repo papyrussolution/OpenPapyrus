@@ -781,13 +781,16 @@ void SlSession::Init(const char * pAppName, HINSTANCE hInst)
 		A_strstr(temp_buf1, "11");
 	}
 	*/
+	AppUuid.Z(); // @v12.3.10
 	H_Inst = NZOR(hInst, GetModuleHandle(0));
 	SSystem::SGetModuleFileName(H_Inst, ExePath);
+	SetAppName(pAppName); // @v12.3.10 
+	/* @v12.3.10 
 	AppName = pAppName;
 	if(AppName.NotEmpty()) {
 		SString n;
 		P_StopEvnt = new Evnt(GetStopEventName(n), Evnt::modeCreate);
-	}
+	} */
 	RegisterBIST();
 	SFileFormat::Register();
 	InitTest();
@@ -796,9 +799,32 @@ void SlSession::Init(const char * pAppName, HINSTANCE hInst)
 void SlSession::SetAppName(const char * pAppName)
 {
 	AppName = pAppName;
-	if(!P_StopEvnt && AppName.NotEmpty()) {
-		SString n;
-		P_StopEvnt = new Evnt(GetStopEventName(n), Evnt::modeCreate);
+	if(AppName.NotEmpty()) {
+		if(!P_StopEvnt) {
+			SString n;
+			P_StopEvnt = new Evnt(GetStopEventName(n), Evnt::modeCreate);
+		}
+		if(!AppUuid) { // @v12.3.10
+			constexpr char * p_param_key = "AppUUID";
+			S_GUID temp_uuid;
+			SString temp_buf;
+			SString reg_key_text;
+			(reg_key_text = SlConst::P_WrKey_Prefix_SobolevEngineering).SetLastSlash().Cat(AppName);
+			{
+				WinRegKey reg_key(HKEY_CURRENT_USER, reg_key_text, 1);
+				if(reg_key.GetString(p_param_key, temp_buf) && temp_uuid.FromStr(temp_buf)) {
+					AppUuid = temp_uuid;
+				}
+			}
+			if(!AppUuid) {
+				temp_uuid.Generate();
+				temp_uuid.ToStr(S_GUID::fmtIDL, temp_buf);
+				WinRegKey reg_key(HKEY_CURRENT_USER, reg_key_text, 0);
+				if(reg_key.PutString(p_param_key, temp_buf)) {
+					AppUuid = temp_uuid;
+				}
+			}
+		}
 	}
 }
 

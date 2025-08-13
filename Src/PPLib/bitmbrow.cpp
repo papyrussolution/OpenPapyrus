@@ -4688,7 +4688,7 @@ void BillItemBrowser::addItemExt(int mode)
 								if(!ht.Has(iter_ident)) {
 									bool   local_skip = false;
 									// @v12.3.9 {
-									if(GObj.Fetch(iter_ident, &goods_rec) > 0 && (goods_rec.Flags | (GF_UNLIM|GF_AUTOCOMPL))) {
+									if(GObj.Fetch(iter_ident, &goods_rec) > 0 && (goods_rec.Flags & (GF_UNLIM|GF_AUTOCOMPL))) { // @v12.3.10 @fix (goods_rec.Flags |)-->(goods_rec.Flags &)
 										local_skip = true;
 									}
 									// } @v12.3.9 

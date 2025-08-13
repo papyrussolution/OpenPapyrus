@@ -476,7 +476,7 @@ typedef uLong uLongf;
 #ifdef ZLIB_INTERNAL
 	#include <slib.h>
 #endif
-
+#define Z_LARGE64 // @v12.3.10
 #ifdef __cplusplus
 extern "C" {
 #endif

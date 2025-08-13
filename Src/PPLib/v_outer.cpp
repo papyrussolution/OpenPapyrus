@@ -44,30 +44,32 @@ PPViewWbPublicGoods::PPViewWbPublicGoods() : PPView(0, &Filt, PPVIEW_WBPUBLICGOO
 {
 	int    ok = -1;
 	if(Helper_InitBaseFilt(pBaseFilt)) {
-		if(0) { // @debug
-			PPMarketplaceInterface_Wildberries::PickUpPointPool pupp;
-			PPMarketplaceInterface_Wildberries::LoadPublicPickUpPointList(pupp, true/*useCache*/); 
-		}
-		TotalResultCountOnServer = 0;
-		if(Filt.SearchPatternUtf8.NotEmptyS()) {
-			PPMarketplaceInterface_Wildberries::LoadPublicGoodsList(CatPool, Filt, GoodsPool);
+		if(Filt.ViewKind == MarketplaceGoodsSelectionFilt::vkPickUpPoints) {
+			PPMarketplaceInterface_Wildberries::LoadPublicPickUpPointList(PupPool, true/*useCache*/); 
 			ok = 1;
 		}
-		else if(Filt.CatID) {
-			if(!CatPool.GetCount())
-				PPMarketplaceInterface_Wildberries::LoadPublicGoodsCategoryList(CatPool, true);
-			if(CatPool.GetCount()) {
+		else {
+			TotalResultCountOnServer = 0;
+			if(Filt.SearchPatternUtf8.NotEmptyS()) {
 				PPMarketplaceInterface_Wildberries::LoadPublicGoodsList(CatPool, Filt, GoodsPool);
 				ok = 1;
 			}
-		}
-		else if(Filt.BrandID) {
-			PPMarketplaceInterface_Wildberries::LoadPublicGoodsList(CatPool, Filt, GoodsPool);
-			ok = 1;
-		}
-		else if(Filt.SupplID) {
-			PPMarketplaceInterface_Wildberries::LoadPublicGoodsList(CatPool, Filt, GoodsPool);
-			ok = 1;
+			else if(Filt.CatID) {
+				if(!CatPool.GetCount())
+					PPMarketplaceInterface_Wildberries::LoadPublicGoodsCategoryList(CatPool, true);
+				if(CatPool.GetCount()) {
+					PPMarketplaceInterface_Wildberries::LoadPublicGoodsList(CatPool, Filt, GoodsPool);
+					ok = 1;
+				}
+			}
+			else if(Filt.BrandID) {
+				PPMarketplaceInterface_Wildberries::LoadPublicGoodsList(CatPool, Filt, GoodsPool);
+				ok = 1;
+			}
+			else if(Filt.SupplID) {
+				PPMarketplaceInterface_Wildberries::LoadPublicGoodsList(CatPool, Filt, GoodsPool);
+				ok = 1;
+			}
 		}
 	}
 	else
@@ -81,39 +83,80 @@ int PPViewWbPublicGoods::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 	assert(pBlk->P_SrcData && pBlk->P_DestData); // Функция вызывается только из одной локации и эти members != 0 равно как и pBlk != 0
 	SString temp_buf;
 	const uint * p_idx = static_cast<const uint *>(pBlk->P_SrcData);
-	const auto * p_entry = GoodsPool.GetEntryC((*p_idx)-1); // Индексы заданы в диапазоне [1..GoodsPool.GetCount()]
-	assert(p_entry);
-	switch(pBlk->ColumnN) {
-		case 1: // Ид товара
-			pBlk->Set(p_entry->ID);
-			break;
-		case 2: // Наименование товара
-			GoodsPool.GetS(p_entry->NameP, temp_buf);
-			pBlk->Set(temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
-			break;
-		case 3: // Наименование бренда
-			GoodsPool.GetS(p_entry->BrandP, temp_buf);
-			pBlk->Set(temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
-			break;
-		case 4: // Имя поставщика
-			GoodsPool.GetS(p_entry->SupplP, temp_buf);
-			pBlk->Set(temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
-			break;
-		case 5: // Цена
-			{
-				double price = 0.0;
-				if(p_entry->SizeL.getCount()) {
-					price = static_cast<double>(p_entry->SizeL.at(0).Price100_Product) / 100.0;
+	if(Filt.ViewKind == MarketplaceGoodsSelectionFilt::vkPickUpPoints) {
+		const auto * p_entry = PupPool.GetEntryC((*p_idx)-1); // Индексы заданы в диапазоне [1..PupPool.GetCount()]
+		assert(p_entry);
+		switch(pBlk->ColumnN) {
+			case 1: // id
+				pBlk->Set(p_entry->ID);
+				break;
+			case 2: // country
+				pBlk->Set(temp_buf.Z());
+				break;
+			case 3: // appellation
+				PupPool.GetS(p_entry->NameP, temp_buf);
+				pBlk->Set(temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
+				break;
+			case 4: // address
+				PupPool.GetS(p_entry->AddrP, temp_buf);
+				pBlk->Set(temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
+				break;
+			case 5: // workingtime
+				PupPool.GetS(p_entry->WorkTimeP, temp_buf);
+				pBlk->Set(temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
+				break;
+			case 6: // geocoord
+				pBlk->Set(temp_buf.Z());
+				break;
+			case 7: // rating
+				pBlk->Set(static_cast<double>(p_entry->Rate));
+				break;
+			case 8: // fittingroomcount
+				pBlk->Set(static_cast<long>(p_entry->FittingRoomCount));
+				break;
+			case 9: // dest
+				pBlk->Set(p_entry->Dest);
+				break;
+			case 10: // dest3
+				pBlk->Set(p_entry->Dest3);
+				break;
+		}
+	}
+	else {
+		const auto * p_entry = GoodsPool.GetEntryC((*p_idx)-1); // Индексы заданы в диапазоне [1..GoodsPool.GetCount()]
+		assert(p_entry);
+		switch(pBlk->ColumnN) {
+			case 1: // Ид товара
+				pBlk->Set(p_entry->ID);
+				break;
+			case 2: // Наименование товара
+				GoodsPool.GetS(p_entry->NameP, temp_buf);
+				pBlk->Set(temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
+				break;
+			case 3: // Наименование бренда
+				GoodsPool.GetS(p_entry->BrandP, temp_buf);
+				pBlk->Set(temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
+				break;
+			case 4: // Имя поставщика
+				GoodsPool.GetS(p_entry->SupplP, temp_buf);
+				pBlk->Set(temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
+				break;
+			case 5: // Цена
+				{
+					double price = 0.0;
+					if(p_entry->SizeL.getCount()) {
+						price = static_cast<double>(p_entry->SizeL.at(0).Price100_Product) / 100.0;
+					}
+					pBlk->Set(price);
 				}
-				pBlk->Set(price);
-			}
-			break;
-		case 6: // Рейтинг
-			pBlk->Set(static_cast<double>(p_entry->ReviewRating));
-			break;
-		case 7: // Количество оценок
-			pBlk->Set(static_cast<long>(p_entry->FeedbackCount));
-			break;
+				break;
+			case 6: // Рейтинг
+				pBlk->Set(static_cast<double>(p_entry->ReviewRating));
+				break;
+			case 7: // Количество оценок
+				pBlk->Set(static_cast<long>(p_entry->FeedbackCount));
+				break;
+		}
 	}
 	return ok;
 }
@@ -147,7 +190,19 @@ void PPViewWbPublicGoods::PreprocessBrowser(PPViewBrowser * pBrw)
 				return (pBlk && pBlk->ExtraPtr) ? static_cast<PPViewWbPublicGoods *>(pBlk->ExtraPtr)->_GetDataForBrowser(pBlk) : 0;				
 			}, this);
 		//pBrw->SetCellStyleFunc(CellStyleFunc, pBrw);
-		{
+		if(Filt.ViewKind == MarketplaceGoodsSelectionFilt::vkPickUpPoints) {
+			pBrw->InsColumn(-1, "@id",            1, T_INT32, ALIGN_RIGHT, BCO_USERPROC);
+			pBrw->InsColumn(-1, "@country",       2, MKSTYPE(S_ZSTRING, 32),  0, BCO_USERPROC);
+			pBrw->InsColumn(-1, "@appellation",   3, MKSTYPE(S_ZSTRING, 64),  0, BCO_USERPROC);
+			pBrw->InsColumn(-1, "@address",       4, MKSTYPE(S_ZSTRING, 200), 0, BCO_USERPROC);
+			pBrw->InsColumn(-1, "@workingtime",   5, MKSTYPE(S_ZSTRING, 200), 0, BCO_USERPROC);
+			pBrw->InsColumn(-1, "@geocoord",      6, MKSTYPE(S_ZSTRING, 64),  0, BCO_USERPROC);
+			pBrw->InsColumn(-1, "@rating",        7, MKSTYPE(S_FLOAT, 8),     MKSFMTD(0, 1, NMBF_NOZERO), BCO_USERPROC);
+			pBrw->InsColumn(-1, "@fittingroomcount", 8, T_INT32,              0, BCO_USERPROC);
+			pBrw->InsColumn(-1, "Destination",       9, T_INT64,                ALIGN_RIGHT, BCO_USERPROC);
+			pBrw->InsColumn(-1, "Destination3",     10, T_INT64,                ALIGN_RIGHT, BCO_USERPROC);
+		}
+		else {
 			pBrw->InsColumn(-1, "@id",            1, T_INT64, 0, BCO_USERPROC);
 			pBrw->InsColumn(-1, "@appellation",   2, MKSTYPE(S_ZSTRING, 200), 0, BCO_USERPROC);
 			pBrw->InsColumn(-1, "@brand",         3, MKSTYPE(S_ZSTRING, 200), 0, BCO_USERPROC);
@@ -168,11 +223,22 @@ int PPViewWbPublicGoods::MakeList(PPViewBrowser * pBrw)
 		P_DsList->clear();
 	else
 		P_DsList = new TSArray <uint>();
-	for(uint i = 0; i < GoodsPool.GetCount(); i++) {
-		const PPMarketplaceInterface_Wildberries::PublicWarePool::Entry * p_entry = GoodsPool.GetEntryC(i);
-		if(p_entry) {
-			uint   idx = i+1;
-			P_DsList->insert(&idx);
+	if(Filt.ViewKind == MarketplaceGoodsSelectionFilt::vkPickUpPoints) {
+		for(uint i = 0; i < PupPool.GetCount(); i++) {
+			const PPMarketplaceInterface_Wildberries::PickUpPointPool::Entry * p_entry = PupPool.GetEntryC(i);
+			if(p_entry) {
+				uint   idx = i+1;
+				P_DsList->insert(&idx);
+			}
+		}
+	}
+	else {
+		for(uint i = 0; i < GoodsPool.GetCount(); i++) {
+			const PPMarketplaceInterface_Wildberries::PublicWarePool::Entry * p_entry = GoodsPool.GetEntryC(i);
+			if(p_entry) {
+				uint   idx = i+1;
+				P_DsList->insert(&idx);
+			}
 		}
 	}
 	if(pBrw) {
@@ -205,21 +271,25 @@ void PPViewWbPublicGoods::CalcTotal(WbPublicGoodsTotal * pTotal)
 	WbPublicGoodsTotal total;
 	Int64Array brand_list;
 	Int64Array vendor_list;
-	total.CountOnServer = GoodsPool.TotalCountOnServer;
-	total.Count = GoodsPool.GetCount();
-	for(uint i = 0; i < GoodsPool.GetCount(); i++) {
-		const auto * p_entry = GoodsPool.GetEntryC(i);
-		if(p_entry) {
-			if(p_entry->BrandID)
-				brand_list.add(p_entry->BrandID);
-			if(p_entry->SupplID)
-				vendor_list.add(p_entry->SupplID);
-		}
+	if(Filt.ViewKind == MarketplaceGoodsSelectionFilt::vkPickUpPoints) {
 	}
-	brand_list.sortAndUndup();
-	vendor_list.sortAndUndup();
-	total.BrandCount = brand_list.getCount();
-	total.VendorCount = vendor_list.getCount();
+	else {
+		total.CountOnServer = GoodsPool.TotalCountOnServer;
+		total.Count = GoodsPool.GetCount();
+		for(uint i = 0; i < GoodsPool.GetCount(); i++) {
+			const auto * p_entry = GoodsPool.GetEntryC(i);
+			if(p_entry) {
+				if(p_entry->BrandID)
+					brand_list.add(p_entry->BrandID);
+				if(p_entry->SupplID)
+					vendor_list.add(p_entry->SupplID);
+			}
+		}
+		brand_list.sortAndUndup();
+		vendor_list.sortAndUndup();
+		total.BrandCount = brand_list.getCount();
+		total.VendorCount = vendor_list.getCount();
+	}
 	ASSIGN_PTR(pTotal, total);
 }
 
@@ -240,23 +310,28 @@ void PPViewWbPublicGoods::CalcTotal(WbPublicGoodsTotal * pTotal)
 /*virtual*/int PPViewWbPublicGoods::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
 	uint   idx = pHdr ? *static_cast<const uint *>(pHdr) : 0;
-	auto * p_entry = GoodsPool.GetEntry(idx-1); // Индексы заданы в диапазоне [1..GoodsPool.GetCount()]
-	if(p_entry) {
-		SString temp_buf;
-		TDialog * dlg = new TDialog(DLG_WBGOODSLISTDETAIL);
-		if(CheckDialogPtrErr(&dlg)) {
-			dlg->setCtrlData(CTL_WBGOODSLISTDETAIL_ID, &p_entry->ID);
-			GoodsPool.GetS(p_entry->NameP, temp_buf);
-			dlg->setCtrlString(CTL_WBGOODSLISTDETAIL_NAME, temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
-			dlg->setCtrlData(CTL_WBGOODSLISTDETAIL_BRANDID, &p_entry->BrandID);
-			GoodsPool.GetS(p_entry->BrandP, temp_buf);
-			dlg->setCtrlString(CTL_WBGOODSLISTDETAIL_BRAND, temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
-			dlg->setCtrlData(CTL_WBGOODSLISTDETAIL_SUPPLID, &p_entry->SupplID);
-			GoodsPool.GetS(p_entry->SupplP, temp_buf);
-			dlg->setCtrlString(CTL_WBGOODSLISTDETAIL_SUPPL, temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
-			GoodsPool.GetS(p_entry->EntityP, temp_buf);
-			dlg->setCtrlString(CTL_WBGOODSLISTDETAIL_ENT, temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
-			ExecViewAndDestroy(dlg);
+	if(Filt.ViewKind == MarketplaceGoodsSelectionFilt::vkPickUpPoints) {
+		;
+	}
+	else {
+		auto * p_entry = GoodsPool.GetEntry(idx-1); // Индексы заданы в диапазоне [1..GoodsPool.GetCount()]
+		if(p_entry) {
+			SString temp_buf;
+			TDialog * dlg = new TDialog(DLG_WBGOODSLISTDETAIL);
+			if(CheckDialogPtrErr(&dlg)) {
+				dlg->setCtrlData(CTL_WBGOODSLISTDETAIL_ID, &p_entry->ID);
+				GoodsPool.GetS(p_entry->NameP, temp_buf);
+				dlg->setCtrlString(CTL_WBGOODSLISTDETAIL_NAME, temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
+				dlg->setCtrlData(CTL_WBGOODSLISTDETAIL_BRANDID, &p_entry->BrandID);
+				GoodsPool.GetS(p_entry->BrandP, temp_buf);
+				dlg->setCtrlString(CTL_WBGOODSLISTDETAIL_BRAND, temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
+				dlg->setCtrlData(CTL_WBGOODSLISTDETAIL_SUPPLID, &p_entry->SupplID);
+				GoodsPool.GetS(p_entry->SupplP, temp_buf);
+				dlg->setCtrlString(CTL_WBGOODSLISTDETAIL_SUPPL, temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
+				GoodsPool.GetS(p_entry->EntityP, temp_buf);
+				dlg->setCtrlString(CTL_WBGOODSLISTDETAIL_ENT, temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
+				ExecViewAndDestroy(dlg);
+			}
 		}
 	}
 	return -1;
@@ -271,7 +346,7 @@ void PPViewWbPublicGoods::CalcTotal(WbPublicGoodsTotal * pTotal)
 		switch(ppvCmd) {
 			case PPVCMD_USERSORT: ok = 1; break; // The rest will be done below
 			case PPVCMD_WWWLINK: 
-				{
+				if(Filt.ViewKind != MarketplaceGoodsSelectionFilt::vkPickUpPoints) {
 					auto * p_entry = GoodsPool.GetEntry(idx-1); // Индексы заданы в диапазоне [1..GoodsPool.GetCount()]
 					if(p_entry) {
 						//https://www.wildberries.ru/catalog/9020554/detail.aspx
@@ -287,7 +362,7 @@ void PPViewWbPublicGoods::CalcTotal(WbPublicGoodsTotal * pTotal)
 				break;
 			case PPVCMD_SIMILARITY:
 				ok = -1;
-				{
+				if(Filt.ViewKind != MarketplaceGoodsSelectionFilt::vkPickUpPoints) {
 					auto * p_entry = GoodsPool.GetEntry(idx-1); // Индексы заданы в диапазоне [1..GoodsPool.GetCount()]
 					if(p_entry && pBrw && pBrw->getDefC()) {
 						int col_idx = pBrw->GetCurColumn();

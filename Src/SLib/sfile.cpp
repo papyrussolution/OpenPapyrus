@@ -5,6 +5,7 @@
 #pragma hdrstop
 #include <share.h>
 #include <AclAPI.h>
+#include <../SLib/bzip2/bzlib.h>
 // @v11.7.1 #include <sys/locking.h>
 
 /* mimetypes.dict
@@ -1812,7 +1813,7 @@ int SFile::GetBuffer(SBaseBuffer & rBuf) const
 bool SFile::IsValid() const
 {
 	assert(InvariantC(0));
-	bool ok = (GetFilePtr() || GetSBufPtr() || (T == tArchive && !!H) || IH >= 0 || T == tNullOutput);
+	bool ok = (GetFilePtr() || GetSBufPtr() || (T == tArchive && !!H) || (T == tFfGz && !!H) || (T == tFfBz2 && !!H) || IH >= 0 || T == tNullOutput);
 	if(!ok)
 		SLS.SetError(SLERR_FILENOTOPENED);
 	return ok;
@@ -1881,143 +1882,178 @@ int SFile::Open(const char * pName, long mode)
 	bool   err_inited = false; // @v11.3.3
 	SString mode_buf;
 	SString _file_name(pName);
-	// @v10.6.0 const  long   m = (mode & ~(mBinary | mDenyRead | mDenyWrite | mNoStd | mNullWrite));
 	int    oflag = 0;
 	int    pflag = S_IREAD | S_IWRITE;
 	int    shflag = 0;
-	Mode = mode;
-	const  long en_mode = (mode & ~(mBinary|mDenyRead|mDenyWrite|mNoStd|mNullWrite|mBuffRd)); // Перечисляемая часть режима открытия файла
-	switch(en_mode) { // @v10.6.0
-		case mRead:
-			oflag |= O_RDONLY;
-			mode_buf.CatChar('r');
-			break;
-		case mWrite:
-			oflag |= (O_WRONLY | O_CREAT | O_TRUNC);
-			mode_buf.CatChar('w');
-			break;
-		case mAppend:
-			oflag |= (O_WRONLY | O_CREAT | O_APPEND);
-			mode_buf.CatChar('a');
-			break;
-		case mReadWrite:
-			oflag |= (O_RDWR | O_CREAT);
-			mode_buf.CatChar('r').CatChar('+');
-			break;
-		case mReadWriteTrunc:
-			oflag |= (O_RDWR | O_TRUNC | O_CREAT);
-			mode_buf.CatChar('w').CatChar('+');
-			break;
-		case mAppendRead:
-			oflag |= (O_RDWR | O_APPEND);
-			mode_buf.CatChar('a').CatChar('+');
-			break;
-	}
-	if(mode & mBinary) {
-		oflag |= O_BINARY;
-		mode_buf.CatChar('b');
-	}
-	else {
-		oflag |= O_TEXT;
-		mode_buf.CatChar('t');
-	}
-	if(mode & mDenyRead && mode & mDenyWrite)
-		shflag = SH_DENYRW;
-	else if(mode & mDenyRead)
-		shflag = SH_DENYRD;
-	else if(mode & mDenyWrite)
-		shflag = SH_DENYWR;
-	else
-		shflag = SH_DENYNO;
-	Close();
-	if(_file_name.HasChr('?')) { // @v11.9.5 Возможно, это - архив
-		SString left_buf;
-		SString right_buf;
-		SString temp_buf;
-		const int dr = _file_name.Divide('?', left_buf, right_buf);
-		assert(dr > 0); // Не может быть, что dr <= 0 ибо мы выше проверили, что в строке есть '?'
-		if(dr > 0) {
-			if(left_buf.HasChr('?') || right_buf.HasChr('?')) {
-				// @todo @err (недопустимое имя файла)
-				ok = 0;
+	if(mode & mReadCompressed) { // @v12.3.10 Этот случай обрабатываем специальным образом
+		SFileFormat ff;
+		int ffr = ff.Identify(_file_name, 0);
+		if(oneof2(ffr, 2, 3)) {
+			if(ff == SFileFormat::Gz) {
+				gzFile h = gzopen64(pName, "r"); // Файл в любом случае открывается в бинарном режиме
+				if(h) {
+					H = h;
+					T = tFfGz;
+					Mode = mRead | (mReadCompressed | mBinary);
+				}
+				else {
+					ok = 0; // @todo @err
+				}
+			}
+			else if(ff == SFileFormat::Bz2) {
+				BZFILE * h = BZ2_bzopen(pName, "r"); // Файл в любом случае открывается в бинарном режиме
+				if(h) {
+					H = h;
+					T = tFfBz2;
+					Mode = mRead | (mReadCompressed | mBinary);
+				}
+				else {
+					ok = 0; // @todo @err
+				}
 			}
 			else {
-				if(fileExists(left_buf)) {
-					// Трактуем строку pFileName как имя файла внутри архива. При этом
-					// на текущий момент left_buf - имя архива, right_buf - имя файла внутри архива
-					if(en_mode != mRead) { // Архив может быть открыт объектом SFile только для чтения!
-						ok = 0;
-					}
-					else {
-						SFileEntryPool fep;
-						int    arc_format = 0;
-						right_buf = SFsPath::NormalizePath(right_buf, SFsPath::npfSlash|SFsPath::npfCompensateDotDot, temp_buf);
-						if(SArchive::List(SArchive::providerLA, &arc_format, left_buf, 0, fep) > 0) {
-							SFileEntryPool::Entry fe;
-							SString arc_sub;
-							for(uint i = 0; i < fep.GetCount(); i++) {
-								if(fep.Get(i, &fe, &arc_sub) > 0) {
-									if(SFsPath::NormalizePath(arc_sub, SFsPath::npfSlash|SFsPath::npfCompensateDotDot, temp_buf).IsEqiUtf8(right_buf)) {
-										H = SArchive::OpenArchiveEntry(SArchive::providerLA, left_buf, right_buf);
-										if(!!H) {
-											T = tArchive;
-											ok = 1;
+				ok = 0; // @todo @err
+			}
+		}
+		else {
+			ok = 0; // @todo @err
+		}
+	}
+	else {
+		Mode = mode;
+		const  long en_mode = (mode & ~(mBinary|mDenyRead|mDenyWrite|mNoStd|mNullWrite|mBuffRd|mReadCompressed)); // Перечисляемая часть режима открытия файла
+		switch(en_mode) {
+			case mRead:
+				oflag |= O_RDONLY;
+				mode_buf.CatChar('r');
+				break;
+			case mWrite:
+				oflag |= (O_WRONLY | O_CREAT | O_TRUNC);
+				mode_buf.CatChar('w');
+				break;
+			case mAppend:
+				oflag |= (O_WRONLY | O_CREAT | O_APPEND);
+				mode_buf.CatChar('a');
+				break;
+			case mReadWrite:
+				oflag |= (O_RDWR | O_CREAT);
+				mode_buf.CatChar('r').CatChar('+');
+				break;
+			case mReadWriteTrunc:
+				oflag |= (O_RDWR | O_TRUNC | O_CREAT);
+				mode_buf.CatChar('w').CatChar('+');
+				break;
+			case mAppendRead:
+				oflag |= (O_RDWR | O_APPEND);
+				mode_buf.CatChar('a').CatChar('+');
+				break;
+		}
+		if(mode & mBinary) {
+			oflag |= O_BINARY;
+			mode_buf.CatChar('b');
+		}
+		else {
+			oflag |= O_TEXT;
+			mode_buf.CatChar('t');
+		}
+		if(mode & mDenyRead && mode & mDenyWrite)
+			shflag = SH_DENYRW;
+		else if(mode & mDenyRead)
+			shflag = SH_DENYRD;
+		else if(mode & mDenyWrite)
+			shflag = SH_DENYWR;
+		else
+			shflag = SH_DENYNO;
+		Close();
+		if(_file_name.HasChr('?')) { // @v11.9.5 Возможно, это - архив
+			SString left_buf;
+			SString right_buf;
+			SString temp_buf;
+			const int dr = _file_name.Divide('?', left_buf, right_buf);
+			assert(dr > 0); // Не может быть, что dr <= 0 ибо мы выше проверили, что в строке есть '?'
+			if(dr > 0) {
+				if(left_buf.HasChr('?') || right_buf.HasChr('?')) {
+					// @todo @err (недопустимое имя файла)
+					ok = 0;
+				}
+				else {
+					if(fileExists(left_buf)) {
+						// Трактуем строку pFileName как имя файла внутри архива. При этом
+						// на текущий момент left_buf - имя архива, right_buf - имя файла внутри архива
+						if(en_mode != mRead) { // Архив может быть открыт объектом SFile только для чтения!
+							ok = 0;
+						}
+						else {
+							SFileEntryPool fep;
+							int    arc_format = 0;
+							right_buf = SFsPath::NormalizePath(right_buf, SFsPath::npfSlash|SFsPath::npfCompensateDotDot, temp_buf);
+							if(SArchive::List(SArchive::providerLA, &arc_format, left_buf, 0, fep) > 0) {
+								SFileEntryPool::Entry fe;
+								SString arc_sub;
+								for(uint i = 0; i < fep.GetCount(); i++) {
+									if(fep.Get(i, &fe, &arc_sub) > 0) {
+										if(SFsPath::NormalizePath(arc_sub, SFsPath::npfSlash|SFsPath::npfCompensateDotDot, temp_buf).IsEqiUtf8(right_buf)) {
+											H = SArchive::OpenArchiveEntry(SArchive::providerLA, left_buf, right_buf);
+											if(!!H) {
+												T = tArchive;
+												ok = 1;
+											}
+											break;
 										}
-										break;
 									}
 								}
 							}
 						}
 					}
-				}
-				else {
-					ok = 0;
-				}
-			}
-		}
-	}
-	else { // Валидное имя файла не может содержать символов '?'
-		//
-		// @v11.6.0 Добавлена предварительная обработка имени файла на предмет кодировки:
-		//   - если имя файла состоит только из ascii-символов, то все как обычно (sopen)
-		//   - если имя файла состоит из валидных utf8-символов, то преобразуем его в unicode и используем _wsopen
-		//   - в противном случае уповаем на провидение и используем sopen как есть.
-		//
-		if(_file_name.IsAscii()) {
-			IH = sopen(_file_name, oflag, shflag, pflag);
-		}
-		else if(_file_name.IsLegalUtf8()) {
-			SStringU & r_temp_buf_u = SLS.AcquireRvlStrU();
-			r_temp_buf_u.CopyFromUtf8(_file_name);
-			IH = _wsopen(r_temp_buf_u.ucptr(), oflag, shflag, pflag);
-		}
-		else {
-			IH = sopen(pName, oflag, shflag, pflag);
-		}
-		//_wsopen(
-		if(IH >= 0) {
-			if(!(mode & mNoStd)) {
-				H = fdopen(IH, mode_buf);
-				if(!!H)
-					T = tStdFile;
-				else {
-					SLS.SetErrorErrno(pName); // @v11.3.3
-					err_inited = true;
-					close(IH);
-					IH = -1;
+					else {
+						ok = 0;
+					}
 				}
 			}
-			else
-				T = tFile;
 		}
-		if(IsValid()) {
-			Mode = mode;
-			Name = pName;
-			ok = 1;
-		}
-		else {
-			ok = err_inited ? 0 : SLS.SetError(SLERR_OPENFAULT, pName);
-			Init();
+		else { // Валидное имя файла не может содержать символов '?'
+			//
+			// @v11.6.0 Добавлена предварительная обработка имени файла на предмет кодировки:
+			//   - если имя файла состоит только из ascii-символов, то все как обычно (sopen)
+			//   - если имя файла состоит из валидных utf8-символов, то преобразуем его в unicode и используем _wsopen
+			//   - в противном случае уповаем на провидение и используем sopen как есть.
+			//
+			if(_file_name.IsAscii()) {
+				IH = sopen(_file_name, oflag, shflag, pflag);
+			}
+			else if(_file_name.IsLegalUtf8()) {
+				SStringU & r_temp_buf_u = SLS.AcquireRvlStrU();
+				r_temp_buf_u.CopyFromUtf8(_file_name);
+				IH = _wsopen(r_temp_buf_u.ucptr(), oflag, shflag, pflag);
+			}
+			else {
+				IH = sopen(pName, oflag, shflag, pflag);
+			}
+			//_wsopen(
+			if(IH >= 0) {
+				if(!(mode & mNoStd)) {
+					H = fdopen(IH, mode_buf);
+					if(!!H)
+						T = tStdFile;
+					else {
+						SLS.SetErrorErrno(pName); // @v11.3.3
+						err_inited = true;
+						close(IH);
+						IH = -1;
+					}
+				}
+				else
+					T = tFile;
+			}
+			if(IsValid()) {
+				Mode = mode;
+				Name = pName;
+				ok = 1;
+			}
+			else {
+				ok = err_inited ? 0 : SLS.SetError(SLERR_OPENFAULT, pName);
+				Init();
+			}
 		}
 	}
 	return ok;
@@ -2030,6 +2066,24 @@ int SFile::Close()
 	if(T == tSBuffer) {
 		delete GetSBufPtr();
 		Init();
+	}
+	else if(T == tFfGz) {
+		assert(Mode & mReadCompressed);
+		if(!!H) {
+			gzclose(static_cast<gzFile>(static_cast<void *>(H)));
+			H = 0;
+		}
+		else
+			ok = -1;
+	}
+	else if(T == tFfBz2) {
+		assert(Mode & mReadCompressed);
+		if(!!H) {
+			BZ2_bzclose(H);
+			H = 0;
+		}
+		else
+			ok = -1;
 	}
 	else {
 		for(uint i = 0; i < LckList.getCount(); i++) {
@@ -2085,6 +2139,16 @@ bool SFile::Seek(long offs, int origin)
 			else
 				ok = false;
 		}
+		else if(T == tFfGz) {
+			if(!!H) {
+				ok = (gzseek(static_cast<gzFile>(static_cast<void *>(H)), offs, origin) >= 0);
+			}
+			else
+				ok = false;
+		}
+		else if(T == tFfBz2) {
+			ok = false; // Для bzip2 функционал перемещения курсора не поддерживается //
+		}
 		else {
 			FILE * p_f = GetFilePtr();
 			if(p_f) {
@@ -2131,6 +2195,16 @@ bool SFile::Seek64(int64 offs, int origin)
 			else
 				ok = false;
 		}
+		else if(T == tFfGz) {
+			if(!!H) {
+				ok = (gzseek64(static_cast<gzFile>(static_cast<void *>(H)), offs, origin) >= 0);
+			}
+			else
+				ok = false;
+		}
+		else if(T == tFfBz2) {
+			ok = false; // Для bzip2 функционал перемещения курсора не поддерживается //
+		}
 		else {
 			FILE * p_f = GetFilePtr();
 			if(p_f) {
@@ -2155,26 +2229,38 @@ bool SFile::Seek64(int64 offs, int origin)
 long SFile::Tell()
 {
 	assert(InvariantC(0));
-	long   t = 0;
+	long   t = 0; // @todo must be -1 (необходимо осмотреться - не повлечет ли это побочных проблем)
 	SBuffer * p_sb = GetSBufPtr();
 	if(p_sb) {
 		t = static_cast<long>(p_sb->GetRdOffs());
 	}
 	else {
-		FILE * p_f = GetFilePtr();
-		if(p_f)
-			t = ftell(p_f);
-		else if(IH >= 0) {
-			t = tell(IH);
-			if(t >= 0) {
-				const long bo = static_cast<long>(BufR.GetWrOffs());
-				assert(bo <= t);
-				if(bo <= t)
-					t -= bo;
+		if(T == tFfGz) {
+			if(!!H) {
+				t = static_cast<long>(gztell64(static_cast<gzFile>(static_cast<void *>(H))));
 			}
+			else
+				t = (SLibError = SLERR_FILENOTOPENED, -1);
 		}
-		else
-			t = (SLibError = SLERR_FILENOTOPENED, 0);
+		else if(T == tFfBz2) {
+			t = -1; // Для bzip2 функционал перемещения курсора не поддерживается //
+		}
+		else {
+			FILE * p_f = GetFilePtr();
+			if(p_f)
+				t = ftell(p_f);
+			else if(IH >= 0) {
+				t = tell(IH);
+				if(t >= 0) {
+					const long bo = static_cast<long>(BufR.GetWrOffs());
+					assert(bo <= t);
+					if(bo <= t)
+						t -= bo;
+				}
+			}
+			else
+				t = (SLibError = SLERR_FILENOTOPENED, 0); // @todo must return -1 (необходимо осмотреться - не повлечет ли это побочных проблем)
+		}
 	}
 	return t;
 }
@@ -2189,27 +2275,39 @@ int64 SFile::Tell64()
 		t = static_cast<int64>(p_sb->GetRdOffs());
 	}
 	else {
-		FILE * p_f = GetFilePtr();
-		if(p_f) {
-#if (_MSC_VER >= 1900)
-			t = _ftelli64(p_f);
-#else
-			t = ftell(p_f);
-#endif
-		}
-		else if(IH >= 0) {
-			t = _telli64(IH);
-			if(t >= 0) {
-				const int64 bo = static_cast<int64>(BufR.GetWrOffs());
-				assert(bo <= t);
-				if(bo <= t)
-					t -= bo;
+		if(T == tFfGz) {
+			if(!!H) {
+				t = gztell64(static_cast<gzFile>(static_cast<void *>(H)));
 			}
+			else
+				t = (SLibError = SLERR_FILENOTOPENED, -1);
+		}
+		else if(T == tFfBz2) {
+			t = -1; // Для bzip2 функционал перемещения курсора не поддерживается //
 		}
 		else {
-			SLS.SetError(SLERR_FILENOTOPENED); // @v11.3.7
-			t = -1LL; // @v11.3.7
-			// @v11.3.7 t = (SLibError = SLERR_FILENOTOPENED, 0);
+			FILE * p_f = GetFilePtr();
+			if(p_f) {
+	#if (_MSC_VER >= 1900)
+				t = _ftelli64(p_f);
+	#else
+				t = ftell(p_f);
+	#endif
+			}
+			else if(IH >= 0) {
+				t = _telli64(IH);
+				if(t >= 0) {
+					const int64 bo = static_cast<int64>(BufR.GetWrOffs());
+					assert(bo <= t);
+					if(bo <= t)
+						t -= bo;
+				}
+			}
+			else {
+				SLS.SetError(SLERR_FILENOTOPENED); // @v11.3.7
+				t = -1LL; // @v11.3.7
+				// @v11.3.7 t = (SLibError = SLERR_FILENOTOPENED, 0);
+			}
 		}
 	}
 	return t;
@@ -2218,9 +2316,24 @@ int64 SFile::Tell64()
 int SFile::Flush()
 {
 	int    ok = -1;
-	FILE * p_f = GetFilePtr();
-	if(p_f)
-		ok = BIN(fflush(p_f) == 0);
+	if(T == tFfGz) {
+		if(!!H) {
+			ok = (gzflush(static_cast<gzFile>(static_cast<void *>(H)), Z_FINISH) == 0);
+		}
+		else
+			ok = (SLibError = SLERR_FILENOTOPENED, 0);
+	}
+	else if(T == tFfBz2) {
+		if(!!H)
+			BZ2_bzflush(H);
+		else
+			ok = (SLibError = SLERR_FILENOTOPENED, 0);
+	}
+	else {
+		FILE * p_f = GetFilePtr();
+		if(p_f)
+			ok = BIN(fflush(p_f) == 0);
+	}
 	return ok;
 }
 
@@ -2232,6 +2345,12 @@ int SFile::Write(const void * pBuf, size_t size)
 		ok = 1;
 	else if(T == tArchive)
 		ok = 0;
+	else if(T == tFfGz) {
+		ok = 0; // @todo
+	}
+	else if(T == tFfBz2) {
+		ok = 0; // @todo
+	}
 	else {
 		SBuffer * p_sb = GetSBufPtr();
 		if(p_sb)
@@ -2287,6 +2406,24 @@ int SFile::Read(void * pBuf, size_t size, size_t * pActualSize)
 					act_size = static_cast<int>(act_size_u);
 				}
 			}
+		}
+		else if(T == tFfGz) {
+			THROW_S_S(H, SLERR_FILENOTOPENED, Name);
+			act_size = gzread(static_cast<gzFile>(static_cast<void *>(H)), pBuf, size);
+			if(act_size < 0) {
+				CALLEXCEPT_S_S(SLERR_READFAULT, Name);
+			}
+			else if(act_size == 0)
+				ok = -1;
+		}
+		else if(T == tFfBz2) {
+			THROW_S_S(H, SLERR_FILENOTOPENED, Name);
+			act_size = BZ2_bzread(H, pBuf, size);
+			if(act_size < 0) {
+				CALLEXCEPT_S_S(SLERR_READFAULT, Name);
+			}
+			else if(act_size == 0)
+				ok = -1;
 		}
 		else {
 			FILE * p_f = GetFilePtr();
@@ -2523,8 +2660,7 @@ int SFile::ReadLine(SString & rBuf, uint flags)
 					THROW(LB.Alloc(1024));
 					//
 					// На случай, если строка в файле длиннее, чем buf_size
-					// считываем ее в цикле до тех пор, пока в конце строки не появится //
-					// перевод каретки.
+					// считываем ее в цикле до тех пор, пока в конце строки не появится перевод каретки.
 					//
 					char * p = 0;
 					while((p = fgets(LB, LB.GetSize(), p_f)) != 0) {
@@ -2643,7 +2779,22 @@ int SFile::ReadAll(STempBuffer & rBuf, size_t maxSize, size_t * pActualSize)
 	int    ok = 1;
 	size_t actual_size = 0;
 	THROW(IsValid());
-	{
+	if(oneof2(T, tFfGz, tFfBz2)) {
+		STempBuffer rd_buf(SKILOBYTE(1024));
+		int    r = 0;
+		size_t last_pos = 0;
+		do {
+			size_t local_actual_size = 0;
+			THROW(r = Read(rd_buf, rd_buf.GetSize(), &local_actual_size));
+			if(local_actual_size) {
+				actual_size += local_actual_size;
+				THROW(rBuf.AllocIncr(actual_size));
+				memcpy(rBuf.vptr(last_pos), rd_buf.cptr(), local_actual_size);
+				last_pos += local_actual_size;
+			}
+		} while(r > 0);
+	}
+	else {
 		const int64 current_pos = Tell64();
 		THROW(Seek64(0, SEEK_END));
 		{

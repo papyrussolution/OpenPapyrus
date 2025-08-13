@@ -1419,6 +1419,7 @@ public:
 	static constexpr const char * P_DummyEanCode = "4600000000008"; // @v12.3.4 Просто валидный штрихкод ean-13 (надеюсь, имеющий минимальную вероятностью совпадения с реальными кодами)
 	static constexpr const char * P_WrKey_MsWin_DisallowRun = "Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\\DisallowRun"; // @v11.8.12 HKEY_CURRENT_USER
 	static constexpr const char * P_WrKey_MsWin_RestrictRun = "Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\\RestrictRun"; // @v11.8.12 HKEY_CURRENT_USER
+	static constexpr const char * P_WrKey_Prefix_SobolevEngineering = "Software\\SobolevEngineering"; // @v12.3.10 HKEY_CURRENT_USER
 	static constexpr const char * WinClsName_Desktop    = "PPYDESKTOPWINDOW"; // @v12.3.8
 	static constexpr const char * WinClsName_TextEditor = "STextBrowser"; // @v12.3.8
 	static constexpr const char * WinClsName_TimeChunkBrowser = "STimeChunkBrowser"; // @v12.3.8
@@ -12665,19 +12666,21 @@ public:
 	static void FASTCALL ZClose(FILE ** ppF);
 
 	enum {
-		mRead = 1,       // "r"
-		mWrite,          // "w"
-		mAppend,         // "a"
-		mReadWrite,      // "r+"
-		mReadWriteTrunc, // "w+"
-		mAppendRead,     // "a+"
-		mBinary    = 0x0100, // "..b"
-		mDenyRead  = 0x0200,
-		mDenyWrite = 0x0400,
-		mNoStd     = 0x0800, // Файл открывается в низкоуровневом (небуферизованном) режиме (open).
+		mRead           = 1, // "r"
+		mWrite          = 2, // "w"
+		mAppend         = 3, // "a"
+		mReadWrite      = 4, // "r+"
+		mReadWriteTrunc = 5, // "w+"
+		mAppendRead     = 6, // "a+"
+		mBinary         = 0x0100, // "..b"
+		mDenyRead       = 0x0200,
+		mDenyWrite      = 0x0400,
+		mNoStd          = 0x0800, // Файл открывается в низкоуровневом (небуферизованном) режиме (open).
 			// Если размер файла может превышать 2G, то использовать этот флаг обязательно!
-		mNullWrite = 0x1000, // Файл открывается в режиме нулевого вывода - то есть запись в него ничего не делает, а чтение возвращает ошибку
-		mBuffRd    = 0x2000  // При установленном mNoStd чтение из файла буферизуется.
+		mNullWrite      = 0x1000, // Файл открывается в режиме нулевого вывода - то есть запись в него ничего не делает, а чтение возвращает ошибку
+		mBuffRd         = 0x2000, // При установленном mNoStd чтение из файла буферизуется.
+		mReadCompressed = 0x4000, // @v12.3.10 если открываемый для чтения файл сжат форматом gz или bz2, то экземпляр
+			// открывает этот файл на чтение 'on-the-spot'.
 	};
 	SFile();
 	SFile(const char * pName, long mode);
@@ -12962,7 +12965,9 @@ private:
 		tSBuffer,
 		tNullOutput,
 		tArchive, // @v11.9.5
-		tPipe     // @v11.9.5
+		tPipe,    // @v11.9.5
+		tFfGz,    // @v12.3.10 файл формата gz открыт в режиме mReadCompressed
+		tFfBz2,   // @v12.3.10 файл формата bz2 открыт в режиме mReadCompressed
 	};
 	void   Init();
 	FILE * GetFilePtr() const { return (T == tStdFile) ? static_cast<FILE *>(static_cast<void *>(H)) : 0; }
@@ -12970,10 +12975,6 @@ private:
 
 	int    T;
 	long   Mode;
-	/*union {
-		FILE * F;
-		SBuffer * P_Sb;
-	};*/
 	SPtrHandle H;
 	int    IH;
 	SString Name;
@@ -18119,6 +18120,7 @@ public:
 	//   Если бы функций было 2, пришлось бы держать отдельный объект критической сессии.
 	//
 	long   GetGlobalSymbol(const char * pSymb, long ident, SString * pRetSymb); // @cs
+	const  S_GUID & GetAppUuid() const { return AppUuid; } // @v12.3.10
 	const  S_GUID & GetSessUuid() const { return SessUuid; }
 	//
 	// Descr: Возвращает инкрементируемое целочисленное значение, уникальное в пределах данного процесса.
@@ -18194,6 +18196,7 @@ private:
 	uint   DragndropObjIdx; // Индекс объекта для перетаскивания в таблице глобальных объектов GlobalObjList
 	uint32 HelpCookie;
 	Evnt * P_StopEvnt;
+	S_GUID AppUuid;         // @v12.3.10 Уникальный идентификатор инсталляции приложения для текущего системного пользователя //
 	S_GUID SessUuid;        // Уникальный идентификатор сессии
 	int    UiLanguageId;
 	SlExtraProcBlock ExtraProcBlk;

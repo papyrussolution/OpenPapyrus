@@ -50,6 +50,7 @@ int  TestSTree();
 int  SimpleCpp_Test_Main(int argc, char ** argv);
 int  SimpleCpp_Test_Main2();
 int  TestCrr32SupportServer();
+int  GetSurrogateUserAgentIdent(SString & rBuf); // pputil.cpp
 //
 // 
 // 
@@ -1961,19 +1962,20 @@ static int TestTransferFileToFtp() // @v12.2.5 проверка отправки
 int DoConstructionTest()
 {
 	int    ok = -1;
+	SString temp_buf;
 	{
 		uint abc = 0x01020304U;
 		//uint abc_s = sbswap32()
 	}
 #ifndef NDEBUG
-	{
+	/*{
 		const SrUedContainer_Rt * p_uedc = DS.GetUedContainer();
 		if(p_uedc) {
 			SString text;
 			bool r = p_uedc->GetText(UED_DIMENSION_CONDUCTANCE, UED_LINGUALOCUS_RU, text);
 		}
 		ok = -1;
-	}
+	}*/
 //#if 1
 	/*{
 		class Foo {
@@ -2038,7 +2040,11 @@ int DoConstructionTest()
 		}
 	}
 #endif // } 0
-	TestCrr32SupportServer();
+	{
+		GetSurrogateUserAgentIdent(temp_buf);
+	}
+	//TestCrr32SupportServer();
+	
 	//Test_ExecuteDialogByDl600Description();
 	//PPChZnPrcssr::Test();
 	//Test_Cristal2SetRetailGateway();

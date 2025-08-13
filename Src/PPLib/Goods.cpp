@@ -495,18 +495,17 @@ bool GoodsCore::IsRecValid(const Goods2Tbl::Rec * pRec)
 	const  long  k = pRec->Kind;
 	Goods2Tbl::Rec parent_rec;
 	if(k == PPGDSK_GOODS) {
-		THROW_PP_S(pRec->ParentID, PPERR_GOODSGROUPNEEDED, pRec->Name); // @v10.3.6 THROW_PP-->THROW_PP_S(..,pRec->Name)
-		THROW_PP_S(Fetch(pRec->ParentID, &parent_rec) > 0, PPERR_GOODSGROUPNEEDED, pRec->Name); // @v10.3.6 THROW_PP-->THROW_PP_S(..,pRec->Name)
+		THROW_PP_S(pRec->ParentID, PPERR_GOODSGROUPNEEDED, pRec->Name);
+		THROW_PP_S(Fetch(pRec->ParentID, &parent_rec) > 0, PPERR_GOODSGROUPNEEDED, pRec->Name);
 		THROW_PP_S(!(parent_rec.Flags & (GF_ALTGROUP|GF_FOLDER)), PPERR_INVGOODSPARENT, pRec->Name)
 	}
 	else if(k == PPGDSK_GROUP) {
 		if(pRec->ParentID) {
-			THROW_PP_S(Fetch(pRec->ParentID, &parent_rec) > 0, PPERR_GOODSGROUPNEEDED, pRec->Name); // @v10.3.6 THROW_PP-->THROW_PP_S(..,pRec->Name)
+			THROW_PP_S(Fetch(pRec->ParentID, &parent_rec) > 0, PPERR_GOODSGROUPNEEDED, pRec->Name);
 			THROW_PP_S(parent_rec.Flags & GF_FOLDER, PPERR_INVGOODSPARENT, pRec->Name)
 		}
 	}
 	else {
-		//THROW_PP(oneof3(k, PPGDSK_PCKGTYPE, PPGDSK_TRANSPORT, PPGDSK_BRAND), PPERR_INVGOODSKIND);
 		THROW_PP_S(oneof6(k, PPGDSK_PCKGTYPE, PPGDSK_TRANSPORT, PPGDSK_BRAND, PPGDSK_SUPRWARE, PPGDSK_SWPROGRAM, PPGDSK_COMPUTER), PPERR_INVGOODSKIND, pRec->Name);
 	}
 	CATCHZOK
@@ -643,7 +642,7 @@ int GoodsCore::SetArCode(PPID goodsID, PPID arID, const char * pCode, int32 pack
 {
 	int    ok = 1;
 	if(goodsID) {
-		PPID   goods_id = labs(goodsID);
+		const PPID goods_id = labs(goodsID);
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		THROW_DB(deleteFrom(&ACodT, 0, ACodT.GoodsID == goods_id && ACodT.ArID == arID));
@@ -1128,7 +1127,7 @@ int GoodsCore::Helper_GetListBySubstring(const char * pSubstr, void * pList, lon
 			StrAssocArray::Item item = p_full_list->at_WithoutParent(i);
 			int r;
 			PROFILE_START
-			//r = ExtStrSrch(item.Txt, pattern, essfCaseSensitive); // @v10.1.4 essfCaseSensitive
+			//r = ExtStrSrch(item.Txt, pattern, essfCaseSensitive);
 			r = tsp.Detect(item.Txt);
 			PROFILE_END
 			PROFILE_START
@@ -1136,7 +1135,7 @@ int GoodsCore::Helper_GetListBySubstring(const char * pSubstr, void * pList, lon
 				if((!skip_passive || !(goods_rec.Flags & GF_PASSIV)) && (!skip_generic || !(goods_rec.Flags & GF_GENERIC))) {
 					result_count++;
 					if(p_list) {
-						if(!p_list->add(item.Id)) { // @v10.1.4 addUnique-->add
+						if(!p_list->add(item.Id)) {
 							//
 							// Здесь THROW не годится из-за того, что сразу после завершения цикла необходимо быстро сделать ReleaseFullList
 							//
@@ -1174,7 +1173,7 @@ int GoodsCore::Helper_GetListBySubstring(const char * pSubstr, void * pList, lon
 					temp_str_list.Read(reply, 0);
 					for(uint i = 0; i < temp_str_list.getCount(); i++) {
 						StrAssocArray::Item item = temp_str_list.at_WithoutParent(i);
-						THROW_SL(p_list->add(item.Id)); // @v10.1.4 addUnique-->add
+						THROW_SL(p_list->add(item.Id));
 					}
 				}
 				else if(p_str_list) {
@@ -1200,7 +1199,7 @@ int GoodsCore::Helper_GetListBySubstring(const char * pSubstr, void * pList, lon
 					int r = tsp.Detect(text_buf);
 					if(r > 0) {
 						if(p_list) {
-							THROW_SL(p_list->add(data.ID)); // @v10.1.4 addUnique-->add
+							THROW_SL(p_list->add(data.ID));
 						}
 						else if(p_str_list) {
 							THROW_SL(p_str_list->Add(data.ID, data.Name));
@@ -1225,7 +1224,7 @@ int GoodsCore::Helper_GetListBySubstring(const char * pSubstr, void * pList, lon
 				if(P_Ref->GetPropVlrString(PPOBJ_GOODS, goods_id, GDSPRP_EXTSTRDATA, ext_str) > 0) {
 					if(ExtStrSrch(ext_str, pSubstr, 0)) {
 						if(p_list) {
-							THROW_SL(p_list->add(goods_id)); // @v10.1.4 addUnique-->add
+							THROW_SL(p_list->add(goods_id));
 						}
 						else if(p_str_list) {
 							THROW_SL(p_str_list->Add(goods_id, goods_rec.Name));
@@ -2837,7 +2836,7 @@ int GoodsCache::GetStockExt(PPID goodsID, GoodsStockExt * pExt)
 				ok = 1;
 			}
 			if(!ok) {
-				PPObjGoods goods_obj(SConstructorLite); // @v10.0.0 SConstructorLite
+				PPObjGoods goods_obj(SConstructorLite);
 				GoodsStockExt temp;
 				int    r = goods_obj.P_Tbl->GetStockExt(goodsID, &temp, 0 /* not using cache! */);
 				if(r > 0) {
@@ -2902,7 +2901,7 @@ int GoodsCache::GetSingleBarcode(PPID goodsID, SString & rBuf)
 					ok = 1;
 			}
 			if(!ok) {
-				PPObjGoods goods_obj(SConstructorLite); // @v10.0.0 SConstructorLite
+				PPObjGoods goods_obj(SConstructorLite);
 				SString temp_buf; // Рискованно пользоваться буфером rBuf: маловероятно, но он может быть
 					// одновременно использован другими потоками.
 				int    r = goods_obj.GetSingleBarcode(goodsID, 0, temp_buf);
@@ -2945,7 +2944,7 @@ const StrAssocArray * GoodsCache::GetFullList()
 			if(!FullGoodsList.Inited || FullGoodsList.DirtyTable.GetCount()) {
 				PPObjGoods goods_obj(SConstructorLite);
 				if(!FullGoodsList.Inited) {
-					PPUserFuncProfiler ufp(PPUPRF_BUILDGOODSFL); // @v10.1.4
+					PPUserFuncProfiler ufp(PPUPRF_BUILDGOODSFL);
 					SString fmt_buf;
 					uint   _mc = 0;
 					if(!DS.IsThreadInteractive())
@@ -2969,9 +2968,9 @@ const StrAssocArray * GoodsCache::GetFullList()
 						}
 					}
 					PROFILE_END
-					FullGoodsList.SortByText(); // @v10.5.11
-					ufp.SetFactor(0, _mc); // @v10.1.4
-					ufp.Commit(); // @v10.1.4
+					FullGoodsList.SortByText();
+					ufp.SetFactor(0, _mc);
+					ufp.Commit();
 				}
 				else {
 					PROFILE_START
@@ -3192,8 +3191,7 @@ int GoodsCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/
 					SETIFZ(p_cache_rec->TypeID, p_parent_entry->TypeID);
 				}
 				else {
-					// @v10.4.2 THROW(goods_obj.Search(p_cache_rec->ParentID, &grp_rec) > 0);
-					if(goods_obj.Search(p_cache_rec->ParentID, &grp_rec) > 0) { // @v10.4.2
+					if(goods_obj.Search(p_cache_rec->ParentID, &grp_rec) > 0) {
 						SETIFZ(p_cache_rec->TaxGrpID, static_cast<short>(grp_rec.TaxGrpID));
 						SETIFZ(p_cache_rec->TypeID, static_cast<short>(grp_rec.GoodsTypeID));
 					}

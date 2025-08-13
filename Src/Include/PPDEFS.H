@@ -11816,6 +11816,7 @@
 	#define CTLSEL_WBGOODSLISTFILT_CAT   (2 + WINDOWS_ID_BIAS)
 	#define CTL_WBGOODSLISTFILT_SRCH     (3 + WINDOWS_ID_BIAS)
 	#define CTL_WBGOODSLISTFILT_ORD      (4 + WINDOWS_ID_BIAS)
+	#define CTL_WBGOODSLISTFILT_VK       (5 + WINDOWS_ID_BIAS)
 #define DLG_POSNQUERYSETR         1471 // @v12.3.9 Диалог запроса к кассовому модулю SetRetail
 	// CTL_POSNQUERY_XXX
 #define DLG_WBGOODSLISTTOTAL      1472 // @v12.3.9 Итоги выборки товаров Wildberries

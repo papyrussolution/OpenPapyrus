@@ -560,7 +560,11 @@ dialog DLG_POSNQUERYSETR [vertical title: "@posnquery" size: (360, 235)  minsize
 //
 // Фильтр выборки товаров Wildberries
 //
-dialog DLG_WBGOODSLISTFILT [vertical title: "@wildberries_publicgoodsselectionfilt" size: (400, 300) minsize: (380, 300) font: "MS Shell Dlg,8" alignitems: center] {
+dialog DLG_WBGOODSLISTFILT [vertical title: "@wildberries_publicgoodsselectionfilt" size: (400, 360) minsize: (380, 360) font: "MS Shell Dlg,8" alignitems: center] {
+	radiocluster CTL_WBGOODSLISTFILT_VK [vertical tabstop width: bycontainer(100) margin: 4] {
+		radiobutton [title: "@mpviewkind_goods" height: 16];
+		radiobutton [title: "@mpviewkind_pickuppoints" height: 16];
+	}
 	combobox CTLSEL_WBGOODSLISTFILT_CAT [tabstop width: bycontainer(100) height: 21 margin: 4 label: "@category" labelsize: (0, 13) cblinesymb: CTL_WBGOODSLISTFILT_CAT];
 	input CTL_WBGOODSLISTFILT_SRCH [width: bycontainer(100) height: 21 margin: 4 tabstop label: "@wildberries_publicgoodsselectionfilt_srch" labelsize: (0, 13)] string[252];
 	radiocluster CTL_WBGOODSLISTFILT_ORD [vertical width: bycontainer(100) margin: 4] {
@@ -610,7 +614,11 @@ dialog DLG_WBGOODSLISTDETAIL [vertical title: "" size: (600, 600) font: "MS Shel
 	}
 }
 
-dialog DLG_CRREXPPARAM_PDF [vertical size: (400, 200) title: "@printrpt_exportparams" font: "MS Shell Dlg 2,8"] { // @construction
+dialog DLG_CRREXPPARAM_PDF [vertical size: (400, 300) title: "@printrpt_exportparams" font: "MS Shell Dlg 2,8"] { // @construction
+	radiocluster CTL_CRREXPPARAM_DEST [vertical tabstop width: bycontainer(100) margin: 4] {
+		radiobutton [title: "@file" height: 16];
+		radiobutton [title: "@application" height: 16];
+	}
 	input CTL_CRREXPPARAM_FILE [width: bycontainer height: 21 margin: 4 tabstop label: "@printrpt_exportparams_filename"] string[252] supplement filebrowsebutton(CTLBRW_CRREXPPARAM_FILE);	
 	input CTL_CRREXPPARAM_PGRANGE [design: B width: 100 height: 21 margin: 4 tabstop label: "@printrpt_exportparams_pagerange"] string[32];
 	view [horizontal width: bycontainer growfactor: 1 margin_right: 12 gravity: right justifycontent: end alignitems: end] {
@@ -619,7 +627,11 @@ dialog DLG_CRREXPPARAM_PDF [vertical size: (400, 200) title: "@printrpt_exportpa
 	}	
 }
 
-dialog DLG_CRREXPPARAM_RTF [vertical size: (400, 200) title: "@printrpt_exportparams" font: "MS Shell Dlg 2,8"] { // @construction
+dialog DLG_CRREXPPARAM_RTF [vertical size: (400, 300) title: "@printrpt_exportparams" font: "MS Shell Dlg 2,8"] { // @construction
+	radiocluster CTL_CRREXPPARAM_DEST [vertical tabstop width: bycontainer(100) margin: 4] {
+		radiobutton [title: "@file" height: 16];
+		radiobutton [title: "@application" height: 16];
+	}
 	input CTL_CRREXPPARAM_FILE [width: bycontainer height: 21 margin: 4 tabstop] string[252] supplement filebrowsebutton(CTLBRW_CRREXPPARAM_FILE);
 	input CTL_CRREXPPARAM_PGRANGE [design: B width: 100 height: 21 margin: 4 tabstop label: "@printrpt_exportparams_pagerange"] string[32];
 	view [horizontal width: bycontainer growfactor: 1 margin_right: 12 gravity: right justifycontent: end alignitems: end] {
@@ -628,7 +640,11 @@ dialog DLG_CRREXPPARAM_RTF [vertical size: (400, 200) title: "@printrpt_exportpa
 	}	
 }
 
-dialog DLG_CRREXPPARAM_HTML [vertical size: (400, 200) title: "@printrpt_exportparams" font: "MS Shell Dlg 2,8"] { // @construction
+dialog DLG_CRREXPPARAM_HTML [vertical size: (400, 300) title: "@printrpt_exportparams" font: "MS Shell Dlg 2,8"] { // @construction
+	radiocluster CTL_CRREXPPARAM_DEST [vertical tabstop width: bycontainer(100) margin: 4] {
+		radiobutton [title: "@file" height: 16];
+		radiobutton [title: "@application" height: 16];
+	}
 	input CTL_CRREXPPARAM_FILE [width: bycontainer height: 21 margin: 4 tabstop] string[252] supplement filebrowsebutton(CTLBRW_CRREXPPARAM_FILE);
 	input CTL_CRREXPPARAM_PGRANGE [design: B width: 100 height: 21 margin: 4 tabstop label: "@printrpt_exportparams_pagerange"] string[32];
 	view [horizontal width: bycontainer growfactor: 1 margin_right: 12 gravity: right justifycontent: end alignitems: end] {
@@ -637,7 +653,11 @@ dialog DLG_CRREXPPARAM_HTML [vertical size: (400, 200) title: "@printrpt_exportp
 	}	
 }
 
-dialog DLG_CRREXPPARAM_EXCEL [vertical size: (400, 300) title: "@printrpt_exportparams" font: "MS Shell Dlg 2,8"] { // @construction
+dialog DLG_CRREXPPARAM_EXCEL [vertical size: (400, 400) title: "@printrpt_exportparams" font: "MS Shell Dlg 2,8"] { // @construction
+	radiocluster CTL_CRREXPPARAM_DEST [vertical tabstop width: bycontainer(100) margin: 4] {
+		radiobutton [title: "@file" height: 16];
+		radiobutton [title: "@application" height: 16];
+	}
 	input CTL_CRREXPPARAM_FILE [width: bycontainer height: 21 margin: 4 tabstop] string[252] supplement filebrowsebutton(CTLBRW_CRREXPPARAM_FILE);	
 	input CTL_CRREXPPARAM_PGRANGE [design: B width: 100 height: 21 margin: 4 tabstop label: "@printrpt_exportparams_pagerange"] string[32];
 	checkcluster CTL_CRREXPPARAM_FLAGS [vertical width: bycontainer margin: 4] {
@@ -654,7 +674,11 @@ dialog DLG_CRREXPPARAM_EXCEL [vertical size: (400, 300) title: "@printrpt_export
 	}	
 }
 
-dialog DLG_CRREXPPARAM_WINWORD [vertical size: (400, 200) title: "@printrpt_exportparams" font: "MS Shell Dlg 2,8"] { // @construction
+dialog DLG_CRREXPPARAM_WINWORD [vertical size: (400, 300) title: "@printrpt_exportparams" font: "MS Shell Dlg 2,8"] { // @construction
+	radiocluster CTL_CRREXPPARAM_DEST [vertical tabstop width: bycontainer(100) margin: 4] {
+		radiobutton [title: "@file" height: 16];
+		radiobutton [title: "@application" height: 16];
+	}
 	input CTL_CRREXPPARAM_FILE [width: bycontainer height: 21 margin: 4 tabstop] string[252] supplement filebrowsebutton(CTLBRW_CRREXPPARAM_FILE);	
 	input CTL_CRREXPPARAM_PGRANGE [design: B width: 100 height: 21 margin: 4 tabstop label: "@printrpt_exportparams_pagerange"] string[32];
 	view [horizontal width: bycontainer growfactor: 1 margin_right: 12 gravity: right justifycontent: end alignitems: end] {
@@ -663,7 +687,11 @@ dialog DLG_CRREXPPARAM_WINWORD [vertical size: (400, 200) title: "@printrpt_expo
 	}	
 }
 
-dialog DLG_CRREXPPARAM_CSV [vertical size: (400, 300) title: "@printrpt_exportparams" font: "MS Shell Dlg 2,8"] { // @construction
+dialog DLG_CRREXPPARAM_CSV [vertical size: (400, 400) title: "@printrpt_exportparams" font: "MS Shell Dlg 2,8"] { // @construction
+	radiocluster CTL_CRREXPPARAM_DEST [vertical tabstop width: bycontainer(100) margin: 4] {
+		radiobutton [title: "@file" height: 16];
+		radiobutton [title: "@application" height: 16];
+	}
 	input CTL_CRREXPPARAM_FILE [width: bycontainer height: 21 margin: 4 tabstop] string[252] supplement filebrowsebutton(CTLBRW_CRREXPPARAM_FILE);	
 	input CTL_CRREXPPARAM_PGRANGE [design: B width: 100 height: 21 margin: 4 tabstop label: "@printrpt_exportparams_pagerange"] string[32];
 	input CTL_CRREXPPARAM_CSVFS [design: B width: 60 height: 21 margin: 4 tabstop label: "@printrpt_exportparams_csv_fldsep"] string[16];
