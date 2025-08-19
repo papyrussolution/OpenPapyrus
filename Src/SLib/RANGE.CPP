@@ -50,6 +50,11 @@ IntRange & IntRange::Z()
 	return *this;
 }
 
+int IntRange::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+{
+	return (pSCtx->Serialize(dir, low, rBuf) && pSCtx->Serialize(dir, upp, rBuf));
+}
+
 bool IntRange::IsZero() const { return (low == 0 && upp == 0); }
 bool FASTCALL IntRange::CheckVal(int test) const { return (low == 0 || test >= low) && (upp == 0 || test <= upp); }
 

@@ -1731,12 +1731,12 @@ int BarcodeLabelPrinter::PrintLabel(const char * pPort, const CommPortParams * p
 	if(comdvcs) {
 		SString name;
 		GetComDvcSymb(comdvcs, c, 1, name);
-		hdl = ::CreateFile(SUcSwitch(name), GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, 0); // @unicodeproblem
+		hdl = ::CreateFile(SUcSwitch(name), GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, 0);
 		PPSetAddedMsgString(name);
 		SLS.SetAddedMsgString(name);
 	}
 	else {
-		hdl = ::CreateFile(SUcSwitch(pPort), GENERIC_WRITE, 0, 0, CREATE_ALWAYS, 0, 0); // @unicodeproblem
+		hdl = ::CreateFile(SUcSwitch(pPort), GENERIC_WRITE, 0, 0, CREATE_ALWAYS, 0, 0);
 		PPSetAddedMsgString(pPort);
 		SLS.SetAddedMsgString(pPort);
 	}

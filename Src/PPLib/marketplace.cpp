@@ -698,15 +698,23 @@ const PPMarketplaceInterface_Wildberries::PickUpPointPool::Entry * PPMarketplace
 
 bool PPMarketplaceInterface_Wildberries::PickUpPointPool::FromJson(const SJson * pJs, uint * pReadCount)
 {
-	bool    ok = false;
 	Z();
+	bool    ok = false;
+	SString temp_buf;
 	if(SJson::IsArray(pJs)) {
+		const SrUedContainer_Rt * p_uedc = DS.GetUedContainer();
 		for(const SJson * p_js_item = pJs->P_Child; p_js_item; p_js_item = p_js_item->P_Next) {
 			if(SJson::IsObject(p_js_item)) {
 				uint64 ued_country = 0;
 				for(const SJson * p_cur = p_js_item->P_Child; p_cur; p_cur = p_cur->P_Next) {
 					if(p_cur->Text.IsEqiAscii("country")) {
-						; // @todo init ued_country
+						// @todo init ued_country
+						SJson::GetChildTextUnescaped(p_cur, temp_buf);
+						if(p_uedc) {
+							ued_country = p_uedc->SearchSymb(temp_buf, UED_META_STATU);
+						}
+						else
+							ued_country = 0;
 					}
 					else if(p_cur->Text.IsEqiAscii("items")) {
 						if(SJson::IsArray(p_cur->P_Child)) {
@@ -2343,7 +2351,11 @@ bool PPMarketplaceInterface_Wildberries::SalesRepDbpEntry::FromJsonObj(const SJs
 	SFile wr_stream(reply_buf, SFile::mWrite);
 	InetUrl url(rUrlBuf);
 	StrStrAssocArray hdr_flds;
-	SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrUserAgent, "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0)");
+	{
+		DS.GetSurrogateUserAgentString(temp_buf); // @v12.3.11
+		if(temp_buf.NotEmpty())
+			SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrUserAgent, temp_buf);
+	}
 	ScURL c;
 	int r = c.HttpGet(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, &wr_stream);
 	if(r) {

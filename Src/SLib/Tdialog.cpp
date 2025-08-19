@@ -936,6 +936,13 @@ int STDCALL TDialog::GetClusterData(uint ctlID, long * pVal)
 	return p_clu ? p_clu->getDataAssoc(pVal) : 0;
 }
 
+int STDCALL TDialog::GetClusterData(uint ctlID, uint * pVal) // @v12.3.11
+{
+	static_assert(sizeof(uint) == sizeof(long));
+	TCluster * p_clu = static_cast<TCluster *>(getCtrlView(ctlID));
+	return p_clu ? p_clu->getDataAssoc(reinterpret_cast<long *>(pVal)) : 0;
+}
+
 int STDCALL TDialog::GetClusterData(uint ctlID, int * pVal)
 {
 	static_assert(sizeof(int) == sizeof(long));

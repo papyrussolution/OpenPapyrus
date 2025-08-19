@@ -661,6 +661,7 @@ dialog DLG_CRREXPPARAM_EXCEL [vertical size: (400, 400) title: "@printrpt_export
 	input CTL_CRREXPPARAM_FILE [width: bycontainer height: 21 margin: 4 tabstop] string[252] supplement filebrowsebutton(CTLBRW_CRREXPPARAM_FILE);	
 	input CTL_CRREXPPARAM_PGRANGE [design: B width: 100 height: 21 margin: 4 tabstop label: "@printrpt_exportparams_pagerange"] string[32];
 	checkcluster CTL_CRREXPPARAM_FLAGS [vertical width: bycontainer margin: 4] {
+		checkbox [title: "@printrpt_exportparams_xlsf_dataonly" height: 16 margin: 4];
 		checkbox [title: "@printrpt_exportparams_xlsf_tabfmt" height: 16 margin: 4];
 		checkbox [title: "@printrpt_exportparams_xlsf_colheadings" height: 16 margin: 4];
 		checkbox [title: "@printrpt_exportparams_xlsf_crpgbrforeachpg" height: 16 margin: 4];
@@ -693,7 +694,6 @@ dialog DLG_CRREXPPARAM_CSV [vertical size: (400, 400) title: "@printrpt_exportpa
 		radiobutton [title: "@application" height: 16];
 	}
 	input CTL_CRREXPPARAM_FILE [width: bycontainer height: 21 margin: 4 tabstop] string[252] supplement filebrowsebutton(CTLBRW_CRREXPPARAM_FILE);	
-	input CTL_CRREXPPARAM_PGRANGE [design: B width: 100 height: 21 margin: 4 tabstop label: "@printrpt_exportparams_pagerange"] string[32];
 	input CTL_CRREXPPARAM_CSVFS [design: B width: 60 height: 21 margin: 4 tabstop label: "@printrpt_exportparams_csv_fldsep"] string[16];
 	checkcluster CTL_CRREXPPARAM_FLAGS [vertical width: bycontainer margin: 4] {
 		checkbox [title: "@printrpt_exportparams_csvf_repnumfmt" height: 16 margin: 4];
@@ -751,6 +751,16 @@ dialog DLG_BILLPRELUDE [vertical title: "@billprelude" size: (384, 463) minsize:
 	listbox CTL_BILLPRELUDE_OPLIST [tabstop width: bycontainer growfactor: 1 margin: 4];
 	combobox CTLSEL_BILLPRELUDE_LOC [tabstop width: bycontainer height: 21 margin: 4 label: "@warehouse" labelsize: (0, 13) cblinesymb: CTL_BILLPRELUDE_LOC];
 	view [horizontal width: bycontainer height: 28 margin_right: 12 gravity: right justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 defaultitem command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+
+dialog DLG_CHZNLOCPMURL [vertical title: "" size: (384, 463) font: "MS Shell Dlg,8"] {
+	input CTL_CHZNLOCPMURL_ADDR [design: B width: bycontainer(75) height: 21 margin: (4, 4, 12, 4) tabstop label: "@serveraddr"] string[64];
+	input CTL_CHZNLOCPMURL_USER [design: B width: bycontainer(75) height: 21 margin: (4, 4, 12, 4) tabstop label: "@username"] string[64];
+	input CTL_CHZNLOCPMURL_PW   [design: B width: bycontainer(75) height: 21 margin: (4, 4, 12, 4) tabstop password label: "@password"] string[64];
+	view [horizontal width: bycontainer growfactor: 1 margin_right: 12 gravity: right justifycontent: end alignitems: end] {
 		button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 defaultitem command: cmOK];
 		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
 	}

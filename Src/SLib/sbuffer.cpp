@@ -146,13 +146,35 @@ int FASTCALL SBuffer::Write(const void * pBuf, size_t size)
 			WrOffs -= rd_offs;
 		}
 		const size_t new_size = (WrOffs + size);
-		if((new_size <= Size) || Alloc(new_size)) { // @v9.4.1 (new_size <= Size) с целью ускорения
+		if((new_size <= Size) || Alloc(new_size)) { // condition (new_size <= Size) - с целью ускорения //
 			memcpy(Ptr(WrOffs), pBuf, size);
 			WrOffs += size;
 		}
 		else
 			ok = 0;
 	}
+	return ok;
+}
+
+bool SBuffer::AppendMime64(const char * pMimeString) // @v12.3.11
+{
+	bool   ok = true;
+	SBinaryChunk bc;
+	THROW(bc.FromMime64(pMimeString));
+	THROW(Write(bc.PtrC(), bc.Len()));
+	CATCHZOK
+	return ok;
+}
+
+bool SBuffer::AssignMime64(const char * pMimeString) // @v12.3.11
+{
+	// Функция отличается от AppendMime64 только следующим оператором.
+	Z(); 
+	bool   ok = true;
+	SBinaryChunk bc;
+	THROW(bc.FromMime64(pMimeString));
+	THROW(Write(bc.PtrC(), bc.Len()));
+	CATCHZOK
 	return ok;
 }
 
@@ -767,9 +789,8 @@ bool SBinaryChunk::FromMime64(const char * pMimeString)
 {
 	bool   ok = false;
 	Z();
-	if(!isempty(pMimeString)) {
-		const size_t in_len = strlen(pMimeString);
-		assert(in_len > 0); // see condition above
+	const size_t in_len = sstrlen(pMimeString);
+	if(in_len) {
 		THROW(Ensure((4+1) * in_len / 3)); // (+1) - extra insurance
 		{
 			assert(P_Buf); // (in_len > 0) and Ensure() garantee it

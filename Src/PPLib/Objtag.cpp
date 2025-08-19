@@ -2662,6 +2662,7 @@ int STDCALL EditObjTagItem(PPID objType, PPID objID, ObjTagItem * pItem, const P
 	int    valid_data = 0;
 	TagValDialog * dlg = 0;
 	uint   dlg_id = 0;
+	SString temp_buf;
 	TagDlgParam param;
 	param.ObjType = objType;
 	param.ObjID   = objID;
@@ -2701,7 +2702,6 @@ int STDCALL EditObjTagItem(PPID objType, PPID objID, ObjTagItem * pItem, const P
 	}
 	else if(oneof2(objType, 0, PPOBJ_LOT) && pItem->TagID == PPTAG_LOT_EGIASINFAREG) {
 		PPEgaisProcessor::InformAReg infareg;
-		SString temp_buf;
 		pItem->GetStr(temp_buf);
 		if(temp_buf.NotEmptyS())
 			infareg.FromStr(temp_buf);
@@ -2719,7 +2719,6 @@ int STDCALL EditObjTagItem(PPID objType, PPID objID, ObjTagItem * pItem, const P
 	}
 	else if(oneof2(objType, 0, PPOBJ_LOT) && pItem->TagID == PPTAG_LOT_FREIGHTPACKAGE) {
 		PPTransferItem::FreightPackage fp;
-		SString temp_buf;
 		pItem->GetStr(temp_buf);
 		if(temp_buf.NotEmptyS())
 			fp.FromStr(temp_buf);
@@ -2734,7 +2733,6 @@ int STDCALL EditObjTagItem(PPID objType, PPID objID, ObjTagItem * pItem, const P
 	}
 	else if(oneof2(objType, 0, PPOBJ_LOT) && pItem->TagID == PPTAG_LOT_ACCEPTANCE) { // @v11.7.0
 		PPTransferItem::Acceptance a;
-		SString temp_buf;
 		pItem->GetStr(temp_buf);
 		if(temp_buf.NotEmptyS())
 			a.FromStr(temp_buf);
@@ -2745,6 +2743,13 @@ int STDCALL EditObjTagItem(PPID objType, PPID objID, ObjTagItem * pItem, const P
 			}
 			else
 				PPError();
+		}
+	}
+	else if(oneof2(objType, 0, PPOBJ_GLOBALUSERACC) && pItem->TagID == PPTAG_GUA_CHZNLOCPMURL) { // @v12.3.11
+		pItem->GetStr(temp_buf);
+		if(PPObjGlobalUserAcc::EditChZnLocPmUrlTag(temp_buf) > 0) {
+			pItem->SetStr(pItem->TagID, temp_buf);
+			ok = 1;
 		}
 	}
 	else {

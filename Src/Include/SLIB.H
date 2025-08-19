@@ -872,6 +872,7 @@ typedef int32               TYPEID;
 #define SLERR_INVORUNSUPPHASHFUNC              465 // @v11.3.7 Недопустимая либо неподдерживаемая хэш-функция // 
 #define SLERR_INVALIDSFILTYP                   466 // @v11.4.3 Внутренняя ошибка: недопустимый тип экземпляра SFile
 #define SLERR_INVDATERANGETEXT                 467 // @v12.3.7 Строка '%s' не соответствует правилам представления диапазона дат
+#define SLERR_OPENFAULT_EMPTYNAME              468 // @v12.3.11 Ошибка открытия файла - пустое имя //
 
 #define SLERR_FANN_CANT_OPEN_CONFIG_R          500 // Unable to open configuration file for reading
 #define SLERR_FANN_CANT_OPEN_CONFIG_W          501 // Unable to open configuration file for writing
@@ -3167,6 +3168,10 @@ struct SUniTime_Internal : public SUniDate_Internal { // @internal
 	// Descr: Транслирует время в секундах с 1970-01-01 в значение времени в сотнях наносекунд с 1601-01-01
 	//
 	static int64 EpochToNs100(int64 epochTimeSec);
+	//
+	// Descr: Транслирует время в миллисекундах с 1970-01-01 в значение времени в сотнях наносекунд с 1601-01-01
+	//
+	static int64 EpochMsToNs100(int64 epochTimeMs);
 	SUniTime_Internal();
 	explicit SUniTime_Internal(LDATE);
 	explicit SUniTime_Internal(LTIME);
@@ -3515,6 +3520,7 @@ struct IntRange { // @persistent @size=8
 	{
 	}
 	IntRange & Z();
+	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 	//
 	// Descr: Возвращает !0 если (this->low == 0 && this->upp == 0)
 	//
@@ -5971,11 +5977,13 @@ int   STDCALL strtodatetime(const char * pBuf, LDATETIME * pDtm, long datFmt, lo
 struct SCompoundError {
 	SCompoundError();
 	SCompoundError & Z();
+	int   Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 
-	uint   LocIdent; // Тип локации, в которой обнаружена ошибка. Полностью определяется контекстом. 0 - неопределенное значение.
+	uint32 Ver;      // @v12.3.11 Версия формата для сериализации 
+	uint32 LocIdent; // Тип локации, в которой обнаружена ошибка. Полностью определяется контекстом. 0 - неопределенное значение.
 	int64  ItemI;    // Целочисленный локатор ошибки (номер строки, например)
 	IntRange ItemR;  // Целочисленный диапазонный локатор ошибки (например, первый и последний символ подстроки, где находится проблема синтаксического разбора)
-	int    Code;     // Целочисленный код ошибки.
+	int32  Code;     // Целочисленный код ошибки.
 	SString Descr;   // Строковое описание ошибки. Кодировка текста полностью определяется контекстом.
 };
 //
@@ -6840,6 +6848,8 @@ public:
 	// Descr: Записывает в буфер данные, на которые указывает pSrc в размере srcLen.
 	//
 	int    FASTCALL Write(const void * pSrc, size_t srcLen);
+	bool   AppendMime64(const char * pMimeString); // @v12.3.11
+	bool   AssignMime64(const char * pMimeString); // @v12.3.11
 	//
 	// Descr: Возвращает количество доступных для считывания байт буфера.
 	//
@@ -17619,6 +17629,15 @@ public:
 	static bool AddPrivilegeToAccessToken(SPtrHandle token, const wchar_t * pPrivilegeName);
 	static bool EnablePrivilege(HANDLE hToken, const wchar_t * pPrivSymb);
 	static bool CheckAndEnableAccesTokenPrivilege(SPtrHandle token, const wchar_t * pPrivilegeName);
+
+	struct EnumProcessEntry { // @flat
+		uint   ProcessId;
+		uint   ParentId;
+		uint   ThreadCount;
+		int    PriClassBase; // The base priority of any threads created by this process.
+	};
+
+	static uint GetProcessList(TSVector <EnumProcessEntry> & rList); // @v12.3.11 @construction
 	
 	SlProcess();
 	~SlProcess();
@@ -19125,7 +19144,11 @@ struct SGeoPosLL { // @persistent
 	int    FASTCALL Cmp(const SGeoPosLL & rS) const;
 	bool   IsZero() const;
 	bool   IsValid() const;
-	SString & FASTCALL ToStr(SString & rBuf) const;
+	//
+	// ARG(precision IN): [0..12] Максимальное количество знаков после точки в выводимых значениях координат.
+	//
+	SString & ToStr(uint precision, SString & rBuf) const;
+	SString & FASTCALL ToStr(SString & rBuf) const; // default precision
 	int    FASTCALL FromStr(const char * pStr);
 
 	double Lat;
@@ -19151,7 +19174,11 @@ public:
 	int    Set(double lat, double lon);
 	int    SetInt(long lat, long lon);
 	bool   IsValid() const;
-	SString & FASTCALL ToStr(SString & rBuf) const;
+	//
+	// ARG(precision IN): [0..12] Максимальное количество знаков после точки в выводимых значениях координат.
+	//
+	SString & ToStr(uint precision, SString & rBuf) const;
+	SString & FASTCALL ToStr(SString & rBuf) const; // default precision
 	int    FASTCALL FromStr(const char * pStr);
 private:
 	long   Lat;

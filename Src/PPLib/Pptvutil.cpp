@@ -8690,6 +8690,10 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 							spc_flags |= TInputLine::spcfMultiline;
 						if(ui_flags & UiItemKind::fWantReturn)
 							spc_flags |= TInputLine::spcfWantReturn;
+						if(ui_flags & UiItemKind::fPassword) {
+							spc_flags |= TInputLine::spcfPassword;
+						}
+						
 						TInputLine * p_ctl = new TInputLine(rc, spc_flags, static_cast<TYPEID>(type_id), 0);
 						if(format) {
 							p_ctl->setFormat(format);
@@ -9103,6 +9107,7 @@ bool PPDialogConstructor::MakeComplexLayout_InputLine(TDialog * pDlg, TView * pV
 				SUiLayout * p_lo_inp_grp = pLoParent->InsertItem(0, &glp);
 				if(p_lo_inp_grp) {
 					SUiLayoutParam lp_il; // inputline
+					
 					lp_label.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
 					lp_il.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
 					if(p_lb_ib) {
@@ -9111,6 +9116,11 @@ bool PPDialogConstructor::MakeComplexLayout_InputLine(TDialog * pDlg, TView * pV
 							lp_il.SetFixedSizeX(inp_width);
 							lp_label.SetFixedSizeX(0.0f);
 							lp_label.GrowFactor = 1.0;
+						}
+						else if(inp_szx == SUiLayoutParam::szByContainer) {
+							lp_il.SetVariableSizeX(inp_szx, inp_width);
+							lp_il.Margin.a.x = 4.0f;
+							lp_label.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f - inp_width);
 						}
 						else if(label_szx == SUiLayoutParam::szFixed) {
 							lp_il.SetFixedSizeX(0.0f);
@@ -9132,6 +9142,11 @@ bool PPDialogConstructor::MakeComplexLayout_InputLine(TDialog * pDlg, TView * pV
 							lp_il.SetFixedSizeX(inp_width);
 							lp_label.SetFixedSizeX(0.0f);
 							lp_label.GrowFactor = 1.0;
+						}
+						else if(inp_szx == SUiLayoutParam::szByContainer) {
+							lp_il.SetVariableSizeX(SUiLayoutParam::szByContainer, inp_width);
+							lp_il.Margin.a.x = 4.0f;
+							lp_label.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f - inp_width);
 						}
 						else if(label_szx == SUiLayoutParam::szFixed) {
 							lp_il.SetFixedSizeX(0.0f);

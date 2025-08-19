@@ -1424,8 +1424,8 @@ int PPViewAlcoDeclRu::Export()
 						stlobj.GetFixedPostOnDate(main_org_id, PPFIXSTF_ACCOUNTANT, ZERODATE, &post_rec);
 						chief_accountant_id = post_rec.PersonID;
 						if(!chief_id || !chief_accountant_id) {
-							SETIFZ(chief_id, DS.CCfg().MainOrgDirector_);
-							SETIFZ(chief_accountant_id, DS.CCfg().MainOrgAccountant_);
+							SETIFZQ(chief_id, DS.CCfg().MainOrgDirector_);
+							SETIFZQ(chief_accountant_id, DS.CCfg().MainOrgAccountant_);
 						}
 						SXml::WNode n3(g.P_X, g.GetToken_Ansi(PPHSC_RU_RESPONSIBLEPERSON));
 						if(Arp.PsnObj.Search(chief_id, &_psn_rec) > 0) {

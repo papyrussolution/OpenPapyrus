@@ -50,6 +50,7 @@ public:
 		SString CryptoProPath;
 		SString EndPoint; // URL для запросов
 		SString PermissiveModeToken; // @v11.9.11 Токен доступа к сервису разрешительного режима
+		InetUrl PermissiveModeLocalSvrUrl; // @v12.3.11 url локального сервера (с именем пользователя и паролем) для офф-лайн проверки кодов
 		//
 		SString Token;
 	};
@@ -1743,6 +1744,16 @@ int ChZnInterface::SetupInitBlock(PPID guaID, const char * pEndPoint, InitBlock 
 		// Требуется в доверенные еще внести сертификат Крипто-Про (в инструкции по быстрому старту про это есть). 
 	rBlk.GuaPack.TagL.GetItemStr(PPTAG_GUA_CERTSUBJCN, rBlk.Cn);
 	rBlk.GuaPack.TagL.GetItemStr(PPTAG_GUA_CHZN_PM_TOKEN, rBlk.PermissiveModeToken); // @v11.9.11
+	// @v12.3.11 {
+	{
+		rBlk.GuaPack.TagL.GetItemStr(PPTAG_GUA_CHZNLOCPMURL, temp_buf.Z());
+		if(temp_buf.NotEmptyS()) {
+			InetUrl url;
+			if(PPObjGlobalUserAcc::GetChZnLocPmUrl(temp_buf, url) > 0)
+				rBlk.PermissiveModeLocalSvrUrl = url;
+		}
+	}
+	// } @v12.3.11 
 	if(rBlk.Cn.NotEmptyS()) {
 		//rBlk.Cn.ReplaceStr("\"", " ", 0);
 		//rBlk.Cn.ElimDblSpaces();
@@ -3771,8 +3782,10 @@ SString & PPChZnPrcssr::PermissiveModeInterface::MakeTargetUrl(int query, const 
 	return rResult;
 }
 
-PPChZnPrcssr::PermissiveModeInterface::PermissiveModeInterface(const char * pToken, uint flags) : Token(pToken), Flags(flags), Lth(PPFILNAM_CHZNTALK_LOG)
+PPChZnPrcssr::PermissiveModeInterface::PermissiveModeInterface(const char * pToken, InetUrl * pLocalSvrUrl, uint flags) : 
+	Token(pToken), Flags(flags), Lth(PPFILNAM_CHZNTALK_LOG)
 {
+	RVALUEPTR(LocalSvrUrl, pLocalSvrUrl);
 }
 
 PPChZnPrcssr::PermissiveModeInterface::~PermissiveModeInterface()
@@ -4117,6 +4130,252 @@ int PPChZnPrcssr::PermissiveModeInterface::CheckCodeList(const char * pHost, con
 	return ok;
 }
 
+int PPChZnPrcssr::PermissiveModeInterface::InitLocalSvr(const char * pFiscalDriveNumber, SCompoundError * pErr)
+{
+	// @construction
+	int    ok = 0;
+	SJson * p_js_reply = 0;
+	SString temp_buf;
+	SString host;
+	SString user;
+	SString pw;
+	SString url_buf;
+	SString req_buf;
+	SString reply_buf;
+	SBuffer ack_buf;
+	int    port = 0;
+	CALLPTRMEMB(pErr, Z());
+	if(Token.NotEmpty()) {
+		LocalSvrUrl.GetComponent(InetUrl::cHost, 0, host);
+		if(host.NotEmpty()) {
+			LocalSvrUrl.GetComponent(InetUrl::cPort, 0, temp_buf);
+			port = temp_buf.ToLong();
+			if(port <= 0) {
+				port = PPChZnPrcssr::LocalSvrDefaultPort;
+				LocalSvrUrl.GetComponent(InetUrl::cPort, 0, temp_buf.Z().Cat(port));
+			}
+			LocalSvrUrl.GetComponent(InetUrl::cUserName, 0, user);
+			LocalSvrUrl.GetComponent(InetUrl::cPassword, 0, pw);
+			LocalSvrUrl.Compose(InetUrl::stScheme|InetUrl::stHost|InetUrl::stPort, url_buf);
+			{
+				/*
+					curl -X POST "<url хоста>/api/v1/init" 
+					-H "Content-Type: application/json" 
+					-H "Authorization: Basic YWRtaW46YWRtaW4=" 
+					-H "X-ClientId: номер фискального накопителя" 
+					-d {"token": "X-API-KEY (Аутентификационный токен участника оборота)"}
+				*/
+				InetUrl url(url_buf);
+				url.SetComponent(InetUrl::cPath, "api/v1/init");
+				ScURL c; //...GET
+				StrStrAssocArray hdr_flds;
+				SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrContentType, "application/json");
+				{
+					temp_buf.Z().Cat(user).Colon().Cat(pw).Transf(CTRANSF_INNER_TO_UTF8);
+					SString & r_u_p_buf = SLS.AcquireRvlStr();
+					r_u_p_buf.EncodeMime64(temp_buf.cptr(), temp_buf.Len());
+					temp_buf.Z().Cat("Basic").Space().Cat(r_u_p_buf);
+					SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrAuthorization, temp_buf);
+				}
+				{
+					SJson js_req(SJson::tOBJECT);
+					js_req.InsertString("token", Token);
+					js_req.ToStr(req_buf);
+				}
+				SFile wr_stream(ack_buf.Z(), SFile::mWrite);
+				Lth.Log("req", 0, req_buf);
+				if(c.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, req_buf, &wr_stream)) {
+					SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
+					if(p_ack_buf) {
+						reply_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
+						Lth.Log("rep", 0, reply_buf);
+						{
+							p_js_reply = SJson::Parse(reply_buf);
+							SCompoundError cerr;
+							if(SJson::IsObject(p_js_reply)) {
+								//{"reason":"not authorized","errorCode":4010}
+								for(const SJson * p_cur = p_js_reply->P_Child; p_cur; p_cur = p_cur->P_Next) {
+									if(p_cur->Text.IsEqiAscii("reason")) {
+										SJson::GetChildTextUnescaped(p_cur, cerr.Descr);
+									}
+									else if(p_cur->Text.IsEqiAscii("errorCode")) {
+										cerr.Code = p_cur->P_Child->Text.ToLong();
+									}
+								}
+								ASSIGN_PTR(pErr, cerr);
+							}
+						}
+						ok = 1;
+					}
+				}
+				else {
+					; // @todo @err
+				}
+			}
+		}
+	}
+	delete p_js_reply;
+	return ok;
+}
+
+int PPChZnPrcssr::PermissiveModeInterface::GetLocalSvrStatus(const char * pFiscalDriveNumber, LocalSvcStatus & rResult)
+{
+	int    ok = 0;
+	SJson * p_js_reply = 0;
+	SString temp_buf;
+	SString host;
+	SString user;
+	SString pw;
+	SString url_buf;
+	SString req_buf;
+	SString reply_buf;
+	SBuffer ack_buf;
+	int    port = 0;
+	LocalSvrUrl.GetComponent(InetUrl::cHost, 0, host);
+	if(host.NotEmpty()) {
+		LocalSvrUrl.GetComponent(InetUrl::cPort, 0, temp_buf);
+		port = temp_buf.ToLong();
+		if(port <= 0) {
+			port = PPChZnPrcssr::LocalSvrDefaultPort;
+			LocalSvrUrl.GetComponent(InetUrl::cPort, 0, temp_buf.Z().Cat(port));
+		}
+		LocalSvrUrl.GetComponent(InetUrl::cUserName, 0, user);
+		LocalSvrUrl.GetComponent(InetUrl::cPassword, 0, pw);
+		LocalSvrUrl.Compose(InetUrl::stScheme|InetUrl::stHost|InetUrl::stPort, url_buf);
+		//
+		{
+			/*
+				curl -X GET "<url хоста>/api/v1/status" 
+				-H "Content-Type: application/json" 
+				-H "Authorization: Basic YWRtaW46YWRtaW4=" 
+				-H "X-ClientId: номер фискального накопителя"
+			*/ 
+			InetUrl url(url_buf);
+			url.SetComponent(InetUrl::cPath, "api/v1/status");
+			ScURL c; //...GET
+			StrStrAssocArray hdr_flds;
+			SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrContentType, "application/json");
+			{
+				temp_buf.Z().Cat(user).Colon().Cat(pw).Transf(CTRANSF_INNER_TO_UTF8);
+				SString & r_u_p_buf = SLS.AcquireRvlStr();
+				r_u_p_buf.EncodeMime64(temp_buf.cptr(), temp_buf.Len());
+				temp_buf.Z().Cat("Basic").Space().Cat(r_u_p_buf);
+				SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrAuthorization, temp_buf);
+			}
+			SFile wr_stream(ack_buf.Z(), SFile::mWrite);
+			Lth.Log("req", 0, req_buf);
+			if(c.HttpGet(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, &wr_stream)) {
+				SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
+				if(p_ack_buf) {
+					reply_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
+					Lth.Log("rep", 0, reply_buf);
+					p_js_reply = SJson::Parse(reply_buf);
+					if(p_js_reply/*&& ParseDocument(p_json_doc, rDoc) > 0*/) {
+						/*{
+							"version": "1.5.0-462",
+							"status": "not_configured",
+							"serviceUrl": "https://rsapi.crpt.ru",
+							"requiresDownload": false,
+							"replicationStatus": {},
+							"operationMode": "active",
+							"name": "regime",
+							"lastUpdate": 0,
+							"lastSync": 0,
+							"inst": "",
+							"inn": "",
+							"dbVersion": ""
+						}*/
+						if(SJson::IsObject(p_js_reply)) {
+							for(const SJson * p_cur = p_js_reply->P_Child; p_cur; p_cur = p_cur->P_Next) {
+								if(p_cur->Text.IsEqiAscii("version")) {
+									SJson::GetChildTextUnescaped(p_cur, rResult.Version);
+								}
+								else if(p_cur->Text.IsEqiAscii("status")) {
+									SJson::GetChildTextUnescaped(p_cur, rResult.StatusText);
+									if(rResult.StatusText.IsEqiAscii("not_configured")) {
+										rResult.Status = LocalSvcStatus::stNotConfigured;
+									}
+									else if(rResult.StatusText.IsEqiAscii("initialization")) {
+										rResult.Status = LocalSvcStatus::stInitialization;
+									}
+									else if(rResult.StatusText.IsEqiAscii("ready")) {
+										rResult.Status = LocalSvcStatus::stReady;
+									}
+									else if(rResult.StatusText.IsEqiAscii("sync_error")) {
+										rResult.Status = LocalSvcStatus::stSyncError;
+									}
+									else {
+										rResult.Status = LocalSvcStatus::stUndef;
+									}
+								}
+								else if(p_cur->Text.IsEqiAscii("serviceUrl")) {
+									SJson::GetChildTextUnescaped(p_cur, rResult.ServiceUrl);
+								}
+								else if(p_cur->Text.IsEqiAscii("requiresDownload")) {
+									if(SJson::GetBoolean(p_cur->P_Child) == 1)
+										rResult.Flags |= LocalSvcStatus::fRequiresDownload;
+								}
+								else if(p_cur->Text.IsEqiAscii("replicationStatus")) {
+									// object
+								}
+								else if(p_cur->Text.IsEqiAscii("operationMode")) {
+									SJson::GetChildTextUnescaped(p_cur, rResult.OperationModeText);
+									if(rResult.OperationModeText.IsEqiAscii("аctive")) {
+										rResult.OpMode = LocalSvcStatus::opmodeActive;
+									}
+									else if(rResult.OperationModeText.IsEqiAscii("service")) {
+										rResult.OpMode = LocalSvcStatus::opmodeService;
+									}
+									else {
+										rResult.OpMode = LocalSvcStatus::opmodeUndef;
+									}
+								}
+								else if(p_cur->Text.IsEqiAscii("name")) {
+									SJson::GetChildTextUnescaped(p_cur, rResult.Name);
+								}
+								else if(p_cur->Text.IsEqiAscii("lastUpdate")) {
+									const uint64 epoch_ms = p_cur->P_Child->Text.ToUInt64();
+									SUniTime_Internal ut;
+									ut.SetTime100ns(SUniTime_Internal::EpochMsToNs100(epoch_ms));
+									rResult.UedLastUpdateTm = UED::_SetRaw_Time(UED_META_TIME_MSEC, ut);
+								}
+								else if(p_cur->Text.IsEqiAscii("lastSync")) {
+									uint64 epoch_ms = p_cur->P_Child->Text.ToUInt64();
+									SUniTime_Internal ut;
+									ut.SetTime100ns(SUniTime_Internal::EpochMsToNs100(epoch_ms));
+									rResult.UedLastSyncTm = UED::_SetRaw_Time(UED_META_TIME_MSEC, ut);
+								}
+								else if(p_cur->Text.IsEqiAscii("inst")) {
+									SJson::GetChildTextUnescaped(p_cur, rResult.Inst);
+								}
+								else if(p_cur->Text.IsEqiAscii("inn")) {
+									SJson::GetChildTextUnescaped(p_cur, rResult.Inn);
+								}
+								else if(p_cur->Text.IsEqiAscii("dbVersion")) {
+									SJson::GetChildTextUnescaped(p_cur, rResult.DbVer);
+								}
+							}							
+						}
+						ok = 1;
+					}
+				}
+			}
+			else {
+				; // @todo @err
+			}
+		}
+	}
+	delete p_js_reply;
+	return ok;
+}
+
+int PPChZnPrcssr::PermissiveModeInterface::LocalCheckCodeList(const char * pFiscalDriveNumber, PermissiveModeInterface::CodeStatusCollection & rList)
+{
+	// @construction
+	int    ok = 0;
+	return ok;
+}
+
 int PPChZnPrcssr::PmCheck(PPID guaID, const char * pFiscalDriveNumber, PermissiveModeInterface::CodeStatusCollection & rList)
 {
 	int    ok = -1;
@@ -4129,7 +4388,7 @@ int PPChZnPrcssr::PmCheck(PPID guaID, const char * pFiscalDriveNumber, Permissiv
 		THROW_PP(p_ib->PermissiveModeToken.NotEmpty(), PPERR_CHZNPMTOKENUNDEF);
 		{
 			SString best_cdn_host;
-			PermissiveModeInterface pm_ifc(p_ib->PermissiveModeToken, /*PPChZnPrcssr::PermissiveModeInterface::fTest*/0);
+			PermissiveModeInterface pm_ifc(p_ib->PermissiveModeToken, &p_ib->PermissiveModeLocalSvrUrl, /*PPChZnPrcssr::PermissiveModeInterface::fTest*/0);
 			pm_ifc.FetchCdnHost(guaID, best_cdn_host);
 			THROW_PP(best_cdn_host.NotEmpty(), PPERR_CHZNPMCDNHOSTFAULT);
 			pm_ifc.CheckCodeList(best_cdn_host, 0, rList);
@@ -4157,7 +4416,7 @@ int PPChZnPrcssr::PmCheck(PPID guaID, const char * pFiscalDriveNumber, Permissiv
 	PPChZnPrcssr::PermissiveModeInterface::CodeStatusCollection check_code_result;
 	if(prcssr.EditParam(&param) > 0) {
 		//StringSet mark_list;
-		{
+		if(0) {
 			SString img_path;
 			PPGetPath(PPPATH_TESTROOT, img_path);
 			if(img_path.NotEmpty()) {
@@ -4190,8 +4449,18 @@ int PPChZnPrcssr::PmCheck(PPID guaID, const char * pFiscalDriveNumber, Permissiv
 		THROW(ifc.SetupInitBlock(param.GuaID, 0, *p_ib));
 		{
 			if(p_ib->PermissiveModeToken.NotEmpty()) {
-				PPChZnPrcssr::PermissiveModeInterface pm_ifc(p_ib->PermissiveModeToken, /*PPChZnPrcssr::PermissiveModeInterface::fTest*/0);
+				PPChZnPrcssr::PermissiveModeInterface pm_ifc(p_ib->PermissiveModeToken, &p_ib->PermissiveModeLocalSvrUrl, /*PPChZnPrcssr::PermissiveModeInterface::fTest*/0);
+				PPChZnPrcssr::PermissiveModeInterface::LocalSvcStatus lss;
+				//
+				if(pm_ifc.GetLocalSvrStatus(0, lss)) {
+					if(lss.Status == PPChZnPrcssr::PermissiveModeInterface::LocalSvcStatus::stNotConfigured) {
+						SCompoundError init_local_svr_err;
+						pm_ifc.InitLocalSvr(0, &init_local_svr_err);
+					}
+				}
+				//
 				//pm_ifc.SelectCdnHost(best_cdn_host);
+				//
 				pm_ifc.FetchCdnHost(param.GuaID, best_cdn_host);
 				if(best_cdn_host.NotEmpty()) {
 					pm_ifc.CheckCodeList(best_cdn_host, 0, check_code_result);

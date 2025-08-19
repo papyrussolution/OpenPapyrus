@@ -120,9 +120,7 @@ bool AllNumberGroupsRemainGrouped(const PhoneNumberUtil& util,
 				// countries with national prefixes.
 				string national_significant_number;
 				util.GetNationalSignificantNumber(number, &national_significant_number);
-				return HasPrefixString(normalized_candidate.substr(
-						   from_index - formatted_number_groups.at(i).length()),
-					   national_significant_number);
+				return HasPrefixString(normalized_candidate.substr(from_index - formatted_number_groups.at(i).length()), national_significant_number);
 			}
 		}
 	}

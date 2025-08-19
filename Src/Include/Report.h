@@ -128,9 +128,63 @@ private:
 //
 struct CrystalReportExportParam { // @v12.3.7
 	//
-	// Descr: Возвращает имя dll-модуля, отвечающего за вывод в формате format
-	//
-	static bool GetFormatDll(uint format, SString & rDllModuleName);
+	// Descr: Структура, определяющая назначение экспорта посредством CrystalReports
+	// 
+	struct Crr_Destination {
+		Crr_Destination();
+		void   SetFileName(const char * pFileName);
+		uint16 Size;        //
+		uint32 FileNamePtr; // Так как мы работаем с 32-битным компонентом CrystalReports, то явно определяем указатель как 32-битный.
+	};
+	struct Crr_ExportOptions_PdfRtfDoc { // @size=24
+		Crr_ExportOptions_PdfRtfDoc();
+		uint32   Size;          // Const=24
+		uint32   SelectedPages; // 0 - all pages, 1 - selected pages
+		uint32   Unknown[2];    //
+		uint32   FirstPage;
+		uint32   LastPage;
+	};
+	struct Crr_ExportOptions_Csv { 
+		Crr_ExportOptions_Csv();
+		uint16   Size;          // Const=
+		uint32   UseReportNumberFormat; // bool
+		uint32   UseReportDateFormat;   // bool
+		uint8    QuoteChar;     // offs=10
+		uint8    Unkn[8];       //
+		uint8    FieldSep;      // offs=19
+		uint8    Unkn2[6];      //
+	};
+	struct Crr_ExportOptions_Xls { // @size=84
+		Crr_ExportOptions_Xls();
+		//u2fxls	84 extended
+			//                    1                   2                   3                   4                   5                   6                   7                   8 
+			//0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3
+			//54000100000000000000000000000080864000000000ff00000000000000000000000000000001000000000000000100000000000000000000000100000000000000000000000000000000000000000000000100
+		//u2fxls	84 data-only
+			//540001000000000000000000000000808640000000000400000000000000000000000000000001000000000000000100000000000000000000000100000000000000000000000000000000000000000000000100
+		uint16   Size;              //
+		uint32   bColumnHeadings;   //TRUE -- has column headings, which come from. "Page Header" and "Report Header" ares. FALSE -- no clolumn headings.
+			// The default value is FALSE.
+		uint32   bUseConstColWidth; // TRUE -- use constant column width. FALSE -- set column width based on an area. The default value is FALSE.
+		double   fConstColWidth;    // offs=10 Column width, when bUseConstColWidth is TRUE. The default value is 9.
+		uint32   bTabularFormat;    // offs=18 TRUE -- tabular format (flatten an area into a row). FALSE -- non-tabular format. The default value is FALSE.
+		uint16   baseAreaType;      // offs=22 One of the 7 Section types defined in "Crpe.h". The default value is PE_SECT_DETAIL.
+		uint16   baseAreaGroupNum;  // offs=24 If baseAreaType is either GroupHeader or
+			// GroupFooter and there are more than one groups, we need to give the group number. The default value is 1.		
+		uint8    Unknown[4];        // offs=26 ???
+		uint32   bCreatePgBrkForEachPage; // offs=30
+		uint32   bConvertDateToStr; // offs=34
+		uint32   AllPages;          // offs=38 1 - all pages, 0 - selected pages
+		uint8    Unknown2[4];       // 
+		uint32   Unkn_One2;         // offs=46 ??? 1 
+		uint32   FirstPage;         // offs=50
+		uint32   LastPage;          //  
+		uint32   Unkn_One;          // offs=58 ??? 1
+		uint8    Unknown3[16];      // ???
+		uint32   bShowGrid;         // 
+		uint16   Unkn_One3;         // ??? 1
+	};
+
 	//
 	// Descr: Возвращает имя dll-модуля, отвечающего за вывод результат в виде, определенном аргументом dest (destApp || destFile)
 	//
@@ -140,8 +194,10 @@ struct CrystalReportExportParam { // @v12.3.7
 	CrystalReportExportParam & FASTCALL operator = (const CrystalReportExportParam & rS);
 	CrystalReportExportParam & FASTCALL Z();
 	bool   FASTCALL Copy(const CrystalReportExportParam & rS);
+	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
+	bool   GetDefaultExportFilePath(const char * pReportName, SString & rBuf) const;
 	int    LoadFromIniFile(const char * pReportName);
-	int    TranslateToCrrExportOptions(PEExportOptions & rEo);
+	int    TranslateToCrrExportOptions(PEExportOptions & rEo) const;
 
 	enum {
 		crexpfmtPdf     = SFileFormat::Pdf,     // (UXFPdfType) params: page-range
@@ -159,25 +215,28 @@ struct CrystalReportExportParam { // @v12.3.7
 		fSelectedPages             = 0x0001,
 		fHtmlPageNavigator         = 0x0002,
 		fHtmlSeparatePages         = 0x0004,
-		fXlsColumnHeadings         = 0x0008,
-		fXlsUseConstColumnWidth    = 0x0010,
-		fXlsTabularFormat          = 0x0020,
-		fXlsCreatePgBrkForEachPage = 0x0040,
-		fXlsCvtDateToString        = 0x0080,
-		fXlsShowGrid               = 0x0100,
-		fCsvUseReportNumberFormat  = 0x0200,
-		fCsvUseReportDateFormat    = 0x0400, 
-		fCsvQuoteText              = 0x0800,
-		fSilent                    = 0x1000  // Не интерактивный режим
+		fXlsDataOnly               = 0x0008,
+		fXlsColumnHeadings         = 0x0010,
+		fXlsUseConstColumnWidth    = 0x0020,
+		fXlsTabularFormat          = 0x0040,
+		fXlsCreatePgBrkForEachPage = 0x0080,
+		fXlsCvtDateToString        = 0x0100,
+		fXlsShowGrid               = 0x0200,
+		fCsvUseReportNumberFormat  = 0x0400,
+		fCsvUseReportDateFormat    = 0x0800, 
+		fCsvQuoteText              = 0x1000,
+		fSilent                    = 0x2000  // Не интерактивный режим
 	};
-	uint    Flags;
-	uint    Format;
-	uint    Destination;          // destXXX 
-	uint    XlsConstColumnWidth;
-	uint    XlsBaseAreaType;      // One of the 7 Section types defined in "Crpe.h". The default value is PE_SECT_DETAIL.
-	uint    XlsBaseAreaGroupNum;  // If baseAreaType is either GroupHeader or
+
+	uint32  Ver;                  // Версия формата для сериализации 
+	uint32  Flags;
+	uint32  Format;
+	uint32  Destination;          // destXXX 
+	uint32  XlsConstColumnWidth;
+	uint32  XlsBaseAreaType;      // One of the 7 Section types defined in "Crpe.h". The default value is PE_SECT_DETAIL.
+	uint32  XlsBaseAreaGroupNum;  // If baseAreaType is either GroupHeader or
 		//GroupFooter and there are more than one groups, we need to give the group number. The default value is 1.
-	uint    CsvFieldSeparator;
+	uint32  CsvFieldSeparator;
 	IntRange PageRange; // if Flags & fSelectedPages
 	SString DestFileName;
 };
@@ -241,8 +300,8 @@ struct PrnDlgAns {
 		aExportTDDO
 	};
 	enum {
-		fForceDDF  = 0x0001,
-		fEMail     = 0x0002, // Действителен при Dest == aExport
+		fForceDDF          = 0x0001,
+		fEMail             = 0x0002, // Действителен при Dest == aExport
 		fUseDuplexPrinting = 0x0004  // Дуплексная печать
 	};
 	long   Dest;
@@ -438,12 +497,11 @@ private:
 //
 // Descr: Структура параметров печати для реализации межпроцессного интерфейса для вывода 32-битного CrystalReports в отдельный процесс
 //
-class CrystalReportPrintParamBlock { // @v11.9.5 @construction
+class CrystalReportPrintParamBlock { // @v11.9.5 @persistent
 public:
-	CrystalReportPrintParamBlock() : Action(actionUndef), InternalFlags(0), NumCopies(0), Options(0)
-	{
-		MEMSZERO(DevMode);
-	}
+	CrystalReportPrintParamBlock();
+	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
+
 	enum {
 		intfDevModeValid = 0x0001
 	};
@@ -453,31 +511,25 @@ public:
 		actionPreview,
 		actionExport
 	};
-	int    Action;
-	uint   InternalFlags;
+	uint32 Ver;           // Версия формата для сериализации
+	int32  Action;
+	uint32 InternalFlags;
 	uint32 NumCopies;
 	uint32 Options;
-	DEVMODEA DevMode;
+	DEVMODEA DevMode;     // @flat 
 	SString ReportPath;
 	SString ReportName;
-	SString EmailAddr;   // for Action == actionExport
+	SString EmailAddr;    // for Action == actionExport
 	SString Dir;
 	SString Printer;
 	CrystalReportExportParam ExpParam; // @v12.3.10
 };
 
-class CrystalReportPrintReply {
-public:
-	CrystalReportPrintReply() : ErrCode(0)
-	{
-	}
-	int    ErrCode;
-	SString ErrMsg;
-};
+typedef SCompoundError CrystalReportPrintReply;
 
 int EditPrintParam(PrnDlgAns * pData);
 int CrystalReportPrint(const char * pReportPath, const char * pDir, const char * pPrinter, int numCopies, int options, const DEVMODEA *pDevMode);  //erik{DEVMODEA *pDevMode} add param v10.4.10
-int CrystalReportPrint2(const CrystalReportPrintParamBlock & rBlk, CrystalReportPrintReply & rReply); // @v11.9.5 @construction
+int CrystalReportPrint2(const CrystalReportPrintParamBlock & rBlk, CrystalReportPrintReply & rReply); // @v11.9.5
 int CrystalReportExport(const char * pReportPath, const char * pDir, const char * pReportName, const char * pEMailAddr, int options);
 
 #endif /* __REPORT_H */

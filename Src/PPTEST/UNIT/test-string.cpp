@@ -306,7 +306,7 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 				str.CopyTo(buffer, tl);
 				if(tl > 1) {
 					SLCHECK_Z(str.CmpPrefix(buffer, 0));
-					SLCHECK_NZ(str.HasPrefix(buffer)); // @v10.7.8
+					SLCHECK_NZ(str.HasPrefix(buffer));
 				}
 				{
 					const size_t real_data_len = MIN(tl, str.Len()+1);

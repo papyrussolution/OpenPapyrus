@@ -521,14 +521,22 @@ int BillItemBrowser::GetColPos(ColumnPosBlock & rBlk)
 			if(p_brw->GetColPos(posblk) > 0) {
 				if(p_pack && pos >= 0 && pos < static_cast<int>(p_pack->GetTCount())) {
 					if(col == posblk.GoodsPos) { // @v11.5.8
+						const PPTransferItem & r_ti = p_pack->ConstTI(pos);
 						const TagFilt & r_tag_filt = p_brw->GObj.GetConfig().TagIndFilt;
 						if(!r_tag_filt.IsEmpty()) {
-							const PPTransferItem & r_ti = p_pack->ConstTI(pos);
 							const  PPID goods_id = labs(r_ti.GoodsID);
 							SColor clr;
 							if(r_tag_filt.SelectIndicator(goods_id, clr))
 								ok = pStyle->SetLeftBottomCornerColor(static_cast<COLORREF>(clr));
 						}
+						// @v12.3.11 {
+						{
+							Goods2Tbl::Rec goods_rec;
+							if(p_brw->GObj.Fetch(r_ti.GoodsID, &goods_rec) > 0 && goods_rec.Flags & GF_PASSIV) {
+								ok = pStyle->SetRightFigCircleColor(GetColorRef(SClrBrown));
+							}
+						}
+						// } @v12.3.11 
 					}
 					else if(col == posblk.QttyPos) {
 						const PPTransferItem & r_ti = p_pack->ConstTI(pos);

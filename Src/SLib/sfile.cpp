@@ -1879,33 +1879,42 @@ int SFile::OpenNullOutput()
 int SFile::Open(const char * pName, long mode)
 {
 	int    ok = 1;
-	bool   err_inited = false; // @v11.3.3
-	SString mode_buf;
-	SString _file_name(pName);
-	int    oflag = 0;
-	int    pflag = S_IREAD | S_IWRITE;
-	int    shflag = 0;
-	if(mode & mReadCompressed) { // @v12.3.10 Этот случай обрабатываем специальным образом
-		SFileFormat ff;
-		int ffr = ff.Identify(_file_name, 0);
-		if(oneof2(ffr, 2, 3)) {
-			if(ff == SFileFormat::Gz) {
-				gzFile h = gzopen64(pName, "r"); // Файл в любом случае открывается в бинарном режиме
-				if(h) {
-					H = h;
-					T = tFfGz;
-					Mode = mRead | (mReadCompressed | mBinary);
+	Close(); // Безусловно закрываем файл независимо от результата выполнения функции!
+	if(isempty(pName)) {
+		ok = SLS.SetError(SLERR_OPENFAULT_EMPTYNAME);
+	}
+	else {
+		bool   err_inited = false; // @v11.3.3
+		SString mode_buf;
+		SString _file_name(pName);
+		int    oflag = 0;
+		int    pflag = S_IREAD | S_IWRITE;
+		int    shflag = 0;
+		if(mode & mReadCompressed) { // @v12.3.10 Этот случай обрабатываем специальным образом
+			SFileFormat ff;
+			int ffr = ff.Identify(_file_name, 0);
+			if(oneof2(ffr, 2, 3)) {
+				if(ff == SFileFormat::Gz) {
+					gzFile h = gzopen64(pName, "r"); // Файл в любом случае открывается в бинарном режиме
+					if(h) {
+						H = h;
+						T = tFfGz;
+						Mode = mRead | (mReadCompressed | mBinary);
+					}
+					else {
+						ok = 0; // @todo @err
+					}
 				}
-				else {
-					ok = 0; // @todo @err
-				}
-			}
-			else if(ff == SFileFormat::Bz2) {
-				BZFILE * h = BZ2_bzopen(pName, "r"); // Файл в любом случае открывается в бинарном режиме
-				if(h) {
-					H = h;
-					T = tFfBz2;
-					Mode = mRead | (mReadCompressed | mBinary);
+				else if(ff == SFileFormat::Bz2) {
+					BZFILE * h = BZ2_bzopen(pName, "r"); // Файл в любом случае открывается в бинарном режиме
+					if(h) {
+						H = h;
+						T = tFfBz2;
+						Mode = mRead | (mReadCompressed | mBinary);
+					}
+					else {
+						ok = 0; // @todo @err
+					}
 				}
 				else {
 					ok = 0; // @todo @err
@@ -1916,143 +1925,139 @@ int SFile::Open(const char * pName, long mode)
 			}
 		}
 		else {
-			ok = 0; // @todo @err
-		}
-	}
-	else {
-		Mode = mode;
-		const  long en_mode = (mode & ~(mBinary|mDenyRead|mDenyWrite|mNoStd|mNullWrite|mBuffRd|mReadCompressed)); // Перечисляемая часть режима открытия файла
-		switch(en_mode) {
-			case mRead:
-				oflag |= O_RDONLY;
-				mode_buf.CatChar('r');
-				break;
-			case mWrite:
-				oflag |= (O_WRONLY | O_CREAT | O_TRUNC);
-				mode_buf.CatChar('w');
-				break;
-			case mAppend:
-				oflag |= (O_WRONLY | O_CREAT | O_APPEND);
-				mode_buf.CatChar('a');
-				break;
-			case mReadWrite:
-				oflag |= (O_RDWR | O_CREAT);
-				mode_buf.CatChar('r').CatChar('+');
-				break;
-			case mReadWriteTrunc:
-				oflag |= (O_RDWR | O_TRUNC | O_CREAT);
-				mode_buf.CatChar('w').CatChar('+');
-				break;
-			case mAppendRead:
-				oflag |= (O_RDWR | O_APPEND);
-				mode_buf.CatChar('a').CatChar('+');
-				break;
-		}
-		if(mode & mBinary) {
-			oflag |= O_BINARY;
-			mode_buf.CatChar('b');
-		}
-		else {
-			oflag |= O_TEXT;
-			mode_buf.CatChar('t');
-		}
-		if(mode & mDenyRead && mode & mDenyWrite)
-			shflag = SH_DENYRW;
-		else if(mode & mDenyRead)
-			shflag = SH_DENYRD;
-		else if(mode & mDenyWrite)
-			shflag = SH_DENYWR;
-		else
-			shflag = SH_DENYNO;
-		Close();
-		if(_file_name.HasChr('?')) { // @v11.9.5 Возможно, это - архив
-			SString left_buf;
-			SString right_buf;
-			SString temp_buf;
-			const int dr = _file_name.Divide('?', left_buf, right_buf);
-			assert(dr > 0); // Не может быть, что dr <= 0 ибо мы выше проверили, что в строке есть '?'
-			if(dr > 0) {
-				if(left_buf.HasChr('?') || right_buf.HasChr('?')) {
-					// @todo @err (недопустимое имя файла)
-					ok = 0;
-				}
-				else {
-					if(fileExists(left_buf)) {
-						// Трактуем строку pFileName как имя файла внутри архива. При этом
-						// на текущий момент left_buf - имя архива, right_buf - имя файла внутри архива
-						if(en_mode != mRead) { // Архив может быть открыт объектом SFile только для чтения!
-							ok = 0;
-						}
-						else {
-							SFileEntryPool fep;
-							int    arc_format = 0;
-							right_buf = SFsPath::NormalizePath(right_buf, SFsPath::npfSlash|SFsPath::npfCompensateDotDot, temp_buf);
-							if(SArchive::List(SArchive::providerLA, &arc_format, left_buf, 0, fep) > 0) {
-								SFileEntryPool::Entry fe;
-								SString arc_sub;
-								for(uint i = 0; i < fep.GetCount(); i++) {
-									if(fep.Get(i, &fe, &arc_sub) > 0) {
-										if(SFsPath::NormalizePath(arc_sub, SFsPath::npfSlash|SFsPath::npfCompensateDotDot, temp_buf).IsEqiUtf8(right_buf)) {
-											H = SArchive::OpenArchiveEntry(SArchive::providerLA, left_buf, right_buf);
-											if(!!H) {
-												T = tArchive;
-												ok = 1;
+			Mode = mode;
+			const  long en_mode = (mode & ~(mBinary|mDenyRead|mDenyWrite|mNoStd|mNullWrite|mBuffRd|mReadCompressed)); // Перечисляемая часть режима открытия файла
+			switch(en_mode) {
+				case mRead:
+					oflag |= O_RDONLY;
+					mode_buf.CatChar('r');
+					break;
+				case mWrite:
+					oflag |= (O_WRONLY | O_CREAT | O_TRUNC);
+					mode_buf.CatChar('w');
+					break;
+				case mAppend:
+					oflag |= (O_WRONLY | O_CREAT | O_APPEND);
+					mode_buf.CatChar('a');
+					break;
+				case mReadWrite:
+					oflag |= (O_RDWR | O_CREAT);
+					mode_buf.CatChar('r').CatChar('+');
+					break;
+				case mReadWriteTrunc:
+					oflag |= (O_RDWR | O_TRUNC | O_CREAT);
+					mode_buf.CatChar('w').CatChar('+');
+					break;
+				case mAppendRead:
+					oflag |= (O_RDWR | O_APPEND);
+					mode_buf.CatChar('a').CatChar('+');
+					break;
+			}
+			if(mode & mBinary) {
+				oflag |= O_BINARY;
+				mode_buf.CatChar('b');
+			}
+			else {
+				oflag |= O_TEXT;
+				mode_buf.CatChar('t');
+			}
+			if(mode & mDenyRead && mode & mDenyWrite)
+				shflag = SH_DENYRW;
+			else if(mode & mDenyRead)
+				shflag = SH_DENYRD;
+			else if(mode & mDenyWrite)
+				shflag = SH_DENYWR;
+			else
+				shflag = SH_DENYNO;
+			if(_file_name.HasChr('?')) { // @v11.9.5 Возможно, это - архив
+				SString left_buf;
+				SString right_buf;
+				SString temp_buf;
+				const int dr = _file_name.Divide('?', left_buf, right_buf);
+				assert(dr > 0); // Не может быть, что dr <= 0 ибо мы выше проверили, что в строке есть '?'
+				if(dr > 0) {
+					if(left_buf.HasChr('?') || right_buf.HasChr('?')) {
+						// @todo @err (недопустимое имя файла)
+						ok = 0;
+					}
+					else {
+						if(fileExists(left_buf)) {
+							// Трактуем строку pFileName как имя файла внутри архива. При этом
+							// на текущий момент left_buf - имя архива, right_buf - имя файла внутри архива
+							if(en_mode != mRead) { // Архив может быть открыт объектом SFile только для чтения!
+								ok = 0;
+							}
+							else {
+								SFileEntryPool fep;
+								int    arc_format = 0;
+								right_buf = SFsPath::NormalizePath(right_buf, SFsPath::npfSlash|SFsPath::npfCompensateDotDot, temp_buf);
+								if(SArchive::List(SArchive::providerLA, &arc_format, left_buf, 0, fep) > 0) {
+									SFileEntryPool::Entry fe;
+									SString arc_sub;
+									for(uint i = 0; i < fep.GetCount(); i++) {
+										if(fep.Get(i, &fe, &arc_sub) > 0) {
+											if(SFsPath::NormalizePath(arc_sub, SFsPath::npfSlash|SFsPath::npfCompensateDotDot, temp_buf).IsEqiUtf8(right_buf)) {
+												H = SArchive::OpenArchiveEntry(SArchive::providerLA, left_buf, right_buf);
+												if(!!H) {
+													T = tArchive;
+													ok = 1;
+												}
+												break;
 											}
-											break;
 										}
 									}
 								}
 							}
 						}
-					}
-					else {
-						ok = 0;
-					}
-				}
-			}
-		}
-		else { // Валидное имя файла не может содержать символов '?'
-			//
-			// @v11.6.0 Добавлена предварительная обработка имени файла на предмет кодировки:
-			//   - если имя файла состоит только из ascii-символов, то все как обычно (sopen)
-			//   - если имя файла состоит из валидных utf8-символов, то преобразуем его в unicode и используем _wsopen
-			//   - в противном случае уповаем на провидение и используем sopen как есть.
-			//
-			if(_file_name.IsAscii()) {
-				IH = sopen(_file_name, oflag, shflag, pflag);
-			}
-			else if(_file_name.IsLegalUtf8()) {
-				SStringU & r_temp_buf_u = SLS.AcquireRvlStrU();
-				r_temp_buf_u.CopyFromUtf8(_file_name);
-				IH = _wsopen(r_temp_buf_u.ucptr(), oflag, shflag, pflag);
-			}
-			else {
-				IH = sopen(pName, oflag, shflag, pflag);
-			}
-			//_wsopen(
-			if(IH >= 0) {
-				if(!(mode & mNoStd)) {
-					H = fdopen(IH, mode_buf);
-					if(!!H)
-						T = tStdFile;
-					else {
-						SLS.SetErrorErrno(pName); // @v11.3.3
-						err_inited = true;
-						close(IH);
-						IH = -1;
+						else {
+							ok = 0;
+						}
 					}
 				}
-				else
-					T = tFile;
 			}
-			if(IsValid()) {
-				Mode = mode;
-				Name = pName;
-				ok = 1;
-			}
-			else {
-				ok = err_inited ? 0 : SLS.SetError(SLERR_OPENFAULT, pName);
-				Init();
+			else { // Валидное имя файла не может содержать символов '?'
+				//
+				// @v11.6.0 Добавлена предварительная обработка имени файла на предмет кодировки:
+				//   - если имя файла состоит только из ascii-символов, то все как обычно (sopen)
+				//   - если имя файла состоит из валидных utf8-символов, то преобразуем его в unicode и используем _wsopen
+				//   - в противном случае уповаем на провидение и используем sopen как есть.
+				//
+				if(_file_name.IsAscii()) {
+					IH = sopen(_file_name, oflag, shflag, pflag);
+				}
+				else if(_file_name.IsLegalUtf8()) {
+					SStringU & r_temp_buf_u = SLS.AcquireRvlStrU();
+					r_temp_buf_u.CopyFromUtf8(_file_name);
+					IH = _wsopen(r_temp_buf_u.ucptr(), oflag, shflag, pflag);
+				}
+				else {
+					IH = sopen(pName, oflag, shflag, pflag);
+				}
+				//_wsopen(
+				if(IH >= 0) {
+					if(!(mode & mNoStd)) {
+						H = fdopen(IH, mode_buf);
+						if(!!H)
+							T = tStdFile;
+						else {
+							SLS.SetErrorErrno(pName); // @v11.3.3
+							err_inited = true;
+							close(IH);
+							IH = -1;
+						}
+					}
+					else
+						T = tFile;
+				}
+				if(IsValid()) {
+					Mode = mode;
+					Name = pName;
+					ok = 1;
+				}
+				else {
+					ok = err_inited ? 0 : SLS.SetError(SLERR_OPENFAULT, pName);
+					Init();
+				}
 			}
 		}
 	}

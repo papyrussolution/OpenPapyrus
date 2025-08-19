@@ -247,7 +247,7 @@ struct SystemLogonParamBlock {
 		for(DWORD i = 0; !result && i < cProcesses; ++i) {
 			DWORD gle = 0;
 			DWORD dwPid = pids[i];
-			HANDLE h_process = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, dwPid);
+			HANDLE h_process = ::OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, dwPid);
 			if(h_process) {
 				HANDLE h_inner_token = 0;
 				if(OpenProcessToken(h_process, TOKEN_QUERY|TOKEN_READ|TOKEN_IMPERSONATE|TOKEN_QUERY_SOURCE|TOKEN_DUPLICATE|TOKEN_ASSIGN_PRIMARY|TOKEN_EXECUTE, &h_inner_token)) {

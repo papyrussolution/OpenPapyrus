@@ -330,7 +330,7 @@ int PPObjGoodsGroup::Recover(const GoodsGroupRecoverParam * pParam, PPLogger * p
 						;
 					}
 					else if(BTROKORNFOUND) {
-						// На брэнд '%s' не ссылается ни один товар
+						// На бренд '%s' не ссылается ни один товар
 						pLogger->LogString(PPTXT_LOG_BRANDHASNTREFS, br_pack.Rec.Name);
 						brand_to_delete_list.add(brand_id);
 					}

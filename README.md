@@ -2,6 +2,8 @@
 
 www.petroglif.ru
 
+[telegram](https://t.me/programming_catechism)
+
 # En
 
 ### The enterprise management system OpenPapyrus

@@ -947,16 +947,23 @@ int ACS_FRONTOL::ExportData(int updOnly)
 int ACS_FRONTOL::ImportFiles()
 {
 	const PPEquipConfig & r_eq_cfg = CC.GetEqCfg();
-	long   delay_quant = 5 * 60 * 1000; // 5 мин
+	const  long   delay_quant = 5 * 60 * 1000; // 5 мин
 	const  char * p_ftp_flag = "ftp:";
 	const  char * p_email_flag = "email";
-	int    ok = 1, ftp_connected = 0, notify_timeout = (ImpExpTimeout) ? ImpExpTimeout : (1 * 60 * 60 * 1000); // таймаут по умолчанию - 1 час.
+	int    ok = 1;
+	int    ftp_connected = 0;
 	int    mail_connected = 0;
-	double timeouts_c = fdivi(notify_timeout, delay_quant);
+	const  int    notify_timeout = (ImpExpTimeout) ? ImpExpTimeout : (1 * 60 * 60 * 1000); // таймаут по умолчанию - 1 час.
+	const  double timeouts_c = fdivi(notify_timeout, delay_quant);
 	uint   set_no = 0;
-	SString imp_path, exp_path, path_rpt, path_flag, str_imp_paths;
+	SString imp_path;
+	SString exp_path;
+	SString path_rpt;
+	SString path_flag;
+	SString str_imp_paths;
 	SString dir_in;
-	LDATE  first_date = ChkRepPeriod.low, last_date = ChkRepPeriod.upp;
+	LDATE  first_date = ChkRepPeriod.low;
+	LDATE  last_date = ChkRepPeriod.upp;
 	StringSet imp_paths(";");
 	PPInternetAccount mac_rec;
 	PPInternetAccount acct;
@@ -966,7 +973,7 @@ int ACS_FRONTOL::ImportFiles()
 
 	PPGetPath(PPPATH_IN, dir_in);
 	ImportedFiles.Z();
-	SETIFZ(last_date, plusdate(getcurdate_(), 2)); // @v10.8.10 LConfig.OperDate-->getcurdate_()
+	SETIFZQ(last_date, plusdate(getcurdate_(), 2));
 	first_date = plusdate(first_date, -1);
 	last_date  = plusdate(last_date, 1);
 	if(r_eq_cfg.FtpAcctID)

@@ -295,7 +295,7 @@ int BrowserDef::GetCellData(const void * pRowData, int column, TYPEID * pType, v
 	char   dest_data[1024];
 	const  void * p_final_data = Helper_GetCellData(pRowData, column, &typ, 0/*format*/, 0/*coptions*/, dest_data, sizeof(dest_data));
 	if(p_final_data) {
-		TYPEID typ = DpB.TypeID;
+		// @v12.3.11 @fix (это, похоже, лишнее) TYPEID typ = DpB.TypeID;
 		memcpy(pDataBuf, p_final_data, MIN(dataBufLen, stsize(typ)));
 		ASSIGN_PTR(pType, typ);
 		ok = 1;

@@ -667,6 +667,8 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 							style |= ES_MULTILINE;
 						if(p_cv->GetSpcFlags() & TInputLine::spcfWantReturn)
 							style |= ES_WANTRETURN;
+						if(p_cv->GetSpcFlags() & TInputLine::spcfPassword)
+							style |= ES_PASSWORD;
 						//if(p_cv->)
 						//ES_UPPERCASE;
 						pV->Parent = hw_parent;

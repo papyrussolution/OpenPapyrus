@@ -682,7 +682,7 @@ struct __GoodsFilt {
 	DateRange   LotPeriod; // v-13
 	long   VatRate;        // v-15 // Ставка НДС (0.01), которой облагается товар
 	LDATE  VatDate;        // v-15 // Дата, на которую рассчитывается VatRate
-	PPID   BrandID;        // v-15 // Брэнд. (Просранство - за счет Reserve)
+	PPID   BrandID;        // v-15 // Бренд. (Пространство - за счет Reserve)
 	PPID   CodeArID;       // v-18
 	PPID   BrandOwnerID;   // v-20
 	int32  MtxLocID;       //

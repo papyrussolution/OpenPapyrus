@@ -52,20 +52,54 @@ public:
 							printf(msg_buf.Z().Cat("Q").CatDiv(':', 2).Cat(temp_buf).CR().cptr()); // @debug
 							SJson * p_js_query = SJson::Parse(temp_buf);
 							if(p_js_query) {
+								SJson js_reply(SJson::tOBJECT);
+								//
 								cmd_buf.Z();
 								const SJson * p_c = 0;
 								p_c = p_js_query->FindChildByKey("cmd");
 								if(SJson::IsString(p_c)) {
 									(cmd_buf = p_c->Text).Unescape();
 								}
-
+								if(cmd_buf.IsEqiAscii("ping")) {
+									js_reply.InsertString("status", "ok");
+									js_reply.InsertString("info", "pong");
+								}
+								else if(cmd_buf.IsEqiAscii("run")) {
+									SSerializeContext sctx;
+									p_c = p_js_query->FindChildByKey("param");
+									if(p_c) {
+										SJson::GetChildTextUnescaped(p_c, temp_buf);
+										SBuffer sbuf;
+										if(sbuf.AppendMime64(temp_buf)) {
+											CrystalReportPrintParamBlock blk;
+											CrystalReportPrintReply reply;
+											if(blk.Serialize(-1, sbuf, &sctx)) {
+												int pr = CrystalReportPrint2(blk, reply);
+												if(pr) {
+													js_reply.InsertString("status", "ok");
+												}
+												else {
+													js_reply.InsertString("status", "fail");
+												}
+											}
+										}
+										else {
+											; // @todo @err
+											js_reply.InsertString("status", "fail");
+										}
+									}
+									else {
+										js_reply.InsertString("status", "fail");
+									}
+								}
+								else {
+									js_reply.InsertString("status", "ok");
+									(temp_buf = "I have got your message").CatDiv(':', 2).Cat(cmd_buf);
+									js_reply.InsertString("info", temp_buf);
+								}
 								// do make reply
 								//memcpy(wr_buf.cptr()
-								SJson js_reply(SJson::tOBJECT);
-								js_reply.InsertString("status", "ok");
 
-								(temp_buf = "I have got your message").CatDiv(':', 2).Cat(cmd_buf);
-								js_reply.InsertString("info", temp_buf);
 								//
 								js_reply.ToStr(temp_buf);
 								temp_buf.CopyTo(wr_buf, wr_buf.GetSize());

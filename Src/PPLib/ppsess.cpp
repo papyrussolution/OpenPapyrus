@@ -2951,6 +2951,9 @@ int PPSession::SetupConfigByOps()
 	return ok;
 }
 
+const  PPConfig & PPSession::LCfg() const { return GetConstTLA().Lc; }
+const  PPCommConfig & PPSession::CCfg() const { return GetConstTLA().Cc; }
+
 int PPSession::FetchConfig(PPID obj, PPID objID, PPConfig * pCfg)
 {
 	int    ok = 1;
@@ -3490,6 +3493,246 @@ void PPSession::CheckRemoteHosts(const StringSet & rHostList) // @v11.1.2
 int PPSession::GetHostAvailability(const char * pHost)
 {
 	return Helper_Process_HostAvailability_Query(pHost, -1);
+}
+//
+//
+//
+struct SurrogateUserAgentParam {
+	SurrogateUserAgentParam() : CycleDays(1)
+	{
+	}
+	uint   CycleDays;
+	SString FiltDeviceCategory;
+	SString FiltLang;
+	SString FiltPlatformSubstr;
+};
+
+class UserAgentDataPool : public SStrGroup {
+public:
+	/*
+	  {
+		"appName": "Netscape",
+		"connection": {
+		  "downlink": 9.6,
+		  "effectiveType": "4g",
+		  "rtt": 0
+		},
+		"language": "en-US",
+		"platform": "Linux x86_64",
+		"pluginsLength": 3,
+		"screenHeight": 812,
+		"screenWidth": 375,
+		"userAgent": "Mozilla/5.0 (Linux; Android 8.0; Pixel 2 Build/OPD3.170816.012) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.5176.1660 Mobile Safari/537.36",
+		"vendor": "Google Inc.",
+		"viewportHeight": 812,
+		"viewportWidth": 375,
+		"weight": 3.6045841375509426e-9,
+		"deviceCategory": "mobile"
+	  }
+	*/ 
+	struct Entry { // @flat
+		Entry()
+		{
+			THISZERO();
+		}
+		uint   AppNameP;
+		uint   LangP;
+		uint   PlatformP;
+		uint   VendorP;
+		uint   DeviceCategoryP;
+		uint   UserAgentP;
+		uint   ScreenHeight;
+		uint   ScreenWidth;
+		uint   ViewportHeight;
+		uint   ViewportWidth;
+		double Weight;
+		double ConnDownLink;
+		uint   ConnEffTypeP;
+		uint   ConnRtt;
+	};
+
+	UserAgentDataPool()
+	{
+	}
+	bool SelectEntry(const SurrogateUserAgentParam & rP, uint startIdx, uint * pResultIdx) const
+	{
+		int    result_idx = -1;
+		SString temp_buf;
+		for(uint idx = startIdx+1; idx != startIdx; idx++) {
+			const uint eff_idx = (idx % L.getCount());
+			const Entry & r_entry = L.at(eff_idx);
+			bool  fit = true;
+			GetS(r_entry.UserAgentP, temp_buf);
+			if(!temp_buf.NotEmptyS()) {
+				fit = false;
+			}
+			else {
+				if(fit && rP.FiltDeviceCategory.NotEmpty()) {
+					GetS(r_entry.DeviceCategoryP, temp_buf);
+					if(!temp_buf.IsEqiAscii(rP.FiltDeviceCategory))
+						fit = false;
+				}
+				if(fit && rP.FiltLang) {
+					GetS(r_entry.LangP, temp_buf);
+					if(!temp_buf.IsEqiAscii(rP.FiltLang))
+						fit = false;
+				}
+				if(fit && rP.FiltPlatformSubstr) {
+					GetS(r_entry.LangP, temp_buf);
+					if(!temp_buf.Search(rP.FiltPlatformSubstr, 0, 1, 0)) 
+						fit = false;
+				}
+				if(fit) {
+					result_idx = static_cast<int>(idx);
+					break;
+				}
+			}
+		}
+		ASSIGN_PTR(pResultIdx, result_idx);
+		return (result_idx >= 0);
+	}
+	bool FromJson(const SJson * pJs)
+	{
+		bool   ok = false;
+		SString temp_buf;
+		if(SJson::IsArray(pJs)) {
+			for(const SJson * p_js_item = pJs->P_Child; p_js_item; p_js_item = p_js_item->P_Next) {
+				if(SJson::IsObject(p_js_item)) {
+					Entry new_entry;
+					for(const SJson * p_cur = p_js_item->P_Child; p_cur; p_cur = p_cur->P_Next) {
+						if(p_cur->Text.IsEqiAscii("appName")) {
+							SJson::GetChildTextUnescaped(p_cur, temp_buf);
+							AddS(temp_buf, &new_entry.AppNameP);
+						}
+						else if(p_cur->Text.IsEqiAscii("connection")) {
+							if(SJson::IsObject(p_cur->P_Child)) {
+								for(const SJson * p_cur2 = p_cur->P_Child->P_Child; p_cur2; p_cur2 = p_cur2->P_Next) {
+									if(p_cur2->Text.IsEqiAscii("downlink")) {
+										new_entry.ConnDownLink = p_cur2->P_Child->Text.ToReal_Plain();
+									}
+									else if(p_cur2->Text.IsEqiAscii("effectiveType")) {
+										SJson::GetChildTextUnescaped(p_cur2, temp_buf);
+										AddS(temp_buf, &new_entry.ConnEffTypeP);
+									}
+									else if(p_cur2->Text.IsEqiAscii("rtt")) {
+										new_entry.ConnRtt = p_cur2->P_Child->Text.ToULong();
+									}
+								}
+							}
+						}
+						else if(p_cur->Text.IsEqiAscii("language")) {
+							SJson::GetChildTextUnescaped(p_cur, temp_buf);
+							AddS(temp_buf, &new_entry.LangP);
+						}
+						else if(p_cur->Text.IsEqiAscii("platform")) {
+							SJson::GetChildTextUnescaped(p_cur, temp_buf);
+							AddS(temp_buf, &new_entry.PlatformP);
+						}
+						else if(p_cur->Text.IsEqiAscii("pluginsLength")) {
+						}
+						else if(p_cur->Text.IsEqiAscii("screenHeight")) {
+							new_entry.ScreenHeight = p_cur->P_Child->Text.ToULong();
+						}
+						else if(p_cur->Text.IsEqiAscii("screenWidth")) {
+							new_entry.ScreenWidth = p_cur->P_Child->Text.ToULong();
+						}
+						else if(p_cur->Text.IsEqiAscii("userAgent")) {
+							SJson::GetChildTextUnescaped(p_cur, temp_buf);
+							AddS(temp_buf, &new_entry.UserAgentP);
+							ok = 1;
+						}
+						else if(p_cur->Text.IsEqiAscii("vendor")) {
+							SJson::GetChildTextUnescaped(p_cur, temp_buf);
+							AddS(temp_buf, &new_entry.VendorP);
+						}
+						else if(p_cur->Text.IsEqiAscii("viewportHeight")) {
+							new_entry.ViewportHeight = p_cur->P_Child->Text.ToULong();
+						}
+						else if(p_cur->Text.IsEqiAscii("viewportWidth")) {
+							new_entry.ViewportWidth = p_cur->P_Child->Text.ToULong();
+						}
+						else if(p_cur->Text.IsEqiAscii("weight")) {
+							new_entry.Weight = p_cur->P_Child->Text.ToReal_Plain();
+						}
+						else if(p_cur->Text.IsEqiAscii("deviceCategory")) {
+							SJson::GetChildTextUnescaped(p_cur, temp_buf);
+							AddS(temp_buf, &new_entry.DeviceCategoryP);
+						}
+					}
+					if(new_entry.UserAgentP) {
+						L.insert(&new_entry);
+					}
+				}
+			}
+		}
+		return ok;
+	}
+	TSVector <Entry> L;
+};
+
+int GetSurrogateUserAgentIdent(SString & rBuf)
+{
+	rBuf.Z();
+	int    ok = 0;
+	const  LDATE now_date = getcurdate_();
+	SJson * p_js = 0;
+	const char * p_src_name = "user-agents";
+	SString temp_buf;
+	SString src_file_path;
+	UserAgentDataPool useragent_list;
+	SurrogateUserAgentParam param;
+	SETIFZQ(param.CycleDays, 1); // @paranoic (ctr)
+	{
+		(temp_buf = "user-agents").DotCat("json").DotCat("gz");
+		PPGetFilePath(PPPATH_DD, temp_buf, src_file_path);
+		SFile f_in(src_file_path, SFile::mReadCompressed);
+		if(f_in.IsValid()) {
+			STempBuffer in_buf(SMEGABYTE(8));
+			size_t actual_size = 0;
+			if(f_in.ReadAll(in_buf, 0, &actual_size)) {
+				in_buf.AllocIncr(actual_size+32);
+				static_cast<char *>(in_buf)[actual_size++] = 0; // zstring-terminator
+				p_js = SJson::Parse(in_buf.cptr());
+				if(useragent_list.FromJson(p_js)) {
+					ok = -1;
+					S_GUID app_uuid(SLS.GetAppUuid());
+					const uint _days = diffdate(now_date, encodedate(1, 1, 2000)) / param.CycleDays;
+					uint32 idx = ((SlHash::CRC32(0, &app_uuid, sizeof(app_uuid)) % 997U) + _days) % useragent_list.L.getCount();
+					uint   result_idx = 0;
+					if(useragent_list.SelectEntry(param, idx, &result_idx)) {
+						assert(result_idx < useragent_list.L.getCount());
+						const UserAgentDataPool::Entry & r_entry = useragent_list.L.at(result_idx);
+						useragent_list.GetS(r_entry.UserAgentP, rBuf);
+						assert(rBuf.NotEmptyS()); // useragent_list.SelectEntry() позаботилась об этом
+						ok = 1;
+					}
+				}
+			}
+		}
+	}
+	delete p_js;
+	return ok;
+}
+
+bool PPSession::GetSurrogateUserAgentString(SString & rBuf) // @v12.3.10
+{
+	rBuf.Z();
+	bool   ok = false;
+	ENTER_CRITICAL_SECTION
+	if(SurrogateUserAgent.IsEmpty()) {
+		SString temp_buf;
+		if(GetSurrogateUserAgentIdent(temp_buf) > 0) {
+			;
+		}
+		else {
+			PPLoadText(PPTXT_USERAGENT_DEFAULT, temp_buf);
+		}
+		SurrogateUserAgent = temp_buf;
+	}
+	rBuf = SurrogateUserAgent;
+	ok = rBuf.NotEmptyS();
+	LEAVE_CRITICAL_SECTION
+	return ok;
 }
 
 int PPSession::Stq_GetBlob(const SBinaryChunk & rOwnIdent, PPObjID oid, uint blobN, StyloQBlobInfo & rBi)
@@ -5880,9 +6123,7 @@ int PPAdviseEventVector::Pack()
 	return ok;
 }
 
-#define ADVEVQCLISIGN 0x12ABCDEF
-
-PPAdviseEventQueue::Client::Client() : Sign(ADVEVQCLISIGN), Marker(0)
+PPAdviseEventQueue::Client::Client() : Sign(PPConst::Signature_AdviseEventQueueClient), Marker(0)
 {
 }
 
@@ -5891,7 +6132,7 @@ PPAdviseEventQueue::Client::~Client()
 	Sign = 0;
 }
 
-bool  PPAdviseEventQueue::Client::IsConsistent() const { return (Sign == ADVEVQCLISIGN); }
+bool  PPAdviseEventQueue::Client::IsConsistent() const { return (Sign == PPConst::Signature_AdviseEventQueueClient); }
 int64 PPAdviseEventQueue::Client::GetMarker() const { return Marker; }
 
 int PPAdviseEventQueue::Client::Register(long dbPathID, PPAdviseEventQueue * pQueue)

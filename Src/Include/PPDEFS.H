@@ -1172,7 +1172,7 @@
 #define PPOBJ_SCARD         1031L  // Персональные карты
 #define PPOBJ_CCHECK        1032L  // !PPObject Кассовые чеки
 #define PPOBJ_PROJECT       1033L  // Проекты  @store(ProjectTbl)
-#define PPOBJ_BRAND         1034L  // Брэнды   @store(Goods2Tbl)
+#define PPOBJ_BRAND         1034L  // Бренды   @store(Goods2Tbl)
 #define PPOBJ_MRPTAB        1035L  // MRP-таблицы
 #define PPOBJ_PRJTASK       1036L  // Задачи по проекту
 #define PPOBJ_PROCESSOR     1037L  // Процессоры
@@ -1473,6 +1473,7 @@
 #define PPTAG_PERSON_KEYWORDS          129L // @v12.3.6 Ключевые слова персоналии, а также специальные метки.
 #define PPTAG_GOODS_SALESRESTR         130L // @v12.3.7 Ограничение на продажу товара. Ссылается на экземпляр объекта PPOBJ_SALESRESTRICTION.
 	// Необходим для напоминаний на Point-Of-Sale.
+#define PPTAG_GUA_CHZNLOCPMURL         131L // @v12.3.11 Параметры сервера для локальной проверки марок честный знак. Тег композитный - для редактирования применяется специальный диалог.
 //
 // Зарезервированные идентификаторы глобальных учетных записей
 //
@@ -6654,7 +6655,7 @@
 	#define CTL_W_UPDQUOT_OLDQUOT        (2 + WINDOWS_ID_BIAS)
 	#define CTL_W_UPDQUOT_NEWQUOT        (3 + WINDOWS_ID_BIAS)
 	#define CTL_W_UPDQUOT_ALLFLAGS       (4 + WINDOWS_ID_BIAS)
-#define DLG_BRAND                 631 // Брэнд
+#define DLG_BRAND                 631 // Бренд
 #define DLG_RTPERSON              632 // Права доступа к персоналиям
 #define DLG_UPDGOODSFLAGS         633 // Изменение флагов выборки товаров
 	#define CTL_UPDGOODSFLAGS_SET        (1 + WINDOWS_ID_BIAS)
@@ -11320,7 +11321,7 @@
 #define DLG_RTDYNOBJ              1383
 	#define CTL_RTDYNOBJ_FLAGS       (1  + IMPEXP_CTL_BIAS) //
 	#define CTL_RTDYNOBJ_SFLAGS      (11 + IMPEXP_CTL_BIAS) //
-#define DLG_BRANDTOTAL            1384 // Итоги по выборке брэндов
+#define DLG_BRANDTOTAL            1384 // Итоги по выборке брендов
 	#define CTL_BRANDTOTAL_COUNT     (1 + WINDOWS_ID_BIAS)
 #define DLG_VK_SENDMSG            1385
 	#define cmSendVkMsg               101
@@ -11858,6 +11859,10 @@
 	#define CTL_CRREXPPARAM_CSVFS               (6 + WINDOWS_ID_BIAS)
 	#define CTL_CRREXPPARAM_FLAGS               (7 + WINDOWS_ID_BIAS) // Набор флагов, зависящий от формата данных
 	#define CTL_CRREXPPARAM_XLSCONSTCOLWD       (8 + WINDOWS_ID_BIAS)
+#define DLG_CHZNLOCPMURL          1480 // @v12.3.11 Диалог редактирования url локального сервера проверки марок честный знак
+	#define CTL_CHZNLOCPMURL_ADDR               (1 + WINDOWS_ID_BIAS)
+	#define CTL_CHZNLOCPMURL_USER               (2 + WINDOWS_ID_BIAS)
+	#define CTL_CHZNLOCPMURL_PW                 (3 + WINDOWS_ID_BIAS)
 //
 // Win32 Dialog Identifiers
 //

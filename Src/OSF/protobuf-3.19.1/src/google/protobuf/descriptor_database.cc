@@ -168,9 +168,7 @@ typename Container::const_iterator FindLastLessOrEqual(const Container* containe
 // parent symbol of sub_symbol (e.g. "foo.bar" is a parent of
 // "foo.bar.baz", but not a parent of "foo.barbaz").
 bool IsSubSymbol(StringPiece sub_symbol, StringPiece super_symbol) {
-	return sub_symbol == super_symbol ||
-	       (HasPrefixString(super_symbol, sub_symbol) &&
-	       super_symbol[sub_symbol.size()] == '.');
+	return sub_symbol == super_symbol || (HasPrefixString(super_symbol, sub_symbol) && super_symbol[sub_symbol.size()] == '.');
 }
 }  // namespace
 

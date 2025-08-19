@@ -480,6 +480,7 @@ public:
 	static constexpr uint32 Signature_StyloQPersonEventParam       = 0x230759EAU; // @v11.6.1 Сигнатура класса StyloQPersonEventParam
 	static constexpr long   Signature_LaunchAppParam               = 0x4c484150L; // 'LHAP'
 	static constexpr uint32 Signature_EgaisMarkAutoSelector_ResultBlock = 0x938EF619U; // @v12.2.11 Сигнатура класса EgaisMarkAutoSelector::ResultBlock. Для сериализации.
+	static constexpr uint32 Signature_AdviseEventQueueClient       = 0x12ABCDEFU; // @v12.3.11 Сигнатура класса PPAdviseEventQueue::Client.
 	static constexpr const char * P_SubjectDbDiv = "$PpyDbDivTransmission$";
 	static constexpr const char * P_SubjectOrder = "$PpyOrderTransmission$";
 	static constexpr const char * P_SubjectCharry = "$PpyCharryTransmission$";
@@ -4520,8 +4521,8 @@ struct PPGoodsConfig { // @persistent @store(PropertyTbl)
 #define PPGDSK_GOODS               2L // Товары
 #define PPGDSK_PCKGTYPE            3L // Типы пакетов
 #define PPGDSK_TRANSPORT           4L // Транспортные средства
-#define PPGDSK_BRAND               5L // Брэнды
-#define PPGDSK_BRANDGROUP          6L // Группы брэндов
+#define PPGDSK_BRAND               5L // Бренды
+#define PPGDSK_BRANDGROUP          6L // Группы брендов
 #define PPGDSK_SUPRWARE            7L // Составные товары // @vmiller
 #define PPGDSK_COMPUTER            8L // @v11.9.11 Компьютерный юнит. Имеется в виду физический компьютер, находящийся на балансе/обслуживании
 #define PPGDSK_SWPROGRAM           9L // @v11.9.11 Компьютерная программа. 
@@ -7537,8 +7538,8 @@ public:
 	//
 	int    RestCheckingStatus(int = -1);
 	int    FetchConfig(PPID obj, PPID objID, PPConfig * pCfg);
-	const  PPConfig & LCfg() const { return GetConstTLA().Lc; }
-	const  PPCommConfig & CCfg() const { return GetConstTLA().Cc; }
+	const  PPConfig & LCfg() const;
+	const  PPCommConfig & CCfg() const;
 	//
 	// Descr: Извлекает через кэш конфигурацию глобального обмена PPAlbatrossConfig.
 	// ARG(pCfg INOUT): Если pCfg != 0, то извлекает через кэш конфигурацию. Если pCfg == 0,
@@ -7639,6 +7640,10 @@ public:
 	//   в начале сеанса по заданному списку имен хостов.
 	//
 	int    GetHostAvailability(const char * pHost); // @v11.1.2
+	//
+	//
+	//
+	bool   GetSurrogateUserAgentString(SString & rBuf); // @v12.3.10
 	int    Stq_GetBlob(const SBinaryChunk & rOwnIdent, PPObjID oid, uint blobN, StyloQBlobInfo & rBi);
 	int    Stq_PutBlob(const SBinaryChunk & rOwnIdent, PPObjID oid, uint blobN, StyloQBlobInfo & rBi);
 	//
@@ -7655,10 +7660,6 @@ public:
 	bool   RunNginxServerThread(bool forceReboot);
 	const  TWhatmanToolArray & GetVectorTools() const { return DvToolList_; } // @v11.9.2
 	SPaintToolBox & GetUiToolBox() { return UiToolBox_; } // @v11.9.2
-	//
-	//
-	//
-	bool   GetSurrogateUserAgentString(SString & rBuf); // @v12.3.10
 private:
 	int    Helper_SetPath(int pathId, SString & rPath);
 	int    MakeMachineID(MACAddr * pMachineID);
@@ -7697,6 +7698,7 @@ private:
 	long   MaxLogFileSize; // Максимальный размер файлов журналов в Kb. По умолчанию - 32768.
 	PPVersionInfo Ver;
 	SString BinPath;       // @*PPSession::Init()
+	SString SurrogateUserAgent; // @v12.3.10 @*PPSession::GetSurrogateUserAgentString()
 	PPPaths CommonPaths;
 	StringSet AvailableHostList; // @v11.1.2
 	StringSet UnavailableHostList; // @v11.1.2
@@ -20552,6 +20554,9 @@ class PPObjGlobalUserAcc : public PPObjReference {
 public:
 	static int FASTCALL ReadConfig(PPGlobalUserAccConfig * pCfg);
 	static int EditConfig();
+	static int GetChZnLocPmUrl(const char * pStr, InetUrl & rResult); // @v12.3.11
+	static int SetChZnLocPmUrl(const InetUrl & rUrl, SString & rBuf); // @v12.3.11
+	static int EditChZnLocPmUrlTag(SString & rBuf); // @v12.3.11
 
 	explicit PPObjGlobalUserAcc(void * extraPtr = 0);
 	virtual int Edit(PPID * pID, void * extraPtr);
@@ -29807,7 +29812,7 @@ public:
 	LDATE  VatDate;            // Дата, на которую следует брать ставку НДС. Используется только если VatRate != 0
 	PPID   GoodsStrucID;       // Товарная структура, на которую ссылаются товары
 	PPID   LocID_Obsolete;     //
-	PPID   BrandID_Obsolete;   // Товарный брэнд
+	PPID   BrandID_Obsolete;   // Товарный бренд
 	ClsdGoodsFilt Ep;          // @anchor
 	//
 	// @v8.2.12
@@ -29834,7 +29839,7 @@ private:
 	const  void * ReadObjIdListFilt(const /*char*/void * p, ObjIdListFilt & rList);
 	int    ReadFromProp_Before8604(PPID obj, PPID id, PPID prop);
 
-	ObjIdListFilt ResultBrandList; // @transient @*GoodsFilt::Setup Результирующий список брэндов, агрегирующий BrandList и BrandOwnerList
+	ObjIdListFilt ResultBrandList; // @transient @*GoodsFilt::Setup Результирующий список брендов, агрегирующий BrandList и BrandOwnerList
 };
 //
 // Descr: Информация о товаре, специфичная для розничной торговли.
@@ -30252,7 +30257,7 @@ struct PPGoodsReplaceNameParam {
 	};
 	SString SrchPattern;
 	SString RplcPattern;
-	PPID   BrandID;        // Брэнд, который следует установить в найденных товарах
+	PPID   BrandID;        // Бренд, который следует установить в найденных товарах
 	PPID   GoodsGrpID;     // Товарная группа, в которую следует переместить найденные товары
 	PPID   ManufID;        // Производитель, которого следует установить в найденных товарах
 	long   Flags;
@@ -31639,7 +31644,7 @@ private:
 };
 //
 // PPObjBrand
-// Объект, управляющий информацией о товарных брэндах
+// Объект, управляющий информацией о товарных брендах
 //
 // @v12.0.4 (replaced with GF_DERIVED_HASIMAGES) #define BRNDF_HASIMAGES__ 0x00000001L
 
@@ -31667,8 +31672,8 @@ struct PPBrand {           // @persistent @store(GoodsTbl)
 	bool   FASTCALL IsEq(const PPBrand & rS) const;
 	PPID   ID;             // @id
 	char   Name[64];       // Наименование на родном языке
-	PPID   OwnerID;        // ->Person.ID (PPPRK_MANUF) Владелец брэнда
-	PPID   ParentID;       // ->Goods2.ID Группа (PPGDSK_BRANDGROUP), которой принадлежит брэнд (может быть 0)
+	PPID   OwnerID;        // ->Person.ID (PPPRK_MANUF) Владелец бренда
+	PPID   ParentID;       // ->Goods2.ID Группа (PPGDSK_BRANDGROUP), которой принадлежит бренд (может быть 0)
 	long   Flags;
 	char   Reserve[8];     // @reserve
 };
@@ -59381,6 +59386,8 @@ private:
 //
 class PPChZnPrcssr : private PPEmbeddedLogger {
 public:
+	static constexpr int LocalSvrDefaultPort = 5995;
+
 	struct Param {
 		Param();
 		enum {
@@ -59551,7 +59558,7 @@ public:
 		enum {
 			fTest = 0x0001
 		};
-		PermissiveModeInterface(const char * pToken, uint flags);
+		PermissiveModeInterface(const char * pToken, InetUrl * pLocalSvrUrl, uint flags);
 		~PermissiveModeInterface();
 		int    SelectCdnHost(SString & rResult);
 		//
@@ -59562,12 +59569,63 @@ public:
 		//
 		int    FetchCdnHost(PPID guaID, SString & rResult);
 		int    CheckCodeList(const char * pHost, const char * pFiscalDriveNumber, CodeStatusCollection & rList);
+		//
+		// Далее следуют 3 метода для работы с локальным сервером проверки марок.
+		//
+
+		//
+		// Descr: Метод инициализации локального сервера.
+		//
+		int    InitLocalSvr(const char * pFiscalDriveNumber, SCompoundError * pErr);
+
+		struct LocalSvcStatus {
+			enum {
+				fRequiresDownload = 0x0001
+			};
+			enum {
+				stUndef = 0,
+				stNotConfigured = 1,
+				stInitialization,
+				stReady,
+				stSyncError
+			};
+			enum {
+				opmodeUndef  = 0,
+				opmodeActive = 1,
+				opmodeService = 2
+			};
+			LocalSvcStatus() : Flags(0), Status(stUndef), OpMode(opmodeUndef), UedLastUpdateTm(0), UedLastSyncTm(0)
+			{
+			}
+			uint   Flags;
+			int    Status;
+			int    OpMode;
+			uint64 UedLastUpdateTm;
+			uint64 UedLastSyncTm;
+			SString Version;
+			SString StatusText;        // translated to Status
+			SString ServiceUrl;
+			SString OperationModeText; // translated to OpMode
+			SString Name;
+			SString Inst;
+			SString Inn;
+			SString DbVer;
+		};
+		//
+		// Descr: Метод проверки статуса локального сервера.
+		//
+		int    GetLocalSvrStatus(const char * pFiscalDriveNumber, LocalSvcStatus & rResult);
+		//
+		// Descr: Метод проверки марок посредством локального сервера.
+		//
+		int    LocalCheckCodeList(const char * pFiscalDriveNumber, CodeStatusCollection & rList);
 	private:
 		SString & MakeTargetUrl(int query, const char * pAddendum, SString & rResult) const;
 		int    QueryCdnList(TSCollection <CdnStatus> & rResultList);
 		int    QueryCdnStatus(CdnStatus & rStatus);
 		uint   Flags;
 		SString Token; // Токен авторизации // Токен нужно получить на каждый ИНН и использовать на всех кассах
+		InetUrl LocalSvrUrl; // @v12.3.11
 		PPGlobalServiceLogTalkingHelper Lth;
 	};
 

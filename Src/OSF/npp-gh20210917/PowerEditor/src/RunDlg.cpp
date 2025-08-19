@@ -89,7 +89,6 @@ void expandNppEnvironmentStrs(const TCHAR * strSrc, TCHAR * stringDest, size_t s
 				for(int k = iBegin; k <= iEnd; ++k)
 					str[m++] = strSrc[k];
 				str[m] = '\0';
-
 				int internalVar = whichVar(str);
 				if(internalVar == VAR_NOT_RECOGNIZED) {
 					i = iBegin - 2;
@@ -179,7 +178,6 @@ HINSTANCE Command::run(HWND hWnd, const TCHAR* cwd)
 		errorMsg += TEXT("\n----------------------------------------------------------");
 		::MessageBox(hWnd, errorMsg.c_str(), TEXT("ShellExecute - ERROR"), MB_ICONINFORMATION | MB_APPLMODAL);
 	}
-
 	return res;
 }
 

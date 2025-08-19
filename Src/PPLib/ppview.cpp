@@ -2554,6 +2554,7 @@ int PPViewBrowser::Export()
 	if(!ok)
 		PPErrorZ();
 	else if(ok > 0) {
+		result_file_name.Transf(CTRANSF_UTF8_TO_INNER); // @v12.3.11
 		// @v12.3.10 {
 		{
 			SString msg_buf;

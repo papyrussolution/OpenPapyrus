@@ -91,7 +91,16 @@ int PPViewWbPublicGoods::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 				pBlk->Set(p_entry->ID);
 				break;
 			case 2: // country
-				pBlk->Set(temp_buf.Z());
+				{
+					temp_buf.Z();
+					if(p_entry->UedCountry) {
+						const SrUedContainer_Rt * p_uedc = DS.GetUedContainer();
+						if(p_uedc) {
+							p_uedc->GetSymb(p_entry->UedCountry, temp_buf);
+						}
+					}
+					pBlk->Set(temp_buf);
+				}
 				break;
 			case 3: // appellation
 				PupPool.GetS(p_entry->NameP, temp_buf);
@@ -106,7 +115,11 @@ int PPViewWbPublicGoods::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 				pBlk->Set(temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
 				break;
 			case 6: // geocoord
-				pBlk->Set(temp_buf.Z());
+				{
+					SGeoPosLL geopos;
+					UED::GetRaw_GeoLoc(p_entry->UedGeoLoc, geopos);
+					pBlk->Set(geopos.ToStr(temp_buf));
+				}
 				break;
 			case 7: // rating
 				pBlk->Set(static_cast<double>(p_entry->Rate));
@@ -346,7 +359,24 @@ void PPViewWbPublicGoods::CalcTotal(WbPublicGoodsTotal * pTotal)
 		switch(ppvCmd) {
 			case PPVCMD_USERSORT: ok = 1; break; // The rest will be done below
 			case PPVCMD_WWWLINK: 
-				if(Filt.ViewKind != MarketplaceGoodsSelectionFilt::vkPickUpPoints) {
+				if(Filt.ViewKind == MarketplaceGoodsSelectionFilt::vkPickUpPoints) {
+					const auto * p_entry = PupPool.GetEntryC(idx-1); // Индексы заданы в диапазоне [1..PupPool.GetCount()]
+					if(p_entry) {
+						// https://www.google.com/maps/place/54.9333108,37.4352159
+						if(p_entry->UedGeoLoc) {
+							SString temp_buf;
+							SGeoPosLL geopos;
+							UED::GetRaw_GeoLoc(p_entry->UedGeoLoc, geopos);
+							temp_buf.Z().Cat("maps/place").SetLastDSlash().Cat(geopos.Lat, MKSFMTD(0, 7, 0)).Comma().Cat(geopos.Lon, MKSFMTD(0, 7, 0));
+							SString url_buf(InetUrl::MkHttps("www.google.com", temp_buf));
+							SStringU url_u;
+							url_u.CopyFromMb(cpANSI, url_buf, url_buf.Len());
+							if(url_u.NotEmpty())
+								::ShellExecuteW(0, L"open", url_u, NULL, NULL, SW_SHOWNORMAL);
+						}
+					}
+				}
+				else {
 					auto * p_entry = GoodsPool.GetEntry(idx-1); // Индексы заданы в диапазоне [1..GoodsPool.GetCount()]
 					if(p_entry) {
 						//https://www.wildberries.ru/catalog/9020554/detail.aspx

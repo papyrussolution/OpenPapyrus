@@ -728,9 +728,18 @@ int InetUrl::Compose(long flags, SString & rBuf) const
 		if(_f & stHost && GetComponent(cHost, 0, temp_buf)) {
             rBuf.Cat(temp_buf);
             result |= cHost;
-            if(_f & stPort && GetComponent(cPort, 0, temp_buf)) {
-				rBuf.Colon().Cat(temp_buf);
-				result |= cPort;
+            if(_f & stPort) {
+				if(GetComponent(cPort, 0, temp_buf)) {
+					rBuf.Colon().Cat(temp_buf);
+					result |= cPort;
+				}
+				else {
+					const int local_port = GetPort();
+					if(local_port > 0) {
+						rBuf.Colon().Cat(local_port);
+						result |= cPort;
+					}
+				}
             }
 		}
 		if(_f & stPath && GetComponent(cPath, 0, temp_buf)) {

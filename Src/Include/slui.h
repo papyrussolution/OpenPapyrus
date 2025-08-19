@@ -3739,6 +3739,7 @@ public:
 	int    STDCALL SetClusterData(uint ctlID, long);
 	int    STDCALL GetClusterData(uint ctlID, int *);
 	int    STDCALL GetClusterData(uint ctlID, long *);
+	int    STDCALL GetClusterData(uint ctlID, uint *); // @v12.3.11
 	int    STDCALL GetClusterData(uint ctlID, int16 *);
 	long   STDCALL GetClusterData(uint ctlID);
 	void   DisableClusterItem(uint ctlID, int itemNo /* 0.. */, bool toDisable = true);
@@ -3899,7 +3900,8 @@ public:
 	enum {
 		spcfReadOnly   = 0x0001,
 		spcfMultiline  = 0x0002,
-		spcfWantReturn = 0x0004
+		spcfWantReturn = 0x0004,
+		spcfPassword   = 0x0008, // @v12.3.11
 	};
 
 	TInputLine(const TRect & rBounds, uint spcFlags, TYPEID aType, long fmt);

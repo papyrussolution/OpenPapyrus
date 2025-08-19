@@ -354,10 +354,10 @@ int PPViewBrowser::Helper_Export_Excel_OXLSX(SString & rResultFileName)
 								const int prec = SFMTPRC(r_c.format);
 								temp_buf.Z();
 								if(prec > 0) {
-									temp_buf.Z().Cat("#0").Dot().CatCharN('0', prec);
+									temp_buf.Z().Cat("0").Dot().CatCharN('0', prec);
 								}
 								else if(prec == 0) {
-									temp_buf.Z().Cat("#0");
+									temp_buf.Z().Cat("0");
 								}
 								if(temp_buf.NotEmpty()) {
 									++seq_fmt_id;

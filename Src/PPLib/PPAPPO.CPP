@@ -1637,7 +1637,6 @@ int PPBackupSystemFiles_Arc()
 		LDATE last_copy_dt;
 		SString buf, last_copy_path;
 		SFile f_lck(lock_path, SFile::mWrite);
-		// @v10.7.6 @fix f_lck.Close();
 		PPGetFileName(PPFILNAM_LASTBACKUP, fname);
 		(last_copy_path = backup_dir).SetLastSlash().Cat(fname);
 		{

@@ -435,7 +435,7 @@
 #define cmConvertQuot720               542 // Конвертация котировок
 #define cmEventToken                   543 // Событийные метки
 #define cmGlobalUserAccTag             544 // Теги глобальных учетных записей
-#define cmReplaceBrand                 545 // Объединение брэндов
+#define cmReplaceBrand                 545 // Объединение брендов
 #define cmSmsAccount                   546 // Учетные записи смс-клиентов
 #define cmSpecSeries                   547 // Специальные серии лотов (применяется для идентификации 'недопустимых' серий лекарств)
 #define cmPhoneService                 548 // Справочник телефонных сервисов

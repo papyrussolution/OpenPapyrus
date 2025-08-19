@@ -1253,9 +1253,7 @@ typedef struct PEMouseClickEventInfo {
 	UINT clickFlags;            // any combination of PE_CF_*
 	int xOffset;                // x-coordinate of mouse click in pixels
 	int yOffset;                // y-coordinate of mouse click in pixels
-	PEValueInfo fieldValue;     // value of object at click point if it is a field
-	                            // object, excluding MEMO and BLOB fields,
-	                            // else valueType element = PE_VI_NOVALUE.
+	PEValueInfo fieldValue;     // value of object at click point if it is a field object, excluding MEMO and BLOB fields, else valueType element = PE_VI_NOVALUE.
 	DWORD objectHandle;         // the design view object
 	short sectionCode;          // section in which click occurred.
 } PEMouseClickEventInfo;

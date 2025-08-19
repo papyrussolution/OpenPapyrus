@@ -50,7 +50,6 @@ int  TestSTree();
 int  SimpleCpp_Test_Main(int argc, char ** argv);
 int  SimpleCpp_Test_Main2();
 int  TestCrr32SupportServer();
-int  GetSurrogateUserAgentIdent(SString & rBuf); // pputil.cpp
 //
 // 
 // 
@@ -1471,10 +1470,18 @@ static int LoadHttpPage(const char * pUrl, SString & rBuf)
 		SBuffer in_buffer;
 		SFile wr_stream(in_buffer, SFile::mWrite);
 		StrStrAssocArray hdr_flds;
-		SFileFormat::GetMime(SFileFormat::Html, temp_buf);
-		temp_buf.CatDiv(';', 2).CatEq("charset", "utf-8");
-		SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrUserAgent, "Mozilla/5.0");
-		SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrContentType, temp_buf);
+		// @v12.3.11 {
+		{
+			DS.GetSurrogateUserAgentString(temp_buf);
+			if(temp_buf.NotEmpty())
+				SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrUserAgent, temp_buf);
+		}
+		// } @v12.3.11 
+		{
+			SFileFormat::GetMime(SFileFormat::Html, temp_buf);
+			temp_buf.CatDiv(';', 2).CatEq("charset", "utf-8");
+			SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrContentType, temp_buf);
+		}
 		SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrCacheControl, "no-cache");
 		//SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrAcceptLang, "ru");
 		//SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrAccept, "application/json");
@@ -2040,13 +2047,10 @@ int DoConstructionTest()
 		}
 	}
 #endif // } 0
-	{
-		GetSurrogateUserAgentIdent(temp_buf);
-	}
 	//TestCrr32SupportServer();
 	
 	//Test_ExecuteDialogByDl600Description();
-	//PPChZnPrcssr::Test();
+	PPChZnPrcssr::Test();
 	//Test_Cristal2SetRetailGateway();
 	//TestTddo();
 	//PreprocessHFile();

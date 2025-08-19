@@ -356,6 +356,13 @@ cleanup:
 	return (privr == privrEnabled);
 }
 
+/*static*/uint SlProcess::GetProcessList(TSVector <SlProcess::EnumProcessEntry> & rList) // @v12.3.11 @construction
+{
+	uint   result = 0;
+
+	return result;
+}
+
 // example function
 static void EnumPrivileges(SPtrHandle token, bool all) 
 {

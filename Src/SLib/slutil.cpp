@@ -314,16 +314,32 @@ uint64 SProfile::Measure::Get()
 //
 //
 //
-SCompoundError::SCompoundError() : LocIdent(0), ItemI(0LL), Code(0)
+static constexpr uint32 SCompoundError_Ver = 0;
+
+SCompoundError::SCompoundError() : Ver(SCompoundError_Ver), LocIdent(0), ItemI(0LL), Code(0)
 {
 }
 
 SCompoundError & SCompoundError::Z()
 {
+	Ver = SCompoundError_Ver;
 	LocIdent = 0;
 	ItemI = 0LL;
 	ItemR.Z();
 	Code = 0;
 	Descr.Z();
 	return *this;
+}
+
+int SCompoundError::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+{
+	int    ok = 1;
+	THROW(pSCtx->Serialize(dir, Ver, rBuf));
+	THROW(pSCtx->Serialize(dir, LocIdent, rBuf));
+	THROW(pSCtx->Serialize(dir, ItemI, rBuf));
+	THROW(ItemR.Serialize(dir, rBuf, pSCtx));
+	THROW(pSCtx->Serialize(dir, Code, rBuf));
+	THROW(pSCtx->Serialize(dir, Descr, rBuf));
+	CATCHZOK
+	return ok;
 }

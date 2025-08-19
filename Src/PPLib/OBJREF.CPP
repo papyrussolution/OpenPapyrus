@@ -2138,6 +2138,83 @@ int PPGlobalUserAccPacket::GetAccessKey(SString & rValue) const
 	return ok;
 }
 
+/*static*/int PPObjGlobalUserAcc::GetChZnLocPmUrl(const char * pStr, InetUrl & rResult) // @v12.3.11
+{
+	rResult.Z();
+	int    ok = rResult.Parse(pStr);
+	return ok;
+}
+
+/*static*/int PPObjGlobalUserAcc::SetChZnLocPmUrl(const InetUrl & rUrl, SString & rBuf) // @v12.3.11
+{
+	rBuf.Z();
+	int    ok = 0;
+	if(!rUrl.IsEmpty()) {
+		if(rUrl.Compose(InetUrl::stAll, rBuf)) {
+			ok = 1;
+		}
+	}
+	return ok;
+}
+
+/*static*/int PPObjGlobalUserAcc::EditChZnLocPmUrlTag(SString & rBuf) // @v12.3.11
+{
+	int    ok = -1;
+	TDialog * dlg = new TDialog(DLG_CHZNLOCPMURL);
+	SString temp_buf;
+	InetUrl url;
+	SString addr;
+	SString user;
+	SString pw;
+	int    port = 0;
+	if(!PPObjGlobalUserAcc::GetChZnLocPmUrl(rBuf, url))
+		url.Z();
+	if(CheckDialogPtr(&dlg)) {
+		url.GetComponent(InetUrl::cHost, 0, addr);
+		url.GetComponent(InetUrl::cPort, 0, temp_buf);
+		port = temp_buf.ToLong();
+		url.GetComponent(InetUrl::cUserName, 0, user);
+		url.GetComponent(InetUrl::cPassword, 0, pw);
+		if(port)
+			addr.Colon().Cat(port);
+		dlg->setCtrlString(CTL_CHZNLOCPMURL_ADDR, addr);
+		dlg->setCtrlString(CTL_CHZNLOCPMURL_USER, user);
+		dlg->setCtrlString(CTL_CHZNLOCPMURL_PW, pw);
+		while(ok < 0 && ExecView(dlg) == cmOK) {
+			uint    sel = 0;
+			dlg->getCtrlString(sel = CTL_CHZNLOCPMURL_ADDR, addr);
+			if(addr.NotEmpty()) {
+				const char * p_scheme_prefix = "http://";
+				if(!addr.HasPrefixIAscii(p_scheme_prefix) && !addr.HasPrefixIAscii("https://"))
+					addr.Insert(0, p_scheme_prefix);
+				dlg->getCtrlString(sel = CTL_CHZNLOCPMURL_USER, user);
+				dlg->getCtrlString(sel = CTL_CHZNLOCPMURL_PW, pw);
+				if(url.Parse(addr)) {
+					url.GetComponent(InetUrl::cPort, 0, temp_buf);
+					int __port = temp_buf.ToLong();
+					if(!__port)
+						url.SetComponent(InetUrl::cPort, temp_buf.Z().Cat(PPChZnPrcssr::LocalSvrDefaultPort));
+					if(user.NotEmpty()) {
+						url.SetComponent(InetUrl::cUserName, user);
+						if(pw.NotEmpty()) {
+							url.SetComponent(InetUrl::cPassword, pw);
+						}
+					}
+					url.Compose(InetUrl::stAll, rBuf);
+					ok = 1;
+				}
+				else {
+				}
+			}
+			else {
+				PPErrorByDialog(dlg, sel, PPERR_USERINPUT);
+			}
+		}
+	}
+	delete dlg;
+	return ok;
+}
+
 PPObjGlobalUserAcc::PPObjGlobalUserAcc(void * extraPtr) : PPObjReference(PPOBJ_GLOBALUSERACC, extraPtr)
 {
 }

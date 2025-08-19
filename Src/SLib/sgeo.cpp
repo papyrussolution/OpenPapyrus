@@ -1,5 +1,5 @@
 // SGEO.CPP
-// Copyright (c) A.Sobolev 2009, 2010, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) A.Sobolev 2009, 2010, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2025
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -10,25 +10,25 @@
 	const uint32 xdw = static_cast<uint32>(x);
 	const uint32 ydw = static_cast<uint32>(y);
 	const uint32 result =
-	((xdw & 0x0001))       | ((ydw & 0x0001) <<  1) |
-	((xdw & 0x0002) <<  1) | ((ydw & 0x0002) <<  2) |
-	((xdw & 0x0004) <<  2) | ((ydw & 0x0004) <<  3) |
-	((xdw & 0x0008) <<  3) | ((ydw & 0x0008) <<  4) |
+		((xdw & 0x0001))       | ((ydw & 0x0001) <<  1) |
+		((xdw & 0x0002) <<  1) | ((ydw & 0x0002) <<  2) |
+		((xdw & 0x0004) <<  2) | ((ydw & 0x0004) <<  3) |
+		((xdw & 0x0008) <<  3) | ((ydw & 0x0008) <<  4) |
 
-	((xdw & 0x0010) <<  4) | ((ydw & 0x0010) <<  5) |
-	((xdw & 0x0020) <<  5) | ((ydw & 0x0020) <<  6) |
-	((xdw & 0x0040) <<  6) | ((ydw & 0x0040) <<  7) |
-	((xdw & 0x0080) <<  7) | ((ydw & 0x0080) <<  8) |
+		((xdw & 0x0010) <<  4) | ((ydw & 0x0010) <<  5) |
+		((xdw & 0x0020) <<  5) | ((ydw & 0x0020) <<  6) |
+		((xdw & 0x0040) <<  6) | ((ydw & 0x0040) <<  7) |
+		((xdw & 0x0080) <<  7) | ((ydw & 0x0080) <<  8) |
 
-	((xdw & 0x0100) <<  8) | ((ydw & 0x0100) <<  9) |
-	((xdw & 0x0200) <<  9) | ((ydw & 0x0200) << 10) |
-	((xdw & 0x0400) << 10) | ((ydw & 0x0400) << 11) |
-	((xdw & 0x0800) << 11) | ((ydw & 0x0800) << 12) |
+		((xdw & 0x0100) <<  8) | ((ydw & 0x0100) <<  9) |
+		((xdw & 0x0200) <<  9) | ((ydw & 0x0200) << 10) |
+		((xdw & 0x0400) << 10) | ((ydw & 0x0400) << 11) |
+		((xdw & 0x0800) << 11) | ((ydw & 0x0800) << 12) |
 
-	((xdw & 0x1000) << 12) | ((ydw & 0x1000) << 13) |
-	((xdw & 0x2000) << 13) | ((ydw & 0x2000) << 14) |
-	((xdw & 0x4000) << 14) | ((ydw & 0x4000) << 15) |
-	((xdw & 0x8000) << 15) | ((ydw & 0x8000) << 16);
+		((xdw & 0x1000) << 12) | ((ydw & 0x1000) << 13) |
+		((xdw & 0x2000) << 13) | ((ydw & 0x2000) << 14) |
+		((xdw & 0x4000) << 14) | ((ydw & 0x4000) << 15) |
+		((xdw & 0x8000) << 15) | ((ydw & 0x8000) << 16);
 	return result;
 }
 
@@ -93,11 +93,15 @@ static bool IsGeoPosValid(double lat, double lon)
 	return ok;
 }
 
-static SString & GeoPosToStr(double lat, double lon, SString & rBuf)
+static SString & GeoPosToStr(double lat, double lon, uint precision, SString & rBuf)
 {
 	rBuf.Z();
 	if(lat != 0.0 || lon != 0.0) {
-		rBuf.Cat(lat, MKSFMTD(0, 12, NMBF_NOTRAILZ)).CatDiv(',', 2).Cat(lon, MKSFMTD(0, 12, NMBF_NOTRAILZ)); // @v11.2.3 prec 7-->12
+		if(precision == 0)
+			precision = 7;
+		else if(precision > 12)
+			precision = 12;
+		rBuf.Cat(lat, MKSFMTD(0, precision, NMBF_NOTRAILZ)).CatDiv(',', 2).Cat(lon, MKSFMTD(0, precision, NMBF_NOTRAILZ)); // @v11.2.3 prec 7-->12 // @v12.3.11 12-->precision
 	}
 	return rBuf;
 }
@@ -166,7 +170,8 @@ int FASTCALL SGeoPosLL::Cmp(const SGeoPosLL & s) const
 
 bool SGeoPosLL::IsValid() const { return IsGeoPosValid(Lat, Lon); }
 bool SGeoPosLL::IsZero() const { return (Lat == 0.0 && Lon == 0.0); }
-SString & FASTCALL SGeoPosLL::ToStr(SString & rBuf) const { return GeoPosToStr(Lat, Lon, rBuf); }
+SString & SGeoPosLL::ToStr(uint precision, SString & rBuf) const { return GeoPosToStr(Lat, Lon, precision, rBuf); }
+SString & FASTCALL SGeoPosLL::ToStr(SString & rBuf) const { return GeoPosToStr(Lat, Lon, 0U, rBuf); } // default precision
 int FASTCALL SGeoPosLL::FromStr(const char * pStr) { return GeoPosFromStr(pStr, Lat, Lon); }
 //
 //
@@ -255,7 +260,8 @@ int SGeoPosLL_Int::SetInt(long lat, long lon)
 }
 
 bool SGeoPosLL_Int::IsValid() const { return IsGeoPosValid(GetLat(), GetLon()); }
-SString & FASTCALL SGeoPosLL_Int::ToStr(SString & rBuf) const { return GeoPosToStr(GetLat(), GetLon(), rBuf); }
+SString & SGeoPosLL_Int::ToStr(uint precision, SString & rBuf) const { return GeoPosToStr(GetLat(), GetLon(), precision, rBuf); }
+SString & FASTCALL SGeoPosLL_Int::ToStr(SString & rBuf) const { return GeoPosToStr(GetLat(), GetLon(), 0U, rBuf); } // default precision
 
 int FASTCALL SGeoPosLL_Int::FromStr(const char * pStr)
 {

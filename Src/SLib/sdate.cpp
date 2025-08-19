@@ -7,7 +7,7 @@
 
 // @unesed #define TICKSPERMIN        600000000
 #define TICKSPERSEC        10000000
-// @unesed #define TICKSPERMSEC       10000
+#define TICKSPERMSEC       10000
 //#define SECSPERDAY         86400
 // @unesed #define _YEAR_SEC          (365 * SlConst::SecsPerDay) // secs in a year
 //#define SECSPERHOUR        3600
@@ -2595,10 +2595,8 @@ bool SUniDate_Internal::SetDaysSinceChristmas(uint g)
 	return ((tz >= -(12 * 3600) && tz <= +(14 * 3600)) || tz == Undef_TimeZone);
 }
 
-/*static*/int64 SUniTime_Internal::EpochToNs100(int64 epochTimeSec)
-{
-	return epochTimeSec * TICKSPERSEC + SlConst::Epoch1600_1970_Offs_100Ns;
-}
+/*static*/int64 SUniTime_Internal::EpochToNs100(int64 epochTimeSec) { return epochTimeSec * TICKSPERSEC + SlConst::Epoch1600_1970_Offs_100Ns; }
+/*static*/int64 SUniTime_Internal::EpochMsToNs100(int64 epochTimeMs) { return epochTimeMs * TICKSPERMSEC + SlConst::Epoch1600_1970_Offs_100Ns; }
 
 SUniTime_Internal::SUniTime_Internal() : SUniDate_Internal(), Hr(0), Mn(0), Sc(0), MSc(0), Weekday(0), TimeZoneSc(Undef_TimeZone)
 {
