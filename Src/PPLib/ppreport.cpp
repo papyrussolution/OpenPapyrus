@@ -141,20 +141,6 @@ PrnDlgAns & FASTCALL PrnDlgAns::Copy(const PrnDlgAns & rS)
 //
 //
 //
-static TVRez * PPOpenReportResource()
-{
-	SString path;
-	makeExecPathFileName("PPRPT", "RES", path);
-	TVRez * p_rez = new TVRez(path, 0 /* useIndex */);
-	if(p_rez == 0)
-		PPSetErrorNoMem();
-	else if(p_rez->error) {
-		ZDELETE(p_rez);
-		PPSetErrorSLib();
-	}
-	return p_rez;
-}
-
 int GetReportIDByName(const char * pRptName, uint * pRptID)
 {
 	int    ok = 0;
@@ -198,27 +184,27 @@ int PPLoadReportStub(long rptID, PPReportStub * pData)
 	return ok;
 }
 
-int SReport::defaultIterator(int)
+/*static*/bool SReport::GetReportAttributes(uint reportId, SString * pReportName, SString * pDataName)
 {
-	return 0;
+	bool    ok = false;
+	SString report_name;
+	SString data_name;
+	if(reportId > 1000) {
+		PPReportStub stub;
+		if(PPLoadReportStub(reportId, &stub)) {
+			report_name = stub.Name;
+			data_name = stub.DataName;
+			ok = true;
+		}
+	}
+	ASSIGN_PTR(pReportName, report_name);
+	ASSIGN_PTR(pDataName, data_name);
+	return ok;
 }
 
-SReport::SReport(const char * pName)
+SReport::SReport(uint rezID, long flags) : /*PrnDest(0), PrnOptions(0),*/Error(0), NumCopies(1)
 {
-	THISZERO();
-	Name = pName;
-	iterator   = defaultIterator;
-	P_Prn    = 0;
-	PageLen  = 0;
-	LeftMarg = 0;
-	PrnOptions = SPRN_EJECTAFTER;
-	PrnDest = 0;
-}
-
-SReport::SReport(uint rezID, long flags)
-{
-	THISZERO();
-	iterator = defaultIterator;
+	// @v12.3.11 @obsolete iterator = defaultIterator;
 	if(rezID > 1000) {
 		PPReportStub stub;
 		if(PPLoadReportStub(rezID, &stub)) {
@@ -228,8 +214,22 @@ SReport::SReport(uint rezID, long flags)
 		else
 			Error = 1;
 	}
+	/* @v12.3.11 @obsolete
 	else {
-		TVRez * p_rez = PPOpenReportResource();
+		//TVRez * p_rez = PPOpenReportResource();
+		//static TVRez * PPOpenReportResource()
+		TVRez * p_rez = 0;
+		{
+			SString path;
+			makeExecPathFileName("PPRPT", "RES", path);
+			p_rez = new TVRez(path, 0);
+			if(p_rez == 0)
+				PPSetErrorNoMem();
+			else if(p_rez->error) {
+				ZDELETE(p_rez);
+				PPSetErrorSLib();
+			}
+		}
 		if(p_rez) {
 			if(readResource(p_rez, rezID) == 0) {
 				fldCount = 0;
@@ -239,8 +239,8 @@ SReport::SReport(uint rezID, long flags)
 		}
 		else
 			Error = 1;
-	}
-	NumCopies = 1;
+	}*/
+	/* @v12.3.11 @obsolete
 	if(!Error) {
 		THROW_MEM(P_Prn = new SPrinter);
 		P_Prn->pgl      = PageLen;
@@ -254,13 +254,15 @@ SReport::SReport(uint rezID, long flags)
 		if(P_Prn->pgl == 0)
 			P_Prn->options &= ~SPRN_EJECTAFTER;
 	}
-	CATCH
-		ZDELETE(P_Prn);
-	ENDCATCH
+	*/
+	//CATCH
+		// @v12.3.11 @obsolete ZDELETE(P_Prn);
+	//ENDCATCH
 }
 
 SReport::~SReport()
 {
+	/* @v12.3.11 @obsolete
 	delete fields;
 	for(int grpidx = 0; grpidx < grpCount; grpidx++) {
 		delete groups[grpidx].fields;
@@ -273,10 +275,12 @@ SReport::~SReport()
 	delete bands;
 	delete P_Prn;
 	SAlloc::F(P_Text);
+	*/
 }
 
 bool SReport::IsValid() const { return !Error; }
 
+#if 0 // @v12.3.11 (inlined) {
 int SReport::createDataFiles(const char * pDataName, const char * pRptPath)
 {
 	int    ok = -1;
@@ -312,206 +316,8 @@ int SReport::createDataFiles(const char * pDataName, const char * pRptPath)
 	return ok;
 }
 
-int SReport::readResource(TVRez * rez, uint resID)
-{
-	int    ok = 1;
-	int16  i, j;
-	int16  lw, hw;
-	int16  len;
-	SString msg_buf;
-	THROW(rez && !rez->error);
-	SLS.SetError(SLERR_REZNFOUND, msg_buf.Z().Cat(resID));
-	THROW_SL(rez->findResource(resID, TV_REPORT));
-	rez->getString(Name, 0);
-	rez->getString(DataName, 0);
-	main_id = rez->getUINT();
-	main_id = (main_id << 16) | rez->getUINT();
-	TextLen = len = rez->getUINT();
-	if(len)
-		len++;
-	THROW_MEM(P_Text = static_cast<char *>(SAlloc::R(P_Text, len)));
-	for(i = 0; i < (len / 2); i++)
-		reinterpret_cast<int16 *>(P_Text)[i] = rez->getUINT();
-	fldCount = rez->getUINT();
-	THROW_MEM(fields = static_cast<Field *>(SAlloc::R(fields, sizeof(Field) * fldCount)));
-	for(i = 0; i < fldCount; i++) {
-		fields[i].id      = rez->getUINT();
-		fields[i].name    = rez->getUINT(); // @
-		fields[i].type    = rez->getUINT();
-		lw        = rez->getUINT();
-		hw        = rez->getUINT();
-		fields[i].format  = MakeLong(lw, hw);
-		fields[i].fldfmt  = rez->getUINT();
-		lw        = rez->getUINT();
-		hw        = rez->getUINT();
-		fields[i].offs    = MakeLong(lw, hw);
-		fields[i].lastval = 0;
-	}
-	if((agrCount = rez->getUINT()) != 0) {
-		THROW_MEM(agrs = static_cast<Aggr *>(SAlloc::R(agrs, sizeof(Aggr) * agrCount)));
-		for(i = 0; i < agrCount; i++) {
-			Aggr * a = &agrs[i];
-			a->fld   = rez->getUINT();
-			a->aggr  = rez->getUINT();
-			a->dpnd  = rez->getUINT();
-			a->scope = rez->getUINT();
-			a->ptemp = 0;
-		}
-	}
-	else
-		ZFREE(agrs);
-	if((grpCount = rez->getUINT()) != 0) {
-		THROW_MEM(groups = static_cast<Group *>(SAlloc::R(groups, sizeof(Group) * grpCount)));
-		for(i = 0; i < grpCount; i++) {
-			Group * g = &groups[i];
-			g->band   = rez->getUINT();
-			if((len = rez->getUINT()) != 0) {
-				THROW_MEM(g->fields = static_cast<int16 *>(SAlloc::M(sizeof(int16) * (len+1))));
-				g->fields[0] = len;
-				for(j = 1; j <= len; j++)
-					g->fields[j] = (int16)rez->getUINT();
-			}
-			else
-				ZFREE(g->fields);
-			g->lastval = 0;
-		}
-	}
-	else
-		ZFREE(groups);
-	if((bandCount = rez->getUINT()) != 0) {
-		THROW_MEM(bands = static_cast<Band *>(SAlloc::R(bands, sizeof(Band) * bandCount)));
-		for(i = 0; i < bandCount; i++) {
-			Band * b   = &bands[i];
-			b->kind    = rez->getUINT();
-			b->ht      = rez->getUINT();
-			b->group   = rez->getUINT();
-			b->options = rez->getUINT();
-			if((len = rez->getUINT()) != 0) {
-				THROW_MEM(b->fields = static_cast<int16 *>(SAlloc::M(sizeof(int16) * (len+1))));
-				b->fields[0] = len;
-				for(j = 1; j <= len; j++)
-					b->fields[j] = static_cast<int16>(rez->getUINT());
-			}
-			else
-				ZFREE(b->fields);
-		}
-	}
-	else
-		ZFREE(bands);
-	PageLen    = static_cast<int>(rez->getUINT());
-	LeftMarg   = static_cast<int>(rez->getUINT());
-	PrnOptions = static_cast<int>(rez->getUINT());
-	CATCHZOK
-	return ok;
-}
-
-int SReport::setPrinter(SPrinter * p)
-{
-	P_Prn = p;
-	return 1;
-}
-
-int SReport::setData(int i, void *d)
-{
-	i--;
-	if(i >= 0 && i < fldCount && fields[i].type) {
-		fields[i].data = d;
-		return 1;
-	}
-	return 0;
-}
-
-void SReport::disableGrouping()
-{
-	PrnOptions |= SPRN_SKIPGRPS;
-}
-
-int SReport::skipField(int i, int skip)
-{
-	i--;
-	if(i >= 0 && i < fldCount) {
-		SETFLAG(fields[i].fldfmt, FLDFMT_SKIP, skip);
-		return 1;
-	}
-	else
-		return 0;
-}
-
-int SReport::check()
-{
-	return 1;
-}
-
-int SReport::calcAggr(int grp, int mode)
-{
-	double dd = 0.0;
-	for(int i = 0; i < agrCount; i++) {
-		Aggr  * agr = &agrs[i];
-		Field * df  = agr->dpnd ? &fields[agr->dpnd - 1] : 0;
-		if(mode == 1 && df && df->data) {
-			if(!stcast(df->type, MKSTYPE(S_FLOAT, 8), df->data, &dd, 0))
-				dd = 0;
-		}
-		else if(mode == 0 && agr->fld > 0 && agr->fld <= fldCount)
-			fields[agr->fld - 1].type = MKSTYPE(S_FLOAT, 8);
-		if(mode == 1 || agr->scope == grp) {
-			switch(agr->aggr) {
-				case AGGRFUNC_COUNT:
-					if(mode == 0)
-						agr->rtemp = 0;
-					else if(mode == 1)
-						agr->rtemp += 1;
-					break;
-				case AGGRFUNC_SUM:
-					if(mode == 0)
-						agr->rtemp = 0;
-					else if(mode == 1)
-						agr->rtemp += dd;
-					break;
-				case AGGRFUNC_AVG:
-					switch(mode) {
-						case 0:
-							agr->ptemp = new double[2];
-							if(agr->ptemp)
-								agr->ptemp[0] = agr->ptemp[1] = 0;
-							break;
-						case 1:
-							if(agr->ptemp) {
-								agr->ptemp[0] += 1;
-								agr->ptemp[1] += dd;
-							}
-							break;
-						case 2:
-							dd = (agr->ptemp && agr->ptemp[0] != 0.0) ? (agr->ptemp[1] / agr->ptemp[0]) : 0.0;
-							delete agr->ptemp;
-							agr->rtemp = dd;
-							break;
-					}
-					break;
-				case AGGRFUNC_MIN:
-					if(mode == 0)
-						agr->rtemp = SMathConst::Max;
-					else if(mode == 1)
-						if(dd < agr->rtemp)
-							agr->rtemp = dd;
-					break;
-				case AGGRFUNC_MAX:
-					if(mode == 0)
-						agr->rtemp = -SMathConst::Max;
-					else if(mode == 1)
-						if(dd > agr->rtemp)
-							agr->rtemp = dd;
-					break;
-				default:
-					agr->rtemp = 0;
-					break;
-			}
-			if(mode == 2)
-				setData(agr->fld, &agr->rtemp);
-		}
-	}
-	return 1;
-}
+void SReport::disableGrouping() { PrnOptions |= SPRN_SKIPGRPS; }
+#endif // } 0
 
 static const int hdr_band_types[] = { RPT_HEAD, RPT_FOOT, PAGE_HEAD, PAGE_FOOT };
 static const int row_band_types[] = { DETAIL_BODY, GROUP_HEAD, GROUP_FOOT };
@@ -1866,8 +1672,6 @@ private:
 };
 
 int  EditPrintParam(PrnDlgAns * pData) { return PPDialogProcBody <Print2Dialog, PrnDlgAns> (pData); }
-void SReport::setNumCopies(int n) { NumCopies = (n > 0 && n <= 10) ? n : 1; }
-int  SReport::getNumCopies() const { return NumCopies; }
 
 static SString & GetTempFileName_(const char * pFileName, SString & rDest)
 {
@@ -1875,7 +1679,130 @@ static SString & GetTempFileName_(const char * pFileName, SString & rDest)
 	return rDest.SetLastSlash().Cat(pFileName);
 }
 
-#if 0 // @v12.3.9 @obsolete {
+#if 0 // @v12.3.9-12.3.11 @obsolete {
+SReport::SReport(const char * pName) : PrnDest(0), PrnOptions(SPRN_EJECTAFTER), Error(0), NumCopies(1), Name(pName)
+{
+	//THISZERO();
+	// @v12.3.11 @obsolete iterator   = defaultIterator;
+	// @v12.3.11 @obsolete P_Prn    = 0;
+	// @v12.3.11 @obsolete PageLen  = 0;
+	// @v12.3.11 @obsolete LeftMarg = 0;
+}
+
+int SReport::defaultIterator(int) { return 0; }
+
+int SReport::setData(int i, void *d)
+{
+	i--;
+	if(i >= 0 && i < fldCount && fields[i].type) {
+		fields[i].data = d;
+		return 1;
+	}
+	return 0;
+}
+
+int SReport::readResource(TVRez * rez, uint resID)
+{
+	int    ok = 1;
+	int16  i, j;
+	int16  lw, hw;
+	int16  len;
+	SString msg_buf;
+	THROW(rez && !rez->error);
+	SLS.SetError(SLERR_REZNFOUND, msg_buf.Z().Cat(resID));
+	THROW_SL(rez->findResource(resID, TV_REPORT));
+	rez->getString(Name, 0);
+	rez->getString(DataName, 0);
+	main_id = rez->getUINT();
+	main_id = (main_id << 16) | rez->getUINT();
+	TextLen = len = rez->getUINT();
+	if(len)
+		len++;
+	THROW_MEM(P_Text = static_cast<char *>(SAlloc::R(P_Text, len)));
+	for(i = 0; i < (len / 2); i++)
+		reinterpret_cast<int16 *>(P_Text)[i] = rez->getUINT();
+	fldCount = rez->getUINT();
+	THROW_MEM(fields = static_cast<Field *>(SAlloc::R(fields, sizeof(Field) * fldCount)));
+	for(i = 0; i < fldCount; i++) {
+		fields[i].id      = rez->getUINT();
+		fields[i].name    = rez->getUINT(); // @
+		fields[i].type    = rez->getUINT();
+		lw        = rez->getUINT();
+		hw        = rez->getUINT();
+		fields[i].format  = MakeLong(lw, hw);
+		fields[i].fldfmt  = rez->getUINT();
+		lw        = rez->getUINT();
+		hw        = rez->getUINT();
+		fields[i].offs    = MakeLong(lw, hw);
+		fields[i].lastval = 0;
+	}
+	if((agrCount = rez->getUINT()) != 0) {
+		THROW_MEM(agrs = static_cast<Aggr *>(SAlloc::R(agrs, sizeof(Aggr) * agrCount)));
+		for(i = 0; i < agrCount; i++) {
+			Aggr * a = &agrs[i];
+			a->fld   = rez->getUINT();
+			a->aggr  = rez->getUINT();
+			a->dpnd  = rez->getUINT();
+			a->scope = rez->getUINT();
+			a->ptemp = 0;
+		}
+	}
+	else
+		ZFREE(agrs);
+	if((grpCount = rez->getUINT()) != 0) {
+		THROW_MEM(groups = static_cast<Group *>(SAlloc::R(groups, sizeof(Group) * grpCount)));
+		for(i = 0; i < grpCount; i++) {
+			Group * g = &groups[i];
+			g->band   = rez->getUINT();
+			if((len = rez->getUINT()) != 0) {
+				THROW_MEM(g->fields = static_cast<int16 *>(SAlloc::M(sizeof(int16) * (len+1))));
+				g->fields[0] = len;
+				for(j = 1; j <= len; j++)
+					g->fields[j] = (int16)rez->getUINT();
+			}
+			else
+				ZFREE(g->fields);
+			g->lastval = 0;
+		}
+	}
+	else
+		ZFREE(groups);
+	if((bandCount = rez->getUINT()) != 0) {
+		THROW_MEM(bands = static_cast<Band *>(SAlloc::R(bands, sizeof(Band) * bandCount)));
+		for(i = 0; i < bandCount; i++) {
+			Band * b   = &bands[i];
+			b->kind    = rez->getUINT();
+			b->ht      = rez->getUINT();
+			b->group   = rez->getUINT();
+			b->options = rez->getUINT();
+			if((len = rez->getUINT()) != 0) {
+				THROW_MEM(b->fields = static_cast<int16 *>(SAlloc::M(sizeof(int16) * (len+1))));
+				b->fields[0] = len;
+				for(j = 1; j <= len; j++)
+					b->fields[j] = static_cast<int16>(rez->getUINT());
+			}
+			else
+				ZFREE(b->fields);
+		}
+	}
+	else
+		ZFREE(bands);
+	PageLen    = static_cast<int>(rez->getUINT());
+	LeftMarg   = static_cast<int>(rez->getUINT());
+	PrnOptions = static_cast<int>(rez->getUINT());
+	CATCHZOK
+	return ok;
+}
+
+int SReport::setPrinter(SPrinter * p)
+{
+	P_Prn = p;
+	return 1;
+}
+
+void SReport::setNumCopies(int n) { NumCopies = (n > 0 && n <= 10) ? n : 1; }
+int  SReport::getNumCopies() const { return NumCopies; }
+
 int SReport::createBodyDataFile(SString & rFileName, SCollection * fldIDs)
 {
 	int    ok = 1;
@@ -2307,7 +2234,7 @@ static int RemoveCompName(SString & rPrintDevice)
 	return 1;
 }
 
-static int SetPrinterParam(short hJob, const char * pPrinter, long options, const DEVMODEA *pDevMode)
+static int SetPrinterParam(short hJob, const char * pPrinter, long options, const DEVMODEA * pDevMode)
 {
 	int    ok = 1;
 	SString print_device(isempty(pPrinter) ? DS.GetConstTLA().PrintDevice : pPrinter);
@@ -2411,7 +2338,21 @@ static void DebugOutputCrrExportOptions(const PEExportOptions & rEo, const char 
 		f_out.WriteLine(out_buf);
 	}
 }
-	
+
+struct CrrPreviewEventParam {
+	static BOOL CALLBACK EventCallback(short eventID, void * pParam, void * pUserData)
+	{
+		if(eventID == PE_CLOSE_PRINT_WINDOW_EVENT) {
+#ifndef MODELESS_REPORT_PREVIEW
+			EnableWindow(APPL->H_TopOfStack, 1);
+			static_cast<CrrPreviewEventParam *>(pUserData)->StopPreview++;
+#endif
+		}
+		return TRUE;
+	}
+	int    StopPreview;
+};
+
 int CrystalReportPrint2(const CrystalReportPrintParamBlock & rBlk, CrystalReportPrintReply & rReply) // @v11.9.5 @construction
 {
 	int    ok = 1;
@@ -2437,7 +2378,7 @@ int CrystalReportPrint2(const CrystalReportPrintParamBlock & rBlk, CrystalReport
 			bool   export_options_done = false;
 			if(rBlk.ExpParam.Format) {
 				if(rBlk.ExpParam.TranslateToCrrExportOptions(eo)) {
-					DebugOutputCrrExportOptions(eo, "debug-ppreport-expoptions-own.log"); // @debug
+					//DebugOutputCrrExportOptions(eo, "debug-ppreport-expoptions-own.log"); // @debug
 					export_options_done = true;
 				}
 			}
@@ -2452,7 +2393,7 @@ int CrystalReportPrint2(const CrystalReportPrintParamBlock & rBlk, CrystalReport
 					p__dest_fn = p_dest_fn_2;
 				}
 				else if(PEGetExportOptions(h_job, &eo)) {
-					DebugOutputCrrExportOptions(eo, "debug-ppreport-expoptions.log"); // @debug
+					//DebugOutputCrrExportOptions(eo, "debug-ppreport-expoptions.log"); // @debug
 					const char * p_dest_fn_1 = reinterpret_cast<const char *>(PTR8C(eo.destinationOptions)+2);
 					p__dest_fn = p_dest_fn_1;
 				}
@@ -2530,7 +2471,7 @@ int CrystalReportPrint2(const CrystalReportPrintParamBlock & rBlk, CrystalReport
 		THROW(SetupReportLocations(h_job, rBlk.Dir, (rBlk.Options & SPRN_DONTRENAMEFILES) ? 0 : 1));
 		if(rBlk.Action == CrystalReportPrintParamBlock::actionPreview/*rBlk.Options & SPRN_PREVIEW*/) {
 			THROW_PP(PEOutputToWindow(h_job, "", CW_USEDEFAULT, CW_USEDEFAULT,
-				CW_USEDEFAULT, CW_USEDEFAULT, WS_MAXIMIZE | WS_VISIBLE | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU, 0), PPERR_CRYSTAL_REPORT);
+				CW_USEDEFAULT, CW_USEDEFAULT, WS_MAXIMIZE|WS_VISIBLE|WS_MINIMIZEBOX|WS_MAXIMIZEBOX|WS_SYSMENU, 0), PPERR_CRYSTAL_REPORT);
 		}
 		else {
 			THROW_PP(PEOutputToPrinter(h_job, num_copies), PPERR_CRYSTAL_REPORT);
@@ -2538,27 +2479,14 @@ int CrystalReportPrint2(const CrystalReportPrintParamBlock & rBlk, CrystalReport
 		if(rBlk.Options & SPRN_SKIPGRPS)
 			SetupGroupSkipping(h_job);
 		if(/**rBlk.Options & SPRN_PREVIEW ||*/rBlk.Action == CrystalReportPrintParamBlock::actionPreview) {
-			struct PreviewEventParam {
-				static BOOL CALLBACK EventCallback(short eventID, void * pParam, void * pUserData)
-				{
-					if(eventID == PE_CLOSE_PRINT_WINDOW_EVENT) {
-	#ifndef MODELESS_REPORT_PREVIEW
-						EnableWindow(APPL->H_TopOfStack, 1);
-						static_cast<PreviewEventParam *>(pUserData)->StopPreview++;
-	#endif
-					}
-					return TRUE;
-				}
-				int    StopPreview;
-			};
-			PreviewEventParam pep;
+			CrrPreviewEventParam pep;
 			pep.StopPreview = 0;
 			PEEnableEventInfo eventInfo;
 			eventInfo.StructSize = sizeof(PEEnableEventInfo);
 			eventInfo.closePrintWindowEvent = TRUE;
 			eventInfo.startStopEvent = TRUE;
 			THROW_PP(PEEnableEvent(h_job, &eventInfo), PPERR_CRYSTAL_REPORT);
-			THROW_PP(PESetEventCallback(h_job, PreviewEventParam::EventCallback, &pep), PPERR_CRYSTAL_REPORT);
+			THROW_PP(PESetEventCallback(h_job, CrrPreviewEventParam::EventCallback, &pep), PPERR_CRYSTAL_REPORT);
 			THROW_PP(PEStartPrintJob(h_job, TRUE), PPERR_CRYSTAL_REPORT);
 	#ifndef MODELESS_REPORT_PREVIEW
 			EnableWindow(APPL->H_TopOfStack, 0); // Запрещает работу в программе пока окно просмотра активно
@@ -2645,27 +2573,14 @@ int CrystalReportPrint(const char * pReportPath, const char * pDir, const char *
 	if(options & SPRN_SKIPGRPS)
 		SetupGroupSkipping(h_job);
 	if(options & SPRN_PREVIEW) {
-		struct PreviewEventParam {
-			static BOOL CALLBACK EventCallback(short eventID, void * pParam, void * pUserData)
-			{
-				if(eventID == PE_CLOSE_PRINT_WINDOW_EVENT) {
-#ifndef MODELESS_REPORT_PREVIEW
-					EnableWindow(APPL->H_TopOfStack, 1);
-					static_cast<PreviewEventParam *>(pUserData)->StopPreview++;
-#endif
-				}
-				return TRUE;
-			}
-			int    StopPreview;
-		};
-		PreviewEventParam pep;
+		CrrPreviewEventParam pep;
 		pep.StopPreview = 0;
 		PEEnableEventInfo eventInfo;
 		eventInfo.StructSize = sizeof(PEEnableEventInfo);
 		eventInfo.closePrintWindowEvent = TRUE;
 		eventInfo.startStopEvent = TRUE;
 		THROW_PP(PEEnableEvent(h_job, &eventInfo), PPERR_CRYSTAL_REPORT);
-		THROW_PP(PESetEventCallback(h_job, PreviewEventParam::EventCallback, &pep), PPERR_CRYSTAL_REPORT);
+		THROW_PP(PESetEventCallback(h_job, CrrPreviewEventParam::EventCallback, &pep), PPERR_CRYSTAL_REPORT);
 		THROW_PP(PEStartPrintJob(h_job, TRUE), PPERR_CRYSTAL_REPORT);
 #ifndef MODELESS_REPORT_PREVIEW
 		EnableWindow(APPL->H_TopOfStack, 0); // Запрещает работу в программе пока окно просмотра активно
@@ -2794,6 +2709,9 @@ int CrystalReportExport(const char * pReportPath, const char * pDir, const char 
 	return ok;
 }
 
+/* @v12.3.9-12.3.11 @obsolete
+int SReport::check() { return 1; }
+
 SReport::Band * SReport::searchBand(int kind, int grp)
 {
 	Band * b = 0;
@@ -2801,6 +2719,30 @@ SReport::Band * SReport::searchBand(int kind, int grp)
 		if(bands[i].kind == kind && bands[i].group == grp)
 			b = bands + i;
 	return b;
+}
+
+int SReport::skipField(int i, int skip)
+{
+	i--;
+	if(i >= 0 && i < fldCount) {
+		SETFLAG(fields[i].fldfmt, FLDFMT_SKIP, skip);
+		return 1;
+	}
+	else
+		return 0;
+}
+
+int SReport::enumFields(SReport::Field ** f, SReport::Band * b, int *i)
+{
+	if(b && b->fields) {
+		if(*f == 0)
+			*i = 1;
+		if(*i <= b->fields[0]) {
+			*f = fields + b->fields[(*i)++] - 1;
+			return 1;
+		}
+	}
+	return 0;
 }
 
 int SReport::printDataField(SReport::Field * f)
@@ -2815,19 +2757,6 @@ int SReport::printDataField(SReport::Field * f)
 		buf[SFMTLEN(f->format)] = 0;
 	}
 	return P_Prn->printLine(buf, 0);
-}
-
-int SReport::enumFields(SReport::Field ** f, SReport::Band * b, int *i)
-{
-	if(b && b->fields) {
-		if(*f == 0)
-			*i = 1;
-		if(*i <= b->fields[0]) {
-			*f = fields + b->fields[(*i)++] - 1;
-			return 1;
-		}
-	}
-	return 0;
 }
 
 int SReport::printPageHead(int kind, int _newpage)
@@ -2871,16 +2800,6 @@ int SReport::printPageHead(int kind, int _newpage)
 	}
 	CATCHZOK
 	return ok;
-}
-
-int SReport::printGroupHead(int kind, int grp)
-{
-	if(searchBand(kind, grp))
-		if(kind == GROUP_HEAD)
-			calcAggr(grp, 0);
-		else if(kind == GROUP_FOOT)
-			calcAggr(grp, 2);
-	return 1;
 }
 
 int SReport::checkval(int16 *flds, char **ptr)
@@ -2928,6 +2847,87 @@ int SReport::checkval(int16 *flds, char **ptr)
 	return r;
 }
 
+int SReport::calcAggr(int grp, int mode)
+{
+	double dd = 0.0;
+	for(int i = 0; i < agrCount; i++) {
+		Aggr  * agr = &agrs[i];
+		Field * df  = agr->dpnd ? &fields[agr->dpnd - 1] : 0;
+		if(mode == 1 && df && df->data) {
+			if(!stcast(df->type, MKSTYPE(S_FLOAT, 8), df->data, &dd, 0))
+				dd = 0;
+		}
+		else if(mode == 0 && agr->fld > 0 && agr->fld <= fldCount)
+			fields[agr->fld - 1].type = MKSTYPE(S_FLOAT, 8);
+		if(mode == 1 || agr->scope == grp) {
+			switch(agr->aggr) {
+				case AGGRFUNC_COUNT:
+					if(mode == 0)
+						agr->rtemp = 0;
+					else if(mode == 1)
+						agr->rtemp += 1;
+					break;
+				case AGGRFUNC_SUM:
+					if(mode == 0)
+						agr->rtemp = 0;
+					else if(mode == 1)
+						agr->rtemp += dd;
+					break;
+				case AGGRFUNC_AVG:
+					switch(mode) {
+						case 0:
+							agr->ptemp = new double[2];
+							if(agr->ptemp)
+								agr->ptemp[0] = agr->ptemp[1] = 0;
+							break;
+						case 1:
+							if(agr->ptemp) {
+								agr->ptemp[0] += 1;
+								agr->ptemp[1] += dd;
+							}
+							break;
+						case 2:
+							dd = (agr->ptemp && agr->ptemp[0] != 0.0) ? (agr->ptemp[1] / agr->ptemp[0]) : 0.0;
+							delete agr->ptemp;
+							agr->rtemp = dd;
+							break;
+					}
+					break;
+				case AGGRFUNC_MIN:
+					if(mode == 0)
+						agr->rtemp = SMathConst::Max;
+					else if(mode == 1)
+						if(dd < agr->rtemp)
+							agr->rtemp = dd;
+					break;
+				case AGGRFUNC_MAX:
+					if(mode == 0)
+						agr->rtemp = -SMathConst::Max;
+					else if(mode == 1)
+						if(dd > agr->rtemp)
+							agr->rtemp = dd;
+					break;
+				default:
+					agr->rtemp = 0;
+					break;
+			}
+			if(mode == 2)
+				setData(agr->fld, &agr->rtemp);
+		}
+	}
+	return 1;
+}
+
+int SReport::printGroupHead(int kind, int grp)
+{
+	if(searchBand(kind, grp))
+		if(kind == GROUP_HEAD)
+			calcAggr(grp, 0);
+		else if(kind == GROUP_FOOT)
+			calcAggr(grp, 2);
+	return 1;
+}
+ 
 int SReport::printDetail()
 {
 	int     ok = 1;
@@ -3030,6 +3030,7 @@ int SReport::getFieldName(int i, char * buf, size_t buflen)
 {
 	return (i >= 0 && i < fldCount) ? getFieldName(&fields[i], buf, buflen) : 0;
 }
+*/
 //
 //	@Vadim 13.09.02
 //
@@ -3198,7 +3199,9 @@ int MakeCRptDataFiles(int verifyAll /*=0*/)
 	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_MKRPTFLS);
 	if(CheckDialogPtrErr(&dlg)) {
-		SString rpt_name, rpt_path, fname;
+		SString rpt_name;
+		SString rpt_path;
+		SString fname;
 		FileBrowseCtrlGroup::Setup(dlg, CTLBRW_MKRPTFLS_RPTPATH, CTL_MKRPTFLS_RPTPATH, 1, 0, 0, FileBrowseCtrlGroup::fbcgfPath);
 		PPGetPath(PPPATH_REPORTDATA, rpt_path);
 		if(verifyAll == 1) {
@@ -3213,9 +3216,8 @@ int MakeCRptDataFiles(int verifyAll /*=0*/)
 			PPWaitStart();
 			if(rpt_name.NotEmptyS()) {
 				uint      pos = 0;
-				SReport rpt(static_cast<const char *>(0));
 				StringSet ss;
-				SStrCollection ss_col;
+				StringSet ss_data_name;
 				SString data_path;
 				if(rpt_name.IsEqiAscii("ALL")) {
 					PPGetFilePath(PPPATH_BIN, PPFILNAM_STDRPT_INI, fname);
@@ -3226,26 +3228,40 @@ int MakeCRptDataFiles(int verifyAll /*=0*/)
 				else {
 					THROW_SL(ss.add(rpt_name));
 				}
-				ss_col.freeAll();
 				for(pos = 0; ss.get(&pos, rpt_name);) {
 					PrnDlgAns report_descr_data(rpt_name);
-					uint   i;
 					report_descr_data.SetupReportEntries(0);
 					report_descr_data.Flags |= PrnDlgAns::fForceDDF; // Создание файлов данных обязательно должно включать создание словаря //
-					for(i = 0; i < report_descr_data.Entries.getCount(); i++) {
-						uint   p = 0;
-						char * p_data_name = newStr(report_descr_data.Entries.at(i)->DataName_);
-						THROW_MEM(p_data_name);
-						PPWaitMsg(p_data_name);
-						if(verifyAll && p_data_name[0])
-							(data_path = rpt_path).SetLastSlash().Cat(p_data_name);
-						if(p_data_name[0] && !ss_col.lsearch(p_data_name, &p, PTR_CMPFUNC(PcharNoCase)) && rpt.createDataFiles(p_data_name, rpt_path) > 0) {
-							THROW_SL(ss_col.insert(p_data_name));
-							if(verifyAll)
-								VerifyCrpt(report_descr_data.Entries.at(i)->ReportPath_, data_path);
+					for(uint i = 0; i < report_descr_data.Entries.getCount(); i++) {
+						const SString & r_data_name = report_descr_data.Entries.at(i)->DataName_;
+						if(r_data_name.NotEmpty()) {
+							PPWaitMsg(r_data_name);
+							(data_path = rpt_path).SetLastSlash().Cat(r_data_name);
+							if(!ss_data_name.searchNcAscii(r_data_name, 0, 0)) {
+								DlRtm * p_rtm = 0;
+								DlContext ctx;
+								DlRtm::ExportParam ep;
+								if(!ctx.InitSpecial(DlContext::ispcExpData)) {
+									// @todo @err
+								}
+								else if(!ctx.CreateDlRtmInstance(r_data_name, &p_rtm)) {
+									// @todo @err
+								}
+								else {
+									ep.DestPath = data_path;
+									ep.Flags |= DlRtm::ExportParam::fForceDDF;
+									if(p_rtm->Export(ep) > 0) {
+										ss_data_name.add(r_data_name);
+										if(verifyAll)
+											VerifyCrpt(report_descr_data.Entries.at(i)->ReportPath_, data_path);
+									}
+									else {
+										// @todo @err
+									}
+								}
+								delete p_rtm;
+							}
 						}
-						else
-							delete p_data_name;
 					}
 				}
 				ok = 1;
@@ -3267,42 +3283,46 @@ static int FASTCALL __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPRe
 	bool   inherited_tbl_names = false;
 	bool   diffidbyscope = false;
 	DlRtm   * p_rtm = 0;
-	SString data_name, fn;
-	SString printer_name;
 	SString temp_buf;
-	long   fl = 0;
+	SString data_name;
+	SString fn;
+	SString printer_name;
+
+	SString report_name; 
+	SString report_data_name;
+
+	//long   fl = 0;
 	const  uint sur_key_last_count = DS.GetTLA().SurIdList.getCount(); // См. коммент в конце функции
-	SETFLAG(fl, INIREPF_FORCELANDSCAPE, pEnv && pEnv->PrnFlags & SReport::Landscape);
-	SETFLAG(fl, INIREPF_NOSHOWDIALOG, pEnv && pEnv->PrnFlags & SReport::PrintingNoAsk);
-	SReport rpt(rptId, fl);
-	THROW(rpt.IsValid());
+	// @v12.3.11 SETFLAG(fl, INIREPF_FORCELANDSCAPE, pEnv && pEnv->PrnFlags & SReport::Landscape__);
+	//SETFLAG(fl, INIREPF_NOSHOWDIALOG, pEnv && pEnv->PrnFlags & SReport::PrintingNoAsk);
+	THROW(SReport::GetReportAttributes(rptId, &report_name, &report_data_name));
+	//SReport rpt(rptId, /*fl*/0);
+	//THROW(rpt.IsValid());
 	{
-		PrnDlgAns pans(rpt.Name);
+		int    output_destination = 0;
+		int    report_options = 0;
+		PrnDlgAns pans(report_name);
 		const ReportDescrEntry * p_sel_entry = 0;
 		if(pEnv) {
 			pans.DefPrnForm = pEnv->DefPrnForm;
 			pans.EmailAddr = pEnv->EmailAddr;
-			if(pEnv->PrnFlags & SReport::DisableGrouping)
-				rpt.disableGrouping();
-			if(pEnv->PrnFlags & SReport::FooterOnBottom) {
-				SReport::Band * p_rb = rpt.searchBand(RPT_FOOT, 0);
-				if(p_rb)
-					p_rb->options |= GRPFMT_SUMMARYONBOTTOM;
+			if(pEnv->PrnFlags & SReport::DisableGrouping) {
+				report_options |= SPRN_SKIPGRPS;
 			}
 			if(pEnv->PrnFlags & SReport::PrintingNoAsk && pans.SetupReportEntries(pEnv->ContextSymb) > 0) {
 				const ReportDescrEntry * p_entry = pans.Entries.at(0);
 				fn = p_entry->ReportPath_;
 				data_name = p_entry->DataName_;
-				rpt.PrnDest = (pEnv->PrnFlags & SReport::XmlExport) ? PrnDlgAns::aExportXML : PrnDlgAns::aPrint;
+				output_destination = (pEnv->PrnFlags & SReport::XmlExport) ? PrnDlgAns::aExportXML : PrnDlgAns::aPrint;
 				diffidbyscope = LOGIC(p_entry->Flags & ReportDescrEntry::fDiff_ID_ByScope);
 			}
 		}
 		else
 			pans.DefPrnForm.Z();
-		if(!rpt.PrnDest) {
+		if(!output_destination) {
 			if(EditPrintParam(&pans) > 0) {
 				if(pans.P_DevMode) {
-
+					;
 				}
 				pans.Flags &= ~pans.fForceDDF;
 				p_sel_entry = pans.Entries.at(pans.Selection);
@@ -3311,21 +3331,21 @@ static int FASTCALL __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPRe
 				data_name     = p_sel_entry->DataName_;
 				inherited_tbl_names = LOGIC(p_sel_entry->Flags & ReportDescrEntry::fInheritedTblNames);
 				diffidbyscope = LOGIC(p_sel_entry->Flags & ReportDescrEntry::fDiff_ID_ByScope);
-				rpt.PrnDest   = pans.Dest;
+				output_destination = pans.Dest;
 				printer_name  = pans.Printer;
-				SETFLAG(rpt.PrnOptions, SPRN_USEDUPLEXPRINTING, BIN(pans.Flags & PrnDlgAns::fUseDuplexPrinting));
+				SETFLAG(report_options, SPRN_USEDUPLEXPRINTING, BIN(pans.Flags & PrnDlgAns::fUseDuplexPrinting));
 			}
 			else
 				ok = -1;
 		}
 		// @v11.8.8 {
-		else if(rpt.PrnDest == PrnDlgAns::aPrint) {
+		else if(output_destination == PrnDlgAns::aPrint) {
 			if(pEnv)
 				printer_name = pEnv->PrnPort;
 		}
 		// } @v11.8.8 
 		if(ok > 0) {
-			data_name.SetIfEmpty(rpt.getDataName());
+			data_name.SetIfEmpty(report_data_name);
 			SString out_file_name;
 			DlContext ctx;
 			DlRtm::ExportParam ep;
@@ -3339,7 +3359,7 @@ static int FASTCALL __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPRe
 			SETFLAG(ep.Flags, DlRtm::ExportParam::fDiff_ID_ByScope, diffidbyscope);
 			SETFLAG(ep.Flags, DlRtm::ExportParam::fDontWriteXmlTypes, 1);
 			if(p_sel_entry && p_sel_entry->Flags & ReportDescrEntry::fTddoResource) {
-				rpt.PrnDest = PrnDlgAns::aExportTDDO;
+				output_destination = PrnDlgAns::aExportTDDO;
 				Tddo t;
 				StringSet ext_param_list;
 				int    fld_n = 0;
@@ -3387,7 +3407,7 @@ static int FASTCALL __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPRe
 					THROW_SL(f_out.Write(result.GetBuf(), sz));
                 }
 			}
-			else if(rpt.PrnDest == PrnDlgAns::aExportXML) {
+			else if(output_destination == PrnDlgAns::aExportXML) {
 				ep.Cp = DS.GetConstTLA().DL600XmlCp;
 				THROW(p_rtm->ExportXML(ep, out_file_name));
 				if(pans.Flags & pans.fEMail && pans.EmailAddr.NotEmptyS() && fileExists(out_file_name)) {
@@ -3402,7 +3422,7 @@ static int FASTCALL __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPRe
 				}
 			}
 			else {
-				if(oneof2(rpt.PrnDest, PrnDlgAns::aPrepareData, PrnDlgAns::aPrepareDataAndExecCR)) {
+				if(oneof2(output_destination, PrnDlgAns::aPrepareData, PrnDlgAns::aPrepareDataAndExecCR)) {
 					ep.Flags |= DlRtm::ExportParam::fForceDDF;
 					ep.DestPath = pans.PrepareDataPath;
 				}
@@ -3426,7 +3446,7 @@ static int FASTCALL __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPRe
 				THROW(p_rtm->Export(ep));
 			}
 			PPWaitStop();
-			switch(rpt.PrnDest) {
+			switch(output_destination) {
 				case PrnDlgAns::aExportXML:
 				case PrnDlgAns::aExportTDDO:
 				case PrnDlgAns::aPrepareData:
@@ -3460,12 +3480,12 @@ static int FASTCALL __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPRe
 					{
 						CrystalReportPrintParamBlock req;
 						CrystalReportPrintReply rep;
-						req.Options = rpt.PrnOptions;
+						req.Options = report_options;
 						req.ReportPath = fn;
 						req.ReportName = pans.ReportName;
 						req.Dir = ep.Path;
 						req.Printer = printer_name;
-						if(rpt.PrnDest == PrnDlgAns::aExport) {
+						if(output_destination == PrnDlgAns::aExport) {
 							req.Action = CrystalReportPrintParamBlock::actionExport;
 							req.ExpParam = pans.ExpParam;
 							if(pans.Flags & pans.fEMail && pans.EmailAddr.NotEmptyS())
@@ -3476,15 +3496,15 @@ static int FASTCALL __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPRe
 								req.DevMode = *pans.P_DevMode;
 								req.InternalFlags |= CrystalReportPrintParamBlock::intfDevModeValid;
 							}
-							if(rpt.PrnDest == PrnDlgAns::aPrint) {
+							if(output_destination == PrnDlgAns::aPrint) {
 								req.Action = CrystalReportPrintParamBlock::actionPrint;
 								req.NumCopies = pans.NumCopies;
 							}
-							else if(rpt.PrnDest == PrnDlgAns::aPreview) {
+							else if(output_destination == PrnDlgAns::aPreview) {
 								req.Action = CrystalReportPrintParamBlock::actionPreview;
 							}
 						}
-						ok = CrystalReportPrint2(req, rep);
+						ok = CrystalReportPrint2_ClientExecution(req, rep);
 					}
 					break;
 				default:
@@ -3634,13 +3654,13 @@ public:
 	bool   SendQuitCommand(SIntHandle hPipe)
 	{
 		bool   ok = false;
-		SJson * p_js_reply = SendCommand(hPipe, "quit");
+		SJson * p_js_reply = SendCommand(hPipe, "quit", 0);
 		if(p_js_reply) {
 			ok = true;
 		}
 		return ok;
 	}
-	SJson * SendCommand(SIntHandle hPipe, const char * pCmdUtf8)
+	SJson * SendCommand(SIntHandle hPipe, const char * pCmdUtf8, const char * pParam)
 	{
 		SJson * p_js_reply = 0;
 		SString temp_buf;
@@ -3650,6 +3670,9 @@ public:
 		{
 			SJson js_query(SJson::tOBJECT);
 			js_query.InsertString("cmd", pCmdUtf8);
+			if(!isempty(pParam)) {
+				js_query.InsertString("param", pParam);
+			}
 			//
 			DWORD wr_size = 0;
 			js_query.ToStr(temp_buf);
@@ -3702,7 +3725,7 @@ int TestCrr32SupportServer()
 		else {
 			for(uint i = 0; i < 10; i++) {
 				//slfprintf_stderr("Call on named-pipe #%u\n", i+1);
-				p_js_reply = cli.SendCommand(h_pipe, "test");
+				p_js_reply = cli.SendCommand(h_pipe, "test", 0);
 				if(p_js_reply) {
 					ZDELETE(p_js_reply);
 				}
@@ -3712,4 +3735,76 @@ int TestCrr32SupportServer()
 	}
 	ZDELETE(p_js_reply);
 	return ok;
+}
+
+int CrystalReportPrint2_ClientExecution(CrystalReportPrintParamBlock & rBlk, CrystalReportPrintReply & rReply)
+{
+	int    result = 0;
+	const  char * p_ext_process_name = "crr32_support-construction.exe";
+	const  bool   use_ext_process = false; //SlDebugMode::CT();
+	bool   do_use_local_func = !use_ext_process;
+	SString temp_buf;
+	if(use_ext_process) {
+		const  SlProcess::ProcessPool::Entry * p_pe = SlProcess::SearchProcessByName(p_ext_process_name);
+		if(!p_pe) {
+			SString module_path;
+			PPGetFilePath(PPPATH_BIN, p_ext_process_name, module_path);
+			if(fileExists(module_path)) {
+				SlProcess::Result result;
+				SlProcess process;
+				process.SetPath(module_path);
+				SFsPath ps(module_path);
+				ps.Merge(SFsPath::fDrv|SFsPath::fDir, temp_buf);
+				process.SetWorkingDir(temp_buf);
+				if(process.Run(&result)) {
+					SDelay(10);
+					p_pe = SlProcess::SearchProcessByName(p_ext_process_name);
+				}				
+			}
+		}
+		if(p_pe) {
+			SString pipe_name;
+			GetCrr32ProxiPipeName(pipe_name);
+			Crr32SupportClient cli(pipe_name);
+			SIntHandle h_pipe = cli.Connect();
+			if(!h_pipe) {
+				// @todo @log
+				do_use_local_func = true;
+			}
+			else {
+				// @debug {
+				{
+					SJson * p_js_reply = cli.SendCommand(h_pipe, "ping", 0);
+					if(p_js_reply) {
+						// ...
+						//result = 1; // ???
+						p_js_reply->ToStr(temp_buf); // @debug
+						ZDELETE(p_js_reply);
+					}
+				}
+				// } @debug 
+				{
+					SSerializeContext sctx;
+					SBuffer sbuf;
+					//slfprintf_stderr("Call on named-pipe #%u\n", i+1);
+					rBlk.Serialize(+1, sbuf, &sctx);
+					temp_buf.EncodeMime64(sbuf.GetBufC(sbuf.GetRdOffs()), sbuf.GetAvailableSize());
+					SJson * p_js_reply = cli.SendCommand(h_pipe, "run", temp_buf);
+					if(p_js_reply) {
+						p_js_reply->ToStr(temp_buf); // @debug
+						result = 1; // ???
+						ZDELETE(p_js_reply);
+					}
+				}
+			}
+		}
+		else {
+			assert(!do_use_local_func);
+			do_use_local_func = true;
+		}
+	}
+	if(do_use_local_func) {
+		result = CrystalReportPrint2(rBlk, rReply);
+	}
+	return result;
 }

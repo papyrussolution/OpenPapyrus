@@ -1597,31 +1597,26 @@
 			 * @return true if set, otherwise false
 			 */
 			bool diagonalUp() const;
-
 			/**
 			 * @brief Get the diagonal down property
 			 * @return true if set, otherwise false
 			 */
 			bool diagonalDown() const;
-
 			/**
 			 * @brief Get the outline property
 			 * @return true if set, otherwise false
 			 */
 			bool outline() const;
-
 			/**
 			 * @brief Get the left line property
 			 * @return An XLLine object
 			 */
 			XLLine left() const;
-
 			/**
 			 * @brief Get the left line property
 			 * @return An XLLine object
 			 */
 			XLLine right() const;
-
 			/**
 			 * @brief Get the left line property
 			 * @return An XLLine object

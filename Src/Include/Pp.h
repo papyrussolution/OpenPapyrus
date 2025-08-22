@@ -7322,7 +7322,7 @@ public:
 	enum {
 		fInitPaths                 = 0x0001, // Инициализировать пути (извлекает из pp.ini)
 		fDenyLogQueue              = 0x0002, // Не инициализировать очередь журнальных сообщений (вывод прямо в файл)
-		fWsCtlApp                  = 0x0004, // @v11.7.1 Объект инициализирован для отдельного приложения WsCtl
+		//fWsCtlApp                  = 0x0004, // @v11.7.1 Объект инициализирован для отдельного приложения WsCtl
 		fNoInstalledInfrastructure = 0x0008, // @v11.9.4 Процесс запускается вне предустановленной инфраструктуры (ресурсы строк, конфигурационные файлы и т.д.)
 	};
 	enum {
@@ -7380,7 +7380,17 @@ public:
 
 	PPSession();
 	~PPSession();
-	int    Init(long flags /* PPSession::fInitXXX */, HINSTANCE hInst, const char * pUiDescriptionFileName);
+	enum {
+		internalappUndef = 0,
+		internalappPapyrusUi,
+		internalappPapyrusServer,
+		internalappPapyrusIfc,
+		internalappPapyrusTest,
+		internalappWsCtl,
+		internalappKabQ,
+		internalappCrr32Support,
+	};
+	int    Init(long internalAppId, long flags/*PPSession::fInitXXX*/, HINSTANCE hInst, const char * pUiDescriptionFileName);
 	int    InitThread(const PPThread * pThread);
 	void   ReleaseThread();
 	PPThreadLocalArea & GetTLA(); // { return *(PPThreadLocalArea *)TlsGetValue(TlsIdx); }
@@ -7695,6 +7705,7 @@ private:
 	long   Id;
 	ACount LastThread;
 	ACount DllRef;         // Счетчик активных клиентов для DLL-сервера
+	long   InternalAppId;  // @v12.3.11 Внутренний идентификатор приложения семейсва Papyrus.
 	long   MaxLogFileSize; // Максимальный размер файлов журналов в Kb. По умолчанию - 32768.
 	PPVersionInfo Ver;
 	SString BinPath;       // @*PPSession::Init()
@@ -52632,7 +52643,6 @@ private:
 	DBTable * CreateHeaderDBTable();
 	DBTable * CreateIterDBTable();
 	int	   FillHeader();
-	int    Print();
 	int    CreateFileSelCombo(TDialog *, uint ctlID, char * pPath, size_t pathBufLen);
 	int    CreateFormSelCombo(TDialog *, uint ctlID, const char * pFileName, char * pSingleFormName, size_t bufLen);
 

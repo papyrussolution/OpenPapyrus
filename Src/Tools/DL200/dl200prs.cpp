@@ -1434,32 +1434,6 @@ int PrcssrDL200::ProcessGroup(const DL2_Group * pGrp)
 	return ok;
 }
 
-int PrcssrDL200::Print()
-{
-	int    ok = -1;
-	SString report_name;
-	(report_name = "DL2_").Cat(D.Name).ToUpper();
-	PrnDlgAns pans(report_name);
-	if(EditPrintParam(&pans) > 0) {
-		const SString fn(pans.Entries.at(pans.Selection)->ReportPath_);
-		switch(pans.Dest) {
-			case PrnDlgAns::aPrint:
-				ok = CrystalReportPrint(fn, OutPath, pans.Printer, pans.NumCopies, SPRN_DONTRENAMEFILES, 0);
-				break;
-			case PrnDlgAns::aPreview:
-				ok = CrystalReportPrint(fn, OutPath, pans.Printer, 1, SPRN_PREVIEW|SPRN_DONTRENAMEFILES, 0);
-				break;
-			case PrnDlgAns::aExport:
-				ok = CrystalReportExport(fn, OutPath, pans.ReportName, 0, 0);
-				break;
-			case -1:
-				ok = -1;
-				break;
-		}
-	}
-	return ok;
-}
-
 int PrcssrDL200::Run()
 {
 	int    ok = 1;
@@ -1489,7 +1463,35 @@ int PrcssrDL200::Run()
 		THROW(tra.Commit());
 	}
 	PPWaitStop();
-	THROW(Print());
+	//THROW(Print__());
+	//int PrcssrDL200::Print__()
+	{
+		//int    ok = -1;
+		SString report_name;
+		(report_name = "DL2_").Cat(D.Name).ToUpper();
+		PrnDlgAns pans(report_name);
+		if(EditPrintParam(&pans) > 0) {
+			const SString fn(pans.Entries.at(pans.Selection)->ReportPath_);
+			switch(pans.Dest) {
+				case PrnDlgAns::aPrint:
+					if(!CrystalReportPrint(fn, OutPath, pans.Printer, pans.NumCopies, SPRN_DONTRENAMEFILES, 0))
+						ok = 0;
+					break;
+				case PrnDlgAns::aPreview:
+					if(!CrystalReportPrint(fn, OutPath, pans.Printer, 1, SPRN_PREVIEW|SPRN_DONTRENAMEFILES, 0))
+						ok = 0;
+					break;
+				case PrnDlgAns::aExport:
+					if(!CrystalReportExport(fn, OutPath, pans.ReportName, 0, 0))
+						ok = 0;
+					break;
+				case -1:
+					//ok = -1;
+					break;
+			}
+		}
+		//return ok;
+	}
 	CATCHZOK
 	FinishOutput();
 	return ok;

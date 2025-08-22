@@ -4240,8 +4240,8 @@ int main(int argc, char ** ppArgv)
 	//
 	SString temp_buf;
 	bool   development_mode = false;
-	const  long   ds_init_flags = PPSession::fWsCtlApp|PPSession::fInitPaths;
-	DS.Init(ds_init_flags, 0, /*pUiDescriptionFileName*/"uid-wsctl.json");
+	const  long   ds_init_flags = /*PPSession::fWsCtlApp|*/PPSession::fInitPaths;
+	DS.Init(PPSession::internalappWsCtl, ds_init_flags, 0, /*pUiDescriptionFileName*/"uid-wsctl.json");
 	{
 		if(PPSession::GetStartUpOption(PPSession::cmdlDevelop, temp_buf)) { 
 			development_mode = true;

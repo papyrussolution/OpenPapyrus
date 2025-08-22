@@ -708,7 +708,6 @@ bool PPMarketplaceInterface_Wildberries::PickUpPointPool::FromJson(const SJson *
 				uint64 ued_country = 0;
 				for(const SJson * p_cur = p_js_item->P_Child; p_cur; p_cur = p_cur->P_Next) {
 					if(p_cur->Text.IsEqiAscii("country")) {
-						// @todo init ued_country
 						SJson::GetChildTextUnescaped(p_cur, temp_buf);
 						if(p_uedc) {
 							ued_country = p_uedc->SearchSymb(temp_buf, UED_META_STATU);

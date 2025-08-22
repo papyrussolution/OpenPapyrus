@@ -9020,18 +9020,16 @@ std::string XLNumberFormat::formatCode() const { return m_numberFormatNode->attr
  * @details Setter functions
  */
 bool XLNumberFormat::setNumberFormatId(uint32 newNumberFormatId)
-{ return appendAndSetAttribute(*m_numberFormatNode, "numFmtId",   std::to_string(newNumberFormatId)).empty() == false; }
+	{ return appendAndSetAttribute(*m_numberFormatNode, "numFmtId",   std::to_string(newNumberFormatId)).empty() == false; }
 bool XLNumberFormat::setFormatCode(std::string newFormatCode)
-{ return appendAndSetAttribute(*m_numberFormatNode, "formatCode", newFormatCode.c_str()            ).empty() == false; }
-
+	{ return appendAndSetAttribute(*m_numberFormatNode, "formatCode", newFormatCode.c_str()).empty() == false; }
 /**
  * @details assemble a string summary about the number format
  */
 std::string XLNumberFormat::summary() const
 {
 	using namespace std::literals::string_literals;
-	return "numFmtId="s + std::to_string(numberFormatId())
-	       + ", formatCode="s + formatCode();
+	return "numFmtId="s + std::to_string(numberFormatId()) + ", formatCode="s + formatCode();
 }
 
 // ===== XLNumberFormats, parent of XLNumberFormat
@@ -10283,37 +10281,27 @@ bool XLAlignment::shrinkToFit() const { return m_alignmentNode->attribute("shrin
  * @details Returns the reading order setting
  */
 uint32 XLAlignment::readingOrder() const { return m_alignmentNode->attribute("readingOrder").as_uint(); }
-
 /**
  * @details Setter functions
  */
-bool XLAlignment::setHorizontal(XLAlignmentStyle newStyle) {
-	return appendAndSetAttribute(*m_alignmentNode, "horizontal",      XLAlignmentStyleToString(newStyle).c_str()).empty() == false;
-}
-bool XLAlignment::setVertical(XLAlignmentStyle newStyle) {
-	return appendAndSetAttribute(*m_alignmentNode, "vertical",        XLAlignmentStyleToString(newStyle).c_str()).empty() == false;
-}
-bool XLAlignment::setTextRotation(uint16 newRotation)      {
-	return appendAndSetAttribute(*m_alignmentNode, "textRotation",    std::to_string(newRotation)               ).empty() == false;
-}
-bool XLAlignment::setWrapText(bool set)                  {
-	return appendAndSetAttribute(*m_alignmentNode, "wrapText",        (set ? "true" : "false")                  ).empty() == false;
-}
-bool XLAlignment::setIndent(uint32 newIndent)        {
-	return appendAndSetAttribute(*m_alignmentNode, "indent",          std::to_string(newIndent)                 ).empty() == false;
-}
-bool XLAlignment::setRelativeIndent(int32_t newRelativeIndent) {
-	return appendAndSetAttribute(*m_alignmentNode, "relativeIndent",  std::to_string(newRelativeIndent)         ).empty() == false;
-}
-bool XLAlignment::setJustifyLastLine(bool set)                  {
-	return appendAndSetAttribute(*m_alignmentNode, "justifyLastLine", (set ? "true" : "false")                  ).empty() == false;
-}
-bool XLAlignment::setShrinkToFit(bool set)                  {
-	return appendAndSetAttribute(*m_alignmentNode, "shrinkToFit",     (set ? "true" : "false")                  ).empty() == false;
-}
-bool XLAlignment::setReadingOrder(uint32 newReadingOrder)  {
-	return appendAndSetAttribute(*m_alignmentNode, "readingOrder",    std::to_string(newReadingOrder)           ).empty() == false;
-}
+bool XLAlignment::setHorizontal(XLAlignmentStyle newStyle) 
+	{ return appendAndSetAttribute(*m_alignmentNode, "horizontal",      XLAlignmentStyleToString(newStyle).c_str()).empty() == false; }
+bool XLAlignment::setVertical(XLAlignmentStyle newStyle) 
+	{ return appendAndSetAttribute(*m_alignmentNode, "vertical",        XLAlignmentStyleToString(newStyle).c_str()).empty() == false; }
+bool XLAlignment::setTextRotation(uint16 newRotation) 
+	{ return appendAndSetAttribute(*m_alignmentNode, "textRotation",    std::to_string(newRotation)               ).empty() == false; }
+bool XLAlignment::setWrapText(bool set)	
+	{ return appendAndSetAttribute(*m_alignmentNode, "wrapText",        (set ? "true" : "false")                  ).empty() == false; }
+bool XLAlignment::setIndent(uint32 newIndent) 
+	{ return appendAndSetAttribute(*m_alignmentNode, "indent",          std::to_string(newIndent)                 ).empty() == false; }
+bool XLAlignment::setRelativeIndent(int32_t newRelativeIndent) 
+	{ return appendAndSetAttribute(*m_alignmentNode, "relativeIndent",  std::to_string(newRelativeIndent)         ).empty() == false; }
+bool XLAlignment::setJustifyLastLine(bool set) 
+	{ return appendAndSetAttribute(*m_alignmentNode, "justifyLastLine", (set ? "true" : "false")                  ).empty() == false; }
+bool XLAlignment::setShrinkToFit(bool set) 
+	{ return appendAndSetAttribute(*m_alignmentNode, "shrinkToFit",     (set ? "true" : "false")                  ).empty() == false; }
+bool XLAlignment::setReadingOrder(uint32 newReadingOrder)  
+	{ return appendAndSetAttribute(*m_alignmentNode, "readingOrder",    std::to_string(newReadingOrder)           ).empty() == false; }
 
 /**
  * @details assemble a string summary about the fill

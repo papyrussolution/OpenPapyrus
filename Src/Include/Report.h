@@ -374,6 +374,9 @@ typedef int (*ReportIterator)(int first);
 
 class SReport {
 public:
+	static bool GetReportAttributes(uint reportId, SString * pReportName, SString * pDataName);
+
+	/* @v12.3.11 @obsolete {
 	struct Field {
 		int16  id;
 		int    name; // @ Index in SReport::text buffer or -1
@@ -411,45 +414,44 @@ public:
 		int16   group;
 		uint16  options;
 		int16 * fields;
-	};
-
-	static int defaultIterator(int);
-	static SArray * FillRptArray();
-	explicit SReport(const char *);
-	SReport(uint rezID, long flags /* INIREPF_XXX */);
+	}; */
+	// @v12.3.11 @obsolete static int defaultIterator(int);
+	// @v12.3.11 @obsolete static SArray * FillRptArray();
+	// @v12.3.11 @obsolete explicit SReport(const char *);
+	SReport(uint rezID, long flags/*INIREPF_XXX*/);
 	~SReport();
 	bool   IsValid() const;
-	void   disableGrouping();
-	int    addField(int id, TYPEID typ, long fmt, uint rptfmt, char * nam);
-	int    setAggrToField(int fld, int aggr, int dpnd);
-	int    addText(char * txt);
-	int    addBand(SReport::Band * band, int * grp_fld, uint * pos);
-	int    calcAggr(int grp, int mode); // 0 - init, 1 - calc, 2 - summary
-	int    check();
-	int    setData(int id, void * data);
-	int    skipField(int id, int enable);
-	int    setIterator(ReportIterator);
-	int    setPrinter(SPrinter*);
-	int    setDefaultPrinter();
-	int    getNumCopies() const;
-	void   setNumCopies(int);
-	int    enumFields(SReport::Field **, SReport::Band *, int *);
-	int    getFieldName(SReport::Field *, char * buf, size_t buflen);
-	int    getFieldName(int id, char * buf, size_t buflen);
-	int    printDataField(SReport::Field * f);
-	int    printPageHead(int kind, int _newpage);
-	int    printGroupHead(int kind, int grp);
-	int    checkval(int16 * flds, char ** ptr);
-	int    printDetail();
-	int    printTitle(int kind);
-	int    writeResource(FILE *, uint);
-	int    readResource(TVRez *, uint resID);
-	SReport::Band * searchBand(int kind, int grp);
-	int    createDataFiles(const char * pDataName, const char * pRptPath);
+	// @v12.3.11 @obsolete void   disableGrouping();
+	// @v12.3.11 @obsolete int    addField(int id, TYPEID typ, long fmt, uint rptfmt, char * nam);
+	// @v12.3.11 @obsolete int    setAggrToField(int fld, int aggr, int dpnd);
+	// @v12.3.11 @obsolete int    addText(char * txt);
+	// @v12.3.11 @obsolete int    addBand(SReport::Band * band, int * grp_fld, uint * pos);
+	// @v12.3.11 @obsolete int    calcAggr(int grp, int mode); // 0 - init, 1 - calc, 2 - summary
+	// @v12.3.11 @obsolete int    check();
+	// @v12.3.11 @obsolete int    setData(int id, void * data);
+	// @v12.3.11 int    skipField(int id, int enable);
+	// @v12.3.11 int    setIterator(ReportIterator);
+	// @v12.3.11 @obsolete int    setPrinter(SPrinter*);
+	// @v12.3.11 @obsolete int    setDefaultPrinter();
+	// @v12.3.11 @obsolete int    getNumCopies() const;
+	// @v12.3.11 @obsolete void   setNumCopies(int);
+	// @v12.3.11 @obsolete int    enumFields(SReport::Field **, SReport::Band *, int *);
+	// @v12.3.11 @obsolete int    getFieldName(SReport::Field *, char * buf, size_t buflen);
+	// @v12.3.11 @obsolete int    getFieldName(int id, char * buf, size_t buflen);
+	// @v12.3.11 @obsolete int    printDataField(SReport::Field * f);
+	// @v12.3.11 @obsolete int    printPageHead(int kind, int _newpage);
+	// @v12.3.11 @obsolete int    printGroupHead(int kind, int grp);
+	// @v12.3.11 @obsolete int    checkval(int16 * flds, char ** ptr);
+	// @v12.3.11 @obsolete int    printDetail();
+	// @v12.3.11 @obsolete int    printTitle(int kind);
+	// @v12.3.11 @obsolete int    writeResource(FILE *, uint);
+	// @v12.3.11 @obsolete int    readResource(TVRez *, uint resID);
+	// @v12.3.11 @obsolete SReport::Band * searchBand(int kind, int grp);
+	// @v12.3.11 (inlined) int    createDataFiles(const char * pDataName, const char * pRptPath);
 	const  SString & getDataName() const { return DataName; }
-	int    PrnDest;
-	int    Export();
-	int    preview();
+	//int    PrnDest;
+	//int    Export();
+	//int    preview();
 private:
 	// @v12.3.9 @obsolete int    prepareData();
 	// @v12.3.9 @obsolete int    createBodyDataFile(SString & rFileName, SCollection * fldIDs);
@@ -458,14 +460,15 @@ public:
 	enum rptFlags {
 		DisableGrouping = 0x0001,
 		FooterOnBottom  = 0x0002,
-		Landscape       = 0x0004,
+		// @v12.3.11 (unused) Landscape__     = 0x0004,
 		PrintingNoAsk   = 0x0010,
 		NoRepError      = 0x0020, // Не выдавать сообщение об ошибке
 		XmlExport       = 0x0040, // Экспорт в XML
-		Preview = 0x0080  // Предварительный просмотр
+		Preview         = 0x0080  // Предварительный просмотр
 	};
 	SString Name;
 	SString DataName;
+	/* @v12.3.9 @obsolete 
 	long   main_id;
 	int    page;
 	int    line;
@@ -477,22 +480,25 @@ public:
 	Group * groups;
 	int    bandCount;
 	Band * bands;
+	*/
 	//
 	// Следующие три поля необходимы для записи в ресурс и передачи классу SPrinter
 	//
+	/*
 	int    PageLen;
 	int    LeftMarg;
-	int    PrnOptions;
 	int    PageHdHt; // Высота верхнего колонтитула
 	int    PageFtHt; // Высота нижнего колонтитула
 	int    Count;
-	SPrinter * P_Prn;
-	ReportIterator iterator;
+	*/
+	// @v12.3.11 @obsolete SPrinter * P_Prn;
+	// @v12.3.11 @obsolete ReportIterator iterator;
+	// @v12.3.11 @obsolete int    PrnOptions;
 private:
 	int    Error;
 	int    NumCopies;
-	size_t TextLen;
-	char * P_Text;
+	// @v12.3.11 @obsolete size_t TextLen;
+	// @v12.3.11 @obsolete char * P_Text;
 };
 //
 // Descr: Структура параметров печати для реализации межпроцессного интерфейса для вывода 32-битного CrystalReports в отдельный процесс
@@ -531,6 +537,10 @@ int EditPrintParam(PrnDlgAns * pData);
 int CrystalReportPrint(const char * pReportPath, const char * pDir, const char * pPrinter, int numCopies, int options, const DEVMODEA *pDevMode);  //erik{DEVMODEA *pDevMode} add param v10.4.10
 int CrystalReportPrint2(const CrystalReportPrintParamBlock & rBlk, CrystalReportPrintReply & rReply); // @v11.9.5
 int CrystalReportExport(const char * pReportPath, const char * pDir, const char * pReportName, const char * pEMailAddr, int options);
+//
+// Descr: Функция реализует инкапсулированное обращение к CrystalReports либо на-прямую, либо через 32-битный процесс-посредник (crr32_support).
+//
+int CrystalReportPrint2_ClientExecution(CrystalReportPrintParamBlock & rBlk, CrystalReportPrintReply & rReply);
 
 #endif /* __REPORT_H */
 

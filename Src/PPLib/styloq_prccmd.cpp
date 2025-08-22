@@ -2252,9 +2252,10 @@ int PPStyloQInterchange::ProcessCommand_Report(const StyloQCommandList::Item & r
 			THROW(p_view->Init_(p_filt));
 			if(!dl600_name.NotEmptyS()) {
 				if(p_view->GetDefReportId()) {
-					SReport rpt(p_view->GetDefReportId(), 0);
+					THROW(SReport::GetReportAttributes(p_view->GetDefReportId(), 0, &dl600_name)); // @v12.3.11
+					/*@v12.3.11 SReport rpt(p_view->GetDefReportId(), 0);
 					THROW(rpt.IsValid());
-					dl600_name = rpt.getDataName();
+					dl600_name = rpt.getDataName();*/
 				}
 			}
 			{

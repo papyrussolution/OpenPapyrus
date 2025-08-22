@@ -17630,14 +17630,28 @@ public:
 	static bool EnablePrivilege(HANDLE hToken, const wchar_t * pPrivSymb);
 	static bool CheckAndEnableAccesTokenPrivilege(SPtrHandle token, const wchar_t * pPrivilegeName);
 
-	struct EnumProcessEntry { // @flat
-		uint   ProcessId;
-		uint   ParentId;
-		uint   ThreadCount;
-		int    PriClassBase; // The base priority of any threads created by this process.
+	class ProcessPool : public SStrGroup {
+	public:
+		struct Entry {
+			Entry();
+			uint   ProcessId;
+			uint   ParentId;
+			uint   ThreadCount;
+			int    PriClassBase; // The base priority of any threads created by this process.
+			uint   ExeFileNameUtf8P; 
+		};
+
+		ProcessPool();
+		const Entry * SearchByExeFileName(const char * pPatternUtf8, uint * pIdx);
+
+		TSVector <Entry> L;
 	};
 
-	static uint GetProcessList(TSVector <EnumProcessEntry> & rList); // @v12.3.11 @construction
+	static uint GetProcessList(ProcessPool & rList); // @v12.3.11 @construction
+	//
+	// Descr: Пытается найти запущенный процесс с именем (без пути - только имя.расширение) исполняемого файла pPatternUtf8.
+	//
+	static const ProcessPool::Entry * SearchProcessByName(const char * pPatternUtf8);
 	
 	SlProcess();
 	~SlProcess();

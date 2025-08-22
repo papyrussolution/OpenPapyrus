@@ -914,7 +914,9 @@ int DlRtm::Export(ExportParam & rParam)
 		THROW_SL(SFile::CreateDir(rParam.DestPath));
 	}
 	{
-		SString suffix, fname, left;
+		SString suffix;
+		SString fname;
+		SString left;
 		DlScope * p_child = 0;
 		int    idn = 0;
 		int    idn_iter_inc = 0;

@@ -1,5 +1,5 @@
 // KABQ-MAIN.CPP
-// Copyright (c) A.Sobolev 2024
+// Copyright (c) A.Sobolev 2024, 2025
 //
 #include <pp.h>
 #pragma hdrstop
@@ -670,7 +670,7 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 int main(int, char **)
 {
 	int    result = 0;
-	DS.Init(PPSession::fWsCtlApp|PPSession::fInitPaths, 0, /*pUiDescriptionFileName*/"uid-kabq.json");
+	DS.Init(PPSession::internalappKabQ, /*PPSession::fWsCtlApp|*/PPSession::fInitPaths, 0, /*pUiDescriptionFileName*/"uid-kabq.json");
 	WNDCLASSEXW wc = { sizeof(wc), CS_CLASSDC, WndProc, 0L, 0L, GetModuleHandle(nullptr), nullptr, nullptr, nullptr, nullptr, L"WSCTL_WCLS", nullptr };
 	::RegisterClassExW(&wc);
 	HWND hwnd = ::CreateWindowW(wc.lpszClassName, L"KAB-Q", WS_OVERLAPPEDWINDOW, 100, 100, 1280, 800, nullptr, nullptr, wc.hInstance, nullptr);

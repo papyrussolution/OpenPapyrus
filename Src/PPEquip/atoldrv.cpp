@@ -45,7 +45,7 @@ static void WriteLogFile_PageWidthOver(const char * pFormatName)
 
 class SCS_ATOLDRV : public PPSyncCashSession {
 public:
-	SCS_ATOLDRV(PPID n, char * name, char * port);
+	SCS_ATOLDRV(PPID n, char * pName, char * pPort);
 	~SCS_ATOLDRV();
 	virtual int PrintCheck(CCheckPacket * pPack, uint flags);
 	virtual int PrintCheckCopy(const CCheckPacket * pPack, const char * pFormatName, uint flags);
@@ -1663,6 +1663,7 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 			SJson * p_js_cc = /*PPSyncCashSession::*/AtolDrv_MakeJson_CCheck(ofdf, pPack, P_SlipFmt, 0);
 			if(p_js_cc) {
 				jsproc_result = CallJsonProc(p_js_cc, temp_buf);
+				// @todo Обработка ошибок!
 			}
 		}
 		else {

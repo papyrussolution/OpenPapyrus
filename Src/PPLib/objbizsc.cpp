@@ -1305,9 +1305,10 @@ int GetBizScoresVals(const char * pUserName, const char * pPassword, TcpSocket *
 			SString rpt_name;
 			user_acc.LocalDbUuid.ToStr(S_GUID::fmtIDL, str_guid);
 			bizsc_path.Cat(str_guid).SetLastSlash();
-			SReport rpt(REPORT_BIZSCOREVALVIEW, INIREPF_NOSHOWDIALOG);
+			THROW(SReport::GetReportAttributes(REPORT_BIZSCOREVALVIEW, 0, &rpt_name)); // @v12.3.11
+			/* @v12.3.11 SReport rpt(REPORT_BIZSCOREVALVIEW, INIREPF_NOSHOWDIALOG);
 			THROW(rpt.IsValid());
-			rpt_name = rpt.getDataName();
+			rpt_name = rpt.getDataName();*/
 			bizsc_path.Cat(rpt_name).DotCat("xml");
 			if(fileExists(bizsc_path)) {
 				long   numrecs = 0;
@@ -2019,10 +2020,12 @@ int PrcssrBizScore::Run()
 			THROW(view.Init_(&filt));
 			THROW(view.ExportXml(REPORT_BIZSCOREVALVIEW, 0));
 			if((P.Flags & Param::fSendToFTP)) {
-				SString file_name, path;
-				SReport rpt(REPORT_BIZSCOREVALVIEW, INIREPF_NOSHOWDIALOG);
+				SString file_name;
+				SString path;
+				THROW(SReport::GetReportAttributes(REPORT_BIZSCOREVALVIEW, 0, &file_name)); // @v12.3.11
+				/*@v12.3.11 SReport rpt(REPORT_BIZSCOREVALVIEW, INIREPF_NOSHOWDIALOG);
 				THROW_SL(rpt.IsValid());
-				file_name = rpt.getDataName();
+				file_name = rpt.getDataName();*/
 				file_name.DotCat("xml");
 				PPGetFilePath(PPPATH_OUT, file_name, path);
 				THROW(view.SendXml(P.FtpAcctID, path));

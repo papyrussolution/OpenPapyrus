@@ -1,5 +1,5 @@
 // TEST-PROCESS.CPP
-// Copyright (c) A.Sobolev 2023
+// Copyright (c) A.Sobolev 2023, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -591,6 +591,25 @@ SLTEST_R(SlProcess)
 	if(use_appcontainer) {
 		SLCHECK_NZ(ac.Delete());
 	}
+	// @v12.3.11 {
+	{
+		wchar_t prc_name[512];
+		SlProcess::ProcessPool pp;
+		const uint ppc = SlProcess::GetProcessList(pp);
+		SLCHECK_NZ(ppc);
+		DWORD prc_name_buf_len = SIZEOFARRAY(prc_name);
+		if(::QueryFullProcessImageNameW(::GetCurrentProcess(), 0, prc_name, &prc_name_buf_len)) {
+			temp_buf.CopyUtf8FromUnicode(prc_name, sstrlen(prc_name), 1);
+			SFsPath ps(temp_buf);
+			ps.Merge(SFsPath::fNam|SFsPath::fExt, temp_buf);
+			const SlProcess::ProcessPool::Entry * p_pp_entry = pp.SearchByExeFileName(temp_buf, 0);
+			SLCHECK_NZ(p_pp_entry);
+			if(p_pp_entry) {
+				SLCHECK_EQ(p_pp_entry->ProcessId, static_cast<uint>(::GetCurrentProcessId()));
+			}
+		}
+	}
+	// } @v12.3.11 
 	//CATCH
 		//CurrentStatus = 0;
 	//ENDCATCH

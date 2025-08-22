@@ -1650,9 +1650,10 @@ static int PublishNfViewToMqb(const PPNamedFilt * pNf, const char * pFileName)
 		}
 		if(!dl600_name.NotEmptyS()) {
 			if(p_view->DefReportId) {
-				SReport rpt(p_view->DefReportId, 0);
+				THROW(SReport::GetReportAttributes(p_view->DefReportId, 0, &dl600_name)); // @v12.3.11
+				/* @v12.3.11 SReport rpt(p_view->DefReportId, 0);
 				THROW(rpt.IsValid());
-				dl600_name = rpt.getDataName();
+				dl600_name = rpt.getDataName();*/
 			}
 		}
 		{
@@ -1719,9 +1720,10 @@ static int PublishNfViewToMqb(const PPNamedFilt * pNf, const char * pFileName)
 		}
 		if(!dl600_name.NotEmptyS()) {
 			if(p_view->DefReportId) {
-				SReport rpt(p_view->DefReportId, 0);
+				THROW(SReport::GetReportAttributes(p_view->DefReportId, 0, &dl600_name)); // @v12.3.11
+				/* @v12.3.11 SReport rpt(p_view->DefReportId, 0);
 				THROW(rpt.IsValid());
-				dl600_name = rpt.getDataName();
+				dl600_name = rpt.getDataName();*/
 			}
 		}
 		{

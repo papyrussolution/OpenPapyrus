@@ -1647,7 +1647,7 @@ int PPSession::SetThreadSock(int32 uniqueSessID, TcpSocket & rSock, PPJobSrvRepl
 	return ok;
 }
 
-PPSession::PPSession() : Id(1), ExtFlags_(0), P_ObjIdentBlk(0), P_LogQueue(0), P_DbCtx(0), P_AlbatrosCfg(0), P_SrStxSet(0),
+PPSession::PPSession() : Id(1), InternalAppId(0), ExtFlags_(0), P_ObjIdentBlk(0), P_LogQueue(0), P_DbCtx(0), P_AlbatrosCfg(0), P_SrStxSet(0),
 	MaxLogFileSize(32768), State(0), TlsIdx(::TlsAlloc()), P_ExtCfgDb(0), P_UedC(0)
 {
 	InitThread(0);
@@ -2273,13 +2273,14 @@ static int PPGetDefaultEncrKey(SString & rBuf)
 	return ok;
 }
 
-int PPSession::Init(long flags, HINSTANCE hInst, const char * pUiDescriptionFileName)
+int PPSession::Init(long internalAppId, long flags, HINSTANCE hInst, const char * pUiDescriptionFileName)
 {
 	int    ok = 1;
 	SString temp_buf;
 	signal(SIGFPE, reinterpret_cast<void (*)(int)>(FpeCatcher));
 	SLS.Init(0, hInst);
-	if(flags & fWsCtlApp) {
+	InternalAppId = internalAppId;
+	if(/*flags & fWsCtlApp*/InternalAppId == internalappWsCtl) {
 		SLS.SetAppName("WSCTL");
 	}
 	else {
@@ -2312,7 +2313,7 @@ int PPSession::Init(long flags, HINSTANCE hInst, const char * pUiDescriptionFile
         epb.F_LoadString = PPLoadStringFunc;
         epb.F_ExpandString = PPExpandStringFunc;
         epb.F_GetGlobalSecureConfig = PPGetGlobalSecureConfig;
-		if(!(flags & fWsCtlApp)) {
+		if(/*!(flags & fWsCtlApp)*/InternalAppId != internalappWsCtl) {
 			epb.F_CallHelp = PPCallHelp;
 			epb.F_CallCalc = PPCalculator;
 			// @v12.3.7 epb.F_CallCalendar = ExecDateCalendar;
@@ -2322,10 +2323,6 @@ int PPSession::Init(long flags, HINSTANCE hInst, const char * pUiDescriptionFile
         epb.F_QueryPath = PPQueryPathFunc;
 		epb.F_InitDialog = PPInitializeDialogFunc; // @v12.3.6
         SLS.SetExtraProcBlock(&epb);
-		//SLS.SetLoadStringFunc(PPLoadStringFunc);
-		//SLS.SetExpandStringFunc(PPExpandStringFunc);
-		//SLS.SetCallHelpFunc(PPCallHelp);
-		//SLS.SetGlobalSecureConfigFunc(PPGetGlobalSecureConfig);
 	}
 	if(!(flags & fNoInstalledInfrastructure)) {
 		PPIniFile ini_file(0, 0, 0, /*useIniBuf*/1);
@@ -2526,7 +2523,7 @@ int PPSession::Init(long flags, HINSTANCE hInst, const char * pUiDescriptionFile
 #endif
 	// } @v11.4.1
 	// (Пока не будем этого делать из-за задержки исполнения) LoadUedContainer(); // @v12.3.9 Вызывает поток для загрузки UED-контейнера
-	if(!(flags & fWsCtlApp) && !(flags & fNoInstalledInfrastructure)) {
+	if(/*!(flags & fWsCtlApp)*/InternalAppId != internalappWsCtl && !(flags & fNoInstalledInfrastructure)) {
 		// @v11.4.4 {
 		// Регистрация специальных типов View. Я не уверен, что нашел удачную точку для такой регистрации, но надо по-быстрому :(
 		PPView::InitializeDescriptionList();

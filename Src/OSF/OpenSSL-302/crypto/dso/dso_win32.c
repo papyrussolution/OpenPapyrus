@@ -282,9 +282,7 @@ static struct file_st * win32_splitter(DSO * dso, const char * filename, int ass
 			    filename++;
 			    break;
 		}
-	}
-	while(last);
-
+	} while(last);
 	if(!result->nodelen)
 		result->node = NULL;
 	if(!result->devicelen)
@@ -293,7 +291,6 @@ static struct file_st * win32_splitter(DSO * dso, const char * filename, int ass
 		result->dir = NULL;
 	if(!result->filelen)
 		result->file = NULL;
-
 	return result;
 }
 
@@ -302,7 +299,6 @@ static char * win32_joiner(DSO * dso, const struct file_st * file_split)
 	int len = 0, offset = 0;
 	char * result = NULL;
 	const char * start;
-
 	if(!file_split) {
 		ERR_raise(ERR_LIB_DSO, ERR_R_PASSED_NULL_PARAMETER);
 		return NULL;
@@ -597,15 +593,12 @@ static void * win32_globallookup(const char * name)
 		void * p;
 		FARPROC f;
 	} ret = { NULL };
-
 	dll = LoadLibrary(TEXT(DLLNAME));
 	if(dll == NULL) {
 		ERR_raise(ERR_LIB_DSO, DSO_R_UNSUPPORTED);
 		return NULL;
 	}
-
-	create_snap = (CREATETOOLHELP32SNAPSHOT)
-	    GetProcAddress(dll, "CreateToolhelp32Snapshot");
+	create_snap = (CREATETOOLHELP32SNAPSHOT)GetProcAddress(dll, "CreateToolhelp32Snapshot");
 	if(create_snap == NULL) {
 		FreeLibrary(dll);
 		ERR_raise(ERR_LIB_DSO, DSO_R_UNSUPPORTED);
@@ -613,29 +606,24 @@ static void * win32_globallookup(const char * name)
 	}
 	/* We take the rest for granted... */
 #ifdef _WIN32_WCE
-	close_snap = (CLOSETOOLHELP32SNAPSHOT)
-	    GetProcAddress(dll, "CloseToolhelp32Snapshot");
+	close_snap = (CLOSETOOLHELP32SNAPSHOT)GetProcAddress(dll, "CloseToolhelp32Snapshot");
 #else
 	close_snap = (CLOSETOOLHELP32SNAPSHOT)CloseHandle;
 #endif
 	module_first = (MODULE32)GetProcAddress(dll, "Module32First");
 	module_next = (MODULE32)GetProcAddress(dll, "Module32Next");
-
 	hModuleSnap = (*create_snap)(TH32CS_SNAPMODULE, 0);
 	if(hModuleSnap == INVALID_HANDLE_VALUE) {
 		FreeLibrary(dll);
 		ERR_raise(ERR_LIB_DSO, DSO_R_UNSUPPORTED);
 		return NULL;
 	}
-
 	me32.dwSize = sizeof(me32);
-
 	if(!(*module_first)(hModuleSnap, &me32)) {
 		(*close_snap)(hModuleSnap);
 		FreeLibrary(dll);
 		return NULL;
 	}
-
 	do {
 		if((ret.f = GetProcAddress(me32.hModule, name))) {
 			(*close_snap)(hModuleSnap);
@@ -643,7 +631,6 @@ static void * win32_globallookup(const char * name)
 			return ret.p;
 		}
 	} while((*module_next)(hModuleSnap, &me32));
-
 	(*close_snap)(hModuleSnap);
 	FreeLibrary(dll);
 	return NULL;
