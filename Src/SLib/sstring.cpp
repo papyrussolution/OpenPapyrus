@@ -5276,7 +5276,7 @@ int SString::CopyToUnicode(SStringU & rBuf) const
 
 bool SString::CopyUtf8FromUnicode(const wchar_t * pSrc, const size_t len, int strictConversion)
 {
-	CopyFrom(0); // Обрезаем строку до пустой
+	Z();
 	bool   ok = true;
 	const  uint32 byteMask = 0xBF;
 	const  uint32 byteMark = 0x80;

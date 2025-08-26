@@ -3137,7 +3137,7 @@ int TestLargeVlrInputOutput()
 //
 //
 //
-#if SLTEST_RUNNING // {
+static constexpr uint32 Signature_PrcssrTestDb = 0x772C6459U;
 
 class PrcssrTestDb {
 public:
@@ -3157,14 +3157,15 @@ public:
 	int    EditParam(Param *);
 	int    Init(const Param *);
 	int    Run();
+
+	int    GenTa_Rec(TestTa01Tbl::Rec * pRec, bool standaloneRecord);
 private:
-	int    GenerateString(char * pBuf, size_t maxLen);
-	int    CreateTa(int use_ta);
-	int    GenTa_Rec(TestTa01Tbl::Rec * pRec);
-	int    CreateRef01(long * pID);
-	int    CreateRef02(long * pID);
 	int    GenRef01_Rec(TestRef01Tbl::Rec * pRec);
 	int    GenRef02_Rec(TestRef02Tbl::Rec * pRec);
+	int    GenerateString(char * pBuf, size_t maxLen);
+	int    CreateTa(int use_ta);
+	int    CreateRef01(long * pID);
+	int    CreateRef02(long * pID);
 	int    LogMessage(const char * pMsg);
 	int    LogGenRec(DBTable * pTbl);
 	int    OutputTa(const char * pFileName);
@@ -3185,6 +3186,7 @@ private:
 	};
 	static int TaRVal1_Update_Callback(DBTable * pTbl, const void * pBefore, const void * pAfter, void * extraPtr);
 
+	const  uint32 Signature; // @firstmember
 	Param  P;
 	StrAssocArray WordList;
 	PPIDArray Ref1List; // Список доступных идентификаторов справочника Ref1
@@ -3195,9 +3197,31 @@ private:
 	TestRef02Tbl * P_Ref2;
 	TestTa01Tbl * P_Ta;
 };
-
-PrcssrTestDb::PrcssrTestDb() : TaCount(0), P_Ref1(0), P_Ref2(0), P_Ta(0)
+//
+// Следующие 3 функции используются в модуле test-sqlite.cpp
+//
+void * __CreatePrcssrTestDbObject()
 {
+	return new PrcssrTestDb();
+}
+
+void __DestroyPrcssrTestDbObject(void * p)
+{
+	if(p && *static_cast<const uint32 *>(p) == Signature_PrcssrTestDb) {
+		delete static_cast<PrcssrTestDb *>(p);
+	}
+}
+
+int __PrcssrTestDb_Generate_TestTa01_Rec(void * p, TestTa01Tbl::Rec * pRec)
+{
+	return (p && *static_cast<const uint32 *>(p) == Signature_PrcssrTestDb) ? static_cast<PrcssrTestDb *>(p)->GenTa_Rec(pRec, true) : 0;
+}
+//
+//
+//
+PrcssrTestDb::PrcssrTestDb() : Signature(Signature_PrcssrTestDb), TaCount(0), P_Ref1(0), P_Ref2(0), P_Ta(0)
+{
+	assert(*reinterpret_cast<const uint32 *>(this) == Signature_PrcssrTestDb); // Гарантируем что сигнатура находится в самом начале структуры
 }
 
 PrcssrTestDb::~PrcssrTestDb()
@@ -3251,33 +3275,36 @@ int PrcssrTestDb::Init(const Param * pParam)
 int PrcssrTestDb::GenerateString(char * pBuf, size_t maxLen)
 {
 	int    ok = 1;
-	uint   i;
-	SString temp_buf, line_buf;
-	uint num_words = labs(G.GetUniformInt(maxLen / 6))+1;
+	SString temp_buf;
+	SString line_buf;
+	const uint num_words = labs(G.GetUniformInt(maxLen / 6))+1;
 	if(WordList.getCount() > 10) {
-		for(i = 0; i < num_words; i++) {
+		for(uint i = 0; i < num_words; i++) {
 			uint pos = labs(G.GetUniformInt(WordList.getCount()));
 			temp_buf = WordList.Get(pos).Txt;
 			if(i)
 				line_buf.Space();
 			line_buf.Cat(temp_buf);
 		}
+		line_buf.Transf(CTRANSF_OUTER_TO_INNER).CopyTo(pBuf, maxLen);
 	}
 	else {
-		const char * p_alphabet = "0123456789.-ABCDEFGHIJKLMNOPQRSTUVWXYZАБВГДЕЖЗИЙКЛМНОПРСТУФхЦЧШЩъЫЬЭЮЯ";
+		const wchar_t * p_alphabet = L"0123456789.-ABCDEFGHIJKLMNOPQRSTUVWXYZАБВГДЕЖЗИЙКЛМНОПРСТУФхЦЧШЩъЫЬЭЮЯ";
 		const size_t ab_len = sstrlen(p_alphabet);
-		for(i = 0; i < num_words; i++) {
-			temp_buf.Z();
-			size_t word_len = labs(G.GetUniformInt(10))+1;
+		SStringU temp_buf_u;
+		for(uint i = 0; i < num_words; i++) {
+			temp_buf_u.Z();
+			size_t word_len = G.GetUniformInt(10)+1;
 			for(uint j = 0; j < word_len; j++) {
-				temp_buf.CatChar(labs(G.GetUniformInt(ab_len)));
+				temp_buf_u.CatChar(p_alphabet[G.GetUniformInt(ab_len)]);
 			}
 			if(i)
 				line_buf.Space();
+			temp_buf_u.CopyToUtf8(temp_buf, 1);
 			line_buf.Cat(temp_buf);
 		}
+		line_buf.Transf(CTRANSF_UTF8_TO_INNER).CopyTo(pBuf, maxLen);
 	}
-	line_buf.ToOem().CopyTo(pBuf, maxLen);
 	return ok;
 }
 
@@ -3313,7 +3340,7 @@ int PrcssrTestDb::CreateTa(int use_ta)
 		for(uint i = 0; i < count; i++) {
 			TestTa01Tbl::Rec rec;
 			SDelay(20+labs(G.GetUniformInt(100)));
-			THROW(GenTa_Rec(&rec));
+			THROW(GenTa_Rec(&rec, false));
 			{
 				P_Ta->copyBufFrom(&rec);
 				LogGenRec(P_Ta);
@@ -3475,7 +3502,42 @@ int PrcssrTestDb::AnalyzeAndUpdateTa()
 	return ok;
 }
 
-int PrcssrTestDb::GenTa_Rec(TestTa01Tbl::Rec * pRec)
+int PrcssrTestDb::GenRef01_Rec(TestRef01Tbl::Rec * pRec)
+{
+	int    ok = 1;
+	TestRef01Tbl::Rec rec;
+	rec.L = G.GetUniformInt(100000);
+	rec.I16 = static_cast<int16>(G.GetUniformInt(32000));
+	rec.UI16 = static_cast<uint16>(labs(G.GetUniformInt(64000)));
+	rec.F64 = round(G.GetGaussian(1.0), 5);
+	rec.F32 = static_cast<float>(fabs(round(50.0+G.GetGaussian(2.0), 3)));
+	rec.D = plusdate(getcurdate_(), G.GetUniformInt(31));
+	rec.T.settotalsec(getcurtime_().totalsec() + G.GetUniformInt(600));
+	GenerateString(rec.S48, sizeof(rec.S48));
+	GenerateString(rec.S12, sizeof(rec.S12));
+	ASSIGN_PTR(pRec, rec);
+	return ok;
+}
+
+int PrcssrTestDb::GenRef02_Rec(TestRef02Tbl::Rec * pRec)
+{
+	int    ok = 1;
+	TestRef02Tbl::Rec rec;
+	rec.L = G.GetPoisson(100.0);
+	rec.I16 = static_cast<int16>(G.GetPoisson(10.0));
+	rec.UI16 = static_cast<uint16>(G.GetPoisson(10.0));
+	rec.F64 = round(1000.0 + G.GetGaussian(100.0), 2);
+	rec.F32 = static_cast<float>(fabs(round(50.0+G.GetGaussian(2.0), 3)));
+	rec.D = plusdate(getcurdate_(), G.GetUniformInt(60));
+	rec.T.settotalsec(getcurtime_().totalsec() + G.GetUniformInt(300));
+	GenerateString(rec.S48, sizeof(rec.S48));
+	GenerateString(rec.S12, sizeof(rec.S12));
+	GenerateString(rec.N, sizeof(rec.N));
+	ASSIGN_PTR(pRec, rec);
+	return ok;
+}
+
+int PrcssrTestDb::GenTa_Rec(TestTa01Tbl::Rec * pRec, bool standaloneRecord)
 {
 	int    ok = 1;
 	TestTa01Tbl::Rec rec;
@@ -3491,34 +3553,39 @@ int PrcssrTestDb::GenTa_Rec(TestTa01Tbl::Rec * pRec)
 		// Вероятность висячей ссылки Ref1ID =0.000001
 		//
 		if(G.GetUniformInt(1000000) == 0) {
-
+			;
 		}
 		else {
-			if(Ref1List.getCount() == 0) {
-				//
-				// Если в справочнике нет ни одной записи, то безусловно создаем новый элемент справочника
-				//
-				THROW(CreateRef01(&rec.Ref1ID));
+			if(standaloneRecord) {
+				rec.Ref1ID = G.GetUniformIntPos(100000);
 			}
 			else {
-				//
-				// Вероятность создания нового элемента справочника находится в логарифмической зависимости
-				// от накопленного количества транзакций.
-				//
-				double p = 1.0 / log((double)TaCount);
-				if(labs(G.GetUniformInt(1000000)) < p * 1000000.0) {
+				if(Ref1List.getCount() == 0) {
 					//
-					// Попали в вероятность создания нового элемента справочника
+					// Если в справочнике нет ни одной записи, то безусловно создаем новый элемент справочника
 					//
 					THROW(CreateRef01(&rec.Ref1ID));
 				}
 				else {
 					//
-					// Используем существующий элемент справочника
+					// Вероятность создания нового элемента справочника находится в логарифмической зависимости
+					// от накопленного количества транзакций.
 					//
-					uint pos = labs(G.GetUniformInt(Ref1List.getCount()));
-					assert(pos < Ref1List.getCount());
-					rec.Ref1ID = Ref1List.get(pos);
+					double p = 1.0 / log((double)TaCount);
+					if(labs(G.GetUniformInt(1000000)) < p * 1000000.0) {
+						//
+						// Попали в вероятность создания нового элемента справочника
+						//
+						THROW(CreateRef01(&rec.Ref1ID));
+					}
+					else {
+						//
+						// Используем существующий элемент справочника
+						//
+						uint pos = G.GetUniformInt(Ref1List.getCount());
+						assert(pos < Ref1List.getCount());
+						rec.Ref1ID = Ref1List.get(pos);
+					}
 				}
 			}
 		}
@@ -3526,7 +3593,7 @@ int PrcssrTestDb::GenTa_Rec(TestTa01Tbl::Rec * pRec)
 	//
 	// Вероятность нулевого значения Ref2ID =0.80
 	//
-	if(labs(G.GetUniformInt(100)) < 80) {
+	if(G.GetUniformInt(100) < 80) {
 		rec.Ref2ID = 0;
 	}
 	else {
@@ -3537,41 +3604,46 @@ int PrcssrTestDb::GenTa_Rec(TestTa01Tbl::Rec * pRec)
 
 		}
 		else {
-			if(Ref2List.getCount() == 0) {
-				//
-				// Если в справочнике нет ни одной записи, то безусловно создаем новый элемент справочника
-				//
-				THROW(CreateRef02(&rec.Ref2ID));
+			if(standaloneRecord) {
+				rec.Ref2ID = G.GetUniformIntPos(100000);
 			}
 			else {
-				//
-				// Вероятность создания нового элемента справочника находится в логарифмической зависимости
-				// от накопленного количества транзакций.
-				//
-				double p = 1.0 / log((double)TaCount);
-				if(labs(G.GetUniformInt(1000000)) < p * 1000000.0) {
+				if(Ref2List.getCount() == 0) {
 					//
-					// Попали в вероятность создания нового элемента справочника
+					// Если в справочнике нет ни одной записи, то безусловно создаем новый элемент справочника
 					//
 					THROW(CreateRef02(&rec.Ref2ID));
 				}
 				else {
 					//
-					// Используем существующий элемент справочника
+					// Вероятность создания нового элемента справочника находится в логарифмической зависимости
+					// от накопленного количества транзакций.
 					//
-					uint pos = labs(G.GetUniformInt(Ref2List.getCount()));
-					assert(pos < Ref2List.getCount());
-					rec.Ref2ID = Ref2List.get(pos);
+					double p = 1.0 / log((double)TaCount);
+					if(G.GetUniformInt(1000000) < (p * 1000000.0)) {
+						//
+						// Попали в вероятность создания нового элемента справочника
+						//
+						THROW(CreateRef02(&rec.Ref2ID));
+					}
+					else {
+						//
+						// Используем существующий элемент справочника
+						//
+						uint pos = G.GetUniformInt(Ref2List.getCount());
+						assert(pos < Ref2List.getCount());
+						rec.Ref2ID = Ref2List.get(pos);
+					}
 				}
 			}
 		}
 	}
 	rec.LVal = G.GetPoisson(10.0);
-	rec.IVal = (int16)G.GetUniformInt(1000);
-	rec.UIVal = (uint16)labs(G.GetUniformInt(1000));
+	rec.IVal = static_cast<int16>(G.GetUniformInt(1000));
+	rec.UIVal = static_cast<uint16>(labs(G.GetUniformInt(1000)));
 	rec.RVal1 = round(5.0+G.GetGaussian(5.0/3.0), 5);
 	rec.RVal2 = round(70.0 + G.GetGamma(10.0, 3.0), 5);
-	GenerateString((char *)rec.S, sizeof(rec.S));
+	GenerateString(rec.S, sizeof(rec.S));
 	ASSIGN_PTR(pRec, rec);
 	CATCHZOK
 	return ok;
@@ -3647,23 +3719,6 @@ int PrcssrTestDb::CreateRef01(long * pID)
 	return ok;
 }
 
-int PrcssrTestDb::GenRef01_Rec(TestRef01Tbl::Rec * pRec)
-{
-	int    ok = 1;
-	TestRef01Tbl::Rec rec;
-	rec.L = G.GetUniformInt(100000);
-	rec.I16 = (int16)G.GetUniformInt(32000);
-	rec.UI16 = (uint16)labs(G.GetUniformInt(64000));
-	rec.F64 = round(G.GetGaussian(1.0), 5);
-	rec.F32 = (float)fabs(round(50.0+G.GetGaussian(2.0), 3));
-	rec.D = plusdate(getcurdate_(), G.GetUniformInt(31));
-	rec.T.settotalsec(getcurtime_().totalsec() + G.GetUniformInt(600));
-	GenerateString(rec.S48, sizeof(rec.S48));
-	GenerateString(rec.S12, sizeof(rec.S12));
-	ASSIGN_PTR(pRec, rec);
-	return ok;
-}
-
 int PrcssrTestDb::CreateRef02(long * pID)
 {
 	int    ok = 1;
@@ -3736,28 +3791,11 @@ int PrcssrTestDb::CreateRef02(long * pID)
 	return ok;
 }
 
-int PrcssrTestDb::GenRef02_Rec(TestRef02Tbl::Rec * pRec)
-{
-	int    ok = 1;
-	TestRef02Tbl::Rec rec;
-	rec.L = G.GetPoisson(100.0);
-	rec.I16 = (int16)G.GetPoisson(10.0);
-	rec.UI16 = (uint16)G.GetPoisson(10.0);
-	rec.F64 = round(1000.0 + G.GetGaussian(100.0), 2);
-	rec.F32 = (float)fabs(round(50.0+G.GetGaussian(2.0), 3));
-	rec.D = plusdate(getcurdate_(), G.GetUniformInt(60));
-	rec.T.settotalsec(getcurtime_().totalsec() + G.GetUniformInt(300));
-	GenerateString(rec.S48, sizeof(rec.S48));
-	GenerateString(rec.S12, sizeof(rec.S12));
-	GenerateString(rec.N, sizeof(rec.N));
-	ASSIGN_PTR(pRec, rec);
-	return ok;
-}
-
 int PrcssrTestDb::Run()
 {
 	int    ok = 1;
-	SString msg_buf, err_msg_buf;
+	SString msg_buf;
+	SString err_msg_buf;
 	for(long i = 0; i < P.NumTaSeries; i++) {
 		if(!CreateTa(1)) {
 			PPGetLastErrorMessage(1, err_msg_buf);
@@ -3774,6 +3812,8 @@ int PrcssrTestDb::Run()
 	}
 	return ok;
 }
+
+#if SLTEST_RUNNING // {
 
 SLTEST_R(PrcssrTestDb)
 {

@@ -2283,6 +2283,9 @@ int PPSession::Init(long internalAppId, long flags, HINSTANCE hInst, const char 
 	if(/*flags & fWsCtlApp*/InternalAppId == internalappWsCtl) {
 		SLS.SetAppName("WSCTL");
 	}
+	else if(InternalAppId == internalappCrr32Support) {
+		SLS.SetAppName("Crr32Support");
+	}
 	else {
 		PPVersionInfo vi = GetVersionInfo();
 		//vi.GetProductName(temp_buf);

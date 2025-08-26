@@ -38,7 +38,7 @@ int TSessionMaintenance(); // @v11.0.4
 // } @prototype
 //
 //
-int PPHandlePrintError(int)
+/*@v12.3.11 int PPHandlePrintError(int)
 {
 	int    reply = 0;
 	TDialog * dlg = new TDialog(DLG_PRNERR);
@@ -52,13 +52,13 @@ int PPHandlePrintError(int)
 	}
 	delete dlg;
 	return reply;
-}
+}*/
 //
 // PPApp
 //
 PPApp::PPApp(HINSTANCE hInst, const char * pAppSymb, const char * pAppTitle, uint ctrflags) : TProgram(hInst, pAppSymb, pAppTitle, ctrflags), LocalState(0)
 {
-	SPrinter::HandlePrintError = PPHandlePrintError;
+	// @v12.3.11 SPrinter::HandlePrintError = PPHandlePrintError;
 	STextBrowser::RegWindowClass(hInst);
 	TWhatmanBrowser::RegWindowClass(hInst); // @v11.0.0
 	InitUiToolBox();

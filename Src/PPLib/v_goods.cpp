@@ -3516,9 +3516,7 @@ int PPViewGoods::Print(const void *)
 		rpt_id = REPORT_GOODSWITHSTRUC;
 	else
 		rpt_id = REPORT_GOODSVIEW;
-	PPReportEnv env;
-	env.Sort = Filt.InitOrder;
-	// env.PrnFlags = SReport::DisableGrouping;
+	PPReportEnv env(/*SReport::DisableGrouping*/0, Filt.InitOrder);
 	PPAlddPrint(rpt_id, PView(this), &env);
 	return 1;
 }
@@ -3531,9 +3529,7 @@ int PPViewGoods::PrintPLabel(PPID goodsID)
 	TDialog * p_dlg = 0;
 	PriceListFilt flt;
 	PPViewPriceList v_price;
-	PPReportEnv env;
-	env.Sort = OrdByName;
-	env.PrnFlags = SReport::DisableGrouping;
+	PPReportEnv env(SReport::DisableGrouping, OrdByName);
 	if(goodsID) {
 		if(CheckDialogPtrErr(&(p_dlg = new TDialog(DLG_GPLABEL))) > 0) {
 			p_dlg->setCtrlUInt16(CTL_GPLABEL_WHAT, 0);

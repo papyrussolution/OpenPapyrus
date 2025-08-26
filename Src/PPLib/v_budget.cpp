@@ -1565,8 +1565,7 @@ void PPViewBudget::ViewTotal()
 	PPID budg_id = (Filt.Kind == BudgetFilt::kBudget) ? (pHdr ? *static_cast<const long *>(pHdr) : 0) : Filt.BudgetID;
 	PPBudgetPacket pack;
 	if(budg_id && ObjBudg.GetPacket(budg_id, &pack) > 0) {
-		PPReportEnv env;
-		env.Sort = 0;
+		PPReportEnv env(0, 0);
 		ok = PPAlddPrint(rpt_id, PView(&pack), &env);
 	}
 	else

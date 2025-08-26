@@ -185,7 +185,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ppifc-construction", "ppifc
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ppjobserver-construction", "ppjobserver-construction.vcxproj", "{85883ABE-090E-419E-83DD-443086997A78}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "crr32_support-construction", "crr32_support-construction.vcxproj", "{57575CFA-6A55-411C-993B-618CCD42E48A}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "crr32_support", "crr32_support.vcxproj", "{57575CFA-6A55-411C-993B-618CCD42E48A}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pptest-construction", "pptest-construction.vcxproj", "{44A4B391-4753-4CD0-AF9E-A071966EDA50}"
 EndProject

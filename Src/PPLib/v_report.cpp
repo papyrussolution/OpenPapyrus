@@ -362,7 +362,7 @@ int PPViewReport::SendMail(PPID id)
 					PPLoadText(PPTXT_RPTSUPPMAIL_TIMESTAMP, fmt);
 					msg.Cat(fmt).Space().Cat(data.Dtm);
 					PPWaitStart();
-					THROW(SendMailWithAttach("Report info", data.RptPath, msg, data.SupportMail, data.AccountID));
+					THROW(SendMailWithAttachment("Report info", data.RptPath, msg, data.SupportMail, data.AccountID));
 					PPWaitStop();
 					valid_data = ok = 1;
 				}

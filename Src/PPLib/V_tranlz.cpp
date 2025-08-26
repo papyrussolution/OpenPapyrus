@@ -2865,9 +2865,7 @@ int PPViewTrfrAnlz::Print(const void *)
 			default: rpt_id = REPORT_TRFRANLZ; break;
 		}
 	}
-	PPReportEnv env;
-	env.Sort = CurViewOrd;
-	env.PrnFlags = disable_grpng ? SReport::DisableGrouping : 0;
+	PPReportEnv env(disable_grpng ? SReport::DisableGrouping : 0, CurViewOrd);
 	return PPAlddPrint(rpt_id, PView(this), &env);
 }
 

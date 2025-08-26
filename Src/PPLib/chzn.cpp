@@ -4132,7 +4132,6 @@ int PPChZnPrcssr::PermissiveModeInterface::CheckCodeList(const char * pHost, con
 
 int PPChZnPrcssr::PermissiveModeInterface::InitLocalSvr(const char * pFiscalDriveNumber, SCompoundError * pErr)
 {
-	// @construction
 	int    ok = 0;
 	SJson * p_js_reply = 0;
 	SString temp_buf;
@@ -4373,6 +4372,95 @@ int PPChZnPrcssr::PermissiveModeInterface::LocalCheckCodeList(const char * pFisc
 {
 	// @construction
 	int    ok = 0;
+	SJson * p_js_reply = 0;
+	SString temp_buf;
+	SString host;
+	SString user;
+	SString pw;
+	SString url_buf;
+	SString req_buf;
+	SString reply_buf;
+	SBuffer ack_buf;
+	int    port = 0;
+	if(!rList.getCount())
+		ok = -1;
+	else if(Token.NotEmpty()) {
+		LocalSvrUrl.GetComponent(InetUrl::cHost, 0, host);
+		if(host.NotEmpty()) {
+			LocalSvrUrl.GetComponent(InetUrl::cPort, 0, temp_buf);
+			port = temp_buf.ToLong();
+			if(port <= 0) {
+				port = PPChZnPrcssr::LocalSvrDefaultPort;
+				LocalSvrUrl.GetComponent(InetUrl::cPort, 0, temp_buf.Z().Cat(port));
+			}
+			LocalSvrUrl.GetComponent(InetUrl::cUserName, 0, user);
+			LocalSvrUrl.GetComponent(InetUrl::cPassword, 0, pw);
+			LocalSvrUrl.Compose(InetUrl::stScheme|InetUrl::stHost|InetUrl::stPort, url_buf);
+			{
+				/*
+					curl -X POST "<url хоста>/api/v1/cis/outCheck 
+					-H "Content-Type: application/json" 
+					-H "Authorization: Basic YWRtaW46YWRtaW4=" 
+					-H "X-ClientId: номер фискального накопителя" 
+					-d "{"cis_list":["string"]}"
+				*/
+				InetUrl url(url_buf);
+				url.SetComponent(InetUrl::cPath, "api/v1/cis/outCheck");
+				ScURL c; //...GET
+				StrStrAssocArray hdr_flds;
+				SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrContentType, "application/json");
+				{
+					temp_buf.Z().Cat(user).Colon().Cat(pw).Transf(CTRANSF_INNER_TO_UTF8);
+					SString & r_u_p_buf = SLS.AcquireRvlStr();
+					r_u_p_buf.EncodeMime64(temp_buf.cptr(), temp_buf.Len());
+					temp_buf.Z().Cat("Basic").Space().Cat(r_u_p_buf);
+					SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrAuthorization, temp_buf);
+				}
+				{
+					SJson js_req(SJson::tOBJECT);
+					SJson * p_js_code_list = new SJson(SJson::tARRAY);
+					for(uint mi = 0; mi < rList.getCount(); mi++) {
+						const CodeStatus * p_mi = rList.at(mi);
+						if(p_mi->Cis.NotEmpty()) {
+							// @todo здесь марки подаются без крипто-хвоста (вероятно, только gtin+serial)
+							p_js_code_list->InsertChild(SJson::CreateString((temp_buf = p_mi->OrgMark).Escape()));
+						}
+					}
+					js_req.Insert("cis_list", p_js_code_list);
+					js_req.ToStr(req_buf);
+				}
+				SFile wr_stream(ack_buf.Z(), SFile::mWrite);
+				Lth.Log("req", 0, req_buf);
+				if(c.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, req_buf, &wr_stream)) {
+					SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
+					if(p_ack_buf) {
+						reply_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
+						Lth.Log("rep", 0, reply_buf);
+						{
+							p_js_reply = SJson::Parse(reply_buf);
+							SCompoundError cerr;
+							if(SJson::IsObject(p_js_reply)) {
+								//{"reason":"not authorized","errorCode":4010}
+								for(const SJson * p_cur = p_js_reply->P_Child; p_cur; p_cur = p_cur->P_Next) {
+									if(p_cur->Text.IsEqiAscii("reason")) {
+										SJson::GetChildTextUnescaped(p_cur, cerr.Descr);
+									}
+									else if(p_cur->Text.IsEqiAscii("errorCode")) {
+										cerr.Code = p_cur->P_Child->Text.ToLong();
+									}
+								}
+							}
+						}
+						ok = 1;
+					}
+				}
+				else {
+					; // @todo @err
+				}
+			}
+		}
+	}
+	delete p_js_reply;
 	return ok;
 }
 

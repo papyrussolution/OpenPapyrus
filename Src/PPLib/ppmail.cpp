@@ -160,17 +160,47 @@ PPInternetAccount2::PPInternetAccount2()
 	memzero(this, offsetof(PPInternetAccount, ExtStr)-0);
 }
 
-void PPInternetAccount::Init()
+int PPInternetAccount2::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx) // @v12.3.11
 {
-	ExtStr.Z();
-	memzero(this, offsetof(PPInternetAccount, ExtStr)-0);
+	int    ok = 1;
+	SVerT ver;
+	if(dir > 0) {
+		ver = DS.GetVersion();
+		THROW(ver.Serialize(dir, rBuf, pSCtx));
+	}
+	else {
+		Tag = PPOBJ_INTERNETACCOUNT;
+		THROW(ver.Serialize(dir, rBuf, pSCtx));
+	}
+	THROW(pSCtx->Serialize(dir, ID, rBuf));
+	THROW(pSCtx->Serialize(dir, SmtpAuthType, rBuf));
+	THROW(pSCtx->Serialize(dir, Timeout, rBuf));
+	THROW(pSCtx->Serialize(dir, Flags, rBuf));
+	THROW(pSCtx->Serialize(dir, PersonID, rBuf));
+	THROW(pSCtx->Serialize(dir, ExtStr, rBuf));
+	CATCHZOK
+	return ok;
 }
 
-int PPInternetAccount::Cmp(const PPInternetAccount * pAccount) const
+PPInternetAccount2 & PPInternetAccount2::Z()
+{
+	ExtStr.Z();
+	memzero(this, offsetof(PPInternetAccount2, ExtStr)-0);
+	return *this;
+}
+
+int PPInternetAccount2::Cmp(const PPInternetAccount * pAccount) const
 {
 	int    ok = 1;
 	if(!(Flags & fFtpAccount) && pAccount) {
-		SString smtp1, smtp2, pop31, pop32, rcv_name1, rcv_name2, from1, from2;
+		SString smtp1;
+		SString smtp2;
+		SString pop31;
+		SString pop32;
+		SString rcv_name1;
+		SString rcv_name2;
+		SString from1;
+		SString from2;
 		GetExtField(MAEXSTR_SENDSERVER,  smtp1);
 		GetExtField(MAEXSTR_RCVSERVER,   pop31);
 		GetExtField(MAEXSTR_RCVNAME,     rcv_name1);
@@ -185,26 +215,31 @@ int PPInternetAccount::Cmp(const PPInternetAccount * pAccount) const
 	return ok;
 }
 
-int PPInternetAccount::NotEmpty()
+int PPInternetAccount2::NotEmpty() const
 {
 	int    ok = 1;
 	if(!(Flags & fFtpAccount)) {
-		SString msg;
-		SString smtp, smtp_port, pop3, pop3_port, user, from;
+		SString temp_buf;
+		SString smtp;
+		SString smtp_port;
+		SString pop3;
+		SString pop3_port;
+		SString user;
+		SString from;
 		GetExtField(MAEXSTR_SENDSERVER,  smtp);
 		GetExtField(MAEXSTR_SENDPORT,    smtp_port);
 		GetExtField(MAEXSTR_RCVSERVER,   pop3);
 		GetExtField(MAEXSTR_RCVPORT,     pop3_port);
 		GetExtField(MAEXSTR_RCVNAME,     user);
 		GetExtField(MAEXSTR_FROMADDRESS, from);
-		msg.CatEq("Name", Name).CatDiv(',', 2).CatEq("SMTP", smtp).CatDiv(',', 2).
+		temp_buf.Z().CatEq("Name", Name).CatDiv(',', 2).CatEq("SMTP", smtp).CatDiv(',', 2).
 			CatEq("POP3", pop3).CatDiv(',', 2).CatEq("From", from).CatDiv(',', 2).CatEq("User", user);
-		PPSetAddedMsgString(msg);
-		THROW_PP(strip(Name)[0] != 0, PPERR_NAMENEEDED);
+		PPSetAddedMsgString(temp_buf);
+		THROW_PP((temp_buf = Name).NotEmptyS(), PPERR_NAMENEEDED);
 		THROW_PP(smtp.NotEmpty(),     PPERR_MAIL_INVSMTPSERVER);
-		THROW_PP(smtp_port.ToLong(),  PPERR_MAIL_INVSMTPSERVERPORT);
+		// @v12.3.11 THROW_PP(smtp_port.ToLong(),  PPERR_MAIL_INVSMTPSERVERPORT);
 		THROW_PP(pop3.NotEmpty(),     PPERR_MAIL_INVPOP3SERVER);
-		THROW_PP(pop3_port.ToLong(),  PPERR_MAIL_INVPOP3SERVERPORT);
+		// @v12.3.11 THROW_PP(pop3_port.ToLong(),  PPERR_MAIL_INVPOP3SERVERPORT);
 		THROW_PP(user.NotEmpty(),     PPERR_MAIL_RCVNAME);
 		THROW_PP(from.NotEmpty(),     PPERR_MAIL_INVFROMADDRESS);
 	}
@@ -212,13 +247,13 @@ int PPInternetAccount::NotEmpty()
 	return ok;
 }
 
-int PPInternetAccount::GetExtField(int fldID, SString & rBuf) const { return PPGetExtStrData(fldID, ExtStr, rBuf); }
-int PPInternetAccount::SetExtField(int fldID, const char * pBuf) { return PPPutExtStrData(fldID, ExtStr, pBuf); }
+int PPInternetAccount2::GetExtField(int fldID, SString & rBuf) const { return PPGetExtStrData(fldID, ExtStr, rBuf); }
+int PPInternetAccount2::SetExtField(int fldID, const char * pBuf) { return PPPutExtStrData(fldID, ExtStr, pBuf); }
 
 // @v11.8.11 (moved to PPConst) #define POP3_PW_SIZE_BEFORE11509 20 // @attention изменение значения требует конвертации хранимого пароля
 // @v11.8.11 (moved to PPConst) #define POP3_PW_SIZE_2           32 // @attention изменение значения требует конвертации хранимого пароля
 
-int PPInternetAccount::SetPassword_(const char * pPassword, int fldID /* = MAEXSTR_RCVPASSWORD */)
+int PPInternetAccount2::SetPassword_(const char * pPassword, int fldID /* = MAEXSTR_RCVPASSWORD */)
 {
 	SString temp_buf;
 	// @v11.5.9 {
@@ -229,7 +264,7 @@ int PPInternetAccount::SetPassword_(const char * pPassword, int fldID /* = MAEXS
 	return SetExtField(fldID, temp_buf);
 }
 
-int PPInternetAccount::GetPassword_(char * pBuf, size_t bufLen, int fldID /* = MAEXSTR_RCVPASSWORD */) const
+int PPInternetAccount2::GetPassword_(char * pBuf, size_t bufLen, int fldID /* = MAEXSTR_RCVPASSWORD */) const
 {
 	SString temp_buf, pw_buf;
 	// @v11.5.9 {
@@ -255,7 +290,7 @@ int PPInternetAccount::GetPassword_(char * pBuf, size_t bufLen, int fldID /* = M
 	return 1;
 }
 
-int PPInternetAccount::SetMimedPassword_(const char * pPassword, int fldID /* = MAEXSTR_RCVPASSWORD */)
+int PPInternetAccount2::SetMimedPassword_(const char * pPassword, int fldID /* = MAEXSTR_RCVPASSWORD */)
 {
 	int    ok = -1;
 	// @v11.5.9 {
@@ -275,7 +310,7 @@ int PPInternetAccount::SetMimedPassword_(const char * pPassword, int fldID /* = 
 	return ok;
 }
 
-int PPInternetAccount::GetMimedPassword_(char * pBuf, size_t bufLen, int fldID /* = MAEXSTR_RCVPASSWORD */)
+int PPInternetAccount2::GetMimedPassword_(char * pBuf, size_t bufLen, int fldID /* = MAEXSTR_RCVPASSWORD */)
 {
 	if(pBuf && bufLen) {
 		char   out_buf[512];
@@ -311,14 +346,14 @@ int PPInternetAccount::GetMimedPassword_(char * pBuf, size_t bufLen, int fldID /
 	return 1;
 }
 
-int PPInternetAccount::GetSendPort() const
+int PPInternetAccount2::GetSendPort() const
 {
 	SString temp_buf;
 	GetExtField(MAEXSTR_SENDPORT, temp_buf);
 	return temp_buf.ToLong();
 }
 
-int PPInternetAccount::GetRcvPort()
+int PPInternetAccount2::GetRcvPort()
 {
 	SString temp_buf;
 	GetExtField(MAEXSTR_RCVPORT, temp_buf);
@@ -1360,7 +1395,7 @@ static void SendMailCallback(const IterCounter & bytesCounter, const IterCounter
 	PPWaitPercent(bytesCounter, msg);
 }
 
-int SendMailWithAttach(const char * pSubj, const char * pPath, const char * pLetter, const char * pMail, PPID accountID)
+int SendMailWithAttachment(const char * pSubj, const char * pPath, const char * pLetter, const char * pMail, PPID accountID)
 {
 	int    ok = -1;
 	THROW_INVARG(pPath);
@@ -1388,10 +1423,14 @@ int SendMail(const char * pSubj, const char * pLetter, const char * pMail, PPID 
 	return ok;
 }
 
-int SendMail(const char * pSubj, const char * pLetter, StrAssocArray * pMailList, PPInternetAccount * pAccount, SStrCollection * pFilesList, PPLogger * pLogger)
+int SendMail(const char * pSubj, const char * pLetter, StrAssocArray * pMailList, const PPInternetAccount * pAccount, SStrCollection * pFilesList, PPLogger * pLogger)
 {
-	int    ok = 1, conn = 0;
-	SString ok_msg, buf, from_addr, mail_addr;
+	int    ok = 1;
+	int    conn = 0;
+	SString ok_msg;
+	SString buf;
+	SString from_addr;
+	SString mail_addr;
 	IterCounter msg_counter;
 	THROW_INVARG(pSubj && pMailList && pMailList->getCount());
 	PPLoadText(PPTXT_MAIL_SENDOK, ok_msg);
@@ -1400,9 +1439,9 @@ int SendMail(const char * pSubj, const char * pLetter, StrAssocArray * pMailList
 		SMailMessage mail_msg;
 		mail_addr = pMailList->Get(i).Txt;
 		pAccount->GetExtField(MAEXSTR_FROMADDRESS, from_addr);
-		mail_msg.SetField(SMailMessage::fldSubj,     pSubj);
-		mail_msg.SetField(SMailMessage::fldFrom,     from_addr.cptr());
-		mail_msg.SetField(SMailMessage::fldTo,       mail_addr.cptr());
+		mail_msg.SetField(SMailMessage::fldSubj, pSubj);
+		mail_msg.SetField(SMailMessage::fldFrom, from_addr.cptr());
+		mail_msg.SetField(SMailMessage::fldTo,   mail_addr.cptr());
 		THROW_SL(mail_msg.AttachContent(0, SFileFormat::Txt, cpUTF8, pLetter, sstrlen(pLetter)));
 		if(pFilesList) {
 			char * p_path = 0;

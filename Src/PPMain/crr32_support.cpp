@@ -27,10 +27,11 @@ public:
 	}
 	virtual void Run()
 	{
-		class PipeSession : public SlThread_WithStartupSignal {
+		class PipeSession : public PPThread {
 		public:
-			PipeSession(SIntHandle hPipe, AppBlock * pAppBlk) : SlThread_WithStartupSignal(), H_Pipe(hPipe), P_AppBlk(pAppBlk)
+			PipeSession(SIntHandle hPipe, AppBlock * pAppBlk) : PPThread(kCrr32Support, 0, 0), H_Pipe(hPipe), P_AppBlk(pAppBlk)
 			{
+				InitStartupSignal();
 			}
 			~PipeSession()
 			{
@@ -75,7 +76,12 @@ public:
 												CrystalReportPrintParamBlock blk;
 												CrystalReportPrintReply reply;
 												if(blk.Serialize(-1, sbuf, &sctx)) {
-													int pr = CrystalReportPrint2(blk, reply);
+													uint64 h_parent_window_for_preview = 0;
+													p_c = p_js_query->FindChildByKey("parentwindowhandle");
+													if(p_c) {
+														h_parent_window_for_preview = p_c->Text.ToUInt64();
+													}
+													int pr = CrystalReportPrint2(blk, reply, false/*modalView*/, reinterpret_cast<void *>(h_parent_window_for_preview));
 													if(pr) {
 														js_reply.InsertString("status", "ok");
 													}
@@ -178,11 +184,8 @@ private:
 int main(int argc, char ** argv)
 {
 	int    result = 0;
-	bool   crr_eng_is_opened = false;
-	SLS.Init("crr32-support-server", 0);
-	if(PEOpenEngine()) {
-		crr_eng_is_opened = true;
-	}
+	//SLS.Init("crr32-support-server", 0);
+	DS.Init(PPSession::internalappCrr32Support, PPSession::fInitPaths, 0, 0);
 	{
 		{ // pipe server
 			struct AppBlock : public PipeServer::AppBlock {
@@ -206,7 +209,5 @@ int main(int argc, char ** argv)
 				p_pcli->Start(1);
 		}*/
 	}
-	if(crr_eng_is_opened)
-		PECloseEngine();
 	return result;
 }

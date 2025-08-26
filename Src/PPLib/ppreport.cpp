@@ -40,9 +40,6 @@ PEStartPrintJob
 // Закомментировать, если немодальный предварительный просмотр печати будет сбоить
 //
 //#define MODELESS_REPORT_PREVIEW
-
-#define BODY_DBF_NAME "rpt_body.dbf"
-#define VAR_DBF_NAME  "rpt_var.dbf"
 //
 // Prototype
 int  FASTCALL CopyDataStruct(const char *pSrc, const char *pDest, const char *pFileName);
@@ -92,7 +89,7 @@ static bool FindExeByExt2(const char * pExt, SString & rResult, const char * pAd
 //
 //
 //
-PPReportEnv::PPReportEnv() : Sort(0), PrnFlags(0)
+PPReportEnv::PPReportEnv(long prnFlags, long sort) : PrnFlags(prnFlags), Sort(sort)
 {
 }
 //
@@ -318,9 +315,6 @@ int SReport::createDataFiles(const char * pDataName, const char * pRptPath)
 
 void SReport::disableGrouping() { PrnOptions |= SPRN_SKIPGRPS; }
 #endif // } 0
-
-static const int hdr_band_types[] = { RPT_HEAD, RPT_FOOT, PAGE_HEAD, PAGE_FOOT };
-static const int row_band_types[] = { DETAIL_BODY, GROUP_HEAD, GROUP_FOOT };
 //
 //
 //
@@ -1680,6 +1674,9 @@ static SString & GetTempFileName_(const char * pFileName, SString & rDest)
 }
 
 #if 0 // @v12.3.9-12.3.11 @obsolete {
+static const int hdr_band_types[] = { RPT_HEAD, RPT_FOOT, PAGE_HEAD, PAGE_FOOT };
+static const int row_band_types[] = { DETAIL_BODY, GROUP_HEAD, GROUP_FOOT };
+
 SReport::SReport(const char * pName) : PrnDest(0), PrnOptions(SPRN_EJECTAFTER), Error(0), NumCopies(1), Name(pName)
 {
 	//THISZERO();
@@ -2131,7 +2128,8 @@ static void GetDataFilePath(int locN, const char * pPath, int isPrint, SString &
 			rBuf = path;
 	}
 	else {
-		const  char * p_fname = (locN == 0) ? BODY_DBF_NAME : VAR_DBF_NAME;
+		// Этот блок устаревший
+		const  char * p_fname = (locN == 0) ? "rpt_body.dbf" : "rpt_var.dbf";
 		GetTempFileName_(p_fname, rBuf);
 	}
 }
@@ -2237,7 +2235,8 @@ static int RemoveCompName(SString & rPrintDevice)
 static int SetPrinterParam(short hJob, const char * pPrinter, long options, const DEVMODEA * pDevMode)
 {
 	int    ok = 1;
-	SString print_device(isempty(pPrinter) ? DS.GetConstTLA().PrintDevice : pPrinter);
+	// @v12.3.11 SString print_device(isempty(pPrinter) ? DS.GetConstTLA().PrintDevice : pPrinter);
+	SString print_device(pPrinter); // @v12.3.11 Удалили зависимость от DS.GetConstTLA().PrintDevice (see CrystalReportPrint2_ClientExecution)
 	RemoveCompName(print_device);
 	DEVMODEA * p_dm = 0, dm;
 	char   device_name[128];
@@ -2320,6 +2319,7 @@ int CrystalReportPrintParamBlock::Serialize(int dir, SBuffer & rBuf, SSerializeC
 	THROW_SL(pSCtx->Serialize(dir, EmailAddr, rBuf));
 	THROW_SL(pSCtx->Serialize(dir, Dir, rBuf));
 	THROW_SL(pSCtx->Serialize(dir, Printer, rBuf));
+	THROW_SL(InetAcc.Serialize(dir, rBuf, pSCtx));
 	THROW_SL(ExpParam.Serialize(dir, rBuf, pSCtx));
 	CATCHZOK
 	return ok;
@@ -2343,21 +2343,29 @@ struct CrrPreviewEventParam {
 	static BOOL CALLBACK EventCallback(short eventID, void * pParam, void * pUserData)
 	{
 		if(eventID == PE_CLOSE_PRINT_WINDOW_EVENT) {
-#ifndef MODELESS_REPORT_PREVIEW
-			EnableWindow(APPL->H_TopOfStack, 1);
-			static_cast<CrrPreviewEventParam *>(pUserData)->StopPreview++;
-#endif
+			CrrPreviewEventParam * p_self = static_cast<CrrPreviewEventParam *>(pUserData);
+//#ifndef MODELESS_REPORT_PREVIEW
+			if(p_self && p_self->ModalPreview) {
+				::EnableWindow(/*APPL->H_TopOfStack*/p_self->HwParent, TRUE);
+				p_self->StopPreview++;
+			}
+//#endif
 		}
 		return TRUE;
 	}
+	CrrPreviewEventParam(HWND hParent, bool modalPreview) : HwParent(hParent), ModalPreview(modalPreview), StopPreview(0)
+	{
+	}
+	HWND   HwParent;
 	int    StopPreview;
+	bool   ModalPreview;
 };
 
-int CrystalReportPrint2(const CrystalReportPrintParamBlock & rBlk, CrystalReportPrintReply & rReply) // @v11.9.5 @construction
+int CrystalReportPrint2(const CrystalReportPrintParamBlock & rBlk, CrystalReportPrintReply & rReply, const bool modalPreview, void * hParentWindowForPreview) // @v11.9.5 @construction
 {
 	int    ok = 1;
 	short  h_job = 0;
-	bool   do_zero_print_device_on_epilog = false;
+	//bool   do_zero_print_device_on_epilog = false;
 	SString msg_buf;
 	PEReportOptions ro;
 	ro.StructSize = sizeof(ro);
@@ -2379,6 +2387,7 @@ int CrystalReportPrint2(const CrystalReportPrintParamBlock & rBlk, CrystalReport
 			if(rBlk.ExpParam.Format) {
 				if(rBlk.ExpParam.TranslateToCrrExportOptions(eo)) {
 					//DebugOutputCrrExportOptions(eo, "debug-ppreport-expoptions-own.log"); // @debug
+					p__dest_fn = rBlk.ExpParam.DestFileName.cptr();
 					export_options_done = true;
 				}
 			}
@@ -2412,10 +2421,38 @@ int CrystalReportPrint2(const CrystalReportPrintParamBlock & rBlk, CrystalReport
 					//
 					// Отправка на определенный почтовый адрес
 					//
+					// @v12.3.11 {
+					if(rBlk.InetAcc.NotEmpty()) {
+						StrAssocArray mail_adr_list;
+						SStrCollection file_name_collection;
+						mail_adr_list.AddFast(1, rBlk.EmailAddr);
+						file_name_collection.insert(newStr(p__dest_fn));
+						if(SendMail(rBlk.ReportName, rBlk.ReportName, &mail_adr_list, &rBlk.InetAcc, &file_name_collection, 0/*pLogger*/)) {
+							// Отправка отчета на электронную почту: success 
+							PPLoadString("reportsendmail", temp_buf);
+							temp_buf.CatDiv(':', 2).Cat("success").Space().Cat(rBlk.ReportName).Space().Cat(rBlk.EmailAddr);
+							PPLogMessage(PPFILNAM_INFO_LOG, temp_buf, LOGMSGF_TIME|LOGMSGF_USER);
+						}
+						else {
+							// PPERR_REPORT_SENDMAIL_IMPL Ошибка отправки отчета на электронную почту"
+							PPGetLastErrorMessage(1, temp_buf); // last error text
+							PPGetMessage(mfError, PPERR_REPORT_SENDMAIL_IMPL, 0, 1, msg_buf);
+							PPLogMessage(PPFILNAM_ERR_LOG, msg_buf.CatDiv(':', 2).Cat(temp_buf), LOGMSGF_TIME|LOGMSGF_USER);
+						}
+					}
+					else {
+						// @todo Здесь должен быть другой текст сообщения!
+						// 
+						// PPERR_REPORT_SENDMAIL_NOACC Отправка отчета на электронную почту: конфигурация глобального обмена не содержит ссылку на почтовую учетную запись
+						PPSetError(PPERR_REPORT_SENDMAIL_NOACC);
+						PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
+					}
+					// } @v12.3.11 
+#if 0 // @v12.3.11 {
 					PPAlbatrossConfig alb_cfg;
 					if(PPAlbatrosCfgMngr::Get(&alb_cfg) > 0) {
 						if(alb_cfg.Hdr.MailAccID) {
-							if(SendMailWithAttach(rBlk.ReportName, /*path*/p__dest_fn, rBlk.ReportName, rBlk.EmailAddr, alb_cfg.Hdr.MailAccID)) {
+							if(SendMailWithAttachment(rBlk.ReportName, /*path*/p__dest_fn, rBlk.ReportName, rBlk.EmailAddr, alb_cfg.Hdr.MailAccID)) {
 								// Отправка отчета на электронную почту: success 
 								PPLoadString("reportsendmail", temp_buf);
 								temp_buf.CatDiv(':', 2).Cat("success").Space().Cat(rBlk.ReportName).Space().Cat(rBlk.EmailAddr);
@@ -2439,6 +2476,7 @@ int CrystalReportPrint2(const CrystalReportPrintParamBlock & rBlk, CrystalReport
 						PPSetError(PPERR_REPORT_SENDMAIL_NOCFG);
 						PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
 					}
+#endif // } 0 @v12.3.11
 				}
 				else {
 					// PPERR_REPORT_SENDMAIL_NOFILE Отправка отчета на электронную почту: результирующий файл '%s' не найден
@@ -2449,10 +2487,12 @@ int CrystalReportPrint2(const CrystalReportPrintParamBlock & rBlk, CrystalReport
 		}
 	}
 	else {
+		//
+		const  DEVMODEA * p_dev_mode = (rBlk.InternalFlags & CrystalReportPrintParamBlock::intfDevModeValid) ? &rBlk.DevMode : 0;
+		/* этот блок перенесен в CrystalReportPrint2_ClientExecution
 		SString inner_printer_buf;
 		const char * p_inner_printer = 0;
 		int    num_copies = rBlk.NumCopies;
-		const  DEVMODEA * p_dev_mode = (rBlk.InternalFlags & CrystalReportPrintParamBlock::intfDevModeValid) ? &rBlk.DevMode : 0;
 		if(p_dev_mode) {
 			inner_printer_buf = reinterpret_cast<const char *>(p_dev_mode->dmDeviceName);
 			if(inner_printer_buf.NotEmptyS())
@@ -2461,26 +2501,28 @@ int CrystalReportPrint2(const CrystalReportPrintParamBlock & rBlk, CrystalReport
 		}
 		else
 			p_inner_printer = rBlk.Printer;
+		*/
+		//
 		h_job = PEOpenPrintJob(rBlk.ReportPath);
 		THROW_PP(h_job, PPERR_CRYSTAL_REPORT);
 		PEGetReportOptions(h_job, &ro);
 		ro.morePrintEngineErrorMessages = FALSE;
 		PESetReportOptions(h_job, &ro);
-		do_zero_print_device_on_epilog = (DS.GetConstTLA().PrintDevice.IsEmpty() && GetWindowsPrinter(0, &DS.GetTLA().PrintDevice) > 0);
-		THROW(SetPrinterParam(h_job, p_inner_printer, rBlk.Options, p_dev_mode));
+		//do_zero_print_device_on_epilog = (DS.GetConstTLA().PrintDevice.IsEmpty() && GetWindowsPrinter(0, &DS.GetTLA().PrintDevice) > 0);
+		THROW(SetPrinterParam(h_job, /*p_inner_printer*/rBlk.Printer, rBlk.Options, p_dev_mode));
 		THROW(SetupReportLocations(h_job, rBlk.Dir, (rBlk.Options & SPRN_DONTRENAMEFILES) ? 0 : 1));
 		if(rBlk.Action == CrystalReportPrintParamBlock::actionPreview/*rBlk.Options & SPRN_PREVIEW*/) {
 			THROW_PP(PEOutputToWindow(h_job, "", CW_USEDEFAULT, CW_USEDEFAULT,
 				CW_USEDEFAULT, CW_USEDEFAULT, WS_MAXIMIZE|WS_VISIBLE|WS_MINIMIZEBOX|WS_MAXIMIZEBOX|WS_SYSMENU, 0), PPERR_CRYSTAL_REPORT);
 		}
 		else {
-			THROW_PP(PEOutputToPrinter(h_job, num_copies), PPERR_CRYSTAL_REPORT);
+			THROW_PP(PEOutputToPrinter(h_job, /*num_copies*/rBlk.NumCopies), PPERR_CRYSTAL_REPORT);
 		}
 		if(rBlk.Options & SPRN_SKIPGRPS)
 			SetupGroupSkipping(h_job);
 		if(/**rBlk.Options & SPRN_PREVIEW ||*/rBlk.Action == CrystalReportPrintParamBlock::actionPreview) {
-			CrrPreviewEventParam pep;
-			pep.StopPreview = 0;
+			HWND h_parent_window = reinterpret_cast<HWND>(hParentWindowForPreview);
+			CrrPreviewEventParam pep(h_parent_window, modalPreview);
 			PEEnableEventInfo eventInfo;
 			eventInfo.StructSize = sizeof(PEEnableEventInfo);
 			eventInfo.closePrintWindowEvent = TRUE;
@@ -2488,10 +2530,14 @@ int CrystalReportPrint2(const CrystalReportPrintParamBlock & rBlk, CrystalReport
 			THROW_PP(PEEnableEvent(h_job, &eventInfo), PPERR_CRYSTAL_REPORT);
 			THROW_PP(PESetEventCallback(h_job, CrrPreviewEventParam::EventCallback, &pep), PPERR_CRYSTAL_REPORT);
 			THROW_PP(PEStartPrintJob(h_job, TRUE), PPERR_CRYSTAL_REPORT);
-	#ifndef MODELESS_REPORT_PREVIEW
-			EnableWindow(APPL->H_TopOfStack, 0); // Запрещает работу в программе пока окно просмотра активно
-			APPL->MsgLoop(0, pep.StopPreview);
-	#endif
+	//#ifndef MODELESS_REPORT_PREVIEW
+			if(modalPreview) {
+				if(h_parent_window) {
+					::EnableWindow(h_parent_window, FALSE); // Запрещает работу в программе пока окно просмотра активно
+					APPL->MsgLoop(0, pep.StopPreview);
+				}
+			}
+	//#endif
 		}
 		else {
 			const uint64 profile_start = SLS.GetProfileTime();
@@ -2499,10 +2545,10 @@ int CrystalReportPrint2(const CrystalReportPrintParamBlock & rBlk, CrystalReport
 			const uint64 profile_end = SLS.GetProfileTime();
 			{
 				msg_buf.Z().CatEq("Report", rBlk.ReportPath);
-				if(!isempty(p_inner_printer)) // Ранее был pPrinter @erik v10.4.10
-					msg_buf.CatDiv(';', 2).CatEq("Printer", p_inner_printer); // Ранее был pPrinter @erik v10.4.10
-				if(num_copies > 1)
-					msg_buf.CatDiv(';', 2).CatEq("Copies", num_copies);
+				if(rBlk.Printer.NotEmpty()) // Ранее был pPrinter @erik v10.4.10
+					msg_buf.CatDiv(';', 2).CatEq("Printer", rBlk.Printer.NotEmpty()); // Ранее был pPrinter @erik v10.4.10
+				if(rBlk.NumCopies > 1)
+					msg_buf.CatDiv(';', 2).CatEq("Copies", rBlk.NumCopies);
 				msg_buf.CatDiv(';', 2).CatEq("Mks", (profile_end - profile_start));
 				PPLogMessage(PPFILNAM_REPORTING_LOG, msg_buf, LOGMSGF_USER | LOGMSGF_TIME | LOGMSGF_DBINFO);
 			}
@@ -2527,11 +2573,12 @@ int CrystalReportPrint2(const CrystalReportPrintParamBlock & rBlk, CrystalReport
 	ENDCATCH
 	if(h_job)
 		PEClosePrintJob(h_job);
-	if(do_zero_print_device_on_epilog)
-		DS.GetTLA().PrintDevice.Z();
+	//if(do_zero_print_device_on_epilog)
+		//DS.GetTLA().PrintDevice.Z();
 	return ok;
 }
 
+#if 0 // @v12.3.11 (see comments at report.h) {
 int CrystalReportPrint(const char * pReportPath, const char * pDir, const char * pPrinter, int numCopies, int options, const DEVMODEA * pDevMode) // @erik v10.4.10 {
 {
 	// __@erik v10.4.10 {
@@ -2666,7 +2713,7 @@ int CrystalReportExport(const char * pReportPath, const char * pDir, const char 
 				PPAlbatrossConfig alb_cfg;
 				if(PPAlbatrosCfgMngr::Get(&alb_cfg) > 0) {
 					if(alb_cfg.Hdr.MailAccID) {
-						if(SendMailWithAttach(pReportName, /*path*/p__dest_fn, pReportName, pEMailAddr, alb_cfg.Hdr.MailAccID)) {
+						if(SendMailWithAttachment(pReportName, /*path*/p__dest_fn, pReportName, pEMailAddr, alb_cfg.Hdr.MailAccID)) {
 							// Отправка отчета на электронную почту: success 
 							PPLoadString("reportsendmail", temp_buf);
 							temp_buf.CatDiv(':', 2).Cat("success").Space().Cat(pReportName).Space().Cat(pEMailAddr);
@@ -2708,6 +2755,7 @@ int CrystalReportExport(const char * pReportPath, const char * pDir, const char 
 		PEClosePrintJob(h_job);
 	return ok;
 }
+#endif // } @v12.3.11 (see comments at report.h)
 
 /* @v12.3.9-12.3.11 @obsolete
 int SReport::check() { return 1; }
@@ -3128,10 +3176,11 @@ int EditDefaultPrinterCfg()
 	ushort v = 0;
 	PPID   loc_prn_id = 0;
 	PPPrinterCfg cfg;
-	TDialog  * dlg = new TDialog(DLG_PRNCFG);
+	TDialog * dlg = new TDialog(DLG_PRNCFG);
 	THROW(CheckDialogPtr(&dlg));
 	THROW(PPGetPrinterCfg(PPOBJ_CONFIG, PPCFG_MAIN, &cfg));
-	SetupStringCombo(dlg, CTLSEL_PRNCFG_PRINTER, PPTXT_PRNTYPE, cfg.PrnCmdSet);
+	dlg->disableCtrl(CTLSEL_PRNCFG_PRINTER, true); // @v12.3.11 
+	// @v12.3.11 SetupStringCombo(dlg, CTLSEL_PRNCFG_PRINTER, PPTXT_PRNTYPE, cfg.PrnCmdSet);
 	GetWindowsPrinter(&loc_prn_id, 0);
 	SetupPPObjCombo(dlg, CTLSEL_PRNCFG_WINPRINTER, PPOBJ_LOCPRINTER, loc_prn_id, 0, 0);
 	dlg->setCtrlData(CTL_PRNCFG_PORT, cfg.Port);
@@ -3139,7 +3188,7 @@ int EditDefaultPrinterCfg()
 	dlg->AddClusterAssoc(CTL_PRNCFG_FLAGS, 1, PPPrinterCfg::fStoreLastSelPrn);
 	dlg->SetClusterData(CTL_PRNCFG_FLAGS, cfg.Flags);
 	if(ExecView(dlg) == cmOK) {
-		dlg->getCtrlData(CTLSEL_PRNCFG_PRINTER, &cfg.PrnCmdSet);
+		// @v12.3.11 dlg->getCtrlData(CTLSEL_PRNCFG_PRINTER, &cfg.PrnCmdSet);
 		dlg->getCtrlData(CTL_PRNCFG_PORT, cfg.Port);
 		{
 			uint32 dw_loc_prn_id = 0;
@@ -3328,7 +3377,7 @@ static int FASTCALL __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPRe
 				p_sel_entry = pans.Entries.at(pans.Selection);
 				// @v11.2.8 fn = p_sel_entry->ReportPath_;
 				SFsPath::NormalizePath(p_sel_entry->ReportPath_, SFsPath::npfCompensateDotDot, fn); // @v11.2.8 
-				data_name     = p_sel_entry->DataName_;
+				data_name = p_sel_entry->DataName_;
 				inherited_tbl_names = LOGIC(p_sel_entry->Flags & ReportDescrEntry::fInheritedTblNames);
 				diffidbyscope = LOGIC(p_sel_entry->Flags & ReportDescrEntry::fDiff_ID_ByScope);
 				output_destination = pans.Dest;
@@ -3417,7 +3466,7 @@ static int FASTCALL __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPRe
 					PPAlbatrossConfig alb_cfg;
 					THROW(PPAlbatrosCfgMngr::Get(&alb_cfg) > 0);
 					if(alb_cfg.Hdr.MailAccID) {
-						THROW(SendMailWithAttach(pans.ReportName, out_file_name, pans.ReportName, pans.EmailAddr, alb_cfg.Hdr.MailAccID));
+						THROW(SendMailWithAttachment(pans.ReportName, out_file_name, pans.ReportName, pans.EmailAddr, alb_cfg.Hdr.MailAccID));
 					}
 				}
 			}
@@ -3575,13 +3624,9 @@ int  FASTCALL PPExportDL600DataToJson(const char * pDataName, PPView * pV, SStri
 	DlContext * p_ctx = 0;
 	DlRtm * p_rtm = 0;
 	THROW(p_ctx = DS.GetInterfaceContext(PPSession::ctxtExportData));
-	if(pV) {
-		THROW(p_rtm = p_ctx->GetRtm(pDataName));
-		THROW(p_rtm->PutToJsonBuffer(pV, rBuf.Z(), 0 /* flags */));
-	}
-	else {
-		ok = 0;
-	}
+	THROW(pV);
+	THROW(p_rtm = p_ctx->GetRtm(pDataName));
+	THROW(p_rtm->PutToJsonBuffer(pV, rBuf.Z(), 0 /* flags */));
 	CATCHZOK
 	return ok;
 }
@@ -3654,13 +3699,13 @@ public:
 	bool   SendQuitCommand(SIntHandle hPipe)
 	{
 		bool   ok = false;
-		SJson * p_js_reply = SendCommand(hPipe, "quit", 0);
+		SJson * p_js_reply = SendCommand(hPipe, "quit", 0, 0);
 		if(p_js_reply) {
 			ok = true;
 		}
 		return ok;
 	}
-	SJson * SendCommand(SIntHandle hPipe, const char * pCmdUtf8, const char * pParam)
+	SJson * SendCommand(SIntHandle hPipe, const char * pCmdUtf8, const char * pParam, const void * hParentWindow)
 	{
 		SJson * p_js_reply = 0;
 		SString temp_buf;
@@ -3672,6 +3717,10 @@ public:
 			js_query.InsertString("cmd", pCmdUtf8);
 			if(!isempty(pParam)) {
 				js_query.InsertString("param", pParam);
+			}
+			if(sstreqi_ascii(pCmdUtf8, "run")) {
+				uint64 h_parent_window = reinterpret_cast<uint64>(hParentWindow);
+				js_query.InsertUInt64("parentwindowhandle", h_parent_window);
 			}
 			//
 			DWORD wr_size = 0;
@@ -3725,7 +3774,7 @@ int TestCrr32SupportServer()
 		else {
 			for(uint i = 0; i < 10; i++) {
 				//slfprintf_stderr("Call on named-pipe #%u\n", i+1);
-				p_js_reply = cli.SendCommand(h_pipe, "test", 0);
+				p_js_reply = cli.SendCommand(h_pipe, "test", 0, 0);
 				if(p_js_reply) {
 					ZDELETE(p_js_reply);
 				}
@@ -3740,10 +3789,71 @@ int TestCrr32SupportServer()
 int CrystalReportPrint2_ClientExecution(CrystalReportPrintParamBlock & rBlk, CrystalReportPrintReply & rReply)
 {
 	int    result = 0;
-	const  char * p_ext_process_name = "crr32_support-construction.exe";
+	const  char * p_ext_process_name = "crr32_support.exe";
 	const  bool   use_ext_process = false; //SlDebugMode::CT();
 	bool   do_use_local_func = !use_ext_process;
+	void * h_parent_window_for_preview = APPL->H_TopOfStack;
 	SString temp_buf;
+	{
+		// Предварительная работа над CrystalReportPrintParamBlock для того, чтобы максимально упростить и изолировать CrystalReportPrint2()
+		if(rBlk.Action == CrystalReportPrintParamBlock::actionExport) {
+			if(rBlk.EmailAddr.NotEmpty()) {
+				bool local_ok = false;
+				//
+				// Если задан email-адрес для отправки отчета, то нужно добыть аккаунт почтового клиента дабы осуществить отправку!
+				//
+				PPAlbatrossConfig alb_cfg;
+				if(PPAlbatrosCfgMngr::Get(&alb_cfg) > 0) {
+					if(alb_cfg.Hdr.MailAccID) {
+						PPInternetAccount2 account;
+						PPObjInternetAccount ia_obj;
+						if(ia_obj.Get(alb_cfg.Hdr.MailAccID, &account) > 0) {
+							rBlk.InetAcc = account;
+							local_ok = true;
+						}
+						else {
+							; //
+						}
+					}
+					else {
+						// PPERR_REPORT_SENDMAIL_NOACC Отправка отчета на электронную почту: конфигурация глобального обмена не содержит ссылку на почтовую учетную запись
+						PPSetError(PPERR_REPORT_SENDMAIL_NOACC);
+						PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
+					}
+				}
+				else {
+					// PPERR_REPORT_SENDMAIL_NOCFG Отправка отчета на электронную почту: не удалось получить конфигурацию глобального обмена
+					PPSetError(PPERR_REPORT_SENDMAIL_NOCFG);
+					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
+				}
+				if(!local_ok) {
+					rBlk.EmailAddr.Z();
+					rBlk.InetAcc.Z();
+				}
+			}
+		}
+		else {
+			SString inner_printer_buf;
+			const char * p_inner_printer = 0;
+			const  DEVMODEA * p_dev_mode = (rBlk.InternalFlags & CrystalReportPrintParamBlock::intfDevModeValid) ? &rBlk.DevMode : 0;
+			if(p_dev_mode) {
+				inner_printer_buf = reinterpret_cast<const char *>(p_dev_mode->dmDeviceName);
+				if(inner_printer_buf.NotEmptyS())
+					p_inner_printer = inner_printer_buf;
+				rBlk.NumCopies = (p_dev_mode->dmCopies > 0 && p_dev_mode->dmCopies <= 1000) ? p_dev_mode->dmCopies : 1; // Мы изменили значение rBlk.NumCopies!
+			}
+			else
+				p_inner_printer = rBlk.Printer;
+			if(isempty(p_inner_printer)) {
+				if(DS.GetConstTLA().PrintDevice.NotEmpty()) {
+					rBlk.Printer = DS.GetConstTLA().PrintDevice; // Мы изменили значение rBlk.Printer
+				}
+				else {
+					GetWindowsPrinter(0, &rBlk.Printer); // Мы, возможно, изменили значение rBlk.Printer
+				}
+			}
+		}
+	}
 	if(use_ext_process) {
 		const  SlProcess::ProcessPool::Entry * p_pe = SlProcess::SearchProcessByName(p_ext_process_name);
 		if(!p_pe) {
@@ -3774,7 +3884,7 @@ int CrystalReportPrint2_ClientExecution(CrystalReportPrintParamBlock & rBlk, Cry
 			else {
 				// @debug {
 				{
-					SJson * p_js_reply = cli.SendCommand(h_pipe, "ping", 0);
+					SJson * p_js_reply = cli.SendCommand(h_pipe, "ping", 0, 0);
 					if(p_js_reply) {
 						// ...
 						//result = 1; // ???
@@ -3789,7 +3899,7 @@ int CrystalReportPrint2_ClientExecution(CrystalReportPrintParamBlock & rBlk, Cry
 					//slfprintf_stderr("Call on named-pipe #%u\n", i+1);
 					rBlk.Serialize(+1, sbuf, &sctx);
 					temp_buf.EncodeMime64(sbuf.GetBufC(sbuf.GetRdOffs()), sbuf.GetAvailableSize());
-					SJson * p_js_reply = cli.SendCommand(h_pipe, "run", temp_buf);
+					SJson * p_js_reply = cli.SendCommand(h_pipe, "run", temp_buf, h_parent_window_for_preview);
 					if(p_js_reply) {
 						p_js_reply->ToStr(temp_buf); // @debug
 						result = 1; // ???
@@ -3804,7 +3914,7 @@ int CrystalReportPrint2_ClientExecution(CrystalReportPrintParamBlock & rBlk, Cry
 		}
 	}
 	if(do_use_local_func) {
-		result = CrystalReportPrint2(rBlk, rReply);
+		result = CrystalReportPrint2(rBlk, rReply, true/*modalPreview*/, h_parent_window_for_preview);
 	}
 	return result;
 }

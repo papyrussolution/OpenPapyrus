@@ -1397,9 +1397,7 @@ int BarcodeLabelPrinter::Helper_PrintRgiCollection(const BarcodeLabelPrintParam 
 			uint   rpt_id = REPORT_BARCODELABELLIST;
 			SString loc_prn_port(PrnPack.PortEx.NotEmptyS() ? PrnPack.PortEx.cptr() : static_cast<const char *>(0));
 			loc_prn_port.Strip();
-			PPReportEnv env;
-			if(!(rBclpp.Flags & rBclpp.fInteractive))
-				env.PrnFlags = SReport::PrintingNoAsk;
+			PPReportEnv env((rBclpp.Flags & rBclpp.fInteractive) ? 0 : SReport::PrintingNoAsk, 0);
 			if(loc_prn_port.NotEmpty()) {
 				DS.GetTLA().PrintDevice = loc_prn_port;
 				is_print_dvc_set = true; // @v11.8.4

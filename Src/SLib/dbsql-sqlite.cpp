@@ -70,17 +70,18 @@ int SSqliteDbProvider::GetFileStat(const char * pFileName/*регистр символов важе
 		char   name[128];
 		char   tbl_name[128];
 		int64  rootpage;
-		char   sql[128];
+		char   sql[256];
 	} rec_buf;
 	MEMSZERO(rec_buf);
 	char   name[128];
 	STRNSCPY(name, pFileName); // ѕоиск чувствителен к регистру!
-	fld_list.addField("type", MKSTYPE(S_ZSTRING, 128));
-	fld_list.addField("name", MKSTYPE(S_ZSTRING, 128));
-	fld_list.addField("tbl_name", MKSTYPE(S_ZSTRING, 128));
+	SString temp_buf;
+	fld_list.addField("type", MKSTYPE(S_ZSTRING, sizeof(rec_buf.type)));
+	fld_list.addField("name", MKSTYPE(S_ZSTRING, sizeof(rec_buf.name)));
+	fld_list.addField("tbl_name", MKSTYPE(S_ZSTRING, sizeof(rec_buf.tbl_name)));
 	fld_list.addField("rootpage", T_INT64);
-	fld_list.addField("sql", MKSTYPE(S_ZSTRING, 128));
-	SqlGen.Z().Select(&fld_list).From("sqlite_schema").Sp().Tok(Generator_SQL::tokWhere).Sp().Eq("name", name);
+	fld_list.addField("sql", MKSTYPE(S_ZSTRING, sizeof(rec_buf.sql)));
+	SqlGen.Z().Select(&fld_list).From("sqlite_schema").Sp().Tok(Generator_SQL::tokWhere).Sp().Eq("type", "table").Sp().Tok(Generator_SQL::tokAnd).Sp().Eq("name", name);
 	SSqlStmt stmt(this, (const SString &)SqlGen);
 	THROW(stmt.Exec(0, 0));
 	THROW(stmt.BindData(+1, 1, fld_list, &rec_buf, 0));
@@ -195,12 +196,12 @@ int SSqliteDbProvider::GetFileStat(const char * pFileName/*регистр символов важе
 /*virtual*/int SSqliteDbProvider::CreateStmt(SSqlStmt * pS, const char * pText, long flags)
 {
 	int    ok = 1;
-	uint   prep_flags = 0; // SQLITE_PREPARE_XXX
+	uint   prep_flags = SQLITE_PREPARE_NORMALIZE; // SQLITE_PREPARE_XXX
 	const  char * p_ztail = 0;
 	sqlite3_stmt * p_stmt = 0;
 	THROW_S_S(!isempty(pText), SLERR_INVPARAM, __FUNCTION__"/pText");
 	const int text_len = sstrleni(pText);
-	THROW(ProcessError(sqlite3_prepare_v3(static_cast<sqlite3 *>(H), pText, text_len, prep_flags, &p_stmt, &p_ztail)));
+	THROW(ProcessError(sqlite3_prepare_v3(static_cast<sqlite3 *>(H), pText, text_len, prep_flags, &p_stmt, &p_ztail))); 
 	pS->H = p_stmt;
 	/*
 	OH h = OhAlloc(OCI_HTYPE_STMT);
@@ -226,7 +227,8 @@ int SSqliteDbProvider::GetFileStat(const char * pFileName/*регистр символов важе
 
 /*virtual*/int SSqliteDbProvider::ExecStmt(SSqlStmt & rS, uint count, int mode)
 {
-	int    ok = ProcessError(sqlite3_step(static_cast<sqlite3_stmt *>(rS.H)));
+	// @v12.3.11 int    ok = ProcessError(sqlite3_step(static_cast<sqlite3_stmt *>(rS.H)));
+	int    ok = 1; // @v12.3.11 
 #ifndef NDEBUG // {
 	if(!ok) {
 		SString log_buf;
@@ -266,37 +268,134 @@ int SSqliteDbProvider::GetFileStat(const char * pFileName/*регистр символов важе
 
 /*virtual*/int SSqliteDbProvider::Implement_Open(DBTable* pTbl, const char* pFileName, int openMode, char* pPassword)
 {
-	return 0;
+	int    ok = 1;
+	if(pTbl) {
+		pTbl->fileName = NZOR(pFileName, pTbl->tableName);
+		pTbl->OpenedFileName = pTbl->fileName;
+		pTbl->FixRecSize = pTbl->fields.CalculateRecSize();
+	}
+	else
+		ok = 0;
+	return ok;
 }
 
 /*virtual*/int SSqliteDbProvider::Implement_Close(DBTable* pTbl)
 {
-	return 0;
+	return 1;
 }
+
 /*virtual*/int SSqliteDbProvider::Implement_Search(DBTable* pTbl, int idx, void* pKey, int srchMode, long sf)
 {
 	return 0;
 }
+
 /*virtual*/int SSqliteDbProvider::Implement_InsertRec(DBTable* pTbl, int idx, void* pKeyBuf, const void* pData)
 {
-	return 0;
+	// ƒл€ первого приближени€ функци€ скопирована из SOraDbProvider::Implement_InsertRec
+	int    ok = 1;
+	int    subst_no = 0;
+	uint   i;
+	int    do_process_lob = 0;
+	int    map_ret_key = 0;
+	BNKey  key;
+	uint   ns = 0;
+	const  uint fld_count = pTbl->fields.getCount();
+	SString temp_buf;
+	SString let_buf;
+	SSqlStmt  stmt(this, 0);
+	if(pData)
+		pTbl->copyBufFrom(pData);
+	if(pTbl->State & DBTable::sHasLob) {
+		int    r = 0;
+		THROW(r = pTbl->StoreAndTrimLob());
+		if(r > 0)
+			do_process_lob = 1;
+	}
+	SqlGen.Z().Tok(Generator_SQL::tokInsert).Sp().Tok(Generator_SQL::tokInto).Sp().Text(pTbl->fileName).Sp();
+	SqlGen.Tok(Generator_SQL::tokValues).Sp().LPar();
+	stmt.BL.Dim = 1;
+	stmt.BL.P_Lob = pTbl->getLobBlock();
+	for(i = 0; i < fld_count; i++) {
+		if(i)
+			SqlGen.Com();
+		SqlGen.Param(temp_buf.NumberToLat(subst_no++));
+		const BNField & r_fld = pTbl->fields.getField(i);
+		if(GETSTYPE(r_fld.T) == S_AUTOINC) {
+			long val = 0;
+			size_t val_sz = 0;
+			r_fld.getValue(pTbl->getDataBufConst(), &val, &val_sz);
+			assert(val_sz == sizeof(val));
+			if(val == 0) {
+				// (oracle) THROW(GetAutolongVal(*pTbl, i, &val));
+				r_fld.setValue(pTbl->getDataBuf(), &val);
+			}
+		}
+		stmt.BindItem(-subst_no, 1, r_fld.T, PTR8(pTbl->getDataBuf()) + r_fld.Offs);
+	}
+	SqlGen.RPar();
+	SqlGen.Sp().Tok(Generator_SQL::tokReturning).Sp().Tok(Generator_SQL::tokRowId);
+	//
+	// temp_buf будет содержать список переменных, в которые должны заноситс€ возвращаемые значени€ //
+	//
+	let_buf.NumberToLat(subst_no++);
+	temp_buf.Z().Colon().Cat(let_buf);
+	stmt.BindRowId(-subst_no, 1, pTbl->getCurRowIdPtr());
+	if(pKeyBuf && idx >= 0 && idx < (int)pTbl->indexes.getNumKeys()) {
+		map_ret_key = 1;
+		key = pTbl->indexes[idx];
+		ns = (uint)key.getNumSeg();
+		for(i = 0; i < ns; i++) {
+			const BNField & r_fld = pTbl->indexes.field(idx, i);
+			SqlGen.Com().Text(r_fld.Name);
+			let_buf.NumberToLat(subst_no++);
+			temp_buf.CatDiv(',', 0).Colon().Cat(let_buf);
+			stmt.BindItem(-subst_no, 1, r_fld.T, PTR8(pKeyBuf)+pTbl->indexes.getSegOffset(idx, i));
+		}
+	}
+	SqlGen.Sp().Tok(Generator_SQL::tokInto).Sp().Text(temp_buf);
+	{
+		THROW(stmt.SetText((SString &)SqlGen));
+		THROW(Binding(stmt, -1));
+		THROW(stmt.SetDataDML(0));
+		THROW(stmt.Exec(1, OCI_DEFAULT));
+		THROW(stmt.GetOutData(0));
+		if(do_process_lob) {
+			//
+			// ≈сли в записи были не пустые значени€ LOB-полей, то придетс€ перечитать
+			// вставленную запись и изменить значени€ LOB-полей.
+			//
+			// @todo Ќадо обновл€ть только LOB-пол€, а не всю запись.
+			//
+			DBRowId row_id = *pTbl->getCurRowIdPtr();
+			THROW(Implement_Search(pTbl, -1, &row_id, spEq, DBTable::sfDirect | DBTable::sfForUpdate));
+			THROW(pTbl->RestoreLob());
+			THROW(Implement_UpdateRec(pTbl, 0, 0));
+		}
+	}
+	CATCHZOK
+	return ok;
 }
+
 /*virtual*/int SSqliteDbProvider::Implement_UpdateRec(DBTable* pTbl, const void* pDataBuf, int ncc)
 {
 	return 0;
 }
+
 /*virtual*/int SSqliteDbProvider::Implement_DeleteRec(DBTable* pTbl)
 {
 	return 0;
 }
+
 /*virtual*/int SSqliteDbProvider::Implement_BExtInsert(BExtInsert* pBei)
 {
 	return 0;
 }
+
 /*virtual*/int SSqliteDbProvider::Implement_GetPosition(DBTable* pTbl, DBRowId* pPos)
 {
 	return 0;
 }
+
 /*virtual*/int SSqliteDbProvider::Implement_DeleteFrom(DBTable* pTbl, int useTa, DBQ& rQ)
 {
 	return 0;
@@ -415,13 +514,13 @@ int SSqliteDbProvider::ProcessBinding_SimpleType(int action, uint count, SSqlStm
 			}
 			else if(action == 1) {
 				if(s == 8) {
-					*static_cast<int64 *>(p_data) = sqlite3_column_int64(h_stmt, idx);
+					*static_cast<int64 *>(p_data) = sqlite3_column_int64(h_stmt, idx-1); // @v12.3.11 @fix idx-->(idx-1)
 				}
 				else if(s == 4) {
-					*static_cast<int *>(p_data) = sqlite3_column_int(h_stmt, idx);
+					*static_cast<int *>(p_data) = sqlite3_column_int(h_stmt, idx-1); // @v12.3.11 @fix idx-->(idx-1)
 				}
 				else if(s == 2) {
-					*static_cast<int16 *>(p_data) = sqlite3_column_int(h_stmt, idx);
+					*static_cast<int16 *>(p_data) = sqlite3_column_int(h_stmt, idx-1); // @v12.3.11 @fix idx-->(idx-1)
 				}
 			}
 			break;
@@ -443,7 +542,7 @@ int SSqliteDbProvider::ProcessBinding_SimpleType(int action, uint count, SSqlStm
 					*static_cast<double *>(p_data) = sqlite3_column_double(h_stmt, idx);
 				}
 				else if(s == 4) {
-					*static_cast<float *>(p_data) = static_cast<float>(sqlite3_column_double(h_stmt, idx));
+					*static_cast<float *>(p_data) = static_cast<float>(sqlite3_column_double(h_stmt, idx-1)); // @v12.3.11 @fix idx-->(idx-1)
 				}
 			}
 			break;
@@ -481,7 +580,7 @@ int SSqliteDbProvider::ProcessBinding_SimpleType(int action, uint count, SSqlStm
 				sqlite3_bind_text(h_stmt, idx, static_cast<const char *>(p_data), len, SQLITE_STATIC);
 			}
 			else if(action == 1) {
-				const uchar * p_outer_text = sqlite3_column_text(h_stmt, idx);
+				const uchar * p_outer_text = sqlite3_column_text(h_stmt, idx-1); // @v12.3.11 @fix idx-->(idx-1)
 				strnzcpy(static_cast<char *>(p_data), p_outer_text, s);
 			}
 			break;
@@ -498,7 +597,7 @@ int SSqliteDbProvider::ProcessBinding_SimpleType(int action, uint count, SSqlStm
 				sqlite3_bind_text16(h_stmt, idx, static_cast<const char *>(p_data), len, SQLITE_STATIC);
 			}
 			else if(action == 1) {
-				const wchar_t * p_outer_text = static_cast<const wchar_t *>(sqlite3_column_text16(h_stmt, idx));
+				const wchar_t * p_outer_text = static_cast<const wchar_t *>(sqlite3_column_text16(h_stmt, idx-1)); // @v12.3.11 @fix idx-->(idx-1)
 				strnzcpy(static_cast<wchar_t *>(p_data), p_outer_text, s / sizeof(size_t));
 			}
 			break;
@@ -565,5 +664,18 @@ int SSqliteDbProvider::ProcessBinding_SimpleType(int action, uint count, SSqlStm
 /*virtual*/int SSqliteDbProvider::Fetch(SSqlStmt & rS, uint count, uint * pActualCount)
 {
 	int    ok = 0;
+	uint   actual_count = 0;
+	int    r = 0;
+	do {
+		r = sqlite3_step(StmtHandle(rS));
+		if(r == SQLITE_ROW) {
+			actual_count++;	
+			ok = 1;
+		}
+		else if(r == SQLITE_DONE) {
+			ok = -1;
+		}
+	} while(r == SQLITE_ROW && actual_count < count);
+	ASSIGN_PTR(pActualCount, actual_count);
 	return ok;
 }

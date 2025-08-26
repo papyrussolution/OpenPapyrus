@@ -290,7 +290,7 @@ int PPViewGoodsMov2::EditGoods(PPID goodsID)
 {
 	int    ok = 1;
 	uint   rpt_id = REPORT_GOODSMOV2;
-	PPReportEnv env;
+	PPReportEnv env(0, 0);
 	PPAlddPrint(rpt_id, PView(this), &env);
 	return ok;
 }

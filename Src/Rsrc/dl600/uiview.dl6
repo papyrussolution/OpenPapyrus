@@ -765,3 +765,31 @@ dialog DLG_CHZNLOCPMURL [vertical title: "" size: (384, 463) font: "MS Shell Dlg
 		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
 	}
 }
+
+dialog DLG_CHKCHZNMARK [vertical title: "@ttl_checkchzmark" size: (909, 530) minsize: (430, 430) font: "MS Shell Dlg 2,8"] { // @v12.3.11 @construction
+	input CTL_CHKCHZNMARK_INPUT [width: bycontainer height: 21 margin: 4 tabstop] string[252];
+	view [horizontal width: bycontainer height: 84] {
+		view [vertical growfactor: 4 height: bycontainer] {
+			combobox CTLSEL_CHKCHZNMARK_GUA [width: bycontainer height: 21 margin: 4 label: "@globaluseracc" labelsize: (0, 13) cblinesymb: CTL_CHKCHZNMARK_GUA ];
+		}
+		view [vertical growfactor: 5 height: bycontainer] {
+			combobox CTLSEL_CHKCHZNMARK_GGRP [width: bycontainer height: 21 margin: 4 label: "@goodsgroup" labelsize: (0, 13) cblinesymb: CTL_CHKCHZNMARK_GGRP ];
+			combobox CTLSEL_CHKCHZNMARK_GOODS [width: bycontainer height: 21 margin: 4 label: "@ware" labelsize: (0, 13) cblinesymb: CTL_CHKCHZNMARK_GOODS ];
+		}
+		imageview CTL_CHKCHZNMARK_LOGO [size: (64, 64) margin: 4 imagesymb: PPDV_LOGOCHZN staticedge];
+	}
+	view [horizontal width: bycontainer growfactor: 1] {
+		input CTL_CHKCHZNMARK_INFO [growfactor: 5 height: bycontainer margin: 4 tabstop readonly multiline] string[252];
+		view [vertical growfactor: 4 height: bycontainer] {
+			imageview CTL_CHKCHZNMARK_PIC [width: bycontainer growfactor: 1 margin: 4 staticedge];
+			view [horizontal width: bycontainer height: 32] {
+				button STDCTL_IMGADDBUTTON [title: "A" tabstop size: (21, 21) margin: 4 command: cmAddImage];
+				button STDCTL_IMGDELBUTTON [title: "D" tabstop size: (21, 21) margin: 4 command: cmDelImage];
+				button STDCTL_IMGPSTBUTTON [title: "P" tabstop size: (21, 21) margin: 4 command: cmPasteImage];
+			}
+		}
+	}
+	view [horizontal width: bycontainer height: 32] {
+		button STDCTL_CANCELBUTTON [title: "@but_close" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}

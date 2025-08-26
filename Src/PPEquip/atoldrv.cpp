@@ -1663,7 +1663,7 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 			SJson * p_js_cc = /*PPSyncCashSession::*/AtolDrv_MakeJson_CCheck(ofdf, pPack, P_SlipFmt, 0);
 			if(p_js_cc) {
 				jsproc_result = CallJsonProc(p_js_cc, temp_buf);
-				// @todo Обработка ошибок!
+				THROW(jsproc_result); // @v12.3.11 // обработка ошибок! - надо проверять!
 			}
 		}
 		else {

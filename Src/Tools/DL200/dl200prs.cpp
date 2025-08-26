@@ -1465,6 +1465,7 @@ int PrcssrDL200::Run()
 	PPWaitStop();
 	//THROW(Print__());
 	//int PrcssrDL200::Print__()
+#if 0 // @v12.3.11 (@todo этот участок необходимо переработать с использованием CrystalReportPrint2()) {
 	{
 		//int    ok = -1;
 		SString report_name;
@@ -1492,6 +1493,7 @@ int PrcssrDL200::Run()
 		}
 		//return ok;
 	}
+#endif // } 0 @v12.3.11
 	CATCHZOK
 	FinishOutput();
 	return ok;

@@ -5203,9 +5203,7 @@ int PPViewGoodsOpAnalyze::Print(const void *)
 			ok = -1;
 	}
 	if(ok > 0) {
-		PPReportEnv env;
-		env.Sort = ord;
-		env.PrnFlags = disable_grouping ? SReport::DisableGrouping : 0;
+		PPReportEnv env(disable_grouping ? SReport::DisableGrouping : 0, ord);
 		PPAlddPrint(rpt_id, PView(this), &env);
 	}
 	Filt = old_filt;

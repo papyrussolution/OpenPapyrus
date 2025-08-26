@@ -124,7 +124,12 @@ Generator_SQL & Generator_SQL::From(const char * pTable, const char * pAlias)
 Generator_SQL & Generator_SQL::Eq(const char * pFldName, const char * pVal)
 {
 	Text(pFldName)._Symb(_EQ_);
-	Buf.CatChar('\'').Cat(pVal).CatChar('\'');
+	/*if(Sqlst == sqlstSQLite) { // @v12.3.11
+		Buf.CatChar('\"').Cat(pVal).CatChar('\"');
+	}
+	else*/{
+		Buf.CatChar('\'').Cat(pVal).CatChar('\'');
+	}
 	return *this;
 }
 

@@ -1,27 +1,29 @@
 // SPRINTER.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998-2001, 2006, 2009, 2010, 2011, 2012, 2015, 2016, 2017, 2019, 2020, 2021, 2023
+// Copyright (c) A.Sobolev 1996, 1997, 1998-2001, 2006, 2009, 2010, 2011, 2012, 2015, 2016, 2017, 2019, 2020, 2021, 2023, 2025
 // @codepage UTF-8
+// @v12.3.11 moved from slib to pplib
 //
-#include <slib-internal.h>
+#include <pp.h>
 #pragma hdrstop
-#include <report.h>
 
 #define max MAX // Файл gdisplus.h оперирует исключительно макросами min и max. Так как мы их элиминировали по всем проектам, то специальной для gdiplus включаем
 #define min MIN
 #include <gdiplus.h>
 using namespace Gdiplus;
 
-int (*SPrinter::HandlePrintError)(int) = 0;
+// @v12.3.11 @obsolete int (*SPrinter::HandlePrintError)(int) = 0;
 
 #ifdef __WIN32__ // {
 //
 // Win32 stubs
 //
+#if 0 // @v12.3.11 {
 SPrinter::SPrinter() {}
 SPrinter::~SPrinter() {}
 int   SPrinter::printLine(const char *, size_t) { return 1; }
 int   SPrinter::startPage() { return 1; }
 int   SPrinter::endPage() { return 1; }
+#endif // } 0 @v12.3.11
 //
 // @todo перенести функционал в SPrinter
 //
@@ -69,25 +71,6 @@ int SPrinting::Init(const char * pPort)
 	return ok;
 }
 
-int SPrinting::StartDocument()
-{
-	int    ok = 1;
-	if(!DocStarted) {
-		DOCINFO di;
-		COLORREF old_color = SetTextColor(PrinterDc, GetColorRef(SClrBlack));
-		//
-		// Set printer font
-		//
-		SetBkMode(PrinterDc, TRANSPARENT);
-		INITWINAPISTRUCT(di);
-		di.lpszDocName  = _T("Document");
-		THROW(StartDoc(PrinterDc, &di) != SP_ERROR); // @unicodeproblem
-		DocStarted = 1;
-	}
-	CATCHZOK
-	return ok;
-}
-
 int SPrinting::PrintImage(const char * pImgPath)
 {
 	int    ok = 0;
@@ -98,8 +81,10 @@ int SPrinting::PrintImage(const char * pImgPath)
 		SImage img;
 		MEMSZERO(coord);
 		//SetMapMode(PrinterDc, MM_LOMETRIC);
-		int w = 0, h = 0;
-		int scale_x = 0, scale_y = 0;
+		int w = 0;
+		int h = 0;
+		int scale_x = 0;
+		int scale_y = 0;
 		img.Load(pImgPath);
 		{
 			w = ::GetDeviceCaps(PrinterDc, HORZRES);
@@ -117,7 +102,18 @@ int SPrinting::PrintImage(const char * pImgPath)
 		SETMIN(coord.bottom, (h - coord.top));
 		height = coord.bottom;
 		if(!PageStarted || (Top + labs(height)) > (h - 4)) {
-			StartDocument();
+			if(!DocStarted) {
+				DOCINFOW di;
+				COLORREF old_color = SetTextColor(PrinterDc, GetColorRef(SClrBlack));
+				//
+				// Set printer font
+				//
+				SetBkMode(PrinterDc, TRANSPARENT);
+				INITWINAPISTRUCT(di);
+				di.lpszDocName  = L"Document";
+				if(StartDocW(PrinterDc, &di) != SP_ERROR)
+					DocStarted = 1;
+			}
 			if(PageStarted)
 				EndPage(PrinterDc);
 			StartPage(PrinterDc);
@@ -141,7 +137,7 @@ int SPrinting::PrintImage(const char * pImgPath)
 	DWORD  wr_bytes = 0;
 	DWORD  count = 0;
 	CALLPTRMEMB(pInfoList, freeAll());
-	GetDefaultPrinter(def_prn_name, &def_prn_name_size); // @unicodeproblem
+	GetDefaultPrinter(def_prn_name, &def_prn_name_size);
 	BOOL   r = EnumPrinters(PRINTER_ENUM_LOCAL|PRINTER_ENUM_CONNECTIONS, 0, 2, static_cast<LPBYTE>(info_buf.vptr()), info_buf.GetSize(), &wr_bytes, &count);
 	if(!r && wr_bytes > info_buf.GetSize()) {
 		info_buf.Alloc(wr_bytes);
@@ -156,9 +152,9 @@ int SPrinting::PrintImage(const char * pImgPath)
 			if(pInfoList) {
 				PrnInfo item;
 				MEMSZERO(item);
-				STRNSCPY(item.ServerName, SUcSwitch(info[i].pServerName)); // @unicodeproblem
-				STRNSCPY(item.PrinterName, SUcSwitch(info[i].pPrinterName)); // @unicodeproblem
-				STRNSCPY(item.ShareName, SUcSwitch(info[i].pShareName)); // @unicodeproblem
+				STRNSCPY(item.ServerName, SUcSwitch(info[i].pServerName));
+				STRNSCPY(item.PrinterName, SUcSwitch(info[i].pPrinterName));
+				STRNSCPY(item.ShareName, SUcSwitch(info[i].pShareName));
 				SETFLAG(item.Flags, PrnInfo::fLocal, info[i].Attributes & PRINTER_ATTRIBUTE_LOCAL);
 				SETFLAG(item.Flags, PrnInfo::fNetwork, info[i].Attributes & PRINTER_ATTRIBUTE_NETWORK);
 				if(stricmp(item.PrinterName, SUcSwitch(def_prn_name)) == 0)
@@ -645,14 +641,7 @@ int SPrinter::abortDoc()
 	return 1;
 }
 
-int SPrinter::startPage()
-{
-	return checkPort();
-}
-
-int SPrinter::endPage()
-{
-	return printChar('\x0C');
-}
+int SPrinter::startPage() { return checkPort(); }
+int SPrinter::endPage() { return printChar('\x0C'); }
 
 #endif // } __WIN32__

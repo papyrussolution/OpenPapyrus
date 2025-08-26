@@ -1763,7 +1763,7 @@ int BillDialog::sendItem(long pos, long id)
 								}
 								data.Subj.Transf(CTRANSF_INNER_TO_UTF8);
 								data.Text.Transf(CTRANSF_INNER_TO_UTF8);
-								THROW(SendMailWithAttach(data.Subj, path, data.Text, addr, data.MailAccID));
+								THROW(SendMailWithAttachment(data.Subj, path, data.Text, addr, data.MailAccID));
 								first = 0;
 								ok = valid_data = 1;
 							}

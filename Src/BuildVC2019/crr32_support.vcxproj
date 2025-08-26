@@ -23,6 +23,7 @@
     <ProjectGuid>{57575CFA-6A55-411C-993B-618CCD42E48A}</ProjectGuid>
     <RootNamespace>crr32supportconstruction</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>crr32_support</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

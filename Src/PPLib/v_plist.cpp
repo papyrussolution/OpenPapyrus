@@ -1146,18 +1146,18 @@ int PPViewPriceList::RemoveLine(PriceLineIdent * pIdent)
 
 int PPViewPriceList::Print(const void * pHdr)
 {
-	int    ok = 1, rpt_id;
+	int    ok = 1;
+	int    rpt_id;
 	ushort v = 0;
 	TDialog * dlg = 0;
 	double pctadd = 0.0;
-	PPReportEnv env;
-	env.Sort = OrdByDefault;
 	THROW(Tbl.Search(Filt.PListID) > 0);
 	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_PRNPLST))));
 	dlg->setCtrlData(CTL_PRNPLST_WHAT, &v);
 	dlg->setCtrlData(CTL_PRNPLST_PCTADD, &pctadd);
 	dlg->setCtrlData(CTL_PRNPLST_SORTBY, &(v = 0));
 	if(ExecView(dlg) == cmOK) {
+		PPReportEnv env(0, 0);
 		dlg->getCtrlData(CTL_PRNPLST_SORTBY, &(v = 0));
 		if(v == 2)
 			env.Sort = OrdByGrpCode_GoodsName;

@@ -2064,7 +2064,7 @@ int PPGetPrinterCfg(PPID obj, PPID id, PPPrinterCfg * pCfg)
 	}
 	if(pCfg) {
 		SETFLAG(pCfg->Flags, PPPrinterCfg::fUseDuplexPrinting, use_duplex_printing);
-		SETIFZ(pCfg->PrnCmdSet, SPCMDSET_EPSON);
+		// @v12.3.11 SETIFZ(pCfg->PrnCmdSet, SPCMDSET_EPSON);
 	}
 	return ok;
 }

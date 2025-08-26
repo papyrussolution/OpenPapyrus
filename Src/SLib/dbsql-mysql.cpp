@@ -556,7 +556,8 @@ int SMySqlDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, 
 	BNKey  key;
 	uint   ns = 0;
 	const  uint fld_count = pTbl->fields.getCount();
-	SString temp_buf, let_buf;
+	SString temp_buf;
+	SString let_buf;
 	SSqlStmt  stmt(this, 0);
 	if(pData)
 		pTbl->copyBufFrom(pData);

@@ -16596,39 +16596,6 @@ private:
 	static int FASTCALL Helper_OpenClipboardForCopy(int & rHasBeenOpened);
 	static int FASTCALL Helper_CloseClipboard(int hasBeenOpened);
 };
-//
-//
-//
-class SPrinting {
-public:
-	struct PrnInfo { // @flat
-		enum {
-			fDefault = 0x0001,
-			fLocal   = 0x0002,
-			fNetwork = 0x0004
-		};
-		long   Flags;
-		char   ServerName[64];
-		char   PrinterName[64];
-		char   ShareName[128];
-	};
-	static int GetListOfPrinters(TSVector <PrnInfo> * pInfoList);
-	explicit SPrinting(HWND);
-	~SPrinting();
-	int    Init(const char * pPort);
-	int    PrintImage(const char * pImgPath);
-private:
-	int    StartDocument();
-
-	int    Top;
-	int    DocStarted;
-	int    PageStarted;
-	COLORREF OldColor;
-	HFONT  OldFont;
-	HDC    PrinterDc;
-	int    ScreenDpiX;
-	int    ScreenDpiY;
-};
 
 int    SCheckSystemCredentials(const char * pDomain, const char * pUserName, const char * pPw);
 //

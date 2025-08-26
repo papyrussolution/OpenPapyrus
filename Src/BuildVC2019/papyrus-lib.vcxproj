@@ -1714,6 +1714,7 @@
     <ClCompile Include="..\PPLib\workbook.cpp" />
     <ClCompile Include="..\PPLib\wsctl.cpp" />
     <ClCompile Include="..\PPLib\zxing_client.cpp" />
+    <ClCompile Include="..\PPLib\_sprinter.cpp" />
     <ClCompile Include="..\Pptest\pptest.cpp">
       <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExceptionHandling>
       <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">false</ExceptionHandling>

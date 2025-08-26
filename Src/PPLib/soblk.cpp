@@ -924,8 +924,10 @@ GETOBJATTACHMENTINFO
 */
 static int FASTCALL Helper_ProcessTddo(long dataId, void * pAry, const char * pDataName, const SString & rOutTemplate, PPJobSrvReply & rResult)
 {
-	int       ok = 1;
-	SString   temp_buf, txt_buf, file_name;
+	int    ok = 1;
+	SString temp_buf;
+	SString txt_buf;
+	SString file_name;
 	StringSet in_line(',', rOutTemplate);
 	StringSet ext_param_list;
 	uint   ip = 0;

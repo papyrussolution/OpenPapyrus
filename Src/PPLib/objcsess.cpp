@@ -1666,12 +1666,11 @@ int CTableOrder::Update(const Packet * pPack, int use_ta)
 int CTableOrder::Print(const Packet * pPack)
 {
 	int    ok = 1;
-	uint   rpt_id = REPORT_CCHECKDETAILORD;
+	const  uint rpt_id = REPORT_CCHECKDETAILORD;
 	CCheckPacket cc_pack;
 	THROW(MakeCCheckPacket(pPack, &cc_pack));
 	{
-		PPReportEnv env;
-		//env.PrnFlags = noAsk ? SReport::PrintingNoAsk : 0;
+		PPReportEnv env(/*noAsk ? SReport::PrintingNoAsk : 0*/0, 0);
 		PPAlddPrint(rpt_id, PView(&cc_pack), &env);
 	}
 	CATCHZOK

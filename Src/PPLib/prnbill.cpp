@@ -535,11 +535,10 @@ static int PrintInvoice(PPBillPacket * pPack, int prnflags)
 {
 	int    ok = 1;
 	int    val = 0;
-	PPReportEnv env;
 	PPIniFile ini_file;
-	env.PrnFlags |= prnflags;
 	if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_INVFOOTONBOTT, &val) && val)
-		env.PrnFlags |= SReport::FooterOnBottom;
+		prnflags |= SReport::FooterOnBottom;
+	PPReportEnv env(prnflags, 0);
 	pPack->GetContextEmailAddr(env.EmailAddr);
 	pPack->Rec.Flags |= BILLF_PRINTINVOICE;
 	ok = PPAlddPrint(REPORT_INVOICE, PPFilt(pPack), &env);
@@ -625,7 +624,7 @@ int STDCALL Helper_PrintGoodsBill(PPBillPacket * pPack, SVector ** ppAry, long *
 	const  long preserve_process_flags = pPack->ProcessFlags;
 	PPOprKind opk;
 	PPObjOprKind op_obj;
-	PPReportEnv env;
+	PPReportEnv env(0, 0);
 	pPack->GetContextEmailAddr(env.EmailAddr);
 	pPack->ProcessFlags &= ~(PPBillPacket::pfPrintOnlyUnlimGoods|PPBillPacket::pfPrintPLabel|PPBillPacket::pfPrintQCertList);
 	GetOpData(pPack->Rec.OpID, &opk);
@@ -906,9 +905,8 @@ int STDCALL PrintCashOrder(PPBillPacket * pPack, int pay_rcv, int prnflags)
 {
 	PPFilt pf(pPack);
 	pf.ID  = pay_rcv ? 1 : 2;
-	PPReportEnv env;
-	env.PrnFlags = prnflags;
+	PPReportEnv env(prnflags, 0);
 	pPack->GetContextEmailAddr(env.EmailAddr);
-	uint   rpt_id = pay_rcv ? REPORT_CASHPAYORDER : REPORT_CASHRCVORDER;
+	const uint rpt_id = pay_rcv ? REPORT_CASHPAYORDER : REPORT_CASHRCVORDER;
 	return PPAlddPrint(rpt_id, pf, &env);
 }

@@ -175,6 +175,7 @@ int CallbackCompress(long, long, const char *, int)
 %token <token>    T_RADIOBUTTON
 %token <token>    T_CHECKBOXCLUSTER
 %token <token>    T_RADIOCLUSTER
+// @costruction %token <token>    T_CLUSTERITEM // @v12.3.11
 %token <token>    T_LISTBOX
 %token <token>    T_TREELISTBOX
 %token <token>    T_DESCRIPT
@@ -1218,6 +1219,15 @@ decl_view : view_decl_head optional_terminator_semicol
 {
 	DCtx.LeaveScope(); // } view
 }
+
+/* @v12.3.11 @costruction decl_cluster_item : T_CLUSTERITEM T_CONST_STR optional_terminator_semicol
+{
+	DLSYMBID scope_id = DCtx.EnterViewScope(0);
+	if(!scope_id)
+		DCtx.Error();
+	else {
+	}
+}*/
 
 uictrl_type : T_TYPE
 {

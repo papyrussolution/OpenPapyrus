@@ -171,7 +171,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "papyrus-lib", "papyrus-lib.
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "__CONSTRUCTION__", "__CONSTRUCTION__", "{F562924D-985A-486D-8139-7ABCB538930F}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "crr32_support-construction", "crr32_support-construction.vcxproj", "{57575CFA-6A55-411C-993B-618CCD42E48A}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "crr32_support", "crr32_support.vcxproj", "{57575CFA-6A55-411C-993B-618CCD42E48A}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ppifc-construction", "ppifc-construction.vcxproj", "{55E9378E-EEDD-41D8-B6CF-8B2D4F4EC254}"
 EndProject

@@ -10087,6 +10087,12 @@ int CheckPaneDialog::PreprocessGoodsSelection(const PPID goodsID, PPID locID, Pg
 												PPChZnPrcssr::PermissiveModeInterface::CodeStatus * p_cle = check_code_list.CreateNewItem(&clp);
 												if(p_cle) {
 													p_cle->OrgMark = temp_buf;
+													// @v12.3.11 {
+													SString chzn_mark_serial;
+													if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf) && gts.GetToken(GtinStruc::fldSerial, &chzn_mark_serial)) {
+														p_cle->OrgMark_Offl.Cat("01").Cat(temp_buf).Cat("21").Cat(chzn_mark_serial); 
+													}
+													// } @v12.3.11
 													p_cle->OrgRowId = 0;
 												}
 											}
@@ -13012,9 +13018,8 @@ int CPosProcessor::Print(int noAsk, const PPLocPrinter2 * pLocPrn, uint rptId)
 		SString loc_prn_port(pLocPrn ? pLocPrn->Port : 0);
 		loc_prn_port.Strip();
 		CCheckItemArray saved_items(P);
-		PPReportEnv env;
+		PPReportEnv env(noAsk ? SReport::PrintingNoAsk : 0, 0);
 		env.ContextSymb = PNP.CnSymb;
-		env.PrnFlags = noAsk ? SReport::PrintingNoAsk : 0;
 		if(PNP.CnFlags & CASHF_UNIFYGDSTOPRINT) {
 			CCheckItem * p_item = 0;
 			CCheckItemArray to_print_items;

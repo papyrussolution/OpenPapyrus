@@ -141,7 +141,7 @@
 #include <ppdbs.h>
 #include <ppdefs.h>
 #include <ued.h>
-#include <report.h>
+//#include <report.h>
 #include <snet.h>
 #include <stylopalm.h>
 #include <stylobhtii.h>
@@ -441,6 +441,7 @@ class PPBillImporter;
 class EgaisMarkAutoSelector;
 class PPMarketplaceInterface;
 class PrcssrMarketplaceInterchange;
+struct PEExportOptions; // @v12.3.11
 
 typedef struct bignum_st BIGNUM; // OpenSSL
 typedef int32 PPID; // @v11.6.8 long-->int32
@@ -2966,7 +2967,8 @@ struct PPPrinterCfg { // @persistent @store(PropertyTbl)
 	long   Tag;           // 0 || PPOBJ_CONFIG || PPOBJ_USRGRP || PPOBJ_USR
 	long   ObjID;         //
 	long   PropID;        // Const=PPPRP_PRINTER
-	long   PrnCmdSet;     // ИД набора команд принтера
+	// @v12.3.11 @obsolete long   PrnCmdSet;     // ИД набора команд принтера
+	uint32 Reserve;       // @v12.3.11 (instead PrnCmdSet)
 	short  LeftMargin;    // [0..127]
 	int16  Flags;
 	char   Port[64];
@@ -7081,7 +7083,8 @@ public:
 		kStyloQServer,   // @v11.0.9 Поток сервера, принимающего запросы StyloQ
 		kStyloQSession,  // @v11.0.0 Поток, получающий управление сеансом обмена от сервера StyloQ
 		kCasualJob,      // @v11.4.2 Поток для исполнения утилитарной функции
-		kWsCtl           // @v11.7.1 Поток подсистемы ws-ctl, реализующий асинхронные запросы к серверу
+		kWsCtl,          // @v11.7.1 Поток подсистемы ws-ctl, реализующий асинхронные запросы к серверу
+		kCrr32Support,   // @v12.3.11 Поток подсистемы crr32_support
 	};
 	static int FASTCALL GetKindText(int kind, SString & rBuf);
 	PPThread(int kind, const char * pText, void * pInitData);
@@ -23591,9 +23594,14 @@ struct PPInternetAccount2 { // @persistent @store(Reference2Tbl+)
 		fUseSSL     = 0x0004L  //
 	};
 	PPInternetAccount2();
-	void   Init();
-	int    Cmp(const PPInternetAccount2 * pAccount) const;
-	int    NotEmpty();
+	PPInternetAccount2 & Z();
+	int    Cmp(const PPInternetAccount2 * pAccount) const; // @todo rename-to IsEq()
+	int    NotEmpty() const;
+	//
+	// Descr: Сериализует экземпляр объекта в/из буфер/а rBuf 
+	// Note: Функция необходима из-за того, что класс, кроме всего прочего, является членом CrystalReportPrintParamBlock.
+	//
+	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx); // @v12.3.11
 	//int    GetExtField(int fldID, char * pBuf, size_t bufLen);
 	int    GetExtField(int fldID, SString & rBuf) const;
 	int    SetExtField(int fldID, const char * pBuf);
@@ -51411,9 +51419,9 @@ private:
 	//int    Logged;
 };
 
-int SendMailWithAttach(const char * pSubj, const char * pPath, const char * pLetter, const char * pMail, PPID accountID);
+int SendMailWithAttachment(const char * pSubj, const char * pPath, const char * pLetter, const char * pMail, PPID accountID);
 int SendMail(const char * pSubj, const char * pLetter, const char * pMail, PPID mailAccId, SStrCollection * pFilesList, PPLogger * pLogger);
-int SendMail(const char * pSubj, const char * pLetter, StrAssocArray * pMailList, PPInternetAccount * pAccount, SStrCollection * pFilesList, PPLogger * pLogger);
+int SendMail(const char * pSubj, const char * pLetter, StrAssocArray * pMailList, const PPInternetAccount * pAccount, SStrCollection * pFilesList, PPLogger * pLogger);
 //
 //
 //
@@ -59503,8 +59511,10 @@ public:
 			};
 			CodeStatus & AssignExceptOrgValues(const CodeStatus & rS);
 
-			uint   OrgRowId; // Идентификатор строки документа (или еще чего нибудь), которому соответствует код. Вызывающая функция сама интерпретирует это значение.
-			SString OrgMark; // Текст марки, подаваемый на вход процедуре проверки
+			uint   OrgRowId; // IN Идентификатор строки документа (или еще чего нибудь), которому соответствует код. Вызывающая функция сама интерпретирует это значение.
+			SString OrgMark; // IN Текст марки, подаваемый на вход процедуре проверки
+			SString OrgMark_Offl; // IN @v12.3.11 Текст марки без криптохвоста для подачи на проверку оффлайн-серверу
+			//
 			SString Cis; //
 			int    ErrorCode; // Код ошибки. 
 				// 0 — ошибки отсутствуют; 
@@ -60834,6 +60844,318 @@ public:
 	static int ExportGoods_UDS(const PPObjGoods::ExportToGlbSvcParam & rParam, const TSVector <PPObjGoods::ExportToGlbSvcItem> & rSrcList, PPLogger * pLogger);
 };
 //
+// @v12.3.11 moved from report.h {
+//
+#define SPRN_SKIPGRPS          0x00004000 // Пропустить группировку при печати
+#define SPRN_PREVIEW           0x00010000 // Предварительный просмотр
+#define SPRN_DONTRENAMEFILES   0x00020000 // Обычно, при печати файлы данных переименовываются дабы
+	// не мешать работе предыдущему (последующему) сеансу печати. Если эта опция передается в
+	// функцию CrystalReportPrint, то файлы переименовываться не будут (иногда это важно).
+#define SPRN_USEDUPLEXPRINTING 0x00040000 // Использовать дуплексную печать
+
+class SPrinting {
+public:
+	struct PrnInfo { // @flat
+		enum {
+			fDefault = 0x0001,
+			fLocal   = 0x0002,
+			fNetwork = 0x0004
+		};
+		long   Flags;
+		char   ServerName[64];
+		char   PrinterName[64];
+		char   ShareName[128];
+	};
+	static int GetListOfPrinters(TSVector <PrnInfo> * pInfoList);
+	explicit SPrinting(HWND);
+	~SPrinting();
+	int    Init(const char * pPort);
+	int    PrintImage(const char * pImgPath);
+private:
+	int    Top;
+	int    DocStarted;
+	int    PageStarted;
+	COLORREF OldColor;
+	HFONT  OldFont;
+	HDC    PrinterDc;
+	int    ScreenDpiX;
+	int    ScreenDpiY;
+};
+//
+// Descr: Параметры экспорта данных отчета средствами Crystal Reports.
+//   Нужны для того, чтобы заменить интерактивные функции Crystal Reports в рамках перевода системы на arch-x64
+//
+struct CrystalReportExportParam { // @v12.3.7
+	//
+	// Descr: Структура, определяющая назначение экспорта посредством CrystalReports
+	// 
+	struct Crr_Destination {
+		Crr_Destination();
+		void   SetFileName(const char * pFileName);
+		uint16 Size;        //
+		uint32 FileNamePtr; // Так как мы работаем с 32-битным компонентом CrystalReports, то явно определяем указатель как 32-битный.
+	};
+	struct Crr_ExportOptions_PdfRtfDoc { // @size=24
+		Crr_ExportOptions_PdfRtfDoc();
+		uint32   Size;          // Const=24
+		uint32   SelectedPages; // 0 - all pages, 1 - selected pages
+		uint32   Unknown[2];    //
+		uint32   FirstPage;
+		uint32   LastPage;
+	};
+	struct Crr_ExportOptions_Csv { 
+		Crr_ExportOptions_Csv();
+		uint16   Size;          // Const=
+		uint32   UseReportNumberFormat; // bool
+		uint32   UseReportDateFormat;   // bool
+		uint8    QuoteChar;     // offs=10
+		uint8    Unkn[8];       //
+		uint8    FieldSep;      // offs=19
+		uint8    Unkn2[6];      //
+	};
+	struct Crr_ExportOptions_Xls { // @size=84
+		Crr_ExportOptions_Xls();
+		//u2fxls	84 extended
+			//                    1                   2                   3                   4                   5                   6                   7                   8 
+			//0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3
+			//54000100000000000000000000000080864000000000ff00000000000000000000000000000001000000000000000100000000000000000000000100000000000000000000000000000000000000000000000100
+		//u2fxls	84 data-only
+			//540001000000000000000000000000808640000000000400000000000000000000000000000001000000000000000100000000000000000000000100000000000000000000000000000000000000000000000100
+		uint16   Size;              //
+		uint32   bColumnHeadings;   //TRUE -- has column headings, which come from. "Page Header" and "Report Header" ares. FALSE -- no clolumn headings.
+			// The default value is FALSE.
+		uint32   bUseConstColWidth; // TRUE -- use constant column width. FALSE -- set column width based on an area. The default value is FALSE.
+		double   fConstColWidth;    // offs=10 Column width, when bUseConstColWidth is TRUE. The default value is 9.
+		uint32   bTabularFormat;    // offs=18 TRUE -- tabular format (flatten an area into a row). FALSE -- non-tabular format. The default value is FALSE.
+		uint16   baseAreaType;      // offs=22 One of the 7 Section types defined in "Crpe.h". The default value is PE_SECT_DETAIL.
+		uint16   baseAreaGroupNum;  // offs=24 If baseAreaType is either GroupHeader or
+			// GroupFooter and there are more than one groups, we need to give the group number. The default value is 1.		
+		uint8    Unknown[4];        // offs=26 ???
+		uint32   bCreatePgBrkForEachPage; // offs=30
+		uint32   bConvertDateToStr; // offs=34
+		uint32   AllPages;          // offs=38 1 - all pages, 0 - selected pages
+		uint8    Unknown2[4];       // 
+		uint32   Unkn_One2;         // offs=46 ??? 1 
+		uint32   FirstPage;         // offs=50
+		uint32   LastPage;          //  
+		uint32   Unkn_One;          // offs=58 ??? 1
+		uint8    Unknown3[16];      // ???
+		uint32   bShowGrid;         // 
+		uint16   Unkn_One3;         // ??? 1
+	};
+
+	//
+	// Descr: Возвращает имя dll-модуля, отвечающего за вывод результат в виде, определенном аргументом dest (destApp || destFile)
+	//
+	static bool GetDestDll(uint dest, SString & rDllModuleName);
+	CrystalReportExportParam();
+	CrystalReportExportParam(const CrystalReportExportParam & rS);
+	CrystalReportExportParam & FASTCALL operator = (const CrystalReportExportParam & rS);
+	CrystalReportExportParam & FASTCALL Z();
+	bool   FASTCALL Copy(const CrystalReportExportParam & rS);
+	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
+	bool   GetDefaultExportFilePath(const char * pReportName, SString & rBuf) const;
+	int    LoadFromIniFile(const char * pReportName);
+	int    TranslateToCrrExportOptions(PEExportOptions & rEo) const;
+
+	enum {
+		crexpfmtPdf     = SFileFormat::Pdf,     // (UXFPdfType) params: page-range
+		crexpfmtRtf     = SFileFormat::Rtf,     // (UXFRichTextFormatType) params: page-range
+		crexpfmtHtml    = SFileFormat::Html,    // params: page-range, fHtmlPageNavigator, fHtmlSeparatePages, directory, base-file-name
+		crexpfmtExcel   = SFileFormat::Xls,     // (UXFXls7ExtType)
+		crexpfmtWinWord = SFileFormat::WinWord, // (UXFWordWinType) params: page-range
+		crexpfmtCsv     = SFileFormat::Csv,     // (UXFCommaSeparatedType, UXFTabSeparatedType, UXFCharSeparatedType)
+	};
+	enum {
+		destFile = 1,
+		destApp  = 2,
+	};
+	enum {
+		fSelectedPages             = 0x0001,
+		fHtmlPageNavigator         = 0x0002,
+		fHtmlSeparatePages         = 0x0004,
+		fXlsDataOnly               = 0x0008,
+		fXlsColumnHeadings         = 0x0010,
+		fXlsUseConstColumnWidth    = 0x0020,
+		fXlsTabularFormat          = 0x0040,
+		fXlsCreatePgBrkForEachPage = 0x0080,
+		fXlsCvtDateToString        = 0x0100,
+		fXlsShowGrid               = 0x0200,
+		fCsvUseReportNumberFormat  = 0x0400,
+		fCsvUseReportDateFormat    = 0x0800, 
+		fCsvQuoteText              = 0x1000,
+		fSilent                    = 0x2000  // Не интерактивный режим
+	};
+
+	uint32  Ver;                  // Версия формата для сериализации 
+	uint32  Flags;
+	uint32  Format;
+	uint32  Destination;          // destXXX 
+	uint32  XlsConstColumnWidth;
+	uint32  XlsBaseAreaType;      // One of the 7 Section types defined in "Crpe.h". The default value is PE_SECT_DETAIL.
+	uint32  XlsBaseAreaGroupNum;  // If baseAreaType is either GroupHeader or
+		//GroupFooter and there are more than one groups, we need to give the group number. The default value is 1.
+	uint32  CsvFieldSeparator;
+	IntRange PageRange; // if Flags & fSelectedPages
+	SString DestFileName;
+};
+//
+//
+//
+struct ReportDescrEntry {
+	//
+	// Descr: Типы параметров описания отчетов в report.ini и stdrpt.ini
+	//
+	enum {
+		tUnkn = 0,
+		tComment,
+		tData,
+		tDescr,
+		tDiffIdByScope,
+		tModifDate,
+		tStd,
+		tFormat,
+		tDestination,
+		tSilent,
+		tExistFile
+	};
+	static int FASTCALL GetIniToken(const char * pBuf, SString * pFileName);
+
+	ReportDescrEntry();
+	int    SetReportFileName(const char * pFileName);
+
+	enum {
+		fInheritedTblNames = 0x0001,
+		fDiff_ID_ByScope   = 0x0002, // Если этот флаг установлен, то наименования полей идентификаторов
+			// записей в таблицах, соответствующих разным областям будут отличаться.
+			// Эта опция необходима из-за того, что единовременно перевести все структуры на
+			// различающиеся наименования таких полей невозможно по причине необходимости верификации
+			// соответствующих отчетов
+		fTddoResource      = 0x0004
+	};
+	long   Flags;
+	SString ReportPath_;
+	SString Description_;
+	SString DataName_;
+	SString OutputFormat;
+};
+
+struct PrnDlgAns {
+	explicit PrnDlgAns(const char * pReportName);
+	explicit PrnDlgAns(const PrnDlgAns & rS);
+	~PrnDlgAns();
+	PrnDlgAns & FASTCALL operator = (const PrnDlgAns & rS);
+	int    SetupReportEntries(const char * pContextSymb);
+	PrnDlgAns & FASTCALL Copy(const PrnDlgAns & rS);
+
+	enum {
+		aUndef = 0,
+		aPrint = 1,
+		aExport,
+		aPreview,
+		aExportXML,
+		aPrepareData,
+		aPrepareDataAndExecCR,
+		aExportTDDO
+	};
+	enum {
+		fForceDDF          = 0x0001,
+		fEMail             = 0x0002, // Действителен при Dest == aExport
+		fUseDuplexPrinting = 0x0004  // Дуплексная печать
+	};
+	long   Dest;
+	int    Selection;
+	uint   NumCopies;
+	long   Flags;
+	SString ReportName;
+	SString DefPrnForm;
+	SString PrepareDataPath;
+	SString Printer;
+	SString EmailAddr;
+	SString ContextSymb;
+	CrystalReportExportParam ExpParam; // @v12.3.9
+	TSCollection <ReportDescrEntry> Entries;
+	DEVMODEA * P_DevMode;
+private:
+	int    PreprocessReportFileName(const char * pFileName, ReportDescrEntry * pEntry);
+};
+//
+//
+//
+class SReport { // @todo Этот класс, вероятно, надо будет элиминировать полностью //
+public:
+	static bool GetReportAttributes(uint reportId, SString * pReportName, SString * pDataName);
+
+	SReport(uint rezID, long flags/*INIREPF_XXX*/);
+	~SReport();
+	bool   IsValid() const;
+	const  SString & getDataName() const { return DataName; }
+
+	enum rptFlags {
+		DisableGrouping = 0x0001,
+		FooterOnBottom  = 0x0002,
+		PrintingNoAsk   = 0x0010,
+		NoRepError      = 0x0020, // Не выдавать сообщение об ошибке
+		XmlExport       = 0x0040, // Экспорт в XML
+		Preview         = 0x0080  // Предварительный просмотр
+	};
+	SString Name;
+	SString DataName;
+private:
+	int    Error;
+	int    NumCopies;
+};
+//
+// Descr: Структура параметров печати для реализации межпроцессного интерфейса для вывода 32-битного CrystalReports в отдельный процесс
+//
+class CrystalReportPrintParamBlock { // @v11.9.5 @persistent
+public:
+	CrystalReportPrintParamBlock();
+	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
+
+	enum {
+		intfDevModeValid = 0x0001
+	};
+	enum {
+		actionUndef = 0,
+		actionPrint = 1,
+		actionPreview,
+		actionExport
+	};
+	uint32 Ver;           // Версия формата для сериализации
+	int32  Action;
+	uint32 InternalFlags;
+	uint32 NumCopies;
+	uint32 Options;
+	DEVMODEA DevMode;     // @flat 
+	SString ReportPath;
+	SString ReportName;
+	SString EmailAddr;    // for Action == actionExport
+	SString Dir;
+	SString Printer;
+	PPInternetAccount2 InetAcc; // @v12.3.11
+	CrystalReportExportParam ExpParam; // @v12.3.10
+};
+
+typedef SCompoundError CrystalReportPrintReply;
+
+int EditPrintParam(PrnDlgAns * pData);
+// @v12.3.11 Пояснение к удалению функций CrystalReportPrint и CrystalReportExport:
+//   Она удаляется в пользу CrystalReportPrint2. До сих пор она применялась только в PrcssrDL200::Run() где
+//   ее использование так же блокируется без замены. Необходимо будет переработать PrcssrDL200::Run() так, чтобы 
+//   там применялась CrystalReportPrint2().
+//   Такие изменения стали необходимы из-за работы по перемещению использования функционала CrystalReports в 
+//   отдельный процесс (crr32_support), который всегда будет 32битным.
+// @v12.3.11 int CrystalReportPrint(const char * pReportPath, const char * pDir, const char * pPrinter, int numCopies, int options, const DEVMODEA *pDevMode);  //erik{DEVMODEA *pDevMode} add param v10.4.10
+// @v12.3.11 int CrystalReportExport(const char * pReportPath, const char * pDir, const char * pReportName, const char * pEMailAddr, int options);
+int CrystalReportPrint2(const CrystalReportPrintParamBlock & rBlk, CrystalReportPrintReply & rReply, const bool modalPreview, void * hParentWindowForPreview); // @v11.9.5
+//
+// Descr: Функция реализует инкапсулированное обращение к CrystalReports либо на-прямую, либо через 32-битный процесс-посредник (crr32_support).
+//
+int CrystalReportPrint2_ClientExecution(CrystalReportPrintParamBlock & rBlk, CrystalReportPrintReply & rReply);
+//
+// } @v12.3.11 moved from report.h
+//
 // Standalone functions and supported structures
 //
 DECL_CMPFUNC(PPObjID);
@@ -61509,7 +61831,7 @@ int    FASTCALL GetIntRangeInput(TDialog *, uint ctl, IntRange *);
 int    FASTCALL PPSetupCtrlMenu(TDialog * pDlg, uint ctl, uint ctlButton, uint ctrlMenuID);
 int    PPExecuteContextMenu(TView * pView, uint menuID);
 int    ViewGoodsTurnover(long);
-int    PrintDialog(SPrinter *);
+// @v12.3.11 int    PrintDialog(SPrinter *);
 int    FastEditRightsDialog();
 int    ActiveUsersListDialog();
 int    FastEditSumByDivDialog();
@@ -62559,5 +62881,7 @@ else ok = 0;                                             \
 delete dlg; return ok;
 //
 //
+//
+//#include <report.h>
 //
 #endif // } __PP_H

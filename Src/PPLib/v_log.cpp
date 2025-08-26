@@ -1,5 +1,5 @@
 // V_LOG.CPP
-// Copyright (c) Starodub A. 2006, 2007, 2008, 2009, 2012, 2013, 2014, 2016, 2017, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) Starodub A. 2006, 2007, 2008, 2009, 2012, 2013, 2014, 2016, 2017, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -105,7 +105,11 @@ int LogsDialog::SendByEmail()
 	long   id = 0;
 	if(getCurItem(&pos, &id) > 0) {
 		PPID   acct_id = 0;
-		SString path, support, subj, temp_buf, fmt_buf;
+		SString temp_buf;
+		SString fmt_buf;
+		SString path;
+		SString support;
+		SString subj;
 		UserInterfaceSettings uis = APPL->GetUiSettings();
 		LogFileEntry & r_e = LogsAry.at(pos);
 		PPAlbatrossConfig alb_cfg;
@@ -113,8 +117,7 @@ int LogsDialog::SendByEmail()
 		THROW(CreateVerHistLog(id - 1));
 		THROW(ini_file.IsValid());
 		ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_SUPPORTMAIL, support);
-		if(!support.Len())
-			support.CopyFrom(uis.SupportMail);
+		support.SetIfEmpty(uis.SupportMail);
 		PPLoadText(PPTXT_INPUTEMAIL, temp_buf);
 		PPInputStringDialogParam isd_param(temp_buf, temp_buf);
 		if(InputStringDialog(&isd_param, support) > 0) {
@@ -130,7 +133,7 @@ int LogsDialog::SendByEmail()
 				PPLoadText(PPTXT_LOGFILEMAILSUBJ, fmt_buf);
 				subj.Printf(fmt_buf, r_e.FileName, temp_buf.cptr()).Transf(CTRANSF_INNER_TO_OUTER);
 				PPWaitStart();
-				THROW(SendMailWithAttach(subj, path, 0, support, acct_id));
+				THROW(SendMailWithAttachment(subj, path, 0, support, acct_id));
 				ok = 1;
 			}
 		}

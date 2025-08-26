@@ -1277,7 +1277,7 @@ int PPViewGoodsBasket::Print()
 		p_dlg->setCtrlData(CTL_GBPRINT_REPORT, &(v = 0));
 		p_dlg->setCtrlData(CTL_GBPRINT_REPORT, &(v = 0));
 		if(ExecView(p_dlg) == cmOK) {
-			PPReportEnv env;
+			PPReportEnv env(0, 0);
 			p_dlg->getCtrlData(CTL_GBPRINT_REPORT, &v);
 			if(v == 0) {
 				rpt_id = REPORT_GOODSBASKET;

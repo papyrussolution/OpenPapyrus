@@ -797,8 +797,8 @@ DBQuery * PPViewOpGrouping::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 int PPViewOpGrouping::Print(const void * pHdr)
 {
 	int    ok = 1;
-	uint   rpt_id = 0, sel = 0;
-	PPReportEnv env;
+	uint   rpt_id = 0;
+	uint   sel = 0;
 	if(!Filt.Cycl && !Filt.ExtGoodsTypeID)
 		ok = SelectorDialog(DLG_SELOGPRN, CTL_SELOGPRN_SEL, &sel);
 	if(ok > 0) {
@@ -809,8 +809,7 @@ int PPViewOpGrouping::Print(const void * pHdr)
 			rpt_id = REPORT_BILLOPGRPNGEXT;
 		else
 			rpt_id = sel ? REPORT_BILLOPGRPNGBLIST : REPORT_BILLOPGRPNG;
-		if(!sel && !Filt.Cycl)
-			env.PrnFlags |= SReport::DisableGrouping;
+		PPReportEnv env((!sel && !Filt.Cycl) ? SReport::DisableGrouping : 0, 0);
 		PPAlddPrint(rpt_id, PView(this), &env);
 	}
 	return ok;

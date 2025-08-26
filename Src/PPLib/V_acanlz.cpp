@@ -2310,8 +2310,7 @@ static int SelectPrintingAccSheetTrnovr(int * pWhat, LDATE * pExpiry, uint * pFl
 	else
 		rpt_id = REPORT_ACCGRPNGCYCLE;
 	if(!done && ok > 0) {
-		PPReportEnv env;
-		env.PrnFlags = disable_grpng ? SReport::DisableGrouping : 0;
+		PPReportEnv env(disable_grpng ? SReport::DisableGrouping : 0, 0);
 		PPAlddPrint(rpt_id, PView(this), &env);
 	}
 	CATCHZOKPPERR

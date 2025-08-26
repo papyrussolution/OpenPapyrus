@@ -6477,8 +6477,7 @@ int PPViewBill::Print()
 		order = OrdByObjectName;
 	THROW(reply = SelectBillListForm(&form, &ext, &order));
 	if(reply > 0) {
-		PPReportEnv env;
-		env.Sort = order;
+		PPReportEnv env(0, order);
 		PPAlddPrint(form, PView(this), &env);
 	}
 	CATCHZOKPPERR

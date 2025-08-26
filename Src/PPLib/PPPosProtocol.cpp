@@ -728,7 +728,7 @@ int PPPosProtocol::ExportDataForPosNode(PPID nodeID, int updOnly, PPID sinceDlsI
 
 int PPPosProtocol::PreprocessFtpDescriptor(const SString & rDescriptor, PPID posNodeID, PPInternetAccount & rInaRec, SString & rFtpExtPath)
 {
-	rInaRec.Init();
+	rInaRec.Z();
 	rFtpExtPath.Z();
 	int    ok = -1;
 	if(rDescriptor.HasPrefixIAscii(P_FtpPrefix)) {

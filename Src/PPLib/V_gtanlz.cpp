@@ -851,8 +851,7 @@ int PPViewGoodsTaxAnalyze::Print(const void *)
 			Filt.GoodsGrpID = 0;
 		}
 		//
-		PPReportEnv env;
-		env.Sort = order;
+		PPReportEnv env(0, order);
 		PPAlddPrint(rpt_id, PView(this), &env);
 		if(cur_grp_id)
 			Filt.GoodsGrpID = cur_grp_id;

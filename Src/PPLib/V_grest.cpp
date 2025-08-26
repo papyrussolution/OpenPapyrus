@@ -4366,13 +4366,11 @@ int PPViewGoodsRest::Print(const void * pExtra)
 			ord = (flags & GoodsRestReport::fDisableGrpng) ? PPViewGoodsRest::OrdByGoodsName : PPViewGoodsRest::OrdByGrp_GoodsName;
 	}
 	if(rpt_id) {
-		PPReportEnv env;
 		PView  pf(this);
 		pf.ID  = price_type;
 		if(flags & GoodsRestReport::fInPacks)
 			pf.ID |= 0x10000l;
-		env.Sort = ord;
-		env.PrnFlags = (flags & GoodsRestReport::fDisableGrpng) ? (SReport::DisableGrouping | SReport::NoRepError) : SReport::NoRepError;
+		PPReportEnv env(((flags & GoodsRestReport::fDisableGrpng) ? (SReport::DisableGrouping|SReport::NoRepError) : SReport::NoRepError), ord);
 		THROW(PPAlddPrint(rpt_id, pf, &env));
 	}
 	CATCHZOKPPERR

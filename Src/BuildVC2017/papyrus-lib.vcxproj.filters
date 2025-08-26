@@ -345,5 +345,6 @@
     <ClCompile Include="..\PPLib\ppexcelapp.cpp" />
     <ClCompile Include="..\PPLib\v_unitec.cpp" />
     <ClCompile Include="..\PPLib\v_outer.cpp" />
+    <ClCompile Include="..\PPLib\_sprinter.cpp" />
   </ItemGroup>
 </Project>

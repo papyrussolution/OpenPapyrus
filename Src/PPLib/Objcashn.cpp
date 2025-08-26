@@ -3440,8 +3440,7 @@ int PPObjLocPrinter::Browse(void * extraPtr)
 				if(P_Obj->Search(getCurrID(), &loc_prn) > 0) {
 					DS.GetTLA().PrintDevice = loc_prn.Port;
 					const uint rpt_id = REPORT_LOCPRNTEST;
-					PPReportEnv env;
-					env.PrnFlags = SReport::PrintingNoAsk;
+					PPReportEnv env(SReport::PrintingNoAsk, 0);
 					if(!PPAlddPrint(rpt_id, PView(&loc_prn), &env))
 						PPError();
 					DS.GetTLA().PrintDevice.Z();

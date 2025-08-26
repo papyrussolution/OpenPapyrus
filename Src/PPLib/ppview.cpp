@@ -2083,8 +2083,7 @@ int FASTCALL PPView::Helper_Print(uint rptId, int ord)
 {
 	int    ok = 1;
 	if(rptId) {
-		PPReportEnv env;
-		env.Sort = ord;
+		PPReportEnv env(0, ord);
 		ok = PPAlddPrint(rptId, PView(this), &env);
 	}
 	else
@@ -2096,9 +2095,7 @@ int PPView::ExportXml(uint rptId, int ord)
 {
 	int    ok = 1;
 	if(rptId) {
-		PPReportEnv env;
-		env.Sort = ord;
-		env.PrnFlags = SReport::XmlExport|SReport::PrintingNoAsk;
+		PPReportEnv env(SReport::XmlExport|SReport::PrintingNoAsk, ord);
 		ok = PPAlddPrint(rptId, PView(this), &env);
 	}
 	else

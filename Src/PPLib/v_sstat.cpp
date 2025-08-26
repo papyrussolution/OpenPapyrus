@@ -1332,17 +1332,16 @@ int PPViewSStat::Print(const void *)
 {
 	int    ok = 1;
 	uint   rpt_id = (Filt.Flags & SStatFilt::fSupplOrderForm) ? (P_Ct ? REPORT_SSTATSUPPLORD_CT : REPORT_SSTATSUPPLORD) : REPORT_SSTATGGROUP;
-	PPReportEnv env;
-	env.Sort = Filt.Order;
-	if(!oneof2(env.Sort, OrdByDefault, OrdByGoodsName))
-		env.PrnFlags = SReport::DisableGrouping;
+	PPReportEnv env(!oneof2(Filt.Order, OrdByDefault, OrdByGoodsName) ? SReport::DisableGrouping : 0, Filt.Order);
 	PPAlddPrint(rpt_id, PView(this), &env);
 	return ok;
 }
 
 int PPViewSStat::ConvertLinesToBasket()
 {
-	int    ok = -1, r = -1, convert = 0;
+	int    ok = -1;
+	int    r = -1;
+	int    convert = 0;
 	SelBasketParam param;
 	param.SelPrice = 1;
 	if(Filt.Sgg == sggNone && (r = GetBasketByDialog(&param, GetSymb())) > 0) {

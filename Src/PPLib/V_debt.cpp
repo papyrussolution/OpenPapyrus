@@ -2455,7 +2455,7 @@ static int SelectPrintingDebtTrnovrSheet(int * pWhat, LDATE * pExpiry, ushort *p
 int PPViewDebtTrnovr::Print(const void *)
 {
 	uint   rpt_id = 0;
-	PPReportEnv env;
+	PPReportEnv env(0, 0);
 	if(Filt.CycleKind)
 		rpt_id = REPORT_DEBTTRNOVR_CT;
 	else if(Filt.ExtKind == DebtTrnovrFilt::ekExpiryPart)

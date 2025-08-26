@@ -1547,10 +1547,10 @@ extern "C" typedef SCoClass * (*FN_DL6CLS_FACTORY)(const DlContext *, const DlSc
 	return DlRtm::NextIteration(iterId);
 
 struct PPReportEnv {
-	PPReportEnv();
+	PPReportEnv(long prnFlags, long sort);
 
-	long   Sort;
 	long   PrnFlags;
+	long   Sort;
 	SString DefPrnForm;
 	SString EmailAddr;
 	SString ContextSymb; // Символ контекста, позволяющий дифференцировать выбор формы отчета.

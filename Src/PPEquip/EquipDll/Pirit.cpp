@@ -5,7 +5,7 @@
 #include <ppdrvapi.h>
 #include <pp-ifm.h>
 
-static constexpr bool FractionalMedcineTo1291 = true/*не работает*/; // @v12.3.7 Если true, то дробное количество лекарств передаются в поле
+static constexpr bool FractionalMedcineTo1291 = false/*не работает*/; // @v12.3.7 Если true, то дробное количество лекарств передаются в поле
 	// количества команды 0x42 в виде n/m, в противном случае - в команде 0x24 в спец строке mdlp
 
 BOOL APIENTRY DllMain(HANDLE hModule, DWORD dwReason, LPVOID lpReserved)

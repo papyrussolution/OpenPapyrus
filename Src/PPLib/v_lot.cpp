@@ -2759,11 +2759,11 @@ int PPViewLot::Detail(const void * pHdr, PPViewBrowser * pBrw)
 int PPViewLot::Print(const void *)
 {
 	int    ok = 1;
-	PPReportEnv env;
 	TDialog * dlg = new TDialog(DLG_PRNLOTS);
 	if(CheckDialogPtrErr(&dlg)) {
 		int    reply = ExecView(dlg);
 		ushort v;
+		PPReportEnv env(0, 0);
 		dlg->getCtrlData(CTL_PRNLOTS_ORDER, &v);
 		if(v == 1)
 			env.Sort = OrdByGoodsName;

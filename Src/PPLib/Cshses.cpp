@@ -1897,7 +1897,7 @@ int PPAsyncCashSession::DistributeFile_(const char * pFileName, const char * pEn
 			}
 			else if(path.HasChr('@')) {
 				if(action == dfactCopy && pEmailSubj)
-					ok = SendMailWithAttach(pEmailSubj, pFileName, 0, path, mac_rec.ID);
+					ok = SendMailWithAttachment(pEmailSubj, pFileName, 0, path, mac_rec.ID);
 				else
 					ok = 1;
 			}
