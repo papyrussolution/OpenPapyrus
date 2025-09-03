@@ -40618,9 +40618,9 @@ static int test_xmlNewTextWriter() {
 	return test_ret;
 }
 
-static int test_xmlNewTextWriterFilename() {
+static int test_xmlNewTextWriterFilename() 
+{
 	int test_ret = 0;
-
 #if defined(LIBXML_WRITER_ENABLED)
 	int mem_base;
 	xmlTextWriterPtr ret_val;
@@ -40628,13 +40628,11 @@ static int test_xmlNewTextWriterFilename() {
 	int n_uri;
 	int compression; /* compress the output? */
 	int n_compression;
-
 	for(n_uri = 0; n_uri < gen_nb_fileoutput; n_uri++) {
 		for(n_compression = 0; n_compression < gen_nb_int; n_compression++) {
 			mem_base = xmlMemBlocks();
 			uri = gen_fileoutput(n_uri, 0);
 			compression = gen_int(n_compression, 1);
-
 			ret_val = xmlNewTextWriterFilename(uri, compression);
 			desret_xmlTextWriterPtr(ret_val);
 			call_tests++;
@@ -40642,8 +40640,7 @@ static int test_xmlNewTextWriterFilename() {
 			des_int(n_compression, compression, 1);
 			xmlResetLastError();
 			if(mem_base != xmlMemBlocks()) {
-				printf("Leak of %d blocks found in xmlNewTextWriterFilename",
-				    xmlMemBlocks() - mem_base);
+				printf("Leak of %d blocks found in xmlNewTextWriterFilename", xmlMemBlocks() - mem_base);
 				test_ret++;
 				printf(" %d", n_uri);
 				printf(" %d", n_compression);

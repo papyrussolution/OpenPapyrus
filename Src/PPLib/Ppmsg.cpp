@@ -554,15 +554,8 @@ int FASTCALL PPErrorTooltip(int errcode, const char * pAddInfo)
 	return ok;
 }
 
-int PPErrorZ()
-{
-	return (PPError(-1, 0), 0);
-}
-
-int PPDbSearchError()
-{
-	return (BTROKORNFOUND) /**/ ? -1 : PPSetErrorDB();
-}
+int PPErrorZ() { return (PPError(-1, 0), 0); }
+int PPDbSearchError() { return (BTROKORNFOUND) /**/ ? -1 : PPSetErrorDB(); }
 
 static int PPCriticalWarning(SString & rMsg, uint /*options*/)
 {

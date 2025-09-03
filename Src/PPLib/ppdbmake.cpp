@@ -125,10 +125,10 @@ int CreateByExample(const char * pPath)
 				tbl_name = ts.TblName;
 				PPWaitMsg(tbl_name);
 				THROW_MEM(p_dst_tbl = new DBTable(tbl_name, dst_path));
-				THROW(p_dst_tbl->allocOwnBuffer(SKILOBYTE(60)));
+				THROW(p_dst_tbl->AllocateOwnBuffer(SKILOBYTE(60)));
 				if(fileExists(src_path)) {
 					THROW_MEM(p_src_tbl = new DBTable(tbl_name));
-					THROW(p_src_tbl->allocOwnBuffer(SKILOBYTE(60)));
+					THROW(p_src_tbl->AllocateOwnBuffer(SKILOBYTE(60)));
 					if(isNeededFile(tbl_name)) {
 						RECORDNUMBER rn, i = 0;
 						PPTransaction tra(1);

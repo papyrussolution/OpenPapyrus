@@ -156,6 +156,8 @@ struct CheckStruct {
 		ChZnPpStatus = 0; // @v11.1.11
 		ChZnPm_ReqId.Z();  // @v12.1.1
 		ChZnPm_ReqTimestamp = 0; // @v12.1.1
+		ChZnPm_LocalModuleInstance.Z(); // @v12.3.12
+		ChZnPm_LocalModuleDbVer.Z();    // @v12.3.12
 		Timestamp.Z(); // @v11.2.3
 		BuyersEmail.Z(); // @v11.3.6
 		BuyersPhone.Z(); // @v11.3.6
@@ -195,6 +197,8 @@ struct CheckStruct {
 	int    ChZnPpStatus; // @v11.1.11 Статус, присвоенный марке честный знак на фазе препроцессинга
 	S_GUID ChZnPm_ReqId;  // @v12.1.1 ответ разрешительного режима чзн: уникальный идентификатор запроса
 	int64  ChZnPm_ReqTimestamp; // @v12.1.1 ответ разрешительного режима чзн: дата и время формирования запроса
+	S_GUID ChZnPm_LocalModuleInstance; // @v12.3.12 ответ разрешительного режима чзн (локальный сервер): идент локального модуля проверки
+	S_GUID ChZnPm_LocalModuleDbVer;    // @v12.3.12 ответ разрешительного режима чзн (локальный сервер): версия базы «чёрного списка», на которой выполнялась проверка КИ
 	LDATETIME Timestamp; // @v11.2.3 Дата и время чека
 	SString Text;
 	SString Code;        //
@@ -1545,8 +1549,8 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 				Check.ChZnSid = param_val;
 			// @v12.1.1 {
 			{
+				S_GUID uuid;
 				if(pb.Get("CHZNPMREQID", param_val) > 0) {
-					S_GUID uuid;
 					if(uuid.FromStr(param_val))
 						Check.ChZnPm_ReqId = uuid;
 				}
@@ -1555,6 +1559,16 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 					if(ts != 0)
 						Check.ChZnPm_ReqTimestamp = ts;
 				}
+				// @v12.3.12 {
+				if(pb.Get("CHZNPMLOCALMODULEINST", param_val) > 0) {
+					if(uuid.FromStr(param_val))
+						Check.ChZnPm_LocalModuleInstance = uuid;
+				}
+				if(pb.Get("CHZNPMLOCALMODULEDBVER", param_val) > 0) {
+					if(uuid.FromStr(param_val))
+						Check.ChZnPm_LocalModuleDbVer = uuid;
+				}
+				// } @v12.3.12 
 			}
 			// } @v12.1.1 
 			if(pb.Get("UOMFRAGM", param_val) > 0) // @v11.2.5
@@ -2750,6 +2764,16 @@ int PiritEquip::RunCheck(int opertype)
 											str.CatEq("UUID", Check.ChZnPm_ReqId, S_GUID::fmtIDL|S_GUID::fmtLower);
 											str.CatChar('&');
 											str.CatEq("Time", Check.ChZnPm_ReqTimestamp);
+											// @v12.3.12 {
+											if(!!Check.ChZnPm_LocalModuleInstance) {
+												str.CatChar('&');
+												str.CatEq("Inst", Check.ChZnPm_LocalModuleInstance, S_GUID::fmtIDL|S_GUID::fmtLower);
+											}
+											if(!!Check.ChZnPm_LocalModuleDbVer) {
+												str.CatChar('&');
+												str.CatEq("Ver", Check.ChZnPm_LocalModuleDbVer, S_GUID::fmtIDL|S_GUID::fmtLower);
+											}
+											// } @v12.3.12 
 										}
 										// } @v12.1.1
 										if(str.NotEmpty())

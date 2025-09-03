@@ -1713,7 +1713,9 @@ IMPL_HANDLE_EVENT(PPDesktop)
 								P_ActiveDesktop->Add(-1, &cmd);
 								P_ActiveDesktop->GetIconRect(cmd.GetID(), *this, &ir);
 								State |= stChanged;
-								SaveDesktop(p_mgr, &desktop_list);
+								if(!SaveDesktop(p_mgr, &desktop_list)) {
+									PPErrorTooltip(-1, 0); // @v12.3.12
+								}
 								Update(&ir, 0);
 							}
 							ZDELETE(p_mgr);

@@ -676,24 +676,19 @@ static const int8_t kAsciiToInt[256] = {
 	36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36};
 
 // Parse the sign and optional hex or oct prefix in text.
-inline bool safe_parse_sign_and_base(absl::string_view* text /*inout*/,
-    int* base_ptr /*inout*/,
-    bool* negative_ptr /*output*/) {
+inline bool safe_parse_sign_and_base(absl::string_view* text /*inout*/, int* base_ptr /*inout*/, bool* negative_ptr /*output*/) 
+{
 	if(text->data() == nullptr) {
 		return false;
 	}
-
 	const char* start = text->data();
 	const char* end = start + text->size();
 	int base = *base_ptr;
-
 	// Consume whitespace.
-	while(start < end &&
-	    absl::ascii_isspace(static_cast<unsigned char>(start[0]))) {
+	while(start < end && absl::ascii_isspace(static_cast<unsigned char>(start[0]))) {
 		++start;
 	}
-	while(start < end &&
-	    absl::ascii_isspace(static_cast<unsigned char>(end[-1]))) {
+	while(start < end && absl::ascii_isspace(static_cast<unsigned char>(end[-1]))) {
 		--end;
 	}
 	if(start >= end) {
@@ -1044,9 +1039,8 @@ inline bool safe_parse_negative_int(absl::string_view text, int base,
 
 // Input format based on POSIX.1-2008 strtol
 // http://pubs.opengroup.org/onlinepubs/9699919799/functions/strtol.html
-template <typename IntType>
-inline bool safe_int_internal(absl::string_view text, IntType* value_p,
-    int base) {
+template <typename IntType> inline bool safe_int_internal(absl::string_view text, IntType* value_p, int base) 
+{
 	*value_p = 0;
 	bool negative;
 	if(!safe_parse_sign_and_base(&text, &base, &negative)) {
@@ -1060,9 +1054,8 @@ inline bool safe_int_internal(absl::string_view text, IntType* value_p,
 	}
 }
 
-template <typename IntType>
-inline bool safe_uint_internal(absl::string_view text, IntType* value_p,
-    int base) {
+template <typename IntType> inline bool safe_uint_internal(absl::string_view text, IntType* value_p, int base) 
+{
 	*value_p = 0;
 	bool negative;
 	if(!safe_parse_sign_and_base(&text, &base, &negative) || negative) {
@@ -1094,29 +1087,12 @@ ABSL_CONST_INIT ABSL_DLL const char kHexTable[513] =
     "e0e1e2e3e4e5e6e7e8e9eaebecedeeef"
     "f0f1f2f3f4f5f6f7f8f9fafbfcfdfeff";
 
-bool safe_strto32_base(absl::string_view text, int32_t* value, int base) {
-	return safe_int_internal<int32_t>(text, value, base);
-}
-
-bool safe_strto64_base(absl::string_view text, int64_t* value, int base) {
-	return safe_int_internal<int64_t>(text, value, base);
-}
-
-bool safe_strto128_base(absl::string_view text, int128* value, int base) {
-	return safe_int_internal<absl::int128>(text, value, base);
-}
-
-bool safe_strtou32_base(absl::string_view text, uint32_t* value, int base) {
-	return safe_uint_internal<uint32_t>(text, value, base);
-}
-
-bool safe_strtou64_base(absl::string_view text, uint64_t* value, int base) {
-	return safe_uint_internal<uint64_t>(text, value, base);
-}
-
-bool safe_strtou128_base(absl::string_view text, uint128* value, int base) {
-	return safe_uint_internal<absl::uint128>(text, value, base);
-}
+bool safe_strto32_base(absl::string_view text, int32_t* value, int base) { return safe_int_internal<int32_t>(text, value, base); }
+bool safe_strto64_base(absl::string_view text, int64_t* value, int base) { return safe_int_internal<int64_t>(text, value, base); }
+bool safe_strto128_base(absl::string_view text, int128* value, int base) { return safe_int_internal<absl::int128>(text, value, base); }
+bool safe_strtou32_base(absl::string_view text, uint32_t* value, int base) { return safe_uint_internal<uint32_t>(text, value, base); }
+bool safe_strtou64_base(absl::string_view text, uint64_t* value, int base) { return safe_uint_internal<uint64_t>(text, value, base); }
+bool safe_strtou128_base(absl::string_view text, uint128* value, int base) { return safe_uint_internal<absl::uint128>(text, value, base); }
 }  // namespace numbers_internal
 ABSL_NAMESPACE_END
 }  // namespace absl

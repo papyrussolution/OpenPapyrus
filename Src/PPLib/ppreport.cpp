@@ -2325,259 +2325,6 @@ int CrystalReportPrintParamBlock::Serialize(int dir, SBuffer & rBuf, SSerializeC
 	return ok;
 }
 
-static void DebugOutputCrrExportOptions(const PEExportOptions & rEo, const char * pFileName)
-{
-	if(!isempty(pFileName)) {
-		SString debug_file_path;
-		PPGetFilePath(PPPATH_LOG, pFileName, debug_file_path);
-		SString out_buf;
-		out_buf.Cat(rEo.formatDLLName).Tab().Cat(rEo.nFormatOptionsBytes).CR();
-		out_buf.Tab().Cat("fmtopt").CatDiv(':', 2).CatHex(rEo.formatOptions, rEo.nFormatOptionsBytes).CR();
-		out_buf.Tab().Cat("dstopt").CatDiv(':', 2).CatHex(rEo.destinationOptions, rEo.nDestinationOptionsBytes).CR();
-		SFile f_out(debug_file_path, SFile::mAppend);
-		f_out.WriteLine(out_buf);
-	}
-}
-
-struct CrrPreviewEventParam {
-	static BOOL CALLBACK EventCallback(short eventID, void * pParam, void * pUserData)
-	{
-		if(eventID == PE_CLOSE_PRINT_WINDOW_EVENT) {
-			CrrPreviewEventParam * p_self = static_cast<CrrPreviewEventParam *>(pUserData);
-//#ifndef MODELESS_REPORT_PREVIEW
-			if(p_self && p_self->ModalPreview) {
-				::EnableWindow(/*APPL->H_TopOfStack*/p_self->HwParent, TRUE);
-				p_self->StopPreview++;
-			}
-//#endif
-		}
-		return TRUE;
-	}
-	CrrPreviewEventParam(HWND hParent, bool modalPreview) : HwParent(hParent), ModalPreview(modalPreview), StopPreview(0)
-	{
-	}
-	HWND   HwParent;
-	int    StopPreview;
-	bool   ModalPreview;
-};
-
-int CrystalReportPrint2(const CrystalReportPrintParamBlock & rBlk, CrystalReportPrintReply & rReply, const bool modalPreview, void * hParentWindowForPreview) // @v11.9.5 @construction
-{
-	int    ok = 1;
-	short  h_job = 0;
-	//bool   do_zero_print_device_on_epilog = false;
-	SString msg_buf;
-	PEReportOptions ro;
-	ro.StructSize = sizeof(ro);
-	if(rBlk.Action == CrystalReportPrintParamBlock::actionExport) {
-		bool   silent = false;
-		bool   do_export = true;
-		const char * p__dest_fn = 0;
-		SString path;
-		SString temp_buf;
-		PEExportOptions eo;
-		h_job = PEOpenPrintJob(rBlk.ReportPath);
-		THROW_PP(h_job, PPERR_CRYSTAL_REPORT);
-		PEGetReportOptions(h_job, &ro);
-		ro.morePrintEngineErrorMessages = FALSE;
-		PESetReportOptions(h_job, &ro);
-		{
-			// @v12.3.11 {
-			bool   export_options_done = false;
-			if(rBlk.ExpParam.Format) {
-				if(rBlk.ExpParam.TranslateToCrrExportOptions(eo)) {
-					//DebugOutputCrrExportOptions(eo, "debug-ppreport-expoptions-own.log"); // @debug
-					p__dest_fn = rBlk.ExpParam.DestFileName.cptr();
-					export_options_done = true;
-				}
-			}
-			// } @v12.3.11 
-			if(!export_options_done) {
-				eo.StructSize = sizeof(eo);
-				eo.destinationOptions = 0;
-				eo.formatOptions      = 0;
-				THROW(LoadExportOptions(rBlk.ReportName, &eo, &silent, path));
-				if(silent) {
-					const char * p_dest_fn_2 = *reinterpret_cast<const char * const *>(PTR8C(eo.destinationOptions)+2);
-					p__dest_fn = p_dest_fn_2;
-				}
-				else if(PEGetExportOptions(h_job, &eo)) {
-					//DebugOutputCrrExportOptions(eo, "debug-ppreport-expoptions.log"); // @debug
-					const char * p_dest_fn_1 = reinterpret_cast<const char *>(PTR8C(eo.destinationOptions)+2);
-					p__dest_fn = p_dest_fn_1;
-				}
-				else
-					do_export = false;
-			}
-		}
-		if(do_export) {
-			PEExportTo(h_job, &eo);
-			THROW(SetupReportLocations(h_job, rBlk.Dir, 0));
-			if(rBlk.Options & SPRN_SKIPGRPS)
-				SetupGroupSkipping(h_job);
-			THROW_PP(PEStartPrintJob(h_job, TRUE), PPERR_CRYSTAL_REPORT);
-			if(rBlk.EmailAddr.NotEmpty()) {
-				if(fileExists(p__dest_fn)) {
-					//
-					// Отправка на определенный почтовый адрес
-					//
-					// @v12.3.11 {
-					if(rBlk.InetAcc.NotEmpty()) {
-						StrAssocArray mail_adr_list;
-						SStrCollection file_name_collection;
-						mail_adr_list.AddFast(1, rBlk.EmailAddr);
-						file_name_collection.insert(newStr(p__dest_fn));
-						if(SendMail(rBlk.ReportName, rBlk.ReportName, &mail_adr_list, &rBlk.InetAcc, &file_name_collection, 0/*pLogger*/)) {
-							// Отправка отчета на электронную почту: success 
-							PPLoadString("reportsendmail", temp_buf);
-							temp_buf.CatDiv(':', 2).Cat("success").Space().Cat(rBlk.ReportName).Space().Cat(rBlk.EmailAddr);
-							PPLogMessage(PPFILNAM_INFO_LOG, temp_buf, LOGMSGF_TIME|LOGMSGF_USER);
-						}
-						else {
-							// PPERR_REPORT_SENDMAIL_IMPL Ошибка отправки отчета на электронную почту"
-							PPGetLastErrorMessage(1, temp_buf); // last error text
-							PPGetMessage(mfError, PPERR_REPORT_SENDMAIL_IMPL, 0, 1, msg_buf);
-							PPLogMessage(PPFILNAM_ERR_LOG, msg_buf.CatDiv(':', 2).Cat(temp_buf), LOGMSGF_TIME|LOGMSGF_USER);
-						}
-					}
-					else {
-						// @todo Здесь должен быть другой текст сообщения!
-						// 
-						// PPERR_REPORT_SENDMAIL_NOACC Отправка отчета на электронную почту: конфигурация глобального обмена не содержит ссылку на почтовую учетную запись
-						PPSetError(PPERR_REPORT_SENDMAIL_NOACC);
-						PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
-					}
-					// } @v12.3.11 
-#if 0 // @v12.3.11 {
-					PPAlbatrossConfig alb_cfg;
-					if(PPAlbatrosCfgMngr::Get(&alb_cfg) > 0) {
-						if(alb_cfg.Hdr.MailAccID) {
-							if(SendMailWithAttachment(rBlk.ReportName, /*path*/p__dest_fn, rBlk.ReportName, rBlk.EmailAddr, alb_cfg.Hdr.MailAccID)) {
-								// Отправка отчета на электронную почту: success 
-								PPLoadString("reportsendmail", temp_buf);
-								temp_buf.CatDiv(':', 2).Cat("success").Space().Cat(rBlk.ReportName).Space().Cat(rBlk.EmailAddr);
-								PPLogMessage(PPFILNAM_INFO_LOG, temp_buf, LOGMSGF_TIME|LOGMSGF_USER);
-							}
-							else {
-								// PPERR_REPORT_SENDMAIL_IMPL Ошибка отправки отчета на электронную почту"
-								PPGetLastErrorMessage(1, temp_buf); // last error text
-								PPGetMessage(mfError, PPERR_REPORT_SENDMAIL_IMPL, 0, 1, msg_buf);
-								PPLogMessage(PPFILNAM_ERR_LOG, msg_buf.CatDiv(':', 2).Cat(temp_buf), LOGMSGF_TIME|LOGMSGF_USER);
-							}
-						}
-						else {
-							// PPERR_REPORT_SENDMAIL_NOACC Отправка отчета на электронную почту: конфигурация глобального обмена не содержит ссылку на почтовую учетную запись
-							PPSetError(PPERR_REPORT_SENDMAIL_NOACC);
-							PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
-						}
-					}
-					else {
-						// PPERR_REPORT_SENDMAIL_NOCFG Отправка отчета на электронную почту: не удалось получить конфигурацию глобального обмена
-						PPSetError(PPERR_REPORT_SENDMAIL_NOCFG);
-						PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
-					}
-#endif // } 0 @v12.3.11
-				}
-				else {
-					// PPERR_REPORT_SENDMAIL_NOFILE Отправка отчета на электронную почту: результирующий файл '%s' не найден
-					PPSetError(PPERR_REPORT_SENDMAIL_NOFILE, p__dest_fn);
-					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
-				}
-			}
-		}
-	}
-	else {
-		//
-		const  DEVMODEA * p_dev_mode = (rBlk.InternalFlags & CrystalReportPrintParamBlock::intfDevModeValid) ? &rBlk.DevMode : 0;
-		/* этот блок перенесен в CrystalReportPrint2_ClientExecution
-		SString inner_printer_buf;
-		const char * p_inner_printer = 0;
-		int    num_copies = rBlk.NumCopies;
-		if(p_dev_mode) {
-			inner_printer_buf = reinterpret_cast<const char *>(p_dev_mode->dmDeviceName);
-			if(inner_printer_buf.NotEmptyS())
-				p_inner_printer = inner_printer_buf;
-			num_copies = (p_dev_mode->dmCopies > 0 && p_dev_mode->dmCopies <= 1000) ? p_dev_mode->dmCopies : 1;
-		}
-		else
-			p_inner_printer = rBlk.Printer;
-		*/
-		//
-		h_job = PEOpenPrintJob(rBlk.ReportPath);
-		THROW_PP(h_job, PPERR_CRYSTAL_REPORT);
-		PEGetReportOptions(h_job, &ro);
-		ro.morePrintEngineErrorMessages = FALSE;
-		PESetReportOptions(h_job, &ro);
-		//do_zero_print_device_on_epilog = (DS.GetConstTLA().PrintDevice.IsEmpty() && GetWindowsPrinter(0, &DS.GetTLA().PrintDevice) > 0);
-		THROW(SetPrinterParam(h_job, /*p_inner_printer*/rBlk.Printer, rBlk.Options, p_dev_mode));
-		THROW(SetupReportLocations(h_job, rBlk.Dir, (rBlk.Options & SPRN_DONTRENAMEFILES) ? 0 : 1));
-		if(rBlk.Action == CrystalReportPrintParamBlock::actionPreview/*rBlk.Options & SPRN_PREVIEW*/) {
-			THROW_PP(PEOutputToWindow(h_job, "", CW_USEDEFAULT, CW_USEDEFAULT,
-				CW_USEDEFAULT, CW_USEDEFAULT, WS_MAXIMIZE|WS_VISIBLE|WS_MINIMIZEBOX|WS_MAXIMIZEBOX|WS_SYSMENU, 0), PPERR_CRYSTAL_REPORT);
-		}
-		else {
-			THROW_PP(PEOutputToPrinter(h_job, /*num_copies*/rBlk.NumCopies), PPERR_CRYSTAL_REPORT);
-		}
-		if(rBlk.Options & SPRN_SKIPGRPS)
-			SetupGroupSkipping(h_job);
-		if(/**rBlk.Options & SPRN_PREVIEW ||*/rBlk.Action == CrystalReportPrintParamBlock::actionPreview) {
-			HWND h_parent_window = reinterpret_cast<HWND>(hParentWindowForPreview);
-			CrrPreviewEventParam pep(h_parent_window, modalPreview);
-			PEEnableEventInfo eventInfo;
-			eventInfo.StructSize = sizeof(PEEnableEventInfo);
-			eventInfo.closePrintWindowEvent = TRUE;
-			eventInfo.startStopEvent = TRUE;
-			THROW_PP(PEEnableEvent(h_job, &eventInfo), PPERR_CRYSTAL_REPORT);
-			THROW_PP(PESetEventCallback(h_job, CrrPreviewEventParam::EventCallback, &pep), PPERR_CRYSTAL_REPORT);
-			THROW_PP(PEStartPrintJob(h_job, TRUE), PPERR_CRYSTAL_REPORT);
-	//#ifndef MODELESS_REPORT_PREVIEW
-			if(modalPreview) {
-				if(h_parent_window) {
-					::EnableWindow(h_parent_window, FALSE); // Запрещает работу в программе пока окно просмотра активно
-					APPL->MsgLoop(0, pep.StopPreview);
-				}
-			}
-	//#endif
-		}
-		else {
-			const uint64 profile_start = SLS.GetProfileTime();
-			THROW_PP(PEStartPrintJob(h_job, TRUE), PPERR_CRYSTAL_REPORT);
-			const uint64 profile_end = SLS.GetProfileTime();
-			{
-				msg_buf.Z().CatEq("Report", rBlk.ReportPath);
-				if(rBlk.Printer.NotEmpty()) // Ранее был pPrinter @erik v10.4.10
-					msg_buf.CatDiv(';', 2).CatEq("Printer", rBlk.Printer.NotEmpty()); // Ранее был pPrinter @erik v10.4.10
-				if(rBlk.NumCopies > 1)
-					msg_buf.CatDiv(';', 2).CatEq("Copies", rBlk.NumCopies);
-				msg_buf.CatDiv(';', 2).CatEq("Mks", (profile_end - profile_start));
-				PPLogMessage(PPFILNAM_REPORTING_LOG, msg_buf, LOGMSGF_USER | LOGMSGF_TIME | LOGMSGF_DBINFO);
-			}
-		}
-	}
-	rReply.Z();
-	CATCH
-		{
-			const short crw_err_code = PEGetErrorCode(h_job);
-			CrwError = crw_err_code;
-			rReply.Code = crw_err_code;
-		}
-		// @debug {
-		if(rBlk.Action != CrystalReportPrintParamBlock::actionExport) {
-			PPLoadString("err_crpe", msg_buf);
-			msg_buf.CatDiv(':', 2).Cat(CrwError);
-			rReply.Descr = msg_buf;
-			PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_COMP|LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
-		}
-		// } @debug
-		ok = 0;
-	ENDCATCH
-	if(h_job)
-		PEClosePrintJob(h_job);
-	//if(do_zero_print_device_on_epilog)
-		//DS.GetTLA().PrintDevice.Z();
-	return ok;
-}
-
 #if 0 // @v12.3.11 (see comments at report.h) {
 int CrystalReportPrint(const char * pReportPath, const char * pDir, const char * pPrinter, int numCopies, int options, const DEVMODEA * pDevMode) // @erik v10.4.10 {
 {
@@ -3914,7 +3661,426 @@ int CrystalReportPrint2_ClientExecution(CrystalReportPrintParamBlock & rBlk, Cry
 		}
 	}
 	if(do_use_local_func) {
-		result = CrystalReportPrint2(rBlk, rReply, true/*modalPreview*/, h_parent_window_for_preview);
+		result = CrystalReportPrint2_Local(rBlk, rReply, h_parent_window_for_preview);
 	}
 	return result;
+}
+//
+//
+//
+static void DebugOutputCrrExportOptions(const PEExportOptions & rEo, const char * pFileName)
+{
+	if(!isempty(pFileName)) {
+		SString debug_file_path;
+		PPGetFilePath(PPPATH_LOG, pFileName, debug_file_path);
+		SString out_buf;
+		out_buf.Cat(rEo.formatDLLName).Tab().Cat(rEo.nFormatOptionsBytes).CR();
+		out_buf.Tab().Cat("fmtopt").CatDiv(':', 2).CatHex(rEo.formatOptions, rEo.nFormatOptionsBytes).CR();
+		out_buf.Tab().Cat("dstopt").CatDiv(':', 2).CatHex(rEo.destinationOptions, rEo.nDestinationOptionsBytes).CR();
+		SFile f_out(debug_file_path, SFile::mAppend);
+		f_out.WriteLine(out_buf);
+	}
+}
+
+struct CrrPreviewEventParam {
+	static BOOL CALLBACK EventCallback(short eventID, void * pParam, void * pUserData)
+	{
+		CrrPreviewEventParam * p_self = static_cast<CrrPreviewEventParam *>(pUserData);
+		if(eventID == PE_CLOSE_PRINT_WINDOW_EVENT && p_self && p_self->ModalPreview) {
+			::EnableWindow(/*APPL->H_TopOfStack*/p_self->HwParent, TRUE);
+			p_self->StopPreview++;
+		}
+		return TRUE;
+	}
+	CrrPreviewEventParam(HWND hParent, bool modalPreview) : HwParent(hParent), ModalPreview(modalPreview), StopPreview(0)
+	{
+	}
+	HWND   HwParent;
+	int    StopPreview;
+	bool   ModalPreview;
+};
+
+int CrystalReportPrint2_Local(const CrystalReportPrintParamBlock & rBlk, CrystalReportPrintReply & rReply, void * hParentWindowForPreview) // @v11.9.5 
+{
+	const  bool modal_preview = true;
+	int    ok = 1;
+	short  h_job = 0;
+	SString msg_buf;
+	PEReportOptions ro;
+	ro.StructSize = sizeof(ro);
+	if(rBlk.Action == CrystalReportPrintParamBlock::actionExport) {
+		bool   silent = false;
+		bool   do_export = true;
+		const char * p__dest_fn = 0;
+		SString path;
+		SString temp_buf;
+		PEExportOptions eo;
+		h_job = PEOpenPrintJob(rBlk.ReportPath);
+		THROW_PP(h_job, PPERR_CRYSTAL_REPORT);
+		PEGetReportOptions(h_job, &ro);
+		ro.morePrintEngineErrorMessages = FALSE;
+		PESetReportOptions(h_job, &ro);
+		{
+			// @v12.3.11 {
+			bool   export_options_done = false;
+			if(rBlk.ExpParam.Format) {
+				if(rBlk.ExpParam.TranslateToCrrExportOptions(eo)) {
+					//DebugOutputCrrExportOptions(eo, "debug-ppreport-expoptions-own.log"); // @debug
+					p__dest_fn = rBlk.ExpParam.DestFileName.cptr();
+					export_options_done = true;
+				}
+			}
+			// } @v12.3.11 
+			if(!export_options_done) {
+				eo.StructSize = sizeof(eo);
+				eo.destinationOptions = 0;
+				eo.formatOptions      = 0;
+				THROW(LoadExportOptions(rBlk.ReportName, &eo, &silent, path));
+				if(silent) {
+					const char * p_dest_fn_2 = *reinterpret_cast<const char * const *>(PTR8C(eo.destinationOptions)+2);
+					p__dest_fn = p_dest_fn_2;
+				}
+				else if(PEGetExportOptions(h_job, &eo)) {
+					//DebugOutputCrrExportOptions(eo, "debug-ppreport-expoptions.log"); // @debug
+					const char * p_dest_fn_1 = reinterpret_cast<const char *>(PTR8C(eo.destinationOptions)+2);
+					p__dest_fn = p_dest_fn_1;
+				}
+				else
+					do_export = false;
+			}
+		}
+		if(do_export) {
+			PEExportTo(h_job, &eo);
+			THROW(SetupReportLocations(h_job, rBlk.Dir, 0));
+			if(rBlk.Options & SPRN_SKIPGRPS)
+				SetupGroupSkipping(h_job);
+			THROW_PP(PEStartPrintJob(h_job, TRUE), PPERR_CRYSTAL_REPORT);
+			if(rBlk.EmailAddr.NotEmpty()) {
+				if(fileExists(p__dest_fn)) {
+					//
+					// Отправка на определенный почтовый адрес
+					//
+					// @v12.3.11 {
+					if(/*rBlk.InetAcc.NotEmpty()*/true) {
+						StrAssocArray mail_adr_list;
+						SStrCollection file_name_collection;
+						mail_adr_list.AddFast(1, rBlk.EmailAddr);
+						file_name_collection.insert(newStr(p__dest_fn));
+						if(SendMail(rBlk.ReportName, rBlk.ReportName, &mail_adr_list, &rBlk.InetAcc, &file_name_collection, 0/*pLogger*/)) {
+							// Отправка отчета на электронную почту: success 
+							PPLoadString("reportsendmail", temp_buf);
+							temp_buf.CatDiv(':', 2).Cat("success").Space().Cat(rBlk.ReportName).Space().Cat(rBlk.EmailAddr);
+							PPLogMessage(PPFILNAM_INFO_LOG, temp_buf, LOGMSGF_TIME|LOGMSGF_USER);
+						}
+						else {
+							// PPERR_REPORT_SENDMAIL_IMPL Ошибка отправки отчета на электронную почту"
+							PPGetLastErrorMessage(1, temp_buf); // last error text
+							PPGetMessage(mfError, PPERR_REPORT_SENDMAIL_IMPL, 0, 1, msg_buf);
+							PPLogMessage(PPFILNAM_ERR_LOG, msg_buf.CatDiv(':', 2).Cat(temp_buf), LOGMSGF_TIME|LOGMSGF_USER);
+						}
+					}
+					else {
+						// @todo Здесь должен быть другой текст сообщения!
+						// 
+						// PPERR_REPORT_SENDMAIL_NOACC Отправка отчета на электронную почту: конфигурация глобального обмена не содержит ссылку на почтовую учетную запись
+						PPSetError(PPERR_REPORT_SENDMAIL_NOACC);
+						PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
+					}
+					// } @v12.3.11 
+				}
+				else {
+					// PPERR_REPORT_SENDMAIL_NOFILE Отправка отчета на электронную почту: результирующий файл '%s' не найден
+					PPSetError(PPERR_REPORT_SENDMAIL_NOFILE, p__dest_fn);
+					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
+				}
+			}
+		}
+	}
+	else {
+		const DEVMODEA * p_dev_mode = (rBlk.InternalFlags & CrystalReportPrintParamBlock::intfDevModeValid) ? &rBlk.DevMode : 0;
+		h_job = PEOpenPrintJob(rBlk.ReportPath);
+		THROW_PP(h_job, PPERR_CRYSTAL_REPORT);
+		PEGetReportOptions(h_job, &ro);
+		ro.morePrintEngineErrorMessages = FALSE;
+		PESetReportOptions(h_job, &ro);
+		THROW(SetPrinterParam(h_job, rBlk.Printer, rBlk.Options, p_dev_mode));
+		THROW(SetupReportLocations(h_job, rBlk.Dir, (rBlk.Options & SPRN_DONTRENAMEFILES) ? 0 : 1));
+		if(rBlk.Action == CrystalReportPrintParamBlock::actionPreview) {
+			THROW_PP(PEOutputToWindow(h_job, "", CW_USEDEFAULT, CW_USEDEFAULT,
+				CW_USEDEFAULT, CW_USEDEFAULT, WS_MAXIMIZE|WS_VISIBLE|WS_MINIMIZEBOX|WS_MAXIMIZEBOX|WS_SYSMENU, 0), PPERR_CRYSTAL_REPORT);
+		}
+		else {
+			THROW_PP(PEOutputToPrinter(h_job, rBlk.NumCopies), PPERR_CRYSTAL_REPORT);
+		}
+		if(rBlk.Options & SPRN_SKIPGRPS)
+			SetupGroupSkipping(h_job);
+		if(rBlk.Action == CrystalReportPrintParamBlock::actionPreview) {
+			HWND h_parent_window = reinterpret_cast<HWND>(hParentWindowForPreview);
+			CrrPreviewEventParam pep(h_parent_window, modal_preview);
+			PEEnableEventInfo event_info;
+			event_info.StructSize = sizeof(PEEnableEventInfo);
+			event_info.closePrintWindowEvent = TRUE;
+			event_info.startStopEvent = TRUE;
+			THROW_PP(PEEnableEvent(h_job, &event_info), PPERR_CRYSTAL_REPORT);
+			THROW_PP(PESetEventCallback(h_job, CrrPreviewEventParam::EventCallback, &pep), PPERR_CRYSTAL_REPORT);
+			THROW_PP(PEStartPrintJob(h_job, /*TRUE*/modal_preview/*waitUntilDone*/), PPERR_CRYSTAL_REPORT);
+			if(modal_preview) {
+				if(h_parent_window) {
+					::EnableWindow(h_parent_window, FALSE); // Запрещает работу в программе пока окно просмотра активно
+					APPL->MsgLoop(0, pep.StopPreview);
+				}
+			}
+		}
+		else {
+			const uint64 profile_start = SLS.GetProfileTime();
+			THROW_PP(PEStartPrintJob(h_job, TRUE), PPERR_CRYSTAL_REPORT);
+			const uint64 profile_end = SLS.GetProfileTime();
+			{
+				msg_buf.Z().CatEq("Report", rBlk.ReportPath);
+				if(rBlk.Printer.NotEmpty()) // Ранее был pPrinter @erik v10.4.10
+					msg_buf.CatDiv(';', 2).CatEq("Printer", rBlk.Printer.NotEmpty()); // Ранее был pPrinter @erik v10.4.10
+				if(rBlk.NumCopies > 1)
+					msg_buf.CatDiv(';', 2).CatEq("Copies", rBlk.NumCopies);
+				msg_buf.CatDiv(';', 2).CatEq("Mks", (profile_end - profile_start));
+				PPLogMessage(PPFILNAM_REPORTING_LOG, msg_buf, LOGMSGF_USER | LOGMSGF_TIME | LOGMSGF_DBINFO);
+			}
+		}
+	}
+	rReply.Z();
+	CATCH
+		{
+			const short crw_err_code = PEGetErrorCode(h_job);
+			CrwError = crw_err_code;
+			rReply.Code = crw_err_code;
+		}
+		// @debug {
+		if(rBlk.Action != CrystalReportPrintParamBlock::actionExport) {
+			PPLoadString("err_crpe", msg_buf);
+			msg_buf.CatDiv(':', 2).Cat(CrwError);
+			rReply.Descr = msg_buf;
+			PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_COMP|LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
+		}
+		// } @debug
+		ok = 0;
+	ENDCATCH
+	if(h_job)
+		PEClosePrintJob(h_job);
+	return ok;
+}
+
+static int SendReportLaunchingResultToClientsPipe(SIntHandle hPipe, const SJson & rJs)
+{
+	int    ok = 1;
+	if(hPipe) {
+		STempBuffer wr_buf(SKILOBYTE(1));
+		SString temp_buf;
+		rJs.ToStr(temp_buf);
+		temp_buf.CopyTo(wr_buf, wr_buf.GetSize());
+		DWORD reply_size = temp_buf.Len()+1;
+		DWORD wr_size = 0;
+		boolint wr_ok = ::WriteFile(hPipe, wr_buf, reply_size, &wr_size, NULL/*not overlapped I/O*/);
+		if(wr_ok) {
+			ok = 1;
+		}
+		else {
+			ok = 0;
+		}
+	}
+	else
+		ok = -1;
+	return ok;
+}
+
+int CrystalReportPrint2_Server(const CrystalReportPrintParamBlock & rBlk, CrystalReportPrintReply & rReply, void * hParentWindowForPreview, SIntHandle hPipe) // @v11.9.5 
+{
+	int    ok = 1;
+	short  h_job = 0;
+	SString temp_buf;
+	SString msg_buf;
+	SJson  js_reply(SJson::tOBJECT); // @v12.3.12
+	bool   is_reply_sent = false; // @v12.3.12
+	PEReportOptions ro;
+	ro.StructSize = sizeof(ro);
+	if(rBlk.Action == CrystalReportPrintParamBlock::actionExport) {
+		bool   silent = false;
+		bool   do_export = true;
+		const char * p__dest_fn = 0;
+		SString path;
+		PEExportOptions eo;
+		h_job = PEOpenPrintJob(rBlk.ReportPath);
+		THROW_PP(h_job, PPERR_CRYSTAL_REPORT);
+		PEGetReportOptions(h_job, &ro);
+		ro.morePrintEngineErrorMessages = FALSE;
+		PESetReportOptions(h_job, &ro);
+		{
+			// @v12.3.11 {
+			bool   export_options_done = false;
+			if(rBlk.ExpParam.Format) {
+				if(rBlk.ExpParam.TranslateToCrrExportOptions(eo)) {
+					//DebugOutputCrrExportOptions(eo, "debug-ppreport-expoptions-own.log"); // @debug
+					p__dest_fn = rBlk.ExpParam.DestFileName.cptr();
+					export_options_done = true;
+				}
+			}
+			// } @v12.3.11 
+			if(!export_options_done) {
+				eo.StructSize = sizeof(eo);
+				eo.destinationOptions = 0;
+				eo.formatOptions      = 0;
+				THROW(LoadExportOptions(rBlk.ReportName, &eo, &silent, path));
+				if(silent) {
+					const char * p_dest_fn_2 = *reinterpret_cast<const char * const *>(PTR8C(eo.destinationOptions)+2);
+					p__dest_fn = p_dest_fn_2;
+				}
+				else if(PEGetExportOptions(h_job, &eo)) {
+					//DebugOutputCrrExportOptions(eo, "debug-ppreport-expoptions.log"); // @debug
+					const char * p_dest_fn_1 = reinterpret_cast<const char *>(PTR8C(eo.destinationOptions)+2);
+					p__dest_fn = p_dest_fn_1;
+				}
+				else
+					do_export = false;
+			}
+		}
+		if(do_export) {
+			PEExportTo(h_job, &eo);
+			THROW(SetupReportLocations(h_job, rBlk.Dir, 0));
+			if(rBlk.Options & SPRN_SKIPGRPS)
+				SetupGroupSkipping(h_job);
+			THROW_PP(PEStartPrintJob(h_job, TRUE), PPERR_CRYSTAL_REPORT);
+			if(rBlk.EmailAddr.NotEmpty()) {
+				if(fileExists(p__dest_fn)) {
+					//
+					// Отправка на определенный почтовый адрес
+					//
+					// @v12.3.11 {
+					if(/*rBlk.InetAcc.NotEmpty()*/true) {
+						StrAssocArray mail_adr_list;
+						SStrCollection file_name_collection;
+						mail_adr_list.AddFast(1, rBlk.EmailAddr);
+						file_name_collection.insert(newStr(p__dest_fn));
+						if(SendMail(rBlk.ReportName, rBlk.ReportName, &mail_adr_list, &rBlk.InetAcc, &file_name_collection, 0/*pLogger*/)) {
+							// Отправка отчета на электронную почту: success 
+							PPLoadString("reportsendmail", temp_buf);
+							temp_buf.CatDiv(':', 2).Cat("success").Space().Cat(rBlk.ReportName).Space().Cat(rBlk.EmailAddr);
+							PPLogMessage(PPFILNAM_INFO_LOG, temp_buf, LOGMSGF_TIME|LOGMSGF_USER);
+						}
+						else {
+							// PPERR_REPORT_SENDMAIL_IMPL Ошибка отправки отчета на электронную почту"
+							PPGetLastErrorMessage(1, temp_buf); // last error text
+							PPGetMessage(mfError, PPERR_REPORT_SENDMAIL_IMPL, 0, 1, msg_buf);
+							PPLogMessage(PPFILNAM_ERR_LOG, msg_buf.CatDiv(':', 2).Cat(temp_buf), LOGMSGF_TIME|LOGMSGF_USER);
+						}
+					}
+					else {
+						// @todo Здесь должен быть другой текст сообщения!
+						// 
+						// PPERR_REPORT_SENDMAIL_NOACC Отправка отчета на электронную почту: конфигурация глобального обмена не содержит ссылку на почтовую учетную запись
+						PPSetError(PPERR_REPORT_SENDMAIL_NOACC);
+						PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
+					}
+					// } @v12.3.11 
+				}
+				else {
+					// PPERR_REPORT_SENDMAIL_NOFILE Отправка отчета на электронную почту: результирующий файл '%s' не найден
+					PPSetError(PPERR_REPORT_SENDMAIL_NOFILE, p__dest_fn);
+					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
+				}
+			}
+		}
+	}
+	else {
+		const DEVMODEA * p_dev_mode = (rBlk.InternalFlags & CrystalReportPrintParamBlock::intfDevModeValid) ? &rBlk.DevMode : 0;
+		h_job = PEOpenPrintJob(rBlk.ReportPath);
+		THROW_PP(h_job, PPERR_CRYSTAL_REPORT);
+		PEGetReportOptions(h_job, &ro);
+		ro.morePrintEngineErrorMessages = FALSE;
+		PESetReportOptions(h_job, &ro);
+		THROW(SetPrinterParam(h_job, rBlk.Printer, rBlk.Options, p_dev_mode));
+		THROW(SetupReportLocations(h_job, rBlk.Dir, (rBlk.Options & SPRN_DONTRENAMEFILES) ? 0 : 1));
+		if(rBlk.Action == CrystalReportPrintParamBlock::actionPreview) {
+			THROW_PP(PEOutputToWindow(h_job, "", CW_USEDEFAULT, CW_USEDEFAULT,
+				CW_USEDEFAULT, CW_USEDEFAULT, WS_MAXIMIZE|WS_VISIBLE|WS_MINIMIZEBOX|WS_MAXIMIZEBOX|WS_SYSMENU, 0), PPERR_CRYSTAL_REPORT);
+		}
+		else {
+			THROW_PP(PEOutputToPrinter(h_job, rBlk.NumCopies), PPERR_CRYSTAL_REPORT);
+		}
+		if(rBlk.Options & SPRN_SKIPGRPS)
+			SetupGroupSkipping(h_job);
+		if(rBlk.Action == CrystalReportPrintParamBlock::actionPreview) {
+			const  bool modal_preview = true;
+			HWND h_parent_window = reinterpret_cast<HWND>(hParentWindowForPreview);
+			CrrPreviewEventParam pep(h_parent_window, modal_preview);
+			PEEnableEventInfo event_info;
+			event_info.StructSize = sizeof(PEEnableEventInfo);
+			event_info.closePrintWindowEvent = TRUE;
+			event_info.startStopEvent = TRUE;
+			THROW_PP(PEEnableEvent(h_job, &event_info), PPERR_CRYSTAL_REPORT);
+			THROW_PP(PESetEventCallback(h_job, CrrPreviewEventParam::EventCallback, &pep), PPERR_CRYSTAL_REPORT);
+			{
+				//
+				// Посылаем ответ клиенту до того как запустим предпросмотр отчета, иначе клиенту придется ждать пока пользователь не закроет окно просмотра.
+				//
+				js_reply.InsertString("status", "ok");
+				if(SendReportLaunchingResultToClientsPipe(hPipe, js_reply) > 0) {
+					is_reply_sent = true;
+				}
+			}
+			THROW_PP(PEStartPrintJob(h_job, /*TRUE*/modal_preview/*waitUntilDone*/), PPERR_CRYSTAL_REPORT);
+			/*if(modal_preview) {
+				if(h_parent_window) {
+					::EnableWindow(h_parent_window, FALSE); // Запрещает работу в программе пока окно просмотра активно
+					APPL->MsgLoop(0, pep.StopPreview);
+				}
+			}*/
+		}
+		else {
+			const uint64 profile_start = SLS.GetProfileTime();
+			THROW_PP(PEStartPrintJob(h_job, TRUE), PPERR_CRYSTAL_REPORT);
+			const uint64 profile_end = SLS.GetProfileTime();
+			{
+				msg_buf.Z().CatEq("Report", rBlk.ReportPath);
+				if(rBlk.Printer.NotEmpty()) // Ранее был pPrinter @erik v10.4.10
+					msg_buf.CatDiv(';', 2).CatEq("Printer", rBlk.Printer.NotEmpty()); // Ранее был pPrinter @erik v10.4.10
+				if(rBlk.NumCopies > 1)
+					msg_buf.CatDiv(';', 2).CatEq("Copies", rBlk.NumCopies);
+				msg_buf.CatDiv(';', 2).CatEq("Mks", (profile_end - profile_start));
+				PPLogMessage(PPFILNAM_REPORTING_LOG, msg_buf, LOGMSGF_USER | LOGMSGF_TIME | LOGMSGF_DBINFO);
+			}
+		}
+	}
+	if(!is_reply_sent) {
+		js_reply.InsertString("status", "ok");
+	}
+	rReply.Z();
+	CATCH
+		const short crw_err_code = PEGetErrorCode(h_job);
+		CrwError = crw_err_code;
+		rReply.Code = crw_err_code;
+		// @debug {
+		if(rBlk.Action != CrystalReportPrintParamBlock::actionExport) {
+			PPLoadString("err_crpe", msg_buf);
+			msg_buf.CatDiv(':', 2).Cat(CrwError);
+			rReply.Descr = msg_buf;
+			PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_COMP|LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
+		}
+		// } @debug
+		js_reply.InsertString("status", "fail");
+		if(crw_err_code) {
+			js_reply.InsertInt("errcode", PPERR_CRYSTAL_REPORT);
+			js_reply.InsertInt("crr_errcode", crw_err_code);
+		}
+		else 
+			js_reply.InsertInt("errcode", PPErrCode);
+		if(rReply.Descr.NotEmpty()) {
+			(temp_buf = rReply.Descr).Transf(CTRANSF_INNER_TO_UTF8);
+			js_reply.InsertString("errmsg", temp_buf.Escape());
+		}
+		ok = 0;
+	ENDCATCH
+	if(h_job)
+		PEClosePrintJob(h_job);
+	if(!is_reply_sent) {
+		SendReportLaunchingResultToClientsPipe(hPipe, js_reply);
+	}
+	return ok;
 }

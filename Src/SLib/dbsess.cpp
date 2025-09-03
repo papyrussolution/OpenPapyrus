@@ -214,7 +214,7 @@ int  SRowId::baseto(void * s, const void * b) const  { fromstr(s, 0L, static_cas
 void SRowId::minval(void * pData) const
 {
 	DBRowId * p_row_id = static_cast<DBRowId *>(pData);
-	CALLPTRMEMB(p_row_id, SetZero());
+	CALLPTRMEMB(p_row_id, Z());
 }
 
 void SRowId::maxval(void * pData) const

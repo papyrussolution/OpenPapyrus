@@ -3644,7 +3644,7 @@ int PPBillPacket::CheckGoodsForRestrictions(int rowIdx, PPID goodsID, int sign, 
 								}
                             }
                         }
-                        {
+						{
 							const PPIDArray * p_target_bill_list = 0;
 							GCTFilt gct_filt;
 							gct_filt.GoodsID = goodsID;

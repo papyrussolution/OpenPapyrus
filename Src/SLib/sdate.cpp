@@ -2958,6 +2958,20 @@ bool FASTCALL SUniTime_Internal::GetTime(LTIME * pTm) const
 	}
 	return ok;
 }
+
+bool FASTCALL SUniTime_Internal::GetDatetime(LDATETIME * pDtm) const
+{
+	bool    ok = true;
+	LDATETIME dtm = ZERODATETIME;
+	if(GetDate(&dtm.d) && GetTime(&dtm.t)) {
+		ASSIGN_PTR(pDtm, dtm);
+	}
+	else {
+		CALLPTRMEMB(pDtm, Z());
+		ok = false;
+	}
+	return ok;
+}
 //
 // Descr: This routine converts an input 64-bit LARGE_INTEGER variable to its corresponding
 //   time field record.  It will tell the caller the year, month, day, hour,

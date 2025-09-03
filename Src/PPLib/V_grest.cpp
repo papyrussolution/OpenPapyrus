@@ -1457,7 +1457,7 @@ int FASTCALL PPViewGoodsRest::AddCacheItem(PPViewGoodsRest::CacheItem & rItem)
 		p_item->DraftRcpt += rItem.DraftRcpt;
 	}
 	else {
-		rItem.DBPos.SetZero();
+		rItem.DBPos.Z();
 		if(lru_counter)
 			rItem.Counter = ++LastCacheCounter;
 		else
@@ -4187,7 +4187,8 @@ int ViewGoodsRest(const GoodsRestFilt * pFilt, int calcPrognosis) { return PPVie
 
 int GoodsRestTest()
 {
-	int    ok = -1, iter_count = 0;
+	int    ok = -1;
+	int    iter_count = 0;
 	PPIniFile ini_file;
 	ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_GOODSRESTTEST, &iter_count);
 	if(iter_count) {

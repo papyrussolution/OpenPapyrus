@@ -1102,7 +1102,7 @@ int PrcssrDbDump::Helper_Undump(long tblID)
 				int    has_lob = 0;
 				DBField lob_fld;
 				RECORDSIZE fix_rec_size = tbl.getRecSize();
-				THROW(tbl.allocOwnBuffer(SKILOBYTE(16)));
+				THROW(tbl.AllocateOwnBuffer(SKILOBYTE(16)));
 				if(tbl.HasLob(&lob_fld) > 0) {
 					has_lob = 1;
 				}
@@ -1179,7 +1179,7 @@ int PrcssrDbDump::Helper_Dump(long tblID)
 			IterCounter cntr;
 			DBField lob_fld;
 			DBTable tbl(ts.TblName);
-			THROW(tbl.allocOwnBuffer(SKILOBYTE(16)));
+			THROW(tbl.AllocateOwnBuffer(SKILOBYTE(16)));
 			if(tbl.HasLob(&lob_fld) > 0) {
 				has_lob = 1;
 			}
@@ -3541,7 +3541,10 @@ int PrcssrTestDb::GenTa_Rec(TestTa01Tbl::Rec * pRec, bool standaloneRecord)
 {
 	int    ok = 1;
 	TestTa01Tbl::Rec rec;
-	getcurdatetime(&rec.Dt, &rec.Tm);
+	static int increment = 0;
+	LDATETIME dtm = plusdatetime(getcurdatetime_(), ++increment, 4);
+	rec.Dt = dtm.d;
+	rec.Tm = dtm.t;
 	//
 	// Вероятность нулевого значения Ref1ID =0.05
 	//
@@ -3641,8 +3644,10 @@ int PrcssrTestDb::GenTa_Rec(TestTa01Tbl::Rec * pRec, bool standaloneRecord)
 	rec.LVal = G.GetPoisson(10.0);
 	rec.IVal = static_cast<int16>(G.GetUniformInt(1000));
 	rec.UIVal = static_cast<uint16>(labs(G.GetUniformInt(1000)));
+	rec.I64Val = static_cast<int64>(labs(G.GetUniformInt(1000000000)));
 	rec.RVal1 = round(5.0+G.GetGaussian(5.0/3.0), 5);
 	rec.RVal2 = round(70.0 + G.GetGamma(10.0, 3.0), 5);
+	rec.GuidVal.Generate();
 	GenerateString(rec.S, sizeof(rec.S));
 	ASSIGN_PTR(pRec, rec);
 	CATCHZOK

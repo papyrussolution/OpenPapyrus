@@ -20,25 +20,96 @@ void   DBTable::InitErrFileName() { DBS.GetTLA().InitErrFileName(OpenedFileName)
 // } static members of DBTable
 //
 //
+static const S_GUID DBRowId_Ind_I32(GUID{0xE70D094F, 0xA0DD, 0x4391, { 0x84, 0x30, 0xCE, 0x8E, 0x69, 0xD0, 0x4F, 0x54}}); //{E70D094F-A0DD-4391-8430-CE8E69D04F54}
+static const S_GUID DBRowId_Ind_I64(GUID{0x1B9D684E, 0x3884, 0x483D, { 0x81, 0x0E, 0x01, 0x59, 0x50, 0xCC, 0x26, 0x31}}); //{1B9D684E-3884-483D-810E-015950CC2631}
+
 DBRowId::DBRowId()
 {
 	memzero(S, sizeof(S));
 }
 
-bool DBRowId::IsLong() const { return (PTR32C(S)[0] && PTR32C(S)[1]); }
+void DBRowId::SetI32(uint32 id)
+{
+	static_assert(sizeof(S) >= (sizeof(DBRowId_Ind_I32) + sizeof(id)));
+	memcpy(S+0, &id, sizeof(id));
+	memzero(S+sizeof(id), sizeof(S)-sizeof(DBRowId_Ind_I32));
+	memcpy(S+sizeof(S)-sizeof(DBRowId_Ind_I32), &DBRowId_Ind_I32, sizeof(DBRowId_Ind_I32));
+}
 
-DBRowId::operator RECORDNUMBER() const { return B; }
+void DBRowId::SetI64(int64 id)
+{
+	static_assert(sizeof(S) >= (sizeof(DBRowId_Ind_I64) + sizeof(id)));
+	memcpy(S+0, &id, sizeof(id));
+	memzero(S+sizeof(id), sizeof(S)-sizeof(DBRowId_Ind_I64));
+	memcpy(S+sizeof(S)-sizeof(DBRowId_Ind_I64), &DBRowId_Ind_I64, sizeof(DBRowId_Ind_I64));
+}
+
+bool DBRowId::IsI32() const
+{
+	return (memcmp(S+sizeof(S)-sizeof(DBRowId_Ind_I32), &DBRowId_Ind_I32, sizeof(DBRowId_Ind_I32)) == 0);
+}
+
+bool DBRowId::IsI64() const
+{
+	return (memcmp(S+sizeof(S)-sizeof(DBRowId_Ind_I64), &DBRowId_Ind_I64, sizeof(DBRowId_Ind_I64)) == 0);
+}
+
+uint32 DBRowId::GetI32() const
+{
+	return IsI32() ? *reinterpret_cast<const uint32 *>(S) : 0U;
+}
+
+int64  DBRowId::GetI64() const
+{
+	return IsI64() ? *reinterpret_cast<const int64 *>(S) : 0ULL;
+}
+
+bool DBRowId::IsLarge() const
+{
+	return !(IsI32() || IsI64());
+}
+
+bool DBRowId::SetLarge(const void * pIdent, size_t len)
+{
+	bool    ok = true;
+	if(pIdent && len <= sizeof(S)) {
+		memcpy(S, pIdent, len);
+		if(len < sizeof(S)) {
+			memzero(S+len, sizeof(S)-len);
+		}
+	}
+	else
+		ok = false;
+	return ok;
+}
+
+size_t DBRowId::GetLarge(void * pIdent, size_t bufLen) const
+{
+	size_t actual_size = 0;
+	if(IsLarge()) {
+		actual_size = sizeof(S);
+		if(pIdent) {
+			if(bufLen >= actual_size)
+				memcpy(pIdent, S, actual_size);
+			else
+				actual_size = 0;
+		}
+	}
+	return actual_size;
+}
+
+DBRowId::operator RECORDNUMBER() const { return GetI32(); }
 
 DBRowId & FASTCALL DBRowId::operator = (RECORDNUMBER n)
 {
-	B = n;
-	PTR32(S)[1] = 0;
+	SetI32(n);
 	return *this;
 }
 
-void DBRowId::SetZero()
+DBRowId & DBRowId::Z()
 {
 	memzero(S, sizeof(S));
+	return *this;
 }
 
 void DBRowId::SetMaxVal()
@@ -49,13 +120,15 @@ void DBRowId::SetMaxVal()
 
 SString & FASTCALL DBRowId::ToStr(SString & rBuf) const
 {
-	if(B != 0)
-		if(PTR32C(S)[1] == 0)
-			rBuf.Z().Cat(B);
-		else
-			rBuf = reinterpret_cast<const char *>(S);
-	else
-		rBuf.Z();
+	rBuf.Z();
+	if(IsI32())
+		rBuf.Cat(GetI32());
+	else if(IsI64())
+		rBuf.Cat(GetI64());
+	else {
+		assert(IsLarge());
+		rBuf.CatHex(S, sizeof(S));
+	}
 	return rBuf;
 }
 
@@ -63,25 +136,27 @@ int FASTCALL DBRowId::FromStr(const char * pStr)
 {
 	int    ok = -1;
 	const  size_t len = sstrlen(pStr);
-	SetZero();
+	Z();
 	if(len) {
-		for(uint i = 0; i < len; i++) {
-			if(!isdec(pStr[i])) {
-				//
-				// В строке есть не цифровой символ: трактуем ИД просто как текстовый идентификатор
-				//
-				strnzcpy(reinterpret_cast<char *>(S), pStr, sizeof(S));
-				ok = 2;
-				break;
-			}
+		bool   is_there_non_dec = false;
+		for(uint i = 0; !is_there_non_dec && i < len; i++) {
+			if(!isdec(pStr[i]))
+				is_there_non_dec = true;
+		}
+		if(is_there_non_dec) {
+			
+		}
+		else {
 		}
 		if(ok < 0) {
+			/*
 			//
 			// В строке все символы цифровые (см. выше): трактуем ИД как беззнаковое целое
 			//
 			strtouint(pStr, &B);
 			PTR32(S)[1] = 0;
 			ok = 1;
+			*/
 		}
 	}
 	return ok;
@@ -300,7 +375,7 @@ int DBLobBlock::GetLocator(uint fldIdx, uint32 * pLoc) const
 //
 //
 //
-DBTable::SelectStmt::SelectStmt(DbProvider * pDb, const char * pText, int idx, int sp, int sf) : SSqlStmt(pDb, pText), Idx(idx), Sp(sp), Sf(sf)
+DBTable::SelectStmt::SelectStmt(DbProvider * pDb, const Generator_SQL & rSql, int idx, int sp, int sf) : SSqlStmt(pDb, rSql), Idx(idx), Sp(sp), Sf(sf)
 {
 }
 
@@ -351,7 +426,7 @@ int DBTable::Init(DbProvider * pDbP)
 	fileName.Z();
 	indexes.setTableRef(offsetof(DBTable, indexes));
 	PageSize = 0;
-	LastLockedRow.SetZero();
+	LastLockedRow.Z();
 	return 1;
 }
 
@@ -565,7 +640,7 @@ int DBTable::putRecToString(SString & rBuf, int withFieldNames)
 	return 1;
 }
 
-int DBTable::allocOwnBuffer(int size)
+int DBTable::AllocateOwnBuffer(int size)
 {
 	int    ok = 1;
 	const  RECORDSIZE rec_size = (size < 0) ? fields.CalculateRecSize() : static_cast<RECORDSIZE>(size);

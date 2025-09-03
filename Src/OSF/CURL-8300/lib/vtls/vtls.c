@@ -1792,7 +1792,8 @@ bool Curl_ssl_cf_is_proxy(struct Curl_cfilter * cf)
 	return (cf->cft == &Curl_cft_ssl_proxy);
 }
 
-struct ssl_config_data *Curl_ssl_cf_get_config(struct Curl_cfilter * cf, struct Curl_easy * data)                          {
+struct ssl_config_data *Curl_ssl_cf_get_config(struct Curl_cfilter * cf, struct Curl_easy * data)
+{
 #ifdef CURL_DISABLE_PROXY
 	(void)cf;
 	return &data->set.ssl;
@@ -1801,16 +1802,17 @@ struct ssl_config_data *Curl_ssl_cf_get_config(struct Curl_cfilter * cf, struct 
 #endif
 }
 
-struct ssl_config_data *Curl_ssl_get_config(struct Curl_easy * data, int sockindex)                         {
+struct ssl_config_data *Curl_ssl_get_config(struct Curl_easy * data, int sockindex)
+{
 	struct Curl_cfilter * cf;
-
 	(void)data;
 	assert(data->conn);
 	cf = get_ssl_cf_engaged(data->conn, sockindex);
 	return cf? Curl_ssl_cf_get_config(cf, data) : &data->set.ssl;
 }
 
-struct ssl_primary_config *Curl_ssl_cf_get_primary_config(struct Curl_cfilter * cf)                            {
+struct ssl_primary_config *Curl_ssl_cf_get_primary_config(struct Curl_cfilter * cf)
+{
 #ifdef CURL_DISABLE_PROXY
 	return &cf->conn->ssl_config;
 #else
@@ -1819,7 +1821,8 @@ struct ssl_primary_config *Curl_ssl_cf_get_primary_config(struct Curl_cfilter * 
 #endif
 }
 
-struct Curl_cfilter *Curl_ssl_cf_get_ssl(struct Curl_cfilter * cf) {
+struct Curl_cfilter *Curl_ssl_cf_get_ssl(struct Curl_cfilter * cf) 
+{
 	for(; cf; cf = cf->next) {
 		if(cf->cft == &Curl_cft_ssl || cf->cft == &Curl_cft_ssl_proxy)
 			return cf;

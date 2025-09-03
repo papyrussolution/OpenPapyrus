@@ -280,7 +280,8 @@ int BExtQuery::search_first(const char * pInitKey, int initSpMode, int spMode)
 	State &= ~stEOF;
 	if(Index_ >= 0)
 		P_Tbl->setIndex(Index_);
-	int    ok = 1, sp;
+	int    ok = 1;
+	int    sp;
 	const  uint fields_count = Fields.GetCount();
 	BExtTail * p_tail = 0;
 	if(State & stSqlProvider) {
@@ -290,8 +291,8 @@ int BExtQuery::search_first(const char * pInitKey, int initSpMode, int spMode)
 		{
 			int    r;
 			uint   actual = 0;
-			SSqlStmt stmt(P_Tbl->GetDb(), static_cast<const SString &>(sg));
-			THROW_V(P_Stmt = new SSqlStmt(P_Tbl->GetDb(), static_cast<const SString &>(sg)), BE_NOMEM);
+			SSqlStmt stmt(P_Tbl->GetDb(), sg);
+			THROW_V(P_Stmt = new SSqlStmt(P_Tbl->GetDb(), sg), BE_NOMEM);
 			THROW(P_Stmt->Exec(0, OCI_DEFAULT));
 			//
 			// Распределяем буфер для хранения записи.

@@ -2314,7 +2314,7 @@ int GSExtDialog::setupList()
 	StringSet ss(SLBColumnDelim);
 	for(uint i = 0; i < Data.Children.getCount(); i++) {
 		const PPGoodsStruc * p_item = Data.Children.at(i);
-		char   sub[128];
+		// @v12.3.12 char   sub[128];
 		ss.Z();
 		ss.add(p_item->Rec.Name);
 		// @v12.3.7 ss.add(periodfmt(p_item->Rec.Period, sub));

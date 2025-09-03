@@ -418,10 +418,9 @@ int GtinStruc::GetSpecialNaturalToken() const
 uint GtinStruc::RecognizeFieldLen(const char * pSrc, int currentPrefixID) const
 {
 	uint   len = 0;
-	//SString next_prefix_;
-	while(*pSrc) {
+	while(*pSrc && !IsSpecialStopChar(pSrc)) {
 		uint  next_prefix_len = 0;
-		const int next_prefix_id = DetectPrefix(pSrc, 0, currentPrefixID, &next_prefix_len/*, next_prefix_*/);
+		const int next_prefix_id = DetectPrefix(pSrc, 0, currentPrefixID, &next_prefix_len);
 		if(next_prefix_id > 0)
 			break;
 		else {
@@ -691,33 +690,46 @@ int GtinStruc::Parse(const char * pCode)
 						p += ro;
 					}
 					else {
-						temp_buf.Z();
-						p += prefix_len;
-						int   next_prefix_id = -1;
-						uint  next_prefix_len = 0;
-						while(*p) {
-							if(IsSpecialStopChar(p)) {
-								p++; // Специальный стоп-символ пропускаем и завершаем акцепт токена
-								break;
-							}
-							else if(min_len > 0 && temp_buf.Len() < min_len) {
-								temp_buf.CatChar(*p++);
-							}
-							else {
-								next_prefix_id = DetectPrefix(p, dpf, prefix_id, &next_prefix_len/*, next_prefix_*/);
-								if(next_prefix_id > 0) {
-									uint next_fld_len = RecognizeFieldLen(p+next_prefix_len, prefix_id);
-									if(next_fld_len == 0)
-										temp_buf.CatChar(*p++);
-									else
-										break;
-								}
-								else
-									temp_buf.CatChar(*p++);
-							}
+						// @v12.3.12 {
+						if(min_len > 0 && RecognizeFieldLen(p+prefix_len, prefix_id) < min_len) {
+							// Если определена минимальная длина токена и следующий префикс находится на расстоянии меньшем, чем 
+							// эта длина, то выходим - мы увидели ложный префикс.
+							ok = 2; // unexpected 
+							break;
 						}
-						THROW(!StrAssocArray::Search(prefix_id));
-						StrAssocArray::Add(prefix_id, temp_buf);
+						// } @v12.3.12 
+						else {
+							temp_buf.Z();
+							p += prefix_len;
+							int   next_prefix_id = -1;
+							uint  next_prefix_len = 0;
+							while(*p) {
+								if(IsSpecialStopChar(p)) {
+									p++; // Специальный стоп-символ пропускаем и завершаем акцепт токена
+									break;
+								}
+								else {
+									if(min_len > 0 && temp_buf.Len() < min_len) {
+										temp_buf.CatChar(*p++);
+									}
+									else {
+										next_prefix_id = DetectPrefix(p, dpf, prefix_id, &next_prefix_len/*, next_prefix_*/);
+										if(next_prefix_id > 0) {
+											uint next_fld_len = RecognizeFieldLen(p+next_prefix_len, prefix_id);
+											if(next_fld_len == 0)
+												temp_buf.CatChar(*p++);
+											else
+												break;
+										}
+										else {
+											temp_buf.CatChar(*p++);
+										}
+									}
+								}
+							}
+							THROW(!StrAssocArray::Search(prefix_id));
+							StrAssocArray::Add(prefix_id, temp_buf);
+						}
 					}
 				}
 				else {
@@ -759,7 +771,10 @@ int TestGtinStruc()
 					gts.AddOnlyToken(GtinStruc::fldSerial);
 					gts.SetSpecialFixedToken(GtinStruc::fldSerial, /*13*/serial_len_variant_list[serial_len_variant_idx++]);
 					gts.AddOnlyToken(GtinStruc::fldPart);
-					// gts.SetSpecialMinLenToken(GtinStruc::fldPart, 5); // @v10.9.6
+					// @todo (не работает - надо отлаживать) gts.SetSpecialMinLenToken(GtinStruc::fldPart, 5); // @v10.9.6 // @v12.3.12 (вернул назад)
+
+					gts.SetSpecialMinLenToken(GtinStruc::fldPart, 5); // @debug
+
 					gts.AddOnlyToken(GtinStruc::fldAddendumId);
 					gts.AddOnlyToken(GtinStruc::fldUSPS);
 					gts.SetSpecialFixedToken(GtinStruc::fldUSPS, 4);
@@ -770,7 +785,7 @@ int TestGtinStruc()
 					gts.AddOnlyToken(GtinStruc::fldSscc18);
 					gts.AddOnlyToken(GtinStruc::fldExpiryDate);
 					gts.AddOnlyToken(GtinStruc::fldManufDate);
-					gts.AddOnlyToken(GtinStruc::fldVariant);
+					// @v12.3.12 gts.AddOnlyToken(GtinStruc::fldVariant);
 					gts.AddOnlyToken(GtinStruc::fldMutualCode);
 					//gts.AddOnlyToken(GtinStruc::fldPriceRuTobacco);
 					//gts.AddOnlyToken(GtinStruc::fldPrice);
@@ -5529,7 +5544,7 @@ int EdiProviderImplementation_SBIS::ProcessDocument(DocNalogRu_Reader::DocumentI
 			//
 			//MakeTempFileName(path.SetLastSlash(), "export_", "xml", 0, temp_buf);
 			//
-			THROW(p_x = xmlNewTextWriterFilename(path, 0));
+			THROW_SL(p_x = xmlNewTextWriterFilename(path, 0));
 			Epp.GetExtStrData(Epp.extssFormatSymb, edi_format_symb);
 			const bool use_own_format = !edi_format_symb.IsEqiAscii("eancom");
 			switch(rPack.DocType) {
@@ -7978,7 +7993,7 @@ int EdiProviderImplementation_Kontur::SendDocument(PPEdiProcessor::DocumentInfo 
 		msg_uuid.ToStr(S_GUID::fmtIDL|S_GUID::fmtLower, temp_buf);
 		path.CatChar('_').Cat(temp_buf).DotCat("xml");
 		//
-		THROW(p_x = xmlNewTextWriterFilename(path, 0));
+		THROW_SL(p_x = xmlNewTextWriterFilename(path, 0));
 		Epp.GetExtStrData(Epp.extssFormatSymb, edi_format_symb);
 		const int use_own_format = edi_format_symb.IsEqiAscii("eancom") ? 0 : 1;
 		if(use_own_format) {

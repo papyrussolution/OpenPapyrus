@@ -1,17 +1,42 @@
 // GENSQL.CPP
-// Copyright (c) A.Sobolev 2008, 2009, 2010, 2013, 2015, 2017, 2018, 2019, 2020, 2022, 2024
+// Copyright (c) A.Sobolev 2008, 2009, 2010, 2013, 2015, 2017, 2018, 2019, 2020, 2022, 2024, 2025
 // @codepage UTF-8
 //
 #include <slib-internal.h>
 #pragma hdrstop
 
 Generator_SQL::Generator_SQL(SqlServerType sqlst, long flags) : 
-	Sqlst(oneof6(sqlst, sqlstGeneric, sqlstORA, sqlstMSS, sqlstFB, sqlstMySQL, sqlstSQLite) ? sqlst : sqlstGeneric), Flags(flags)
+	Sqlst(oneof6(sqlst, sqlstGeneric, sqlstORA, sqlstMSS, sqlstFB, sqlstMySQL, sqlstSQLite) ? sqlst : sqlstGeneric), Flags(flags), Typ(typUndef)
 {
 }
 
 Generator_SQL & FASTCALL Generator_SQL::Tok(int tok)
 {
+	if(Buf.IsEmpty()) {
+		switch(tok) {
+			case tokSelect: Typ = typSelect; break;
+			case tokInsert: Typ = typInsert; break;
+			case tokUpdate: Typ = typUpdate; break;
+			case tokDelete: Typ = typDelete; break;
+			default: Typ = typUndef; break;
+		}
+	}
+	else {
+		switch(tok) {
+			case tokTransaction:
+				{
+					SString & r_temp_buf = SLS.AcquireRvlStr();
+					(r_temp_buf = Buf).Strip();
+					if(r_temp_buf.IsEqiAscii("begin"))
+						Typ = typBeginTransaction;
+					else if(r_temp_buf.IsEqiAscii("commit"))
+						Typ = typCommitTransaction;
+					else if(r_temp_buf.IsEqiAscii("rollback"))
+						Typ = typRollbackTransaction;
+				}
+				break;
+		}
+	}
 	Buf.Cat(GetToken(tok));
 	return *this;
 }
@@ -19,6 +44,7 @@ Generator_SQL & FASTCALL Generator_SQL::Tok(int tok)
 Generator_SQL & Generator_SQL::Z()
 {
 	Buf.Z();
+	Typ = typUndef;
 	return *this;
 }
 
@@ -124,12 +150,7 @@ Generator_SQL & Generator_SQL::From(const char * pTable, const char * pAlias)
 Generator_SQL & Generator_SQL::Eq(const char * pFldName, const char * pVal)
 {
 	Text(pFldName)._Symb(_EQ_);
-	/*if(Sqlst == sqlstSQLite) { // @v12.3.11
-		Buf.CatChar('\"').Cat(pVal).CatChar('\"');
-	}
-	else*/{
-		Buf.CatChar('\'').Cat(pVal).CatChar('\'');
-	}
+	Buf.CatChar('\'').Cat(pVal).CatChar('\'');
 	return *this;
 }
 
@@ -202,9 +223,9 @@ SString & Generator_SQL::GetType(TYPEID typ, SString & rBuf)
 				case S_INT:
 				case S_UINT:
 				case S_AUTOINC:  rBuf.Cat("NUMERIC").CatParStr(12); break;
-				case S_INT64: // @v10.9.1
-				case S_UINT64:   rBuf.Cat("NUMERIC").CatParStr(19); break; // @v10.9.1
-				case S_UUID_:    rBuf.Cat("RAW").CatParStr(16); break; // @v10.9.1
+				case S_INT64:
+				case S_UINT64:   rBuf.Cat("NUMERIC").CatParStr(19); break;
+				case S_UUID_:    rBuf.Cat("RAW").CatParStr(16); break;
 				case S_FLOAT:    rBuf.Cat("NUMERIC").CatChar('(').Cat(38).Comma().Cat(12).CatChar(')'); break;
 				case S_DATE:     rBuf.Cat("DATE"); break;
 				case S_TIME:
@@ -230,7 +251,7 @@ SString & Generator_SQL::GetType(TYPEID typ, SString & rBuf)
 				case S_ZSTRING:  rBuf.Cat("TEXT").CatParStr(_s); break;
 				case S_INT:
 				case S_UINT:     rBuf.Cat("INTEGER").CatParStr(4L); break; 
-				case S_AUTOINC:  rBuf.Cat("INTEGER PRIMARY KEY"); break;
+				case S_AUTOINC:  rBuf.Cat("INTEGER PRIMARY KEY AUTOINCREMENT"); break; // @v12.3.12 (AUTOINCREMENT)
 				case S_INT64:
 				case S_UINT64:   rBuf.Cat("INTEGER").CatParStr(8L); break; 
 				case S_UUID_:    rBuf.Cat("BLOB").CatParStr(16); break; 
@@ -285,6 +306,7 @@ SString & Generator_SQL::GetType(TYPEID typ, SString & rBuf)
 int Generator_SQL::CreateTable(const DBTable & rTbl, const char * pFileName, bool ifNotExists, int indent)
 {
 	const char * p_name = NZOR(pFileName, rTbl.GetName());
+	SString type_name;
 	Tok(tokCreate).Sp();
 	if(ifNotExists) {
 		Tok(tokIfNotExists).Sp();		
@@ -299,13 +321,14 @@ int Generator_SQL::CreateTable(const DBTable & rTbl, const char * pFileName, boo
 		const BNField & r_fld = rTbl.GetFields()[i];
 		if(indent)
 			Tab();
-		Buf.Cat(r_fld.Name).Space().Cat(GetType(r_fld.T, Temp.Z()));
+		Buf.Cat(r_fld.Name).Space().Cat(GetType(r_fld.T, type_name));
 		if(i < (c-1))
 			Com();
 		if(indent)
 			Cr();
 	}
 	RPar();
+	Typ = typCreateTable; // @v12.3.12
 	return 1;
 }
 
@@ -327,8 +350,11 @@ int Generator_SQL::CreateIndex(const DBTable & rTbl, const char * pFileName, uin
 		if(!(fl & XIF_DUP))
 			Tok(tokUnique).Sp();
 		Tok(tokIndex).Sp();
-		PrefixName(temp_buf.Z().Cat(p_name).Cat("Key").Cat(n), pfxIndex, Temp, 0);
-		Buf.Cat(Temp).Space();
+		{
+			SString & r_prefix = SLS.AcquireRvlStr();
+			PrefixName(temp_buf.Z().Cat(p_name).Cat("Key").Cat(n), pfxIndex, r_prefix, 0);
+			Buf.Cat(r_prefix).Space();
+		}
 		Tok(tokOn).Sp();
 		Buf.Cat(p_name);
 		Sp().LPar();
@@ -352,6 +378,7 @@ int Generator_SQL::CreateIndex(const DBTable & rTbl, const char * pFileName, uin
 		}
 		RPar();
 		//Buf.Semicol();
+		Typ = typCreateIndex;
 	}
 	else
 		ok = 0;
@@ -361,8 +388,11 @@ int Generator_SQL::CreateIndex(const DBTable & rTbl, const char * pFileName, uin
 int Generator_SQL::GetIndexName(const DBTable & rTbl, uint n, SString & rBuf)
 {
 	int    ok = 1;
-	if(n < rTbl.GetIndices().getNumKeys())
-		PrefixName(Temp.Z().Cat(rTbl.GetName()).Cat("Key").Cat(n), pfxIndex, rBuf, 0);
+	if(n < rTbl.GetIndices().getNumKeys()) {
+		SString & r_temp_buf = SLS.AcquireRvlStr();
+		r_temp_buf.Cat(rTbl.GetName()).Cat("Key").Cat(n);
+		PrefixName(r_temp_buf, pfxIndex, rBuf, 0);
+	}
 	else
 		ok = 0;
 	return ok;
@@ -376,8 +406,11 @@ int Generator_SQL::CreateSequenceOnField(const DBTable & rTbl, const char * pFil
 		const BNField & r_fld = rTbl.GetFields()[fldN];
 		const char * p_name = NZOR(pFileName, rTbl.GetName());
 		Tok(tokCreate).Sp().Tok(tokSequence).Sp();
-		PrefixName(temp_buf.Z().Cat(p_name).CatChar('_').Cat(r_fld.Name), pfxSequence, Temp, 0);
-		Buf.Cat(Temp);
+		{
+			SString & r_prefix = SLS.AcquireRvlStr();
+			PrefixName(temp_buf.Z().Cat(p_name).CatChar('_').Cat(r_fld.Name), pfxSequence, r_prefix, 0);
+			Buf.Cat(r_prefix);
+		}
 		if(newVal) {
 			temp_buf.Z().Cat(newVal);
 			Sp().Text("START").Sp().Text("WITH").Sp().Text(temp_buf);
@@ -393,8 +426,11 @@ int Generator_SQL::GetSequenceNameOnField(const DBTable & rTbl, uint fldN, SStri
 {
 	int    ok = 1;
 	rBuf.Z();
-	if(fldN < rTbl.GetFields().getCount())
-		PrefixName(Temp.Z().Cat(rTbl.GetName()).CatChar('_').Cat(rTbl.GetFields()[fldN].Name), pfxSequence, rBuf, 0);
+	if(fldN < rTbl.GetFields().getCount()) {
+		SString & r_temp_buf = SLS.AcquireRvlStr();
+		r_temp_buf.Cat(rTbl.GetName()).CatChar('_').Cat(rTbl.GetFields()[fldN].Name);
+		PrefixName(r_temp_buf, pfxSequence, rBuf, 0);
+	}
 	else
 		ok = 0;
 	return ok;
@@ -454,7 +490,11 @@ const char * Generator_SQL::P_Tokens[] = {
 	"MAX",
 	"NLS_LOWER",
 	"LOWER",
-	"IF NOT EXISTS" // @v11.9.12
+	"IF NOT EXISTS", // @v11.9.12
+	"BEGIN",         // @v12.3.12
+	"COMMIT",        // @v12.3.12 
+	"ROLLBACK",      // @v12.3.12
+	"TRANSACTION",   // @v12.3.12
 };
 
 Generator_SQL & Generator_SQL::HintBegin()

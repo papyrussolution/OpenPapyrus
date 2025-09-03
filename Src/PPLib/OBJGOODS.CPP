@@ -4690,17 +4690,20 @@ int PPObjGoodsInfo::PutPacket(PPID * pID, PPGoodsInfo * pPack, int use_ta)
 
 int UhttIndexPersons(uint setSz, PPID personKindID, const SString & rOutPath)
 {
-	int        ok = 1;
-	int        closed = 0;
-	uint       set_n = 1, addr_n = 0;
-	SString    name_buf, context_buf;
-	SString    path;
+	int    ok = 1;
+	int    closed = 0;
+	uint   set_n = 1;
+	uint   addr_n = 0;
+	SString name_buf;
+	SString context_buf;
+	SString path;
 	PPViewPerson psn_view;
 	PersonViewItem psn_item;
 	THROW(rOutPath.NotEmpty());
 	path.Z().Cat(rOutPath).SetLastSlash().Cat(PERSON_INDEX_FILE_NAME);
 	xmlTextWriter * p_writer = xmlNewTextWriterFilename(path, 0);
-	if(p_writer) {
+	THROW_SL(p_writer);
+	{
 		PPObjPerson psn_obj;
 		PPIDArray addr_list, local_addr_list;
 		PersonFilt filt;
@@ -4758,39 +4761,38 @@ int UhttIndexGoods(uint setSz, const SString & rOutPath)
 	THROW(rOutPath.NotEmpty());
 	path.Z().Cat(rOutPath).SetLastSlash().Cat(GOODS_INDEX_FILE_NAME);
 	xmlTextWriter * p_writer = xmlNewTextWriterFilename(path, 0);
-	if(p_writer) {
-		THROW(goods_iter.Init(0));
-		while(goods_iter.Next(&goods_rec) > 0) {
-			id_list.add(goods_rec.ID);
-		}
-		id_list.shuffle();
-		xmlTextWriterSetIndent(p_writer, 1);
-		xmlTextWriterSetIndentTab(p_writer);
-		xmlTextWriterStartDocument(p_writer, 0, "utf-8", 0);
-		xmlTextWriterStartElement(p_writer, name_buf.Z().Cat("GoodsIndex").ucptr());
-		uint c = id_list.getCount();
-		if(c) {
-			do {
-				const  PPID id = id_list.get(--c);
-				closed = 0;
-				if(goods_n == 0) {
-					xmlTextWriterStartElement(p_writer, name_buf.Z().Cat("Set").ucptr());
-					xmlTextWriterWriteAttribute(p_writer, name_buf.Z().Cat("n").ucptr(), context_buf.Z().Cat(set_n).ucptr());
-				}
-				xmlTextWriterWriteElement(p_writer, name_buf.Z().Cat("Id").ucptr(), context_buf.Z().Cat(id).ucptr());
-				goods_n++;
-				if(goods_n >= setSz) {
-					xmlTextWriterEndElement(p_writer);
-					goods_n = 0;
-					set_n++;
-					closed = 1;
-				}
-			} while(c);
-			if(!closed)
-				xmlTextWriterEndElement(p_writer);
-		}
-		xmlTextWriterEndElement(p_writer);
+	THROW_SL(p_writer);
+	THROW(goods_iter.Init(0));
+	while(goods_iter.Next(&goods_rec) > 0) {
+		id_list.add(goods_rec.ID);
 	}
+	id_list.shuffle();
+	xmlTextWriterSetIndent(p_writer, 1);
+	xmlTextWriterSetIndentTab(p_writer);
+	xmlTextWriterStartDocument(p_writer, 0, "utf-8", 0);
+	xmlTextWriterStartElement(p_writer, name_buf.Z().Cat("GoodsIndex").ucptr());
+	uint c = id_list.getCount();
+	if(c) {
+		do {
+			const  PPID id = id_list.get(--c);
+			closed = 0;
+			if(goods_n == 0) {
+				xmlTextWriterStartElement(p_writer, name_buf.Z().Cat("Set").ucptr());
+				xmlTextWriterWriteAttribute(p_writer, name_buf.Z().Cat("n").ucptr(), context_buf.Z().Cat(set_n).ucptr());
+			}
+			xmlTextWriterWriteElement(p_writer, name_buf.Z().Cat("Id").ucptr(), context_buf.Z().Cat(id).ucptr());
+			goods_n++;
+			if(goods_n >= setSz) {
+				xmlTextWriterEndElement(p_writer);
+				goods_n = 0;
+				set_n++;
+				closed = 1;
+			}
+		} while(c);
+		if(!closed)
+			xmlTextWriterEndElement(p_writer);
+	}
+	xmlTextWriterEndElement(p_writer);
 	CATCHZOK
 	xmlFreeTextWriter(p_writer);
 	return ok;
@@ -4811,33 +4813,32 @@ int UhttIndexRandomGoods(uint setSz, const SString & rOutPath)
 	THROW(rOutPath.NotEmpty());
 	path.Z().Cat(rOutPath).SetLastSlash().Cat(GOODS_RAND_SET_FILE_NAME);
 	xmlTextWriter * p_writer = xmlNewTextWriterFilename(path, 0);
-	if(p_writer) {
-		THROW(goods_tbl.search(0, spLast));
-		last_id = goods_tbl.data.ID;
-		THROW(goods_iter.Init(0));
-		iter_total = goods_iter.GetIterCounter().GetTotal();
+	THROW_SL(p_writer);
+	THROW(goods_tbl.search(0, spLast));
+	last_id = goods_tbl.data.ID;
+	THROW(goods_iter.Init(0));
+	iter_total = goods_iter.GetIterCounter().GetTotal();
+	set_size = (iter_total > setSz) ? setSz : iter_total;
+	if(iter_total) {
 		set_size = (iter_total > setSz) ? setSz : iter_total;
-		if(iter_total) {
-			set_size = (iter_total > setSz) ? setSz : iter_total;
-			while(id_ary.getCount() < set_size) {
-				// @v11.7.10 PPID id = GetRandom(1, last_id);
-				const  PPID id = SLS.GetTLA().Rg.GetUniformIntPos(last_id+1); // @v11.7.10 
-				if(goods_obj.Fetch(id, &goods_rec) > 0) {
-					if(goods_rec.Kind == PPGDSK_GOODS)
-						id_ary.addUnique(goods_rec.ID);
-				}
+		while(id_ary.getCount() < set_size) {
+			// @v11.7.10 PPID id = GetRandom(1, last_id);
+			const  PPID id = SLS.GetTLA().Rg.GetUniformIntPos(last_id+1); // @v11.7.10 
+			if(goods_obj.Fetch(id, &goods_rec) > 0) {
+				if(goods_rec.Kind == PPGDSK_GOODS)
+					id_ary.addUnique(goods_rec.ID);
 			}
-			id_ary.sort();
-			xmlTextWriterSetIndent(p_writer, 1);
-			xmlTextWriterSetIndentTab(p_writer);
-			xmlTextWriterStartDocument(p_writer, 0, "utf-8", 0);
-			xmlTextWriterStartElement(p_writer, name_buf.Z().Cat("RandomGoodsIndex").ucptr());
-			for(uint i = 0, n = id_ary.getCount(); i < n; i++) {
-				PPID id = id_ary.get(i);
-				xmlTextWriterWriteElement(p_writer, name_buf.Z().Cat("Id").ucptr(), context_buf.Z().Cat(id).ucptr());
-			}
-			xmlTextWriterEndElement(p_writer);
 		}
+		id_ary.sort();
+		xmlTextWriterSetIndent(p_writer, 1);
+		xmlTextWriterSetIndentTab(p_writer);
+		xmlTextWriterStartDocument(p_writer, 0, "utf-8", 0);
+		xmlTextWriterStartElement(p_writer, name_buf.Z().Cat("RandomGoodsIndex").ucptr());
+		for(uint i = 0, n = id_ary.getCount(); i < n; i++) {
+			const PPID id = id_ary.get(i);
+			xmlTextWriterWriteElement(p_writer, name_buf.Z().Cat("Id").ucptr(), context_buf.Z().Cat(id).ucptr());
+		}
+		xmlTextWriterEndElement(p_writer);
 	}
 	CATCHZOK
 	xmlFreeTextWriter(p_writer);
@@ -4856,28 +4857,27 @@ int UhttIndexChangedGoods(const SString & rOutPath)
 	THROW(rOutPath.NotEmpty());
 	path.Z().Cat(rOutPath).SetLastSlash().Cat(GOODS_CHANGED_SET_FILE_NAME);
 	xmlTextWriter * p_writer = xmlNewTextWriterFilename(path, 0);
-	if(p_writer) {
-		THROW_MEM(filt.P_SjF = new SysJournalFilt);
-		filt.P_SjF->ObjType = PPOBJ_GOODS;
-		filt.P_SjF->BegTm.Z();
-		filt.P_SjF->Period.low = getcurdate_();
-		filt.P_SjF->ActionIDList.add(PPACN_OBJUPD);
-		THROW(view.Init_(&filt));
-		THROW(view.InitIteration());
-		while(view.NextIteration(&item) > 0) {
-			id_ary.add(item.ID);
-		}
-		id_ary.sort();
-		xmlTextWriterSetIndent(p_writer, 1);
-		xmlTextWriterSetIndentTab(p_writer);
-		xmlTextWriterStartDocument(p_writer, 0, "utf-8", 0);
-		xmlTextWriterStartElement(p_writer, name_buf.Z().Cat("ChangedGoodsIndex").ucptr());
-		for(uint i = 0, n = id_ary.getCount(); i < n; i++) {
-			PPID id = id_ary.get(i);
-			xmlTextWriterWriteElement(p_writer, name_buf.Z().Cat("Id").ucptr(), context_buf.Z().Cat(id).ucptr());
-		}
-		xmlTextWriterEndElement(p_writer);
+	THROW_SL(p_writer);
+	THROW_MEM(filt.P_SjF = new SysJournalFilt);
+	filt.P_SjF->ObjType = PPOBJ_GOODS;
+	filt.P_SjF->BegTm.Z();
+	filt.P_SjF->Period.low = getcurdate_();
+	filt.P_SjF->ActionIDList.add(PPACN_OBJUPD);
+	THROW(view.Init_(&filt));
+	THROW(view.InitIteration());
+	while(view.NextIteration(&item) > 0) {
+		id_ary.add(item.ID);
 	}
+	id_ary.sort();
+	xmlTextWriterSetIndent(p_writer, 1);
+	xmlTextWriterSetIndentTab(p_writer);
+	xmlTextWriterStartDocument(p_writer, 0, "utf-8", 0);
+	xmlTextWriterStartElement(p_writer, name_buf.Z().Cat("ChangedGoodsIndex").ucptr());
+	for(uint i = 0, n = id_ary.getCount(); i < n; i++) {
+		PPID id = id_ary.get(i);
+		xmlTextWriterWriteElement(p_writer, name_buf.Z().Cat("Id").ucptr(), context_buf.Z().Cat(id).ucptr());
+	}
+	xmlTextWriterEndElement(p_writer);
 	CATCHZOK
 	ZDELETE(filt.P_SjF);
 	xmlFreeTextWriter(p_writer);
@@ -4886,15 +4886,16 @@ int UhttIndexChangedGoods(const SString & rOutPath)
 
 int UhttIndexBrands(const SString & rOutPath)
 {
-	int        ok = 1;
-	int        goods_n = 0;
-	PPBrand    brand_rec;
+	int    ok = 1;
+	int    goods_n = 0;
+	PPBrand brand_rec;
 	PPObjBrand brand_obj;
 	PPObjGoods goods_obj;
-	PPIDArray  id_list;
-	PPIDArray  id_image_list;
-	SString    name_buf, context_buf;
-	SString    path;
+	PPIDArray id_list;
+	PPIDArray id_image_list;
+	SString name_buf;
+	SString context_buf;
+	SString path;
 	union {
 		Goods2Tbl::Key2 k2;
 		Goods2Tbl::Key4 k4;
@@ -4902,7 +4903,8 @@ int UhttIndexBrands(const SString & rOutPath)
 	THROW(rOutPath.NotEmpty());
 	path.Z().Cat(rOutPath).SetLastSlash().Cat(BRANDS_INDEX_FILE_NAME);
 	xmlTextWriter * p_writer = xmlNewTextWriterFilename(path, 0);
-	if(p_writer) {
+	THROW_SL(p_writer);
+	{
 		Goods2Tbl * p_tbl = goods_obj.P_Tbl;
 		BExtQuery q(p_tbl, 2);
 		DBQ * dbq = &(p_tbl->Kind == PPGDSK_BRAND);
@@ -4960,12 +4962,14 @@ int UhttIndexStores(const SString & rOutPath)
 	PPObjUhttStore uhs_obj;
 	PPUhttStore    uhs_rec;
 	PPIDArray id_list;
-	SString name_buf, context_buf;
+	SString name_buf;
+	SString context_buf;
 	SString path;
 	THROW(rOutPath.NotEmpty());
 	path.Z().Cat(rOutPath).SetLastSlash().Cat(STORES_INDEX_FILE_NAME);
 	xmlTextWriter * p_writer = xmlNewTextWriterFilename(path, 0);
-	if(p_writer) {
+	THROW_SL(p_writer);
+	{
 		for(SEnum en = uhs_obj.P_Ref->Enum(PPOBJ_UHTTSTORE, 0); en.Next(&uhs_rec) > 0;) {
 			id_list.add(uhs_rec.ID);
 		}

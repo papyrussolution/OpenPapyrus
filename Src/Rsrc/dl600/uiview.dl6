@@ -333,7 +333,6 @@ dialog DLG_OBJVIEWT [horizontal title: "@objects" size: (489, 489)  font: "MS Sh
 	}
 }
 
-
 dialog DLG_GSGIFT [title: "@goodsstruc_giftparam" vertical size: (700, 500) minsize: (370, 280) justifycontent: spaceevenly alignitems: start font: "MS Shell Dlg 2,8"] {
 	view [vertical width: bycontainer(100) height: 140] {
 		input CTL_GSTRUC_GIFTAMTRESTR [width: bycontainer(100) height: 21 margin: 4 tabstop fmtf: (nozero notrailz) fmtprec: 2 label: "@goodsstruc_giftamtrestrict" labelsize: (210, 16) ] double;
@@ -771,6 +770,10 @@ dialog DLG_CHKCHZNMARK [vertical title: "@ttl_checkchzmark" size: (909, 530) min
 	view [horizontal width: bycontainer height: 84] {
 		view [vertical growfactor: 4 height: bycontainer] {
 			combobox CTLSEL_CHKCHZNMARK_GUA [width: bycontainer height: 21 margin: 4 label: "@globaluseracc" labelsize: (0, 13) cblinesymb: CTL_CHKCHZNMARK_GUA ];
+			view [horizontal width: bycontainer height: 32 margin_top: 13] {
+				button [title: "@doclear" tabstop size: (75, 21) margin: 4 command: cmClear];
+				button [title: "@chzn_check_offline" tabstop size: (150, 21) margin: 4 command: cmCheckOffline];
+			}
 		}
 		view [vertical growfactor: 5 height: bycontainer] {
 			combobox CTLSEL_CHKCHZNMARK_GGRP [width: bycontainer height: 21 margin: 4 label: "@goodsgroup" labelsize: (0, 13) cblinesymb: CTL_CHKCHZNMARK_GGRP ];
@@ -789,7 +792,86 @@ dialog DLG_CHKCHZNMARK [vertical title: "@ttl_checkchzmark" size: (909, 530) min
 			}
 		}
 	}
-	view [horizontal width: bycontainer height: 32] {
+	view [horizontal width: bycontainer height: 32 margin_right: 12 justifycontent: center alignitems: end] {
 		button STDCTL_CANCELBUTTON [title: "@but_close" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+
+dialog DLG_TESTGLBSVCACSY [title: "@testglobalserviceaccessibility" vertical size: (507, 414) minsize: (500, 300) font: "MS Shell Dlg,8"] {
+	statictext CTL_TESTGLBSVCACSY_INFO [width: bycontainer(100) height: 32 staticedge margin: 4];
+	listbox CTL_TESTGLBSVCACSY_LIST [width: bycontainer(100) growfactor: 1 margin: 4 columns: "@lbt_testglbsvcacsylist"];
+	view [horizontal width: bycontainer(100) height: 28] {
+		view [horizontal growfactor: 1 height: bycontainer(100) gravity: left justifycontent: start] {
+			button [title: "@launch" tabstop size: (75, 21) margin: 4 command: cmRun];
+		}
+		view [horizontal growfactor: 2 height: bycontainer(100) margin_right: 12 gravity: right justifycontent: end] {
+			button STDCTL_CANCELBUTTON [title: "@but_close" tabstop size: (75, 21) margin: 4 command: cmCancel];
+		}
+	}
+}
+//
+// @v12.3.12 Диалог диагностики локального сервера проверки марок чзн
+//
+dialog DLG_CHZNLOCPMPANE [vertical title: "" size: (507, 414) minsize: (500, 300) font: "MS Shell Dlg,8"] {
+	input CTL_CHZNLOCPMPANE_URL [width: bycontainer height: 21 margin: 4 tabstop readonly] string[252];
+	view [horizontal width: bycontainer height: 28 gravity: right justifycontent: end] {
+		button [title: "@launch" tabstop size: (150, 21) margin: 4 command: cmRun];
+		button [title: "@initialization" tabstop size: (150, 21) margin: 4 command: cmConfigure];
+	}
+	input CTL_CHZNLOCPMPANE_STATE [width: bycontainer growfactor: 1 margin: 4 tabstop readonly multiline wantreturn] string[252];
+	view [horizontal width: bycontainer height: 28 margin_right: 12 gravity: right justifycontent: end] {
+		button STDCTL_CANCELBUTTON [title: "@but_close" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+
+// @construction
+dialog DLG_CHKPANV__ [vertical title: "@poscheck" size: (888, 489)  font: "MS Shell Dlg 2,8"] {
+	listbox CTL_CHKPAN_LIST [width: bycontainer growfactor: 1 columns: "3,R,#;3,C,;44,L,@ware;16,L,@barcode;9,R,@price;8,R,@discount;8,R,@qtty;9,R,@amount;6,R,@vatrate;15,L,@series"];
+	view [horizontal width: bycontainer height: 30] {
+		//statictext [title: "@id" size: (68, 13) ];
+		//statictext CTL_CHKPAN_CHKID [size: (68, 16)  staticedge];
+		input CTL_CHKPAN_CHKID [width: bycontainer height: 21 margin: 4 tabstop readonly label: "@id"] long;
+
+		//statictext [title: "@datetime" size: (98, 13) ];
+		//statictext CTL_CHKPAN_CHKDTTM [size: (98, 16)  staticedge];
+		input CTL_CHKPAN_CHKDTTM [width: bycontainer height: 21 margin: 4 tabstop readonly label: "@datetime"] string[64];
+
+		//statictext [title: "@checkno" size: (53, 13) ];
+		//statictext CTL_CHKPAN_CHKNUM [size: (53, 16)  staticedge];
+		input CTL_CHKPAN_CHKNUM [width: bycontainer height: 21 margin: 4 tabstop readonly label: "@checkno"] string[64];
+
+		//statictext [title: "@posnode_s" size: (81, 13) ];
+		//statictext CTL_CHKPAN_CASHNUM [size: (45, 16)  staticedge];
+		input CTL_CHKPAN_CASHNUM [width: bycontainer height: 21 margin: 4 tabstop readonly label: "@posnode_s"] string[128];
+
+		statictext CTL_CHKPAN_FLAGS [size: (68, 16)  staticedge];
+		
+		//statictext [title: "@{total}:" size: (186, 13) ];
+		//statictext CTL_CHKPAN_TOTAL [size: (173, 16)  staticedge];
+		input CTL_CHKPAN_TOTAL [width: bycontainer height: 21 margin: 4 tabstop readonly label: "@{total}:" fmtf: (nozero) fmtprec: 2] double;
+	}
+	view [horizontal width: bycontainer height: 30] {
+		//statictext [title: "@card" size: (90, 13) ];
+		//statictext CTL_CHKPAN_SCARDCODE [size: (120, 16)  staticedge];
+		input CTL_CHKPAN_SCARDCODE [width: bycontainer height: 21 margin: 4 tabstop readonly label: "@card"] string[64];
+
+		statictext CTL_CHKPAN_DISCOUNT [size: (173, 16)  staticedge];
+		
+		//statictext [title: "@ccheck_creationdtm" size: (128, 13) ];
+		//statictext CTL_CHKPAN_INITDTM [size: (98, 16)  staticedge];
+		input CTL_CHKPAN_INITDTM [width: bycontainer height: 21 margin: 4 tabstop readonly label: "@ccheck_creationdtm"] string[64];
+
+		//statictext [title: "@ccheck_creationuser" size: (225, 13) ];
+		//statictext CTL_CHKPAN_INITUSER [size: (248, 16)  staticedge];
+		input CTL_CHKPAN_INITUSER [width: bycontainer height: 21 margin: 4 tabstop readonly label: "@ccheck_creationuser"] string[64];
+	}
+	input CTL_CHKPAN_INFO [size: (660, 16)  readonly] string[252];
+	statictext CTL_CHKPAN_CAFE_STATUS [size: (660, 16)  staticedge];
+	view [horizontal] {
+		button STDCTL_ALLBUTTON [title: "@dochooseall" tabstop size: (180, 21)  command: cmaAll]; // hidden
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (83, 21)  command: cmOK]; // hidden
+		button STDCTL_PRINT [title: "@but_print" tabstop size: (83, 21)  command: cmChkPanPrint];
+		button STDCTL_CANCELBUTTON [title: "@but_close" tabstop size: (75, 21)  command: cmCancel];
+		button STDCTL_SYSINFOBUTTON [title: "@sysinfo" tabstop size: (180, 21)  command: cmSysInfo];
 	}
 }

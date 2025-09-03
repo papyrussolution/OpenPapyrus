@@ -1095,42 +1095,21 @@ typedef enum {
 
 	/* The full URL to get/put */
 	CURLOPT(CURLOPT_URL, CURLOPTTYPE_STRINGPOINT, 2),
-
-	/* Port number to connect to, if other than default. */
-	CURLOPT(CURLOPT_PORT, CURLOPTTYPE_LONG, 3),
-
-	/* Name of proxy to use. */
-	CURLOPT(CURLOPT_PROXY, CURLOPTTYPE_STRINGPOINT, 4),
-
-	/* "user:password;options" to use when fetching. */
-	CURLOPT(CURLOPT_USERPWD, CURLOPTTYPE_STRINGPOINT, 5),
-
+	CURLOPT(CURLOPT_PORT, CURLOPTTYPE_LONG, 3), /* Port number to connect to, if other than default. */
+	CURLOPT(CURLOPT_PROXY, CURLOPTTYPE_STRINGPOINT, 4), /* Name of proxy to use. */
+	CURLOPT(CURLOPT_USERPWD, CURLOPTTYPE_STRINGPOINT, 5), /* "user:password;options" to use when fetching. */
 	/* "user:password" to use with proxy. */
 	CURLOPT(CURLOPT_PROXYUSERPWD, CURLOPTTYPE_STRINGPOINT, 6),
-
-	/* Range to get, specified as an ASCII string. */
-	CURLOPT(CURLOPT_RANGE, CURLOPTTYPE_STRINGPOINT, 7),
-
+	CURLOPT(CURLOPT_RANGE, CURLOPTTYPE_STRINGPOINT, 7), /* Range to get, specified as an ASCII string. */
 	/* not used */
+	CURLOPT(CURLOPT_READDATA, CURLOPTTYPE_CBPOINT, 9), /* Specified file stream to upload from (use as input): */
+	CURLOPT(CURLOPT_ERRORBUFFER, CURLOPTTYPE_OBJECTPOINT, 10), /* Buffer to receive error messages in, must be at least CURL_ERROR_SIZE bytes big. */
 
-	/* Specified file stream to upload from (use as input): */
-	CURLOPT(CURLOPT_READDATA, CURLOPTTYPE_CBPOINT, 9),
-
-	/* Buffer to receive error messages in, must be at least CURL_ERROR_SIZE
-	 * bytes big. */
-	CURLOPT(CURLOPT_ERRORBUFFER, CURLOPTTYPE_OBJECTPOINT, 10),
-
-	/* Function that will be called to store the output (instead of fwrite). The
-	 * parameters will use fwrite() syntax, make sure to follow them. */
+	/* Function that will be called to store the output (instead of fwrite). The parameters will use fwrite() syntax, make sure to follow them. */
 	CURLOPT(CURLOPT_WRITEFUNCTION, CURLOPTTYPE_FUNCTIONPOINT, 11),
-
-	/* Function that will be called to read the input (instead of fread). The
-	 * parameters will use fread() syntax, make sure to follow them. */
+	/* Function that will be called to read the input (instead of fread). The parameters will use fread() syntax, make sure to follow them. */
 	CURLOPT(CURLOPT_READFUNCTION, CURLOPTTYPE_FUNCTIONPOINT, 12),
-
-	/* Time-out the read operation after this amount of seconds */
-	CURLOPT(CURLOPT_TIMEOUT, CURLOPTTYPE_LONG, 13),
-
+	CURLOPT(CURLOPT_TIMEOUT, CURLOPTTYPE_LONG, 13), /* Time-out the read operation after this amount of seconds */
 	/* If CURLOPT_READDATA is used, this can be used to inform libcurl about
 	 * how large the file being sent really is. That allows better error
 	 * checking and better verifies that the upload was successful. -1 means

@@ -2019,7 +2019,7 @@ int PPPosProtocol::StartWriting(const char * pFileName, PPPosProtocol::WriteBloc
 {
 	int    ok = 1;
 	SString temp_buf;
-	THROW_LXML(rB.P_Xw = xmlNewTextWriterFilename(pFileName, 9 /*compression*/), 0);
+	THROW_SL(rB.P_Xw = xmlNewTextWriterFilename(pFileName, 9 /*compression*/), 0);
 	xmlTextWriterSetIndent(rB.P_Xw, 1);
 	xmlTextWriterSetIndentTab(rB.P_Xw);
 	THROW_MEM(rB.P_Xd = new SXml::WDoc(rB.P_Xw, cpUTF8));

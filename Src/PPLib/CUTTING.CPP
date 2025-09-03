@@ -16,7 +16,7 @@ int Transfer::CuttingLotOperations(PPID lotID, LDATE endDate, double * pEndQtty)
 	ReceiptTbl::Rec lot_rec;
 	TransferTbl::Rec rec;
 	DBRowId lot_pos, first_rec_pos;
-	first_rec_pos.SetZero();
+	first_rec_pos.Z();
 	THROW(Rcpt.Search(lotID, &lot_rec) > 0);
 	THROW_DB(Rcpt.getPosition(&lot_pos));
 	GetRest(lot_rec.ID, endDate, &end_rest);

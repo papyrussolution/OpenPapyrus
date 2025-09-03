@@ -977,31 +977,21 @@ int PPCashMachine::SyncPrintCheck(CCheckPacket * pCcPack, int addSummator)
 			// @v12.0.12 if(oneof2(r_cn.ChZnPermissiveMode, PPSyncCashNode::chznpmSoft, PPSyncCashNode::chznpmStrict)) {
 			if(r_cn.ChZnPermissiveMode == PPSyncCashNode::chznpmSoft) { // @v12.0.12
 				if(r_cn.ChZnGuaID) {
-					PPChZnPrcssr::PermissiveModeInterface::CodeStatusCollection check_code_list;
+					PPChZnPrcssr::PermissiveModeInterface::CodeStatusCollection pm_code_list;
 					PPObjGoods goods_obj;
 					CCheckLineTbl::Rec ccl;
 					for(uint pos = 0; pCcPack->EnumLines(&pos, &ccl);) {
 						Goods2Tbl::Rec goods_rec;
 						if(goods_obj.Fetch(ccl.GoodsID, &goods_rec) > 0) {
-							if(pCcPack->GetLineTextExt(pos, CCheckPacket::lnextChZnMark, temp_buf) > 0 && temp_buf.NotEmptyS()) {
-								GtinStruc gts;
-								if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0)) > 0) {
-									uint clp = 0;
-									CCheckPacket::PreprocessChZnCodeResult chzn_pp_result;
-									PPChZnPrcssr::ReconstructOriginalChZnCode(gts, temp_buf);
-									PPChZnPrcssr::PermissiveModeInterface::CodeStatus * p_cle = check_code_list.CreateNewItem(&clp);
-									if(p_cle) {
-										p_cle->OrgMark = temp_buf;
-										p_cle->OrgRowId = pos;
-									}
-								}
+							if(pCcPack->GetLineTextExt(pos, CCheckPacket::lnextChZnMark, temp_buf) > 0) {
+								pm_code_list.AddCodeEntry(temp_buf, pos, 0);
 							}
 						}
 					}
-					if(check_code_list.getCount()) {
-						PPChZnPrcssr::PmCheck(r_cn.ChZnGuaID, 0, check_code_list);
-						for(uint i = 0; i < check_code_list.getCount(); i++) {
-							const PPChZnPrcssr::PermissiveModeInterface::CodeStatus * p_cle = check_code_list.at(i);
+					if(pm_code_list.getCount()) {
+						PPChZnPrcssr::PmCheck(r_cn.ChZnGuaID, 0, 2/*regular online/offline mode*/, pm_code_list);
+						for(uint i = 0; i < pm_code_list.getCount(); i++) {
+							const PPChZnPrcssr::PermissiveModeInterface::CodeStatus * p_cle = pm_code_list.at(i);
 							if(p_cle) {
 								debug_mark = true;
 							}

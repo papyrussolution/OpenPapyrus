@@ -1752,8 +1752,7 @@ int PPCommandMngr::Save__2(const PPCommandGroup * pCmdGrp, const long rwFlag)
 		if(pCmdGrp->DbSymb.NotEmpty() || pCmdGrp->Type == cmdgrpcMenu) { // @v11.0.1 (pCmdGrp->Type == cmdgrpcMenu)
 			if(pCmdGrp->Uuid.ToStr(S_GUID::fmtIDL, guid_str)) {
 				path.Z().Cat(XmlDirPath).SetLastSlash().Cat(guid_str).DotCat("xml");
-				p_xml_writer = xmlNewTextWriterFilename(path, 0);  // создание writerA
-				THROW_LXML(p_xml_writer, 0); // @v12.2.0
+				THROW_SL(p_xml_writer = xmlNewTextWriterFilename(path, 0));
 				{
 					xmlTextWriterSetIndent(p_xml_writer, 1);
 					xmlTextWriterSetIndentTab(p_xml_writer);
@@ -1773,8 +1772,7 @@ int PPCommandMngr::Save__2(const PPCommandGroup * pCmdGrp, const long rwFlag)
 					const PPCommandGroup * p_cg = static_cast<const PPCommandGroup *>(p_item);
 					if(p_cg->Uuid.ToStr(S_GUID::fmtIDL, guid_str)) {
 						path.Z().Cat(XmlDirPath).SetLastSlash().Cat(guid_str).DotCat("xml");
-						p_xml_writer = xmlNewTextWriterFilename(path, 0);  // создание writerA
-						THROW_LXML(p_xml_writer, 0); // @v12.2.0
+						THROW_SL(p_xml_writer = xmlNewTextWriterFilename(path, 0));  // создание writerA
 						{
 							xmlTextWriterSetIndent(p_xml_writer, 1);
 							xmlTextWriterSetIndentTab(p_xml_writer);
@@ -2902,11 +2900,17 @@ public:
 	{
 		int    ok = -1;
 		if((D.MenuCm || cmdID) && APPL) {
+			const PPRights & r_rt = ObjRts;
 			CashNodePaneFilt * p_filt = 0;
 			static_cast<PPApp *>(APPL)->LastCmd = cmdID ? (cmdID + ICON_COMMAND_BIAS) : D.MenuCm;
 			PPView::ReadFiltPtr(*pParam, reinterpret_cast<PPBaseFilt **>(&p_filt));
-			ok = ExecCSPanel(p_filt);
-			static_cast<PPApp *>(APPL)->LastCmd = 0;
+			if(p_filt && p_filt->CashNodeID && !r_rt.CheckPosNodeID(p_filt->CashNodeID, 0)) { // @v12.3.12
+				ok = 0; // Сообщение об ошибке выведет вызывающий блок.
+			}
+			else {
+				ok = ExecCSPanel(p_filt);
+				static_cast<PPApp *>(APPL)->LastCmd = 0;
+			}
 		}
 		return ok;
 	}

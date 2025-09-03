@@ -33,9 +33,6 @@ xmlTextWriter * xmlNewTextWriterDoc(xmlDoc ** doc, int compression);
 xmlTextWriter * xmlNewTextWriterTree(xmlDoc * doc, xmlNode * pNode, int compression);
 void FASTCALL xmlFreeTextWriter(xmlTextWriter * pWriter);
 /*
- * Functions
- */
-/*
  * Document
  */
 int FASTCALL xmlTextWriterStartDocument(xmlTextWriter * writer, const char * version, const char * encoding, const char * standalone);

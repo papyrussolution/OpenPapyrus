@@ -1107,24 +1107,21 @@ static int heap_add_entry(ArchiveRead * a, struct heap_queue * heap, struct xar_
 	return ARCHIVE_OK;
 }
 
-static struct xar_file * heap_get_entry(struct heap_queue * heap)                          {
+static struct xar_file * heap_get_entry(struct heap_queue * heap)
+{
 	uint64 a_id, b_id, c_id;
 	int a, b, c;
 	struct xar_file * r, * tmp;
-
 	if(heap->used < 1)
 		return NULL;
-
 	/*
 	 * The first file in the list is the earliest; we'll return this.
 	 */
 	r = heap->files[0];
-
 	/*
 	 * Move the last item in the heap to the root of the tree
 	 */
 	heap->files[0] = heap->files[--(heap->used)];
-
 	/*
 	 * Rebalance the heap.
 	 */

@@ -1439,7 +1439,8 @@ int DlRtm::ExportXML(ExportParam & rParam, SString & rOutFileName)
 	//head_name = data_name;
 	data_name.DotCat("xml");
 	PPGetFilePath(PPPATH_OUT, data_name, path);
-	p_writer = xmlNewTextWriterFilename(path, (rParam.Flags & ExportParam::fCompressXml) ? 9 : 0); // @v10.6.0 0-->((rParam.Flags & ExportParam::fCompressXml) ? 9 : 0)
+	p_writer = xmlNewTextWriterFilename(path, (rParam.Flags & ExportParam::fCompressXml) ? 9 : 0);
+	THROW_SL(p_writer); // @v12.3.12
 	THROW(Helper_WriteXML(rParam, p_writer));
 #if 0 // {
 	if(rParam.P_F && p_writer) {

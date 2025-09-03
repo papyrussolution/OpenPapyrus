@@ -523,7 +523,7 @@ int PPNamedFiltMngr::SavePool2(const PPNamedFiltPool * pPool) const //@erik v10.
 	SString temp_buf;
 	xmlTextWriter * p_xml_writer = xmlNewTextWriterFilename(XmlFilePath, 0);
 	assert(p_xml_writer);
-	THROW(p_xml_writer);
+	THROW_SL(p_xml_writer);
 	xmlTextWriterSetIndent(p_xml_writer, 1);
 	xmlTextWriterSetIndentTab(p_xml_writer);
 	{

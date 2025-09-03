@@ -227,8 +227,8 @@ int Curl_getaddrinfo_ex(const char * nodename,
  *
  *     #define h_addr  h_addr_list[0]
  */
-
-struct Curl_addrinfo *Curl_he2ai(const struct hostent * he, int port)                       {
+struct Curl_addrinfo *Curl_he2ai(const struct hostent * he, int port)
+{
 	struct Curl_addrinfo * ai;
 	struct Curl_addrinfo * prevai = NULL;
 	struct Curl_addrinfo * firstai = NULL;

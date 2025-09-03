@@ -681,12 +681,12 @@ library PapyrusInterfaceLib version(1.2) { // @v11.3.8 (1.1)-->(1.2)
 	//   обязательно должны совпадать)
 	//
 	enum PpyObjectIdent {
-		ppoUnit   =   5,  // =PPOBJ_UNIT
+		ppoUnit           =   5,  // =PPOBJ_UNIT
 		ppoOprKind        =   12, // =PPOBJ_OPRKIND        Виды операций
 		ppoAccSheet       =   13, // =PPOBJ_ACCSHEET       Таблицы аналитического учета
 		ppoCashNode       =   17, // =PPOBJ_CASHNODE       Расчетные кассовые узлы
 		ppoQuotKind       =   29, // =PPOBJ_QUOTKIND       Виды котировок товаров
-		ppoTag    =   31, // =PPOBJ_TAG            Теги объектов
+		ppoTag            =   31, // =PPOBJ_TAG            Теги объектов
 		ppoGoodsTax       =   32, // =PPOBJ_GOODSTAX       Налоговые группы товаров
 		ppoCurrency       =   34, // =PPOBJ_CURRENCY       Валюты
 		ppoGoodsClass     =   37, // =PPOBJ_GOODSCLASS     Классы товаров
@@ -696,26 +696,26 @@ library PapyrusInterfaceLib version(1.2) { // @v11.3.8 (1.1)-->(1.2)
 		ppoPersonCategory =   50, // =PPOBJ_PRSNCATEGORY   Категории персоналий
 		ppoSalCharge      =   56, // =PPOBJ_SALCHARGE      Штатные начисления           //
 		ppoDebtDim        =   64, // =PPOBJ_DEBTDIM        Размерность расчета долгов по документам
-		ppoPerson = 1004, // =PPOBJ_PERSON         Персоналии
+		ppoPerson         = 1004, // =PPOBJ_PERSON         Персоналии
 		ppoArticle        = 1006, // =PPOBJ_ARTICLE        Статьи аналитического учета
 		ppoGoodsGroup     = 1008, // =PPOBJ_GOODSGROUP     Группы товаров
-		ppoGoods  = 1009, // =PPOBJ_GOODS          Товары
+		ppoGoods          = 1009, // =PPOBJ_GOODS          Товары
 		ppoLocation       = 1010, // =PPOBJ_LOCATION       Склады
-		ppoBill   = 1011, // =PPOBJ_BILL           Документы
-		ppoQCert  = 1013, // =PPOBJ_QCERT          Сертификаты качества
-		ppoStaff  = 1021, // =PPOBJ_STAFFLIST      Штатные должности
-		ppoLot    = 1022, // =PPOBJ_LOT            Лоты
+		ppoBill           = 1011, // =PPOBJ_BILL           Документы
+		ppoQCert          = 1013, // =PPOBJ_QCERT          Сертификаты качества
+		ppoStaff          = 1021, // =PPOBJ_STAFFLIST      Штатные должности
+		ppoLot            = 1022, // =PPOBJ_LOT            Лоты
 		ppoTransport      = 1028, // =PPOBJ_TRANSPORT      Транспортные средства
-		ppoCCheck = 1032, // =PPOBJ_CCHECK         Кассовые чеки
+		ppoCCheck         = 1032, // =PPOBJ_CCHECK         Кассовые чеки
 		ppoProject        = 1033, // =PPOBJ_PROJECT        Проекты
 		ppoPrjTask        = 1036, // =PPOBJ_PRJTASK        Задачи
 		ppoProcessor      = 1037, // =PPOBJ_PROCESSOR      Процессоры
 		ppoTSession       = 1039, // =PPOBJ_TSESSION       Технологические сессии
-		ppoWorld  = 1043, // =PPOBJ_WORLD          Государства
+		ppoWorld          = 1043, // =PPOBJ_WORLD          Государства
 		ppoRegister       = 1044, // =PPOBJ_REGISTER       Регистры
 		ppoPersonRelType  = 1045, // =PPOBJ_PERSONRELTYPE  Типы персональных отношений
-		ppoBrand  = 1046, // =PPOBJ_BRAND          Бренды
-		ppoSCard  = 1031  // =PPOBJ_SCARD          Персональные карты
+		ppoBrand          = 1046, // =PPOBJ_BRAND          Бренды
+		ppoSCard          = 1031  // =PPOBJ_SCARD          Персональные карты
 	}
 	//
 	//
@@ -2588,6 +2588,7 @@ library PapyrusInterfaceLib version(1.2) { // @v11.3.8 (1.1)-->(1.2)
 		//   наименований товаров.
 		//
 		string ProcessName(string orgName, int flags);
+		//int    GetEffectiveTaxGroup(long goodsID, date dt, SPpyO_GoodsTax * pTaxGrp); // @v12.3.12
 	}
 	//
 	// Interface PPObjGoodsGroup
@@ -3984,9 +3985,9 @@ library PapyrusInterfaceLib version(1.2) { // @v11.3.8 (1.1)-->(1.2)
 	}
 
 	struct SPpyO_SCard {
-		long   ID;           // @id
-		string Code;         // Номер карты
-		string Password;     // Пароль для удаленной авторизации владельца
+		long   ID;             // @id
+		string Code;           // Номер карты
+		string Password;       // Пароль для удаленной авторизации владельца
 		long   SeriesID;       // ->Ref(PPOBJ_SCARDSERIES)
 		long   PersonID;       // ->Person.ID
 		long   Flags;          // @flags
@@ -4041,9 +4042,9 @@ library PapyrusInterfaceLib version(1.2) { // @v11.3.8 (1.1)-->(1.2)
 	// Descr: Флаги фильтра анализа товарных операций
 	//
 	enum PpyVTrfrAnlzFlags {
-		tavfLabelOnly  = 0x00000001,   // Только помеченные операции
-		tavfGByDate    = 0x00000002,   // Группировка по дате (только если выбран товар - GoodsID)
-		tavfGetRest    = 0x00000004,   // Рассчитывать товарные остатки
+		tavfLabelOnly          = 0x00000001,   // Только помеченные операции
+		tavfGByDate            = 0x00000002,   // Группировка по дате (только если выбран товар - GoodsID)
+		tavfGetRest            = 0x00000004,   // Рассчитывать товарные остатки
 		tavfSubstPersonRAddr   = 0x00000008,   // При подстановке персоналии использовать фактический адрес
 		tavfSubstDlvrAddr      = 0x00000010,   // При подстановке персоналии использовать адрес доставки
 		tavfDiffByDlvrAddr     = 0x00000020,   // При группировке по контрагенту заменять контрагента на
@@ -4053,13 +4054,13 @@ library PapyrusInterfaceLib version(1.2) { // @v11.3.8 (1.1)-->(1.2)
 			// или выводить отчет на экран.
 		tavfInitLocCount       = 0x00000080,   // Рассчитывать количество адресов доставки для каждого
 			// элемента группировки. Внутренний флаг (инициализируется программно)
-		tavfCalcRest   = 0x00000100,   // Для группировки gGoods, gGoodsBill, gGoodsDate рассчитывать остатки
+		tavfCalcRest           = 0x00000100,   // Для группировки gGoods, gGoodsBill, gGoodsDate рассчитывать остатки
 		tavfShowAllArticles    = 0x00000200,   // Показывать отсутствующие позиции контрагентов
 		tavfShowAllAgents      = 0x00000400,   // Показывать отсутствующие позиции агентов
 		tavfShowAllGoods       = 0x00000800,   // Показывать отсутствующие позиции товаров
 		tavfByZeroAgent        = 0x00001000,   // Фильтрация по нулевому агенту по документу
-		tavfCalcVat    = 0x00002000,   // Рассчитывать суммы НДС
-		tavfCWoVat     = 0x00008000,   // Показывать цены без НДС
+		tavfCalcVat            = 0x00002000,   // Рассчитывать суммы НДС
+		tavfCWoVat             = 0x00008000,   // Показывать цены без НДС
 		tavfByZeroDlvrAddr     = 0x00010000,   // @v8.3.0  Фильтрация по пустому адресу доставки
 		tavfForceInitDlvrAddr  = 0x00020000    // @v8.3.0  Инициализировать адрес доставки без группировки
 	}
@@ -4314,14 +4315,14 @@ library PapyrusInterfaceLib version(1.2) { // @v11.3.8 (1.1)-->(1.2)
 	//
 	enum PpyVLotFlags {
 		lvfWithoutQCert       = 0x0008, // Показывать только лоты, у которых нет серитфиката
-		lvfOrders     = 0x0010, // Лоты заказов
+		lvfOrders             = 0x0010, // Лоты заказов
 		lvfCostAbovePrice     = 0x0020, // Только лоты, у которых цена поступления больше цены реализации
-		lvfWithoutClb = 0x0040, // Лоты без ГТД
-		lvfDeadLots   = 0x0080, // Только те лоты, по которым не было движения //
+		lvfWithoutClb         = 0x0040, // Лоты без ГТД
+		lvfDeadLots           = 0x0080, // Только те лоты, по которым не было движения //
 		lvfWithoutExpiry      = 0x0100, // Лоты, для которых не указан срок годности
 		lvfOnlySpoilage       = 0x0200, // Только лоты с бракованными сериями
 		lvfShowSerialN        = 0x0400, // Показывать серийные номера лотов
-		lvfSkipNoOp   = 0x0800, // Не показывать лоты, по которым не было операций за операционный период
+		lvfSkipNoOp           = 0x0800, // Не показывать лоты, по которым не было операций за операционный период
 			// Имеет смысл только если !Operation.IsZero()
 		lvfCheckOriginLotDate = 0x1000, // Учитывать дату оригинального лота в соответствии с заданным периодом
 		lvfSkipClosedBeforeOp = 0x2000, // Пропускать лоты, закрытые до операционного периода
@@ -4433,26 +4434,26 @@ library PapyrusInterfaceLib version(1.2) { // @v11.3.8 (1.1)-->(1.2)
 		gvfUseUnitMask       = 0x00000004, // Внутренний флаг - использовать маску фильтрации единиц измерения //
 		gvfIntUnitOnly       = 0x00000008, // Только те товары, для которых задана целочисленная единица измерения //
 		gvfFloatUnitOnly     = 0x00000010, // Только те товары, для которых задана нецелочисленная единица измерения //
-		gvfNegation  = 0x00000020, // Отрицание фильтра
-		gvfGenGoods  = 0x00000040, // Если установлен флаг fGenGoods, то поле GrpID используется // как обобщенный товар.
+		gvfNegation          = 0x00000020, // Отрицание фильтра
+		gvfGenGoods          = 0x00000040, // Если установлен флаг fGenGoods, то поле GrpID используется // как обобщенный товар.
 		gvfGroupGenGoods     = 0x00000080, // Группировать обобщенные товары
-		gvfUndefType = 0x00000100, // Только те товары, для которых не определен тип
-		gvfNewLots   = 0x00000200, // Только те товары, которых не было на дату (LotPeriod.low-1)
+		gvfUndefType         = 0x00000100, // Только те товары, для которых не определен тип
+		gvfNewLots           = 0x00000200, // Только те товары, которых не было на дату (LotPeriod.low-1)
 		gvfExcludeAsset      = 0x00000400, // Исключить основные средства
 		gvfIncludeIntr       = 0x00000800, // Рассматривать порожденные лоты. Действует при (!LotPeriod.IsZero() || SupplID)
 		gvfShowBarcode       = 0x00001000, // Показывать штрих-коды в броузере
-		gvfShowCargo = 0x00002000, // Показывать товары с грузовыми параметрами
+		gvfShowCargo         = 0x00002000, // Показывать товары с грузовыми параметрами
 		gvfHidePassive       = 0x00004000, // Не показывать пассивные товары (отменяет fPassiveOnly)
 		gvfPassiveOnly       = 0x00008000, // Показывать только пассивные товары (отменяет fHidePassive)
 		gvfGenGoodsOnly      = 0x00010000, // Показывать только обобщенные товары
 		gvfWOTaxGdsOnly      = 0x00020000, // Показывать только товары с ценой без налогов
 			// @#{fPassiveOnly^fGenGoodsOnly^fWOTaxGdsOnly}
 		gvfNoZeroRestOnLotPeriod = 0x00040000, // Если товар не удовлетворяет ограничению LotPeriod, но есть на остатке, то попадает в выборку
-		gvfNoDisOnly = 0x00080000, // Показывать только товары с признаком без скидки
+		gvfNoDisOnly         = 0x00080000, // Показывать только товары с признаком без скидки
 		gvfShowStrucType     = 0x00100000, // Показывать признак наличия структуры AHTOXA
 		gvfNotUseViewOptions = 0x00200000, // Не показывать в товарном фильтре кнопку опции просмотра
 		gvfShowGoodsWOStruc  = 0x00400000, // Показывать товары без структуры
-		gvfWoTaxGrp  = 0x00800000, // Показывать только товары без налоговой группы
+		gvfWoTaxGrp          = 0x00800000, // Показывать только товары без налоговой группы
 		gvfRestrictByMatrix  = 0x01000000, // Ограничивать выборку товарной матрицей. Если LocID == 0, то ограничивается матрицей для всех складов
 		gvfShowArCode        = 0x02000000, // Показывать артикулы товаров
 		gvfShowOwnArCode     = 0x04000000, // Показывать собственные артикулы (ArID = 0)
@@ -4462,7 +4463,7 @@ library PapyrusInterfaceLib version(1.2) { // @v11.3.8 (1.1)-->(1.2)
 			// Этот флаг имеет более низкий приоритет, чем fRestrictByMatrix. То есть, если установлены оба
 			// флага (что программа не должна допускать), то применяется fRestrictByMatrix
 		gvfActualOnly        = 0x20000000, // Показывать только те товары, по которым есть не нулевые остатки по одному из складов LocList
-		gvfHasImages = 0x40000000, // Только с картинками
+		gvfHasImages         = 0x40000000, // Только с картинками
 		gvfUseIndepWtOnly    = 0x80000000  // Только с флагом GF_USEINDEPWT
 	}
 	//

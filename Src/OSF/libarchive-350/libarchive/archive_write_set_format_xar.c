@@ -1648,8 +1648,7 @@ static struct file * file_create_virtual_dir(struct archive_write * a, struct xa
 
 static int file_add_child_tail(struct file * parent, struct file * child)
 {
-	if(!__archive_rb_tree_insert_node(
-		    &(parent->rbtree), (struct archive_rb_node *)child))
+	if(!__archive_rb_tree_insert_node(&(parent->rbtree), (struct archive_rb_node *)child))
 		return 0;
 	child->chnext = NULL;
 	*parent->children.last = child;
@@ -1661,11 +1660,9 @@ static int file_add_child_tail(struct file * parent, struct file * child)
 /*
  * Find a entry from `parent'
  */
-static struct file * file_find_child(struct file * parent, const char * child_name)                       {
-	struct file * np;
-
-	np = (struct file *)__archive_rb_tree_find_node(
-		&(parent->rbtree), child_name);
+static struct file * file_find_child(struct file * parent, const char * child_name)
+{
+	struct file * np = (struct file *)__archive_rb_tree_find_node(&(parent->rbtree), child_name);
 	return (np);
 }
 

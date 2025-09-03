@@ -190,6 +190,7 @@ public:
 	
 	int    ParseDocument(const SJson * pJsonObj, Document & rItem);
 	int    ParseDocumentList(const char * pJsonInput, TSCollection <Document> & rList);
+	int    SetupInitBlock(const PPGlobalUserAccPacket & rGuaPack, const char * pEndPoint, InitBlock & rBlk);
 	int    SetupInitBlock(PPID guaID, const char * pEndPoint, InitBlock & rBlk);
 	int    GetSign(const InitBlock & rIb, const void * pData, size_t dataLen, SString & rResultBuf);
 	SString & MakeTargetUrl_(int query, const char * pAddendum, const InitBlock & rIb, SString & rResult) const;
@@ -470,6 +471,7 @@ DRAFTBEER HORECA @v11.9.4
 				rS.SetSpecialFixedToken(GtinStruc::fldSerial, /*13*/serial_len_variant_list[serial_len_variant_idx++]);
 			}
 			rS.AddOnlyToken(GtinStruc::fldPart);
+			rS.SetSpecialMinLenToken(GtinStruc::fldPart, 5); // @v12.3.12
 			rS.AddOnlyToken(GtinStruc::fldAddendumId);
 			rS.AddOnlyToken(GtinStruc::fldUSPS); //
 			rS.SetSpecialFixedToken(GtinStruc::fldUSPS, 4);
@@ -480,7 +482,7 @@ DRAFTBEER HORECA @v11.9.4
 			rS.AddOnlyToken(GtinStruc::fldSscc18);
 			rS.AddOnlyToken(GtinStruc::fldExpiryDate);
 			rS.AddOnlyToken(GtinStruc::fldManufDate);
-			rS.AddOnlyToken(GtinStruc::fldVariant);
+			// @v12.3.12 rS.AddOnlyToken(GtinStruc::fldVariant);
 			//rS.AddOnlyToken(GtinStruc::fldPriceRuTobacco);
 			//rS.AddOnlyToken(GtinStruc::fldPrice);
 			int   pr = 0;
@@ -1729,13 +1731,12 @@ int ChZnInterface::Document::Make(SXml::WDoc & rX, const ChZnInterface::InitBloc
 	return ok;
 }
 
-int ChZnInterface::SetupInitBlock(PPID guaID, const char * pEndPoint, InitBlock & rBlk)
+int ChZnInterface::SetupInitBlock(const PPGlobalUserAccPacket & rGuaPack, const char * pEndPoint, InitBlock & rBlk)
 {
 	int    ok = 1;
 	int    protocol_id = 0;
 	SString temp_buf;
-	PPObjGlobalUserAcc gua_obj;
-	THROW(gua_obj.GetPacket(guaID, &rBlk.GuaPack) > 0);
+	rBlk.GuaPack = rGuaPack;
 	rBlk.EndPoint = pEndPoint;
 	rBlk.GuaPack.GetAccessKey(rBlk.CliAccsKey);
 	rBlk.GuaPack.TagL.GetItemStr(PPTAG_GUA_SECRET, rBlk.CliSecret);
@@ -1746,7 +1747,7 @@ int ChZnInterface::SetupInitBlock(PPID guaID, const char * pEndPoint, InitBlock 
 	rBlk.GuaPack.TagL.GetItemStr(PPTAG_GUA_CHZN_PM_TOKEN, rBlk.PermissiveModeToken); // @v11.9.11
 	// @v12.3.11 {
 	{
-		rBlk.GuaPack.TagL.GetItemStr(PPTAG_GUA_CHZNLOCPMURL, temp_buf.Z());
+		rBlk.GuaPack.TagL.GetItemStr(PPTAG_GUA_CHZNLOCPMURL, temp_buf);
 		if(temp_buf.NotEmptyS()) {
 			InetUrl url;
 			if(PPObjGlobalUserAcc::GetChZnLocPmUrl(temp_buf, url) > 0)
@@ -1791,13 +1792,25 @@ int ChZnInterface::SetupInitBlock(PPID guaID, const char * pEndPoint, InitBlock 
 		THROW_PP(rBlk.CliSecret.NotEmpty(), PPERR_CHZN_MDLPKEYSNDEF);
 		THROW_PP(rBlk.CliIdent.NotEmpty(), PPERR_CHZN_MDLPKEYSNDEF);
 	}
-	rBlk.GuaID = guaID;
+	rBlk.GuaID = rBlk.GuaPack.Rec.ID;
 	{
 		PPIniFile ini_file;
 		if(ini_file.Get(PPINISECT_PATH, PPINIPARAM_PATH_CRYPTOPRO, rBlk.CryptoProPath) <= 0)
 			ini_file.Get(PPINISECT_PATH, PPINIPARAM_PATH_CRYPTOPRO_BAD, rBlk.CryptoProPath);
 	}
 	CATCHZOK
+	return ok;
+}
+
+int ChZnInterface::SetupInitBlock(PPID guaID, const char * pEndPoint, InitBlock & rBlk)
+{
+	int    ok = 1;
+	PPObjGlobalUserAcc gua_obj;
+	PPGlobalUserAccPacket gua_pack;
+	if(gua_obj.GetPacket(guaID, &gua_pack) > 0)
+		ok = SetupInitBlock(gua_pack, pEndPoint, rBlk);
+	else
+		ok = 0;
 	return ok;
 }
 	
@@ -3739,23 +3752,80 @@ PPChZnPrcssr::PermissiveModeInterface::CodeStatusCollection & PPChZnPrcssr::Perm
 	ReqTimestamp = 0;
 	Description.Z();
 	ReqId.Z();
+	LocalModuleInstance.Z(); // @v12.3.12
+	LocalModuleDbVer.Z(); // @v12.3.12
 	freeAll();
 	return *this;
+}
+
+int PPChZnPrcssr::PermissiveModeInterface::CodeStatusCollection::AddCodeEntry(const char * pCode, uint orgRowId, SString * pReconstructedCode)
+{
+	int    ok = 0;
+	SString reconstructed_code;
+	if(!isempty(pCode)) { // pm_code_list
+		SString temp_buf(pCode);
+		GtinStruc gts;
+		temp_buf.Strip();
+		if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0)) > 0) {
+			uint clp = 0;
+			PPChZnPrcssr::ReconstructOriginalChZnCode(gts, reconstructed_code);
+			PPChZnPrcssr::PermissiveModeInterface::CodeStatus * p_cle = CreateNewItem(&clp);
+			if(p_cle) {
+				p_cle->OrgMark = reconstructed_code;
+				SString chzn_mark_serial;
+				if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf) && gts.GetToken(GtinStruc::fldSerial, &chzn_mark_serial)) {
+					p_cle->OrgMark_Offl.Cat("01").Cat(temp_buf).Cat("21").Cat(chzn_mark_serial); 
+				}
+				p_cle->OrgRowId = orgRowId;
+				ok = 1;
+			}
+		}
+	}
+	ASSIGN_PTR(pReconstructedCode, reconstructed_code);
+	return ok;
 }
 
 int PPChZnPrcssr::PermissiveModeInterface::CodeStatusCollection::SetupResultEntry(int rowN, const CodeStatus & rEntry)
 {
 	int    result = 0;
-	for(uint i = 0; !result && i < getCount(); i++) {
-		CodeStatus * p_iter = at(i);
-		if(p_iter) {
-			if(AreChZnCodesEqual(p_iter->OrgMark, rEntry.Cis)) {
-				p_iter->AssignExceptOrgValues(rEntry);
-				result = i+1;
+	if(rEntry.Cis.NotEmpty()) {
+		for(uint i = 0; !result && i < getCount(); i++) {
+			CodeStatus * p_iter = at(i);
+			if(p_iter) {
+				if(AreChZnCodesEqual(p_iter->OrgMark, rEntry.Cis)) {
+					p_iter->AssignExceptOrgValues(rEntry);
+					result = i+1;
+				}
+				else if(AreChZnCodesEqual(p_iter->OrgMark_Offl, rEntry.Cis)) {
+					p_iter->AssignExceptOrgValues(rEntry);
+					result = i+1;
+				}
 			}
 		}
 	}
 	return result;
+}
+
+PPChZnPrcssr::PermissiveModeInterface::LocalSvcStatus::LocalSvcStatus() : Flags(0), Status(stUndef), OpMode(opmodeUndef), UedLastUpdateTm(0), UedLastSyncTm(0)
+{
+}
+			
+PPChZnPrcssr::PermissiveModeInterface::LocalSvcStatus & PPChZnPrcssr::PermissiveModeInterface::LocalSvcStatus::Z()
+{
+	Flags = 0;
+	Status = stUndef;
+	OpMode = opmodeUndef;
+	UedLastUpdateTm = 0;
+	UedLastSyncTm = 0;
+	Version.Z();
+	StatusText.Z();
+	ServiceUrl.Z();
+	OperationModeText.Z();
+	Name.Z();
+	Inst.Z();
+	Inn.Z();
+	DbVer.Z();
+	return *this;
 }
 
 SString & PPChZnPrcssr::PermissiveModeInterface::MakeTargetUrl(int query, const char * pAddendum, SString & rResult) const 
@@ -3974,11 +4044,12 @@ int PPChZnPrcssr::PermissiveModeInterface::FetchCdnHost(PPID guaID, SString & rR
 	return ok;
 }
 
-int PPChZnPrcssr::PermissiveModeInterface::CheckCodeList(const char * pHost, const char * pFiscalDriveNumber, CodeStatusCollection & rList)
+int PPChZnPrcssr::PermissiveModeInterface::CheckCodeList(const char * pHost, const char * pFiscalDriveNumber, CodeStatusCollection & rList, bool * pIsConnectionProblem)
 {
 	// POST /codes/check
 	// "<url контура>/api/v4/true-api/codes/check"
 	int    ok = 1;
+	bool   is_connection_problem = false;
 	SJson * p_js_reply = 0;
 	SString temp_buf;
 	SString url_buf;
@@ -4009,7 +4080,14 @@ int PPChZnPrcssr::PermissiveModeInterface::CheckCodeList(const char * pHost, con
 		THROW_SL(js_query.ToStr(req_buf));
 		Lth.Log("req", url_buf, req_buf);
 	}
-	THROW_SL(c.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, req_buf, &wr_stream));
+	c.SetQueryParam_ConnectionTimeout(1500); // @v12.3.12
+	{
+		const int cr = c.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, req_buf, &wr_stream);
+		if(!cr) {
+			is_connection_problem = true;
+			CALLEXCEPT_PP(PPERR_SLIB);
+		}
+	}
 	{
 		SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
 		THROW(p_ack_buf);
@@ -4127,6 +4205,7 @@ int PPChZnPrcssr::PermissiveModeInterface::CheckCodeList(const char * pHost, con
 	}
 	CATCHZOK
 	delete p_js_reply;
+	ASSIGN_PTR(pIsConnectionProblem, is_connection_problem);
 	return ok;
 }
 
@@ -4182,13 +4261,16 @@ int PPChZnPrcssr::PermissiveModeInterface::InitLocalSvr(const char * pFiscalDriv
 					js_req.ToStr(req_buf);
 				}
 				SFile wr_stream(ack_buf.Z(), SFile::mWrite);
-				Lth.Log("req", 0, req_buf);
+				Lth.Log("req (local mode)", 0, req_buf);
 				if(c.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, req_buf, &wr_stream)) {
 					SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
 					if(p_ack_buf) {
 						reply_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
-						Lth.Log("rep", 0, reply_buf);
-						{
+						Lth.Log("rep (local mode)", 0, reply_buf);
+						if(reply_buf.IsEmpty()) {
+							ok = 1;
+						}
+						else {
 							p_js_reply = SJson::Parse(reply_buf);
 							SCompoundError cerr;
 							if(SJson::IsObject(p_js_reply)) {
@@ -4204,7 +4286,6 @@ int PPChZnPrcssr::PermissiveModeInterface::InitLocalSvr(const char * pFiscalDriv
 								ASSIGN_PTR(pErr, cerr);
 							}
 						}
-						ok = 1;
 					}
 				}
 				else {
@@ -4262,12 +4343,14 @@ int PPChZnPrcssr::PermissiveModeInterface::GetLocalSvrStatus(const char * pFisca
 				SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrAuthorization, temp_buf);
 			}
 			SFile wr_stream(ack_buf.Z(), SFile::mWrite);
-			Lth.Log("req", 0, req_buf);
+			Lth.Log("req (local mode)", 0, req_buf);
+			c.SetQueryParam_ConnectionTimeout(1500);
+			c.SetQueryParam_OverallTimeout(2000);
 			if(c.HttpGet(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, &wr_stream)) {
 				SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
 				if(p_ack_buf) {
 					reply_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
-					Lth.Log("rep", 0, reply_buf);
+					Lth.Log("rep (local mode)", 0, reply_buf);
 					p_js_reply = SJson::Parse(reply_buf);
 					if(p_js_reply/*&& ParseDocument(p_json_doc, rDoc) > 0*/) {
 						/*{
@@ -4360,7 +4443,7 @@ int PPChZnPrcssr::PermissiveModeInterface::GetLocalSvrStatus(const char * pFisca
 				}
 			}
 			else {
-				; // @todo @err
+				PPSetError(PPERR_CHZNPM_LOCAL_QUERYFAULT);
 			}
 		}
 	}
@@ -4370,7 +4453,6 @@ int PPChZnPrcssr::PermissiveModeInterface::GetLocalSvrStatus(const char * pFisca
 
 int PPChZnPrcssr::PermissiveModeInterface::LocalCheckCodeList(const char * pFiscalDriveNumber, PermissiveModeInterface::CodeStatusCollection & rList)
 {
-	// @construction
 	int    ok = 0;
 	SJson * p_js_reply = 0;
 	SString temp_buf;
@@ -4421,32 +4503,111 @@ int PPChZnPrcssr::PermissiveModeInterface::LocalCheckCodeList(const char * pFisc
 					SJson * p_js_code_list = new SJson(SJson::tARRAY);
 					for(uint mi = 0; mi < rList.getCount(); mi++) {
 						const CodeStatus * p_mi = rList.at(mi);
-						if(p_mi->Cis.NotEmpty()) {
-							// @todo здесь марки подаются без крипто-хвоста (вероятно, только gtin+serial)
-							p_js_code_list->InsertChild(SJson::CreateString((temp_buf = p_mi->OrgMark).Escape()));
+						if(p_mi->OrgMark_Offl.NotEmpty()) {
+							// здесь марки подаются без крипто-хвоста (вероятно, только gtin+serial)
+							p_js_code_list->InsertChild(SJson::CreateString((temp_buf = p_mi->OrgMark_Offl).Escape()));
 						}
 					}
 					js_req.Insert("cis_list", p_js_code_list);
 					js_req.ToStr(req_buf);
 				}
 				SFile wr_stream(ack_buf.Z(), SFile::mWrite);
-				Lth.Log("req", 0, req_buf);
+				Lth.Log("req (local mode)", 0, req_buf);
+				c.SetQueryParam_ConnectionTimeout(1500);
+				c.SetQueryParam_OverallTimeout(2000);
 				if(c.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, req_buf, &wr_stream)) {
 					SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
 					if(p_ack_buf) {
 						reply_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
-						Lth.Log("rep", 0, reply_buf);
+						Lth.Log("rep (local mode)", 0, reply_buf);
 						{
+							/*
+								{
+									"results": [
+										{
+											"version": "f9198d4d-51a8-42c2-b4ec-4997b165abe2",
+											"reqTimestamp": 1756377444666,
+											"reqId": "bbf48ceb-a06d-8475-4ca6-6042783c8f6a",
+											"inst": "5530031e-5b12-4e66-8086-fecb793d54ce",
+											"description": "ok",
+											"codes": [
+												{
+													"sold": false,
+													"printView": "0104601959010025215BX0U7",
+													"isGreyGtin": false,
+													"isBlocked": false,
+													"gtin": "04601959010025",
+													"cis": "0104601959010025215BX0U7"
+												}
+											],
+											"code": 0
+										}
+									]
+								}
+							*/ 
 							p_js_reply = SJson::Parse(reply_buf);
 							SCompoundError cerr;
 							if(SJson::IsObject(p_js_reply)) {
 								//{"reason":"not authorized","errorCode":4010}
 								for(const SJson * p_cur = p_js_reply->P_Child; p_cur; p_cur = p_cur->P_Next) {
-									if(p_cur->Text.IsEqiAscii("reason")) {
-										SJson::GetChildTextUnescaped(p_cur, cerr.Descr);
-									}
-									else if(p_cur->Text.IsEqiAscii("errorCode")) {
-										cerr.Code = p_cur->P_Child->Text.ToLong();
+									if(p_cur->Text.IsEqiAscii("results")) {
+										if(SJson::IsArray(p_cur->P_Child)) {
+											for(const SJson * p_js_item = p_cur->P_Child->P_Child; p_js_item; p_js_item = p_js_item->P_Next) {
+												if(SJson::IsObject(p_js_item)) {
+													for(const SJson * p_cur2 = p_js_item->P_Child; p_cur2; p_cur2 = p_cur2->P_Next) {
+														if(p_cur2->Text.IsEqiAscii("version")) {
+															SJson::GetChildGuid(p_cur2, rList.LocalModuleDbVer);
+														}
+														else if(p_cur2->Text.IsEqiAscii("reqTimestamp")) {
+															SJson::GetChildInt64(p_cur2, rList.ReqTimestamp);
+														}
+														else if(p_cur2->Text.IsEqiAscii("reqId")) {
+															SJson::GetChildGuid(p_cur2, rList.ReqId);
+														}
+														else if(p_cur2->Text.IsEqiAscii("inst")) {
+															SJson::GetChildGuid(p_cur2, rList.LocalModuleInstance);
+														}
+														else if(p_cur2->Text.IsEqiAscii("description")) {
+															if(SJson::GetChildTextUnescaped(p_cur2, temp_buf))
+																rList.Description = temp_buf;
+														}
+														else if(p_cur2->Text.IsEqiAscii("code")) {
+															SJson::GetChildInt(p_cur2, rList.Code);
+														}
+														else if(p_cur2->Text.IsEqiAscii("codes")) {
+															if(SJson::IsArray(p_cur2->P_Child)) {
+																uint position = 0;
+																for(const SJson * p_js_item = p_cur2->P_Child->P_Child; p_js_item; p_js_item = p_js_item->P_Next) {
+																	if(SJson::IsObject(p_js_item)) {
+																		CodeStatus new_item;
+																		position++;
+																		for(const SJson * p_js_f = p_js_item->P_Child; p_js_f ; p_js_f = p_js_f->P_Next) {
+																			if(p_js_f->Text.IsEqiAscii("sold")) {
+																				SETFLAG(new_item.Flags, CodeStatus::fSold, SJson::GetBoolean(p_js_f->P_Child) > 0);
+																			}
+																			else if(p_js_f->Text.IsEqiAscii("printView")) {
+																			}
+																			else if(p_js_f->Text.IsEqiAscii("isGreyGtin")) {
+																				SETFLAG(new_item.Flags, CodeStatus::fGrayZone, SJson::GetBoolean(p_js_f->P_Child) > 0);
+																			}
+																			else if(p_js_f->Text.IsEqiAscii("isBlocked")) {
+																				SETFLAG(new_item.Flags, CodeStatus::fIsBlocked, SJson::GetBoolean(p_js_f->P_Child) > 0);
+																			}
+																			else if(p_js_f->Text.IsEqiAscii("gtin")) {
+																			}
+																			else if(p_js_f->Text.IsEqiAscii("cis")) {
+																				SJson::GetChildTextUnescaped(p_js_f, new_item.Cis);
+																			}
+																		}
+																		rList.SetupResultEntry(position, new_item);
+																	}
+																}
+															}
+														}
+													}
+												}
+											}
+										}
 									}
 								}
 							}
@@ -4455,7 +4616,7 @@ int PPChZnPrcssr::PermissiveModeInterface::LocalCheckCodeList(const char * pFisc
 					}
 				}
 				else {
-					; // @todo @err
+					PPSetError(PPERR_CHZNPM_LOCAL_QUERYFAULT);
 				}
 			}
 		}
@@ -4464,22 +4625,33 @@ int PPChZnPrcssr::PermissiveModeInterface::LocalCheckCodeList(const char * pFisc
 	return ok;
 }
 
-int PPChZnPrcssr::PmCheck(PPID guaID, const char * pFiscalDriveNumber, PermissiveModeInterface::CodeStatusCollection & rList)
+int PPChZnPrcssr::PmCheck(PPID guaID, const char * pFiscalDriveNumber, int offlineMode, PermissiveModeInterface::CodeStatusCollection & rList)
 {
 	int    ok = -1;
 	PPChZnPrcssr prcssr(0);
-	//PPChZnPrcssr::Param param;
 	ChZnInterface ifc;
 	ChZnInterface::InitBlock * p_ib = static_cast<ChZnInterface::InitBlock *>(prcssr.P_Ib);
 	THROW(ifc.SetupInitBlock(guaID, 0, *p_ib));
 	{
 		THROW_PP(p_ib->PermissiveModeToken.NotEmpty(), PPERR_CHZNPMTOKENUNDEF);
 		{
+			bool   do_offline = false;
 			SString best_cdn_host;
 			PermissiveModeInterface pm_ifc(p_ib->PermissiveModeToken, &p_ib->PermissiveModeLocalSvrUrl, /*PPChZnPrcssr::PermissiveModeInterface::fTest*/0);
-			pm_ifc.FetchCdnHost(guaID, best_cdn_host);
-			THROW_PP(best_cdn_host.NotEmpty(), PPERR_CHZNPMCDNHOSTFAULT);
-			pm_ifc.CheckCodeList(best_cdn_host, 0, rList);
+			if(oneof2(offlineMode, 0, 2)) {
+				bool is_connection_problem = false;
+				pm_ifc.FetchCdnHost(guaID, best_cdn_host);
+				THROW_PP(best_cdn_host.NotEmpty(), PPERR_CHZNPMCDNHOSTFAULT);
+				if(!pm_ifc.CheckCodeList(best_cdn_host, 0, rList, &is_connection_problem)) {
+					if(is_connection_problem && offlineMode == 2)
+						do_offline = true;
+				}
+			}
+			else if(offlineMode == 1)
+				do_offline = true;
+			if(do_offline) {
+				pm_ifc.LocalCheckCodeList(0, rList);
+			}
 		}
 	}
 	CATCH
@@ -4501,7 +4673,7 @@ int PPChZnPrcssr::PmCheck(PPID guaID, const char * pFiscalDriveNumber, Permissiv
 	ChZnInterface::Document single_doc;
 	TSCollection <PPChZnPrcssr::PermissiveModeInterface::CdnStatus> cdn_host_list;
 	SString best_cdn_host;
-	PPChZnPrcssr::PermissiveModeInterface::CodeStatusCollection check_code_result;
+	PPChZnPrcssr::PermissiveModeInterface::CodeStatusCollection pm_code_list;
 	if(prcssr.EditParam(&param) > 0) {
 		//StringSet mark_list;
 		if(0) {
@@ -4522,9 +4694,7 @@ int PPChZnPrcssr::PmCheck(PPID guaID, const char * pFiscalDriveNumber, Permissiv
 							for(uint bcidx = 0; bcidx < bc_list.getCount(); bcidx++) {
 								const PPBarcode::Entry * p_bc_entry = bc_list.at(bcidx);
 								if(p_bc_entry && p_bc_entry->BcStd == BARCSTD_DATAMATRIX) {
-									PPChZnPrcssr::PermissiveModeInterface::CodeStatus * p_new_entry = check_code_result.CreateNewItem();
-									p_new_entry->OrgRowId = i+1;
-									p_new_entry->OrgMark = p_bc_entry->Code;
+									pm_code_list.AddCodeEntry(p_bc_entry->Code, i+1, 0);
 								}
 							}
 						}
@@ -4551,7 +4721,8 @@ int PPChZnPrcssr::PmCheck(PPID guaID, const char * pFiscalDriveNumber, Permissiv
 				//
 				pm_ifc.FetchCdnHost(param.GuaID, best_cdn_host);
 				if(best_cdn_host.NotEmpty()) {
-					pm_ifc.CheckCodeList(best_cdn_host, 0, check_code_result);
+					bool is_connection_problem = false;
+					pm_ifc.CheckCodeList(best_cdn_host, 0, pm_code_list, &is_connection_problem);
 				}
 			}
 		}
@@ -4597,347 +4768,434 @@ int PPChZnPrcssr::PmCheck(PPID guaID, const char * pFiscalDriveNumber, Permissiv
 	return ok;
 }
 
-class CheckChZnMarkDialog : public TDialog {
-	enum {
-		ctlgroupIbg   = 1,
-		ctlgroupGoods = 2
-	};
-public:
-	CheckChZnMarkDialog() : TDialog(DLG_CHKCHZNMARK), LinkFiles(0)
-	{
-		addGroup(ctlgroupGoods, new GoodsCtrlGroup(CTLSEL_CHKCHZNMARK_GGRP, CTLSEL_CHKCHZNMARK_GOODS));
-		addGroup(ctlgroupIbg, new ImageBrowseCtrlGroup(/*PPTXT_PICFILESEXTS,*/CTL_CHKCHZNMARK_PIC,
-			cmAddImage, cmDelImage, 1, ImageBrowseCtrlGroup::fUseExtOpenDlg));
-		{
-			TInputLine * p_il = static_cast<TInputLine *>(getCtrlView(CTL_CHKCHZNMARK_INFO));
-			CALLPTRMEMB(p_il, SetupMaxTextLen(4000));
-		}
-		SetupPPObjCombo(this, CTLSEL_CHKCHZNMARK_GUA, PPOBJ_GLOBALUSERACC, 0, 0);
-		GoodsCtrlGroup::Rec rec(0L, 0L, 0, 0);
-		setGroupData(ctlgroupGoods, &rec);
-	}
-private:
-	DECL_HANDLE_EVENT
-	{
-		TDialog::handleEvent(event);
-		if(event.isCmd(cmImageChanged)) {
-			ProcessInputPicture();
-		}
-		else if(event.isCmd(cmInputUpdated)) {
-			ProcessInputText();
-		}
-		else if(event.isCbSelected(CTLSEL_CHKCHZNMARK_GOODS)) {
-			const PPID goods_id = getCtrlLong(CTLSEL_CHKCHZNMARK_GOODS);
-			SString info_buf;
-			MakeGoodsInfo(goods_id, info_buf);
-			setCtrlString(CTL_CHKCHZNMARK_INFO, info_buf);
-		}
-		else
-			return;
-		clearEvent(event);
-	}
-	SString & MakePrintableCode(const char * pOrgText, SString & rResult)
-	{
-		rResult.Z();
-		const uint len = sstrlen(pOrgText);
-		for(uint i = 0; i < len; i++) {
-			const char c = pOrgText[i];
-			if(c == '\xE8') {
-				rResult.Cat("<xE8>");
-			}
-			else if(c == CHR_GS/*'\x1D'*/) {
-				rResult.Cat("<GS>");
-			}
-			else
-				rResult.CatChar(c);
-		}
-		return rResult;
-	}
-	void    MakeGoodsInfo(PPID goodsID, SString & rBuf)
-	{
-		rBuf.Z();
-		SString temp_buf;
-		Goods2Tbl::Rec goods_rec;
-		if(GObj.Fetch(goodsID, &goods_rec) > 0)	{
-			PPGoodsType gt_rec;
-			if(goods_rec.GoodsTypeID && GObj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0 && gt_rec.ChZnProdType) {
-				PPGetSubStrById(PPTXT_CHZNPRODUCTTYPES, gt_rec.ChZnProdType, temp_buf);
-				rBuf.Cat("chzn type").CatDiv(':', 2).Cat(temp_buf);
-				if(oneof2(gt_rec.ChZnProdType, GTCHZNPT_DRAFTBEER, GTCHZNPT_DRAFTBEER_AWR)) {
-					PPID   org_goods_id = 0;
-					if(GObj.GetOriginalRawGoodsByStruc(goodsID, &org_goods_id)) {
-						Goods2Tbl::Rec org_goods_rec;
-						if(GObj.Fetch(org_goods_id, &org_goods_rec) > 0) {
-							PPObjUnit unit_obj;
-							double main_goods_liter_ratio = 0.0;
-							double org_goods_liter_ratio = 0.0;
-							double main_goods_kg_ratio = 0.0;
-							double org_goods_kg_ratio = 0.0;
-
-							if(goods_rec.PhUnitID && goods_rec.PhUPerU > 0.0) {
-								unit_obj.TranslateToBase(goods_rec.PhUnitID, SUOM_LITER, &main_goods_liter_ratio);
-								unit_obj.TranslateToBase(goods_rec.PhUnitID, SUOM_KILOGRAM, &main_goods_kg_ratio);
-								assert(!((main_goods_liter_ratio != 0.0) && (main_goods_kg_ratio != 0.0))); // не может единица измерения одновременно соотносится с килограммами и литрами
-								main_goods_liter_ratio *= goods_rec.PhUPerU;
-								main_goods_kg_ratio *= goods_rec.PhUPerU;
-							}
-							else {
-								unit_obj.TranslateToBase(goods_rec.UnitID, SUOM_LITER, &main_goods_liter_ratio);
-								unit_obj.TranslateToBase(goods_rec.UnitID, SUOM_KILOGRAM, &main_goods_kg_ratio);
-								assert(!((main_goods_liter_ratio != 0.0) && (main_goods_kg_ratio != 0.0))); // не может единица измерения одновременно соотносится с килограммами и литрами
-							}
-							if(org_goods_rec.PhUnitID && org_goods_rec.PhUPerU > 0.0) {
-								unit_obj.TranslateToBase(org_goods_rec.PhUnitID, SUOM_LITER, &org_goods_liter_ratio);
-								unit_obj.TranslateToBase(org_goods_rec.PhUnitID, SUOM_KILOGRAM, &org_goods_kg_ratio);
-								assert(!((org_goods_liter_ratio != 0.0) && (org_goods_kg_ratio != 0.0))); // не может единица измерения одновременно соотносится с килограммами и литрами
-								org_goods_liter_ratio *= org_goods_rec.PhUPerU;
-								org_goods_kg_ratio *= org_goods_rec.PhUPerU;
-							}
-							else {
-								unit_obj.TranslateToBase(org_goods_rec.UnitID, SUOM_LITER, &org_goods_liter_ratio);
-								unit_obj.TranslateToBase(org_goods_rec.UnitID, SUOM_KILOGRAM, &org_goods_kg_ratio);
-							}
-							PPID   base_unit_id = 0;
-							rBuf.CRB().Tab().Cat("org goods").CatDiv(':', 2).Cat(org_goods_rec.Name);
-							if(main_goods_liter_ratio > 0.0 && org_goods_liter_ratio > 0.0) {
-								base_unit_id = SUOM_LITER;
-								rBuf.CRB().Tab().Cat("phunit").Space().Cat("liter").Space().
-									CatEq("orgratio", org_goods_liter_ratio, MKSFMTD_030).Space().CatEq("mainratio", main_goods_liter_ratio, MKSFMTD_030);
-							}
-							else if(main_goods_kg_ratio > 0.0 && org_goods_kg_ratio > 0.0) {
-								base_unit_id = SUOM_KILOGRAM;
-								rBuf.CRB().Tab().Cat("phunit").Space().Cat("kg").Space().
-									CatEq("orgratio", org_goods_liter_ratio, MKSFMTD_030).Space().CatEq("mainratio", main_goods_liter_ratio, MKSFMTD_030);
-							}
-							//
-							PPObjBill * p_bobj = BillObj;
-							LotExtCodeCore * p_lotxct = p_bobj->P_LotXcT;
-							PPObjCSession cs_obj;
-							if(p_lotxct) {
-								Transfer * p_trfr = p_bobj->trfr;
-								LotArray lot_list;
-								StringSet ss_ext_codes;
-								TSCollection <CCheckCore::ListByMarkEntry> lbm;
-								p_trfr->Rcpt.GetList(org_goods_id, 0, 0, ZERODATE, ReceiptCore::glfWithExtCodeOnly, &lot_list);
-								if(lot_list.getCount()) {
-									for(uint i = 0; i < lot_list.getCount(); i++) {
-										const ReceiptTbl::Rec & r_lot_rec = lot_list.at(i);
-										if(p_bobj->GetMarkListByLot(r_lot_rec.ID, ss_ext_codes) > 0) {
-											for(uint ssp = 0; ss_ext_codes.get(&ssp, temp_buf);) {
-												//int    Helper_GetListByMark2(TSCollection <ListByMarkEntry> & rList, int markLnextTextId, const LAssocArray * pCcDate2MaxIdIndex, uint backDays, int sentLnextTextId); // @v12.0.5
-												//Cc.Helper_GetListByMark2()
-												CCheckCore::ListByMarkEntry * p_lbm_entry = lbm.CreateNewItem();
-												p_lbm_entry->OrgLotID = r_lot_rec.ID;
-												p_lbm_entry->OrgLotDate = r_lot_rec.Dt;
-												p_lbm_entry->OrgLotQtty = r_lot_rec.Quantity;
-												STRNSCPY(p_lbm_entry->Mark, temp_buf);
-											}
-										}
-									}
-									const uint back_days = PPObjCSession::GetCcListByMarkBackDays(lbm);
-									LAssocArray index;
-									LAssocArray * p_index = cs_obj.FetchCcDate2MaxIdIndex(index) ? &index : 0;
-									Cc.Helper_GetListByMark2(lbm, CCheckPacket::lnextChZnMark, p_index, back_days, 0);
-									{
-										for(uint i = 0; i < lbm.getCount(); i++) {
-											const CCheckCore::ListByMarkEntry * p_lbm_entry = lbm.at(i);
-											if(p_lbm_entry) {
-												double rest = 1.0;
-												char   unit_symb[32];
-												unit_symb[0] = 0;
-												if(base_unit_id == SUOM_LITER) {
-													rest = (rest * org_goods_liter_ratio) - (p_lbm_entry->TotalOpQtty * main_goods_liter_ratio);
-													STRNSCPY(unit_symb, "L");
-												}
-												else if(base_unit_id = SUOM_KILOGRAM) {
-													rest = (rest * org_goods_kg_ratio) - (p_lbm_entry->TotalOpQtty * main_goods_kg_ratio);
-													STRNSCPY(unit_symb, "KG");
-												}
-												rBuf.CRB().Tab().Cat("mark").CatDiv(':', 2).Cat(p_lbm_entry->Mark).Space().
-													Cat("rest").CatDiv(':', 2).Cat(rest, MKSFMTD_030).Cat(unit_symb);
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-	void    ProcessMark(const char * pOriginalText, bool imgScan, SString & rInfoBuf)
-	{
-		SString temp_buf;
-		SString printable;
-		rInfoBuf.Cat("org").CatDiv(':', 2).Cat(MakePrintableCode(pOriginalText, printable));
-		GtinStruc gts;
-		const int pchzncr = PPChZnPrcssr::ParseChZnCode(pOriginalText, gts, 0);
-		const int ichzncr = PPChZnPrcssr::InterpretChZnCodeResult(pchzncr);
-		if(ichzncr == PPChZnPrcssr::chznciReal) {
-			PPChZnPrcssr::ReconstructOriginalChZnCode(gts, temp_buf);			
-			rInfoBuf.CRB().Cat("rcs").CatDiv(':', 2).Cat(MakePrintableCode(temp_buf, printable));
-			{
-				const PPID gua_id = getCtrlLong(CTLSEL_CHKCHZNMARK_GUA);
-				if(gua_id) {
-					PPChZnPrcssr::PermissiveModeInterface::CodeStatusCollection pm_code_list;
-					PPChZnPrcssr::PermissiveModeInterface::CodeStatus * p_cle = pm_code_list.CreateNewItem();
-					if(p_cle) {
-						p_cle->OrgMark = temp_buf;
-						p_cle->OrgRowId = 0;
-						if(PPChZnPrcssr::PmCheck(gua_id, 0, pm_code_list)) {
-							const PPChZnPrcssr::PermissiveModeInterface::CodeStatus * p_result_cle = pm_code_list.at(0);
-							if(p_result_cle) {
-								rInfoBuf.CRB().Cat("pm result").CatDiv(':', 2);
-								/*
-									SString Cis; //
-									int    ErrorCode; // Код ошибки. 
-										// 0 — ошибки отсутствуют; 
-										// 1 — ошибка валидации КМ; 
-										// 2 — КМ не содержит GTIN; 
-										// 3 — КМ не содержит серийный номер; 
-										// 4 — КМ содержит недопустимые символы; 
-										// 5 — ошибка верификации крипто-подписи КМ (формат крипто-подписи не соответствует типу КМ); 
-										// 6 — ошибка верификации крипто-подписи КМ (крипто-подпись не валидная); 
-										// 7 — ошибка верификации крипто-подписи КМ (крипто-ключ не валиден); 
-										// 8 — КМ не прошел верификацию в стране эмитента; 
-										// 9 — Найденные AI в КМ не поддерживаются; 
-										// 10 — КМ не найден в ГИС МТ 11 — КМ не найден в трансгране
-									int    EliminationState; // Дополнительная информация по КМ. 
-										// 1 — товар выведен из оборота по причинам «по образцам» или «дистанционная продажа»; 
-										// 2 — товар выведен из оборота по причинам «для собственных нужд» или «для производственных целей» Заполняется для товаров, выведенных из оборота по этим причинам с 08.02.24
-									uint   Mrp; // Максимальная розничная цена. В копейках (для табака).
-									uint   Smp; // Минимальная из возможных единых минимальных цен. В копейках (для табака).
-									uint   PackageQtty;    // 
-									uint   InnerUnitCount; // Количество единиц товара в потребительской упаковке / Фактический объём / Фактический вес.
-									uint   SoldUnitCount;  // Счётчик проданного и возвращённого товара.
-									uint   Flags;
-									uint   GroupIds[64];
-									LDATETIME ExpiryDtm; // Формат yyyy-MM-dd’T’HH:mm:ss.SSSz
-									LDATETIME ProductionDtm; // Формат yyyy-MM-dd’T’HH:mm:ss.SSSz
-									double Weight; // Переменный вес продукции (в граммах). Возвращается только для товарной группы «Молочная продукция»
-									SString PrVetDocument; // Производственный ветеринарный сопроводительный документ. Возвращается только для товарной группы «Молочная продукция»
-									SString Message; // Сообщение об ошибке
-									S_GUID ReqId;   // Уникальный идентификатор запроса
-									int64  ReqTimestamp; // Дата и время формирования запроса. Параметр возвращает дату и время с точностью до миллисекунд.
-									SString PackageType; // Тип упаковки. См. «Справочник "Типы упаковки"»
-									SString Parent;      // КИ агрегата.
-									SString ProducerInn; // ИНН производителя.
-								*/
-								rInfoBuf.CRB().Tab().Cat("Cis").CatDiv(':', 2).Cat(p_result_cle->Cis);
-								rInfoBuf.CRB().Tab().Cat("ErrCode").CatDiv(':', 2).Cat(p_result_cle->ErrorCode);
-								rInfoBuf.CRB().Tab().Cat("EliminationState").CatDiv(':', 2).Cat(p_result_cle->EliminationState);
-								rInfoBuf.CRB().Tab().Cat("Mrp").CatDiv(':', 2).Cat(p_result_cle->Mrp);
-								rInfoBuf.CRB().Tab().Cat("Smp").CatDiv(':', 2).Cat(p_result_cle->Smp);
-								rInfoBuf.CRB().Tab().Cat("PackageQtty").CatDiv(':', 2).Cat(p_result_cle->PackageQtty);
-								rInfoBuf.CRB().Tab().Cat("InnerUnitCount").CatDiv(':', 2).Cat(p_result_cle->InnerUnitCount);
-								rInfoBuf.CRB().Tab().Cat("SoldUnitCount").CatDiv(':', 2).Cat(p_result_cle->SoldUnitCount);
-								rInfoBuf.CRB().Tab().Cat("Flags").CatDiv(':', 2).Cat(p_result_cle->Flags);
-								// @v12.1.11 {
-								{
-									static const SIntToSymbTabEntry chzn_pm_flags[] = {
-										{ PPChZnPrcssr::PermissiveModeInterface::CodeStatus::fFound, "found" },
-										{ PPChZnPrcssr::PermissiveModeInterface::CodeStatus::fValid, "valid" },
-										{ PPChZnPrcssr::PermissiveModeInterface::CodeStatus::fVerified, "verified" },
-										{ PPChZnPrcssr::PermissiveModeInterface::CodeStatus::fRealizable, "realizable" },
-										{ PPChZnPrcssr::PermissiveModeInterface::CodeStatus::fUtilised, "utilised" },
-										{ PPChZnPrcssr::PermissiveModeInterface::CodeStatus::fIsOwner, "is-owner" },
-										{ PPChZnPrcssr::PermissiveModeInterface::CodeStatus::fIsBlocked, "is-blocked" },
-										{ PPChZnPrcssr::PermissiveModeInterface::CodeStatus::fIsTracking, "is-tracking" },
-										{ PPChZnPrcssr::PermissiveModeInterface::CodeStatus::fSold, "sold" },
-										{ PPChZnPrcssr::PermissiveModeInterface::CodeStatus::fGrayZone, "gray-zone" },
-									};
-									for(uint i = 0; i < SIZEOFARRAY(chzn_pm_flags); i++) {
-										rInfoBuf.CRB().Tab_(2).Cat(chzn_pm_flags[i].P_Symb).CatDiv(':', 2).Cat(STextConst::GetBool(p_result_cle->Flags & chzn_pm_flags[i].Id));
-									}
-								}
-								// } @v12.1.11 
-								rInfoBuf.CRB().Tab().Cat("ExpiryDtm").CatDiv(':', 2).Cat(p_result_cle->ExpiryDtm, DATF_ISO8601CENT, 0);
-								rInfoBuf.CRB().Tab().Cat("ProductionDtm").CatDiv(':', 2).Cat(p_result_cle->ProductionDtm, DATF_ISO8601CENT, 0);
-								rInfoBuf.CRB().Tab().Cat("Weight").CatDiv(':', 2).Cat(p_result_cle->Weight, MKSFMTD_030);
-								rInfoBuf.CRB().Tab().Cat("PrVetDocument").CatDiv(':', 2).Cat(p_result_cle->PrVetDocument);
-								rInfoBuf.CRB().Tab().Cat("Message").CatDiv(':', 2).Cat(p_result_cle->Message);
-								rInfoBuf.CRB().Tab().Cat("ReqId").CatDiv(':', 2).Cat(p_result_cle->ReqId, S_GUID::fmtIDL);
-								rInfoBuf.CRB().Tab().Cat("ReqTimestamp").CatDiv(':', 2).Cat(p_result_cle->ReqTimestamp);
-								rInfoBuf.CRB().Tab().Cat("PackageType").CatDiv(':', 2).Cat(p_result_cle->PackageType);
-								rInfoBuf.CRB().Tab().Cat("Parent").CatDiv(':', 2).Cat(p_result_cle->Parent);
-								rInfoBuf.CRB().Tab().Cat("ProducerInn").CatDiv(':', 2).Cat(p_result_cle->ProducerInn);
-							}
-						}
-						else {
-							rInfoBuf.CRB().Cat("Permissive mode failure.");
-						}
-					}
-				}
-				else {
-					rInfoBuf.CRB().Cat("Set global account to request permissive mode.");
-				}
-			}
-		}
-		else if(ichzncr == 1000) { // pretend
-			rInfoBuf.CRB().Cat("pretend chzn-mark");
-		}
-		else if(ichzncr == PPChZnPrcssr::chznciSurrogate) {
-			rInfoBuf.CRB().Cat("surrogate chzn-mark");
-		}
-		else {
-			rInfoBuf.CRB().Cat("no chzn-mark");
-		}
-	}
-	void    ProcessInputText()
-	{
-		SString inp_buf;
-		SString info_buf;
-		const PPID gua_id = getCtrlLong(CTLSEL_CHKCHZNMARK_GUA);
-		getCtrlString(CTL_CHKCHZNMARK_INPUT, inp_buf);
-		ProcessMark(inp_buf, true, info_buf);
-		setCtrlString(CTL_CHKCHZNMARK_INFO, info_buf);
-	}
-	void    ProcessInputPicture()
-	{
-		bool   debug_mark = false;
-		{
-			ImageBrowseCtrlGroup::Rec rec;
-			if(getGroupData(ctlgroupIbg, &rec)) {
-				if(rec.Path.Len()) {
-					LinkFiles.Replace(0, rec.Path);
-				}
-				else
-					LinkFiles.Remove(0);
-			}
-		}
-		if(LinkFiles.GetCount()) {
-			SString img_file_name;
-			SString info_buf;
-			LinkFiles.At(0, img_file_name);
-			SFileFormat ff;
-			const int fir = ff.Identify(img_file_name);
-			if(oneof2(fir, 2, 3) && SImageBuffer::IsSupportedFormat(ff)) { // Принимаем только идентификацию по сигнатуре
-				TSCollection <PPBarcode::Entry> bc_list;
-				if(PPBarcode::ZXing_RecognizeImage(img_file_name, bc_list) > 0) {
-					info_buf.Z();
-					for(uint bcidx = 0; bcidx < bc_list.getCount(); bcidx++) {
-						const PPBarcode::Entry * p_bc_entry = bc_list.at(bcidx);
-						if(p_bc_entry && p_bc_entry->BcStd == BARCSTD_DATAMATRIX) {
-							ProcessMark(p_bc_entry->Code, true, info_buf);
-							setCtrlString(CTL_CHKCHZNMARK_INFO, info_buf);
-							//PPChZnPrcssr::PermissiveModeInterface::CodeStatus * p_new_entry = check_code_result.CreateNewItem();
-							//p_new_entry->OrgRowId = i+1;
-							//p_new_entry->OrgMark = p_bc_entry->Code;
-						}
-					}
-				}
-			}
-		}
-	}
-
-	ObjLinkFiles LinkFiles;
-	PPObjGoods GObj;
-	CCheckCore Cc;
-};
-
 /*static*/int PPChZnPrcssr::InteractiveCheck()
 {
+	class CheckChZnMarkDialog : public TDialog {
+		enum {
+			ctlgroupIbg   = 1,
+			ctlgroupGoods = 2
+		};
+	public:
+		CheckChZnMarkDialog() : TDialog(DLG_CHKCHZNMARK), LinkFiles(0)
+		{
+			addGroup(ctlgroupGoods, new GoodsCtrlGroup(CTLSEL_CHKCHZNMARK_GGRP, CTLSEL_CHKCHZNMARK_GOODS));
+			addGroup(ctlgroupIbg, new ImageBrowseCtrlGroup(/*PPTXT_PICFILESEXTS,*/CTL_CHKCHZNMARK_PIC,
+				cmAddImage, cmDelImage, 1, ImageBrowseCtrlGroup::fUseExtOpenDlg));
+			{
+				TInputLine * p_il = static_cast<TInputLine *>(getCtrlView(CTL_CHKCHZNMARK_INFO));
+				CALLPTRMEMB(p_il, SetupMaxTextLen(4000));
+			}
+			SetupPPObjCombo(this, CTLSEL_CHKCHZNMARK_GUA, PPOBJ_GLOBALUSERACC, 0, 0);
+			GoodsCtrlGroup::Rec rec(0L, 0L, 0, 0);
+			setGroupData(ctlgroupGoods, &rec);
+			HandleGlobalAccountSelection(0);
+		}
+	private:
+		DECL_HANDLE_EVENT
+		{
+			TDialog::handleEvent(event);
+			if(event.isCmd(cmImageChanged)) {
+				ProcessInputPicture();
+			}
+			else if(event.isCmd(cmInputUpdated)) {
+				ProcessInputText();
+			}
+			else if(event.isCmd(cmClear)) { // @v12.3.12
+				SString info_buf;
+				setCtrlString(CTL_CHKCHZNMARK_INFO, info_buf);
+			}
+			else if(event.isCmd(cmCheckOffline)) { // @v12.3.12
+				CheckOffline();
+			}
+			else if(event.isCbSelected(CTLSEL_CHKCHZNMARK_GOODS)) {
+				const PPID goods_id = getCtrlLong(CTLSEL_CHKCHZNMARK_GOODS);
+				SString info_buf;
+				MakeGoodsInfo(goods_id, info_buf);
+				setCtrlString(CTL_CHKCHZNMARK_INFO, info_buf);
+			}
+			else if(event.isCbSelected(CTLSEL_CHKCHZNMARK_GUA)) {
+				HandleGlobalAccountSelection(getCtrlLong(CTLSEL_CHKCHZNMARK_GUA));
+			}
+			else
+				return;
+			clearEvent(event);
+		}
+		void   HandleGlobalAccountSelection(PPID guaID)
+		{
+			bool    is_there_pm_token = false;
+			bool    is_there_pm_offl_acc = false;
+			if(guaID) {
+				PPObjGlobalUserAcc gua_obj;
+				PPGlobalUserAccPacket gua_pack;
+				if(gua_obj.GetPacket(guaID, &gua_pack) > 0) {
+					SString temp_buf;
+					gua_pack.TagL.GetItemStr(PPTAG_GUA_CHZN_PM_TOKEN, temp_buf);
+					if(temp_buf.NotEmpty()) {
+						is_there_pm_token = true;
+						{
+							gua_pack.TagL.GetItemStr(PPTAG_GUA_CHZNLOCPMURL, temp_buf);
+							if(temp_buf.NotEmptyS()) {
+								InetUrl url;
+								if(PPObjGlobalUserAcc::GetChZnLocPmUrl(temp_buf, url) > 0) {
+									is_there_pm_offl_acc = true;
+								}
+							}
+						}
+					
+					}
+				}
+			}
+			enableCommand(cmCheckOffline, is_there_pm_offl_acc);
+			ProcessInputPicture();
+		}
+		SString & MakePrintableCode(const char * pOrgText, SString & rResult)
+		{
+			rResult.Z();
+			const uint len = sstrlen(pOrgText);
+			for(uint i = 0; i < len; i++) {
+				const char c = pOrgText[i];
+				if(c == '\xE8') {
+					rResult.Cat("<xE8>");
+				}
+				else if(c == CHR_GS/*'\x1D'*/) {
+					rResult.Cat("<GS>");
+				}
+				else
+					rResult.CatChar(c);
+			}
+			return rResult;
+		}
+		void    MakeGoodsInfo(PPID goodsID, SString & rBuf)
+		{
+			rBuf.Z();
+			SString temp_buf;
+			Goods2Tbl::Rec goods_rec;
+			if(GObj.Fetch(goodsID, &goods_rec) > 0)	{
+				PPGoodsType gt_rec;
+				if(goods_rec.GoodsTypeID && GObj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0 && gt_rec.ChZnProdType) {
+					PPGetSubStrById(PPTXT_CHZNPRODUCTTYPES, gt_rec.ChZnProdType, temp_buf);
+					rBuf.Cat("chzn type").CatDiv(':', 2).Cat(temp_buf);
+					if(oneof2(gt_rec.ChZnProdType, GTCHZNPT_DRAFTBEER, GTCHZNPT_DRAFTBEER_AWR)) {
+						PPID   org_goods_id = 0;
+						if(GObj.GetOriginalRawGoodsByStruc(goodsID, &org_goods_id)) {
+							Goods2Tbl::Rec org_goods_rec;
+							if(GObj.Fetch(org_goods_id, &org_goods_rec) > 0) {
+								PPObjUnit unit_obj;
+								double main_goods_liter_ratio = 0.0;
+								double org_goods_liter_ratio = 0.0;
+								double main_goods_kg_ratio = 0.0;
+								double org_goods_kg_ratio = 0.0;
+
+								if(goods_rec.PhUnitID && goods_rec.PhUPerU > 0.0) {
+									unit_obj.TranslateToBase(goods_rec.PhUnitID, SUOM_LITER, &main_goods_liter_ratio);
+									unit_obj.TranslateToBase(goods_rec.PhUnitID, SUOM_KILOGRAM, &main_goods_kg_ratio);
+									assert(!((main_goods_liter_ratio != 0.0) && (main_goods_kg_ratio != 0.0))); // не может единица измерения одновременно соотносится с килограммами и литрами
+									main_goods_liter_ratio *= goods_rec.PhUPerU;
+									main_goods_kg_ratio *= goods_rec.PhUPerU;
+								}
+								else {
+									unit_obj.TranslateToBase(goods_rec.UnitID, SUOM_LITER, &main_goods_liter_ratio);
+									unit_obj.TranslateToBase(goods_rec.UnitID, SUOM_KILOGRAM, &main_goods_kg_ratio);
+									assert(!((main_goods_liter_ratio != 0.0) && (main_goods_kg_ratio != 0.0))); // не может единица измерения одновременно соотносится с килограммами и литрами
+								}
+								if(org_goods_rec.PhUnitID && org_goods_rec.PhUPerU > 0.0) {
+									unit_obj.TranslateToBase(org_goods_rec.PhUnitID, SUOM_LITER, &org_goods_liter_ratio);
+									unit_obj.TranslateToBase(org_goods_rec.PhUnitID, SUOM_KILOGRAM, &org_goods_kg_ratio);
+									assert(!((org_goods_liter_ratio != 0.0) && (org_goods_kg_ratio != 0.0))); // не может единица измерения одновременно соотносится с килограммами и литрами
+									org_goods_liter_ratio *= org_goods_rec.PhUPerU;
+									org_goods_kg_ratio *= org_goods_rec.PhUPerU;
+								}
+								else {
+									unit_obj.TranslateToBase(org_goods_rec.UnitID, SUOM_LITER, &org_goods_liter_ratio);
+									unit_obj.TranslateToBase(org_goods_rec.UnitID, SUOM_KILOGRAM, &org_goods_kg_ratio);
+								}
+								PPID   base_unit_id = 0;
+								rBuf.CRB().Tab().Cat("org goods").CatDiv(':', 2).Cat(org_goods_rec.Name);
+								if(main_goods_liter_ratio > 0.0 && org_goods_liter_ratio > 0.0) {
+									base_unit_id = SUOM_LITER;
+									rBuf.CRB().Tab().Cat("phunit").Space().Cat("liter").Space().
+										CatEq("orgratio", org_goods_liter_ratio, MKSFMTD_030).Space().CatEq("mainratio", main_goods_liter_ratio, MKSFMTD_030);
+								}
+								else if(main_goods_kg_ratio > 0.0 && org_goods_kg_ratio > 0.0) {
+									base_unit_id = SUOM_KILOGRAM;
+									rBuf.CRB().Tab().Cat("phunit").Space().Cat("kg").Space().
+										CatEq("orgratio", org_goods_liter_ratio, MKSFMTD_030).Space().CatEq("mainratio", main_goods_liter_ratio, MKSFMTD_030);
+								}
+								//
+								PPObjBill * p_bobj = BillObj;
+								LotExtCodeCore * p_lotxct = p_bobj->P_LotXcT;
+								PPObjCSession cs_obj;
+								if(p_lotxct) {
+									Transfer * p_trfr = p_bobj->trfr;
+									LotArray lot_list;
+									StringSet ss_ext_codes;
+									TSCollection <CCheckCore::ListByMarkEntry> lbm;
+									p_trfr->Rcpt.GetList(org_goods_id, 0, 0, ZERODATE, ReceiptCore::glfWithExtCodeOnly, &lot_list);
+									if(lot_list.getCount()) {
+										for(uint i = 0; i < lot_list.getCount(); i++) {
+											const ReceiptTbl::Rec & r_lot_rec = lot_list.at(i);
+											if(p_bobj->GetMarkListByLot(r_lot_rec.ID, ss_ext_codes) > 0) {
+												for(uint ssp = 0; ss_ext_codes.get(&ssp, temp_buf);) {
+													//int    Helper_GetListByMark2(TSCollection <ListByMarkEntry> & rList, int markLnextTextId, const LAssocArray * pCcDate2MaxIdIndex, uint backDays, int sentLnextTextId); // @v12.0.5
+													//Cc.Helper_GetListByMark2()
+													CCheckCore::ListByMarkEntry * p_lbm_entry = lbm.CreateNewItem();
+													p_lbm_entry->OrgLotID = r_lot_rec.ID;
+													p_lbm_entry->OrgLotDate = r_lot_rec.Dt;
+													p_lbm_entry->OrgLotQtty = r_lot_rec.Quantity;
+													STRNSCPY(p_lbm_entry->Mark, temp_buf);
+												}
+											}
+										}
+										const uint back_days = PPObjCSession::GetCcListByMarkBackDays(lbm);
+										LAssocArray index;
+										LAssocArray * p_index = cs_obj.FetchCcDate2MaxIdIndex(index) ? &index : 0;
+										Cc.Helper_GetListByMark2(lbm, CCheckPacket::lnextChZnMark, p_index, back_days, 0);
+										{
+											for(uint i = 0; i < lbm.getCount(); i++) {
+												const CCheckCore::ListByMarkEntry * p_lbm_entry = lbm.at(i);
+												if(p_lbm_entry) {
+													double rest = 1.0;
+													char   unit_symb[32];
+													unit_symb[0] = 0;
+													if(base_unit_id == SUOM_LITER) {
+														rest = (rest * org_goods_liter_ratio) - (p_lbm_entry->TotalOpQtty * main_goods_liter_ratio);
+														STRNSCPY(unit_symb, "L");
+													}
+													else if(base_unit_id = SUOM_KILOGRAM) {
+														rest = (rest * org_goods_kg_ratio) - (p_lbm_entry->TotalOpQtty * main_goods_kg_ratio);
+														STRNSCPY(unit_symb, "KG");
+													}
+													rBuf.CRB().Tab().Cat("mark").CatDiv(':', 2).Cat(p_lbm_entry->Mark).Space().
+														Cat("rest").CatDiv(':', 2).Cat(rest, MKSFMTD_030).Cat(unit_symb);
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		void   OutputPmCheckResult(const PPChZnPrcssr::PermissiveModeInterface::CodeStatusCollection & rList, bool offline, SString & rBuf) const
+		{
+			const PPChZnPrcssr::PermissiveModeInterface::CodeStatus * p_result_cle = rList.getCount() ? rList.at(0) : 0;
+			rBuf.Z();
+			rBuf.CRB().Cat(offline ? "Offline pm result" : "Inline pm result").CatDiv(':', 2);
+
+			rBuf.CRB().Cat("ResultCode").CatDiv(':', 2).Cat(rList.Code);
+			rBuf.CRB().Cat("ResultDescr").CatDiv(':', 2).Cat(rList.Description);
+			rBuf.CRB().Cat("ReqId").CatDiv(':', 2).Cat(rList.ReqId, S_GUID::fmtIDL);
+			rBuf.CRB().Cat("ReqTimestamp").CatDiv(':', 2).Cat(rList.ReqTimestamp);
+			if(offline) {
+				rBuf.CRB().Cat("LocalModuleInstance").CatDiv(':', 2).Cat(rList.LocalModuleInstance, S_GUID::fmtC);
+				rBuf.CRB().Cat("LocalModuleDbVer").CatDiv(':', 2).Cat(rList.LocalModuleDbVer, S_GUID::fmtC);
+			}
+			rBuf.CRB().Cat("---");
+			if(p_result_cle) {
+				/*
+					SString Cis; //
+					int    ErrorCode; // Код ошибки. 
+						// 0 — ошибки отсутствуют; 
+						// 1 — ошибка валидации КМ; 
+						// 2 — КМ не содержит GTIN; 
+						// 3 — КМ не содержит серийный номер; 
+						// 4 — КМ содержит недопустимые символы; 
+						// 5 — ошибка верификации крипто-подписи КМ (формат крипто-подписи не соответствует типу КМ); 
+						// 6 — ошибка верификации крипто-подписи КМ (крипто-подпись не валидная); 
+						// 7 — ошибка верификации крипто-подписи КМ (крипто-ключ не валиден); 
+						// 8 — КМ не прошел верификацию в стране эмитента; 
+						// 9 — Найденные AI в КМ не поддерживаются; 
+						// 10 — КМ не найден в ГИС МТ 11 — КМ не найден в трансгране
+					int    EliminationState; // Дополнительная информация по КМ. 
+						// 1 — товар выведен из оборота по причинам «по образцам» или «дистанционная продажа»; 
+						// 2 — товар выведен из оборота по причинам «для собственных нужд» или «для производственных целей» Заполняется для товаров, выведенных из оборота по этим причинам с 08.02.24
+					uint   Mrp; // Максимальная розничная цена. В копейках (для табака).
+					uint   Smp; // Минимальная из возможных единых минимальных цен. В копейках (для табака).
+					uint   PackageQtty;    // 
+					uint   InnerUnitCount; // Количество единиц товара в потребительской упаковке / Фактический объём / Фактический вес.
+					uint   SoldUnitCount;  // Счётчик проданного и возвращённого товара.
+					uint   Flags;
+					uint   GroupIds[64];
+					LDATETIME ExpiryDtm; // Формат yyyy-MM-dd’T’HH:mm:ss.SSSz
+					LDATETIME ProductionDtm; // Формат yyyy-MM-dd’T’HH:mm:ss.SSSz
+					double Weight; // Переменный вес продукции (в граммах). Возвращается только для товарной группы «Молочная продукция»
+					SString PrVetDocument; // Производственный ветеринарный сопроводительный документ. Возвращается только для товарной группы «Молочная продукция»
+					SString Message; // Сообщение об ошибке
+					S_GUID ReqId;   // Уникальный идентификатор запроса
+					int64  ReqTimestamp; // Дата и время формирования запроса. Параметр возвращает дату и время с точностью до миллисекунд.
+					SString PackageType; // Тип упаковки. См. «Справочник "Типы упаковки"»
+					SString Parent;      // КИ агрегата.
+					SString ProducerInn; // ИНН производителя.
+				*/
+				rBuf.CRB().Tab().Cat("Cis").CatDiv(':', 2).Cat(p_result_cle->Cis);
+				if(!offline) {
+					rBuf.CRB().Tab().Cat("ErrCode").CatDiv(':', 2).Cat(p_result_cle->ErrorCode);
+					rBuf.CRB().Tab().Cat("EliminationState").CatDiv(':', 2).Cat(p_result_cle->EliminationState);
+					rBuf.CRB().Tab().Cat("Mrp").CatDiv(':', 2).Cat(p_result_cle->Mrp);
+					rBuf.CRB().Tab().Cat("Smp").CatDiv(':', 2).Cat(p_result_cle->Smp);
+					rBuf.CRB().Tab().Cat("PackageQtty").CatDiv(':', 2).Cat(p_result_cle->PackageQtty);
+					rBuf.CRB().Tab().Cat("InnerUnitCount").CatDiv(':', 2).Cat(p_result_cle->InnerUnitCount);
+					rBuf.CRB().Tab().Cat("SoldUnitCount").CatDiv(':', 2).Cat(p_result_cle->SoldUnitCount);
+				}
+				rBuf.CRB().Tab().Cat("Flags").CatDiv(':', 2).Cat(p_result_cle->Flags);
+				{
+					static const SIntToSymbTabEntry chzn_pm_flags[] = {
+						{ PPChZnPrcssr::PermissiveModeInterface::CodeStatus::fFound, "found" },
+						{ PPChZnPrcssr::PermissiveModeInterface::CodeStatus::fValid, "valid" },
+						{ PPChZnPrcssr::PermissiveModeInterface::CodeStatus::fVerified, "verified" },
+						{ PPChZnPrcssr::PermissiveModeInterface::CodeStatus::fRealizable, "realizable" },
+						{ PPChZnPrcssr::PermissiveModeInterface::CodeStatus::fUtilised, "utilised" },
+						{ PPChZnPrcssr::PermissiveModeInterface::CodeStatus::fIsOwner, "is-owner" },
+						{ PPChZnPrcssr::PermissiveModeInterface::CodeStatus::fIsBlocked, "is-blocked" },
+						{ PPChZnPrcssr::PermissiveModeInterface::CodeStatus::fIsTracking, "is-tracking" },
+						{ PPChZnPrcssr::PermissiveModeInterface::CodeStatus::fSold, "sold" },
+						{ PPChZnPrcssr::PermissiveModeInterface::CodeStatus::fGrayZone, "gray-zone" },
+					};
+					for(uint i = 0; i < SIZEOFARRAY(chzn_pm_flags); i++) {
+						if(!offline || oneof3(chzn_pm_flags[i].Id, PPChZnPrcssr::PermissiveModeInterface::CodeStatus::fIsBlocked, 
+							PPChZnPrcssr::PermissiveModeInterface::CodeStatus::fSold, PPChZnPrcssr::PermissiveModeInterface::CodeStatus::fGrayZone)) {
+							rBuf.CRB().Tab_(2).Cat(chzn_pm_flags[i].P_Symb).CatDiv(':', 2).Cat(STextConst::GetBool(p_result_cle->Flags & chzn_pm_flags[i].Id));
+						}
+					}
+				}
+				if(!offline) {
+					rBuf.CRB().Tab().Cat("ExpiryDtm").CatDiv(':', 2).Cat(p_result_cle->ExpiryDtm, DATF_ISO8601CENT, 0);
+					rBuf.CRB().Tab().Cat("ProductionDtm").CatDiv(':', 2).Cat(p_result_cle->ProductionDtm, DATF_ISO8601CENT, 0);
+					rBuf.CRB().Tab().Cat("Weight").CatDiv(':', 2).Cat(p_result_cle->Weight, MKSFMTD_030);
+					rBuf.CRB().Tab().Cat("PrVetDocument").CatDiv(':', 2).Cat(p_result_cle->PrVetDocument);
+					rBuf.CRB().Tab().Cat("Message").CatDiv(':', 2).Cat(p_result_cle->Message);
+					rBuf.CRB().Tab().Cat("ReqId").CatDiv(':', 2).Cat(p_result_cle->ReqId, S_GUID::fmtIDL);
+					rBuf.CRB().Tab().Cat("ReqTimestamp").CatDiv(':', 2).Cat(p_result_cle->ReqTimestamp);
+					rBuf.CRB().Tab().Cat("PackageType").CatDiv(':', 2).Cat(p_result_cle->PackageType);
+					rBuf.CRB().Tab().Cat("Parent").CatDiv(':', 2).Cat(p_result_cle->Parent);
+					rBuf.CRB().Tab().Cat("ProducerInn").CatDiv(':', 2).Cat(p_result_cle->ProducerInn);
+				}
+			}
+		}
+		int    ProcessMark(const char * pOriginalText, bool imgScan, bool offline, SString & rInfoBuf)
+		{
+			int    ok = -1;
+			SString temp_buf;
+			SString printable;
+			rInfoBuf.Cat("org").CatDiv(':', 2).Cat(MakePrintableCode(pOriginalText, printable));
+			GtinStruc gts;
+			const int pchzncr = PPChZnPrcssr::ParseChZnCode(pOriginalText, gts, 0);
+			const int ichzncr = PPChZnPrcssr::InterpretChZnCodeResult(pchzncr);
+			if(ichzncr == PPChZnPrcssr::chznciReal) {
+				ok = 1;
+				PPChZnPrcssr::ReconstructOriginalChZnCode(gts, temp_buf);			
+				rInfoBuf.CRB().Cat("rcs").CatDiv(':', 2).Cat(MakePrintableCode(temp_buf, printable));
+				{
+					const PPID gua_id = getCtrlLong(CTLSEL_CHKCHZNMARK_GUA);
+					if(gua_id) {
+						PPChZnPrcssr::PermissiveModeInterface::CodeStatusCollection pm_code_list;
+						if(pm_code_list.AddCodeEntry(pOriginalText, 0, 0) > 0) {
+							if(offline) {
+								if(PPChZnPrcssr::PmCheck(gua_id, 0, 1/*offline only*/, pm_code_list)) {
+									OutputPmCheckResult(pm_code_list, true/*offline*/, temp_buf);
+									rInfoBuf.Cat(temp_buf);
+								}
+							}
+							else if(PPChZnPrcssr::PmCheck(gua_id, 0, 2/*regular online/offline mode*/, pm_code_list)) {
+								OutputPmCheckResult(pm_code_list, false/*offline*/, temp_buf);
+								rInfoBuf.Cat(temp_buf);
+							}
+							else {
+								rInfoBuf.CRB().Cat("Permissive mode failure.");
+							}
+						}
+					}
+					else {
+						rInfoBuf.CRB().Cat("Set global account to request permissive mode.");
+					}
+				}
+			}
+			else if(ichzncr == 1000) { // pretend
+				ok = 1;
+				rInfoBuf.CRB().Cat("pretend chzn-mark");
+			}
+			else if(ichzncr == PPChZnPrcssr::chznciSurrogate) {
+				ok = 1;
+				rInfoBuf.CRB().Cat("surrogate chzn-mark");
+			}
+			else {
+				rInfoBuf.CRB().Cat("no chzn-mark");
+			}
+			return ok;
+		}
+		void    ProcessInputText()
+		{
+			SString inp_buf;
+			SString info_buf;
+			const PPID gua_id = getCtrlLong(CTLSEL_CHKCHZNMARK_GUA);
+			getCtrlString(CTL_CHKCHZNMARK_INPUT, inp_buf);
+			ProcessMark(inp_buf, true, false/*offline*/, info_buf);
+			setCtrlString(CTL_CHKCHZNMARK_INFO, info_buf);
+		}
+		void    ProcessInputPicture()
+		{
+			SsRecognizedMark.Z();
+			{
+				ImageBrowseCtrlGroup::Rec rec;
+				if(getGroupData(ctlgroupIbg, &rec)) {
+					if(rec.Path.Len()) {
+						LinkFiles.Replace(0, rec.Path);
+					}
+					else
+						LinkFiles.Remove(0);
+				}
+			}
+			if(LinkFiles.GetCount()) {
+				SString img_file_name;
+				SString info_buf;
+				LinkFiles.At(0, img_file_name);
+				SFileFormat ff;
+				const int fir = ff.Identify(img_file_name);
+				if(oneof2(fir, 2, 3) && SImageBuffer::IsSupportedFormat(ff)) { // Принимаем только идентификацию по сигнатуре
+					TSCollection <PPBarcode::Entry> bc_list;
+					if(PPBarcode::ZXing_RecognizeImage(img_file_name, bc_list) > 0) {
+						info_buf.Z();
+						for(uint bcidx = 0; bcidx < bc_list.getCount(); bcidx++) {
+							const PPBarcode::Entry * p_bc_entry = bc_list.at(bcidx);
+							if(p_bc_entry && p_bc_entry->BcStd == BARCSTD_DATAMATRIX) {
+								if(ProcessMark(p_bc_entry->Code, true, false/*offline*/, info_buf) > 0) {
+									SsRecognizedMark.add(p_bc_entry->Code);	
+									setCtrlString(CTL_CHKCHZNMARK_INFO, info_buf);
+									//PPChZnPrcssr::PermissiveModeInterface::CodeStatus * p_new_entry = pm_code_list.CreateNewItem();
+									//p_new_entry->OrgRowId = i+1;
+									//p_new_entry->OrgMark = p_bc_entry->Code;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		void CheckOffline()
+		{
+			SString mark_buf;
+			uint   ssp = 0;
+			bool   do_verify = false;
+			if(SsRecognizedMark.getCount() && SsRecognizedMark.get(&ssp, mark_buf) && mark_buf.NotEmptyS()) {
+				;
+			}
+			else {
+				getCtrlString(CTL_CHKCHZNMARK_INPUT, mark_buf);
+			}
+			if(mark_buf.NotEmptyS()) {
+				SString info_buf;
+				ProcessMark(mark_buf, false, true/*offline*/, info_buf);
+				setCtrlString(CTL_CHKCHZNMARK_INFO, info_buf);
+			}
+		}
+
+		ObjLinkFiles LinkFiles;
+		PPObjGoods GObj;
+		CCheckCore Cc;
+		StringSet SsRecognizedMark; // Список кодов марок, распознанных из изображения //
+	};
 	int    ok = -1;
 	CheckChZnMarkDialog * dlg = new CheckChZnMarkDialog();
 	if(CheckDialogPtrErr(&dlg)) {

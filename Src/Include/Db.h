@@ -1394,15 +1394,32 @@ extern int _db_open_peak;  // Пиковое количество открыты
 union DBRowId { // @persistent size=32
 public:
 	DBRowId();
-	bool   IsLong() const;
+
+	bool   IsI32() const;
+	bool   IsI64() const;
+	bool   IsLarge() const;
+	void   SetI32(uint32 id);
+	void   SetI64(int64 id);
+	//
+	// Returns: 
+	//   true - значение успешно установлено
+	//   false - ошибка. Возможные проблемы: 
+	//     -- pIdent == 0
+	//     -- len > sizeof(DBRowId)
+	//
+	bool   SetLarge(const void * pIdent, size_t len);
+	uint32 GetI32() const;
+	int64  GetI64() const;
+	size_t GetLarge(void * pIdent, size_t bufLen) const;
+
 	operator RECORDNUMBER() const;
 	DBRowId & FASTCALL operator = (RECORDNUMBER n);
-	void   SetZero();
+	DBRowId & Z();
 	void   SetMaxVal();
 	SString & FASTCALL ToStr(SString & rBuf) const;
 	int    FASTCALL FromStr(const char *);
 private:
-	uint32 B;
+	// @v12.3.12 uint32 B;
 	uint8  S[32];
 };
 
@@ -1442,9 +1459,12 @@ public:
 	//   этого класса могут только классы, непосредственно управляющие
 	//   интерфейсом с конкретной СУБД.
 	//
-	SSqlStmt(DbProvider * pDb, const char * pText);
+	//SSqlStmt(DbProvider * pDb, const char * pText);
+	SSqlStmt(DbProvider * pDb, const Generator_SQL & rSql);
+	SSqlStmt(DbProvider * pDb);
 	~SSqlStmt();
-	int    SetText(const char * pText);
+	int    SetSqlText(const char * pText);
+	int    SetSqlText(const Generator_SQL & pSql); // @v12.3.12
 	bool   IsValid() const;
 	//
 	// Descr: Инициализирует подстановочные буферы для связывания переменных
@@ -1547,6 +1567,7 @@ private:
 	void * H;
 	void * P_Result; // @v11.0.4
 	long   Flags;
+	int    Typ; // @v12.3.12 Generator_SQL::typXXX
 	BindArray BL;
 	SdRecord Descr;
 	SBaseBuffer BS;       // Буфер обмена для связывания входящих и исходящих переменных
@@ -1672,7 +1693,7 @@ public:
 	const  void * FASTCALL getDataBufConst() const{ return static_cast<const void *>(P_DBuf); }
 	void   FASTCALL setBuffer(SBaseBuffer &);
 	const  SBaseBuffer getBuffer() const;
-	int    allocOwnBuffer(int size = -1);
+	int    AllocateOwnBuffer(int size = -1);
 	int    InitLob();
 	uint   GetLobCount() const;
 	int    GetLobField(uint n, DBField * pFld) const;
@@ -1810,7 +1831,7 @@ public:
 public:
 	//
 	struct SelectStmt : public SSqlStmt {
-		SelectStmt(DbProvider * pDb, const char * pText, int idx, int sp, int sf);
+		SelectStmt(DbProvider * pDb, const Generator_SQL & rSql, int idx, int sp, int sf);
 		int    Idx;
 		int    Sp;
 		long   Sf;
@@ -2222,6 +2243,7 @@ public:
 	virtual int Fetch(SSqlStmt & rS, uint count, uint * pActualCount);
 	bool   IsValid() const;
 	long   GetState() const { return State; }
+	const  SCompoundError & GetLastError() const { return LastErr; }
 	long   GetCapability() const { return Capability; }
 	int    LoadTableSpec(DBTable * pTbl, const char * pTblName, const char * pFileName, int createIfNExists);
 	int    RenewFile(DBTable & rTbl, int createMode, const char * pAltCode);
@@ -2305,6 +2327,7 @@ protected:
 	SString DbSymb;
 	SString TempPath;
 	StringSet TempFileList;
+	SCompoundError LastErr; // @v12.3.12
 };
 //
 // Descr: класс базы данных. хранить описание словаря базы данных и пути доступа к данным.
@@ -2566,6 +2589,10 @@ public:
 		tokLower,    // @v11.6.0 function lower
 		tokCountOfTokens,
 		tokIfNotExists, // @v11.9.12 if not exists
+		tokBegin, // @v12.3.12
+		tokCommit, // @v12.3.12
+		tokRollback, // @v12.3.12
+		tokTransaction, // @v12.3.12
 	};
 	enum {
 		pfxIndex = 1,
@@ -2575,11 +2602,29 @@ public:
 	enum {
 		fIndent = 0x0001
 	};
+	//
+	// Descr: Типы операторов. Специальная типазация необходима для проавильной унификации 
+	//   обработки запросов для различный DBMS.
+	//
+	enum {
+		typUndef = 0,
+		typCreateTable,
+		typCreateIndex,
+		typInsert,
+		typUpdate,
+		typDelete,
+		typSelect,
+		typBeginTransaction,
+		typCommitTransaction,
+		typRollbackTransaction
+	};
 	static const char * FASTCALL GetToken(uint tok);
 	static SString & FASTCALL PrefixName(const char * pName, int prefix, SString & rBuf, int cat = 0);
 	Generator_SQL(SqlServerType sqlst, long flags);
 	SqlServerType GetServerType() const { return Sqlst; }
 	operator SString & () { return Buf; }
+	const SString & GetTextC() const { return Buf; }
+	int    GetExpressionType() const { return Typ; }
 	int    CreateTable(const DBTable & rTbl, const char * pFileName, bool ifNotExists, int indent);
 	int    CreateIndex(const DBTable & rTbl, const char * pFileName, uint n);
 	int    GetIndexName(const DBTable & rTbl, uint n, SString & rBuf);
@@ -2618,8 +2663,9 @@ private:
 	static const char * P_Tokens[];
 	const  SqlServerType Sqlst;
 	long   Flags;
+	int    Typ; // @v12.3.12 typXXX
 	SString Buf;
-	SString Temp;
+	//SString Temp;
 };
 //
 // Descr: Провайдер доступа к СУБД Oracle
@@ -2774,8 +2820,8 @@ private:
 	OH     Svr;
 	OH     Srvc;
 	OH     Sess;
-	int32  LastErrCode;
-	SString LastErrMsg;
+	// @v12.3.12 (replaced with DbProvider::LastErr) int32  LastErrCode;
+	// @v12.3.12 (replaced with DbProvider::LastErr) SString LastErrMsg;
 	StrAssocArray CrsfcNameList;
 	Generator_SQL SqlGen;
 };
@@ -2954,6 +3000,7 @@ private:
 	static sqlite3_stmt * FASTCALL StmtHandle(const SSqlStmt & rS);
 	int    GetFileStat(const char * pFileName/*регистр символов важен!*/, long reqItems, DbTableStat * pStat);
 	int    ProcessBinding_SimpleType(int action, uint count, SSqlStmt * pStmt, SSqlStmt::Bind * pBind, uint ntvType);
+	int    Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, uint * pActual);
 	long   Flags;
 	void * H;
 	Generator_SQL SqlGen;

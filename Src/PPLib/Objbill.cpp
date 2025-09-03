@@ -976,9 +976,9 @@ int PPBillPacket::ConvertToCheck2(const ConvertToCCheckParam & rParam, CCheckPac
 			if(CheckOpPrnFlags(Rec.OpID, OPKF_PRT_CHECKTI)) {
 				StringSet ss;
 				PPLotExtCodeContainer::MarkSet lotxcode_set;
-				GtinStruc gts;
 				SString serial;
 				SString chzn_mark;
+				SString chzn_mark_reconstructed;
 				for(uint tiidx = 0; tiidx < GetTCount(); tiidx++) {
 					const PPTransferItem & r_ti = ConstTI(tiidx);
 					Goods2Tbl::Rec goods_rec;
@@ -998,27 +998,19 @@ int PPBillPacket::ConvertToCheck2(const ConvertToCCheckParam & rParam, CCheckPac
 							for(uint ssp = 0; qtty_ >= _one && ss.get(&ssp, chzn_mark);) {
 								S_GUID chznpm_reqid;        // ответ разрешительного режима чзн: уникальный идентификатор запроса
 								int64  chznpm_reqtimestamp = 0; // ответ разрешительного режима чзн: дата и время формирования запроса. Параметр возвращает дату и время с точностью до миллисекунд.
-								if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(chzn_mark, gts, 0)) > 0) {
+								S_GUID chznpm_local_module_instance; // @v12.3.12
+								S_GUID chznpm_local_module_dbver;    // @v12.3.12  
+								PPChZnPrcssr::PermissiveModeInterface::CodeStatusCollection pm_code_list;
+								if(pm_code_list.AddCodeEntry(chzn_mark, tiidx, &chzn_mark_reconstructed) > 0) { // Кроме всего прочего, эта функция проверяет марку на валидность. 
 									// @v12.1.6 {
 									assert(chzn_mark.NotEmpty());
 									// @v12.3.4 if(!is_return && (chzn_prod_type != GTCHZNPT_MEDICINE) && /*@v12.1.10*//*лекарственные средства проверять через разрешительный режим не надо (пока)*/
 									if(!is_return && /* @v12.3.4 теперь надо проверять (chzn_prod_type != GTCHZNPT_MEDICINE)*/ 
 										(rParam.Flags_ & PPBillPacket::ConvertToCCheckParam::fDoChZnPm) && cn_rec.ChZnPermissiveMode == PPSyncCashNode::chznpmStrict && cn_rec.ChZnGuaID) {
-										PPChZnPrcssr::PermissiveModeInterface::CodeStatusCollection check_code_list;
-										{
-											uint clp = 0;
-											//CCheckPacket::PreprocessChZnCodeResult chzn_pp_result;
-											PPChZnPrcssr::ReconstructOriginalChZnCode(gts, chzn_mark);
-											PPChZnPrcssr::PermissiveModeInterface::CodeStatus * p_cle = check_code_list.CreateNewItem(&clp);
-											if(p_cle) {
-												p_cle->OrgMark = chzn_mark;
-												p_cle->OrgRowId = tiidx;
-											}
-										}
-										if(check_code_list.getCount()) {
-											PPChZnPrcssr::PmCheck(cn_rec.ChZnGuaID, 0, check_code_list);
-											for(uint i = 0; i < check_code_list.getCount(); i++) {
-												const PPChZnPrcssr::PermissiveModeInterface::CodeStatus * p_cle = check_code_list.at(i);
+										if(pm_code_list.getCount()) {
+											PPChZnPrcssr::PmCheck(cn_rec.ChZnGuaID, 0, 2/*regular online/offline mode*/, pm_code_list);
+											for(uint i = 0; i < pm_code_list.getCount(); i++) {
+												const PPChZnPrcssr::PermissiveModeInterface::CodeStatus * p_cle = pm_code_list.at(i);
 												if(p_cle) {
 													//debug_mark = true;
 													if(p_cle->ErrorCode != 0) {
@@ -1051,8 +1043,10 @@ int PPBillPacket::ConvertToCheck2(const ConvertToCCheckParam & rParam, CCheckPac
 													}
 													else {
 														// OK
-														chznpm_reqid = check_code_list.ReqId;
-														chznpm_reqtimestamp = check_code_list.ReqTimestamp;
+														chznpm_reqid = pm_code_list.ReqId;
+														chznpm_reqtimestamp = pm_code_list.ReqTimestamp;
+														chznpm_local_module_instance = pm_code_list.LocalModuleInstance; // @v12.3.12
+														chznpm_local_module_dbver = pm_code_list.LocalModuleDbVer; // @v12.3.12  
 													}
 													// @todo p_cle->Mrp // @v12.2.2
 												}
@@ -1065,7 +1059,8 @@ int PPBillPacket::ConvertToCheck2(const ConvertToCCheckParam & rParam, CCheckPac
 									cc_amount += R2(n_pr * _one);
 									dscnt += R2(r_ti.Discount * _one);
 									qtty_ -= _one;
-									cp.SetLineTextExt(cp_idx, CCheckPacket::lnextChZnMark, chzn_mark);
+									cp.SetLineTextExt(cp_idx, CCheckPacket::lnextChZnMark, chzn_mark_reconstructed);
+										// @v12.3.12 (chzn_mark-->chzn_mark_reconstructed) Полагаю, здесь все же должно быть chzn_mark, но что б не менять ничего кроме pm_code_list.AddCodeEntry оставлю так.
 									cp.SetLineTextExt(cp_idx, CCheckPacket::lnextSerial, serial); // @v11.8.9
 									// @v12.1.6 {
 									if(!chznpm_reqid.IsZero() && chznpm_reqtimestamp) {
@@ -1073,6 +1068,16 @@ int PPBillPacket::ConvertToCheck2(const ConvertToCCheckParam & rParam, CCheckPac
 										cp.SetLineTextExt(cp_idx, CCheckPacket::lnextChZnPm_ReqId, temp_buf);
 										temp_buf.Z().Cat(chznpm_reqtimestamp);
 										cp.SetLineTextExt(cp_idx, CCheckPacket::lnextChZnPm_ReqTimestamp, temp_buf);
+										// @v12.1.12 {
+										if(!!chznpm_local_module_instance) {
+											chznpm_local_module_instance.ToStr(S_GUID::fmtPlain, temp_buf);
+											cp.SetLineTextExt(cp_idx, CCheckPacket::lnextChZnPm_LocalModuleInstance, temp_buf);
+										}
+										if(!!chznpm_local_module_dbver) {
+											chznpm_local_module_dbver.ToStr(S_GUID::fmtPlain, temp_buf);
+											cp.SetLineTextExt(cp_idx, CCheckPacket::lnextChZnPm_LocalModuleDbVer, temp_buf);
+										}
+										// } @v12.1.12 
 									}
 									// } @v12.1.6
 								}

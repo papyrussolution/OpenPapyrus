@@ -50,6 +50,7 @@ int  TestSTree();
 int  SimpleCpp_Test_Main(int argc, char ** argv);
 int  SimpleCpp_Test_Main2();
 int  TestCrr32SupportServer();
+int  TestGlobalServiceAccessibility();
 //
 // 
 // 
@@ -1900,13 +1901,6 @@ static void GumboTest()
 //
 //
 //
-/*static int TestWorkspacePath()
-{
-	SString path;
-	PPGetPath(PPPATH_WORKSPACE, path);
-	return BIN(path.NotEmpty());
-}*/
-
 //int Test_LCMS2(const char * pTestBedPath, const char * pOutputFileName, bool exhaustive); // @v10.9.7 (Экспериментальное внедрение тестирования библиотеки lcms2) 
 int DoTest_PThr4w();
 
@@ -2047,10 +2041,12 @@ int DoConstructionTest()
 		}
 	}
 #endif // } 0
-	//TestCrr32SupportServer();
+	TestGlobalServiceAccessibility();
+	//TestGtinStruc();
+	//PPChZnPrcssr::Test();
 	
+	//TestCrr32SupportServer();
 	//Test_ExecuteDialogByDl600Description();
-	PPChZnPrcssr::Test();
 	//Test_Cristal2SetRetailGateway();
 	//TestTddo();
 	//PreprocessHFile();
@@ -2060,7 +2056,6 @@ int DoConstructionTest()
 	//TestTransferFileToFtp();
 	//VkInterface::Test();
 	//Test_LayoutedListDialog();
-	//TestGtinStruc();
 	//GumboTest();
 	//Test_SSystemBackup();
 	//TestPow10Tab();
@@ -2128,7 +2123,6 @@ int DoConstructionTest()
 	//TestGravity();
 	//TestConfigDatabase_StringHistory();
 	//TestConfigDatabase_StringHistory_Interactive();
-	//TestWorkspacePath();
 	//TestReadXmlMem_EgaisAck();
 	//TestUhttClient();
 	//Test_MailMsg_ReadFromFile();
@@ -2208,5 +2202,320 @@ int PPTestDbInfrastructure::_Case_TaxEvaluation()
 			-- Создаем налоговую группу
 			-- Создаем товарную позицию с заданной налоговой группой
 	*/ 
+	return ok;
+}
+//
+//
+//
+class PPTestGlobalServiceAccessibility {
+public:
+	// 
+	// Descr: Флаги результата доступности сервиса
+	//
+	enum {
+		rfConnection = 0x00000001, // Удалось установить соединение
+		rfAuth       = 0x00000002, // Удалось авторизоваться //
+		rfInvParams  = 0x20000000, // В элементе недостаточно данных либо параметры недопустимые - корректро протестировать нельзя //
+		rfPassive    = 0x40000000, // Элемент определения тестирования является пассивным - не тестировался //
+		rfTested     = 0x80000000, // Элемент был протестирован (если флаг не установлен, то остальные биты не имеют смысла)
+	};
+	enum {
+		fnUndef = 0,
+		fnStyloQ_RabbitMq, // "styloq-rabbitmq"
+		fnStyloQ_HttpSvr,  // "styloq-httpsvr"
+	};
+	struct SvcEntry {
+		SvcEntry() : Function(fnUndef), Flags(0), GuaID(0), Result(0)
+		{
+		}
+		enum {
+			fPassive = 0x0001
+		};
+		int   Function;
+		uint  Flags;
+		PPID  GuaID;
+		SString Name;
+		SString DbSymb;   // Символ базы данных на случай, если необходим доступ к глобальной учетной записи
+		SString GuaSymb;
+		SString Url;
+		SString AccessName;
+		SString AccessPassword;
+		SString VirtualHost; // for Rabbit-MQ
+		//
+		uint  Result;     // Результат тестирования доступности сервиса //
+	};
+	
+	PPTestGlobalServiceAccessibility();
+	int    ReadEntryListFromJson(const SJson * pJs, TSCollection <SvcEntry> & rList);
+	uint   TestEntry(const SvcEntry * pEntry);
+	int    Run(const char * pSvcEntryListJsFileName);
+	int    ExecListDialog(const char * pSvcEntryListJsFileName);
+};
+
+PPTestGlobalServiceAccessibility::PPTestGlobalServiceAccessibility()
+{
+}
+
+int PPTestGlobalServiceAccessibility::ReadEntryListFromJson(const SJson * pJs, TSCollection <SvcEntry> & rList)
+{
+	int    ok = 1;
+	SString temp_buf;
+	if(SJson::IsArray(pJs)) {
+		for(const SJson * p_js_item = pJs->P_Child; p_js_item; p_js_item = p_js_item->P_Next) {
+			if(SJson::IsObject(p_js_item)) {
+				uint    new_entry_pos = 0;
+				SvcEntry * p_new_entry = rList.CreateNewItem(&new_entry_pos);
+				THROW_SL(p_new_entry);
+				for(const SJson * p_cur = p_js_item->P_Child; p_cur; p_cur = p_cur->P_Next) {
+					if(p_cur->Text.IsEqiAscii("function")) {
+						if(SJson::GetChildTextUnescaped(p_cur, temp_buf)) {
+							if(temp_buf.IsEqiAscii("styloq-rabbitmq")) {
+								p_new_entry->Function = fnStyloQ_RabbitMq;
+							}
+							else if(temp_buf.IsEqiAscii("styloq-httpsvr")) {
+								p_new_entry->Function = fnStyloQ_HttpSvr;
+							}
+						}
+					}
+					else if(p_cur->Text.IsEqiAscii("passive")) {
+						SETFLAG(p_new_entry->Flags, SvcEntry::fPassive, p_cur->P_Child->IsTrue());
+					}
+					else if(p_cur->Text.IsEqiAscii("name")) {
+						if(SJson::GetChildTextUnescaped(p_cur, temp_buf)) {
+							p_new_entry->Name = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+						}
+					}
+					else if(p_cur->Text.IsEqiAscii("dbsymb")) {
+						if(SJson::GetChildTextUnescaped(p_cur, temp_buf)) {
+							p_new_entry->DbSymb = temp_buf;
+						}
+					}
+					else if(p_cur->Text.IsEqiAscii("globaluseracc_id")) {
+						SJson::GetChildLong(p_cur, p_new_entry->GuaID);
+					}
+					else if(p_cur->Text.IsEqiAscii("globaluseracc_symb")) {
+						if(SJson::GetChildTextUnescaped(p_cur, temp_buf)) {
+							p_new_entry->GuaSymb = temp_buf;
+						}
+					}
+					else if(p_cur->Text.IsEqiAscii("url")) {
+						if(SJson::GetChildTextUnescaped(p_cur, temp_buf)) {
+							p_new_entry->Url = temp_buf;
+						}
+					}
+					else if(p_cur->Text.IsEqiAscii("accessname")) {
+						if(SJson::GetChildTextUnescaped(p_cur, temp_buf)) {
+							p_new_entry->AccessName = temp_buf;
+						}
+					}
+					else if(p_cur->Text.IsEqiAscii("accesspassword")) {
+						if(SJson::GetChildTextUnescaped(p_cur, temp_buf)) {
+							p_new_entry->AccessPassword = temp_buf;
+						}
+					}
+				}
+				if(p_new_entry->Function && p_new_entry->Url.NotEmpty()) {
+					; // ok
+				}
+				else {
+					p_new_entry = 0;
+					rList.atFree(new_entry_pos);
+				}
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+uint PPTestGlobalServiceAccessibility::TestEntry(const SvcEntry * pEntry)
+{
+	uint   result = 0;
+	if(pEntry) {
+		if(pEntry->Flags & SvcEntry::fPassive) {
+			result = (rfTested|rfPassive);
+		}
+		else if(pEntry->Function == fnStyloQ_RabbitMq) {
+			SString temp_buf;
+			PPMqbClient mqc;
+			PPMqbClient::InitParam lp;
+			InetUrl _url(pEntry->Url);
+			if(_url.GetComponent(InetUrl::cHost, 0, temp_buf)) {
+				lp.Host = temp_buf;
+				if(_url.GetComponent(InetUrl::cPort, 0, temp_buf)) {
+					if(temp_buf.ToLong() > 0) {
+						lp.Port = temp_buf.ToLong();
+					}
+				}
+				lp.Auth = pEntry->AccessName;
+				if(lp.Auth.IsEmpty()) {
+					if(_url.GetComponent(InetUrl::cUserName, 0, temp_buf)) {
+						lp.Auth = temp_buf;
+					}
+				}
+				lp.Secret = pEntry->AccessPassword;
+				if(lp.Secret.IsEmpty()) {
+					if(_url.GetComponent(InetUrl::cPassword, 0, temp_buf)) {
+						lp.Secret = temp_buf;
+					}
+				}
+				lp.VHost = pEntry->VirtualHost;
+				lp.Method = 1;
+				if(mqc.Connect(lp.Host, NZOR(lp.Port, InetUrl::GetDefProtocolPort(InetUrl::protAMQP)/*5672*/))) {
+					result |= rfConnection;
+					if(lp.Auth.NotEmpty()) {
+						if(mqc.Login(lp)) {
+							result |= rfAuth;
+						}
+					}
+					else {
+						; // login не был указан, стало быть проверка авторизации не требуется //
+					}
+				}
+				result |= rfTested;
+			}
+			else {
+				result |= (rfTested|rfInvParams);
+				; // @err Host undefined
+			}
+		}
+		else if(pEntry->Function == fnStyloQ_HttpSvr) {
+			result |= (rfTested|rfInvParams);
+		}
+		else {
+			result |= (rfTested|rfInvParams);
+		}
+	}
+	return result;
+}
+
+int PPTestGlobalServiceAccessibility::Run(const char * pSvcEntryListJsFileName)
+{
+	int    ok = 1;
+	TSCollection <SvcEntry> list;
+	SJson * p_js = SJson::ParseFile(pSvcEntryListJsFileName);
+	THROW_SL(p_js);
+	THROW(ReadEntryListFromJson(p_js, list));
+	if(list.getCount()) {
+		for(uint i = 0; i < list.getCount(); i++) {
+			const SvcEntry * p_entry = list.at(i);
+			uint r = TestEntry(p_entry);
+		}
+	}
+	else {
+		ok = -1;
+	}
+	CATCHZOK
+	delete p_js;
+	return ok;
+}
+
+int PPTestGlobalServiceAccessibility::ExecListDialog(const char * pSvcEntryListJsFileName)
+{
+	class TestGlobalServiceAccessibilityDialog : public PPListDialog {
+	public:
+		TestGlobalServiceAccessibilityDialog(PPTestGlobalServiceAccessibility & rMaster, TSCollection <SvcEntry> & rList) : 
+			PPListDialog(DLG_TESTGLBSVCACSY, CTL_TESTGLBSVCACSY_LIST), R_Master(rMaster), R_List(rList)
+		{
+			updateList(-1);
+		}
+	private:
+		DECL_HANDLE_EVENT
+		{
+			PPListDialog::handleEvent(event);
+			if(event.isCmd(cmRun)) {
+				for(uint i = 0; i < R_List.getCount(); i++) {
+					SvcEntry * p_entry = R_List.at(i);
+					if(p_entry) {
+						const uint r = R_Master.TestEntry(p_entry);
+						p_entry->Result = r;
+					}
+				}
+				updateList(-1);
+				clearEvent(event);
+			}
+		}
+		virtual int  setupList()
+		{
+			int    ok = 1;
+			//@lbt_testglbsvcacsylist              "20,L,@appellation;10,L,Function;20,L,URL;10,L,Result"
+			StringSet ss(SLBColumnDelim);
+			SString temp_buf;
+			for(uint i = 0; i < R_List.getCount(); i++) {
+				SvcEntry * p_entry = R_List.at(i);
+				if(p_entry) {
+					ss.Z();
+					ss.add(p_entry->Name);
+					temp_buf.Z();
+					switch(p_entry->Function) {
+						case fnStyloQ_RabbitMq:
+							temp_buf = "Stylo-Q rabbit-mq";
+							break;
+						case fnStyloQ_HttpSvr:
+							temp_buf = "Stylo-Q http-server";
+							break;
+					}
+					ss.add(temp_buf);
+					ss.add(p_entry->Url);
+					{
+						temp_buf.Z();
+						if(p_entry->Result & rfTested) {
+							if(p_entry->Result & rfInvParams) {
+								temp_buf = "Invalid params";
+							}
+							else if(p_entry->Result & rfPassive) {
+								temp_buf = "Passive";
+							}
+							else {
+								if(!(p_entry->Result & (rfConnection|rfAuth))) {
+									temp_buf = "FAULT";
+								}
+								else {
+									if(p_entry->Result & rfConnection)
+										temp_buf.Cat("CONN");
+									if(p_entry->Result & rfAuth)
+										temp_buf.CatDivIfNotEmpty(' ', 0).Cat("AUTH");
+								}
+							}
+						}
+						ss.add(temp_buf);
+					}
+					addStringToList(i+1, ss.getBuf());
+				}
+			}
+			return ok;
+		}
+
+		PPTestGlobalServiceAccessibility & R_Master;
+		TSCollection <SvcEntry> & R_List;
+	};
+	int    ok = -1;
+	TSCollection <SvcEntry> list;
+	SJson * p_js = SJson::ParseFile(pSvcEntryListJsFileName);
+	THROW_SL(p_js);
+	THROW(ReadEntryListFromJson(p_js, list));
+	if(list.getCount()) {
+		TestGlobalServiceAccessibilityDialog * dlg = new TestGlobalServiceAccessibilityDialog(*this, list);
+		ExecViewAndDestroy(dlg);
+		dlg = 0;
+	}
+	CATCHZOK
+	delete p_js;
+	return ok;
+}
+
+int TestGlobalServiceAccessibility()
+{
+	int    ok = 1;
+	SString temp_buf;
+	PPGetPath(PPPATH_TESTROOT, temp_buf);
+	if(temp_buf.NotEmpty()) {
+		temp_buf.SetLastSlash().Cat("data").SetLastSlash().Cat("global_svc_descr.json");
+		if(fileExists(temp_buf)) {
+			PPTestGlobalServiceAccessibility prc;
+			//prc.Run(temp_buf);
+			prc.ExecListDialog(temp_buf);
+		}
+	}
 	return ok;
 }

@@ -3060,7 +3060,7 @@ float GetNavTweakPressedAmount(ImGuiAxis axis);
 int CalcTypematicRepeatAmount(float t0, float t1, float repeat_delay, float repeat_rate);
 void GetTypematicRepeatRate(ImGuiInputFlags flags, float* repeat_delay, float* repeat_rate);
 void          SetActiveIdUsingAllKeyboardKeys();
-inline bool IsActiveIdUsingNavDir(ImGuiDir dir)                         { ImGuiContext & g = *GImGui; return (g.ActiveIdUsingNavDirMask & (1 << dir)) != 0; }
+inline bool IsActiveIdUsingNavDir(ImGuiDir dir) { ImGuiContext & g = *GImGui; return (g.ActiveIdUsingNavDirMask & (1 << dir)) != 0; }
 
 // [EXPERIMENTAL] Low-Level: Key/Input Ownership
 // - The idea is that instead of "eating" a given input, we can link to an owner id.

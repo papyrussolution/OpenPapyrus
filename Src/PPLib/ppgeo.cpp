@@ -1638,7 +1638,7 @@ int PPViewGeoTracking::Export()
 		}
 		out_file_name.DotCat("gpx");
 		PPGetFilePath(PPPATH_OUT, out_file_name, path);
-		THROW(p_writer = xmlNewTextWriterFilename(path, 0));
+		THROW_SL(p_writer = xmlNewTextWriterFilename(path, 0));
 		{
 			//xmlTextWriterSetIndent(writer, 1);
 			//xmlTextWriterSetIndentString(writer, (const xmlChar *)" ");

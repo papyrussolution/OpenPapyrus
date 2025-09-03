@@ -1307,7 +1307,7 @@ int StyloQCommandList::Store(const char * pFileName) const
 		THROW(full_list.Store(pFileName));
 	}
 	else {
-		THROW_LXML(p_writer = xmlNewTextWriterFilename(pFileName, 0), 0);  // создание writerA
+		THROW_SL(p_writer = xmlNewTextWriterFilename(pFileName, 0), 0);  // создание writerA
 		{
 			xmlTextWriterSetIndent(p_writer, 1);
 			xmlTextWriterSetIndentTab(p_writer);

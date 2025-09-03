@@ -1751,7 +1751,7 @@ int PPSupplExchange_Baltika::ExportSaldo2(const PPIDArray & rExclArList, const c
     SdRecord rd_saldo_ware;
 	PPGetFilePath(PPPATH_OUT, "spsaldo.xml", out_file_name);
     xmlTextWriter * p_x = xmlNewTextWriterFilename(out_file_name, 0);
-    THROW(p_x);
+    THROW_SL(p_x);
     THROW(LoadSdRecord(PPREC_BALTIKASALDOAGGREGATE, &rd_saldo_aggr));
     THROW(LoadSdRecord(PPREC_BALTIKASALDODOC, &rd_saldo_doc));
     THROW(LoadSdRecord(PPREC_BALTIKASALDOWARE, &rd_saldo_ware));
@@ -9369,8 +9369,7 @@ public:
 					{
 						R_Logger.Log(PPLoadTextS(PPTXT_PREPARESUPPLIXDATA, msg_buf).CatDiv(':', 2).Cat(ArName).CatDiv('-', 1).Cat("customers"));
 						PPGetFilePath(PPPATH_OUT, MakeFileName("customers", temp_buf), out_file_name);
-						p_x = xmlNewTextWriterFilename(out_file_name, 0);
-						THROW(p_x);
+						THROW_SL(p_x = xmlNewTextWriterFilename(out_file_name, 0));
 						{
 							SXml::WDoc _doc(p_x, cpUTF8);
 							{
@@ -9405,8 +9404,7 @@ public:
 					{
 						R_Logger.Log(PPLoadTextS(PPTXT_PREPARESUPPLIXDATA, msg_buf).CatDiv(':', 2).Cat(ArName).CatDiv('-', 1).Cat("trade_points"));
 						PPGetFilePath(PPPATH_OUT, MakeFileName("trade_points", temp_buf), out_file_name);
-						p_x = xmlNewTextWriterFilename(out_file_name, 0);
-						THROW(p_x);
+						THROW_SL(p_x = xmlNewTextWriterFilename(out_file_name, 0));
 						{
 							SXml::WDoc _doc(p_x, cpUTF8);
 							{
@@ -9432,8 +9430,7 @@ public:
 					{
 						R_Logger.Log(PPLoadTextS(PPTXT_PREPARESUPPLIXDATA, msg_buf).CatDiv(':', 2).Cat(ArName).CatDiv('-', 1).Cat("salesreps"));
 						PPGetFilePath(PPPATH_OUT, MakeFileName("salesreps", temp_buf), out_file_name);
-						p_x = xmlNewTextWriterFilename(out_file_name, 0);
-						THROW(p_x);
+						THROW_SL(p_x = xmlNewTextWriterFilename(out_file_name, 0));
 						{
 							SXml::WDoc _doc(p_x, cpUTF8);
 							{
@@ -9594,7 +9591,7 @@ public:
 		SString out_file_name;
 		PPGetFilePath(PPPATH_OUT, MakeFileName("debts", temp_buf), out_file_name);
 	    xmlTextWriter * p_x = xmlNewTextWriterFilename(out_file_name, 0);
-	    THROW(p_x);
+	    THROW_SL(p_x);
 		{
 			SXml::WNode n_h(p_x, "debts");
 			if(Ep.ExpendOp) {
@@ -9671,7 +9668,7 @@ public:
 		Goods2Tbl::Rec goods_rec;
 		PPGetFilePath(PPPATH_OUT, MakeFileName("salesrefunds", temp_buf), out_file_name);
 	    xmlTextWriter * p_x = xmlNewTextWriterFilename(out_file_name, 0);
-	    THROW(p_x);
+	    THROW_SL(p_x);
 		{
 			SXml::WDoc _doc(p_x, cpUTF8);
 			{
@@ -9812,7 +9809,7 @@ public:
 		Goods2Tbl::Rec goods_rec;
 		PPGetFilePath(PPPATH_OUT, MakeFileName("products", temp_buf), out_file_name);
 	    xmlTextWriter * p_x = xmlNewTextWriterFilename(out_file_name, 0);
-	    THROW(p_x);
+	    THROW_SL(p_x);
 		{
 			SXml::WDoc _doc(p_x, cpUTF8);
 			{
@@ -9847,7 +9844,7 @@ public:
 		LocationTbl::Rec loc_rec;
 		PPGetFilePath(PPPATH_OUT, MakeFileName("warehouses", temp_buf), out_file_name);
 	    xmlTextWriter * p_x = xmlNewTextWriterFilename(out_file_name, 0);
-	    THROW(p_x);
+	    THROW_SL(p_x);
 		{
 			SXml::WDoc _doc(p_x, cpUTF8);
 			{
@@ -9883,7 +9880,7 @@ public:
 		}
 		PPGetFilePath(PPPATH_OUT, MakeFileName("stocks", temp_buf), out_file_name);
 	    xmlTextWriter * p_x = xmlNewTextWriterFilename(out_file_name, 0);
-	    THROW(p_x);
+	    THROW_SL(p_x);
 		{
 			SXml::WDoc _doc(p_x, cpUTF8);
 			{
@@ -9912,7 +9909,7 @@ public:
 		SString out_file_name;
 		PPGetFilePath(PPPATH_OUT, MakeFileName("movements", temp_buf), out_file_name);
 	    xmlTextWriter * p_x = xmlNewTextWriterFilename(out_file_name, 0);
-	    THROW(p_x);
+	    THROW_SL(p_x);
 		{
 			SXml::WDoc _doc(p_x, cpUTF8);
 			{
@@ -10432,7 +10429,7 @@ public:
 		out_file_name.SetLastSlash().Cat("efop-maytea");
 		SFile::CreateDir(out_file_name);
 		out_file_name.SetLastSlash().Cat(temp_buf);
-		THROW(p_x = xmlNewTextWriterFilename(out_file_name, 0));
+		THROW_SL(p_x = xmlNewTextWriterFilename(out_file_name, 0));
 		{
 			SXml::WDoc _doc(p_x, cp1251);
 			SXml::WNode n_o(p_x, "Items");
@@ -10493,7 +10490,7 @@ public:
 		out_file_name.SetLastSlash().Cat("efop-maytea");
 		SFile::CreateDir(out_file_name);
 		out_file_name.SetLastSlash().Cat(temp_buf);
-		THROW(p_x = xmlNewTextWriterFilename(out_file_name, 0));
+		THROW_SL(p_x = xmlNewTextWriterFilename(out_file_name, 0));
 		{
 			SXml::WDoc _doc(p_x, cp1251);
 			SXml::WNode n_o(p_x, "Buyers");
@@ -10567,7 +10564,7 @@ public:
 		out_file_name.SetLastSlash().Cat("efop-maytea");
 		SFile::CreateDir(out_file_name);
 		out_file_name.SetLastSlash().Cat(temp_buf);
-		THROW(p_x = xmlNewTextWriterFilename(out_file_name, 0));
+		THROW_SL(p_x = xmlNewTextWriterFilename(out_file_name, 0));
 		{
 			SXml::WDoc _doc(p_x, cp1251);
 			SXml::WNode n_o(p_x, "Stocks");
@@ -10666,7 +10663,7 @@ public:
 		out_file_name.SetLastSlash().Cat("efop-maytea");
 		SFile::CreateDir(out_file_name);
 		out_file_name.SetLastSlash().Cat(temp_buf);
-		THROW(p_x = xmlNewTextWriterFilename(out_file_name, 0));
+		THROW_SL(p_x = xmlNewTextWriterFilename(out_file_name, 0));
 		{
 			for(uint i = 0; i < P.LocList.GetCount(); i++) {
 				const  PPID loc_id = P.LocList.Get(i);
@@ -10775,7 +10772,7 @@ public:
 		out_file_name.SetLastSlash().Cat("efop-maytea");
 		SFile::CreateDir(out_file_name);
 		out_file_name.SetLastSlash().Cat(temp_buf);
-		THROW(p_x = xmlNewTextWriterFilename(out_file_name, 0));
+		THROW_SL(p_x = xmlNewTextWriterFilename(out_file_name, 0));
 		{
 			for(uint i = 0; i < P.LocList.GetCount(); i++) {
 				const  PPID loc_id = P.LocList.Get(i);
@@ -10876,7 +10873,7 @@ public:
 		out_file_name.SetLastSlash().Cat("efop-maytea");
 		SFile::CreateDir(out_file_name);
 		out_file_name.SetLastSlash().Cat(temp_buf);
-		THROW(p_x = xmlNewTextWriterFilename(out_file_name, 0));
+		THROW_SL(p_x = xmlNewTextWriterFilename(out_file_name, 0));
 		{
 			for(uint i = 0; i < P.LocList.GetCount(); i++) {
 				const  PPID loc_id = P.LocList.Get(i);
@@ -10937,7 +10934,7 @@ public:
 		out_file_name.SetLastSlash().Cat("efop-maytea");
 		SFile::CreateDir(out_file_name);
 		out_file_name.SetLastSlash().Cat(temp_buf);
-		THROW(p_x = xmlNewTextWriterFilename(out_file_name, 0));
+		THROW_SL(p_x = xmlNewTextWriterFilename(out_file_name, 0));
 		{
 			SXml::WDoc _doc(p_x, cp1251);
 			SXml::WNode n_o(p_x, "Prices");
@@ -11265,7 +11262,7 @@ int Ostankino::SendRest(StringSet & rSsFileName)
 	out_file_name.SetLastSlash().Cat("ostankino");
 	SFile::CreateDir(out_file_name);
 	out_file_name.SetLastSlash().Cat(temp_buf);
-	THROW(p_x = xmlNewTextWriterFilename(out_file_name, 0));
+	THROW_SL(p_x = xmlNewTextWriterFilename(out_file_name, 0));
 	{
 		SXml::WDoc _doc(p_x, cpUTF8);
 		{
@@ -11367,7 +11364,7 @@ int Ostankino::SendSales(StringSet & rSsFileName)
 				out_file_name.SetLastSlash().Cat("ostankino");
 				SFile::CreateDir(out_file_name);
 				out_file_name.SetLastSlash().Cat(temp_buf);
-				THROW(p_x = xmlNewTextWriterFilename(out_file_name, 0));
+				THROW_SL(p_x = xmlNewTextWriterFilename(out_file_name, 0));
 				{
 					SXml::WDoc _doc(p_x, cpUTF8);
 					{
@@ -11870,7 +11867,7 @@ public:
 		out_file_name.SetLastSlash().Cat("tsaritsyno");
 		SFile::CreateDir(out_file_name);
 		out_file_name.SetLastSlash().Cat(temp_buf);
-		THROW(p_x = xmlNewTextWriterFilename(out_file_name, 0));
+		THROW_SL(p_x = xmlNewTextWriterFilename(out_file_name, 0));
 		{
 			for(uint i = 0; i < P.LocList.GetCount(); i++) {
 				const  PPID loc_id = P.LocList.Get(i);
@@ -11961,7 +11958,7 @@ public:
 		out_file_name.SetLastSlash().Cat("tsaritsyno");
 		SFile::CreateDir(out_file_name);
 		out_file_name.SetLastSlash().Cat(temp_buf);
-		THROW(p_x = xmlNewTextWriterFilename(out_file_name, 0));
+		THROW_SL(p_x = xmlNewTextWriterFilename(out_file_name, 0));
 		{
 			DateRange report_period;
 			MakeReportPeriod(report_period);
@@ -12834,7 +12831,7 @@ int VladimirskiyStandard::SendRest(StringSet & rSsFileName)
 		PPGetFilePath(PPPATH_OUT, temp_buf, out_file_name);
 	}
 	xmlTextWriter * p_x = xmlNewTextWriterFilename(out_file_name, 0);
-	THROW(p_x);
+	THROW_SL(p_x);
 	{
 		SXml::WDoc _doc(p_x, cpUTF8);
 		//<Exchange.Data 
@@ -12941,7 +12938,7 @@ int VladimirskiyStandard::SendSales(StringSet & rSsFileName)
 		}
 	}
 	//
-	THROW(p_x = xmlNewTextWriterFilename(out_file_name, 0));
+	THROW_SL(p_x = xmlNewTextWriterFilename(out_file_name, 0));
 	{
 		SXml::WDoc _doc(p_x, cpUTF8);
 		{

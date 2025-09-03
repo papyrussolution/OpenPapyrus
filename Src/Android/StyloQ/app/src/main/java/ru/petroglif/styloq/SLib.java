@@ -70,7 +70,6 @@ import java.util.Comparator;
 import java.util.Currency;
 import java.util.Locale;
 import java.util.Random;
-import java.util.StringTokenizer;
 import java.util.TimeZone;
 import java.util.Timer;
 import java.util.UUID;
@@ -4149,8 +4148,8 @@ public class SLib {
 		{
 			boolean r = (dt.v >= Low.v && (Upp.v == 0 || dt.v <= Upp.v));
 			if(!r) {
-				final int lf = Low.HasAnyCmponent();
-				final int uf = Upp.HasAnyCmponent();
+				final int lf = (Low != null) ? Low.HasAnyCmponent() : 0;
+				final int uf = (Upp != null) ? Upp.HasAnyCmponent() : 0;
 				if(lf != 0 || uf != 0) {
 					LDATE temp_low = new LDATE(Low);
 					LDATE temp_upp = new LDATE(Upp);
@@ -4191,25 +4190,47 @@ public class SLib {
 			boolean ok = false;
 			if(GetLen(txt) > 0) {
 				if(txt.contains("..")) {
+					int dbldot_idx = txt.indexOf("..");
+					String low_text = txt.substring(0, dbldot_idx);
+					String upp_text = txt.substring(dbldot_idx+2);
+					if(SLib.GetLen(low_text) > 0) {
+						Low = strtodate(low_text, DATF_DMY);
+					}
+					else
+						Low.v = 0;
+					if(SLib.GetLen(upp_text) > 0) {
+						Upp = strtodate(upp_text, DATF_DMY);
+					}
+					else
+						Upp.v = 0;
+					/*
 					StringTokenizer toknzr = new StringTokenizer(txt, "..");
 					int _c = toknzr.countTokens();
-					assert(_c >= 2);
+					//assert(_c >= 2);
 					{
 						String tok = toknzr.nextToken();
 						tok.trim();
 						Low = strtodate(tok, DATF_DMY);
 					}
-					{
+					if(_c > 1) {
 						String tok = toknzr.nextToken();
-						tok.trim();
-						Upp = strtodate(tok, DATF_DMY);
+						if(SLib.GetLen(tok) > 0) {
+							tok.trim();
+							Upp = strtodate(tok, DATF_DMY);
+						}
+						else {
+							Upp = null;
+						}
 					}
+					else
+						Upp = null;
+					 */
 				}
 				else {
 					Low = strtodate(txt, DATF_DMY);
 					Upp = Low;
 				}
-				if(Low != null || Upp != null)
+				if((Low != null && Low.v != 0) || (Upp != null && Upp.v != 0))
 					ok = true;
 			}
 			return ok;

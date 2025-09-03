@@ -574,6 +574,14 @@ int PPSyncCashSession::CompleteSession(PPID sessID)
 											p_js_indi->InsertString("number", "477");
 											temp_buf.Z().CatEq("UUID", sl_param.ChZnPm_ReqId, S_GUID::fmtIDL|S_GUID::fmtLower).CatChar('&').
 												CatEq("Time", sl_param.ChZnPm_ReqTimestamp);
+											// @v12.3.12 {
+											if(!!sl_param.ChZnPm_LocalModuleInstance) {
+												temp_buf.CatChar('&').CatEq("Inst", sl_param.ChZnPm_LocalModuleInstance, S_GUID::fmtIDL|S_GUID::fmtLower);
+											}
+											if(!!sl_param.ChZnPm_LocalModuleDbVer) {
+												temp_buf.CatChar('&').CatEq("Ver", sl_param.ChZnPm_LocalModuleDbVer, S_GUID::fmtIDL|S_GUID::fmtLower);
+											}
+											// } @v12.3.12 
 											p_js_indi->InsertString("industryAttribute", temp_buf);
 											p_js_indi_array->InsertChild(p_js_indi);
 										}

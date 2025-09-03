@@ -366,21 +366,23 @@
 		MENUITEM "@cmd_viewccheck",							cmViewCCheck
 		MENUITEM "@cmd_ctblordtimegraph",					cmCTblOrdTimeGraph
 		MENUITEM SEPARATOR
-		MENUITEM "@cmd_viewgoodsinfo",						cmViewGoodsInfo
+		MENUITEM "@cmd_scalepreparedata",                   cmScalePrepareData
+		MENUITEM "@cmd_scaletransmitdata",                  cmScaleTransmitData
 		MENUITEM SEPARATOR
-		MENUITEM "@cmd_scalepreparedata"					cmScalePrepareData
-		MENUITEM "@cmd_scaletransmitdata"					cmScaleTransmitData
-		MENUITEM SEPARATOR
-		MENUITEM "@cmd_bhttransmit"							cmBhtTransmit
-		MENUITEM "@cmd_bhtreceive"							cmBhtReceive
-		// @v10.8.9 MENUITEM "@cmd_bhttransmitprogram"					cmBhtTransmitProgram
-		MENUITEM SEPARATOR
-		MENUITEM "@cmd_stylopalmimpexp"						cmStyloPalmImpExp
-		MENUITEM "@cmd_viewgeotracking"                     cmViewGeoTracking
-		MENUITEM SEPARATOR
+		MENUITEM "@cmd_viewgeotracking",                    cmViewGeoTracking
+		//MENUITEM SEPARATOR
+		POPUP "@cmdpu_other" {
+			MENUITEM "@cmd_viewgoodsinfo",						cmViewGoodsInfo
+			MENUITEM SEPARATOR
+			MENUITEM "@cmd_bhttransmit",                        cmBhtTransmit
+			MENUITEM "@cmd_bhtreceive",                         cmBhtReceive
+			// @v10.8.9 MENUITEM "@cmd_bhttransmitprogram"					cmBhtTransmitProgram
+			MENUITEM SEPARATOR
+			MENUITEM "@cmd_loadfonts",							cmLoadFonts
+			MENUITEM SEPARATOR
+			MENUITEM "@cmd_stylopalmimpexp",                    cmStyloPalmImpExp
+		}
 		MENUITEM "@cmd_viewdlstat",							cmViewDLStat
-		MENUITEM SEPARATOR
-		MENUITEM "@cmd_loadfonts",							cmLoadFonts
 	}
 	POPUP "@cmdpu_manuf" {
 		MENUITEM "@cmd_mrptab"								cmMrpTab
@@ -587,10 +589,11 @@
 			POPUP "@cmdpu_testing" {
 				MENUITEM "@cmd_generategoodsbills",			cmGenerateGoodsBills
 				MENUITEM "@cmd_generateclibnkimport",		cmGenerateCliBnkImport
-				MENUITEM "@cmd_goodsresttest",				cmGoodsRestTest
-				MENUITEM "@cmd_textbrowsertest",			cmTextBrowserTest
+				// @v12.3.12 MENUITEM "@cmd_goodsresttest",				cmGoodsRestTest
+				// @v12.3.12 MENUITEM "@cmd_textbrowsertest",			cmTextBrowserTest
 				MENUITEM "@cmd_gotovktest",                 cmGotoVK
 				MENUITEM "@cmd_checkchznmark",              cmCheckChZnMark // @v12.0.4
+				MENUITEM "@testglobalserviceaccessibility", cmTestGlobalSvcAccessibility // @v12.3.12
 			}
 		}
 	}

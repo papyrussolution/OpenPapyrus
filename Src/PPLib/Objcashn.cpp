@@ -774,14 +774,14 @@ int PPObjCashNode::GetSync(PPID id, PPSyncCashNode * pSCN)
 					pSCN->BonusMaxPart = 1000;
 				// @v12.3.8 {
 				pSCN->AllowedPaymentTypes = pnext.AllowedPaymentTypes;
-				SETIFZQ(pSCN->AllowedPaymentTypes, 0xffff);
+				SETIFZQ(pSCN->AllowedPaymentTypes, static_cast<int16>(0xffff));
 				// } @v12.3.8 
 			}
 			else {
 				pSCN->Scf.DaysPeriod = 0;
 				pSCN->Scf.DlvrItemsShowTag = 0;
 				pSCN->BonusMaxPart = 0;
-				pSCN->AllowedPaymentTypes = 0xffff; // @v12.3.8
+				pSCN->AllowedPaymentTypes = static_cast<int16>(0xffff); // @v12.3.8
 			}
 		}
 		// @v12.3.8 {

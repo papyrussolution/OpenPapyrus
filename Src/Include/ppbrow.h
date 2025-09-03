@@ -1539,6 +1539,7 @@
 #define PPCMD_WBPUBLICGOODS                         1361
 #define PPCMD_CHECKCHZNMARK                         1362
 #define PPCMD_EXPORTGOODS                           1363
+#define PPCMD_TESTGLOBALSVCACCESSIBILITY            1364
 //
 // PPJOB definitions
 //

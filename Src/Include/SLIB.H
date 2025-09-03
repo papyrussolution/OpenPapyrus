@@ -873,6 +873,7 @@ typedef int32               TYPEID;
 #define SLERR_INVALIDSFILTYP                   466 // @v11.4.3 Внутренняя ошибка: недопустимый тип экземпляра SFile
 #define SLERR_INVDATERANGETEXT                 467 // @v12.3.7 Строка '%s' не соответствует правилам представления диапазона дат
 #define SLERR_OPENFAULT_EMPTYNAME              468 // @v12.3.11 Ошибка открытия файла - пустое имя //
+#define SLERR_OPENFAULT_XMLWR                  469 // @v12.3.12 Ошибка открытия xml-файла '%s' для записи //
 
 #define SLERR_FANN_CANT_OPEN_CONFIG_R          500 // Unable to open configuration file for reading
 #define SLERR_FANN_CANT_OPEN_CONFIG_W          501 // Unable to open configuration file for writing
@@ -3209,6 +3210,7 @@ struct SUniTime_Internal : public SUniDate_Internal { // @internal
 	bool   FASTCALL GetDate(LDATE * pDt) const;
 	bool   FASTCALL SetTime(LTIME tm);
 	bool   FASTCALL GetTime(LTIME * Tm) const;
+	bool   FASTCALL GetDatetime(LDATETIME * pDtm) const;
 	bool   SetCurrent();
 
 	uint   Hr;
@@ -13765,6 +13767,30 @@ struct SJson {
 	//   false: pN == 0 || pN->P_Child == 0
 	//
 	static bool FASTCALL GetChildTextUnescaped(const SJson * pN, SString & rBuf);
+	//
+	// Note: В случае неудачи (false returned) функция не меняет значение по ссылке rResult.
+	//
+	static bool FASTCALL GetChildInt(const SJson * pN, int & rResult); // @v12.3.12
+	//
+	// Note: В случае неудачи (false returned) функция не меняет значение по ссылке rResult.
+	//
+	static bool FASTCALL GetChildLong(const SJson * pN, long & rResult); // @v12.3.12
+	//
+	// Note: В случае неудачи (false returned) функция не меняет значение по ссылке rResult.
+	//
+	static bool FASTCALL GetChildInt64(const SJson * pN, int64 & rResult); // @v12.3.12
+	//
+	// Note: В случае неудачи (false returned) функция не меняет значение по ссылке rResult.
+	//
+	static bool FASTCALL GetChildDouble(const SJson * pN, double & rResult); // @v12.3.12
+	//
+	// Note: В случае неудачи (false returned) функция не меняет значение по ссылке rResult.
+	//
+	static bool FASTCALL GetChildFloat(const SJson * pN, float & rResult); // @v12.3.12
+	//
+	// Note: В случае неудачи (false returned) функция не меняет значение по ссылке rResult.
+	//
+	static bool FASTCALL GetChildGuid(const SJson * pN, S_GUID & rResult); // @v12.3.12
 	static bool FASTCALL FormatText(const char * pSrcJsText, SString & rBuf);
 	//
 	// Descr: Если pN != 0 и имеет одно из логических значений SJson::tTRUE или SJson::tFALSE,

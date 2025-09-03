@@ -1,5 +1,5 @@
 // crr32_support.cpp
-// Copyright (c) A.Sobolev 2023, 2024
+// Copyright (c) A.Sobolev 2023, 2024, 2025
 // Модуль для обслуживания вызовов к 32-разрядной библиотеке Crystal Reports
 // @codepage UTF-8
 //
@@ -7,13 +7,9 @@
 #pragma hdrstop
 #include <crpe.h>
 //
-// @construction
-// 
-
-//
 // Descr: Класс сервера, коммуницирующего с клиентом по именованному каналу (NamedPipe)
 //
-class PipeServer : public SlThread_WithStartupSignal { // @construction
+class PipeServer : public SlThread_WithStartupSignal {
 	static constexpr uint32 BufSize = 1024;
 public:
 	struct AppBlock {
@@ -54,7 +50,8 @@ public:
 								printf(msg_buf.Z().Cat("Q").CatDiv(':', 2).Cat(temp_buf).CR().cptr()); // @debug
 								SJson * p_js_query = SJson::Parse(temp_buf);
 								if(p_js_query) {
-									SJson js_reply(SJson::tOBJECT);
+									bool   do_reply = true;
+									SJson  js_reply(SJson::tOBJECT);
 									//
 									cmd_buf.Z();
 									const SJson * p_c = 0;
@@ -81,13 +78,9 @@ public:
 													if(p_c) {
 														h_parent_window_for_preview = p_c->Text.ToUInt64();
 													}
-													int pr = CrystalReportPrint2(blk, reply, false/*modalView*/, reinterpret_cast<void *>(h_parent_window_for_preview));
-													if(pr) {
-														js_reply.InsertString("status", "ok");
-													}
-													else {
-														js_reply.InsertString("status", "fail");
-													}
+													CrystalReportPrint2_Server(blk, reply, reinterpret_cast<void *>(h_parent_window_for_preview), H_Pipe);
+													// Функция CrystalReportPrint2_Server сама отправила ответ клиенту через H_Pipe, который мы ей передали.
+													do_reply = false;
 												}
 											}
 											else {
@@ -106,18 +99,18 @@ public:
 									}
 									// do make reply
 									//memcpy(wr_buf.cptr()
-
-									//
-									js_reply.ToStr(temp_buf);
-									temp_buf.CopyTo(wr_buf, wr_buf.GetSize());
-									DWORD reply_size = temp_buf.Len()+1;
-									DWORD wr_size = 0;
-									boolint wr_ok = ::WriteFile(H_Pipe, wr_buf, reply_size, &wr_size, NULL/*not overlapped I/O*/);
-									if(wr_ok) {
-										printf(msg_buf.Z().Cat("R").CatDiv(':', 2).Cat(temp_buf).CR().cptr()); // @debug
-										;
-									}
-									else {
+									if(do_reply) {
+										js_reply.ToStr(temp_buf);
+										temp_buf.CopyTo(wr_buf, wr_buf.GetSize());
+										DWORD reply_size = temp_buf.Len()+1;
+										DWORD wr_size = 0;
+										boolint wr_ok = ::WriteFile(H_Pipe, wr_buf, reply_size, &wr_size, NULL/*not overlapped I/O*/);
+										if(wr_ok) {
+											printf(msg_buf.Z().Cat("R").CatDiv(':', 2).Cat(temp_buf).CR().cptr()); // @debug
+											;
+										}
+										else {
+										}
 									}
 									if(cmd_buf.IsEqiAscii("quit")) {
 										do_exit = true;
@@ -184,7 +177,6 @@ private:
 int main(int argc, char ** argv)
 {
 	int    result = 0;
-	//SLS.Init("crr32-support-server", 0);
 	DS.Init(PPSession::internalappCrr32Support, PPSession::fInitPaths, 0, 0);
 	{
 		{ // pipe server
@@ -202,12 +194,6 @@ int main(int argc, char ** argv)
 				::WaitForSingleObject(*p_psrv, INFINITE);
 			}
 		}
-		//SDelay(500);
-		/*{ // pipe client
-			PipeClient * p_pcli = new PipeClient(P_NamedPipeName);
-			if(p_pcli)
-				p_pcli->Start(1);
-		}*/
 	}
 	return result;
 }

@@ -41,6 +41,8 @@ SlipLineParam & SlipLineParam::Z()
 	ChZnSid.Z();
 	ChZnPm_ReqId.Z();  // @v12.1.1
 	ChZnPm_ReqTimestamp = 0; // @v12.1.1
+	ChZnPm_LocalModuleInstance.Z(); // @v12.3.12
+	ChZnPm_LocalModuleDbVer.Z();    // @v12.3.12
 	return *this;
 }
 //
@@ -167,6 +169,8 @@ public:
 		char   ChZnPartN[32];   // 
 		S_GUID ChZnPm_ReqId;  // @v12.1.1
 		int64  ChZnPm_ReqTimestamp; // @v12.1.1
+		S_GUID ChZnPm_LocalModuleInstance; // @v12.3.12 ответ разрешительного режима чзн (локальный сервер): идент локального модуля проверки
+		S_GUID ChZnPm_LocalModuleDbVer;    // @v12.3.12 ответ разрешительного режима чзн (локальный сервер): версия базы «чёрного списка», на которой выполнялась проверка КИ
 		RECT   PictCoord;
 		const  Zone * P_Zone;
 		const  Entry * P_Entry;
@@ -1646,6 +1650,14 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 											P_CcPack->GetLineTextExt(pIter->SrcItemNo+1, CCheckPacket::lnextChZnPm_ReqTimestamp, temp_buf); 
 											if(temp_buf.NotEmptyS())
 												pIter->ChZnPm_ReqTimestamp = temp_buf.ToInt64();
+											// @v12.3.12 {
+											P_CcPack->GetLineTextExt(pIter->SrcItemNo+1, CCheckPacket::lnextChZnPm_LocalModuleInstance, temp_buf); 
+											if(temp_buf.NotEmpty())
+												pIter->ChZnPm_LocalModuleInstance.FromStr(temp_buf);
+											P_CcPack->GetLineTextExt(pIter->SrcItemNo+1, CCheckPacket::lnextChZnPm_LocalModuleDbVer, temp_buf); 
+											if(temp_buf.NotEmpty())
+												pIter->ChZnPm_LocalModuleDbVer.FromStr(temp_buf);
+											// } @v12.3.12 
 										}
 									}
 									// } @v12.1.1 

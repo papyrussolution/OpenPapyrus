@@ -251,7 +251,8 @@ static struct links_entry * find_entry(struct archive_entry_linkresolver * res, 
 	return NULL;
 }
 
-static struct links_entry * next_entry(struct archive_entry_linkresolver * res, int mode)                             {
+static struct links_entry * next_entry(struct archive_entry_linkresolver * res, int mode)
+{
 	struct links_entry * le;
 	size_t bucket;
 	/* Free a held entry. */

@@ -912,6 +912,14 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 							if(!sl_param.ChZnPm_ReqId.IsZero() && sl_param.ChZnPm_ReqTimestamp != 0) {
 								THROW(ArrAdd(Arr_In, DVCPARAM_CHZNPMREQID, sl_param.ChZnPm_ReqId));
 								THROW(ArrAdd(Arr_In, DVCPARAM_CHZNPMREQTIMESTAMP, sl_param.ChZnPm_ReqTimestamp));
+								// @v12.3.12 {
+								if(!sl_param.ChZnPm_LocalModuleInstance) {
+									THROW(ArrAdd(Arr_In, DVCPARAM_CHZNPMLOCALMODULEINST, sl_param.ChZnPm_LocalModuleInstance));
+								}
+								if(!sl_param.ChZnPm_LocalModuleDbVer) {
+									THROW(ArrAdd(Arr_In, DVCPARAM_CHZNPMLOCALMODULEDBVER, sl_param.ChZnPm_LocalModuleDbVer));
+								}
+								// } @v12.3.12 
 							}
 						}
 						if(sl_param.PaymTermTag != CCheckPacket::pttUndef) {

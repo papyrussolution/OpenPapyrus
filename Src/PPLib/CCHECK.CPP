@@ -1126,6 +1126,12 @@ bool CCheckPacket::EnumLines(uint * pPos, CCheckItem * pItem) const
 				if(chzn_pm_req_timestamp && !chzn_pm_req_id.IsZero()) {
 					pItem->ChZnPm_ReqId = chzn_pm_req_id;
 					pItem->ChZnPm_ReqTimestamp = chzn_pm_req_timestamp;
+					// @v12.3.12 {
+					GetLineTextExt(_pos, CCheckPacket::lnextChZnPm_LocalModuleInstance, temp_buf);
+					pItem->ChZnPm_LocalModuleInstance.FromStr(temp_buf);
+					GetLineTextExt(_pos, CCheckPacket::lnextChZnPm_LocalModuleDbVer, temp_buf);
+					pItem->ChZnPm_LocalModuleDbVer.FromStr(temp_buf);
+					// } @v12.3.12 
 				}
 			}
 			// } @v12.1.1 
@@ -1556,6 +1562,16 @@ int CCheckPacket::InsertItem(const CCheckItem & rItem)
 			//
 			temp_buf.Z().Cat(rItem.ChZnPm_ReqTimestamp);
 			THROW(SetLineTextExt(idx, CCheckPacket::lnextChZnPm_ReqTimestamp, temp_buf));
+			// @v12.3.12 {
+			if(!!rItem.ChZnPm_LocalModuleInstance) {
+				rItem.ChZnPm_LocalModuleInstance.ToStr(S_GUID::fmtPlain, temp_buf);
+				THROW(SetLineTextExt(idx, CCheckPacket::lnextChZnPm_LocalModuleInstance, temp_buf));
+			}
+			if(!!rItem.ChZnPm_LocalModuleDbVer) {
+				rItem.ChZnPm_LocalModuleDbVer.ToStr(S_GUID::fmtPlain, temp_buf);
+				THROW(SetLineTextExt(idx, CCheckPacket::lnextChZnPm_LocalModuleDbVer, temp_buf));
+			}
+			// } @v12.3.12 
 		}
 		// } @v12.1.1 
 		{

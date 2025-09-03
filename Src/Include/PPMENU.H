@@ -564,5 +564,6 @@
 #define cmBizScore2Val                 670 // @v12.3.4 Просмотр бизнес-показателей (версия 2)
 #define cmUnitEc                       671 // @v12.3.7 Unit-анализ (не имеет отношения к единицам измерения)
 #define cmSalesRestriction             672 // @v12.3.7 Ограничения на продажу PPOBJ_SALESRESTRICTION
+#define cmTestGlobalSvcAccessibility   673 // @v12.3.12 Тест доступности глобальных сервисов
 
 #endif /* __PPMENU_H */

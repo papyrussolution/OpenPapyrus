@@ -1,18 +1,18 @@
 
 [hash]
-base=ppstr2.txt,q/FsM7YQC4qhb6Gtu6CTFiuWEh3uwg7cKKIBUmSo7tk=,ppstr2.bin,qbVfIXBrHft9WCRVFs6WQqH6+atU+G9QFIiB0tBkBQ4=
+base=ppstr2.txt,icJx7+DfIKFXf7kcaVyvU0f3ZkUjzRlT7T6x3aIeVi0=,ppstr2.bin,+Mu9k6Gpqsmx2UzArjc4nq6Mdvk8cFf9Y5IR4wf9Ilg=
 lang-de=ppstr2-de.txt,uiF+XJVJlyDjw7nInhf/AFcW9Tl0++UYflUahSBUK/Y=,ppstr2-de.bin,z5tTW3wrQRt4866sMd5LWX/oYCLHknIJxj6FbKYnSek=
 lang-en=ppstr2-en.txt,wNMuDQEJ8iXS8+Jpd9MAWdg8exLsMCYnqYI0euY1I0Y=,ppstr2-en.bin,5cMKdf3XAXJZe9nWJkS0b2yRiluKkMmBbOM4faM39TI=
 lang-es=ppstr2-es.txt,6DBYF21pt4umLyjG1Rx9bHiNzqHNfQg0oJPNpqQHaL8=,ppstr2-es.bin,jN0oN2zuyiQYf2BQ4rSZo9Fbb/rXRRQTRRg9UgDu54E=
 lang-nl=ppstr2-nl.txt,Zd2VsGPQmBS07XH9hMNEWniNNGEabqE6Uvt5JiQH7Z4=,ppstr2-nl.bin,AqlBiG6YphrbirG4xBKskUNJxcR7ddb/aAT3jXXGCw4=
 lang-pt=ppstr2-pt.txt,hd0YO5YgL7gA2GCadBf7ZRUbAkdgaMaUIQtpfOCrjyM=,ppstr2-pt.bin,jJjEwXMtYJKHJW0wLDUHUXHkn1XOj1KDsbw5UpAVBWw=
-chdr=ppstr2.h,JNK4HjX6uOpGfiv2+YsxxIXoEz/FPLDDkLq1/fTs0ro=
-java=ppstr2.java,0uTYTZw+0GIPKIQB9X2iKdIKzWhAq7ukuXK8h2y+M28=
+chdr=ppstr2.h,bGD+dHbsINSgqU9+waaAVzAoqreMIgYC1oNxmyJxG6A=
+java=ppstr2.java,TTZAN57HpcWL0gcpHecsnipo31zZX7b06dKeDsJSieY=
 
 [common]
 LastAutoGrpCode=1001
-LastSignatureCode=2147499050
-LastAutoCodeList=1,12435;102,10179;103,10073;110,10000;111,13035;112,10000;119,10000;114,10012;7,10000;4,10000;6,10000;342,10000;118,10310;120,10010;1001,10000;121,10000;122,10000;123,10659;124,10796;125,10128
+LastSignatureCode=2147499055
+LastAutoCodeList=1,12436;102,10179;103,10073;110,10000;111,13035;112,10000;119,10000;114,10012;7,10000;4,10000;6,10000;342,10000;118,10312;120,10010;1001,10000;121,10000;122,10000;123,10659;124,10796;125,10128
 
 [SignatureList]
 testsign1=2147495071
@@ -105,6 +105,7 @@ lbt_stqstatuslist=2147494603
 lbt_goodsrestbyloclist=2147494658
 lbt_ccextlist=2147495074
 lbt_selorderprefsuppl=2147495075
+lbt_testglbsvcacsylist=2147499052
 entmanagementsys=2147483734
 pgmcopylic_owner=2147483735
 pgmcopylic_regnum=2147483736
@@ -574,6 +575,7 @@ storage=2147495109
 warehouseacceptance=2147495110
 advpromotion=2147495111
 analysis=2147484120
+initialization=2147499055
 config=2147484121
 mainconfig=2147484122
 expimpconfig=2147484123
@@ -1842,6 +1844,7 @@ srcasesens=2147485087
 srcaseinsens=2147493616
 srwholewords=2147485088
 srreversedirection=2147485089
+launch=2147499053
 test=2147485090
 doverify=2147494413
 length=2147485091
@@ -10288,6 +10291,7 @@ chznprcssrparam_afqueryticket=2147492722
 chznprcssrparam_afquerykizinfo=2147492723
 chznprcssrparam_afquerydoclistin=2147498419
 chznprcssrparam_loc=2147498420
+chzn_check_offline=2147499051
 restorelostprjtperson=2147492725
 restorelostprjtperson_resolvecreator=2147492726
 restorelostprjtperson_resolveemployer=2147492727
@@ -11128,6 +11132,7 @@ testpsales_goodsselkind_arbitrary=2147498844
 testpsales_goodsselkind_bycrupdbills=2147493534
 testsalespredict=2147493535
 testsalespredict_usearma=2147493536
+testglobalserviceaccessibility=2147499054
 gdspckgtype=2147498845
 gdspckgtype_id=2147498846
 gdspckgtype_name=2147498847
@@ -13752,6 +13757,7 @@ PPERR_DL6_PROP_INVALIDSYMB=77968
 PPERR_DL6_UISUPPLEMENT_UNDEFKIND=77969
 PPERR_DL6_PROP_REDEF=77970
 PPERR_CR2SRGW_POSNODENFOUND=77971
+PPERR_CHZNPM_LOCAL_QUERYFAULT=77972
 PPCFM_TEXT_89=6694673
 PPCFM_TEXT_90=6694674
 PPCFM_DELUSRGRP=6694675
@@ -16330,6 +16336,8 @@ DVCPARAM_DRAFTBEERSIMPLIFIED=7743555
 DVCPARAM_CHZNPMREQID=7743556
 DVCPARAM_CHZNPMREQTIMESTAMP=7743557
 DVCPARAM_FISCALSIGN=7743558
+DVCPARAM_CHZNPMLOCALMODULEINST=7743559
+DVCPARAM_CHZNPMLOCALMODULEDBVER=7743560
 IMPEXPCMD_ORDRSP=7874326
 IMPEXPCMD_APERAK=7874327
 IMPEXPCMD_DESADV=7874328

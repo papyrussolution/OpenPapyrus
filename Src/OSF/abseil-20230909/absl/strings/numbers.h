@@ -253,13 +253,11 @@ ABSL_MUST_USE_RESULT bool SimpleAtoi(absl::string_view str, int_type* out) {
 	return numbers_internal::safe_strtoi_base(str, out, 10);
 }
 
-ABSL_MUST_USE_RESULT inline bool SimpleAtoi(absl::string_view str,
-    absl::int128* out) {
+ABSL_MUST_USE_RESULT inline bool SimpleAtoi(absl::string_view str, absl::int128* out) {
 	return numbers_internal::safe_strto128_base(str, out, 10);
 }
 
-ABSL_MUST_USE_RESULT inline bool SimpleAtoi(absl::string_view str,
-    absl::uint128* out) {
+ABSL_MUST_USE_RESULT inline bool SimpleAtoi(absl::string_view str, absl::uint128* out) {
 	return numbers_internal::safe_strtou128_base(str, out, 10);
 }
 

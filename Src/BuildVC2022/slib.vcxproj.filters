@@ -178,79 +178,10 @@
     <ClCompile Include="..\SLib\LMDB\mtest.c">
       <Filter>LMDB\TEST</Filter>
     </ClCompile>
-    <ClCompile Include="..\SLib\mimalloc\alloc.c">
-      <Filter>MiMalloc</Filter>
-    </ClCompile>
-    <ClCompile Include="..\SLib\mimalloc\alloc-aligned.c">
-      <Filter>MiMalloc</Filter>
-    </ClCompile>
-    <ClCompile Include="..\SLib\mimalloc\alloc-override.c">
-      <Filter>MiMalloc</Filter>
-    </ClCompile>
-    <ClCompile Include="..\SLib\mimalloc\alloc-override-osx.c">
-      <Filter>MiMalloc</Filter>
-    </ClCompile>
-    <ClCompile Include="..\SLib\mimalloc\alloc-posix.c">
-      <Filter>MiMalloc</Filter>
-    </ClCompile>
-    <ClCompile Include="..\SLib\mimalloc\arena.c">
-      <Filter>MiMalloc</Filter>
-    </ClCompile>
-    <ClCompile Include="..\SLib\mimalloc\bitmap.c">
-      <Filter>MiMalloc</Filter>
-    </ClCompile>
-    <ClCompile Include="..\SLib\mimalloc\heap.c">
-      <Filter>MiMalloc</Filter>
-    </ClCompile>
-    <ClCompile Include="..\SLib\mimalloc\init.c">
-      <Filter>MiMalloc</Filter>
-    </ClCompile>
-    <ClCompile Include="..\SLib\mimalloc\options.c">
-      <Filter>MiMalloc</Filter>
-    </ClCompile>
-    <ClCompile Include="..\SLib\mimalloc\os.c">
-      <Filter>MiMalloc</Filter>
-    </ClCompile>
-    <ClCompile Include="..\SLib\mimalloc\page.c">
-      <Filter>MiMalloc</Filter>
-    </ClCompile>
-    <ClCompile Include="..\SLib\mimalloc\page-queue.c">
-      <Filter>MiMalloc</Filter>
-    </ClCompile>
-    <ClCompile Include="..\SLib\mimalloc\random.c">
-      <Filter>MiMalloc</Filter>
-    </ClCompile>
-    <ClCompile Include="..\SLib\mimalloc\region.c">
-      <Filter>MiMalloc</Filter>
-    </ClCompile>
-    <ClCompile Include="..\SLib\mimalloc\segment.c">
-      <Filter>MiMalloc</Filter>
-    </ClCompile>
-    <ClCompile Include="..\SLib\mimalloc\static.c">
-      <Filter>MiMalloc</Filter>
-    </ClCompile>
-    <ClCompile Include="..\SLib\mimalloc\stats.c">
-      <Filter>MiMalloc</Filter>
-    </ClCompile>
-    <ClCompile Include="..\SLib\mimalloc\test\main-override.c">
-      <Filter>MiMalloc\Test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\SLib\mimalloc\test\main-override-static.c">
-      <Filter>MiMalloc\Test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\SLib\mimalloc\test\main-override.cpp">
-      <Filter>MiMalloc\Test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\SLib\mimalloc\test\mimalloc-test.cpp">
-      <Filter>MiMalloc\Test</Filter>
-    </ClCompile>
     <ClCompile Include="..\SLib\szlib.c" />
     <ClCompile Include="..\SLib\dbsql-sqlite.cpp" />
     <ClCompile Include="..\SLib\dbkv-lmdb.cpp" />
     <ClCompile Include="..\SLib\sfilestorage.cpp" />
-    <ClCompile Include="..\SLib\mimalloc\segment-cache.c">
-      <Filter>MiMalloc</Filter>
-    </ClCompile>
     <ClCompile Include="..\SLib\smemchr.cpp" />
     <ClCompile Include="..\SLib\vslocate.c" />
     <ClCompile Include="..\SLib\BZIP3\src\libbz3.c" />
@@ -959,27 +890,6 @@
     <ClInclude Include="..\SLib\LMDB\midl.h">
       <Filter>LMDB</Filter>
     </ClInclude>
-    <ClInclude Include="..\SLib\mimalloc\bitmap.h">
-      <Filter>MiMalloc</Filter>
-    </ClInclude>
-    <ClInclude Include="..\SLib\mimalloc\mimalloc.h">
-      <Filter>MiMalloc</Filter>
-    </ClInclude>
-    <ClInclude Include="..\SLib\mimalloc\mimalloc-atomic.h">
-      <Filter>MiMalloc</Filter>
-    </ClInclude>
-    <ClInclude Include="..\SLib\mimalloc\mimalloc-internal.h">
-      <Filter>MiMalloc</Filter>
-    </ClInclude>
-    <ClInclude Include="..\SLib\mimalloc\mimalloc-new-delete.h">
-      <Filter>MiMalloc</Filter>
-    </ClInclude>
-    <ClInclude Include="..\SLib\mimalloc\mimalloc-override.h">
-      <Filter>MiMalloc</Filter>
-    </ClInclude>
-    <ClInclude Include="..\SLib\mimalloc\mimalloc-types.h">
-      <Filter>MiMalloc</Filter>
-    </ClInclude>
     <ClInclude Include="..\Include\zlib.h">
       <Filter>Header</Filter>
     </ClInclude>
@@ -1232,12 +1142,6 @@
     </Filter>
     <Filter Include="LMDB\TEST">
       <UniqueIdentifier>{6e4d51e6-1203-4a63-8f1a-6141119cef16}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="MiMalloc">
-      <UniqueIdentifier>{0d498665-ec60-4a89-89fa-77fa174fcf66}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="MiMalloc\Test">
-      <UniqueIdentifier>{57e86c28-dcc4-4858-a8ed-c5db19e21433}</UniqueIdentifier>
     </Filter>
     <Filter Include="SAIS">
       <UniqueIdentifier>{0501c549-de08-46f4-ba49-4b8291a3fadb}</UniqueIdentifier>

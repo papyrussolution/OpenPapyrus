@@ -6366,7 +6366,7 @@ int PPBillExporter::BillRecToBill(const PPBillPacket * pPack, Sdr_Bill * pBill)
 							temp_buf.CopyTo(pBill->RegistryCode, sizeof(pBill->RegistryCode));
                         psn_pack.ELA.GetSinglePhone(temp_buf, 0);
                         STRNSCPY(pBill->CntragPhone, temp_buf);
-                        {
+						{
                         	StringSet ss_email;
 							psn_pack.ELA.GetListByType(PPELK_EMAIL, ss_email);
                             if(ss_email.getCount() && ss_email.get(0U, temp_buf))
@@ -6943,7 +6943,7 @@ int DocNalogRu_Generator::StartDocument(const char * pFileName, SCodepage cp)
 		xmlFreeTextWriter(P_X);
 	P_X = 0;
 	State &= ~stOuterXmlTextWriter;
-	THROW(P_X = xmlNewTextWriterFilename(pFileName, 0));
+	THROW_SL(P_X = xmlNewTextWriterFilename(pFileName, 0));
 	xmlTextWriterSetIndent(P_X, 1);
 	xmlTextWriterSetIndentTab(P_X);
 	Cp = (cp == cpUndef) ? cp1251 : cp; // @v11.9.9

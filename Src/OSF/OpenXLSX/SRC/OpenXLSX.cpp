@@ -4607,15 +4607,15 @@ bool XLShapeStyle::visible() const { return !hidden(); }
 /**
  * @details XLShapeStyle setter functions
  */
-bool XLShapeStyle::setPosition(std::string newPosition)     { return setAttribute("position",                      newPosition); }
-bool XLShapeStyle::setMarginLeft(uint16 newMarginLeft)      { return setAttribute("margin-left",    std::to_string(newMarginLeft) + std::string("pt")); }
-bool XLShapeStyle::setMarginTop(uint16 newMarginTop)       { return setAttribute("margin-top",     std::to_string(newMarginTop)  + std::string("pt")); }
-bool XLShapeStyle::setWidth(uint16 newWidth)           { return setAttribute("width",          std::to_string(newWidth)      + std::string("pt")); }
-bool XLShapeStyle::setHeight(uint16 newHeight)          { return setAttribute("height",         std::to_string(newHeight)     + std::string("pt")); }
-bool XLShapeStyle::setMsoWrapStyle(std::string newMsoWrapStyle) { return setAttribute("mso-wrap-style",                newMsoWrapStyle); }
-bool XLShapeStyle::setVTextAnchor(std::string newVTextAnchor)  { return setAttribute("v-text-anchor",                 newVTextAnchor); }
-bool XLShapeStyle::hide()                            { return setAttribute("visibility",                    "hidden"); }
-bool XLShapeStyle::show()                            { return setAttribute("visibility",                    "visible"); }
+bool XLShapeStyle::setPosition(std::string newPosition) { return setAttribute("position", newPosition); }
+bool XLShapeStyle::setMarginLeft(uint16 newMarginLeft) { return setAttribute("margin-left", std::to_string(newMarginLeft) + std::string("pt")); }
+bool XLShapeStyle::setMarginTop(uint16 newMarginTop) { return setAttribute("margin-top", std::to_string(newMarginTop)  + std::string("pt")); }
+bool XLShapeStyle::setWidth(uint16 newWidth) { return setAttribute("width",          std::to_string(newWidth)      + std::string("pt")); }
+bool XLShapeStyle::setHeight(uint16 newHeight) { return setAttribute("height",         std::to_string(newHeight)     + std::string("pt")); }
+bool XLShapeStyle::setMsoWrapStyle(std::string newMsoWrapStyle) { return setAttribute("mso-wrap-style", newMsoWrapStyle); }
+bool XLShapeStyle::setVTextAnchor(std::string newVTextAnchor) { return setAttribute("v-text-anchor", newVTextAnchor); }
+bool XLShapeStyle::hide() { return setAttribute("visibility", "hidden"); }
+bool XLShapeStyle::show() { return setAttribute("visibility", "visible"); }
 
 // ========== XLShape Member Functions
 XLShape::XLShape() : m_shapeNode(std::make_unique<XMLNode>(XMLNode())) {}
@@ -4640,11 +4640,11 @@ XLShapeClientData XLShape::clientData() {
  * @details setter functions: assign the shape's attributes
  */
 bool XLShape::setFillColor(std::string const& newFillColor) { return appendAndSetAttribute(*m_shapeNode, "fillcolor",     newFillColor).empty() == false; }
-bool XLShape::setStroked(bool set)                        { return appendAndSetAttribute(*m_shapeNode, "stroked",       (set ? "t" : "f")).empty() == false; }
-bool XLShape::setType(std::string const& newType)      { return appendAndSetAttribute(*m_shapeNode, "type",          newType).empty() == false; }
-bool XLShape::setAllowInCell(bool set)                        { return appendAndSetAttribute(*m_shapeNode, "o:allowincell", (set ? "t" : "f")).empty() == false; }
-bool XLShape::setStyle(std::string const& newStyle)     { return appendAndSetAttribute(*m_shapeNode, "style",         newStyle).empty() == false; }
-bool XLShape::setStyle(XLShapeStyle const& newStyle)    { return setStyle(newStyle.raw() ); }
+bool XLShape::setStroked(bool set) { return appendAndSetAttribute(*m_shapeNode, "stroked",       (set ? "t" : "f")).empty() == false; }
+bool XLShape::setType(std::string const& newType) { return appendAndSetAttribute(*m_shapeNode, "type",          newType).empty() == false; }
+bool XLShape::setAllowInCell(bool set) { return appendAndSetAttribute(*m_shapeNode, "o:allowincell", (set ? "t" : "f")).empty() == false; }
+bool XLShape::setStyle(std::string const& newStyle) { return appendAndSetAttribute(*m_shapeNode, "style",         newStyle).empty() == false; }
+bool XLShape::setStyle(XLShapeStyle const& newStyle) { return setStyle(newStyle.raw() ); }
 
 // ========== XLVmlDrawing Member Functions
 

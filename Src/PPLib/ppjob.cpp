@@ -439,7 +439,7 @@ int PPJobMngr::SavePool2(const PPJobPool * pPool)
 	hdr.LastId = LastId;
 	hdr.Ver = DS.GetVersion();
 	if(Sync.IsMyLock(LConfig.SessionID, PPCFGOBJ_JOBPOOL, 1) > 0) {
-		THROW(p_xml_writer = xmlNewTextWriterFilename(XmlFilePath, 0));
+		THROW_SL(p_xml_writer = xmlNewTextWriterFilename(XmlFilePath, 0));
 		xmlTextWriterSetIndent(p_xml_writer, 1);
 		xmlTextWriterSetIndentTab(p_xml_writer);
 		SXml::WDoc _doc(p_xml_writer, cpUTF8);

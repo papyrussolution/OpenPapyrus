@@ -993,7 +993,8 @@ static struct edge * sort_edges(struct edge * list,
 	return remaining;
 }
 
-static struct edge * merge_unsorted_edges(struct edge * head, struct edge * unsorted)                       {
+static struct edge * merge_unsorted_edges(struct edge * head, struct edge * unsorted)
+{
 	sort_edges(unsorted, UINT_MAX, &unsorted);
 	return merge_sorted_edges(head, unsorted);
 }
@@ -1004,13 +1005,10 @@ inline static int can_do_full_row(struct active_list * active)
 {
 	const struct edge * e;
 	int prev_x = INT_MIN;
-
-	/* Recomputes the minimum height of all edges on the active
-	 * list if we have been dropping edges. */
+	/* Recomputes the minimum height of all edges on the active list if we have been dropping edges. */
 	if(active->min_height <= 0) {
 		int min_height = INT_MAX;
 		int is_vertical = 1;
-
 		e = active->head.next;
 		while(e) {
 			if(e->height_left < min_height)

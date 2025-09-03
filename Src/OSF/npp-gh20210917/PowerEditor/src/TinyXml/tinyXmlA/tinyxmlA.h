@@ -1105,17 +1105,13 @@ private:
 
         @verbatim
         TiXmlElementA* root = document.FirstChildElement( "Document" );
-        if( root )
-        {
+        if( root ) {
                 TiXmlElementA* element = root->FirstChildElement( "Element" );
-                if( element )
-                {
+                if( element ) {
                         TiXmlElementA* child = element->FirstChildElement( "Child" );
-                        if( child )
-                        {
+                        if( child ) {
                                 TiXmlElementA* child2 = child->NextSiblingElement( "Child" );
-                                if( child2 )
-                                {
+                                if( child2 ) {
                                         // Finally do something useful.
         @endverbatim
 
@@ -1125,10 +1121,8 @@ private:
 
         @verbatim
         TiXmlHandleA docHandle( &document );
-        TiXmlElementA* child2 = docHandle.FirstChild( "Document" ).FirstChild( "Element" ).Child( "Child", 1
-           ).Element();
-        if( child2 )
-        {
+        TiXmlElementA* child2 = docHandle.FirstChild( "Document" ).FirstChild( "Element" ).Child( "Child", 1).Element();
+        if( child2 ) {
                 // do something useful
         @endverbatim
 

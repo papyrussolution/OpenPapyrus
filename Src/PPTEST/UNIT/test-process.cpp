@@ -45,9 +45,8 @@ SLTEST_R(Evnt)
 #endif
 			*P_SignalVar = Id;
 			SDelay(500);
-			*P_SignalVar = -(int)Id; // @v9.6.3
+			*P_SignalVar = -(int)Id;
 			evnt_finish.Signal();
-			// @v9.6.3 *P_SignalVar = -(int)Id;
 		}
 	private:
 		uint   Id;

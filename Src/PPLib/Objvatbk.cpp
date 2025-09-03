@@ -3241,7 +3241,7 @@ int PPViewVatBook::Export()
 							const double _svatn[vat_rate_count] = { item.SVAT1, item.SVAT2, item.SVAT3,  item.SVAT4, item.SVAT5 };
 							const double _svat = _svatn[0] + _svatn[1] + _svatn[2] + _svatn[3] + _svatn[4];
 							const double _amount = item.Amount;
-                            {
+							{
                             	n_item.PutAttrib("НомерПор", temp_buf.Z().Cat(line_no));
                             	n_item.PutAttrib("НомСчФПрод", (temp_buf = item.Code).Transf(CTRANSF_INNER_TO_OUTER));
                             	n_item.PutAttrib("ДатаСчФПрод", temp_buf.Z().Cat(item.InvcDt, DATF_GERMANCENT));

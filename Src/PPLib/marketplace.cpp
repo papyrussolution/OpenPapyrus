@@ -2389,6 +2389,52 @@ bool PPMarketplaceInterface_Wildberries::SalesRepDbpEntry::FromJsonObj(const SJs
 		ok = 1;
 	return ok;
 }
+
+/*static*/int PPMarketplaceInterface_Wildberries::LoadPublicGoodsImageList(int64 wareId, uint * pCount/*[INOUT]*/, TSCollection <SImageBuffer> & rList)
+{
+	//https://basket-16.wbbasket.ru/vol2566/part256664/256664569/images/big/2.webp
+	int    ok = -1;
+	const  uint in_count = pCount ? *pCount : 1;
+	uint   out_count = 0;
+	SString temp_buf;
+	if(wareId > 0) {
+		SString url_buf;
+		SString volume;
+		SString part;
+		(volume = "vol").Cat(wareId / 100000ULL);
+		(part = "part").Cat(wareId / 1000ULL);
+		temp_buf.Z().Cat(volume).SetLastDSlash().Cat(part).SetLastDSlash().Cat(wareId).SetLastDSlash().Cat("images").SetLastDSlash().Cat("big");
+		const  SString base_url(InetUrl::MkHttps("basket-16.wbbasket.ru", temp_buf)); // Проблема: меняется номер после дефиса. То есть для //
+			// некоторых товаров будет basket-16, для других - basket-24 etc
+
+		SBuffer reply_buf;
+		StrStrAssocArray hdr_flds;
+		SFile wr_stream(reply_buf, SFile::mWrite);
+		{
+			DS.GetSurrogateUserAgentString(temp_buf);
+			if(temp_buf.NotEmpty())
+				SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrUserAgent, temp_buf);
+		}
+		ScURL c;
+		for(uint i = 1; i <= in_count; i++) {
+			InetUrl url((temp_buf = base_url).SetLastDSlash().Cat(i).DotCat("webp"));
+			int r = c.HttpGet(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, &wr_stream);
+			if(r) {
+				SBuffer * p_reply_buf = static_cast<SBuffer *>(wr_stream);
+				if(p_reply_buf && p_reply_buf->GetAvailableSize()) {
+					SFileFormat ff;
+					const int fir = ff.IdentifyBuffer(p_reply_buf->constptr(), p_reply_buf->GetAvailableSize());
+					if(fir == 2) {
+						SFileFormat::GetMime(ff, temp_buf);
+					}
+				}
+			}
+
+		}
+	}
+	ASSIGN_PTR(pCount, out_count);
+	return ok;
+}
 	
 /*static*/int PPMarketplaceInterface_Wildberries::LoadPublicGoodsList(const CategoryPool & rCatPool, const MarketplaceGoodsSelectionFilt & rFilt, PublicWarePool & rResult) // @v12.3.8
 {

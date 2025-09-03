@@ -398,12 +398,8 @@ typedef int (* sqlite3_callback)(void*, int, char**, char**);
 **      the 2nd parameter of sqlite3_exec() while sqlite3_exec() is running.
 ** </ul>
 */
-SQLITE_API int sqlite3_exec(sqlite3*,                                  /* An open database */
-    const char * sql,                        /* SQL to be evaluated */
-    int (* callback)(void*, int, char**, char**), /* Callback function */
-    void *,                                  /* 1st argument to callback */
-    char ** errmsg                           /* Error msg written here */
-    );
+SQLITE_API int sqlite3_exec(sqlite3 */* An open database */, const char * sql/* SQL to be evaluated */,
+    int (* callback)(void*, int, char**, char**)/* Callback function */, void */* 1st argument to callback */, char ** errmsg/* Error msg written here */);
 
 /*
 ** CAPI3REF: Result Codes
@@ -3724,12 +3720,7 @@ SQLITE_API sqlite3_file * sqlite3_database_file_object(const char *);
 ** then the corresponding [sqlite3_module.xClose() method should also be
 ** invoked prior to calling sqlite3_free_filename(Y).
 */
-SQLITE_API char * sqlite3_create_filename(const char * zDatabase,
-    const char * zJournal,
-    const char * zWal,
-    int nParam,
-    const char ** azParam
-    );
+SQLITE_API char * sqlite3_create_filename(const char * zDatabase, const char * zJournal, const char * zWal, int nParam, const char ** azParam);
 SQLITE_API void sqlite3_free_filename(char *);
 
 /*
@@ -4422,16 +4413,14 @@ typedef struct sqlite3_context sqlite3_context;
 ** [sqlite3_bind_parameter_name()], and [sqlite3_bind_parameter_index()].
 */
 SQLITE_API int sqlite3_bind_blob(sqlite3_stmt*, int, const void*, int n, void (*)(void *));
-SQLITE_API int sqlite3_bind_blob64(sqlite3_stmt*, int, const void*, sqlite3_uint64,
-    void (*)(void *));
+SQLITE_API int sqlite3_bind_blob64(sqlite3_stmt*, int, const void*, sqlite3_uint64, void (*)(void *));
 SQLITE_API int sqlite3_bind_double(sqlite3_stmt*, int, double);
 SQLITE_API int sqlite3_bind_int(sqlite3_stmt*, int, int);
 SQLITE_API int sqlite3_bind_int64(sqlite3_stmt*, int, sqlite3_int64);
 SQLITE_API int sqlite3_bind_null(sqlite3_stmt*, int);
 SQLITE_API int sqlite3_bind_text(sqlite3_stmt*, int, const char*, int, void (*)(void *));
 SQLITE_API int sqlite3_bind_text16(sqlite3_stmt*, int, const void*, int, void (*)(void *));
-SQLITE_API int sqlite3_bind_text64(sqlite3_stmt*, int, const char*, sqlite3_uint64,
-    void (*)(void *), unsigned char encoding);
+SQLITE_API int sqlite3_bind_text64(sqlite3_stmt*, int, const char*, sqlite3_uint64, void (*)(void *), unsigned char encoding);
 SQLITE_API int sqlite3_bind_value(sqlite3_stmt*, int, const sqlite3_value*);
 SQLITE_API int sqlite3_bind_pointer(sqlite3_stmt*, int, void*, const char*, void (*)(void *));
 SQLITE_API int sqlite3_bind_zeroblob(sqlite3_stmt*, int, int n);

@@ -123,14 +123,14 @@ int FASTCALL SMySqlDbProvider::ProcessError(int status)
 	const int cm = RESET_CRM_TEMP(createMode);
 	THROW(SqlGen.Z().CreateTable(*pTbl, 0, oneof2(cm, crmNoReplace, crmTTSNoReplace), 1));
 	{
-		SSqlStmt stmt(this, (const SString &)SqlGen);
+		SSqlStmt stmt(this, SqlGen);
 		THROW(stmt.Exec(1, OCI_DEFAULT));
 	}
 	uint j;
 	for(j = 0; j < pTbl->indexes.getNumKeys(); j++) {
 		THROW(SqlGen.Z().CreateIndex(*pTbl, pFileName, j));
 		{
-			SSqlStmt stmt(this, (const SString &)SqlGen);
+			SSqlStmt stmt(this, SqlGen);
 			THROW(stmt.Exec(1, OCI_DEFAULT));
 		}
 	}
@@ -139,7 +139,7 @@ int FASTCALL SMySqlDbProvider::ProcessError(int status)
 		if(GETSTYPE(_t) == S_AUTOINC) {
 			THROW(SqlGen.Z().CreateSequenceOnField(*pTbl, pFileName, j, 0));
 			{
-				SSqlStmt stmt(this, (const SString &)SqlGen);
+				SSqlStmt stmt(this, SqlGen);
 				THROW(stmt.Exec(1, OCI_DEFAULT));
 			}
 		}
@@ -238,7 +238,7 @@ int SMySqlDbProvider::GetFileStat(const char * pFileName, long reqItems, DbTable
 	fld_list.addField("TABLE_COLLATION", MKSTYPE(S_ZSTRING, 32));
 	fld_list.addField("TEMPORARY", MKSTYPE(S_ZSTRING, 8));
 	SqlGen.Z().Select(&fld_list).From("information_schema.tables").Sp().Tok(Generator_SQL::tokWhere).Sp().Eq("TABLE_NAME", name);
-	SSqlStmt stmt(this, (const SString &)SqlGen);
+	SSqlStmt stmt(this, SqlGen);
 	THROW(stmt.Exec(0, 0));
 	THROW(stmt.BindData(+1, 1, fld_list, &rec_buf, 0));
 	if(Fetch(stmt, 1, &actual) && actual) {
@@ -397,7 +397,7 @@ int SMySqlDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, 
 		SqlGen.Sp().From(pTbl->fileName, p_alias);
 		if(sf & DBTable::sfDirect) {
 			DBRowId * p_rowid = static_cast<DBRowId *>(pKey);
-			THROW(p_rowid && p_rowid->IsLong());
+			THROW(p_rowid && p_rowid->IsI32());
 			p_rowid->ToStr(temp_buf);
 			SqlGen.Sp().Tok(Generator_SQL::tokWhere).Sp().Tok(Generator_SQL::tokRowId)._Symb(_EQ_).QText(temp_buf);
 		}
@@ -488,7 +488,7 @@ int SMySqlDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, 
 		if(sf & DBTable::sfForUpdate)
 			SqlGen.Tok(Generator_SQL::tokFor).Sp().Tok(Generator_SQL::tokUpdate);
 		{
-			THROW(p_stmt = new DBTable::SelectStmt(this, (const SString &)SqlGen, idx, srchMode, sf));
+			THROW(p_stmt = new DBTable::SelectStmt(this, SqlGen, idx, srchMode, sf));
 			new_stmt = 1;
 			THROW(p_stmt->IsValid());
 			{
@@ -558,7 +558,7 @@ int SMySqlDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, 
 	const  uint fld_count = pTbl->fields.getCount();
 	SString temp_buf;
 	SString let_buf;
-	SSqlStmt  stmt(this, 0);
+	SSqlStmt  stmt(this);
 	if(pData)
 		pTbl->copyBufFrom(pData);
 	if(pTbl->State & DBTable::sHasLob) {
@@ -610,7 +610,7 @@ int SMySqlDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, 
 	}
 	SqlGen.Sp().Tok(Generator_SQL::tokInto).Sp().Text(temp_buf);
 	{
-		THROW(stmt.SetText((SString &)SqlGen));
+		THROW(stmt.SetSqlText(SqlGen));
 		THROW(Binding(stmt, -1));
 		THROW(stmt.SetDataDML(0));
 		THROW(stmt.Exec(1, OCI_DEFAULT));

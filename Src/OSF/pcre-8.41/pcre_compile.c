@@ -1140,9 +1140,11 @@ static int check_escape(const pcre_uchar ** ptrptr, uint32 * chptr, int * errorc
 			   specifying character codes in octal. The only supported form is \o{ddd}. */
 
 			case CHAR_o:
-			    if(ptr[1] != CHAR_LEFT_CURLY_BRACKET) *errorcodeptr = ERR81; else if(ptr[2] ==
-			    CHAR_RIGHT_CURLY_BRACKET) *errorcodeptr = ERR86;
-			    else                                                                    {
+			    if(ptr[1] != CHAR_LEFT_CURLY_BRACKET) 
+					*errorcodeptr = ERR81; 
+				else if(ptr[2] == CHAR_RIGHT_CURLY_BRACKET) 
+					*errorcodeptr = ERR86;
+			    else {
 				    ptr += 2;
 				    c = 0;
 				    overflow = FALSE;

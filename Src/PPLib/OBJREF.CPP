@@ -2499,7 +2499,7 @@ public:
 		THROW(GuaObj.CheckName(Data.Rec.ID, Data.Rec.Name, 1));
 		getCtrlData(CTLSEL_GLOBUSERACC_PSN, &Data.Rec.PersonID);
 		//getCtrlData(CTLSEL_GLOBUSERACC_SVC, &Data.Rec.ServiceIdent); // @v10.5.5 =>  To comment @erik @v10.7.13
-		GetClusterData(CTL_GLOBUSERACC_FLAGS, &Data.Rec.Flags); // @v10.6.3
+		GetClusterData(CTL_GLOBUSERACC_FLAGS, &Data.Rec.Flags);
 		ASSIGN_PTR(pData, Data);
 		CATCHZOKPPERRBYDLG
 		return ok;
@@ -2527,7 +2527,7 @@ private:
 			EditExtList();
 		}
 		else if(event.isCmd(cmGlobalServiceSetting)) {
-			PPID service_ident = Data.Rec.ServiceIdent;
+			const PPID service_ident = Data.Rec.ServiceIdent;
 			switch(service_ident) {
 				case PPGLS_TWITTER:
 					break;
@@ -2535,7 +2535,7 @@ private:
 					break;
 				case PPGLS_VK:
 					{			
-						uint change_flag = 0;
+						uint   change_flag = 0;
 						SString temp_buf;
 						PPLogger logger;
 						VkInterface::InitBlock pack;
@@ -2582,6 +2582,104 @@ private:
 				case PPGLS_VETIS:
 					break;
 				case PPGLS_CHZN:
+					// @v12.3.12 @construction {
+					{
+						class ChZnLocPmPaneDialog : public TDialog {
+						public:
+							ChZnLocPmPaneDialog(const PPGlobalUserAccPacket & rGuaPack) : TDialog(DLG_CHZNLOCPMPANE), GuaPack(rGuaPack)
+							{
+								SString temp_buf;
+								SString url_buf;
+								if(GuaPack.TagL.GetItemStr(PPTAG_GUA_CHZN_PM_TOKEN, temp_buf)) {
+									Token = temp_buf;
+								}
+								if(GuaPack.TagL.GetItemStr(PPTAG_GUA_CHZNLOCPMURL, temp_buf)) {
+									if(PPObjGlobalUserAcc::GetChZnLocPmUrl(temp_buf, Url) > 0) {
+										Url.Compose(InetUrl::stAll, url_buf);
+										setCtrlString(CTL_CHZNLOCPMPANE_URL, url_buf);
+									}
+								}
+								int qsr = 0;
+								if(url_buf.NotEmpty()) {
+									qsr = QueryStatus();
+								}
+								enableCommand(cmRun, Token.NotEmpty() && url_buf.NotEmpty());
+								enableCommand(cmConfigure, qsr && Token.NotEmpty() && url_buf.NotEmpty() && Lss.Status == Lss.stNotConfigured);
+							}
+						private:
+							DECL_HANDLE_EVENT
+							{
+								TDialog::handleEvent(event);
+								if(event.isCmd(cmRun)) {
+									QueryStatus();
+								}
+								else if(event.isCmd(cmConfigure)) {
+									PPChZnPrcssr::PermissiveModeInterface pm_ifc(Token, &Url, 0);
+									SCompoundError cerr;
+									if(pm_ifc.InitLocalSvr(0, &cerr)) {
+										QueryStatus();
+									}
+									else {
+										SString info_buf;
+										info_buf.CatEq("ErrCode", cerr.Code).CRB().Cat(cerr.Descr);
+										setCtrlString(CTL_CHZNLOCPMPANE_STATE, info_buf);
+									}
+								}
+							}
+							int QueryStatus()
+							{
+								int    ok = 1;
+								PPChZnPrcssr::PermissiveModeInterface pm_ifc(Token, &Url, 0);
+								SString info_buf;
+								Lss.Z();
+								if(pm_ifc.GetLocalSvrStatus(0, Lss)) {
+									info_buf.CatEq("Name", Lss.Name).CRB();
+									info_buf.CatEq("INN", Lss.Inn).CRB();
+									info_buf.CatEq("Status", Lss.StatusText).CRB();
+									info_buf.CatEq("OperationMode", Lss.OperationModeText).CRB();
+									info_buf.CatEq("Version", Lss.Version).CRB();
+									info_buf.CatEq("InstanceId", Lss.Inst).CRB();
+									info_buf.CatEq("DbVer", Lss.DbVer).CRB();
+									if(Lss.Flags & PPChZnPrcssr::PermissiveModeInterface::LocalSvcStatus::fRequiresDownload) {
+										info_buf.Cat("Requires download").CRB();
+									}
+									{
+										SUniTime_Internal ut;
+										LDATETIME dtm;
+										if(UED::_GetRaw_Time(Lss.UedLastUpdateTm, ut) && ut.GetDatetime(&dtm)) {
+											info_buf.CatEq("LastUpdateTm", dtm, DATF_ISO8601CENT, 0).CRB();
+										}
+										if(UED::_GetRaw_Time(Lss.UedLastSyncTm, ut) && ut.GetDatetime(&dtm)) {
+											info_buf.CatEq("LastSyncTm", dtm, DATF_ISO8601CENT, 0).CRB();
+										}
+									}
+								}
+								else {
+									PPGetLastErrorMessage(1, info_buf);
+									ok = 0;
+								}
+								setCtrlString(CTL_CHZNLOCPMPANE_STATE, info_buf);
+								return ok;
+							}
+							PPGlobalUserAccPacket GuaPack;
+							SString Token;
+							InetUrl Url;
+							PPChZnPrcssr::PermissiveModeInterface::LocalSvcStatus Lss;
+						};
+						if(getDTS(0)) {
+							Data.TagL.GetItemStr(PPTAG_GUA_CHZNLOCPMURL, temp_buf);
+							if(temp_buf.NotEmptyS()) {
+								InetUrl url;
+								if(PPObjGlobalUserAcc::GetChZnLocPmUrl(temp_buf, url) > 0) {
+									ChZnLocPmPaneDialog * dlg = new ChZnLocPmPaneDialog(Data);
+									if(CheckDialogPtrErr(&dlg)) {
+										ExecViewAndDestroy(dlg);
+									}
+								}
+							}
+						}
+					}
+					// } @v12.3.12 
 					break;
 				default:
 					break;

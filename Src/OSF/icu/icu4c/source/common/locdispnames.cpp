@@ -434,21 +434,13 @@ U_CAPI int32_t U_EXPORT2 uloc_getDisplayVariant(const char * locale,
  * whether there is a space before the open paren, or not.  Oh, and zh uses different
  * chars than the standard open/close paren (which ja and ko use, btw).
  */
-U_CAPI int32_t U_EXPORT2 uloc_getDisplayName(const char * locale,
-    const char * displayLocale,
-    char16_t * dest, int32_t destCapacity,
-    UErrorCode * pErrorCode)
+U_CAPI int32_t U_EXPORT2 uloc_getDisplayName(const char * locale, const char * displayLocale, char16_t * dest, int32_t destCapacity, UErrorCode * pErrorCode)
 {
-	static const char16_t defaultSeparator[9] = { 0x007b, 0x0030, 0x007d, 0x002c, 0x0020, 0x007b, 0x0031, 0x007d, 0x0000 }; /*
-	                                                                                                                        "{0},
-	                                                                                                                        {1}"
-	   */
+	static const char16_t defaultSeparator[9] = { 0x007b, 0x0030, 0x007d, 0x002c, 0x0020, 0x007b, 0x0031, 0x007d, 0x0000 }; /* "{0}, {1}" */
 	static const char16_t sub0[4] = { 0x007b, 0x0030, 0x007d, 0x0000 }; /* {0} */
 	static const char16_t sub1[4] = { 0x007b, 0x0031, 0x007d, 0x0000 }; /* {1} */
 	static const int32_t subLen = 3;
-	static const char16_t defaultPattern[10] = {
-		0x007b, 0x0030, 0x007d, 0x0020, 0x0028, 0x007b, 0x0031, 0x007d, 0x0029, 0x0000
-	}; /* {0} ({1}) */
+	static const char16_t defaultPattern[10] = { 0x007b, 0x0030, 0x007d, 0x0020, 0x0028, 0x007b, 0x0031, 0x007d, 0x0029, 0x0000 }; /* {0} ({1}) */
 	static const int32_t defaultPatLen = 9;
 	static const int32_t defaultSub0Pos = 0;
 	static const int32_t defaultSub1Pos = 5;

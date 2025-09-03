@@ -1925,8 +1925,21 @@ int PPRights::CheckOpID(PPID opID, long rtflags) const
 
 int PPRights::CheckLocID(PPID locID, long) const
 	{ return (!SVectorBase::GetCount(P_LocList) || P_LocList->SearchItemByID(locID, 0)) ? 1 : PPSetError(PPERR_LOCNOTACCESSIBLE); }
+
 int PPRights::CheckPosNodeID(PPID id, long flags) const
-	{ return (!SVectorBase::GetCount(P_PosList) || P_PosList->SearchItemByID(id, 0)) ? 1 : PPSetError(PPERR_POSNODENOTACCESSIBLE); }
+{ 
+	int    ok = 1;
+	if(SVectorBase::GetCount(P_PosList) && !P_PosList->SearchItemByID(id, 0)) {
+		SString name;
+		GetObjectName(PPOBJ_CASHNODE, id, name);
+		if(name.IsEmpty()) {
+			ideqvalstr(id, name);
+		}
+		ok = PPSetError(PPERR_POSNODENOTACCESSIBLE, name);
+	}
+	return ok;
+}
+
 int PPRights::CheckQuotKindID(PPID id, long flags) const
 	{ return (!SVectorBase::GetCount(P_QkList) || P_QkList->SearchItemByID(id, 0)) ? 1 : PPSetError(PPERR_QUOTKINDNOTACCESSIBLE); }
 

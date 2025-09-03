@@ -2145,7 +2145,7 @@ int ScURL::HttpForm::AddContentFile(const char * pFileName, const char * pConten
 
 #define _CURLH (static_cast<CURL *>(H))
 
-ScURL::ScURL() : NullWrF(0, SFile::mNullWrite), P_LogF(0)
+ScURL::ScURL() : NullWrF(0, SFile::mNullWrite), P_LogF(0), LastErrorCode(0)
 {
 	if(!_GlobalInitDone) {
 		ENTER_CRITICAL_SECTION
@@ -2170,6 +2170,7 @@ ScURL::~ScURL()
 int FASTCALL ScURL::SetError(int errCode)
 {
 	if(errCode) {
+		LastErrorCode = errCode; // @v12.3.12
 		SlThreadLocalArea & r_tla = SLS.GetTLA();
 		if(&r_tla) {
 			r_tla.LastErr = SLERR_CURL;
@@ -2177,8 +2178,9 @@ int FASTCALL ScURL::SetError(int errCode)
 		}
 		return 0;
 	}
-	else
+	else {
 		return 1;
+	}
 }
 
 int ScURL::SetupCbRead(SFile * pF)
@@ -2318,6 +2320,12 @@ int ScURL::SetCommonOptions(int mflags, int bufferSize, const char * pUserAgent)
 
 int ScURL::Execute()
 {
+	if(IqsB.ConnectionTimeout >= 0) {
+		curl_easy_setopt(_CURLH, CURLOPT_CONNECTTIMEOUT_MS, IqsB.ConnectionTimeout);
+	}
+	if(IqsB.OverallTimeout >= 0) {
+		curl_easy_setopt(_CURLH, CURLOPT_TIMEOUT_MS, IqsB.ConnectionTimeout);
+	}
 	return SetError(curl_easy_perform(_CURLH));
 }
 

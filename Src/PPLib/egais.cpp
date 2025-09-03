@@ -648,7 +648,7 @@ int PPEgaisProcessor::PutCCheck(const CCheckPacket & rPack, PPID locID, bool hor
 		THROW(GetDebugPath(loc_id, temp_path));
 		THROW(GetTemporaryFileName(temp_path, "cc", "EGH", file_name));
 		THROW(GetFSRARID(loc_id, fsrar_ident, &main_org_id));
-		THROW(p_x = xmlNewTextWriterFilename(file_name, 0));
+		THROW_SL(p_x = xmlNewTextWriterFilename(file_name, 0));
 		{
 			SXml::WDoc _doc(p_x, cpUTF8);
 			//
@@ -2254,7 +2254,7 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 							THROW(GetOpData(op_rec.LinkOpID, &link_op_rec) > 0);
 						}
 						n_dt.PutInner(SXml::nst("wb", "Identity"), temp_buf.Z().Cat(p_bp->Rec.ID));
-                        {
+						{
                         	SXml::WNode n_h(_doc, SXml::nst("wb", "Header"));
                         	temp_buf.Z();
                         	PPID   consignee_psn_id = 0;
@@ -2431,7 +2431,7 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 								}
                         	}
                         }
-                        {
+						{
                         	SXml::WNode w_c(_doc, SXml::nst("wb", "Content"));
                         	LongArray seen_pos_list;
                         	SString ref_a;
@@ -4450,7 +4450,7 @@ int PPEgaisProcessor::Read_WayBillAct(xmlNode * pFirstNode, PPID locID, Packet *
 						else {
                             PPID   op_id = 0;
                             THROW(op_obj.GetEdiRecadvOp(&op_id, 1));
-                            {
+							{
 								int    edirecadv_found = 0;
                                 BillTbl::Rec link_rec;
 								for(DateIter di; !do_skip && P_BObj->P_Tbl->EnumLinks(ex_bill_id, &di, BLNK_EDIRECADV, &link_rec) > 0;) {
@@ -6506,7 +6506,7 @@ int PPEgaisProcessor::Write(Packet & rPack, PPID locID, const char * pFileName)
 {
 	int    ok = -1;
     xmlTextWriter * p_x = xmlNewTextWriterFilename(pFileName, 0);
-    THROW(p_x);
+    THROW_SL(p_x);
     THROW(ok = Helper_Write(rPack, locID, p_x));
     CATCHZOK
     xmlFreeTextWriter(p_x);
@@ -6782,7 +6782,7 @@ int PPEgaisProcessor::Helper_Read(void * pCtx, const char * pFileName, long flag
 					}
 					else if(doc_type == PPEDIOP_EGAIS_REPLYBARCODE) {
 						THROW(Helper_InitNewPack(doc_type, pPackList, &p_new_pack));
-                        {
+						{
                         	TSCollection <QueryBarcode> * p_qbl = static_cast<TSCollection <QueryBarcode> *>(p_new_pack->P_Data);
                         	for(const xmlNode * p_n = p_nd->children; p_n; p_n = p_n->next) {
                         		if(SXml::IsName(p_n, "Marks")) {

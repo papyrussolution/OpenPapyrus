@@ -103,42 +103,32 @@ timediff_t Curl_timeleft(struct Curl_easy * data, struct curltime * nowp, bool d
 	}
 	if(duringconnect) {
 		timeout_set |= TIMEOUT_CONNECT;
-		connect_timeout_ms = (data->set.connecttimeout > 0) ?
-		    data->set.connecttimeout : DEFAULT_CONNECT_TIMEOUT;
+		connect_timeout_ms = (data->set.connecttimeout > 0) ? data->set.connecttimeout : DEFAULT_CONNECT_TIMEOUT;
 	}
 	if(!timeout_set)
-		/* no timeout  */
-		return 0;
-
+		return 0; /* no timeout  */
 	if(!nowp) {
 		now = Curl_now();
 		nowp = &now;
 	}
-
 	if(timeout_set & TIMEOUT_MAXTIME) {
 		maxtime_timeout_ms -= Curl_timediff(*nowp, data->progress.t_startop);
 		timeout_ms = maxtime_timeout_ms;
 	}
-
 	if(timeout_set & TIMEOUT_CONNECT) {
 		connect_timeout_ms -= Curl_timediff(*nowp, data->progress.t_startsingle);
-
-		if(!(timeout_set & TIMEOUT_MAXTIME) ||
-		    (connect_timeout_ms < maxtime_timeout_ms))
+		if(!(timeout_set & TIMEOUT_MAXTIME) || (connect_timeout_ms < maxtime_timeout_ms))
 			timeout_ms = connect_timeout_ms;
 	}
-
 	if(!timeout_ms)
-		/* avoid returning 0 as that means no timeout! */
-		return -1;
-
+		return -1; /* avoid returning 0 as that means no timeout! */
 	return timeout_ms;
 }
-
-/* Copies connection info into the transfer handle to make it available when
-   the transfer handle is no longer associated with the connection. */
-void Curl_persistconninfo(struct Curl_easy * data, struct connectdata * conn,
-    char * local_ip, int local_port)
+//
+// Copies connection info into the transfer handle to make it available when
+// the transfer handle is no longer associated with the connection.
+//
+void Curl_persistconninfo(struct Curl_easy * data, struct connectdata * conn, char * local_ip, int local_port)
 {
 	memcpy(data->info.conn_primary_ip, conn->primary_ip, MAX_IPADR_LEN);
 	if(local_ip && local_ip[0])
@@ -153,7 +143,8 @@ void Curl_persistconninfo(struct Curl_easy * data, struct connectdata * conn,
 	data->info.conn_local_port = local_port;
 }
 
-static const struct Curl_addrinfo *addr_first_match(const struct Curl_addrinfo * addr, int family)                                    {
+static const struct Curl_addrinfo *addr_first_match(const struct Curl_addrinfo * addr, int family)                                    
+{
 	while(addr) {
 		if(addr->ai_family == family)
 			return addr;

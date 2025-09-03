@@ -11,8 +11,8 @@ int __PrcssrTestDb_Generate_TestTa01_Rec(void * p, TestTa01Tbl::Rec * pRec);
 
 SLTEST_R(SQLite)
 {
-	bool debug_mark = false;
-	const uint record_list_max_count = 10000;
+	bool   debug_mark = false;
+	const  uint record_list_max_count = 10;
 	void * prc_testdbobj = __CreatePrcssrTestDbObject();
 	DBTable * p_tbl = 0;
 	SString temp_buf;
@@ -40,6 +40,7 @@ SLTEST_R(SQLite)
         }
 	}
 	p_tbl = new DBTable("TestTa01", 0, 0, &dbp);
+	p_tbl->AllocateOwnBuffer();
 	{
 		for(uint i = 0; i < record_list_max_count; i++) {
 			uint   new_rec_pos = 0;
@@ -56,15 +57,33 @@ SLTEST_R(SQLite)
 	}
 	{
 		// «агрузить в таблицу большой набор известных записей (из record_list)
-		for(uint i = 0; i < record_list.getCount(); i++) {
-			const TestTa01Tbl::Rec * p_rec = record_list.at(i);
-			if(p_rec) {
-				p_tbl->insertRecBuf(p_rec);
+		if(dbp.StartTransaction()) {
+			for(uint i = 0; i < record_list.getCount(); i++) {
+				const TestTa01Tbl::Rec * p_rec = record_list.at(i);
+				if(p_rec) {
+					int irr = p_tbl->insertRecBuf(p_rec);
+					if(irr) {
+						;
+					}
+					else {
+						;
+					}
+				}
+			}
+			int cwr = dbp.CommitWork();
+			if(!cwr) {
+				;
 			}
 		}
 	}
 	{
 		// Ќайти каждую из записей
+		TestTa01Tbl::Key0 k0;
+		MEMSZERO(k0);
+		uint   srch_count = 0;
+		if(p_tbl->search(0, &k0, spGe)) do {
+			srch_count++;
+		} while(p_tbl->search(0, spNext));
 	}
 	{
 		// Ќайти несколько выборок записей по критери€м

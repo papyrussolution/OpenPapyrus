@@ -255,6 +255,69 @@ uint SJson::GetArrayCount() const
 	return ok;
 }
 
+/*static*/bool FASTCALL SJson::GetChildInt(const SJson * pN, int & rResult) // @v12.3.12
+{
+	bool   ok = true;
+	if(pN && SJson::IsNumber(pN->P_Child))
+		rResult = pN->P_Child->Text.ToLong();
+	else
+		ok = false;
+	return ok;
+}
+
+/*static*/bool FASTCALL SJson::GetChildLong(const SJson * pN, long & rResult) // @v12.3.12
+{
+	bool   ok = true;
+	if(pN && SJson::IsNumber(pN->P_Child))
+		rResult = pN->P_Child->Text.ToLong();
+	else
+		ok = false;
+	return ok;
+}
+
+/*static*/bool FASTCALL SJson::GetChildInt64(const SJson * pN, int64 & rResult) // @v12.3.12
+{
+	bool   ok = true;
+	if(pN && SJson::IsNumber(pN->P_Child))
+		rResult = pN->P_Child->Text.ToInt64();
+	else
+		ok = false;
+	return ok;
+}
+
+/*static*/bool FASTCALL SJson::GetChildDouble(const SJson * pN, double & rResult) // @v12.3.12
+{
+	bool   ok = true;
+	if(pN && SJson::IsNumber(pN->P_Child))
+		rResult = pN->P_Child->Text.ToReal_Plain();
+	else
+		ok = false;
+	return ok;
+}
+
+/*static*/bool FASTCALL SJson::GetChildFloat(const SJson * pN, float & rResult) // @v12.3.12
+{
+	bool   ok = true;
+	if(pN && SJson::IsNumber(pN->P_Child))
+		rResult = static_cast<float>(pN->P_Child->Text.ToReal_Plain());
+	else
+		ok = false;
+	return ok;
+}
+
+/*static*/bool FASTCALL SJson::GetChildGuid(const SJson * pN, S_GUID & rResult) // @v12.3.12
+{
+	bool   ok = false;
+	if(pN && pN->P_Child) {
+		S_GUID temp_val;	
+		if(temp_val.FromStr(pN->P_Child->Text)) {
+			rResult = temp_val;
+			ok = true;
+		}
+	}
+	return ok;
+}
+
 /*static*/bool FASTCALL SJson::FormatText(const char * pSrcJsText, SString & rBuf)
 {
 	return LOGIC(json_format_string(pSrcJsText, rBuf));

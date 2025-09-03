@@ -10076,31 +10076,12 @@ int CheckPaneDialog::PreprocessGoodsSelection(const PPID goodsID, PPID locID, Pg
 								// @v12.0.12 {
 								if(rBlk.ChZnMark.NotEmpty() && PNP.ChZnPermissiveMode == PPSyncCashNode::chznpmStrict && PNP.ChZnGuaID) {
 									{ // @v12.3.5 (теперь надо) if(gt_rec.ChZnProdType != GTCHZNPT_MEDICINE) { // @v12.1.10 лекарственные средства проверять через разрешительный режим не надо (пока)
-										PPChZnPrcssr::PermissiveModeInterface::CodeStatusCollection check_code_list;
-										{
-											temp_buf = rBlk.ChZnMark;
-											GtinStruc gts;
-											if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0)) > 0) {
-												uint clp = 0;
-												//CCheckPacket::PreprocessChZnCodeResult chzn_pp_result;
-												PPChZnPrcssr::ReconstructOriginalChZnCode(gts, temp_buf);
-												PPChZnPrcssr::PermissiveModeInterface::CodeStatus * p_cle = check_code_list.CreateNewItem(&clp);
-												if(p_cle) {
-													p_cle->OrgMark = temp_buf;
-													// @v12.3.11 {
-													SString chzn_mark_serial;
-													if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf) && gts.GetToken(GtinStruc::fldSerial, &chzn_mark_serial)) {
-														p_cle->OrgMark_Offl.Cat("01").Cat(temp_buf).Cat("21").Cat(chzn_mark_serial); 
-													}
-													// } @v12.3.11
-													p_cle->OrgRowId = 0;
-												}
-											}
-										}
-										if(check_code_list.getCount()) {
-											PPChZnPrcssr::PmCheck(PNP.ChZnGuaID, 0, check_code_list);
-											for(uint i = 0; i < check_code_list.getCount(); i++) {
-												const PPChZnPrcssr::PermissiveModeInterface::CodeStatus * p_cle = check_code_list.at(i);
+										PPChZnPrcssr::PermissiveModeInterface::CodeStatusCollection pm_code_list;
+										pm_code_list.AddCodeEntry(rBlk.ChZnMark, 0, 0);
+										if(pm_code_list.getCount()) {
+											PPChZnPrcssr::PmCheck(PNP.ChZnGuaID, 0, 2/*regular online/offline mode*/, pm_code_list);
+											for(uint i = 0; i < pm_code_list.getCount(); i++) {
+												const PPChZnPrcssr::PermissiveModeInterface::CodeStatus * p_cle = pm_code_list.at(i);
 												if(p_cle) {
 													//debug_mark = true;
 													if(CConfig.Flags2 & CCFLG2_RESTRICTCHZNPMPRICE) { // @v12.2.5
@@ -10139,8 +10120,10 @@ int CheckPaneDialog::PreprocessGoodsSelection(const PPID goodsID, PPID locID, Pg
 														}
 														else { // @v12.1.1
 															// OK
-															rBlk.ChZnPm_ReqId = check_code_list.ReqId;
-															rBlk.ChZnPm_ReqTimestamp = check_code_list.ReqTimestamp;
+															rBlk.ChZnPm_ReqId = pm_code_list.ReqId;
+															rBlk.ChZnPm_ReqTimestamp = pm_code_list.ReqTimestamp;
+															rBlk.ChZnPm_LocalModuleInstance = pm_code_list.LocalModuleInstance; // @v12.3.12
+															rBlk.ChZnPm_LocalModuleDbVer    = pm_code_list.LocalModuleDbVer;    // @v12.3.12
 														}
 													}
 												}
@@ -12146,6 +12129,8 @@ int CPosProcessor::SetupNewRow(PPID goodsID, PgsBlock & rBlk, PPID giftID/*=0*/)
 						STRNSCPY(r_item.ChZnMark, rBlk.ChZnMark);
 						r_item.ChZnPm_ReqId = rBlk.ChZnPm_ReqId; // @v12.1.1
 						r_item.ChZnPm_ReqTimestamp = rBlk.ChZnPm_ReqTimestamp; // @v12.1.1
+						r_item.ChZnPm_LocalModuleInstance = rBlk.ChZnPm_LocalModuleInstance; // @v12.3.12
+						r_item.ChZnPm_LocalModuleDbVer = rBlk.ChZnPm_LocalModuleDbVer; // @v12.3.12
 						if(giftID) {
 							r_item.Flags |= cifGift;
 							r_item.GiftID = giftID;

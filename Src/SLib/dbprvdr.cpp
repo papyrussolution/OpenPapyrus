@@ -483,7 +483,7 @@ int DbProvider::CreateTableAndFileBySpec(DBTable ** ppTblSpec)
 	ZDELETE(p_tbl);
 	DropFile(file_name);
 	THROW(p_new_tbl = new DBTable(tbl_name, file_name, omNormal, this));
-	p_new_tbl->allocOwnBuffer(-1);
+	p_new_tbl->AllocateOwnBuffer(-1);
 	CATCH
 		ZDELETE(p_new_tbl);
 		ok = 0;

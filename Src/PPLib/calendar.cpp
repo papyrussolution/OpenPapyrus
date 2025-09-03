@@ -186,7 +186,7 @@ public:
 	void   UpdatePeriod()
 	{
 		DateRange range;
-		char   period_buf[128];
+		// @v12.3.7 char   period_buf[128];
 		const  LDATE cur_dt = getcurdate_();
 		range.FromStr(Period, 0);
 		D1 = ValidDateOr(range.low, cur_dt);

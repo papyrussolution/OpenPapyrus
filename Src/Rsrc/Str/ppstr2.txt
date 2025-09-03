@@ -1926,8 +1926,8 @@ PPERR_CHZN_CRYPTOPROPATHNDEF        "Не определен путь к про�
 PPERR_CHZN_CRYPTOPROPATHINV         "Путь к программе crypto-pro (параметр pp.ini [path] cryptopro) недоступен"
 PPERR_CHZN_CERTSUBJNDEF             "Не определен субъект сертификата для работы с сервисами @{brand_chzn}"
 PPERR_READPROPBUFSIZE               "Не верный размер считанного буфера свойств Reference (%s)"
-PPERR_POSNODENOTACCESSIBLE          "Не доступный кассовый узел"
-PPERR_QUOTKINDNOTACCESSIBLE         "Не доступный вид котировки"
+PPERR_POSNODENOTACCESSIBLE          "Недоступный кассовый узел '%s'"
+PPERR_QUOTKINDNOTACCESSIBLE         "Недоступный вид котировки"
 PPERR_HALFMODIFBILLDISABLED         "Вид операции не допускает ввод не полного документа модификации"
 PPERR_STYLODATALOCKED               "Идет подготовка данных для @{brand_styloagent} - повторите попытку обмена позже"
 PPERR_ACCISNTEMAIL                  "Выбранная учетная запись '%s' не является почтовой"
@@ -2381,6 +2381,7 @@ PPERR_BILLBYIDENTNFOUND             "Документ по идентифика�
 PPERR_DEV_FILEABSENCE               "DEV: Отсутствует необходимый исходный файл '%s'"
 PPERR_DEV_DL600IFC_UUID_MISMATCH    "DEV: ppifc - интерфейсный символ '%s' отличается от образца по значению GUID"
 PPERR_CR2SRGW_POSNODENFOUND         "Кассовый узел для обслуживания шлюза Кристалл-SetRetail не найден либо неправильно настроен"
+PPERR_CHZNPM_LOCAL_QUERYFAULT       "Ошибка запроса к локальному серверу проверки марок @{brand_chzn}"
 
 // LastError
 
@@ -5488,6 +5489,7 @@ PPSSYM_FORMAT "int64;int;hex;real;sstr;zstr;date;time;datetime;person;goods;unit
 466  "@{err_internal}: недопустимый тип экземпляра SFile"
 467  "Строка '%s' не соответствует правилам представления диапазона дат" // @v12.3.7 SLERR_INVDATERANGETEXT
 468  "Ошибка открытия файла - пустое имя" // @v12.3.11 SLERR_OPENFAULT_EMPTYNAME
+469  "Ошибка открытия xml-файла '%s' для записи" // @v12.3.12 SLERR_OPENFAULT_XMLWR
 500  "Unable to open configuration file for reading"
 501  "Unable to open configuration file for writing"
 502  "Wrong version of configuration file"
@@ -6015,7 +6017,9 @@ DVCPARAM_PRESCRNUMB                   "PRESCRNUMB"   // @v11.8.0 // Рецепт
 DVCPARAM_DRAFTBEERSIMPLIFIED          "DRAFTBEERSIMPLIFIED" // @v11.9.3 Признак упрощенного режима проведения продажи разливного пива через честный знак. В качестве значения передается штрихкод позиции.
 DVCPARAM_CHZNPMREQID                  "CHZNPMREQID"         // @v12.1.1 ответ разрешительного режима чзн: уникальный идентификатор запроса
 DVCPARAM_CHZNPMREQTIMESTAMP           "CHZNPMREQTIMESTAMP"  // @v12.1.1 ответ разрешительного режима чзн: дата и время формирования запроса
-DVCPARAM_FISCALSIGN                   "FISCALSIGN" // @v12.3.3
+DVCPARAM_FISCALSIGN                   "FISCALSIGN"          // @v12.3.3
+DVCPARAM_CHZNPMLOCALMODULEINST        "CHZNPMLOCALMODULEINST"   // @v12.3.12 ответ разрешительного режима чзн (локальный сервер): идент локального модуля проверки
+DVCPARAM_CHZNPMLOCALMODULEDBVER       "CHZNPMLOCALMODULEDBVER"  // @v12.3.12 ответ разрешительного режима чзн (локальный сервер): версия базы «чёрного списка», на которой выполнялась проверка КИ
 
 [120]
 IMPEXPCMD_ORDRSP        "ORDRSP"
@@ -6116,6 +6120,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @lbt_goodsrestbyloclist              "30,L,@warehouse;10,R,@rest;10,R,@cost;10,R,@price"
 @lbt_ccextlist                       "30,L,@datafield;30,L,@value"
 @lbt_selorderprefsuppl               "50,L,@supplier;20,R,@dealprice"
+@lbt_testglbsvcacsylist              "20,L,@appellation;10,L,Function;20,L,URL;10,L,Result"
 
 @entmanagementsys                    "Система управления предприятием"
 @pgmcopylic_owner                    "Владелец лицензии"
@@ -6598,6 +6603,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @warehouseacceptance                 "Приемка на склад"
 @advpromotion                        "Продвижение"
 @analysis                            "Анализ"
+@initialization                      "Инициализация" // @v12.3.12
 @config                              "Конфигурация"
 @mainconfig                          "Главная конфигурация"
 @expimpconfig                        "Конфигурация экспорта/импорта"
@@ -7877,6 +7883,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @srcaseinsens                        "Не учитывать регистр"
 @srwholewords                        "Слова целиком"
 @srreversedirection                  "Снизу-вверх"
+@launch                              "Запуск" // @v12.3.12
 @test                                "Тест"
 @doverify                            "Верифицировать"
 @length                              "Длина"
@@ -16901,6 +16908,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @chznprcssrparam_afquerydoclistin         "Запрос списка входящих документов"
 @chznprcssrparam_loc                      "@{warehouse}"
 
+@chzn_check_offline                       "Проверить в offline-режиме" // @v12.3.12 Команда в диалоге проверки марок чзн (DLG_CHKCHZNMARK)
+
 @restorelostprjtperson                    "Восстановление утерянных персоналий для задач"
 @restorelostprjtperson_resolvecreator     "Восстановить создателя"
 @restorelostprjtperson_resolveemployer    "Восстановить исполнителя"
@@ -17854,6 +17863,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 
 @testsalespredict                             "Тест прогноза продаж"
 @testsalespredict_usearma                     "Использовать модель ARMA"
+
+@testglobalserviceaccessibility               "Тест доступности глобальных сервисов"
 
 @gdspckgtype                                  "@{packagetype}"
 @gdspckgtype_id                               ""

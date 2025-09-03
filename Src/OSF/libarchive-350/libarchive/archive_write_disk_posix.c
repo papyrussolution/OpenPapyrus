@@ -2303,15 +2303,14 @@ static int _archive_write_disk_free(Archive * _a)
  * Simple O(n log n) merge sort to order the fixup list.  In
  * particular, we want to restore dir timestamps depth-first.
  */
-static struct fixup_entry * sort_dir_list(struct fixup_entry * p)                             {
+static struct fixup_entry * sort_dir_list(struct fixup_entry * p)
+{
 	struct fixup_entry * a, * b, * t;
-
 	if(!p)
 		return NULL;
 	/* A one-item list is already sorted. */
 	if(p->next == NULL)
 		return (p);
-
 	/* Step 1: split the list. */
 	t = p;
 	a = p->next->next;

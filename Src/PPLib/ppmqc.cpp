@@ -1383,73 +1383,10 @@ int TestMqc()
 	}
 	return ok;
 }
-
+//
+//
+//
 #if 0 // {
-int TestMqc()
-{
-	int    ok = 1;
-	const char * p_exchange_name = "papyrus-exchange-fanout-test";
-	SString temp_buf;
-	PPMqbClient::InitParam lp;
-	//lp.Host = "192.168.0.39";
-	//lp.Method = 1;
-	//lp.Auth = "Admin";
-	//lp.Secret = "123";
-	if(0) {
-		const char * p_queue_name = "papyrus-test-queue";
-		PPMqbClient::InitParam mqbcp;
-		if(PPMqbClient::SetupInitParam(mqbcp, 0)) {
-			TestMqcProducer * p_thr_mqc_producer = new TestMqcProducer(mqbcp, p_queue_name);
-			p_thr_mqc_producer->Start(1);
-			TestMqcConsumer * p_thr_mqc_consumer = new TestMqcConsumer(mqbcp, p_queue_name);
-		}
-	}
-	{
-		PPMqbClient mqc;
-		PPAlbatrossConfig acfg;
-		THROW(DS.FetchAlbatrosConfig(&acfg) > 0);
-		{
-			acfg.GetExtStrData(ALBATROSEXSTR_MQC_HOST, temp_buf);
-			lp.Host = temp_buf;
-			acfg.GetExtStrData(ALBATROSEXSTR_MQC_USER, temp_buf);
-			lp.Auth = temp_buf;
-			acfg.GetPassword(ALBATROSEXSTR_MQC_SECRET, temp_buf);
-			lp.Secret = temp_buf;
-			//acfg.GetExtStrData(ALBATROSEXSTR_MQC_DATADOMAIN, temp_buf);
-			lp.Method = 1;
-		}
-		THROW(PPMqbClient::InitClient(mqc, lp));
-		{
-			THROW(mqc.QueueDeclare(P_TestQueueName, 0));
-			THROW(mqc.ExchangeDeclare(p_exchange_name, mqc.exgtFanout, 0));
-			THROW(mqc.QueueBind(P_TestQueueName, p_exchange_name, ""));
-		}
-		{
-			ulong random_id = SLS.GetTLA().Rg.GetUniformInt(1000000);
-			(temp_buf = "This is a some stupid message").CatChar('-').Cat(random_id);
-			//THROW(mqc.Publish("", P_TestQueueName, temp_buf.cptr(), temp_buf.Len()));
-			PPMqbClient::MessageProperties props;
-			THROW(mqc.Publish(p_exchange_name, /*P_TestQueueName*/"", 0 /*props*/, temp_buf.cptr(), temp_buf.Len()));
-		}
-	}
-	{
-		PPMqbClient mqc;
-		THROW(PPMqbClient::InitClient(mqc, lp));
-		{
-			THROW(mqc.QueueDeclare(P_TestQueueName, 0));
-		}
-		{
-			THROW(mqc.Consume(P_TestQueueName, "", 0));
-			{
-				PPMqbClient::Envelope env;
-				int cmr = mqc.ConsumeMessage(env, 5000);
-			}
-		}
-	}
-	CATCHZOK
-	return ok;
-}
-#endif // } 0
 
 static const char * P_TestQueueName = "test-papyrus-queue";
 
@@ -1555,3 +1492,69 @@ public:
 	}
 	const SString QueueName;
 };
+
+int TestMqc()
+{
+	int    ok = 1;
+	const char * p_exchange_name = "papyrus-exchange-fanout-test";
+	SString temp_buf;
+	PPMqbClient::InitParam lp;
+	//lp.Host = "192.168.0.39";
+	//lp.Method = 1;
+	//lp.Auth = "Admin";
+	//lp.Secret = "123";
+	if(0) {
+		const char * p_queue_name = "papyrus-test-queue";
+		PPMqbClient::InitParam mqbcp;
+		if(PPMqbClient::SetupInitParam(mqbcp, 0)) {
+			TestMqcProducer * p_thr_mqc_producer = new TestMqcProducer(mqbcp, p_queue_name);
+			p_thr_mqc_producer->Start(1);
+			TestMqcConsumer * p_thr_mqc_consumer = new TestMqcConsumer(mqbcp, p_queue_name);
+		}
+	}
+	{
+		PPMqbClient mqc;
+		PPAlbatrossConfig acfg;
+		THROW(DS.FetchAlbatrosConfig(&acfg) > 0);
+		{
+			acfg.GetExtStrData(ALBATROSEXSTR_MQC_HOST, temp_buf);
+			lp.Host = temp_buf;
+			acfg.GetExtStrData(ALBATROSEXSTR_MQC_USER, temp_buf);
+			lp.Auth = temp_buf;
+			acfg.GetPassword(ALBATROSEXSTR_MQC_SECRET, temp_buf);
+			lp.Secret = temp_buf;
+			//acfg.GetExtStrData(ALBATROSEXSTR_MQC_DATADOMAIN, temp_buf);
+			lp.Method = 1;
+		}
+		THROW(PPMqbClient::InitClient(mqc, lp));
+		{
+			THROW(mqc.QueueDeclare(P_TestQueueName, 0));
+			THROW(mqc.ExchangeDeclare(p_exchange_name, mqc.exgtFanout, 0));
+			THROW(mqc.QueueBind(P_TestQueueName, p_exchange_name, ""));
+		}
+		{
+			ulong random_id = SLS.GetTLA().Rg.GetUniformInt(1000000);
+			(temp_buf = "This is a some stupid message").CatChar('-').Cat(random_id);
+			//THROW(mqc.Publish("", P_TestQueueName, temp_buf.cptr(), temp_buf.Len()));
+			PPMqbClient::MessageProperties props;
+			THROW(mqc.Publish(p_exchange_name, /*P_TestQueueName*/"", 0 /*props*/, temp_buf.cptr(), temp_buf.Len()));
+		}
+	}
+	{
+		PPMqbClient mqc;
+		THROW(PPMqbClient::InitClient(mqc, lp));
+		{
+			THROW(mqc.QueueDeclare(P_TestQueueName, 0));
+		}
+		{
+			THROW(mqc.Consume(P_TestQueueName, "", 0));
+			{
+				PPMqbClient::Envelope env;
+				int cmr = mqc.ConsumeMessage(env, 5000);
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+#endif // } 0

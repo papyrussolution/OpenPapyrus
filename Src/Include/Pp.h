@@ -10078,6 +10078,8 @@ struct CCheckItem { // @transient
 	int16  RByCheck;        // @v11.5.8 Проекция поля CCheckLineTbl::Rec::RByCheck
 	S_GUID ChZnPm_ReqId;        // @v12.1.1 ответ разрешительного режима чзн: уникальный идентификатор запроса
 	int64  ChZnPm_ReqTimestamp; // @v12.1.1 ответ разрешительного режима чзн: дата и время формирования запроса
+	S_GUID ChZnPm_LocalModuleInstance; // @v12.3.12 ответ разрешительного режима чзн (локальный сервер): идент локального модуля проверки
+	S_GUID ChZnPm_LocalModuleDbVer;    // @v12.3.12 ответ разрешительного режима чзн (локальный сервер): версия базы «чёрного списка», на которой выполнялась проверка КИ
 	char   BarCode[24];     //
 	char   GoodsName[128];  //
 	char   Serial[32];      // 
@@ -10287,6 +10289,8 @@ public:
 		lnextChZnMark            = 6, // Марка 'честный знак'
 		lnextChZnPm_ReqId        = 7, // @v12.1.1 ответ разрешительного режима чзн: уникальный идентификатор запроса
 		lnextChZnPm_ReqTimestamp = 8, // @v12.1.1 ответ разрешительного режима чзн: дата и время формирования запроса
+		lnextChZnPm_LocalModuleInstance =  9, // @v12.1.12 
+		lnextChZnPm_LocalModuleDbVer    = 10, // @v12.1.12 
 	};
 	struct PreprocessChZnCodeResult { // @flat
 		PreprocessChZnCodeResult();
@@ -22328,6 +22332,8 @@ struct SlipLineParam {
 	SString ChZnSid;      // Ид предприятия для передачи в честный знак
 	S_GUID ChZnPm_ReqId;  // @v12.1.1 ответ разрешительного режима чзн: уникальный идентификатор запроса
 	int64  ChZnPm_ReqTimestamp; // @v12.1.1 ответ разрешительного режима чзн: дата и время формирования запроса
+	S_GUID ChZnPm_LocalModuleInstance; // @v12.3.12 ответ разрешительного режима чзн (локальный сервер): идент локального модуля проверки
+	S_GUID ChZnPm_LocalModuleDbVer;    // @v12.3.12 ответ разрешительного режима чзн (локальный сервер): версия базы «чёрного списка», на которой выполнялась проверка КИ
 };
 
 struct SlipDocCommonParam {
@@ -42108,6 +42114,7 @@ public:
 	// Descr: Функция импортирует публично доступный (без API-key) список товаров (фильтр требуется).
 	//
 	static int LoadPublicGoodsList(const CategoryPool & rCatPool, const MarketplaceGoodsSelectionFilt & rFilt, PublicWarePool & rResult); // @v12.3.8
+	static int LoadPublicGoodsImageList(int64 wareId, uint * pCount/*[INOUT]*/, TSCollection <SImageBuffer> & rList); // @v12.3.12 @construction Пока не работает
 	static int LoadPublicPickUpPointList(PickUpPointPool & rResult, bool useCache);
 
 	PPMarketplaceInterface_Wildberries(PrcssrMarketplaceInterchange & rPrc);
@@ -56582,8 +56589,10 @@ public:
 		SString ChZnMark;     // Марка 'честный знак'
 		SString ChZnGtin;     // GTIN код товара, считанный из марки 'честный знак'
 		SString ChZnSerial;   // Серийный номер марки 'честный знак'
-		S_GUID ChZnPm_ReqId;        // @v12.1.1 ответ разрешительного режима чзн: уникальный идентификатор запроса
 		int64  ChZnPm_ReqTimestamp; // @v12.1.1 ответ разрешительного режима чзн: дата и время формирования запроса. Параметр возвращает дату и время с точностью до миллисекунд.
+		S_GUID ChZnPm_ReqId;        // @v12.1.1 ответ разрешительного режима чзн: уникальный идентификатор запроса
+		S_GUID ChZnPm_LocalModuleInstance; // @v12.3.12 ответ разрешительного режима чзн (локальный сервер): идент локального модуля проверки
+		S_GUID ChZnPm_LocalModuleDbVer;    // @v12.3.12 ответ разрешительного режима чзн (локальный сервер): версия базы «чёрного списка», на которой выполнялась проверка КИ
 		RealRange AllowedPriceRange; // @v12.2.2 диапазон допустимых цен на товар (пока только по результату запроса разрешительного режима марки chzn)
 	};
 	//int    SetupNewRow(PPID goodsID, double qtty, double priceBySerial, const char * pSerial, PPID giftID = 0);
@@ -59507,7 +59516,7 @@ public:
 				fIsBlocked  = 0x0040, // Признак того, что розничная продажа продукции заблокирована по решению ОГВ. true — продажа заблокирована; false — продажа не заблокирована.
 				fIsTracking = 0x0080, // Признак контроля прослеживаемости в товарной группе. true — контроль прослеживаемости в товарной группе для данного КМ включен; false — контроль прослеживаемости в товарной группе для данного КМ выключен.
 				fSold       = 0x0100, // Признак вывода из оборота товара. true — товар выведен из оборота; false — товар не выведен из оборота.
-				fGrayZone   = 0x0200, // Признак принадлежности табачной продукции к «серой зоне». true — принадлежит; false — не принадлежит
+				fGrayZone   = 0x0200, // Признак принадлежности табачной продукции к «серой зоне». true — принадлежит; false — не принадлежит. (@v12.3.12 для локального pm - isGreyGtin)
 			};
 			CodeStatus & AssignExceptOrgValues(const CodeStatus & rS);
 
@@ -59554,6 +59563,7 @@ public:
 		public:
 			CodeStatusCollection();
 			CodeStatusCollection & Z();
+			int    AddCodeEntry(const char * pCode, uint orgRowId, SString * pReconstructedCode);
 			//
 			// Descr: Сопоставляет результат проверки, полученный от честного знака с коллекцией this
 			//   и, если находит, соответствующий элемент, то присваивает ему поля результата проверки.
@@ -59564,10 +59574,13 @@ public:
 			//    0 - не удалось найти соответствие.
 			//
 			int    SetupResultEntry(int rowN, const CodeStatus & rEntry);
+
 			int    Code; // Result code. 0 - ok
 			SString Description; // error message or "ok"
 			S_GUID ReqId;
 			int64  ReqTimestamp;
+			S_GUID LocalModuleInstance; // @v12.3.12 Идент локального модуля проверки
+			S_GUID LocalModuleDbVer;    // @v12.3.12 Версия базы «чёрного списка», на которой выполнялась проверка КИ
 		};
 
 		enum {
@@ -59588,7 +59601,7 @@ public:
 		//   наиболее приемлемый хост функцией SelectCdnHost и, по возможности, сохраняет его в теге.
 		//
 		int    FetchCdnHost(PPID guaID, SString & rResult);
-		int    CheckCodeList(const char * pHost, const char * pFiscalDriveNumber, CodeStatusCollection & rList);
+		int    CheckCodeList(const char * pHost, const char * pFiscalDriveNumber, CodeStatusCollection & rList, bool * pIsConnectionProblem);
 		//
 		// Далее следуют 3 метода для работы с локальным сервером проверки марок.
 		//
@@ -59614,9 +59627,9 @@ public:
 				opmodeActive = 1,
 				opmodeService = 2
 			};
-			LocalSvcStatus() : Flags(0), Status(stUndef), OpMode(opmodeUndef), UedLastUpdateTm(0), UedLastSyncTm(0)
-			{
-			}
+			LocalSvcStatus();
+			LocalSvcStatus & Z();
+
 			uint   Flags;
 			int    Status;
 			int    OpMode;
@@ -59651,8 +59664,12 @@ public:
 
 	//
 	// Descr: Высокоуровневая (терминальная) функция, реализующая полный цикл вызовов для проверки марок в разрешительном режиме.
+	// ARG(offlineMod IN): 
+	//   0 - online only
+	//   1 - offline only
+	//   2 - regular mode: try online and if failed then try offline
 	//
-	static int PmCheck(PPID guaID, const char * pFiscalDriveNumber, PermissiveModeInterface::CodeStatusCollection & rList);
+	static int PmCheck(PPID guaID, const char * pFiscalDriveNumber, int offlineMode, PermissiveModeInterface::CodeStatusCollection & rList);
 private:
 	int    PrepareBillPacketForSending(PPID billID, void * pChZnPacket);
 	void * P_Ib; // Блок инициализации
@@ -61148,7 +61165,12 @@ int EditPrintParam(PrnDlgAns * pData);
 //   отдельный процесс (crr32_support), который всегда будет 32битным.
 // @v12.3.11 int CrystalReportPrint(const char * pReportPath, const char * pDir, const char * pPrinter, int numCopies, int options, const DEVMODEA *pDevMode);  //erik{DEVMODEA *pDevMode} add param v10.4.10
 // @v12.3.11 int CrystalReportExport(const char * pReportPath, const char * pDir, const char * pReportName, const char * pEMailAddr, int options);
-int CrystalReportPrint2(const CrystalReportPrintParamBlock & rBlk, CrystalReportPrintReply & rReply, const bool modalPreview, void * hParentWindowForPreview); // @v11.9.5
+//
+// @v12.3.12 Пришлось раздвоить функцию CrystalReportPrint2(). Вариант CrystalReportPrint2_Local будет исполнять работу локально по отношению к процессу,
+// а вариант CrystalReportPrint2_Server будет работать в составе сервера crr32_support.
+//
+int CrystalReportPrint2_Local(const CrystalReportPrintParamBlock & rBlk, CrystalReportPrintReply & rReply, void * hParentWindowForPreview); // @v11.9.5
+int CrystalReportPrint2_Server(const CrystalReportPrintParamBlock & rBlk, CrystalReportPrintReply & rReply, void * hParentWindowForPreview, SIntHandle hPipe);
 //
 // Descr: Функция реализует инкапсулированное обращение к CrystalReports либо на-прямую, либо через 32-битный процесс-посредник (crr32_support).
 //

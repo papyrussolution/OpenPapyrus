@@ -1,19 +1,9 @@
 // SMEM.CPP
-// Copyright (c) Sobolev A. 1993-2001, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2016, 2017, 2019, 2020, 2021, 2022, 2023, 2024
+// Copyright (c) Sobolev A. 1993-2001, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2016, 2017, 2019, 2020, 2021, 2022, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <slib-internal.h>
 #pragma hdrstop
-//
-// @v11.2.3 Поступила информация, что JobServer в последних релизах "падает". Отключаем для сервера mimalloc и проверям.
-// @v11.2.4 Похоже, возникают спонтанные аварии и на клиентских сессиях
-//
-#if _MSC_VER >= 1900 /*&& !defined(NDEBUG)*/ && !defined(_PPSERVER)
-	// @v11.2.4 #define USE_MIMALLOC
-#endif
-#ifdef USE_MIMALLOC
-	#include "mimalloc\mimalloc.h"
-#endif
 //
 //
 //
@@ -412,11 +402,7 @@ int SAlloc::Stat::Output(SString & rBuf)
 #if SLGATHERALLOCSTATISTICS
 	SLS.GetAllocStat().RegisterAlloc(sz);
 #endif
-#ifdef USE_MIMALLOC
-	void * p_result = mi_malloc(sz);
-#else
 	void * p_result = malloc(sz);
-#endif
 	if(!p_result)
 		SLS.SetError(SLERR_NOMEM);
 	return p_result;
@@ -429,11 +415,7 @@ int SAlloc::Stat::Output(SString & rBuf)
 #if SLGATHERALLOCSTATISTICS
 	SLS.GetAllocStat().RegisterAlloc(n * sz);
 #endif
-#ifdef USE_MIMALLOC
-	void * p_result = mi_calloc(n, sz);
-#else
 	void * p_result = calloc(n, sz);
-#endif
 	if(!p_result)
 		SLS.SetError(SLERR_NOMEM);
 	return p_result;
@@ -448,11 +430,7 @@ int SAlloc::Stat::Output(SString & rBuf)
 	// перераспределяемого блока
 	SLS.GetAllocStat().RegisterAlloc(sz);
 #endif
-#ifdef USE_MIMALLOC
-	void * p_result = mi_realloc(ptr, sz);
-#else
 	void * p_result = realloc(ptr, sz);
-#endif
 	if(!p_result)
 		SLS.SetError(SLERR_NOMEM);
 	return p_result;
@@ -460,11 +438,7 @@ int SAlloc::Stat::Output(SString & rBuf)
 
 /*static*/void FASTCALL SAlloc::F(void * ptr)
 {
-#ifdef USE_MIMALLOC
-	mi_free(ptr);
-#else
 	free(ptr);
-#endif
 }
 
 void * operator new(size_t sz)
@@ -472,11 +446,7 @@ void * operator new(size_t sz)
 #if SLGATHERALLOCSTATISTICS
 	SLS.GetAllocStat().RegisterAlloc(sz);
 #endif
-#ifdef USE_MIMALLOC
-	void * p_result = mi_new(sz);
-#else
 	void * p_result = malloc(sz);
-#endif
 	if(!p_result)
 		SLS.SetError(SLERR_NOMEM);
 	return p_result;
@@ -484,20 +454,12 @@ void * operator new(size_t sz)
 
 void operator delete(void * ptr)
 {
-#ifdef USE_MIMALLOC
-	mi_free(ptr);
-#else
 	free(ptr);
-#endif
 }
 
 void operator delete [] (void * ptr)
 {
-#ifdef USE_MIMALLOC
-	mi_free(ptr);
-#else
 	free(ptr);
-#endif
 }
 
 void FASTCALL SObfuscateBuffer(void * pBuf, size_t bufSize)

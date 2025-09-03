@@ -2028,6 +2028,7 @@
 #define cmImageChanged           1194 // @v12.0.4  [evCommand] Событие генерируется группой управляющих элементов ImageBrowseCtrlGroup в ответ на изменение изображения и передается в родительский диалог.
 #define cmAutoConfigure          1195 // @v12.2.1
 #define cmClientActivityConfig   1196 // @v12.2.4 Кнопка, открывающая диалог редактирования параметров конфигурации анализа клиентской активностий
+#define cmRun                    1197 // @v12.3.12 Кнопка запуска основной функции (что бы это не значило)
 //
 #define DLG_LOGIN                   1
 	#define CTL_LOGIN_NAME               (1 + WINDOWS_ID_BIAS)
@@ -11692,6 +11693,7 @@
 	#define CTL_COMPCAT_SYMB               (3 + WINDOWS_ID_BIAS)
 	#define CTL_COMPCAT_CNTEMPL            (4 + WINDOWS_ID_BIAS)
 #define DLG_CHKCHZNMARK           1442 // @v12.0.4 Тестовый диалог проверки марки честный знак
+	#define cmCheckOffline                 101 // @v12.3.12
 	#define CTL_CHKCHZNMARK_INPUT          (1 + WINDOWS_ID_BIAS)
 	#define CTL_CHKCHZNMARK_PIC            (2 + WINDOWS_ID_BIAS)
 	#define CTL_CHKCHZNMARK_INFO           (3 + WINDOWS_ID_BIAS)
@@ -11863,6 +11865,13 @@
 	#define CTL_CHZNLOCPMURL_ADDR               (1 + WINDOWS_ID_BIAS)
 	#define CTL_CHZNLOCPMURL_USER               (2 + WINDOWS_ID_BIAS)
 	#define CTL_CHZNLOCPMURL_PW                 (3 + WINDOWS_ID_BIAS)
+#define DLG_TESTGLBSVCACSY        1481 // @v12.3.12 Диалог для отображения результатов тестирования доступности глобальных сервисов. TestGlobalServiceAccessibility  
+	#define CTL_TESTGLBSVCACSY_LIST             (1 + WINDOWS_ID_BIAS)
+	#define CTL_TESTGLBSVCACSY_INFO             (2 + WINDOWS_ID_BIAS)
+#define DLG_CHZNLOCPMPANE         1482 // @v12.3.12 Диалог диагностики локального сервера проверки марок чзн
+	// cmConfigure
+	#define CTL_CHZNLOCPMPANE_URL               (1 + WINDOWS_ID_BIAS)
+	#define CTL_CHZNLOCPMPANE_STATE             (2 + WINDOWS_ID_BIAS)
 //
 // Win32 Dialog Identifiers
 //

@@ -864,6 +864,15 @@ public:
 	int    Pop3Delete(const InetUrl & rUrl, int mflags, uint msgN); // DELE
 	int    SmtpSend(const InetUrl & rUrl, int mflags, const SMailMessage & rMsg);
 	static size_t CbWrite(char * pBuffer, size_t size, size_t nmemb, void * pExtra);
+
+	void   SetQueryParam_ConnectionTimeout(int ms)
+	{
+		IqsB.ConnectionTimeout = ms;
+	}
+	void   SetQueryParam_OverallTimeout(int ms)
+	{
+		IqsB.OverallTimeout = ms;
+	}
 private:
 	static int    ComposeFieldList(const StrStrAssocArray * pFields, SString & rBuf, uint * pCount);
 	static void * ComposeHeaderList(const StrStrAssocArray * pHttpHeaderFields);
@@ -903,8 +912,17 @@ private:
 
 	SFile  NullWrF; // Файл-заглушка для записи того, что не важно
 	void * H;
+	int    LastErrorCode;
 	SString LogFileName;
 	SFile * P_LogF;
+	struct InternalQuerySetupBlock {
+		InternalQuerySetupBlock() : ConnectionTimeout(0), OverallTimeout(0)
+		{
+		}
+		int    ConnectionTimeout; // Таймаут соединения в мс (транслируется в CURLOPT_CONNECTTIMEOUT_MS). Если <=0 то не передается curl'У
+		int    OverallTimeout;    // Общий таймаут запроса в мс (транслируется в CURLOPT_TIMEOUT_MS). Если <=0 то не передается curl'У
+	};
+	InternalQuerySetupBlock IqsB;
 };
 //
 // Descr: Класс реализующий максимально простой интерфейс для копирования файла с одного URL на другой.

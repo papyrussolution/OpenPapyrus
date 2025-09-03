@@ -158,12 +158,10 @@ inline bool HandleCommentLine(Sci_PositionU & cur, Sci_PositionU one_too_much, A
 		ch = styler.SafeGetCharAt(cur);
 		if(fifteen_found) {
 /*
-                        if( ch == '\012' )
-                        {
+                        if( ch == '\012' ) {
                                 // One newline on Windows (015, 012)
                         }
-                        else
-                        {
+                        else {
                                 // One newline on MAC (015) and another char
                         }
  */

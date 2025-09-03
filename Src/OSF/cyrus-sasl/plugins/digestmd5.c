@@ -99,20 +99,13 @@ const char * SIGNING_SERVER_CLIENT = "Digest session key to server-to-client sig
 
 #define REALM_CHAL_PREFIX       "Available realms:"
 
-static char * quote(char * str);
+static char * quote(const char * str);
 
 struct context;
 
 /* function definitions for cipher encode/decode */
-typedef int cipher_function_t (struct context *,
-    const char *,
-    unsigned,
-    uchar[],
-    char *,
-    unsigned *);
-
-typedef int cipher_init_t (struct context *, uchar [16],
-    uchar [16]);
+typedef int cipher_function_t (struct context *, const char *, unsigned, uchar[], char *, unsigned *);
+typedef int cipher_init_t (struct context *, uchar [16], uchar [16]);
 typedef void cipher_free_t (struct context *);
 
 enum Context_type { SERVER = 0, CLIENT = 1 };
@@ -426,14 +419,12 @@ static uchar * create_nonce(const sasl_utils_t * utils)
 	return base64buf;
 }
 
-static int add_to_challenge(const sasl_utils_t * utils, char ** str, unsigned * buflen, unsigned * curlen,
-    char * name, uchar * value, bool need_quotes)
+static int add_to_challenge(const sasl_utils_t * utils, char ** str, uint * buflen, uint * curlen, const char * name, const uchar * value, bool need_quotes)
 {
-	size_t namesize = strlen(name);
-	size_t valuesize = strlen((char *)value);
-	int ret;
-	unsigned newlen = (uint)(*curlen + 1 + namesize + 2 + valuesize + 2);
-	ret = _plug_buf_alloc(utils, str, buflen, newlen);
+	size_t namesize = sstrlen(name);
+	size_t valuesize = sstrlen(value);
+	uint   newlen = (uint)(*curlen + 1 + namesize + 2 + valuesize + 2);
+	int    ret = _plug_buf_alloc(utils, str, buflen, newlen);
 	if(ret != SASL_OK) 
 		return ret;
 	if(*curlen > 0) {
@@ -445,14 +436,13 @@ static int add_to_challenge(const sasl_utils_t * utils, char ** str, unsigned * 
 	}
 	if(need_quotes) {
 		strcat(*str, "=\"");
-		/* Check if the value needs quoting */
+		// Check if the value needs quoting 
 		if(strpbrk((char *)value, NEED_ESCAPING) != NULL) {
-			char * quoted = quote((char *)value);
+			char * quoted = quote(reinterpret_cast<const char *>(value));
 			if(quoted == NULL)
 				SASL_UTILS_MEMERROR(utils);
 			valuesize = strlen(quoted);
-			/* As the quoted string is bigger, make sure we have enough
-			   space now */
+			// As the quoted string is bigger, make sure we have enough space now
 			ret = _plug_buf_alloc(utils, str, buflen, newlen);
 			if(ret == SASL_OK) {
 				strcat(*str, quoted);
@@ -472,15 +462,11 @@ static int add_to_challenge(const sasl_utils_t * utils, char ** str, unsigned * 
 		strcat(*str, "=");
 		strcat(*str, (char *)value);
 	}
-
 	*curlen = newlen;
 	return SASL_OK;
 }
 
-static int is_lws_char(char c)
-{
-	return (c == ' ' || c == HT || c == CR || c == LF);
-}
+static int is_lws_char(char c) { return (c == ' ' || c == HT || c == CR || c == LF); }
 
 static char * skip_lws(char * s)
 {
@@ -502,20 +488,17 @@ static char * skip_r_lws(char * s)
 {
 	char * end;
 	size_t len;
-
-	if(!s) return NULL;
-
+	if(!s) 
+		return NULL;
 	len = strlen(s);
-	if(!len) return NULL;
-
+	if(!len) 
+		return NULL;
 	/* the last character before terminating NUL */
 	end = s + len - 1;
-
 	/* skipping spaces: */
 	while(end > s && (end[0] == ' ' || end[0] == HT || end[0] == CR || end[0] == LF)) {
 		end--;
 	}
-
 	/* If all string from spaces, return NULL */
 	if(end == s && (end[0] == ' ' || end[0] == HT || end[0] == CR || end[0] == LF)) {
 		return NULL;
@@ -527,8 +510,8 @@ static char * skip_r_lws(char * s)
 
 static char * skip_token(char * s, int caseinsensitive)
 {
-	if(!s) return NULL;
-
+	if(!s) 
+		return NULL;
 	while(s[0]>SP) {
 		if(s[0]==DEL || s[0]=='(' || s[0]==')' || s[0]=='<' || s[0]=='>' ||
 		    s[0]=='@' || s[0]==',' || s[0]==';' || s[0]==':' || s[0]=='\\' ||
@@ -554,25 +537,20 @@ static bool str2ul32(char * str, unsigned long * value)
 {
 	uint n;
 	char c;
-
 	if(str == NULL) {
 		return (FALSE);
 	}
-
 	*value = 0;
-
 	str = skip_lws(str);
 	if(str[0] == '\0') {
 		return (FALSE);
 	}
-
 	n = 0;
 	while(str[0] != '\0') {
 		c = str[0];
 		if(!isdigit((int)c)) {
 			return (FALSE);
 		}
-
 /* Will overflow after adding additional digit */
 		if(n > MAX_UIN32_DIV_10) {
 			return (FALSE);
@@ -580,11 +558,9 @@ static bool str2ul32(char * str, unsigned long * value)
 		else if(n == MAX_UIN32_DIV_10 && ((uint)(c - '0') > MAX_UIN32_MOD_10)) {
 			return (FALSE);
 		}
-
 		n = n * 10 + (uint)(c - '0');
 		str++;
 	}
-
 	*value = n;
 	return (TRUE);
 }
@@ -597,9 +573,8 @@ static char * unquote(char * qstr)
 	char * endvalue;
 	int escaped = 0;
 	char * outptr;
-
-	if(!qstr) return NULL;
-
+	if(!qstr) 
+		return NULL;
 	if(qstr[0] == '"') {
 		qstr++;
 		outptr = qstr;
@@ -640,9 +615,9 @@ static char * unquote(char * qstr)
 }
 
 /* Unlike unquote, this function returns an allocated quoted copy */
-static char * quote(char * str)
+static char * quote(const char * str)
 {
-	char * p;
+	const char * p;
 	char * outp;
 	char * result;
 	int num_to_escape; /* How many characters need escaping */
@@ -1873,12 +1848,12 @@ static int digestmd5_server_mech_step1(server_context_t * stext, sasl_server_par
 	resplen = 0;
 	text->out_buf = NULL;
 	text->out_buf_len = 0;
-	if(add_to_challenge(sparams->utils, &text->out_buf, &text->out_buf_len, &resplen, "nonce", (uchar *)nonce, TRUE) != SASL_OK) {
+	if(add_to_challenge(sparams->utils, &text->out_buf, &text->out_buf_len, &resplen, "nonce", nonce, TRUE) != SASL_OK) {
 		SETERROR(sparams->utils, "internal error: add_to_challenge failed");
 		return SASL_FAIL;
 	}
 	/* add to challenge; if we chose not to specify a realm, we won't send one to the client */
-	if(realm && add_to_challenge(sparams->utils, &text->out_buf, &text->out_buf_len, &resplen, "realm", (uchar *)realm, TRUE) != SASL_OK) {
+	if(realm && add_to_challenge(sparams->utils, &text->out_buf, &text->out_buf_len, &resplen, "realm", (const uchar *)realm, TRUE) != SASL_OK) {
 		SETERROR(sparams->utils, "internal error: add_to_challenge failed");
 		return SASL_FAIL;
 	}
@@ -1890,7 +1865,7 @@ static int digestmd5_server_mech_step1(server_context_t * stext, sasl_server_par
 	 * indicates authentication with integrity protection and encryption.
 	 */
 	/* add qop to challenge */
-	if(add_to_challenge(sparams->utils, &text->out_buf, &text->out_buf_len, &resplen, "qop", (uchar *)qop, TRUE) != SASL_OK) {
+	if(add_to_challenge(sparams->utils, &text->out_buf, &text->out_buf_len, &resplen, "qop", (const uchar *)qop, TRUE) != SASL_OK) {
 		SETERROR(sparams->utils, "internal error: add_to_challenge 3 failed");
 		return SASL_FAIL;
 	}
@@ -1899,14 +1874,13 @@ static int digestmd5_server_mech_step1(server_context_t * stext, sasl_server_par
 	 */
 	/* add cipher-opts to challenge; only add if there are some */
 	if(strcmp(cipheropts, "")!=0) {
-		if(add_to_challenge(sparams->utils, &text->out_buf, &text->out_buf_len, &resplen, "cipher", (uchar *)cipheropts, TRUE) != SASL_OK) {
+		if(add_to_challenge(sparams->utils, &text->out_buf, &text->out_buf_len, &resplen, "cipher", (const uchar *)cipheropts, TRUE) != SASL_OK) {
 			SETERROR(sparams->utils, "internal error: add_to_challenge 4 failed");
 			return SASL_FAIL;
 		}
 	}
-
 	/* "stale" is true if a reauth failed because of a nonce timeout */
-	if(stext->stale && add_to_challenge(sparams->utils, &text->out_buf, &text->out_buf_len, &resplen, "stale", (uchar *)"true", FALSE) != SASL_OK) {
+	if(stext->stale && add_to_challenge(sparams->utils, &text->out_buf, &text->out_buf_len, &resplen, "stale", (const uchar *)"true", FALSE) != SASL_OK) {
 		SETERROR(sparams->utils, "internal error: add_to_challenge failed");
 		return SASL_FAIL;
 	}
@@ -1920,24 +1894,15 @@ static int digestmd5_server_mech_step1(server_context_t * stext, sasl_server_par
 	if(sparams->props.maxbufsize) {
 		snprintf(maxbufstr, sizeof(maxbufstr), "%u",
 		    sparams->props.maxbufsize);
-		if(add_to_challenge(sparams->utils,
-		    &text->out_buf, &text->out_buf_len, &resplen,
-		    "maxbuf",
-		    (uchar *)maxbufstr, FALSE) != SASL_OK) {
-			SETERROR(sparams->utils,
-			    "internal error: add_to_challenge 5 failed");
+		if(add_to_challenge(sparams->utils, &text->out_buf, &text->out_buf_len, &resplen, "maxbuf", (const uchar *)maxbufstr, FALSE) != SASL_OK) {
+			SETERROR(sparams->utils, "internal error: add_to_challenge 5 failed");
 			return SASL_FAIL;
 		}
 	}
-
-	if(add_to_challenge(sparams->utils,
-	    &text->out_buf, &text->out_buf_len, &resplen,
-	    "charset",
-	    (uchar *)charset, FALSE) != SASL_OK) {
+	if(add_to_challenge(sparams->utils, &text->out_buf, &text->out_buf_len, &resplen, "charset", (const uchar *)charset, FALSE) != SASL_OK) {
 		SETERROR(sparams->utils, "internal error: add_to_challenge 6 failed");
 		return SASL_FAIL;
 	}
-
 	/*
 	 * algorithm
 	 *  This directive is required for backwards compatibility with HTTP
@@ -1949,35 +1914,25 @@ static int digestmd5_server_mech_step1(server_context_t * stext, sasl_server_par
 	 * algorithm         = "algorithm" "=" "md5-sess"
 	 */
 
-	if(add_to_challenge(sparams->utils,
-	    &text->out_buf, &text->out_buf_len, &resplen,
-	    "algorithm",
-	    (uchar *)"md5-sess", FALSE)!=SASL_OK) {
+	if(add_to_challenge(sparams->utils, &text->out_buf, &text->out_buf_len, &resplen, "algorithm", (const uchar *)"md5-sess", FALSE)!=SASL_OK) {
 		SETERROR(sparams->utils, "internal error: add_to_challenge 7 failed");
 		return SASL_FAIL;
 	}
-
 	/*
 	 * The size of a digest-challenge MUST be less than 2048 bytes!!!
 	 */
 	if(*serveroutlen > 2048) {
-		SETERROR(sparams->utils,
-		    "internal error: challenge larger than 2048 bytes");
+		SETERROR(sparams->utils, "internal error: challenge larger than 2048 bytes");
 		return SASL_FAIL;
 	}
-
 	text->authid = NULL;
 	if(_plug_strdup(sparams->utils, realm, &text->realm, NULL) != SASL_OK) {
-		SETERROR(sparams->utils,
-		    "internal error: out of memory when saving realm");
+		SETERROR(sparams->utils, "internal error: out of memory when saving realm");
 		return SASL_FAIL;
 	}
-
-	if(text->http_mode && text->reauth->timeout &&
-	    sparams->utils->mutex_lock(text->reauth->mutex) == SASL_OK) { /* LOCK */
+	if(text->http_mode && text->reauth->timeout && sparams->utils->mutex_lock(text->reauth->mutex) == SASL_OK) { /* LOCK */
 		/* Create an initial cache entry for non-persistent HTTP connections */
-		unsigned val = hash((char *)nonce) % text->reauth->size;
-
+		uint   val = hash((char *)nonce) % text->reauth->size;
 		clear_reauth_entry(&text->reauth->e[val], SERVER, sparams->utils);
 		text->reauth->e[val].authid = NULL;
 		text->reauth->e[val].realm = text->realm; text->realm = NULL;
@@ -2718,61 +2673,42 @@ static int digestmd5_server_mech_step2(server_context_t * stext,
 
 	/* add to challenge */
 	{
-		unsigned resplen = 0;
-
-		if(add_to_challenge(sparams->utils,
-		    &text->out_buf, &text->out_buf_len, &resplen,
-		    "rspauth", (uchar *)text->response_value,
-		    text->http_mode ? TRUE : FALSE) != SASL_OK) {
+		uint   resplen = 0;
+		if(add_to_challenge(sparams->utils, &text->out_buf, &text->out_buf_len, &resplen, "rspauth", (const uchar *)text->response_value, text->http_mode ? TRUE : FALSE) != SASL_OK) {
 			SETERROR(sparams->utils, "internal error: add_to_challenge failed");
 			result = SASL_FAIL;
 			goto FreeAllMem;
 		}
-
 		if(text->http_mode) {
 			/* per RFC 2617 */
 			char ncvalue[10];
-
-			if(add_to_challenge(sparams->utils,
-			    &text->out_buf, &text->out_buf_len, &resplen,
-			    "cnonce", cnonce, TRUE) != SASL_OK) {
+			if(add_to_challenge(sparams->utils, &text->out_buf, &text->out_buf_len, &resplen, "cnonce", cnonce, TRUE) != SASL_OK) {
 				result = SASL_FAIL;
 				goto FreeAllMem;
 			}
 			snprintf(ncvalue, sizeof(ncvalue), "%08x", text->nonce_count);
-			if(add_to_challenge(sparams->utils,
-			    &text->out_buf, &text->out_buf_len, &resplen,
-			    "nc", (uchar *)ncvalue, FALSE) != SASL_OK) {
+			if(add_to_challenge(sparams->utils, &text->out_buf, &text->out_buf_len, &resplen, "nc", (const uchar *)ncvalue, FALSE) != SASL_OK) {
 				result = SASL_FAIL;
 				goto FreeAllMem;
 			}
-			if(add_to_challenge(sparams->utils,
-			    &text->out_buf, &text->out_buf_len, &resplen,
-			    "qop", (uchar *)qop, TRUE) != SASL_OK) {
+			if(add_to_challenge(sparams->utils, &text->out_buf, &text->out_buf_len, &resplen, "qop", (const uchar *)qop, TRUE) != SASL_OK) {
 				result = SASL_FAIL;
 				goto FreeAllMem;
 			}
 		}
-
 		/* self check */
 		if(strlen(text->out_buf) > 2048) {
 			result = SASL_FAIL;
 			goto FreeAllMem;
 		}
 	}
-
 	*serveroutlen = (uint)strlen(text->out_buf);
 	*serverout = text->out_buf;
-
 	result = SASL_OK;
-
 FreeAllMem:
-	if(clientinlen > 0 &&
-	    text->reauth->timeout &&
-	    sparams->utils->mutex_lock(text->reauth->mutex) == SASL_OK) { /* LOCK */
+	if(clientinlen > 0 && text->reauth->timeout && sparams->utils->mutex_lock(text->reauth->mutex) == SASL_OK) { /* LOCK */
 		/* Look for an entry for the nonce value */
-		unsigned val = hash((char *)nonce) % text->reauth->size;
-
+		uint   val = hash((char *)nonce) % text->reauth->size;
 		switch(result) {
 			case SASL_OK:
 			    /* successful auth, setup for future reauth */
@@ -2804,7 +2740,6 @@ FreeAllMem:
 		}
 		sparams->utils->mutex_unlock(text->reauth->mutex); /* UNLOCK */
 	}
-
 	/* free everything */
 	if(in_start) sparams->utils->FnFree(in_start);
 	if(full_username)
@@ -3274,109 +3209,77 @@ static int make_client_response(context_t * text,
 	if(text->out_buf) params->utils->FnFree(text->out_buf);
 	text->out_buf = NULL;
 	text->out_buf_len = 0;
-	if(add_to_challenge(params->utils,
-	    &text->out_buf, &text->out_buf_len, &resplen,
-	    "username", (uchar *)oparams->authid,
-	    TRUE) != SASL_OK) {
+	if(add_to_challenge(params->utils, &text->out_buf, &text->out_buf_len, &resplen, "username", (const uchar *)oparams->authid, TRUE) != SASL_OK) {
 		result = SASL_FAIL;
 		goto FreeAllocatedMem;
 	}
-
-	if(add_to_challenge(params->utils,
-	    &text->out_buf, &text->out_buf_len, &resplen,
-	    "realm", (uchar *)text->realm,
-	    TRUE) != SASL_OK) {
+	if(add_to_challenge(params->utils, &text->out_buf, &text->out_buf_len, &resplen, "realm", (const uchar *)text->realm, TRUE) != SASL_OK) {
 		result = SASL_FAIL;
 		goto FreeAllocatedMem;
 	}
 	if(strcmp(oparams->user, oparams->authid)) {
-		if(add_to_challenge(params->utils,
-		    &text->out_buf, &text->out_buf_len, &resplen,
-		    "authzid", (uchar *)oparams->user, TRUE) != SASL_OK) {
+		if(add_to_challenge(params->utils, &text->out_buf, &text->out_buf_len, &resplen, "authzid", (const uchar *)oparams->user, TRUE) != SASL_OK) {
 			result = SASL_FAIL;
 			goto FreeAllocatedMem;
 		}
 	}
-	if(add_to_challenge(params->utils,
-	    &text->out_buf, &text->out_buf_len, &resplen,
-	    "nonce", text->nonce, TRUE) != SASL_OK) {
+	if(add_to_challenge(params->utils, &text->out_buf, &text->out_buf_len, &resplen, "nonce", text->nonce, TRUE) != SASL_OK) {
 		result = SASL_FAIL;
 		goto FreeAllocatedMem;
 	}
-	if(add_to_challenge(params->utils,
-	    &text->out_buf, &text->out_buf_len, &resplen,
-	    "cnonce", text->cnonce, TRUE) != SASL_OK) {
+	if(add_to_challenge(params->utils, &text->out_buf, &text->out_buf_len, &resplen, "cnonce", text->cnonce, TRUE) != SASL_OK) {
 		result = SASL_FAIL;
 		goto FreeAllocatedMem;
 	}
 	snprintf(ncvalue, sizeof(ncvalue), "%08x", text->nonce_count);
-	if(add_to_challenge(params->utils,
-	    &text->out_buf, &text->out_buf_len, &resplen,
-	    "nc", (uchar *)ncvalue, FALSE) != SASL_OK) {
+	if(add_to_challenge(params->utils, &text->out_buf, &text->out_buf_len, &resplen, "nc", (const uchar *)ncvalue, FALSE) != SASL_OK) {
 		result = SASL_FAIL;
 		goto FreeAllocatedMem;
 	}
-	if(add_to_challenge(params->utils,
-	    &text->out_buf, &text->out_buf_len, &resplen,
-	    "qop", (uchar *)qop, FALSE) != SASL_OK) {
+	if(add_to_challenge(params->utils, &text->out_buf, &text->out_buf_len, &resplen, "qop", (const uchar *)qop, FALSE) != SASL_OK) {
 		result = SASL_FAIL;
 		goto FreeAllocatedMem;
 	}
 	if(ctext->cipher) {
-		if(add_to_challenge(params->utils,
-		    &text->out_buf, &text->out_buf_len, &resplen,
-		    "cipher",
-		    (uchar *)ctext->cipher->name,
-		    FALSE) != SASL_OK) {
+		if(add_to_challenge(params->utils, &text->out_buf, &text->out_buf_len, &resplen, "cipher", (const uchar *)ctext->cipher->name, FALSE) != SASL_OK) {
 			result = SASL_FAIL;
 			goto FreeAllocatedMem;
 		}
 	}
-
 	if(params->props.maxbufsize) {
 		snprintf(maxbufstr, sizeof(maxbufstr), "%d", params->props.maxbufsize);
-		if(add_to_challenge(params->utils, &text->out_buf, &text->out_buf_len, &resplen, "maxbuf", (uchar *)maxbufstr, FALSE) != SASL_OK) {
+		if(add_to_challenge(params->utils, &text->out_buf, &text->out_buf_len, &resplen, "maxbuf", (const uchar *)maxbufstr, FALSE) != SASL_OK) {
 			SETERROR(params->utils, "internal error: add_to_challenge maxbuf failed");
 			goto FreeAllocatedMem;
 		}
 	}
 	if(IsUTF8) {
-		if(add_to_challenge(params->utils, &text->out_buf, &text->out_buf_len, &resplen, "charset", (uchar *)"utf-8", FALSE) != SASL_OK) {
+		if(add_to_challenge(params->utils, &text->out_buf, &text->out_buf_len, &resplen, "charset", (const uchar *)"utf-8", FALSE) != SASL_OK) {
 			result = SASL_FAIL;
 			goto FreeAllocatedMem;
 		}
 	}
-	if(add_to_challenge(params->utils, &text->out_buf, &text->out_buf_len, &resplen,
-	    text->http_mode ? "uri" /* per RFC 2617 */ : "digest-uri"/* per RFC 2831 */, (uchar *)request->uri, TRUE) != SASL_OK) {
+	if(add_to_challenge(params->utils, &text->out_buf, &text->out_buf_len, &resplen, text->http_mode ? "uri" /* per RFC 2617 */ : "digest-uri"/* per RFC 2831 */, (const uchar *)request->uri, TRUE) != SASL_OK) {
 		result = SASL_FAIL;
 		goto FreeAllocatedMem;
 	}
 	if(text->http_mode) {
 		/* per RFC 2617: algorithm & opaque MUST be sent back to server */
-		if(add_to_challenge(params->utils,
-		    &text->out_buf, &text->out_buf_len, &resplen,
-		    "algorithm", (uchar *)ctext->algorithm,
-		    FALSE) != SASL_OK) {
+		if(add_to_challenge(params->utils, &text->out_buf, &text->out_buf_len, &resplen, "algorithm", (const uchar *)ctext->algorithm, FALSE) != SASL_OK) {
 			result = SASL_FAIL;
 			goto FreeAllocatedMem;
 		}
 		if(ctext->opaque) {
-			if(add_to_challenge(params->utils,
-			    &text->out_buf, &text->out_buf_len, &resplen,
-			    "opaque", ctext->opaque, TRUE) != SASL_OK) {
+			if(add_to_challenge(params->utils, &text->out_buf, &text->out_buf_len, &resplen, "opaque", ctext->opaque, TRUE) != SASL_OK) {
 				result = SASL_FAIL;
 				goto FreeAllocatedMem;
 			}
 		}
 	}
-	if(add_to_challenge(params->utils,
-	    &text->out_buf, &text->out_buf_len, &resplen,
-	    "response", (uchar *)response,
-	    FALSE) != SASL_OK) {
+	if(add_to_challenge(params->utils, &text->out_buf, &text->out_buf_len, &resplen, "response", (const uchar *)response, FALSE) != SASL_OK) {
 		result = SASL_FAIL;
 		goto FreeAllocatedMem;
 	}
-
 	/* self check */
 	if(strlen(text->out_buf) > 2048) {
 		result = SASL_FAIL;

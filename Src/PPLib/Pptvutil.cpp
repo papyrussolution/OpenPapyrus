@@ -8935,6 +8935,11 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 								p_lb->setState(sfTabStop, true);
 							}
 							pDlg->InsertCtlWithCorrespondingNativeItem(p_lb, item_id, 0, /*extraPtr*/0);
+							// @v12.3.12 {
+							if(is_ui_cfg_valid && ui_cfg.ListFont.IsDefined()) {
+								pDlg->SetCtrlFont(item_id, ui_cfg.ListFont);
+							}
+							// } @v12.3.12 
 							ctl_id_for_tab = item_id; // @v12.3.9
 							is_inserted = true;
 							//if(font_face.NotEmpty()) {

@@ -195,25 +195,27 @@ xmlTextWriter * xmlNewTextWriter(xmlOutputBuffer * out)
 // @compression:  compress the output?
 // Returns the new xmlTextWriterPtr or NULL in case of error
 // 
-xmlTextWriter * xmlNewTextWriterFilename(const char * uri, int compression)
+xmlTextWriter * xmlNewTextWriterFilename(const char * pUri, int compression)
 {
 	const char * _p_func_name = __FUNCTION__;
 	xmlTextWriter * ret = 0;
-	xmlOutputBuffer * out = xmlOutputBufferCreateFilename(uri, NULL, compression);
+	xmlOutputBuffer * out = xmlOutputBufferCreateFilename(pUri, NULL, compression);
 	if(!out) {
 		// @v12.2.0 {
 		SString added_msg;
 		(added_msg = "cannot open uri");
-		if(!isempty(uri))
-			added_msg.Space().CatQStr(uri);
+		if(!isempty(pUri))
+			added_msg.Space().CatQStr(pUri);
 		// } @v12.2.0 
 		xmlWriterErrMsg(NULL, XML_IO_EIO, _p_func_name, added_msg);
+		SLS.SetError(SLERR_OPENFAULT_XMLWR, pUri); // @v12.3.12
 	}
 	else {
 		ret = xmlNewTextWriter(out);
 		if(!ret) {
 			xmlWriterErrMsg_OutOfMem(0, _p_func_name);
 			xmlOutputBufferClose(out);
+			SLS.SetError(SLERR_NOMEM, 0); // @v12.3.12
 		}
 		else {
 			ret->indent = 0;
