@@ -2015,7 +2015,8 @@ staticvoid ftpList(void * userData, const char * filename, const char* attrib,
 
 static void ftpData(void * userData, const char * data, int len) 
 {
-	if(userData == NULL) return;
+	if(userData == NULL) 
+		return;
 	if(len <= 0) {
 		fclose((FILE*)userData);
 		return;
@@ -2028,13 +2029,11 @@ int main(int argc, char ** argv)
 	void * ctxt;
 	FILE * output;
 	char * tstfile = NULL;
-
 	xmlNanoFTPInit();
 	if(argc > 1) {
 		ctxt = xmlNanoFTPNewCtxt(argv[1]);
 		if(xmlNanoFTPConnect(ctxt) < 0) {
-			xmlGenericError(xmlGenericErrorContext,
-			    "Couldn't connect to %s\n", argv[1]);
+			xmlGenericError(xmlGenericErrorContext, "Couldn't connect to %s\n", argv[1]);
 			exit(1);
 		}
 		if(argc > 2)
@@ -2043,16 +2042,14 @@ int main(int argc, char ** argv)
 	else
 		ctxt = xmlNanoFTPConnectTo("localhost", 0);
 	if(ctxt == NULL) {
-		xmlGenericError(xmlGenericErrorContext,
-		    "Couldn't connect to localhost\n");
+		xmlGenericError(xmlGenericErrorContext, "Couldn't connect to localhost\n");
 		exit(1);
 	}
 	xmlNanoFTPList(ctxt, ftpList, NULL, tstfile);
 	output = fopen("/tmp/tstdata", "w");
 	if(output != NULL) {
 		if(xmlNanoFTPGet(ctxt, ftpData, (void*)output, tstfile) < 0)
-			xmlGenericError(xmlGenericErrorContext,
-			    "Failed to get file\n");
+			xmlGenericError(xmlGenericErrorContext, "Failed to get file\n");
 	}
 	xmlNanoFTPClose(ctxt);
 	xmlMemoryDump();

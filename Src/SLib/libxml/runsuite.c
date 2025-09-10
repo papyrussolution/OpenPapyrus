@@ -536,11 +536,9 @@ static int xsdTestCase(xmlNode * tst)
 			 */
 			mem = xmlMemUsed();
 			extraMemoryFromResolver = 0;
-			doc = xmlReadMemory((const char *)buf->content, buf->use,
-				"test", NULL, 0);
+			doc = xmlReadMemory((const char *)buf->content, buf->use, "test", NULL, 0);
 			if(doc == NULL) {
-				test_log("Failed to parse valid instance line %ld\n",
-				    xmlGetLineNo(tmp));
+				test_log("Failed to parse valid instance line %ld\n", xmlGetLineNo(tmp));
 				nb_errors++;
 			}
 			else {
@@ -566,15 +564,13 @@ static int xsdTestCase(xmlNode * tst)
 			}
 			xmlResetLastError();
 			if((mem != xmlMemUsed()) && (extraMemoryFromResolver == 0)) {
-				test_log("Validation of instance line %ld leaked %d\n",
-				    xmlGetLineNo(tmp), xmlMemUsed() - mem);
+				test_log("Validation of instance line %ld leaked %d\n", xmlGetLineNo(tmp), xmlMemUsed() - mem);
 				xmlMemoryDump();
 				nb_leaks++;
 			}
 		}
 		tmp = getNext(tmp, "following-sibling::invalid[1]");
 	}
-
 done:
 	if(buf != NULL)
 		xmlBufferFree(buf);
@@ -1106,5 +1102,4 @@ int main(int argc ATTRIBUTE_UNUSED, char ** argv ATTRIBUTE_UNUSED)
 {
 	fprintf(stderr, "runsuite requires support for schemas and xpath in libxml2\n");
 }
-
 #endif

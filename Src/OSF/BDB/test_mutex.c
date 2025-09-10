@@ -14,7 +14,7 @@
 #ifdef DB_WIN32
  #define MUTEX_THREAD_TEST       1
 
-extern int getopt(int, char * const *, const char *);
+extern int getopt(int argc, char * const * argv, const char * optstring);
 
 typedef HANDLE os_pid_t;
 typedef HANDLE os_thread_t;
@@ -64,32 +64,32 @@ typedef pthread_t os_thread_t;
  */
 typedef struct {
 	db_mutex_t mutex; /* Mutex. */
-	ulong id;                              /* Holder's ID. */
-	uint wakeme;                           /* Request to awake. */
+	ulong id;    /* Holder's ID. */
+	uint wakeme; /* Request to awake. */
 } TM;
 
-DB_ENV * dbenv;                                 /* Backing environment */
+DB_ENV * dbenv;  /* Backing environment */
 ENV * env;
-size_t len;                                     /* Backing data chunk size. */
+size_t len;      /* Backing data chunk size. */
 
-uint8 * gm_addr;                              /* Global mutex */
-uint8 * lm_addr;                              /* Locker mutexes */
-uint8 * tm_addr;                              /* Thread mutexes */
+uint8 * gm_addr; /* Global mutex */
+uint8 * lm_addr; /* Locker mutexes */
+uint8 * tm_addr; /* Thread mutexes */
 
 #ifdef MUTEX_THREAD_TEST
-os_thread_t * kidsp;                             /* Locker threads */
-os_thread_t wakep;                              /* Wakeup thread */
+	os_thread_t * kidsp;                             /* Locker threads */
+	os_thread_t wakep;                              /* Wakeup thread */
 #endif
 
 #ifndef HAVE_MMAP
-uint nprocs = 1;                               /* -p: Processes. */
-uint nthreads = 20;                            /* -t: Threads. */
+	uint nprocs = 1;                               /* -p: Processes. */
+	uint nthreads = 20;                            /* -t: Threads. */
 #elif   MUTEX_THREAD_TEST
-uint nprocs = 5;                               /* -p: Processes. */
-uint nthreads = 4;                             /* -t: Threads. */
+	uint nprocs = 5;                               /* -p: Processes. */
+	uint nthreads = 4;                             /* -t: Threads. */
 #else
-uint nprocs = 20;                              /* -p: Processes. */
-uint nthreads = 1;                             /* -t: Threads. */
+	uint nprocs = 20;                              /* -p: Processes. */
+	uint nthreads = 1;                             /* -t: Threads. */
 #endif
 
 uint maxlocks = 20;                            /* -l: Backing locks. */
