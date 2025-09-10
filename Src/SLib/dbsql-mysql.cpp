@@ -291,7 +291,7 @@ int SMySqlDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, 
 			OD     rowid = OdAlloc(OCI_DTYPE_ROWID);
 			// (ora) THROW(OhAttrGet(StmtHandle(*pStmt), OCI_ATTR_ROWID, (OCIRowid *)rowid, 0));
 			// (ora) RowidToStr(rowid, temp_buf);
-			pTbl->getCurRowIdPtr()->FromStr(temp_buf);
+			pTbl->getCurRowIdPtr()->FromStr__(temp_buf);
 			OdFree(rowid);
 		}
 		BtrError = 0;
@@ -398,7 +398,7 @@ int SMySqlDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, 
 		if(sf & DBTable::sfDirect) {
 			DBRowId * p_rowid = static_cast<DBRowId *>(pKey);
 			THROW(p_rowid && p_rowid->IsI32());
-			p_rowid->ToStr(temp_buf);
+			p_rowid->ToStr__(temp_buf);
 			SqlGen.Sp().Tok(Generator_SQL::tokWhere).Sp().Tok(Generator_SQL::tokRowId)._Symb(_EQ_).QText(temp_buf);
 		}
 		else {

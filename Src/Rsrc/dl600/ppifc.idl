@@ -1723,6 +1723,7 @@ library PapyrusInterfaceLib {
 		HRESULT __stdcall SearchQttyByBarcode(BSTR barcode, SPpyO_Goods * pGRec, double * pQtty, long adoptSearching, [out,retval] long * pRet);
 		HRESULT __stdcall SetVad(long goodsID, SPpyO_Goods * pGRec, [out,retval] long * pRet);
 		HRESULT __stdcall ProcessName(BSTR orgName, long flags, [out,retval] BSTR * pRet);
+		HRESULT __stdcall GetEffectiveTaxGroup(long goodsID, DATE dt, SPpyO_GoodsTax * pTaxGrp, [out,retval] long * pRet);
 	};
 
 	[

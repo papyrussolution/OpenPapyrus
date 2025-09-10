@@ -362,8 +362,29 @@ SlProcess::ProcessPool::Entry::Entry()
 	THISZERO();
 }
 
+SlProcess::ProcessPool::Entry & SlProcess::ProcessPool::Entry::Z()
+{
+	THISZERO();
+	return *this;
+}
+
 SlProcess::ProcessPool::ProcessPool() : SStrGroup()
 {
+}
+
+bool SlProcess::ProcessPool::GetEntry(uint idx, SlProcess::ProcessPool::Entry & rEntry, SString * pExeFileNameUtf8) const
+{
+	bool    ok = true;
+	CALLPTRMEMB(pExeFileNameUtf8, Z());
+	if(idx < L.getCount()) {
+		rEntry = L.at(idx);
+		if(pExeFileNameUtf8) {
+			GetS(rEntry.ExeFileNameUtf8P, *pExeFileNameUtf8);
+		}
+	}
+	else
+		ok = false;
+	return ok;
 }
 
 const SlProcess::ProcessPool::Entry * SlProcess::ProcessPool::SearchByExeFileName(const char * pPatternUtf8, uint * pIdx)
@@ -385,42 +406,57 @@ const SlProcess::ProcessPool::Entry * SlProcess::ProcessPool::SearchByExeFileNam
 	return p_result;
 }
 
-/*static*/const SlProcess::ProcessPool::Entry * SlProcess::SearchProcessByName(const char * pPatternUtf8)
+/*static*/uint SlProcess::SearchProcessByName(const char * pPatternUtf8)
 {
-	const SlProcess::ProcessPool::Entry * p_result = 0;
+	uint prc_id = 0;
 	if(!isempty(pPatternUtf8)) {
 		ProcessPool pp;
 		const uint plc = GetProcessList(pp);
 		if(plc) {
-			p_result = pp.SearchByExeFileName(pPatternUtf8, 0);
+			const ProcessPool::Entry * p_entry = pp.SearchByExeFileName(pPatternUtf8, 0);
+			if(p_entry) {
+				prc_id = p_entry->ProcessId;
+			}
 		}
 	}
-	return p_result;
+	return prc_id;
 }
 
-/*static*/uint SlProcess::GetProcessList(ProcessPool & rList) // @v12.3.11 @construction
+/*static*/uint SlProcess::Helper_GetProcessList(const char * pFileNameUtf8, ProcessPool & rList)
 {
 	uint   result = 0;
 	HANDLE h = ::CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
 	if(h) {
-		SString temp_buf;
+		SString name;
 		PROCESSENTRY32W pe;
 		pe.dwSize = sizeof(pe);
 		if(::Process32FirstW(h, &pe)) do {
-			ProcessPool::Entry new_entry;
-			new_entry.ProcessId = pe.th32ProcessID;
-			new_entry.ParentId = pe.th32ParentProcessID;
-			new_entry.ThreadCount = pe.cntThreads;
-			new_entry.PriClassBase = pe.pcPriClassBase;
-			temp_buf.CopyUtf8FromUnicode(pe.szExeFile, sstrlen(pe.szExeFile), 0);
-			rList.AddS(temp_buf, &new_entry.ExeFileNameUtf8P);
-			rList.L.insert(&new_entry);
-			result++;
+			name.CopyUtf8FromUnicode(pe.szExeFile, sstrlen(pe.szExeFile), 0);
+			if(!isempty(pFileNameUtf8) || name.IsEqiUtf8(pFileNameUtf8)) {
+				ProcessPool::Entry new_entry;
+				new_entry.ProcessId = pe.th32ProcessID;
+				new_entry.ParentId = pe.th32ParentProcessID;
+				new_entry.ThreadCount = pe.cntThreads;
+				new_entry.PriClassBase = pe.pcPriClassBase;
+				rList.AddS(name, &new_entry.ExeFileNameUtf8P);
+				rList.L.insert(&new_entry);
+				result++;
+			}
 		} while(::Process32NextW(h, &pe));
 		::CloseHandle(h);
 		h = 0;
 	}
 	return result;
+}
+
+/*static*/uint SlProcess::GetProcessList(ProcessPool & rList) // @v12.3.11 @construction
+{
+	return Helper_GetProcessList(0, rList);
+}
+
+/*static*/uint SlProcess::GetProcessListByName(const char * pPatternUtf8, ProcessPool & rList) // @v12.4.0 @construction
+{
+	return Helper_GetProcessList(pPatternUtf8, rList);
 }
 
 // example function
@@ -1198,8 +1234,8 @@ bool SlProcess::AppContainer::AllowNamedObjectAccess(const wchar_t * pName, /*SE
 //#pragma comment(lib, "netapi32.lib")
 //#pragma comment(lib, "userenv.lib")
 
-HANDLE g_hStopEvent = NULL;
-HANDLE g_hProcess = NULL;
+static HANDLE g_hStopEvent = NULL; // @global
+static HANDLE g_hProcess = NULL; // @global
 
 static void PrintWin32ErrorToString(LPCWSTR szMessage, DWORD dwErr)
 {

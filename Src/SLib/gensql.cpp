@@ -308,10 +308,10 @@ int Generator_SQL::CreateTable(const DBTable & rTbl, const char * pFileName, boo
 	const char * p_name = NZOR(pFileName, rTbl.GetName());
 	SString type_name;
 	Tok(tokCreate).Sp();
+	Tok(tokTable).Sp();
 	if(ifNotExists) {
 		Tok(tokIfNotExists).Sp();		
 	}
-	Tok(tokTable).Sp();
 	Buf.Cat(p_name);
 	Sp().LPar();
 	if(indent)
@@ -495,6 +495,8 @@ const char * Generator_SQL::P_Tokens[] = {
 	"COMMIT",        // @v12.3.12 
 	"ROLLBACK",      // @v12.3.12
 	"TRANSACTION",   // @v12.3.12
+	"INDEXED BY",    // @v12.4.0 SQLITE  
+	"ORDER BY",      // @v12.4.0
 };
 
 Generator_SQL & Generator_SQL::HintBegin()

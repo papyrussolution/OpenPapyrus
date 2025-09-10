@@ -119,12 +119,10 @@ void PutTwoDigits(uint32_t i, char* buf);
 
 bool safe_strto32_base(absl::string_view text, int32_t* value, int base);
 bool safe_strto64_base(absl::string_view text, int64_t* value, int base);
-bool safe_strto128_base(absl::string_view text, absl::int128* value,
-    int base);
+bool safe_strto128_base(absl::string_view text, absl::int128* value, int base);
 bool safe_strtou32_base(absl::string_view text, uint32_t* value, int base);
 bool safe_strtou64_base(absl::string_view text, uint64_t* value, int base);
-bool safe_strtou128_base(absl::string_view text, absl::uint128* value,
-    int base);
+bool safe_strtou128_base(absl::string_view text, absl::uint128* value, int base);
 
 static const int kFastToBufferSize = 32;
 static const int kSixDigitsToBufferSize = 16;
@@ -266,15 +264,8 @@ ABSL_MUST_USE_RESULT bool SimpleHexAtoi(absl::string_view str, int_type* out) {
 	return numbers_internal::safe_strtoi_base(str, out, 16);
 }
 
-ABSL_MUST_USE_RESULT inline bool SimpleHexAtoi(absl::string_view str,
-    absl::int128* out) {
-	return numbers_internal::safe_strto128_base(str, out, 16);
-}
-
-ABSL_MUST_USE_RESULT inline bool SimpleHexAtoi(absl::string_view str,
-    absl::uint128* out) {
-	return numbers_internal::safe_strtou128_base(str, out, 16);
-}
+ABSL_MUST_USE_RESULT inline bool SimpleHexAtoi(absl::string_view str, absl::int128* out) { return numbers_internal::safe_strto128_base(str, out, 16); }
+ABSL_MUST_USE_RESULT inline bool SimpleHexAtoi(absl::string_view str, absl::uint128* out) { return numbers_internal::safe_strtou128_base(str, out, 16); }
 
 ABSL_NAMESPACE_END
 }  // namespace absl

@@ -5609,6 +5609,23 @@ PPSSYM_FORMAT "int64;int;hex;real;sstr;zstr;date;time;datetime;person;goods;unit
 784  /!/ "VSLOC error: EnumInstances call failed (%s)" // SLERR_VSLOC_ENUMINSTCALL_FAULT
 785  /!/ "VSLOC error: While enumerating instances, Next call failed (%s)" // SLERR_VSLOC_NEXTINSTCALL_FAULT
 
+851	"Ошибка загрузки UID - пустое имя файла"                                       // SLERR_UID_EMPTYFILENAME
+852	"Ошибка загрузки UID - не определен исходный каталог загрузки"                 // SLERR_UID_SRCPATHINDEF
+853	"Ошибка загрузки UID - файл '%s' не найден"                                    // SLERR_UID_FILENFOUND
+854	"Ошибка загрузки UID - ошибка разбора json-файла '%s'"                         // SLERR_UID_JSONPARSEFAULT
+855	"Ошибка загрузки UID - json не является объектом"                              // SLERR_UID_JSONNOTOBJ
+856	"Ошибка UID - рекурсия в цветовом наборе ('%s')"                               // SLERR_UID_COLORSET_RECUR
+857	"Ошибка UID - неверное количество параметров в функции вычисления цвета"       // SLERR_UID_COLORSET_FUNC_ARGCOUNT
+858	"Ошибка UID - отсутствует параметр в функции вычисления цвета '%s'"            // SLERR_UID_COLORSET_FUNC_NOARG
+859	"Ошибка UID - недопустимый тип параметра в функции вычисления цвета '%s'"      // SLERR_UID_COLORSET_FUNC_INVARGTYP
+860	"Внутренняя ошибка UID - недопустимая внутренняя ссылка на определитель цвета" // SLERR_UID_COLORSET_INVINTREF
+861	"Ошибка UID - не удалось разрешить символ цветового набора '%s'"               // SLERR_UID_COLORSET_INVSETREF
+862	"Внутренняя ошибка UID - недопустимый идент функции '%s'"                      // SLERR_UID_COLORSET_INVFUNCID
+863	"Ошибка разбора строки определения цвета '%s'"                                 // SLERR_INVCOLORTXTDESCR
+864	"Ошибка разбора цветового примитива '%s' - ожидается значение alpha"           // SLERR_UID_COLORSET_ALPHAVALEXPECTED
+865	"Ошибка UID - не удалось разрешить символ цвета '%s'"                          // SLERR_UID_COLORSET_INVCOLORREFSYMB
+866	"Ошибка UID - синтаксическая ошибка в определении цветового примитива '%s'"    // SLERR_UID_COLORSET_PRIMSYNTAX
+
 [4] // PPSTR_DBLIB
 1    "Ошибка библиотеки SLIB"
 2    "Ошибка Btrieve: %s"

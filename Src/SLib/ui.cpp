@@ -898,7 +898,7 @@ SString & SColorSet::ComplexColorBlock::ToStr(SString & rBuf) const
 			}
 		}
 		else {
-			; // @todo @err
+			SLS.SetError(SLERR_UID_COLORSET_INVFUNCID, Func);
 		}
 	}
 	else if(RefSymb.NotEmpty()) {
@@ -933,18 +933,18 @@ int SColorSet::Helper_ParsePrimitive(SStrScan & rScan, ColorArg & rItem) const
 		rScan.Incr();
 		rScan.GetUntil('|', temp_buf);
 		temp_buf.Insert(0, "#");
-		THROW(rItem.C.FromStr(temp_buf)); // @todo @err
+		THROW(rItem.C.FromStr(temp_buf));
 		if(rScan[0] == '|') {
 			// alpha
 			rScan.Incr();
-			THROW(rScan.GetNumber(temp_buf)); // @todo @err (alpha value needed)
+			THROW_S_S(rScan.GetNumber(temp_buf), SLERR_UID_COLORSET_ALPHAVALEXPECTED, static_cast<const char *>(rScan));
 			const double alpha = temp_buf.ToReal_Plain();
 			if(alpha > 1.0 && alpha < 256.0)
 				rItem.C.SetAlpha(static_cast<uint8>(alpha));
 			else if(alpha >= 0.0 && alpha <= 1.0)
 				rItem.C.SetAlphaF(static_cast<float>(alpha));
 			else {
-				CALLEXCEPT(); // @todo @err (invalid alpha value)
+				CALLEXCEPT_S_S(SLERR_UID_COLORSET_ALPHAVALEXPECTED, static_cast<const char *>(rScan));
 			}
 			if(rItem.C.IsEmpty()) {
 				// Эксклюзивный случай: валидное текстовое представление цвета
@@ -959,12 +959,12 @@ int SColorSet::Helper_ParsePrimitive(SStrScan & rScan, ColorArg & rItem) const
 	}
 	else if(rScan[0] == '$') {
 		rScan.Incr();
-		THROW(rScan.GetIdent(temp_buf)); // @todo @err (invalid color ref symb)
+		THROW_S_S(rScan.GetIdent(temp_buf), SLERR_UID_COLORSET_INVCOLORREFSYMB, static_cast<const char *>(rScan));
 		// ссылка на другой цвет набора
 		if(rScan[0] == '.') {
 			rScan.Incr();
 			const SString set_symb(temp_buf);
-			THROW(rScan.GetIdent(temp_buf)); // @todo @err (invalid colorset symb)
+			THROW_S_S(rScan.GetIdent(temp_buf), SLERR_UID_COLORSET_INVCOLORREFSYMB, static_cast<const char *>(rScan));
 			(rItem.RefSymb = set_symb).Dot().Cat(temp_buf);
 		}
 		else {
@@ -973,20 +973,20 @@ int SColorSet::Helper_ParsePrimitive(SStrScan & rScan, ColorArg & rItem) const
 		if(rScan[0] == '|') {
 			// alpha
 			rScan.Incr();
-			THROW(rScan.GetNumber(temp_buf)); // @todo @err (alpha value needed)
+			THROW_S_S(rScan.GetNumber(temp_buf), SLERR_UID_COLORSET_ALPHAVALEXPECTED, static_cast<const char *>(rScan));
 			const double alpha = temp_buf.ToReal_Plain();
 			if(alpha > 1.0 && alpha < 256.0)
 				rItem.C.SetAlpha(static_cast<uint8>(alpha));
 			else if(alpha >= 0.0 && alpha <= 1.0)
 				rItem.C.SetAlphaF(static_cast<float>(alpha));
 			else {
-				CALLEXCEPT(); // @todo @err (invalid alpha value)
+				CALLEXCEPT_S_S(SLERR_UID_COLORSET_ALPHAVALEXPECTED, static_cast<const char *>(rScan));
 			}
 		}
 		ok = 3;
 	}
 	else {
-		CALLEXCEPT(); // @todo @err (syntax error)
+		CALLEXCEPT_S_S(SLERR_UID_COLORSET_PRIMSYNTAX, static_cast<const char *>(rScan));
 	}
 	CATCHZOK
 	return ok;
@@ -1027,7 +1027,6 @@ int SColorSet::ParseComplexColorBlock(const char * pText, ComplexColorBlock & rB
 					*p_new_arg = primitive;
 				}
 				else {
-					; // @todo @err
 					ok = 0;
 				}
 				scan.Skip().IncrChr(',');
@@ -1146,7 +1145,7 @@ int SColorSet::ResolveComplexColorBlock(const ComplexColorBlock & rBlk, const TS
 {
 	int    ok = 1;
 	if(rBlk.Func) {
-		THROW(SColorSet_GetFuncArcCount(rBlk.Func) == rBlk.ArgList.getCount()); // @todo @err
+		THROW_S(SColorSet_GetFuncArcCount(rBlk.Func) == rBlk.ArgList.getCount(), SLERR_UID_COLORSET_FUNC_ARGCOUNT);
 		switch(rBlk.Func) {
 			case funcEmpty:
 				rC = ZEROCOLOR;
@@ -1158,7 +1157,7 @@ int SColorSet::ResolveComplexColorBlock(const ComplexColorBlock & rBlk, const TS
 					float arg3_n = 0.0f;
 					{
 						const ColorArg * p_arg = rBlk.ArgList.at(0);
-						THROW(p_arg); // @todo @err
+						THROW_S_S(p_arg, SLERR_UID_COLORSET_FUNC_NOARG, "lerp");
 						const int argt = p_arg->GetType();
 						if(argt == argtAbsoluteColor) {
 							arg1_c = p_arg->C;
@@ -1167,12 +1166,12 @@ int SColorSet::ResolveComplexColorBlock(const ComplexColorBlock & rBlk, const TS
 							THROW(Helper_Get(p_arg->RefSymb, pSetList, arg1_c, &rRecurSymbList));
 						}
 						else {
-							CALLEXCEPT(); // @todo @err
+							CALLEXCEPT_S_S(SLERR_UID_COLORSET_FUNC_INVARGTYP, "lerp");
 						}
 					}
 					{
 						const ColorArg * p_arg = rBlk.ArgList.at(1);
-						THROW(p_arg); // @todo @err
+						THROW_S_S(p_arg, SLERR_UID_COLORSET_FUNC_NOARG, "lerp");
 						const int argt = p_arg->GetType();
 						if(argt == argtAbsoluteColor) {
 							arg2_c = p_arg->C;
@@ -1181,18 +1180,18 @@ int SColorSet::ResolveComplexColorBlock(const ComplexColorBlock & rBlk, const TS
 							THROW(Helper_Get(p_arg->RefSymb, pSetList, arg2_c, &rRecurSymbList));
 						}
 						else {
-							CALLEXCEPT(); // @todo @err
+							CALLEXCEPT_S_S(SLERR_UID_COLORSET_FUNC_INVARGTYP, "lerp");
 						}
 					}
 					{
 						const ColorArg * p_arg = rBlk.ArgList.at(2);
-						THROW(p_arg); // @todo @err
+						THROW_S_S(p_arg, SLERR_UID_COLORSET_FUNC_NOARG, "lerp");
 						const int argt = p_arg->GetType();
 						if(argt == argtNumber) {
 							arg3_n = p_arg->F;
 						}
 						else {
-							CALLEXCEPT(); // @todo @err
+							CALLEXCEPT_S_S(SLERR_UID_COLORSET_FUNC_INVARGTYP, "lerp");
 						}
 					}
 					//
@@ -1205,7 +1204,7 @@ int SColorSet::ResolveComplexColorBlock(const ComplexColorBlock & rBlk, const TS
 					float arg2_n = 0.0f;
 					{
 						const ColorArg * p_arg = rBlk.ArgList.at(0);
-						THROW(p_arg); // @todo @err
+						THROW_S_S(p_arg, SLERR_UID_COLORSET_FUNC_NOARG, "lighten");
 						const int argt = p_arg->GetType();
 						if(argt == argtAbsoluteColor) {
 							arg1_c = p_arg->C;
@@ -1214,18 +1213,18 @@ int SColorSet::ResolveComplexColorBlock(const ComplexColorBlock & rBlk, const TS
 							THROW(Helper_Get(p_arg->RefSymb, pSetList, arg1_c, &rRecurSymbList));
 						}
 						else {
-							CALLEXCEPT(); // @todo @err
+							CALLEXCEPT_S_S(SLERR_UID_COLORSET_FUNC_INVARGTYP, "lighten");
 						}
 					}
 					{
 						const ColorArg * p_arg = rBlk.ArgList.at(1);
-						THROW(p_arg); // @todo @err
+						THROW_S_S(p_arg, SLERR_UID_COLORSET_FUNC_NOARG, "lighten");
 						const int argt = p_arg->GetType();
 						if(argt == argtNumber) {
 							arg2_n = p_arg->F;
 						}
 						else {
-							CALLEXCEPT(); // @todo @err
+							CALLEXCEPT_S_S(SLERR_UID_COLORSET_FUNC_INVARGTYP, "lighten");
 						}
 					}
 					rC = arg1_c.Lighten(arg2_n);
@@ -1237,7 +1236,7 @@ int SColorSet::ResolveComplexColorBlock(const ComplexColorBlock & rBlk, const TS
 					float arg2_n = 0.0f;	
 					{
 						const ColorArg * p_arg = rBlk.ArgList.at(0);
-						THROW(p_arg); // @todo @err
+						THROW_S_S(p_arg, SLERR_UID_COLORSET_FUNC_NOARG, "darken");
 						const int argt = p_arg->GetType();
 						if(argt == argtAbsoluteColor) {
 							arg1_c = p_arg->C;
@@ -1246,18 +1245,18 @@ int SColorSet::ResolveComplexColorBlock(const ComplexColorBlock & rBlk, const TS
 							THROW(Helper_Get(p_arg->RefSymb, pSetList, arg1_c, &rRecurSymbList));
 						}
 						else {
-							CALLEXCEPT(); // @todo @err
+							CALLEXCEPT_S_S(SLERR_UID_COLORSET_FUNC_INVARGTYP, "darken");
 						}
 					}
 					{
 						const ColorArg * p_arg = rBlk.ArgList.at(1);
-						THROW(p_arg); // @todo @err
+						THROW_S_S(p_arg, SLERR_UID_COLORSET_FUNC_NOARG, "darken");
 						const int argt = p_arg->GetType();
 						if(argt == argtNumber) {
 							arg2_n = p_arg->F;
 						}
 						else {
-							CALLEXCEPT(); // @todo @err
+							CALLEXCEPT_S_S(SLERR_UID_COLORSET_FUNC_INVARGTYP, "darken");
 						}
 					}
 					rC = arg1_c.Darken(arg2_n);
@@ -1268,13 +1267,13 @@ int SColorSet::ResolveComplexColorBlock(const ComplexColorBlock & rBlk, const TS
 					float arg1_n = 0.0f;
 					{
 						const ColorArg * p_arg = rBlk.ArgList.at(0);
-						THROW(p_arg); // @todo @err
+						THROW_S_S(p_arg, SLERR_UID_COLORSET_FUNC_NOARG, "grey");
 						const int argt = p_arg->GetType();
 						if(argt == argtNumber) {
 							arg1_n = p_arg->F;
 						}
 						else {
-							CALLEXCEPT(); // @todo @err
+							CALLEXCEPT_S_S(SLERR_UID_COLORSET_FUNC_INVARGTYP, "grey");
 						}
 					}
 					rC = SColor(arg1_n);
@@ -1439,31 +1438,25 @@ int SColorSet::Get(const char * pSymb, const TSCollection <SColorSet> * pSetList
 				ok = Get(r_right, pSetList, pBlk); // @recursion
 			}
 			else {
-				if(pSetList) {
-					const SColorSet * p_target_set = 0;
-					for(uint i = 0; !p_target_set && i < pSetList->getCount(); i++) {
-						const SColorSet * p_internal_set = pSetList->at(i);
-						if(p_internal_set && p_internal_set->Symb.IsEqiAscii(r_left))
-							p_target_set = p_internal_set;
-					}
-					if(p_target_set) {
-						ok = p_target_set->Get(r_right, pSetList, pBlk);
-					}
-					else
-						ok = 0; // unable to resolve symbol of another SColorSet
+				THROW_S_S(pSetList, SLERR_UID_COLORSET_INVSETREF, r_key_buf);
+				const SColorSet * p_target_set = 0;
+				for(uint i = 0; !p_target_set && i < pSetList->getCount(); i++) {
+					const SColorSet * p_internal_set = pSetList->at(i);
+					if(p_internal_set && p_internal_set->Symb.IsEqiAscii(r_left))
+						p_target_set = p_internal_set;
 				}
-				else
-					ok = 0; // unable to resolve symbol of another SColorSet
+				THROW_S_S(p_target_set, SLERR_UID_COLORSET_INVSETREF, r_key_buf);
+				ok = p_target_set->Get(r_right, pSetList, pBlk);
 			}
 		} // } @v11.9.10
 		else {
 			const InnerEntry * p_entry = L.Get(r_key_buf.cptr(), r_key_buf.Len());
 			if(p_entry) {
 				if(p_entry->CcbP) {
-					THROW(p_entry->CcbP <= CcC.getCount()); // @todo @err
+					THROW_S(p_entry->CcbP <= CcC.getCount(), SLERR_UID_COLORSET_INVINTREF);
 					{
 						const ComplexColorBlock * p_inner_blk = CcC.at(p_entry->CcbP-1);
-						THROW(p_inner_blk); // @todo @err
+						THROW_S(p_inner_blk, SLERR_UID_COLORSET_INVINTREF);
 						ASSIGN_PTR(pBlk, *p_inner_blk);
 					}
 				}
@@ -1487,7 +1480,7 @@ int SColorSet::Helper_Get(const char * pSymb, const TSCollection <SColorSet> * p
 	ComplexColorBlock blk;
 	SColor c(ZEROCOLOR);
 	if(pRecurSymbList) {
-		THROW(!pRecurSymbList->search(pSymb, 0, 1)); // @todo @err
+		THROW_S_S(!pRecurSymbList->search(pSymb, 0, 1), SLERR_UID_COLORSET_RECUR, pSymb);
 		pRecurSymbList->add(pSymb);
 	}
 	ok = Get(pSymb, pSetList, &blk);
@@ -1983,7 +1976,7 @@ SJson * UiDescription::ToJsonObj() const
 int UiDescription::FromJsonObj(const SJson * pJsObj)
 {
 	int    ok = 1;
-	THROW(SJson::IsObject(pJsObj)); // @todo @err
+	THROW_S(SJson::IsObject(pJsObj), SLERR_UID_JSONNOTOBJ);
 	Z();
 	for(const SJson * p_jsn = pJsObj->P_Child; p_jsn; p_jsn = p_jsn->P_Next) {
 		if(p_jsn->P_Child) {

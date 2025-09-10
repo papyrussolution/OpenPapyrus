@@ -1,5 +1,5 @@
 // CUTTING.CPP
-// Copyright (c) A.Sobolev 2000-2002, 2003, 2004, 2005, 2006, 2007, 2009, 2011, 2015, 2016, 2017, 2020, 2021
+// Copyright (c) A.Sobolev 2000-2002, 2003, 2004, 2005, 2006, 2007, 2009, 2011, 2015, 2016, 2017, 2020, 2021, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -7,15 +7,18 @@
 
 int Transfer::CuttingLotOperations(PPID lotID, LDATE endDate, double * pEndQtty)
 {
-	int    ok = 1, recalc_rests = 0;
+	int    ok = 1;
+	int    recalc_rests = 0;
 	int    is_forward_op = 0; // Признак того, что по лоту есть операции после усекаемого периода.
 		// Если "да", то лот с нулевым остатком не удаляется.
 	LDATE  dt;
 	long   oprno = 0;
-	double end_rest, lot_qtty = 0.0;
+	double end_rest;
+	double lot_qtty = 0.0;
 	ReceiptTbl::Rec lot_rec;
 	TransferTbl::Rec rec;
-	DBRowId lot_pos, first_rec_pos;
+	DBRowId lot_pos;
+	DBRowId first_rec_pos;
 	first_rec_pos.Z();
 	THROW(Rcpt.Search(lotID, &lot_rec) > 0);
 	THROW_DB(Rcpt.getPosition(&lot_pos));
@@ -92,7 +95,8 @@ int Transfer::Cutting(LDATE endDate, int use_ta)
 	int    ok = 1, ta = 0;
 	LDATE  prev_date = ZERODATE;
 	long   oprno = 0;
-	SString msg_buf, msg_buf2;
+	SString msg_buf;
+	SString msg_buf2;
 	ReceiptTbl::Key1 rk;
 	MEMSZERO(rk);
 	PPGetSubStr(PPTXT_CUTTINGPROCESS, 2, msg_buf);
@@ -124,17 +128,19 @@ int Transfer::Cutting(LDATE endDate, int use_ta)
 
 int PPObjBill::CuttingUntiedCLB(int use_ta)
 {
-	int    ok = 1, ta = 0;
+	int    ok = 1;
+	int    ta = 0;
 	ObjTagTbl::Key1 k;
 	ObjTagCore tagcore;
 	k.TagID = PPTAG_LOT_CLB;
 	k.ObjID = 0;
 	THROW(PPStartTransaction(&ta, use_ta));
-	if(tagcore.search(1, &k, spGe) && k.TagID == PPTAG_LOT_CLB)
+	if(tagcore.search(1, &k, spGe) && k.TagID == PPTAG_LOT_CLB) {
 		do {
 			if(trfr->Rcpt.Search(k.ObjID) <= 0)
 				THROW_DB(tagcore.deleteRec());
 		} while(tagcore.search(1, &k, spNext) && k.TagID == PPTAG_LOT_CLB);
+	}
 	THROW(PPCommitWork(&ta));
 	CATCH
 		ok = 0;
@@ -146,7 +152,9 @@ int PPObjBill::CuttingUntiedCLB(int use_ta)
 int PPObjBill::Cutting(LDATE endDate, int use_ta)
 {
 	trfr->__DontCheckQttyInUpdateTransferItem__ = 1;
-	int    ok = 1, ta = 0, frrl_tag = 0;
+	int    ok = 1;
+	int    ta = 0;
+	int    frrl_tag = 0;
 	SString balance_fname;
 	SString msg_buf;
 	BillTbl::Key1 bk;
@@ -164,7 +172,9 @@ int PPObjBill::Cutting(LDATE endDate, int use_ta)
 	PPGetSubStr(PPTXT_CUTTINGPROCESS, 3, msg_buf);
 	PPWaitMsg(msg_buf);
 	while(P_Tbl->search(1, &bk, spLt)) {
-		double fix_paym = 0.0, paym = 0.0, debt;
+		double fix_paym = 0.0;
+		double paym = 0.0;
+		double debt;
 		int    has_actual_link = 0;
 		PPID   reckon_id;
 		PPBillPacket pack;

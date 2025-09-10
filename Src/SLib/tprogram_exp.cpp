@@ -6,11 +6,12 @@
 
 TBaseBrowserWindow * TProgram::FindBrowser(uint resID, int kind, const char * pFileName/*=0*/)
 {
+	assert(APPL == this);
 	TBaseBrowserWindow * brw = 0;
 	HWND   hw = ::GetTopWindow(GetFrameWindow());
 	if(hw == H_CloseWnd)
 		hw = GetNextWindow(hw, GW_HWNDNEXT);
-	if(hw == APPL->H_Desktop)
+	if(hw == H_Desktop)
 		hw = GetNextWindow(hw, GW_HWNDNEXT);
 	uint   res_id = resID;
 	uint   res_offs = 0;
@@ -30,9 +31,9 @@ TBaseBrowserWindow * TProgram::FindBrowser(uint resID, int kind, const char * pF
 	//if(res_id < TBaseBrowserWindow::IdBiasBrowser)
 		res_id += res_offs;
 	while(hw) {
-		if(hw != APPL->H_Desktop) {
+		if(hw != H_Desktop) {
 			brw = static_cast<TBaseBrowserWindow *>(TView::GetWindowUserData(hw));
-			if(brw && static_cast<void *>(brw) != static_cast<void *>(APPL)) { // @v12.2.10 static_cast<void *>(brw) != static_cast<void *>(APPL)
+			if(brw && static_cast<void *>(brw) != static_cast<void *>(this)) { // @v12.2.10 static_cast<void *>(brw) != static_cast<void *>(APPL)
 				const long _r = brw->GetResID();
 				if(kind == 3 && _r >= TBaseBrowserWindow::IdBiasTextBrowser) {
 					if(static_cast<STextBrowser *>(brw)->CmpFileName(pFileName) == 0)

@@ -813,10 +813,10 @@ SString & SBinaryChunk::Hex(SString & rBuf) const
 	return rBuf;
 }
 	
-int SBinaryChunk::FromHex(const char * pHexString)
+bool SBinaryChunk::FromHex(const char * pHexString)
 {
 	Z();
-	int    ok = 1;
+	bool   ok = true;
 	const  size_t len = sstrlen(pHexString);
 	if(len) {
 		THROW((len & 1) == 0);

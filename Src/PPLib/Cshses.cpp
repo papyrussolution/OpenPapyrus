@@ -228,8 +228,8 @@ int PPSyncCashSession::PreprocessCCheckForOfd12(const OfdFactors & rOfdf, CCheck
 											//
 											int pczcr = PreprocessChZnCode(ppchzcopCheck, chzn_code, chzn_qtty, uom_id, uom_fragm, chzn_pp_result);
 											PPSyncCashSession::LogPreprocessChZnCodeResult(pczcr, 0, chzn_code, chzn_qtty, chzn_pp_result);
-											if(pczcr > 0) {
-												if(chzn_pp_result.Status == 1) {
+											if(/*pczcr > 0*/true) { // @v12.4.0 true
+												if(/*chzn_pp_result.Status == 1*/true) { // @v12.4.0 true
 													chzn_pp_result.LineIdx = pos;
 													const int accept_op = ppchzcopAccept;
 													pczcr = PreprocessChZnCode(accept_op, chzn_code, chzn_qtty, uom_id, uom_fragm, chzn_pp_result);
@@ -256,8 +256,8 @@ int PPSyncCashSession::PreprocessCCheckForOfd12(const OfdFactors & rOfdf, CCheck
 											uom_fragm = u_rec.Fragmentation;
 										int pczcr = PreprocessChZnCode(ppchzcopCheck, chzn_code, chzn_qtty, uom_id, uom_fragm, chzn_pp_result);
 										PPSyncCashSession::LogPreprocessChZnCodeResult(pczcr, 0, chzn_code, chzn_qtty, chzn_pp_result);
-										if(pczcr > 0) {
-											if(chzn_pp_result.Status == 1) {
+										if(/*pczcr > 0*/true) { // @v12.4.0
+											if(/*chzn_pp_result.Status == 1*/true) { // @v12.4.0 true
 												chzn_pp_result.LineIdx = pos;
 												const int accept_op = ppchzcopAccept;
 												pczcr = PreprocessChZnCode(accept_op, chzn_code, chzn_qtty, uom_id, uom_fragm, chzn_pp_result);

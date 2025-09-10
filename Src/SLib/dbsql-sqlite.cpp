@@ -341,14 +341,15 @@ int SSqliteDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt,
 	uint   actual = 0;
 	LongArray seg_map; // Карта номеров сегментов индекса, которые должны быть привязаны
 	DBTable::SelectStmt * p_stmt = 0;
-	THROW(idx < (int)pTbl->indexes.getNumKeys());
+	const BNKeyList & r_indices = pTbl->indexes;
+	THROW(idx < (int)r_indices.getNumKeys());
 	if(!oneof2(srchMode, spNext, spPrev)) {
 		const char * p_alias = "t";
 		SString temp_buf;
 		uint8  temp_key[1024];
 		void * p_key_data = pKey;
-		BNKey  key = pTbl->indexes[idx];
-		const  int ns = key.getNumSeg();
+		const  BNKey & r_key = r_indices[idx];
+		const  int ns = r_key.getNumSeg();
 		SqlGen.Z().Tok(Generator_SQL::tokSelect);
 		if(!(sf & DBTable::sfDirect)) {
 			/*
@@ -363,88 +364,89 @@ int SSqliteDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt,
 		if(sf & DBTable::sfDirect) {
 			DBRowId * p_rowid = static_cast<DBRowId *>(pKey);
 			THROW(p_rowid && p_rowid->IsI32());
-			p_rowid->ToStr(temp_buf);
+			p_rowid->ToStr__(temp_buf);
 			SqlGen.Sp().Tok(Generator_SQL::tokWhere).Sp().Tok(Generator_SQL::tokRowId)._Symb(_EQ_).QText(temp_buf);
 		}
 		else {
+			{
+				if(SqlGen.GetIndexName(*pTbl, idx, temp_buf)) {
+					SqlGen.Sp().Tok(Generator_SQL::tokIndexedBy).Sp().Text(temp_buf);
+				}
+			}
 			if(oneof2(srchMode, spFirst, spLast)) {
 				memzero(temp_key, sizeof(temp_key));
-				pTbl->indexes.setBound(idx, 0, BIN(srchMode == spLast), temp_key);
+				r_indices.setBound(idx, 0, BIN(srchMode == spLast), temp_key);
 				p_key_data = temp_key;
 			}
 			SqlGen.Sp().Tok(Generator_SQL::tokWhere).Sp();
-			for(int i = 0; i < ns; i++) {
-				int fldid = key.getFieldID(i);
-				const BNField fld = pTbl->indexes.field(idx, i);
-				if(i > 0) { // НЕ первый сегмент
-					SqlGen.Tok(Generator_SQL::tokAnd).Sp();
-					if(srchMode != spEq)
-						SqlGen.LPar();
-				}
-				if(key.getFlags(i) & XIF_ACS) {
-					//
-					// Для ORACLE нечувствительность к регистру символов
-					// реализуется функциональным сегментом индекса nls_lower(fld).
-					// Аналогичная конструкция применяется при генерации скрипта создания индекса
-					// См. Generator_SQL::CreateIndex(const DBTable &, const char *, uint)
-					//
-					int   _func_tok = 0;
-					if(SqlGen.GetServerType() == sqlstORA)
-						_func_tok = Generator_SQL::tokNlsLower;
-					else
-						_func_tok = Generator_SQL::tokLower;
-					SqlGen.Func(_func_tok, fld.Name);
-				}
-				else
-					SqlGen.Text(fld.Name);
-				int   cmps = _EQ_;
-				if(srchMode == spEq)
-					cmps = _EQ_;
-				else if(srchMode == spLt)
-					cmps = (i == ns-1) ? _LT_ : _LE_;
-				else if(oneof2(srchMode, spLe, spLast))
-					cmps = _LE_;
-				else if(srchMode == spGt) {
-					cmps = (i == ns-1) ? _GT_ : _GE_;
-				}
-				else if(oneof2(srchMode, spGe, spFirst))
-					cmps = _GE_;
-				SqlGen._Symb(cmps);
-				SqlGen.Param(temp_buf.NumberToLat(i));
-				seg_map.add(i);
-
-				if(i > 0 && srchMode != spEq) {
-					//
-					// При каскадном сравнении ключа второй и последующие сегменты
-					// должны удовлетворять условиям неравенства только при равенстве
-					// всех предыдущих сегментов.
-					//
-					// Пример:
-					//
-					// index {X, Y, Z}
-					// X > :A and (Y > :B or (X <> :A)) and (Z > :C or (X <> :A and Y <> :B))
-					//
-					SqlGen.Sp().Tok(Generator_SQL::tokOr).Sp().LPar();
-					for(int j = 0; j < i; j++) {
-						const BNField fld2 = pTbl->indexes.field(idx, j);
-						if(j > 0)
-							SqlGen.Tok(Generator_SQL::tokAnd).Sp();
-						if(key.getFlags(j) & XIF_ACS) {
-							int   _func_tok = 0;
-							if(SqlGen.GetServerType() == sqlstORA)
-								_func_tok = Generator_SQL::tokNlsLower;
-							else
-								_func_tok = Generator_SQL::tokLower;
-							SqlGen.Func(_func_tok, fld2.Name);
-						}
-						else
-							SqlGen.Text(fld2.Name);
-						SqlGen._Symb(_NE_);
-						SqlGen.Param(temp_buf.NumberToLat(j));
-						seg_map.add(j);
-						SqlGen.Sp();
+			{
+				for(int i = 0; i < ns; i++) {
+					const BNField & r_fld = r_indices.field(idx, i);
+					if(i > 0) { // НЕ первый сегмент
+						SqlGen.Tok(Generator_SQL::tokAnd).Sp();
+						if(srchMode != spEq)
+							SqlGen.LPar();
 					}
-					SqlGen.RPar().RPar().Sp();
+					if(r_key.getFlags(i) & XIF_ACS) {
+						int   _func_tok = Generator_SQL::tokLower;
+						SqlGen.Func(_func_tok, r_fld.Name);
+					}
+					else
+						SqlGen.Text(r_fld.Name);
+					int   cmps = _EQ_;
+					if(srchMode == spEq)
+						cmps = _EQ_;
+					else if(srchMode == spLt)
+						cmps = (i == ns-1) ? _LT_ : _LE_;
+					else if(oneof2(srchMode, spLe, spLast))
+						cmps = _LE_;
+					else if(srchMode == spGt) {
+						cmps = (i == ns-1) ? _GT_ : _GE_;
+					}
+					else if(oneof2(srchMode, spGe, spFirst))
+						cmps = _GE_;
+					SqlGen._Symb(cmps);
+					SqlGen.Param(temp_buf.NumberToLat(i));
+					seg_map.add(i);
+					if(i > 0 && srchMode != spEq) {
+						//
+						// При каскадном сравнении ключа второй и последующие сегменты
+						// должны удовлетворять условиям неравенства только при равенстве
+						// всех предыдущих сегментов.
+						//
+						// Пример:
+						//
+						// index {X, Y, Z}
+						// X > :A and (Y > :B or (X <> :A)) and (Z > :C or (X <> :A and Y <> :B))
+						//
+						SqlGen.Sp().Tok(Generator_SQL::tokOr).Sp().LPar();
+						for(int j = 0; j < i; j++) {
+							const BNField & r_fld2 = r_indices.field(idx, j);
+							if(j > 0)
+								SqlGen.Tok(Generator_SQL::tokAnd).Sp();
+							if(r_key.getFlags(j) & XIF_ACS) {
+								int   _func_tok = Generator_SQL::tokLower;
+								SqlGen.Func(_func_tok, r_fld2.Name);
+							}
+							else
+								SqlGen.Text(r_fld2.Name);
+							SqlGen._Symb(_NE_);
+							SqlGen.Param(temp_buf.NumberToLat(j));
+							seg_map.add(j);
+							SqlGen.Sp();
+						}
+						SqlGen.RPar().RPar().Sp();
+					}
+					SqlGen.Sp();
+				}
+			}
+			if(oneof3(srchMode, spLe, spLt, spLast)) { // Обратное направление поиска
+				SqlGen.Tok(Generator_SQL::tokOrderBy);
+				for(int i = 0; i < ns; i++) {
+					const BNField & r_fld = r_indices.field(idx, i);
+					if(i)
+						SqlGen.Com();
+					SqlGen.Sp().Text(r_fld.Name).Sp().Tok(Generator_SQL::tokDesc);
 				}
 				SqlGen.Sp();
 			}
@@ -461,10 +463,10 @@ int SSqliteDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt,
 				p_stmt->BL.Dim = 1;
 				for(uint i = 0; i < seg_map.getCount(); i++) {
 					const int  seg = seg_map.get(i);
-					const BNField & r_fld = pTbl->indexes.field(idx, seg);
-					const size_t seg_offs = pTbl->indexes.getSegOffset(idx, seg);
+					const BNField & r_fld = r_indices.field(idx, seg);
+					const size_t seg_offs = r_indices.getSegOffset(idx, seg);
 					key_len += stsize(r_fld.T);
-					if(key.getFlags(seg) & XIF_ACS) {
+					if(r_key.getFlags(seg) & XIF_ACS) {
 						strlwr866((char *)(PTR8(p_key_data) + seg_offs));
 					}
 					SSqlStmt::Bind b;
@@ -503,7 +505,7 @@ int SSqliteDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt,
 				int    r = 1;
 				pTbl->copyBufToKey(idx, pKey);
 				if(oneof5(p_stmt->Sp, spGt, spGe, spLt, spLe, spEq)) {
-					int kc = pTbl->indexes.compareKey(p_stmt->Idx, pKey, p_stmt->Key);
+					int kc = r_indices.compareKey(p_stmt->Idx, pKey, p_stmt->Key);
 					if(kc == 0) {
 						if(oneof2(p_stmt->Sp, spGt, spLt))
 							r = 0;
@@ -761,7 +763,6 @@ int SSqliteDbProvider::ProcessBinding_SimpleType(int action, uint count, SSqlStm
 		case S_UINT:
 		case S_INT64:
 		case S_UINT64:
-		case S_ROWID:
 			if(action == 0) {
 			}
 			else if(action < 0) {
@@ -789,6 +790,29 @@ int SSqliteDbProvider::ProcessBinding_SimpleType(int action, uint count, SSqlStm
 					// @todo Нужна специальная обработка для беззнакового значения //
 					*static_cast<int16 *>(p_data) = sqlite3_column_int(h_stmt, idx-1); // @v12.3.11 @fix idx-->(idx-1)
 				}
+			}
+			break;
+		case S_ROWID:
+			if(action == 0) {
+			}
+			else if(action < 0) {
+				const DBRowId * p_row_id = static_cast<const DBRowId *>(p_data);
+				if(p_row_id->IsI64()) {
+					int64 i64val = p_row_id->GetI64();
+					sqlite3_bind_int64(h_stmt, idx, i64val);
+				}
+				else if(p_row_id->IsI32()) {
+					uint32 i32val = p_row_id->GetI32();
+					sqlite3_bind_int(h_stmt, idx, i32val);
+				}
+				else {
+					; // Вообще не знаю что в такой ситуации делать :(
+				}
+			}
+			else if(action == 1) {
+				DBRowId * p_row_id = static_cast<DBRowId *>(p_data);
+				int64 i64val = sqlite3_column_int64(h_stmt, idx-1); // @v12.3.11 @fix idx-->(idx-1)
+				p_row_id->SetI64(i64val);
 			}
 			break;
 		case S_FLOAT:
@@ -878,8 +902,11 @@ int SSqliteDbProvider::ProcessBinding_SimpleType(int action, uint count, SSqlStm
 				//sqlite3_bind_text(h_stmt, idx, static_cast<const char *>(p_data), len, SQLITE_STATIC);
 			}
 			else if(action == 1) {
+				const int csz = sqlite3_column_bytes(h_stmt, idx-1);
 				const uchar * p_outer_text = sqlite3_column_text(h_stmt, idx-1); // @v12.3.11 @fix idx-->(idx-1)
-				strnzcpy(static_cast<char *>(p_data), p_outer_text, s);
+				SString & r_temp_buf = SLS.AcquireRvlStr();
+				(r_temp_buf = reinterpret_cast<const char *>(p_outer_text)).Transf(CTRANSF_UTF8_TO_INNER);
+				strnzcpy(static_cast<char *>(p_data), r_temp_buf, s);
 			}
 			break;
 		case S_WCHAR:
@@ -895,6 +922,7 @@ int SSqliteDbProvider::ProcessBinding_SimpleType(int action, uint count, SSqlStm
 				sqlite3_bind_text16(h_stmt, idx, static_cast<const char *>(p_data), len, SQLITE_STATIC);
 			}
 			else if(action == 1) {
+				const int csz = sqlite3_column_bytes(h_stmt, idx-1);
 				const wchar_t * p_outer_text = static_cast<const wchar_t *>(sqlite3_column_text16(h_stmt, idx-1)); // @v12.3.11 @fix idx-->(idx-1)
 				strnzcpy(static_cast<wchar_t *>(p_data), p_outer_text, s / sizeof(size_t));
 			}
@@ -910,7 +938,12 @@ int SSqliteDbProvider::ProcessBinding_SimpleType(int action, uint count, SSqlStm
 				sqlite3_bind_blob(h_stmt, idx, &temp_guid, sizeof(S_GUID), SQLITE_TRANSIENT);
 			}
 			else if(action == 1) {
-				//const void * p_sqlt_data = sqlite3_column_blob(h_stmt, idx-1);
+				const int csz = sqlite3_column_bytes(h_stmt, idx-1);
+				const void * p_sqlt_data = sqlite3_column_blob(h_stmt, idx-1);
+				if(p_sqlt_data && csz == sizeof(S_GUID))
+					*static_cast<S_GUID *>(p_data) = *static_cast<const S_GUID *>(p_sqlt_data);
+				else
+					static_cast<S_GUID *>(p_data)->Z();
 			}
 			break;
 		case S_DEC:

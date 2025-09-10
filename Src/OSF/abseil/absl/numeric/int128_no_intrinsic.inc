@@ -165,34 +165,21 @@ constexpr bool operator >= (int128 lhs, int128 rhs) { return !(lhs < rhs); }
 
 // Unary operators.
 
-constexpr int128 operator-(int128 v) {
-	return MakeInt128(~Int128High64(v) + (Int128Low64(v) == 0),
-		   ~Int128Low64(v) + 1);
-}
-
-constexpr bool operator !(int128 v) {
-	return !Int128Low64(v) && !Int128High64(v);
-}
-
-constexpr int128 operator ~(int128 val) {
-	return MakeInt128(~Int128High64(val), ~Int128Low64(val));
-}
+constexpr int128 operator-(int128 v) { return MakeInt128(~Int128High64(v) + (Int128Low64(v) == 0), ~Int128Low64(v) + 1); }
+constexpr bool operator !(int128 v) { return !Int128Low64(v) && !Int128High64(v); }
+constexpr int128 operator ~(int128 val) { return MakeInt128(~Int128High64(val), ~Int128Low64(val)); }
 
 // Arithmetic operators.
 
-namespace int128_internal {
+namespace int128_internal 
+{
 	constexpr int128 SignedAddResult(int128 result, int128 lhs) {
 		// check for carry
-		return (Int128Low64(result) < Int128Low64(lhs))
-	     ? MakeInt128(Int128High64(result) + 1, Int128Low64(result))
-	     : result;
+		return (Int128Low64(result) < Int128Low64(lhs)) ? MakeInt128(Int128High64(result) + 1, Int128Low64(result)) : result;
 	}
 }  // namespace int128_internal
 constexpr int128 operator+(int128 lhs, int128 rhs) {
-	return int128_internal::SignedAddResult(
-		MakeInt128(Int128High64(lhs) + Int128High64(rhs),
-		Int128Low64(lhs) + Int128Low64(rhs)),
-		lhs);
+	return int128_internal::SignedAddResult(MakeInt128(Int128High64(lhs) + Int128High64(rhs), Int128Low64(lhs) + Int128Low64(rhs)), lhs);
 }
 
 namespace int128_internal {

@@ -366,15 +366,13 @@ static SPtrHandle DuplicateAccessToken(SPtrHandle & rH, LPCSTR file, int line)
 			rInfo.RefDomainName = ref_domain_name;
 			rInfo.SidNameUse = sid_name_use;
 			if(sid_name_use == 1) { // user
-				//SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList
-				const char * p_key_symb = "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList";
-				WinRegKey reg_key(HKEY_LOCAL_MACHINE, p_key_symb, 1);
+				WinRegKey reg_key(HKEY_LOCAL_MACHINE, SlConst::P_WrKey_MsWin_ProfileList, 1);
 				if(reg_key.IsValid()) {
 					SString subkey_symb;
 					for(uint ki = 0; reg_key.EnumKeys(&ki, subkey_symb);) {
 						//ProfileImagePath
 						if(subkey_symb.IsEqiAscii(sid_text)) {
-							(temp_buf = p_key_symb).SetLastSlash().Cat(subkey_symb);
+							(temp_buf = SlConst::P_WrKey_MsWin_ProfileList).SetLastSlash().Cat(subkey_symb);
 							WinRegKey _local_reg_key(HKEY_LOCAL_MACHINE, temp_buf, 1);
 							if(_local_reg_key.IsValid()) {
 								_local_reg_key.GetStringU("ProfileImagePath", rInfo.ProfilePath);

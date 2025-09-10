@@ -115,10 +115,10 @@ IMPL_HANDLE_EVENT(ListWindow)
 			Move_(0, 0);
 		if(DlgFlags & fLarge) {
 			P_Def->SetOption(lbtSelNotify, 1);
-			::SendDlgItemMessage(H(), CTL_LBX_LIST, LB_SETITEMHEIGHT, 0, static_cast<LPARAM>(40));
+			::SendDlgItemMessageW(H(), CTL_LBX_LIST, LB_SETITEMHEIGHT, 0, static_cast<LPARAM>(40));
 		}
 		if(APPL->PushModalWindow(this, H())) {
-			ShowWindow(H(), SW_SHOW);
+			::ShowWindow(H(), SW_SHOW);
 			resourceID = -1;
 			EndModalCmd = 0;
 			MSG    msg;
@@ -130,25 +130,26 @@ IMPL_HANDLE_EVENT(ListWindow)
 			}
 			LDATETIME lost_focus_start_tm = ZERODATETIME;
 			do {
-				::GetMessage(&msg, 0, 0, 0);
+				::GetMessageW(&msg, 0, 0, 0);
 				HWND h_focus_wnd = GetFocus();
 				if(H() != h_focus_wnd && h_ctl_wnd != h_focus_wnd) {
+					const LDATETIME now_dtm = getcurdatetime_();
 					if(!lost_focus_start_tm)
-						lost_focus_start_tm = getcurdatetime_();
-					else if(diffdatetimesec(getcurdatetime_(), lost_focus_start_tm) > 30) {
-						::PostMessage(H(), WM_COMMAND, IDCANCEL, 0);
+						lost_focus_start_tm = now_dtm;
+					else if(diffdatetimesec(now_dtm, lost_focus_start_tm) > 30) {
+						::PostMessageW(H(), WM_COMMAND, IDCANCEL, 0);
 						break;
 					}
 				}
 				if(oneof5(msg.message, WM_LBUTTONDOWN, WM_RBUTTONDOWN, WM_NCLBUTTONDOWN, WM_NCRBUTTONDOWN, WM_MBUTTONDOWN)) {
 					if(H() != msg.hwnd && H() != GetParent(msg.hwnd)) {
-						::PostMessage(H(), WM_COMMAND, IDCANCEL, 0);
+						::PostMessageW(H(), WM_COMMAND, IDCANCEL, 0);
 						break;
 					}
 				}
-				if(!::IsDialogMessage(H(), &msg)) {
+				if(!::IsDialogMessageW(H(), &msg)) {
 					::TranslateMessage(&msg);
-					::DispatchMessage(&msg);
+					::DispatchMessageW(&msg);
 				}
 				if(EndModalCmd && APPL->TestWindowForEndModal(this) && !IsCommandValid(EndModalCmd))
 					EndModalCmd = 0;

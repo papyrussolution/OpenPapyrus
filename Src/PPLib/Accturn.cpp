@@ -663,13 +663,13 @@ int AccTurnCore::LockingFRR(int lock, int * pFRRL_Tag, int use_ta)
 			THROW(tra);
 			for(i = 0; i < Frrl->AccrelIdList.getCount(); i++) {
 				acc_id = Frrl->AccrelIdList.at(i);
-				if(SearchByID(&AccRel, PPOBJ_ACCTREL, acc_id, 0) > 0) { // @v8.2.0 SearchByID_ForUpdate-->SearchByID
+				if(SearchByID(&AccRel, PPOBJ_ACCTREL, acc_id, 0) > 0) {
 					THROW(acc_list.addUnique(AccRel.data.AccID));
 					if(AccRel.data.Flags & ACRF_FRRL) {
 						k = acc_id;
 						THROW_DB(AccRel.getPosition(&pos));
 						THROW(RecalcRest(acc_id, AccRel.data.FRRL_Date, 0, 0, 0));
-						THROW_DB(AccRel.getDirectForUpdate(-1, 0, pos)); // @v8.2.0 getDirect-->getDirectForUpdate
+						THROW_DB(AccRel.getDirectForUpdate(-1, 0, pos));
 						AccRel.data.Flags &= ~ACRF_FRRL;
 						AccRel.data.FRRL_Date = ZERODATE;
 						THROW_DB(AccRel.updateRec()); // @sfu
@@ -678,7 +678,7 @@ int AccTurnCore::LockingFRR(int lock, int * pFRRL_Tag, int use_ta)
 			}
 			for(i = 0; i < acc_list.getCount(); i++) {
 				acc_id = acc_list.at(i);
-				if(AccObj.Search(acc_id, &acc_rec) > 0 && acc_rec.Flags & ACF_FRRL) { // @v8.2.0 SearchByID_ForUpdate-->SearchByID
+				if(AccObj.Search(acc_id, &acc_rec) > 0 && acc_rec.Flags & ACF_FRRL) {
 					THROW(RecalcBalance(acc_id, acc_rec.Frrl_Date, 0));
 					THROW(AccObj.LockFRR(acc_id, ZERODATE, 1 /*unlock*/));
 				}
@@ -1247,7 +1247,8 @@ int AccTurnCore::ReplaceArticle(PPID dest, PPID src)
 {
 	int    ok = 1;
 	PPID   dest_rel_id, src_rel_id;
-	DBRowId pos, p;
+	DBRowId pos;
+	DBRowId p;
 	AcctRelTbl::Key2 k_;
 	AccTurnTbl::Key1 atk;
 	AccTurnTbl::Key2 atk2;
@@ -1267,23 +1268,23 @@ int AccTurnCore::ReplaceArticle(PPID dest, PPID src)
 			atk.Acc = dest_rel_id;
 			atk.Dt = ZERODATE;
 			atk.OprNo = 0;
-			while(search(1, &atk, spGt) && atk.Acc == dest_rel_id) { // @v8.2.0 searchForUpdate-->search
+			while(search(1, &atk, spGt) && atk.Acc == dest_rel_id) {
 				int    sp;
 				THROW_DB(getPosition(&p));
-				THROW_DB(getDirectForUpdate(-1, 0, p)); // @v8.2.0
+				THROW_DB(getDirectForUpdate(-1, 0, p));
 				data.Acc = src_rel_id;
 				THROW_DB(updateRec()); // @sfu
 				THROW_DB(getDirect(2, &atk2, p));
 				sp = data.Reverse ? spPrev : spNext;
-				if(search(&atk2, sp) && data.CorrAcc == dest_rel_id) { // @v8.2.0 searchForUpdate-->search
-					THROW_DB(rereadForUpdate(2, &atk2)); // @v8.2.0
+				if(search(&atk2, sp) && data.CorrAcc == dest_rel_id) {
+					THROW_DB(rereadForUpdate(2, &atk2));
 					data.CorrAcc = src_rel_id;
 					THROW_DB(updateRec()); // @sfu
 				}
 				else
 					THROW_PP(sp == spNext && maybe_zero_crd_acc, PPERR_TURNMIRRORINGFAULT);
 			}
-			THROW_DB(AccRel.getDirectForUpdate(-1, 0, pos)); // @v8.2.0 getDirect-->getDirectForUpdate
+			THROW_DB(AccRel.getDirectForUpdate(-1, 0, pos));
 			THROW_DB(AccRel.deleteRec()); // @sfu
 			THROW(RecalcRest(src_rel_id, ZERODATE, 0, 0, 0));
 		}
@@ -1485,9 +1486,13 @@ int AccTurnCore::Helper_Repair(long flags, int reverse, int (*MsgProc)(int msgCo
 
 int AccTurnCore::RecalcRest(PPID accRelID, LDATE startDate, int (*MsgProc)(PPID, LDATE, long, double, void * paramPtr), void * paramPtr, int use_ta)
 {
-	int    ok = 1, correct = 0, reply;
+	int    ok = 1;
+	int    correct = 0;
+	int    reply;
 	int    msg_done = 0;
-	double r, amt, rest = 0.0;
+	double r;
+	double amt;
+	double rest = 0.0;
 	DBRowId pos;
 	AccTurnTbl::Key1 k;
 	k.Acc   = accRelID;
@@ -1530,7 +1535,7 @@ int AccTurnCore::RecalcRest(PPID accRelID, LDATE startDate, int (*MsgProc)(PPID,
 					rest += amt;
 				else
 					rest -= amt;
-				double delta = R6(rest - r);
+				const double delta = R6(rest - r);
 				if(delta != 0.0) {
 					if(MsgProc) {
 						if(!msg_done) {

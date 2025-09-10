@@ -948,20 +948,19 @@ static const char * FASTCALL __lv_dbreg_str(uint32 op)
 
 static int __lv_dbt_str(const DBT * dbt, char ** str)
 {
-	char * p, * q;
-	uint32 buflen, bufsz, i;
+	char * p = 0;
+	char * q = 0;
+	uint32 buflen = 0;
+	uint32 i = 0;
 	int ret = 0;
-	p = q = NULL;
-	buflen = bufsz = i = 0;
-	bufsz = sizeof(char)*dbt->size*2;
+	uint32 bufsz = sizeof(char)*dbt->size*2;
 	if((ret = __os_malloc(NULL, bufsz, &p)) != 0)
 		goto err;
 	q = (char *)dbt->data;
 	memzero(p, bufsz);
-	/*
-	 * Each unprintable character takes up several bytes, so be ware of
-	 * memory access violation.
-	 */
+	//
+	// Each unprintable character takes up several bytes, so be ware of memory access violation.
+	//
 	for(i = 0; i < dbt->size && buflen < bufsz; i++) {
 		buflen = (uint32)sstrlen(p);
 		snprintf(p+buflen, bufsz-(buflen+1), isprint(q[i]) || q[i] == 0x0a ? "%c" : "%x", q[i]);

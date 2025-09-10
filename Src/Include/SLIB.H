@@ -1029,6 +1029,23 @@ typedef int32               TYPEID;
 #define SLERR_RECMGR_RECPFX_SIGNATURE          810 // Invalid recprefix: недопустимая сигнатура в начале блока
 #define SLERR_RECMGR_RECPFX_FLAGS              811 // Invalid recprefix: недопустимые флаги заголовка блока
 
+#define SLERR_UID_EMPTYFILENAME                851 // Ошибка загрузки UID - пустое имя файла
+#define SLERR_UID_SRCPATHINDEF                 852 // Ошибка загрузки UID - не определен исходный каталог загрузки 
+#define SLERR_UID_FILENFOUND                   853 // Ошибка загрузки UID - файл '%s' не найден
+#define SLERR_UID_JSONPARSEFAULT               854 // Ошибка загрузки UID - ошибка разбора json-файла '%s'
+#define SLERR_UID_JSONNOTOBJ                   855 // Ошибка загрузки UID - json не является объектом
+#define SLERR_UID_COLORSET_RECUR               856 // Ошибка UID - рекурсия в цветовом наборе ('%s')
+#define SLERR_UID_COLORSET_FUNC_ARGCOUNT       857 // Ошибка UID - неверное количество параметров в функции вычисления цвета
+#define SLERR_UID_COLORSET_FUNC_NOARG          858 // Ошибка UID - отсутствует параметр в функции вычисления цвета '%s'
+#define SLERR_UID_COLORSET_FUNC_INVARGTYP      859 // Ошибка UID - недопустимый тип параметра в функции вычисления цвета '%s'
+#define SLERR_UID_COLORSET_INVINTREF           860 // Внутренняя ошибка UID - недопустимая внутренняя ссылка на определитель цвета
+#define SLERR_UID_COLORSET_INVSETREF           861 // Ошибка UID - не удалось разрешить символ цветового набора '%s'
+#define SLERR_UID_COLORSET_INVFUNCID           862 // Внутренняя ошибка UID - недопустимый идент функции '%s'
+#define SLERR_INVCOLORTXTDESCR                 863 // Ошибка разбора строки определения цвета '%s'                          
+#define SLERR_UID_COLORSET_ALPHAVALEXPECTED    864 // Ошибка разбора цветового примитива '%s' - ожидается значение alpha
+#define SLERR_UID_COLORSET_INVCOLORREFSYMB     865 // Ошибка UID - не удалось разрешить символ цвета '%s' 
+#define SLERR_UID_COLORSET_PRIMSYNTAX          866 // Ошибка UID - синтаксическая ошибка в определении цветового примитива '%s'
+
 #define SLERR_ERRNO_OFFSET                    2000 // Смещение с которого начинаются коды ошибок, соответствующие posix-мнемоникам (errno)
 #define SLERR_ERRNO_LAST                      2999 // Максимальное значение для posix errno (если я правильно понял, то errno не имеет официального максимуму потому использую свой собственный).
 
@@ -1421,6 +1438,7 @@ public:
 	static constexpr const char * P_DummyEanCode = "4600000000008"; // @v12.3.4 Просто валидный штрихкод ean-13 (надеюсь, имеющий минимальную вероятностью совпадения с реальными кодами)
 	static constexpr const char * P_WrKey_MsWin_DisallowRun = "Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\\DisallowRun"; // @v11.8.12 HKEY_CURRENT_USER
 	static constexpr const char * P_WrKey_MsWin_RestrictRun = "Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\\RestrictRun"; // @v11.8.12 HKEY_CURRENT_USER
+	static constexpr const char * P_WrKey_MsWin_ProfileList = "Software\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList"; // @v12.4.0 HKEY_LOCAL_MACHINE
 	static constexpr const char * P_WrKey_Prefix_SobolevEngineering = "Software\\SobolevEngineering"; // @v12.3.10 HKEY_CURRENT_USER
 	static constexpr const char * WinClsName_Desktop    = "PPYDESKTOPWINDOW"; // @v12.3.8
 	static constexpr const char * WinClsName_TextEditor = "STextBrowser"; // @v12.3.8
@@ -5523,6 +5541,7 @@ uint   FASTCALL hexw(wchar_t c);
 //    проверить эти символы функцией ishex(char).
 //
 uint8  FASTCALL hextobyte(const char * pBuf);
+template <class T> bool isasciiprint(T ch) { return ch >= 0x20 && ch <= 0x7E; } // @v12.4.0
 template <class T> bool isasciiupr(T ch) { return (ch >= 'A' && ch <= 'Z'); }
 template <class T> bool isasciilwr(T ch) { return (ch >= 'a' && ch <= 'z'); }
 //template <class T> bool isasciialpha(T ch) { return (((uchar)(ch | 32) - 97) < 26U); }
@@ -6698,7 +6717,7 @@ public:
 	//   >0 - данные успешно извлечены из строки и помещены в буфер.
 	//   0  - ошибка (либо не удалось декодировать pHexString, либо не достаточно памяти, либо ошибка во внутреннем состоянии буфера).
 	//
-	int    FromHex(const char * pHexString);
+	bool   FromHex(const char * pHexString);
 	//
 	// Descr: Гарантирует, что длина отрезка равна len не заботясь о содержимом отрезка.
 	//   То есть, если перед вызовом Len() > len, то укорачивает отрезок до len,
@@ -12540,6 +12559,15 @@ public:
 	static int  FASTCALL WildcardMatch(const char * pPattern, const char * pStr);
 	static int  GetSecurity(const char * pFileNameUtf8, uint requestFlags, SBuffer & rSecurInfo);
 	//
+	// Descr: Функция асинхронно пытается читать данные из файла с хандлером hFile. Период ожидания - timeoutMs.
+	//   Если timeoutMs <= 0, то функция просто вызывает процедуру синхронного чтения.
+	// Returns:
+	//   >0 - функция успешно прочитала данные 
+	//   <0 - не удалось ничего прочитать до завершения таймаута
+	//    0 - ошибка
+	//
+	static int  AsyncReadFileWithTimeout(SIntHandle hFile, void * pBuf, size_t bufSize, int timeoutMs, size_t * pActualReadSize);
+	//
 	// Descr: Структура дополнительных параметров сортировки файла
 	//
 	struct SortParam {
@@ -14994,36 +15022,36 @@ uint64 FASTCALL sexpanduint64(const void * pBuf, uint size);
 //
 //
 //
-template <class T> T smin(T a, T b) { return MIN(a, b); }
+template <class T> constexpr T smin(T a, T b) { return MIN(a, b); }
 //
 // Descr: Возвращает минимум 3-х аргументов.
 //
-template <class T> T smin3(T a, T b, T c) { return smin(MIN(a, b), c); }
+template <class T> constexpr T smin3(T a, T b, T c) { return smin(MIN(a, b), c); }
 //
 // Descr: Возвращает минимум 4-х аргументов.
 //
-template <class T> T smin4(T a, T b, T c, T d) { return smin(MIN(a, b), MIN(c, d)); }
-template <class T> T smax(T a, T b) { return MAX(a, b); }
+template <class T> constexpr T smin4(T a, T b, T c, T d) { return smin(MIN(a, b), MIN(c, d)); }
+template <class T> constexpr T smax(T a, T b) { return MAX(a, b); }
 //
 // Descr: Возвращает максимум 3-х аргументов.
 //
-template <class T> T smax3(T a, T b, T c) { return smax(MAX(a, b), c); }
+template <class T> constexpr T smax3(T a, T b, T c) { return smax(MAX(a, b), c); }
 //
 // Descr: Возвращает максимум 4-х аргументов.
 //
-template <class T> T smax4(T a, T b, T c, T d) { return smax(MAX(a, b), MAX(c, d)); }
+template <class T> constexpr T smax4(T a, T b, T c, T d) { return smax(MAX(a, b), MAX(c, d)); }
 //
 // Descr: Функция возвращает значение v в пределах диапазона [lo..up]. If v >= lo && v <= up, то результат v, elseif (v < lo) --> lo, else --> up
 // Функции sclampx проверяют границы диапазона lo vs up: если lo < up то результат эквивалентен sclamp(v, lo, up) иначе - sclamp(v, up, lo)
 //
-template <class T> T sclamp(T v, T lo, T up) { return (v < lo) ? lo : ((v > up) ? up : v); }
-template <class T> T sclampx(T v, T lo, T up) { return (lo < up) ? sclamp(v, lo, up) : sclamp(v, up, lo); }
+template <class T> constexpr T sclamp(T v, T lo, T up) { return (v < lo) ? lo : ((v > up) ? up : v); }
+template <class T> constexpr T sclampx(T v, T lo, T up) { return (lo < up) ? sclamp(v, lo, up) : sclamp(v, up, lo); }
 //
 // Descr: clamp с первым аргументом типа float часто используется. При этом 
 //   остальные 2 аргумента в выховах часто не приводят к float (используют int-constant)
 //   что сильно затрудняет применени шаблонизированной функции slamp().
 //
-FORCEINLINE float sclampf(float v, float lo, float up) { return (v < lo) ? lo : ((v > up) ? up : v); }
+FORCEINLINE constexpr float sclampf(float v, float lo, float up) { return (v < lo) ? lo : ((v > up) ? up : v); }
 
 double FASTCALL fdiv100r(double);
 double FASTCALL fdiv100i(long);
@@ -15031,12 +15059,12 @@ double FASTCALL fdiv1000i(long);
 //
 // Функции idivroundup реализуют целочисленное деление первого аргумента на второй с округлением вверх
 //
-FORCEINLINE int   FASTCALL idivroundup(int a, int b) { return (a + b - 1) / b; } // @v11.9.0
-FORCEINLINE uint  FASTCALL idivroundup(uint a, uint b) { return (a + b - 1U) / b; } // @v11.9.0
-FORCEINLINE long  FASTCALL idivroundup(long a, long b) { return (a + b - 1L) / b; } // @v11.9.0
-FORCEINLINE ulong FASTCALL idivroundup(ulong a, ulong b) { return (a + b - 1LU) / b; } // @v11.9.0
-FORCEINLINE int64 FASTCALL idivroundup(int64 a, int64 b) { return (a + b - 1LL) / b; } // @v11.9.0
-FORCEINLINE int64 FASTCALL idivroundup(uint64 a, uint64 b) { return (a + b - 1LL) / b; } // @v11.9.0
+FORCEINLINE constexpr int   idivroundup(int a, int b) { return (a + b - 1) / b; } // @v11.9.0
+FORCEINLINE constexpr uint  idivroundup(uint a, uint b) { return (a + b - 1U) / b; } // @v11.9.0
+FORCEINLINE constexpr long  idivroundup(long a, long b) { return (a + b - 1L) / b; } // @v11.9.0
+FORCEINLINE constexpr ulong idivroundup(ulong a, ulong b) { return (a + b - 1LU) / b; } // @v11.9.0
+FORCEINLINE constexpr int64 idivroundup(int64 a, int64 b) { return (a + b - 1LL) / b; } // @v11.9.0
+FORCEINLINE constexpr int64 idivroundup(uint64 a, uint64 b) { return (a + b - 1LL) / b; } // @v11.9.0
 //
 // Функции idivroundn реализуют целочисленное деление первого аргумента на второй с округлением до ближайшего целого 
 // e.g. 
@@ -15044,9 +15072,9 @@ FORCEINLINE int64 FASTCALL idivroundup(uint64 a, uint64 b) { return (a + b - 1LL
 //   idivroundn(10, 3) == 3
 //   idivroundn(10, 4) == 3
 //
-FORCEINLINE int   FASTCALL idivroundn(int a, int b) { return (a + b/2) / b; } // @v11.9.0
-FORCEINLINE long  FASTCALL idivroundn(long a, long b) { return (a + b/2L) / b; } // @v11.9.0
-FORCEINLINE int64 FASTCALL idivroundn(int64 a, int64 b) { return (a + b/2LL) / b; } // @v11.9.0
+FORCEINLINE constexpr int   idivroundn(int a, int b) { return (a + b/2) / b; } // @v11.9.0
+FORCEINLINE constexpr long  idivroundn(long a, long b) { return (a + b/2L) / b; } // @v11.9.0
+FORCEINLINE constexpr int64 idivroundn(int64 a, int64 b) { return (a + b/2LL) / b; } // @v11.9.0
 //
 // Descr: делит a на b в вещественном виде ((double)a) / ((double)b)
 //   Если b == 0, то возвращает 0.
@@ -15118,8 +15146,8 @@ double feuclideannorm(uint count, const double * pV);
 float  feuclideandistance(uint count, const float * pV1, const float * pV2);
 double feuclideandistance(uint count, const double * pV1, const double * pV2);
 
-FORCEINLINE float  lerp(float a, float b, float t) { return (a + ((b - a) * t)); } // @v11.7.10
-FORCEINLINE double lerp(double a, double b, double t) { return (a + ((b - a) * t)); } // @v11.7.10
+FORCEINLINE constexpr float  lerp(float a, float b, float t) { return (a + ((b - a) * t)); } // @v11.7.10
+FORCEINLINE constexpr double lerp(double a, double b, double t) { return (a + ((b - a) * t)); } // @v11.7.10
 
 // @v11.8.5 (replaced with fpow2()) #define SQ_Removed(x) ((x)*(x))
 
@@ -17627,6 +17655,7 @@ public:
 	public:
 		struct Entry {
 			Entry();
+			Entry & Z();
 			uint   ProcessId;
 			uint   ParentId;
 			uint   ThreadCount;
@@ -17636,6 +17665,8 @@ public:
 
 		ProcessPool();
 		const Entry * SearchByExeFileName(const char * pPatternUtf8, uint * pIdx);
+		uint    GetCount() const { return L.getCount(); }
+		bool    GetEntry(uint idx, Entry & rEntry, SString * pExeFileNameUtf8) const;
 
 		TSVector <Entry> L;
 	};
@@ -17643,8 +17674,11 @@ public:
 	static uint GetProcessList(ProcessPool & rList); // @v12.3.11 @construction
 	//
 	// Descr: Пытается найти запущенный процесс с именем (без пути - только имя.расширение) исполняемого файла pPatternUtf8.
+	// Returns:
+	//   Идентификатор найденного процесса
 	//
-	static const ProcessPool::Entry * SearchProcessByName(const char * pPatternUtf8);
+	static uint SearchProcessByName(const char * pPatternUtf8);
+	static uint GetProcessListByName(const char * pPatternUtf8, ProcessPool & rList); // @v12.4.0 @construction
 	
 	SlProcess();
 	~SlProcess();
@@ -17674,6 +17708,7 @@ public:
 	
 	int    Run(Result * pResult);
 private:
+	static uint Helper_GetProcessList(const char * pFileName, ProcessPool & rList);
 	bool   Helper_SetParam(SStringU & rInner, const char * pParamUtf8);
 	bool   Helper_SetParam(SStringU & rInner, const wchar_t * pParam);
 	bool   Helper_SsAdd(StringSet & rInner, const char * pAddendumUtf8);
@@ -18168,7 +18203,7 @@ public:
 	//
 	// Descr: Проверят установлен ли заданный флаг пользовательского интерфейса текущего потока.
 	//
-	int     FASTCALL CheckUiFlag(long f) const;
+	bool    FASTCALL CheckUiFlag(long f) const;
 	//
 	// Descr: Функция загружает определители пользовательского интерфейса из файла с именем pFileName.
 	//   Указатель pFileName должен содержать только имя файла, поскольку каталог, где находится файл

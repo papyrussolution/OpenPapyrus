@@ -4357,10 +4357,8 @@ int TestUhttClient()
 			log_buf.Space().Cat("ok");
 			alb_cfg.GetExtStrData(ALBATROSEXSTR_MQC_HOST, temp_buf);
 			log_buf.Space().Cat(temp_buf);
-			// @v10.6.0 {
 			alb_cfg.GetExtStrData(ALBATROSEXSTR_MQC_VIRTHOST, temp_buf);
 			log_buf.Space().Cat(temp_buf); 
-			// } @v10.6.0
 			alb_cfg.GetExtStrData(ALBATROSEXSTR_MQC_USER, temp_buf);
 			log_buf.Space().Cat(temp_buf);
 			ok = 1;

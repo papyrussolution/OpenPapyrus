@@ -340,7 +340,8 @@ int DeviceLoadingStat::DoMaintain(LDATE toDt)
 	IterCounter counter;
 	DvcLoadingStatTbl::Key2 k;
 	{
-		SString buf, added_param;
+		SString buf;
+		SString added_param;
 		SFsPath ps(DBTable::GetName());
 		ps.Merge(0, SFsPath::fDrv|SFsPath::fDir, added_param);
 		msg.Printf(PPLoadTextS(PPTXT_DBMAINTAIN, buf), added_param);

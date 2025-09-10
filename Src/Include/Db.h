@@ -1391,7 +1391,7 @@ extern int _db_open_peak;  // Пиковое количество открыты
 
 #define DBOPEN_LOWLEVEL open_
 
-union DBRowId { // @persistent size=32
+class DBRowId { // @persistent size=32
 public:
 	DBRowId();
 
@@ -1416,8 +1416,8 @@ public:
 	DBRowId & FASTCALL operator = (RECORDNUMBER n);
 	DBRowId & Z();
 	void   SetMaxVal();
-	SString & FASTCALL ToStr(SString & rBuf) const;
-	int    FASTCALL FromStr(const char *);
+	SString & FASTCALL ToStr__(SString & rBuf) const;
+	int    FASTCALL FromStr__(const char * pStr);
 private:
 	// @v12.3.12 uint32 B;
 	uint8  S[32];
@@ -2587,12 +2587,15 @@ public:
 		tokMax,      // function max
 		tokNlsLower, // function nls_lower
 		tokLower,    // @v11.6.0 function lower
-		tokCountOfTokens,
 		tokIfNotExists, // @v11.9.12 if not exists
 		tokBegin, // @v12.3.12
 		tokCommit, // @v12.3.12
 		tokRollback, // @v12.3.12
 		tokTransaction, // @v12.3.12
+		tokIndexedBy, // @v12.4.0 sqlite "indexed by"
+		tokOrderBy, // @v12.4.0
+		
+		tokCountOfTokens,
 	};
 	enum {
 		pfxIndex = 1,

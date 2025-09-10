@@ -3433,7 +3433,7 @@ public:
 			} while(!result && !do_exit);
 			if(!!result) {
 				DWORD pipe_mode = PIPE_READMODE_MESSAGE; 
-				boolint _ok = SetNamedPipeHandleState(result, &pipe_mode/*new pipe mode*/, NULL/*don't set maximum bytes*/, NULL/*don't set maximum time*/);
+				boolint _ok = ::SetNamedPipeHandleState(result, &pipe_mode/*new pipe mode*/, NULL/*don't set maximum bytes*/, NULL/*don't set maximum time*/);
 				if(!_ok) {
 					::CloseHandle(result);
 					result.Z();
@@ -3446,13 +3446,13 @@ public:
 	bool   SendQuitCommand(SIntHandle hPipe)
 	{
 		bool   ok = false;
-		SJson * p_js_reply = SendCommand(hPipe, "quit", 0, 0);
+		SJson * p_js_reply = SendCommand(hPipe, -1, "quit", 0, 0);
 		if(p_js_reply) {
 			ok = true;
 		}
 		return ok;
 	}
-	SJson * SendCommand(SIntHandle hPipe, const char * pCmdUtf8, const char * pParam, const void * hParentWindow)
+	SJson * SendCommand(SIntHandle hPipe, int waitTimeout, const char * pCmdUtf8, const char * pParam, const void * hParentWindow)
 	{
 		SJson * p_js_reply = 0;
 		SString temp_buf;
@@ -3472,17 +3472,26 @@ public:
 			//
 			DWORD wr_size = 0;
 			js_query.ToStr(temp_buf);
-			boolint wr_ok = WriteFile(hPipe, temp_buf.cptr(), temp_buf.Len()+1, &wr_size, NULL/*not overlapped*/);
+			boolint wr_ok = ::WriteFile(hPipe, temp_buf.cptr(), temp_buf.Len()+1, &wr_size, NULL/*not overlapped*/);
 			if(wr_ok) {
 				reply_buf.Z();
 				bool more_data = false;
 				do {
 					more_data = false;
-					DWORD rd_size = 0;
+					union {;
+						DWORD rd_size;
+						size_t actual_size;
+					} rs;
+					rs.actual_size = 0;
 					RdBuf[0] = 0;
-					boolint rd_ok = ReadFile(hPipe, RdBuf, RdBuf.GetSize(), &rd_size, NULL/*not overlapped*/);
-					if(rd_ok) {
-						reply_buf.CatN(RdBuf, rd_size);
+					//boolint rd_ok = ::ReadFile(hPipe, RdBuf, RdBuf.GetSize(), &rs.rd_size, NULL/*not overlapped*/);
+					int rd_result = SFile::AsyncReadFileWithTimeout(hPipe, RdBuf, RdBuf.GetSize(), waitTimeout, &rs.actual_size);
+					if(rd_result > 0) {
+						reply_buf.CatN(RdBuf, rs.actual_size);
+					}
+					else if(rd_result < 0) {
+						p_js_reply = new SJson(SJson::tOBJECT);
+						p_js_reply->InsertString("result", "timeout");
 					}
 					else if(GetLastError() == ERROR_MORE_DATA) {
 						more_data = true;
@@ -3491,7 +3500,8 @@ public:
 						; // real error
 					}
 				} while(more_data);
-				p_js_reply = SJson::Parse(reply_buf);
+				if(!p_js_reply)
+					p_js_reply = SJson::Parse(reply_buf);
 			}
 		}
 		CATCH
@@ -3521,7 +3531,7 @@ int TestCrr32SupportServer()
 		else {
 			for(uint i = 0; i < 10; i++) {
 				//slfprintf_stderr("Call on named-pipe #%u\n", i+1);
-				p_js_reply = cli.SendCommand(h_pipe, "test", 0, 0);
+				p_js_reply = cli.SendCommand(h_pipe, -1, "test", 0, 0);
 				if(p_js_reply) {
 					ZDELETE(p_js_reply);
 				}
@@ -3535,6 +3545,26 @@ int TestCrr32SupportServer()
 
 int CrystalReportPrint2_ClientExecution(CrystalReportPrintParamBlock & rBlk, CrystalReportPrintReply & rReply)
 {
+	struct InternalBlock {
+		static int SendPrintCommandToServer(Crr32SupportClient & rCli, SIntHandle hPipe, CrystalReportPrintParamBlock & rBlk, CrystalReportPrintReply & rReply)
+		{
+			int    result = 0;
+			SSerializeContext sctx;
+			SBuffer sbuf;
+			SString temp_buf;
+			//slfprintf_stderr("Call on named-pipe #%u\n", i+1);
+			rBlk.Serialize(+1, sbuf, &sctx);
+			temp_buf.EncodeMime64(sbuf.GetBufC(sbuf.GetRdOffs()), sbuf.GetAvailableSize());
+			SJson * p_js_reply = rCli.SendCommand(hPipe, 2000, "run", temp_buf, 0);
+			if(p_js_reply) {
+				p_js_reply->ToStr(temp_buf); // @debug
+				result = 1; // ???
+				ZDELETE(p_js_reply);
+			}
+			return result;
+		}
+	};
+
 	int    result = 0;
 	const  char * p_ext_process_name = "crr32_support.exe";
 	const  bool   use_ext_process = false; //SlDebugMode::CT();
@@ -3602,62 +3632,111 @@ int CrystalReportPrint2_ClientExecution(CrystalReportPrintParamBlock & rBlk, Cry
 		}
 	}
 	if(use_ext_process) {
-		const  SlProcess::ProcessPool::Entry * p_pe = SlProcess::SearchProcessByName(p_ext_process_name);
-		if(!p_pe) {
-			SString module_path;
-			PPGetFilePath(PPPATH_BIN, p_ext_process_name, module_path);
+		bool   is_new_process = false;
+		SString pipe_name;
+		SString module_path;
+		PPGetFilePath(PPPATH_BIN, p_ext_process_name, module_path);
+		if(rBlk.Action == CrystalReportPrintParamBlock::actionPreview) {
+			S_GUID pipe_symb_uuid(SCtrGenerate_);
+			SString pipe_symb;
+			pipe_symb_uuid.ToStr(S_GUID::fmtPlain, pipe_symb);
 			if(fileExists(module_path)) {
-				SlProcess::Result result;
+				SlProcess::Result process_result;
 				SlProcess process;
 				process.SetPath(module_path);
 				SFsPath ps(module_path);
 				ps.Merge(SFsPath::fDrv|SFsPath::fDir, temp_buf);
 				process.SetWorkingDir(temp_buf);
-				if(process.Run(&result)) {
-					SDelay(10);
-					p_pe = SlProcess::SearchProcessByName(p_ext_process_name);
-				}				
+				temp_buf.Z().Cat("/pipesymb").Colon().Cat(pipe_symb);
+				process.AddArg(temp_buf);
+				if(process.Run(&process_result)) {
+					SDelay(20);
+					is_new_process = true;
+					//
+					//SString & GetCrr32ProxiPipeName(SString & rBuf) { return rBuf.Z().Cat("\\\\.\\pipe\\").Cat(PPConst::PipeCrr32Proxi); } // @v11.9.5
+					pipe_name.Cat("\\\\.\\pipe\\").Cat(pipe_symb);
+					Crr32SupportClient cli(pipe_name);
+					SIntHandle h_pipe(cli.Connect());
+					uint  try_to_connect_count = 1;
+					if(!h_pipe && is_new_process) {
+						for(uint i = 0; !h_pipe && i < 10; i++) {
+							SDelay(50);
+							h_pipe = cli.Connect();
+							try_to_connect_count++;
+						}
+					}
+					if(!h_pipe) {
+						// @todo @log
+						do_use_local_func = true;
+					}
+					else {
+						result = InternalBlock::SendPrintCommandToServer(cli, h_pipe, rBlk, rReply);
+					}
+					::CloseHandle(h_pipe);
+				}
+				else
+					do_use_local_func = true;
 			}
-		}
-		if(p_pe) {
-			SString pipe_name;
-			GetCrr32ProxiPipeName(pipe_name);
-			Crr32SupportClient cli(pipe_name);
-			SIntHandle h_pipe = cli.Connect();
-			if(!h_pipe) {
-				// @todo @log
+			else
 				do_use_local_func = true;
-			}
-			else {
-				// @debug {
-				{
-					SJson * p_js_reply = cli.SendCommand(h_pipe, "ping", 0, 0);
+		}
+		else {
+			bool   local_done = false;
+			GetCrr32ProxiPipeName(pipe_name);
+			uint prc_id = SlProcess::SearchProcessByName(p_ext_process_name);
+			if(prc_id) {
+				// Пытаемся отправить команду ping для того, чтоб удостовериться, что существует
+				// общий процесс для обработки не-интерактивных команд печати
+				Crr32SupportClient cli(pipe_name);
+				SIntHandle h_pipe(cli.Connect());
+				if(!!h_pipe) {
+					SJson * p_js_reply = cli.SendCommand(h_pipe, 100, "ping", 0, 0);
 					if(p_js_reply) {
 						// ...
 						//result = 1; // ???
 						p_js_reply->ToStr(temp_buf); // @debug
 						ZDELETE(p_js_reply);
-					}
-				}
-				// } @debug 
-				{
-					SSerializeContext sctx;
-					SBuffer sbuf;
-					//slfprintf_stderr("Call on named-pipe #%u\n", i+1);
-					rBlk.Serialize(+1, sbuf, &sctx);
-					temp_buf.EncodeMime64(sbuf.GetBufC(sbuf.GetRdOffs()), sbuf.GetAvailableSize());
-					SJson * p_js_reply = cli.SendCommand(h_pipe, "run", temp_buf, h_parent_window_for_preview);
-					if(p_js_reply) {
-						p_js_reply->ToStr(temp_buf); // @debug
-						result = 1; // ???
-						ZDELETE(p_js_reply);
+						//
+						result = InternalBlock::SendPrintCommandToServer(cli, h_pipe, rBlk, rReply);
+						local_done = true;
 					}
 				}
 			}
-		}
-		else {
-			assert(!do_use_local_func);
-			do_use_local_func = true;
+			if(!local_done && fileExists(module_path)) {
+				SlProcess::Result prc_result;
+				SlProcess process;
+				process.SetPath(module_path);
+				SFsPath ps(module_path);
+				ps.Merge(SFsPath::fDrv|SFsPath::fDir, temp_buf);
+				process.SetWorkingDir(temp_buf);
+				if(process.Run(&prc_result)) {
+					SDelay(20);
+					is_new_process = true;
+					//
+					Crr32SupportClient cli(pipe_name);
+					SIntHandle h_pipe(cli.Connect());
+					uint  try_to_connect_count = 1;
+					if(!h_pipe) {
+						for(uint i = 0; !h_pipe && i < 10; i++) {
+							SDelay(50);
+							h_pipe = cli.Connect();
+							try_to_connect_count++;
+						}
+					}
+					if(!h_pipe) {
+						// @todo @log
+						do_use_local_func = true;
+					}
+					else {
+						result = InternalBlock::SendPrintCommandToServer(cli, h_pipe, rBlk, rReply);
+						::CloseHandle(h_pipe);
+					}
+				}
+			}
+			else {
+				assert(!do_use_local_func);
+				do_use_local_func = true;
+			}
 		}
 	}
 	if(do_use_local_func) {
@@ -3681,24 +3760,6 @@ static void DebugOutputCrrExportOptions(const PEExportOptions & rEo, const char 
 		f_out.WriteLine(out_buf);
 	}
 }
-
-struct CrrPreviewEventParam {
-	static BOOL CALLBACK EventCallback(short eventID, void * pParam, void * pUserData)
-	{
-		CrrPreviewEventParam * p_self = static_cast<CrrPreviewEventParam *>(pUserData);
-		if(eventID == PE_CLOSE_PRINT_WINDOW_EVENT && p_self && p_self->ModalPreview) {
-			::EnableWindow(/*APPL->H_TopOfStack*/p_self->HwParent, TRUE);
-			p_self->StopPreview++;
-		}
-		return TRUE;
-	}
-	CrrPreviewEventParam(HWND hParent, bool modalPreview) : HwParent(hParent), ModalPreview(modalPreview), StopPreview(0)
-	{
-	}
-	HWND   HwParent;
-	int    StopPreview;
-	bool   ModalPreview;
-};
 
 int CrystalReportPrint2_Local(const CrystalReportPrintParamBlock & rBlk, CrystalReportPrintReply & rReply, void * hParentWindowForPreview) // @v11.9.5 
 {
@@ -3815,14 +3876,31 @@ int CrystalReportPrint2_Local(const CrystalReportPrintParamBlock & rBlk, Crystal
 		if(rBlk.Options & SPRN_SKIPGRPS)
 			SetupGroupSkipping(h_job);
 		if(rBlk.Action == CrystalReportPrintParamBlock::actionPreview) {
+			struct CrrPreviewEventParam_Local {
+				static BOOL CALLBACK EventCallback(short eventID, void * pParam, void * pUserData)
+				{
+					CrrPreviewEventParam_Local * p_self = static_cast<CrrPreviewEventParam_Local *>(pUserData);
+					if(eventID == PE_CLOSE_PRINT_WINDOW_EVENT && p_self && p_self->ModalPreview) {
+						::EnableWindow(/*APPL->H_TopOfStack*/p_self->HwParent, TRUE);
+						p_self->StopPreview++;
+					}
+					return TRUE;
+				}
+				CrrPreviewEventParam_Local(HWND hParent, bool modalPreview) : HwParent(hParent), ModalPreview(modalPreview), StopPreview(0)
+				{
+				}
+				HWND   HwParent;
+				int    StopPreview;
+				bool   ModalPreview;
+			};
 			HWND h_parent_window = reinterpret_cast<HWND>(hParentWindowForPreview);
-			CrrPreviewEventParam pep(h_parent_window, modal_preview);
+			CrrPreviewEventParam_Local pep(h_parent_window, modal_preview);
 			PEEnableEventInfo event_info;
 			event_info.StructSize = sizeof(PEEnableEventInfo);
 			event_info.closePrintWindowEvent = TRUE;
 			event_info.startStopEvent = TRUE;
 			THROW_PP(PEEnableEvent(h_job, &event_info), PPERR_CRYSTAL_REPORT);
-			THROW_PP(PESetEventCallback(h_job, CrrPreviewEventParam::EventCallback, &pep), PPERR_CRYSTAL_REPORT);
+			THROW_PP(PESetEventCallback(h_job, CrrPreviewEventParam_Local::EventCallback, &pep), PPERR_CRYSTAL_REPORT);
 			THROW_PP(PEStartPrintJob(h_job, /*TRUE*/modal_preview/*waitUntilDone*/), PPERR_CRYSTAL_REPORT);
 			if(modal_preview) {
 				if(h_parent_window) {
@@ -3890,8 +3968,10 @@ static int SendReportLaunchingResultToClientsPipe(SIntHandle hPipe, const SJson 
 		ok = -1;
 	return ok;
 }
-
-int CrystalReportPrint2_Server(const CrystalReportPrintParamBlock & rBlk, CrystalReportPrintReply & rReply, void * hParentWindowForPreview, SIntHandle hPipe) // @v11.9.5 
+//
+// Эта функция вызывается только из процесса crr32_support!
+//
+int CrystalReportPrint2_Server(const CrystalReportPrintParamBlock & rBlk, CrystalReportPrintReply & rReply, void * hParentWindowForPreview, SIntHandle hPipe)
 {
 	int    ok = 1;
 	short  h_job = 0;
@@ -3989,6 +4069,7 @@ int CrystalReportPrint2_Server(const CrystalReportPrintParamBlock & rBlk, Crysta
 		}
 	}
 	else {
+		HWND h_parent_window = reinterpret_cast<HWND>(hParentWindowForPreview);
 		const DEVMODEA * p_dev_mode = (rBlk.InternalFlags & CrystalReportPrintParamBlock::intfDevModeValid) ? &rBlk.DevMode : 0;
 		h_job = PEOpenPrintJob(rBlk.ReportPath);
 		THROW_PP(h_job, PPERR_CRYSTAL_REPORT);
@@ -3998,24 +4079,6 @@ int CrystalReportPrint2_Server(const CrystalReportPrintParamBlock & rBlk, Crysta
 		THROW(SetPrinterParam(h_job, rBlk.Printer, rBlk.Options, p_dev_mode));
 		THROW(SetupReportLocations(h_job, rBlk.Dir, (rBlk.Options & SPRN_DONTRENAMEFILES) ? 0 : 1));
 		if(rBlk.Action == CrystalReportPrintParamBlock::actionPreview) {
-			THROW_PP(PEOutputToWindow(h_job, "", CW_USEDEFAULT, CW_USEDEFAULT,
-				CW_USEDEFAULT, CW_USEDEFAULT, WS_MAXIMIZE|WS_VISIBLE|WS_MINIMIZEBOX|WS_MAXIMIZEBOX|WS_SYSMENU, 0), PPERR_CRYSTAL_REPORT);
-		}
-		else {
-			THROW_PP(PEOutputToPrinter(h_job, rBlk.NumCopies), PPERR_CRYSTAL_REPORT);
-		}
-		if(rBlk.Options & SPRN_SKIPGRPS)
-			SetupGroupSkipping(h_job);
-		if(rBlk.Action == CrystalReportPrintParamBlock::actionPreview) {
-			const  bool modal_preview = true;
-			HWND h_parent_window = reinterpret_cast<HWND>(hParentWindowForPreview);
-			CrrPreviewEventParam pep(h_parent_window, modal_preview);
-			PEEnableEventInfo event_info;
-			event_info.StructSize = sizeof(PEEnableEventInfo);
-			event_info.closePrintWindowEvent = TRUE;
-			event_info.startStopEvent = TRUE;
-			THROW_PP(PEEnableEvent(h_job, &event_info), PPERR_CRYSTAL_REPORT);
-			THROW_PP(PESetEventCallback(h_job, CrrPreviewEventParam::EventCallback, &pep), PPERR_CRYSTAL_REPORT);
 			{
 				//
 				// Посылаем ответ клиенту до того как запустим предпросмотр отчета, иначе клиенту придется ждать пока пользователь не закроет окно просмотра.
@@ -4025,6 +4088,40 @@ int CrystalReportPrint2_Server(const CrystalReportPrintParamBlock & rBlk, Crysta
 					is_reply_sent = true;
 				}
 			}
+			THROW_PP(PEOutputToWindow(h_job, "", CW_USEDEFAULT, CW_USEDEFAULT,
+				CW_USEDEFAULT, CW_USEDEFAULT, WS_MAXIMIZE|WS_VISIBLE|WS_MINIMIZEBOX|WS_MAXIMIZEBOX|WS_SYSMENU, 0), PPERR_CRYSTAL_REPORT);
+		}
+		else {
+			THROW_PP(PEOutputToPrinter(h_job, rBlk.NumCopies), PPERR_CRYSTAL_REPORT);
+		}
+		if(rBlk.Options & SPRN_SKIPGRPS)
+			SetupGroupSkipping(h_job);
+		if(rBlk.Action == CrystalReportPrintParamBlock::actionPreview) {
+			struct CrrPreviewEventParam_Server {
+				static BOOL CALLBACK EventCallback(short eventID, void * pParam, void * pUserData)
+				{
+					CrrPreviewEventParam_Server * p_self = static_cast<CrrPreviewEventParam_Server *>(pUserData);
+					if(eventID == PE_CLOSE_PRINT_WINDOW_EVENT && p_self) {
+						if(p_self->HwParent)
+							::DestroyWindow(p_self->HwParent); // Завершаем процесс
+					}
+					return TRUE;
+				}
+				CrrPreviewEventParam_Server(HWND hParent, bool modalPreview) : HwParent(hParent), ModalPreview(modalPreview), StopPreview(0)
+				{
+				}
+				HWND   HwParent;
+				int    StopPreview;
+				bool   ModalPreview;
+			};
+			const  bool modal_preview = true;
+			CrrPreviewEventParam_Server * p_pep = new CrrPreviewEventParam_Server(h_parent_window, modal_preview);
+			PEEnableEventInfo event_info;
+			event_info.StructSize = sizeof(PEEnableEventInfo);
+			event_info.closePrintWindowEvent = TRUE;
+			event_info.startStopEvent = TRUE;
+			THROW_PP(PEEnableEvent(h_job, &event_info), PPERR_CRYSTAL_REPORT);
+			THROW_PP(PESetEventCallback(h_job, CrrPreviewEventParam_Server::EventCallback, p_pep), PPERR_CRYSTAL_REPORT);
 			THROW_PP(PEStartPrintJob(h_job, /*TRUE*/modal_preview/*waitUntilDone*/), PPERR_CRYSTAL_REPORT);
 			/*if(modal_preview) {
 				if(h_parent_window) {

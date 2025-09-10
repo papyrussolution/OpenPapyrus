@@ -1941,12 +1941,18 @@ int PPImpExp::Helper_OpenFile(const char * pFileName, int readOnly, int truncOnW
 	const bool is_buffer = filename.IsEqiAscii(":buffer:");
 	THROW_PP(!is_buffer || P.DataFormat == PPImpExpParam::dfXml, PPERR_IMPEXPUNSUPPBUFFORMAT);
 	if(!is_buffer) {
+		SFsPath sp(filename);
+		// @v12.4.0 {
+		if(sp.Drv.NotEmpty()) {
+			DS.ConvertPathToUnc(filename);
+			sp.Split(filename);
+		}
+		// } @v12.4.0 
 		if(readOnly) {
 			THROW_SL(fileExists(filename));
 		}
 		else {
 			SString dir;
-			SFsPath sp(filename);
 			sp.Merge(0, SFsPath::fNam|SFsPath::fExt, dir);
 			if(!pathValid(dir.SetLastSlash(), 1))
 				SFile::CreateDir(dir);

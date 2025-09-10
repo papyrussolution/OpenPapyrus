@@ -95,55 +95,33 @@ bool AbslParseFlag(absl::string_view text, unsigned short* dst, std::string*)
 	return true;
 }
 
-bool AbslParseFlag(absl::string_view text, int* dst, std::string*) {
-	return ParseFlagImpl(text, *dst);
-}
+bool AbslParseFlag(absl::string_view text, int* dst, std::string*) { return ParseFlagImpl(text, *dst); }
+bool AbslParseFlag(absl::string_view text, unsigned int* dst, std::string*) { return ParseFlagImpl(text, *dst); }
+bool AbslParseFlag(absl::string_view text, long* dst, std::string*) { return ParseFlagImpl(text, *dst); }
+bool AbslParseFlag(absl::string_view text, unsigned long* dst, std::string*) { return ParseFlagImpl(text, *dst); }
+bool AbslParseFlag(absl::string_view text, long long* dst, std::string*) { return ParseFlagImpl(text, *dst); }
+bool AbslParseFlag(absl::string_view text, unsigned long long* dst, std::string*) { return ParseFlagImpl(text, *dst); }
 
-bool AbslParseFlag(absl::string_view text, unsigned int* dst, std::string*) {
-	return ParseFlagImpl(text, *dst);
-}
-
-bool AbslParseFlag(absl::string_view text, long* dst, std::string*) {
-	return ParseFlagImpl(text, *dst);
-}
-
-bool AbslParseFlag(absl::string_view text, unsigned long* dst, std::string*) {
-	return ParseFlagImpl(text, *dst);
-}
-
-bool AbslParseFlag(absl::string_view text, long long* dst, std::string*) {
-	return ParseFlagImpl(text, *dst);
-}
-
-bool AbslParseFlag(absl::string_view text, unsigned long long* dst,
-    std::string*) {
-	return ParseFlagImpl(text, *dst);
-}
-
-bool AbslParseFlag(absl::string_view text, absl::int128* dst, std::string*) {
+bool AbslParseFlag(absl::string_view text, absl::int128* dst, std::string*) 
+{
 	text = absl::StripAsciiWhitespace(text);
-
 	// check hex
 	int base = NumericBase(text);
 	if(!absl::numbers_internal::safe_strto128_base(text, dst, base)) {
 		return false;
 	}
-
-	return base == 16 ? absl::SimpleHexAtoi(text, dst)
-	       : absl::SimpleAtoi(text, dst);
+	return base == 16 ? absl::SimpleHexAtoi(text, dst) : absl::SimpleAtoi(text, dst);
 }
 
-bool AbslParseFlag(absl::string_view text, absl::uint128* dst, std::string*) {
+bool AbslParseFlag(absl::string_view text, absl::uint128* dst, std::string*) 
+{
 	text = absl::StripAsciiWhitespace(text);
-
 	// check hex
 	int base = NumericBase(text);
 	if(!absl::numbers_internal::safe_strtou128_base(text, dst, base)) {
 		return false;
 	}
-
-	return base == 16 ? absl::SimpleHexAtoi(text, dst)
-	       : absl::SimpleAtoi(text, dst);
+	return base == 16 ? absl::SimpleHexAtoi(text, dst) : absl::SimpleAtoi(text, dst);
 }
 
 // --------------------------------------------------------------------

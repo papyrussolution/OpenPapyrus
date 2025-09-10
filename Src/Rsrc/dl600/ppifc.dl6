@@ -2588,7 +2588,7 @@ library PapyrusInterfaceLib version(1.2) { // @v11.3.8 (1.1)-->(1.2)
 		//   наименований товаров.
 		//
 		string ProcessName(string orgName, int flags);
-		//int    GetEffectiveTaxGroup(long goodsID, date dt, SPpyO_GoodsTax * pTaxGrp); // @v12.3.12
+		int    GetEffectiveTaxGroup(long goodsID, date dt, SPpyO_GoodsTax * pTaxGrp); // @v12.4.0
 	}
 	//
 	// Interface PPObjGoodsGroup

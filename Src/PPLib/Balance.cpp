@@ -1,5 +1,5 @@
 // BALANCE.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000-2002, 2003, 2004, 2007, 2008, 2009, 2012, 2014, 2015, 2016, 2018, 2020, 2022
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000-2002, 2003, 2004, 2007, 2008, 2009, 2012, 2014, 2015, 2016, 2018, 2020, 2022, 2025
 // @codepage UTF-8
 // @Kernel
 //
@@ -58,7 +58,7 @@ int Balance::_Turn(PPID bal, LDATE date, AccTurnParam * param, uint flags)
 		THROW(tra);
 		k1.AccID = bal;
 		k1.Dt = date;
-		THROW(r = search(1, &k1, spEq) ? 1 : PPDbSearchError()); // @v8.1.4 searchForUpdate-->search
+		THROW(r = search(1, &k1, spEq) ? 1 : PPDbSearchError());
 		if(r > 0) {
 			if(abs_amt != 0.0) {
 				DBRowId _dbpos;

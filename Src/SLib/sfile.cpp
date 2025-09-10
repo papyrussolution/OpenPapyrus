@@ -1280,6 +1280,38 @@ int SFile::Stat::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 	return ok;
 }
 
+/*static*/int SFile::AsyncReadFileWithTimeout(SIntHandle hFile, void * pBuf, size_t bufSize, int timeoutMs, size_t * pActualReadSize)
+{
+	int    ok = 0;
+	DWORD  actual_size = 0;
+	boolint local_result = 0;
+	if(timeoutMs > 0) {
+		Evnt ev;
+		OVERLAPPED overlapped = {0};
+		overlapped.hEvent = ev;
+		local_result = ::ReadFile(hFile, pBuf, bufSize, &actual_size, &overlapped);
+		if(!local_result && ::GetLastError() != ERROR_IO_PENDING) {
+			//std::cerr << "Ошибка начала чтения: " << GetLastError() << std::endl;
+		}
+		else {
+			ok = ev.Wait(timeoutMs); // Ждем завершения операции с таймаутом
+			if(ok < 0) {
+				::CancelIo(hFile); // Отменяем операцию
+			}
+			else if(ok > 0) {
+				if(!::GetOverlappedResult(hFile, &overlapped, &actual_size, FALSE)) {
+					ok = 0;
+				}
+			}
+		}
+	}
+	else {
+		ok = ::ReadFile(hFile, pBuf, bufSize, &actual_size, 0);
+	}
+	ASSIGN_PTR(pActualReadSize, actual_size);
+	return ok;
+}
+
 /*static*/int FASTCALL SFile::WildcardMatch(const char * pPattern, const char * pStr)
 {
 	//

@@ -31,7 +31,8 @@ int Transfer::CorrectIntrUnite()
 				int r = p_bill_obj->Search(bill_id, 0);
 				THROW(r);
 				if(r < 0) {
-					DBRowId trfr_pos, rcpt_pos;
+					DBRowId trfr_pos;
+					DBRowId rcpt_pos;
 					ReceiptTbl::Rec lot_rec, prev_lot_rec;
 					TransferTbl::Rec trfr_rec, org_trfr_rec;
 					BillTbl::Rec org_bill_rec;

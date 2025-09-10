@@ -2969,7 +2969,7 @@ HWND FASTCALL GetNextBrowser(HWND hw, int reverse)
 			}
 			return 0;
 		case WM_COMMAND:
-			PostMessage(hWnd, WM_USER+101, wParam, lParam);
+			::PostMessageW(hWnd, WM_USER+101, wParam, lParam);
 			return 0;
 		case WM_USER+101:
 			if(p_view && p_view->IsConsistent()) { // @v12.2.5 (&& p_view->IsConsistent())

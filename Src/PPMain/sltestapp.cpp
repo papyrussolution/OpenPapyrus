@@ -131,7 +131,7 @@ public:
 		} while(!h_pipe && !do_exit);
 		if(!!h_pipe) {
 			DWORD pipe_mode = PIPE_READMODE_MESSAGE; 
-			boolint _ok = SetNamedPipeHandleState(h_pipe, &pipe_mode/*new pipe mode*/, NULL/*don't set maximum bytes*/, NULL/*don't set maximum time*/);
+			boolint _ok = ::SetNamedPipeHandleState(h_pipe, &pipe_mode/*new pipe mode*/, NULL/*don't set maximum bytes*/, NULL/*don't set maximum time*/);
 			if(_ok) {
 				STempBuffer wr_buf(1024);
 				STempBuffer rd_buf(1024);

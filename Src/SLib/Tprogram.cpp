@@ -827,8 +827,7 @@ void TProgram::HandleWindowCompositionChanged()
 static bool HasAutohideAppbar(UINT edge, RECT mon)
 {
 	APPBARDATA abd;
-	MEMSZERO(abd);
-	abd.cbSize = sizeof(abd);
+	INITWINAPISTRUCT(abd);
 	if(IsWindows8Point1OrGreater()) {
 		abd.uEdge = edge;
 		abd.rc = mon;
@@ -938,15 +937,14 @@ void TProgram::HandleWindowNcCalcSize(/*struct window * data,*/WPARAM wParam, LP
 					if(p_pgm->UICfg.Flags & UserInterfaceSettings::fShowShortcuts) {
 						p_pgm->H_ShortcutsWnd = APPL->CreateDlg(DLG_SHORTCUTS, hWnd, ShortcutsWndProc, 0);
 						if(p_pgm->H_ShortcutsWnd) {
-							HWND hwnd_tt = ::CreateWindowEx(WS_EX_TOPMOST, TOOLTIPS_CLASS, NULL, WS_POPUP|TTS_NOPREFIX|TTS_ALWAYSTIP|TTS_BALLOON,
+							HWND hwnd_tt = ::CreateWindowExW(WS_EX_TOPMOST, TOOLTIPS_CLASSW, NULL, WS_POPUP|TTS_NOPREFIX|TTS_ALWAYSTIP|TTS_BALLOON,
 								CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, hWnd, NULL, TProgram::GetInst(), 0);
 							::SetWindowPos(hwnd_tt, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE|SWP_NOACTIVATE);
 							TabCtrl_SetToolTips(GetDlgItem(p_pgm->H_ShortcutsWnd, CTL_SHORTCUTS_ITEMS), hwnd_tt);
 						}
 					}
 				}
-				p_pgm->H_CloseWnd = CreateWindowEx(0, _T("BUTTON"), _T("X"),
-					WS_VISIBLE|WS_CHILD|WS_CLIPSIBLINGS, 2, 2, 12, 12, p_pgm->GetFrameWindow(), 0, TProgram::GetInst(), 0);
+				p_pgm->H_CloseWnd = CreateWindowExW(0, L"BUTTON", L"X", WS_VISIBLE|WS_CHILD|WS_CLIPSIBLINGS, 2, 2, 12, 12, p_pgm->GetFrameWindow(), 0, TProgram::GetInst(), 0);
 				p_pgm->SetWindowViewByKind(p_pgm->H_ShortcutsWnd, TProgram::wndtypNone);
 				p_pgm->SetWindowViewByKind(p_pgm->H_CloseWnd, TProgram::wndtypNone);
 				p_pgm->PrevCloseWndProc = static_cast<WNDPROC>(TView::SetWindowProp(p_pgm->H_CloseWnd, GWLP_WNDPROC, CloseWndProc));
@@ -1028,11 +1026,11 @@ void TProgram::HandleWindowNcCalcSize(/*struct window * data,*/WPARAM wParam, LP
 				p_pgm = static_cast<TProgram *>(TView::GetWindowUserData(hWnd));
 				MENUITEMINFO mii;
 				INITWINAPISTRUCT(mii);
-				int   cnt = GetMenuItemCount(GetMenu(hWnd));
+				const int cnt = GetMenuItemCount(GetMenu(hWnd));
 				HMENU hmW = GetSubMenu(GetMenu(hWnd), cnt-1);
 				if(LOWORD(wParam) == cmShowToolbar) {
 					mii.fMask = MIIM_STATE;
-					GetMenuItemInfo(hmW, cmShowToolbar, FALSE, &mii);
+					::GetMenuItemInfoW(hmW, cmShowToolbar, FALSE, &mii);
 					if(mii.fState & MFS_CHECKED) {
 						mii.fState &= ~MFS_CHECKED;
 						mii.fState |= MFS_UNCHECKED;
@@ -1043,13 +1041,13 @@ void TProgram::HandleWindowNcCalcSize(/*struct window * data,*/WPARAM wParam, LP
 						mii.fState |= MFS_CHECKED;
 						CALLPTRMEMB(p_pgm->P_Toolbar, Show());
 					}
-					SetMenuItemInfo(hmW, cmShowToolbar, FALSE, &mii);
-					PostMessage(hWnd, WM_SIZE, 0, 0);
+					::SetMenuItemInfoW(hmW, cmShowToolbar, FALSE, &mii);
+					::PostMessageW(hWnd, WM_SIZE, 0, 0);
 					break;
 				}
 				if(LOWORD(wParam) == cmShowTree) {
 					mii.fMask = MIIM_STATE;
-					GetMenuItemInfo(hmW, cmShowTree, FALSE, &mii);
+					::GetMenuItemInfoW(hmW, cmShowTree, FALSE, &mii);
 					if(mii.fState & MFS_CHECKED) {
 						mii.fState &= ~MFS_CHECKED;
 						mii.fState |= MFS_UNCHECKED;
@@ -1060,7 +1058,7 @@ void TProgram::HandleWindowNcCalcSize(/*struct window * data,*/WPARAM wParam, LP
 					}
 					// @v11.3.8 CALLPTRMEMB(p_pgm->P_TreeWnd, Show(BIN(mii.fState & MFS_CHECKED)));
 					p_pgm->ShowLeftTree(LOGIC(mii.fState & MFS_CHECKED)); // @v11.3.8
-					SetMenuItemInfo(hmW, cmShowTree, FALSE, &mii);
+					::SetMenuItemInfoW(hmW, cmShowTree, FALSE, &mii);
 					break;
 				}
 				if(LOWORD(wParam) && hmW) {
@@ -1205,7 +1203,8 @@ void TProgram::NotifyFrame(int post)
 
 TProgram::TProgram(HINSTANCE hInst, const char * pAppSymb, const char * pAppTitle, uint ctrflags) : TViewGroup(TRect()),
 	State(0), H_MainWnd(0), H_FrameWnd(0), H_CloseWnd(0), H_LogWnd(0), H_Desktop(0), H_ShortcutsWnd(0),
-	H_TopOfStack(0), H_Accel(0), P_Stw(0), P_DeskTop(0), P_TopView(0), P_Toolbar(0), P_TreeWnd(0), AppSymbol(pAppSymb)
+	H_TopOfStack(0), H_Accel(0), P_Stw(0), P_DeskTop(0), P_TopView(0), P_Toolbar(0), P_TreeWnd(0), AppSymbol(pAppSymb),
+	P_NotifyIconData(0)
 {
 	hInstance = hInst;
 	UICfg.Restore();
@@ -1263,6 +1262,7 @@ TProgram::~TProgram()
 	DestroyIcon(H_Icon);
 	delete P_DeskTop;
 	delete P_Toolbar;
+	delete static_cast<NOTIFYICONDATAW *>(P_NotifyIconData); // @v12.4.0
 }
 
 HWND TProgram::GetFrameWindow() const
@@ -1454,14 +1454,14 @@ int TProgram::SetWindowViewByKind(HWND hWnd, int wndType)
 					{
 						SString title_buf;
 						SString font_face;
-						RECT title_rect;
-						HDC hdc = 0;
+						RECT   title_rect;
+						HDC    hdc = 0;
 						TView::SGetWindowText(hWnd, title_buf);
 						title_rect.top = -e.CaptionHeight;
 						title_rect.left    = 10;
 						title_rect.right   = r.right - r.left - 50;
 						title_rect.bottom  = 24;
-						title_hwnd = ::CreateWindowEx(0, _T("STATIC"), SUcSwitch(title_buf), WS_CHILD,
+						title_hwnd = ::CreateWindowExW(0, L"STATIC", SUcSwitchW(title_buf), WS_CHILD,
 							title_rect.left, title_rect.top, title_rect.right, title_rect.bottom, hWnd, 0, TProgram::hInstance, 0);
 						font_face = "MS Sans Serif";
 						TView::setFont(title_hwnd, font_face, 24);
@@ -1476,7 +1476,7 @@ int TProgram::SetWindowViewByKind(HWND hWnd, int wndType)
 						TButton * p_btn  = new TButton(TRect(10, 10, 10, 10), 0, cmCancel, 0, CLOSEBTN_BITMAPID);
 						p_btn->Parent = hWnd;
 						p_dlg->Insert_(&p_btn->SetId(SPEC_TITLEWND_ID + 1));
-						btn_hwnd = ::CreateWindowEx(0, _T("BUTTON"), NULL, WS_CHILD|BS_NOTIFY|BS_BITMAP,
+						btn_hwnd = ::CreateWindowExW(0, L"BUTTON", NULL, WS_CHILD|BS_NOTIFY|BS_BITMAP,
 							r.right - r.left - 30, -e.CaptionHeight, 16, 16, hWnd, 0, TProgram::hInstance, 0);
 						{
 							HBITMAP h_bm = APPL->FetchBitmap(CLOSEBTN_BITMAPID);
@@ -2725,7 +2725,7 @@ void TProgram::CloseAllBrowsers()
 		if(hw == H_CloseWnd)
 			hw = GetNextWindow(hw, GW_HWNDNEXT);
 		if(hw) {
-			if(hw != APPL->H_Desktop) {
+			if(hw != H_Desktop) {
 				TBaseBrowserWindow * p_brw = static_cast<TBaseBrowserWindow *>(TView::GetWindowUserData(hw));
 				p_brw->endModal(cmCancel);
 			}

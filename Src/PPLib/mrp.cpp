@@ -1651,7 +1651,8 @@ int PPObjMrpTab::DoMaintain(LDATE toDt)
 	k.Dt = toDt;
 	k.LocID = MAXLONG;
 	{
-		SString file_name, fmt_buf;
+		SString file_name;
+		SString fmt_buf;
 		PPLoadText(PPTXT_DBMAINTAIN, fmt_buf);
 		SFsPath ps(P_Tbl->GetName());
 		ps.Merge(SFsPath::fNam|SFsPath::fExt, file_name);

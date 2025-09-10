@@ -1175,15 +1175,17 @@ long  SlSession::SetUiFlag(long f, int set)
     return prev_ui_flags;
 }
 
-int   FASTCALL SlSession::CheckUiFlag(long f) const { return BIN((GetConstTLA().UiFlags & f) == f); }
+bool FASTCALL SlSession::CheckUiFlag(long f) const { return ((GetConstTLA().UiFlags & f) == f); }
 
 bool SlSession::LoadUiDescription(const char * pFileName) // @v11.9.3
 {
 	bool   ok = true;
 	SJson * p_js = 0;
-	THROW(!isempty(pFileName)); // @todo @err
+	UiDescription * p_uid = 0; // временный указатель, используемый между созданием финального экземпляра и осознанием, что все хорошо закончилось.
+	THROW_S(!isempty(pFileName), SLERR_UID_EMPTYFILENAME);
 	{
 		SString final_file_name;
+		SString final_local_file_name; // @v12.4.0
 		SString path;
 		SFsPath ps;
 		ps.Split(pFileName);
@@ -1192,38 +1194,48 @@ bool SlSession::LoadUiDescription(const char * pFileName) // @v11.9.3
 		}
 		else {
 			QueryPath("uid", path);
-			THROW(path.NotEmpty()); // @todo @err
+			THROW_S(path.NotEmpty(), SLERR_UID_SRCPATHINDEF);
 			(final_file_name = path).SetLastSlash();
-			if(oneof2(pFileName[0], '/', '\\'))
+			(final_local_file_name = path).SetLastSlash().Cat("local").SetLastSlash();
+			if(oneof2(pFileName[0], '/', '\\')) {
 				final_file_name.Cat(pFileName+1);
-			else
+				final_local_file_name.Cat(pFileName+1);
+			}
+			else {
 				final_file_name.Cat(pFileName);
-		}
-		THROW(fileExists(final_file_name)); // @todo @err
-		{
-			p_js = SJson::ParseFile(final_file_name);
-			THROW(p_js); // @todo @err
-			{
-				UiDescription * p_uid = new UiDescription;
-				if(p_uid->FromJsonObj(p_js)) {
-					for(uint i = 0; i < p_uid->ClrList.getCount(); i++) {
-						SColorSet * p_cs = p_uid->ClrList.at(i);
-						if(p_cs)
-							p_cs->Resolve(&p_uid->ClrList); // @v11.9.10 В ColorSet введена возможность декларировать ссылки на другие сеты
-					}
-					ENTER_CRITICAL_SECTION
-						ZDELETE(P_Uid);
-						P_Uid = p_uid;
-						P_Uid->SetSourceFileName(final_file_name); // @v11.9.7
-					LEAVE_CRITICAL_SECTION
-				}
-				else {
-					delete p_uid;
-				}
+				final_local_file_name.Cat(pFileName);
 			}
 		}
+		if(fileExists(final_local_file_name)) {
+			p_js = SJson::ParseFile(final_local_file_name);
+		}
+		if(!p_js) {
+			THROW_S(fileExists(final_file_name), SLERR_UID_FILENFOUND, final_file_name);
+			p_js = SJson::ParseFile(final_file_name);
+			THROW_S(p_js, SLERR_UID_JSONPARSEFAULT, final_file_name);
+		}
+		assert(p_js); // Либо не нулевой либо мы уже в CATCH'е
+		if(p_js) {
+			THROW(p_uid = new UiDescription);
+			THROW(p_uid->FromJsonObj(p_js));
+			for(uint i = 0; i < p_uid->ClrList.getCount(); i++) {
+				SColorSet * p_cs = p_uid->ClrList.at(i);
+				if(p_cs)
+					p_cs->Resolve(&p_uid->ClrList); // @v11.9.10 В ColorSet введена возможность декларировать ссылки на другие сеты
+			}
+			ENTER_CRITICAL_SECTION
+				ZDELETE(P_Uid);
+				P_Uid = p_uid;
+				p_uid = 0; // destroy prevention
+				P_Uid->SetSourceFileName(final_file_name); // @v11.9.7
+			LEAVE_CRITICAL_SECTION
+		}
+		assert(P_Uid != 0);
+		assert(p_uid == 0);
+		assert(ok);
 	}
 	CATCHZOK
+	delete p_uid;
 	delete p_js;
 	return ok;
 }

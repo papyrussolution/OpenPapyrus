@@ -13,14 +13,14 @@ const SColor ZEROCOLOR(0, 0, 0, 0); // Неопределенный цвет. О
 //
 int STDCALL SIntersectRect(RECT & rDst, const RECT & rSrc1, const RECT & rSrc2)
 {
-	rDst.left  = MAX(rSrc1.left, rSrc2.left);
-	rDst.right = MIN(rSrc1.right, rSrc2.right);
+	rDst.left  = smax(rSrc1.left, rSrc2.left);
+	rDst.right = smin(rSrc1.right, rSrc2.right);
 	//
 	// check for empty rect
 	//
 	if(rDst.left < rDst.right) {
-		rDst.top = MAX(rSrc1.top, rSrc2.top);
-		rDst.bottom = MIN(rSrc1.bottom, rSrc2.bottom);
+		rDst.top = smax(rSrc1.top, rSrc2.top);
+		rDst.bottom = smin(rSrc1.bottom, rSrc2.bottom);
 		//
 		// check for empty rect
 		//
@@ -40,14 +40,14 @@ int STDCALL SIntersectRect(RECT & rDst, const RECT & rSrc1, const RECT & rSrc2)
 int FASTCALL SIntersectRect(const RECT & rSrc1, const RECT & rSrc2)
 {
 	RECT   dst;
-	dst.left  = MAX(rSrc1.left, rSrc2.left);
-	dst.right = MIN(rSrc1.right, rSrc2.right);
+	dst.left  = smax(rSrc1.left, rSrc2.left);
+	dst.right = smin(rSrc1.right, rSrc2.right);
 	//
 	// check for empty rect
 	//
 	if(dst.left < dst.right) {
-		dst.top = MAX(rSrc1.top, rSrc2.top);
-		dst.bottom = MIN(rSrc1.bottom, rSrc2.bottom);
+		dst.top = smax(rSrc1.top, rSrc2.top);
+		dst.bottom = smin(rSrc1.bottom, rSrc2.bottom);
 		//
 		// check for empty rect
 		//
@@ -1420,11 +1420,11 @@ static char FASTCALL hexdigit(uint d) { return (d >= 0 && d <= 9) ? (d + '0') : 
 
 int FASTCALL SColorBase::FromStr(const char * pStr)
 {
+	*reinterpret_cast<uint32 *>(this) = 0;
+	Alpha = 0xff;
 	int    ok = 0;
 	SString temp_buf;
 	SStrScan scan(pStr);
-	*reinterpret_cast<uint32 *>(this) = 0;
-	Alpha = 0xff;
 	scan.Skip();
 	size_t len = sstrlen(scan);
 	bool is_rgb_prefix = false;
@@ -1535,6 +1535,9 @@ int FASTCALL SColorBase::FromStr(const char * pStr)
 				ok = fmtName;
 			}
 		}
+	}
+	if(!ok) {
+		SLS.SetError(SLERR_INVCOLORTXTDESCR, pStr);
 	}
 	return ok;
 }

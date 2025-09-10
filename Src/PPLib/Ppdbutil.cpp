@@ -3159,6 +3159,7 @@ public:
 	int    Run();
 
 	int    GenTa_Rec(TestTa01Tbl::Rec * pRec, bool standaloneRecord);
+	static bool AreTaRecsEq(const TestTa01Tbl::Rec & rRec1, const TestTa01Tbl::Rec & rRec2);
 private:
 	int    GenRef01_Rec(TestRef01Tbl::Rec * pRec);
 	int    GenRef02_Rec(TestRef02Tbl::Rec * pRec);
@@ -3215,6 +3216,11 @@ void __DestroyPrcssrTestDbObject(void * p)
 int __PrcssrTestDb_Generate_TestTa01_Rec(void * p, TestTa01Tbl::Rec * pRec)
 {
 	return (p && *static_cast<const uint32 *>(p) == Signature_PrcssrTestDb) ? static_cast<PrcssrTestDb *>(p)->GenTa_Rec(pRec, true) : 0;
+}
+
+int __PrcssrTestDb_Are_TestTa01_RecsEqual(const TestTa01Tbl::Rec & rRec1, const TestTa01Tbl::Rec & rRec2)
+{
+	return PrcssrTestDb::AreTaRecsEq(rRec1, rRec2);
 }
 //
 //
@@ -3535,6 +3541,40 @@ int PrcssrTestDb::GenRef02_Rec(TestRef02Tbl::Rec * pRec)
 	GenerateString(rec.N, sizeof(rec.N));
 	ASSIGN_PTR(pRec, rec);
 	return ok;
+}
+
+/*static*/bool PrcssrTestDb::AreTaRecsEq(const TestTa01Tbl::Rec & rRec1, const TestTa01Tbl::Rec & rRec2)
+{
+	bool   eq = true;
+	if(rRec1.Dt != rRec2.Dt)
+		eq = false;
+	else if(rRec1.Tm != rRec2.Tm)
+		eq = false;
+	else if(rRec1.Ref1ID != rRec2.Ref1ID)
+		eq = false;
+	else if(rRec1.Ref2ID != rRec2.Ref2ID)
+		eq = false;
+	else if(rRec1.LVal != rRec2.LVal)
+		eq = false;
+	else if(rRec1.I64Val != rRec2.I64Val)
+		eq = false;
+	else if(rRec1.IVal != rRec2.IVal)
+		eq = false;
+	else if(rRec1.UIVal != rRec2.UIVal)
+		eq = false;
+	else if(rRec1.RVal1 != rRec2.RVal1)
+		eq = false;
+	else if(rRec1.RVal2 != rRec2.RVal2)
+		eq = false;
+	else if(rRec1.GuidVal != rRec2.GuidVal)
+		eq = false;
+	else if(!sstreq(rRec1.S, rRec2.S))
+		eq = false;
+	else {
+		// SLob   TextField;
+		// LOB @todo
+	}
+	return eq;
 }
 
 int PrcssrTestDb::GenTa_Rec(TestTa01Tbl::Rec * pRec, bool standaloneRecord)

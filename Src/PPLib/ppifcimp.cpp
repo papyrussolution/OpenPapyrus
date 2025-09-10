@@ -3087,7 +3087,7 @@ int32 DL6ICLS_PPObjGoodsTax::Search(int32 id, PPYOBJREC rec)
 	int    ok = 0;
 	PPObjGoodsTax * p_obj = static_cast<PPObjGoodsTax *>(ExtraPtr);
 	if(p_obj) {
-		PPGoodsTax gt_rec;
+		PPGoodsTax2 gt_rec;
 		ok = p_obj->Search(id, &gt_rec);
 		FillGoodsTaxRec(&gt_rec, static_cast<SPpyO_GoodsTax *>(rec));
 	}
@@ -3100,7 +3100,7 @@ int32 DL6ICLS_PPObjGoodsTax::SearchByName(SString & text, int32 kind, int32 extr
 	int    ok = 0;
 	PPObjGoodsTax * p_obj = static_cast<PPObjGoodsTax *>(ExtraPtr);
 	if(p_obj) {
-		PPGoodsTax gt_rec;
+		PPGoodsTax2 gt_rec;
 		PPID   id = 0;
 		ok = p_obj->SearchByName(text, &id, &gt_rec);
 		FillGoodsTaxRec(&gt_rec, static_cast<SPpyO_GoodsTax *>(rec));
@@ -4082,6 +4082,33 @@ SString & DL6ICLS_PPObjGoods::ProcessName(SString & orgName, int32 flags)
 		p_obj->ProcessName(blk, RetStrBuf);
 	}
 	return RetStrBuf;
+}
+
+int32 DL6ICLS_PPObjGoods::GetEffectiveTaxGroup(long goodsID, LDATE dt, SPpyO_GoodsTax * pTaxGrp) // @v12.4.0
+{
+	int    ok = 0;
+	memzero(pTaxGrp, sizeof(*pTaxGrp));
+	PPObjGoods * p_obj = static_cast<PPObjGoods *>(ExtraPtr);
+	if(p_obj) {
+		const PPID main_org_id = GetMainOrgID();
+		PPGoodsTaxEntry te;
+		if(p_obj->FetchTaxEntry2(goodsID, 0, main_org_id, dt, 0, &te) > 0) {
+			if(pTaxGrp) {
+				pTaxGrp->ID = te.TaxGrpID;
+				pTaxGrp->VAT = te.VAT;
+				pTaxGrp->Excise = te.Excise;
+				pTaxGrp->SalesTax = te.SalesTax;
+				pTaxGrp->Flags = te.Flags;
+				pTaxGrp->UnionVect = te.UnionVect;
+				pTaxGrp->Order = te.Order;
+			}
+			ok = 1;
+		}
+		else
+			ok = -1;
+	}
+	SetAppError(ok);
+	return ok;
 }
 //
 // } PPObjGoods

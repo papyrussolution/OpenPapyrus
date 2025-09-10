@@ -342,9 +342,7 @@ BOOL CRPE_API PESetPrintDate(short printJob, short year, short month, short day)
 #define PE_GC_NEXTISYES    5
 #define PE_GC_NEXTISNO     6
 
-BOOL CRPE_API PESetGroupCondition(short printJob, short sectionCode, const char * conditionField, // formula form
-    short condition,           // a PE_GC_ constant
-    short sortDirection);      // a PE_SF_ constant
+BOOL CRPE_API PESetGroupCondition(short printJob, short sectionCode, const char * conditionField/*formula form*/, short condition/*a PE_GC_ constant*/, short sortDirection/*a PE_SF_ constant*/);      
 short CRPE_API PEGetNGroups(short printJob);   // return -1 if failed.
 
 // for PEGetGroupCondition, condition encodes both

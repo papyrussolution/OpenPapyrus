@@ -480,7 +480,7 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 					{
 						TGroupBox * p_ctl = static_cast<TGroupBox *>(pV);
 						pV->Parent = hw_parent;
-						hw = ::CreateWindowExW(WS_EX_NOPARENTNOTIFY, _T("BUTTON"), 0, WS_CHILD|BS_GROUPBOX, 
+						hw = ::CreateWindowExW(WS_EX_NOPARENTNOTIFY, L"BUTTON", 0, WS_CHILD|BS_GROUPBOX, 
 							pV->ViewOrigin.x, pV->ViewOrigin.y, pV->ViewSize.x, pV->ViewSize.y, hw_parent, (HMENU)ctl_id, TProgram::GetInst(), 0);
 						if(hw) {
 							TView::SetWindowUserData(hw, p_ctl);
@@ -516,7 +516,7 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 										else if(cluster_kind == RADIOBUTTONS) {
 											item_style |= BS_AUTORADIOBUTTON;
 										}
-										hw_item = ::CreateWindowExW(WS_EX_NOPARENTNOTIFY, _T("BUTTON"), 0, item_style, 
+										hw_item = ::CreateWindowExW(WS_EX_NOPARENTNOTIFY, L"BUTTON", 0, item_style, 
 											item_org.x, item_org.y, item_sz.x, item_sz.y, hw_parent, (HMENU)item_id, TProgram::GetInst(), 0);						
 										TView::SSetWindowText(hw_item, p_item->Text);
 										SetupWindowCtrlTextProc(hw_item, 0);
@@ -525,7 +525,7 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 								}
 							}
 							else {
-								hw = ::CreateWindowExW(WS_EX_NOPARENTNOTIFY, _T("BUTTON"), 0, WS_CHILD|WS_GROUP|WS_VISIBLE|BS_GROUPBOX, 
+								hw = ::CreateWindowExW(WS_EX_NOPARENTNOTIFY, L"BUTTON", 0, WS_CHILD|WS_GROUP|WS_VISIBLE|BS_GROUPBOX, 
 									pV->ViewOrigin.x, pV->ViewOrigin.y, pV->ViewSize.x, pV->ViewSize.y, hw_parent, (HMENU)ctl_id, TProgram::GetInst(), 0);						
 								if(hw) {
 									for(uint cii = 0; cii < p_ctl->getNumItems(); cii++) {
@@ -545,7 +545,7 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 											else if(cluster_kind == RADIOBUTTONS) {
 												item_style |= BS_AUTORADIOBUTTON;
 											}
-											hw_item = ::CreateWindowExW(WS_EX_NOPARENTNOTIFY, _T("BUTTON"), 0, item_style, 
+											hw_item = ::CreateWindowExW(WS_EX_NOPARENTNOTIFY, L"BUTTON", 0, item_style, 
 												item_org.x, item_org.y, item_sz.x, item_sz.y, hw_parent, (HMENU)item_id, TProgram::GetInst(), 0);						
 											TView::SSetWindowText(hw_item, p_item->Text);
 											SetupWindowCtrlTextProc(hw_item, 0);
@@ -571,7 +571,7 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 							DWORD  ex_style = WS_EX_NOPARENTNOTIFY|WS_EX_CLIENTEDGE;
 							if(p_il->IsInState(sfTabStop))
 								style |= WS_TABSTOP;
-							HWND hw_il = ::CreateWindowEx(ex_style, _T("EDIT"), 0, style, p_il->ViewOrigin.x,
+							HWND hw_il = ::CreateWindowExW(ex_style, L"EDIT", 0, style, p_il->ViewOrigin.x,
 								p_il->ViewOrigin.y, p_il->ViewSize.x, p_il->ViewSize.y, hw_parent, (HMENU)p_il->GetId(), TProgram::GetInst(), 0);
 							if(hw_il) {
 								setup_font_blk.Set(hw_il);
@@ -586,7 +586,7 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 							if(oneof2(wvs, UserInterfaceSettings::wndVKFancy, UserInterfaceSettings::wndVKVector))
 								button_style |= BS_OWNERDRAW;
 						}
-						hw = ::CreateWindowEx(0, _T("BUTTON"), 0, button_style, pV->ViewOrigin.x,
+						hw = ::CreateWindowExW(0, L"BUTTON", 0, button_style, pV->ViewOrigin.x,
 							pV->ViewOrigin.y, pV->ViewSize.x, pV->ViewSize.y, hw_parent, (HMENU)ctl_id, TProgram::GetInst(), 0);
 						setup_font_blk.Set(hw);
 					}
@@ -601,18 +601,18 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 							WS_EX_LEFT|WS_EX_LTRREADING|WS_EX_RIGHTSCROLLBAR|WS_EX_NOPARENTNOTIFY|WS_EX_CLIENTEDGE
 						*/ 
 						if(p_lb->IsTreeList()) {
-							hw = ::CreateWindowExW(WS_EX_CLIENTEDGE, _T("SysTreeView32"), 0, 
+							hw = ::CreateWindowExW(WS_EX_CLIENTEDGE, L"SysTreeView32", 0, 
 								WS_CHILD|WS_BORDER|WS_TABSTOP|WS_VISIBLE|TVS_HASBUTTONS|TVS_HASLINES|TVS_LINESATROOT|
 								TVS_SHOWSELALWAYS|TVS_DISABLEDRAGDROP,
 								pV->ViewOrigin.x, pV->ViewOrigin.y, pV->ViewSize.x, pV->ViewSize.y, hw_parent, (HMENU)ctl_id, TProgram::GetInst(), 0);
 						}
 						else if(p_lb->GetColumnsCount()) {
-							hw = ::CreateWindowExW(WS_EX_CLIENTEDGE, _T("SysListView32"), 0, 
+							hw = ::CreateWindowExW(WS_EX_CLIENTEDGE, L"SysListView32", 0,
 								WS_CHILD|WS_BORDER|WS_TABSTOP|WS_VISIBLE|LVS_REPORT|LVS_SINGLESEL|LVS_SHOWSELALWAYS|LVS_NOSORTHEADER,
 								pV->ViewOrigin.x, pV->ViewOrigin.y, pV->ViewSize.x, pV->ViewSize.y, hw_parent, (HMENU)ctl_id, TProgram::GetInst(), 0);
 						}
 						else {
-							hw = ::CreateWindowExW(WS_EX_LEFT|WS_EX_LTRREADING|WS_EX_RIGHTSCROLLBAR|WS_EX_NOPARENTNOTIFY|WS_EX_CLIENTEDGE, _T("ListBox"), 0, 
+							hw = ::CreateWindowExW(WS_EX_LEFT|WS_EX_LTRREADING|WS_EX_RIGHTSCROLLBAR|WS_EX_NOPARENTNOTIFY|WS_EX_CLIENTEDGE, L"ListBox", 0, 
 								WS_CHILD|WS_BORDER|WS_TABSTOP|WS_VISIBLE|LBS_NOTIFY|LBS_NOINTEGRALHEIGHT|LBS_WANTKEYBOARDINPUT,
 								pV->ViewOrigin.x, pV->ViewOrigin.y, pV->ViewSize.x, pV->ViewSize.y, hw_parent, (HMENU)ctl_id, TProgram::GetInst(), 0);
 						}
@@ -635,7 +635,7 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 							style |= WS_TABSTOP;
 						if(p_cv->IsDefault())
 							style |= BS_DEFPUSHBUTTON;
-						hw = ::CreateWindowEx(0, _T("BUTTON"), 0, style, pV->ViewOrigin.x,
+						hw = ::CreateWindowExW(0, L"BUTTON", 0, style, pV->ViewOrigin.x,
 							pV->ViewOrigin.y, pV->ViewSize.x, pV->ViewSize.y, hw_parent, (HMENU)ctl_id, TProgram::GetInst(), 0);
 						if(hw) {
 							//::SetWindowText(hw, SUcSwitch(p_b->Title));

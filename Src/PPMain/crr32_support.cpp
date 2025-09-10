@@ -6,6 +6,23 @@
 #include <pp.h>
 #pragma hdrstop
 #include <crpe.h>
+/*
+	Этот сервер разрабатывается для того, чтобы вынести 32-разрядный Crystal Reports за пределы основных процессов Papyrus,
+	дабы Papyrus можно было бы сделать 64-разрядным.
+
+	Существует 2 различных режима использования этого сервера:
+		1. Для печати и экспорта. То есть работа без интерактивности (здесь есть один нюанс)
+		2. Для предварительного просмотра отчета - в этом случае интерактивность необходима.
+
+	Для не-интерактивного режима запускается единственный экземпляр сервера с универсальным символом именованного канала (named pipe).
+	Этот процесс работает сколько угодно и обслуживает сколько угодно процессов на своей машине.
+	Универсальный символ named pipe можно получить вызовом функции GetCrr32ProxiPipeName().
+
+	Для интерактивного режима каждый процесс, когда ему необходимо обратиться к функционалу предпросмотра,
+	создает новый процесс crr32_support с уникальным символом именованного канала (named pipe), через 
+	который клиентский процесс будет общаться с порожденным экземпляром crr32_support.
+*/ 
+#define CMDID_TO_RUN_PREVIEW_BY_MAIN_THREAD 10101
 //
 // Descr: Класс сервера, коммуницирующего с клиентом по именованному каналу (NamedPipe)
 //
@@ -13,9 +30,15 @@ class PipeServer : public SlThread_WithStartupSignal {
 	static constexpr uint32 BufSize = 1024;
 public:
 	struct AppBlock {
-		void * Ptr;
+		AppBlock(HWND hwParent, const char * pExternalPipeName) : HwParent(hwParent), ExternalPipeName(pExternalPipeName)
+		{
+			memzero(Dummy, sizeof(Dummy));
+		}
+		HWND HwParent;
+		SString ExternalPipeName;
+		uint8 Dummy[64];
 	};
-	PipeServer(AppBlock * pAppBlk) : SlThread_WithStartupSignal(), P_AppBlk(pAppBlk), DebugMark(false)
+	PipeServer(AppBlock * pAppBlk) : SlThread_WithStartupSignal(), P_AppBlk(pAppBlk)
 	{
 	}
 	~PipeServer()
@@ -44,14 +67,14 @@ public:
 					if(PEOpenEngine()) {
 						do {
 							DWORD rd_size = 0;
-							boolint rd_ok = ::ReadFile(H_Pipe, rd_buf, rd_buf.GetSize(), &rd_size, NULL/*not overlapped I/O*/);
+							const boolint rd_ok = ::ReadFile(H_Pipe, rd_buf, rd_buf.GetSize(), &rd_size, NULL /*not overlapped I/O*/);
 							if(rd_ok) {
 								temp_buf.Z().CatN(rd_buf.cptr(), rd_size);
 								printf(msg_buf.Z().Cat("Q").CatDiv(':', 2).Cat(temp_buf).CR().cptr()); // @debug
 								SJson * p_js_query = SJson::Parse(temp_buf);
 								if(p_js_query) {
-									bool   do_reply = true;
-									SJson  js_reply(SJson::tOBJECT);
+									bool do_reply = true;
+									SJson js_reply(SJson::tOBJECT);
 									//
 									cmd_buf.Z();
 									const SJson * p_c = 0;
@@ -70,17 +93,35 @@ public:
 											(temp_buf = p_c->Text).Unescape();
 											SBuffer sbuf;
 											if(sbuf.AppendMime64(temp_buf)) {
-												CrystalReportPrintParamBlock blk;
+												CrystalReportPrintParamBlock * p_blk = new CrystalReportPrintParamBlock();
 												CrystalReportPrintReply reply;
-												if(blk.Serialize(-1, sbuf, &sctx)) {
+												if(p_blk && p_blk->Serialize(-1, sbuf, &sctx)) {
+													/*
+													uint64 h_parent_window_for_preview = reinterpret_cast<uint64>(hw_parent);
+													if(!h_parent_window_for_preview) {
+													    p_c = p_js_query->FindChildByKey("parentwindowhandle");
+													    if(p_c) {
+															h_parent_window_for_preview = p_c->Text.ToUInt64();
+													    }
+													}*/
 													uint64 h_parent_window_for_preview = 0;
-													p_c = p_js_query->FindChildByKey("parentwindowhandle");
-													if(p_c) {
-														h_parent_window_for_preview = p_c->Text.ToUInt64();
+													// @debug
+													if(p_blk->Action == CrystalReportPrintParamBlock::actionPreview) {
+														HWND hw_parent = P_AppBlk ? P_AppBlk->HwParent : 0;
+														if(hw_parent) {
+															::PostMessageW(hw_parent, WM_COMMAND, CMDID_TO_RUN_PREVIEW_BY_MAIN_THREAD, reinterpret_cast<LPARAM>(p_blk));
+															js_reply.InsertString("status", "ok");
+														}
+														else {
+															ZDELETE(p_blk);
+														}
 													}
-													CrystalReportPrint2_Server(blk, reply, reinterpret_cast<void *>(h_parent_window_for_preview), H_Pipe);
-													// Функция CrystalReportPrint2_Server сама отправила ответ клиенту через H_Pipe, который мы ей передали.
-													do_reply = false;
+													else {
+														CrystalReportPrint2_Server(*p_blk, reply, reinterpret_cast<void *>(h_parent_window_for_preview), H_Pipe);
+														// Функция CrystalReportPrint2_Server сама отправила ответ клиенту через H_Pipe, который мы ей передали.
+														ZDELETE(p_blk);
+														do_reply = false;
+													}
 												}
 											}
 											else {
@@ -129,23 +170,27 @@ public:
 						PECloseEngine();
 					}
 					FlushFileBuffers(H_Pipe);
-					DisconnectNamedPipe(H_Pipe); 
-					CloseHandle(H_Pipe); 
+					DisconnectNamedPipe(H_Pipe);
+					CloseHandle(H_Pipe);
 					H_Pipe.Z();
 				}
 			}
-		private:
+private:
 			SIntHandle H_Pipe;
 			AppBlock * P_AppBlk;
 		};
+
 		uint _call_count = 0;
 		DWORD last_werr = 0;
 		SString pipe_name;
-		GetCrr32ProxiPipeName(pipe_name);
+		if(P_AppBlk->ExternalPipeName.NotEmpty())
+			pipe_name = P_AppBlk->ExternalPipeName;
+		else
+			GetCrr32ProxiPipeName(pipe_name);
 		for(bool do_exit = false; !do_exit;) {
-			SIntHandle h_pipe = ::CreateNamedPipeA(pipe_name, PIPE_ACCESS_DUPLEX, PIPE_TYPE_MESSAGE/*message type pipe*/|PIPE_READMODE_MESSAGE |   // message-read mode 
-			  PIPE_WAIT/*blocking mode*/, PIPE_UNLIMITED_INSTANCES/*max. instances*/, BufSize/*output buffer size*/, BufSize/*input buffer size*/,
-			  0/*client time-out*/, NULL/*default security attribute*/);                    
+			SIntHandle h_pipe = ::CreateNamedPipeA(pipe_name, PIPE_ACCESS_DUPLEX,
+				PIPE_TYPE_MESSAGE /*message type pipe*/|PIPE_READMODE_MESSAGE/*message-read mode*/|PIPE_WAIT/*blocking mode*/,PIPE_UNLIMITED_INSTANCES/*max. instances*/,
+				BufSize /*output buffer size*/, BufSize /*input buffer size*/, 0 /*client time-out*/, NULL /*default security attribute*/);
 			if(!h_pipe) {
 				// @todo @err
 				do_exit = true;
@@ -153,7 +198,6 @@ public:
 			else {
 				const BOOL cnpr = ::ConnectNamedPipe(h_pipe, 0);
 				if(cnpr) {
-					DebugMark = false;
 					_call_count++;
 					// do run PipeSession
 					PipeSession * p_sess = new PipeSession(h_pipe, P_AppBlk);
@@ -161,7 +205,6 @@ public:
 						p_sess->Start(1);
 				}
 				else {
-					DebugMark = true;
 					// @todo @err
 					last_werr = ::GetLastError();
 					do_exit = true;
@@ -171,28 +214,128 @@ public:
 	}
 private:
 	AppBlock * P_AppBlk;
-	bool   DebugMark;
 };
-
-int main(int argc, char ** argv)
+//
+//
+//
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
+	struct ProcessBlock {
+		static LRESULT CALLBACK MainWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+		{
+			LRESULT result = 0;
+			switch(message) {
+				case WM_CREATE:
+					break;
+				case WM_COMMAND:
+					if(LOWORD(CMDID_TO_RUN_PREVIEW_BY_MAIN_THREAD)) {
+						CrystalReportPrintParamBlock * p_blk = reinterpret_cast<CrystalReportPrintParamBlock *>(lParam);
+						if(p_blk) {
+							CrystalReportPrintReply reply;
+							CrystalReportPrint2_Server(*p_blk, reply, hWnd, 0/*H_Pipe*/);
+						}
+					}
+					break;
+				case WM_DESTROY:
+					::PostQuitMessage(0);
+					break;
+				default:
+					result = DefWindowProc(hWnd, message, wParam, lParam);
+					break;
+			}
+			return result;
+		}
+		ProcessBlock() : HMainWindow(0)
+		{
+			INITWINAPISTRUCT(NotifyIconData);
+		}
+		void ShowTrayIcon()
+		{
+			if(HMainWindow) {
+				INITWINAPISTRUCT(NotifyIconData);
+				NotifyIconData.hWnd = HMainWindow;
+				NotifyIconData.uID = 1;
+				NotifyIconData.uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP;
+				NotifyIconData.uCallbackMessage = WM_APP + 1;
+				NotifyIconData.hIcon = LoadIcon(NULL, IDI_APPLICATION);
+				wcscpy_s(NotifyIconData.szTip, L"CRR32_SUPPORT");
+				::Shell_NotifyIconW(NIM_ADD, &NotifyIconData);
+			}
+		}
+		void RemoveTrayIcon()
+		{
+			::Shell_NotifyIconW(NIM_DELETE, &NotifyIconData);
+		}
+		HWND HMainWindow;
+		NOTIFYICONDATAW NotifyIconData;
+	};
 	int    result = 0;
+	SString temp_buf;
+	SString external_pipe_name;
+	ProcessBlock pb;
+	const  wchar_t * p_wnd_cls = L"Crr32_Support_MainWindow_Class";
 	DS.Init(PPSession::internalappCrr32Support, PPSession::fInitPaths, 0, 0);
 	{
-		{ // pipe server
-			struct AppBlock : public PipeServer::AppBlock {
-				AppBlock() : PipeServer::AppBlock()
-				{
-					memzero(Dummy, sizeof(Dummy));
+		const SString pipe_symb_arg_name("/pipesymb");
+		for(int i = 1; i < _argc; i++) {
+			temp_buf = _argv[i];
+			if(external_pipe_name.IsEmpty() && temp_buf.HasPrefixIAscii(pipe_symb_arg_name)) {
+				if(temp_buf.C(pipe_symb_arg_name.Len()) == ':') {
+					temp_buf.ShiftLeft(pipe_symb_arg_name.Len()+1);
+					if(temp_buf.NotEmptyS()) {
+						external_pipe_name.Cat("\\\\.\\pipe\\").Cat(temp_buf);
+					}
 				}
-				uint8 Dummy[64];
-			};
-			AppBlock * p_app_blk = new AppBlock();
-			PipeServer * p_psrv = new PipeServer(p_app_blk);
-			if(p_psrv) {
-				p_psrv->Start(1);
-				::WaitForSingleObject(*p_psrv, INFINITE);
 			}
+		}
+	}
+	if(external_pipe_name.NotEmpty()) { // Специальное имя канала применяется для одноразового процесса предварительного просмотра
+		if(!PEOpenEngine()) {
+			result = -1;
+		}
+		else {
+			WNDCLASSEX wc;
+			INITWINAPISTRUCT(wc);
+			wc.lpfnWndProc = ProcessBlock::MainWndProc;
+			wc.hInstance = hInstance;
+			wc.lpszClassName = p_wnd_cls;
+			if(!::RegisterClassExW(&wc))
+				result = -1;
+			else {
+				// Создаем невидимое главное окно
+				pb.HMainWindow = ::CreateWindowExW(0, p_wnd_cls, L"crr32_support_main_windows", WS_OVERLAPPEDWINDOW,
+					CW_USEDEFAULT, CW_USEDEFAULT, 10, 10, NULL, NULL, hInstance, NULL);
+				if(!pb.HMainWindow)
+					result = -1;
+				else {
+					// Показываем иконку в системном трее
+					pb.ShowTrayIcon();
+					{
+						PipeServer * p_psrv = new PipeServer(new PipeServer::AppBlock(pb.HMainWindow, external_pipe_name));
+						if(p_psrv) {
+							p_psrv->Start(1);
+							//::WaitForSingleObject(*p_psrv, INFINITE);
+						}
+					}
+					{
+						MSG msg;
+						while(::GetMessageW(&msg, NULL, 0, 0)) {
+							::TranslateMessage(&msg);
+							::DispatchMessageW(&msg);
+						}
+						result = (int)msg.wParam;
+					}
+					pb.RemoveTrayIcon();
+				}
+			}
+			PECloseEngine();
+		}
+	}
+	else {
+		PipeServer * p_psrv = new PipeServer(new PipeServer::AppBlock(0, 0));
+		if(p_psrv) {
+			p_psrv->Start(1);
+			::WaitForSingleObject(*p_psrv, INFINITE);
 		}
 	}
 	return result;

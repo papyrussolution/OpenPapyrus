@@ -599,17 +599,14 @@ static const int8_t kAsciiToInt[256] = {
 };
 
 // Parse the sign and optional hex or oct prefix in text.
-inline bool safe_parse_sign_and_base(absl::string_view* text /*inout*/,
-    int* base_ptr /*inout*/,
-    bool* negative_ptr /*output*/) {
+inline bool safe_parse_sign_and_base(absl::string_view* text /*inout*/, int* base_ptr /*inout*/, bool* negative_ptr /*output*/) 
+{
 	if(text->data() == nullptr) {
 		return false;
 	}
-
 	const char* start = text->data();
 	const char* end = start + text->size();
 	int base = *base_ptr;
-
 	// Consume whitespace.
 	while(start < end && absl::ascii_isspace(start[0])) {
 		++start;
@@ -620,7 +617,6 @@ inline bool safe_parse_sign_and_base(absl::string_view* text /*inout*/,
 	if(start >= end) {
 		return false;
 	}
-
 	// Consume sign.
 	*negative_ptr = (start[0] == '-');
 	if(*negative_ptr || start[0] == '+') {
@@ -629,7 +625,6 @@ inline bool safe_parse_sign_and_base(absl::string_view* text /*inout*/,
 			return false;
 		}
 	}
-
 	// Consume base-dependent prefix.
 	//  base 0: "0x" -> base 16, "0" -> base 8, default -> base 10
 	//  base 16: "0x" -> base 16
@@ -886,21 +881,20 @@ const IntType LookupTables<IntType>::kVminOverBase[] =
 #undef X_OVER_BASE_INITIALIZER
 
 template <typename IntType>
-inline bool safe_parse_positive_int(absl::string_view text, int base,
-    IntType* value_p) {
+inline bool safe_parse_positive_int(absl::string_view text, int base, IntType* value_p) 
+{
 	IntType value = 0;
 	const IntType vmax = std::numeric_limits<IntType>::max();
 	assert(vmax > 0);
 	assert(base >= 0);
 	assert(vmax >= static_cast<IntType>(base));
 	const IntType vmax_over_base = LookupTables<IntType>::kVmaxOverBase[base];
-	assert(base < 2 ||
-	    std::numeric_limits<IntType>::max() / base == vmax_over_base);
+	assert(base < 2 || std::numeric_limits<IntType>::max() / base == vmax_over_base);
 	const char* start = text.data();
 	const char* end = start + text.size();
 	// loop over digits
 	for(; start < end; ++start) {
-		unsigned char c = static_cast<unsigned char>(start[0]);
+		uchar c = static_cast<uchar>(start[0]);
 		int digit = kAsciiToInt[c];
 		if(digit >= base) {
 			*value_p = value;
@@ -911,7 +905,7 @@ inline bool safe_parse_positive_int(absl::string_view text, int base,
 			return false;
 		}
 		value *= base;
-		if(value > vmax - digit) {
+		if(value > (vmax - digit)) {
 			*value_p = vmax;
 			return false;
 		}
@@ -921,9 +915,8 @@ inline bool safe_parse_positive_int(absl::string_view text, int base,
 	return true;
 }
 
-template <typename IntType>
-inline bool safe_parse_negative_int(absl::string_view text, int base,
-    IntType* value_p) {
+template <typename IntType> inline bool safe_parse_negative_int(absl::string_view text, int base, IntType* value_p) 
+{
 	IntType value = 0;
 	const IntType vmin = std::numeric_limits<IntType>::min();
 	assert(vmin < 0);
@@ -966,9 +959,8 @@ inline bool safe_parse_negative_int(absl::string_view text, int base,
 
 // Input format based on POSIX.1-2008 strtol
 // http://pubs.opengroup.org/onlinepubs/9699919799/functions/strtol.html
-template <typename IntType>
-inline bool safe_int_internal(absl::string_view text, IntType* value_p,
-    int base) {
+template <typename IntType> inline bool safe_int_internal(absl::string_view text, IntType* value_p, int base) 
+{
 	*value_p = 0;
 	bool negative;
 	if(!safe_parse_sign_and_base(&text, &base, &negative)) {
@@ -982,9 +974,8 @@ inline bool safe_int_internal(absl::string_view text, IntType* value_p,
 	}
 }
 
-template <typename IntType>
-inline bool safe_uint_internal(absl::string_view text, IntType* value_p,
-    int base) {
+template <typename IntType> inline bool safe_uint_internal(absl::string_view text, IntType* value_p, int base) 
+{
 	*value_p = 0;
 	bool negative;
 	if(!safe_parse_sign_and_base(&text, &base, &negative) || negative) {

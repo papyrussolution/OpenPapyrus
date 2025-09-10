@@ -35,13 +35,11 @@ int FASTCALL SWaitableObject::Wait(long timeout)
 	else {
 		int    r = ::WaitForSingleObject(H, SlConst::WaitableObjCheckTimeout); // @v10.7.7 _CheckTimeout-->SlConst::WaitableObjCheckTimeout
 		if(r < 0) {
-			// @v10.4.0 {
 			{
 				SString temp_buf;
 				temp_buf.CatCurDateTime(DATF_DMY, TIMF_HMS).Space().Cat("SWaitableObject::Wait _CheckTimeout overflow");
 				SLS.LogMessage(0, temp_buf, 0); 
 			}
-			// } @v10.4.0
 			ok = ::WaitForSingleObject(H, INFINITE);
 		}
 		else
@@ -248,7 +246,7 @@ Evnt::Evnt(const char * pName, int mode) : SWaitableObject()
 Evnt::Evnt(int mode) : SWaitableObject()
 {
 	assert(oneof2(mode, modeCreate, modeCreateAutoReset));
-	H = CreateEvent(0, (mode == modeCreateAutoReset) ? 0 : 1, 0, 0);
+	H = ::CreateEventW(0, (mode == modeCreateAutoReset) ? 0 : 1, 0, 0);
 }
 
 int Evnt::Signal() { return BIN(SetEvent(H)); }

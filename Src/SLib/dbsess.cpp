@@ -193,7 +193,7 @@ char * SRowId::tostr(const void * pData, long, char * pStr) const
 	const DBRowId * p_row_id = static_cast<const DBRowId *>(pData);
 	if(p_row_id) {
 		SString temp_buf;
-		p_row_id->ToStr(temp_buf).CopyTo(pStr, 0);
+		p_row_id->ToStr__(temp_buf).CopyTo(pStr, 0);
 	}
 	else
 		pStr[0] = 0;
@@ -203,7 +203,7 @@ char * SRowId::tostr(const void * pData, long, char * pStr) const
 int SRowId::fromstr(void * pData, long, const char * pStr) const
 {
 	DBRowId * p_row_id = static_cast<DBRowId *>(pData);
-	CALLPTRMEMB(p_row_id, FromStr(pStr));
+	CALLPTRMEMB(p_row_id, FromStr__(pStr));
 	return 1;
 }
 

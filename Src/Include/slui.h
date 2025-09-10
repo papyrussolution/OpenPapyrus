@@ -5295,12 +5295,12 @@ public:
 	TToolbar * P_Toolbar;
 	HWND   H_MainWnd;
 	HWND   H_Desktop;
-	HACCEL H_Accel;
-	HICON  H_Icon;
 	HWND   H_ShortcutsWnd;
 	HWND   H_LogWnd;
 	HWND   H_CloseWnd;
 	HWND   H_TopOfStack;
+	HACCEL H_Accel;
+	HICON  H_Icon;
 	TSStack <HWND> ModalStack;
 	TreeWindow * P_TreeWnd;
 protected:
@@ -5347,6 +5347,7 @@ private:
 	// @v11.9.2 (replaced with virtual func GetUiToolBox) SPaintToolBox UiToolBox;      // Набор инструментов для отрисовки компонентов пользовательского интерфейса.
 	// @v11.9.2 (replaced with virtual func GetVectorTools) TWhatmanToolArray DvToolList; // Векторные изображения, загружаемые из внешнего файла
 	UserInterfaceSettings UICfg;
+	void * P_NotifyIconData; // @v12.4.0
 };
 
 #define APPL    (TProgram::application)

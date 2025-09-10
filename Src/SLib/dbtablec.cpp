@@ -118,7 +118,7 @@ void DBRowId::SetMaxVal()
 	S[sizeof(S)-1] = 0;
 }
 
-SString & FASTCALL DBRowId::ToStr(SString & rBuf) const
+SString & FASTCALL DBRowId::ToStr__(SString & rBuf) const
 {
 	rBuf.Z();
 	if(IsI32())
@@ -132,21 +132,46 @@ SString & FASTCALL DBRowId::ToStr(SString & rBuf) const
 	return rBuf;
 }
 
-int FASTCALL DBRowId::FromStr(const char * pStr)
+int FASTCALL DBRowId::FromStr__(const char * pStr)
 {
 	int    ok = -1;
 	const  size_t len = sstrlen(pStr);
 	Z();
 	if(len) {
+		uint64 int_value = 0ULL;
 		bool   is_there_non_dec = false;
-		for(uint i = 0; !is_there_non_dec && i < len; i++) {
-			if(!isdec(pStr[i]))
+		bool   is_there_non_hex = false;
+		bool   is_there_non_printable = false;
+		for(uint i = 0; i < len; i++) {
+			const char c = pStr[i];
+			if(!isdec(c)) {
 				is_there_non_dec = true;
+				if(!ishex(c)) {
+					is_there_non_hex = true;
+					if(!isasciiprint(c))
+						is_there_non_printable = true;
+				}
+			}
 		}
 		if(is_there_non_dec) {
-			
+			if(is_there_non_hex) {
+				ok = SetLarge(pStr, len);
+			}
+			else {
+				SBinaryChunk bc;
+				if(bc.FromHex(pStr)) {
+					ok = SetLarge(bc.PtrC(), bc.Len());
+				}
+			}
 		}
 		else {
+			int_value = satou64(pStr);
+			if(int_value > MAXUINT) {
+				SetI64(int_value);
+			}
+			else {
+				SetI32(static_cast<uint32>(int_value));
+			}
 		}
 		if(ok < 0) {
 			/*
@@ -381,8 +406,6 @@ DBTable::SelectStmt::SelectStmt(DbProvider * pDb, const Generator_SQL & rSql, in
 
 void DBTable::SetStmt(SelectStmt * pStmt)
 {
-	DELETEANDASSIGN(P_Stmt, pStmt); // @v11.3.0
-	/* @v11.3.0
 	if(pStmt) {
 		if(pStmt != P_Stmt) {
 			DELETEANDASSIGN(P_Stmt, pStmt);
@@ -391,8 +414,6 @@ void DBTable::SetStmt(SelectStmt * pStmt)
 	else {
 		ZDELETE(P_Stmt);
 	}
-	return 1;
-	*/
 }
 
 void DBTable::ToggleStmt(bool release)

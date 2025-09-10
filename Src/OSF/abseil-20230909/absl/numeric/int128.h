@@ -487,22 +487,15 @@ std::ostream& operator<<(std::ostream& os, int128 v);
 
 // TODO(absl-team) add operator>>(std::istream&, int128)
 
-constexpr int128 Int128Max() {
-	return int128((std::numeric_limits<int64_t>::max)(),
-		   (std::numeric_limits<uint64_t>::max)());
-}
-
-constexpr int128 Int128Min() {
-	return int128((std::numeric_limits<int64_t>::min)(), 0);
-}
+constexpr int128 Int128Max() { return int128((std::numeric_limits<int64_t>::max)(), (std::numeric_limits<uint64_t>::max)()); }
+constexpr int128 Int128Min() { return int128((std::numeric_limits<int64_t>::min)(), 0); }
 
 ABSL_NAMESPACE_END
 }  // namespace absl
 
 // Specialized numeric_limits for int128.
 namespace std {
-template <>
-class numeric_limits<absl::int128> {
+template <> class numeric_limits<absl::int128> {
 public:
 	static constexpr bool is_specialized = true;
 	static constexpr bool is_signed = true;

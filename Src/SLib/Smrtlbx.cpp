@@ -847,7 +847,7 @@ int SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 			}*/ // } @v6.0.14 AHTOXA
 			OnDestroy(getHandle());
 			break;
-		case WM_COMMAND: {
+		case WM_COMMAND: 
 			switch(HIWORD(wParam)) {
 				case LBN_DBLCLK:
 					MessageCommandToOwner(cmLBDblClk);
@@ -858,7 +858,7 @@ int SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 							SendDlgItemMessage(Parent, Id, LVM_GETNEXTITEM, -1, MAKELPARAM(LVNI_SELECTED, 0)) :
 							SendDlgItemMessage(Parent, Id, LB_GETCURSEL, 0, 0) + P_Def->_topItem();
 						if(index >= 0) {
-							long   prev_top_item = Top;
+							const long prev_top_item = Top;
 							P_Def->go(index);
 							if(!IsMultiColumn() && Top != prev_top_item)
 								Draw_();
@@ -872,7 +872,6 @@ int SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 					break;
 			}
 			break;
-		}
 		case WM_RBUTTONDOWN:
 			{
 				if(!IsMultiColumn()) {

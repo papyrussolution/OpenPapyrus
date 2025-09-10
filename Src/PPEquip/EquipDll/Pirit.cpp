@@ -3369,9 +3369,13 @@ int PiritEquip::FormatPaym(double paym, SString & rStr)
 
 int PiritEquip::SetLogotype(SString & rPath, size_t size, uint height, uint width)
 {
-	int    ok = 1, flag = 0;
-	SString in_data, out_data, r_error;
-	int n = 0, r = 0;
+	int    ok = 1;
+	int    flag = 0;
+	SString in_data;
+	SString out_data;
+	SString r_error;
+	int    n = 0;
+	int    r = 0;
 	FILE * file = 0;
 	THROWERR((height == 126) && (width <= 576), PIRIT_ERRLOGOSIZE);
 	{

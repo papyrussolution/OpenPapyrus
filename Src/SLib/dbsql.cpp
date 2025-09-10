@@ -1123,7 +1123,7 @@ int SOraDbProvider::GetDirect(DBTable & rTbl, const DBRowId & rPos, int forUpdat
 	int    ok = 1;
 	SString temp_buf;
 	THROW(rPos.IsI32());
-	rPos.ToStr(temp_buf);
+	rPos.ToStr__(temp_buf);
 	SqlGen.Z().Tok(Generator_SQL::tokSelect).Sp().Aster().Sp().From(rTbl.fileName).Sp().Tok(Generator_SQL::tokWhere).Sp().Tok(Generator_SQL::tokRowId)._Symb(_EQ_).QText(temp_buf);
 	if(forUpdate)
 		SqlGen.Tok(Generator_SQL::tokFor).Sp().Tok(Generator_SQL::tokUpdate);
@@ -1728,7 +1728,7 @@ int SOraDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, ui
 			OD     rowid = OdAlloc(OCI_DTYPE_ROWID);
 			THROW(OhAttrGet(StmtHandle(*pStmt), OCI_ATTR_ROWID, (OCIRowid *)rowid, 0));
 			RowidToStr(rowid, temp_buf);
-			pTbl->getCurRowIdPtr()->FromStr(temp_buf);
+			pTbl->getCurRowIdPtr()->FromStr__(temp_buf);
 			OdFree(rowid);
 		}
 		BtrError = 0;
@@ -1759,7 +1759,8 @@ int SOraDbProvider::Implement_Search(DBTable * pTbl, int idx, void * pKey, int s
 	uint   actual = 0;
 	LongArray seg_map; // Карта номеров сегментов индекса, которые должны быть привязаны
 	DBTable::SelectStmt * p_stmt = 0;
-	THROW(idx < (int)pTbl->indexes.getNumKeys());
+	const BNKeyList & r_indices = pTbl->indexes;
+	THROW(idx < (int)r_indices.getNumKeys());
 	if(oneof2(srchMode, spNext, spPrev)) {
 		p_stmt = pTbl->GetStmt();
 		if(p_stmt) {
@@ -1768,7 +1769,7 @@ int SOraDbProvider::Implement_Search(DBTable * pTbl, int idx, void * pKey, int s
 				int    r = 1;
 				pTbl->copyBufToKey(idx, pKey);
 				if(oneof5(p_stmt->Sp, spGt, spGe, spLt, spLe, spEq)) {
-					int kc = pTbl->indexes.compareKey(p_stmt->Idx, pKey, p_stmt->Key);
+					int kc = r_indices.compareKey(p_stmt->Idx, pKey, p_stmt->Key);
 					if(kc == 0) {
 						if(oneof2(p_stmt->Sp, spGt, spLt))
 							r = 0;
@@ -1816,7 +1817,7 @@ int SOraDbProvider::Implement_Search(DBTable * pTbl, int idx, void * pKey, int s
 		SString temp_buf;
 		uint8  temp_key[1024];
 		void * p_key_data = pKey;
-		BNKey  key = pTbl->indexes[idx];
+		BNKey  key = r_indices[idx];
 		const  int ns = key.getNumSeg();
 
 		SqlGen.Z().Tok(Generator_SQL::tokSelect);
@@ -1834,25 +1835,23 @@ int SOraDbProvider::Implement_Search(DBTable * pTbl, int idx, void * pKey, int s
 		if(sf & DBTable::sfDirect) {
 			DBRowId * p_rowid = static_cast<DBRowId *>(pKey);
 			THROW(p_rowid && p_rowid->IsI32());
-			p_rowid->ToStr(temp_buf);
+			p_rowid->ToStr__(temp_buf);
 			SqlGen.Sp().Tok(Generator_SQL::tokWhere).Sp().Tok(Generator_SQL::tokRowId)._Symb(_EQ_).QText(temp_buf);
 		}
 		else {
 			if(oneof2(srchMode, spFirst, spLast)) {
 				memzero(temp_key, sizeof(temp_key));
-				pTbl->indexes.setBound(idx, 0, BIN(srchMode == spLast), temp_key);
+				r_indices.setBound(idx, 0, BIN(srchMode == spLast), temp_key);
 				p_key_data = temp_key;
 			}
 			SqlGen.Sp().Tok(Generator_SQL::tokWhere).Sp();
 			for(int i = 0; i < ns; i++) {
-				int fldid = key.getFieldID(i);
-				const BNField fld = pTbl->indexes.field(idx, i);
+				const BNField & r_fld = r_indices.field(idx, i);
 				if(i > 0) { // НЕ первый сегмент
 					SqlGen.Tok(Generator_SQL::tokAnd).Sp();
 					if(srchMode != spEq)
 						SqlGen.LPar();
 				}
-
 				if(key.getFlags(i) & XIF_ACS) {
 					//
 					// Для ORACLE нечувствительность к регистру символов
@@ -1865,10 +1864,10 @@ int SOraDbProvider::Implement_Search(DBTable * pTbl, int idx, void * pKey, int s
 						_func_tok = Generator_SQL::tokNlsLower;
 					else
 						_func_tok = Generator_SQL::tokLower;
-					SqlGen.Func(_func_tok, fld.Name);
+					SqlGen.Func(_func_tok, r_fld.Name);
 				}
 				else
-					SqlGen.Text(fld.Name);
+					SqlGen.Text(r_fld.Name);
 				int   cmps = _EQ_;
 				if(srchMode == spEq)
 					cmps = _EQ_;
@@ -1884,7 +1883,6 @@ int SOraDbProvider::Implement_Search(DBTable * pTbl, int idx, void * pKey, int s
 				SqlGen._Symb(cmps);
 				SqlGen.Param(temp_buf.NumberToLat(i));
 				seg_map.add(i);
-
 				if(i > 0 && srchMode != spEq) {
 					//
 					// При каскадном сравнении ключа второй и последующие сегменты
@@ -1898,7 +1896,7 @@ int SOraDbProvider::Implement_Search(DBTable * pTbl, int idx, void * pKey, int s
 					//
 					SqlGen.Sp().Tok(Generator_SQL::tokOr).Sp().LPar();
 					for(int j = 0; j < i; j++) {
-						const BNField fld2 = pTbl->indexes.field(idx, j);
+						const BNField & r_fld2 = r_indices.field(idx, j);
 						if(j > 0)
 							SqlGen.Tok(Generator_SQL::tokAnd).Sp();
 						if(key.getFlags(j) & XIF_ACS) {
@@ -1907,10 +1905,10 @@ int SOraDbProvider::Implement_Search(DBTable * pTbl, int idx, void * pKey, int s
 								_func_tok = Generator_SQL::tokNlsLower;
 							else
 								_func_tok = Generator_SQL::tokLower;
-							SqlGen.Func(_func_tok, fld2.Name);
+							SqlGen.Func(_func_tok, r_fld2.Name);
 						}
 						else
-							SqlGen.Text(fld2.Name);
+							SqlGen.Text(r_fld2.Name);
 						SqlGen._Symb(_NE_);
 						SqlGen.Param(temp_buf.NumberToLat(j));
 						seg_map.add(j);
@@ -1933,8 +1931,8 @@ int SOraDbProvider::Implement_Search(DBTable * pTbl, int idx, void * pKey, int s
 				p_stmt->BL.Dim = 1;
 				for(uint i = 0; i < seg_map.getCount(); i++) {
 					const int  seg = seg_map.get(i);
-					const BNField & r_fld = pTbl->indexes.field(idx, seg);
-					const size_t seg_offs = pTbl->indexes.getSegOffset(idx, seg);
+					const BNField & r_fld = r_indices.field(idx, seg);
+					const size_t seg_offs = r_indices.getSegOffset(idx, seg);
 					key_len += stsize(r_fld.T);
 					if(key.getFlags(seg) & XIF_ACS) {
 						strlwr866((char *)(PTR8(p_key_data) + seg_offs));
@@ -2083,7 +2081,7 @@ int SOraDbProvider::Implement_UpdateRec(DBTable * pTbl, const void * pDataBuf, i
 		SqlGen.Text(pTbl->fields[i].Name)._Symb(_EQ_).Param(temp_buf.NumberToLat(i));
 	}
 	THROW(pTbl->getCurRowIdPtr()->IsI32());
-	pTbl->getCurRowIdPtr()->ToStr(temp_buf);
+	pTbl->getCurRowIdPtr()->ToStr__(temp_buf);
 	SqlGen.Sp().Tok(Generator_SQL::tokWhere).Sp().Tok(Generator_SQL::tokRowId)._Symb(_EQ_).QText(temp_buf);
 	{
 		SSqlStmt   stmt(this, SqlGen);
@@ -2103,7 +2101,7 @@ int SOraDbProvider::Implement_DeleteRec(DBTable * pTbl)
 	SString temp_buf;
 	SqlGen.Z().Tok(Generator_SQL::tokDelete).Sp().From(pTbl->fileName, 0).Sp();
 	THROW(pTbl->getCurRowIdPtr()->IsI32());
-	pTbl->getCurRowIdPtr()->ToStr(temp_buf);
+	pTbl->getCurRowIdPtr()->ToStr__(temp_buf);
 	SqlGen.Sp().Tok(Generator_SQL::tokWhere).Sp().Tok(Generator_SQL::tokRowId)._Symb(_EQ_).QText(temp_buf);
 	{
 		SSqlStmt   stmt(this, SqlGen);
