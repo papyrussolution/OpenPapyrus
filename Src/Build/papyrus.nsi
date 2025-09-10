@@ -60,7 +60,7 @@
 !define DIR_DRV                  "${DIR_BIN}\DRV"
 !define FILE_PPINI               "${DIR_BIN}\PP.INI"
 !define DIR_PACK                 "$INSTDIR\PACK"
-!define DIR_SBII                 "$INSTDIR\PACK\StyloBhtII"
+; !define DIR_SBII                 "$INSTDIR\PACK\StyloBhtII"
 !define DIR_LOG                  "$INSTDIR\LOG"
 !define DIR_TEMP                 "$INSTDIR\DATA\TEMP"
 !define DIR_ARC                  "$INSTDIR\DATA\ARC"
@@ -531,18 +531,6 @@ Section -PACK SEC_PACK
 	; } @v9.4.9
 	File "${SRC_ROOT}\BASE\INIT_DDF\800\*.ddf"
 SectionEnd
-
-!ifndef OPENSOURCE
-	Section -SBII SEC_SBII
-		SetOutPath "${DIR_SBII}"
-		SetOverwrite on
-        	File "${SRC_3P_REDIST}\SBII\BHT400BWCE_StylobhtII.exe"
-	        File "${SRC_3P_REDIST}\SBII\DatalogicMemor_StyloBhtII.exe"
-        	File "${SRC_3P_REDIST}\SBII\Falcon4420_StylobhtII.exe"
-	        File "${SRC_3P_REDIST}\SBII\MC6200S_StylobhtII.exe"
-        	File "${SRC_3P_REDIST}\SBII\SymbolMC9090_StyloBhtII.exe"
-	SectionEnd
-!endif
 
 !endif
 
