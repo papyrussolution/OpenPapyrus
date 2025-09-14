@@ -834,7 +834,8 @@ private:
 #if 0 // {
 		// @debug {
 		else if(event.isKeyDown(kbCtrlF3)) {
-			SString code, debug_buf;
+			SString code;
+			SString debug_buf;
 			getCtrlString(CTL_WORKBOOK_CODE, code);
 			if(code.NotEmptyS()) {
 				PPUhttClient uhtt_cli;

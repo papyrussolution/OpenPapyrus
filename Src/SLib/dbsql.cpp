@@ -392,10 +392,18 @@ int SSqlStmt::BindItem(int pos, uint count, TYPEID typ, void * pDataBuf)
 	int    ok = 1;
 	BL.Dim = count;
 	assert(checkirange(count, 1U, 1024U));
+	bool is_lob = false;
 	Bind b;
+	const  int _typ = GETSTYPE(typ);
 	b.Pos = pos;
 	b.Typ = typ;
 	b.P_Data = pDataBuf;
+	if(_typ == S_CLOB || _typ == S_BLOB) {
+		const SLob * p_lob = static_cast<const SLob *>(pDataBuf);
+		if(p_lob) {
+			is_lob = true; // @debug
+		}
+	}
 	uint   lp = 0;
 	if(BL.lsearch(&b.Pos, &lp, PTR_CMPFUNC(int16)))
 		BL.atFree(lp);
@@ -1707,7 +1715,7 @@ int SOraDbProvider::Implement_Open(DBTable * pTbl, const char * pFileName, int o
 {
 	pTbl->fileName = NZOR(pFileName, pTbl->tableName);
 	pTbl->OpenedFileName = pTbl->fileName;
-	pTbl->FixRecSize = pTbl->fields.CalculateRecSize();
+	pTbl->FixRecSize = pTbl->fields.CalculateFixedRecSize();
 	return 1;
 }
 
@@ -2069,22 +2077,23 @@ int SOraDbProvider::Implement_InsertRec(DBTable * pTbl, int idx, void * pKeyBuf,
 int SOraDbProvider::Implement_UpdateRec(DBTable * pTbl, const void * pDataBuf, int ncc)
 {
 	int    ok = 1;
-	uint   i;
-	const  uint fld_count = pTbl->fields.getCount();
 	SString temp_buf;
 	if(pDataBuf)
 		pTbl->copyBufFrom(pDataBuf);
 	SqlGen.Z().Tok(Generator_SQL::tokUpdate).Sp().Text(pTbl->fileName).Sp().Tok(Generator_SQL::tokSet).Sp();
-	for(i = 0; i < fld_count; i++) {
-		if(i)
-			SqlGen.Com();
-		SqlGen.Text(pTbl->fields[i].Name)._Symb(_EQ_).Param(temp_buf.NumberToLat(i));
+	{
+		const uint fld_count = pTbl->fields.getCount();
+		for(uint i = 0; i < fld_count; i++) {
+			if(i)
+				SqlGen.Com();
+			SqlGen.Text(pTbl->fields[i].Name)._Symb(_EQ_).Param(temp_buf.NumberToLat(i));
+		}
 	}
 	THROW(pTbl->getCurRowIdPtr()->IsI32());
 	pTbl->getCurRowIdPtr()->ToStr__(temp_buf);
 	SqlGen.Sp().Tok(Generator_SQL::tokWhere).Sp().Tok(Generator_SQL::tokRowId)._Symb(_EQ_).QText(temp_buf);
 	{
-		SSqlStmt   stmt(this, SqlGen);
+		SSqlStmt stmt(this, SqlGen);
 		THROW(stmt.IsValid());
 		THROW(stmt.BindData(-1, 1, pTbl->fields, pTbl->getDataBufConst(), pTbl->getLobBlock()));
 		THROW(stmt.SetDataDML(0));

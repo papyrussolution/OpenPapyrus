@@ -1407,7 +1407,7 @@ SSH_PACKET_CALLBACK(ssh_packet_unimplemented)
 {
 	uint32_t seq;
 	int rc;
-	(void)session; /* unused */
+	(void)session; /*unused*/
 	(void)type;
 	(void)user;
 	rc = ssh_buffer_unpack(packet, "d", &seq);

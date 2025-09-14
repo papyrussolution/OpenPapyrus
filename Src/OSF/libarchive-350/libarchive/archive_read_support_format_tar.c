@@ -974,7 +974,7 @@ static int read_body_to_string(ArchiveRead * a, struct tar * tar, archive_string
 	int64 size;
 	const struct archive_entry_header_ustar * header;
 	const void * src;
-	(void)tar; /* UNUSED */
+	(void)tar; /*unused*/
 	header = (const struct archive_entry_header_ustar *)h;
 	size  = tar_atol(header->size, sizeof(header->size));
 	if((size > 1048576) || (size < 0)) {
@@ -1219,7 +1219,7 @@ static int read_mac_metadata_blob(ArchiveRead * a, struct tar * tar, ArchiveEntr
 	const void * data;
 	const char * p, * name;
 	const wchar_t * wp, * wname;
-	(void)h; /* UNUSED */
+	(void)h; /*unused*/
 	wname = wp = archive_entry_pathname_w(entry);
 	if(wp) {
 		/* Find the last path element. */

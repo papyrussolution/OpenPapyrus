@@ -5611,7 +5611,7 @@ static void Cristal2SetRetailGateway_CSessDictionaryOutput(const char * pDictPat
 							line_buf.Z().Cat(tbl.GetName());
 							const BNFieldList & r_fld_list = tbl.GetFields();
 							const BNKeyList & r_idx_list = tbl.GetIndices();
-							line_buf.Tab().CatEq("recsize", /*tbl.getRecSize()*/r_fld_list.CalculateRecSize()).CR();
+							line_buf.Tab().CatEq("recsize", /*tbl.getRecSize()*/r_fld_list.CalculateFixedRecSize()).CR();
 							{
 								for(uint fi = 0; fi < r_fld_list.getCount(); fi++) {
 									const BNField & r_fld = r_fld_list.getField(fi, true);

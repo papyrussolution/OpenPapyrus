@@ -12066,7 +12066,7 @@ public:
 												}
 												if(p_target_entry) {
 													StyloQServerSession * p_new_sess = new StyloQServerSession(p_target_entry->LB, p_target_entry->P, tpack);
-													CALLPTRMEMB(p_new_sess, Start(0));													
+													CALLPTRMEMB(p_new_sess, Start(false));
 												}
 											}
 											else
@@ -12215,7 +12215,7 @@ void RunStyloQMqbServer()
 		if(ll.getCount()) {
 			StyloQServer2 * p_srv = new StyloQServer2(ll);
 			if(p_srv) {
-				p_srv->Start(0);
+				p_srv->Start(false);
 				PPLogMessage(PPFILNAM_SERVER_LOG, PPLoadTextS(PPTXT_LOG_STQMQBSERVERSTARTED, msg_buf), LOGMSGF_TIME|LOGMSGF_COMP);
 			}
 		}
@@ -12314,7 +12314,7 @@ int PPStyloQInterchange::RunStyloQLocalMqbServer(RunServerParam & rP, const DbLo
 											}
 											// } @v11.3.3
 											StyloQServerSession * p_new_sess = new StyloQServerSession(LB, P, tpack);
-											CALLPTRMEMB(p_new_sess, Start(0));
+											CALLPTRMEMB(p_new_sess, Start(false));
 										}
 										else {
 											PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_COMP);
@@ -12358,7 +12358,7 @@ int PPStyloQInterchange::RunStyloQLocalMqbServer(RunServerParam & rP, const DbLo
 		}
 		if(pDlb) {
 			StyloQServer * p_srv = new StyloQServer(*pDlb, rP);
-			CALLPTRMEMB(p_srv, Start(0));
+			CALLPTRMEMB(p_srv, Start(false));
 		}
 	}
 	else

@@ -344,8 +344,8 @@ static void Ppmd7_Init(CPpmd7 * p, uint maxOrder)
 	p->MaxOrder = maxOrder;
 	RestartModel(p);
 	p->DummySee.Shift = PPMD_PERIOD_BITS;
-	p->DummySee.Summ = 0; /* unused */
-	p->DummySee.Count = 64; /* unused */
+	p->DummySee.Summ = 0; /*unused*/
+	p->DummySee.Count = 64; /*unused*/
 }
 
 static CTX_PTR CreateSuccessors(CPpmd7 * p, boolint skip)

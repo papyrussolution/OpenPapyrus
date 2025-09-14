@@ -1974,7 +1974,7 @@ public:
 		return *this;
 	}
 
-	RepeatedPtrFieldBackInsertIterator<T>& operator++(int /* unused */) {
+	RepeatedPtrFieldBackInsertIterator<T>& operator++(int /*unused*/) {
 		return *this;
 	}
 
@@ -2010,7 +2010,7 @@ public:
 		return *this;
 	}
 
-	AllocatedRepeatedPtrFieldBackInsertIterator<T>& operator++(int /* unused */) {
+	AllocatedRepeatedPtrFieldBackInsertIterator<T>& operator++(int /*unused*/) {
 		return *this;
 	}
 
@@ -2046,7 +2046,7 @@ public:
 		return *this;
 	}
 
-	UnsafeArenaAllocatedRepeatedPtrFieldBackInsertIterator<T>& operator++(int /* unused */) {
+	UnsafeArenaAllocatedRepeatedPtrFieldBackInsertIterator<T>& operator++(int /*unused*/) {
 		return *this;
 	}
 

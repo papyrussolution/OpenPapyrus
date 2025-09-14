@@ -2219,7 +2219,6 @@ public class StyloQInterchange {
 	{
 		SLib.LOG_i("Helper_DoInterchange2: thread=" + android.os.Process.myTid());
 		StyloQApp.InterchangeResult result = null; //new InterchangeResult();
-		boolean debug_mark = false;
 		boolean svc_accs_locked = false;
 		byte [] __svc_id = null;
 		String __svc_id_text = "null";//(svcIdent != null) ? Base64.getEncoder().encodeToString(svcIdent) : "null";
@@ -2578,7 +2577,6 @@ public class StyloQInterchange {
 	//
 	private static void Helper_DoInterchange(StyloQApp appCtx, DoInterchangeParam param)
 	{
-		boolean debug_mark = false;
 		boolean treat_result_on_the_spot = false;
 		StyloQInterchange.RoundTripBlock rtb = null;
 		try {

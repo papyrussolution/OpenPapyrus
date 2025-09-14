@@ -2228,7 +2228,9 @@ IMPLEMENT_CMD_HDL_FACTORY(ADDPERSON);
 static int ReadPrjTaskPacket(PPPrjTaskPacket * pPack, SBuffer & rBuf, long)
 {
 	int    ok = 1;
-	SString code, descr, memo;
+	SString code;
+	SString descr;
+	SString memo;
 	THROW_INVARG(pPack);
 	THROW_SL(rBuf.Read(pPack->Rec.ID));
 	THROW_SL(rBuf.Read(pPack->Rec.ProjectID));
@@ -2270,7 +2272,9 @@ static int ReadPrjTaskPacket(PPPrjTaskPacket * pPack, SBuffer & rBuf, long)
 static int WritePrjTaskPacket(const PPPrjTaskPacket * pPack, SBuffer & rBuf, long)
 {
 	int    ok = 1;
-	SString code, descr, memo;
+	SString code;
+	SString descr;
+	SString memo;
 	THROW_INVARG(pPack);
 	code.CopyFrom(pPack->Rec.Code);
 	descr = pPack->SDescr;

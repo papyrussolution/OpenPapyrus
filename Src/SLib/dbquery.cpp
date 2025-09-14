@@ -713,7 +713,7 @@ void FASTCALL DBQuery::fillRecord(char * buf, RECORDNUMBER * pPos)
 	if(buf) {
 		if(syntax & t_all) {
 			for(i = 0; i < tblCount; i++) {
-				const RECORDSIZE s = tbls[i].tbl->GetFields().CalculateRecSize();
+				const RECORDSIZE s = tbls[i].tbl->GetFields().CalculateFixedRecSize();
 				memcpy(buf+p, tbls[i].tbl->getDataBufConst(), s);
 				p += s;
 			}
@@ -1308,7 +1308,8 @@ DBUpdateSet & STDCALL DBUpdateSet::set(DBField f, DBItem & val)
 
 int updateForCb(DBTable * pTbl, int useTA, DBQ & query, DBUpdateSet & rSet, UpdateDbTable_CbProc cbProc, void * extraPtr)
 {
-	int    ok = 1, ta = 0;
+	int    ok = 1;
+	int    ta = 0;
 	DBQuery * q = 0;
 	const  uint c = rSet.GetCount();
 	if(c) {

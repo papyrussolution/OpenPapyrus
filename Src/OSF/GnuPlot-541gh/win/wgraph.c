@@ -441,7 +441,7 @@ void GraphInit(GW * lpgw)
 		ret = ::SendMessage(lpgw->hToolbar, TB_INSERTBUTTON, (WPARAM)num++, (LPARAM)&button);
 		// options 
 		button.iBitmap = STD_PROPERTIES;
-		button.idCommand = 0; /* unused */
+		button.idCommand = 0; /*unused*/
 		button.iString = (INT_PTR)TEXT("Options");
 		button.fsStyle = BTNS_AUTOSIZE | BTNS_SHOWTEXT | BTNS_NOPREFIX | BTNS_WHOLEDROPDOWN;
 		ret = ::SendMessage(lpgw->hToolbar, TB_INSERTBUTTON, (WPARAM)num++, (LPARAM)&button);

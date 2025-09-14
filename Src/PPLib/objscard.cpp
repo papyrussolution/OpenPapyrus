@@ -36,7 +36,7 @@ PPSCardPacket & PPSCardPacket::Z()
 				if(templ_buf.Search("*C*", code_pos, 1, &code_pos)) {
 					int    is_suitable = 1;
 					size_t last_code_pos = 0;
-					SString code_buf = input;
+					SString code_buf(input);
 					SString prefix;
 					SString postfix;
 					(prefix = templ_buf).Trim(code_pos);

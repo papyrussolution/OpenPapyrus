@@ -1482,6 +1482,7 @@
     <ClCompile Include="..\PPLib\ppcmd.cpp" />
     <ClCompile Include="..\PPLib\ppcolors.cpp" />
     <ClCompile Include="..\PPLib\Ppconvrt.cpp" />
+    <ClCompile Include="..\PPLib\ppcrr.cpp" />
     <ClCompile Include="..\PPLib\ppdbmake.cpp" />
     <ClCompile Include="..\PPLib\ppdbqf.cpp" />
     <ClCompile Include="..\PPLib\ppdbs.cpp">

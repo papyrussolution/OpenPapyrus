@@ -6045,7 +6045,7 @@ public:
 	const  BNField & getField(const char * pName, uint * pPos = 0) const;
 	const  BNField & FASTCALL operator[](uint i) const { return getField(i); }
 	uint   getCount() const { return count; }
-	RECORDSIZE CalculateRecSize() const;
+	RECORDSIZE CalculateFixedRecSize() const;
 	int    setFieldId(uint fldNo /* 0..(count-1) */, int fldId);
 	int    IsEqualRecords(const void * pRec1, const void * pRec2, LongArray * pNeqFldList = 0) const;
 	//
@@ -12544,6 +12544,7 @@ public:
 
 	DECL_INVARIANT_C();
 
+	static SString & MakeNamedPipeName(const char * pSymb, SString & rBuf);
 	static int  CreateDir(const char * pPath); // @v11.8.11
 	static int  CreateDirByTemplate(const char * pPath, const char * pTemplate); // @v11.8.12
 	static bool FASTCALL IsDir(const char * pStr);
@@ -17747,13 +17748,11 @@ public:
 	//
 	// Descr: Создает поток и запускает его на исполнение.
 	//   Если waitOnStartup != 0, то ожидает сигнала от события P_StarupSignal.
-	//   Либо Startup(), либо Run() должна сигнализировать, что
-	//   родительский процесс может продолжать работу.
-	//   Объект P_StartupSignal, если необходимо, должен быть создан
-	//   в конструкторе класса.
+	//   Либо Startup(), либо Run() должна сигнализировать, что родительский процесс может продолжать работу.
+	//   Объект P_StartupSignal, если необходимо, должен быть создан в конструкторе класса.
 	//   P_StartupSignal после завершения ожидания разрушается.
 	//
-	int    FASTCALL Start(int waitOnStartup = 0);
+	int    FASTCALL Start(bool waitOnStartup = false);
 	//
 	// Descr: Пытается аккуратно остановить поток в течении StopTimeout миллисекунд.
 	//   Если это не удалось, то грубо обрывает поток вызовом Terminate().

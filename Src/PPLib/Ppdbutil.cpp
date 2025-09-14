@@ -3190,6 +3190,7 @@ private:
 	const  uint32 Signature; // @firstmember
 	Param  P;
 	StrAssocArray WordList;
+	StrAssocArray TextList; // @v12.4.1
 	PPIDArray Ref1List; // Список доступных идентификаторов справочника Ref1
 	PPIDArray Ref2List; // Список доступных идентификаторов справочника Ref2
 	SRandGenerator G;
@@ -3295,21 +3296,44 @@ int PrcssrTestDb::GenerateString(char * pBuf, size_t maxLen)
 		line_buf.Transf(CTRANSF_OUTER_TO_INNER).CopyTo(pBuf, maxLen);
 	}
 	else {
-		const wchar_t * p_alphabet = L"0123456789.-ABCDEFGHIJKLMNOPQRSTUVWXYZАБВГДЕЖЗИЙКЛМНОПРСТУФхЦЧШЩъЫЬЭЮЯ";
-		const size_t ab_len = sstrlen(p_alphabet);
-		SStringU temp_buf_u;
-		for(uint i = 0; i < num_words; i++) {
-			temp_buf_u.Z();
-			size_t word_len = G.GetUniformInt(10)+1;
-			for(uint j = 0; j < word_len; j++) {
-				temp_buf_u.CatChar(p_alphabet[G.GetUniformInt(ab_len)]);
+		if(!TextList.getCount()) {
+			PPGetPath(PPPATH_TESTROOT, temp_buf);
+			if(temp_buf.NotEmpty()) {
+				temp_buf.SetLastSlash().Cat("data").SetLastSlash().Cat("phrases-ru-1251.txt");
+				SFile f_in(temp_buf, SFile::mRead);
+				if(f_in.IsValid()) {
+					long   str_id = 0;
+					while(f_in.ReadLine(temp_buf, SFile::rlfChomp|SFile::rlfStrip)) {
+						if(temp_buf.Len()) {
+							TextList.AddFast(++str_id, temp_buf);
+						}
+					}
+					TextList.Shuffle();
+				}
 			}
-			if(i)
-				line_buf.Space();
-			temp_buf_u.CopyToUtf8(temp_buf, 1);
-			line_buf.Cat(temp_buf);
 		}
-		line_buf.Transf(CTRANSF_UTF8_TO_INNER).CopyTo(pBuf, maxLen);
+		if(TextList.getCount()) {
+			uint pos = labs(G.GetUniformInt(TextList.getCount()));
+			line_buf = TextList.Get(pos).Txt;
+			line_buf.Transf(CTRANSF_OUTER_TO_INNER).CopyTo(pBuf, maxLen);
+		}
+		else {
+			const wchar_t * p_alphabet = L"0123456789.-ABCDEFGHIJKLMNOPQRSTUVWXYZАБВГДЕЖЗИЙКЛМНОПРСТУФхЦЧШЩъЫЬЭЮЯ";
+			const size_t ab_len = sstrlen(p_alphabet);
+			SStringU temp_buf_u;
+			for(uint i = 0; i < num_words; i++) {
+				temp_buf_u.Z();
+				size_t word_len = G.GetUniformInt(10)+1;
+				for(uint j = 0; j < word_len; j++) {
+					temp_buf_u.CatChar(p_alphabet[G.GetUniformInt(ab_len)]);
+				}
+				if(i)
+					line_buf.Space();
+				temp_buf_u.CopyToUtf8(temp_buf, 1);
+				line_buf.Cat(temp_buf);
+			}
+			line_buf.Transf(CTRANSF_UTF8_TO_INNER).CopyTo(pBuf, maxLen);
+		}
 	}
 	return ok;
 }

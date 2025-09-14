@@ -185,9 +185,9 @@ static ulong real_crc32(ulong crc, const void * buff, size_t len)
 
 static ulong fake_crc32(ulong crc, const void * buff, size_t len)
 {
-	(void)crc; /* UNUSED */
-	(void)buff; /* UNUSED */
-	(void)len; /* UNUSED */
+	(void)crc; /*unused*/
+	(void)buff; /*unused*/
+	(void)len; /*unused*/
 	return 0;
 }
 

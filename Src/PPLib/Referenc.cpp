@@ -1975,35 +1975,36 @@ int PPRights::CheckDesktopID(long deskID, long rt) const
 	return 0xffffffff;
 }
 
-int FASTCALL GetCommConfig(PPCommConfig * pCfg)
+int FASTCALL GetCommConfig(PPCommConfig & rCfg)
 {
-	int    ok = 1, r = 0;
-	memzero(pCfg, sizeof(*pCfg));
-	THROW(r = PPRef->GetPropMainConfig(PPPRP_COMMCFG, pCfg, sizeof(PPCommConfig)));
+	int    ok = 1;
+	int    r = 0;
+	memzero(&rCfg, sizeof(rCfg));
+	THROW(r = PPRef->GetPropMainConfig(PPPRP_COMMCFG, &rCfg, sizeof(rCfg)));
 	if(r <= 0) {
-		memzero(pCfg, sizeof(*pCfg));
-		pCfg->Tag  = PPOBJ_CONFIG;
-		pCfg->ID   = PPCFG_MAIN;
-		pCfg->Prop = PPPRP_COMMCFG;
-		pCfg->SupplAcct.ac = DEFAC_SUPPL;
-		pCfg->SellAcct.ac  = DEFAC_SELL;
-		pCfg->CashAcct.ac  = DEFAC_CASH;
+		memzero(&rCfg, sizeof(rCfg));
+		rCfg.Tag  = PPOBJ_CONFIG;
+		rCfg.ID   = PPCFG_MAIN;
+		rCfg.Prop = PPPRP_COMMCFG;
+		rCfg.SupplAcct.ac = DEFAC_SUPPL;
+		rCfg.SellAcct.ac  = DEFAC_SELL;
+		rCfg.CashAcct.ac  = DEFAC_CASH;
 	}
 	// @v9.7.0 { Теперь вместо кода товара хранится его идентификатора.
 	// Для прозрачной обратной совместимости, сформируем значение идентификатора из кода, если таковой задан.
-	if(!pCfg->PrepayInvoiceGoodsID && pCfg->PrepayInvoiceGoodsCode_obsolete[0]) {
+	/*@v12.4.1 if(!rCfg.PrepayInvoiceGoodsID && rCfg.PrepayInvoiceGoodsCode_obsolete[0]) {
 		PPObjGoods goods_obj;
 		Goods2Tbl::Rec goods_rec;
-		if(goods_obj.SearchByBarcode(pCfg->PrepayInvoiceGoodsCode_obsolete, 0, &goods_rec) > 0) {
-			pCfg->PrepayInvoiceGoodsID = goods_rec.ID;
+		if(goods_obj.SearchByBarcode(rCfg.PrepayInvoiceGoodsCode_obsolete, 0, &goods_rec) > 0) {
+			rCfg.PrepayInvoiceGoodsID = goods_rec.ID;
 		}
-	}
+	}*/
 	// } @v9.7.0
-	if(pCfg->MainOrgID == 0) {
+	if(rCfg.MainOrgID == 0) {
 		PPObjPerson psn_obj;
 		PersonTbl::Rec psn_rec;
 		if(psn_obj.P_Tbl->SearchMainOrg(&psn_rec) > 0)
-			pCfg->MainOrgID = psn_rec.ID;
+			rCfg.MainOrgID = psn_rec.ID;
 	}
 	CATCHZOK
 	return ok;

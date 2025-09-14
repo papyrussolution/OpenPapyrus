@@ -491,11 +491,8 @@ BOOL CRPE_API PEGetSubreportInfo(short printJob, DWORD subreportHandle, PESubrep
 #define PE_GRAPH_MIXED_COL_ROW                3
 #define PE_GRAPH_UNKNOWN_DIRECTION            20
 
-// Graph constant for rowGroupN, colGroupN, summarizedFieldN in PEGraphDataInfo
-#define PE_GRAPH_DATA_NULL_SELECTION          -1
-
-// Graph text max length
-#define PE_GRAPH_TEXT_LEN                     128
+#define PE_GRAPH_DATA_NULL_SELECTION          -1  // Graph constant for rowGroupN, colGroupN, summarizedFieldN in PEGraphDataInfo
+#define PE_GRAPH_TEXT_LEN                     128 // Graph text max length
 
 typedef struct PEGraphDataInfo { // for group and crosstab graph.
 	WORD StructSize;        // initialize to PE_SIZEOF_GRAPH_DATA_INFO
@@ -503,9 +500,8 @@ typedef struct PEGraphDataInfo { // for group and crosstab graph.
 	short colGroupN;        // group number in report, start from 0
 	short summarizedFieldN; // summarized field number for the group where the graph stays.
 	short graphDirection;   // a PE_GRAPH_constant, For normal group/total report, the direction,
-	                        // is always GRAPH_COLS_ONLY.  For CrossTab
-	                        // report all four options will change the
-	                        // graph data.
+		// is always GRAPH_COLS_ONLY.  For CrossTab
+		// report all four options will change the graph data.
 } PEGraphDataInfo;
 
 #define PE_SIZEOF_GRAPH_DATA_INFO (sizeof(PEGraphDataInfo))

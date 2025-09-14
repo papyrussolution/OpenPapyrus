@@ -31,7 +31,7 @@ struct pem_get_password_struct {
 static int pem_get_password(char * buf, int size, int rwflag, void * userdata) 
 {
 	struct pem_get_password_struct * pgp = (struct pem_get_password_struct *)userdata;
-	(void)rwflag; /* unused */
+	(void)rwflag; /*unused*/
 	if(!buf) {
 		return 0;
 	}

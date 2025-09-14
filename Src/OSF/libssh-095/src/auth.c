@@ -295,7 +295,7 @@ SSH_PACKET_CALLBACK(ssh_packet_userauth_pk_ok)
  */
 int ssh_userauth_list(ssh_session session, const char * username)
 {
-	(void)username; /* unused */
+	(void)username; /*unused*/
 	return session ? session->auth.supported_methods : 0;
 }
 /**
@@ -1658,7 +1658,7 @@ pending:
 		session->pending_call_state = SSH_PENDING_CALL_NONE;
 	}
 #else
-	(void)session; /* unused */
+	(void)session; /*unused*/
 #endif
 	return rc;
 }

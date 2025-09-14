@@ -53,7 +53,7 @@ int __heap_mswap(ENV * env, PAGE * pg)
 	SWAP32(p); /* nregions */
 	SWAP32(p); /* gbytes */
 	SWAP32(p); /* bytes */
-	p += 93*sizeof(uint32); /* unused */
+	p += 93*sizeof(uint32); /*unused*/
 	SWAP32(p); /* crypto_magic */
 	return 0;
 }

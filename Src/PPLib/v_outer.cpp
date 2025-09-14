@@ -333,9 +333,9 @@ void PPViewWbPublicGoods::CalcTotal(WbPublicGoodsTotal * pTotal)
 			TDialog * dlg = new TDialog(DLG_WBGOODSLISTDETAIL);
 			if(CheckDialogPtrErr(&dlg)) {
 				// @debug {
-				//uint   pic_count = p_entry->PicsCount;
-				//TSCollection <SImageBuffer> img_list;
-				//PPMarketplaceInterface_Wildberries::LoadPublicGoodsImageList(p_entry->ID, &pic_count/*[INOUT]*/, img_list); 
+				uint   pic_count = p_entry->PicsCount;
+				TSCollection <SImageBuffer> img_list;
+				PPMarketplaceInterface_Wildberries::LoadPublicGoodsImageList(p_entry->ID, &pic_count/*[INOUT]*/, img_list); 
 				// } @debug
 				dlg->setCtrlData(CTL_WBGOODSLISTDETAIL_ID, &p_entry->ID);
 				GoodsPool.GetS(p_entry->NameP, temp_buf);

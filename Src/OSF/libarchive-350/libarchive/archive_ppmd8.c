@@ -365,8 +365,8 @@ void Ppmd8_Init(CPpmd8 * p, uint maxOrder, uint restoreMethod)
 	p->RestoreMethod = restoreMethod;
 	RestartModel(p);
 	p->DummySee.Shift = PPMD_PERIOD_BITS;
-	p->DummySee.Summ = 0; /* unused */
-	p->DummySee.Count = 64; /* unused */
+	p->DummySee.Summ = 0; /*unused*/
+	p->DummySee.Count = 64; /*unused*/
 }
 
 static void Refresh(CPpmd8 * p, CTX_PTR ctx, uint oldNU, uint scale)

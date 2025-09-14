@@ -177,7 +177,7 @@ private:
 	// basic types (instead of submessages). They return true on success. One
 	// can use ResultFromBoolean() to convert that boolean to a ComparisonResult
 	// value.
-	bool CompareBool(const FieldDescriptor& /* unused */, bool value_1,
+	bool CompareBool(const FieldDescriptor& /*unused*/, bool value_1,
 	    bool value_2) {
 		return value_1 == value_2;
 	}
@@ -195,27 +195,27 @@ private:
 	// CompareFloat.
 	bool CompareFloat(const FieldDescriptor& field, float value_1, float value_2);
 
-	bool CompareInt32(const FieldDescriptor& /* unused */, int32_t value_1,
+	bool CompareInt32(const FieldDescriptor& /*unused*/, int32_t value_1,
 	    int32_t value_2) {
 		return value_1 == value_2;
 	}
 
-	bool CompareInt64(const FieldDescriptor& /* unused */, int64_t value_1,
+	bool CompareInt64(const FieldDescriptor& /*unused*/, int64_t value_1,
 	    int64_t value_2) {
 		return value_1 == value_2;
 	}
 
-	bool CompareString(const FieldDescriptor& /* unused */,
+	bool CompareString(const FieldDescriptor& /*unused*/,
 	    const std::string & value_1, const std::string & value_2) {
 		return value_1 == value_2;
 	}
 
-	bool CompareUInt32(const FieldDescriptor& /* unused */, uint32_t value_1,
+	bool CompareUInt32(const FieldDescriptor& /*unused*/, uint32_t value_1,
 	    uint32_t value_2) {
 		return value_1 == value_2;
 	}
 
-	bool CompareUInt64(const FieldDescriptor& /* unused */, uint64_t value_1,
+	bool CompareUInt64(const FieldDescriptor& /*unused*/, uint64_t value_1,
 	    uint64_t value_2) {
 		return value_1 == value_2;
 	}

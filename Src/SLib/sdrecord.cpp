@@ -1018,7 +1018,7 @@ int SdRecordBuffer::Add(const void * pRecData, size_t recSize)
 	return ok;
 }
 
-int  SdRecordBuffer::IsEqRec() const { return BIN(Flags & fEqRec); }
+bool SdRecordBuffer::IsEqRec() const { return LOGIC(Flags & fEqRec); }
 uint SdRecordBuffer::GetCount() const { return P_Buf ? *PTR16(P_Buf) : 0; }
 
 SBaseBuffer FASTCALL SdRecordBuffer::Get(uint recNo) const

@@ -1,7 +1,6 @@
 // MARKETPLACE.CPP
 // Copyright (c) A.Sobolev 2024, 2025
 // @codepage UTF-8
-// @construction 
 //
 #include <pp.h>
 #pragma hdrstop
@@ -2401,35 +2400,221 @@ bool PPMarketplaceInterface_Wildberries::SalesRepDbpEntry::FromJsonObj(const SJs
 		SString url_buf;
 		SString volume;
 		SString part;
-		(volume = "vol").Cat(wareId / 100000ULL);
-		(part = "part").Cat(wareId / 1000ULL);
-		temp_buf.Z().Cat(volume).SetLastDSlash().Cat(part).SetLastDSlash().Cat(wareId).SetLastDSlash().Cat("images").SetLastDSlash().Cat("big");
-		const  SString base_url(InetUrl::MkHttps("basket-16.wbbasket.ru", temp_buf)); // Проблема: меняется номер после дефиса. То есть для //
-			// некоторых товаров будет basket-16, для других - basket-24 etc
+		uint    vol_num = static_cast<uint>(wareId / 100000ULL);
+		long    basket_no = 0;
+		bool    basket_undefined = false;
+		/*
+			start	end	basket-no	difference
+			0       143     1	143
+			144     287     2	143
+			288     431     3	143
+			432     719     4	287
+			720     1007    5	287
+			1008    1061    6	53
+			1062    1115    7	53
+			1116    1169    8	53
+			1170    1313    9	143
+			1314    1601    10	287
+			1602    1655    11	53
+			1656    1919    12	263
+			1920    2045    13	125
+			2046    2189    14	143
+			2190    2405    15	215
+			2406    2621    16	215
+			2622    2837    17	215
+			
+			2838    3053    18
+			3054    3269    19
+			3270    3485    20
+			3486    3701    21
+		*/ 
+		if(vol_num <= 143) 
+			basket_no = 1;
+		else if(vol_num <= 287) 
+			basket_no = 2;
+		else if(vol_num <= 431) 
+			basket_no = 3;
+		else if(vol_num <= 719) 
+			basket_no = 4;
+		else if(vol_num <= 1007) 
+			basket_no = 5;
+		else if(vol_num <= 1061) 
+			basket_no = 6;
+		else if(vol_num <= 1115) 
+			basket_no = 7;
+		else if(vol_num <= 1169) 
+			basket_no = 8;
+		else if(vol_num <= 1313) 
+			basket_no = 9;
+		else if(vol_num <= 1601) 
+			basket_no = 10;
+		else if(vol_num <= 1655) 
+			basket_no = 11;
+		else if(vol_num <= 1919) 
+			basket_no = 12;
+		else if(vol_num <= 2045) 
+			basket_no = 13;
+		else if(vol_num <= 2189) 
+			basket_no = 14;
+		else if(vol_num <= 2405) 
+			basket_no = 15;
+		else if(vol_num <= 2621) 
+			basket_no = 16;
+		else if(vol_num <= 2837) 
+			basket_no = 17;
+		else if(vol_num <= 3053)
+			basket_no = 18;
+		else if(vol_num <= 3269)
+			basket_no = 19;
+		else if(vol_num <= 3485)
+			basket_no = 20;
+		else if(vol_num <= 3701)
+			basket_no = 21;
+		else {
+			// empirically: 3092-->19, 4400-->25
+			if(vol_num == 4400)
+				basket_no = 25;
+			else {
+				basket_no = 22; 
+				basket_undefined = true;
+			}
+		}
 
-		SBuffer reply_buf;
+		(volume = "vol").Cat(vol_num);
+		(part = "part").Cat(wareId / 1000ULL);
+
 		StrStrAssocArray hdr_flds;
-		SFile wr_stream(reply_buf, SFile::mWrite);
 		{
 			DS.GetSurrogateUserAgentString(temp_buf);
 			if(temp_buf.NotEmpty())
 				SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrUserAgent, temp_buf);
 		}
+		SString out_file_name;
+		SString file_ext;
+		SString url_base;
 		ScURL c;
-		for(uint i = 1; i <= in_count; i++) {
-			InetUrl url((temp_buf = base_url).SetLastDSlash().Cat(i).DotCat("webp"));
-			int r = c.HttpGet(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, &wr_stream);
-			if(r) {
-				SBuffer * p_reply_buf = static_cast<SBuffer *>(wr_stream);
-				if(p_reply_buf && p_reply_buf->GetAvailableSize()) {
-					SFileFormat ff;
-					const int fir = ff.IdentifyBuffer(p_reply_buf->constptr(), p_reply_buf->GetAvailableSize());
-					if(fir == 2) {
-						SFileFormat::GetMime(ff, temp_buf);
+		uint    first_img_idx = 1;
+		if(basket_undefined) {
+			LAssocArray wb_wareid_vol_to_basket_no_assoc;
+			SString cache_file_name;
+			GetLocalCachePath(cache_file_name);
+			if(cache_file_name.NotEmpty()) {
+				cache_file_name.SetLastSlash().Cat("wareid_vol_to_basketno_assoc");
+			}
+			if(fileExists(cache_file_name)) {
+				SFile f_in(cache_file_name, SFile::mRead);
+				if(f_in.IsValid()) {
+					SString left, right;
+					while(f_in.ReadLine(temp_buf, SFile::rlfChomp|SFile::rlfStrip)) {
+						if(temp_buf.Divide('\t', left, right) > 0) {
+							const long _vol = left.ToLong();
+							const long _bn = right.ToLong();
+							if((_vol > 0 && _vol < 10000) && (_bn >= 1 && _bn <= 50)) {
+								wb_wareid_vol_to_basket_no_assoc.Add(_vol, _bn);
+							}
+						}
 					}
 				}
 			}
+			uint aidx = 0;
+			if(wb_wareid_vol_to_basket_no_assoc.Search(vol_num, &aidx)) {
+				basket_no = wb_wareid_vol_to_basket_no_assoc.at(aidx).Val;
+			}
+			else {
+				const long first_basket_no_to_check = basket_no;
+				const long last_basket_no_to_check = 30;
+				basket_no = 0;
+				for(long iter_basket_no = first_basket_no_to_check; !basket_no && iter_basket_no <= last_basket_no_to_check; iter_basket_no++) {
+					url_base.Z().Cat("basket").CatChar('-').CatLongZ(iter_basket_no, 2).DotCat("wbbasket").DotCat("ru");
+					temp_buf.Z().Cat(volume).SetLastDSlash().Cat(part).SetLastDSlash().Cat(wareId).SetLastDSlash().Cat("images").SetLastDSlash().Cat("big");
+					const  SString base_url(InetUrl::MkHttps(url_base, temp_buf));
 
+					bool   check_next_basket_no = false;
+					InetUrl url((temp_buf = base_url).SetLastDSlash().Cat(first_img_idx).DotCat("webp"));
+
+					SBuffer reply_buf;
+					SFile wr_stream(reply_buf, SFile::mWrite);
+					int r = c.HttpGet(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, &wr_stream);
+					if(r) {
+						SBuffer * p_reply_buf = static_cast<SBuffer *>(wr_stream);
+						if(p_reply_buf && p_reply_buf->GetAvailableSize()) {
+							SFileFormat ff;
+							const int fir = ff.IdentifyBuffer(p_reply_buf->constptr(), p_reply_buf->GetAvailableSize());
+							if(fir == 2) {
+								const int mime_type = ff.GetMimeType();
+								if(mime_type == SFileFormat::mtImage || ff == SFileFormat::Webp) {
+									basket_no = iter_basket_no;
+									basket_undefined = false;
+								}
+								else if(ff == SFileFormat::Html) {
+									check_next_basket_no = true;
+									SDelay(100);
+								}
+							}
+							else if(fir == 4) {
+								if(oneof2(ff, SFileFormat::TxtAscii, SFileFormat::TxtUtf8)) {
+									check_next_basket_no = true;
+									SDelay(100);
+								}
+							}
+						}
+					}
+					if(!check_next_basket_no)
+						break;
+				}
+				if(basket_no) {
+					wb_wareid_vol_to_basket_no_assoc.Add(vol_num, basket_no);
+					if(cache_file_name.NotEmpty()) {
+						SFile f_out(cache_file_name, SFile::mWrite);
+						if(f_out.IsValid()) {
+							wb_wareid_vol_to_basket_no_assoc.SortByKeyVal();
+							for(uint i = 0; i < wb_wareid_vol_to_basket_no_assoc.getCount(); i++) {
+								LAssoc aitem = wb_wareid_vol_to_basket_no_assoc.at(i);
+								temp_buf.Z().Cat(aitem.Key).Tab().Cat(aitem.Val).CR();
+								f_out.WriteLine(temp_buf);
+							}
+						}
+					}
+				}
+			}
+		}
+		if(basket_no) {
+			url_base.Z().Cat("basket").CatChar('-').CatLongZ(basket_no, 2).DotCat("wbbasket").DotCat("ru");
+			temp_buf.Z().Cat(volume).SetLastDSlash().Cat(part).SetLastDSlash().Cat(wareId).SetLastDSlash().Cat("images").SetLastDSlash().Cat("big");
+			const  SString base_url(InetUrl::MkHttps(url_base, temp_buf));
+			for(uint i = 1; i <= in_count; i++) {
+				/*if(i > 1) {
+					SDelay(500);
+				}*/
+				InetUrl url((temp_buf = base_url).SetLastDSlash().Cat(i).DotCat("webp"));
+				SBuffer reply_buf;
+				SFile wr_stream(reply_buf, SFile::mWrite);
+				int r = c.HttpGet(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, &wr_stream);
+				if(r) {
+					SBuffer * p_reply_buf = static_cast<SBuffer *>(wr_stream);
+					if(p_reply_buf && p_reply_buf->GetAvailableSize()) {
+						SFileFormat ff;
+						const int fir = ff.IdentifyBuffer(p_reply_buf->constptr(), p_reply_buf->GetAvailableSize());
+						if(fir == 2) {
+							SFileFormat::GetMime(ff, temp_buf);
+							SFileFormat::GetExt(ff, file_ext);
+							{
+								//(temp_buf = "wildberries-goods-list-search").CatChar('-').Cat(rFilt.CatID).CatChar('-').Cat(page_no).Dot().Cat("json");
+								PPGetPath(PPPATH_OUT, out_file_name);
+								out_file_name.SetLastSlash().Cat("wb-img");
+								if(SFile::CreateDir(out_file_name)) {
+									out_file_name.SetLastSlash().Cat("wb-ware-img").CatChar('-').Cat(wareId).CatChar('-').CatLongZ(i, 2).DotCat(file_ext);
+									SFile f_out(out_file_name, SFile::mWrite|SFile::mBinary);
+									if(f_out.IsValid()) {
+										f_out.Write(p_reply_buf->constptr(), p_reply_buf->GetAvailableSize());
+									}
+								}
+							}
+						}
+					}
+				}
+
+			}
 		}
 	}
 	ASSIGN_PTR(pCount, out_count);

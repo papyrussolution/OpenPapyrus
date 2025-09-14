@@ -607,14 +607,9 @@ typedef const struct __log_rec_spec {
 	const char fmt[4];
 } DB_LOG_RECSPEC;
 
-/*
- * Size of a DBT in a log record.
- */
- #define LOG_DBT_SIZE(dbt) (sizeof(uint32)+((dbt) == NULL ? 0 : (dbt)->size))
-
-/*******************************************************
-* Shared buffer cache (mpool).
-*******************************************************/
+ #define LOG_DBT_SIZE(dbt) (sizeof(uint32)+((dbt) == NULL ? 0 : (dbt)->size)) // Size of a DBT in a log record.
+// 
+// Shared buffer cache (mpool).
 //
 // Priority values for DB_MPOOLFILE->{put,set_priority}
 //

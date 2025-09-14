@@ -3457,7 +3457,8 @@ int PPPosProtocol::CreateParentGoodsGroup(const ParentBlock & rBlk, int isFolder
 {
 	int    ok = -1;
 	PPID   native_id = 0;
-	SString code_buf, temp_buf;
+	SString temp_buf;
+	SString code_buf;
 	SString name_buf;
 	RdB.GetS(rBlk.CodeP, code_buf);
 	code_buf.Transf(CTRANSF_UTF8_TO_INNER);
@@ -5919,7 +5920,7 @@ int RunInputProcessThread(PPID posNodeID)
 				memzero(pw, sizeof(pw));
 				{
 					PosInputProcessThread * p_sess = new PosInputProcessThread(ib);
-					p_sess->Start(1);
+					p_sess->Start(true);
 					ok = 1;
 				}
 			}

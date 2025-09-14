@@ -45,12 +45,12 @@ int __bam_mswap(ENV * env, PAGE * pg)
 	COMPQUIET(env, 0);
 	__db_metaswap(pg);
 	p = (uint8 *)pg+sizeof(DBMETA);
-	p += sizeof(uint32); /* unused */
+	p += sizeof(uint32); /*unused*/
 	SWAP32(p); /* minkey */
 	SWAP32(p); /* re_len */
 	SWAP32(p); /* re_pad */
 	SWAP32(p); /* root */
-	p += 92*sizeof(uint32); /* unused */
+	p += 92*sizeof(uint32); /*unused*/
 	SWAP32(p); /* crypto_magic */
 	return 0;
 }

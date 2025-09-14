@@ -843,7 +843,6 @@ public class CommonPrereqModule {
 								direction = +1;
 							long doc_id = db.PutDocument(direction, StyloQDatabase.SecStoragePacket.doctypGeneric, CurrentOrder.H.Flags, doc_ident, svc_id, doc_pool);
 							if(doc_id > 0) {
-								boolean debug_mark = false;
 								assert(CurrentOrder.H.ID == 0 || CurrentOrder.H.ID == doc_id);
 								if(CurrentOrder.H.ID == 0 || CurrentOrder.H.ID == doc_id) {
 									CurrentOrder.H.ID = doc_id;
@@ -858,7 +857,7 @@ public class CommonPrereqModule {
 									turn_doc_result = 1;
 								}
 								else {
-									debug_mark = true;
+									;
 								}
 							}
 						}

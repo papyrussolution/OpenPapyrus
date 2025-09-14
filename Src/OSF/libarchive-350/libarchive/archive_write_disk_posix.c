@@ -2409,10 +2409,10 @@ static int check_symlinks_fsobj(char * path, int * a_eno, archive_string * a_est
 #if !defined(HAVE_LSTAT) && \
 	!(defined(HAVE_OPENAT) && defined(HAVE_FSTATAT) && defined(HAVE_UNLINKAT))
 	/* Platform doesn't have lstat, so we can't look for symlinks. */
-	(void)path; /* UNUSED */
-	(void)error_number; /* UNUSED */
-	(void)error_string; /* UNUSED */
-	(void)flags; /* UNUSED */
+	(void)path; /*unused*/
+	(void)error_number; /*unused*/
+	(void)error_string; /*unused*/
+	(void)flags; /*unused*/
 	return ARCHIVE_OK;
 #else
 	int res = ARCHIVE_OK;
@@ -3111,8 +3111,8 @@ static int set_time(int fd, int mode, const char * name, time_t atime, long atim
 	struct utimbuf times;
 	CXX_UNUSED(fd);
 	CXX_UNUSED(name);
-	(void)atime_nsec; /* UNUSED */
-	(void)mtime_nsec; /* UNUSED */
+	(void)atime_nsec; /*unused*/
+	(void)mtime_nsec; /*unused*/
 	times.actime = atime;
 	times.modtime = mtime;
 	if(S_ISLNK(mode))
@@ -3126,8 +3126,8 @@ static int set_time(int fd, int mode, const char * name, time_t atime, long atim
 	CXX_UNUSED(fd);
 	CXX_UNUSED(mode);
 	CXX_UNUSED(name);
-	(void)atime_nsec; /* UNUSED */
-	(void)mtime_nsec; /* UNUSED */
+	(void)atime_nsec; /*unused*/
+	(void)mtime_nsec; /*unused*/
 	return ARCHIVE_WARN;
 #endif
 }
@@ -3178,8 +3178,8 @@ static int set_times(struct archive_write_disk * a,
 		return ARCHIVE_OK;
 	}
 #else /* Tru64 */
-	(void)cctime; /* UNUSED */
-	(void)ctime_nanos; /* UNUSED */
+	(void)cctime; /*unused*/
+	(void)ctime_nanos; /*unused*/
 #endif /* Tru64 */
 
 #ifdef HAVE_STRUCT_STAT_ST_BIRTHTIME
@@ -3197,8 +3197,8 @@ static int set_times(struct archive_write_disk * a,
 			atime, atime_nanos,
 			birthtime, birthtime_nanos);
 #else
-	(void)birthtime; /* UNUSED */
-	(void)birthtime_nanos; /* UNUSED */
+	(void)birthtime; /*unused*/
+	(void)birthtime_nanos; /*unused*/
 #endif
 	r2 = set_time(fd, mode, name,
 		atime, atime_nanos,
@@ -4178,7 +4178,7 @@ int archive_write_disk_set_acls(Archive * a, int fd, const char * name, archive_
 	CXX_UNUSED(a);
 	CXX_UNUSED(fd);
 	CXX_UNUSED(name);
-	(void)abstract_acl; /* UNUSED */
+	(void)abstract_acl; /*unused*/
 	CXX_UNUSED(mode);
 	return ARCHIVE_OK;
 }

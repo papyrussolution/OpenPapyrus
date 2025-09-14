@@ -623,7 +623,7 @@ void SlThread::Reset(void * pInitData, int withForce, long stopTimeout)
 //
 // Create an execution thread
 //
-int FASTCALL SlThread::Start(int waitOnStartup)
+int FASTCALL SlThread::Start(bool waitOnStartup/*=false*/)
 {
 	if(!(State_Slt & stRunning)) {
 		P_Creation = new Evnt;

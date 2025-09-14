@@ -174,7 +174,7 @@ static const char * lookup_uname_helper(struct name_cache * cache, id_t id)
 static const char * lookup_uname_helper(struct name_cache * cache, id_t id)
 {
 	struct passwd * result;
-	(void)cache; /* UNUSED */
+	(void)cache; /*unused*/
 	result = getpwuid((uid_t)id);
 	if(result == NULL)
 		return NULL;
@@ -231,7 +231,7 @@ static const char * lookup_gname_helper(struct name_cache * cache, id_t id)
 static const char * lookup_gname_helper(struct name_cache * cache, id_t id)
 {
 	struct group * result;
-	(void)cache; /* UNUSED */
+	(void)cache; /*unused*/
 
 	result = getgrgid((gid_t)id);
 

@@ -2733,72 +2733,6 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 		ok = p_view ? p_view->CellStyleFunc_(pData, col, paintAction, pCellStyle, p_brw) : -1;
 	}
 	return ok;
-#if 0 // {
-	int    ok = -1;
-	PPViewPerson * p_view = static_cast<PPViewPerson *>(extraPtr);
-	if(pData && pCellStyle && p_view) {
-		const PersonFilt * p_filt = static_cast<const PersonFilt *>(p_view->GetBaseFilt());
-		if(!p_view->IsCrosstab() && p_filt) {
-			int is_register  = (p_filt->GetAttribType() == PPPSNATTR_REGISTER) ? oneof2(p_filt->RegTypeID, PPREGT_OKPO, PPREGT_TPID/*, PPREGT_BNKCORRACC*/) : 0;
-			int is_bank_acct = (p_filt->GetAttribType() == PPPSNATTR_BNKACCT);
-
-			const  BrowserDef * p_def = pBrw->getDef();
-			if(col >= 0 && col < p_def->getCountI()) {
-				const BroColumn & r_col = p_def->at(col);
-			}
-
-			if(col == 0 && p_view->HasImage(pData)) { // К персоналии привязана картинка?
-				pCellStyle->Flags  = BrowserWindow::CellStyle::fLeftBottomCorner;
-				pCellStyle->Color2 = GetColorRef(SClrGreen);
-				ok = 1;
-			}
-			else if(col == 1 && p_view->IsNewCliPerson(*static_cast<const  PPID *>(pData))) {
-				pCellStyle->Flags = 0;
-				pCellStyle->Color = GetColorRef(SClrOrange);
-				ok = 1;
-			}
-			/* @v9.8.4 @todo Из-за замены текстовых полей во временной таблице на ссылки в StrPool следующий блок надо переделать
-			else if((is_register && col == 3) || (is_bank_acct && col == 5)) {
-				int is_valid = 0;
-				// @v10.8.1 {
-				STokenRecognizer tr;
-				SNaturalTokenStat nts;
-				SNaturalTokenArray nta;
-				tr.Run(temp_buf.ucptr(), temp_buf.Len(), nta.Z(), &nts); 
-				// } @v10.8.1 
-				SString code = is_bank_acct ? ((BnkAcct_*)pData)->BnkAcct : ((Register_*)pData)->RegNumber;
-				SString bic  = is_bank_acct ? ((BnkAcct_*)pData)->BIC     : ((Register_*)pData)->RegSerial;
-				if(code.Strip().Len()) {
-					if(is_bank_acct)
-						is_valid = CheckBnkAcc(code, bic.Strip());
-					else {
-						if(p_filt->RegTypeID == PPREGT_OKPO) {
-							// @v10.8.1 is_valid = CheckOKPO(code);
-							is_valid = (nta.Has(SNTOK_RU_OKPO) > 0.0f); // @v10.8.1 
-						}
-						else if(p_filt->RegTypeID == PPREGT_TPID) {
-							// @v8.7.4 is_valid = CheckINN(code);
-							// @v10.8.1 is_valid = SCalcCheckDigit(SCHKDIGALG_RUINN|SCHKDIGALG_TEST, code, code.Len()); // @v8.7.4
-							is_valid = (nta.Has(SNTOK_RU_INN) > 0.0f); // @v10.8.1 
-						}
-						else
-							is_valid = CheckCorrAcc(code, bic);
-					}
-					ok = 1;
-				}
-				if(ok > 0) {
-					pCellStyle->Flags = 0;
-					if(is_valid)
-						pCellStyle->Color = GetColorRef(SClrAqua);
-					else
-						pCellStyle->Color = GetColorRef(SClrCoral);
-				}
-			}
-			*/
-		}
-	}
-	return ok;
-#endif // } 0
 }
 
 /*virtual*/void PPViewPerson::PreprocessBrowser(PPViewBrowser * pBrw)
@@ -4034,12 +3968,12 @@ int ViewPerson(const PersonFilt * pFilt) { return PPView::Execute(PPVIEW_PERSON,
 int EditMainOrg()
 {
 	int    ok = -1;
+	PPID   id = 0;
 	PersonFilt flt;
 	PPObjPerson psn_obj;
-	PPID   id = 0;
 	PersonTbl::Rec psn_rec;
 	PPCommConfig cfg;
-	THROW(GetCommConfig(&cfg));
+	THROW(GetCommConfig(cfg));
 	flt.PersonKindID = PPPRK_MAIN;
 	if(cfg.MainOrgID > 0 && psn_obj.P_Tbl->Search(cfg.MainOrgID) > 0)
 		id = cfg.MainOrgID;
@@ -4048,7 +3982,7 @@ int EditMainOrg()
 	cfg.MainOrgID = id;
 	THROW(SetCommConfig(&cfg, 1));
 	if(psn_obj.ExtEdit(&id, reinterpret_cast<void *>(flt.PersonKindID)) == cmOK) {
-		THROW(GetCommConfig(&cfg));
+		THROW(GetCommConfig(cfg));
 		cfg.MainOrgID = id;
 		THROW(SetCommConfig(&cfg, 1));
 		ok = 1;

@@ -48,9 +48,9 @@ int archive_write_add_filter_grzip(Archive * _a)
 
 static int archive_write_grzip_options(struct archive_write_filter * f, const char * key, const char * value)
 {
-	(void)f; /* UNUSED */
+	(void)f; /*unused*/
 	CXX_UNUSED(key);
-	(void)value; /* UNUSED */
+	(void)value; /*unused*/
 	// Note: The "warn" return is just to inform the options supervisor that we didn't handle it.  It will generate a suitable error if no one used this option
 	return ARCHIVE_WARN;
 }

@@ -549,7 +549,7 @@ int __la_stat(const char * path, struct stat * st)
 pid_t __la_waitpid(HANDLE child, int * status, int option)
 {
 	DWORD cs;
-	(void)option; /* UNUSED */
+	(void)option; /*unused*/
 	do {
 		if(GetExitCodeProcess(child, &cs) == 0) {
 			CloseHandle(child);

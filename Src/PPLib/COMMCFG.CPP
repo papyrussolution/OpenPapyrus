@@ -251,27 +251,24 @@ IMPL_HANDLE_EVENT(CommCfgDialog)
 
 int EditCommConfig()
 {
-	int    r;
-	int    valid_data = 0;
+	int    ok = -1;
 	PPCommConfig cfg;
 	CommCfgDialog * dlg = 0;
 	THROW(CheckCfgRights(PPCFGOBJ_COMMCONFIG, PPR_MOD, 0));
-	THROW(GetCommConfig(&cfg));
+	THROW(GetCommConfig(cfg));
 	THROW(CheckDialogPtr(&(dlg = new CommCfgDialog)));
 	dlg->setDTS(&cfg);
-	while(!valid_data && (r = ExecView(dlg)) == cmOK) {
+	while(ok < 0 && ExecView(dlg) == cmOK) {
 		if(dlg->getDTS(&cfg)) {
-			valid_data = 1;
 			THROW(SetCommConfig(&cfg, 1));
+			ok = 1;
 		}
 		else
 			PPError();
 	}
-	CATCH
-		r = PPErrorZ();
-	ENDCATCH
+	CATCHZOKPPERR
 	delete dlg;
-	return r;
+	return ok;
 }
 //
 // Редактирование текущей конфигурации

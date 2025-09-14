@@ -519,7 +519,8 @@ int PPJobSrvClient::GetLastErr(SString & rBuf)
 int PPJobSrvClient::Login(const char * pDbSymb, const char * pUserName, const char * pPassword)
 {
 	int    ok = 1;
-	SString cmd, reply_str;
+	SString cmd;
+	SString reply_str;
 	PPJobSrvReply reply;
 	if(State & stLoggedIn) {
 		THROW(Logout());

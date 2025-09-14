@@ -696,9 +696,9 @@ int archive_string_append_from_wcs(archive_string * as, const wchar_t * w, size_
  */
 int archive_string_append_from_wcs(archive_string * as, const wchar_t * w, size_t len)
 {
-	(void)as; /* UNUSED */
-	(void)w; /* UNUSED */
-	(void)len; /* UNUSED */
+	(void)as; /*unused*/
+	(void)w; /*unused*/
+	(void)len; /*unused*/
 	errno = ENOSYS;
 	return -1;
 }
@@ -1377,7 +1377,7 @@ static void free_sconv_object(archive_string_conv * sc)
 
 	static uint make_codepage_from_charset(const char * charset)
 	{
-		(void)charset; /* UNUSED */
+		(void)charset; /*unused*/
 		return -1; /* Unknown */
 	}
 
@@ -3425,7 +3425,7 @@ int archive_mstring_get_utf8(Archive * a, struct archive_mstring * aes, const ch
 	*p = NULL;
 	// Try converting WCS to MBS first if MBS does not exist yet. 
 	if(!(aes->aes_set & AES_SET_MBS)) {
-		const char * pm; /* unused */
+		const char * pm; /*unused*/
 		archive_mstring_get_mbs(a, aes, &pm); /* ignore errors, we'll handle it later */
 	}
 	if(aes->aes_set & AES_SET_MBS) {
@@ -3501,7 +3501,7 @@ int STDCALL archive_mstring_get_wcs(Archive * a, struct archive_mstring * aes, c
 	*wp = NULL;
 	/* Try converting UTF8 to MBS first if MBS does not exist yet. */
 	if((aes->aes_set & AES_SET_MBS) == 0) {
-		const char * p; /* unused */
+		const char * p; /*unused*/
 		archive_mstring_get_mbs(a, aes, &p); /* ignore errors, we'll handle it later */
 	}
 	/* Try converting MBS to WCS using native locale. */
@@ -3521,7 +3521,7 @@ int STDCALL archive_mstring_get_wcs(Archive * a, struct archive_mstring * aes, c
 int archive_mstring_get_mbs_l(Archive * a, struct archive_mstring * aes, const char ** p, size_t * length, archive_string_conv * sc)
 {
 	int r, ret = 0;
-	(void)r; /* UNUSED */
+	(void)r; /*unused*/
 #if defined(_WIN32) && !defined(__CYGWIN__)
 	/*
 	 * Internationalization programming on Windows must use Wide
@@ -3545,7 +3545,7 @@ int archive_mstring_get_mbs_l(Archive * a, struct archive_mstring * aes, const c
 	 * with the native locale to be used for translating it to specified
 	 * character-set. */
 	if((aes->aes_set & AES_SET_MBS) == 0) {
-		const char * pm; /* unused */
+		const char * pm; /*unused*/
 		archive_mstring_get_mbs(a, aes, &pm); /* ignore errors, we'll handle it later */
 	}
 	/* If we already have an MBS form, use it to be translated to

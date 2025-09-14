@@ -3163,6 +3163,9 @@ PPINIPARAM_RESTRICTCHZNCIGPRICEASMRC     "RestrictChZnCigPriceAsMrc" // @v12.2.4
 PPINIPARAM_LMDB_MAPSIZE                  "LmdbMapSize"       // @v12.3.1 [config] // default = 128
 PPINIPARAM_LMDB_MAXDBENTITIES            "LmdbMaxDbEntities" // @v12.3.1 [config] // default = 16
 PPINIPARAM_LMDB_MAXREADERS               "LmdbMaxReaders"    // @v12.3.1 [config] // default = 126
+PPINIPARAM_DISABLE_CRR32_SUPPORT_SERVER  "DisableCrr32SupportServer" // @v12.4.1 [config] Запрет использования выделенного сервера поддержки Crystal Reports. Аварийная опция на случай если что-то пойдет не так.
+PPINIPARAM_CHZNPMCONNTIMEOUT             "ChZnPmConnTimeout"   // @v12.4.2 [config] def=3000 Таймаут (ms) ожидания соединения с онлайн-сервером честный знак для проверки марки
+PPINIPARAM_CHZNPMOVRALLTIMEOUT           "ChZnPmOvrallTimeout" // @v12.4.2 [config] def=4000 Таймаут (ms) общего времени обработки запроса к онлайн-серверу честный знак для проверки марки
 
 PPFILNAM_REPORT_INI            "report.ini"
 PPFILNAM_IMPORT_INI            "import.ini"
@@ -3355,7 +3358,7 @@ PPFILNAM_PPYCSESS              "ppycsess"
 PPFILNAM_PPYCCHKS              "ppycchks"
 PPFILNAM_PPYCCLNS              "ppycclns"
 PPFILNAM_CCHECK_LOG            "ccheck.log"
-PPFILNAM_PPLOCK                "pplock"
+// @v12.4.1 (replaced with PPConst::FnNam_PPLock) PPFILNAM_PPLOCK                "pplock"
 PPFILNAM_VERHIST               "ppverh.bin"
 PPFILNAM_VERHISTLONG           "verhist.log"
 PPFILNAM_MAILACCTS             "mailacct.acc"
@@ -10219,7 +10222,9 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @ccheckrunie                              "Импорт кассовых чеков"
 @extfldlist                               "Поля расширения"
 @ccextlist                                "Поля расширения кассового чека"
+@cclnextlist                              "Поля расширения строк кассового чека" // @v12.4.1
 @ccextlist_s                              "@{extfldlist}"
+@cclnextlist_s                            "Поля расширения строк" // @v12.4.1
 
 @bizscore_bounds                          "Контрольные границы значения"
 @bizscore_descr                           "@{description}"
@@ -10616,6 +10621,17 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @ccextss_outerexttag                       "Дополнительный внешний тег импортированного чека"
 @ccextss_linkbilluuid                      "UUID связанного документа"
 @ccextss_fiscalsign                        "Фискальный признак чека"
+
+@cclnextss_serial                          "Серийный номер"
+@cclnextss_egaismark                       "Марка @{brand_egais}"
+@cclnextss_remoteprocessingta              "Символ транзакции удаленной обработки строки"
+@cclnextss_chznserial                      "Серийный номер @{brand_chzn}"
+@cclnextss_chzngtin                        "GTIN марки @{brand_chzn}"
+@cclnextss_chznmark                        "Марка @{brand_chzn}"
+@cclnextss_chznpm_reqid                    "Ответ разрешительного режима @{brand_chzn}: ид запроса"
+@cclnextss_chznpm_reqtimestamp             "Ответ разрешительного режима @{brand_chzn}: дата и время запроса"
+@cclnextss_chznpm_localmoduleinstance      "Ответ разрешительного режима @{brand_chzn}: ид локальной инсталляции"
+@cclnextss_chznpm_localmoduledbver         "Ответ разрешительного режима @{brand_chzn}: версия локальной БД"
 
 @pospan                                   "Кассовая панель"
 @pospanlocking                            "Блокировка кассовой панели"

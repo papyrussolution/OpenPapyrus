@@ -540,13 +540,12 @@ public class StyloQ_UnitTest {
 			//"0104860102580369215WsZaD(p5nR+s)93xQ6Y", // вода
 		};
 		{
-			boolean debug_mark = false;
 			for(int i = 0; i < test_code_list.length; i++) {
 				final String code = test_code_list[i];
 				GTIN result = GTIN.ParseChZnCode(code, 0);
 				boolean is_valid_grade01 = (result != null && (result.GetChZnParseResult() > 0 && result.GetChZnParseResult() != 100000));
 				if(!is_valid_grade01) {
-					debug_mark = true;
+					;
 				}
 				Assert.assertTrue(is_valid_grade01);
 				if(is_valid_grade01) {
@@ -564,13 +563,12 @@ public class StyloQ_UnitTest {
 					"00146602560600006484",
 					"00146602560600006460",
 			};
-			boolean debug_mark = false;
 			for(int i = 0; i < test_chzn_pallet_list.length; i++) {
 				final String code = test_chzn_pallet_list[i];
 				GTIN result = GTIN.ParseChZnCode(code, 0);
 				boolean is_valid_grade01 = (result != null && (result.GetChZnParseResult() > 0 && result.GetChZnParseResult() != 100000));
 				if(!is_valid_grade01) {
-					debug_mark = true;
+					;
 				}
 				Assert.assertTrue(is_valid_grade01);
 				if(is_valid_grade01) {

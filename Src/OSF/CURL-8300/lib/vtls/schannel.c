@@ -1619,7 +1619,7 @@ static void traverse_cert_store(const CERT_CONTEXT * context, Read_crt_func func
 static bool cert_counter_callback(const CERT_CONTEXT * ccert_context, bool reverse_order,
     void * certs_count)
 {
-	(void)reverse_order; /* unused */
+	(void)reverse_order; /*unused*/
 	if(valid_cert_encoding(ccert_context))
 		(*(int *)certs_count)++;
 	return true;

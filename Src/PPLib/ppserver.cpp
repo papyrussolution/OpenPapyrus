@@ -1030,7 +1030,7 @@ int PPJobSession::DoJob(PPJobMngr * pMngr, PPJob * pJob)
 								//
 								PPJob job = *p_temp_job;
 								PPJobSession * p_sess = new PPJobSession(&job, *P_Pool);
-								p_sess->Start(1);
+								p_sess->Start(true);
 							}
 						}
 					}
@@ -1290,7 +1290,7 @@ void PPJobServer::Run()
 				if(!(p_job->Flags & PPJob::fDisable)) { // @paranoic
 					PPJob job = *p_job;
 					PPJobSession * p_sess = new PPJobSession(&job, pool);
-					p_sess->Start(1);
+					p_sess->Start(true);
 				}
 			}
 			else {
@@ -1346,7 +1346,7 @@ void PPJobServer::Run()
 							if(!skip) {
 								PPJob job = *p_job;
 								PPJobSession * p_sess = new PPJobSession(&job, pool);
-								p_sess->Start(1);
+								p_sess->Start(true);
 							}
 						}
 					}
@@ -3354,7 +3354,7 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 					{
 						PPJob job(*p_job);
 						PPJobSession * p_sess = new PPJobSession(&job, pool);
-						p_sess->Start(1);
+						p_sess->Start(true);
 						ok = cmdretOK;
 					}
 				}

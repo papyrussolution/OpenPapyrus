@@ -1787,7 +1787,7 @@ void ZSTD_invalidateRepCodes(ZSTD_CCtx* cctx)
  * in-place.
  */
 static const size_t attachDictSizeCutoffs[ZSTD_STRATEGY_MAX+1] = {
-	SKILOBYTE(8), /* unused */
+	SKILOBYTE(8), /*unused*/
 	SKILOBYTE(8), /* ZSTD_fast */
 	SKILOBYTE(16), /* ZSTD_dfast */
 	SKILOBYTE(32), /* ZSTD_greedy */

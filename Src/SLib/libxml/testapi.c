@@ -6992,38 +6992,33 @@ static int test_xmlLsOneNode() {
 	}
 	function_tests++;
 #endif
-
 	return test_ret;
 }
 
 #define gen_nb_char_ptr 1
-static char * gen_char_ptr(int no ATTRIBUTE_UNUSED, int nr ATTRIBUTE_UNUSED) {
-	return NULL;
-}
+static char * gen_char_ptr(int no ATTRIBUTE_UNUSED, int nr ATTRIBUTE_UNUSED) { return NULL; }
+static void des_char_ptr(int no ATTRIBUTE_UNUSED, char * val ATTRIBUTE_UNUSED, int nr ATTRIBUTE_UNUSED) {}
 
-static void des_char_ptr(int no ATTRIBUTE_UNUSED, char * val ATTRIBUTE_UNUSED, int nr ATTRIBUTE_UNUSED) {
-}
-
-static int test_xmlShell() {
+static int test_xmlShell() 
+{
 	int test_ret = 0;
-
 	/* missing type support */
 	return test_ret;
 }
 
-static int test_xmlShellBase() {
+static int test_xmlShellBase() 
+{
 	int test_ret = 0;
-
 #if defined(LIBXML_DEBUG_ENABLED) && defined(LIBXML_XPATH_ENABLED)
 	int mem_base;
 	int ret_val;
-	xmlShellCtxtPtr ctxt; /* the shell context */
+	xmlShellCtxtPtr ctxt; // the shell context
 	int n_ctxt;
-	char * arg; /* unused */
+	char * arg; /*unused*/
 	int n_arg;
 	xmlNode * node; /* a node */
 	int n_node;
-	xmlNode * node2; /* unused */
+	xmlNode * node2; /*unused*/
 	int n_node2;
 
 	for(n_ctxt = 0; n_ctxt < gen_nb_xmlShellCtxtPtr; n_ctxt++) {
@@ -7063,19 +7058,19 @@ static int test_xmlShellBase() {
 	return test_ret;
 }
 
-static int test_xmlShellCat() {
+static int test_xmlShellCat() 
+{
 	int test_ret = 0;
-
 #if defined(LIBXML_DEBUG_ENABLED) && defined(LIBXML_XPATH_ENABLED) && defined(LIBXML_OUTPUT_ENABLED)
 	int mem_base;
 	int ret_val;
-	xmlShellCtxtPtr ctxt; /* the shell context */
+	xmlShellCtxtPtr ctxt; // the shell context
 	int n_ctxt;
-	char * arg; /* unused */
+	char * arg; /*unused*/
 	int n_arg;
 	xmlNode * node; /* a node */
 	int n_node;
-	xmlNode * node2; /* unused */
+	xmlNode * node2; /*unused*/
 	int n_node2;
 
 	for(n_ctxt = 0; n_ctxt < gen_nb_xmlShellCtxtPtr; n_ctxt++) {
@@ -7115,19 +7110,19 @@ static int test_xmlShellCat() {
 	return test_ret;
 }
 
-static int test_xmlShellDir() {
+static int test_xmlShellDir() 
+{
 	int test_ret = 0;
-
 #if defined(LIBXML_DEBUG_ENABLED) && defined(LIBXML_XPATH_ENABLED)
 	int mem_base;
 	int ret_val;
-	xmlShellCtxtPtr ctxt; /* the shell context */
+	xmlShellCtxtPtr ctxt; // the shell context
 	int n_ctxt;
-	char * arg; /* unused */
+	char * arg; /*unused*/
 	int n_arg;
 	xmlNode * node; /* a node */
 	int n_node;
-	xmlNode * node2; /* unused */
+	xmlNode * node2; /*unused*/
 	int n_node2;
 
 	for(n_ctxt = 0; n_ctxt < gen_nb_xmlShellCtxtPtr; n_ctxt++) {
@@ -7163,23 +7158,22 @@ static int test_xmlShellDir() {
 	}
 	function_tests++;
 #endif
-
 	return test_ret;
 }
 
-static int test_xmlShellDu() {
+static int test_xmlShellDu() 
+{
 	int test_ret = 0;
-
 #if defined(LIBXML_DEBUG_ENABLED) && defined(LIBXML_XPATH_ENABLED)
 	int mem_base;
 	int ret_val;
-	xmlShellCtxtPtr ctxt; /* the shell context */
+	xmlShellCtxtPtr ctxt; // the shell context
 	int n_ctxt;
-	char * arg; /* unused */
+	char * arg; /*unused*/
 	int n_arg;
 	xmlNode * tree; /* a node defining a subtree */
 	int n_tree;
-	xmlNode * node2; /* unused */
+	xmlNode * node2; /*unused*/
 	int n_node2;
 
 	for(n_ctxt = 0; n_ctxt < gen_nb_xmlShellCtxtPtr; n_ctxt++) {
@@ -7225,13 +7219,13 @@ static int test_xmlShellList() {
 #if defined(LIBXML_DEBUG_ENABLED) && defined(LIBXML_XPATH_ENABLED)
 	int mem_base;
 	int ret_val;
-	xmlShellCtxtPtr ctxt; /* the shell context */
+	xmlShellCtxtPtr ctxt; // the shell context
 	int n_ctxt;
-	char * arg; /* unused */
+	char * arg; /*unused*/
 	int n_arg;
 	xmlNode * node; /* a node */
 	int n_node;
-	xmlNode * node2; /* unused */
+	xmlNode * node2; /*unused*/
 	int n_node2;
 
 	for(n_ctxt = 0; n_ctxt < gen_nb_xmlShellCtxtPtr; n_ctxt++) {
@@ -7276,13 +7270,13 @@ static int test_xmlShellLoad()
 #if defined(LIBXML_DEBUG_ENABLED) && defined(LIBXML_XPATH_ENABLED)
 	int mem_base;
 	int ret_val;
-	xmlShellCtxtPtr ctxt; /* the shell context */
+	xmlShellCtxtPtr ctxt; // the shell context
 	int n_ctxt;
 	char * filename; /* the file name */
 	int n_filename;
-	xmlNode * node; /* unused */
+	xmlNode * node; /*unused*/
 	int n_node;
-	xmlNode * node2; /* unused */
+	xmlNode * node2; /*unused*/
 	int n_node2;
 	for(n_ctxt = 0; n_ctxt < gen_nb_xmlShellCtxtPtr; n_ctxt++) {
 		for(n_filename = 0; n_filename < gen_nb_char_ptr; n_filename++) {
@@ -7354,13 +7348,13 @@ static int test_xmlShellPwd() {
 #if defined(LIBXML_DEBUG_ENABLED) && defined(LIBXML_XPATH_ENABLED)
 	int mem_base;
 	int ret_val;
-	xmlShellCtxtPtr ctxt; /* the shell context */
+	xmlShellCtxtPtr ctxt; // the shell context
 	int n_ctxt;
 	char * buffer; /* the output buffer */
 	int n_buffer;
 	xmlNode * node; /* a node */
 	int n_node;
-	xmlNode * node2; /* unused */
+	xmlNode * node2; /*unused*/
 	int n_node2;
 
 	for(n_ctxt = 0; n_ctxt < gen_nb_xmlShellCtxtPtr; n_ctxt++) {
@@ -7406,13 +7400,13 @@ static int test_xmlShellSave() {
 #if defined(LIBXML_DEBUG_ENABLED) && defined(LIBXML_XPATH_ENABLED) && defined(LIBXML_OUTPUT_ENABLED)
 	int mem_base;
 	int ret_val;
-	xmlShellCtxtPtr ctxt; /* the shell context */
+	xmlShellCtxtPtr ctxt; // the shell context
 	int n_ctxt;
 	char * filename; /* the file name (optional) */
 	int n_filename;
-	xmlNode * node; /* unused */
+	xmlNode * node; /*unused*/
 	int n_node;
-	xmlNode * node2; /* unused */
+	xmlNode * node2; /*unused*/
 	int n_node2;
 
 	for(n_ctxt = 0; n_ctxt < gen_nb_xmlShellCtxtPtr; n_ctxt++) {
@@ -7457,13 +7451,13 @@ static int test_xmlShellValidate()
 #if defined(LIBXML_DEBUG_ENABLED) && defined(LIBXML_XPATH_ENABLED) && defined(LIBXML_VALID_ENABLED)
 	int mem_base;
 	int ret_val;
-	xmlShellCtxtPtr ctxt; /* the shell context */
+	xmlShellCtxtPtr ctxt; // the shell context
 	int n_ctxt;
 	char * dtd; /* the DTD URI (optional) */
 	int n_dtd;
-	xmlNode * node; /* unused */
+	xmlNode * node; /*unused*/
 	int n_node;
-	xmlNode * node2; /* unused */
+	xmlNode * node2; /*unused*/
 	int n_node2;
 	for(n_ctxt = 0; n_ctxt < gen_nb_xmlShellCtxtPtr; n_ctxt++) {
 		for(n_dtd = 0; n_dtd < gen_nb_char_ptr; n_dtd++) {
@@ -7497,23 +7491,22 @@ static int test_xmlShellValidate()
 	}
 	function_tests++;
 #endif
-
 	return test_ret;
 }
 
-static int test_xmlShellWrite() {
+static int test_xmlShellWrite() 
+{
 	int test_ret = 0;
-
 #if defined(LIBXML_DEBUG_ENABLED) && defined(LIBXML_XPATH_ENABLED) && defined(LIBXML_OUTPUT_ENABLED)
 	int mem_base;
 	int ret_val;
-	xmlShellCtxtPtr ctxt; /* the shell context */
+	xmlShellCtxtPtr ctxt; // the shell context
 	int n_ctxt;
 	char * filename; /* the file name */
 	int n_filename;
 	xmlNode * node; /* a node in the tree */
 	int n_node;
-	xmlNode * node2; /* unused */
+	xmlNode * node2; /*unused*/
 	int n_node2;
 
 	for(n_ctxt = 0; n_ctxt < gen_nb_xmlShellCtxtPtr; n_ctxt++) {

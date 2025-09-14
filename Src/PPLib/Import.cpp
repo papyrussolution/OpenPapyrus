@@ -686,7 +686,8 @@ bool HierArray::IsThereChildOf(const char * pParentCode) const
 static int LoadHierList(DbfTable * pTbl, int fldnCode, int fldnParent, HierArray * pList)
 {
 	int    ok = 1;
-	SString code_buf, parent_code_buf;
+	SString code_buf;
+	SString parent_code_buf;
 	if(pTbl->top()) {
 		do {
 			if(pTbl->isDeletedRec() <= 0) {
@@ -2267,8 +2268,13 @@ int ImportBanks()
 		}
 		if(import) {
 			int    accepted_recs_count = 0;
-			SString fmt_buf, msg_buf;
-			SString city, name, bic, corracc, addr;
+			SString fmt_buf;
+			SString msg_buf;
+			SString city;
+			SString name;
+			SString bic;
+			SString corracc;
+			SString addr;
 			PPObjPerson psn_obj;
 			PPWaitMsg(wait_msg);
 			{

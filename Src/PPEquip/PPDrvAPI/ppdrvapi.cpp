@@ -1,5 +1,5 @@
 // PPDRVAPI.CPP
-// Copyright (c) A.Sobolev 2013, 2017, 2018, 2019, 2020, 2023
+// Copyright (c) A.Sobolev 2013, 2017, 2018, 2019, 2020, 2023, 2025
 // @codepage UTF-8
 //
 #pragma hdrstop
@@ -66,8 +66,7 @@ int PPDrvSession::ImplementDllMain(HANDLE hModule, DWORD dwReason)
 	return TRUE;
 }
 
-PPDrvSession::PPDrvSession(const char * pName, PPDrv_CreateInstanceProc proc,
-	uint verMajor, uint verMinor, uint errMsgCount, const SIntToSymbTabEntry * pErrMsgTab) :
+PPDrvSession::PPDrvSession(const char * pName, PPDrv_CreateInstanceProc proc, uint verMajor, uint verMinor, uint errMsgCount, const SIntToSymbTabEntry * pErrMsgTab) :
 	Name(pName), Proc(proc), VerMajor(verMajor), VerMinor(verMinor)
 {
 	Id = 1;
@@ -192,7 +191,7 @@ int PPDrvSession::GetErrText(int errCode, SString & rBuf)
 	if(errCode < 0)
 		errCode = GetConstTLA().LastErr;
 	int    ok = ErrText.GetText(errCode, rBuf);
-	rBuf.Transf(CTRANSF_UTF8_TO_OUTER); // @v10.4.5
+	rBuf.Transf(CTRANSF_UTF8_TO_OUTER);
 	return ok;
 }
 
@@ -227,9 +226,9 @@ int PPDrvSession::Log(const char * pMsg, long flags)
 int PPDrvSession::Helper_ProcessCommand(const char * pCmd, const char * pInputData, char * pOutputData, size_t outSize)
 {
 	PPDrvThreadLocalArea & r_tla = GetTLA();
-
 	int    err = 0;
-	SString cmd_buf, output;
+	SString cmd_buf;
+	SString output;
 	SString name_buf;
 	(cmd_buf = pCmd).Strip().ToUpper();
 	if(cmd_buf.NotEmpty() && pOutputData && outSize) {

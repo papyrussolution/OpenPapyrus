@@ -34,7 +34,9 @@ int SMailClient::Connect(InetUrl & rUrl, int timeout)
 		Url = rUrl;
 		State |= stConnected;
 		{
-			SString cmd_buf, reply_buf, temp_buf, word_buf;
+			SString temp_buf;
+			SString word_buf;
+			SString cmd_buf, reply_buf;
 			if(oneof2(protocol, InetUrl::protPOP3, InetUrl::protPOP3S)) {
 				THROW(ReadLine(reply_buf));
 				THROW(CheckReply(reply_buf));

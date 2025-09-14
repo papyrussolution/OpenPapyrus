@@ -659,7 +659,7 @@ int PPObject::CreateReservedObjects(long flags)
 				THROW(tra);
 				int    r = p_ref->GetConfig(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_CFG, &cfg_rec, sizeof(cfg_rec));
 				THROW(r);
-				THROW(GetCommConfig(&comm_cfg));
+				THROW(GetCommConfig(comm_cfg));
 				if(r < 0) {
 					cfg_rec.Tag   = 0;
 					cfg_rec.ObjID = PPCFG_MAIN;

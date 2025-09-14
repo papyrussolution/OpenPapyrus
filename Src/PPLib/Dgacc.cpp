@@ -349,7 +349,8 @@ int ArticleCtrlGroup::selectByCode(TDialog * pDlg)
 		PPID   reg_type_id = 0, ar_id = 0;
 		if(PPObjArticle::GetSearchingRegTypeID(Data.AcsID, 0, 1, &reg_type_id) > 0) {
 			PPObjArticle ar_obj;
-			SString code, title;
+			SString code;
+			SString title;
 			PPRegisterType reg_type_rec;
 			SearchObject(PPOBJ_REGISTERTYPE, reg_type_id, &reg_type_rec);
 			PPLoadText(PPTXT_SEARCHARTICLE, title);

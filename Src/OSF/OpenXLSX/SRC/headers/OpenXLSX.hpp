@@ -2607,7 +2607,7 @@
 							return static_cast<T>(getDouble());
 						}
 						else if(m_type == XLValueType::String) {
-							return satoi64(std::get<std::string>(m_value).c_str());
+							return static_cast<T>(satoi64(std::get<std::string>(m_value).c_str()));
 						}
 						else if(m_type == XLValueType::Boolean) {
 							return static_cast<T>(std::get<bool>(m_value));

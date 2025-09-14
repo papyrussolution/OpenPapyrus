@@ -2210,8 +2210,8 @@ static int set_times(struct archive_write_disk * a, HANDLE h, int mode, const wc
 	FILETIME * pfbtime;
 	FILETIME fatime, fbtime, fmtime;
 
-	(void)ctime_sec; /* UNUSED */
-	(void)ctime_nanos; /* UNUSED */
+	(void)ctime_sec; /*unused*/
+	(void)ctime_nanos; /*unused*/
 
 	if(h != INVALID_HANDLE_VALUE) {
 		hw = NULL;
@@ -2424,9 +2424,9 @@ static int set_fflags(struct archive_write_disk * a)
 static int set_acls(struct archive_write_disk * a, HANDLE h, const wchar_t * name, archive_acl * acl)
 {
 	CXX_UNUSED(a);
-	(void)h; /* UNUSED */
+	(void)h; /*unused*/
 	CXX_UNUSED(name);
-	(void)acl; /* UNUSED */
+	(void)acl; /*unused*/
 	return ARCHIVE_OK;
 }
 /*

@@ -779,7 +779,7 @@ int ExecuteGenericDeviceCommand(PPID dvcID, const char * pCmd, long options)
 				EgdcThread * p_thread = new EgdcThread(gd_pack.Rec.DeviceClass, temp_buf, pCmd, mutex_name);
 				THROW_MEM(p_thread);
 				THROW(*p_thread);
-				p_thread->Start(1);
+				p_thread->Start(true);
 			}
 			else {
 				StrAssocArray out_arr;

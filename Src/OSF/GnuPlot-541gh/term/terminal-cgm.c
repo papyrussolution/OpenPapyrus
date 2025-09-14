@@ -152,7 +152,7 @@ static int * cgm_polyline; /* stored polyline coordinates */
 static int cgm_coords = 0; /* # polyline coordinates saved */
 static int cgm_doing_polygon = 0; /* nonzero if creating polygon, else
                                    * creating polyline */
-/* static enum JUSTIFY cgm_justify = LEFT; */ /* unused */
+/* static enum JUSTIFY cgm_justify = LEFT; */ /*unused*/
 static int cgm_step_sizes[8]; /* array of currently used dash lengths in plot units */
 static int cgm_step_index = 0; /* index into cgm_step_sizes[] */
 static int cgm_step = 0; /* amount of current dash not yet drawn, in plot units */

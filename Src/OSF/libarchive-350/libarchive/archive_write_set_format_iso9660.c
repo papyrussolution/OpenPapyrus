@@ -3638,14 +3638,12 @@ static int write_VD_boot_record(struct archive_write * a)
 	/* Boot System Identifier */
 	memcpy(bp+8, "EL TORITO SPECIFICATION", 23);
 	set_unused_field_bp(bp, 8+23, 39);
-	/* Unused */
+	/*unused*/
 	set_unused_field_bp(bp, 40, 71);
 	/* Absolute pointer to first sector of Boot Catalog */
-	set_num_731(bp+72,
-	    iso9660->el_torito.catalog->file->content.location);
-	/* Unused */
+	set_num_731(bp+72, iso9660->el_torito.catalog->file->content.location);
+	/*unused*/
 	set_unused_field_bp(bp, 76, LOGICAL_BLOCK_SIZE);
-
 	return (wb_consume(a, LOGICAL_BLOCK_SIZE));
 }
 
@@ -5256,7 +5254,7 @@ static int idr_ensure_poolsize(struct archive_write * a, struct idr * idr, int c
 static int idr_start(struct archive_write * a, struct idr * idr, int cnt, int ffmax, int num_size, int null_size, const struct archive_rb_tree_ops * rbt_ops)
 {
 	int r;
-	(void)ffmax; /* UNUSED */
+	(void)ffmax; /*unused*/
 	r = idr_ensure_poolsize(a, idr, cnt);
 	if(r != ARCHIVE_OK)
 		return r;
@@ -6421,7 +6419,7 @@ static int isoent_create_boot_catalog(struct archive_write * a, struct isoent * 
 	struct iso9660 * iso9660 = static_cast<struct iso9660 *>(a->format_data);
 	struct isoent * isoent;
 	ArchiveEntry * entry;
-	(void)rootent; /* UNUSED */
+	(void)rootent; /*unused*/
 	/*
 	 * Create the entry which is the "boot.catalog" file.
 	 */
@@ -6568,7 +6566,7 @@ static int make_boot_catalog(struct archive_write * a)
 		set_num_721(&p[2], 0);
 	/* System Type */
 	p[4] = iso9660->el_torito.system_type;
-	/* Unused */
+	/*unused*/
 	p[5] = 0;
 	/* Sector Count */
 	if(iso9660->el_torito.media_type == BOOT_MEDIA_NO_EMULATION)
@@ -6577,7 +6575,7 @@ static int make_boot_catalog(struct archive_write * a)
 		set_num_721(&p[6], 1);
 	/* Load RBA */
 	set_num_731(&p[8], iso9660->el_torito.boot->file->content.location);
-	/* Unused */
+	/*unused*/
 	memzero(&p[12], 20);
 	return (wb_consume(a, LOGICAL_BLOCK_SIZE));
 }
@@ -7256,8 +7254,8 @@ static int zisofs_rewind_boot_file(struct archive_write * a)
 
 static int zisofs_write_to_temp(struct archive_write * a, const void * buff, size_t s)
 {
-	(void)buff; /* UNUSED */
-	(void)s; /* UNUSED */
+	(void)buff; /*unused*/
+	(void)s; /*unused*/
 	archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Programming error");
 	return ARCHIVE_FATAL;
 }

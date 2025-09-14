@@ -2029,6 +2029,8 @@
 #define cmAutoConfigure          1195 // @v12.2.1
 #define cmClientActivityConfig   1196 // @v12.2.4 Кнопка, открывающая диалог редактирования параметров конфигурации анализа клиентской активностий
 #define cmRun                    1197 // @v12.3.12 Кнопка запуска основной функции (что бы это не значило)
+#define cmCcExtList              1198 // @v11.8.8
+#define cmCcLnExtList            1199 // @v12.4.1
 //
 #define DLG_LOGIN                   1
 	#define CTL_LOGIN_NAME               (1 + WINDOWS_ID_BIAS)
@@ -6678,7 +6680,6 @@
 	#define CTL_REPLCARD_SRCCARD         (1 + WINDOWS_ID_BIAS)
 	#define CTL_REPLCARD_DESTCARD        (2 + WINDOWS_ID_BIAS)
 #define DLG_CCHECKINFO            637 // Системная информация по чеку
-	#define cmCcExtList                  101 // @v11.8.8
 	#define CTL_CCHECKINFO_ID            (1 + WINDOWS_ID_BIAS)
 	#define CTL_CCHECKINFO_CODE          (2 + WINDOWS_ID_BIAS)
 	#define CTL_CCHECKINFO_CASHCODE      (3 + WINDOWS_ID_BIAS)

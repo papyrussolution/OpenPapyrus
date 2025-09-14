@@ -1636,7 +1636,6 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 				{
 					SLib.ListViewEvent ev_subj = (subj instanceof SLib.ListViewEvent) ? (SLib.ListViewEvent) subj : null;
 					if(ev_subj != null && srcObj != null) {
-						boolean debug_mark = false;
 						if(ev_subj.RvHolder == null) {
 							if(ev_subj.ItemView != null) {
 								if(srcObj instanceof ListView && ev_subj.ItemObj != null) {
@@ -1644,7 +1643,6 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 									/*
 									switch(lv.getId()) {
 										case R.id.CTL_INCOMINGLIST_BILL_MARKSBYTI:
-											debug_mark = true;
 											//MarksByTiListAdapter
 											Adapter a = lv.getAdapter();
 											if(a != null && a instanceof MarksByTiListAdapter) {
@@ -1785,7 +1783,6 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 													}
 												}
 												else if(ev_subj.ItemView.getId() == R.id.CTL_DOCUMENT_SHARE) { // @v11.9.0
-													debug_mark = true;
 													// @construction {
 													String doc_text = CPM.DocumentToText(cur_entry);
 													if(SLib.GetLen(doc_text) > 0) {

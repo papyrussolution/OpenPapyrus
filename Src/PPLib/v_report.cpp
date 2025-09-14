@@ -6,7 +6,7 @@
 #pragma hdrstop
 #include <crpe.h>
 
-int SaveDataStruct(const char *pDataName, const char *pTempPath, const char *pRepFileName); // Prototype (PPREPORT.CPP)
+int SaveReportDataStruct(const char *pDataName, const char *pTempPath, const char *pRepFileName); // Prototype (PPREPORT.CPP)
 //
 // PPViewReport
 //
@@ -437,7 +437,7 @@ int PPViewReport::Verify(PPID id)
 			THROW(ctx.CreateDlRtmInstance(data_name, &p_rtm));
 			ep.Flags |= DlRtm::ExportParam::fIsView;
 			THROW(p_rtm->Export(ep));
-			THROW(SaveDataStruct(data_name, ep.Path, alt_path));
+			THROW(SaveReportDataStruct(data_name, ep.Path, alt_path));
 			ok = 1;
 		}
 	}

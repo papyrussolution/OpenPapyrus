@@ -1046,13 +1046,14 @@ DBTable * PrcssrDL200::CreateIterDBTable()
 	return p_tbl;
 }
 
-int FASTCALL __CopyFileByPath(const char * pSrcPath, const char * pDestPath, const char * pFileName); // Prototype (pputil.cpp)
+int __CopyFileByPath(const char * pSrcPath, const char * pDestPath, const char * pFileName); // Prototype (pputil.cpp)
 
 int	PrcssrDL200::FillHeader()
 {
 	int    ok = 1;
 	P_HdrTbl->clearDataBuf();
-	size_t p = 0, max_col_name;
+	size_t p = 0;
+	size_t max_col_name;
 	uint   i;
 	char * p_buf = static_cast<char *>(P_HdrTbl->getDataBuf());
 	_DL200_OutpHdr * p_hdr_buf = reinterpret_cast<_DL200_OutpHdr *>(p_buf);

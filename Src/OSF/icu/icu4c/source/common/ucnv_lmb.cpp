@@ -226,14 +226,14 @@ static const char * const OptGroupByteToCPName[ULMBCS_GRP_LAST + 1] = {
 	/* 0x0004 */ "windows-1256",
 	/* 0x0005 */ "windows-1251",
 	/* 0x0006 */ "ibm-852",
-	/* 0x0007 */ NULL, /* Unused */
+	/* 0x0007 */ NULL, /*unused*/
 	/* 0x0008 */ "windows-1254",
 	/* 0x0009 */ NULL, /* Control char HT */
 	/* 0x000A */ NULL, /* Control char LF */
 	/* 0x000B */ "windows-874",
-	/* 0x000C */ NULL, /* Unused */
+	/* 0x000C */ NULL, /*unused*/
 	/* 0x000D */ NULL, /* Control char CR */
-	/* 0x000E */ NULL, /* Unused */
+	/* 0x000E */ NULL, /*unused*/
 	/* 0x000F */ NULL, /* Control chars: 0x0F20 + C0/C1 character: algorithmic */
 	/* 0x0010 */ "windows-932",
 	/* 0x0011 */ "windows-949",

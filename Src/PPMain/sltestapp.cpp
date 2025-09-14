@@ -1,5 +1,5 @@
 // SLTESTAPP.CPP
-// Copyright (c) A.Sobolev 2023, 2024
+// Copyright (c) A.Sobolev 2023, 2024, 2025
 // @codepage UTF-8
 // Тестовое приложение для отработки функций запуска и управления системными процессами
 //
@@ -88,7 +88,7 @@ public:
 					// do run PipeSession
 					PipeSession * p_sess = new PipeSession(h_pipe, P_AppBlk);
 					if(p_sess)
-						p_sess->Start(1);
+						p_sess->Start(true);
 				}
 				else {
 					// @todo @err
@@ -236,13 +236,13 @@ int main(int argc, char * argv[], char * envp[])
 			AppBlock * p_app_blk = new AppBlock();
 			PipeServer * p_psrv = new PipeServer(P_NamedPipeName, p_app_blk);
 			if(p_psrv)
-				p_psrv->Start(1);
+				p_psrv->Start(true);
 		}
 		SDelay(500);
 		{ // pipe client
 			PipeClient * p_pcli = new PipeClient(P_NamedPipeName);
 			if(p_pcli)
-				p_pcli->Start(1);
+				p_pcli->Start(true);
 		}
 	}
 	//

@@ -58,7 +58,7 @@ SSH_PACKET_CALLBACK(ssh_packet_disconnect_callback)
  */
 SSH_PACKET_CALLBACK(ssh_packet_ignore_callback)
 {
-	(void)session; /* unused */
+	(void)session; /*unused*/
 	(void)user;
 	(void)type;
 	(void)packet;

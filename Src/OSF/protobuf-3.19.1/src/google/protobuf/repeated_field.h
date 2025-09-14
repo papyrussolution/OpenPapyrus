@@ -1030,7 +1030,7 @@ public:
 		return *this;
 	}
 
-	RepeatedFieldBackInsertIterator<T>& operator++(int /* unused */) {
+	RepeatedFieldBackInsertIterator<T>& operator++(int /*unused*/) {
 		return *this;
 	}
 

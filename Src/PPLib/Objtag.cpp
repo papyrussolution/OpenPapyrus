@@ -2622,7 +2622,8 @@ int STDCALL EditObjTagItem(PPID objType, PPID objID, ObjTagItem * pItem, const P
 								PPObjPersonKind pk_obj;
 								PPPersonKind pk_rec;
 								if(pk_obj.Fetch(tag.LinkObjGrp, &pk_rec) > 0 && pk_rec.CodeRegTypeID) {
-									SString code, title;
+									SString code;
+									SString title;
 									PPIDArray psn_list;
 									PPObjPerson psn_obj;
 									PPRegisterType reg_type_rec;

@@ -968,9 +968,9 @@ typedef struct  FT_Raster_Params_ {
 	const void *  source;
 	int flags;
 	FT_SpanFunc gray_spans;
-	FT_SpanFunc black_spans; /* unused */
-	FT_Raster_BitTest_Func bit_test; /* unused */
-	FT_Raster_BitSet_Func bit_set; /* unused */
+	FT_SpanFunc black_spans; /*unused*/
+	FT_Raster_BitTest_Func bit_test; /*unused*/
+	FT_Raster_BitSet_Func bit_set; /*unused*/
 	void *  user;
 	FT_BBox clip_box;
 } FT_Raster_Params;

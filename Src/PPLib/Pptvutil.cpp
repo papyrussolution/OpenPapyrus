@@ -4816,7 +4816,8 @@ int PersonCtrlGroup::SelectByCode(TDialog * pDlg)
 		if(SearchObject(PPOBJ_PERSONKIND, Data.PsnKindID, &psn_kind_rec) > 0)
 			reg_type_id = psn_kind_rec.CodeRegTypeID;
 		if(reg_type_id > 0) {
-			SString code, title;
+			SString code;
+			SString title;
 			PPRegisterType reg_type_rec;
 			SearchObject(PPOBJ_REGISTERTYPE, reg_type_id, &reg_type_rec);
 			PPLoadText(PPTXT_SEARCHPERSON, title);
@@ -4987,7 +4988,8 @@ int PersonListCtrlGroup::selectByCode(TDialog * pDlg)
 		if(SearchObject(PPOBJ_PERSONKIND, Data.PsnKindID, &psn_kind_rec) > 0)
 			reg_type_id = psn_kind_rec.CodeRegTypeID;
 		if(reg_type_id > 0) {
-			SString code, title;
+			SString code;
+			SString title;
 			PPRegisterType reg_type_rec;
 			SearchObject(PPOBJ_REGISTERTYPE, reg_type_id, &reg_type_rec);
 			PPLoadText(PPTXT_SEARCHPERSON, title);
@@ -5115,7 +5117,8 @@ int PersonListCtrlGroup::SelectByCode(TDialog * pDlg)
 		if(SearchObject(PPOBJ_PERSONKIND, Data.PsnKindID, &psn_kind_rec) > 0)
 			reg_type_id = psn_kind_rec.CodeRegTypeID;
 		if(reg_type_id > 0) {
-			SString code, title;
+			SString code;
+			SString title;
 			PPRegisterType reg_type_rec;
 			SearchObject(PPOBJ_REGISTERTYPE, reg_type_id, &reg_type_rec);
 			PPLoadText(PPTXT_SEARCHPERSON, title);

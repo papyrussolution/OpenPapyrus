@@ -250,7 +250,7 @@ void GnuPlot::TermHiddenLineRemoval()
 		    vlist[vlst[2]].x * (vlist[vlst[0]].y - vlist[vlst[1]].y);       \
 		csign = SIGN(ctmp);                                                \
 	} while(0)
-#endif /* UNUSED */
+#endif /*unused*/
 
 long GnuPlot::StoreVertex(GpCoordinate * pPoint, lp_style_type * pLpStyle, bool colorFromColumn)
 {

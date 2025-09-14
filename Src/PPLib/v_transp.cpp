@@ -120,8 +120,10 @@ IMPL_HANDLE_EVENT(TransportFilterDlg)
 void TransportFilterDlg::SetupCtrls()
 {
 	long   tr_type = 0;
-	PPID   model_id = 0, country_id = 0;
-	SString code, trail_code;
+	PPID   model_id = 0;
+	PPID   country_id = 0;
+	SString code;
+	SString trail_code;
 	getCtrlString(CTL_FLTTRANSP_CODE,      code);
 	getCtrlString(CTL_FLTTRANSP_TRAILCODE, trail_code);
 	getCtrlData(CTLSEL_FLTTRANSP_CNTRY,    &country_id);

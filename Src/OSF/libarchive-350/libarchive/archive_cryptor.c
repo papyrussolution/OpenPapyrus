@@ -378,7 +378,7 @@ static int aes_ctr_update(archive_crypto_ctx * ctx, const uint8 * const in, size
 	CXX_UNUSED(in_len);
 	CXX_UNUSED(out);
 	CXX_UNUSED(out_len);
-	aes_ctr_encrypt_counter(ctx); /* UNUSED */ /* Fix unused function warning */
+	aes_ctr_encrypt_counter(ctx); /*unused*/ /* Fix unused function warning */
 	return -1;
 }
 

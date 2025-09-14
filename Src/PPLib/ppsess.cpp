@@ -427,10 +427,9 @@ int PPThreadLocalArea::RegisterAdviseObjects()
 		{
 			const  char * p_quit = "QUIT";
 			const  long   quit_after = 5 * 60;
-			SString buf;
 			SString path;
-			PPGetFileName(PPFILNAM_PPLOCK, buf);
-			PPGetFilePath(PPPATH_BIN, buf, path);
+			SString buf;
+			PPGetFilePath(PPPATH_BIN, PPConst::FnNam_PPLock, path);
 			if(Timer == -1) {
 				if(fileExists(path)) {
 					long   sec = 0;
@@ -1177,7 +1176,7 @@ int PPThreadLocalArea::InitMainOrgData(int reset)
 		Cc.MainOrgAccountant_ = post_rec.PersonID;
 		if(!Cc.MainOrgDirector_ || !Cc.MainOrgAccountant_) {
 			PPCommConfig temp_cfg_rec;
-			GetCommConfig(&temp_cfg_rec);
+			GetCommConfig(temp_cfg_rec);
 			SETIFZ(Cc.MainOrgDirector_, temp_cfg_rec.MainOrgDirector_);
 			SETIFZ(Cc.MainOrgAccountant_, temp_cfg_rec.MainOrgAccountant_);
 		}
@@ -1666,7 +1665,13 @@ PPSession::~PPSession()
 	// Don't destroy P_LogQueue (на объект может ссылаться поток PPLogMsgSession потому удалять его нельзя)
 }
 
-int PPSession::EnsureExtCfgDb()
+/*static*/bool PPSession::CheckExecutionLocking()
+{
+	SString name;
+	return !fileExists(makeExecPathFileName(PPConst::FnNam_PPLock, 0, name));
+}
+
+/*static*/int PPSession::EnsureExtCfgDb()
 {
 	int    ok = -1;
 	SString dbpath_buf;
@@ -2499,7 +2504,7 @@ int PPSession::Init(long internalAppId, long flags, HINSTANCE hInst, const char 
 		P_LogQueue = new PPLogMsgQueue;
 		if(P_LogQueue) {
 			PPLogMsgSession * p_sess = new PPLogMsgSession(P_LogQueue);
-			p_sess->Start(0);
+			p_sess->Start(false);
 		}
 	}
 	SetExtFlag(ECF_DBDICTDL600, 1);
@@ -3487,7 +3492,7 @@ void PPSession::CheckRemoteHosts(const StringSet & rHostList) // @v11.1.2
 		StringSet HostList;
 	};
 	InnerThread * p_thread = new InnerThread(rHostList);
-	p_thread->Start(0);
+	p_thread->Start(false);
 }
 
 int PPSession::GetHostAvailability(const char * pHost)
@@ -4079,7 +4084,7 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 				THROW_PP(r < 0, PPERR_INVUSERORPASSW);
 				empty_secur_base = 1;
 				r_lc.UserID = 0;
-				PTR32(pw)[0] = 0;
+				pw[0] = 0;
 			}
 			else {
 				usr_rec = *reinterpret_cast<const PPSecur *>(&p_ref->data);
@@ -4130,7 +4135,7 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 					}
 				}
 			}
-			THROW(GetCommConfig(&r_cc));
+			THROW(GetCommConfig(r_cc));
 			{
 				PPSupplAgreement suppl_agt;
 				PPObjArticle::GetSupplAgreement(0, &suppl_agt, 0);
@@ -4162,7 +4167,7 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 			}
 			else
 				r_lc.AccessLevel   = 0;
-			if(!(flags & loginfSkipLicChecking)) { // @v10.8.11
+			if(!(flags & loginfSkipLicChecking)) {
 				THROW_PP(CheckLicense(&machine_id, &is_demo) > 0, PPERR_MAX_SESSION_DEST);
 			}
 			SETFLAG(r_lc.State, CFGST_DEMOMODE, is_demo);
@@ -4395,6 +4400,14 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 						r_cc.Flags2 &= ~CCFLG2_RESTRICTCHZNPMPRICE;
 				}
 				// } @v12.2.5
+				// @v12.4.1 {
+				{
+					if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_DISABLE_CRR32_SUPPORT_SERVER, &(iv = 0)) > 0 && iv == 1)
+						r_cc.Flags2 |= CCFLG2_DISABLE_CRR32_SUPPORT_SERVER;
+					else
+						r_cc.Flags2 &= ~CCFLG2_DISABLE_CRR32_SUPPORT_SERVER;
+				}
+				// } @v12.4.1 
 				{
 					//#define CCFLG2_HIDEINVENTORYSTOCK  0x00010000L // @v10.9.12 Флаг, предписывающий скрывать значения учетных остатков
 						// инициируются по параметру в pp.ini [config] PPINIPARAM_INVENTORYSTOCKVIEWRESTRICTION
@@ -4433,6 +4446,24 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 							r_cc.Flags2 |= CCFLG2_HIDEINVENTORYSTOCK;
 					}
 				}
+				// @v12.4.1 {
+				{
+					//PPINIPARAM_CHZNPMCONNTIMEOUT   "ChZnPmConnTimeout"   // @v12.4.2 [config] def=3000 Таймаут (ms) ожидания соединения с онлайн-сервером честный знак для проверки марки
+					//PPINIPARAM_CHZNPMOVRALLTIMEOUT "ChZnPmOvrallTimeout" // @v12.4.2 [config] def=4000 Таймаут (ms) общего времени обработки запроса к онлайн-серверу честный знак для проверки марки				
+					if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_CHZNPMCONNTIMEOUT, &(iv = 0)) > 0 && (iv > 0 && iv <= 120000)) {
+						r_cc.ChZnPmConnTimeout = static_cast<uint32>(iv);
+					}
+					else {
+						r_cc.ChZnPmConnTimeout = 3000;
+					}
+					if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_CHZNPMOVRALLTIMEOUT, &(iv = 0)) > 0 && (iv > 0 && iv <= 120000)) {
+						r_cc.ChZnPmOvrallTimeout = static_cast<uint32>(iv);
+					}
+					else {
+						r_cc.ChZnPmOvrallTimeout = 4000;
+					}
+				}
+				// } @v12.4.1 
 				// @v11.3.7 {
 				if(CheckExtFlag(ECF_PAPERLESSCHEQUE) && ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_PAPERLESSCHEQUE_FAKEEADDR, sv) && sv.NotEmptyS()) {
 					SNaturalTokenArray nta;
@@ -4468,7 +4499,7 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 				if(CheckExtFlag(ECF_SYSSERVICE)) {
 					if(is_new_cdb_entry) {
 						PPDbDispatchSession * p_sess = new PPDbDispatchSession(db_path_id, db_symb);
-						p_sess->Start(0);
+						p_sess->Start(false);
 					}
 				}
 				else {
@@ -4523,7 +4554,7 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 							}
 						}
 						PPAdviseEventCollectorSjSession * p_evc = new PPAdviseEventCollectorSjSession(blk, p_phnsvc_pack, p_mqb_init_param, cycle_ms);
-						p_evc->Start(0);
+						p_evc->Start(false);
 						r_tla.P_AeqThrd = p_evc;
 					}
 					int    r = 0;
@@ -4691,7 +4722,7 @@ bool PPSession::LoadUedContainer() // @v12.3.9
 					P_UedC = new SrUedContainer_Rt(&ss_lang);
 					if(P_UedC) {
 						LoadUedContainerThread * p_thr = new LoadUedContainerThread(*P_UedC, file_name, LoadUedCLock);
-						p_thr->Start(1);
+						p_thr->Start(true);
 					}
 				}
 			}

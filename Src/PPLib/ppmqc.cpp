@@ -1508,7 +1508,7 @@ int TestMqc()
 		PPMqbClient::InitParam mqbcp;
 		if(PPMqbClient::SetupInitParam(mqbcp, 0)) {
 			TestMqcProducer * p_thr_mqc_producer = new TestMqcProducer(mqbcp, p_queue_name);
-			p_thr_mqc_producer->Start(1);
+			p_thr_mqc_producer->Start(true);
 			TestMqcConsumer * p_thr_mqc_consumer = new TestMqcConsumer(mqbcp, p_queue_name);
 		}
 	}

@@ -930,7 +930,7 @@ static CURLcode tftp_done(struct Curl_easy * data, CURLcode status,
 	struct connectdata * conn = data->conn;
 	struct tftp_state_data * state = conn->proto.tftpc;
 
-	(void)status; /* unused */
+	(void)status; /*unused*/
 	(void)premature; /* not used */
 
 	if(Curl_pgrsDone(data))

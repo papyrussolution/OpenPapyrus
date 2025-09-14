@@ -1166,7 +1166,7 @@ int PPSession::DispatchNgxRequest(void * pReq, const void * pCfg)
 						}
 					}
 					PPWorkingPipeSession * p_new_sess = new PPWorkingPipeSession(P_Queue, dblblk, rtsid);
-					p_new_sess->Start(1); // (1) - Подождать запуска
+					p_new_sess->Start(true); // (true) - Подождать запуска
 					uint new_thread_count = ThreadList.GetCount(PPThread::kWorkerSession);
 					assert(new_thread_count == thread_count+1);
 					thread_count = new_thread_count;

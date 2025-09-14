@@ -1439,7 +1439,7 @@ struct sqlite3_vfs {
 */
 #define SQLITE_ACCESS_EXISTS    0
 #define SQLITE_ACCESS_READWRITE 1   /* Used by PRAGMA temp_store_directory */
-#define SQLITE_ACCESS_READ      2   /* Unused */
+#define SQLITE_ACCESS_READ      2   /*unused*/
 
 /*
 ** CAPI3REF: Flags for the xShmLock VFS method

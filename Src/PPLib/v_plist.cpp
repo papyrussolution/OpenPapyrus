@@ -2270,10 +2270,12 @@ int PPViewPriceList::SendPListInXmlFormat()
 	PPObjQCert	qobj;
 	PriceListConfig plist_cfg;
 
-	int	   pos = -1, pos2 = -1;
+	int	   pos = -1;
+	int	   pos2 = -1;
 	uint   i = 0;
 	SString temp_buf;
-	PPID * p_item = 0, id = 0;
+	PPID * p_item = 0;
+	PPID   id = 0;
 	PersonTbl::Rec psn_rec;
 	SellerInfo s_i;
 	PPPersonPacket psn_pack;
@@ -2297,7 +2299,7 @@ int PPViewPriceList::SendPListInXmlFormat()
 	temp_buf.CopyTo(s_i.SellerName, sizeof(s_i.SellerName));
 	{
 		PPCommConfig cfg;
-		THROW(GetCommConfig(&cfg));
+		THROW(GetCommConfig(cfg));
 		if(cfg.MainOrgID > 0 && pobj.P_Tbl->Search(cfg.MainOrgID) > 0)
 			id = cfg.MainOrgID;
 		else if(pobj.P_Tbl->SearchMainOrg(&psn_rec) > 0)

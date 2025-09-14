@@ -7059,7 +7059,7 @@ int PrcssrTsStrategyAnalyze::FindStrategiesLoop(void * pBlk)
 							{
 								FindStrategiesTask * p_thread = new FindStrategiesTask(this, *p_fsblk);
 								THROW_S(p_thread, SLERR_NOMEM);
-								p_thread->Start(1);
+								p_thread->Start(true);
 								objs_to_wait[objs_to_wait_count++] = *p_thread;
 							}
 						}

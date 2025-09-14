@@ -51,9 +51,9 @@ static char * xmlShellReadline(const char * prompt)
 		add_history(line_read);
 	return (line_read);
 #else
-	char line_read[501];
+	char   line_read[501];
 	char * ret;
-	int len;
+	int    len;
 	if(prompt)
 		fprintf(stdout, "%s", prompt);
 	if(!fgets(line_read, 500, stdin))
@@ -70,12 +70,13 @@ static char * xmlShellReadline(const char * prompt)
 
 static void usershell() 
 {
-	char * cmdline = NULL, * cur;
-	int nbargs;
-	char command[100];
-	char arg[400];
+	char * cmdline = NULL;
+	char * cur;
+	int    nbargs;
+	char   command[100];
+	char   arg[400];
 	char * argv[20];
-	int i, ret;
+	int    i, ret;
 	xmlChar * ans;
 	while(1) {
 		cmdline = xmlShellReadline("> ");

@@ -2180,53 +2180,53 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 				n_docs.PutAttrib(SXml::nst_xmlns("xsi"), InetUrl::MkHttp("www.w3.org", "2001/XMLSchema-instance")/*"http://www.w3.org/2001/XMLSchema-instance"*/);
 				for(uint eidx = 0; eidx < SIZEOFARRAY(ns_entries); eidx++) {
 					const EgaisNsEntry & r_entry = ns_entries[eidx];
-					int    skip = 0;
+					bool   skip = false;
 					//
 					// Разрешение неоднозначностей в namespace'ах
 					//
 					switch(r_entry.Nn) {
-						case  3: skip = BIN(oneof7(doc_type, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_WAYBILL_V3, PPEDIOP_EGAIS_WAYBILL_V4,
+						case  3: skip = (oneof7(doc_type, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_WAYBILL_V3, PPEDIOP_EGAIS_WAYBILL_V4,
 							PPEDIOP_EGAIS_ACTCHARGEONSHOP, PPEDIOP_EGAIS_ACTCHARGEON_V2, PPEDIOP_EGAIS_ACTWRITEOFFSHOP, PPEDIOP_EGAIS_ACTFIXBARCODE)); break; // "oref" "ClientRef"
-						case  4: skip = BIN(oneof11(doc_type, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_WAYBILL_V3, PPEDIOP_EGAIS_WAYBILL_V4, PPEDIOP_EGAIS_TRANSFERTOSHOP,
+						case  4: skip = (oneof11(doc_type, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_WAYBILL_V3, PPEDIOP_EGAIS_WAYBILL_V4, PPEDIOP_EGAIS_TRANSFERTOSHOP,
 							PPEDIOP_EGAIS_ACTCHARGEONSHOP, PPEDIOP_EGAIS_TRANSFERFROMSHOP, PPEDIOP_EGAIS_ACTCHARGEON_V2,
 							PPEDIOP_EGAIS_ACTWRITEOFFSHOP, PPEDIOP_EGAIS_ACTWRITEOFF_V2, PPEDIOP_EGAIS_ACTWRITEOFF_V3, PPEDIOP_EGAIS_ACTFIXBARCODE)); break; // "pref" "ProductRef"
-						case  5: skip = BIN(oneof4(doc_type, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_WAYBILL_V3, PPEDIOP_EGAIS_WAYBILL_V4, PPEDIOP_EGAIS_ACTFIXBARCODE)); break; // "wb"
-						case  7: skip = BIN(doc_type != PPEDIOP_EGAIS_REQUESTREPEALWB); break;
-						case  6: skip = BIN(oneof5(doc_type, PPEDIOP_EGAIS_REQUESTREPEALWB, 
+						case  5: skip = (oneof4(doc_type, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_WAYBILL_V3, PPEDIOP_EGAIS_WAYBILL_V4, PPEDIOP_EGAIS_ACTFIXBARCODE)); break; // "wb"
+						case  7: skip = (doc_type != PPEDIOP_EGAIS_REQUESTREPEALWB); break;
+						case  6: skip = (oneof5(doc_type, PPEDIOP_EGAIS_REQUESTREPEALWB, 
 							PPEDIOP_EGAIS_NOTIFY_WBVER2, PPEDIOP_EGAIS_NOTIFY_WBVER3, PPEDIOP_EGAIS_NOTIFY_WBVER4, PPEDIOP_EGAIS_ACTFIXBARCODE)); break;
-						case  8: skip = BIN(oneof4(doc_type, PPEDIOP_EGAIS_WAYBILLACT_V2, PPEDIOP_EGAIS_WAYBILLACT_V3, PPEDIOP_EGAIS_WAYBILLACT_V4, PPEDIOP_EGAIS_ACTFIXBARCODE)); break; // "wa"
-						case  9: skip = BIN(doc_type == PPEDIOP_EGAIS_ACTFIXBARCODE); break; // "ain"
-						case 10: skip = BIN(oneof2(doc_type, PPEDIOP_EGAIS_ACTCHARGEON_V2, PPEDIOP_EGAIS_ACTFIXBARCODE)); break; // "iab"
-						case 11: skip = BIN(oneof2(doc_type, PPEDIOP_EGAIS_CONFIRMREPEALWB, PPEDIOP_EGAIS_ACTFIXBARCODE)); break; // "wt"
-						case 12: skip = BIN(doc_type != PPEDIOP_EGAIS_CONFIRMREPEALWB); break; // "wt"
-						case 13: skip = BIN(oneof5(doc_type, PPEDIOP_EGAIS_CONFIRMREPEALWB, PPEDIOP_EGAIS_ACTWRITEOFFSHOP, PPEDIOP_EGAIS_ACTWRITEOFF_V2,
+						case  8: skip = (oneof4(doc_type, PPEDIOP_EGAIS_WAYBILLACT_V2, PPEDIOP_EGAIS_WAYBILLACT_V3, PPEDIOP_EGAIS_WAYBILLACT_V4, PPEDIOP_EGAIS_ACTFIXBARCODE)); break; // "wa"
+						case  9: skip = (doc_type == PPEDIOP_EGAIS_ACTFIXBARCODE); break; // "ain"
+						case 10: skip = (oneof2(doc_type, PPEDIOP_EGAIS_ACTCHARGEON_V2, PPEDIOP_EGAIS_ACTFIXBARCODE)); break; // "iab"
+						case 11: skip = (oneof2(doc_type, PPEDIOP_EGAIS_CONFIRMREPEALWB, PPEDIOP_EGAIS_ACTFIXBARCODE)); break; // "wt"
+						case 12: skip = (doc_type != PPEDIOP_EGAIS_CONFIRMREPEALWB); break; // "wt"
+						case 13: skip = (oneof5(doc_type, PPEDIOP_EGAIS_CONFIRMREPEALWB, PPEDIOP_EGAIS_ACTWRITEOFFSHOP, PPEDIOP_EGAIS_ACTWRITEOFF_V2,
 							PPEDIOP_EGAIS_ACTWRITEOFF_V3, PPEDIOP_EGAIS_ACTFIXBARCODE)); break; // "awr"
-						case 14: skip = BIN(doc_type == PPEDIOP_EGAIS_ACTFIXBARCODE); break; // "qf"
-						case 15: skip = BIN(doc_type == PPEDIOP_EGAIS_ACTFIXBARCODE); break; // "bk"
-						case 16: skip = BIN(oneof6(doc_type, PPEDIOP_EGAIS_WAYBILL_V3, PPEDIOP_EGAIS_WAYBILL_V4, PPEDIOP_EGAIS_WAYBILLACT_V3, PPEDIOP_EGAIS_WAYBILLACT_V4, 
+						case 14: skip = (doc_type == PPEDIOP_EGAIS_ACTFIXBARCODE); break; // "qf"
+						case 15: skip = (doc_type == PPEDIOP_EGAIS_ACTFIXBARCODE); break; // "bk"
+						case 16: skip = (oneof6(doc_type, PPEDIOP_EGAIS_WAYBILL_V3, PPEDIOP_EGAIS_WAYBILL_V4, PPEDIOP_EGAIS_WAYBILLACT_V3, PPEDIOP_EGAIS_WAYBILLACT_V4, 
 							PPEDIOP_EGAIS_ACTWRITEOFF_V3, PPEDIOP_EGAIS_ACTFIXBARCODE)); break; // "ce"
-						case 17: skip = BIN(!oneof11(doc_type, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_WAYBILL_V3, PPEDIOP_EGAIS_WAYBILL_V4, PPEDIOP_EGAIS_TRANSFERTOSHOP,
+						case 17: skip = (!oneof11(doc_type, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_WAYBILL_V3, PPEDIOP_EGAIS_WAYBILL_V4, PPEDIOP_EGAIS_TRANSFERTOSHOP,
 							PPEDIOP_EGAIS_ACTCHARGEONSHOP, PPEDIOP_EGAIS_TRANSFERFROMSHOP, PPEDIOP_EGAIS_ACTCHARGEON_V2,
 							PPEDIOP_EGAIS_ACTWRITEOFFSHOP, PPEDIOP_EGAIS_ACTWRITEOFF_V2, PPEDIOP_EGAIS_ACTWRITEOFF_V3, 
 							PPEDIOP_EGAIS_ACTFIXBARCODE)); break; // "pref" "ProductRef_v2"
-						case 19: skip = BIN(doc_type == PPEDIOP_EGAIS_ACTCHARGEON_V2); break; // "ainp"
-						case 20: skip = BIN(!oneof6(doc_type, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_WAYBILL_V3, PPEDIOP_EGAIS_WAYBILL_V4, PPEDIOP_EGAIS_ACTCHARGEONSHOP, 
+						case 19: skip = (doc_type == PPEDIOP_EGAIS_ACTCHARGEON_V2); break; // "ainp"
+						case 20: skip = (!oneof6(doc_type, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_WAYBILL_V3, PPEDIOP_EGAIS_WAYBILL_V4, PPEDIOP_EGAIS_ACTCHARGEONSHOP, 
 							PPEDIOP_EGAIS_ACTCHARGEON_V2, PPEDIOP_EGAIS_ACTWRITEOFFSHOP)); break; // "oref" "ClientRef_v2"
-						case 22: skip = BIN(doc_type != PPEDIOP_EGAIS_ACTCHARGEON_V2); break; // "ainp"
-						case 23: skip = BIN(doc_type != PPEDIOP_EGAIS_ACTCHARGEON_V2); break; // "iab"
-						case 24: skip = BIN(doc_type != PPEDIOP_EGAIS_ACTWRITEOFFSHOP); break; // "awr"
-						case 25: skip = BIN(doc_type != PPEDIOP_EGAIS_WAYBILLACT_V2); break; // "wa"
-						case 26: skip = BIN(doc_type != PPEDIOP_EGAIS_WAYBILL_V2); break; // "wb"
-						case 27: skip = BIN(!oneof3(doc_type, PPEDIOP_EGAIS_NOTIFY_WBVER2, PPEDIOP_EGAIS_NOTIFY_WBVER3, PPEDIOP_EGAIS_NOTIFY_WBVER4)); break; // "qp"
-						case 28: skip = BIN(doc_type != PPEDIOP_EGAIS_ACTWRITEOFF_V2); break; // "awr"
-						case 29: skip = BIN(doc_type != PPEDIOP_EGAIS_WAYBILLACT_V3); break; // "wa"
-						case 30: skip = BIN(!oneof6(doc_type, PPEDIOP_EGAIS_WAYBILL_V3, PPEDIOP_EGAIS_WAYBILL_V4, PPEDIOP_EGAIS_WAYBILLACT_V3, PPEDIOP_EGAIS_WAYBILLACT_V4, 
+						case 22: skip = (doc_type != PPEDIOP_EGAIS_ACTCHARGEON_V2); break; // "ainp"
+						case 23: skip = (doc_type != PPEDIOP_EGAIS_ACTCHARGEON_V2); break; // "iab"
+						case 24: skip = (doc_type != PPEDIOP_EGAIS_ACTWRITEOFFSHOP); break; // "awr"
+						case 25: skip = (doc_type != PPEDIOP_EGAIS_WAYBILLACT_V2); break; // "wa"
+						case 26: skip = (doc_type != PPEDIOP_EGAIS_WAYBILL_V2); break; // "wb"
+						case 27: skip = (!oneof3(doc_type, PPEDIOP_EGAIS_NOTIFY_WBVER2, PPEDIOP_EGAIS_NOTIFY_WBVER3, PPEDIOP_EGAIS_NOTIFY_WBVER4)); break; // "qp"
+						case 28: skip = (doc_type != PPEDIOP_EGAIS_ACTWRITEOFF_V2); break; // "awr"
+						case 29: skip = (doc_type != PPEDIOP_EGAIS_WAYBILLACT_V3); break; // "wa"
+						case 30: skip = (!oneof6(doc_type, PPEDIOP_EGAIS_WAYBILL_V3, PPEDIOP_EGAIS_WAYBILL_V4, PPEDIOP_EGAIS_WAYBILLACT_V3, PPEDIOP_EGAIS_WAYBILLACT_V4, 
 							PPEDIOP_EGAIS_ACTWRITEOFF_V3, PPEDIOP_EGAIS_ACTFIXBARCODE)); break; // "ce"
-						case 31: skip = BIN(doc_type != PPEDIOP_EGAIS_WAYBILL_V3); break; // "wb"
-						case 32: skip = BIN(doc_type != PPEDIOP_EGAIS_ACTWRITEOFF_V3); break; // "awr"
-						case 33: skip = BIN(doc_type != PPEDIOP_EGAIS_ACTFIXBARCODE); break; // "awr"
-						case 34: skip = BIN(doc_type != PPEDIOP_EGAIS_WAYBILLACT_V4); break; // "wa"
-						case 35: skip = BIN(doc_type != PPEDIOP_EGAIS_WAYBILL_V4); break; // "wb"
+						case 31: skip = (doc_type != PPEDIOP_EGAIS_WAYBILL_V3); break; // "wb"
+						case 32: skip = (doc_type != PPEDIOP_EGAIS_ACTWRITEOFF_V3); break; // "awr"
+						case 33: skip = (doc_type != PPEDIOP_EGAIS_ACTFIXBARCODE); break; // "awr"
+						case 34: skip = (doc_type != PPEDIOP_EGAIS_WAYBILLACT_V4); break; // "wa"
+						case 35: skip = (doc_type != PPEDIOP_EGAIS_WAYBILL_V4); break; // "wb"
 					}
 					if(!skip) {
 						bill_text.Z().Cat("xmlns").Colon().Cat(r_entry.P_Ns); // bill_text as temporary buffer
@@ -2300,7 +2300,8 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 								}
 								if(consignee_psn_id == shipper_psn_id) {
 									RegisterTbl::Rec reg_rec;
-									SString consignee_kpp, shipper_kpp;
+									SString consignee_kpp;
+									SString shipper_kpp;
 									if(GetWkrRegister(wkrKPP, shipper_psn_id, shipper_loc_id, p_bp->Rec.Dt, &reg_rec) > 0)
 										(shipper_kpp = reg_rec.Num).ToLower();
 									if(GetWkrRegister(wkrKPP, consignee_psn_id, consignee_loc_id, p_bp->Rec.Dt, &reg_rec) > 0)

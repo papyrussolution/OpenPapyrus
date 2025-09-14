@@ -2680,7 +2680,8 @@ DBQuery * PPViewLot::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	}
 	THROW(CheckQueryPtr(q));
 	{
-		SString sub_title, temp_buf;
+		SString temp_buf;
+		SString sub_title;
 		const bool ord = LOGIC(Filt.Flags & LotFilt::fOrders);
 		if(ord) {
 			PPLoadString("orders", temp_buf);

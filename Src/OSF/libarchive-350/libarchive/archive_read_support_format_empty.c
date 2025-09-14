@@ -39,8 +39,8 @@ static int archive_read_format_empty_read_header(ArchiveRead * a, ArchiveEntry *
 static int archive_read_format_empty_read_data(ArchiveRead * a, const void ** buff, size_t * size, int64 * offset)
 {
 	CXX_UNUSED(a);
-	(void)buff; /* UNUSED */
-	(void)size; /* UNUSED */
+	(void)buff; /*unused*/
+	(void)size; /*unused*/
 	CXX_UNUSED(offset);
 	return (ARCHIVE_EOF);
 }

@@ -521,6 +521,7 @@ public:
 	static constexpr const char * FnExt_CHARRY = ".CHY"; // Файлы charry
 	static constexpr const char * FnExt_ORD    = ".ord";
 	static constexpr const char * DefSrvCmdTerm = "\xD\xA"; // @v11.8.6 Терминатор неструктурированных ответов job-server'а
+	static constexpr const char * FnNam_PPLock  = "pplock"; // @v12.4.1 Имя файла, блокирующего запуск приложений Papyrus, а так же, принуждающий приложения завершить работу. 
 	// @v11.8.11 {
 	static constexpr uint PwSize_PHNSVC           = 64; // @attention изменение значения требует конвертации хранимого пароля
 	static constexpr uint PwSize_POP3_BEFORE11509 = 20; // @attention изменение значения требует конвертации хранимого пароля
@@ -5286,41 +5287,43 @@ struct AccTurnParam {
 //
 //
 //
-#define CCFLG2_QUOT2                     0x00000001L // БД использует 2-е поколение котировок
-#define CCFLG2_USESDONPURCHOP            0x00000002L // Проекция флага AGTF_USESDONPURCHOP в общем соглашении с поставщиками
-#define CCFLG2_INDEXEADDR                0x00000004L // Индексировать телефоны из персоналий и адресов
+#define CCFLG2_QUOT2                        0x00000001L // БД использует 2-е поколение котировок
+#define CCFLG2_USESDONPURCHOP               0x00000002L // Проекция флага AGTF_USESDONPURCHOP в общем соглашении с поставщиками
+#define CCFLG2_INDEXEADDR                   0x00000004L // Индексировать телефоны из персоналий и адресов
 	// Если этот флаг включен, то в таблицу EAddr записываются все телефоны из создаваемых и изменяемых
 	// персоналий и адресов для ускоренного извлечения объектов, связанных с телефоном.
-#define CCFLG2_SYNCLOT                   0x00000008L // Синхронизировать лоты
-#define CCFLG2_ADJCPANCCLINETRANS        0x00000010L // При преобразовании строки чека из кассовой панели в запись
+#define CCFLG2_SYNCLOT                      0x00000008L // Синхронизировать лоты
+#define CCFLG2_ADJCPANCCLINETRANS           0x00000010L // При преобразовании строки чека из кассовой панели в запись
 	// CCheckLine корректировать разницу за счет скидки. Функция CCheckItem::GetRec().
 	// Необходимость в установке пареметра может возникнуть при работе с товарами, которые продаются большими
 	// количествами и по ценам, имеющим более двух знаков после точки.
 	// Возможно, правило такой корректировки должно быть применено во всех случаях, однако, во
 	// избежании проблем с работающими инсталляциями, страхуемся вводом данного параметра.
-#define CCFLG2_USECCHECKEXTPAYM          0x00000020L // Использовать расширение оплат по чекам
-#define CCFLG2_DONTUSE3TIERGMTX          0x00000040L // Не использовать извлечение товарной матрицы с сервера при 3-tier режиме работы
-#define CCFLG2_USEOMTPAYMAMT             0x00000080L // Использовать включенную сумму оплаты по документам
-#define CCFLG2_USESARTREDB               0x00000100L // Использовать базу данных Sartre (экспериментальная опция)
-#define CCFLG2_USELOTXCODE               0x00000200L // Использовать дополнительные коды привязанные к строкам документов (ЕГАИС)
-#define CCFLG2_USELCR2                   0x00000400L // Использовать 2-ю версию индексации остатков по лотам
-#define CCFLG2_USEVETIS                  0x00000800L // @transient Использовать функционал ВЕТИС (Меркурий). Определяется динамически
+#define CCFLG2_USECCHECKEXTPAYM             0x00000020L // Использовать расширение оплат по чекам
+#define CCFLG2_DONTUSE3TIERGMTX             0x00000040L // Не использовать извлечение товарной матрицы с сервера при 3-tier режиме работы
+#define CCFLG2_USEOMTPAYMAMT                0x00000080L // Использовать включенную сумму оплаты по документам
+#define CCFLG2_USESARTREDB                  0x00000100L // Использовать базу данных Sartre (экспериментальная опция)
+#define CCFLG2_USELOTXCODE                  0x00000200L // Использовать дополнительные коды привязанные к строкам документов (ЕГАИС)
+#define CCFLG2_USELCR2                      0x00000400L // Использовать 2-ю версию индексации остатков по лотам
+#define CCFLG2_USEVETIS                     0x00000800L // @transient Использовать функционал ВЕТИС (Меркурий). Определяется динамически
 	// по установленным в конфигурации глобального обмена параметрам доступа к ВЕТИС.
-#define CCFLG2_USEHISTPERSON             0x00001000L // Вести историю изменения персоналий
-#define CCFLG2_USEHISTSCARD              0x00002000L // Вести историю изменения персональных карт
-#define CCFLG2_DEVELOPMENT               0x00004000L // Режим разработки - включаются дополнительные опции отображения и управления
-#define CCFLG2_VERIFYARTOLOCMETHS        0x00008000L // Отладочный флаг для верификации функций преобразования статей в склады и наоборот
-#define CCFLG2_HIDEINVENTORYSTOCK        0x00010000L // Флаг, предписывающий скрывать значения учетных остатков
+#define CCFLG2_USEHISTPERSON                0x00001000L // Вести историю изменения персоналий
+#define CCFLG2_USEHISTSCARD                 0x00002000L // Вести историю изменения персональных карт
+#define CCFLG2_DEVELOPMENT                  0x00004000L // Режим разработки - включаются дополнительные опции отображения и управления
+#define CCFLG2_VERIFYARTOLOCMETHS           0x00008000L // Отладочный флаг для верификации функций преобразования статей в склады и наоборот
+#define CCFLG2_HIDEINVENTORYSTOCK           0x00010000L // Флаг, предписывающий скрывать значения учетных остатков
 	// инициируются по параметру в pp.ini [config] PPINIPARAM_INVENTORYSTOCKVIEWRESTRICTION
-#define CCFLG2_UNITECHZNCIGBLK10         0x00020000L // @v12.1.9 При продаже 10 пачек сигарет одной позицией с одной chzn-маркой сигаретного блока 
+#define CCFLG2_UNITECHZNCIGBLK10            0x00020000L // @v12.1.9 При продаже 10 пачек сигарет одной позицией с одной chzn-маркой сигаретного блока 
 	// в кассовом чеке заменять количество на 1, цену умножать на 10. 
 	// Инициируются по параметру в pp.ini [config] PPINIPARAM_UNITECHZNCIGBLK10
-#define CCFLG2_INHSUPPLTAXGRPINLOT       0x00040000L // @v12.2.1 Проекция флага AGTF_INHSUPPLTAXGRPINLOT в общем соглашении с поставщиками
-#define CCFLG2_RESTRICTCHZNCIGPRICEASMRC 0x00080000L // @v12.2.4 Если при проверке марки chzn для сигарет через разрешительный режим честный знак 
+#define CCFLG2_INHSUPPLTAXGRPINLOT          0x00040000L // @v12.2.1 Проекция флага AGTF_INHSUPPLTAXGRPINLOT в общем соглашении с поставщиками
+#define CCFLG2_RESTRICTCHZNCIGPRICEASMRC    0x00080000L // @v12.2.4 Если при проверке марки chzn для сигарет через разрешительный режим честный знак 
 	// выдал максимальную розничную цену (МРЦ) то параметр RestrictChZnCigPriceAsMrc, установленный в 1, запретит продать товар иначе как по этой цене (никих ниже - строго МРЦ).
 	// Инициируются по параметру в pp.ini [config] PPINIPARAM_RESTRICTCHZNCIGPRICEASMRC
-#define CCFLG2_RESTRICTCHZNPMPRICE       0x00100000L // @v12.2.5 Верифицировать границы цены, полученные при проверке марки честный знак через разрешительный режим.
+#define CCFLG2_RESTRICTCHZNPMPRICE          0x00100000L // @v12.2.5 Верифицировать границы цены, полученные при проверке марки честный знак через разрешительный режим.
 	// Инициируются по параметру в pp.ini [config] PPINIPARAM_RESTRICTCHZNPMPRICE
+#define CCFLG2_DISABLE_CRR32_SUPPORT_SERVER 0x00200000L // @v12.4.1 [config] Запрет использования выделенного сервера поддержки Crystal Reports. 
+	// Аварийная опция на случай если что-то пойдет не так. Инициируются по параметру в pp.ini [config] PPINIPARAM_DISABLE_CRR32_SUPPORT_SERVER
 //
 // Общие параметры конфигурации
 //
@@ -5350,7 +5353,8 @@ struct PPCommConfig {      // @persistent @store(PropertyTbl)
 		// Если (LConfig.OperDate - BillDate) >= FRRL_Days, то включается FRRL.
 	int16  MaxGoodsBillLines;           // @def=300 Максимальное количество товарных строк в документе.
 	int16  GRestCalcThreshold;          // @def=10  Порог расчета остатков товаров по группе, промилле
-	char   PrepayInvoiceGoodsCode_obsolete[16];  // Код товара для печати счета-фактуры на предоплату по бухгалтерскому документу
+	// @v12.4.1 char   PrepayInvoiceGoodsCode_obsolete[16];  // Код товара для печати счета-фактуры на предоплату по бухгалтерскому документу
+	uint8  Reserve[16];                 // @v12.4.1 @reserve  
 	int16  CSessUnitingPeriod;          // @def=720=(12*60) Период объединения кассовых сессий в
 		// суперсессии (минут). Если две сессии различаются по времени закрытия //
 		// менее чем на это значение, то они объединяются в одну суперсессию.
@@ -5375,13 +5379,14 @@ struct PPCommConfig {      // @persistent @store(PropertyTbl)
 	long   Flags2;                      // CCFLG2_XXX Дополнительное поле флагов
 	int16  IltiCvtQttyEpsilon;          // 1E-7 Величина количественного дефицита, которую следует игнорировать при
 		// проведении расходных товарных операций. Умножается на 1E-7.
-	// @v10.7.9 int16  Reserve3;                    // @alignment
-	int16  StringHistoryUsage;          // @v10.7.9 Использование StringHistory: 0 - disabled, 1 - enabled, -1 - в зависимости от установки в конфигурации пользовательского интерфейса
+	int16  StringHistoryUsage;          // Использование StringHistory: 0 - disabled, 1 - enabled, -1 - в зависимости от установки в конфигурации пользовательского интерфейса
 	LDATE  _InvcMergeTaxCalcAlg2Since;  // Дата, начиная с которой применяется алгорим 2 для расчета налогов по
 		// объединенным строкам счет-фактуры (для печати).
 	PPID   PrepayInvoiceGoodsID;        // Ид товара для печати счета-фактуры на предоплату по бухгалтерскому документу
 		// Так же применяется для печати чеков без подробного содержания.
-	LDATE  LcrUsageSince;               // @v10.1.5 Текущие остатки по лотам учитывать начиная с этой даты
+	LDATE  LcrUsageSince;               // Текущие остатки по лотам учитывать начиная с этой даты
+	uint32 ChZnPmConnTimeout;           // @v12.4.2 def=3000 Таймаут (ms) ожидания соединения с онлайн-сервером честный знак для проверки марки
+	uint32 ChZnPmOvrallTimeout;         // @v12.4.2 def=4000 Таймаут (ms) общего времени обработки запроса к онлайн-серверу честный знак для проверки марки
 };
 //
 // Extra config flags (from pp.ini)
@@ -7379,7 +7384,8 @@ public:
 	//
 	// Descr: Создает конфигурационную базу данных BDB если видит, что каталог отсутствует
 	//
-	static int EnsureExtCfgDb();
+	static int  EnsureExtCfgDb();
+	static bool CheckExecutionLocking();
 
 	PPSession();
 	~PPSession();
@@ -10364,6 +10370,7 @@ public:
 	static bool GetExtssMnemonic(int extss, SString & rBuf);
 	static int  RecognizeExtssMnemonic(const char * pSymb);
 	static const SIntToSymbTabEntry * GetExtssNameSymbTab(uint * pTabEntryCount);
+	static const SIntToSymbTabEntry * GetLnExtssNameSymbTab(uint * pTabEntryCount);
 
 	CCheckPacket();
 	CCheckPacket(const CCheckPacket & rS);
@@ -61379,8 +61386,8 @@ bool   FASTCALL IsLotVATFree(const ReceiptTbl::Rec & rLotRec);
 //   Используется при печати отчетов.
 //
 int    GetSupplText(PPID suppl, SString & rBuf);
-int    FASTCALL GetCommConfig(PPCommConfig *);
-int    FASTCALL SetCommConfig(const  PPCommConfig *, int use_ta);
+int    FASTCALL GetCommConfig(PPCommConfig &);
+int    FASTCALL SetCommConfig(const PPCommConfig *, int use_ta);
 //
 // Descr: вычисляет значение, на которое необходимо умножить сумму,
 //   облагаемую налогом с продаж или НДС, (сумма включает значение налога)
@@ -62574,6 +62581,7 @@ int    UpdateQuots(const QuotUpdFilt *);
 int    EditQuotRollbackDialog(LDATETIME *pDateTime); // @erik v10.5.8
 int    RollbackQuots(const LDATETIME * pDateTime); // @erik v10.5.8
 int    MakeCRptDataFiles(int verifyAll = 0);    // PPLIB\PPTVUTIL.CPP
+SVerT  QueryCrr32Version(); // @v12.4.1
 SString & GetCrr32ProxiPipeName(SString & rBuf); // @v11.9.5
 int    RecoverAbsenceLots();   // PPBILL\C_TRFR.CPP
 int    RecoverAbsenceGoods();  // PPBILL\C_TRFR.CPP

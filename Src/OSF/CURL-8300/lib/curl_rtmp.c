@@ -271,9 +271,9 @@ static CURLcode rtmp_do(struct Curl_easy * data, bool * done)
 static CURLcode rtmp_done(struct Curl_easy * data, CURLcode status,
     bool premature)
 {
-	(void)data; /* unused */
-	(void)status; /* unused */
-	(void)premature; /* unused */
+	(void)data; /*unused*/
+	(void)status; /*unused*/
+	(void)premature; /*unused*/
 
 	return CURLE_OK;
 }
@@ -300,7 +300,7 @@ static ssize_t rtmp_recv(struct Curl_easy * data, int sockindex, char * buf,
 	RTMP * r = conn->proto.rtmp;
 	ssize_t nread;
 
-	(void)sockindex; /* unused */
+	(void)sockindex; /*unused*/
 
 	nread = RTMP_Read(r, buf, curlx_uztosi(len));
 	if(nread < 0) {
@@ -322,7 +322,7 @@ static ssize_t rtmp_send(struct Curl_easy * data, int sockindex,
 	RTMP * r = conn->proto.rtmp;
 	ssize_t num;
 
-	(void)sockindex; /* unused */
+	(void)sockindex; /*unused*/
 
 	num = RTMP_Write(r, (char *)buf, curlx_uztosi(len));
 	if(num < 0)

@@ -841,11 +841,10 @@ struct ShellText {
 /*
 ** Initialize and destroy a ShellText object
 */
-static void initText(ShellText * p){
-	memset(p, 0, sizeof(*p));
-}
+static void initText(ShellText * p) { memset(p, 0, sizeof(*p)); }
 
-static void freeText(ShellText * p){
+static void freeText(ShellText * p)
+{
 	free(p->z);
 	initText(p);
 }
@@ -6668,7 +6667,7 @@ static void re_sql_func(sqlite3_context * context,
 	const char * zErr;  /* Compile error message */
 	int setAux = 0; /* True to invoke sqlite3_set_auxdata() */
 
-	(void)argc; /* Unused */
+	(void)argc; /*unused*/
 	pRe = sqlite3_get_auxdata(context, 0);
 	if(pRe==0) {
 		zPattern = (const char *)sqlite3_value_text(argv[0]);
@@ -6707,7 +6706,7 @@ int sqlite3_regexp_init(sqlite3 * db,
     ){
 	int rc = SQLITE_OK;
 	SQLITE_EXTENSION_INIT2(pApi);
-	(void)pzErrMsg; /* Unused */
+	(void)pzErrMsg; /*unused*/
 	rc = sqlite3_create_function(db, "regexp", 2, SQLITE_UTF8|SQLITE_INNOCUOUS,
 		0, re_sql_func, 0, 0);
 	if(rc==SQLITE_OK) {
@@ -16024,11 +16023,8 @@ static FILE * output_file_open(const char * zFile, int bTextMode){
 /*
 ** A routine for handling output from sqlite3_trace().
 */
-static int sql_trace_callback(unsigned mType,         /* The trace type */
-    void * pArg,          /* The ShellState pointer */
-    void * pP,            /* Usually a pointer to sqlite_stmt */
-    void * pX             /* Auxiliary output */
-    ){
+static int sql_trace_callback(unsigned mType/* The trace type */, void * pArg/* The ShellState pointer */, void * pP/* Usually a pointer to sqlite_stmt */, void * pX/* Auxiliary output */)
+{
 	ShellState * p = (ShellState*)pArg;
 	sqlite3_stmt * pStmt;
 	const char * zSql;
@@ -21030,9 +21026,7 @@ session_syntax_error:
 	else
 
 #ifndef SQLITE_NOHAVE_SYSTEM
-	if(c=='s'
-	 && (strncmp(azArg[0], "shell", n)==0 || strncmp(azArg[0], "system", n)==0)
-	    ) {
+	if(c=='s' && (strncmp(azArg[0], "shell", n)==0 || strncmp(azArg[0], "system", n)==0)) {
 		char * zCmd;
 		int i, x;
 		if(nArg<2) {
@@ -21042,8 +21036,7 @@ session_syntax_error:
 		}
 		zCmd = sqlite3_mprintf(strchr(azArg[1], ' ')==0 ? "%s" : "\"%s\"", azArg[1]);
 		for(i = 2; i<nArg; i++) {
-			zCmd = sqlite3_mprintf(strchr(azArg[i], ' ')==0 ? "%z %s" : "%z \"%s\"",
-				zCmd, azArg[i]);
+			zCmd = sqlite3_mprintf(strchr(azArg[i], ' ')==0 ? "%z %s" : "%z \"%s\"", zCmd, azArg[i]);
 		}
 		x = system(zCmd);
 		sqlite3_free(zCmd);

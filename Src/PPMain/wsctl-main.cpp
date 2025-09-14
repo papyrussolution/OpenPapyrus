@@ -2637,7 +2637,7 @@ int WsCtl_ImGuiSceneBlock::LaunchClientSession()
 			//
 			P_CmdQ->Clear();
 			WsCtl_CliSession * p_sess = new WsCtl_CliSession(JsP, &St, P_CmdQ);
-			p_sess->Start(1);
+			p_sess->Start(true);
 			ok = 1;
 		}
 	}

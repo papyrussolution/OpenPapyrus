@@ -1094,7 +1094,7 @@ int PPObjLocation::ResolveWarehouseByCode(const char * pCode, PPID accSheetID, P
 {
 	int    ok = -1;
 	PPID   ar_id = 0;
-	SString code = pCode;
+	SString code(pCode);
 	if(code.NotEmptyS()) {
 		PPIDArray loc_list;
 		LocationTbl::Rec loc_rec;

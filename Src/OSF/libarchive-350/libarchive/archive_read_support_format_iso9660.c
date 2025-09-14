@@ -1401,8 +1401,8 @@ next_data:
 
 static int zisofs_read_data(ArchiveRead * a, const void ** buff, size_t * size, int64 * offset)
 {
-	(void)buff; /* UNUSED */
-	(void)size; /* UNUSED */
+	(void)buff; /*unused*/
+	(void)size; /*unused*/
 	CXX_UNUSED(offset);
 	archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "zisofs is not supported on this platform.");
 	return ARCHIVE_FAILED;

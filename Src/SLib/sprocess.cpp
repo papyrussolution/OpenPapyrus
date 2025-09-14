@@ -432,7 +432,7 @@ const SlProcess::ProcessPool::Entry * SlProcess::ProcessPool::SearchByExeFileNam
 		pe.dwSize = sizeof(pe);
 		if(::Process32FirstW(h, &pe)) do {
 			name.CopyUtf8FromUnicode(pe.szExeFile, sstrlen(pe.szExeFile), 0);
-			if(!isempty(pFileNameUtf8) || name.IsEqiUtf8(pFileNameUtf8)) {
+			if(isempty(pFileNameUtf8) || name.IsEqiUtf8(pFileNameUtf8)) {
 				ProcessPool::Entry new_entry;
 				new_entry.ProcessId = pe.th32ProcessID;
 				new_entry.ParentId = pe.th32ParentProcessID;
@@ -748,8 +748,10 @@ bool subprocess_create_named_pipe_helper(void ** ppRd, void ** ppWr)
 	//char name[256] = {0};
 	//static subprocess_tls long index = 0;
 	//const long unique = index++;
+	SString temp_buf;
 	SString uniq_pipe_name;
-	uniq_pipe_name.Cat("\\\\.\\pipe").SetLastSlash().Cat("slib_subprocess").CatChar('-').Cat(S_GUID(SCtrGenerate_), S_GUID::fmtPlain);
+	temp_buf.Z().Cat("slib_subprocess").CatChar('-').Cat(S_GUID(SCtrGenerate_), S_GUID::fmtPlain);
+	SFile::MakeNamedPipeName(temp_buf, uniq_pipe_name);
 /*
 #if defined(_MSC_VER) && _MSC_VER < 1900
 	#pragma warning(push, 1)

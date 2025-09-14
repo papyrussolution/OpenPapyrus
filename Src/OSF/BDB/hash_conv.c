@@ -71,7 +71,7 @@ int __ham_mswap(ENV * env, void * pg)
 	SWAP32(p); /* h_charkey */
 	for(i = 0; i < NCACHED; ++i)
 		SWAP32(p); /* spares */
-	p += 59*sizeof(uint32); /* unused */
+	p += 59*sizeof(uint32); /*unused*/
 	SWAP32(p); /* crypto_magic */
 	return 0;
 }

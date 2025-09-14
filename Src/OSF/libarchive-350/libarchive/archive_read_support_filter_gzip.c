@@ -83,7 +83,7 @@ static ssize_t peek_at_header(ArchiveReadFilter * filter, int * pbits,
 	int bits = 0;
 	int header_flags;
 #ifndef HAVE_ZLIB_H
-	(void)state; /* UNUSED */
+	(void)state; /*unused*/
 #endif
 	// Start by looking at the first ten bytes of the header, which is all fixed layout
 	len = 10;

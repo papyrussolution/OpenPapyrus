@@ -277,8 +277,8 @@ static int sun_acl_is_trivial(void * aclp, int aclcnt, mode_t mode, int is_nfs4,
 
 	*trivialp = 1;
 #else   /* !ARCHIVE_ACL_SUNOS_NFS4 */
-	(void)is_dir; /* UNUSED */
-	(void)aclp; /* UNUSED */
+	(void)is_dir; /*unused*/
+	(void)aclp; /*unused*/
 #endif  /* !ARCHIVE_ACL_SUNOS_NFS4 */
 	return 0;
 }

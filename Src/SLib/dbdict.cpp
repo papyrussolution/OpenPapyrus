@@ -155,7 +155,7 @@ BDictionary::BDictionary(int btrDict, const char * pPath) : DbProvider(new DbDic
 	DBFileSpec * p_h = new DBFileSpec; // разрушается функцией Btrieve::CreateTable
 	memzero(p_h, sizeof(*p_h));
 	p_h->PageSize = pTbl->PageSize;
-	p_h->RecSize = pTbl->fields.CalculateRecSize();
+	p_h->RecSize = pTbl->fields.CalculateFixedRecSize();
 	p_h->Flags   = pTbl->flags;
 	for(uint i = 0; i < pTbl->indexes.getNumKeys(); i++) {
 		BNKey k = pTbl->indexes.getKey(i);

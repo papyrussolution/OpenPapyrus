@@ -869,7 +869,7 @@ static int FASTCALL __FillRecBuf(const DlScope * pScope, char * pRecBuf)
 	return ok;
 }
 
-int FASTCALL __CopyFileByPath(const char * pSrcPath, const char * pDestPath, const char * pFileName); // Prototype (pputil.cpp)
+int __CopyFileByPath(const char * pSrcPath, const char * pDestPath, const char * pFileName); // Prototype (pputil.cpp)
 
 DlRtm::ExportParam::ExportParam() : P_F(0), Sort(0), Flags(0), P_ViewDef(0)
 {
@@ -883,11 +883,12 @@ int DlRtm::Export(ExportParam & rParam)
 {
 	P_Ep = &rParam;
 	int    ok = 1;
-	const  int use_ddf = BIN(!DS.CheckExtFlag(ECF_DBDICTDL600) || rParam.Flags & ExportParam::fForceDDF);
+	const  bool use_ddf = (!DS.CheckExtFlag(ECF_DBDICTDL600) || rParam.Flags & ExportParam::fForceDDF);
 	const  DlScope * p_data = GetData();
 	StringSet out_file_set;
 	DBTable * p_tbl = 0;
-	SString path, data_name;
+	SString path;
+	SString data_name;
 	BDictionary * p_dict = 0;
 	PPGetPath(PPPATH_TEMP, path); 
 	THROW_PP_S(::access(path.RmvLastSlash(), 0) == 0, PPERR_NEXISTPATH, path);
@@ -960,7 +961,7 @@ int DlRtm::Export(ExportParam & rParam)
 					THROW_DB(p_tbl->insertRec());
 				}
 				else {
-					long   iter_id = GetIterID(p_child->Name);
+					const  long  iter_id = GetIterID(p_child->Name);
 					char * p_rec_buf = static_cast<char *>(p_tbl->getDataBuf());
 					int    r;
 					BExtInsert bei(p_tbl, SKILOBYTE(16U));

@@ -9,12 +9,6 @@
 //
 //
 //
-static bool CheckExeLocking()
-{
-	SString name;
-	return !fileExists(makeExecPathFileName("pplock", 0, name));
-}
-
 #if defined(_PPSERVER) // {
 
 int run_server();
@@ -94,11 +88,14 @@ int main(int argc, char ** argv)
 #if SLTEST_RUNNING // {
 	dummy_ppserver(); // Насильственная линковка модуля ppserver.cpp в случае сборки для автотестирования //
 #endif // } SLTEST_RUNNING
-	if(!CheckExeLocking())
+	if(!PPSession::CheckExecutionLocking())
 		ret = -1;
 	else if(DS.Init(PPSession::internalappPapyrusServer, PPSession::fInitPaths, 0, /*pUiDescriptionFileName*/0)) {
 		DS.SetMenu(0);
-		SString cmd_buf, line_buf, login, pw;
+		SString cmd_buf;
+		SString line_buf;
+		SString login;
+		SString pw;
 		if(argc == 1) {
 			OutHelp(0);
 		}
@@ -190,7 +187,7 @@ BOOL APIENTRY DllMain(HANDLE hModule, DWORD dwReason, LPVOID lpReserved)
 	static PPThread * p_last_thread = 0;
 	switch(dwReason) {
 		case DLL_PROCESS_ATTACH:
-			if(!CheckExeLocking())
+			if(!PPSession::CheckExecutionLocking())
 				return FALSE;
 			else {
 				DS.Init(PPSession::internalappPapyrusIfc, PPSession::fInitPaths|PPSession::fDenyLogQueue, (HINSTANCE)hModule, /*pUiDescriptionFileName*/0);
@@ -236,7 +233,7 @@ extern "C" int __declspec(dllexport) SelectVersion(HWND hWndOwner, char * pPath,
 int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
 	int    ret = 0;
-	if(!CheckExeLocking())
+	if(!PPSession::CheckExecutionLocking())
 		ret = -1;
 	else {
 		INITCOMMONCONTROLSEX iccex;

@@ -1222,9 +1222,9 @@ end:
 	BIO_free(in);
 	return ret;
 #else
-	(void)ctx; /* unused */
-	(void)blob; /* unused */
-	(void)key_passwd; /* unused */
+	(void)ctx; /*unused*/
+	(void)blob; /*unused*/
+	(void)key_passwd; /*unused*/
 	return 0;
 #endif
 }

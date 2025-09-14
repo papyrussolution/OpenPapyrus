@@ -77,7 +77,7 @@ static inline int add_poll (zbar_processor_t *proc, int fd, poll_handler_t *hand
     _zbar_mutex_unlock(&proc->mutex);
     if(proc->input_thread.started) {
         assert(state->kick_fds[1] >= 0);
-        if(write(state->kick_fds[1], &i /* unused */, sizeof(uint)) < 0)
+        if(write(state->kick_fds[1], &i /*unused*/, sizeof(uint)) < 0)
             return -1;
     }
     else if(!proc->threaded) {
@@ -109,7 +109,7 @@ static inline int remove_poll (zbar_processor_t *proc, int fd)
     }
     _zbar_mutex_unlock(&proc->mutex);
     if(proc->input_thread.started) {
-        if(write(state->kick_fds[1], &i /* unused */, sizeof(uint)) < 0)
+        if(write(state->kick_fds[1], &i /*unused*/, sizeof(uint)) < 0)
             return -1;
     }
     else if(!proc->threaded) {

@@ -669,7 +669,7 @@ U_CAPI const char * U_EXPORT2 uplug_getPluginFile() {
 
 U_CAPI void U_EXPORT2 uplug_init(UErrorCode * status) {
 #if !U_ENABLE_DYLOAD
-	(void)status; /* unused */
+	(void)status; /*unused*/
 #elif !UCONFIG_NO_FILE_IO
 	CharString plugin_dir;
 	const char * env = getenv("ICU_PLUGINS");
@@ -806,7 +806,7 @@ U_CAPI void U_EXPORT2 uplug_init(UErrorCode * status) {
 						DBG((stderr, "PLUGIN libName=[%s], sym=[%s], config=[%s]\n", libName, symName, config));
 						DBG((stderr, " -> %p, %s\n", (void *)plug, u_errorName(subStatus)));
 #else
-						(void)plug; /* unused */
+						(void)plug; /*unused*/
 #endif
 					}
 				}

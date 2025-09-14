@@ -2320,7 +2320,7 @@ static void strappend_base64(struct xar * xar, archive_string * as, const char *
 	uchar * out;
 	const uchar * b;
 	size_t len;
-	(void)xar; /* UNUSED */
+	(void)xar; /*unused*/
 	len = 0;
 	out = buff;
 	b = (const uchar *)s;
@@ -2795,14 +2795,14 @@ static int xml2_read_cb(void * context, char * buffer, int len)
 
 static int xml2_close_cb(void * context)
 {
-	(void)context; /* UNUSED */
+	(void)context; /*unused*/
 	return 0;
 }
 
 static void xml2_error_hdr(void * arg, const char * msg, xmlParserSeverities severity, xmlTextReaderLocatorPtr locator)
 {
 	ArchiveRead * a;
-	(void)locator; /* UNUSED */
+	(void)locator; /*unused*/
 	a = (ArchiveRead *)arg;
 	switch(severity) {
 		case XML_PARSER_SEVERITY_VALIDITY_WARNING:

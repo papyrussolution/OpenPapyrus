@@ -362,7 +362,7 @@ int Crosstab::CreateTable()
 		THROW_MEM(P_RTbl = new DBTable(table_name, file_name));
 		P_RTbl->SetFlag(XTF_TEMP);
 	}
-	P_RTbl->AllocateOwnBuffer();
+	P_RTbl->AllocateOwnBuffer(-1);
 	CrssFldList.Destroy();
 	for(i = 0; i < P_CtValList->getCount(); i++)
 		for(j = 0; j < AggrFldList.GetCount(); j++) {
@@ -624,7 +624,7 @@ DBQuery * Crosstab::CreateBrowserQuery()
 	DBField fld;
 	DBTable * p_tbl = new DBTable(P_RTbl->GetTableName(), P_RTbl->GetName());
 	if(p_tbl) {
-		p_tbl->AllocateOwnBuffer();
+		p_tbl->AllocateOwnBuffer(-1);
 		for(uint i = 0; i < p_tbl->GetFields().getCount(); i++) {
 			p_tbl->getField(i, &fld);
 			fld_list.Add(fld);

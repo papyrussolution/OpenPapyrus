@@ -332,62 +332,62 @@ SLTEST_R(ReadWriteLock)
 		MEMSZERO(tl);
 		{
 			Thread_W * p_w = new Thread_W(8000);
-			p_w->Start(1);
+			p_w->Start(true);
 			tl[tc++] = *p_w;
 		}
 		{
 			Thread_R * p_r = new Thread_R(8000);
-			p_r->Start(1);
+			p_r->Start(true);
 			tl[tc++] = *p_r;
 		}
 		{
 			Thread_W * p_w = new Thread_W(8000);
-			p_w->Start(1);
+			p_w->Start(true);
 			tl[tc++] = *p_w;
 		}
 		{
 			Thread_R * p_r = new Thread_R(8000);
-			p_r->Start(1);
+			p_r->Start(true);
 			tl[tc++] = *p_r;
 		}
 		{
 			Thread_R * p_r = new Thread_R(8000);
-			p_r->Start(1);
+			p_r->Start(true);
 			tl[tc++] = *p_r;
 		}
 		{
 			Thread_W * p_w = new Thread_W(8000);
-			p_w->Start(1);
+			p_w->Start(true);
 			tl[tc++] = *p_w;
 		}
 		{
 			Thread_R * p_r = new Thread_R(8000);
-			p_r->Start(1);
+			p_r->Start(true);
 			tl[tc++] = *p_r;
 		}
 		{
 			Thread_R * p_r = new Thread_R(8000);
-			p_r->Start(1);
+			p_r->Start(true);
 			tl[tc++] = *p_r;
 		}
 		{
 			Thread_W * p_w = new Thread_W(8000);
-			p_w->Start(1);
+			p_w->Start(true);
 			tl[tc++] = *p_w;
 		}
 		{
 			Thread_R * p_r = new Thread_R(8000);
-			p_r->Start(1);
+			p_r->Start(true);
 			tl[tc++] = *p_r;
 		}
 		{
 			Thread_R * p_r = new Thread_R(8000);
-			p_r->Start(1);
+			p_r->Start(true);
 			tl[tc++] = *p_r;
 		}
 		{
 			Thread_W * p_w = new Thread_W(8000);
-			p_w->Start(1);
+			p_w->Start(true);
 			tl[tc++] = *p_w;
 		}
 		//
@@ -423,7 +423,7 @@ SLTEST_R(ReadWriteLock)
 			blk.P_Lock = p_lock;
 			blk.P_Result = ResultList+i;
 			RwlThread * p_thread = new RwlThread(&blk);
-			p_thread->Start(0);
+			p_thread->Start(false);
 			//
 			// WaitForMultipleObjects не может обработать более
 			// MAXIMUM_WAIT_OBJECTS (64) объектов за один вызов
@@ -454,7 +454,7 @@ SLTEST_R(ReadWriteLock)
 
 SLTEST_R(SlProcess)
 {
-	bool use_appcontainer = false;
+	bool   use_appcontainer = false;
 	SString temp_buf;
 	SString path;
 	SString working_dir;
@@ -463,7 +463,7 @@ SLTEST_R(SlProcess)
 	SlProcess::Result result;
 	SlProcess::AppContainer ac;
 	WsCtl_ClientPolicy policy;
-	SString path_in = GetSuiteEntry()->InPath;
+	SString path_in(GetSuiteEntry()->InPath);
 	PPGetPath(PPPATH_BIN, path);
 	path.SetLastSlash().Cat("..").SetLastSlash().Cat(PPLoadStringS("testapp_path", temp_buf).Transf(CTRANSF_INNER_TO_UTF8));
 	working_dir = path;

@@ -34,7 +34,7 @@ int archive_write_open_FILE(Archive * a, FILE * f)
 static int file_open(Archive * a, void * client_data)
 {
 	CXX_UNUSED(a);
-	(void)client_data; /* UNUSED */
+	(void)client_data; /*unused*/
 	return ARCHIVE_OK;
 }
 

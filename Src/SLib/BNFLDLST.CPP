@@ -198,7 +198,7 @@ const BNField & BNFieldList::getField(const char * pName, uint * pPos) const
 	return *reinterpret_cast<BNField *>(0);
 }
 
-RECORDSIZE BNFieldList::CalculateRecSize() const
+RECORDSIZE BNFieldList::CalculateFixedRecSize() const
 {
 	RECORDSIZE s = 0;
 	for(uint i = 0; i < count; i++) {

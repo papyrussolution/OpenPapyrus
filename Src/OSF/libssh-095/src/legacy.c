@@ -30,7 +30,7 @@ int ssh_userauth_offer_pubkey(ssh_session session, const char * username, int ty
 {
 	ssh_key key;
 	int rc;
-	(void)type; /* unused */
+	(void)type; /*unused*/
 	rc = ssh_pki_import_pubkey_blob(publickey, &key);
 	if(rc < 0) {
 		ssh_set_error(session, SSH_FATAL, "Failed to convert public key");
@@ -45,7 +45,7 @@ int ssh_userauth_pubkey(ssh_session session, const char * username, ssh_string p
 {
 	ssh_key key;
 	int rc;
-	(void)publickey; /* unused */
+	(void)publickey; /*unused*/
 	key = ssh_key_new();
 	if(!key) {
 		return SSH_AUTH_ERROR;
@@ -397,7 +397,7 @@ ssh_private_key privatekey_from_file(ssh_session session, const char * filename,
 	ssh_private_key privkey;
 	ssh_key key;
 	int rc;
-	(void)type; /* unused */
+	(void)type; /*unused*/
 	if(session->common.callbacks) {
 		auth_fn = session->common.callbacks->auth_function;
 		auth_data = session->common.callbacks->userdata;
@@ -455,7 +455,7 @@ ssh_string publickey_from_file(ssh_session session, const char * filename, int *
 	ssh_key key;
 	ssh_string key_str = NULL;
 	int rc;
-	(void)session; /* unused */
+	(void)session; /*unused*/
 	rc = ssh_pki_import_pubkey_file(filename, &key);
 	if(rc < 0) {
 		return NULL;
@@ -487,7 +487,7 @@ ssh_public_key publickey_from_string(ssh_session session, ssh_string pubkey_s)
 	struct ssh_public_key_struct * pubkey;
 	ssh_key key;
 	int rc;
-	(void)session; /* unused */
+	(void)session; /*unused*/
 	rc = ssh_pki_import_pubkey_blob(pubkey_s, &key);
 	if(rc < 0) {
 		return NULL;

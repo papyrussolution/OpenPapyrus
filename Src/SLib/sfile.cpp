@@ -1445,6 +1445,15 @@ backtrack:
 	return ok;
 }
 
+/*static*/SString & SFile::MakeNamedPipeName(const char * pSymb, SString & rBuf)
+{
+	rBuf.Z();
+	if(!isempty(pSymb)) {
+		rBuf.Cat("\\\\.\\pipe\\").Cat(pSymb);
+	}
+	return rBuf;
+}
+
 /*static*/int SFile::CreateDir(const char * pPath) // @v11.8.11
 {
 	return CreateDirByTemplate(pPath, 0);
@@ -3453,12 +3462,9 @@ int FileFormatRegBase::IdentifyBuffer(const void * pBuf, size_t bufLen, int * pF
 {
 	int    ok = -1;
 	int    fmt_id = 0;
-	//LongArray candid_by_ext;
 	LongArray candid_by_sign;
 	if(bufLen) {
-		//const SFsPath ps(pFileName);
 		int    entry_mime_type;
-		//SString ext = ps.Ext;
 		SString entry_ext;
 		SString entry_sign;
 		SString entry_mime_subtype;
@@ -3468,28 +3474,15 @@ int FileFormatRegBase::IdentifyBuffer(const void * pBuf, size_t bufLen, int * pF
 		StringSet ss_subsigns;
 		LongArray used_offs_list;
 		StrAssocArray binary_chunk_list;
-		//ASSIGN_PTR(pExt, ext);
-		//STempBuffer sign_buf(512);
-		//SFile file(pFileName, SFile::mRead|SFile::mBinary);
-		//const int64  _fsize = static_cast<int64>(bufLen);
-		//if(file.IsValid())
-		//	file.CalcSize(&_fsize);
-		//ext.Strip().ShiftLeftChr('.').Strip().ToLower();
 		for(uint i = 0; i < getCount(); i++) {
 			Entry entry;
 			if(Get(i, entry, entry_ext, entry_sign, entry_mime_type, entry_mime_subtype)) {
-				/*if(entry_ext.NotEmpty() && entry_ext == ext) {
-					candid_by_ext.addUnique(entry.FmtId);
-				}*/
 				if(entry_sign.NotEmpty()) {
                     if(entry_sign.C(0) == 'T') {
 						entry_sign.ShiftLeft(1);
 						const size_t len = 512;
 						const size_t actual_size = bufLen;
-						//THROW(sign_buf.Alloc(len));
-						//file.Seek(0);
-						//assert(len <= sign_buf.GetSize());
-						if(len <= bufLen /*&& file.Read(sign_buf, len, &actual_size)*/) {
+						if(len <= bufLen) {
 							int    r = -1;
 							size_t j = 0;
 							//"EFBBBF"
@@ -3500,7 +3493,7 @@ int FileFormatRegBase::IdentifyBuffer(const void * pBuf, size_t bufLen, int * pF
 								if(oneof4(c, ' ', '\t', '\x0D', '\x0A')) {
                                     j++;
 								}
-								else if(entry_sign.CmpL(PTRCHRC(pBuf)+j, 1) == 0) // @v10.0.02 @fix sign_buf-->sign_buf+j
+								else if(entry_sign.CmpL(PTRCHRC(pBuf)+j, 1) == 0)
 									r = 1;
 								else
 									r = 0;
@@ -3542,9 +3535,6 @@ int FileFormatRegBase::IdentifyBuffer(const void * pBuf, size_t bufLen, int * pF
 						if(checkirange(total_len, static_cast<size_t>(1), static_cast<size_t>(512))) {
 							const size_t len = total_len;
 							const size_t actual_size = MIN(bufLen, len);
-							//THROW(sign_buf.Alloc(len));
-							//file.Seek(0);
-							//assert(len <= sign_buf.GetSize());
 							if(actual_size == len) {
 								int r = 1;
 								for(uint ci = 0; r && ci < binary_chunk_list.getCount(); ci++) {
@@ -3585,15 +3575,9 @@ int FileFormatRegBase::IdentifyBuffer(const void * pBuf, size_t bufLen, int * pF
 				fmt_id = candid_by_sign.get(0);
 				ok = 2;
 			}
-			/*else if(candid_by_ext.getCount()) {
-				fmt_id = candid_by_ext.get(0);
-				ok = 1;
-			}*/
 			else {
 				STextEncodingStat tes;
 				const size_t actual_size = bufLen;
-				//STempBuffer tbuf(1024);
-				//if(tbuf.IsValid() && file.Read(tbuf, tbuf.GetSize(), &actual_size)) {
 				{
 					tes.Add(pBuf, actual_size);
 					tes.Finish();

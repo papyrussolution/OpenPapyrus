@@ -825,53 +825,63 @@ dialog DLG_CHZNLOCPMPANE [vertical title: "" size: (507, 414) minsize: (500, 300
 }
 
 // @construction
-dialog DLG_CHKPANV__ [vertical title: "@poscheck" size: (888, 489)  font: "MS Shell Dlg 2,8"] {
+dialog DLG_CHKPANV [vertical title: "@poscheck" size: (888, 489)  font: "MS Shell Dlg 2,8"] {
 	listbox CTL_CHKPAN_LIST [width: bycontainer growfactor: 1 columns: "3,R,#;3,C,;44,L,@ware;16,L,@barcode;9,R,@price;8,R,@discount;8,R,@qtty;9,R,@amount;6,R,@vatrate;15,L,@series"];
-	view [horizontal width: bycontainer height: 30] {
+	view [horizontal width: bycontainer height: 40] {
 		//statictext [title: "@id" size: (68, 13) ];
 		//statictext CTL_CHKPAN_CHKID [size: (68, 16)  staticedge];
-		input CTL_CHKPAN_CHKID [width: bycontainer height: 21 margin: 4 tabstop readonly label: "@id"] long;
+		input CTL_CHKPAN_CHKID [growfactor: 1 height: 21 margin: 4 tabstop readonly label: "@id"] long;
 
 		//statictext [title: "@datetime" size: (98, 13) ];
 		//statictext CTL_CHKPAN_CHKDTTM [size: (98, 16)  staticedge];
-		input CTL_CHKPAN_CHKDTTM [width: bycontainer height: 21 margin: 4 tabstop readonly label: "@datetime"] string[64];
+		input CTL_CHKPAN_CHKDTTM [growfactor: 1 height: 21 margin: 4 tabstop readonly label: "@datetime"] string[64];
 
 		//statictext [title: "@checkno" size: (53, 13) ];
 		//statictext CTL_CHKPAN_CHKNUM [size: (53, 16)  staticedge];
-		input CTL_CHKPAN_CHKNUM [width: bycontainer height: 21 margin: 4 tabstop readonly label: "@checkno"] string[64];
+		input CTL_CHKPAN_CHKNUM [growfactor: 1 height: 21 margin: 4 tabstop readonly label: "@checkno"] string[64];
 
 		//statictext [title: "@posnode_s" size: (81, 13) ];
 		//statictext CTL_CHKPAN_CASHNUM [size: (45, 16)  staticedge];
-		input CTL_CHKPAN_CASHNUM [width: bycontainer height: 21 margin: 4 tabstop readonly label: "@posnode_s"] string[128];
+		input CTL_CHKPAN_CASHNUM [growfactor: 1 height: 21 margin: 4 tabstop readonly label: "@posnode_s"] string[128];
 
-		statictext CTL_CHKPAN_FLAGS [size: (68, 16)  staticedge];
+		//statictext CTL_CHKPAN_FLAGS [size: (68, 16)  staticedge];
+		input CTL_CHKPAN_FLAGS [label: "@flags" growfactor: 1 height: 21 margin: 4 readonly] string[64];
 		
 		//statictext [title: "@{total}:" size: (186, 13) ];
 		//statictext CTL_CHKPAN_TOTAL [size: (173, 16)  staticedge];
-		input CTL_CHKPAN_TOTAL [width: bycontainer height: 21 margin: 4 tabstop readonly label: "@{total}:" fmtf: (nozero) fmtprec: 2] double;
+		input CTL_CHKPAN_TOTAL [growfactor: 1 height: 21 margin: 4 tabstop readonly label: "@{total}:" fmtf: (nozero) fmtprec: 2] double;
 	}
-	view [horizontal width: bycontainer height: 30] {
+	view [horizontal width: bycontainer height: 40] {
 		//statictext [title: "@card" size: (90, 13) ];
 		//statictext CTL_CHKPAN_SCARDCODE [size: (120, 16)  staticedge];
-		input CTL_CHKPAN_SCARDCODE [width: bycontainer height: 21 margin: 4 tabstop readonly label: "@card"] string[64];
+		input CTL_CHKPAN_SCARDCODE [growfactor: 1 height: 21 margin: 4 tabstop readonly label: "@card"] string[64];
 
-		statictext CTL_CHKPAN_DISCOUNT [size: (173, 16)  staticedge];
+		//statictext CTL_CHKPAN_DISCOUNT [growfactor: 1 height: 16 margin: 4 staticedge];
+		input CTL_CHKPAN_DISCOUNT [label: "@discount" growfactor: 1 height: 21 margin: 4 readonly] string[64];
 		
 		//statictext [title: "@ccheck_creationdtm" size: (128, 13) ];
 		//statictext CTL_CHKPAN_INITDTM [size: (98, 16)  staticedge];
-		input CTL_CHKPAN_INITDTM [width: bycontainer height: 21 margin: 4 tabstop readonly label: "@ccheck_creationdtm"] string[64];
+		input CTL_CHKPAN_INITDTM [growfactor: 1 height: 21 margin: 4 tabstop readonly label: "@ccheck_creationdtm"] string[64];
 
 		//statictext [title: "@ccheck_creationuser" size: (225, 13) ];
 		//statictext CTL_CHKPAN_INITUSER [size: (248, 16)  staticedge];
-		input CTL_CHKPAN_INITUSER [width: bycontainer height: 21 margin: 4 tabstop readonly label: "@ccheck_creationuser"] string[64];
+		input CTL_CHKPAN_INITUSER [growfactor: 1 height: 21 margin: 4 tabstop readonly label: "@ccheck_creationuser"] string[64];
 	}
-	input CTL_CHKPAN_INFO [size: (660, 16)  readonly] string[252];
-	statictext CTL_CHKPAN_CAFE_STATUS [size: (660, 16)  staticedge];
-	view [horizontal] {
-		button STDCTL_ALLBUTTON [title: "@dochooseall" tabstop size: (180, 21)  command: cmaAll]; // hidden
-		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (83, 21)  command: cmOK]; // hidden
-		button STDCTL_PRINT [title: "@but_print" tabstop size: (83, 21)  command: cmChkPanPrint];
-		button STDCTL_CANCELBUTTON [title: "@but_close" tabstop size: (75, 21)  command: cmCancel];
-		button STDCTL_SYSINFOBUTTON [title: "@sysinfo" tabstop size: (180, 21)  command: cmSysInfo];
+	input CTL_CHKPAN_INFO [width: bycontainer height: 21 margin: 4 readonly] string[252];
+	//statictext CTL_CHKPAN_CAFE_STATUS [width: bycontainer height: 16 staticedge];
+	input CTL_CHKPAN_CAFE_STATUS [width: bycontainer height: 21 margin: 4 readonly] string[252];
+	view [horizontal width: bycontainer height: 28 justifycontent: left alignitems: end] {
+		view [horizontal growfactor: 5 height: bycontainer justifycontent: left alignitems: end] {
+			button STDCTL_ALLBUTTON [title: "@dochooseall" tabstop size: (180, 21) margin: 4 command: cmaAll]; // hidden
+			button STDCTL_PRINT [title: "@but_print" tabstop size: (80, 21) margin: 4 command: cmChkPanPrint];
+			button STDCTL_SYSINFOBUTTON [title: "@{sysinfo}..." tabstop size: (160, 21) margin: 4 command: cmSysInfo];
+
+			button [title: "@{ccextlist_s}..." tabstop size: (160, 21) margin: 4 command: cmCcExtList];
+			button [title: "@{cclnextlist_s}..." tabstop size: (160, 21) margin: 4 command: cmCcLnExtList];
+		}
+		view [horizontal growfactor: 1 height: bycontainer margin_right: 12 justifycontent: right alignitems: end] {
+			button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (83, 21) margin: 4 command: cmOK]; // hidden
+			button STDCTL_CANCELBUTTON [title: "@but_close" tabstop size: (75, 21) margin: 4 command: cmCancel];
+		}
 	}
 }

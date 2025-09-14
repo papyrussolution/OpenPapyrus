@@ -62,6 +62,7 @@ SLTEST_R(SQLite)
 	void * prc_testdbobj = __CreatePrcssrTestDbObject();
 	DBTable * p_tbl = 0;
 	DbLoginBlock dblb;
+	StrAssocArray some_text_list;
     TSCollection <TestTa01Tbl::Rec> record_list;
 	SLS.QueryPath("testroot", temp_buf);
 	temp_buf.SetLastSlash().Cat("out").SetLastSlash().Cat("SQLite").SetLastSlash().Cat("test-sqlite-db");
@@ -85,14 +86,36 @@ SLTEST_R(SQLite)
         }
 	}
 	p_tbl = new DBTable("TestTa01", 0, 0, &dbp);
-	p_tbl->AllocateOwnBuffer();
+	p_tbl->AllocateOwnBuffer(-1);
+	{
+		(temp_buf = GetSuiteEntry()->InPath).SetLastSlash().Cat("phrases-ru-1251.txt");
+		SFile f_in(temp_buf, SFile::mRead);
+		if(f_in.IsValid()) {
+			long   str_id = 0;
+			while(f_in.ReadLine(temp_buf, SFile::rlfChomp|SFile::rlfStrip)) {
+				if(temp_buf.Len()) {
+					some_text_list.AddFast(++str_id, temp_buf);
+				}
+			}
+		}
+	}
 	{
 		for(uint i = 0; i < record_list_max_count; i++) {
 			uint   new_rec_pos = 0;
 			TestTa01Tbl::Rec * p_new_rec = record_list.CreateNewItem(&new_rec_pos);
 			if(p_new_rec) {
 				if(__PrcssrTestDb_Generate_TestTa01_Rec(prc_testdbobj, p_new_rec)) {
-					;
+					uint str_idx = (i % some_text_list.getCount());
+					StrAssocArray::Item text_item = some_text_list.Get(str_idx);
+					const size_t text_len = sstrlen(text_item.Txt);
+					if(text_len) {
+						p_new_rec->TextField.InitPtr(text_len+1);
+						void * ptr = p_new_rec->TextField.GetRawDataPtr();
+						if(ptr) {
+							memcpy(ptr, text_item.Txt, text_len+1);
+						}
+						//p_new_rec->writeLobData()
+					}
 				}
 				else {
 					record_list.atFree(new_rec_pos);
@@ -133,10 +156,23 @@ SLTEST_R(SQLite)
 			k0.Tm = p_first_pattern_rec->Tm;
 			uint   srch_count = 0;
 			uint   uneq_rec_count = 0;
+			uint   uneq_clob_rec_count = 0;
 			if(p_tbl->search(0, &k0, spGe)) do {
 				const TestTa01Tbl::Rec * p_pattern_rec = record_list.at(srch_count);
+				const DBRowId * p_rowid = p_tbl->getCurRowIdPtr();
+				const int64 rowid_i64 = p_rowid ? p_rowid->GetI64() : 0;
 				if(!__PrcssrTestDb_Are_TestTa01_RecsEqual(*p_rec_buf, *p_pattern_rec)) {
 					uneq_rec_count++;
+				}
+				{
+					const size_t ls_p = p_pattern_rec->TextField.GetPtrSize();
+					const char * lp_p = static_cast<const char *>(p_pattern_rec->TextField.GetRawDataPtrC());
+
+					const size_t ls_t = p_rec_buf->TextField.GetPtrSize();
+					const char * lp_t = static_cast<const char *>(p_rec_buf->TextField.GetRawDataPtrC());
+					if(ls_p != ls_t || memcmp(lp_p, lp_t, ls_p) != 0) {
+						uneq_clob_rec_count++;
+					}
 				}
 				srch_count++;
 			} while(p_tbl->search(0, &k0, spNext));
@@ -149,10 +185,23 @@ SLTEST_R(SQLite)
 			k0.Tm = MAXTIME;
 			uint   srch_count = 0;
 			uint   uneq_rec_count = 0;
+			uint   uneq_clob_rec_count = 0;
 			if(p_tbl->search(0, &k0, spLe)) do {
 				const TestTa01Tbl::Rec * p_pattern_rec = record_list.at(rec_list_count-srch_count-1);
+				const DBRowId * p_rowid = p_tbl->getCurRowIdPtr();
+				const int64 rowid_i64 = p_rowid ? p_rowid->GetI64() : 0;
 				if(!__PrcssrTestDb_Are_TestTa01_RecsEqual(*p_rec_buf, *p_pattern_rec)) {
 					uneq_rec_count++;
+				}
+				{
+					const size_t ls_p = p_pattern_rec->TextField.GetPtrSize();
+					const char * lp_p = static_cast<const char *>(p_pattern_rec->TextField.GetRawDataPtrC());
+
+					const size_t ls_t = p_rec_buf->TextField.GetPtrSize();
+					const char * lp_t = static_cast<const char *>(p_rec_buf->TextField.GetRawDataPtrC());
+					if(ls_p != ls_t || memcmp(lp_p, lp_t, ls_p) != 0) {
+						uneq_clob_rec_count++;
+					}
 				}
 				srch_count++;
 			} while(p_tbl->search(0, &k0, spPrev) && (p_rec_buf->Dt > p_first_pattern_rec->Dt || (p_rec_buf->Dt == p_first_pattern_rec->Dt && p_rec_buf->Tm >= p_first_pattern_rec->Tm)));
@@ -160,13 +209,27 @@ SLTEST_R(SQLite)
 		}
 	}
 	{
+		// »зменить записи и убедитьс€, что она действительно изменилась
+		for(uint i = 0; i < record_list.getCount(); i++) {
+			const TestTa01Tbl::Rec * p_rec = record_list.at(i);
+			if(p_rec) {
+				TestTa01Tbl::Key0 k0;
+				k0.Dt = p_rec->Dt;
+				k0.Tm = p_rec->Tm;
+				if(p_tbl->search(&k0, spEq)) {
+					
+				}
+				else {
+					; // bad
+				}
+			}
+		}
+	}
+	{
 		// Ќайти несколько выборок записей по критери€м
 	}
 	{
 		// ”далить записи и убедитьс€, что ее больше нет в таблице
-	}
-	{
-		// »зменить записи и убедитьс€, что она действительно изменилась
 	}
 	{
 		// ”далить все записи

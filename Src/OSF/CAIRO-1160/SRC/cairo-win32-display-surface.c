@@ -141,7 +141,7 @@ static cairo_status_t _create_dc_and_bitmap(cairo_win32_display_surface_t * surf
 		case CAIRO_FORMAT_ARGB32:
 		    bitmap_info->bmiHeader.biBitCount = 32;
 		    bitmap_info->bmiHeader.biCompression = BI_RGB;
-		    bitmap_info->bmiHeader.biClrUsed = 0; /* unused */
+		    bitmap_info->bmiHeader.biClrUsed = 0; /*unused*/
 		    bitmap_info->bmiHeader.biClrImportant = 0;
 		    break;
 		case CAIRO_FORMAT_A8:

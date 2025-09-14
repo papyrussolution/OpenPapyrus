@@ -1,5 +1,5 @@
 // SECURDLG.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2009, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2024
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2009, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2024, 2025
 // @codepage UTF-8
 // Диалоги редактирования пользователей, групп, прав доступа.
 //
@@ -48,7 +48,7 @@ public:
 		disableCtrl(CTL_USRGRP_ID, (!PPMaster || ObjID));
 		if(ObjType == PPOBJ_USR) {
 			disableCtrl(CTL_USRGRP_NAME, p_secur->ID == PPUSR_MASTER);
-			setCtrlData(CTL_USR_SYMB, p_secur->Symb); // @v10.3.8
+			setCtrlData(CTL_USR_SYMB, p_secur->Symb);
 			memzero(Password, sizeof(Password));
 			memcpy(Password, p_secur->Password, sizeof(p_secur->Password));
 			SetupPPObjCombo(this, CTLSEL_USR_GRP,    PPOBJ_USRGRP, p_secur->ParentID, OLW_CANINSERT);
@@ -57,8 +57,7 @@ public:
 			enableCommand(cmCfgConfig, (p_secur->Flags & USRF_INHCFG) ? ((v |= 1), 0) : 1);
 			enableCommand(cmCfgRights, (p_secur->Flags & USRF_INHRIGHTS) ? ((v |= 2), 0) : 1);
 			setCtrlData(CTL_USR_FLAGS, &v);
-			setCtrlData(CTL_USR_EXPIRY, &p_secur->ExpiryDate); // @v10.1.10
-			// @v11.0.0 {
+			setCtrlData(CTL_USR_EXPIRY, &p_secur->ExpiryDate);
 			{
 				StrAssocArray list;
 				long   desktop_surr_id = 0;
@@ -74,13 +73,10 @@ public:
 				DesktopList.GetStrAssocList(list);
 				SetupStrAssocCombo(this, CTLSEL_USR_PDESKTOP, list, desktop_surr_id, 0);
 			}
-			// } @v11.0.0 
 		}
-		// @v10.3.8 {
 		else if(ObjType == PPOBJ_USRGRP) {
 			setCtrlData(CTL_USRGRP_SYMB, p_secur->Symb); 
 		}
-		// } @v10.3.8 
 		else if(ObjType == PPOBJ_USREXCLRIGHTS) {
 			AddClusterAssoc(CTL_USR_UERFLAGS, 0, PPEXCLRT_OBJDBDIVACCEPT);
 			AddClusterAssoc(CTL_USR_UERFLAGS, 1, PPEXCLRT_CSESSWROFF);
@@ -102,7 +98,7 @@ public:
 		getCtrlData(CTL_USRGRP_ID,   &p_secur->ID);
 		ObjID = p_secur->ID;
 		if(ObjType == PPOBJ_USR) {
-			getCtrlData(CTL_USR_SYMB, p_secur->Symb); // @v10.3.8
+			getCtrlData(CTL_USR_SYMB, p_secur->Symb);
 			memcpy(p_secur->Password, Password, sizeof(p_secur->Password));
 			getCtrlData(CTLSEL_USR_GRP, &p_secur->ParentID);
 			getCtrlData(CTLSEL_USR_PERSON, &p_secur->PersonID);
@@ -110,7 +106,7 @@ public:
 			getCtrlData(CTL_USR_FLAGS, &v);
 			SETFLAG(p_secur->Flags, USRF_INHCFG,    v & 1);
 			SETFLAG(p_secur->Flags, USRF_INHRIGHTS, v & 2);
-			getCtrlData(CTL_USR_EXPIRY, &p_secur->ExpiryDate); // @v10.1.10
+			getCtrlData(CTL_USR_EXPIRY, &p_secur->ExpiryDate);
 			// @v11.2.10 {
 			{
 				long   desktop_surr_id = 0;
@@ -119,11 +115,9 @@ public:
 			}
 			// } @v11.2.10 
 		}
-		// @v10.3.8 {
 		else if(ObjType == PPOBJ_USRGRP) {
 			getCtrlData(CTL_USRGRP_SYMB, p_secur->Symb); 
 		}
-		// } @v10.3.8 
 		else if(ObjType == PPOBJ_USREXCLRIGHTS) {
 			GetClusterData(CTL_USR_UERFLAGS, &p_secur->UerFlags);
 		}
@@ -232,14 +226,14 @@ static int ValidateSecurData(TDialog * dlg, PPID objType, const void * pData)
 	PPID   temp_id = 0;
 	PPID   rec_id = reinterpret_cast<const PPSecur *>(pData)->ID;
 	SString name_buf(reinterpret_cast<const PPSecur *>(pData)->Name);
-	SString symb_buf(reinterpret_cast<const PPSecur *>(pData)->Symb); // @v10.9.12
+	SString symb_buf(reinterpret_cast<const PPSecur *>(pData)->Symb);
 	if(!name_buf.NotEmptyS())
 		ok = PPErrorByDialog(dlg, CTL_USR_NAME, PPERR_SECURNAMENEEDED);
 	else if(objType == PPOBJ_USR && reinterpret_cast<const PPSecur *>(pData)->ParentID == 0)
 		ok = PPErrorByDialog(dlg, CTL_USR_GRP, PPERR_USRMUSTBELONGTOGRP);
 	else if(PPRef->SearchName(objType, &temp_id, name_buf) > 0 && rec_id != temp_id)
 		ok = PPErrorByDialog(dlg, CTL_USR_NAME, PPERR_DUPOBJNAME);
-	else if(symb_buf.NotEmptyS() && PPRef->SearchSymb(objType, &temp_id, symb_buf, offsetof(PPSecur, Symb)) > 0 && rec_id != temp_id) { // @v10.9.12
+	else if(symb_buf.NotEmptyS() && PPRef->SearchSymb(objType, &temp_id, symb_buf, offsetof(PPSecur, Symb)) > 0 && rec_id != temp_id) {
 		PPSetObjError(PPERR_DUPSYMB, objType, temp_id);
 		ok = PPErrorByDialog(dlg, CTL_USR_SYMB, -1);
 	}
@@ -255,7 +249,9 @@ static int ValidateSecurData(TDialog * dlg, PPID objType, const void * pData)
 
 int EditSecurDialog(PPID objType, PPID * pID, void * extraPtr)
 {
-	int    ok = 1, valid_data = 0, r;
+	int    ok = 1;
+	int    valid_data = 0;
+	int    r;
 	Reference * p_ref = PPRef;
 	int    dlg_id = 0;
 	PPID   _id = DEREFPTRORZ(pID);

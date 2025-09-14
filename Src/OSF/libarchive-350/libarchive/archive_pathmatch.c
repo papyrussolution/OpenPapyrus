@@ -28,7 +28,7 @@ static int pm_list(const char * start, const char * end, const char c, int flags
 	int match = 1, nomatch = 0;
 
 	/* This will be used soon... */
-	(void)flags; /* UNUSED */
+	(void)flags; /*unused*/
 
 	/* If this is a negated class, return success for nomatch. */
 	if((*p == '!' || *p == '^') && p < end) {
@@ -75,7 +75,7 @@ static int pm_list_w(const wchar_t * start, const wchar_t * end, const wchar_t c
 	int match = 1, nomatch = 0;
 
 	/* This will be used soon... */
-	(void)flags; /* UNUSED */
+	(void)flags; /*unused*/
 
 	/* If this is a negated class, return success for nomatch. */
 	if((*p == L'!' || *p == L'^') && p < end) {

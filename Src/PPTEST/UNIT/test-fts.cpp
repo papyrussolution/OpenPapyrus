@@ -184,13 +184,13 @@ SLTEST_R(PPFtsInterface)
 					if((i % 8) == 0) {
 						TestFtsThread_Writer * p_writer = new TestFtsThread_Writer(src_file_name, 60000);
 						assert(p_writer);
-						p_writer->Start(1);
+						p_writer->Start(true);
 						thread_list[tc++] = *p_writer;
 					}
 					else {
 						TestFtsThread_Reader * p_reader = new TestFtsThread_Reader(test_list, 60000);
 						assert(p_reader);
-						p_reader->Start(1);
+						p_reader->Start(true);
 						thread_list[tc++] = *p_reader;
 					}
 				}

@@ -1635,7 +1635,7 @@ static void file_free(struct file * file)
 static struct file * file_create_virtual_dir(struct archive_write * a, struct xar * xar, const char * pathname)
 {
 	struct file * file;
-	(void)xar; /* UNUSED */
+	(void)xar; /*unused*/
 	file = file_new(a, NULL);
 	if(file == NULL)
 		return NULL;
@@ -2533,7 +2533,7 @@ static int compression_init_encoder_xz(Archive * a,
     struct la_zstream * lastrm, int level, int threads)
 {
 	CXX_UNUSED(level);
-	(void)threads; /* UNUSED */
+	(void)threads; /*unused*/
 	if(lastrm->valid)
 		compression_end(a, lastrm);
 	return (compression_unsupported_encoder(a, lastrm, "xz"));

@@ -61,7 +61,7 @@ uint32 DBRowId::GetI32() const
 
 int64  DBRowId::GetI64() const
 {
-	return IsI64() ? *reinterpret_cast<const int64 *>(S) : 0ULL;
+	return IsI64() ? *reinterpret_cast<const int64 *>(S) : (IsI32() ? static_cast<int64>(GetI32()) : 0ULL);
 }
 
 bool DBRowId::IsLarge() const
@@ -201,7 +201,28 @@ bool   SLob::IsStructured() const
 	return (memcmp(Buf.H.Signature, SlConst::SLobSignature, sizeof(SlConst::SLobSignature)) == 0); 
 }
 
-bool   SLob::IsPtr() const 
+bool SLob::Copy(const SLob & rS) // @v12.4.1
+{
+	bool   ok = false;
+	Empty();
+	if(rS.IsStructured()) {
+		const size_t src_size = rS.GetPtrSize();
+		if(InitPtr(src_size)) {
+			void * p_dest = GetRawDataPtr();
+			const void * p_src = rS.GetRawDataPtrC();
+			if(p_dest && p_src) {
+				memcpy(p_dest, p_src, src_size);
+			}
+			ok = true;
+		}
+	}
+	else {
+		// @todo
+	}
+	return ok;
+}
+
+bool SLob::IsPtr() const 
 { 
 	return (IsStructured() && Buf.H.Flags & hfPtr); 
 }
@@ -217,6 +238,16 @@ void * SLob::GetRawDataPtr()
 		return Buf.B;
 	}
 	// } @v12.2.3 @debug 
+}
+
+const void * SLob::GetRawDataPtrC() const
+{
+	if(IsStructured()) {
+		return (Buf.H.Flags & hfPtr) ? Buf.H.H : 0;
+	}
+	else {
+		return Buf.B;
+	}
 }
 
 size_t SLob::GetPtrSize() const { return (IsStructured() && Buf.H.Flags & hfPtr) ? Buf.H.PtrSize : 0; }
@@ -482,7 +513,7 @@ DBTable::DBTable(const char * pTblName, const char * pFileName, void * pFlds, vo
 			}
 		}
 		if(pData)
-			setDataBuf(pData, NZOR(s, fields.CalculateRecSize()));
+			setDataBuf(pData, NZOR(s, fields.CalculateFixedRecSize()));
 	}
 }
 
@@ -664,13 +695,32 @@ int DBTable::putRecToString(SString & rBuf, int withFieldNames)
 int DBTable::AllocateOwnBuffer(int size)
 {
 	int    ok = 1;
-	const  RECORDSIZE rec_size = (size < 0) ? fields.CalculateRecSize() : static_cast<RECORDSIZE>(size);
+	const  RECORDSIZE fixed_rec_size = (size < 0) ? fields.CalculateFixedRecSize() : static_cast<RECORDSIZE>(size);
+	RECORDSIZE real_rec_size = fixed_rec_size;
+	///* @v12.4.1 @construction 
+	DBLobItem temp_li; // @debug
+	{
+		const uint lbc = LobB.getCount();
+		//LobB.SearchPos()
+		if(lbc) {
+			for(uint i = 0; i < lbc; i++) {
+				const DBLobItem * p_li = static_cast<const DBLobItem *>(LobB.at(i));
+				if(p_li) {
+					temp_li = *p_li; // @debug
+					real_rec_size += sizeof(SLob);
+				}
+			}
+		}
+	}
+	//*/
 	if(State & sOwnDataBuf) {
 		ZFREE(P_DBuf);
 	}
-	P_DBuf = static_cast<char *>(SAlloc::C(rec_size+1, 1));
-	if(P_DBuf)
-		bufLen = rec_size;
+	P_DBuf = static_cast<char *>(SAlloc::C(real_rec_size+1, 1));
+	if(P_DBuf) {
+		bufLen = real_rec_size;
+		// State |= sOwnDataBuf; // @v12.4.1
+	}
 	else {
 		bufLen = 0;
 		ok = 0;

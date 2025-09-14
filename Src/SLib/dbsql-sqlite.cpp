@@ -287,7 +287,7 @@ int SSqliteDbProvider::GetFileStat(const char * pFileName/*регистр символов важе
 	if(pTbl) {
 		pTbl->fileName = NZOR(pFileName, pTbl->tableName);
 		pTbl->OpenedFileName = pTbl->fileName;
-		pTbl->FixRecSize = pTbl->fields.CalculateRecSize();
+		pTbl->FixRecSize = pTbl->fields.CalculateFixedRecSize();
 	}
 	else
 		ok = 0;
@@ -563,14 +563,31 @@ int SSqliteDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt,
 	SString temp_buf;
 	SString let_buf;
 	SSqlStmt  stmt(this);
-	if(pData)
+	if(pData) {
 		pTbl->copyBufFrom(pData);
-	if(pTbl->State & DBTable::sHasLob) {
+		if(pTbl->State & DBTable::sHasLob) {
+			const RECORDSIZE frs = pTbl->FixRecSize;
+			const SLob * p_src_lob = reinterpret_cast<const SLob *>(PTR8C(pData) + frs);
+			//SLob * p_dest_lob = reinterpret_cast<const SLob *>(PTR8C(pData) + frs);
+			/*
+			size_t s = (frs && frs < bufLen) ? frs : bufLen;
+			memcpy(P_DBuf, pBuf, s);
+			DBField last_fld;
+			THROW(getField(fields.getCount()-1, &last_fld));
+			if(srcBufSize)
+				THROW(writeLobData(last_fld, PTR8C(pBuf)+frs, (srcBufSize > frs) ? (srcBufSize-frs) : 0));
+			*/
+		}
+		// @construction @20250910 Здесь я остановился возясь с LOB'ами
+
+		//pTbl->copyBufLobFrom(const void * pBuf, size_t srcBufSize);
+	}
+	/*if(pTbl->State & DBTable::sHasLob) {
 		int    r = 0;
 		THROW(r = pTbl->StoreAndTrimLob());
 		if(r > 0)
 			do_process_lob = 1;
-	}
+	}*/
 	SqlGen.Z().Tok(Generator_SQL::tokInsert).Sp().Tok(Generator_SQL::tokInto).Sp().Text(pTbl->fileName).Sp();
 	SqlGen.Tok(Generator_SQL::tokValues).Sp().LPar();
 	stmt.BL.Dim = 1;
@@ -621,7 +638,7 @@ int SSqliteDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt,
 		THROW(stmt.SetDataDML(0));
 		THROW(stmt.Exec(1, OCI_DEFAULT));
 		THROW(stmt.GetOutData(0));
-		if(do_process_lob) {
+		/*if(do_process_lob) {
 			//
 			// Если в записи были не пустые значения LOB-полей, то придется перечитать
 			// вставленную запись и изменить значения LOB-полей.
@@ -632,7 +649,7 @@ int SSqliteDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt,
 			THROW(Implement_Search(pTbl, -1, &row_id, spEq, DBTable::sfDirect | DBTable::sfForUpdate));
 			THROW(pTbl->RestoreLob());
 			THROW(Implement_UpdateRec(pTbl, 0, 0));
-		}
+		}*/
 	}
 	CATCHZOK
 	return ok;
@@ -640,7 +657,31 @@ int SSqliteDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt,
 
 /*virtual*/int SSqliteDbProvider::Implement_UpdateRec(DBTable* pTbl, const void* pDataBuf, int ncc)
 {
-	return 0;
+	int    ok = 1;
+	SString temp_buf;
+	if(pDataBuf)
+		pTbl->copyBufFrom(pDataBuf);
+	SqlGen.Z().Tok(Generator_SQL::tokUpdate).Sp().Text(pTbl->fileName).Sp().Tok(Generator_SQL::tokSet).Sp();
+	{
+		const uint fld_count = pTbl->fields.getCount();
+		for(uint i = 0; i < fld_count; i++) {
+			if(i)
+				SqlGen.Com();
+			SqlGen.Text(pTbl->fields[i].Name)._Symb(_EQ_).Param(temp_buf.NumberToLat(i));
+		}
+	}
+	THROW(pTbl->getCurRowIdPtr()->IsI32());
+	pTbl->getCurRowIdPtr()->ToStr__(temp_buf);
+	SqlGen.Sp().Tok(Generator_SQL::tokWhere).Sp().Tok(Generator_SQL::tokRowId)._Symb(_EQ_).QText(temp_buf);
+	{
+		SSqlStmt stmt(this, SqlGen);
+		THROW(stmt.IsValid());
+		THROW(stmt.BindData(-1, 1, pTbl->fields, pTbl->getDataBufConst(), pTbl->getLobBlock()));
+		THROW(stmt.SetDataDML(0));
+		THROW(stmt.Exec(1, /*OCI_COMMIT_ON_SUCCESS*/OCI_DEFAULT)); // @debug(OCI_COMMIT_ON_SUCCESS)
+	}
+	CATCHZOK
+	return ok;
 }
 
 /*virtual*/int SSqliteDbProvider::Implement_DeleteRec(DBTable* pTbl)
@@ -946,6 +987,31 @@ int SSqliteDbProvider::ProcessBinding_SimpleType(int action, uint count, SSqlStm
 					static_cast<S_GUID *>(p_data)->Z();
 			}
 			break;
+		case S_BLOB:
+		case S_CLOB:
+			if(action == 0) {
+			}
+			else if(action < 0) {
+				if(p_data) {
+					SLob * p_lob = static_cast<SLob *>(p_data);
+					const size_t lob_size = p_lob->GetPtrSize();
+					const void * p_lob_data = p_lob->GetRawDataPtrC();
+					sqlite3_bind_blob(h_stmt, idx, p_lob_data, lob_size, SQLITE_STATIC);
+				}
+			}
+			else if(action == 1) {
+				if(p_data) {
+					const int csz = sqlite3_column_bytes(h_stmt, idx-1);
+					const void * p_sqlt_data = sqlite3_column_blob(h_stmt, idx-1);
+					if(csz > 0) {
+						SLob * p_lob = static_cast<SLob *>(p_data);
+						p_lob->InitPtr(csz);
+						void * p_lob_data = p_lob->GetRawDataPtr();
+						memcpy(p_lob_data, p_sqlt_data, csz);
+					}
+				}
+			}
+			break;
 		case S_DEC:
 			break;
 		case S_MONEY:
@@ -975,10 +1041,6 @@ int SSqliteDbProvider::ProcessBinding_SimpleType(int action, uint count, SSqlStm
 		case S_STRUCT:
 			break;
 		case S_VARIANT:
-			break;
-		case S_BLOB:
-			break;
-		case S_CLOB:
 			break;
 		case S_RAW:
 			break;

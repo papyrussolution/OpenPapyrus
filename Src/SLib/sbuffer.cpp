@@ -183,7 +183,7 @@ size_t FASTCALL SBuffer::ReadStatic(void * pBuf, size_t bufLen) const
 	size_t sz = 0;
 	if(pBuf) {
 		const size_t avl_size = GetAvailableSize();
-		sz = bufLen ? MIN(avl_size, bufLen) : avl_size;
+		sz = bufLen ? smin(avl_size, bufLen) : avl_size;
 		if(sz)
 			memcpy(pBuf, Ptr(RdOffs), sz);
 	}

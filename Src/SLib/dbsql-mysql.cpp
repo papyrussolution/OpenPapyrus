@@ -270,7 +270,7 @@ int SMySqlDbProvider::GetFileStat(const char * pFileName, long reqItems, DbTable
 {
 	pTbl->fileName = NZOR(pFileName, pTbl->tableName);
 	pTbl->OpenedFileName = pTbl->fileName;
-	pTbl->FixRecSize = pTbl->fields.CalculateRecSize();
+	pTbl->FixRecSize = pTbl->fields.CalculateFixedRecSize();
 	return 1;
 }
 

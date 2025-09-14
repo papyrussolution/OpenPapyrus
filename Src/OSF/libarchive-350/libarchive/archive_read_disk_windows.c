@@ -551,15 +551,15 @@ int archive_read_disk_set_behavior(Archive * _a, int flags)
  */
 static const char * trivial_lookup_gname(void * private_data, int64 gid)
 {
-	(void)private_data; /* UNUSED */
-	(void)gid; /* UNUSED */
+	(void)private_data; /*unused*/
+	(void)gid; /*unused*/
 	return NULL;
 }
 
 static const char * trivial_lookup_uname(void * private_data, int64 uid)
 {
-	(void)private_data; /* UNUSED */
-	(void)uid; /* UNUSED */
+	(void)private_data; /*unused*/
+	(void)uid; /*unused*/
 	return NULL;
 }
 

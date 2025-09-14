@@ -1257,7 +1257,7 @@ static CURLcode telnet_done(struct Curl_easy * data,
     CURLcode status, bool premature)
 {
 	struct TELNET * tn = data->req.p.telnet;
-	(void)status; /* unused */
+	(void)status; /*unused*/
 	(void)premature; /* not used */
 
 	if(!tn)

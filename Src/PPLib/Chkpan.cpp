@@ -7135,6 +7135,7 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 {
 	const  int  prev_state = GetState();
 	const  PPID prev_agent_id = P.GetAgentID(1);
+	SString temp_buf;
 	if(TVCOMMAND) {
 		if(TVCMD == cmValidateCommand) { // @v12.2.6
 			if(!ValidateCommand(event)) {
@@ -7667,7 +7668,6 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 					if(oneof2(PNP.CnSpeciality, PPCashNode::spApteka, PPCashNode::spShop) && (r_cfg.ChkPanImpOpID && r_cfg.ChkPanImpBillTagID)) { // @v11.8.7 // @v12.3.3 spShop
 						if(IsState(sEMPTYLIST_EMPTYBUF)) {
 							PPID   bill_id = 0;
-							SString temp_buf;
 							PPLoadString("selection_bill_forimport", temp_buf);
 							if(SelectBill(&bill_id, temp_buf) > 0 && bill_id) {
 								PPBillPacket bpack;
@@ -7734,6 +7734,43 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 					PPViewCCheck::EditCCheckSystemInfo(pack);
 				}
 				break;
+			case cmCcExtList: // @v12.4.1
+				if(P_ChkPack) {
+					uint   tab_count = 0;
+					const  SIntToSymbTabEntry * p_tab = CCheckPacket::GetExtssNameSymbTab(&tab_count);
+					ExtStrContainerListDialog * dlg = new ExtStrContainerListDialog(DLG_CCEXTLIST, CTL_CCEXTLIST_LIST, 0, true, p_tab, tab_count);
+					if(CheckDialogPtrErr(&dlg)) {
+						dlg->setDTS(P_ChkPack);
+						ExecViewAndDestroy(dlg);
+					}
+				}
+				break;
+			case cmCcLnExtList: // @v12.4.1
+				if(P_ChkPack) {
+					SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_CHKPAN_LIST));
+					const long pos = SmartListBox::IsValidS(p_list) ? p_list->P_Def->_curItem() : -1;
+					if(pos >= 0 && pos < static_cast<long>(P_ChkPack->GetCount())) {
+						PPExtStrContainer es_container;
+						uint   tab_count = 0;
+						const  SIntToSymbTabEntry * p_tab = CCheckPacket::GetLnExtssNameSymbTab(&tab_count);
+						if(tab_count && p_tab) {
+							for(uint i = 0; i < tab_count; i++) {
+								PPLoadString(p_tab[i].P_Symb, temp_buf);
+								if(temp_buf.NotEmpty()) {
+									const int cclnext_id = p_tab[i].Id;
+									P_ChkPack->GetLineTextExt(pos+1, cclnext_id, temp_buf);
+									es_container.PutExtStrData(cclnext_id, temp_buf);
+								}
+							}
+							ExtStrContainerListDialog * dlg = new ExtStrContainerListDialog(DLG_CCEXTLIST, CTL_CCEXTLIST_LIST, "@cclnextlist", true, p_tab, tab_count);
+							if(CheckDialogPtrErr(&dlg)) {
+								dlg->setDTS(&es_container);
+								ExecViewAndDestroy(dlg);
+							}
+						}
+					}
+				}
+				break;
 			default:
 				return;
 		}
@@ -7742,7 +7779,6 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 		switch(TVKEY) {
 			case kbF12:
 				if(SlDebugMode::CT()) {
-					SString temp_buf;
 					SString file_name;
 					if(ExportCurrentState(temp_buf)) {
 						PPGetFilePath(PPPATH_OUT, "CPosProcessorState.xml", file_name);
@@ -10018,7 +10054,7 @@ int CheckPaneDialog::PreprocessGoodsSelection(const PPID goodsID, PPID locID, Pg
 								const int disable_chzn_mark_backtest = 0; // Проблемы с сигаретами - слишком много продаж и идентификация дубликатов занимает много времени // @v11.7.4 1-->0
 								if(!(PNP.CnSpeciality == PPCashNode::spApteka && (rBlk.Qtty > 0.0 && rBlk.Qtty < 1.0))) // @v11.6.9
 									rBlk.Qtty = 1.0; // Маркированная продукция - строго по одной штуке на строку чека (исключение: аптека и остаток менее 1)
-								SString chzn_mark = rBlk.ChZnMark;
+								SString chzn_mark(rBlk.ChZnMark);
 								int imr = -1000; // Result of the function PPChZnPrcssr::InputMark() (-1000 - wasn't called)
 								// @v12.0.5 {
 								if(ChZnMarkAutoSelect(goodsID, rBlk.Qtty, chzn_mark) > 0) {
@@ -12999,7 +13035,7 @@ int CPosProcessor::Print(int noAsk, const PPLocPrinter2 * pLocPrn, uint rptId)
 		ok = MessageError(PPERR_NORIGHTS, 0, eomBeep | eomStatusLine);
 	}
 	else {
-		uint   rpt_id = rptId ? rptId : (pLocPrn ? REPORT_CCHECKDETAILVIEWLOC : REPORT_CCHECKDETAILVIEW);
+		const uint   rpt_id = rptId ? rptId : (pLocPrn ? REPORT_CCHECKDETAILVIEWLOC : REPORT_CCHECKDETAILVIEW);
 		SString loc_prn_port(pLocPrn ? pLocPrn->Port : 0);
 		loc_prn_port.Strip();
 		CCheckItemArray saved_items(P);
@@ -13044,8 +13080,7 @@ int CPosProcessor::Print(int noAsk, const PPLocPrinter2 * pLocPrn, uint rptId)
 		P = saved_items;
 		if(pLocPrn) {
 			if(pLocPrn->Flags & PPLocPrinter::fHasKitchenBell && KitchenBellCmd.NotEmpty()) {
-				SString kitchen_bell_port = KitchenBellPort;
-				kitchen_bell_port.SetIfEmpty(loc_prn_port);
+				SString kitchen_bell_port(KitchenBellPort.NotEmpty() ? KitchenBellPort : loc_prn_port);
 				if(kitchen_bell_port.NotEmptyS()) {
 					size_t out_size = 0;
 					char   out_buf[64];

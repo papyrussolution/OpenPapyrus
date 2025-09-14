@@ -5520,7 +5520,7 @@ int MainOrg2Dialog::setDTS()
 	int    pos;
 	uint   i;
 	PPCommConfig cfg;
-	THROW(GetCommConfig(&cfg));
+	THROW(GetCommConfig(cfg));
 	SetupPPObjCombo(this, CTLSEL_MAINORG2_STATUS, PPOBJ_PRSNSTATUS, P_Pack->Rec.Status, OLW_CANINSERT, 0);
 	setCtrlData(CTL_MAINORG2_NAME, P_Pack->Rec.Name);
 	P_Pack->GetExtName(temp_buf);
@@ -5797,7 +5797,7 @@ int MainOrg2Dialog::getDTS()
 	// Get Director and Accountant
 	{
 		PPCommConfig cfg;
-		THROW(GetCommConfig(&cfg));
+		THROW(GetCommConfig(cfg));
 		getCtrlData(CTLSEL_MAINORG2_DIRECTOR, &cfg.MainOrgDirector_);
 		getCtrlData(CTLSEL_MAINORG2_ACCTNT, &cfg.MainOrgAccountant_);
 		THROW(SetCommConfig(&cfg, 1));
@@ -8073,7 +8073,7 @@ void PPALDD_Global::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack &
 		_RET_INT = (flags & flag) ? 1 : 0;
 	}
 	else if(pF->Name == "?AdjustBarcodeCD") {
-		SString code = _ARG_STR(1);
+		SString code(_ARG_STR(1));
 		if(code.Len() > 3) {
 			PPObjGoods goods_obj;
 			const PPGoodsConfig & r_gcfg = goods_obj.GetConfig();
@@ -8083,7 +8083,7 @@ void PPALDD_Global::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack &
 		_RET_STR = code;
 	}
 	else if(pF->Name == "?GetCounter") {
-		SString code = _ARG_STR(1);
+		SString code(_ARG_STR(1));
         PPObjOpCounter opc_obj;
         PPOpCounter opc_rec;
         PPID   opc_id = 0;
@@ -8095,7 +8095,7 @@ void PPALDD_Global::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack &
 	}
 	else if(pF->Name == "?UpdateCounter") {
 		int    result = 0;
-		SString code = _ARG_STR(1);
+		SString code(_ARG_STR(1));
 		long   value = _ARG_INT(2);
         PPObjOpCounter opc_obj;
         PPOpCounter opc_rec;

@@ -1464,7 +1464,7 @@ static int compression_end_deflate(Archive * a, struct la_zstream * lastrm)
 static int compression_init_encoder_deflate(Archive * a, struct la_zstream * lastrm, int level, int withheader)
 {
 	CXX_UNUSED(level);
-	(void)withheader; /* UNUSED */
+	(void)withheader; /*unused*/
 	if(lastrm->valid)
 		compression_end(a, lastrm);
 	return (compression_unsupported_encoder(a, lastrm, "deflate"));

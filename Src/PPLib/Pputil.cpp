@@ -2340,7 +2340,7 @@ int WaitNewFile(const char * pDir, SString & rFile, int notifyTimeout /* =5000 *
 	return ok;
 }
 
-int FASTCALL __CopyFileByPath(const char * pSrcPath, const char * pDestPath, const char * pFileName)
+int __CopyFileByPath(const char * pSrcPath, const char * pDestPath, const char * pFileName)
 {
 	SString src, dest;
 	(src = pSrcPath).SetLastSlash().Cat(pFileName);
@@ -2348,7 +2348,7 @@ int FASTCALL __CopyFileByPath(const char * pSrcPath, const char * pDestPath, con
 	return fileExists(src) ? copyFileByName(src, dest) : PPSetError(PPERR_NOSRCFILE, src);
 }
 
-int FASTCALL CopyDataStruct(const char *pSrc, const char *pDest, const char *pFileName)
+int CopyDataStruct(const char * pSrc, const char * pDest, const char * pFileName)
 {
 	return __CopyFileByPath(pSrc, pDest, pFileName) ? 1 : PPErrorZ();
 }
@@ -4300,7 +4300,7 @@ int PPUhttClient::SendSms(const TSCollection <UhttSmsPacket> & rList, TSCollecti
 	int    ok = -1;
 	PPLogger logger;
 	SString log_buf;
-	SString code_buf = "AG1";
+	SString code_buf("AG1");
 	/*while(InputStringDialog(0, code_buf) > 0)*/ {
 		PPUhttClient uhtt_cli;
 		THROW(uhtt_cli.Auth());

@@ -61,7 +61,7 @@ int archive_read_open_memory2(Archive * a, const void * buff, size_t size, size_
 static int memory_read_open(Archive * a, void * client_data)
 {
 	CXX_UNUSED(a);
-	(void)client_data; /* UNUSED */
+	(void)client_data; /*unused*/
 	return ARCHIVE_OK;
 }
 

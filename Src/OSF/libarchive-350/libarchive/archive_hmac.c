@@ -219,8 +219,8 @@ static int __hmac_sha1_init(archive_hmac_sha1_ctx * ctx, const uint8 * key, size
 static void __hmac_sha1_update(archive_hmac_sha1_ctx * ctx, const uint8 * data, size_t data_len)
 {
 	CXX_UNUSED(ctx);
-	(void)data; /* UNUSED */
-	(void)data_len; /* UNUSED */
+	(void)data; /*unused*/
+	(void)data_len; /*unused*/
 }
 
 static void __hmac_sha1_final(archive_hmac_sha1_ctx * ctx, uint8 * out, size_t * out_len)

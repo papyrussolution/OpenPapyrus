@@ -2661,7 +2661,7 @@ int PPBillImporter::ReadRows(PPImpExp * pImpExp, int mode/*linkByLastInsBill*/, 
 	def_inn = BillParam.Object1SrchCode;
 	if(BillParam.Object2SrchCode.NotEmpty()) {
 		PPID   reg_type_id = PPREGT_TPID;
-		SString code = BillParam.Object2SrchCode;
+		const  SString code(BillParam.Object2SrchCode);
 		const  PPID suppl_acs_id = GetSupplAccSheet();
 		if(PPObjArticle::GetSearchingRegTypeID(suppl_acs_id, 0, 1, &reg_type_id) > 0) {
 			PPIDArray psn_list, ar_list;

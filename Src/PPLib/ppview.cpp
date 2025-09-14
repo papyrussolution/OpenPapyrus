@@ -2237,7 +2237,8 @@ int PPView::Browse(int modeless)
 	SArray * p_array = 0;
 	PPViewBrowser * brw = 0;
 	uint   brw_id = 0;
-	SString sub_title, title;
+	SString sub_title;
+	SString title;
 	PPWaitStart();
 	THROW(!P_Obj || P_Obj->CheckRights(PPR_READ));
 	if(ImplementFlags & implBrowseArray) {

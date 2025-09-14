@@ -24,7 +24,7 @@ int __qam_mswap(ENV*env, PAGE * pg)
 	SWAP32(p); /* re_pad */
 	SWAP32(p); /* rec_page */
 	SWAP32(p); /* page_ext */
-	p += 91*sizeof(uint32); /* unused */
+	p += 91*sizeof(uint32); /*unused*/
 	SWAP32(p); /* crypto_magic */
 	return 0;
 }

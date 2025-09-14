@@ -7,26 +7,18 @@
 #pragma hdrstop
 #include <ppsoapclient.h>
 
-/* @v12.2.8 (replaced with CCheckExtSsList[].Id) static const int ccpack_textext_ident_list[] = { 
-	CCheckPacket::extssMemo, 
-	CCheckPacket::extssSign, 
-	CCheckPacket::extssEgaisUrl, 
-	CCheckPacket::extssRemoteProcessingTa,
-	CCheckPacket::extssChZnProcessingTag,  // @v11.0.1
-	CCheckPacket::extssBuyerINN,           // @v11.0.4 ИНН покупателя (при формировании чека по документу)
-	CCheckPacket::extssBuyerName,          // @v11.0.4 Наименование покупателя (при формировании чека по документу)
-	CCheckPacket::extssBuyerPhone,         // @v11.0.4 Телефон покупателя //
-	CCheckPacket::extssBuyerEMail,         // @v11.3.6 
-	CCheckPacket::extssUuid,               // @v11.5.2
-	CCheckPacket::extssPrescrDate,         // @v11.7.12 Дата медицинского рецепта
-	CCheckPacket::extssPrescrSerial,       // @v11.7.12 Серия медицинского рецепта
-	CCheckPacket::extssPrescrNumber,       // @v11.7.12 Номер медицинского рецепта
-	CCheckPacket::extssEgaisProcessingTag, // @v11.8.2
-	CCheckPacket::extssSourceSymb,         // @v11.8.5 Символ внешнего источника происхождения чека
-	CCheckPacket::extssOuterIdent,         // @v11.8.5 Идентификатор чека во внешнем источнике
-	CCheckPacket::extssOuterExtTag,        // @v11.8.5
-	CCheckPacket::extssLinkBillUuid,       // @v11.8.8
-};*/
+static const SIntToSymbTabEntry CCheckLnExtNameSymbList[] = { // @v12.4.1
+	{ CCheckPacket::lnextSerial, "cclnextss_serial" },
+	{ CCheckPacket::lnextEgaisMark, "cclnextss_egaismark" },
+	{ CCheckPacket::lnextRemoteProcessingTa, "cclnextss_remoteprocessingta" },
+	{ CCheckPacket::lnextChZnSerial, "cclnextss_chznserial" },
+	{ CCheckPacket::lnextChZnGtin, "cclnextss_chzngtin" },
+	{ CCheckPacket::lnextChZnMark, "cclnextss_chznmark" },
+	{ CCheckPacket::lnextChZnPm_ReqId, "cclnextss_chznpm_reqid" },
+	{ CCheckPacket::lnextChZnPm_ReqTimestamp, "cclnextss_chznpm_reqtimestamp" },
+	{ CCheckPacket::lnextChZnPm_LocalModuleInstance, "cclnextss_chznpm_localmoduleinstance" },
+	{ CCheckPacket::lnextChZnPm_LocalModuleDbVer, "cclnextss_chznpm_localmoduledbver" },
+};
 
 static const SIntToSymbTabEntry CCheckExtSsList[] = {
 	{ CCheckPacket::extssMemo,               "Memo" },
@@ -78,15 +70,18 @@ static const SIntToSymbTabEntry CCheckExtNameSymbList[] = {
 	return CCheckExtNameSymbList;
 }
 
+/*static*/const SIntToSymbTabEntry * CCheckPacket::GetLnExtssNameSymbTab(uint * pTabEntryCount)
+{
+	ASSIGN_PTR(pTabEntryCount, SIZEOFARRAY(CCheckLnExtNameSymbList));
+	return CCheckLnExtNameSymbList;
+}
+
 /*static*/bool CCheckPacket::GetExtssMnemonic(int extss, SString & rBuf)
 	{ return SIntToSymbTab_GetSymb(CCheckExtSsList, sizeof(CCheckExtSsList), extss, rBuf); }
 /*static*/int CCheckPacket::RecognizeExtssMnemonic(const char * pSymb)
 	{ return SIntToSymbTab_GetId(CCheckExtSsList, sizeof(CCheckExtSsList), pSymb); }
 
 static bool DoCCheckTextLog() { return LOGIC(CConfig.Flags & (CCFLG_DEBUG|CCFLG_LOGCCHECK)); }
-
-//#define DECL_INVARIANT_C()    int InvariantC(SInvariantParam * pInvP) const
-//#define IMPL_INVARIANT_C(cls) int cls::InvariantC(SInvariantParam * pInvP) const
 //
 //
 //
@@ -1253,7 +1248,7 @@ int CCheckPacket::Helper_PackLineTextExt(SString & rResult) const
 		for(uint p = 0; ess.Enum(line_buf, &p, &fld_id, temp_buf) > 0;) {
 			if(temp_buf.NotEmptyS()) {
 				if(fld_id > 0 && fld_id < 100) {
-					PPPutExtStrData(/*(i+1)*/item.Id * 100 + fld_id, rResult, temp_buf); // @v9.9.0 @fix (i+1)-->item.Id
+					PPPutExtStrData(item.Id * 100 + fld_id, rResult, temp_buf);
 					ok = 1;
 				}
 				else {
@@ -1298,7 +1293,7 @@ int CCheckPacket::Helper_PackLineTextExt(SString & rResult) const
 	return ok;
 }
 
-/*static*/int CCheckPacket::Helper_SetLineTextExt(int pos /* 1.. */, int lnextId, StrAssocArray & rList, const char * pText)
+/*static*/int CCheckPacket::Helper_SetLineTextExt(int pos/*1..*/, int lnextId, StrAssocArray & rList, const char * pText)
 {
 	int    ok = 1;
 	SString common_buf;
@@ -1309,7 +1304,7 @@ int CCheckPacket::Helper_PackLineTextExt(SString & rResult) const
 	return ok;
 }
 
-/*static*/int CCheckPacket::Helper_GetLineTextExt(int pos /* 1.. */, int lnextId, const StrAssocArray & rList, SString & rBuf)
+/*static*/int CCheckPacket::Helper_GetLineTextExt(int pos/*1..*/, int lnextId, const StrAssocArray & rList, SString & rBuf)
 {
 	rBuf.Z();
 	int    ok = 0;

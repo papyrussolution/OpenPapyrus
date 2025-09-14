@@ -116,7 +116,7 @@ static int krb5_init(void * app_data)
 
 static int krb5_check_prot(void * app_data, int level)
 {
-	(void)app_data; /* unused */
+	(void)app_data; /*unused*/
 	if(level == PROT_CONFIDENTIAL)
 		return -1;
 	return 0;
@@ -427,8 +427,7 @@ static int ftp_send_command(struct Curl_easy * data, const char * message, ...)
 		if(Curl_GetFTPResponse(data, &nread, &ftp_code))
 			ftp_code = -1;
 	}
-
-	(void)nread; /* Unused */
+	(void)nread; /*unused*/
 	return ftp_code;
 }
 

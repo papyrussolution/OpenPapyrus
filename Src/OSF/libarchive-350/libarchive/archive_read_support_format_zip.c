@@ -315,9 +315,9 @@ static ulong real_crc32(ulong crc, const void * buff, size_t len)
 /* Used by "ignorecrc32" option to speed up tests. */
 static ulong fake_crc32(ulong crc, const void * buff, size_t len)
 {
-	(void)crc; /* UNUSED */
-	(void)buff; /* UNUSED */
-	(void)len; /* UNUSED */
+	(void)crc; /*unused*/
+	(void)buff; /*unused*/
+	(void)len; /*unused*/
 	return 0;
 }
 
@@ -587,7 +587,7 @@ static int process_extra(ArchiveRead * a, ArchiveEntry * entry, const char * p, 
 					    break;
 				    internal_attributes = archive_le16dec(p + offset);
 				    /* Not used by libarchive at present. */
-				    (void)internal_attributes; /* UNUSED */
+				    (void)internal_attributes; /*unused*/
 				    offset += 2;
 				    datasize -= 2;
 			    }

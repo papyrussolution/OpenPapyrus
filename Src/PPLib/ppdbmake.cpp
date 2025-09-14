@@ -89,7 +89,10 @@ int CreateByExample(const char * pPath)
 {
 	int    ok = 1;
 	PPObjBill * p_bobj = BillObj;
-	SString file_name, src_path, dst_path, pp, tbl_name;
+	SString file_name;
+	SString src_path;
+	SString dst_path;
+	SString pp, tbl_name;
 	SFsPath ps;
 	DBTable * p_dst_tbl = 0;
 	DBTable * p_src_tbl = 0;
@@ -588,7 +591,7 @@ int MakeDatabase()
 							}
 						}
 						PPCreateDatabaseSession * p_sess = new PPCreateDatabaseSession(sess_param);
-						p_sess->Start(1);
+						p_sess->Start(true);
 						::WaitForSingleObject(*p_sess, INFINITE);
 					}
 					PPWaitStop();
@@ -659,7 +662,7 @@ int MakeDatabase()
 							}
 						}
 						PPCreateDatabaseSession * p_sess = new PPCreateDatabaseSession(sess_param);
-						p_sess->Start(1);
+						p_sess->Start(true);
 						::WaitForSingleObject(*p_sess, INFINITE);
 					}
 					PPWaitStop();

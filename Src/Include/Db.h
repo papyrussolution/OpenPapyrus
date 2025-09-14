@@ -68,12 +68,14 @@ public:
 	void   FASTCALL Init(void * descriptor);
 	int    FASTCALL InitPtr(uint32 sz);
 	bool   IsPtr() const;
+	bool   Copy(const SLob & rS);
 	//
 	// Descr: Устанавливает структурированный объект с нулевым манипулятором.
 	//
 	void   Empty();
 	int    DestroyPtr();
 	void * GetRawDataPtr();
+	const  void * GetRawDataPtrC() const;
 	size_t GetPtrSize() const;
 	//
 	// Descr: Сериализация данных.
@@ -407,7 +409,7 @@ public:
 	//
 	// Descr: Возвращает !0 если все записи в буфере имеют одинаковый размер.
 	//
-	int    IsEqRec() const;
+	bool   IsEqRec() const;
 	SBaseBuffer FASTCALL Get(uint recNo) const;
 	//
 	// Descr: Возвращает буфер в котором значение Size равно this->Pos.
@@ -1693,7 +1695,15 @@ public:
 	const  void * FASTCALL getDataBufConst() const{ return static_cast<const void *>(P_DBuf); }
 	void   FASTCALL setBuffer(SBaseBuffer &);
 	const  SBaseBuffer getBuffer() const;
-	int    AllocateOwnBuffer(int size = -1);
+	//
+	// Descr: Распределяет память под буфер записи P_DBuf.
+	// ARG(size IN): Если size > 0, то фукция распределяет заданное этим аргументом количество байт,
+	//   если size < 0, то необходимый размер буфера определяется спецификацией записи (BNFieldList fields).
+	// Returns:
+	//   >0 - функция успешно выполнена
+	//    0 - ошибка
+	//
+	int    AllocateOwnBuffer(int size);
 	int    InitLob();
 	uint   GetLobCount() const;
 	int    GetLobField(uint n, DBField * pFld) const;

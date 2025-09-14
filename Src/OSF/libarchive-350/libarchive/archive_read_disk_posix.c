@@ -515,15 +515,15 @@ int archive_read_disk_set_behavior(Archive * _a, int flags)
  */
 static const char * trivial_lookup_gname(void * private_data, int64 gid)
 {
-	(void)private_data; /* UNUSED */
-	(void)gid; /* UNUSED */
+	(void)private_data; /*unused*/
+	(void)gid; /*unused*/
 	return NULL;
 }
 
 static const char * trivial_lookup_uname(void * private_data, int64 uid)
 {
-	(void)private_data; /* UNUSED */
-	(void)uid; /* UNUSED */
+	(void)private_data; /*unused*/
+	(void)uid; /*unused*/
 	return NULL;
 }
 
@@ -1315,9 +1315,9 @@ static int get_xfer_size(struct tree * t, int fd, const char * path)
 #else
 static int get_xfer_size(struct tree * t, int fd, const char * path)
 {
-	(void)t; /* UNUSED */
+	(void)t; /*unused*/
 	CXX_UNUSED(fd);
-	(void)path; /* UNUSED */
+	(void)path; /*unused*/
 	return 1; // Not supported
 }
 #endif
@@ -1793,8 +1793,8 @@ static int setup_current_filesystem(struct archive_read_disk * a)
 static int close_and_restore_time(int fd, struct tree * t, struct restore_time * rt)
 {
 #ifndef HAVE_UTIMES
-	(void)t; /* UNUSED */
-	(void)rt; /* UNUSED */
+	(void)t; /*unused*/
+	(void)rt; /*unused*/
 	return (close(fd));
 #else
 #if defined(HAVE_FUTIMENS) && !defined(__CYGWIN__)

@@ -65,13 +65,5 @@ int BExtInsert::flash()
 	return BIN(State & stValid);
 }
 
-DBTable * BExtInsert::getTable()
-{
-	return P_Tbl;
-}
-
-uint BExtInsert::getActualCount() const
-{
-	return ActualCount;
-}
-
+DBTable * BExtInsert::getTable() { return P_Tbl; }
+uint BExtInsert::getActualCount() const { return ActualCount; }

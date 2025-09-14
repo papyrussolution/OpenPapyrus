@@ -307,7 +307,7 @@ int BExtQuery::search_first(const char * pInitKey, int initSpMode, int spMode)
 			}
 			else {
 				//
-				// Здесь нельзя использовать tbl->fields.CalculateRecSize() поскольку
+				// Здесь нельзя использовать tbl->fields.CalculateFixedRecSize() поскольку
 				// эта функция возвращает размер записи без полей переменной длины и без NOTE-полей.
 				//
 				for(uint i = 0; i < P_Tbl->GetFields().getCount(); i++)
@@ -355,7 +355,7 @@ int BExtQuery::search_first(const char * pInitKey, int initSpMode, int spMode)
 		}
 		else {
 			p_item = reinterpret_cast<BExtTailItem *>(p_tail + 1);
-			p_item->fldLen = P_Tbl->GetFields().CalculateRecSize();
+			p_item->fldLen = P_Tbl->GetFields().CalculateFixedRecSize();
 			p_item->fldOfs = 0;
 			RecSize += p_item->fldLen;
 		}
