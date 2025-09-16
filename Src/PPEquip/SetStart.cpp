@@ -48,7 +48,7 @@ private:
 	StringSet ImpPaths;
 	StringSet ExpPaths;
 	PPAsyncCashNode Acn;
-	SString   ImportedFiles;
+	SString ImportedFiles;
 	_FrontolZRepArray ZRepList;
 };
 
@@ -904,7 +904,7 @@ int ACS_SETSTART::GetSessionData(int * pSessCount, int * pIsForwardSess, DateRan
 		THROW(GetNodeData(&Acn) > 0);
 		Acn.GetLogNumList(LogNumList);
 		{
-			SString  alt_imp_params;
+			SString alt_imp_params;
 			PPIniFile  ini_file;
 			if(Acn.ExtFlags & CASHFX_CREATEOBJSONIMP) {
 				UseAltImport = 1;
@@ -1043,17 +1043,26 @@ int ACS_SETSTART::GetZRepList(const char * pPath, _FrontolZRepArray * pZRepList)
 
 int ACS_SETSTART::ConvertWareList(const char * pImpPath)
 {
-	int    ok = 1, field_no;
+	int    ok = 1;
+	int    field_no;
 	uint   pos;
-	long   op_type, nsmena, cash_no, chk_no;
+	long   op_type;
+	long   nsmena;
+	long   cash_no;
+	long   chk_no;
 	long   count = 0;
-	PPID   grp_id = 0, goods_id = 0;
+	PPID   grp_id = 0;
+	PPID   goods_id = 0;
 	PPIDArray   new_goods;
 	//LAssocArray zrep_ary; // Пара {номер_кассы; номер_смены}
 	LDATETIME dtm;
-	SString   buf, card_code, wait_msg;
-	SString   barcode, goods_name, arcode;
-	SString   goods_ident_txt; // Текстовый идентификатор товара
+	SString buf;
+	SString card_code;
+	SString wait_msg;
+	SString barcode;
+	SString goods_name;
+	SString arcode;
+	SString goods_ident_txt; // Текстовый идентификатор товара
 	StringSet ss(';', 0);
 	IterCounter   cntr;
 	PPObjSCard sc_obj;
@@ -1276,9 +1285,7 @@ int ACS_SETSTART::ConvertWareList(const char * pImpPath)
 							SetupTempCcLineRec(0, chk_id, chk_no, P_TmpCcTbl->data.Dt, div, goods_id);
 							const double ln_price = is_free_price ? dscnt_price : price;
 							const double ln_discount = is_free_price ? 0.0 : (price - dscnt_price);
-							// @v10.7.3 SetTempCcLineValues(0, qtty, ln_price, ln_discount, 0/*pLnExtStrings*/);
-							// @v10.7.3 THROW_DB(P_TmpCclTbl->insertRec());
-							THROW(SetTempCcLineValuesAndInsert(P_TmpCclTbl, qtty, ln_price, ln_discount, 0/*pLnExtStrings*/)); // @v10.7.3
+							THROW(SetTempCcLineValuesAndInsert(P_TmpCclTbl, qtty, ln_price, ln_discount, 0/*pLnExtStrings*/));
 						}
 						if(is_free_price) {
 							line_amount = R2(qtty * dscnt_price);

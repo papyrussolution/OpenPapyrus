@@ -407,7 +407,8 @@ SLTEST_R(Uri)
 	SFile f_in(MakeInputFilePath("url-list.txt"), SFile::mRead);
 	SFile f_out(MakeOutputFilePath("url-out.txt"), SFile::mWrite);
 	InetUrl url(0);
-	SString out_buf, temp_buf;
+	SString temp_buf;
+	SString out_buf;
 	SString line_buf;
 	THROW(SLCHECK_NZ(f_in.IsValid()));
 	THROW(SLCHECK_NZ(f_out.IsValid()));

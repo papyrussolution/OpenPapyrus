@@ -2126,7 +2126,8 @@ int PPDesktop::ProcessCommandItem(const PPDesktop::InputArray * pInp, const PPDe
 	int    ok = -1;
 	int    suite = 0;
 	bool   do_run = false;
-	SString param_buf, input_buf;
+	SString param_buf;
+	SString input_buf;
 	if(rCpItem.DvcSerial.NotEmpty()) {
 		if(pInp->DvcSerial.NotEmpty()) {
 			//

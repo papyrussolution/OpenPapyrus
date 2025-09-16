@@ -2120,7 +2120,8 @@ int PPTextAnalyzer::Test()
 	THROW(ProcessGoods());
 	THROW(ProcessPerson());
 	{
-		SString out_file_name, line_buf;
+		SString out_file_name;
+		SString line_buf;
 		PPGetFilePath(PPPATH_IN, "pptextanalyzer.txt", out_file_name);
 		SFile f_out(out_file_name, SFile::mWrite);
 		Item   item;

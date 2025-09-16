@@ -46,8 +46,9 @@ int ProcessImportJob(const char * pJobName)
 		PPObjCashNode cn_obj;
 		PPCashNode cn_rec;
 		if(cn_obj.SearchByName(job_name, &cash_id, &cn_rec) > 0) {
-			if(cn_rec.CashType == PPCMT_CASHNGROUP) // @v10.1.1
+			if(cn_rec.CashType == PPCMT_CASHNGROUP) {
 				PPCashMachine::AsyncCloseSession2(cn_rec.ID, 0); 
+			}
 			else if(PPCashMachine::IsAsyncCMT(cn_rec.CashType)) {
 				PPCashMachine * cm = PPCashMachine::CreateInstance(cash_id);
 				if(cm) {

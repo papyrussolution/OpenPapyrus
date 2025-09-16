@@ -343,3 +343,62 @@ int SCompoundError::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx
 	CATCHZOK
 	return ok;
 }
+
+SJson * SCompoundError::ToJsonObj() const
+{
+	SJson * p_result = SJson::CreateObj();
+	if(p_result) {
+		p_result->InsertInt("ver", Ver);
+		p_result->InsertInt("code", Code);
+		if(LocIdent)
+			p_result->InsertInt("locident", LocIdent);
+		if(ItemI)
+			p_result->InsertInt64("itemi", ItemI);
+		if(!ItemR.IsZero()) {
+			p_result->InsertInt("itemr_low", ItemR.low);
+			p_result->InsertInt("itemr_upp", ItemR.upp);
+		}
+		if(Descr.NotEmpty()) {
+			p_result->InsertString("descr", Descr);
+		}
+	}
+	return p_result;
+}
+
+bool SCompoundError::FromJsonObj(const SJson * pJs)
+{
+	Z();
+	bool    ok = false;
+	if(SJson::IsObject(pJs)) {
+		bool   is_there_ver = false;
+		bool   is_there_code = false;
+		for(const SJson * p_jsn = pJs->P_Child; p_jsn; p_jsn = p_jsn->P_Next) {
+			if(p_jsn->Text.IsEqiAscii("ver")) {
+				Ver = p_jsn->P_Child->Text.ToLong();
+				is_there_ver = true;
+			}
+			else if(p_jsn->Text.IsEqiAscii("code")) {
+				Code = p_jsn->P_Child->Text.ToLong();
+				is_there_code = true;
+			}
+			else if(p_jsn->Text.IsEqiAscii("locident")) {
+				LocIdent = p_jsn->P_Child->Text.ToULong();
+			}
+			else if(p_jsn->Text.IsEqiAscii("itemi")) {
+				ItemI = p_jsn->P_Child->Text.ToInt64();
+			}
+			else if(p_jsn->Text.IsEqiAscii("itemr_low")) {
+				ItemR.low = p_jsn->P_Child->Text.ToLong();
+			}
+			else if(p_jsn->Text.IsEqiAscii("itemr_upp")) {
+				ItemR.upp = p_jsn->P_Child->Text.ToLong();
+			}
+			else if(p_jsn->Text.IsEqiAscii("descr")) {
+				Descr = p_jsn->P_Child->Text;
+			}
+		}
+		if(is_there_ver && is_there_code)
+			ok = true;
+	}
+	return ok;
+}

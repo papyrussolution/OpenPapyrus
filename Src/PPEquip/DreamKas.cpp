@@ -73,7 +73,7 @@ private:
 	StringSet ImpPaths;
 	StringSet ExpPaths;
 	PPAsyncCashNode Acn;
-	SString   ImportedFiles;
+	SString ImportedFiles;
 	struct SessCloseBlock {;
 		void   Reset()
 		{
@@ -429,19 +429,18 @@ int ACS_DREAMKAS::ExportGoods(AsyncCashGoodsIterator & rIter, PPID gcAlcID)
 	ScURL c;
 	const char * p_user = "";
 	const char * p_password = "";
-
 	int    next_barcode = 0;
 	uint   i;
 	LAssocArray  grp_n_level_ary;
-	SString   f_str;
-	SString   tail;
-	SString   temp_buf;
-	SString   email_subj;
-	SString   path_goods;
-	SString   path_flag;
+	SString f_str;
+	SString tail;
+	SString temp_buf;
+	SString email_subj;
+	SString path_goods;
+	SString path_flag;
 	//
-	PPID      gc_alc_id = 0;
-	SString   gc_alc_code; // Код класса товаров, относящихся к алкоголю
+	PPID   gc_alc_id = 0;
+	SString gc_alc_code; // Код класса товаров, относящихся к алкоголю
 	PPIDArray alc_goods_list;
 	//
 	PPObjQuotKind qk_obj;

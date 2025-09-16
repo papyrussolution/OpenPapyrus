@@ -2470,7 +2470,7 @@ enum SCodepage {
 	cpTIS620   = 60620, // Thai Industrial Standard 620-2533 (@sobolev: number 60620 is my own)
 };
 
-struct SCodepageIdent {
+struct SCodepageIdent { // @size=4
 	static uint GetRegisteredCodepageCount();
 	static int  GetRegisteredCodepage(uint idx, SCodepage & rCp, SString & rName);
 
@@ -5999,6 +5999,17 @@ struct SCompoundError {
 	SCompoundError();
 	SCompoundError & Z();
 	int   Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
+	//
+	// Descr: Преобразует экземпляр this в json-объект. В json попадут как минимум поля ver и code, остальные - только если не пустые.
+	// Note: Функция предполагает, что текст Descr представлен в кодировке utf-8. Обязанность вызывающей функции реализовать
+	//   преобразование кодировки, если необходимо.
+	// Returns:
+	//   !0 - созданный	json-объект с атрибутами экземпляра this. 
+	//      Важно: вызывающая функция должна разрушить полученный объект после использования!
+	//    0 - error.
+	//
+	SJson * ToJsonObj() const;
+	bool  FromJsonObj(const SJson * pJs);
 
 	uint32 Ver;      // @v12.3.11 Версия формата для сериализации 
 	uint32 LocIdent; // Тип локации, в которой обнаружена ошибка. Полностью определяется контекстом. 0 - неопределенное значение.

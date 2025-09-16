@@ -69,7 +69,9 @@ int BarcodeArrangeConfig::Load()
 	THISZERO();
 	int    ok = -1;
 	PPIniFile ini_file;
-	SString param, prefix, length;
+	SString param;
+	SString prefix;
+	SString length;
 	if(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_BARCODELOWPRIORITY, param) > 0) {
 		param.Divide(',', prefix, length);
 		prefix.Strip().CopyTo(LowPriorPrefix, sizeof(LowPriorPrefix));

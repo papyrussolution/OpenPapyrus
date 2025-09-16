@@ -890,7 +890,7 @@ PPBillImpExpParam::PPBillImpExpParam(uint recId, long flags) : PPImpExpParam(rec
 	int    ok = 1;
 	int    use_ps = 0;
 	int    _is_subst = 0;
-	SString _file_name = FileName;
+	SString _file_name(FileName);
 	_file_name.Transf(CTRANSF_INNER_TO_OUTER);
 	if(_file_name.IsEqiAscii(":buffer:")) {
 		rResult = _file_name;

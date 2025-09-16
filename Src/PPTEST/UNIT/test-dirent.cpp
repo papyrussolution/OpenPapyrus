@@ -1607,9 +1607,10 @@ benchmark=access;winfileexists
 SLTEST_R(Directory)
 {
 	int    ok = 1;
-	SString path = GetSuiteEntry()->InPath;
-	SString out_path = GetSuiteEntry()->OutPath;
-	SString test_dir, test_dir_with_files;
+	SString path(GetSuiteEntry()->InPath);
+	SString out_path(GetSuiteEntry()->OutPath);
+	SString test_dir;
+	SString test_dir_with_files;
 	SString temp_buf;
 	uint   files_count = 0;
 	int64  files_size = 0;

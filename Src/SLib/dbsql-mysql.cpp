@@ -786,7 +786,7 @@ int SMySqlDbProvider::ProcessBinding_SimpleType(int action, uint count, SSqlStmt
 		if(count > 1)
 			pStmt->AllocBindSubst(count, pBind->NtvSize, pBind);
 	}
-	else if(pBind->Dim > 1) {
+	else if(pBind->Dim_ > 1) {
 		if(action < 0)
 			memcpy(pStmt->GetBindOuterPtr(pBind, count), pBind->P_Data, pBind->NtvSize);
 		else if(action == 1)
@@ -891,7 +891,7 @@ enum enum_field_types {
 	uint16 out_typ = 0;
 	pBind->NtvSize = static_cast<uint16>(sz); // default value
 	if(action == 0)
-		pBind->Dim = count;
+		pBind->Dim_ = count;
 	const int t = GETSTYPE(pBind->Typ);
 	switch(t) {
 		case S_CHAR: ProcessBinding_SimpleType(action, count, pStmt, pBind, MYSQL_TYPE_TINY); break;

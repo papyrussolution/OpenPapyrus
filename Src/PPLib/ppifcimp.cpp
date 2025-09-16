@@ -1657,7 +1657,7 @@ int32 DL6ICLS_PPUtil::GetTagValueExt(PpyObjectIdent objType, int32 objID, int32 
 int32 DL6ICLS_PPUtil::PutTagValue(PpyObjectIdent objType, int32 objID, int32 tagID, SString & rValue)
 {
 	int    ok = -1;
-	int32  obj_type = objType;
+	const  int32 obj_type = objType;
 	if(obj_type) {
 		ObjTagItem item;
 		item.Init(tagID);
@@ -1672,7 +1672,8 @@ int32 DL6ICLS_PPUtil::DiagBarcode(SString & inputBarcode, int32* pStd, SString* 
 {
 	int    std = 0;
 	int    diag = 0;
-	SString outp_code, msg_buf;
+	SString outp_code;
+	SString msg_buf;
 	int    ok = PPObjGoods::DiagBarcode(inputBarcode, &diag, &std, &outp_code);
 	if(ok <= 0) {
 		PPObjGoods::GetBarcodeDiagText(diag, msg_buf);

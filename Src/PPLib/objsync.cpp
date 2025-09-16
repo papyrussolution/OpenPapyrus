@@ -93,7 +93,8 @@ SString & PPCommSyncID::ToStr(long fmt, SString & rBuf) const
 int FASTCALL PPCommSyncID::FromStr(const char * pStr)
 {
 	SString buf(pStr);
-	SString p, i;
+	SString p;
+	SString i;
 	if(buf.Divide('-', p, i) > 0) {
 		P = (short)p.ToLong();
 		I = i.ToLong();

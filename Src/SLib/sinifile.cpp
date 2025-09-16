@@ -115,7 +115,8 @@ SIniSectBuffer * SIniFileBuffer::AddSect(SIniSectBuffer * pSectBuf)
 			p_result = pSectBuf;
 		}
 		else {
-			SString par, val;
+			SString par;
+			SString val;
 			for(uint pos = 0; pSectBuf->EnumParams(&pos, &par, &val) > 0;)
 				p_sect_buf->SetParam(par, val, 1);
 			delete pSectBuf;
@@ -348,7 +349,9 @@ int SIniFile::FlashIniBuf()
 {
 	int    ok = 1;
 	if(P_IniBuf) {
-		SString par, val, temp_buf;
+		SString temp_buf;
+		SString par;
+		SString val;
 		SIniSectBuffer * p_sect = 0;
 		Close();
 		THROW(Create(FileName));

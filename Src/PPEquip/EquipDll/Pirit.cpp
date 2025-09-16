@@ -3104,7 +3104,8 @@ int PiritEquip::ReturnCheckParam(const SString & rInput, char * pOutput, size_t 
 int PiritEquip::OpenBox()
 {
 	int    ok = 1;
-	SString out_data, r_error;
+	SString out_data;
+	SString r_error;
 	THROW(ExecCmd("81", 0, out_data, r_error));
 	if(out_data.ToLong() == 0) {
 		THROW(ExecCmd("80", 0, out_data, r_error));

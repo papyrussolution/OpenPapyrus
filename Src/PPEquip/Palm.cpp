@@ -1843,11 +1843,14 @@ int PPObjStyloPalm::ImportInventory(PalmBillPacket * pSrcPack, PPID opID, PPID l
 int PPObjStyloPalm::ImportBill(PalmBillQueue * pQueue, PPID opID, PPID locID, PPLogger * pLogger, long ordCount, int use_ta)
 {
 	int    ok = -1;
-	long   accepted_ord_count = 0L, ord_already_ex_count = 0L;
+	long   accepted_ord_count = 0L;
+	long   ord_already_ex_count = 0L;
 	PalmBillPacket * p_src_pack = 0;
 	InventoryCore & r_inv_tbl = BillObj->GetInvT();
 	PPStyloPalmConfig sp_cfg;
-	SString fmt_buf, msg_buf, temp_buf;
+	SString temp_buf;
+	SString fmt_buf;
+	SString msg_buf;
 	PPObjStyloPalm::ReadConfig(&sp_cfg);
 	while(!pQueue->IsEmpty()) {
 		p_src_pack = pQueue->Pop();
@@ -1874,7 +1877,7 @@ int PPObjStyloPalm::ImportBill(PalmBillQueue * pQueue, PPID opID, PPID locID, PP
 	return ok;
 }
 
-const char * PalmMemo = "Palm memo: ";
+// @v12.4.1 (@unused) const char * PalmMemo = "Palm memo: ";
 
 // @<<PPObjStyloPalm::ImportData
 int PPObjStyloPalm::ImportDebtMemo(SQueue * pQueue, PPLogger * pLogger, int use_ta)
@@ -1938,13 +1941,15 @@ static int DeleteImportFiles(const PPStyloPalmPacket * pPack)
 {
 	int    ok = 1;
 	if(pPack->P_Path) {
-		const int is_andr = BIN(pPack->Rec.Flags & PLMF_ANDROID);
-		SString input_path, file_name, path_;
+		const bool is_android = LOGIC(pPack->Rec.Flags & PLMF_ANDROID);
+		SString input_path;
+		SString file_name;
+		SString path_;
 		StrAssocArray file_list;
 		PPWaitStart();
 		pPack->MakeInputPath(input_path);
 		if(::access(input_path, 0) == 0) {
-			GetImportFileList(is_andr, input_path, 0, &file_list, 0);
+			GetImportFileList(is_android, input_path, 0, &file_list, 0);
 			for(uint i = 0; i < file_list.getCount(); i++) {
 				file_name = file_list.Get(i).Txt;
 				if(file_name.CmpSuffix("in.xml", 1) != 0) { // @v11.1.1 @fix не следует удалять этот файл - он входящий для устройства
@@ -2016,7 +2021,9 @@ static int CopyFileToFtp(int fileID, const char * pFileName, const char * pExpPa
 	const char * pDeviceName, WinInetFTP * pFtp, int toFtp, PPLogger * pLogger)
 {
 	int    ok = 1;
-	SString file_name, path, ftp_path;
+	SString file_name;
+	SString path;
+	SString ftp_path;
 	PPWaitStart();
 	if(pFileName)
 		file_name = pFileName;
@@ -2041,9 +2048,9 @@ static int CopyFilesToFTP(const PPStyloPalmPacket * pPack, WinInetFTP * pFtp, in
 {
 	int    ok = 1;
 	int    put_to_log = 0;
-	if(pFtp && sstrlen(pPack->P_Path) && sstrlen(pPack->P_FTPPath)) {
+	if(pFtp && !isempty(pPack->P_Path) && !isempty(pPack->P_FTPPath)) {
 		int    r = 0;
-		const  int  is_andr = BIN(pPack->Rec.Flags & PLMF_ANDROID);
+		const  bool is_android = LOGIC(pPack->Rec.Flags & PLMF_ANDROID);
 		SString ftp_path;
 		SString path;
 		SString temp_buf;
@@ -2051,7 +2058,7 @@ static int CopyFilesToFTP(const PPStyloPalmPacket * pPack, WinInetFTP * pFtp, in
 		SString fname;
 		StrAssocArray file_list;
 		(ftp_path = pPack->P_FTPPath).SetLastSlash();
-		if(is_andr)
+		if(is_android)
 			pPack->MakePath(0, path);
 		else {
 			if(toFtp) {
@@ -2072,7 +2079,7 @@ static int CopyFilesToFTP(const PPStyloPalmPacket * pPack, WinInetFTP * pFtp, in
 		if(toFtp) {
 			int    send_ok = 1;
 			long   palm_flags = pPack->Rec.Flags;
-			if(is_andr)
+			if(is_android)
 				r = send_ok = CopyFileToFtp(PPFILNAM_PALM_INXML, 0, path, ftp_path, pPack->Rec.Name, pFtp, 1, pLogger);
 			else {
 				PalmConfig server_pc, local_pc;
@@ -2136,7 +2143,7 @@ static int CopyFilesToFTP(const PPStyloPalmPacket * pPack, WinInetFTP * pFtp, in
 			const char * p_ready_flag = "sp_ready";
 			if(CopyFileToFtp(0, p_ready_flag, path, ftp_path, pPack->Rec.Name, pFtp, 0, pLogger) > 0) {
 				int del_spready = 1;
-				if(is_andr) {
+				if(is_android) {
 					if(GetImportFileList(1, ftp_path, pFtp, &file_list, pLogger) > 0) {
 						DeleteImportFiles(pPack);
 						for(uint i = 0; i < file_list.getCount(); i++) {
@@ -2200,12 +2207,12 @@ static int CopyFilesToFTP(const PPStyloPalmPacket * pPack, WinInetFTP * pFtp, in
 		if(delAfterCopy) {
 			SString spready_ftp_path;
 			(spready_ftp_path = pPack->P_FTPPath).SetLastSlash();
-			if(!is_andr)
+			if(!is_android)
 				spready_ftp_path.Cat("OUT").SetLastSlash();
 			ftp_path = spready_ftp_path;
 			spready_ftp_path.Cat("sp_ready");
 			if(!pFtp->Exists(spready_ftp_path)) {
-				if(GetImportFileList(is_andr, ftp_path, pFtp, &file_list, pLogger) > 0)
+				if(GetImportFileList(is_android, ftp_path, pFtp, &file_list, pLogger) > 0)
 					for(uint i = 0; i < file_list.getCount(); i++)
 						DelFtpFile(file_list.Get(i).Txt, ftp_path, pFtp, pLogger);
 			}
@@ -3822,9 +3829,10 @@ int PPObjStyloPalm::ExportData(const PalmPaneData & rParam)
 	const  int dont_prepare_debt_data = BIN(rParam.Flags & PalmPaneData::fExclExpDebts);
 	uint   i, j;
 	SString temp_buf;
+	SString out_path;
+	SString palm_path;
 	DbfTable * p_dbf_tbl = 0;
 	PPStyloPalmConfig sp_cfg;
-	SString out_path, palm_path;
 	TSCollection <PalmExpStruc> exp_list;
 	TSCollection <PalmDebtExpStruc> debt_exp_list;
 	TSCollection <PalmCfgItem> cfg_list;

@@ -4750,12 +4750,14 @@ int UhttIndexPersons(uint setSz, PPID personKindID, const SString & rOutPath)
 
 int UhttIndexGoods(uint setSz, const SString & rOutPath)
 {
-	int        ok = 1;
-	int        closed = 0;
-	uint       set_n = 1, goods_n = 0;
-	PPIDArray  id_list;
-	SString    name_buf, context_buf;
-	SString    path;
+	int    ok = 1;
+	int    closed = 0;
+	uint   set_n = 1;
+	uint   goods_n = 0;
+	PPIDArray id_list;
+	SString name_buf;
+	SString context_buf;
+	SString path;
 	Goods2Tbl::Rec goods_rec;
 	GoodsIterator  goods_iter;
 	THROW(rOutPath.NotEmpty());
@@ -4850,10 +4852,11 @@ int UhttIndexChangedGoods(const SString & rOutPath)
 	int     ok = 1;
 	PPViewGoods   view;
 	GoodsViewItem item;
-	GoodsFilt     filt;
-	PPIDArray     id_ary;
-	SString       name_buf, context_buf;
-	SString       path;
+	GoodsFilt filt;
+	PPIDArray id_ary;
+	SString name_buf;
+	SString context_buf;
+	SString path;
 	THROW(rOutPath.NotEmpty());
 	path.Z().Cat(rOutPath).SetLastSlash().Cat(GOODS_CHANGED_SET_FILE_NAME);
 	xmlTextWriter * p_writer = xmlNewTextWriterFilename(path, 0);

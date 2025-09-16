@@ -1666,7 +1666,7 @@ int SCS_SYNCCASH::PrintZReportCopy(const CSessInfo * pInfo)
 	THROW(ExecPrintOper(DVCCMD_OPENCHECK, Arr_In, Arr_Out));
 	if(P_SlipFmt) {
 		int   r = 0;
-		SString  line_buf;
+		SString line_buf;
 		const SString format_name("ZReportCopy");
 		SlipDocCommonParam  sdc_param;
 		THROW(r = P_SlipFmt->Init(format_name, &sdc_param));
@@ -1771,20 +1771,20 @@ int SCS_SYNCCASH::OpenBox()
 	return ok;
 }
 
-int SCS_SYNCCASH::GetPrintErrCode()
-{
-	return ErrCode;
-}
+int SCS_SYNCCASH::GetPrintErrCode() { return ErrCode; }
 
 int SCS_SYNCCASH::GetStatus(int & rStatus)
 {
 	rStatus = 0;
 	int    ok = 1;
-	StrAssocArray arr_in, arr_out;
+	StrAssocArray arr_in;
+	StrAssocArray arr_out;
 	THROW(ExecOper(DVCCMD_GETECRSTATUS, arr_in, arr_out));
 	//THROW(ResCode == RESCODE_NO_ERROR);
 	if(arr_out.getCount()) {
-		SString param_name, param_val, buf;
+		SString param_name;
+		SString param_val;
+		SString buf;
 		for(uint i = 0; arr_out.GetText(i, buf) > 0; i++) {
 			DestrStr(buf, param_name, param_val);
 			if(param_name.IsEqiAscii("STATUS"))
@@ -1800,7 +1800,8 @@ int SCS_SYNCCASH::AllowPrintOper()
 	int    ok = 1;
 	int    wait_prn_err = 0;
 	int    status = 0;
-	StrAssocArray arr_in, arr_out;
+	StrAssocArray arr_in;
+	StrAssocArray arr_out;
 	// SetErrorMessage();
 	// Ожидание окончания операции печати
 	uint   wait_cycle_count = 0;

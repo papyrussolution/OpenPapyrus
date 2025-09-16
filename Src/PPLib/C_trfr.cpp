@@ -659,8 +659,10 @@ int CorrectLotSuppl()
 	PPObjBill * p_bobj = BillObj;
 	PPOprKind op_rec;
 	BillTbl::Rec bill_rec;
-	SString msg_buf, log_fname;
-	SString out_buf, bill_code;
+	SString msg_buf;
+	SString log_fname;
+	SString out_buf;
+	SString bill_code;
 	PPGetFileName(PPFILNAM_LOTSUPPL_ERR, log_fname);
 	PPLogger logger;
 	PPWaitStart();

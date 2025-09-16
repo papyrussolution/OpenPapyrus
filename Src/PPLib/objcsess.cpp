@@ -1,10 +1,10 @@
 // OBJCSESS.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2024
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
-#include <crpe.h>
+// @v12.4.1 #include <crpe.h>
 //
 // PPObjCSession
 //
@@ -2874,9 +2874,9 @@ int PPCCheckImporter::Run()
 										p_posprc->PrintToLocalPrinters(-1, true/*ignoreNonZeroAgentReq*/);
 									}
 									else {
-										if(PEOpenEngine()) {
+										if(OpenCrrEngine()) {
 											p_posprc->PrintToLocalPrinters(-1, true/*ignoreNonZeroAgentReq*/);
-											PECloseEngine();
+											CloseCrrEngine();
 										}
 										else {
 											// @todo @err

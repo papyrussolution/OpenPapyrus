@@ -606,7 +606,7 @@ int FASTCALL DlRtm::FinishRecord(const DlScope * pScope)
 		for(i = 0; i < c; i++) {
 			const STypEx & r_t = pScope->GetC(i)->T;
 			if(r_t.Flags & STypEx::fFormula) {
-				size_t fld_sz = r_t.GetBinSize();
+				const size_t fld_sz = r_t.GetBinSize();
 				CtmExpr * p_expr = P_Ctx->GetFormula(pScope, i);
 				THROW(p_expr); // @todo error
 				{
@@ -615,8 +615,8 @@ int FASTCALL DlRtm::FinishRecord(const DlScope * pScope)
 					const  size_t ret_sp = P_Ctx->AllocStackType(p_expr->GetTypeID(), &te);
 					THROW(P_Ctx->EvaluateExpr(this, pScope, this, pScope, p_expr, ret_sp));
 					if(r_t.IsZStr(&slen)) {
-						SString * p_ss = *(SString **)P_Ctx->GetStackPtr(ret_sp);
-						p_ss->CopyTo((char *)pScope->GetData(i), slen);
+						SString * p_ss = *static_cast<SString **>(P_Ctx->GetStackPtr(ret_sp));
+						p_ss->CopyTo(static_cast<char *>(pScope->GetData(i)), slen);
 					}
 					else
 						memcpy(pScope->GetData(i), P_Ctx->GetStackPtr(ret_sp), fld_sz);

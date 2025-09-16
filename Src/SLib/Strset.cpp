@@ -316,11 +316,12 @@ int StringSet::setBuf(const void * b, size_t len)
 					DataLen = p-P_Buf+1;
 			}
 			else {
-				for(const char * p = P_Buf; (p = static_cast<const char *>(smemchr(p, 0, len))) != 0; p++) // @v11.7.0 memchr-->smemchr
+				for(const char * p = P_Buf; (p = static_cast<const char *>(smemchr(p, 0, len))) != 0; p++) { // @v11.7.0 memchr-->smemchr
 					if(p[1] == 0) {
 						DataLen = p-P_Buf+2;
 						break;
 					}
+				}
 			}
 		}
 		else

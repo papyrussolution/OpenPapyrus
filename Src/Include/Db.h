@@ -1537,7 +1537,7 @@ public:
 		//uint32 * P_LobSz;  // Указатель на актуальную длину данных в поле типа LOB (используется только для S_BLOB S_CLOB)
 		uint32 SubstSize;  // @#{SubstSize >= Dim*ItemSize} Размер подстановочного участка буфера
 		uint32 SubstOffs;  // @#{SubstOffs >= 4} Смещение до подстановочного участка буфера
-		uint32 Dim;        // Размерность связываемого массива. Обычно Dim == BindArray::Dim
+		uint32 Dim_;       // Размерность связываемого массива. Обычно Dim == BindArray::Dim
 		uint32 ItemSize;   // Размер одного элемента массива (размерности Dim)
 		uint32 IndPos;     // Позиция индикатора поля //
 		uint32 FslPos;     // Позиция индикатора длины результата
@@ -1558,7 +1558,7 @@ private:
 
 	void   InitBinding();
 	int    AllocBindSubst(uint32 itemCount, uint32 itemSize, Bind * pBind);
-	size_t Helper_AllocBindSubst(uint32 itemCount, uint32 itemSize, int calcOnly);
+	size_t Helper_AllocBindSubst(uint32 itemCount, uint32 itemSize, bool calcOnly);
 	int    AllocIndSubst(uint32 itemCount, Bind * pBind);
 	int    AllocFslSubst(uint32 itemCount, Bind * pBind);
 	void * FASTCALL GetBindOuterPtr(const Bind * pBind, uint rowN) const;
@@ -2160,8 +2160,10 @@ public:
 	//   Поле состояния возвращается функцией GetState()
 	//
 	enum {
-		stError    = 0x0001,
-		stLoggedIn = 0x0002
+		stError       = 0x0001,
+		stLoggedIn    = 0x0002,
+		stTransaction = 0x0004, // @v12.4.1 Запущена транзакция методом StartTransaction(). Методы CommitWork() и RollbackWork() снимают этот флаг.
+			// Важно! Обязанность имплементации установки и снятия флага лежит на конкретных реализациях указанных виртуальных функций.
 	};
 	virtual ~DbProvider();
 	//

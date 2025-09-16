@@ -2389,8 +2389,9 @@ int PPOpenFile(SString & rPath, const StringSet & rPatterns, long flags, HWND ow
 	int    ok = -1;
 	OPENFILENAME sofn;
 	TCHAR  file_name[MAX_PATH];
-	SString  title_buf;
-	SString  dir, fname;
+	SString title_buf;
+	SString dir;
+	SString fname;
 	STempBuffer filter_buf(64);
 	SplitPath(rPath, dir, fname);
 	STRNSCPY(file_name, SUcSwitch(fname));

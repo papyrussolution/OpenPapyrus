@@ -1057,7 +1057,7 @@ private:
 
 void QuotKindDialog::SetTimePeriod(TDialog * pDlg)
 {
-	SString  temp_buf;
+	SString temp_buf;
 	TimeRange tmr;
 	Data.Rec.GetTimeRange(tmr);
 	if(tmr.low)

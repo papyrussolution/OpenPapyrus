@@ -1012,8 +1012,15 @@ int PPThreadLocalArea::RegisterAdviseObjects()
 	return ok;
 }
 
-int    PPThreadLocalArea::IsAuth() const { return (State & stAuth) ? 1 : PPSetError(PPERR_SESSNAUTH); }
-bool   PPThreadLocalArea::IsConsistent() const { return (Sign == PPConst::Signature_PPThreadLocalArea); }
+uint PPThreadLocalArea::SetStateFlag(uint flag, bool set)
+{
+	const uint preserve_flags = StateFlags;
+	SETFLAG(StateFlags, flag, set);
+	return preserve_flags;
+}
+
+bool PPThreadLocalArea::IsAuth() const { return (StateFlags & stAuth) ? true : PPSetError(PPERR_SESSNAUTH); }
+bool PPThreadLocalArea::IsConsistent() const { return (Sign == PPConst::Signature_PPThreadLocalArea); }
 PPView * PPThreadLocalArea::GetPPViewPtr(int32 id) const { return (id > 0 && id <= SrvViewList.getCountI()) ? SrvViewList.at(id-1) : 0; }
 
 int32 PPThreadLocalArea::CreatePPViewPtr(PPView * pView)
@@ -1160,10 +1167,10 @@ int PPThreadLocalArea::InitMainOrgData(int reset)
 {
 	int    ok = 1;
 	if(reset) {
-		State &= ~stMainOrgInit;
+		StateFlags &= ~stMainOrgInit;
 		ok = 2;
 	}
-	else if(State & stMainOrgInit)
+	else if(StateFlags & stMainOrgInit)
 		ok = -1;
 	else if(Cc.MainOrgID) {
 		PPObjStaffList stlobj;
@@ -2597,16 +2604,16 @@ int PPSession::GetThreadInfo(ThreadID tId, PPThread::Info & rInfo) { return Thre
 int PPSession::GetThreadListByKind(int kind, LongArray & rList) { return ThreadList.GetListByKind(kind, rList); }
 int FASTCALL PPSession::PushLogMsgToQueue(const PPLogMsgItem & rItem) { return P_LogQueue ? P_LogQueue->Push(rItem) : -1; }
 
-int PPSession::IsThreadInteractive() const
+bool PPSession::IsThreadInteractive() const
 {
 	if(/*CS_SERVER*/CheckExtFlag(ECF_SYSSERVICE))
-		return 0;
+		return false;
 	else {
 		const PPThreadLocalArea & r_tla = GetConstTLA();
 		if(r_tla.IsConsistent())
-			return (r_tla.State & PPThreadLocalArea::stNonInteractive) ? 0 : 1;
+			return !(r_tla.StateFlags & PPThreadLocalArea::stNonInteractive);
 		else
-			return 0;
+			return false;
 	}
 }
 
@@ -3879,7 +3886,7 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 		PPConfig & r_lc = r_tla.Lc;
 		PPCommConfig & r_cc = r_tla.Cc;
 		STRNSCPY(user_name, pUserName);
-		r_tla.State &= ~PPThreadLocalArea::stAuth;
+		r_tla.StateFlags &= ~PPThreadLocalArea::stAuth;
 		THROW(OpenDictionary2(&blk, 0));
 		debug_r = 4;
 		r_tla.Prf.InitUserProfile(user_name); // Инициализация профайлера с параметрами БД сразу после соединения с сервером БД.
@@ -4624,7 +4631,7 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 				}
 				// } @v11.8.8 
 			}
-			r_tla.State |= PPThreadLocalArea::stAuth;
+			r_tla.StateFlags |= PPThreadLocalArea::stAuth;
 			ufp.Commit();
 #if !defined(_PPDLL) && !defined(_PPSERVER)
 			if(oneof2(logmode, logmOrdinary, logmSystem) && db_state & DbProvider::dbstContinuous) {
@@ -4964,7 +4971,7 @@ int CreateBackupCopy(const char *, int);
 
 void PPThreadLocalArea::OnLogout()
 {
-	State &= ~stAuth;
+	StateFlags &= ~stAuth;
 	SrvViewList.freeAll();
 	ZDELETE(P_EgPrc_); // @v12.2.11
 	ZDELETE(P_WObj);
@@ -4990,7 +4997,7 @@ void PPThreadLocalArea::OnLogout()
 int PPSession::Logout()
 {
 	PPThreadLocalArea & r_tla = GetTLA();
-	if(r_tla.State & PPThreadLocalArea::stAuth) {
+	if(r_tla.StateFlags & PPThreadLocalArea::stAuth) {
 		const SString active_user = r_tla.UserName;
 		SString temp_buf;
 		r_tla.ReleaseEventResponder(r_tla.eventresponderSysMaintenance);

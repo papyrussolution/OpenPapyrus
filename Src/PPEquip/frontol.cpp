@@ -50,7 +50,7 @@ private:
 	StringSet ImpPaths;
 	StringSet ExpPaths;
 	PPAsyncCashNode Acn;
-	SString   ImportedFiles;
+	SString ImportedFiles;
 	_FrontolZRepArray ZRepList;
 };
 
@@ -1137,7 +1137,7 @@ int ACS_FRONTOL::GetSessionData(int * pSessCount, int * pIsForwardSess, DateRang
 		THROW(GetNodeData(&Acn) > 0);
 		Acn.GetLogNumList(LogNumList);
 		{
-			SString  alt_imp_params;
+			SString alt_imp_params;
 			PPIniFile  ini_file;
 			if(Acn.ExtFlags & CASHFX_CREATEOBJSONIMP) {
 				UseAltImport = 1;
@@ -1544,9 +1544,7 @@ int ACS_FRONTOL::ConvertWareList(const char * pImpPath)
 							SetupTempCcLineRec(0, chk_id, chk_no, P_TmpCcTbl->data.Dt, div, goods_id);
 							const double ln_price = is_free_price ? src_dscnt_price : price;
 							const double ln_discount = is_free_price ? 0.0 : (price - src_dscnt_price);
-							// @v10.7.3 SetTempCcLineValues(0, qtty, ln_price, ln_discount, 0/*pLnExtStrings*/);
-							// @v10.7.3 THROW_DB(P_TmpCclTbl->insertRec());
-							THROW(SetTempCcLineValuesAndInsert(P_TmpCclTbl, qtty, ln_price, ln_discount, 0/*pLnExtStrings*/)); // @v10.7.3
+							THROW(SetTempCcLineValuesAndInsert(P_TmpCclTbl, qtty, ln_price, ln_discount, 0/*pLnExtStrings*/));
 							{
 								double dscnt = 0.0;
 								if(is_free_price)

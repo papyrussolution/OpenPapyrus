@@ -135,7 +135,9 @@ PPObjOpCounter::PPObjOpCounter(void * extraPtr) : PPObjReference(PPOBJ_OPCOUNTER
 
 int PPObjOpCounter::Edit(PPID * pID, void * extraPtr)
 {
-	int    ok = -1, valid_data = 0, r = 0;
+	int    ok = -1;
+	int    valid_data = 0;
+	int    r = 0;
 	PPOpCounterPacket pack;
 	THROW(CheckRightsModByID(pID));
 	if(*pID) {
@@ -252,7 +254,8 @@ int PPObjOpCounter::GetCode(PPID id, long * pCounter, char * pBuf, size_t bufLen
 
 int PPObjOpCounter::UngetCounter(PPID id, long counter, PPID locID, int use_ta)
 {
-	int    ok = 1, r = 0;
+	int    ok = 1;
+	int    r = 0;
 	if(id) {
 		PPOpCounterPacket pack;
 		{

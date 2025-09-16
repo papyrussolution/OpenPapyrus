@@ -1198,7 +1198,11 @@ int CreateBizScGlblUserAcct()
 	if(ok > 0) {
 		ulong  crc = 0;
 		SCRC32 crc32;
-		SString out_buf, buf, path, sguid, file_name;
+		SString out_buf;
+		SString buf;
+		SString path;
+		SString sguid;
+		SString file_name;
 		SFile  file;
 		S_GUID dbuuid;
 

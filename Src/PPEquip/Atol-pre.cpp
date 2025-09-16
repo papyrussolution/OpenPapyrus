@@ -562,10 +562,12 @@ int ACS_ATOL::ExportData(int updOnly)
 	const  char * p_load_symb = "$";
 	const  char * p_format = "%s\n";
 	PPID   prev_goods_id = 0, stat_id = 0;
-	LAssocArray  grp_n_level_ary;
-	SString   f_str, tail;
-	SString   path_goods, path_flag;
-	PPUnit    unit_rec;
+	LAssocArray grp_n_level_ary;
+	SString f_str;
+	SString tail;
+	SString path_goods;
+	SString path_flag;
+	PPUnit unit_rec;
 	PPObjUnit unit_obj;
 	PPAsyncCashNode cn_data;
 	AsyncCashGoodsInfo gds_info;
@@ -749,7 +751,7 @@ int ACS_ATOL::GetSessionData(int * pSessCount, int * pIsForwardSess, DateRange *
 		THROW(GetNodeData(&acn) > 0);
 		acn.GetLogNumList(LogNumList);
 		{
-			SString  alt_imp_params;
+			SString alt_imp_params;
 			PPIniFile  ini_file;
 			if(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_ACSCLOSE_USEALTIMPORT, alt_imp_params) > 0) {
 				uint    pos = 0;
@@ -813,7 +815,9 @@ int ACS_ATOL::ConvertWareList(const char * pImpPath, const char * pExpPath)
 	PPIDArray   new_goods;
 	LAssocArray zrep_ary; // Пара {номер_кассы; номер_смены}
 	LDATETIME dtm;
-	SString   buf, card_code, wait_msg;
+	SString buf;
+	SString card_code;
+	SString wait_msg;
 	StringSet ss(';', 0);
 	IterCounter   cntr;
 	SCardCore     sc_core;

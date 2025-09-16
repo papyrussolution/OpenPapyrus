@@ -430,8 +430,7 @@ private:
 				THROW(vi.GetSecret(secret, sizeof(secret)));
 			}
 			THROW(user_name.NotEmpty());
-			//const SString user_name = temp_buf;
-			if(r_tla.State & r_tla.stAuth) {
+			if(r_tla.CheckStateFlag(r_tla.stAuth)) {
 				DbProvider * p_dict = CurDict;
 				if(p_dict) {
 					p_dict->GetDbSymb(temp_buf);
@@ -1014,7 +1013,7 @@ void PPWorkingPipeSession::ProcessHttpRequest(ngx_http_request_t * pReq, PPServe
 			ProcessHttpRequest_StyloQ(pReq, rCmd);
 		}
 		else {
-			if(r_tla.State & r_tla.stAuth) {
+			if(r_tla.CheckStateFlag(r_tla.stAuth)) {
 				PPJobSrvReply __reply;
 				SHttpProtocol::Auth a;
 				int cmdret = 0;

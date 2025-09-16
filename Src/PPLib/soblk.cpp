@@ -2037,7 +2037,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 	ResultText.Z();
 	const PPThreadLocalArea & r_tla_c = DS.GetConstTLA();
 	const SCodepageIdent _xmlcp((OutFormat == fmtXmlUtf8) ? cpUTF8 : cpANSI);
-	if(r_tla_c.GlobAccID && r_tla_c.State & PPThreadLocalArea::stExpTariffTa) {
+	if(r_tla_c.GlobAccID && r_tla_c.CheckStateFlag(PPThreadLocalArea::stExpTariffTa)) {
 		gta_blk.GlobalUserID = r_tla_c.GlobAccID;
 		gta_blk.ObjId.Obj = ObjType;
 		switch(Operator) {
@@ -3498,7 +3498,8 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 								}
 								else {
 									ObjTagItem  tag;
-									SString     number, prefix;
+									SString number;
+									SString prefix;
 									if(DS.GetTLA().GlobAccID > 0) {
 										if(p_ref->Ot.GetTag(PPOBJ_GLOBALUSERACC, DS.GetTLA().GlobAccID, PPTAG_GUA_SCARDPREFIX, &tag) > 0) {
 											prefix = tag.Val.PStr;
@@ -5806,12 +5807,15 @@ STYLOPALM
 						case cCode:
 							{
 							// @Muxa @v7.3.9 {
-								SString number, hash, temp_buf, prefix;
+								SString number;
+								SString hash;
+								SString temp_buf;
+								SString prefix;
 								PPObjGlobalUserAcc gua_obj;
-								PPGlobalUserAcc    gua_rec;
-								ObjTagItem         tag;
-								SString            temp_hash;
-								PPGlobalAccRights  rights_blk(PPTAG_GUA_SCARDRIGHTS);
+								PPGlobalUserAcc gua_rec;
+								ObjTagItem tag;
+								SString temp_hash;
+								PPGlobalAccRights rights_blk(PPTAG_GUA_SCARDRIGHTS);
 								THROW_PP(P_SetBlk->U.SC.ID == 0, PPERR_CMDSEL_ONLYONECRITOBJENABLED);
 								if(rights_blk.IsAllow(PPGlobalAccRights::fOperation)) {
 									rArg.Divide('@', number, hash);
@@ -5886,8 +5890,9 @@ STYLOPALM
 								}
 								else {
 									if(DS.GetTLA().GlobAccID > 0) {
-										SString     temp_buf, prefix;
-										ObjTagItem  tag;
+										SString temp_buf;
+										SString prefix;
+										ObjTagItem tag;
 										if(p_ref->Ot.GetTag(PPOBJ_GLOBALUSERACC, DS.GetTLA().GlobAccID, PPTAG_GUA_SCARDPREFIX, &tag) > 0) {
 											prefix = tag.Val.PStr;
 											if(prefix.NotEmpty()) {

@@ -1483,7 +1483,7 @@ int SCS_SHTRIHFRF::InitTaxTbl(BillTaxArray * pBTaxAry, PPIDArray * pVatAry, int 
 int SCS_SHTRIHFRF::PrintSlipDoc(const CCheckPacket * pPack, const char * pFormatName, uint flags)
 {
 	int    ok = -1;
-	SString  temp_buf;
+	SString temp_buf;
 	ResCode = RESCODE_NO_ERROR;
 	ErrCode = SYNCPRN_ERROR_AFTER_PRINT;
 	THROW_INVARG(pPack);
@@ -1571,7 +1571,7 @@ int SCS_SHTRIHFRF::PrintCheckCopy(const CCheckPacket * pPack, const char * pForm
 	THROW(SetFR(DocumentNumber, pPack->Rec.Code));
 	if(P_SlipFmt) {
 		int   r = 0;
-		SString  line_buf;
+		SString line_buf;
 		const SString format_name(isempty(pFormatName) ? ((flags & PRNCHK_RETURN) ? "CCheckRetCopy" : "CCheckCopy") : pFormatName);
 		SlipLineParam sl_param;
 		THROW(r = P_SlipFmt->Init(format_name, &sdc_param));

@@ -95,8 +95,10 @@ int ACS_SHTRIHMFRK::ExportSCard(FILE * pFile, int updOnly)
 			k.SeriesID = ser_id;
 			THROW(scs_obj.GetPacket(ser_id, &scs_pack) > 0);
 			while(s_crd_obj.P_Tbl->search(2, &k, spGt) && k.SeriesID == ser_id) {
-				int denied_card = 0;
-				SString  temp_buf, buf, psn_name;
+				int    denied_card = 0;
+				SString temp_buf;
+				SString buf;
+				SString psn_name;
 				SCardTbl::Rec card_rec;
 				s_crd_obj.P_Tbl->copyBufTo(&card_rec);
 				s_crd_obj.SetInheritance(&scs_pack, &card_rec);
@@ -322,9 +324,11 @@ int ACS_SHTRIHMFRK::ExportData(int updOnly)
 		const  char * p_format = "%s\n";
 		PPObjSCardSeries scs_obj;
 		PPSCardSeries ser_rec;
-		PPObjSCard   s_crd_obj;
-		LAssocArray  scard_quot_ary;
-		SString  temp_buf, buf, psn_name;
+		PPObjSCard  s_crd_obj;
+		LAssocArray scard_quot_ary;
+		SString temp_buf;
+		SString buf;
+		SString psn_name;
 		AsyncCashSCardsIterator iter(NodeID, updOnly, P_Dls, stat_id);
 		scard_quot_ary.freeAll();
 		for(PPID ser_id = 0; scs_obj.EnumItems(&ser_id, &ser_rec) > 0;) {
@@ -494,7 +498,7 @@ int ACS_SHTRIHMFRK::GetSessionData(int * pSessCount, int * pIsForwardSess, DateR
 		THROW(GetNodeData(&acn) > 0);
 		acn.GetLogNumList(LogNumList);
 		{
-			SString  alt_imp_params;
+			SString alt_imp_params;
 			PPIniFile  ini_file;
 			if(!PathRpt.NotEmptyS())
 				THROW(PPGetFilePath(PPPATH_IN, PPFILNAM_SHTRIHMFRK_EXP_TXT,  PathRpt));

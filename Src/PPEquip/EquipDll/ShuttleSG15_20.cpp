@@ -672,11 +672,9 @@ int PriceChecker::GetRequest(SString & rRequest)
 	SBuffer buf(BUF_SIZE);
 	size_t recv_bytes = 0;
 	rRequest.Z();
-	// @v10.3.8 memzero(/*(void *)*/buf.GetBuf(), BUF_SIZE);
 	buf.Z();
 	while(Socket.RecvBuf(buf, BUF_SIZE, &recv_bytes) && recv_bytes != 0) {
-		rRequest.CatN(buf.GetBufC(), buf.GetAvailableSize()); // @v10.3.8 Cat()-->CatN(.., buf.GetAvailableSize())
-		// @v10.3.8 memzero(/*(void *)*/buf.GetBuf(), BUF_SIZE);
+		rRequest.CatN(buf.GetBufC(), buf.GetAvailableSize());
 		buf.Z();
 		recv_bytes = 0;
 		ok = 1;
@@ -687,7 +685,8 @@ int PriceChecker::GetRequest(SString & rRequest)
 int PriceChecker::PutAnswer(StGoodInfo & goodInfo)
 {
 	int    ok = 1;
-	SString dev_type, formated_info;
+	SString dev_type;
+	SString formated_info;
 	GetOption("type", dev_type);
 	if(dev_type.CmpNC("sg15") == 0)
 		FormatAnswer(&goodInfo, formated_info, sg15);

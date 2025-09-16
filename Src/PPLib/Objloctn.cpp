@@ -1627,7 +1627,7 @@ int LocationExtFieldsDialog::editItem(long pos, long id)
 {
 	int    ok = -1;
 	if(pos >= 0 && pos < static_cast<long>(FieldNames.getCount())) {
-		SString      buf;
+		SString buf;
 		SStringTag item;
 		item.Id = id;
 		Fields.GetText(id, buf);

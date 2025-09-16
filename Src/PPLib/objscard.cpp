@@ -22,8 +22,9 @@ PPSCardPacket & PPSCardPacket::Z()
 {
 	int    ok = -1;
 	if(rCode.Len()) {
-		SString  templ_buf, buf;
-		SString  input = rCode;
+		SString templ_buf;
+		SString buf;
+		SString input(rCode);
 		StringSet patterns(';', DS.GetConstTLA().SCardPatterns);
 		for(uint p = 0; ok < 0 && patterns.get(&p, buf);) {
 			templ_buf.Cat(buf);

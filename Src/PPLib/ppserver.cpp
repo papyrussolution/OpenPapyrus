@@ -4,7 +4,7 @@
 //
 #include <pp.h>
 #pragma hdrstop
-#include <crpe.h>
+// @v12.4.1 #include <crpe.h>
 #include <StyloConduit.h>
 #include <ppds.h>
 #include <wsctl.h>
@@ -868,7 +868,7 @@ int PPJobSession::MailNotify(const char * pTmpLogFileName)
 	PPDeclStruc	* p_ds = 0;
 	SString temp_buf, msg_buf;
 	PPInternetAccount inet_acc;
-	if(Job.EmailAccID && DS.GetConstTLA().State & PPThreadLocalArea::stAuth) {
+	if(Job.EmailAccID && DS.GetConstTLA().CheckStateFlag(PPThreadLocalArea::stAuth)) {
 		PPObjInternetAccount ia_obj;
 		if(ia_obj.Get(Job.EmailAccID, &inet_acc) <= 0)
 			inet_acc.ID = 0; // @paranoic
@@ -1972,9 +1972,10 @@ int CPosNodeBlock::Execute(uint cmd, const char * pParams, PPJobSrvReply & rRepl
 				{
 					PPID   chk_id = MAXLONG;
 					THROW(P_Prcssr->GetAuthAgentID());
-					PEOpenEngine();
-					P_Prcssr->Print(1, 0, 0);
-					PECloseEngine();
+					if(OpenCrrEngine()) {
+						P_Prcssr->Print(1, 0, 0);
+						CloseCrrEngine();
+					}
 					rReply.SetAck();
 					ok = 1;
 				}
@@ -1983,9 +1984,10 @@ int CPosNodeBlock::Execute(uint cmd, const char * pParams, PPJobSrvReply & rRepl
 				{
 					PPID   chk_id = MAXLONG;
 					THROW(P_Prcssr->GetAuthAgentID());
-					PEOpenEngine();
-					P_Prcssr->PrintToLocalPrinters(-1, false/*ignoreNonZeroAgentReq*/);
-					PECloseEngine();
+					if(OpenCrrEngine()) {
+						P_Prcssr->PrintToLocalPrinters(-1, false/*ignoreNonZeroAgentReq*/);
+						CloseCrrEngine();
+					}
 					rReply.SetAck();
 					ok = 1;
 				}
@@ -2976,7 +2978,7 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 				// @ Muxa {
 				r_tla.GlobAccID = 0;
 				r_tla.GlobAccName = 0;
-				r_tla.State &= ~PPThreadLocalArea::stExpTariffTa;
+				r_tla.SetStateFlag(PPThreadLocalArea::stExpTariffTa, false);
 				if(name == "0" || gua_id == PPGUAID_UHTT_CORE) {
 					r_tla.GlobAccID = gua_id;
 					ok = cmdretOK;
@@ -3037,12 +3039,12 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 		case PPSCMD_EXPTARIFFTA:
 			{
 				PPThreadLocalArea & r_tla = DS.GetTLA();
-				if(!(r_tla.State & PPThreadLocalArea::stExpTariffTa)) {
-					r_tla.State |= PPThreadLocalArea::stExpTariffTa;
+				if(!r_tla.CheckStateFlag(PPThreadLocalArea::stExpTariffTa)) {
+					r_tla.SetStateFlag(PPThreadLocalArea::stExpTariffTa, true);
 					temp_buf.Cat(1);   // on
 				}
 				else {
-					r_tla.State &= ~PPThreadLocalArea::stExpTariffTa;
+					r_tla.SetStateFlag(PPThreadLocalArea::stExpTariffTa, false);
 					temp_buf.Cat(0);   // off
 				}
 				rReply.SetString(temp_buf);
@@ -3084,7 +3086,8 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 				PPID   device_id = 0;
 				PPObjStyloPalm sp_obj;
 				PPObjStyloPalm::RegisterDeviceBlock rdb;
-				SString dev_name, magic_buf;
+				SString dev_name;
+				SString magic_buf;
 				pEv->GetParam(1, dev_name); // PPGetExtStrData(1, pEv->Params, dev_name);
 				pEv->GetParam(2, magic_buf); // PPGetExtStrData(2, pEv->Params, magic_buf);
 				dev_name.Strip();
@@ -3099,7 +3102,10 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 		case PPSCMD_PREPAREPALMINDATA:
 			{
 				long   start = 0;
-				SString dev_uuid, dev_name, path, dir;
+				SString dev_uuid;
+				SString dev_name;
+				SString path;
+				SString dir;
 				pEv->GetParam(1, dev_name); // PPGetExtStrData(1, pEv->Params, dev_name);
 				pEv->GetParam(2, dev_uuid); // PPGetExtStrData(2, pEv->Params, dev_uuid);
 				dev_uuid = dev_name; // @todo
@@ -3120,8 +3126,15 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 			break;
 		case PPSCMD_PREPAREPALMOUTDATA:
 			{
-				SString dev_uuid, dev_name, path, temp_path, palm_path, log_path, msg_buf;
-				SString last_dt, last_tm;
+				SString dev_uuid;
+				SString dev_name;
+				SString path;
+				SString temp_path;
+				SString palm_path;
+				SString log_path;
+				SString msg_buf;
+				SString last_dt;
+				SString last_tm;
 				pEv->GetParam(1, dev_name); // PPGetExtStrData(1, pEv->Params, dev_name);
 				pEv->GetParam(2, dev_uuid); // PPGetExtStrData(2, pEv->Params, dev_uuid);
 				pEv->GetParam(3, last_dt); // PPGetExtStrData(3, pEv->Params, last_dt);
@@ -3234,7 +3247,7 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 				const  PPThreadLocalArea & r_tla_c = DS.GetConstTLA();
 				PPGta  gta_blk;
 				PPObjBill * p_bobj = BillObj;
-				if(r_tla_c.GlobAccID && r_tla_c.State & PPThreadLocalArea::stExpTariffTa) {
+				if(r_tla_c.GlobAccID && r_tla_c.CheckStateFlag(PPThreadLocalArea::stExpTariffTa)) {
 					gta_blk.GlobalUserID = r_tla_c.GlobAccID;
 					gta_blk.Op = GTAOP_SMSSEND;
 					if(p_bobj) {

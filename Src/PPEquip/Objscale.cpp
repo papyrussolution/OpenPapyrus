@@ -2928,7 +2928,8 @@ int DIGI::SetConnection()
 {
 	int    ok = 1;
 	if(!(Data.Rec.Flags & SCALF_TCPIP)) {
-		SString out_rec, scale_name;
+		SString out_rec;
+		SString scale_name;
 		PPObjGoodsGroup gg_obj;
 		//THROW(PPGetFileName(PPFILNAM_DIGI_IMPORT_DAT, fname));
 		SString fname;

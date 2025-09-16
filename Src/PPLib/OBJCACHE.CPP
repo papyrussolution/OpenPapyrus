@@ -842,7 +842,9 @@ int DbLocalCacheMng::LogCacheStat()
 {
 	if(getCount()) {
 		int    is_new_file = 1;
-		SString out_buf, file_name, dtm_buf;
+		SString out_buf;
+		SString file_name;
+		SString dtm_buf;
 		PPGetFilePath(PPPATH_LOG, PPFILNAM_OBJCACHESTAT, file_name);
 		if(fileExists(file_name))
 			is_new_file = 0;

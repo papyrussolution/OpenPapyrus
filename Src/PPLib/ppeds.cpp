@@ -1144,12 +1144,12 @@ int PPEds::VerifySign(const char * pFileName, const char * pSignFileName, int si
 	HCRYPTPROV prov = 0;
 	PCCERT_CONTEXT p_cert = 0;
 	HCERTSTORE store = 0;
-	SString  signer_name;
-	SFile file;
+	SString signer_name;
+	SFile  file;
 	BYTE * pb_indata = NULL; // Данные из документа
-	DWORD cb_indata = 0;
+	DWORD  cb_indata = 0;
 	BYTE * pb_sign_data = NULL; // Данные из файла с подписями
-	DWORD cb_sign_data = 0;
+	DWORD  cb_sign_data = 0;
 	CRYPT_VERIFY_MESSAGE_PARA verify_params;
 
 	// Считаем данные из документа

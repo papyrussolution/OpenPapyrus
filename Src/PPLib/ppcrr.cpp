@@ -40,7 +40,7 @@ PESetSectionFormat
 PEStartPrintJob
 */ 
 
-SVerT QueryCrr32Version() // @v12.4.1
+SVerT QueryCrrVersion() // @v12.4.1
 {
 	// @todo Необходима реализация посредством запроса к crr32_support
 	SVerT result;
@@ -51,6 +51,43 @@ SVerT QueryCrr32Version() // @v12.4.1
 		result.Set(major, minor, 0);
 	}
 	return result;
+}
+
+int OpenCrrEngine()     // @v12.4.1
+{
+	int    ok = 1;
+	PPThreadLocalArea & r_tla = DS.GetTLA();
+	if(r_tla.IsConsistent()) {
+		if(!r_tla.CheckStateFlag(PPThreadLocalArea::stCrrInitialized)) {
+			ok = PEOpenEngine();
+			if(ok)
+				r_tla.SetStateFlag(PPThreadLocalArea::stCrrInitialized, true);
+		}
+		else {
+			ok = -1;
+		}
+	}
+	else
+		ok = 0;
+	return ok;
+}
+
+int CloseCrrEngine()    // @v12.4.1
+{
+	int    ok = 1;
+	PPThreadLocalArea & r_tla = DS.GetTLA();
+	if(r_tla.IsConsistent()) {
+		if(r_tla.CheckStateFlag(PPThreadLocalArea::stCrrInitialized)) {
+			PECloseEngine();
+			r_tla.SetStateFlag(PPThreadLocalArea::stCrrInitialized, false);
+		}
+		else {
+			ok = -1;
+		}
+	}
+	else
+		ok = 0;
+	return ok;
 }
 
 void ReportError(short printJob)
@@ -932,7 +969,6 @@ int CrystalReportPrint2_Server(const CrystalReportPrintParamBlock & rBlk, Crysta
 	SString temp_buf;
 	SString msg_buf;
 	SJson  js_reply(SJson::tOBJECT); // @v12.3.12
-	bool   is_reply_sent = false; // @v12.3.12
 	PEReportOptions ro;
 	ro.StructSize = sizeof(ro);
 	if(rBlk.Action == CrystalReportPrintParamBlock::actionExport) {
@@ -1038,15 +1074,6 @@ int CrystalReportPrint2_Server(const CrystalReportPrintParamBlock & rBlk, Crysta
 		THROW(SetPrinterParam(h_job, rBlk.Printer, rBlk.Options, p_dev_mode));
 		THROW(SetupReportLocations(h_job, rBlk.Dir, (rBlk.Options & SPRN_DONTRENAMEFILES) ? 0 : 1));
 		if(rBlk.Action == CrystalReportPrintParamBlock::actionPreview) {
-			{
-				//
-				// Посылаем ответ клиенту до того как запустим предпросмотр отчета, иначе клиенту придется ждать пока пользователь не закроет окно просмотра.
-				//
-				js_reply.InsertString("status", "ok");
-				if(SendReportLaunchingResultToClientsPipe(hPipe, js_reply) > 0) {
-					is_reply_sent = true;
-				}
-			}
 			THROW_PP(PEOutputToWindow(h_job, "", CW_USEDEFAULT, CW_USEDEFAULT,
 				CW_USEDEFAULT, CW_USEDEFAULT, WS_MAXIMIZE|WS_VISIBLE|WS_MINIMIZEBOX|WS_MAXIMIZEBOX|WS_SYSMENU, 0), PPERR_CRYSTAL_REPORT);
 		}
@@ -1104,14 +1131,24 @@ int CrystalReportPrint2_Server(const CrystalReportPrintParamBlock & rBlk, Crysta
 			}
 		}
 	}
-	if(!is_reply_sent) {
-		js_reply.InsertString("status", "ok");
-	}
+	js_reply.InsertString("status", "ok");
 	rReply.Z();
+	rReply.Code = 0;
 	CATCH
 		const short crw_err_code = PEGetErrorCode(h_job);
 		CrwError = crw_err_code;
-		rReply.Code = crw_err_code;
+		{
+			if(crw_err_code) {
+				rReply.Code = PPERR_CRYSTAL_REPORT;
+				rReply.LocIdent = crw_err_code;
+			}
+			else {
+				rReply.Code = PPErrCode;
+			}
+			rReply.Code = crw_err_code;
+			PPGetMessage(mfError, PPErrCode, 0, 1, rReply.Descr);
+			rReply.Descr.Transf(CTRANSF_INNER_TO_UTF8);
+		}
 		// @debug {
 		if(rBlk.Action != CrystalReportPrintParamBlock::actionExport) {
 			PPLoadString("err_crpe", msg_buf);
@@ -1135,7 +1172,7 @@ int CrystalReportPrint2_Server(const CrystalReportPrintParamBlock & rBlk, Crysta
 	ENDCATCH
 	if(h_job)
 		PEClosePrintJob(h_job);
-	if(!is_reply_sent) {
+	if(hPipe) {
 		SendReportLaunchingResultToClientsPipe(hPipe, js_reply);
 	}
 	return ok;

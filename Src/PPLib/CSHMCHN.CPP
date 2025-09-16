@@ -1261,13 +1261,13 @@ int PPCashMachine::AsyncOpenSession(int update, PPID sinceDlsID)
 	return ok;
 }
 
-int PPCashMachine::AsyncCloseSession(int asTempSess, DateRange * pPrd /*=0*/)
+int PPCashMachine::AsyncCloseSession(int asTempSess, DateRange * pPeriod/*=0*/)
 {
 	int    ok = 1;
 	CmLocking cml(NodeRec);
 	THROW(cml);
 	THROW(GetAsyncIntrf());
-	THROW(P_AsyncIntrf->CloseSession(asTempSess, pPrd));
+	THROW(P_AsyncIntrf->CloseSession(asTempSess, pPeriod));
 	CATCHZOK
 	return ok;
 }
@@ -1281,7 +1281,7 @@ int PPCashMachine::AsyncCloseSession(int asTempSess, DateRange * pPrd /*=0*/)
 	PPIDArray loc_list;
 	SString temp_buf;
 	THROW(cn_obj.Fetch(posNodeID, &cn_rec) > 0);
-	const int is_group = BIN(cn_rec.CashType == PPCMT_CASHNGROUP);
+	const bool is_group = (cn_rec.CashType == PPCMT_CASHNGROUP);
 	if(is_group) {
 		PPIDArray child_list;
 		cn_obj.GetListByGroup(posNodeID, child_list);

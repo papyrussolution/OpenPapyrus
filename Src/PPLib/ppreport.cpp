@@ -4,8 +4,8 @@
 //
 #include <pp.h>
 #pragma hdrstop
-//#include <crpe.h>
-//#include <crpe2.h>
+// @v12.4.1 #include <crpe.h>
+// @v12.4.1 #include <crpe2.h>
 //
 // Закомментировать, если немодальный предварительный просмотр печати будет сбоить
 //
@@ -731,7 +731,7 @@ int ReportDescrEntry::SetReportFileName(const char * pFileName)
 {
 	int    ok = -1;
 	SString file_name(pFileName);
-	SVerT  crr_ver = QueryCrr32Version();
+	SVerT  crr_ver = QueryCrrVersion();
 	if(crr_ver.GetMajor() >= 10) {
 		SFsPath ps(file_name);
 		if(ps.Nam.CmpSuffix("-c10", 1) != 0) {
@@ -2341,7 +2341,7 @@ static int FASTCALL __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPRe
 						if(data_name.NotEmpty())
 							temp_buf.SetLastSlash().Cat(data_name);
 						if(temp_buf.NotEmpty() && SFile::IsDir(temp_buf)) {
-							SVerT  crr_ver = QueryCrr32Version();
+							SVerT  crr_ver = QueryCrrVersion();
 							if(crr_ver.GetMajor() >= 10)
 								SFile::RemoveDir(temp_buf);
 						}
@@ -2575,6 +2575,9 @@ public:
 			if(!isempty(pParam)) {
 				js_query.InsertString("param", pParam);
 			}
+			if(sstreqi_ascii(pCmdUtf8, "run")) {
+				js_query.InsertBool("quitafter", true);
+			}
 			//
 			DWORD wr_size = 0;
 			js_query.ToStr(temp_buf);
@@ -2672,7 +2675,7 @@ int CrystalReportPrint2_ClientExecution(CrystalReportPrintParamBlock & rBlk, Cry
 
 	int    result = 0;
 	const  char * p_ext_process_name = "crr32_support.exe";
-	const  bool   use_ext_process = (SlDebugMode::CT() && !(CConfig.Flags2 & CCFLG2_DISABLE_CRR32_SUPPORT_SERVER));
+	const  bool   use_ext_process = false; //(SlDebugMode::CT() && !(CConfig.Flags2 & CCFLG2_DISABLE_CRR32_SUPPORT_SERVER));
 	bool   do_use_local_func = !use_ext_process;
 	void * h_parent_window_for_preview = APPL->H_TopOfStack;
 	SString temp_buf;

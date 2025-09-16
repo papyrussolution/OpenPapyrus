@@ -5675,9 +5675,9 @@ public:
 		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 
 		ThreadID TId;
-		MACAddr  MAddr;
-		SString  HostName;
-		SString  UserName;
+		MACAddr MAddr;
+		SString HostName;
+		SString UserName;
 	};
 	//
 	// Descr: Структура заголовка пакета передачи файла
@@ -6373,6 +6373,18 @@ public:
 //
 class PPThreadLocalArea {
 public:
+	//
+	// Descr: Флаги состояния StateFlags
+	//
+	enum {
+		stExpTariffTa    = 0x0001,
+		stMainOrgInit    = 0x0002,
+		stAuth           = 0x0004, // Поток авторизован в базе данных Papyrus
+		stNonInteractive = 0x0008, // Поток не-интерактивный: всякие окна, диалоги и виджеты запрещены
+		stCrrInitialized = 0x0010, // @v12.4.1 В потоке вызвана функция PEOpenEngine().
+			// Флаг введен в рамках задачи изоляции вызовов CrystalReports и переноса его функциональности в отдельный процесс crr32_support
+	};
+
 	friend class PPSession;
 	PPThreadLocalArea();
 	~PPThreadLocalArea();
@@ -6387,7 +6399,9 @@ public:
 	//
 	// Descr: Возвращает !0 если поток авторизован в базе данных Papyrus
 	//
-	int    IsAuth() const;
+	bool   IsAuth() const;
+	bool   CheckStateFlag(uint flag) const { return (StateFlags & flag) == flag; }
+	uint   SetStateFlag(uint flag, bool set);
 	ThreadID GetThreadID() const { return TId; }
 	PPView * GetPPViewPtr(int32 id) const;
 	int32  CreatePPViewPtr(PPView *);
@@ -6455,6 +6469,7 @@ private:
 	uint32 Sign;           // Если Sign == PPConst::Signature_PPThreadLocalArea, то данный объект является валидным (в частности, не разрушен деструктором)
 	long   Id;             // @id
 	ThreadID TId;          // Идентификатор потока
+	uint32 StateFlags;     // @Muxa Флаги // stXXX
 	uint   PtrVectDim;
 	PtrEntry * P_PtrVect;
 	ErrContext * P_ErrCtx;
@@ -6497,8 +6512,6 @@ public:
 	};
 	int    LastErr;        // Last error code //
 	int    LastCrwErr;     // Last Crystal Report Error Code
-	PPConfig     Lc;       // Текущая локальная конфигурация //
-	PPCommConfig Cc;       // Текущая общая конфигурация     //
 	//
 	// Следующие три поля извлекаются из общих условий соглашений с поставщиками
 	// PPObjArticle::GetSupplAgreement(0, PPSupplAgreement *)
@@ -6511,16 +6524,11 @@ public:
 	PPID   GlobAccID;            // Текущий ИД глобальной учетной записи
 	PPID   AgentAccSheetID;      // 0 - не инициализирован, -1 - не удалось идентифицировать, >0 - валидное значение
 	PPID   DefPhnSvcID;          // Ид телефонного сервиса по умолчанию (PPEquipConfig::PhnSvcID)
-	//
-	// Descr: Флаги состояния State
-	//
-	enum {
-		stExpTariffTa    = 0x0001,
-		stMainOrgInit    = 0x0002,
-		stAuth           = 0x0004, // Поток авторизован в базе данных Papyrus
-		stNonInteractive = 0x0008  // Поток не-интерактивный: всякие окна, диалоги и виджеты запрещены
-	};
-	int    State;                // @Muxa Флаги
+	PPObjID LastErrObj;          // Object's ID, by last generated error
+	int    PrnDirId;
+	SCodepageIdent DL600XmlCp;   // Кодовая страница для стандартного экспорта DL600 в XML
+	PPConfig     Lc;             // Текущая локальная конфигурация //
+	PPCommConfig Cc;             // Текущая общая конфигурация     //
 	SysJournal * P_SysJ;
 	ObjSyncCore * P_ObjSync;     // Откроем таблицу при входе в сеанс что бы не приходилось ее открывать при каждом удалении объекта (в транзакции)
 	GtaJournalCore * P_GtaJ;     //
@@ -6532,10 +6540,7 @@ public:
 	PPObjWorkbook * P_WbObj;
 	// }
 	PPObjPrjTask * P_TodoObj;    //
-	PPObjID  LastErrObj;         // Object's ID, by last generated error
 	PPLastInputData Lid;
-	int    PrnDirId;
-	SCodepageIdent DL600XmlCp;    // Кодовая страница для стандартного экспорта DL600 в XML
 	DlContext * P_ExpCtx;         // Контекст экспортных структур данных
 	DlContext * P_IfcCtx;         // Контекст COM-интерфейсов
 	DlContext * P_UiViewCtx;      // @v12.3.6 Контекст описания диалогов и прочих объектов UI в формате DL600
@@ -7407,7 +7412,7 @@ public:
 	//
 	// Descr: Возвращает !0 если текущий поток является интерактивным.
 	//
-	int    IsThreadInteractive() const;
+	bool   IsThreadInteractive() const;
 
 	enum {
 		stntText = 1,
@@ -8593,7 +8598,7 @@ public:
 	//   в буфере pBuf имя объекта с идентификатором id.
 	//
 	int    GetName(PPID id, char * pBuf, size_t bufLen = 0);
-	int    GetName(PPID id, SString  * pBuf);
+	int    GetName(PPID id, SString * pBuf);
 	//
 	// Descr: определяет происходили ли с объектом с момента,
 	//   определенного параметрами по указателям dt, tm, события,
@@ -50328,10 +50333,10 @@ private:
 	TempScaleTbl::Rec & MakeTempEntry(const PPScalePacket & rPack, TempScaleTbl::Rec & rTempRec);
 	int    CheckForFilt(const PPScalePacket * pPack) const;
 
-	LAssocArray  ScaleStatusList;
-	SString      ScaleTypeNames;
-	ScaleFilt    Filt;
-	PPObjScale   ObjScale;
+	LAssocArray ScaleStatusList;
+	SString ScaleTypeNames;
+	ScaleFilt  Filt;
+	PPObjScale ObjScale;
 	TempScaleTbl * P_TempTbl;
 };
 //
@@ -50583,9 +50588,9 @@ private:
 	int    CheckForFilt(const PPCashNode * pRec) const;
 	// @v10.1.0 (inlined) int    ExecCPanel(uint ppvCmd, PPID cashID);
 
-	SString         CashTypeNames;
-	CashNodeFilt    Filt;
-	PPObjCashNode   ObjCashN;
+	SString CashTypeNames;
+	CashNodeFilt  Filt;
+	PPObjCashNode ObjCashN;
 	TempCashNodeTbl * P_TempTbl;
 };
 //
@@ -62581,7 +62586,9 @@ int    UpdateQuots(const QuotUpdFilt *);
 int    EditQuotRollbackDialog(LDATETIME *pDateTime); // @erik v10.5.8
 int    RollbackQuots(const LDATETIME * pDateTime); // @erik v10.5.8
 int    MakeCRptDataFiles(int verifyAll = 0);    // PPLIB\PPTVUTIL.CPP
-SVerT  QueryCrr32Version(); // @v12.4.1
+SVerT  QueryCrrVersion();   // @v12.4.1
+int    OpenCrrEngine();     // @v12.4.1
+int    CloseCrrEngine();    // @v12.4.1
 SString & GetCrr32ProxiPipeName(SString & rBuf); // @v11.9.5
 int    RecoverAbsenceLots();   // PPBILL\C_TRFR.CPP
 int    RecoverAbsenceGoods();  // PPBILL\C_TRFR.CPP

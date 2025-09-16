@@ -4,7 +4,7 @@
 //
 #include <pp.h>
 #pragma hdrstop
-#include <crpe.h>
+// @v12.4.1 #include <crpe.h>
 #include <crtdbg.h> // _CrtDumpMemoryLeaks
 //
 //
@@ -251,7 +251,7 @@ int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hPrevInstance, LPSTR lpCmdLine, 
 			*/
 			// @debug ReformatIceCat("D:/DEV/Resource/Data/Goods/icecat/prodid_d.txt"); // @once
 //#endif
-			if(!PEOpenEngine()) {
+			if(!OpenCrrEngine()) {
 				PPSetError(PPERR_CRYSTAL_REPORT);
 				PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_COMP);
 			}

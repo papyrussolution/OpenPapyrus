@@ -626,12 +626,11 @@ int PPImpExpParam::ProcessName(int op, SString & rName) const
 /*virtual*/int PPImpExpParam::MakeExportFileName(const void * extraPtr, SString & rResult) const
 {
 	rResult.Z();
-
 	int    ok = 1;
 	int    use_ps = 0;
 	char   cntr[128];
 	uint   cn = 0;
-	SString _file_name = FileName;
+	SString _file_name(FileName);
 	_file_name.Transf(CTRANSF_INNER_TO_OUTER);
 	if(_file_name.IsEqiAscii(":buffer:")) {
 		rResult = _file_name;

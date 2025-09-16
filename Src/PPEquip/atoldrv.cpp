@@ -2192,7 +2192,7 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 	}
 	if(P_SlipFmt) {
 		int   r = 0;
-		SString  line_buf;
+		SString line_buf;
 		const SString format_name((!isempty(pFormatName)) ? pFormatName : ((flags & PRNCHK_RETURN) ? "CCheckRetCopy" : "CCheckCopy"));
 		SlipLineParam sl_param;
 		THROW(r = P_SlipFmt->Init(format_name, &sdc_param));

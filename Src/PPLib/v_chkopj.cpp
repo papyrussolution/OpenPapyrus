@@ -111,9 +111,9 @@ int PPViewCheckOpJrnl::EditBaseFilt(PPBaseFilt * pBaseFilt)
 		{
 			SetupCalPeriod(CTLCAL_CHKOPJFILT_PERIOD, CTL_CHKOPJFILT_PERIOD);
 			{
-				SString actions_buf, temp_buf;
-				PPLoadText(PPTXT_CHKOPACTIONLIST, actions_buf);
-				StringSet ss(';', actions_buf);
+				SString temp_buf;
+				PPLoadText(PPTXT_CHKOPACTIONLIST, temp_buf);
+				StringSet ss(';', temp_buf);
 				for(uint p = 0, j = 0; ss.get(&p, temp_buf); j++)
 					ActionList.Add((long)(j + 1), temp_buf);
 			}

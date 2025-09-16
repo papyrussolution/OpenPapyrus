@@ -2096,7 +2096,7 @@ int SupplAgtDialog::EditExchangeCfg()
 		{
 			int    ok = 1;
 			uint   sel = 0;
-			SString  temp_buf;
+			SString temp_buf;
 			getCtrlData(sel = CTLSEL_SUPLEXCHCFG_GGRP, &Data.GoodsGrpID);
 			getCtrlData(sel = CTLSEL_SUPLEXCHCFG_STYLO, &Data.Fb.StyloPalmID);
 			{

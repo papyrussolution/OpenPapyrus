@@ -1621,7 +1621,8 @@ int PPViewGeoTracking::Export()
 	const  int gpx_ver_minor = 1;
 	const  char * p_schema_url = "http://www.topografix.com/GPX/";
 	int    ok = -1;
-	SString out_file_name, path;
+	SString out_file_name;
+	SString path;
 	xmlTextWriter * p_writer = 0;
 	SXml::WNode * p_n_trk = 0;
 	SXml::WNode * p_n_trkseg = 0;
@@ -1644,7 +1645,8 @@ int PPViewGeoTracking::Export()
 			//xmlTextWriterSetIndentString(writer, (const xmlChar *)" ");
 			xmlTextWriterStartDocument(p_writer, 0, "utf-8", "yes");
 			{
-				SString out_buf, temp_buf;
+				SString temp_buf;
+				SString out_buf;
 				SString schema_loc;
 				(schema_loc = p_schema_url).Cat(gpx_ver_major).Slash().Cat(gpx_ver_minor);
 				SXml::WNode n_gpx(p_writer, "gpx");

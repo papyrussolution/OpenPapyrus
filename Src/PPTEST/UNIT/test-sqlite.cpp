@@ -126,10 +126,17 @@ SLTEST_R(SQLite)
 	{
 		// «агрузить в таблицу большой набор известных записей (из record_list)
 		if(dbp.StartTransaction()) {
+			TestTa01Tbl::Key0 k0;
+			DBRowId ret_row_id;
 			for(uint i = 0; i < record_list.getCount(); i++) {
 				const TestTa01Tbl::Rec * p_rec = record_list.at(i);
+				
 				if(p_rec) {
-					int irr = p_tbl->insertRecBuf(p_rec);
+					MEMSZERO(k0);
+					int irr = p_tbl->insertRecBuf(p_rec, 0, &k0);
+					const DBRowId * p_row_id = p_tbl->getCurRowIdPtr();
+					if(p_row_id)
+						ret_row_id = *p_row_id;
 					if(irr) {
 						;
 					}
@@ -175,7 +182,7 @@ SLTEST_R(SQLite)
 					}
 				}
 				srch_count++;
-			} while(p_tbl->search(0, &k0, spNext));
+			} while(srch_count < rec_list_count && p_tbl->search(0, &k0, spNext));
 			SLCHECK_Z(uneq_rec_count);
 		}
 		{
@@ -204,32 +211,173 @@ SLTEST_R(SQLite)
 					}
 				}
 				srch_count++;
-			} while(p_tbl->search(0, &k0, spPrev) && (p_rec_buf->Dt > p_first_pattern_rec->Dt || (p_rec_buf->Dt == p_first_pattern_rec->Dt && p_rec_buf->Tm >= p_first_pattern_rec->Tm)));
+			} while(srch_count < rec_list_count && p_tbl->search(0, &k0, spPrev) && (p_rec_buf->Dt > p_first_pattern_rec->Dt || (p_rec_buf->Dt == p_first_pattern_rec->Dt && p_rec_buf->Tm >= p_first_pattern_rec->Tm)));
 			SLCHECK_Z(uneq_rec_count);
 		}
 	}
 	{
 		// »зменить записи и убедитьс€, что она действительно изменилась
-		for(uint i = 0; i < record_list.getCount(); i++) {
-			const TestTa01Tbl::Rec * p_rec = record_list.at(i);
-			if(p_rec) {
-				TestTa01Tbl::Key0 k0;
-				k0.Dt = p_rec->Dt;
-				k0.Tm = p_rec->Tm;
-				if(p_tbl->search(&k0, spEq)) {
-					
+		uint   inprop_updated_count = 0;
+		if(dbp.StartTransaction()) {
+			for(uint i = 0; i < record_list.getCount(); i++) {
+				TestTa01Tbl::Rec * p_rec = record_list.at(i);
+				if(p_rec) {
+					S_GUID new_uuid(SCtrGenerate_);
+					TestTa01Tbl::Key0 k0;
+					k0.Dt = p_rec->Dt;
+					k0.Tm = p_rec->Tm;
+					if(p_tbl->search(&k0, spEq)) {
+						TestTa01Tbl::Rec * p_rec_buf = static_cast<TestTa01Tbl::Rec *>(p_tbl->getDataBuf());
+						p_rec_buf->GuidVal = new_uuid;
+						const int urr = p_tbl->updateRec();
+						if(urr) {
+							if(p_tbl->search(&k0, spEq)) {
+								if(p_rec_buf->GuidVal == new_uuid) { // ok
+									p_rec->GuidVal = new_uuid;
+								}
+								else { // bad
+									inprop_updated_count++;
+									
+								}
+							}
+						}
+					}
+					else {
+						; // bad
+					}
 				}
-				else {
-					; // bad
-				}
+			}
+			int cwr = dbp.CommitWork();
+			if(cwr) {
+				SLCHECK_Z(inprop_updated_count);
+			}
+			else {
+				;
 			}
 		}
 	}
 	{
 		// Ќайти несколько выборок записей по критери€м
+		{
+			// @20250916 ”вы, сейчас генератор записей не создает дубликатов - придетс€ мен€ть генератор дабы он спонтанно 
+			// создавал дубликаты
+
+			// ѕоле TestTa01::I64Val проиндексировано. ћногие значени€ имеют дубликаты (вы€снено экспериментально).
+			// ¬ общем, то что нужно.
+			// »щем с списке record_list дублированные значени€, затем осуществл€ем поиск в таблице по индексу 2
+			if(false/* @construction */) {
+				const uint max_test_count = 10;
+				uint test_count = 0;
+				int64 val_to_search = -1;
+				uint local_fault_count = 0;
+				for(uint i = 0; test_count < max_test_count && i < record_list.getCount(); i++) {
+					TestTa01Tbl::Rec * p_rec = record_list.at(i);
+					if(p_rec) {
+						const int64 prim_val = p_rec->I64Val;
+						LongArray pos_list;
+						pos_list.add(static_cast<long>(i));
+						if(prim_val > 0) {
+							for(uint j = i+1; j < record_list.getCount(); j++) {
+								TestTa01Tbl::Rec * p_rec2 = record_list.at(j);
+								if(p_rec2 && p_rec2->I64Val == prim_val) {
+									pos_list.add(static_cast<long>(j));
+									val_to_search = prim_val;
+								}
+							}
+							if(pos_list.getCount() > 1) {
+								test_count++;
+								TestTa01Tbl::Key2 k2;
+								k2.I64Val = prim_val;
+								uint local_found_rec_count = 0;
+								if(p_tbl->search(2, &k2, spEq)) {
+									do {
+										local_found_rec_count++;
+										TestTa01Tbl::Rec * p_rec_buf = static_cast<TestTa01Tbl::Rec *>(p_tbl->getDataBuf());
+										bool _local_found = false;
+										for(uint n = 0; !_local_found && n < pos_list.getCount(); n++) {
+											const uint _pos = pos_list.get(n);
+											const TestTa01Tbl::Rec * p_inner_rec = record_list.at(_pos);
+											if(__PrcssrTestDb_Are_TestTa01_RecsEqual(*p_rec_buf, *p_inner_rec)) {
+												_local_found = true;
+											}
+										}
+										if(!_local_found) {
+											local_fault_count++;
+										}
+									} while(p_tbl->search(2, &k2, spNext) && k2.I64Val == prim_val);
+									if(local_fault_count != pos_list.getCount()) {
+										local_fault_count++;
+									}
+								}
+								else {
+									local_fault_count++;
+								}
+							}
+						}
+					}
+				}
+				SLCHECK_Z(local_fault_count);
+			}
+		}
 	}
 	{
 		// ”далить записи и убедитьс€, что ее больше нет в таблице
+		if(dbp.StartTransaction()) {
+			LongArray deleted_idx_list;
+			uint    delete_fault_count = 0;
+			uint    deleted_found_fault_count = 0;
+			uint    _found_fault_count = 0;
+			{
+				for(uint i = 0; i < record_list.getCount(); i++) {
+					TestTa01Tbl::Rec * p_rec = record_list.at(i);
+					if(p_rec) {
+						if((i % 100) == 0) {
+							TestTa01Tbl::Key0 k0;
+							k0.Dt = p_rec->Dt;
+							k0.Tm = p_rec->Tm;
+							if(p_tbl->search(&k0, spEq)) {
+								if(p_tbl->deleteRec()) {
+									deleted_idx_list.add(static_cast<long>(i));
+								}
+								else {
+									delete_fault_count++;
+								}
+							}
+						}
+					}
+				}
+			}
+			if(!delete_fault_count) {
+				for(uint i = 0; i < record_list.getCount(); i++) {
+					TestTa01Tbl::Rec * p_rec = record_list.at(i);
+					if(p_rec) {
+						const bool must_be_deleted = deleted_idx_list.lsearch(i);
+						TestTa01Tbl::Key0 k0;
+						k0.Dt = p_rec->Dt;
+						k0.Tm = p_rec->Tm;
+						if(p_tbl->search(&k0, spEq)) {
+							if(must_be_deleted) {
+								deleted_found_fault_count++;
+							}
+						}
+						else {
+							if(!must_be_deleted) {
+								_found_fault_count++;
+							}
+						}
+					}
+				}				
+			}
+			else {
+			}
+			int cwr = dbp.CommitWork();
+			if(cwr) {
+				;
+			}
+			else {
+				;
+			}
+		}
 	}
 	{
 		// ”далить все записи

@@ -448,7 +448,8 @@ int PPObjGoodsGroup::Import(int use_ta)
 		get_fld_number(&ini_file, &in_tbl, sect, PPINIPARAM_NAME, &fldn_name);
 		ini_file.Get(sect, PPINIPARAM_PARENTSEQ, temp_buf);
 		if(temp_buf.NotEmptyS()) {
-			SString par_code, par_name;
+			SString par_code;
+			SString par_name;
 			StringSet ss(';', temp_buf);
 			for(uint p = 0; ss.get(&p, temp_buf);) {
 				temp_buf.Divide(',', par_name, par_code);
@@ -5999,9 +6000,10 @@ int FASTCALL PrcssrOsm::FlashNodeAccum(int force)
 							Pb.NodeToWayAsscList.clear();
 							LLAssocArray * p_node_to_way_assc_list = 0;
 							if(P_NodeToWayAssocInF) {
-								SString _key_buf, _val_buf;
-								int64 first_node_id = (int64)NodeAccum.at(0).ID;
-								int64 last_node_id = (int64)NodeAccum.at(_count-1).ID;
+								SString _key_buf;
+								SString _val_buf;
+								const int64 first_node_id = (int64)NodeAccum.at(0).ID;
+								const int64 last_node_id = (int64)NodeAccum.at(_count-1).ID;
 								PROFILE_START
 								if(LastNodeToWayAssoc.Key && LastNodeToWayAssoc.Val) {
 									if(LastNodeToWayAssoc.Key >= first_node_id && LastNodeToWayAssoc.Key <= last_node_id) {

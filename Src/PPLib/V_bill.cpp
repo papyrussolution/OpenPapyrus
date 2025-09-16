@@ -3613,7 +3613,8 @@ static int SelectAddByOrderAction(SelAddBySampleParam * pData, int allowBulkMode
 		void   storeFlags()
 		{
 			WinRegKey reg_key(HKEY_CURRENT_USER, PPConst::WrKey_PrefSettings, 0);
-			SString param, val;
+			SString param;
+			SString val;
 			long   flags = 0;
 			GetClusterData(CTL_SELBBSMPL_SAMECODE, &flags);
 			(param = WrParam_StoreFlags).CatChar('-').Cat(Data.OpID).CatChar('-').Cat(Data.Action);

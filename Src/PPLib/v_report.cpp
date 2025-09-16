@@ -4,7 +4,7 @@
 //
 #include <pp.h>
 #pragma hdrstop
-#include <crpe.h>
+// @v12.4.1 #include <crpe.h>
 
 int SaveReportDataStruct(const char *pDataName, const char *pTempPath, const char *pRepFileName); // Prototype (PPREPORT.CPP)
 //
@@ -426,8 +426,9 @@ int PPViewReport::Verify(PPID id)
 	DlRtm * p_rtm = 0;
 	if(id && P_TempTbl && P_TempTbl->search(0, &id, spEq) > 0) {
 		TempReportTbl::Rec & r_rec = P_TempTbl->data;
-		SString alt_path, data_name;
-		CrwError = PE_ERR_ERRORINDATABASEDLL;
+		SString alt_path;
+		SString data_name;
+		// @v12.4.1 @todo (replace this op with some err_code than belongs to Papyrus) CrwError = PE_ERR_ERRORINDATABASEDLL;
 		THROW(GetAltPath(r_rec.Type, r_rec.Path, r_rec.StdName, alt_path));
 		(data_name = r_rec.StrucName).ReplaceStr("(!)", "\0", 0);
 		{
@@ -583,7 +584,8 @@ int PPViewReport::SplitLocalRptStr(PPIniFile * pFile, int codepage, const SStrin
 	long   id = 0;
 	ReportViewItem item;
 	uint   k = 0;
-	SString par, val;
+	SString par;
+	SString val;
 	StringSet ss("=");
 	THROW_INVARG(pFile);
 	ss.setBuf(rBuf, rBuf.Len() + 1);

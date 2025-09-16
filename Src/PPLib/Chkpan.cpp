@@ -7328,7 +7328,8 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 				break;
 			case cmSetupTooltip:
 				{
-					SString  tt_names, name;
+					SString tt_names;
+					SString name;
 					if(PPLoadTextWin(PPTXT_CHKPAN_TOOLTIPS, tt_names)) {
 						for(uint idx = 0; idx < CTL_CHKPAN_NUMBUTTONS; idx++) {
 							if(PPGetSubStr(tt_names, idx, name))
@@ -13820,7 +13821,8 @@ IMPL_HANDLE_EVENT(InfoKioskDialog)
 			case cmPrint:    PrintLabel(); break;
 			case cmSetupTooltip:
 				if(Flags & fTouchScreen) {
-					SString  tt_names, name;
+					SString tt_names;
+					SString name;
 					if(PPLoadTextWin(PPTXT_INFKIOSK_TOOLTIPS, tt_names))
 						for(uint idx = 0; idx < CTL_INFKIOSK_NUMBUTTONS; idx++)
 							if(PPGetSubStr(tt_names, idx, name))

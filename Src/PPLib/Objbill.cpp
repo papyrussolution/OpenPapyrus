@@ -579,7 +579,8 @@ int PPObjBill::UpdateOpCounter(PPBillPacket * pPack)
 		PPOpCounterPacket opc_pack;
 		if(opc_obj.GetPacket(cntr_id, &opc_pack) > 0) {
 			ushort v = 0;
-			long   cntr, fl = opc_pack.Head.Flags;
+			long   cntr;
+			long   fl = opc_pack.Head.Flags;
 			opc_pack.GetCounter(pPack->Rec.LocID, &cntr);
 			cntr++;
 			dlg->setCtrlData(CTL_UPDCNTR_COUNTER, &cntr);

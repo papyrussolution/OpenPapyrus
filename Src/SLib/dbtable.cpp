@@ -440,7 +440,7 @@ int DBTable::Btr_Implement_InsertRec(int idx, void * pKeyBuf, const void * pData
 				//
 				temp_buf.Write(lob_buffer.GetBuf(lob_buffer.GetRdOffs()), chunk_size);
 				lob_buffer.SetRdOffs(lob_buffer.GetRdOffs() + chunk_size);
-				retBufLen = (RECORDSIZE)temp_buf.GetAvailableSize();
+				retBufLen = static_cast<RECORDSIZE>(temp_buf.GetAvailableSize());
                 result = Ret(BTRV(B_UPDATECHUNK, FPB, (char *)temp_buf.constptr(), (uint16 *)&retBufLen, (char *)pKeyBuf, WBTRVTAIL));
                 rest_size -= chunk_size;
                 rec_offs += chunk_size;

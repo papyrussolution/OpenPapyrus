@@ -488,6 +488,7 @@ static void InitTest()
 		static_assert(sizeof(MACAddr) == 6); // @v11.7.0
 		static_assert(sizeof(KeyDownCommand) == 4); // @v11.7.0
 		static_assert(sizeof(SUiLayout::Result) == (24+sizeof(void *))); // @v11.7.0
+		static_assert(sizeof(SCodepageIdent) == 4); // @v12.4.1
 		// @v11.4.8 {
 		{
 			// Убеждаемся в том, что memset(mem, 0xff, size) заполнит весь отрезок битовыми единицами

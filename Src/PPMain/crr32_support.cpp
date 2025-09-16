@@ -97,6 +97,7 @@ public:
 										p_c = p_js_query->FindChildByKey("param");
 										if(p_c) {
 											(temp_buf = p_c->Text).Unescape();
+											const bool quit_after = SJson::IsTrue(p_js_query->FindChildByKey("quitafter"));
 											SBuffer sbuf;
 											if(sbuf.AppendMime64(temp_buf)) {
 												CrystalReportPrintParamBlock * p_blk = new CrystalReportPrintParamBlock();
@@ -117,6 +118,8 @@ public:
 														ZDELETE(p_blk);
 														do_reply = false;
 													}
+													if(quit_after)
+														do_exit = true;
 												}
 											}
 											else {

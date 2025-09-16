@@ -2788,7 +2788,8 @@ int ACS_CRCSHSRV::GetCashiersList()
 	int    ok = -1;
 	const PPEquipConfig & r_eq_cfg = CC.GetEqCfg();
 	if(r_eq_cfg.CshrsPsnKindID) {
-		uint   pos, p;
+		uint   pos;
+		uint   p;
 		SString buf;
 		SString cshr_name_;
 		SString cshr_tabnum_;
@@ -2811,7 +2812,8 @@ int ACS_CRCSHSRV::GetCashiersList()
 			SFile  cf(PathCshrs, SFile::mRead);
 			THROW_SL(cf.IsValid());
 			while(cf.ReadLine(buf, SFile::rlfChomp)) {
-				int    is_kind = 0, is_reg = 0;
+				bool   is_kind = false;
+				bool   is_reg = false;
 				uint   i = 0;
 				long   rights = 0;
 				char   cshr_rights[20];
@@ -2838,7 +2840,7 @@ int ACS_CRCSHSRV::GetCashiersList()
 					psn_id = by_name_ary.at(0);
 					for(p = 0; p < by_name_ary.getCount(); p++)
 						psn_ary.freeByKey(by_name_ary.at(p), 0);
-					is_kind = 1;
+					is_kind = true;
 				}
 				reg_flt.NmbPattern = cshr_tabnum_;
 				reg_obj.SearchByFilt(&reg_flt, 0, &by_num_ary);
@@ -2867,7 +2869,7 @@ int ACS_CRCSHSRV::GetCashiersList()
 								psn_pack.Regs.at(p-1).Expiry = last_dt;
 						}
 						else if(reg_rec.Expiry == ZERODATE || diffdate(reg_rec.Expiry, last_dt) > 0)
-							is_reg = 1;
+							is_reg = true;
 				}
 				else {
 					psn_pack.Rec.Status = PPPRS_PRIVATE;
@@ -2937,7 +2939,7 @@ PPBillImpExpParam * ACS_CRCSHSRV::CreateImpExpParam(uint sdRecID)
 				if(!(sps.Flags & SFsPath::fDrv))
 					sps.Drv = def_sps.Drv;
 				if(!(sps.Flags & SFsPath::fDir)) {
-					SString  path;
+					SString path;
 					if(!(def_sps.Flags & SFsPath::fDir))
 						PPGetPath(PPPATH_OUT, path);
 					else
@@ -4167,8 +4169,11 @@ int ACS_CRCSHSRV::ConvertCheckRows(const char * pWaitMsg)
 
 int ACS_CRCSHSRV::GetSeparatedFileSet(int filTyp)
 {
-	int  ok = -1;
-	SString    buf, file_name, sect_name, param;
+	int    ok = -1;
+	SString buf;
+	SString file_name;
+	SString sect_name;
+	SString param;
 	SFsPath ps;
 	PPGetSubStr(PPTXT_SETRETAIL_PARAM, SETR_PARAM_REPORTS, sect_name);
 	PPGetSubStr(PPTXT_SETRETAIL_PARAM, SETR_PARAM_REPGANG + filTyp, param);
@@ -4679,7 +4684,8 @@ int ACS_CRCSHSRV::FinishImportSession(PPIDArray * pSessList)
 void ACS_CRCSHSRV::CleanUpSession()
 {
 	const uint c = DrfL.GetCount();
-	SString backup_prefix, path;
+	SString backup_prefix;
+	SString path;
 	for(uint i = 0; i < c; i++) {
 		if(DrfL.Get(i, backup_prefix, path)) {
 			if(fileExists(path)) {
@@ -4699,7 +4705,7 @@ void ACS_CRCSHSRV::CleanUpSession()
 			Period.Z();
 		}
         enum {
-        	qUnkn = 0, // Не известный тип запроса
+        	qUnkn     = 0, // Не известный тип запроса
         	qCSession = 1, // Запрос кассовых сессий
         };
         int    Q;

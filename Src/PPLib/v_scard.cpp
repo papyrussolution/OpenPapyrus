@@ -2644,7 +2644,8 @@ static int EditSCardOp(SCardCore::OpBlock & rBlk)
 	private:
 		DECL_HANDLE_EVENT
 		{
-			SString dest_card_no, temp_buf;
+			SString temp_buf;
+			SString dest_card_no;
 			TDialog::handleEvent(event);
 			if(event.isCmd(cmSCardOpCheck)) {
 				CCheckCore & r_cc = *ScObj.P_CcTbl;
@@ -3447,9 +3448,9 @@ int PPViewUhttSCardOp::Init_(const PPBaseFilt * pFilt)
 	List.freeAll();
 	THROW(Helper_InitBaseFilt(pFilt));
 	{
-		SString     temp_buf;
-		ObjTagCore  tc;
-		ObjTagItem  tag;
+		SString temp_buf;
+		ObjTagCore tc;
+		ObjTagItem tag;
 		THROW(Filt.GlobalAccID);
 		THROW(tc.GetTag(PPOBJ_GLOBALUSERACC, Filt.GlobalAccID, PPTAG_GUA_SCARDPREFIX, &tag));
 		ScPrefix = tag.Val.PStr;
@@ -3562,10 +3563,10 @@ int PPViewUhttSCardOp::Helper_AddItem(UhttSCardOpViewItem & rItem)
 					/* Расчет остатка по всем картам на дату */
 					rItem.SCardRest = 0;
 					{
-						SString       temp_buf;
+						SString temp_buf;
 						PPViewSCard   sc_view;
 						SCardViewItem sc_item;
-						SCardFilt     sc_filt;
+						SCardFilt sc_filt;
 						THROW(sc_view.Init_(&sc_filt));
 						THROW(sc_view.InitIteration());
 						while(sc_view.NextIteration(&sc_item) > 0) {

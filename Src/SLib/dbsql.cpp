@@ -159,8 +159,8 @@ IMPL_INVARIANT_C(SSqlStmt::Bind)
 {
 	S_INVARIANT_PROLOG(pInvP);
 	S_ASSERT_P((Flags & ~(fSubst|fCalcOnly)) == 0, pInvP);
-	S_ASSERT_P(Dim > 0 && Dim <= 1024, pInvP);
-	S_ASSERT_P(SubstSize >= Dim*ItemSize, pInvP);
+	S_ASSERT_P(Dim_ > 0 && Dim_ <= 1024, pInvP);
+	S_ASSERT_P(SubstSize >= Dim_*ItemSize, pInvP);
 	S_ASSERT_P(SubstOffs >= 4, pInvP);
 	S_ASSERT_P(ItemSize >= NtvSize, pInvP);
 	S_INVARIANT_EPILOG(pInvP);
@@ -278,19 +278,19 @@ int SSqlStmt::SetupBindingSubstBuffer(int dir, uint count)
 
 int SSqlStmt::AllocIndSubst(uint32 itemCount, Bind * pBind)
 {
-	size_t pos = Helper_AllocBindSubst(itemCount, sizeof(uint16), BIN(pBind->Flags & SSqlStmt::Bind::fCalcOnly));
+	size_t pos = Helper_AllocBindSubst(itemCount, sizeof(uint16), LOGIC(pBind->Flags & SSqlStmt::Bind::fCalcOnly));
 	pBind->IndPos = pos;
 	return BIN(pos);
 }
 
 int SSqlStmt::AllocFslSubst(uint32 itemCount, Bind * pBind)
 {
-	size_t pos = Helper_AllocBindSubst(itemCount, sizeof(uint16), BIN(pBind->Flags & SSqlStmt::Bind::fCalcOnly));
+	size_t pos = Helper_AllocBindSubst(itemCount, sizeof(uint16), LOGIC(pBind->Flags & SSqlStmt::Bind::fCalcOnly));
 	pBind->FslPos = pos;
 	return BIN(pos);
 }
 
-size_t SSqlStmt::Helper_AllocBindSubst(uint32 itemCount, uint32 itemSize, int calcOnly)
+size_t SSqlStmt::Helper_AllocBindSubst(uint32 itemCount, uint32 itemSize, bool calcOnly)
 {
 	size_t pos = 0;
 	size_t s = ALIGNSIZE(itemCount * itemSize, 2);
@@ -312,9 +312,9 @@ size_t SSqlStmt::Helper_AllocBindSubst(uint32 itemCount, uint32 itemSize, int ca
 int SSqlStmt::AllocBindSubst(uint32 itemCount, uint32 itemSize, Bind * pBind)
 {
 	int    ok = 0;
-	const  int calc_only = BIN(pBind->Flags & SSqlStmt::Bind::fCalcOnly);
+	const  bool calc_only = LOGIC(pBind->Flags & SSqlStmt::Bind::fCalcOnly);
 	size_t pos = Helper_AllocBindSubst(itemCount, itemSize, calc_only);
-	if(pos)
+	if(pos) {
 		if(calc_only) {
 			pBind->SubstSize = pos;
 			ok = -1;
@@ -324,15 +324,16 @@ int SSqlStmt::AllocBindSubst(uint32 itemCount, uint32 itemSize, Bind * pBind)
 			pBind->SubstSize = itemCount * itemSize;
 			pBind->SubstOffs = pos;
 			pBind->ItemSize = itemSize;
-			pBind->Dim = itemCount;
+			pBind->Dim_ = itemCount;
 			ok = 1;
 		}
+	}
 	return ok;
 }
 
 void * FASTCALL SSqlStmt::GetBindOuterPtr(const Bind * pBind, uint rowN) const
 {
-	assert(rowN < pBind->Dim);
+	assert(rowN < pBind->Dim_);
 	return pBind->SubstOffs ? (BS.P_Buf + pBind->SubstOffs + rowN * pBind->ItemSize) : pBind->P_Data;
 }
 
@@ -600,7 +601,7 @@ int SOraDbProvider::ProcessBinding_SimpleType(int action, uint count, SSqlStmt *
 		if(count > 1)
 			pStmt->AllocBindSubst(count, pBind->NtvSize, pBind);
 	}
-	else if(pBind->Dim > 1) {
+	else if(pBind->Dim_ > 1) {
 		if(action < 0)
 			memcpy(pStmt->GetBindOuterPtr(pBind, count), pBind->P_Data, pBind->NtvSize);
 		else if(action == 1)
@@ -644,7 +645,7 @@ int SOraDbProvider::ProcessBinding(int action, uint count, SSqlStmt * pStmt, SSq
 	uint16 out_typ = 0;
 	pBind->NtvSize = static_cast<uint16>(sz); // default value
 	if(action == 0)
-		pBind->Dim = count;
+		pBind->Dim_ = count;
 	const int t = GETSTYPE(pBind->Typ);
 	switch(t) {
 		case S_CHAR:    ProcessBinding_SimpleType(action, count, pStmt, pBind, SQLT_CHR); break;
@@ -2019,7 +2020,7 @@ int SOraDbProvider::Implement_InsertRec(DBTable * pTbl, int idx, void * pKeyBuf,
 		SqlGen.Param(temp_buf.NumberToLat(subst_no++));
 		const BNField & r_fld = pTbl->fields.getField(i);
 		if(GETSTYPE(r_fld.T) == S_AUTOINC) {
-			long val = 0;
+			long   val = 0;
 			size_t val_sz = 0;
 			r_fld.getValue(pTbl->getDataBufConst(), &val, &val_sz);
 			assert(val_sz == sizeof(val));
@@ -2033,7 +2034,7 @@ int SOraDbProvider::Implement_InsertRec(DBTable * pTbl, int idx, void * pKeyBuf,
 	SqlGen.RPar();
 	SqlGen.Sp().Tok(Generator_SQL::tokReturning).Sp().Tok(Generator_SQL::tokRowId);
 	//
-	// temp_buf будет содержать список переменных, в которые должны заносится возвращаемые значения //
+	// temp_buf будет содержать список переменных, в которые должны заноситься возвращаемые значения //
 	//
 	let_buf.NumberToLat(subst_no++);
 	temp_buf.Z().Colon().Cat(let_buf);
