@@ -3516,7 +3516,7 @@ int PPViewGoods::Print(const void *)
 		rpt_id = REPORT_GOODSWITHSTRUC;
 	else
 		rpt_id = REPORT_GOODSVIEW;
-	PPReportEnv env(/*SReport::DisableGrouping*/0, Filt.InitOrder);
+	PPReportEnv env(0, Filt.InitOrder);
 	PPAlddPrint(rpt_id, PView(this), &env);
 	return 1;
 }

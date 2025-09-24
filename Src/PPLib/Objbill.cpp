@@ -4114,7 +4114,7 @@ int PPObjBill::GetComplete(PPID lotID, long flags, CompleteArray * pList)
 			lot_list.atInsert(0, &org_lot_id);
 			for(uint i = 0; i < lot_list.getCount(); i++) {
 				TransferTbl::Rec trfr_rec;
-				PPID   lot_id = lot_list.at(i);
+				const PPID lot_id = lot_list.at(i);
 				for(DateIter di; trfr->EnumByLot(lot_id, &di, &trfr_rec) > 0;) {
 					if(trfr_rec.Flags & PPTFR_MODIF && (trfr_rec.Flags & (PPTFR_PLUS|PPTFR_REVAL))) {
 						THROW(ExtractPacketWithFlags(trfr_rec.BillID, &pack, BPLD_FORCESERIALS) > 0);
@@ -6951,7 +6951,6 @@ int PPObjBill::LoadClbList(PPBillPacket * pPack, int force)
 			if(actual_size > cs_size && SSerializeContext::IsCompressPrefix(vxcl_buf.GetBuf(vxcl_buf.GetRdOffs()))) {
 				SCompressor compr(SCompressor::tZLib);
 				SBuffer dbuf;
-				//THROW_SL(compr.DecompressBlock(vxcl_buf.GetBuf(vxcl_buf.GetRdOffs()+cs_size), actual_size-cs_size, dbuf));
 				int  inflr = compr.DecompressBlock(vxcl_buf.GetBuf(vxcl_buf.GetRdOffs()+cs_size), actual_size-cs_size, dbuf);
 				if(!inflr) {
 					PPSetErrorSLib();
@@ -9023,9 +9022,9 @@ int PPObjBill::GetOrderLotForTransfer(const TransferTbl::Rec & rTrfrRec, PPID * 
 
 int PPObjBill::ExtractPacket(PPID id, PPBillPacket * pPack)
 	{ return Helper_ExtractPacket(id, pPack, 0, 0); } 
-int PPObjBill::ExtractPacketWithFlags(PPID id, PPBillPacket * pPack, uint fl /* BPLD_XXX */)
+int PPObjBill::ExtractPacketWithFlags(PPID id, PPBillPacket * pPack, uint fl/*BPLD_XXX*/)
 	{ return Helper_ExtractPacket(id, pPack, fl, 0); }
-int PPObjBill::ExtractPacketWithRestriction(PPID id, PPBillPacket * pPack, uint fl /* BPLD_XXX */, const PPIDArray * pGoodsList)
+int PPObjBill::ExtractPacketWithRestriction(PPID id, PPBillPacket * pPack, uint fl/*BPLD_XXX*/, const PPIDArray * pGoodsList)
 	{ return Helper_ExtractPacket(id, pPack, fl, pGoodsList); }
 
 int PPObjBill::DoesContainGoods(PPID id, const PPIDArray & rGoodsList)

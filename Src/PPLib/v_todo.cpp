@@ -1098,7 +1098,8 @@ void PPViewPrjTask::GetTabTitle(PPID tabID, SString & rBuf)
 
 int PPViewPrjTask::Init_(const PPBaseFilt * pFilt)
 {
-	int    ok = 1, use_ta = 1;
+	int    ok = 1;
+	int    use_ta = 1;
 	TempOrderTbl * p_ord = 0;
 	BExtInsert * p_bei = 0;
 	CrosstabProcessor * p_ct_prcssr = 0;
@@ -1122,7 +1123,9 @@ int PPViewPrjTask::Init_(const PPBaseFilt * pFilt)
 		PPObjPersonRelType prt_obj;
 		PPIDArray grp_prt_list;
 		if(prt_obj.GetGroupingList(&grp_prt_list) > 0) {
-			PPIDArray empl_list, creator_list, client_list;
+			PPIDArray empl_list;
+			PPIDArray creator_list;
+			PPIDArray client_list;
 			for(uint i = 0; i < grp_prt_list.getCount(); i++) {
 				if(Filt.CreatorID)
 					PsnObj.GetRelPersonList(Filt.CreatorID,  grp_prt_list.get(i), 1, &creator_list);

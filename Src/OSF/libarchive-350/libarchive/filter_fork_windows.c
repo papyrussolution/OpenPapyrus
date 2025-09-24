@@ -97,7 +97,6 @@ int __archive_create_child(const char * cmd, int * child_stdin, int * child_stdo
 		if(sp)
 			archive_strappend_char(&cmdline, '"');
 	}
-
 	secAtts.nLength = sizeof(SECURITY_ATTRIBUTES);
 	secAtts.bInheritHandle = TRUE;
 	secAtts.lpSecurityDescriptor = NULL;
@@ -128,12 +127,9 @@ int __archive_create_child(const char * cmd, int * child_stdin, int * child_stdo
 	child = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, childInfo.dwProcessId);
 	if(child == NULL)  // INVALID_HANDLE_VALUE ?
 		goto fail;
-
 	*out_child = child;
-
 	CloseHandle(childStdout[1]);
 	CloseHandle(childStdin[0]);
-
 	archive_string_free(&cmdline);
 	archive_string_free(&fullpath);
 	__archive_cmdline_free(acmd);

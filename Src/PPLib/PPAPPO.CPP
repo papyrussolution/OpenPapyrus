@@ -928,12 +928,12 @@ int PPApp::processCommand(uint cmd)
 		// @v9.0.4 case cmConvert372:           Convert372();                    break;
 		// @v9.0.4 case cmConvert400:           Convert400();                    break;
 		// @v9.0.4 case cmConvert31102:         Convert31102();                  break;
-		case cmConvert4405:          Convert4405();                   break;
-		case cmConvert4707:          Convert4707();                   break;
-		case cmConvert4805:          Convert4805();                   break;
-		case cmConvertQuot720:       ConvertQuot720();                break;
+		// @v12.4.1 case cmConvert4405:          Convert4405();                   break;
+		// @v12.4.1 case cmConvert4707:          Convert4707();                   break;
+		// @v12.4.1 case cmConvert4805:          Convert4805();                   break;
+		// @v12.4.1 case cmConvertQuot720:       ConvertQuot720();                break;
 		case cmConvertBillUUID7601:  CALLPTRMEMB(p_bobj, ConvertUuid7601()); break;
-		case cmConvertWorkbook813:   ConvertWorkbook813();            break;
+		// @v12.4.1 case cmConvertWorkbook813:   ConvertWorkbook813();            break;
 		case cmConvert10703:         Convert10703();                  break;
 		case cmConvert1:
 #ifdef __CONVERT__

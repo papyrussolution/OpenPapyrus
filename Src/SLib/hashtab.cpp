@@ -132,7 +132,7 @@ int HashTableBase::Entry::SetVal(uint key, uint val)
 	return ok;
 }
 
-int FASTCALL HashTableBase::Entry::Remove(uint pos)
+int FASTCALL HashTableBase::Entry::Remove__(uint pos)
 {
 	int    ok = 0;
 	if(pos < Count) {
@@ -262,12 +262,39 @@ int TokenSymbHashTable::Put(long token, const char * pSymb)
 	return c;
 }
 
+int TokenSymbHashTable::Del(long key) // @v12.4.1 @construction
+{
+	int    ok = 0;
+	int32  _val = 0;
+	if(P_Tab) {
+		const  size_t h = Hash(key);
+		Entry & r_entry = P_Tab[h];
+		if(r_entry.Count > 0) {
+			if(r_entry.Val.Key == key) {
+				_val = r_entry.Val.Val;
+				r_entry.Remove__(0);
+				ok = 1;
+			}
+			else {
+				for(uint i = 1; !ok && i < r_entry.Count; i++) {
+					if(r_entry.P_Ext[i-1].Key == key) {
+						_val = r_entry.P_Ext[i-1].Val;
+						r_entry.Remove__(i);
+						ok = 1;
+					}
+				}
+			}
+		}
+	}
+	return ok;
+}
+
 int TokenSymbHashTable::Get(long token, SString * pSymb) const
 {
 	int    ok = 0;
 	CALLPTRMEMB(pSymb, Z());
 	if(P_Tab) {
-		size_t h  = Hash(token);
+		const  size_t h = Hash(token);
 		const  Entry & r_entry = P_Tab[h];
 		if(r_entry.Count > 0) {
 			long key = r_entry.Val.Key;
@@ -538,7 +565,7 @@ int SymbHashTable::Del(const char * pSymb, uint * pVal)
 			pos = (uint)r_entry.Val.Key;
 			if(NamePool.get(&pos, temp_buf) && temp_buf.Cmp(pSymb, 0) == 0) {
 				val = r_entry.Val.Val;
-				r_entry.Remove(0);
+				r_entry.Remove__(0);
 				ok = 1;
 			}
 			else
@@ -546,7 +573,7 @@ int SymbHashTable::Del(const char * pSymb, uint * pVal)
 					pos = (uint)r_entry.P_Ext[i-1].Key;
 					if(NamePool.get(&pos, temp_buf) && temp_buf.Cmp(pSymb, 0) == 0) {
 						val = r_entry.P_Ext[i-1].Val;
-						r_entry.Remove(i);
+						r_entry.Remove__(i);
 						ok = 1;
 					}
 				}
@@ -668,14 +695,14 @@ int LAssocHashTable::Del(long key, long * pVal)
 		if(r_entry.Count > 0) {
 			if(r_entry.Val.Key == key) {
 				val = r_entry.Val.Val;
-				r_entry.Remove(0);
+				r_entry.Remove__(0);
 				ok = 1;
 			}
 			else {
 				for(uint i = 1; !ok && i < r_entry.Count; i++) {
 					if(r_entry.P_Ext[i-1].Key == key) {
 						val = r_entry.P_Ext[i-1].Val;
-						r_entry.Remove(i);
+						r_entry.Remove__(i);
 						ok = 1;
 					}
 				}
@@ -946,7 +973,7 @@ int GuidHashTable::Del(const S_GUID & rUuid, uint * pVal)
 			pos = (uint)r_entry.Val.Key;
 			if(pos < Pool.getCount() && Pool.at(pos) == rUuid) {
 				val = r_entry.Val.Val;
-				r_entry.Remove(0);
+				r_entry.Remove__(0);
 				ok = 1;
 			}
 			else {
@@ -954,7 +981,7 @@ int GuidHashTable::Del(const S_GUID & rUuid, uint * pVal)
 					pos = (uint)r_entry.P_Ext[i-1].Key;
 					if(pos < Pool.getCount() && Pool.at(pos) == rUuid) {
 						val = r_entry.P_Ext[i-1].Val;
-						r_entry.Remove(i);
+						r_entry.Remove__(i);
 						ok = 1;
 					}
 				}
@@ -1061,18 +1088,19 @@ int PtrHashTable::Del(const void * ptr, uint * pVal)
 			pos = (uint)r_entry.Val.Key;
 			if(pos < Pool.getCount() && Pool.at(pos) == ptr) {
 				val = r_entry.Val.Val;
-				r_entry.Remove(0);
+				r_entry.Remove__(0);
 				ok = 1;
 			}
-			else
+			else {
 				for(uint i = 1; !ok && i < r_entry.Count; i++) {
 					pos = (uint)r_entry.P_Ext[i-1].Key;
 					if(pos < Pool.getCount() && Pool.at(pos) == ptr) {
 						val = r_entry.P_Ext[i-1].Val;
-						r_entry.Remove(i);
+						r_entry.Remove__(i);
 						ok = 1;
 					}
 				}
+			}
 		}
 		if(ok && Flags & fUseAssoc && Assoc.BSearch((long)val, &(pos = 0)))
 			Assoc.atFree(pos);

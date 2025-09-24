@@ -327,10 +327,10 @@ int PPViewAccturn::CreateGrouping()
 	int    ok = 1;
 	AccturnViewItem item;
 	PPViewAccturn * p_temp_view = 0;
-	TempAccturnGrpngTbl * tbl = 0;
+	TempAccturnGrpngTbl * p_tbl = 0;
 	AccturnFilt temp_flt;
 	AccturnGroupingCache cache;
-	THROW(tbl = CreateTempAGFile());
+	THROW(p_tbl = CreateTempAGFile());
 	THROW_MEM(p_temp_view = new PPViewAccturn);
 	if(Filt.Cycl.Cycle) {
 		CycleList.init(&Filt.Period, Filt.Cycl);
@@ -383,7 +383,7 @@ int PPViewAccturn::CreateGrouping()
 		PPWaitDate(item.Date);
 	}
 	{
-		BExtInsert bei(tbl);
+		BExtInsert bei(p_tbl);
 		for(uint i = 0; i < cache.GetCount(); i++) {
 			TempAccturnGrpngTbl::Rec rec;
 			if(cache.Get(i, &rec) > 0) {
@@ -392,10 +392,10 @@ int PPViewAccturn::CreateGrouping()
 		}
 		THROW_DB(bei.flash());
 	}
-	P_TmpAGTbl = tbl;
+	P_TmpAGTbl = p_tbl;
 	CATCH
 		ok = 0;
-		ZDELETE(tbl);
+		ZDELETE(p_tbl);
 	ENDCATCH
 	delete p_temp_view;
 	return ok;
@@ -460,7 +460,9 @@ int PPViewAccturn::InitIteration()
 			ok = -1;
 	}
 	else {
-		double ip, min_amt = Filt.AmtR.low, max_amt = Filt.AmtR.upp;
+		double ip;
+		double min_amt = Filt.AmtR.low;
+		double max_amt = Filt.AmtR.upp;
 		int    idx = 2;
 		AccTurnTbl::Key2 k2;
 		THROW_MEM(P_IterQuery = new BExtQuery(P_ATC, idx));
@@ -567,7 +569,8 @@ int FASTCALL PPViewAccturn::NextIteration(AccturnViewItem * pItem)
 				AccTurnTbl::Rec at_rec;
 				P_ATC->copyBufTo(&at_rec);
 				if(Filt.Aco) {
-					PPID   dbt_rel_id = 0, crd_rel_id = 0;
+					PPID   dbt_rel_id = 0;
+					PPID   crd_rel_id = 0;
 					P_ATC->GetAccRelIDs(&at_rec, &dbt_rel_id, &crd_rel_id);
 					if(P_ATC->AccBelongToOrd(dbt_rel_id, Filt.Aco, &Filt.DbtAcct, Filt.CurID, 1) <= 0)
 						continue;
@@ -753,7 +756,7 @@ static IMPL_DBE_PROC(dbqf_objname_cursymbbyacctrel_i)
 	if(option == CALC_SIZE)
 		result->init(sizeof(name_buf));
 	else {
-		PPID   id = PPDbqFuncPool::helper_dbq_name(params, name_buf);
+		const PPID id = PPDbqFuncPool::helper_dbq_name(params, name_buf);
 		if(id) {
 			AcctRel & r_tbl = BillObj->atobj->P_Tbl->AccRel;
 			AcctRelTbl::Rec acr_rec;

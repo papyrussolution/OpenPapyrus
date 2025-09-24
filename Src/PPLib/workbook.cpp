@@ -2305,13 +2305,11 @@ int PPObjWorkbook::InterchangeUhtt()
 						PPID   native_id = 0;
 						const  UhttWorkbookItemPacket * p_item = blk.R_SrcList.at(i);
 						int    cpr = Helper_CreatePacketByUhttList(&native_id, blk, i, 1);
-						// @v10.2.5 THROW(cpr);
 						if(cpr > 0) {
 							updated_list.add(native_id);
 							// PPTXT_LOG_WBS_WBVACCEPTED      "Рабочая книга '@zstr' акцептирована в базе данных"
 							logger.Log(PPFormatT(PPTXT_LOG_WBS_WBVACCEPTED, &msg_buf, p_item->Name.cptr()));
 						}
-						// @v10.2.5 {
 						else if(!cpr) {
 							PPGetMessage(mfError, PPErrCode, 0, DS.CheckExtFlag(ECF_SYSSERVICE), last_err_msg_buf);
 							temp_buf.Z().Cat(p_item->ID).CatDiv('-', 1).Cat(p_item->Symb).CatDiv('-', 1).Cat(p_item->Name);
@@ -2320,12 +2318,11 @@ int PPObjWorkbook::InterchangeUhtt()
 							logger.Log(msg_buf);
 							accept_err_occured = 1;
 						}
-						// } @v10.2.5
 						ok = 1;
 					}
 					updated_list.sortAndUndup();
 				}
-				if(!accept_err_occured) { // @v10.2.5
+				if(!accept_err_occured) {
 					WorkbookTbl::Rec rec;
 					SString native_symb;
 					THROW(Helper_Transmit(0, native_list, 0));

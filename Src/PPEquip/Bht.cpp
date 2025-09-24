@@ -1832,6 +1832,7 @@ private:
 	long   Flags;
 };
 
+#if 0 // @v12.4.1 @support_eliminated {
 class CipherProtocol : public SCommPort {
 public:
 	CipherProtocol();
@@ -1864,6 +1865,7 @@ private:
 	uint16 MaxTries;
 	long   Flags;
 };
+#endif // } 0 @v12.4.1 @support_eliminated
 //
 //
 //
@@ -2428,7 +2430,8 @@ int BhtProtocol::ReceiveFile(const char * pFileName, long timeout)
 //
 // CipherProtocol
 //
-#define EOS  0x0d      // End of string
+#if 0 // @v12.4.1 @support_eliminated {
+// @v12.4.1 (replaced with CHR_CR) #define EOS  0x0d      // End of string
 
 CipherProtocol::CipherProtocol() : Timeout(3000), MaxTries(10), Flags(0)
 {
@@ -2544,9 +2547,9 @@ int CipherProtocol::SendBlock(uint recNo, size_t size, const char * pBlk)
 		buf[p++] = pBlk[i];
 	for(i = 1; i < p; i++)
 		sum += (uint)(uchar)buf[i];
-	buf[p++] = (sum / 256 == EOS) ? 14 : sum / 256;
-	buf[p++] = (sum % 256 == EOS) ? 14 : sum % 256;
-	buf[p++] = EOS;
+	buf[p++] = (sum / 256 == CHR_CR) ? 14 : sum / 256;
+	buf[p++] = (sum % 256 == CHR_CR) ? 14 : sum % 256;
+	buf[p++] = CHR_CR;
 	for(j = 0; ok == 0 && j < MaxTries; j++) {
 		nak = 0;
 		if(!enq)
@@ -2635,7 +2638,6 @@ int CipherProtocol::ReceiveBlock(uint * pRecNo, size_t * pDataLen, char * pBuf, 
 	char buf[512];
 	char c;
 	size_t p = 0;
-
 	for(int i = 0; !r && i < 100; i++) {
 		SDelay(300);
 		c = GetChr();
@@ -2653,14 +2655,14 @@ int CipherProtocol::ReceiveBlock(uint * pRecNo, size_t * pDataLen, char * pBuf, 
 				THROW(recno > 0);
 			}
 			c = GetChr();
-			while(c != 0 && c != EOS) {
+			while(c != 0 && c != CHR_CR) {
 				buf[p++] = c;
 				sum += (uint)static_cast<uchar>(c);
 				c = GetChr();
 			}
 			sum -= (uint)(uchar)buf[p-2] + (uint)(uchar)buf[p-1];
-			THROW((uint)(uchar)buf[p-2] == ((sum / 256 == EOS) ? 14 : sum / 256));
-			THROW((uint)(uchar)buf[p-1] == ((sum % 256 == EOS) ? 14 : sum % 256));
+			THROW((uint)(uchar)buf[p-2] == ((sum / 256 == CHR_CR) ? 14 : sum / 256));
+			THROW((uint)(uchar)buf[p-1] == ((sum % 256 == CHR_CR) ? 14 : sum % 256));
 			buf[p-2] = '\0';
 			p -= 2;
 			PutChrEx(CHR_ACK);
@@ -2686,7 +2688,7 @@ int CipherProtocol::PutChrEx(int c)
 {
 	int    ok = 1;
 	THROW(PutChr(c));
-	THROW(PutChr(EOS));
+	THROW(PutChr(CHR_CR));
 	CATCHZOK
 	return ok;
 }
@@ -2698,6 +2700,7 @@ int CipherProtocol::GetChrEx()
 		GetChr();
 	return c;
 }
+#endif // } @v12.4.1 @support_eliminated
 
 /*static*/int PPObjBHT::TransmitProgram()
 {
@@ -2789,6 +2792,7 @@ int PPObjBHT::InitProtocol(PPID id, BhtProtocol * pProt)
 	return ok;
 }
 
+/* @v12.4.1 @support_eliminated
 int PPObjBHT::InitProtocol(PPID id, CipherProtocol * pProt)
 {
 	int    ok = 1;
@@ -2803,7 +2807,7 @@ int PPObjBHT::InitProtocol(PPID id, CipherProtocol * pProt)
 	pProt->SetParams(&cpp);
 	pProt->GetTimeouts(&cpt);
 	if(rec.ComGet_Delay == 0 || rec.ComGet_Delay > 1000)
-		cpt.W_Get_Delay = 200; /* default 150 */
+		cpt.W_Get_Delay = 200; // default 150
 	else
 		cpt.W_Get_Delay = rec.ComGet_Delay;
 	pProt->SetTimeouts(&cpt);
@@ -2815,6 +2819,62 @@ int PPObjBHT::InitProtocol(PPID id, CipherProtocol * pProt)
 	CATCHZOK
 	return ok;
 }
+
+int PPObjBHT::TransmitSuppl(CipherProtocol * pCP, int updateData)
+{
+	int    ok = 1, r;
+	BhtRecord * p_bht_rec = 0;
+	SString path;
+	PPWaitStart();
+	THROW(PPGetFilePath(PPPATH_OUT, PPFILNAM_BHT_SUPPL, path) > 0);
+	if(!fileExists(path) || updateData) {
+		THROW(r = PrepareSupplData(path));
+	}
+	else
+		r = 1;
+	if(r > 0) {
+		PPWaitStop();
+		if(CONFIRM(PPCFM_BHT_SENDSUPPL)) {
+			PPWaitStart();
+			THROW_MEM(p_bht_rec = new BhtRecord);
+			InitSupplBhtRec(p_bht_rec);
+			THROW(pCP->SendDataFile(path, p_bht_rec));
+		}
+	}
+	CATCHZOK
+	PPWaitStop();
+	delete p_bht_rec;
+	return ok;
+}
+
+int PPObjBHT::TransmitGoods(PPID bhtID, CipherProtocol * pCP, int updateData)
+{
+	int    ok = 1, r;
+	BhtRecord * p_bht_rec = 0;
+	SString path;
+	PPWaitStart();
+	THROW(PPGetFilePath(PPPATH_OUT, PPFILNAM_BHT_GOODS, path) > 0);
+	if(!fileExists(path) || updateData) {
+		THROW(r = PrepareGoodsData(bhtID, path, 0, 0, 0));
+	}
+	else
+		r = 1;
+	if(r > 0) {
+		PPWaitStop();
+		if(CONFIRM(PPCFM_BHT_SENDGOODS)) {
+			PPWaitStart();
+			THROW_MEM(p_bht_rec = new BhtRecord);
+			InitGoodsBhtRec(p_bht_rec);
+			THROW(pCP->SendDataFile(path, p_bht_rec));
+		}
+		else
+			ok = -1;
+	}
+	CATCHZOK
+	PPWaitStop();
+	delete p_bht_rec;
+	return ok;
+}*/
 
 void PPObjBHT::InitGoodsBhtRec(BhtRecord * pBhtRec) const
 {
@@ -2922,7 +2982,7 @@ int PPObjBHT::PrepareLocData(const char * pPath, PPID bhtTypeID)
 }
 // } AHTOXA
 
-int PPObjBHT::PrepareBillRowCellData(const PPBhtTerminalPacket * pPack, PPID billID)
+/* @v12.4.1 int PPObjBHT::PrepareBillRowCellData(const PPBhtTerminalPacket * pPack, PPID billID)
 {
 	int    ok = -1;
 	int    num_flds = 0;
@@ -3024,7 +3084,7 @@ int PPObjBHT::PrepareBillRowCellData(const PPBhtTerminalPacket * pPack, PPID bil
 	CATCHZOK
 	ZDELETE(p_ie_brow);
 	return ok;
-}
+}*/
 
 struct BHT_BillOpEntry {
 	BHT_BillOpEntry() : OpID(0), Flags(0), Bbt(bbtUndef)
@@ -3044,7 +3104,8 @@ struct BHT_BillOpEntry {
 
 int PPObjBHT::PrepareBillData2(const PPBhtTerminalPacket * pPack, PPIDArray * pGoodsList, int uniteGoods /*=1*/)
 {
-	int    ok = -1, num_flds = 0;
+	int    ok = -1;
+	int    num_flds = 0;
 	uint   i;
 	SString fname, path;
 	SString h_path;
@@ -3620,33 +3681,6 @@ int PPObjBHT::TransmitSuppl(BhtProtocol * pBP, int updateData)
 	return ok;
 }
 
-int PPObjBHT::TransmitSuppl(CipherProtocol * pCP, int updateData)
-{
-	int    ok = 1, r;
-	BhtRecord * p_bht_rec = 0;
-	SString path;
-	PPWaitStart();
-	THROW(PPGetFilePath(PPPATH_OUT, PPFILNAM_BHT_SUPPL, path) > 0);
-	if(!fileExists(path) || updateData) {
-		THROW(r = PrepareSupplData(path));
-	}
-	else
-		r = 1;
-	if(r > 0) {
-		PPWaitStop();
-		if(CONFIRM(PPCFM_BHT_SENDSUPPL)) {
-			PPWaitStart();
-			THROW_MEM(p_bht_rec = new BhtRecord);
-			InitSupplBhtRec(p_bht_rec);
-			THROW(pCP->SendDataFile(path, p_bht_rec));
-		}
-	}
-	CATCHZOK
-	PPWaitStop();
-	delete p_bht_rec;
-	return ok;
-}
-
 int PPObjBHT::TransmitGoods(PPID bhtID, BhtProtocol * pBP, int updateData)
 {
 	int    ok = 1, r;
@@ -3681,35 +3715,6 @@ int PPObjBHT::TransmitGoods(PPID bhtID, BhtProtocol * pBP, int updateData)
 			THROW_MEM(p_bht_rec = new BhtRecord);
 			InitGoodsBhtRec(p_bht_rec);
 			THROW(pBP->SendDataFile(path2, p_bht_rec));
-		}
-		else
-			ok = -1;
-	}
-	CATCHZOK
-	PPWaitStop();
-	delete p_bht_rec;
-	return ok;
-}
-
-int PPObjBHT::TransmitGoods(PPID bhtID, CipherProtocol * pCP, int updateData)
-{
-	int    ok = 1, r;
-	BhtRecord * p_bht_rec = 0;
-	SString path;
-	PPWaitStart();
-	THROW(PPGetFilePath(PPPATH_OUT, PPFILNAM_BHT_GOODS, path) > 0);
-	if(!fileExists(path) || updateData) {
-		THROW(r = PrepareGoodsData(bhtID, path, 0, 0, 0));
-	}
-	else
-		r = 1;
-	if(r > 0) {
-		PPWaitStop();
-		if(CONFIRM(PPCFM_BHT_SENDGOODS)) {
-			PPWaitStart();
-			THROW_MEM(p_bht_rec = new BhtRecord);
-			InitGoodsBhtRec(p_bht_rec);
-			THROW(pCP->SendDataFile(path, p_bht_rec));
 		}
 		else
 			ok = -1;
@@ -5354,7 +5359,7 @@ int IdentifyGoods(PPObjGoods * pGObj, SString & rBarcode, PPID * pGoodsID, Goods
 		SString fn_ebill;
 		SString fn_ebline;
 		BhtProtocol bp;
-		CipherProtocol cp;
+		// @v12.4.1 @support_eliminated CipherProtocol cp;
 		SStrCollection files;
 		PPLogger logger;
 		ReceiveData_LocalBlock _lb(pack, files);
@@ -5373,7 +5378,7 @@ int IdentifyGoods(PPObjGoods * pGObj, SString & rBarcode, PPID * pGoodsID, Goods
 			THROW(bht_obj.InitProtocol(bht_id, &bp));
 		}
 		else if(bht_type == PPObjBHT::btSyntech) {
-			THROW(bht_obj.InitProtocol(bht_id, &cp));
+			// @v12.4.1 @support_eliminated THROW(bht_obj.InitProtocol(bht_id, &cp));
 		}
 		if(bht_type == PPObjBHT::btDenso && pack.ImpExpPath_.NotEmpty() && SFile::IsDir(pack.ImpExpPath_)) {
 			//PPGetPath(PPPATH_IN, dir);
@@ -5392,7 +5397,7 @@ int IdentifyGoods(PPObjGoods * pGObj, SString & rBarcode, PPID * pGoodsID, Goods
 					THROW(r = bp.ReceiveFile(path, timeout));
 				}
 				else if(bht_type == PPObjBHT::btSyntech) {
-					THROW(r = cp.ReceiveFile(path, timeout));
+					// @v12.4.1 @support_eliminated THROW(r = cp.ReceiveFile(path, timeout));
 				}
 				else
 					r = 0;
@@ -5636,6 +5641,7 @@ int PPBhtTerminalPacket::ConvertToConfig(int expKind, StyloBhtIIConfig * pCfg) c
 			}
 		}
 		else if(rec.BhtTypeID == PPObjBHT::btSyntech) {
+			/* @v12.4.1 @support_eliminated 
 			CipherProtocol cp;
 			THROW(bht_obj.InitProtocol(bht_id, &cp));
 			if(what == 0) {
@@ -5647,7 +5653,7 @@ int PPBhtTerminalPacket::ConvertToConfig(int expKind, StyloBhtIIConfig * pCfg) c
 			}
 			else if(what == 2) {
 				THROW(bht_obj.TransmitSuppl(&cp, force_update));
-			}
+			}*/
 		}
 		else if(oneof2(rec.BhtTypeID, PPObjBHT::btWinCe, PPObjBHT::btStyloBhtII)) {
 			const int is_sbii = BIN(rec.BhtTypeID == PPObjBHT::btStyloBhtII);

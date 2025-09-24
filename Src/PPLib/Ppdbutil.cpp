@@ -3159,10 +3159,12 @@ public:
 	int    Run();
 
 	int    GenTa_Rec(TestTa01Tbl::Rec * pRec, bool standaloneRecord);
-	static bool AreTaRecsEq(const TestTa01Tbl::Rec & rRec1, const TestTa01Tbl::Rec & rRec2);
-private:
 	int    GenRef01_Rec(TestRef01Tbl::Rec * pRec);
 	int    GenRef02_Rec(TestRef02Tbl::Rec * pRec);
+	static bool AreTaRecsEq(const TestTa01Tbl::Rec & rRec1, const TestTa01Tbl::Rec & rRec2);
+	static bool AreRefRecsEq(const TestRef01Tbl::Rec & rRec1, const TestRef01Tbl::Rec & rRec2);
+	static bool AreRefRecsEq(const TestRef02Tbl::Rec & rRec1, const TestRef02Tbl::Rec & rRec2);
+private:
 	int    GenerateString(char * pBuf, size_t maxLen);
 	int    CreateTa(int use_ta);
 	int    CreateRef01(long * pID);
@@ -3214,6 +3216,16 @@ void __DestroyPrcssrTestDbObject(void * p)
 	}
 }
 
+int __PrcssrTestDb_Generate_TestRef01_Rec(void * p, TestRef01Tbl::Rec * pRec)
+{
+	return (p && *static_cast<const uint32 *>(p) == Signature_PrcssrTestDb) ? static_cast<PrcssrTestDb *>(p)->GenRef01_Rec(pRec) : 0;
+}
+
+int __PrcssrTestDb_Generate_TestRef02_Rec(void * p, TestRef02Tbl::Rec * pRec)
+{
+	return (p && *static_cast<const uint32 *>(p) == Signature_PrcssrTestDb) ? static_cast<PrcssrTestDb *>(p)->GenRef02_Rec(pRec) : 0;
+}
+
 int __PrcssrTestDb_Generate_TestTa01_Rec(void * p, TestTa01Tbl::Rec * pRec)
 {
 	return (p && *static_cast<const uint32 *>(p) == Signature_PrcssrTestDb) ? static_cast<PrcssrTestDb *>(p)->GenTa_Rec(pRec, true) : 0;
@@ -3222,6 +3234,16 @@ int __PrcssrTestDb_Generate_TestTa01_Rec(void * p, TestTa01Tbl::Rec * pRec)
 int __PrcssrTestDb_Are_TestTa01_RecsEqual(const TestTa01Tbl::Rec & rRec1, const TestTa01Tbl::Rec & rRec2)
 {
 	return PrcssrTestDb::AreTaRecsEq(rRec1, rRec2);
+}
+
+int __PrcssrTestDb_Are_TestRef01_RecsEqual(const TestRef01Tbl::Rec & rRec1, const TestRef01Tbl::Rec & rRec2)
+{
+	return PrcssrTestDb::AreRefRecsEq(rRec1, rRec2);
+}
+
+int __PrcssrTestDb_Are_TestRef02_RecsEqual(const TestRef02Tbl::Rec & rRec1, const TestRef02Tbl::Rec & rRec2)
+{
+	return PrcssrTestDb::AreRefRecsEq(rRec1, rRec2);
 }
 //
 //
@@ -3535,15 +3557,23 @@ int PrcssrTestDb::AnalyzeAndUpdateTa()
 int PrcssrTestDb::GenRef01_Rec(TestRef01Tbl::Rec * pRec)
 {
 	int    ok = 1;
+	static int increment = 0;
+	LDATETIME dtm = plusdatetime(getcurdatetime_(), ++increment, 4);
 	TestRef01Tbl::Rec rec;
 	rec.L = G.GetUniformInt(100000);
 	rec.I16 = static_cast<int16>(G.GetUniformInt(32000));
 	rec.UI16 = static_cast<uint16>(labs(G.GetUniformInt(64000)));
 	rec.F64 = round(G.GetGaussian(1.0), 5);
 	rec.F32 = static_cast<float>(fabs(round(50.0+G.GetGaussian(2.0), 3)));
-	rec.D = plusdate(getcurdate_(), G.GetUniformInt(31));
-	rec.T.settotalsec(getcurtime_().totalsec() + G.GetUniformInt(600));
-	GenerateString(rec.S48, sizeof(rec.S48));
+	rec.D = dtm.d;
+	rec.T = dtm.t;
+	{
+		char   temp_s48[sizeof(rec.S48)];
+		GenerateString(temp_s48, sizeof(temp_s48));
+		SString temp_buf;
+		temp_buf.CatChar('#').Cat(increment).CatN(temp_s48, sizeof(temp_s48));
+		STRNSCPY(rec.S48, temp_buf);
+	}
 	GenerateString(rec.S12, sizeof(rec.S12));
 	ASSIGN_PTR(pRec, rec);
 	return ok;
@@ -3552,19 +3582,119 @@ int PrcssrTestDb::GenRef01_Rec(TestRef01Tbl::Rec * pRec)
 int PrcssrTestDb::GenRef02_Rec(TestRef02Tbl::Rec * pRec)
 {
 	int    ok = 1;
+	static int increment = 0;
+	LDATETIME dtm = plusdatetime(getcurdatetime_(), ++increment, 4);
 	TestRef02Tbl::Rec rec;
-	rec.L = G.GetPoisson(100.0);
-	rec.I16 = static_cast<int16>(G.GetPoisson(10.0));
+	rec.L = G.GetPoisson(2000000000.0);
+	rec.I16 = static_cast<int16>(G.GetPoisson(64000.0));
 	rec.UI16 = static_cast<uint16>(G.GetPoisson(10.0));
 	rec.F64 = round(1000.0 + G.GetGaussian(100.0), 2);
 	rec.F32 = static_cast<float>(fabs(round(50.0+G.GetGaussian(2.0), 3)));
-	rec.D = plusdate(getcurdate_(), G.GetUniformInt(60));
-	rec.T.settotalsec(getcurtime_().totalsec() + G.GetUniformInt(300));
-	GenerateString(rec.S48, sizeof(rec.S48));
+	rec.D = dtm.d;
+	rec.T = dtm.t;
+	//GenerateString(rec.S48, sizeof(rec.S48));
+	{
+		char   temp_s48[sizeof(rec.S48)];
+		GenerateString(temp_s48, sizeof(temp_s48));
+		SString temp_buf;
+		temp_buf.CatChar('#').Cat(increment).CatN(temp_s48, sizeof(temp_s48));
+		STRNSCPY(rec.S48, temp_buf);
+	}
 	GenerateString(rec.S12, sizeof(rec.S12));
 	GenerateString(rec.N, sizeof(rec.N));
 	ASSIGN_PTR(pRec, rec);
 	return ok;
+}
+
+/*static*/bool PrcssrTestDb::AreRefRecsEq(const TestRef01Tbl::Rec & rRec1, const TestRef01Tbl::Rec & rRec2)
+{
+	bool   eq = true;
+	/*
+	struct Rec {
+		Rec();
+		Rec & Clear();
+		int32  ID;
+		int32  L;
+		int16  I16;
+		uint16 UI16;
+		double F64;
+		float  F32;
+		LDATE  D;
+		LTIME  T;
+		char   S48[48];
+		char   S12[12];
+	} data;
+	*/ 
+	if(rRec1.ID != rRec2.ID) {
+		eq = false;
+	}
+	else if(rRec1.L != rRec2.L) {
+		eq = false;
+	}
+	else if(rRec1.I16 != rRec2.I16) {
+		eq = false;
+	}
+	else if(rRec1.UI16 != rRec2.UI16) {
+		eq = false;
+	}
+	else if(rRec1.F64 != rRec2.F64) {
+		eq = false;
+	}
+	else if(rRec1.F32 != rRec2.F32) {
+		eq = false;
+	}
+	else if(rRec1.D != rRec2.D) {
+		eq = false;
+	}
+	else if(rRec1.T != rRec2.T) {
+		eq = false;
+	}
+	else if(!sstreq(rRec1.S48, rRec2.S48)) {
+		eq = false;
+	}
+	else if(!sstreq(rRec1.S12, rRec2.S12)) {
+		eq = false;
+	}
+	return eq;
+}
+
+/*static*/bool PrcssrTestDb::AreRefRecsEq(const TestRef02Tbl::Rec & rRec1, const TestRef02Tbl::Rec & rRec2)
+{
+	bool   eq = true;
+	if(rRec1.ID != rRec2.ID) {
+		eq = false;
+	}
+	else if(rRec1.L != rRec2.L) {
+		eq = false;
+	}
+	else if(rRec1.I16 != rRec2.I16) {
+		eq = false;
+	}
+	else if(rRec1.UI16 != rRec2.UI16) {
+		eq = false;
+	}
+	else if(rRec1.F64 != rRec2.F64) {
+		eq = false;
+	}
+	else if(rRec1.F32 != rRec2.F32) {
+		eq = false;
+	}
+	else if(rRec1.D != rRec2.D) {
+		eq = false;
+	}
+	else if(rRec1.T != rRec2.T) {
+		eq = false;
+	}
+	else if(!sstreq(rRec1.S48, rRec2.S48)) {
+		eq = false;
+	}
+	else if(!sstreq(rRec1.S12, rRec2.S12)) {
+		eq = false;
+	}
+	else if(!sstreq(rRec1.N, rRec2.N)) {
+		eq = false;
+	}
+	return eq;
 }
 
 /*static*/bool PrcssrTestDb::AreTaRecsEq(const TestTa01Tbl::Rec & rRec1, const TestTa01Tbl::Rec & rRec2)

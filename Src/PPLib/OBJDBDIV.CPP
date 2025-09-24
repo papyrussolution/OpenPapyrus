@@ -134,7 +134,7 @@ private:
 		PPInputStringDialogParam isd_param;
 		PPLoadString("addrdbdiv", isd_param.Title);
 		isd_param.InputTitle = isd_param.Title;
-		if(InputStringDialog(&isd_param, addr_buf) > 0) {
+		if(InputStringDialog(isd_param, addr_buf) > 0) {
 			if(addr_buf.NotEmptyS()) {
 				SStrCollection sc;
 				ToCollection(sc);
@@ -156,7 +156,7 @@ private:
 			PPInputStringDialogParam isd_param;
 			PPLoadString("addrdbdiv", isd_param.Title);
 			isd_param.InputTitle = isd_param.Title;
-			if(InputStringDialog(&isd_param, addr_buf) > 0) {
+			if(InputStringDialog(isd_param, addr_buf) > 0) {
 				sc.atFree(id-1);
 				if(addr_buf.NotEmptyS()) {
 					sc.atInsert(id-1, addr_buf);

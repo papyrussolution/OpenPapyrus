@@ -13,19 +13,19 @@
 		//MENUITEM "Конвертация 2.5.3...",                           cmConvert253
 		//MENUITEM "Конвертация 2.7.0...",                           cmConvert270
 		//MENUITEM "Конвертация 3.0.0...",                           cmConvert300
-		MENUITEM "@cmd_convert301",									cmConvert301
-		MENUITEM "@cmd_convert329",									cmConvert329
-		MENUITEM "@cmd_convert3512",								cmConvert3512
-		MENUITEM "@cmd_convert372",									cmConvert372
+		// @v12.4.1 MENUITEM "@cmd_convert301",									cmConvert301
+		// @v12.4.1 MENUITEM "@cmd_convert329",									cmConvert329
+		// @v12.4.1 MENUITEM "@cmd_convert3512",								cmConvert3512
+		// @v12.4.1 MENUITEM "@cmd_convert372",									cmConvert372
 		//MENUITEM "Конвертация 3.8.0...",                           cmConvert380
-		MENUITEM "@cmd_convert400",			                        cmConvert400
-		MENUITEM "@cmd_convert31102",								cmConvert31102
-		MENUITEM "@cmd_convert31110",								cmConvert31110
-		MENUITEM "@cmd_convert4707",				                cmConvert4707
-		MENUITEM "@cmd_convert4805",				                cmConvert4805
-		MENUITEM "@cmd_convertquot720",								cmConvertQuot720
+		// @v12.4.1 MENUITEM "@cmd_convert400",			                        cmConvert400
+		// @v12.4.1 MENUITEM "@cmd_convert31102",								cmConvert31102
+		// @v12.4.1 MENUITEM "@cmd_convert31110",								cmConvert31110
+		// @v12.4.1 MENUITEM "@cmd_convert4707",				                cmConvert4707
+		// @v12.4.1 MENUITEM "@cmd_convert4805",				                cmConvert4805
+		// @v12.4.1 MENUITEM "@cmd_convertquot720",								cmConvertQuot720
 		MENUITEM "@cmd_convertbilluuid7601",						cmConvertBillUUID7601
-		MENUITEM "@cmd_convertworkbook813",							cmConvertWorkbook813
+		// @v12.4.1 MENUITEM "@cmd_convertworkbook813",							cmConvertWorkbook813
 		MENUITEM "@cmd_convertdesktoptoxml10703",                   cmConvert10703
 	}
 	POPUP "@cmdpu_repair" {

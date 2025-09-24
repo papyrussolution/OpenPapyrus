@@ -1039,11 +1039,11 @@ enum enum_field_types {
 				OD ocilob = *static_cast<const OD *>(pStmt->GetBindOuterPtr(pBind, count));
 				DBLobBlock * p_lob = pStmt->GetBindingLob();
 				size_t lob_sz = 0;
-				uint32 lob_loc = 0; // @x64crit
+				uint64 lob_loc = 0;
 				if(p_lob) {
 					p_lob->GetSize(labs(pBind->Pos)-1, &lob_sz);
-					p_lob->GetLocator(labs(pBind->Pos)-1, &lob_loc); // @x64crit
-					SETIFZ(lob_loc, (uint32)OdAlloc(OCI_DTYPE_LOB).H); // @x64crit
+					p_lob->GetLocator(labs(pBind->Pos)-1, &lob_loc);
+					SETIFZ(lob_loc, reinterpret_cast<uint64>(OdAlloc(OCI_DTYPE_LOB).H));
 					ProcessError(OCILobAssign(Env, Err, (const OCILobLocator *)(lob_loc), reinterpret_cast<OCILobLocator **>(&ocilob.H)));
 				}
 				LobWrite(ocilob, pBind->Typ, static_cast<SLob *>(pBind->P_Data), lob_sz);
@@ -1052,10 +1052,10 @@ enum enum_field_types {
 				OD ocilob = *static_cast<const OD *>(pStmt->GetBindOuterPtr(pBind, count));
 				DBLobBlock * p_lob = pStmt->GetBindingLob();
 				size_t lob_sz = 0;
-				uint32 lob_loc = 0;
+				uint64 lob_loc = 0;
 				LobRead(ocilob, pBind->Typ, static_cast<SLob *>(pBind->P_Data), &lob_sz);
 				if(p_lob) {
-					SETIFZ(lob_loc, (uint32)OdAlloc(OCI_DTYPE_LOB).H);
+					SETIFZ(lob_loc, reinterpret_cast<uint64>(OdAlloc(OCI_DTYPE_LOB).H));
 					ProcessError(OCILobAssign(Env, Err, ocilob, (OCILobLocator **)&lob_loc));
 					p_lob->SetSize(labs(pBind->Pos)-1, lob_sz);
 					p_lob->SetLocator(labs(pBind->Pos)-1, lob_loc);

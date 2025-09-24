@@ -1235,9 +1235,9 @@ int DBQuery::searchOnPage(const void * pPattern, uint * pPos, CompFunc fcmp, uin
 //
 //
 //
-int FASTCALL deleteFrom(DBTable * pTbl, int useTa, DBQ & query)
+int FASTCALL deleteFrom(DBTable * pTbl, int useTa, DBQ & rQuery)
 {
-	return pTbl ? pTbl->deleteByQuery(useTa, query) : 0;
+	return pTbl ? pTbl->deleteByQuery(useTa, rQuery) : 0;
 }
 //
 //

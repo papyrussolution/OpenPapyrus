@@ -1798,7 +1798,7 @@ int PPViewInventory::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowse
 								PPInputStringDialogParam isd_param;
 								isd_param.P_Wse = new TextHistorySelExtra("goodsnamefragment-common");
 								PPLoadText(PPTXT_SELGOODSBYNAME, isd_param.Title);
-								if(InputStringDialog(&isd_param, sub) > 0 && sub.NotEmptyS()) {
+								if(InputStringDialog(isd_param, sub) > 0 && sub.NotEmptyS()) {
 									if(!GObj.P_Tbl->GetListBySubstring(sub, &goods_list, -1)) {
 										PPError();
 										sel_by_name = 0;

@@ -60,7 +60,7 @@ int Transfer::CuttingLotOperations(PPID lotID, LDATE endDate, double * pEndQtty)
 		if(EnumByLot(lotID, &dt, &oprno, &rec) > 0)
 			is_forward_op = 1;
 	}
-	if(lot_qtty > 0 || is_forward_op) {
+	if(lot_qtty > 0.0 || is_forward_op) {
 		THROW_DB(getDirect(-1, 0, first_rec_pos));
 		data.Cost  = TR5(lot_rec.Cost);
 		data.Price = TR5(lot_rec.Price);

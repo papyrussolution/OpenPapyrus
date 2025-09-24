@@ -141,10 +141,16 @@ public:
 		grpGoods,
 		grpPallet
 	};
-	explicit LocTransfDialog(const PPBillPacket * pPack) : TDialog(DLG_LOCTRANSF), State(0), P_Pack(pPack), WarehouseID(pPack ? pPack->Rec.LocID : 0)
+	explicit LocTransfDialog(int domain, const PPBillPacket * pPack) : 
+		TDialog((domain == LOCTRFRDOMAIN_BAILMENT) ? DLG_LOCTRANSF_BAILMENT : DLG_LOCTRANSF), 
+		Domain(domain), State(0), P_Pack(pPack), WarehouseID(pPack ? pPack->Rec.LocID : 0)
 	{
 		P_BObj = BillObj;
-		addGroup(grpLoc, new LocationCtrlGroup(CTLSEL_LOCTRANSF_LOC, CTL_LOCTRANSF_LOCCODE, 0, 0, 0, LocationCtrlGroup::fWarehouseCell, 0));
+		if(Domain == LOCTRFRDOMAIN_BAILMENT) {
+		}
+		else {
+			addGroup(grpLoc, new LocationCtrlGroup(CTLSEL_LOCTRANSF_LOC, CTL_LOCTRANSF_LOCCODE, 0, 0, 0, LocationCtrlGroup::fWarehouseCell, 0));
+		}
 		addGroup(grpGoods, new GoodsCtrlGroup(CTLSEL_LOCTRANSF_GGRP, CTLSEL_LOCTRANSF_GOODS));
 		addGroup(grpPallet, new PalletCtrlGroup(CTLSEL_LOCTRANSF_PLTTYPE, CTL_LOCTRANSF_PLT, CTL_LOCTRANSF_PLTC,
 			CTL_LOCTRANSF_PCKG, CTL_LOCTRANSF_PCKGC, CTL_LOCTRANSF_QTTY, CTLSEL_LOCTRANSF_GOODS));
@@ -184,7 +190,11 @@ public:
 		showCtrl(CTL_LOCTRANSF_BILLQTTY, bill_qtty != 0.0);
 		temp_buf.Z().Cat(Data.Dt).Space().Cat(Data.Tm);
 		setCtrlString(CTL_LOCTRANSF_TM, temp_buf);
-		{
+		if(Domain == LOCTRFRDOMAIN_BAILMENT) {
+			SetupPersonCombo(this, CTLSEL_LOCTRANSF_PSN, Data.LocOwnerPersonID, 0, PPPRK_CLIENT, 1);
+			PsnObj.SetupDlvrLocCombo(this, CTLSEL_LOCTRANSF_LOC, Data.LocOwnerPersonID, Data.LocID);
+		}
+		else {
 			ObjIdListFilt loc_list;
 			loc_list.Add(Data.LocID);
 			LocationCtrlGroup::Rec loccg_rec(&loc_list, WarehouseID);
@@ -193,7 +203,7 @@ public:
 		AddClusterAssocDef(CTL_LOCTRANSF_OP,  0, LOCTRFROP_PUT);
 		AddClusterAssoc(CTL_LOCTRANSF_OP,  1, LOCTRFROP_GET);
 		AddClusterAssoc(CTL_LOCTRANSF_OP,  2, LOCTRFROP_INVENT);
-		SetClusterData(CTL_LOCTRANSF_OP, Data.Op);
+		SetClusterData(CTL_LOCTRANSF_OP, Data.LTOp);
 		SetupGoodsAndLot();
 		{
 			PalletCtrlGroup::Rec plt_rec;
@@ -211,12 +221,20 @@ public:
 	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
-		{
+		uint   sel = 0;
+		if(Domain == LOCTRFRDOMAIN_BAILMENT) {
+			getCtrlData(sel = CTLSEL_LOCTRANSF_PSN, &Data.LocOwnerPersonID);
+			THROW_PP(Data.LocOwnerPersonID, PPERR_LOCTRFR_BAILMENT_PSNNEEDED);
+			getCtrlData(sel = CTLSEL_LOCTRANSF_LOC, &Data.LocID);
+			THROW_PP(Data.LocID, PPERR_LOCTRFR_BAILMENT_LOCNEEDED);
+		}
+		else {
 			LocationCtrlGroup::Rec loccg_rec;
+			sel = CTLSEL_LOCTRANSF_LOC;
 			THROW(getGroupData(grpLoc, &loccg_rec));
 			THROW(Data.LocID = loccg_rec.LocList.GetSingle());
 		}
-		GetClusterData(CTL_LOCTRANSF_OP, &Data.Op);
+		GetClusterData(CTL_LOCTRANSF_OP, &Data.LTOp);
 		{
 			GoodsCtrlGroup::Rec goodscg_rec;
 			getGroupData(grpGoods, &goodscg_rec);
@@ -230,13 +248,90 @@ public:
 			Data.Qtty = plt_rec.Qtty;
 		}
 		ASSIGN_PTR(pData, Data);
-		CATCHZOKPPERR
+		CATCHZOKPPERRBYDLG
 		return ok;
 	}
 private:
-	DECL_HANDLE_EVENT;
+	DECL_HANDLE_EVENT
+	{
+		SString temp_buf;
+		TDialog::handleEvent(event);
+		if(event.isCmd(cmLot)) {
+			GoodsCtrlGroup::Rec goodscg_rec;
+			getGroupData(grpGoods, &goodscg_rec);
+			if(goodscg_rec.GoodsID) {
+				//ViewLots(goodscg_rec.GoodsID, WarehouseID, 0, 0, 0);
+				/*
+				LotFilt lot_filt;
+				lot_filt.GoodsID = goodscg_rec.GoodsID;
+				lot_filt.LocList.Add(WarehouseID);
+				lot_filt.Flags |= LotFilt::fShowSerialN;
+				::ViewLots(&lot_filt, 0, 0);
+				*/
+				//
+				PPObjBill::SelectLotParam slp(goodscg_rec.GoodsID, WarehouseID, 0, 
+					PPObjBill::SelectLotParam::fEnableZeroRest|PPObjBill::SelectLotParam::fFillLotRec);
+				slp.Period.Set(ZERODATE, getcurdate_());
+				if(P_BObj->SelectLot2(slp) > 0) {
+					Data.LotID = slp.RetLotID;
+					temp_buf.Z();
+					if(Data.LotID) {
+						ReceiptTbl::Rec lot_rec;
+						setCtrlString(CTL_LOCTRANSF_SERIAL, slp.RetLotSerial);
+						ReceiptCore::MakeCodeString(&slp.RetLotRec, 0, temp_buf);
+					}
+					setCtrlString(CTL_LOCTRANSF_LOTINFO, temp_buf);
+				}
+			}
+		}
+		else if(event.isCmd(cmCtlColor)) {
+			TDrawCtrlData * p_dc = static_cast<TDrawCtrlData *>(TVINFOPTR);
+			if(p_dc && getCtrlHandle(CTL_LOCTRANSF_SERIAL) == p_dc->H_Ctl && State & stSerialUndef) {
+				::SetBkMode(p_dc->H_DC, TRANSPARENT);
+				::SetTextColor(p_dc->H_DC, GetColorRef(SClrWhite));
+				p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(brushIllSerial));
+			}
+			else
+				return;
+		}
+		else if(event.isCbSelected(CTLSEL_LOCTRANSF_PSN)) {
+			if(Domain == LOCTRFRDOMAIN_BAILMENT) {
+				const PPID preserve_psn_id = Data.LocOwnerPersonID;
+				getCtrlData(CTLSEL_LOCTRANSF_PSN, &Data.LocOwnerPersonID);
+				if(Data.LocOwnerPersonID != preserve_psn_id)
+					PsnObj.SetupDlvrLocCombo(this, CTLSEL_LOCTRANSF_LOC, Data.LocOwnerPersonID, 0);
+			}
+		}
+		else if(TVBROADCAST) {
+			if(TVCMD == cmChangedFocus) {
+				if(event.isCtlEvent(CTL_LOCTRANSF_SERIAL)) {
+					getCtrlString(CTL_LOCTRANSF_SERIAL, temp_buf);
+					if(temp_buf.NotEmptyS()) {
+						ReceiptTbl::Rec lot_rec;
+						if(P_BObj->SelectLotBySerial(temp_buf, 0, WarehouseID, &lot_rec) > 0) {
+							Data.GoodsID = lot_rec.GoodsID;
+							PalletCtrlGroup * p_plt_grp = static_cast<PalletCtrlGroup *>(getGroup(grpPallet));
+							CALLPTRMEMB(p_plt_grp, SetupGoods(this, Data.GoodsID));
+							Data.LotID = lot_rec.ID;
+							SetupGoodsAndLot();
+						}
+						else
+							State |= stSerialUndef;
+					}
+				}
+				else
+					return;
+			}
+			else
+				return;
+		}
+		else
+			return;
+		clearEvent(event);
+	}
 	void   SetupGoodsAndLot();
 
+	const int Domain;
 	const PPBillPacket * P_Pack;
 	PPID   WarehouseID;
 	enum {
@@ -249,55 +344,8 @@ private:
 	};
 	long   State;
 	PPObjBill * P_BObj; // @notowned
+	PPObjPerson PsnObj;
 };
-
-IMPL_HANDLE_EVENT(LocTransfDialog)
-{
-	TDialog::handleEvent(event);
-	if(event.isCmd(cmLot)) {
-		GoodsCtrlGroup::Rec goodscg_rec;
-		getGroupData(grpGoods, &goodscg_rec);
-		if(goodscg_rec.GoodsID)
-			ViewLots(goodscg_rec.GoodsID, WarehouseID, 0, 0, 0);
-	}
-	else if(event.isCmd(cmCtlColor)) {
-		TDrawCtrlData * p_dc = static_cast<TDrawCtrlData *>(TVINFOPTR);
-		if(p_dc && getCtrlHandle(CTL_LOCTRANSF_SERIAL) == p_dc->H_Ctl && State & stSerialUndef) {
-			::SetBkMode(p_dc->H_DC, TRANSPARENT);
-			::SetTextColor(p_dc->H_DC, GetColorRef(SClrWhite));
-			p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(brushIllSerial));
-		}
-		else
-			return;
-	}
-	else if(TVBROADCAST) {
-		if(TVCMD == cmChangedFocus) {
-			if(event.isCtlEvent(CTL_LOCTRANSF_SERIAL)) {
-				SString temp_buf;
-				getCtrlString(CTL_LOCTRANSF_SERIAL, temp_buf);
-				if(temp_buf.NotEmptyS()) {
-					ReceiptTbl::Rec lot_rec;
-					if(P_BObj->SelectLotBySerial(temp_buf, 0, WarehouseID, &lot_rec) > 0) {
-						Data.GoodsID = lot_rec.GoodsID;
-						PalletCtrlGroup * p_plt_grp = static_cast<PalletCtrlGroup *>(getGroup(grpPallet));
-						CALLPTRMEMB(p_plt_grp, SetupGoods(this, Data.GoodsID));
-						Data.LotID = lot_rec.ID;
-						SetupGoodsAndLot();
-					}
-					else
-						State |= stSerialUndef;
-				}
-			}
-			else
-				return;
-		}
-		else
-			return;
-	}
-	else
-		return;
-	clearEvent(event);
-}
 
 void LocTransfDialog::SetupGoodsAndLot()
 {
@@ -315,7 +363,10 @@ void LocTransfDialog::SetupGoodsAndLot()
 	setCtrlString(CTL_LOCTRANSF_LOTINFO, temp_buf);
 }
 
-int EditLocTransf(const PPBillPacket * pPack, LocTransfTbl::Rec * pData) { DIALOG_PROC_BODY_P1(LocTransfDialog, pPack, pData); }
+int EditLocTransf(const PPBillPacket * pPack, LocTransfTbl::Rec & rData) 
+{
+	DIALOG_PROC_BODY_P2(LocTransfDialog, rData.Domain, pPack, &rData); 
+}
 //
 //
 //
@@ -352,6 +403,11 @@ public:
 	{
 		int    ok = 1;
 		RVALUEPTR(Data, pData);
+		// @v12.4.1 {
+		AddClusterAssocDef(CTL_LOCTRFILT_DOMAIN, 0, LOCTRFRDOMAIN_WMS);
+		AddClusterAssoc(CTL_LOCTRFILT_DOMAIN, 1, LOCTRFRDOMAIN_BAILMENT);
+		SetClusterData(CTL_LOCTRFILT_DOMAIN, Data.Domain);
+		// } @v12.4.1 
 		LocationCtrlGroup::Rec loccg_rec(&Data.LocList, 0);
 		setGroupData(grpLoc, &loccg_rec);
 		GoodsCtrlGroup::Rec goodscg_rec(Data.GoodsGrpID, Data.GoodsID, 0, 0);
@@ -371,6 +427,7 @@ public:
 	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
+		GetClusterData(CTL_LOCTRFILT_DOMAIN, &Data.Domain); // @v12.4.1
 		LocationCtrlGroup::Rec loccg_rec;
 		getGroupData(grpLoc, &loccg_rec);
 		Data.LocList = loccg_rec.LocList;
@@ -426,6 +483,7 @@ int PPViewLocTransf::UpdateTempRec(PPID tempRecID, PPID locID, int rByLoc, int u
 				MakeTempRec(rec, temp_rec);
 			}
 			else {
+				temp_rec.LocOwnerPersonID = 0; // @v12.4.1
 				temp_rec.LocID = 0;
 				temp_rec.RByLoc = 0;
 				temp_rec.DispQtty = 0.0;
@@ -448,7 +506,8 @@ int PPViewLocTransf::UpdateTempRec(PPID tempRecID, PPID locID, int rByLoc, int u
 
 void PPViewLocTransf::MakeTempRec(const LocTransfTbl::Rec & rRec, TempLocTransfTbl::Rec & rTempRec)
 {
-	rTempRec.Op = rRec.Op;
+	rTempRec.Domain = rRec.Domain; // @v12.4.1
+	rTempRec.LTOp = rRec.LTOp;
 	rTempRec.LocID = rRec.LocID;
 	rTempRec.RByLoc = rRec.RByLoc;
 	rTempRec.GoodsID = rRec.GoodsID;
@@ -461,6 +520,7 @@ void PPViewLocTransf::MakeTempRec(const LocTransfTbl::Rec & rRec, TempLocTransfT
 	rTempRec.Tm = rRec.Tm;
 	rTempRec.UserID = rRec.UserID;
 	rTempRec.Flags = rRec.Flags;
+	rTempRec.LocOwnerPersonID = rRec.LocOwnerPersonID; // @v12.4.1
 }
 
 int PPViewLocTransf::ProcessDispBill(PPID billID, BExtInsert * pBei, int use_ta)
@@ -487,16 +547,17 @@ int PPViewLocTransf::ProcessDispBill(PPID billID, BExtInsert * pBei, int use_ta)
 				for(int rbb = 0; p_tr->EnumItems(billID, &rbb, &ti) > 0;) {
 					int    disposed = 0;
 					rec.Clear();
+					rec.Domain = LOCTRFRDOMAIN_WMS; // @v12.4.1
 					rec.BillID = billID;
 					rec.RByBill = rbb;
 					if(ti.GetSign(bill_rec.OpID) == TISIGN_PLUS)
-						rec.Op = LOCTRFROP_PUT;
+						rec.LTOp = LOCTRFROP_PUT;
 					else if(ti.GetSign(bill_rec.OpID) == TISIGN_MINUS)
-						rec.Op = LOCTRFROP_GET;
+						rec.LTOp = LOCTRFROP_GET;
 					rec.GoodsID = labs(ti.GoodsID);
 					rec.BillQtty = ti.Qtty();
 					for(uint j = 0; j < disp_list.getCount(); j++) {
-						LocTransfTbl::Rec & r_lt_rec = disp_list.at(j);
+						const LocTransfTbl::Rec & r_lt_rec = disp_list.at(j);
 						if(r_lt_rec.RByBill == rbb) {
 							TempLocTransfTbl::Rec rec2;
 							rec2 = rec;
@@ -516,7 +577,7 @@ int PPViewLocTransf::ProcessDispBill(PPID billID, BExtInsert * pBei, int use_ta)
 			//
 			for(uint j = 0; j < disp_list.getCount(); j++) {
 				if(!seen_list.lsearch((long)j)) {
-					LocTransfTbl::Rec & r_lt_rec = disp_list.at(j);
+					const LocTransfTbl::Rec & r_lt_rec = disp_list.at(j);
 					rec.Clear();
 					rec.BillID = billID;
 					MakeTempRec(r_lt_rec, rec);
@@ -564,33 +625,39 @@ int PPViewLocTransf::Init_(const PPBaseFilt * pFilt)
 		if(Filt.LocList.IsExists()) {
 			PPIDArray domain;
 			LocObj.ResolveWhCellList(&Filt.LocList.Get(), 0, domain);
-			Domain.Set(&domain);
+			LocList_.Set(&domain);
 		}
 		else
-			Domain.Set(0);
+			LocList_.Set(0);
 	}
 	if(Filt.Mode == LocTransfFilt::modeDisposition) {
-		DispBillList = Filt.BillList.Get();
-		THROW(P_TempTbl = CreateTempFile());
-		THROW(Helper_BuildDispTable(0, 1));
+		if(Filt.Domain == LOCTRFRDOMAIN_WMS) { // @v12.4.1
+			DispBillList = Filt.BillList.Get();
+			THROW(P_TempTbl = CreateTempFile());
+			THROW(Helper_BuildDispTable(0, 1));
+		}
 	}
 	else if(Filt.Mode == LocTransfFilt::modeEmpty) {
 		THROW(P_TempTbl = CreateTempFile());
-		{
+		if(Filt.Domain == LOCTRFRDOMAIN_WMS) {
 			PPIDArray list;
-			Tbl.GetEmptyCellList(&Domain.Get(), &list);
+			Tbl.GetEmptyCellList(&LocList_.Get(), &list);
 			BExtInsert bei(P_TempTbl);
 			{
 				PPTransaction tra(ppDbDependTransaction, 1);
 				THROW(tra);
 				for(uint i = 0; i < list.getCount(); i++) {
 					TempLocTransfTbl::Rec temp_rec;
+					temp_rec.Domain = Filt.Domain;
 					temp_rec.LocID = list.get(i);
 					THROW_DB(bei.insert(&temp_rec));
 				}
 				THROW_DB(bei.flash());
 				THROW(tra.Commit());
 			}
+		}
+		else if(Filt.Domain == LOCTRFRDOMAIN_BAILMENT) { // @v12.4.1
+			// @todo
 		}
 	}
 	else
@@ -602,7 +669,8 @@ int PPViewLocTransf::Init_(const PPBaseFilt * pFilt)
 int PPViewLocTransf::InitIteration()
 {
 	int    ok = 1;
-	int    idx = 0, sp = spFirst;
+	int    idx = 0;
+	int    sp = spFirst;
 	union {
 		TempLocTransfTbl::Key2 tk2;
 		LocTransfTbl::Key0 k0;
@@ -636,21 +704,28 @@ int PPViewLocTransf::InitIteration()
 		else if(Filt.Mode == LocTransfFilt::modeCurrent) {
 			idx = 5;
 			sp = spGe;
-			k.k5.Op = 0;
+			k.k5.Domain = static_cast<int16>(Filt.Domain); // @v12.4.1
+			k.k5.LTOp = 0;
 		}
 		else {
 			idx = 0;
 			sp = spFirst;
 		}
-		if(Filt.Mode == LocTransfFilt::modeCurrent) // @v10.3.0 @fix (Filt.Mode = LocTransfFilt::modeCurrent)-->(Filt.Mode == LocTransfFilt::modeCurrent)
-			dbq	 = &(*dbq && Tbl.Op == 0L && Tbl.RestByGoods > 0.0);
+		if(Filt.Mode == LocTransfFilt::modeCurrent)
+			dbq	 = &(*dbq && Tbl.LTOp == 0L && Tbl.RestByGoods > 0.0);
 		else
-			dbq	 = &(*dbq && Tbl.Op > 0L);
+			dbq	 = &(*dbq && Tbl.LTOp > 0L);
 		if(single_loc_id) {
 			LocationTbl::Rec loc_rec;
 			if(LocObj.Fetch(single_loc_id, &loc_rec) > 0 && loc_rec.Type == LOCTYP_WHCELL)
 				dbq = &(*dbq && Tbl.LocID == single_loc_id);
 		}
+		// @v12.4.1 {
+		{
+			const int _domain = oneof2(Filt.Domain, LOCTRFRDOMAIN_WMS, LOCTRFRDOMAIN_BAILMENT) ? Filt.Domain : LOCTRFRDOMAIN_WMS;
+			dbq = &(*dbq && Tbl.Domain == _domain);
+		}
+		// } @v12.4.1 
 		P_IterQuery = new BExtQuery(&Tbl, idx);
 		P_IterQuery->selectAll().where(*dbq);
 	}
@@ -668,7 +743,7 @@ int FASTCALL PPViewLocTransf::NextIteration(LocTransfViewItem * pItem)
 			Counter.Increment();
 			if(Filt.Mode != Filt.modeDisposition) {
 				const  PPID cell_id = P_TempTbl ? P_TempTbl->data.LocID : Tbl.data.LocID;
-				if(Domain.CheckID(cell_id)) {
+				if(LocList_.CheckID(cell_id)) {
 					ok = 1;
 				}
 			}
@@ -687,7 +762,7 @@ int FASTCALL PPViewLocTransf::NextIteration(LocTransfViewItem * pItem)
 						FLD(UserID);
 						FLD(BillID);
 						FLD(RByBill);
-						FLD(Op);
+						FLD(LTOp);
 						FLD(Flags);
 						FLD(GoodsID);
 						//FLD(LotID);
@@ -748,24 +823,25 @@ DBQuery * PPViewLocTransf::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 		PPDbqFuncPool::InitObjNameFunc(dbe_user,  PPDbqFuncPool::IdObjNameUser,  tmpt->UserID);
 		PPDbqFuncPool::InitObjNameFunc(dbe_bill,  PPDbqFuncPool::IdObjCodeBillCmplx, tmpt->BillID);
 		PPDbqFuncPool::InitObjNameFunc(dbe_barcode, PPDbqFuncPool::IdGoodsSingleBarcode, tmpt->GoodsID);
-		p_dbe_op = & enumtoa(tmpt->Op, 3, optype_subst.Get(PPTXT_LOCTRANSF_OPTEXT));
+		p_dbe_op = & enumtoa(tmpt->LTOp, 3, optype_subst.Get(PPTXT_LOCTRANSF_OPTEXT));
 		p_q = &select(
-			tmpt->ID__,         // #00
-			tmpt->LocID,        // #01
-			tmpt->RByLoc,       // #02
-			tmpt->Op,           // #03
-			tmpt->DispQtty,     // #04
-			tmpt->RestByGoods,  // #05
-			tmpt->RestByLot,    // #06
-			tmpt->Dt,           // #07
-			tmpt->Tm,           // #08
-			*p_dbe_op,          // #09
-			dbe_loc,            // #10
-			dbe_goods,          // #11
-			dbe_bill,           // #12
-			dbe_user,           // #13
-			dbe_barcode,        // #14
-			tmpt->BillQtty,     // #15
+			tmpt->ID__,             // #00
+			tmpt->LocID,            // #01
+			tmpt->RByLoc,           // #02
+			tmpt->LTOp,             // #03
+			tmpt->DispQtty,         // #04
+			tmpt->RestByGoods,      // #05
+			tmpt->RestByLot,        // #06
+			tmpt->Dt,               // #07
+			tmpt->Tm,               // #08
+			*p_dbe_op,              // #09
+			dbe_loc,                // #10
+			dbe_goods,              // #11
+			dbe_bill,               // #12
+			dbe_user,               // #13
+			dbe_barcode,            // #14
+			tmpt->BillQtty,         // #15
+			tmpt->LocOwnerPersonID, // #16 @v12.4.1
 			0).from(tmpt, 0L).where(*dbq);
 	}
 	else {
@@ -775,7 +851,8 @@ DBQuery * PPViewLocTransf::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 		PPDbqFuncPool::InitObjNameFunc(dbe_user,  PPDbqFuncPool::IdObjNameUser,  t->UserID);
 		PPDbqFuncPool::InitObjNameFunc(dbe_bill,  PPDbqFuncPool::IdObjCodeBillCmplx, t->BillID);
 		PPDbqFuncPool::InitObjNameFunc(dbe_barcode, PPDbqFuncPool::IdGoodsSingleBarcode, t->GoodsID);
-		p_dbe_op = & enumtoa(t->Op, 3, optype_subst.Get(PPTXT_LOCTRANSF_OPTEXT));
+		p_dbe_op = & enumtoa(t->LTOp, 3, optype_subst.Get(PPTXT_LOCTRANSF_OPTEXT));
+		dbq = &(*dbq && t->Domain == Filt.Domain); // @v12.4.1
 		{
 			const  PPID single_loc_id = Filt.LocList.GetSingle();
 			LocationTbl::Rec loc_rec;
@@ -809,26 +886,27 @@ DBQuery * PPViewLocTransf::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 			dbq = ppcheckfiltid(dbq, t->GoodsID, Filt.GoodsID);
 		}
 		if(Filt.Mode == LocTransfFilt::modeCurrent)
-			dbq	 = &(*dbq && t->Op == 0L && t->RestByGoods > 0.0);
+			dbq	 = &(*dbq && t->LTOp == 0L && t->RestByGoods > 0.0);
 		else
-			dbq	 = &(*dbq && t->Op > 0L);
+			dbq	 = &(*dbq && t->LTOp > 0L);
 		p_q = &select(
-			t->LocID,        // #00 @stub
-			t->LocID,        // #01
-			t->RByLoc,       // #02
-			t->Op,           // #03
-			t->Qtty,         // #04
-			t->RestByGoods,  // #05
-			t->RestByLot,    // #06
-			t->Dt,           // #07
-			t->Tm,           // #08
-			*p_dbe_op,       // #09
-			dbe_loc,         // #10
-			dbe_goods,       // #11
-			dbe_bill,        // #12
-			dbe_user,        // #13
-			dbe_barcode,     // #14
-			t->Qtty,         // #15 @stub
+			t->LocID,            // #00 @stub
+			t->LocID,            // #01
+			t->RByLoc,           // #02
+			t->LTOp,             // #03
+			t->Qtty,             // #04
+			t->RestByGoods,      // #05
+			t->RestByLot,        // #06
+			t->Dt,               // #07
+			t->Tm,               // #08
+			*p_dbe_op,           // #09
+			dbe_loc,             // #10
+			dbe_goods,           // #11
+			dbe_bill,            // #12
+			dbe_user,            // #13
+			dbe_barcode,         // #14
+			t->Qtty,             // #15 @stub
+			t->LocOwnerPersonID, // #16 @v12.4.1
 			0).from(t, 0L).where(*dbq);
 		if(single_loc_crit)
 			p_q->orderBy(t->LocID, 0);
@@ -842,12 +920,17 @@ DBQuery * PPViewLocTransf::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 int PPViewLocTransf::AddItem(PPID curLocID, long curRByLoc)
 {
 	int    ok = -1;
+	const  LDATE now_date = getcurdate_();
+	LocTransfTbl::Rec rec;
+	rec.Domain = oneof2(Filt.Domain, LOCTRFRDOMAIN_WMS, LOCTRFRDOMAIN_BAILMENT) ? Filt.Domain : LOCTRFRDOMAIN_WMS;
 	if(Filt.Mode == LocTransfFilt::modeGeneral) {
-		LocTransfTbl::Rec rec;
-		rec.LocID = NZOR(curLocID, Filt.LocList.GetSingle());
-		ok = EditLocTransf(0, &rec);
+		if(rec.Domain == LOCTRFRDOMAIN_WMS)
+			rec.LocID = NZOR(curLocID, Filt.LocList.GetSingle());
+		ok = EditLocTransf(0, rec);
 		if(ok > 0) {
-			LocTransfOpBlock blk(rec.Op, rec.LocID);
+			LocTransfOpBlock blk(Filt.Domain, rec.LTOp, rec.LocID);
+			if(rec.Domain == LOCTRFRDOMAIN_BAILMENT)
+				blk.LocOwnerPersonID = rec.LocOwnerPersonID;
 			blk.GoodsID = rec.GoodsID;
 			blk.LotID = rec.LotID;
 			blk.PalletTypeID = rec.PalletTypeID;
@@ -857,36 +940,39 @@ int PPViewLocTransf::AddItem(PPID curLocID, long curRByLoc)
 		}
  	}
 	else if(Filt.Mode == LocTransfFilt::modeDisposition) {
-		BillFilt bill_filt;
-		LDATE cd = getcurdate_();
-		bill_filt.Period.Set(plusdate(cd, -365), plusdate(cd, 2));
-		bill_filt.LocList = Filt.LocList;
-		bill_filt.Flags |= BillFilt::fAsSelector;
-		PPViewBill bill_view;
-		if(bill_view.Init_(&bill_filt)) {
-			while(ok < 0 && bill_view.Browse(0) > 0) {
-				PPID bill_id = static_cast<const BillFilt *>(bill_view.GetBaseFilt())->Sel;
-				if(DispBillList.addUnique(bill_id) > 0) {
-					if(ProcessDispBill(bill_id, 0, 1))
-						ok = 1;
-					else
-						ok = PPErrorZ();
+		if(Filt.Domain == LOCTRFRDOMAIN_WMS) {
+			BillFilt bill_filt;
+			bill_filt.Period.Set(plusdate(now_date, -365), plusdate(now_date, 2));
+			bill_filt.LocList = Filt.LocList;
+			bill_filt.Flags |= BillFilt::fAsSelector;
+			PPViewBill bill_view;
+			if(bill_view.Init_(&bill_filt)) {
+				while(ok < 0 && bill_view.Browse(0) > 0) {
+					const PPID bill_id = static_cast<const BillFilt *>(bill_view.GetBaseFilt())->Sel;
+					if(DispBillList.addUnique(bill_id) > 0) {
+						if(ProcessDispBill(bill_id, 0, 1))
+							ok = 1;
+						else
+							ok = PPErrorZ();
+					}
 				}
 			}
 		}
 	}
 	else if(Filt.Mode == LocTransfFilt::modeCurrent) {
-		LocTransfTbl::Rec rec;
-		rec.LocID = NZOR(curLocID, Filt.LocList.GetSingle());
-		rec.Op = LOCTRFROP_GET;
+		rec.LTOp = LOCTRFROP_GET;
+		if(rec.Domain == LOCTRFRDOMAIN_WMS)
+			rec.LocID = NZOR(curLocID, Filt.LocList.GetSingle());
 		if(curLocID && curRByLoc) {
 			LocTransfTbl::Rec cur_rec;
 			if(Tbl.Search(curLocID, curRByLoc, &cur_rec) > 0)
 				rec.GoodsID = cur_rec.GoodsID;
 		}
-		ok = EditLocTransf(0, &rec);
+		ok = EditLocTransf(0, rec);
 		if(ok > 0) {
-			LocTransfOpBlock blk(rec.Op, rec.LocID);
+			LocTransfOpBlock blk(Filt.Domain, rec.LTOp, rec.LocID);
+			if(rec.Domain == LOCTRFRDOMAIN_BAILMENT)
+				blk.LocOwnerPersonID = rec.LocOwnerPersonID;
 			blk.GoodsID = rec.GoodsID;
 			blk.LotID = rec.LotID;
 			blk.PalletTypeID = rec.PalletTypeID;
@@ -896,12 +982,12 @@ int PPViewLocTransf::AddItem(PPID curLocID, long curRByLoc)
 		}
 	}
 	else if(Filt.Mode == LocTransfFilt::modeEmpty) {
-		LocTransfTbl::Rec rec;
-		rec.LocID = NZOR(curLocID, Filt.LocList.GetSingle());
-		rec.Op = LOCTRFROP_PUT;
-		ok = EditLocTransf(0, &rec);
+		rec.LTOp = LOCTRFROP_PUT;
+		if(rec.Domain == LOCTRFRDOMAIN_WMS)
+			rec.LocID = NZOR(curLocID, Filt.LocList.GetSingle());
+		ok = EditLocTransf(0, rec);
 		if(ok > 0) {
-			LocTransfOpBlock blk(rec.Op, rec.LocID);
+			LocTransfOpBlock blk(Filt.Domain, rec.LTOp, rec.LocID);
 			blk.GoodsID = rec.GoodsID;
 			blk.LotID = rec.LotID;
 			blk.PalletTypeID = rec.PalletTypeID;
@@ -919,9 +1005,9 @@ int PPViewLocTransf::EditItem(PPID tempRecID, PPID curLocID, long curRByLoc)
 	LocTransfTbl::Rec rec;
 	if(Filt.Mode == LocTransfFilt::modeGeneral) {
 		if(Tbl.Search(curLocID, curRByLoc, &rec) > 0) {
-			ok = EditLocTransf(0, &rec);
+			ok = EditLocTransf(0, rec);
 			if(ok > 0) {
-				LocTransfOpBlock blk(rec.Op, rec.LocID);
+				LocTransfOpBlock blk(Filt.Domain, rec.LTOp, rec.LocID);
 				blk.GoodsID = rec.GoodsID;
 				blk.LotID = rec.LotID;
 				blk.LocID  = curLocID;
@@ -938,15 +1024,16 @@ int PPViewLocTransf::EditItem(PPID tempRecID, PPID curLocID, long curRByLoc)
 		if(P_TempTbl) {
 			TempLocTransfTbl::Rec temp_rec;
 			if(SearchByID(P_TempTbl, 0, tempRecID, &temp_rec) > 0) {
-				PPBillPacket pack, * p_pack = 0;
+				PPBillPacket pack;
+				PPBillPacket * p_pack = 0;
 				if(temp_rec.BillID) {
 					THROW(BillObj->ExtractPacket(temp_rec.BillID, &pack) > 0);
 					p_pack = &pack;
 				}
 				if(temp_rec.LocID && Tbl.Search(temp_rec.LocID, temp_rec.RByLoc, &rec) > 0) {
-					ok = EditLocTransf(p_pack, &rec);
+					ok = EditLocTransf(p_pack, rec);
 					if(ok > 0) {
-						LocTransfOpBlock blk(rec.Op, rec.LocID);
+						LocTransfOpBlock blk(Filt.Domain, rec.LTOp, rec.LocID);
 						PPTransaction tra(1);
 						THROW(tra);
 						blk.BillID = rec.BillID;
@@ -968,19 +1055,19 @@ int PPViewLocTransf::EditItem(PPID tempRecID, PPID curLocID, long curRByLoc)
 					rec.Clear();
 					rec.BillID = temp_rec.BillID;
 					rec.RByBill = temp_rec.RByBill;
-					rec.Op = temp_rec.Op;
+					rec.LTOp = temp_rec.LTOp;
 					if(p_pack) {
 						uint tipos = 0;
 						if(p_pack->SearchTI(rec.RByBill, &tipos)) {
 							const PPTransferItem & r_ti = p_pack->ConstTI(tipos);
 							rec.GoodsID = labs(r_ti.GoodsID);
-							if(rec.Op == LOCTRFROP_PUT)
+							if(rec.LTOp == LOCTRFROP_PUT)
 								rec.LotID = r_ti.LotID;
 						}
 					}
-					ok = EditLocTransf(p_pack, &rec);
+					ok = EditLocTransf(p_pack, rec);
 					if(ok > 0) {
-						LocTransfOpBlock blk(rec.Op, rec.LocID);
+						LocTransfOpBlock blk(Filt.Domain, rec.LTOp, rec.LocID);
 						PPTransaction tra(1);
 						THROW(tra);
 						blk.BillID = rec.BillID;
@@ -1176,7 +1263,7 @@ int PPALDD_LocTransfView::NextIteration(long iterId)
 	I.UserID = item.UserID;
 	I.BillID = item.BillID;
 	I.RByBill = item.RByBill;
-	I.Op = item.Op;
+	I.Op = item.LTOp;
 	I.Flags = item.Flags;
 	I.GoodsID = item.GoodsID;
 	I.LotID = item.LotID;

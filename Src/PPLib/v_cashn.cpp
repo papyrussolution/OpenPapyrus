@@ -1,5 +1,5 @@
 // V_CASHN.CPP
-// Copyright (c) A.Starodub 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Starodub 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2025
 // @codepage UTF-8
 // Кассовые узлы
 //
@@ -233,14 +233,6 @@ DBQuery * PPViewCashNode::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	ASSIGN_PTR(pBrwId, brw_id);
 	return q;
 }
-
-/* @v10.1.0 (inlined) int PPViewCashNode::ExecCPanel(uint ppvCmd, PPID cashID)
-{
-	CashNodePaneFilt filt;
-	filt.CashNodeID = cashID;
-	filt.CommandID  = (ppvCmd == PPVCMD_OPPANEL) ? 0 : cmCSOpen;
-	return ::ExecCSPanel(&filt);
-}*/
 
 int PPViewCashNode::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {

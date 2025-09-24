@@ -122,12 +122,14 @@ static int luaB_costatus(lua_State * L) {
 	return 1;
 }
 
-static int luaB_yieldable(lua_State * L) {
+static int luaB_yieldable(lua_State * L) 
+{
 	lua_pushboolean(L, lua_isyieldable(L));
 	return 1;
 }
 
-static int luaB_corunning(lua_State * L) {
+static int luaB_corunning(lua_State * L) 
+{
 	int ismain = lua_pushthread(L);
 	lua_pushboolean(L, ismain);
 	return 2;
@@ -144,7 +146,8 @@ static const luaL_Reg co_funcs[] = {
 	{NULL, NULL}
 };
 
-LUAMOD_API int luaopen_coroutine(lua_State * L) {
+LUAMOD_API int luaopen_coroutine(lua_State * L) 
+{
 	luaL_newlib(L, co_funcs);
 	return 1;
 }

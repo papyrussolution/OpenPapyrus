@@ -262,6 +262,7 @@
 #ifndef FLEXINT_H
 #define FLEXINT_H
 
+#define SLIB_INCLUDE_CPPSTDLIBS
 #include <slib.h>
 #include <inttypes.h>
 typedef int8_t flex_int8_t;
@@ -2062,7 +2063,7 @@ static const flex_int16_t yy_chk[4896] = {
 
 static thread_local std::stringstream strbuf;
 
-#line 2065 "D:\\Papyrus\\Src\\OSF\\sql-parser\\src\\parser\\flex_lexer.cpp"
+#line 2066 "D:\\Papyrus\\Src\\OSF\\sql-parser\\src\\parser\\flex_lexer.cpp"
 
 /***************************
  ** Section 2: Rules
@@ -2080,7 +2081,7 @@ static thread_local std::stringstream strbuf;
 /***************************
  ** Section 3: Rules
  ***************************/
-#line 2083 "D:\\Papyrus\\Src\\OSF\\sql-parser\\src\\parser\\flex_lexer.cpp"
+#line 2084 "D:\\Papyrus\\Src\\OSF\\sql-parser\\src\\parser\\flex_lexer.cpp"
 
 #define INITIAL 0
 #define incl 1
@@ -2359,7 +2360,7 @@ YY_DECL
 #line 56 "D:\\Papyrus\\Src\\OSF\\sql-parser\\src\\parser\\flex_lexer.l"
 
 
-#line 2362 "D:\\Papyrus\\Src\\OSF\\sql-parser\\src\\parser\\flex_lexer.cpp"
+#line 2363 "D:\\Papyrus\\Src\\OSF\\sql-parser\\src\\parser\\flex_lexer.cpp"
 
 	while(/*CONSTCOND*/1) { /* loops until end-of-file is reached */
 		yy_cp = yyg->yy_c_buf_p;
@@ -3341,7 +3342,7 @@ YY_RULE_SETUP
 #line 304 "D:\\Papyrus\\Src\\OSF\\sql-parser\\src\\parser\\flex_lexer.l"
 ECHO;
 	YY_BREAK
-#line 3344 "D:\\Papyrus\\Src\\OSF\\sql-parser\\src\\parser\\flex_lexer.cpp"
+#line 3345 "D:\\Papyrus\\Src\\OSF\\sql-parser\\src\\parser\\flex_lexer.cpp"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(incl):
 case YY_STATE_EOF(COMMENT):

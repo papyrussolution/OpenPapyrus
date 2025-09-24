@@ -169,7 +169,6 @@ private:
 	// Descr: Проверяет список строк документа. Если есть проблемы, то они добавляются в список ProblemsList, который отображается при наведении на соответствующую строку (колонка 1)
 	//
 	int    CheckRows(); 
-	int    EditExtCodeList(int rowIdx);
 	int    ValidateExtCodeList();
 	int    Sort(const LongArray * pSortColIdxList);
 	int    PostprocessModifItemAdding(const PPTransferItem & rTi, uint pos, int sign, bool recursive);
@@ -332,25 +331,6 @@ private:
 	mutable BillGoodsBrwItem * P_Item; // Временный указатель
 	LAssocArray CodeStatusList;
 };
-
-int PPObjBill::ViewPckgDetail(PPID pckgID)
-{
-	int    ok = 1;
-	uint   res_id = (LConfig.Flags & CFGFLG_SHOWPHQTTY) ? BROWSER_ID(GOODSITEMPH_W) : BROWSER_ID(GOODSITEM_W);
-	if(trfr->Rcpt.Search(pckgID) > 0) {
-		PPBillPacket pack;
-		pack.Rec.Dt    = MAXDATE;
-		pack.Rec.LocID = trfr->Rcpt.data.LocID;
-		if(AddPckgToBillPacket(pckgID, &pack)) {
-			BillItemBrowser * brw = new BillItemBrowser(res_id, this, &pack, 0, 0, 0, 2);
-			if(brw == 0)
-				ok = (PPError(PPERR_NOMEM, 0), 0);
-			else
-				ExecViewAndDestroy(brw);
-		}
-	}
-	return ok;
-}
 //
 //
 //
@@ -3002,9 +2982,9 @@ public:
 		SString temp_buf;
 		StringSet ss;
 		PPLotExtCodeContainer::MarkSet set;
-		const PPTransferItem * p_ti = (RowIdx > 0 && RowIdx <= P_Pack->GetTCountI()) ? &P_Pack->ConstTI(RowIdx-1) : 0;
-		const int  dont_veryfy_mark = BIN(BillObj->GetConfig().Flags & BCF_DONTVERIFEXTCODECHAIN);
-		const int  do_check = (dont_veryfy_mark || (P_Pack->IsDraft() || (!p_ti || p_ti->IsReceipt()))) ? 0 : 1;
+		const  PPTransferItem * p_ti = (RowIdx > 0 && RowIdx <= P_Pack->GetTCountI()) ? &P_Pack->ConstTI(RowIdx-1) : 0;
+		const  bool dont_veryfy_mark = LOGIC(BillObj->GetConfig().Flags & BCF_DONTVERIFEXTCODECHAIN);
+		const  bool do_check = !(dont_veryfy_mark || (P_Pack->IsDraft() || (!p_ti || p_ti->IsReceipt())));
 		const  PPID goods_id = (do_check && p_ti) ? labs(p_ti->GoodsID) : 0;
 		const  PPID lot_id = (do_check && p_ti) ? p_ti->LotID : 0;
 		SStringU buf_from_copy;
@@ -3161,8 +3141,8 @@ protected:
 	int    GetItem(long pos, int * pRowIdx, uint * pInnerIdx)
 	{
 		int    ok = 0;
-		int   row_idx = 0;
-		uint  inner_idx = 0;
+		int    row_idx = 0;
+		uint   inner_idx = 0;
 		SString text_buf;
 		if(getText(pos, text_buf)) {
 			if(text_buf.HasPrefixIAscii("box:"))
@@ -3594,244 +3574,6 @@ int BillItemBrowser::ValidateExtCodeList()
 		if(ExecView(dlg) == cmOK) {
 			dlg->getDTS(&P_Pack->_VXcL);
 			ok = 1;
-		}
-	}
-	delete dlg;
-	return ok;
-}
-
-int BillItemBrowser::EditExtCodeList(int rowIdx)
-{
-	class LotXCodeListDialog : public LotXCodeListDialog_Base {
-	public:
-		LotXCodeListDialog(/*const*/PPBillPacket * pPack, int rowIdx) : LotXCodeListDialog_Base(DLG_LOTXCLIST, CTL_LOTXCLIST_LIST, pPack, rowIdx, fOmitSearchByFirstChar)
-		{
-			ContextMenuID = CTRLMENU_LOTXCODELIST;
-			selectCtrl(CTL_LOTXCLIST_LIST);
-		}
-	private:
-		DECL_HANDLE_EVENT
-		{
-			if(TVKEYDOWN) {
-				uchar  c = TVCHR;
-				if(isasciialnum(c)) {
-					LotExtCodeTbl::Rec rec;
-					PPLotExtCodeContainer::MarkSet set;
-					if(EditItemDialog(rec, c, set) > 0) {
-						if(Data.Add(RowIdx, set))
-							updateList(-1);
-						else
-							PPError();
-					}
-					clearEvent(event);
-				}
-			}
-			LotXCodeListDialog_Base::handleEvent(event);
-			if(event.isCmd(cmImport)) {
-				if(P_Pack) {
-					if(ImportStyloScannerEntriesForBillPacket(*P_Pack, &Data, issebpmodeLotExtCodes) > 0) {
-						updateList(-1);
-					}
-				}
-			}
-			else if(event.isCmd(cmCopyToClipboardAll)) { // @v11.8.1
-				SString buf_to_copy;
-				SString temp_buf;
-				StringSet ss;
-				PPLotExtCodeContainer::MarkSet ms;
-				PPLotExtCodeContainer::MarkSet::Entry msentry;
-				Data.Get(RowIdx, 0, ms);
-				for(uint boxidx = 0; boxidx < ms.GetCount(); boxidx++) {
-					if(ms.GetByIdx(boxidx, msentry) && msentry.Flags & PPLotExtCodeContainer::fBox) {
-						temp_buf.Z().Cat("box").CatDiv(':', 2).Cat(msentry.Num);
-						buf_to_copy.Cat(temp_buf).CRB();
-						ms.GetByBoxID(msentry.BoxID, ss);
-						for(uint ssp = 0; ss.get(&ssp, temp_buf);)
-							buf_to_copy.Cat(temp_buf).CRB();
-					}
-				}
-				ms.GetByBoxID(0, ss);
-				for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
-					buf_to_copy.Cat(temp_buf).CRB();
-				}
-				if(buf_to_copy.NotEmpty())
-					SClipboard::Copy_Text(buf_to_copy, buf_to_copy.Len());
-			}
-			else if(event.isCmd(cmPasteFromClipboardAll)) { // @erik v10.8.2 
-				PasteFromClipboardAll(/*validation*/0);
-			}
-			else
-				return;
-			clearEvent(event);
-		}
-		virtual int setupList()
-		{
-			int    ok = 1;
-			uint   mark_count = 0;
-			uint   box_count = 0;
-			SString temp_buf;
-			SString box_num;
-			StringSet ss;
-			PPLotExtCodeContainer::MarkSet ms;
-			PPLotExtCodeContainer::MarkSet::Entry msentry;
-			LongArray idx_list;
-			Data.Get(RowIdx, &idx_list, ms);
-			long list_pos_idx = 0;
-			for(uint boxidx = 0; boxidx < ms.GetCount(); boxidx++) {
-				if(ms.GetByIdx(boxidx, msentry)) {
-					if(msentry.Flags & PPLotExtCodeContainer::fBox) {
-						box_count++;
-						temp_buf.Z().Cat("box").CatDiv(':', 2).Cat(msentry.Num);
-						++list_pos_idx;
-						THROW(addStringToList(list_pos_idx, temp_buf));
-						ms.GetByBoxID(msentry.BoxID, ss);
-						for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
-							temp_buf.Insert(0, " ");
-							++list_pos_idx;
-							THROW(addStringToList(list_pos_idx, temp_buf));
-						}
-					}
-					else
-						mark_count++;
-				}
-			}
-			{
-				ms.GetByBoxID(0, ss);
-				for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
-					++list_pos_idx;
-					THROW(addStringToList(list_pos_idx, temp_buf));
-				}
-			}
-			{
-				temp_buf.Z();
-				if(mark_count)
-					temp_buf.CatDivIfNotEmpty(' ', 0).CatEq("Marks", mark_count);
-				if(box_count)
-					temp_buf.CatDivIfNotEmpty(' ', 0).CatEq("Boxes", box_count);
-				if(RowIdx > 0 && RowIdx <= P_Pack->GetTCountI()) {
-					SString name_buf;
-					const PPTransferItem & r_ti = P_Pack->ConstTI(RowIdx-1);
-					GetGoodsName(r_ti.GoodsID, name_buf);
-					temp_buf.CatDiv('-', 1).Cat(name_buf).Space().CatChar('[').Cat(fabs(r_ti.Quantity_), MKSFMTD(0, 6, NMBF_NOTRAILZ)).CatChar(']');
-				}
-				setStaticText(CTL_LOTXCLIST_INFO, temp_buf);
-			}
-			CATCHZOK
-			return ok;
-		}
-		virtual int addItem(long * pPos, long * pID)
-		{
-			int    ok = -1;
-			PPLotExtCodeContainer::MarkSet set;
-			LotExtCodeTbl::Rec rec;
-			rec.BillID = P_Pack->Rec.ID;
-			rec.RByBill = RowIdx;
-			Data.Get(RowIdx, 0, set);
-			while(ok < 0 && EditItemDialog(rec, 0, set) > 0) {
-				if(Data.Set_2(RowIdx, &set)) {
-					ok = 1;
-				}
-				else
-					PPError();
-			}
-			return ok;
-		}
-		int    EditItemDialog(LotExtCodeTbl::Rec & rRec, char firstChar, PPLotExtCodeContainer::MarkSet & rSet)
-		{
-			PPObjBill * p_bobj = BillObj;
-			int    ok = -1;
-			uint   sel = 0;
-			TDialog * dlg = new TDialog(DLG_LOTEXTCODE);
-			SString temp_buf;
-			SString info_buf;
-			ReceiptTbl::Rec lot_rec;
-			ReceiptCore & r_rcpt = p_bobj->trfr->Rcpt;
-			const bool dont_veryfy_mark = LOGIC(p_bobj->GetConfig().Flags & BCF_DONTVERIFEXTCODECHAIN);
-			const PPTransferItem * p_ti = (RowIdx > 0 && RowIdx <= P_Pack->GetTCountI()) ? &P_Pack->ConstTI(RowIdx-1) : 0;
-			const bool do_check = !(dont_veryfy_mark || (P_Pack->IsDraft() || (!p_ti || p_ti->IsReceipt())));
-			const PPID goods_id = (do_check && p_ti) ? labs(p_ti->GoodsID) : 0;
-			const PPID lot_id = (do_check && p_ti) ? p_ti->LotID : 0;
-			THROW(CheckDialogPtr(&dlg));
-			if(r_rcpt.Search(rRec.LotID, &lot_rec) <= 0)
-				MEMSZERO(lot_rec);
-			if(firstChar)
-				temp_buf.Z().CatChar(firstChar);
-			else
-				(temp_buf = rRec.Code).Strip();
-			dlg->setCtrlString(CTL_LOTEXTCODE_CODE, temp_buf);
-			if(firstChar) {
-				TInputLine * il = static_cast<TInputLine *>(dlg->getCtrlView(CTL_LOTEXTCODE_CODE));
-				CALLPTRMEMB(il, disableDeleteSelection(1));
-			}
-			if(lot_rec.GoodsID) {
-				GetGoodsName(lot_rec.GoodsID, temp_buf);
-				info_buf.Z().CatEq("LotID", lot_rec.ID).Space().Cat(lot_rec.Dt, DATF_DMY|DATF_CENTURY).CR().Cat(temp_buf);
-			}
-			dlg->setStaticText(CTL_LOTEXTCODE_INFO, info_buf);
-			while(ok < 0 && ExecView(dlg) == cmOK) {
-				dlg->getCtrlString(sel = CTL_LOTEXTCODE_CODE, temp_buf);
-				if(!temp_buf.NotEmptyS())
-					PPErrorByDialog(dlg, sel, PPERR_CODENEEDED);
-				else if(temp_buf.Len() >= sizeof(rRec.Code)) {
-					PPSetError(PPERR_CODETOOLONG, static_cast<long>(sizeof(rRec.Code)-1));
-					PPErrorByDialog(dlg, sel);
-				}
-				else {
-					SString mark_buf;
-					GtinStruc gts;
-					const bool iemr = PrcssrAlcReport::IsEgaisMark(temp_buf, &mark_buf);
-					const int  ipczcr = PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, PPChZnPrcssr::pchzncfPretendEverythingIsOk));
-					if(ipczcr > 0)
-						gts.GetToken(GtinStruc::fldOriginalText, &mark_buf);
-					if(!iemr && ipczcr <= 0) {
-						if(P_LotXcT) {
-							if(lot_id && P_LotXcT->FindMarkToTransfer(mark_buf, goods_id, lot_id, rSet) > 0)
-								ok = 1;
-							else {
-								// @todo Диагностика ошибки очень слабая - сообщение не говорит ничего осмысленного!
-								PPErrorByDialog(dlg, sel);
-							}
-						}
-						else {
-							PPSetError(PPERR_TEXTISNTEGAISMARK, mark_buf);
-							PPErrorByDialog(dlg, sel);
-						}
-					}
-					else {
-						if(do_check && P_LotXcT) {
-							if(P_LotXcT->FindMarkToTransfer(mark_buf, goods_id, lot_id, rSet) > 0) {
-								STRNSCPY(rRec.Code, mark_buf);
-								ok = 1;
-							}
-							else
-								PPErrorByDialog(dlg, sel);
-						}
-						else {
-							/*if(oneof2(pczcr, SNTOK_CHZN_SSCC, SNTOK_CHZN_SIGN_SGTIN)) // Не верно объединять эти два типа кодов в одно, однако, на этапе отладки пусть будет так.
-								rSet.AddBox(0, mark_buf, 1);*/
-							if(ipczcr > 0) {
-								const long last_box_id = rSet.SearchLastBox(-1);
-								rSet.AddNum(last_box_id, mark_buf, 1);
-							}
-							else
-								rSet.AddNum(0, mark_buf, 1);
-							STRNSCPY(rRec.Code, mark_buf);
-							ok = 1;
-						}
-					}
-				}
-			}
-			CATCHZOKPPERR
-			delete dlg;
-			return ok;
-		}
-	};
-	int    ok = -1;
-	LotXCodeListDialog * dlg = new LotXCodeListDialog(P_Pack, rowIdx);
-	if(CheckDialogPtr(&dlg)) {
-		dlg->setDTS(&P_Pack->XcL);
-		if(ExecView(dlg) == cmOK) {
-			dlg->getDTS(&P_Pack->XcL);
 		}
 	}
 	delete dlg;
@@ -4320,7 +4062,7 @@ IMPL_HANDLE_EVENT(BillItemBrowser)
 					else if(TVCHR == kbCtrlE) {
 						const int c = getCurItemPos();
 						if(c >= 0) {
-							EditExtCodeList(c+1);
+							P_BObj->EditExtCodeList(P_Pack, c+1, 0);
 						}
 					}
 					else if(TVCHR == kbCtrlD && !(State & stCtrlX)) { // @v11.0.3 (вариант [CtrlX CtrlD] имеет иной смысл: see below)
@@ -4428,7 +4170,7 @@ IMPL_HANDLE_EVENT(BillItemBrowser)
 									temp_buf.CatHex(p_ti->Flags);
 									PPInputStringDialogParam isd_param;
 									isd_param.Flags |= PPInputStringDialogParam::fDisableSelection;
-									if(InputStringDialog(&isd_param, temp_buf) > 0) {
+									if(InputStringDialog(isd_param, temp_buf) > 0) {
 										sscanf(temp_buf.Strip(), "%lx", &p_ti->Flags);
 										update(-1);
 									}
@@ -4549,14 +4291,14 @@ bool BillItemBrowser::isAllGoodsInPckg(PPID goodsID)
 
 void BillItemBrowser::addItemBySerial()
 {
-	const  PPID op_id = P_Pack->Rec.OpID;
-	const  PPID op_type_id = GetOpType(op_id);
-	const int opened_only = BIN(IsExpendOp(op_id) > 0 || op_type_id == PPOPT_GOODSREVAL || (op_type_id == PPOPT_GOODSORDER && CheckOpFlags(op_id, OPKF_ORDEXSTONLY)));
+	const PPID op_id = P_Pack->Rec.OpID;
+	const PPID op_type_id = GetOpType(op_id);
+	const bool opened_only = (IsExpendOp(op_id) > 0 || op_type_id == PPOPT_GOODSREVAL || (op_type_id == PPOPT_GOODSORDER && CheckOpFlags(op_id, OPKF_ORDEXSTONLY)));
 	SString serial;
 	PPInputStringDialogParam isd_param;
 	PPLoadText(PPTXT_SELGOODSBYSERIAL, isd_param.Title);
 	if(opened_only && P_BObj->GetConfig().Flags & BCF_PICKLOTS) {
-		if(InputStringDialog(&isd_param, serial) > 0 && serial.NotEmptyS()) {
+		if(InputStringDialog(isd_param, serial) > 0 && serial.NotEmptyS()) {
 			PickLotParam plp(0);
 			plp.LocID = P_Pack->Rec.LocID;
 			plp.Mode = plp.mBySerial;
@@ -4575,7 +4317,7 @@ void BillItemBrowser::addItemBySerial()
 			const long _flags = opened_only ? ObjTagSelExtra::lfOpenedSerialsOnly : 0;
 			static_cast<ObjTagSelExtra *>(isd_param.P_Wse)->SetupLotSerialParam(P_Pack->Rec.LocID, _flags);
 		}
-		if(InputStringDialog(&isd_param, serial) > 0 && serial.NotEmptyS()) {
+		if(InputStringDialog(isd_param, serial) > 0 && serial.NotEmptyS()) {
 			ReceiptTbl::Rec lot_rec;
 			if(P_BObj->SelectLotBySerial(serial, 0, P_Pack->Rec.LocID, &lot_rec) > 0) {
 				TIDlgInitData tidi;
@@ -4607,7 +4349,7 @@ void BillItemBrowser::addItemExt(int mode)
 			PPInputStringDialogParam isd_param;
 			isd_param.P_Wse = new TextHistorySelExtra("goodsnamefragment-common");
 			PPLoadText(PPTXT_SELGOODSBYNAME, isd_param.Title);
-			if(InputStringDialog(&isd_param, sub) > 0 && sub.NotEmptyS()) {
+			if(InputStringDialog(isd_param, sub) > 0 && sub.NotEmptyS()) {
 				THROW(GObj.P_Tbl->GetListBySubstring(sub, &goods_list, -1));
 			}
 			else {
@@ -5201,3 +4943,265 @@ int PPALDD_Complete::NextIteration(PPIterID iterId)
 }
 
 void PPALDD_Complete::Destroy() { DESTROY_ALDD(CompleteBrowser); }
+//
+//
+//
+int PPObjBill::ViewPckgDetail(PPID pckgID)
+{
+	int    ok = 1;
+	uint   res_id = (LConfig.Flags & CFGFLG_SHOWPHQTTY) ? BROWSER_ID(GOODSITEMPH_W) : BROWSER_ID(GOODSITEM_W);
+	if(trfr->Rcpt.Search(pckgID) > 0) {
+		PPBillPacket pack;
+		pack.Rec.Dt    = MAXDATE;
+		pack.Rec.LocID = trfr->Rcpt.data.LocID;
+		if(AddPckgToBillPacket(pckgID, &pack)) {
+			BillItemBrowser * brw = new BillItemBrowser(res_id, this, &pack, 0, 0, 0, 2);
+			if(brw == 0)
+				ok = (PPError(PPERR_NOMEM, 0), 0);
+			else
+				ExecViewAndDestroy(brw);
+		}
+	}
+	return ok;
+}
+
+int PPObjBill::EditExtCodeList(PPBillPacket * pPack, int rowIdx/*[1..]*/, uint flags)
+{
+	class LotXCodeListDialog : public LotXCodeListDialog_Base {
+	public:
+		LotXCodeListDialog(/*const*/PPBillPacket * pPack, int rowIdx) : LotXCodeListDialog_Base(DLG_LOTXCLIST, CTL_LOTXCLIST_LIST, pPack, rowIdx, fOmitSearchByFirstChar)
+		{
+			ContextMenuID = CTRLMENU_LOTXCODELIST;
+			selectCtrl(CTL_LOTXCLIST_LIST);
+		}
+	private:
+		DECL_HANDLE_EVENT
+		{
+			if(TVKEYDOWN) {
+				uchar  c = TVCHR;
+				if(isasciialnum(c)) {
+					LotExtCodeTbl::Rec rec;
+					PPLotExtCodeContainer::MarkSet set;
+					if(EditItemDialog(rec, c, set) > 0) {
+						if(Data.Add(RowIdx, set))
+							updateList(-1);
+						else
+							PPError();
+					}
+					clearEvent(event);
+				}
+			}
+			LotXCodeListDialog_Base::handleEvent(event);
+			if(event.isCmd(cmImport)) {
+				if(P_Pack) {
+					if(ImportStyloScannerEntriesForBillPacket(*P_Pack, &Data, issebpmodeLotExtCodes) > 0) {
+						updateList(-1);
+					}
+				}
+			}
+			else if(event.isCmd(cmCopyToClipboardAll)) { // @v11.8.1
+				SString buf_to_copy;
+				SString temp_buf;
+				StringSet ss;
+				PPLotExtCodeContainer::MarkSet ms;
+				PPLotExtCodeContainer::MarkSet::Entry msentry;
+				Data.Get(RowIdx, 0, ms);
+				for(uint boxidx = 0; boxidx < ms.GetCount(); boxidx++) {
+					if(ms.GetByIdx(boxidx, msentry) && msentry.Flags & PPLotExtCodeContainer::fBox) {
+						temp_buf.Z().Cat("box").CatDiv(':', 2).Cat(msentry.Num);
+						buf_to_copy.Cat(temp_buf).CRB();
+						ms.GetByBoxID(msentry.BoxID, ss);
+						for(uint ssp = 0; ss.get(&ssp, temp_buf);)
+							buf_to_copy.Cat(temp_buf).CRB();
+					}
+				}
+				ms.GetByBoxID(0, ss);
+				for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
+					buf_to_copy.Cat(temp_buf).CRB();
+				}
+				if(buf_to_copy.NotEmpty())
+					SClipboard::Copy_Text(buf_to_copy, buf_to_copy.Len());
+			}
+			else if(event.isCmd(cmPasteFromClipboardAll)) { // @erik v10.8.2 
+				PasteFromClipboardAll(/*validation*/0);
+			}
+			else
+				return;
+			clearEvent(event);
+		}
+		virtual int setupList()
+		{
+			int    ok = 1;
+			uint   mark_count = 0;
+			uint   box_count = 0;
+			SString temp_buf;
+			SString box_num;
+			StringSet ss;
+			PPLotExtCodeContainer::MarkSet ms;
+			PPLotExtCodeContainer::MarkSet::Entry msentry;
+			LongArray idx_list;
+			Data.Get(RowIdx, &idx_list, ms);
+			long list_pos_idx = 0;
+			for(uint boxidx = 0; boxidx < ms.GetCount(); boxidx++) {
+				if(ms.GetByIdx(boxidx, msentry)) {
+					if(msentry.Flags & PPLotExtCodeContainer::fBox) {
+						box_count++;
+						temp_buf.Z().Cat("box").CatDiv(':', 2).Cat(msentry.Num);
+						++list_pos_idx;
+						THROW(addStringToList(list_pos_idx, temp_buf));
+						ms.GetByBoxID(msentry.BoxID, ss);
+						for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
+							temp_buf.Insert(0, " ");
+							++list_pos_idx;
+							THROW(addStringToList(list_pos_idx, temp_buf));
+						}
+					}
+					else
+						mark_count++;
+				}
+			}
+			{
+				ms.GetByBoxID(0, ss);
+				for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
+					++list_pos_idx;
+					THROW(addStringToList(list_pos_idx, temp_buf));
+				}
+			}
+			{
+				temp_buf.Z();
+				if(mark_count)
+					temp_buf.CatDivIfNotEmpty(' ', 0).CatEq("Marks", mark_count);
+				if(box_count)
+					temp_buf.CatDivIfNotEmpty(' ', 0).CatEq("Boxes", box_count);
+				if(RowIdx > 0 && RowIdx <= P_Pack->GetTCountI()) {
+					SString name_buf;
+					const PPTransferItem & r_ti = P_Pack->ConstTI(RowIdx-1);
+					GetGoodsName(r_ti.GoodsID, name_buf);
+					temp_buf.CatDiv('-', 1).Cat(name_buf).Space().CatChar('[').Cat(fabs(r_ti.Quantity_), MKSFMTD(0, 6, NMBF_NOTRAILZ)).CatChar(']');
+				}
+				setStaticText(CTL_LOTXCLIST_INFO, temp_buf);
+			}
+			CATCHZOK
+			return ok;
+		}
+		virtual int addItem(long * pPos, long * pID)
+		{
+			int    ok = -1;
+			PPLotExtCodeContainer::MarkSet set;
+			LotExtCodeTbl::Rec rec;
+			rec.BillID = P_Pack->Rec.ID;
+			rec.RByBill = RowIdx;
+			Data.Get(RowIdx, 0, set);
+			while(ok < 0 && EditItemDialog(rec, 0, set) > 0) {
+				if(Data.Set_2(RowIdx, &set)) {
+					ok = 1;
+				}
+				else
+					PPError();
+			}
+			return ok;
+		}
+		int    EditItemDialog(LotExtCodeTbl::Rec & rRec, char firstChar, PPLotExtCodeContainer::MarkSet & rSet)
+		{
+			PPObjBill * p_bobj = BillObj;
+			int    ok = -1;
+			uint   sel = 0;
+			TDialog * dlg = new TDialog(DLG_LOTEXTCODE);
+			SString temp_buf;
+			SString info_buf;
+			ReceiptTbl::Rec lot_rec;
+			ReceiptCore & r_rcpt = p_bobj->trfr->Rcpt;
+			const bool dont_veryfy_mark = LOGIC(p_bobj->GetConfig().Flags & BCF_DONTVERIFEXTCODECHAIN);
+			const PPTransferItem * p_ti = (RowIdx > 0 && RowIdx <= P_Pack->GetTCountI()) ? &P_Pack->ConstTI(RowIdx-1) : 0;
+			const bool do_check = !(dont_veryfy_mark || (P_Pack->IsDraft() || (!p_ti || p_ti->IsReceipt())));
+			const PPID goods_id = (do_check && p_ti) ? labs(p_ti->GoodsID) : 0;
+			const PPID lot_id = (do_check && p_ti) ? p_ti->LotID : 0;
+			THROW(CheckDialogPtr(&dlg));
+			if(r_rcpt.Search(rRec.LotID, &lot_rec) <= 0)
+				MEMSZERO(lot_rec);
+			if(firstChar)
+				temp_buf.Z().CatChar(firstChar);
+			else
+				(temp_buf = rRec.Code).Strip();
+			dlg->setCtrlString(CTL_LOTEXTCODE_CODE, temp_buf);
+			if(firstChar) {
+				TInputLine * il = static_cast<TInputLine *>(dlg->getCtrlView(CTL_LOTEXTCODE_CODE));
+				CALLPTRMEMB(il, disableDeleteSelection(1));
+			}
+			if(lot_rec.GoodsID) {
+				GetGoodsName(lot_rec.GoodsID, temp_buf);
+				info_buf.Z().CatEq("LotID", lot_rec.ID).Space().Cat(lot_rec.Dt, DATF_DMY|DATF_CENTURY).CR().Cat(temp_buf);
+			}
+			dlg->setStaticText(CTL_LOTEXTCODE_INFO, info_buf);
+			while(ok < 0 && ExecView(dlg) == cmOK) {
+				dlg->getCtrlString(sel = CTL_LOTEXTCODE_CODE, temp_buf);
+				if(!temp_buf.NotEmptyS())
+					PPErrorByDialog(dlg, sel, PPERR_CODENEEDED);
+				else if(temp_buf.Len() >= sizeof(rRec.Code)) {
+					PPSetError(PPERR_CODETOOLONG, static_cast<long>(sizeof(rRec.Code)-1));
+					PPErrorByDialog(dlg, sel);
+				}
+				else {
+					SString mark_buf;
+					GtinStruc gts;
+					const bool iemr = PrcssrAlcReport::IsEgaisMark(temp_buf, &mark_buf);
+					const int  ipczcr = PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, PPChZnPrcssr::pchzncfPretendEverythingIsOk));
+					if(ipczcr > 0)
+						gts.GetToken(GtinStruc::fldOriginalText, &mark_buf);
+					if(!iemr && ipczcr <= 0) {
+						if(P_LotXcT) {
+							if(lot_id && P_LotXcT->FindMarkToTransfer(mark_buf, goods_id, lot_id, rSet) > 0)
+								ok = 1;
+							else {
+								// @todo Диагностика ошибки очень слабая - сообщение не говорит ничего осмысленного!
+								PPErrorByDialog(dlg, sel);
+							}
+						}
+						else {
+							PPSetError(PPERR_TEXTISNTEGAISMARK, mark_buf);
+							PPErrorByDialog(dlg, sel);
+						}
+					}
+					else {
+						if(do_check && P_LotXcT) {
+							if(P_LotXcT->FindMarkToTransfer(mark_buf, goods_id, lot_id, rSet) > 0) {
+								STRNSCPY(rRec.Code, mark_buf);
+								ok = 1;
+							}
+							else
+								PPErrorByDialog(dlg, sel);
+						}
+						else {
+							/*if(oneof2(pczcr, SNTOK_CHZN_SSCC, SNTOK_CHZN_SIGN_SGTIN)) // Не верно объединять эти два типа кодов в одно, однако, на этапе отладки пусть будет так.
+								rSet.AddBox(0, mark_buf, 1);*/
+							if(ipczcr > 0) {
+								const long last_box_id = rSet.SearchLastBox(-1);
+								rSet.AddNum(last_box_id, mark_buf, 1);
+							}
+							else
+								rSet.AddNum(0, mark_buf, 1);
+							STRNSCPY(rRec.Code, mark_buf);
+							ok = 1;
+						}
+					}
+				}
+			}
+			CATCHZOKPPERR
+			delete dlg;
+			return ok;
+		}
+	};
+	int    ok = -1;
+	LotXCodeListDialog * dlg = 0;
+	if(pPack && rowIdx > 0) {
+		dlg = new LotXCodeListDialog(pPack, rowIdx);
+		if(CheckDialogPtr(&dlg)) {
+			dlg->setDTS(&pPack->XcL);
+			if(ExecView(dlg) == cmOK) {
+				dlg->getDTS(&pPack->XcL);
+			}
+		}
+	}
+	delete dlg;
+	return ok;
+}

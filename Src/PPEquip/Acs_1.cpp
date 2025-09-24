@@ -82,7 +82,7 @@ BarcodeTbl * CS_1::CreateTmpBarToID(int num, int fn, int fldGoodsID, int fldBarC
 	BarcodeTbl * p_tbl = 0;
 	char   code[24];
 	char * c = 0;
-	DbfTable   * dbft = 0;
+	DbfTable * dbft = 0;
 	THROW(dbft = OpenDBFTable(num, fn));
 	THROW(p_tbl = TempBarcodeTbl());
 	if(dbft->top()) {

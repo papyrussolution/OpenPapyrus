@@ -2173,7 +2173,8 @@ public:
 		int    ok = -1;
 		size_t sav_offs = 0;
 		if(D.MenuCm && APPL) {
-			int    ok = -1, r = cmCancel;
+			int    ok = -1;
+			int    r = cmCancel;
 			PPID   id = 0;
 			SString name;
 			PPObjPerson psn_obj;
@@ -2185,7 +2186,7 @@ public:
 			static_cast<PPApp *>(APPL)->LastCmd = D.MenuCm;
 			GetObjectTitle(PPOBJ_PERSON, isd_param.Title);
 			isd_param.InputTitle = isd_param.Title;
-			if(InputStringDialog(&isd_param, name) > 0) {
+			if(InputStringDialog(isd_param, name) > 0) {
 				THROW(pParam->Z().Write(name));
 				if(CheckDialogPtrErr(&(dlg = new PsnSelAnalogDialog(&psn_obj)))) {
 					dlg->setSrchString(name);
@@ -2992,7 +2993,7 @@ int SearchDlvrAddr()
 	PPInputStringDialogParam isd_param;
 	PPLoadText(PPTXT_SRCHDLVRADDRTITLE, isd_param.Title);
 	PPLoadText(PPTXT_SRCHDLVRADDRINPUTTITLE, isd_param.InputTitle);
-	for(int valid_data = 0; !valid_data && InputStringDialog(&isd_param, srch_str) > 0;) {
+	for(int valid_data = 0; !valid_data && InputStringDialog(isd_param, srch_str) > 0;) {
 		if(srch_str.Len()) {
 			int r = 0;
 			PPID id = 0;
@@ -3482,7 +3483,7 @@ public:
 			pParam->Read(srch_str);
 			static_cast<PPApp *>(APPL)->LastCmd = D.MenuCm;
 			isd_param.InputTitle = PPLoadTextS(PPTXT_BILLSRCHCTX, isd_param.Title);
-			if(InputStringDialog(&isd_param, srch_str) > 0 && srch_str.Len()) {
+			if(InputStringDialog(isd_param, srch_str) > 0 && srch_str.Len()) {
 				SString srch_str2;
 				SString temp_buf;
 				(srch_str2 = srch_str).Transf(CTRANSF_INNER_TO_OUTER);

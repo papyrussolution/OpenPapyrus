@@ -47,40 +47,7 @@ void * FASTCALL memrandomize(void * p, size_t s)
 void * FASTCALL memzero(void * p, size_t s)
 {
 	if(p) {
-		memset(p, 0, s); // @v11.9.12
-		/* @v11.9.12 нет никакого смысла в этих выдуманных детских оптимизациях: memset сама отлично справляется.
-		switch(s) {
-			case 1: PTR8(p)[0] = 0; break;
-			case 2: PTR16(p)[0] = 0; break;
-			case 4:
-				PTR32(p)[0] = 0;
-				break;
-			case 8:
-				PTR32(p)[0] = 0;
-				PTR32(p)[1] = 0;
-				break;
-			case 12:
-				PTR32(p)[0] = 0;
-				PTR32(p)[1] = 0;
-				PTR32(p)[2] = 0;
-				break;
-			case 16:
-				PTR32(p)[0] = 0;
-				PTR32(p)[1] = 0;
-				PTR32(p)[2] = 0;
-				PTR32(p)[3] = 0;
-				break;
-			case 20:
-				PTR32(p)[0] = 0;
-				PTR32(p)[1] = 0;
-				PTR32(p)[2] = 0;
-				PTR32(p)[3] = 0;
-				PTR32(p)[4] = 0;
-				break;
-			default:
-				memset(p, 0, s);
-				break;
-		}*/
+		memset(p, 0, s);
 	}
 	return p;
 }

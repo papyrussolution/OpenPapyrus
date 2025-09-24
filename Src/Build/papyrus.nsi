@@ -341,6 +341,9 @@ Section "Файлы приложения" SEC01
 	File "${SRC_TARGET}\ppgplot.exe"
 	File "${SRC_TARGET}\icudt70.dll" ; @v11.3.1 Данные ICU
 	File "${SRC_TARGET}\icudt70l.dat" ; @v11.4.1 Данные ICU
+	File "${SRC_TARGET}\ued-id.dat" ; @v12.4.1 Данные UED
+	File "${SRC_TARGET}\ued-id.sha256" ; @v12.4.1 Хэш данных UED
+	File "${SRC_TARGET}\crr32_support.exe" ; @v12.4.1 32-разрядный процесс, изолирующий вызовы к Crystal Reports
 	File "${SRC_TOOLS}\dl600c.exe"
 	!ifdef XPCOMPAT
 		File "${SRC_TOOLS}\dl600c-xp.exe" ; @v10.9.3

@@ -293,7 +293,8 @@ public:
 	enum {
 		pchznmfReturn              = 0x0001, // Возврат
 		pchznmfFractional          = 0x0002, // Дробный товар
-		pchznmfDraftBeerSimplified = 0x0004  // @v11.9.4 Упрощенный режим проведения разливного пива
+		pchznmfDraftBeerSimplified = 0x0004, // @v11.9.4 Упрощенный режим проведения разливного пива
+		pchznmfOffline             = 0x0008, // @v12.4.1 Проверка марки в offline-режиме
 	};
 	int    PreprocessChZnMark(const char * pMarkCode, double qtty, int uomId, uint uomFragm, uint flags, PreprocessChZnCodeResult * pResult);
 
@@ -1172,7 +1173,7 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 			CreateStr(static_cast<int>(0), str);
 			THROW(ExecCmd("79", str, out_data, r_error)); // query=2
 		}
-		else if(cmd.IsEqiAscii("PREPROCESSCHZNCODE")) { // @v11.1.10
+		else if(cmd.IsEqiAscii("PREPROCESSCHZNCODE") || cmd.IsEqiAscii("PREPROCESSCHZNCODE_OFFL")) { // @v11.1.10 // @v12.4.1 (|| cmd.IsEqiAscii("PREPROCESSCHZNCODE_OFFL"))
 			double qtty = 1.0;
 			double phqtty = 0.0; // @v11.9.4
 			SString result_buf;
@@ -1216,6 +1217,10 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 				uint pchznm_flags = 0;
 				if(is_draftbeer_simplified)
 					pchznm_flags |= pchznmfDraftBeerSimplified;
+				// @v12.4.1 {
+				if(cmd.IsEqiAscii("PREPROCESSCHZNCODE_OFFL"))
+					pchznm_flags |= pchznmfOffline;
+				// } @v12.4.1 
 				THROW(PreprocessChZnMark(chzn_code, fabs(qtty), suom_id, uom_fragm, pchznm_flags, &result) > 0);
 				result_buf.Z().CatEq("CheckResult", result.CheckResult).Semicol().
 					CatEq("Reason", result.Reason).Semicol().
@@ -2287,7 +2292,9 @@ int PiritEquip::PreprocessChZnMark(const char * pMarkCode, double qtty, int uomI
 		{
 			// @v11.9.4 {
 			int mode = 0;
-			if(flags & pchznmfDraftBeerSimplified)
+			if(flags & pchznmfOffline) // @v12.4.1
+				mode = 1;
+			else if(flags & pchznmfDraftBeerSimplified)
 				mode = 2;
 			// } @v11.9.4 
 			CreateStr(mode, in_data); // Режим работы (Если = 1 - все равно проверять КМ в ИСМ, даже если ФН проверил код с отрицательным результатом)

@@ -357,6 +357,71 @@ cleanup:
 	return (privr == privrEnabled);
 }
 
+/*static*/bool SlProcess::FindFullPathByProcessFileName(const char * pFileName, SString & rBuf) // @v12.4.1 @construction(пока не работает)
+{
+	struct InternalBlock {
+		static bool GetProcessPath(DWORD processId, SString & rBuf)
+		{
+			rBuf.Z();
+			bool    ok = false;
+			HANDLE  h_process = ::OpenProcess(PROCESS_QUERY_INFORMATION|PROCESS_VM_READ, FALSE, processId);
+			if(h_process) {
+				wchar_t path[512];
+				DWORD  size = SIZEOFARRAY(path);
+				if(::QueryFullProcessImageNameW(h_process, 0, path, &size)) {
+					rBuf.CopyUtf8FromUnicode(path, sstrlen(path), 1);
+					ok = true;
+				}
+				::CloseHandle(h_process);
+			}
+			return ok;
+		}
+		static bool LaunchAndGetPath(const char * pFileName, SString & rResult)
+		{
+			rResult.Z();
+			bool   ok = false;
+			STARTUPINFOW si;
+			MEMSZERO(si);
+			si.cb = sizeof(si);
+			PROCESS_INFORMATION pi;
+			MEMSZERO(pi);
+			SStringU file_name_w;
+			file_name_w.CopyFromUtf8(pFileName, sstrlen(pFileName));
+			wchar_t cmd_line[512];
+			STRNSCPY(cmd_line, file_name_w);
+			// Создаем процесс в приостановленном состоянии
+			if(::CreateProcessW(NULL/*Имя модуля (используем commandLine)*/, cmd_line, NULL, NULL, FALSE,
+				CREATE_SUSPENDED/*Создаем приостановленным*/, NULL, NULL, &si, &pi)) {
+				// Получаем путь к исполняемому файлу
+				if(GetProcessPath(pi.dwProcessId, rResult)) {
+					ok = true;
+				}
+				else
+					rResult.Z();
+				// Завершаем процесс (так как он был создан приостановленным)
+				TerminateProcess(pi.hProcess, 0);
+				CloseHandle(pi.hProcess);
+				CloseHandle(pi.hThread);
+			}
+			return ok;
+		}
+	};
+	bool    ok = false;
+	rBuf.Z();
+	if(!isempty(pFileName)) {
+		ok = InternalBlock::LaunchAndGetPath(pFileName, rBuf);
+		/*
+		wchar_t result_buf[512];
+		DWORD spr = SearchPathW(0, SUcSwitchW(pFileName), 0, SIZEOFARRAY(result_buf), result_buf, 0);
+		if(spr > 0) {
+			rBuf.CopyUtf8FromUnicode(result_buf, spr, 1);
+			ok = true;
+		}
+		*/
+	}
+	return ok;
+}
+
 SlProcess::ProcessPool::Entry::Entry() 
 {
 	THISZERO();
@@ -728,7 +793,7 @@ static const LAssoc CreateProcessFlagsAssoc[] = {
 
 int __ParseWindowsUserForDomain(const wchar_t * pUserIn, SStringU & rUserName, SStringU & rDomainName); // @prototype(winprofile.cpp)
 
-bool subprocess_create_named_pipe_helper(void ** ppRd, void ** ppWr) 
+static bool subprocess_create_named_pipe_helper(SIntHandle * pRd, SIntHandle * pWr) 
 {
 	bool   ok = true;
 	SIntHandle h_rd;
@@ -766,15 +831,47 @@ bool subprocess_create_named_pipe_helper(void ** ppRd, void ** ppWr)
 	THROW(h_rd); // @todo @err
 	h_wr = CreateFileA(uniq_pipe_name, genericWrite, 0, &sa_pipe, openExisting, fileAttributeNormal, nullptr);
 	THROW(h_wr);
-	ASSIGN_PTR(ppRd, h_rd);
-	ASSIGN_PTR(ppWr, h_wr);
 	CATCH
 		if(h_rd.IsValid())
 			::CloseHandle(h_rd);
 		if(h_wr.IsValid())
 			::CloseHandle(h_wr);
+		h_rd.Z();
+		h_wr.Z();
 		ok = false;
 	ENDCATCH
+	ASSIGN_PTR(pRd, h_rd);
+	ASSIGN_PTR(pWr, h_wr);
+	return ok;
+}
+
+/*static*/bool SlProcess::GetCurrentEnvironment(StringSet & rSsUtf8) // @v12.4.1
+{
+	rSsUtf8.Z();
+	bool    ok = true;
+	wchar_t * p_cur_env = ::GetEnvironmentStringsW();
+	if(p_cur_env) {
+		SString temp_buf;
+		SStringU temp_buf_u;
+		for(const wchar_t * p = p_cur_env; ; p++) {
+			if(p[0]) {
+				temp_buf_u.CatChar(p[0]);
+			}
+			else {
+				if(temp_buf_u.Len()) {
+					if(temp_buf_u.CopyToUtf8(temp_buf, 1)) {
+						rSsUtf8.add(temp_buf);
+					}
+				}
+				if(p[1] == 0) {
+					break;
+				}
+			}
+		}
+		::FreeEnvironmentStringsW(p_cur_env);
+	}
+	else
+		ok = false;
 	return ok;
 }
 
@@ -782,8 +879,9 @@ int SlProcess::Run(SlProcess::Result * pResult)
 {
 	int    ok = 0;
 	FILE * f_captured_stdin  = 0; // @v11.9.3
-	FILE * f_captured_stdout = 0; // @v11.9.3
-	FILE * f_captured_stderr = 0; // @v11.9.3
+	//FILE * f_captured_stdout = 0; // @v11.9.3
+	//FILE * f_captured_stderr = 0; // @v11.9.3
+	void * p_env = 0;
 	THROW(Path.NotEmpty()); // @todo @err
 	{
 		/*
@@ -818,7 +916,6 @@ int SlProcess::Run(SlProcess::Result * pResult)
 		SECURITY_ATTRIBUTES * p_thread_attr_list = 0;
 		const BOOL inherit_handles = BIN(Flags & fInheritHandles);
 		DWORD creation_flags = 0;
-		void * p_env = 0;
 		const wchar_t * p_curr_dir = 0;
 		STARTUPINFOEXW startup_info;
 		/*_Out_*/PROCESS_INFORMATION prc_info;
@@ -840,8 +937,34 @@ int SlProcess::Run(SlProcess::Result * pResult)
 			memcpy(cmd_line_raw.vptr(), cmd_line_buf.ucptr(), cmd_line_buf_size);
 			p_cmd_line = static_cast<wchar_t *>(cmd_line_raw.vptr());
 		}
+		//
 		if(SsEnvUtf8.getCount()) {
-			
+			// @v12.4.1 {
+			// @20250921 @todo Что-то не так. CreateProcess выдает ошибку "параметр задан не верно" в ответ на результат этого блока (p_env).
+			StringSet ss_env_utf8;
+			SlProcess::GetCurrentEnvironment(ss_env_utf8);
+			{
+				for(uint ssp = 0; SsEnvUtf8.get(&ssp, temp_buf);) {
+					ss_env_utf8.add(temp_buf);
+				}
+			}
+			{
+				p_env = SAlloc::M(ss_env_utf8.getDataLen() * sizeof(wchar_t) * 2); // *2 - safety factor
+				size_t env_pos = 0;
+				for(uint ssp = 0; ss_env_utf8.get(&ssp, temp_buf);) {
+					temp_buf_u.CopyFromUtf8(temp_buf);
+					const size_t src_len = (temp_buf_u.Len() + 1) * sizeof(wchar_t); // +1 - zero-terminator
+					memcpy(PTR8(p_env) + env_pos, temp_buf_u.ucptr(), src_len); 
+					env_pos += src_len;
+				}
+				memzero(PTR8(p_env) + env_pos, sizeof(wchar_t) * 2); // 2 завершающих нуля
+				env_pos += sizeof(wchar_t) * 2;
+				creation_flags |= CREATE_UNICODE_ENVIRONMENT;
+				{
+					// @todo debug output
+				}
+			}
+			// } @v12.4.1 
 		}
 		if(!WorkingDir.IsEmpty()) {
 			p_curr_dir = WorkingDir.ucptr();
@@ -899,48 +1022,56 @@ int SlProcess::Run(SlProcess::Result * pResult)
 					}
 				}
 				if(Flags & fCaptureStdOut) {
-					void * rd;
-					void * wr;
+					SIntHandle h_rd;
+					SIntHandle h_wr;
 					if(Flags & fCaptureReadAsync) {
-						THROW(subprocess_create_named_pipe_helper(&rd, &wr));
+						THROW(subprocess_create_named_pipe_helper(&h_rd, &h_wr));
 					}
 					else {
-						THROW(::CreatePipe(&rd, &wr, &sa_pipe, 0)); // @todo @err
+						HANDLE local_h_rd = INVALID_HANDLE_VALUE;
+						HANDLE local_h_wr = INVALID_HANDLE_VALUE;
+						THROW(::CreatePipe(&local_h_rd, &local_h_wr, &sa_pipe, 0)); // @todo @err
+						h_rd = local_h_rd;
+						h_wr = local_h_wr;
 					}
-					THROW(::SetHandleInformation(rd, HANDLE_FLAG_INHERIT, 0)); // @todo @err
+					THROW(::SetHandleInformation(h_rd, HANDLE_FLAG_INHERIT, 0)); // @todo @err
 					{
-						int fd = _open_osfhandle(reinterpret_cast<intptr_t>(rd), 0);
+						/*int fd = _open_osfhandle(reinterpret_cast<intptr_t>(rd), 0);
 						if(fd != -1) {
 							f_captured_stdout = _fdopen(fd, "rb");
 							THROW(f_captured_stdout); // @todo @err
-						}
+						}*/
 						startup_info.StartupInfo.dwFlags |= STARTF_USESTDHANDLES;
-						startup_info.StartupInfo.hStdOutput = wr;
+						startup_info.StartupInfo.hStdOutput = h_wr;
 					}
 				}
 				if(Flags & fCaptureStdErr) {
-					void * rd;
-					void * wr;
+					SIntHandle h_rd;
+					SIntHandle h_wr;
 					if(Flags & fCombinedStdErrStdOut) {
-						f_captured_stderr = f_captured_stdout;
+						//f_captured_stderr = f_captured_stdout;
 						startup_info.StartupInfo.hStdError = startup_info.StartupInfo.hStdOutput;
 					}
 					else {
 						if(Flags & fCaptureReadAsync) {
-							THROW(subprocess_create_named_pipe_helper(&rd, &wr));
+							THROW(subprocess_create_named_pipe_helper(&h_rd, &h_wr));
 						}
 						else {
-							THROW(::CreatePipe(&rd, &wr, &sa_pipe, 0)); // @todo @err
+							HANDLE local_h_rd = INVALID_HANDLE_VALUE;
+							HANDLE local_h_wr = INVALID_HANDLE_VALUE;
+							THROW(::CreatePipe(&local_h_rd, &local_h_wr, &sa_pipe, 0)); // @todo @err
+							h_rd = local_h_rd;
+							h_wr = local_h_wr;
 						}
-						THROW(::SetHandleInformation(rd, HANDLE_FLAG_INHERIT, 0)); // @todo @err
+						THROW(::SetHandleInformation(h_rd, HANDLE_FLAG_INHERIT, 0)); // @todo @err
 						{
-							int fd = _open_osfhandle(reinterpret_cast<intptr_t>(rd), 0);
+							/*int fd = _open_osfhandle(reinterpret_cast<intptr_t>(rd), 0);
 							if(fd != -1) {
 								f_captured_stderr = _fdopen(fd, "rb");
 								THROW(f_captured_stderr); // @todo @err
-							}
+							}*/
 							startup_info.StartupInfo.dwFlags |= STARTF_USESTDHANDLES;
-							startup_info.StartupInfo.hStdError = wr;
+							startup_info.StartupInfo.hStdError = h_wr;
 						}
 					}
 				}
@@ -1034,30 +1165,61 @@ int SlProcess::Run(SlProcess::Result * pResult)
 				pResult->ThreadId = prc_info.dwThreadId;
 				pResult->F_StdIn = f_captured_stdin;
 				f_captured_stdin = 0;
-				pResult->F_StdOut = f_captured_stdout;
-				f_captured_stdout = 0;
-				pResult->F_StdErr = f_captured_stderr;
-				f_captured_stderr = 0;
+				//pResult->F_StdOut = f_captured_stdout;
+				//f_captured_stdout = 0;
+				//pResult->F_StdErr = f_captured_stderr;
+				//f_captured_stderr = 0;
+				// @v12.4.1 {
+				{
+					Helper_ReadOutput(startup_info.StartupInfo.hStdOutput, pResult->SsOut);
+					Helper_ReadOutput(startup_info.StartupInfo.hStdError, pResult->SsErr);
+				}
+				// } @v12.4.1 
 			}
 			ok = 1;
 		}
 	}
 	CATCHZOK
+	SAlloc::F(p_env);
 	SFile::ZClose(&f_captured_stdin);
-	SFile::ZClose(&f_captured_stdout);
-	SFile::ZClose(&f_captured_stderr);
+	//SFile::ZClose(&f_captured_stdout);
+	//SFile::ZClose(&f_captured_stderr);
 	return ok;
 }
 
-SlProcess::Result::Result() : ProcessId(0), ThreadId(0), F_StdIn(0), F_StdOut(0), F_StdErr(0)
+int SlProcess::Helper_ReadOutput(SIntHandle hPipe, StringSet & rSs)
+{
+	rSs.Z();
+	int    ok = -1;
+	if(!!hPipe) {
+		DWORD  actual_size;
+		char   _buf[4096];
+		SString temp_buf;
+		//HANDLE hParentStdOut = GetStdHandle(STD_OUTPUT_HANDLE);
+		for(;;) {
+			int r = ::ReadFile(hPipe, _buf, sizeof(_buf)-1, &actual_size, NULL);
+			if(r && actual_size) {
+				_buf[actual_size] = 0;
+				temp_buf.Z().Cat(_buf);
+				rSs.add(temp_buf);
+				ok = 1;
+			}
+			else
+				break;
+		}
+	}
+	return ok;
+}
+
+SlProcess::Result::Result() : ProcessId(0), ThreadId(0), F_StdIn(0)/*, F_StdOut(0), F_StdErr(0)*/
 {
 }
 		
 SlProcess::Result::~Result()
 {
 	SFile::ZClose(&F_StdIn);
-	SFile::ZClose(&F_StdOut);
-	SFile::ZClose(&F_StdErr);
+	//SFile::ZClose(&F_StdOut);
+	//SFile::ZClose(&F_StdErr);
 }
 
 SlProcess::AppContainer::AppContainer()

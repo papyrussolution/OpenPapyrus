@@ -336,9 +336,10 @@ int RecoverAbsenceLots()
 	return ok;
 }
 
-int Transfer::CorrectByLot(PPID lot, int (*MsgProc)(int err, PPID lot, const TransferTbl::Rec*))
+int Transfer::CorrectByLot(PPID lotID, int (*MsgProc)(int err, PPID lot, const TransferTbl::Rec*))
 {
-	int    ok = 1, ta = 0;
+	int    ok = 1;
+	int    ta = 0;
 	PPObjBill * p_bobj = BillObj;
 	int    reply = 1;
 	int    closed;
@@ -353,18 +354,18 @@ int Transfer::CorrectByLot(PPID lot, int (*MsgProc)(int err, PPID lot, const Tra
 	ReceiptTbl::Rec rcptr, srr;
 	PPTransferItem ti;
 	THROW(PPStartTransaction(&ta, 1));
-	THROW(Rcpt.Search(lot, &rcptr) > 0);
+	THROW(Rcpt.Search(lotID, &rcptr) > 0);
 	srr = rcptr;
-	THROW(reval = SearchReval(lot, rcptr.Dt));
+	THROW(reval = SearchReval(lotID, rcptr.Dt));
 	if(reval < 0)
 		reval = 0;
-	if(EnumByLot(lot, &dt, &oprno) > 0) {
+	if(EnumByLot(lotID, &dt, &oprno) > 0) {
 		if(data.Quantity != rcptr.Quantity) {
-			reply = MsgProc ? MsgProc(1, lot, &data) : 1;
+			reply = MsgProc ? MsgProc(1, lotID, &data) : 1;
 			if(reply > 0) {
 				rcptr.Quantity = data.Quantity;
 				srr = rcptr;
-				THROW(Rcpt.Update(lot, &rcptr, 0));
+				THROW(Rcpt.Update(lotID, &rcptr, 0));
 			}
 		}
 		if(reply >= 0) {
@@ -372,19 +373,19 @@ int Transfer::CorrectByLot(PPID lot, int (*MsgProc)(int err, PPID lot, const Tra
 				rest += data.Quantity;
 				cost_err = price_err = 0;
 				if((err = 2, data.Rest != rest) || (err = 4, cost_err) || (err = 5, price_err)) {
-					reply = MsgProc ? MsgProc(err, lot, &data) : 1;
+					reply = MsgProc ? MsgProc(err, lotID, &data) : 1;
 					if(reply > 0) {
 						if(price_err || cost_err) {
 							billID = data.BillID;
-							PPObjBill::TBlock tb_; // @v8.0.3
-							THROW(p_bobj->BeginTFrame(billID, tb_)); // @v8.0.3
+							PPObjBill::TBlock tb_;
+							THROW(p_bobj->BeginTFrame(billID, tb_));
 							_rbb = data.RByBill - 1;
 							THROW(EnumItems(billID, &_rbb, &ti) > 0);
 							ti.Cost  = R5(rcptr.Cost);
 							ti.Price = R5(rcptr.Price);
 							THROW(UpdateItem(&ti, tb_.Rbb(), fUpdEnableUpdChildLot, 0));
 							THROW(p_bobj->RecalcTurns(billID, 0, 0));
-							THROW(p_bobj->FinishTFrame(billID, tb_)); // @v8.0.3
+							THROW(p_bobj->FinishTFrame(billID, tb_));
 						}
 						else {
 							data.Rest = rest;
@@ -394,16 +395,16 @@ int Transfer::CorrectByLot(PPID lot, int (*MsgProc)(int err, PPID lot, const Tra
 					else if(reply < 0)
 						break;
 				}
-			} while(EnumByLot(lot, &dt, &oprno) > 0);
+			} while(EnumByLot(lotID, &dt, &oprno) > 0);
 			if(reply >= 0) {
 				closed = BIN(rest == 0);
 				if(rcptr.Rest != rest || (rcptr.Closed && !closed && !(rcptr.Flags & LOTF_CLOSEDORDER)) || (!rcptr.Closed && closed)) {
-					reply = MsgProc ? MsgProc(3, lot, &data) : 1;
+					reply = MsgProc ? MsgProc(3, lotID, &data) : 1;
 					if(reply > 0) {
 						rcptr.Closed = closed;
 						rcptr.Rest = rest;
 						srr = rcptr;
-						THROW(Rcpt.Update(lot, &rcptr, 0));
+						THROW(Rcpt.Update(lotID, &rcptr, 0));
 					}
 				}
 			}

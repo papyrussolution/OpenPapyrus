@@ -344,24 +344,33 @@ int SCompoundError::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx
 	return ok;
 }
 
+bool SCompoundError::ToJsonObj(SJson * pJsObj) const
+{
+	bool   ok = true;
+	if(SJson::IsObject(pJsObj)) {
+		pJsObj->InsertInt("ver", Ver);
+		pJsObj->InsertInt("code", Code);
+		if(LocIdent)
+			pJsObj->InsertInt("locident", LocIdent);
+		if(ItemI)
+			pJsObj->InsertInt64("itemi", ItemI);
+		if(!ItemR.IsZero()) {
+			pJsObj->InsertInt("itemr_low", ItemR.low);
+			pJsObj->InsertInt("itemr_upp", ItemR.upp);
+		}
+		if(Descr.NotEmpty()) {
+			pJsObj->InsertString("descr", Descr);
+		}
+	}
+	else
+		ok = false;
+	return ok;
+}
+
 SJson * SCompoundError::ToJsonObj() const
 {
 	SJson * p_result = SJson::CreateObj();
-	if(p_result) {
-		p_result->InsertInt("ver", Ver);
-		p_result->InsertInt("code", Code);
-		if(LocIdent)
-			p_result->InsertInt("locident", LocIdent);
-		if(ItemI)
-			p_result->InsertInt64("itemi", ItemI);
-		if(!ItemR.IsZero()) {
-			p_result->InsertInt("itemr_low", ItemR.low);
-			p_result->InsertInt("itemr_upp", ItemR.upp);
-		}
-		if(Descr.NotEmpty()) {
-			p_result->InsertString("descr", Descr);
-		}
-	}
+	ToJsonObj(p_result);
 	return p_result;
 }
 

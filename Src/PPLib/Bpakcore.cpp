@@ -4853,9 +4853,10 @@ int TiIter::OrderRows_Mem(const PPBillPacket * pPack, Order o)
 	PPObjLocation * p_loc_obj = 0;
 	GoodsToObjAssoc * p_gto_assc = 0;
 	PPObjQCert * p_qcert_obj = 0;
-	if(Flags & ETIEF_DISPOSE || FiltGrpID || oneof8(o, ordByGoods, ordByGrpGoods, ordByBarcode, ordBySuppl,
-		ordByLocation, ordByPLU, ordByQCert, ordByStorePlaceGrpGoods)) {
-		SString grp_name, goods_name, temp_buf;
+	if(Flags & ETIEF_DISPOSE || FiltGrpID || oneof8(o, ordByGoods, ordByGrpGoods, ordByBarcode, ordBySuppl, ordByLocation, ordByPLU, ordByQCert, ordByStorePlaceGrpGoods)) {
+		SString temp_buf;
+		SString grp_name;
+		SString goods_name;
 		uint   i = 0;
 		long   uniq_counter = 0;
 		struct Ext { // @flat
@@ -4906,7 +4907,8 @@ int TiIter::OrderRows_Mem(const PPBillPacket * pPack, Order o)
 			if(goods_obj.BelongToGroup(goods_id, FiltGrpID, 0) > 0 && (skip_list.addUnique(goods_id) > 0 || rf > 0)) {
 				const  PPID suppl_id = (rf > 0) ? p_ti->Suppl : 0;
 				int    to_add_entry = 1;
-				size_t nl = 0, gl = 0;
+				size_t nl = 0;
+				size_t gl = 0;
 				grp_name.Z();
 				goods_name.Z();
 				if(goods_obj.Fetch(goods_id, &goods_rec) > 0) {
@@ -5072,12 +5074,12 @@ int TiIter::Init(const PPBillPacket * pPack, long flags, long filtGrpID, Order o
 		for(uint i = 0; i < temp_list.getCount(); i++) {
 			const  PPID goods_id = temp_list.get(i);
 			double saldo = 0.0;
-			int    is_present = 0;
+			bool   is_present = false;
 			double qtty = 0.0;
 			long   oprno = 0;
 			TransferTbl::Rec rec;
 			for(uint pos = 0; !oprno && pPack->SearchGoods(goods_id, &pos); pos++) {
-				is_present = 1;
+				is_present = true;
 				const PPTransferItem & r_ti = pPack->ConstTI(pos);
 				if(r_ti.RByBill && p_bobj->trfr->SearchByBill(r_ti.BillID, 0, r_ti.RByBill, &rec) > 0)
 					oprno = rec.OprNo;

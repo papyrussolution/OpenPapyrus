@@ -741,6 +741,7 @@ static uint GetBillDialogID(const PPBillPacket * pack, uint * pPrnForm)
 		case PPOPT_GOODSMODIF: return DLG_MODIFBILL;
 		case PPOPT_GOODSACK: return DLG_ACKBILL;
 		case PPOPT_POOL: return DLG_BILLPOOL;
+		case PPOPT_WAREHOUSE: return DLG_WMSBILL; // @v12.4.1
 	}
 	return (uint)PPSetError(PPERR_INVOPRKIND);
 }
@@ -755,7 +756,8 @@ static uint GetBillDialogID(const PPBillPacket * pack, uint * pPrnForm)
 int EditGoodsBill(PPBillPacket * pPack, long egbFlags)
 {
 	MemLeakTracer mlt;
-	int    ok = -1, r;
+	int    ok = -1;
+	int    r;
 	const  PPRights & r_rt = ObjRts;
 	PPObjBill * p_bobj = BillObj;
 	uint   prn_form = 0;
@@ -1318,7 +1320,7 @@ int PPLinkFilesArray::EditDescr(uint pos)
 		SFsPath ps(p_flink->Path);
 		ps.Merge(0, SFsPath::fDrv|SFsPath::fDir, fname);
 		PPInputStringDialogParam isd_param(PPLoadTextS(PPTXT_INPUTDESCR, title), fname);
-		if(InputStringDialog(&isd_param, descr) > 0 && descr.Len()) {
+		if(InputStringDialog(isd_param, descr) > 0 && descr.Len()) {
 			p_flink->Description = descr;
 			ok = 1;
 		}
@@ -1527,7 +1529,7 @@ int LinkFilesDialog::LinkFile(const char * pPath, uint * pPos)
 		ps.Merge(0, SFsPath::fDrv|SFsPath::fDir, fname);
 		flink.Init(pPath);
 		PPInputStringDialogParam isd_param(PPLoadTextS(PPTXT_INPUTDESCR, title), fname.ToOem());
-		if(InputStringDialog(&isd_param, flink.Description) > 0)
+		if(InputStringDialog(isd_param, flink.Description) > 0)
 			if(flink.Description.Len() && LinksAry.Add(&flink, pPos))
 				ok = 1;
 	}
@@ -1586,7 +1588,7 @@ int LinkFilesDialog::addItem(long * pPos, long * pID)
 	if(selected) {
 		PPInputStringDialogParam isd_param;
 		PPLoadText(PPTXT_INPUTDESCR, isd_param.Title);
-		selected = BIN(InputStringDialog(&isd_param, descr.Z()) > 0 && descr.Len());
+		selected = BIN(InputStringDialog(isd_param, descr.Z()) > 0 && descr.Len());
 	}
 	if(selected) {
 		uint   pos = 0;
@@ -1788,7 +1790,7 @@ int BillDialog::calcDate(uint ctlID)
 		SString input_buf;
 		PPInputStringDialogParam isd_param;
 		PPLoadText(PPTXT_INPUTNUMDAYS, isd_param.InputTitle);
-		if(InputStringDialog(&isd_param, input_buf) > 0) {
+		if(InputStringDialog(isd_param, input_buf) > 0) {
 			const int num_days = input_buf.ToLong();
 			if(num_days > 0) {
 				setCtrlDate(ctlID, plusdate(dt, num_days));
@@ -3467,7 +3469,7 @@ int PPObjBill::EditFreightDialog(PPBillPacket & rPack)
 				else {
 					const  PPID psn_id = ObjectToPerson(R_Pack.Rec.Object);
 					if(psn_id || Data.DlvrAddrID__)
-						PersonObj.SetupDlvrLocCombo(this, CTLSEL_FREIGHT_DLVRLOC, psn_id, Data.DlvrAddrID__);
+						PsnObj.SetupDlvrLocCombo(this, CTLSEL_FREIGHT_DLVRLOC, psn_id, Data.DlvrAddrID__);
 					//
 					// Для внутренней передачи необходимо обеспечить возможность в качестве адреса доставки
 					// выбрать склад-получатель.
@@ -3513,7 +3515,7 @@ int PPObjBill::EditFreightDialog(PPBillPacket & rPack)
 			setCtrlReal(CTL_FREIGHT_COST, Data.Cost);
 			AddClusterAssoc(CTL_FREIGHT_SHIPPED, 0, BILLF_SHIPPED);
 			SetClusterData(CTL_FREIGHT_SHIPPED, R_Pack.Rec.Flags);
-			enableCommand(cmFreightEditDlvrLocList, PersonObj.CheckRights(PPR_MOD));
+			enableCommand(cmFreightEditDlvrLocList, PsnObj.CheckRights(PPR_MOD));
 			return 1;
 		}
 		DECL_DIALOG_GETDTS()
@@ -3580,15 +3582,15 @@ int PPObjBill::EditFreightDialog(PPBillPacket & rPack)
 				PPID   loc_id = getCtrlLong(CTLSEL_FREIGHT_DLVRLOC);
 				const  PPID psn_id = ObjectToPerson(R_Pack.Rec.Object);
 				if(psn_id) {
-					if(PersonObj.EditDlvrLocList(psn_id) > 0) {
-						PersonObj.SetupDlvrLocCombo(this, CTLSEL_FREIGHT_DLVRLOC, psn_id, loc_id);
+					if(PsnObj.EditDlvrLocList(psn_id) > 0) {
+						PsnObj.SetupDlvrLocCombo(this, CTLSEL_FREIGHT_DLVRLOC, psn_id, loc_id);
 					}
 				}
 				else if(loc_id) {
 					PPID   temp_loc_id = loc_id;
-					if(PersonObj.LocObj.Edit(&loc_id, 0) == cmOK) {
+					if(PsnObj.LocObj.Edit(&loc_id, 0) == cmOK) {
 						assert(temp_loc_id == loc_id);
-						PersonObj.SetupDlvrLocCombo(this, CTLSEL_FREIGHT_DLVRLOC, psn_id, loc_id);
+						PsnObj.SetupDlvrLocCombo(this, CTLSEL_FREIGHT_DLVRLOC, psn_id, loc_id);
 					}
 				}
 			}
@@ -3596,7 +3598,7 @@ int PPObjBill::EditFreightDialog(PPBillPacket & rPack)
 				return;
 			clearEvent(event);
 		}
-		PPObjPerson PersonObj;
+		PPObjPerson PsnObj;
 		PPBillPacket & R_Pack;
 	};
 	int    ok = -1;

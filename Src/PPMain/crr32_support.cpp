@@ -79,8 +79,12 @@ public:
 								//printf(msg_buf.Z().Cat("Q").CatDiv(':', 2).Cat(temp_buf).CR().cptr()); // @debug
 								SJson * p_js_query = SJson::Parse(temp_buf);
 								if(p_js_query) {
-									bool do_reply = true;
-									SJson js_reply(SJson::tOBJECT);
+									bool   do_reply = true;
+									bool   rep_status_ok = true;
+									SString rep_info_text;
+									int    pr_call_state = 0; // 0 - CrystalReportPrint2_Server не была вызвана; 
+										// 1 - была вызвана функция CrystalReportPrint2_Server; 2 - вызов перенаправлен для предпросмотра
+									CrystalReportPrintReply pr_reply;
 									//
 									cmd_buf.Z();
 									const SJson * p_c = 0;
@@ -89,8 +93,9 @@ public:
 										(cmd_buf = p_c->Text).Unescape();
 									}
 									if(cmd_buf.IsEqiAscii("ping")) {
-										js_reply.InsertString("status", "ok");
-										js_reply.InsertString("info", "pong");
+										//js_reply.InsertString("status", "ok");
+										//js_reply.InsertString("info", "pong");
+										rep_info_text = "pong";
 									}
 									else if(cmd_buf.IsEqiAscii("run")) {
 										SSerializeContext sctx;
@@ -101,22 +106,26 @@ public:
 											SBuffer sbuf;
 											if(sbuf.AppendMime64(temp_buf)) {
 												CrystalReportPrintParamBlock * p_blk = new CrystalReportPrintParamBlock();
-												CrystalReportPrintReply reply;
 												if(p_blk && p_blk->Serialize(-1, sbuf, &sctx)) {
 													if(p_blk->Action == CrystalReportPrintParamBlock::actionPreview) {
 														if(HwParent) {
 															::PostMessageW(HwParent, WM_COMMAND, CMDID_TO_RUN_PREVIEW_BY_MAIN_THREAD, reinterpret_cast<LPARAM>(p_blk));
-															js_reply.InsertString("status", "ok");
+															//js_reply.InsertString("status", "ok");
+															pr_call_state = 2;
 														}
 														else {
 															ZDELETE(p_blk);
 														}
 													}
 													else {
-														CrystalReportPrint2_Server(*p_blk, reply, 0/*hParentWindowForPreview*/, H_Pipe);
+														const int pr = CrystalReportPrint2_Server(*p_blk, pr_reply, 0/*hParentWindowForPreview*//*, H_Pipe*/);
+														pr_call_state = 1;
+														if(!pr) {
+															rep_status_ok = false;
+														}
 														// Функция CrystalReportPrint2_Server сама отправила ответ клиенту через H_Pipe, который мы ей передали.
 														ZDELETE(p_blk);
-														do_reply = false;
+														//do_reply = false;
 													}
 													if(quit_after)
 														do_exit = true;
@@ -124,21 +133,40 @@ public:
 											}
 											else {
 												; // @todo @err
-												js_reply.InsertString("status", "fail");
+												//js_reply.InsertString("status", "fail");
+												rep_status_ok = false;
 											}
 										}
 										else {
-											js_reply.InsertString("status", "fail");
+											//js_reply.InsertString("status", "fail");
+											rep_status_ok = false;
 										}
 									}
 									else {
-										js_reply.InsertString("status", "ok");
-										(temp_buf = "I have got your message").CatDiv(':', 2).Cat(cmd_buf);
-										js_reply.InsertString("info", temp_buf);
+										//js_reply.InsertString("status", "ok");
+										(rep_info_text = "I have got your message").CatDiv(':', 2).Cat(cmd_buf);
+										//js_reply.InsertString("info", temp_buf);
 									}
 									// do make reply
 									//memcpy(wr_buf.cptr()
 									if(do_reply) {
+										SJson js_reply(SJson::tOBJECT);
+										js_reply.InsertString("status", rep_status_ok ? "ok" : "fail");
+										if(rep_info_text.NotEmpty()) {
+											js_reply.InsertString("info", rep_info_text);
+										}
+										if(pr_call_state == 1) {
+											if(pr_reply.Code != 0) {
+												SJson * p_js_pr_reply = pr_reply.ToJsonObj();
+												if(p_js_pr_reply)
+													js_reply.Insert("err", p_js_pr_reply);
+											}
+										}
+										else if(pr_call_state == 2) {
+											if(rep_info_text.IsEmpty()) {
+												js_reply.InsertString("info", "Report preview launched");
+											}
+										}
 										js_reply.ToStr(temp_buf);
 										temp_buf.CopyTo(wr_buf, wr_buf.GetSize());
 										DWORD reply_size = temp_buf.Len()+1;
@@ -227,7 +255,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 						CrystalReportPrintParamBlock * p_blk = reinterpret_cast<CrystalReportPrintParamBlock *>(lParam);
 						if(p_blk) {
 							CrystalReportPrintReply reply;
-							CrystalReportPrint2_Server(*p_blk, reply, hWnd, 0/*H_Pipe*/);
+							if(!CrystalReportPrint2_Server(*p_blk, reply, hWnd)) {
+								::DestroyWindow(hWnd); // Завершаем процесс
+							}
 						}
 					}
 					break;

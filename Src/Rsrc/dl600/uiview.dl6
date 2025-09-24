@@ -89,15 +89,6 @@ dialog DLG_CCEXTLIST [title: "@ccextlist" vertical size: (663, 294) font: "MS Sh
 	}	
 }
 
-dialog DLG_BIGTXTEDIT [vertical size: (811, 593) font: "MS Shell Dlg 2,8"] {
-	input CTL_BIGTXTEDIT_TITLE [width: bycontainer(100) height: 21 margin: 4 readonly] string[128];
-	input CTL_BIGTXTEDIT_TEXT [width: bycontainer(100) growfactor: 1 tabstop multiline wantreturn] string[64];
-	view [horizontal width: bycontainer(100) height: 28 margin_right: 12 justifycontent: end] {
-		button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 command: cmOK];
-		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
-	}
-}
-
 dialog DLG_LOTXCLIST [title: "@lotxcodelist" vertical size: (1119, 424) font: "MS Shell Dlg,8"] {
 	input CTL_LOTXCLIST_INFO [width: bycontainer(100) height: 21 margin: 4 tabstop readonly] string[128];
 	listbox CTL_LOTXCLIST_LIST [tabstop width: bycontainer(100) growfactor: 1 margin: 4];
@@ -796,6 +787,17 @@ dialog DLG_CHKCHZNMARK [vertical title: "@ttl_checkchzmark" size: (909, 530) min
 		button STDCTL_CANCELBUTTON [title: "@but_close" tabstop size: (75, 21) margin: 4 command: cmCancel];
 	}
 }
+//
+// Диалог ввода марки честный знак
+//
+dialog DLG_CHZNMARK [vertical title: "@chznmark" size: (540, 220) minsize: (540, 220) font: "MS Shell Dlg,8"] {
+	input CTL_CHZNMARK_INPUT [width: bycontainer height: 21 margin: 4 tabstop label: "@doscanmark" labelsize: (0, 13)] string[160];
+	statictext CTL_CHZNMARK_INFO [width: bycontainer growfactor: 1 margin: 4 staticedge];
+	view [horizontal width: bycontainer(100) height: 28 margin_right: 12 justifycontent: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
 
 dialog DLG_TESTGLBSVCACSY [title: "@testglobalserviceaccessibility" vertical size: (507, 414) minsize: (500, 300) font: "MS Shell Dlg,8"] {
 	statictext CTL_TESTGLBSVCACSY_INFO [width: bycontainer(100) height: 32 staticedge margin: 4];
@@ -824,7 +826,6 @@ dialog DLG_CHZNLOCPMPANE [vertical title: "" size: (507, 414) minsize: (500, 300
 	}
 }
 
-// @construction
 dialog DLG_CHKPANV [vertical title: "@poscheck" size: (888, 489)  font: "MS Shell Dlg 2,8"] {
 	listbox CTL_CHKPAN_LIST [width: bycontainer growfactor: 1 columns: "3,R,#;3,C,;44,L,@ware;16,L,@barcode;9,R,@price;8,R,@discount;8,R,@qtty;9,R,@amount;6,R,@vatrate;15,L,@series"];
 	view [horizontal width: bycontainer height: 40] {
@@ -884,4 +885,144 @@ dialog DLG_CHKPANV [vertical title: "@poscheck" size: (888, 489)  font: "MS Shel
 			button STDCTL_CANCELBUTTON [title: "@but_close" tabstop size: (75, 21) margin: 4 command: cmCancel];
 		}
 	}
+}
+
+dialog DLG_LOCTRFILT [vertical title: "@loctransffilt" size: (530, 350) minsize: (530, 350) font: "MS Shell Dlg,8"] {
+	radiocluster CTL_LOCTRFILT_DOMAIN [width: bycontainer(60) margin: 4] {
+		radiobutton [title: "@loctransffilt_domain_wms" height: 16];
+		radiobutton [title: "@loctransffilt_domain_bailment" height: 16];
+	}
+	combobox CTLSEL_LOCTRFILT_LOC [width: bycontainer(80) height: 21 margin: 4 label: "@loctransffilt_loclist" labelsize: (0, 13) cblinesymb: CTL_LOCTRFILT_LOC]
+		/*supplement listbutton(STDCTL_LOCLISTBUTTON cmLocList)*/;
+	combobox CTLSEL_LOCTRFILT_GGRP [width: bycontainer height: 21 margin: 4 label: "@loctransffilt_goodsgrp" labelsize: (0, 13) cblinesymb: CTL_LOCTRFILT_GGRP ];
+	combobox CTLSEL_LOCTRFILT_GOODS [width: bycontainer height: 21 margin: 4 label: "@loctransffilt_goods" labelsize: (0, 13) cblinesymb: CTL_LOCTRFILT_GOODS ];
+	view [horizontal width: bycontainer growfactor: 1] {
+		radiocluster CTL_LOCTRFILT_MODE [title: "@loctransffilt_mode" growfactor: 1 margin: 4] {
+			radiobutton [title: "@loctransffilt_modegeneral" height: 16];
+			radiobutton [title: "@loctransffilt_modecurrent" height: 16];
+			radiobutton [title: "@loctransffilt_modeempty" height: 16];
+			radiobutton [title: "@loctransffilt_modedisposition" height: 16];
+		}
+		view [horizontal growfactor: 1 height: bycontainer margin_right: 12 gravity: right justifycontent: end alignitems: end] {
+			button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: (4, 4, 6, 4) defaultitem command: cmOK];
+			button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: (6, 4, 4, 4) command: cmCancel];
+		}
+	}
+}
+
+dialog DLG_LOCTRANSF [vertical title: "@roptype_warehouse" size: (800, 400) minsize: (600, 380)  font: "MS Shell Dlg,8"] {
+	statictext CTL_LOCTRANSF_BILLTITLE [width: bycontainer height: 16 margin: 4 staticedge];
+	view [horizontal width: bycontainer height: 80] {
+		view [horizontal growfactor: 3 height: bycontainer] {
+			input CTL_LOCTRANSF_LOCCODE [growfactor: 1 height: 21 margin: (4, 17, 4, 4) tabstop] string[48];
+			combobox CTLSEL_LOCTRANSF_LOC [tabstop growfactor: 2.5 height: 21 margin: 4 label: "@whcell" labelsize: (0, 13) cblinesymb: CTL_LOCTRANSF_LOC ];
+			input CTL_LOCTRANSF_TM [width: 128 height: 21 margin: 4 tabstop readonly label: "@optime" labelsize: (0, 13) ] string[32];
+		}
+		radiocluster CTL_LOCTRANSF_OP [tabstop growfactor: 1 height: bycontainer margin: 4] {
+			radiobutton [title: "@doput" height: 16];
+			radiobutton [title: "@doget" height: 16];
+			radiobutton [title: "@inventory" height: 16];
+		}
+	}
+	view [horizontal width: bycontainer growfactor: 1] {
+		framebox [vertical growfactor: 3 height: bycontainer margin: 4 padding: 4] {
+			combobox CTLSEL_LOCTRANSF_GGRP [tabstop width: bycontainer height: 21 margin: 4 label: "@group" labelsize: (0, 13) cblinesymb: CTL_LOCTRANSF_GGRP ];
+			combobox CTLSEL_LOCTRANSF_GOODS [tabstop width: bycontainer height: 21 margin: 4 label: "@ware" labelsize: (0, 13) cblinesymb: CTL_LOCTRANSF_GOODS ];
+			input CTL_LOCTRANSF_LOTINFO [tabstop width: bycontainer height: 21 margin: 4 readonly label: "@lot" labelsize: (0, 13) ] string[64];
+			view [horizontal width: bycontainer height: 32] {
+				button CTL_CMD_LOT [title: "@but_lot" tabstop size: (90, 21) margin: (4, 17, 4, 4) command: cmLot];
+				input CTL_LOCTRANSF_SERIAL [growfactor: 1 height: 21 margin: 4 tabstop label: "@serial" labelsize: (0, 13) ] string[24];
+			}
+		}
+		framebox [vertical growfactor: 2 height: bycontainer margin: 4 padding: 4] {
+			combobox CTLSEL_LOCTRANSF_PLTTYPE [tabstop width: bycontainer height: 21 margin: 4 label: "@pallettype" labelsize: (0, 13) cblinesymb: CTL_LOCTRANSF_PLTTYPE ];
+			view [horizontal width: bycontainer height: 32 margin: 4] {
+				input CTL_LOCTRANSF_PLT [growfactor: 1 height: 21 margin: 4 tabstop readonly fmtf: (nozero) fmtprec: 0 label: "@palletcapacity" labelsize: (0, 13) ] double;
+				input CTL_LOCTRANSF_PLTC [growfactor: 1 height: 21 margin: 4 tabstop fmtf: (nozero) label: "@palletcount" labelsize: (0, 13) ] int16;
+			}
+			view [horizontal width: bycontainer height: 32 margin: 4] {
+				input CTL_LOCTRANSF_PCKG [growfactor: 1 height: 21 margin: 4 tabstop readonly fmtprec: 3 label: "@cargopckg" labelsize: (0, 13) ] double;
+				input CTL_LOCTRANSF_PCKGC [growfactor: 1 height: 21 margin: 4 tabstop fmtprec: 3 label: "@packqtty" labelsize: (0, 13) ] double;
+			}
+			input CTL_LOCTRANSF_QTTY [design: B width: 80 height: 21 margin: (4, 8, 4, 4) tabstop fmtprec: 3 label: "@qtty" labelsize: (0, 13) ] double;
+			input CTL_LOCTRANSF_BILLQTTY [design: B width: 80 height: 21 margin: 4 tabstop readonly fmtprec: 3 label: "@loctransf_billqtty" labelsize: (0, 13) ] double;
+		}
+	}
+	view [horizontal width: bycontainer height: 32 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+
+// @construction
+dialog DLG_LOCTRANSF_BAILMENT [vertical title: "@roptype_warehouse" size: (720, 450) minsize: (600, 450)  font: "MS Shell Dlg,8"] {
+	statictext CTL_LOCTRANSF_BILLTITLE [width: bycontainer height: 16 margin: 4 staticedge];
+	view [horizontal width: bycontainer height: 140] {
+		view [horizontal growfactor: 3 height: bycontainer] {
+			//input CTL_LOCTRANSF_LOCCODE [growfactor: 1 height: 21 margin: (4, 17, 4, 4) tabstop] string[48];
+			//combobox CTLSEL_LOCTRANSF_LOC [growfactor: 2.5 height: 21 margin: 4 label: "@whcell" labelsize: (0, 13) cblinesymb: CTL_LOCTRANSF_LOC ];
+			framebox [vertical growfactor: 2.5 height: 100 margin: 4 padding: 4] {
+				combobox CTLSEL_LOCTRANSF_PSN [tabstop growfactor: 2.5 height: 21 margin: 4 label: "@person" labelsize: (0, 13) cblinesymb: CTL_LOCTRANSF_PSN ];
+				combobox CTLSEL_LOCTRANSF_LOC [tabstop growfactor: 2.5 height: 21 margin: 4 label: "@address" labelsize: (0, 13) cblinesymb: CTL_LOCTRANSF_LOC ];
+			}
+			input CTL_LOCTRANSF_TM [tabstop width: 128 height: 21 margin: 4 readonly label: "@optime" labelsize: (0, 13) ] string[32];
+		}
+		radiocluster CTL_LOCTRANSF_OP [tabstop growfactor: 1 height: bycontainer margin: 4] {
+			radiobutton [title: "@doput" height: 16];
+			radiobutton [title: "@doget" height: 16];
+			radiobutton [title: "@inventory" height: 16];
+		}
+	}
+	view [horizontal width: bycontainer growfactor: 1] {
+		framebox [vertical growfactor: 3 height: bycontainer margin: 4 padding: 4] {
+			combobox CTLSEL_LOCTRANSF_GGRP [tabstop width: bycontainer height: 21 margin: 4 label: "@group" labelsize: (0, 13) cblinesymb: CTL_LOCTRANSF_GGRP ];
+			combobox CTLSEL_LOCTRANSF_GOODS [tabstop width: bycontainer height: 21 margin: 4 label: "@ware" labelsize: (0, 13) cblinesymb: CTL_LOCTRANSF_GOODS ];
+			input CTL_LOCTRANSF_LOTINFO [tabstop width: bycontainer height: 21 margin: 4 readonly label: "@lot" labelsize: (0, 13) ] string[64];
+			view [horizontal width: bycontainer height: 32] {
+				button CTL_CMD_LOT [title: "@but_lot" tabstop size: (90, 21) margin: (4, 17, 4, 4) command: cmLot];
+				input CTL_LOCTRANSF_SERIAL [growfactor: 1 height: 21 margin: 4 tabstop label: "@serial" labelsize: (0, 13) ] string[24];
+			}
+		}
+		framebox [vertical growfactor: 2 height: bycontainer margin: 4 padding: 4] {
+			combobox CTLSEL_LOCTRANSF_PLTTYPE [tabstop width: bycontainer height: 21 margin: 4 label: "@pallettype" labelsize: (0, 13) cblinesymb: CTL_LOCTRANSF_PLTTYPE ];
+			view [horizontal width: bycontainer height: 32 margin: 4] {
+				input CTL_LOCTRANSF_PLT [growfactor: 1 height: 21 margin: 4 tabstop readonly fmtf: (nozero) fmtprec: 0 label: "@palletcapacity" labelsize: (0, 13) ] double;
+				input CTL_LOCTRANSF_PLTC [growfactor: 1 height: 21 margin: 4 tabstop fmtf: (nozero) label: "@palletcount" labelsize: (0, 13) ] int16;
+			}
+			view [horizontal width: bycontainer height: 32 margin: 4] {
+				input CTL_LOCTRANSF_PCKG [growfactor: 1 height: 21 margin: 4 tabstop readonly fmtprec: 3 label: "@cargopckg" labelsize: (0, 13) ] double;
+				input CTL_LOCTRANSF_PCKGC [growfactor: 1 height: 21 margin: 4 tabstop fmtprec: 3 label: "@packqtty" labelsize: (0, 13) ] double;
+			}
+			input CTL_LOCTRANSF_QTTY [design: B width: 80 height: 21 margin: (4, 8, 4, 4) tabstop fmtprec: 3 label: "@qtty" labelsize: (0, 13) ] double;
+			input CTL_LOCTRANSF_BILLQTTY [design: B width: 80 height: 21 margin: 4 tabstop readonly fmtprec: 3 label: "@loctransf_billqtty" labelsize: (0, 13) ] double;
+		}
+	}
+	view [horizontal width: bycontainer height: 32 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+
+dialog DLG_BIGTXTEDIT [vertical size: (800, 600) minsize: (400, 300) font: "MS Shell Dlg 2,8"] {
+	input CTL_BIGTXTEDIT_TITLE [width: bycontainer(100) height: 21 margin: 4 readonly] string[128];
+	input CTL_BIGTXTEDIT_TEXT [width: bycontainer(100) growfactor: 1 tabstop multiline wantreturn] string[64];
+	view [horizontal width: bycontainer(100) height: 28 margin_right: 12 justifycontent: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+
+dialog DLG_MEMO [vertical title: "@memo" size: (600, 300)  font: "MS Shell Dlg,8"] {
+	input CTL_INPUT_STR [width: bycontainer(100) growfactor: 1 tabstop multiline wantreturn] string[255];
+	view [horizontal width: bycontainer(100) height: 28 margin_right: 12 justifycontent: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+
+// @construction
+dialog DLG_INPUT__ [title: "" origin: (62, 101) size: (597, 128)  font: "MS Shell Dlg,8"] {
+	input CTL_INPUT_STR [origin: (8, 24) size: (563, 21)  tabstop label: "@input_string" labelorigin: (8, 8) labelsize: (555, 13) ] string[64];
+	button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem origin: (398, 57) size: (75, 21)  command: cmOK];
+	button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop origin: (495, 57) size: (75, 21)  command: cmCancel];
 }

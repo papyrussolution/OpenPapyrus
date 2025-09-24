@@ -2630,7 +2630,7 @@ int STDCALL EditObjTagItem(PPID objType, PPID objID, ObjTagItem * pItem, const P
 									SearchObject(PPOBJ_REGISTERTYPE, pk_rec.CodeRegTypeID, &reg_type_rec);
 									PPLoadText(PPTXT_SEARCHPERSON, title);
 									PPInputStringDialogParam isd_param(title, reg_type_rec.Name);
-									if(InputStringDialog(&isd_param, code) > 0) {
+									if(InputStringDialog(isd_param, code) > 0) {
 										psn_obj.GetListByRegNumber(pk_rec.CodeRegTypeID, pk_rec.ID, code, psn_list);
 										if(psn_list.getCount())
 											setCtrlLong(CTLSEL_TAGV_LINK, psn_list.get(0));

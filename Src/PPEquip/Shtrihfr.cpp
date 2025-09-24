@@ -2720,7 +2720,7 @@ void SCS_SHTRIHFRF::SetErrorMessage()
 			//Flags &= ~(sfCheckOpened | sfCancelled);
 		//}
 	}
-	else if(op == ppchzcopCheck) {
+	else if(oneof2(op, ppchzcopVerify, ppchzcopVerifyOffline)) { // @v12.4.1 ppchzcopVerifyOffline
 		rResult.CheckResult = 0;
 		rResult.Reason = 0;
 		rResult.ProcessingResult = 0;

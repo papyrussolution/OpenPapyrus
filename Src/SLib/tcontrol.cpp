@@ -1931,6 +1931,15 @@ void ComboBox::setRange(long aRange) { Range = aRange; }
 TInputLine * ComboBox::GetLink() const { return P_ILink; }
 void ComboBox::SetLink(TInputLine * pLink) { P_ILink = pLink; }
 
+bool ComboBox::SetSettledTag(bool isSettled) // @v12.4.1
+{
+	const bool preserve_state = LOGIC(State & stSettled);
+	SETFLAG(State, stSettled, isSettled);
+	return preserve_state;
+}
+
+bool ComboBox::GetSettledTag() const { return LOGIC(State & stSettled); } // @v12.4.1
+
 int ComboBox::setDataByUndefID()
 {
 	int    ok = -1;

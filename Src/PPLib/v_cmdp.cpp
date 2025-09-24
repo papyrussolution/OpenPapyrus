@@ -571,7 +571,7 @@ int EditName(SString & rName)
 {
 	int    ok = -1;
 	SString name = rName;
-	SString org_name = name;
+	SString org_name(name);
 	PPInputStringDialogParam isd_param;
 	PPLoadText(PPTXT_NEWLABEL, isd_param.InputTitle);
 	if(name.C(0) == '@') {
@@ -581,7 +581,7 @@ int EditName(SString & rName)
 			org_name = name;
 		}
 	}
-	if(InputStringDialog(&isd_param, name) > 0 && name.Len()) {
+	if(InputStringDialog(isd_param, name) > 0 && name.Len()) {
 		if(name != org_name) {
 			rName = name;
 			ok = 1;

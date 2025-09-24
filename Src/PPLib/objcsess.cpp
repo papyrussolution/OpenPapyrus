@@ -1670,7 +1670,7 @@ int CTableOrder::Print(const Packet * pPack)
 	CCheckPacket cc_pack;
 	THROW(MakeCCheckPacket(pPack, &cc_pack));
 	{
-		PPReportEnv env(/*noAsk ? SReport::PrintingNoAsk : 0*/0, 0);
+		PPReportEnv env(0, 0);
 		PPAlddPrint(rpt_id, PView(&cc_pack), &env);
 	}
 	CATCHZOK

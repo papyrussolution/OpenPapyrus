@@ -4814,6 +4814,8 @@ public:
 	void   freeAll();
 	TInputLine * GetLink() const;
 	void   SetLink(TInputLine * pLink);
+	bool   SetSettledTag(bool isSettled); // @v12.4.1
+	bool   GetSettledTag() const; // @v12.4.1
 private:
 	void   Init(long flags);
 	void   Scroll(short);
@@ -4826,8 +4828,10 @@ private:
 	enum {
 		stExecSemaphore = 0x0001, // Признак того, что (def->setData() != 0)
 		stDataFounded   = 0x0002, // Если P_Def == 0 и в комбо-боксе удаляют данные, то установлен
-		stUndef = 0x0004,
-		stNoDefZero     = 0x0008
+		stUndef         = 0x0004,
+		stNoDefZero     = 0x0008,
+		stSettled       = 0x0010  // @v12.4.1 Флаг, полностью контролируемый клиентом класса. See SetSettledTag() и GetSettledTag()
+			// Все что сам ComboBox делает с этим флагом - обнуляет в конструкторе.
 	};
 	long   State;
 	CompFunc SrchFunc;

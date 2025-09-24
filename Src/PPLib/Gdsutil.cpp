@@ -2063,7 +2063,7 @@ void QuotationDialog::editMatrixItem(int autoToggle)
 			PPLoadText(PPTXT_GOODSMATRIXRESTR, title);
 			PPInputStringDialogParam isd_param(title, title);
 			buf.Cat((long)quot.Quot);
-			if((r = InputStringDialog(&isd_param, buf)) > 0) {
+			if((r = InputStringDialog(isd_param, buf)) > 0) {
 				quot.Quot = (buf.ToLong() >= 0) ? buf.ToLong() : 0;
 				r = 1;
 			}

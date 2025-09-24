@@ -819,7 +819,8 @@ void TSessionDialog::SetupSCard()
 	int    ok = -1;
 	SString scard_no;
 	SCardTbl::Rec scard_rec;
-	if(InputStringDialog(0, scard_no) > 0)
+	PPInputStringDialogParam isd_param; // empty param
+	if(InputStringDialog(isd_param, scard_no) > 0) { // @v12.4.1 InputStringDialog(0, s_path)-->InputStringDialog(&isd_param, s_path)
 		if(scard_no.NotEmptyS())
 			if(ScObj.SearchCode(0, scard_no, &scard_rec) > 0) {
 				if(TSesObj.SetSCardID(&Data.Rec, &scard_rec) == 2) {
@@ -841,6 +842,7 @@ void TSessionDialog::SetupSCard()
 			setCtrlString(CTL_TSESS_SCARD, scard_no);
 			ok = 1;
 		}
+	}
 	if(ok > 0) {
 		TSessionPacket temp_pack;
 		if(getDTS(&temp_pack) && temp_pack.Rec.ID) {

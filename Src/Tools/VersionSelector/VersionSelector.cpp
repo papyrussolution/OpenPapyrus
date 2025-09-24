@@ -1,5 +1,6 @@
 // VersonSelector.cpp : Defines the entry point for the application.
 //
+#define SLIB_INCLUDE_CPPSTDLIBS // @v12.4.1
 #include "VersionSelector.h"
 #include <pp.h>
 #include <shlwapi.h>

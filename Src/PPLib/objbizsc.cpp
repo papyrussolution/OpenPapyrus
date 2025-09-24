@@ -1309,10 +1309,7 @@ int GetBizScoresVals(const char * pUserName, const char * pPassword, TcpSocket *
 			SString rpt_name;
 			user_acc.LocalDbUuid.ToStr(S_GUID::fmtIDL, str_guid);
 			bizsc_path.Cat(str_guid).SetLastSlash();
-			THROW(SReport::GetReportAttributes(REPORT_BIZSCOREVALVIEW, 0, &rpt_name)); // @v12.3.11
-			/* @v12.3.11 SReport rpt(REPORT_BIZSCOREVALVIEW, INIREPF_NOSHOWDIALOG);
-			THROW(rpt.IsValid());
-			rpt_name = rpt.getDataName();*/
+			THROW(SReport::GetReportAttributes(REPORT_BIZSCOREVALVIEW, 0, &rpt_name));
 			bizsc_path.Cat(rpt_name).DotCat("xml");
 			if(fileExists(bizsc_path)) {
 				long   numrecs = 0;
@@ -1364,12 +1361,13 @@ int GetBizScoresVals(const char * pUserName, const char * pPassword, TcpSocket *
 		buf.Cat(1L).CRB();
 		THROW(pSock->Send(buf, buf.Len(), 0));
 		if(bizsc_list.getCount()) {
-			SString val, name;
+			SString val;
+			SString name;
+			SString text;
 			for(uint i = 0; i < bizsc_list.getCount(); i++) {
 				GlobalBizScoreVal * p_bizsc_rec = bizsc_list.at(i);
 				if(i == 0) {
-					SString    text;
-					text.Cat(p_bizsc_rec->Dtm).Cat("<br>");
+					text.Z().Cat(p_bizsc_rec->Dtm).Cat("<br>");
 					PPGetWord(PPWORD_CALCDATE, 1, buf);
 					text.Cat(buf).CatDiv(':', 1).Cat(p_bizsc_rec->ActualDate).Cat("<br>").CRB();
 					THROW(pSock->Send(text, text.Len(), 0));
@@ -2026,10 +2024,7 @@ int PrcssrBizScore::Run()
 			if((P.Flags & Param::fSendToFTP)) {
 				SString file_name;
 				SString path;
-				THROW(SReport::GetReportAttributes(REPORT_BIZSCOREVALVIEW, 0, &file_name)); // @v12.3.11
-				/*@v12.3.11 SReport rpt(REPORT_BIZSCOREVALVIEW, INIREPF_NOSHOWDIALOG);
-				THROW_SL(rpt.IsValid());
-				file_name = rpt.getDataName();*/
+				THROW(SReport::GetReportAttributes(REPORT_BIZSCOREVALVIEW, 0, &file_name));
 				file_name.DotCat("xml");
 				PPGetFilePath(PPPATH_OUT, file_name, path);
 				THROW(view.SendXml(P.FtpAcctID, path));

@@ -1,5 +1,5 @@
 // WINCEXCH.CPP
-// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2023, 2024
+// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -166,57 +166,15 @@ int StyloBHTExch(TcpSocket * pSo)
 //
 // StyloBhtIIExchange
 //
-
-#if 0 // {
-class StyloBhtIIExchanger {
-public:
-	StyloBhtIIExchanger(TcpSocket * pSo);
-	~StyloBhtIIExchanger();
-	int    Run();
-private:
-	int    GetTable(int16 Cmd, uint fileNameCode, const char * pTblInfo, SBIIRec * pRec, long nextRecNo = -1);
-	int    SetTable(int16 cmd, uint fileNameCode, const char * pTblInfo, SBIIRec * pRec, long count);
-	int    GetGoods();
-	int    GetArticles();
-	int    PrepareBills(int uniteGoods);
-	int    GetBills();
-	int    GetBillRows();
-	int    GetBillRowsWithCells(long billID);
-	int    GetOpRestrictions();
-	int    GetConfig(StyloBhtIIConfig * pCfg);
-	int    GetGoodsList(long cellID, int getGoods);
-	int    SetBills(long count);
-	int    SetBillRows(long count);
-	int    AcceptLocOp(SBIILocOp * pRec);
-	int    FindGoods(PPID goodsID, const char * pBarcode, SBIIGoodsRec * pRec);
-	int    FindLocCell(PPID locID, const char * pName, SBIILocCellRec * pRec);
-	int    PrintBarcode(const char * pBarcode);
-	int    SendCmd(int16 cmd, int32 retcode, const void * pBuf, size_t bufSize);
-	int    RecvCommand(void * pBuf, size_t bufSize, size_t * pRecvBytes = 0);
-	int    GetReply();
-	int    Log(uint errCode, uint msgCode, const char * pAddInfo);
-	int    Log(uint errCode, uint msgCode, const char * pAddInfo, long count, long total);
-
-	SString DeviceDir;
-	TcpSocket * P_So;
-	StyloBhtIIConfig Cfg;
-	PPBhtTerminalPacket BhtPack;
-	PPObjGoods GObj;
-	PPObjLocation LocObj;
-	LocTransfCore LocTransf;
-	PPGoodsConfig CfgGoods;
-};
-#endif // } 0
-
 StyloBhtIIExchanger::StyloBhtIIExchanger(/*TcpSocket * pSo*/)
 {
 	//P_So = pSo;
-	P_LocTransf = 0;
+	// @v12.4.1 P_LocTransf = 0;
 }
 
 StyloBhtIIExchanger::~StyloBhtIIExchanger()
 {
-	delete P_LocTransf;
+	// @v12.4.1 delete P_LocTransf;
 }
 
 int StyloBhtIIExchanger::SendCmd(TcpSocket & rSo, int16 cmd, int32 retcode, const void * pBuf, size_t bufSize)
@@ -346,14 +304,14 @@ int StyloBhtIIExchanger::GetTable(TcpSocket & rSo, int16 cmd, uint fileNameCode,
 	return ok;
 }
 
-int StyloBhtIIExchanger::GetGoodsList(TcpSocket & rSo, long cellID, int getGoods)
+/* @v12.4.1 @obsolete int StyloBhtIIExchanger::GetGoodsList_Obsolete(TcpSocket & rSo, long cellID, int getGoods)
 {
 	int16  cmd = getGoods ? SBhtIICmdBuf::cmGoodsListByCell : SBhtIICmdBuf::cmCellListByGoods;
 	int    ok = 1;
-	long recs_count = 0, i = 0;
+	long   recs_count = 0;
+	long   i = 0;
 	char * p_pack_buf = 0;
 	SBIIRec * p_rec = 0;
-
 	THROW_PP(BhtPack.P_SBIICfg && BhtPack.P_SBIICfg->IsValid(), PPERR_SBII_UNDEFDEVICE);
 	if(getGoods) {
 		THROW_MEM(p_rec = new SBIIGoodsRec);
@@ -404,7 +362,7 @@ int StyloBhtIIExchanger::GetGoodsList(TcpSocket & rSo, long cellID, int getGoods
 	ZDELETE(p_rec);
 	ZDELETE(p_pack_buf);
 	return ok;
-}
+}*/
 
 int StyloBhtIIExchanger::PrepareBills(int uniteGoods)
 {
@@ -562,7 +520,7 @@ int StyloBhtIIExchanger::FindLocCell(PPID locID, const char * pName, SBIILocCell
 	return ok;
 }
 
-int StyloBhtIIExchanger::AcceptLocOp(SBIILocOp * pRec)
+/* @v12.4.1 @obsolete int StyloBhtIIExchanger::AcceptLocOp(SBIILocOp * pRec)
 {
 	int    ok = -1;
 	THROW_INVARG(pRec);
@@ -582,7 +540,7 @@ int StyloBhtIIExchanger::AcceptLocOp(SBIILocOp * pRec)
 	if(ok == 0)
 		Log_(DS.GetTLA().LastErr, 0, DS.GetTLA().AddedMsgString);
 	return ok;
-}
+}*/
 
 int StyloBhtIIExchanger::PrintBarcode(const char * pBarcode)
 {
@@ -783,21 +741,6 @@ int FASTCALL StyloBhtIIExchanger::ProcessSocketInput(TcpSocket & rSo)
 					reply_sended = BIN(r > 0);
 				}
 				break;
-			case SBhtIICmdBuf::cmGetBillRowsWithCells:
-				{
-					THROW_PP(actual_in_buf_size == sizeof(long), PPERR_SBII_PROT_INVARGSIZE);
-					{
-						const long bill_id = *static_cast<const long *>(in_buf.constptr());
-						SBIIBillRowWithCellsRec sbii_rec;
-						PPObjBHT bht_obj;
-						StyloBhtIIConfig cfg;
-						THROW_PP(BhtPack.P_SBIICfg && BhtPack.P_SBIICfg->IsValid(), PPERR_SBII_UNDEFDEVICE);
-						THROW(bht_obj.PrepareBillRowCellData(&BhtPack, bill_id));
-						r = GetTable(rSo, SBhtIICmdBuf::cmGetBillRowsWithCells, PPFILNAM_BHT_BROWSWCELLS, "BillRowsWithCells", &sbii_rec, -1);
-						reply_sended = BIN(r > 0);
-					}
-				}
-				break;
 			case SBhtIICmdBuf::cmGetOpRestrictions:
 				{
 					SBIIOpRestrRec sbii_rec;
@@ -896,22 +839,6 @@ int FASTCALL StyloBhtIIExchanger::ProcessSocketInput(TcpSocket & rSo)
 					r = -1;
 				}
 				break;
-			case SBhtIICmdBuf::cmCellListByGoods:
-				{
-					long   goods_id = 0;
-					THROW_PP(actual_in_buf_size == sizeof(long), PPERR_SBII_PROT_INVARGSIZE);
-					goods_id = *static_cast<const long *>(in_buf.constptr());
-					reply_sended = ((r = GetGoodsList(rSo, goods_id, 0)) > 0) ? 1 : 0;
-				}
-				break;
-			case SBhtIICmdBuf::cmGoodsListByCell:
-				{
-					long   cell_id = 0;
-					THROW_PP(actual_in_buf_size == sizeof(long), PPERR_SBII_PROT_INVARGSIZE);
-					cell_id = *static_cast<const long *>(in_buf.constptr());
-					reply_sended = ((r = GetGoodsList(rSo, cell_id, 1)) > 0) ? 1 : 0;
-				}
-				break;
 			case SBhtIICmdBuf::cmSetConfig:
 				{
 					PPObjBHT bht_obj;
@@ -949,6 +876,38 @@ int FASTCALL StyloBhtIIExchanger::ProcessSocketInput(TcpSocket & rSo)
 					}
 				}
 				break;
+			/* @v12.4.1 @obsolete
+			case SBhtIICmdBuf::cmGetBillRowsWithCells:
+				{
+					THROW_PP(actual_in_buf_size == sizeof(long), PPERR_SBII_PROT_INVARGSIZE);
+					{
+						const long bill_id = *static_cast<const long *>(in_buf.constptr());
+						SBIIBillRowWithCellsRec sbii_rec;
+						PPObjBHT bht_obj;
+						StyloBhtIIConfig cfg;
+						THROW_PP(BhtPack.P_SBIICfg && BhtPack.P_SBIICfg->IsValid(), PPERR_SBII_UNDEFDEVICE);
+						THROW(bht_obj.PrepareBillRowCellData(&BhtPack, bill_id));
+						r = GetTable(rSo, SBhtIICmdBuf::cmGetBillRowsWithCells, PPFILNAM_BHT_BROWSWCELLS, "BillRowsWithCells", &sbii_rec, -1);
+						reply_sended = BIN(r > 0);
+					}
+				}
+				break;
+			case SBhtIICmdBuf::cmCellListByGoods:
+				{
+					long   goods_id = 0;
+					THROW_PP(actual_in_buf_size == sizeof(long), PPERR_SBII_PROT_INVARGSIZE);
+					goods_id = *static_cast<const long *>(in_buf.constptr());
+					reply_sended = ((r = GetGoodsList_Obsolete(rSo, goods_id, 0)) > 0) ? 1 : 0;
+				}
+				break;
+			case SBhtIICmdBuf::cmGoodsListByCell:
+				{
+					long   cell_id = 0;
+					THROW_PP(actual_in_buf_size == sizeof(long), PPERR_SBII_PROT_INVARGSIZE);
+					cell_id = *static_cast<const long *>(in_buf.constptr());
+					reply_sended = ((r = GetGoodsList_Obsolete(rSo, cell_id, 1)) > 0) ? 1 : 0;
+				}
+				break;
 			case SBhtIICmdBuf::cmAcceptLocOp:
 				{
 					SBIILocOp loc_op;
@@ -956,7 +915,7 @@ int FASTCALL StyloBhtIIExchanger::ProcessSocketInput(TcpSocket & rSo)
 					loc_op.FromBuf(in_buf.constptr());
 					r = AcceptLocOp(&loc_op);
 				}
-				break;
+				break;*/
 			case SBhtIICmdBuf::cmPrintBarcode:
 				{
 					char code[128];

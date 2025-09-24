@@ -1509,22 +1509,10 @@ int PPViewBill::GetOpList(const BillFilt * pFilt, PPIDArray * pList, PPID * pSin
 		}
 		else {
 			if(pFilt->List.GetCount()) {
-				ot_list.add(PPOPT_GOODSRECEIPT);
-				ot_list.add(PPOPT_GOODSEXPEND);
-				ot_list.add(PPOPT_GOODSRETURN);
-				ot_list.add(PPOPT_GOODSREVAL);
-				ot_list.add(PPOPT_GOODSMODIF);
-				ot_list.add(PPOPT_GOODSORDER);
-				ot_list.add(PPOPT_GOODSACK);
-				ot_list.add(PPOPT_DRAFTRECEIPT);
-				ot_list.add(PPOPT_DRAFTEXPEND);
-				ot_list.add(PPOPT_DRAFTTRANSIT);
-				ot_list.add(PPOPT_ACCTURN);
-				ot_list.add(PPOPT_PAYMENT);
-				ot_list.add(PPOPT_CHARGE);
-				ot_list.add(PPOPT_CORRECTION);
-				ot_list.add(PPOPT_AGREEMENT);
-				ot_list.add(PPOPT_DRAFTQUOTREQ);
+				ot_list.addzlist(PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND,	PPOPT_GOODSRETURN,
+					PPOPT_GOODSREVAL, PPOPT_GOODSMODIF, PPOPT_GOODSORDER, PPOPT_GOODSACK,
+					PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT, PPOPT_ACCTURN,
+					PPOPT_PAYMENT, PPOPT_CHARGE, PPOPT_CORRECTION, PPOPT_AGREEMENT, PPOPT_DRAFTQUOTREQ, 0);
 			}
 			else {
 				ot_list.add(PPOPT_GOODSRECEIPT);
@@ -7979,7 +7967,7 @@ int PPALDD_GoodsBillDispose::NextIteration(long iterId)
 	I.DispDt      = tiie.LctRec.Dt;
 	I.DispTm      = tiie.LctRec.Tm;
 	I.DispUserID  = tiie.LctRec.UserID;
-	I.DispOp      = tiie.LctRec.Op;
+	I.DispOp      = tiie.LctRec.LTOp;
 	I.DispFlags   = tiie.LctRec.Flags;
 	I.PalletTypeID = tiie.LctRec.PalletTypeID;
 	I.PalletCount  = tiie.LctRec.PalletCount;

@@ -2138,7 +2138,7 @@ int TestUdsInterface()
 		if(0) {
 			PPInputStringDialogParam isdp("Input client code");
 			SString cli_code;
-			if(InputStringDialog(&isdp, cli_code) > 0) {
+			if(InputStringDialog(isdp, cli_code) > 0) {
 				int fcr = 0;
 				SString cust_code;
 				UdsGameInterface::Customer cust;

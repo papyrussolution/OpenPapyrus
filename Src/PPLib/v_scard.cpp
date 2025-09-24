@@ -5,6 +5,8 @@
 #include <pp.h>
 #pragma hdrstop
 #include <ppsoapclient.h>
+
+static const char * P_OwnerPhoneSuffix = "^p^";
 //
 //
 //
@@ -294,7 +296,7 @@ PPViewSCard::PreprocessScRecBlock::PreprocessScRecBlock() : ScID(0), InTurnover(
 {
 }
 
-PPViewSCard::PPViewSCard() : PPView(&SCObj, &Filt, PPVIEW_SCARD, 0, REPORT_SCARDLIST), P_StffObj(0), P_TmpTbl(0), P_TempOrd(0)
+PPViewSCard::PPViewSCard() : PPView(&SCObj, &Filt, PPVIEW_SCARD, 0, REPORT_SCARDLIST), P_StffObj(0), P_TmpTbl(0), P_TempOrd(0), HtPhone(10000)
 {
 }
 
@@ -324,9 +326,47 @@ bool PPViewSCard::IsTempTblNeeded() const
 		SeriesList.GetCount() > 1);
 }
 
+int PPViewSCard::UpdateHtPhone(PPID cardID, PPID ownerID) // @v12.4.1
+{
+	int    ok = -1;
+	SString temp_buf;
+	if(SCObj.FetchExtText(cardID, PPSCardPacket::extssPhone, temp_buf) > 0) {
+		;
+	}
+	else if(ownerID) {
+		PPID    owner_id = 0;
+		if(ownerID > 0) {
+			owner_id = ownerID;
+		}
+		else if(ownerID < 0) {
+			SCardTbl::Rec sc_rec;
+			if(SCObj.Fetch(cardID, &sc_rec) > 0) {
+				owner_id = sc_rec.PersonID;
+			}
+		}
+		if(owner_id > 0) {
+			PPELinkArray elink_ary;
+			if(PsnObj.P_Tbl->GetELinks(owner_id, elink_ary)) {
+				elink_ary.GetSinglePhone(temp_buf, 0);
+				if(temp_buf.NotEmptyS()) {
+					temp_buf.Cat(P_OwnerPhoneSuffix);
+				}
+			}
+		}
+	}
+	if(temp_buf.NotEmptyS()) {
+		HtPhone.Put(cardID, temp_buf);
+	}
+	else {
+		HtPhone.Del(cardID);
+	}
+	return ok;
+}
+
 int PPViewSCard::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
+	SString temp_buf;
 	THROW(Helper_InitBaseFilt(pFilt));
 	ZDELETE(P_TmpTbl);
 	BExtQuery::ZDelete(&P_IterQuery);
@@ -340,49 +380,62 @@ int PPViewSCard::Init_(const PPBaseFilt * pFilt)
 	Filt.TrnovrPeriod.Actualize(ZERODATE);
 	Filt.TurnoverR.Round(2);
 	if(Filt.EmployerID)
-		SETIFZ(P_StffObj, new PPObjStaffList);
+		SETIFZQ(P_StffObj, new PPObjStaffList);
 	StrPool.ClearS();
 	{
-		uint   i;
 		PPObjSCardSeries scs_obj;
 		PPIDArray temp_series_list;
-		PPIDArray finish_series_list;
-		temp_series_list.addnz(Filt.SeriesID);
-		for(i = 0; i < Filt.ScsList.GetCount(); i++)
-			temp_series_list.addnz(Filt.ScsList.Get(i));
-		temp_series_list.sortAndUndup();
-		for(i = 0; i < temp_series_list.getCount(); i++) {
-			PPSCardSeries scs_rec;
-			const  PPID scs_id = temp_series_list.get(i);
-			scs_obj.GetChildList(scs_id, finish_series_list);
+		{
+			temp_series_list.addnz(Filt.SeriesID);
+			for(uint i = 0; i < Filt.ScsList.GetCount(); i++)
+				temp_series_list.addnz(Filt.ScsList.Get(i));
+			temp_series_list.sortAndUndup();
 		}
-		if(finish_series_list.getCount()) {
-			finish_series_list.sortAndUndup();
-			SeriesList.Set(&finish_series_list);
+		{
+			PPIDArray finish_series_list;
+			for(uint i = 0; i < temp_series_list.getCount(); i++) {
+				PPSCardSeries scs_rec;
+				const  PPID scs_id = temp_series_list.get(i);
+				scs_obj.GetChildList(scs_id, finish_series_list);
+			}
+			if(finish_series_list.getCount()) {
+				finish_series_list.sortAndUndup();
+				SeriesList.Set(&finish_series_list);
+			}
+			else
+				SeriesList.Set(0);
 		}
-		else
-			SeriesList.Set(0);
 	}
-	if(Filt.P_ExludeOwnerF && !Filt.P_ExludeOwnerF->IsEmpty()) {
-		PPIDArray owner_list;
-        PPViewSCard temp_view;
+	{
 		SCardViewItem temp_item;
-        SCardFilt temp_filt;
-        temp_filt = *Filt.P_ExludeOwnerF;
-        temp_filt.Flags |= SCardFilt::fNoTempTable;
-        THROW(temp_view.Init_(Filt.P_ExludeOwnerF));
-        for(temp_view.InitIteration(); temp_view.NextIteration(&temp_item) > 0;) {
-			if(temp_item.PersonID)
-				THROW_SL(owner_list.add(temp_item.PersonID));
-        }
-        owner_list.sortAndUndup();
-        ExcludeOwnerList.Set(&owner_list);
-	}
-	if(IsTempTblNeeded() || Filt.Flags & SCardFilt::fNoTempTable) {
-		//
-		// При (Filt.Flags & SCardFilt::fNoTempTable) формируется список this->List
-		//
-		THROW(CreateTempTable());
+		if(Filt.P_ExludeOwnerF && !Filt.P_ExludeOwnerF->IsEmpty()) {
+			PPIDArray owner_list;
+			PPViewSCard temp_view;
+			SCardFilt temp_filt;
+			temp_filt = *Filt.P_ExludeOwnerF;
+			temp_filt.Flags |= SCardFilt::fNoTempTable;
+			THROW(temp_view.Init_(Filt.P_ExludeOwnerF));
+			for(temp_view.InitIteration(); temp_view.NextIteration(&temp_item) > 0;) {
+				if(temp_item.PersonID)
+					THROW_SL(owner_list.add(temp_item.PersonID));
+			}
+			owner_list.sortAndUndup();
+			ExcludeOwnerList.Set(&owner_list);
+		}
+		if(IsTempTblNeeded() || Filt.Flags & SCardFilt::fNoTempTable) {
+			//
+			// При (Filt.Flags & SCardFilt::fNoTempTable) формируется список this->List
+			// Функция CreateTempTable() сформирует таблицу телефонов (UpdateHtPhone())
+			//
+			THROW(CreateTempTable());
+		}
+		else {
+			// @v12.4.1 {
+			for(InitIteration(); NextIteration(&temp_item) > 0;) {
+				UpdateHtPhone(temp_item.ID, temp_item.PersonID);
+			}
+			// } @v12.4.1 
+		}
 	}
 	CATCHZOK
 	return ok;
@@ -432,8 +485,9 @@ int PPViewSCard::CreateTempTable()
 		SCardTbl::Rec rec_;
 		PPIDArray incl_list;
 		bool   use_list = false;
-		if(P_TmpTbl)
+		if(P_TmpTbl) {
 			THROW_MEM(p_bei = new BExtInsert(P_TmpTbl));
+		}
 		if(Filt.Number.NotEmpty()) {
 			SCObj.GetListBySubstring(Filt.Number, /*Filt.SeriesID*/SeriesList.GetSingle(), &n_list, BIN(Filt.Flags & SCardFilt::fNumberFromBeg));
 			for(uint i = 0; i < n_list.getCount(); i++) {
@@ -459,6 +513,7 @@ int PPViewSCard::CreateTempTable()
 				if(SCObj.Search(sc_id, &rec_) > 0) {
 					TempSCardTbl::Rec rec;
 					if(PreprocessTempRec(&rec_, &rec, (use_ct_list ? &ct_list : 0))) {
+						UpdateHtPhone(rec_.ID, rec_.PersonID); // @v12.4.1
 						if(p_bei) {
 							THROW_DB(p_bei->insert(&rec));
 						}
@@ -499,6 +554,7 @@ int PPViewSCard::CreateTempTable()
 				TempSCardTbl::Rec rec;
 				p_c->copyBufTo(&rec_);
 				if(PreprocessTempRec(&rec_, &rec, (use_ct_list ? &ct_list : 0))) {
+					UpdateHtPhone(rec_.ID, rec_.PersonID); // @v12.4.1
 					if(p_bei) {
 						THROW_DB(p_bei->insert(&rec));
 					}
@@ -532,7 +588,7 @@ int PPViewSCard::CheckForFilt(const SCardTbl::Rec * pRec, PreprocessScRecBlock *
 	int    ok = 1;
 	double in_turnover = 0.0;
 	double turnover = 0.0;
-	const int wo_owner = BIN(Filt.Flags & SCardFilt::fWoOwner);
+	const  bool wo_owner = LOGIC(Filt.Flags & SCardFilt::fWoOwner);
 	if(SeriesList.IsExists()) {
 		THROW(SeriesList.CheckID(pRec->SeriesID));
 	}
@@ -551,7 +607,7 @@ int PPViewSCard::CheckForFilt(const SCardTbl::Rec * pRec, PreprocessScRecBlock *
 	THROW(Filt.ExpiryPeriod.CheckDate(pRec->Expiry));
 	THROW(!ExcludeOwnerList.IsExists() || !ExcludeOwnerList.CheckID(pRec->PersonID));
 	{
-		size_t ss_len = Filt.Number.Len();
+		const size_t ss_len = Filt.Number.Len();
 		if(ss_len) {
 			if(Filt.Flags & SCardFilt::fNumberFromBeg) {
 				THROW(strncmp(pRec->Code, Filt.Number, ss_len) == 0);
@@ -626,7 +682,9 @@ int PPViewSCard::PreprocessTempRec(const SCardTbl::Rec * pSrcRec, TempSCardTbl::
 		PersonTbl::Rec psn_rec;
 		PPID   addr_id = 0;
 		if(pDestRec->PersonID && PsnObj.Search(pDestRec->PersonID, &psn_rec) > 0) {
-			SString temp_buf, temp_buf2, result_buf;
+			SString temp_buf;
+			SString temp_buf2;
+			SString result_buf;
 			{
 				PPELinkArray ela;
 				PsnObj.P_Tbl->GetELinks(psn_rec.ID, ela);
@@ -1212,15 +1270,16 @@ int PPViewSCard::RenameDup(PPIDArray * pIdList)
 		for(v_sc.InitIteration(); v_sc.NextIteration(&item) > 0;) {
 			MEMSZERO(k1);
 			STRNSCPY(k1.Code, item.Code);
-			for(; SCObj.P_Tbl->search(1, &k1, spGt) > 0 && stricmp866(item.Code, k1.Code) == 0;)
+			for(; SCObj.P_Tbl->search(1, &k1, spGt) > 0 && stricmp866(item.Code, k1.Code) == 0;) {
 				if(SCObj.P_Tbl->data.ID != item.ID) {
 					THROW_SL(dupl_ary.Add(item.ID, SCObj.P_Tbl->data.ID, 0));
 					break;
 				}
+			}
 		}
 		{
-			SString code;
 			SString temp_buf;
+			SString code;
 			CCheckCore & r_cc = *SCObj.P_CcTbl;
 			PPTransaction tra(1);
 			THROW(tra);
@@ -1284,8 +1343,8 @@ struct SCardChrgCrdParam {
 	enum {
 		actionAdd = 0,
 		actionExtendTo,
-		actionUhttSync, // Импортировать остатки Universe-HTT в локальную базу данных
-		actionTransmitToUhtt // @v10.6.3 Передать локальный остаток на Universe-HTT
+		actionUhttSync,      // Импортировать остатки Universe-HTT в локальную базу данных
+		actionTransmitToUhtt // Передать локальный остаток на Universe-HTT
 	};
 	LDATE  Dt;
 	long   Action;
@@ -1304,9 +1363,9 @@ static int EditChargeCreditParam(int enableUhttSync, SCardChrgCrdParam * pData)
 		dlg->AddClusterAssocDef(CTL_SCCHRGCRD_WHAT, 0, SCardChrgCrdParam::actionAdd);
 		dlg->AddClusterAssoc(CTL_SCCHRGCRD_WHAT, 1, SCardChrgCrdParam::actionExtendTo);
 		dlg->AddClusterAssoc(CTL_SCCHRGCRD_WHAT, 2, SCardChrgCrdParam::actionUhttSync);
-		dlg->AddClusterAssoc(CTL_SCCHRGCRD_WHAT, 3, SCardChrgCrdParam::actionTransmitToUhtt); // @v10.6.3
+		dlg->AddClusterAssoc(CTL_SCCHRGCRD_WHAT, 3, SCardChrgCrdParam::actionTransmitToUhtt);
 		dlg->DisableClusterItem(CTL_SCCHRGCRD_WHAT, 2, !enableUhttSync);
-		dlg->DisableClusterItem(CTL_SCCHRGCRD_WHAT, 3, !enableUhttSync); // @v10.6.3
+		dlg->DisableClusterItem(CTL_SCCHRGCRD_WHAT, 3, !enableUhttSync);
 		dlg->SetClusterData(CTL_SCCHRGCRD_WHAT, pData->Action);
 		for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;) {
 			pData->Action = dlg->GetClusterData(CTL_SCCHRGCRD_WHAT);
@@ -1349,7 +1408,7 @@ int PPViewSCard::ChargeCredit()
 		}
 	}
 	THROW_PP(oneof2(scst, scstCredit, scstBonus), PPERR_SC_SINGLEPKSERIESNEEDED);
-	param.Dt = getcurdate_(); // @v10.8.10 LConfig.OperDate-->getcurdate_()
+	param.Dt = getcurdate_();
 	THROW(SCObj.CheckRights(SCRDRT_ADDOPS));
 	if(EditChargeCreditParam(uhtt_sync, &param) > 0) {
 		PPLogger logger;
@@ -1393,7 +1452,7 @@ int PPViewSCard::ChargeCredit()
 							logger.LogLastError();
 					}
 				}
-				else if(param.Action == SCardChrgCrdParam::actionTransmitToUhtt) { // @v10.6.3
+				else if(param.Action == SCardChrgCrdParam::actionTransmitToUhtt) {
 					if(uhtt_sync && p_uhtt_cli) {
 						int    uhtt_error = 0;
 						double uhtt_rest = 0.0;
@@ -1610,31 +1669,49 @@ int PPViewSCard::OnExecBrowser(PPViewBrowser * pBrw)
 
 static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr)
 {
-	PPViewSCard * p_view = static_cast<PPViewSCard *>(extraPtr);
-	return p_view ? p_view->CellStyleFunc_(pData, col, paintAction, pStyle) : -1;
+	//PPViewSCard * p_view = static_cast<PPViewSCard *>(extraPtr);
+	//return p_view ? p_view->CellStyleFunc_(pData, col, paintAction, pStyle) : -1;
+	int    ok = -1;
+	PPViewBrowser * p_brw = static_cast<PPViewBrowser *>(extraPtr);
+	if(p_brw) {
+		PPViewSCard * p_view = static_cast<PPViewSCard *>(p_brw->P_View);
+		ok = p_view ? p_view->CellStyleFunc_(pData, col, paintAction, pStyle, p_brw) : -1;
+	}
+	return ok;
 }
 
-int PPViewSCard::CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle)
+int PPViewSCard::CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle, PPViewBrowser * pBrw)
 {
 	int    ok = -1;
-	if(pData && pCellStyle && col >= 0) {
-		const  PPID sc_id = *static_cast<const  PPID *>(pData);
-		SCardTbl::Rec sc_rec;
-		if(col == 0) { // card number
-			if(SCObj.Fetch(sc_id, &sc_rec) > 0 && sc_rec.Flags & SCRDF_CLOSED) {
-				if(sc_rec.Flags & SCRDF_NEEDACTIVATION)
-					ok = pCellStyle->SetLeftTopCornerColor(GetColorRef(SClrOrange));
-				else
+	if(pBrw && pData && pCellStyle && col >= 0) {
+		const BrowserDef * p_def = pBrw->getDef();
+		if(col < static_cast<long>(p_def->getCount())) {
+			const BroColumn & r_col = p_def->at(col);
+			const PPID sc_id = *static_cast<const  PPID *>(pData);
+			SCardTbl::Rec sc_rec;
+			if(r_col.OrgOffs == 1) { // card number
+				if(SCObj.Fetch(sc_id, &sc_rec) > 0 && sc_rec.Flags & SCRDF_CLOSED) {
+					if(sc_rec.Flags & SCRDF_NEEDACTIVATION)
+						ok = pCellStyle->SetLeftTopCornerColor(GetColorRef(SClrOrange));
+					else
+						ok = pCellStyle->SetLeftTopCornerColor(GetColorRef(SClrRed));
+				}
+			}
+			else if(r_col.OrgOffs == 10) { // series
+				if(SCObj.Fetch(sc_id, &sc_rec) > 0 && sc_rec.Flags & SCRDF_INHERITED)
+					ok = pCellStyle->SetLeftTopCornerColor(GetColorRef(SClrAqua));
+			}
+			else if(r_col.OrgOffs == 2) { // expiry
+				if(SCObj.Fetch(sc_id, &sc_rec) > 0 && sc_rec.Expiry && sc_rec.Expiry <= getcurdate_())
 					ok = pCellStyle->SetLeftTopCornerColor(GetColorRef(SClrRed));
 			}
-		}
-		else if(col == 1) { // series
-			if(SCObj.Fetch(sc_id, &sc_rec) > 0 && sc_rec.Flags & SCRDF_INHERITED)
-				ok = pCellStyle->SetLeftTopCornerColor(GetColorRef(SClrAqua));
-		}
-		else if(col == 3) { // expiry
-			if(SCObj.Fetch(sc_id, &sc_rec) > 0 && sc_rec.Expiry && sc_rec.Expiry <= getcurdate_())
-				ok = pCellStyle->SetLeftTopCornerColor(GetColorRef(SClrRed));
+			else if(r_col.OrgOffs == 12) { // @v12.4.1 phone
+				SString temp_buf;
+				HtPhone.Get(sc_id, &temp_buf);
+				if(temp_buf.HasSuffix(P_OwnerPhoneSuffix)) {
+					ok = pCellStyle->SetRightFigTriangleColor(GetColorRef(SClrSkyblue));
+				}
+			}
 		}
 	}
 	return ok;
@@ -1654,12 +1731,35 @@ void PPViewSCard::PreprocessBrowser(PPViewBrowser * pBrw)
 			pBrw->InsColumn(-1, "@apartment", 21, 0L, 0, 0);
 			pBrw->InsColumn(-1, "@addendum",  22, 0L, 0, 0);
 		}
-		pBrw->SetCellStyleFunc(CellStyleFunc, this);
+		pBrw->SetCellStyleFunc(CellStyleFunc, pBrw);
 	}
 }
 
+static IMPL_DBE_PROC(dbqf_viewscard_phone_ip)
+{
+	char   result_buf[128];
+	if(option == CALC_SIZE) {
+		result->init(sizeof(result_buf));
+	}
+	else {
+		SString temp_buf;
+		PPID   sc_id = params[0].lval;
+		const  TokenSymbHashTable * p_ht_phone = static_cast<const TokenSymbHashTable *>(params[1].ptrval); //HtPhone
+		if(p_ht_phone) {
+			p_ht_phone->Get(sc_id, &temp_buf);
+		}
+		temp_buf.ReplaceStr(P_OwnerPhoneSuffix, 0, 1);
+		temp_buf.CopyTo(result_buf, sizeof(result_buf));
+		result->init(result_buf);
+	}
+}
+
+/*static*/int PPViewSCard::DynFuncPhone = 0;
+
 DBQuery * PPViewSCard::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
+	DbqFuncTab::RegisterDyn(&DynFuncPhone, BTS_STRING, dbqf_viewscard_phone_ip, 2, BTS_INT, BTS_PTR);
+
 	uint   brw_id = BROWSER_SCARD;
 	SString sub_title;
 	PPSCardSeries ser_rec;
@@ -1675,11 +1775,12 @@ DBQuery * PPViewSCard::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	TempSCardTbl * p_t = 0;
 	TempOrderTbl * p_ot = 0;
 	if(SearchObject(PPOBJ_SCARDSERIES, /*Filt.SeriesID*/SeriesList.GetSingle(), &ser_rec) > 0) {
-		if(ser_rec.Flags & (SCRDSF_CREDIT|SCRDSF_BONUS))
+		if(ser_rec.Flags & (SCRDSF_CREDIT|SCRDSF_BONUS)) {
 			if(Filt.TrnovrPeriod.IsZero())
 				brw_id = BROWSER_SCARDCRD;
 			else
 				brw_id = BROWSER_SCARDCRD_TRNOVR;
+		}
 	}
 	else
 		MEMSZERO(ser_rec);
@@ -1697,7 +1798,15 @@ DBQuery * PPViewSCard::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		PPDbqFuncPool::InitObjNameFunc(dbe_psn, PPDbqFuncPool::IdObjNamePerson,   p_t->PersonID);
 		PPDbqFuncPool::InitObjNameFunc(dbe_ser, PPDbqFuncPool::IdObjNameSCardSer, p_t->SeriesID);
 		PPDbqFuncPool::InitObjNameFunc(dbe_autogoods, PPDbqFuncPool::IdObjNameGoods, p_t->AutoGoodsID);
-		PPDbqFuncPool::InitFunc2Arg(dbe_phone, PPDbqFuncPool::IdSCardExtString, p_t->ID, dbconst((long)PPSCardPacket::extssPhone));
+		//PPDbqFuncPool::InitFunc2Arg(dbe_phone, PPDbqFuncPool::IdSCardExtString, p_t->ID, dbconst((long)PPSCardPacket::extssPhone));
+		// @v12.4.1 {
+		{
+			dbe_phone.init();
+			dbe_phone.push(p_t->ID);
+			dbe_phone.push(dbconst(static_cast<const void *>(&HtPhone)));
+			dbe_phone.push(static_cast<DBFunc>(PPViewSCard::DynFuncPhone));
+		}
+		// } @v12.4.1 
 		PPDbqFuncPool::InitFunc2Arg(dbe_memo, PPDbqFuncPool::IdSCardExtString, p_t->ID, dbconst((long)PPSCardPacket::extssMemo));
 		dbe_dis = & (p_t->PDis / 100);
 		q = & select(
@@ -1768,7 +1877,15 @@ DBQuery * PPViewSCard::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		PPDbqFuncPool::InitObjNameFunc(dbe_psn, PPDbqFuncPool::IdObjNamePerson, p_c->PersonID);
 		PPDbqFuncPool::InitObjNameFunc(dbe_ser, PPDbqFuncPool::IdObjNameSCardSer, p_c->SeriesID);
 		PPDbqFuncPool::InitObjNameFunc(dbe_autogoods, PPDbqFuncPool::IdObjNameGoods, p_c->AutoGoodsID);
-		PPDbqFuncPool::InitFunc2Arg(dbe_phone, PPDbqFuncPool::IdSCardExtString, p_c->ID, dbconst((long)PPSCardPacket::extssPhone));
+		//PPDbqFuncPool::InitFunc2Arg(dbe_phone, PPDbqFuncPool::IdSCardExtString, p_c->ID, dbconst((long)PPSCardPacket::extssPhone));
+		// @v12.4.1 {
+		{
+			dbe_phone.init();
+			dbe_phone.push(p_c->ID);
+			dbe_phone.push(dbconst(static_cast<const void *>(&HtPhone)));
+			dbe_phone.push(static_cast<DBFunc>(PPViewSCard::DynFuncPhone));
+		}
+		// } @v12.4.1 
 		PPDbqFuncPool::InitFunc2Arg(dbe_memo, PPDbqFuncPool::IdSCardExtString, p_c->ID, dbconst((long)PPSCardPacket::extssMemo));
 		dbe_dis = & (p_c->PDis / 100);
 		q = & select(
@@ -2314,10 +2431,13 @@ int PPViewSCard::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * 
 		if(!Filt.PersonID && Filt.LocID)
 			param.LocID = Filt.LocID;
 		ok = (SCObj.Edit(&id, param) == cmOK) ? 1 : -1;
-		if(ok > 0 && ImplementFlags & implOnAddSetupPos && pBrw) {
-			pBrw->Update();
-			pBrw->search2(&id, CMPF_LONG, srchFirst, 0);
-			ok = -1; // pBrw не должен теперь обновлять содержимое таблицы
+		if(ok > 0) {
+			UpdateHtPhone(hdr.ID, -1); // @v12.4.1
+			if(ImplementFlags & implOnAddSetupPos && pBrw) {
+				pBrw->Update();
+				pBrw->search2(&id, CMPF_LONG, srchFirst, 0);
+				ok = -1; // pBrw не должен теперь обновлять содержимое таблицы
+			}
 		}
 	}
 	else {
@@ -2384,6 +2504,10 @@ int PPViewSCard::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * 
 		UpdateTempTable(id_list.getCount() ? &id_list : 0);
 	}
 	else if(ok > 0 && oneof6(ppvCmd, PPVCMD_EDITITEM, PPVCMD_DELETEITEM, PPVCMD_ADDITEM, PPVCMD_CCHECKS, PPVCMD_OPERATIONS, PPVCMD_REPLACECARD)) {
+		// @v12.4.1 {
+		if(oneof3(ppvCmd, PPVCMD_EDITITEM, PPVCMD_DELETEITEM, PPVCMD_ADDITEM)) 
+			UpdateHtPhone(hdr.ID, -1); 
+		// } @v12.4.1 
 		id_list.add(hdr.ID);
 		ok = UpdateTempTable(&id_list);
 	}

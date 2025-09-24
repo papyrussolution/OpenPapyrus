@@ -3039,7 +3039,7 @@ SelLotBrowser::SelLotBrowser(PPObjBill * pBObj, SArray * pAry, uint pos, long fl
 			}
 		}
 		{
-			int    at_pos = 1; // @v10.4.3 0-->1 (в ресурс добавлен обязательный столбец идентификатора)
+			int    at_pos = 1;
 			if(State & stMultipleGoods) {
 				PPLoadString("ware", temp_buf);
 				insertColumn(at_pos++, temp_buf, 9, MKSTYPE(S_ZSTRING, 128), 0, BCO_CAPLEFT|BCO_USERPROC);
@@ -3236,9 +3236,9 @@ void TrfrItemDialog::selectLot()
 //
 int PPObjBill::SelectLot2(SelectLotParam & rParam)
 {
-	PPID     lotid = 0;
-	const SelLotBrowser::Entry * p_sel;
-	int      r = -1;
+	PPID   lot_id = 0;
+	const  SelLotBrowser::Entry * p_sel;
+	int    r = -1;
 	DateIter diter;
 	SArray * p_ary = 0;
 	SString serial;
@@ -3246,7 +3246,7 @@ int PPObjBill::SelectLot2(SelectLotParam & rParam)
 	SelLotBrowser * p_brw = 0;
 	for(uint gidx = 0; gidx < rParam.GoodsList.getCount(); gidx++) {
 		Goods2Tbl::Rec goods_rec;
-		const  PPID goods_id = rParam.GoodsList.get(gidx);
+		const PPID goods_id = rParam.GoodsList.get(gidx);
 		if(goods_id && GObj.Fetch(labs(goods_id), &goods_rec) > 0) {
 			uint   s = 0;
 			THROW(SETIFZ(p_ary, SelLotBrowser::CreateArray()));
@@ -3284,7 +3284,7 @@ int PPObjBill::SelectLot2(SelectLotParam & rParam)
 	if(rParam.AddendumLotList.getCount()) {
 		THROW(SETIFZ(p_ary, SelLotBrowser::CreateArray()));
 		for(uint i = 0; i < rParam.AddendumLotList.getCount(); i++) {
-            const  PPID addendum_lot_id = rParam.AddendumLotList.get(i);
+            const PPID addendum_lot_id = rParam.AddendumLotList.get(i);
             if(trfr->Rcpt.Search(addendum_lot_id, &lot_rec) > 0 && lot_rec.ID != rParam.ExcludeLotID) {
 				THROW(r = SelLotBrowser::AddItemToArray(p_ary, &lot_rec, ZERODATE, lot_rec.Rest));
             }
@@ -3327,10 +3327,10 @@ int PPObjBill::SelectLot2(SelectLotParam & rParam)
 		if(ExecView(p_brw) == cmOK) {
 			p_sel = static_cast<const SelLotBrowser::Entry *>(p_brw->getCurItem());
 			if(p_sel) {
-				lotid = p_sel->LotID;
-				GetSerialNumberByLot(lotid, serial = 0, 1);
-				if(rParam.Flags & rParam.fFillLotRec && lotid)
-					r = (trfr->Rcpt.Search(lotid, &rParam.RetLotRec) > 0) ? 1 : -1;
+				lot_id = p_sel->LotID;
+				GetSerialNumberByLot(lot_id, serial = 0, 1);
+				if(rParam.Flags & rParam.fFillLotRec && lot_id)
+					r = (trfr->Rcpt.Search(lot_id, &rParam.RetLotRec) > 0) ? 1 : -1;
 				else
 					r = 1;
 				(rParam.RetLotSerial = p_sel->Serial).Strip();
@@ -3346,7 +3346,7 @@ int PPObjBill::SelectLot2(SelectLotParam & rParam)
 		PPError();
 	ENDCATCH
 	delete p_brw;
-	rParam.RetLotID = lotid;
+	rParam.RetLotID = lot_id;
 	return r;
 }
 //

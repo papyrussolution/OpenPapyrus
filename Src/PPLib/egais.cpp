@@ -6211,8 +6211,7 @@ int PPEgaisProcessor::Helper_CreateTransferToShop(const PPBillPacket * pCurrentR
 													if(P_LecT->search(2, &k2, spGe) && P_LecT->data.BillID == lot_bill_id && P_LecT->data.RByBill == row_idx) do {
 														if(P_LecT->data.Code[0])
 															is_lot_in_3format = 1;
-													} while(!is_lot_in_3format && P_LecT->search(2, &k2, spNext) &&
-														P_LecT->data.BillID == lot_bill_id && P_LecT->data.RByBill == row_idx);
+													} while(!is_lot_in_3format && P_LecT->search(2, &k2, spNext) && P_LecT->data.BillID == lot_bill_id && P_LecT->data.RByBill == row_idx);
 													break;
 												}
 											}

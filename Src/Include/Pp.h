@@ -248,7 +248,7 @@ class  AccTurnDialog;
 class  TVRez;
 class  AccAnlzFilt;
 class  BhtProtocol;
-class  CipherProtocol;
+// @v12.4.1 @support_eliminated class  CipherProtocol;
 class  BhtRecord;
 class  GoodsListDialog;
 class  PPBasketPacket;
@@ -463,7 +463,7 @@ public:
 	static constexpr uint32 Flags = 0/*fDoSeparateNonFiscalCcItems*/;
 	static constexpr int16  EgaisInRowIdentDivider = 27277; // Специальное смещение для значений номеров строк, с помощью которого
 		// решается проблема одиозных входящих идентификаторов строк документов (0, guid, текст, значения большие чем EgaisInRowIdentDivider)
-	static constexpr long   CommonCmdAssocDesktopID = 100000L; // @v10.9.3 100000L Искусственный идентификатор рабочего стола, используемый для хранения общих ассоциаций команд
+	static constexpr long   CommonCmdAssocDesktopID = 100000L; // 100000L Искусственный идентификатор рабочего стола, используемый для хранения общих ассоциаций команд
 	static constexpr long   TechSurrogateGoodsIdStart = -524288L; // @v11.6.4 (-524288L) Верхнее значение специального поля фейковых идентификаторов товаров, 
 		// используемых для предотвращения дублирования индексов в таблице Tech при создании трехнологий верхнего уровня (folders).
 	static constexpr uint32 Signature_PPObjSCard_Filt              = 0xfbefffffU; // Специальная сигнатура объекта PPObjSCard::Filt
@@ -474,7 +474,7 @@ public:
 	static constexpr uint32 Signature_SysMaintenanceEventResponder = 0x35079E8DU; // Сигнатура респондера событий обслуживания системы
 	static constexpr uint64 Signature_Quotation2_DumpHeader        = 0x7654321098fedcbaULL; // Сигнатура дампа котировок = 0x7654321098fedcbaLL; // @persistent
 	static constexpr uint32 Signature_PPView                       = 0x099A099BU; // Сигнатура класса PPView 0x099A099BUL (former SIGN_PPVIEW)
-	static constexpr uint32 Signature_PPThreadLocalArea            = 0x7D08E311U; // @v10.9.12 Сигнатура класса PPThreadLocalArea (former SIGN_PPTLA)
+	static constexpr uint32 Signature_PPThreadLocalArea            = 0x7D08E311U; // Сигнатура класса PPThreadLocalArea (former SIGN_PPTLA)
 	static constexpr uint32 Signature_StqDbSymbToSvcIdMap          = 0xBCA10DD9U; // @v11.1.12 Сигнатура файла соответствий символов баз данных идентификаторам сервисов Stylo-Q
 	static constexpr uint32 Signature_BillMultiPrintParam          = 0xA4183530U; // @v11.2.0  Сигнатура класса BillMultiPrintParam
 	static constexpr uint32 Signature_StyloQStoragePacket          = 0x11A52FB6U; // @v11.6.0 Сигнатура класса StyloQCore::StoragePacket
@@ -501,6 +501,7 @@ public:
 	static constexpr const char * WrKey_WsCtl = "Software\\Papyrus\\WsCtl"; // @v11.7.2 HKEY_LOCAL_MACHINE
 	static constexpr const char * WrKey_SlTestApp = "Software\\Papyrus\\SlTestApp"; // @v11.8.2 HKEY_LOCAL_MACHINE && HKEY_CURRENT_USER
 	static constexpr const char * WrKey_RecentItems = "Software\\Papyrus\\RecentItems"; // @v12.3.2 moved from pptvutil.cpp
+	static constexpr const char * WrKey_RptExpParam = "Software\\Papyrus\\ReportExportParam"; // @v12.4.1 HKEY_LOCAL_MACHINE && HKEY_CURRENT_USER
 	static constexpr const char * WrParam_ViewQuotsAsListBox = "ViewQuotsAsListBox";
 	static constexpr const char * WrParam_BillAddFilesFolder = "BillAddFilesFolder";
 	static constexpr const char * WrParam_CalcPriceParam = "CalcPriceParam";
@@ -786,7 +787,7 @@ public:
 	SString DefPassword;   // Пароль для шифрования/расшифрования по умолчанию
 	SString MsftTranslAcc; // Аккаунт доступа к службе Microsoft Translate
 	SString UhttAcc;       // Default-аккаунт доступа к службам Universe-HTT
-	SString VkAppIdent;    // @v10.9.6 Идентификатор приложения Papyrus в ВКонтакте
+	SString VkAppIdent;    // Идентификатор приложения Papyrus в ВКонтакте
 	SString GoogleAppIdent; // @v11.0.2 Идентификатор приложения Papyrus в Google
 	SString FacebookAppIdent; // @v11.0.7 Идентификатор приложения Papyrus в Facebook
 	SString StyloQ_VerCode;   // @v12.3.10 Код версии Stylo-Q (gradle). Обычно целое число.
@@ -816,18 +817,12 @@ public:
 	PPVersionInfo(const PPVersionInfo & s);
 	~PPVersionInfo();
 	PPVersionInfo & FASTCALL operator = (const PPVersionInfo &);
-	// @v10.9.6 int    GetProductName(SString & rBuf);
-	// @v10.9.6 int    GetTeam(char *, size_t);
 	int    GetDevYears(uint * pStart, uint * pLast);
 	int    GetVersion(uint * pMajor, uint * pMinor, uint * pRevision, char * pDemo = 0, int minVersion = 0);
 	SVerT  GetVersion(int minVersion = 0);
 	int    GetAssemblyN();
 	int    GetSecret(char * pBuf, size_t bufSize);
-	// @v10.9.6 int    GetVersionText(char *, size_t);
-	// @v10.9.6 int    GetCopyrightText(SString & rBuf);
 	int    GetDefaultEncrKey(SString & rBuf);
-	// @v10.9.6 int    GetMsftTranslAcc(SString & rBuf);
-	// @v10.9.6 int    GetVkAppIdent(SString & rBuf);
 	int    GetTextAttrib(int ident, SString & rBuf);
 	long   GetFlags();
 private:
@@ -1792,7 +1787,7 @@ public:
 	// Checks is login to database is forbidden.
 	// Returns 1 if database is locked, 0 - otherwise.
 	//
-	int    IsDBLocked();
+	bool   IsDBLocked();
 	int    CreateMutex_(long sessionid, long objtype, long objid, long * pMutexID, PPSyncItem *);
 	int    ReleaseMutex(long objtype, long objid);
 	int    ReleaseMutex(long mutexid);
@@ -1953,7 +1948,7 @@ class PPLogger {
 public:
 	enum {
 		fDisableOutput = 0x0001,
-		fDisableWindow = 0x0002,  // @v10.6.8 Если установлен, то не отображается окно с данными вывода
+		fDisableWindow = 0x0002,  // Если установлен, то не отображается окно с данными вывода
 		fStdErr        = 0x0004   // @v11.8.3 Выводить данные в stderr. Этот флаг отменяет все остальные варианты вывода.
 	};
 	PPLogger();
@@ -2152,7 +2147,7 @@ private:
 #define PPR_DEL         0x0008
 #define PPR_ADM         0x0010
 //
-// @v10.7.9 Специальные права доступа динамических объектов
+// Специальные права доступа динамических объектов
 //
 #define DYNOBJRT_RMVALL 0x0100 // Удаление всей выборки объектов
 //
@@ -2199,7 +2194,7 @@ public:
 		cfOwnBillRestr    = 0x0008,
 		cfOwnBillRestr2   = 0x0010,
 		cfApplyBillPeriodsToCSess = 0x0020, // Применять периоды доступа к документам и к кассовым сессиям
-		cfAllowDbxReceive = 0x0040  // @v10.5.7 Допускает прием данных из других разделов. На начальном этапе флаг имеет ограниченное
+		cfAllowDbxReceive = 0x0040  // Допускает прием данных из других разделов. На начальном этапе флаг имеет ограниченное
 			// действие только для автоматической синхронизации, транспортируемой посредство брокера сообщений.
 	};
 	PPAccessRestriction();
@@ -2471,8 +2466,8 @@ private:
 	BDbDatabase * P_Db;
 	CObjTbl * P_OT;
 	CObjTailTbl * P_OtT;
-	StringHistoryTbl * P_ShT; // @v10.7.6
-	TSCollection <StringHistoryPool> ShL; // @v10.7.6
+	StringHistoryTbl * P_ShT;
+	TSCollection <StringHistoryPool> ShL;
 };
 //
 // Параметры подстановки объектов для получения агрегированных отчетов
@@ -2580,19 +2575,6 @@ struct SubstGrpBill { // @size=8
 		SubstGrpPerson Sgp;
 	} S2;
 };
-
-/* @v10.7.8 (@unused) class BillSubstList {
-public:
-	struct Item {
-		PPID   BillID;
-	};
-	BillSubstList();
-	int    AddItem(const BillSubstList::Item * pItem, PPID * pID);
-	int    GetItem(PPID id, BillSubstList::Item * pItem) const;
-private:
-	SArray List;
-	LAssocArray * P_AsscList;
-};*/
 //
 // Descr: Внешнее представление элемента списка PPViewDisplayExtList
 //   Схема нумерации идентификаторов данных:
@@ -2846,7 +2828,7 @@ extern "C" typedef PPBaseFilt * (*FN_PPFILT_FACTORY)();
 #define CFGFLG_SEC_DSBLNSYSDATE        0x08000000L // Запрет на вход с операционной датой, отличной от системной
 #define CFGFLG_DONTPROCESSDATAONJOBSRV 0x10000000L // Не обрабатывать данные на Job сервере
 #define CFGFLG_FEFO                    0x20000000L // Модификация метода подбора партий по наиболее близкому сроку истечения годности лота
-#define CFGFLG_MULTICURBILL_DISABLE    0x40000000L // @v10.7.8 Допускается применять мультивалютность в документах (дифференцируется оп пользователям/группам)
+#define CFGFLG_MULTICURBILL_DISABLE    0x40000000L // Допускается применять мультивалютность в документах (дифференцируется оп пользователям/группам)
 
 #define CFGST_INITIATE                 0x00000001L // Структура инициализирована
 #define CFGST_INHERITED                0x00000002L // Структура унаследована от предыдущего уровня //
@@ -2891,7 +2873,7 @@ struct PPConfig {          // @persistent @store(PropertyTbl) size=92
 	long   BaseCurID;      // 30  Базовая валюта (PPOBJ_CONFIG only)
 	short  RealizeOrder;   // 32  Порядок использования лотов при расходе товара
 	short  Menu;           // 34  Номер меню, используемого этой конфигурацией
-	PPID   UserID;         // 38  @v10.8.9 User-->UserID
+	PPID   UserID;         // 38  
 	PPID   LocAccSheetID;  // 42  Таблица аналитических статей, ссылающихся на склады
 	PPID   Location;       // 46  Склад по умолчанию
 	long   Flags;          // 50  Флаги CFGFLG_XXX
@@ -2905,8 +2887,8 @@ struct PPConfig {          // @persistent @store(PropertyTbl) size=92
 	long   BaseRateTypeID; // 84  Базовый тип валютного курса (PPOBJ_CONFIG only)
 	long   DesktopID_Obsolete; // 88  Идентификатор рабочего стола, испольуемого пользователем (группой)
 	long   MenuID_Obsolete;    // 92  Идентификатор меню, используемого пользователем (группой)
-	S_GUID DesktopUuid_;    // @v10.9.3
-	S_GUID MenuUuid;       // @v10.9.3
+	S_GUID DesktopUuid_;    // 
+	S_GUID MenuUuid;        // 
 };
 //
 // Descr: Частная конфигурация, привязанная к конкретному пользователю.
@@ -2917,9 +2899,9 @@ struct PPConfigPrivate {   // @persistent @store(PropertyTbl)
 	long   Tag;            // Const=PPOBJ_USR
 	long   ObjID;          // ->Ref(PPOBJ_USR)
 	long   PropID;         // Const=PPPRP_CFGPRIVATE
-	char   Reserve[28];    // @reserve // @v10.9.3 [60]-->[28]
-	S_GUID DesktopUuid;    // @v10.9.3
-	S_GUID MenuUuid;       // @v10.9.3
+	char   Reserve[28];    // @reserve 
+	S_GUID DesktopUuid;    // 
+	S_GUID MenuUuid;       // 
 	long   DesktopID_Obsolete; // Идентификатор рабочего стола, испольуемого пользователем
 	long   Reserve2[2];    // @reserve
 	char   Tail[1024];     //
@@ -2963,7 +2945,7 @@ struct PPPrinterCfg { // @persistent @store(PropertyTbl)
 		fUseDuplexPrinting = 0x0001, // Использовать дуплексную печать (Win32).
 			// Этот флаг хранится в win-реестре по адресу HKEY_CURRENT_USER\\Software\\Papyrus\\System
 			// Parameter UseDuplexPrinting=(1|0)
-		fStoreLastSelPrn   = 0x0002  // @v10.7.10 Сохранять в реестре последний выбор принтера
+		fStoreLastSelPrn   = 0x0002  // Сохранять в реестре последний выбор принтера
 	};
 	long   Tag;           // 0 || PPOBJ_CONFIG || PPOBJ_USRGRP || PPOBJ_USR
 	long   ObjID;         //
@@ -3875,8 +3857,8 @@ struct PPBarcodeStruc2 {   // @persistent @store(Reference2Tbl+)
 	long   ID;             // @id
 	char   Name[48];       // @name
 	char   Templ[20];      // Шаблон
-	char   Reserve[56];    // @reserve // @v10.7.6 [60]-->[56]
-	long   Speciality;     // @v10.7.6 Специальное назначение шаблона
+	char   Reserve[56];    // @reserve 
+	long   Speciality;     // Специальное назначение шаблона
 	long   Flags;          // @flags
 	long   Reserve1;       // @reserve
 	long   Reserve2;       // @reserve
@@ -3915,7 +3897,7 @@ struct QuotFilt : public PPBaseFilt {
 		fByGoodsOnly = 0x8000  // Показывать только котировки привязанные к товарам
 			// @# fByGroupOnly^fByGoodsOnly
 	};
-	char   ReserveStart[32]; // @anchor @v10.1.2
+	char   ReserveStart[32]; // @anchor
 	int32  InitOrder;        // @anchor Порядок сортировки
 	int32  QkCls;            // Класс вида котировки
 	DateRange Period;        // (quot2) Период значений
@@ -3932,10 +3914,10 @@ struct QuotFilt : public PPBaseFilt {
 	PPID   GoodsID;          // if !0, то строки развернуты либо по складам, либо по клиентам, либо по видам котировок
 	RealRange Val;           // Диапазон значений котировки (0..0 - игнорируется)
 	long   Flags;            // @flags
-	SubstGrpGoods Sgg;       // @v10.1.2
+	SubstGrpGoods Sgg;       // 
 	long   Reserve;          // @anchor Заглушка для отмера "плоского" участка фильтра
 	ObjIdListFilt LocList;   // Список складов
-	ObjIdListFilt GoodsList; // @v10.1.3 Список товаров, по которым следует получить отчет. Имеет приоритет перед GoodsGrpID и GoodsID
+	ObjIdListFilt GoodsList; // Список товаров, по которым следует получить отчет. Имеет приоритет перед GoodsGrpID и GoodsID
 private:
 	virtual int ReadPreviousVer(SBuffer & rBuf, int ver);
 };
@@ -3957,7 +3939,7 @@ public:
 	enum {
 		fUsePeriod             = 0x0001,
 		fUseQtty               = 0x0002,
-		fOmitRounding          = 0x0004, // @v10.9.11 @internal Не применять округление при извлечении значения.
+		fOmitRounding          = 0x0004, // @internal Не применять округление при извлечении значения.
 		fIgnoreTimeLimitValues = 0x0008  // @v11.9.4 Игнорировать значения, привязанные к времени действия //
 	};
 	long   Flags;          // @flags
@@ -4202,7 +4184,7 @@ public:
 	enum {
 		rfGt    = 0x0001, // Заменять значение, если время установки нового значение превышает существующее
 		rfLt    = 0x0002, // Заменять значение, если время установки нового значения меньше существующего
-		rfCount = 0x0004  // @v10.1.3 Устанавливать величину котировки как количество значение (для агрегирующих отчетов)
+		rfCount = 0x0004  // Устанавливать величину котировки как количество значение (для агрегирующих отчетов)
 	};
 	int    Set(const PPQuot & rQ, long flags);
 	void   Sort();
@@ -5016,8 +4998,8 @@ private:
 		glsfSkipPassive = 0x0002,
 		glsfDefPassive  = 0x0004,
 		glsfByExtStr    = 0x0008,
-		glsfSkipGeneric = 0x0010, // @v10.7.7
-		glsfDefGeneric  = 0x0020  // @v10.7.7
+		glsfSkipGeneric = 0x0010, //
+		glsfDefGeneric  = 0x0020  //
 	};
 	int    Helper_GetListBySubstring(const char * pSubstr, void * pList, long flags);
 };
@@ -5042,8 +5024,6 @@ struct Acct {
 	int16  sb;            // Субсчет
 	long   ar;            // Аналитическая статья //
 };
-
-// @v10.3.2 @unused int IsSuitableAcc(const Acct * pAcc, int aco /* ACO_X */, Acct * pPattern);
 //
 // Бух. счет в форме ид-ров баз данных (DB format);
 //
@@ -5324,6 +5304,7 @@ struct AccTurnParam {
 	// Инициируются по параметру в pp.ini [config] PPINIPARAM_RESTRICTCHZNPMPRICE
 #define CCFLG2_DISABLE_CRR32_SUPPORT_SERVER 0x00200000L // @v12.4.1 [config] Запрет использования выделенного сервера поддержки Crystal Reports. 
 	// Аварийная опция на случай если что-то пойдет не так. Инициируются по параметру в pp.ini [config] PPINIPARAM_DISABLE_CRR32_SUPPORT_SERVER
+#define CCFLG2_FORCE_CRR32_SUPPORT_SERVER   0x00400000L // @v12.4.1 (!Временный флаг на время тестовой отладки) [config] 
 //
 // Общие параметры конфигурации
 //
@@ -5462,8 +5443,6 @@ private:
 	int16  LowPriorLen;
 	long   Flags;
 };
-//
-// @v10.2.3 (replaced with InetUrl::GetDefProtocolPort(InetUrl::protPapyrusServer)) #define DEFAULT_SERVER_PORT 28015
 //
 // Descr: Команды сервера
 //
@@ -5862,16 +5841,12 @@ public:
 	enum {
 		stAuth  = 0x0001,
 		stHasAccount    = 0x0002,
-		stDefaultServer = 0x0004 // @v10.5.12
+		stDefaultServer = 0x0004
 	};
-	// @v10.5.12 static int TestUi_GetLocationListByPhone();
-	// @v10.5.12 static int TestUi_GetQuotByLoc();
 	static int ViewNewVerList(int showSelDlg);
 	PPUhttClient();
 	~PPUhttClient();
 	int    GetState() const;
-	// @v10.5.12 int    HasAccount() const;
-	// @v10.5.12 int    IsAuth() const;
 	int    PreprocessResult(const void * pResult, const PPSoapClientSession & rSess);
 	int    Auth();
 	int    Unauth();
@@ -5949,7 +5924,6 @@ private:
 	void   FASTCALL DestroyResult(void ** ppResult);
 
 	long   State;
-	// @v10.5.12 @unused SString Urn;
 	SString UrlBase;
 	SString Token;
 	SString LastMsg;
@@ -6233,7 +6207,7 @@ struct PPAdviseEvent {
 	};
 	int64  Ident;
     LDATETIME Dtm;
-	LDATETIME MqbTimeStamp;   // @v10.5.7
+	LDATETIME MqbTimeStamp;   //
     int32  Action;
     PPObjID Oid;
     int32  UserID;
@@ -7403,6 +7377,7 @@ public:
 		internalappWsCtl,
 		internalappKabQ,
 		internalappCrr32Support,
+		internalappUtility,
 	};
 	int    Init(long internalAppId, long flags/*PPSession::fInitXXX*/, HINSTANCE hInst, const char * pUiDescriptionFileName);
 	int    InitThread(const PPThread * pThread);
@@ -7846,7 +7821,6 @@ extern PPSession DS;
 #define PPMaster  (DS.LCfg().State & CFGST_MASTER)
 #define ObjRts    (DS.GetConstTLA().Rights)
 // @v12.2.8 #define CS_SERVER (DS.CheckExtFlag(ECF_SYSSERVICE))
-// @v10.1.4 #define CS_CLIENT (DS.CheckExtFlag(ECF_CLIENT))
 
 void   PPSaveErrContext();
 void   PPRestoreErrContext();
@@ -8282,8 +8256,8 @@ enum {
 	PPSYM_REGORG,      // @regorg     Регистрирующий орган
 	PPSYM_TRADELIC,    // @tradelic   Торговая лицензия //
 	PPSYM_BILLMEMO,    // @billmemo   Примечание к документу
-	PPSYM_OBJ2INN,     // @v10.7.3 @obj2inn ИНН персоналии, ассоциированной со дополнительной статьей документа
-	PPSYM_OBJ2KPP,     // @v10.7.3 @obj2kpp КПП персоналии, ассоциированной со дополнительной статьей документа
+	PPSYM_OBJ2INN,     // @obj2inn ИНН персоналии, ассоциированной со дополнительной статьей документа
+	PPSYM_OBJ2KPP,     // @obj2kpp КПП персоналии, ассоциированной со дополнительной статьей документа
 	PPSYM_BILLOBJ2,    // @obj2       Дополнит объект по документу
 	PPSYM_GC_NAME,     // @gcname     Наименование класса товара
 	PPSYM_GC_KIND,     // @gckind     Вид товара
@@ -10935,10 +10909,6 @@ public:
 		int32  RByBill;
 	};
 	union {
-		// @v10.5.8 double SpoilQtty;   // Количество товара, вычтенное из поступившего количества, как бракованное.
-			// Поле Quantity содержит значение, поправленное на величину SpoilQtty. Таким образом,
-			// изначально поступившее от поставщика количество равно Quantity+SpoilQtty.
-			// Расчет SpoilQtty осуществляется по частичным структурам в документах прихода от поставщика.
 		double RevalCost;   // Старая цена поступления при переоценке
 			// До версии v7.8.10 для этой цели использовалось поле Quanitity.
 			// При корректировке расхода - старая цена реализации
@@ -16597,7 +16567,7 @@ private:
 		stError = 0x0001
 	};
 	uint   Status;
-	SFile  F_Obsolete; // @v10.9.3 F-->F_Obsolete
+	SFile  F_Obsolete;
 };
 
 PPCommandMngr * GetCommandMngr(uint ctrFlags, PPCommandGroupCategory kind, const char * pPath = 0);
@@ -22443,7 +22413,7 @@ public:
 	static void LogPreprocessChZnCodeResult(int ret, int op, const char * pCode, double qtty, const CCheckPacket::PreprocessChZnCodeResult & rResult);
 
 	enum {
-		ppchzcopCheck           =   0, // проверка марки
+		ppchzcopVerify          =   0, // проверка марки
 		ppchzcopAccept          =   1, // акцепт марки. должна быть вызвана непосредственно после вызова PreprocessChZnCode(0, ...)
 		ppchzcopReject          =   2, // отказ от акцепта марки. должна быть вызвана непосредственно после вызова PreprocessChZnCode(0, ...)
 		ppchzcopInit            = 100, // предварительные операции перед проверкой марок по чеку. Может быть актуально для некоторых типов регистраторов
@@ -22452,6 +22422,7 @@ public:
 		ppchzcopCancel          = 103, // @v12.0.4 Функция отмены после проверки марок. Применяется в паре с ppchzcopInit если операция инициализации
 			// провела какие-то действия, которые требуется отменить в случае, если чек не проводится.
 			// Фактически, эта операция введена ради аппарата Штрих-ФР из-за того, что проверку марок он осущетсвляет только в режиме открытого чека.
+		ppchzcopVerifyOffline   = 104, // @v12.4.1 проверка марки в offline-режиме (т.е. без обращения к серверу chzn).
 	};
 	//
 	// Descr: Функция реализует препроцессинг кодов маркировки товаров в соответствии с российскими правилами ОФД 1.2
@@ -33622,7 +33593,7 @@ class PPObjBHT : public PPObjReference {
 public:
 	enum {
 		btDenso      = 0L,
-		btSyntech    = 1L,
+		btSyntech    = 1L, // @v12.4.1 @support_eliminated 
 		btPalm       = 2L,
 		btWinCe      = 3L,
 		btCom        = 4L,
@@ -33662,18 +33633,18 @@ public:
 	int    PutPacket(PPID * pID, PPBhtTerminalPacket *, int use_ta);
 	int    GetPacket(PPID, PPBhtTerminalPacket *);
 	int    InitProtocol(PPID, BhtProtocol *);
-	int    InitProtocol(PPID, CipherProtocol *);
+	// @v12.4.1 @support_eliminated int    InitProtocol(PPID, CipherProtocol *);
 	int    TransmitSuppl(BhtProtocol *, int updateData);
 	int    TransmitGoods(PPID bhtID, BhtProtocol *, int updateData);
-	int    TransmitSuppl(CipherProtocol *, int updateData);
-	int    TransmitGoods(PPID bhtID, CipherProtocol *, int updateData);
+	// @v12.4.1 @support_eliminated int    TransmitSuppl(CipherProtocol *, int updateData);
+	// @v12.4.1 @support_eliminated int    TransmitGoods(PPID bhtID, CipherProtocol *, int updateData);
 	int    ReceiveBills(PPID);
 	int    ReceiveInvent(PPID);
 	int    AcceptBill(PPObjBHT::BillRec * pRec, PPBasketPacket * pGBPack, PPID * pAltGrpID);
 	int    AcceptBillLine(PPID billID, PPObjBHT::BillLineRec * pRec, PPBasketPacket * pGBPack, PPID * pAltGrpID);
 	int    AcceptInvent(PPID opID, PPObjBHT::InventRec * pRec, BillTbl::Rec * pInvRec, PPLogger * pLogger);
 	int    PrepareBillData2(const PPBhtTerminalPacket * pPack, PPIDArray * pGoodsList, int uniteGoods = 1);
-	int    PrepareBillRowCellData(const PPBhtTerminalPacket * pPack, PPID billID);
+	// @v12.4.1 int    PrepareBillRowCellData(const PPBhtTerminalPacket * pPack, PPID billID);
 	int    PrepareLocCellData(const PPBhtTerminalPacket * pPack);
 	int    PrepareConfigData(const PPBhtTerminalPacket * pPack, StyloBhtIIConfig * pCfg);
 private:
@@ -33712,8 +33683,8 @@ private:
 	int    SetTable(TcpSocket & rSo, int16 cmd, uint fileNameCode, const char * pTblInfo, SBIIRec * pRec, long count);
 	int    PrepareBills(int uniteGoods);
 	int    GetConfig(StyloBhtIIConfig * pCfg);
-	int    GetGoodsList(TcpSocket & rSo, long cellID, int getGoods);
-	int    AcceptLocOp(SBIILocOp * pRec);
+	// @v12.4.1 int    GetGoodsList_Obsolete(TcpSocket & rSo, long cellID, int getGoods);
+	// @v12.4.1 @obsolete int    AcceptLocOp(SBIILocOp * pRec);
 	int    FindGoods(PPID goodsID, const char * pBarcode, SBIIGoodsRec * pRec);
 	int    FindLocCell(PPID locID, const char * pName, SBIILocCellRec * pRec);
 	int    PrintBarcode(const char * pBarcode);
@@ -33727,7 +33698,7 @@ private:
 	PPBhtTerminalPacket BhtPack;
 	PPObjGoods GObj;
 	PPObjLocation LocObj;
-	LocTransfCore * P_LocTransf;
+	// @v12.4.1 LocTransfCore * P_LocTransf;
 };
 //
 // @ModuleDecl(PPObjQCert)
@@ -34809,6 +34780,7 @@ public:
 	int    EditBillExtData(PPID billID);
 	int    EditBillFreight(PPID billID);
 	int    EditLotExtData(PPID lotID);
+	int    EditExtCodeList(PPBillPacket * pPack, int rowId/*[1..]*/, uint flags);
 	//
 	// Descr: Извлекает адрес доставки документа.
 	//   В общем случае адрес доставки хранится в дополнительной записи документа pFreight. Однако,
@@ -35529,6 +35501,13 @@ private:
 #define LOCTRFROP_GET                  2 // Извлечь товар из ячейки
 #define LOCTRFROP_INVENT               3 // Инвентаризация ячейки
 //
+// Descr: Идентификаторы областей применения складских операций.
+//
+#define LOCTRFRDOMAIN_WMS              0 // @v12.4.1 Операции, связанные с размещением товаров внутри наших складов.
+	// В качестве локации в таких операциях выступает ячейка хранения склада.
+#define LOCTRFRDOMAIN_BAILMENT         1 // @v12.4.1 Операции, связанные с передачей активов на ответственное хранение контрагентам.
+	// В качестве локации в таких операциях выступает какой-либо из адресов контрагента.
+//
 // Descr: Флаги ограничений размещения в складских ячейках
 //
 #define LOCDISPRESTR_SINGLEWARE   0x0001 // Ограничение единственным наименованием товара
@@ -35539,21 +35518,23 @@ private:
 #define LOCDISPRESTR_PALLETSIZE   0x0020 // Ограничение по размеру паллет
 
 struct LocTransfOpBlock {
-	LocTransfOpBlock(int op, PPID locID);
+	LocTransfOpBlock(int domain, int op, PPID locID);
 	LocTransfOpBlock & FASTCALL operator = (const LocTransfTbl::Rec * pRec);
-	LocTransfOpBlock & Init(int op, PPID locID);
+	LocTransfOpBlock & Init(int domain, int op, PPID locID);
 	bool   FASTCALL IsEq(const LocTransfTbl::Rec & rRec) const;
 
-	int    Op;             // LOCTRFROP_XXX
-	PPID   BillID;         //
-	int    RByBill;        // Номер операции по документу. Для новой записи 0.
-	PPID   GoodsID;        //
-	PPID   LotID;          //
-	PPID   LocID;          // Ячейка размещения //
-	long   RByLoc;         // Номер операции по ячейке. Для новой записи 0.
-	PPID   PalletTypeID;   //
-	uint   PalletCount;    //
-	double Qtty;           //
+	int    Domain;           // @v12.4.1 LOCTRFRDOMAIN_XXX
+	int    LTOp;             // LOCTRFROP_XXX // @v12.4.1 Op-->LTOp
+	PPID   BillID;           //
+	int    RByBill;          // Номер операции по документу. Для новой записи 0.
+	PPID   GoodsID;          //
+	PPID   LotID;            //
+	PPID   LocOwnerPersonID; // @v12.4.1 Владелец адреса хранения (domain==LOCTRFRDOMAIN_BAILMENT)
+	PPID   LocID;            // if(domain==LOCTRFRDOMAIN_WMS) then - Ячейка размещения, elseif(domain==LOCTRFRDOMAIN_BAILMENT) then - Адрес ответственного хранения //
+	long   RByLoc;           // Номер операции по ячейке. Для новой записи 0.
+	PPID   PalletTypeID;     //
+	uint   PalletCount;      //
+	double Qtty;             //
 };
 
 class LocTransfCore : public LocTransfTbl {
@@ -35561,26 +35542,26 @@ public:
 	LocTransfCore();
 	~LocTransfCore();
 	int    Search(PPID locID, long rByLoc, LocTransfTbl::Rec * pRec);
-	int    SearchRestByGoods(PPID goodsID, PPID locID, long rByLoc, LocTransfTbl::Rec * pRec);
-	int    SearchRestByLot(PPID lotID, PPID locID, long rByLoc, LocTransfTbl::Rec * pRec);
+	int    SearchRestByGoods(int domain, PPID goodsID, PPID locID, long rByLoc, LocTransfTbl::Rec * pRec);
+	int    SearchRestByLot(int domain, PPID lotID, PPID locID, long rByLoc, LocTransfTbl::Rec * pRec);
 	int    EnumByBill(PPID billID, int16 * pRByBill, LocTransfTbl::Rec * pRec);
 	int    GetTransByBill(PPID billID, int16 rByBill, TSVector <LocTransfTbl::Rec> * pList);
 	int    PutOp(const LocTransfOpBlock & rBlk, int * pRByLoc, int use_ta);
 	int    RemoveOp(PPID locID, long rByLoc, int use_ta);
 	int    ValidateOpBlock(const LocTransfOpBlock & rBlk);
 	int    GetLocCellList(PPID goodsID, PPID parentLocID, RAssocArray * pList);
-	int    GetGoodsList(PPID locCellID, RAssocArray * pList);
-	int    GetCellListForGoods(PPID goodsID, const PPIDArray * pDomain, RAssocArray * pList);
+	int    GetGoodsList(int domain, PPID locID, RAssocArray * pList);
+	int    GetCellListForGoods(PPID goodsID, const PPIDArray * pCellList, RAssocArray * pList);
 	//
-	// Descr: Находит список ячеек, в которых ничего нет. Если pDomain != 0,
+	// Descr: Находит список ячеек, в которых ничего нет. Если pCellList != 0,
 	//   то в расчет принимаются только те ячейки, которые перечислены в этом списке.
 	//
-	int    GetEmptyCellList(const PPIDArray * pDomain, PPIDArray * pList);
+	int    GetEmptyCellList(const PPIDArray * pCellList, PPIDArray * pList);
 	//
 	// Descr: Определяет список ячеек, в которых есть хоть что-то.
-	//   Если pDomain != 0, то в расчет принимаются только ячейки из этого списка.
+	//   Если pCellList != 0, то в расчет принимаются только ячейки из этого списка.
 	//
-	int    GetNonEmptyCellList(const PPIDArray * pDomain, PPIDArray * pList);
+	int    GetNonEmptyCellList(const PPIDArray * pCellList, PPIDArray * pList);
 	//
 	// Descr: Определяет размещение по ячейкам строки rByBill товарного документа billID.
 	//   Результат возвращается в массиве rDispositionList.
@@ -35598,7 +35579,7 @@ private:
 	int    GetLastOpByLot(PPID locID, PPID lotID, LocTransfTbl::Rec * pRec);
 	int    GetLastOpByGoods(PPID locID, PPID goodsID, LocTransfTbl::Rec * pRec);
 	int    UpdateForward(PPID locID, long rByLoc, PPID goodsID, PPID lotID, int check, double * pAddendum);
-	int    UpdateCurrent(PPID locID, PPID goodsID, PPID lotID, double addendum);
+	int    UpdateCurrent(int domain, PPID locID, PPID goodsID, PPID lotID, double addendum);
 
 	PPObjLocation LocObj;
 };
@@ -35696,7 +35677,9 @@ struct LocTransfFilt : public PPBaseFilt {
 		grpByZone,
 		grpByWarehouse
 	};
-	char   ReserveStart[32];   // @anchor
+	char   ReserveStart[24];   // @anchor // @v12.4.1 [32]-->[24]
+	int    Domain;             // @v12.4.1 LOCTRANSFDOMAIN_XXX  
+	PPID   LocOwnerPersonID;   // @v12.4.1 Для Domain==LOCTRFRDOMAIN_BAILMENT: контрагент, к которому привязан адрес операции.
 	PPID   GoodsGrpID;
 	PPID   GoodsID;
 	PPID   LotID;
@@ -35745,8 +35728,7 @@ private:
 
 	LocTransfFilt Filt;
 	LocTransfCore Tbl;
-	ObjIdListFilt Domain; // Список LocTransfFilt::LocList разворачивается по
-		// складским ячейкам в данный список
+	ObjIdListFilt /*Domain*/LocList_; // Список LocTransfFilt::LocList разворачивается по складским ячейкам в данный список
 	PPObjLocation LocObj;
 	TempLocTransfTbl * P_TempTbl;
 	PPIDArray DispBillList; // Список размещаемых документов.
@@ -36082,7 +36064,7 @@ public:
 		fFactByShipment      = 0x0080, // Переопределяет учет по данной операции таким образом,
 			// что документы этой операции будут учитываться по отгрузке (если общее правило книги - по оплате).
 			// Если общее правило книги "по отгрузке", то данный флаг игнорируется.
-		// fExcludeNegative = 0x0100  // @v10.9.11 Исключать запись с отрицательной суммой
+		// fExcludeNegative = 0x0100  // Исключать запись с отрицательной суммой
 		fReckonDateByPayment = 0x0100 // @v11.9.10 Дату записей зачитывающих оплат формировать по дате зачетного документа, а не по дате зачета
 			// То есть:
 			// 2024-02-01 - платеж
@@ -39871,7 +39853,7 @@ public:
 	DateRange DuePeriod;   // Период исполнения //
 	uint32 Count;          // Максимальное количество документов в выборке
 	int16  Ft_Declined;    // Признак BILLF2_DECLINED: (0) ignored, (< 0) off, (> 0) on
-	int16  Ft_CheckPrintStatus; // @v10.7.0 reserve-->Ft_CheckPrintStatus
+	int16  Ft_CheckPrintStatus; // 
 	PPID   StorageLocID;   // Место хранение, ассоциированное с фрахтом документа
 	int16  EdiRecadvStatus;     // Статус RECADV по каналу EDI. -1 - с нулевым статусом
 	int16  EdiRecadvConfStatus; // Статус подтверждения на RECADV по каналу EDI. -1 - с нулевым статусом
@@ -40693,7 +40675,7 @@ struct LotViewItem : public ReceiptTbl::Rec {
 	double EndRest;    // Остаток на конец операционного периода
 	double QttyPlus;   // Приход за операционный период (количество)
 	double QttyMinus;  // Расход за операционный период (количество)
-	PPID   OrgLotID;   // Ид оригинального лота. Инициализируется только если
+	PPID   OrgLotID;   // Ид оригинального лота. Инициализируется только если (?...)
 	LDATE  OrgLotDt;   // Дата поступления оригинального лота
 	char   Serial[32]; // Серийный номер по лоту
 };
@@ -46541,7 +46523,7 @@ public:
 	int    PreprocessTempRec(const SCardTbl::Rec * pSrcRec, TempSCardTbl::Rec * pDestRec, RAssocArray * pTrnovrList/*, int calcTrnovr*/);
 	int    ProcessSelection(const SCardSelPrcssrParam * pParam, PPLogger *);
 	const  StrAssocArray & GetList() const { return List; }
-	int    CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle);
+	int    CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle, PPViewBrowser * pBrw);
 private:
 	struct PreprocessScRecBlock {
 		PreprocessScRecBlock();
@@ -46563,6 +46545,14 @@ private:
 	int    UpdateTempTable(PPIDArray * pIdList);
 	int    MakeTempOrdEntry(long ord, const SCardTbl::Rec * pRec, TempOrderTbl::Rec * pOrdRec);
 	int    GetPDisUpdateDate(PPID cardID, LDATE before, LDATE * pDate);
+	//
+	// Descr: Обновляет хэш-таблицу номеров телефонов для карты с ID=cardID
+	// ARG(ownerID IN): Ид владельца карты, используемый для получения телефона владельца, если карта не содержит телефона.
+	//   Если ownerID < 0, то функция самостоятельно извлекает запись карты и кэша для того, что бы узнать владельца.
+	//
+	int    UpdateHtPhone(PPID cardID, PPID ownerID); // @v12.4.1
+
+	static int DynFuncPhone;
 
 	SCardFilt Filt;
 	PPObjSCard SCObj;
@@ -46575,6 +46565,8 @@ private:
 	TempSCardTbl * P_TmpTbl;
 	TempOrderTbl * P_TempOrd;
 	SStrGroup StrPool; // Пул строковых полей, на который ссылаются поля в TempSCardTbl
+	TokenSymbHashTable HtPhone; // @v12.4.1 Таблица телефонных номеров. Необходимость обусловлена тем, что, если в карте нет телефона,
+		// то пользователи хотят видеть номер телефона владельца карты.
 };
 //
 // Descr: Диалог редактирования параметров для массового изменения персональных карт
@@ -55137,7 +55129,7 @@ public:
 		fEnableSelUpLevel  = 0x0001, // Допускается выбор группы складов
 		fWarehouseCell     = 0x0002, // Применять для выбора складской ячейки
 		fStandaloneByPhone = 0x0004, // Выбор автономной локации по номеру телефона
-		fDivision  = 0x0008  // @v11.0.7 Применять для выбора подразделения //
+		fDivision          = 0x0008  // @v11.0.7 Применять для выбора подразделения //
 	};
 	LocationCtrlGroup(uint ctlselLoc, uint ctlCode, uint ctlPhone, uint cmEditLocList, uint cmEditLoc, long flags, const PPIDArray * pExtLocList);
 	void   SetExtLocList(const PPIDArray * pExtLocList);
@@ -61182,7 +61174,7 @@ int EditPrintParam(PrnDlgAns * pData);
 // а вариант CrystalReportPrint2_Server будет работать в составе сервера crr32_support.
 //
 int CrystalReportPrint2_Local(const CrystalReportPrintParamBlock & rBlk, CrystalReportPrintReply & rReply, void * hParentWindowForPreview); // @v11.9.5
-int CrystalReportPrint2_Server(const CrystalReportPrintParamBlock & rBlk, CrystalReportPrintReply & rReply, void * hParentWindowForPreview, SIntHandle hPipe);
+int CrystalReportPrint2_Server(const CrystalReportPrintParamBlock & rBlk, CrystalReportPrintReply & rReply, void * hParentWindowForPreview);
 //
 // Descr: Функция реализует инкапсулированное обращение к CrystalReports либо на-прямую, либо через 32-битный процесс-посредник (crr32_support).
 //
@@ -61841,7 +61833,7 @@ int    SetupSubstSCardCombo(TDialog * pDlg, uint ctlID, SubstGrpSCard sgc);
 int    EditCfgOptionsDialog(PPConfig *, long, EmbedDialog * = 0);
 int    EditSecurDialog(PPID obj, PPID * id, void * extraPtr);
 int    STDCALL ViewLots(const LotFilt *, int asOrders, int modeless);
-int    STDCALL ViewLots(PPID goods, PPID loc, PPID suppl, PPID qcert, int modeless);
+int    STDCALL ViewLots(PPID goodsID, PPID locID, PPID supplID, PPID qcertID, int modeless);
 int    BillExtraDialog(const PPBillPacket * pPack, PPBillExt * pExt, ObjTagList * pTagList, int isFilt);
 int    BillFilterDialog(uint rezID, BillFilt *, const char * addText = 0);
 int    BillFilterDialog(uint rezID, BillFilt *, TDialog ** d, const char * addText = 0);
@@ -62343,21 +62335,22 @@ struct PPInputStringDialogParam {
 		fInputMemo        = 0x0002  // Подставляется диалог DLG_MEMO
 	};
 	long   Flags;
+	uint   MaxTextLen;  // @v12.4.1 Максимальная длина вводимого текста.
 	SString Title;      // Текст заголовка диалога
 	SString InputTitle; // Текст заголовка строки ввода
 	WordSel_ExtraBlock * P_Wse; // @owned
 };
 //
 // Descr: Вызывает простой диалог, содержащий строку ввода, ограниченную 64 байтами.
-// ARG(pParam           IN): @#{vptr0} Блок параметров диалога
-// ARG(rBuf         IN/OUT): Строка, передаваемая в поле ввода. Если пользователь ввел какую-либо
+// ARG(rParam IN): Блок параметров диалога
+// ARG(rBuf   IN/OUT): Строка, передаваемая в поле ввода. Если пользователь ввел какую-либо
 //   строку и подтвердил ввод, нажав ОК, то в этом буфере вернется то, что он ввел.
 // Returns:
 //   >0 - пользователь подтвердил ввод строки
 //   <0 - пользователь отказался от ввода
 //   0  - ошибка
 //
-int    FASTCALL InputStringDialog(PPInputStringDialogParam * pParam, SString & rBuf);
+int    InputStringDialog(PPInputStringDialogParam & rParam, SString & rBuf);
 int    InputDateDialog(const char * pTitle, const char * pInputTitle, LDATE * pDate);
 int    DateRangeDialog(const char * pTitle, const char * pInputTitle, DateRange & rPeriod);
 
@@ -62801,6 +62794,7 @@ int Convert11200(); // @v11.2.0 Соглашения с клиентами
 int Convert12000(); // @v12.0.0 Регистры (увеличились длины серии и номера регистра)
 int Convert12005(); // @v12.0.5 SCardOp (добавлены поля CtAmount & CtRest для количественного учета)
 int Convert12207(); // @v12.2.7 VATBook (добавлены дополнительные поля для новых ставок НДС, увеличены длины номеров документов, перестроен порядок полей)
+int Convert12401(); // @v12.4.1 LocTransf
 int DoChargeSalary();
 int DoDebtRate();
 int DoBizScore(PPID bzsID);

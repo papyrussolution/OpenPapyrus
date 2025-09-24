@@ -42,7 +42,7 @@ LDATE GoodsTrnovrBrowser::GetDate()
 		char str_dt[12];
 	};
 	const _H * h_dt = static_cast<const _H *>(getCurItem());
-	LDATE dt = ZERODATE;
+	LDATE  dt = ZERODATE;
 	if(h_dt)
 		strtodate(h_dt->str_dt, DATF_DMY, &dt);
 	return dt;
@@ -50,7 +50,7 @@ LDATE GoodsTrnovrBrowser::GetDate()
 
 IMPL_HANDLE_EVENT(GoodsTrnovrBrowser)
 {
-	LDATE dt;
+	LDATE  dt;
    	BrowserWindow::handleEvent(event);
 	if(TVCOMMAND) {
 		switch(TVCMD) {

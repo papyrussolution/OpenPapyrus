@@ -501,7 +501,7 @@ int SCS_SYNCCASH::PreprocessChZnCode(int op, const char * pCode, double qtty, in
 		}
 	}
 	// } @v11.9.4
-	else if(op == ppchzcopCheck) {
+	else if(oneof2(op, ppchzcopVerify, ppchzcopVerifyOffline)) { // @v12.4.1 ppchzcopVerifyOffline
 		rResult.CheckResult = 0;
 		rResult.Reason = 0;
 		rResult.ProcessingResult = 0;
@@ -540,7 +540,7 @@ int SCS_SYNCCASH::PreprocessChZnCode(int op, const char * pCode, double qtty, in
 					if(uomId)
 						THROW(ArrAdd(Arr_In, DVCPARAM_UOMID, uomId));
 					// } @v12.0.6 
-					THROW(ExecOper(DVCCMD_PREPROCESSCHZNCODE, Arr_In, Arr_Out));
+					THROW(ExecOper((op == ppchzcopVerifyOffline) ? DVCCMD_PREPROCESSCHZNCODE_OFFL : DVCCMD_PREPROCESSCHZNCODE, Arr_In, Arr_Out));
 					for(uint i = 0; i < Arr_Out.getCount(); i++) {
 						StrAssocArray::Item item = Arr_Out.at_WithoutParent(i);
 						if(!isempty(item.Txt)) {

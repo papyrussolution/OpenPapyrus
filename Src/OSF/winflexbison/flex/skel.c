@@ -465,6 +465,7 @@ const char * skel[] = {
   "#define FLEXINT_H",
   "",
 	// @sobolev {
+  "#define SLIB_INCLUDE_CPPSTDLIBS", // @v12.4.1
   "#include <slib.h>",
   "#include <inttypes.h>",
   "typedef int8_t flex_int8_t;",

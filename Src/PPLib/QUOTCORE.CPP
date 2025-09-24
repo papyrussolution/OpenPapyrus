@@ -3131,18 +3131,16 @@ int Quotation2Core::GetAddressLocList(PPIDArray & rList)
 int Quotation2Core::Helper_ReplaceRel(PPID replacedRelID, PPID newRelID, int use_ta)
 {
 	int    ok = 1;
-	PPIDArray goods_list1, goods_list2;
+	PPIDArray goods_list1;
+	PPIDArray goods_list2;
 	PPTransaction tra(use_ta);
 	THROW(tra);
 	{
 		//
-		// Для тех товаров, по которым есть значения по replacedRelID и нет по newRelID просто
-		// перемещаем все котировки.
+		// Для тех товаров, по которым есть значения по replacedRelID и нет по newRelID просто перемещаем все котировки.
 		//
-		goods_list1.clear();
-		goods_list2.clear();
-		GetGoodsList(replacedRelID, 0, goods_list1);
-		GetGoodsList(newRelID, 0, goods_list2);
+		GetGoodsList(replacedRelID, 0, goods_list1.Z());
+		GetGoodsList(newRelID, 0, goods_list2.Z());
 		for(uint i = 0; i < goods_list1.getCount(); i++) {
 			const  PPID goods_id = goods_list1.get(i);
 			if(!goods_list2.lsearch(goods_id)) {
@@ -3155,10 +3153,8 @@ int Quotation2Core::Helper_ReplaceRel(PPID replacedRelID, PPID newRelID, int use
 		// Теперь перемещаем АКТУАЛЬНЫЕ котировки с replacedRelID на newRelID если по newRelID
 		// для товара НЕТ АКТУАЛЬНОЙ котировки.
 		//
-		goods_list1.clear();
-		goods_list2.clear();
-		GetGoodsList(replacedRelID, 1, goods_list1);
-		GetGoodsList(newRelID, 1, goods_list2);
+		GetGoodsList(replacedRelID, 1, goods_list1.Z());
+		GetGoodsList(newRelID, 1, goods_list2.Z());
 		for(uint i = 0; i < goods_list1.getCount(); i++) {
 			const  PPID goods_id = goods_list1.get(i);
 			Quotation2Tbl::Key2 k2;

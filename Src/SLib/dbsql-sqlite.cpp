@@ -203,11 +203,6 @@ int SSqliteDbProvider::GetFileStat(const char * pFileName/*регистр символов важе
 	const int text_len = sstrleni(pText);
 	THROW(ProcessError(sqlite3_prepare_v3(static_cast<sqlite3 *>(H), pText, text_len, prep_flags, &p_stmt, &p_ztail))); 
 	pS->H = p_stmt;
-	/*
-	OH h = OhAlloc(OCI_HTYPE_STMT);
-	pS->H = h;
-	THROW(ProcessError(OCIStmtPrepare(h, Err, reinterpret_cast<const OraText *>(pText), sstrlen(pText), OCI_NTV_SYNTAX, OCI_DEFAULT)));
-	*/
 	CATCHZOK
 	return ok;
 }
@@ -569,116 +564,6 @@ int SSqliteDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt,
 	return ok;
 }
 
-/*virtual*/int SSqliteDbProvider::Implement_InsertRec(DBTable * pTbl, int idx, void * pKeyBuf, const void * pData)
-{
-	// ƒл€ первого приближени€ функци€ скопирована из SOraDbProvider::Implement_InsertRec
-	int    ok = 1;
-	int    in_subst_no = 0;
-	int    out_subst_no = 0;
-	uint   i;
-	int    do_process_lob = 0;
-	int    map_ret_key = 0;
-	BNKey  key;
-	uint   ns = 0;
-	const  uint fld_count = pTbl->fields.getCount();
-	SString temp_buf;
-	SString let_buf;
-	SSqlStmt  stmt(this);
-	if(pData) {
-		pTbl->copyBufFrom(pData);
-		if(pTbl->State & DBTable::sHasLob) {
-			const RECORDSIZE frs = pTbl->FixRecSize;
-			const SLob * p_src_lob = reinterpret_cast<const SLob *>(PTR8C(pData) + frs);
-			//SLob * p_dest_lob = reinterpret_cast<const SLob *>(PTR8C(pData) + frs);
-			/*
-			size_t s = (frs && frs < bufLen) ? frs : bufLen;
-			memcpy(P_DBuf, pBuf, s);
-			DBField last_fld;
-			THROW(getField(fields.getCount()-1, &last_fld));
-			if(srcBufSize)
-				THROW(writeLobData(last_fld, PTR8C(pBuf)+frs, (srcBufSize > frs) ? (srcBufSize-frs) : 0));
-			*/
-		}
-		// @construction @20250910 «десь € остановилс€ воз€сь с LOB'ами
-
-		//pTbl->copyBufLobFrom(const void * pBuf, size_t srcBufSize);
-	}
-	/*if(pTbl->State & DBTable::sHasLob) {
-		int    r = 0;
-		THROW(r = pTbl->StoreAndTrimLob());
-		if(r > 0)
-			do_process_lob = 1;
-	}*/
-	SqlGen.Z().Tok(Generator_SQL::tokInsert).Sp().Tok(Generator_SQL::tokInto).Sp().Text(pTbl->fileName).Sp();
-	SqlGen.Tok(Generator_SQL::tokValues).Sp().LPar();
-	stmt.BL.Dim = 1;
-	stmt.BL.P_Lob = pTbl->getLobBlock();
-	for(i = 0; i < fld_count; i++) {
-		if(i)
-			SqlGen.Com();
-		SqlGen.Param(temp_buf.NumberToLat(in_subst_no++));
-		const BNField & r_fld = pTbl->fields.getField(i);
-		if(GETSTYPE(r_fld.T) == S_AUTOINC) {
-			long   val = 0;
-			size_t val_sz = 0;
-			r_fld.getValue(pTbl->getDataBufConst(), &val, &val_sz);
-			assert(val_sz == sizeof(val));
-			if(val == 0) {
-				// (oracle) THROW(GetAutolongVal(*pTbl, i, &val));
-				r_fld.setValue(pTbl->getDataBuf(), &val);
-			}
-		}
-		stmt.BindItem(-in_subst_no, 1, r_fld.T, PTR8(pTbl->getDataBuf()) + r_fld.Offs);
-	}
-	SqlGen.RPar();
-	SqlGen.Sp().Tok(Generator_SQL::tokReturning).Sp().Tok(Generator_SQL::tokRowId);
-	{
-		//
-		// temp_buf будет содержать список переменных, в которые должны заноситс€ возвращаемые значени€ //
-		//
-		let_buf.NumberToLat(out_subst_no++);
-		temp_buf.Z().Colon().Cat(let_buf);
-		stmt.BindRowId(out_subst_no, 1, pTbl->getCurRowIdPtr());
-		if(pKeyBuf && idx >= 0 && idx < static_cast<int>(pTbl->indexes.getNumKeys())) {
-			map_ret_key = 1;
-			key = pTbl->indexes[idx];
-			ns = static_cast<uint>(key.getNumSeg());
-			for(i = 0; i < ns; i++) {
-				const BNField & r_fld = pTbl->indexes.field(idx, i);
-				SqlGen.Com().Text(r_fld.Name);
-				let_buf.NumberToLat(out_subst_no++);
-				temp_buf.CatDiv(',', 0).Colon().Cat(let_buf);
-				stmt.BindItem(out_subst_no, 1, r_fld.T, PTR8(pKeyBuf)+pTbl->indexes.getSegOffset(idx, i));
-			}
-		}
-		//SqlGen.Sp().Tok(Generator_SQL::tokInto).Sp().Text(temp_buf);
-	}
-	//
-	{
-		THROW(stmt.SetSqlText(SqlGen));
-		THROW(Binding(stmt, -1));
-		THROW(Binding(stmt, +1)); // @v12.4.1
-		THROW(stmt.SetDataDML(0));
-		THROW(stmt.Exec(1, OCI_DEFAULT));
-		// @v12.4.1 THROW(stmt.GetOutData(0));
-		THROW(stmt.GetData(0)); // @v12.4.1
-		/*if(do_process_lob) {
-			//
-			// ≈сли в записи были не пустые значени€ LOB-полей, то придетс€ перечитать
-			// вставленную запись и изменить значени€ LOB-полей.
-			//
-			// @todo Ќадо обновл€ть только LOB-пол€, а не всю запись.
-			//
-			DBRowId row_id = *pTbl->getCurRowIdPtr();
-			THROW(Implement_Search(pTbl, -1, &row_id, spEq, DBTable::sfDirect | DBTable::sfForUpdate));
-			THROW(pTbl->RestoreLob());
-			THROW(Implement_UpdateRec(pTbl, 0, 0));
-		}*/
-	}
-	CATCHZOK
-	return ok;
-}
-
 /*virtual*/int SSqliteDbProvider::Implement_UpdateRec(DBTable* pTbl, const void* pDataBuf, int ncc)
 {
 	int    ok = 1;
@@ -725,19 +610,249 @@ int SSqliteDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt,
 	return ok;
 }
 
-/*virtual*/int SSqliteDbProvider::Implement_BExtInsert(BExtInsert* pBei)
+/*virtual*/int SSqliteDbProvider::Implement_InsertRec(DBTable * pTbl, int idx, void * pKeyBuf, const void * pData)
 {
-	return 0;
+	int    ok = 1;
+	int    in_subst_no = 0;
+	int    out_subst_no = 0;
+	uint   i;
+	int    do_process_lob = 0;
+	int    map_ret_key = 0;
+	BNKey  key;
+	uint   ns = 0;
+	const  uint fld_count = pTbl->fields.getCount();
+	SString temp_buf;
+	SString let_buf;
+	SSqlStmt stmt(this);
+	if(pData) {
+		pTbl->copyBufFrom(pData);
+		if(pTbl->State & DBTable::sHasLob) {
+			const RECORDSIZE frs = pTbl->FixRecSize;
+			const SLob * p_src_lob = reinterpret_cast<const SLob *>(PTR8C(pData) + frs);
+			//SLob * p_dest_lob = reinterpret_cast<const SLob *>(PTR8C(pData) + frs);
+			/*
+			size_t s = (frs && frs < bufLen) ? frs : bufLen;
+			memcpy(P_DBuf, pBuf, s);
+			DBField last_fld;
+			THROW(getField(fields.getCount()-1, &last_fld));
+			if(srcBufSize)
+				THROW(writeLobData(last_fld, PTR8C(pBuf)+frs, (srcBufSize > frs) ? (srcBufSize-frs) : 0));
+			*/
+		}
+		// @construction @20250910 «десь € остановилс€ воз€сь с LOB'ами
+
+		//pTbl->copyBufLobFrom(const void * pBuf, size_t srcBufSize);
+	}
+	/*if(pTbl->State & DBTable::sHasLob) {
+		int    r = 0;
+		THROW(r = pTbl->StoreAndTrimLob());
+		if(r > 0)
+			do_process_lob = 1;
+	}*/
+	SqlGen.Z().Tok(Generator_SQL::tokInsert).Sp().Tok(Generator_SQL::tokInto).Sp().Text(pTbl->fileName).Sp();
+	SqlGen.Tok(Generator_SQL::tokValues).Sp().LPar();
+	stmt.BL.Dim = 1;
+	stmt.BL.P_Lob = pTbl->getLobBlock();
+	{
+		bool is_first_fld_enum_item = true;
+		for(i = 0; i < fld_count; i++) {
+			const BNField & r_fld = pTbl->fields.getField(i);
+			bool  do_skip_this_fld = false;
+			if(GETSTYPE(r_fld.T) == S_AUTOINC) {
+				long   val = 0;
+				size_t val_sz = 0;
+				r_fld.getValue(pTbl->getDataBufConst(), &val, &val_sz);
+				assert(val_sz == sizeof(val));
+				if(val == 0) {
+					// (похоже, не надо так делать - надо прив€зывать null-значение €вно) do_skip_this_fld = true;
+				}
+			}
+			if(!do_skip_this_fld) {
+				if(!is_first_fld_enum_item)
+					SqlGen.Com();
+				SqlGen.Param(temp_buf.NumberToLat(in_subst_no++));
+				stmt.BindItem(-in_subst_no, 1, r_fld.T, PTR8(pTbl->getDataBuf()) + r_fld.Offs);
+				is_first_fld_enum_item = false;
+			}
+		}
+	}
+	SqlGen.RPar();
+	SqlGen.Sp().Tok(Generator_SQL::tokReturning).Sp().Tok(Generator_SQL::tokRowId);
+	{
+		//
+		// temp_buf будет содержать список переменных, в которые должны заноситс€ возвращаемые значени€ //
+		//
+		let_buf.NumberToLat(out_subst_no++);
+		temp_buf.Z().Colon().Cat(let_buf);
+		stmt.BindRowId(out_subst_no, 1, pTbl->getCurRowIdPtr());
+		if(pKeyBuf && idx >= 0 && idx < static_cast<int>(pTbl->indexes.getNumKeys())) {
+			map_ret_key = 1;
+			key = pTbl->indexes[idx];
+			ns = static_cast<uint>(key.getNumSeg());
+			for(i = 0; i < ns; i++) {
+				const BNField & r_fld = pTbl->indexes.field(idx, i);
+				SqlGen.Com().Text(r_fld.Name);
+				let_buf.NumberToLat(out_subst_no++);
+				temp_buf.CatDiv(',', 0).Colon().Cat(let_buf);
+				stmt.BindItem(out_subst_no, 1, r_fld.T, PTR8(pKeyBuf)+pTbl->indexes.getSegOffset(idx, i));
+			}
+		}
+	}
+	//
+	{
+		THROW(stmt.SetSqlText(SqlGen));
+		THROW(Binding(stmt, -1));
+		THROW(Binding(stmt, +1)); // @v12.4.1
+		THROW(stmt.SetDataDML(0));
+		THROW(stmt.Exec(1, OCI_DEFAULT));
+		// @v12.4.1 THROW(stmt.GetOutData(0));
+		THROW(stmt.GetData(0)); // @v12.4.1
+		/*if(do_process_lob) {
+			//
+			// ≈сли в записи были не пустые значени€ LOB-полей, то придетс€ перечитать
+			// вставленную запись и изменить значени€ LOB-полей.
+			//
+			// @todo Ќадо обновл€ть только LOB-пол€, а не всю запись.
+			//
+			DBRowId row_id = *pTbl->getCurRowIdPtr();
+			THROW(Implement_Search(pTbl, -1, &row_id, spEq, DBTable::sfDirect | DBTable::sfForUpdate));
+			THROW(pTbl->RestoreLob());
+			THROW(Implement_UpdateRec(pTbl, 0, 0));
+		}*/
+	}
+	CATCHZOK
+	return ok;
 }
 
-/*virtual*/int SSqliteDbProvider::Implement_GetPosition(DBTable* pTbl, DBRowId* pPos)
+int SSqliteDbProvider::ResetStatement(SSqlStmt & rS)
 {
-	return 0;
+	return ProcessError(sqlite3_reset(SSqliteDbProvider::StmtHandle(rS)));
 }
 
-/*virtual*/int SSqliteDbProvider::Implement_DeleteFrom(DBTable* pTbl, int useTa, DBQ& rQ)
+/*virtual*/int SSqliteDbProvider::Implement_BExtInsert(BExtInsert * pBei)
 {
-	return 0;
+	// ƒалее: код из SOraDbProvider::Implement_BExtInsert. —ейчас буду его допиливать.
+	int    ok = -1;
+#if 1 // @construction {
+	//
+	// „тобы не затирать содержимое внутреннего буфера таблицы pBei->P_Tbl распредел€ем временный буфер rec_buf.
+	//
+	SBaseBuffer rec_buf;
+	rec_buf.Init();
+	const  uint num_recs = pBei->GetCount();
+	if(num_recs) {
+		uint   i;
+		int    in_subst_no = 0;
+		int    out_subst_no = 0;
+		DBTable * p_tbl = pBei->getTable();
+		const  uint fld_count = p_tbl->fields.getCount();
+		SString temp_buf;
+		SSqlStmt stmt(this);
+		SqlGen.Z().Tok(Generator_SQL::tokInsert).Sp().Tok(Generator_SQL::tokInto).Sp().Text(p_tbl->fileName).Sp();
+		SqlGen.Tok(Generator_SQL::tokValues).Sp().LPar();
+		//
+			stmt.BL.Dim = 1;
+			stmt.BL.P_Lob = p_tbl->getLobBlock();
+			{
+				bool is_first_fld_enum_item = true;
+				for(i = 0; i < fld_count; i++) {
+					const BNField & r_fld = p_tbl->fields.getField(i);
+					bool  do_skip_this_fld = false;
+					if(GETSTYPE(r_fld.T) == S_AUTOINC) {
+						long   val = 0;
+						size_t val_sz = 0;
+						r_fld.getValue(p_tbl->getDataBufConst(), &val, &val_sz);
+						assert(val_sz == sizeof(val));
+						if(val == 0) {
+							// (похоже, не надо так делать - надо прив€зывать null-значение €вно) do_skip_this_fld = true;
+						}
+					}
+					if(!do_skip_this_fld) {
+						if(!is_first_fld_enum_item)
+							SqlGen.Com();
+						SqlGen.Param(temp_buf.NumberToLat(in_subst_no++));
+						stmt.BindItem(-in_subst_no, 1, r_fld.T, PTR8(p_tbl->getDataBuf()) + r_fld.Offs);
+						is_first_fld_enum_item = false;
+					}
+				}
+			}
+			SqlGen.RPar();
+			SqlGen.Sp().Tok(Generator_SQL::tokReturning).Sp().Tok(Generator_SQL::tokRowId);
+		//
+		{
+			THROW(stmt.SetSqlText(SqlGen));
+			THROW(rec_buf.Alloc(p_tbl->getBufLen()));
+			for(i = 0; i < num_recs; i++) {
+				SBaseBuffer b = pBei->Get(i);
+				assert(b.Size <= rec_buf.Size);
+				memcpy(rec_buf.P_Buf, b.P_Buf, b.Size);
+				//
+				THROW(stmt.BindData(-1, 1, p_tbl->fields, rec_buf.P_Buf, p_tbl->getLobBlock()));
+				/*
+				if(p_tbl->State & DBTable::sHasAutoinc) {
+					for(uint j = 0; j < fld_count; j++) {
+						const BNField & r_fld = p_tbl->fields[j];
+						if(GETSTYPE(r_fld.T) == S_AUTOINC) {
+							long val = 0;
+							size_t val_sz = 0;
+							r_fld.getValue(rec_buf.P_Buf, &val, &val_sz);
+							assert(val_sz == sizeof(val));
+							if(val == 0) {
+								THROW(GetAutolongVal(*p_tbl, j, &val));
+								r_fld.setValue(rec_buf.P_Buf, &val);
+							}
+						}
+					}
+				}
+				*/
+				THROW(stmt.SetDataDML(0));
+				THROW(stmt.Exec(1, OCI_DEFAULT));
+				THROW(ResetStatement(stmt));
+			}
+			ok = 1;
+		}
+	}
+	CATCHZOK
+	rec_buf.Destroy();
+#endif // } @construction
+	return ok;
+}
+
+/*virtual*/int SSqliteDbProvider::Implement_GetPosition(DBTable * pTbl, DBRowId * pPos)
+{
+	ASSIGN_PTR(pPos, *pTbl->getCurRowIdPtr());
+	return 1;
+}
+
+/*virtual*/int SSqliteDbProvider::Implement_DeleteFrom(DBTable * pTbl, int useTa, DBQ & rQ)
+{
+	int    ok = 1;
+	int    ta = 0;
+	if(useTa) {
+		THROW(StartTransaction());
+		ta = 1;
+	}
+	SqlGen.Z().Tok(Generator_SQL::tokDelete).Sp().From(pTbl->fileName, 0);
+	if(&rQ && rQ.tree) {
+		SqlGen.Sp().Tok(Generator_SQL::tokWhere).Sp();
+		rQ.tree->CreateSqlExpr(&SqlGen, -1);
+	}
+	{
+		SSqlStmt stmt(this, SqlGen);
+		THROW(stmt.Exec(1, OCI_DEFAULT));
+	}
+	if(ta) {
+		THROW(CommitWork());
+		ta = 0;
+	}
+	CATCH
+		if(ta) {
+			RollbackWork();
+			ta = 0;
+		}
+		ok = 0;
+	ENDCATCH
+	return ok;
 }
 
 /*virtual*/int SSqliteDbProvider::GetFileStat(DBTable * pTbl, long reqItems, DbTableStat * pStat)
@@ -834,9 +949,12 @@ int SSqliteDbProvider::ProcessBinding_SimpleType(int action, uint count, SSqlStm
 	const int idx = abs(pBind->Pos);
 	const int t = GETSTYPE(pBind->Typ);
 	const uint s = GETSSIZE(pBind->Typ);
+	bool  is_autoinc = false; // @debug
 	switch(t) {
 		case S_INT:
 		case S_AUTOINC:
+			is_autoinc = true; // @debug
+			// @fallthrough
 		case S_UINT:
 		case S_INT64:
 		case S_UINT64:
@@ -844,15 +962,30 @@ int SSqliteDbProvider::ProcessBinding_SimpleType(int action, uint count, SSqlStm
 			}
 			else if(action < 0) {
 				if(s == 8) {
-					sqlite3_bind_int64(h_stmt, idx, *static_cast<const sqlite3_int64 *>(p_data));
+					if(is_autoinc && pStmt->Typ == Generator_SQL::typInsert && *static_cast<const sqlite3_int64 *>(p_data) == 0) {
+						; // Ќе прив€зываем ничего дл€ автоинкремента
+					}
+					else {
+						sqlite3_bind_int64(h_stmt, idx, *static_cast<const sqlite3_int64 *>(p_data));
+					}
 				}
 				else if(s == 4) {
-					// @todo Ќужна специальна€ обработка дл€ беззнакового значени€ если установлен старший бит
-					sqlite3_bind_int(h_stmt, idx, *static_cast<const int *>(p_data));
+					if(is_autoinc && pStmt->Typ == Generator_SQL::typInsert && *static_cast<const int *>(p_data) == 0) {
+						; // Ќе прив€зываем ничего дл€ автоинкремента
+					}
+					else {
+						// @todo Ќужна специальна€ обработка дл€ беззнакового значени€ если установлен старший бит
+						sqlite3_bind_int(h_stmt, idx, *static_cast<const int *>(p_data));
+					}
 				}
 				else if(s == 2) {
-					// @todo Ќужна специальна€ обработка дл€ беззнакового значени€ если установлен старший бит
-					sqlite3_bind_int(h_stmt, idx, *static_cast<const int16 *>(p_data));
+					if(is_autoinc && pStmt->Typ == Generator_SQL::typInsert && *static_cast<const int16 *>(p_data) == 0) {
+						; // Ќе прив€зываем ничего дл€ автоинкремента
+					}
+					else {
+						// @todo Ќужна специальна€ обработка дл€ беззнакового значени€ если установлен старший бит
+						sqlite3_bind_int(h_stmt, idx, *static_cast<const int16 *>(p_data));
+					}
 				}
 			}
 			else if(action == 1) {
@@ -911,6 +1044,23 @@ int SSqliteDbProvider::ProcessBinding_SimpleType(int action, uint count, SSqlStm
 				}
 				else if(s == 4) {
 					*static_cast<float *>(p_data) = static_cast<float>(sqlite3_column_double(h_stmt, idx-1)); // @v12.3.11 @fix idx-->(idx-1)
+				}
+			}
+			break;
+		case S_DEC:
+		case S_MONEY:
+			if(action == 0) {
+			}
+			else {
+				const int16 dec_len = static_cast<int16>(GETSSIZED(pBind->Typ));
+				const int16 dec_prc = static_cast<int16>(GETSPRECD(pBind->Typ));
+				if(action < 0) {
+					double val = dectobin(static_cast<const char *>(p_data), dec_len, dec_prc);
+					sqlite3_bind_double(h_stmt, idx, val);
+				}
+				else if(action == 1) {
+					double val = sqlite3_column_double(h_stmt, idx-1);
+					dectodec(val, static_cast<char *>(p_data), dec_len, dec_prc);
 				}
 			}
 			break;
@@ -1023,8 +1173,28 @@ int SSqliteDbProvider::ProcessBinding_SimpleType(int action, uint count, SSqlStm
 					static_cast<S_GUID *>(p_data)->Z();
 			}
 			break;
+		case S_RAW:
+			if(action == 0) {
+			}
+			else if(action < 0) {
+				if(p_data) {
+					sqlite3_bind_blob(h_stmt, idx, p_data, s, SQLITE_STATIC);
+				}
+			}
+			else if(action == 1) {
+				if(p_data) {
+					const int csz = sqlite3_column_bytes(h_stmt, idx-1);
+					const void * p_sqlt_data = sqlite3_column_blob(h_stmt, idx-1);
+					if(p_sqlt_data) {
+						memcpy(p_data, p_sqlt_data, MIN(csz, s));
+					}
+					else {
+						memzero(p_data, s);
+					}
+				}
+			}
+			break;
 		case S_BLOB:
-		case S_CLOB:
 			if(action == 0) {
 			}
 			else if(action < 0) {
@@ -1048,17 +1218,43 @@ int SSqliteDbProvider::ProcessBinding_SimpleType(int action, uint count, SSqlStm
 				}
 			}
 			break;
-		case S_DEC:
-			break;
-		case S_MONEY:
+		case S_CLOB:
+		case S_NOTE:
+			if(action == 0) {
+			}
+			else if(action < 0) {
+				if(p_data) {
+					SLob * p_lob = static_cast<SLob *>(p_data);
+					const size_t lob_size = p_lob->GetPtrSize();
+					const void * p_lob_data = p_lob->GetRawDataPtrC();
+					if(p_lob_data) {
+						SString & r_temp_buf = SLS.AcquireRvlStr();
+						r_temp_buf.CatN(static_cast<const char *>(p_lob_data), lob_size).Transf(CTRANSF_INNER_TO_UTF8);
+						sqlite3_bind_text(h_stmt, idx, r_temp_buf.cptr(), r_temp_buf.Len(), SQLITE_TRANSIENT);
+					}
+				}
+			}
+			else if(action == 1) {
+				if(p_data) {
+					const int csz = sqlite3_column_bytes(h_stmt, idx-1);
+					const uchar * p_outer_text = sqlite3_column_text(h_stmt, idx-1); // @v12.3.11 @fix idx-->(idx-1)
+					SString & r_temp_buf = SLS.AcquireRvlStr();
+					(r_temp_buf = reinterpret_cast<const char *>(p_outer_text)).Transf(CTRANSF_UTF8_TO_INNER);
+					strnzcpy(static_cast<char *>(p_data), r_temp_buf, s);
+					{
+						SLob * p_lob = static_cast<SLob *>(p_data);
+						p_lob->InitPtr(csz);
+						void * p_lob_data = p_lob->GetRawDataPtr();
+						strnzcpy(static_cast<char *>(p_lob_data), r_temp_buf, csz);
+					}
+				}
+			}
 			break;
 		case S_LOGICAL:
 			break;
 		case S_NUMERIC:
 			break;
 		case S_LSTRING:
-			break;
-		case S_NOTE:
 			break;
 		case S_LVAR:
 			break;
@@ -1077,8 +1273,6 @@ int SSqliteDbProvider::ProcessBinding_SimpleType(int action, uint count, SSqlStm
 		case S_STRUCT:
 			break;
 		case S_VARIANT:
-			break;
-		case S_RAW:
 			break;
 		case S_IPOINT2:
 			break;

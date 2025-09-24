@@ -56,7 +56,16 @@ bool DBRowId::IsI64() const
 
 uint32 DBRowId::GetI32() const
 {
-	return IsI32() ? *reinterpret_cast<const uint32 *>(S) : 0U;
+	uint32 result = 0;
+	if(IsI32())
+		result = *reinterpret_cast<const uint32 *>(S);
+	else if(IsI64()) {
+		int64 i64 = *reinterpret_cast<const int64 *>(S);
+		if(i64 >= 0 && i64 < UINT_MAX) {
+			result = static_cast<uint32>(i64);
+		}
+	}
+	return result;
 }
 
 int64  DBRowId::GetI64() const
@@ -409,23 +418,23 @@ int DBLobBlock::GetSize(uint fldIdx, size_t * pSz) const
 	return ok;
 }
 
-int DBLobBlock::SetLocator(uint fldIdx, uint32 loc)
+int DBLobBlock::SetLocator(uint fldIdx, uint64 locator)
 {
 	uint   pos = 0;
 	int    ok = SearchPos(fldIdx, &pos);
 	if(ok > 0)
-		static_cast<DBLobItem *>(at(pos))->Loc = loc;
+		static_cast<DBLobItem *>(at(pos))->LocPtr = locator;
 	return ok;
 }
 
-int DBLobBlock::GetLocator(uint fldIdx, uint32 * pLoc) const
+int DBLobBlock::GetLocator(uint fldIdx, uint64 * pLocator) const
 {
-	size_t loc = 0;
+	uint64 locator = 0;
 	uint   pos = 0;
 	int    ok = SearchPos(fldIdx, &pos);
 	if(ok > 0)
-		loc = static_cast<DBLobItem *>(at(pos))->Loc;
-	ASSIGN_PTR(pLoc, loc);
+		locator = static_cast<DBLobItem *>(at(pos))->LocPtr;
+	ASSIGN_PTR(pLocator, locator);
 	return ok;
 }
 //
@@ -698,7 +707,7 @@ int DBTable::AllocateOwnBuffer(int size)
 	const  RECORDSIZE fixed_rec_size = (size < 0) ? fields.CalculateFixedRecSize() : static_cast<RECORDSIZE>(size);
 	RECORDSIZE real_rec_size = fixed_rec_size;
 	///* @v12.4.1 @construction 
-	DBLobItem temp_li; // @debug
+	DBLobItem temp_li(0); // @debug
 	{
 		const uint lbc = LobB.getCount();
 		//LobB.SearchPos()
@@ -847,10 +856,7 @@ int DBTable::InitLob()
 	for(uint i = 0; i < fields.getCount(); i++) {
 		int _t = GETSTYPE(fields[i].T);
 		if(oneof2(_t, S_BLOB, S_CLOB)) {
-			DBLobItem item;
-			item.FldN = i;
-			item.Size = 0;
-			item.Loc = 0;
+			DBLobItem item(i);
 			LobB.insert(&item);
 			State |= sHasLob;
 			ok = 1;

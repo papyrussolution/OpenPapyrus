@@ -266,6 +266,7 @@
 #ifndef FLEXINT_H
 #define FLEXINT_H
 
+#define SLIB_INCLUDE_CPPSTDLIBS
 #include <slib.h>
 #include <inttypes.h>
 typedef int8_t flex_int8_t;
@@ -653,6 +654,6 @@ extern int yylex \
 #line 304 "D:\\Papyrus\\Src\\OSF\\sql-parser\\src\\parser\\flex_lexer.l"
 
 
-#line 656 "D:\\Papyrus\\Src\\OSF\\sql-parser\\src\\parser\\flex_lexer.h"
+#line 657 "D:\\Papyrus\\Src\\OSF\\sql-parser\\src\\parser\\flex_lexer.h"
 #undef hsql_IN_HEADER
 #endif /* hsql_HEADER_H */

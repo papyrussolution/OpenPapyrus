@@ -7,7 +7,11 @@
 
 void * __CreatePrcssrTestDbObject();
 void __DestroyPrcssrTestDbObject(void * p);
+int __PrcssrTestDb_Generate_TestRef01_Rec(void * p, TestRef01Tbl::Rec * pRec);
+int __PrcssrTestDb_Generate_TestRef02_Rec(void * p, TestRef02Tbl::Rec * pRec);
 int __PrcssrTestDb_Generate_TestTa01_Rec(void * p, TestTa01Tbl::Rec * pRec);
+int __PrcssrTestDb_Are_TestRef01_RecsEqual(const TestRef01Tbl::Rec & rRec1, const TestRef01Tbl::Rec & rRec2);
+int __PrcssrTestDb_Are_TestRef02_RecsEqual(const TestRef02Tbl::Rec & rRec1, const TestRef02Tbl::Rec & rRec2);
 int __PrcssrTestDb_Are_TestTa01_RecsEqual(const TestTa01Tbl::Rec & rRec1, const TestTa01Tbl::Rec & rRec2);
 
 SLTEST_R(SQLite)
@@ -58,12 +62,15 @@ SLTEST_R(SQLite)
 		}
 	}
 	bool   debug_mark = false;
-	const  uint record_list_max_count = 10000;
 	void * prc_testdbobj = __CreatePrcssrTestDbObject();
 	DBTable * p_tbl = 0;
+	DBTable * p_tbl_ref01 = 0;
+	DBTable * p_tbl_ref02 = 0;
 	DbLoginBlock dblb;
 	StrAssocArray some_text_list;
     TSCollection <TestTa01Tbl::Rec> record_list;
+	TSCollection <TestRef01Tbl::Rec> ref01_rec_list;
+	TSCollection <TestRef02Tbl::Rec> ref02_rec_list;
 	SLS.QueryPath("testroot", temp_buf);
 	temp_buf.SetLastSlash().Cat("out").SetLastSlash().Cat("SQLite").SetLastSlash().Cat("test-sqlite-db");
     const SString db_path(temp_buf);
@@ -74,19 +81,32 @@ SLTEST_R(SQLite)
 		THROW(SLCHECK_NZ(dbp.Login(&dblb, 0)));
 	}
 	{
-		int efer = dbp.IsFileExists_("TestTa01");
-        if(!efer) {
-		    // Создать таблицу
-		    DBTable dbt;
-		    if(dbp.LoadTableSpec(&dbt, "TestTa01", "TestTa01", /*createIfNExists*/0)) {
-			    if(dbp.CreateDataFile(&dbt, "TestTa01", SET_CRM_TEMP(crmNoReplace), 0)) {
-				    debug_mark = true;
-			    }
-		    }
-        }
+		const char * p_tbl_name_list[] = {
+			"TestTa01",
+			"TestRef01",
+			"TestRef02"
+		};
+		for(uint i = 0; i < SIZEOFARRAY(p_tbl_name_list); i++) {
+			const char * p_tbl_name = p_tbl_name_list[i];
+			int efer = dbp.IsFileExists_(p_tbl_name);
+			if(!efer) {
+				// Создать таблицу
+				DBTable dbt;
+				if(dbp.LoadTableSpec(&dbt, p_tbl_name, p_tbl_name, /*createIfNExists*/0)) {
+					if(dbp.CreateDataFile(&dbt, p_tbl_name, SET_CRM_TEMP(crmNoReplace), 0)) {
+						debug_mark = true;
+					}
+				}
+			}
+		}
 	}
 	p_tbl = new DBTable("TestTa01", 0, 0, &dbp);
 	p_tbl->AllocateOwnBuffer(-1);
+	//
+	p_tbl_ref01 = new DBTable("TestRef01", 0, 0, &dbp);
+	p_tbl_ref01->AllocateOwnBuffer(-1);
+	p_tbl_ref02 = new DBTable("TestRef02", 0, 0, &dbp);
+	p_tbl_ref02->AllocateOwnBuffer(-1);
 	{
 		(temp_buf = GetSuiteEntry()->InPath).SetLastSlash().Cat("phrases-ru-1251.txt");
 		SFile f_in(temp_buf, SFile::mRead);
@@ -100,48 +120,151 @@ SLTEST_R(SQLite)
 		}
 	}
 	{
-		for(uint i = 0; i < record_list_max_count; i++) {
-			uint   new_rec_pos = 0;
-			TestTa01Tbl::Rec * p_new_rec = record_list.CreateNewItem(&new_rec_pos);
-			if(p_new_rec) {
-				if(__PrcssrTestDb_Generate_TestTa01_Rec(prc_testdbobj, p_new_rec)) {
-					uint str_idx = (i % some_text_list.getCount());
-					StrAssocArray::Item text_item = some_text_list.Get(str_idx);
-					const size_t text_len = sstrlen(text_item.Txt);
-					if(text_len) {
-						p_new_rec->TextField.InitPtr(text_len+1);
-						void * ptr = p_new_rec->TextField.GetRawDataPtr();
-						if(ptr) {
-							memcpy(ptr, text_item.Txt, text_len+1);
-						}
-						//p_new_rec->writeLobData()
+		//
+		// Генерация записей таблиц TestRef01, TestRef02, TestTa01
+		//
+		const  uint ref01_rec_list_max_count = 8000;
+		const  uint ref02_rec_list_max_count = 2500;
+		const  uint record_list_max_count = 10000;
+		{
+			for(uint i = 0; i < ref01_rec_list_max_count; i++) {
+				uint   new_rec_pos = 0;
+				TestRef01Tbl::Rec * p_new_rec = ref01_rec_list.CreateNewItem(&new_rec_pos);
+				if(p_new_rec) {
+					if(__PrcssrTestDb_Generate_TestRef01_Rec(prc_testdbobj, p_new_rec)) {
+						;
+					}
+					else {
+						ref01_rec_list.atFree(new_rec_pos);
 					}
 				}
-				else {
-					record_list.atFree(new_rec_pos);
+			}
+		}
+		{
+			for(uint i = 0; i < ref02_rec_list_max_count; i++) {
+				uint   new_rec_pos = 0;
+				TestRef02Tbl::Rec * p_new_rec = ref02_rec_list.CreateNewItem(&new_rec_pos);
+				if(p_new_rec) {
+					if(__PrcssrTestDb_Generate_TestRef02_Rec(prc_testdbobj, p_new_rec)) {
+						;
+					}
+					else {
+						ref02_rec_list.atFree(new_rec_pos);
+					}
+				}
+			}
+		}
+		{
+			for(uint i = 0; i < record_list_max_count; i++) {
+				uint   new_rec_pos = 0;
+				TestTa01Tbl::Rec * p_new_rec = record_list.CreateNewItem(&new_rec_pos);
+				if(p_new_rec) {
+					if(__PrcssrTestDb_Generate_TestTa01_Rec(prc_testdbobj, p_new_rec)) {
+						uint str_idx = (i % some_text_list.getCount());
+						StrAssocArray::Item text_item = some_text_list.Get(str_idx);
+						const size_t text_len = sstrlen(text_item.Txt);
+						if(text_len) {
+							p_new_rec->TextField.InitPtr(text_len+1);
+							void * ptr = p_new_rec->TextField.GetRawDataPtr();
+							if(ptr) {
+								memcpy(ptr, text_item.Txt, text_len+1);
+							}
+						}
+					}
+					else {
+						record_list.atFree(new_rec_pos);
+					}
 				}
 			}
 		}
 	}
 	{
+		uint   ref01_insert_fault_count = 0;
+		uint   ref01_bextins_fault_count = 0;
+
+		uint   ref02_insert_fault_count = 0;
+		uint   ta02_insert_fault_count = 0;
 		// Загрузить в таблицу большой набор известных записей (из record_list)
 		if(dbp.StartTransaction()) {
-			TestTa01Tbl::Key0 k0;
-			DBRowId ret_row_id;
-			for(uint i = 0; i < record_list.getCount(); i++) {
-				const TestTa01Tbl::Rec * p_rec = record_list.at(i);
-				
-				if(p_rec) {
-					MEMSZERO(k0);
-					int irr = p_tbl->insertRecBuf(p_rec, 0, &k0);
-					const DBRowId * p_row_id = p_tbl->getCurRowIdPtr();
-					if(p_row_id)
-						ret_row_id = *p_row_id;
-					if(irr) {
-						;
+			{
+				//
+				// Для таблицы TestRef01 применяем BExtInsert
+				//
+				const bool use_bextinsert = true;
+				TestRef01Tbl::Key0 k0;
+				DBRowId ret_row_id;
+				BExtInsert * p_bei = 0;
+				if(use_bextinsert)
+					p_bei = new BExtInsert(p_tbl_ref01, SKILOBYTE(2));
+				for(uint i = 0; i < ref01_rec_list.getCount(); i++) {
+					TestRef01Tbl::Rec * p_rec = ref01_rec_list.at(i);
+					if(p_rec) {
+						if(p_bei) {
+							if(!p_bei->insert(p_rec)) {
+								ref01_bextins_fault_count++;
+							}
+						}
+						else {
+							MEMSZERO(k0);
+							int irr = p_tbl_ref01->insertRecBuf(p_rec, 0, &k0);
+							const DBRowId * p_row_id = p_tbl_ref01->getCurRowIdPtr();
+							if(p_row_id)
+								ret_row_id = *p_row_id;
+							if(irr) {
+								p_rec->ID = k0.ID;
+								const uint32 _row_id = ret_row_id.GetI32();
+								assert(_row_id == p_rec->ID); // SQLite specific!
+							}
+							else {
+								ref01_insert_fault_count++;
+							}
+						}
 					}
-					else {
-						;
+				}
+				if(p_bei) {
+					if(!p_bei->flash())
+						ref01_bextins_fault_count++;
+					ZDELETE(p_bei);
+				}
+			}
+			{
+				TestRef02Tbl::Key0 k0;
+				DBRowId ret_row_id;
+				for(uint i = 0; i < ref02_rec_list.getCount(); i++) {
+					TestRef02Tbl::Rec * p_rec = ref02_rec_list.at(i);
+					if(p_rec) {
+						MEMSZERO(k0);
+						int irr = p_tbl_ref02->insertRecBuf(p_rec, 0, &k0);
+						const DBRowId * p_row_id = p_tbl_ref02->getCurRowIdPtr();
+						if(p_row_id)
+							ret_row_id = *p_row_id;
+						if(irr) {
+							p_rec->ID = k0.ID;
+							assert(ret_row_id.GetI32() == p_rec->ID); // SQLite specific!
+						}
+						else {
+							ref02_insert_fault_count++;
+						}
+					}
+				}
+			}
+			{
+				TestTa01Tbl::Key0 k0;
+				DBRowId ret_row_id;
+				for(uint i = 0; i < record_list.getCount(); i++) {
+					const TestTa01Tbl::Rec * p_rec = record_list.at(i);
+					if(p_rec) {
+						MEMSZERO(k0);
+						int irr = p_tbl->insertRecBuf(p_rec, 0, &k0);
+						const DBRowId * p_row_id = p_tbl->getCurRowIdPtr();
+						if(p_row_id)
+							ret_row_id = *p_row_id;
+						if(irr) {
+							;
+						}
+						else {
+							ta02_insert_fault_count++;
+						}
 					}
 				}
 			}
@@ -149,18 +272,25 @@ SLTEST_R(SQLite)
 			if(!cwr) {
 				;
 			}
+			SLCHECK_Z(ta02_insert_fault_count);
+			SLCHECK_Z(ref01_insert_fault_count);
+			SLCHECK_Z(ref02_insert_fault_count);
 		}
 	}
+	LDATETIME first_pattern_dtm;
+	LDATETIME last_pattern_dtm;
+	first_pattern_dtm.Set(record_list.at(0)->Dt, record_list.at(0)->Tm);
+	last_pattern_dtm.Set(record_list.at(record_list.getCount()-1)->Dt, record_list.at(record_list.getCount()-1)->Tm);
 	{
 		const  uint rec_list_count = record_list.getCount();
-		const TestTa01Tbl::Rec * p_first_pattern_rec = record_list.at(0);
+		//const TestTa01Tbl::Rec * p_first_pattern_rec = record_list.at(0);
 		TestTa01Tbl::Key0 k0;
 		TestTa01Tbl::Rec * p_rec_buf = static_cast<TestTa01Tbl::Rec *>(p_tbl->getDataBuf());
 		{
 			// Найти каждую из записей
 			MEMSZERO(k0);
-			k0.Dt = p_first_pattern_rec->Dt;
-			k0.Tm = p_first_pattern_rec->Tm;
+			k0.Dt = first_pattern_dtm.d;
+			k0.Tm = first_pattern_dtm.t;
 			uint   srch_count = 0;
 			uint   uneq_rec_count = 0;
 			uint   uneq_clob_rec_count = 0;
@@ -211,7 +341,7 @@ SLTEST_R(SQLite)
 					}
 				}
 				srch_count++;
-			} while(srch_count < rec_list_count && p_tbl->search(0, &k0, spPrev) && (p_rec_buf->Dt > p_first_pattern_rec->Dt || (p_rec_buf->Dt == p_first_pattern_rec->Dt && p_rec_buf->Tm >= p_first_pattern_rec->Tm)));
+			} while(srch_count < rec_list_count && p_tbl->search(0, &k0, spPrev) && (p_rec_buf->Dt > first_pattern_dtm.d || (p_rec_buf->Dt == first_pattern_dtm.d && p_rec_buf->Tm >= first_pattern_dtm.t)));
 			SLCHECK_Z(uneq_rec_count);
 		}
 	}
@@ -321,7 +451,7 @@ SLTEST_R(SQLite)
 		}
 	}
 	{
-		// Удалить записи и убедиться, что ее больше нет в таблице
+		// Удалить каждую сотую запись и убедиться, что ее больше нет в таблице
 		if(dbp.StartTransaction()) {
 			LongArray deleted_idx_list;
 			uint    delete_fault_count = 0;
@@ -348,8 +478,9 @@ SLTEST_R(SQLite)
 				}
 			}
 			if(!delete_fault_count) {
-				for(uint i = 0; i < record_list.getCount(); i++) {
-					TestTa01Tbl::Rec * p_rec = record_list.at(i);
+				uint i = record_list.getCount();
+				if(i) do {
+					TestTa01Tbl::Rec * p_rec = record_list.at(--i);
 					if(p_rec) {
 						const bool must_be_deleted = deleted_idx_list.lsearch(i);
 						TestTa01Tbl::Key0 k0;
@@ -365,8 +496,11 @@ SLTEST_R(SQLite)
 								_found_fault_count++;
 							}
 						}
+						if(must_be_deleted) {
+							record_list.atFree(i);
+						}
 					}
-				}				
+				} while(i);
 			}
 			else {
 			}
@@ -380,6 +514,60 @@ SLTEST_R(SQLite)
 		}
 	}
 	{
+		//
+		// Удалить записи из таблицы TestTa01 по запросу RVal1 в диапазоне [2.5..2.6]
+		// 
+#if 0 // @construction {
+		RealRange range;
+		range.Set(2.5, 2.6);
+		LongArray idx_list_to_remove;
+		{
+			for(uint i = 0; i < record_list.getCount(); i++) {
+				const TestTa01Tbl::Rec * p_rec = record_list.at(i);
+				if(p_rec && range.Check(p_rec->RVal1)) {
+					idx_list_to_remove.add(static_cast<long>(i));
+				}
+			}
+			if(idx_list_to_remove.getCount()) {
+				TestTa01Tbl ta_tbl; // В отличии от p_tbl здесь есть заданные дескрипторы полей
+				int dfr = deleteFrom(&ta_tbl, 1/*use_ta*/, (ta_tbl.RVal1 >= range.low && ta_tbl.RVal1 <= range.upp));
+				if(dfr) {
+					{
+						// Найти каждую из записей
+						TestTa01Tbl::Key0 k0;
+						MEMSZERO(k0);
+						k0.Dt = first_pattern_dtm.d;
+						k0.Tm = first_pattern_dtm.t;
+						uint   srch_count = 0;
+						uint   uneq_rec_count = 0;
+						uint   uneq_clob_rec_count = 0;
+						if(p_tbl->search(0, &k0, spGe)) do {
+							const TestTa01Tbl::Rec * p_pattern_rec = record_list.at(srch_count);
+							const DBRowId * p_rowid = p_tbl->getCurRowIdPtr();
+							const int64 rowid_i64 = p_rowid ? p_rowid->GetI64() : 0;
+							if(!__PrcssrTestDb_Are_TestTa01_RecsEqual(*p_rec_buf, *p_pattern_rec)) {
+								uneq_rec_count++;
+							}
+							{
+								const size_t ls_p = p_pattern_rec->TextField.GetPtrSize();
+								const char * lp_p = static_cast<const char *>(p_pattern_rec->TextField.GetRawDataPtrC());
+
+								const size_t ls_t = p_rec_buf->TextField.GetPtrSize();
+								const char * lp_t = static_cast<const char *>(p_rec_buf->TextField.GetRawDataPtrC());
+								if(ls_p != ls_t || memcmp(lp_p, lp_t, ls_p) != 0) {
+									uneq_clob_rec_count++;
+								}
+							}
+							srch_count++;
+						} while(srch_count < rec_list_count && p_tbl->search(0, &k0, spNext));
+						SLCHECK_Z(uneq_rec_count);
+					}
+				}
+			}
+		}
+#endif // } 0 @construction
+	}
+	{
 		// Удалить все записи
 	}
 	{
@@ -391,5 +579,7 @@ SLTEST_R(SQLite)
 	__DestroyPrcssrTestDbObject(prc_testdbobj);
 	prc_testdbobj = 0;
 	delete p_tbl;
+	delete p_tbl_ref01;
+	delete p_tbl_ref02;
 	return CurrentStatus;
 }

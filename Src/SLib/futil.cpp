@@ -359,7 +359,6 @@ SString & makeExecPathFileName(const char * pName, const char * pExt, SString & 
 	ps.Nam = pName;
 	ps.Ext = pExt;
 	ps.Merge(rPath);
-	// } @v10.3.9 
 	return rPath;
 }
 
@@ -463,7 +462,7 @@ int SCopyFile(const char * pSrcFileName, const char * pDestFileName, SDataMovePr
 	SDataMoveProgressInfo scfd;
 	SString temp_buf;
 	SString added_msg;
-	SString sys_err_buf; // @v10.3.11
+	SString sys_err_buf;
 	SStringU src_file_name_u; // @v11.8.8
 	SStringU dest_file_name_u; // @v11.8.8
 	SIntHandle desthdl;
@@ -474,14 +473,8 @@ int SCopyFile(const char * pSrcFileName, const char * pDestFileName, SDataMovePr
 	SIntHandle srchdl = ::CreateFileW(src_file_name_u, GENERIC_READ, shareMode, 0, OPEN_EXISTING, FILE_ATTRIBUTE_READONLY, 0);
 	if(!srchdl) {
 		added_msg = pSrcFileName;
-		//char   tmp_msg_buf[256];
-		//::FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, 0, ::GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)tmp_msg_buf, sizeof(tmp_msg_buf), 0);
-		//chomp(SCharToOem(tmp_msg_buf));
-		//added_msg.CR().CatQStr(tmp_msg_buf);
-		// @v10.3.11 {
 		if(SSystem::SFormatMessage(sys_err_buf))
 			added_msg.CR().CatQStr(sys_err_buf.Chomp().Transf(CTRANSF_OUTER_TO_INNER));
-		// } @v10.3.11
 		SLS.SetError(SLERR_OPENFAULT, added_msg);
 		CALLEXCEPT();
 	}
@@ -492,14 +485,8 @@ int SCopyFile(const char * pSrcFileName, const char * pDestFileName, SDataMovePr
 	desthdl = ::CreateFileW(dest_file_name_u, GENERIC_WRITE, 0, 0, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
 	if(!desthdl) {
 		added_msg = pDestFileName;
-		//char   tmp_msg_buf[256];
-		//::FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, 0, ::GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)tmp_msg_buf, sizeof(tmp_msg_buf), 0);
-		//chomp(SCharToOem(tmp_msg_buf));
-		//added_msg.CR().CatQStr(tmp_msg_buf);
-		// @v10.3.11 {
 		if(SSystem::SFormatMessage(sys_err_buf))
 			added_msg.CR().CatQStr(sys_err_buf.Chomp().Transf(CTRANSF_OUTER_TO_INNER));
-		// } @v10.3.11
 		SLS.SetError(SLERR_OPENFAULT, added_msg);
 		CALLEXCEPT();
 	}

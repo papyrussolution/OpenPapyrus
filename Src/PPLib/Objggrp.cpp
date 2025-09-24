@@ -2335,6 +2335,7 @@ int PPObjBrand::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext
 
 /*static*/int PPObjGoodsGroup::SetOwner(PPID id, long curOwner, long newOwner)
 {
+	// @todo @20250922 Механизм привязки временной группы к указателю в текущем сеансе (через newOwner) ужасен - переделать.
 	int    ok = -1;
 	if(id && PPObjGoodsGroup::IsTempAlt(id)) {
 		PPObjGoodsGroup gg_obj;

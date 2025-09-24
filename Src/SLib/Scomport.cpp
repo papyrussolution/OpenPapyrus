@@ -134,16 +134,9 @@ void FASTCALL SCommPort::SetTimeouts(const CommPortTimeouts * pParam) { CPT = *p
 
 static void __OutLastErr()
 {
-	//const  DWORD last_err = GetLastError();
-	//LPVOID p_msg_buf;
-	//::FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_IGNORE_INSERTS, NULL, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR) &p_msg_buf, 0, 0);
-	//::MessageBox(NULL, (LPCTSTR)p_msg_buf, _T("Error"), MB_OK | MB_ICONINFORMATION); 
-	//LocalFree(p_msg_buf);
-	// @v10.3.11 {
 	SString sys_err_buf;
 	SSystem::SFormatMessage(sys_err_buf);
 	::MessageBox(NULL, SUcSwitch(sys_err_buf), _T("Error"), MB_OK | MB_ICONINFORMATION); 
-	// } @v10.3.11
 }
 
 int SCommPort::ClosePort()
@@ -196,7 +189,6 @@ int SCommPort::InitPort(int portNo, int ctsControl, int rtsControl)
 	dcb.Parity   = CPP.Parity;
 	dcb.ByteSize = CPP.ByteSize;
 	dcb.StopBits = CPP.StopBits;
-	// @v10.1.2 {
 	if(ctsControl)
 		dcb.fOutxCtsFlow = 1;
 	if(oneof3(rtsControl, 1, 2, 3))
@@ -205,7 +197,6 @@ int SCommPort::InitPort(int portNo, int ctsControl, int rtsControl)
 	//dcb.fOutxCtsFlow = (CPP.Flags & CPP.fOutxCtsFlow) ? 1 : 0;
 	//dcb.fOutxDsrFlow = (CPP.Flags & CPP.fOutxDsrFlow) ? 1 : 0;
 	//dcb.fDsrSensitivity = (CPP.Flags & CPP.fDsrSensitivity) ? 1 : 0;
-	// } @v10.1.2 
 	THROW(SetCommState(H_Port, &dcb));
 	cto.ReadIntervalTimeout = 10000; // @v11.4.10 MAXDWORD-->10000
 	cto.ReadTotalTimeoutMultiplier = 20; // @v11.4.10 MAXDWORD-->20

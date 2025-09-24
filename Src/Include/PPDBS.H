@@ -3007,7 +3007,9 @@ public:
 		int32  UserID;
 		int32  BillID;
 		int16  RByBill;
-		int16  Op;
+		int16  LTOp;
+		int16  Domain;
+		int16  PalletCount;
 		int32  Flags;
 		int32  GoodsID;
 		int32  LotID;
@@ -3017,9 +3019,8 @@ public:
 		int32  LinkLocID;
 		int32  LinkRByLoc;
 		int32  PalletTypeID;
-		int16  PalletCount;
-		int16  Reserve1;
-		uint8  Reserve2[8]; // raw
+		int32  LocOwnerPersonID;
+		uint8  Reserve2[20]; // raw
 	} data;
 	struct Key0 {
 		int32  LocID;
@@ -3044,7 +3045,8 @@ public:
 		int32  LinkRByLoc;
 	};
 	struct Key5 {
-		int16  Op;
+		int16  Domain;
+		int16  LTOp;
 		int32  LocID;
 		int32  GoodsID;
 		int32  RByLoc;
@@ -3056,7 +3058,9 @@ public:
 	DBField UserID;
 	DBField BillID;
 	DBField RByBill;
-	DBField Op;
+	DBField LTOp;
+	DBField Domain;
+	DBField PalletCount;
 	DBField Flags;
 	DBField GoodsID;
 	DBField LotID;
@@ -3066,8 +3070,7 @@ public:
 	DBField LinkLocID;
 	DBField LinkRByLoc;
 	DBField PalletTypeID;
-	DBField PalletCount;
-	DBField Reserve1;
+	DBField LocOwnerPersonID;
 	DBField Reserve2;
 };
 #pragma pack(pop)
@@ -3089,7 +3092,9 @@ public:
 		int32  UserID;
 		int32  BillID;
 		int16  RByBill;
-		int16  Op;
+		int16  LTOp;
+		int16  Domain;
+		int16  PalletCount;
 		int32  Flags;
 		int32  GoodsID;
 		double BillQtty;
@@ -3097,8 +3102,7 @@ public:
 		double RestByGoods;
 		double RestByLot;
 		int32  PalletTypeID;
-		int16  PalletCount;
-		int16  Reserve1;
+		int32  LocOwnerPersonID;
 	} data;
 	struct Key0 {
 		int32  ID__;
@@ -3119,7 +3123,9 @@ public:
 	DBField UserID;
 	DBField BillID;
 	DBField RByBill;
-	DBField Op;
+	DBField LTOp;
+	DBField Domain;
+	DBField PalletCount;
 	DBField Flags;
 	DBField GoodsID;
 	DBField BillQtty;
@@ -3127,8 +3133,7 @@ public:
 	DBField RestByGoods;
 	DBField RestByLot;
 	DBField PalletTypeID;
-	DBField PalletCount;
-	DBField Reserve1;
+	DBField LocOwnerPersonID;
 };
 #pragma pack(pop)
 

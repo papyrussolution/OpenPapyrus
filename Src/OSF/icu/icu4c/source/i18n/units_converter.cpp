@@ -193,31 +193,29 @@ Factor extractFactorConversions(StringPiece stringFactor, UErrorCode & status) {
 }
 
 // Load factor for a single source
-Factor loadSingleFactor(StringPiece source, const ConversionRates &ratesInfo, UErrorCode & status) {
+Factor loadSingleFactor(StringPiece source, const ConversionRates &ratesInfo, UErrorCode & status) 
+{
 	const auto conversionUnit = ratesInfo.extractConversionInfo(source, status);
 	if(U_FAILURE(status)) return Factor();
 	if(conversionUnit == nullptr) {
 		status = U_INTERNAL_PROGRAM_ERROR;
 		return Factor();
 	}
-
 	Factor result = extractFactorConversions(conversionUnit->factor.toStringPiece(), status);
 	result.offset = strHasDivideSignToDouble(conversionUnit->offset.toStringPiece(), status);
-
 	return result;
 }
 
 // Load Factor of a compound source unit.
 // In ICU4J, this is a pair of ConversionRates.getFactorToBase() functions.
-Factor loadCompoundFactor(const MeasureUnitImpl &source, const ConversionRates &ratesInfo,
-    UErrorCode & status) {
+Factor loadCompoundFactor(const MeasureUnitImpl &source, const ConversionRates &ratesInfo, UErrorCode & status) 
+{
 	Factor result;
 	for(int32_t i = 0, n = source.singleUnits.length(); i < n; i++) {
 		SingleUnitImpl singleUnit = *source.singleUnits[i];
-
 		Factor singleFactor = loadSingleFactor(singleUnit.getSimpleUnitID(), ratesInfo, status);
-		if(U_FAILURE(status)) return result;
-
+		if(U_FAILURE(status)) 
+			return result;
 		// Prefix before power, because:
 		// - square-kilometer to square-meter: (1000)^2
 		// - square-kilometer to square-foot (approximate): (3.28*1000)^2

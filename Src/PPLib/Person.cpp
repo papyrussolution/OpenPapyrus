@@ -1432,7 +1432,8 @@ int PersonCore::GetELinkList(int elnkrt, PPID personKindID, StrAssocArray & rLis
 
 /*static*/int PersonCore::GetELinks(PPID id, PPELinkArray & rEla)
 {
-	int    ok = 1, r;
+	int    ok = 1;
+	int    r;
 	Reference * p_ref = PPRef;
 	size_t sz = SKILOBYTE(4);
 	PropertyTbl::Rec * p_buf = 0;

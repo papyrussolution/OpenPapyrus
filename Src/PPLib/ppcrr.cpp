@@ -962,13 +962,13 @@ static int SendReportLaunchingResultToClientsPipe(SIntHandle hPipe, const SJson 
 //
 // Эта функция вызывается только из процесса crr32_support!
 //
-int CrystalReportPrint2_Server(const CrystalReportPrintParamBlock & rBlk, CrystalReportPrintReply & rReply, void * hParentWindowForPreview, SIntHandle hPipe)
+int CrystalReportPrint2_Server(const CrystalReportPrintParamBlock & rBlk, CrystalReportPrintReply & rReply, void * hParentWindowForPreview)
 {
 	int    ok = 1;
 	short  h_job = 0;
 	SString temp_buf;
 	SString msg_buf;
-	SJson  js_reply(SJson::tOBJECT); // @v12.3.12
+	//SJson  js_reply(SJson::tOBJECT); // @v12.3.12
 	PEReportOptions ro;
 	ro.StructSize = sizeof(ro);
 	if(rBlk.Action == CrystalReportPrintParamBlock::actionExport) {
@@ -1131,32 +1131,29 @@ int CrystalReportPrint2_Server(const CrystalReportPrintParamBlock & rBlk, Crysta
 			}
 		}
 	}
-	js_reply.InsertString("status", "ok");
+	//js_reply.InsertString("status", "ok");
 	rReply.Z();
-	rReply.Code = 0;
 	CATCH
 		const short crw_err_code = PEGetErrorCode(h_job);
 		CrwError = crw_err_code;
 		{
 			if(crw_err_code) {
-				rReply.Code = PPERR_CRYSTAL_REPORT;
 				rReply.LocIdent = crw_err_code;
+				PPSetError(PPERR_CRYSTAL_REPORT);
 			}
-			else {
-				rReply.Code = PPErrCode;
-			}
-			rReply.Code = crw_err_code;
-			PPGetMessage(mfError, PPErrCode, 0, 1, rReply.Descr);
+			rReply.Code = PPErrCode;
+			PPGetMessage(mfError, rReply.Code, 0, 1, rReply.Descr);
 			rReply.Descr.Transf(CTRANSF_INNER_TO_UTF8);
 		}
 		// @debug {
 		if(rBlk.Action != CrystalReportPrintParamBlock::actionExport) {
 			PPLoadString("err_crpe", msg_buf);
-			msg_buf.CatDiv(':', 2).Cat(CrwError);
-			rReply.Descr = msg_buf;
+			msg_buf.CatDiv(':', 2).Cat(crw_err_code);
+			//rReply.Descr = msg_buf;
 			PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_COMP|LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
 		}
 		// } @debug
+		/*
 		js_reply.InsertString("status", "fail");
 		if(crw_err_code) {
 			js_reply.InsertInt("errcode", PPERR_CRYSTAL_REPORT);
@@ -1168,13 +1165,14 @@ int CrystalReportPrint2_Server(const CrystalReportPrintParamBlock & rBlk, Crysta
 			(temp_buf = rReply.Descr).Transf(CTRANSF_INNER_TO_UTF8);
 			js_reply.InsertString("errmsg", temp_buf.Escape());
 		}
+		*/
 		ok = 0;
 	ENDCATCH
 	if(h_job)
 		PEClosePrintJob(h_job);
-	if(hPipe) {
+	/*if(hPipe) {
 		SendReportLaunchingResultToClientsPipe(hPipe, js_reply);
-	}
+	}*/
 	return ok;
 }
 //

@@ -4823,8 +4823,8 @@ int PersonCtrlGroup::SelectByCode(TDialog * pDlg)
 			SearchObject(PPOBJ_REGISTERTYPE, reg_type_id, &reg_type_rec);
 			PPLoadText(PPTXT_SEARCHPERSON, title);
 			PPInputStringDialogParam isd_param(title, reg_type_rec.Name);
-			if(InputStringDialog(&isd_param, code) > 0) {
-				PPIDArray   psn_list;
+			if(InputStringDialog(isd_param, code) > 0) {
+				PPIDArray psn_list;
 				PPObjPerson psn_obj;
 				if(psn_obj.GetListByRegNumber(reg_type_id, 0, code, psn_list) > 0)
 					if(psn_list.getCount()) {
@@ -4880,164 +4880,6 @@ void PersonCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 //
 //
 //
-#if 0 // {
-PersonListCtrlGroup::Rec::Rec(PPID psnKindID, const PPIDArray * pPersonList)
-{
-	Init(psnKindID, pPersonList);
-}
-
-void PersonListCtrlGroup::Rec::Init(PPID psnKindID, const PPIDArray * pPersonList)
-{
-	PsnKindID = psnKindID;
-	if(pPersonList)
-		List = *pPersonList;
-	else
-		List.freeAll();
-}
-
-PersonListCtrlGroup::PersonListCtrlGroup(uint ctlsel, uint ctlSelPsnKind, uint cmPsnList, long flags) : CtrlGroup()
-{
-	Ctlsel        = ctlsel;
-	CtlselPsnKind = ctlSelPsnKind;
-	CmPsnList     = cmPsnList;
-	Flags = flags;
-}
-
-PersonListCtrlGroup::~PersonListCtrlGroup()
-{
-	ZDELETE(ListData.P_LList);
-	ZDELETE(ListData.P_RList);
-}
-
-int PersonListCtrlGroup::Setup(TDialog * pDlg, PPID psnKindID, int force /*=0*/)
-{
-	int     new_psn_list = 0;
-	SString buf;
-	if(Data.PsnKindID != psnKindID || force) {
-		Data.PsnKindID = psnKindID;
-		SETIFZ(ListData.P_LList, new TaggedStringArray());
-		SETIFZ(ListData.P_RList, new TaggedStringArray());
-		ListData.P_LList->freeAll();
-		ListData.P_RList->freeAll();
-		if(Data.PsnKindID) {
-			StrAssocArray _list;
-			TaggedStringArray * p_psn_list = static_cast<TaggedStringArray *>(ListData.P_LList);
-			PsnObj.GetListByKind(Data.PsnKindID, 0, &_list);
-			for(uint i = 0; i < _list.getCount(); i++)
-				p_psn_list->Add(_list.at(i).Id, _list.at(i).Txt);
-		}
-		if(force) {
-			TaggedStringArray * p_sel_list = (TaggedStringArray*)ListData.P_RList;
-			for(uint i = 0; i < Data.List.getCount(); i++) {
-				PPID id = Data.List.at(i);
-				GetObjectName(PPOBJ_PERSON, id, buf);
-				p_sel_list->Add(id, buf);
-			}
-		}
-	}
-	pDlg->enableCommand(CmPsnList, BIN(Data.PsnKindID));
-	{
-		PPID   id = (ListData.P_RList && ListData.P_RList->getCount() == 1) ? ((TaggedString*)ListData.P_RList->at(0))->Id : 0;
-		const  bool is_list = (ListData.P_RList && ListData.P_RList->getCount() > 1);
-		if(is_list) {
-			PPLoadString("list", buf);
-			SetComboBoxLinkText(pDlg, Ctlsel, buf);
-		}
-		else
-			SetupPPObjCombo(pDlg, Ctlsel, PPOBJ_PERSON, id, Flags, Data.PsnKindID);
-		pDlg->disableCtrl(Ctlsel, is_list);
-	}
-	return 1;
-}
-
-int PersonListCtrlGroup::setData(TDialog * pDlg, void * pRec)
-{
-	if(pRec)
-		Data = *static_cast<const Rec *>(pRec);
-	else
-		Data.Init();
-	SetupPPObjCombo(pDlg, CtlselPsnKind, PPOBJ_PERSONKIND, Data.PsnKindID, 0, 0);
-	Setup(pDlg, Data.PsnKindID, 1);
-	return 1;
-}
-
-int PersonListCtrlGroup::getData(TDialog * pDlg, void * pRec)
-{
-	Data.PsnKindID = pDlg->getCtrlLong(CtlselPsnKind);
-	Data.List.freeAll();
-	if(ListData.P_RList && ListData.P_RList->getCount()) {
-		const TaggedStringArray * p_psn_list = static_cast<const TaggedStringArray *>(ListData.P_RList);
-		for(uint i = 0; i < p_psn_list->getCount(); i++)
-			Data.List.add(p_psn_list->at(i).Id);
-	}
-	else {
-		PPID psn_id = pDlg->getCtrlLong(Ctlsel);
-		if(psn_id)
-			Data.List.add(psn_id);
-	}
-	ASSIGN_PTR((Rec *)pRec, Data);
-	return 1;
-}
-
-int PersonListCtrlGroup::selectByCode(TDialog * pDlg)
-{
-	int    ok = -1;
-	ComboBox * p_combo = static_cast<ComboBox *>(pDlg->getCtrlView(Ctlsel));
-	if(p_combo && p_combo->GetLink()) {
-		PPPersonKind psn_kind_rec;
-		PPID   reg_type_id = 0;
-		if(SearchObject(PPOBJ_PERSONKIND, Data.PsnKindID, &psn_kind_rec) > 0)
-			reg_type_id = psn_kind_rec.CodeRegTypeID;
-		if(reg_type_id > 0) {
-			SString code;
-			SString title;
-			PPRegisterType reg_type_rec;
-			SearchObject(PPOBJ_REGISTERTYPE, reg_type_id, &reg_type_rec);
-			PPLoadText(PPTXT_SEARCHPERSON, title);
-			if(InputStringDialog(title, reg_type_rec.Name, 0, 0, code) > 0) {
-				PPIDArray   psn_list;
-				PPObjPerson psn_obj;
-				if(psn_obj.GetListByRegNumber(reg_type_id, 0, (const char *)code, psn_list) > 0)
-					if(psn_list.getCount()) {
-						pDlg->setCtrlData(Ctlsel, &psn_list.at(0));
-						TView::messageCommand(pDlg, cmCBSelected, p_combo);
-						ok = 1;
-					}
-			}
-		}
-	}
-	return ok;
-}
-
-void PersonListCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
-{
-	if(event.isKeyDown(kbF2)) {
-		ComboBox * p_combo = static_cast<ComboBox *>(pDlg->getCtrlView(Ctlsel));
-		if(p_combo && p_combo->GetLink() && pDlg->current == p_combo->GetLink()) {
-			selectByCode(pDlg);
-			pDlg->clearEvent(event);
-		}
-	}
-	else if(TVCOMMAND) {
-		if(TVCMD == CmPsnList) {
-			if(ListData.P_RList && ListData.P_RList->getCount() == 0) {
-				TaggedString item;
-				if((item.Id = pDlg->getCtrlLong(Ctlsel))) {
-					GetObjectName(PPOBJ_PERSON, item.Id, item.Txt, sizeof(item.Txt));
-					ListData.P_RList->insert(&item);
-				}
-			}
-			if(ListToListAryDialog(&ListData) > 0)
-				Setup(pDlg, Data.PsnKindID);
-			pDlg->clearEvent(event);
-		}
-		else if(TVCMD == cmCBSelected && CtlselPsnKind && event.isCtlEvent(CtlselPsnKind))
-			Setup(pDlg, pDlg->getCtrlLong(CtlselPsnKind));
-	}
-}
-
-#else // }{
-
 PersonListCtrlGroup::Rec::Rec(PPID psnKindID, const PPIDArray * pPersonList)
 {
 	Init(psnKindID, pPersonList);
@@ -5124,8 +4966,8 @@ int PersonListCtrlGroup::SelectByCode(TDialog * pDlg)
 			SearchObject(PPOBJ_REGISTERTYPE, reg_type_id, &reg_type_rec);
 			PPLoadText(PPTXT_SEARCHPERSON, title);
 			PPInputStringDialogParam isd_param(title, reg_type_rec.Name);
-			if(InputStringDialog(&isd_param, code) > 0) {
-				PPIDArray   psn_list;
+			if(InputStringDialog(isd_param, code) > 0) {
+				PPIDArray psn_list;
 				PPObjPerson psn_obj;
 				if(psn_obj.GetListByRegNumber(reg_type_id, 0, code, psn_list) > 0)
 					if(psn_list.getCount()) {
@@ -5177,8 +5019,6 @@ void PersonListCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 		return;
 	pDlg->clearEvent(event);
 }
-
-#endif // }
 //
 //
 //
@@ -5842,15 +5682,76 @@ int BrandCtrlGroup::Setup(TDialog * pDlg)
 }
 //
 //
-//
-static int InputStringDialog(const char * pTitle, const char * pInpTitle, int disableSelection, int inputMemo, SString & rBuf)
+// 
+PPInputStringDialogParam::PPInputStringDialogParam(const char * pTitle, const char * pInputTitle) :
+	Flags(0), Title(pTitle), InputTitle(pInputTitle), P_Wse(0), MaxTextLen(0)
+{
+}
+
+PPInputStringDialogParam::~PPInputStringDialogParam()
+{
+	delete P_Wse;
+}
+
+int InputStringDialog(PPInputStringDialogParam & rParam, SString & rBuf)
 {
 	int    ok = -1;
-	TDialog * dlg = new TDialog((inputMemo) ? DLG_MEMO : DLG_INPUT);
+	TDialog * dlg = new TDialog((rParam.Flags & rParam.fInputMemo) ? DLG_MEMO : DLG_INPUT);
+	if(CheckDialogPtrErr(&dlg)) {
+		dlg->setTitle(rParam.Title);
+		if(rParam.InputTitle.NotEmpty())
+			dlg->setLabelText(CTL_INPUT_STR, rParam.InputTitle);
+		{
+			dlg->setCtrlString(CTL_INPUT_STR, rBuf);
+		}
+		TInputLine * p_il = static_cast<TInputLine *>(dlg->getCtrlView(CTL_INPUT_STR));
+		if(p_il) {
+			if(rParam.Flags & rParam.fDisableSelection) {
+				CALLPTRMEMB(p_il, disableDeleteSelection(1));
+			}
+			// @v12.4.1 {
+			if(rParam.MaxTextLen > 0) {
+				p_il->SetupMaxTextLen(rParam.MaxTextLen);
+			}
+			// } @v12.4.1 
+		}
+		if(rParam.P_Wse) {
+			dlg->SetupWordSelector(CTL_INPUT_STR, rParam.P_Wse, 0, rParam.P_Wse->MinSymbCount, rParam.P_Wse->Flags);
+			rParam.P_Wse = 0; // Диалог разрушит объект pParam->P_Wse
+		}
+		if(ExecView(dlg) == cmOK) {
+			dlg->getCtrlString(CTL_INPUT_STR, rBuf);
+			ok = 1;
+		}
+	}
+	else
+		ok = 0;
+	delete dlg;
+	return ok;
+}
+
+#if 0 // @v12.4.1 {
+// @v12.4.1 @todo Объединить эту функцию с общей InputStringDialog()
+static int InputStringDialog__(const char * pTitle, const char * pInpTitle, int disableSelection, int inputMemo, SString & rBuf)
+{
+	int    ok = -1;
+	TDialog * dlg = new TDialog(inputMemo ? DLG_MEMO : DLG_INPUT);
 	if(CheckDialogPtrErr(&dlg)) {
 		dlg->setTitle(pTitle);
 		if(pInpTitle)
 			dlg->setLabelText(CTL_INPUT_STR, pInpTitle);
+		{
+		// @v12.4.1 @todo 
+		/*int   setMaxLen(size_t maxLen)
+		{
+			int    ok = 1;
+			if(checkirange(maxLen, static_cast<size_t>(1), static_cast<size_t>(4000)))
+				SetupInputLine(CTL_BIGTXTEDIT_TEXT, MKSTYPE(S_ZSTRING, maxLen), MKSFMT(maxLen, 0));
+			else
+				ok = PPSetErrorSLib();
+			return ok;
+		}*/
+		}
 		dlg->setCtrlString(CTL_INPUT_STR, rBuf);
 		if(disableSelection) {
 			TInputLine * il = static_cast<TInputLine *>(dlg->getCtrlView(CTL_INPUT_STR));
@@ -5866,50 +5767,7 @@ static int InputStringDialog(const char * pTitle, const char * pInpTitle, int di
 	delete dlg;
 	return ok;
 }
-
-PPInputStringDialogParam::PPInputStringDialogParam(const char * pTitle, const char * pInputTitle) :
-	Flags(0), Title(pTitle), InputTitle(pInputTitle), P_Wse(0)
-{
-}
-
-PPInputStringDialogParam::~PPInputStringDialogParam()
-{
-	delete P_Wse;
-}
-
-int FASTCALL InputStringDialog(PPInputStringDialogParam * pParam, SString & rBuf)
-{
-	int    ok = -1;
-	TDialog * dlg = new TDialog((pParam && pParam->Flags & pParam->fInputMemo) ? DLG_MEMO : DLG_INPUT);
-	if(CheckDialogPtrErr(&dlg)) {
-		if(pParam) {
-			dlg->setTitle(pParam->Title);
-			if(pParam->InputTitle.NotEmpty())
-				dlg->setLabelText(CTL_INPUT_STR, pParam->InputTitle);
-		}
-		{
-			dlg->setCtrlString(CTL_INPUT_STR, rBuf);
-		}
-		if(pParam) {
-			if(pParam->Flags & pParam->fDisableSelection) {
-				TInputLine * il = static_cast<TInputLine *>(dlg->getCtrlView(CTL_INPUT_STR));
-				CALLPTRMEMB(il, disableDeleteSelection(1));
-			}
-			if(pParam->P_Wse) {
-				dlg->SetupWordSelector(CTL_INPUT_STR, pParam->P_Wse, 0, pParam->P_Wse->MinSymbCount, pParam->P_Wse->Flags);
-				pParam->P_Wse = 0; // Диалог разрушит объект pParam->P_Wse
-			}
-		}
-		if(ExecView(dlg) == cmOK) {
-			dlg->getCtrlString(CTL_INPUT_STR, rBuf);
-			ok = 1;
-		}
-	}
-	else
-		ok = 0;
-	delete dlg;
-	return ok;
-}
+#endif // } 0 @v12.4.1
 
 int InputNumberDialog(const char * pTitle, const char * pInpTitle, double & rValue)
 {
@@ -6399,7 +6257,10 @@ private:
 {
 	int    ok = -1;
 	SString buf;
-	if(InputStringDialog(0, 0, 0, 1, buf) > 0) {
+	PPInputStringDialogParam isd_param;
+	isd_param.Flags |= PPInputStringDialogParam::fInputMemo;
+	isd_param.MaxTextLen = SKILOBYTE(4);
+	if(/*InputStringDialog__(0, 0, 0, 1, buf)*/InputStringDialog(isd_param, buf) > 0) {
 		Memos.Add(Memos.getCount() + 1, 0, buf, 0);
 		ASSIGN_PTR(pPos, Memos.getCount() - 1);
 		ASSIGN_PTR(pID,  Memos.getCount());
@@ -6413,7 +6274,10 @@ private:
 	int    ok = -1;
 	SString buf;
 	if(Memos.GetText(id, buf) > 0) {
-		if(InputStringDialog(0, 0, 0, 1, buf) > 0) {
+		PPInputStringDialogParam isd_param;
+		isd_param.Flags |= PPInputStringDialogParam::fInputMemo;
+		isd_param.MaxTextLen = SKILOBYTE(4);
+		if(/*InputStringDialog__(0, 0, 0, 1, buf)*/InputStringDialog(isd_param, buf) > 0) {
 			Memos.Add(Memos.getCount(), 0, buf);
 			ok = 1;
 		}
@@ -6447,7 +6311,10 @@ int EditObjMemos(PPID objTypeID, PPID prop, PPID objID)
 	SString memos;
 	EditMemosDialog * p_dlg = 0;
 	PPRef->GetPropVlrString(objTypeID, objID, prop, memos);
-	if(!memos.Len() && InputStringDialog(0, 0, 0, 1, memos) > 0) {
+	PPInputStringDialogParam isd_param;
+	isd_param.Flags |= PPInputStringDialogParam::fInputMemo;
+	isd_param.MaxTextLen = SKILOBYTE(4);
+	if(!memos.Len() && /*InputStringDialog__(0, 0, 0, 1, memos)*/InputStringDialog(isd_param, memos) > 0) {
 		memos.ReplaceStr(PPConst::P_ObjMemoDelim, "", 0);
 		ok = 1;
 	}
@@ -7099,10 +6966,13 @@ static int IsEmailAddr(const char * pPath)
 int EmailListDlg::addItem(long * pPos, long * pID)
 {
 	int    ok = -1;
-	long   pos = -1, id = -1;
-	SString addr, title;
+	long   pos = -1;
+	long   id = -1;
+	SString addr;
+	SString title;
 	PPLoadString("email", title);
-	if(InputStringDialog(title, title, 0, 0, addr) > 0 && IsEmailAddr(addr)) {
+	PPInputStringDialogParam isd_param(title, title);
+	if(/*InputStringDialog__(title, title, 0, 0, addr)*/InputStringDialog(isd_param, addr) > 0 && IsEmailAddr(addr)) {
 		if((ok = Data.Add(Data.getCount() + 1, addr, 0)) > 0) {
 			pos = Data.getCount() - 1;
 			id  = Data.getCount();
@@ -7120,7 +6990,8 @@ int EmailListDlg::editItem(long pos, long id)
 		SString title;
 		SString addr(Data.Get(pos).Txt);
 		PPLoadString("email", title);
-		if(InputStringDialog(title, title, 0, 0, addr) > 0 && IsEmailAddr(addr)) {
+		PPInputStringDialogParam isd_param(title, title);
+		if(/*InputStringDialog__(title, title, 0, 0, addr)*/InputStringDialog(isd_param, addr) > 0 && IsEmailAddr(addr)) {
 			Data.Add(id, addr);
 			ok = 1;
 		}
@@ -8892,6 +8763,29 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 						}
 						pDlg->InsertCtlWithCorrespondingNativeItem(p_cb, item_id, 0, /*extraPtr*/0);
 						is_inserted = true;
+						// @v12.4.1 {
+						if(supplement.Kind == SUiCtrlSupplement::kList) {
+							if(supplement.Ident) {
+								TRect rc_sb;
+								rc_sb.a.x = rc_cb.b.x+1;
+								rc_sb.a.y = rc_cb.a.y;
+								rc_sb.b.x = rc_sb.a.x + 60; // Длина кнопки 60px
+								rc_sb.b.y = rc_sb.a.y;
+								uint   pic_id = 0;
+								switch(supplement.Kind) {
+									case SUiCtrlSupplement::kList: 
+										pic_id = 0; 
+										if(supplement.Text.IsEmpty()) {
+											PPLoadStringUtf8("but_list", supplement.Text);
+										}
+										break; 
+								}
+								TButton * p_sb = new TButton(rc_sb, supplement.Text, supplement.Cmd, 0, pic_id);
+								p_sb->SetSupplementFactors(supplement.Kind, item_id);
+								pDlg->InsertCtlWithCorrespondingNativeItem(p_sb, supplement.Ident, 0, /*extraPtr*/0);
+							}
+						}
+						// } @v12.4.1 
 					}
 					break;
 				case UiItemKind::kListbox: 
@@ -9375,12 +9269,31 @@ void PPDialogConstructor::InsertControlLayouts(TDialog * pDlg, DlContext & rCtx,
 								ComboBox * p_cb = static_cast<ComboBox *>(p_view);
 								TInputLine * p_il = p_cb->GetLink();
 								if(p_il) {
+									// @v12.4.1 {
+									TView * p_supplemental_view = 0;
+									SPoint2F sb_sz; // Размер supplemental-button
+									if(supplement.Kind && supplement.Ident) {
+										p_supplemental_view = pDlg->getCtrlView(supplement.Ident);
+										if(TView::IsSubSign(p_supplemental_view, TV_SUBSIGN_BUTTON)) {
+											if(supplement.Kind == SUiCtrlSupplement::kList) {
+												sb_sz.Set(60.0f, FixedButtonY);
+											}
+											else {
+												sb_sz.Set(20.0f, FixedButtonY);
+											}
+										}
+										else {
+											p_supplemental_view = 0;
+										}
+									}
+									// } @v12.4.1 
 									TView * p_lbl = pDlg->GetCtrlLabel(p_il);
 									if(p_lbl) {
 										SUiLayoutParam glp(DIREC_VERT); // Общий лейаут для всей группы
-										SUiLayoutParam lp_ib(DIREC_HORZ); // Лейаут для пары {поле ввода; кнопка}
+										SUiLayoutParam lp_ib(DIREC_HORZ); // Лейаут для группы {поле ввода; кнопка[; supplement_button]}
 										SUiLayoutParam lp_label;
 										SUiLayoutParam lp_button;
+										SUiLayoutParam lp_supplement_button; // @v12.4.1
 										SUiLayoutParam lp_il;
 										TRect  rc_label;
 										glp.Margin = lp.Margin;
@@ -9404,6 +9317,14 @@ void PPDialogConstructor::InsertControlLayouts(TDialog * pDlg, DlContext & rCtx,
 										SUiLayout * p_lo_ib_grp = p_lo_cb_grp->InsertItem(0, &lp_ib);
 										InsertCtrlLayout(pDlg, p_lo_ib_grp, p_il, lp_il);
 										InsertCtrlLayout(pDlg, p_lo_ib_grp, p_cb, lp_button);
+										// @v12.4.1 {
+										if(p_supplemental_view) {
+											lp_supplement_button.SetFixedSizeX(sb_sz.x);
+											lp_supplement_button.SetFixedSizeY(sb_sz.y);
+											lp_supplement_button.ShrinkFactor = 0.0f;
+											InsertCtrlLayout(pDlg, p_lo_ib_grp, p_supplemental_view, lp_supplement_button);
+										}
+										// } @v12.4.1 
 										done = true;
 									}
 									else {

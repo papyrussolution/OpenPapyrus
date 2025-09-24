@@ -120,7 +120,7 @@ int LogsDialog::SendByEmail()
 		support.SetIfEmpty(uis.SupportMail);
 		PPLoadText(PPTXT_INPUTEMAIL, temp_buf);
 		PPInputStringDialogParam isd_param(temp_buf, temp_buf);
-		if(InputStringDialog(&isd_param, support) > 0) {
+		if(InputStringDialog(isd_param, support) > 0) {
 			THROW_PP(support.Len() > 0, PPERR_SUPPORTMAILNOTDEF);
 			uis.SupportMail = support;
 			// @v11.2.6 THROW(uis.Save());

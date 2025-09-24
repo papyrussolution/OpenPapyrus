@@ -1395,13 +1395,13 @@ int PPViewLot::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pB
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
+		SString temp_buf;
 		Reference * p_ref = PPRef;
 		PPID   lot_id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
 		switch(ppvCmd) {
 			// @debug {
 			case PPVCMD_TEST:
 				if(Filt.Operation.low && Filt.Operation.upp) {
-					SString temp_buf;
 					PPGetFilePath(PPPATH_OUT, "EvaluateAverageRestByLot-debug.txt", temp_buf);
 					SFile f_out(temp_buf, SFile::mWrite);
 					if(f_out.IsValid()) {
@@ -1504,10 +1504,9 @@ int PPViewLot::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pB
 			case PPVCMD_VIEWSPOILTSER:
 				ok = -1;
 				if(lot_id && P_SpoilTbl) {
-					SString serial;
-					if(P_BObj->GetSerialNumberByLot(lot_id, serial, 0) > 0) {
-						P_BObj->ReleaseSerialFromUniqSuffix(serial);
-						ViewSpoilList(P_SpoilTbl, serial, 0);
+					if(P_BObj->GetSerialNumberByLot(lot_id, temp_buf, 0) > 0) {
+						P_BObj->ReleaseSerialFromUniqSuffix(temp_buf);
+						ViewSpoilList(P_SpoilTbl, temp_buf, 0);
 					}
 				}
 				break;
@@ -1531,8 +1530,8 @@ int PPViewLot::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pB
 			case PPVCMD_EDITPERSON:
 				ok = -1;
 				{
-					ArticleTbl::Rec  ar_rec;
-					LotViewItem  item;
+					ArticleTbl::Rec ar_rec;
+					LotViewItem item;
 					GetItem(lot_id, &item);
 					if(item.SupplID && ArObj.Fetch(item.SupplID, &ar_rec) > 0 && ar_rec.ObjID) {
 						PsnObj.Edit(&ar_rec.ObjID, 0);
@@ -1565,7 +1564,7 @@ int PPViewLot::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pB
 			case PPVCMD_CHANGESTATUS: // @v11.1.6
 				ok = -1;
 				if(lot_id) {
-					LotViewItem  item;
+					LotViewItem item;
 					GetItem(lot_id, &item);
 					if(item.BillID)
 						ok = P_BObj->EditBillStatus(item.BillID);
@@ -1573,7 +1572,25 @@ int PPViewLot::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pB
 				break;
 			case PPVCMD_LOTEXTCODE:
 				if(lot_id) {
-					PPView::Execute(PPVIEW_LOTEXTCODE, 0, 0 /* modal */, reinterpret_cast<void *>(lot_id));
+					// @v12.4.1 PPView::Execute(PPVIEW_LOTEXTCODE, 0, 0/*modal*/, reinterpret_cast<void *>(lot_id));
+					// @v12.4.1 {
+					if(P_BObj->P_LotXcT) {
+						LotViewItem item;
+						GetItem(lot_id, &item);
+						if(item.BillID) {
+							PPLotExtCodeContainer xcl;
+							if(P_BObj->P_LotXcT->GetContainer(item.BillID, xcl) > 0) {
+								PPBillPacket bpack;
+								if(P_BObj->ExtractPacket(item.BillID, &bpack) > 0) {
+									uint row_idx = 0;
+									if(bpack.SearchLot(lot_id, &row_idx)) {
+										P_BObj->EditExtCodeList(&bpack, row_idx+1, 0);
+									}
+								}
+							}
+						}
+					}
+					// } @v12.4.1 
 				}
 				break;
 			case PPVCMD_CHANGECLOSEPAR:
@@ -1600,7 +1617,6 @@ int PPViewLot::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pB
 					if(oneof3(selection, PPEDIOP_EGAIS_ACTCHARGEON, PPEDIOP_EGAIS_ACTCHARGEONSHOP, (PPEDIOP_EGAIS_ACTCHARGEONSHOP+1000))) {
 						const LDATE _curdate = getcurdate_();
 						PPEgaisProcessor ep(PPEgaisProcessor::cfUseVerByConfig, 0, 0);
-						SString temp_buf;
 						SString egais_code;
 						SString ref_a;
 						SString ref_b;
@@ -2907,13 +2923,13 @@ int PPViewLot::RevalCostByLots()
 //
 // Global standalone functions
 //
-int STDCALL ViewLots(PPID goods, PPID locID, PPID suppl, PPID qcert, int modeless)
+int STDCALL ViewLots(PPID goodsID, PPID locID, PPID supplID, PPID qcertID, int modeless)
 {
 	LotFilt flt;
-	flt.GoodsID = goods;
+	flt.GoodsID = goodsID;
 	flt.LocList.Add(locID);
-	flt.SupplID = suppl;
-	flt.QCertID = qcert;
+	flt.SupplID = supplID;
+	flt.QCertID = qcertID;
 	return ::ViewLots(&flt, 0, modeless);
 }
 
@@ -3381,15 +3397,15 @@ int PPLotExporter::Export(const LotViewItem * pItem)
 			for(DateIter di; p_bobj->trfr->EnumByLot(pItem->ID, &di, &trfr_rec) > 0;) {
 				if(trfr_rec.BillID == lot_bill_id) {
 					int16 row_idx = 0;
-					int   row_is_found = 0;
-					for(int   rbb_iter = 0; !row_is_found && p_bobj->trfr->EnumItems(lot_bill_id, &rbb_iter, 0) > 0;) {
+					bool  _is_row_found = false;
+					for(int   rbb_iter = 0; !_is_row_found && p_bobj->trfr->EnumItems(lot_bill_id, &rbb_iter, 0) > 0;) {
 						row_idx++;
 						if(rbb_iter == trfr_rec.RByBill)
-							row_is_found = 1;
+							_is_row_found = true;
 					}
-					if(row_is_found) {
+					if(_is_row_found) {
 						StringSet local_ss;
-						uint local_count = 0;
+						uint   local_count = 0;
 						p_lec->GetListByBillRow(lot_bill_id, row_idx, false, local_ss, &local_count);
 						ss_ext_codes.add(local_ss);
 						ext_code_count += local_count;

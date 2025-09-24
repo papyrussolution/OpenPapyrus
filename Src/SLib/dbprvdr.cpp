@@ -742,7 +742,7 @@ int DbProvider::Implement_DeleteFrom(DBTable * pTbl, int useTa, DBQ & rQ)
 		} while(ok && q->single_fetch(0, 0, spNext));
 		if(q->error)
 			ok = 0;
-		if(useTa)
+		if(useTa) {
 			if(ok) {
 				if(!DBS.GetTLA().CommitWork()) {
 					DBS.GetTLA().RollbackWork();
@@ -751,6 +751,7 @@ int DbProvider::Implement_DeleteFrom(DBTable * pTbl, int useTa, DBQ & rQ)
 			}
 			else
 				DBS.GetTLA().RollbackWork();
+		}
 	}
 	else
 		ok = 0;

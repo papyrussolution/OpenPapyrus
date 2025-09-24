@@ -1428,9 +1428,13 @@ private:
 typedef TSVector <DBRowId> DBRowIdArray;
 
 struct DBLobItem {
+	DBLobItem(uint fldN) : FldN(fldN), Size(0), LocPtr(0), StrgInd(0)
+	{
+	}
 	uint   FldN;
 	uint32 Size;
-	uint32 Loc;
+	// @v12.4.1 uint32 Loc;
+	uint64 LocPtr; // @v12.4.1
 	uint8  StrgInd;    // Индикатор сохраняемого значения поля (see SLob::Serialize) //
 	uint8  Reserve[3];
 };
@@ -1440,8 +1444,8 @@ public:
 	DBLobBlock();
 	int    SetSize(uint fldIdx, size_t sz);
 	int    GetSize(uint fldIdx, size_t * pSz) const;
-	int    SetLocator(uint fldIdx, uint32 loc);
-	int    GetLocator(uint fldIdx, uint32 * pLoc) const;
+	int    SetLocator(uint fldIdx, uint64 locator);
+	int    GetLocator(uint fldIdx, uint64 * pLocator) const;
 	int    FASTCALL SearchPos(uint fldIdx, uint * pPos) const;
 	SBuffer Storage; // Временное хранилище данных из LOB-полей записи.
 		// Используется функциями DBTable::StoreAndTrimLob() и DBTable::RestoreLob()
@@ -3016,6 +3020,7 @@ private:
 	int    GetFileStat(const char * pFileName/*регистр символов важен!*/, long reqItems, DbTableStat * pStat);
 	int    ProcessBinding_SimpleType(int action, uint count, SSqlStmt * pStmt, SSqlStmt::Bind * pBind, uint ntvType);
 	int    Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, uint * pActual);
+	int    ResetStatement(SSqlStmt & rS);
 	long   Flags;
 	void * H;
 	Generator_SQL SqlGen;
@@ -4025,8 +4030,7 @@ public:
 	//
 	// Если sz == 0, то размер записи полагается равным fixRecSize.
 	// Если sz >  0, то размер записи полагается равным sz
-	// Если sz <  0, то размер записи равен
-	//      FixRecSize + sstrlen(((char *)b) + FixRecSize) + 1
+	// Если sz <  0, то размер записи равен FixRecSize + sstrlen(((char *)b) + FixRecSize) + 1
 	//
 	int    FASTCALL insert(const void * b);
 	int    flash();

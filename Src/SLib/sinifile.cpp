@@ -443,7 +443,6 @@ int SIniFile::Open(const char * pFileName)
 	const  bool already_opened = File.IsValid();
 	int    ok = already_opened ? -1 : File.Open(pFileName, SFile::mRead);
 	if(ok) {
-		// @v10.3.11 {
 		if(!already_opened) {
 			LoadingTime = getcurdatetime_();
 			Cp = cpUndef;
@@ -471,7 +470,6 @@ int SIniFile::Open(const char * pFileName)
 				Cp = (Flags & fWinCoding) ? cp1251 : cp866;
 			}
 		}
-		// } @v10.3.11
 	}
 	return ok;
 }
@@ -725,22 +723,7 @@ int SIniFile::SetParam(const char * pSect, const char * pParam, const char * pVa
 		if(pParam == 0)
 			ok = P_IniBuf->RemoveSect(pSect);
 		else if(pVal) {
-			/* @v10.3.11 if(Flags & fWinCoding) {
-				SString val = pVal;
-				val.Transf(CTRANSF_INNER_TO_OUTER);
-				ok = P_IniBuf->SetParam(pSect, pParam, val, overwrite);
-			}
-			else
-				ok = P_IniBuf->SetParam(pSect, pParam, pVal, overwrite);*/
-			// @v10.3.11 {
-			//
-			// Буфер держит строки в INNER-кодировке!
-			//
-			//SString & r_temp_buf = SLS.AcquireRvlStr();
-			//r_temp_buf = pVal;
-			//EncodeText(r_temp_buf);
 			ok = P_IniBuf->SetParam(pSect, pParam, pVal, overwrite);
-			// } @v10.3.11 
 		}
 		else
 			ok = P_IniBuf->RemoveParam(pSect, pParam);

@@ -41,7 +41,7 @@ int PPViewServerStat::EditBaseFilt(PPBaseFilt * pFilt)
 	filt.Copy(pFilt, 0);
 	if(filt.ServerAddr.Len() == 0)
 		ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_JOBSERVERADDRPORT, filt.ServerAddr);
-	if(InputStringDialog(&isd_param, filt.ServerAddr) > 0) {
+	if(InputStringDialog(isd_param, filt.ServerAddr) > 0) {
 		CALLPTRMEMB(pFilt, Copy(&filt, 0));
 		ini_file.Append(PPINISECT_CONFIG, PPINIPARAM_JOBSERVERADDRPORT, filt.ServerAddr, 1);
 		ini_file.FlashIniBuf();

@@ -1738,60 +1738,6 @@ int STextBrowser::InsertWorkbookLink()
 //
 //
 //
-#if 0 // @v10.9.1 {
-
-struct TidyProcessBlock {
-	TidyProcessBlock();
-
-	long   Flags;
-	SBaseBuffer InputBuffer;
-	SString Output;
-	StrAssocArray TidyOptions;
-};
-
-int TidyProcessText(TidyProcessBlock & rBlk);
-
-#include <..\osf\tidy\include\tidy.h>
-
-TidyProcessBlock::TidyProcessBlock() : Flags(0)
-{
-	InputBuffer.Init();
-}
-
-int TidyProcessText(TidyProcessBlock & rBlk)
-{
-	int    ok = 1, r;
-	TidyDoc tdoc = tidyCreate();
-	TidyBuffer input;
-	TidyBuffer output;
-	TidyBuffer errbuf;
-
-	tidyBufInit(&input);
-	tidyBufInit(&output);
-	tidyBufInit(&errbuf);
-	for(uint i = 0; i < rBlk.TidyOptions.getCount(); i++) {
-		StrAssocArray::Item item = rBlk.TidyOptions.at_WithoutParent(i);
-		tidyOptSetValue(tdoc, (TidyOptionId)item.Id, item.Txt);
-	}
-	r = tidySetErrorBuffer(tdoc, &errbuf);
-	tidyBufAppend(&input, rBlk.InputBuffer.P_Buf, rBlk.InputBuffer.Size);
-
-	r = tidyParseBuffer(tdoc, &input);
-	r = tidyCleanAndRepair(tdoc);
-	r = tidyRunDiagnostics(tdoc);
-	r = tidyOptSetBool(tdoc, TidyForceOutput, true);
-	r = tidySaveBuffer(tdoc, &output);
-	rBlk.Output.Z();
-	while(!tidyBufEndOfInput(&output)) {
-		rBlk.Output.CatChar(tidyBufGetByte(&output));
-	}
-	tidyBufFree(&output);
-	tidyBufFree(&errbuf);
-	tidyRelease(tdoc);
-	return ok;
-}
-#endif // } 0 @v10.9.1
-
 int STextBrowser::ProcessCommand(uint ppvCmd, const void * pHdr, void * pBrw)
 {
 	int    ok = -2;

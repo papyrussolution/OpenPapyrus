@@ -874,7 +874,7 @@ SCS_ATOLDRV::~SCS_ATOLDRV()
 
 /*virtual*/int SCS_ATOLDRV::PreprocessChZnCode(int op, const char * pCode, double qtty, int uomId, uint uomFragm, CCheckPacket::PreprocessChZnCodeResult & rResult) // @v11.2.12
 {
-	if(op == ppchzcopCheck) { // Другие операции этот блок менять не должны!
+	if(oneof2(op, ppchzcopVerify, ppchzcopVerifyOffline)) { // Другие операции этот блок менять не должны! // @v12.4.1 ppchzcopVerifyOffline
 		rResult.Z();
 	}
 	int    ok = 1;
@@ -895,7 +895,7 @@ SCS_ATOLDRV::~SCS_ATOLDRV()
 				THROW(CallJsonProc(&js, temp_buf));
 			}
 		}
-		else if(op == ppchzcopCheck) {
+		else if(oneof2(op, ppchzcopVerify, ppchzcopVerifyOffline)) { // @v12.4.1
 			{
 				SJson  js(SJson::tOBJECT);
 				js.InsertString("type", "beginMarkingCodeValidation");
@@ -909,6 +909,11 @@ SCS_ATOLDRV::~SCS_ATOLDRV()
 					p_js_params->InsertDouble("itemQuantity", qtty, MKSFMTD(0, 3, NMBF_NOTRAILZ));
 					p_js_params->InsertString("itemUnits", "piece");
 					p_js_params->InsertInt("imcModeProcessing", 0);
+					// @v12.4.1 {
+					if(op == ppchzcopVerifyOffline) {
+						p_js_params->InsertBool("notSendToServer", true);
+					}
+					// } @v12.4.1 
 					// @v11.8.12 {
 					if(qtty > 0.0 && qtty < 1.0 && uomFragm > 0) {
 						double ip = 0.0;

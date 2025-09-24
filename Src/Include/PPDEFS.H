@@ -9275,6 +9275,8 @@
 	#define CTL_LOCTRANSF_PCKG            (18 + WINDOWS_ID_BIAS)
 	#define CTL_LOCTRANSF_PCKGC           (19 + WINDOWS_ID_BIAS)
 	#define CTL_LOCTRANSF_BILLQTTY        (20 + WINDOWS_ID_BIAS)
+	#define CTL_LOCTRANSF_PSN             (21 + WINDOWS_ID_BIAS) // Персоналия, которой принадлежит склад CTLSEL_LOCTRANSF_LOC (domain==LOCTRFRDOMAIN_BAILMENT)
+	#define CTLSEL_LOCTRANSF_PSN          (22 + WINDOWS_ID_BIAS)
 #define DLG_LOCTRFILT            1067 // F_LOCTR Фильтр по складским операциям
 	#define CTL_LOCTRFILT_LOC             (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_LOCTRFILT_LOC          (2 + WINDOWS_ID_BIAS)
@@ -9284,6 +9286,7 @@
 	#define CTLSEL_LOCTRFILT_GOODS        (6 + WINDOWS_ID_BIAS)
 	#define CTL_LOCTRFILT_FLAGS           (7 + WINDOWS_ID_BIAS)
 	#define CTL_LOCTRFILT_MODE            (8 + WINDOWS_ID_BIAS)
+	#define CTL_LOCTRFILT_DOMAIN          (9 + WINDOWS_ID_BIAS) // @v12.4.1
 #define DLG_LOCCFG               1068 // CF_LOC Конфигурация локаций
 	#define CTL_LOCCFG_WHZONECOD          (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_LOCCFG_WHZONECOD       (2 + WINDOWS_ID_BIAS)
@@ -11873,6 +11876,8 @@
 	// cmConfigure
 	#define CTL_CHZNLOCPMPANE_URL               (1 + WINDOWS_ID_BIAS)
 	#define CTL_CHZNLOCPMPANE_STATE             (2 + WINDOWS_ID_BIAS)
+#define DLG_LOCTRANSF_BAILMENT    1483 // LOCTRAN Складская операция - перемещение активов под чужим управлением (domain==LOCTRFRDOMAIN_BAILMENT) //
+	// CTL_LOCTRANSF_XXX
 //
 // Win32 Dialog Identifiers
 //

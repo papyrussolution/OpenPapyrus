@@ -9,9 +9,10 @@
 //
 int Transfer::EnumAssetOp(PPID lotID, DateIter * pIter, int * pOpCode, PPID * pDestLotID, TransferTbl::Rec * pRec)
 {
-	int    op_code = 0, r;
+	int    op_code = 0;
 	TransferTbl::Rec rec;
-	if((r = EnumByLot(lotID, pIter, &rec)) > 0) {
+	const int r = EnumByLot(lotID, pIter, &rec);
+	if(r > 0) {
 		if(rec.Flags & PPTFR_RECEIPT) {
 			if(rec.Flags & PPTFR_ASSETEXPL)
 				op_code = ASSTOPC_RCPTEXPL;
@@ -27,13 +28,14 @@ int Transfer::EnumAssetOp(PPID lotID, DateIter * pIter, int * pOpCode, PPID * pD
 			else
 				op_code = ASSTOPC_DEPREC;
 		}
-		else if(rec.Flags & PPTFR_MINUS)
+		else if(rec.Flags & PPTFR_MINUS) {
 			if(SearchMirror(rec.Dt, rec.OprNo, &rec) > 0) {
 				ASSIGN_PTR(pDestLotID, rec.LotID);
 				op_code = ASSTOPC_MOV;
 			}
 			else
 				op_code = ASSTOPC_EXPEND;
+		}
 		ASSIGN_PTR(pOpCode, op_code);
 		ASSIGN_PTR(pRec, rec);
 		return 1;

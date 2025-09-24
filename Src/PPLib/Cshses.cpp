@@ -226,7 +226,7 @@ int PPSyncCashSession::PreprocessCCheckForOfd12(const OfdFactors & rOfdf, CCheck
 											uom_id = SUOM_LITER;
 											chzn_qtty = fabs(ccl.Quantity) * ratio;
 											//
-											int pczcr = PreprocessChZnCode(ppchzcopCheck, chzn_code, chzn_qtty, uom_id, uom_fragm, chzn_pp_result);
+											int pczcr = PreprocessChZnCode(ppchzcopVerify, chzn_code, chzn_qtty, uom_id, uom_fragm, chzn_pp_result);
 											PPSyncCashSession::LogPreprocessChZnCodeResult(pczcr, 0, chzn_code, chzn_qtty, chzn_pp_result);
 											if(/*pczcr > 0*/true) { // @v12.4.0 true
 												if(/*chzn_pp_result.Status == 1*/true) { // @v12.4.0 true
@@ -254,7 +254,7 @@ int PPSyncCashSession::PreprocessCCheckForOfd12(const OfdFactors & rOfdf, CCheck
 										PPUnit u_rec;
 										if(goods_obj.FetchUnit(goods_rec.UnitID, &u_rec) > 0 && u_rec.Fragmentation > 0 && u_rec.Fragmentation < 100000)
 											uom_fragm = u_rec.Fragmentation;
-										int pczcr = PreprocessChZnCode(ppchzcopCheck, chzn_code, chzn_qtty, uom_id, uom_fragm, chzn_pp_result);
+										int pczcr = PreprocessChZnCode(ppchzcopVerify, chzn_code, chzn_qtty, uom_id, uom_fragm, chzn_pp_result);
 										PPSyncCashSession::LogPreprocessChZnCodeResult(pczcr, 0, chzn_code, chzn_qtty, chzn_pp_result);
 										if(/*pczcr > 0*/true) { // @v12.4.0
 											if(/*chzn_pp_result.Status == 1*/true) { // @v12.4.0 true

@@ -1006,7 +1006,7 @@ int SdRecordBuffer::Add(const void * pRecData, size_t recSize)
 			if(MaxRecSize == 0)
 				MaxRecSize = recSize;
 			else if(recSize != MaxRecSize) {
-				Flags &= ~fEqRec; // @v10.4.3 @fix fEqRec-->~fEqRec 
+				Flags &= ~fEqRec;
 				if(recSize > MaxRecSize)
 					MaxRecSize = recSize;
 			}

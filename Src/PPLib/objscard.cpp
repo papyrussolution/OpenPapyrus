@@ -3061,7 +3061,7 @@ int PPObjSCard::AutoFill(PPID seriesID, int use_ta)
 	pattern = scs_pack.Eb.CodeTempl;
 	PPLoadText(PPTXT_SCARDCODETEMPL, isd_param.Title);
 	isd_param.P_Wse = new TextHistorySelExtra("scardcodetemplate-common");
-	if(InputStringDialog(&isd_param, pattern) > 0) {
+	if(InputStringDialog(isd_param, pattern) > 0) {
 		PPWaitStart();
 		THROW(P_Tbl->AutoFill(scs_pack, pattern, use_ta));
 		PPWaitStop();

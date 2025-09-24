@@ -244,7 +244,7 @@ CPosProcessor::Packet & CPosProcessor::Packet::Z()
 void CPosProcessor::Packet::ClearCur()
 {
 	CurCcItemPos = -1;
-	MEMSZERO(Cur);
+	Cur.Z();
 	CurModifList.clear();
 	Rest = 0.0;
 }
@@ -6466,25 +6466,26 @@ private:
 			return;
 		clearEvent(event);
 	}
-	int  CheckAddrModif(int doSetupCtrls)
+	bool   CheckAddrModif(int doSetupCtrls)
 	{
-		int    is_mod = 0;
-		SString org_buf, now_buf;
+		bool   is_mod = false;
+		SString org_buf;
+		SString now_buf;
 		if(!LockAddrModChecking && Data.Addr_.ID && Data.Addr_.ID == OrgLocRec.ID) {
 			if(Data.Addr_.CityID != OrgLocRec.CityID)
-				is_mod = 1;
+				is_mod = true;
 			else {
 				getCtrlString(CTL_CCHKDLVR_ADDR, now_buf);
 				if(now_buf.CmpNC(LocationCore::GetExFieldS(&OrgLocRec, LOCEXSTR_SHORTADDR, org_buf)) != 0)
-					is_mod = 1;
+					is_mod = true;
 				else {
 					getCtrlString(CTL_CCHKDLVR_PHONE, now_buf);
 					if(now_buf.CmpNC(LocationCore::GetExFieldS(&OrgLocRec, LOCEXSTR_PHONE, org_buf)) != 0)
-						is_mod = 1;
+						is_mod = true;
 					else {
 						getCtrlString(CTL_CCHKDLVR_CONTACT, now_buf);
 						if(now_buf.CmpNC(LocationCore::GetExFieldS(&OrgLocRec, LOCEXSTR_CONTACT, org_buf)) != 0)
-							is_mod = 1;
+							is_mod = true;
 					}
 				}
 			}
@@ -6636,14 +6637,16 @@ private:
 	int    ReplyPhone(int immSelect)
 	{
 		AddrByPhoneList.clear();
-		SString temp_buf, phone_buf;
+		SString temp_buf;
+		SString phone_buf;
 		getCtrlString(CTL_CCHKDLVR_PHONE, temp_buf);
 		if(temp_buf.NotEmptyS()) {
 			temp_buf.Transf(CTRANSF_INNER_TO_UTF8).Utf8ToLower();
 			PPEAddr::Phone::NormalizeStr(temp_buf, 0, phone_buf);
 			if(Data.Flags & Data.fDelivery && CConfig.Flags2 & CCFLG2_INDEXEADDR) {
 				if(phone_buf.NotEmptyS()) {
-					PPIDArray addr_list, dlvr_addr_list;
+					PPIDArray addr_list;
+					PPIDArray dlvr_addr_list;
 					PPIDArray sc_list;
 					PPIDArray phone_id_list;
 					PsnObj.LocObj.P_Tbl->SearchPhoneIndex(phone_buf, 0, phone_id_list);
@@ -7815,14 +7818,25 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 							//reconstructed_original.Insert(0, "\xE8"); // @debug
 							//PPChZnPrcssr::ReconstructOriginalChZnCode(const GtinStruc & rS, SString & rBuf)
 							if(P_CM->SyncPreprocessChZnCode(PPSyncCashSession::ppchzcopInit, /*mark*/reconstructed_original, 1.0, 0/*uomId*/, 0, chzn_result)) {
-								int r = P_CM->SyncPreprocessChZnCode(PPSyncCashSession::ppchzcopCheck, /*mark*/reconstructed_original, 1.0, 0/*uomId*/, 0, chzn_result);
+								int r1 = P_CM->SyncPreprocessChZnCode(PPSyncCashSession::ppchzcopVerify, /*mark*/reconstructed_original, 1.0, 0/*uomId*/, 0, chzn_result);
 								// (Оказалось, что не надо) P_CM->SyncPreprocessChZnCode(PPSyncCashSession::ppchzcopCancel, /*mark*/reconstructed_original, 1.0, 0/*uomId*/, 0, chzn_result);
-								msg_buf.CatEq("SyncPreprocessChZnCode-result", r).CR();
-								msg_buf.CatEq("check-result", chzn_result.CheckResult).CR();
-								msg_buf.CatEq("reason", chzn_result.Reason).CR();
-								msg_buf.CatEq("processing-result", chzn_result.ProcessingResult).CR();
-								msg_buf.CatEq("processing-code", chzn_result.ProcessingCode).CR();
-								msg_buf.CatEq("status", chzn_result.Status).CR();
+								msg_buf.CatEq("SyncPreprocessChZnCode-result", r1).CR();
+								msg_buf.Tab().CatEq("check-result", chzn_result.CheckResult).CR();
+								msg_buf.Tab().CatEq("reason", chzn_result.Reason).CR();
+								msg_buf.Tab().CatEq("processing-result", chzn_result.ProcessingResult).CR();
+								msg_buf.Tab().CatEq("processing-code", chzn_result.ProcessingCode).CR();
+								msg_buf.Tab().CatEq("status", chzn_result.Status).CR();
+								// @v12.4.1 {
+								chzn_result.Z();
+								int r2 = P_CM->SyncPreprocessChZnCode(PPSyncCashSession::ppchzcopVerifyOffline, /*mark*/reconstructed_original, 1.0, 0/*uomId*/, 0, chzn_result);
+								msg_buf.CR();
+								msg_buf.CatEq("SyncPreprocessChZnCode(offline)-result", r2).CR();
+								msg_buf.Tab().CatEq("check-result", chzn_result.CheckResult).CR();
+								msg_buf.Tab().CatEq("reason", chzn_result.Reason).CR();
+								msg_buf.Tab().CatEq("processing-result", chzn_result.ProcessingResult).CR();
+								msg_buf.Tab().CatEq("processing-code", chzn_result.ProcessingCode).CR();
+								msg_buf.Tab().CatEq("status", chzn_result.Status).CR();
+								// } @v12.4.1 
 							}
 							PPChZnPrcssr::InputMark(mark, &reconstructed_original, msg_buf);
 						}						

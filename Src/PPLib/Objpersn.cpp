@@ -2678,13 +2678,13 @@ struct ReplacePersonParam {
 	PPIDArray DestIdList;
 };
 
-class ReplPrsnDialog : public TDialog {
+class ReplacePersonDialog : public TDialog {
 	DECL_DIALOG_DATA(ReplacePersonParam);
 	enum {
 		ctlgroupPsnList = 1
 	};
 public:
-	explicit ReplPrsnDialog(int addr) : TDialog(addr ? DLG_REPLADDR : DLG_REPLPRSN)
+	explicit ReplacePersonDialog(int addr) : TDialog(addr ? DLG_REPLADDR : DLG_REPLPRSN)
 	{
 		SetupPPObjCombo(this, CTLSEL_REPLPRSN_KIND1, PPOBJ_PERSONKIND, 0, 0, 0);
 		SetupPPObjCombo(this, CTLSEL_REPLPRSN_KIND2, PPOBJ_PERSONKIND, 0, 0, 0);
@@ -2737,7 +2737,7 @@ public:
 		Data.SrcID  = getCtrlLong((Data.Flags & Data.fAddress) ? CTLSEL_REPLPRSN_ADDR1 : CTLSEL_REPLPRSN_PRSN1);
 		Data.DestKindID = getCtrlLong(CTL_REPLPRSN_KIND2);
 		if(Data.Flags & Data.fAddress) {
-			PPID   dest_id = getCtrlLong((Data.Flags & Data.fAddress) ? CTLSEL_REPLPRSN_ADDR2 : CTLSEL_REPLPRSN_PRSN2);
+			const PPID dest_id = getCtrlLong((Data.Flags & Data.fAddress) ? CTLSEL_REPLPRSN_ADDR2 : CTLSEL_REPLPRSN_PRSN2);
 			Data.DestIdList.Z().addnz(dest_id);
 		}
 		else {
@@ -2748,7 +2748,7 @@ public:
 		}
 		THROW_PP(Data.SrcID != 0, PPERR_REPLZEROOBJ);
 		for(uint i = 0; i < Data.DestIdList.getCount(); i++) {
-			const  PPID dest_id = Data.DestIdList.get(i);
+			const PPID dest_id = Data.DestIdList.get(i);
 			THROW_PP(dest_id != 0, PPERR_REPLZEROOBJ);
 			THROW_PP(dest_id != Data.SrcID, PPERR_REPLSAMEOBJ);
 		}
@@ -2829,7 +2829,7 @@ private:
 	PPObjPerson PsnObj;
 };
 
-IMPL_HANDLE_EVENT(ReplPrsnDialog)
+IMPL_HANDLE_EVENT(ReplacePersonDialog)
 {
 	TDialog::handleEvent(event);
 	if(event.isCbSelected(CTLSEL_REPLPRSN_KIND1))
@@ -2855,9 +2855,9 @@ IMPL_HANDLE_EVENT(ReplPrsnDialog)
 	SString temp_buf;
 	ReplacePersonParam param;
 	PPObjPerson psn_obj;
-	ReplPrsnDialog * dlg = 0;
+	ReplacePersonDialog * dlg = 0;
 	THROW(psn_obj.CheckRights(PSNRT_UNITE, 0));
-	THROW(CheckDialogPtrErr(&(dlg = new ReplPrsnDialog(0))));
+	THROW(CheckDialogPtrErr(&(dlg = new ReplacePersonDialog(0))));
 	param.SrcID = srcID;
 	param.SrcKindID = srcKindID;
 	dlg->setDTS(&param);
@@ -2899,9 +2899,9 @@ IMPL_HANDLE_EVENT(ReplPrsnDialog)
 	param.Flags |= param.fAddress;
 	param.SrcID = srcID;
 	PPObjPerson psn_obj;
-	ReplPrsnDialog * dlg = 0;
+	ReplacePersonDialog * dlg = 0;
 	THROW(psn_obj.CheckRights(PSNRT_UNITEADDR, 0));
-	THROW(CheckDialogPtrErr(&(dlg = new ReplPrsnDialog(1))));
+	THROW(CheckDialogPtrErr(&(dlg = new ReplacePersonDialog(1))));
 	dlg->setDTS(&param);
 	while(ExecView(dlg) == cmOK) {
 		if(!dlg->getDTS(&param))
@@ -3669,7 +3669,7 @@ int PPObjPerson::SetupDlvrLocCombo(TDialog * dlg, uint ctlID, PPID personID, PPI
 		SString temp_buf;
 		StrAssocArray * p_list = new StrAssocArray;
 		for(uint i = 0; i < dlvr_loc_list.getCount(); i++) {
-			PPID   loc_id = dlvr_loc_list.at(i);
+			const PPID loc_id = dlvr_loc_list.at(i);
 			LocationTbl::Rec loc_rec;
 			if(LocObj.Search(loc_id, &loc_rec) > 0) {
 				LocObj.P_Tbl->GetAddress(loc_rec, 0, temp_buf);
@@ -6452,7 +6452,10 @@ int PPObjPerson::IndexPhones(PPLogger * pLogger, int use_ta)
 {
 	int    ok = 1;
 	Reference * p_ref = PPRef;
-	SString phone, main_city_prefix, city_prefix, temp_buf;
+	SString temp_buf;
+	SString phone;
+	SString main_city_prefix;
+	SString city_prefix;
 	PropertyTbl::Key1 k1;
 	MEMSZERO(k1);
 	{
@@ -6485,7 +6488,7 @@ int PPObjPerson::IndexPhones(PPLogger * pLogger, int use_ta)
 			WorldTbl::Rec city_rec;
 			PPObjID objid(PPOBJ_PERSON, psn_id_list.get(j));
 			if(Search(objid.Id, &psn_rec) > 0) {
-				PPID   city_addr_id = NZOR(psn_rec.RLoc, psn_rec.MainLoc);
+				const PPID city_addr_id = NZOR(psn_rec.RLoc, psn_rec.MainLoc);
 				city_prefix = 0;
 				if(LocObj.FetchCityByAddr(city_addr_id, &city_rec) > 0 && city_rec.Phone[0])
 					PPEAddr::Phone::NormalizeStr(city_rec.Phone, 0, city_prefix);
@@ -8120,15 +8123,16 @@ void PPALDD_Global::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack &
 /*static*/int PPObjPerson::TestSearchEmail()
 {
 	int    ok = 1;
+	SString temp_buf;
 	SString email_buf;
-	SString msg_buf, temp_buf;
+	SString msg_buf;
 	PPLogger logger;
-	PPInputStringDialogParam param;
 	PPIDArray psn_list;
 	PPIDArray loc_list;
 	PPObjPerson psn_obj;
 	StringSet ss_email;
-    while(InputStringDialog(&param, email_buf) > 0) {
+	PPInputStringDialogParam isd_param;
+    while(InputStringDialog(isd_param, email_buf) > 0) {
 		if(psn_obj.SearchEmail(email_buf, 0, &psn_list, &loc_list)) {
 			if(psn_list.getCount() || loc_list.getCount()) {
 				uint    i;
@@ -8278,9 +8282,7 @@ PrcssrClientActivityStatistics::PrcssrClientActivityStatistics() : P_BObj(BillOb
 	
 int PrcssrClientActivityStatistics::InitParam(PrcssrClientActivityStatisticsFilt * pParam)
 {
-	if(pParam) {
-		memzero(pParam, sizeof(*pParam));
-	}
+	memzero(pParam, sizeof(*pParam));
 	return 1;
 }
 	

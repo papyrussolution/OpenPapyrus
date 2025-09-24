@@ -1660,14 +1660,16 @@ public:
 	}
 	virtual int EditParam(SBuffer * pParam, void * extraPtr)
 	{
-		int    ok = -1, r = 0;
+		int    ok = -1;
 		char   path[MAX_PATH];
-		const size_t sav_offs = pParam->GetRdOffs();
+		const  size_t sav_offs = pParam->GetRdOffs();
 		memzero(path, sizeof(path));
-		if((r = ReadParam(*pParam, path, sizeof(path))) != 0) {
+		int    r = ReadParam(*pParam, path, sizeof(path));
+		if(r != 0) {
 			SString s_path;
 			s_path.CopyFrom(path);
-			if((ok = InputStringDialog(0, s_path)) > 0) {
+			PPInputStringDialogParam isd_param; // empty param
+			if((ok = InputStringDialog(isd_param, s_path)) > 0) { // @v12.4.1 InputStringDialog(0, s_path)-->InputStringDialog(&isd_param, s_path)
 				WriteParam(pParam->Z(), s_path.cptr(), s_path.Len()); // @badcast
 			}
 			else if(r > 0)

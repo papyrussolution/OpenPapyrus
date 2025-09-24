@@ -1141,7 +1141,7 @@ int PPViewTSession::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser
 						code.CatChar(*static_cast<const char *>(pHdr));
 					PPLoadText(PPTXT_ADDSESSBYPRC, isd_param.Title);
 					isd_param.Flags |= PPInputStringDialogParam::fDisableSelection;
-					if(InputStringDialog(&isd_param, code) > 0) {
+					if(InputStringDialog(isd_param, code) > 0) {
 						ProcessorTbl::Rec prc_rec;
 						if(TSesObj.GetPrcByCode(code, &prc_rec) > 0) {
 							int    sess_kind = (Filt.Flags & TSessionFilt::fSuperSessOnly) ? TSESK_SUPERSESS : TSESK_SESSION;

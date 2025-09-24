@@ -435,7 +435,7 @@ int PPViewGoodsTaxAnalyze::Init_(const PPBaseFilt * pFilt)
 				gctf.OpID   = Filt.OpID;
 				gctf.LotsPeriod = Filt.LotsPeriod;
 				gctf.LocList.Add(Filt.LocID);
-				gctf.Flags |= (OPG_SETTAXES | OPG_DIFFBYTAX | OPG_PROCESSRECKONING | OPG_PROCESSGENOP | OPG_MERGECORRECTION); // @v10.7.5 OPG_MERGECORRECTION
+				gctf.Flags |= (OPG_SETTAXES|OPG_DIFFBYTAX|OPG_PROCESSRECKONING|OPG_PROCESSGENOP|OPG_MERGECORRECTION);
 				gctf.SupplID      = Filt.SupplID;
 				gctf.SupplAgentID = Filt.SupplAgentID;
 				if(Filt.BillList.IsExists()) {
@@ -465,10 +465,7 @@ int PPViewGoodsTaxAnalyze::Init_(const PPBaseFilt * pFilt)
 					}
 				}
 				else {
-					/* @v10.7.7 for(GoodsIterator giter(Filt.GoodsGrpID, GoodsIterator::ordByName); giter.Next(&goods_rec) > 0;)
-						if(!(goods_rec.Flags & GF_GENERIC))
-							goods_list.add(goods_rec.ID);*/
-					goods_list = common_goods_list; // @v10.7.7
+					goods_list = common_goods_list;
 				}
 				const uint gc = goods_list.getCount();
 				for(uint j = 0; j < gc; j++) {
@@ -651,8 +648,7 @@ int PPViewGoodsTaxAnalyze::Init_(const PPBaseFilt * pFilt)
 
 int PPViewGoodsTaxAnalyze::InitIterQuery(PPID grpID)
 {
-	// @v10.6.8 char   k_[MAXKEYLEN];
-	BtrDbKey k__; // @v10.6.8
+	BtrDbKey k__;
 	TempGoodsTaxAnlzTbl::Key2 k2;
 	int  sp_mode = spFirst;
    	void * k = k__; // memzero(k_, sizeof(k_));

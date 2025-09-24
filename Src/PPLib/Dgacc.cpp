@@ -346,7 +346,8 @@ int ArticleCtrlGroup::selectByCode(TDialog * pDlg)
 	int    ok = -1;
 	ComboBox * p_combo = static_cast<ComboBox *>(pDlg->getCtrlView(CtlselAr));
 	if(Data.AcsID && p_combo && p_combo->GetLink()) {
-		PPID   reg_type_id = 0, ar_id = 0;
+		PPID   reg_type_id = 0;
+		PPID   ar_id = 0;
 		if(PPObjArticle::GetSearchingRegTypeID(Data.AcsID, 0, 1, &reg_type_id) > 0) {
 			PPObjArticle ar_obj;
 			SString code;
@@ -355,7 +356,7 @@ int ArticleCtrlGroup::selectByCode(TDialog * pDlg)
 			SearchObject(PPOBJ_REGISTERTYPE, reg_type_id, &reg_type_rec);
 			PPLoadText(PPTXT_SEARCHARTICLE, title);
 			PPInputStringDialogParam isd_param(title, reg_type_rec.Name);
-			while(ok < 0 && InputStringDialog(&isd_param, code) > 0) {
+			while(ok < 0 && InputStringDialog(isd_param, code) > 0) {
 				if(ar_obj.SearchByRegCode(Data.AcsID, reg_type_id, code, &ar_id, 0) > 0) {
 					ComboBox * p_combo = static_cast<ComboBox *>(pDlg->getCtrlView(CtlselAr));
 					if(p_combo) {

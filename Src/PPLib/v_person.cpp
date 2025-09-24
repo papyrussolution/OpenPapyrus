@@ -3503,7 +3503,8 @@ int PPViewPerson::ExportUhtt()
 				LocationTbl::Rec loc_rec;
 				if(PsnObj.LocObj.Search(loc_id, &loc_rec) > 0) {
 					long    uhtt_loc_id = 0;
-					UhttLocationPacket uhtt_loc_pack, ret_loc_pack;
+					UhttLocationPacket uhtt_loc_pack;
+					UhttLocationPacket ret_loc_pack;
 					LocationCore::GetExField(&loc_rec, LOCEXSTR_PHONE, phone_buf);
 					LocationCore::GetExField(&loc_rec, LOCEXSTR_CONTACT, contact_buf);
 					LocationCore::GetAddress(loc_rec, 0, addr_buf);

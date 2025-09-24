@@ -6009,6 +6009,7 @@ struct SCompoundError {
 	//    0 - error.
 	//
 	SJson * ToJsonObj() const;
+	bool  ToJsonObj(SJson * pJsObj) const;
 	bool  FromJsonObj(const SJson * pJs);
 
 	uint32 Ver;      // @v12.3.11 Версия формата для сериализации 
@@ -10153,7 +10154,7 @@ protected:
 		int    FASTCALL Copy(const Entry & rSrc);
 		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 		int    SetVal(uint key, uint val);
-		int    FASTCALL Remove(uint pos);
+		int    FASTCALL Remove__(uint pos);
 		LAssoc Val;
 		uint32 Count;   // @v11.7.6 uint16-->uint32 Количество элементов в точке кэша (включая Val). То есть, если Count == 0, то точка не содержит элементов.
 		LAssoc * P_Ext;
@@ -10193,6 +10194,7 @@ public:
 	TokenSymbHashTable(TokenSymbHashTable & rS);
 	TokenSymbHashTable & FASTCALL operator = (const TokenSymbHashTable &);
 	int    Put(long token, const char * pSymb);
+	int    Del(long token); // @v12.4.1
 	int    Get(long token, SString * pSymb) const;
 private:
 	size_t FASTCALL Hash(long key) const;
@@ -17612,10 +17614,12 @@ public:
 		SIntHandle HThread;
 		uint   ProcessId;
 		uint   ThreadId;
+		StringSet SsOut; // @v12.4.1
+		StringSet SsErr; // @v12.4.1
 		//
 		FILE * F_StdIn;   // @v11.9.3
-		FILE * F_StdOut;  // @v11.9.3
-		FILE * F_StdErr;  // @v11.9.3
+		//FILE * F_StdOut;  // @v11.9.3
+		//FILE * F_StdErr;  // @v11.9.3
 	};
 
 	class AppContainer {
@@ -17662,6 +17666,9 @@ public:
 	static bool AddPrivilegeToAccessToken(SPtrHandle token, const wchar_t * pPrivilegeName);
 	static bool EnablePrivilege(HANDLE hToken, const wchar_t * pPrivSymb);
 	static bool CheckAndEnableAccesTokenPrivilege(SPtrHandle token, const wchar_t * pPrivilegeName);
+	
+	static bool FindFullPathByProcessFileName(const char * pFileName, SString & rBuf); // @v12.4.1 
+	static bool GetCurrentEnvironment(StringSet & rSsUtf8); // @v12.4.1
 
 	class ProcessPool : public SStrGroup {
 	public:
@@ -17725,6 +17732,7 @@ private:
 	bool   Helper_SetParam(SStringU & rInner, const wchar_t * pParam);
 	bool   Helper_SsAdd(StringSet & rInner, const char * pAddendumUtf8);
 	bool   Helper_SsAdd(StringSet & rInner, const wchar_t * pAddendum);
+	int    Helper_ReadOutput(SIntHandle hPipe, StringSet & rSs);
 
 	uint   Flags;   // Флаги (частично проецируются на флаги системного вызова функции создания процесса)
 	SPtrHandle UserToken; // Если !!UserToken, то запуск процесса осуществляется от имени пользователя, определяемого этим токеном.

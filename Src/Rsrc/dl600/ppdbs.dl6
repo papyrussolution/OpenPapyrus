@@ -118,12 +118,12 @@ file:
 // @v12.3.4
 // Descr: Таблица для индексации операция по маркам егаис и чзн.
 //   Необходима для ускорения выборки операций, связанных с конкретной маркой.
-//   Сейчас такая выбора осуществляется без индексации из-за чего может быть очень медленной. 
+//   Сейчас такая выбора осуществляется без индексации из-за чего может быть очень медленной.
 //
-table ExtCodeRef { 
+table ExtCodeRef {
 	string Code[156];
 	raw    Reserve[32];
-	blob   VT[2048];	
+	blob   VT[2048];
 index:
 	Code (unique mod); // #0
 file:
@@ -1635,23 +1635,26 @@ file:
 // Записи с Op == 0 содержат текущие остатки по товару либо лоту.
 // При этом запись с текущим остатком по товару имеет LotID = 0,
 // а запись с текущим остатком по лоту имеет GoodsID = 0.
+// @v12.4.1 conversion needed
 //
-//
-table LocTransf {
-	long   LocID;          // ->Location.ID
-	long   RByLoc;         //
-	date   Dt;             //
-	time   Tm;             //
-	long   UserID;         // ->Ref(PPOBJ_USR) Пользователь, создавший строку
-	long   BillID;         // ->Bill.ID Связанный документ
-	int16  RByBill;        //
-	int16  Op;             // 0 rest, 1 receipt, 2 expend, 3 inventory
-	long   Flags;          // LOCTRF_XXX
-	long   GoodsID;        // ->Goods2.ID
-	long   LotID;          // ->Receipt.ID
-	double Qtty;           // Количество товара (торговых единиц)
-	double RestByGoods;    // @#{RestByGoods >= 0.0} Остаток товара в ячейке после этой операции
-	double RestByLot;      // @#{RestByLot >= 0.0 && (LotID || RestByLot == 0.0)} Остаток лота в ячейке после этой операции
+table LocTransf { // size=104
+	long   LocID;            // ->Location.ID
+	long   RByLoc;           //
+	date   Dt;               //
+	time   Tm;               //
+	long   UserID;           // ->Ref(PPOBJ_USR) Пользователь, создавший строку
+	long   BillID;           // ->Bill.ID Связанный документ
+	int16  RByBill;          //
+	int16  LTOp;             // 0 rest, 1 receipt, 2 expend, 3 inventory // @v12.4.1 Op-->LTOp
+	int16  Domain;           // @v12.4.1 Область действия операций. 0 - локальный склад, 1 - клиентские адреса,
+		// на которых размещаются наши (либо находящиеся под нашей ответственностью) активы
+	int16  PalletCount;      // @v12.4.1 Количество паллетов типа PalletTypeID
+	long   Flags;            // LOCTRF_XXX
+	long   GoodsID;          // ->Goods2.ID
+	long   LotID;            // ->Receipt.ID
+	double Qtty;             // Количество товара (торговых единиц)
+	double RestByGoods;      // @#{RestByGoods >= 0.0} Остаток товара в ячейке после этой операции
+	double RestByLot;        // @#{RestByLot >= 0.0 && (LotID || RestByLot == 0.0)} Остаток лота в ячейке после этой операции
 	//
 	// Пара {LinkLocID, LinkRByLoc} применяется для связки совместно используемых
 	//   ячеек в одну операцию. При этом ведущая операция определяет все атрибуты,
@@ -1659,10 +1662,11 @@ table LocTransf {
 	//
 	long   LinkLocID;
 	long   LinkRByLoc;
-	long   PalletTypeID;   // ->Ref(PPOBJ_PALLET) Тип паллета, используемого для загрузки
-	int16  PalletCount;    // Количество паллетов типа PalletTypeID
-	int16  Reserve1;       // @alignment
-	raw    Reserve2[8];    // @reserve
+	long   PalletTypeID;     // ->Ref(PPOBJ_PALLET) Тип паллета, используемого для загрузки
+	// @v12.4.1 int16  PalletCount;  // Количество паллетов типа PalletTypeID
+	// @v12.4.1 int16  Reserve1;     // @alignment
+	long   LocOwnerPersonID; // Персоналия-владелец локации (LocID) в случае, если Domain==LOCTRFRDOMAIN_BAILMENT
+	raw    Reserve2[20];     // @reserve
 index:
 	LocID, RByLoc (unique mod);                       // #0
 	LotID, LocID, RByLoc (anysegnull unique mod);     // #1
@@ -1671,7 +1675,7 @@ index:
 		// В дополнение к предыдущему замечанию: по одной строке документа может быть несколько операций размещения. Важно лишь, чтобы программа
 		// следила, чтобы по одной строке не было размещено большее количество, чем в строке.
 	LinkLocID, LinkRByLoc (allsegnull dup mod);       // #4
-	Op, LocID, GoodsID, RByLoc (unique mod);          // #5 Индекс для быстрого поиска текущих остатков (Op==0)
+	Domain, LTOp, LocID, GoodsID, RByLoc (unique mod); // #5 Индекс для быстрого поиска текущих остатков (LTOp==0), @v12.4.1 Включен сегмент Domain
 file:
 	"loctrfr.btr";
 }
@@ -1687,7 +1691,9 @@ table TempLocTransf {
 	long   UserID;         // ->Ref(PPOBJ_USR) Пользователь, создавший строку
 	long   BillID;         // ->Bill.ID
 	int16  RByBill;
-	int16  Op;             // см. примечание к LocTransf::Op
+	int16  LTOp;           // см. примечание к LocTransf::LTOp
+	int16  Domain;         // @v12.4.1
+	int16  PalletCount;    // Количество паллетов типа PalletTypeID
 	long   Flags;          // LOCTRF_XXX
 	long   GoodsID;        // ->Goods2.ID
 	double BillQtty;       // Количество в строке документа
@@ -1695,8 +1701,7 @@ table TempLocTransf {
 	double RestByGoods;    // @#{RestByGoods >= 0.0} Остаток товара в ячейке после этой операции
 	double RestByLot;      // @#{RestByLot >= 0.0 && (LotID || RestByLot == 0.0)} Остаток лота в ячейке после этой операции
 	long   PalletTypeID;   // ->Ref(PPOBJ_PALLET) Тип паллета, используемого для загрузки
-	int16  PalletCount;    // Количество паллетов типа PalletTypeID
-	int16  Reserve1;       // @alignment
+	long   LocOwnerPersonID; // Персоналия-владелец локации (LocID) в случае, если Domain==LOCTRFRDOMAIN_BAILMENT
 index:
 	ID__ (unique);
 	BillID, RByBill (dup mod);
@@ -2203,14 +2208,12 @@ table TempCCheckQtty { // Size=60
 	long   CashID;      // if (Flags & (CCHKF_SYNC|CCHKF_TRANSMIT)) then
 		// (CashID ->Obj(PPOBJ_CASHNODE).ID) else (CashID - Code of cash machine)
 	long   UserID;      //
-	long   SessID;      // @v3.1.12 ->CSession.ID
+	long   SessID;      // ->CSession.ID
 	date   Dt;          //
 	time   Tm;          //
 	long   Flags;       // CCHKF_XXX
-	// @v8.3.0 money  Amount[8];   //
-	// @v8.3.0 money  Discount[8]; //
-	double Amount;      // @v8.3.0 money-->double
-	double Discount;    // @v8.3.0 money-->double
+	double Amount;      //
+	double Discount;    //
 	double BnkAmt;      // @v8.3.0
 	double CrdCardAmt;  // @v8.3.0
 	long   SCardID;     // @v3.7.2  ->SCard.ID
@@ -2350,20 +2353,20 @@ file:
 //
 //
 //
-table CGoodsLine {         // size=52 @v5.8.10 [48]-->[52]
+table CGoodsLine {         // size=52
 	date   Dt;             //
-	int16  Sign;           // @v4.9.15 @#{-1; +1}
+	int16  Sign;           // @#{-1; +1}
 	int16  Flags;          // CCheckGoodsEntry::fXXX
 	long   SessID;         // ->CSession.ID
 	long   GoodsID;        // ->Goods.ID
-	long   SerialID;       // @v5.8.10
-	double Qtty;           // @v4.9.15 Quantity-->Qtty
+	long   SerialID;       //
+	double Qtty;           //
 	double Rest;           //
-	double Sum;            // @v4.9.15 money-->double
+	double Sum;            //
 	long   AltGoodsID;     // ->Goods.ID Товар, который может быть списан вместо GoodsID
 	float  AltGoodsQtty;   // @v4.4.10 Количество, списанное по альтернативному товару
 index:
-	SessID, Dt, Sign, GoodsID, SerialID (unique mod); // @v5.8.10 SerialID
+	SessID, Dt, Sign, GoodsID, SerialID (unique mod);
 file:
 	"cgline.btr";
 	access=1;

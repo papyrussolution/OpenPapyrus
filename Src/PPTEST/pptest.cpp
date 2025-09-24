@@ -49,8 +49,8 @@ int  TestSTree();
 // @v12.3.10 int  Test_ExecuteDialogByDl600Description();
 int  SimpleCpp_Test_Main(int argc, char ** argv);
 int  SimpleCpp_Test_Main2();
-int  TestCrr32SupportServer();
 int  TestGlobalServiceAccessibility();
+int  TestRestic();
 //
 // 
 // 
@@ -2041,11 +2041,11 @@ int DoConstructionTest()
 		}
 	}
 #endif // } 0
-	TestGlobalServiceAccessibility();
+	TestRestic();
+	//TestGlobalServiceAccessibility();
 	//TestGtinStruc();
 	//PPChZnPrcssr::Test();
 	
-	//TestCrr32SupportServer();
 	//Test_ExecuteDialogByDl600Description();
 	//Test_Cristal2SetRetailGateway();
 	//TestTddo();

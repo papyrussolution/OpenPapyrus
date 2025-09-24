@@ -699,11 +699,11 @@ int SOraDbProvider::ProcessBinding(int action, uint count, SSqlStmt * pStmt, SSq
 				OD ocilob = *static_cast<const OD *>(pStmt->GetBindOuterPtr(pBind, count));
 				DBLobBlock * p_lob = pStmt->GetBindingLob();
 				size_t lob_sz = 0;
-				uint32 lob_loc = 0; // @x64crit
+				uint64 lob_loc = 0;
 				if(p_lob) {
 					p_lob->GetSize(labs(pBind->Pos)-1, &lob_sz);
-					p_lob->GetLocator(labs(pBind->Pos)-1, &lob_loc); // @x64crit
-					SETIFZ(lob_loc, (uint32)OdAlloc(OCI_DTYPE_LOB).H); // @x64crit
+					p_lob->GetLocator(labs(pBind->Pos)-1, &lob_loc);
+					SETIFZ(lob_loc, reinterpret_cast<uint64>(OdAlloc(OCI_DTYPE_LOB).H));
 					ProcessError(OCILobAssign(Env, Err, (const OCILobLocator *)(lob_loc), reinterpret_cast<OCILobLocator **>(&ocilob.H)));
 				}
 				LobWrite(ocilob, pBind->Typ, static_cast<SLob *>(pBind->P_Data), lob_sz);
@@ -712,10 +712,10 @@ int SOraDbProvider::ProcessBinding(int action, uint count, SSqlStmt * pStmt, SSq
 				OD ocilob = *static_cast<const OD *>(pStmt->GetBindOuterPtr(pBind, count));
 				DBLobBlock * p_lob = pStmt->GetBindingLob();
 				size_t lob_sz = 0;
-				uint32 lob_loc = 0;
+				uint64 lob_loc = 0;
 				LobRead(ocilob, pBind->Typ, static_cast<SLob *>(pBind->P_Data), &lob_sz);
 				if(p_lob) {
-					SETIFZ(lob_loc, (uint32)OdAlloc(OCI_DTYPE_LOB).H);
+					SETIFZQ(lob_loc, reinterpret_cast<uint64>(OdAlloc(OCI_DTYPE_LOB).H));
 					ProcessError(OCILobAssign(Env, Err, ocilob, (OCILobLocator **)&lob_loc));
 					p_lob->SetSize(labs(pBind->Pos)-1, lob_sz);
 					p_lob->SetLocator(labs(pBind->Pos)-1, lob_loc);
@@ -2123,7 +2123,8 @@ int SOraDbProvider::Implement_DeleteRec(DBTable * pTbl)
 
 int SOraDbProvider::Implement_DeleteFrom(DBTable * pTbl, int useTa, DBQ & rQ)
 {
-	int    ok = 1, ta = 0;
+	int    ok = 1;
+	int    ta = 0;
 	if(useTa) {
 		THROW(StartTransaction());
 		ta = 1;
@@ -2155,8 +2156,7 @@ int SOraDbProvider::Implement_BExtInsert(BExtInsert * pBei)
 {
 	int    ok = -1;
 	//
-	// Чтобы не затирать содержимое внутреннего буфера таблицы pBei->P_Tbl распределяем
-	// временный буфер rec_buf.
+	// Чтобы не затирать содержимое внутреннего буфера таблицы pBei->P_Tbl распределяем временный буфер rec_buf.
 	//
 	SBaseBuffer rec_buf;
 	rec_buf.Init();

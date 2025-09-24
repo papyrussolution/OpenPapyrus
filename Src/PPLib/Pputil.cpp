@@ -43,8 +43,8 @@ SString & DateToStr(LDATE dt, SString & rBuf)
 	if(dt) {
 		SString txt_month;
 		SGetMonthText(dt.month(), MONF_CASEGEN, txt_month);
-		SString & r_yr_buf = SLS.AcquireRvlStr(); // @v10.5.3
-		(r_yr_buf = "г.").Transf(CTRANSF_UTF8_TO_INNER); // @v10.5.3
+		SString & r_yr_buf = SLS.AcquireRvlStr();
+		(r_yr_buf = "г.").Transf(CTRANSF_UTF8_TO_INNER);
 		rBuf.CatLongZ(dt.day(), 2).Space().Cat(txt_month).Space().Cat(dt.year()).Space().Cat(r_yr_buf);
 		rBuf.Transf(CTRANSF_OUTER_TO_INNER);
 	}
@@ -1985,7 +1985,7 @@ void FormatSubstDate(SubstGrpDate sgd, LDATE dt, char * pBuf, size_t bufLen, lon
 static SString & CDECL Helper_PPFormat(const SString & rFmt, SString * pBuf, /*...*/va_list pArgList)
 {
 	enum {
-		tokInt64 = 1, // int64 @v10.2.4
+		tokInt64 = 1, // int64
 		tokInt,       // int
 		tokHex,       // hex
 		tokReal,      // real
@@ -2030,7 +2030,7 @@ static SString & CDECL Helper_PPFormat(const SString & rFmt, SString * pBuf, /*.
 				long   sym  = st.Translate(scan);
 				PPID   obj_id = 0;
 				switch(sym) {
-					case tokInt64: buf.Cat(va_arg(pArgList, int64)); break; // @v10.2.4
+					case tokInt64: buf.Cat(va_arg(pArgList, int64)); break;
 					case tokInt: buf.Cat(va_arg(pArgList, long)); break;
 					case tokHex: buf.Cat(va_arg(pArgList, long)); break; // @todo HEX
 					case tokReal: buf.Cat(va_arg(pArgList, double), MKSFMTD(0, 6, NMBF_NOTRAILZ)); break;
@@ -2495,53 +2495,6 @@ int CheckBnkAcc(const char * pCode, const char * pBic)
 	}
 	return ok;
 }
-#if 0 // @v10.8.1 (replaced with STokenRecognizer) {
-/*
-	Проверка правильности указания ОКПО:
-
-	Алгоритм проверки ОКПО:
-	1. Вычисляется контрольная сумма по 7-и цифрам со следующими весовыми коэффициентами: (1,2,3,4,5,6,7).
-	2. Вычисляется контрольное число(1) как остаток от деления контрольной суммы на 11.
-	3. Вычисляется контрольная сумма по 7-и цифрам со следующими весовыми коэффициентами: (3,4,5,6,7,8,9).
-	4. Вычисляется контрольное число(2) как остаток от деления контрольной суммы на 11.
-		Если остаток от деления равен 10-ти, то контрольному числу(2) присваивается ноль.
-	5. Если контрольное число(1) больше девяти, то восьмой знак ОКПО сравнивается с контрольным числом(2),
-		иначе восьмой знак ОКПО сравнивается с контрольным числом(1). В случае их равенства ОКПО считается правильным.
-*/
-int CheckOKPO(const char * pCode)
-{
-	int    ok = 0;
-	size_t i;
-	const  size_t len = sstrlen(pCode);
-	if(len == 8) {
-		int    r = 1;
-		for(i = 0; r && i < len; i++) {
-			if(!isdec(pCode[i]))
-				r = 0;
-		}
-		if(r) {
-			const int8 w1[] = {1,2,3,4,5,6,7};
-			const int8 w2[] = {3,4,5,6,7,8,9};
-			ulong  sum1 = 0, sum2 = 0;
-			for(i = 0; i < len-1; i++) {
-				sum1 += (w1[i] * (pCode[i]-'0'));
-			}
-			for(i = 0; i < len-1; i++) {
-				sum2 += (w2[i] * (pCode[i]-'0'));
-			}
-			int    cd1 = (sum1 % 11);
-			int    cd2 = (sum2 % 11);
-			if(cd2 == 10)
-				cd2 = 0;
-			if(cd1 > 9)
-				ok = BIN((pCode[len-1]-'0') == cd2);
-			else
-				ok = BIN((pCode[len-1]-'0') == cd1);
-		}
-	}
-	return ok;
-}
-#endif // } 0 @v10.8.1 (replaced with STokenRecognizer)
 /*
 	Проверка правильности указания ИНН:
 
@@ -2567,117 +2520,6 @@ int CheckOKPO(const char * pCode)
 	7. Контрольное число(1) проверяется с одиннадцатым знаком ИНН и контрольное число(2)
 		проверяется с двенадцатым знаком ИНН. В случае их равенства ИНН считается правильным.
 */
-#if 0 // @v8.7.4 Замещено фунцией SCalcCheckDigit()
-int CheckINN(const char * pCode)
-{
-	int    ok = 0;
-	const size_t len = sstrlen(pCode);
-	size_t i;
-	if(len) {
-		int    r = 1;
-		for(i = 0; r && i < len; i++) {
-			if(!isdec(pCode[i]))
-				r = 0;
-		}
-		if(r) {
-			if(len == 10) {
-				const int8 w[] = {2,4,10,3,5,9,4,6,8,0};
-				ulong  sum = 0;
-				for(i = 0; i < len; i++) {
-					sum += (w[i] * (pCode[i]-'0'));
-				}
-				int    cd = (sum % 11) % 10;
-				ok = BIN((pCode[len-1]-'0') == cd);
-			}
-			else if(len == 12) {
-				const int8 w1[] = {7,2,4,10,3,5,9,4,6,8,0};
-				const int8 w2[] = {3,7,2,4,10,3,5,9,4,6,8,0};
-				ulong  sum1 = 0, sum2 = 0;
-				for(i = 0; i < len-1; i++) {
-					sum1 += (w1[i] * (pCode[i]-'0'));
-				}
-				for(i = 0; i < len; i++) {
-					sum2 += (w2[i] * (pCode[i]-'0'));
-				}
-				int    cd1 = (sum1 % 11) % 10;
-				int    cd2 = (sum2 % 11) % 10;
-				ok = BIN((pCode[len-2]-'0') == cd1 && (pCode[len-1]-'0') == cd2);
-			}
-		}
-	}
-	return ok;
-}
-#endif // } 0 @v8.7.4
-//
-//
-//
-#if 0 // {
-extern "C" __declspec(dllexport) int cdecl UnixToDos(const char * pWildcard, long flags)
-{
-	int    ok = -1;
-	SString file_name, temp_file_name, line_buf, msg_buf;
-	SString test_line_buf;
-	SDirEntry entry;
-	SFsPath ps(pWildcard);
-	for(SDirec dir(pWildcard, 0); dir.Next(&entry) > 0;) {
-		ps.Nam = entry.FileName;
-		ps.Ext.Z();
-		ps.Merge(0, file_name);
-		SFile file_in(file_name, SFile::mRead);
-		if(file_in.IsValid()) {
-			int    test_ok = 1;
-
-			ps.Nam.Z();
-			ps.Ext.Z();
-			ps.Merge(0, temp_file_name);
-			MakeTempFileName(temp_file_name, "U2D", "TMP", 0, temp_file_name);
-
-			SFile file_out(temp_file_name, SFile::mWrite|SFile::mBinary);
-			THROW_SL(file_out.IsValid());
-			while(file_in.ReadLine(line_buf)) {
-				THROW_SL(file_out.WriteLine(line_buf.Chomp().CRB()));
-			}
-			file_out.Close();
-			file_in.Close();
-			{
-				SFile file_test_in(file_name, SFile::mRead);
-				SFile file_test_out(temp_file_name, SFile::mRead);
-				THROW_SL(file_test_in.IsValid());
-				THROW_SL(file_test_out.IsValid());
-				while(file_test_in.ReadLine(line_buf)) {
-					if(!file_test_out.ReadLine(test_line_buf) || line_buf.Chomp().Cmp(test_line_buf.Chomp(), 0) != 0)
-						test_ok = 0;
-				}
-				if(test_ok && file_test_out.ReadLine(test_line_buf) != 0) {
-					test_ok = 0;
-				}
-				if(test_ok) {
-					file_test_in.Close();
-					file_test_out.Close();
-					THROW_SL(SFile::Remove(file_name));
-					THROW_SL(SFile::Rename(temp_file_name, file_name));
-					slfprintf_stderr("File '%s' was converted\n", (const char *)file_name);
-				}
-				else {
-					slfprintf_stderr("Error comparing original file '%s' with converted file '%s'\n",
-						(const char *)file_name, (const char *)temp_file_name);
-				}
-			}
-		}
-		else {
-			PPSetErrorSLib();
-			PPGetLastErrorMessage(1, msg_buf);
-			slfprintf_stderr(msg_buf);
-		}
-	}
-	CATCH
-		PPGetLastErrorMessage(1, msg_buf);
-		slfprintf_stderr(msg_buf);
-		ok = 0;
-	ENDCATCH
-	return ok;
-}
-#endif // } 0
 //
 //
 //
@@ -2696,16 +2538,11 @@ PPUhttClient::PPUhttClient() : State(0), P_DestroyFunc(0)
 	}
 	PPAlbatrossConfig cfg;
 	DS.FetchAlbatrosConfig(&cfg);
-	//Urn = cfg.UhttUrn.NotEmpty() ? (const char *)cfg.UhttUrn : 0; // "urn:http.service.universehtt.ru";
-	// @v10.5.12 @unused cfg.GetExtStrData(ALBATROSEXSTR_UHTTURN, temp_buf);
-	// @v10.5.12 @unused Urn = temp_buf.NotEmpty() ? temp_buf.cptr() : 0; // "urn:http.service.universehtt.ru";
-	//UrlBase = cfg.UhttUrlPrefix.NotEmpty() ? cfg.UhttUrlPrefix.cptr() : 0; //"http://uhtt.ru/UHTTDispatcher/axis/Plugin_UHTT_SOAPService";
 	cfg.GetExtStrData(ALBATROSEXSTR_UHTTURLPFX, temp_buf);
 	UrlBase = temp_buf.NotEmpty() ? temp_buf.cptr() : 0; //"http://uhtt.ru/UHTTDispatcher/axis/Plugin_UHTT_SOAPService";
 	if(UrlBase.IsEmpty())
 		State |= stDefaultServer;
 	cfg.GetExtStrData(ALBATROSEXSTR_UHTTACC, temp_buf);
-	//if(cfg.UhttAccount.NotEmpty())
 	if(temp_buf.NotEmpty())
 		State |= stHasAccount;
 }
@@ -2715,8 +2552,6 @@ PPUhttClient::~PPUhttClient()
 }
 
 int PPUhttClient::GetState() const { return State; }
-// @v10.5.12 int PPUhttClient::HasAccount() const { return (State & stHasAccount); }
-// @v10.5.12 int PPUhttClient::IsAuth() const { return (State & stAuth); }
 
 int PPUhttClient::PreprocessResult(const void * pResult, const PPSoapClientSession & rSess)
 {
@@ -2874,7 +2709,7 @@ int PPUhttClient::GetUhttGoodsRefList(LAssocArray & rList, StrAssocArray * pByCo
 			if(bc_list.getCount()) {
 				for(uint j = 0; j < bc_list.getCount(); j++) {
 					const BarcodeTbl::Rec & r_bc_item = bc_list.at(j);
-					if(sstrlen(r_bc_item.Code) != 19) { // @v10.0.0 Алкогольные коды пропускаем
+					if(sstrlen(r_bc_item.Code) != 19) { // Алкогольные коды пропускаем
 						assert(goods_id == r_bc_item.GoodsID); // @paranoic
 						UhttCodeRefItem ref_item;
 						ref_list.insert(&ref_item.Set(goods_id, r_bc_item.Code));
@@ -3846,7 +3681,7 @@ int PPUhttClient::GetWorkbookContentByID_ToFile(int id, const char * pFileName)
 		PPSoapClientSession sess;
 		UHTTGETWORKBOOKCONTENTBYID_PROC func = reinterpret_cast<UHTTGETWORKBOOKCONTENTBYID_PROC>(GetFuncEntryAndSetupSess("UhttGetWorkbookContentByID", sess));
 		if(func) {
-			/* @v10.3.0 UhttDocumentPacket * */p_result = func(sess, Token, id);
+			p_result = func(sess, Token, id);
 			if(PreprocessResult(p_result, sess)) {
 				if(!isempty(pFileName)) {
 					SFile f(pFileName, SFile::mWrite|SFile::mBinary);
@@ -4260,84 +4095,6 @@ int PPUhttClient::SendSms(const TSCollection <UhttSmsPacket> & rList, TSCollecti
 	return ok;
 }
 
-#if 0 // @v10.5.12 {
-/*static*/int PPUhttClient::TestUi_GetLocationListByPhone()
-{
-	int    ok = -1;
-	PPLogger logger;
-	SString log_buf;
-	SString phone_buf;
-	/*while(InputStringDialog(0, phone_buf) > 0)*/ {
-		PPUhttClient uhtt_cli;
-		TSCollection <UhttLocationPacket> uhtt_loc_list;
-		THROW(uhtt_cli.Auth());
-		{
-			int r = uhtt_cli.GetLocationListByPhone(phone_buf, uhtt_loc_list);
-			if(r > 0 && uhtt_loc_list.getCount()) {
-				for(uint i = 0; i < uhtt_loc_list.getCount(); i++) {
-					const UhttLocationPacket * p_uhtt_loc_item = uhtt_loc_list.at(i);
-					log_buf.Z().
-						CatEq("id", (long)p_uhtt_loc_item->ID).CatDiv(';', 2).
-						CatEq("phone", p_uhtt_loc_item->Phone).CatDiv(';', 2).
-						CatEq("contact", p_uhtt_loc_item->Contact);
-					logger.Log(log_buf);
-				}
-			}
-			else if(!r) {
-				logger.LogLastError();
-			}
-			else {
-				logger.Log(log_buf = "nothing");
-			}
-		}
-	}
-	CATCHZOKPPERR
-	return ok;
-}
-
-/*static*/int PPUhttClient::TestUi_GetQuotByLoc()
-{
-	int    ok = -1;
-	PPLogger logger;
-	SString log_buf;
-	SString code_buf("AG1");
-	/*while(InputStringDialog(0, code_buf) > 0)*/ {
-		PPUhttClient uhtt_cli;
-		THROW(uhtt_cli.Auth());
-		{
-			UhttLocationPacket uhtt_loc;
-            if(uhtt_cli.GetLocationByCode(code_buf, uhtt_loc)) {
-				UhttQuotFilter filt;
-				TSCollection <UhttQuotPacket> uhtt_list;
-				filt.LocationID = uhtt_loc.ID;
-				int r = uhtt_cli.GetQuot(filt, uhtt_list);
-				if(r > 0 && uhtt_list.getCount()) {
-					for(uint i = 0; i < uhtt_list.getCount(); i++) {
-						const UhttQuotPacket * p_uhtt_item = uhtt_list.at(i);
-						log_buf.Z().
-							CatEq("goodsid", p_uhtt_item->GoodsID).CatDiv(';', 2).
-							CatEq("value", p_uhtt_item->Value).CatDiv(';', 2).
-							CatEq("loc", p_uhtt_item->LocID);
-						logger.Log(log_buf);
-					}
-				}
-				else if(!r) {
-					logger.LogLastError();
-				}
-				else {
-					logger.Log(log_buf = "nothing");
-				}
-            }
-            else {
-            	logger.LogLastError();
-            }
-		}
-	}
-	CATCHZOKPPERR
-	return ok;
-}
-#endif // } 0 @v10.5.12
-
 int TestUhttClient()
 {
 	int    ok = 1;
@@ -4580,5 +4337,125 @@ PPTokenRecognizer::PPTokenRecognizer() : STokenRecognizer()
 		}
 	}
 #endif
+	return ok;
+}
+//
+// Эксперименты с архиватором restic
+//
+class PPResticInterface { // @v12.4.1 @construction
+public:
+	struct RepoParam {
+		SString Loc;
+		SString Auth;
+		SString Pw;
+		StringSet SsIncl;
+		StringSet SsExcl;
+	};
+	struct Snapshot {
+		uint32 Dummy;
+	};
+	struct Entry {
+		uint32 Dummy;
+	};
+	PPResticInterface(PPLogger * pLogger);
+	~PPResticInterface();
+	int    CreateRepo(const RepoParam & rP);
+	int    Backup(const RepoParam & rP);
+	int    Restore(const RepoParam & rP);
+	int    GetSnapshotList(const RepoParam & rP, TSCollection <Snapshot> * pResult);
+	int    GetEntryList(const RepoParam & rP, TSCollection <Entry> * pResult);
+private:
+	int    MakeProcessObj(const RepoParam & rP, SlProcess & rPrc);
+	int    GetExePath(SString & rBuf);
+
+	PPLogger * P_Logger; // @notowned
+};
+
+PPResticInterface::PPResticInterface(PPLogger * pLogger) : P_Logger(pLogger)
+{
+}
+
+PPResticInterface::~PPResticInterface()
+{
+}
+
+int PPResticInterface::GetExePath(SString & rBuf)
+{
+	rBuf.Z();
+	int    ok = 0;
+	SString temp_buf("restic.exe");
+	//
+	SFsPath ps(temp_buf);
+	if(ps.Drv.IsEmpty() || ps.Dir.IsEmpty()) {
+		ps.Merge(SFsPath::fNam|SFsPath::fExt, temp_buf);
+		if(SlProcess::FindFullPathByProcessFileName(temp_buf, rBuf)) {
+			ok = 1;
+		}
+		else
+			rBuf.Z();
+	}
+	return ok;
+}
+
+int PPResticInterface::MakeProcessObj(const RepoParam & rP, SlProcess & rPrc)
+{
+	int    ok = -1;
+	//SString temp_buf;
+	SString module_path;
+	GetExePath(module_path);
+	if(module_path.NotEmpty() /*&& rP.Loc.NotEmpty()*/) {
+		rPrc.SetPath(module_path);
+		if(rP.Loc.NotEmpty()) {
+			rPrc.AddArg("--repo");
+			rPrc.AddArg(rP.Loc);
+			//rPrc.AddEnv("RESTIC_REPOSITORY", rP.Loc);
+			if(rP.Pw.NotEmpty()) {
+				rPrc.AddEnv("RESTIC_PASSWORD", rP.Pw);
+			}
+			else {
+				rPrc.AddArg("--insecure-no-password");
+			}
+		}
+		else {
+			rPrc.AddArg("--help");
+		}
+		rPrc.SetFlags(SlProcess::fCaptureStdErr|SlProcess::fCaptureStdOut);
+		ok = 1;
+	}
+	return ok;
+}
+
+int PPResticInterface::CreateRepo(const RepoParam & rP)
+{
+	// restic init --repo restic-repo-papyrus-main
+	//
+	// set RESTIC_REPOSITORY=D:\__BACKUP__\Papyrus\restic-repo-test01
+	// set RESTIC_PASSWORD=repo-password
+	//
+	int    ok = -1;
+	int    prr = 0;
+	char   out_buf[2048];
+	SString temp_buf;
+	SlProcess prc;
+	if(MakeProcessObj(rP, prc) > 0) {
+		prc.AddArg("init");
+		SlProcess::Result pr;
+		prr = prc.Run(&pr);
+		if(prr) {
+			;
+		}
+	}
+	return ok;
+}
+
+int TestRestic()
+{
+	int    ok = 1;
+	PPLogger logger;
+	PPResticInterface rifc(&logger);
+	PPResticInterface::RepoParam rp;
+	//rp.Loc = "D:/__TEMP__/RESTIC-EXPERIMENTS/test-repo";
+	//rp.Pw = "restic-repo-pw";
+	rifc.CreateRepo(rp);
 	return ok;
 }

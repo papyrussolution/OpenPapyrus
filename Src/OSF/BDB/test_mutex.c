@@ -1,20 +1,19 @@
 /*-
  * See the file LICENSE for redistribution information.
- *
  * Copyright (c) 1999, 2011 Oracle and/or its affiliates.  All rights reserved.
- *
  * Standalone mutex tester for Berkeley DB mutexes.
- *
  * $Id$
  */
 #include "db_config.h"
 #include "db_int.h"
 #pragma hdrstop
 
-#ifdef DB_WIN32
- #define MUTEX_THREAD_TEST       1
+#if 0 // @v12.4.1 {
 
-extern int getopt(int argc, char * const * argv, const char * optstring);
+#ifdef DB_WIN32
+#define MUTEX_THREAD_TEST       1
+
+//extern int getopt(int argc, char * const * argv, const char * optstring);
 
 typedef HANDLE os_pid_t;
 typedef HANDLE os_thread_t;
@@ -185,8 +184,7 @@ int main(int argc, char * argv[])
 	 */
 	if(rtype == LOCKER || rtype == WAKEUP) {
 		__os_yield(env, 3, 0); /* Let everyone catch up. */
-		                                /* Initialize random numbers. */
-		srand((uint)time(NULL)%(uint)getpid());
+		srand((uint)time(NULL)%(uint)getpid()); /* Initialize random numbers. */
 		if(tm_env_init() != 0)          /* Join the environment. */
 			exit(EXIT_FAILURE);
 		/* Join the backing data. */
@@ -830,3 +828,4 @@ os_pid_t os_spawn(const char * path, const char * argv[])
 	}
 #endif
 }
+#endif // } 0 @v12.4.1

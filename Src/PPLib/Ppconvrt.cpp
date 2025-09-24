@@ -6,9 +6,7 @@
 #include <pp.h>
 #pragma hdrstop
 #include <private\_ppo.h>
-//
-//
-//
+
 int PPReEncryptDatabaseChain(PPObjBill * pBObj, Reference * pRef, const char * pSrcEncPw, const char * pDestEncPw, int use_ta);
 
 int ConvertCipher(const char * pDbSymb, const char * pMasterPassword, const char * pSrcIniFileName, const char * pDestIniFileName)
@@ -730,6 +728,7 @@ int PPCvtCCheckLine4108::ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRec
 //
 //
 //
+#if 0 // @v12.4.1 {
 class PPCvtSCardOp4108 : public PPTableConversion {
 public:
 	virtual DBTable * CreateTableInstance(int * pNeedConversion)
@@ -775,6 +774,7 @@ int Convert4108()
 	PPWaitStop();
 	return ok;
 }
+#endif // } @v12.4.1
 //
 //
 //
@@ -878,7 +878,7 @@ int PPCvtGoods4405::ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRecLen*/
 }
 
 #endif // } 0
-
+#if 0 // @v12.4.1 {
 class PPCvtQCert4405 : public PPTableConversion {
 public:
 	virtual DBTable * CreateTableInstance(int * pNeedConversion)
@@ -1310,6 +1310,7 @@ public:
 };
 
 CONVERT_PROC(Convert4805, PPCvtDlsObj4805);
+#endif // } @v12.4.1
 #if 0 // moved to PPCvtBill11112 {
 //
 // Conversion 4.9.11
@@ -1374,7 +1375,7 @@ public:
 	}
 };
 #endif // } 0 moved to PPCvtBill11112
-
+#if 0 // @v12.4.1 {
 class PPCvtPayPlan4911 : public PPTableConversion {
 public:
 	virtual DBTable * CreateTableInstance(int * pNeedConversion)
@@ -1530,7 +1531,7 @@ public:
 		return 1;
 	}
 };
-
+#endif // } 0 @v12.4.1
 //
 #if 0 // Перенесено в Convert5810 {
 
@@ -1591,6 +1592,7 @@ static CONVERT_PROC(_ConvertCGoodsLine4911, PPCvtCGoodsLine4911);
 #endif // } 0 Перенесено в Convert5810
 
 // moved to PPCvtBill11112 static CONVERT_PROC(_ConvertBill4911,       PPCvtBill4911);
+#if 0 // @v12.4.1 {
 static CONVERT_PROC(_ConvertPayPlan4911,    PPCvtPayPlan4911);
 static CONVERT_PROC(_ConvertTransfer4911,   PPCvtTransfer4911);
 static CONVERT_PROC(_ConvertCpTransf4911,   PPCvtCpTransf4911);
@@ -1601,6 +1603,7 @@ int Convert4911()
 	return (/*(moved to PPCvtBill11112) _ConvertBill4911() &&*/_ConvertPayPlan4911() && _ConvertCpTransf4911() &&
 		_ConvertTransfer4911() && _ConvertTSession4911() /*&& _ConvertCGoodsLine4911()*/);
 }
+#endif // } @v12.4.1
 //
 //
 //
@@ -1699,6 +1702,7 @@ CONVERT_PROC(Convert5009, PPCvtInventory5009);
 //
 //
 //
+#if 0 // @v12.4.1 {
 class PPCvtGoodsExt5109 : public PPTableConversion {
 public:
 	virtual DBTable * CreateTableInstance(int * pNeedConversion)
@@ -1720,7 +1724,7 @@ public:
 		return 1;
 	}
 };
-
+#endif // } @v12.4.1
 #if 0 // @v6.2.2 Moved to PPCvtGoods6202 {
 class PPCvtGoods5200 : public PPTableConversion {
 public:
@@ -1794,9 +1798,8 @@ public:
 	}
 };
 #endif // } 0 @v6.2.2 Moved to PPCvtGoods6202
-
 //CONVERT_PROC(Convert5109, PPCvtGoodsExt5109);
-
+#if 0 // @v12.4.1 {
 int Convert5200()
 {
 	int    ok = 1;
@@ -1889,6 +1892,7 @@ int PPCvtCCheckLine5207::ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRec
 		*p_data = *static_cast<const CCheckLineTbl::Rec *>(pRec);
 	return 1;
 }
+#endif // } @v12.4.1
 //
 //
 //
@@ -1946,7 +1950,7 @@ public:
 };
 
 #endif // } 0 @v6.2.2 Moved to PPCvtLocation6202
-
+#if 0 // @v12.4.1 {
 int Convert5207()
 {
 	int    ok = 1;
@@ -1975,6 +1979,7 @@ int Convert5207()
 	PPWaitStop();
 	return ok;
 }
+#endif // } 0 @v12.4.1
 //
 //
 //
@@ -2020,6 +2025,7 @@ int PPCvtBarcode5305::ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRecLen
 //
 //
 //
+#if 0 // @v12.4.1 {
 class PPCvtStaffPost5501 : public PPTableConversion {
 public:
 	virtual DBTable * CreateTableInstance(int * pNeedConversion)
@@ -2100,6 +2106,7 @@ int Convert5501()
 	PPWaitStop();
 	return ok;
 }
+#endif // } 0 @v12.4.1
 //
 //
 //
@@ -2204,7 +2211,6 @@ int Convert5506()
 //
 //
 #if 0 // @v6.2.2 Moved to PPCvtWorld6202 {
-
 class PPCvtWorld5512 : public PPTableConversion {
 public:
 	virtual DBTable * CreateTableInstance(int * pNeedConversion)
@@ -2240,11 +2246,11 @@ public:
 };
 
 CONVERT_PROC(Convert5512, PPCvtWorld5512);
-
 #endif // } 0 @v6.2.2 Moved to PPCvtWorld6202
 //
 //
 //
+#if 0 // @v12.4.1 {
 class PPCvtObjSync5608 : public PPTableConversion {
 public:
 	virtual DBTable * CreateTableInstance(int * pNeedConversion)
@@ -3315,7 +3321,7 @@ public:
 #undef FLD_ASSIGN
 	}
 };
-
+#endif // } @v12.4.1
 #if 0 // (moved to PPCvtPerson11112) {
 class PPCvtPerson6202 : public PPTableConversion {
 public:
@@ -3364,7 +3370,7 @@ public:
 	}
 };
 #endif // } 0 (moved to PPCvtPerson11112)
-
+#if 0 // @v12.4.1 {
 class PPCvtPersonKind6202 : public PPTableConversion {
 public:
 	struct PersonKind_Before6202 {
@@ -3662,7 +3668,7 @@ public:
 		return 1;
 	}
 };
-
+#endif // } 0 @v12.4.1
 #if 0 // @v10.7.2 Moved to PPCvtPrjTask10702 {
 class PPCvtPrjTask6202 : public PPTableConversion {
 public:
@@ -3815,7 +3821,7 @@ public:
 };
 
 #endif // } 0 @v10.7.2 Moved to PPCvtPrjTask10702
-
+#if 0 // @v12.4.1 {
 class PPCvtObjSyncQueue6202 : public PPTableConversion {
 public:
 	struct ObjSyncQueue_Before6202 {
@@ -4198,6 +4204,7 @@ class PPCvtCurRest6611 : public PPTableConversion {
 };
 
 CONVERT_PROC(Convert6611, PPCvtCurRest6611);
+#endif // } 0 @v12.4.1
 //
 //
 //
@@ -4250,6 +4257,7 @@ CONVERT_PROC(Convert6708, PPCvtCCheckExt6708);
 //
 //
 //
+#if 0 // @v12.4.1 {
 int ConvertQuot720()
 {
 	int    ok = 1;
@@ -4367,6 +4375,7 @@ int Convert7305()
 	CATCHZOK
 	return ok;
 }
+#endif // } 0 @v12.4.1
 //
 //
 //
@@ -4511,6 +4520,7 @@ CONVERT_PROC(Convert7506, PPCvtTech7506);
 //
 //
 //
+#if 0 // @v12.4.1 {
 class PPCvtCCheckExt7601 : public PPTableConversion {
 public:
 	PPCvtCCheckExt7601() : P_CcT(0), Pre6708(0)
@@ -4692,6 +4702,7 @@ int Convert7708()
 	CATCHZOK
 	return ok;
 }
+#endif // } 0 @v12.4.1
 //
 //
 //
@@ -4748,7 +4759,7 @@ public:
 	}
 };
 #endif // } 0
-
+#if 0 // @v12.4.1 {
 class PPCvtCSession7712 : public PPTableConversion {
 public:
 	virtual DBTable * CreateTableInstance(int * pNeedConversion)
@@ -5549,6 +5560,7 @@ int Convert9004()
 	CATCHZOKPPERR
 	return ok;
 }
+#endif // } 0 @v12.4.1
 //
 //
 //
@@ -7706,3 +7718,76 @@ public:
 };
 
 CONVERT_PROC(Convert12207, PPCvtVATBook12207);
+//
+// @v12.4.1 LocTransf
+//
+class PPCvtLocTransf12401 : public PPTableConversion {
+public:
+	struct LocTransfRec_Before12401 {
+		int32  LocID;
+		int32  RByLoc;
+		LDATE  Dt;
+		LTIME  Tm;
+		int32  UserID;
+		int32  BillID;
+		int16  RByBill;
+		int16  LTOp;
+		int32  Flags;
+		int32  GoodsID;
+		int32  LotID;
+		double Qtty;
+		double RestByGoods;
+		double RestByLot;
+		int32  LinkLocID;
+		int32  LinkRByLoc;
+		int32  PalletTypeID;
+		int16  PalletCount;
+		int16  Reserve1;
+		uint8  Reserve2[8]; // raw
+	};
+	DBTable * CreateTableInstance(int * pNeedConversion)
+	{
+		DBTable * p_tbl = new LocTransfTbl;
+		if(!p_tbl)
+			PPSetErrorNoMem();
+		else if(pNeedConversion) {
+			DbTableStat stat;
+			p_tbl->GetFileStat(-1, &stat);
+			if(stat.FixRecSize < sizeof(LocTransfTbl::Rec)) {
+				*pNeedConversion = 1;
+			}
+			else
+				*pNeedConversion = 0;
+		}
+		return p_tbl;
+	}
+	int ConvertRec(DBTable * pTbl, void * pRec, int * /*pNewRecLen*/)
+	{
+		const LocTransfRec_Before12401 * p_old_rec = static_cast<const LocTransfRec_Before12401 *>(pRec);
+		LocTransfTbl::Rec * p_data = static_cast<LocTransfTbl::Rec *>(pTbl->getDataBuf());
+		memzero(p_data, sizeof(*p_data));
+#define CPYFLD(f)    p_data->f = p_old_rec->f
+		CPYFLD(LocID);
+		CPYFLD(RByLoc);
+		CPYFLD(Dt);
+		CPYFLD(Tm);
+		CPYFLD(UserID);
+		CPYFLD(BillID);
+		CPYFLD(RByBill);
+		CPYFLD(LTOp);
+		CPYFLD(Flags);
+		CPYFLD(GoodsID);
+		CPYFLD(LotID);
+		CPYFLD(Qtty);
+		CPYFLD(RestByGoods);
+		CPYFLD(RestByLot);
+		CPYFLD(LinkLocID);
+		CPYFLD(LinkRByLoc);
+		CPYFLD(PalletTypeID);
+		CPYFLD(PalletCount);
+#undef CPYFLD
+		return 1;
+	}
+};
+
+CONVERT_PROC(Convert12401, PPCvtLocTransf12401);

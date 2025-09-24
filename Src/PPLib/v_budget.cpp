@@ -386,7 +386,7 @@ int BudgetScenDialog::addItem(long * pPos, long * pID)
 	int    ok = -1;
 	SString name;
 	PPInputStringDialogParam isd_param(BudgTitle, BudgTitle);
-	if(InputStringDialog(&isd_param, name) > 0) {
+	if(InputStringDialog(isd_param, name) > 0) {
 		PPBudget rec;
 		rec    = Data.Rec;
 		rec.ID = 0;
@@ -399,11 +399,10 @@ int BudgetScenDialog::addItem(long * pPos, long * pID)
 int BudgetScenDialog::editItem(long pos, long id)
 {
 	int    ok = -1;
-	if(pos > 0 && pos < (long)Data.ScenList.getCount()) {
-		SString name;
-		name = Data.ScenList.at(pos).Name;
+	if(pos > 0 && pos < Data.ScenList.getCountI()) {
+		SString name(Data.ScenList.at(pos).Name);
 		PPInputStringDialogParam isd_param(BudgTitle, BudgTitle);
-		if(InputStringDialog(&isd_param, name) > 0) {
+		if(InputStringDialog(isd_param, name) > 0) {
 			STRNSCPY(Data.ScenList.at(pos).Name, name);
 			ok = 1;
 		}

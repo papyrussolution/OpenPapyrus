@@ -66,9 +66,9 @@ int FASTCALL PPTransferItem::SetupByRec(const LocTransfTbl::Rec * pTr)
 	Quantity_ = pTr->Qtty;
 	TFlags  |= tfLocTransf;
 	Flags &= ~(PPTFR_PLUS|PPTFR_MINUS);
-	if(pTr->Op == LOCTRFROP_PUT)
+	if(pTr->LTOp == LOCTRFROP_PUT)
 		Flags |= PPTFR_PLUS;
-	else if(pTr->Op == LOCTRFROP_GET)
+	else if(pTr->LTOp == LOCTRFROP_GET)
 		Flags |= PPTFR_MINUS;
 	return 1;
 }

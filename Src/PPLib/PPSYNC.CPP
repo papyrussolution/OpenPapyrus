@@ -325,13 +325,14 @@ int PPSync::Lock(ulong offs, int checkOnly)
 	if(CheckOffset(offs)) {
 		if(!NoSHARE) {
 			_lseek(Handle, offs, SEEK_SET);
-			if(_locking(Handle, LK_NBLCK, LOCK_PRFX_SIZE) < 0)
+			if(_locking(Handle, LK_NBLCK, LOCK_PRFX_SIZE) < 0) {
 				if(errno == EINVAL) {
 					NoSHARE = 1;
 					PPLogMessage(PPFILNAM_ERR_LOG, "PPSync locking error EINVAL - turned on NoSHARE mode", LOGMSGF_TIME|LOGMSGF_USER); // @7.7.10 @debug
 				}
 				else
 					ok = checkOnly ? 0 : PPSetError(PPERR_SYNCLOCKFAULT, DataPath);
+			}
 		}
 	}
 	else
@@ -365,8 +366,9 @@ bool FASTCALL PPSync::IsLocked(ulong offs)
 		Unlock(offs);
 		return false;
 	}
-	else
+	else {
 		return true;
+	}
 }
 
 int PPSync::LockDB()
@@ -384,10 +386,16 @@ int PPSync::UnlockDB()
 	return Unlock(0);
 }
 
-int PPSync::IsDBLocked()
+bool PPSync::IsDBLocked()
 {
 	//PPLogMessage(PPFILNAM_INFO_LOG, "BASE IS BLOCK", LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_LASTERR|LOGMSGF_DBINFO);// @debug turistti @v5.3.4
-	return IsLocked(0);
+	bool result = IsLocked(0);
+	// @v12.4.1 {
+	if(result) {
+		PPSetError(PPERR_SYNCDBLOCKED, DataPath);
+	}
+	// } @v12.4.1 
+	return result;
 }
 
 int PPSync::LoginUser(long userID, const char * pUserName, long * pSessID, const MACAddr * pMachineID, ulong terminalSessID)
@@ -395,7 +403,7 @@ int PPSync::LoginUser(long userID, const char * pUserName, long * pSessID, const
 	int    ok = 1;
 	ulong  offs = 0;
 	if(IsDBLocked())
-		ok = PPSetError(PPERR_SYNCDBLOCKED, DataPath);
+		ok = 0;
 	else {
 		long   id = AddRecord(PPSYNC_DBLOCK, userID, pUserName, 0, DS.CheckExtFlag(ECF_SYSSERVICE) ? 1 : 0, &offs, pMachineID, terminalSessID);
 		if(id && Lock(offs, 0)) {

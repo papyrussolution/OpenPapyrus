@@ -131,10 +131,9 @@ static IMPL_DBE_PROC(dbqf_spcsn_textfld_iisi)
 		result->init(sizeof(result_buf));
 	}
 	else {
-		SString temp_buf;
-		PPID   goods_id = params[0].lval;
-		PPID   manuf_id = params[1].lval;
-		temp_buf = params[2].sptr;
+		const PPID goods_id = params[0].lval;
+		const PPID manuf_id = params[1].lval;
+		SString temp_buf(params[2].sptr);
 		int   fld_id = params[3].lval;
 		SpecSeries2Tbl::Rec ss_rec;
 		temp_buf.CopyTo(ss_rec.Tail, sizeof(ss_rec.Tail));
@@ -152,8 +151,7 @@ static IMPL_DBE_PROC(dbqf_spcsn_textfld_iisi)
 	}
 }
 
-// static
-int PPViewSpecSeries::DynFuncSpcSnTextFld = 0;
+/*static*/int PPViewSpecSeries::DynFuncSpcSnTextFld = 0;
 
 /*virtual*/DBQuery * PPViewSpecSeries::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {

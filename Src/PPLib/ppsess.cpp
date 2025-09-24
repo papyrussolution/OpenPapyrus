@@ -2894,7 +2894,7 @@ int PPSession::OpenDictionary2(DbLoginBlock * pBlk, long flags)
 		// Инициализируем таблицу блокировок и проверяем не заблокирована ли база данных
 		//
 		THROW(GetSync().Init(data_path)); // @todo InitSync(data_path)
-		THROW_PP(!GetSync().IsDBLocked(), PPERR_SYNCDBLOCKED);
+		THROW(!GetSync().IsDBLocked());
 	}
 	GetPath(PPPATH_TEMP, temp_path);
 	pBlk->SetAttr(DbLoginBlock::attrTempPath, temp_path);
@@ -3842,6 +3842,11 @@ PPSession::LimitedDatabaseBlock * PPSession::LimitedOpenDatabase(const char * pD
 
 int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * pPassword, long flags)
 {
+	//
+	// @todo @20250923 Выявлена проблема с выбиванием сеанса - ему предшествует сообщение "База данных '' заблокирована" (PPERR_SYNCDBLOCKED)
+	// Пустой текст пути видимо связан с ошибкой в диагностике.
+	// Необходимо локализовать и устранить проблему.
+	//
 	enum {
         logmOrdinary  = 0,
         logmSystem    = 1, // Под именем SYSTEM
@@ -3974,7 +3979,7 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 
 					DbrSignalFile dbr_signal(data_path, this_ver);
 					if(!dbr_signal.IsExists()) {
-						THROW_PP(!GetSync().IsDBLocked(), PPERR_SYNCDBLOCKED);
+						THROW(!GetSync().IsDBLocked());
 						debug_r = 8;
 						PPWaitStart();
 
@@ -4014,24 +4019,24 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 						// @v8.6.1 THROW(Convert6407()); // @v6.4.7
 						// @v8.6.1 THROW(Convert6611()); // @v6.6.11
 						// @v7.6.01 THROW(Convert6708()); // @v6.7.8
-						THROW(Convert7305()); // @v7.3.5
+						// @v12.4.1 THROW(Convert7305()); // @v7.3.5
 						// @v12.2.6 THROW(Convert7311()); // @v7.3.11
 						// @v11.1.12 moved to PPCvtTech11112 THROW(Convert7506()); // @v7.5.6
-						THROW(Convert7601()); // @v7.6.1
+						// @v12.4.1 THROW(Convert7601()); // @v7.6.1
 						// @v9.4.0 (Перенесено в Convert9400) THROW(Convert7702()); // @v7.7.2
-						THROW(Convert7708()); // @v7.7.8
-						THROW(Convert7712()); // @v7.7.12
-						THROW(Convert7907());
+						// @v12.4.1 THROW(Convert7708()); // @v7.7.8
+						// @v12.4.1 THROW(Convert7712()); // @v7.7.12
+						// @v12.4.1 THROW(Convert7907());
 						// @v8.3.6 THROW(Convert8203());
 						// @v12.0.0 (Перенесено в Convert12000) THROW(Convert8306());
-						THROW(Convert8800());
-						THROW(Convert8910()); // @v8.9.10
-						THROW(Convert9004()); // @v9.0.3 // @v9.0.4 Convert9003-->Convert9004
-						THROW(Convert9108()); // @v9.1.8 GoodsDebt
-						THROW(Convert9214()); // @v9.2.14 EgaisProduct
-						THROW(Convert9400()); // @v9.4.0
-						THROW(ConvertSCardSeries9809()); // @v9.8.9
-						THROW(Convert9811()); // @v9.8.11
+						// @v12.4.1 THROW(Convert8800());
+						// @v12.4.1 THROW(Convert8910()); // @v8.9.10
+						// @v12.4.1 THROW(Convert9004()); // @v9.0.3 // @v9.0.4 Convert9003-->Convert9004
+						// @v12.4.1 THROW(Convert9108()); // @v9.1.8 GoodsDebt
+						// @v12.4.1 THROW(Convert9214()); // @v9.2.14 EgaisProduct
+						// @v12.4.1 THROW(Convert9400()); // @v9.4.0
+						// @v12.4.1 THROW(ConvertSCardSeries9809()); // @v9.8.9
+						// @v12.4.1 THROW(Convert9811()); // @v9.8.11
 						// @v10.2.9 THROW(Convert10012()); // @v10.0.12
 						THROW(Convert10209()); // @v10.2.9
 						THROW(Convert10507()); // @v10.5.7
@@ -4044,6 +4049,7 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 						THROW(Convert12000()); // @v12.0.0 Регистры (увеличились длины серии и номера регистра)
 						THROW(Convert12005()); // @v12.0.5 SCardOp
 						THROW(Convert12207()); // @v12.2.7 VATBook
+						THROW(Convert12401()); // @v12.4.1 LocTransf
 						{
 							PPVerHistory verh;
 							PPVerHistory::Info vh_info;
@@ -4413,6 +4419,12 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 						r_cc.Flags2 |= CCFLG2_DISABLE_CRR32_SUPPORT_SERVER;
 					else
 						r_cc.Flags2 &= ~CCFLG2_DISABLE_CRR32_SUPPORT_SERVER;
+				}
+				{
+					if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_FORCE_CRR32_SUPPORT_SERVER, &(iv = 0)) > 0 && iv == 1)
+						r_cc.Flags2 |= CCFLG2_FORCE_CRR32_SUPPORT_SERVER;
+					else
+						r_cc.Flags2 &= ~CCFLG2_FORCE_CRR32_SUPPORT_SERVER;
 				}
 				// } @v12.4.1 
 				{
