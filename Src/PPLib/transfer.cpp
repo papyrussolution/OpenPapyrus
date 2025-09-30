@@ -28,7 +28,7 @@ int Transfer::EnumByLot(PPID lotID, LDATE * date, long *oprno, TransferTbl::Rec 
 {
 	int    r = Search(lotID, *date, *oprno, spGt);
 	if(r > 0) {
-		copyBufTo(pRec);
+		CopyBufTo(pRec);
 		*date  = data.Dt;
 		*oprno = data.OprNo;
 	}
@@ -40,7 +40,7 @@ int Transfer::EnumByLot(PPID lotID, DateIter * pIter, TransferTbl::Rec * pRec)
 	assert(pIter != 0);
 	int    r = Search(lotID, pIter->dt, pIter->oprno, spGt);
 	if(r > 0) {
-		copyBufTo(pRec);
+		CopyBufTo(pRec);
 		return pIter->Advance(data.Dt, data.OprNo);
 	}
 	else
@@ -110,7 +110,7 @@ int Transfer::SearchMirror(LDATE dt, long oprno, TransferTbl::Rec * mirror)
 		k0.Reverse = (data.Reverse == 0) ? 1 : 0;
 		k0.RByBill = data.RByBill;
 		if(search(0, &k0, spEq) && data.LotID) {
-			copyBufTo(mirror);
+			CopyBufTo(mirror);
 			ok = 1;
 		}
 	}
@@ -214,7 +214,7 @@ int Transfer::SearchReval(PPID lotID, LDATE date, long oprno, TransferTbl::Rec *
 	if(date)
 		while((r = EnumByLot(lotID, &date, &oprno)) > 0)
 			if(data.Flags & PPTFR_REVAL)
-				return (copyBufTo(b), 1);
+				return (CopyBufTo(b), 1);
 	return r ? -1 : 0;
 }
 
@@ -1009,7 +1009,7 @@ int Transfer::GetRest(GoodsRestParam & rP)
 			const long _oprno = (rP.OprNo > 0) ? (rP.OprNo-1) : MAXLONG; // (-1) потому, что GetRest берет остаток по условию spLe
 			for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
 				ReceiptTbl::Rec lot_rec;
-				Rcpt.copyBufTo(&lot_rec);
+				Rcpt.CopyBufTo(&lot_rec);
 				LDATE  org_lot_date = ZERODATE;
 				if(rP.LocList.getCount() && !rP.LocList.lsearch(lot_rec.LocID))
 					continue;
@@ -2441,7 +2441,7 @@ int Transfer::UpdateCascadeLot(PPID lotID, PPID ownBillID, TrUCL_Param * p, uint
 						// } Restoring table position
 						//
 						THROW_DB(getDirect(0, 0, pos));
-						copyBufTo(&en_trfr_rec);
+						CopyBufTo(&en_trfr_rec);
 					}
 					if(flags & TRUCLF_UPDGOODS)
 						en_trfr_rec.GoodsID = p->GoodsID;
@@ -3032,7 +3032,7 @@ int Transfer::MergeLots(LotOpMovParam * param, uint flags, int use_ta)
 			double sum_qtty  = param->DestLot.Quantity + src_qtty;
 			PPObjBill::TBlock tb_;
 
-			copyBufTo(&param->TrRec);
+			CopyBufTo(&param->TrRec);
 			ti.SetupByRec(&param->TrRec);
 			THROW(SetupItemByLot(&ti, &dest_lot, 1, param->TrRec.OprNo));
 			if(sum_qtty > 0.0) {
@@ -3093,7 +3093,7 @@ int Transfer::MoveLotOp(PPID srcLotID, LDATE dt, long oprno, PPID destLotID, int
 				THROW_DB(updateRec());
 			}
 			else {
-				copyBufTo(&param.TrRec);
+				CopyBufTo(&param.TrRec);
 				THROW_PP(!(param.TrRec.Flags & PPTFR_REVAL), PPERR_CANTMOVREVALOP);
 				THROW_PP(!(param.TrRec.Flags & PPTFR_RECEIPT), PPERR_CANTMOVRCPTOP);
 				THROW(MoveOp(&param, 0));
@@ -3123,7 +3123,7 @@ int Transfer::MoveLotOps(PPID srcLotID, PPID destLotID, long flags, int use_ta)
 				THROW(p_bobj->RecalcTurns(param.DestLot.BillID, 0, 0));
 		}
 		for(dt = MAXDATE, oprno = MAXLONG; Search(srcLotID, dt, oprno, spLt) > 0;) {
-			copyBufTo(&param.TrRec);
+			CopyBufTo(&param.TrRec);
 			dt = param.TrRec.Dt;
 			oprno = param.TrRec.OprNo;
 			const long f = param.TrRec.Flags;
@@ -3152,7 +3152,7 @@ int Transfer::GetLastOpByGoods(PPID goodsID, LDATE beforeDt, long beforeOprNo, T
 	k3.Dt = beforeDt;
 	k3.OprNo = beforeOprNo;
 	if(search(3, &k3, spLt) && k3.GoodsID == goodsID) {
-		copyBufTo(pRec);
+		CopyBufTo(pRec);
 		ok = 1;
 	}
 	else

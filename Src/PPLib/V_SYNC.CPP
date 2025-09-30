@@ -164,7 +164,7 @@ int PPViewObjSync::Init_(const PPBaseFilt * pFilt)
 						k1.ObjID = obj_id;
 						if(P_Tbl->search(1, &k1, spGe) && P_Tbl->data.ObjType == Filt.ObjType && P_Tbl->data.ObjID == obj_id) do {
 							ObjSyncTbl::Rec  sync_rec;
-							P_Tbl->copyBufTo(&sync_rec);
+							P_Tbl->CopyBufTo(&sync_rec);
 							if(!Filt.DbDivID || sync_rec.DBID == Filt.DbDivID) {
 								if(!Filt.CommIDList.getCount() || Filt.CommIDList.SearchPair(sync_rec.CommIdPfx, sync_rec.CommID, 0)) {
 									THROW_DB(bei.insert(&sync_rec));
@@ -183,7 +183,7 @@ int PPViewObjSync::Init_(const PPBaseFilt * pFilt)
 						k0.CommID = r_comm_id.Val;
 						if(P_Tbl->search(0, &k0, spGe) && P_Tbl->data.ObjType == Filt.ObjType && P_Tbl->data.CommIdPfx == r_comm_id.Key && P_Tbl->data.CommID == r_comm_id.Val) do {
 							ObjSyncTbl::Rec  sync_rec;
-							P_Tbl->copyBufTo(&sync_rec);
+							P_Tbl->CopyBufTo(&sync_rec);
 							if(!Filt.DbDivID || sync_rec.DBID == Filt.DbDivID) {
 								THROW_DB(bei.insert(&sync_rec));
 							}
@@ -204,7 +204,7 @@ int PPViewObjSync::Init_(const PPBaseFilt * pFilt)
 				for(q.initIteration(false, &k1, spGe); q.nextIteration() > 0;) {
 					int  is_suitable = 1;
 					ObjSyncTbl::Rec  sync_rec;
-					P_Tbl->copyBufTo(&sync_rec);
+					P_Tbl->CopyBufTo(&sync_rec);
 					if(Filt.ObjIDList.getCount())
 						is_suitable = Filt.ObjIDList.bsearch(sync_rec.ObjID);
 					if(is_suitable && Filt.CommIDList.getCount())
@@ -253,7 +253,7 @@ int FASTCALL PPViewObjSync::NextIteration(ObjSyncViewItem * pItem)
 {
 	ObjSyncTbl * p_sync_tbl = P_TmpTbl ? P_TmpTbl : P_Tbl;
 	if(P_IterQuery && P_IterQuery->nextIteration() > 0) {
-		p_sync_tbl->copyBufTo(pItem);
+		p_sync_tbl->CopyBufTo(pItem);
 		return 1;
 	}
 	else
@@ -570,7 +570,7 @@ int PPViewObjSyncCmp::InitIteration()
 int FASTCALL PPViewObjSyncCmp::NextIteration(ObjSyncCmpViewItem * pItem)
 {
 	if(P_IterQuery && P_IterQuery->nextIteration() > 0) {
-		P_TmpTbl->copyBufTo(pItem);
+		P_TmpTbl->CopyBufTo(pItem);
 		return 1;
 	}
 	return -1;
@@ -949,7 +949,7 @@ int ViewObjSyncTab(PPObjID oid)
 		k0.CommIdPfx = hdr_rec.CommIdPfx;
 		k0.CommID = hdr_rec.CommID;
 		while(p_tbl->search(0, &k0, spGt) && p_tbl->data.ObjType == oid.Obj && p_tbl->data.CommIdPfx == hdr_rec.CommIdPfx && p_tbl->data.CommID == hdr_rec.CommID) {
-			p_tbl->copyBufTo(&rec);
+			p_tbl->CopyBufTo(&rec);
 			_ObjSyncEntry entry(rec);
 			list.insert(&entry);
 		}

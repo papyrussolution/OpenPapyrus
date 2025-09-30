@@ -246,7 +246,7 @@ void FitPowerOf2(UINT origx, UINT origy, UINT& targetx, UINT& targety, size_t ma
 	else {
 		size_t y;
 		for(y = maxsize; y > 1; y >>= 1) {
-			if(y <= targety)  break;
+			if(y <= targety) break;
 		}
 		targety = UINT(y);
 		float bestScore = FLT_MAX;

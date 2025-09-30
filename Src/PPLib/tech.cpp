@@ -296,7 +296,7 @@ int PPObjTech::GetNextSibling(PPID parentID, PPID siblingID, TechTbl::Rec * pNex
 			k5.ParentID = s_rec.ParentID;
 			k5.OrderN = s_rec.OrderN;
 			if(P_Tbl->search(5, &k5, spGt) && P_Tbl->data.ParentID == s_rec.ParentID) {
-				P_Tbl->copyBufTo(pNextRec);
+				P_Tbl->CopyBufTo(pNextRec);
 				ok = 1;
 			}
 		}
@@ -306,7 +306,7 @@ int PPObjTech::GetNextSibling(PPID parentID, PPID siblingID, TechTbl::Rec * pNex
 		k5.ParentID = parentID;
 		k5.OrderN = 0;
 		if(P_Tbl->search(5, &k5, spGt) && P_Tbl->data.ParentID == parentID) {
-			P_Tbl->copyBufTo(pNextRec);
+			P_Tbl->CopyBufTo(pNextRec);
 			ok = 1;
 		}
 	}
@@ -1440,7 +1440,7 @@ int PPObjTech::AddItemsToList(StrAssocArray * pList, PPIDArray * pIdList, PPIDAr
 	q.select(P_Tbl->ID, P_Tbl->ParentID, P_Tbl->OrderN, P_Tbl->GoodsID, P_Tbl->Code, 0).where(*dbq);
 	for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
 		TechTbl::Rec tec_rec;
-		P_Tbl->copyBufTo(&tec_rec);
+		P_Tbl->CopyBufTo(&tec_rec);
 		if(!(prc_id && goodsID) || tec_rec.GoodsID == labs(goodsID)) {
 			if(id_list.lsearch(tec_rec.ID)) {
 				// Зацикливание рекурсии. Следует оборвать рекурсию.

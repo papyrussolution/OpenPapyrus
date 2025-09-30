@@ -1023,7 +1023,7 @@ int PredictSalesCore::GetLastUpdate(PPID goodsID, const ObjIdListFilt & rLocList
 		BExtQuery q(&StT, 1);
 		q.select(StT.Loc, StT.LastDate, 0L).where(StT.GoodsID == goodsID);
 		for(q.initIteration(false, &k1, spGe); q.nextIteration() > 0;) {
-			StT.copyBufTo(&rec);
+			StT.CopyBufTo(&rec);
 			PPID   loc_id = 0;
 			ExpandLoc(rec.Loc, &loc_id);
 			if(rLocList.CheckID(loc_id)) {
@@ -1062,7 +1062,7 @@ int PredictSalesCore::SearchStat(PPID goodsID, const ObjIdListFilt & rLocList, G
 		BExtQuery q(&StT, 1);
 		q.selectAll().where(StT.GoodsID == goodsID);
 		for(q.initIteration(false, &k1, spGe); q.nextIteration() > 0;) {
-			StT.copyBufTo(&temp_rec);
+			StT.CopyBufTo(&temp_rec);
 			PPID   loc_id = 0;
 			ExpandLoc(temp_rec.Loc, &loc_id);
 			if(rLocList.CheckID(loc_id)) {

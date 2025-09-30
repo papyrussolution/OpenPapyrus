@@ -133,7 +133,7 @@ CONSTEXPR_F fields n_day(year_t y, month_t m, diff_t d, diff_t cd, hour_t hh, mi
 		int yi = year_index(ey, m); // Index into Gregorian 400 year cycle.
 		for(;;) {
 			int n = days_per_century(yi);
-			if(d <= n)  break;
+			if(d <= n) break;
 			d -= n;
 			ey += 100;
 			yi += 100;
@@ -141,7 +141,7 @@ CONSTEXPR_F fields n_day(year_t y, month_t m, diff_t d, diff_t cd, hour_t hh, mi
 		}
 		for(;;) {
 			int n = days_per_4years(yi);
-			if(d <= n)  break;
+			if(d <= n) break;
 			d -= n;
 			ey += 4;
 			yi += 4;
@@ -149,7 +149,7 @@ CONSTEXPR_F fields n_day(year_t y, month_t m, diff_t d, diff_t cd, hour_t hh, mi
 		}
 		for(;;) {
 			int n = days_per_year(ey, m);
-			if(d <= n)  break;
+			if(d <= n) break;
 			d -= n;
 			++ey;
 		}
@@ -157,7 +157,7 @@ CONSTEXPR_F fields n_day(year_t y, month_t m, diff_t d, diff_t cd, hour_t hh, mi
 	if(d > 28) {
 		for(;;) {
 			int n = days_per_month(ey, m);
-			if(d <= n)  break;
+			if(d <= n) break;
 			d -= n;
 			if(++m > 12) {
 				++ey;

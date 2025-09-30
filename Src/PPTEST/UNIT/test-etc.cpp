@@ -1,5 +1,5 @@
 // TEST-ETC.CPP
-// Copyright (c) A.Sobolev 2023, 2024
+// Copyright (c) A.Sobolev 2023, 2024, 2025
 // @codepage UTF-8
 // Модуль тестирования разных функций. В основном в процессе разработки.
 //
@@ -1533,5 +1533,154 @@ SLTEST_R(Wildberries_ApiKey)
 			}
 		}
 	}
+	return CurrentStatus;
+}
+
+SLTEST_R(PPSync) // @v12.4.1 @construction
+{
+	//
+	// План теста:
+	// -- Создаем пустой каталог, в котором будет находится файл блокировок ppsync.bin
+	// -- Из основной функции создаем один мьютекс и блокируем его. Этот мьютекс будем проверять из всех потоков.
+	// -- Из основной функции создаем один мьютекс, блокируем и сразу снимаем с него блокировку. Этот мьютекс будем проверять из всех потоков.
+	// -- Создаем несколько потоков каждый из которых со случайным интервалом времени пытается блокировать один из группы предопределенных мьютексов,
+	//   а затем снова разблокирует через 250ms.
+	//   Все такие попытки должны быть удачными.
+	//
+	constexpr uint max_thread_count = 3;
+
+	class CommonData {
+	public:
+		CommonData(const char * pPath) : Path(pPath), LockedMutexObj(PPOBJ_ACCOUNT2, 51), UnlockedMutexObj(PPOBJ_GOODSSTRUC, 2202),
+			LockedMutexId(0), UnlockedMutexId(0), MaxThrIterCount(50)
+		{
+			memzero(ThreadResultList, sizeof(ThreadResultList));
+			MutexObjList.Add(PPOBJ_PERSON, 1001);
+			MutexObjList.Add(PPOBJ_GOODS, 2003);
+			MutexObjList.Add(PPOBJ_BILL, 10101);
+			MutexObjList.Add(PPOBJ_BILL, 10102);
+			MutexObjList.Add(PPOBJ_CSESSION, 4012);
+			MutexObjList.Add(PPOBJ_UNIT, 1);
+			MutexObjList.Add(PPOBJ_TSESSION, 5101);
+			MutexObjList.Add(PPOBJ_PROCESSOR, 1011);
+			MutexObjList.Add(PPOBJ_PROCESSOR, 1111);
+			MutexObjList.Add(PPOBJ_GOODS, 2004);
+			MutexObjList.Add(PPOBJ_GOODS, 2005);
+			MutexObjList.Add(PPOBJ_UNIT, 3);
+			MutexObjList.Add(PPOBJ_UNIT, 11);
+			MutexObjList.Add(PPOBJ_BILL, 10202);
+			for(uint i = 0; i < SIZEOFARRAY(ThreadResultList); i++) {
+				ThreadResultList[i] = 1;
+			}
+		}
+		const SString Path;
+		PPObjIDArray MutexObjList;
+		const PPObjID LockedMutexObj;
+		const PPObjID UnlockedMutexObj;
+		const  uint MaxThrIterCount;
+		long   LockedMutexId;
+		long   UnlockedMutexId;
+		int    ThreadResultList[max_thread_count];
+	};
+	HANDLE thread_list[max_thread_count];
+	SString temp_buf;
+	SString path;
+	memzero(thread_list, sizeof(thread_list));
+	(path = GetSuiteEntry()->OutPath).SetLastSlash().Cat("ppsync");
+	{
+		S_GUID uuid(SCtrGenerate_);
+		uuid.ToStr(S_GUID::fmtPlain, temp_buf);
+		path.SetLastSlash().Cat(temp_buf);
+	}
+	THROW(SFile::CreateDir(path));
+	{
+		class _LocalThread : public PPThread {
+		public:
+			_LocalThread(CommonData & rData, uint thrIdx) : PPThread(PPThread::kUnknown, "Test-PPSync", 0), ThrIdx(thrIdx), R_Data(rData)
+			{
+				InitStartupSignal();
+			}
+			virtual void Startup()
+			{
+				PPThread::Startup();
+				SignalStartup();
+			}
+			virtual void Run()
+			{
+				//R_Data.ThreadResultList[ThrIdx] = 1;
+				const long processing_time_s = 120;
+				const LDATETIME start_dtm = getcurdatetime_();
+				PPSync sync;
+				THROW(sync.Init(R_Data.Path));
+				{
+					LongArray idx_list;
+					{
+						for(uint i = 0; i < R_Data.MutexObjList.getCount(); i++) {
+							idx_list.add(i);
+						}
+						idx_list.shuffle();
+					}
+					uint  iter_no = 0;
+					const int r1 = sync.GetObjMutexState(R_Data.LockedMutexObj.Obj, R_Data.LockedMutexObj.Id);
+					const int r2 = sync.GetObjMutexState(R_Data.UnlockedMutexObj.Obj, R_Data.UnlockedMutexObj.Id);
+					THROW(r1 > 0);
+					THROW(r2 <= 0);
+					do {
+						for(uint i = 0; i < idx_list.getCount(); i++) {
+							iter_no++;
+							const uint idx = idx_list.get(i);
+							const PPObjID & r_oid = R_Data.MutexObjList.at(idx);
+							long  mtx_id = 0;
+							//const uint _delay_ms = SLS.GetTLA().Rg.GetUniformIntPos(6000) + 500/*гарантированно больше 500 чтоб другой поток успел снять блокировку если устанавливал*/;
+							const uint _delay_ms = 1000 + (idx * 50);
+							SDelay(_delay_ms);
+							//int r = sync.GetObjMutexState(r_oid.Obj, r_oid.Id);
+							int r3 = sync.CreateMutex_(DS.GetConstTLA().GetThreadID(), r_oid.Obj, r_oid.Id, &mtx_id, 0);
+							if(r3 > 0) {
+								SDelay(50);
+								sync.ReleaseMutex(mtx_id);
+							}
+							else {
+								CALLEXCEPT();
+							}
+						}
+					} while(diffdatetimesec(getcurdatetime_(), start_dtm) < processing_time_s);
+				}
+				CATCH
+					R_Data.ThreadResultList[ThrIdx] = 0;
+				ENDCATCH
+			}
+			CommonData & R_Data;
+			const uint ThrIdx;
+		};
+		CommonData commdata(path);
+		PPSync main_thr_sync;
+		THROW(main_thr_sync.Init(commdata.Path));
+		THROW(main_thr_sync.CreateMutex_(DS.GetConstTLA().GetThreadID(), commdata.LockedMutexObj.Obj, commdata.LockedMutexObj.Id, &commdata.LockedMutexId, 0));
+		THROW(main_thr_sync.CreateMutex_(DS.GetConstTLA().GetThreadID(), commdata.UnlockedMutexObj.Obj, commdata.UnlockedMutexObj.Id, &commdata.UnlockedMutexId, 0));
+		THROW(main_thr_sync.ReleaseMutex(commdata.UnlockedMutexId));
+		SDelay(500);
+		{
+			uint   tc = 0;
+			{
+				for(uint i = 0; i < max_thread_count; i++) {
+					_LocalThread * p_thr = new _LocalThread(commdata, i);
+					if(p_thr) {
+						p_thr->Start(1);
+						thread_list[tc++] = *p_thr;
+					}
+				}
+			}
+			WaitForMultipleObjects(tc, thread_list, TRUE, INFINITE);
+			{
+				for(uint i = 0; i < max_thread_count; i++) {
+					SLCHECK_NZ(commdata.ThreadResultList[i]);
+				}
+			}
+		}
+	}
+	CATCH
+		CurrentStatus = 0;
+	ENDCATCH
 	return CurrentStatus;
 }

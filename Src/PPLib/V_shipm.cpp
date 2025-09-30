@@ -368,7 +368,7 @@ int PPViewShipmAnalyze::InitIteration()
 int FASTCALL PPViewShipmAnalyze::NextIteration(ShipmAnalyzeViewItem * pItem)
 {
 	if(P_IterQuery && P_IterQuery->nextIteration() > 0) {
-		Tbl->copyBufTo(pItem);
+		Tbl->CopyBufTo(pItem);
 		Counter.Increment();
 		return 1;
 	}

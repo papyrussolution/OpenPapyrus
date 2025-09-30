@@ -560,7 +560,7 @@ int SMySqlDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, 
 	SString let_buf;
 	SSqlStmt  stmt(this);
 	if(pData)
-		pTbl->copyBufFrom(pData);
+		pTbl->CopyBufFrom(pData);
 	if(pTbl->State & DBTable::sHasLob) {
 		int    r = 0;
 		THROW(r = pTbl->StoreAndTrimLob());

@@ -480,7 +480,7 @@ int FASTCALL PPViewSysJournal::NextIteration(SysJournalViewItem * pItem)
 		}
 		else {
 			SysJournalTbl * p_t = NZOR(P_TmpTbl, P_Tbl);
-			p_t->copyBufTo(pItem);
+			p_t->CopyBufTo(pItem);
 			if(!oneof2(p_t->data.Action, PPACN_OBJRMV, PPACN_RMVBILL)) {
 				uint   objn_pos = 0;
 				PPObjID oid(p_t->data.ObjType, p_t->data.ObjID);
@@ -1028,7 +1028,7 @@ int PPViewSysJournal::RefreshTempTable(LDATETIME since)
 		for(q.initIteration(false, &k0, spGt); q.nextIteration() > 0;) {
 			if(cmp(since, P_Tbl->data.Dt, P_Tbl->data.Tm) < 0) {
 				SysJournalTbl::Rec rec;
-				P_Tbl->copyBufTo(&rec);
+				P_Tbl->CopyBufTo(&rec);
 				MEMSZERO(k0);
 				k0.Dt = rec.Dt;
 				k0.Tm = rec.Tm;
@@ -1419,7 +1419,7 @@ int FASTCALL PPViewGtaJournal::NextIteration(GtaJournalViewItem * pItem)
 {
 	while(pItem && P_IterQuery && P_IterQuery->nextIteration() > 0) {
 		GtaJournalTbl * p_t = NZOR(P_TmpTbl, &T);
-		p_t->copyBufTo(pItem);
+		p_t->CopyBufTo(pItem);
 		pItem->ObjName.Z();
 		uint   objn_pos = 0;
 		PPObjID oid(p_t->data.ObjType, p_t->data.ObjID);

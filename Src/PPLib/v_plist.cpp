@@ -64,7 +64,7 @@ int PriceListCore::SearchGoodsLine(PriceLineIdent * pIdent, void * b)
 			pIdent->GoodsID = k.GoodsID;
 			pIdent->QuotKindID = k.QuotKindID;
 			pIdent->LineNo = k.LineNo;
-			Lines.copyBufTo(b);
+			Lines.CopyBufTo(b);
 			return 1;
 		}
 	}
@@ -83,7 +83,7 @@ int PriceListCore::EnumLines(const PriceLineIdent * pIdent, PriceLineIdent * pIt
 			pIter->GoodsID = k.GoodsID;
 			pIter->QuotKindID = k.QuotKindID;
 			pIter->LineNo = k.LineNo;
-			Lines.copyBufTo(b);
+			Lines.CopyBufTo(b);
 			return 1;
 		}
 	}
@@ -870,7 +870,7 @@ int PPViewPriceList::UpdateTempTbl(PriceLineIdent * pIdent)
 				dbq = &(*dbq && (Tbl.Lines.IsPresent > 0L));
 			q.selectAll().where(*dbq);
 			for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
-				Tbl.Lines.copyBufTo(&rec);
+				Tbl.Lines.CopyBufTo(&rec);
 				int   is_found   = 0;
 				uint  grp_count  = Filt.GrpIDList.IsExists() ? Filt.GrpIDList.GetCount() : 1;
 				PPID  gds_grp_id = Filt.GoodsGrpID;

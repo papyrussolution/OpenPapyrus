@@ -4248,7 +4248,7 @@ int PPBillImpExpBaseProcessBlock::SearchEdiOrder(const SearchBlock & rBlk, BillT
 			MEMSZERO(k1);
 			k1.Dt = period.low;
 			for(q.initIteration(false, &k1, spGe); ok < 0 && q.nextIteration() > 0;) {
-				t->copyBufTo(&bill_rec);
+				t->CopyBufTo(&bill_rec);
 				if(order_bill_code.IsEqNC(bill_rec.Code)) {
 					PPFreight freight;
 					LocationTbl::Rec loc_rec;

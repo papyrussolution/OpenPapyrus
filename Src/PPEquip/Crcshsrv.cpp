@@ -2763,7 +2763,7 @@ int ACS_CRCSHSRV::PrepareImpFileNameV10(int filTyp, const char * pName, const ch
 {
 	PathRpt[filTyp] = pName;
 	SFsPath::ReplacePath(PathRpt[filTyp], pPath, 1);
-	(PathQue[filTyp] = pPath).SetLastSlash().Cat("reports.request");
+	(PathQue[filTyp] = pPath).SetLastSlash().Cat("source").SetLastSlash().Cat("reports.request"); // @v12.4.1 Cat("source").SetLastSlash().
 	return 1;
 }
 
@@ -4797,7 +4797,7 @@ void ACS_CRCSHSRV::CleanUpSession()
 		qblk.Period.SetDate(plusdate(getcurdate_(), -1));
 		if(PPDialogProcBody <SetRetail_PosQueryDialog, QueryBlock>(&qblk) > 0) {
 			if(!qblk.Period.IsZero()) {
-				(temp_buf = acn.ImpFiles).SetLastSlash().Cat("reports.request");
+				(temp_buf = acn.ImpFiles).SetLastSlash().Cat("source").SetLastSlash().Cat("reports.request"); // @v12.4.1 Cat("source").SetLastSlash().
 				SFile f_out(temp_buf, SFile::mWrite);
 				if(f_out.IsValid()) {
 					SString query_buf;

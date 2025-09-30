@@ -1878,7 +1878,7 @@ _Use_decl_annotations_ float D3DX_BC6H::MapColorsQuantized(const EncodeParams* p
 			tpal = XMLoadSInt4(reinterpret_cast<const XMINT4*>(&aPalette[j]));
 			tpal = XMVectorSubtract(vcolors, tpal);
 			const float fErr = XMVectorGetX(XMVector3Dot(tpal, tpal));
-			if(fErr > fBestErr)  break;// error increased, so we're done searching
+			if(fErr > fBestErr) break;// error increased, so we're done searching
 			if(fErr < fBestErr)  fBestErr = fErr;
 		}
 		fTotErr += fBestErr;
@@ -2070,7 +2070,7 @@ _Use_decl_annotations_ void D3DX_BC6H::AssignIndices(const EncodeParams* pEP, co
 
 		for(uint8_t j = 1; j < uNumIndices && fBestErr > 0; ++j) {
 			const float fErr = Norm(pEP->aIPixels[i], aPalette[uRegion][j]);
-			if(fErr > fBestErr)  break;// error increased, so we're done searching
+			if(fErr > fBestErr) break;// error increased, so we're done searching
 			if(fErr < fBestErr) {
 				fBestErr = fErr;
 				aIndices[i] = j;
@@ -2241,7 +2241,7 @@ _Use_decl_annotations_ float D3DX_BC6H::MapColors(const EncodeParams* pEP, size_
 		float fBestErr = Norm(pEP->aIPixels[auIndex[i]], aPalette[0]);
 		for(uint8_t j = 1; j < uNumIndices && fBestErr > 0.0f; ++j) {
 			const float fErr = Norm(pEP->aIPixels[auIndex[i]], aPalette[j]);
-			if(fErr > fBestErr)  break;// error increased, so we're done searching
+			if(fErr > fBestErr) break;// error increased, so we're done searching
 			if(fErr < fBestErr)  fBestErr = fErr;
 		}
 		fTotalErr += fBestErr;

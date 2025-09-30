@@ -1095,7 +1095,7 @@ int PersonCore::Put(PPID * pID, PPPerson * pPack, int use_ta)
 		else if(pPack) {
 			strip(pPack->Rec.Name);
 			THROW(ok = AdjustNewObjID(this, PPOBJ_PERSON, &pPack->Rec));
-			copyBufFrom(&pPack->Rec);
+			CopyBufFrom(&pPack->Rec, sizeof(pPack->Rec));
 			THROW_DB(insertRec(0, pID));
 			pPack->Rec.ID = *pID;
 			THROW(p_ref->UtrC.SetText(TextRefIdent(PPOBJ_PERSON, *pID, PPTRPROP_MEMO), memo_buf_utf8, 0)); // @v11.1.12

@@ -6446,7 +6446,7 @@ int PPFiasReference::SearchObjByTextRefList(const TSVector <TextRefIdent> & rTRe
 			q.select(r_t.NameTRef, r_t.IdUuRef, 0).where(r_t.NameTRef == r_i.O.Id);
 			for(q.initIteration(false, &k3, spGe); q.nextIteration() > 0;) {
 				FiasAddrObjTbl::Rec rec;
-				r_t.copyBufTo(&rec);
+				r_t.CopyBufTo(&rec);
 				rList.add(rec.IdUuRef);
 				ok = 1;
 			}
@@ -6454,7 +6454,7 @@ int PPFiasReference::SearchObjByTextRefList(const TSVector <TextRefIdent> & rTRe
 		else {
 			if(r_t.search(3, &k3, spGe) && r_t.data.NameTRef == r_i.O.Id) do {
 				FiasAddrObjTbl::Rec rec;
-				r_t.copyBufTo(&rec);
+				r_t.CopyBufTo(&rec);
 				rList.add(rec.IdUuRef);
 				ok = 1;
 			} while(r_t.search(3, &k3, spNext) && r_t.data.NameTRef == r_i.O.Id);

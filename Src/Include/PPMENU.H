@@ -565,5 +565,7 @@
 #define cmUnitEc                       671 // @v12.3.7 Unit-анализ (не имеет отношения к единицам измерения)
 #define cmSalesRestriction             672 // @v12.3.7 Ограничения на продажу PPOBJ_SALESRESTRICTION
 #define cmTestGlobalSvcAccessibility   673 // @v12.3.12 Тест доступности глобальных сервисов
+#define cmWbPublicGoods                674 // @v12.4.1 Импорт товаров с маркетплейса Wildberries
+#define cmCSResetChZnPmSvrAddr         675 // @v12.4.1 Сбросить автоматически выбранный адрес сервера разрешительного режима честный знак (для того, чтоб система выбрала другой сервер)
 
 #endif /* __PPMENU_H */

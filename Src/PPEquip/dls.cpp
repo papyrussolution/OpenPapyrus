@@ -59,7 +59,7 @@ int DeviceLoadingStat::GetLast(int dvcType, PPID dvcID, const LDATETIME & rDtm, 
 	while(search(1, &k1, spLt) && k1.DvcType == dvcType && k1.DvcID == dvcID) {
 		if(data.Status) {
 			ASSIGN_PTR(pStatID, data.ID);
-			copyBufTo(pRec);
+			CopyBufTo(pRec);
 			return 1;
 		}
 	}
@@ -83,7 +83,7 @@ int DeviceLoadingStat::GetLastObjInfo(int dvcType, PPID dvcID, PPID objType, PPI
 		DvcLoadingStatTbl::Rec stat_rec;
 		if(Fetch(DlsoT.data.DlsID, &stat_rec) > 0 && stat_rec.DvcType == dvcType &&
 			stat_rec.DvcID == dvcID && stat_rec.Status && (!dt || stat_rec.Dt <= dt)) {
-			DlsoT.copyBufTo(pRec);
+			DlsoT.CopyBufTo(pRec);
 			return 1;
 		}
 	}

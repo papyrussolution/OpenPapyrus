@@ -1,5 +1,5 @@
 // PPDBMAKE.CPP
-// Copyright (c) Osolotkin A.V, Sobolev A. 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2013, 2016, 2017, 2018, 2019, 2020, 2023, 2024
+// Copyright (c) Osolotkin A.V, Sobolev A. 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2013, 2016, 2017, 2018, 2019, 2020, 2023, 2024, 2025
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -145,7 +145,7 @@ int CreateByExample(const char * pPath)
 							do {
 								int   ins_rec = 0;
 								p_dst_tbl->clearDataBuf();
-								p_dst_tbl->copyBufLobFrom(p_src_tbl->getDataBuf(), p_src_tbl->getRetBufLen());
+								p_dst_tbl->CopyBufLobFrom(p_src_tbl->getDataBuf(), p_src_tbl->GetRetBufLen());
 								if(is_assoc) {
 									ObjAssocTbl::Rec * p_rec = static_cast<ObjAssocTbl::Rec *>(p_src_tbl->getDataBuf());
 									if(!oneof10(p_rec->AsscType, PPASS_BILLSET, PPASS_PAYMBILLPOOL, PPASS_OPBILLPOOL,
@@ -216,8 +216,8 @@ int CreateByExample(const char * pPath)
 		RECORDNUMBER rn = 0, i = 0;
 		ReceiptTbl dst_tbl((path = pPath).SetLastSlash().Cat("receipt.btr"));
 		Goods2Tbl src_tbl((path = pPath).SetLastSlash().Cat("goods2.btr"));
-		src_tbl.setDataBuf(&goods_rec, sizeof(Goods2Tbl::Rec));
-		dst_tbl.setDataBuf(&rcpt_rec, sizeof(ReceiptTbl::Rec));
+		src_tbl.SetDBuf(&goods_rec, sizeof(Goods2Tbl::Rec));
+		dst_tbl.SetDBuf(&rcpt_rec, sizeof(ReceiptTbl::Rec));
 		src_tbl.getNumRecs(&rn);
 		{
 			PPTransaction tra(1);

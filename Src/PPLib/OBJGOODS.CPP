@@ -806,10 +806,10 @@ int PPObjGoods::UpdateName(PPID id, const char * pNewName, int use_ta)
 					}
 				}
 				THROW_DB(P_Tbl->getDirectForUpdate(0, 0, pos));
-				P_Tbl->copyBufTo(&rec);
+				P_Tbl->CopyBufTo(&rec);
 				new_name.CopyTo(rec.Name, sizeof(rec.Name));
 				new_name.CopyTo(rec.Abbr, sizeof(rec.Abbr));
-				P_Tbl->copyBufFrom(&rec);
+				P_Tbl->CopyBufFrom(&rec, sizeof(rec));
 				THROW_DB(P_Tbl->updateRec());
 				DS.LogAction(PPACN_OBJUPD, Obj, id, hid, 0);
 				ok = 1;
@@ -2674,7 +2674,7 @@ int PPObjGoods::CheckForFilt(const GoodsFilt * pFilt, PPID id, long implFlags)
 			return 0;
 	}
 	else
-		P_Tbl->copyBufTo(&rec);
+		P_Tbl->CopyBufTo(&rec);
 	id = rec.ID;
 	if(pFilt->Flags & GoodsFilt::fExcludeAsset && IsAssetType(rec.GoodsTypeID))
 		return 0;

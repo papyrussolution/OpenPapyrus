@@ -213,7 +213,7 @@ int PPViewPrcBusy::ProcessPrc(PPID prcID, BExtInsert * pBei)
 				THROW_DB(pBei->insert(&rec));
 			}
 			else {
-				P_TempTbl->copyBufFrom(&rec);
+				P_TempTbl->CopyBufFrom(&rec, sizeof(rec));
 				THROW_DB(P_TempTbl->insertRec());
 			}
 		}

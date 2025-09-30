@@ -92,7 +92,7 @@ int BudgetItemCore::Search(PPID budgetID, PPID acc, PPID kind, LDATE dt, void * 
 	k1.Kind     = kind;
 	k1.Dt       = dt;
 	if(search(1, &k1, spEq) > 0) {
-		copyBufTo(pRec);
+		CopyBufTo(pRec);
 		ok = 1;
 	}
 	return ok;
@@ -112,12 +112,12 @@ int BudgetItemCore::PutItem_(PPID * pID, BudgetItemTbl::Rec * pRec, int useTa)
 				THROW_DB(this->updateRecBuf(pRec));
 			}
 			else {
-				this->copyBufFrom(pRec);
+				this->CopyBufFrom(pRec);
 				THROW_DB(this->insertRec(0, &tmp_id));
 			}
 		}
 		else {
-			this->copyBufFrom(pRec);
+			this->CopyBufFrom(pRec);
 			THROW_DB(this->insertRec(0, &tmp_id));
 		}
 		if(tmp_id)

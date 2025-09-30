@@ -89,13 +89,21 @@ int SSqliteDbProvider::GetFileStat(const char * pFileName/*регистр символов важе
 		THROW(stmt.GetData(0));
 		ok = 1;
 		if(pStat) {
-			//pStat->NumRecs = rec_buf.NumRows;
-			//SETFLAG(pStat->Flags, XTF_TEMP, rec_buf.Temp[0] == 'Y');
-			//pStat->OwnerName = rec_buf.Owner;
-			//pStat->SpaceName = rec_buf.TableSpace; // DbTableStat
 			if(reqItems & DbTableStat::iFldList) {
 			}
 			if(reqItems & DbTableStat::iIdxList) {
+			}
+			if(reqItems & DbTableStat::iNumRecs) {
+				int64 rec_count = 0;
+				SqlGen.Z().Select("count(*)").From(pFileName);
+				SSqlStmt stmt_count(this, SqlGen);
+				THROW(stmt_count.Exec(1, 0));
+				THROW(stmt_count.BindItem(+1, 1, T_INT64, &rec_count));
+				THROW(Binding(stmt_count, +1));
+				if(Fetch(stmt_count, 1, &actual) && actual) {
+					THROW(stmt_count.GetData(0));
+					pStat->NumRecs = rec_count;
+				}
 			}
 		}
 	}
@@ -569,7 +577,7 @@ int SSqliteDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt,
 	int    ok = 1;
 	SString temp_buf;
 	if(pDataBuf)
-		pTbl->copyBufFrom(pDataBuf);
+		pTbl->CopyBufFrom(pDataBuf);
 	SqlGen.Z().Tok(Generator_SQL::tokUpdate).Sp().Text(pTbl->fileName).Sp().Tok(Generator_SQL::tokSet).Sp();
 	{
 		const uint fld_count = pTbl->fields.getCount();
@@ -625,7 +633,7 @@ int SSqliteDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt,
 	SString let_buf;
 	SSqlStmt stmt(this);
 	if(pData) {
-		pTbl->copyBufFrom(pData);
+		pTbl->CopyBufFrom(pData);
 		if(pTbl->State & DBTable::sHasLob) {
 			const RECORDSIZE frs = pTbl->FixRecSize;
 			const SLob * p_src_lob = reinterpret_cast<const SLob *>(PTR8C(pData) + frs);
@@ -641,7 +649,7 @@ int SSqliteDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt,
 		}
 		// @construction @20250910 Здесь я остановился возясь с LOB'ами
 
-		//pTbl->copyBufLobFrom(const void * pBuf, size_t srcBufSize);
+		//pTbl->CopyBufLobFrom(const void * pBuf, size_t srcBufSize);
 	}
 	/*if(pTbl->State & DBTable::sHasLob) {
 		int    r = 0;
@@ -857,8 +865,8 @@ int SSqliteDbProvider::ResetStatement(SSqlStmt & rS)
 
 /*virtual*/int SSqliteDbProvider::GetFileStat(DBTable * pTbl, long reqItems, DbTableStat * pStat)
 {
-	int    ok = 0;
-	return ok;
+	SString file_name;
+	return GetFileStat(MakeFileName_(pTbl->tableName, file_name), reqItems, pStat);
 }
 
 /*virtual*/int SSqliteDbProvider::ProtectTable(long dbTableID, char * pResetOwnrName, char * pSetOwnrName, int clearProtection)

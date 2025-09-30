@@ -2003,7 +2003,7 @@ int SOraDbProvider::Implement_InsertRec(DBTable * pTbl, int idx, void * pKeyBuf,
 	SString let_buf;
 	SSqlStmt  stmt(this);
 	if(pData)
-		pTbl->copyBufFrom(pData);
+		pTbl->CopyBufFrom(pData);
 	if(pTbl->State & DBTable::sHasLob) {
 		int    r = 0;
 		THROW(r = pTbl->StoreAndTrimLob());
@@ -2080,7 +2080,7 @@ int SOraDbProvider::Implement_UpdateRec(DBTable * pTbl, const void * pDataBuf, i
 	int    ok = 1;
 	SString temp_buf;
 	if(pDataBuf)
-		pTbl->copyBufFrom(pDataBuf);
+		pTbl->CopyBufFrom(pDataBuf);
 	SqlGen.Z().Tok(Generator_SQL::tokUpdate).Sp().Text(pTbl->fileName).Sp().Tok(Generator_SQL::tokSet).Sp();
 	{
 		const uint fld_count = pTbl->fields.getCount();

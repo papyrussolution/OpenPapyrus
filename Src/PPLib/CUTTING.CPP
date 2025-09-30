@@ -180,7 +180,7 @@ int PPObjBill::Cutting(LDATE endDate, int use_ta)
 		PPBillPacket pack;
 		BillTbl::Rec bill_rec, link_bill_rec;
 		DateIter di;
-		P_Tbl->copyBufTo(&bill_rec);
+		P_Tbl->CopyBufTo(&bill_rec);
 		PPWaitDate(bill_rec.Dt);
 		if(bill_rec.OpID == PPOPK_UNASSIGNED)
 			continue;
@@ -296,7 +296,7 @@ int PPObjBill::SaveBalance(LDATE endDate, const char * pFileName)
 	PPGetSubStr(PPTXT_SAVBAL_STRINGS, 0, format, sizeof(format));
 	for(PPInitIterCounter(cntr, &atobj->P_Tbl->AccRel); atobj->P_Tbl->AccRel.search(3, &k, spGt);) {
 		AcctRelTbl::Rec accrel_rec;
-		atobj->P_Tbl->AccRel.copyBufTo(&accrel_rec);
+		atobj->P_Tbl->AccRel.CopyBufTo(&accrel_rec);
 		if(!accrel_rec.Closed) {
 			double rest = 0.0;
 			atobj->P_Tbl->GetAcctRest(endDate, accrel_rec.ID, &rest, 0);

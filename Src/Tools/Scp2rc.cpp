@@ -918,6 +918,12 @@ int main(int argc, char ** argv)
 					while(!do_process && rspf.ReadLine(temp_buf)) {
 						if(temp_buf.Chomp().NotEmptyS()) {
 							if(temp_buf.CmpPrefix("//", 0) != 0 && temp_buf.CmpPrefix("--", 0) != 0) { // @v10.5.3 comments
+								// @v12.4.1 {
+								uint comment_pos = 0;
+								if(temp_buf.Search("//", 0, 0, &comment_pos) || temp_buf.Search("--", 0, 0, &comment_pos)) {
+									temp_buf.Trim(comment_pos).Strip();
+								}
+								// } @v12.4.1 
 								LDATETIME  depf_dtm;
 								ps.Split(temp_buf);
 								ps_path.Split(inp_file_path);
@@ -927,8 +933,14 @@ int main(int argc, char ** argv)
 									ps.Dir = ps_path.Dir;
 								ps.Merge(temp_buf);
 								SFile depf(temp_buf, SFile::mRead);
-								if(depf.IsValid() && depf.GetDateTime(0, 0, &depf_dtm) && cmp(depf_dtm, finalf_dtm) > 0)
-									do_process = 1;
+								if(depf.IsValid()) {
+									if(depf.GetDateTime(0, 0, &depf_dtm) && cmp(depf_dtm, finalf_dtm) > 0)
+										do_process = 1;
+								}
+								else {
+									msg_buf.Printf("Unable to open file '%s'", temp_buf.cptr());
+									error(msg_buf);
+								}
 							}
 						}
 					}

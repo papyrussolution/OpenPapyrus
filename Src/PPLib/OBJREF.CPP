@@ -737,8 +737,8 @@ int PPObjReference::MakeReserved(long flags)
 		case PPOBJ_REGISTERTYPE:  rez_id = ROD_REGISTERTYPE;  break;
 		case PPOBJ_ELINKKIND:     rez_id = ROD_ELINKKIND;     break;
 		case PPOBJ_PERSONRELTYPE: rez_id = ROD_PERSONRELTYPE; break;
-		case PPOBJ_TAXSYSTEMKIND: rez_id = ROD_TAXSYSTEMKIND; break; // @v10.6.0
-		case PPOBJ_GOODSBASKET:   rez_id = ROD_GOODSBASKET;   break; // @v10.6.8
+		case PPOBJ_TAXSYSTEMKIND: rez_id = ROD_TAXSYSTEMKIND; break;
+		case PPOBJ_GOODSBASKET:   rez_id = ROD_GOODSBASKET;   break;
 	}
 	return rez_id ? LoadReservedItems(rez_id) : 1;
 }
@@ -2275,7 +2275,7 @@ int PPObjGlobalUserAcc::PutPacket(PPID * pID, PPGlobalUserAccPacket * pPack, int
 				else {
 					if(!sstreq(pPack->Rec.Name, org_pack.Rec.Name))
 						THROW(SendObjMessage(DBMSG_OBJNAMEUPDATE, PPOBJ_ARTICLE, Obj, _id, pPack->Rec.Name, 0));
-					THROW(P_Ref->UpdateItem(Obj, _id, &pPack->Rec, 0/*logAction*/, 0)); // @v10.6.6 @fix logAction 1-->0
+					THROW(P_Ref->UpdateItem(Obj, _id, &pPack->Rec, 0/*logAction*/, 0));
 					THROW(P_Ref->Ot.PutList(Obj, _id, &pPack->TagL, 0));
 					// @v11.9.9 {
 					(ext_buffer = pPack->GetBuffer()).Strip();
@@ -2557,7 +2557,7 @@ private:
 									/* @v11.9.11
 									ObjTagItem new_obj_tag_item;
 									new_obj_tag_item.SetStr(PPTAG_GUA_SOCIALPAGECODE, pack.PageId.Unescape());
-									if(ref.Ot.PutTag(PPOBJ_GLOBALUSERACC, Data.Rec.ID, &new_obj_tag_item, 1) > 0) // @v10.8.3 @fix (remove ';')
+									if(ref.Ot.PutTag(PPOBJ_GLOBALUSERACC, Data.Rec.ID, &new_obj_tag_item, 1) > 0)
 										change_flag++;
 									*/
 								}

@@ -1476,7 +1476,11 @@ int ChangeDBListDialog::DoEditDB(PPID dbid)
 			dlb.SetAttr(DbLoginBlock::attrDictPath, temp_buf);
 			dlg->getCtrlString(CTL_CREATEDB_DATA, temp_buf.Z());
 			dlb.SetAttr(DbLoginBlock::attrDbPath, temp_buf);
-			if(oneof3(server_type, sqlstORA, sqlstMSS, sqlstMySQL)) {
+			if(server_type == sqlstSQLite) {
+				dlg->getCtrlString(CTL_CREATEDB_DBNAME, temp_buf.Z());
+				dlb.SetAttr(DbLoginBlock::attrDbName, temp_buf);
+			}
+			else if(oneof3(server_type, sqlstORA, sqlstMSS, sqlstMySQL)) {
 				dlg->getCtrlString(CTL_CREATEDB_DBNAME, temp_buf.Z());
 				dlb.SetAttr(DbLoginBlock::attrDbName, temp_buf);
 				dlg->getCtrlString(CTL_CREATEDB_DBUSER, temp_buf.Z());
@@ -3394,7 +3398,7 @@ int PrcssrTestDb::CreateTa(int use_ta)
 			SDelay(20+labs(G.GetUniformInt(100)));
 			THROW(GenTa_Rec(&rec, false));
 			{
-				P_Ta->copyBufFrom(&rec);
+				P_Ta->CopyBufFrom(&rec, sizeof(rec));
 				LogGenRec(P_Ta);
 			}
 			if(p_bei) {
@@ -3856,7 +3860,7 @@ int PrcssrTestDb::CreateRef01(long * pID)
 	TestRef01Tbl::Rec rec;
 	GenRef01_Rec(&rec);
 	{
-		P_Ref1->copyBufFrom(&rec);
+		P_Ref1->CopyBufFrom(&rec, sizeof(rec));
 		LogGenRec(P_Ref1);
 	}
 	TestRef01Tbl::Key1 k1;
@@ -3907,7 +3911,7 @@ int PrcssrTestDb::CreateRef01(long * pID)
 			LogMessage(msg_buf.Printf("Updated rec of '%s' (reason: Key5 found)", P_Ref1->GetTableName()));
 		}
 		else {
-			P_Ref1->copyBufFrom(&rec);
+			P_Ref1->CopyBufFrom(&rec, sizeof(rec));
 			THROW_DB(P_Ref1->insertRec(0, &id));
 			Ref1List.add(id);
 			LogMessage(msg_buf.Printf("Inserted rec to '%s'", P_Ref1->GetTableName()));
@@ -3926,7 +3930,7 @@ int PrcssrTestDb::CreateRef02(long * pID)
 	TestRef02Tbl::Rec rec;
 	GenRef02_Rec(&rec);
 	{
-		P_Ref2->copyBufFrom(&rec);
+		P_Ref2->CopyBufFrom(&rec, sizeof(rec));
 		LogGenRec(P_Ref2);
 	}
 	TestRef02Tbl::Key1 k1;
@@ -3979,7 +3983,7 @@ int PrcssrTestDb::CreateRef02(long * pID)
 			LogMessage(msg_buf.Printf("Updated rec of '%s' (reason: Key5 found)", P_Ref2->GetTableName()));
 		}
 		else {
-			P_Ref2->copyBufFrom(&rec);
+			P_Ref2->CopyBufFrom(&rec, sizeof(rec));
 			THROW_DB(P_Ref2->insertRec(0, &id));
 			Ref2List.add(id);
 			LogMessage(msg_buf.Printf("Inserted rec to '%s'", P_Ref2->GetTableName()));
@@ -4091,7 +4095,7 @@ SLTEST_R(TestDbSerialization)
 						sp = bill_first ? spFirst : spNext;
 						if(bill_tbl.search(0, &bill_k0, sp)) {
 							BillTbl::Rec bill_rec;
-							bill_tbl.copyBufTo(&bill_rec);
+							bill_tbl.CopyBufTo(&bill_rec);
 							//
 							// Проверка работоспособности функции BNFieldList::IsEqualRecords
 							//
@@ -4109,7 +4113,7 @@ SLTEST_R(TestDbSerialization)
 						sp = lot_first ? spFirst : spNext;
 						if(lot_tbl.search(0, &lot_k0, sp)) {
 							ReceiptTbl::Rec lot_rec;
-							lot_tbl.copyBufTo(&lot_rec);
+							lot_tbl.CopyBufTo(&lot_rec);
 							//
 							// Проверка работоспособности функции BNFieldList::IsEqualRecords
 							//
@@ -4127,7 +4131,7 @@ SLTEST_R(TestDbSerialization)
 						sp = cc_first ? spFirst : spNext;
 						if(cc_tbl.search(0, &cc_k0, sp)) {
 							CCheckTbl::Rec cc_rec;
-							cc_tbl.copyBufTo(&cc_rec);
+							cc_tbl.CopyBufTo(&cc_rec);
 							//
 							// Проверка работоспособности функции BNFieldList::IsEqualRecords
 							//
@@ -4152,7 +4156,7 @@ SLTEST_R(TestDbSerialization)
 						sp = todo_first ? spFirst : spNext;
 						if(todo_tbl.search(0, &todo_k0, sp)) {
 							PrjTaskTbl::Rec todo_rec;
-							todo_tbl.copyBufTo(&todo_rec);
+							todo_tbl.CopyBufTo(&todo_rec);
 							//
 							// Проверка работоспособности функции BNFieldList::IsEqualRecords
 							//

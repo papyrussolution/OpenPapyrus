@@ -4412,10 +4412,10 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char * pBuf, int bu
 				if(*s == '\n') {
 					line_count++;
 					if(searches_result_line_no[0] == -1 && s >= searches_input_ptr[0]) {
-						searches_result_line_no[0] = line_count; if(--searches_remaining <= 0)  break;
+						searches_result_line_no[0] = line_count; if(--searches_remaining <= 0) break;
 					}
 					if(searches_result_line_no[1] == -1 && s >= searches_input_ptr[1]) {
-						searches_result_line_no[1] = line_count; if(--searches_remaining <= 0)  break;
+						searches_result_line_no[1] = line_count; if(--searches_remaining <= 0) break;
 					}
 				}
 			line_count++;

@@ -1585,7 +1585,7 @@ StrAssocArray * PPObjArticle::MakeStrAssocList(void * extraPtr /*accSheetID-->(A
 	k2.AccSheetID = acs_id;
 	for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;) {
 		const  PPID ar_id = p_tbl->data.ID;
-		p_tbl->copyBufTo(&ar_rec);
+		p_tbl->CopyBufTo(&ar_rec);
 		int   do_skip = 0;
 		if(p_filt) {
 			if(p_filt->Flags & ArticleFilt::fNonGenericOnly && ar_rec.Flags & ARTRF_GROUP)
@@ -1877,7 +1877,7 @@ int PPObjArticle::_UpdateName(const char * pNewName)
 		ok = (PPSetObjError(PPERR_REFSEXISTS, Obj, 0), 0);
 	else {
 		ArticleTbl::Rec rec;
-		P_Tbl->copyBufTo(&rec);
+		P_Tbl->CopyBufTo(&rec);
 		if(!sstreq(rec.Name, p_newname)) {
 			memzero(rec.Name, sizeof(rec.Name));
 			STRNSCPY(rec.Name, p_newname);

@@ -24,7 +24,7 @@ int PPObjWorldObjStatus::SearchByCode(long code, long kind, PPID * pID, PPWorldO
 			do {
 				if((!kind || p_wos->Kind == kind) && !(pID && *pID && p_wos->ID == *pID)) {
 					ASSIGN_PTR(pID, p_wos->ID);
-					P_Ref->copyBufTo(pRec);
+					P_Ref->CopyBufTo(pRec);
 					ok = 1;
 				}
 			} while(ok < 0 && P_Ref->search(3, &k3, spNext) && p_wos->Tag == Obj && p_wos->Code == code);
@@ -668,7 +668,7 @@ int EditWorldDialog::CheckDuplicateName(PPID * pSelID)
 			k3.Kind = Data.Rec.Kind;
 			STRNSCPY(k3.Name, name);
 			for(q.initIteration(false, &k3); q.nextIteration() > 0;) {
-				p_tbl->copyBufTo(&w_rec);
+				p_tbl->CopyBufTo(&w_rec);
 				if(name_len == sstrlen(w_rec.Name) && stricmp866(name, w_rec.Name) == 0) {
 					PPID   item_id = w_rec.ID;
 					PPID   parent_id = NZOR(w_rec.ParentID, w_rec.CountryID);
@@ -1401,7 +1401,7 @@ StrAssocArray * PPObjWorld::MakeStrAssocList(void * extraPtr)
 		blk.UseHierarchy = BIN(sf.ParentID == 0 && sf.CountryID == 0);
 		for(q.initIteration(false, &k1, spGt); q.nextIteration() > 0;) {
 			blk.Stack.clear();
-			P_Tbl->copyBufTo(&rec);
+			P_Tbl->CopyBufTo(&rec);
 			THROW(AddItemToSelectorList(rec, blk));
 		}
 	}
@@ -1861,7 +1861,7 @@ int FiasObjCore::SearchAddrByID(long addrID, FiasAddrObjTbl::Rec * pRec)
 	MEMSZERO(k1);
 	k1.IdUuRef = addrID;
 	if(AdrT.search(1, &k1, spGe) && AdrT.data.IdUuRef == addrID) {
-		AdrT.copyBufTo(pRec);
+		AdrT.CopyBufTo(pRec);
 		ok = 1;
 	}
 	else

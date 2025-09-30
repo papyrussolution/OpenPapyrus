@@ -1488,7 +1488,7 @@ int PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 				MEMSZERO(k0);
 				if(P_TmpGrpTbl->searchForUpdate(0, &k0, spFirst)) do {
 					TempCCheckGrpTbl::Rec rec;
-					P_TmpGrpTbl->copyBufTo(&rec);
+					P_TmpGrpTbl->CopyBufTo(&rec);
 					temp_buf.Z();
 					switch(Filt.Grp) {
 						case CCheckFilt::gTime:
@@ -1984,7 +1984,7 @@ int FASTCALL PPViewCCheck::NextIteration(CCheckViewItem * pItem)
 			memzero(pItem, sizeof(CCheckViewItem));
 			if(P_TmpGdsCorrTbl) {
 				TempCCheckGdsCorrTbl::Rec rec;
-				P_TmpGdsCorrTbl->copyBufTo(&rec);
+				P_TmpGdsCorrTbl->CopyBufTo(&rec);
 				pItem->ID = rec.ID__;
 				pItem->G_GoodsID  = rec.Goods1ID;
 				pItem->G_Goods2ID = rec.Goods2ID;
@@ -1993,7 +1993,7 @@ int FASTCALL PPViewCCheck::NextIteration(CCheckViewItem * pItem)
 			}
 			else if(Filt.Grp) {
 				TempCCheckGrpTbl::Rec rec;
-				P_TmpGrpTbl->copyBufTo(&rec);
+				P_TmpGrpTbl->CopyBufTo(&rec);
 				pItem->ID = rec.ID__;
 				pItem->Dt = rec.Dt;
 				pItem->Tm = rec.Tm;
@@ -4306,7 +4306,7 @@ int PPViewCCheck::Detail(const void * pHdr, PPViewBrowser * pBrw)
 				if(P_TmpGrpTbl->search(0, &k, spEq)) {
 					int  to_view = 1;
 					TempCCheckGrpTbl::Rec cur_rec;
-					P_TmpGrpTbl->copyBufTo(&cur_rec);
+					P_TmpGrpTbl->CopyBufTo(&cur_rec);
 					CCheckFilt tmp_filt = Filt;
 					tmp_filt.Grp = CCheckFilt::gNone;
 					tmp_filt.CorrGoodsList.InitEmpty();

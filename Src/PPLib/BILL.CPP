@@ -259,7 +259,7 @@ int BillCore::PayPlanEnumerator(const DateRange * pPeriod, PayPlanEnumProc proc,
 	MEMSZERO(k0);
 	for(q.initIteration(false, &k0, spFirst); ok > 0 && q.nextIteration() > 0;) {
 		PayPlanTbl::Rec rec;
-		Pays.copyBufTo(&rec);
+		Pays.CopyBufTo(&rec);
 		int r = proc(&rec, extraPtr);
 		if(r <= 0)
 			ok = r;
@@ -326,7 +326,7 @@ int BillCore::GetLastPayment(PPID billID, BillTbl::Rec * pRec)
 	k.BillNo = MAXLONG;
 	while(search(4, &k, spLt) && k.LinkBillID == billID) {
 		if(GetOpType(data.OpID) == PPOPT_PAYMENT && data.Amount > 0.0) {
-			copyBufTo(pRec);
+			CopyBufTo(pRec);
 			return 1;
 		}
 	}
@@ -663,7 +663,7 @@ int BillCore::Remove(PPID id, int use_ta)
 
 void BillCore::_PrepareWriting(const BillTbl::Rec * pRec)
 {
-	copyBufFrom(pRec);
+	CopyBufFrom(pRec, sizeof(*pRec));
 	// @v11.1.12 BillCore::SetCode(data.Code, data.Flags);
 	data.Flags &= ~BILLF_NOLOADTRFR;
 	data.Flags2 &= ~BILLF2_DONTCLOSDRAFT;
@@ -739,7 +739,6 @@ int BillCore::Edit(PPID * pID, PPBill * pInfo, int use_ta)
 {
 	int    ok = 1;
 	const  bool is_new = (*pID == 0);
-	uint   i;
 	AmtEntry * p_ae;
 	{
 		Reference * p_ref = PPRef;
@@ -778,7 +777,7 @@ int BillCore::Edit(PPID * pID, PPBill * pInfo, int use_ta)
 			}
 			{
 				BExtInsert bei(&AmtT);
-				for(i = 0; pInfo->Amounts.enumItems(&i, (void **)&p_ae);) {
+				for(uint i = 0; pInfo->Amounts.enumItems(&i, (void **)&p_ae);) {
 					BillAmountTbl::Rec amt_rec;
 					amt_rec.BillID    = *pID;
 					amt_rec.AmtTypeID = p_ae->AmtTypeID;
@@ -805,26 +804,28 @@ int BillCore::Edit(PPID * pID, PPBill * pInfo, int use_ta)
 			// Ожидаемый выигрыш связан с уменьшением количества изменяемых (следовательно, блокируемых)
 			// записей.
 			//
-			AmtList temp_list;
 			LongArray pos_list;
-			GetAmountList(*pID, &temp_list);
-			for(i = 0; i < temp_list.getCount(); i++) {
-				const AmtEntry & r_temp_entry = temp_list.at(i);
-				uint   pos = 0;
-				if(pInfo->Amounts.Search(r_temp_entry.AmtTypeID, r_temp_entry.CurID, &pos)) {
-					const AmtEntry & r_new_entry = pInfo->Amounts.at(pos);
-					if(r_temp_entry.Amt != r_new_entry.Amt) {
-						THROW(UpdateAmount(*pID, &r_new_entry, 0));
+			{
+				AmtList temp_list;
+				GetAmountList(*pID, &temp_list);
+				for(uint i = 0; i < temp_list.getCount(); i++) {
+					const AmtEntry & r_temp_entry = temp_list.at(i);
+					uint   pos = 0;
+					if(pInfo->Amounts.Search(r_temp_entry.AmtTypeID, r_temp_entry.CurID, &pos)) {
+						const AmtEntry & r_new_entry = pInfo->Amounts.at(pos);
+						if(r_temp_entry.Amt != r_new_entry.Amt) {
+							THROW(UpdateAmount(*pID, &r_new_entry, 0));
+						}
+						pos_list.addUnique(static_cast<long>(pos));
 					}
-					pos_list.addUnique(static_cast<long>(pos));
-				}
-				else {
-					THROW_DB(deleteFrom(&AmtT, 0, (AmtT.BillID == *pID &&
-						AmtT.AmtTypeID == r_temp_entry.AmtTypeID && AmtT.CurID == r_temp_entry.CurID)));
+					else {
+						THROW_DB(deleteFrom(&AmtT, 0, (AmtT.BillID == *pID &&
+							AmtT.AmtTypeID == r_temp_entry.AmtTypeID && AmtT.CurID == r_temp_entry.CurID)));
+					}
 				}
 			}
 			if(pos_list.getCount() < pInfo->Amounts.getCount()) {
-				for(i = 0; i < pInfo->Amounts.getCount(); i++) {
+				for(uint i = 0; i < pInfo->Amounts.getCount(); i++) {
 					if(!pos_list.lsearch((long)i)) {
 						const AmtEntry & r_new_entry = pInfo->Amounts.at(i);
 						AmtT.data.BillID    = *pID;
@@ -855,7 +856,7 @@ int BillCore::UpdatePaymAmount(PPID billID, PPID curID, double newAmt, double or
 	{
 		const  double amt = R2(org_paym + newAmt - R2(orgAmt));
 		const  double paym = BR2(rec.Amount);
-		const  int is_neg = BIN(rec.Amount < 0.0);
+		const  bool   is_neg = (rec.Amount < 0.0);
 		//
 		// Следующая проверка дублирует аналогичную в функции UpdateAmount,
 		// однако, мы ее делаем с тем, чтобы избежать сообщений о превышении
@@ -864,7 +865,7 @@ int BillCore::UpdatePaymAmount(PPID billID, PPID curID, double newAmt, double or
 		if(amt != org_paym) {
 			AmtEntry ae(PPAMT_PAYMENT, curID, amt);
 			if(!(LConfig.Flags & CFGFLG_ALLOWOVERPAY)) {
-				// @v10.3.3 Инверсия знака при оплате отрицательной суммы
+				// Инверсия знака при оплате отрицательной суммы
 				if(is_neg) {
 					THROW_PP(R2(paym - amt) <= 0, PPERR_EXTRAPAYM);
 				}
@@ -875,9 +876,9 @@ int BillCore::UpdatePaymAmount(PPID billID, PPID curID, double newAmt, double or
 			THROW(UpdateAmount(billID, &ae, 0));
 		}
 		{
-			const int payout_flag_state = BIN(R2(paym - amt) <= 0.0);
-			const int amt_updated = (curID == rec.CurID) ? (amt != rec.PaymAmount) : 0;
-			if(amt_updated || payout_flag_state != BIN(rec.Flags & BILLF_PAYOUT)) {
+			const bool payout_flag_state = (R2(paym - amt) <= 0.0);
+			const bool amt_updated = (curID == rec.CurID) ? (amt != rec.PaymAmount) : false;
+			if(amt_updated || payout_flag_state != LOGIC(rec.Flags & BILLF_PAYOUT)) {
 				BillTbl::Key0 k0;
 				THROW_DB(getDirectForUpdate(0, &k0, _dbpos));
 				SETFLAG(rec.Flags, BILLF_PAYOUT, payout_flag_state);
@@ -894,7 +895,8 @@ int BillCore::UpdatePaymAmount(PPID billID, PPID curID, double newAmt, double or
 int BillCore::BreakOffLink(PPID linkBillID, PPID baseBillID, int linkKind, int use_ta)
 {
 	int    ok = -1;
-	BillTbl::Rec bill_rec, base_bill_rec;
+	BillTbl::Rec bill_rec;
+	BillTbl::Rec base_bill_rec;
 	if(oneof2(linkKind, 1, 3)) {
 		if(Search(linkBillID, &bill_rec) > 0 && bill_rec.LinkBillID == baseBillID) {
 			PPTransaction tra(use_ta);
@@ -934,7 +936,7 @@ int BillCore::_Enum(int idx, PPID id, DateIter * pDI, void * b)
 		k.n    = 0;
 	}
 	if(search(idx, &k, spGt) && k.id == id && (!pDI || pDI->Advance(k.date, k.n) > 0)) {
-		copyBufTo(b);
+		CopyBufTo(b);
 	}
 	else
 		ok = PPDbSearchError();
@@ -1017,7 +1019,7 @@ int BillCore::EnumLinks(PPID id, DateIter * diter, uint blnk, BillTbl::Rec * pRe
 		if(blnk & BLNK_RETURN  && op_type_id == PPOPT_GOODSRETURN) break;
 		if(blnk & BLNK_CHARGE  && op_type_id == PPOPT_CHARGE)      break;
 		if(blnk & BLNK_ACK     && op_type_id == PPOPT_GOODSACK)    break;
-		if(blnk & BLNK_CORRECTION && op_type_id == PPOPT_CORRECTION)  break;
+		if(blnk & BLNK_CORRECTION && op_type_id == PPOPT_CORRECTION) break;
 		if(blnk & BLNK_CHARGEPAYM && op_type_id == PPOPT_CHARGE && op_rec.Flags & OPKF_CHARGENEGPAYM) break;
 		if(blnk & BLNK_EDIRECADV && data.OpID == PPOPK_EDI_RECADV) break;
 		if(blnk & BLNK_WROFFDRAFT) {
@@ -1049,7 +1051,7 @@ int BillCore::EnumByObj(PPID obj, DateIter * diter, void * b)
 int BillCore::EnumByOpr(PPID opr, DateIter * diter, void * b)
 	{ return _Enum(2, opr, diter, b); }
 int BillCore::NextEnum(long enumHandle, BillTbl::Rec * pRec)
-	{ return (EnumList.NextIter(enumHandle) > 0) ? (copyBufTo(pRec), 1) : -1; }
+	{ return (EnumList.NextIter(enumHandle) > 0) ? (CopyBufTo(pRec), 1) : -1; }
 int BillCore::DestroyIter(long enumHandle)
 	{ return EnumList.DestroyIterHandler(enumHandle); }
 
@@ -1115,7 +1117,7 @@ int BillCore::EnumByDate(DateIter * pDI, BillTbl::Rec * pRec)
 	k.Dt     = pDI ? pDI->dt : ZERODATE;
 	k.BillNo = pDI ? pDI->oprno : 0;
 	if(search(1, &k, spGt) && (!pDI || pDI->Advance(k.Dt, k.BillNo) > 0))
-		copyBufTo(pRec);
+		CopyBufTo(pRec);
 	else
 		ok = PPDbSearchError();
 	return ok;
@@ -1130,7 +1132,7 @@ int BillCore::SearchByCode(const char * pCode, PPID opID, LDATE dt, BillTbl::Rec
 		STRNSCPY(k7.Code, pCode);
 		if(search(7, &k7, spGe) && stricmp866(data.Code, pCode) == 0) do {
 			if((!opID || data.OpID == opID) && (!dt || data.Dt == dt)) {
-				copyBufTo(pRec);
+				CopyBufTo(pRec);
 				ok = 1;
 			}
 		} while(ok < 0 && search(7, &k7, spNext) && stricmp866(data.Code, pCode) == 0);

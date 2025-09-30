@@ -78,7 +78,8 @@ int MrpTabCore::SearchByLink(PPID objType, PPID objID, PPID locID, LDATE dt, Mrp
 
 int MrpTabCore::Create(PPID * pID, const MrpTabTbl::Rec * pRec, int use_ta)
 {
-	int    ok = 1, r;
+	int    ok = 1;
+	int    r;
 	MrpTabTbl::Rec rec;
 	{
 		PPTransaction tra(use_ta);
@@ -90,7 +91,7 @@ int MrpTabCore::Create(PPID * pID, const MrpTabTbl::Rec * pRec, int use_ta)
 		rec.LinkObjID = pRec->LinkObjID;
 		rec.LocID = pRec->LocID;
 		rec.Dt = pRec->Dt;
-		copyBufFrom(&rec);
+		CopyBufFrom(&rec, sizeof(rec));
 		THROW_DB(insertRec(0, pID));
 		THROW(tra.Commit());
 	}
@@ -240,7 +241,7 @@ int MrpTabCore::EnumLinesByDest(PPID id, PPID destID, PPID * pSrcID, MrpLineTbl:
 	k1.DestID = destID;
 	k1.SrcID = *pSrcID;
 	if(Lines.search(1, &k1, spGt) && k1.TabID == id && k1.DestID == destID) {
-		Lines.copyBufTo(pRec);
+		Lines.CopyBufTo(pRec);
 		*pSrcID = Lines.data.SrcID;
 		return 1;
 	}
@@ -255,7 +256,7 @@ int MrpTabCore::EnumLinesBySrc(PPID id, PPID srcID, PPID * pDestID, MrpLineTbl::
 	k2.SrcID = srcID;
 	k2.DestID = *pDestID;
 	if(Lines.search(1, &k2, spGt) && k2.TabID == id && k2.SrcID == srcID) {
-		Lines.copyBufTo(pRec);
+		Lines.CopyBufTo(pRec);
 		*pDestID = Lines.data.DestID;
 		return 1;
 	}
@@ -393,7 +394,7 @@ int MrpTabCore::GetDeficitList_(PPID tabID, PPID srcID, int terminal, int replac
 			k2.SrcID = srcID;
 			PPIDArray dest_list;
 			for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;) {
-				Lines.copyBufTo(&rec);
+				Lines.CopyBufTo(&rec);
 				dest_list.add(rec.DestID);
 			}
 			for(uint i = 0; i < dest_list.getCount(); i++) {
@@ -412,7 +413,7 @@ int MrpTabCore::GetDeficitList_(PPID tabID, PPID srcID, int terminal, int replac
 			k2.TabID = tabID;
 			k2.SrcID = srcID;
 			for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;) {
-				Lines.copyBufTo(&rec);
+				Lines.CopyBufTo(&rec);
 				int    gdr = 0;
 				THROW(gdr = Helper_GetDeficit(rec, terminal, replacePassiveGoods, pList));
 				if(gdr > 0)
@@ -440,7 +441,7 @@ int MrpTabCore::GetSubst(PPID tabID, GoodsReplacementArray * pGra)
 		k2.TabID = tabID;
 		for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;) {
 			MrpLineTbl::Rec rec;
-			Lines.copyBufTo(&rec);
+			Lines.CopyBufTo(&rec);
 			if(rec.Flags & MRPLF_TERMINAL && rec.Flags & MRPLF_REPLACED) {
 				const  PPID dest_id = rec.DestID;
 				MrpLineTbl::Key1 k1;
@@ -610,7 +611,7 @@ int MrpTabCore::Aggregate(PPID destTabID, PPID srcTabID, int use_ta)
 		THROW(tra);
 		for(q.initIteration(false, &k1, spGt); q.nextIteration() > 0;) {
 			MrpLineTbl::Rec src_rec;
-			Lines.copyBufTo(&src_rec);
+			Lines.CopyBufTo(&src_rec);
 			THROW(AddLine(destTabID, src_rec.DestID, src_rec.SrcID, src_rec.DestReqQtty,
 				src_rec.SrcReqQtty, src_rec.Price, src_rec.Flags & MRPLF_TERMINAL, 0));
 		}

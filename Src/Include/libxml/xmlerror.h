@@ -83,7 +83,7 @@ struct xmlError {
     int    int1;    // extra number information
     int    int2;    // error column # or 0 if N/A (todo: rename field when we would brk ABI)
     void * ctxt;    // the parser context if available
-    const void * P_Node;  // the node in the tree // @v10.6.5 (void *)-->(const void *)
+    const void * P_Node;  // the node in the tree
 };
 
 //typedef struct _xmlError xmlError;

@@ -58,7 +58,7 @@ int FASTCALL PPTransferItem::SetupByRec(const LocTransfTbl::Rec * pTr)
 	Date     = pTr->Dt;
 	LocTransfTm = pTr->Tm;
 	BillID   = pTr->BillID;
-	RByBill  = pTr->RByBill;
+	RByBill  = pTr->RByBillLT;
 	LocID    = pTr->LocID;
 	GoodsID  = pTr->GoodsID;
 	LotID    = pTr->LotID;

@@ -473,7 +473,7 @@ int DBTable::Init(DbProvider * pDbP)
 {
 	index  = 0;
 	P_DBuf = 0;
-	bufLen = 0;
+	DBufSize = 0;
 	State  = 0;
 	FixRecSize = 0;
 	P_Db = NZOR(pDbP, CurDict);
@@ -522,7 +522,7 @@ DBTable::DBTable(const char * pTblName, const char * pFileName, void * pFlds, vo
 			}
 		}
 		if(pData)
-			setDataBuf(pData, NZOR(s, fields.CalculateFixedRecSize()));
+			SetDBuf(pData, NZOR(s, fields.CalculateFixedRecSize()));
 	}
 }
 
@@ -630,8 +630,14 @@ int DBTable::close()
 }
 
 int    DBTable::IsOpened() const { return (handle != 0); }
-void   DBTable::clearDataBuf() { memzero(P_DBuf, bufLen); }
-RECORDSIZE DBTable::getBufLen() const { return bufLen; }
+
+void   DBTable::clearDataBuf() 
+{ 
+	// @todo @20250925 Здесь надо учитывать структуру записи (увы, это касается не только этой функции)
+	memzero(P_DBuf, DBufSize); 
+}
+
+RECORDSIZE DBTable::getBufLen() const { return DBufSize; }
 DBRowId * DBTable::getCurRowIdPtr() { return &CurRowId; }
 uint   DBTable::GetLobCount() const { return LobB.getCount(); }
 DBLobBlock * DBTable::getLobBlock() { return &LobB; }
@@ -640,7 +646,7 @@ int    DBTable::getLobSize(DBField fld, size_t * pSz) const { return LobB.GetSiz
 RECORDSIZE FASTCALL DBTable::getRecSize() const { return FixRecSize; }
 DBTable::SelectStmt * DBTable::GetStmt() { return P_Stmt; }
 
-bool FASTCALL DBTable::getField(uint fldN, DBField * pFld) const
+bool DBTable::getField(uint fldN, DBField * pFld) const
 {
 	if(fldN < fields.getCount()) {
 		DBField fld;
@@ -727,59 +733,82 @@ int DBTable::AllocateOwnBuffer(int size)
 	}
 	P_DBuf = static_cast<char *>(SAlloc::C(real_rec_size+1, 1));
 	if(P_DBuf) {
-		bufLen = real_rec_size;
+		DBufSize = real_rec_size;
 		// State |= sOwnDataBuf; // @v12.4.1
 	}
 	else {
-		bufLen = 0;
+		DBufSize = 0;
 		ok = 0;
 	}
 	return ok;
 }
 
-void FASTCALL DBTable::setDataBuf(void * pBuf, RECORDSIZE aBufLen)
+void DBTable::SetDBuf(void * pBuf, RECORDSIZE aBufLen)
 {
 	if(State & sOwnDataBuf)
 		ZFREE(P_DBuf);
 	P_DBuf = pBuf;
-	bufLen = aBufLen;
+	DBufSize = aBufLen;
 }
 
-void FASTCALL DBTable::setBuffer(SBaseBuffer & rBuf)
+void FASTCALL DBTable::SetDBuf(SBaseBuffer & rBuf)
 {
 	if(State & sOwnDataBuf)
 		ZFREE(P_DBuf);
 	P_DBuf = rBuf.P_Buf;
-	bufLen = (RECORDSIZE)rBuf.Size;
+	DBufSize = (RECORDSIZE)rBuf.Size;
 }
 
 const SBaseBuffer DBTable::getBuffer() const
 {
 	SBaseBuffer ret_buf;
 	ret_buf.P_Buf = (char *)P_DBuf; // @trick
-	ret_buf.Size = bufLen;
+	ret_buf.Size = DBufSize;
 	return ret_buf;
 }
 
-void FASTCALL DBTable::copyBufFrom(const void * pBuf)
+void FASTCALL DBTable::CopyBufFrom(const void * pBuf)
 {
 	if(pBuf && P_DBuf) {
-		memcpy(P_DBuf, pBuf, bufLen);
+		memcpy(P_DBuf, pBuf, DBufSize);
 	}
 }
 
-void FASTCALL DBTable::copyBufFrom(const void * pBuf, size_t srcBufSize)
+void DBTable::CopyBufFrom(const void * pBuf, size_t srcBufSize)
 {
 	if(pBuf && P_DBuf) {
-		const size_t s = (srcBufSize && srcBufSize < bufLen) ? srcBufSize : bufLen;
+		const size_t s = (srcBufSize && srcBufSize < DBufSize) ? srcBufSize : DBufSize;
 		memcpy(P_DBuf, pBuf, s);
 	}
 }
 
-void FASTCALL DBTable::copyBufTo(void * pBuf) const
+int DBTable::CopyBufLobFrom(const void * pBuf, size_t srcBufSize)
+{
+	int    ok = -1;
+	if(pBuf && P_DBuf) {
+		if(State & sHasLob) {
+			const RECORDSIZE frs = FixRecSize;
+			const size_t s = (frs && frs < DBufSize) ? frs : DBufSize;
+			memcpy(P_DBuf, pBuf, s);
+			DBField last_fld;
+			THROW(getField(fields.getCount()-1, &last_fld));
+			if(srcBufSize)
+				THROW(writeLobData(last_fld, PTR8C(pBuf)+frs, (srcBufSize > frs) ? (srcBufSize-frs) : 0));
+		}
+		else {
+			const size_t s = (srcBufSize && srcBufSize < DBufSize) ? srcBufSize : DBufSize;
+			memcpy(P_DBuf, pBuf, s);
+		}
+		ok = 1;
+	}
+	CATCHZOK
+	return ok;
+}
+
+void FASTCALL DBTable::CopyBufTo(void * pBuf) const
 {
 	if(pBuf && P_DBuf)
-		memcpy(pBuf, P_DBuf, bufLen);
+		memcpy(pBuf, P_DBuf, DBufSize);
 }
 
 int DBTable::copyBufToKey(int idx, void * pKey) const
@@ -816,7 +845,6 @@ int FASTCALL DBTable::HasNote(DBField * pLastFld) const
 			else {
 				int    t_ = GETSTYPE(pLastFld->getField().T);
 				if(t_ != S_NOTE) {
-					// @v10.5.9 assert(t_ == S_NOTE);
 					ok = 0;
 				}
 			}
@@ -917,14 +945,15 @@ int DBTable::readLobData(DBField fld, SBuffer & rBuf) const
 
 int DBTable::writeLobData(DBField fld, const void * pBuf, size_t dataSize, int forceCanonical /*=0*/)
 {
-	int    ok = -1, r;
+	int    ok = -1;
+	int    r;
 	size_t sz;
 	//
 	// Проверка на то, что поле fld действительно является LOB'ом
 	//
 	THROW(r = LobB.GetSize((uint)fld.fld, &sz));
 	if(r > 0) {
-		size_t flat_size = fld.getField().size();
+		const  size_t flat_size = fld.getField().size();
 		SLob * p_fld_data = static_cast<SLob *>(fld.getValuePtr());
 		void * ptr = p_fld_data->GetRawDataPtr();
 		STempBuffer temp_buf(0);
@@ -1024,7 +1053,7 @@ int FASTCALL DBTable::insertRec()
 		return Btr_Implement_InsertRec(-1, 0, 0);
 }
 
-int FASTCALL DBTable::insertRec(int idx, void * pKeyBuf)
+int DBTable::insertRec(int idx, void * pKeyBuf)
 {
 	OutOfTransactionLogging("insertRec");
 	return P_Db ? P_Db->Implement_InsertRec(this, idx, pKeyBuf, 0) : Btr_Implement_InsertRec(idx, pKeyBuf, 0);
@@ -1079,7 +1108,7 @@ int DBTable::deleteByQuery(int useTa, DBQ & rQ)
 				DBRowId _dbpos;
 				if(!getPosition(&_dbpos))
 					ok = 0;
-				else if(!getDirectForUpdate(getCurIndex(), key_buf, _dbpos))
+				else if(!getDirectForUpdate(GetCurIndex(), key_buf, _dbpos))
 					ok = 0;
 				else {
 					if(deleteRec() == 0) // @sfu
@@ -1153,13 +1182,13 @@ int DBTable::getDirectForUpdate(int idx, void * pKey, const DBRowId & rPos)
 	return ok;
 }
 
-int FASTCALL DBTable::searchForUpdate(void * pKey, int srchMode)
+int DBTable::searchForUpdate(void * pKey, int srchMode)
 	{ return P_Db ? P_Db->Implement_Search(this, index, pKey, srchMode, sfForUpdate) : Btr_Implement_Search(index, pKey, srchMode, sfForUpdate); }
-int FASTCALL DBTable::searchForUpdate(int idx, void * pKey, int srchMode)
+int DBTable::searchForUpdate(int idx, void * pKey, int srchMode)
 	{ return P_Db ? P_Db->Implement_Search(this, idx, pKey, srchMode, sfForUpdate) : Btr_Implement_Search(idx, pKey, srchMode, sfForUpdate); }
-int FASTCALL DBTable::search(int idx, void * pKey, int srchMode)
+int DBTable::search(int idx, void * pKey, int srchMode)
 	{ return P_Db ? P_Db->Implement_Search(this, idx, pKey, srchMode, 0) : Btr_Implement_Search(idx, pKey, srchMode, 0); }
-int FASTCALL DBTable::search(void * pKey, int srchMode)
+int DBTable::search(void * pKey, int srchMode)
 	{ return P_Db ? P_Db->Implement_Search(this, index, pKey, srchMode, 0) : Btr_Implement_Search(index, pKey, srchMode, 0); }
 int DBTable::searchKey(int idx, void * pKey, int srchMode)
 	{ return P_Db ? P_Db->Implement_Search(this, idx, pKey, srchMode, sfKeyOnly) : Btr_Implement_Search(idx, pKey, srchMode, sfKeyOnly); }

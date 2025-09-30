@@ -1209,6 +1209,11 @@ private:
 								if(!Data.ExpParam.Format && exp_param_restored) {
 									Data.ExpParam.Format = saved_exp_param.Format;
 									Data.ExpParam.Destination = saved_exp_param.Destination;
+									{
+										SString exp_file_path;
+										if(Data.ExpParam.GetDefaultExportFilePath(Data.ReportName, exp_file_path))
+											Data.ExpParam.DestFileName = exp_file_path;
+									}
 								}
 								SetupStrAssocCombo(this, CTLSEL_PRINT2_EXPFMT, expfmt_list, Data.ExpParam.Format, 0);
 							}
@@ -2027,40 +2032,42 @@ int CrystalReportPrint2_ClientExecution(CrystalReportPrintParamBlock & rBlk, Cry
 					}
 				}
 			}
-			if(!local_done && fileExists(module_path)) {
-				SlProcess::Result prc_result;
-				SlProcess process;
-				process.SetPath(module_path);
-				SFsPath ps(module_path);
-				ps.Merge(SFsPath::fDrv|SFsPath::fDir, temp_buf);
-				process.SetWorkingDir(temp_buf);
-				if(process.Run(&prc_result)) {
-					SDelay(20);
-					is_new_process = true;
-					//
-					Crr32SupportClient cli(pipe_name);
-					SIntHandle h_pipe(cli.Connect());
-					uint  try_to_connect_count = 1;
-					if(!h_pipe) {
-						for(uint i = 0; !h_pipe && i < 10; i++) {
-							SDelay(50);
-							h_pipe = cli.Connect();
-							try_to_connect_count++;
+			if(!local_done) {
+				if(fileExists(module_path)) {
+					SlProcess::Result prc_result;
+					SlProcess process;
+					process.SetPath(module_path);
+					SFsPath ps(module_path);
+					ps.Merge(SFsPath::fDrv|SFsPath::fDir, temp_buf);
+					process.SetWorkingDir(temp_buf);
+					if(process.Run(&prc_result)) {
+						SDelay(20);
+						is_new_process = true;
+						//
+						Crr32SupportClient cli(pipe_name);
+						SIntHandle h_pipe(cli.Connect());
+						uint  try_to_connect_count = 1;
+						if(!h_pipe) {
+							for(uint i = 0; !h_pipe && i < 10; i++) {
+								SDelay(50);
+								h_pipe = cli.Connect();
+								try_to_connect_count++;
+							}
+						}
+						if(!h_pipe) {
+							// @todo @log
+							do_use_local_func = true;
+						}
+						else {
+							result = InternalBlock::SendPrintCommandToServer(cli, h_pipe, rBlk, rReply);
+							::CloseHandle(h_pipe);
 						}
 					}
-					if(!h_pipe) {
-						// @todo @log
-						do_use_local_func = true;
-					}
-					else {
-						result = InternalBlock::SendPrintCommandToServer(cli, h_pipe, rBlk, rReply);
-						::CloseHandle(h_pipe);
-					}
 				}
-			}
-			else {
-				assert(!do_use_local_func);
-				do_use_local_func = true;
+				else {
+					assert(!do_use_local_func);
+					do_use_local_func = true;
+				}
 			}
 		}
 	}

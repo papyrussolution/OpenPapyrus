@@ -2115,47 +2115,6 @@ int RunPPViewCmd(int viewID, SBuffer * pParam, long menuCm, long cmdID, void * e
 	ZDELETE(p_view);
 	return ok;
 }
-
-class CMD_HDL_CLS(DEFAULT) : public PPCommandHandler {
-public:
-	CMD_HDL_CLS(DEFAULT)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
-	{
-	}
-	virtual int EditParam(SBuffer * pParam, long cmdID, void * extraPtr)
-	{
-		int    ok = -1;
-		if(D.ViewId) {
-			if(D.ViewId == PPVIEW_BILL) {
-				BillFilt::FiltExtraParam p(1, static_cast<BrowseBillsType>(D.FiltExtId));
-				ok = EditPPViewFilt(D.ViewId, pParam, &p);
-			}
-			else
-				ok = EditPPViewFilt(D.ViewId, pParam, reinterpret_cast<void *>(D.FiltExtId));
-		}
-		return ok;
-	}
-	virtual int Run(SBuffer * pParam, long cmdID, void * extraPtr)
-	{
-		int    ok = -1;
-		if(D.ViewId) {
-			if(D.ViewId == PPVIEW_BILL) {
-				BillFilt::FiltExtraParam p(1, static_cast<BrowseBillsType>(D.FiltExtId));
-				THROW(PPCheckDatabaseChain());
-				ok = RunPPViewCmd(D.ViewId, pParam, D.MenuCm, cmdID, &p);
-			}
-			else
-				ok = RunPPViewCmd(D.ViewId, pParam, D.MenuCm, cmdID, reinterpret_cast<void *>(D.FiltExtId));
-		}
-		else if(D.MenuCm && APPL) {
-			static_cast<PPApp *>(APPL)->processCommand(static_cast<uint>(D.MenuCm));
-			ok = 1;
-		}
-		CATCHZOK
-		return ok;
-	}
-};
-
-IMPLEMENT_CMD_HDL_FACTORY(DEFAULT);
 //
 //
 //
@@ -3555,7 +3514,7 @@ public:
 					if(code_pattern_len) {
 						STRNSCPY(k7.Code, code_item.Txt);
 						if(p_bobj->P_Tbl->search(7, &k7, spGe) && strnicmp866(p_bobj->P_Tbl->data.Code, code_item.Txt, code_pattern_len) == 0) do {
-							p_bobj->P_Tbl->copyBufTo(&bill_rec);
+							p_bobj->P_Tbl->CopyBufTo(&bill_rec);
 							filt.List.Add(bill_rec.ID);
 						} while(p_bobj->P_Tbl->search(7, &k7, spNext) && strnicmp866(p_bobj->P_Tbl->data.Code, code_item.Txt, code_pattern_len) == 0);
 					}

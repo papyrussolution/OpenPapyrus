@@ -22,10 +22,10 @@ PPViewWbPublicGoods::PPViewWbPublicGoods() : PPView(0, &Filt, PPVIEW_WBPUBLICGOO
 		ok = 0;
 	else {
 		MarketplaceGoodsSelectionFilt * p_filt = static_cast<MarketplaceGoodsSelectionFilt *>(pBaseFilt);
-		int    cat_pool_fetching_result = CatPool.GetCount() ? 1 : 0;
+		bool cat_pool_fetching_result = LOGIC(CatPool.GetCount());
 		if(!cat_pool_fetching_result) {
 			if(PPMarketplaceInterface_Wildberries::LoadPublicGoodsCategoryList(CatPool, true) > 0) {
-				cat_pool_fetching_result = 1;
+				cat_pool_fetching_result = true;
 			}
 		}
 		if(cat_pool_fetching_result) {

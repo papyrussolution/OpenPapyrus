@@ -1496,7 +1496,7 @@ int FASTCALL PPViewGeoTracking::NextIteration(GeoTrackingViewItem * pItem)
 	if(P_IterQuery) {
 		while(ok < 0 && P_IterQuery->nextIteration() > 0) {
 			Counter.Increment();
-			T.copyBufTo(pItem);
+			T.CopyBufTo(pItem);
 			ok = 1;
 		}
 	}

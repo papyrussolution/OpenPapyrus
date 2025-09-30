@@ -316,7 +316,7 @@ int Reference::AddItem(PPID obj, PPID * pID, const void * b, int use_ta)
 		const int r = GetFreeID(obj, pID);
 		THROW(r);
 		THROW_PP(r > 0, PPERR_REFISBUSY);
-		copyBufFrom(b);
+		CopyBufFrom(b);
 		data.ObjType = obj;
 		data.ObjID   = *pID;
 		THROW_DB(insertRec());
@@ -345,7 +345,7 @@ int Reference::UpdateItem(PPID obj, PPID id, const void * b, int logAction/*=1*/
 			k.ObjType = obj;
 			k.ObjID   = id;
 			if(search(0, &k, spEq)) {
-				copyBufTo(&prev_rec);
+				CopyBufTo(&prev_rec);
 				new_rec = *static_cast<const ReferenceTbl::Rec *>(b);
 				new_rec.ObjType = obj;
 				new_rec.ObjID   = id;
@@ -387,7 +387,7 @@ int Reference::_Search(PPID obj, PPID id, int spMode, void * b)
 	k.ObjType = obj;
 	k.ObjID   = id;
 	if(search(0, &k, spMode))
-		copyBufTo(b);
+		CopyBufTo(b);
 	else if(BTRNFOUND)
 		ok = (PPSetObjError(PPERR_OBJNFOUND, obj, id), -1);
 	else
@@ -457,7 +457,7 @@ int Reference::InitEnumByIdxVal(PPID objType, int valN, long val, long * pHandle
 	return ok;
 }
 
-int Reference::NextEnum(long enumHandle, void * pRec) { return (EnumList.NextIter(enumHandle) > 0) ? (copyBufTo(pRec), 1) : -1; }
+int Reference::NextEnum(long enumHandle, void * pRec) { return (EnumList.NextIter(enumHandle) > 0) ? (CopyBufTo(pRec), 1) : -1; }
 int Reference::DestroyIter(long enumHandle) { return EnumList.DestroyIterHandler(enumHandle); }
 
 SEnum::Imp * Reference::Enum(PPID objType, int options)
@@ -590,7 +590,7 @@ int Reference::PreparePropBuf(PPID obj, PPID id, PPID prop, const void * b, uint
 	int    ok = 1;
 	const  RECORDSIZE fix_rec_size = Prop.getRecSize();
 	if(b) {
-		Prop.copyBufFrom(b, fix_rec_size);
+		Prop.CopyBufFrom(b, fix_rec_size);
 		if(s)
 			THROW(Prop.writeLobData(Prop.VT, PTR8C(b)+fix_rec_size, (s > fix_rec_size) ? (s-fix_rec_size) : 0));
 	}

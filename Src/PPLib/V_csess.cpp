@@ -497,7 +497,7 @@ int FASTCALL PPViewCSess::NextIteration(CSessViewItem * pItem)
 				pItem->BnkDiscount    = P_TempTbl->data.BnkDiscount;
 			}
 			else {
-				CsObj.P_Tbl->copyBufTo(pItem);
+				CsObj.P_Tbl->CopyBufTo(pItem);
 				pItem->ChkCount       = 0;
 				pItem->WORetAmount    = 0;
 				pItem->WORetBnkAmount = 0;
@@ -791,7 +791,7 @@ int PPViewCSess::NextCSessIteration(CSessionTbl::Rec * pRec)
 	int    ok = -1;
 	if(P_CSessIterQuery && P_CSessIterQuery->nextIteration() > 0) {
 		CSessionTbl::Rec csess_rec;
-		CsObj.P_Tbl->copyBufTo(&csess_rec);
+		CsObj.P_Tbl->CopyBufTo(&csess_rec);
 		ASSIGN_PTR(pRec, csess_rec);
 		ok = 1;
 	}
@@ -2326,12 +2326,12 @@ int PPViewCSessExc::AddItemToTempTable(const  PPID orgGoodsID, CGoodsLineTbl::Re
 	tk.GoodsID = goods_id;
 	if(P_TempTbl->search(0, &tk, spEq)) {
 		int    to_update = 1;
-		P_TempTbl->copyBufTo(&trec);
+		P_TempTbl->CopyBufTo(&trec);
 		if(trec.AltGoodsID != pRec->AltGoodsID) {
 			if(Filt.Flags & CSessExcFilt::fNoZeroAltGoods) {
 				while(P_TempTbl->search(0, &tk, spNext) && tk.GoodsID == goods_id) {
 					if(P_TempTbl->data.AltGoodsID == pRec->AltGoodsID) {
-						P_TempTbl->copyBufTo(&trec);
+						P_TempTbl->CopyBufTo(&trec);
 						to_update = 2;
 						break;
 					}
@@ -2426,7 +2426,7 @@ int PPViewCSessExc::MakeTempTable(PPID sessID)
 			continue;
 		if(Tbl.data.Qtty != 0 && (!Filt.GoodsGrpID || Filt.GoodsID || GObj.BelongToGroup(Tbl.data.GoodsID, Filt.GoodsGrpID, 0))) {
 			CGoodsLineTbl::Rec rec;
-			Tbl.copyBufTo(&rec);
+			Tbl.CopyBufTo(&rec);
 			THROW(AddItemToTempTable(rec.GoodsID, &rec, &rg_assoc));
 		}
 	}

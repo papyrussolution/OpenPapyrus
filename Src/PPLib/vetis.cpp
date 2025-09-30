@@ -1972,7 +1972,7 @@ int VetisEntityCore::CollectUnresolvedEntityList(TSVector <UnresolvedEntity> & r
 	q.selectAll();
 	for(q.initIteration(false, &k0, spFirst); q.nextIteration() > 0;) {
 		VetisEntityTbl::Rec rec;
-		ET.copyBufTo(&rec);
+		ET.CopyBufTo(&rec);
 		if(oneof5(rec.Kind, kProductItem, kProduct, kSubProduct, kEnterprise, kBusinessEntity)) {
 			if(rec.GuidRef || rec.UuidRef) {
 				if(!rList.lsearch(&rec.ID, 0, CMPF_LONG)) {
@@ -2250,8 +2250,8 @@ int VetisEntityCore::MatchDocument(PPID docEntityID, PPID billID, int rowN, int 
 			THROW(trfr_rec.Flags & PPTFR_RECEIPT && trfr_rec.LotID != 0);
 		}
 		if(DT.searchForUpdate(0, &k0, spEq)) {
-			DT.copyBufTo(&org_rec);
-			DT.copyBufTo(&rec);
+			DT.CopyBufTo(&org_rec);
+			DT.CopyBufTo(&rec);
 			rec.LinkBillID = billID;
 			rec.LinkBillRow = row_n;
 			if(row_n > 0) {
@@ -2306,7 +2306,7 @@ int VetisEntityCore::MatchPersonInDocument(PPID docEntityID, int side /*0 - from
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		if(DT.searchForUpdate(0, &k0, spEq)) {
-			DT.copyBufTo(&rec);
+			DT.CopyBufTo(&rec);
 			Entity entity;
 			ObjTagItem tag_item;
 			int    is_psn_guid_set = 0;
@@ -2461,7 +2461,7 @@ int VetisEntityCore::Get(PPID id, VetisVetDocument & rItem)
 		if(SearchDocument(entity.ID, &rec) > 0) {
 			VetisCertifiedConsignment & r_crtc = rItem.CertifiedConsignment;
 			Entity sub_entity;
-			DT.copyBufTo(&rec);
+			DT.CopyBufTo(&rec);
 			rItem.EntityID = rec.EntityID;
 			rItem.Flags = rec.Flags;
 			rItem.VetDForm = rec.VetisDocForm;
@@ -2691,7 +2691,7 @@ int VetisEntityCore::SetOutgoingDocInQueueFlag(PPID id, int use_ta)
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		THROW_DB(DT.searchForUpdate(0, &k0, spEq));
-		DT.copyBufTo(&rec);
+		DT.CopyBufTo(&rec);
 		if(!(rec.Flags & VetisVetDocument::fInSendingQueue)) {
 			rec.Flags |= VetisVetDocument::fInSendingQueue;
 			THROW_DB(DT.updateRecBuf(&rec)); // @sfu
@@ -2714,7 +2714,7 @@ int VetisEntityCore::SetOutgoingDocApplicationIdent(PPID id, const S_GUID & rApp
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		THROW_DB(DT.searchForUpdate(0, &k0, spEq));
-		DT.copyBufTo(&rec);
+		DT.CopyBufTo(&rec);
 		THROW_PP_S(rec.VetisDocStatus == vetisdocstOUTGOING_PREPARING, PPERR_VETISVETDOCOUTPREPEXP, id);
 		if(rec.AppReqId != rAppId) {
 			rec.AppReqId = rAppId;
@@ -2869,7 +2869,7 @@ int VetisEntityCore::Put(PPID * pID, const VetisVetDocument & rItem, long flags,
 				k0.EntityID = entity.ID;
 				if(DT.searchForUpdate(0, &k0, spEq)) {
 					VetisDocumentTbl::Rec ex_rec;
-					DT.copyBufTo(&ex_rec);
+					DT.CopyBufTo(&ex_rec);
 					if(!(rItem.Flags & rItem.fFromMainOrg) && (flags & putvdfEnableClearNativeBillLink)) { // @v11.1.8
 						;
 					}
@@ -2978,7 +2978,7 @@ int VetisEntityCore::Get(PPID id, VetisBusinessEntity & rItem)
 		k0.EntityID = entity.ID;
 		if(BT.search(0, &k0, spEq)) {
 			Entity sub_entity;
-			PiT.copyBufTo(&rec);
+			PiT.CopyBufTo(&rec);
 			rItem.Inn = rec.INN;
 			rItem.Kpp = rec.KPP;
 		}
@@ -3011,7 +3011,7 @@ int VetisEntityCore::Put(PPID * pID, const VetisBusinessEntity & rItem, TSVector
 				k0.EntityID = entity.ID;
 				if(BT.searchForUpdate(0, &k0, spEq)) {
 					VetisPersonTbl::Rec ex_rec;
-					BT.copyBufTo(&ex_rec);
+					BT.CopyBufTo(&ex_rec);
 					if(ex_rec.INN[0] && !rec.INN[0])
 						STRNSCPY(rec.INN, ex_rec.INN);
 					if(ex_rec.KPP[0] && !rec.KPP[0])
@@ -3066,7 +3066,7 @@ int VetisEntityCore::Get(PPID id, VetisEnterprise & rItem)
 		rItem.Flags = entity.Flags;
 		k0.EntityID = entity.ID;
 		if(BT.search(0, &k0, spEq)) {
-			PiT.copyBufTo(&rec);
+			PiT.CopyBufTo(&rec);
 			rItem.Type = rec.EnterpriseType;
 			ResolveEntityByID(rec.CountryID, rItem.Address.Country);
 			ResolveEntityByID(rec.RegionID, rItem.Address.Region);
@@ -3103,7 +3103,7 @@ int VetisEntityCore::Put(PPID * pID, const VetisEnterprise & rItem, TSVector <Un
 				k0.EntityID = entity.ID;
 				if(BT.searchForUpdate(0, &k0, spEq)) {
 					VetisPersonTbl::Rec ex_rec;
-					BT.copyBufTo(&ex_rec);
+					BT.CopyBufTo(&ex_rec);
 					if(ex_rec.INN[0] && !rec.INN[0])
 						STRNSCPY(rec.INN, ex_rec.INN);
 					if(ex_rec.KPP[0] && !rec.KPP[0])
@@ -3153,7 +3153,7 @@ int VetisEntityCore::Get(PPID id, VetisProductItem & rItem)
 		rItem.Flags = entity.Flags;
 		k0.EntityID = entity.ID;
 		if(PiT.search(0, &k0, spEq)) {
-			PiT.copyBufTo(&rec);
+			PiT.CopyBufTo(&rec);
 			rItem.NativeGoodsID = rec.LinkGoodsID;
 			rItem.ProductType = rec.ProductType;
 			rItem.GlobalID = rec.GTIN;
@@ -8150,7 +8150,7 @@ int PPVetisInterface::SearchDupOutgoingConsignment(const VetisVetDocument & rRec
 	k3.WayBillDate = rRec.WayBillDate;
 	STRNSCPY(k3.WayBillNumber, rRec.WayBillNumber);
 	if(PeC.DT.search(3, &k3, spEq)) do {
-		PeC.DT.copyBufTo(&rec);
+		PeC.DT.CopyBufTo(&rec);
 		if(rec.WayBillDate == rRec.WayBillDate && sstreq(rec.WayBillNumber, rRec.WayBillNumber)) { // @paranoic
 			if(rec.VetisDocStatus == vetisdocstCONFIRMED) {
 				//if(rec.FromEntityID == rRec.FromEnity)
@@ -9163,7 +9163,7 @@ int PPVetisInterface::PutBillRow(const PPBillPacket & rBp, uint rowIdx, long fla
 						if(PeC.DT.searchForUpdate(1, &k1, spEq)) {
 							do {
 								VetisDocumentTbl::Rec ex_rec;
-								PeC.DT.copyBufTo(&ex_rec);
+								PeC.DT.CopyBufTo(&ex_rec);
 								if(ex_rec.VetisDocStatus == vetisdocstOUTGOING_PREPARING) {
 									rec.EntityID = ex_rec.EntityID;
 									THROW_DB(PeC.DT.updateRecBuf(&rec));
@@ -9241,7 +9241,7 @@ int PPVetisInterface::PutBillRow(const PPBillPacket & rBp, uint rowIdx, long fla
 							if(PeC.DT.searchForUpdate(1, &k1, spEq)) {
 								do {
 									VetisDocumentTbl::Rec ex_rec;
-									PeC.DT.copyBufTo(&ex_rec);
+									PeC.DT.CopyBufTo(&ex_rec);
 									if(ex_rec.VetisDocStatus == vetisdocstOUTGOING_PREPARING) {
 										rec.EntityID = ex_rec.EntityID;
 										THROW_DB(PeC.DT.updateRecBuf(&rec));
@@ -9336,7 +9336,7 @@ int PPVetisInterface::PutBillRow(const PPBillPacket & rBp, uint rowIdx, long fla
 									if(PeC.DT.searchForUpdate(1, &k1, spEq)) {
 										do {
 											VetisDocumentTbl::Rec ex_rec;
-											PeC.DT.copyBufTo(&ex_rec);
+											PeC.DT.CopyBufTo(&ex_rec);
 											if(ex_rec.VetisDocStatus == vetisdocstOUTGOING_PREPARING) {
 												rec.EntityID = ex_rec.EntityID;
 												THROW_DB(PeC.DT.updateRecBuf(&rec));
@@ -9395,7 +9395,7 @@ int PPVetisInterface::PutBillRow(const PPBillPacket & rBp, uint rowIdx, long fla
 							if(PeC.DT.searchForUpdate(1, &k1, spEq)) {
 								do {
 									VetisDocumentTbl::Rec ex_rec;
-									PeC.DT.copyBufTo(&ex_rec);
+									PeC.DT.CopyBufTo(&ex_rec);
 									if(ex_rec.VetisDocStatus == vetisdocstOUTGOING_PREPARING) {
 										rec.EntityID = ex_rec.EntityID;
 										THROW_DB(PeC.DT.updateRecBuf(&rec));
@@ -9539,7 +9539,7 @@ int PPVetisInterface::PutBillRow(const PPBillPacket & rBp, uint rowIdx, long fla
 						if(PeC.DT.searchForUpdate(1, &k1, spEq)) {
 							do {
 								VetisDocumentTbl::Rec ex_rec;
-								PeC.DT.copyBufTo(&ex_rec);
+								PeC.DT.CopyBufTo(&ex_rec);
 								if(ex_rec.VetisDocStatus == vetisdocstOUTGOING_PREPARING) {
 									rec.EntityID = ex_rec.EntityID;
 									THROW_DB(PeC.DT.updateRecBuf(&rec));
@@ -11573,7 +11573,7 @@ int PPViewVetisDocument::NextIteration(VetisDocumentViewItem * pItem)
 		while(ok < 0 && P_IterQuery->nextIteration() > 0) {
 			Counter.Increment();
 			if(CheckForFilt(&EC.DT.data)) {
-				EC.DT.copyBufTo(pItem);
+				EC.DT.CopyBufTo(pItem);
 				ok = 1;
 			}
 		}

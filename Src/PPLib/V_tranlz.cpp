@@ -1695,7 +1695,7 @@ int PPViewTrfrAnlz::InitGrpngNames()
 		PPID   id = 0;
 		if(p_tgt->search(0, &id, spFirst)) do {
 			TempTrfrGrpngTbl::Rec rec;
-			p_tgt->copyBufTo(&rec);
+			p_tgt->CopyBufTo(&rec);
 			PROFILE(GObj.GetSubstText(rec.GoodsID, Filt.Sgg, &Gsl, temp_buf));
 			STRNSCPY(rec.GoodsText, temp_buf);
 			PsnObj.GetSubstText(rec.PersonID, (Filt.Flags & TrfrAnlzFilt::fDiffByDlvrAddr) ? rec.DlvrLocID : 0, &Psp, temp_buf);
@@ -5423,7 +5423,9 @@ int PrcssrAlcReport::ProcessRegisterRec(RegisterTbl::Rec * pRegRec, PPID psnID, 
 	uint32 sur_id = SlHash::BobJenc(&sib, sizeof(sib));
     pRegRec->ExtID = labs((long)sur_id); // @note Для банковских счетов поле RegisterTbl::Rec::ExtID значимо
     {
-		SString serial, left, right;
+		SString serial;
+		SString left;
+		SString right;
 		(serial = pRegRec->Serial).Strip();
 		if(serial.Divide('#', left, right) > 0) {
             size_t pos = 0;

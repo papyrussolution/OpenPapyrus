@@ -8956,7 +8956,7 @@ int PPEgaisProcessor::ImplementQuery(PPEgaisProcessor::QueryParam & rParam)
 								q.selectAll();
 								for(q.initIteration(false, &k1, spFirst); q.nextIteration() > 0;) {
 									EgaisRefATbl::Rec item;
-									P_RefC->RaC.copyBufTo(&item);
+									P_RefC->RaC.CopyBufTo(&item);
 									if(item.RefACode[0]) {
 										if(rParam.DbActualizeFlags & rParam._afQueryRefA) {
 											if(!(item.Flags & EgaisRefACore::fVerified))
@@ -9601,7 +9601,7 @@ int EgaisPersonCore::Put(PPID * pID, EgaisPersonCore::Item * pItem, long * pConf
 			if(search(1, &k1, spEq)) {
 				ok = -1;
                 int   do_update = 0;
-                copyBufTo(&rec);
+                CopyBufTo(&rec);
                 if(pItem->INN[0]) {
 					if(rec.INN[0] == 0) {
 						STRNSCPY(rec.INN, pItem->INN);
@@ -9985,7 +9985,7 @@ int EgaisProductCore::Put(PPID * pID, const EgaisProductCore::Item * pItem, long
 				ok = -1;
 				int    do_update = 0;
 				EgaisProductTbl::Rec rec;
-				copyBufTo(&rec);
+				CopyBufTo(&rec);
 				if(pItem->AlcoCode[0]) {
 					if(rec.AlcCode[0] == 0) {
 						STRNSCPY(rec.AlcCode, pItem->AlcoCode);
@@ -10345,7 +10345,7 @@ int EgaisRefACore::Put(PPID * pID, const EgaisRefATbl::Rec * pRec, long * pConfl
 			ok = -1;
 			int    do_update = 0;
 			EgaisRefATbl::Rec rec;
-			copyBufTo(&rec);
+			CopyBufTo(&rec);
 			if(OnPut_CopyTextField(pRec->AlcCode, rec.AlcCode, sizeof(rec.AlcCode), LOGIC(pRec->Flags & EgaisRefACore::fVerified), 0x01, &conflict_flags))
 				do_update = 1;
 			if(OnPut_CopyTextField(pRec->ManufRarIdent, rec.ManufRarIdent, sizeof(rec.ManufRarIdent), LOGIC(pRec->Flags & EgaisRefACore::fVerified), 0x02, &conflict_flags))
@@ -10468,7 +10468,7 @@ int EgaisRefACore::Export(long fmt, const char * pFileName)
 		q.selectAll();
 		for(q.initIteration(false, &k1, spFirst); q.nextIteration() > 0;) {
 			EgaisRefATbl::Rec item;
-			copyBufTo(&item);
+			CopyBufTo(&item);
 			if(rec_no == 0) {
 				line_buf.Z().Cat("ID").Tab().Cat("RefACode").Tab().
 					Cat("AlcCode").Tab().Cat("ManufRarIdent").Tab().Cat("ImporterRarIdent").Tab().Cat("CountryCode").Tab().
@@ -11052,7 +11052,7 @@ int EgaisMarkAutoSelector::GetRecentEgaisStock(TSVector <RefBEntry> & rResultLis
 			k2.BillNo = MAXLONG;
 			const long max_days_for_survey = 30;
 			if(p_billc->search(2, &k2, spLe) && k2.OpID == stock_op_id) do {
-				p_billc->copyBufTo(&bill_rec);
+				p_billc->CopyBufTo(&bill_rec);
 				if(!p_code_suffix || (temp_buf = bill_rec.Code).CmpSuffix(p_code_suffix, 0) == 0) {
 					if(!recent_date)
 						recent_date = bill_rec.Dt;

@@ -112,7 +112,7 @@ int SysJournal::GetEvent(PPID action, long extraVal, int mode, LDATETIME * pMome
 	q.initIteration((mode <= 0), &k, sp);
 	if(q.nextIteration() > 0) {
 		CALLPTRMEMB(pMoment, Set(data.Dt, data.Tm));
-		copyBufTo(b);
+		CopyBufTo(b);
 		return 1;
 	}
 	else
@@ -139,7 +139,7 @@ int SysJournal::GetLastUserEvent(PPID action, PPID userID, PPID sessID, const Da
 	q.initIteration(true, &k, spLt);
 	if(q.nextIteration() > 0) {
 		CALLPTRMEMB(pMoment, Set(data.Dt, data.Tm));
-		copyBufTo(pRec);
+		CopyBufTo(pRec);
 		return 1;
 	}
 	else
@@ -162,7 +162,7 @@ int SysJournal::GetLastObjUnifyEvent(PPID objType, PPID objID, PPID * pDestID, S
 	if(search(1, &k, spLt) && k.ObjType == objType && k.ObjID == objID) {
 		do {
 			if(data.Action == PPACN_OBJUNIFY && data.Extra > 0) {
-				copyBufTo(pRec);
+				CopyBufTo(pRec);
 				ASSIGN_PTR(pDestID, data.Extra);
 				ok = 1;
 			}
@@ -247,7 +247,7 @@ int SysJournal::GetLastObjModifEvent(PPID objType, PPID objID, LDATETIME * pMome
 	if(ok > 0) {
 		CALLPTRMEMB(pMoment, Set(data.Dt, data.Tm));
 		ASSIGN_PTR(pCreation, cr);
-		copyBufTo(pRec);
+		CopyBufTo(pRec);
 	}
 	else {
 		CALLPTRMEMB(pMoment, Z());
@@ -265,7 +265,7 @@ int SysJournal::GetNextObjEvent(PPID objType, PPID objID, const PPIDArray * pAct
 	k.Tm    = rSince.t;
 	if(search(1, &k, spGt) && data.ObjType == objType && data.ObjID == objID) do {
 		if(!SVectorBase::GetCount(pActAry) || pActAry->lsearch(data.Action)) {
-			copyBufTo(pRec);
+			CopyBufTo(pRec);
 			ok = 1;
 		}
 	} while(ok < 0 && search(1, &k, spNext) && data.ObjType == objType && data.ObjID == objID);
@@ -301,7 +301,7 @@ int SysJournal::GetLastObjEvent(PPID objType, PPID objID, const PPIDArray * pAct
 	}
 	if(ok > 0) {
 		CALLPTRMEMB(pMoment, Set(data.Dt, data.Tm));
-		copyBufTo(pRec);
+		CopyBufTo(pRec);
 	}
 	else {
 		CALLPTRMEMB(pMoment, Z());
@@ -476,7 +476,7 @@ int SysJournal::DoMaintain(LDATE toDt, int recover, PPLogger * pLogger)
 				do {
 					int    r = 0;
 					SjRsrvTbl::Rec rsrv_rec;
-					P_RsrvT->copyBufTo(&rsrv_rec);
+					P_RsrvT->CopyBufTo(&rsrv_rec);
 					LDATETIME dtm;
 					dtm.Set(rsrv_rec.Dt, rsrv_rec.Tm);
 					data.Dt      = dtm.d;
@@ -860,7 +860,7 @@ int ObjVersioningCore::Add(PPID * pID, PPObjID oid, SBuffer * pBuf, int use_ta)
 	}
 	size_t data_len = pBuf ? pBuf->GetAvailableSize() : 0;
 	rec.Size = static_cast<int32>(data_len);
-	copyBufFrom(&rec);
+	CopyBufFrom(&rec, sizeof(rec));
 	if(data_len) {
 		const void * p_data_buf = pBuf->GetBuf();
 		THROW(writeLobData(this->Data, p_data_buf, data_len));
@@ -910,7 +910,7 @@ int ObjVersioningCore::SearchOid(PPObjID oid, long ver, ObjVerTbl::Rec * pRec, S
 		sp = spEq;
 	}
 	if(search(1, &k, sp) > 0 && oid.IsEq(k.ObjType, k.ObjID)) {
-		copyBufTo(pRec);
+		CopyBufTo(pRec);
 		if(pPackBuf) {
 			pPackBuf->Z();
 			readLobData(this->Data, *pPackBuf);

@@ -787,7 +787,7 @@ int PPViewAccAnlz::EnumerateByIdentifiedAcc(long aco, PPID accID, AccAnlzViewEnu
 		int    ibf = 0; // Признак того, что найден документ, соответствующий текущей записи
 		BillEntry bill_entry;
 		AccTurnTbl::Rec rec;
-		P_ATC->copyBufTo(&rec);
+		P_ATC->CopyBufTo(&rec);
 		THROW(PPCheckUserBreak());
 		if(Filt.Flags & AccAnlzFilt::fExclInnerTrnovr) {
 			if(IsGenAcc) {
@@ -1261,7 +1261,7 @@ bool PPViewAccAnlz::IsDedicatedRestEvaluationNeeded() const
 				k.AccID = Filt.AccID;
 				k.ArticleID = 0;
 				for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
-					P_ATC->AccRel.copyBufTo(&acr_rec);
+					P_ATC->AccRel.CopyBufTo(&acr_rec);
 					THROW_SL(acr_list.insert(&acr_rec));
 				}
 			}
@@ -1600,7 +1600,7 @@ int FASTCALL PPViewAccAnlz::NextIteration(AccAnlzViewItem * pItem)
 			MEMSZERO(item);
 			if(IsRegister && !(Filt.Flags & AccAnlzFilt::fTrnovrBySheet)) {
 				AccTurnTbl::Rec rec;
-				P_ATC->copyBufTo(&rec);
+				P_ATC->CopyBufTo(&rec);
 				item.Dt      = rec.Dt;
 				item.OprNo   = rec.OprNo;
 				item.BillID  = rec.BillID;

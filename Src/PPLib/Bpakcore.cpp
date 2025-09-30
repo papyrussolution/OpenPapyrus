@@ -2549,6 +2549,7 @@ void PPBillPacket::Helper_Init()
 	SyncStatus = -2;
 	Reserve = 0;
 	LoadMoment = ZERODATETIME;
+	P_LocTrfrList = 0; // @v12.4.1
 }
 
 PPBillPacket::PPBillPacket() : PPBill()
@@ -2595,6 +2596,7 @@ void PPBillPacket::destroy()
 	OpTypeID = 0;
 	AccSheetID = 0;
 	InvList.freeAll();
+	ZDELETE(P_LocTrfrList); // @v12.4.1
 }
 
 PPBillPacket & FASTCALL PPBillPacket::operator = (const PPBillPacket & rS)
@@ -2654,6 +2656,11 @@ int FASTCALL PPBillPacket::Copy(const PPBillPacket & rS)
 		P_MirrorLTagL = new PPLotTagContainer;
 		*P_MirrorLTagL = *rS.P_MirrorLTagL;
 	}
+	// @v12.4.1 {
+	if(rS.P_LocTrfrList) {
+		P_LocTrfrList = new TSVector <LocTransfOpBlock>(*rS.P_LocTrfrList);
+	}
+	// } @v12.4.1 
 	InvList = rS.InvList;
 	CATCHZOK
 	return ok;
@@ -2710,11 +2717,35 @@ bool PPBillPacket::IsDraft() const
 	return oneof4(op_type_id, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT, PPOPT_DRAFTQUOTREQ);
 }
 
+#if 0 // @v12.4.1 (superseded by GetDetailType) {
 bool PPBillPacket::IsGoodsDetail() const
 {
+	return (GetDetailType() == detailtypeTransfer); // @v12.4.1
+	/* @v12.4.1
 	const  PPID op_type_id = OpTypeID;
-	return oneof12(op_type_id, PPOPT_DRAFTEXPEND, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTTRANSIT, PPOPT_DRAFTQUOTREQ, PPOPT_GOODSRECEIPT, 
+	return oneof12(op_type_id, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT, PPOPT_DRAFTQUOTREQ, PPOPT_GOODSRECEIPT, 
 		PPOPT_GOODSEXPEND, PPOPT_GOODSREVAL, PPOPT_CORRECTION, PPOPT_GOODSACK, PPOPT_GOODSMODIF, PPOPT_GOODSRETURN, PPOPT_GOODSORDER);
+	*/
+}
+#endif // } 0
+
+int PPBillPacket::GetDetailType() const // @v12.4.1
+{
+	int    result = detailtypeUndef;
+	if(OpTypeID == PPOPT_WAREHOUSE) {
+		PPOprKind op_rec;
+		GetOpData(Rec.OpID, &op_rec);
+		if(oneof3(op_rec.SubType, OPSUBT_BAILMENT_ORDER, OPSUBT_BAILMENT_PUT, OPSUBT_BAILMENT_GET))
+			result = detailtypeLocTrfr_Bailment;
+		else
+			result = detailtypeLocTrfr;
+	}
+	else if(oneof12(OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_GOODSREVAL, PPOPT_CORRECTION,
+		PPOPT_GOODSACK, PPOPT_GOODSMODIF, PPOPT_GOODSRETURN, PPOPT_GOODSORDER, 
+		PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT, PPOPT_DRAFTQUOTREQ)) {
+		result = detailtypeTransfer;
+	}
+	return result;
 }
 
 int PPBillPacket::UngetCounter()
@@ -4915,7 +4946,7 @@ int TiIter::OrderRows_Mem(const PPBillPacket * pPack, Order o)
 					goods_name = goods_rec.Name;
 					if(Flags & ETIEF_DISPOSE) {
 						for(uint j = 0; j < DispList.getCount(); j++) {
-							if(DispList.at(j).RByBill == p_ti->RByBill) {
+							if(DispList.at(j).RByBillLT == p_ti->RByBill) {
 								ord_list.Add(++uniq_counter, temp_buf.Z().Cat(goods_name), 1);
 								ext.Uc = uniq_counter;
 								ext.Pos = i-1;

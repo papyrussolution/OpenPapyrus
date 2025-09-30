@@ -31,7 +31,7 @@ template <class objcls, class objrec> inline void dbqf_objname_i(int option, DBC
 {
 	objrec rec;
 	if(!DbeInitSize(option, result, sizeof(rec.Name))) {
-		PPID   id = PPDbqFuncPool::helper_dbq_name(params, rec.Name);
+		const PPID id = PPDbqFuncPool::helper_dbq_name(params, rec.Name);
 		if(id) {
 			objcls obj;
 			obj.Fetch(id, &rec);
@@ -283,6 +283,48 @@ static IMPL_DBE_PROC(dbqf_billfrghtstrgloc_i)
 				if(obj.Fetch(freight.StorageLocID, &rec) > 0)
 					temp_buf = rec.Name;
 			}
+		}
+		STRNSCPY(ret_buf, temp_buf);
+		result->init(ret_buf);
+	}
+}
+
+static IMPL_DBE_PROC(dbqf_address_i) // @v12.4.1
+{
+	char   ret_buf[252];
+	if(!DbeInitSize(option, result, sizeof(ret_buf))) {
+		const PPID loc_id = params[0].lval;
+		SString temp_buf;
+		if(loc_id) {
+			PPObjLocation obj;
+			LocationTbl::Rec rec;
+			if(obj.Fetch(loc_id, &rec) > 0) {
+				if(LocationCore::IsEmptyAddressRec(rec))
+					temp_buf = PPConst::P_TagValRestrict_Empty;
+				else {
+					LocationCore::GetAddress(rec, 0, temp_buf);
+					int    name_used = 0;
+					if(!temp_buf.NotEmptyS()) {
+                        temp_buf = rec.Name;
+						name_used = 1;
+					}
+					if(!temp_buf.NotEmptyS())
+                        temp_buf = rec.Code;
+					if(!temp_buf.NotEmptyS())
+						LocationCore::GetExField(&rec, LOCEXSTR_CONTACT, temp_buf);
+					if(!temp_buf.NotEmptyS())
+						LocationCore::GetExField(&rec, LOCEXSTR_PHONE, temp_buf);
+					if(!temp_buf.NotEmptyS())
+						temp_buf = PPConst::P_TagValRestrict_Empty;
+					else if(!name_used && rec.Name[0]) {
+						SString & r_tt = SLS.AcquireRvlStr();
+						(r_tt = rec.Name).CatDiv('-', 1).Cat(temp_buf);
+						temp_buf = r_tt;
+					}
+				}
+			}
+			else
+				ideqvalstr(loc_id, temp_buf);
 		}
 		STRNSCPY(ret_buf, temp_buf);
 		result->init(ret_buf);
@@ -1558,6 +1600,7 @@ int PPDbqFuncPool::IdBillMemoSubStr       = 0; // @v11.7.4
 int PPDbqFuncPool::IdBillAmount           = 0; // @v12.1.0 (fldBillID, amountType)
 int PPDbqFuncPool::IdClientActivityStatisticsIndicator = 0; // @v12.2.2 (personID, actualDate, indicator/*PPObjPerson::casiXXX*/) ¬озвращает значение индикатора статистики клиентской активности
 int PPDbqFuncPool::IdClientActivityState  = 0; // @v12.2.2 (personID, LDATE actualDate, LDATE newCliPeriodLo, LDATE newCliPeriodUp) ¬озвращает ClientActivityState::State
+int PPDbqFuncPool::IdObjLocAddress        = 0; // @v12.4.1
 
 static IMPL_DBE_PROC(dbqf_goodsstockdim_i)
 {
@@ -1868,6 +1911,7 @@ static IMPL_DBE_PROC(dbqf_datebase_id)
 	THROW(DbqFuncTab::RegisterDyn(&IdBillAmount,           BTS_REAL,   dbqf_billamount_ii,          2, BTS_INT, BTS_INT)); // @v12.1.0
 	THROW(DbqFuncTab::RegisterDyn(&IdClientActivityStatisticsIndicator, BTS_REAL, dbqf_clientactivitystatisticsindicator_idi, 3, BTS_INT, BTS_DATE, BTS_INT)); // @v12.2.2
 	THROW(DbqFuncTab::RegisterDyn(&IdClientActivityState,  BTS_INT, dbqf_clientactivitystate_iddd, 4, BTS_INT, BTS_DATE, BTS_DATE, BTS_DATE)); // @v12.2.2
+	THROW(DbqFuncTab::RegisterDyn(&IdObjLocAddress,        BTS_STRING, dbqf_address_i, 1, BTS_INT)); // @v12.4.1
 	CATCHZOK
 	return ok;
 }

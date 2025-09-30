@@ -191,21 +191,17 @@ int PPSyncCashSession::PreprocessCCheckForOfd12(const OfdFactors & rOfdf, CCheck
 								int pczcr = PreprocessChZnCode(ppchzcopSurrogateCheck, chzn_code, chzn_qtty, uom_id, uom_fragm, chzn_pp_result);
 								// @v11.9.10 {
 								if(/*pczcr > 0*/true) {
-									if(/*chzn_pp_result.Status == 1*/true) {
-										chzn_pp_result.LineIdx = pos;
-										const int accept_op = ppchzcopAccept;
-										pczcr = PreprocessChZnCode(accept_op, chzn_code, chzn_qtty, uom_id, uom_fragm, chzn_pp_result);
-										PPSyncCashSession::LogPreprocessChZnCodeResult(pczcr, accept_op, chzn_code, chzn_qtty, chzn_pp_result); // @v11.2.3
+									const bool do_accept = (/*chzn_pp_result.Status == 1*/true) ? true : false;
+									chzn_pp_result.LineIdx = pos;
+									const int accept_op = do_accept ? ppchzcopAccept : ppchzcopReject;
+									pczcr = PreprocessChZnCode(accept_op, chzn_code, chzn_qtty, uom_id, uom_fragm, chzn_pp_result);
+									PPSyncCashSession::LogPreprocessChZnCodeResult(pczcr, accept_op, chzn_code, chzn_qtty, chzn_pp_result); // @v11.2.3
+									if(do_accept) {
 										if(pczcr > 0)
 											pPack->SetLineChZnPreprocessResult(pos, &chzn_pp_result);
 									}
 									else {
 										ok = 2;
-										chzn_pp_result.LineIdx = pos;
-										const int accept_op = ppchzcopReject;
-										pczcr = PreprocessChZnCode(accept_op, chzn_code, chzn_qtty, uom_id, uom_fragm, chzn_pp_result);
-										PPSyncCashSession::LogPreprocessChZnCodeResult(pczcr, accept_op, chzn_code, chzn_qtty, chzn_pp_result); // @v11.2.3
-										// @v11.7.0 if(pczcr > 0)
 										pPack->SetLineChZnPreprocessResult(/*pos*/0, &chzn_pp_result); // @v11.7.0 pos-->0 (экспериментально: чтобы кассовый чек не содержал эту марку)
 									}
 								}
@@ -229,50 +225,60 @@ int PPSyncCashSession::PreprocessCCheckForOfd12(const OfdFactors & rOfdf, CCheck
 											int pczcr = PreprocessChZnCode(ppchzcopVerify, chzn_code, chzn_qtty, uom_id, uom_fragm, chzn_pp_result);
 											PPSyncCashSession::LogPreprocessChZnCodeResult(pczcr, 0, chzn_code, chzn_qtty, chzn_pp_result);
 											if(/*pczcr > 0*/true) { // @v12.4.0 true
-												if(/*chzn_pp_result.Status == 1*/true) { // @v12.4.0 true
-													chzn_pp_result.LineIdx = pos;
-													const int accept_op = ppchzcopAccept;
-													pczcr = PreprocessChZnCode(accept_op, chzn_code, chzn_qtty, uom_id, uom_fragm, chzn_pp_result);
-													PPSyncCashSession::LogPreprocessChZnCodeResult(pczcr, accept_op, chzn_code, chzn_qtty, chzn_pp_result);
+												const bool do_accept = (/*chzn_pp_result.Status == 1*/true) ? true : false;
+												const int accept_op = do_accept ? ppchzcopAccept : ppchzcopReject;
+												chzn_pp_result.LineIdx = pos;
+												pczcr = PreprocessChZnCode(accept_op, chzn_code, chzn_qtty, uom_id, uom_fragm, chzn_pp_result);
+												PPSyncCashSession::LogPreprocessChZnCodeResult(pczcr, accept_op, chzn_code, chzn_qtty, chzn_pp_result);
+												if(do_accept) {
 													if(pczcr > 0)
 														pPack->SetLineChZnPreprocessResult(pos, &chzn_pp_result);
 												}
 												else {
 													ok = 2;
-													chzn_pp_result.LineIdx = pos;
-													const int accept_op = ppchzcopReject;
-													pczcr = PreprocessChZnCode(accept_op, chzn_code, chzn_qtty, uom_id, uom_fragm, chzn_pp_result);
-													PPSyncCashSession::LogPreprocessChZnCodeResult(pczcr, accept_op, chzn_code, chzn_qtty, chzn_pp_result);
-													// @v11.7.0 if(pczcr > 0)
-														pPack->SetLineChZnPreprocessResult(/*pos*/0, &chzn_pp_result); // @v11.7.0 pos-->0 (экспериментально: чтобы кассовый чек не содержал эту марку)
+													pPack->SetLineChZnPreprocessResult(/*pos*/0, &chzn_pp_result); // @v11.7.0 pos-->0 (экспериментально: чтобы кассовый чек не содержал эту марку)
 												}
 											}
 										}
 									}
 									else {
+										/*
+											Цитата из документации на протокол Пирит (Вики-Принт)
+											-----------------------------------------------------
+											При работе ККТ в режиме передачи данных, ККТ отправляет запрос на проверку КМ на сервер ОИСМ через ОФД и в течение 3 сек 
+											ожидает ответа от сервера. При получении ответа на запрос, ККТ сформирует тэги 2005, 2105 и 2109 на основании значений в ответе ОИСМ. 
+											Если в течение 3 сек ККТ не поучит ответ на запрос, ККТ автоматически сформирует тэги 2005, 2105 и 2109 с пустыми значениями.
+
+											CCheckPacket::PreprocessChZnCodeResult::ProcessingResult; // tag 2005 Результаты обработки запроса (ofdtag-2005)
+											CCheckPacket::PreprocessChZnCodeResult::ProcessingCode;   // tag 2105 Код обработки запроса (ofdtag-2105)
+											CCheckPacket::PreprocessChZnCodeResult::Status;           // tag 2109 Сведения о статусе товара (ofdtag-2109)
+										*/ 
 										chzn_qtty = fabs(ccl.Quantity);
 										PPUnit u_rec;
 										if(goods_obj.FetchUnit(goods_rec.UnitID, &u_rec) > 0 && u_rec.Fragmentation > 0 && u_rec.Fragmentation < 100000)
 											uom_fragm = u_rec.Fragmentation;
 										int pczcr = PreprocessChZnCode(ppchzcopVerify, chzn_code, chzn_qtty, uom_id, uom_fragm, chzn_pp_result);
+										int pczcr2 = 0;
 										PPSyncCashSession::LogPreprocessChZnCodeResult(pczcr, 0, chzn_code, chzn_qtty, chzn_pp_result);
 										if(/*pczcr > 0*/true) { // @v12.4.0
-											if(/*chzn_pp_result.Status == 1*/true) { // @v12.4.0 true
-												chzn_pp_result.LineIdx = pos;
-												const int accept_op = ppchzcopAccept;
-												pczcr = PreprocessChZnCode(accept_op, chzn_code, chzn_qtty, uom_id, uom_fragm, chzn_pp_result);
-												PPSyncCashSession::LogPreprocessChZnCodeResult(pczcr, accept_op, chzn_code, chzn_qtty, chzn_pp_result); // @v11.2.3
+											// @v12.4.0 {
+											if(!chzn_pp_result.ProcessingResult && !chzn_pp_result.ProcessingCode && !chzn_pp_result.Status) {
+												chzn_pp_result.Z();
+												pczcr2 = PreprocessChZnCode(ppchzcopVerifyOffline, chzn_code, chzn_qtty, uom_id, uom_fragm, chzn_pp_result);
+											}
+											// } @v12.4.0 
+											const bool do_accept = (/*chzn_pp_result.Status == 1*/true) ? true : false;
+											const int accept_op = do_accept ? ppchzcopAccept : ppchzcopReject;
+											chzn_pp_result.LineIdx = pos;
+											pczcr = PreprocessChZnCode(accept_op, chzn_code, chzn_qtty, uom_id, uom_fragm, chzn_pp_result);
+											PPSyncCashSession::LogPreprocessChZnCodeResult(pczcr, accept_op, chzn_code, chzn_qtty, chzn_pp_result); // @v11.2.3
+											if(do_accept) {
 												if(pczcr > 0)
 													pPack->SetLineChZnPreprocessResult(pos, &chzn_pp_result);
 											}
 											else {
 												ok = 2;
-												chzn_pp_result.LineIdx = pos;
-												const int accept_op = ppchzcopReject;
-												pczcr = PreprocessChZnCode(accept_op, chzn_code, chzn_qtty, uom_id, uom_fragm, chzn_pp_result);
-												PPSyncCashSession::LogPreprocessChZnCodeResult(pczcr, accept_op, chzn_code, chzn_qtty, chzn_pp_result); // @v11.2.3
-												// @v11.7.0 if(pczcr > 0)
-													pPack->SetLineChZnPreprocessResult(/*pos*/0, &chzn_pp_result); // @v11.7.0 pos-->0 (экспериментально: чтобы кассовый чек не содержал эту марку)
+												pPack->SetLineChZnPreprocessResult(/*pos*/0, &chzn_pp_result); // @v11.7.0 pos-->0 (экспериментально: чтобы кассовый чек не содержал эту марку)
 											}
 										}
 									}
@@ -934,7 +940,7 @@ int PPAsyncCashSession::AddTempCheck(PPID * pID, long sessNumber, long flags,
 				new_rec.TempReplaceID = temp_replace_id;
 			}
 			new_rec.Flags |= flags;
-			P_TmpCcTbl->copyBufFrom(&new_rec);
+			P_TmpCcTbl->CopyBufFrom(&new_rec, sizeof(new_rec));
 			THROW_DB(P_TmpCcTbl->insertRec(0, pID));
 		}
 		else {
@@ -1409,7 +1415,7 @@ int PPAsyncCashSession::ConvertTempSession(int forwardSess, PPIDArray & rSessLis
 				CclAssocItem ccla_item;
 				TempCCheckTbl::Rec temp_chk_rec;
 				CCheckTbl::Rec chk_rec;
-				P_TmpCcTbl->copyBufTo(&temp_chk_rec);
+				P_TmpCcTbl->CopyBufTo(&temp_chk_rec);
 				LDATETIME dtm;
 				PPID   sess_id = 0;
 				TotalLogCSessEntry * p_tl_entry = 0;

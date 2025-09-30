@@ -411,8 +411,6 @@ struct xmlNode : public XmlNodeBase {
 	ushort line; /* line number */
 	ushort extra; /* extra data for XPath/XSLT */
 };
-
-// @v10.5.8 typedef xmlNode * xmlNodePtr;
 /**
  * XML_GET_CONTENT:
  *

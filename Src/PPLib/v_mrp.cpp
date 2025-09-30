@@ -176,7 +176,7 @@ int FASTCALL PPViewMrpTab::NextIteration(MrpTabViewItem * pItem)
 	while(P_IterQuery && P_IterQuery->nextIteration() > 0) {
 		Counter.Increment();
 		if(Filt.SingleID || MrpObj.CheckForFilt(&Filt, MrpObj.P_Tbl->data.ID, &MrpObj.P_Tbl->data)) {
-			MrpObj.P_Tbl->copyBufTo(pItem);
+			MrpObj.P_Tbl->CopyBufTo(pItem);
 			return 1;
 		}
 	}
@@ -503,7 +503,7 @@ int FASTCALL PPViewMrpLine::NextIteration(MrpLineViewItem * pItem)
 			if(Filt.Ft_Terminal == 0 || (Filt.Ft_Terminal > 0 && r_lt.data.Flags & MRPLF_TERMINAL) || (Filt.Ft_Terminal < 0 && !(r_lt.data.Flags & MRPLF_TERMINAL))) { // @v11.5.6
 				MrpLineTbl::Rec rec;
 				MrpLineTbl::Rec total;
-				r_lt.copyBufTo(&rec);
+				r_lt.CopyBufTo(&rec);
 				MrpObj.P_Tbl->GetTotalLine(Filt.TabID, Filt.DestGoodsID ? rec.SrcID : rec.DestID, &total);
 				rec.DestRest = total.DestRest;
 				rec.DestDfct = total.DestDfct;

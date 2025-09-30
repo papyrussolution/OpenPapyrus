@@ -11709,7 +11709,7 @@ bool XLWorkbook::sheetIsActive(const std::string& sheetRID) const    // 2024-04-
 	int32_t index = 0; // 2024-06-04 BUGFIX: index should support -1 as 2024-05-29 change below sets it to -1 for preventing a match with activeTabIndex
 	XMLNode item  = sheetsNode(xmlDocumentC()).first_child_of_type(pugi::node_element);
 	while(!item.empty()) {
-		if(std::string(item.attribute("r:id").value()) == sheetRID)  break;
+		if(std::string(item.attribute("r:id").value()) == sheetRID) break;
 		++index;
 		item = item.next_sibling_of_type(pugi::node_element);
 	}

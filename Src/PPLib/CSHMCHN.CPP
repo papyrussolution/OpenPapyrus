@@ -324,7 +324,7 @@ int PPCashMachine::_SyncCloseBill(int ret, int use_ta)
 		k.BillNo = MAXLONG;
 		while(r_tbl.search(2, &k, spLt) && k.Dt == NodeRec.CurDate) {
 			BillTbl::Rec bill_rec;
-			r_tbl.copyBufTo(&bill_rec);
+			r_tbl.CopyBufTo(&bill_rec);
 			if(bill_rec.UserID == NodeID && bill_rec.Flags & BILLF_CASH) {
 				if(ret)
 					sum -= BR2(bill_rec.Amount);
@@ -1399,7 +1399,7 @@ IMPL_HANDLE_EVENT(CSPanel)
 		ushort c = TVCMD;
 		if(oneof14(c, cmCSOpen, cmCSClose, cmACSUpdate, cmCSViewCheckList, cmACSViewExcess, cmACSGetChecks,
 			cmSCSLock, cmSCSUnlock, cmSCSXReport, cmSCSIncasso, cmSCSZReportCopy, cmPosNodeQuery, cmSCSPrintCheckCopy,
-			cmSCSDrawerOpen)) { // @v11.6.9 cmSCSDrawerOpen
+			cmSCSDrawerOpen) || c == cmCSResetChZnPmSvrAddr) { // @v11.6.9 cmSCSDrawerOpen // @v12.4.1 cmCSResetChZnPmSvrAddr
 			if(IsInState(sfModal)) {
 				endModal(c);
 				return; // После endModal не следует обращаться к this

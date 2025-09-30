@@ -361,7 +361,7 @@ int PPViewTSession::MakeDraftIdList(PPIDArray & rList)
 			q.selectAll().where(*dbq);
 			for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
 				//if(TSesObj.Search(p_t->data.ID, &rec) > 0 && TSesObj.CheckForFilt(&Filt, p_t->data.ID, &rec)) {
-				p_t->copyBufTo(&rec);
+				p_t->CopyBufTo(&rec);
 				if(TSesObj.CheckForFilt(&Filt, rec.ID, &rec, PPObjTSession::cfffDraft)) {
 					rList.add(rec.ID);
 				}
@@ -570,7 +570,7 @@ int PPViewTSession::Init_(const PPBaseFilt * pBaseFilt)
 						q.selectAll().where(*dbq);
 						for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
 							//if(TSesObj.Search(p_t->data.ID, &rec) > 0 && TSesObj.CheckForFilt(&Filt, p_t->data.ID, &rec)) {
-							p_t->copyBufTo(&rec);
+							p_t->CopyBufTo(&rec);
 							if(TSesObj.CheckForFilt(&Filt, rec.ID, &rec)) {
 								TempOrderTbl::Rec temp_rec;
 								MakeTempRec(&rec, &temp_rec);
@@ -687,7 +687,7 @@ int FASTCALL PPViewTSession::NextIteration(TSessionViewItem * pItem)
 					}
 				}
 				else {
-					TSesObj.P_Tbl->copyBufTo(static_cast<TSessionTbl::Rec *>(&Ib.CurItem));
+					TSesObj.P_Tbl->CopyBufTo(static_cast<TSessionTbl::Rec *>(&Ib.CurItem));
 					if((Filt.SuperSessID || Filt.CheckStatus(Ib.CurItem.Status)) && Filt.CheckIdle(Ib.CurItem.Flags) && Filt.CheckWrOff(Ib.CurItem.Flags)) {
 						if(Filt.Flags & TSessionFilt::fManufPlan && !(Ib.CurItem.Flags & TSESF_PLAN))
 							continue;
@@ -1654,9 +1654,9 @@ int FASTCALL PPViewTSessLine::NextIteration(TSessLineViewItem * pItem)
 		while(P_IterQuery && P_IterQuery->nextIteration() > 0) {
 			TSessLineTbl::Rec rec;
 			if(P_TempTbl)
-				P_TempTbl->copyBufTo(&rec);
+				P_TempTbl->CopyBufTo(&rec);
 			else {
-				TSesObj.P_Tbl->Lines.copyBufTo(&rec);
+				TSesObj.P_Tbl->Lines.CopyBufTo(&rec);
 				if(Filt.Flags & TSessLineFilt::fOutRest) {
 					if(!(rec.Flags & TSESLF_OUTREST))
 						continue;

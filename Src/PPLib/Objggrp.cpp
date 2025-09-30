@@ -421,14 +421,14 @@ int PPObjGoodsGroup::Recover(const GoodsGroupRecoverParam * pParam, PPLogger * p
 			q.select(P_Tbl->ID, P_Tbl->Name, P_Tbl->Flags, P_Tbl->ParentID, 0L).where(P_Tbl->Kind == PPGDSK_GROUP);
 			for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
 				Goods2Tbl::Rec grp_rec, rec;
-				P_Tbl->copyBufTo(&grp_rec);
+				P_Tbl->CopyBufTo(&grp_rec);
 				THROW(P_Tbl->CorrectCycleLink(grp_rec.ID, pLogger, 0));
 				if(grp_rec.Flags & (GF_ALTGROUP | GF_FOLDER)) {
 					MEMSZERO(k);
 					k.Kind = PPGDSK_GOODS;
 					k.ParentID = grp_rec.ID;
 					while(P_Tbl->search(1, &k, spGt) && k.Kind == PPGDSK_GOODS && k.ParentID == grp_rec.ID) {
-						P_Tbl->copyBufTo(&rec);
+						P_Tbl->CopyBufTo(&rec);
 						uint msg_id = (grp_rec.Flags & GF_ALTGROUP) ? PPTXT_LOG_ALTGGRPHASGOODS : PPTXT_LOG_FOLDERGGRPHASGOODS;
 						PPLoadText(msg_id, fmt_buf);
 						pLogger->Log(msg_buf.Printf(fmt_buf, rec.Name, grp_rec.Name));
@@ -509,7 +509,7 @@ int PPObjGoodsGroup::Recover(const GoodsGroupRecoverParam * pParam, PPLogger * p
 			k.ParentID = 0;
 			q.select(P_Tbl->ID, P_Tbl->Name, P_Tbl->ParentID, P_Tbl->Flags, 0L).where(P_Tbl->Kind == PPGDSK_GOODS);
 			for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
-				P_Tbl->copyBufTo(&goods_rec);
+				P_Tbl->CopyBufTo(&goods_rec);
 				if(Search(goods_rec.ParentID, &grp_rec) < 0) {
 					pLogger->LogMsgCode(mfError, PPERR_HANGGOODSPARENTLNK, goods_rec.Name);
 					err_id_list.Add(goods_rec.ParentID, goods_rec.ID, 0);
@@ -534,7 +534,7 @@ int PPObjGoodsGroup::Recover(const GoodsGroupRecoverParam * pParam, PPLogger * p
 						if(zero_parent_id == 0) {
 							grp_rec.Kind = PPGDSK_GROUP;
 							sprintf(grp_rec.Name, "Group Stub #%05ld", 0L);
-							P_Tbl->copyBufFrom(&grp_rec);
+							P_Tbl->CopyBufFrom(&grp_rec, sizeof(grp_rec));
 							THROW_DB(P_Tbl->insertRec(0, &zero_parent_id));
 						}
 						if(zero_parent_id) {

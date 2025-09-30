@@ -6609,11 +6609,11 @@ int PrcssrTsStrategyAnalyze::FindStrategies(void * pBlk) const
 	{
 		PPObjTimeSeries::StrategyResultEntry sre(p_blk->R_Tnnp2, 0);
 		TSVector <PPObjTimeSeries::StrategyResultEntry> sr_raw_list;
-		TSVector <PPObjTimeSeries::StrategyResultValueEx> sr_detail_list; // @v10.7.9
+		TSVector <PPObjTimeSeries::StrategyResultValueEx> sr_detail_list;
 		//
 		THROW(p_blk->TestStrategy(*p_trend_entry, p_main_trend_entry, p_blk->R_Tnnp2, tstso, sre, &sr_raw_list, p_blk->P_Tsrr));
 		if(p_blk->P_SContainer) {
-			assert(p_blk->P_SContainer->getCount() == 0); // @v10.8.4
+			assert(p_blk->P_SContainer->getCount() == 0);
 			for(uint srridx = 0; srridx < sr_raw_list.getCount(); srridx++) {
 				const uint srridx_lo = srridx;
 				PPObjTimeSeries::StrategyResultEntry & r_sr_raw = sr_raw_list.at(srridx_lo);

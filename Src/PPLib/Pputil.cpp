@@ -416,7 +416,7 @@ int STDCALL SearchByKey(DBTable * pTbl, int idx, void * pKey, void * pData)
 {
 	int    ok = 1;
 	if(pTbl->search(idx, pKey, spEq))
-		pTbl->copyBufTo(pData);
+		pTbl->CopyBufTo(pData);
 	else
 		ok = PPDbSearchError();
 	return ok;
@@ -426,7 +426,7 @@ int STDCALL SearchByKey_ForUpdate(DBTable * pTbl, int idx, void * pKey, void * p
 {
 	int    ok = 1;
 	if(pTbl->searchForUpdate(idx, pKey, spEq))
-		pTbl->copyBufTo(pData);
+		pTbl->CopyBufTo(pData);
 	else
 		ok = PPDbSearchError();
 	return ok;
@@ -466,7 +466,7 @@ int STDCALL SearchByID(DBTable * pTbl, PPID objType, PPID id, void * b)
 	int    ok = -1;
 	if(pTbl) {
 		if(id && pTbl->search(0, &id, spEq)) {
-			pTbl->copyBufTo(b);
+			pTbl->CopyBufTo(b);
 			ok = 1;
 		}
 		else if(!id || BTRNFOUND)
@@ -482,7 +482,7 @@ int STDCALL SearchByID_ForUpdate(DBTable * pTbl, PPID objType, PPID id, void * b
 	int    ok = -1;
 	if(pTbl) {
 		if(id && pTbl->searchForUpdate(0, &id, spEq)) {
-			pTbl->copyBufTo(b);
+			pTbl->CopyBufTo(b);
 			ok = 1;
 		}
 		else if(!id || BTRNFOUND) {
@@ -501,7 +501,7 @@ int STDCALL AddByID(DBTable * tbl, PPID * pID, void * b, int use_ta)
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
-		tbl->copyBufFrom(b);
+		tbl->CopyBufFrom(b);
 		THROW_DB(tbl->insertRec(0, &tmp_id));
 		THROW(tra.Commit());
 	}
@@ -559,7 +559,7 @@ int STDCALL AddObjRecByID(DBTable * tbl, PPID objType, PPID * pID, void * b, int
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		THROW(ok = AdjustNewObjID(tbl, objType, b));
-		tbl->copyBufFrom(b);
+		tbl->CopyBufFrom(b);
 		THROW_DB(tbl->insertRec(0, &tmp_id));
 		THROW(tra.Commit());
 	}
@@ -1623,7 +1623,7 @@ int PPChainDatabase(const char * pPassword)
 		{
 			PPTransaction tra(1);
 			THROW(tra);
-			p_bobj->P_Tbl->copyBufFrom(&bill_rec);
+			p_bobj->P_Tbl->CopyBufFrom(&bill_rec);
 			THROW_DB(p_bobj->P_Tbl->insertRec());
 			THROW_DB(p_bobj->atobj->P_Tbl->Art.insertRecBuf(&ar_rec));
 			THROW_DB(p_ref->insertRecBuf(&ref_rec));
@@ -4337,6 +4337,166 @@ PPTokenRecognizer::PPTokenRecognizer() : STokenRecognizer()
 		}
 	}
 #endif
+	return ok;
+}
+//
+// 
+// 
+PPVerHistory::Info::Info()
+{
+}
+
+PPVerHistory::PPVerHistory()
+{
+}
+
+int PPVerHistory::Read(const char * pDataPath, Info * pInfo)
+{
+	int    ok = -1;
+	if(pDataPath) {
+		constexpr size_t hdr_size = sizeof(PPVerHistory::Header);
+		size_t len = 0;
+		SString fname;
+		SString path;
+		PPGetFileName(PPFILNAM_VERHIST, fname);
+		(path = pDataPath).SetLastSlash().Cat(fname);
+		if(fileExists(path) != 0) {
+			SFile  f;
+			uint32 crc  = 0;
+			Header hdr;
+			MEMSZERO(hdr);
+			THROW_SL(f.Open(path, SFile::mRead|SFile::mBinary) > 0);
+			THROW_PP_S(f.Read(&hdr, hdr_size, &len) > 0 && len == hdr_size, PPERR_INVHDRSIZE, path);
+			THROW_PP_S(hdr.Signature == PPConst::Signature_VerHist, PPERR_VERHISTINVSIGN, path);
+			THROW_SL(f.CalcCRC(hdr_size, &crc));
+			SLibError = SLERR_INVALIDCRC;
+			THROW_SL(crc == hdr.CRC);
+			if(pInfo) {
+				pInfo->MinVer = hdr.MinVer;
+				pInfo->CurVer = hdr.CurVer;
+				pInfo->DbUUID = hdr.DbUUID;
+			}
+			ok = 1;
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+int PPVerHistory::Write(const char * pDataPath, const Info * pInfo)
+{
+	int    ok = -1;
+	uint32 crc = 0;
+	SString temp_buf;
+	SString path;
+	SVerT hdr_minv;
+	(path = pDataPath).SetLastSlash().Cat(PPGetFileName(PPFILNAM_VERHIST, temp_buf));
+	SFile  f;
+	Header hdr;
+	Record rec;
+	THROW_INVARG(pInfo);
+	PPSetAddedMsgString(path);
+	if(fileExists(path)) {
+		THROW_SL(f.Open(path, SFile::mDenyWrite|SFile::mReadWrite|SFile::mBinary) > 0);
+	}
+	else {
+		THROW_SL(f.Open(path, SFile::mDenyWrite|SFile::mWrite|SFile::mBinary) > 0);
+		f.Close();
+		THROW_SL(f.Open(path, SFile::mDenyWrite|SFile::mReadWriteTrunc|SFile::mBinary) > 0);
+	}
+	MEMSZERO(hdr);
+	MEMSZERO(rec);
+	f.Seek(0);
+	hdr.Signature = PPConst::Signature_VerHist;
+	hdr.CRC       = crc;
+	hdr.CurVer    = pInfo->CurVer;
+	hdr.MinVer    = pInfo->MinVer;
+	hdr.DbUUID    = pInfo->DbUUID;
+	THROW_SL(f.Write(&hdr, sizeof(hdr)) > 0);
+	{
+		MACAddr addr;
+		rec.Dtm = getcurdatetime_();
+		rec.Ver = pInfo->CurVer;
+		DS.GetMachineID(&addr, 0);
+		addr.ToStr(0, temp_buf).CopyTo(rec.Machine, sizeof(rec.Machine));
+		f.Seek(0, SEEK_END);
+		THROW_SL(f.Write(&rec, sizeof(rec)) > 0);
+		THROW_SL(f.CalcCRC(sizeof(hdr), &crc) > 0);
+		f.Seek(0);
+		hdr.CRC = crc;
+		THROW_SL(f.Write(&hdr, sizeof(hdr)) > 0);
+	}
+	CATCHZOK
+	return ok;
+}
+
+/*static*/int PPVerHistory::Log(const char * pDataPath, const char * pLogPath)
+{
+	int    ok = 0;
+	SString path;
+	SString fname;
+	PPGetFileName(PPFILNAM_VERHIST, fname);
+	path.CopyFrom(pDataPath).SetLastSlash().Cat(fname);
+	if(fileExists(path)) {
+		int    j = 0;
+		int    m = 0;
+		int    r = 0;
+		uint32 crc = 0;
+		const char * p_rectitle = "date time;mac address;version\n";
+		const char * p_hdrtitle = "current version;minimum version\n";
+		SString buf;
+		Header hdr;
+		Record rec;
+		SFile  f;
+		SFile  logf;
+		MEMSZERO(hdr);
+		MEMSZERO(rec);
+		THROW_SL(f.Open(path, SFile::mRead|SFile::mBinary) > 0);
+		THROW_SL(f.Read(&hdr, sizeof(hdr)) > 0);
+		THROW_SL(f.CalcCRC(sizeof(hdr), &crc));
+		SLibError = SLERR_INVALIDCRC;
+		THROW_SL(crc == hdr.CRC);
+		PPGetFileName(PPFILNAM_VERHISTLONG, (fname = 0));
+		(path = 0).CopyFrom(pLogPath).SetLastSlash().Cat(fname);
+		THROW_SL(logf.Open(path, SFile::mWrite) > 0);
+		hdr.CurVer.Get(&j, &m, &r);
+		buf.CatDotTriplet(j, m, r).Semicol();
+		hdr.MinVer.Get(&j, &m, &r);
+		buf.CatDotTriplet(j, m, r).CR();
+		THROW_SL(logf.WriteLine(p_hdrtitle) > 0);
+		THROW_SL(logf.WriteLine(buf));
+		THROW_SL(logf.WriteLine(p_rectitle) > 0);
+		while(f.Read(&rec, sizeof(rec)) > 0) {
+			rec.Ver.Get(&(j = 0), &(m = 0), &(r = 0));
+			buf.Z().Cat(rec.Dtm).Semicol().Cat(rec.Machine).Semicol().CatDotTriplet(j, m, r).CR();
+			THROW_SL(logf.WriteLine(buf) > 0);
+		}
+		ok = 1;
+	}
+	CATCHZOK
+	return ok;
+}
+
+/*static*/int PPVerHistory::Log()
+{
+	int    ok = -1;
+	SString arg_buf;
+	if(PPSession::GetStartUpOption(PPSession::cmdlVerHist, arg_buf) && arg_buf.NotEmptyS()) {
+		SString data_path;
+		SString log_path;
+		PPIniFile ini_file;
+		PPID   dbentry_id = 0;
+		PPDbEntrySet2 dbes;
+		DbLoginBlock dlb;
+		PPVerHistory verh;
+		dbes.ReadFromProfile(&ini_file);
+		THROW_SL(dbentry_id = dbes.GetBySymb(arg_buf, &dlb));
+		dlb.GetAttr(DbLoginBlock::attrDbPath, data_path);
+		PPGetPath(PPPATH_LOG, log_path);
+		THROW(verh.Log(data_path, log_path) > 0);
+		ok = 1;
+	}
+	CATCHZOK
 	return ok;
 }
 //

@@ -2325,7 +2325,7 @@ int FASTCALL PPViewLot::NextIteration(LotViewItem * pItem)
 			}
 			else {
 				ReceiptTbl::Rec lot_rec;
-				P_Tbl->copyBufTo(&lot_rec);
+				P_Tbl->CopyBufTo(&lot_rec);
 				int    r = AcceptViewItem(lot_rec, pItem);
 				THROW(r);
 				if(r > 0)
@@ -3573,7 +3573,7 @@ int PPViewLotExtCode::GetRec(const void * pHdr, LotExtCodeTbl::Rec & rRec)
 		k0.LotID = *static_cast<const long *>(pHdr);
 		STRNSCPY(k0.Code, reinterpret_cast<const char *>(PTR8C(pHdr)+sizeof(long)));
 		if(Tbl.search(0, &k0, spEq)) {
-			Tbl.copyBufTo(&rRec);
+			Tbl.CopyBufTo(&rRec);
 			ok = 1;
 		}
 	}

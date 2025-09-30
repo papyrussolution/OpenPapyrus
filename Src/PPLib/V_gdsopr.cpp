@@ -2239,7 +2239,7 @@ int PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 				k2.Dt = Filt.Period.low;
 				for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;) {
 					THROW(PPCheckUserBreak());
-					p_bt->copyBufTo(&bill_rec);
+					p_bt->CopyBufTo(&bill_rec);
 					MpDBlk.ShipmList.add(bill_rec.ID);
 					temp_list.Z();
 					p_bt->GetListOfOrdersByLading(bill_rec.ID, temp_list);
@@ -2256,7 +2256,7 @@ int PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 				k2.Dt = Filt.Period.low;
 				for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;) {
 					THROW(PPCheckUserBreak());
-					p_bt->copyBufTo(&bill_rec);
+					p_bt->CopyBufTo(&bill_rec);
 					MpDBlk.RetList.add(bill_rec.ID);
 				}
 			}
@@ -2270,7 +2270,7 @@ int PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 				k2.Dt = Filt.Period.low;
 				for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;) {
 					THROW(PPCheckUserBreak());
-					p_bt->copyBufTo(&bill_rec);
+					p_bt->CopyBufTo(&bill_rec);
 					MpDBlk.OrdList.add(bill_rec.ID);
 				}
 			}
@@ -2660,7 +2660,7 @@ int PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 				TempGoodsOprTbl::Key0 k;
 				MEMSZERO(k);
 				for(q.initIteration(false, &k, spFirst); q.nextIteration() > 0;) {
-					p_t->copyBufTo(&rec);
+					p_t->CopyBufTo(&rec);
 					IndicatorVector * p_iv = GetIndicatorEntry(rec.GoodsID, rec.Object, rec.LocID, rec.InOutTag);
 					if(p_iv) {
 						p_iv->Ident = rec.ID__;
@@ -2800,7 +2800,7 @@ int PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 					k2.Dt = Filt.Period.low;
 					for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;) {
 						THROW(PPCheckUserBreak());
-						p_bt->copyBufTo(&bill_rec);
+						p_bt->CopyBufTo(&bill_rec);
 						if(!is_paym && use_ext_list && !ext_bill_list.bsearch(bill_rec.ID))
 							continue;
 						if(is_paym || CheckBillRec(&bill_rec)) {
@@ -2921,7 +2921,7 @@ int PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 			PPLoadText(PPTXT_CALCREST, wait_msg);
 			if(P_TempTbl->searchForUpdate(3, &k3, spFirst)) do {
 				TempGoodsOprTbl::Rec rec;
-				P_TempTbl->copyBufTo(&rec);
+				P_TempTbl->CopyBufTo(&rec);
 				if(rec.GoodsID != prev_goods_id || rec.LocID != prev_loc_id) {
 					goods_list.Add(rec.GoodsID, rec.LocID, 0);
 					int    do_update = 0;
@@ -3389,7 +3389,7 @@ int PPViewGoodsOpAnalyze::AddItem(const GoaAddingBlock & rBlk)
 			k.LocID   = 0;
 			if(P_TempTbl->search(3, &k, spGe) && k.InOutTag == rBlk.TiSign && k.GoodsID == rBlk.FinalGoodsID && (!rBlk.ArID || k.Object == rBlk.ArID))
 				do {
-					P_TempTbl->copyBufTo(&rec);
+					P_TempTbl->CopyBufTo(&rec);
 					item.Sign     = rec.InOutTag;
 					item.GoodsID  = rec.GoodsID;
 					item.ArID     = rec.Object;

@@ -1050,47 +1050,10 @@ public:
 	uint8  K[ALIGNSIZE(BTRMAXKEYLEN, 2)];
 };
 //
-//
-//
-struct ChunkHeader {
-	ChunkHeader(long pos, long func, long aNum = 0);
-
-	long   recPos; // Pos of the requested rec (for GetChunk, not for UpdateChunk)
-	long   subFunc;
-	union {
-		long numChunks;
-		long numRows;
-		long chunkOffset; // (4..) subFunc == CHUNK_TRUNCATE
-	};
-};
-//
-//
-//
-struct RandChunkItem {
-	RandChunkItem(long ofs, long aLen, void * p = 0);
-
-	long   offset;
-	long   len;
-	long   ptr;
-};
-//
-//
-//
-struct RectChunk {
-	RectChunk(long ofs, long rs, long pDist, long p, long aDist);
-
-	long   offset;  //  Record
-	long   rowSize; //  |------|****|------|****|---------------------------
-	long   ptrDist; //  |      |      |       |
-	long   ptr;     //  0      offset ptrDist rowSize
-	long   appDist; //
-};
-//
 // XFile (DDF struct)
 //
 struct XFile {
 	SString & GetTableName(SString & rBuf) const;
-	// @v5.8.10 char   * GetTableName(char * pBuf, size_t bufLen) const; // @obsolete
 
 	int16  XfId;        // Internal ID
 	//
@@ -1180,8 +1143,6 @@ struct DBFileSpec {
 };
 
 DBFileSpec  & operator + (DBFileSpec &, DBIdxSpec &);
-ChunkHeader & operator + (ChunkHeader &, RandChunkItem &);
-ChunkHeader & operator + (ChunkHeader &, RectChunk &);
 //
 // Extended operation buffer format
 //
@@ -1684,7 +1645,7 @@ public:
 	int    open(const char * pTblName, const char * pFileName = 0, int openMode = omNormal);
 	int    close();
 	int    IsOpened() const;
-	bool   FASTCALL getField(uint fldN, DBField *) const;
+	bool   getField(uint fldN, DBField *) const;
 	int    getFieldByName(const char * pName, DBField *) const;
 	int    getFieldValue(uint fldN, void * pVal, size_t * pSize) const;
 	int    setFieldValue(uint fldN, const void * pVal);
@@ -1694,10 +1655,10 @@ public:
 	const  char * GetFileName() const { return OpenedFileName; }
 	int    FASTCALL HasNote(DBField * pLastFld) const;
 	int    FASTCALL HasLob(DBField * pLastFld) const;
-	void   FASTCALL setDataBuf(void * aBuf, RECORDSIZE aBufLen);
+	void   SetDBuf(void * aBuf, RECORDSIZE aBufLen);
+	void   FASTCALL SetDBuf(SBaseBuffer &);
 	void * FASTCALL getDataBuf() { return static_cast<void *>(P_DBuf); }
 	const  void * FASTCALL getDataBufConst() const{ return static_cast<const void *>(P_DBuf); }
-	void   FASTCALL setBuffer(SBaseBuffer &);
 	const  SBaseBuffer getBuffer() const;
 	//
 	// Descr: Распределяет память под буфер записи P_DBuf.
@@ -1721,22 +1682,22 @@ public:
 	int    RestoreLob();
 	DBRowId * getCurRowIdPtr(); // @realy private function
 	void   clearDataBuf();
-	void   FASTCALL copyBufTo(void * pBuf) const;
-	void   FASTCALL copyBufFrom(const void * pBuf);
-	void   FASTCALL copyBufFrom(const void * pBuf, size_t srcBufSize);
+	void   FASTCALL CopyBufTo(void * pBuf) const;
+	void   FASTCALL CopyBufFrom(const void * pBuf);
+	void   CopyBufFrom(const void * pBuf, size_t srcBufSize);
+	//
+	// Descr: Специальная версия CopyBufFrom учитывающая последнее LOB-поле
+	//
+	int    CopyBufLobFrom(const void * pBuf, size_t srcBufSize);
 	//
 	// Descr: Копирует данные полей, соответствующих индексу idx в буфер
 	//   ключа pKey.
 	//
 	int    copyBufToKey(int idx, void * pKey) const;
-	//
-	// Descr: Специальная версия copyBufFrom учитывающая последнее LOB-поле
-	//
-	int    FASTCALL copyBufLobFrom(const void * pBuf, size_t srcBufSize);
 	RECORDSIZE getBufLen() const;
-	RECORDSIZE getRetBufLen() const { return retBufLen; }
-	int    getCurIndex() const { return index; }
-	void   FASTCALL setIndex(int i) { index = static_cast<int16>(i); }
+	RECORDSIZE GetRetBufLen() const { return RetBufSize; }
+	int    GetCurIndex() const { return index; }
+	void   setIndex(int i) { index = static_cast<int16>(i); }
 	//
 	// Descr: Флаги поиска (DbProvider::Implement_Search)
 	//
@@ -1746,20 +1707,20 @@ public:
 		sfDirect    = 0x0004  // Извлечь запись по rowid
 	};
 
-	int    FASTCALL search(void * key, int srchMode);
+	int    search(void * key, int srchMode);
 	//
 	// Descr: Функция, используемая для извлечения записи перед изменением или
 	//   удалением. Для btrieve вызывает search(int idx, void * key, int srchMode).
 	//   Для SQL-серверов должна реализовываться специальным образом.
 	//
-	int    FASTCALL searchForUpdate(void * key, int srchMode);
-	int    FASTCALL search(int idx, void * key, int srchMode);
+	int    searchForUpdate(void * key, int srchMode);
+	int    search(int idx, void * key, int srchMode);
 	//
 	// Descr: Функция, используемая для извлечения записи перед изменением или
 	//   удалением. Для btrieve вызывает search(int idx, void * key, int srchMode).
 	//   Для SQL-серверов должна реализовываться специальным образом.
 	//
-	int    FASTCALL searchForUpdate(int idx, void * key, int srchMode);
+	int    searchForUpdate(int idx, void * key, int srchMode);
 	//
 	// Descr: Считывает текущую запись с блокировкой для изменения.
 	//
@@ -1773,12 +1734,9 @@ public:
 	//
 	int    getDirect(int idx, void * pKey, const DBRowId &);
 	int    getDirectForUpdate(int idx, void * pKey, const DBRowId &);
-	int    getChunk(const ChunkHeader * pChunk, int lock = 0); // @unused
 	int    FASTCALL getPosition(DBRowId * pPos);
-	int    findPercentage(void * pKey, int16 * pRelPos); // @unused
-	int    getByPercentage(int16 relPos, int keyIndex); // @unused
 	int    FASTCALL insertRec();
-	int    FASTCALL insertRec(int idx, void * pKey);
+	int    insertRec(int idx, void * pKey);
 	int    FASTCALL insertRecBuf(const void * pDataBuf);
 	int    insertRecBuf(const void * pDataBuf, int idx, void * pKeyBuf);
 	int    FASTCALL updateRec();
@@ -1789,7 +1747,6 @@ public:
 	int    FASTCALL updateRecNCC(); // @<<::updateForCb()
 	int    deleteRec();
 	int    deleteByQuery(int useTa, DBQ & rQ);
-	int    updateChunk();
 	int    unlock(int isAll);
 	int    getNumKeys(int16 * pNumKeys);
 	//
@@ -1897,8 +1854,8 @@ private:
 	BTBLID tableID;         // X$FILE.XfId
 	int16  ownrLvl;
 	int16  index;
-	RECORDSIZE bufLen;
-	RECORDSIZE retBufLen;
+	RECORDSIZE DBufSize;   // @v12.4.1 bufLen-->DBufSize
+	RECORDSIZE RetBufSize; // @v12.4.1 retBufLen-->RetBufSize
 	RECORDSIZE FixRecSize; // @*DBTable::open
 	uint16 PageSize;       // Размер страницы, определенный в спецификации.
 #if CXX_ARCH_BITS==64
@@ -2072,13 +2029,13 @@ class DbLoginBlock : private SBaseBuffer {
 public:
 	enum {
 		attrID = 1,         // (long) Идентификатор блока. Имеет смысл лишь в контексте DbLoginBlockArray (передается как строка)
-		attrServerType,     // Тип сервера базы данных ("DEFAULT", "BTRIEVE", "ORACLE")
+		attrServerType,     // Тип сервера базы данных ("DEFAULT", "BTRIEVE", "ORACLE", "MYSQL", "SQLITE")
 		attrDbFriendlyName, // Имя блока, понятное пользователю
 		attrDbSymb,         // Символьное имя блока
 		attrDbName,         // Имя блока, понятное серверу базы данных
 		attrDictPath,       // Путь к словарю базы данных
 		attrDbPath,         // Путь к файлам базы данных
-		attrTempPath,       // Путь к каталогу временных файлоы
+		attrTempPath,       // Путь к каталогу временных файлов
 		attrDbUuid,         // (S_GUID) UUID базы данных (передается как строка в формате S_GUID::fmtIDL)
 		attrUserName,       // Имя пользователя для регистрации в базе данных
 		attrPassword,       // Пароль для регистрации в базе данных (хранится в зашифрованном виде)
@@ -2670,6 +2627,7 @@ public:
 	Generator_SQL & FASTCALL QText(const char * pName);
 	Generator_SQL & FASTCALL Param(const char * pParam);
 	Generator_SQL & FASTCALL Select(const BNFieldList * pFldList);
+	Generator_SQL & FASTCALL Select(const char * pSelectArgText);
 	Generator_SQL & From(const char * pTable, const char * pAlias = 0);
 	Generator_SQL & Eq(const char * pFldName, const char * pVal);
 	Generator_SQL & Eq(const char * pFldName, long val);

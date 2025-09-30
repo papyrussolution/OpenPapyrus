@@ -1764,7 +1764,7 @@ int PPObjPerson::SearchFirstByName(const char * pName, const PPIDArray * pKindLi
 				else
 					ok = 1;
 				if(ok > 0)
-					P_Tbl->copyBufTo(pRec);
+					P_Tbl->CopyBufTo(pRec);
 			}
 		} while(ok < 0 && P_Tbl->search(1, &k, spNext) && stricmp866(k.Name, pattern) == 0);
 	}

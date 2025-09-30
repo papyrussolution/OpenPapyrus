@@ -1350,7 +1350,7 @@ int GoodsCore::ReplaceExtDimScale(PPID clsID, int gcDim, long oldScale, long new
 			k1.GoodsClsID = clsID;
 			if(GeT.search(1, &k1, spGt) && GeT.data.GoodsClsID == clsID) do {
 				int    do_update = 0;
-				GeT.copyBufTo(&rec);
+				GeT.CopyBufTo(&rec);
 				if(gcDim == PPGdsCls::eX && rec.X)
 					do_update = 1;
 				else if(gcDim == PPGdsCls::eY && rec.Y)
@@ -1372,7 +1372,7 @@ int GoodsCore::ReplaceExtDimScale(PPID clsID, int gcDim, long oldScale, long new
 				k0.GoodsID = goods_id;
 				if(GeT.searchForUpdate(0, &k0, spEq)) {
 					int    do_update = 0;
-					GeT.copyBufTo(&rec);
+					GeT.CopyBufTo(&rec);
 					if(gcDim == PPGdsCls::eX && rec.X) {
 						double val =  static_cast<double>(rec.X) / fpow10i((int)oldScale);
 						rec.X = static_cast<long>(val * fpow10i((int)newScale));
@@ -1647,7 +1647,7 @@ int GoodsCore::ReadBarcodes(PPID id, BarcodeArray & rCodeList)
 		k.GoodsID = id;
 		if(BCTbl.search(1, &k, spEq))
 			do {
-				BCTbl.copyBufTo(&rec);
+				BCTbl.CopyBufTo(&rec);
 				int    is_gds_article = 0;
 				if(rec.Code[0] == '$' && (barcode = (rec.Code + 1)).IsDec() && IsInnerBarcodeType(rec.BarcodeType, BARCODE_TYPE_UNDEF))
 					is_gds_article = 1;
@@ -2208,7 +2208,7 @@ int GoodsCore::MoveGrpToGrp(PPID srcGrp, PPID destGrp, int use_ta)
 		if(search(1, &k, spGe) && k.ParentID == srcGrp) {
 			do {
 				Goods2Tbl::Rec rec;
-				copyBufTo(&rec);
+				CopyBufTo(&rec);
 				rec.ParentID = destGrp;
 				THROW(Update(&rec.ID, &rec, 0));
 			} while(search(&k, spGt) && k.ParentID == srcGrp);

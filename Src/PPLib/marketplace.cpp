@@ -5985,7 +5985,7 @@ int PPMarketplaceInterface_Wildberries::ImportStocks() // @construction
 											k2.BillNo = 0;
 											while(p_billc->search(2, &k2, spGt) && k2.OpID == stock_op_id && k2.Dt == now_dtm.d) {
 												BillTbl::Rec ex_bill_rec;
-												p_billc->copyBufTo(&ex_bill_rec);
+												p_billc->CopyBufTo(&ex_bill_rec);
 												if(ex_bill_rec.LocID == wh_id) {
 													THROW(p_bobj->RemovePacket(ex_bill_rec.ID, 0));
 												}

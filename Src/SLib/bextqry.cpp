@@ -415,12 +415,12 @@ __again:
 			// Если до этого текущая позиция записи была сохранена, то восстанавливаем ее
 			//
 			if(State & stPosSaved && !P_Tbl->getDirect(Index_, 0, Position) && BtrError != BE_UBUFLEN) {
-				P_Tbl->setBuffer(saved_buf);
+				P_Tbl->SetDBuf(saved_buf);
 				r = 0;
 			}
 			else {
 				memcpy(Buf.vptr(), P_QBuf, P_QHead->bufLen);
-				P_Tbl->setDataBuf(Buf.vptr(), static_cast<RECORDSIZE>(Buf.GetSize()));
+				P_Tbl->SetDBuf(Buf.vptr(), static_cast<RECORDSIZE>(Buf.GetSize()));
 				if(Index_ < 0) {
 					r = P_Tbl->stepExtended(spMode);
 				}
@@ -428,7 +428,7 @@ __again:
 					P_Tbl->setIndex(Index_);
 					r = P_Tbl->getExtended(_Key_, spMode);
 				}
-				P_Tbl->setBuffer(saved_buf);
+				P_Tbl->SetDBuf(saved_buf);
 				ActCount = *reinterpret_cast<const uint16 *>(Buf.cptr());
 				State &= ~stRejectLimit;
 				if(!r)

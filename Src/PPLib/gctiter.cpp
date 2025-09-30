@@ -749,7 +749,7 @@ int GCTIterator::AcceptTrfrRec(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBill
 			PPObjBill * p_bobj = BillObj;
 			ok = (BCache && BCache->Get(bill_id, pBillRec) > 0) ? 1 : -1;
 			if(ok > 0) {
-				Trfr->copyBufTo(pTrfrRec);
+				Trfr->CopyBufTo(pTrfrRec);
 				SETMAX(SurrOprNo, pTrfrRec->OprNo);
 			}
 			if(soft_restr) {

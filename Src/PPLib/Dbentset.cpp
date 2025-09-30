@@ -83,7 +83,7 @@ int DbLoginBlock::UrlParse(const char * pUrl)
 			SetAttr(attrServerUrl, temp_buf);
 			break;
 		case InetUrl::prot_p_ORACLE:
-			st = sqlstMySQL;
+			st = sqlstORA;
 			GetSqlServerTypeSymb(st, temp_buf);
 			SetAttr(attrServerType, temp_buf);
 			if(url.GetComponent(InetUrl::cUserName, 0, temp_buf))
@@ -94,6 +94,15 @@ int DbLoginBlock::UrlParse(const char * pUrl)
 			SetAttr(attrServerUrl, temp_buf);
 			break;
 		case InetUrl::prot_p_SQLITE:
+			st = sqlstSQLite;
+			GetSqlServerTypeSymb(st, temp_buf);
+			SetAttr(attrServerType, temp_buf);
+			url.Compose(InetUrl::stHost|InetUrl::stPath, temp_buf);
+			{
+				temp_buf.Transf(CTRANSF_INNER_TO_OUTER);
+				DS.ConvertPathToUnc(temp_buf.Strip().RmvLastSlash());
+			}
+			SetAttr(attrDbPath, temp_buf);
 			break;
 	}
 	return ok;
@@ -161,6 +170,13 @@ int DbLoginBlock::UrlCompose(SString & rUrlBuf) const
 	}
 	else if(server_type == sqlstSQLite) {
 		url.SetProtocol(InetUrl::prot_p_SQLITE);
+		if(GetAttr(attrDbPath, temp_buf) > 0) {
+			InetUrl inner2_url(temp_buf);
+			if(inner2_url.GetComponent(InetUrl::cHost, 0, temp_buf))
+				url.SetComponent(InetUrl::cHost, temp_buf);
+			if(inner2_url.GetComponent(InetUrl::cPath, 0, temp_buf))
+				url.SetComponent(InetUrl::cPath, temp_buf);
+		}
 	}
 	else if(server_type == sqlstNone) {
 		url.SetProtocol(InetUrl::protFile);
@@ -235,7 +251,9 @@ int PPDbEntrySet2::ParseProfileLine(const char * pLine, DbLoginBlock * pBlk) con
 {
 	int    ok = 1;
 	SqlServerType server_type = sqlstNone;
-	SString temp_buf, left, right;
+	SString temp_buf;
+	SString left;
+	SString right;
 	{
 		(temp_buf = pLine).Strip();
 		if(temp_buf.Divide(',', left, right) > 0) {
@@ -255,6 +273,7 @@ int PPDbEntrySet2::ReadFromProfile(PPIniFile * pIniFile, int existsPathOnly /*= 
 	SString entry_buf;
 	SString def_dict;
 	SString def_data;
+	SString db_path;
 	SString server_type_symb;
 	StringSet entries;
 	PPIniFile * p_ini_file = NZOR(pIniFile, new PPIniFile);
@@ -272,25 +291,43 @@ int PPDbEntrySet2::ReadFromProfile(PPIniFile * pIniFile, int existsPathOnly /*= 
 		PROFILE(r = ParseProfileLine(entry_buf, &blk));
 		if(r) {
 			blk.GetAttr(DbLoginBlock::attrDictPath, temp_buf);
-			blk.GetAttr(DbLoginBlock::attrDbPath, temp_buf);
+			blk.GetAttr(DbLoginBlock::attrDbPath, db_path);
 			blk.GetAttr(DbLoginBlock::attrServerType, server_type_symb);
 			const SqlServerType server_type = GetSqlServerTypeBySymb(server_type_symb);
-			if(temp_buf.IsEmpty()) {
+			if(db_path.IsEmpty()) {
 				if(!dontLoadDefDict)
 					blk.SetAttr(DbLoginBlock::attrDbPath, def_dict);
 			}
-			if(existsPathOnly && server_type != sqlstMySQL) { // @v10.9.3 @debug (server_type != sqlstMySQL)
-				//
-				// @construction ps.Split(temp_buf);
-				// @todo Здесь необходимо идентифицировать доступность
-				// компьютера, на который ссылается каталог и, если он не доступен,
-				// запомнить дабы для следующих каталогов не проверять доступность (ибо очень долго).
-				//
-				if(SFile::IsDir(temp_buf))
+			{
+				bool do_add_entry = true;
+				if(existsPathOnly) {
+					if(server_type == sqlstMySQL) { // @v10.9.3 @debug (server_type != sqlstMySQL)
+						; // ok
+					}
+					else if(server_type == sqlstSQLite) {
+						if(!SFile::IsDir(db_path)) {
+							SFsPath ps(db_path);
+							if(ps.Nam.NotEmpty()) {
+								ps.Merge(SFsPath::fDrv|SFsPath::fDir, temp_buf);
+								if(!SFile::IsDir(temp_buf))
+									do_add_entry = false;
+							}
+						}
+					}
+					else {
+						//
+						// @construction ps.Split(db_path);
+						// @todo Здесь необходимо идентифицировать доступность
+						// компьютера, на который ссылается каталог и, если он не доступен,
+						// запомнить дабы для следующих каталогов не проверять доступность (ибо очень долго).
+						//
+						if(!SFile::IsDir(db_path))
+							do_add_entry = false;
+					}
+				}
+				if(do_add_entry) {
 					THROW_SL(Add(0, &blk, 1));
-			}
-			else {
-				THROW_SL(Add(0, &blk, 1));
+				}
 			}
 		}
 	}
@@ -319,7 +356,11 @@ int PPDbEntrySet2::RegisterEntry(PPIniFile * pIniFile, const DbLoginBlock * pBlk
 	PPIniFile * p_ini_file = NZOR(pIniFile, new PPIniFile);
 	THROW_MEM(p_ini_file);
 	if(p_ini_file->IsValid()) {
-		SString entry_name, line_buf, name, data_path, dict_path;
+		SString entry_name;
+		SString line_buf;
+		SString name;
+		SString data_path;
+		SString dict_path;
 		pBlk->GetAttr(DbLoginBlock::attrDbSymb, entry_name);
 		if(entry_name.NotEmptyS()) {
 			MakeProfileLine(pBlk, line_buf);

@@ -122,8 +122,8 @@ public:
 		AddClusterAssoc(CTL_QUOTUPD_WARN, 0, QuotUpdFilt::fWarnExistsAbsQuot);
 		AddClusterAssoc(CTL_QUOTUPD_WARN, 1, QuotUpdFilt::fSkipNoDisGoods);
 		AddClusterAssoc(CTL_QUOTUPD_WARN, 2, QuotUpdFilt::fSkipDatedQuot);
-		AddClusterAssoc(CTL_QUOTUPD_WARN, 3, QuotUpdFilt::fTest); // @v10.5.9
-		DisableClusterItem(CTL_QUOTUPD_WARN, 3, !(CConfig.Flags2 & CCFLG2_DEVELOPMENT)); // @v10.5.9
+		AddClusterAssoc(CTL_QUOTUPD_WARN, 3, QuotUpdFilt::fTest);
+		DisableClusterItem(CTL_QUOTUPD_WARN, 3, !(CConfig.Flags2 & CCFLG2_DEVELOPMENT));
 		SetClusterData(CTL_QUOTUPD_WARN, Data.Flags);
 		if(Data.ByWhat == QuotUpdFilt::byFormula) {
 			temp_buf = Data.Formula;
@@ -916,7 +916,7 @@ int UpdateQuots(const QuotUpdFilt * pFilt)
 					k.BillNo = MAXLONG;
 					while(!bill_id && p_bobj->P_Tbl->search(1, &k, spLt)) {
 						BillTbl::Rec bill_rec;
-						p_bobj->P_Tbl->copyBufTo(&bill_rec);
+						p_bobj->P_Tbl->CopyBufTo(&bill_rec);
 						if(loc_list.bsearch(bill_rec.LocID, 0) && GetOpType(bill_rec.OpID) == PPOPT_GOODSREVAL)
 							bill_id = bill_rec.ID;
 					}

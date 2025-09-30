@@ -301,7 +301,7 @@ int FASTCALL PPViewOpGrouping::NextIteration(OpGroupingViewItem * pItem)
 {
 	if(P_IterQuery && P_IterQuery->nextIteration() > 0 && P_TempTbl->data.OpID != OPGRPNG_TOTAL_ID) {
 		TempOpGrpngTbl::Rec rec;
-		P_TempTbl->copyBufTo(&rec);
+		P_TempTbl->CopyBufTo(&rec);
 		memzero(pItem, sizeof(*pItem));
 		pItem->Dt   = rec.Dt;
 		pItem->OpID = rec.OpID;

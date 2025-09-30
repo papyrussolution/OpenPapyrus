@@ -1818,7 +1818,7 @@ int PPObjBill::CalcClientDebt(PPID clientID, const DateRange * pPeriod, int diff
 					for(q.initIteration(false, &k, spGt); q.nextIteration() > 0;) {
 						if(op_list.bsearch(p_t->data.OpID)) {
 							BillTbl::Rec rec;
-							p_t->copyBufTo(&rec);
+							p_t->CopyBufTo(&rec);
 							a += BR2(rec.Amount);
 							t = rec.PaymAmount;
 							p += t;
@@ -1904,7 +1904,7 @@ int PPObjBill::CalcClientDebt(PPID clientID, const DateRange * pPeriod, int diff
 						for(q.initIteration(false, &k, spGt); q.nextIteration() > 0;) {
 							if(op_list.bsearch(p_t->data.OpID)) {
 								BillTbl::Rec rec;
-								p_t->copyBufTo(&rec);
+								p_t->CopyBufTo(&rec);
 								a += BR2(rec.Amount);
 								THROW(p_t->GetAmount(rec.ID, PPAMT_PAYMENT, 0L/*@curID*/, &t));
 								p += t;

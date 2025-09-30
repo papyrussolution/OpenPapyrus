@@ -1656,7 +1656,7 @@ int PPTextAnalyzer::ProcessGoodsNN()
 		q.select(p_tbl->ID, p_tbl->Name, p_tbl->ParentID, p_tbl->BrandID, 0L).where(p_tbl->Kind == PPGDSK_GOODS);
 		Goods2Tbl::Key0 k0;
 		for(q.initIteration(false, &k0, spFirst); q.nextIteration() > 0;) {
-			p_tbl->copyBufTo(&goods_rec);
+			p_tbl->CopyBufTo(&goods_rec);
 			int   unclssf = 0;
 			if(goods_obj.Fetch(goods_rec.ParentID, &parent_rec) > 0 && parent_rec.Flags & GF_UNCLASSF) {
 				unclssf = 1;
@@ -1741,7 +1741,7 @@ int PPTextAnalyzer::ProcessGoodsNN()
 			BarcodeTbl::Rec bc_rec;
 			RAssocArray temp_result_list;
 			for(q.initIteration(false, &k0, spFirst); q.nextIteration() > 0;) {
-				p_tbl->copyBufTo(&goods_rec);
+				p_tbl->CopyBufTo(&goods_rec);
 				int   unclssf = 0;
 				if(goods_obj.Fetch(goods_rec.ParentID, &parent_rec) > 0 && parent_rec.Flags & GF_UNCLASSF) {
 					unclssf = 1;
@@ -3758,7 +3758,68 @@ int Helper_PPAutoTranslSvc_Microsoft_Auth(PPAutoTranslSvc_Microsoft & rAt)
 	return ok;
 }
 
-int PPAutoTranslSvc_Microsoft::Request(int srcLang, int destLang, const SString & rSrcText, SString & rResult)
+int PPAutoTranslSvc_Microsoft::Request3(int srcLang, int destLang, const SString & rSrcText, SString & rResult) // @v12.4.1 @construction
+{
+	/*
+		curl -X POST "https://api.translator.azure.cn/translate?api-version=3.0&from=en&to=zh-Hans" 
+			-H "Ocp-Apim-Subscription-Key: <client-secret>" 
+			-H "Content-Type: application/json; charset=UTF-8" 
+			-d "[{'Text': 'Hello, what is your name?'}]"
+		```
+
+		**Response body**
+
+		```JSON
+		[
+			{
+				"translations":[
+					{"text": "你好, 你叫什么名字？", "to": "zh-Hans"}
+				]
+			}
+		]
+	*/ 
+	rResult.Z();
+	int    ok = -1;
+	SJson  js_req(SJson::tARRAY);
+	SJson * p_js_rep = 0;
+	SString temp_buf;
+	SString log_buf;
+	StrStrAssocArray http_header;
+	// version 3 of tranlator: api.translator.azure.cn
+	//https://api.translator.azure.cn/translate?api-version=3.0
+	SString url("http://api.translator.azure.cn/translate?");
+	if(Token.NotEmpty() && !!AuthTime && ExpirySec > 0) {
+		//
+		// Проверка истечения срока действия токена.
+		// Если время истекает, то повторяем авторизацию.
+		//
+		const LDATETIME now_dtm = getcurdatetime_();
+        const long sec = diffdatetimesec(now_dtm, AuthTime);
+        if(sec > (ExpirySec * 9 / 10)) {
+			THROW(Helper_PPAutoTranslSvc_Microsoft_Auth(*this));
+        }
+	}
+	url.CatEq("api-version", "3.0");
+
+	THROW(GetLinguaCode(srcLang, temp_buf));
+	url.CatEq("from", temp_buf);
+	log_buf.Cat(temp_buf).Tab();
+	THROW(GetLinguaCode(destLang, temp_buf));
+	url.CatChar('&').CatEq("to", temp_buf);
+	log_buf.Cat(temp_buf).Tab();
+	//url.CatChar('&').CatEq("text", (temp_buf = rSrcText).ToUrl());
+	//log_buf.Cat((temp_buf = rSrcText).Transf(CTRANSF_UTF8_TO_INNER)).Tab();
+	// $authHeader = "Authorization: Bearer ". $accessToken;
+	//SHttpProtocol::SetHeaderField(http_header, SHttpProtocol::hdrAuthorization, temp_buf.Z().Cat("Bearer").Space().Cat(Token));
+	SHttpProtocol::SetHeaderField(http_header, SHttpProtocol::hdrContentType, "application/json");
+	SHttpProtocol::SetHeaderField(http_header, SHttpProtocol::SHttpProtocol::hdrOcpApimSubscrKey, Token);
+
+	CATCHZOK
+	delete p_js_rep;
+	return ok;
+}
+
+int PPAutoTranslSvc_Microsoft::Request(int srcLang, int destLang, const SString & rSrcText, SString & rResult) // @v12.4.1 Этот вариант больше не поддерживается Microsoft
 {
 	rResult.Z();
 	int    ok = -1;
@@ -3805,7 +3866,7 @@ int PPAutoTranslSvc_Microsoft::Request(int srcLang, int destLang, const SString 
 		ScURL   curl;
 		SBuffer result_buf;
 		SFile wr_stream(result_buf, SFile::mWrite);
-		THROW(curl.HttpGet(url, ScURL::mfDontVerifySslPeer, &http_header, &wr_stream));
+		THROW(curl.HttpGet(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &http_header, &wr_stream));
 		{
 			const uint64 at_end = SLS.GetProfileTime();
 			SBuffer * p_result_buf = static_cast<SBuffer *>(wr_stream);

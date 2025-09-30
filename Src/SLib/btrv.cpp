@@ -274,17 +274,17 @@ DbDict_Btrieve::DbDict_Btrieve(const char * pPath) : DbDictionary()
 	if(!xfile.Btr_Open((buf = base_path).Cat(BDictionary::DdfTableFileName), omNormal, p_pw_arg))
 		State |= stError;
 	if(IsValid()) {
-		xfile.setDataBuf(&fileBuf, sizeof(fileBuf));
+		xfile.SetDBuf(&fileBuf, sizeof(fileBuf));
 		if(!xfield.Btr_Open((buf = base_path).Cat(BDictionary::DdfFieldFileName), omNormal, p_pw_arg))
 			State |= stError;
 	}
 	if(IsValid()) {
-		xfield.setDataBuf(&fieldBuf, sizeof(fieldBuf));
+		xfield.SetDBuf(&fieldBuf, sizeof(fieldBuf));
 		if(!xindex.Btr_Open((buf = base_path).Cat(BDictionary::DdfIndexFileName), omNormal, p_pw_arg))
 			State |= stError;
 	}
 	if(IsValid()) {
-		xindex.setDataBuf(&indexBuf, sizeof(indexBuf));
+		xindex.SetDBuf(&indexBuf, sizeof(indexBuf));
 		xfile.clearDataBuf();
 		xfield.clearDataBuf();
 		xindex.clearDataBuf();
@@ -658,7 +658,7 @@ int DbDict_Btrieve::getFieldList(BTBLID tblID, BNFieldList * fields)
 	THROW_V(xfield.search(1, &key, spEq), BE_FNFOUND);
 	makeFldListQuery(tblID, num_recs);
 	THROW_V(q = static_cast<char *>(SAlloc::M(bsize)), BE_NOMEM);
-	xfield.setDataBuf(q, bsize);
+	xfield.SetDBuf(q, bsize);
 	do {
 		memcpy(q, &flq, sizeof(flq));
 		THROW(xfield.getExtended(&key, spNext) || BTRNFOUND || (BtrError == BE_REJECTLIMIT));
@@ -675,7 +675,7 @@ int DbDict_Btrieve::getFieldList(BTBLID tblID, BNFieldList * fields)
 	CATCH
 		r = 0;
 	ENDCATCH
-	xfield.setDataBuf(&fieldBuf, sizeof(fieldBuf));
+	xfield.SetDBuf(&fieldBuf, sizeof(fieldBuf));
 	SAlloc::F(q);
 	return r;
 }
@@ -687,13 +687,15 @@ int DbDict_Btrieve::getIndexList(BTBLID tblID, BNKeyList * pKeyList)
 	const  uint bsize = sizeof(BExtResultHeader) + num_recs * (sizeof(XIndex) + sizeof(BExtResultItem));
 	BNKey  k;
 	int16  key = tblID;
-	int    r, i, count;
+	int    r;
+	int    i;
+	int    count;
 	char * q = 0;
 	THROW(IsValid() && tblID);
 	THROW_V(xindex.search(0, &key, spEq), BE_FNFOUND);
 	makeIdxListQuery(tblID, num_recs);
 	THROW_V(q = static_cast<char *>(SAlloc::M(bsize)), BE_NOMEM);
-	xindex.setDataBuf(q, bsize);
+	xindex.SetDBuf(q, bsize);
 	do {
 		memcpy(q, &ilq, sizeof(ilq));
 		THROW(xindex.getExtended(&key, spNext) || BTRNFOUND || (BtrError == BE_REJECTLIMIT));
@@ -712,7 +714,7 @@ int DbDict_Btrieve::getIndexList(BTBLID tblID, BNKeyList * pKeyList)
 	CATCH
 		r = 0;
 	ENDCATCH
-	xindex.setDataBuf(&indexBuf, sizeof(indexBuf));
+	xindex.SetDBuf(&indexBuf, sizeof(indexBuf));
 	SAlloc::F(q);
 	return r;
 }

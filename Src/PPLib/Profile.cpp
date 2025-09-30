@@ -1086,7 +1086,7 @@ int PPUserProfileCore::SetupSessItem(long * pSessID, const UfpLine & rLine, long
 			UserFuncPrfSessTbl::Rec rec;
 			temp_buf.CopyTo(rec.SessUUID_s, sizeof(rec.SessUUID_s));
 			rec.ThreadId = DB_REC;
-			UfpSessT.copyBufFrom(&rec);
+			UfpSessT.CopyBufFrom(&rec, sizeof(rec));
 			THROW_DB(UfpSessT.insertRec(0, &k0));
 			db_id = k0.ID;
 		}
@@ -1115,7 +1115,7 @@ int PPUserProfileCore::SetupSessItem(long * pSessID, const UfpLine & rLine, long
 		rec.Flags = 0;
 		rLine.DbSymb.CopyTo(rec.DbName, sizeof(rec.DbName));
 		rLine.UserName.CopyTo(rec.UserName, sizeof(rec.UserName));
-		UfpSessT.copyBufFrom(&rec);
+		UfpSessT.CopyBufFrom(&rec, sizeof(rec));
 		THROW_DB(UfpSessT.insertRec(0, &k0));
 		sess_id = k0.ID;
 	}

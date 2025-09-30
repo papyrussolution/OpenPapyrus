@@ -1070,7 +1070,7 @@ int PPViewGoodsRest::FlashCacheItem(BExtInsert * bei, const PPViewGoodsRest::Cac
 		if(rItem.DBPos) {
 			THROW_DB(P_Tbl->getDirectForUpdate(-1, 0, rItem.DBPos));
 			TempGoodsRestTbl::Rec pattern;
-			P_Tbl->copyBufTo(&pattern);
+			P_Tbl->CopyBufTo(&pattern);
 			TempGoodsRestTbl::Rec & r_rec = P_Tbl->data;
 			if(!Filt.Sgg)
 				P_Tbl->data.UnitPerPack = rItem.UnitPerPack;
@@ -1257,7 +1257,7 @@ int PPViewGoodsRest::UpdateGoods(PPID goodsID)
 			THROW(tra);
 			if(P_Tbl->searchForUpdate(3, &k3, spGe) && P_Tbl->data.GoodsID == goodsID) do {
 				TempGoodsRestTbl::Rec rec;
-				P_Tbl->copyBufTo(&rec);
+				P_Tbl->CopyBufTo(&rec);
 				STRNSCPY(rec.GoodsName, goods_rec.Name);
 				rec.GoodsGrp = group_id;
 				rec.UnitID = goods_rec.UnitID;
@@ -1531,7 +1531,7 @@ int PPViewGoodsRest::GetLastLot_p(PPID goodsID, PPID locID, PPID supplID, LDATE 
 		q.where(*dbq);
 		q.initIteration(1, &k, spLe);
 		if(q.nextIteration() > 0) {
-			p_rt->copyBufTo(pRec);
+			p_rt->CopyBufTo(pRec);
 			ok = 1;
 		}
 	}
@@ -2441,7 +2441,7 @@ int PPViewGoodsRest::ProcessLots2(const PPIDArray * pGrpGoodsList)
 		THROW(InitProcessLotBlock(blk, pGrpGoodsList));
 		for(q_blk.P_Q->initIteration(q_blk.Reverse, q_blk.Key_, q_blk.SpMode); q_blk.P_Q->nextIteration() > 0;) {
 			ReceiptTbl::Rec lot_rec;
-			r_t->copyBufTo(&lot_rec);
+			r_t->CopyBufTo(&lot_rec);
 			THROW(Helper_ProcessLot(blk, lot_rec));
 		}
 	}

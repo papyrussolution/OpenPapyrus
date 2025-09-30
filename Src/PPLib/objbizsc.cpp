@@ -1537,7 +1537,7 @@ int FASTCALL PPViewBizScoreVal::NextIteration(BizScoreValViewItem * pItem)
 	while(P_IterQuery && ok < 0 && P_IterQuery->nextIteration() > 0) {
 		Counter.Increment();
 		if(CheckForFilt(&Tbl.data)) {
-			Tbl.copyBufTo(pItem);
+			Tbl.CopyBufTo(pItem);
 			ok = 1;
 		}
 	}
@@ -2155,7 +2155,7 @@ int GlobalBizScoreCore::GetLastList(PPID globalUserID, GlobalBizScoreArray * pLi
 				ok = 1;
 				do {
 					GlobalBizScoreTbl::Rec rec;
-					copyBufTo(&rec);
+					CopyBufTo(&rec);
 					if(pList && gua_obj.Search(rec.GlobalUserID, &gua_rec) > 0) {
 						THROW(pList->Add(gua_rec, rec));
 					}

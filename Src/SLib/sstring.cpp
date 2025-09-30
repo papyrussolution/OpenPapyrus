@@ -4091,7 +4091,7 @@ SString & SString::Fmt(long fmt)
 
 SString & SString::SetLastDSlash()
 {
-	int    last = Last();
+	const int last = Last();
 	if(last) {
 		if(last == '\\') {
 			TrimRight();
@@ -4105,7 +4105,7 @@ SString & SString::SetLastDSlash()
 
 SString & SString::SetLastSlash()
 {
-	char   last = static_cast<char>(Last());
+	const char last = static_cast<char>(Last());
 	if(last && !isdirslash(last))
 		BSlash();
 	return *this;
@@ -4113,7 +4113,7 @@ SString & SString::SetLastSlash()
 
 SString & SString::RmvLastSlash()
 {
-	char   last = static_cast<char>(Last());
+	const char last = static_cast<char>(Last());
 	if(isdirslash(last))
 		TrimRight();
 	return *this;

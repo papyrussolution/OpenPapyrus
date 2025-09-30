@@ -55,11 +55,11 @@ int SalaryCore::Put(PPID * pID, SalaryTbl::Rec * pRec, int use_ta)
 					DateRange temp;
 					temp.Set(data.Beg, data.End);
 					if(temp.IsEq(period)) {
-						copyBufTo(&intr_rec);
+						CopyBufTo(&intr_rec);
 						r = 2;
 					}
 					else if(temp.IsIntersect(period)) {
-						copyBufTo(&intr_rec);
+						CopyBufTo(&intr_rec);
 						r = 1;
 					}
 					sp = spGt;
@@ -98,7 +98,7 @@ int SalaryCore::Put(PPID * pID, SalaryTbl::Rec * pRec, int use_ta)
 		}
 		else if(pRec) {
 			pRec->ID = 0;
-			copyBufFrom(pRec);
+			CopyBufFrom(pRec, sizeof(*pRec));
 			THROW_DB(insertRec(0, pID));
 		}
 		THROW(tra.Commit());
@@ -145,11 +145,11 @@ int SalaryCore::GetIntersection(PPID postID, PPID salChargeID, const DateRange &
 		DateRange temp;
 		temp.Set(data.Beg, data.End);
 		if(temp.IsEq(rPeriod)) {
-			copyBufTo(pRec);
+			CopyBufTo(pRec);
 			ok = 2;
 		}
 		else if(temp.IsIntersect(rPeriod)) {
-			copyBufTo(pRec);
+			CopyBufTo(pRec);
 			ok = 1;
 		}
 		sp = spGt;

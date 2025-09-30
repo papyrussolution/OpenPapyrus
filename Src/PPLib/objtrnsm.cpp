@@ -638,7 +638,7 @@ int PPObjectTransmit::EnumObjectsByIndex(PPObjID * pObjId, ObjSyncQueueTbl::Rec 
 	k.DBID    = MAXSHORT;
 	if(P_TmpIdxTbl->search(1, &k, spGt)) {
 		pObjId->Set(k.ObjType, k.ObjID);
-		P_TmpIdxTbl->copyBufTo(pRec);
+		P_TmpIdxTbl->CopyBufTo(pRec);
 		return 1;
 	}
 	else
@@ -1868,7 +1868,7 @@ int PPObjectTransmit::RegisterDependedNonObject(PPObjID objid, PPCommSyncID & rC
 	THROW(tra);
 	if(P_TmpIdxTbl->searchForUpdate(1, &k, spEq)) {
 		ObjSyncQueueTbl::Rec rec;
-		P_TmpIdxTbl->copyBufTo(&rec);
+		P_TmpIdxTbl->CopyBufTo(&rec);
 		THROW(SyncTbl.TransmitObj(objid, &rCommID, 0));
 		rCommID.Get(&rec);
 		rec.FilePos = 0;

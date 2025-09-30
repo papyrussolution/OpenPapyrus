@@ -450,8 +450,7 @@ int WinRegKey::PutString(const char * pParam, const char * pBuf)
 		return 0;
 	const  TCHAR * p_buf_to_store = SUcSwitch(pBuf);
 	DWORD  size_to_store = static_cast<DWORD>((sstrlen(pBuf) + 1) * sizeof(TCHAR));
-	LONG   r = RegSetValueEx(Key, SUcSwitch(pParam), 0, REG_SZ, reinterpret_cast<const BYTE *>(p_buf_to_store), size_to_store); // @v10.4.5 
-	// @v10.4.5 LONG   r = RegSetValueEx(Key, SUcSwitch(pParam), 0, REG_SZ, (LPBYTE)pBuf, (DWORD)(sstrlen(pBuf) + 1));
+	LONG   r = RegSetValueEx(Key, SUcSwitch(pParam), 0, REG_SZ, reinterpret_cast<const BYTE *>(p_buf_to_store), size_to_store);
 	return (r == ERROR_SUCCESS) ? 1 : SLS.SetOsError(0, pParam);
 }
 
@@ -510,7 +509,7 @@ int WinRegKey::PutEnumeratedStrings(const StringSet & rSs, StrAssocArray * pResu
 
 int WinRegKey::EnumValues(uint * pIdx, SString * pParam, WinRegValue * pVal)
 {
-	CALLPTRMEMB(pParam, Z()); // @v10.3.11
+	CALLPTRMEMB(pParam, Z());
 	const size_t init_name_len = 256;
 	if(Key == 0)
 		return 0;

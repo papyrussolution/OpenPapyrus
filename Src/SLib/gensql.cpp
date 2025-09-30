@@ -139,6 +139,17 @@ Generator_SQL & FASTCALL Generator_SQL::Select(const BNFieldList * pFldList)
 	return Sp();
 }
 
+Generator_SQL & FASTCALL Generator_SQL::Select(const char * pSelectArgText)
+{
+	Tok(Generator_SQL::tokSelect).Sp();
+	if(pSelectArgText) {
+		Text(pSelectArgText);
+	}
+	else
+		Aster();
+	return Sp();
+}
+
 Generator_SQL & Generator_SQL::From(const char * pTable, const char * pAlias)
 {
 	Tok(Generator_SQL::tokFrom).Sp().Text(pTable);

@@ -1235,7 +1235,7 @@ int PPViewDebtTrnovr::NextProcessStep(BillTbl::Rec & rRec, ProcessBlock & rBlk)
 	int    ok = -1;
 	if(rBlk.P_Q) {
 		if(rBlk.P_Q->nextIteration() > 0) {
-			P_BObj->P_Tbl->copyBufTo(&rRec);
+			P_BObj->P_Tbl->CopyBufTo(&rRec);
 			ok = 1;
 		}
 	}
@@ -3154,7 +3154,7 @@ int DebtStatCore::GetList(PPID accSheetID, PPDebtorStatArray & rList)
 		k0_ = k0;
 		for(q->initIteration(false, &k0, spGe); q->nextIteration() > 0;) {
 			DebtStatTbl::Rec rec;
-			copyBufTo(&rec);
+			CopyBufTo(&rec);
 			PPDebtorStat * p_item = new PPDebtorStat(rec.ArID);
 			THROW_MEM(p_item);
 			p_item->RelArID = rec.RelArID;
@@ -3195,7 +3195,7 @@ int DebtStatCore::SetList(PPID accSheetID, LDATE date, const PPDebtorStatArray &
 			k0.AccSheetID = accSheetID;
 			k0.ArID = p_item->ArID;
 			if(search(0, &k0, spEq)) {
-				copyBufTo(&rec);
+				CopyBufTo(&rec);
 				rec.RelArID = p_item->RelArID;
 				if(!date)
 					rec.Tm = now_dtm.t;

@@ -100,7 +100,7 @@ int ArticleCore::EnumBySheet(PPID accSheetID, long * pArticleNo, void * b)
 	k.Article = *pArticleNo;
 	if(search(1, &k, spGt) && k.AccSheetID == accSheetID) {
 		*pArticleNo = data.Article;
-		copyBufTo(b);
+		CopyBufTo(b);
 		return 1;
 	}
 	return PPDbSearchError();
@@ -161,7 +161,7 @@ int ArticleCore::_SearchNum(PPID accSheetID, long articleNo, int spMode, Article
 	k.AccSheetID = accSheetID;
 	k.Article = articleNo;
 	if(search(1, &k, spMode) && k.AccSheetID == accSheetID)
-		return (copyBufTo(pRec), 1);
+		return (CopyBufTo(pRec), 1);
 	else
 		return (BTROKORNFOUND) ? (PPErrCode = PPERR_ARTICLENFOUND, -1) : PPSetErrorDB();
 }
@@ -253,7 +253,7 @@ int AcctRel::SearchNum(int closed, const Acct * pAcct, PPID curID, AcctRelTbl::R
 		sp = spLe;
 	}
 	if(search(3, &k3, sp) && (closed >= 0 || (k3.Ac == pAcct->ac && k3.Sb == pAcct->sb && k3.Ar == pAcct->ar && k3.CurID == curID)))
-		return (copyBufTo(pRec), 1);
+		return (CopyBufTo(pRec), 1);
 	else
 		return PPDbSearchError();
 }
@@ -319,7 +319,7 @@ int AcctRel::EnumByAcc(PPID accID, PPID * pArID, AcctRelTbl::Rec * pRec)
 	k.ArticleID = ar_id;
 	int    sp = ar_id ? spGt : spGe;
 	if(search(1, &k, sp) && k.AccID == accID) {
-		copyBufTo(pRec);
+		CopyBufTo(pRec);
 		*pArID = data.ArticleID;
 		return 1;
 	}
@@ -335,7 +335,7 @@ int AcctRel::EnumByArticle(PPID arID, PPID * pAccID, AcctRelTbl::Rec * pRec)
 	k.AccID = acc_id;
 	int    sp = acc_id ? spGt : spGe;
 	if(search(2, &k, sp) && k.ArticleID == arID) {
-		copyBufTo(pRec);
+		CopyBufTo(pRec);
 		*pAccID = data.AccID;
 		return 1;
 	}

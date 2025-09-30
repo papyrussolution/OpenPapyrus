@@ -9,6 +9,16 @@
 #include <htmlhelp.h>
 #pragma comment(lib, "htmlhelp.lib")
 
+TWindow * PPApp::FindPhonePaneDialog()
+{
+	const long res_id = DLG_PHNCPANE;
+	for(TView * p = P_DeskTop->GetFirstView(); p != 0; p = p->nextView()) {
+		if(p->IsConsistent() && p->GetSubSign() == TV_SUBSIGN_DIALOG && static_cast<const TDialog *>(p)->resourceID == res_id)
+			return static_cast<TWindow *>(p);
+	}
+	return 0;
+}
+
 bool FASTCALL GetModelessStatus(bool outerModeless) { return outerModeless; }
 TView * ValidView(TView * pView) { return APPL->validView(pView); }
 ushort FASTCALL ExecView(TWindow * pView) { return pView ? APPL->P_DeskTop->execView(pView) : cmError; }

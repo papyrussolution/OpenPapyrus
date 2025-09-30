@@ -291,10 +291,10 @@ int PPTableConversion::Convert()
 			p_old_tbl->getNumRecs(&num_recs);
 			THROW_MEM(p_old_buf = new char[rec_size]);
 			memzero(p_old_buf, rec_size);
-			p_old_tbl->setDataBuf(p_old_buf, rec_size);
+			p_old_tbl->SetDBuf(p_old_buf, rec_size);
 			if(p_old_tbl->step(spFirst)) {
 				do {
-					int    new_rec_len = p_old_tbl->getRetBufLen();
+					int    new_rec_len = p_old_tbl->GetRetBufLen();
 					if(ConvertRec(p_tbl, p_old_buf, &new_rec_len) > 0) {
 						if(!p_tbl->insertRec()) {
 							PPSetError(PPERR_DBENGINE);
@@ -426,7 +426,7 @@ public:
 				strip(tmp_buf.Serial);
 			}
 			else {
-				pTbl->copyBufFrom(&tmp_buf);
+				pTbl->CopyBufFrom(&tmp_buf, sizeof(tmp_buf));
 				break;
 			}
 		}
@@ -1057,7 +1057,7 @@ public:
 				STRNSCPY(tmp_rec.Serial, temp_buf);
 			}
 			else {
-				pTbl->copyBufFrom(&tmp_rec);
+				pTbl->CopyBufFrom(&tmp_rec, sizeof(tmp_rec));
 				break;
 			}
 		}
@@ -3153,7 +3153,7 @@ public:
 			}
 			// } @v6.2.12
 		}
-		pNewTbl->copyBufLobFrom(pOldRec, *pNewRecLen);
+		pNewTbl->CopyBufLobFrom(pOldRec, *pNewRecLen);
 		return 1;
 	}
 };
@@ -4132,19 +4132,19 @@ public:
 		if(p_rec_old->ObjType == PPOBJ_OPRKIND && p_rec_old->Prop > 0 && p_rec_old->Prop <= PP_MAXATURNTEMPLATES) {
 			PPAccTurnTempl::Convert_6407(&temp_rec);
 			uint s = sizeof(PPAccTurnTempl);
-			p_tbl->copyBufFrom(&temp_rec, fix_rec_size);
+			p_tbl->CopyBufFrom(&temp_rec, fix_rec_size);
 			p_tbl->writeLobData(p_tbl->VT, PTR8(&temp_rec)+fix_rec_size, (s > fix_rec_size) ? (s-fix_rec_size) : 0);
 		}
 		else if(p_rec_old->ObjType == PPOBJ_BILL && p_rec_old->Prop == BILLPRP_EXTRA) {
 			*p_rec = *p_rec_old;
 			ConvertBillExtRec_6407(&temp_rec);
 			uint s = sizeof(BillCore::Extra_Strg);
-			p_tbl->copyBufFrom(&temp_rec, fix_rec_size);
+			p_tbl->CopyBufFrom(&temp_rec, fix_rec_size);
 			p_tbl->writeLobData(p_tbl->VT, PTR8(&temp_rec)+fix_rec_size, (s > fix_rec_size) ? (s-fix_rec_size) : 0);
 		}
 		else {
 			uint s = *pNewRecLen;
-			p_tbl->copyBufFrom(&temp_rec, fix_rec_size);
+			p_tbl->CopyBufFrom(&temp_rec, fix_rec_size);
 			p_tbl->writeLobData(p_tbl->VT, PTR8(&temp_rec)+fix_rec_size, (s > fix_rec_size) ? (s-fix_rec_size) : 0);
 		}
 		return ok;
@@ -5037,7 +5037,7 @@ int ConvertWorkbook813()
 					pack.F.Replace(0, temp_file_name);
 				}
 				{
-					wb_obj.P_Tbl->copyBufFrom(&pack.Rec);
+					wb_obj.P_Tbl->CopyBufFrom(&pack.Rec, sizeof(pack.Rec));
 					THROW_DB(wb_obj.P_Tbl->insertRec());
 					THROW(PPRef->Ot.PutList(PPOBJ_WORKBOOK, id, &pack.TagL, 0));
 					pack.F.Save(id, 0L);
@@ -5254,7 +5254,7 @@ static int ConvertStaffList9003()
 								StaffList_Pre9003Tbl::Rec rec;
 								PPStaffEntry new_item;
 								MEMSZERO(new_item);
-								p_tbl->copyBufTo(&rec);
+								p_tbl->CopyBufTo(&rec);
 								PPID   new_rec_id = rec.ID;
 								new_item.Tag = PPOBJ_STAFFLIST2;
 								new_item.ID = rec.ID;
@@ -5356,7 +5356,7 @@ static int ConvertAccount9004()
 									rk.ObjType = PPOBJ_ACCOUNT2;
 									rk.ObjID   = 0;
 									if(ref_t.search(0, &rk, spGe) && ref_t.data.ObjType == PPOBJ_ACCOUNT2) do {
-										ref_t.copyBufTo(&acc_rec);
+										ref_t.CopyBufTo(&acc_rec);
 										PPAccount::_A_ _a = acc_rec.A;
 										acc_rec.A.Ac = _a.Sb;
 										acc_rec.A.Sb = _a.Ac;
@@ -5375,7 +5375,7 @@ static int ConvertAccount9004()
 									Account_Pre9004Tbl::Rec rec;
 									PPAccount new_item;
 									MEMSZERO(new_item);
-									p_tbl->copyBufTo(&rec);
+									p_tbl->CopyBufTo(&rec);
 									PPID   new_rec_id = rec.ID;
 									new_item.Tag = PPOBJ_ACCOUNT2;
 									new_item.ID = rec.ID;
@@ -5467,7 +5467,7 @@ static int ConvertBankAccount9004()
 							do {
 								BankAccount_Pre9004Tbl::Rec rec;
 								PPBankAccount new_item;
-								p_tbl->copyBufTo(&rec);
+								p_tbl->CopyBufTo(&rec);
 								PPID   new_rec_id = rec.ID;
 								new_item.ID = 0;
                                 new_item.ObjType = PPOBJ_PERSON;
@@ -7730,7 +7730,7 @@ public:
 		LTIME  Tm;
 		int32  UserID;
 		int32  BillID;
-		int16  RByBill;
+		int16  RByBillLT;
 		int16  LTOp;
 		int32  Flags;
 		int32  GoodsID;
@@ -7773,7 +7773,7 @@ public:
 		CPYFLD(Tm);
 		CPYFLD(UserID);
 		CPYFLD(BillID);
-		CPYFLD(RByBill);
+		CPYFLD(RByBillLT);
 		CPYFLD(LTOp);
 		CPYFLD(Flags);
 		CPYFLD(GoodsID);

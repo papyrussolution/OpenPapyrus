@@ -64,7 +64,7 @@ int ObjAssoc::_SearchNum(PPID asscTyp, PPID prmr, long num, int spMode, ObjAssoc
 	k.PrmrObjID = prmr;
 	k.InnerNum  = num;
 	if(search(3, &k, spMode) && k.AsscType == asscTyp && k.PrmrObjID == prmr)
-		return (copyBufTo(b), 1);
+		return (CopyBufTo(b), 1);
 	return PPDbSearchError();
 }
 
@@ -151,7 +151,7 @@ int ObjAssoc::EnumByPrmr(PPID asscTyp, PPID prmrID, PPID * pScndID, ObjAssocTbl:
 	k.ScndObjID = *pScndID;
 	if(search(1, &k, spGt) && k.AsscType == asscTyp && k.PrmrObjID == prmrID) {
 		*pScndID = k.ScndObjID;
-		copyBufTo(b);
+		CopyBufTo(b);
 	}
 	else
 		ok = PPDbSearchError();

@@ -462,7 +462,6 @@ int FASTCALL SdRecord::Copy(const SdRecord & rSrc)
 	THROW(Items.copy(rSrc.Items));
 	StringPool = rSrc.StringPool;
 	RecSize = rSrc.RecSize;
-	// @v10.8.4 TempBuf = rSrc.TempBuf;
 	if(rSrc.IsDataBufOwner) {
 		if(rSrc.P_DataBuf) {
 			THROW(AllocDataBuf());
@@ -807,11 +806,9 @@ int SdRecord::UpdateField(uint pos, const SdbField * pFld)
 				StringPool.add(temp_buf, &p_item->InnerFormulaPos);
 		}
 		{
-			// @v10.9.1 {
 			temp_buf = pFld->OuterFormula;
 			if(temp_buf.NotEmptyS())
 				StringPool.add(temp_buf, &p_item->OuterFormulaPos);
-			// } @v10.9.1 
 		}
 		p_item->ID  = pFld->ID;
 		p_item->T.Typ = pFld->T.Typ;
@@ -899,17 +896,15 @@ int SdRecord::GetFieldByID(uint id, uint * pPos, SdbField * pFld) const
 int SdRecord::GetFieldByName(const char * pName, SdbField * pFld) const
 {
 	uint   pos = 0;
-	// @v10.8.4 TempBuf = pName;
 	CALLPTRMEMB(pFld, Z());
-	return (SearchName(pName, &pos) > 0) ? GetFieldByPos(pos, pFld) : 0; // @v10.8.4 SearchName(TempBuf-->pName
+	return (SearchName(pName, &pos) > 0) ? GetFieldByPos(pos, pFld) : 0;
 }
 
 int SdRecord::GetFieldByName_Fast(const char * pName, SdbField * pFld) const
 {
 	uint   pos = 0;
-	// @v10.8.4 TempBuf = pName;
 	CALLPTRMEMB(pFld, Z());
-	return (SearchName(pName, &pos) > 0) ? GetFieldByPos_Fast(pos, pFld) : 0; // @v10.8.4 SearchName(TempBuf-->pName
+	return (SearchName(pName, &pos) > 0) ? GetFieldByPos_Fast(pos, pFld) : 0;
 }
 
 TYPEID SdRecord::GetFieldType(uint pos /* 0.. */) const { return (pos < Items.getCount()) ? Get(pos)->T.Typ : 0; }

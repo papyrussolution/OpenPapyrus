@@ -2370,7 +2370,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 							q.selectAll().where(p_bobj->P_CpTrfr->GoodsID == P_DtGrF->GoodsID);
 							for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
 								CpTransfTbl::Rec cpt_rec;
-								p_bobj->P_CpTrfr->copyBufTo(&cpt_rec);
+								p_bobj->P_CpTrfr->CopyBufTo(&cpt_rec);
 								loc_id_ary.addUnique(cpt_rec.LocID);
 							}
 							//

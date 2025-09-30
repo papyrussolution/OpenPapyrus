@@ -58,7 +58,7 @@ int ProcessorCore::InitEnum(long prcKind, PPID parentID, long * pHandle)
 
 int ProcessorCore::NextEnum(long enumHandle, ProcessorTbl::Rec * pRec)
 {
-	return (EnumList.NextIter(enumHandle) > 0) ? (copyBufTo(pRec), 1) : -1;
+	return (EnumList.NextIter(enumHandle) > 0) ? (CopyBufTo(pRec), 1) : -1;
 }
 
 ProcessorPlaceCodeTemplate::ProcessorPlaceCodeTemplate()
@@ -809,7 +809,7 @@ int PPObjProcessor::IsSwitchable(PPID prcID, PPIDArray * pSwitchPrcList)
 	int    ok = -1;
 	ProcessorTbl::Rec prc_rec;
 	ProcessorTbl::Rec parent_rec;
-	CALLPTRMEMB(pSwitchPrcList, clear()); // @v10.7.1 freeAll()-->clear()
+	CALLPTRMEMB(pSwitchPrcList, Z());
 	if(Fetch(prcID, &prc_rec) > 0 && Fetch(prc_rec.ParentID, &parent_rec) > 0)
 		if(parent_rec.Flags & PRCF_CANSWITCHPAN) {
 			ok = 1;
@@ -1149,7 +1149,7 @@ int PPObjProcessor::SearchAutocreateGroupListByObjGroup(PPID objType, PPID objGr
 		MEMSZERO(k1);
 		k1.Kind = PPPRCK_GROUP;
 		if(P_Tbl->search(1, &k1, spGe) && P_Tbl->data.Kind == PPPRCK_GROUP) do {
-			P_Tbl->copyBufTo(&grp_rec);
+			P_Tbl->CopyBufTo(&grp_rec);
 			if(grp_rec.LinkObjType == objType && grp_rec.LinkObjID == objGroupID && grp_rec.Flags & PRCF_AUTOCREATE) {
 				rList.add(grp_rec.ID);
 				ok = 1;
@@ -1971,7 +1971,7 @@ int PPObjProcessor::GetList(long parentIdent, StrAssocArray & rList)
 		k.k1.ParentID = parent_id;
 	for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
 		ProcessorTbl::Rec rec;
-		p_t->copyBufTo(&rec);
+		p_t->CopyBufTo(&rec);
 		if(!(rec.Flags & PRCF_PASSIVE)) {
 			//THROW_SL(p_list->Add(rec.ID, rec.Name));
 			THROW(AddListItem(&rList, &rec, 0));
@@ -2178,7 +2178,7 @@ int PPViewProcessor::InitIteration()
 int FASTCALL PPViewProcessor::NextIteration(ProcessorViewItem * pItem)
 {
 	if(P_IterQuery && P_IterQuery->nextIteration() > 0) {
-		PrcObj.P_Tbl->copyBufTo(pItem);
+		PrcObj.P_Tbl->CopyBufTo(pItem);
 		Counter.Increment();
 		return 1;
 	}

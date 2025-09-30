@@ -285,7 +285,7 @@
 		MENUITEM "@cmd_poolbilllist",						cmPoolBillList
 		MENUITEM "@cmd_draftbilllist",						cmDraftBillList
 		MENUITEM SEPARATOR
-		// v6.7.8 MENUITEM "Складские документы...",            cmWmsBillList
+		/* @v12.4.1 // v6.7.8 */MENUITEM "@cmd_wmsbilllist",           cmWmsBillList // @v12.4.1
 		MENUITEM "@cmd_loctransf",							cmLocTransf
 		MENUITEM SEPARATOR
 		MENUITEM "@cmd_vatbook",							cmVATBook
@@ -355,6 +355,7 @@
 			MENUITEM "@cmd_vetisinerchange",                cmVetisInterchange // @v10.1.2
 			MENUITEM "@cmd_marketplaceinterchange",         cmMarketplaceInterchange // @v12.1.3
 			MENUITEM "@cmd_aptekaruinterchange",            cmAptekaRuInterchange // @v12.2.2
+			MENUITEM "@view_wbpublicgoods",                 cmWbPublicGoods // @v12.4.1 Импорт товаров с маркетплейса Wildberries
 		}
 		MENUITEM SEPARATOR
 		MENUITEM "@cmd_vetisdocument"                       cmVetisDocument

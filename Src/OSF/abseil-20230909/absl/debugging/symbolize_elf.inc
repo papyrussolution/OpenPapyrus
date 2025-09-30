@@ -1075,7 +1075,7 @@ private:
 					// not an object file, typically [vdso] or [vsyscall]
 					continue;
 				}
-				if(!callback(cursor, start_address, end_address, offset, arg))  break;
+				if(!callback(cursor, start_address, end_address, offset, arg)) break;
 			}
 			return true;
 		}

@@ -401,7 +401,7 @@ int ACS_ATOLWOATOLCARD::ExportSCard(FILE * pFile, int updOnly)
 				THROW(scs_obj.GetPacket(ser_id, &scs_pack) > 0);
 				while(s_crd_obj.P_Tbl->search(2, &k, spGt) && k.SeriesID == ser_id) {
 					SCardTbl::Rec card_rec;
-					s_crd_obj.P_Tbl->copyBufTo(&card_rec);
+					s_crd_obj.P_Tbl->CopyBufTo(&card_rec);
 					s_crd_obj.SetInheritance(&scs_pack, &card_rec);
 					if(card_rec.PDis && !(card_rec.Flags & SCRDF_CLOSED) && !(card_rec.Expiry && card_rec.Expiry < LConfig.OperDate)) {
 						int  i;
@@ -480,7 +480,7 @@ int ACS_ATOL::ExportSCard(FILE *, int)
 				THROW(scs_obj.GetPacket(ser_id, &scs_pack) > 0);
 				while(s_crd_obj.P_Tbl->search(2, &k, spGt) && k.SeriesID == ser_id) {
 					SCardTbl::Rec card_rec;
-					s_crd_obj.P_Tbl->copyBufTo(&card_rec);
+					s_crd_obj.P_Tbl->CopyBufTo(&card_rec);
 					s_crd_obj.SetInheritance(&scs_pack, &card_rec);
 					if(!(card_rec.Flags & SCRDF_CLOSED) && !(card_rec.Expiry && card_rec.Expiry < LConfig.OperDate)) {
 						uint  pos = 0;

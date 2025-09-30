@@ -29,7 +29,7 @@ int HistBillCore::SearchOpenBill(PPID billID, HistBillTbl::Rec * pRec)
 	k.Ver     = HISTBILL_MAXVER;
 	k.InnerID = MAXLONG;
 	if(search(1, &k, spLe)) {
-		copyBufTo(pRec);
+		CopyBufTo(pRec);
 		if(k.BillID == billID && k.Ver != HISTBILL_MAXVER)
 			ok = 1;
 	}

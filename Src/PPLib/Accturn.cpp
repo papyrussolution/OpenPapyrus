@@ -1382,7 +1382,7 @@ int AccTurnCore::Helper_Repair(long flags, int reverse, int (*MsgProc)(int msgCo
 		int    msg_code = 0;
 		AccTurnTbl::Key0 k0;
 		AccTurnTbl::Rec rec, mirror;
-		copyBufTo(&rec);
+		CopyBufTo(&rec);
 		PPID dbt_rel_id = rec.Acc;
 		PPID crd_rel_id = rec.CorrAcc;
 		PPID dbt_acc_id = rec.Bal;
@@ -1411,7 +1411,7 @@ int AccTurnCore::Helper_Repair(long flags, int reverse, int (*MsgProc)(int msgCo
 				msg_code = PPERR_EATURN_NOMIRROR;
 			else {
 				THROW_DB(getPosition(&pos));
-				copyBufTo(&mirror);
+				CopyBufTo(&mirror);
 				if(reverse == 0 && (mirror.Acc != crd_rel_id || mirror.CorrAcc != dbt_rel_id ||
 					dbl_cmp(MONEYTOLDBL(mirror.Amount), MONEYTOLDBL(rec.Amount)) != 0 ||
 					mirror.Dt != rec.Dt)) {

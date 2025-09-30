@@ -91,7 +91,7 @@ int PPViewQCert::Init_(const PPBaseFilt * pBaseFilt)
 				for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
 					int    found = 0;
 					QualityCertTbl::Rec rec;
-					t->copyBufTo(&rec);
+					t->CopyBufTo(&rec);
 					if(Filt.Flags & QCertFilt::fHasRest && P_RcptT) {
 						if(P_RcptT->IsThereOpenedLotForQCert(rec.ID) > 0)
 							found = 1;
@@ -162,9 +162,9 @@ int FASTCALL PPViewQCert::NextIteration(QCertViewItem * pItem)
 			if(found) {
 				Counter.Increment();
 				if(P_TempTbl)
-					P_TempTbl->copyBufTo(pItem);
+					P_TempTbl->CopyBufTo(pItem);
 				else
-					QcObj.P_Tbl->copyBufTo(pItem);
+					QcObj.P_Tbl->CopyBufTo(pItem);
 				return 1;
 			}
 		}

@@ -131,7 +131,7 @@ SEnum::Imp * WorkbookCore::EnumByType(long type, int options)
 
 int WorkbookCore::NextEnum(long enumHandle, WorkbookTbl::Rec * pRec)
 {
-	return (EnumList.NextIter(enumHandle) > 0) ? (copyBufTo(pRec), 1) : -1;
+	return (EnumList.NextIter(enumHandle) > 0) ? (CopyBufTo(pRec), 1) : -1;
 }
 //
 //
@@ -1281,7 +1281,7 @@ int PPObjWorkbook::PutPacket(PPID * pID, PPWorkbookPacket * pPack, int use_ta)
 					THROW_PP_S(SearchByName(pPack->Rec.Name, &dup_id, &dup_rec) < 0, PPERR_DUPNEWWORKBOOKNAME, pPack->Rec.Name);
 				}
 			}
-			P_Tbl->copyBufFrom(&pPack->Rec);
+			P_Tbl->CopyBufFrom(&pPack->Rec, sizeof(pPack->Rec));
 			THROW_DB(P_Tbl->insertRec(0, &_id));
 			pPack->Rec.ID = _id;
 			THROW(p_ref->Ot.PutList(Obj, _id, &pPack->TagL, 0));

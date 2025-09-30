@@ -855,16 +855,13 @@ BillDialog::BillDialog(uint dlgID, PPBillPacket * pPack, int isEdit) : PPListDia
 		SetupAgreementButton();
 	}
 	{
-		// @v11.8.1 bool do_disable_amount = (P_Pack->IsGoodsDetail() || P_Pack->OpTypeID == PPOPT_POOL);
-		// @v11.8.1 {
 		bool do_disable_amount = false;
-		if(P_Pack->IsGoodsDetail())
+		if(P_Pack->GetDetailType() == PPBillPacket::detailtypeTransfer)
 			do_disable_amount = true;
 		else if(P_Pack->OpTypeID == PPOPT_POOL) {
 			PPBillPoolOpEx bpox;
 			do_disable_amount = !(op_obj.GetPoolExData(P_Pack->Rec.OpID, &bpox) > 0 && (bpox.Flags & BPOXF_AUTOAMOUNT));
 		}
-		// } @v11.8.1 
 		disableCtrl(CTL_BILL_AMOUNT, do_disable_amount);
 	}
 	disableCtrl(CTL_BILL_ADV_TOUT, true);
@@ -2873,7 +2870,7 @@ double BillDialog::CalcAmounts()
 			P_Pack->Rec.Flags &= ~BILLF_TOTALDISCOUNT;
 		}
 	}
-	if(!P_Pack->IsGoodsDetail() && !CheckOpFlags(P_Pack->Rec.OpID, OPKF_ADVACC)) {
+	if(P_Pack->GetDetailType() != PPBillPacket::detailtypeTransfer && !CheckOpFlags(P_Pack->Rec.OpID, OPKF_ADVACC)) {
 		if(getCtrlData(CTL_BILL_AMOUNT, &result_amount))
 			amt_list.Put(PPAMT_MAIN, P_Pack->Rec.CurID, result_amount, 0, 0);
 	}
@@ -3191,46 +3188,49 @@ int BillDialog::getDTS(int onCancel)
 int BillDialog::editItems()
 {
 	int    r = -1;
-	if(P_Pack->OpTypeID == PPOPT_ACCTURN) {
-		if(CheckOpFlags(P_Pack->Rec.OpID, OPKF_ADVACC)) {
-			ViewAdvBillDetails(P_Pack, P_BObj);
-			CalcAmounts();
-			r = 1;
+	if(P_Pack) {
+		if(P_Pack->OpTypeID == PPOPT_ACCTURN) {
+			if(CheckOpFlags(P_Pack->Rec.OpID, OPKF_ADVACC)) {
+				ViewAdvBillDetails(P_Pack, P_BObj);
+				CalcAmounts();
+				r = 1;
+			}
 		}
-	}
-	else {
-		getCurGroupData();
-		CalcAmounts();
-		getCtrlData(CTLSEL_BILL_OBJECT, &P_Pack->Rec.Object);
-		if(P_Pack->Rec.Object == 0) {
-			if(P_Pack->OpTypeID == PPOPT_GOODSRECEIPT && P_Pack->AccSheetID == GetSupplAccSheet() && P_Pack->GetTCount() == 0) {
-				if(PPMessage(mfConf|mfYesNo|mfDefaultYes, PPCFM_ZERORCPTOBJ) == cmYes) {
-					messageToCtrl(CTLSEL_BILL_OBJECT, cmCBActivate, 0);
-					return 0;
+		else {
+			getCurGroupData();
+			CalcAmounts();
+			getCtrlData(CTLSEL_BILL_OBJECT, &P_Pack->Rec.Object);
+			if(P_Pack->Rec.Object == 0) {
+				if(P_Pack->OpTypeID == PPOPT_GOODSRECEIPT && P_Pack->AccSheetID == GetSupplAccSheet() && P_Pack->GetTCount() == 0) {
+					if(PPMessage(mfConf|mfYesNo|mfDefaultYes, PPCFM_ZERORCPTOBJ) == cmYes) {
+						messageToCtrl(CTLSEL_BILL_OBJECT, cmCBActivate, 0);
+						return 0;
+					}
+				}
+				else if(P_Pack->Rec.OpID == _PPOPK_SUPPLRET)
+					return (PPError(PPERR_BILLOBJNEEDED, 0), 0);
+				else if(IsIntrExpndOp(P_Pack->Rec.OpID))
+					return (PPError(PPERR_INTRDESTNEEDED, 0), 0);
+				else if(P_Pack->IsDraft()) {
+					PPObjOprKind op_obj;
+					PPDraftOpEx doe;
+					if(op_obj.GetDraftExData(P_Pack->Rec.OpID, &doe) > 0)
+						if(IsIntrExpndOp(doe.WrOffOpID))
+							return (PPError(PPERR_INTRDESTNEEDED), 0);
 				}
 			}
-			else if(P_Pack->Rec.OpID == _PPOPK_SUPPLRET)
-				return (PPError(PPERR_BILLOBJNEEDED, 0), 0);
-			else if(IsIntrExpndOp(P_Pack->Rec.OpID))
-				return (PPError(PPERR_INTRDESTNEEDED, 0), 0);
-			else if(P_Pack->IsDraft()) {
-				PPObjOprKind op_obj;
-				PPDraftOpEx doe;
-				if(op_obj.GetDraftExData(P_Pack->Rec.OpID, &doe) > 0)
-					if(IsIntrExpndOp(doe.WrOffOpID))
-						return (PPError(PPERR_INTRDESTNEEDED), 0);
-			}
-		}
-		getCtrlData(CTLSEL_BILL_OBJ2, &P_Pack->Rec.Object2);
-		// @v12.1.12 getCtrlData(CTL_BILL_DATE, &P_Pack->Rec.Dt);
-		if(GetDateAndDueDate()) { // @v12.1.12 
-			for(uint i = 0; i < P_Pack->GetTCount(); i++) {
-				PPTransferItem & r_ti = P_Pack->TI(i);
-				r_ti.Date = P_Pack->Rec.Dt;
-			}
-			if((r = ViewBillDetails(P_Pack, BIN(Flags & fEditMode), P_BObj)) > 0) {
-				Flags |= fModified;
-				CalcAmounts();
+			getCtrlData(CTLSEL_BILL_OBJ2, &P_Pack->Rec.Object2);
+			// @v12.1.12 getCtrlData(CTL_BILL_DATE, &P_Pack->Rec.Dt);
+			if(GetDateAndDueDate()) { // @v12.1.12 
+				for(uint i = 0; i < P_Pack->GetTCount(); i++) {
+					PPTransferItem & r_ti = P_Pack->TI(i);
+					r_ti.Date = P_Pack->Rec.Dt;
+				}
+				r = ViewBillDetails(*P_Pack, BIN(Flags & fEditMode), P_BObj);
+				if(r > 0) {
+					Flags |= fModified;
+					CalcAmounts();
+				}
 			}
 		}
 	}

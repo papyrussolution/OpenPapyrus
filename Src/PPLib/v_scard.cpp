@@ -552,7 +552,7 @@ int PPViewSCard::CreateTempTable()
 			cntr.Init(q->countIterations(0, &k_, spGe));
 			for(q->initIteration(false, &k, spGe); q->nextIteration();) {
 				TempSCardTbl::Rec rec;
-				p_c->copyBufTo(&rec_);
+				p_c->CopyBufTo(&rec_);
 				if(PreprocessTempRec(&rec_, &rec, (use_ct_list ? &ct_list : 0))) {
 					UpdateHtPhone(rec_.ID, rec_.PersonID); // @v12.4.1
 					if(p_bei) {
@@ -943,12 +943,12 @@ int FASTCALL PPViewSCard::NextIteration(SCardViewItem * pItem)
 			}
 		}
 		else if(P_TmpTbl) {
-			P_TmpTbl->copyBufTo(&temp_rec);
+			P_TmpTbl->CopyBufTo(&temp_rec);
 			memcpy(&rec, &temp_rec, sizeof(rec));
 			r = 1;
 		}
 		else {
-			SCObj.P_Tbl->copyBufTo(&rec);
+			SCObj.P_Tbl->CopyBufTo(&rec);
 			r = 1;
 		}
 		if(r > 0 && CheckForFilt(&rec, 0)) {
@@ -3010,7 +3010,7 @@ int PPViewSCardOp::Recover()
 	MEMSZERO(k0);
 	PPWaitStart();
 	if(t.search(0, &k0, spFirst)) do {
-		t.copyBufTo(&rec);
+		t.CopyBufTo(&rec);
 		// @todo 20230317 Скорректировать знак суммы в соответствии с чеком (иногда проскакивают такие проблемы)
 		if(rec.LinkObjType == PPOBJ_CCHECK) {
 			const  PPID sc_id = rec.SCardID;
@@ -3620,7 +3620,7 @@ int PPViewUhttSCardOp::Init_(const PPBaseFilt * pFilt)
 			iter_query.selectAll().where(*dbq);
 			iter_query.initIteration(0, k_, spGe);
 			while(iter_query.nextIteration() > 0) {
-				tbl.copyBufTo(&rec);
+				tbl.CopyBufTo(&rec);
 				SCardTbl::Rec sc_rec;
 				if(ScObj.Fetch(rec.SCardID, &sc_rec) > 0) {
 					temp_buf = sc_rec.Code;

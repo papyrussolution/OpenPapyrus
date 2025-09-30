@@ -66,6 +66,9 @@ SLTEST_R(SQLite)
 	DBTable * p_tbl = 0;
 	DBTable * p_tbl_ref01 = 0;
 	DBTable * p_tbl_ref02 = 0;
+	int64  recscount_tbl = 0;
+	int64  recscount_ref01 = 0;
+	int64  recscount_ref02 = 0;
 	DbLoginBlock dblb;
 	StrAssocArray some_text_list;
     TSCollection <TestTa01Tbl::Rec> record_list;
@@ -206,7 +209,8 @@ SLTEST_R(SQLite)
 						}
 						else {
 							MEMSZERO(k0);
-							int irr = p_tbl_ref01->insertRecBuf(p_rec, 0, &k0);
+							p_tbl_ref01->CopyBufLobFrom(p_rec, sizeof(*p_rec));
+							int irr = p_tbl_ref01->insertRec(0, &k0);
 							const DBRowId * p_row_id = p_tbl_ref01->getCurRowIdPtr();
 							if(p_row_id)
 								ret_row_id = *p_row_id;
@@ -234,7 +238,8 @@ SLTEST_R(SQLite)
 					TestRef02Tbl::Rec * p_rec = ref02_rec_list.at(i);
 					if(p_rec) {
 						MEMSZERO(k0);
-						int irr = p_tbl_ref02->insertRecBuf(p_rec, 0, &k0);
+						p_tbl_ref02->CopyBufLobFrom(p_rec, sizeof(*p_rec));
+						int irr = p_tbl_ref02->insertRec(0, &k0);
 						const DBRowId * p_row_id = p_tbl_ref02->getCurRowIdPtr();
 						if(p_row_id)
 							ret_row_id = *p_row_id;
@@ -255,7 +260,8 @@ SLTEST_R(SQLite)
 					const TestTa01Tbl::Rec * p_rec = record_list.at(i);
 					if(p_rec) {
 						MEMSZERO(k0);
-						int irr = p_tbl->insertRecBuf(p_rec, 0, &k0);
+						p_tbl->CopyBufLobFrom(p_rec, sizeof(*p_rec));
+						int irr = p_tbl->insertRec(0, &k0);
 						const DBRowId * p_row_id = p_tbl->getCurRowIdPtr();
 						if(p_row_id)
 							ret_row_id = *p_row_id;
@@ -512,6 +518,25 @@ SLTEST_R(SQLite)
 				;
 			}
 		}
+	}
+	{
+		//
+		// Ќайти записи в таблице TestTa01 по запросу RVal1 в диапазоне [2.5..2.6]
+		// 
+		//BExtQuery q(p_tbl, 0);
+		//q.selectAll().where(p_tbl->RVal1 >= 2.5 && p_tbl->)
+		//TestTa01Tbl tbl__;
+	}
+	{
+		DbTableStat stat;
+		if(p_tbl->GetFileStat(-1, &stat) > 0)
+			recscount_tbl = stat.NumRecs;
+		stat.Z();
+		if(p_tbl_ref01->GetFileStat(-1, &stat) > 0)
+			recscount_ref01 = stat.NumRecs;
+		stat.Z();
+		if(p_tbl_ref02->GetFileStat(-1, &stat) > 0)
+			recscount_ref02 = stat.NumRecs;
 	}
 	{
 		//

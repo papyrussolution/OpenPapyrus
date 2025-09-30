@@ -948,7 +948,7 @@ int QuotationCore::SetCurr(PPID * pID, const PPQuot * pQuot, int logSj, int use_
 			else
 				ok = 1;
 			if(ok > 0) {
-				copyBufFrom(&rec);
+				CopyBufFrom(&rec, sizeof(rec));
 				THROW_DB(insertRec(0, &i));
 				ASSIGN_PTR(pID, i);
 			}
@@ -3332,7 +3332,7 @@ int Quotation2Core::Verify()
 		Quotation2Tbl::Key1 k1;
 		MEMSZERO(k1);
 		for(int sp = spFirst; search(1, &k1, sp); sp = spNext) {
-			copyBufTo(&rec);
+			CopyBufTo(&rec);
 			if(prev_rel_id && rec.RelID != prev_rel_id) {
 				goods_list.Clear();
 			}

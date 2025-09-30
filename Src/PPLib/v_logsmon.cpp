@@ -209,7 +209,7 @@ int FASTCALL PPViewLogsMonitor::NextIteration(LogsMonitorViewItem * pItem)
 {
 	int    ret = 1;
 	while(pItem && P_IterQuery && P_IterQuery->nextIteration() > 0) {
-		P_TmpTbl->copyBufTo(pItem);
+		P_TmpTbl->CopyBufTo(pItem);
 		Counter.Increment();
 	}
 	return ret;

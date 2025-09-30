@@ -371,7 +371,7 @@ int FASTCALL PPViewArticle::NextIteration(ArticleViewItem * pItem)
 	while(ok < 0 && P_IterQuery && P_IterQuery->nextIteration() > 0) {
 		Counter.Increment();
 		ArticleTbl::Rec rec;
-		ArObj.P_Tbl->copyBufTo(&rec);
+		ArObj.P_Tbl->CopyBufTo(&rec);
 		if(Filt.Ft_Closed < 0 && rec.Closed)
 			continue;
 		if(Filt.Ft_Closed > 0 && !rec.Closed)

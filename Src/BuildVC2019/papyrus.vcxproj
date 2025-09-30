@@ -1273,6 +1273,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="..\PPLib\ppappo.CPP" />
     <ClCompile Include="..\PPLib\ppifclua.cpp" />
     <ClCompile Include="..\PPMain\Ppmain.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

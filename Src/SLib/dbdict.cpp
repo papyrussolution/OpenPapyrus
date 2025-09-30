@@ -388,7 +388,7 @@ int BDictionary::RecoverTable(BTBLID tblID, BRecoverParam * pParam)
 				SString tbl_name(ts.TblName);
 				DBS.GetProtectData(buf, 1);
 				THROW(org_tbl.open(tbl_name, org_path, omReadOnly));
-				org_tbl.setDataBuf(rec_buf, static_cast<RECORDSIZE>(rec_buf.GetSize()));
+				org_tbl.SetDBuf(rec_buf, static_cast<RECORDSIZE>(rec_buf.GetSize()));
 				org_tbl.getNumRecs(&pParam->OrgNumRecs);
 				fix_rec_size = org_tbl.getRecSize();
 				if(!isempty(pParam->P_DestPath)) {
@@ -424,14 +424,14 @@ int BDictionary::RecoverTable(BTBLID tblID, BRecoverParam * pParam)
 					if(pParam->OrgNumRecs > 0) {
 						if(org_tbl.step(sp_first) || BtrError == BE_VLRPAGE) {
 							do {
-								const RECORDSIZE ret_buf_len = org_tbl.getRetBufLen();
+								const RECORDSIZE ret_buf_len = org_tbl.GetRetBufLen();
 								THROW(org_tbl.getPosition(&pos));
 								if(lob_fld.Id) {
-									new_tbl.setDataBuf(org_tbl.getDataBuf(), fix_rec_size);
+									new_tbl.SetDBuf(org_tbl.getDataBuf(), fix_rec_size);
 									new_tbl.setLobSize(lob_fld, (ret_buf_len > fix_rec_size) ? (ret_buf_len-fix_rec_size) : 0);
 								}
 								else
-									new_tbl.setDataBuf(org_tbl.getDataBuf(), ret_buf_len);
+									new_tbl.SetDBuf(org_tbl.getDataBuf(), ret_buf_len);
 								if(new_tbl.insertRec()) {
 									pParam->ActNumRecs++;
 									if(!pParam->callbackProc(BREV_PROGRESS, reinterpret_cast<const void *>(pParam->ActNumRecs), 
@@ -472,8 +472,8 @@ int BDictionary::RecoverTable(BTBLID tblID, BRecoverParam * pParam)
 		}
 	}
 	CATCHZOK
-	org_tbl.setDataBuf(0, 0);
-	new_tbl.setDataBuf(0, 0);
+	org_tbl.SetDBuf(0, 0);
+	new_tbl.SetDBuf(0, 0);
 	if(ok > 0 && do_replace_src) {
 		bool   is_first = false;
 		org_tbl.close();

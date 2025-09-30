@@ -552,6 +552,7 @@ public:
 		hdrXOriginRequestId, // X-Origin-Request-Id
 		hdrXTimestamp,       // X-Timestamp
 		hdrXApiKey,          // @v11.9.11 X-API-KEY 
+		hdrOcpApimSubscrKey, // @v12.4.1 Ocp-Apim-Subscription-Key 
 	};
 	enum AuthType {
 		authtUnkn = 0,

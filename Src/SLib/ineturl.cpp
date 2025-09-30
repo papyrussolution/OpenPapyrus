@@ -692,8 +692,9 @@ int InetUrl::Compose(long flags, SString & rBuf) const
 		SString temp_buf;
 		if(_f & stScheme) {
 			if(GetComponent(cScheme, 0, temp_buf)) {
-				if(sstreqi_ascii(temp_buf, "file"))
-					rBuf.Cat(temp_buf).Colon().CatCharN('/', 3);
+				if(sstreqi_ascii(temp_buf, "file")) {
+					rBuf.Cat(temp_buf).Colon().CatCharN('/', 2); // @v12.4.1 CatCharN('/', 3)-->CatCharN('/', 2)
+				}
 				else if(sstreqi_ascii(temp_buf, "mailto"))
 					rBuf.Cat(temp_buf).Colon();
 				else if(sstreqi_ascii(temp_buf, "mailfrom"))
@@ -705,8 +706,9 @@ int InetUrl::Compose(long flags, SString & rBuf) const
 			else if(Protocol) {
 				const char * p_scheme = GetSchemeMnem(Protocol);
 				if(p_scheme) {
-					if(Protocol == protFile)
-						rBuf.Cat(temp_buf).Colon().CatCharN('/', 3);
+					if(Protocol == protFile) {
+						rBuf.Cat(temp_buf).Colon().CatCharN('/', 2); // @v12.4.1 CatCharN('/', 3)-->CatCharN('/', 2)
+					}
 					else if(Protocol == protMailto)
 						rBuf.Cat(temp_buf).Colon();
 					else
@@ -743,11 +745,19 @@ int InetUrl::Compose(long flags, SString & rBuf) const
             }
 		}
 		if(_f & stPath && GetComponent(cPath, 0, temp_buf)) {
+			/* @v12.4.1
 			if(temp_buf.C(0) == '/')
 				rBuf.RmvLastSlash();
 			else
 				rBuf.SetLastDSlash();
-			rBuf.Cat(temp_buf);
+			*/
+			// @v12.4.1 {
+			SString _path;
+			SFsPath::NormalizePath(temp_buf, SFsPath::npfCompensateDotDot|SFsPath::npfKeepCase|SFsPath::npfSlash, _path);
+			if(rBuf.NotEmpty() && _path.C(0) != '/')
+				rBuf.CatChar('/');
+			// } @v12.4.1 
+			rBuf.Cat(_path);
 			result |= cPath;
 		}
 		if(_f & stQuery && GetComponent(cQuery, 0, temp_buf)) {

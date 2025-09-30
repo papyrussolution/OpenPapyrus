@@ -2334,7 +2334,7 @@ int CCheckCore::EnumLines(PPID checkID, int * pRByCheck, CCheckLineTbl::Rec * b)
 	k.CheckID  = checkID;
 	k.RByCheck = static_cast<int16>(*pRByCheck);
 	if(Lines.search(0, &k, spGt) && k.CheckID == checkID) {
-		Lines.copyBufTo(b);
+		Lines.CopyBufTo(b);
 		*pRByCheck = k.RByCheck;
 		return 1;
 	}
@@ -2433,7 +2433,7 @@ int CCheckCore::GetLastCheck(CCheckTbl::Rec * pRec)
 	k.Tm = MAXTIME;
 	k.PosNodeID = MAXLONG;
 	if(search(1, &k, spLt)) {
-		copyBufTo(pRec);
+		CopyBufTo(pRec);
 		ok = 1;		
 	}
 	return ok;
@@ -2449,7 +2449,7 @@ int CCheckCore::GetLastCheck(PPID sessID, long cashN, CCheckTbl::Rec * pRec)
 	k.Tm = MAXTIME;
 	while(!ok && search(3, &k, spLt) && data.SessID == sessID && data.PosNodeID == cashN) {
 		if(!(data.Flags & CCHKF_SKIP)) {
-			copyBufTo(pRec);
+			CopyBufTo(pRec);
 			ok = 1;
 		}
 	}
@@ -2464,7 +2464,7 @@ int CCheckCore::GetLastCheckByCode(long cashN, CCheckTbl::Rec * pRec)
 	k.Dt = MAXDATE;
 	k.Tm = MAXTIME;
 	if(search(2, &k, spLt) && k.PosNodeID == cashN) {
-		copyBufTo(pRec);
+		CopyBufTo(pRec);
 		return 1;
 	}
 	else
@@ -2519,7 +2519,7 @@ int CCheckCore::LoadLines(PPID checkID, PPID goodsID, CCheckPacket * pPack)
 		lk0.RByCheck = -MAXSHORT;
 		for(ql.initIteration(false, &lk0, spGe); ql.nextIteration() > 0;) {
 			CCheckLineExtTbl::Rec lx_rec;
-			P_LnExt->copyBufTo(&lx_rec);
+			P_LnExt->CopyBufTo(&lx_rec);
 			uint pos = 0;
 			if(pPack->SearchLine(lx_rec.RByCheck, &pos)) {
 				CCheckPacket::LineExt le;
@@ -2719,7 +2719,7 @@ int CCheckCore::Add(PPID * pID, const CCheckTbl::Rec * pRec, int use_ta)
 			}
 		}
 #endif // } 0
-		copyBufFrom(&header);
+		CopyBufFrom(&header, sizeof(header));
 		THROW_DB(insertRec(0, &id));
 		if(!(header.Flags & (CCHKF_JUNK|CCHKF_SKIP)))
 			THROW(Cards.AddTurnover(header.SCardID, MONEYTOLDBL(header.Amount), 0));
@@ -4040,7 +4040,7 @@ int CCheckCore::GroupingToGoodsLines(PPID sessID, CSessTotal * pTotal, CCheckGoo
 			BExtQuery q(this, 3);
 			q.select(this->ID, this->Dt, this->Flags, this->Amount, this->Discount, 0L).where(this->SessID == sessID);
 			for(q.initIteration(false, &k, spGt); q.nextIteration() > 0;) {
-				copyBufTo(&rec);
+				CopyBufTo(&rec);
 				if(!(rec.Flags & CCHKF_SKIP) && (!(flags & gglfSkipUnprintedChecks) || (rec.Flags & CCHKF_PRINTED))) {
 					if(rec.Flags & CCHKF_NOTUSED) {
 						ChkItem ci;

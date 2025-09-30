@@ -1075,7 +1075,7 @@ public:
 	}
 	virtual int Next(void * pRec)
 	{
-		return (P_T && P_T->EnumList.NextIter(H) > 0) ? (P_T->copyBufTo(pRec), 1) : 0;
+		return (P_T && P_T->EnumList.NextIter(H) > 0) ? (P_T->CopyBufTo(pRec), 1) : 0;
 	}
 protected:
 	T * P_T;
@@ -1511,6 +1511,7 @@ public:
 	static int IdBillAmount;        // @v12.1.0 (fldBillID, amountType)
 	static int IdClientActivityStatisticsIndicator; // @v12.2.2 (personID, actualDate, indicator/*PPObjPerson::casiXXX*/) Возвращает значение индикатора статистики клиентской активности
 	static int IdClientActivityState; // @v12.2.2 (personID, LDATE actualDate, LDATE newCliPeriodLo, LDATE newCliPeriodUp) Возвращает ClientActivityState::State
+	static int IdObjLocAddress;     // @v12.4.1 (fldLocID) текст адреса локации
 
 	static int Register();
 	static void STDCALL InitObjNameFunc(DBE & rDbe, int funcId, DBField & rFld);
@@ -1733,7 +1734,7 @@ struct PPSyncHeader { // @persistent @size=62 (+4 Lock Prefix Size)
 	char   Reserved[52];   // @reserve
 };
 
-#define PPSYNC_SEMAPHORE  1
+// @v12.4.1 @unused #define PPSYNC_SEMAPHORE  1
 #define PPSYNC_MUTEX      2
 #define PPSYNC_DBLOCK     3
 //
@@ -1742,7 +1743,7 @@ struct PPSyncHeader { // @persistent @size=62 (+4 Lock Prefix Size)
 struct PPSyncItem { // @persistent @size=66 (+4 Lock Prefix Size)
 	PPSyncItem();
 	long   ID;             // record id
-	long   Type;           // record type (1-Semaphore, 2-Mutex, 3-DbLock, 0-Logout) PPSYNC_XXX
+	long   Type;           // record type (/* @unused 1-Semaphore,*/2-Mutex, 3-DbLock, 0-Logout) PPSYNC_XXX
 	long   UserID;         // user unique identifier
 	char   Name[32];       // user name
 	long   ObjType;        // type of semaphore object
@@ -1789,6 +1790,14 @@ public:
 	//
 	bool   IsDBLocked();
 	int    CreateMutex_(long sessionid, long objtype, long objid, long * pMutexID, PPSyncItem *);
+	//
+	// Descr: Ищет мьютекс по паре {objtype, objid} и, если находит, то проверят заблокирован они или нет.
+	// Returns:
+	//   >0 - мьютекс существует и заблокирован
+	//    0 - мьютекс существует и не заблокирован
+	//   <0 - мьютекс не существует 
+	//
+	int    GetObjMutexState(long objtype, long objid);
 	int    ReleaseMutex(long objtype, long objid);
 	int    ReleaseMutex(long mutexid);
 	int    ClearMutex(long mutexID);
@@ -1799,7 +1808,7 @@ private:
 	int    CreateEmptyFile();
 	int    ImplementGetBlock(ulong offs, void * pBuf, int * pIsLocked);
 	long   AddRecord(long type, long appID, const char * pName, long, long, ulong * pOffs, const MACAddr * pMachineID, ulong terminalSessID);
-	int    Lock(ulong offs, int checkOnly);
+	int    Lock(ulong offs, bool checkOnly);
 	int    FASTCALL Unlock(ulong offs);
 	bool   FASTCALL IsLocked(ulong offs);
 	int    ReleaseItem(ulong offs);
@@ -1809,12 +1818,21 @@ private:
 	int    FASTCALL AdvanceOffset(ulong * pOffs) const;
 	int    GetOffsetByID(long id, ulong * pOffs);
 	int    GetFreeEntry(ulong * pOffs, long * pId);
+	//
+	// Descr: Ищет мьютекс по паре {objtype, objid} и, если находит, то проверят заблокирован они или нет.
+	// 
+	// Returns:
+	//   >0 - мьютекс существует и заблокирован
+	//    0 - мьютекс существует и не заблокирован
+	//      Важно: в этом случае по указателям pItem и pOffs присваиваются атрибуты самой первой найденной записи мьютекса.
+	//   <0 - мьютекс не существует 
+	//
 	int    SearchMutexByObj(long objtype, long objid, PPSyncItem * pItem, ulong * pOffs);
 	int    ReleaseSessionMutex(long sessID);
 	int    FASTCALL CheckOffset(ulong offs) const;
 
 	int    Handle;
-	int    NoSHARE; // if !0 then share.exe not loaded (DOS)
+	// @v12.4.1 @obsolete int    NoSHARE; // if !0 then share.exe not loaded (DOS)
 	SString DataPath;
 };
 //
@@ -3641,7 +3659,7 @@ public:
 	//
 	// @obsolete since @v9.0.11 int    CreateUniqueStr(PPID objType, PPID tagID, PPID * pObjID, const char * pStr, int use_ta);
 	int    PutTag(PPID objType, PPID objID, const ObjTagItem *, int use_ta);
-	int    RemoveTag(PPID objType, PPID objID, PPID tagID /* if 0 then remove all */, int use_ta);
+	int    RemoveTag(PPID objType, PPID objID, PPID tagID/*if 0 then remove all*/, int use_ta);
 	int    SearchAnyRefToTagID(PPID tagID, PPObjID *);
 protected:
 	int    PutTagToRec(PPID objType, PPID objID, long tagByObj, const ObjTagItem *);
@@ -11940,6 +11958,68 @@ public:
 	PPID   BillID;
 };
 //
+// Descr: Идентификаторы типов складских операций
+//   Наименования операций хранятся в строке PPTXT_LOCTRANSF_OPTEXT в формате: "1,text;2,text;3,text"
+//
+#define LOCTRFROP_PUT                  1 // Положить товар в ячейку
+#define LOCTRFROP_GET                  2 // Извлечь товар из ячейки
+#define LOCTRFROP_INVENT               3 // Инвентаризация ячейки
+//
+// Descr: Идентификаторы областей применения складских операций.
+//
+#define LOCTRFRDOMAIN_WMS              0 // @v12.4.1 Операции, связанные с размещением товаров внутри наших складов.
+	// В качестве локации в таких операциях выступает ячейка хранения склада.
+#define LOCTRFRDOMAIN_BAILMENT         1 // @v12.4.1 Операции, связанные с передачей активов на ответственное хранение контрагентам.
+	// В качестве локации в таких операциях выступает какой-либо из адресов контрагента.
+//
+// Descr: Флаги ограничений размещения в складских ячейках
+//
+#define LOCDISPRESTR_SINGLEWARE   0x0001 // Ограничение единственным наименованием товара
+#define LOCDISPRESTR_VOLUME       0x0002 // Оганичение по суммарному объему
+#define LOCDISPRESTR_BRUTTO       0x0004 // Ограничение по суммарной массе брутто
+#define LOCDISPRESTR_PALLETCOUNT  0x0008 // Ограничение по количеств паллет
+#define LOCDISPRESTR_PALLETONLY   0x0010 // Загрузка только паллетами
+#define LOCDISPRESTR_PALLETSIZE   0x0020 // Ограничение по размеру паллет
+//
+// Descr: Флаги записи LocTransf
+//
+#define LOCTRF_OWNEDBYBILL        0x0001 // @v12.4.1 Запись является собственностью документа BillID. 
+	// То есть, была сформирована при проведении документа, со всеми вытекающими следствиями.
+	// Если это флаг не установлен, но BillID != 0, то запись просто ссылается на документ, не являясь его собственностью.
+	// Самое важное в этом флаге - регуляция значения поля RByBillLT. Если BillID != 0 и флаг LOCTRF_OWNEDBYBILL не установлен,
+	// то RByBillLT равен PPTransferItem::RByBill строки документа, к которой привязан наша запись.
+	// Если BillID != 0 и LOCTRF_OWNEDBYBILL установлен, то RByBillLT получает последовательные значения для идентификации
+	// номера строки, соответствующей документу.
+	// Дополнительным критерием наличия флага LOCTRF_OWNEDBYBILL может выступать принадлежность документа BillID типу операций
+	// PPOPT_WAREHOUSE.
+
+struct LocTransfOpBlock { // @flat @persistent(SSerializeContext)
+	LocTransfOpBlock(int domain, int op, PPID locID);
+	LocTransfOpBlock(const LocTransfOpBlock & rS);
+	LocTransfOpBlock(const LocTransfTbl::Rec & rRec);
+	LocTransfOpBlock & FASTCALL operator = (const LocTransfTbl::Rec * pRec);
+	LocTransfOpBlock & Init(int domain, int op, PPID locID);
+	void   FASTCALL CopyTo(LocTransfTbl::Rec & rRec) const;
+	bool   FASTCALL IsEq(const LocTransfTbl::Rec & rRec) const;
+
+	int    Domain;           // @v12.4.1 LOCTRFRDOMAIN_XXX
+	int    LTOp;             // LOCTRFROP_XXX // @v12.4.1 Op-->LTOp
+	PPID   BillID;           //
+	int    RByBillLT;        // Номер операции по документу. Для новой записи 0. See comments to LOCTRF_OWNEDBYBILL.
+	PPID   GoodsID;          //
+	PPID   LotID;            //
+	PPID   LocOwnerPersonID; // @v12.4.1 Владелец адреса хранения (domain==LOCTRFRDOMAIN_BAILMENT)
+	PPID   LocID;            // if(domain==LOCTRFRDOMAIN_WMS) then - Ячейка размещения, elseif(domain==LOCTRFRDOMAIN_BAILMENT) then - Адрес ответственного хранения //
+	long   RByLoc;           // Номер операции по ячейке. Для новой записи 0.
+	PPID   PalletTypeID;     //
+	uint   PalletCount;      //
+	double Qtty;             //
+	long   Flags;            // @v12.4.1 LOCTRF_XXX
+	PPID   UserID;           // @v12.4.1
+	LDATETIME Dtm;           // @v12.4.1
+	uint8  Reserve[24];      // @v12.4.1 @reserve
+};
+//
 //
 //
 // @v12.2.11 (replaced with PPLinkFile::fIsNew) #define PPLNKFILE_ISNEW 0x00000001L
@@ -12386,8 +12466,6 @@ public:
 		SString Info;
 		double Amount; //@erik v10.5.9
 		long   Flags_;  //@erik v10.5.9
-		// @v11.8.11 int    BuyersEAddrType; // @v11.3.7 (0|SNTOK_EMAIL|SNTOK_PHONE)
-		// @v11.8.11 SString BuyersEAddr; // @v11.3.7
 		CCheckPacket::BuersEAddr_ EAddr;  // @v11.8.11 Электронный адрес покупателя (email or phone)
 	};
 	//
@@ -12420,7 +12498,7 @@ public:
 	//   false - в противном случае
 	//
 	bool   IsDraft() const; //
-	bool   IsGoodsDetail() const;
+	// @v12.4.1 (superseded by GetDetailType) bool   IsGoodsDetail() const;
 	int    SetupVirtualTItems();
 	int    RemoveVirtualTItems();
 	//
@@ -12432,6 +12510,21 @@ public:
 	int    GetMainOrgID_(PPID * pID) const;
 	int    AddTSessCip(PPID tsessID, const char * pPlaceCode, PPID personID);
 	int    SerializeLots(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
+	//
+	// Descr: Типы основной детализации документа
+	//
+	enum { // @v12.4.1 
+		detailtypeUndef = 0,        // Не определено
+		detailtypeTransfer,         // Товарные строки
+		detailtypeLocTrfr,          // Строки складских размещений PPOPT_WAREHOUSE
+		detailtypeLocTrfr_Bailment, // Строки операций ответственного хранения (bailment) PPOPT_WAREHOUSE
+	};
+	//
+	// Descr: Функция определяет тип отображения основной детализации документа. 
+	//   Функция введена в качестве фундаментального метода идентификации способов отображения детализации,
+	//   однако, первоначальная мотивация возникла из-за документов складских перемещений и ответственного хранения.
+	//
+	int    GetDetailType() const;
 	//
 	// Поля ErrCause & ErrLine служат для диагностики ошибок при проводке документа.
 	// Их значения существенны только в случае, если произошла ошибка в методах
@@ -12490,6 +12583,7 @@ public:
 	};
 	TSVector <QuotSetupInfoItem> * P_QuotSetupInfoList;
 	PPLotTagContainer * P_MirrorLTagL; // Список тегов зеркальных лотов (созданных при межскладском перемещении)
+	TSVector <LocTransfOpBlock> * P_LocTrfrList; // @v12.4.1
 	PPID   PaymBillID;         // @*PPObjBill::ExtractPacket Платежный документ (зачеты).
 	PPID   OrderPoolBillID;    // @v12.0.11 @*PPObjBill::ExtractPacket Документ заказа, для которого данный документ является членом пула сопутствующих документов списания //
 	PPID   CSessID;            // Кассовая или технологическая сессия, которую списывает документ
@@ -19510,6 +19604,10 @@ public:
 #define OPSUBT_POSCORRECTION         10 // Корректировка фискальных сумм по кассовому аппарату
 #define OPSUBT_RETURNREQ             11 // PPOPT_DRAFTRECEIPT Запрос от покупателя на возврат ранее купленного товара.
 	// Variant of [EDI 180 Return Merchandise Authorization and Notification]
+#define OPSUBT_BAILMENT_ORDER        12 // @v12.4.1 PPOPT_WAREHOUSE запрос на операцию ответственного хранения //
+#define OPSUBT_BAILMENT_PUT          13 // @v12.4.1 PPOPT_WAREHOUSE передача актива на ответственное хранение
+#define OPSUBT_BAILMENT_GET          14 // @v12.4.1 PPOPT_WAREHOUSE возврат актива с ответственного хранения //
+#define OPSUBT_GENERALWMSOP          15 // @v12.4.1 PPOPT_WAREHOUSE общая операция складского хранения //
 //
 // Descr: Заголовочная запись вида операций
 //
@@ -34198,6 +34296,117 @@ private:
 	PPTblEnumList EnumList;
 };
 //
+// @ModuleDecl(LocTransfCore)
+//
+class LocTransfCore : public LocTransfTbl {
+public:
+	LocTransfCore();
+	~LocTransfCore();
+	int    Search(PPID locID, long rByLoc, LocTransfTbl::Rec * pRec);
+	int    SearchRestByGoods(int domain, PPID goodsID, PPID locID, long rByLoc, LocTransfTbl::Rec * pRec);
+	int    SearchRestByLot(int domain, PPID lotID, PPID locID, long rByLoc, LocTransfTbl::Rec * pRec);
+	int    EnumByBill(PPID billID, int16 * pRByBill, LocTransfTbl::Rec * pRec);
+	int    GetTransByBill(PPID billID, int16 rByBill, TSVector <LocTransfTbl::Rec> * pList);
+	int    PutOp(const LocTransfOpBlock & rBlk, int * pRByLoc, int use_ta);
+	int    RemoveOp(PPID locID, long rByLoc, int use_ta);
+	int    ValidateOpBlock(const LocTransfOpBlock & rBlk);
+	int    GetLocCellList(PPID goodsID, PPID parentLocID, RAssocArray * pList);
+	int    GetGoodsList(int domain, PPID locID, RAssocArray * pList);
+	int    GetCellListForGoods(PPID goodsID, const PPIDArray * pCellList, RAssocArray * pList);
+	//
+	// Descr: Находит список ячеек, в которых ничего нет. Если pCellList != 0,
+	//   то в расчет принимаются только те ячейки, которые перечислены в этом списке.
+	//
+	int    GetEmptyCellList(const PPIDArray * pCellList, PPIDArray * pList);
+	//
+	// Descr: Определяет список ячеек, в которых есть хоть что-то.
+	//   Если pCellList != 0, то в расчет принимаются только ячейки из этого списка.
+	//
+	int    GetNonEmptyCellList(const PPIDArray * pCellList, PPIDArray * pList);
+	//
+	// Descr: Определяет размещение по ячейкам строки rByBill товарного документа billID.
+	//   Результат возвращается в массиве rDispositionList.
+	//
+	int    GetDisposition(PPID billID, int rByBill, TSVector <LocTransfTbl::Rec> & rDispositionList);
+	//
+	// Descr: Определяет размещение по ячейкам строк товарного документа billID.
+	//   Резудьтат возвращается в массиве rDispositionList.
+	//
+	int    GetDisposition(PPID billID, TSVector <LocTransfTbl::Rec> & rDispositionList);
+private:
+	int    PrepareRec(PPID locID, PPID billID, LocTransfTbl::Rec * pRec);
+	int    GetLastOpByLoc(PPID locID, long * pRByLoc, LocTransfTbl::Rec * pRec);
+	int    GetLastOpByBill(PPID billID, int16 * pRByBill, LocTransfTbl::Rec * pRec);
+	int    GetLastOpByLot(PPID locID, PPID lotID, LocTransfTbl::Rec * pRec);
+	int    GetLastOpByGoods(PPID locID, PPID goodsID, LocTransfTbl::Rec * pRec);
+	int    UpdateForward(PPID locID, long rByLoc, PPID goodsID, PPID lotID, int check, double * pAddendum);
+	int    UpdateCurrent(int domain, PPID locID, PPID goodsID, PPID lotID, double addendum);
+
+	PPObjLocation LocObj;
+};
+//
+//
+//
+struct LocTransfDisposeItem {
+	//
+	// Descr: Теговые флаги результата размещения.
+	//
+	enum {
+		ctUndef      = 0,
+		ctEmpty      = 0x0001, // Ячейка пустая //
+		ctInAssoc    = 0x0002, // Ячейка ассоциирована с заданным товаром (предпочтительна)
+		ctOutOfAssoc = 0x0004, // Ячейка не ассоциирована с заданным товаром при том, что ассоциации заданы.
+			// Если ассоциаций товар-ячейка не существует вообще, этот флаг не устанавливается.
+		ctUpper      = 0x0008  // Ячейка находится на верхнем ярусе
+	};
+	LocTransfDisposeItem();
+
+	int    Op;             // INOUT
+	PPID   GoodsID;        // IN
+	PPID   WhLocID;        // IN Склад, в пределах которого следует размещать товар.
+	PPID   BillID;         // IN
+	int    BillTiIdx;      // IN
+	PPID   LotID;          // IN
+	long   Tag;            // OUT Флаги результата размещения //
+	PPID   LocID;          // OUT
+	PPID   Loc2ID;         // OUT
+	PPID   PalletTypeID;   // OUT
+	int    PalletCount;    // OUT
+	double Qtty;           // INOUT
+};
+
+typedef TSVector <LocTransfDisposeItem> LocTransfDisposeArray;
+
+class LocTransfDisposer {
+public:
+	LocTransfDisposer();
+	~LocTransfDisposer();
+	int    Dispose(const LocTransfDisposeItem & rItem, LocTransfDisposeArray & rOutList, int use_ta);
+	int    Dispose(const LocTransfDisposeArray & rInList, LocTransfDisposeArray & rOutList, int use_ta);
+	//
+	// Descr: Размещает документы из списка rBillList по складским ячейкам.
+	// ARG(rBillList IN): Список идентификаторов документов, которые необходимо разместить по ячейкам
+	// ARG(pLogger   INOUT): @#{vptr0} Если не ноль, то в этот логгер будет записан отчет о размещении.
+	// ARG(use_ta    IN): Если !0, то размещение осуществляется в рамках собственной транзакции.
+	//
+	int    Dispose(const PPIDArray & rBillList, PPLogger * pLogger, int use_ta);
+	int    ArrangeCellList(const LocTransfDisposeItem & rItem, PPIDArray & rLocList);
+	int    GetDistance(PPID loc1ID, PPID loc2ID, double * pDistance);
+	int    CheckLocRestictions(const LocTransfDisposeItem & rItem);
+private:
+	int    SetupOpBlock(LocTransfDisposeItem & rItem, PPID whCellID, double * pQtty, LocTransfOpBlock & rBlk);
+	int    ArrangeColumnList(PPIDArray & rColumnList);
+
+	enum {
+		stGtoaLoaded = 0x0001
+	};
+	LocTransfCore LtT;
+	PPObjLocation LocObj;
+	PPObjGoods GObj;
+	GoodsToObjAssoc GtoAssc;
+	long   State;
+};
+//
 // Descr: Структура, используемая для формирования строк документов, на основании товарных структур
 //
 struct ComplItem {
@@ -34605,13 +34814,16 @@ public:
 	};
 
 	int    SetupImportedPrice(const PPBillPacket * pPack, PPTransferItem * pTi, long flags);
+	int    TurnLocTrfrList(PPID billID, PPBillPacket * pPack, int use_ta); // @v12.4.1
+	int    LoadLocTrfrList(PPID billID, TSVector <LocTransfOpBlock> * pList); // @v12.4.1
+	//
+	int    TurnAdvList(PPID billID, PPBillPacket * pPack, int use_ta);
 	//
 	// Descr: используется для загрузки списка строк расширения бух документа
 	//   в PPBillPacke и в ILBillPacket. По-этой причине она абстрагирукется от конкретного
 	//   типа пакета, а требует лишь те параметры, которые необходимы.
 	//
 	int    LoadAdvList(PPID billID, PPID opID, PPAdvBillItemList *);
-	int    TurnAdvList(PPID billID, PPBillPacket * pPack, int use_ta);
 	//
 	// Descr: Ищет ссылку на billID среди строк расширения бухгалтерских документов.
 	//   Если ссылка найдена, то по указателю pItemRec возвращается запись ссылающейся //
@@ -35023,13 +35235,13 @@ public:
 	class InvBlock {
 	public:
 		enum {
-			fPriceByLastLot    = 0x0001, // Цену брать из последнего лота
-			fFailOnDup         = 0x0002, // При существовании аналогичной позиции сигнализировать об ошибке (не складывать количества).
-			fSkipZeroRest      = 0x0004, //
-			fUseCurrent        = 0x0008, // Функция AcceptInventoryItem определяет учетные характеристики по текущему состоянию, но не на дату документа инвентаризации
-			fAutoLine          = 0x0010,
-			fAutoLineAllowZero = 0x0020,
-			fAutoLineZero      = 0x0040,
+			fPriceByLastLot          = 0x0001, // Цену брать из последнего лота
+			fFailOnDup               = 0x0002, // При существовании аналогичной позиции сигнализировать об ошибке (не складывать количества).
+			fSkipZeroRest            = 0x0004, //
+			fUseCurrent              = 0x0008, // Функция AcceptInventoryItem определяет учетные характеристики по текущему состоянию, но не на дату документа инвентаризации
+			fAutoLine                = 0x0010,
+			fAutoLineAllowZero       = 0x0020,
+			fAutoLineZero            = 0x0040,
 			fRestrictZeroRestWithMtx = 0x0080, // Проекция флага AutoFillInvFilt::fRestrictZeroRestWithMtx
 			fExcludeZeroRestPassiv   = 0x0100  // @v11.1.2
 		};
@@ -35270,6 +35482,7 @@ public:
 	TLP_MEMB(CpTransfCore, P_CpTrfr);
 	TLP_MEMB(AdvBillItemTbl, P_AdvBI);
 	TLP_MEMB(LotExtCodeCore, P_LotXcT);
+	TLP_MEMB(LocTransfCore, P_LocTrfr); // @v12.4.1
 private:
 	virtual int  HandleMsg(int, PPID, PPID, void * extraPtr);
 	virtual int  EditRights(uint, ObjRights *, EmbedDialog * pDlg = 0);
@@ -35360,7 +35573,11 @@ private:
 	int    SetupSpecialAmounts(PPBillPacket * pPack);
 	int    Helper_GetShipmentByLot(PPID lotID, const DateRange * pPeriod, const ObjIdListFilt & rOpList, long flags, double * pShipment, PPIDArray * pRecurTrace);
 		// @>>PPObjBill::GetShippedPartOfReceipt
-	int    SerializePacket_Base(int dir, PPBill * pPack, SBuffer & rBuf, SSerializeContext * pSCtx); // @v10.1.12 @dbd_exchange
+	//
+	// Descr: Вспомогательная функция сериализации пакета документа. Применяется для сериализации 
+	//   пакетов PPBillPacket и ILBillPacket.
+	//
+	int    SerializePacket_Base(int dir, PPBill * pPack, SBuffer & rBuf, SSerializeContext * pSCtx);
 	int    SerializePacket__(int dir, ILBillPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx);
 	int    Helper_GetExpendedPartOfReceipt(PPID lotID, const DateIter & rDi, const DateRange * pPaymPeriod,
 		const PPIDArray * pOpList, EprBlock & rBlk, PPIDArray & rRecurList);
@@ -35490,162 +35707,6 @@ private:
 	StringSet FormSet;
 };
 //
-// @ModuleDecl(LocTransfCore)
-//
-
-//
-// Descr: Идентификаторы типов складских операций
-//   Наименования операций хранятся в строке PPTXT_LOCTRANSF_OPTEXT в формате: "1,text;2,text;3,text"
-//
-#define LOCTRFROP_PUT                  1 // Положить товар в ячейку
-#define LOCTRFROP_GET                  2 // Извлечь товар из ячейки
-#define LOCTRFROP_INVENT               3 // Инвентаризация ячейки
-//
-// Descr: Идентификаторы областей применения складских операций.
-//
-#define LOCTRFRDOMAIN_WMS              0 // @v12.4.1 Операции, связанные с размещением товаров внутри наших складов.
-	// В качестве локации в таких операциях выступает ячейка хранения склада.
-#define LOCTRFRDOMAIN_BAILMENT         1 // @v12.4.1 Операции, связанные с передачей активов на ответственное хранение контрагентам.
-	// В качестве локации в таких операциях выступает какой-либо из адресов контрагента.
-//
-// Descr: Флаги ограничений размещения в складских ячейках
-//
-#define LOCDISPRESTR_SINGLEWARE   0x0001 // Ограничение единственным наименованием товара
-#define LOCDISPRESTR_VOLUME       0x0002 // Оганичение по суммарному объему
-#define LOCDISPRESTR_BRUTTO       0x0004 // Ограничение по суммарной массе брутто
-#define LOCDISPRESTR_PALLETCOUNT  0x0008 // Ограничение по количеств паллет
-#define LOCDISPRESTR_PALLETONLY   0x0010 // Загрузка только паллетами
-#define LOCDISPRESTR_PALLETSIZE   0x0020 // Ограничение по размеру паллет
-
-struct LocTransfOpBlock {
-	LocTransfOpBlock(int domain, int op, PPID locID);
-	LocTransfOpBlock & FASTCALL operator = (const LocTransfTbl::Rec * pRec);
-	LocTransfOpBlock & Init(int domain, int op, PPID locID);
-	bool   FASTCALL IsEq(const LocTransfTbl::Rec & rRec) const;
-
-	int    Domain;           // @v12.4.1 LOCTRFRDOMAIN_XXX
-	int    LTOp;             // LOCTRFROP_XXX // @v12.4.1 Op-->LTOp
-	PPID   BillID;           //
-	int    RByBill;          // Номер операции по документу. Для новой записи 0.
-	PPID   GoodsID;          //
-	PPID   LotID;            //
-	PPID   LocOwnerPersonID; // @v12.4.1 Владелец адреса хранения (domain==LOCTRFRDOMAIN_BAILMENT)
-	PPID   LocID;            // if(domain==LOCTRFRDOMAIN_WMS) then - Ячейка размещения, elseif(domain==LOCTRFRDOMAIN_BAILMENT) then - Адрес ответственного хранения //
-	long   RByLoc;           // Номер операции по ячейке. Для новой записи 0.
-	PPID   PalletTypeID;     //
-	uint   PalletCount;      //
-	double Qtty;             //
-};
-
-class LocTransfCore : public LocTransfTbl {
-public:
-	LocTransfCore();
-	~LocTransfCore();
-	int    Search(PPID locID, long rByLoc, LocTransfTbl::Rec * pRec);
-	int    SearchRestByGoods(int domain, PPID goodsID, PPID locID, long rByLoc, LocTransfTbl::Rec * pRec);
-	int    SearchRestByLot(int domain, PPID lotID, PPID locID, long rByLoc, LocTransfTbl::Rec * pRec);
-	int    EnumByBill(PPID billID, int16 * pRByBill, LocTransfTbl::Rec * pRec);
-	int    GetTransByBill(PPID billID, int16 rByBill, TSVector <LocTransfTbl::Rec> * pList);
-	int    PutOp(const LocTransfOpBlock & rBlk, int * pRByLoc, int use_ta);
-	int    RemoveOp(PPID locID, long rByLoc, int use_ta);
-	int    ValidateOpBlock(const LocTransfOpBlock & rBlk);
-	int    GetLocCellList(PPID goodsID, PPID parentLocID, RAssocArray * pList);
-	int    GetGoodsList(int domain, PPID locID, RAssocArray * pList);
-	int    GetCellListForGoods(PPID goodsID, const PPIDArray * pCellList, RAssocArray * pList);
-	//
-	// Descr: Находит список ячеек, в которых ничего нет. Если pCellList != 0,
-	//   то в расчет принимаются только те ячейки, которые перечислены в этом списке.
-	//
-	int    GetEmptyCellList(const PPIDArray * pCellList, PPIDArray * pList);
-	//
-	// Descr: Определяет список ячеек, в которых есть хоть что-то.
-	//   Если pCellList != 0, то в расчет принимаются только ячейки из этого списка.
-	//
-	int    GetNonEmptyCellList(const PPIDArray * pCellList, PPIDArray * pList);
-	//
-	// Descr: Определяет размещение по ячейкам строки rByBill товарного документа billID.
-	//   Результат возвращается в массиве rDispositionList.
-	//
-	int    GetDisposition(PPID billID, int rByBill, TSVector <LocTransfTbl::Rec> & rDispositionList);
-	//
-	// Descr: Определяет размещение по ячейкам строк товарного документа billID.
-	//   Резудьтат возвращается в массиве rDispositionList.
-	//
-	int    GetDisposition(PPID billID, TSVector <LocTransfTbl::Rec> & rDispositionList);
-private:
-	int    PrepareRec(PPID locID, PPID billID, LocTransfTbl::Rec * pRec);
-	int    GetLastOpByLoc(PPID locID, long * pRByLoc, LocTransfTbl::Rec * pRec);
-	int    GetLastOpByBill(PPID billID, int16 * pRByBill, LocTransfTbl::Rec * pRec);
-	int    GetLastOpByLot(PPID locID, PPID lotID, LocTransfTbl::Rec * pRec);
-	int    GetLastOpByGoods(PPID locID, PPID goodsID, LocTransfTbl::Rec * pRec);
-	int    UpdateForward(PPID locID, long rByLoc, PPID goodsID, PPID lotID, int check, double * pAddendum);
-	int    UpdateCurrent(int domain, PPID locID, PPID goodsID, PPID lotID, double addendum);
-
-	PPObjLocation LocObj;
-};
-//
-//
-//
-struct LocTransfDisposeItem {
-	//
-	// Descr: Теговые флаги результата размещения.
-	//
-	enum {
-		ctUndef      = 0,
-		ctEmpty      = 0x0001, // Ячейка пустая //
-		ctInAssoc    = 0x0002, // Ячейка ассоциирована с заданным товаром (предпочтительна)
-		ctOutOfAssoc = 0x0004, // Ячейка не ассоциирована с заданным товаром при том, что ассоциации заданы.
-			// Если ассоциаций товар-ячейка не существует вообще, этот флаг не устанавливается.
-		ctUpper      = 0x0008  // Ячейка находится на верхнем ярусе
-	};
-	LocTransfDisposeItem();
-
-	int    Op;             // INOUT
-	PPID   GoodsID;        // IN
-	PPID   WhLocID;        // IN Склад, в пределах которого следует размещать товар.
-	PPID   BillID;         // IN
-	int    BillTiIdx;      // IN
-	PPID   LotID;          // IN
-	long   Tag;            // OUT Флаги результата размещения //
-	PPID   LocID;          // OUT
-	PPID   Loc2ID;         // OUT
-	PPID   PalletTypeID;   // OUT
-	int    PalletCount;    // OUT
-	double Qtty;           // INOUT
-};
-
-typedef TSVector <LocTransfDisposeItem> LocTransfDisposeArray;
-
-class LocTransfDisposer {
-public:
-	LocTransfDisposer();
-	~LocTransfDisposer();
-	int    Dispose(const LocTransfDisposeItem & rItem, LocTransfDisposeArray & rOutList, int use_ta);
-	int    Dispose(const LocTransfDisposeArray & rInList, LocTransfDisposeArray & rOutList, int use_ta);
-	//
-	// Descr: Размещает документы из списка rBillList по складским ячейкам.
-	// ARG(rBillList IN): Список идентификаторов документов, которые необходимо разместить по ячейкам
-	// ARG(pLogger   INOUT): @#{vptr0} Если не ноль, то в этот логгер будет записан отчет о размещении.
-	// ARG(use_ta    IN): Если !0, то размещение осуществляется в рамках собственной транзакции.
-	//
-	int    Dispose(const PPIDArray & rBillList, PPLogger * pLogger, int use_ta);
-	int    ArrangeCellList(const LocTransfDisposeItem & rItem, PPIDArray & rLocList);
-	int    GetDistance(PPID loc1ID, PPID loc2ID, double * pDistance);
-	int    CheckLocRestictions(const LocTransfDisposeItem & rItem);
-private:
-	int    SetupOpBlock(LocTransfDisposeItem & rItem, PPID whCellID, double * pQtty, LocTransfOpBlock & rBlk);
-	int    ArrangeColumnList(PPIDArray & rColumnList);
-
-	enum {
-		stGtoaLoaded = 0x0001
-	};
-	LocTransfCore LtT;
-	PPObjLocation LocObj;
-	PPObjGoods GObj;
-	GoodsToObjAssoc GtoAssc;
-	long   State;
-};
-//
 // @ModuleDecl(PPViewLocTransf)
 //
 struct LocTransfFilt : public PPBaseFilt {
@@ -35699,6 +35760,9 @@ struct LocTransfViewItem : public LocTransfTbl::Rec {
 
 class PPViewLocTransf : public PPView {
 public:
+	static int EditLocTransf(const PPBillPacket * pPack, LocTransfTbl::Rec & rData);
+	static int EditLocTransf(const PPBillPacket * pPack, LocTransfOpBlock & rData);
+
 	struct Hdr {
 		PPID   ID__;
 		PPID   LocID;
@@ -35713,6 +35777,7 @@ public:
 	int    FASTCALL NextIteration(LocTransfViewItem *);
 private:
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
+	virtual void  PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual int   ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	virtual int   Detail(const void * pHdr, PPViewBrowser * pBrw);
 	int    AddItem(PPID curLocID, long curRByLoc);
@@ -44740,11 +44805,11 @@ private:
 class GoodsMovFilt : public PPBaseFilt {
 public:
 	enum {
-		fCostWoVat      = 0x0001, // Цены поступления без НДС
-		fLabelOnly      = 0x0002, //
-		fUseOldAlg      = 0x0004, //
-		fInited = 0x0008, // for inthernal use
-		fPriceWoVat     = 0x0010  // @v10.6.6 Цены реализации без НДС
+		fCostWoVat   = 0x0001, // Цены поступления без НДС
+		fLabelOnly   = 0x0002, //
+		fUseOldAlg   = 0x0004, //
+		fInited      = 0x0008, // for inthernal use
+		fPriceWoVat  = 0x0010  // Цены реализации без НДС
 	};
 	enum {
 		prkBasePrice = 0,
@@ -45169,7 +45234,7 @@ public:
 			// UUID сессии, присвоившей чеки признак CCHKF_JUNK извлекается из зарезервированного тэга чека PPTAG_CCHECK_JS_UUID
 		fPrintDetail      = 0x10000000, // По умолчанию печатать детализированный отчет по структуре CCheckViewDetail
 		fNotSpFinished    = 0x20000000, // На чеке не установлен флаг CCHKF_SPFINISHED
-		fAvoidExt         = 0x40000000, // @v10.2.1 По возможности избегать чтения расширенных данных чека для улучшения производительности
+		fAvoidExt         = 0x40000000, // По возможности избегать чтения расширенных данных чека для улучшения производительности
 		fWithMarkOnly     = 0x80000000  // @v11.0.0 Только чеки, среди строк которых имеются маркированные
 	};
 	enum { // @v11.9.1
@@ -45258,14 +45323,14 @@ public:
 
 struct CCheckTotal {
 	long   Count;
-	long   CountAltReg; // @v10.0.02 Количество чеков, проведенных через альтернативный регистратор
+	long   CountAltReg; // Количество чеков, проведенных через альтернативный регистратор
 	double Amount;
 	double Discount;
 	double AmtCash;   // Сумма, оплаченная наличными
 	double AmtBank;   // Сумма, оплаченная банковскими картами
 	double AmtSCard;  // Сумма, оплаченная по корпоративным кредитным картам
 	double AmtReturn; // Сумма возвратов
-	double AmtAltReg; // @v10.0.02 Сумма, проведенная через альтернативный регистратор
+	double AmtAltReg; // Сумма, проведенная через альтернативный регистратор
 	double Qtty;
 	//
 	// Статистики по суммам чеков
@@ -45303,9 +45368,9 @@ struct CCheckViewItem : public CCheckTbl::Rec { // @transient // @flat
 	long   LineQueue;      // Очередь подачи (для ресторанов)
 	STimeChunk OrderTime;  // Отрезок времени, на который заказан стол
 	LDATETIME CreationDtm; // Время создания чека (начало обслуживания)
-	PPID   CreationUserID; // @v10.6.8 Пользователь, создавший чек
+	PPID   CreationUserID; // Пользователь, создавший чек
 	char   G_Text_[128];   // Текст наименования группы. При итерации по строкам - серийный номер
-	char   Serial[32];     // @v10.2.6 Серийный номер (при итерации по строкам)
+	char   Serial[32];     // Серийный номер (при итерации по строкам)
 };
 
 DECL_CMPFUNC(CCheckViewItem_Dtm_Desc);
@@ -45552,7 +45617,7 @@ public:
 		gDateCntragentAgentGoods,
 		gGoodsDate,
 		gBillCntragent,
-		gGoodsSuppl // @v10.1.6 По товару и поставщику
+		gGoodsSuppl // По товару и поставщику
 	};
 	enum {
 		fLabelOnly           = 0x00000001,   // Только помеченные операции
@@ -45580,8 +45645,8 @@ public:
 		fCalcAvgRest         = 0x00100000,   // Рассчитывать среднедневные остатки (предполагает наличие флага fCalcRest)
 		fCmpWrOff            = 0x00200000,   // Если отчет строится по драфт-документам, то выводить результаты сравнения с документами списания.
 		fCmpWrOff_DiffOnly   = 0x00400000,   // Если отчет строится со сравнением драфт-документов и документов списания, то отображать только различающиеся позиции.
-		fUnclosedDraftsOnly  = 0x00800000,   // @v10.1.10 Если отчет строится по драфт-документам, то пропускать списанные документы
-		fShowCargo           = 0x01000000,   // @v10.3.4 Отображать грузовые параметры (брутто и объем)
+		fUnclosedDraftsOnly  = 0x00800000,   // Если отчет строится по драфт-документам, то пропускать списанные документы
+		fShowCargo           = 0x01000000,   // Отображать грузовые параметры (брутто и объем)
 		fExtValQuotSkipTmVal = 0x02000000    // @v11.9.4 Если в качестве дополнительного значения (ExtValueParam) задан вид котировки и
 			// установлен этот флаг, то значения котировок, привязанные к периоду, будут игнорироваться.
 	};
@@ -45645,8 +45710,8 @@ public:
 		ravTurnoverRate = 0x0004, // Коэффициент оборачиваемости (движение / остаток)
 	};
 
-	uint8  ReserveStart[32];     // @anchor // @v10.0.04 [12]-->[4] // @v11.0.1 [4]-->[32]
-	DateRange DueDatePeriod;     // @v10.0.04 Период даты исполнения документов
+	uint8  ReserveStart[32];     // @anchor // @v11.0.1 [4]-->[32]
+	DateRange DueDatePeriod;     // Период даты исполнения документов
 	long   ExtValueParam[2];     // Параметры, определяющие вычисление дополнительных показателей отчета
 	long   RestAddendumValue;    // Параметр, определяющий варинат отображения значений, базирующихся на остатках
 	long   ExtFactorParam[3];    // @v11.0.1
@@ -47698,9 +47763,9 @@ struct PPDraftCreateRule2 {  // @persistent @store(Reference2Tbl+)
 		fOnlyNotBanking   = 0x0010,
 		fExcludeSCardSer  = 0x0020,
 		fUseGoodsLocAssoc = 0x0040,
-		// @v10.3.5 @#{fRetOnly^fSalesOnly} (fRetOnly && fSalesOnly) трактуется как отсутствие обоих флагов (и продажи и возвраты)
-		fRetOnly  = 0x0080, // @v10.3.5 Только чеки возвратов
-		fSalesOnly        = 0x0100  // @v10.3.5 Только чеки продаж (без возвратов).
+		// @#{fRetOnly^fSalesOnly} (fRetOnly && fSalesOnly) трактуется как отсутствие обоих флагов (и продажи и возвраты)
+		fRetOnly          = 0x0080, // Только чеки возвратов
+		fSalesOnly        = 0x0100  // Только чеки продаж (без возвратов).
 	};
 	PPID   Tag;            // Const=PPOBJ_DFCREATERULE
 	PPID   ID;             // @id
@@ -47761,11 +47826,11 @@ public:
 
 	enum {
 		fCreateMrpTab = 0x0001,
-		fSetManufDate = 0x0002 // @v10.5.12 Проекция PPDraftWrOff::Flags & DWOF_SETMANUFDATE
+		fSetManufDate = 0x0002 // Проекция PPDraftWrOff::Flags & DWOF_SETMANUFDATE
 	};
-	uint8  ReserveStart[28]; // @anchor // @v10.5.12 [32]-->[28]
-	int16  SetManufDateOffsDays; // @v10.5.12 Проекция PPDraftWrOff::SetManufDateOffsDays с возможностью изменения
-	int16  SetManufFixedTime;    // @v10.5.12 Проекция PPDraftWrOff::SetManufFixedTime с возможностью изменения
+	uint8  ReserveStart[28]; // @anchor 
+	int16  SetManufDateOffsDays; // Проекция PPDraftWrOff::SetManufDateOffsDays с возможностью изменения
+	int16  SetManufFixedTime;    // Проекция PPDraftWrOff::SetManufFixedTime с возможностью изменения
 	DateRange Period;
 	PPID   DwoID;
 	PPID   PoolLocID;
@@ -48116,7 +48181,7 @@ public:
 	//
 	int    Maintain(); // @nointeract @ta
 	int    GetLinkTasks(PPID taskID, PPIDArray * pAry);
-	int    EditDialog(PPPrjTaskPacket * pPack); // @v10.7.2
+	int    EditDialog(PPPrjTaskPacket * pPack);
 private:
 	virtual StrAssocArray * MakeStrAssocList(void * extraPtr);
 	virtual const char * GetNamePtr();
@@ -50109,7 +50174,7 @@ public:
 	SString StrucName;
 };
 
-typedef TempReportTbl::Rec ReportViewItem; // @v10.7.3 Закладываемся на то, что имеет конструктор и убираем везде MEMSZERO()
+typedef TempReportTbl::Rec ReportViewItem;
 typedef TSArray <ReportViewItem> ReportViewItemArray;
 
 class PPViewReport : public PPView {
@@ -50578,7 +50643,6 @@ private:
 	int    UpdateTempTable(const PPIDArray * pIdList);
 	TempCashNodeTbl::Rec & MakeTempEntry(const PPCashNode & rRec, TempCashNodeTbl::Rec & rTempRec);
 	int    CheckForFilt(const PPCashNode * pRec) const;
-	// @v10.1.0 (inlined) int    ExecCPanel(uint ppvCmd, PPID cashID);
 
 	SString CashTypeNames;
 	CashNodeFilt  Filt;
@@ -51575,7 +51639,7 @@ private:
 		obLot,
 		obPayment,
 		obUnit,
-		obAddress // @v10.7.5
+		obAddress
 	};
 
 	struct ObjectBlock { // @flat
@@ -51647,10 +51711,10 @@ private:
 	};
 	struct GoodsBlock : public ObjectBlock { // @flat
 		enum {
-			spcfUnlim  = 0x0001, // (goodstype)
+			spcfUnlim          = 0x0001, // (goodstype)
 			spcfLookBackPrices = 0x0002, // (goodstype)
 			spcfDefault        = 0x0004, // Признак единственного товара, используемого в качестве default при продаже по цене.
-			spcfMarked = 0x0008  // @v10.7.3 (goodstype)
+			spcfMarked         = 0x0008  // (goodstype)
 		};
 		GoodsBlock();
 		PPID   ParentBlkP;
@@ -51762,8 +51826,8 @@ private:
         uint   CCheckBlkP;
         uint   SerialP;
         uint   EgaisMarkP;
-		uint   ChZnMarkP; // @v10.7.3
-		uint   RemoteProcessingTaP; // @v10.7.3
+		uint   ChZnMarkP;
+		uint   RemoteProcessingTaP;
 	};
 	struct CcPaymentBlock : public ObjectBlock { // @flat
 		CcPaymentBlock();
@@ -53640,6 +53704,7 @@ public:
 	~PPAutoTranslSvc_Microsoft();
 	int    Auth(const char * pIdent, const char * pSecret);
     int    Request(int srcLang, int destLang, const SString & rSrcText, SString & rResult);
+	int    Request3(int srcLang, int destLang, const SString & rSrcText, SString & rResult); // @v12.4.1
     PPAutoTranslSvc_Microsoft::Stat & GetStat() const;
 private:
 	Stat   S;
@@ -60067,7 +60132,7 @@ private:
 	int    Pack();
 
 	PPID   DesktopID_Obsolete; // -1 - не определенный стол (0 - общий пул для всех рабочих столов)
-	S_GUID DesktopUuid; // @v10.9.3 Начиная с этого релиза DesktopUuid является ведущим идентификатором для
+	S_GUID DesktopUuid; // Начиная с этого релиза DesktopUuid является ведущим идентификатором для
 		// распознавания рабочих столов и пользовательских меню.
 		// Перманентный 4-байтовый идентификатор получается из ассоциации UuidRefCore
 	TSVector <Item> L;
@@ -62465,7 +62530,7 @@ int    ViewTrfrAnlz(const TrfrAnlzFilt *);
 int    ViewSCard(const SCardFilt *, int _modeless);
 int    ViewAddressBook();
 int    SelectAddressFromBook(PPID * pSelPersonID, SString & rAddr);
-int    ViewBillDetails(PPBillPacket * pPack, long options, PPObjBill *);
+int    ViewBillDetails(PPBillPacket & rPack, int editMode, PPObjBill *);
 int    ViewMrpTab(const MrpTabFilt *);
 int    ViewDLSDetail(const DLSDetailFilt & rFilt);
 // @todo Member of PPObjOpCounter

@@ -330,8 +330,24 @@ private:
 				const long end_clk = clock();
 				SString line_buf;
 				line_buf.CatCurDateTime(DATF_DMY|DATF_CENTURY, TIMF_HMS).Tab().Cat(Op).Tab().Cat("finish").Tab().Cat(end_clk-StartClk);
-				if(Reply.NotEmpty())
-					line_buf.Tab().Cat(Reply);
+				if(Reply.NotEmpty()) {
+					StringSet ss(CHR_FS, Reply);
+					line_buf.Tab();
+					// @v12.4.1 {
+					if(ss.getCount() > 1) {
+						SString temp_buf;
+						uint ssp = 0; 
+						if(ss.get(&ssp, temp_buf)) {
+							line_buf.Cat(temp_buf);
+							while(ss.get(&ssp, temp_buf)) {
+								line_buf.CatChar('|').Cat(temp_buf);
+							}
+						}
+					}
+					else { // } @v12.4.1 
+						line_buf.Cat(Reply);
+					}
+				}
 				SLS.LogMessage(LogFileName, line_buf, 8192);
 			}
 		}

@@ -735,7 +735,7 @@ int DbProvider::Implement_DeleteFrom(DBTable * pTbl, int useTa, DBQ & rQ)
 			DBRowId _dbpos;
 			if(!pTbl->getPosition(&_dbpos))
 				ok = 0;
-			else if(!pTbl->getDirectForUpdate(pTbl->getCurIndex(), key_buf, _dbpos))
+			else if(!pTbl->getDirectForUpdate(pTbl->GetCurIndex(), key_buf, _dbpos))
 				ok = 0;
 			else if(pTbl->deleteRec() == 0) // @sfu
 				ok = 0;

@@ -151,7 +151,6 @@
     <ClCompile Include="..\PPLib\Person.cpp" />
     <ClCompile Include="..\PPLib\phnpan.cpp" />
     <ClCompile Include="..\PPLib\Ppaction.cpp" />
-    <ClCompile Include="..\PPLib\Ppappo.cpp" />
     <ClCompile Include="..\PPLib\PPARRAY.CPP" />
     <ClCompile Include="..\PPLib\workbook.cpp" />
     <ClCompile Include="..\PPEquip\wincexch.cpp" />

@@ -752,6 +752,27 @@ static void DebugOutputCrrExportOptions(const PEExportOptions & rEo, const char 
 	}
 }
 
+static int DoPhisicalPrintingJob(const CrystalReportPrintParamBlock & rBlk, short hJob, bool isCrr32Support)
+{
+	const uint64 profile_start = SLS.GetProfileTime();
+	const boolint spj_result = PEStartPrintJob(hJob, TRUE);
+	const uint64 profile_end = SLS.GetProfileTime();
+	{
+		SString msg_buf;
+		msg_buf.Z().Cat("Report").Space().CatParStr(isCrr32Support ? "crr32_support" : "local").CatChar('=').Cat(rBlk.ReportPath);
+		msg_buf.Space().CatEq("result", spj_result ? "ok" : "fail");
+		if(rBlk.Printer.NotEmpty()) // Ранее был pPrinter @erik v10.4.10
+			msg_buf.CatDiv(';', 2).CatEq("Printer", rBlk.Printer.NotEmpty()); // Ранее был pPrinter @erik v10.4.10
+		if(rBlk.NumCopies > 1)
+			msg_buf.CatDiv(';', 2).CatEq("Copies", rBlk.NumCopies);
+		msg_buf.CatDiv(';', 2).CatEq("Mks", (profile_end - profile_start));
+		PPLogMessage(PPFILNAM_REPORTING_LOG, msg_buf, LOGMSGF_USER | LOGMSGF_TIME | LOGMSGF_DBINFO);
+	}
+	if(!spj_result)
+		PPSetError(PPERR_CRYSTAL_REPORT);
+	return spj_result;
+}
+
 int CrystalReportPrint2_Local(const CrystalReportPrintParamBlock & rBlk, CrystalReportPrintReply & rReply, void * hParentWindowForPreview) // @v11.9.5 
 {
 	const  bool modal_preview = true;
@@ -901,18 +922,7 @@ int CrystalReportPrint2_Local(const CrystalReportPrintParamBlock & rBlk, Crystal
 			}
 		}
 		else {
-			const uint64 profile_start = SLS.GetProfileTime();
-			THROW_PP(PEStartPrintJob(h_job, TRUE), PPERR_CRYSTAL_REPORT);
-			const uint64 profile_end = SLS.GetProfileTime();
-			{
-				msg_buf.Z().CatEq("Report", rBlk.ReportPath);
-				if(rBlk.Printer.NotEmpty()) // Ранее был pPrinter @erik v10.4.10
-					msg_buf.CatDiv(';', 2).CatEq("Printer", rBlk.Printer.NotEmpty()); // Ранее был pPrinter @erik v10.4.10
-				if(rBlk.NumCopies > 1)
-					msg_buf.CatDiv(';', 2).CatEq("Copies", rBlk.NumCopies);
-				msg_buf.CatDiv(';', 2).CatEq("Mks", (profile_end - profile_start));
-				PPLogMessage(PPFILNAM_REPORTING_LOG, msg_buf, LOGMSGF_USER | LOGMSGF_TIME | LOGMSGF_DBINFO);
-			}
+			THROW(DoPhisicalPrintingJob(rBlk, h_job, false));
 		}
 	}
 	rReply.Z();
@@ -1064,8 +1074,8 @@ int CrystalReportPrint2_Server(const CrystalReportPrintParamBlock & rBlk, Crysta
 		}
 	}
 	else {
-		HWND h_parent_window = reinterpret_cast<HWND>(hParentWindowForPreview);
-		const DEVMODEA * p_dev_mode = (rBlk.InternalFlags & CrystalReportPrintParamBlock::intfDevModeValid) ? &rBlk.DevMode : 0;
+		HWND   h_parent_window = reinterpret_cast<HWND>(hParentWindowForPreview);
+		const  DEVMODEA * p_dev_mode = (rBlk.InternalFlags & CrystalReportPrintParamBlock::intfDevModeValid) ? &rBlk.DevMode : 0;
 		h_job = PEOpenPrintJob(rBlk.ReportPath);
 		THROW_PP(h_job, PPERR_CRYSTAL_REPORT);
 		PEGetReportOptions(h_job, &ro);
@@ -1117,18 +1127,7 @@ int CrystalReportPrint2_Server(const CrystalReportPrintParamBlock & rBlk, Crysta
 			}*/
 		}
 		else {
-			const uint64 profile_start = SLS.GetProfileTime();
-			THROW_PP(PEStartPrintJob(h_job, TRUE), PPERR_CRYSTAL_REPORT);
-			const uint64 profile_end = SLS.GetProfileTime();
-			{
-				msg_buf.Z().CatEq("Report", rBlk.ReportPath);
-				if(rBlk.Printer.NotEmpty()) // Ранее был pPrinter @erik v10.4.10
-					msg_buf.CatDiv(';', 2).CatEq("Printer", rBlk.Printer.NotEmpty()); // Ранее был pPrinter @erik v10.4.10
-				if(rBlk.NumCopies > 1)
-					msg_buf.CatDiv(';', 2).CatEq("Copies", rBlk.NumCopies);
-				msg_buf.CatDiv(';', 2).CatEq("Mks", (profile_end - profile_start));
-				PPLogMessage(PPFILNAM_REPORTING_LOG, msg_buf, LOGMSGF_USER | LOGMSGF_TIME | LOGMSGF_DBINFO);
-			}
+			THROW(DoPhisicalPrintingJob(rBlk, h_job, true));
 		}
 	}
 	//js_reply.InsertString("status", "ok");

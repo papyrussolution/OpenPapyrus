@@ -99,7 +99,7 @@ int PPApp::InitStatusBar()
 }
 #endif // } 0
 
-/*virtual*/const TWhatmanToolArray * PPApp::GetVectorTools() const { return &DS.GetVectorTools(); } // @v11.9.2 
+/*virtual*/const TWhatmanToolArray * PPApp::GetVectorTools() const { return &DS.GetVectorTools(); } // @v11.9.2
 /*virtual*/SPaintToolBox * PPApp::GetUiToolBox() { return &DS.GetUiToolBox(); } // @v11.9.2
 
 IMPL_HANDLE_EVENT(PPApp)
@@ -376,16 +376,6 @@ static void ShowTags_(PPID objType)
 	ShowObjects(PPOBJ_TAG, &ot_filt);
 }
 
-TWindow * PPApp::FindPhonePaneDialog()
-{
-	const long res_id = DLG_PHNCPANE;
-	for(TView * p = P_DeskTop->GetFirstView(); p != 0; p = p->nextView()) {
-		if(p->IsConsistent() && p->GetSubSign() == TV_SUBSIGN_DIALOG && static_cast<const TDialog *>(p)->resourceID == res_id)
-			return static_cast<TWindow *>(p);
-	}
-	return 0;
-}
-
 int PPApp::processCommand(uint cmd)
 {
 	LastCmd = cmd;
@@ -407,7 +397,7 @@ int PPApp::processCommand(uint cmd)
 			break;
 		case cmUnit:                 ShowObjects(PPOBJ_UNIT, 0);              break;
 		case cmCityStatus:           ShowObjects(PPOBJ_CITYSTATUS, 0);        break;
-		case cmPersonKind:           ShowObjects(PPOBJ_PERSONKIND, 0);          break;
+		case cmPersonKind:           ShowObjects(PPOBJ_PERSONKIND, 0);        break;
 		case cmPersonStatus:         ShowObjects(PPOBJ_PRSNSTATUS, 0);        break;
 		case cmPersonCategory:       ShowObjects(PPOBJ_PRSNCATEGORY, 0);      break;
 		case cmBnkAccType:           ShowObjects(PPOBJ_BNKACCTYPE, 0);        break;
@@ -453,7 +443,7 @@ int PPApp::processCommand(uint cmd)
 		case cmDraftWrOff:           ShowObjects(PPOBJ_DRAFTWROFF, 0);        break;
 		case cmAssetWrOffGrp:        ShowObjects(PPOBJ_ASSTWROFFGRP, 0);      break;
 		case cmAdvBillKind:          ShowObjects(PPOBJ_ADVBILLKIND, 0);       break;
-		case cmAccounts:             ShowObjects(PPOBJ_ACCOUNT2, 0);           break;
+		case cmAccounts:             ShowObjects(PPOBJ_ACCOUNT2, 0);          break;
 		case cmAccPlan:              ShowObjects(PPOBJ_ACCOUNT2, reinterpret_cast<void *>(ACY_BAL));     break;
 		case cmAccRegister:          ShowObjects(PPOBJ_ACCOUNT2, reinterpret_cast<void *>(ACY_REGISTER)); break;
 		case cmAccOutbal:            ShowObjects(PPOBJ_ACCOUNT2, reinterpret_cast<void *>(ACY_OBAL));    break;
@@ -573,6 +563,7 @@ int PPApp::processCommand(uint cmd)
 		case cmStyloQCommands:       PPView::Execute(PPVIEW_STYLOQCOMMAND,   0, PPView::exefModeless, 0); break; // @v11.1.9
 		case cmSwProgram:            PPView::Execute(PPVIEW_SWPROGRAM,       0, PPView::exefModeless, 0); break; // @v11.9.12
 		case cmComputer:             PPView::Execute(PPVIEW_COMPUTER,        0, PPView::exefModeless, 0); break; // @v12.0.0
+		case cmWbPublicGoods:        PPView::Execute(PPVIEW_WBPUBLICGOODS,   0, PPView::exefModeless, 0); break; // @v12.4.1
 		case cmVetisInterchange:     PPViewVetisDocument::RunInterchangeProcess(0); break;
 		case cmProcessUED: // @v11.6.6
 			{
@@ -671,7 +662,7 @@ int PPApp::processCommand(uint cmd)
 		case cmPrjTask_ByReminder:   ViewPrjTask_ByReminder();        break;
 		case cmMaintainPrjTask:      MaintainPrjTask();               break;
 		case cmGotoSite:             TProgram::GotoSite();            break;
-		//case cmGotoVK:               GotoVK();                        break; //@erikTEMP v10.7.7 		
+		//case cmGotoVK:               GotoVK();                        break; //@erikTEMP v10.7.7
 		case cmOpenPhonePane:        OpenPhonePane();                 break;
 		case cmViewNewVersionList:   PPUhttClient::ViewNewVerList(1); break;
 		case cmViewQuots:            ViewQuot(0);                     break;
@@ -1228,7 +1219,8 @@ static int PPLoginDialog(PPLoginDialogParam & rParam)
 		//PPDbEntrySet2 * P_Dbes;
 		PPLoginDialogParam & R_P;
 	};
-	int    ok = -1, r;
+	int    ok = -1;
+	int    r;
 	int    valid_data = 0;
 	int    usedbsel  = 0;
 	int    nologinprompt = 0;
@@ -1241,7 +1233,7 @@ static int PPLoginDialog(PPLoginDialogParam & rParam)
 		else
 			dbid = rParam.Dbes.SetSelection(dbid = 1L);
 	}
-	uint   rezID = (rParam.Flags & rParam.fProtect) ? DLG_PROTECT : (usedbsel ? DLG_LOGIND : DLG_LOGIN);
+	const  uint rez_id = (rParam.Flags & rParam.fProtect) ? DLG_PROTECT : (usedbsel ? DLG_LOGIND : DLG_LOGIN);
 	LDATE  curdate = getcurdate_();
 	if(!(rParam.Flags & rParam.fForcePrompt) && !usedbsel && rParam.UserName.NotEmpty()) {
 		PPIniFile ini_file;
@@ -1252,10 +1244,10 @@ static int PPLoginDialog(PPLoginDialogParam & rParam)
 		ok = 2;
 	}
 	else {
-		int    skip_edit_dlg = 0;
+		bool   skip_edit_dlg = false;
 		SString title_buf;
 		SString temp_buf;
-		LoginDialog * dlg = new LoginDialog(rezID, /*BIN(rParam.Flags & rParam.fSysAccLogin), &rParam.Dbes*/rParam);
+		LoginDialog * dlg = new LoginDialog(rez_id, /*BIN(rParam.Flags & rParam.fSysAccLogin), &rParam.Dbes*/rParam);
 		if(CheckDialogPtrErr(&dlg)) {
 			// @v11.1.8 { @experimental
 			//StringSet styloq_dbsymb_list;
@@ -1270,7 +1262,7 @@ static int PPLoginDialog(PPLoginDialogParam & rParam)
 				title_buf.Space().Cat(temp_buf);
 				dlg->setTitle(title_buf);
 			}
-			skip_edit_dlg = BIN(!(rParam.Flags & rParam.fRetryLogin) && !usedbsel && (rParam.Flags & rParam.fSysAccLogin));
+			skip_edit_dlg = (!(rParam.Flags & rParam.fRetryLogin) && !usedbsel && (rParam.Flags & rParam.fSysAccLogin));
 			decodedate(&r, &DefaultMonth, &DefaultYear, &curdate);
 			r = 0;
 			dlg->setCtrlString(CTL_LOGIN_NAME, rParam.UserName);
@@ -1281,7 +1273,7 @@ static int PPLoginDialog(PPLoginDialogParam & rParam)
 				SetupDBEntryComboBox(dlg, CTLSEL_LOGIN_DB, &rParam.Dbes, 0);
 			if(rParam.UserName.NotEmpty() && !usedbsel)
 				dlg->selectCtrl(CTL_LOGIN_PASSWORD);
-			skip_edit_dlg = BIN(skip_edit_dlg && dlg->CheckSystemAccount(0));
+			skip_edit_dlg = (skip_edit_dlg && dlg->CheckSystemAccount(0));
 			while(!valid_data && (skip_edit_dlg || (r = ExecView(dlg)) == cmOK || r == cmUtil)) {
 				PPStyloQInterchange::StopStyloQServer(); // @v11.1.9 @experimental
 				if(usedbsel)
@@ -1308,7 +1300,6 @@ static int PPLoginDialog(PPLoginDialogParam & rParam)
 
 static int StoreLastBinPath()
 {
-	// @v10.7.10 static const char * WrParam_BinPath = "BinPath"; // @global @threadsafe
 	SString path, param;
 	SString temp_buf;
 	PPGetPath(PPPATH_BIN, path);
@@ -1377,162 +1368,6 @@ static int GetGoodsInfoIDByName(PPID * pID, const char * pName)
 	if(!id)
 		ok = PPSetError(PPERR_UNKNOWNGOODSINFONAME, pName);
 	ASSIGN_PTR(pID, id);
-	return ok;
-}
-
-PPVerHistory::Info::Info()
-{
-}
-
-PPVerHistory::PPVerHistory()
-{
-}
-
-int PPVerHistory::Read(const char * pDataPath, Info * pInfo)
-{
-	int    ok = -1;
-	if(pDataPath) {
-		constexpr size_t hdr_size = sizeof(PPVerHistory::Header);
-		size_t len = 0;
-		SString fname;
-		SString path;
-		PPGetFileName(PPFILNAM_VERHIST, fname);
-		(path = pDataPath).SetLastSlash().Cat(fname);
-		if(fileExists(path) != 0) {
-			SFile  f;
-			uint32 crc  = 0;
-			Header hdr;
-			MEMSZERO(hdr);
-			THROW_SL(f.Open(path, SFile::mRead|SFile::mBinary) > 0);
-			THROW_PP_S(f.Read(&hdr, hdr_size, &len) > 0 && len == hdr_size, PPERR_INVHDRSIZE, path);
-			THROW_PP_S(hdr.Signature == PPConst::Signature_VerHist, PPERR_VERHISTINVSIGN, path);
-			THROW_SL(f.CalcCRC(hdr_size, &crc));
-			SLibError = SLERR_INVALIDCRC;
-			THROW_SL(crc == hdr.CRC);
-			if(pInfo) {
-				pInfo->MinVer = hdr.MinVer;
-				pInfo->CurVer = hdr.CurVer;
-				pInfo->DbUUID = hdr.DbUUID;
-			}
-			ok = 1;
-		}
-	}
-	CATCHZOK
-	return ok;
-}
-
-int PPVerHistory::Write(const char * pDataPath, const Info * pInfo)
-{
-	int    ok = -1;
-	uint32 crc = 0;
-	SString temp_buf;
-	SString path;
-	SVerT hdr_minv;
-	(path = pDataPath).SetLastSlash().Cat(PPGetFileName(PPFILNAM_VERHIST, temp_buf));
-	SFile  f;
-	Header hdr;
-	Record rec;
-	THROW_INVARG(pInfo);
-	PPSetAddedMsgString(path);
-	if(fileExists(path)) {
-		THROW_SL(f.Open(path, SFile::mDenyWrite|SFile::mReadWrite|SFile::mBinary) > 0);
-	}
-	else {
-		THROW_SL(f.Open(path, SFile::mDenyWrite|SFile::mWrite|SFile::mBinary) > 0);
-		f.Close();
-		THROW_SL(f.Open(path, SFile::mDenyWrite|SFile::mReadWriteTrunc|SFile::mBinary) > 0);
-	}
-	MEMSZERO(hdr);
-	MEMSZERO(rec);
-	f.Seek(0);
-	hdr.Signature = PPConst::Signature_VerHist;
-	hdr.CRC       = crc;
-	hdr.CurVer    = pInfo->CurVer;
-	hdr.MinVer    = pInfo->MinVer;
-	hdr.DbUUID    = pInfo->DbUUID;
-	THROW_SL(f.Write(&hdr, sizeof(hdr)) > 0);
-	{
-		MACAddr addr;
-		rec.Dtm = getcurdatetime_();
-		rec.Ver = pInfo->CurVer;
-		DS.GetMachineID(&addr, 0);
-		addr.ToStr(0, temp_buf).CopyTo(rec.Machine, sizeof(rec.Machine));
-		f.Seek(0, SEEK_END);
-		THROW_SL(f.Write(&rec, sizeof(rec)) > 0);
-		THROW_SL(f.CalcCRC(sizeof(hdr), &crc) > 0);
-		f.Seek(0);
-		hdr.CRC = crc;
-		THROW_SL(f.Write(&hdr, sizeof(hdr)) > 0);
-	}
-	CATCHZOK
-	return ok;
-}
-
-/*static*/int PPVerHistory::Log(const char * pDataPath, const char * pLogPath)
-{
-	int    ok = 0;
-	SString path;
-	SString fname;
-	PPGetFileName(PPFILNAM_VERHIST, fname);
-	path.CopyFrom(pDataPath).SetLastSlash().Cat(fname);
-	if(fileExists(path)) {
-		int    j = 0;
-		int    m = 0;
-		int    r = 0;
-		uint32 crc = 0;
-		const char * p_rectitle = "date time;mac address;version\n";
-		const char * p_hdrtitle = "current version;minimum version\n";
-		SString buf;
-		Header hdr;
-		Record rec;
-		SFile  f, logf;
-		MEMSZERO(hdr);
-		MEMSZERO(rec);
-		THROW_SL(f.Open(path, SFile::mRead|SFile::mBinary) > 0);
-		THROW_SL(f.Read(&hdr, sizeof(hdr)) > 0);
-		THROW_SL(f.CalcCRC(sizeof(hdr), &crc));
-		SLibError = SLERR_INVALIDCRC;
-		THROW_SL(crc == hdr.CRC);
-		PPGetFileName(PPFILNAM_VERHISTLONG, (fname = 0));
-		(path = 0).CopyFrom(pLogPath).SetLastSlash().Cat(fname);
-		THROW_SL(logf.Open(path, SFile::mWrite) > 0);
-		hdr.CurVer.Get(&j, &m, &r);
-		buf.CatDotTriplet(j, m, r).Semicol();
-		hdr.MinVer.Get(&j, &m, &r);
-		buf.CatDotTriplet(j, m, r).CR();
-		THROW_SL(logf.WriteLine(p_hdrtitle) > 0);
-		THROW_SL(logf.WriteLine(buf));
-		THROW_SL(logf.WriteLine(p_rectitle) > 0);
-		while(f.Read(&rec, sizeof(rec)) > 0) {
-			rec.Ver.Get(&(j = 0), &(m = 0), &(r = 0));
-			buf.Z().Cat(rec.Dtm).Semicol().Cat(rec.Machine).Semicol().CatDotTriplet(j, m, r).CR();
-			THROW_SL(logf.WriteLine(buf) > 0);
-		}
-		ok = 1;
-	}
-	CATCHZOK
-	return ok;
-}
-
-/*static*/int PPVerHistory::Log()
-{
-	int    ok = -1;
-	SString arg_buf;
-	if(PPSession::GetStartUpOption(PPSession::cmdlVerHist, arg_buf) && arg_buf.NotEmptyS()) {
-		SString data_path, log_path;
-		PPIniFile  ini_file;
-		PPID   dbentry_id = 0;
-		PPDbEntrySet2 dbes;
-		DbLoginBlock dlb;
-		PPVerHistory verh;
-		dbes.ReadFromProfile(&ini_file);
-		THROW_SL(dbentry_id = dbes.GetBySymb(arg_buf, &dlb));
-		dlb.GetAttr(DbLoginBlock::attrDbPath, data_path);
-		PPGetPath(PPPATH_LOG, log_path);
-		THROW(verh.Log(data_path, log_path) > 0);
-		ok = 1;
-	}
-	CATCHZOK
 	return ok;
 }
 
@@ -1759,7 +1594,6 @@ int PPBackupSystemFiles_Arc()
 }
 
 #if 0 // {
-
 int PreprocessCmdLine()
 {
 	int    ok = 1;
@@ -1834,7 +1668,6 @@ int PreprocessCmdLine()
 	}
 	return 1;
 }
-
 #endif // } 0
 
 int ExecuteLuaScript(const char * pScriptText);
@@ -1981,7 +1814,7 @@ void PPApp::login(int processCmdLine)
 				login_param.UserName.Transf(CTRANSF_OUTER_TO_INNER);
 			}
 		}
-		{ // @v10.5.7 Зона видимости ini_file. Ее необходимо изолировать - PPLoginDialog может затребовать эксклюзивный доступ к pp.ini для редактирования.
+		{ // Зона видимости ini_file. Ее необходимо изолировать - PPLoginDialog может затребовать эксклюзивный доступ к pp.ini для редактирования.
 			PPIniFile  ini_file;
 			login_param.Dbes.ReadFromProfile(&ini_file);
 			if(PPSession::GetStartUpOption(PPSession::cmdlDB, arg_buf)) {
@@ -2099,7 +1932,7 @@ void PPApp::login(int processCmdLine)
 								prc.Run();
 							else
 								PPError();
-							// } @v12.2.10 
+							// } @v12.2.10
 						}
 						else if(arg_buf.IsEqiAscii("buildmanualstaff")) {
 							SelfbuildStaffForManual();
@@ -2352,3 +2185,49 @@ int PPApp::RegisterComServer()
 	delete p_dlg;
 	return ok;
 }
+//
+// @v12.4.1 moved from ppcmd.cpp in order to isolate call APPL->processCommand()
+//
+int EditPPViewFilt(int viewID, SBuffer * pParam, void * extraPtr);
+int RunPPViewCmd(int viewID, SBuffer * pParam, long menuCm, long cmdID, void * extraPtr);
+
+class CMD_HDL_CLS(DEFAULT) : public PPCommandHandler {
+public:
+	CMD_HDL_CLS(DEFAULT)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
+	{
+	}
+	virtual int EditParam(SBuffer * pParam, long cmdID, void * extraPtr)
+	{
+		int    ok = -1;
+		if(D.ViewId) {
+			if(D.ViewId == PPVIEW_BILL) {
+				BillFilt::FiltExtraParam p(1, static_cast<BrowseBillsType>(D.FiltExtId));
+				ok = EditPPViewFilt(D.ViewId, pParam, &p);
+			}
+			else
+				ok = EditPPViewFilt(D.ViewId, pParam, reinterpret_cast<void *>(D.FiltExtId));
+		}
+		return ok;
+	}
+	virtual int Run(SBuffer * pParam, long cmdID, void * extraPtr)
+	{
+		int    ok = -1;
+		if(D.ViewId) {
+			if(D.ViewId == PPVIEW_BILL) {
+				BillFilt::FiltExtraParam p(1, static_cast<BrowseBillsType>(D.FiltExtId));
+				THROW(PPCheckDatabaseChain());
+				ok = RunPPViewCmd(D.ViewId, pParam, D.MenuCm, cmdID, &p);
+			}
+			else
+				ok = RunPPViewCmd(D.ViewId, pParam, D.MenuCm, cmdID, reinterpret_cast<void *>(D.FiltExtId));
+		}
+		else if(D.MenuCm && APPL) {
+			static_cast<PPApp *>(APPL)->processCommand(static_cast<uint>(D.MenuCm));
+			ok = 1;
+		}
+		CATCHZOK
+		return ok;
+	}
+};
+
+IMPLEMENT_CMD_HDL_FACTORY(DEFAULT);

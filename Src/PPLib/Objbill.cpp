@@ -124,6 +124,7 @@ TLP_IMPL(PPObjBill, Transfer, trfr);
 TLP_IMPL(PPObjBill, CpTransfCore, P_CpTrfr);
 TLP_IMPL(PPObjBill, AdvBillItemTbl, P_AdvBI);
 TLP_IMPL(PPObjBill, LotExtCodeCore, P_LotXcT);
+TLP_IMPL(PPObjBill, LocTransfCore, P_LocTrfr); // @v12.4.1
 
 PPObjBill::PPObjBill(void * extraPtr) : PPObject(PPOBJ_BILL), CcFlags(CConfig.Flags), P_CpTrfr(0),
 	P_AdvBI(0), P_InvT(0), P_GsT(0), P_ScObj(0), P_LotXcT(0), P_Cr(0), ExtraPtr(extraPtr), State2(0)
@@ -141,6 +142,17 @@ PPObjBill::PPObjBill(void * extraPtr) : PPObject(PPOBJ_BILL), CcFlags(CConfig.Fl
 	}
 	if(CConfig.Flags2 & CCFLG2_USELOTXCODE)
 		TLP_OPEN(P_LotXcT);
+	// @v12.4.1 {
+	{
+		bool is_there_wh_op = false;
+		for(PPID op_id = 0; !is_there_wh_op && EnumOperations(PPOPT_WAREHOUSE, &op_id, 0) > 0;) {
+			is_there_wh_op = true;
+		}
+		if(is_there_wh_op) {
+			TLP_OPEN(P_LocTrfr);
+		}
+	}
+	// } @v12.4.1 
 	ReadConfig(&Cfg);
 }
 
@@ -160,6 +172,7 @@ PPObjBill::~PPObjBill()
 	TLP_CLOSE(P_CpTrfr);
 	TLP_CLOSE(P_AdvBI);
 	TLP_CLOSE(P_LotXcT);
+	TLP_CLOSE(P_LocTrfr); // @v12.4.1
 }
 
 int PPObjBill::Search(PPID id, void * b) { return P_Tbl->Search(id, static_cast<BillTbl::Rec *>(b)); }
@@ -4274,7 +4287,7 @@ int PPObjBill::CalcDraftTransitRest(PPID restOpID, PPID orderOpID, PPID goodsID,
 	for(q.initIteration(false, &k1, spEq); q.nextIteration() > 0;) {
 		CpTransfTbl::Rec cpt_rec;
 		BillTbl::Rec bill_rec;
-		P_CpTrfr->copyBufTo(&cpt_rec);
+		P_CpTrfr->CopyBufTo(&cpt_rec);
 		if(Fetch(cpt_rec.BillID, &bill_rec) > 0) {
 			CpEntry entry;
 			MEMSZERO(entry);
@@ -4449,7 +4462,7 @@ int PPObjBill::SearchQuoteReqSeq(const DateRange * pPeriod, TSArray <QuoteReqLin
 		q.select(p_cpt->BillID, p_cpt->RByBill, p_cpt->Flags, p_cpt->Cost, p_cpt->Qtty, p_cpt->Tail, 0L).
 			where(p_cpt->BillID >= bill_id_beg && p_cpt->BillID <= bill_id_end);
 		for(q.initIteration(false, &k0, spGe); q.nextIteration() > 0;) {
-			p_cpt->copyBufTo(&cpt_rec);
+			p_cpt->CopyBufTo(&cpt_rec);
 			if(bill_id_list.bsearch(cpt_rec.BillID)) {
 				CpTrfrExt cpext;
 				CpTransfCore::GetExt__(cpt_rec, &cpext);
@@ -7727,7 +7740,7 @@ int PPObjBill::SearchAdvLinkToBill(PPID billID, AdvBillItemTbl::Rec * pItemRec, 
 		MEMSZERO(k2);
 		k2.AdvBillID = billID;
 		if(P_AdvBI->search(2, &k2, spGe) && k2.AdvBillID == billID) {
-			P_AdvBI->copyBufTo(pItemRec);
+			P_AdvBI->CopyBufTo(pItemRec);
 			if(pBillRec)
 				Search(P_AdvBI->data.BillID, pBillRec);
 			ok = 1;
@@ -7774,6 +7787,105 @@ int PPObjBill::TurnAdvList(PPID billID, PPBillPacket * pPack, int use_ta)
 		THROW(tra.Commit());
 	}
 	CATCHZOK
+	return ok;
+}
+
+int PPObjBill::TurnLocTrfrList(PPID billID, PPBillPacket * pPack, int use_ta) // @v12.4.1 @construction
+{
+	int    ok = -1;
+	SString temp_buf;
+	if(billID) {
+		if(pPack && pPack->OpTypeID == PPOPT_WAREHOUSE) {
+			if(!P_LocTrfr) {
+				TLP_OPEN(P_LocTrfr);
+			}
+			if(P_LocTrfr) {
+				TSVector <LocTransfOpBlock> ex_list;
+				PPTransaction tra(use_ta);
+				THROW(tra);
+				LoadLocTrfrList(billID, &ex_list);
+				const uint _c = SVectorBase::GetCount(pPack->P_LocTrfrList);
+				if(ex_list.getCount()) {
+					for(uint i = 0; i < ex_list.getCount(); i++) {
+						const LocTransfOpBlock & r_ex_item = ex_list.at(i);
+						uint  _found_count = 0;
+						for(uint j = 0; j < _c; j++) {
+							const LocTransfOpBlock & r_item = pPack->P_LocTrfrList->at(i);
+							if(r_ex_item.BillID == r_item.BillID && r_ex_item.RByBillLT == r_item.RByBillLT) {
+								_found_count++;
+							}
+						}
+						if(!_found_count) {
+							THROW(P_LocTrfr->RemoveOp(r_ex_item.LocID, r_ex_item.RByLoc, 0));
+						}
+					}
+				}
+				if(_c) {
+					for(uint i = 0; i < _c; i++) {
+						LocTransfOpBlock & r_item = pPack->P_LocTrfrList->at(i);
+						r_item.BillID = pPack->Rec.ID;
+						uint  ex_found_count = 0;
+						for(uint j = 0; j < ex_list.getCount(); j++) {
+							const LocTransfOpBlock & r_ex_item = ex_list.at(j);
+							if(r_ex_item.BillID == r_item.BillID && r_ex_item.RByBillLT == r_item.RByBillLT) {
+								temp_buf.Z().CatEq("BillID", r_item.BillID).Space().CatEq("RByBill", r_item.RByBillLT);
+								THROW_PP_S(r_item.LocID == r_ex_item.LocID && r_item.RByLoc == r_ex_item.RByLoc, PPERR_LOCTRFR_UNACCCHANGE_LOC, temp_buf);
+								ex_found_count++;
+							}
+						}
+						{
+							int    rbb = 0;
+							THROW(P_LocTrfr->PutOp(r_item, &rbb, 0));
+						}
+					}
+				}
+				THROW(tra.Commit());
+			}
+		}
+		else {
+			// Удаление всех строк по документу billID. 
+			// Если P_LocTrfr == 0, то не может быть, чтоб с документом (типа PPOPT_WAREHOUSE) были бы связаны какие-либо строки складских операций.
+			if(P_LocTrfr) {
+				TSVector <LocTransfOpBlock> ex_list;
+				PPTransaction tra(use_ta);
+				THROW(tra);
+				LoadLocTrfrList(billID, &ex_list);
+				for(uint i = 0; i < ex_list.getCount(); i++) {
+					const LocTransfOpBlock & r_ex_item = ex_list.at(i);
+					THROW(P_LocTrfr->RemoveOp(r_ex_item.LocID, r_ex_item.RByLoc, 0));
+				}
+				THROW(tra.Commit());
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+int PPObjBill::LoadLocTrfrList(PPID billID, TSVector <LocTransfOpBlock> * pList) // @v12.4.1 @construction
+{
+	int    ok = -1;
+	BillTbl::Rec bill_rec;
+	if(Fetch(billID, &bill_rec) && GetOpType(bill_rec.OpID) == PPOPT_WAREHOUSE) {
+		if(!P_LocTrfr) {
+			TLP_OPEN(P_LocTrfr);
+		}
+		if(P_LocTrfr) {
+			LocTransfTbl::Rec lt_rec;
+			for(int16 rbb = 0; P_LocTrfr->EnumByBill(billID, &rbb, &lt_rec) > 0;) {
+				ok = 1;
+				if(pList) {
+					LocTransfOpBlock lt_blk(lt_rec);
+					pList->insert(&lt_blk);
+				}
+				else {
+					break;
+				}
+			}
+		}
+	}
+	else
+		ok = -2;
 	return ok;
 }
 
@@ -8124,6 +8236,7 @@ int PPObjBill::TurnPacket(PPBillPacket * pPack, int use_ta)
 		}
 		THROW(PutPckgList(pPack, 0));
 		THROW(TurnAdvList(id, pPack, 0));
+		THROW(TurnLocTrfrList(id, pPack, 0)); // @v12.4.1
 		THROW(pPack->LnkFiles.WriteToProp(pPack->Rec.ID, 0));
 		if(!(pPack->Rec.Flags & BILLF_NOATURN) && !(CcFlags & CCFLG_DISABLEACCTURN)) {
 			pPack->ErrCause = PPBillPacket::err_on_accturn;
@@ -8286,7 +8399,8 @@ int PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 	int    r;
 	int    found;
 	int    rbybill;
-	uint   i, pos;
+	uint   i;
+	uint   pos;
 	const  PPRights & r_rt = ObjRts;
 	Reference * p_ref = PPRef;
 	ObjVersioningCore * p_ovc = p_ref->P_OvT;
@@ -8296,12 +8410,18 @@ int PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 	PPIDArray added_lot_items; // Список позиций товарных строк с признаком
 		// PPTFR_RECEIPT, которые были добавлены. Нобходим для корректной очистки после ошибки.
 	PPIDArray _debug_org_ord_bill_list; // @v9.5.2 @debug Список документов заказов, к которым до изменения был привязан данный документ
-	SString wait_msg, bill_code, clb;
-	SString fmt_buf, msg_buf, temp_buf;
+	SString temp_buf;
+	SString wait_msg;
+	SString bill_code;
+	SString clb;
+	SString fmt_buf;
+	SString msg_buf;
 	DateIter diter;
 	BillTbl::Rec org;
-	PPAccTurn    at, * p_at;
-	PPTransferItem ti, * p_ti;
+	PPAccTurn at;
+	PPAccTurn * p_at;
+	PPTransferItem ti;
+	PPTransferItem * p_ti;
 	PPBillPacket org_pack;
 	SBuffer hist_buf;
 	BillUserProfileCounter ufp_counter;
@@ -8531,6 +8651,7 @@ int PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 			THROW(PutPckgList(pPack, 0));
 		}
 		THROW(TurnAdvList(id, pPack, 0));
+		THROW(TurnLocTrfrList(id, pPack, 0)); // @v12.4.1
 		THROW(pPack->LnkFiles.WriteToProp(pPack->Rec.ID, 0));
 		//
 		// Вычищаем и модифицируем проводки.
@@ -8792,6 +8913,7 @@ int PPObjBill::RemovePacket(PPID id, int use_ta)
 		THROW(r && P_Tbl->Search(id, &brec) > 0);
 		THROW(ProcessLink(brec, paym_link_id, &brec));
 		THROW(TurnAdvList(id, 0, 0));
+		THROW(TurnLocTrfrList(id, 0, 0)); // @v12.4.1
 		while((r = atobj->P_Tbl->EnumByBill(id, &rbybill, 0)) > 0) {
 			THROW(atobj->P_Tbl->RollbackTurn(id, rbybill, 0));
 			ufp_counter.AtRmvCount++;
@@ -8986,7 +9108,7 @@ int PPObjBill::GetOrderLotForTransfer(const TransferTbl::Rec & rTrfrRec, PPID * 
 		BillTbl::Rec shadow_bill_rec;
 		PPTrfrArray candidate_shadow_ti_list;
 		for(DateIter diter; (r = P_Tbl->EnumLinks(bill_id, &diter, BLNK_SHADOW)) > 0;) {
-			P_Tbl->copyBufTo(&shadow_bill_rec);
+			P_Tbl->CopyBufTo(&shadow_bill_rec);
 			const  PPID shadow_bill_id = shadow_bill_rec.ID;
 			PPTransferItem shadow_ti;
 			for(int rbb = 0; trfr->EnumItems(shadow_bill_id, &rbb, &shadow_ti) > 0;) {
@@ -9147,6 +9269,14 @@ int PPObjBill::Helper_ExtractPacket(PPID id, PPBillPacket * pPack, uint fl, cons
 		}
 	}
 	THROW(LoadAdvList(id, pPack->Rec.OpID, &pPack->AdvList));
+	// @v12.4.1 {
+	if(pPack->OpTypeID == PPOPT_WAREHOUSE) {
+		TSVector <LocTransfOpBlock> lt_list;
+		THROW(LoadLocTrfrList(id, &lt_list));
+		if(lt_list.getCount())
+			THROW_MEM(pPack->P_LocTrfrList = new TSVector <LocTransfOpBlock>(lt_list));
+	}
+	// } @v12.4.1 
 	THROW(pPack->LnkFiles.ReadFromProp(id));
 	while((r = atobj->P_Tbl->EnumByBill(id, &rbybill, &at)) > 0 && rbybill < BASE_RBB_BIAS) {
 		at.Opr   = pPack->Rec.OpID;
@@ -9309,7 +9439,7 @@ int PPObjBill::RecalcTurns(PPID id, long flags, int use_ta)
 			}
 			else
 				pack.Rec.Flags |= BILLF_NOLOADTRFR;
-			if(!(flags & BORTF_NORECALCAMOUNTS) && pack.IsGoodsDetail())
+			if(!(flags & BORTF_NORECALCAMOUNTS) && pack.GetDetailType() == PPBillPacket::detailtypeTransfer)
 				pack.InitAmounts();
 			THROW(FillTurnList(&pack));
 			THROW(UpdatePacket(&pack, use_ta));

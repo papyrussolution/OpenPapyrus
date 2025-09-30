@@ -217,7 +217,7 @@ int PPObjAccount::GetCurList(int ac, int sb, PPIDArray * pAccList, PPIDArray * p
 	MakeAcctKey(ac, sb, k2);
 	if(P_Ref->search(2, &k2, spEq)) do {
 		PPAccount rec;
-		P_Ref->copyBufTo(&rec);
+		P_Ref->CopyBufTo(&rec);
 		if(rec.A.Ac == (int16)ac && rec.A.Sb == (int16)sb) {
 			if(rec.CurID) {
 				THROW_SL(!pCurList || pCurList->addUnique(rec.CurID));
@@ -269,7 +269,7 @@ int PPObjAccount::GetSubacctList(int ac, int sb, PPID curID, PPIDArray * pList)
 	MakeAcctKey(ac, (sb >= 0) ? sb : 0, k2);
 	if(P_Ref->search(2, &k2, spGe)) do {
 		PPAccount rec;
-		P_Ref->copyBufTo(&rec);
+		P_Ref->CopyBufTo(&rec);
 		if(rec.A.Ac == (int16)ac && (sb < 0 || rec.A.Sb == (int16)sb)) {
 			if((curID < 0 || rec.CurID == curID)) {
 				THROW_SL(pList->addUnique(rec.ID));
@@ -291,7 +291,7 @@ int PPObjAccount::HasAnySubacct(int ac)
 	MakeAcctKey(ac, 0, k2);
 	if(P_Ref->search(2, &k2, spGe)) do {
 		PPAccount rec;
-		P_Ref->copyBufTo(&rec);
+		P_Ref->CopyBufTo(&rec);
 		if(rec.A.Ac == (int16)ac) {
 			if(rec.A.Sb != 0) {
 				ok = 1;
@@ -312,7 +312,7 @@ int PPObjAccount::SearchNum(int ac, int sb, PPID curID, PPAccount * pRec)
 	MakeAcctKey(ac, sb, k2);
 	if(P_Ref->search(2, &k2, spEq)) do {
 		PPAccount rec;
-		P_Ref->copyBufTo(&rec);
+		P_Ref->CopyBufTo(&rec);
 		if(rec.A.Ac == (int16)ac && rec.A.Sb == (int16)sb) {
 			if(rec.CurID == curID) {
 				ASSIGN_PTR(pRec, rec);
@@ -373,7 +373,7 @@ int PPObjAccount::LockFRR(PPID accID, LDATE dt, int doUnlock)
 		k.ObjID   = accID;
 		if(P_Ref->searchForUpdate(0, &k, spEq)) {
 			PPAccount rec;
-			P_Ref->copyBufTo(&rec);
+			P_Ref->CopyBufTo(&rec);
 			if(doUnlock) {
 				rec.Flags &= ACF_FRRL;
 				rec.Frrl_Date = ZERODATE;
@@ -475,7 +475,7 @@ StrAssocArray * PPObjAccount::MakeStrAssocList(void * extraPtr /*acySelType*/)
 		k2.ObjType = Obj;
 		k2.Val1 = -MAXLONG;
 		for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;) {
-			P_Ref->copyBufTo(&rec);
+			P_Ref->CopyBufTo(&rec);
 			int    _suite = 0;
 			if(!rec.CurID && (PPMaster || ObjRts.CheckAccID(rec.ID, PPR_READ))) {
 				switch(acy_sel_type) {

@@ -1887,7 +1887,7 @@ int PPViewQuot::Recover()
 				PPQuotArray quot_list(0);
 				do {
 					QuotationTbl::Rec rec;
-					P_Qc->copyBufTo(&rec);
+					P_Qc->CopyBufTo(&rec);
 
 					DBRowId dbpos;
 					THROW_DB(P_Qc->getPosition(&dbpos));

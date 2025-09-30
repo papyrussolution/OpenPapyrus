@@ -255,7 +255,7 @@ int PackageCore::SearchPrev(PPID prevID, PackageTbl::Rec * pPckg)
 	k2.PrevID = prevID;
 	k2.ID = 0;
 	if(search(2, &k2, spGe) && k2.PrevID == prevID) {
-		copyBufTo(pPckg);
+		CopyBufTo(pPckg);
 		return 1;
 	}
 	return PPDbSearchError();

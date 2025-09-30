@@ -1403,7 +1403,7 @@ private:
 	void   moreDialog();
 	void   editPaymList();
 	void   editCounter();
-	void   editOptions2(uint dlgID, int useMainAmt, const PPIDArray * pSubTypeList, PPIDArray * pFlagsList, PPIDArray * pExtFlagsList);
+	void   EditOptions2(uint dlgID, int useMainAmt, const PPIDArray * pSubTypeList, PPIDArray * pFlagsList, PPIDArray * pExtFlagsList);
 	void   editInventoryOptions();
 	void   editPoolOptions();
 	void   editExtension();
@@ -1457,6 +1457,9 @@ void OprKindDialog::setup()
 	}
 	else if(oneof3(op_type_id, PPOPT_DRAFTEXPEND, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTTRANSIT)) {
 		; // nothing
+	}
+	else if(op_type_id == PPOPT_WAREHOUSE) { // @v12.4.1
+		types.addzlist(PPOPT_WAREHOUSE, 0L);
 	}
 	else {
 		types.addzlist(PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, 0L);
@@ -1526,9 +1529,8 @@ void OprKindDialog::editTempl()
 	if(P_ListBox && OpObj.CheckRights(OPKRT_MODIFYATT)) {
 		PPID   id;
 		if(P_ListBox->getCurID(&id) && id) {
-			PPAccTurnTempl tmp;
 			PPAccTurnTempl & r_tmpl = P_Data->ATTmpls.at((uint)(id-1));
-			tmp = r_tmpl;
+			PPAccTurnTempl tmp(r_tmpl);
 			if(EditAccTurnTemplate(P_AtObj, &tmp) > 0) {
 				r_tmpl = tmp;
 				updateList();
@@ -1829,7 +1831,7 @@ void OprKindDialog::prnOptDialog()
 //
 //
 //
-void OprKindDialog::editOptions2(uint dlgID, int useMainAmt, const PPIDArray * pSubTypeList, PPIDArray * pFlagsList, PPIDArray * pExtFlagsList)
+void OprKindDialog::EditOptions2(uint dlgID, int useMainAmt, const PPIDArray * pSubTypeList, PPIDArray * pFlagsList, PPIDArray * pExtFlagsList)
 {
 	PPIDArray options;
 	PPIDArray ext_options;
@@ -2018,7 +2020,7 @@ void OprKindDialog::moreDialog()
 					OPKF_RENT, OPKF_BANKING, OPKF_CURTRANSIT,
 					OPKF_PROFITABLE, OPKF_OUTBALACCTURN, OPKF_ADVACC, OPKF_ATTACHFILES, OPKF_FREIGHT, OPKF_USEEXT, 0L); // @v12.3.4 OPKF_USEEXT
 				ext_options_list.addzlist(OPKFX_CANBEDECLINED, OPKFX_AUTOGENUUID, OPKFX_ACCAUTOVAT, OPKFX_SETCTXAGENT, 0L); // @v11.6.6 OPKFX_ACCAUTOVAT // @v12.3.4 OPKFX_SETCTXAGENT
-				editOptions2(DLG_OPKMORE_AT, 2, &subtypelist, &options_list, &ext_options_list);
+				EditOptions2(DLG_OPKMORE_AT, 2, &subtypelist, &options_list, &ext_options_list);
 				break;
 			case PPOPT_GOODSEXPEND:
 				options_list.addzlist(OPKF_NEEDPAYMENT, OPKF_PROFITABLE, OPKF_ONORDER, OPKF_CALCSTAXES, OPKF_AUTOWL,
@@ -2026,7 +2028,7 @@ void OprKindDialog::moreDialog()
 					OPKF_ATTACHFILES, OPKF_RESTRICTBYMTX, 0L); 
 				ext_options_list.addzlist(OPKFX_ALLOWPARTSTR, OPKFX_RESTRICTPRICE, OPKFX_CANBEDECLINED, OPKFX_AUTOGENUUID, 
 					OPKFX_IGNORECLISTOP, OPKFX_SETCTXAGENT, 0L); // @v12.3.4 OPKFX_SETCTXAGENT
-				editOptions2(DLG_OPKMORE_GEX, 1, 0, &options_list, &ext_options_list);
+				EditOptions2(DLG_OPKMORE_GEX, 1, 0, &options_list, &ext_options_list);
 				break;
 			case PPOPT_GOODSRECEIPT:
 				subtypelist.addzlist(static_cast<long>(OPSUBT_COMMON), OPSUBT_ASSETRCV, 0L);
@@ -2035,44 +2037,44 @@ void OprKindDialog::moreDialog()
 					OPKF_ATTACHFILES, OPKF_NEEDVALUATION, OPKF_RESTRICTBYMTX, OPKF_NOCALCTIORD, 0L); // @v11.0.10 OPKF_NOCALCTIORD
 				ext_options_list.addzlist(OPKFX_ALLOWPARTSTR, OPKFX_RESTRICTPRICE, OPKFX_UNLINKRET,
 					OPKFX_DLVRLOCASWH, OPKFX_AUTOGENUUID, OPKFX_SETCTXAGENT, 0L); // @v12.3.4
-				editOptions2(DLG_OPKMORE_GRC, 1, &subtypelist, &options_list, &ext_options_list);
+				EditOptions2(DLG_OPKMORE_GRC, 1, &subtypelist, &options_list, &ext_options_list);
 				break;
 			case PPOPT_GOODSMODIF:
 				subtypelist.addzlist(static_cast<long>(OPSUBT_COMMON), OPSUBT_ASSETMODIF, 0L);
 				options_list.addzlist(OPKF_PROFITABLE, OPKF_CALCSTAXES, OPKF_AUTOWL, OPKF_USEEXT, OPKF_NOCALCTIORD,
 					OPKF_ATTACHFILES, OPKF_RESTRICTBYMTX, 0L);
 				ext_options_list.addzlist(OPKFX_DSBLHALFMODIF, OPKFX_SOURCESERIAL, OPKFX_AUTOGENUUID, 0L);
-				editOptions2(DLG_OPKMORE_MDF, 1, &subtypelist, &options_list, &ext_options_list);
+				EditOptions2(DLG_OPKMORE_MDF, 1, &subtypelist, &options_list, &ext_options_list);
 				break;
 			case PPOPT_GOODSRETURN:
 				options_list.addzlist(OPKF_PROFITABLE, OPKF_CALCSTAXES, OPKF_AUTOWL, OPKF_FREIGHT, OPKF_NOUPDLOTREST,
 					OPKF_ATTACHFILES, OPKF_RESTRICTBYMTX, 0L);
 				ext_options_list.addzlist(OPKFX_ALLOWPARTSTR, OPKFX_RESTRICTPRICE, OPKFX_CANBEDECLINED, OPKFX_AUTOGENUUID, 0L); 
-				editOptions2(DLG_OPKMORE_RET, 1, 0, &options_list, &ext_options_list);
+				EditOptions2(DLG_OPKMORE_RET, 1, 0, &options_list, &ext_options_list);
 				break;
 			case PPOPT_GOODSREVAL:
 				subtypelist.addzlist(static_cast<long>(OPSUBT_COMMON), OPSUBT_ASSETEXPL, 0L);
 				options_list.addzlist(OPKF_NEEDPAYMENT, OPKF_PROFITABLE, OPKF_CALCSTAXES, OPKF_AUTOWL, OPKF_ATTACHFILES,
 					OPKF_DENYREVALCOST, OPKF_RESTRICTBYMTX, 0L);
-				editOptions2(DLG_OPKMORE_GRV, 1, &subtypelist, &options_list, 0);
+				EditOptions2(DLG_OPKMORE_GRV, 1, &subtypelist, &options_list, 0);
 				break;
 			case PPOPT_GOODSORDER:
 				options_list.addzlist(OPKF_NEEDPAYMENT, OPKF_CALCSTAXES, OPKF_AUTOWL, OPKF_USEEXT, OPKF_RENT,
 					OPKF_FREIGHT, OPKF_ORDEXSTONLY, OPKF_ORDRESERVE, OPKF_ORDERBYLOC, OPKF_ATTACHFILES, OPKF_RESTRICTBYMTX, OPKF_NOCALCTIORD, 0L);
 				ext_options_list.addzlist(OPKFX_ALLOWPARTSTR, OPKFX_RESTRICTPRICE, OPKFX_IGNORECLISTOP,
 					OPKFX_AUTOGENUUID, OPKFX_WROFFTODRAFTORD, OPKFX_CANBEDECLINED, OPKFX_MNGPREFSUPPL, OPKFX_SETCTXAGENT, 0L); // @v12.0.8 OPKFX_MNGPREFSUPPL // @v12.3.4 OPKFX_SETCTXAGENT
-				editOptions2(DLG_OPKMORE_ORD, 1, 0, &options_list, &ext_options_list);
+				EditOptions2(DLG_OPKMORE_ORD, 1, 0, &options_list, &ext_options_list);
 				break;
 			case PPOPT_PAYMENT:
 				options_list.addzlist(OPKF_PROFITABLE, OPKF_AUTOWL, OPKF_BANKING, OPKF_ATTACHFILES, 0L);
 				// @attention: опции OPKFX_PAYMENT_CASH и OPKFX_PAYMENT_NONCASH обрабатываются специальным образом и
 				// должны быть строго в конце списка!
 				ext_options_list.addzlist(OPKFX_SETCTXAGENT, OPKFX_PAYMENT_CASH, OPKFX_PAYMENT_NONCASH, 0L); //@erik v10.5.9 // @v12.3.6 OPKFX_SETCTXAGENT
-				editOptions2(DLG_OPKMORE_PAY, 0, 0, &options_list, &ext_options_list);
+				EditOptions2(DLG_OPKMORE_PAY, 0, 0, &options_list, &ext_options_list);
 				break;
 			case PPOPT_CHARGE:
 				options_list.addzlist(OPKF_NEEDPAYMENT, OPKF_PROFITABLE, OPKF_AUTOWL, OPKF_USEEXT, OPKF_CHARGENEGPAYM, OPKF_ATTACHFILES, 0L);
-				editOptions2(DLG_OPKMORE_CHG, 0, 0, &options_list, 0);
+				EditOptions2(DLG_OPKMORE_CHG, 0, 0, &options_list, 0);
 				break;
 			case PPOPT_INVENTORY:
 				editInventoryOptions();
@@ -2086,19 +2088,25 @@ void OprKindDialog::moreDialog()
 					OPKF_FREIGHT, OPKF_ATTACHFILES, OPKF_NEEDVALUATION, OPKF_RESTRICTBYMTX, OPKF_NOCALCTIORD, 0L); // @v11.0.10 OPKF_NOCALCTIORD
 				ext_options_list.addzlist(OPKFX_ALLOWPARTSTR, OPKFX_RESTRICTPRICE, OPKFX_USESUPPLDEAL, OPKFX_CANBEDECLINED,
 					OPKFX_DLVRLOCASWH, OPKFX_SOURCESERIAL, OPKFX_AUTOGENUUID, 0L);
-				editOptions2(DLG_OPKMORE_DRC, 1, &subtypelist, &options_list, &ext_options_list);
+				EditOptions2(DLG_OPKMORE_DRC, 1, &subtypelist, &options_list, &ext_options_list);
 				break;
 			case PPOPT_DRAFTEXPEND:
 				subtypelist.addzlist(static_cast<long>(OPSUBT_COMMON), OPSUBT_TRADEPLAN, 0L);
 				options_list.addzlist(OPKF_NEEDPAYMENT, OPKF_PROFITABLE, OPKF_CALCSTAXES, OPKF_AUTOWL, OPKF_USEEXT,
 					OPKF_FREIGHT, OPKF_NOCALCTIORD, OPKF_ATTACHFILES, OPKF_RESTRICTBYMTX, 0L);
 				ext_options_list.addzlist(OPKFX_ALLOWPARTSTR, OPKFX_RESTRICTPRICE, OPKFX_CANBEDECLINED, OPKFX_AUTOGENUUID, OPKFX_IGNORECLISTOP, 0L);
-				editOptions2(DLG_OPKMORE_DEX, 1, &subtypelist, &options_list, &ext_options_list);
+				EditOptions2(DLG_OPKMORE_DEX, 1, &subtypelist, &options_list, &ext_options_list);
+				break;
+			case PPOPT_WAREHOUSE:
+				subtypelist.addzlist(OPSUBT_GENERALWMSOP, OPSUBT_BAILMENT_ORDER, OPSUBT_BAILMENT_PUT, OPSUBT_BAILMENT_GET, 0L);
+				options_list.addzlist(OPKF_NEEDPAYMENT, OPKF_PROFITABLE, OPKF_ONORDER, OPKF_CALCSTAXES, OPKF_AUTOWL, OPKF_USEEXT,
+					OPKF_EXTACCTURN, OPKF_RENT, OPKF_NOCALCTIORD, OPKF_FREIGHT, OPKF_ATTACHFILES, 0L);
+				EditOptions2(DLG_OPKMORE_WH, 1, &subtypelist, &options_list, 0);
 				break;
 			default:
 				options_list.addzlist(OPKF_NEEDPAYMENT, OPKF_PROFITABLE, OPKF_ONORDER, OPKF_CALCSTAXES, OPKF_AUTOWL, OPKF_USEEXT,
 					OPKF_EXTACCTURN, OPKF_RENT, OPKF_NOCALCTIORD, OPKF_FREIGHT, OPKF_ATTACHFILES, 0L);
-				editOptions2(DLG_OPKMORE, 1, 0, &options_list, 0);
+				EditOptions2(DLG_OPKMORE, 1, 0, &options_list, 0);
 				break;
 		}
 	}
@@ -2686,7 +2694,8 @@ int PPObjOprKind::EditPacket(PPOprKindPacket * pPack)
 			break;
 		default: dlg_id = DLG_OPRKIND; break;
 	}
-	if(CheckDialogPtr(&(dlg = new OprKindDialog(dlg_id, pPack)))) {
+	dlg = new OprKindDialog(dlg_id, pPack);
+	if(CheckDialogPtr(&dlg)) {
 		for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;) {
 			if(dlg->getDTS(pPack)) {
 				if(!CheckName(pPack->Rec.ID, pPack->Rec.Name, 0))

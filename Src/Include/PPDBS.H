@@ -3006,7 +3006,7 @@ public:
 		LTIME  Tm;
 		int32  UserID;
 		int32  BillID;
-		int16  RByBill;
+		int16  RByBillLT;
 		int16  LTOp;
 		int16  Domain;
 		int16  PalletCount;
@@ -3038,7 +3038,7 @@ public:
 	};
 	struct Key3 {
 		int32  BillID;
-		int16  RByBill;
+		int16  RByBillLT;
 	};
 	struct Key4 {
 		int32  LinkLocID;
@@ -3057,7 +3057,7 @@ public:
 	DBField Tm;
 	DBField UserID;
 	DBField BillID;
-	DBField RByBill;
+	DBField RByBillLT;
 	DBField LTOp;
 	DBField Domain;
 	DBField PalletCount;
@@ -3091,7 +3091,7 @@ public:
 		LTIME  Tm;
 		int32  UserID;
 		int32  BillID;
-		int16  RByBill;
+		int16  RByBillLT;
 		int16  LTOp;
 		int16  Domain;
 		int16  PalletCount;
@@ -3109,7 +3109,7 @@ public:
 	};
 	struct Key1 {
 		int32  BillID;
-		int16  RByBill;
+		int16  RByBillLT;
 	};
 	struct Key2 {
 		int32  LocID;
@@ -3122,7 +3122,7 @@ public:
 	DBField Tm;
 	DBField UserID;
 	DBField BillID;
-	DBField RByBill;
+	DBField RByBillLT;
 	DBField LTOp;
 	DBField Domain;
 	DBField PalletCount;

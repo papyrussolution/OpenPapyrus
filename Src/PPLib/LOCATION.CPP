@@ -205,7 +205,7 @@ int LocationCore::SearchCode(PPID locTyp, const char * pCode, PPID * pID, Locati
 			if(data.Type == locTyp && stricmp(data.Code, pCode) == 0) {
 				PPSetObjError(PPERR_DUPSYMB, PPOBJ_LOCATION, data.ID);
 				ASSIGN_PTR(pID, data.ID);
-				copyBufTo(pRec);
+				CopyBufTo(pRec);
 				ok = 1;
 			}
 	}

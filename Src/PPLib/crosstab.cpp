@@ -760,7 +760,7 @@ int Crosstab::GetTab(uint tabIdx, void * pTabVal)
 int Crosstab::SetFixFieldValByCTID(long ctID, uint fldPos, const void * pBuf)
 {
 	int    ok = -1;
-	const  int ci = P_RTbl->getCurIndex();
+	const  int ci = P_RTbl->GetCurIndex();
 	DBRowId db_pos;
 	P_RTbl->getPosition(&db_pos);
 	if(P_RTbl->searchForUpdate(0, &ctID, spEq) > 0) {
@@ -775,7 +775,7 @@ int Crosstab::SetFixFieldValByCTID(long ctID, uint fldPos, const void * pBuf)
 int Crosstab::GetFixFieldValByCTID(long ctID, uint fldPos, void * pBuf, size_t bufSize)
 {
 	int    ok = -1;
-	const  int ci = P_RTbl->getCurIndex();
+	const  int ci = P_RTbl->GetCurIndex();
 	if(P_RTbl->search(0, &ctID, spEq) > 0) {
 		double val = 0.0;
 		P_RTbl->getFieldValue(GetFixFieldOffs() + fldPos, pBuf, &bufSize);

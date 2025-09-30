@@ -2047,6 +2047,14 @@ browser CASHNODEBILL north(100), 1, 2, "@{poscheck_pl} {%s}", OWNER|GRID, 0
 // 30 - Информация об установленной котировке @v8.2.0
 // 31 - Заказанное количество (для документов отгрузки) @v9.1.1
 // 32 - GUID сертификата VETIS @v10.1.8
+// 33 - ЕГАИС RefB
+// 34 - ЕГАИС Код товара
+// 35 - Количество марок
+// 36 - Процент наценки ((price-cost)/cost) @v11.5.11
+// 37 - Предпочтительный поставщик // @v12.0.8
+// 38 - Контрактная цена предпочтительного поставщика // @v12.0.8
+// 39 - Наименование складской ячейки или адреса операции ответственного хранения // @v12.4.1
+// 40 - Контрагент операции ответственного хранения // @v12.4.1
 //
 browser GOODSITEM_W2 south(73), 1, 1, "@{view_billitem_goods} {%s}", OWNER|GRID, 0
 {
@@ -2057,6 +2065,19 @@ browser GOODSITEM_W2 south(73), 1, 1, "@{view_billitem_goods} {%s}", OWNER|GRID,
 	"@termprice", 4, double, NMBF_NOZERO,   8.2, BCO_USERPROC
 	"@discount",  5, double, NMBF_NOZERO,   8.2, BCO_USERPROC
 	"@amount",    6, double, NMBF_NOZERO,   8.2, BCO_USERPROC
+	toolbar GOODSBILLITEM
+}
+
+browser GOODSITEMPH_W2 south(73), 1, 1, "@{view_billitem_goods} {%s}", OWNER|GRID, 0
+{
+	"#",              0, int32,        0,  4, BCO_USERPROC
+	"@ware",          1, zstring(128), 0, 25, BCO_USERPROC
+	"@qtty",          2, double, NMBF_NOTRAILZ, 8.3, BCO_USERPROC
+	"@phqtty",        7, double, NMBF_NOZERO | NMBF_NOTRAILZ, 10.3, BCO_USERPROC
+	"@termcost",      3, double, NMBF_NOZERO, 8.2, BCO_USERPROC
+	"@termprice",     4, double, NMBF_NOZERO, 8.2, BCO_USERPROC
+	"@discount",      5, double, NMBF_NOZERO, 8.2, BCO_USERPROC
+	"@amount",        6, double, NMBF_NOZERO, 8.2, BCO_USERPROC
 	toolbar GOODSBILLITEM
 }
 
@@ -2080,19 +2101,6 @@ browser GOODSITEMPH_CUR_W2 south(73), 2, 1, "@{view_billitem_goods} {%s}", OWNER
 	"@price",           3, double, NMBF_NOZERO,   8.2, BCO_USERPROC
 	"@trfr_curprice",  10, double, NMBF_NOZERO,  10.2, BCO_USERPROC
 	"@currencyamount", 11, double, NMBF_NOZERO,  10.2, BCO_USERPROC
-	toolbar GOODSBILLITEM
-}
-
-browser GOODSITEMPH_W2 south(73), 1, 1, "@{view_billitem_goods} {%s}", OWNER|GRID, 0
-{
-	"#",              0, int32,        0,  4, BCO_USERPROC
-	"@ware",          1, zstring(128), 0, 25, BCO_USERPROC
-	"@qtty",          2, double, NMBF_NOTRAILZ, 8.3, BCO_USERPROC
-	"@phqtty",        7, double, NMBF_NOZERO | NMBF_NOTRAILZ, 10.3, BCO_USERPROC
-	"@termcost",      3, double, NMBF_NOZERO, 8.2, BCO_USERPROC
-	"@termprice",     4, double, NMBF_NOZERO, 8.2, BCO_USERPROC
-	"@discount",      5, double, NMBF_NOZERO, 8.2, BCO_USERPROC
-	"@amount",        6, double, NMBF_NOZERO, 8.2, BCO_USERPROC
 	toolbar GOODSBILLITEM
 }
 
@@ -2182,6 +2190,29 @@ browser CHECKITEM_W2 south(73), 1, 1, "@{poscheckline_pl} {%s}", OWNER|GRID, 0
 	"@termprice", 4, double, NMBF_NOZERO | NMBF_DELCOMMA, 10.2, BCO_USERPROC
 	"@discount",  5, double, NMBF_NOZERO | NMBF_DELCOMMA, 10.2, BCO_USERPROC
 	"@amount",    6, double, NMBF_NOZERO | NMBF_DELCOMMA, 10.2, BCO_USERPROC
+}
+
+browser GOODSITEM_WAREHOUSE south(73), 1, 1, "@{view_billitem_goods} {%s}", OWNER|GRID, 0 // @v12.4.1
+{
+	"#",          0, int32,        0,  4, BCO_USERPROC
+	"@ware",      1, zstring(128), 0, 25, BCO_USERPROC
+	"@whcell",   39, zstring(48),  0, 12, BCO_USERPROC
+	"@qtty",      2, double, NMBF_NOTRAILZ, 8.3, BCO_USERPROC
+	"@termcost",  3, double, NMBF_NOZERO,   8.2, BCO_USERPROC
+	"@amount",    6, double, NMBF_NOZERO,   8.2, BCO_USERPROC
+	toolbar GOODSBILLITEM
+}
+
+browser GOODSITEM_BAILMENT south(73), 1, 1, "@{view_billitem_goods} {%s}", OWNER|GRID, 0 // @v12.4.1
+{
+	"#",            0, int32,        0,  4, BCO_USERPROC
+	"@ware",        1, zstring(128), 0, 25, BCO_USERPROC
+	"@contractor", 40, zstring(48),  0, 25, BCO_USERPROC
+	"@address",    39, zstring(48),  0, 25, BCO_USERPROC
+	"@qtty",        2, double, NMBF_NOTRAILZ, 8.3, BCO_USERPROC
+	"@termcost",    3, double, NMBF_NOZERO,   8.2, BCO_USERPROC
+	"@amount",      6, double, NMBF_NOZERO,   8.2, BCO_USERPROC
+	toolbar GOODSBILLITEM
 }
 //
 //
@@ -5975,6 +6006,33 @@ browser LOCTRANSF north(100), 3, 1, "@{view_loctransf} {%s}", OWNER|GRID, 0
 		"@time",          08, notype, TIMF_HMS, 8
 		"@operator",      13, notype, 0, 8
 	}
+	toolbar TB_FIRST_TOOLBAR {
+		EDITITEM      : kbEnter,  PPDV_EDITFILE02,    "@{doeditop}\tEnter"
+		ADDITEM       : kbIns,    PPDV_ADDFILE02,     "@{doaddop}\tInsert"
+		DELETEITEM    : kbDel,    PPDV_DELETEFILE02,  "@{dodeleteop}\tDelete"
+		separator
+		EDITWHCELL    : kbF5,     TBBM_WHCELL,        "@{whcell}\tF5"
+		EDITGOODS     : kbF2,     PPDV_WARESINGLE01,  "@{ware}\tF2"
+		EDITBILL      : kbF3,     PPDV_NOICON,        "@{document}\tF3"
+		DETAIL        : kbF4,     PPDV_LINS01,        "@{doshowstockbywhcell}\tF4"
+		separator
+		TOTAL         : kbF9,     PPDV_SIGMA02,       "@{totals}\tF9"
+		separator
+		CHANGEFILT    : kbCtrlV,  PPDV_FILTER01,      "@{filter}\tCtrl-V"
+	}
+}
+
+browser LOCTRANSF_BAILMENT north(100), 3, 1, "@{view_loctransf_bailment} {%s}", OWNER|GRID, 0
+{
+	"@contractor",    16, notype, 0, 20
+	"@address",       10, notype, 0, 20
+	"@ware",          11, notype, 0, 30
+	"@barcode",       14, notype, 0, 10
+	"@qtty",          04, notype, NMBF_NOTRAILZ, 10.6
+	"@rest",          05, notype, NMBF_NOTRAILZ, 10.6
+	"@document",      12, notype, 0, 20
+	"@date",          07, notype, DATF_DMY, 8
+	"@time",          08, notype, TIMF_HMS, 8
 	toolbar TB_FIRST_TOOLBAR {
 		EDITITEM      : kbEnter,  PPDV_EDITFILE02,    "@{doeditop}\tEnter"
 		ADDITEM       : kbIns,    PPDV_ADDFILE02,     "@{doaddop}\tInsert"

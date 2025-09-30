@@ -68,7 +68,7 @@ int SCardCore::SearchCode(PPID seriesID, const char * pCode, SCardTbl::Rec * pRe
 		STRNSCPY(k.k1.Code, pCode);
 		idx = 1;
 		if(search(idx, &k, spGe) && stricmp866(data.Code, pCode) == 0) {
-			copyBufTo(pRec);
+			CopyBufTo(pRec);
 			ok = 1;
 		}
 		else
@@ -79,7 +79,7 @@ int SCardCore::SearchCode(PPID seriesID, const char * pCode, SCardTbl::Rec * pRe
 		STRNSCPY(k.k2.Code, pCode);
 		idx = 2;
 		if(search(idx, &k, spEq)) {
-			copyBufTo(pRec);
+			CopyBufTo(pRec);
 			ok = 1;
 		}
 		else
@@ -657,7 +657,7 @@ int SCardCore::SearchOpByLinkObj(PPID objType, PPID objID, SCardOpTbl::Rec * pRe
 	k1.LinkObjType = PPOBJ_CCHECK;
 	k1.LinkObjID = objID;
 	if(ScOp.search(1, &k1, spGe) && ScOp.data.LinkObjType == objType && ScOp.data.LinkObjID == objID) {
-		ScOp.copyBufTo(pRec);
+		ScOp.CopyBufTo(pRec);
 		return 1;
 	}
 	else
@@ -671,7 +671,7 @@ int SCardCore::GetLastOpByCard(PPID cardID, LDATE dt, SCardOpTbl::Rec * pRec)
 	k0.Dt = dt ? plusdate(dt, -1) : MAXDATE;
 	k0.Tm = MAXTIME;
 	if(ScOp.search(0, &k0, spLe) && k0.SCardID == cardID) {
-		ScOp.copyBufTo(pRec);
+		ScOp.CopyBufTo(pRec);
 		return 1;
 	}
 	else
@@ -686,7 +686,7 @@ int SCardCore::EnumOpByCard(PPID cardID, LDATETIME * pDT, SCardOpTbl::Rec * pRec
 	k0.Tm = pDT->t;
 	if(ScOp.search(0, &k0, spGt) && k0.SCardID == cardID) {
 		pDT->Set(k0.Dt, k0.Tm);
-		ScOp.copyBufTo(pRec);
+		ScOp.CopyBufTo(pRec);
 		return 1;
 	}
 	else
@@ -705,7 +705,7 @@ int SCardCore::GetOpByLinkObj(PPObjID oid, TSVector <OpBlock> & rList)
 		if(ScOp.search(1, &k1, spGe) && oid.IsEq(ScOp.data.LinkObjType, ScOp.data.LinkObjID)) {
 			do {
 				SCardOpTbl::Rec op_rec;
-				ScOp.copyBufTo(&op_rec);
+				ScOp.CopyBufTo(&op_rec);
 				OpBlock blk;
 				blk.Init(&op_rec);
 				blk.Flags |= OpBlock::fEdit;
@@ -794,7 +794,7 @@ int SCardCore::PutOpByBill(PPID billID, PPID scardID, LDATE dt, double amount, i
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		if(ScOp.search(1, &k1, spGe) && ScOp.data.LinkObjType == PPOBJ_BILL && ScOp.data.LinkObjID == billID) {
-			ScOp.copyBufTo(&rec);
+			ScOp.CopyBufTo(&rec);
 			dtm.Set(rec.Dt, rec.Tm);
 			if(rec.SCardID == scardID && rec.Amount == amount) {
 				ok = 2;

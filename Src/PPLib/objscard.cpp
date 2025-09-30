@@ -2176,7 +2176,7 @@ int PPObjSCard::UpdateBySeries(PPID seriesID, int use_ta)
 		while(P_Tbl->search(2, &k2, spGt) && k2.SeriesID == scs_pack.Rec.ID) {
 			SCardTbl::Rec rec;
 			THROW_DB(P_Tbl->rereadForUpdate(2, &k2));
-			P_Tbl->copyBufTo(&rec);
+			P_Tbl->CopyBufTo(&rec);
 			const long  prev_pdis = rec.PDis;
 			const LDATE prev_expiry = rec.Expiry;
 			if(SetInheritance(&scs_pack, &rec) > 0) {
@@ -2581,7 +2581,7 @@ int PPObjSCard::UpdateBySeriesRule2(PPID seriesID, /*int prevTrnovrPrd*/const SC
 			q.selectAll().where(P_Tbl->SeriesID == pack.Rec.ID);
 			for(q.initIteration(false, &k2, spGt); q.nextIteration() > 0;) {
 				SCardTbl::Rec rec;
-				P_Tbl->copyBufTo(&rec);
+				P_Tbl->CopyBufTo(&rec);
 				THROW_SL(scr_list.insert(&rec));
 			}
 			const uint scrlc = scr_list.getCount();
@@ -5384,7 +5384,7 @@ int ConvertSCardSeries9809()
 			THROW(tra);
 			k0.ObjType = obj_type;
 			if(p_ref->search(0, &k0, spGt)) do {
-				p_ref->copyBufTo(&scs_rec);
+				p_ref->CopyBufTo(&scs_rec);
 				if(scs_rec.VerifTag < 2) {
 					const  PPID _id = scs_rec.ID;
 					SCardSeries_Before9809 old_rec;
@@ -5401,7 +5401,7 @@ int ConvertSCardSeries9809()
 					scs_rec.Flags &= flags_mask;
 					scs_rec.FixedBonus = 0;
                     scs_rec.VerifTag = 2;
-                    p_ref->copyBufFrom(&scs_rec);
+                    p_ref->CopyBufFrom(&scs_rec);
                     THROW_DB(p_ref->updateRec());
                     if(code_templ[0]) {
 						PPSCardSerPacket::Ext ext;

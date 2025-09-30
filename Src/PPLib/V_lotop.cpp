@@ -57,7 +57,7 @@ int FASTCALL PPViewLotOp::NextIteration(LotOpViewItem * pItem)
 {
 	if(P_IterQuery && P_IterQuery->nextIteration() > 0) {
 		if(pItem) {
-			P_BObj->trfr->copyBufTo(pItem);
+			P_BObj->trfr->CopyBufTo(pItem);
 			pItem->OldQtty = 0.0;
 			pItem->OldCost = 0.0;
 			pItem->OldPrice = 0.0;

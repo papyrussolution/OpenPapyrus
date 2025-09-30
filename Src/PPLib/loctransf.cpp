@@ -20,12 +20,50 @@ LocTransfOpBlock::LocTransfOpBlock(int domain, int op, PPID locID)
 	Init(domain, op, locID);
 }
 
+LocTransfOpBlock::LocTransfOpBlock(const LocTransfOpBlock & rS)
+{
+	Domain = rS.Domain;
+	LTOp = rS.LTOp;
+	BillID = rS.BillID;
+	RByBillLT = rS.RByBillLT;
+	GoodsID = rS.GoodsID;
+	LotID = rS.LotID;
+	LocOwnerPersonID = rS.LocOwnerPersonID;
+	LocID = rS.LocID;
+	RByLoc = rS.RByLoc;
+	PalletTypeID = rS.PalletTypeID;
+	PalletCount = rS.PalletCount;
+	Qtty = rS.Qtty;
+	Flags = rS.Flags;
+	UserID = rS.UserID;
+	Dtm = rS.Dtm;
+}
+
+LocTransfOpBlock::LocTransfOpBlock(const LocTransfTbl::Rec & rRec)
+{
+	Domain = rRec.Domain;
+	LTOp = rRec.LTOp;
+	BillID = rRec.BillID;
+	RByBillLT = rRec.RByBillLT;
+	GoodsID = rRec.GoodsID;
+	LotID = rRec.LotID;
+	LocOwnerPersonID = rRec.LocOwnerPersonID;
+	LocID = rRec.LocID;
+	RByLoc = rRec.RByLoc;
+	PalletTypeID = rRec.PalletTypeID;
+	PalletCount = rRec.PalletCount;
+	Qtty = rRec.Qtty;
+	Flags = rRec.Flags;
+	UserID = rRec.UserID;
+	Dtm.Set(rRec.Dt, rRec.Tm);
+}
+
 LocTransfOpBlock & LocTransfOpBlock::Init(int domain, int op, PPID locID)
 {
 	Domain = domain; // @v12.4.1
 	LTOp = op;
 	BillID = 0;
-	RByBill = 0;
+	RByBillLT = 0;
 	GoodsID = 0;
 	LotID = 0;
 	LocOwnerPersonID = 0; // @v12.4.1
@@ -34,6 +72,10 @@ LocTransfOpBlock & LocTransfOpBlock::Init(int domain, int op, PPID locID)
 	PalletTypeID = 0;
 	PalletCount = 0;
 	Qtty = 0.0;
+	Flags = 0;            // @v12.4.1 
+	UserID = 0;           // @v12.4.1
+	Dtm = ZERODATETIME;   // @v12.4.1
+	memzero(Reserve, sizeof(Reserve)); // @v12.4.1
 	return *this;
 }
 
@@ -43,7 +85,7 @@ LocTransfOpBlock & FASTCALL LocTransfOpBlock::operator = (const LocTransfTbl::Re
 		Domain = pRec->Domain; // @v12.4.1
 		LTOp = pRec->LTOp;
 		BillID = pRec->BillID;
-		RByBill = pRec->RByBill;
+		RByBillLT = pRec->RByBillLT;
 		GoodsID = pRec->GoodsID;
 		LotID = pRec->LotID;
 		LocOwnerPersonID = pRec->LocOwnerPersonID; // @v12.4.1
@@ -52,16 +94,40 @@ LocTransfOpBlock & FASTCALL LocTransfOpBlock::operator = (const LocTransfTbl::Re
 		PalletTypeID = pRec->PalletTypeID;
 		PalletCount = pRec->PalletCount;
 		Qtty = pRec->Qtty;
+		Flags = pRec->Flags;         // @v12.4.1 
+		UserID = pRec->UserID;       // @v12.4.1
+		Dtm.Set(pRec->Dt, pRec->Tm); // @v12.4.1
 	}
 	return *this;
 }
 
+void FASTCALL LocTransfOpBlock::CopyTo(LocTransfTbl::Rec & rRec) const
+{
+	rRec.Domain = Domain;
+	rRec.LTOp = LTOp;
+	rRec.BillID = BillID;
+	rRec.RByBillLT = RByBillLT;
+	rRec.GoodsID = GoodsID;
+	rRec.LotID = LotID;
+	rRec.LocOwnerPersonID = LocOwnerPersonID;
+	rRec.LocID = LocID;
+	rRec.RByLoc = RByLoc;
+	rRec.PalletTypeID = PalletTypeID;
+	rRec.PalletCount = PalletCount;
+	rRec.Qtty = Qtty;
+	rRec.Flags = Flags;
+	rRec.UserID = rRec.UserID;
+	rRec.Dt = Dtm.d;
+	rRec.Tm = Dtm.t;
+}
+
 bool FASTCALL LocTransfOpBlock::IsEq(const LocTransfTbl::Rec & rRec) const
 {
-	return (Domain == rRec.Domain && LTOp == rRec.LTOp && BillID == rRec.BillID && RByBill == rRec.RByBill &&
+	return (Domain == rRec.Domain && LTOp == rRec.LTOp && BillID == rRec.BillID && RByBillLT == rRec.RByBillLT &&
 		GoodsID == rRec.GoodsID && LotID == rRec.LotID && LocOwnerPersonID == rRec.LocOwnerPersonID && LocID == rRec.LocID &&
 		RByLoc == rRec.RByLoc && PalletTypeID == rRec.PalletTypeID &&
-		PalletCount == rRec.PalletCount && fabs(Qtty) == fabs(rRec.Qtty));
+		PalletCount == rRec.PalletCount && fabs(Qtty) == fabs(rRec.Qtty) &&
+		Flags == rRec.Flags && UserID == rRec.UserID && cmp(Dtm, rRec.Dt, rRec.Tm) == 0);
 }
 
 LocTransfCore::LocTransfCore() : LocTransfTbl()
@@ -93,7 +159,7 @@ int LocTransfCore::SearchRestByGoods(int domain, PPID goodsID, PPID locID, long 
 		if(search(5, &k5, spGe) && data.LTOp == 0 && data.LocID == locID && data.GoodsID == goodsID && data.Domain == domain) {
 			do {
 				if(data.RestByGoods > 0.0) {
-					copyBufTo(pRec);
+					CopyBufTo(pRec);
 					ok = 2;
 				}
 			} while(ok < 0 && search(5, &k5, spNext) && data.LTOp == 0 && data.LocID == locID && data.GoodsID == goodsID && data.Domain == domain);
@@ -106,7 +172,7 @@ int LocTransfCore::SearchRestByGoods(int domain, PPID goodsID, PPID locID, long 
 		k2.RByLoc = rByLoc;
 		while(ok < 0 && search(2, &k2, spLt) && data.GoodsID == goodsID && data.LocID == locID && data.Domain == domain) {
 			if(data.LTOp != 0) {
-				copyBufTo(pRec);
+				CopyBufTo(pRec);
 				ok = 1;
 			}
 		}
@@ -125,7 +191,7 @@ int LocTransfCore::SearchRestByLot(int domain, PPID lotID, PPID locID, long rByL
 		if(rByLoc == 0) {
 			while(ok < 0 && search(1, &k1, spGt) && data.LotID == lotID && data.LocID == locID && data.Domain == domain) {
 				if(data.LTOp == 0) {
-					copyBufTo(pRec);
+					CopyBufTo(pRec);
 					ok = 2;
 				}
 			}
@@ -134,7 +200,7 @@ int LocTransfCore::SearchRestByLot(int domain, PPID lotID, PPID locID, long rByL
 			k1.RByLoc = rByLoc;
 			while(ok < 0 && search(1, &k1, spLt) && data.LotID == lotID && data.LocID == locID && data.Domain == domain) {
 				if(data.LTOp != 0) {
-					copyBufTo(pRec);
+					CopyBufTo(pRec);
 					ok = 1;
 				}
 			}
@@ -147,10 +213,10 @@ int LocTransfCore::GetTransByBill(PPID billID, int16 rByBill, TSVector <LocTrans
 {
 	LocTransfTbl::Key3 k3;
 	BExtQuery q(this, 3, 128);
-	q.selectAll().where(this->BillID == billID && this->RByBill == (long)rByBill);
+	q.selectAll().where(this->BillID == billID && this->RByBillLT == (long)rByBill);
 	MEMSZERO(k3);
 	k3.BillID  = billID;
-	k3.RByBill = rByBill;
+	k3.RByBillLT = rByBill;
 	for(q.initIteration(false, &k3, spEq); q.nextIteration() > 0;)
 		pList->insert(&data);
 	return 1;
@@ -161,10 +227,10 @@ int LocTransfCore::EnumByBill(PPID billID, int16 * pRByBill, LocTransfTbl::Rec *
 	int    ok = -1;
 	LocTransfTbl::Key3 k3;
 	k3.BillID = billID;
-	k3.RByBill = *pRByBill;
+	k3.RByBillLT = *pRByBill;
 	if(search(3, &k3, spGt)) {
-		*pRByBill = data.RByBill;
-		copyBufTo(pRec);
+		*pRByBill = data.RByBillLT;
+		CopyBufTo(pRec);
 		ok = 1;
 	}
 	else if(!BTROKORNFOUND)
@@ -202,7 +268,7 @@ int LocTransfCore::GetLastOpByLoc(PPID locID, long * pRByLoc, LocTransfTbl::Rec 
 	k0.RByLoc = MAXLONG;
 	if(search(0, &k0, spLe) && k0.LocID == locID) {
 		ASSIGN_PTR(pRByLoc, data.RByLoc);
-		copyBufTo(pRec);
+		CopyBufTo(pRec);
 		ok = 1;
 	}
 	else {
@@ -222,7 +288,7 @@ int LocTransfCore::GetLastOpByLot(PPID locID, PPID lotID, LocTransfTbl::Rec * pR
 		k1.LocID = locID;
 		k1.RByLoc = MAXLONG;
 		if(search(1, &k1, spLe) && k1.LotID == lotID && k1.LocID == locID) {
-			copyBufTo(pRec);
+			CopyBufTo(pRec);
 			ok = 1;
 		}
 		else if(!BTROKORNFOUND)
@@ -239,7 +305,7 @@ int LocTransfCore::GetLastOpByGoods(PPID locID, PPID goodsID, LocTransfTbl::Rec 
 	k2.LocID = locID;
 	k2.RByLoc = MAXLONG;
 	if(search(2, &k2, spLe) && k2.GoodsID == goodsID && k2.LocID == locID) {
-		copyBufTo(pRec);
+		CopyBufTo(pRec);
 		ok = 1;
 	}
 	else if(!BTROKORNFOUND)
@@ -253,10 +319,10 @@ int LocTransfCore::GetLastOpByBill(PPID billID, int16 * pRByBill, LocTransfTbl::
 	if(billID) {
 		LocTransfTbl::Key3 k3;
 		k3.BillID = billID;
-		k3.RByBill = MAXSHORT;
+		k3.RByBillLT = MAXSHORT;
 		if(search(3, &k3, spLe) && k3.BillID == billID) {
-			ASSIGN_PTR(pRByBill, data.RByBill);
-			copyBufTo(pRec);
+			ASSIGN_PTR(pRByBill, data.RByBillLT);
+			CopyBufTo(pRec);
 			ok = 1;
 		}
 		else {
@@ -456,7 +522,7 @@ int LocTransfCore::PutOp(const LocTransfOpBlock & rBlk, int * pRByLoc, int use_t
 			int    recalc_forward = 0;
 			THROW(Search(loc_id, rbyloc, &temp_rec) > 0);
 			const  double prev_qtty = temp_rec.Qtty;
-			THROW(temp_rec.BillID == rBlk.BillID && temp_rec.RByBill == rBlk.RByBill);
+			THROW(temp_rec.BillID == rBlk.BillID && temp_rec.RByBillLT == rBlk.RByBillLT);
 			if(rBlk.GoodsID != temp_rec.GoodsID || rBlk.LotID != temp_rec.LotID) {
 				double addendum = -prev_qtty;
 				recalc_forward = 1;
@@ -516,7 +582,7 @@ int LocTransfCore::PutOp(const LocTransfOpBlock & rBlk, int * pRByLoc, int use_t
 			rec.PalletTypeID = rBlk.PalletTypeID;
 			rec.PalletCount  = rBlk.PalletCount;
 			rec.Qtty = rBlk.Qtty;
-			rec.RByBill      = rBlk.RByBill; // ahtoxa
+			rec.RByBillLT     = rBlk.RByBillLT; // ahtoxa
 			if(rBlk.LotID) {
 				THROW(r = SearchRestByLot(rBlk.Domain, rBlk.LotID, loc_id, 0, &temp_rec));
 				if(r > 0)
@@ -650,12 +716,12 @@ int LocTransfCore::GetDisposition(PPID billID, int rByBill, TSVector <LocTransfT
 	int    ok = -1;
 	LocTransfTbl::Key3 k3;
 	k3.BillID = billID;
-	k3.RByBill = rByBill;
+	k3.RByBillLT = rByBill;
 	if(search(3, &k3, spEq))
 		do {
 			THROW_SL(rDispositionList.insert(&data));
 			ok = 1;
-		} while(search(3, &k3, spNext) && data.BillID == billID && data.RByBill == rByBill);
+		} while(search(3, &k3, spNext) && data.BillID == billID && data.RByBillLT == rByBill);
 	THROW(BTROKORNFOUND);
 	CATCHZOK
 	return ok;
@@ -666,7 +732,7 @@ int LocTransfCore::GetDisposition(PPID billID, TSVector <LocTransfTbl::Rec> & rD
 	int    ok = -1;
 	LocTransfTbl::Key3 k3;
 	k3.BillID = billID;
-	k3.RByBill = 0;
+	k3.RByBillLT = 0;
 	if(search(3, &k3, spGe) && data.BillID == billID)
 		do {
 			THROW_SL(rDispositionList.insert(&data));
@@ -703,7 +769,7 @@ int LocTransfDisposer::SetupOpBlock(LocTransfDisposeItem & rItem, PPID whCellID,
 	rBlk.Init(_domain, rItem.Op, whCellID);
 	rBlk.GoodsID = rItem.GoodsID;
 	rBlk.BillID = rItem.BillID;
-	rBlk.RByBill = rItem.BillTiIdx;
+	rBlk.RByBillLT = rItem.BillTiIdx;
 	//rBlk.LotID = rItem.LotID;
 	GObj.GetStockExt(rItem.GoodsID, &gse, 1);
 	if(gse.GetSinglePalletEntry(&plt) > 0 && plt.IsValid()) {
@@ -766,7 +832,7 @@ int LocTransfDisposer::Dispose(const PPIDArray & rBillList, PPLogger * pLogger, 
 				double disposed_qtty = 0.0;
 				for(uint j = 0; j < disp_list.getCount(); j++) {
 					const LocTransfTbl::Rec & r_lt_rec = disp_list.at(j);
-					if(r_lt_rec.RByBill == rbb)
+					if(r_lt_rec.RByBillLT == rbb)
 						disposed_qtty += fabs(r_lt_rec.Qtty);
 				}
 				double delta = fabs(ti.Qtty()) - disposed_qtty;

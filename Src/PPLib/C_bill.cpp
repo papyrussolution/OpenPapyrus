@@ -115,7 +115,7 @@ int PPObjBill::GatherPayments()
 	PPInitIterCounter(cntr, P_Tbl);
 	if(P_Tbl->search(0, &bill_id, spFirst)) do {
 		BillTbl::Rec rec;
-		P_Tbl->copyBufTo(&rec);
+		P_Tbl->CopyBufTo(&rec);
 		if(CheckOpFlags(rec.OpID, OPKF_NEEDPAYMENT) || CheckOpFlags(rec.OpID, OPKF_RECKON)) {
 			DBRowId _preserve_pos;
 			PPID   cur_id = rec.CurID;
@@ -412,7 +412,7 @@ int PrcssrAbsentBill::ScanAccturn(SArray * pList)
 	counter.Init(q.countIterations(0, &k2_, spGe));
 	for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;) {
 		AccTurnTbl::Rec rec;
-		p_at->copyBufTo(&rec);
+		p_at->CopyBufTo(&rec);
 		if(P_BObj->Search(rec.BillID) <= 0) {
 			AbsentEntry entry;
 			entry.ID    = rec.BillID;
@@ -449,7 +449,7 @@ int PrcssrAbsentBill::ScanTransfer(SArray * pList)
 	for(q.initIteration(false, &k1, spGe); q.nextIteration() > 0;) {
 		TransferTbl::Rec rec;
 		ReceiptTbl::Rec lot_rec;
-		trfr->copyBufTo(&rec);
+		trfr->CopyBufTo(&rec);
 		if(P_BObj->Search(rec.BillID) <= 0) {
 			AbsentEntry entry;
 			entry.ID    = rec.BillID;
@@ -814,7 +814,7 @@ int PPObjBill::SearchPaymWOLinkBill()
 		cntr.Init(bq.countIterations(0, &bk2_, spGe));
 		for(bq.initIteration(false, &bk2, spGe); bq.nextIteration() > 0; cntr.Increment()) {
 			BillTbl::Rec b_rec;
-			P_Tbl->copyBufTo(&b_rec);
+			P_Tbl->CopyBufTo(&b_rec);
 			if(b_rec.LinkBillID == 0 || P_Tbl->Search(b_rec.LinkBillID) <= 0) {
 				ArticleTbl::Rec ar_rec;
 				MakeCodeString(&b_rec, 0, code);

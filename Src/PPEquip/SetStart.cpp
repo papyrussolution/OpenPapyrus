@@ -178,33 +178,12 @@ int ACS_SETSTART::ExportData(int updOnly)
 		//
 		AsyncCashSCardsIterator iter(NodeID, updOnly, P_Dls, StatID);
 		scard_quot_list.freeAll();
-		/* @v10.7.0 
-		if(!updOnly) {
-			fputs((f_str = "$$$DELETEALLCCARDDISCS").CR(), p_file);
-		}
-		fputs((f_str = "$$$ADDCCARDDISCS").CR(), p_file); */
 		for(PPID ser_id = 0; scs_obj.EnumItems(&ser_id, &ser_rec) > 0;) {
 			if(ser_rec.GetType() == scstDiscount || (ser_rec.GetType() == scstCredit && CrdCardAsDsc)) {
 				AsyncCashSCardInfo info;
 				scard_series_list.add(ser_id);
 				THROW(scs_obj.GetPacket(ser_id, &scs_pack) > 0);
 				THROW_SL(scard_quot_list.Add(ser_rec.ID, ser_rec.QuotKindID_s, 0));
-				/* @v10.7.0 for(iter.Init(&scs_pack); iter.Next(&info) > 0;) {
-					f_str.Z();
-					f_str.Cat(info.Rec.ID).Semicol();   // Card ID
-					f_str.Cat(ser_rec.ID).Semicol();    // Series ID
-					f_str.Cat(info.Rec.Code).Semicol(); // Code
-					f_str.Cat(NZOR(info.Rec.Dt, encodedate(1, 1, 2000)), DATF_GERMANCENT).Semicol();
-					f_str.Cat(NZOR(info.Rec.Expiry, encodedate(1, 1, 3000)), DATF_GERMANCENT).Semicol();
-					f_str.Cat(info.IsClosed ? 0 : 1).Semicol();  // Passive | Active
-					f_str.Cat(0L).Semicol();                     // Скидка уменьшающая цену в процентах (0)
-					f_str.Cat(fdiv100i(info.Rec.PDis), MKSFMTD(0, 2, NMBF_NOTRAILZ)).Semicol();
-					f_str.Cat(1L).Semicol();                     // Скидка на сумму чека
-					f_str.CatCharN(';', 7);
-					f_str.CR();
-					fputs(f_str, p_file);
-					iter.SetStat();
-				}*/
 			}
 		}
 		scard_series_list.sortAndUndup();
@@ -423,14 +402,14 @@ int ACS_SETSTART::ExportData(int updOnly)
 								if(qk_id) {
 									double quot = gds_info.QuotList.Get(qk_id);
 									if(quot > 0.0 && quot != gds_info.Price) {
-										AtolGoodsDiscountEntry ent(gds_info.ID, qk_id, gds_info.Price - quot); // @v10.8.2
+										AtolGoodsDiscountEntry ent(gds_info.ID, qk_id, gds_info.Price - quot);
 										goods_dis_list.insert(&ent);
 										used_retail_quot.set(i, 1);
 									}
 								}
 							}
 							if(gds_info.ExtQuot > 0.0) {
-								AtolGoodsDiscountEntry ent(gds_info.ID, 0, gds_info.Price - gds_info.ExtQuot); // @v10.8.2
+								AtolGoodsDiscountEntry ent(gds_info.ID, 0, gds_info.Price - gds_info.ExtQuot);
 								goods_dis_list.insert(&ent);
 							}
 						}
@@ -623,9 +602,6 @@ int ACS_SETSTART::ExportData(int updOnly)
 				long   dscnt_code = 0;
 				PPQuotKind qk_rec;
 				SString card_code_low, card_code_upp;
-				/* @v106.10 if(!updOnly) {
-					fputs((f_str = "$$$DELETEALLAUTODISCCONDS").CR(), p_file);
-				}*/
 				int    is_first = 1;
 				for(uint scsidx = 0; scsidx < scard_series_list.getCount(); scsidx++) {
 					const  PPID scs_id = scard_series_list.get(scsidx);
@@ -1028,9 +1004,6 @@ int ACS_SETSTART::GetZRepList(const char * pPath, _FrontolZRepArray * pZRepList)
 				SessAry.addUnique(sess_id);
 				{
 					const _FrontolZRepEntry z_entry(cash_no, nsmena, sess_id);
-					// @v10.8.2 z_entry.PosN = cash_no; 
-					// @v10.8.2 z_entry.ZRepN = nsmena;
-					// @v10.8.2 z_entry.SessID = sess_id;
 					zrep_list.insert(&z_entry);
 				}
 			}

@@ -1135,7 +1135,7 @@ int PPObjTSession::Helper_PutLine(PPID sessID, long * pOprNo, TSessLineTbl::Rec 
 					THROW_PP((rec.Flags & TSESLF_REST) == (pRec->Flags & TSESLF_REST), PPERR_UPDTESLNRESTSTATUS);
 					pRec->TSessID = sessID;
 					pRec->OprNo   = *pOprNo;
-					P_Tbl->Lines.copyBufFrom(pRec);
+					P_Tbl->Lines.CopyBufFrom(pRec, sizeof(*pRec));
 					P_Tbl->Lines.data.Flags &= ~TSESLF_EXPANDSESS;
 					THROW_DB(P_Tbl->Lines.updateRec());
 				}
@@ -1146,7 +1146,7 @@ int PPObjTSession::Helper_PutLine(PPID sessID, long * pOprNo, TSessLineTbl::Rec 
 				THROW(P_Tbl->SearchOprNo(sessID, &oprno, 0) > 0);
 				pRec->TSessID = sessID;
 				pRec->OprNo = oprno;
-				P_Tbl->Lines.copyBufFrom(pRec);
+				P_Tbl->Lines.CopyBufFrom(pRec, sizeof(*pRec));
 				P_Tbl->Lines.data.Flags &= ~TSESLF_EXPANDSESS;
 				THROW_DB(P_Tbl->Lines.insertRec());
 				pRec->OprNo = oprno;
@@ -2308,7 +2308,7 @@ int PPObjTSession::MakeSessionsByRepeating(const PPIDArray * pSrcSessList, const
 				BExtQuery q(P_Tbl, 4);
 				q.selectAll().where(P_Tbl->PrcID == prc_id); // && P_Tbl->Status == (long)TSESST_INPROCESS);
 				for(q.initIteration(false, &k4, spGe); ok < 0 && q.nextIteration() > 0;) {
-					P_Tbl->copyBufTo(&sess_rec);
+					P_Tbl->CopyBufTo(&sess_rec);
 					if(sess_rec.Status != TSESST_CANCELED) {
 						DateRepeating dr = *reinterpret_cast<const DateRepeating *>(&sess_rec.Repeating);
 						if(dr.Prd > 0)
@@ -2344,7 +2344,7 @@ int PPObjTSession::MakeSessionsByRepeating(const PPIDArray * pSrcSessList, const
 							k4.StTm = _kdtm.t;
 
 							if(P_Tbl->search(4, &k4, spGe)) do {
-								P_Tbl->copyBufTo(&sess_rec);
+								P_Tbl->CopyBufTo(&sess_rec);
 								LDATETIME _cdtm;
 								_cdtm.Set(sess_rec.StDt, sess_rec.StTm);
 								if(sess_rec.PrcID == src_sess_pack.Rec.PrcID && cmp(_cdtm, _kdtm) >= 0 && cmp(_cdtm, _kfdtm) <= 0) {
@@ -2768,7 +2768,7 @@ StrAssocArray * PPObjTSession::MakeStrAssocList(void * extraPtr)
 				where(P_Tbl->PrcID == prc_list.at(i));
 			for(q.initIteration(false, &k4, spGe); q.nextIteration() > 0;) {
 				TSessionTbl::Rec rec;
-				P_Tbl->copyBufTo(&rec);
+				P_Tbl->CopyBufTo(&rec);
 				if(sel_par.Kind != 1 || rec.Flags & TSESF_SUPERSESS) {
 					MakeName(&rec, name_buf);
 					THROW_SL(p_list->Add(P_Tbl->data.ID, name_buf));
@@ -2783,7 +2783,7 @@ StrAssocArray * PPObjTSession::MakeStrAssocList(void * extraPtr)
 		q.select(P_Tbl->ID, P_Tbl->PrcID, P_Tbl->Num, P_Tbl->StDt, P_Tbl->StTm, P_Tbl->Flags, 0L);
 		for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;) {
 			TSessionTbl::Rec rec;
-			P_Tbl->copyBufTo(&rec);
+			P_Tbl->CopyBufTo(&rec);
 			if(sel_par.Kind != 1 || rec.Flags & TSESF_SUPERSESS) {
 				MakeName(&rec, name_buf);
 				THROW_SL(p_list->Add(P_Tbl->data.ID, name_buf));

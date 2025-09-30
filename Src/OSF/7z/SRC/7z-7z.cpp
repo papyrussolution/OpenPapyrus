@@ -4292,7 +4292,7 @@ namespace NArchive {
 					break;
 				   continue;
 				   }
-				   if(m.Id < m2.Id)  break;
+				   if(m.Id < m2.Id) break;
 				   if(m.Id != m2.Id) continue;
 				   if(m.Delta < m2.Delta) break;
 				   if(m.Delta != m2.Delta) continue;

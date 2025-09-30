@@ -5,6 +5,7 @@
     <ClCompile Include="..\PPMain\Ppmain.cpp" />
     <ClCompile Include="..\Rsrc\dl600\ppifc_i.c" />
     <ClCompile Include="..\PPLib\ppifclua.cpp" />
+    <ClCompile Include="..\PPLib\ppappo.CPP" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\berkeleydb.h">

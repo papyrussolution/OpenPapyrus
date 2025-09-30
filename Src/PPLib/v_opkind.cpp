@@ -498,6 +498,7 @@ int PPViewOprKind::ViewBills(PPID opID)
 			case PPOPT_GOODSORDER: flt.Bbt = bbtOrderBills; break;
 			case PPOPT_POOL: flt.Bbt = bbtPoolBills;
 			case PPOPT_AGREEMENT: flt.Bbt = bbtAccturnBills; break; // @v12.3.9
+			case PPOPT_WAREHOUSE: flt.Bbt = bbtWmsBills; break; // @v12.4.1
 		}
 		flt.SetupBrowseBillsType(flt.Bbt);
 		flt.OpID = opID;

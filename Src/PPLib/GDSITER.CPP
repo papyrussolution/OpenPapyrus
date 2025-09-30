@@ -756,7 +756,7 @@ int GoodsIterator::Next(Goods2Tbl::Rec * pRec, GoodsIterator::Ext * pExt)
 	if(P_IterQuery) {
 		while(ok < 0 && P_IterQuery->nextIteration() > 0) {
 			Goods2Tbl::Rec rec;
-			GObj.P_Tbl->copyBufTo(&rec);
+			GObj.P_Tbl->CopyBufTo(&rec);
 			int    r = 1;
 			{
 				if(P_MtxList && ((Filt.Flags & GoodsFilt::fRestrictByMatrix && !P_MtxList->bsearch(rec.ID)) ||
@@ -986,7 +986,7 @@ int GoodsGroupIterator::Init(PPID parentID, long flags)
 			is_excl_alt_fold = 1;
 	}
 	while(GObj.P_Tbl->search(1, &k1, spGt) && k1.Kind == PPGDSK_GROUP) {
-		GObj.P_Tbl->copyBufTo(&grec);
+		GObj.P_Tbl->CopyBufTo(&grec);
 		int    accept = 0;
 		if(grec.Flags & GF_ALTGROUP) {
 			if(is_excl_alt_fold || (Flags & (fEnumAltGroups | fEnumAltGroupsOnly)))

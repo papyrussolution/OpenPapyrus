@@ -12,7 +12,8 @@
 int Transfer::CorrectIntrUnite()
 {
 	int    ok = 1;
-	SString fmt_buf, msg_buf;
+	SString fmt_buf;
+	SString msg_buf;
 	PPObjBill * p_bill_obj = BillObj;
 	ReceiptTbl::Key4 k4;
 	BExtQuery q(&Rcpt, 4);
@@ -28,7 +29,7 @@ int Transfer::CorrectIntrUnite()
 			if(prev_lot_id) {
 				const  PPID lot_id = Rcpt.data.ID;
 				const  PPID bill_id = Rcpt.data.BillID;
-				int r = p_bill_obj->Search(bill_id, 0);
+				const  int  r = p_bill_obj->Search(bill_id, 0);
 				THROW(r);
 				if(r < 0) {
 					DBRowId trfr_pos;
@@ -36,7 +37,7 @@ int Transfer::CorrectIntrUnite()
 					ReceiptTbl::Rec lot_rec, prev_lot_rec;
 					TransferTbl::Rec trfr_rec, org_trfr_rec;
 					BillTbl::Rec org_bill_rec;
-					Rcpt.copyBufTo(&lot_rec);
+					Rcpt.CopyBufTo(&lot_rec);
 					DateIter di; // PPFormat
 					int    corrected = 0;
 					// Обнаружен порожденный лот с висячей ссылкой на документ: @date @goods @real
@@ -59,21 +60,21 @@ int Transfer::CorrectIntrUnite()
 							while(EnumByLot(prev_lot_id, &di, &org_trfr_rec) > 0) {
 								if(p_bill_obj->Search(org_trfr_rec.BillID, &org_bill_rec) > 0) {
 									if(IsIntrOp(org_bill_rec.OpID) == INTREXPND) {
-										int r2 = SearchByBill(org_trfr_rec.BillID, 1, org_trfr_rec.RByBill, 0);
+										const int r2 = SearchByBill(org_trfr_rec.BillID, 1, org_trfr_rec.RByBill, 0);
 										THROW(r2);
 										if(r2 < 0) {
 											//
 											// Нашли оригинальную запись, к которой должна быть привязана trfr_rec
 											//
 											THROW_DB(getDirectForUpdate(0, 0, trfr_pos));
-											copyBufTo(&trfr_rec);
+											CopyBufTo(&trfr_rec);
 											trfr_rec.BillID = org_trfr_rec.BillID;
 											trfr_rec.RByBill = org_trfr_rec.RByBill;
 											trfr_rec.Quantity = fabs(org_trfr_rec.Quantity);
 											THROW_DB(updateRecBuf(&trfr_rec)); // @sfu
 											//
 											THROW_DB(Rcpt.getDirectForUpdate(0, 0, rcpt_pos));
-											Rcpt.copyBufTo(&lot_rec);
+											Rcpt.CopyBufTo(&lot_rec);
 											lot_rec.BillID = org_trfr_rec.BillID;
 											lot_rec.Quantity = fabs(org_trfr_rec.Quantity);
 											THROW_DB(Rcpt.updateRecBuf(&lot_rec)); // @sfu
@@ -151,25 +152,24 @@ int Transfer::CorrectReverse()
 		dlg = 0;
 	}
 	if(do_process) {
-		SString msg_buf, fmt_buf;
+		SString msg_buf;
+		SString fmt_buf;
 		DBRowId pos;
 		TransferTbl::Key1 k1;
 		PPLogger logger;
-
 		PPWaitStart();
-
 		PPTransaction tra(1);
 		THROW(tra);
-
 		MEMSZERO(k1);
 		k1.Dt = param.Period.low;
 		BExtQuery q(this, 1, 256);
 		q.selectAll().where(daterange(this->Dt, &param.Period) && this->Reverse == (long)1);
 		for(q.initIteration(false, &k1, spGe); q.nextIteration() > 0;) {
-			TransferTbl::Rec rec, correct_rec;
+			TransferTbl::Rec rec;
+			TransferTbl::Rec correct_rec;
 			PPWaitDate(data.Dt);
-			copyBufTo(&rec);
-			copyBufTo(&correct_rec);
+			CopyBufTo(&rec);
+			CopyBufTo(&correct_rec);
 			THROW_DB(getPosition(&pos));
 			TransferTbl::Key0 k0;
 			MEMSZERO(k0);
@@ -205,14 +205,14 @@ int Transfer::CorrectReverse()
 					if(err == 1) {
 						int    _rbb = rec.RByBill - 1;
 						PPTransferItem ti;
-						PPObjBill::TBlock tb_; // @v8.0.3
-						THROW(p_bobj->BeginTFrame(rec.BillID, tb_)); // @v8.0.3
+						PPObjBill::TBlock tb_;
+						THROW(p_bobj->BeginTFrame(rec.BillID, tb_));
 						if(EnumItems(rec.BillID, &_rbb, &ti) > 0 && UpdateItem(&ti, tb_.Rbb(), 1, 0)) {
 							// recovered
 						}
 						else
 							logger.LogLastError();
-						THROW(p_bobj->FinishTFrame(rec.BillID, tb_)); // @v8.0.3
+						THROW(p_bobj->FinishTFrame(rec.BillID, tb_));
 					}
 				}
 			}
@@ -266,10 +266,10 @@ int RecoverAbsenceLots()
 			valid_data = 1;
 		}
 	}
-	delete dlg;
-	dlg = 0;
+	ZDELETE(dlg);
 	if(valid_data) {
-		SString msg_buf, log_buf;
+		SString msg_buf;
+		SString log_buf;
 		IterCounter cntr;
 		PPWaitStart();
 		if(period.IsZero())
@@ -288,15 +288,16 @@ int RecoverAbsenceLots()
 			k1.Dt = period.low;
 			while(trfr->search(1, &k1, spGt) && (!period.upp || k1.Dt <= period.upp)) {
 				DBRowId pos;
-				TransferTbl::Rec rec, mirror;
-				trfr->copyBufTo(&rec);
+				TransferTbl::Rec rec;
+				TransferTbl::Rec mirror;
+				trfr->CopyBufTo(&rec);
 				THROW_DB(trfr->getPosition(&pos));
 				if(rec.Flags & PPTFR_RECEIPT && !(rec.Flags & PPTFR_ACK) && trfr->Rcpt.Search(rec.LotID) < 0) {
 					long   oprno = rec.OprNo;
-					PPID   prev_lot_id = 0, force_lot_id = 0;
+					PPID   prev_lot_id = 0;
+					PPID   force_lot_id = 0;
 					BillTbl::Rec bill_rec;
 					PPTransferItem ti;
-
 					ti.SetupByRec(&rec);
 					force_lot_id = ti.LotID;
 					ti.LotID = 0;
@@ -344,14 +345,16 @@ int Transfer::CorrectByLot(PPID lotID, int (*MsgProc)(int err, PPID lot, const T
 	int    reply = 1;
 	int    closed;
 	int    err;
-	int    cost_err, price_err;
+	int    cost_err;
+	int    price_err;
 	int    reval = 0;
 	double rest = 0.0;
 	LDATE  dt = ZERODATE;
 	long   oprno = 0;
 	PPID   billID;
 	int    _rbb;
-	ReceiptTbl::Rec rcptr, srr;
+	ReceiptTbl::Rec rcptr;
+	ReceiptTbl::Rec srr;
 	PPTransferItem ti;
 	THROW(PPStartTransaction(&ta, 1));
 	THROW(Rcpt.Search(lotID, &rcptr) > 0);
@@ -422,8 +425,10 @@ int Transfer::CorrectByLot(PPID lotID, int (*MsgProc)(int err, PPID lot, const T
 
 int Transfer::CorrectCurRest(PPID goodsID, const PPIDArray * pLocList, PPLogger * pLogger, int correct)
 {
-	int    ok = -1, ta = 0;
-	SString fmt_buf, log_msg;
+	int    ok = -1;
+	int    ta = 0;
+	SString fmt_buf;
+	SString log_msg;
 	GoodsRestParam p;
 	PPIDArray temp_loc_list;
 	if(pLocList == 0) {
@@ -506,7 +511,8 @@ int Transfer::CorrectCurRest(PPID goodsID, const PPIDArray * pLocList, PPLogger 
 int Transfer::CorrectCurRest(const char * pLogName, int correct)
 {
 	int    ok = 1;
-	SString log_msg, fmt_buf;
+	SString log_msg;
+	SString fmt_buf;
 	Goods2Tbl::Rec goods_rec;
 	PPObjLocation loc_obj;
 	PPIDArray wh_list; // Список идентификаторов складов
@@ -1530,7 +1536,7 @@ int Transfer::RecoverLot(PPID lotID, PPLotFaultArray * pFaultList, long flags, i
 			}
 			if(flags & TLRF_REPAIRCOST) {
 				if(pFaultList->HasFault(PPLotFault::FirstCost, &fault, &fault_pos)) {
-                    if(fault.ActualVal >= 0.0 && fault.ValidVal > 0.0) { // @v10.4.2 (fault.ActualVal == 0.0)-->(fault.ActualVal >= 0.0)
+                    if(fault.ActualVal >= 0.0 && fault.ValidVal > 0.0) {
 						lot_rec.Cost = fault.ValidVal;
 						err_lot = 1;
                     }
@@ -1538,7 +1544,7 @@ int Transfer::RecoverLot(PPID lotID, PPLotFaultArray * pFaultList, long flags, i
 			}
 			if(flags & TLRF_REPAIRPRICE) {
 				if(pFaultList->HasFault(PPLotFault::FirstPrice, &fault, &fault_pos)) {
-					if(fault.ActualVal >= 0.0 && fault.ValidVal > 0.0) { // @v10.4.2 (fault.ActualVal == 0.0)-->(fault.ActualVal >= 0.0)
+					if(fault.ActualVal >= 0.0 && fault.ValidVal > 0.0) {
 						lot_rec.Price = fault.ValidVal;
 						err_lot = 1;
                     }
@@ -1565,12 +1571,10 @@ int Transfer::RecoverLot(PPID lotID, PPLotFaultArray * pFaultList, long flags, i
 					}
 				}
 			}
-			// @v8.9.0 {
 			if(flags & TLRF_REPAIRWOTAXFLAGS && pFaultList->HasFault(PPLotFault::InadqLotWoTaxFlagOn, &fault, &fault_pos)) {
 				lot_rec.Flags &= ~LOTF_PRICEWOTAXES;
 				err_lot = 1;
 			}
-			// } @v8.9.0
 			if(lot_rec.BillID) { // Если не котировка
 				DBRowIdArray rcpt_pos_list; // Список операций, имеющих флаг PPTFR_RECEIPT
 				long   oprno = 0;
@@ -1581,8 +1585,9 @@ int Transfer::RecoverLot(PPID lotID, PPLotFaultArray * pFaultList, long flags, i
 				while((r = EnumByLot(lotID, &dt, &oprno)) > 0) {
 					DBRowId p;
 					THROW_DB(getPosition(&p));
-					PPID   bill_id = data.BillID;
-					int    err_op = 0, err_price = 0;
+					const  PPID bill_id = data.BillID;
+					int    err_op = 0;
+					int    err_price = 0;
 					uint   fp;
 					last_date = data.Dt;
 					if(pFaultList->HasFault(PPLotFault::NonSingleRcptOp, 0, 0)) {
@@ -1593,9 +1598,9 @@ int Transfer::RecoverLot(PPID lotID, PPLotFaultArray * pFaultList, long flags, i
 					if(!count) {
 						if(lot_rec.ID && lot_rec.ID == lot_rec.PrevLotID) {
 							TransferTbl::Rec sav_data;
-							copyBufTo(&sav_data);
+							CopyBufTo(&sav_data);
 							lot_rec.PrevLotID = (SearchMirror(data.Dt, data.OprNo, 0) > 0 && data.Reverse == 0) ? data.LotID : 0;
-							copyBufFrom(&sav_data);
+							CopyBufFrom(&sav_data, sizeof(sav_data));
 							err_lot = 1;
 						}
 						if(lot_rec.BillID != data.BillID) {
@@ -1871,11 +1876,11 @@ int PPObjBill::CorrectPckgCloseTag()
 			THROW(tra);
 			while(P_PckgT->search(0, &k, spGt)) {
 				ReceiptTbl::Rec lot_rec;
-				P_PckgT->copyBufTo(&pckg_rec);
+				P_PckgT->CopyBufTo(&pckg_rec);
 				if(trfr->Rcpt.Search(pckg_rec.ID, &lot_rec) > 0) {
 					int16 old_val = BIN(pckg_rec.Closed);
 					pckg_rec.Closed = (lot_rec.Rest > 0) ? 0 : 1;
-					P_PckgT->copyBufFrom(&pckg_rec);
+					P_PckgT->CopyBufFrom(&pckg_rec);
 					if(old_val != pckg_rec.Closed)
 						if(!pckg_rec.Closed && !P_PckgT->AdjustUniqCntr(&pckg_rec)) {
 							PPError();
@@ -2461,7 +2466,7 @@ int PrcssrAbsenceAccounts::Run()
 		int    recovered = 0;
 		SString log_buf, acc_name_buf;
 		AcctRelTbl::Rec acr_rec;
-		ARel.copyBufTo(&acr_rec);
+		ARel.CopyBufTo(&acr_rec);
 		if(AccObj.Search(acr_rec.AccID) < 0) {
 			if(P.Flags & Param::fCorrectErrors) {
 				PPAccount temp_rec;
@@ -2843,8 +2848,8 @@ int PrcssrReceiptPacking::Run()
 			//
 			// Скопировали буфер данных из найденной записи
 			//
- 			r_lot_t.copyBufTo(&rec);
-			r_lot_t.copyBufTo(&new_rec);
+ 			r_lot_t.CopyBufTo(&rec);
+			r_lot_t.CopyBufTo(&new_rec);
 			//
 			// Сразу удаляем запись - иначе вставка новой записи не состоится из-за дублирования индексов
 			//
@@ -2853,7 +2858,7 @@ int PrcssrReceiptPacking::Run()
 			// Подменяем идентификатор и вставляем запись назад
 			//
 			new_rec.ID = (long)free_tab_iter;
-			r_lot_t.copyBufFrom(&new_rec);
+			r_lot_t.CopyBufFrom(&new_rec, sizeof(new_rec));
 			THROW_DB(r_lot_t.insertRec(0, &new_id));
 			//
 			assert(new_id == new_rec.ID);

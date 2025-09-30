@@ -132,7 +132,7 @@ int ACS_CRUKM::ExportOpByCrdCard(SCardCore * pSc, PPID cardID, const char * pCar
 			crp_k0.PayDate = scop_rec.Dt;
 			crp_k0.PayTime = scop_rec.Tm;
 			if(pScCrdTbl->searchForUpdate(0, &crp_k0, spEq)) {
-				pScCrdTbl->copyBufTo(&crp_rec);
+				pScCrdTbl->CopyBufTo(&crp_rec);
 				if(crp_rec.RestSumma != scop_rec.Rest) {
 					crp_rec.RestSumma = scop_rec.Rest;
 					THROW_DB(pScCrdTbl->updateRecBuf(&crp_rec)); // @sfu
@@ -811,7 +811,7 @@ int ACS_CRUKM::ImportSession(int sessIdx)
 					double qtty, price, discount;
 					double line_amount;
 					char   tmpbuf[64];
-					in_tbl.copyBufTo(&in_rec);
+					in_tbl.CopyBufTo(&in_rec);
 					if(in_rec.DateOperation > last_date)
 						last_date = in_rec.DateOperation;
 					if(last_date && labs(diffdate(&last_date, &in_rec.DateOperation, 0)) > 3)

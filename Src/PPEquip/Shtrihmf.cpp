@@ -100,7 +100,7 @@ int ACS_SHTRIHMFRK::ExportSCard(FILE * pFile, int updOnly)
 				SString buf;
 				SString psn_name;
 				SCardTbl::Rec card_rec;
-				s_crd_obj.P_Tbl->copyBufTo(&card_rec);
+				s_crd_obj.P_Tbl->CopyBufTo(&card_rec);
 				s_crd_obj.SetInheritance(&scs_pack, &card_rec);
 				uint  pos = 0;
 				PersonTbl::Rec psn_rec;

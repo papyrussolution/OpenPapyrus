@@ -1113,7 +1113,7 @@ int ObjTagCore::GetTagRec(PPID objType, PPID objID, PPID tagID, ObjTagTbl::Rec *
 	k.TagID    = tagID;
 	k.TagByObj = 0;
 	if(search(0, &k, spGe) && k.ObjType == objType && k.ObjID == objID && k.TagID == tagID) {
-		copyBufTo(pRec);
+		CopyBufTo(pRec);
 		return 1;
 	}
 	else {

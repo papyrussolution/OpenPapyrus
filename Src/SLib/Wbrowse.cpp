@@ -1438,9 +1438,11 @@ int BrowserWindow::removeColumn(int atPos)
 	if(ok) {
 		if(atPos <= static_cast<int>(Left)) {
 			Left--;
-			CalcRight();
-			SetupScroll();
+			// @v12.4.1 CalcRight();
+			// @v12.4.1 SetupScroll();
 		}
+		CalcRight(); // @v12.4.1 
+		SetupScroll(); // @v12.4.1
 	}
 	return ok;
 }

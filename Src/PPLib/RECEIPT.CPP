@@ -423,7 +423,7 @@ int ReceiptCore::GetPreviousLot(PPID goodsID, PPID locID, LDATE dt, long oprNo, 
 	k2.OprNo = oprNo;
 	while(ok < 0 && (r = search(2, &k2, spLt)) != 0 && data.GoodsID == goodsID) {
 		if(!locID || data.LocID == locID) {
-			copyBufTo(pRec);
+			CopyBufTo(pRec);
 			ok = 1;
 		}
 	}
@@ -467,7 +467,7 @@ int ReceiptCore::EnumLastLots(PPID goodsID, PPID locID, LDATE * pDt, long * pOpr
 		else if(!locID || data.LocID == locID) {
 			*pDt    = k.Dt;
 			*pOprNo = k.OprNo;
-			copyBufTo(pRec);
+			CopyBufTo(pRec);
 			return 1;
 		}
 	}
@@ -504,7 +504,7 @@ int ReceiptCore::Helper_GetLastLot_ByLocList(PPID goodsID, const PPIDArray * pLo
 						k3.Dt       = dt;
 						k3.OprNo    = MAXLONG;
 						if(search(3, &k3, spLt) && data.GoodsID == goodsID && data.LocID == loc_id) {
-							copyBufTo(&rec[0]);
+							CopyBufTo(&rec[0]);
 							r |= 1;
 						}
 					}
@@ -516,7 +516,7 @@ int ReceiptCore::Helper_GetLastLot_ByLocList(PPID goodsID, const PPIDArray * pLo
 						k3.Dt       = dt;
 						k3.OprNo    = MAXLONG;
 						if(search(3, &k3, spLt) && data.GoodsID == goodsID && data.LocID == loc_id) {
-							copyBufTo(&rec[1]);
+							CopyBufTo(&rec[1]);
 							r |= 2;
 						}
 					}
@@ -539,7 +539,7 @@ int ReceiptCore::Helper_GetLastLot_ByLocList(PPID goodsID, const PPIDArray * pLo
 						if(rec[0].Dt > last_rec.Dt || (rec[0].Dt == last_rec.Dt && rec[0].OprNo > last_rec.OprNo)) {
 							last_rec = rec[0];
 						}
-						//copyBufFrom(&rec[0]);
+						//CopyBufFrom(&rec[0]);
 						//ASSIGN_PTR(pRec, rec[0]);
 						ok = 1;
 					}
@@ -571,7 +571,7 @@ int ReceiptCore::Helper_GetLastLot(PPID goodsID, PPID locID, LDATE dt, ReceiptTb
 	//
 	if(search(2, &k, spLt) && data.GoodsID == goodsID) {
 		if(!locID || data.LocID == locID) {
-			copyBufTo(pRec);
+			CopyBufTo(pRec);
 			ok = 1;
 		}
 		else {
@@ -587,7 +587,7 @@ int ReceiptCore::Helper_GetLastLot(PPID goodsID, PPID locID, LDATE dt, ReceiptTb
 				k3.Dt       = dt;
 				k3.OprNo    = MAXLONG;
 				if(search(3, &k3, spLt) && data.GoodsID == goodsID && data.LocID == locID) {
-					copyBufTo(&rec[0]);
+					CopyBufTo(&rec[0]);
 					r |= 1;
 				}
 			}
@@ -599,7 +599,7 @@ int ReceiptCore::Helper_GetLastLot(PPID goodsID, PPID locID, LDATE dt, ReceiptTb
 				k3.Dt       = dt;
 				k3.OprNo    = MAXLONG;
 				if(search(3, &k3, spLt) && data.GoodsID == goodsID && data.LocID == locID) {
-					copyBufTo(&rec[1]);
+					CopyBufTo(&rec[1]);
 					r |= 2;
 				}
 			}
@@ -619,7 +619,7 @@ int ReceiptCore::Helper_GetLastLot(PPID goodsID, PPID locID, LDATE dt, ReceiptTb
 				//
 				// Второй вызов search переписал буфер данных таблицы в результате, вызывающая функция может использовать не верное значение.
 				//
-				copyBufFrom(&rec[0]);
+				CopyBufFrom(&rec[0]);
 				ASSIGN_PTR(pRec, rec[0]);
 				ok = 1;
 			}
@@ -689,7 +689,7 @@ int ReceiptCore::GetFirstLot(PPID goodsID, PPID locID, ReceiptTbl::Rec * pLotRec
 		k3.LocID = locID;
 		if(search(3, &k3, spGt) && data.Closed == 0 && data.GoodsID == goodsID && data.LocID == locID) { // Лоты с нулевой датой не интересны - по 'тому spGt (не spGe)
 			s_o = 1;
-			copyBufTo(&rec_o);
+			CopyBufTo(&rec_o);
 		}
 		MEMSZERO(k3);
 		k3.Closed = 1;
@@ -697,7 +697,7 @@ int ReceiptCore::GetFirstLot(PPID goodsID, PPID locID, ReceiptTbl::Rec * pLotRec
 		k3.LocID = locID;
 		if(search(0, &k3, spGt) && data.Closed == 1 && data.GoodsID == goodsID && data.LocID == locID) { // Лоты с нулевой датой не интересны - по 'тому spGt (не spGe)
 			s_c = 1;
-			copyBufTo(&rec_c);
+			CopyBufTo(&rec_c);
 		}
 		if(s_o && s_c) {
 			if(rec_o.Dt > rec_c.Dt || (rec_o.Dt == rec_c.Dt && rec_o.OprNo > rec_c.OprNo))
@@ -724,7 +724,7 @@ int ReceiptCore::EnumLots(PPID goods, PPID locID, DateIter * pIter, void * b)
 {
 	int    r = _SearchLot(0, goods, locID, pIter->dt, pIter->oprno, spGt);
 	if(r > 0 && !data.Closed && data.GoodsID == goods && data.LocID == locID && pIter->Advance(data.Dt, data.OprNo) > 0) {
-		copyBufTo(b);
+		CopyBufTo(b);
 		return 1;
 	}
 	else
@@ -738,7 +738,7 @@ int ReceiptCore::EnumByGoods(PPID goodsID, DateIter * pIter, ReceiptTbl::Rec * p
 	k2.Dt = pIter ? pIter->dt : ZERODATE;
 	k2.OprNo = pIter ? pIter->oprno : 0;
 	if(search(2, &k2, spGt) && data.GoodsID == goodsID) {
-		copyBufTo(pRec);
+		CopyBufTo(pRec);
 		return pIter ? pIter->Advance(k2.Dt, k2.OprNo) : 1;
 	}
 	else
@@ -950,7 +950,7 @@ int ReceiptCore::EnumRefs(PPID prevLotID, LDATE * pDt, long * pOprNo, void * b)
 	if(search(4, &k, spGt) && data.PrevLotID == prevLotID) {
 		*pDt = k.Dt;
 		*pOprNo = k.OprNo;
-		copyBufTo(b);
+		CopyBufTo(b);
 		ok = 1;
 	}
 	else
@@ -1151,7 +1151,7 @@ int LotExtCodeCore::GetContainer(PPID billID, PPLotExtCodeContainer & rC)
 	BExtQuery q(this, 2);
 	q.selectAll().where(this->BillID == billID);
 	for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;) {
-		copyBufTo(&rec);
+		CopyBufTo(&rec);
 		code_buf = rec.Code;
 		if(rec.BillID == billID && code_buf.NotEmptyS()) {
 			THROW(rC.Helper_Add(rec.RByBill, rec.BoxNo, rec.Flags, code_buf, 0, 0));
@@ -1197,7 +1197,7 @@ int LotExtCodeCore::GetRecListByMark(const char * pCode, TSVector <LotExtCodeTbl
 	STRNSCPY(k1.Code, pCode);
 	if(search(1, &k1, spGe) && stricmp(data.Code, pCode) == 0) {
 		do {
-			copyBufTo(&rec);
+			CopyBufTo(&rec);
 			THROW_SL(rList.insert(&rec));
 			ok = 1;
 		} while(search(1, &k1, spNext) && stricmp(data.Code, pCode) == 0);

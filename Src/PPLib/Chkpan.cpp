@@ -13333,6 +13333,7 @@ int CheckPaneDialog::PrintCashReports()
 	int    r_ext = -1;
 	int    c = cmCancel;
 	int    zreport_printed = 0;
+	SString temp_buf;
 	CSPanel * dlg = 0;
 	if(!(Flags & fNoEdit) && IsState(sEMPTYLIST_EMPTYBUF)) {
 		int    csp_flags = 0;
@@ -13341,7 +13342,6 @@ int CheckPaneDialog::PrintCashReports()
 		// 
 		{
 #if 0 // @construction {
-			SString temp_buf;
 			if(PPLoadTextWin(PPTXT_MENU_CHKPAN, temp_buf)) {
 				TMenuPopup menu;
 				menu.AddSubstr(temp_buf, 0, cmSCSXReport);
@@ -13370,6 +13370,7 @@ int CheckPaneDialog::PrintCashReports()
 		THROW(InitCashMachine());
 		dlg->showCtrl(CTL_CSPANEL_CSESSOPEN,  LOGIC(Flags & fOnlyReports));
 		dlg->showCtrl(CTL_CSPANEL_CSESSCLOSE, !LOGIC(Flags & fOnlyReports));
+		dlg->showCtrl(CTL_CSPANEL_RESETCHZNPMSVRADDR, PNP.ChZnGuaID); // @v12.4.1
 		while((c = ExecView(dlg)) != cmCancel) {
 			switch(c) {
 				case cmCSOpen:
@@ -13416,7 +13417,6 @@ int CheckPaneDialog::PrintCashReports()
 									// В одном из магазинов при снятии Z-отчета после печати банковского слипа загибается касса viki-print
 									// Данный дамп призван помочь идентифицировать проблему.
 									//
-									SString temp_buf;
 									PPGetFilePath(PPPATH_LOG, "bnkterm_zrep_dump.txt", temp_buf);
 									SFile f_debug(temp_buf, SFile::mAppend|SFile::mBinary);
 									if(f_debug.IsValid()) {
@@ -13464,14 +13464,46 @@ int CheckPaneDialog::PrintCashReports()
 				case cmSCSDrawerOpen: // @v11.6.9
 					P_CM->SyncOpenBox();
 					break;
+				case cmCSResetChZnPmSvrAddr: // @v12.4.1
+					{
+						bool done = false;
+						bool err = false;
+						Reference * p_ref = PPRef;
+						if(PNP.ChZnGuaID) {
+							PPObjGlobalUserAcc gua_obj;
+							PPGlobalUserAcc gua_rec;
+							if(gua_obj.Fetch(PNP.ChZnGuaID, &gua_rec) > 0 && p_ref->Ot.GetTagStr(PPOBJ_GLOBALUSERACC, PNP.ChZnGuaID, PPTAG_GUA_CHZN_PM_HOST, temp_buf) > 0) {
+								if(p_ref->Ot.RemoveTag(PPOBJ_GLOBALUSERACC, PNP.ChZnGuaID, PPTAG_GUA_CHZN_PM_HOST, 1)) {
+									done = true;
+								}
+								else
+									err = true;
+							}
+						}
+						if(done) {
+							//PPTXT_CHZNPMSVRADDRHASBEENRESET        "Адрес сервера разрешительного режима чзн был успешно сброшен"
+							PPLoadText(PPTXT_CHZNPMSVRADDRHASBEENRESET, temp_buf);
+							PPTooltipMessage(temp_buf, 0, H(), 10000, GetColorRef(SClrGreen),
+								SMessageWindow::fTopmost|SMessageWindow::fSizeByText|SMessageWindow::fPreserveFocus|SMessageWindow::fLargeText);
+						}
+						else if(err) {
+							MessageError(-1, 0, eomPopup);
+						}
+						else {
+							//PPTXT_CHZNPMSVRADDRRESET_NOTDONE       "Адрес сервера разрешительного режима чзн либо не задан"
+							PPLoadText(PPTXT_CHZNPMSVRADDRRESET_NOTDONE, temp_buf);
+							PPTooltipMessage(temp_buf, 0, H(), 10000, GetColorRef(SClrCoral),
+								SMessageWindow::fTopmost|SMessageWindow::fSizeByText|SMessageWindow::fPreserveFocus|SMessageWindow::fLargeText);
+						}
+					}
+					break;
 			}
 			if(r == 0 || r_ext == 0)
 				PPError();
 			else
 				break;
 		}
-		delete dlg;
-		dlg = 0;
+		ZDELETE(dlg);
 		if(zreport_printed)
 			if(PPMessage(mfConf|mfYesNo, PPCFM_PREVCASHDAYCLOSED) == cmYes) {
 				dt = ZERODATE;

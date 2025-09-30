@@ -901,7 +901,7 @@ PrjTaskCore::PrjTaskCore() : PrjTaskTbl()
 }
 
 int PrjTaskCore::Search(PPID id, PrjTaskTbl::Rec * pRec) { return SearchByID(this, PPOBJ_PRJTASK, id, pRec); }
-int PrjTaskCore::NextEnum(long enumHandle, PrjTaskTbl::Rec * pRec) { return (EnumList.NextIter(enumHandle) > 0) ? (copyBufTo(pRec), 1) : -1; }
+int PrjTaskCore::NextEnum(long enumHandle, PrjTaskTbl::Rec * pRec) { return (EnumList.NextIter(enumHandle) > 0) ? (CopyBufTo(pRec), 1) : -1; }
 int PrjTaskCore::DestroyIter(long enumHandle) { return EnumList.DestroyIterHandler(enumHandle); }
 
 BExtQuery * PrjTaskCore::StartupEnumQuery(int idx, int options)
@@ -2041,7 +2041,7 @@ int PPObjPrjTask::Maintain()
 			cntr.Init(q.countIterations(0, &k0_, spFirst));
 			for(q.initIteration(false, &k0, spFirst); q.nextIteration() > 0;) {
 				PrjTaskTbl::Rec rec;
-				P_Tbl->copyBufTo(&rec);
+				P_Tbl->CopyBufTo(&rec);
 				int    new_status = 0;
 				look_count++;
 				if(DetermineNewStatus(&prj_cfg, &rec, &new_status) > 0) {
@@ -2067,7 +2067,7 @@ int PPObjPrjTask::Maintain()
 			cntr.Init(q.countIterations(0, &k0_, spFirst));
 			for(q.initIteration(false, &k0, spFirst); q.nextIteration() > 0;) {
 				PrjTaskTbl::Rec rec;
-				P_Tbl->copyBufTo(&rec);
+				P_Tbl->CopyBufTo(&rec);
 				if(rec.Status != TODOSTTS_REJECTED) {
 					DateRange period;
 					period.Set(cur, plusdate(cur, prj_cfg.TemplGenTerm-1));

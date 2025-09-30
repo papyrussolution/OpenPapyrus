@@ -21,7 +21,7 @@ int InventoryCore::_Search(PPID id, long * oprno, int sp, void * b)
 	k.OprNo  = *oprno;
 	if(search(0, &k, sp) && id == k.BillID) {
 		*oprno = k.OprNo;
-		copyBufTo(b);
+		CopyBufTo(b);
 		return 1;
 	}
 	return PPDbSearchError();
@@ -40,7 +40,7 @@ int InventoryCore::InitEnum(PPID billID, long * pHandle)
 	return EnumList.RegisterIterHandler(q, pHandle);
 }
 
-int InventoryCore::NextEnum(long enumHandle, void * pRec) { return (EnumList.NextIter(enumHandle) > 0) ? (copyBufTo(pRec), 1) : -1; }
+int InventoryCore::NextEnum(long enumHandle, void * pRec) { return (EnumList.NextIter(enumHandle) > 0) ? (CopyBufTo(pRec), 1) : -1; }
 int InventoryCore::DestroyIter(long enumHandle) { return EnumList.DestroyIterHandler(enumHandle); }
 
 SEnum::Imp * InventoryCore::Enum(PPID billID)

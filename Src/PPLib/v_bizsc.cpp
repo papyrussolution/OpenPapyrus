@@ -271,7 +271,7 @@ int PPBizScTemplPacket::CalcValues(long colId, long rowId, BizScoreCore * pBizSc
 					for(q.initIteration(false, &k0, spLe); q.nextIteration() > 0;) {
 						if(period.CheckDate(pBizScTbl->data.ActualDate)) {
 							BizScoreTbl::Rec rec;
-							pBizScTbl->copyBufTo(&rec);
+							pBizScTbl->CopyBufTo(&rec);
 							(str_val = rec.Str).Cat(rec.Val);
 							break;
 						}

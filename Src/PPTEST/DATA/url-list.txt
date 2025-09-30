@@ -1,3 +1,4 @@
+myscheme:///C:/Users/Name/file.txt
 ftp://ftp.zenden.ru/Пя-005354_Сегежские Магазины ООО
 mailto:user@host.com?subject=blah
 mailto:someone@example.com?subject=This%20is%20the%20subject&cc=someone_else@example.com&body=This%20is%20the%20body
@@ -16,3 +17,4 @@ uhtt.ru:8080
 server:80
 \\adv16\spii\file.xml
 https://ru.wikipedia.org/wiki/%D0%9C%D0%B8%D0%BA%D1%80%D0%BE%D0%BA%D1%80%D0%B5%D0%B4%D0%B8%D1%82
+

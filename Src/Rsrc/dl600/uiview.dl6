@@ -1021,8 +1021,129 @@ dialog DLG_MEMO [vertical title: "@memo" size: (600, 300)  font: "MS Shell Dlg,8
 }
 
 // @construction
-dialog DLG_INPUT__ [title: "" origin: (62, 101) size: (597, 128)  font: "MS Shell Dlg,8"] {
-	input CTL_INPUT_STR [origin: (8, 24) size: (563, 21)  tabstop label: "@input_string" labelorigin: (8, 8) labelsize: (555, 13) ] string[64];
-	button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem origin: (398, 57) size: (75, 21)  command: cmOK];
-	button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop origin: (495, 57) size: (75, 21)  command: cmCancel];
+dialog DLG_INPUT__ [title: "" size: (597, 128)  font: "MS Shell Dlg,8"] {
+	input CTL_INPUT_STR [size: (563, 21)  tabstop label: "@input_string" labelsize: (555, 13) ] string[64];
+	button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21)  command: cmOK];
+	button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21)  command: cmCancel];
 }
+
+dialog DLG_OPKMORE [vertical title: "@{oprkind_options}" size: (470, 440) minsize: (470, 440)  font: "MS Shell Dlg,8"] {
+	view [horizontal width: bycontainer height: 220] {
+		radiocluster CTL_OPKMORE_AMOUNT [title: "@nominalamount" growfactor: 2 margin: 4] {
+			radiobutton [title: "@oprkind_implicitnominal" height: 16];
+			radiobutton [title: "@intermcost" height: 16];
+			radiobutton [title: "@intermprice" height: 16];
+		}
+		checkcluster CTL_OPKMORE_FLAGS [growfactor: 3 margin: 4] {
+			checkbox [title: "@oprkind_opkf_needpayment" height: 16];
+			checkbox [title: "@oprkind_opkf_profitable" height: 16];
+			checkbox [title: "@oprkind_opkf_onorder" height: 16];
+			checkbox [title: "@oprkind_opkf_calcstaxes" height: 16];
+			checkbox [title: "@oprkind_opkf_autowl" height: 16];
+			checkbox [title: "@oprkind_opkf_usepayer" height: 16];
+			checkbox [title: "@oprkind_opkf_extaccturn" height: 16];
+			checkbox [title: "@oprkind_opkf_rent" height: 16];
+			checkbox [title: "@oprkind_opkf_nocalctiord" height: 16];
+			checkbox [title: "@oprkind_opkf_freight" height: 16];
+			checkbox [title: "@attachfiles" height: 16];
+		}
+	}
+	input CTL_OPKMORE_OBJ2NAME [width: bycontainer height: 21 margin: 4 tabstop label: "@oprkind_extstr_obj2name" labelsize: (0, 13) ] string[64];
+	input CTL_OPKMORE_AMTFORMULA [width: bycontainer height: 21 margin: 4 tabstop label: "@oprkind_extstr_amtformula" labelsize: (0, 13) ] string[64];
+	input CTL_OPKMORE_MEMO [width: bycontainer height: 21 margin: 4 tabstop label: "@oprkind_extstr_memotemplate" labelsize: (0, 13) ] string[64];
+	view [horizontal width: bycontainer(100) growfactor: 1 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+
+dialog DLG_OPKMORE_WH [vertical title: "@{oprkind_options}" size: (470, 440) minsize: (470, 440)  font: "MS Shell Dlg,8"] {
+	view [horizontal width: bycontainer height: 220] {
+		view [vertical growfactor: 1 height: bycontainer] {
+			radiocluster CTL_OPKMORE_AMOUNT [title: "@nominalamount" width: bycontainer growfactor: 1 margin: 4] {
+				radiobutton [title: "@oprkind_implicitnominal" height: 16];
+				radiobutton [title: "@intermcost" height: 16];
+				radiobutton [title: "@intermprice" height: 16];
+			}
+			radiocluster CTL_OPKMORE_SUBTYPE [margin: 4 width: bycontainer growfactor: 1] {
+				radiobutton [title: "@opsubt_generalwmsop" height: 16];
+				radiobutton [title: "@opsubt_bailment_order" height: 16];
+				radiobutton [title: "@opsubt_bailment_put" height: 16];
+				radiobutton [title: "@opsubt_bailment_get" height: 16];
+			}
+		}
+		checkcluster CTL_OPKMORE_FLAGS [growfactor: 1 margin: 4] {
+			checkbox [title: "@oprkind_opkf_needpayment" height: 16];
+			checkbox [title: "@oprkind_opkf_profitable" height: 16];
+			checkbox [title: "@oprkind_opkf_onorder" height: 16];
+			checkbox [title: "@oprkind_opkf_calcstaxes" height: 16];
+			checkbox [title: "@oprkind_opkf_autowl" height: 16];
+			checkbox [title: "@oprkind_opkf_usepayer" height: 16];
+			checkbox [title: "@oprkind_opkf_extaccturn" height: 16];
+			checkbox [title: "@oprkind_opkf_rent" height: 16];
+			checkbox [title: "@oprkind_opkf_nocalctiord" height: 16];
+			checkbox [title: "@oprkind_opkf_freight" height: 16];
+			checkbox [title: "@attachfiles" height: 16];
+		}
+	}
+	input CTL_OPKMORE_OBJ2NAME [width: bycontainer height: 21 margin: 4 tabstop label: "@oprkind_extstr_obj2name" labelsize: (0, 13) ] string[64];
+	input CTL_OPKMORE_AMTFORMULA [width: bycontainer height: 21 margin: 4 tabstop label: "@oprkind_extstr_amtformula" labelsize: (0, 13) ] string[64];
+	input CTL_OPKMORE_MEMO [width: bycontainer height: 21 margin: 4 tabstop label: "@oprkind_extstr_memotemplate" labelsize: (0, 13) ] string[64];
+	view [horizontal width: bycontainer(100) growfactor: 1 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+
+// @construction
+dialog DLG_WMSBILL__ [vertical title: "@oprcategory_wms" size: (530, 350) minsize: (530, 350) font: "MS Shell Dlg,8"] {
+	view [horizontal] {
+		input CTL_BILL_DOC [size: (143, 21) tabstop label: "@billno" labelsize: (96, 13) ] string[48];
+		input CTL_BILL_DATE [size: (90, 21) tabstop fmtf: (dmy) label: "@date" labelsize: (30, 13) ] date;
+	}
+	view [vertical width: bycontainer] {
+		combobox CTLSEL_BILL_PERSON [tabstop width: bycontainer height: 21 margin: 4 label: "@contractor" labelsize: (0, 13) cblinesymb: CTL_BILL_PERSON];
+		statictext CTL_BILL_ST_PARENTPERSON [width: bycontainer height: 13 margin: (4, 1, 4, 4)];
+		statictext CTL_BILL_OBJ2NAME [title: "@bill_object2" width: bycontainer height: 13 margin: (4, 4, 4, 1)];
+		combobox CTLSEL_BILL_OBJ2 [tabstop width: bycontainer height: 21 margin: 4 cblinesymb: CTL_BILL_OBJ2];
+	}
+	statictext CTL_BILL_ST_LINKBILL [width: bycontainer height: 16 staticedge];
+	view [horizontal] {
+		statictext CTL_BILL_ST_SCARD [size: (165, 24)  staticedge];
+		statictext CTL_BILL_STATUS [title: "Status" size: (135, 24)  staticedge];
+	}
+	input CTL_BILL_MEMO [width: bycontainer(100) height: 21 margin: 4 tabstop label: "@memo" labelsize: (0, 13) ] string[160];
+	button CTL_BILL_DETAIL [title: "@but_billdetail" tabstop size: (113, 21)  command: cmDetail];
+	button CTL_CMD_BILLEXTRA [title: "@{addendum}..." tabstop size: (99, 21)  command: cmBillExtra];
+	button CTL_BILL_FREIGHTBUTTON [title: "@but_freight" tabstop size: (75, 21)  command: cmBillFreight];
+	button CTL_BILL_LINKFILESBUTTON [title: "@but_files" tabstop size: (75, 21)  command: cmLinkFiles];
+	listbox CTL_BILL_LNKFILELIST [size: (83, 33)  columns: "68,L,@attachedfile"];
+	button CTLMNU_BILL_DOC [title: "" size: (21, 21)  command: cmLocalMenu];
+	button CTLMNU_BILL_MEMO [title: "" size: (21, 21)  command: cmLocalMenu];
+	
+	view [horizontal width: bycontainer(100) growfactor: 1 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+
+dialog DLG_CASHREPORTS [vertical title: "@posnodecmd" size: (300, 395) minsize: (250, 395) font: "MS Shell Dlg 2,8"] {
+	// (все равно он в программе делается невидимым) input CTL_CSPANEL_INPUT [width: bycontainer height: 21 margin: (4, 4, 4, 8) tabstop] string[64];
+	view [vertical width: bycontainer growfactor: 10 alignitems: center justifycontent: spaceevenly] {
+		button CTL_CSPANEL_XREP [title: "@posnodecmd_sync_xreport" tabstop width: bycontainer(80) height: 21 margin: 4 command: cmSCSXReport];
+		button CTL_CSPANEL_CSESSCLOSE [title: "@posnodecmd_sync_closesess" tabstop width: bycontainer(80) height: 21 margin: 4 command: cmCSClose];
+		button CTL_CSPANEL_CSESSOPEN [title: "@posnodecmd_sync_opensess" tabstop width: bycontainer(80) height: 21 margin: 4 command: cmCSOpen];
+		button CTL_CMD_SCSZREPORTCOPY [title: "@posnodecmd_sync_zreportcopy" tabstop width: bycontainer(80) height: 21 margin: 4 command: cmSCSZReportCopy];
+		button CTL_CMD_SCSINCASSO [title: "@posnodecmd_sync_encashment" tabstop width: bycontainer(80) height: 21 margin: 4 command: cmSCSIncasso];
+		button CTL_CMD_SCSLOCK [title: "@posnodecmd_sync_lock" tabstop width: bycontainer(80) height: 21 margin: 4 command: cmSCSLock];
+		button CTL_CMD_SCSUNLOCK [title: "@posnodecmd_sync_unlock" tabstop width: bycontainer(80) height: 21 margin: 4 command: cmSCSUnlock];
+		button CTL_CMD_SCSPRINTCHECKCOPY [title: "@posnodecmd_sync_printcheckcopy" tabstop width: bycontainer(80) height: 21 margin: 4 command: cmSCSPrintCheckCopy];
+		button CTL_CMD_SCSDRAWEROPEN [title: "@posnodecmd_sync_opendrawer" tabstop width: bycontainer(80) height: 21 margin: 4 command: cmSCSDrawerOpen];
+		button CTL_CSPANEL_RESETCHZNPMSVRADDR [title: "@posnodecmd_sync_resetchznpmsvraddr" tabstop width: bycontainer(80) height: 21 margin: 4 command: cmCSResetChZnPmSvrAddr];
+	}
+	view [horizontal width: bycontainer growfactor: 2 alignitems: center justifycontent: spaceevenly] {
+		button STDCTL_CANCELBUTTON [title: "@but_close" tabstop width: bycontainer(80) height: 21 margin: 4 command: cmCancel];
+	}
+}
+
+/*@todo DLG_CASHREPORTS_L*/

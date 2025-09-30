@@ -11192,7 +11192,7 @@ public:
 		Cat      = 77,  // binary:cat   0:30 6:2A864886
 		Xsb      = 78,  // binary:xsb   0:DA7ABABE
 		Key      = 79,  // binary:key   0:4B4C737727
-		Sq3      = 80,  // binary:sq3   0:53514C697465
+		Sq3      = 80,  // binary:sq3   0:53514C697465 SQLite
 		Qst      = 81,  // binary:qst   0:0401C4030000 binary:qst   0:040180040000
 		Crx      = 82,  // binary:crx   0:43723234
 		Utx      = 83,  // binary:utx   0:4C0069006E006500610067006500

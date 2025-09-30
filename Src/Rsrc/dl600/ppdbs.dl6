@@ -1644,7 +1644,7 @@ table LocTransf { // size=104
 	time   Tm;               //
 	long   UserID;           // ->Ref(PPOBJ_USR) Пользователь, создавший строку
 	long   BillID;           // ->Bill.ID Связанный документ
-	int16  RByBill;          //
+	int16  RByBillLT;        // @v12.4.1 RByBill-->RByBillLT. See comments to LOCTRF_OWNEDBYBILL.
 	int16  LTOp;             // 0 rest, 1 receipt, 2 expend, 3 inventory // @v12.4.1 Op-->LTOp
 	int16  Domain;           // @v12.4.1 Область действия операций. 0 - локальный склад, 1 - клиентские адреса,
 		// на которых размещаются наши (либо находящиеся под нашей ответственностью) активы
@@ -1671,7 +1671,7 @@ index:
 	LocID, RByLoc (unique mod);                       // #0
 	LotID, LocID, RByLoc (anysegnull unique mod);     // #1
 	GoodsID, LocID, RByLoc (unique mod);              // #2
-	BillID, RByBill (allsegnull dup mod);             // #3 В случае с ORACLE allsegnull не помогает боротся с неуникальностью пары {0; 0}. Поэтому индекс dup.
+	BillID, RByBillLT (allsegnull dup mod);             // #3 В случае с ORACLE allsegnull не помогает боротся с неуникальностью пары {0; 0}. Поэтому индекс dup.
 		// В дополнение к предыдущему замечанию: по одной строке документа может быть несколько операций размещения. Важно лишь, чтобы программа
 		// следила, чтобы по одной строке не было размещено большее количество, чем в строке.
 	LinkLocID, LinkRByLoc (allsegnull dup mod);       // #4
@@ -1690,7 +1690,7 @@ table TempLocTransf {
 	time   Tm;             //
 	long   UserID;         // ->Ref(PPOBJ_USR) Пользователь, создавший строку
 	long   BillID;         // ->Bill.ID
-	int16  RByBill;
+	int16  RByBillLT;
 	int16  LTOp;           // см. примечание к LocTransf::LTOp
 	int16  Domain;         // @v12.4.1
 	int16  PalletCount;    // Количество паллетов типа PalletTypeID
@@ -1704,7 +1704,7 @@ table TempLocTransf {
 	long   LocOwnerPersonID; // Персоналия-владелец локации (LocID) в случае, если Domain==LOCTRFRDOMAIN_BAILMENT
 index:
 	ID__ (unique);
-	BillID, RByBill (dup mod);
+	BillID, RByBillLT (dup mod);
 	LocID, RByLoc (allsegnull unique mod);
 file:
 	"tmp_lctr.btr";

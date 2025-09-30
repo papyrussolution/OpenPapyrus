@@ -1539,7 +1539,7 @@ static int EditRecoverHungedUpTagsParam(SString & rLogFileName, long * pFlags)
 				q.selectAll();
 				for(q.initIteration(false, &k0); q.nextIteration() > 0;) {
 					ObjTagTbl::Rec rec;
-					r_ot.copyBufTo(&rec);
+					r_ot.CopyBufTo(&rec);
 					if(rec.ObjType != prev_obj_type) {
 						obj_type_list.add(rec.ObjType);
 						prev_obj_type = rec.ObjType;
@@ -1567,7 +1567,7 @@ static int EditRecoverHungedUpTagsParam(SString & rLogFileName, long * pFlags)
 							PPLoadText(PPTXT_SEARCHINGUNGEDUPRECS, wait_msg_buf);
 							do {
 								ObjTagTbl::Rec rec;
-								r_ot.copyBufTo(&rec);
+								r_ot.CopyBufTo(&rec);
 								const PPID obj_id = rec.ObjID;
 								if(p_obj->Search(obj_id, 0) > 0) {
 									; // ok
@@ -1641,7 +1641,7 @@ static int EditRecoverHungedUpTagsParam(SString & rLogFileName, long * pFlags)
 					if(p_ref->Ot.search(1, &k1, spGe)) {
 						do {
 							ObjTagTbl::Rec rec;
-							p_ref->Ot.copyBufTo(&rec);
+							p_ref->Ot.CopyBufTo(&rec);
 							if(rec.IntVal) {
 								if(tag.TagDataType == OTTYP_ENUM) {
 									ReferenceTbl::Rec ref_rec;

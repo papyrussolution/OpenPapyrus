@@ -4327,7 +4327,7 @@ int PPDS_CrrAccturnTempl::InitData(Ido op, void * dataPtr, long /*addedParam*/)
 	}
 	else if(op == idoExtract) {
 		if(dataPtr)
-			Data = *(PPAccTurnTempl*)dataPtr;
+			Data = *static_cast<const PPAccTurnTempl *>(dataPtr);
 	}
 	else if(op == idoAccept) {
 	}

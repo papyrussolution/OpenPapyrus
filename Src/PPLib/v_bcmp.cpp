@@ -298,7 +298,7 @@ int PPViewGoodsBillCmp::InitIteration()
 int FASTCALL PPViewGoodsBillCmp::NextIteration(GoodsBillCmpViewItem * pItem)
 {
 	if(P_IterQuery && P_IterQuery->nextIteration() > 0) {
-		P_TempTbl->copyBufTo(pItem);
+		P_TempTbl->CopyBufTo(pItem);
 		return 1;
 	}
 	return -1;

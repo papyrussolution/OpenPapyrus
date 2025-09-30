@@ -209,7 +209,7 @@ int PPViewPriceAnlz::Init_(const PPBaseFilt * pBaseFilt)
 						double base_cost = 0.0;
 						_E   _e;
 						_E   * p_e = 0;
-						r_t.copyBufTo(&lot_rec);
+						r_t.CopyBufTo(&lot_rec);
 						MEMSZERO(_e);
 						LAssoc srch(lot_rec.LocID, (Filt.Flags & PriceAnlzFilt::fDivideBySuppl) ? lot_rec.SupplID : Filt.SupplID);
 						if(cost_ary.lsearch(&srch, &(pos = 0), PTR_CMPFUNC(_2long))) {

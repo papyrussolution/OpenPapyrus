@@ -1745,7 +1745,7 @@ int PPObjStaffCal::SearchContinuousEntry(PPID calID, long dtVal, StaffCalendarTb
 	k0.DtVal = dtVal;
 	k0.TmStart = ZEROTIME;
 	if(P_ScT->search(0, &k0, spLe) && k0.CalID == calID && P_ScT->data.Flags & STCALEF_CONTINUOUS) {
-		P_ScT->copyBufTo(pRec);
+		P_ScT->CopyBufTo(pRec);
 		ok = 1;
 	}
 	else
@@ -1761,7 +1761,7 @@ int PPObjStaffCal::SearchEntry(PPID calID, long dtVal, LTIME tmStart, StaffCalen
 	k0.DtVal = dtVal;
 	k0.TmStart = tmStart;
 	if(P_ScT->search(0, &k0, spEq)) {
-		P_ScT->copyBufTo(pRec);
+		P_ScT->CopyBufTo(pRec);
 		ok = 1;
 	}
 	else
@@ -1780,7 +1780,7 @@ int PPObjStaffCal::SearchEntriesByDtVal(PPID calID, long dtVal, TSVector <StaffC
 	if(P_ScT->search(0, &k0, spGe) && P_ScT->data.CalID == calID && P_ScT->data.DtVal == dtVal) {
 		do {
 			StaffCalendarTbl::Rec rec;
-			P_ScT->copyBufTo(&rec);
+			P_ScT->CopyBufTo(&rec);
 			THROW_SL(rList.insert(&rec));
 			ok = 1;
 		} while(P_ScT->search(0, &k0, spNext) && P_ScT->data.CalID == calID && P_ScT->data.DtVal == dtVal);

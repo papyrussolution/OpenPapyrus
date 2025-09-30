@@ -1972,7 +1972,7 @@ int StyloQCore::ReadCurrentPacket(StoragePacket * pPack)
 	if(pPack) {
 		SBuffer sbuf;
 		SSerializeContext sctx;
-		copyBufTo(&pPack->Rec);
+		CopyBufTo(&pPack->Rec);
 		readLobData(VT, sbuf);
 		destroyLobData(VT);
 		if(!pPack->Pool.Serialize(-1, sbuf, &sctx)) {
@@ -2374,8 +2374,8 @@ int StyloQCore::PutPeerEntry(PPID * pID, StoragePacket * pPack, int use_ta)
 				else {
 					pPack->Rec.ID = outer_id;
 					// @v11.3.8 THROW_DB(rereadForUpdate(0, 0));
-					// (Этот вызов почему-то ломает внутреннюю структуру LOB-поля) copyBufFrom(&pPack->Rec);
-					copyBufFrom(&pPack->Rec, fix_rec_size); // @v11.3.4 @fix
+					// (Этот вызов почему-то ломает внутреннюю структуру LOB-поля) CopyBufFrom(&pPack->Rec);
+					CopyBufFrom(&pPack->Rec, fix_rec_size); // @v11.3.4 @fix
 					THROW_SL(pPack->Pool.Serialize(+1, cbuf, &sctx));
 					THROW(writeLobData(VT, cbuf.GetBuf(0), cbuf.GetAvailableSize()));
 					THROW_DB(updateRec());
@@ -2403,7 +2403,7 @@ int StyloQCore::PutPeerEntry(PPID * pID, StoragePacket * pPack, int use_ta)
 				}
 			}
 			pPack->Rec.ID = 0;
-			copyBufFrom(&pPack->Rec, fix_rec_size);
+			CopyBufFrom(&pPack->Rec, fix_rec_size);
 			THROW_SL(pPack->Pool.Serialize(+1, cbuf, &sctx));
 			THROW(writeLobData(VT, cbuf.GetBuf(0), cbuf.GetAvailableSize()));
 			THROW_DB(insertRec(0, &new_id));
@@ -2986,7 +2986,7 @@ int StyloQCore::SvcDbSymbMap::Read(const char * pFilePath, int loadTimeUsage)
 							k1.Kind = StyloQCore::kClient;
 							if(p_ldb->P_Sqc->search(1, &k1, spGe) && p_ldb->P_Sqc->data.Kind == StyloQCore::kClient) do {
 								StyloQSecTbl::Rec rec;
-								p_ldb->P_Sqc->copyBufTo(&rec);
+								p_ldb->P_Sqc->CopyBufTo(&rec);
 								if(rec.Kind == StyloQCore::kClient && rec.LinkObjType == PPOBJ_USR && rec.LinkObjID > 0) {
 									p_entry->Flags |= StyloQCore::SvcDbSymbMapEntry::fHasUserAssocEntries;
 									break;

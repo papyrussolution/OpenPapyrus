@@ -412,7 +412,7 @@ int PPBizScoreWindow::LoadData()
 	for(q.initIteration(true, &k0, spLe); q.nextIteration() > 0;) {
 		_scount++; // @debug
 		BizScoreTbl::Rec rec;
-		Tbl.copyBufTo(&rec);
+		Tbl.CopyBufTo(&rec);
 		if((!ActualDt || ActualDt <= rec.ActualDate)) {
 			PPBizScorePacket pack;
 			if(obj_bsc.Fetch(rec.ScoreID, &pack) > 0) {

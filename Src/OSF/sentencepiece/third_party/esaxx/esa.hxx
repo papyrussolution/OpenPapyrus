@@ -70,7 +70,7 @@ namespace esaxx_private {
 			if(cand.second < cur.second) {
 				S.push_back(cur);
 			}
-			if(i == n)  break;
+			if(i == n) break;
 			S.push_back(std::make_pair(i, n - SA[i] + 1));
 		}
 		return nodeNum;

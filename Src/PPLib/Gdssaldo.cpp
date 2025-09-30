@@ -26,7 +26,7 @@ int GoodsSaldoCore::GetLastSaldo(PPID goodsID, PPID arID, PPID dlvrLocID, LDATE 
 		k0.DlvrLocID = dlvrLocID;
 		k0.Dt      = base_date;
 		if(search(0, &k0, spLt) && k0.GoodsID == goodsID && k0.ArID == arID && k0.DlvrLocID == dlvrLocID) {
-			copyBufTo(&gd_rec);
+			CopyBufTo(&gd_rec);
 			dt = gd_rec.Dt;
 			ok = 1;
 		}

@@ -491,9 +491,10 @@
 	#define PPOPT_CASHSESS      14L // Кассовая сессия //
 	#define PPOPT_DRAFTRECEIPT  15L // Draft goods receiption bill
 	#define PPOPT_DRAFTEXPEND   16L // Draft goods expend bill
-	#define PPOPT_WAREHOUSE     17L // Документы складских операций. Строки этиъ документов выполняют товарные транзакции над ячейками склада.
+	#define PPOPT_WAREHOUSE     17L // Документы складских операций. Строки этих документов выполняют товарные транзакции над ячейками склада
+		// или над адресами ответственного хранения.
 	#define PPOPT_EXTERNAL      18L // Специализированный тип операции, определяющий документ, содержащий внешний документ (обычно, файл).
-	#define PPOPT_AGREEMENT     19L // @v7.0.0 Соглашение (договор) с покупателем или поставщиком
+	#define PPOPT_AGREEMENT     19L // Соглашение (договор) с покупателем или поставщиком
 	#define PPOPT_CORRECTION    20L // Корректирующий документ
 	#define PPOPT_DRAFTTRANSIT  21L // Специальная категория драфт-документов, которые
 		// отражают транзакции и отчеты сторонних контрагентов, для обмена друг с другом посредством системы, но
@@ -3992,6 +3993,7 @@
 	#define CTL_CSPANEL_CSESSCLOSE       (6 + WINDOWS_ID_BIAS)
 	#define CTL_CSPANEL_XREP             (7 + WINDOWS_ID_BIAS)
 	#define CTL_CSPANEL_BMP              (8 + WINDOWS_ID_BIAS)
+	#define CTL_CSPANEL_RESETCHZNPMSVRADDR (9 + WINDOWS_ID_BIAS) // @v12.4.1
 #define DLG_LOTTOTAL              280 // Итоги выборки лотов
 #define DLG_LOTTOTALE             281 // Раширенные итоги выборки лотов
 	#define CTL_LOTTOTAL_FRAME           (1 + WINDOWS_ID_BIAS)
@@ -11878,6 +11880,8 @@
 	#define CTL_CHZNLOCPMPANE_STATE             (2 + WINDOWS_ID_BIAS)
 #define DLG_LOCTRANSF_BAILMENT    1483 // LOCTRAN Складская операция - перемещение активов под чужим управлением (domain==LOCTRFRDOMAIN_BAILMENT) //
 	// CTL_LOCTRANSF_XXX
+#define DLG_OPKMORE_WH            1484 // @v12.4.1 Опции складской операции
+	// CTL_OPKMORE_XXX
 //
 // Win32 Dialog Identifiers
 //

@@ -58,16 +58,16 @@ int PersonEventCore::SearchPair(const PairIdent * pIdent, int forward, PersonEve
 			if(!(pIdent->Flags & pIdent->fUseSCard) || data.PrmrSCardID == pIdent->SCardID) {
 				if(data.OpID == pIdent->ThisOpID) {
 					if(pIdent->Flags & PairIdent::fSignalNpError) {
-						copyBufTo(pRec);
+						CopyBufTo(pRec);
 						ok = PPSetError(PPERR_NONPAIRPSNEVNT);
 					}
 					else if(pIdent->Flags & PairIdent::fSignalAnalog) {
-						copyBufTo(pRec);
+						CopyBufTo(pRec);
 						ok = 2;
 					}
 				}
 				else if(pIdent->PairOpID && data.OpID == pIdent->PairOpID) {
-					copyBufTo(pRec);
+					CopyBufTo(pRec);
 					ok = 1;
 				}
 			}

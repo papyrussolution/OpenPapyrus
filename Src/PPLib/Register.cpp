@@ -795,7 +795,7 @@ int RegisterCore::SearchByObj(PPObjID oid, PPID regTypeID, RegisterTbl::Rec * pR
 	k1.ObjID = oid.Id;
 	if(search(1, &k1, spGe) && oid.IsEq(data.ObjType, data.ObjID)) do {
 		if(data.RegTypeID == regTypeID) {
-			copyBufTo(pRec);
+			CopyBufTo(pRec);
 			ok = 1;
 		}
 	} while(ok < 0 && search(1, &k1, spNext) && oid.IsEq(data.ObjType, data.ObjID));

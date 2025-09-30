@@ -46,10 +46,7 @@
 #ifndef DB_WINCE
 	#define	getcwd(buf, size)	_getcwd(buf, size)
 #endif
-// @v10.8.5 slport.h #define	getpid			GetCurrentProcessId
 #define	snprintf		_snprintf
-// @v10.8.5 slport.h #define	strcasecmp		_stricmp
-// @v10.8.5 slport.h #define	strncasecmp		_strnicmp
 #define	vsnprintf		_vsnprintf
 #define	h_errno			WSAGetLastError()
 /*

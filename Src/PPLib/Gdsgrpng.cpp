@@ -506,7 +506,7 @@ int GCT_Iterator::AcceptTrfrRec(const TransferTbl::Rec * pRec, TransferTbl::Rec 
 			ok = -1;
 	}
 	if(ok > 0)
-		Trfr->copyBufTo(pOuterRec);
+		Trfr->CopyBufTo(pOuterRec);
 	return ok;
 }
 
@@ -1053,7 +1053,7 @@ int GoodsGrpngArray::_ProcessBillGrpng(GCTFilt * pFilt)
 	PPLoadTextS(PPTXT_CALCOPGRPNG, wait_msg).CatDiv(':', 1).Cat(pFilt->Period, 1);
 	for(q.initIteration(false, &k, spGt); q.nextIteration() > 0;) {
 		BillTbl::Rec bill_rec;
-		p_bill->copyBufTo(&bill_rec);
+		p_bill->CopyBufTo(&bill_rec);
 		PPID op_id = bill_rec.OpID;
 		if((!(pFilt->Flags & OPG_LABELONLY) || (bill_rec.Flags & BILLF_WHITELABEL)) && ObjRts.CheckOpID(op_id, PPR_READ) && pFilt->BillList.CheckID(bill_rec.ID)) {
 			PPOprKind op_rec;

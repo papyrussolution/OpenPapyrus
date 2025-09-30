@@ -4194,7 +4194,7 @@ int PPViewBill::AttachBillToDraft(PPID billID, const BrowserWindow * pBrw)
 				q.where(*dbq);
 				BillTbl::Rec draft_bill_rec;
 				for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
-					t->copyBufTo(&draft_bill_rec);
+					t->CopyBufTo(&draft_bill_rec);
 					if(op_list.lsearch(draft_bill_rec.OpID) && (egais_rcpt_op_id == draft_bill_rec.OpID || draft_bill_rec.Object == bill_rec.Object)) {
 						int   suited = 0;
 						if(draft_bill_rec.Flags & BILLF_WRITEDOFF) {
@@ -4812,7 +4812,7 @@ int PPViewBill::ShowPoolDetail(const PPBillPacket & rBillPack)
 int PPViewBill::ShowDetails(PPID billID)
 {
 	int    ok = -1;
-	int    is_lock = 0;
+	bool   is_lock = false;
 	PPViewInventory * p_v = 0;
 	PPBillPacket pack;
 	if(billID) {
@@ -4820,6 +4820,7 @@ int PPViewBill::ShowDetails(PPID billID)
 		if(GetOpType(pack.Rec.OpID) == PPOPT_INVENTORY) {
 			InventoryFilt filt;
 			THROW(P_BObj->Lock(billID));
+			is_lock = true; // @v12.4.1 (должно быть, недосмотр. Хотя и не уверен полностью).
 			THROW_MEM(p_v = new PPViewInventory());
 			filt.Setup(billID);
 			THROW(p_v->Init_(&filt));
@@ -4829,14 +4830,14 @@ int PPViewBill::ShowDetails(PPID billID)
 				ok = 1;
 			}
 			P_BObj->Unlock(billID);
-			is_lock = 0;
+			is_lock = false;
 		}
 		else if(GetOpType(pack.Rec.OpID) == PPOPT_POOL) {
 			ShowPoolDetail(pack);
 			ok = 1;
 		}
 		else
-			ViewBillDetails(&pack, 2, P_BObj);
+			ViewBillDetails(pack, 2, P_BObj);
 	}
 	CATCHZOKPPERR
 	delete p_v;
@@ -7963,7 +7964,7 @@ int PPALDD_GoodsBillDispose::NextIteration(long iterId)
 	//
 	I.CellID     = tiie.LctRec.LocID;
 	I.DispRByLoc = tiie.LctRec.RByLoc;
-	I.DispRByBill = tiie.LctRec.RByBill;
+	I.DispRByBill = tiie.LctRec.RByBillLT;
 	I.DispDt      = tiie.LctRec.Dt;
 	I.DispTm      = tiie.LctRec.Tm;
 	I.DispUserID  = tiie.LctRec.UserID;

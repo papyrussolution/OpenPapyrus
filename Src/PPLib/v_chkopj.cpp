@@ -248,7 +248,7 @@ int PPViewCheckOpJrnl::InitIteration()
 int FASTCALL PPViewCheckOpJrnl::NextIteration(CheckOpJrnlViewItem * pItem)
 {
 	while(pItem && P_IterQuery && P_IterQuery->nextIteration() > 0) {
-		P_Tbl->copyBufTo(pItem);
+		P_Tbl->CopyBufTo(pItem);
 		if(!Filt.BegTm || P_Tbl->data.Dt > Filt.Period.low || P_Tbl->data.Tm >= Filt.BegTm) {
 			Counter.Increment();
 			PPWaitPercent(Counter);

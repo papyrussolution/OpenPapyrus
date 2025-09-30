@@ -193,7 +193,10 @@ SLTEST_R(SWmi)
 {
 	int    ok = 1, r = 0;
 	SFile out(MakeOutputFilePath("WmiCreateProcess.txt"), SFile::mWrite);
-	SString server, user, pw, cmdline;
+	SString server;
+	SString user;
+	SString pw;
+	SString cmdline;
 	uint   arg_no = 0;
 	SString arg;
 	/*

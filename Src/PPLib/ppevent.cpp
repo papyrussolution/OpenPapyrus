@@ -571,7 +571,7 @@ int PPEventCore::Put(PPID * pID, const Packet * pPack, int use_ta)
 				PPID   id = 0;
 				PacketToRec(*pPack, rec);
 				rec.ID = 0;
-				copyBufFrom(&rec);
+				CopyBufFrom(&rec, sizeof(rec));
 				if(pPack->ExtData.GetAvailableSize()) {
 					THROW(writeLobData(VT, pPack->ExtData.constptr(), pPack->ExtData.GetAvailableSize()));
 				}
@@ -589,7 +589,7 @@ int PPEventCore::Put(PPID * pID, const Packet * pPack, int use_ta)
 				if(pPack) {
 					assert(pPack->ID == *pID);
 					PacketToRec(*pPack, rec);
-					copyBufFrom(&rec);
+					CopyBufFrom(&rec, sizeof(rec));
 					if(pPack->ExtData.GetAvailableSize()) {
 						THROW(writeLobData(VT, pPack->ExtData.constptr(), pPack->ExtData.GetAvailableSize()));
 					}
@@ -1162,7 +1162,7 @@ int PPObjEventSubscription::Detect(PPID id, TSCollection <PPEventCore::Packet> &
 					q.select(p_sj->Dt, p_sj->Tm, p_sj->ObjType, p_sj->ObjID, p_sj->Action, 0L).where(*dbq);
 					for(q.initIteration(false, &k, spGt); q.nextIteration() > 0;) {
 						SysJournalTbl::Rec sj_rec;
-						p_sj->copyBufTo(&sj_rec);
+						p_sj->CopyBufTo(&sj_rec);
 						if(cmp(last_det_dtm, sj_rec.Dt, sj_rec.Tm) < 0 && acn_list.lsearch(sj_rec.Action)) {
 							int    skip = 0;
 							if(pack.P_Filt) {

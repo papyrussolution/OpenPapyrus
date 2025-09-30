@@ -626,7 +626,7 @@ int PPObjStaffList::GetPersonPost(int closed, PPID staffID, PPID personID, Perso
 	}
 	if(P_PostTbl->search(1, &k1, sp)) {
 		if(closed >= 0 || (k1.StaffID == staffID && k1.PersonID == personID && k1.Closed)) {
-			P_PostTbl->copyBufTo(pRec);
+			P_PostTbl->CopyBufTo(pRec);
 			ok = 1;
 		}
 	}

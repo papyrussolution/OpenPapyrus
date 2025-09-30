@@ -2374,7 +2374,7 @@ int PPViewVatBook::MRBB(PPID billID, BillTbl::Rec * pPaymRec, const TaxAmountIDs
 					THROW(tra);
 					if(!AbBillList.Has(link_id)) {
 						for(int sp = spGe; !is_fixed && VBObj.P_Tbl->searchForUpdate(1, &k1, sp) && k1.LinkBillID == link_id && k1.LineType_ == Filt.Kind; sp = spGt) {
-							VBObj.P_Tbl->copyBufTo(&temp_rec);
+							VBObj.P_Tbl->CopyBufTo(&temp_rec);
 							if(!(temp_rec.Flags & VATBF_FIX) && !temp_rec.Excluded) {
 								if(!rbydate && temp_rec.Dt == rec.Dt)
 									rbydate = temp_rec.LineNo;

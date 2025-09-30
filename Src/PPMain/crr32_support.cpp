@@ -364,8 +364,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 					if(!pb.HMainWindow)
 						result = -1;
 					else {
+						const bool use_tray = false;
 						// Показываем иконку в системном трее
-						pb.ShowTrayIcon();
+						if(use_tray)
+							pb.ShowTrayIcon();
 						{
 							ExitEventCatcher * p_eec = new ExitEventCatcher(pb.HMainWindow);
 							if(p_eec)
@@ -386,7 +388,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 							}
 							result = (int)msg.wParam;
 						}
-						pb.RemoveTrayIcon();
+						if(use_tray)
+							pb.RemoveTrayIcon();
 					}
 				}
 				PECloseEngine();

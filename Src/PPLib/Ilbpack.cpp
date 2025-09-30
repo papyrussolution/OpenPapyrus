@@ -1984,7 +1984,7 @@ int BillTransmDeficit::CompleteGoodsRest()
 		BExtQuery q(Tbl, 0);
 		q.selectAll();
 		for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
-			Tbl->copyBufTo(&rec);
+			Tbl->CopyBufTo(&rec);
 			if(prev_rec_inited && (prev_rec.Location != rec.Location || prev_rec.GoodsID != rec.GoodsID)) {
 				THROW(_CompleteGoodsRest(prev_rec.Location, prev_rec.GoodsID, &rec_list, start_pos, suppl_qtty));
 				suppl_qtty = 0.0;
@@ -2495,6 +2495,7 @@ int PPObjBill::SerializePacket__(int dir, PPBillPacket * pPack, SBuffer & rBuf, 
 	THROW(pPack->SerializeLots(dir, rBuf, pSCtx));
 	if(dir > 0) {
 		THROW_SL(GetInvT().SerializeArrayOfRecords(dir, &pPack->InvList, rBuf, pSCtx));
+		THROW(pSCtx->Serialize(dir, pPack->P_LocTrfrList, rBuf)); // @v12.4.1
 	}
 	else if(dir < 0) {
 		if(!pPack->Ver.IsLt(9, 9, 12)) {
@@ -2507,6 +2508,15 @@ int PPObjBill::SerializePacket__(int dir, PPBillPacket * pPack, SBuffer & rBuf, 
 				pPack->AccSheetID = op_rec.AccSheetID;
 			}
 		}
+		// @v12.4.1 {
+		{
+			TSVector <LocTransfOpBlock> temp_list;
+			THROW(pSCtx->Serialize(dir, &temp_list, rBuf)); 
+			if(temp_list.getCount()) {
+				pPack->P_LocTrfrList = new TSVector <LocTransfOpBlock>(temp_list);
+			}
+		}
+		// } @v12.4.1 
 	}
 	CATCHZOK
 	return ok;

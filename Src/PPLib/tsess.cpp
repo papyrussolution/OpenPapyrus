@@ -204,7 +204,7 @@ int TSessionCore::SearchByPrcTime(PPID prcID, int kind, const LDATETIME & rDtm, 
 			LDATETIME finish;
 			finish.Set(data.FinDt, data.FinTm);
 			if(finish.d == 0 || cmp(finish, rDtm) > 0) {
-				copyBufTo(pRec);
+				CopyBufTo(pRec);
 				ok = 1;
 			}
 			else {
@@ -343,7 +343,7 @@ int TSessionCore::NextLineEnum(long enumHandle, TSessLineTbl::Rec * pRec)
 {
 	int    ok = -1;
 	if(Lines.EnumList.NextIter(enumHandle) > 0) {
-		Lines.copyBufTo(pRec);
+		Lines.CopyBufTo(pRec);
 		ok = 1;
 	}
 	return ok;
@@ -429,7 +429,7 @@ int TSessionCore::LoadBusyArray(PPID prcID, PPID exclTSesID, int kind, const STi
 	TSessionTbl::Key4 k4;
 	MEMSZERO(k4);
 	k4.PrcID = prcID;
-	BExtQuery q(this, 4, 1024); // @v10.0.05 128-->1024
+	BExtQuery q(this, 4, 1024);
 	THROW_INVARG(oneof3(kind, TSESK_SESSION, TSESK_PLAN, TSESK_IDLE));
 	dbq = &(this->PrcID == prcID);
 	if(pPeriod) {
@@ -477,7 +477,7 @@ int TSessionCore::GetProcessed(PPID prcID, int kind, TSessionTbl::Rec * pRec)
 			(kind == TSESK_PLAN && data.Flags & TSESF_PLAN) ||
 			(kind == TSESK_SESSION && !(data.Flags & (TSESF_IDLE | TSESF_PLAN)))) {
 			//if((idle && data.Flags & TSESF_IDLE) || (!idle && !(data.Flags & TSESF_IDLE))) {
-			copyBufTo(pRec);
+			CopyBufTo(pRec);
 			ok = 1;
 		}
 	}

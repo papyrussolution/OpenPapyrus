@@ -2885,10 +2885,49 @@ int PPSession::OpenDictionary2(DbLoginBlock * pBlk, long flags)
 	PPVerHistory::Info vh_info;
 	pBlk->GetAttr(DbLoginBlock::attrServerType, temp_buf);
 	const SqlServerType server_type = GetSqlServerTypeBySymb(temp_buf);
-	//
-	// Проверяем доступность каталога базы данных
-	//
-	THROW_PP_S(server_type == sqlstMySQL || ::access(data_path, 0) == 0, PPERR_DBDIRNFOUND, data_path);
+	{
+		//
+		// Проверяем доступность каталога базы данных
+		//
+		// @v12.4.1 THROW_PP_S(server_type == sqlstMySQL || ::access(data_path, 0) == 0, PPERR_DBDIRNFOUND, data_path);
+		// @v12.4.1 {
+		bool is_entry_valid = true;
+		if(server_type == sqlstMySQL) {
+			; // ok
+		}
+		else if(server_type == sqlstSQLite) {
+			if(!SFile::IsDir(data_path)) {
+				SFsPath ps(data_path);
+				if(ps.Nam.NotEmpty()) {
+					ps.Merge(SFsPath::fDrv|SFsPath::fDir, temp_buf);
+					if(SFile::IsDir(temp_buf)) {
+						if(fileExists(data_path)) {
+							SFileFormat ff;
+							const int fir = ff.Identify(data_path);
+							if(oneof2(fir, 2, 3) && ff == SFileFormat::Sq3) {
+								;
+							}
+							else {
+								is_entry_valid = false;
+							}
+						}
+						else {
+							;
+						}
+					}
+					else {
+						is_entry_valid = false;
+					}
+				}
+			}
+		}
+		else {
+			if(!SFile::IsDir(data_path))
+				is_entry_valid = false;
+		}
+		THROW_PP_S(is_entry_valid, PPERR_DBDIRNFOUND, data_path);
+		// } @v12.4.1 
+	}
 	if(!(flags & PPSession::odfDontInitSync)) {
 		//
 		// Инициализируем таблицу блокировок и проверяем не заблокирована ли база данных
@@ -2931,6 +2970,9 @@ int PPSession::OpenDictionary2(DbLoginBlock * pBlk, long flags)
 #if (_MSC_VER >= 1900)
 			THROW_MEM(p_db = new SMySqlDbProvider());
 #endif
+		}
+		else if(server_type == sqlstSQLite) { // @v12.4.1
+			THROW_MEM(p_db = new SSqliteDbProvider());
 		}
 		else {
 			pBlk->GetAttr(DbLoginBlock::attrDictPath, temp_buf);
@@ -3313,7 +3355,7 @@ private:
 									if(p_q) {
 										while(p_q->nextIteration() > 0) {
 											SysJournalTbl::Rec rec;
-											P_Sj->copyBufTo(&rec);
+											P_Sj->CopyBufTo(&rec);
 											if(cmp(sj_since, rec.Dt, rec.Tm) < 0) {
 												PPAdviseEvent ev;
 												ev = rec;

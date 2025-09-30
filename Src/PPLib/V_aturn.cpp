@@ -567,7 +567,7 @@ int FASTCALL PPViewAccturn::NextIteration(AccturnViewItem * pItem)
 			}
 			else {
 				AccTurnTbl::Rec at_rec;
-				P_ATC->copyBufTo(&at_rec);
+				P_ATC->CopyBufTo(&at_rec);
 				if(Filt.Aco) {
 					PPID   dbt_rel_id = 0;
 					PPID   crd_rel_id = 0;
