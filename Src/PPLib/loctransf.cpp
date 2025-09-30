@@ -334,16 +334,26 @@ int LocTransfCore::GetLastOpByBill(PPID billID, int16 * pRByBill, LocTransfTbl::
 	return ok;
 }
 
-int LocTransfCore::PrepareRec(PPID locID, PPID billID, LocTransfTbl::Rec * pRec)
+int LocTransfCore::PrepareRec(PPID locID, PPID billID, long loctrfrFlags, LocTransfTbl::Rec * pRec)
 {
 	int    ok = 1;
 	uint   i = 0;
 	long   rbyloc = 0;
+	int16  rbybill = 0;
 	memzero(pRec, sizeof(*pRec));
 	pRec->LocID = locID;
 	THROW(GetLastOpByLoc(locID, &rbyloc, 0));
 	pRec->RByLoc = rbyloc+1;
 	pRec->BillID = billID;
+	// @v12.4.2 {
+	if(loctrfrFlags & LOCTRF_OWNEDBYBILL && billID) {
+		THROW(GetLastOpByBill(billID, &rbybill, 0));
+		pRec->RByBillLT = rbybill;
+	}
+	else {
+		;
+	}
+	// } @v12.4.2 
 	/* @v7.2.6 Ошибочный участок кода: RByBill должен соответствовать значению RByBill из BillTbl
 	if(billID) {
 		int16  rbybill = 0;
@@ -371,9 +381,11 @@ int LocTransfCore::RemoveOp(PPID locID, long rByLoc, int use_ta)
 			THROW_PP(rec.LinkLocID == 0, PPERR_LOCTRFR_RMVSHADOWREC);
 			THROW_DB(getPosition(&pos));
 			{
-				double addendum = -rec.Qtty;
-				THROW(UpdateForward(locID, rByLoc, rec.GoodsID, rec.LotID, 0, &addendum));
-				THROW(UpdateCurrent(rec.Domain, locID, rec.GoodsID, rec.LotID, addendum));
+				if(!(rec.Flags & LOCTRF_ORDER)) { // @v12.4.2 (condition)
+					double addendum = -rec.Qtty;
+					THROW(UpdateForward(locID, rByLoc, rec.GoodsID, rec.LotID, 0, &addendum));
+					THROW(UpdateCurrent(rec.Domain, locID, rec.GoodsID, rec.LotID, addendum));
+				}
 				THROW_DB(getDirectForUpdate(0, 0, pos));
 				THROW_DB(deleteRec()); // @sfu
 				{
@@ -408,7 +420,7 @@ int LocTransfCore::UpdateCurrent(int domain, PPID locID, PPID goodsID, PPID lotI
 			THROW_DB(updateRecBuf(&rec));
 		}
 		else {
-			THROW(PrepareRec(locID, 0, &rec));
+			THROW(PrepareRec(locID, 0, 0/*loctrfrFlags*/, &rec));
 			rec.Domain = domain;
 			if(domain == LOCTRFRDOMAIN_BAILMENT) {
 				//rec.LocOwnerPersonID = 
@@ -430,7 +442,7 @@ int LocTransfCore::UpdateCurrent(int domain, PPID locID, PPID goodsID, PPID lotI
 			THROW_DB(updateRecBuf(&rec));
 		}
 		else {
-			THROW(PrepareRec(locID, 0, &rec));
+			THROW(PrepareRec(locID, 0, 0/*loctrfrFlags*/, &rec));
 			rec.Domain = domain;
 			rec.GoodsID = goodsID;
 			rec.RestByGoods = addendum;
@@ -504,11 +516,12 @@ int LocTransfCore::UpdateForward(PPID locID, long rByLoc, PPID goodsID, PPID lot
 	return ok;
 }
 
-int LocTransfCore::PutOp(const LocTransfOpBlock & rBlk, int * pRByLoc, int use_ta)
+int LocTransfCore::PutOp(const LocTransfOpBlock & rBlk, int * pRByLoc, int * pRByBill, int use_ta)
 {
 	int    ok = 1;
 	int    r;
 	int    rbyloc = rBlk.RByLoc;
+	int    rbybill = rBlk.RByBillLT; // @v12.4.2
 	LocTransfTbl::Rec rec;
 	LocTransfTbl::Rec temp_rec;
 	THROW(ValidateOpBlock(rBlk));
@@ -522,7 +535,7 @@ int LocTransfCore::PutOp(const LocTransfOpBlock & rBlk, int * pRByLoc, int use_t
 			int    recalc_forward = 0;
 			THROW(Search(loc_id, rbyloc, &temp_rec) > 0);
 			const  double prev_qtty = temp_rec.Qtty;
-			THROW(temp_rec.BillID == rBlk.BillID && temp_rec.RByBillLT == rBlk.RByBillLT);
+			THROW(temp_rec.BillID == rBlk.BillID && temp_rec.RByBillLT == rbybill);
 			if(rBlk.GoodsID != temp_rec.GoodsID || rBlk.LotID != temp_rec.LotID) {
 				double addendum = -prev_qtty;
 				recalc_forward = 1;
@@ -563,12 +576,14 @@ int LocTransfCore::PutOp(const LocTransfOpBlock & rBlk, int * pRByLoc, int use_t
 				rec.RestByGoods = rest_by_goods + rec.Qtty;
 				//
 				THROW_DB(updateRecBuf(&rec));
-				THROW(UpdateForward(rec.LocID, rec.RByLoc, rec.GoodsID, rec.LotID, 0, &addendum));
-				THROW(UpdateCurrent(rec.Domain, rec.LocID, rec.GoodsID, rec.LotID, addendum));
+				if(!(rec.Flags & LOCTRF_ORDER)) { // @v12.4.2 (condition)
+					THROW(UpdateForward(rec.LocID, rec.RByLoc, rec.GoodsID, rec.LotID, 0, &addendum));
+					THROW(UpdateCurrent(rec.Domain, rec.LocID, rec.GoodsID, rec.LotID, addendum));
+				}
 			}
 		}
 		else {
-			THROW(PrepareRec(loc_id, rBlk.BillID, &rec));
+			THROW(PrepareRec(loc_id, rBlk.BillID, rBlk.Flags, &rec));
 			rbyloc   = rec.RByLoc;
 			// @v12.4.1 {
 			rec.Domain = rBlk.Domain; 
@@ -607,7 +622,9 @@ int LocTransfCore::PutOp(const LocTransfOpBlock & rBlk, int * pRByLoc, int use_t
 			THROW_PP(rec.RestByLot >= 0.0, PPERR_WHCELLRESTLOT);
 			THROW_PP(rec.RestByGoods >= 0.0, PPERR_WHCELLRESTGOODS);
 			THROW_DB(insertRecBuf(&rec));
-			THROW(UpdateCurrent(rec.Domain, rec.LocID, rec.GoodsID, rec.LotID, rec.Qtty));
+			if(!(rec.Flags & LOCTRF_ORDER)) { // @v12.4.2 (condition)
+				THROW(UpdateCurrent(rec.Domain, rec.LocID, rec.GoodsID, rec.LotID, rec.Qtty));
+			}
 		}
 		THROW(tra.Commit());
 	}
@@ -932,7 +949,7 @@ int LocTransfDisposer::Dispose(const LocTransfDisposeItem & rItem, LocTransfDisp
 				item = rItem;
 				item.Tag |= (item.ctInAssoc | item.ctEmpty);
 				THROW(SetupOpBlock(item, cell_id, &req_qtty, blk));
-				THROW(LtT.PutOp(blk, 0, 0));
+				THROW(LtT.PutOp(blk, 0/*pRByLoc*/, 0/*pRByBill*/, 0));
 				used_loc_list.add(cell_id);
 				THROW_SL(rOutList.insert(&item));
 			}
@@ -952,7 +969,7 @@ int LocTransfDisposer::Dispose(const LocTransfDisposeItem & rItem, LocTransfDisp
 				if(assc_loc_list.getCount())
 					item.Tag |= item.ctOutOfAssoc;
 				THROW(SetupOpBlock(item, cell_id, &req_qtty, blk));
-				THROW(LtT.PutOp(blk, 0, 0));
+				THROW(LtT.PutOp(blk, 0/*pRByLoc*/, 0/*pRByBill*/, 0));
 				used_loc_list.add(cell_id);
 				THROW_SL(rOutList.insert(&item));
 			}
@@ -984,7 +1001,7 @@ int LocTransfDisposer::Dispose(const LocTransfDisposeItem & rItem, LocTransfDisp
 				LocTransfDisposeItem item;
 				item = rItem;
 				THROW(SetupOpBlock(item, cell_id, &req_qtty, blk));
-				THROW(LtT.PutOp(blk, 0, 0));
+				THROW(LtT.PutOp(blk, 0/*pRByLoc*/, 0/*pRByBill*/, 0));
 				THROW_SL(rOutList.insert(&item));
 				if(item.Qtty >= rest) {
 					THROW_SL(cell_list_for_goods.Remove(cell_id));

@@ -11992,6 +11992,8 @@ public:
 	// номера строки, соответствующей документу.
 	// Дополнительным критерием наличия флага LOCTRF_OWNEDBYBILL может выступать принадлежность документа BillID типу операций
 	// PPOPT_WAREHOUSE.
+#define LOCTRF_ORDER              0x0002 // @v12.4.2 Запись отражает заказ на перемещение, а не само перемещение. Таким образом,
+	// такая операция не влияет на остаток по локации.
 
 struct LocTransfOpBlock { // @flat @persistent(SSerializeContext)
 	LocTransfOpBlock(int domain, int op, PPID locID);
@@ -34307,7 +34309,7 @@ public:
 	int    SearchRestByLot(int domain, PPID lotID, PPID locID, long rByLoc, LocTransfTbl::Rec * pRec);
 	int    EnumByBill(PPID billID, int16 * pRByBill, LocTransfTbl::Rec * pRec);
 	int    GetTransByBill(PPID billID, int16 rByBill, TSVector <LocTransfTbl::Rec> * pList);
-	int    PutOp(const LocTransfOpBlock & rBlk, int * pRByLoc, int use_ta);
+	int    PutOp(const LocTransfOpBlock & rBlk, int * pRByLoc, int * pRByBill, int use_ta);
 	int    RemoveOp(PPID locID, long rByLoc, int use_ta);
 	int    ValidateOpBlock(const LocTransfOpBlock & rBlk);
 	int    GetLocCellList(PPID goodsID, PPID parentLocID, RAssocArray * pList);
@@ -34334,7 +34336,7 @@ public:
 	//
 	int    GetDisposition(PPID billID, TSVector <LocTransfTbl::Rec> & rDispositionList);
 private:
-	int    PrepareRec(PPID locID, PPID billID, LocTransfTbl::Rec * pRec);
+	int    PrepareRec(PPID locID, PPID billID, long loctrfrFlags, LocTransfTbl::Rec * pRec);
 	int    GetLastOpByLoc(PPID locID, long * pRByLoc, LocTransfTbl::Rec * pRec);
 	int    GetLastOpByBill(PPID billID, int16 * pRByBill, LocTransfTbl::Rec * pRec);
 	int    GetLastOpByLot(PPID locID, PPID lotID, LocTransfTbl::Rec * pRec);

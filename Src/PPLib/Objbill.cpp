@@ -7834,8 +7834,9 @@ int PPObjBill::TurnLocTrfrList(PPID billID, PPBillPacket * pPack, int use_ta) //
 							}
 						}
 						{
-							int    rbb = 0;
-							THROW(P_LocTrfr->PutOp(r_item, &rbb, 0));
+							int    rbyloc = 0;
+							int    rbybill = 0;
+							THROW(P_LocTrfr->PutOp(r_item, &rbyloc, &rbybill, 0));
 						}
 					}
 				}

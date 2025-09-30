@@ -2524,7 +2524,7 @@ int ScURL::HttpPost(const InetUrl & rUrl, int mflags, const StrStrAssocArray * p
 	int    ok = 1;
 	struct curl_slist * p_chunk = 0;
 	SString temp_buf;
-	InetUrl url_local = rUrl;
+	InetUrl url_local(rUrl);
 	InnerUrlInfo url_info;
 	StrStrAssocArray local_hdr_flds;
 	if(pHttpHeaderFields) {

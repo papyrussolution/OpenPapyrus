@@ -794,7 +794,7 @@ dialog DLG_CHZNMARK [vertical title: "@chznmark" size: (540, 220) minsize: (540,
 	input CTL_CHZNMARK_INPUT [width: bycontainer height: 21 margin: 4 tabstop label: "@doscanmark" labelsize: (0, 13)] string[160];
 	statictext CTL_CHZNMARK_INFO [width: bycontainer growfactor: 1 margin: 4 staticedge];
 	view [horizontal width: bycontainer(100) height: 28 margin_right: 12 justifycontent: end] {
-		button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
 		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
 	}
 }
@@ -954,7 +954,6 @@ dialog DLG_LOCTRANSF [vertical title: "@roptype_warehouse" size: (800, 400) mins
 	}
 }
 
-// @construction
 dialog DLG_LOCTRANSF_BAILMENT [vertical title: "@roptype_warehouse" size: (720, 450) minsize: (600, 450)  font: "MS Shell Dlg,8"] {
 	statictext CTL_LOCTRANSF_BILLTITLE [width: bycontainer height: 16 margin: 4 staticedge];
 	view [horizontal width: bycontainer height: 140] {
@@ -1052,7 +1051,7 @@ dialog DLG_OPKMORE [vertical title: "@{oprkind_options}" size: (470, 440) minsiz
 	input CTL_OPKMORE_AMTFORMULA [width: bycontainer height: 21 margin: 4 tabstop label: "@oprkind_extstr_amtformula" labelsize: (0, 13) ] string[64];
 	input CTL_OPKMORE_MEMO [width: bycontainer height: 21 margin: 4 tabstop label: "@oprkind_extstr_memotemplate" labelsize: (0, 13) ] string[64];
 	view [horizontal width: bycontainer(100) growfactor: 1 margin_right: 12 justifycontent: end alignitems: end] {
-		button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
 		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
 	}
 }
@@ -1090,7 +1089,7 @@ dialog DLG_OPKMORE_WH [vertical title: "@{oprkind_options}" size: (470, 440) min
 	input CTL_OPKMORE_AMTFORMULA [width: bycontainer height: 21 margin: 4 tabstop label: "@oprkind_extstr_amtformula" labelsize: (0, 13) ] string[64];
 	input CTL_OPKMORE_MEMO [width: bycontainer height: 21 margin: 4 tabstop label: "@oprkind_extstr_memotemplate" labelsize: (0, 13) ] string[64];
 	view [horizontal width: bycontainer(100) growfactor: 1 margin_right: 12 justifycontent: end alignitems: end] {
-		button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
 		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
 	}
 }
@@ -1122,7 +1121,7 @@ dialog DLG_WMSBILL__ [vertical title: "@oprcategory_wms" size: (530, 350) minsiz
 	button CTLMNU_BILL_MEMO [title: "" size: (21, 21)  command: cmLocalMenu];
 	
 	view [horizontal width: bycontainer(100) growfactor: 1 margin_right: 12 justifycontent: end alignitems: end] {
-		button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
 		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
 	}
 }
@@ -1146,4 +1145,28 @@ dialog DLG_CASHREPORTS [vertical title: "@posnodecmd" size: (300, 395) minsize: 
 	}
 }
 
-/*@todo DLG_CASHREPORTS_L*/
+// @construction. Ћейаут готов, но проблема со шрифтами. ”правл€ющие элементы получают default-шрифты а дл€ этого диалог так не годитс€ (он специально большим сделан).
+dialog DLG_CASHREPORTS_L__ [vertical title: "@posnodecmd" size: (595, 525) minsize: (595, 525) font: "MS Shell Dlg 2,16" alignitems: center justifycontent: spaceevenly] {
+	// (все равно он в программе делаетс€ невидимым) input CTL_CSPANEL_INPUT [width: bycontainer height: 41 margin: (8, 8, 8, 16) tabstop] string[64];
+	view [horizontal width: bycontainer(80) growfactor: 4] {
+		view [vertical growfactor: 1 height: bycontainer] {
+			button CTL_CSPANEL_XREP [title: "@posnodecmd_sync_xreport" tabstop width: bycontainer height: 50 margin: 8 command: cmSCSXReport];
+			button CTL_CSPANEL_CSESSCLOSE [title: "@posnodecmd_sync_closesess" tabstop width: bycontainer height: 50 margin: 8 command: cmCSClose];
+			button CTL_CMD_SCSINCASSO [title: "@posnodecmd_sync_encashment" tabstop width: bycontainer height: 50 margin: 8 command: cmSCSIncasso];
+			button CTL_CMD_SCSLOCK [title: "@posnodecmd_sync_lock" tabstop width: bycontainer height: 50 margin: 8 command: cmSCSLock];
+		}
+		view [vertical growfactor: 1 height: bycontainer] {
+			button CTL_CMD_SCSPRINTCHECKCOPY [title: "@posnodecmd_sync_printcheckcopy" tabstop width: bycontainer height: 50 margin: 8 command: cmSCSPrintCheckCopy];
+			button CTL_CSPANEL_CSESSOPEN [title: "@posnodecmd_sync_opensess" tabstop width: bycontainer height: 50 margin: 8 command: cmCSOpen];
+			button CTL_CMD_SCSZREPORTCOPY [title: "@posnodecmd_sync_zreportcopy" tabstop width: bycontainer height: 50 margin: 8 command: cmSCSZReportCopy];
+			button CTL_CMD_SCSUNLOCK [title: "@posnodecmd_sync_unlock" tabstop width: bycontainer height: 50 margin: 8 command: cmSCSUnlock];
+		}
+	}
+	view [vertical width: bycontainer(80) growfactor: 2] {
+		button CTL_CMD_SCSDRAWEROPEN [title: "@posnodecmd_sync_opendrawer" tabstop width: bycontainer height: 50 margin: 8 command: cmSCSDrawerOpen];
+		button CTL_CSPANEL_RESETCHZNPMSVRADDR [title: "@posnodecmd_sync_resetchznpmsvraddr" tabstop width: bycontainer height: 50 margin: 8 command: cmCSResetChZnPmSvrAddr];
+	}
+	view [horizontal width: bycontainer(80) growfactor: 2 alignitems: center justifycontent: spaceevenly] {
+		button STDCTL_CANCELBUTTON [title: "@but_close" tabstop width: bycontainer height: 50 margin: 8 command: cmCancel];
+	}
+}

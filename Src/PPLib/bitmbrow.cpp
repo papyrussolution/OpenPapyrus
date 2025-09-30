@@ -2374,14 +2374,28 @@ void BillItemBrowser::addItem_(int fromOrder, TIDlgInitData * pInitData, int sig
 		}
 		if(!skip) {
 			if(oneof2(BillDetailType, PPBillPacket::detailtypeLocTrfr, PPBillPacket::detailtypeLocTrfr_Bailment)) {
-				const int lt_domain = (BillDetailType == PPBillPacket::detailtypeLocTrfr_Bailment) ? LOCTRFRDOMAIN_BAILMENT : LOCTRFRDOMAIN_WMS;
-				const int lt_op = 0;
-				LocTransfOpBlock lti(lt_domain, lt_op, 0);
-				if(PPViewLocTransf::EditLocTransf(&R_Pack, lti) > 0) {
-					SETIFZQ(R_Pack.P_LocTrfrList, new TSVector <LocTransfOpBlock>());
-					R_Pack.P_LocTrfrList->insert(&lti);
-					State |= stIsModified;
-					update(pos_bottom);
+				PPOprKind op_rec;
+				if(GetOpData(R_Pack.Rec.OpID, &op_rec) > 0) {
+					const int lt_domain = (BillDetailType == PPBillPacket::detailtypeLocTrfr_Bailment) ? LOCTRFRDOMAIN_BAILMENT : LOCTRFRDOMAIN_WMS;
+					const int lt_op = 0;
+					LocTransfOpBlock lti(lt_domain, lt_op, 0);
+					lti.Flags |= LOCTRF_OWNEDBYBILL;
+					if(op_rec.SubType == OPSUBT_BAILMENT_ORDER) {
+						lti.Flags |= LOCTRF_ORDER;
+						lti.LTOp = LOCTRFROP_PUT; // by default
+					}
+					else if(op_rec.SubType == OPSUBT_BAILMENT_PUT) {
+						lti.LTOp = LOCTRFROP_PUT;
+					}
+					else if(op_rec.SubType == OPSUBT_BAILMENT_GET) {
+						lti.LTOp = LOCTRFROP_GET;
+					}
+					if(PPViewLocTransf::EditLocTransf(&R_Pack, lti) > 0) {
+						SETIFZQ(R_Pack.P_LocTrfrList, new TSVector <LocTransfOpBlock>());
+						R_Pack.P_LocTrfrList->insert(&lti);
+						State |= stIsModified;
+						update(pos_bottom);
+					}
 				}
 			}
 			else if(EditTransferItem(R_Pack, -1, pInitData, 0, sign) == cmOK) {
@@ -2514,64 +2528,75 @@ void BillItemBrowser::editItem()
 	int    valid_data = 0;
 	PPTransferItem * p_ti;
 	if(c >= 0) {
-		p_ti = &R_Pack.TI(static_cast<uint>(c));
-		if(p_ti->Flags & PPTFR_PCKG) {
-			if(p_ti->IsReceipt() || IsIntrExpndOp(R_Pack.Rec.OpID)) {
-				LPackage * p_pckg = R_Pack.P_PckgList ? R_Pack.P_PckgList->GetByIdx(c) : 0;
-				if(p_pckg) {
-					if(editPackageData(p_pckg) > 0)
-						update(pos_cur);
-				}
-			}
-			else
-				viewPckgItems(false);
-		}
-		else if(!AsSelector) {
-			TIDlgInitData tidi;
-			GetMinMaxQtty((uint)c, tidi.QttyBounds);
-			while(!valid_data && EditTransferItem(R_Pack, static_cast<int>(c), &tidi, 0) == cmOK) {
-				valid_data = 1;
-				//
-				// Проверка на то, чтобы возврат не превышал взятое количество
-				//
-				if(R_Pack.OpTypeID == PPOPT_GOODSRETURN && P_LinkPack) {
-					double expend = 0.0;
-					for(i = 0, p_ti = &R_Pack.TI(static_cast<uint>(c)); P_LinkPack->SearchLot(p_ti->LotID, &i); i++)
-						if(State & stExpndOnReturn)
-							if(!R_Pack.BoundsByLot(p_ti->LotID, 0, -1, &rest, 0))
-								valid_data = PPErrorZ();
-							else if(rest < 0)
-								valid_data = (PPError(PPERR_RETQTTY, 0), 0);
-							else {
-								p_ti = &P_LinkPack->TI(i);
-								p_ti->Quantity_ = rest;
-								SETFLAG(p_ti->Flags, 0x80000000L, rest == 0.0);
-							}
-						else
-							expend += P_LinkPack->ConstTI(i).Quantity_;
-					if(!(State & stExpndOnReturn) && fabs(expend) < fabs(p_ti->Quantity_))
-						valid_data = (PPError(PPERR_RETQTTY, 0), 0);
-				}
-				if(valid_data) {
+		if(oneof2(BillDetailType, PPBillPacket::detailtypeLocTrfr, PPBillPacket::detailtypeLocTrfr_Bailment)) {
+			if(c < static_cast<int>(SVectorBase::GetCount(R_Pack.P_LocTrfrList))) {
+				LocTransfOpBlock & r_lti = R_Pack.P_LocTrfrList->at(c);
+				if(PPViewLocTransf::EditLocTransf(&R_Pack, r_lti) > 0) {
 					State |= stIsModified;
-					if(R_Pack.OpTypeID == PPOPT_GOODSMODIF)
-						R_Pack.CalcModifCost();
-					if(R_Pack.ProcessFlags & PPBillPacket::pfHasExtCost)
-						R_Pack.InitAmounts();
-					update(pos_cur);
-					UpdatePriceDevList(c, 0);
+					update(pos_bottom);
 				}
 			}
 		}
-		//
-		// Если окно работает как селектор и является модальным,
-		// то переменной AsSelector присваиваем номер выбранного
-		// элемента и закрываем окно.
-		//
-		else if(IsInState(sfModal)) {
-			AsSelector = c;
-			endModal(cmOK);
-			return;
+		else {
+			p_ti = &R_Pack.TI(static_cast<uint>(c));
+			if(p_ti->Flags & PPTFR_PCKG) {
+				if(p_ti->IsReceipt() || IsIntrExpndOp(R_Pack.Rec.OpID)) {
+					LPackage * p_pckg = R_Pack.P_PckgList ? R_Pack.P_PckgList->GetByIdx(c) : 0;
+					if(p_pckg) {
+						if(editPackageData(p_pckg) > 0)
+							update(pos_cur);
+					}
+				}
+				else
+					viewPckgItems(false);
+			}
+			else if(!AsSelector) {
+				TIDlgInitData tidi;
+				GetMinMaxQtty((uint)c, tidi.QttyBounds);
+				while(!valid_data && EditTransferItem(R_Pack, static_cast<int>(c), &tidi, 0) == cmOK) {
+					valid_data = 1;
+					//
+					// Проверка на то, чтобы возврат не превышал взятое количество
+					//
+					if(R_Pack.OpTypeID == PPOPT_GOODSRETURN && P_LinkPack) {
+						double expend = 0.0;
+						for(i = 0, p_ti = &R_Pack.TI(static_cast<uint>(c)); P_LinkPack->SearchLot(p_ti->LotID, &i); i++)
+							if(State & stExpndOnReturn)
+								if(!R_Pack.BoundsByLot(p_ti->LotID, 0, -1, &rest, 0))
+									valid_data = PPErrorZ();
+								else if(rest < 0)
+									valid_data = (PPError(PPERR_RETQTTY, 0), 0);
+								else {
+									p_ti = &P_LinkPack->TI(i);
+									p_ti->Quantity_ = rest;
+									SETFLAG(p_ti->Flags, 0x80000000L, rest == 0.0);
+								}
+							else
+								expend += P_LinkPack->ConstTI(i).Quantity_;
+						if(!(State & stExpndOnReturn) && fabs(expend) < fabs(p_ti->Quantity_))
+							valid_data = (PPError(PPERR_RETQTTY, 0), 0);
+					}
+					if(valid_data) {
+						State |= stIsModified;
+						if(R_Pack.OpTypeID == PPOPT_GOODSMODIF)
+							R_Pack.CalcModifCost();
+						if(R_Pack.ProcessFlags & PPBillPacket::pfHasExtCost)
+							R_Pack.InitAmounts();
+						update(pos_cur);
+						UpdatePriceDevList(c, 0);
+					}
+				}
+			}
+			//
+			// Если окно работает как селектор и является модальным,
+			// то переменной AsSelector присваиваем номер выбранного
+			// элемента и закрываем окно.
+			//
+			else if(IsInState(sfModal)) {
+				AsSelector = c;
+				endModal(cmOK);
+				return;
+			}
 		}
 	}
 }
@@ -2592,77 +2617,86 @@ int BillItemBrowser::checkForward(const PPTransferItem * pTI, LDATE dt, int reve
 
 void BillItemBrowser::delItem()
 {
-	PPID   id, goods_id;
 	uint   i;
-	double tmp;
 	if(!AsSelector) {
 		const  int c = getCurItemPos();
-		int    cur_view_pos = getDef()->_curItem();
+		const  int cur_view_pos = getDef()->_curItem();
 		if(c >= 0 && (!(LConfig.Flags & CFGFLG_CONFGBROWRMV) || CONFIRM(PPCFM_DELETE))) {
-			//
-			// Проверяем, можно ли будет провести документ с заявленным удалением
-			//
-			PPTransferItem * p_ti = &R_Pack.TI(static_cast<uint>(c));
-			double qtty = fabs(p_ti->Quantity_);
-			if(R_Pack.OpTypeID != PPOPT_GOODSRETURN && R_Pack.Rec.ID && p_ti->LotID) {
-				BillTbl::Rec bill_rec;
-				for(DateIter diter; P_BObj->P_Tbl->EnumLinks(R_Pack.Rec.ID, &diter, BLNK_RETURN, &bill_rec) > 0;) {
-					PPBillPacket ret_pack;
-					THROW(P_BObj->ExtractPacket(bill_rec.ID, &ret_pack) > 0);
-					THROW_PP(!ret_pack.SearchLot(p_ti->LotID, &(i = 0)), PPERR_DELLOTWRET);
+			if(oneof2(BillDetailType, PPBillPacket::detailtypeLocTrfr, PPBillPacket::detailtypeLocTrfr_Bailment)) { // @v12.4.2
+				if(c < static_cast<int>(SVectorBase::GetCount(R_Pack.P_LocTrfrList))) {
+					R_Pack.P_LocTrfrList->atFree(c);
+					State |= stIsModified;
+					update(cur_view_pos);
 				}
 			}
-			if(p_ti->BillID && p_ti->RByBill) {
-				if(R_Pack.Rec.Flags & BILLF_GRECEIPT && !(p_ti->Flags & PPTFR_UNLIM)) {
-					THROW(checkForward(p_ti, R_Pack.Rec.Dt, 0));
+			else {
+				//
+				// Проверяем, можно ли будет провести документ с заявленным удалением
+				//
+				PPTransferItem * p_ti = &R_Pack.TI(static_cast<uint>(c));
+				PPID   lot_id = 0;
+				const  double qtty = fabs(p_ti->Quantity_);
+				double tmp;
+				if(R_Pack.OpTypeID != PPOPT_GOODSRETURN && R_Pack.Rec.ID && p_ti->LotID) {
+					BillTbl::Rec bill_rec;
+					for(DateIter diter; P_BObj->P_Tbl->EnumLinks(R_Pack.Rec.ID, &diter, BLNK_RETURN, &bill_rec) > 0;) {
+						PPBillPacket ret_pack;
+						THROW(P_BObj->ExtractPacket(bill_rec.ID, &ret_pack) > 0);
+						THROW_PP(!ret_pack.SearchLot(p_ti->LotID, &(i = 0)), PPERR_DELLOTWRET);
+					}
+				}
+				if(p_ti->BillID && p_ti->RByBill) {
+					if(R_Pack.Rec.Flags & BILLF_GRECEIPT && !(p_ti->Flags & PPTFR_UNLIM)) {
+						THROW(checkForward(p_ti, R_Pack.Rec.Dt, 0));
+					}
+					//
+					// Если документ передачи по межскладу, то проверяем лот, созданный зеркальной проводкой.
+					//
+					else if(IsIntrExpndOp(R_Pack.Rec.OpID)) {
+						THROW(checkForward(p_ti, R_Pack.Rec.Dt, 1));
+					}
 				}
 				//
-				// Если документ передачи по межскладу, то проверяем лот,
-				// созданный зеркальной проводкой.
+				// Если есть связанный документ то отмечаем в нем удаление
 				//
-				else if(IsIntrExpndOp(R_Pack.Rec.OpID)) {
-					THROW(checkForward(p_ti, R_Pack.Rec.Dt, 1));
-				}
-			}
-			//
-			// Если есть связанный документ то отмечаем в нем удаление
-			//
-			if(P_LinkPack) {
-				goods_id = p_ti->GoodsID;
-				for(i = 0, id = p_ti->LotID; P_LinkPack->EnumTItems(&i, &p_ti);)
-					if((id && p_ti->LotID == id) || (!id && p_ti->GoodsID == goods_id)) {
-						p_ti->Flags &= ~0x80000000L;
-						if(State & stExpndOnReturn) {
-							THROW(R_Pack.BoundsByLot(id, 0, -1, &tmp, 0));
-							p_ti->Quantity_ += qtty;
-							break;
+				if(P_LinkPack) {
+					const PPID goods_id = p_ti->GoodsID;
+					lot_id = p_ti->LotID;
+					for(i = 0; P_LinkPack->EnumTItems(&i, &p_ti);) {
+						if((lot_id && p_ti->LotID == lot_id) || (!lot_id && p_ti->GoodsID == goods_id)) {
+							p_ti->Flags &= ~0x80000000L;
+							if(State & stExpndOnReturn) {
+								THROW(R_Pack.BoundsByLot(lot_id, 0, -1, &tmp, 0));
+								p_ti->Quantity_ += qtty;
+								break;
+							}
 						}
 					}
+				}
+				//
+				// Если удаляемая строка имеет теневую строку, на которую не ссылается больше ни одна иная строка, то теневую строку удаляем
+				//
+				p_ti = &R_Pack.TI(static_cast<uint>(c));
+				lot_id = (p_ti->Flags & PPTFR_ONORDER && R_Pack.P_ShLots) ? p_ti->OrdLotID : 0; // @ordlotid
+				if(p_ti->Flags & PPTFR_AUTOCOMPL)
+					R_Pack.RemoveAutoComplRow((uint)c);
+				R_Pack.RemoveRow((int)c);
+				if(lot_id && R_Pack.SearchShLot(lot_id, &(i = 0))) {
+					R_Pack.CalcShadowQuantity(lot_id, &tmp);
+					if(tmp == 0.0)
+						R_Pack.P_ShLots->atFree(i);
+					else
+						R_Pack.P_ShLots->at(i).Quantity_ = tmp;
+				}
+				State |= stIsModified;
+				if(R_Pack.OpTypeID == PPOPT_GOODSMODIF)
+					R_Pack.CalcModifCost();
+				if(R_Pack.ProcessFlags & PPBillPacket::pfHasExtCost)
+					R_Pack.InitAmounts();
+				update(cur_view_pos);
+				THROW(UpdatePriceDevList(c, -1));
+				ProblemsList.Remove(c);
 			}
-			//
-			// Если удаляемая строка имеет теневую строку, на которую не ссылается //
-			// больше ни одна строка, то теневую строку удаляем
-			//
-			p_ti = &R_Pack.TI(static_cast<uint>(c));
-			id = (p_ti->Flags & PPTFR_ONORDER && R_Pack.P_ShLots) ? p_ti->OrdLotID : 0; // @ordlotid
-			if(p_ti->Flags & PPTFR_AUTOCOMPL)
-				R_Pack.RemoveAutoComplRow((uint)c);
-			R_Pack.RemoveRow((int)c);
-			if(id && R_Pack.SearchShLot(id, &(i = 0))) {
-				R_Pack.CalcShadowQuantity(id, &tmp);
-				if(tmp == 0.0)
-					R_Pack.P_ShLots->atFree(i);
-				else
-					R_Pack.P_ShLots->at(i).Quantity_ = tmp;
-			}
-			State |= stIsModified;
-			if(R_Pack.OpTypeID == PPOPT_GOODSMODIF)
-				R_Pack.CalcModifCost();
-			if(R_Pack.ProcessFlags & PPBillPacket::pfHasExtCost)
-				R_Pack.InitAmounts();
-			update(cur_view_pos);
-			THROW(UpdatePriceDevList(c, -1));
-			ProblemsList.Remove(c);
 		}
 	}
 	CATCH

@@ -3780,14 +3780,15 @@ int PPAutoTranslSvc_Microsoft::Request3(int srcLang, int destLang, const SString
 	*/ 
 	rResult.Z();
 	int    ok = -1;
-	SJson  js_req(SJson::tARRAY);
 	SJson * p_js_rep = 0;
 	SString temp_buf;
+	SString query_buf;
+	SString reply_buf;
 	SString log_buf;
 	StrStrAssocArray http_header;
 	// version 3 of tranlator: api.translator.azure.cn
 	//https://api.translator.azure.cn/translate?api-version=3.0
-	SString url("http://api.translator.azure.cn/translate?");
+	SString url_buf(InetUrl::MkHttps("api.cognitive.microsofttranslator.com", "translate?"));
 	if(Token.NotEmpty() && !!AuthTime && ExpirySec > 0) {
 		//
 		// Проверка истечения срока действия токена.
@@ -3799,21 +3800,37 @@ int PPAutoTranslSvc_Microsoft::Request3(int srcLang, int destLang, const SString
 			THROW(Helper_PPAutoTranslSvc_Microsoft_Auth(*this));
         }
 	}
-	url.CatEq("api-version", "3.0");
+	url_buf.CatEq("api-version", "3.0");
 
 	THROW(GetLinguaCode(srcLang, temp_buf));
-	url.CatEq("from", temp_buf);
+	url_buf.CatEq("from", temp_buf);
 	log_buf.Cat(temp_buf).Tab();
 	THROW(GetLinguaCode(destLang, temp_buf));
-	url.CatChar('&').CatEq("to", temp_buf);
+	url_buf.CatChar('&').CatEq("to", temp_buf);
 	log_buf.Cat(temp_buf).Tab();
-	//url.CatChar('&').CatEq("text", (temp_buf = rSrcText).ToUrl());
-	//log_buf.Cat((temp_buf = rSrcText).Transf(CTRANSF_UTF8_TO_INNER)).Tab();
-	// $authHeader = "Authorization: Bearer ". $accessToken;
-	//SHttpProtocol::SetHeaderField(http_header, SHttpProtocol::hdrAuthorization, temp_buf.Z().Cat("Bearer").Space().Cat(Token));
-	SHttpProtocol::SetHeaderField(http_header, SHttpProtocol::hdrContentType, "application/json");
+	SHttpProtocol::SetHeaderField(http_header, SHttpProtocol::hdrContentType, "application/json;charset=UTF-8");
 	SHttpProtocol::SetHeaderField(http_header, SHttpProtocol::SHttpProtocol::hdrOcpApimSubscrKey, Token);
-
+	{
+		SJson  js_req(SJson::tARRAY);
+		SJson * p_js_text = new SJson(SJson::tOBJECT);
+		p_js_text->InsertString("Text", rSrcText);
+		js_req.InsertChild(p_js_text);
+		js_req.ToStr(query_buf);
+	}
+	{
+		const uint64 at_start = SLS.GetProfileTime();
+		ScURL   curl;
+		SBuffer result_buf;
+		SFile wr_stream(result_buf, SFile::mWrite);
+		InetUrl url(url_buf);
+		THROW(curl.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &http_header, query_buf, &wr_stream));
+		{
+			SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
+			if(p_ack_buf) {
+				reply_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
+			}
+		}
+	}
 	CATCHZOK
 	delete p_js_rep;
 	return ok;
@@ -3912,7 +3929,7 @@ int PPAutoTranslateText(int srcLang, int destLang, const SString & rSrcUtf8, SSt
 	int    ok = 1;
 	PPAutoTranslSvc_Microsoft at;
 	THROW(Helper_PPAutoTranslSvc_Microsoft_Auth(at));
-	THROW(at.Request(srcLang, destLang, rSrcUtf8, rResultUtf8));
+	THROW(at.Request3(srcLang, destLang, rSrcUtf8, rResultUtf8)); // @v12.4.2 Request-->Request3
 	CATCHZOK
 	return ok;
 }

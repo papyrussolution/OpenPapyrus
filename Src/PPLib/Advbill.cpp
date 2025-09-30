@@ -467,8 +467,8 @@ public:
 //
 struct AdvBillItemEntry {
 	LDATE  Dt;             // #00
-	char   Code[24];       // #04 UnitName (WarrantItemBrowser) // @v6.2.2 [10]-->[24]
-	char   BillKind[48];   // #28                               // @v6.2.2 [30]-->[48]
+	char   Code[24];       // #04 UnitName (WarrantItemBrowser)
+	char   BillKind[48];   // #28
 	char   Account[48];    // #76
 	double Amount;         // #124
 	char   Memo[128];      // #132

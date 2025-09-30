@@ -388,7 +388,7 @@ DBFS_CRCS_BAR_EXPORT PP_RCDATA {
 	"ARTICUL\0",    "C", 20, 0,
 	"BARCODE\0",    "C", 13, 0,
 	"UNTPERPACK\0", "N", 10, 3
-	"SECTION\0",    "N",  3, 0 // @v6.7.10
+	"SECTION\0",    "N",  3, 0
 };
 
 DBFS_CRCS_CARDS_EXPORT PP_RCDATA {
@@ -418,13 +418,13 @@ DBFS_CRCS_CSHRS_EXPORT PP_RCDATA {
 DBFS_CRCS_SALESGGRP_EXPORT PP_RCDATA {
 	2,
 	"GRPNAME\0",  "C",  30, 0,
-	"GSCODE\0",   "C",  10, 0  // @v6.7.5 4-->10
+	"GSCODE\0",   "C",  10, 0
 };
 
 DBFS_CRCS_SALESGGRPI_EXPORT PP_RCDATA {
 	2,
 	"ARTICUL\0", "C", 20, 0,
-	"GSCODE\0",  "C", 10, 0   // @v6.7.5 4-->10
+	"GSCODE\0",  "C", 10, 0
 };
 
 DBFS_CRCS_GOODSDIS_EXPORT PP_RCDATA {
@@ -460,13 +460,13 @@ DBFS_CRCS_SCALE_EXPORT PP_RCDATA {
 	"ARTICUL\0",    "C", 20, 0, // ID товара
 	"BARCODE\0",    "C", 13, 0,
 	"PREFIX\0",     "C",  4, 0,
-	"NAME1\0",      "C", 64, 0, // @v6.7.9 48-->64
-	"NAME2\0",      "C", 64, 0, // @v6.7.9 48-->64
+	"NAME1\0",      "C", 64, 0,
+	"NAME2\0",      "C", 64, 0,
 	"GOODSNO\0",    "N",  4, 0,
 	"PRICE\0",      "N", 10, 2,
 	"EXPIRY\0",     "N",  4, 0,
 	"SECTION\0",    "N",  4, 0,
-	"GOODSTYPE\0",  "N",  4, 0  // @v7.1.0
+	"GOODSTYPE\0",  "N",  4, 0 
 };
 
 DBFS_CRCS_SIGNAL_ALL_EXPORT PP_RCDATA {

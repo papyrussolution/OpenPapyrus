@@ -1536,7 +1536,7 @@ int StringStore2::Compile(const char * pFileName, long flags, const char * pTran
 											}
 											else {
 												PreserveStringForAutotraslation(org_text, string_to_translate, subst_list);
-												if(p_at->Request(slangRU, org_file_blk.AutoTranslLang, /*org_text*/string_to_translate, auto_transl_string) > 0) {
+												if(p_at->Request3(slangRU, org_file_blk.AutoTranslLang, /*org_text*/string_to_translate, auto_transl_string) > 0) { // @v12.4.2 Request-->Request3
 													RecoverAutotranslatedString(auto_transl_string, subst_list);
 												}
 												else

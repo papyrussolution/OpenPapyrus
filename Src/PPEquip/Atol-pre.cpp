@@ -314,23 +314,21 @@ public:
 	virtual int ExportData(int updOnly);
 	virtual int GetSessionData(int * pSessCount, int * pIsForwardSess, DateRange * pPrd = 0);
 	virtual int ImportSession(int);
-	virtual int FinishImportSession(PPIDArray *);  // @v6.0.5 VADIM
-	virtual int SetGoodsRestLoadFlag(int updOnly); // @v5.3.6 VADIM
+	virtual int FinishImportSession(PPIDArray *);  // @VADIM
+	virtual int SetGoodsRestLoadFlag(int updOnly); // @VADIM
 protected:
 	virtual int ExportSCard(FILE * pFile, int updOnly);
-	int    UseInnerAutoDscnt; // @v5.4.12 VADIM
+	int    UseInnerAutoDscnt; // @VADIM
 private:
 	int    ConvertWareList(const char * pImpPath, const char * pExpPath);
 	DateRange ChkRepPeriod;
 	PPIDArray LogNumList;
-	PPIDArray SessAry; // @v6.0.5 VADIM
+	PPIDArray SessAry; // @VADIM
 	SString PathRpt;
 	SString PathFlag;
-	// @v5.9.9 VADIM {
-	SString PathGoods;
-	SString PathGoodsFlag;
-	int     UseAltImport;
-	// } @v5.9.9 VADIM
+	SString PathGoods;     // @VADIM 
+	SString PathGoodsFlag; // @VADIM 
+	int     UseAltImport;  // @VADIM 
 	int     ImpExpTimeout;
 	StringSet ImpPaths;
 	StringSet ExpPaths;

@@ -1598,7 +1598,7 @@ IMPL_HANDLE_EVENT(GBItemDialog)
 				else {
 					setupAmount(0);
 					setCtrlLong(CTLSEL_GBITEM_SUPPL, R_Cart.Pack.Head.SupplID);
-					setCtrlUInt16(CTL_GBITEM_PRIVATE, BIN(R_Cart.Pack.Head.Flags & GBASKF_PRIVATE)); // @v6.4.0
+					setCtrlUInt16(CTL_GBITEM_PRIVATE, BIN(R_Cart.Pack.Head.Flags & GBASKF_PRIVATE));
 				}
 			}
 		}
@@ -2016,12 +2016,12 @@ int GoodsBasketDialog(PPBasketCombine & rBasket, int action)
 	int    ok = -1;
 	int    valid_data = 0;
 	int    r;
-	GBDialog * dlg = 0;
 	PPObjGoodsBasket gb_obj;
-	THROW(CheckDialogPtr(&(dlg = new GBDialog(&rBasket.BasketID, rBasket, action))));
+	GBDialog * dlg = new GBDialog(&rBasket.BasketID, rBasket, action);
+	THROW(CheckDialogPtr(&dlg));
 	dlg->setDTS();
-	while(!valid_data && ((r = ExecView(dlg)) == cmOK || (dlg->IsChanged() && !CONFIRM(PPCFM_WARNCANCEL))))
-		if(r != cmCancel)
+	while(!valid_data && ((r = ExecView(dlg)) == cmOK || (dlg->IsChanged() && !CONFIRM(PPCFM_WARNCANCEL)))) {
+		if(r != cmCancel) {
 			if(dlg->getDTS()) {
 				rBasket.BasketID = rBasket.Pack.Head.ID;
 				if(action != 3)
@@ -2032,6 +2032,8 @@ int GoodsBasketDialog(PPBasketCombine & rBasket, int action)
 			}
 			else
 				PPError();
+		}
+	}
 	CATCHZOKPPERR
 	delete dlg;
 	return ok;
@@ -2089,7 +2091,7 @@ int AddGoodsToBasket(PPID goodsID, PPID defLocID, double qtty, double price)
 					}
 					if(!skip) {
 						if(!do_add || basket.Pack.AddItem(&item, 0)) {
-							basket.Lck.Unlock(); // @v6.4.0
+							basket.Lck.Unlock();
 							if(gb_obj.PutPacket(&basket.Pack.Head.ID, &basket.Pack, 1)) {
 								DS.GetTLA().Lid.BasketID = basket.Pack.Head.ID;
 								ok = 1;

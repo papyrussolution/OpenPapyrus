@@ -179,8 +179,8 @@
 #define ACY_AGGR             3   // Агрегирующий счет
 #define ACY_REGISTER         4   // Регистр
 #define ACY_PERSONAL         5   // Персональный счет (under construction)
-#define ACY_ALIAS            6   // @v4.6.4 Элиас счета
-#define ACY_BUDGET           7   // @v6.5.12 Бюджетный счет
+#define ACY_ALIAS            6   // Элиас счета
+#define ACY_BUDGET           7   // Бюджетный счет
 //
 // Порядок счета
 //
@@ -831,7 +831,7 @@
 	#define PPELK_WWW            7
 #define PPOBJ_QUOTKIND           29L // $ Виды котировок
 	#define PPQUOTK_BASE         1 // Базовая котировка
-	#define PPQUOTK_GIFT         2 // @v6.3.10 Подарочная котировка
+	#define PPQUOTK_GIFT         2 // Подарочная котировка
 	#define PPQUOTK_ESTBOMVALUE  3 // @v11.7.11 Ожидаемая цена, рассчитанная по товарной структуре (комплектация)
 #define PPOBJ_PERSONOPKIND       30L // $ Вид персональной операции
 	//
@@ -2117,7 +2117,7 @@
 #define DLG_PERSON                 24 // @v2.2.4
 #define DLG_PERSONEXT              25 // @v2.4.6
 #define DLG_PERSON_BNK            598 // @v4.2.7
-#define DLG_PERSON_S1            1152 // PSN_S1 @v6.8.6
+#define DLG_PERSON_S1            1152 // PSN_S1
 	#define cmPersonReg               111 // Регистры
 	#define cmPersonPhones           2002 // Электронные адреса
 	#define cmPersonBAcct             112 // Список банковских счетов
@@ -2528,8 +2528,8 @@
 #define DLG_ADDRESS                76 // @v2.2.4 Address (Location)
 #define DLG_WAREPLACE              77 // @v2.2.4 Wareplace (Location)
 #define DLG_DIVISION               79 // @v4.0.5 Division (Location)
-#define DLG_WHCOLUMN             1063 // WHCOLUMN @v6.1.0
-#define DLG_WHCELL               1064 // WHCELL   @v6.1.0
+#define DLG_WHCOLUMN             1063 // WHCOLUMN
+#define DLG_WHCELL               1064 // WHCELL
 	#define cmExtFields                  110
 	#define cmLocRegisters               111
 	#define cmLocTags                    112
@@ -2740,7 +2740,7 @@
 	#define CTLMNU_LOT_SERIAL           (56 + WINDOWS_ID_BIAS)
 	#define CTL_LOT_BASEQUOT            (57 + WINDOWS_ID_BIAS)
 	#define CTL_LOT_EXTCOST             (58 + WINDOWS_ID_BIAS)
-	#define CTL_LOT_ST_PRICELIMIT       (59 + WINDOWS_ID_BIAS) // @v6.4.12 Индикация ограничения цены
+	#define CTL_LOT_ST_PRICELIMIT       (59 + WINDOWS_ID_BIAS) // Индикация ограничения цены
 	#define CTL_LOT_LOCCODE             (60 + WINDOWS_ID_BIAS) // Код складской ячейки
 	#define CTL_LOT_LOC                 (61 + WINDOWS_ID_BIAS) // Наименование складской ячейки
 	#define CTLSEL_LOT_LOC              (62 + WINDOWS_ID_BIAS)
@@ -7345,7 +7345,7 @@
 	#define CTL_GRWPRGNFLT_LOC           (10 + WINDOWS_ID_BIAS)
 	#define CTLSEL_GRWPRGNFLT_LOC        (11 + WINDOWS_ID_BIAS)
 	#define CTLCAL_GRWPRGNFLT_DATE       (12 + WINDOWS_ID_BIAS) // @alena
-	#define CTL_GRWPRGNFLT_EXHTERM       (13 + WINDOWS_ID_BIAS) // @v6.0.2
+	#define CTL_GRWPRGNFLT_EXHTERM       (13 + WINDOWS_ID_BIAS)
 #define DLG_GBPRINT               718
 	#define CTL_GBPRINT_REPORT           (1 + WINDOWS_ID_BIAS)
 	#define CTL_GBPRINT_FLAGS            (2 + WINDOWS_ID_BIAS)

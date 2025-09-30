@@ -992,7 +992,7 @@ int PPViewLocTransf::AddItem(PPID curLocID, long curRByLoc)
 			blk.PalletTypeID = rec.PalletTypeID;
 			blk.PalletCount = rec.PalletCount;
 			blk.Qtty = fabs(rec.Qtty);
-			ok = Tbl.PutOp(blk, 0, 1) ? 1 : PPErrorZ();
+			ok = Tbl.PutOp(blk, 0/*pRByLoc*/, 0/*pRByBill*/, 1) ? 1 : PPErrorZ();
 		}
  	}
 	else if(Filt.Mode == LocTransfFilt::modeDisposition) {
@@ -1034,7 +1034,7 @@ int PPViewLocTransf::AddItem(PPID curLocID, long curRByLoc)
 			blk.PalletTypeID = rec.PalletTypeID;
 			blk.PalletCount = rec.PalletCount;
 			blk.Qtty = fabs(rec.Qtty);
-			ok = Tbl.PutOp(blk, 0, 1) ? 1 : PPErrorZ();
+			ok = Tbl.PutOp(blk, 0/*pRByLoc*/, 0/*pRByBill*/, 1) ? 1 : PPErrorZ();
 		}
 	}
 	else if(Filt.Mode == LocTransfFilt::modeEmpty) {
@@ -1049,7 +1049,7 @@ int PPViewLocTransf::AddItem(PPID curLocID, long curRByLoc)
 			blk.PalletTypeID = rec.PalletTypeID;
 			blk.PalletCount = rec.PalletCount;
 			blk.Qtty = fabs(rec.Qtty);
-			ok = Tbl.PutOp(blk, 0, 1) ? 1 : PPErrorZ();
+			ok = Tbl.PutOp(blk, 0/*pRByLoc*/, 0/*pRByBill*/, 1) ? 1 : PPErrorZ();
 		}
 	}
 	return ok;
@@ -1073,7 +1073,7 @@ int PPViewLocTransf::EditItem(PPID tempRecID, PPID curLocID, long curRByLoc)
 				blk.PalletTypeID = rec.PalletTypeID;
 				blk.PalletCount = rec.PalletCount;
 				blk.Qtty = fabs(rec.Qtty);
-				THROW(Tbl.PutOp(blk, 0, 1));
+				THROW(Tbl.PutOp(blk, 0/*pRByLoc*/, 0/*pRByBill*/, 1));
 				ok = 1;
 			}
 		}
@@ -1103,7 +1103,7 @@ int PPViewLocTransf::EditItem(PPID tempRecID, PPID curLocID, long curRByLoc)
 						blk.PalletTypeID = rec.PalletTypeID;
 						blk.PalletCount = rec.PalletCount;
 						blk.Qtty = fabs(rec.Qtty);
-						THROW(Tbl.PutOp(blk, 0, 0));
+						THROW(Tbl.PutOp(blk, 0/*pRByLoc*/, 0/*pRByBill*/, 0));
 						THROW(UpdateTempRec(tempRecID, blk.LocID, blk.RByLoc, 0));
 						THROW(tra.Commit());
 						ok = 1;
@@ -1136,7 +1136,8 @@ int PPViewLocTransf::EditItem(PPID tempRecID, PPID curLocID, long curRByLoc)
 						blk.PalletCount = rec.PalletCount;
 						blk.Qtty = fabs(rec.Qtty);
 						int    rbyloc = 0;
-						THROW(Tbl.PutOp(blk, &rbyloc, 0));
+						int    rbybill = 0;
+						THROW(Tbl.PutOp(blk, &rbyloc, &rbybill, 0));
 						THROW(UpdateTempRec(tempRecID, blk.LocID, rbyloc, 0));
 						THROW(tra.Commit());
 						ok = 1;

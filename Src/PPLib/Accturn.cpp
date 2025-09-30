@@ -603,9 +603,7 @@ bool AccTurnCore::IsFRRLocked() const
 {
 	return (Frrl && Frrl->Counter > 0);
 }
-//
-// @v6.2.3 Заменено чтение записей с блокировками на SearchByID_ForUpdate
-//
+
 int AccTurnCore::LockFRR(PPID accRelID, LDATE dt)
 {
 	int    ok = -1;
@@ -619,14 +617,6 @@ int AccTurnCore::LockFRR(PPID accRelID, LDATE dt)
 			if(AccRel.data.FRRL_Date == 0 || dt < AccRel.data.FRRL_Date)
 				AccRel.data.FRRL_Date = dt;
 			THROW_DB(AccRel.updateRec()); // @sfu
-			/*
-			if(SearchByID_ForUpdate(&AccT, PPOBJ_ACCOUNT, acc_id, 0) > 0) {
-				AccT.data.Flags |= ACF_FRRL;
-				if(AccT.data.FRRL_Date == 0 || dt < AccT.data.FRRL_Date)
-					AccT.data.FRRL_Date = dt;
-				THROW_DB(AccT.updateRec()); // @sfu
-			}
-			*/
 			THROW(AccObj.LockFRR(acc_id, dt, 0 /*lock*/));
 		}
 		ok = 1;
