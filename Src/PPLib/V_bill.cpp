@@ -3402,6 +3402,49 @@ int PPViewBill::AddItem(PPID * pID, PPID opID)
 	}
 }
 
+static int SelectAddByBailmentOrderAction(SelAddBySampleParam * pData)
+{
+	int    ok = -1; //, what = -1;
+	PPID   op_id = 0;
+	TDialog * dlg = new TDialog(DLG_SELWHOBSMPL);
+	if(CheckDialogPtrErr(&dlg)) {
+		ushort v = 0;
+		dlg->AddClusterAssocDef(CTL_SELBBSMPL_WHAT, 0, SelAddBySampleParam::acnStd);
+		dlg->AddClusterAssoc(CTL_SELBBSMPL_WHAT, 1, SelAddBySampleParam::acnBailmentByOrder);
+		dlg->SetClusterData(CTL_SELBBSMPL_WHAT, pData->Action);
+		{
+			PPIDArray op_list;
+			PPObjOprKind op_obj;
+			PPOprKind en_op_rec;
+			for(SEnum en = op_obj.Enum(0); en.Next(&en_op_rec) > 0;) {
+				if(en_op_rec.OpTypeID == PPOPT_WAREHOUSE && oneof2(en_op_rec.SubType, OPSUBT_BAILMENT_PUT, OPSUBT_BAILMENT_GET)) {
+					if(en_op_rec.LinkOpID == pData->SampleBillRec.OpID) {
+						op_list.add(en_op_rec.ID);
+					}
+				}
+			}
+			SetupOprKindCombo(dlg, CTLSEL_SELBBSMPL_OP, pData->OpID, 0, &op_list, OPKLF_OPLIST);
+		}
+		while(ok < 0 && ExecView(dlg) == cmOK) {
+			//dlg->getCtrlData(CTL_SELBBSMPL_WHAT, &v);
+			dlg->GetClusterData(CTL_SELBBSMPL_WHAT, &pData->Action);
+			ok = 1;
+			if(pData->Action == SelAddBySampleParam::acnBailmentByOrder) {
+				dlg->getCtrlData(CTLSEL_SELBBSMPL_OP, &pData->OpID);
+				if(!pData->OpID) {
+					pData->Action = 0;
+					PPErrorByDialog(dlg, CTLSEL_SELBBSMPL_OP, PPERR_OPRKINDNEEDED);
+					ok = -1;
+				}
+			}
+		}
+		delete dlg;
+	}
+	else
+		ok = 0;
+	return ok;
+}
+
 static int SelectAddByRcptAction(SelAddBySampleParam * pData)
 {
 	int    ok = -1; //, what = -1;
@@ -3424,6 +3467,7 @@ static int SelectAddByRcptAction(SelAddBySampleParam * pData)
 			if(pData->Action == SelAddBySampleParam::acnShipmAll) {
 				dlg->getCtrlData(CTLSEL_SELBBSMPL_OP, &pData->OpID);
 				if(!pData->OpID) {
+					pData->Action = 0;
 					PPErrorByDialog(dlg, CTLSEL_SELBBSMPL_OP, PPERR_OPRKINDNEEDED);
 					ok = -1;
 				}
@@ -3664,7 +3708,8 @@ int PPViewBill::AddItemBySample(PPID * pID, PPID sampleBillID)
 	BillTbl::Rec bill_rec;
 	if(sampleBillID && P_BObj->Search(sampleBillID, &bill_rec) > 0) {
 		PPID   bill_id = 0;
-		const  PPID op_type_id = GetOpType(bill_rec.OpID);
+		PPOprKind op_rec;
+		const  PPID op_type_id = GetOpType(bill_rec.OpID, &op_rec);
 		if(Filt.DenyFlags & BillFilt::fDenyAdd)
 			ok = -1;
 		else if(Filt.Flags & BillFilt::fAccturnOnly && op_type_id != PPOPT_AGREEMENT)
@@ -3685,6 +3730,16 @@ int PPViewBill::AddItemBySample(PPID * pID, PPID sampleBillID)
 				case PPOPT_GOODSMODIF: SelectAddByRcptAction(&param); break;
 				case PPOPT_DRAFTEXPEND:
 				case PPOPT_DRAFTRECEIPT: SelectAddByDraftAction(&param, bill_rec); break;
+				case PPOPT_WAREHOUSE: // @v12.4.2
+					{
+						if(op_rec.SubType == OPSUBT_BAILMENT_ORDER)	{
+							SelectAddByBailmentOrderAction(&param);
+						}
+						else {
+							param.Action = SelAddBySampleParam::acnStd;
+						}
+					}
+					break;
 				default: param.Action = SelAddBySampleParam::acnStd; break;
 			}
 			switch(param.Action) {
@@ -3786,6 +3841,10 @@ int PPViewBill::AddItemBySample(PPID * pID, PPID sampleBillID)
 						ok = P_BObj->AddExpendByReceipt(&bill_id, sampleBillID, &param);
 					else
 						ok = -1;
+					break;
+				case SelAddBySampleParam::acnBailmentByOrder: // @v12.4.2
+					// @todo
+					ok = P_BObj->AddBailmentByOrder(&bill_id, sampleBillID, &param);
 					break;
 				default:
 					ok = -1;
@@ -6598,12 +6657,12 @@ int PPViewBill::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBro
 					update = 2;
 				break;
 			case PPVCMD_ADDBYSAMPLE:
-				{
+				if(options & OLW_CANINSERT) {
 					PPID   new_bill_id = 0;
-					if(options & OLW_CANINSERT && (ok = AddItemBySample(&new_bill_id, hdr.ID)) > 0) {
+					ok = AddItemBySample(&new_bill_id, hdr.ID);
+					if(ok > 0) {
 						if(CheckIDForFilt(new_bill_id, 0)) {
-							// Если вновь созданный документ попадает в выборку, то
-							// следующее присвоение обеспечит перевод курсора на этот документ.
+							// Если вновь созданный документ попадает в выборку, то следующее присвоение обеспечит перевод курсора на этот документ.
 							id = new_bill_id;
 						}
 						P_BObj->Dirty(hdr.ID); // @v12.2.1

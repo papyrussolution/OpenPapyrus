@@ -1621,11 +1621,13 @@ SLTEST_R(PPSync) // @v12.4.1 @construction
 						idx_list.shuffle();
 					}
 					uint  iter_no = 0;
-					const int r1 = sync.GetObjMutexState(R_Data.LockedMutexObj.Obj, R_Data.LockedMutexObj.Id);
-					const int r2 = sync.GetObjMutexState(R_Data.UnlockedMutexObj.Obj, R_Data.UnlockedMutexObj.Id);
+					const int r1 = 0;//sync.GetObjMutexState(R_Data.LockedMutexObj.Obj, R_Data.LockedMutexObj.Id);
+					const int r2 = 0;//sync.GetObjMutexState(R_Data.UnlockedMutexObj.Obj, R_Data.UnlockedMutexObj.Id);
 					THROW(r1 > 0);
 					THROW(r2 <= 0);
 					do {
+						const uint create_mutex_try_count_max = 4;
+						uint create_mutex_try_count = 0;
 						for(uint i = 0; i < idx_list.getCount(); i++) {
 							iter_no++;
 							const uint idx = idx_list.get(i);
@@ -1635,9 +1637,12 @@ SLTEST_R(PPSync) // @v12.4.1 @construction
 							const uint _delay_ms = 1000 + (idx * 50);
 							SDelay(_delay_ms);
 							//int r = sync.GetObjMutexState(r_oid.Obj, r_oid.Id);
-							int r3 = sync.CreateMutex_(DS.GetConstTLA().GetThreadID(), r_oid.Obj, r_oid.Id, &mtx_id, 0);
+							int r3 = 0;
+							for(create_mutex_try_count = 0; r3 <= 0 && create_mutex_try_count < create_mutex_try_count_max; create_mutex_try_count++) {
+								r3 = sync.CreateMutex_(DS.GetConstTLA().GetThreadID(), r_oid.Obj, r_oid.Id, &mtx_id, 0);
+							}
 							if(r3 > 0) {
-								SDelay(50);
+								SDelay(10);
 								sync.ReleaseMutex(mtx_id);
 							}
 							else {

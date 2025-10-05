@@ -4,7 +4,6 @@
 //
 #include <pp.h>
 #pragma hdrstop
-//#include <graph.h>
 
 TrfrAnlzViewItem::TrfrAnlzViewItem()
 {
@@ -1835,7 +1834,7 @@ int PPViewTrfrAnlz::InitIteration(IterOrder ord)
 			const BNFieldList & r_debug_fl = P_TrAnlzTbl->GetFields();
 			r_debug_fl.RecordToStr(0, temp_buf);
 			f_out.WriteLine(temp_buf.CR());
-			for(debug_q.initIteration(0, k0, spFirst); debug_q.nextIteration() > 0;) {
+			for(debug_q.initIteration(false, k0, spFirst); debug_q.nextIteration() > 0;) {
 				r_debug_fl.RecordToStr(&P_TrAnlzTbl->data, temp_buf);
 				f_out.WriteLine(temp_buf.CR());
 			}
@@ -1890,7 +1889,7 @@ int PPViewTrfrAnlz::NextInnerIteration(TrfrAnlzViewItem * pItem)
 				BtrDbKey k0_;
 				P_IterQuery = new BExtQuery(P_TrAnlzTbl, 0);
 				P_IterQuery->selectAll();
-				P_IterQuery->initIteration(0, k0_, spFirst);
+				P_IterQuery->initIteration(false, k0_, spFirst);
 			}
 			r = P_IterQuery->nextIteration();
 			if(r > 0) {
@@ -1925,7 +1924,7 @@ int PPViewTrfrAnlz::NextInnerIteration(TrfrAnlzViewItem * pItem)
 			BtrDbKey k0_;
 			P_IterQuery = new BExtQuery(P_TrGrpngTbl, 1);
 			P_IterQuery->selectAll();
-			P_IterQuery->initIteration(0, k0_, spFirst);
+			P_IterQuery->initIteration(false, k0_, spFirst);
 		}
 		r = P_IterQuery->nextIteration();
 		if(r > 0)
@@ -2185,12 +2184,177 @@ bool PPViewTrfrAnlz::IsExtFactorEmpty() const
 	return extfactor_is_empty;
 }
 
+void PPViewTrfrAnlz::PreprocessBrowser(PPViewBrowser * pBrw)
+{
+	if(pBrw) {
+		if(!P_Ct) {
+			const DBQBrowserDef * p_def = static_cast<const DBQBrowserDef *>(pBrw->getDef());
+			if(Filt.Grp == TrfrAnlzFilt::gGoodsDate) {
+				pBrw->InsColumn(1, "@date", 3, 0, MKSFMT(0, DATF_DMY), 0); // #3
+			}
+			if(Filt.Flags & TrfrAnlzFilt::fCalcRest) {
+				pBrw->insertColumn(-1, "Rest", 24, 0, MKSFMTD(0, 3, NMBF_NOZERO), 0);
+				if(Filt.RestAddendumValue & TrfrAnlzFilt::ravTurnoverRate) {
+					pBrw->insertColumn(-1, "Turnover", 25, 0, MKSFMTD(0, 6, NMBF_NOZERO), 0); // #25
+				}
+			}
+			if(p_def) {
+				const DBQuery * p_q = p_def->getQuery();
+				{   
+					// @v12.4.2 {
+					if(P_TrAnlzTbl) {
+						if(Flags & fAsGoodsCard) {
+							;
+						}
+						else if(oneof2(Filt.Sgg, sggSupplAgent, sggSuppl)) {
+							const int price_col_idx = p_def->FindColumnByOrgOffs(8);
+							if(price_col_idx >= 0) {
+								pBrw->insertColumn(price_col_idx+1, "@discount", 18, 0, MKSFMTD(0, 2, NMBF_NOZERO), 0); // #18
+							}
+						}
+						else {
+							const int price_col_idx = p_def->FindColumnByOrgOffs(8);
+							if(price_col_idx >= 0) {
+								pBrw->insertColumn(price_col_idx+1, "@discount", 22, 0, MKSFMTD(0, 2, NMBF_NOZERO), 0); // #22
+							}
+						}
+					}
+					// } @v12.4.2 
+				}
+				if(!IsExtFactorEmpty()) {
+					SString ext_factor_title;
+					GetExtFactorTitle(ext_factor_title);
+					if(!(Flags & fAsGoodsCard) && !oneof2(Filt.Sgg, sggSupplAgent, sggSuppl)) {
+						int    col_pos = -1;
+						if(P_TrAnlzTbl) {
+							for(uint i = 0; col_pos < 0 && i < p_def->getCount(); i++)
+								if(p_def->at(i).OrgOffs == 5)                                 // #5 contractor
+									col_pos = static_cast<int>(i);
+							if(col_pos >= 0)
+								pBrw->insertColumn(++col_pos, ext_factor_title, 21, 0, 0, 0); // #21
+						}
+						else if(P_TrGrpngTbl) {
+							for(uint i = 0; col_pos < 0 && i < p_def->getCount(); i++)
+								if(p_def->at(i).OrgOffs == 7)                                 // #7
+									col_pos = static_cast<int>(i);
+							if(col_pos >= 0)
+								pBrw->insertColumn(++col_pos, ext_factor_title, 26, 0, 0, 0); // #26
+						}
+					}
+				}
+				if(Filt.Flags & TrfrAnlzFilt::fCalcVat) {
+					if(p_q) {
+						uint pos = 0;
+						if(p_q->getFieldPosByName("PVat", &pos)) {
+							pBrw->InsColumn(-1, "@vat", pos, 0, MKSFMTD(0, 2, NMBF_NOZERO), 0);
+						}
+					}
+				}
+				if(!(Flags & fAsGoodsCard) && Filt.Sgg == sggNone) {
+					int    col_pos = -1;
+					if(P_TrAnlzTbl) {
+						for(uint i = 0; col_pos < 0 && i < p_def->getCount(); i++)
+							if(p_def->at(i).OrgOffs == 3)                                     // #3
+								col_pos = static_cast<int>(i);
+						if(col_pos >= 0) {
+							if(Filt.Flags & TrfrAnlzFilt::fShowGoodsCode)
+								pBrw->InsColumn(++col_pos, "@barcode", 18, 0, 0, 0);
+							if(Filt.Flags & TrfrAnlzFilt::fShowSerial)
+								pBrw->InsColumn(++col_pos, "@serial", 19, 0, 0, 0);
+						}
+					}
+					else if(P_TrGrpngTbl) {
+						if(Filt.Flags & TrfrAnlzFilt::fShowGoodsCode) {
+							for(uint i = 0; col_pos < 0 && i < p_def->getCount(); i++)
+								if(p_def->at(i).OrgOffs == 6)                                 // #6
+									col_pos = static_cast<int>(i);
+							if(col_pos >= 0)
+								pBrw->InsColumn(++col_pos, "@barcode", 23, 0, 0, 0);
+						}
+					}
+				}
+				if(Filt.Flags & Filt.fCmpWrOff) {
+					uint pos = 0;
+					if(p_q) {
+						if(!(Flags & fAsGoodsCard) && Filt.Sgg == sggNone) {
+							pBrw->InsColumn(-1, "LinkDate", 20, 0, DATF_DMY, 0);
+						}
+						if(p_q->getFieldPosByName("LinkQtty", &pos))
+							pBrw->InsColumn(-1, "LinkQtty", pos, 0, MKSFMTD(0, 3, NMBF_NOZERO), 0);
+						if(p_q->getFieldPosByName("LinkCost", &pos))
+							pBrw->InsColumn(-1, "LinkCost", pos, 0, MKSFMTD(0, 3, NMBF_NOZERO), 0);
+						if(p_q->getFieldPosByName("LinkPrice", &pos))
+							pBrw->InsColumn(-1, "LinkPrice", pos, 0, MKSFMTD(0, 3, NMBF_NOZERO), 0);
+					}
+				}
+				if(Filt.ExtValueParam[0]) {
+					uint pos = 0;
+					if(p_q && p_q->getFieldPosByName("ExtVal1", &pos))
+						pBrw->InsColumn(-1, "ExtVal1", pos, 0, MKSFMTD(0, 2, NMBF_NOZERO), 0);
+				}
+				if(Filt.Flags & TrfrAnlzFilt::fShowCargo) {
+					uint pos = 0;
+					if(p_q && p_q->getFieldPosByName("Brutto", &pos))
+						pBrw->InsColumn(-1, "@cargobrutto", pos, 0, MKSFMTD(0, 3, NMBF_NOZERO), 0);
+				}
+			}
+		}
+		else {
+			BroCrosstab ct_col;
+			BrowserDef * p_def = pBrw->getDef();
+			if(p_def) {
+				uint col_width = 20;
+				SString title, buf;
+#define ADDCTCOLUMN(type, caption, format, options, width) \
+			ct_col.P_Text    = newStr(caption); \
+			ct_col.Type    = type; \
+			ct_col.Format  = format; \
+			ct_col.Options = options;  \
+			ct_col.Width   = width; \
+			p_def->AddCrosstab(&ct_col);
+
+				p_def->FreeAllCrosstab();
+				if(Filt.CtValList.CheckID(TrfrAnlzFilt::ctvQtty)) {
+					GetCtColumnTitle(TrfrAnlzFilt::ctvQtty, title);
+					ADDCTCOLUMN(T_DOUBLE, title, MKSFMTD(col_width, 2, NMBF_NOZERO), 0, col_width);
+				}
+				if(Filt.CtValList.CheckID(TrfrAnlzFilt::ctvCost)) {
+					GetCtColumnTitle(TrfrAnlzFilt::ctvCost, title);
+					ADDCTCOLUMN(T_DOUBLE, title, MKSFMTD(col_width, 2, NMBF_NOZERO), 0, col_width);
+				}
+				if(Filt.CtValList.CheckID(TrfrAnlzFilt::ctvNetPrice)) {
+					GetCtColumnTitle(TrfrAnlzFilt::ctvNetPrice, title);
+					ADDCTCOLUMN(T_DOUBLE, title, MKSFMTD(col_width, 2, NMBF_NOZERO), 0, col_width);
+				}
+				if(Filt.CtValList.CheckID(TrfrAnlzFilt::ctvPctMargin)) {
+					GetCtColumnTitle(TrfrAnlzFilt::ctvPctMargin, title);
+					ADDCTCOLUMN(T_DOUBLE, title, MKSFMTD(10, 2, NMBF_NOZERO), 0, 10);
+				}
+				else if(Filt.CtValList.CheckID(TrfrAnlzFilt::ctvPctIncome)) {
+					GetCtColumnTitle(TrfrAnlzFilt::ctvPctIncome, title);
+					ADDCTCOLUMN(T_DOUBLE, title, MKSFMTD(10, 2, NMBF_NOZERO), 0, 10);
+				}
+				else if(Filt.CtValList.CheckID(TrfrAnlzFilt::ctvIncome)) {
+					GetCtColumnTitle(TrfrAnlzFilt::ctvIncome, title);
+					ADDCTCOLUMN(T_DOUBLE, title, MKSFMTD(10, 2, NMBF_NOZERO), 0, 10);
+				}
+				if(Filt.CtValList.CheckID(TrfrAnlzFilt::ctvLocCount)) {
+					GetCtColumnTitle(TrfrAnlzFilt::ctvLocCount, title);
+					ADDCTCOLUMN(T_LONG, title, MKSFMT(col_width, NMBF_NOZERO), 0, col_width);
+				}
+			}
+			P_Ct->SetupBrowserCtColumns(pBrw);
+		}
+		pBrw->SetTempGoodsGrp(Filt.GoodsGrpID);
+	}
+}
+
 DBQuery * PPViewTrfrAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	DbqFuncTab::RegisterDyn(&DynFuncGetRest,    BTS_REAL, dbqf_trfrnalz_getrest_iidp,       4, BTS_INT, BTS_INT, BTS_DATE, BTS_PTR);
 	DbqFuncTab::RegisterDyn(&DynFuncGetAvgRest, BTS_REAL, dbqf_trfrnalz_getavgrest_iidp,    4, BTS_INT, BTS_INT, BTS_DATE, BTS_PTR);
 	DbqFuncTab::RegisterDyn(&DynFuncGetTrnovr,  BTS_REAL, dbqf_trfrnalz_getturnover_iidprr, 6, BTS_INT, BTS_INT, BTS_DATE, BTS_PTR, BTS_REAL, BTS_REAL);
-	DbqFuncTab::RegisterDyn(&DynFuncExtFactor,  BTS_STRING, dbqf_trfrnalz_extfactor_iiiii,  5, BTS_INT, BTS_INT, BTS_INT, BTS_INT, BTS_INT); // @v11.0.2 // @v11.1.0 (5-th arg added)
+	DbqFuncTab::RegisterDyn(&DynFuncExtFactor,  BTS_STRING, dbqf_trfrnalz_extfactor_iiiii,  5, BTS_INT, BTS_INT, BTS_INT, BTS_INT, BTS_INT); // @v11.1.0 (5-th arg added)
 
 	uint   brw_id = 0;
 	TempTrfrAnlzTbl  * tat = 0;
@@ -2206,14 +2370,13 @@ DBQuery * PPViewTrfrAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	DBE    dbe_trnovr;
 	DBE    dbe_linkdate;
 	DBE    dbe_extfactor;
-	DBQ  * dbq = 0, * dbq2 = 0;
+	DBQ  * dbq = 0;
+	DBQ  * dbq2 = 0;
 	DBQuery * q = 0;
-	// @v11.0.2 {
 	const bool extfactor_is_empty = IsExtFactorEmpty();
 	dbe_extfactor.init();
 	if(extfactor_is_empty)
 		dbe_extfactor.push(static_cast<DBFunc>(PPDbqFuncPool::IdEmpty));
-	// } @v11.0.2 
 	if(P_Ct) {
 		if(Filt.Grp == TrfrAnlzFilt::gCntragentDate)
 			brw_id = (Filt.Flags & TrfrAnlzFilt::fDiffByDlvrAddr) ? BROWSER_TRFRGR_CT_PD : BROWSER_TRFRGR_CT_P;
@@ -2256,7 +2419,8 @@ DBQuery * PPViewTrfrAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 				q->from(tat, 0L).orderBy(tat->Dt, tat->OprNo, 0L);
 				delete p_mult;
 				if(pSubTitle) {
-					SString loc_name, goods_name;
+					SString loc_name;
+					SString goods_name;
 					GetExtLocationName(Filt.LocList, 3, loc_name);
 					*pSubTitle = 0;
 					pSubTitle->Cat(loc_name).CatDiv('-', 1).Cat(GetGoodsName(Filt.GoodsID, goods_name));
@@ -2264,7 +2428,8 @@ DBQuery * PPViewTrfrAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 			}
 			else {
 				int    goods_as_ar = 0;
-				DBE    dbe_cost, dbe_price;
+				DBE    dbe_cost;
+				DBE    dbe_price;
 				DBE    dbe_loc;
 				PPDbqFuncPool::InitObjNameFunc(dbe_loc, PPDbqFuncPool::IdObjNameLoc, tat->LocID);
 				brw_id = BROWSER_TRFRANLZ;
@@ -2305,6 +2470,7 @@ DBQuery * PPViewTrfrAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 						tat->LinkPrice, // #15
 						tat->ExtVal1,   // #16
 						tat->Brutto,    // #17
+						tat->Discount,  // #18 // @v12.4.2 Скидка к номинальной цене (уже учтена в tat->Price и dbe_price)
 						0L);
 					dbq2 = &(at2->ID += (tat->GoodsID & ~GOODSSUBSTMASK));
 				}
@@ -2370,6 +2536,7 @@ DBQuery * PPViewTrfrAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 						q->addField(tat->ID__);  // #20 @stub
 					}
 					q->addField(dbe_extfactor);  // #21 // @v11.0.2
+					q->addField(tat->Discount);  // #22 // @v12.4.2 Скидка к номинальной цене (уже учтена в tat->Price и dbe_price)
 				}
 				if(P_OrderTbl) {
 					// if !goods_as_ar then at2 == 0
@@ -2398,7 +2565,6 @@ DBQuery * PPViewTrfrAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 			}
 			DBFieldList fld_list;
 			THROW(CheckTblPtr(tgt = new TempTrfrGrpngTbl(P_TrGrpngTbl->GetName())));
-			// @v11.0.2 {
 			if(!extfactor_is_empty) {
 				dbe_extfactor.push(dbconst(Filt.ExtFactorParam[0]));
 				dbe_extfactor.push(dbconst(Filt.ExtFactorAddendum[0]));
@@ -2407,7 +2573,6 @@ DBQuery * PPViewTrfrAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 				dbe_extfactor.push(tgt->DlvrLocID); // @v11.1.0
 				dbe_extfactor.push(static_cast<DBFunc>(DynFuncExtFactor));
 			}
-			// } @v11.0.2 
 			fld_list.Add(tgt->ID__);       //  #0
 			fld_list.Add(tgt->GoodsID);    //  #1
 			fld_list.Add(tgt->PersonID);   //  #2
@@ -2687,152 +2852,6 @@ SString & PPViewTrfrAnlz::GetCtColumnTitle(const int ct, SString & rBuf)
 	return rBuf;
 }
 
-void PPViewTrfrAnlz::PreprocessBrowser(PPViewBrowser * pBrw)
-{
-	if(pBrw) {
-		if(!P_Ct) {
-			const DBQBrowserDef * p_def = static_cast<const DBQBrowserDef *>(pBrw->getDef());
-			if(Filt.Grp == TrfrAnlzFilt::gGoodsDate) {
-				pBrw->InsColumn(1, "@date", 3, 0, MKSFMT(0, DATF_DMY), 0);
-			}
-			if(Filt.Flags & TrfrAnlzFilt::fCalcRest) {
-				pBrw->insertColumn(-1, "Rest", 24, 0, MKSFMTD(0, 3, NMBF_NOZERO), 0);
-				if(Filt.RestAddendumValue & TrfrAnlzFilt::ravTurnoverRate) {
-					pBrw->insertColumn(-1, "Turnover", 25, 0, MKSFMTD(0, 6, NMBF_NOZERO), 0);
-				}
-			}
-			if(p_def) {
-				const DBQuery * p_q = p_def->getQuery();
-				// @v11.0.2 {
-				if(!IsExtFactorEmpty()) {
-					SString ext_factor_title;
-					GetExtFactorTitle(ext_factor_title);
-					if(!(Flags & fAsGoodsCard) && !oneof2(Filt.Sgg, sggSupplAgent, sggSuppl)) {
-						int    col_pos = -1;
-						if(P_TrAnlzTbl) {
-							for(uint i = 0; col_pos < 0 && i < p_def->getCount(); i++)
-								if(p_def->at(i).OrgOffs == 5) // #5 contractor
-									col_pos = static_cast<int>(i);
-							if(col_pos >= 0)
-								pBrw->insertColumn(++col_pos, ext_factor_title, 21, 0, 0, 0); // #21
-						}
-						else if(P_TrGrpngTbl) {
-							for(uint i = 0; col_pos < 0 && i < p_def->getCount(); i++)
-								if(p_def->at(i).OrgOffs == 7) // #7
-									col_pos = static_cast<int>(i);
-							if(col_pos >= 0)
-								pBrw->insertColumn(++col_pos, ext_factor_title, 26, 0, 0, 0); // #26
-						}
-					}
-				}
-				// } @v11.0.2 
-				if(Filt.Flags & TrfrAnlzFilt::fCalcVat) {
-					if(p_q) {
-						uint pos = 0;
-						if(p_q->getFieldPosByName("PVat", &pos)) {
-							pBrw->InsColumn(-1, "@vat", pos, 0, MKSFMTD(0, 2, NMBF_NOZERO), 0);
-						}
-					}
-				}
-				if(!(Flags & fAsGoodsCard) && Filt.Sgg == sggNone) {
-					int    col_pos = -1;
-					if(P_TrAnlzTbl) {
-						for(uint i = 0; col_pos < 0 && i < p_def->getCount(); i++)
-							if(p_def->at(i).OrgOffs == 3) // #3
-								col_pos = static_cast<int>(i);
-						if(col_pos >= 0) {
-							if(Filt.Flags & TrfrAnlzFilt::fShowGoodsCode)
-								pBrw->InsColumn(++col_pos, "@barcode", 18, 0, 0, 0);
-							if(Filt.Flags & TrfrAnlzFilt::fShowSerial)
-								pBrw->InsColumn(++col_pos, "@serial", 19, 0, 0, 0);
-						}
-					}
-					else if(P_TrGrpngTbl) {
-						if(Filt.Flags & TrfrAnlzFilt::fShowGoodsCode) {
-							for(uint i = 0; col_pos < 0 && i < p_def->getCount(); i++)
-								if(p_def->at(i).OrgOffs == 6) // #6
-									col_pos = static_cast<int>(i);
-							if(col_pos >= 0)
-								pBrw->InsColumn(++col_pos, "@barcode", 23, 0, 0, 0);
-						}
-					}
-				}
-				if(Filt.Flags & Filt.fCmpWrOff) {
-					uint pos = 0;
-					if(p_q) {
-						if(!(Flags & fAsGoodsCard) && Filt.Sgg == sggNone) {
-							pBrw->InsColumn(-1, "LinkDate", 20, 0, DATF_DMY, 0);
-						}
-						if(p_q->getFieldPosByName("LinkQtty", &pos))
-							pBrw->InsColumn(-1, "LinkQtty", pos, 0, MKSFMTD(0, 3, NMBF_NOZERO), 0);
-						if(p_q->getFieldPosByName("LinkCost", &pos))
-							pBrw->InsColumn(-1, "LinkCost", pos, 0, MKSFMTD(0, 3, NMBF_NOZERO), 0);
-						if(p_q->getFieldPosByName("LinkPrice", &pos))
-							pBrw->InsColumn(-1, "LinkPrice", pos, 0, MKSFMTD(0, 3, NMBF_NOZERO), 0);
-					}
-				}
-				if(Filt.ExtValueParam[0]) {
-					uint pos = 0;
-					if(p_q && p_q->getFieldPosByName("ExtVal1", &pos))
-						pBrw->InsColumn(-1, "ExtVal1", pos, 0, MKSFMTD(0, 2, NMBF_NOZERO), 0);
-				}
-				if(Filt.Flags & TrfrAnlzFilt::fShowCargo) {
-					uint pos = 0;
-					if(p_q && p_q->getFieldPosByName("Brutto", &pos))
-						pBrw->InsColumn(-1, "@cargobrutto", pos, 0, MKSFMTD(0, 3, NMBF_NOZERO), 0);
-				}
-			}
-		}
-		else {
-			BroCrosstab ct_col;
-			BrowserDef * p_def = pBrw->getDef();
-			if(p_def) {
-				uint col_width = 20;
-				SString title, buf;
-#define ADDCTCOLUMN(type, caption, format, options, width) \
-			ct_col.P_Text    = newStr(caption); \
-			ct_col.Type    = type; \
-			ct_col.Format  = format; \
-			ct_col.Options = options;  \
-			ct_col.Width   = width; \
-			p_def->AddCrosstab(&ct_col);
-
-				p_def->FreeAllCrosstab();
-				if(Filt.CtValList.CheckID(TrfrAnlzFilt::ctvQtty)) {
-					GetCtColumnTitle(TrfrAnlzFilt::ctvQtty, title);
-					ADDCTCOLUMN(T_DOUBLE, title, MKSFMTD(col_width, 2, NMBF_NOZERO), 0, col_width);
-				}
-				if(Filt.CtValList.CheckID(TrfrAnlzFilt::ctvCost)) {
-					GetCtColumnTitle(TrfrAnlzFilt::ctvCost, title);
-					ADDCTCOLUMN(T_DOUBLE, title, MKSFMTD(col_width, 2, NMBF_NOZERO), 0, col_width);
-				}
-				if(Filt.CtValList.CheckID(TrfrAnlzFilt::ctvNetPrice)) {
-					GetCtColumnTitle(TrfrAnlzFilt::ctvNetPrice, title);
-					ADDCTCOLUMN(T_DOUBLE, title, MKSFMTD(col_width, 2, NMBF_NOZERO), 0, col_width);
-				}
-				if(Filt.CtValList.CheckID(TrfrAnlzFilt::ctvPctMargin)) {
-					GetCtColumnTitle(TrfrAnlzFilt::ctvPctMargin, title);
-					ADDCTCOLUMN(T_DOUBLE, title, MKSFMTD(10, 2, NMBF_NOZERO), 0, 10);
-				}
-				else if(Filt.CtValList.CheckID(TrfrAnlzFilt::ctvPctIncome)) {
-					GetCtColumnTitle(TrfrAnlzFilt::ctvPctIncome, title);
-					ADDCTCOLUMN(T_DOUBLE, title, MKSFMTD(10, 2, NMBF_NOZERO), 0, 10);
-				}
-				else if(Filt.CtValList.CheckID(TrfrAnlzFilt::ctvIncome)) {
-					GetCtColumnTitle(TrfrAnlzFilt::ctvIncome, title);
-					ADDCTCOLUMN(T_DOUBLE, title, MKSFMTD(10, 2, NMBF_NOZERO), 0, 10);
-				}
-				if(Filt.CtValList.CheckID(TrfrAnlzFilt::ctvLocCount)) {
-					GetCtColumnTitle(TrfrAnlzFilt::ctvLocCount, title);
-					ADDCTCOLUMN(T_LONG, title, MKSFMT(col_width, NMBF_NOZERO), 0, col_width);
-				}
-			}
-			P_Ct->SetupBrowserCtColumns(pBrw);
-		}
-		pBrw->SetTempGoodsGrp(Filt.GoodsGrpID);
-	}
-}
-
 int PPViewTrfrAnlz::Print(const void *)
 {
 	int    ok = 1/*, order = 0*/;
@@ -2882,8 +2901,7 @@ int PPViewTrfrAnlz::Detail(const void * pHdr, PPViewBrowser * pBrw)
 			PPID   tab_id = 0;
 			int    r = 0;
 			//
-			// Расчет смещения осуществляется в соответствии с установкой полей
-			// в функции  PPViewTrfrAnlz::CreateBrowserQuery
+			// Расчет смещения осуществляется в соответствии с установкой полей в функции  PPViewTrfrAnlz::CreateBrowserQuery
 			//
 			const uint _aggr_count = P_Ct->GetAggrCount();
 			if(oneof2(Filt.Grp, TrfrAnlzFilt::gCntragentDate, TrfrAnlzFilt::gGoodsDate)) {

@@ -11882,6 +11882,8 @@
 	// CTL_LOCTRANSF_XXX
 #define DLG_OPKMORE_WH            1484 // @v12.4.1 Опции складской операции
 	// CTL_OPKMORE_XXX
+#define DLG_SELWHOBSMPL           1485 // @v12.4.2 Выбор способа создания документа по образцу документа заказа размещения основных фондов
+	// Ctrls same as for DLG_SELBBSMPL
 //
 // Win32 Dialog Identifiers
 //

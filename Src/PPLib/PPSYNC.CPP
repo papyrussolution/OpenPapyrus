@@ -4,7 +4,7 @@
 //
 #include <pp.h>
 #pragma hdrstop
-//@v12.4.1 #include <share.h>
+#include <share.h>
 //@v11.7.1 #include <sys/locking.h>
 
 #define LOCK_MAGIC        0x18051974L
@@ -22,7 +22,7 @@ PPSyncItem::PPSyncItem() : ID(0), Type(0), UserID(0), ObjType(0), ObjID(0), Coun
 	Name[0] = 0;
 }
 
-PPSync::PPSync() : Handle(-1)/* @v12.4.1, NoSHARE(0)*/
+PPSync::PPSync() : Handle(-1), NoSHARE(0)
 {
 }
 
@@ -57,7 +57,10 @@ int PPSync::Release()
 	return ok;
 }
 
-SString & PPSync::GetFileName(SString & rBuf) const { return (rBuf = DataPath).SetLastSlash().Cat("ppsync").DotCat("bin"); }
+SString & PPSync::GetFileName(SString & rBuf) const
+{
+	return (rBuf = DataPath).SetLastSlash().Cat("ppsync").DotCat("bin");
+}
 
 int PPSync::Init(const char * pDataPath)
 {
@@ -69,7 +72,7 @@ int PPSync::Init(const char * pDataPath)
 		_close(Handle);
 		Handle = -1;
 	}
-	// @v12.4.1 NoSHARE = 0;
+	NoSHARE = 0;
 	DataPath = pDataPath;
 	GetFileName(file_name);
 	THROW(::access(file_name, 0) == 0 || (empty_file_created = CreateEmptyFile()) != 0);
@@ -139,8 +142,15 @@ int PPSync::ImplementGetBlock(ulong offs, void * pBuf, int * pIsLocked)
 	return ok;
 }
 
-int PPSync::GetHeader(ulong offs, PPSyncHeader * hdr, int * isLocked) { return ImplementGetBlock(offs, hdr, isLocked); }
-int PPSync::GetItem(ulong offs, PPSyncItem * blk, int * isLocked) { return offs ? ImplementGetBlock(offs, blk, isLocked) : PPSetError(PPERR_SYNCINVOFFS, DataPath); }
+int PPSync::GetHeader(ulong offs, PPSyncHeader * hdr, int * isLocked)
+{
+	return ImplementGetBlock(offs, hdr, isLocked);
+}
+
+int PPSync::GetItem(ulong offs, PPSyncItem * blk, int * isLocked)
+{
+	return offs ? ImplementGetBlock(offs, blk, isLocked) : PPSetError(PPERR_SYNCINVOFFS, DataPath);
+}
 
 int PPSync::GetItemsList(long recType, PPSyncArray * pList)
 {
@@ -150,13 +160,10 @@ int PPSync::GetItemsList(long recType, PPSyncArray * pList)
 	PPSyncItem item;
 	CALLPTRMEMB(pList, freeAll());
 	if(IsValid() && GetInitPosition(&o, &numrecs) > 0) { // @v11.1.12 IsValid()
-		if(pList) {
-			for(long i = 0; i < numrecs; AdvanceOffset(&o), i++) {
-				if(GetItem(o, &item, 0) > 0 && item.Type == recType && item.ID && IsLocked(o)) {
+		if(pList)
+			for(long i = 0; i < numrecs; AdvanceOffset(&o), i++)
+				if(GetItem(o, &item, 0) > 0 && item.Type == recType && item.ID && IsLocked(o))
 					ok = pList->insert(&item) ? 1 : PPSetErrorSLib();
-				}
-			}
-		}
 	}
 	else
 		ok = 0;
@@ -171,12 +178,11 @@ int PPSync::GetItem(PPID id, PPSyncItem * pItem)
 	PPSyncItem item;
 	if(id) {
 		if(GetInitPosition(&o, &numrecs) > 0) {
-			for(long i = 0; ok != 1 && i < numrecs; AdvanceOffset(&o), i++) {
+			for(long i = 0; ok != 1 && i < numrecs; AdvanceOffset(&o), i++)
 				if(GetItem(o, &item, 0) > 0 && item.ID == id && IsLocked(o)) {
 					ASSIGN_PTR(pItem, item);
 					ok = 1;
 				}
-			}
 		}
 		else
 			ok = 0;
@@ -262,7 +268,8 @@ int PPSync::GetFreeEntry(ulong * offs, long * id)
 	return ok;
 }
 
-long PPSync::AddRecord(long type, long appID, const char * pName, long objtype, long objid, ulong * pOffs, const MACAddr * pMachineID, ulong terminalSessID)
+long PPSync::AddRecord(long type, long appID, const char * pName,
+	long objtype, long objid, ulong * pOffs, const MACAddr * pMachineID, ulong terminalSessID)
 {
 	long   rec_id = 0;
 	PPSyncItem rec;
@@ -316,37 +323,18 @@ int PPSync::ReleaseItem(ulong offs)
 int PPSync::Lock(ulong offs, bool checkOnly)
 {
 	int    ok = 1;
-	const  uint   max_try_count = 2;
-	const  uint   try_delay_ms = 500;
-	uint   try_count = 0;
 	if(CheckOffset(offs)) {
-		// @v12.4.1 if(!NoSHARE) {
-		_lseek(Handle, offs, SEEK_SET);
-		for(bool do_try = true; ok && do_try;) {
-			const int _lr = _locking(Handle, LK_NBLCK, LOCK_PRFX_SIZE);
-			if(_lr == 0)
-				do_try = false;
-			else {
-				if(errno == EACCES && ++try_count < max_try_count) {
-					SDelay(try_delay_ms);
+		if(!NoSHARE) {
+			_lseek(Handle, offs, SEEK_SET);
+			if(_locking(Handle, LK_NBLCK, LOCK_PRFX_SIZE) < 0) {
+				if(errno == EINVAL) {
+					NoSHARE = 1;
+					PPLogMessage(PPFILNAM_ERR_LOG, "PPSync locking error EINVAL - turned on NoSHARE mode", LOGMSGF_TIME|LOGMSGF_USER); // @7.7.10 @debug
 				}
-				else {
-					do_try = false;
-					if(errno == EINVAL) {
-						// @v12.4.1 NoSHARE = 1;
-						// @v12.4.1 PPLogMessage(PPFILNAM_ERR_LOG, "PPSync locking error EINVAL - turned on NoSHARE mode", LOGMSGF_TIME|LOGMSGF_USER); // @7.7.10 @debug
-						// @todo @err
-						ok = 0;
-					}
-					else {
-						if(!checkOnly)
-							PPSetError(PPERR_SYNCLOCKFAULT, DataPath);
-						ok = 0;
-					}
-				}
+				else
+					ok = checkOnly ? 0 : PPSetError(PPERR_SYNCLOCKFAULT, DataPath);
 			}
 		}
-		// @v12.4.1 }
 	}
 	else
 		ok = 0;
@@ -357,19 +345,17 @@ int FASTCALL PPSync::Unlock(ulong offs)
 {
 	int    ok = 1;
 	if(CheckOffset(offs)) {
-		// @v12.4.1 if(!NoSHARE) {
-		_lseek(Handle, offs, SEEK_SET);
-		if(_locking(Handle, LK_UNLCK, LOCK_PRFX_SIZE) < 0) {
-			if(errno == EINVAL) {
-				// @v12.4.1 NoSHARE = 1;
-				// @v12.4.1 PPLogMessage(PPFILNAM_ERR_LOG, "PPSync unlocking error EINVAL - turned on NoSHARE mode", LOGMSGF_TIME|LOGMSGF_USER); // @7.7.10 @debug
-				// @todo @err
-				ok = 0; // @v12.4.1 
+		if(!NoSHARE) {
+			_lseek(Handle, offs, SEEK_SET);
+			if(_locking(Handle, LK_UNLCK, LOCK_PRFX_SIZE) < 0) {
+				if(errno == EINVAL) {
+					NoSHARE = 1;
+					PPLogMessage(PPFILNAM_ERR_LOG, "PPSync unlocking error EINVAL - turned on NoSHARE mode", LOGMSGF_TIME|LOGMSGF_USER); // @7.7.10 @debug
+				}
+				else
+					ok = PPSetError(PPERR_SYNCUNLOCKFAULT, DataPath);
 			}
-			else
-				ok = PPSetError(PPERR_SYNCUNLOCKFAULT, DataPath);
 		}
-		// @v12.4.1 }
 	}
 	else
 		ok = 0;
@@ -378,27 +364,21 @@ int FASTCALL PPSync::Unlock(ulong offs)
 
 bool FASTCALL PPSync::IsLocked(ulong offs)
 {
-	bool   result = false;
-	if(Lock(offs, true) > 0) {
+	if(Lock(offs, 1) > 0) {
 		Unlock(offs);
-		result = false;
+		return false;
 	}
 	else
-		result = true;
-	return result;
+		return true;
 }
 
 int PPSync::LockDB()
 {
-	int    ok  = 0;
 	PPSetAddedMsgString(DataPath);
 	if(IsDBInUse())
-		ok = PPSetError(PPERR_SYNCDBINUSE);
-	else {
-		//PPLogMessage(PPFILNAM_INFO_LOG, "BASE IS BLOCK", LOGMSGF_TIME|LOGMSGF_USER); // @debug turistti @v5.3.4
-		ok = Lock(0, 0) ? 1 : PPSetError(PPERR_SYNCMUTEXBUSY);
-	}
-	return ok;
+		return PPSetError(PPERR_SYNCDBINUSE);
+	//PPLogMessage(PPFILNAM_INFO_LOG, "BASE IS BLOCK", LOGMSGF_TIME|LOGMSGF_USER); // @debug turistti @v5.3.4
+	return Lock(0, 0) ? 1 : PPSetError(PPERR_SYNCMUTEXBUSY);
 }
 
 int PPSync::UnlockDB()
@@ -427,7 +407,7 @@ int PPSync::LoginUser(long userID, const char * pUserName, long * pSessID, const
 		ok = 0;
 	else {
 		long   id = AddRecord(PPSYNC_DBLOCK, userID, pUserName, 0, DS.CheckExtFlag(ECF_SYSSERVICE) ? 1 : 0, &offs, pMachineID, terminalSessID);
-		if(id && Lock(offs, false)) {
+		if(id && Lock(offs, 0)) {
 			ASSIGN_PTR(pSessID, id);
 		}
 		else
@@ -440,14 +420,14 @@ int PPSync::LoginUser(long userID, const char * pUserName, long * pSessID, const
 
 int PPSync::LogoutUser(long sessID)
 {
-	int    ok = 0;
 	ulong  offs = 0;
 	if(Handle >= 0 && GetOffsetByID(sessID, &offs) > 0) {
 		ReleaseSessionMutex(sessID);
 		ReleaseItem(offs);
-		ok = 1;
+		return 1;
 	}
-	return ok;
+	else
+		return 0;
 }
 
 int PPSync::IsDBInUse()
@@ -464,41 +444,25 @@ int PPSync::IsDBInUse()
 	return 0;
 }
 
-int PPSync::GetObjMutexState(long objType, long objID) { return SearchMutexByObj(objType, objID, 0, 0); }
-
 int PPSync::SearchMutexByObj(long objType, long objID, PPSyncItem * pItem, ulong * pOffs)
 {
-	int    result = -1;
 	ulong  offs = 0;
 	long   numrecs = 0;
 	PPSyncItem item;
-	bool   unlocked_rec_seen = false;
 	if(GetInitPosition(&offs, &numrecs) > 0) {
-		//
-		// ¬ файле может быть более одного отрезка с идентификацией {objType, objID} по этому мы не можем
-		// выйти из цикла обнаружив незаблокированный отрезок. »менно из-за этого условие выхода из цикла (result <= 0), а не (result < 0)
-		//
-		for(long i = 0; result <= 0 && i < numrecs; AdvanceOffset(&offs), i++) {
+		for(long i = 0; i < numrecs; AdvanceOffset(&offs), i++) {
 			if(GetItem(offs, &item, 0) > 0) {
 				if(item.ID && item.Type == PPSYNC_MUTEX && item.ObjType == objType && item.ObjID == objID) {
 					if(IsLocked(offs)) {
 						ASSIGN_PTR(pItem, item);
 						ASSIGN_PTR(pOffs, offs);
-						result = 1;
-					}
-					else {
-						if(!unlocked_rec_seen) {
-							ASSIGN_PTR(pItem, item);
-							ASSIGN_PTR(pOffs, offs);
-							unlocked_rec_seen = true;
-						}
-						result = 0;
+						return 1;
 					}
 				}
 			}
 		}
 	}
-	return result;
+	return -1;
 }
 
 int PPSync::CreateMutex_(long sessID, long objtype, long objid, long * pMutexID, PPSyncItem * pItem)
@@ -518,9 +482,9 @@ int PPSync::CreateMutex_(long sessID, long objtype, long objid, long * pMutexID,
 		DS.GetMachineID(&mac_addr, 0);
 		GetCurUserName(user_name);
 		ProcessIdToSessionId(GetCurrentProcessId(), &term_sess_id);
-		const long recid = AddRecord(PPSYNC_MUTEX, sessID, user_name.cptr(), objtype, objid, &offs, &mac_addr, term_sess_id);
+		long   recid = AddRecord(PPSYNC_MUTEX, sessID, (const char *)user_name, objtype, objid, &offs, &mac_addr, term_sess_id);
 		if(recid) {
-			if(!Lock(offs, false))
+			if(!Lock(offs, 0))
 				ok = 0;
 			ASSIGN_PTR(pMutexID, recid);
 			if(pItem) {
@@ -583,14 +547,14 @@ int PPSync::ReleaseMutex(long objtype, long objid)
 
 int PPSync::ReleaseMutex(long mutexid)
 {
-	int    ok = 0;
 	ulong  offs = 0;
 	PPSyncItem item;
 	if(GetOffsetByID(mutexid, &offs) > 0) {
 		GetItem(offs, &item, 0);
-		ok = BIN(item.Type == PPSYNC_MUTEX && ReleaseItem(offs));
+		return BIN(item.Type == PPSYNC_MUTEX && ReleaseItem(offs));
 	}
-	return ok;
+	else
+		return 0;
 }
 
 int PPSync::IsMyLock(long sessID, long objtype, long objid)
@@ -601,11 +565,11 @@ int PPSync::IsMyLock(long sessID, long objtype, long objid)
 
 int PPSync::GetLockingText(PPID mutexID, int resolveHostName, SString & rBuf)
 {
+	rBuf.Z();
 	int    ok = -1;
 	SString addr_buf;
 	SString ip_buf;
 	SString mac_addr;
-	rBuf.Z();
 	PPSyncItem item;
 	if(GetItem(mutexID, &item) > 0) {
 		InetAddr addr;

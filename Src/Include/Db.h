@@ -2135,6 +2135,12 @@ public:
 		dbstContinuous = 0x0001  // Одна или более таблиц базы данных находится в состоянии continuous-открытия (для резервного копирования)
 	};
 	//
+	// Descr: Флаги открытия базы данных
+	// 
+	enum {
+		openfReadOnly = 0x0001 // Только для чтения //
+	};
+	//
 	// Descr: Возвращает флаги состояния базы данных по указателю pStateFlags.
 	//   Флаги могут иметь значения DbProvider::dbstXXX (see enum above).
 	// Returns:
@@ -2151,7 +2157,7 @@ public:
 	//
 	virtual int CreateDataFile(const DBTable * pTbl, const char * pFileName, int createMode, const char * pAltCode) = 0;
 	virtual int DropFile(const char * pFileName) = 0;
-	virtual int Login(const DbLoginBlock * pBlk, long options);
+	virtual int DbLogin(const DbLoginBlock * pBlk, long options);
 	virtual int Logout();
 	virtual int PostProcessAfterUndump(DBTable * pTbl);
 	virtual int StartTransaction() = 0;
@@ -2216,6 +2222,7 @@ public:
 	virtual int Fetch(SSqlStmt & rS, uint count, uint * pActualCount);
 	bool   IsValid() const;
 	long   GetState() const { return State; }
+	SqlServerType GetSqlServerType() const { return SqlSt; } // @v12.4.2
 	const  SCompoundError & GetLastError() const { return LastErr; }
 	long   GetCapability() const { return Capability; }
 	int    LoadTableSpec(DBTable * pTbl, const char * pTblName, const char * pFileName, int createIfNExists);
@@ -2282,15 +2289,17 @@ protected:
 	// ARG(pDict IN): Передается в собственность экземпляру DbProvider. Т.е. деструктор
 	//   этого класса разрушит объект по адресу pDict.
 	//
-	DbProvider(DbDictionary * pDict, long capability);
+	DbProvider(SqlServerType sqlServerType, DbDictionary * pDict, long capability);
 	int    GetProtectData();
 	int    GetProtectData(FILE * f, uint16 * buf);
 	void   Common_Login(const DbLoginBlock * pBlk);
 	void   Common_Logout();
 
+	const  SqlServerType SqlSt;
 	long   State;
-	long   DbPathID; // Идентификатор каталога базы данных. Ссылается на таблицу DbSession::DbPathList
+	long   DbPathID;   // Идентификатор каталога базы данных. Ссылается на таблицу DbSession::DbPathList
 	long   Capability;
+	long   OpenMode;   // @v12.4.2 openfXXX Флаги режима открытия базы данных. 
 	DbLoginBlock Lb;
 	S_GUID DbUUID;
 	DbDictionary * P_Dict;
@@ -2322,7 +2331,7 @@ public:
 	virtual int CreateDataFile(const DBTable * pTbl, const char * pFileName, int createMode, const char * pAltCode);
 	virtual int DropFile(const char * pFileName);
 	virtual int GetFileStat(DBTable * pTbl, long reqItems, DbTableStat * pStat);
-	virtual int Login(const DbLoginBlock * pBlk, long options);
+	virtual int DbLogin(const DbLoginBlock * pBlk, long options);
 	virtual int Logout();
 	virtual int StartTransaction();
 	virtual int CommitWork();
@@ -2659,7 +2668,7 @@ public:
 	virtual SString & GetTemporaryFileName(SString & rFileNameBuf, long * pStart, int forceInDataPath);
 	virtual int CreateDataFile(const DBTable * pTbl, const char * pFileName, int createMode, const char * pAltCode);
 	virtual int DropFile(const char * pFileName);
-	virtual int Login(const DbLoginBlock * pBlk, long options);
+	virtual int DbLogin(const DbLoginBlock * pBlk, long options);
 	virtual int Logout();
 	virtual int PostProcessAfterUndump(const DBTable * pTbl);
 	virtual int StartTransaction();
@@ -2809,7 +2818,7 @@ class SMySqlDbProvider : public DbProvider { // @construction
 public:
 	SMySqlDbProvider();
 	~SMySqlDbProvider();
-	virtual int Login(const DbLoginBlock * pBlk, long options);
+	virtual int DbLogin(const DbLoginBlock * pBlk, long options);
 	virtual int Logout();
 	virtual int GetDatabaseState(uint * pStateFlags);
 	virtual SString & MakeFileName_(const char * pTblName, SString & rBuf);
@@ -2941,7 +2950,7 @@ public:
 	};
 	SSqliteDbProvider();
 	~SSqliteDbProvider();
-	virtual int Login(const DbLoginBlock * pBlk, long options);
+	virtual int DbLogin(const DbLoginBlock * pBlk, long options);
 	virtual int Logout();
 	virtual int GetDatabaseState(uint * pStateFlags);
 	virtual SString & MakeFileName_(const char * pTblName, SString & rBuf);
@@ -2975,6 +2984,8 @@ public:
 private:
 	int    FASTCALL ProcessError(int status);
 	static sqlite3_stmt * FASTCALL StmtHandle(const SSqlStmt & rS);
+	static int  CbTrace(uint flag, void * pCtx, void * p, void * x); // Callback-функция для отладочной трассировки работы sqlite
+	static void CbDebugLog(void * pUserData, int errCode, const char * pMsg);
 	int    GetFileStat(const char * pFileName/*регистр символов важен!*/, long reqItems, DbTableStat * pStat);
 	int    ProcessBinding_SimpleType(int action, uint count, SSqlStmt * pStmt, SSqlStmt::Bind * pBind, uint ntvType);
 	int    Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, uint * pActual);
@@ -2982,6 +2993,9 @@ private:
 	long   Flags;
 	void * H;
 	Generator_SQL SqlGen;
+	SString TraceFileName;
+	SString DebugLogFileName;
+
 	static bool IsInitialized;
 };
 //
@@ -3560,7 +3574,7 @@ union DBDataCell {
 	int    FASTCALL getValue(TYPEID, void *);
 	int    FASTCALL getValue(DBConst *);
 	int    toString(SString & rBuf, long options) const;
-	int    CreateSqlExpr(Generator_SQL * pGen) const;
+	int    CreateSqlExpr(Generator_SQL & rGen) const;
 
 	DBItem  I;
 	DBConst C;
@@ -3577,7 +3591,7 @@ struct DBQ {
 	int    getPotentialKey(int itm, int tblID, int segment, KR * pKr);
 		// @<<DBTree::chooseKey(int n, int tblID, int seg, PKR dest, uint * pTrace)
 	int    FASTCALL checkTerm(int);
-	int    CreateSqlExpr(Generator_SQL * pGen, int itm) const;
+	int    CreateSqlExpr(Generator_SQL & rGen, int itm) const;
 
 	DBTree * tree;
 	uint   count;
@@ -3606,7 +3620,7 @@ struct DBTree {
 	int    FASTCALL checkRestriction(int = -1);
 	int    FASTCALL expand(int *);
 	void   destroy();
-	int    CreateSqlExpr(Generator_SQL * pGen, int node) const;
+	int    CreateSqlExpr(Generator_SQL & rGen, int node) const;
 
 	DBQ  * P_Terms;
 	int    Root;
@@ -4064,7 +4078,7 @@ public:
 	long   countIterations(int reverse, const void * pInitKey = 0, int initSpMode = spFirst);
 	int    FASTCALL getRecPosition(DBRowId * pPos);
 	uint   getActualCount() const { return ActCount; }
-	int    CreateSqlExpr(Generator_SQL * pSg, int reverse, const char * pInitKey, int initSpMode) const;
+	int    CreateSqlExpr(Generator_SQL & rSg, int reverse, const char * pInitKey, int initSpMode) const;
 private:
 	void   Init(DBTable * pTbl, int idx, uint aBufSize);
 	int    search_first(const char * pInitKey, int initSpMode, int spMode);
@@ -4082,7 +4096,7 @@ private:
 	//   возвращается образ по индексу BExtQuery::cur. Первые
 	//   sizeof(BExtResultItem) байт образа занимает заголовок (см. DB.H).
 	//
-	char * getRecImage();
+	const char * getRecImage();
 
 	DBTable * P_Tbl;
 	DBQ * P_Restrict;

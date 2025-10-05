@@ -199,7 +199,7 @@ void TDialog::InitControls(HWND hwndDlg, WPARAM wParam, LPARAM lParam)
 			if(p_dlg) {
 				if(lParam) {
 					long prev_id = CLUSTER_ID(GetDlgCtrlID(reinterpret_cast<HWND>(lParam)));
-					if((v = p_dlg->P_Last) != 0)
+					if((v = p_dlg->P_Last) != 0) {
 						do {
 							if(v->TestId(prev_id)) {
 								TView::messageBroadcast(p_dlg, cmReceivedFocus, v);
@@ -208,6 +208,7 @@ void TDialog::InitControls(HWND hwndDlg, WPARAM wParam, LPARAM lParam)
 								break;
 							}
 						} while((v = v->prev()) != p_dlg->P_Last);
+					}
 				}
 				else if((v = p_dlg->P_Current) != 0) {
 					HWND h_ctl = GetDlgItem(hwndDlg, v->GetId());

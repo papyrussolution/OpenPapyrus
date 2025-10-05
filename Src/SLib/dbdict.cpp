@@ -92,9 +92,9 @@ int BDictionary::Init(const char * pDataPath, const char * pTempPath)
 	return IsValid();
 }
 
-BDictionary::BDictionary(const char * pPath, const char * pDataPath, const char * pTempPath) : DbProvider(DbDictionary::CreateInstance(pPath, 0), 0)
+BDictionary::BDictionary(const char * pPath, const char * pDataPath, const char * pTempPath) : DbProvider(sqlstNone, DbDictionary::CreateInstance(pPath, 0), 0)
 	{ Init(pDataPath, pTempPath); }
-BDictionary::BDictionary(int btrDict, const char * pPath) : DbProvider(new DbDict_Btrieve(pPath), 0)
+BDictionary::BDictionary(int btrDict, const char * pPath) : DbProvider(sqlstNone, new DbDict_Btrieve(pPath), 0)
 	{ Init(0, 0); }
 
 /*virtual*/int BDictionary::GetDatabaseState(uint * pStateFlags)
@@ -123,7 +123,7 @@ BDictionary::BDictionary(int btrDict, const char * pPath) : DbProvider(new DbDic
 		int    path_from_redirect = 0;
 		SString data_path;
 		GetDataPath(data_path);
-		SString redirect_file = data_path;
+		SString redirect_file(data_path);
 		redirect_file.SetLastSlash().Cat(FILE_REDIRECT);
 		if(::fileExists(redirect_file)) {
 			SFile f(redirect_file, SFile::mRead);
@@ -259,7 +259,7 @@ BDictionary::BDictionary(int btrDict, const char * pPath) : DbProvider(new DbDic
 /*virtual*/ int BDictionary::GetFileStat(DBTable * pTbl, long reqItems, DbTableStat * pStat)
 	{ return pTbl->Btr_GetStat(reqItems, pStat); }
 
-/*virtual*/ int BDictionary::Login(const DbLoginBlock * pBlk, long options)
+/*virtual*/ int BDictionary::DbLogin(const DbLoginBlock * pBlk, long options)
 {
 	EXCEPTVAR(DBErrCode);
 	int    ok = 1;

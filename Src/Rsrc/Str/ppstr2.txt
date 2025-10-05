@@ -15937,6 +15937,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @billbysampleparam_acnshipmall            "Отгрузить весь оприходованный товар"
 @billbysampleparam_acndraftexpbydraftrcpt "Сформировать драфт-расход"
 @billbysampleparam_acndraftrcptbydraftexp "Сформировать драфт-приход"
+@billbysampleparam_acnbybailmentorder     "Размещение основных средств по заказу" // @v12.4.2
 @billbysampleparam_op                     "@{oprkind}"
 @billbysampleparam_loc                    "@{warehouse}"
 @billbysampleparam_quotkind               "@{quotkind}"

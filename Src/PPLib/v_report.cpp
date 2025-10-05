@@ -236,7 +236,7 @@ int PPViewReport::InitIteration()
 	THROW_MEM(P_IterQuery = new BExtQuery(P_TempTbl, idx));
 	P_IterQuery->selectAll();
 	Counter.Init(P_IterQuery->countIterations(0, k_, spGe));
-	P_IterQuery->initIteration(0, k, spFirst);
+	P_IterQuery->initIteration(false, k, spFirst);
 	CATCHZOK
 	return ok;
 }

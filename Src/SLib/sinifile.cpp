@@ -577,7 +577,7 @@ int SIniFile::GetEntries(const char * pSect, StringSet * pEntries, bool storeAll
 		THROW(opnr);
 		do_close = (opnr > 0);
 		for(File.Seek(0); File.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip);) {
-			int    r = IsSection(line_buf, pSect, 0);
+			const int r = IsSection(line_buf, pSect, 0);
 			if(r > 0)
 				this_sect = BIN(r == 2);
 			else if(this_sect) {

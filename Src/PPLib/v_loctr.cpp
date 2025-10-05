@@ -161,30 +161,46 @@ public:
 		int    ok = 1;
 		double bill_qtty = 0.0;
 		SString temp_buf;
+		PPOprKind op_rec;
 		RVALUEPTR(Data, pData);
 		Data.Qtty = fabs(Data.Qtty);
+		int    fixed_lt_op = 0;
+		if(Data.RByLoc && Data.LTOp)
+			fixed_lt_op = Data.LTOp;
 		if(P_Pack) {
-			P_BObj->MakeCodeString(&P_Pack->Rec, PPObjBill::mcsAddLocName, temp_buf);
+			P_BObj->MakeCodeString(&P_Pack->Rec, PPObjBill::mcsAddLocName|PPObjBill::mcsAddOpName, temp_buf);
 			if(Data.BillID && Data.RByBillLT) {
 				uint tipos = 0;
 				if(P_Pack->SearchTI(Data.RByBillLT, &tipos))
 					bill_qtty = P_Pack->ConstTI(tipos).Qtty();
 			}
+			if(!fixed_lt_op) {
+				if(GetOpData(P_Pack->Rec.OpID, &op_rec) > 0 && op_rec.OpTypeID == PPOPT_WAREHOUSE) {
+					if(op_rec.SubType == OPSUBT_BAILMENT_PUT) {
+						fixed_lt_op = LOCTRFROP_PUT;
+					}
+					else if(op_rec.SubType == OPSUBT_BAILMENT_GET) {
+						fixed_lt_op = LOCTRFROP_GET;
+					}
+				}
+			}
 		}
-		else if(Data.BillID && Data.RByBillLT) {
-			BillTbl::Rec bill_rec;
-			if(P_BObj->Search(Data.BillID, &bill_rec) > 0) {
-				P_BObj->MakeCodeString(&bill_rec, PPObjBill::mcsAddLocName, temp_buf);
-				int    rbybill = Data.RByBillLT-1;
-				PPTransferItem ti;
-				if(P_BObj->trfr->EnumItems(Data.BillID, &rbybill, &ti) > 0)
-					bill_qtty = ti.Qtty();
+		else {
+			if(Data.BillID && Data.RByBillLT) {
+				BillTbl::Rec bill_rec;
+				if(P_BObj->Search(Data.BillID, &bill_rec) > 0) {
+					P_BObj->MakeCodeString(&bill_rec, PPObjBill::mcsAddLocName|PPObjBill::mcsAddOpName, temp_buf);
+					int    rbybill = Data.RByBillLT-1;
+					PPTransferItem ti;
+					if(P_BObj->trfr->EnumItems(Data.BillID, &rbybill, &ti) > 0)
+						bill_qtty = ti.Qtty();
+				}
+				else
+					temp_buf.Z();
 			}
 			else
 				temp_buf.Z();
 		}
-		else
-			temp_buf.Z();
 		setStaticText(CTL_LOCTRANSF_BILLTITLE, temp_buf);
 		setCtrlReal(CTL_LOCTRANSF_BILLQTTY, bill_qtty);
 		showCtrl(CTL_LOCTRANSF_BILLQTTY, bill_qtty != 0.0);
@@ -200,10 +216,24 @@ public:
 			LocationCtrlGroup::Rec loccg_rec(&loc_list, WarehouseID);
 			setGroupData(grpLoc, &loccg_rec);
 		}
-		AddClusterAssocDef(CTL_LOCTRANSF_OP,  0, LOCTRFROP_PUT);
-		AddClusterAssoc(CTL_LOCTRANSF_OP,  1, LOCTRFROP_GET);
-		AddClusterAssoc(CTL_LOCTRANSF_OP,  2, LOCTRFROP_INVENT);
-		SetClusterData(CTL_LOCTRANSF_OP, Data.LTOp);
+		{
+			constexpr uint clu_ctl_id = CTL_LOCTRANSF_OP;
+			SETIFZQ(Data.LTOp, fixed_lt_op);
+			AddClusterAssocDef(clu_ctl_id,  0, LOCTRFROP_PUT);
+			AddClusterAssoc(clu_ctl_id,  1, LOCTRFROP_GET);
+			AddClusterAssoc(clu_ctl_id,  2, LOCTRFROP_INVENT);
+			SetClusterData(clu_ctl_id, Data.LTOp);
+			if(fixed_lt_op) {
+				assert(Data.LTOp == fixed_lt_op); // Выше мы должны были тщательно над этим поработать.
+				int    only_available_item_idx = 0;
+				if(GetClusterItemByAssoc(clu_ctl_id, fixed_lt_op, &only_available_item_idx)) {
+					const uint _cc = GetClusterItemsCount(clu_ctl_id);
+					for(uint i = 0; i < _cc; i++) {
+						DisableClusterItem(clu_ctl_id, i, (i != static_cast<uint>(only_available_item_idx)));
+					}
+				}
+			}
+		}
 		SetupGoodsAndLot();
 		{
 			PalletCtrlGroup::Rec plt_rec;
@@ -820,6 +850,32 @@ static IMPL_DBE_PROC(dbqf_checkcellparent_ii)
 	result->init(r);
 }
 
+static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr)
+{
+	int    ok = -1;
+	PPViewBrowser * p_brw = static_cast<PPViewBrowser *>(extraPtr);
+	if(p_brw) {
+		PPViewLocTransf * p_view = static_cast<PPViewLocTransf *>(p_brw->P_View);
+		ok = p_view ? p_view->CellStyleFunc_(pData, col, paintAction, pStyle, p_brw) : -1;
+	}
+	return ok;
+}
+
+int PPViewLocTransf::CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle, PPViewBrowser * pBrw)
+{
+	int    ok = -1;
+	if(pBrw && pData && pCellStyle && col >= 0) {
+		const BrowserDef * p_def = pBrw->getDef();
+		if(col < static_cast<long>(p_def->getCount())) {
+			const BroColumn & r_col = p_def->at(col);
+			if(r_col.OrgOffs == 4) { // qtty
+				// @todo Установить цветовой индикатор в случае, если строка имеет флаг LOCTRF_ORDER
+			}
+		}
+	}
+	return ok;
+}
+
 /*virtual*/void PPViewLocTransf::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	if(pBrw) {
@@ -835,6 +891,7 @@ static IMPL_DBE_PROC(dbqf_checkcellparent_ii)
 					}
 				}
 			}
+			pBrw->SetCellStyleFunc(CellStyleFunc, pBrw);
 		}
 	}
 }

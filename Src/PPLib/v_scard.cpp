@@ -3618,7 +3618,7 @@ int PPViewUhttSCardOp::Init_(const PPBaseFilt * pFilt)
 			Filt.Period.Actualize(ZERODATE);
 			dbq = &daterange(tbl.Dt, &Filt.Period);
 			iter_query.selectAll().where(*dbq);
-			iter_query.initIteration(0, k_, spGe);
+			iter_query.initIteration(false, k_, spGe);
 			while(iter_query.nextIteration() > 0) {
 				tbl.CopyBufTo(&rec);
 				SCardTbl::Rec sc_rec;

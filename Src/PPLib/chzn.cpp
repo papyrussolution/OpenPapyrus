@@ -458,6 +458,9 @@ DRAFTBEER HORECA @v11.9.4
 			rS.Add(GtinStruc::fldOriginalText, pCode);
 			ok = SNTOK_CHZN_PALLET_GTIN;
 		}
+		else if(false) { // @v12.4.2 @todo SNTOK_SSCC
+			;
+		}
 		if(!ok) /*else*/ /*if(temp_buf.HasPrefix("01") || temp_buf.HasPrefix("(01)") || temp_buf.HasPrefix("\x1D" "01"))*/ { // @v12.1.6 else-->if(!ok)
 			size_t serial_len_variant_idx = 0;
 			rS.AddSpecialStopChar(0x1D);

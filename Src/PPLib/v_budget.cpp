@@ -1380,7 +1380,7 @@ int PPViewBudget::InitIteration()
 		P_IterQuery = new BExtQuery(P_TempBudgItemTbl, 0);
 	if(P_IterQuery) {
 		P_IterQuery->selectAll().where(*dbq);
-		P_IterQuery->initIteration(0, 0, 0);
+		P_IterQuery->initIteration(false, 0, 0);
 		return 1;
 	}
 	else

@@ -16,7 +16,8 @@
 
 /*static*/bool SSqliteDbProvider::IsInitialized = false;
 
-SSqliteDbProvider::SSqliteDbProvider() : DbProvider(DbDictionary::CreateInstance(0, 0), DbProvider::cSQL|DbProvider::cDbDependTa), SqlGen(sqlstSQLite, 0), H(0), Flags(0)
+SSqliteDbProvider::SSqliteDbProvider() : DbProvider(sqlstSQLite, DbDictionary::CreateInstance(0, 0), 
+	DbProvider::cSQL|DbProvider::cDbDependTa|DbProvider::cDirectSelectDataMapping), SqlGen(sqlstSQLite, 0), H(0), Flags(0)
 {
 	if(!IsInitialized) {
 		SString temp_buf;
@@ -111,7 +112,51 @@ int SSqliteDbProvider::GetFileStat(const char * pFileName/*регистр символов важе
 	return ok;
 }
 
-/*virtual*/int SSqliteDbProvider::Login(const DbLoginBlock * pBlk, long options)
+/*static*/int SSqliteDbProvider::CbTrace(uint flag, void * pCtx, void * p, void * x) // Callback-функция для отладочной трассировки работы sqlite
+{
+	int    result = 0;
+	if(pCtx) {
+		SSqliteDbProvider * p_this = static_cast<SSqliteDbProvider *>(pCtx);
+		SString msg_buf;
+		msg_buf.Cat(getcurdatetime_(), DATF_ISO8601, 0);
+		switch(flag) {
+			case SQLITE_TRACE_STMT:
+				msg_buf.Space().Cat("STMT").CatDiv(':', 2).Cat(sqlite3_expanded_sql((sqlite3_stmt*)p));
+				//printf("STMT: %s\n", sqlite3_expanded_sql((sqlite3_stmt*)p));
+				break;
+			case SQLITE_TRACE_PROFILE:
+				//msg_buf.Space().Cat("PROFILE");
+				
+				//printf("PROFILE: %s took %llu ns\n", sqlite3_sql((sqlite3_stmt*)p), *(sqlite3_uint64*)x);
+				break;
+			case SQLITE_TRACE_ROW:
+				//msg_buf.Space().Cat("ROW");
+				
+				//printf("ROW returned\n");
+				break;
+			case SQLITE_TRACE_CLOSE:
+				msg_buf.Space().Cat("CLOSE");
+				//printf("DB closed\n");
+				break;
+		}
+	}
+	return result;
+}
+
+/*static*/void SSqliteDbProvider::CbDebugLog(void * pUserData, int errCode, const char * pMsg)
+{
+	/*if(errCode == SQLITE_LOCKED || errCode == SQLITE_BUSY) {
+		printf("LOCK DETECTED[%d]: %s\n", errCode, pMsg);
+	}*/
+	if(pUserData) {
+		SString msg_buf;
+		msg_buf.Cat(getcurdatetime_(), DATF_ISO8601, 0).Space().Cat(errCode).Space().Cat(pMsg);
+		SSqliteDbProvider * p_this = static_cast<SSqliteDbProvider *>(pUserData);
+		SLS.LogMessage(p_this->DebugLogFileName, msg_buf, SKILOBYTE(8));
+	}
+}
+
+/*virtual*/int SSqliteDbProvider::DbLogin(const DbLoginBlock * pBlk, long options)
 {
 	int    ok = 1;
 	sqlite3 * h = 0;
@@ -121,8 +166,27 @@ int SSqliteDbProvider::GetFileStat(const char * pFileName/*регистр символов важе
 	pBlk->GetAttr(DbLoginBlock::attrDbPath, path);
 	{
 		Logout();
-		THROW(ProcessError(sqlite3_open(path, &h)))
+		THROW(ProcessError(sqlite3_open_v2(path, &h, SQLITE_OPEN_READWRITE|SQLITE_OPEN_CREATE, 0)));
 		H = h;
+		{
+			SLS.QueryPath("log", path);
+			if(SFile::IsDir(path)) {
+				{
+					(DebugLogFileName = path).SetLastSlash().Cat("sqlite-debug").DotCat("log");
+					sqlite3_config(SQLITE_CONFIG_LOG, CbDebugLog, this);
+				}
+				{
+					/*
+						#define SQLITE_TRACE_STMT       0x01
+						#define SQLITE_TRACE_PROFILE    0x02
+						#define SQLITE_TRACE_ROW        0x04
+						#define SQLITE_TRACE_CLOSE      0x08
+					*/
+					(TraceFileName = path).SetLastSlash().Cat("sqlite-trace").DotCat("log");
+					sqlite3_trace_v2(h, SQLITE_TRACE_STMT|SQLITE_TRACE_PROFILE|SQLITE_TRACE_CLOSE, CbTrace, this);
+				}
+			}
+		}
 	}
 	CATCHZOK
 	return ok;
@@ -168,6 +232,7 @@ int SSqliteDbProvider::GetFileStat(const char * pFileName/*регистр символов важе
 			THROW(stmt.Exec(1, OCI_DEFAULT));
 		}
 	}
+	/* для sqlite sequence'ы не нужны
 	for(j = 0; j < pTbl->fields.getCount(); j++) {
 		TYPEID _t = pTbl->fields[j].T;
 		if(GETSTYPE(_t) == S_AUTOINC) {
@@ -177,7 +242,7 @@ int SSqliteDbProvider::GetFileStat(const char * pFileName/*регистр символов важе
 				THROW(stmt.Exec(1, OCI_DEFAULT));
 			}
 		}
-	}
+	}*/
 	if(createMode < 0 && IS_CRM_TEMP(createMode)) {
 		//
 		// Регистрируем имя временного файла в драйвере БД для последующего удаления //
@@ -280,7 +345,7 @@ int SSqliteDbProvider::GetFileStat(const char * pFileName/*регистр символов важе
 {
 	int    ok = -1;
 	if(State & stTransaction) {
-		SqlGen.Z().Tok(Generator_SQL::tokCommit).Sp().Tok(Generator_SQL::tokTransaction);
+		SqlGen.Z().Tok(Generator_SQL::tokCommit)/*.Sp().Tok(Generator_SQL::tokTransaction)*/;
 		char * p_err_msg = 0;
 		ok = ProcessError(sqlite3_exec(static_cast<sqlite3 *>(H), static_cast<SString &>(SqlGen), 0, 0, &p_err_msg));
 		State &= ~stTransaction;
@@ -294,7 +359,7 @@ int SSqliteDbProvider::GetFileStat(const char * pFileName/*регистр символов важе
 {
 	int    ok = -1;
 	if(State & stTransaction) {
-		SqlGen.Z().Tok(Generator_SQL::tokRollback).Sp().Tok(Generator_SQL::tokTransaction);
+		SqlGen.Z().Tok(Generator_SQL::tokRollback)/*.Sp().Tok(Generator_SQL::tokTransaction)*/;
 		char * p_err_msg = 0;
 		ok = ProcessError(sqlite3_exec(static_cast<sqlite3 *>(H), static_cast<SString &>(SqlGen), 0, 0, &p_err_msg));
 		State &= ~stTransaction;
@@ -436,11 +501,9 @@ int SSqliteDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt,
 						// При каскадном сравнении ключа второй и последующие сегменты
 						// должны удовлетворять условиям неравенства только при равенстве
 						// всех предыдущих сегментов.
-						//
 						// Пример:
-						//
-						// index {X, Y, Z}
-						// X > :A and (Y > :B or (X <> :A)) and (Z > :C or (X <> :A and Y <> :B))
+						//   index {X, Y, Z}
+						//   X > :A and (Y > :B or (X <> :A)) and (Z > :C or (X <> :A and Y <> :B))
 						//
 						SqlGen.Sp().Tok(Generator_SQL::tokOr).Sp().LPar();
 						for(int j = 0; j < i; j++) {
@@ -843,7 +906,7 @@ int SSqliteDbProvider::ResetStatement(SSqlStmt & rS)
 	SqlGen.Z().Tok(Generator_SQL::tokDelete).Sp().From(pTbl->fileName, 0);
 	if(&rQ && rQ.tree) {
 		SqlGen.Sp().Tok(Generator_SQL::tokWhere).Sp();
-		rQ.tree->CreateSqlExpr(&SqlGen, -1);
+		rQ.tree->CreateSqlExpr(SqlGen, -1);
 	}
 	{
 		SSqlStmt stmt(this, SqlGen);
@@ -900,7 +963,7 @@ int SSqliteDbProvider::ResetStatement(SSqlStmt & rS)
 			SSqlStmt::Bind & r_bind = rS.BL.at(i);
 			if(r_bind.Pos < 0) {
 				THROW(ProcessBinding(0, row_count, &rS, &r_bind));
-				THROW(ProcessBinding(-1, row_count, &rS, &r_bind));
+				// @v12.4.2 THROW(ProcessBinding(-1, row_count, &rS, &r_bind));
 			}
 		}
 	}
@@ -909,7 +972,7 @@ int SSqliteDbProvider::ResetStatement(SSqlStmt & rS)
 			SSqlStmt::Bind & r_bind = rS.BL.at(i);
 			if(r_bind.Pos > 0) {
 				THROW(ProcessBinding(0, row_count, &rS, &r_bind));
-				THROW(ProcessBinding(dir, row_count, &rS, &r_bind));
+				// @v12.4.2 THROW(ProcessBinding(dir, row_count, &rS, &r_bind));
 			}
 		}
 	}
@@ -948,14 +1011,16 @@ int SSqliteDbProvider::ProcessBinding_SimpleType(int action, uint count, SSqlStm
 	const  size_t sz = stsize(pBind->Typ);
 	uint16 out_typ = 0;
 	sqlite3_stmt * h_stmt = StmtHandle(*pStmt);
+	void * p_data = 0;
 	// (Эти 2 строчки должны быть перед вызовом pStmt->GetBindOuterPtr поскольку он полагается на поле pBind->Dim) {
 	if(action == 0)
 		pBind->Dim_ = count;
-	// {
-	void * p_data = pStmt->GetBindOuterPtr(pBind, 0);
+	else if(oneof3(action, -2, -1, +1)) {
+		p_data = pStmt->GetBindOuterPtr(pBind, count);
+	}
 	pBind->NtvSize = static_cast<uint16>(sz); // default value
-	const int idx = abs(pBind->Pos);
-	const int t = GETSTYPE(pBind->Typ);
+	const int  idx = abs(pBind->Pos);
+	const int  t = GETSTYPE(pBind->Typ);
 	const uint s = GETSSIZE(pBind->Typ);
 	bool  is_autoinc = false; // @debug
 	switch(t) {
@@ -1194,7 +1259,7 @@ int SSqliteDbProvider::ProcessBinding_SimpleType(int action, uint count, SSqlStm
 					const int csz = sqlite3_column_bytes(h_stmt, idx-1);
 					const void * p_sqlt_data = sqlite3_column_blob(h_stmt, idx-1);
 					if(p_sqlt_data) {
-						memcpy(p_data, p_sqlt_data, MIN(csz, s));
+						memcpy(p_data, p_sqlt_data, smin(static_cast<uint>(csz), s));
 					}
 					else {
 						memzero(p_data, s);
@@ -1312,7 +1377,8 @@ int SSqliteDbProvider::ProcessBinding_SimpleType(int action, uint count, SSqlStm
 			ok = 1;
 		}
 		else if(r == SQLITE_DONE) {
-			ok = -1;
+			if(!ok) // Если до этого была найдена хоть одна запись из count, то результат функции 1.
+				ok = -1;
 		}
 	} while(r == SQLITE_ROW && actual_count < count);
 	ASSIGN_PTR(pActualCount, actual_count);

@@ -1170,3 +1170,15 @@ dialog DLG_CASHREPORTS_L__ [vertical title: "@posnodecmd" size: (595, 525) minsi
 		button STDCTL_CANCELBUTTON [title: "@but_close" tabstop width: bycontainer height: 50 margin: 8 command: cmCancel];
 	}
 }
+
+dialog DLG_SELWHOBSMPL [vertical title: "@billbysampleparam" size: (400, 300) minsize: (400, 300) font: "MS Shell Dlg,8"] {
+	radiocluster CTL_SELBBSMPL_WHAT [tabstop vertical width: bycontainer margin: 4] {
+		radiobutton [title: "@billbysampleparam_acnstd" height: 16];
+		radiobutton [title: "@billbysampleparam_acnbybailmentorder" height: 16];
+	}
+	combobox CTLSEL_SELBBSMPL_OP [tabstop width: bycontainer height: 21 margin: 4 label: "@billbysampleparam_op" labelsize: (0, 13) cblinesymb: CTL_SELBBSMPL_OP ];
+	view [horizontal width: bycontainer(100) growfactor: 1 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}

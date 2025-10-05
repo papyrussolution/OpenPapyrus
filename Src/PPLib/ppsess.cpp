@@ -157,6 +157,7 @@ int FASTCALL StatusWinChange(int onLogon /*=0*/, long timer/*=-1*/)
 	DWORD  gr_userobj = 0;
 	//SString temp_buf;
 	TProgram * p_app = APPL;
+	const PPConfig & r_cfg = LConfig;
 	if(p_app && DBS.GetConstTLA().P_CurDict) {
 		PPThreadLocalArea & r_tla = DS.GetTLA();
 		DbProvider * p_dict = CurDict;
@@ -171,9 +172,14 @@ int FASTCALL StatusWinChange(int onLogon /*=0*/, long timer/*=-1*/)
 			}
 			p_app->AddStatusBarItem(GetMainOrgName(r_sbuf).Transf(CTRANSF_INNER_TO_OUTER), 0, 0, cmViewStatus);
 			p_app->AddStatusBarItem((r_sbuf = r_tla.CurDbDivName).Transf(CTRANSF_INNER_TO_OUTER), 0, 0, cmViewStatus);
-			GetLocationName(LConfig.Location, r_sbuf);
+			if(r_cfg.Location) {
+				GetLocationName(r_cfg.Location, r_sbuf);
+			}
+			else {
+				r_sbuf = "No-current-warehouse";
+			}
 			p_app->AddStatusBarItem(r_sbuf.Transf(CTRANSF_INNER_TO_OUTER), 0, 0, cmViewStatus);
-			r_sbuf.Z().Cat(LConfig.OperDate, MKSFMT(0, DATF_DMY | DATF_CENTURY));
+			r_sbuf.Z().Cat(r_cfg.OperDate, MKSFMT(0, DATF_DMY | DATF_CENTURY));
 			p_app->AddStatusBarItem(r_sbuf, 0, 0, cmViewStatus);
 			{
 				if(p_dict) {
@@ -2876,6 +2882,7 @@ int PPSession::OpenDictionary2(DbLoginBlock * pBlk, long flags)
 	int    r;
 	SString temp_buf;
 	SString data_path;
+	SString _data_directory; // Каталог базы данных. Обычно совпадает с data_path, но в случае с SQLite (и черт знает чем в будущем, если оно наступит) может отличаться //
 	SString temp_path;
 	PPVersionInfo ver_inf(0);
 	const SVerT this_ver   = ver_inf.GetVersion();
@@ -2896,7 +2903,10 @@ int PPSession::OpenDictionary2(DbLoginBlock * pBlk, long flags)
 			; // ok
 		}
 		else if(server_type == sqlstSQLite) {
-			if(!SFile::IsDir(data_path)) {
+			if(SFile::IsDir(data_path)) {
+				_data_directory = temp_buf; 
+			}
+			else {
 				SFsPath ps(data_path);
 				if(ps.Nam.NotEmpty()) {
 					ps.Merge(SFsPath::fDrv|SFsPath::fDir, temp_buf);
@@ -2905,14 +2915,14 @@ int PPSession::OpenDictionary2(DbLoginBlock * pBlk, long flags)
 							SFileFormat ff;
 							const int fir = ff.Identify(data_path);
 							if(oneof2(fir, 2, 3) && ff == SFileFormat::Sq3) {
-								;
+								_data_directory = temp_buf; 
 							}
 							else {
 								is_entry_valid = false;
 							}
 						}
 						else {
-							;
+							_data_directory = temp_buf;
 						}
 					}
 					else {
@@ -2922,8 +2932,12 @@ int PPSession::OpenDictionary2(DbLoginBlock * pBlk, long flags)
 			}
 		}
 		else {
-			if(!SFile::IsDir(data_path))
+			if(SFile::IsDir(data_path)) {
+				_data_directory = data_path;
+			}
+			else {
 				is_entry_valid = false;
+			}
 		}
 		THROW_PP_S(is_entry_valid, PPERR_DBDIRNFOUND, data_path);
 		// } @v12.4.1 
@@ -2932,7 +2946,7 @@ int PPSession::OpenDictionary2(DbLoginBlock * pBlk, long flags)
 		//
 		// Инициализируем таблицу блокировок и проверяем не заблокирована ли база данных
 		//
-		THROW(GetSync().Init(data_path)); // @todo InitSync(data_path)
+		THROW(GetSync().Init(_data_directory)); // @todo InitSync(data_path)
 		THROW(!GetSync().IsDBLocked());
 	}
 	GetPath(PPPATH_TEMP, temp_path);
@@ -2941,7 +2955,7 @@ int PPSession::OpenDictionary2(DbLoginBlock * pBlk, long flags)
 	// Считываем информацию о версии базы данных и проверяем не является ли
 	// текущая версия системы меньше допустимой для этой базы данных.
 	//
-	THROW(r = verh.Read(data_path, &vh_info));
+	THROW(r = verh.Read(_data_directory, &vh_info));
 	if(r > 0 && this_ver.Cmp(&vh_info.MinVer) < 0) {
 		int    mj, mn, r;
 		vh_info.MinVer.Get(&mj, &mn, &r);
@@ -2952,7 +2966,7 @@ int PPSession::OpenDictionary2(DbLoginBlock * pBlk, long flags)
 		vh_info.CurVer = this_ver;
 		if(vh_info.DbUUID.IsZero())
 			vh_info.DbUUID.Generate();
-		THROW(verh.Write(data_path, &vh_info));
+		THROW(verh.Write(_data_directory, &vh_info));
 	}
 	pBlk->SetAttr(DbLoginBlock::attrDbUuid, vh_info.DbUUID.ToStr(S_GUID::fmtIDL, temp_buf));
 	DBTable::OpenExceptionProc = _dbOpenException;
@@ -2978,7 +2992,12 @@ int PPSession::OpenDictionary2(DbLoginBlock * pBlk, long flags)
 			pBlk->GetAttr(DbLoginBlock::attrDictPath, temp_buf);
 			THROW_MEM(p_db = new BDictionary(temp_buf, data_path, temp_path));
 		}
-		THROW_DB(p_db->Login(pBlk, 0));
+		{
+			long   login_flags = 0;
+			if(flags & PPSession::odfDbReadOnly) {
+			}
+			THROW_DB(p_db->DbLogin(pBlk, 0));
+		}
 		THROW_DB(DBS.OpenDictionary2(p_db));
 	}
 	CATCHZOK
@@ -3252,7 +3271,7 @@ private:
 		int    queue_stat_flags_inited = 0;
 		SETFLAG(State, stPhnSvc, p_phnsvc_cli);
 		SETFLAG(State, stMqb, p_mqb_cli);
-		THROW(DS.OpenDictionary2(&LB, PPSession::odfDontInitSync));
+		THROW(DS.OpenDictionary2(&LB, PPSession::odfDontInitSync|PPSession::odfDbReadOnly));
 		THROW_MEM(P_Sj = new SysJournal);
 		if(use_sj_scan_alg2) {
 			SysJournalTbl::Key0 sjk0;
@@ -3896,8 +3915,8 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
         logmEmptyBaseCreation = 3  // Под именем PPSession::P_EmptyBaseCreationLogin
 	};
 	int    ok = 1;
+	const  LDATETIME now_dtm = getcurdatetime_();
 	int    r;
-	int    debug_r = 0;
 	uint   db_state = 0; // Флаги состояния базы данных
 	SString dict_path;
 	SString data_path;
@@ -3907,35 +3926,28 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 	PPIniFile ini_file(0, 0, 0, 1);
 	PPDbEntrySet2 dbes;
 	DbLoginBlock blk;
+	PPThreadLocalArea & r_tla = GetTLA();
+	char   user_name[64];
 	char   pw[128];
 	PPID   onetimepass_user_id = OnetimePass(-1); // @v11.1.9
+	MACAddr machine_id;
+	int    logmode = logmOrdinary;
+	int    empty_secur_base = 0;
+	int    is_demo = 0;
+	ulong  term_sess_id = 0;
+	PPSecur usr_rec;
+	PPConfig & r_lc = r_tla.Lc;
+	PPCommConfig & r_cc = r_tla.Cc;
+	STRNSCPY(user_name, pUserName);
+	r_tla.StateFlags &= ~PPThreadLocalArea::stAuth;
 	THROW(ini_file.IsValid());
-	debug_r = 1;
 	THROW(dbes.ReadFromProfile(&ini_file, 0));
-	debug_r = 2;
 	db_symb = pDbSymb;
 	THROW_SL(dbes.GetBySymb(db_symb, &blk));
-	debug_r = 3;
 	blk.GetAttr(DbLoginBlock::attrDbPath, data_path);
 	blk.GetAttr(DbLoginBlock::attrDictPath, dict_path);
+	THROW(OpenDictionary2(&blk, 0));
 	{
-		PPThreadLocalArea & r_tla = GetTLA();
-		MACAddr machine_id;
-		int    logmode = logmOrdinary;
-		int    empty_secur_base = 0;
-		int    is_demo = 0;
-		char   user_name[64];
-		ulong  term_sess_id = 0;
-		PPID   id;
-		LDATE  cdt;
-		LTIME  ctm;
-		PPSecur usr_rec;
-		PPConfig & r_lc = r_tla.Lc;
-		PPCommConfig & r_cc = r_tla.Cc;
-		STRNSCPY(user_name, pUserName);
-		r_tla.StateFlags &= ~PPThreadLocalArea::stAuth;
-		THROW(OpenDictionary2(&blk, 0));
-		debug_r = 4;
 		r_tla.Prf.InitUserProfile(user_name); // Инициализация профайлера с параметрами БД сразу после соединения с сервером БД.
 		r_tla.UfpSess.Begin(PPUPRF_SESSION);  // Профилирование всей сессии работы в БД (Login..Logout)
 		PPUserFuncProfiler ufp(PPUPRF_LOGIN); // Профилирование собственно процесса авторизации в базе данных
@@ -3972,11 +3984,8 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 					SString file_name;
 					DBTable * p_test_tbl = new DBTable;
 					THROW_MEM(p_test_tbl);
-					debug_r = 5;
 					THROW_DB(p_dict->CreateTempFile(p_test_tbl_name, file_name, 1));
-					debug_r = 6;
 					THROW_DB(p_test_tbl->open(p_test_tbl_name, file_name));
-					debug_r = 7;
 					ZDELETE(p_test_tbl);
 					p_dict->DropFile(file_name);
 					DBTable::OpenExceptionProc = _dbOpenException;
@@ -4022,7 +4031,6 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 					DbrSignalFile dbr_signal(data_path, this_ver);
 					if(!dbr_signal.IsExists()) {
 						THROW(!GetSync().IsDBLocked());
-						debug_r = 8;
 						PPWaitStart();
 
 						// @v4.7.7 Convert400();
@@ -4114,7 +4122,6 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 		THROW_MEM(PPRef = new Reference);
 		{
 			Reference * p_ref = PPRef;
-			debug_r = 9;
 			if(oneof2(logmode, logmService, logmEmptyBaseCreation)) {
 				char   secret[64];
 				PPVersionInfo vi = Ver;
@@ -4134,7 +4141,7 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 				THROW(r = p_ref->SearchName(PPOBJ_USR, &r_lc.UserID, user_name));
 			}
 			if(r < 0) {
-				id = 0;
+				PPID   id = 0;
 				THROW(r = p_ref->EnumItems(PPOBJ_USR, &id));
 				THROW_PP(r < 0, PPERR_INVUSERORPASSW);
 				empty_secur_base = 1;
@@ -4215,8 +4222,7 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 				THROW(r_tla.Rights.Get(PPOBJ_USR, r_lc.UserID, 0/*ignoreCheckSum*/));
 				r_tla.Rights.GetAccessRestriction(accsr);
 				r_tla.Rights.ExtentOpRights();
-				getcurdatetime(&cdt, &ctm);
-				if(usr_rec.PwUpdate && accsr.PwPeriod && diffdate(&cdt, &usr_rec.PwUpdate, 0) > accsr.PwPeriod)
+				if(usr_rec.PwUpdate && accsr.PwPeriod && diffdate(&now_dtm.d, &usr_rec.PwUpdate, 0) > accsr.PwPeriod)
 					r_lc.State |= CFGST_PWEXPIRED;
 				r_lc.AccessLevel = accsr.AccessLevel;
 			}

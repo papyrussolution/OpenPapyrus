@@ -127,7 +127,7 @@ TLP_IMPL(PPObjBill, LotExtCodeCore, P_LotXcT);
 TLP_IMPL(PPObjBill, LocTransfCore, P_LocTrfr); // @v12.4.1
 
 PPObjBill::PPObjBill(void * extraPtr) : PPObject(PPOBJ_BILL), CcFlags(CConfig.Flags), P_CpTrfr(0),
-	P_AdvBI(0), P_InvT(0), P_GsT(0), P_ScObj(0), P_LotXcT(0), P_Cr(0), ExtraPtr(extraPtr), State2(0)
+	P_AdvBI(0), P_InvT(0), P_GsT(0), P_LocTrfr(0), P_ScObj(0), P_LotXcT(0), P_Cr(0), ExtraPtr(extraPtr), State2(0)
 {
 	atobj   = new PPObjAccTurn(0);
 	P_OpObj = new PPObjOprKind(0);
@@ -361,7 +361,8 @@ int PPObjBill::IsPacketEq(const PPBillPacket & rS1, const PPBillPacket & rS2, lo
 			eq = 0;
 		else {
 			const bool is_intr = IsIntrExpndOp(rS1.Rec.OpID);
-			SString n1, n2;
+			SString n1;
+			SString n2;
 			for(uint i = 0; eq && i < c1; i++) {
 				const PPTransferItem & r_ti1 = rS1.ConstTI(i);
 				const PPTransferItem & r_ti2 = rS2.ConstTI(i);
@@ -390,6 +391,20 @@ int PPObjBill::IsPacketEq(const PPBillPacket & rS1, const PPBillPacket & rS2, lo
 					else if(BIN(p_t1) != BIN(p_t2))
 						eq = 0;
 				}
+			}
+		}
+	}
+	if(eq) {
+		const uint _ltc1 = SVectorBase::GetCount(rS1.P_LocTrfrList);
+		const uint _ltc2 = SVectorBase::GetCount(rS2.P_LocTrfrList);
+		if(_ltc1 != _ltc2)
+			eq = 0;
+		else if(_ltc1) {
+			for(uint i = 0; eq && i < _ltc1; i++) {
+				const LocTransfOpBlock & r_lt1 = rS1.P_LocTrfrList->at(i);
+				const LocTransfOpBlock & r_lt2 = rS2.P_LocTrfrList->at(i);
+				if(!r_lt1.IsEq(r_lt2))
+					eq = 0;
 			}
 		}
 	}
@@ -781,11 +796,11 @@ int PPObjBill::InsertShipmentItemByOrder(PPBillPacket * pPack, const PPBillPacke
 					const ReceiptTbl::Rec & r_lot_rec = lot_list.at(lotidx);
 					THROW(pPack->BoundsByLot(r_lot_rec.ID, 0, -1, &rest, 0));
 					if(reserve > 0.0) { // Снижаем доступный остаток на величину резерва.
-						const double decr = MIN(rest, reserve);
+						const double decr = smin(rest, reserve);
 						rest -= decr;
 						reserve -= decr;
 					}
-					rest = MIN(rest, qtty);
+					rest = smin(rest, qtty);
 					if(rest > 0.0) {
 						SString edi_channel;
 						if(pOrderPack->Rec.EdiOp == PPEDIOP_SALESORDER)
@@ -1794,6 +1809,37 @@ int PPObjBill::Helper_EditGoodsBill(PPID * pBillID, PPBillPacket * pPack)
 
 SelAddBySampleParam::SelAddBySampleParam() : Action(acnUndef), OpID(0), LocID(0), QuotKindID(0), Dt(ZERODATE), Flags(0)
 {
+}
+
+int PPObjBill::AddBailmentByOrder(PPID * pBillID, PPID sampleBillID, const SelAddBySampleParam * pParam) // @v12.4.2
+{
+	int    ok = -1;
+	int    res = cmCancel;
+	PPID   op_type = 0;
+	PPID   org_acc_sheet_id = 0;
+	PPID   new_acc_sheet_id = 0;
+	PPOprKind op_rec;
+	PPBillPacket pack;
+	PPBillPacket sample_pack;
+	ASSIGN_PTR(pBillID, 0L);
+	THROW_INVARG(pParam);
+	THROW(CheckRights(PPR_INS));
+	THROW(ExtractPacket(sampleBillID, &sample_pack) > 0);
+	THROW_PP(pParam->OpID > 0, PPERR_INVOPRKIND);
+	op_type = GetOpType(pParam->OpID, &op_rec);
+	THROW(pack.CreateBlank(pParam->OpID, 0, sample_pack.Rec.LocID, 1));
+	pack.Rec.LocID = sample_pack.Rec.LocID;
+	GetOpCommonAccSheet(sample_pack.Rec.OpID, &org_acc_sheet_id, 0);
+	GetOpCommonAccSheet(pack.Rec.OpID, &new_acc_sheet_id, 0);
+	if(new_acc_sheet_id == org_acc_sheet_id)
+		pack.Rec.Object = sample_pack.Rec.Object;
+	//
+	pack.SampleBillID = sampleBillID;
+	res = Helper_EditGoodsBill(pBillID, &pack);
+	if(res != cmOK)
+		pack.UngetCounter();
+	CATCHZOKPPERR
+	return ok ? res : 0;
 }
 
 int PPObjBill::AddExpendByReceipt(PPID * pBillID, PPID sampleBillID, const SelAddBySampleParam * pParam)
@@ -7793,6 +7839,7 @@ int PPObjBill::TurnAdvList(PPID billID, PPBillPacket * pPack, int use_ta)
 int PPObjBill::TurnLocTrfrList(PPID billID, PPBillPacket * pPack, int use_ta) // @v12.4.1 @construction
 {
 	int    ok = -1;
+	const  LDATETIME now_dtm = getcurdatetime_();
 	SString temp_buf;
 	if(billID) {
 		if(pPack && pPack->OpTypeID == PPOPT_WAREHOUSE) {
@@ -7824,6 +7871,9 @@ int PPObjBill::TurnLocTrfrList(PPID billID, PPBillPacket * pPack, int use_ta) //
 					for(uint i = 0; i < _c; i++) {
 						LocTransfOpBlock & r_item = pPack->P_LocTrfrList->at(i);
 						r_item.BillID = pPack->Rec.ID;
+						r_item.Dtm.d = pPack->Rec.Dt;
+						if(!r_item.Dtm.t)
+							r_item.Dtm.t = now_dtm.t;
 						uint  ex_found_count = 0;
 						for(uint j = 0; j < ex_list.getCount(); j++) {
 							const LocTransfOpBlock & r_ex_item = ex_list.at(j);

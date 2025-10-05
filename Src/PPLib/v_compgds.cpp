@@ -158,7 +158,7 @@ int PPViewSuprWare::InitIteration()
 	dbq = ppcheckfiltid(dbq, _t->GoodsTypeID, Filt.SuprWareType);
 	dbq = ppcheckfiltid(dbq, _t->WrOffGrpID, Filt.SuprWareCat);
 	P_IterQuery->select(_t->ID, _t->Name, 0L).where(*dbq);
-	P_IterQuery->initIteration(0, 0, spFirst);
+	P_IterQuery->initIteration(false, 0, spFirst);
 	return 1;
 }
 

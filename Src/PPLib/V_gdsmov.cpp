@@ -360,9 +360,8 @@ int PPViewGoodsMov::InitIterQuery(PPID grpID)
 	BtrDbKey k__;
 	TempGoodsMovTbl::Key0 k0;
 	TempGoodsMovTbl::Key1 k1;
-	void * k;
 	int    sp_mode = spFirst;
-	k = k__;
+	void * k = k__;
 	delete P_IterQuery;
 	P_IterQuery = new BExtQuery(P_TempTbl, IterIdx, 10);
 	P_IterQuery->selectAll();
@@ -376,7 +375,7 @@ int PPViewGoodsMov::InitIterQuery(PPID grpID)
 		k = MEMSZERO(k1);
 		sp_mode = spFirst;
 	}
-	P_IterQuery->initIteration(0, k, sp_mode);
+	P_IterQuery->initIteration(false, k, sp_mode);
 	return 1;
 }
 

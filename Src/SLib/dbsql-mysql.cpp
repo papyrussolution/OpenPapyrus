@@ -17,7 +17,7 @@
 #endif
 
 SMySqlDbProvider::SMySqlDbProvider() :
-	DbProvider(DbDictionary::CreateInstance(0, 0), DbProvider::cSQL|DbProvider::cDbDependTa), H(0), SqlGen(sqlstMySQL, 0), Flags(0)
+	DbProvider(sqlstMySQL, DbDictionary::CreateInstance(0, 0), DbProvider::cSQL|DbProvider::cDbDependTa), H(0), SqlGen(sqlstMySQL, 0), Flags(0)
 {
 }
 
@@ -34,7 +34,7 @@ int FASTCALL SMySqlDbProvider::ProcessError(int status)
 	}
 }
 
-/*virtual*/int SMySqlDbProvider::Login(const DbLoginBlock * pBlk, long options)
+/*virtual*/int SMySqlDbProvider::DbLogin(const DbLoginBlock * pBlk, long options)
 {
 	int    ok = 0;
 	H = mysql_init(0);

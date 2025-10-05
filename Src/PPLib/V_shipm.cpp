@@ -355,7 +355,7 @@ int PPViewShipmAnalyze::InitIteration()
 		if(P_IterQuery) {
 			BtrDbKey k_;
 			P_IterQuery->selectAll();
-			P_IterQuery->initIteration(0, k_, spFirst);
+			P_IterQuery->initIteration(false, k_, spFirst);
 			return 1;
 		}
 		else

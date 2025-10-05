@@ -153,7 +153,7 @@ int CSessionCore::GetIncompleteSessList(int grade, PPID cashNodeID, PPIDArray * 
 	dbq = &(*dbq && this->Incomplete == static_cast<long>(grade) && this->Temporary == 0L);
 	BExtQuery q(this, idx);
 	q.select(this->ID, 0L).where(*dbq);
-	for(q.initIteration(0, p_k, spFirst); ok && q.nextIteration() > 0;)
+	for(q.initIteration(false, p_k, spFirst); ok && q.nextIteration() > 0;)
 		if(!pSessList->add(data.ID))
 			ok = 0;
 	return ok ? (pSessList->getCount() ? 1 : -1) : 0;

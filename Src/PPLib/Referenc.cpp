@@ -65,9 +65,10 @@
 	int    ok = 1;
 	if(cryptMethod == crymRef2) {
 		SString temp_buf;
-		char   pw_buf[128], pw_buf2[128];
+		char   pw_buf[128];
+		char   pw_buf2[128];
 		const  size_t bin_pw_size = (bufLen >= 34) ? 24 : (bufLen * 3 / 4 - 3);
-		size_t pw_len = sstrlen(pText);
+		const  size_t pw_len = sstrlen(pText);
 		// @v11.1.1 IdeaRandMem(pw_buf2, sizeof(pw_buf2));
 		SObfuscateBuffer(pw_buf2, sizeof(pw_buf2)); // @v11.1.1 
 		if(pText)
@@ -99,8 +100,8 @@
 	rText.Z();
 	if(cryptMethod == crymRef2) {
 		size_t bin_pw_size = 0;
-		SString temp_buf(pBuf);
-		if(temp_buf.DecodeMime64(pw_buf, sizeof(pw_buf), &bin_pw_size) > 0) {
+		const SString in_buf(pBuf);
+		if(in_buf.DecodeMime64(pw_buf, sizeof(pw_buf), &bin_pw_size) > 0) {
 			IdeaDecrypt(/*0*/pEncPw, pw_buf, bin_pw_size);
 			rText = pw_buf;
 		}
@@ -290,7 +291,9 @@ int Reference::_GetFreeID(PPID objType, PPID * pID, PPID firstID)
 			potential_key += inc;
 			ok = 2;
 			if(CConfig.Flags & CCFLG_DEBUG) {
-				SString msg_buf, fmt_buf, obj_title;
+				SString msg_buf;
+				SString fmt_buf;
+				SString obj_title;
 				GetObjectTitle(objType, obj_title);
 				msg_buf.Printf(PPLoadTextS(PPTXT_LOG_ADDOBJREC_JUMPED_ID, fmt_buf), obj_title.cptr());
 				PPLogMessage(PPFILNAM_INFO_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
@@ -302,10 +305,7 @@ int Reference::_GetFreeID(PPID objType, PPID * pID, PPID firstID)
 	return ok;
 }
 
-int Reference::GetFreeID(PPID obj, PPID * id)
-{
-	return _GetFreeID(obj, id, PP_FIRSTUSRREF);
-}
+int Reference::GetFreeID(PPID obj, PPID * pID) { return _GetFreeID(obj, pID, PP_FIRSTUSRREF); }
 
 int Reference::AddItem(PPID obj, PPID * pID, const void * b, int use_ta)
 {
@@ -709,8 +709,9 @@ int Reference::GetPropVlrString(PPID obj, PPID id, PPID prop, SString & rBuf)
 	k.ObjID   = id;
 	k.Prop    = prop;
 	if(Prop.search(0, &k, spEq)) {
-		size_t actual_size = 0, test_actual_size = 0;
-		RECORDSIZE fix_size = Prop.getRecSize();
+		size_t actual_size = 0;
+		size_t test_actual_size = 0;
+		const RECORDSIZE fix_size = Prop.getRecSize();
 		Prop.getLobSize(Prop.VT, &actual_size);
 		actual_size += fix_size;
 		// +32 - страховка
@@ -741,7 +742,7 @@ int Reference::PutPropVlrString(PPID obj, PPID id, PPID prop, const char * b, in
 	uint   s = 0;
 	if(!isempty(b)) {
 		const uint sz = sstrlen(b) + 1;
-		s = MAX(sizeof(PropVlrString) + sz, PROPRECFIXSIZE);
+		s = smax(sizeof(PropVlrString) + sz, PROPRECFIXSIZE);
 		THROW_MEM(pm = static_cast<PropVlrString *>(SAlloc::M(s)));
 		memzero(pm, s);
 		strcpy(reinterpret_cast<char *>(pm + 1), b);
@@ -758,9 +759,9 @@ int Reference::PutPropSBuffer(PPID obj, PPID id, PPID prop, const SBuffer & rBuf
 	int    ok = 1;
 	PropVlrString * pm = 0;
 	uint   s = 0;
-	uint   sz = rBuf.GetAvailableSize();
+	const  uint sz = rBuf.GetAvailableSize();
 	if(sz) {
-		s = MAX(sizeof(PropVlrString) + sz, PROPRECFIXSIZE);
+		s = smax(sizeof(PropVlrString) + sz, PROPRECFIXSIZE);
 		THROW_MEM(pm = static_cast<PropVlrString *>(SAlloc::M(s)));
 		memzero(pm, s);
 		THROW_SL(rBuf.ReadStatic((void *)(pm + 1), sz));
@@ -822,15 +823,16 @@ int Reference::GetPropArrayFromRecBuf(SVectorBase * pAry)
 	PropPPIDArray * p_rec = 0;
 	if(pAry) {
 		const uint item_size = pAry->getItemSize();
-		size_t actual_size = 0, test_actual_size = 0;
-		RECORDSIZE fix_size = Prop.getRecSize();
+		const RECORDSIZE fix_size = Prop.getRecSize();
+		size_t actual_size = 0;
+		size_t test_actual_size = 0;
 		Prop.getLobSize(Prop.VT, &actual_size);
 		actual_size += fix_size;
 		THROW_MEM(p_rec = static_cast<PropPPIDArray *>(SAlloc::C(1, actual_size + 32))); // +32 - страховка
 		ReadPropBuf(p_rec, actual_size, &test_actual_size);
 		assert(actual_size == test_actual_size);
 		for(int i = 0; i < p_rec->Count; i++) {
-			size_t offs = i * item_size;
+			const size_t offs = i * item_size;
 			if((sizeof(*p_rec) + offs + item_size) <= actual_size) {
 				THROW_SL(pAry->insert(PTR8(p_rec+1) + offs));
 			}
@@ -864,16 +866,15 @@ int Reference::PutPropArray(PPID obj, PPID id, PPID prop, const SVectorBase * ar
 {
 	int    ok = 1;
 	PropPPIDArray * p_rec = 0;
-	uint   i;
 	const  uint count = SVectorBase::GetCount(ary);
 	size_t sz = 0;
 	if(count > 0) {
-		const  uint minCount = (PROPRECFIXSIZE - sizeof(PropPPIDArray)) / ary->getItemSize();
-		sz = sizeof(PropPPIDArray) + (MAX(count, minCount) * ary->getItemSize());
+		const uint min_count = (PROPRECFIXSIZE - sizeof(PropPPIDArray)) / ary->getItemSize();
+		sz = sizeof(PropPPIDArray) + (smax(count, min_count) * ary->getItemSize());
 		SETMAX(sz, PROPRECFIXSIZE);
 		THROW_MEM(p_rec = static_cast<PropPPIDArray *>(SAlloc::C(1, sz)));
 		p_rec->Count = count;
-		for(i = 0; i < count; i++) {
+		for(uint i = 0; i < count; i++) {
 			size_t offs = i*ary->getItemSize();
 			memcpy(PTR8(p_rec+1) + offs, ary->at(i), ary->getItemSize());
 		}
@@ -901,10 +902,7 @@ int Reference::GetConfig(PPID obj, PPID id, PPID cfgID, void * b, uint s)
 	return r;
 }
 
-int Reference::SetConfig(PPID obj, PPID id, PPID cfgID, void * b, uint s)
-{
-	return PutProp(obj, id, cfgID, b, s);
-}
+int Reference::SetConfig(PPID obj, PPID id, PPID cfgID, void * b, uint s) { return PutProp(obj, id, cfgID, b, s); }
 
 int Reference::LoadSecur(PPID obj, PPID id, PPSecurPacket * pPack)
 {
@@ -914,14 +912,12 @@ int Reference::LoadSecur(PPID obj, PPID id, PPSecurPacket * pPack)
 	THROW(DS.FetchConfig(obj, id, &pPack->Config));
 	THROW(pPack->Rights.Get(obj, id, 0/*ignoreCheckSum*/));
 	THROW(pPack->Paths.Get(obj, id));
-	// @v11.0.0 {
 	pPack->PrivateDesktopUUID.Z();
 	if(obj == PPOBJ_USR) {
 		PPConfigPrivate cfgp_rec;
 		if(GetConfig(PPOBJ_USR, id, PPPRP_CFGPRIVATE, &cfgp_rec, sizeof(cfgp_rec)) > 0)
 			pPack->PrivateDesktopUUID = cfgp_rec.DesktopUuid;
 	}
-	// } @v11.0.0 
 	CATCHZOK
 	return ok;
 }
@@ -1438,7 +1434,7 @@ int PPRights::Get(PPID securType, PPID securID, int ignoreCheckSum)
 		P_Rt->RightsID = PPPRP_RTCOMM;
 		P_Rt->WeekDays = 0x007f;
 		P_Rt->Flags    = PPRights::GetDefaultFlags();
-		P_Rt->OprFlags = (0xffff & ~PPORF_INHERITED); // @v8.3.3 PPRights::GetDefaultOprFlags()-->(0xffff & ~PPORF_INHERITED)
+		P_Rt->OprFlags = (0xffff & ~PPORF_INHERITED);
 		P_Rt->RtDesktop = 0;
 		P_OpList  = 0;
 		P_LocList = 0;
@@ -1467,8 +1463,7 @@ int PPRights::Put(PPID securType, PPID securID)
 		P_Rt->RightsID  = PPPRP_RTCOMM;
 		memzero(P_Rt->Reserve2, sizeof(P_Rt->Reserve2));
 		//
-		// Удаляем все права по объектам с признаком "по умолчанию"
-		// и у оставшихся сбрасываем признак "наследованный"
+		// Удаляем все права по объектам с признаком "по умолчанию" и у оставшихся сбрасываем признак "наследованный"
 		//
 		for(uint s = 0; s < P_Rt->ORTailSize;) {
 			ObjRights * o = (ObjRights *)(PTR8(P_Rt + 1) + s);
@@ -1476,7 +1471,6 @@ int PPRights::Put(PPID securType, PPID securID)
 				THROW(SetObjRights(o->ObjType, 0));
 			}
 			else {
-				// @v8.3.3 o->OprFlags &= ~PPORF_INHERITED;
 				s += o->Size;
 			}
 		}
@@ -1558,7 +1552,7 @@ int PPRights::Resize(uint sz)
 	if(P_Rt && sz == 0)
 		ZFREE(P_Rt);
 	else {
-		size_t prev_size = Size();
+		const size_t prev_size = Size();
 		sz = (sz < sizeof(_PPRights)) ? sizeof(_PPRights) : sz;
 		P_Rt = static_cast<_PPRights *>(SAlloc::R(P_Rt, sz));
 		if(P_Rt) {
@@ -1577,13 +1571,13 @@ int PPRights::SetObjRights(PPID objType, const ObjRights * rt, int replace)
 	int    ok = 1;
 	if(P_Rt) {
 		uint8 * cp = PTR8(P_Rt + 1);
-		size_t hs = sizeof(_PPRights);
+		const size_t hs = sizeof(_PPRights);
 		size_t ts = P_Rt->ORTailSize;
 		size_t s  = 0;
 		int    found = 0;
 		while(s < ts && !found) {
 			ObjRights * o = reinterpret_cast<ObjRights *>(cp + s);
-			size_t os = o->Size;
+			const size_t os = o->Size;
 			if(o->ObjType == 0 || os == 0) {
 				//
 				// Такая ситуация встречаться не должна, но на всякий

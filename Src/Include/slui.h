@@ -3745,7 +3745,8 @@ public:
 	void   DisableClusterItem(uint ctlID, int itemNo /* 0.. */, bool toDisable = true);
 	void   DisableClusterItems(uint ctlID, const LongArray & rItemIdxList /* 0.. */, bool toDisable = true);
 	int    SetClusterItemText(uint ctlID, int itemNo /* 0.. */, const char * pText);
-	int    GetClusterItemByAssoc(uint ctlID, long val, int * pPos);
+	bool   GetClusterItemByAssoc(uint ctlID, long val, int * pPos) const;
+	uint   GetClusterItemsCount(uint ctlID) const;
 	int    SetDefaultButton(uint ctlID, bool setDefault);
 	int    SetCtrlBitmap(uint ctlID, uint bmID);
 	int    SetupInputLine(uint ctlID, TYPEID typ, long fmt);
@@ -4160,7 +4161,7 @@ public:
 	int    addAssoc(long pos, long val);
 	int    setDataAssoc(long);
 	bool   getDataAssoc(long *);
-	int    getItemByAssoc(long val, int * pItem) const;
+	bool   getItemByAssoc(long val, int * pItem) const;
 	int    GetKind() const { return static_cast<int>(Kind); } // @v12.3.3 getKind()-->GetKind()
 	uint   GetSpcFlags() const { return SpcFlags; }
 	const  Item * GetItemC(uint idx) const { return (idx < ItemList.getCount()) ? ItemList.at(idx) : 0; }
@@ -5568,6 +5569,13 @@ public:
 	bool   IsEOQ() const;
 	bool   CheckFlag(uint f) const;
 	void   SetUserProc(SBrowserDataProc proc, void * extraPtr);
+	//
+	// Descr: Пытается найти первый столбец у которого значение BroColumn::OrgOffs == orgOffs.
+	// Returns:
+	//   >= 0 - искомый столбец найден и возвращаемое значение равно индексу [0..] столбца в списке.
+	//   <0   - искомый столбец не найден
+	//
+	int    FindColumnByOrgOffs(uint orgOffs) const;
 protected:
 	SBrowserDataProc UserProc;
 	void * ExtraPtr;

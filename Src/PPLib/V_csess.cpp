@@ -397,7 +397,7 @@ int PPViewCSess::InitIteration(long ord)
 		THROW_MEM(P_IterQuery = new BExtQuery(P_TempOrd, 1));
 		P_IterQuery->select(P_TempOrd->ID, 0);
 		Counter.Init(P_IterQuery->countIterations(0, MEMSZERO(k1), spFirst));
-		P_IterQuery->initIteration(0, MEMSZERO(k1), spFirst);
+		P_IterQuery->initIteration(false, MEMSZERO(k1), spFirst);
 	}
 	else {
 		DBQ  * dbq = 0;
@@ -2527,7 +2527,7 @@ int PPViewCSessExc::InitIteration()
 	THROW_PP(P_TempTbl, PPERR_PPVIEWNOTINITED);
 	THROW_MEM(P_IterQuery = new BExtQuery(P_TempTbl, 0, 16));
 	P_IterQuery->selectAll();
-	P_IterQuery->initIteration(0, k_, spFirst);
+	P_IterQuery->initIteration(false, k_, spFirst);
 	CATCHZOK
 	return ok;
 }

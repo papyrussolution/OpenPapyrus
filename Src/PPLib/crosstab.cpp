@@ -258,7 +258,7 @@ int Crosstab::GetCrossValues(DBTable * pTbl, const DBField & crssFld, STypArray 
 	q.select(flist);
 	THROW_MEM(p_list = new STypArray(crssFld.getField().T, O_ARRAY));
 	pTbl->search(0, temp_key_, spFirst);
-	for(q.initIteration(0, 0, -1); q.nextIteration() > 0;) {
+	for(q.initIteration(false, 0, -1); q.nextIteration() > 0;) {
 		const void * p_data_buf = PTR8C(pTbl->getDataBuf()) + crss_fld_offs;
 		if(!p_list->search(p_data_buf, 0))
 			p_list->insert(p_data_buf);
@@ -506,7 +506,7 @@ int Crosstab::Create(int use_ta)
 		uint  ext_sort_fld_pos = 0;
 		if(Flags & fHasExtSortField && &P_RTbl->GetFields().getField("CTIX", &ext_sort_fld_pos) == 0)
 			ext_sort_fld_pos = 0;
-		for(q.initIteration(0, 0, -1); q.nextIteration() > 0; PPWaitPercent(cntr.Increment(), msg_buf)) {
+		for(q.initIteration(false, 0, -1); q.nextIteration() > 0; PPWaitPercent(cntr.Increment(), msg_buf)) {
 			uint   ct_val_pos = 0;
 			CrssFld.getValue(buf, 0);
 			if(P_CtValList->search(buf, &ct_val_pos)) {

@@ -918,10 +918,16 @@ int STDCALL TDialog::AddClusterAssocDef(uint ctlID, long pos, long val)
 	return ok;
 }
 
-int TDialog::GetClusterItemByAssoc(uint ctlID, long val, int * pPos)
+uint TDialog::GetClusterItemsCount(uint ctlID) const
 {
-	TCluster * p_clu = static_cast<TCluster *>(getCtrlView(ctlID));
-	return p_clu ? p_clu->getItemByAssoc(val, pPos) : 0;
+	const TCluster * p_clu = static_cast<const TCluster *>(getCtrlViewC(ctlID));
+	return p_clu ? p_clu->getNumItems() : 0;
+}
+
+bool TDialog::GetClusterItemByAssoc(uint ctlID, long val, int * pPos) const
+{
+	const TCluster * p_clu = static_cast<const TCluster *>(getCtrlViewC(ctlID));
+	return p_clu ? p_clu->getItemByAssoc(val, pPos) : false;
 }
 
 int STDCALL TDialog::SetClusterData(uint ctlID, long val)

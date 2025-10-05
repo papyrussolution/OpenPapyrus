@@ -448,7 +448,7 @@ int PPViewFreight::InitIteration(IterOrder order)
 	BExtQuery::ZDelete(&P_IterQuery);
 	THROW_MEM(P_IterQuery = new BExtQuery(P_TmpTbl, idx));
 	P_IterQuery->selectAll();
-	THROW(P_IterQuery->initIteration(0, k_, spFirst));
+	THROW(P_IterQuery->initIteration(false, k_, spFirst));
 	CATCHZOK
 	return ok;
 }

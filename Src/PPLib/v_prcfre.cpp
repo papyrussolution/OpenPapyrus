@@ -291,7 +291,7 @@ int PPViewPrcBusy::InitIteration()
 		P_IterQuery = new BExtQuery(P_TempTbl, 1);
 		// @v10.6.8 @ctr memzero(k, sizeof(k));
 		P_IterQuery->selectAll();
-		P_IterQuery->initIteration(0, k_, spFirst);
+		P_IterQuery->initIteration(false, k_, spFirst);
 	}
 	else
 		ok = PPSetError(PPERR_PPVIEWNOTINITED);

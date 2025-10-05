@@ -1217,7 +1217,7 @@ int PPViewLot::Init_(const PPBaseFilt * pFilt)
 				PersonTbl * p_psn_tbl = PsnObj.P_Tbl;
 				BExtQuery psn_cntr_q(p_psn_tbl, 0);
 				psn_cntr_q.select(p_psn_tbl->ID, p_psn_tbl->Name, 0L).where(p_psn_tbl->Status == PPPRS_COUNTRY);
-				for(psn_cntr_q.initIteration(0, k_, spGt); psn_cntr_q.nextIteration() > 0;)
+				for(psn_cntr_q.initIteration(false, k_, spGt); psn_cntr_q.nextIteration() > 0;)
 					if(native_country_name.CmpNC(p_psn_tbl->data.Name) == 0)
 						Itd.PsnNativeCntryList.add(p_psn_tbl->data.ID);
 			}
@@ -2002,7 +2002,7 @@ int PPViewLot::InitIteration(IterOrder order)
 		P_IterQuery = new BExtQuery(P_TempTbl, idx, 16);
 		P_IterQuery->selectAll();
 		Counter.Init(P_IterQuery->countIterations(0, key__, spGe));
-		P_IterQuery->initIteration(0, key_, spGe);
+		P_IterQuery->initIteration(false, key_, spGe);
 	}
 	else if(Filt.ParentLotID) {
 		Itd.IdList.setPointer(0);

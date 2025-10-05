@@ -750,14 +750,16 @@ int InetUrl::Compose(long flags, SString & rBuf) const
 				rBuf.RmvLastSlash();
 			else
 				rBuf.SetLastDSlash();
+			rBuf.Cat(temp_buf);
 			*/
 			// @v12.4.1 {
 			SString _path;
-			SFsPath::NormalizePath(temp_buf, SFsPath::npfCompensateDotDot|SFsPath::npfKeepCase|SFsPath::npfSlash, _path);
-			if(rBuf.NotEmpty() && _path.C(0) != '/')
+			//SFsPath::NormalizePath(temp_buf, SFsPath::npfCompensateDotDot|SFsPath::npfKeepCase|SFsPath::npfSlash, _path);
+			_path = temp_buf;
+			if(rBuf.NotEmpty() && !oneof2(_path.C(0), '/', '\\'))
 				rBuf.CatChar('/');
-			// } @v12.4.1 
 			rBuf.Cat(_path);
+			// } @v12.4.1 
 			result |= cPath;
 		}
 		if(_f & stQuery && GetComponent(cQuery, 0, temp_buf)) {

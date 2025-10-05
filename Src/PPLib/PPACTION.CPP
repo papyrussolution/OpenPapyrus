@@ -107,7 +107,7 @@ int SysJournal::GetEvent(PPID action, long extraVal, int mode, LDATETIME * pMome
 		}
 	}
 	dbq = ppcheckfiltid(dbq, this->Action, action);
-	dbq = ppcheckfiltid(dbq, this->Extra, extraVal); // @v10.7.5
+	dbq = ppcheckfiltid(dbq, this->Extra, extraVal);
 	q.selectAll().where(*dbq);
 	q.initIteration((mode <= 0), &k, sp);
 	if(q.nextIteration() > 0) {

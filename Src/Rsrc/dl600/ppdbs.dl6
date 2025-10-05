@@ -1666,12 +1666,14 @@ table LocTransf { // size=104
 	// @v12.4.1 int16  PalletCount;  // Количество паллетов типа PalletTypeID
 	// @v12.4.1 int16  Reserve1;     // @alignment
 	long   LocOwnerPersonID; // Персоналия-владелец локации (LocID) в случае, если Domain==LOCTRFRDOMAIN_BAILMENT
-	raw    Reserve2[20];     // @reserve
+	long   OrderBillID;      // Пара {OrderBillID; OrderRByBill} используется для привязки операции к записи заказа. Это относится к LOCTRFRDOMAIN_BAILMENT.
+	int16  OrderRByBill;     //
+	raw    Reserve2[14];     // @reserve
 index:
 	LocID, RByLoc (unique mod);                       // #0
 	LotID, LocID, RByLoc (anysegnull unique mod);     // #1
 	GoodsID, LocID, RByLoc (unique mod);              // #2
-	BillID, RByBillLT (allsegnull dup mod);             // #3 В случае с ORACLE allsegnull не помогает боротся с неуникальностью пары {0; 0}. Поэтому индекс dup.
+	BillID, RByBillLT (allsegnull dup mod);           // #3 В случае с ORACLE allsegnull не помогает боротся с неуникальностью пары {0; 0}. Поэтому индекс dup.
 		// В дополнение к предыдущему замечанию: по одной строке документа может быть несколько операций размещения. Важно лишь, чтобы программа
 		// следила, чтобы по одной строке не было размещено большее количество, чем в строке.
 	LinkLocID, LinkRByLoc (allsegnull dup mod);       // #4

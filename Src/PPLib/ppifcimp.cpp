@@ -6281,7 +6281,7 @@ static int MakeLotQuery(ReceiptCore & rRcpt, LotQueryBlock & rBlk, int lcr, ulon
 static int SelectLcrLots(ReceiptCore & rRcpt, const PPIDArray & rIdList, const UintHashTable & rLcrList, SVector & rList, ObjIdListFilt & rLocList, LDATE dt)
 {
 	int    ok = 1;
-	const uint id_count = rIdList.getCount();
+	const  uint id_count = rIdList.getCount();
 	if(id_count < 3) {
 		for(uint i = 0; i < id_count; i++) {
 			if(rRcpt.Search(rIdList.get(i), 0) > 0) {
@@ -6303,7 +6303,9 @@ static int SelectLcrLots(ReceiptCore & rRcpt, const PPIDArray & rIdList, const U
 
 ILotList * DL6ICLS_PPObjBill::GetCurLotList(LDATE lowDt, LDATE uppDt, int32 goodsGrpID, IStrAssocList * pLocList)
 {
-	int    ok = 1, r, use_lot_idx = 1;
+	int    ok = 1;
+	int    r;
+	int    use_lot_idx = 1;
 	ReceiptCore rt;
 	Transfer trfr;
 	UintHashTable lcr_lot_list;
@@ -6365,7 +6367,6 @@ ILotList * DL6ICLS_PPObjBill::GetCurLotList(LDATE lowDt, LDATE uppDt, int32 good
 		LotViewItem item;
 		LotFilt   filt;
 		PPViewLot v;
-
 		use_lot_idx = 0;
 		filt.Operation.Set(lowDt, uppDt);
     	filt.GoodsGrpID= goodsGrpID;

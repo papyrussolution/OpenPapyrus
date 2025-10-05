@@ -52,13 +52,23 @@ void BExtQuery::Init(DBTable * pTbl, int idx, uint aBufSize)
 	RecSize    = 0;
 	ActCount   = 0;
 	TailOfs    = 0;
-	MaxRecs    = aBufSize;
 	State      = 0;
 	State     |= stFillBuf;
 	MaxReject  = 0xffffU;
 	P_Stmt = 0;
-	if(P_Tbl->GetDb() && P_Tbl->GetDb()->GetCapability() & DbProvider::cSQL)
+	const long dbp_capabilities = P_Tbl->GetDb() ? P_Tbl->GetDb()->GetCapability() : 0;
+	if(dbp_capabilities & DbProvider::cSQL) {
 		State |= stSqlProvider;
+		if(dbp_capabilities & DbProvider::cDirectSelectDataMapping) {
+			MaxRecs = 1;
+		}
+		else {
+			MaxRecs = aBufSize;	
+		}
+	}
+	else {
+		MaxRecs = aBufSize;	
+	}
 }
 
 BExtQuery::BExtQuery(DBTable * pTbl, int idx, uint aBufSize) : Buf(0)
@@ -81,45 +91,54 @@ BExtQuery::~BExtQuery()
 	SAlloc::F(P_QBuf);
 }
 
-int BExtQuery::CreateSqlExpr(Generator_SQL * pSg, int reverse, const char * pInitKey, int initSpMode) const
+int BExtQuery::CreateSqlExpr(Generator_SQL & rSg, int reverse, const char * pInitKey, int initSpMode) const
 {
 	int    ok = 1;
-	Generator_SQL sg(sqlstORA, 0);
-	pSg->Z().Tok(Generator_SQL::tokSelect).HintBegin().HintIndex(*P_Tbl, 0, Index_, BIN(reverse)).HintEnd();
+	SString temp_buf;
+	const  BNKeyList & r_indices = P_Tbl->GetIndices();
+	const BNKey & r_key = r_indices[Index_];
+	const int ns = r_key.getNumSeg();
+	//Generator_SQL sg(rSg.GetServerType()/*sqlstORA*/, 0);
+	rSg.Z().Tok(Generator_SQL::tokSelect);
+	if(rSg.GetServerType() == sqlstORA) {
+		rSg.HintBegin().HintIndex(*P_Tbl, 0, Index_, BIN(reverse)).HintEnd();
+	}
 	const uint c = Fields.GetCount();
 	if(c) {
 		for(uint i = 0; i < c; i++) {
 			if(i)
-				pSg->Com();
-			pSg->Text(Fields.GetField(i).Name);
+				rSg.Com();
+			rSg.Text(Fields.GetField(i).Name);
 		}
 	}
 	else
-		pSg->Aster();
-	pSg->Sp().From(P_Tbl->GetName());
+		rSg.Aster();
+	rSg.Sp().From(P_Tbl->GetName());
+	if(rSg.GetServerType() == sqlstSQLite) {
+		if(rSg.GetIndexName(*P_Tbl, Index_, temp_buf)) {
+			rSg.Sp().Tok(Generator_SQL::tokIndexedBy).Sp().Text(temp_buf);
+		}
+	}
 	int _where_tok = 0;
 	if(pInitKey && initSpMode != -1) {
 		//
-		// Oracle не "хочет" применять hint INDEX если в ограничениях не присутствует поле из
-		// этого индекса.
+		// Oracle не "хочет" применять hint INDEX если в ограничениях не присутствует поле из этого индекса.
 		//
 		//BNKey  key = P_Tbl->indexes[index];
-		BNKey  key = P_Tbl->GetIndices()[Index_];
-		int    ns = key.getNumSeg();
 		size_t offs = 0;
 		char   temp[512];
-		pSg->Sp().Tok(Generator_SQL::tokWhere).Sp();
+		rSg.Sp().Tok(Generator_SQL::tokWhere).Sp();
 		_where_tok = 1;
-		pSg->LPar();
+		rSg.LPar();
 		for(int i = 0; i < ns; i++) {
-			int fldid = key.getFieldID(i);
-			const BNField fld = P_Tbl->GetIndices().field(Index_, i);
+			int fldid = r_key.getFieldID(i);
+			const BNField & r_fld = r_indices.field(Index_, i);
 			if(i > 0) { // НЕ первый сегмент
-				pSg->Tok(Generator_SQL::tokAnd).Sp();
+				rSg.Tok(Generator_SQL::tokAnd).Sp();
 				if(initSpMode != spEq)
-					pSg->LPar();
+					rSg.LPar();
 			}
-			if(key.getFlags(i) & XIF_ACS) {
+			if(r_key.getFlags(i) & XIF_ACS) {
 				//
 				// Для ORACLE нечувствительность к регистру символов
 				// реализуется функциональным сегментом индекса nls_lower(fld).
@@ -127,14 +146,14 @@ int BExtQuery::CreateSqlExpr(Generator_SQL * pSg, int reverse, const char * pIni
 				// См. Generator_SQL::CreateIndex(const DBTable &, const char *, uint)
 				//
 				int   _func_tok = 0;
-				if(pSg->GetServerType() == sqlstORA)
+				if(rSg.GetServerType() == sqlstORA)
 					_func_tok = Generator_SQL::tokNlsLower;
 				else
 					_func_tok = Generator_SQL::tokLower;
-				pSg->Func(_func_tok, fld.Name);
+				rSg.Func(_func_tok, r_fld.Name);
 			}
 			else
-				pSg->Text(fld.Name);
+				rSg.Text(r_fld.Name);
 
 			int   cmps = _EQ_;
 			if(initSpMode == spEq)
@@ -147,10 +166,9 @@ int BExtQuery::CreateSqlExpr(Generator_SQL * pSg, int reverse, const char * pIni
 				cmps = _GE_; //cmps = (i == ns-1) ? _GT_ : _GE_;
 			else if(oneof2(initSpMode, spGe, spFirst))
 				cmps = _GE_;
-			pSg->_Symb(cmps);
-			sttostr(fld.T, PTR8C(pInitKey)+offs, COMF_SQL, temp);
-			pSg->Text(temp);
-
+			rSg._Symb(cmps);
+			sttostr(r_fld.T, PTR8C(pInitKey)+offs, COMF_SQL, temp);
+			rSg.Text(temp);
 			if(i > 0 && initSpMode != spEq) {
 				//
 				// При каскадном сравнении ключа второй и последующие сегменты
@@ -162,39 +180,51 @@ int BExtQuery::CreateSqlExpr(Generator_SQL * pSg, int reverse, const char * pIni
 				// index {X, Y, Z}
 				// X > :A and (Y > :B or (X <> :A)) and (Z > :C or (X <> :A and Y <> :B))
 				//
-				pSg->Sp().Tok(Generator_SQL::tokOr).Sp().LPar();
+				rSg.Sp().Tok(Generator_SQL::tokOr).Sp().LPar();
 				for(int j = 0; j < i; j++) {
-					const BNField fld2 = P_Tbl->GetIndices().field(Index_, j);
+					const BNField & r_fld2 = r_indices.field(Index_, j);
 					if(j > 0)
-						pSg->Tok(Generator_SQL::tokAnd).Sp();
-					if(key.getFlags(j) & XIF_ACS) {
+						rSg.Tok(Generator_SQL::tokAnd).Sp();
+					if(r_key.getFlags(j) & XIF_ACS) {
 						int   _func_tok = 0;
-						if(pSg->GetServerType() == sqlstORA)
+						if(rSg.GetServerType() == sqlstORA)
 							_func_tok = Generator_SQL::tokNlsLower;
 						else
 							_func_tok = Generator_SQL::tokLower;
-						pSg->Func(_func_tok, fld2.Name);
+						rSg.Func(_func_tok, r_fld2.Name);
 					}
 					else
-						pSg->Text(fld2.Name);
-					pSg->_Symb(_NE_);
-					sttostr(fld2.T, PTR8C(pInitKey) + P_Tbl->GetIndices().getSegOffset(Index_, j), COMF_SQL, temp);
-					pSg->Text(temp);
-					pSg->Sp();
+						rSg.Text(r_fld2.Name);
+					rSg._Symb(_NE_);
+					sttostr(r_fld2.T, PTR8C(pInitKey) + r_indices.getSegOffset(Index_, j), COMF_SQL, temp);
+					rSg.Text(temp);
+					rSg.Sp();
 				}
-				pSg->RPar().RPar().Sp();
+				rSg.RPar().RPar().Sp();
 			}
-			offs += stsize(fld.T);
-			pSg->Sp();
+			offs += stsize(r_fld.T);
+			rSg.Sp();
 		}
-		pSg->RPar();
+		rSg.RPar();
 	}
 	if(P_Restrict) {
 		if(!_where_tok)
-			pSg->Sp().Tok(Generator_SQL::tokWhere).Sp();
+			rSg.Sp().Tok(Generator_SQL::tokWhere).Sp();
 		else
-			pSg->Sp().Tok(Generator_SQL::tokAnd).Sp();
-		P_Tree->CreateSqlExpr(pSg, -1);
+			rSg.Sp().Tok(Generator_SQL::tokAnd).Sp();
+		P_Tree->CreateSqlExpr(rSg, -1);
+	}
+	if(rSg.GetServerType() == sqlstSQLite) {
+		if(reverse) { // Обратное направление поиска
+			rSg.Tok(Generator_SQL::tokOrderBy);
+			for(int i = 0; i < ns; i++) {
+				const BNField & r_fld = r_indices.field(Index_, i);
+				if(i)
+					rSg.Com();
+				rSg.Sp().Text(r_fld.Name).Sp().Tok(Generator_SQL::tokDesc);
+			}
+			rSg.Sp();
+		}
 	}
 	return ok;
 }
@@ -204,9 +234,10 @@ int BExtQuery::initIteration(bool reverse, const void * pInitKey, int initSpMode
 	int    ok = 1;
 	State &= (stSqlProvider | 0); // Обнуляем все признаки кроме stSqlProvider
 	State |= (stFirst | stFillBuf);
-	for(uint i = 0; i < Fields.GetCount(); i++)
+	for(uint i = 0; i < Fields.GetCount(); i++) {
 		if(GETSTYPE(Fields.GetField(i).T) == S_NOTE)
 			State |= stHasNote;
+	}
 	if(reverse)
 		State |= stReverse;
 	InitSpMode = initSpMode;
@@ -285,50 +316,87 @@ int BExtQuery::search_first(const char * pInitKey, int initSpMode, int spMode)
 	const  uint fields_count = Fields.GetCount();
 	BExtTail * p_tail = 0;
 	if(State & stSqlProvider) {
-		Generator_SQL sg(sqlstORA, 0);
-		ZDELETE(P_Stmt);
-		CreateSqlExpr(&sg, BIN(State & stReverse), pInitKey, initSpMode);
-		{
-			int    r;
-			uint   actual = 0;
-			SSqlStmt stmt(P_Tbl->GetDb(), sg);
-			THROW_V(P_Stmt = new SSqlStmt(P_Tbl->GetDb(), sg), BE_NOMEM);
-			THROW(P_Stmt->Exec(0, OCI_DEFAULT));
-			//
-			// Распределяем буфер для хранения записи.
-			//
-			// Для SQL-провайдера не надо распределять буфер на все записи, но лишь только
-			// на одну запись. Поскольку SSqlStmt сам содержит внутренний буфер, в котором
-			// все извлеченные записи и так успешно храняться.
-			//
-			if(fields_count) {
-				for(uint i = 0; i < fields_count; i++)
-					RecSize += Fields.GetField(i).size();
-			}
-			else {
+		const DbProvider * p_dbs = P_Tbl->GetDb();
+		if(!p_dbs) {
+			ok = -1; // @todo @err
+		}
+		else {
+			const SqlServerType sql_server_type = p_dbs->GetSqlServerType();
+			Generator_SQL sg(sql_server_type, 0);
+			ZDELETE(P_Stmt);
+			CreateSqlExpr(sg, BIN(State & stReverse), pInitKey, initSpMode);
+			{
+				int    r;
+				uint   actual = 0;
+				SSqlStmt stmt(P_Tbl->GetDb(), sg);
+				THROW_V(P_Stmt = new SSqlStmt(P_Tbl->GetDb(), sg), BE_NOMEM);
+				THROW(P_Stmt->Exec(0, OCI_DEFAULT));
 				//
-				// Здесь нельзя использовать tbl->fields.CalculateFixedRecSize() поскольку
-				// эта функция возвращает размер записи без полей переменной длины и без NOTE-полей.
+				// Распределяем буфер для хранения записи.
 				//
-				for(uint i = 0; i < P_Tbl->GetFields().getCount(); i++)
-					RecSize += P_Tbl->GetFields()[i].size();
-			}
-			THROW_V(Buf.Alloc(RecSize), BE_NOMEM);
-			if(fields_count) {
-				THROW(P_Stmt->BindData(+1, MaxRecs, Fields, Buf.vcptr(), P_Tbl->getLobBlock()));
-			}
-			else {
-				THROW(P_Stmt->BindData(+1, MaxRecs, P_Tbl->GetFields(), Buf.vcptr(), P_Tbl->getLobBlock()));
-			}
-			THROW(r = P_Stmt->Fetch(MaxRecs, &ActCount));
-			if(r > 0) {
-				if(ActCount)
-					THROW(P_Stmt->GetData(0));
-				ok = 1;
-			}
-			else {
-				BtrError = BE_EOF;
-				ok = -1;
+				// Для SQL-провайдера не надо распределять буфер на все записи, но лишь только
+				// на одну запись. Поскольку SSqlStmt сам содержит внутренний буфер, в котором
+				// все извлеченные записи и так успешно храняться.
+				//
+				if(fields_count) {
+					for(uint i = 0; i < fields_count; i++)
+						RecSize += Fields.GetField(i).size();
+				}
+				else {
+					//
+					// Здесь нельзя использовать tbl->fields.CalculateFixedRecSize() поскольку
+					// эта функция возвращает размер записи без полей переменной длины и без NOTE-полей.
+					//
+					for(uint i = 0; i < P_Tbl->GetFields().getCount(); i++)
+						RecSize += P_Tbl->GetFields()[i].size();
+				}
+				THROW_V(Buf.Alloc(RecSize), BE_NOMEM);
+				if(p_dbs->GetCapability() & DbProvider::cDirectSelectDataMapping) {
+					assert(MaxRecs == 1); // Установлено в конструкторе BExtQuery
+					if(fields_count) {
+						THROW(P_Stmt->BindData(+1, 1, Fields, Buf.vcptr(), P_Tbl->getLobBlock()));
+					}
+					else {
+						THROW(P_Stmt->BindData(+1, 1, P_Tbl->GetFields(), Buf.vcptr(), P_Tbl->getLobBlock()));
+					}
+					// @20251003
+					{
+						uint    local_actual_count = 0;
+						THROW(r = P_Stmt->Fetch(1, &local_actual_count));
+						if(r > 0) {
+							/* @v12.4.2 это, кажись, не надо - функция Fetch уже получила данные //
+							if(ActCount) {
+								THROW(P_Stmt->GetData(0));
+							}*/
+							ActCount += local_actual_count;
+							ok = 1;
+						}
+						else {
+							BtrError = BE_EOF;
+							ok = -1;
+						}
+					}
+				}
+				else {
+					if(fields_count) {
+						THROW(P_Stmt->BindData(+1, MaxRecs, Fields, Buf.vcptr(), P_Tbl->getLobBlock()));
+					}
+					else {
+						THROW(P_Stmt->BindData(+1, MaxRecs, P_Tbl->GetFields(), Buf.vcptr(), P_Tbl->getLobBlock()));
+					}
+					THROW(r = P_Stmt->Fetch(MaxRecs, &ActCount));
+					if(r > 0) {
+						/* @v12.4.2 это, кажись, не надо - функция Fetch уже получила данные //
+						if(ActCount) {
+							THROW(P_Stmt->GetData(0));
+						}*/
+						ok = 1;
+					}
+					else {
+						BtrError = BE_EOF;
+						ok = -1;
+					}
+				}
 			}
 		}
 	}
@@ -391,11 +459,32 @@ __again:
 	ActCount = 0;
 	if(State & stSqlProvider) {
 		if(P_Stmt) {
-			r = P_Stmt->Fetch(MaxRecs, &ActCount);
-			if(r > 0) {
-				if(ActCount)
-					if(!P_Stmt->GetData(0))
-						r = 0;
+			const DbProvider * p_dbs = P_Tbl->GetDb();
+			if(p_dbs->GetCapability() & DbProvider::cDirectSelectDataMapping) {
+				assert(MaxRecs == 1); // Установлено в конструкторе BExtQuery
+				{
+					uint    local_actual_count = 0;
+					r = P_Stmt->Fetch(1, &local_actual_count);
+					if(r > 0) {
+						/* @v12.4.2 это, кажись, не надо - функция Fetch уже получила данные //
+						if(ActCount) {
+							THROW(P_Stmt->GetData(0));
+						}*/
+						ActCount += local_actual_count;
+					}
+					else {
+						BtrError = BE_EOF;
+						r = -1;
+					}
+				}
+			}
+			else {
+				r = P_Stmt->Fetch(MaxRecs, &ActCount);
+				if(r > 0) {
+					if(ActCount)
+						if(!P_Stmt->GetData(0))
+							r = 0;
+				}
 			}
 		}
 	}
@@ -431,7 +520,7 @@ __again:
 				P_Tbl->SetDBuf(saved_buf);
 				ActCount = *reinterpret_cast<const uint16 *>(Buf.cptr());
 				State &= ~stRejectLimit;
-				if(!r)
+				if(!r) {
 					if(BTRNFOUND) {
 						State |= stEOF;
 						r = -1;
@@ -447,7 +536,8 @@ __again:
 							r = 1;
 						}
 					}
-				int    saved_err = BtrError;
+				}
+				const int saved_err = BtrError;
 				//
 				// Сохраняем текущую позицию записи
 				//
@@ -527,7 +617,7 @@ int FASTCALL BExtQuery::add_term(int link, int n)
 			cmp = _invertComp(t.cmp);
 			t.left.getValue(fld->T, val);
 		}
-		uint16 sz = static_cast<uint16>(fld->size());
+		const uint16 sz = static_cast<uint16>(fld->size());
 		P_QBuf = static_cast<char *>(SAlloc::R(P_QBuf, P_QHead->bufLen + sizeof(BExtTerm) + sz));
 		if(P_QBuf) {
 			BExtTerm * p_term = reinterpret_cast<BExtTerm *>(P_QBuf + P_QHead->bufLen);
@@ -582,7 +672,7 @@ int FASTCALL BExtQuery::add_tree(int link, int n)
 	return ok;
 }
 
-char * BExtQuery::getRecImage()
+const char * BExtQuery::getRecImage()
 {
 	char * p_ret = 0;
 	if(Buf.IsValid()) {
@@ -599,11 +689,12 @@ char * BExtQuery::getRecImage()
 				if(State & stHasNote) {
 					p_ret = PTRCHR(Buf.vptr(offs));
 					uint i = n;
-					if(i)
+					if(i) {
 						do {
 							offs += reinterpret_cast<const BExtResultItem *>(p_ret)->recLen + sizeof(BExtResultItem);
 							p_ret = PTRCHR(Buf.vptr(offs));
 						} while(--i);
+					}
 				}
 				else
 					p_ret = PTRCHR(Buf.vptr(offs)) + (RecSize + sizeof(BExtResultItem)) * n;
@@ -615,7 +706,7 @@ char * BExtQuery::getRecImage()
 
 int FASTCALL BExtQuery::getRecPosition(DBRowId * pPos)
 {
-	BExtResultItem * ri = reinterpret_cast<BExtResultItem *>(getRecImage());
+	const BExtResultItem * ri = reinterpret_cast<const BExtResultItem *>(getRecImage());
 	if(ri) {
 		ASSIGN_PTR(pPos, ri->position);
 		return 1;

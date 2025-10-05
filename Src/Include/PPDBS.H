@@ -3020,7 +3020,9 @@ public:
 		int32  LinkRByLoc;
 		int32  PalletTypeID;
 		int32  LocOwnerPersonID;
-		uint8  Reserve2[20]; // raw
+		int32  OrderBillID;
+		int16  OrderRByBill;
+		uint8  Reserve2[14]; // raw
 	} data;
 	struct Key0 {
 		int32  LocID;
@@ -3071,6 +3073,8 @@ public:
 	DBField LinkRByLoc;
 	DBField PalletTypeID;
 	DBField LocOwnerPersonID;
+	DBField OrderBillID;
+	DBField OrderRByBill;
 	DBField Reserve2;
 };
 #pragma pack(pop)

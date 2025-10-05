@@ -8440,11 +8440,18 @@ void PPDialogConstructor::Build(TDialog * pDlg, DlContext & rCtx, const DlScope 
 				FIBlock fake_fi_blk;
 				InsertControlItems(pDlg, rCtx, *pScope, last_dyn_id, fi_blk, insertctrlstageMain);
 				InsertControlItems(pDlg, rCtx, *pScope, last_dyn_id, fake_fi_blk/*на этой стадии не надо*/, insertctrlstagePostprocess);
-				if(fi_blk.FirstTabbedItemId) {
-					pDlg->selectCtrl(fi_blk.FirstTabbedItemId);
-				}
-				else if(fi_blk.FirstItemId) {
-					pDlg->selectCtrl(fi_blk.FirstItemId);	
+				{
+					uint    ctl_to_select = 0;
+					if(fi_blk.FirstTabbedItemId) {
+						ctl_to_select = fi_blk.FirstTabbedItemId;
+						
+					}
+					else if(fi_blk.FirstItemId) {
+						ctl_to_select = fi_blk.FirstItemId;
+					}
+					if(ctl_to_select) {
+						pDlg->selectCtrl(ctl_to_select);
+					}
 				}
 			}
 			InsertControlLayouts(pDlg, rCtx, *pScope, p_lo_main); // Теперь расставляем layout'ы

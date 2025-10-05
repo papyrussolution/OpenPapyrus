@@ -545,12 +545,12 @@ enum VetisProductType {
 
 enum VetisProductMarkingClass {
 	vpmcUNDEFINED = 0,
-	vpmcBN, // Номер производственной партии
-	vpmcSSCC, // SSCC-код
+	vpmcBN,            // Номер производственной партии
+	vpmcSSCC,          // SSCC-код
 	vpmcEAN8,
 	vpmcEAN13,
 	vpmcEAN128,
-	vpmcBUNDLE // Маркировка вышестоящей групповой упаковки, например, паллеты. Может использоваться для поиска группы вет.сертификатов для партий, находящихся на данной паллете.
+	vpmcBUNDLE         // Маркировка вышестоящей групповой упаковки, например, паллеты. Может использоваться для поиска группы вет.сертификатов для партий, находящихся на данной паллете.
 };
 
 struct VetisProduct : public VetisNamedGenericVersioningEntity {

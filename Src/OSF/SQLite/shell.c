@@ -15678,7 +15678,8 @@ static void shellEscapeCrnl(sqlite3_context * context,
 ** Make sure the database is open.  If it is not, then open it.  If
 ** the database fails to open, print an error message and exit.
 */
-static void open_db(ShellState * p, int openFlags){
+static void open_db(ShellState * p, int openFlags)
+{
 	if(p->db==0) {
 		if(p->openMode==SHELL_OPEN_UNSPEC) {
 			if(p->zDbFilename==0 || p->zDbFilename[0]==0) {
@@ -15691,8 +15692,7 @@ static void open_db(ShellState * p, int openFlags){
 		}
 		switch(p->openMode) {
 			case SHELL_OPEN_APPENDVFS: {
-			    sqlite3_open_v2(p->zDbFilename, &p->db,
-				SQLITE_OPEN_READWRITE|SQLITE_OPEN_CREATE|p->openFlags, "apndvfs");
+			    sqlite3_open_v2(p->zDbFilename, &p->db, SQLITE_OPEN_READWRITE|SQLITE_OPEN_CREATE|p->openFlags, "apndvfs");
 			    break;
 		    }
 			case SHELL_OPEN_HEXDB:
@@ -15705,21 +15705,18 @@ static void open_db(ShellState * p, int openFlags){
 			    break;
 		    }
 			case SHELL_OPEN_READONLY: {
-			    sqlite3_open_v2(p->zDbFilename, &p->db,
-				SQLITE_OPEN_READONLY|p->openFlags, 0);
+			    sqlite3_open_v2(p->zDbFilename, &p->db, SQLITE_OPEN_READONLY|p->openFlags, 0);
 			    break;
 		    }
 			case SHELL_OPEN_UNSPEC:
 			case SHELL_OPEN_NORMAL: {
-			    sqlite3_open_v2(p->zDbFilename, &p->db,
-				SQLITE_OPEN_READWRITE|SQLITE_OPEN_CREATE|p->openFlags, 0);
+			    sqlite3_open_v2(p->zDbFilename, &p->db, SQLITE_OPEN_READWRITE|SQLITE_OPEN_CREATE|p->openFlags, 0);
 			    break;
 		    }
 		}
 		globalDb = p->db;
 		if(p->db==0 || SQLITE_OK!=sqlite3_errcode(p->db)) {
-			utf8_printf(stderr, "Error: unable to open database \"%s\": %s\n",
-			    p->zDbFilename, sqlite3_errmsg(p->db));
+			utf8_printf(stderr, "Error: unable to open database \"%s\": %s\n", p->zDbFilename, sqlite3_errmsg(p->db));
 			if(openFlags & OPEN_DB_KEEPALIVE) {
 				sqlite3_open(":memory:", &p->db);
 				return;
@@ -17800,8 +17797,7 @@ static int arDotCommand(ShellState * pState,          /* Current shell tool stat
 				utf8_printf(pState->out, "-- open database '%s'%s\n", cmd.zFile,
 				    eDbType==SHELL_OPEN_APPENDVFS ? " using 'apndvfs'" : "");
 			}
-			rc = sqlite3_open_v2(cmd.zFile, &cmd.db, flags,
-				eDbType==SHELL_OPEN_APPENDVFS ? "apndvfs" : 0);
+			rc = sqlite3_open_v2(cmd.zFile, &cmd.db, flags, eDbType==SHELL_OPEN_APPENDVFS ? "apndvfs" : 0);
 			if(rc!=SQLITE_OK) {
 				utf8_printf(stderr, "cannot open file: %s (%s)\n",
 				    cmd.zFile, sqlite3_errmsg(cmd.db)
@@ -18668,9 +18664,9 @@ static int do_meta_command(char * zLine, ShellState * p){
 			raw_printf(stderr, "missing FILENAME argument on .backup\n");
 			return 1;
 		}
-		if(zDb==0) zDb = "main";
-		rc = sqlite3_open_v2(zDestFile, &pDest,
-			SQLITE_OPEN_READWRITE|SQLITE_OPEN_CREATE, zVfs);
+		if(zDb==0) 
+			zDb = "main";
+		rc = sqlite3_open_v2(zDestFile, &pDest, SQLITE_OPEN_READWRITE|SQLITE_OPEN_CREATE, zVfs);
 		if(rc!=SQLITE_OK) {
 			utf8_printf(stderr, "Error: cannot open \"%s\"\n", zDestFile);
 			close_db(pDest);

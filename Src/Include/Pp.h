@@ -1832,7 +1832,7 @@ private:
 	int    FASTCALL CheckOffset(ulong offs) const;
 
 	int    Handle;
-	// @v12.4.1 @obsolete int    NoSHARE; // if !0 then share.exe not loaded (DOS)
+	/*// @v12.4.1 @obsolete*/int    NoSHARE; // if !0 then share.exe not loaded (DOS)
 	SString DataPath;
 };
 //
@@ -7501,7 +7501,8 @@ public:
 	// Descr: Флаги функции OpenDictionary2
 	//
 	enum {
-		odfDontInitSync = 0x0001 // Не открывать файл синхронизации Sync
+		odfDontInitSync = 0x0001, // Не открывать файл синхронизации Sync
+		odfDbReadOnly   = 0x0002, // @v12.4.2 База данных открывается только для чтения. Флаг нужен для специальных случаев (SQLite например)
 	};
 	int    OpenDictionary2(DbLoginBlock * pBlk, long flags);
 	int    SetPath(PPID pathID, const char * pBuf, short flags, int replace);
@@ -12002,6 +12003,7 @@ struct LocTransfOpBlock { // @flat @persistent(SSerializeContext)
 	LocTransfOpBlock & FASTCALL operator = (const LocTransfTbl::Rec * pRec);
 	LocTransfOpBlock & Init(int domain, int op, PPID locID);
 	void   FASTCALL CopyTo(LocTransfTbl::Rec & rRec) const;
+	bool   FASTCALL IsEq(const LocTransfOpBlock & rS) const;
 	bool   FASTCALL IsEq(const LocTransfTbl::Rec & rRec) const;
 
 	int    Domain;           // @v12.4.1 LOCTRFRDOMAIN_XXX
@@ -12019,7 +12021,9 @@ struct LocTransfOpBlock { // @flat @persistent(SSerializeContext)
 	long   Flags;            // @v12.4.1 LOCTRF_XXX
 	PPID   UserID;           // @v12.4.1
 	LDATETIME Dtm;           // @v12.4.1
-	uint8  Reserve[24];      // @v12.4.1 @reserve
+	PPID   OrderBillID;      // @v12.4.1 Пара {OrderBillID; OrderRByBill} используется для привязки операции к записи заказа. Это относится к LOCTRFRDOMAIN_BAILMENT.
+	int16  OrderRByBill;     // @v12.4.1
+	uint8  Reserve[18];      // @v12.4.1 @reserve
 };
 //
 //
@@ -34311,6 +34315,7 @@ public:
 	int    GetTransByBill(PPID billID, int16 rByBill, TSVector <LocTransfTbl::Rec> * pList);
 	int    PutOp(const LocTransfOpBlock & rBlk, int * pRByLoc, int * pRByBill, int use_ta);
 	int    RemoveOp(PPID locID, long rByLoc, int use_ta);
+	int    MakeOpBlockByOrder(const PPBillPacket & rOrderBPack, uint srcItemIdx/*[0..*/, LocTransfOpBlock & rBlk);
 	int    ValidateOpBlock(const LocTransfOpBlock & rBlk);
 	int    GetLocCellList(PPID goodsID, PPID parentLocID, RAssocArray * pList);
 	int    GetGoodsList(int domain, PPID locID, RAssocArray * pList);
@@ -34336,7 +34341,7 @@ public:
 	//
 	int    GetDisposition(PPID billID, TSVector <LocTransfTbl::Rec> & rDispositionList);
 private:
-	int    PrepareRec(PPID locID, PPID billID, long loctrfrFlags, LocTransfTbl::Rec * pRec);
+	int    PrepareRec(PPID locID, const LocTransfOpBlock * pBlk, LocTransfTbl::Rec * pRec);
 	int    GetLastOpByLoc(PPID locID, long * pRByLoc, LocTransfTbl::Rec * pRec);
 	int    GetLastOpByBill(PPID billID, int16 * pRByBill, LocTransfTbl::Rec * pRec);
 	int    GetLastOpByLot(PPID locID, PPID lotID, LocTransfTbl::Rec * pRec);
@@ -34541,6 +34546,7 @@ struct SelAddBySampleParam {
 		acnShipmAll            =  5, // Отгрузить весь оприходованный товар
 		acnDraftExpByDraftRcpt =  6, // @v11.0.2 Драфт-расход по драфт-приходу
 		acnDraftRcptByDraftExp =  7, // @v11.0.2 Драфт-приход по драфт-расходу
+		acnBailmentByOrder     =  8, // @v12.4.2 Размещение основных средств по заказу 
 	};
 	long   Action;
 	PPID   OpID;
@@ -34804,6 +34810,7 @@ public:
 	int    AddDraftBySample(PPID * pBillID, PPID sampleBillID, const SelAddBySampleParam * pParam);
 	int    AddRetBill(PPID opID, long link, PPID locID);
 	int    AddRetBillByLot(PPID lotID);
+	int    AddBailmentByOrder(PPID * pID, PPID sampleBillID, const SelAddBySampleParam * pParam); // @v12.4.2
 	void   DiagGoodsTurnError(const PPBillPacket *);
 	int    GetCurRate(PPID curID, PPID rateTypeID, PPID relCurID, LDATE * pDt, double * pRate);
 	int    GetCurRate(PPID curID, LDATE * pDt, double * pRate);
@@ -35777,6 +35784,7 @@ public:
 	virtual int   Init_(const PPBaseFilt * pBaseFilt);
 	int    InitIteration();
 	int    FASTCALL NextIteration(LocTransfViewItem *);
+	int    CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle, PPViewBrowser * pBrw);
 private:
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual void  PreprocessBrowser(PPViewBrowser * pBrw);

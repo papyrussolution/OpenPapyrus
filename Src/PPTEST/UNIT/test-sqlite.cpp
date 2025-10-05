@@ -81,7 +81,7 @@ SLTEST_R(SQLite)
 	SSqliteDbProvider dbp;
 	{
 		// Создать базу данных
-		THROW(SLCHECK_NZ(dbp.Login(&dblb, 0)));
+		THROW(SLCHECK_NZ(dbp.DbLogin(&dblb, 0)));
 	}
 	{
 		const char * p_tbl_name_list[] = {

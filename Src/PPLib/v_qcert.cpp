@@ -140,7 +140,7 @@ int PPViewQCert::InitIteration()
 		P_IterQuery->where(*dbq);
 	}
 	Counter.Init(P_IterQuery->countIterations(0, MEMSZERO(k), spGe));
-	P_IterQuery->initIteration(0, MEMSZERO(k), spGe);
+	P_IterQuery->initIteration(false, MEMSZERO(k), spGe);
 	CATCH
 		ok = 0;
 		BExtQuery::ZDelete(&P_IterQuery);

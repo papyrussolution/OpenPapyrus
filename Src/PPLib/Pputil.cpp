@@ -4505,6 +4505,50 @@ int PPVerHistory::Write(const char * pDataPath, const Info * pInfo)
 class PPResticInterface { // @v12.4.1 @construction
 public:
 	struct RepoParam {
+		RepoParam()
+		{
+		}
+		RepoParam & Z()
+		{
+			Appellation.Z();
+			Loc.Z();
+			Auth.Z();
+			Pw.Z();
+			SsIncl.Z();
+			SsExcl.Z();
+			return *this;
+		}
+		int    ReadIniFile(const char * pFileName)
+		{
+			Z();
+			int    ok = 0;
+			SString temp_buf;
+			PPIniFile ini_file(pFileName, 0, 0, 0/*useIniBuf*/); // Аргумент useIniBuf должен быть 0 иначе не отработает выборка строк без конструкции a=b из секции
+				// функцией SIniFile::GetEntries() с параметром storeAllString != 0.
+			if(ini_file.IsValid()) {
+				{
+					ini_file.GetParam("general", "name", temp_buf);
+					if(temp_buf.IsEmpty()) {
+						ini_file.GetParam("general", "appellation", temp_buf);
+					}
+					if(temp_buf.NotEmptyS())
+						Appellation = temp_buf;
+				}
+				{
+					ini_file.GetParam("general", "destination", temp_buf);
+					if(temp_buf.NotEmptyS()) {
+						Loc = temp_buf;
+					}
+				}
+				ini_file.GetEntries("include", &SsIncl, 1/*storeAllString*/);
+				ini_file.GetEntries("exclude", &SsExcl, 1/*storeAllString*/);
+				if(Loc.NotEmpty() && SsIncl.IsCountGreaterThan(0)) {
+					ok = 1;
+				}
+			}
+			return ok;
+		}
+		SString Appellation;
 		SString Loc;
 		SString Auth;
 		SString Pw;
@@ -4527,6 +4571,7 @@ public:
 private:
 	int    MakeProcessObj(const RepoParam & rP, SlProcess & rPrc);
 	int    GetExePath(SString & rBuf);
+	int    ShowProcessOuput(SlProcess::Result & rR);
 
 	PPLogger * P_Logger; // @notowned
 };
@@ -4566,7 +4611,7 @@ int PPResticInterface::MakeProcessObj(const RepoParam & rP, SlProcess & rPrc)
 	if(module_path.NotEmpty() /*&& rP.Loc.NotEmpty()*/) {
 		rPrc.SetPath(module_path);
 		if(rP.Loc.NotEmpty()) {
-			rPrc.AddArg("--repo");
+			rPrc.AddArg("-r"); // "--repo"
 			rPrc.AddArg(rP.Loc);
 			//rPrc.AddEnv("RESTIC_REPOSITORY", rP.Loc);
 			if(rP.Pw.NotEmpty()) {
@@ -4585,6 +4630,36 @@ int PPResticInterface::MakeProcessObj(const RepoParam & rP, SlProcess & rPrc)
 	return ok;
 }
 
+int PPResticInterface::ShowProcessOuput(SlProcess::Result & rR)
+{
+	int    ok = -1;
+	if(P_Logger) {
+		if(!!rR.HStdOutRd) {
+			SString temp_buf;
+			DWORD  actual_size;
+			char   cbuf[4096];
+			SBuffer buffer;
+			for(;;) {
+				actual_size = 0;
+				int rfr = ::ReadFile(rR.HStdOutRd, cbuf, sizeof(cbuf)-1, &actual_size, NULL);
+				if(rfr && actual_size) {
+					buffer.Write(cbuf, actual_size);
+					ok = 1;
+				}
+				else
+					break;
+			}
+			if(ok > 0) {
+				SFile f_(buffer, SFile::mRead|SFile::mBinary);
+				while(f_.ReadLine(temp_buf, SFile::rlfChomp)) {
+					P_Logger->Log(temp_buf);
+				}
+			}
+		}
+	}
+	return ok;
+}
+
 int PPResticInterface::CreateRepo(const RepoParam & rP)
 {
 	// restic init --repo restic-repo-papyrus-main
@@ -4594,28 +4669,112 @@ int PPResticInterface::CreateRepo(const RepoParam & rP)
 	//
 	int    ok = -1;
 	int    prr = 0;
-	char   out_buf[2048];
 	SString temp_buf;
 	SlProcess prc;
 	if(MakeProcessObj(rP, prc) > 0) {
+		//prc.SetFlags(SlProcess::fReadOutputIntoInternalBuf);
 		prc.AddArg("init");
 		SlProcess::Result pr;
 		prr = prc.Run(&pr);
 		if(prr) {
-			;
+			ShowProcessOuput(pr);
+			ok = 1;
 		}
 	}
+	return ok;
+}
+
+int PPResticInterface::GetSnapshotList(const RepoParam & rP, TSCollection <Snapshot> * pResult)
+{
+	int    ok = -1;
+	int    prr = 0;
+	SString temp_buf;
+	SlProcess prc;
+	if(MakeProcessObj(rP, prc) > 0) {
+		prc.AddArg("snapshots");
+		prc.AddArg("--json");
+		SlProcess::Result pr;
+		prr = prc.Run(&pr);
+		if(prr) {
+			ShowProcessOuput(pr);
+			ok = 1;
+		}
+	}
+	return ok;
+}
+
+int PPResticInterface::Backup(const RepoParam & rP)
+{
+	int    ok = 0;
+	int    prr = 0;
+	SString temp_buf;
+	SlProcess prc;
+	SString fn_incl;
+	SString fn_excl;
+	SString temp_path;
+	PPGetPath(PPPATH_TEMP, temp_path);
+	THROW(rP.Loc.NotEmpty()); // @todo @err
+	THROW(rP.SsIncl.IsCountGreaterThan(0)); // @todo @err
+	THROW(MakeProcessObj(rP, prc) > 0);
+	{
+		//restic -r D:\__BACKUP__\Papyrus\restic-repo-papyrus-main backup --files-from D:\__BACKUP__\Papyrus\restic-repo-papyrus-main-include --exclude-file D:\__BACKUP__\Papyrus\restic-repo-papyrus-main-exclude
+		prc.AddArg("backup");
+		{
+			{
+				long tfc = 0;
+				PPMakeTempFileName("restic-bu-incl", 0, &tfc, fn_incl);
+				SFile f_temp(fn_incl, SFile::mWrite);
+				THROW_SL(f_temp.IsValid());
+				for(uint ssp = 0; rP.SsIncl.get(&ssp, temp_buf);) {
+					THROW(temp_buf.IsLegalUtf8()); // @todo @err
+					temp_buf.Strip().CR();
+					THROW_SL(f_temp.WriteLine(temp_buf));
+				}
+			}
+			prc.AddArg("--files-from");
+			prc.AddArg(fn_incl);
+		}
+		if(rP.SsExcl.IsCountGreaterThan(0)) {
+			long tfc = 0;
+			PPMakeTempFileName("restic-bu-excl", 0, &tfc, fn_excl);
+			SFile f_temp(fn_excl, SFile::mWrite);
+			THROW_SL(f_temp.IsValid());
+			for(uint ssp = 0; rP.SsExcl.get(&ssp, temp_buf);) {
+				THROW(temp_buf.IsLegalUtf8()); // @todo @err
+				temp_buf.Strip().CR();
+				THROW_SL(f_temp.WriteLine(temp_buf));
+			}
+			prc.AddArg("--exclude-file");
+			prc.AddArg(fn_incl);
+		}
+		{
+			SlProcess::Result pr;
+			prr = prc.Run(&pr);
+			if(prr) {
+				ShowProcessOuput(pr);
+				ok = 1;
+			}
+		}
+	}
+	CATCHZOK
 	return ok;
 }
 
 int TestRestic()
 {
 	int    ok = 1;
+	SString temp_buf;
 	PPLogger logger;
 	PPResticInterface rifc(&logger);
 	PPResticInterface::RepoParam rp;
-	//rp.Loc = "D:/__TEMP__/RESTIC-EXPERIMENTS/test-repo";
-	//rp.Pw = "restic-repo-pw";
-	rifc.CreateRepo(rp);
+	PPGetFilePath(PPPATH_BIN, "backup-config-01.ini", temp_buf);
+	if(rp.ReadIniFile(temp_buf)) {
+		//rp.Loc = "D:/__TEMP__/RESTIC-EXPERIMENTS/test-repo";
+		//rp.Pw = "restic-repo-pw";
+		//
+		//rifc.CreateRepo(rp);
+		//rifc.Backup(rp);
+		rifc.GetSnapshotList(rp, 0);
+	}
 	return ok;
 }

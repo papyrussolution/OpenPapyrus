@@ -1401,9 +1401,9 @@ int PPViewDebtTrnovr::SerializeState(int dir, SBuffer & rBuf, SSerializeContext 
 
 int PPViewDebtTrnovr::InitIteration(IterOrder order)
 {
-	int    ok = 1, idx = 0;
-	// @v10.6.8 char   k[MAXKEYLEN];
-	BtrDbKey k_; // @v10.6.8
+	int    ok = 1;
+	int    idx = 0;
+	BtrDbKey k_;
 	switch(order) {
 		case OrdByArticleID: idx = 0; break;
 		case OrdByArticleName: idx = 1; break;
@@ -1415,12 +1415,11 @@ int PPViewDebtTrnovr::InitIteration(IterOrder order)
 	ZDELETE(P_IterBillList);
 	IterBillCounter = 0;
 	if(Filt.Flags & DebtTrnovrFilt::fPrintExt)
-		THROW_MEM(P_IterBillList = new PPIDArray /*PayableBillList*/);
+		THROW_MEM(P_IterBillList = new PPIDArray/*PayableBillList*/);
 	PPInitIterCounter(Counter, P_TempTbl);
 	THROW_MEM(P_IterQuery = new BExtQuery(P_TempTbl, idx));
 	P_IterQuery->selectAll();
-	// @v10.6.8 @ctr memzero(k, sizeof(k));
-	THROW(P_IterQuery->initIteration(0, k_, spFirst));
+	THROW(P_IterQuery->initIteration(false, k_, spFirst));
 	CATCHZOK
 	return ok;
 }
@@ -1444,7 +1443,7 @@ int PPViewDebtTrnovr::NextInnerIteration(int initList, DebtTrnovrViewItem * pIte
 			if(P_BObj->Search(item.BillID, &bill_rec) > 0) {
 				item.CurID  = bill_rec.CurID;
 				item.Debit  = bill_rec.Amount;
-				if(UseOmtPaymAmt && !by_links) // @v8.5.8
+				if(UseOmtPaymAmt && !by_links)
 					paym = bill_rec.PaymAmount;
 				else
 					P_BObj->P_Tbl->CalcPayment(item.BillID, by_links, &Filt.Period, item.CurID, &paym);
@@ -4632,10 +4631,10 @@ DBQuery * PPViewDebtorStat::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 	return q;
 }
 
-static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle, void * extraPtr)
+static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr)
 {
 	int    ok = -1;
-	if(pData && pCellStyle && paintAction == BrowserWindow::paintNormal) {
+	if(pData && pStyle && paintAction == BrowserWindow::paintNormal) {
 		struct tag_Item {
 			PPID   ArID;
 			LDATE  Dt;
@@ -4654,20 +4653,20 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 		if(col == 9) {
 			COLORREF c;
 			if(GetDebtorRatingColor(p_item->Rating, &c) > 0) {
-				pCellStyle->Flags = 0;
-				pCellStyle->Color = c;
+				pStyle->Flags = 0;
+				pStyle->Color = c;
 				ok = 1;
 			}
 		}
 		else if(col == 0) {
 			if(p_item->Flags & PPDebtorStat::fAgent) {
-				pCellStyle->Color = LightenColor(GetColorRef(SClrBlue), 0.7f);
-				pCellStyle->Flags = 0;
+				pStyle->Color = LightenColor(GetColorRef(SClrBlue), 0.7f);
+				pStyle->Flags = 0;
 				ok = 1;
 			}
 			else if(p_item->Flags & PPDebtorStat::fHolding) {
-				pCellStyle->Color = LightenColor(GetColorRef(SClrBlue), 0.9f);
-				pCellStyle->Flags = 0;
+				pStyle->Color = LightenColor(GetColorRef(SClrBlue), 0.9f);
+				pStyle->Flags = 0;
 				ok = 1;
 			}
 		}

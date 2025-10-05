@@ -340,7 +340,8 @@ int DbLoginBlockArray::MakeList(StrAssocArray * pList, long options, const LongA
 //
 //
 //
-DbProvider::DbProvider(DbDictionary * pDict, long capability) : P_Dict(pDict), Capability(capability), State(0), DbPathID(0)
+DbProvider::DbProvider(SqlServerType sqlServerType, DbDictionary * pDict, long capability) : SqlSt(sqlServerType), P_Dict(pDict), 
+	Capability(capability), State(0), DbPathID(0), OpenMode(0)
 {
 }
 
@@ -691,7 +692,7 @@ void DbProvider::Common_Logout()
 	State &= ~stLoggedIn;
 }
 
-int DbProvider::Login(const DbLoginBlock * pBlk, long options)
+int DbProvider::DbLogin(const DbLoginBlock * pBlk, long options)
 {
 	Common_Login(pBlk);
 	return 1;

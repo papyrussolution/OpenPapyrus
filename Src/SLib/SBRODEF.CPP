@@ -201,7 +201,18 @@ void BrowserDef::getScrollData(long * pScrollDelta, long * pScrollPos)
 	ASSIGN_PTR(pScrollPos, curItem);
 }
 
-bool   BrowserDef::SetCapHeight(int height) // @v12.2.2
+int BrowserDef::FindColumnByOrgOffs(uint orgOffs) const // @v12.4.2
+{
+	int    result = -1;
+	for(uint i = 0; result < 0 && i < getCount(); i++) {
+		const BroColumn & r_col = at(i);
+		if(r_col.OrgOffs == orgOffs)
+			result = static_cast<int>(i);
+	}
+	return result;
+}
+
+bool BrowserDef::SetCapHeight(int height) // @v12.2.2
 {
 	bool   ok = true;
 	if(height > 0)

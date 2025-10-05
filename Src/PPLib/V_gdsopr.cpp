@@ -1299,7 +1299,7 @@ int PPViewGoodsOpAnalyze::InitIterQuery(PPID grpID)
 		k = &k2;
 		sp_mode = spGe;
 	}
-	P_IterQuery->initIteration(0, k, sp_mode);
+	P_IterQuery->initIteration(false, k, sp_mode);
 	return 1;
 }
 

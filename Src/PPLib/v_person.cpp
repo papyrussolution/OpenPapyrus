@@ -1802,7 +1802,7 @@ int PPViewPerson::InitPersonAttribIteration()
 		BtrDbKey k_;
 		PPInitIterCounter(Counter, P_TempPsn);
 		P_IterQuery->selectAll();
-		P_IterQuery->initIteration(0, k_, spFirst);
+		P_IterQuery->initIteration(false, k_, spFirst);
 	}
 	else
 		ok = PPSetErrorNoMem();
@@ -2628,10 +2628,10 @@ PPViewPerson::ExtEntry::ExtEntry()
 	THISZERO();
 }
 
-/*static*/int PPViewPerson::CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle, PPViewBrowser * pBrw)
+/*static*/int PPViewPerson::CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, PPViewBrowser * pBrw)
 {
 	int    ok = -1;
-	if(pBrw && pData && pCellStyle) {
+	if(pBrw && pData && pStyle) {
 		const  BrowserDef * p_def = pBrw->getDef();
 		PPViewPerson * p_view = static_cast<PPViewPerson *>(pBrw->P_View);
 		if(p_def && p_view && col >= 0 && col < p_def->getCountI()) {
@@ -2643,13 +2643,13 @@ PPViewPerson::ExtEntry::ExtEntry()
 				int is_register  = (p_filt->GetAttribType() == PPPSNATTR_REGISTER) ? oneof2(p_filt->RegTypeID, PPREGT_OKPO, PPREGT_TPID/*, PPREGT_BNKCORRACC*/) : 0;
 				int is_bank_acct = (p_filt->GetAttribType() == PPPSNATTR_BNKACCT);
 				if(col == 0 && p_view->HasImage(pData)) { // К персоналии привязана картинка?
-					pCellStyle->Flags  = BrowserWindow::CellStyle::fLeftBottomCorner;
-					pCellStyle->Color2 = GetColorRef(SClrGreen);
+					pStyle->Flags  = BrowserWindow::CellStyle::fLeftBottomCorner;
+					pStyle->Color2 = GetColorRef(SClrGreen);
 					ok = 1;
 				}
 				/*else if(col == 1 && p_view->IsNewCliPerson(*static_cast<const  PPID *>(pData))) {
-					pCellStyle->Flags = 0;
-					pCellStyle->Color = GetColorRef(SClrOrange);
+					pStyle->Flags = 0;
+					pStyle->Color = GetColorRef(SClrOrange);
 					ok = 1;
 				}*/
 				else if(r_col.OrgOffs == 1) { // name
@@ -2663,17 +2663,17 @@ PPViewPerson::ExtEntry::ExtEntry()
 							const uint state = p_ext_entry->ClientActivityState;
 							switch(state & ~PPObjPerson::ClientActivityState::stfNewClient) {
 								case PPObjPerson::ClientActivityState::stDelayedTa:
-									ok = pCellStyle->SetLeftBottomCornerColor(GetColorRef(SClrRed));
+									ok = pStyle->SetLeftBottomCornerColor(GetColorRef(SClrRed));
 									break;
 								case PPObjPerson::ClientActivityState::stHopelesslyDelayedTa:
-									ok = pCellStyle->SetLeftBottomCornerColor(GetColorRef(SClrBlack));
+									ok = pStyle->SetLeftBottomCornerColor(GetColorRef(SClrBlack));
 									break;
 								case PPObjPerson::ClientActivityState::stRegularTa:
-									ok = pCellStyle->SetLeftBottomCornerColor(GetColorRef(SClrGreen));
+									ok = pStyle->SetLeftBottomCornerColor(GetColorRef(SClrGreen));
 									break;
 							}
 							if(state & PPObjPerson::ClientActivityState::stfNewClient) {
-								ok = pCellStyle->SetRightFigCircleColor(GetColorRef(SClrOrange));
+								ok = pStyle->SetRightFigCircleColor(GetColorRef(SClrOrange));
 							}
 						}
 					}
@@ -2710,11 +2710,11 @@ PPViewPerson::ExtEntry::ExtEntry()
 						ok = 1;
 					}
 					if(ok > 0) {
-						pCellStyle->Flags = 0;
+						pStyle->Flags = 0;
 						if(is_valid)
-							pCellStyle->Color = GetColorRef(SClrAqua);
+							pStyle->Color = GetColorRef(SClrAqua);
 						else
-							pCellStyle->Color = GetColorRef(SClrCoral);
+							pStyle->Color = GetColorRef(SClrCoral);
 					}
 				}
 				*/
@@ -2724,13 +2724,13 @@ PPViewPerson::ExtEntry::ExtEntry()
 	return ok;
 }
 
-static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle, void * extraPtr)
+static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr)
 {
 	int    ok = -1;
 	PPViewBrowser * p_brw = static_cast<PPViewBrowser *>(extraPtr);
 	if(p_brw) {
 		PPViewPerson * p_view = static_cast<PPViewPerson *>(p_brw->P_View);
-		ok = p_view ? p_view->CellStyleFunc_(pData, col, paintAction, pCellStyle, p_brw) : -1;
+		ok = p_view ? p_view->CellStyleFunc_(pData, col, paintAction, pStyle, p_brw) : -1;
 	}
 	return ok;
 }
@@ -3420,7 +3420,7 @@ int PPViewPerson::RemoveHangedAddr()
 			BtrDbKey k_;
 			BExtQuery q(P_TempPsn, 0);
 			q.select(P_TempPsn->TabID, P_TempPsn->AddressP, 0);
-			for(q.initIteration(0, k_, spFirst); q.nextIteration() > 0;) {
+			for(q.initIteration(false, k_, spFirst); q.nextIteration() > 0;) {
 				addr_list.addUnique(P_TempPsn->data.TabID);
 			}
 		}

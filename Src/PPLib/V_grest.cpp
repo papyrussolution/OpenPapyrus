@@ -1529,7 +1529,7 @@ int PPViewGoodsRest::GetLastLot_p(PPID goodsID, PPID locID, PPID supplID, LDATE 
 		k.Dt = NZOR(dt, MAXDATE);
 		k.OprNo = MAXLONG;
 		q.where(*dbq);
-		q.initIteration(1, &k, spLe);
+		q.initIteration(true, &k, spLe);
 		if(q.nextIteration() > 0) {
 			p_rt->CopyBufTo(pRec);
 			ok = 1;
@@ -2873,7 +2873,7 @@ int PPViewGoodsRest::InitIterQuery(PPID grpID)
 				sp_mode = spGe;
 			}
 		}
-		P_IterQuery->initIteration(0, k, sp_mode);
+		P_IterQuery->initIteration(false, k, sp_mode);
 		ok = 1;
 	}
 	return ok;

@@ -37,6 +37,8 @@ LocTransfOpBlock::LocTransfOpBlock(const LocTransfOpBlock & rS)
 	Flags = rS.Flags;
 	UserID = rS.UserID;
 	Dtm = rS.Dtm;
+	OrderBillID = rS.OrderBillID;
+	OrderRByBill = rS.OrderRByBill;
 }
 
 LocTransfOpBlock::LocTransfOpBlock(const LocTransfTbl::Rec & rRec)
@@ -56,6 +58,8 @@ LocTransfOpBlock::LocTransfOpBlock(const LocTransfTbl::Rec & rRec)
 	Flags = rRec.Flags;
 	UserID = rRec.UserID;
 	Dtm.Set(rRec.Dt, rRec.Tm);
+	OrderBillID = rRec.OrderBillID;
+	OrderRByBill = rRec.OrderRByBill;
 }
 
 LocTransfOpBlock & LocTransfOpBlock::Init(int domain, int op, PPID locID)
@@ -72,10 +76,14 @@ LocTransfOpBlock & LocTransfOpBlock::Init(int domain, int op, PPID locID)
 	PalletTypeID = 0;
 	PalletCount = 0;
 	Qtty = 0.0;
-	Flags = 0;            // @v12.4.1 
-	UserID = 0;           // @v12.4.1
-	Dtm = ZERODATETIME;   // @v12.4.1
-	memzero(Reserve, sizeof(Reserve)); // @v12.4.1
+	// @v12.4.1 {
+	Flags = 0;            
+	UserID = 0;
+	Dtm = ZERODATETIME;
+	OrderBillID = 0;
+	OrderRByBill = 0;
+	memzero(Reserve, sizeof(Reserve));
+	// } @v12.4.1 
 	return *this;
 }
 
@@ -94,9 +102,13 @@ LocTransfOpBlock & FASTCALL LocTransfOpBlock::operator = (const LocTransfTbl::Re
 		PalletTypeID = pRec->PalletTypeID;
 		PalletCount = pRec->PalletCount;
 		Qtty = pRec->Qtty;
-		Flags = pRec->Flags;         // @v12.4.1 
-		UserID = pRec->UserID;       // @v12.4.1
-		Dtm.Set(pRec->Dt, pRec->Tm); // @v12.4.1
+		// @v12.4.1 {
+		Flags = pRec->Flags;         
+		UserID = pRec->UserID;
+		Dtm.Set(pRec->Dt, pRec->Tm);
+		OrderBillID = pRec->OrderBillID;
+		OrderRByBill = pRec->OrderRByBill;
+		// } @v12.4.1 
 	}
 	return *this;
 }
@@ -119,6 +131,17 @@ void FASTCALL LocTransfOpBlock::CopyTo(LocTransfTbl::Rec & rRec) const
 	rRec.UserID = rRec.UserID;
 	rRec.Dt = Dtm.d;
 	rRec.Tm = Dtm.t;
+	rRec.OrderBillID = OrderBillID;
+	rRec.OrderRByBill = OrderRByBill;
+}
+
+bool FASTCALL LocTransfOpBlock::IsEq(const LocTransfOpBlock & rS) const
+{
+	return (Domain == rS.Domain && LTOp == rS.LTOp && BillID == rS.BillID && RByBillLT == rS.RByBillLT &&
+		GoodsID == rS.GoodsID && LotID == rS.LotID && LocOwnerPersonID == rS.LocOwnerPersonID && LocID == rS.LocID &&
+		RByLoc == rS.RByLoc && PalletTypeID == rS.PalletTypeID &&
+		PalletCount == rS.PalletCount && fabs(Qtty) == fabs(rS.Qtty) &&
+		Flags == rS.Flags && UserID == rS.UserID && Dtm == rS.Dtm && OrderBillID == rS.OrderBillID && OrderRByBill == rS.OrderRByBill);
 }
 
 bool FASTCALL LocTransfOpBlock::IsEq(const LocTransfTbl::Rec & rRec) const
@@ -127,7 +150,7 @@ bool FASTCALL LocTransfOpBlock::IsEq(const LocTransfTbl::Rec & rRec) const
 		GoodsID == rRec.GoodsID && LotID == rRec.LotID && LocOwnerPersonID == rRec.LocOwnerPersonID && LocID == rRec.LocID &&
 		RByLoc == rRec.RByLoc && PalletTypeID == rRec.PalletTypeID &&
 		PalletCount == rRec.PalletCount && fabs(Qtty) == fabs(rRec.Qtty) &&
-		Flags == rRec.Flags && UserID == rRec.UserID && cmp(Dtm, rRec.Dt, rRec.Tm) == 0);
+		Flags == rRec.Flags && UserID == rRec.UserID && cmp(Dtm, rRec.Dt, rRec.Tm) == 0 && OrderBillID == rRec.OrderBillID && OrderRByBill == rRec.OrderRByBill);
 }
 
 LocTransfCore::LocTransfCore() : LocTransfTbl()
@@ -228,13 +251,39 @@ int LocTransfCore::EnumByBill(PPID billID, int16 * pRByBill, LocTransfTbl::Rec *
 	LocTransfTbl::Key3 k3;
 	k3.BillID = billID;
 	k3.RByBillLT = *pRByBill;
-	if(search(3, &k3, spGt)) {
+	if(search(3, &k3, spGt) && data.BillID == billID) {
 		*pRByBill = data.RByBillLT;
 		CopyBufTo(pRec);
 		ok = 1;
 	}
 	else if(!BTROKORNFOUND)
 		ok = PPSetErrorDB();
+	return ok;
+}
+
+int LocTransfCore::MakeOpBlockByOrder(const PPBillPacket & rOrderBPack, uint srcItemIdx/*[0..*/, LocTransfOpBlock & rBlk)
+{
+	int    ok = 0;
+	if(srcItemIdx < SVectorBase::GetCount(rOrderBPack.P_LocTrfrList)) {
+		const LocTransfOpBlock & r_src_blk = rOrderBPack.P_LocTrfrList->at(srcItemIdx);
+		if(!(r_src_blk.Flags & LOCTRF_ORDER)) {
+			; // @todo @err
+		}
+		else if(r_src_blk.BillID != rOrderBPack.Rec.ID) { // Если так, то это - внутренняя ошибка!
+			; // @todo @err
+		}
+		else {
+			rBlk.Init(r_src_blk.Domain, r_src_blk.LTOp, r_src_blk.LocID);
+			rBlk.GoodsID = r_src_blk.GoodsID;
+			rBlk.LotID = r_src_blk.LotID;
+			rBlk.LocOwnerPersonID = r_src_blk.LocOwnerPersonID;
+			rBlk.OrderBillID = r_src_blk.BillID;
+			rBlk.OrderRByBill = r_src_blk.RByBillLT;
+			// @todo Необходимо посчитать сколько уже было выполненно по этому заказу и скорректировать количество
+			rBlk.Qtty = r_src_blk.Qtty;
+			ok = 1;
+		}
+	}
 	return ok;
 }
 
@@ -334,7 +383,7 @@ int LocTransfCore::GetLastOpByBill(PPID billID, int16 * pRByBill, LocTransfTbl::
 	return ok;
 }
 
-int LocTransfCore::PrepareRec(PPID locID, PPID billID, long loctrfrFlags, LocTransfTbl::Rec * pRec)
+int LocTransfCore::PrepareRec(PPID locID, const LocTransfOpBlock * pBlk, LocTransfTbl::Rec * pRec)
 {
 	int    ok = 1;
 	uint   i = 0;
@@ -344,15 +393,28 @@ int LocTransfCore::PrepareRec(PPID locID, PPID billID, long loctrfrFlags, LocTra
 	pRec->LocID = locID;
 	THROW(GetLastOpByLoc(locID, &rbyloc, 0));
 	pRec->RByLoc = rbyloc+1;
-	pRec->BillID = billID;
 	// @v12.4.2 {
-	if(loctrfrFlags & LOCTRF_OWNEDBYBILL && billID) {
-		THROW(GetLastOpByBill(billID, &rbybill, 0));
-		pRec->RByBillLT = rbybill;
+	if(pBlk && pBlk->Flags & LOCTRF_OWNEDBYBILL && pBlk->BillID) {
+		pRec->BillID = pBlk->BillID;
+		if(pBlk->RByBillLT <= 0) {
+			THROW(GetLastOpByBill(pBlk->BillID, &rbybill, 0));
+			pRec->RByBillLT = rbybill+1;
+		}
+		//
+		/* @construction {
+			SysJournal * p_sj = DS.GetTLA().P_SysJ;
+			SysJournalTbl::Rec cr_sj_rec;
+			if(p_sj && p_sj->GetObjCreationEvent(PPOBJ_BILL, billID, &cr_sj_rec) > 0) {
+				
+			}
+		}*/
+		getcurdatetime(&pRec->Dt, &pRec->Tm); // @todo Заменить на {дату документа; время создания документа}
 	}
 	else {
-		;
+		getcurdatetime(&pRec->Dt, &pRec->Tm);
 	}
+	if(pBlk)
+		pRec->Flags |= (pBlk->Flags & (LOCTRF_OWNEDBYBILL|LOCTRF_ORDER));
 	// } @v12.4.2 
 	/* @v7.2.6 Ошибочный участок кода: RByBill должен соответствовать значению RByBill из BillTbl
 	if(billID) {
@@ -363,7 +425,6 @@ int LocTransfCore::PrepareRec(PPID locID, PPID billID, long loctrfrFlags, LocTra
 	}
 	*/
 	pRec->UserID = LConfig.UserID;
-	getcurdatetime(&pRec->Dt, &pRec->Tm);
 	CATCHZOK
 	return ok;
 }
@@ -420,7 +481,7 @@ int LocTransfCore::UpdateCurrent(int domain, PPID locID, PPID goodsID, PPID lotI
 			THROW_DB(updateRecBuf(&rec));
 		}
 		else {
-			THROW(PrepareRec(locID, 0, 0/*loctrfrFlags*/, &rec));
+			THROW(PrepareRec(locID, 0, &rec));
 			rec.Domain = domain;
 			if(domain == LOCTRFRDOMAIN_BAILMENT) {
 				//rec.LocOwnerPersonID = 
@@ -442,7 +503,7 @@ int LocTransfCore::UpdateCurrent(int domain, PPID locID, PPID goodsID, PPID lotI
 			THROW_DB(updateRecBuf(&rec));
 		}
 		else {
-			THROW(PrepareRec(locID, 0, 0/*loctrfrFlags*/, &rec));
+			THROW(PrepareRec(locID, 0, &rec));
 			rec.Domain = domain;
 			rec.GoodsID = goodsID;
 			rec.RestByGoods = addendum;
@@ -523,7 +584,7 @@ int LocTransfCore::PutOp(const LocTransfOpBlock & rBlk, int * pRByLoc, int * pRB
 	int    rbyloc = rBlk.RByLoc;
 	int    rbybill = rBlk.RByBillLT; // @v12.4.2
 	LocTransfTbl::Rec rec;
-	LocTransfTbl::Rec temp_rec;
+	LocTransfTbl::Rec ex_rec;
 	THROW(ValidateOpBlock(rBlk));
 	{
 		const  PPID loc_id = rBlk.LocID;
@@ -533,27 +594,31 @@ int LocTransfCore::PutOp(const LocTransfOpBlock & rBlk, int * pRByLoc, int * pRB
 		THROW(tra);
 		if(rbyloc) {
 			int    recalc_forward = 0;
-			THROW(Search(loc_id, rbyloc, &temp_rec) > 0);
-			const  double prev_qtty = temp_rec.Qtty;
-			THROW(temp_rec.BillID == rBlk.BillID && temp_rec.RByBillLT == rbybill);
-			if(rBlk.GoodsID != temp_rec.GoodsID || rBlk.LotID != temp_rec.LotID) {
-				double addendum = -prev_qtty;
-				recalc_forward = 1;
-				THROW(UpdateForward(temp_rec.LocID, temp_rec.RByLoc, temp_rec.GoodsID, temp_rec.LotID, 0, &addendum));
+			THROW(Search(loc_id, rbyloc, &ex_rec) > 0);
+			const  double prev_qtty = ex_rec.Qtty;
+			THROW(ex_rec.BillID == rBlk.BillID && ex_rec.RByBillLT == rbybill);
+			if(!(ex_rec.Flags & LOCTRF_ORDER)) {
+				if(rBlk.GoodsID != ex_rec.GoodsID || rBlk.LotID != ex_rec.LotID) {
+					double addendum = -prev_qtty;
+					recalc_forward = 1;
+					THROW(UpdateForward(ex_rec.LocID, ex_rec.RByLoc, ex_rec.GoodsID, ex_rec.LotID, 0, &addendum));
+				}
 			}
 			{
 				LocTransfTbl::Key0 k0;
 				//
-				// Находим остаток на момент операции
+				// Находим остаток на момент операции (если не заказ)
 				//
-				if(rBlk.LotID) {
-					THROW(r = SearchRestByLot(rBlk.Domain, rBlk.LotID, loc_id, rbyloc, &temp_rec));
+				if(!(rBlk.Flags & LOCTRF_ORDER)) {
+					if(rBlk.LotID) {
+						THROW(r = SearchRestByLot(rBlk.Domain, rBlk.LotID, loc_id, rbyloc, &ex_rec));
+						if(r > 0)
+							rest_by_lot = ex_rec.RestByLot;
+					}
+					THROW(r = SearchRestByGoods(rBlk.Domain, rBlk.GoodsID, loc_id, rbyloc, &ex_rec));
 					if(r > 0)
-						rest_by_lot = temp_rec.RestByLot;
+						rest_by_goods = ex_rec.RestByGoods;
 				}
-				THROW(r = SearchRestByGoods(rBlk.Domain, rBlk.GoodsID, loc_id, rbyloc, &temp_rec));
-				if(r > 0)
-					rest_by_goods = temp_rec.RestByGoods;
 				//
 				k0.LocID = loc_id;
 				k0.RByLoc = rbyloc;
@@ -572,8 +637,10 @@ int LocTransfCore::PutOp(const LocTransfOpBlock & rBlk, int * pRByLoc, int * pRB
 					CALLEXCEPT(); // invalid op
 				}
 				double addendum = recalc_forward ? rec.Qtty : (rec.Qtty - prev_qtty);
-				rec.RestByLot = rBlk.LotID ? (rest_by_lot + rec.Qtty) : 0.0;
-				rec.RestByGoods = rest_by_goods + rec.Qtty;
+				if(!(rec.Flags & LOCTRF_ORDER)) {
+					rec.RestByLot = rBlk.LotID ? (rest_by_lot + rec.Qtty) : 0.0;
+					rec.RestByGoods = rest_by_goods + rec.Qtty;
+				}
 				//
 				THROW_DB(updateRecBuf(&rec));
 				if(!(rec.Flags & LOCTRF_ORDER)) { // @v12.4.2 (condition)
@@ -583,7 +650,7 @@ int LocTransfCore::PutOp(const LocTransfOpBlock & rBlk, int * pRByLoc, int * pRB
 			}
 		}
 		else {
-			THROW(PrepareRec(loc_id, rBlk.BillID, rBlk.Flags, &rec));
+			THROW(PrepareRec(loc_id, &rBlk, &rec));
 			rbyloc   = rec.RByLoc;
 			// @v12.4.1 {
 			rec.Domain = rBlk.Domain; 
@@ -597,15 +664,16 @@ int LocTransfCore::PutOp(const LocTransfOpBlock & rBlk, int * pRByLoc, int * pRB
 			rec.PalletTypeID = rBlk.PalletTypeID;
 			rec.PalletCount  = rBlk.PalletCount;
 			rec.Qtty = rBlk.Qtty;
-			rec.RByBillLT     = rBlk.RByBillLT; // ahtoxa
-			if(rBlk.LotID) {
-				THROW(r = SearchRestByLot(rBlk.Domain, rBlk.LotID, loc_id, 0, &temp_rec));
+			if(!(rBlk.Flags & LOCTRF_ORDER)) {
+				if(rBlk.LotID) {
+					THROW(r = SearchRestByLot(rBlk.Domain, rBlk.LotID, loc_id, 0, &ex_rec));
+					if(r > 0)
+						rest_by_lot = ex_rec.RestByLot;
+				}
+				THROW(r = SearchRestByGoods(rBlk.Domain, rBlk.GoodsID, loc_id, 0, &ex_rec));
 				if(r > 0)
-					rest_by_lot = temp_rec.RestByLot;
+					rest_by_goods = ex_rec.RestByGoods;
 			}
-			THROW(r = SearchRestByGoods(rBlk.Domain, rBlk.GoodsID, loc_id, 0, &temp_rec));
-			if(r > 0)
-				rest_by_goods = temp_rec.RestByGoods;
 			if(rec.LTOp == LOCTRFROP_PUT)
 				rec.Qtty = +fabs(rBlk.Qtty);
 			else if(rec.LTOp == LOCTRFROP_GET)
@@ -615,10 +683,11 @@ int LocTransfCore::PutOp(const LocTransfOpBlock & rBlk, int * pRByLoc, int * pRB
 			else {
 				CALLEXCEPT(); // invalid op
 			}
-			if(rBlk.LotID)
-				rec.RestByLot = rest_by_lot + rec.Qtty;
-			rec.RestByGoods = rest_by_goods + rec.Qtty;
-
+			if(!(rec.Flags & LOCTRF_ORDER)) {
+				if(rBlk.LotID)
+					rec.RestByLot = rest_by_lot + rec.Qtty;
+				rec.RestByGoods = rest_by_goods + rec.Qtty;
+			}
 			THROW_PP(rec.RestByLot >= 0.0, PPERR_WHCELLRESTLOT);
 			THROW_PP(rec.RestByGoods >= 0.0, PPERR_WHCELLRESTGOODS);
 			THROW_DB(insertRecBuf(&rec));

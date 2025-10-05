@@ -529,10 +529,14 @@ int SSqlStmt::GetData(uint recNo)
 
 int SSqlStmt::Fetch(uint count, uint * pActualCount)
 {
-	int    ok = 1, r;
-	THROW(r = P_Db->Fetch(*this, count, pActualCount));
+	int    ok = 1;
+	int    r;
+	uint   actual_count = 0;
+	THROW(r = P_Db->Fetch(*this, count, &actual_count));
 	if(r > 0) {
-		THROW(GetData(0));
+		for(uint i = 0; i < actual_count; i++) {
+			THROW(GetData(i));
+		}
 		ok = 1;
 	}
 	else {
@@ -540,6 +544,7 @@ int SSqlStmt::Fetch(uint count, uint * pActualCount)
 		ok = -1;
 	}
 	CATCHZOK
+	ASSIGN_PTR(pActualCount, actual_count);
 	return ok;
 }
 //
@@ -631,13 +636,7 @@ void SOraDbProvider::ProcessBinding_FreeDescr(uint count, SSqlStmt * pStmt, SSql
 	for(uint i = 0; i < count; i++)
 		OdFree(*static_cast<OD *>(pStmt->GetBindOuterPtr(pBind, i)));
 }
-//
-// ARG(action IN):
-//   0 - инициализация структуры SSqlStmt::Bind
-//   1 - извлечение данных из внешнего источника во внутренние буферы
-//  -1 - перенос данных из внутренних буферов во внещний источник
-//  1000 - разрушение специфичных для SQL-сервера элементов структуры SSqlStmt::Bind
-//
+
 int SOraDbProvider::ProcessBinding(int action, uint count, SSqlStmt * pStmt, SSqlStmt::Bind * pBind)
 {
 	int    ok = 1;
@@ -1059,7 +1058,7 @@ int SOraDbProvider::PostProcessAfterUndump(const DBTable * pTbl)
 				long   seq = 0;
 				long   max_val = 0;
 				uint   actual = 0;
-				Generator_SQL sg(sqlstORA, 0);
+				Generator_SQL sg(SqlSt, 0);
 				sg.GetSequenceNameOnField(*pTbl, i, seq_name);
 				{
 					sg.Z().Tok(Generator_SQL::tokSelect).Sp().Text(seq_name).Dot().Text("nextval").Sp().From("DUAL");
@@ -1109,7 +1108,7 @@ int SOraDbProvider::GetAutolongVal(const DBTable & rTbl, uint fldN, long * pVal)
 	long   val = 0;
 	uint   actual = 0;
 	SString seq_name;
-	Generator_SQL sg(sqlstORA, 0); // Так как эта функция используется внутри других вызовов SOraDbProvider,
+	Generator_SQL sg(SqlSt, 0); // Так как эта функция используется внутри других вызовов SOraDbProvider,
 		// здесь мы создадим локальный Generator_SQL (не будем пользоваться SqlGen).
 	// SELECT secXXX.nextval FROM DUAL;
 	sg.GetSequenceNameOnField(rTbl, fldN, seq_name);
@@ -1157,7 +1156,7 @@ int SOraDbProvider::GetDirect(DBTable & rTbl, const DBRowId & rPos, int forUpdat
 }
 
 SOraDbProvider::SOraDbProvider(const char * pDataPath) :
-	DbProvider(DbDictionary::CreateInstance(0, 0), DbProvider::cSQL|DbProvider::cDbDependTa), SqlGen(sqlstORA, 0), Flags(0)
+	DbProvider(sqlstORA, DbDictionary::CreateInstance(0, 0), DbProvider::cSQL|DbProvider::cDbDependTa), SqlGen(sqlstORA, 0), Flags(0)
 {
 	DataPath = pDataPath;
 	DBS.GetDbPathID(DataPath, &DbPathID);
@@ -1464,7 +1463,7 @@ int SOraDbProvider::LobWrite(OD & rLob, TYPEID typ, SLob * pBuf, size_t dataLen)
 //
 //
 //
-/*virtual*/ int SOraDbProvider::Login(const DbLoginBlock * pBlk, long options)
+/*virtual*/ int SOraDbProvider::DbLogin(const DbLoginBlock * pBlk, long options)
 {
 	/*
 void ConnectBase::MakeTNSString (std::string & str, const char * host, const char * port, const char * sid, bool serviceInsteadOfSid)
@@ -2132,7 +2131,7 @@ int SOraDbProvider::Implement_DeleteFrom(DBTable * pTbl, int useTa, DBQ & rQ)
 	SqlGen.Z().Tok(Generator_SQL::tokDelete).Sp().From(pTbl->fileName, 0);
 	if(&rQ && rQ.tree) {
 		SqlGen.Sp().Tok(Generator_SQL::tokWhere).Sp();
-		rQ.tree->CreateSqlExpr(&SqlGen, -1);
+		rQ.tree->CreateSqlExpr(SqlGen, -1);
 	}
 	{
 		SSqlStmt stmt(this, SqlGen);

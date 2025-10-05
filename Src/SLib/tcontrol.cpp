@@ -1202,8 +1202,8 @@ IMPL_HANDLE_EVENT(TCluster)
 {
 	TView::handleEvent(event);
 	if(event.isCmd(cmSetBounds)) { // @v12.3.5
-		const TRect * p_rc = static_cast<const TRect *>(TVINFOPTR);
-		HWND h = getHandle();
+		const  TRect * p_rc = static_cast<const TRect *>(TVINFOPTR);
+		HWND   h = getHandle();
 		if(h) {
 			::SetWindowPos(h, 0, p_rc->a.x, p_rc->a.y, p_rc->width(), p_rc->height(), SWP_NOZORDER|SWP_NOCOPYBITS);
 			ArrangeItems(DIREC_VERT, false);
@@ -1596,16 +1596,16 @@ int TCluster::SetText(int pos, const char * pText)
 	return ok;
 }
 
-int TCluster::getItemByAssoc(long val, int * pItem) const
+bool TCluster::getItemByAssoc(long val, int * pItem) const
 {
-	int    ok = 0;
+	bool   ok = false;
 	LongArray key_list;
 	ValAssoc.GetListByVal(val, key_list);
 	for(uint i = 0; !ok && i < key_list.getCount(); i++) {
 		const long key = key_list.get(i);
 		if(key >= 0) {
 			ASSIGN_PTR(pItem, key);
-			ok = 1;
+			ok = true;
 		}
 	}
 	return ok;

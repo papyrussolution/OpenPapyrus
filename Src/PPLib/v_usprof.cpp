@@ -129,16 +129,16 @@ int PPViewUserProfile::LoadFromFile(PPIDArray * pAddedIdList)
 	return ok;
 }
 
-static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle, void * extraPtr)
+static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr)
 {
 	int    ok = -1;
 	PPViewUserProfile * p_view = static_cast<PPViewUserProfile *>(extraPtr);
-	if(pData && pCellStyle && p_view) {
+	if(pData && pStyle && p_view) {
 		if(col == 0) {
 			const PPViewUserProfile::BrwHdr * p_hdr = static_cast<const PPViewUserProfile::BrwHdr *>(pData);
 			if(!(p_hdr->Flags & USRPROFF_FINISHED)) {
-				pCellStyle->Flags  = BrowserWindow::CellStyle::fCorner;
-				pCellStyle->Color  = GetColorRef(SClrRed);
+				pStyle->Flags  = BrowserWindow::CellStyle::fCorner;
+				pStyle->Color  = GetColorRef(SClrRed);
 				ok = 1;
 			}
 		}

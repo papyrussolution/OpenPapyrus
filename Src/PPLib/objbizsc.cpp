@@ -1594,10 +1594,10 @@ int PPViewBizScoreVal::ViewGraph()
 	return ok;
 }
 
-static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle, void * extraPtr)
+static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr)
 {
 	int    ok = -1;
-	if(pData && pCellStyle && col == 5) {
+	if(pData && pStyle && col == 5) {
 		const struct tag_Item {
 			PPID   ScoreID;
 			LDATE  ActualDate;
@@ -1609,15 +1609,15 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 		if(p_item->ScoreID) {
 			PPObjBizScore bs_obj;
 			PPBizScorePacket bs_pack;
-			pCellStyle->Flags = 0;
+			pStyle->Flags = 0;
 			if(bs_obj.Fetch(p_item->ScoreID, &bs_pack) > 0) {
 				if(!bs_pack.Rec.Bounds.CheckVal(p_item->Val)) {
 					if(p_item->Val < bs_pack.Rec.Bounds.low) {
-						pCellStyle->Color = LightenColor(GetColorRef(SClrGreen), 0.5f);
+						pStyle->Color = LightenColor(GetColorRef(SClrGreen), 0.5f);
 						ok = 1;
 					}
 					else if(p_item->Val > bs_pack.Rec.Bounds.upp) {
-						pCellStyle->Color = LightenColor(GetColorRef(SClrRed), 0.5f);
+						pStyle->Color = LightenColor(GetColorRef(SClrRed), 0.5f);
 						ok = 1;
 					}
 				}

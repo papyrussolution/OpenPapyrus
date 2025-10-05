@@ -350,7 +350,7 @@ static IMPL_CMPFUNC(OpkListEntry, i1, i2)
 	while((r = EnumOperations(0, &id, &opk)) > 0) {
 		int    suit = 0;
 		if(!(opk.Flags & OPKF_PASSIVE) || (flags & OPKLF_SHOWPASSIVE)) {
-			PPID temp_id = (flags & OPKLF_OPLIST) ? id : opk.OpTypeID;
+			const PPID temp_id = (flags & OPKLF_OPLIST) ? id : opk.OpTypeID;
 			if(!pOpList || pOpList->lsearch(temp_id))
 				suit = BIN((flags & OPKLF_IGNORERIGHTS) || ObjRts.CheckOpID(id, PPR_READ));
 		}

@@ -12369,7 +12369,9 @@ int FASTCALL ExtStrSrch(const char * pBuffer, const char * pPattern, uint flags)
 #define SNTOK_AU_ABN                    57 // @v12.3.4 @todo https://abr.business.gov.au/Help/AbnFormat
 #define SNTOK_BG_EGN                    58 // @v12.3.4 @todo Болгария Единый Гражданский Код 
 #define SNTOK_CA_SIN                    59 // @v12.3.4 @todo Canada Social Insurance Number
-#define SNTOK_CHZN_PALLET_GTIN          60 // @v12.4.5 честный знак Специальная конструкция, не являющаяся маркой (00 GTIN14 9999)
+#define SNTOK_CHZN_PALLET_GTIN          60 // @v12.3.5 честный знак Специальная конструкция, не являющаяся маркой (00 GTIN14 9999)
+#define SNTOK_SSCC                      61 // @v12.4.2 Код транспортной упаковки. Важно: SNTOK_CHZN_PALLET_GTIN является мутантной вариацией SSCC
+	// в связи с этим SNTOK_CHZN_PALLET_GTIN обработка, а, возможно, и символ кода изменится.
 
 #define SNTOKSEQ_DEC                0x00000001 // 0-9
 #define SNTOKSEQ_LATLWR             0x00000002 // a-z
@@ -16447,7 +16449,7 @@ public:
 	enum {
 		fWinCoding      = 0x0001,
 		fIniBufInited   = 0x0002,
-		fCpAutodetected = 0x0004 // @v10.3.11 Кодовая страница Cp идентифицирована автоматически
+		fCpAutodetected = 0x0004 // Кодовая страница Cp идентифицирована автоматически
 	};
 protected:
 	int    Init(const char * pFileName, int fcreate, int winCoding, int useIniBuf);
@@ -17583,10 +17585,12 @@ public:
 		fLogonWithProfile           = 0x00040000, // Если запуск приложения осуществляется от имени пользователя, то вызов соответствующей
 			// функции сопровождается флагом LOGON_WITH_PROFILE.
 		fCaptureStdIn               = 0x00080000, // @v11.9.3 @construction Перехватить ввод из stdin
-		fCaptureStdOut              = 0x00100000, // @v11.9.3 @construction Перехватить вывод в stdout
-		fCaptureStdErr              = 0x00200000, // @v11.9.3 @construction Перехватить вывод в stderr
+		fCaptureStdOut              = 0x00100000, // @v11.9.3 Перехватить вывод в stdout
+		fCaptureStdErr              = 0x00200000, // @v11.9.3 Перехватить вывод в stderr
 		fCaptureReadAsync           = 0x00400000, // @v11.9.3 @construction Чтение stdout и stderr дочернего процесса осуществляется асинхронно 
 		fCombinedStdErrStdOut       = 0x00800000, // @v11.9.3 @construction 
+		fReadOutputIntoInternalBuf  = 0x01000000, // @v12.4.2 После запуска процесса сразу прочитать содержимое stdout и stderr 
+			// в Result::SsOut и Result::SsErr.
 	};
 
 	class StartUpBlock {
@@ -17612,14 +17616,13 @@ public:
 		~Result();
 		SIntHandle HProcess;
 		SIntHandle HThread;
+		SIntHandle HStdOutRd;
+		SIntHandle HStdErrRd;
+		SIntHandle HStdInWr;
 		uint   ProcessId;
 		uint   ThreadId;
 		StringSet SsOut; // @v12.4.1
 		StringSet SsErr; // @v12.4.1
-		//
-		FILE * F_StdIn;   // @v11.9.3
-		//FILE * F_StdOut;  // @v11.9.3
-		//FILE * F_StdErr;  // @v11.9.3
 	};
 
 	class AppContainer {

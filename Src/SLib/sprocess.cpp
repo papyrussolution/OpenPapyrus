@@ -878,10 +878,13 @@ static bool subprocess_create_named_pipe_helper(SIntHandle * pRd, SIntHandle * p
 int SlProcess::Run(SlProcess::Result * pResult)
 {
 	int    ok = 0;
-	FILE * f_captured_stdin  = 0; // @v11.9.3
-	//FILE * f_captured_stdout = 0; // @v11.9.3
-	//FILE * f_captured_stderr = 0; // @v11.9.3
 	void * p_env = 0;
+	SIntHandle h_stdin_rd;
+	SIntHandle h_stdin_wr;
+	SIntHandle h_stdout_rd;
+	SIntHandle h_stdout_wr;
+	SIntHandle h_stderr_rd;
+	SIntHandle h_stderr_wr;
 	THROW(Path.NotEmpty()); // @todo @err
 	{
 		/*
@@ -914,8 +917,8 @@ int SlProcess::Run(SlProcess::Result * pResult)
 		STempBuffer cmd_line_raw(1024 * sizeof(wchar_t));
 		SECURITY_ATTRIBUTES * p_prc_attr_list = 0;
 		SECURITY_ATTRIBUTES * p_thread_attr_list = 0;
-		const BOOL inherit_handles = BIN(Flags & fInheritHandles);
-		DWORD creation_flags = 0;
+		BOOL   inherit_handles = BIN(Flags & fInheritHandles);
+		DWORD  creation_flags = 0;
 		const wchar_t * p_curr_dir = 0;
 		STARTUPINFOEXW startup_info;
 		/*_Out_*/PROCESS_INFORMATION prc_info;
@@ -1007,73 +1010,66 @@ int SlProcess::Run(SlProcess::Result * pResult)
 				sa_pipe.nLength = sizeof(sa_pipe);
 				sa_pipe.bInheritHandle = TRUE;
 				if(Flags & fCaptureStdIn) {
-					void * rd;
-					void * wr;
-					THROW(::CreatePipe(&rd, &wr, &sa_pipe, 0)); // @todo @err
-					THROW(::SetHandleInformation(wr, HANDLE_FLAG_INHERIT, 0)); // @todo @err
 					{
-						int fd = _open_osfhandle(reinterpret_cast<intptr_t>(wr), 0);
-						if(fd != -1) {
-							f_captured_stdin = _fdopen(fd, "wb");
-							THROW(f_captured_stdin); // @todo @err
-						}
+						HANDLE local_h_rd = INVALID_HANDLE_VALUE;
+						HANDLE local_h_wr = INVALID_HANDLE_VALUE;
+						THROW(::CreatePipe(&local_h_rd, &local_h_wr, &sa_pipe, 0)); // @todo @err
+						h_stdin_rd = local_h_rd;
+						h_stdin_wr = local_h_wr;
+					}
+					THROW(::SetHandleInformation(h_stdin_wr, HANDLE_FLAG_INHERIT, 0)); // @todo @err
+					{
 						startup_info.StartupInfo.dwFlags |= STARTF_USESTDHANDLES;
-						startup_info.StartupInfo.hStdInput = rd;
+						startup_info.StartupInfo.hStdInput = h_stdin_rd;
 					}
 				}
 				if(Flags & fCaptureStdOut) {
-					SIntHandle h_rd;
-					SIntHandle h_wr;
 					if(Flags & fCaptureReadAsync) {
-						THROW(subprocess_create_named_pipe_helper(&h_rd, &h_wr));
+						THROW(subprocess_create_named_pipe_helper(&h_stdout_rd, &h_stdout_wr));
 					}
 					else {
 						HANDLE local_h_rd = INVALID_HANDLE_VALUE;
 						HANDLE local_h_wr = INVALID_HANDLE_VALUE;
 						THROW(::CreatePipe(&local_h_rd, &local_h_wr, &sa_pipe, 0)); // @todo @err
-						h_rd = local_h_rd;
-						h_wr = local_h_wr;
+						h_stdout_rd = local_h_rd;
+						h_stdout_wr = local_h_wr;
 					}
-					THROW(::SetHandleInformation(h_rd, HANDLE_FLAG_INHERIT, 0)); // @todo @err
+					THROW(::SetHandleInformation(h_stdout_rd, HANDLE_FLAG_INHERIT, 0)); // Read-end НЕ должен наследоваться дочерним процессом // @todo @err
 					{
-						/*int fd = _open_osfhandle(reinterpret_cast<intptr_t>(rd), 0);
-						if(fd != -1) {
-							f_captured_stdout = _fdopen(fd, "rb");
-							THROW(f_captured_stdout); // @todo @err
-						}*/
 						startup_info.StartupInfo.dwFlags |= STARTF_USESTDHANDLES;
-						startup_info.StartupInfo.hStdOutput = h_wr;
+						startup_info.StartupInfo.hStdOutput = h_stdout_wr;
 					}
 				}
 				if(Flags & fCaptureStdErr) {
-					SIntHandle h_rd;
-					SIntHandle h_wr;
 					if(Flags & fCombinedStdErrStdOut) {
-						//f_captured_stderr = f_captured_stdout;
 						startup_info.StartupInfo.hStdError = startup_info.StartupInfo.hStdOutput;
 					}
 					else {
 						if(Flags & fCaptureReadAsync) {
-							THROW(subprocess_create_named_pipe_helper(&h_rd, &h_wr));
+							THROW(subprocess_create_named_pipe_helper(&h_stderr_rd, &h_stderr_wr));
 						}
 						else {
 							HANDLE local_h_rd = INVALID_HANDLE_VALUE;
 							HANDLE local_h_wr = INVALID_HANDLE_VALUE;
 							THROW(::CreatePipe(&local_h_rd, &local_h_wr, &sa_pipe, 0)); // @todo @err
-							h_rd = local_h_rd;
-							h_wr = local_h_wr;
+							h_stderr_rd = local_h_rd;
+							h_stderr_wr = local_h_wr;
 						}
-						THROW(::SetHandleInformation(h_rd, HANDLE_FLAG_INHERIT, 0)); // @todo @err
+						THROW(::SetHandleInformation(h_stderr_rd, HANDLE_FLAG_INHERIT, 0)); // Read-end НЕ должен наследоваться дочерним процессом // @todo @err
 						{
-							/*int fd = _open_osfhandle(reinterpret_cast<intptr_t>(rd), 0);
-							if(fd != -1) {
-								f_captured_stderr = _fdopen(fd, "rb");
-								THROW(f_captured_stderr); // @todo @err
-							}*/
 							startup_info.StartupInfo.dwFlags |= STARTF_USESTDHANDLES;
-							startup_info.StartupInfo.hStdError = h_wr;
+							startup_info.StartupInfo.hStdError = h_stderr_wr;
 						}
 					}
+				}
+				if(startup_info.StartupInfo.dwFlags & STARTF_USESTDHANDLES) {
+					inherit_handles = TRUE;
+					if(!startup_info.StartupInfo.hStdError)
+						startup_info.StartupInfo.hStdError = GetStdHandle(STD_ERROR_HANDLE);
+					if(!startup_info.StartupInfo.hStdOutput)
+						startup_info.StartupInfo.hStdOutput = GetStdHandle(STD_OUTPUT_HANDLE);
+					if(!startup_info.StartupInfo.hStdInput)
+						startup_info.StartupInfo.hStdInput = GetStdHandle(STD_INPUT_HANDLE);
 				}
 			}
 			// } @v11.9.3
@@ -1157,33 +1153,40 @@ int SlProcess::Run(SlProcess::Result * pResult)
 			}
 			::DeleteProcThreadAttributeList(startup_info.lpAttributeList);
 		}
+		{
+			// Закрываем write-end в родительском процессе. Это важно сделать после создания дочернего процесса!
+			if(!!h_stdout_wr) {
+				::CloseHandle(h_stdout_wr);
+				h_stdout_wr.Z();
+			}
+			if(!!h_stderr_wr) {
+				::CloseHandle(h_stderr_wr);
+				h_stderr_wr.Z();
+			}
+			/* ??? if(!!h_stdin_rd) {
+				::CloseHandle(h_stdin_rd);
+				h_stdin_rd.Z();
+			}*/
+			pResult->HStdOutRd = h_stdout_rd;
+			pResult->HStdErrRd = h_stderr_rd;
+			pResult->HStdInWr = h_stdin_wr;
+		}
 		if(create_proc_result) {
 			if(pResult) {
 				pResult->HProcess = prc_info.hProcess;
 				pResult->HThread = prc_info.hThread;
 				pResult->ProcessId = prc_info.dwProcessId;
 				pResult->ThreadId = prc_info.dwThreadId;
-				pResult->F_StdIn = f_captured_stdin;
-				f_captured_stdin = 0;
-				//pResult->F_StdOut = f_captured_stdout;
-				//f_captured_stdout = 0;
-				//pResult->F_StdErr = f_captured_stderr;
-				//f_captured_stderr = 0;
-				// @v12.4.1 {
-				{
-					Helper_ReadOutput(startup_info.StartupInfo.hStdOutput, pResult->SsOut);
-					Helper_ReadOutput(startup_info.StartupInfo.hStdError, pResult->SsErr);
+				if(Flags & fReadOutputIntoInternalBuf) {
+					Helper_ReadOutput(h_stdout_rd, pResult->SsOut);
+					Helper_ReadOutput(h_stderr_rd, pResult->SsErr);
 				}
-				// } @v12.4.1 
 			}
 			ok = 1;
 		}
 	}
 	CATCHZOK
 	SAlloc::F(p_env);
-	SFile::ZClose(&f_captured_stdin);
-	//SFile::ZClose(&f_captured_stdout);
-	//SFile::ZClose(&f_captured_stderr);
 	return ok;
 }
 
@@ -1193,33 +1196,55 @@ int SlProcess::Helper_ReadOutput(SIntHandle hPipe, StringSet & rSs)
 	int    ok = -1;
 	if(!!hPipe) {
 		DWORD  actual_size;
-		char   _buf[4096];
-		SString temp_buf;
-		//HANDLE hParentStdOut = GetStdHandle(STD_OUTPUT_HANDLE);
+		char   cbuf[4096];
+		SBuffer buffer;
 		for(;;) {
-			int r = ::ReadFile(hPipe, _buf, sizeof(_buf)-1, &actual_size, NULL);
+			actual_size = 0;
+			int r = ::ReadFile(hPipe, cbuf, sizeof(cbuf)-1, &actual_size, NULL);
 			if(r && actual_size) {
-				_buf[actual_size] = 0;
-				temp_buf.Z().Cat(_buf);
-				rSs.add(temp_buf);
+				buffer.Write(cbuf, actual_size);
 				ok = 1;
 			}
 			else
 				break;
 		}
+		{
+			SString temp_buf;
+			SFile f_(buffer, SFile::mRead|SFile::mBinary);
+			while(f_.ReadLine(temp_buf, SFile::rlfChomp)) {
+				rSs.add(temp_buf);
+			}
+		}
 	}
 	return ok;
 }
 
-SlProcess::Result::Result() : ProcessId(0), ThreadId(0), F_StdIn(0)/*, F_StdOut(0), F_StdErr(0)*/
+SlProcess::Result::Result() : ProcessId(0), ThreadId(0)
 {
 }
 		
 SlProcess::Result::~Result()
 {
-	SFile::ZClose(&F_StdIn);
-	//SFile::ZClose(&F_StdOut);
-	//SFile::ZClose(&F_StdErr);
+	if(!!HProcess) {
+		::CloseHandle(HProcess);
+		HProcess.Z();
+	}
+	if(!!HThread) {
+		::CloseHandle(HThread);
+		HThread.Z();
+	}
+	if(!!HStdOutRd) {
+		::CloseHandle(HStdOutRd);
+		HStdOutRd.Z();
+	}
+	if(!!HStdErrRd) {
+		::CloseHandle(HStdErrRd);
+		HStdErrRd.Z();
+	}
+	if(!!HStdInWr) {
+		::CloseHandle(HStdInWr);
+		HStdInWr.Z();
+	}
 }
 
 SlProcess::AppContainer::AppContainer()

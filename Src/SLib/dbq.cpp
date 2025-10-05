@@ -1,5 +1,5 @@
 // DBQ.CPP
-// Copyright (c) Sobolev A. 1996-2001, 2002, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2016, 2018, 2019, 2020, 2022, 2023
+// Copyright (c) Sobolev A. 1996-2001, 2002, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2016, 2018, 2019, 2020, 2022, 2023, 2025
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -1037,28 +1037,28 @@ int FASTCALL DBTree::checkRestriction(int node)
 	return ok;
 }
 
-int DBTree::CreateSqlExpr(Generator_SQL * pGen, int node) const
+int DBTree::CreateSqlExpr(Generator_SQL & rGen, int node) const
 {
 	int    ok = 1;
 	if(Root != -1) {
 		T & t = P_Items[(node == -1) ? Root : node];
 		switch(t.link) {
 			case _OR___:
-				pGen->LPar();
-				CreateSqlExpr(pGen, t.left); // @recursion
-				pGen->Sp().Tok(Generator_SQL::tokOr).Sp();
-				CreateSqlExpr(pGen, t.right); // @recursion
-				pGen->RPar();
+				rGen.LPar();
+				CreateSqlExpr(rGen, t.left); // @recursion
+				rGen.Sp().Tok(Generator_SQL::tokOr).Sp();
+				CreateSqlExpr(rGen, t.right); // @recursion
+				rGen.RPar();
 				break;
 			case _AND___:
-				pGen->LPar();
-				CreateSqlExpr(pGen, t.left); // @recursion
-				pGen->Sp().Tok(Generator_SQL::tokAnd).Sp();
-				CreateSqlExpr(pGen, t.right); // @recursion
-				pGen->RPar();
+				rGen.LPar();
+				CreateSqlExpr(rGen, t.left); // @recursion
+				rGen.Sp().Tok(Generator_SQL::tokAnd).Sp();
+				CreateSqlExpr(rGen, t.right); // @recursion
+				rGen.RPar();
 				break;
 			case 0:
-				P_Terms->CreateSqlExpr(pGen, t.term);
+				P_Terms->CreateSqlExpr(rGen, t.term);
 				break;
 			default:
 				;//CHECK(INVALID_DBTREE_ITEMS_LINK);
@@ -1067,38 +1067,38 @@ int DBTree::CreateSqlExpr(Generator_SQL * pGen, int node) const
 	return ok;
 }
 
-int DBDataCell::CreateSqlExpr(Generator_SQL * pGen) const
+int DBDataCell::CreateSqlExpr(Generator_SQL & rGen) const
 {
 	if(GetId() > 0) {
-		pGen->/*Text(f.getTable()->tableName).Text(".").*/Text(F.getField().Name);
+		rGen./*Text(f.getTable()->tableName).Text(".").*/Text(F.getField().Name);
 	}
 	else if(GetId() == DBConst_ID) {
 		char   temp[512];
 		C.tostring(COMF_SQL, temp);
-		pGen->Text(temp);
+		rGen.Text(temp);
 	}
 	else if(GetId() == DBE_ID)
-		pGen->Text("(DBE)");
+		rGen.Text("(DBE)");
 	else
-		pGen->Text("err");
+		rGen.Text("err");
 	return 1;
 }
 
-int DBQ::CreateSqlExpr(Generator_SQL * pGen, int itm) const
+int DBQ::CreateSqlExpr(Generator_SQL & rGen, int itm) const
 {
 	int    ok = 1;
 	T    * t = &items[itm];
 	uint   f = (t->flags & DBQ_LOGIC);
 	if(f == DBQ_TRUE)
-		pGen->Text("1=1");
+		rGen.Text("1=1");
 	else if(f == DBQ_FALSE)
-		pGen->Text("1=0");
+		rGen.Text("1=0");
 	else {
-		t->left.CreateSqlExpr(pGen);
-		//pGen->Sp();
-		pGen->_Symb(t->cmp);
-		//pGen->Sp();
-		t->right.CreateSqlExpr(pGen);
+		t->left.CreateSqlExpr(rGen);
+		//rGen.Sp();
+		rGen._Symb(t->cmp);
+		//rGen.Sp();
+		t->right.CreateSqlExpr(rGen);
 	}
 	return ok;
 }
