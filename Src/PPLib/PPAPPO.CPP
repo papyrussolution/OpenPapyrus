@@ -114,7 +114,7 @@ IMPL_HANDLE_EVENT(PPApp)
 			ui_cfg.Save();
 			CALLPTRMEMB(pMaster->P_Toolbar, SaveUserSettings(TV_GLBTOOLBAR));
 			pMaster->CloseAllBrowsers();
-			DS.Logout();
+			DS.PPLogout();
 		}
 	};
 	if(TVCOMMAND) {
@@ -1872,9 +1872,10 @@ void PPApp::login(int processCmdLine)
 				long  login_flags = 0;
 				if(login_param.OnetimePassResult)
 					login_flags |= PPSession::loginfCheckOnetimePass;
-				if(DS.Login(db_symb, login_param.UserName, login_param.Passw, login_flags) && InitMenuBar()) {
+				login_flags |= PPSession::loginfMainThread; // @v12.4.3
+				if(DS.PPLogin(db_symb, login_param.UserName, login_param.Passw, login_flags) && InitMenuBar()) {
 					if(LConfig.Flags & CFGFLG_SEC_DSBLNSYSDATE && login_param.OperDate != getcurdate_()) {
-						DS.Logout();
+						DS.PPLogout();
 						PPSetError(PPERR_OPERDATEDIFSYSDATE);
 					}
 					else

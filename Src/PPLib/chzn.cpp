@@ -4016,7 +4016,7 @@ int PPChZnPrcssr::PermissiveModeInterface::FetchCdnHost(PPID guaID, SString & rR
 	p_ref->Ot.GetTagStr(PPOBJ_GLOBALUSERACC, guaID, PPTAG_GUA_CHZN_PM_HOST, tag_buf);
 	if(tag_buf.NotEmptyS()) {
 		StringSet ss(';', tag_buf);
-		if(ss.getCount()) {
+		if(ss.IsCountGreaterThan(0)) {
 			uint ssp = 0; 
 			if(ss.get(&ssp, temp_buf)) {
 				rResult = temp_buf;

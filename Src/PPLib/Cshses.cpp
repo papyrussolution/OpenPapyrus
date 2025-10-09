@@ -188,12 +188,12 @@ int PPSyncCashSession::PreprocessCCheckForOfd12(const OfdFactors & rOfdf, CCheck
 							if(goods_obj.TranslateGoodsUnitToBase(goods_rec, SUOM_LITER, &ratio) > 0) {
 								uom_id = SUOM_LITER;
 								chzn_qtty = fabs(ccl.Quantity) * ratio;
-								int pczcr = PreprocessChZnCode(ppchzcopSurrogateCheck, chzn_code, chzn_qtty, uom_id, uom_fragm, chzn_pp_result);
+								int    pczcr = PreprocessChZnCode(ppchzcopSurrogateCheck, chzn_code, chzn_qtty, uom_id, uom_fragm, chzn_pp_result);
 								// @v11.9.10 {
 								if(/*pczcr > 0*/true) {
 									const bool do_accept = (/*chzn_pp_result.Status == 1*/true) ? true : false;
+									const int  accept_op = do_accept ? ppchzcopAccept : ppchzcopReject;
 									chzn_pp_result.LineIdx = pos;
-									const int accept_op = do_accept ? ppchzcopAccept : ppchzcopReject;
 									pczcr = PreprocessChZnCode(accept_op, chzn_code, chzn_qtty, uom_id, uom_fragm, chzn_pp_result);
 									PPSyncCashSession::LogPreprocessChZnCodeResult(pczcr, accept_op, chzn_code, chzn_qtty, chzn_pp_result); // @v11.2.3
 									if(do_accept) {
@@ -222,11 +222,11 @@ int PPSyncCashSession::PreprocessCCheckForOfd12(const OfdFactors & rOfdf, CCheck
 											uom_id = SUOM_LITER;
 											chzn_qtty = fabs(ccl.Quantity) * ratio;
 											//
-											int pczcr = PreprocessChZnCode(ppchzcopVerify, chzn_code, chzn_qtty, uom_id, uom_fragm, chzn_pp_result);
+											int    pczcr = PreprocessChZnCode(ppchzcopVerify, chzn_code, chzn_qtty, uom_id, uom_fragm, chzn_pp_result);
 											PPSyncCashSession::LogPreprocessChZnCodeResult(pczcr, 0, chzn_code, chzn_qtty, chzn_pp_result);
 											if(/*pczcr > 0*/true) { // @v12.4.0 true
 												const bool do_accept = (/*chzn_pp_result.Status == 1*/true) ? true : false;
-												const int accept_op = do_accept ? ppchzcopAccept : ppchzcopReject;
+												const int  accept_op = do_accept ? ppchzcopAccept : ppchzcopReject;
 												chzn_pp_result.LineIdx = pos;
 												pczcr = PreprocessChZnCode(accept_op, chzn_code, chzn_qtty, uom_id, uom_fragm, chzn_pp_result);
 												PPSyncCashSession::LogPreprocessChZnCodeResult(pczcr, accept_op, chzn_code, chzn_qtty, chzn_pp_result);
@@ -247,7 +247,7 @@ int PPSyncCashSession::PreprocessCCheckForOfd12(const OfdFactors & rOfdf, CCheck
 											-----------------------------------------------------
 											При работе ККТ в режиме передачи данных, ККТ отправляет запрос на проверку КМ на сервер ОИСМ через ОФД и в течение 3 сек 
 											ожидает ответа от сервера. При получении ответа на запрос, ККТ сформирует тэги 2005, 2105 и 2109 на основании значений в ответе ОИСМ. 
-											Если в течение 3 сек ККТ не поучит ответ на запрос, ККТ автоматически сформирует тэги 2005, 2105 и 2109 с пустыми значениями.
+											Если в течение 3 сек ККТ не получит ответ на запрос, ККТ автоматически сформирует тэги 2005, 2105 и 2109 с пустыми значениями.
 
 											CCheckPacket::PreprocessChZnCodeResult::ProcessingResult; // tag 2005 Результаты обработки запроса (ofdtag-2005)
 											CCheckPacket::PreprocessChZnCodeResult::ProcessingCode;   // tag 2105 Код обработки запроса (ofdtag-2105)
@@ -257,18 +257,19 @@ int PPSyncCashSession::PreprocessCCheckForOfd12(const OfdFactors & rOfdf, CCheck
 										PPUnit u_rec;
 										if(goods_obj.FetchUnit(goods_rec.UnitID, &u_rec) > 0 && u_rec.Fragmentation > 0 && u_rec.Fragmentation < 100000)
 											uom_fragm = u_rec.Fragmentation;
-										int pczcr = PreprocessChZnCode(ppchzcopVerify, chzn_code, chzn_qtty, uom_id, uom_fragm, chzn_pp_result);
-										int pczcr2 = 0;
+										int    pczcr = PreprocessChZnCode(ppchzcopVerify, chzn_code, chzn_qtty, uom_id, uom_fragm, chzn_pp_result);
+										int    pczcr2 = 0;
 										PPSyncCashSession::LogPreprocessChZnCodeResult(pczcr, 0, chzn_code, chzn_qtty, chzn_pp_result);
 										if(/*pczcr > 0*/true) { // @v12.4.0
 											// @v12.4.0 {
 											if(!chzn_pp_result.ProcessingResult && !chzn_pp_result.ProcessingCode && !chzn_pp_result.Status) {
 												chzn_pp_result.Z();
 												pczcr2 = PreprocessChZnCode(ppchzcopVerifyOffline, chzn_code, chzn_qtty, uom_id, uom_fragm, chzn_pp_result);
+												PPSyncCashSession::LogPreprocessChZnCodeResult(pczcr2, 3, chzn_code, chzn_qtty, chzn_pp_result); // @v12.4.3
 											}
 											// } @v12.4.0 
 											const bool do_accept = (/*chzn_pp_result.Status == 1*/true) ? true : false;
-											const int accept_op = do_accept ? ppchzcopAccept : ppchzcopReject;
+											const int  accept_op = do_accept ? ppchzcopAccept : ppchzcopReject;
 											chzn_pp_result.LineIdx = pos;
 											pczcr = PreprocessChZnCode(accept_op, chzn_code, chzn_qtty, uom_id, uom_fragm, chzn_pp_result);
 											PPSyncCashSession::LogPreprocessChZnCodeResult(pczcr, accept_op, chzn_code, chzn_qtty, chzn_pp_result); // @v11.2.3
@@ -2902,7 +2903,7 @@ int AsyncCashSCardsIterator::Next(AsyncCashSCardInfo * pInfo)
 							PersonCore::GetELinks(psn_rec.ID, ela);
 							ela.GetSinglePhone(pInfo->PsnPhone, 0);
 							if(ela.GetListByType(ELNKRT_EMAIL, ss) > 0) {
-								assert(ss.getCount());
+								assert(ss.IsCountGreaterThan(0));
 								ss.get(0U, pInfo->Email);
 							}
 							// @v11.3.5 {
@@ -3075,28 +3076,30 @@ AsyncCashGoodsGroupIterator::~AsyncCashGoodsGroupIterator()
 int AsyncCashGoodsGroupIterator::MakeGroupList(StrAssocArray * pTreeList, PPID parentID, uint level)
 {
 	int    ok = -1;
-	SString temp_buf;
-	for(uint i = 0; i < pTreeList->getCount(); i++) {
-		StrAssocArray::Item item = pTreeList->Get(i);
-		if(item.ParentId == parentID) {
-			Goods2Tbl::Rec goods_rec;
-			if(GObj.Fetch(item.Id, &goods_rec) > 0 && !(goods_rec.Flags & GF_ALTGROUP)) {
-				AsyncCashGoodsGroupInfo info;
-				PPGoodsTaxEntry gtx;
-				info.ID = item.Id;
-				STRNSCPY(info.Name, goods_rec.Name);
-				info.ParentID = item.ParentId;
-				info.UnitID  = goods_rec.UnitID;
-				if(GObj.FetchTaxEntry2(goods_rec.ID, 0/*lotID*/, 0/*taxPayerID*/, ZERODATE, 0L, &gtx) > 0)
-					info.VatRate = gtx.GetVatRate();
-				GObj.GetSingleBarcode(goods_rec.ID, 0, temp_buf);
-				temp_buf.ShiftLeftChr('@');
-				STRNSCPY(info.Code, temp_buf);
-				info.Level = level;
-				info.P_QuotByQttyList = 0;
-				THROW_SL(P_GrpList->insert(&info));
-				THROW(MakeGroupList(pTreeList, item.Id, level + 1)); // @recursion
-				ok = 1;
+	if(pTreeList) {
+		SString temp_buf;
+		for(uint i = 0; i < pTreeList->getCount(); i++) {
+			StrAssocArray::Item item = pTreeList->Get(i);
+			if(item.ParentId == parentID) {
+				Goods2Tbl::Rec goods_rec;
+				if(GObj.Fetch(item.Id, &goods_rec) > 0 && !(goods_rec.Flags & GF_ALTGROUP)) {
+					AsyncCashGoodsGroupInfo info;
+					PPGoodsTaxEntry gtx;
+					info.ID = item.Id;
+					STRNSCPY(info.Name, goods_rec.Name);
+					info.ParentID = item.ParentId;
+					info.UnitID  = goods_rec.UnitID;
+					if(GObj.FetchTaxEntry2(goods_rec.ID, 0/*lotID*/, 0/*taxPayerID*/, ZERODATE, 0L, &gtx) > 0)
+						info.VatRate = gtx.GetVatRate();
+					GObj.GetSingleBarcode(goods_rec.ID, 0, temp_buf);
+					temp_buf.ShiftLeftChr('@');
+					STRNSCPY(info.Code, temp_buf);
+					info.Level = level;
+					info.P_QuotByQttyList = 0;
+					THROW_SL(P_GrpList->insert(&info));
+					THROW(MakeGroupList(pTreeList, item.Id, level + 1)); // @recursion
+					ok = 1;
+				}
 			}
 		}
 	}
@@ -3108,7 +3111,7 @@ int AsyncCashGoodsGroupIterator::Init(PPID cashNodeID, long flags, DeviceLoading
 {
 	int    ok = 1;
 	PPID   grp_id = 0;
-	SString   temp_buf;
+	SString temp_buf;
 	PPIDArray grp_id_list;
 	Goods2Tbl::Rec goods_rec;
 	Goods2Tbl::Rec cn_grp_rec;

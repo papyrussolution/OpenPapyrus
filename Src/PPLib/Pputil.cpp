@@ -4535,6 +4535,12 @@ public:
 						Appellation = temp_buf;
 				}
 				{
+					ini_file.GetParam("general", "password", temp_buf);
+					if(temp_buf.NotEmptyS()) {
+						Pw = temp_buf;
+					}
+				}
+				{
 					ini_file.GetParam("general", "destination", temp_buf);
 					if(temp_buf.NotEmptyS()) {
 						Loc = temp_buf;
@@ -4556,7 +4562,38 @@ public:
 		StringSet SsExcl;
 	};
 	struct Snapshot {
-		uint32 Dummy;
+		struct Summary { // @flat
+			Summary() 
+			{
+				THISZERO();
+			}
+			uint64 UedBackupStartTm;
+			uint64 UedBackupEndTm;
+			uint   FilesNew;
+			uint   FilesChanged;
+			uint   FilesUnmodified;
+			uint   DirsNew;
+			uint   DirsChanged;
+			uint   DirsUnmodified;
+			uint   DataBlobs;
+			uint   TreeBlobs;
+			uint   DataAdded;
+			uint   DataAddedPacked;
+			uint   TotalFilesProcessed;
+			uint   TotalBytesProcessed;
+		};
+		Snapshot() : UedTime(0), ShortId(0)
+		{
+		}
+		uint64 UedTime;
+		binary256 Tree;
+		SString HostName;
+		SString UserName;
+		SVerT  ResticVer;
+		binary256 Id;
+		uint32 ShortId;
+		StringSet SsPaths;
+		Summary S;
 	};
 	struct Entry {
 		uint32 Dummy;
@@ -4564,20 +4601,26 @@ public:
 	PPResticInterface(PPLogger * pLogger);
 	~PPResticInterface();
 	int    CreateRepo(const RepoParam & rP);
-	int    Backup(const RepoParam & rP);
+	//
+	// ARG(dryMode IN): фактически ничего не копирует, но лишь показывает что будет копировать.
+	//
+	int    Backup(const RepoParam & rP, bool dryMode);
 	int    Restore(const RepoParam & rP);
 	int    GetSnapshotList(const RepoParam & rP, TSCollection <Snapshot> * pResult);
-	int    GetEntryList(const RepoParam & rP, TSCollection <Entry> * pResult);
+	int    GetEntryList(const RepoParam & rP, uint32 snapshotShortId, TSCollection <Entry> * pResult);
 private:
-	int    MakeProcessObj(const RepoParam & rP, SlProcess & rPrc);
+	int    MakeProcessObj(const RepoParam & rP, SlProcess & rPrc, bool captureOutput);
 	int    GetExePath(SString & rBuf);
 	int    ShowProcessOuput(SlProcess::Result & rR);
+	int    ReadProcessJsonOutput(SlProcess::Result & rR, TSCollection <SJson> & rList);
 
 	PPLogger * P_Logger; // @notowned
+	SString DebugLogFileName;
 };
 
 PPResticInterface::PPResticInterface(PPLogger * pLogger) : P_Logger(pLogger)
 {
+	PPGetFilePath(PPPATH_LOG, "restic-debug.log", DebugLogFileName);
 }
 
 PPResticInterface::~PPResticInterface()
@@ -4602,10 +4645,10 @@ int PPResticInterface::GetExePath(SString & rBuf)
 	return ok;
 }
 
-int PPResticInterface::MakeProcessObj(const RepoParam & rP, SlProcess & rPrc)
+int PPResticInterface::MakeProcessObj(const RepoParam & rP, SlProcess & rPrc, bool captureOutput)
 {
 	int    ok = -1;
-	//SString temp_buf;
+	SString temp_buf;
 	SString module_path;
 	GetExePath(module_path);
 	if(module_path.NotEmpty() /*&& rP.Loc.NotEmpty()*/) {
@@ -4624,8 +4667,51 @@ int PPResticInterface::MakeProcessObj(const RepoParam & rP, SlProcess & rPrc)
 		else {
 			rPrc.AddArg("--help");
 		}
-		rPrc.SetFlags(SlProcess::fCaptureStdErr|SlProcess::fCaptureStdOut);
+		{
+			PPGetFilePath(PPPATH_LOG, "restic-internal-debug.log", temp_buf);
+			rPrc.AddEnv("DEBUG_LOG", temp_buf);
+		}
+		if(captureOutput)
+			rPrc.SetFlags(SlProcess::fCaptureStdErr|SlProcess::fCaptureStdOut);
+		rPrc.SetFlags(SlProcess::fDefaultErrorMode);
+		rPrc.SetWorkingDir(L"d:\\"); // @experimental @debug
 		ok = 1;
+	}
+	return ok;
+}
+
+int PPResticInterface::ReadProcessJsonOutput(SlProcess::Result & rR, TSCollection <SJson> & rList)
+{
+	int    ok = -1;
+	if(!!rR.HStdOutRd) {
+		SString temp_buf;
+		DWORD  actual_size;
+		char   cbuf[4096];
+		SBuffer buffer;
+		for(;;) {
+			actual_size = 0;
+			int rfr = ::ReadFile(rR.HStdOutRd, cbuf, sizeof(cbuf)-1, &actual_size, NULL);
+			if(rfr && actual_size) {
+				buffer.Write(cbuf, actual_size);
+				ok = 1;
+			}
+			else
+				break;
+		}
+		if(ok > 0) {
+			SString log_file_name;
+			PPGetFilePath(PPPATH_LOG, "restic-output.log", log_file_name);
+			SFile f_log(log_file_name, SFile::mAppend);
+			SFile f_(buffer, SFile::mRead|SFile::mBinary);
+			while(f_.ReadLine(temp_buf, SFile::rlfChomp)) {
+				f_log.WriteLine(temp_buf.CR());
+				SJson * p_new_js = SJson::Parse(temp_buf);
+				if(p_new_js) {
+					rList.insert(p_new_js);
+					ok = 1;
+				}
+			}
+		}
 	}
 	return ok;
 }
@@ -4671,11 +4757,15 @@ int PPResticInterface::CreateRepo(const RepoParam & rP)
 	int    prr = 0;
 	SString temp_buf;
 	SlProcess prc;
-	if(MakeProcessObj(rP, prc) > 0) {
+	if(MakeProcessObj(rP, prc, true) > 0) {
 		//prc.SetFlags(SlProcess::fReadOutputIntoInternalBuf);
 		prc.AddArg("init");
 		SlProcess::Result pr;
 		prr = prc.Run(&pr);
+		if(DebugLogFileName.NotEmpty()) {
+			temp_buf.Z().Cat(pr.AppNameUtf8).Space().Cat(pr.CmdLineUtf8);
+			PPLogMessage(DebugLogFileName, temp_buf, LOGMSGF_TIME|LOGMSGF_COMP);
+		}
 		if(prr) {
 			ShowProcessOuput(pr);
 			ok = 1;
@@ -4690,20 +4780,128 @@ int PPResticInterface::GetSnapshotList(const RepoParam & rP, TSCollection <Snaps
 	int    prr = 0;
 	SString temp_buf;
 	SlProcess prc;
-	if(MakeProcessObj(rP, prc) > 0) {
+	if(MakeProcessObj(rP, prc, true) > 0) {
 		prc.AddArg("snapshots");
 		prc.AddArg("--json");
 		SlProcess::Result pr;
 		prr = prc.Run(&pr);
+		if(DebugLogFileName.NotEmpty()) {
+			temp_buf.Z().Cat(pr.AppNameUtf8).Space().Cat(pr.CmdLineUtf8);
+			PPLogMessage(DebugLogFileName, temp_buf, LOGMSGF_TIME|LOGMSGF_COMP);
+		}
 		if(prr) {
-			ShowProcessOuput(pr);
-			ok = 1;
+			//ShowProcessOuput(pr);
+			TSCollection <SJson> js_list;
+			if(ReadProcessJsonOutput(pr, js_list) > 0) {
+				struct SnapshotEntry {
+					UED    UedTime;
+					binary256 Tree;
+					SString HostName;
+					SString UserName;
+					SVerT  ResticVer;
+					binary256 Id;
+					uint32 ShortId;
+					StringSet SsPaths;
+					struct Summary {
+						UED    BackupStartTm;
+						UED    BackupEndTm;
+						uint   FilesNew;
+						uint   FilesChanged;
+						uint   FilesUnmodified;
+						uint   DirsNew;
+						uint   DirsChanged;
+						uint   DirsUnmodified;
+						uint   DataBlobs;
+						uint   TreeBlobs;
+						uint   DataAdded;
+						uint   DataAddedPacked;
+						uint   TotalFilesProcessed;
+						uint   TotalBytesProcessed;
+					};
+				};
+				/*
+					{
+						"time": "2025-10-05T16:51:02.2343749+03:00",
+						"tree": "47eb1ff8473ede2fefdf64b61b1d98e23ba98e30607481d81c29b01f060718ed",
+						"paths": [
+							"D:\\Papyrus\\ppy\\log"
+						],
+						"hostname": "sobolev7",
+						"username": "PETROGLIF\\SOBOLEV",
+						"program_version": "restic 0.18.0",
+						"summary": {
+							"backup_start": "2025-10-05T16:51:02.2343749+03:00",
+							"backup_end": "2025-10-05T16:51:04.4125445+03:00",
+							"files_new": 0,
+							"files_changed": 0,
+							"files_unmodified": 0,
+							"dirs_new": 3,
+							"dirs_changed": 0,
+							"dirs_unmodified": 0,
+							"data_blobs": 0,
+							"tree_blobs": 4,
+							"data_added": 1945,
+							"data_added_packed": 1450,
+							"total_files_processed": 0,
+							"total_bytes_processed": 0
+						},
+						"id": "9ff715bc5a68599468bac7134940a547007f01687098cdd0016b2f28ca1b6bde",
+						"short_id": "9ff715bc"
+					},
+				*/ 
+				for(uint i = 0; i < js_list.getCount(); i++) {
+					const SJson * p_js = js_list.at(i);
+					if(SJson::IsArray(p_js)) {
+						for(const SJson * p_js_item = p_js->P_Child; p_js_item; p_js_item = p_js_item->P_Next) {
+							if(SJson::IsObject(p_js_item)) {
+								
+							}
+						}
+					}
+				}
+				ok = 1;
+			}
 		}
 	}
 	return ok;
 }
 
-int PPResticInterface::Backup(const RepoParam & rP)
+int PPResticInterface::GetEntryList(const RepoParam & rP, uint32 snapshotShortId, TSCollection <Entry> * pResult)
+{
+	int    ok = -1;
+	int    prr = 0;
+	SString temp_buf;
+	SlProcess prc;
+	if(MakeProcessObj(rP, prc, true) > 0) {
+		prc.AddArg("ls");
+		if(snapshotShortId) {
+			temp_buf.Z().CatHex(static_cast<ulong>(snapshotShortId));
+			if(temp_buf.Len() < 8) {
+				temp_buf.ShiftRight(8-temp_buf.Len(), '0');
+			}
+			prc.AddArg(temp_buf);
+		}
+		else {
+			prc.AddArg("latest");
+		}
+		prc.AddArg("--json");
+		SlProcess::Result pr;
+		prr = prc.Run(&pr);
+		if(DebugLogFileName.NotEmpty()) {
+			temp_buf.Z().Cat(pr.AppNameUtf8).Space().Cat(pr.CmdLineUtf8);
+			PPLogMessage(DebugLogFileName, temp_buf, LOGMSGF_TIME|LOGMSGF_COMP);
+		}
+		if(prr) {
+			TSCollection <SJson> js_list;
+			if(ReadProcessJsonOutput(pr, js_list) > 0) {
+				;
+			}
+		}
+	}
+	return ok;
+}
+
+int PPResticInterface::Backup(const RepoParam & rP, bool dryMode)
 {
 	int    ok = 0;
 	int    prr = 0;
@@ -4715,14 +4913,23 @@ int PPResticInterface::Backup(const RepoParam & rP)
 	PPGetPath(PPPATH_TEMP, temp_path);
 	THROW(rP.Loc.NotEmpty()); // @todo @err
 	THROW(rP.SsIncl.IsCountGreaterThan(0)); // @todo @err
-	THROW(MakeProcessObj(rP, prc) > 0);
+	THROW(MakeProcessObj(rP, prc, false) > 0);
 	{
 		//restic -r D:\__BACKUP__\Papyrus\restic-repo-papyrus-main backup --files-from D:\__BACKUP__\Papyrus\restic-repo-papyrus-main-include --exclude-file D:\__BACKUP__\Papyrus\restic-repo-papyrus-main-exclude
 		prc.AddArg("backup");
+		if(dryMode) {
+			prc.AddArg("--dry-run");
+		}
+		//prc.AddArg("--verbose");
+
+		// "D:\\__BACKUP__\\Papyrus\\restic-repo-papyrus-main-include"
+		// "D:\\__BACKUP__\\Papyrus\\restic-repo-papyrus-main-exclude"
+
 		{
 			{
 				long tfc = 0;
 				PPMakeTempFileName("restic-bu-incl", 0, &tfc, fn_incl);
+				fn_incl.TrimRightChr('.');
 				SFile f_temp(fn_incl, SFile::mWrite);
 				THROW_SL(f_temp.IsValid());
 				for(uint ssp = 0; rP.SsIncl.get(&ssp, temp_buf);) {
@@ -4732,11 +4939,13 @@ int PPResticInterface::Backup(const RepoParam & rP)
 				}
 			}
 			prc.AddArg("--files-from");
+			//fn_incl = "D:\\__BACKUP__\\Papyrus\\restic-repo-papyrus-main-include"; // @debug
 			prc.AddArg(fn_incl);
 		}
 		if(rP.SsExcl.IsCountGreaterThan(0)) {
 			long tfc = 0;
 			PPMakeTempFileName("restic-bu-excl", 0, &tfc, fn_excl);
+			fn_excl.TrimRightChr('.');
 			SFile f_temp(fn_excl, SFile::mWrite);
 			THROW_SL(f_temp.IsValid());
 			for(uint ssp = 0; rP.SsExcl.get(&ssp, temp_buf);) {
@@ -4745,13 +4954,29 @@ int PPResticInterface::Backup(const RepoParam & rP)
 				THROW_SL(f_temp.WriteLine(temp_buf));
 			}
 			prc.AddArg("--exclude-file");
-			prc.AddArg(fn_incl);
+			//fn_excl = "D:\\__BACKUP__\\Papyrus\\restic-repo-papyrus-main-exclude"; // @debug
+			prc.AddArg(fn_excl);
 		}
 		{
+			//SDelay(500); // @debug
+			if(P_Logger) {
+				SString cd;
+				SFile::GetCurrentDir(cd);
+				temp_buf.Z().Cat("Current directory").CatDiv(':', 2).Cat(cd);
+				P_Logger->Log(temp_buf);
+			}
 			SlProcess::Result pr;
+			prc.SetCurrentUserAsImpersUser(); // @experimental
 			prr = prc.Run(&pr);
 			if(prr) {
-				ShowProcessOuput(pr);
+				::WaitForSingleObject(pr.HProcess, INFINITE);
+			}
+			if(DebugLogFileName.NotEmpty()) {
+				temp_buf.Z().Cat(pr.AppNameUtf8).Space().Cat(pr.CmdLineUtf8);
+				PPLogMessage(DebugLogFileName, temp_buf, LOGMSGF_TIME|LOGMSGF_COMP);
+			}
+			if(prr) {
+				//ShowProcessOuput(pr);
 				ok = 1;
 			}
 		}
@@ -4773,8 +4998,9 @@ int TestRestic()
 		//rp.Pw = "restic-repo-pw";
 		//
 		//rifc.CreateRepo(rp);
-		//rifc.Backup(rp);
+		rifc.Backup(rp, false);
 		rifc.GetSnapshotList(rp, 0);
+		rifc.GetEntryList(rp, 0, 0);
 	}
 	return ok;
 }

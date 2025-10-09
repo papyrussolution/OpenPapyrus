@@ -1771,7 +1771,7 @@ int STDCALL SetupSCollectionComboBox(TDialog * dlg, uint ctl, SCollection * pSC,
 				long   id = 0;
 				uint   pos = 0;
 				StringSet ss(',', p_buf);
-				if(ss.getCount() >= 2) {
+				if(ss.IsCountGreaterThan(1)) {
 					ss.get(&pos, temp_buf, sizeof(temp_buf));
 					id = atol(temp_buf);
 				}

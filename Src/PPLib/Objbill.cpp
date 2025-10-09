@@ -1022,7 +1022,7 @@ int PPBillPacket::ConvertToCheck2(const ConvertToCCheckParam & rParam, CCheckPac
 						lotxcode_set.GetByBoxID(0, ss);
 						const double _one = 1.0;
 						const long chzn_prod_type = (goods_rec.GoodsTypeID && goods_obj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0) ? gt_rec.ChZnProdType : 0;
-						if(ss.getCount()) {
+						if(ss.IsCountGreaterThan(0)) {
 							bool   chznpm_ok = true;
 							for(uint ssp = 0; qtty_ >= _one && ss.get(&ssp, chzn_mark);) {
 								S_GUID chznpm_reqid;        // ответ разрешительного режима чзн: уникальный идентификатор запроса
@@ -1542,7 +1542,7 @@ int PPObjBill::PosPrintByBill(PPID billID)
 				SString _email;
 				r_ela.GetSinglePhone(_phone, 0);
 				if(r_ela.GetListByType(ELNKRT_EMAIL, ss) > 0) {
-					assert(ss.getCount());
+					assert(ss.IsCountGreaterThan(0));
 					ss.get(0U, _email);
 				}				
 				if(_email.NotEmpty())
@@ -6781,14 +6781,16 @@ int PPObjBill::GetSerialNumberByLot(PPID lotID, SString & rBuf, int useCache)
 
 int PPObjBill::SelectLotBySerial(const char * pSerial, PPID goodsID, PPID locID, ReceiptTbl::Rec * pRec)
 {
-	int    ok = -1, r = -1;
+	int    ok = -1;
+	int    r = -1;
 	if(!isempty(pSerial)) {
 		PPIDArray lot_list;
 		PPID   lot_id = 0;
 		ReceiptTbl::Rec lot_rec;
+		// @todo @20251007 Ниже - очень плохой блок: если лотов много, то осуществляется значительное число повторных обращений к базе данных за одними и теми же лотами.
 		if(SearchLotsBySerialExactly(pSerial, &lot_list) > 0) {
 			while(ok < 0 && (r = SelectLotFromSerialList(&lot_list, locID, &lot_id, &lot_rec)) > 0) {
-				if(!goodsID || lot_rec.GoodsID == goodsID) {
+				if((!goodsID || lot_rec.GoodsID == goodsID) && (!locID || lot_rec.LocID == locID)) { // @v12.4.3 (&& (!locID || lot_rec.LocID == locID))
 					ASSIGN_PTR(pRec, lot_rec);
 					ok = 1;
 				}
@@ -6809,7 +6811,7 @@ int PPObjBill::SelectLotFromSerialList(const PPIDArray * pList, PPID locID, PPID
 	LDATE  last_clsd_date = ZERODATE;
 	long   last_clsd_oprno = 0;
 	for(uint i = 0; i < pList->getCount(); i++) {
-		PPID   lot_id = pList->at(i);
+		const PPID lot_id = pList->at(i);
 		ReceiptTbl::Rec lot_rec;
 		if(trfr->Rcpt.Search(lot_id, &lot_rec) > 0) {
 			if(ok < 0 && locID && lot_rec.LocID != locID) {
@@ -8373,8 +8375,14 @@ int PPObjBill::TurnPacket(PPBillPacket * pPack, int use_ta)
 				}
 			}
 		}
-		if(pPack->Rec.OpID) // Проводку теневых документов в журнале не отмечаем
+		if(pPack->Rec.OpID) { // Проводку теневых документов в журнале не отмечаем
+			// @v12.4.3 {
+			if(pPack->Rec.Flags & BILLF_SHIPPED) {
+				DS.LogAction(PPACN_BILLSHIPMFLAGSET, PPOBJ_BILL, pPack->Rec.ID, 0, 0);
+			}
+			// } @v12.4.3 
 			DS.LogAction(PPACN_TURNBILL, PPOBJ_BILL, pPack->Rec.ID, 0, 0);
+		}
 		THROW(PPCommitWork(&ta));
 	}
 	ufp.SetFactor(0, ufp_counter.CalcFactor(0));
@@ -8855,6 +8863,11 @@ int PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 				}
 			}
 			// } @v11.9.3 
+			// @v12.4.3 {
+			if((pPack->Rec.Flags & BILLF_SHIPPED) && !(org_pack.Rec.Flags & BILLF_SHIPPED)) {
+				DS.LogAction(PPACN_BILLSHIPMFLAGSET, PPOBJ_BILL, pPack->Rec.ID, 0, 0);
+			}
+			// } @v12.4.3 
 			DS.LogAction(PPACN_UPDBILL, PPOBJ_BILL, pPack->Rec.ID, h_id, 0);
 		}
 		THROW(PPCommitWork(&ta));

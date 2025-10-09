@@ -5601,9 +5601,9 @@ public:
 
 class AryBrowserDef : public BrowserDef {
 public:
-	AryBrowserDef(SArray * pData, const BNFieldList * pFl, int captionHight, uint aOptions, void * extraPtr = 0);
+	AryBrowserDef(SArray * pData, const BNFieldList2 * pFl, int captionHight, uint aOptions, void * extraPtr = 0);
 	~AryBrowserDef();
-	int     setArray(SArray * pData, const BNFieldList * pFl, int setupPosition /*= 1*/);
+	int     setArray(SArray * pData, const BNFieldList2 * pFl, int setupPosition /*= 1*/);
 	const   SArray * getArray() const;
 	virtual bool   IsValid() const;
 	virtual int    insertColumn(int atPos, const char * pTxt, uint fldNo, TYPEID typ, long fmt, uint opt);
@@ -5611,7 +5611,7 @@ public:
 	virtual const  void * FASTCALL getRow(long) const;
 protected:
 	SArray * P_Array;
-	BNFieldList * P_Fields;
+	BNFieldList2 * P_Fields;
 };
 //
 //

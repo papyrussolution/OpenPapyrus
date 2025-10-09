@@ -1020,7 +1020,7 @@ int StyloBhtIIExchange(const char * pDbSymb, const char * pName, const char * pP
 	int    ok = 1;
 	SString buf, msg_buf, pwd;
 	Reference::Decrypt(Reference::crymRef2, pPassword, sstrlen(pPassword), pwd);
-	if(DS.Login(pDbSymb, pName, pwd) > 0) {
+	if(DS.PPLogin(pDbSymb, pName, pwd) > 0) {
 		StyloBhtIIExchanger exch(pSo);
 		pwd = 0;
 		buf.Z().Cat(1L);
@@ -1036,7 +1036,7 @@ int StyloBhtIIExchange(const char * pDbSymb, const char * pName, const char * pP
 	CATCH
 		ok = (PPError(), 0);
 	ENDCATCH
-	DS.Logout();
+	DS.PPLogout();
 	return ok;
 }
 #endif // } 0

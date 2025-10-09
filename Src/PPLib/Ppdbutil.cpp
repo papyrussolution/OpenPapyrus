@@ -4097,7 +4097,7 @@ SLTEST_R(TestDbSerialization)
 							BillTbl::Rec bill_rec;
 							bill_tbl.CopyBufTo(&bill_rec);
 							//
-							// Проверка работоспособности функции BNFieldList::IsEqualRecords
+							// Проверка работоспособности функции BNFieldList2::IsEqualRecords
 							//
 							THROW(SLCHECK_NZ(bill_tbl.GetFields().IsEqualRecords(&bill_rec, &bill_tbl.data)));
 							THROW(SLCHECK_NZ(ctx.Serialize(bill_tbl.GetTableName(), &bill_tbl.GetFieldsNonConst(), &bill_tbl.data, srlz_buf)));
@@ -4115,7 +4115,7 @@ SLTEST_R(TestDbSerialization)
 							ReceiptTbl::Rec lot_rec;
 							lot_tbl.CopyBufTo(&lot_rec);
 							//
-							// Проверка работоспособности функции BNFieldList::IsEqualRecords
+							// Проверка работоспособности функции BNFieldList2::IsEqualRecords
 							//
 							THROW(SLCHECK_NZ(lot_tbl.GetFields().IsEqualRecords(&lot_rec, &lot_tbl.data)));
 							THROW(SLCHECK_NZ(ctx.Serialize(lot_tbl.GetTableName(), &lot_tbl.GetFieldsNonConst(), &lot_tbl.data, srlz_buf)));
@@ -4133,7 +4133,7 @@ SLTEST_R(TestDbSerialization)
 							CCheckTbl::Rec cc_rec;
 							cc_tbl.CopyBufTo(&cc_rec);
 							//
-							// Проверка работоспособности функции BNFieldList::IsEqualRecords
+							// Проверка работоспособности функции BNFieldList2::IsEqualRecords
 							//
 							THROW(SLCHECK_NZ(cc_tbl.GetFields().IsEqualRecords(&cc_rec, &cc_tbl.data)));
 							THROW(SLCHECK_NZ(ctx.Serialize(cc_tbl.GetTableName(), &cc_tbl.GetFieldsNonConst(), &cc_tbl.data, srlz_buf)));
@@ -4158,7 +4158,7 @@ SLTEST_R(TestDbSerialization)
 							PrjTaskTbl::Rec todo_rec;
 							todo_tbl.CopyBufTo(&todo_rec);
 							//
-							// Проверка работоспособности функции BNFieldList::IsEqualRecords
+							// Проверка работоспособности функции BNFieldList2::IsEqualRecords
 							//
 							THROW(SLCHECK_NZ(todo_tbl.GetFields().IsEqualRecords(&todo_rec, &todo_tbl.data)));
 							THROW(SLCHECK_NZ(ctx.Serialize(todo_tbl.GetTableName(), &todo_tbl.GetFieldsNonConst(), &todo_tbl.data, srlz_buf)));

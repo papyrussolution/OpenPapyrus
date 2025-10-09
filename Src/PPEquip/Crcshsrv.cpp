@@ -5381,7 +5381,7 @@ int Cristal2SetRetailGateway::CristalImport(const char * pPathUtf8, Cristal2SetR
 					f_in.Seek(0);
 					while(f_in.ReadLineCsv(csv_ctx, ss) > 0) {
 						line_no++;
-						if(ss.getCount()) {
+						if(ss.IsCountGreaterThan(0)) {
 	//1       3                                5       6        9                11  12                    14 15   16      17    18   19    20                21                              22  23    24 25 26       
 	//+|4004 |Приправа д/рыбы с лимон 25Кота|1|125.00 |20|0|шт.|9001414019290|23|87 |Специи               |0 |0.00|1.000|0|1.000|0.00|1.000|Приправа для рыбы|с лимоном 25г."Котани"         |0  |0.000|0 |22|0         |  |
 	//+|16491|Капуста Кимчи 340г Лукашинские|1|145.00 |20|0|с/б|4607936772184|10|149|Остальные консервы   |0 |0.00|1.000|0|1.000|0.00|1.000|Капуста "Кимчи"|340г "Лукашинские"               |0  |0.000|0 |1 |0         |  |
@@ -5615,7 +5615,7 @@ static void Cristal2SetRetailGateway_CSessDictionaryOutput(const char * pDictPat
 						dict.GetTableInfo(tbl_id, &tstat);
 						if(dict.LoadTableSpec(&tbl, p_tbl_name)) {
 							line_buf.Z().Cat(tbl.GetName());
-							const BNFieldList & r_fld_list = tbl.GetFields();
+							const BNFieldList2 & r_fld_list = tbl.GetFields();
 							const BNKeyList & r_idx_list = tbl.GetIndices();
 							line_buf.Tab().CatEq("recsize", /*tbl.getRecSize()*/r_fld_list.CalculateFixedRecSize()).CR();
 							{

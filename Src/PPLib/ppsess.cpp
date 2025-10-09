@@ -452,7 +452,7 @@ int PPThreadLocalArea::RegisterAdviseObjects()
 			}
 			else if(fileExists(path)) {
 				if(Timer == 0) {
-					DS.Logout();
+					DS.PPLogout();
 					exit(1);
 				}
 				else {
@@ -2216,7 +2216,7 @@ static void FpeCatcher(int sig, int fpe)
 		PPError(err, 0);
 #ifndef _PPSERVER
 		APPL->CloseAllBrowsers();
-		DS.Logout();
+		DS.PPLogout();
 		exit(err);
 #endif
 	}
@@ -2859,7 +2859,7 @@ static int _dbOpenException(const char * pFileName, int btrErr)
 	SString temp_buf(pFileName);
 	PPError(PPERR_DBENGINE, temp_buf.Transf(CTRANSF_OUTER_TO_INNER));
 	CALLPTRMEMB(APPL, CloseAllBrowsers());
-	DS.Logout();
+	DS.PPLogout();
 	exit(-1);
 	return 0;
 }
@@ -2995,8 +2995,12 @@ int PPSession::OpenDictionary2(DbLoginBlock * pBlk, long flags)
 		{
 			long   login_flags = 0;
 			if(flags & PPSession::odfDbReadOnly) {
+				login_flags |= DbProvider::openfReadOnly;
 			}
-			THROW_DB(p_db->DbLogin(pBlk, 0));
+			if(flags & PPSession::odfMainThread) {
+				login_flags |= DbProvider::openfMainThread;
+			}
+			THROW_DB(p_db->DbLogin(pBlk, login_flags));
 		}
 		THROW_DB(DBS.OpenDictionary2(p_db));
 	}
@@ -3144,7 +3148,7 @@ private:
 		char   secret[64];
 		PPVersionInfo vi = DS.GetVersionInfo();
 		THROW(vi.GetSecret(secret, sizeof(secret)));
-		THROW(DS.Login(DbSymb, PPSession::P_JobLogin, secret, PPSession::loginfSkipLicChecking));
+		THROW(DS.PPLogin(DbSymb, PPSession::P_JobLogin, secret, PPSession::loginfSkipLicChecking));
 		memzero(secret, sizeof(secret));
 		{
 			PPLoadText(PPTXT_LOG_DISPTHRCROK, msg_buf);
@@ -3188,7 +3192,7 @@ private:
 			msg_buf.Space().CatQStr(DbSymb).CatDiv(':', 2).Cat(temp_buf);
 			PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_TIME);
 		ENDCATCH
-		DS.Logout();
+		DS.PPLogout();
 		memzero(secret, sizeof(secret));
 	}
 	long   DbPathID;
@@ -3208,7 +3212,7 @@ private:
 	virtual void Shutdown()
 	{
 		//
-		// То же, что и PPThread::Shutdown() но без DS.Logout()
+		// То же, что и PPThread::Shutdown() но без DS.PPLogout()
 		//
 		DS.ReleaseThread();
 		DBS.ReleaseThread();
@@ -3901,7 +3905,7 @@ PPSession::LimitedDatabaseBlock * PPSession::LimitedOpenDatabase(const char * pD
 	return p_result;
 }
 
-int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * pPassword, long flags)
+int PPSession::PPLogin(const char * pDbSymb, const char * pUserName, const char * pPassword, long flags)
 {
 	//
 	// @todo @20250923 Выявлена проблема с выбиванием сеанса - ему предшествует сообщение "База данных '' заблокирована" (PPERR_SYNCDBLOCKED)
@@ -3916,13 +3920,13 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 	};
 	int    ok = 1;
 	const  LDATETIME now_dtm = getcurdatetime_();
+	const  SString db_symb(pDbSymb);
 	int    r;
 	uint   db_state = 0; // Флаги состояния базы данных
+	SString temp_buf;
 	SString dict_path;
 	SString data_path;
-	SString db_symb;
 	SString msg_buf;
-	SString temp_buf;
 	PPIniFile ini_file(0, 0, 0, 1);
 	PPDbEntrySet2 dbes;
 	DbLoginBlock blk;
@@ -3942,11 +3946,17 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 	r_tla.StateFlags &= ~PPThreadLocalArea::stAuth;
 	THROW(ini_file.IsValid());
 	THROW(dbes.ReadFromProfile(&ini_file, 0));
-	db_symb = pDbSymb;
 	THROW_SL(dbes.GetBySymb(db_symb, &blk));
 	blk.GetAttr(DbLoginBlock::attrDbPath, data_path);
 	blk.GetAttr(DbLoginBlock::attrDictPath, dict_path);
-	THROW(OpenDictionary2(&blk, 0));
+	{
+		long    open_dictionary_flags = 0;
+		// @v12.4.3 {
+		if(flags & loginfMainThread)
+			open_dictionary_flags |= odfMainThread;
+		// } @v12.4.3 
+		THROW(OpenDictionary2(&blk, open_dictionary_flags));
+	}
 	{
 		r_tla.Prf.InitUserProfile(user_name); // Инициализация профайлера с параметрами БД сразу после соединения с сервером БД.
 		r_tla.UfpSess.Begin(PPUPRF_SESSION);  // Профилирование всей сессии работы в БД (Login..Logout)
@@ -5054,7 +5064,7 @@ void PPThreadLocalArea::OnLogout()
 	}
 }
 
-int PPSession::Logout()
+int PPSession::PPLogout()
 {
 	PPThreadLocalArea & r_tla = GetTLA();
 	if(r_tla.StateFlags & PPThreadLocalArea::stAuth) {

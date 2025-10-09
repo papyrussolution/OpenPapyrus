@@ -58,7 +58,7 @@ void PPThread::Startup()
 
 void PPThread::Shutdown()
 {
-	DS.Logout();
+	DS.PPLogout();
 	DS.ReleaseThread();
 	DBS.ReleaseThread();
 	SlThread::Shutdown();
@@ -837,7 +837,7 @@ void PPJobSession::Run()
 		debug_r = 1;
 		THROW(vi.GetSecret(secret, sizeof(secret)));
 		debug_r = 2;
-		THROW(DS.Login(Job.DbSymb, PPSession::P_JobLogin, secret, PPSession::loginfSkipLicChecking));
+		THROW(DS.PPLogin(Job.DbSymb, PPSession::P_JobLogin, secret, PPSession::loginfSkipLicChecking));
 		memzero(secret, sizeof(secret));
 		is_logged_in = true;
 	}
@@ -848,7 +848,7 @@ void PPJobSession::Run()
 	ENDCATCH
 	memzero(secret, sizeof(secret));
 	if(is_logged_in)
-		DS.Logout();
+		DS.PPLogout();
 }
 //
 // @v5.8 ANDREW
@@ -924,7 +924,7 @@ int PPJobSession::MailNotify(const char * pTmpLogFileName)
 			}
 			{
 				StringSet ss(';', subscribed_list_buff);
-				if(ss.getCount()) {
+				if(ss.IsCountGreaterThan(0)) {
 					for(uint p = 0; ss.get(&p, temp_buf);) {
 						//
 						// @todo validate email address
@@ -2577,7 +2577,7 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 			{
 				SString pwd;
 				Reference::Decrypt(Reference::crymRef2, temp_buf, temp_buf.Len(), pwd);
-				int   lr = DS.Login(db_symb, name, pwd, PPSession::loginfSkipLicChecking);
+				int   lr = DS.PPLogin(db_symb, name, pwd, PPSession::loginfSkipLicChecking);
 				pwd.Obfuscate();
 				if(!lr) {
 					rReply.SetString(temp_buf.Z().CatChar('0'));
@@ -2636,7 +2636,7 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 			pEv->GetParam(1, db_symb); // PPGetExtStrData(1, pEv->Params, db_symb);
 			pEv->GetParam(2, name); // PPGetExtStrData(2, pEv->Params, name);
 			pEv->GetParam(3, temp_buf); // PPGetExtStrData(3, pEv->Params, temp_buf);
-			THROW(DS.Login(db_symb, name, temp_buf, PPSession::loginfSkipLicChecking) > 0);
+			THROW(DS.PPLogin(db_symb, name, temp_buf, PPSession::loginfSkipLicChecking) > 0);
 			State_PPws |= stLoggedIn;
 			rReply.SetString(temp_buf.Z().Cat(LConfig.SessionID));
 			{
@@ -4584,7 +4584,7 @@ PPServerSession::CmdRet PPServerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 			case PPSCMD_GETBIZSCORES:
 				disable_err_reply = 1;
 				//
-				// Login не требуется (GetBizScoresVals сама выполняет DS.Login)
+				// Login не требуется (GetBizScoresVals сама выполняет DS.PPLogin)
 				//
 				pEv->GetParam(1, name); // PPGetExtStrData(1, pEv->Params, name);
 				pEv->GetParam(2, temp_buf); // PPGetExtStrData(2, pEv->Params, temp_buf);

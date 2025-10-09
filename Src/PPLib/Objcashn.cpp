@@ -1972,7 +1972,7 @@ IMPL_HANDLE_EVENT(SyncCashNodeCfgDialog)
 		if(getDTS(0)) {
 			StringSet ss;
 			if(cn_obj.DiagnoseNode(Data, ss) > 0) {
-				if(ss.getCount()) {
+				if(ss.IsCountGreaterThan(0)) {
 					TDialog * dlg = new TDialog(DLG_DIAGPOSNODE);
 					if(CheckDialogPtrErr(&dlg)) {
 						SString temp_buf;

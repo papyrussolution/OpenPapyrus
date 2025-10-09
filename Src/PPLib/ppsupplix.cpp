@@ -14027,6 +14027,319 @@ int PrcssrSupplInterchange::Run()
 	return ok;
 }
 
+class BailmentOrderSet_Multon { // @v12.4.3
+public:
+	BailmentOrderSet_Multon()
+	{
+	}
+	//
+	enum Op {
+		opUndef = 0,
+		opPut,        // S1 (установка) SMPM
+		opGet,        // S2 (снятие) SMRM
+		opMov         // S6 (перемещение) SMPP
+	};
+	//
+	// Descr: Определение оборудования над которым совершается операция //
+	//
+	struct Equip {
+		SString Type;    // <EQUI_TYPE/> Тип объекта 
+		SString Cat;     // Категория //
+		SString Model;   // Модель //
+		SString Brand;
+		SString ItemId;  // Номер единицы оборудования //
+		SString Barcode;
+		SString Serial;
+	};
+	//
+	// Descr: Специфические особенности оборудования //
+	//
+	struct EquipFeatures {
+		SString Status;        //
+		SString Refrigerant;   // Тип хладагента
+		SString ServicePlant;  // Обслуживающий завод
+		SString PlantEqLayout; // Завод расположения оборудования
+	};
+
+	struct PartnerItem {
+		PartnerItem() : UedGeoLoc(0)
+		{
+		}
+		SString Func;        // <FUNCTION>SP</FUNCTION>	Партнерская функция (ИНФО о Торговой точке). PPEanComDocument::iticXXX
+		SString Code;        // <KUNNR>3804702160</KUNNR>	Код клиента
+		SString Name1;       // <NAME1>ООО ФИЛИН</NAME1>	Название клиента
+		SString Name4;       // <NAME4/>	Название клиента
+		SString CommercName; // <COMMERCIAL_NAME/>	Коммерческое название
+		SString BizType;     // <BUS_TYPE>B</BUS_TYPE>	Бизнес тип клиента
+		SString IsscomChannel; // <ISSCOM_CHANNEL>018</ISSCOM_CHANNEL>	Канал ISSCOM
+		SString House;         // <HOUSE_NUM1/>	Номер дома
+		SString Street;        // <STREET>УЛ.ЧЕРНЯХОВСКОГО; Д.5А</STREET>	Улица
+		SString StreetNo;      // <STRAS/>	Номер улицы (если есть)
+		SString ZIP;           // <PSTLZ>353900</PSTLZ>	Почтовый код
+		SString City;          // <CITY>Г.НОВОРОССИЙСК;</CITY>	Город
+		SString Region;        // <REGIO>23</REGIO>	Регион
+		SString Phone1;        // <PHONE1> 9184819988</PHONE1>	Телефон 1
+		SString Phone2;        // <PHONE2/>	Телефон 2
+		SString Contact;       // <CONTACT/>	Контактное лицо 
+		SString ClosingDay;    // <CLOSING_DAY/>	 
+		SString VisitFee;      // <VISIT_FEE/>	Платный визит
+		SString INN;           // <VAT/>	 
+		uint64 UedGeoLoc;      // <GC_LONGITUD>37.786406</GC_LONGITUD>	Долгота; <GC_LATITUDE>44.701622</GC_LATITUDE>	Широта		
+	};
+	struct OrderItem {
+		OrderItem() : AUART(0), Priority(0), MsgCrDate(ZERODATE), DueDate(ZERODATE), InstDate(ZERODATE), Price(0.0)
+		{
+		}
+		SString PoCode;        // <PONUM>4502990726</PONUM>	Номер PO
+		SString PoRowN;        // <ITEMNO>00010</ITEMNO>	Номер строки в PO
+		SString QMART;         // <QMART>S1</QMART>	Тип сообщения
+		int    AUART;          // opXXX <AUART>SMPM</AUART>	Тип заказа
+		SString AUARTText;     // <AUARTTEXT>Placement Order</AUARTTEXT>	Текст заказа
+		SString Warehouse;     // <B_LAGER/> Склад(при S1 не заполняется!) - (@sobolev - я не знаю что это за склад)
+		SString QMNUM;         // <QMNUM>000312573380</QMNUM>	Номер сообщения
+		SString QMTXT;         // <QMTXT>ICOOL1300 - уст</QMTXT>	Короткий текст сообщения
+
+		SString LText;         // <LTEXT> * 21.09.2022 07:57:25 CET (RF126608) * Z_CCAF = "FT/FC New 7L" - (Real value = 247L) * ZCDE_ACTUAL_DOORS = "" - (Real value =) * ZCDE_TARGET_DOORS = "0" - (Real value = 0) * * * Survey ID->RU_УСТАНОВКА_COOLERS * Х-К МОДЕЛЬ=ICOOL1300 * ЛОГО=COCA-COLA * СОСТ=BNEW * ТИП УСТАНОВКИ=Постоянная * РУК В ТТ=Роман * ТЕЛЕФОН ТТ=9891694990 * ПОДЪЕМ/СПУСК НА ЭТАЖ=Нет * ПРИЛАВОК=Нет * ТЕЛ ТП=0079891694990 * СВЯЗЬ С ТП=ДА</LTEXT>	Длинный текст (из опросника)+Комментарии от Sales к заявкам, уточнения + к.н. ТТ + директор ТТ
+		int    Priority;       // <PRIOK>2</PRIOK>	Приоритет
+		LDATE  MsgCrDate;      // <STRMN>2022-09-21</STRMN>	Дата создания сообщения
+		LDATE  DueDate;        // <DUE_DATE>2022-10-03</DUE_DATE>	Требуемая дата выполнения
+		LDATE  InstDate;       // <EQUI_INSTALATION>0000-00-00</EQUI_INSTALATION>	Дата установки(при S1 не заполняется!)
+		SString Material;      // <MATERIAL/> Номер материала (при S1 не заполняется!)
+		SString PlantRcpt;     // <EQFNR/> Завод получатель  (куда перемещают оборудование) (при S1 не заполняется!)
+		//
+		SString Service;       // <SERVICE>уст</SERVICE>	Краткий текст работ 
+		double Price;          // <PRICE>1350.0</PRICE>	Цена договорная по прайсу
+		SString SOrdNo;        // <SORDER>008019751807</SORDER>	Номер заказа 
+		SString TaskListText;  // <TASK_LIST>ICOOL1300 - уст</TASK_LIST>	Список работ, копируется с строки <QMTXT>
+		SString PrintForm;     // <PRINTFORM>
+		SString NvGr;          // <NV_GR/> @?
+		
+		Equip  Eq;
+		EquipFeatures EqF;
+		TSCollection <PartnerItem> PartnerList;
+	};
+
+	TSCollection <OrderItem> OrderList;
+};
+//
+// Descr: Функция разбирает заявку на размещение холодильного оборудования у клиентов (supplier - Мултон)
+//
+int ParseBailmentOrder_Multon(const char * pInBuf, BailmentOrderSet_Multon & rR) // @v12.4.3
+{
+	int    ok = -1;
+    xmlParserCtxt * p_ctx = xmlNewParserCtxt();
+	xmlDoc * p_doc = 0;
+	const xmlNode * p_root = 0;
+	SString temp_buf;
+	const size_t in_buf_len = sstrlen(pInBuf);
+	if(in_buf_len) {
+		p_doc = xmlCtxtReadMemory(p_ctx, pInBuf, in_buf_len, 0, 0, XML_PARSE_NOENT);
+		THROW_LXML(p_doc, p_ctx);	
+		THROW(p_root = xmlDocGetRootElement(p_doc));
+		if(SXml::IsName(p_root, "CAM")) {
+			for(const xmlNode * p_c = p_root->children; p_c; p_c = p_c->next) {
+				if(SXml::IsName(p_c, "ORDERS")) {
+					ok = 1; // !
+					for(const xmlNode * p_c2 = p_c->children; p_c2; p_c2 = p_c2->next) {
+						if(SXml::IsName(p_c2, "item")) {
+							BailmentOrderSet_Multon::OrderItem * p_order_item = rR.OrderList.CreateNewItem();
+							for(const xmlNode * p_c3 = p_c2->children; p_c3; p_c3 = p_c3->next) {
+								if(SXml::GetContentByName(p_c3, "PONUM", temp_buf)) {
+									p_order_item->PoCode = temp_buf;
+								}
+								else if(SXml::GetContentByName(p_c3, "ITEMNO", temp_buf)) {
+									p_order_item->PoRowN = temp_buf;
+								}
+								else if(SXml::GetContentByName(p_c3, "QMART", temp_buf)) {
+									p_order_item->QMART = temp_buf;
+								}
+								else if(SXml::GetContentByName(p_c3, "AUART", temp_buf)) {
+									if(temp_buf == "SMPM") {
+										p_order_item->AUART = BailmentOrderSet_Multon::opPut;
+									}
+									else if(temp_buf == "SMRM") {
+										p_order_item->AUART = BailmentOrderSet_Multon::opGet;
+									}
+									else if(temp_buf == "SMPP") {
+										p_order_item->AUART = BailmentOrderSet_Multon::opMov;
+									}
+									else {
+										; // @todo
+									}
+								}
+								else if(SXml::GetContentByName(p_c3, "AUARTTEXT", temp_buf)) {
+									p_order_item->AUARTText = temp_buf;
+								}
+								else if(SXml::GetContentByName(p_c3, "QMNUM", temp_buf)) {
+									p_order_item->QMNUM = temp_buf;
+								}
+								else if(SXml::GetContentByName(p_c3, "QMTXT", temp_buf)) {
+									p_order_item->QMTXT = temp_buf;
+								}
+								else if(SXml::GetContentByName(p_c3, "EQUI_TYPE", temp_buf)) {
+									p_order_item->Eq.Type = temp_buf;
+								}
+								else if(SXml::GetContentByName(p_c3, "EQUI_CAT", temp_buf)) {
+									p_order_item->Eq.Cat = temp_buf;
+								}
+								else if(SXml::GetContentByName(p_c3, "EQUI_MODEL", temp_buf)) {
+									p_order_item->Eq.Model = temp_buf;
+								}
+								else if(SXml::GetContentByName(p_c3, "EQUI_SUBBRAND", temp_buf)) {
+									p_order_item->Eq.Brand = temp_buf;
+								}
+								else if(SXml::GetContentByName(p_c3, "EQUNR", temp_buf)) {
+									p_order_item->Eq.ItemId = temp_buf;
+								}
+								else if(SXml::GetContentByName(p_c3, "TIDNR", temp_buf)) {
+									p_order_item->Eq.Barcode = temp_buf;
+								}
+								else if(SXml::GetContentByName(p_c3, "SERIAL", temp_buf)) {
+									p_order_item->Eq.Serial = temp_buf;
+								}
+								else if(SXml::GetContentByName(p_c3, "EQUI_STATUS", temp_buf)) {
+									p_order_item->EqF.Status = temp_buf;
+								}
+								else if(SXml::GetContentByName(p_c3, "MAPAR", temp_buf)) {
+									p_order_item->EqF.Refrigerant = temp_buf;
+								}
+								else if(SXml::GetContentByName(p_c3, "SWERK", temp_buf)) {
+									p_order_item->EqF.ServicePlant = temp_buf;
+								}
+								else if(SXml::GetContentByName(p_c3, "B_WERK", temp_buf)) {
+									p_order_item->EqF.PlantEqLayout = temp_buf;
+								}
+								else if(SXml::GetContentByName(p_c3, "B_LAGER", temp_buf)) {
+									p_order_item->Warehouse = temp_buf;
+								}
+								else if(SXml::GetContentByName(p_c3, "LTEXT", temp_buf)) {
+									p_order_item->LText = temp_buf;
+								}
+								else if(SXml::GetContentByName(p_c3, "PRIOK", temp_buf)) {
+									p_order_item->Priority = temp_buf.ToLong();
+								}
+								else if(SXml::GetContentByName(p_c3, "STRMN", temp_buf)) {
+									strtodate(temp_buf, DATF_YMD, &p_order_item->MsgCrDate);
+								}
+								else if(SXml::GetContentByName(p_c3, "DUE_DATE", temp_buf)) {
+									 strtodate(temp_buf, DATF_YMD, &p_order_item->DueDate);
+								}
+								else if(SXml::GetContentByName(p_c3, "EQUI_INSTALATION", temp_buf)) {
+									strtodate(temp_buf, DATF_YMD, &p_order_item->InstDate);
+								}
+								else if(SXml::GetContentByName(p_c3, "MATERIAL", temp_buf)) {
+									p_order_item->Material = temp_buf;
+								}
+								else if(SXml::GetContentByName(p_c3, "EQFNR", temp_buf)) {
+									p_order_item->PlantRcpt = temp_buf;
+								}
+								else if(SXml::IsName(p_c3, "PARTNERS")) {
+									for(const xmlNode * p_pn = p_c3->children; p_pn; p_pn = p_pn->next) {
+										if(SXml::IsName(p_pn, "item")) {
+											BailmentOrderSet_Multon::PartnerItem * p_partner = p_order_item->PartnerList.CreateNewItem();
+											SGeoPosLL geo_pos;
+											for(const xmlNode * p_pi = p_pn->children; p_pi; p_pi = p_pi->next) {
+												if(SXml::GetContentByName(p_pi, "FUNCTION", temp_buf)) {
+													p_partner->Func = temp_buf;
+												}
+												else if(SXml::GetContentByName(p_pi, "KUNNR", temp_buf)) {
+													p_partner->Code = temp_buf;
+												}
+												else if(SXml::GetContentByName(p_pi, "NAME1", temp_buf)) {
+													p_partner->Name1 = temp_buf;
+												}
+												else if(SXml::GetContentByName(p_pi, "NAME4", temp_buf)) {
+													p_partner->Name4 = temp_buf;
+												}
+												else if(SXml::GetContentByName(p_pi, "COMMERCIAL_NAME", temp_buf)) {
+													p_partner->CommercName = temp_buf;
+												}
+												else if(SXml::GetContentByName(p_pi, "BUS_TYPE", temp_buf)) {
+													p_partner->BizType = temp_buf;
+												}
+												else if(SXml::GetContentByName(p_pi, "VAT", temp_buf)) {
+													p_partner->INN = temp_buf;
+												}
+												else if(SXml::GetContentByName(p_pi, "ISSCOM_CHANNEL", temp_buf)) {
+													p_partner->IsscomChannel = temp_buf;
+												}
+												else if(SXml::GetContentByName(p_pi, "HOUSE_NUM1", temp_buf)) {
+													p_partner->House = temp_buf;
+												}
+												else if(SXml::GetContentByName(p_pi, "STREET", temp_buf)) {
+													p_partner->Street = temp_buf;
+												}
+												else if(SXml::GetContentByName(p_pi, "STRAS", temp_buf)) {
+													p_partner->StreetNo = temp_buf;
+												}
+												else if(SXml::GetContentByName(p_pi, "PSTLZ", temp_buf)) {
+													p_partner->ZIP = temp_buf;
+												}
+												else if(SXml::GetContentByName(p_pi, "CITY", temp_buf)) {
+													p_partner->City = temp_buf;
+												}
+												else if(SXml::GetContentByName(p_pi, "REGIO", temp_buf)) {
+													p_partner->Region = temp_buf;
+												}
+												else if(SXml::GetContentByName(p_pi, "PHONE1", temp_buf)) {
+													p_partner->Phone1 = temp_buf;
+												}
+												else if(SXml::GetContentByName(p_pi, "PHONE2", temp_buf)) {
+													p_partner->Phone2 = temp_buf;
+												}
+												else if(SXml::GetContentByName(p_pi, "CONTACT", temp_buf)) {
+													p_partner->Contact = temp_buf;
+												}
+												else if(SXml::GetContentByName(p_pi, "CLOSING_DAY", temp_buf)) {
+													p_partner->ClosingDay = temp_buf;
+												}
+												else if(SXml::GetContentByName(p_pi, "VISIT_FEE", temp_buf)) {
+													p_partner->VisitFee = temp_buf;
+												}
+												else if(SXml::GetContentByName(p_pi, "GC_LONGITUD", temp_buf)) {
+													geo_pos.Lon = temp_buf.ToReal_Plain();
+												}
+												else if(SXml::GetContentByName(p_pi, "GC_LATITUDE", temp_buf)) {
+													geo_pos.Lat = temp_buf.ToReal_Plain();
+												}
+											}
+											if(!geo_pos.IsZero()) {
+												p_partner->UedGeoLoc = UED::SetRaw_GeoLoc(geo_pos);
+											}
+										}
+									}
+								}
+								else if(SXml::GetContentByName(p_c3, "SERVICE", temp_buf)) {
+									p_order_item->Service = temp_buf;
+								}
+								else if(SXml::GetContentByName(p_c3, "PRICE", temp_buf)) {
+									p_order_item->Price = temp_buf.ToReal_Plain();
+								}
+								else if(SXml::GetContentByName(p_c3, "SORDER", temp_buf)) {
+									p_order_item->SOrdNo = temp_buf;
+								}
+								else if(SXml::GetContentByName(p_c3, "TASK_LIST", temp_buf)) {
+									p_order_item->TaskListText = temp_buf;
+								}
+								else if(SXml::GetContentByName(p_c3, "PRINTFORM", temp_buf)) {
+									p_order_item->PrintForm = temp_buf;
+								}
+								else if(SXml::GetContentByName(p_c3, "NV_GR", temp_buf)) {
+									p_order_item->NvGr = temp_buf;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	CATCHZOK
+	xmlFreeDoc(p_doc);
+	xmlFreeParserCtxt(p_ctx);
+	return ok;
+}
+
 #if SLTEST_RUNNING // {
 
 SLTEST_R(Mercapp)

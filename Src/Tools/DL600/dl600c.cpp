@@ -5402,7 +5402,7 @@ int DlContext::CreateDbDictionary(const char * pDictPath, const char * pDataPath
 		DbProvider * p_db = BDictionary::CreateBtrDictInstance(pDictPath);
 		dlb.SetAttr(DbLoginBlock::attrDictPath, pDictPath);
 		dlb.SetAttr(DbLoginBlock::attrDbPath, pDataPath);
-		if(!p_db->Login(&dlb, 0)) {
+		if(!p_db->DbLogin(&dlb, 0)) {
 			(msg_buf = pDictPath).Cat("::").Cat(pDataPath);
 			SetError(PPERR_DL6_DBDICTOPENFAULT, msg_buf);
 			CALLEXCEPT();

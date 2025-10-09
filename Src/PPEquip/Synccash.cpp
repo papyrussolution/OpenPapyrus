@@ -463,6 +463,7 @@ int SCS_SYNCCASH::Connect(int forceKeepAlive/*= 0*/)
 			case 0: p_op_text = "check"; break;
 			case 1: p_op_text = "accept"; break;
 			case 2: p_op_text = "reject"; break;
+			case 3: p_op_text = "check-offline"; break; // @v12.4.3
 		}
 		if(p_op_text)
 			msg.Cat(p_op_text).Space();

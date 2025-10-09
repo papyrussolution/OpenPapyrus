@@ -446,7 +446,7 @@ private:
 			}
 			if(!is_logged_in) {
 				ZDELETE(P_Ic); // @v11.2.10
-				login_result = DS.Login(db_symb, user_name, secret, PPSession::loginfSkipLicChecking|PPSession::loginfInternal);
+				login_result = DS.PPLogin(db_symb, user_name, secret, PPSession::loginfSkipLicChecking|PPSession::loginfInternal);
 			}
 			else 
 				login_result = 1;
@@ -465,7 +465,7 @@ private:
 	void   Logout()
 	{
 		ZDELETE(P_Ic);
-		DS.Logout();
+		DS.PPLogout();
 		State_PPws &= ~stLoggedIn;
 	}
 	virtual void Startup()

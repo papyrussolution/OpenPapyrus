@@ -6563,7 +6563,7 @@ int PPStyloQInterchange::QueryConfigIfNeeded(RoundTripBlock & rB)
 						}
 					}
 				}
-				if(pFtsTra && ss.getCount()) {
+				if(pFtsTra && ss.IsCountGreaterThan(0)) {
 					PPFtsInterface::Entity entity;
 					entity.Scope = PPFtsInterface::scopeStyloQSvc;
 					entity.ScopeIdent = rSvcIdent;
@@ -6603,7 +6603,7 @@ int PPStyloQInterchange::QueryConfigIfNeeded(RoundTripBlock & rB)
 								}
 							}
 						}
-						if(pFtsTra && _id && ss.getCount()) {
+						if(pFtsTra && _id && ss.IsCountGreaterThan(0)) {
 							PPFtsInterface::Entity entity;
 							entity.Scope = PPFtsInterface::scopeStyloQSvc;
 							entity.ScopeIdent = rSvcIdent;
@@ -6636,7 +6636,7 @@ int PPStyloQInterchange::QueryConfigIfNeeded(RoundTripBlock & rB)
 								}
 							}
 						}
-						if(pFtsTra && _id && ss.getCount()) {
+						if(pFtsTra && _id && ss.IsCountGreaterThan(0)) {
 							PPFtsInterface::Entity entity;
 							entity.Scope = PPFtsInterface::scopeStyloQSvc;
 							entity.ScopeIdent = rSvcIdent;
@@ -6669,7 +6669,7 @@ int PPStyloQInterchange::QueryConfigIfNeeded(RoundTripBlock & rB)
 								}
 							}
 						}
-						if(pFtsTra && _id && ss.getCount()) {
+						if(pFtsTra && _id && ss.IsCountGreaterThan(0)) {
 							PPFtsInterface::Entity entity;
 							entity.Scope = PPFtsInterface::scopeStyloQSvc;
 							entity.ScopeIdent = rSvcIdent;
@@ -6702,7 +6702,7 @@ int PPStyloQInterchange::QueryConfigIfNeeded(RoundTripBlock & rB)
 								}
 							}
 						}
-						if(pFtsTra && _id && ss.getCount()) {
+						if(pFtsTra && _id && ss.IsCountGreaterThan(0)) {
 							PPFtsInterface::Entity entity;
 							entity.Scope = PPFtsInterface::scopeStyloQSvc;
 							entity.ScopeIdent = rSvcIdent;
@@ -11670,7 +11670,7 @@ private:
 		if(LB.GetAttr(DbLoginBlock::attrDbSymb, db_symb)) {
 			PPVersionInfo vi = DS.GetVersionInfo();
 			THROW(vi.GetSecret(secret, sizeof(secret)));
-			THROW(DS.Login(db_symb, PPSession::P_JobLogin, secret, PPSession::loginfSkipLicChecking|PPSession::loginfInternal));
+			THROW(DS.PPLogin(db_symb, PPSession::P_JobLogin, secret, PPSession::loginfSkipLicChecking|PPSession::loginfInternal));
 			memzero(secret, sizeof(secret));
 		}
 		CATCHZOK
@@ -11678,7 +11678,7 @@ private:
 	}
 	void   Logout()
 	{
-		DS.Logout();
+		DS.PPLogout();
 	}
 };
 #if 1 // {
@@ -13377,15 +13377,15 @@ int PPStyloQInterchange::Helper_PrepareAhed(const StyloQCommandList & rFullCmdLi
 				THROW(vi.GetSecret(secret, sizeof(secret)));
 			}
 			for(uint ssp = 0; ss_db_symb.get(&ssp, db_symb);) {
-				if(DS.Login(db_symb, PPSession::P_JobLogin, secret, PPSession::loginfSkipLicChecking)) {
+				if(DS.PPLogin(db_symb, PPSession::P_JobLogin, secret, PPSession::loginfSkipLicChecking)) {
 					is_logged_in = true;
-					{ // Здесь scope {} важна - ic должен разрушиться до вызова DS.Logout()
+					{ // Здесь scope {} важна - ic должен разрушиться до вызова DS.PPLogout()
 						PPStyloQInterchange ic;
 						if(!ic.Helper_PrepareAhed(full_cmd_list)) {
 							PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_DBINFO);
 						}
 					}
-					DS.Logout();
+					DS.PPLogout();
 					is_logged_in = false;
 				}
 				else {
@@ -13399,7 +13399,7 @@ int PPStyloQInterchange::Helper_PrepareAhed(const StyloQCommandList & rFullCmdLi
 		ok = 0;
 	ENDCATCH
 	if(is_logged_in)
-		DS.Logout();
+		DS.PPLogout();
 	memzero(secret, sizeof(secret));
 	return ok;
 }
@@ -13518,15 +13518,15 @@ int PPStyloQInterchange::Helper_PrepareAhed(const StyloQCommandList & rFullCmdLi
 										ZDELETE(p_ldb);
 										p_sj = 0;
 										//
-										if(DS.Login(p_map_entry->DbSymb, PPSession::P_JobLogin, secret, PPSession::loginfSkipLicChecking)) {
+										if(DS.PPLogin(p_map_entry->DbSymb, PPSession::P_JobLogin, secret, PPSession::loginfSkipLicChecking)) {
 											is_logged_in = true;
-											{ // Здесь scope {} важна - ic должен разрушиться до вызова DS.Logout()
+											{ // Здесь scope {} важна - ic должен разрушиться до вызова DS.PPLogout()
 												PPStyloQInterchange ic;
 												mediator_list.shuffle();
 												if(!ic.Helper_ExecuteIndexingRequest(sp, mediator_list, p_cmd_item))
 													PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_COMP);
 											}
-											DS.Logout();
+											DS.PPLogout();
 											is_logged_in = false;
 										}
 									}
@@ -13545,7 +13545,7 @@ int PPStyloQInterchange::Helper_PrepareAhed(const StyloQCommandList & rFullCmdLi
 		ok = 0;
 	ENDCATCH
 	if(is_logged_in)
-		DS.Logout();
+		DS.PPLogout();
 	memzero(secret, sizeof(secret));
 	delete p_ldb;
 	delete p_cmd_list;

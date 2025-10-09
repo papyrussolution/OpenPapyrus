@@ -4,6 +4,11 @@
 #include <slib-internal.h>
 #pragma hdrstop
 
+BNField::BNField() : Id(0), Offs(0), T(0)
+{
+	Name[0] = 0;
+}
+
 bool BNField::IsEq(const BNField & rS, bool nameAndTypeOnly) const
 {
 	if(T != rS.T)
@@ -54,28 +59,28 @@ int BNField::putValueToString(const void * pDataBuf, char * pBuf) const
 //
 //
 //
-BNFieldList::BNFieldList() : count(0), fields(0)
+BNFieldList_Obsolete::BNFieldList_Obsolete() : count(0), fields(0)
 {
 }
 
-BNFieldList::BNFieldList(const BNFieldList & rS) : count(0), fields(0)
+BNFieldList_Obsolete::BNFieldList_Obsolete(const BNFieldList_Obsolete & rS) : count(0), fields(0)
 {
 	copy(&rS);
 }
 
-BNFieldList::~BNFieldList()
+BNFieldList_Obsolete::~BNFieldList_Obsolete()
 {
 	SAlloc::F(fields);
 }
 
-BNFieldList & BNFieldList::Z()
+BNFieldList_Obsolete & BNFieldList_Obsolete::Z()
 {
 	ZFREE(fields);
 	count = 0;
 	return *this;
 }
 
-bool BNFieldList::IsEq(const BNFieldList & rS, bool nameAndTypeOnly) const
+bool BNFieldList_Obsolete::IsEq(const BNFieldList_Obsolete & rS, bool nameAndTypeOnly) const
 {
 	if(count != rS.count)
 		return false;
@@ -88,13 +93,13 @@ bool BNFieldList::IsEq(const BNFieldList & rS, bool nameAndTypeOnly) const
 	return true;
 }
 
-BNFieldList & FASTCALL BNFieldList::operator = (const BNFieldList & s)
+BNFieldList_Obsolete & FASTCALL BNFieldList_Obsolete::operator = (const BNFieldList_Obsolete & s)
 {
 	copy(&s);
 	return *this;
 }
 
-int FASTCALL BNFieldList::copy(const BNFieldList * pSrc)
+int FASTCALL BNFieldList_Obsolete::copy(const BNFieldList_Obsolete * pSrc)
 {
 	Z();
 	fields = static_cast<BNField *>(SAlloc::M(sizeof(BNField) * pSrc->count));
@@ -109,12 +114,12 @@ int FASTCALL BNFieldList::copy(const BNFieldList * pSrc)
 	}
 }
 
-int FASTCALL BNFieldList::addField(const BNField & rSrc)
+int FASTCALL BNFieldList_Obsolete::addField(const BNField & rSrc)
 {
 	return addField(rSrc.Name, rSrc.T, UNDEF);
 }
 
-int BNFieldList::addField(const char * pName, TYPEID type, int id)
+int BNFieldList_Obsolete::addField(const char * pName, TYPEID type, int id)
 {
 	int    ok = 1;
 	BNField fld;
@@ -151,7 +156,7 @@ int BNFieldList::addField(const char * pName, TYPEID type, int id)
 	return ok;
 }
 
-int BNFieldList::setFieldId(uint fldNo, int fldId)
+int BNFieldList_Obsolete::setFieldId(uint fldNo, int fldId)
 {
 	if(fldNo < count) {
 		fields[fldNo].Id = fldId;
@@ -161,7 +166,7 @@ int BNFieldList::setFieldId(uint fldNo, int fldId)
 		return 0;
 }
 
-const BNField & BNFieldList::getField(uint id, bool byPosition) const
+const BNField & BNFieldList_Obsolete::getField(uint id, bool byPosition) const
 {
 	if(byPosition) {
 		return (id < count) ? fields[id] : *reinterpret_cast<BNField *>(0);
@@ -175,7 +180,7 @@ const BNField & BNFieldList::getField(uint id, bool byPosition) const
 	return *reinterpret_cast<BNField *>(0);
 }
 
-bool BNFieldList::getFieldPosition(int id, uint * pPos) const
+bool BNFieldList_Obsolete::getFieldPosition(int id, uint * pPos) const
 {
 	bool   ok = false;
 	for(uint i = 0; !ok && i < count; i++) {
@@ -187,7 +192,7 @@ bool BNFieldList::getFieldPosition(int id, uint * pPos) const
 	return ok;
 }
 
-const BNField & BNFieldList::getField(const char * pName, uint * pPos) const
+const BNField & BNFieldList_Obsolete::getField(const char * pName, uint * pPos) const
 {
 	for(uint i = 0; i < count; i++) {
 		if(stricmp(fields[i].Name, pName) == 0) {
@@ -198,7 +203,7 @@ const BNField & BNFieldList::getField(const char * pName, uint * pPos) const
 	return *reinterpret_cast<BNField *>(0);
 }
 
-RECORDSIZE BNFieldList::CalculateFixedRecSize() const
+RECORDSIZE BNFieldList_Obsolete::CalculateFixedRecSize() const
 {
 	RECORDSIZE s = 0;
 	for(uint i = 0; i < count; i++) {
@@ -209,18 +214,18 @@ RECORDSIZE BNFieldList::CalculateFixedRecSize() const
 	return s;
 }
 
-int BNFieldList::IsEqualRecords(const void * pRec1, const void * pRec2, LongArray * pNeqFldList) const
+bool BNFieldList_Obsolete::IsEqualRecords(const void * pRec1, const void * pRec2, LongArray * pNeqFldList) const
 {
-	int    eq = 1;
+	bool   eq = true;
 	if(pRec1 == 0 && pRec2 == 0)
-		eq = 1;
+		eq = true;
 	else if(pRec1 == 0 || pRec2 == 0)
-		eq = 0;
+		eq = false;
 	else {
 		for(uint i = 0; i < count; i++) {
 			const BNField & r_fld = fields[i];
 			if(stcomp(r_fld.T, PTR8C(pRec1)+r_fld.Offs, PTR8C(pRec2)+r_fld.Offs) != 0) {
-				eq = 0;
+				eq = false;
 				if(pNeqFldList)
 					pNeqFldList->add(r_fld.Id);
 				else
@@ -231,7 +236,7 @@ int BNFieldList::IsEqualRecords(const void * pRec1, const void * pRec2, LongArra
 	return eq;
 }
 
-/*void BNFieldList::RecordToStr(const void * pRec, SString & rBuf) const
+/*void BNFieldList_Obsolete::RecordToStr(const void * pRec, SString & rBuf) const
 {
 	rBuf.Z();
 	char   fld_val_buf[1024];
@@ -249,3 +254,143 @@ int BNFieldList::IsEqualRecords(const void * pRec1, const void * pRec2, LongArra
 		}
 	}
 }*/
+//
+// @v12.4.3 @construction (in order to replace BNFieldList2)
+//
+BNFieldList2::BNFieldList2() : TSVector <BNField>()
+{
+}
+
+bool BNFieldList2::IsEq(const BNFieldList2 & rS, bool nameAndTypeOnly/*= false*/) const
+{
+	if(getCount() != rS.getCount())
+		return false;
+	else {
+		for(uint i = 0; i < count; i++) {
+			if(!at(i).IsEq(rS.at(i), nameAndTypeOnly))
+				return false;
+		}
+	}
+	return true;
+}
+
+BNFieldList2 & BNFieldList2::Z()
+{
+	TSVector <BNField>::clear();
+	return *this;
+}
+
+int BNFieldList2::addField(const char * pName, TYPEID type, int id/*= UNDEF*/)
+{
+	int    ok = 1;
+	BNField fld;
+	STRNSCPY(fld.Name, pName);
+	fld.T  = type;
+	fld.Id = (id == (int)UNDEF) ? count : id;
+	if(id == (int)UNDEF) {
+		for(int i = count; i < 4096; i++) {
+			if(!getFieldPosition(i, 0)) {
+				fld.Id = i;
+				break;
+			}
+		}
+	}
+	else if(!getFieldPosition(id, 0))
+		fld.Id = id;
+	else {
+		SString msg_buf;
+		msg_buf.Cat(id);
+		SLS.SetError(SLERR_SDREC_DUPFLDID, msg_buf);
+		ok = 0;
+	}
+	if(ok) {
+		fld.Offs = count ? (at(count-1).Offs + stsize(at(count-1).T)) : 0;
+		insert(&fld);
+	}
+	return ok;
+}
+
+int FASTCALL BNFieldList2::addField(const BNField & rS)
+{
+	return addField(rS.Name, rS.T, UNDEF);
+}
+
+bool BNFieldList2::getFieldPosition(int fldId, uint * pPos) const
+{
+	bool   ok = false;
+	for(uint i = 0; !ok && i < getCount(); i++) {
+		if(at(i).Id == fldId) {
+			ASSIGN_PTR(pPos, i);
+			ok = true;
+		}
+	}
+	return ok;
+}
+
+const BNField & BNFieldList2::getField(uint id, bool byPosition/*= true*/) const
+{
+	if(byPosition) {
+		return (id < getCount()) ? at(id) : *reinterpret_cast<BNField *>(0);
+	}
+	else {
+		for(uint i = 0; i < getCount(); i++) {
+			if(at(i).Id == id)
+				return at(i);
+		}
+	}
+	return *reinterpret_cast<BNField *>(0);
+}
+
+const BNField & BNFieldList2::getField(const char * pName, uint * pPos/*= 0*/) const
+{
+	for(uint i = 0; i < getCount(); i++) {
+		if(stricmp(at(i).Name, pName) == 0) {
+			ASSIGN_PTR(pPos, i);
+			return at(i);
+		}
+	}
+	return *reinterpret_cast<BNField *>(0);
+}
+
+RECORDSIZE BNFieldList2::CalculateFixedRecSize() const
+{
+	RECORDSIZE s = 0;
+	for(uint i = 0; i < count; i++) {
+		const int t = GETSTYPE(at(i).T);
+		if(!oneof3(t, S_NOTE, S_BLOB, S_CLOB)) // @stypeset
+			s += static_cast<RECORDSIZE>(stsize(at(i).T));
+	}
+	return s;
+}
+
+int BNFieldList2::setFieldId(uint fldNo/* 0..(count-1)*/, int fldId)
+{
+	if(fldNo < count) {
+		at(fldNo).Id = fldId;
+		return 1;
+	}
+	else
+		return 0;
+}
+
+bool BNFieldList2::IsEqualRecords(const void * pRec1, const void * pRec2, LongArray * pNeqFldList) const
+{
+	bool   eq = true;
+	if(pRec1 == 0 && pRec2 == 0)
+		eq = true;
+	else if(pRec1 == 0 || pRec2 == 0)
+		eq = false;
+	else {
+		for(uint i = 0; i < count; i++) {
+			const BNField & r_fld = at(i);
+			if(stcomp(r_fld.T, PTR8C(pRec1)+r_fld.Offs, PTR8C(pRec2)+r_fld.Offs) != 0) {
+				eq = false;
+				if(pNeqFldList)
+					pNeqFldList->add(r_fld.Id);
+				else
+					break;
+			}
+		}
+	}
+	return eq;
+}

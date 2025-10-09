@@ -775,7 +775,7 @@ int PrnDlgAns::SetupReportEntries(const char * pContextSymb)
 					(section_name = ReportName).Strip().Colon().Cat(ContextSymb);
 					ini_file.GetEntries(section_name, &ss);
 				}
-				if(ss.getCount() == 0) {
+				if(!ss.IsCountGreaterThan(0)) {
 					(section_name = ReportName).Strip();
 					ini_file.GetEntries(section_name, &ss);
 				}

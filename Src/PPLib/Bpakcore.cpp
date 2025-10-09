@@ -1222,9 +1222,41 @@ int PPLotExtCodeContainer::MarkSet::AddNum(long boxId, const char * pNum, int do
 	return ok;
 }
 
-uint PPLotExtCodeContainer::MarkSet::GetCount() const
+uint PPLotExtCodeContainer::MarkSet::GetCount() const { return L.getCount(); }
+
+bool PPLotExtCodeContainer::MarkSet::HasEgaisMarks() const // @v12.4.3
 {
-	return L.getCount();
+	bool   result = false;
+	const  uint _c = L.getCount();
+	if(_c) {
+		SString temp_buf;
+		StringSet ss;
+		{
+			//
+			// В конце вставляем марки, не привязанные к боксам
+			//
+			GetByBoxID(0, ss);
+			if(ss.IsCountGreaterThan(0)) {
+				for(uint ssp = 0; !result && ss.get(&ssp, temp_buf);) {
+					if(PrcssrAlcReport::IsEgaisMark(temp_buf, 0))
+						result = true;
+				}
+			}
+		}
+		if(!result) {
+			Entry  msentry;
+			for(uint boxidx = 0; !result && boxidx < _c; boxidx++) {
+				if(GetByIdx(boxidx, msentry) && msentry.Flags & PPLotExtCodeContainer::fBox) {
+					GetByBoxID(msentry.BoxID, ss);
+					for(uint ssp = 0; !result && ss.get(&ssp, temp_buf);) {
+						if(PrcssrAlcReport::IsEgaisMark(temp_buf, 0))
+							result = true;
+					}
+				}
+			}
+		}
+	}
+	return result;
 }
 
 bool PPLotExtCodeContainer::MarkSet::GetByIdx(uint idx, Entry & rEntry) const
@@ -2170,7 +2202,7 @@ int PPBillPacket::GetContextEmailAddr(SString & rBuf) const
 			PPELinkArray elink_list;
 			psn_obj.P_Tbl->GetELinks(psn_id, elink_list);
 			if(elink_list.GetListByType(ELNKRT_EMAIL, ss) > 0) {
-				assert(ss.getCount()); // @v11.3.5
+				assert(ss.IsCountGreaterThan(0)); // @v11.3.5
 				ss.get(0U, rBuf);
 				ok = 1;
 			}

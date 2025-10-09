@@ -104,6 +104,7 @@ int BExtQuery::CreateSqlExpr(Generator_SQL & rSg, int reverse, const char * pIni
 		rSg.HintBegin().HintIndex(*P_Tbl, 0, Index_, BIN(reverse)).HintEnd();
 	}
 	const uint c = Fields.GetCount();
+	rSg.Sp();
 	if(c) {
 		for(uint i = 0; i < c; i++) {
 			if(i)

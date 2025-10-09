@@ -1920,9 +1920,9 @@ int32 DL6ICLS_PPSession::GetDatabaseInfo(int32 id, SPpyDatabaseInfo* pInfo)
 
 int32  DL6ICLS_PPSession::Login(SString & dbName, SString & userName, SString & password) 
 { 
-	return DS.Login(dbName, userName, password, PPSession::loginfSkipLicChecking) ? 1 : RaiseAppError(); 
+	return DS.PPLogin(dbName, userName, password, PPSession::loginfSkipLicChecking) ? 1 : RaiseAppError(); 
 }
-int32  DL6ICLS_PPSession::Logout() { return DS.Logout() ? 1 : RaiseAppError(); }
+int32  DL6ICLS_PPSession::Logout() { return DS.PPLogout() ? 1 : RaiseAppError(); }
 SString & DL6ICLS_PPSession::GetObjectTitle(PpyObjectIdent objType) { return ::GetObjectTitle(objType, RetStrBuf); }
 
 IPapyrusObject * DL6ICLS_PPSession::CreateObject(PpyObjectIdent objType)

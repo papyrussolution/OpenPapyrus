@@ -650,6 +650,14 @@ bool SlProcess::SetImpersUser(const char * pUserUtf8, const char * pPasswordUtf8
 	return ok;
 }
 
+bool SlProcess::SetCurrentUserAsImpersUser() // @v12.4.3
+{
+	bool    ok = true;
+	UserName = L":currentuser:";
+	UserPw.Z();
+	return ok;
+}
+
 bool SlProcess::SetImpersUserToken(SPtrHandle userToken)
 {
 	bool   ok = true;
@@ -1078,7 +1086,7 @@ int SlProcess::Run(SlProcess::Result * pResult)
 				runprocessmWithToken,
 				runprocessmWithLogon,
 			};
-			int method = runprocessmWithLogon;
+			int    method = runprocessmAsUser; //runprocessmWithLogon;
 			if(UserToken) {
 				method = runprocessmWithToken;
 				uint   logon_flags = 0;
@@ -1097,13 +1105,32 @@ int SlProcess::Run(SlProcess::Result * pResult)
 				//SPtrHandle callee_token = SSystem::Logon(0, UserName, UserPw, SSystem::logontypeInteractive, 0);
 				//BOOL iplour = ImpersonateLoggedOnUser(UserToken);
 				//if(iplour) {
+					if(pResult) {
+						pResult->AppNameUtf8.CopyUtf8FromUnicode(p_app_name, sstrlen(p_app_name), 0);
+						pResult->CmdLineUtf8.CopyUtf8FromUnicode(p_cmd_line, sstrlen(p_cmd_line), 0);
+					}
 					create_proc_result = ::CreateProcessWithTokenW(UserToken, logon_flags, p_app_name, p_cmd_line, 
 						/*p_prc_attr_list, p_thread_attr_list, inherit_handles,*/
 						creation_flags, p_env, p_curr_dir, reinterpret_cast<STARTUPINFOW *>(&startup_info), &prc_info);
 				//}
 			}
 			else if(UserName.NotEmpty()) {
-				if(method == runprocessmWithLogon) {
+				if(sstreq(UserName, L":currentuser:")) {
+					SPtrHandle callee_token = SlProcess::OpenCurrentAccessToken(TOKEN_ALL_ACCESS);
+					if(!callee_token) {
+						// @todo @err
+					}
+					else {
+						if(pResult) {
+							pResult->AppNameUtf8.CopyUtf8FromUnicode(p_app_name, sstrlen(p_app_name), 0);
+							pResult->CmdLineUtf8.CopyUtf8FromUnicode(p_cmd_line, sstrlen(p_cmd_line), 0);
+						}
+						create_proc_result = ::CreateProcessAsUserW(callee_token, p_app_name, p_cmd_line, p_prc_attr_list, p_thread_attr_list, inherit_handles, 
+							creation_flags, p_env, p_curr_dir, reinterpret_cast<STARTUPINFOW *>(&startup_info), &prc_info);
+						::CloseHandle(callee_token);
+					}
+				}
+				else if(method == runprocessmWithLogon) {
 					uint   logon_flags = 0;
 					if(Flags & fLogonWithProfile)
 						logon_flags |= LOGON_WITH_PROFILE;
@@ -1116,6 +1143,10 @@ int SlProcess::Run(SlProcess::Result * pResult)
 					r_temp_buf_u = UserName;
 					THROW(r_temp_buf_u.NotEmpty());
 					__ParseWindowsUserForDomain(r_temp_buf_u, r_user, r_domain);
+					if(pResult) {
+						pResult->AppNameUtf8.CopyUtf8FromUnicode(p_app_name, sstrlen(p_app_name), 0);
+						pResult->CmdLineUtf8.CopyUtf8FromUnicode(p_cmd_line, sstrlen(p_cmd_line), 0);
+					}
 					create_proc_result = ::CreateProcessWithLogonW(r_user, r_domain, r_pw, logon_flags, p_app_name, p_cmd_line, 
 						/*p_prc_attr_list, p_thread_attr_list, inherit_handles,*/
 						creation_flags, p_env, p_curr_dir, reinterpret_cast<STARTUPINFOW *>(&startup_info), &prc_info);
@@ -1141,6 +1172,10 @@ int SlProcess::Run(SlProcess::Result * pResult)
 						//callee_token = wub.H_User_;
 						BOOL iplour = ImpersonateLoggedOnUser(callee_token);
 						if(iplour) {
+							if(pResult) {
+								pResult->AppNameUtf8.CopyUtf8FromUnicode(p_app_name, sstrlen(p_app_name), 0);
+								pResult->CmdLineUtf8.CopyUtf8FromUnicode(p_cmd_line, sstrlen(p_cmd_line), 0);
+							}
 							create_proc_result = ::CreateProcessAsUserW(callee_token, p_app_name, p_cmd_line, p_prc_attr_list, p_thread_attr_list, inherit_handles, 
 								creation_flags, p_env, p_curr_dir, reinterpret_cast<STARTUPINFOW *>(&startup_info), &prc_info);
 						}
@@ -1148,6 +1183,10 @@ int SlProcess::Run(SlProcess::Result * pResult)
 				}
 			}
 			else {
+				if(pResult) {
+					pResult->AppNameUtf8.CopyUtf8FromUnicode(p_app_name, sstrlen(p_app_name), 0);
+					pResult->CmdLineUtf8.CopyUtf8FromUnicode(p_cmd_line, sstrlen(p_cmd_line), 0);
+				}
 				create_proc_result = ::CreateProcessW(p_app_name, p_cmd_line, p_prc_attr_list, p_thread_attr_list, inherit_handles, 
 					creation_flags, p_env, p_curr_dir, reinterpret_cast<STARTUPINFOW *>(&startup_info), &prc_info);
 			}

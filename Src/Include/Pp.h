@@ -1346,7 +1346,7 @@ private:
 	DBTable * P_RTbl;          // @viewstate Кросстабулированная таблица
 	DBField     CrssFld;       // @viewstate Поле, по которому разворачивается таблица P_Tbl
 	DBFieldList IdxFldList;    // @viewstate Список полей, образующих индекс
-	BNFieldList FixFldList;    // @viewstate Список фиксированных полей, заполняемых вызовом виртуальной функции SetupFixFields
+	BNFieldList2 FixFldList;    // @viewstate Список фиксированных полей, заполняемых вызовом виртуальной функции SetupFixFields
 	DBFieldList InhFldList;    // @viewstate Список полей, унаследованных из исходой таблицы
 	DBFieldList CrssFldList;   // @viewstate Список результирующих кросс-таб полей
 	DBFieldList AggrFldList;   // @viewstate Список агрегируемых полей
@@ -7494,15 +7494,17 @@ public:
 		loginfInternal          = 0x0002,  // @v11.1.8 Авторизация осуществляется внутренним потоком - некоторые действия делать не следует
 		loginfCheckOnetimePass  = 0x0004,  // @v11.1.9 Авторизация по одноразовому пропуску
 		loginfAllowAuthAsJobSrv = 0x0008,  // @v11.2.0 Флаг используется специальным образом во-вне функции Login
+		loginfMainThread        = 0x0010,  // @v12.4.3 Авторизация из основного потока процесса (важно в контексте работы с некоторыми DBMS)
 	};
-	int    Login(const char * pDbSymb, const char * pUserName, const char * pPassword, long flags);
-	int    Logout();
+	int    PPLogin(const char * pDbSymb, const char * pUserName, const char * pPassword, long flags);
+	int    PPLogout();
 	//
 	// Descr: Флаги функции OpenDictionary2
 	//
 	enum {
 		odfDontInitSync = 0x0001, // Не открывать файл синхронизации Sync
-		odfDbReadOnly   = 0x0002, // @v12.4.2 База данных открывается только для чтения. Флаг нужен для специальных случаев (SQLite например)
+		odfDbReadOnly   = 0x0002, // @v12.4.2 База данных открывается только для чтения. Флаг нужен для специальных случаев (e.g. SQLite)
+		odfMainThread   = 0x0004, // @v12.4.3 База данных открывается из основного потока. Флаг нужен для специальных случаев (e.g. SQLite)
 	};
 	int    OpenDictionary2(DbLoginBlock * pBlk, long flags);
 	int    SetPath(PPID pathID, const char * pBuf, short flags, int replace);
@@ -7969,7 +7971,7 @@ int    STDCALL  UpdateByID(DBTable * pTbl, PPID objType, PPID objID, const void 
 // Descr: Изменяет запись таблицы pTbl, найдя ее по идентификатору objID. Отличается от
 //   функции UpdateByID тем, что перед изменением сравнивает найденную запись в базе данных
 //   с записью pRec и, если они равны, то не осуществляет изменения и возвращает -1.
-//   Сравнение реализуется функцией BNFieldList::IsEqualRecords().
+//   Сравнение реализуется функцией BNFieldList2::IsEqualRecords().
 // ARG(pTbl    IN): @#{vptr} Указатель на экземпляр таблицы, в которой неободимо изменить запись.
 // ARG(objType IN): Опциональный тип объекта. Используется для вывода сообщения об
 //   ошибке, если запись по идентификатору objID не найдена.
@@ -11499,6 +11501,7 @@ public:
 		long   AddBox(long id, const char * pNum, int doVerify);
 		int    AddNum(long boxId, const char * pNum, int doVerify);
 		uint   GetCount() const;
+		bool   HasEgaisMarks() const;
 		bool   GetByIdx(uint idx, Entry & rEntry) const;
 		int    GetBoxNum(long boxId, SString & rNum) const;
 		int    GetByBoxID(long boxId, StringSet & rSs) const;

@@ -99,7 +99,7 @@ int PPDbTableXmlExporter::Run(const char * pOutFileName)
 	THROW_SL(p_writer = xmlNewTextWriterFilename(pOutFileName, 0));
 	{
 		SString temp_buf, fld_name;
-		const BNFieldList & r_fl = p_t->GetFields();
+		const BNFieldList2 & r_fl = p_t->GetFields();
 		xmlTextWriterSetIndent(p_writer, 1);
 		xmlTextWriterSetIndentTab(p_writer);
 		xmlTextWriterStartDocument(p_writer, 0, "utf-8", 0);

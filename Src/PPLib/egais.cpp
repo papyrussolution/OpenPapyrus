@@ -6,6 +6,8 @@
 #include <pp.h>
 #pragma hdrstop
 //
+// @v12.4.3 PPLotExtCodeContainer::MarkSet::GetCount()-->PPLotExtCodeContainer::MarkSet::HasEgaisMarks() из-за потенциальной путанице между марками егаис и честный знак
+//
 // Специальное смещение для значений номеров строк, с помощью которого
 // решается проблема одиозных входящих идентификаторов строк документов (0, guid, текст, значение большие чем RowIdentDivider)
 //
@@ -2521,7 +2523,7 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 											{
 												for(uint lpidx = 0; !is_there_ext_codes && lpidx < local_pos_list.getCount(); lpidx++) {
 													const int row_idx = local_pos_list.get(lpidx);
-													if(p_bp->XcL.Get(row_idx+1, 0, ext_codes_set) > 0 && ext_codes_set.GetCount())
+													if(p_bp->XcL.Get(row_idx+1, 0, ext_codes_set) > 0 && ext_codes_set.HasEgaisMarks())
 														is_there_ext_codes = 1;
 												}
 											}
@@ -2529,7 +2531,7 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 												SXml::WNode w_m(_doc, SXml::nst("ce", "MarkInfo"));
 												for(uint lpidx = 0; lpidx < local_pos_list.getCount(); lpidx++) {
 													const int row_idx = local_pos_list.get(lpidx);
-													if(p_bp->XcL.Get(row_idx+1, 0, ext_codes_set) > 0 && ext_codes_set.GetCount()) {
+													if(p_bp->XcL.Get(row_idx+1, 0, ext_codes_set) > 0 && ext_codes_set.HasEgaisMarks()) {
 														// @v10.7.12 (moved up to #1) SXml::WNode w_m(_doc, SXml::nst("ce", "MarkInfo"));
 														for(uint boxidx = 0; boxidx < ext_codes_set.GetCount(); boxidx++) {
 															if(ext_codes_set.GetByIdx(boxidx, msentry) && msentry.Flags & PPLotExtCodeContainer::fBox) {
@@ -2548,7 +2550,7 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 															// В конце вставляем марки, не привязанные к боксам
 															//
 															ext_codes_set.GetByBoxID(0, ss);
-															if(ss.getCount()) {
+															if(ss.IsCountGreaterThan(0)) {
 																SXml::WNode w_box(_doc, SXml::nst("ce", "boxpos"));
 																{
 																	SXml::WNode w_amclist(_doc, SXml::nst("ce", "amclist"));
@@ -2896,7 +2898,7 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 															const int do_send_with_waybillact_accepted_marks = 0;
 															if(do_send_with_waybillact_accepted_marks) {
 																uint mark_count = 0;
-																if(p_lti && p_link_bp->XcL.Get(lti_pos+1, 0, ext_codes_set) > 0 && ext_codes_set.GetCount()) {
+																if(p_lti && p_link_bp->XcL.Get(lti_pos+1, 0, ext_codes_set) > 0 && ext_codes_set.HasEgaisMarks()) {
 																	SXml::WNode w_m(_doc, SXml::nst("wa", "MarkInfo"));
 																	for(uint boxidx = 0; boxidx < ext_codes_set.GetCount(); boxidx++) {
 																		if(ext_codes_set.GetByIdx(boxidx, msentry) && !(msentry.Flags & PPLotExtCodeContainer::fBox)) {
@@ -2913,7 +2915,7 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 																}
 															}
 															else if(p_lti) {
-																if(p_bp->XcL.Get(bi+1, 0, ext_codes_set) > 0 && ext_codes_set.GetCount()) {
+																if(p_bp->XcL.Get(bi+1, 0, ext_codes_set) > 0 && ext_codes_set.HasEgaisMarks()) {
 																	SXml::WNode w_m(_doc, SXml::nst("wa", "MarkInfo"));
 																	for(uint boxidx = 0; boxidx < ext_codes_set.GetCount(); boxidx++) {
 																		if(ext_codes_set.GetByIdx(boxidx, msentry) && !(msentry.Flags & PPLotExtCodeContainer::fBox)) {
@@ -3020,7 +3022,7 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 									const ObjTagList * p_ti_tag_list = p_bp->LTagL.Get(tidx);
 									THROW(WriteProductInfo(_doc, SXml::nst("awr", "Product"), r_ti.GoodsID, 0, wpifPutManufInfo|wpifVersion2, p_ti_tag_list))
 									w_p.PutInner(SXml::nst("awr", "Quantity"), EncText(temp_buf.Z().Cat(qtty, qtty_fmt)));
-									if(p_bp->XcL.Get(tidx+1, 0, ext_codes_set) > 0) {
+									if(p_bp->XcL.Get(tidx+1, 0, ext_codes_set) > 0 && ext_codes_set.HasEgaisMarks()) {
 										SXml::WNode w_mc(_doc, SXml::nst("awr", "MarkCodeInfo"));
 										//for(uint ssp = 0; ss_ext_codes.get(&ssp, temp_buf);) {
 										//PPLotExtCodeContainer::MarkSet::Entry msentry;
@@ -3261,7 +3263,7 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 													w_refb.PutInner(SXml::nst("pref", "F2RegId"), EncText(temp_buf));
 												}
 											}
-											if(p_bp->XcL.Get(tidx+1, 0, ext_codes_set) > 0 && ext_codes_set.GetCount()) {
+											if(p_bp->XcL.Get(tidx+1, 0, ext_codes_set) > 0 && ext_codes_set.HasEgaisMarks()) {
 												// В этом документе марки передаются без информации о боксах
 												SXml::WNode n_mci(_doc, SXml::nst("awr", "MarkCodeInfo"));
 												for(uint markidx = 0; markidx < ext_codes_set.GetCount(); markidx++) {
@@ -3383,7 +3385,7 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 									const ObjTagList * p_ti_tag_list = p_bp->LTagL.Get(tidx);
 									infb_ident.Z();
 									CALLPTRMEMB(p_ti_tag_list, GetItemStr(PPTAG_LOT_FSRARINFB, infb_ident));
-									if(infb_ident.NotEmpty() && (p_bp->XcL.Get(tidx+1, 0, ext_codes_set) > 0 && ext_codes_set.GetCount())) {
+									if(infb_ident.NotEmpty() && (p_bp->XcL.Get(tidx+1, 0, ext_codes_set) > 0 && ext_codes_set.HasEgaisMarks())) {
 										SXml::WNode w_p(_doc, SXml::nst("awr", "Position"));
 										w_p.PutInner(SXml::nst("awr", "Identity"),    EncText(temp_buf.Z().Cat(r_ti.RByBill)));
 										w_p.PutInner(SXml::nst("awr", "Inform2RegId"), EncText(temp_buf = infb_ident));
@@ -5613,7 +5615,7 @@ int PPEgaisProcessor::Helper_CreateWriteOffShop(int v3markMode, const PPBillPack
 							cc_list.sortAndUndup();
 							for(uint ccidx = 0; ccidx < cc_list.getCount(); ccidx++) {
 								const  PPID cc_id = cc_list.get(ccidx);
-								bool  do_mark_ccheck = false; // @v11.8.2 Признак того, что на чек необходимо установить тег extssEgaisProcessingTag
+								bool   do_mark_ccheck = false; // @v11.8.2 Признак того, что на чек необходимо установить тег extssEgaisProcessingTag
 								SString processing_tag; // @v11.8.2
 								p_cc->LoadPacket(cc_id, 0, &cc_pack);
 								cc_pack.GetExtStrData(CCheckPacket::extssEgaisProcessingTag, processing_tag); // @v11.8.2
@@ -5628,7 +5630,7 @@ int PPEgaisProcessor::Helper_CreateWriteOffShop(int v3markMode, const PPBillPack
 										ex_processing_wroff_bill_id = 0;
 								}
 								for(uint clidx = 0; clidx < cc_pack.GetCount(); clidx++) {
-									const CCheckLineTbl::Rec & r_ccl = cc_pack.GetLineC(clidx);
+									const  CCheckLineTbl::Rec & r_ccl = cc_pack.GetLineC(clidx);
 									const  PPID goods_id = labs(r_ccl.GoodsID);
 									if(alco_goods_list.bsearch(goods_id)) {
 										cc_pack.GetLineTextExt(clidx+1, CCheckPacket::lnextEgaisMark, /*temp_buf*/egais_mark);

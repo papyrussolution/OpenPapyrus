@@ -698,7 +698,7 @@ int PPViewFreight::Export()
 int PPViewFreight::UpdateFeatures()
 {
     int    ok = -1;
-    PPID   tr_type = PPTRTYP_CAR;
+    const  PPID tr_type = PPTRTYP_CAR;
     PPID   ship_id = 0;
 	PPID   captain_id = 0;
     long   shipm_flag_mode = -1;
@@ -711,7 +711,7 @@ int PPViewFreight::UpdateFeatures()
     TDialog * dlg = new TDialog(DLG_UPDFREIGHT);
     THROW(CheckDialogPtr(&dlg));
 	SetupPPObjCombo(dlg, CTLSEL_UPDFREIGHT_TR, PPOBJ_TRANSPORT, ship_id, OLW_CANINSERT, reinterpret_cast<void *>(tr_type));
-	SetupPPObjCombo(dlg, CTLSEL_UPDFREIGHT_CAPT, PPOBJ_PERSON, captain_id, OLW_CANINSERT/*|OLW_LOADDEFONOPEN*/, reinterpret_cast<void *>(PPPRK_CAPTAIN)); // @v10.0.11
+	SetupPPObjCombo(dlg, CTLSEL_UPDFREIGHT_CAPT, PPOBJ_PERSON, captain_id, OLW_CANINSERT/*|OLW_LOADDEFONOPEN*/, reinterpret_cast<void *>(PPPRK_CAPTAIN));
 	dlg->SetupCalDate(CTLCAL_UPDFREIGHT_ISSDT, CTL_UPDFREIGHT_ISSDT);
 	dlg->SetupCalDate(CTLCAL_UPDFREIGHT_ARRDT, CTL_UPDFREIGHT_ARRDT);
 	dlg->setCtrlData(CTL_UPDFREIGHT_ISSDT, &issue_date);
@@ -744,6 +744,7 @@ int PPViewFreight::UpdateFeatures()
 				int    do_update = 0;
 				if(P_BObj->Search(bill_id, &bill_rec) > 0) {
                     PPFreight freight;
+					bool    shipped_flag_set = false; // @v12.4.3
                     if(P_BObj->P_Tbl->GetFreight(bill_id, &freight) > 0) {
                         if(ship_id && freight.ShipID != ship_id) {
 							freight.ShipID = ship_id;
@@ -770,6 +771,7 @@ int PPViewFreight::UpdateFeatures()
 						else if(shipm_flag_mode == 1 && !(bill_rec.Flags & BILLF_SHIPPED)) {
 							bill_rec.Flags |= BILLF_SHIPPED;
 							do_update |= 2;
+							shipped_flag_set = true;
 						}
                     }
 					{
@@ -777,9 +779,9 @@ int PPViewFreight::UpdateFeatures()
 						// @v11.2.10 {
 						if(_flags & fSetPortOfDischargeByTrunkPt && P_BObj->GetDlvrAddrID(bill_rec, &freight, &dlvr_loc_id) > 0) {
 							assert(dlvr_loc_id);
-							const  PPID preserver_port_of_discharge = freight.PortOfDischarge;
+							const PPID preserver_port_of_discharge = freight.PortOfDischarge;
 							if(!preserver_port_of_discharge) {
-								PPID trunk_point_id = LocObj.GetTrunkPointByDlvrAddr(dlvr_loc_id);
+								const PPID trunk_point_id = LocObj.GetTrunkPointByDlvrAddr(dlvr_loc_id);
 								if(trunk_point_id) {
 									freight.PortOfDischarge = trunk_point_id;
 									do_update |= 1;
@@ -800,8 +802,14 @@ int PPViewFreight::UpdateFeatures()
 							THROW(P_BObj->P_Tbl->SetRecFlag(bill_id, BILLF_SHIPPED, shipm_flag_mode, 0));
 							bill_updated = 1;
 						}
-						if(bill_updated)
+						if(bill_updated) {
+							// @v12.4.3 {
+							if(shipped_flag_set) {
+								DS.LogAction(PPACN_BILLSHIPMFLAGSET, PPOBJ_BILL, bill_id, 0, 0);
+							}
+							// } @v12.4.3 
 							DS.LogAction(PPACN_UPDBILL, PPOBJ_BILL, bill_id, 0, 0);
+						}
 						UpdateTempTableRec(bill_id);
 						THROW(tra.Commit());
 						ok = 1;

@@ -6560,7 +6560,7 @@ int EdiProviderImplementation_Kontur::Write_OwnFormat_INVOIC(xmlTextWriter * pX,
 		if(rBp.BTagL.GetItemStr(PPTAG_BILL_EDIRECADVRCV, temp_buf) > 0 && temp_buf.NotEmpty()) {
 			StringSet ss;
 			temp_buf.Tokenize(" ", ss);
-			if(ss.getCount() >= 3) {
+			if(ss.IsCountGreaterThan(2)) {
 				uint ssp = 0;
 				if(ss.get(&ssp, temp_buf)) {
 					if(ss.get(&ssp, temp_buf)) {

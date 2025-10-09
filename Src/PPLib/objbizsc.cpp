@@ -1235,14 +1235,17 @@ int GetBizScoresVals(const char * pUserName, const char * pPassword, TcpSocket *
 	int    ok = 1;
 	int    stop = 0;
 	char   secret[64];
-	SString buf, db_symb, bizsc_path, msg_buf;
+	SString buf;
+	SString db_symb;
+	SString bizsc_path;
+	SString msg_buf;
 	PPIniFile ini_file;
 	PPVersionInfo vi = DS.GetVersionInfo();
 	THROW_INVARG(pUserName && pPassword && pSock);
 	ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_BIZSCORE_DBSYMB, db_symb);
 	ini_file.Get(PPINISECT_PATH, PPINIPARAM_BIZSCORES_PATH, bizsc_path);
 	THROW(vi.GetSecret(secret, sizeof(secret)));
-	THROW(DS.Login(db_symb, PPSession::P_JobLogin, secret, PPSession::loginfSkipLicChecking));
+	THROW(DS.PPLogin(db_symb, PPSession::P_JobLogin, secret, PPSession::loginfSkipLicChecking));
 	memzero(secret, sizeof(secret));
 	{
 		GlobalBizScoreArray bizsc_list;
@@ -1405,7 +1408,7 @@ int GetBizScoresVals(const char * pUserName, const char * pPassword, TcpSocket *
 		ok = 0;
 	ENDCATCH
 	memzero(secret, sizeof(secret));
-	DS.Logout();
+	DS.PPLogout();
 	return ok;
 }
 //

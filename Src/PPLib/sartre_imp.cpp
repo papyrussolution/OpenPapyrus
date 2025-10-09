@@ -2640,7 +2640,7 @@ int PrcssrSartre::ImportBioTaxonomy(SrDatabase & rDb, const char * pFileName)
 			ss.Z();
 			ss.setBuf(line_buf);
 			if(line_no == 1) { // Строка заголовков
-				THROW(ss.getCount() >= 31); // Проверка на то, что это - наш файл
+				THROW(ss.IsCountGreaterThan(30)); // Проверка на то, что это - наш файл
 			}
 			else {
 				const char * p_notassigned_text = "not assigned";

@@ -65,7 +65,7 @@ int SSqliteDbProvider::GetFileStat(const char * pFileName/*регистр символов важе
 	*/
 	int    ok = 0;
 	uint   actual = 0;
-	BNFieldList fld_list;
+	BNFieldList2 fld_list;
 	struct SqliteTblEntry {
 		char   type[128];
 		char   name[128];
@@ -123,6 +123,7 @@ int SSqliteDbProvider::GetFileStat(const char * pFileName/*регистр символов важе
 			case SQLITE_TRACE_STMT:
 				msg_buf.Space().Cat("STMT").CatDiv(':', 2).Cat(sqlite3_expanded_sql((sqlite3_stmt*)p));
 				//printf("STMT: %s\n", sqlite3_expanded_sql((sqlite3_stmt*)p));
+				result = 1;
 				break;
 			case SQLITE_TRACE_PROFILE:
 				//msg_buf.Space().Cat("PROFILE");
@@ -136,9 +137,12 @@ int SSqliteDbProvider::GetFileStat(const char * pFileName/*регистр символов важе
 				break;
 			case SQLITE_TRACE_CLOSE:
 				msg_buf.Space().Cat("CLOSE");
+				result = 1;
 				//printf("DB closed\n");
 				break;
 		}
+		if(result > 0)
+			SLS.LogMessage(p_this->DebugLogFileName, msg_buf, SKILOBYTE(8));
 	}
 	return result;
 }
@@ -161,31 +165,38 @@ int SSqliteDbProvider::GetFileStat(const char * pFileName/*регистр символов важе
 	int    ok = 1;
 	sqlite3 * h = 0;
 	SString path;
+	SString log_path;
 	assert(pBlk);
 	THROW(pBlk);
 	pBlk->GetAttr(DbLoginBlock::attrDbPath, path);
 	{
 		Logout();
-		THROW(ProcessError(sqlite3_open_v2(path, &h, SQLITE_OPEN_READWRITE|SQLITE_OPEN_CREATE, 0)));
+		SLS.QueryPath("log", log_path);
+		int    open_flags = 0;
+		if(options & DbProvider::openfReadOnly)
+			open_flags = SQLITE_OPEN_READONLY;
+		else
+			open_flags = SQLITE_OPEN_READWRITE|SQLITE_OPEN_CREATE;
+		sqlite3_config(SQLITE_CONFIG_MULTITHREAD);
+		if(SFile::IsDir(log_path)) {
+			(DebugLogFileName = log_path).SetLastSlash().Cat("sqlite-debug").DotCat("log");
+			sqlite3_config(SQLITE_CONFIG_LOG, CbDebugLog, this);
+		}
+		THROW(ProcessError(sqlite3_open_v2(path, &h, open_flags, 0)));
 		H = h;
-		{
-			SLS.QueryPath("log", path);
-			if(SFile::IsDir(path)) {
-				{
-					(DebugLogFileName = path).SetLastSlash().Cat("sqlite-debug").DotCat("log");
-					sqlite3_config(SQLITE_CONFIG_LOG, CbDebugLog, this);
-				}
-				{
-					/*
-						#define SQLITE_TRACE_STMT       0x01
-						#define SQLITE_TRACE_PROFILE    0x02
-						#define SQLITE_TRACE_ROW        0x04
-						#define SQLITE_TRACE_CLOSE      0x08
-					*/
-					(TraceFileName = path).SetLastSlash().Cat("sqlite-trace").DotCat("log");
-					sqlite3_trace_v2(h, SQLITE_TRACE_STMT|SQLITE_TRACE_PROFILE|SQLITE_TRACE_CLOSE, CbTrace, this);
-				}
-			}
+		if(options & DbProvider::openfMainThread) {
+			sqlite3_exec(h, "PRAGMA journal_mode=WAL", 0, 0, 0);
+			sqlite3_exec(h, "PRAGMA synchronous=NORMAL", 0, 0, 0);
+		}
+		if(SFile::IsDir(log_path)) {
+			/*
+				#define SQLITE_TRACE_STMT       0x01
+				#define SQLITE_TRACE_PROFILE    0x02
+				#define SQLITE_TRACE_ROW        0x04
+				#define SQLITE_TRACE_CLOSE      0x08
+			*/
+			(TraceFileName = log_path).SetLastSlash().Cat("sqlite-trace").DotCat("log");
+			sqlite3_trace_v2(h, SQLITE_TRACE_STMT|SQLITE_TRACE_PROFILE|SQLITE_TRACE_CLOSE, CbTrace, this);
 		}
 	}
 	CATCHZOK
@@ -344,10 +355,14 @@ int SSqliteDbProvider::GetFileStat(const char * pFileName/*регистр символов важе
 /*virtual*/int SSqliteDbProvider::CommitWork()
 {
 	int    ok = -1;
+	int    rbr = 0; // rollback-result
 	if(State & stTransaction) {
 		SqlGen.Z().Tok(Generator_SQL::tokCommit)/*.Sp().Tok(Generator_SQL::tokTransaction)*/;
 		char * p_err_msg = 0;
 		ok = ProcessError(sqlite3_exec(static_cast<sqlite3 *>(H), static_cast<SString &>(SqlGen), 0, 0, &p_err_msg));
+		if(!ok) {
+			rbr = RollbackWork();
+		}
 		State &= ~stTransaction;
 	}
 	else
@@ -413,7 +428,7 @@ int SSqliteDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt,
 	// Вместо hint'ов здесь мы будем использовать расширение sql от SQLite "INDEXED BY"
 	// ------------------------------------------------------------------------------------------------------
 	//
-	// BNKeyList BNFieldList BNKey Generator_SQL
+	// BNKeyList BNFieldList2 BNKey Generator_SQL
 	//
 	// select /*+ index_asc(tbl_name index_name) */ * from
 	//

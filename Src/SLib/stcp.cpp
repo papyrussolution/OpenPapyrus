@@ -2319,7 +2319,31 @@ int ScURL::SetCommonOptions(int mflags, int bufferSize, const char * pUserAgent)
 	return ok;
 }
 
-int ScURL::Execute()
+int ScURL::QueryLastOpTimeMetrics(OpTimeMetrics & rT) // @v12.4.3
+{
+	struct CmdToVarAssoc {
+		CURLINFO Cmd;
+		uint & R_Var;
+	};
+	/*non-static non-const*/CmdToVarAssoc cmd_to_var_assc_list[] = {
+		{ CURLINFO_TOTAL_TIME, rT.Total }, // общее время операции
+		{ CURLINFO_NAMELOOKUP_TIME, rT.DnsLookUp }, // время разрешения DNS
+		{ CURLINFO_CONNECT_TIME, rT.Connect }, // время установки соединения
+		{ CURLINFO_APPCONNECT_TIME, rT.AppConnect }, // время SSL/TLS handshake
+		{ CURLINFO_PRETRANSFER_TIME, rT.PreTransfer }, // время от начала до готовности к передаче
+		{ CURLINFO_STARTTRANSFER_TIME, rT.StartTransfer }, // время до получения первого байта
+		{ CURLINFO_REDIRECT_TIME, rT.Redirect }, // время, потраченное на редиректы
+	};
+	int    ok = 1;
+	for(uint i = 0; i < SIZEOFARRAY(cmd_to_var_assc_list); i++) {
+		double val = 0;
+		curl_easy_getinfo(_CURLH, cmd_to_var_assc_list[i].Cmd, &val);
+		cmd_to_var_assc_list[i].R_Var = static_cast<uint>(R0(val * 1000000.0));
+	}
+	return ok;
+}
+
+int ScURL::Execute(uint execFlags)
 {
 	if(IqsB.ConnectionTimeout >= 0) {
 		curl_easy_setopt(_CURLH, CURLOPT_CONNECTTIMEOUT_MS, IqsB.ConnectionTimeout);
@@ -2327,7 +2351,11 @@ int ScURL::Execute()
 	if(IqsB.OverallTimeout >= 0) {
 		curl_easy_setopt(_CURLH, CURLOPT_TIMEOUT_MS, IqsB.ConnectionTimeout);
 	}
-	return SetError(curl_easy_perform(_CURLH));
+	const int result = SetError(curl_easy_perform(_CURLH));
+	if(execFlags & execfQueryTimeMetrics) {
+		QueryLastOpTimeMetrics(LastOpTimeMetrics);
+	}
+	return result;
 }
 
 /*static*/int ScURL::ComposeFieldList(const StrStrAssocArray * pFields, SString & rBuf, uint * pCount)
@@ -2389,7 +2417,7 @@ int ScURL::HttpPatch(const InetUrl & rUrl, int mflags, const StrStrAssocArray * 
 	int    ok = 1;
 	struct curl_slist * p_chunk = 0;
 	SString temp_buf;
-	InetUrl url_local = rUrl;
+	InetUrl url_local(rUrl);
 	InnerUrlInfo url_info;
 	THROW(PrepareURL(url_local, InetUrl::protHttp, url_info));
 	p_chunk = (struct curl_slist *)ComposeHeaderList(pHttpHeaderFields);
@@ -2404,7 +2432,10 @@ int ScURL::HttpPatch(const InetUrl & rUrl, int mflags, const StrStrAssocArray * 
 		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_POSTFIELDS, pBody)));
 	}
 	THROW(SetupCbWrite(pReplyStream));
-	THROW(Execute());
+	{
+		const uint execflags = (mflags & mfQueryTimeMetrics) ? execfQueryTimeMetrics : 0; // @v12.4.3
+		THROW(Execute(execflags));
+	}
 	CATCHZOK
 	curl_slist_free_all(p_chunk);
 	CleanCbRW();
@@ -2418,7 +2449,7 @@ int ScURL::HttpPatch(const InetUrl & rUrl, int mflags, const StrStrAssocArray * 
 	uint   flds_count = 0;
 	SString flds_buf;
 	SString temp_buf;
-	InetUrl url_local = rUrl;
+	InetUrl url_local(rUrl);
 	InnerUrlInfo url_info;
 	THROW(PrepareURL(url_local, InetUrl::protHttp, url_info));
 	p_chunk = (struct curl_slist *)ComposeHeaderList(pHttpHeaderFields);
@@ -2432,7 +2463,10 @@ int ScURL::HttpPatch(const InetUrl & rUrl, int mflags, const StrStrAssocArray * 
 	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_POSTFIELDSIZE, flds_buf.Len())));
 	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_POSTFIELDS, flds_buf.cptr())));
 	THROW(SetupCbWrite(pReplyStream));
-	THROW(Execute());
+	{
+		const uint execflags = (mflags & mfQueryTimeMetrics) ? execfQueryTimeMetrics : 0; // @v12.4.3
+		THROW(Execute(execflags));
+	}
 	CATCHZOK
 	curl_slist_free_all(p_chunk);
 	CleanCbRW();
@@ -2448,7 +2482,10 @@ int ScURL::HttpPost(const char * pUrl, int mflags, HttpForm & rForm, SFile * pRe
 	// @v12.2.6 THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_HTTPPOST, static_cast<struct curl_httppost *>(rForm.FH))));
 	THROW(SetHttpFormOptions(rForm)); // @v12.2.6
 	THROW(SetupCbWrite(pReplyStream));
-	THROW(Execute());
+	{
+		const uint execflags = (mflags & mfQueryTimeMetrics) ? execfQueryTimeMetrics : 0; // @v12.4.3
+		THROW(Execute(execflags));
+	}
 	CATCHZOK
 	CleanCbRW();
 	return ok;
@@ -2480,7 +2517,10 @@ int ScURL::HttpPost(const InetUrl & rUrl, int mflags, const StrStrAssocArray * p
 		// @v12.2.6 THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_HTTPPOST, (struct curl_httppost *)rForm.FH))); 
 		THROW(SetHttpFormOptions(rForm)); // @v12.2.6
 		THROW(SetupCbWrite(pReplyStream));
-		THROW(Execute());
+		{
+			const uint execflags = (mflags & mfQueryTimeMetrics) ? execfQueryTimeMetrics : 0; // @v12.4.3
+			THROW(Execute(execflags));
+		}
 	}
 	CATCHZOK
 	curl_slist_free_all(p_chunk);
@@ -2512,7 +2552,10 @@ int ScURL::HttpPut(const InetUrl & rUrl, int mflags, const StrStrAssocArray * pH
 		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_POSTFIELDS, pBody)));
 	}
 	THROW(SetupCbWrite(pReplyStream));
-	THROW(Execute());
+	{
+		const uint execflags = (mflags & mfQueryTimeMetrics) ? execfQueryTimeMetrics : 0; // @v12.4.3
+		THROW(Execute(execflags));
+	}
 	CATCHZOK
 	curl_slist_free_all(p_chunk);
 	CleanCbRW();
@@ -2543,7 +2586,10 @@ int ScURL::HttpPost(const InetUrl & rUrl, int mflags, const StrStrAssocArray * p
 		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_POSTFIELDS, pBody)));
 	}
 	THROW(SetupCbWrite(pReplyStream));
-	THROW(Execute());
+	{
+		const uint execflags = (mflags & mfQueryTimeMetrics) ? execfQueryTimeMetrics : 0; // @v12.4.3
+		THROW(Execute(execflags));
+	}
 	CATCHZOK
 	curl_slist_free_all(p_chunk);
 	CleanCbRW();
@@ -2562,7 +2608,10 @@ int ScURL::HttpPost(const char * pUrlBuf, int mflags, const StrStrAssocArray * p
 	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_POSTFIELDSIZE, flds_buf.Len())));
 	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_POSTFIELDS, flds_buf.cptr())));
 	THROW(SetupCbWrite(pReplyStream));
-	THROW(Execute());
+	{
+		const uint execflags = (mflags & mfQueryTimeMetrics) ? execfQueryTimeMetrics : 0; // @v12.4.3
+		THROW(Execute(execflags));
+	}
 	CATCHZOK
 	CleanCbRW();
 	return ok;
@@ -2575,7 +2624,10 @@ int ScURL::HttpGet(const char * pUrlBuf, int mflags, SFile * pReplyStream)
 	THROW(SetCommonOptions(mflags, 0, 0))
 	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_CUSTOMREQUEST, "GET")));
 	THROW(SetupCbWrite(pReplyStream));
-	THROW(Execute());
+	{
+		const uint execflags = (mflags & mfQueryTimeMetrics) ? execfQueryTimeMetrics : 0; // @v12.4.3
+		THROW(Execute(execflags));
+	}
 	CATCHZOK
 	CleanCbRW();
 	return ok;
@@ -2586,7 +2638,7 @@ int ScURL::HttpGet(const InetUrl & rUrl, int mflags, const StrStrAssocArray * pH
 	int    ok = 1;
 	struct curl_slist * p_chunk = 0;
 	SString temp_buf;
-	InetUrl url_local = rUrl;
+	InetUrl url_local(rUrl);
 	InnerUrlInfo url_info;
 	THROW(PrepareURL(url_local, InetUrl::protHttp, url_info));
 	{
@@ -2598,7 +2650,10 @@ int ScURL::HttpGet(const InetUrl & rUrl, int mflags, const StrStrAssocArray * pH
 		p_chunk = (struct curl_slist *)ComposeHeaderList(pHttpHeaderFields);
 		if(p_chunk)
 			curl_easy_setopt(_CURLH, CURLOPT_HTTPHEADER, p_chunk);
-		THROW(Execute());
+		{
+			const uint execflags = (mflags & mfQueryTimeMetrics) ? execfQueryTimeMetrics : 0; // @v12.4.3
+			THROW(Execute(execflags));
+		}
 	}
 	CATCHZOK
 	curl_slist_free_all(p_chunk);
@@ -2618,14 +2673,17 @@ int ScURL::HttpGet(const char * pUrlBuf, int mflags, const StrStrAssocArray * pH
 	p_chunk = (struct curl_slist *)ComposeHeaderList(pHttpHeaderFields);
 	if(p_chunk)
 		curl_easy_setopt(_CURLH, CURLOPT_HTTPHEADER, p_chunk);
-	THROW(Execute());
+	{
+		const uint execflags = (mflags & mfQueryTimeMetrics) ? execfQueryTimeMetrics : 0; // @v12.4.3
+		THROW(Execute(execflags));
+	}
 	CATCHZOK
 	curl_slist_free_all(p_chunk);
 	CleanCbRW();
 	return ok;
 }
 
-int ScURL::HttpDelete(const char * pUrl, int flags, SFile * pReplyStream)
+int ScURL::HttpDelete(const char * pUrl, int mflags, SFile * pReplyStream)
 {
 	/*
   hnd = curl_easy_init();
@@ -2640,7 +2698,10 @@ int ScURL::HttpDelete(const char * pUrl, int flags, SFile * pReplyStream)
 	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_URL, pUrl)));
 	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_CUSTOMREQUEST, "DELETE")));
 	THROW(SetupCbWrite(pReplyStream));
-	THROW(Execute());
+	{
+		const uint execflags = (mflags & mfQueryTimeMetrics) ? execfQueryTimeMetrics : 0; // @v12.4.3
+		THROW(Execute(execflags));
+	}
 	CATCHZOK
 	CleanCbRW();
 	return ok;
@@ -2852,7 +2913,7 @@ int ScURL::FtpList(const InetUrl & rUrl, int mflags, SFileEntryPool & rPool)
 {
 	int    ok = 1;
 	SString temp_buf;
-	InetUrl url_local = rUrl;
+	InetUrl url_local(rUrl);
 	InnerUrlInfo url_info;
 	curl_easy_reset(_CURLH);
 	THROW(PrepareURL(url_local, InetUrl::protFtp, url_info));
@@ -2869,7 +2930,10 @@ int ScURL::FtpList(const InetUrl & rUrl, int mflags, SFileEntryPool & rPool)
 		SBuffer reply_buf;
 		SFile reply_stream(reply_buf, SFile::mWrite);
 		THROW(SetupCbWrite(&reply_stream));
-		THROW(Execute());
+		{
+			const uint execflags = (mflags & mfQueryTimeMetrics) ? execfQueryTimeMetrics : 0; // @v12.4.3
+			THROW(Execute(execflags));
+		}
 		{
 			SString line_buf;
 			SBuffer * p_result_buf = static_cast<SBuffer *>(reply_stream);
@@ -2895,7 +2959,7 @@ int ScURL::FtpPut(const InetUrl & rUrl, int mflags, const char * pLocalFile, con
 {
 	int    ok = 1;
 	SString temp_buf;
-	InetUrl url_local = rUrl;
+	InetUrl url_local(rUrl);
 	InnerUrlInfo url_info;
 	THROW(fileExists(pLocalFile));
 	curl_easy_reset(_CURLH);
@@ -2930,7 +2994,10 @@ int ScURL::FtpPut(const InetUrl & rUrl, int mflags, const char * pLocalFile, con
 		THROW(SetupCbRead(&f_in));
 		THROW(SetupCbWrite(&reply_stream));
 		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_UPLOAD, 1L)));
-		THROW(Execute());
+		{
+			const uint execflags = (mflags & mfQueryTimeMetrics) ? execfQueryTimeMetrics : 0; // @v12.4.3
+			THROW(Execute(execflags));
+		}
 		{
 			SString line_buf;
 			SBuffer * p_result_buf = static_cast<SBuffer *>(reply_stream);
@@ -2953,7 +3020,7 @@ int ScURL::FtpGet(const InetUrl & rUrl, int mflags, const char * pLocalFile, SSt
 	int    ok = 1;
 	SString temp_buf;
 	SString local_file_path(pLocalFile);
-	InetUrl url_local = rUrl;
+	InetUrl url_local(rUrl);
 	InnerUrlInfo url_info;
 	curl_easy_reset(_CURLH);
 	THROW(PrepareURL(url_local, InetUrl::protFtp, url_info));
@@ -2976,7 +3043,10 @@ int ScURL::FtpGet(const InetUrl & rUrl, int mflags, const char * pLocalFile, SSt
 	{
 		SFile f_out(local_file_path, SFile::mWrite|SFile::mBinary);
 		THROW(SetupCbWrite(&f_out));
-		THROW(Execute());
+		{
+			const uint execflags = (mflags & mfQueryTimeMetrics) ? execfQueryTimeMetrics : 0; // @v12.4.3
+			THROW(Execute(execflags));
+		}
 		ASSIGN_PTR(pResultFileName, local_file_path);
 	}
 	CATCHZOK
@@ -2990,7 +3060,7 @@ int ScURL::FtpDelete(const InetUrl & rUrl, int mflags)
 	struct curl_slist * p_chunk = 0;
 	SString temp_buf;
 	SString file_name_to_delete;
-	InetUrl url_local = rUrl;
+	InetUrl url_local(rUrl);
 	InnerUrlInfo url_info;
 	curl_easy_reset(_CURLH);
 	THROW(PrepareURL(url_local, InetUrl::protFtp, url_info));
@@ -3007,7 +3077,10 @@ int ScURL::FtpDelete(const InetUrl & rUrl, int mflags)
 		temp_buf.Z().Cat("DELE").Space().Cat(file_name_to_delete);
 		p_chunk = curl_slist_append(p_chunk, temp_buf);
 		THROW(SetError(curl_easy_setopt(_CURLH,  CURLOPT_QUOTE, p_chunk)));
-		THROW(Execute());
+		{
+			const uint execflags = (mflags & mfQueryTimeMetrics) ? execfQueryTimeMetrics : 0; // @v12.4.3
+			THROW(Execute(execflags));
+		}
 	}
 	CATCHZOK
 	curl_slist_free_all(p_chunk);
@@ -3020,7 +3093,7 @@ int ScURL::FtpDeleteDir(const InetUrl & rUrl, int mflags)
 	struct curl_slist * p_chunk = 0;
 	SString temp_buf;
 	SString file_name_to_delete;
-	InetUrl url_local = rUrl;
+	InetUrl url_local(rUrl);
 	InnerUrlInfo url_info;
 	curl_easy_reset(_CURLH);
 	THROW(PrepareURL(url_local, InetUrl::protFtp, url_info));
@@ -3036,8 +3109,11 @@ int ScURL::FtpDeleteDir(const InetUrl & rUrl, int mflags)
 	{
 		temp_buf.Z().Cat("RMD").Space().Cat(file_name_to_delete);
 		p_chunk = curl_slist_append(p_chunk, temp_buf);
-		THROW(SetError(curl_easy_setopt(_CURLH,  CURLOPT_QUOTE, p_chunk)));
-		THROW(Execute());
+		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_QUOTE, p_chunk)));
+		{
+			const uint execflags = (mflags & mfQueryTimeMetrics) ? execfQueryTimeMetrics : 0; // @v12.4.3
+			THROW(Execute(execflags));
+		}
 	}
 	CATCHZOK
 	curl_slist_free_all(p_chunk);
@@ -3050,7 +3126,7 @@ int ScURL::FtpChangeDir(const InetUrl & rUrl, int mflags)
 	struct curl_slist * p_chunk = 0;
 	SString temp_buf;
 	SString path_to_cwd;
-	InetUrl url_local = rUrl;
+	InetUrl url_local(rUrl);
 	InnerUrlInfo url_info;
 	curl_easy_reset(_CURLH);
 	CleanCbRW();
@@ -3080,8 +3156,11 @@ int ScURL::FtpChangeDir(const InetUrl & rUrl, int mflags)
 			to_do = 1;
 		}
 		if(to_do) {
-			THROW(SetError(curl_easy_setopt(_CURLH,  CURLOPT_QUOTE, p_chunk)));
-			THROW(Execute());
+			THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_QUOTE, p_chunk)));
+			{
+				const uint execflags = (mflags & mfQueryTimeMetrics) ? execfQueryTimeMetrics : 0; // @v12.4.3
+				THROW(Execute(execflags));
+			}
 		}
 	}
 	CATCHZOK
@@ -3094,7 +3173,7 @@ int ScURL::FtpCreateDir(const InetUrl & rUrl, int mflags)
 	int    ok = 1;
 	SString temp_buf;
 	SString path_to_cwd;
-	InetUrl url_local = rUrl;
+	InetUrl url_local(rUrl);
 	InnerUrlInfo url_info;
 	curl_easy_reset(_CURLH);
 	CleanCbRW();
@@ -3105,7 +3184,10 @@ int ScURL::FtpCreateDir(const InetUrl & rUrl, int mflags)
 		url_local.Compose(InetUrl::stAll & ~(InetUrl::stUserName|InetUrl::stPassword), temp_buf);
 		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_URL, temp_buf.cptr())));
 	}
-	THROW(Execute());
+	{
+		const uint execflags = (mflags & mfQueryTimeMetrics) ? execfQueryTimeMetrics : 0; // @v12.4.3
+		THROW(Execute(execflags));
+	}
 	CATCHZOK
 	return ok;
 }
@@ -3115,7 +3197,7 @@ int ScURL::Pop3List(const InetUrl & rUrl, int mflags, LAssocArray & rList) // LI
 	rList.clear();
 	int    ok = 1;
 	SString temp_buf;
-	InetUrl url_local = rUrl;
+	InetUrl url_local(rUrl);
 	InnerUrlInfo url_info;
 	THROW(PrepareURL(url_local, InetUrl::protPOP3, url_info));
 	{
@@ -3131,12 +3213,15 @@ int ScURL::Pop3List(const InetUrl & rUrl, int mflags, LAssocArray & rList) // LI
 		// } @v11.3.8
 	}
 	THROW(SetCommonOptions(mflags|mfTcpKeepAlive, 1024, 0))
-	//THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_CUSTOMREQUEST, "LIST"))); // @v9.8.11
+	//THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_CUSTOMREQUEST, "LIST")));
 	{
 		SBuffer reply_buf;
 		SFile reply_stream(reply_buf, SFile::mWrite);
 		THROW(SetupCbWrite(&reply_stream));
-		THROW(Execute());
+		{
+			const uint execflags = (mflags & mfQueryTimeMetrics) ? execfQueryTimeMetrics : 0; // @v12.4.3
+			THROW(Execute(execflags));
+		}
 		{
 			SString line_buf;
 			SBuffer * p_result_buf = (SBuffer *)reply_stream;
@@ -3162,7 +3247,7 @@ int ScURL::Pop3Top(const InetUrl & rUrl, int mflags, uint msgN, uint maxLines, S
 {
 	int    ok = 1;
 	SString temp_buf;
-	InetUrl url_local = rUrl;
+	InetUrl url_local(rUrl);
 	InnerUrlInfo url_info;
 	THROW(PrepareURL(url_local, InetUrl::protPOP3, url_info));
 	{
@@ -3176,7 +3261,10 @@ int ScURL::Pop3Top(const InetUrl & rUrl, int mflags, uint msgN, uint maxLines, S
 		SBuffer reply_buf;
 		SFile reply_stream(reply_buf, SFile::mWrite);
 		THROW(SetupCbWrite(&reply_stream));
-		THROW(Execute());
+		{
+			const uint execflags = (mflags & mfQueryTimeMetrics) ? execfQueryTimeMetrics : 0; // @v12.4.3
+			THROW(Execute(execflags));
+		}
 		{
 			SBuffer * p_result_buf = (SBuffer *)reply_stream;
 			if(p_result_buf) {
@@ -3193,7 +3281,7 @@ int ScURL::Pop3Get(const InetUrl & rUrl, int mflags, uint msgN, SMailMessage & r
 {
 	int    ok = 1;
 	SString temp_buf;
-	InetUrl url_local = rUrl;
+	InetUrl url_local(rUrl);
 	InnerUrlInfo url_info;
 	THROW(PrepareURL(url_local, InetUrl::protPOP3, url_info));
 	{
@@ -3208,7 +3296,10 @@ int ScURL::Pop3Get(const InetUrl & rUrl, int mflags, uint msgN, SMailMessage & r
 		SFile reply_stream(reply_buf, SFile::mWrite);
 		THROW(SetupCbWrite(&reply_stream));
 		SetupCbProgress(pProgress);
-		THROW(Execute());
+		{
+			const uint execflags = (mflags & mfQueryTimeMetrics) ? execfQueryTimeMetrics : 0; // @v12.4.3
+			THROW(Execute(execflags));
+		}
 		{
 			SString line_buf;
 			SBuffer * p_result_buf = (SBuffer *)reply_stream;
@@ -3226,7 +3317,7 @@ int ScURL::Pop3Delete(const InetUrl & rUrl, int mflags, uint msgN)
 {
 	int    ok = 1;
 	SString temp_buf;
-	InetUrl url_local = rUrl;
+	InetUrl url_local(rUrl);
 	InnerUrlInfo url_info;
 	THROW(PrepareURL(url_local, InetUrl::protPOP3, url_info));
 	{
@@ -3237,7 +3328,10 @@ int ScURL::Pop3Delete(const InetUrl & rUrl, int mflags, uint msgN)
 	THROW(SetCommonOptions(mflags|mfTcpKeepAlive, 1024, 0))
 	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_CUSTOMREQUEST, "DELE"))); // Номер сообщения в пути (see above)
 	THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_NOBODY, 1L)));
-	THROW(Execute());
+	{
+		const uint execflags = (mflags & mfQueryTimeMetrics) ? execfQueryTimeMetrics : 0; // @v12.4.3
+		THROW(Execute(execflags));
+	}
 	CATCHZOK
 	return ok;
 }
@@ -3280,7 +3374,7 @@ int ScURL::SmtpSend(const InetUrl & rUrl, int mflags, const SMailMessage & rMsg)
 	SString temp_buf;
 	SString addr_buf;
 	SString from_buf;
-	InetUrl url_local = rUrl;
+	InetUrl url_local(rUrl);
 	InnerUrlInfo url_info;
 	struct curl_slist * p_recipients = 0;
 	{
@@ -3327,7 +3421,10 @@ int ScURL::SmtpSend(const InetUrl & rUrl, int mflags, const SMailMessage & rMsg)
 		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_READFUNCTION, CbRead_EMailMessage)));
 		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_READDATA, &rd_blk)));
 		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_UPLOAD, 1L)));
-		THROW(Execute());
+		{
+			const uint execflags = (mflags & mfQueryTimeMetrics) ? execfQueryTimeMetrics : 0; // @v12.4.3
+			THROW(Execute(execflags));
+		}
 		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_STDERR, 0)));
 	}
 	CATCHZOK
@@ -3359,8 +3456,8 @@ int SUniformFileTransmParam::Run(SDataMoveProgressProc pf, void * extraPtr)
 #define SLERR_UFT_INVDESTPROT                  585 // @v11.8.10 SUniformFileTransmParam: invalid dest protocol
 	*/
 	int    ok = -1;
-    SString path_src = SrcPath;
-    SString path_dest = DestPath;
+    SString path_src(SrcPath);
+    SString path_dest(DestPath);
     THROW_S(path_src.NotEmptyS(), SLERR_UFT_SRCISEMPTY);
     THROW_S(path_dest.NotEmptyS(), SLERR_UFT_DESTISEMPTY);
     {

@@ -441,7 +441,7 @@ char * BrowserDef::getMultiLinesText(long row, int column, char * pBuf, uint hei
 			buf[0] = 0;
 			for(uint i = 0, j = 0; ss.get(&i, dest_data, sizeof(dest_data)); j++) {
 				strcat(buf, strip(dest_data));
-				if(j < ss.getCount() - 1)
+				if(j < ss.getCount()-1)
 					if(j < (heightMult - 1) || pCalcHeight)
 						strcat(buf, "\n");
 					else
@@ -533,7 +533,7 @@ int BrowserDef::search(const void * pPattern, CompFunc /*cfn*/, int srchMode, in
 //
 //
 //
-AryBrowserDef::AryBrowserDef(SArray * pAry, const BNFieldList * pFl, int captionHight, uint aOptions, void * extraPtr /*=0*/) :
+AryBrowserDef::AryBrowserDef(SArray * pAry, const BNFieldList2 * pFl, int captionHight, uint aOptions, void * extraPtr /*=0*/) :
 	BrowserDef(captionHight, aOptions, extraPtr), P_Array(0), P_Fields(0)
 {
 	setArray(pAry, pFl, 1);
@@ -546,7 +546,7 @@ AryBrowserDef::~AryBrowserDef()
 		delete P_Array;
 }
 
-int AryBrowserDef::setArray(SArray * pAry, const BNFieldList * pFl, int setupPosition /*= 1*/)
+int AryBrowserDef::setArray(SArray * pAry, const BNFieldList2 * pFl, int setupPosition /*= 1*/)
 {
 	int    ok = 1;
 	ZDELETE(P_Fields);
@@ -554,7 +554,7 @@ int AryBrowserDef::setArray(SArray * pAry, const BNFieldList * pFl, int setupPos
 		ZDELETE(P_Array);
 	}
 	if(pFl) {
-		P_Fields = new BNFieldList(*pFl);
+		P_Fields = new BNFieldList2(*pFl);
 	}
 	if(pAry) {
 		P_Array = pAry;

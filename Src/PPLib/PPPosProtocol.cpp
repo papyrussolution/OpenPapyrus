@@ -5796,7 +5796,7 @@ int RunInputProcessThread(PPID posNodeID)
 			SString msg_buf;
 			STimer timer;
 			Evnt   stop_event(SLS.GetStopEventName(temp_buf), Evnt::modeOpen);
-			THROW(DS.Login(IB.DbSymb, IB.UserName, IB.Password, PPSession::loginfSkipLicChecking));
+			THROW(DS.PPLogin(IB.DbSymb, IB.UserName, IB.Password, PPSession::loginfSkipLicChecking));
 			IB.Password.Obfuscate();
 			{
         		//
@@ -5883,7 +5883,7 @@ int RunInputProcessThread(PPID posNodeID)
 				PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER|LOGMSGF_DBINFO);
 			ENDCATCH
 			delete p_dcn;
-			DS.Logout();
+			DS.PPLogout();
 		}
 		InitBlock IB;
 		SymbHashTable ProcessedFileTab;

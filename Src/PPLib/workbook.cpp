@@ -3026,7 +3026,7 @@ int PPALDD_UhttWorkbook::InitIteration(long iterId, int sortId, long rsrv)
 static void ShuffleWordList(SString & rText)
 {
 	StringSet ss(',', rText);
-	if(ss.getCount() > 1) {
+	if(ss.IsCountGreaterThan(1)) {
 		StringSet new_ss;
 		SString word_buf;
 		LongArray pos_list;

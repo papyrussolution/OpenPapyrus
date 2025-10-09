@@ -1972,7 +1972,7 @@ void ObjLinkFiles::Fns::Reset()
 			pS->ObjType = temp_buf.ToLong();
 			if(ss.get(&i, temp_buf)) {
 				pS->ObjID = temp_buf.ToLong();
-				if(ss.getCount() > 3) { // Извлечем AddedID
+				if(ss.IsCountGreaterThan(3)) { // Извлечем AddedID
 					if(ss.get(&i, temp_buf)) {
 						pS->AddedStr = temp_buf;
 					}

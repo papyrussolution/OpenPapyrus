@@ -2944,7 +2944,7 @@ int DlContext::Helper_LoadDbTableSpec(const DlScope * pScope, DBTable * pTbl, in
 				//
 				const BNField * p_f = &pTbl->GetFields().getField(fld.Name);
 				THROW(p_f);
-				long seg_flags = p_index->GetDbIndexSegOptions(j-1);
+				const long seg_flags = p_index->GetDbIndexSegOptions(j-1);
 				THROW_SL(key.addSegment(p_f->Id, seg_flags));
 			}
 			if(p_index->GetAttrib(DlScope::sfDbiDup, 0))

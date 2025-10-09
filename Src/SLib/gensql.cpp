@@ -124,7 +124,7 @@ Generator_SQL & Generator_SQL::Dot()
 	return *this;
 }
 
-Generator_SQL & FASTCALL Generator_SQL::Select(const BNFieldList * pFldList)
+Generator_SQL & FASTCALL Generator_SQL::Select(const BNFieldList2 * pFldList)
 {
 	Tok(Generator_SQL::tokSelect).Sp();
 	if(pFldList) {
@@ -354,9 +354,10 @@ int Generator_SQL::CreateIndex(const DBTable & rTbl, const char * pFileName, uin
 	int    ok = 1;
 	if(n < rTbl.GetIndices().getNumKeys()) {
 		SString temp_buf;
-		const  BNKey  key = rTbl.GetIndices().getKey(n);
-		int    fl = key.getFlags();
-		const char * p_name = NZOR(pFileName, rTbl.GetName());
+		const  BNKey   key = rTbl.GetIndices().getKey(n);
+		const  int     fl = key.getFlags();
+		const  int     ns = key.getNumSeg();
+		const  char  * p_name = NZOR(pFileName, rTbl.GetName());
 		Tok(tokCreate).Sp();
 		if(!(fl & XIF_DUP))
 			Tok(tokUnique).Sp();
@@ -369,26 +370,55 @@ int Generator_SQL::CreateIndex(const DBTable & rTbl, const char * pFileName, uin
 		Tok(tokOn).Sp();
 		Buf.Cat(p_name);
 		Sp().LPar();
-		int    ns = key.getNumSeg();
-		for(int i = 0; i < ns; i++) {
-			if(Sqlst == sqlstORA && key.getFlags(i) & XIF_ACS) {
-				//
-				// Для ORACLE нечувствительность к регистру символов
-				// реализуется функциональным сегментом индекса nls_lower(fld)
-				//
-				Buf.Cat("nls_lower(").Cat(rTbl.GetIndices().field(n, i).Name).CatChar(')');
+		{
+			for(int i = 0; i < ns; i++) {
+				const BNField & r_f = rTbl.GetIndices().field(n, i);
+				if(Sqlst == sqlstORA && key.getFlags(i) & XIF_ACS) {
+					//
+					// Для ORACLE нечувствительность к регистру символов
+					// реализуется функциональным сегментом индекса nls_lower(fld)
+					//
+					Buf.Cat("nls_lower(").Cat(r_f.Name).CatChar(')');
+				}
+				else
+					Buf.Cat(r_f.Name);
+				if(key.getFlags(i) & XIF_DESC) {
+					Buf.Space();
+					Tok(tokDesc);
+				}
+				if(i < (ns-1))
+					Buf.Comma().Space();
 			}
-			else
-				Buf.Cat(rTbl.GetIndices().field(n, i).Name);
-			if(key.getFlags(i) & XIF_DESC) {
-				Buf.Space();
-				Tok(tokDesc);
-			}
-			if(i < (ns-1))
-				Buf.Comma().Space();
 		}
 		RPar();
 		//Buf.Semicol();
+		// @v12.4.3 {
+		if(fl & (XIF_ALLSEGNULL|XIF_ANYSEGNULL)) {
+			if(Sqlst == sqlstSQLite) {
+				SString where_expr_buf;
+				uint    reckoned_seg_count = 0;
+				for(int i = 0; i < ns; i++) {
+					const BNField & r_f = rTbl.GetIndices().field(n, i);
+					if(reckoned_seg_count) {
+						if(fl & XIF_ALLSEGNULL) 
+							where_expr_buf.Space().Cat("or").Space();
+						else if(fl & XIF_ANYSEGNULL) 
+							where_expr_buf.Space().Cat("and").Space();
+					}
+					if(GETSTYPE(r_f.T) == S_INT) {
+						where_expr_buf.CatChar('(').Cat(r_f.Name).Cat("!=").Cat(0L).Space().Cat("and").Space().Cat(r_f.Name).Space().Cat("is not null").CatChar(')');
+					}
+					else {
+						where_expr_buf.CatChar('(').Cat(r_f.Name).Space().Cat("is not null").CatChar(')');
+					}
+					reckoned_seg_count++;
+				}
+				if(where_expr_buf.NotEmpty()) {
+					Buf.Space().Cat("where").Space().Cat(where_expr_buf);
+				}
+			}
+		}
+		// } @v12.4.3 
 		Typ = typCreateIndex;
 	}
 	else

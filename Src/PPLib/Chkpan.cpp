@@ -4859,7 +4859,7 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 										if(_phone.IsEmpty())
 											ela.GetSinglePhone(_phone, 0);
 										if(ela.GetListByType(ELNKRT_EMAIL, ss) > 0) {
-											assert(ss.getCount());
+											assert(ss.IsCountGreaterThan(0));
 											ss.get(0U, _email);
 										}
 									}

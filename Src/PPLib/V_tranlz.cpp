@@ -1831,7 +1831,7 @@ int PPViewTrfrAnlz::InitIteration(IterOrder ord)
 			BExtQuery debug_q(P_TrAnlzTbl, 0);
 			debug_q.selectAll();
 			memzero(k0, sizeof(k0));
-			const BNFieldList & r_debug_fl = P_TrAnlzTbl->GetFields();
+			const BNFieldList2 & r_debug_fl = P_TrAnlzTbl->GetFields();
 			r_debug_fl.RecordToStr(0, temp_buf);
 			f_out.WriteLine(temp_buf.CR());
 			for(debug_q.initIteration(false, k0, spFirst); debug_q.nextIteration() > 0;) {
@@ -1899,7 +1899,7 @@ int PPViewTrfrAnlz::NextInnerIteration(TrfrAnlzViewItem * pItem)
 					temp_buf = P_TrAnlzTbl->GetFileName();
 					SFsPath::ReplaceExt(temp_buf, "dump", 1);
 					SFile f_out(temp_buf, SFile::mWrite|SFile::mAppend);
-					const BNFieldList & r_debug_fl = P_TrAnlzTbl->GetFields();
+					const BNFieldList2 & r_debug_fl = P_TrAnlzTbl->GetFields();
 					r_debug_fl.RecordToStr(&P_TrAnlzTbl->data, temp_buf);
 					f_out.WriteLine(temp_buf.CR());
 				}*/

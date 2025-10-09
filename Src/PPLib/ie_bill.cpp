@@ -5104,10 +5104,12 @@ int PPBillImporter::Helper_AcceptCokeData(const SCollection * pRowList, PPID opI
 									net_price_wo_vat = p_item->PriceEA;
 								}
 								else if(p_item->PriceCase > 0.0 && unit_per_pack > 0.0) {
-									net_price_wo_vat = p_item->PriceCase / unit_per_pack;
+									// @v12.4.3 net_price_wo_vat = p_item->PriceCase / unit_per_pack;
+									net_price_wo_vat = p_item->PriceCase / ti.Quantity_; // @v12.4.3 
 								}
 								if(p_item->Discount > 0.0 && unit_per_pack > 0.0) { // Скидка без НДС на упаковку
-									discount_wo_vat = p_item->Discount / unit_per_pack;
+									// @v12.4.3 discount_wo_vat = p_item->Discount / unit_per_pack;
+									discount_wo_vat = p_item->Discount / ti.Quantity_; // @v12.4.3 
 								}
 								{
 									GTaxVect gtv;

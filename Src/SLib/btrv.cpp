@@ -312,7 +312,7 @@ int DbDict_Btrieve::LoadTableSpec(DBTable * pTbl, const char * pTblName)
 	pTbl->PageSize = static_cast<uint16>(tbl_stat.PageSize);
 	p_clone = DBS.GetTLA().GetCloneEntry(static_cast<BTBLID>(tbl_id));
 	if(p_clone) {
-		pTbl->fields.copy(&p_clone->fields);
+		pTbl->fields = p_clone->fields;
 		pTbl->indexes.copy(&p_clone->indexes);
 	}
 	else {
@@ -351,11 +351,12 @@ static BTBLID getUniqueKey(DBTable * tbl, BTBLID idx)
 	if(tbl->searchKey(idx, &k, spLast)) {
 		if((k + 1) < SHRT_MAX)
 			return (k + 1);
-		else
+		else {
 			for(int16 i = 1; i < SHRT_MAX; i++) {
 				if(tbl->searchKey(idx, &(k = i), spEq) == 0)
 					return BTRNFOUND ? i : 0;
 			}
+		}
 	}
 	else if(BtrError == BE_EOF)
 		return 1;
@@ -373,8 +374,8 @@ int DbDict_Btrieve::CreateTableSpec(DBTable * pTbl)
 		int j;
 	};
 	long   tbl_id = 0;
-	BNFieldList & fl = pTbl->fields;
-	BNKeyList   & kl = pTbl->indexes;
+	BNFieldList2 & r_fl = pTbl->fields;
+	BNKeyList   & r_kl = pTbl->indexes;
 	BNKey  key;
 	BExtInsert * p_bei = 0;
 	THROW(IsValid() && GetTableID(pTbl->tableName, &tbl_id, 0) == 0);
@@ -394,10 +395,10 @@ int DbDict_Btrieve::CreateTableSpec(DBTable * pTbl)
 	THROW(tbl_id = getUniqueKey(&xfield, 0));
 	{
 		BTBLID fld_id = static_cast<BTBLID>(tbl_id);
-		for(i = 0; i < fl.getCount(); i++) {
-			const BNField & f = fl.getField(i);
+		for(i = 0; i < r_fl.getCount(); i++) {
+			const BNField & f = r_fl.getField(i);
 			const size_t fname_len = sstrlen(f.Name);
-			fl.setFieldId(i, fld_id);
+			r_fl.setFieldId(i, fld_id);
 			if(GETSTYPE(f.T) == S_DATETIME) {
 				{
 					MEMSZERO(fieldBuf);
@@ -421,7 +422,7 @@ int DbDict_Btrieve::CreateTableSpec(DBTable * pTbl)
 					fieldBuf.XeName[fname_len] = '$';
 					fieldBuf.XeName[fname_len+1] = 't';
 					fieldBuf.XeDataType = SLib2BtrType(S_TIME);
-					fieldBuf.XeOffset = static_cast<int16>(f.Offs+sizeof(LDATE)); // @v10.3.4 @fix sizeof(S_DATE)-->sizeof(LDATE)
+					fieldBuf.XeOffset = static_cast<int16>(f.Offs+sizeof(LDATE));
 					fieldBuf.XeSize = sizeof(LTIME);
 					THROW(p_bei->insert(&fieldBuf));
 				}
@@ -444,11 +445,11 @@ int DbDict_Btrieve::CreateTableSpec(DBTable * pTbl)
 	THROW(p_bei->flash());
 	ZDELETE(p_bei);
 	THROW(p_bei = new BExtInsert(&xindex));
-	for(i = 0; i < kl.getNumKeys(); i++) {
-		for(key = kl.getKey(i), j = 0; j < key.getNumSeg(); j++) {
+	for(i = 0; i < r_kl.getNumKeys(); i++) {
+		for(key = r_kl.getKey(i), j = 0; j < key.getNumSeg(); j++) {
 			indexBuf.XiFile   = pTbl->tableID;
 			const int fld_id = key.getFieldID(j);
-			const BNField * p_fld = &fl.getField(fld_id);
+			const BNField * p_fld = &r_fl.getField(fld_id);
 			THROW(p_fld);
 			indexBuf.XiField  = static_cast<int16>(p_fld->Id);
 			indexBuf.XiNumber = key.getKeyNumber();
@@ -633,7 +634,7 @@ void DbDict_Btrieve::makeIdxListQuery(BTBLID tblID, int numRecs)
 	ilq.th.numRecs  = numRecs;
 }
 
-int DbDict_Btrieve::getFieldList(BTBLID tblID, BNFieldList * fields)
+int DbDict_Btrieve::getFieldList(BTBLID tblID, BNFieldList2 * fields)
 {
 	EXCEPTVAR(BtrError);
 	struct _XFR {

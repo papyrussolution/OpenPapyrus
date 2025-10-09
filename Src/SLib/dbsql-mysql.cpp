@@ -205,7 +205,7 @@ int SMySqlDbProvider::GetFileStat(const char * pFileName, long reqItems, DbTable
 {
 	int    ok = 0;
 	uint   actual = 0;
-	BNFieldList fld_list;
+	BNFieldList2 fld_list;
 	struct MySqlTblEntry {
 		char   TableCatalog[32];
 		char   TableSchema[32];
@@ -308,7 +308,7 @@ int SMySqlDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, 
 
 /*virtual*/int SMySqlDbProvider::Implement_Search(DBTable * pTbl, int idx, void * pKey, int srchMode, long sf)
 {
-	// BNKeyList BNFieldList BNKey Generator_SQL
+	// BNKeyList BNFieldList2 BNKey Generator_SQL
 	//
 	// select /*+ index_asc(tbl_name index_name) */ * from
 	//
@@ -409,8 +409,8 @@ int SMySqlDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, 
 			}
 			SqlGen.Sp().Tok(Generator_SQL::tokWhere).Sp();
 			for(int i = 0; i < ns; i++) {
-				int fldid = key.getFieldID(i);
-				const BNField fld = pTbl->indexes.field(idx, i);
+				const int fldid = key.getFieldID(i);
+				const BNField & r_fld = pTbl->indexes.field(idx, i);
 				if(i > 0) { // НЕ первый сегмент
 					SqlGen.Tok(Generator_SQL::tokAnd).Sp();
 					if(srchMode != spEq)
@@ -419,7 +419,7 @@ int SMySqlDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, 
 				if(key.getFlags(i) & XIF_ACS) {
 					//
 					// Для ORACLE нечувствительность к регистру символов
-					// реализуется функциональным сегментом индекса nls_lower(fld).
+					// реализуется функциональным сегментом индекса nls_lower(r_fld).
 					// Аналогичная конструкция применяется при генерации скрипта создания индекса
 					// См. Generator_SQL::CreateIndex(const DBTable &, const char *, uint)
 					//
@@ -428,10 +428,10 @@ int SMySqlDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, 
 						_func_tok = Generator_SQL::tokNlsLower;
 					else
 						_func_tok = Generator_SQL::tokLower;
-					SqlGen.Func(_func_tok, fld.Name);
+					SqlGen.Func(_func_tok, r_fld.Name);
 				}
 				else
-					SqlGen.Text(fld.Name);
+					SqlGen.Text(r_fld.Name);
 				int   cmps = _EQ_;
 				if(srchMode == spEq)
 					cmps = _EQ_;
@@ -461,7 +461,7 @@ int SMySqlDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, 
 					//
 					SqlGen.Sp().Tok(Generator_SQL::tokOr).Sp().LPar();
 					for(int j = 0; j < i; j++) {
-						const BNField fld2 = pTbl->indexes.field(idx, j);
+						const BNField & r_fld2 = pTbl->indexes.field(idx, j);
 						if(j > 0)
 							SqlGen.Tok(Generator_SQL::tokAnd).Sp();
 						if(key.getFlags(j) & XIF_ACS) {
@@ -470,10 +470,10 @@ int SMySqlDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, 
 								_func_tok = Generator_SQL::tokNlsLower;
 							else
 								_func_tok = Generator_SQL::tokLower;
-							SqlGen.Func(_func_tok, fld2.Name);
+							SqlGen.Func(_func_tok, r_fld2.Name);
 						}
 						else
-							SqlGen.Text(fld2.Name);
+							SqlGen.Text(r_fld2.Name);
 						SqlGen._Symb(_NE_);
 						SqlGen.Param(temp_buf.NumberToLat(j));
 						seg_map.add(j);

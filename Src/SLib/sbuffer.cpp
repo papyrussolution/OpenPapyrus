@@ -1403,7 +1403,7 @@ STempBuffer & FASTCALL STempBuffer::operator = (const STempBuffer & rS)
 //
 struct SscDbtItem {
 	uint32 DbtID;
-	BNFieldList Fields;
+	BNFieldList2 Fields;
 };
 
 /*static*/size_t FASTCALL SSerializeContext::GetCompressPrefix(uint8 * pBuf) // size of pBuf >= 8
@@ -1439,7 +1439,7 @@ void SSerializeContext::Init(long flags, LDATE suppDate)
 bool FASTCALL SSerializeContext::CheckFlag(long f) const { return LOGIC(Flags & f); }
 LDATE SSerializeContext::GetSupportingDate() const { return SuppDate; }
 
-int SSerializeContext::AddDbtDescr(const char * pName, const BNFieldList * pList, uint32 * pID)
+int SSerializeContext::AddDbtDescr(const char * pName, const BNFieldList2 * pList, uint32 * pID)
 {
 	int    ok = -1;
 	(TempStrBuf = pName).ToUpper();
@@ -1460,7 +1460,7 @@ int SSerializeContext::AddDbtDescr(const char * pName, const BNFieldList * pList
 	return ok;
 }
 
-int SSerializeContext::GetDbtDescr(uint id, BNFieldList * pList) const
+int SSerializeContext::GetDbtDescr(uint id, BNFieldList2 * pList) const
 {
 	int    ok = 0;
 	if(P_DbtDescrList) {
@@ -1475,14 +1475,13 @@ int SSerializeContext::GetDbtDescr(uint id, BNFieldList * pList) const
 	return ok;
 }
 
-int SSerializeContext::SerializeFieldList(int dir, BNFieldList * pFldList, SBuffer & rBuf)
+int SSerializeContext::SerializeFieldList(int dir, BNFieldList2 * pFldList, SBuffer & rBuf)
 {
 	assert(dir != 0);
 	int    ok = 1;
 	SString temp_buf;
-	uint16 fld_count;
 	if(dir > 0) {
-		fld_count = pFldList->getCount();
+		const uint16 fld_count = pFldList->getCount();
 		rBuf.Write(fld_count);
 		for(uint i = 0; i < fld_count; i++) {
 			const BNField & r_fld = pFldList->getField(i);
@@ -1494,6 +1493,7 @@ int SSerializeContext::SerializeFieldList(int dir, BNFieldList * pFldList, SBuff
 		}
 	}
 	else if(dir < 0) {
+		uint16 fld_count = 0;
 		pFldList->Z();
 		rBuf.Read(fld_count);
 		for(uint i = 0; i < fld_count; i++) {
@@ -1663,7 +1663,7 @@ int SSerializeContext::Serialize(int dir, DateRange & rV, SBuffer & rBuf)
     return ok;
 }
 
-int SSerializeContext::Serialize(const char * pDbtName, BNFieldList * pFldList, const void * pData, SBuffer & rBuf)
+int SSerializeContext::Serialize(const char * pDbtName, BNFieldList2 * pFldList, const void * pData, SBuffer & rBuf)
 {
 	int    ok = 1;
 	uint32 dbt_id = 0;
@@ -1713,23 +1713,23 @@ int SSerializeContext::Serialize(const char * pDbtName, BNFieldList * pFldList, 
 	return ok;
 }
 
-int SSerializeContext::Unserialize(const char * pDbtName, const BNFieldList * pFldList, void * pData, SBuffer & rBuf)
+int SSerializeContext::Unserialize(const char * pDbtName, const BNFieldList2 * pFldList, void * pData, SBuffer & rBuf)
 {
-	int    ok = 1, r;
+	int    ok = 1;
+	int    r;
 	uint32 dbt_id = 0;
 	uint16 temp_val = -999; // -999 - умышленный мусор
 	uint8 * p_ind_list = 0;
 	uint8  st_ind_list[512];
 	int    own_ind_list = 0;
-	BNFieldList inner_fld_list;
+	BNFieldList2 inner_fld_list;
 	THROW(rBuf.Read(dbt_id));
 	THROW(rBuf.Read(temp_val));
 	THROW_S(oneof2(temp_val, 0, 1), SLERR_SRLZ_COMMRDFAULT);
-	// @v9.8.11 THROW(r = GetDbtDescr(dbt_id, &inner_fld_list));
-	r = GetDbtDescr(dbt_id, &inner_fld_list); // @v9.8.11
+	r = GetDbtDescr(dbt_id, &inner_fld_list);
 	if(r > 0) {
 		if(temp_val == 1) {
-			BNFieldList temp_flist;
+			BNFieldList2 temp_flist;
 			THROW(SerializeFieldList(-1, &temp_flist, rBuf));
 			THROW_S(temp_flist.IsEq(inner_fld_list), SLERR_SRLZ_UNEQFLDLIST);
 		}
@@ -2001,7 +2001,7 @@ int FASTCALL SSerializer::Serialize(float & rV) { return P_SCtx->Serialize(Dir, 
 int FASTCALL SSerializer::Serialize(double & rV) { return P_SCtx->Serialize(Dir, rV, R_Buf); }
 int FASTCALL SSerializer::Serialize(S_GUID & rV) { return P_SCtx->Serialize(Dir, rV, R_Buf); }
 int STDCALL  SSerializer::Serialize(char * pV, size_t valBufLen) { return P_SCtx->Serialize(Dir, pV, valBufLen, R_Buf); }
-int FASTCALL SSerializer::SerializeFieldList(BNFieldList * pFldList) { return P_SCtx->SerializeFieldList(Dir, pFldList, R_Buf); }
+int FASTCALL SSerializer::SerializeFieldList(BNFieldList2 * pFldList) { return P_SCtx->SerializeFieldList(Dir, pFldList, R_Buf); }
 int FASTCALL SSerializer::Serialize(SPoint2S & rV) { return P_SCtx->Serialize(Dir, rV, R_Buf); }
 int FASTCALL SSerializer::Serialize(SPoint2F & rV) { return P_SCtx->Serialize(Dir, rV, R_Buf); }
 int FASTCALL SSerializer::Serialize(SArray * pArray) { return P_SCtx->Serialize(Dir, pArray, R_Buf); }

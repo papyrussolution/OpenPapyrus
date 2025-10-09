@@ -1171,7 +1171,7 @@ dialog DLG_CASHREPORTS_L__ [vertical title: "@posnodecmd" size: (595, 525) minsi
 	}
 }
 
-dialog DLG_SELWHOBSMPL [vertical title: "@billbysampleparam" size: (400, 300) minsize: (400, 300) font: "MS Shell Dlg,8"] {
+dialog DLG_SELWHOBSMPL [vertical title: "@billbysampleparam" size: (400, 200) minsize: (400, 200) font: "MS Shell Dlg,8"] {
 	radiocluster CTL_SELBBSMPL_WHAT [tabstop vertical width: bycontainer margin: 4] {
 		radiobutton [title: "@billbysampleparam_acnstd" height: 16];
 		radiobutton [title: "@billbysampleparam_acnbybailmentorder" height: 16];

@@ -6620,7 +6620,7 @@ int PrcssrOsm::Run()
 					if(line_no == 1) {
 						StringSet ss;
 						temp_buf.Tokenize(";", ss);
-						if(ss.getCount() > 1) {
+						if(ss.IsCountGreaterThan(1)) {
 							for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
 								if(temp_buf.Strip().Divide('=', key_buf, val_buf) > 0) {
 									key_buf.Strip();

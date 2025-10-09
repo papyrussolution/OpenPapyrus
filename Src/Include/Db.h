@@ -16,7 +16,8 @@ struct DBFCreateFld;
 class  DbfTable;
 class  DBTable;
 struct DBField;
-class  BNFieldList;
+// @v12.4.3 class  BNFieldList_Obsolete;
+class  BNFieldList2; // @v12.4.3
 class  DBFieldList;
 class  BExtInsert;
 class  SOraDbProvider;
@@ -1452,7 +1453,7 @@ public:
 	//
 	// ARG(dir IN): >0 - данные считываются из запроса, <0 - данные передаются в запрос для изменения в базе данных
 	//
-	int    BindData(int dir, uint count, const BNFieldList & rFldList, const void * pDataBuf, DBLobBlock *);
+	int    BindData(int dir, uint count, const BNFieldList2 & rFldList, const void * pDataBuf, DBLobBlock *);
 	//
 	// ARG(dir IN): >0 - данные считываются из запроса, <0 - данные передаются в запрос для изменения в базе данных
 	//
@@ -1596,7 +1597,7 @@ struct DbTableStat {
 	SString Location;      // Местоположение таблицы
 	SString OwnerName;     // @ora
 	SString SpaceName;     // @ora
-	BNFieldList FldList;   // Список полей
+	BNFieldList2 FldList;   // Список полей
 	BNKeyList   IdxList;   // Список индексов
 };
 
@@ -1663,7 +1664,7 @@ public:
 	//
 	// Descr: Распределяет память под буфер записи P_DBuf.
 	// ARG(size IN): Если size > 0, то фукция распределяет заданное этим аргументом количество байт,
-	//   если size < 0, то необходимый размер буфера определяется спецификацией записи (BNFieldList fields).
+	//   если size < 0, то необходимый размер буфера определяется спецификацией записи (BNFieldList2 fields).
 	// Returns:
 	//   >0 - функция успешно выполнена
 	//    0 - ошибка
@@ -1781,8 +1782,8 @@ public:
 	void   FASTCALL SetTableID(BTBLID _id);
 	const  BNKeyList & GetIndices() const { return indexes; }
 	void   SetIndicesTblRef();
-	const  BNFieldList & GetFields() const { return fields; }
-	BNFieldList & GetFieldsNonConst() { return fields; }
+	const  BNFieldList2 & GetFields() const { return fields; }
+	BNFieldList2 & GetFieldsNonConst() { return fields; }
 	//
 	// Descr: returns fileName
 	//
@@ -1859,19 +1860,19 @@ private:
 	RECORDSIZE FixRecSize; // @*DBTable::open
 	uint16 PageSize;       // Размер страницы, определенный в спецификации.
 #if CXX_ARCH_BITS==64
-	uint8  Reserve[14];    // @alignment
+	uint8  Reserve[30];    // @alignment // @v12.4.3 [14]->[30] 
 #else
-	uint8  Reserve[18];    // @alignment
+	uint8  Reserve[2];     // @alignment // @v12.4.3 [18]->[2] 
 #endif
 	BTABLENAME tableName;
-	BNFieldList fields;
+	BNFieldList2 fields; // @v12.4.3 BNFieldList->BNFieldList2
 	BNKeyList   indexes;
 	SString fileName;
 	SString OpenedFileName;
 	DBLobBlock LobB;
 	char   FPB[256];
 	//
-	// Структура должна быть выравненена до размера, кратного 32.
+	// Структура должна быть выравнена до размера, кратного 32.
 	// В результате буфер данных, находящийся в начале порожденной структуры будет
 	// находиться на границе кэш-линии, что увеличит скорость работы.
 	// Общий размер регулируется полем Reserve[] (see above)
@@ -1985,25 +1986,25 @@ public:
 	virtual int GetListOfTables(long options, StrAssocArray * pList);
 private:
 	struct _FldListQuery {
-		BExtHeader   h;
-		BExtTerm     t1;
-		int16        tblID;
-		BExtTerm     t2;
-		char         minus_one;
-		BExtTail     th;
+		BExtHeader h;
+		BExtTerm t1;
+		int16  tblID;
+		BExtTerm t2;
+		char   minus_one;
+		BExtTail th;
 		BExtTailItem ti[2];
 	} flq;
 	struct _IdxListQuery {
-		BExtHeader   h;
-		BExtTerm     t;
-		int16        tblID;
-		BExtTail     th;
+		BExtHeader h;
+		BExtTerm t;
+		int16  tblID;
+		BExtTail th;
 		BExtTailItem ti[1];
 	} ilq;
 
 	void   makeFldListQuery(BTBLID tblID, int numRecs);
 	void   makeIdxListQuery(BTBLID tblID, int numRecs);
-	int    getFieldList(BTBLID tblID, BNFieldList * fields);
+	int    getFieldList(BTBLID tblID, BNFieldList2 * fields);
 	int    getIndexList(BTBLID tblID, BNKeyList * pKeyList);
 	SString & GetTemporaryFileName(SString & rFileName, long * pCounter, int forceInDataPath = 0);
 	int    ExtractStat(const XFile & rRec, DbTableStat * pStat) const;
@@ -2138,7 +2139,8 @@ public:
 	// Descr: Флаги открытия базы данных
 	// 
 	enum {
-		openfReadOnly = 0x0001 // Только для чтения //
+		openfReadOnly   = 0x0001, // Только для чтения //
+		openfMainThread = 0x0002, // Для некоторых DBMS может быть важен факт открытия соединения из основного потока (eg SQLITE).
 	};
 	//
 	// Descr: Возвращает флаги состояния базы данных по указателю pStateFlags.
@@ -2635,7 +2637,7 @@ public:
 	Generator_SQL & FASTCALL Text(const char * pName);
 	Generator_SQL & FASTCALL QText(const char * pName);
 	Generator_SQL & FASTCALL Param(const char * pParam);
-	Generator_SQL & FASTCALL Select(const BNFieldList * pFldList);
+	Generator_SQL & FASTCALL Select(const BNFieldList2 * pFldList);
 	Generator_SQL & FASTCALL Select(const char * pSelectArgText);
 	Generator_SQL & From(const char * pTable, const char * pAlias = 0);
 	Generator_SQL & Eq(const char * pFldName, const char * pVal);

@@ -338,10 +338,12 @@ int PPObjBill::AcceptInventoryItem(const InvBlock & rBlk, InvItem * pItem, int u
 	int    ok = 1;
 	int    skip = 0;
 	long   oprno = 0;
-	SString fmt_buf, log_msg;
+	SString fmt_buf;
+	SString log_msg;
 	ReceiptTbl::Rec lot_rec;
 	GoodsRestParam p;
-	InventoryTbl::Rec inv_rec, sg_rec;
+	InventoryTbl::Rec inv_rec;
+	InventoryTbl::Rec sg_rec;
 	THROW(GetInventoryStockRest(rBlk, pItem, &p));
 	if(rBlk.Flags & InvBlock::fPriceByLastLot &&
 		trfr->Rcpt.GetGoodsPrice(pItem->GoodsID, rBlk.BillRec.LocID, rBlk.BillRec.Dt, GPRET_INDEF, 0, &lot_rec) > 0)
@@ -443,7 +445,7 @@ int PPObjBill::GetInventoryStockRest(const InvBlock & rBlk, InvItem * pItem, Goo
 		case PPInventoryOpEx::acmAVG:
 		default: pRestParam->CalcMethod = GoodsRestParam::pcmAvg; break;
 	}
-	int    undef_item = 1;
+	bool   undef_item = true;
 	double rest = 0.0;
 	LDATE _dt = ZERODATE;
 	long  _oprno = MAXLONG;
@@ -456,11 +458,11 @@ int PPObjBill::GetInventoryStockRest(const InvBlock & rBlk, InvItem * pItem, Goo
 		else
 			_dt = rBlk.BillRec.Dt;
 	}
-	if(pItem->Serial[0]) {
+	if(!isempty(pItem->Serial)) {
 		if(SelectLotBySerial(pItem->Serial, pItem->GoodsID, rBlk.BillRec.LocID, &lot_rec) > 0) {
 			trfr->GetRest(lot_rec.ID, NZOR(_dt, MAXDATE), _oprno, &rest, 0);
 			pRestParam->Total.Init(&lot_rec, rest);
-			undef_item = 0;
+			// @v12.4.3 (при инвентаризации по сериям нам не нужны default-позиции с других складов и по иным серийным номерам - see below) undef_item = false; 
 		}
 	}
 	else {
@@ -481,7 +483,7 @@ int PPObjBill::GetInventoryStockRest(const InvBlock & rBlk, InvItem * pItem, Goo
 			}
 		}
 		if(pRestParam->Total.Rest > 0.0)
-			undef_item = 0;
+			undef_item = false;
 	}
 	if(undef_item) {
 		const  PPID loc_id = (rBlk.Ioe.Flags & INVOPF_USEANOTERLOCLOTS) ? -rBlk.BillRec.LocID : rBlk.BillRec.LocID;

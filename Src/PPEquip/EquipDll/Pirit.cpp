@@ -334,7 +334,7 @@ private:
 					StringSet ss(CHR_FS, Reply);
 					line_buf.Tab();
 					// @v12.4.1 {
-					if(ss.getCount() > 1) {
+					if(ss.IsCountGreaterThan(1)) {
 						SString temp_buf;
 						uint ssp = 0; 
 						if(ss.get(&ssp, temp_buf)) {
@@ -2273,7 +2273,7 @@ int PiritEquip::PreprocessChZnMark(const char * pMarkCode, double qtty, int uomI
 				(Целое число) Сведения о статусе товара (ofdtag-2109)
 		*/
 		in_data.Z();
-		CreateStr(1, in_data);
+		CreateStr(1, in_data); // Передача КМ в ФН для проверки достоверности КМ (0x79 запрос 1)
 		CreateChZnCode(pMarkCode, in_data);
 		CreateStr(0, in_data);
 		int   ps = 1; // Планируемый статус товара(ofdtag-2003)

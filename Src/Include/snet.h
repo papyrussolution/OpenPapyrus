@@ -816,6 +816,19 @@ public:
 		void * LH;
 		void * P_CMime; // @v12.2.6 curl_mime
 	};
+	struct OpTimeMetrics { // В mks (1^-6sec)
+		OpTimeMetrics()
+		{
+			THISZERO();
+		}
+		uint    Total;         // CURLINFO_TOTAL_TIME
+		uint    DnsLookUp;     // CURLINFO_NAMELOOKUP_TIME  
+		uint    Connect;       // CURLINFO_CONNECT_TIME
+		uint    AppConnect;    // CURLINFO_APPCONNECT_TIME время SSL/TLS handshake
+		uint    StartTransfer; // CURLINFO_STARTTRANSFER_TIME
+		uint    PreTransfer;   // CURLINFO_PRETRANSFER_TIME
+		uint    Redirect;      // CURLINFO_REDIRECT_TIME
+	};
     ScURL();
     ~ScURL();
 	bool   operator !() const { return (H == 0); }
@@ -832,7 +845,8 @@ public:
 		mfDontVerifySslPeer = 0x0001, // Устанавливает опцию CURLOPT_SSL_VERIFYPEER в FALSE
 		mfTcpKeepAlive      = 0x0002, // Устанавливает опцию CURLOPT_TCP_KEEPALIVE в TRUE
 		mfNoProgerss        = 0x0004, // Устанавливает опцию CURLOPT_NOPROGRESS в TRUE
-		mfVerbose           = 0x0008  // Подробный вывод в файл журнала (требуется предварительный вызов SetLogFileName())
+		mfVerbose           = 0x0008, // Подробный вывод в файл журнала (требуется предварительный вызов SetLogFileName())
+		mfQueryTimeMetrics  = 0x0010  // @v12.4.3 Запрашивать метрики времени выполнения операции //
 	};
 
     int    HttpPost(const char * pUrl, int mflags, HttpForm & rForm, SFile * pReplyStream);
@@ -866,14 +880,9 @@ public:
 	int    SmtpSend(const InetUrl & rUrl, int mflags, const SMailMessage & rMsg);
 	static size_t CbWrite(char * pBuffer, size_t size, size_t nmemb, void * pExtra);
 
-	void   SetQueryParam_ConnectionTimeout(int ms)
-	{
-		IqsB.ConnectionTimeout = ms;
-	}
-	void   SetQueryParam_OverallTimeout(int ms)
-	{
-		IqsB.OverallTimeout = ms;
-	}
+	void   SetQueryParam_ConnectionTimeout(int ms) { IqsB.ConnectionTimeout = ms; }
+	void   SetQueryParam_OverallTimeout(int ms) { IqsB.OverallTimeout = ms; }
+	const  OpTimeMetrics & GetLastTimeMetrics() { return LastOpTimeMetrics; }
 private:
 	static int    ComposeFieldList(const StrStrAssocArray * pFields, SString & rBuf, uint * pCount);
 	static void * ComposeHeaderList(const StrStrAssocArray * pHttpHeaderFields);
@@ -888,7 +897,14 @@ private:
 	void   CleanCbRW();
 	int    SetCommonOptions(int mflags, int bufferSize, const char * pUserAgent);
 	int    SetHttpFormOptions(HttpForm & rF);
-	int    Execute();
+	//
+	// Descr: Флаги функции Execute()
+	//
+	enum {
+		execfQueryTimeMetrics = 0x0001 // Проекция флага mfQueryTimeMetrics
+	};
+	int    Execute(uint execFlags);
+	int    QueryLastOpTimeMetrics(OpTimeMetrics & rT); // @v12.4.3
 
 	struct InnerUrlInfo {
 		SString User;
@@ -924,6 +940,7 @@ private:
 		int    OverallTimeout;    // Общий таймаут запроса в мс (транслируется в CURLOPT_TIMEOUT_MS). Если <=0 то не передается curl'У
 	};
 	InternalQuerySetupBlock IqsB;
+	OpTimeMetrics LastOpTimeMetrics; // @v12.4.3 Метрики времени исполнения последней операции (если в таковой был флаг mfQueryTimeMetrics)
 };
 //
 // Descr: Класс реализующий максимально простой интерфейс для копирования файла с одного URL на другой.

@@ -3392,7 +3392,7 @@ int PPObjBill::ViewBillInfo(PPID billID)
 
 int ChangeBillFlagsDialog(long * pSetFlags, long * pResetFlags, PPID * pStatusID)
 {
-	int       ok = -1;
+	int    ok = -1;
 	TDialog * dlg = new TDialog(DLG_BILLF);
 	if(CheckDialogPtrErr(&dlg)) {
 		SetBillFlagsCtrl(dlg, CTL_BILLF_SET, 0);
@@ -3403,8 +3403,8 @@ int ChangeBillFlagsDialog(long * pSetFlags, long * pResetFlags, PPID * pStatusID
 			dlg->disableCtrl(CTLSEL_BILLF_STATUS, true);
 		}
 		for(bool valid_data = false; !valid_data && ExecView(dlg) == cmOK;) {
-			ushort    v1 = dlg->getCtrlUInt16(CTL_BILLF_SET);
-			ushort    v2 = dlg->getCtrlUInt16(CTL_BILLF_RESET);
+			ushort v1 = dlg->getCtrlUInt16(CTL_BILLF_SET);
+			ushort v2 = dlg->getCtrlUInt16(CTL_BILLF_RESET);
 			valid_data = true;
 			for(uint i = 0; i < 16; i++) {
 				if((v1 & v2) & (1U << i)) {
@@ -3914,15 +3914,15 @@ int PPObjBill::EditBillFreight(PPID billID)
 				THROW_MEM(p_preserve_freight = new PPFreight(*pack.P_Freight));
 			}
 			int   do_turn_packet = 0;
-			const int    rt_mod = BIN(CheckRights(PPR_MOD));
-			const int    prev_freight_state = BIN(pack.Rec.Flags & BILLF_FREIGHT);
-			const int    prev_shipped_state = BIN(pack.Rec.Flags & BILLF_SHIPPED);
+			const bool   rt_mod = LOGIC(CheckRights(PPR_MOD));
+			const bool   prev_freight_state = LOGIC(pack.Rec.Flags & BILLF_FREIGHT);
+			const bool   prev_shipped_state = LOGIC(pack.Rec.Flags & BILLF_SHIPPED);
 			const double prev_freight_cost = pack.P_Freight ? pack.P_Freight->Cost : 0.0;
 			int r = EditFreightDialog(pack);
 			if(r > 0) {
-				const int freight_state = BIN(pack.Rec.Flags & BILLF_FREIGHT);
-				const int shipped_state = BIN(pack.Rec.Flags & BILLF_SHIPPED);
-				const int is_eq = (p_preserve_freight && pack.P_Freight) ? pack.P_Freight->IsEq(*p_preserve_freight) : BIN(!p_preserve_freight && !pack.P_Freight);
+				const bool freight_state = LOGIC(pack.Rec.Flags & BILLF_FREIGHT);
+				const bool shipped_state = LOGIC(pack.Rec.Flags & BILLF_SHIPPED);
+				const bool is_eq = (p_preserve_freight && pack.P_Freight) ? pack.P_Freight->IsEq(*p_preserve_freight) : (!p_preserve_freight && !pack.P_Freight);
 				if(!is_eq || (prev_freight_state != freight_state) || (prev_shipped_state != shipped_state)) {
 					PPTransaction tra(1);
 					THROW(tra);
@@ -3956,8 +3956,14 @@ int PPObjBill::EditBillFreight(PPID billID)
 							THROW(P_Tbl->SetRecFlag(billID, BILLF_SHIPPED, BIN(pack.Rec.Flags & BILLF_SHIPPED), 0));
 							bill_updated = 1;
 						}
-						if(bill_updated)
+						if(bill_updated) {
+							// @v12.4.3 {
+							if(shipped_state && !prev_shipped_state) {
+								DS.LogAction(PPACN_BILLSHIPMFLAGSET, PPOBJ_BILL, billID, 0, 0);
+							}
+							// } @v12.4.3 
 							DS.LogAction(PPACN_UPDBILL, PPOBJ_BILL, billID, 0, 0);
+						}
 					}
 					THROW(tra.Commit());
 					Dirty(billID);

@@ -482,7 +482,7 @@ int MakeDatabase()
 						SString temp_buf;
 						PPVersionInfo vi = DS.GetVersionInfo();
 						THROW(vi.GetSecret(secret, sizeof(secret)));
-						THROW(DS.Login(P.DbSymb, PPSession::P_EmptyBaseCreationLogin, secret, PPSession::loginfSkipLicChecking));
+						THROW(DS.PPLogin(P.DbSymb, PPSession::P_EmptyBaseCreationLogin, secret, PPSession::loginfSkipLicChecking));
 						if(P.Action == P.acnCreatePosNode) {
 							PPID   cn_id = 0;
 							PPObjCashNode cn_obj;
@@ -506,7 +506,7 @@ int MakeDatabase()
 							}
 							cn_obj.Put(&cn_id, &cn_pack, 1);
 						}
-						DS.Logout();
+						DS.PPLogout();
 						CATCH
 							PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER|LOGMSGF_DBINFO);
 						ENDCATCH

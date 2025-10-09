@@ -5277,6 +5277,7 @@ PPTXT_CHZNPMSVRADDRRESET_NOTDONE       "Адрес сервера разреши
 95 "Отправка сервису Stylo-Q клиентского лика"
 96 "Изменена персоналия-владелец карты"
 97 "В лоте изменена ссылка на сертификат" // @v11.9.3 PPACN_LOTQCERTLINKUPDATED
+98 "У документа установлен признак 'Отгружен'" // @v12.4.3 PPACN_BILLSHIPMFLAGSET
 
 [119]
 1  "Объект получен"
@@ -5792,12 +5793,13 @@ PPSSYM_FORMAT "int64;int;hex;real;sstr;zstr;date;time;datetime;person;goods;unit
 2006 "Нет доступных соединений через SPX"
 2007 "Неверный указатель"
 
-3006 "The MicroKernel router detected an invalid session" // @v10.6.3
+3006 "The MicroKernel router detected an invalid session"
 3012 "Локальный сервер Btrieve недоступен для маршрутизатора MicroKernel"
-3014 "The MicroKernel router cannot find an engine" // @v10.0.0
+3014 "The MicroKernel router cannot find an engine"
 
 9000 "Ошибка SLIB"
 9001 "Ошибка ORACLE: %s"
+9005 "Ошибка SQLITE: %s"
 
 10000 "BDB: Неизвестная ошибка"
 10001 "(EINVAL) Недопустимое значение параметра вызова функции"

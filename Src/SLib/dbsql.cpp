@@ -417,7 +417,7 @@ int SSqlStmt::BindRowId(int pos, uint count, DBRowId * pDataBuf)
 	return BindItem(pos, count, T_ROWID, pDataBuf);
 }
 
-int SSqlStmt::BindData(int dir, uint count, const BNFieldList & rFldList, const void * pDataBuf, DBLobBlock * pLob)
+int SSqlStmt::BindData(int dir, uint count, const BNFieldList2 & rFldList, const void * pDataBuf, DBLobBlock * pLob)
 {
 	int    ok = 1;
 	const  uint fld_count = rFldList.getCount();
@@ -436,7 +436,7 @@ int SSqlStmt::BindData(int dir, uint count, const BNFieldList & rFldList, const 
 int SSqlStmt::BindData(int dir, uint count, const DBFieldList & rFldList, const void * pDataBuf, DBLobBlock * pLob)
 {
 	//
-	// Принципиальное отличие этой функции от SSqlStmt::BindData(int, uint, const BNFieldList &, const void *)
+	// Принципиальное отличие этой функции от SSqlStmt::BindData(int, uint, const BNFieldList2 &, const void *)
 	// в том, что здесь смещение рассчитывается, а не извлекается из BNField
 	//
 	int    ok = 1;
@@ -1568,7 +1568,7 @@ int SOraDbProvider::GetFileStat(const char * pFileName, long reqItems, DbTableSt
 	//
 	// SELECT OWNER, TABLESPACE_NAME, NUM_ROWS, TEMPORARY FROM ALL_TABLES WHERE TABLE_NAME = 'pFileName'
 	//
-	BNFieldList fld_list;
+	BNFieldList2 fld_list;
 	struct OraTblEntry {
 		char   Owner[32];
 		char   TableSpace[32];
@@ -1681,7 +1681,7 @@ int SOraDbProvider::DropFile(const char * pFileName)
 			char   seq_name[128];
 			uint   actual = 0;
 			StrAssocArray seq_list;
-			BNFieldList fld_list;
+			BNFieldList2 fld_list;
 			(q_pfx = "upper(substr(sequence_name,0,").Cat(seq_prefix.Len()).CatCharN(')', 2);
 			fld_list.addField("sequence_name", MKSTYPE(S_ZSTRING, 64));
 			SqlGen.Z().Select(&fld_list).From("all_sequences").Sp().Tok(Generator_SQL::tokWhere).Sp().Eq(q_pfx, seq_prefix);
@@ -1753,7 +1753,7 @@ int SOraDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, ui
 
 int SOraDbProvider::Implement_Search(DBTable * pTbl, int idx, void * pKey, int srchMode, long sf)
 {
-	// BNKeyList BNFieldList BNKey Generator_SQL
+	// BNKeyList BNFieldList2 BNKey Generator_SQL
 	//
 	// select /*+ index_asc(tbl_name index_name) */ * from
 	//

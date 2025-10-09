@@ -334,7 +334,7 @@ static long ParseVisualStudioVersion(const SString & rVerText)
 	SString temp_buf;
 	StringSet ss;
 	rVerText.Tokenize(".", ss);
-	if(ss.getCount() >= 3) {
+	if(ss.IsCountGreaterThan(2)) { // @v12.3.4 (ss.getCount() >= 3)-->ss.IsCountGreaterThan(2)
 		uint    tokn = 0;
 		long    major = 0;
 		long    minor = 0;

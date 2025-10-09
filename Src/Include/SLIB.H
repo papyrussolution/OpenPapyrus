@@ -4496,6 +4496,7 @@ public:
 	// Descr: сдвигает строку на 1 позицию влево если первый символ в строке равен chr.
 	//
 	SString & FASTCALL ShiftLeftChr(int chr);
+	SString & ShiftRight(size_t n, int padChar);
 	SString & Reverse();
 	SString & PadLeft(size_t n, int pad);
 	SString & Align(size_t width, int adj);
@@ -4813,7 +4814,6 @@ public:
 	bool   Ensure(uint size);
 private:
 	int    FASTCALL Alloc(size_t);
-	SString & ShiftRight(size_t n, int padChar);
 	//
 	// Descr: Преобразует символ c в Quoted-Printable-формат.
 	//   То есть, если c == ' ' или в диапазоне [33..126] (за исключением '=')
@@ -6018,56 +6018,6 @@ struct SCompoundError {
 	IntRange ItemR;  // Целочисленный диапазонный локатор ошибки (например, первый и последний символ подстроки, где находится проблема синтаксического разбора)
 	int32  Code;     // Целочисленный код ошибки.
 	SString Descr;   // Строковое описание ошибки. Кодировка текста полностью определяется контекстом.
-};
-//
-// Descr: Обобщанная структура поля данных. Используется в основном для работы
-//   с таблицами баз данных.
-// Note: Перенесено из db.h для реализации универсального сериализатора данных SSerializeContext.
-//
-struct BNField {
-	uint   size() const { return stsize(T); }
-	bool   IsEq(const BNField & rS, bool nameAndTypeOnly = false) const;
-	int    getValue(const void * pDataBuf, void * pValBuf, size_t * pSize) const;
-	int    setValue(void * pDataBuf, const void * pValBuf) const;
-	int    putValueToString(const void * pDataBuf, char * pBuf) const;
-
-	int32  Id;   // If object attached to dictionary then id = X$FIELD.XeId, else id = 0,1,..
-	char   Name[20];
-	uint32 Offs;
-	TYPEID T;
-};
-//
-// Descr: Обобщенное представление записи таблицы данных. Используется в основном для работы
-//   с таблицами баз данных.
-// Note: Перенесено из db.h для реализации универсального сериализатора данных SSerializeContext.
-//
-class BNFieldList {
-public:
-	BNFieldList();
-	BNFieldList(const BNFieldList & rS);
-	~BNFieldList();
-	BNFieldList & FASTCALL operator = (const BNFieldList &);
-	int    FASTCALL copy(const BNFieldList *);
-	bool   IsEq(const BNFieldList & rS, bool nameAndTypeOnly = false) const;
-	BNFieldList & Z();
-	int    addField(const char * pName, TYPEID type, int id = UNDEF);
-	int    FASTCALL addField(const BNField &);
-	bool   getFieldPosition(int fldId, uint * pPos) const;
-	const  BNField & getField(uint, bool byPosition = true) const;
-	const  BNField & getField(const char * pName, uint * pPos = 0) const;
-	const  BNField & FASTCALL operator[](uint i) const { return getField(i); }
-	uint   getCount() const { return count; }
-	RECORDSIZE CalculateFixedRecSize() const;
-	int    setFieldId(uint fldNo /* 0..(count-1) */, int fldId);
-	int    IsEqualRecords(const void * pRec1, const void * pRec2, LongArray * pNeqFldList = 0) const;
-	//
-	// Descr: Выводит значения полей записи pRec в строковый буфер rBuf.
-	//   Если pRec == 0, то в буфер выводятся наименования полей.
-	//
-	//void   RecordToStr(const void * pRec, SString & rBuf) const;
-private:
-	uint   count;
-	BNField * fields;
 };
 //
 // Descr: Универсальный итератор.
@@ -8853,6 +8803,74 @@ public:
 	T &    FASTCALL pop() { return *static_cast<T *>(SQueue::pop()); }
 	T &    FASTCALL peek() const { return *static_cast<T *>(SQueue::peek()); }
 	T &    FASTCALL get(uint p) const { return *static_cast<T *>(SQueue::get(p)); }
+};
+//
+// Descr: Обобщанная структура поля данных. Используется в основном для работы с таблицами баз данных.
+// Note: Перенесено из db.h для реализации универсального сериализатора данных SSerializeContext.
+//
+struct BNField { // @flat
+	BNField();
+	uint   size() const { return stsize(T); }
+	bool   IsEq(const BNField & rS, bool nameAndTypeOnly = false) const;
+	int    getValue(const void * pDataBuf, void * pValBuf, size_t * pSize) const;
+	int    setValue(void * pDataBuf, const void * pValBuf) const;
+	int    putValueToString(const void * pDataBuf, char * pBuf) const;
+
+	int32  Id;   // If object attached to dictionary then id = X$FIELD.XeId, else id = 0,1,..
+	char   Name[20];
+	uint32 Offs;
+	TYPEID T;
+};
+//
+// Descr: Обобщенное представление записи таблицы данных. Используется в основном для работы
+//   с таблицами баз данных.
+// Note: Перенесено из db.h для реализации универсального сериализатора данных SSerializeContext.
+//
+class BNFieldList_Obsolete {
+public:
+	BNFieldList_Obsolete();
+	BNFieldList_Obsolete(const BNFieldList_Obsolete & rS);
+	~BNFieldList_Obsolete();
+	BNFieldList_Obsolete & FASTCALL operator = (const BNFieldList_Obsolete &);
+	int    FASTCALL copy(const BNFieldList_Obsolete *);
+	bool   IsEq(const BNFieldList_Obsolete & rS, bool nameAndTypeOnly = false) const;
+	BNFieldList_Obsolete & Z();
+	int    addField(const char * pName, TYPEID type, int id = UNDEF);
+	int    FASTCALL addField(const BNField &);
+	bool   getFieldPosition(int fldId, uint * pPos) const;
+	const  BNField & getField(uint, bool byPosition = true) const;
+	const  BNField & getField(const char * pName, uint * pPos = 0) const;
+	const  BNField & FASTCALL operator[](uint i) const { return getField(i); }
+	uint   getCount() const { return count; }
+	RECORDSIZE CalculateFixedRecSize() const;
+	int    setFieldId(uint fldNo /* 0..(count-1) */, int fldId);
+	bool   IsEqualRecords(const void * pRec1, const void * pRec2, LongArray * pNeqFldList = 0) const;
+	//
+	// Descr: Выводит значения полей записи pRec в строковый буфер rBuf.
+	//   Если pRec == 0, то в буфер выводятся наименования полей.
+	//
+	//void   RecordToStr(const void * pRec, SString & rBuf) const;
+private:
+	uint   count;
+	BNField * fields;
+};
+//
+// @v12.4.3 @construction (in order to replace BNFieldList2)
+//
+class BNFieldList2 : public TSVector <BNField> {
+public:
+	BNFieldList2();
+	bool   IsEq(const BNFieldList2 & rS, bool nameAndTypeOnly = false) const;
+	BNFieldList2 & Z();
+	int    addField(const char * pName, TYPEID type, int id = UNDEF);
+	int    FASTCALL addField(const BNField &);
+	bool   getFieldPosition(int fldId, uint * pPos) const;
+	const  BNField & getField(uint, bool byPosition = true) const;
+	const  BNField & getField(const char * pName, uint * pPos = 0) const;
+	const  BNField & FASTCALL operator[](uint i) const { return getField(i); }
+	RECORDSIZE CalculateFixedRecSize() const;
+	int    setFieldId(uint fldNo/*[0..(count-1)]*/, int fldId);
+	bool   IsEqualRecords(const void * pRec1, const void * pRec2, LongArray * pNeqFldList = 0) const;
 };
 //
 // Descr: Суффиксный массив
@@ -16035,14 +16053,14 @@ public:
 	//   структур.
 	//
 	int    SerializeStateOfContext(int dir, SBuffer & rBuf);
-	int    Serialize(const char * pDbtName, BNFieldList * pFldList, const void * pData, SBuffer & rBuf);
+	int    Serialize(const char * pDbtName, BNFieldList2 * pFldList, const void * pData, SBuffer & rBuf);
 	//
 	// Descr: Считывает из буфера rBuf запись таблицы БД в соответствии с внутренним описанием (в потоке)
 	//   структуры данных. Данные считываются в буфер, на который указывает pData.
 	// Note: Если pFldList == 0 тогда просто указатель считывания перемещается в конец
 	//   записи, но по указателю pData ничего не записывается.
 	//
-	int    Unserialize(const char * pDbtName, const BNFieldList * pFldList, void * pData, SBuffer & rBuf);
+	int    Unserialize(const char * pDbtName, const BNFieldList2 * pFldList, void * pData, SBuffer & rBuf);
 	int    Serialize(int dir, TYPEID typ, void * pData, uint8 * pInd, SBuffer & rBuf);
 	int    Serialize(int dir, SString & rStr, SBuffer & rBuf);
 	int    Serialize(int dir, SStringU & rStr, SBuffer & rBuf);
@@ -16066,7 +16084,7 @@ public:
 	int    Serialize(int dir, S_GUID & rV, SBuffer & rBuf);
 	int    Serialize(int dir, SColor & rV, SBuffer & rBuf);
 	int    Serialize(int dir, char * pV, size_t valBufLen, SBuffer & rBuf);
-	int    SerializeFieldList(int dir, BNFieldList * pFldList, SBuffer & rBuf);
+	int    SerializeFieldList(int dir, BNFieldList2 * pFldList, SBuffer & rBuf);
 	int    Serialize(int dir, SPoint2S & rV, SBuffer & rBuf);
 	int    Serialize(int dir, SPoint2F & rV, SBuffer & rBuf);
 	int    Serialize(int dir, FRect & rV, SBuffer & rBuf);
@@ -16082,8 +16100,8 @@ public:
 	//   В поток заносится разница в днях между сохраняемой датой и опорной датой.
 	//
 	LDATE  GetSupportingDate() const;
-	int    AddDbtDescr(const char * pName, const BNFieldList * pList, uint32 * pID);
-	int    GetDbtDescr(uint id, BNFieldList * pList) const;
+	int    AddDbtDescr(const char * pName, const BNFieldList2 * pList, uint32 * pID);
+	int    GetDbtDescr(uint id, BNFieldList2 * pList) const;
 	//
 	// Локальные сигнатурные теги могут использоваться для информирования функций сеймейства Serialize
 	//   об особенностях чтения/записи в поток.
@@ -16186,7 +16204,7 @@ public:
 	int    FASTCALL Serialize(double & rV);
 	int    FASTCALL Serialize(S_GUID & rV);
 	int    STDCALL  Serialize(char * pV, size_t valBufLen);
-	int    FASTCALL SerializeFieldList(BNFieldList * pFldList);
+	int    FASTCALL SerializeFieldList(BNFieldList2 * pFldList);
 	int    FASTCALL Serialize(SPoint2S & rV);
 	int    FASTCALL Serialize(SPoint2F & rV);
 	int    FASTCALL Serialize(SArray * pArray);
@@ -17621,6 +17639,8 @@ public:
 		SIntHandle HStdInWr;
 		uint   ProcessId;
 		uint   ThreadId;
+		SString AppNameUtf8; // @v12.4.1 наименование процесса, использованное непосредственно при запуске функции исполнения (для отладки)
+		SString CmdLineUtf8; // @v12.4.1 командная строка, использованная непосредственно при запуске функции исполнения (для отладки)
 		StringSet SsOut; // @v12.4.1
 		StringSet SsErr; // @v12.4.1
 	};
@@ -17719,6 +17739,7 @@ public:
 	bool   AddEnv(const wchar_t * pKey, const wchar_t * pVal);
 	bool   SetFlags(uint flags);
 	bool   SetImpersUser(const char * pUserUtf8, const char * pPasswordUtf8);
+	bool   SetCurrentUserAsImpersUser(); // @v12.4.3
 	bool   SetImpersUserToken(SPtrHandle userToken);
 	//
 	// Descr: Передает экземпляру app-container, в котором должен исполняться процесс.

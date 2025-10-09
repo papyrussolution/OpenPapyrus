@@ -10971,12 +10971,10 @@ static int idxPopulateStat1(sqlite3expert * p, char ** pzErr){
 /*
 ** Allocate a new sqlite3expert object.
 */
-sqlite3expert * sqlite3_expert_new(sqlite3 * db, char ** pzErrmsg){
+sqlite3expert * sqlite3_expert_new(sqlite3 * db, char ** pzErrmsg)
+{
 	int rc = SQLITE_OK;
-	sqlite3expert * pNew;
-
-	pNew = (sqlite3expert*)idxMalloc(&rc, sizeof(sqlite3expert));
-
+	sqlite3expert * pNew = (sqlite3expert*)idxMalloc(&rc, sizeof(sqlite3expert));
 	/* Open two in-memory databases to work with. The "vtab database" (dbv)
 	** will contain a virtual table corresponding to each real table in
 	** the user database schema, and a copy of each view. It is used to
@@ -16020,13 +16018,14 @@ static FILE * output_file_open(const char * zFile, int bTextMode){
 /*
 ** A routine for handling output from sqlite3_trace().
 */
-static int sql_trace_callback(unsigned mType/* The trace type */, void * pArg/* The ShellState pointer */, void * pP/* Usually a pointer to sqlite_stmt */, void * pX/* Auxiliary output */)
+static int sql_trace_callback(unsigned mType/* The trace type */, void * pArg/*The ShellState pointer*/, void * pP/*Usually a pointer to sqlite_stmt*/, void * pX/*Auxiliary output*/)
 {
 	ShellState * p = (ShellState*)pArg;
 	sqlite3_stmt * pStmt;
 	const char * zSql;
 	int nSql;
-	if(p->traceOut==0) return 0;
+	if(p->traceOut==0) 
+		return 0;
 	if(mType==SQLITE_TRACE_CLOSE) {
 		utf8_printf(p->traceOut, "-- closing database connection\n");
 		return 0;
@@ -16053,7 +16052,8 @@ static int sql_trace_callback(unsigned mType/* The trace type */, void * pArg/* 
 		    }
 		}
 	}
-	if(zSql==0) return 0;
+	if(zSql==0) 
+		return 0;
 	nSql = strlen30(zSql);
 	while(nSql>0 && zSql[nSql-1]==';') {
 		nSql--;
@@ -21520,7 +21520,8 @@ session_syntax_error:
 			sqlite3_trace_v2(p->db, 0, 0, 0);
 		}
 		else {
-			if(mType==0) mType = SQLITE_TRACE_STMT;
+			if(mType==0) 
+				mType = SQLITE_TRACE_STMT;
 			sqlite3_trace_v2(p->db, mType, sql_trace_callback, p);
 		}
 	}
@@ -22121,17 +22122,18 @@ static void usage(int showDetail){
 ** Internal check:  Verify that the SQLite is uninitialized.  Print a
 ** error message if it is initialized.
 */
-static void verify_uninitialized(void){
+static void verify_uninitialized(void)
+{
 	if(sqlite3_config(-1)==SQLITE_MISUSE) {
-		utf8_printf(stdout, "WARNING: attempt to configure SQLite after"
-		    " initialization.\n");
+		utf8_printf(stdout, "WARNING: attempt to configure SQLite after initialization.\n");
 	}
 }
 
 /*
 ** Initialize the state information in data
 */
-static void main_init(ShellState * data) {
+static void main_init(ShellState * data) 
+{
 	memset(data, 0, sizeof(*data));
 	data->normalMode = data->cMode = data->mode = MODE_List;
 	data->autoExplain = 1;
@@ -22146,12 +22148,12 @@ static void main_init(ShellState * data) {
 	sqlite3_snprintf(sizeof(mainPrompt), mainPrompt, "sqlite> ");
 	sqlite3_snprintf(sizeof(continuePrompt), continuePrompt, "   ...> ");
 }
-
 /*
 ** Output text to the console in a font that attracts extra attention.
 */
 #ifdef _WIN32
-static void printBold(const char * zText){
+static void printBold(const char * zText)
+{
 #if !SQLITE_OS_WINRT
 	HANDLE out = GetStdHandle(STD_OUTPUT_HANDLE);
 	CONSOLE_SCREEN_BUFFER_INFO defaultScreenInfo;
@@ -22244,16 +22246,13 @@ int SQLITE_CDECL wmain(int argc, wchar_t ** wargv){
 		}
 	}
 #endif
-
 #if USE_SYSTEM_SQLITE+0!=1
 	if(strncmp(sqlite3_sourceid(), SQLITE_SOURCE_ID, 60)!=0) {
-		utf8_printf(stderr, "SQLite header and source version mismatch\n%s\n%s\n",
-		    sqlite3_sourceid(), SQLITE_SOURCE_ID);
+		utf8_printf(stderr, "SQLite header and source version mismatch\n%s\n%s\n", sqlite3_sourceid(), SQLITE_SOURCE_ID);
 		exit(1);
 	}
 #endif
 	main_init(&data);
-
 	/* On Windows, we must translate command-line arguments into UTF-8.
 	** The SQLite memory allocator subsystem has to be enabled in order to
 	** do this.  But we want to run an sqlite3_shutdown() afterwards so that
@@ -22265,7 +22264,8 @@ int SQLITE_CDECL wmain(int argc, wchar_t ** wargv){
 	argvToFree = (char **)malloc(sizeof(argv[0])*argc*2);
 	argcToFree = argc;
 	argv = argvToFree + argc;
-	if(argv==0) shell_out_of_memory();
+	if(argv==0)
+		shell_out_of_memory();
 	for(i = 0; i<argc; i++) {
 		char * z = sqlite3_win32_unicode_to_utf8(wargv[i]);
 		int n;
@@ -22279,19 +22279,15 @@ int SQLITE_CDECL wmain(int argc, wchar_t ** wargv){
 	}
 	sqlite3_shutdown();
 #endif
-
 	assert(argc>=1 && argv && argv[0]);
 	Argv0 = argv[0];
-
-	/* Make sure we have a valid signal handler early, before anything
-	** else is done.
+	/* Make sure we have a valid signal handler early, before anything else is done.
 	*/
 #ifdef SIGINT
 	signal(SIGINT, interrupt_handler);
 #elif (defined(_WIN32) || defined(WIN32)) && !defined(_WIN32_WCE)
 	SetConsoleCtrlHandler(ConsoleCtrlHandler, TRUE);
 #endif
-
 #ifdef SQLITE_SHELL_DBNAME_PROC
 	{
 		/* If the SQLITE_SHELL_DBNAME_PROC macro is defined, then it is the name
