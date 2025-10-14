@@ -234,7 +234,6 @@ int PPObjCSession::Edit(PPID * pID, void * extraPtr)
 
 int PPObjCSession::Recalc(PPID sessID, int use_ta)
 {
-	MemLeakTracer mlt;
 	int    ok = 1;
 	PPObjBill * p_bobj = BillObj;
 	uint   i;

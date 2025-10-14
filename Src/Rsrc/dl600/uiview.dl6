@@ -1182,3 +1182,46 @@ dialog DLG_SELWHOBSMPL [vertical title: "@billbysampleparam" size: (400, 200) mi
 		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
 	}
 }
+
+dialog DLG_SUPPLIX [vertical title: "@supplixfilt" size: (740, 440) minsize: (740, 440) font: "MS Shell Dlg 2,8"] {
+	view [horizontal width: bycontainer height: 40] {
+		combobox CTLSEL_SUPPLIX_SUPPL [width: bycontainer(60) height: 21 margin: 4 label: "@supplixfilt_suppl" labelsize: (0, 13) cblinesymb: CTL_SUPPLIX_SUPPL];
+		input CTL_SUPPLIX_EXPPRD [growfactor: 1 height: 21 margin: 4 tabstop label: "@supplixfilt_expperiod" labelsize: (0, 13) ] string[24] supplement daterangecalbutton(CTLCAL_SUPPLIX_EXPPRD);
+	}
+	view [horizontal width: bycontainer height: 40] {
+		combobox CTLSEL_SUPPLIX_LOC [width: bycontainer(60) height: 21 margin: 4 label: "@supplixfilt_loclist" labelsize: (0, 13) cblinesymb: CTL_SUPPLIX_LOC] 
+			supplement listbutton(STDCTL_LOCLISTBUTTON cmLocList);
+		//button CTL_CMD_LOCLIST [title: "..." tabstop size: (39, 21)  command: cmLocList];
+	}
+	input CTL_SUPPLIX_ADDPARAM [width: bycontainer height: 21 margin: 4 tabstop label: "@supplixfilt_param" labelsize: (0, 13) ] string[127];
+	view [horizontal width: bycontainer growfactor: 1 alignitems: end] {
+		checkcluster CTL_SUPPLIX_ACTIONS [tabstop title: "@supplixfilt_actions" growfactor: 3 height: bycontainer margin: 4] {
+			checkbox [title: "@supplixfilt_acn_expstock" height: 16];
+			checkbox [title: "@supplixfilt_acn_expbill" height: 16];
+			checkbox [title: "@supplixfilt_acn_expdebt" height: 16];
+			checkbox [title: "@supplixfilt_acn_expgoodsdebt" height: 16];
+			checkbox [title: "@supplixfilt_acn_expcli" height: 16];
+			checkbox [title: "@supplixfilt_acn_expprice" height: 16];
+			checkbox [title: "@supplixfilt_acn_expsales" height: 16];
+			checkbox [title: "@supplixfilt_acn_impgoods" height: 16];
+			checkbox [title: "@supplixfilt_acn_improut" height: 16];
+			checkbox [title: "@supplixfilt_acn_imporder" height: 16];
+			checkbox [title: "@supplixfilt_acn_impdesadv" height: 16];
+			checkbox [title: "@supplixfilt_acn_bailment" height: 16];
+		}
+		view [vertical growfactor: 4 height: bycontainer] {
+			input CTL_SUPPLIX_SPCDIS1 [width: bycontainer(75) height: 21 margin: 4 tabstop fmtf: (nozero) fmtprec: 0 label: "@supplixfilt_spcdispct1" labelsize: (0, 13)] float;
+			input CTL_SUPPLIX_SPCDIS2 [width: bycontainer(75) height: 21 margin: 4 tabstop fmtf: (nozero) fmtprec: 0 label: "@supplixfilt_spcdispct2" labelsize: (0, 13)] float;
+			checkcluster CTL_SUPPLIX_FLAGS [tabstop width: bycontainer growfactor: 1 margin: 4] {
+				checkbox [title: "@supplixfilt_fdeleterecentbills" height: 16];
+				checkbox [title: "@supplixfilt_frepeatprocessing" height: 16];
+				checkbox [title: "@supplixfilt_ftestmode" height: 16];
+				checkbox [title: "@supplixfilt_fexporttimeasnominal" height: 16];
+			}
+		}
+	}
+	view [horizontal width: bycontainer(100) height: 30 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}

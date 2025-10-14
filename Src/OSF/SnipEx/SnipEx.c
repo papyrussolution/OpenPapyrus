@@ -2231,17 +2231,16 @@ Cleanup:
 BOOL IsAppRunningElevated(void)
 {
 	MyOutputDebugStringW(L"[%s] Line %d: Entered.\n", __FUNCTIONW__, __LINE__);
-	BOOL IsElevated = FALSE;
-	DWORD Error = ERROR_SUCCESS;
-	PSID AdministratorsGroup = NULL;
+	BOOL   IsElevated = FALSE;
+	DWORD  Error = ERROR_SUCCESS;
+	PSID   AdministratorsGroup = NULL;
 	// Allocate and initialize a SID of the administrators group.
 	SID_IDENTIFIER_AUTHORITY NtAuthority = SECURITY_NT_AUTHORITY;
 	if(!AllocateAndInitializeSid(&NtAuthority, 2, SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS, 0, 0, 0, 0, 0, 0, &AdministratorsGroup)) {
 		Error = GetLastError();
 		goto Cleanup;
 	}
-	// Determine whether the SID of administrators group is enabled in
-	// the primary access token of the process.
+	// Determine whether the SID of administrators group is enabled in the primary access token of the process.
 	if(!CheckTokenMembership(NULL, AdministratorsGroup, &IsElevated)) {
 		Error = GetLastError();
 		goto Cleanup;

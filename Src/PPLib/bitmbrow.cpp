@@ -5049,7 +5049,6 @@ int CompleteBrowser::Print()
 int PPObjBill::ViewLotComplete(PPID lotID, PPID * pSelectedLotID)
 {
 	int    ok = -1;
-	MemLeakTracer mlt;
 	{
 		CompleteArray compl_list;
 		int    r = GetComplete(lotID, PPObjBill::gcfGatherSources|PPObjBill::gcfGatherBranches, &compl_list);

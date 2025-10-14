@@ -2316,6 +2316,7 @@ public:
 		AddClusterAssoc(CTL_SUPPLIX_ACTIONS,  8, SupplInterchangeFilt::opImportRouts);
 		AddClusterAssoc(CTL_SUPPLIX_ACTIONS,  9, SupplInterchangeFilt::opImportOrders);
 		AddClusterAssoc(CTL_SUPPLIX_ACTIONS, 10, SupplInterchangeFilt::opImportDesadv);
+		AddClusterAssoc(CTL_SUPPLIX_ACTIONS, 11, SupplInterchangeFilt::opBailment); // @v12.4.4
 		SetClusterData(CTL_SUPPLIX_ACTIONS, Data.Actions);
 		AddClusterAssoc(CTL_SUPPLIX_FLAGS, 0, SupplInterchangeFilt::fDeleteRecentBills);
 		AddClusterAssoc(CTL_SUPPLIX_FLAGS, 1, SupplInterchangeFilt::fRepeatProcessing);
@@ -13429,6 +13430,713 @@ int VladimirskiyStandard::Helper_MakeBillList(PPID opID, PPID locID, const TSVec
 }
 //
 //
+// Символ вида операции заказа на размещение: BAILMENT-ORDER
+//
+class COCACOLA : public PrcssrSupplInterchange::ExecuteBlock { // @v12.4.3
+public:
+	class BailmentOrderSet { // @v12.4.3
+	public:
+		BailmentOrderSet()
+		{
+		}
+		//
+		enum Op {
+			opUndef = 0,
+			opPut,        // S1 (установка) SMPM
+			opGet,        // S2 (снятие) SMRM
+			opMov         // S6 (перемещение) SMPP
+		};
+		//
+		// Descr: Определение оборудования над которым совершается операция //
+		//
+		struct Equip {
+			SString Type;    // <EQUI_TYPE/> Тип объекта 
+			SString Cat;     // Категория //
+			SString Model;   // Модель //
+			SString Brand;
+			SString ItemId;  // Номер единицы оборудования //
+			SString Barcode;
+			SString Serial;
+		};
+		//
+		// Descr: Специфические особенности оборудования //
+		//
+		struct EquipFeatures {
+			SString Status;        //
+			SString Refrigerant;   // Тип хладагента
+			SString ServicePlant;  // Обслуживающий завод
+			SString PlantEqLayout; // Завод расположения оборудования
+		};
+
+		struct PartnerItem {
+			PartnerItem() : UedGeoLoc(0), Itic(0)
+			{
+			}
+			SString Func;        // <FUNCTION>SP</FUNCTION>	Партнерская функция (ИНФО о Торговой точке). PPEanComDocument::iticXXX
+			int    Itic;         // PPEanComDocument::GetIticBySymb(Func) 
+			SString Code;        // <KUNNR>3804702160</KUNNR>	Код клиента
+			SString Name1;       // <NAME1>ООО ФИЛИН</NAME1>	Название клиента
+			SString Name4;       // <NAME4/>	Название клиента
+			SString CommercName; // <COMMERCIAL_NAME/>	Коммерческое название
+			SString BizType;     // <BUS_TYPE>B</BUS_TYPE>	Бизнес тип клиента
+			SString IsscomChannel; // <ISSCOM_CHANNEL>018</ISSCOM_CHANNEL>	Канал ISSCOM
+			SString House;         // <HOUSE_NUM1/>	Номер дома
+			SString Street;        // <STREET>УЛ.ЧЕРНЯХОВСКОГО; Д.5А</STREET>	Улица
+			SString StreetNo;      // <STRAS/>	Номер улицы (если есть)
+			SString ZIP;           // <PSTLZ>353900</PSTLZ>	Почтовый код
+			SString City;          // <CITY>Г.НОВОРОССИЙСК;</CITY>	Город
+			SString Region;        // <REGIO>23</REGIO>	Регион
+			SString Phone1;        // <PHONE1> 9184819988</PHONE1>	Телефон 1
+			SString Phone2;        // <PHONE2/>	Телефон 2
+			SString Contact;       // <CONTACT/>	Контактное лицо 
+			SString ClosingDay;    // <CLOSING_DAY/>	 
+			SString VisitFee;      // <VISIT_FEE/>	Платный визит
+			SString INN;           // <VAT/>	 
+			uint64 UedGeoLoc;      // <GC_LONGITUD>37.786406</GC_LONGITUD>	Долгота; <GC_LATITUDE>44.701622</GC_LATITUDE>	Широта		
+		};
+		struct OrderItem {
+			OrderItem() : AUART(0), Priority(0), MsgCrDate(ZERODATE), DueDate(ZERODATE), InstDate(ZERODATE), Price(0.0)
+			{
+			}
+			SString PoCode;        // <PONUM>4502990726</PONUM>	Номер PO
+			SString PoRowN;        // <ITEMNO>00010</ITEMNO>	Номер строки в PO
+			SString QMART;         // <QMART>S1</QMART>	Тип сообщения
+			int    AUART;          // opXXX <AUART>SMPM</AUART>	Тип заказа
+			SString AUARTText;     // <AUARTTEXT>Placement Order</AUARTTEXT>	Текст заказа
+			SString Warehouse;     // <B_LAGER/> Склад(при S1 не заполняется!) - (@sobolev - я не знаю что это за склад)
+			SString QMNUM;         // <QMNUM>000312573380</QMNUM>	Номер сообщения
+			SString QMTXT;         // <QMTXT>ICOOL1300 - уст</QMTXT>	Короткий текст сообщения
+
+			SString LText;         // <LTEXT> * 21.09.2022 07:57:25 CET (RF126608) * Z_CCAF = "FT/FC New 7L" - (Real value = 247L) * ZCDE_ACTUAL_DOORS = "" - (Real value =) * ZCDE_TARGET_DOORS = "0" - (Real value = 0) * * * Survey ID->RU_УСТАНОВКА_COOLERS * Х-К МОДЕЛЬ=ICOOL1300 * ЛОГО=COCA-COLA * СОСТ=BNEW * ТИП УСТАНОВКИ=Постоянная * РУК В ТТ=Роман * ТЕЛЕФОН ТТ=9891694990 * ПОДЪЕМ/СПУСК НА ЭТАЖ=Нет * ПРИЛАВОК=Нет * ТЕЛ ТП=0079891694990 * СВЯЗЬ С ТП=ДА</LTEXT>	Длинный текст (из опросника)+Комментарии от Sales к заявкам, уточнения + к.н. ТТ + директор ТТ
+			int    Priority;       // <PRIOK>2</PRIOK>	Приоритет
+			LDATE  MsgCrDate;      // <STRMN>2022-09-21</STRMN>	Дата создания сообщения
+			LDATE  DueDate;        // <DUE_DATE>2022-10-03</DUE_DATE>	Требуемая дата выполнения
+			LDATE  InstDate;       // <EQUI_INSTALATION>0000-00-00</EQUI_INSTALATION>	Дата установки(при S1 не заполняется!)
+			SString Material;      // <MATERIAL/> Номер материала (при S1 не заполняется!)
+			SString PlantRcpt;     // <EQFNR/> Завод получатель  (куда перемещают оборудование) (при S1 не заполняется!)
+			//
+			SString Service;       // <SERVICE>уст</SERVICE>	Краткий текст работ 
+			double Price;          // <PRICE>1350.0</PRICE>	Цена договорная по прайсу
+			SString SOrdNo;        // <SORDER>008019751807</SORDER>	Номер заказа 
+			SString TaskListText;  // <TASK_LIST>ICOOL1300 - уст</TASK_LIST>	Список работ, копируется с строки <QMTXT>
+			SString PrintForm;     // <PRINTFORM>
+			SString NvGr;          // <NV_GR/> @?
+		
+			Equip  Eq;
+			EquipFeatures EqF;
+			TSCollection <PartnerItem> PartnerList;
+		};
+
+		TSCollection <OrderItem> OrderList;
+	};
+	COCACOLA(PrcssrSupplInterchange::ExecuteBlock & rEb, PPLogger & rLogger);
+	~COCACOLA();
+	int    Init();
+	PPID   FindBailmentOrderOp();
+	int    IdentifyAddress(const BailmentOrderSet::PartnerItem & rOuterItem, PPID * pLocID);
+	int    ProcessBailmentExchange();
+private:
+	//
+	// Descr: Функция разбирает заявку на размещение холодильного оборудования у клиентов (supplier - Мултон)
+	//
+	int    ParseBailmentOrderBuf(const char * pInBuf, BailmentOrderSet & rR);
+	int    ParseBailmentOrderFile(const char * pInFileName, BailmentOrderSet & rR);
+	int    ParseBailmentOrder(xmlDoc * pDoc, BailmentOrderSet & rR);
+
+	int    Test_CreatePartnerItem(const BailmentOrderSet::PartnerItem & rI, PPID * pLocID, int use_ta);
+	//
+	// Descr: Тестовая функция, создающая персоналии и адреса по входяхим описаниям.
+	//   Функция нужна только для отладки поскольку у меня нет в тестовой БД нужных адресов и персоналий.
+	//
+	int    Test_CreateAddresses(const TSCollection <BailmentOrderSet> & rOrdSetList);
+	int    MakeLocationPacket(const BailmentOrderSet::PartnerItem & rI, PPLocationPacket & rLocPack);
+
+	PPLogger & R_Logger;
+	TokenSymbHashTable TsHt;
+	PPID   LocCodeTagID;
+};
+
+COCACOLA::COCACOLA(PrcssrSupplInterchange::ExecuteBlock & rEb, PPLogger & rLogger) : PrcssrSupplInterchange::ExecuteBlock(rEb), R_Logger(rLogger), TsHt(4096), LocCodeTagID(0)
+{
+}
+
+COCACOLA::~COCACOLA()
+{
+}
+	
+int COCACOLA::Init()
+{
+	int    ok = -1;
+	PPObjTag tag_obj;
+	PPObjectTag tag_rec;
+	PPID   tag_id = 0;
+	if(tag_obj.SearchBySymb("COCACOLA-LOC-CODE", &tag_id, &tag_rec) > 0 && tag_rec.ObjTypeID == PPOBJ_LOCATION && tag_rec.TagDataType == OTTYP_STRING) {
+		LocCodeTagID = tag_rec.ID;
+	}
+	return ok;
+}
+	
+PPID COCACOLA::FindBailmentOrderOp()
+{
+	PPID    result = 0;
+	PPObjOprKind op_obj;
+	PPOprKind2 op_rec;
+	for(SEnum en = op_obj.EnumByIdxVal(1, PPOPT_WAREHOUSE); !result && en.Next(&op_rec) > 0;) {
+		if(op_rec.SubType == OPSUBT_BAILMENT_ORDER && sstreqi_ascii(op_rec.Symb, "BAILMENT-ORDER")) {
+			result = op_rec.ID;
+		}
+	}
+	return result;
+}
+	
+int COCACOLA::IdentifyAddress(const BailmentOrderSet::PartnerItem & rOuterItem, PPID * pLocID)
+{
+	int    ok = -1;
+	PPID   result_id = 0;
+	Reference * p_ref = PPRef;
+	if(rOuterItem.Code.NotEmpty()) {
+		if(LocCodeTagID) { // COCACOLA-LOC-CODE
+			PPIDArray loc_id_list;
+			p_ref->Ot.SearchObjectsByStrExactly(PPOBJ_LOCATION, LocCodeTagID, rOuterItem.Code, &loc_id_list);
+			if(!loc_id_list.getCount()) {
+				;
+			}
+			else if(loc_id_list.getCount() > 1) {
+				;
+			}
+			else if(loc_id_list.getCount() == 1) {
+				const PPID loc_id = loc_id_list.get(0);
+				LocationTbl::Rec loc_rec;
+				if(LocObj.Search(loc_id, &loc_rec) > 0) {
+					result_id = loc_id;
+					ok = 1;
+				}
+			}
+		}
+	}
+	ASSIGN_PTR(pLocID, result_id);
+	return ok;
+}
+
+int COCACOLA::ProcessBailmentExchange()
+{
+	int    ok = -1;
+	bool   debug_mark = false;
+	SString temp_buf;
+	TSCollection <BailmentOrderSet> ordset_list;
+	SString in_dir("D:/Papyrus/Src/VBA/0-Coke-Sannikova/TASK/esi-samples"); // @debug
+	SDirEntry de;
+	(temp_buf = in_dir).SetLastSlash().CatChar('*').DotCat("*");
+	for(SDirec dir(temp_buf); dir.Next(&de) > 0;) {
+		if(!de.IsSelf() && !de.IsUpFolder()) {
+			if(de.IsFile()) {
+				de.GetNameUtf8(in_dir, temp_buf);
+				PPXmlFileDetector xfd;
+				int    format = 0;
+				if(xfd.Run(temp_buf, &format)) {
+					if(format == xfd.SAP_Order_Cocacola) {
+						//ParseBailmentOrder(const char * pInBuf, BailmentOrderSet & rR)
+						uint    new_ord_set_pos = 0;
+						BailmentOrderSet * p_new_ord_set = ordset_list.CreateNewItem(&new_ord_set_pos);
+						if(ParseBailmentOrderFile(temp_buf, *p_new_ord_set)) {
+							;
+						}
+						else {
+							ordset_list.atFree(new_ord_set_pos);
+						}
+					}
+				}
+			}
+		}
+	}
+	{
+		const  PPID suppl_id = P.SupplID;
+		const  PPID order_op_id = FindBailmentOrderOp();
+		PPOprKind op_rec;
+		THROW(GetOpData(order_op_id, &op_rec) > 0); // @todo @err
+		if(P.Flags & SupplInterchangeFilt::fTestMode) {
+			Test_CreateAddresses(ordset_list);
+		}
+		{
+			PPID   loc_id = 0;
+			ArticleTbl::Rec suppl_ar_rec;
+			THROW(LocCodeTagID); // @todo @err
+			THROW(ArObj.Fetch(suppl_id, &suppl_ar_rec) > 0);
+			for(uint i = 0; i < ordset_list.getCount(); i++) {
+				const BailmentOrderSet * p_ordset = ordset_list.at(i);
+				if(p_ordset) {
+					for(uint ordi = 0; ordi < p_ordset->OrderList.getCount(); ordi++) {
+						const BailmentOrderSet::OrderItem * p_ord = p_ordset->OrderList.at(ordi);
+						if(p_ord) {
+							// @construction @20251010
+							PPBillPacket bpack;
+							if(bpack.CreateBlank_WithoutCode(order_op_id, 0, loc_id, 1)) {
+								PPID   ex_bill_id = 0;
+								BillTbl::Rec ex_bill_rec;
+
+								bpack.Rec.Dt = p_ord->MsgCrDate;
+								bpack.Rec.DueDate = p_ord->DueDate;
+								STRNSCPY(bpack.Rec.Code, p_ord->SOrdNo);
+								if(op_rec.AccSheetID == suppl_ar_rec.AccSheetID) {
+									bpack.Rec.Object = suppl_ar_rec.ID;
+								}
+								(bpack.SMemo = p_ord->LText).Transf(CTRANSF_UTF8_TO_INNER);
+								if(P_BObj->P_Tbl->SearchAnalog(&bpack.Rec, BillCore::safDefault, &ex_bill_id, &ex_bill_rec) > 0) {
+									;
+								}
+								else {
+								}
+							}
+							else {
+								;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+int COCACOLA::MakeLocationPacket(const BailmentOrderSet::PartnerItem & rI, PPLocationPacket & rLocPack)
+{
+	bool   do_turn = false;
+	SString temp_buf;
+	if(rI.City.NotEmpty()) {
+		(temp_buf = rI.City).Transf(CTRANSF_UTF8_TO_INNER);
+		// @todo
+	}
+	if(rI.Street.NotEmpty()) {
+		(temp_buf = rI.Street).Transf(CTRANSF_UTF8_TO_INNER);
+		LocationCore::SetExField(&rLocPack, LOCEXSTR_SHORTADDR, temp_buf);
+		do_turn = true;
+	}
+	if(rI.ZIP.NotEmpty()) {
+		(temp_buf = rI.ZIP).Transf(CTRANSF_UTF8_TO_INNER);
+		LocationCore::SetExField(&rLocPack, LOCEXSTR_ZIP, temp_buf);
+		do_turn = true;
+	}
+	if(rI.Phone1.NotEmpty()) {
+		(temp_buf = rI.Phone1).Transf(CTRANSF_UTF8_TO_INNER);
+		LocationCore::SetExField(&rLocPack, LOCEXSTR_PHONE, temp_buf);
+		do_turn = true;
+	}
+	{
+		SGeoPosLL geo_loc;
+		if(UED::GetRaw_GeoLoc(rI.UedGeoLoc, geo_loc) && !geo_loc.IsZero()) {
+			rLocPack.Latitude = geo_loc.Lat;
+			rLocPack.Longitude = geo_loc.Lon;
+			do_turn = true;
+		}
+	}
+	if(rI.Code.NotEmpty()) {
+		if(LocCodeTagID) {
+			rLocPack.TagL.PutItemStr(LocCodeTagID, rI.Code);
+			do_turn = true;
+		}
+	}
+	return do_turn ? +1 : -1;
+}
+
+int COCACOLA::Test_CreatePartnerItem(const BailmentOrderSet::PartnerItem & rI, PPID * pLocID, int use_ta)
+{
+	int    ok = -1;
+	//rI.Itic
+	SString temp_buf;
+	PPID   target_psn_id = 0;
+	SString outer_name(rI.Name1);
+	LocationTbl::Rec loc_rec;
+	outer_name.Transf(CTRANSF_UTF8_TO_INNER);
+	if(IdentifyAddress(rI, pLocID) > 0) {
+		ok = 1;
+	}
+	else {
+		if(!target_psn_id) {
+			PPIDArray psn_list_by_inn;
+			PPIDArray psn_list_by_name;
+			PersonTbl::Rec psn_rec;
+			if(rI.INN.NotEmpty()) {
+				PsnObj.GetListByRegNumber(PPREGT_TPID, 0, rI.INN, psn_list_by_inn);
+			}
+			if(outer_name.NotEmpty()) {
+				PsnObj.P_Tbl->SearchByName(outer_name, psn_list_by_name);
+			}
+			if(psn_list_by_inn.getCount() && psn_list_by_name.getCount()) {
+				PPIDArray islist(psn_list_by_inn);
+				islist.intersect(&psn_list_by_name);
+				if(islist.getCount()) {
+					for(uint i = 0; !target_psn_id && i < islist.getCount(); i++) {
+						const PPID psn_id = islist.get(i);
+						if(PsnObj.Search(psn_id, &psn_rec) > 0)
+							target_psn_id = psn_id;								
+					}
+				}
+			}
+			if(!target_psn_id && psn_list_by_inn.getCount()) {
+				for(uint i = 0; !target_psn_id && i < psn_list_by_inn.getCount(); i++) {
+					const PPID psn_id = psn_list_by_inn.get(i);
+					if(PsnObj.Search(psn_id, &psn_rec) > 0)
+						target_psn_id = psn_id;								
+				}
+			}
+			if(!target_psn_id && psn_list_by_name.getCount()) {
+				for(uint i = 0; !target_psn_id && i < psn_list_by_name.getCount(); i++) {
+					const PPID psn_id = psn_list_by_name.get(i);
+					if(PsnObj.Search(psn_id, &psn_rec) > 0) {
+						target_psn_id = psn_id;
+						// Персоналия идентифицирована по имени, а не по ИНН. Стало быть, установим в ней ИНН, если в текущей записи таковой имеется.
+						if(rI.INN.NotEmpty()) {
+							RegisterTbl::Rec reg_rec;
+							if(PsnObj.GetRegister(psn_id, PPREGT_TPID, &reg_rec) > 0 && !isempty(reg_rec.Num)) {
+								assert(!sstreq(reg_rec.Num, rI.INN)); // Мы пытались найти запись по этому ИНН и не нашли. ergo, невыполнение assert'а будет означать, что мы сошли с ума.
+								if(sstreq(reg_rec.Num, rI.INN)) { // Здесь чуть более вменяемая проверка для релиза
+									; // Как-бы это - целевая персоналия, но мы все равно свихнемся //
+								}
+								else {
+									target_psn_id = 0; // Это - не целевая персоналия ибо у нее есть инн и он - не тот, что должен быть!
+								}
+							}
+							else {
+								;
+							}
+						}
+					}
+				}
+			}
+		}
+		{
+			PPPersonPacket pack;
+			if(target_psn_id) {
+				PPID    temp_id = target_psn_id;
+				THROW(PsnObj.GetPacket(target_psn_id, &pack, 0) > 0);
+				if(rI.INN.NotEmpty()) {
+					pack.AddRegister(PPREGT_TPID, rI.INN, 1);
+				}
+				{
+					PPLocationPacket new_loc_pack;
+					if(MakeLocationPacket(rI, new_loc_pack) > 0) {
+						if(rI.INN.NotEmpty()) {
+							pack.Loc = new_loc_pack;
+						}
+						else {
+							pack.AddDlvrLoc(new_loc_pack);
+						}
+					}
+				}
+				THROW(PsnObj.PutPacket(&temp_id, &pack, use_ta));
+			}
+			else if(outer_name.NotEmpty()) {
+				const  PPID sell_pk_id = GetSellPersonKind();
+				if(sell_pk_id) {
+					pack.Rec.Status = PPPRS_LEGAL;
+					STRNSCPY(pack.Rec.Name, outer_name);
+					pack.Kinds.add(sell_pk_id);
+					if(rI.INN.NotEmpty()) {
+						pack.AddRegister(PPREGT_TPID, rI.INN, 1);
+					}
+					{
+						PPLocationPacket new_loc_pack;
+						if(MakeLocationPacket(rI, new_loc_pack) > 0) {
+							if(rI.INN.NotEmpty()) {
+								pack.Loc = new_loc_pack;
+							}
+							else {
+								pack.AddDlvrLoc(new_loc_pack);
+							}
+						}
+					}
+					THROW(PsnObj.PutPacket(&target_psn_id, &pack, use_ta));
+				}
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+int COCACOLA::Test_CreateAddresses(const TSCollection <BailmentOrderSet> & rOrdSetList)
+{
+	int     ok = -1;
+	for(uint i = 0; i < rOrdSetList.getCount(); i++) {
+		const BailmentOrderSet * p_ordset = rOrdSetList.at(i);
+		if(p_ordset) {
+			for(uint ordi = 0; ordi < p_ordset->OrderList.getCount(); ordi++) {
+				const BailmentOrderSet::OrderItem * p_ord = p_ordset->OrderList.at(ordi);
+				if(p_ord) {
+					for(uint pi = 0; pi < p_ord->PartnerList.getCount(); pi++) {
+						const BailmentOrderSet::PartnerItem * p_pi = p_ord->PartnerList.at(pi);
+						if(p_pi) {
+							if(p_pi->Code.NotEmpty()) {
+								PPID   loc_id = 0;
+								LocationTbl::Rec loc_rec;
+								if(IdentifyAddress(*p_pi, &loc_id) > 0) {
+									;
+								}
+								else {
+									int    cpir = Test_CreatePartnerItem(*p_pi, &loc_id, 1);
+									if(cpir) {
+										if(cpir > 0)
+											ok = 1;
+									}
+									else {
+										; // @todo @err
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return ok;
+}
+
+int COCACOLA::ParseBailmentOrderBuf(const char * pInBuf, BailmentOrderSet & rR)
+{
+	int    ok = -1;
+	xmlParserCtxt * p_ctx = xmlNewParserCtxt();
+	xmlDoc * p_doc = 0;
+	const size_t in_buf_len = sstrlen(pInBuf);
+	if(in_buf_len) {
+		p_doc = xmlCtxtReadMemory(p_ctx, pInBuf, in_buf_len, 0, 0, XML_PARSE_NOENT);
+		THROW_LXML(p_doc, p_ctx);	
+		THROW(ParseBailmentOrder(p_doc, rR));
+	}
+	CATCHZOK
+	xmlFreeDoc(p_doc);
+	xmlFreeParserCtxt(p_ctx);
+	return ok;
+}
+
+int COCACOLA::ParseBailmentOrderFile(const char * pInFileName, BailmentOrderSet & rR)
+{
+	int    ok = -1;
+	xmlParserCtxt * p_ctx = xmlNewParserCtxt();
+	xmlDoc * p_doc = 0;
+	if(!isempty(pInFileName)) {
+		p_doc = xmlCtxtReadFile(p_ctx, pInFileName, 0, XML_PARSE_NOENT);
+		THROW_LXML(p_doc, p_ctx);	
+		THROW(ParseBailmentOrder(p_doc, rR));
+	}
+	CATCHZOK
+	xmlFreeDoc(p_doc);
+	xmlFreeParserCtxt(p_ctx);
+	return ok;
+}
+
+int COCACOLA::ParseBailmentOrder(xmlDoc * pDoc, BailmentOrderSet & rR)
+{
+	int    ok = -1;
+	const xmlNode * p_root = 0;
+	SString temp_buf;
+	THROW(pDoc);
+	THROW(p_root = xmlDocGetRootElement(pDoc));
+	if(SXml::IsName(p_root, "CAM")) {
+		for(const xmlNode * p_c = p_root->children; p_c; p_c = p_c->next) {
+			if(SXml::IsName(p_c, "ORDERS")) {
+				ok = 1; // !
+				for(const xmlNode * p_c2 = p_c->children; p_c2; p_c2 = p_c2->next) {
+					if(SXml::IsName(p_c2, "item")) {
+						BailmentOrderSet::OrderItem * p_order_item = rR.OrderList.CreateNewItem();
+						for(const xmlNode * p_c3 = p_c2->children; p_c3; p_c3 = p_c3->next) {
+							if(SXml::GetContentByName(p_c3, "PONUM", temp_buf)) {
+								p_order_item->PoCode = temp_buf;
+							}
+							else if(SXml::GetContentByName(p_c3, "ITEMNO", temp_buf)) {
+								p_order_item->PoRowN = temp_buf;
+							}
+							else if(SXml::GetContentByName(p_c3, "QMART", temp_buf)) {
+								p_order_item->QMART = temp_buf;
+							}
+							else if(SXml::GetContentByName(p_c3, "AUART", temp_buf)) {
+								if(temp_buf == "SMPM") {
+									p_order_item->AUART = BailmentOrderSet::opPut;
+								}
+								else if(temp_buf == "SMRM") {
+									p_order_item->AUART = BailmentOrderSet::opGet;
+								}
+								else if(temp_buf == "SMPP") {
+									p_order_item->AUART = BailmentOrderSet::opMov;
+								}
+								else {
+									; // @todo
+								}
+							}
+							else if(SXml::GetContentByName(p_c3, "AUARTTEXT", temp_buf)) {
+								p_order_item->AUARTText = temp_buf;
+							}
+							else if(SXml::GetContentByName(p_c3, "QMNUM", temp_buf)) {
+								p_order_item->QMNUM = temp_buf;
+							}
+							else if(SXml::GetContentByName(p_c3, "QMTXT", temp_buf)) {
+								p_order_item->QMTXT = temp_buf;
+							}
+							else if(SXml::GetContentByName(p_c3, "EQUI_TYPE", temp_buf)) {
+								p_order_item->Eq.Type = temp_buf;
+							}
+							else if(SXml::GetContentByName(p_c3, "EQUI_CAT", temp_buf)) {
+								p_order_item->Eq.Cat = temp_buf;
+							}
+							else if(SXml::GetContentByName(p_c3, "EQUI_MODEL", temp_buf)) {
+								p_order_item->Eq.Model = temp_buf;
+							}
+							else if(SXml::GetContentByName(p_c3, "EQUI_SUBBRAND", temp_buf)) {
+								p_order_item->Eq.Brand = temp_buf;
+							}
+							else if(SXml::GetContentByName(p_c3, "EQUNR", temp_buf)) {
+								p_order_item->Eq.ItemId = temp_buf;
+							}
+							else if(SXml::GetContentByName(p_c3, "TIDNR", temp_buf)) {
+								p_order_item->Eq.Barcode = temp_buf;
+							}
+							else if(SXml::GetContentByName(p_c3, "SERIAL", temp_buf)) {
+								p_order_item->Eq.Serial = temp_buf;
+							}
+							else if(SXml::GetContentByName(p_c3, "EQUI_STATUS", temp_buf)) {
+								p_order_item->EqF.Status = temp_buf;
+							}
+							else if(SXml::GetContentByName(p_c3, "MAPAR", temp_buf)) {
+								p_order_item->EqF.Refrigerant = temp_buf;
+							}
+							else if(SXml::GetContentByName(p_c3, "SWERK", temp_buf)) {
+								p_order_item->EqF.ServicePlant = temp_buf;
+							}
+							else if(SXml::GetContentByName(p_c3, "B_WERK", temp_buf)) {
+								p_order_item->EqF.PlantEqLayout = temp_buf;
+							}
+							else if(SXml::GetContentByName(p_c3, "B_LAGER", temp_buf)) {
+								p_order_item->Warehouse = temp_buf;
+							}
+							else if(SXml::GetContentByName(p_c3, "LTEXT", temp_buf)) {
+								p_order_item->LText = temp_buf;
+							}
+							else if(SXml::GetContentByName(p_c3, "PRIOK", temp_buf)) {
+								p_order_item->Priority = temp_buf.ToLong();
+							}
+							else if(SXml::GetContentByName(p_c3, "STRMN", temp_buf)) {
+								strtodate(temp_buf, DATF_YMD, &p_order_item->MsgCrDate);
+							}
+							else if(SXml::GetContentByName(p_c3, "DUE_DATE", temp_buf)) {
+									strtodate(temp_buf, DATF_YMD, &p_order_item->DueDate);
+							}
+							else if(SXml::GetContentByName(p_c3, "EQUI_INSTALATION", temp_buf)) {
+								strtodate(temp_buf, DATF_YMD, &p_order_item->InstDate);
+							}
+							else if(SXml::GetContentByName(p_c3, "MATERIAL", temp_buf)) {
+								p_order_item->Material = temp_buf;
+							}
+							else if(SXml::GetContentByName(p_c3, "EQFNR", temp_buf)) {
+								p_order_item->PlantRcpt = temp_buf;
+							}
+							else if(SXml::IsName(p_c3, "PARTNERS")) {
+								for(const xmlNode * p_pn = p_c3->children; p_pn; p_pn = p_pn->next) {
+									if(SXml::IsName(p_pn, "item")) {
+										BailmentOrderSet::PartnerItem * p_partner = p_order_item->PartnerList.CreateNewItem();
+										SGeoPosLL geo_pos;
+										for(const xmlNode * p_pi = p_pn->children; p_pi; p_pi = p_pi->next) {
+											if(SXml::GetContentByName(p_pi, "FUNCTION", temp_buf)) {
+												p_partner->Func = temp_buf;
+												p_partner->Itic = PPEanComDocument::GetIticBySymb(temp_buf);
+											}
+											else if(SXml::GetContentByName(p_pi, "KUNNR", temp_buf)) {
+												p_partner->Code = temp_buf;
+											}
+											else if(SXml::GetContentByName(p_pi, "NAME1", temp_buf)) {
+												p_partner->Name1 = temp_buf;
+											}
+											else if(SXml::GetContentByName(p_pi, "NAME4", temp_buf)) {
+												p_partner->Name4 = temp_buf;
+											}
+											else if(SXml::GetContentByName(p_pi, "COMMERCIAL_NAME", temp_buf)) {
+												p_partner->CommercName = temp_buf;
+											}
+											else if(SXml::GetContentByName(p_pi, "BUS_TYPE", temp_buf)) {
+												p_partner->BizType = temp_buf;
+											}
+											else if(SXml::GetContentByName(p_pi, "VAT", temp_buf)) {
+												p_partner->INN = temp_buf;
+											}
+											else if(SXml::GetContentByName(p_pi, "ISSCOM_CHANNEL", temp_buf)) {
+												p_partner->IsscomChannel = temp_buf;
+											}
+											else if(SXml::GetContentByName(p_pi, "HOUSE_NUM1", temp_buf)) {
+												p_partner->House = temp_buf;
+											}
+											else if(SXml::GetContentByName(p_pi, "STREET", temp_buf)) {
+												p_partner->Street = temp_buf;
+											}
+											else if(SXml::GetContentByName(p_pi, "STRAS", temp_buf)) {
+												p_partner->StreetNo = temp_buf;
+											}
+											else if(SXml::GetContentByName(p_pi, "PSTLZ", temp_buf)) {
+												p_partner->ZIP = temp_buf;
+											}
+											else if(SXml::GetContentByName(p_pi, "CITY", temp_buf)) {
+												p_partner->City = temp_buf;
+											}
+											else if(SXml::GetContentByName(p_pi, "REGIO", temp_buf)) {
+												p_partner->Region = temp_buf;
+											}
+											else if(SXml::GetContentByName(p_pi, "PHONE1", temp_buf)) {
+												p_partner->Phone1 = temp_buf;
+											}
+											else if(SXml::GetContentByName(p_pi, "PHONE2", temp_buf)) {
+												p_partner->Phone2 = temp_buf;
+											}
+											else if(SXml::GetContentByName(p_pi, "CONTACT", temp_buf)) {
+												p_partner->Contact = temp_buf;
+											}
+											else if(SXml::GetContentByName(p_pi, "CLOSING_DAY", temp_buf)) {
+												p_partner->ClosingDay = temp_buf;
+											}
+											else if(SXml::GetContentByName(p_pi, "VISIT_FEE", temp_buf)) {
+												p_partner->VisitFee = temp_buf;
+											}
+											else if(SXml::GetContentByName(p_pi, "GC_LONGITUD", temp_buf)) {
+												geo_pos.Lon = temp_buf.ToReal_Plain();
+											}
+											else if(SXml::GetContentByName(p_pi, "GC_LATITUDE", temp_buf)) {
+												geo_pos.Lat = temp_buf.ToReal_Plain();
+											}
+										}
+										if(!geo_pos.IsZero()) {
+											p_partner->UedGeoLoc = UED::SetRaw_GeoLoc(geo_pos);
+										}
+									}
+								}
+							}
+							else if(SXml::GetContentByName(p_c3, "SERVICE", temp_buf)) {
+								p_order_item->Service = temp_buf;
+							}
+							else if(SXml::GetContentByName(p_c3, "PRICE", temp_buf)) {
+								p_order_item->Price = temp_buf.ToReal_Plain();
+							}
+							else if(SXml::GetContentByName(p_c3, "SORDER", temp_buf)) {
+								p_order_item->SOrdNo = temp_buf;
+							}
+							else if(SXml::GetContentByName(p_c3, "TASK_LIST", temp_buf)) {
+								p_order_item->TaskListText = temp_buf;
+							}
+							else if(SXml::GetContentByName(p_c3, "PRINTFORM", temp_buf)) {
+								p_order_item->PrintForm = temp_buf;
+							}
+							else if(SXml::GetContentByName(p_c3, "NV_GR", temp_buf)) {
+								p_order_item->NvGr = temp_buf;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+//
+//
 //
 IMPLEMENT_PPFILT_FACTORY(SupplInterchange); SupplInterchangeFilt::SupplInterchangeFilt() : PPBaseFilt(PPFILT_SUPPLINTERCHANGE, 0, 0)
 {
@@ -13685,7 +14393,17 @@ int PrcssrSupplInterchange::Run()
 	{
 		ExecuteBlock & r_eb = *P_Eb;
 		r_eb.Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssTechSymbol, temp_buf);
-		if(temp_buf.IsEqiAscii("AGENT_PLUS")) { // @v11.6.5
+		if(temp_buf.IsEqiAscii("COCACOLA")) { // @v12.4.4
+			COCACOLA cli(r_eb, logger);
+			const long actions = r_eb.P.Actions;
+			StringSet ss_file_name;
+			PPWaitStart(); // @v11.6.4
+			THROW(cli.Init());
+			if(actions & SupplInterchangeFilt::opBailment) {
+				cli.ProcessBailmentExchange();
+			}
+		}
+		else if(temp_buf.IsEqiAscii("AGENT_PLUS")) { // @v11.6.5
 			AgentPlus cli(r_eb, logger);
 			const long actions = r_eb.P.Actions;
 			StringSet ss_file_name;
@@ -14024,319 +14742,6 @@ int PrcssrSupplInterchange::Run()
 	PPWaitStop();
 	if(log_file_name.NotEmpty())
 		logger.Save(log_file_name, LOGMSGF_DIRECTOUTP|LOGMSGF_TIME|LOGMSGF_USER);
-	return ok;
-}
-
-class BailmentOrderSet_Multon { // @v12.4.3
-public:
-	BailmentOrderSet_Multon()
-	{
-	}
-	//
-	enum Op {
-		opUndef = 0,
-		opPut,        // S1 (установка) SMPM
-		opGet,        // S2 (снятие) SMRM
-		opMov         // S6 (перемещение) SMPP
-	};
-	//
-	// Descr: Определение оборудования над которым совершается операция //
-	//
-	struct Equip {
-		SString Type;    // <EQUI_TYPE/> Тип объекта 
-		SString Cat;     // Категория //
-		SString Model;   // Модель //
-		SString Brand;
-		SString ItemId;  // Номер единицы оборудования //
-		SString Barcode;
-		SString Serial;
-	};
-	//
-	// Descr: Специфические особенности оборудования //
-	//
-	struct EquipFeatures {
-		SString Status;        //
-		SString Refrigerant;   // Тип хладагента
-		SString ServicePlant;  // Обслуживающий завод
-		SString PlantEqLayout; // Завод расположения оборудования
-	};
-
-	struct PartnerItem {
-		PartnerItem() : UedGeoLoc(0)
-		{
-		}
-		SString Func;        // <FUNCTION>SP</FUNCTION>	Партнерская функция (ИНФО о Торговой точке). PPEanComDocument::iticXXX
-		SString Code;        // <KUNNR>3804702160</KUNNR>	Код клиента
-		SString Name1;       // <NAME1>ООО ФИЛИН</NAME1>	Название клиента
-		SString Name4;       // <NAME4/>	Название клиента
-		SString CommercName; // <COMMERCIAL_NAME/>	Коммерческое название
-		SString BizType;     // <BUS_TYPE>B</BUS_TYPE>	Бизнес тип клиента
-		SString IsscomChannel; // <ISSCOM_CHANNEL>018</ISSCOM_CHANNEL>	Канал ISSCOM
-		SString House;         // <HOUSE_NUM1/>	Номер дома
-		SString Street;        // <STREET>УЛ.ЧЕРНЯХОВСКОГО; Д.5А</STREET>	Улица
-		SString StreetNo;      // <STRAS/>	Номер улицы (если есть)
-		SString ZIP;           // <PSTLZ>353900</PSTLZ>	Почтовый код
-		SString City;          // <CITY>Г.НОВОРОССИЙСК;</CITY>	Город
-		SString Region;        // <REGIO>23</REGIO>	Регион
-		SString Phone1;        // <PHONE1> 9184819988</PHONE1>	Телефон 1
-		SString Phone2;        // <PHONE2/>	Телефон 2
-		SString Contact;       // <CONTACT/>	Контактное лицо 
-		SString ClosingDay;    // <CLOSING_DAY/>	 
-		SString VisitFee;      // <VISIT_FEE/>	Платный визит
-		SString INN;           // <VAT/>	 
-		uint64 UedGeoLoc;      // <GC_LONGITUD>37.786406</GC_LONGITUD>	Долгота; <GC_LATITUDE>44.701622</GC_LATITUDE>	Широта		
-	};
-	struct OrderItem {
-		OrderItem() : AUART(0), Priority(0), MsgCrDate(ZERODATE), DueDate(ZERODATE), InstDate(ZERODATE), Price(0.0)
-		{
-		}
-		SString PoCode;        // <PONUM>4502990726</PONUM>	Номер PO
-		SString PoRowN;        // <ITEMNO>00010</ITEMNO>	Номер строки в PO
-		SString QMART;         // <QMART>S1</QMART>	Тип сообщения
-		int    AUART;          // opXXX <AUART>SMPM</AUART>	Тип заказа
-		SString AUARTText;     // <AUARTTEXT>Placement Order</AUARTTEXT>	Текст заказа
-		SString Warehouse;     // <B_LAGER/> Склад(при S1 не заполняется!) - (@sobolev - я не знаю что это за склад)
-		SString QMNUM;         // <QMNUM>000312573380</QMNUM>	Номер сообщения
-		SString QMTXT;         // <QMTXT>ICOOL1300 - уст</QMTXT>	Короткий текст сообщения
-
-		SString LText;         // <LTEXT> * 21.09.2022 07:57:25 CET (RF126608) * Z_CCAF = "FT/FC New 7L" - (Real value = 247L) * ZCDE_ACTUAL_DOORS = "" - (Real value =) * ZCDE_TARGET_DOORS = "0" - (Real value = 0) * * * Survey ID->RU_УСТАНОВКА_COOLERS * Х-К МОДЕЛЬ=ICOOL1300 * ЛОГО=COCA-COLA * СОСТ=BNEW * ТИП УСТАНОВКИ=Постоянная * РУК В ТТ=Роман * ТЕЛЕФОН ТТ=9891694990 * ПОДЪЕМ/СПУСК НА ЭТАЖ=Нет * ПРИЛАВОК=Нет * ТЕЛ ТП=0079891694990 * СВЯЗЬ С ТП=ДА</LTEXT>	Длинный текст (из опросника)+Комментарии от Sales к заявкам, уточнения + к.н. ТТ + директор ТТ
-		int    Priority;       // <PRIOK>2</PRIOK>	Приоритет
-		LDATE  MsgCrDate;      // <STRMN>2022-09-21</STRMN>	Дата создания сообщения
-		LDATE  DueDate;        // <DUE_DATE>2022-10-03</DUE_DATE>	Требуемая дата выполнения
-		LDATE  InstDate;       // <EQUI_INSTALATION>0000-00-00</EQUI_INSTALATION>	Дата установки(при S1 не заполняется!)
-		SString Material;      // <MATERIAL/> Номер материала (при S1 не заполняется!)
-		SString PlantRcpt;     // <EQFNR/> Завод получатель  (куда перемещают оборудование) (при S1 не заполняется!)
-		//
-		SString Service;       // <SERVICE>уст</SERVICE>	Краткий текст работ 
-		double Price;          // <PRICE>1350.0</PRICE>	Цена договорная по прайсу
-		SString SOrdNo;        // <SORDER>008019751807</SORDER>	Номер заказа 
-		SString TaskListText;  // <TASK_LIST>ICOOL1300 - уст</TASK_LIST>	Список работ, копируется с строки <QMTXT>
-		SString PrintForm;     // <PRINTFORM>
-		SString NvGr;          // <NV_GR/> @?
-		
-		Equip  Eq;
-		EquipFeatures EqF;
-		TSCollection <PartnerItem> PartnerList;
-	};
-
-	TSCollection <OrderItem> OrderList;
-};
-//
-// Descr: Функция разбирает заявку на размещение холодильного оборудования у клиентов (supplier - Мултон)
-//
-int ParseBailmentOrder_Multon(const char * pInBuf, BailmentOrderSet_Multon & rR) // @v12.4.3
-{
-	int    ok = -1;
-    xmlParserCtxt * p_ctx = xmlNewParserCtxt();
-	xmlDoc * p_doc = 0;
-	const xmlNode * p_root = 0;
-	SString temp_buf;
-	const size_t in_buf_len = sstrlen(pInBuf);
-	if(in_buf_len) {
-		p_doc = xmlCtxtReadMemory(p_ctx, pInBuf, in_buf_len, 0, 0, XML_PARSE_NOENT);
-		THROW_LXML(p_doc, p_ctx);	
-		THROW(p_root = xmlDocGetRootElement(p_doc));
-		if(SXml::IsName(p_root, "CAM")) {
-			for(const xmlNode * p_c = p_root->children; p_c; p_c = p_c->next) {
-				if(SXml::IsName(p_c, "ORDERS")) {
-					ok = 1; // !
-					for(const xmlNode * p_c2 = p_c->children; p_c2; p_c2 = p_c2->next) {
-						if(SXml::IsName(p_c2, "item")) {
-							BailmentOrderSet_Multon::OrderItem * p_order_item = rR.OrderList.CreateNewItem();
-							for(const xmlNode * p_c3 = p_c2->children; p_c3; p_c3 = p_c3->next) {
-								if(SXml::GetContentByName(p_c3, "PONUM", temp_buf)) {
-									p_order_item->PoCode = temp_buf;
-								}
-								else if(SXml::GetContentByName(p_c3, "ITEMNO", temp_buf)) {
-									p_order_item->PoRowN = temp_buf;
-								}
-								else if(SXml::GetContentByName(p_c3, "QMART", temp_buf)) {
-									p_order_item->QMART = temp_buf;
-								}
-								else if(SXml::GetContentByName(p_c3, "AUART", temp_buf)) {
-									if(temp_buf == "SMPM") {
-										p_order_item->AUART = BailmentOrderSet_Multon::opPut;
-									}
-									else if(temp_buf == "SMRM") {
-										p_order_item->AUART = BailmentOrderSet_Multon::opGet;
-									}
-									else if(temp_buf == "SMPP") {
-										p_order_item->AUART = BailmentOrderSet_Multon::opMov;
-									}
-									else {
-										; // @todo
-									}
-								}
-								else if(SXml::GetContentByName(p_c3, "AUARTTEXT", temp_buf)) {
-									p_order_item->AUARTText = temp_buf;
-								}
-								else if(SXml::GetContentByName(p_c3, "QMNUM", temp_buf)) {
-									p_order_item->QMNUM = temp_buf;
-								}
-								else if(SXml::GetContentByName(p_c3, "QMTXT", temp_buf)) {
-									p_order_item->QMTXT = temp_buf;
-								}
-								else if(SXml::GetContentByName(p_c3, "EQUI_TYPE", temp_buf)) {
-									p_order_item->Eq.Type = temp_buf;
-								}
-								else if(SXml::GetContentByName(p_c3, "EQUI_CAT", temp_buf)) {
-									p_order_item->Eq.Cat = temp_buf;
-								}
-								else if(SXml::GetContentByName(p_c3, "EQUI_MODEL", temp_buf)) {
-									p_order_item->Eq.Model = temp_buf;
-								}
-								else if(SXml::GetContentByName(p_c3, "EQUI_SUBBRAND", temp_buf)) {
-									p_order_item->Eq.Brand = temp_buf;
-								}
-								else if(SXml::GetContentByName(p_c3, "EQUNR", temp_buf)) {
-									p_order_item->Eq.ItemId = temp_buf;
-								}
-								else if(SXml::GetContentByName(p_c3, "TIDNR", temp_buf)) {
-									p_order_item->Eq.Barcode = temp_buf;
-								}
-								else if(SXml::GetContentByName(p_c3, "SERIAL", temp_buf)) {
-									p_order_item->Eq.Serial = temp_buf;
-								}
-								else if(SXml::GetContentByName(p_c3, "EQUI_STATUS", temp_buf)) {
-									p_order_item->EqF.Status = temp_buf;
-								}
-								else if(SXml::GetContentByName(p_c3, "MAPAR", temp_buf)) {
-									p_order_item->EqF.Refrigerant = temp_buf;
-								}
-								else if(SXml::GetContentByName(p_c3, "SWERK", temp_buf)) {
-									p_order_item->EqF.ServicePlant = temp_buf;
-								}
-								else if(SXml::GetContentByName(p_c3, "B_WERK", temp_buf)) {
-									p_order_item->EqF.PlantEqLayout = temp_buf;
-								}
-								else if(SXml::GetContentByName(p_c3, "B_LAGER", temp_buf)) {
-									p_order_item->Warehouse = temp_buf;
-								}
-								else if(SXml::GetContentByName(p_c3, "LTEXT", temp_buf)) {
-									p_order_item->LText = temp_buf;
-								}
-								else if(SXml::GetContentByName(p_c3, "PRIOK", temp_buf)) {
-									p_order_item->Priority = temp_buf.ToLong();
-								}
-								else if(SXml::GetContentByName(p_c3, "STRMN", temp_buf)) {
-									strtodate(temp_buf, DATF_YMD, &p_order_item->MsgCrDate);
-								}
-								else if(SXml::GetContentByName(p_c3, "DUE_DATE", temp_buf)) {
-									 strtodate(temp_buf, DATF_YMD, &p_order_item->DueDate);
-								}
-								else if(SXml::GetContentByName(p_c3, "EQUI_INSTALATION", temp_buf)) {
-									strtodate(temp_buf, DATF_YMD, &p_order_item->InstDate);
-								}
-								else if(SXml::GetContentByName(p_c3, "MATERIAL", temp_buf)) {
-									p_order_item->Material = temp_buf;
-								}
-								else if(SXml::GetContentByName(p_c3, "EQFNR", temp_buf)) {
-									p_order_item->PlantRcpt = temp_buf;
-								}
-								else if(SXml::IsName(p_c3, "PARTNERS")) {
-									for(const xmlNode * p_pn = p_c3->children; p_pn; p_pn = p_pn->next) {
-										if(SXml::IsName(p_pn, "item")) {
-											BailmentOrderSet_Multon::PartnerItem * p_partner = p_order_item->PartnerList.CreateNewItem();
-											SGeoPosLL geo_pos;
-											for(const xmlNode * p_pi = p_pn->children; p_pi; p_pi = p_pi->next) {
-												if(SXml::GetContentByName(p_pi, "FUNCTION", temp_buf)) {
-													p_partner->Func = temp_buf;
-												}
-												else if(SXml::GetContentByName(p_pi, "KUNNR", temp_buf)) {
-													p_partner->Code = temp_buf;
-												}
-												else if(SXml::GetContentByName(p_pi, "NAME1", temp_buf)) {
-													p_partner->Name1 = temp_buf;
-												}
-												else if(SXml::GetContentByName(p_pi, "NAME4", temp_buf)) {
-													p_partner->Name4 = temp_buf;
-												}
-												else if(SXml::GetContentByName(p_pi, "COMMERCIAL_NAME", temp_buf)) {
-													p_partner->CommercName = temp_buf;
-												}
-												else if(SXml::GetContentByName(p_pi, "BUS_TYPE", temp_buf)) {
-													p_partner->BizType = temp_buf;
-												}
-												else if(SXml::GetContentByName(p_pi, "VAT", temp_buf)) {
-													p_partner->INN = temp_buf;
-												}
-												else if(SXml::GetContentByName(p_pi, "ISSCOM_CHANNEL", temp_buf)) {
-													p_partner->IsscomChannel = temp_buf;
-												}
-												else if(SXml::GetContentByName(p_pi, "HOUSE_NUM1", temp_buf)) {
-													p_partner->House = temp_buf;
-												}
-												else if(SXml::GetContentByName(p_pi, "STREET", temp_buf)) {
-													p_partner->Street = temp_buf;
-												}
-												else if(SXml::GetContentByName(p_pi, "STRAS", temp_buf)) {
-													p_partner->StreetNo = temp_buf;
-												}
-												else if(SXml::GetContentByName(p_pi, "PSTLZ", temp_buf)) {
-													p_partner->ZIP = temp_buf;
-												}
-												else if(SXml::GetContentByName(p_pi, "CITY", temp_buf)) {
-													p_partner->City = temp_buf;
-												}
-												else if(SXml::GetContentByName(p_pi, "REGIO", temp_buf)) {
-													p_partner->Region = temp_buf;
-												}
-												else if(SXml::GetContentByName(p_pi, "PHONE1", temp_buf)) {
-													p_partner->Phone1 = temp_buf;
-												}
-												else if(SXml::GetContentByName(p_pi, "PHONE2", temp_buf)) {
-													p_partner->Phone2 = temp_buf;
-												}
-												else if(SXml::GetContentByName(p_pi, "CONTACT", temp_buf)) {
-													p_partner->Contact = temp_buf;
-												}
-												else if(SXml::GetContentByName(p_pi, "CLOSING_DAY", temp_buf)) {
-													p_partner->ClosingDay = temp_buf;
-												}
-												else if(SXml::GetContentByName(p_pi, "VISIT_FEE", temp_buf)) {
-													p_partner->VisitFee = temp_buf;
-												}
-												else if(SXml::GetContentByName(p_pi, "GC_LONGITUD", temp_buf)) {
-													geo_pos.Lon = temp_buf.ToReal_Plain();
-												}
-												else if(SXml::GetContentByName(p_pi, "GC_LATITUDE", temp_buf)) {
-													geo_pos.Lat = temp_buf.ToReal_Plain();
-												}
-											}
-											if(!geo_pos.IsZero()) {
-												p_partner->UedGeoLoc = UED::SetRaw_GeoLoc(geo_pos);
-											}
-										}
-									}
-								}
-								else if(SXml::GetContentByName(p_c3, "SERVICE", temp_buf)) {
-									p_order_item->Service = temp_buf;
-								}
-								else if(SXml::GetContentByName(p_c3, "PRICE", temp_buf)) {
-									p_order_item->Price = temp_buf.ToReal_Plain();
-								}
-								else if(SXml::GetContentByName(p_c3, "SORDER", temp_buf)) {
-									p_order_item->SOrdNo = temp_buf;
-								}
-								else if(SXml::GetContentByName(p_c3, "TASK_LIST", temp_buf)) {
-									p_order_item->TaskListText = temp_buf;
-								}
-								else if(SXml::GetContentByName(p_c3, "PRINTFORM", temp_buf)) {
-									p_order_item->PrintForm = temp_buf;
-								}
-								else if(SXml::GetContentByName(p_c3, "NV_GR", temp_buf)) {
-									p_order_item->NvGr = temp_buf;
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-	CATCHZOK
-	xmlFreeDoc(p_doc);
-	xmlFreeParserCtxt(p_ctx);
 	return ok;
 }
 

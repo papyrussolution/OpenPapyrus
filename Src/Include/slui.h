@@ -5623,7 +5623,7 @@ public:
 	};
 	DBQBrowserDef(DBQuery & rQuery, int captionHight, uint aOptions, uint aBufSize = defaultFrameSize);
 	~DBQBrowserDef();
-	const  DBQuery * getQuery() const { return query; }
+	const  DBQuery * getQuery() const { return P_Query; }
 	int    setQuery(DBQuery & rQuery, uint aBufSize = defaultFrameSize);
 	virtual int    insertColumn(int atPos, const char * pTxt, uint fldNo, TYPEID, long fmt, uint opt);
 	virtual int    insertColumn(int atPos, const char * pTxt, const char * pFldName, TYPEID typ, long fmt, uint opt);
@@ -5637,19 +5637,15 @@ public:
 	virtual long   GetRecsCount() const;
 	virtual const  void * FASTCALL getRow(long) const;
 	virtual int    refresh();
-	// @v10.9.0 virtual int   FASTCALL getData(void *);
-	// @v10.9.0 virtual int   FASTCALL setData(void *);
 protected:
 	void   setupView();
-	DBQuery * query;
+	DBQuery * P_Query;
 };
 //
 // Messages
 //
-// @v10.9.11 #define BRO_GETCURREC     WM_USER+1
 #define BRO_GETCURCOL     WM_USER+2
 #define BRO_DATACHG       WM_USER+3
-// @v10.9.0 #define BRO_SETDATA       WM_USER+4 // LPARAM = far ptr to new data, WPARAM = parameter for BrowseDef::setData virtual member function
 //
 // Next messages are sending to parent window
 //
@@ -5658,8 +5654,6 @@ protected:
 #define BRO_LDBLCLKNOTIFY WM_USER+7 // WPARAM = HWND, LPARAM = MAKELPARAM(xPos, yPos)
 #define BRO_RDBLCLKNOTIFY WM_USER+8 // WPARAM = HWND, LPARAM = MAKELPARAM(xPos, yPos)
 
-// @v10.9.11 #define MAXCAP            64 // Максимальная длина заголовка колонки или группы
-// @v10.9.11 #define MAXDEPS           32 // Максимальное количество столбцов определяющих столбец типа bcoCalc
 #define BRWCLASS_CEXTRA    0 // Дополнительные данные класса "BROWSE"
 #define BRWCLASS_WEXTRA    8 // Дополнительные данные окна класса "BROWSE"
 #define BRWL_USERDATA      4 // Смещение в BrowseWindow для данных пользователя //
@@ -6526,7 +6520,7 @@ public:
 	enum {
 		hdrUnknown, hdr16, hdr32
 	};
-	TVRez(const char * pFileName, bool useIndex = false);
+	explicit TVRez(const char * pFileName, bool useIndex = false);
 	~TVRez();
 	int    open(const char * pFileName, bool useIndex = false);
 	int    setHdrType();
@@ -6542,8 +6536,8 @@ public:
 	//   Функция реализована только для того, чтобы не преобразовывать бесконечно (long)getUINT()
 	//
 	long   getLONG(); // @v12.2.3
-	char * STDCALL getString(char *, int kind = 0 /*0 - 866, 1 - w_char, 2 - 1251*/);
-	SString & STDCALL getString(SString & rBuf, int kind /*0 - 866, 1 - w_char, 2 - 1251*/);
+	char * STDCALL getString(char *, int kind = 0/*0 - 866, 1 - w_char, 2 - 1251*/);
+	SString & STDCALL getString(SString & rBuf, int kind/*0 - 866, 1 - w_char, 2 - 1251*/);
 	TRect  getRect();
 	TYPEID getType(int defaultLen);
 	long   getFormat(int defaultLen);

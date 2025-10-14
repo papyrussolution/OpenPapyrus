@@ -1890,8 +1890,8 @@ int PPObjArticle::_UpdateName(const char * pNewName)
 
 int PPObjArticle::ReplyPersonReplace(PPID dest, PPID src)
 {
-	MemLeakTracer mlt;
-	int    ok = DBRPL_OK, r;
+	int    ok = DBRPL_OK;
+	int    r;
 	PPID   acc_sheet_id = 0;
 	PPID   dest_ar_id = 0;
 	PersonTbl::Rec psnr;

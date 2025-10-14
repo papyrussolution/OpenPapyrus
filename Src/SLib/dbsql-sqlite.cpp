@@ -52,7 +52,7 @@ int FASTCALL SSqliteDbProvider::ProcessError(int status)
 	return ok;	
 }
 
-int SSqliteDbProvider::GetFileStat(const char * pFileName/*регистр символов важен!*/, long reqItems, DbTableStat * pStat)
+int SSqliteDbProvider::Helper_GetFileStat(int tableType, const char * pFileName/*регистр символов важен!*/, long reqItems, DbTableStat * pStat)
 {
 	/*
 		CREATE TABLE sqlite_schema(
@@ -65,51 +65,77 @@ int SSqliteDbProvider::GetFileStat(const char * pFileName/*регистр символов важе
 	*/
 	int    ok = 0;
 	uint   actual = 0;
-	BNFieldList2 fld_list;
-	struct SqliteTblEntry {
-		char   type[128];
+	const  char * p_sys_table_name = 0;
+	if(tableType == 0)
+		p_sys_table_name = "sqlite_schema";
+	else if(tableType == 1) 
+		p_sys_table_name = "sqlite_temp_master";
+	if(p_sys_table_name) {
+		BNFieldList2 fld_list;
+		struct SqliteTblEntry {
+			char   type[128];
+			char   name[128];
+			char   tbl_name[128];
+			int64  rootpage;
+			char   sql[256];
+		} rec_buf;
+		MEMSZERO(rec_buf);
 		char   name[128];
-		char   tbl_name[128];
-		int64  rootpage;
-		char   sql[256];
-	} rec_buf;
-	MEMSZERO(rec_buf);
-	char   name[128];
-	STRNSCPY(name, pFileName); // Поиск чувствителен к регистру!
-	SString temp_buf;
-	fld_list.addField("type", MKSTYPE(S_ZSTRING, sizeof(rec_buf.type)));
-	fld_list.addField("name", MKSTYPE(S_ZSTRING, sizeof(rec_buf.name)));
-	fld_list.addField("tbl_name", MKSTYPE(S_ZSTRING, sizeof(rec_buf.tbl_name)));
-	fld_list.addField("rootpage", T_INT64);
-	fld_list.addField("sql", MKSTYPE(S_ZSTRING, sizeof(rec_buf.sql)));
-	SqlGen.Z().Select(&fld_list).From("sqlite_schema").Sp().Tok(Generator_SQL::tokWhere).Sp().Eq("type", "table").Sp().Tok(Generator_SQL::tokAnd).Sp().Eq("name", name);
-	SSqlStmt stmt(this, SqlGen);
-	THROW(stmt.Exec(0, 0));
-	THROW(stmt.BindData(+1, 1, fld_list, &rec_buf, 0));
-	if(Fetch(stmt, 1, &actual) && actual) {
-		THROW(stmt.GetData(0));
-		ok = 1;
-		if(pStat) {
-			if(reqItems & DbTableStat::iFldList) {
-			}
-			if(reqItems & DbTableStat::iIdxList) {
-			}
-			if(reqItems & DbTableStat::iNumRecs) {
-				int64 rec_count = 0;
-				SqlGen.Z().Select("count(*)").From(pFileName);
-				SSqlStmt stmt_count(this, SqlGen);
-				THROW(stmt_count.Exec(1, 0));
-				THROW(stmt_count.BindItem(+1, 1, T_INT64, &rec_count));
-				THROW(Binding(stmt_count, +1));
-				if(Fetch(stmt_count, 1, &actual) && actual) {
-					THROW(stmt_count.GetData(0));
-					pStat->NumRecs = rec_count;
+		STRNSCPY(name, pFileName); // Поиск чувствителен к регистру!
+		SString temp_buf;
+		fld_list.addField("type", MKSTYPE(S_ZSTRING, sizeof(rec_buf.type)));
+		fld_list.addField("name", MKSTYPE(S_ZSTRING, sizeof(rec_buf.name)));
+		fld_list.addField("tbl_name", MKSTYPE(S_ZSTRING, sizeof(rec_buf.tbl_name)));
+		fld_list.addField("rootpage", T_INT64);
+		fld_list.addField("sql", MKSTYPE(S_ZSTRING, sizeof(rec_buf.sql)));
+		SqlGen.Z().Select(&fld_list).From(p_sys_table_name).Sp().Tok(Generator_SQL::tokWhere).Sp().Eq("type", "table").Sp().Tok(Generator_SQL::tokAnd).Sp().Eq("name", name);
+		SSqlStmt stmt(this, SqlGen);
+		THROW(stmt.Exec(0, 0));
+		THROW(stmt.BindData(+1, 1, fld_list, &rec_buf, 0));
+		if(Fetch(stmt, 1, &actual) && actual) {
+			THROW(stmt.GetData(0));
+			ok = 1;
+			if(pStat) {
+				if(tableType == 1) {
+					pStat->Flags |= XTF_TEMP;
+				}
+				if(reqItems & DbTableStat::iFldList) {
+				}
+				if(reqItems & DbTableStat::iIdxList) {
+				}
+				if(reqItems & DbTableStat::iNumRecs) {
+					int64 rec_count = 0;
+					SqlGen.Z().Select("count(*)").From(pFileName);
+					SSqlStmt stmt_count(this, SqlGen);
+					THROW(stmt_count.Exec(1, 0));
+					THROW(stmt_count.BindItem(+1, 1, T_INT64, &rec_count));
+					THROW(Binding(stmt_count, +1));
+					if(Fetch(stmt_count, 1, &actual) && actual) {
+						THROW(stmt_count.GetData(0));
+						pStat->NumRecs = rec_count;
+					}
 				}
 			}
 		}
 	}
 	CATCHZOK
 	return ok;
+}
+
+int SSqliteDbProvider::GetFileStat(const char * pFileName/*регистр символов важен!*/, long reqItems, DbTableStat * pStat)
+{
+	int    ok = 0;
+	if(!isempty(pFileName)) {
+		int    r0 = Helper_GetFileStat(0, pFileName, reqItems, pStat);
+		if(r0)
+			ok = 1;
+		else {
+			int    r1 = Helper_GetFileStat(1, pFileName, reqItems, pStat);
+			if(r1)
+				ok = 1;
+		}
+	}
+	return ok;		
 }
 
 /*static*/int SSqliteDbProvider::CbTrace(uint flag, void * pCtx, void * p, void * x) // Callback-функция для отладочной трассировки работы sqlite
@@ -188,6 +214,12 @@ int SSqliteDbProvider::GetFileStat(const char * pFileName/*регистр символов важе
 			sqlite3_exec(h, "PRAGMA journal_mode=WAL", 0, 0, 0);
 			sqlite3_exec(h, "PRAGMA synchronous=NORMAL", 0, 0, 0);
 		}
+		{
+			DbName.Z();
+			DbPathID = 0;
+			DataPath = path;
+			DBS.GetDbPathID(DataPath, &DbPathID);
+		}
 		if(SFile::IsDir(log_path)) {
 			/*
 				#define SQLITE_TRACE_STMT       0x01
@@ -219,9 +251,15 @@ int SSqliteDbProvider::GetFileStat(const char * pFileName/*регистр символов важе
 	return BIN(GetFileStat(pFileName, 0, 0) > 0);
 }
 	
-/*virtual*/SString & SSqliteDbProvider::GetTemporaryFileName(SString & rFileNameBuf, long * pStart, int forceInDataPath)
+/*virtual*/SString & SSqliteDbProvider::GetTemporaryFileName(SString & rFileNameBuf, long * pStart, bool forceInDataPath)
 {
-	rFileNameBuf.Z();
+	/*
+	uint64 t = SLS.GetProfileTime();
+	if(t == 0)
+		t = SLS.GetProfileTime();
+	*/
+	uint  _clk = clock();
+	rFileNameBuf.Z().Cat("tt").Cat(_clk);
 	return rFileNameBuf;
 }
 	
@@ -229,8 +267,14 @@ int SSqliteDbProvider::GetFileStat(const char * pFileName/*регистр символов важе
 {
 	int    ok = 1;
 	// @construction {
-	const int cm = RESET_CRM_TEMP(createMode);
-	THROW(SqlGen.Z().CreateTable(*pTbl, 0, oneof2(cm, crmNoReplace, crmTTSNoReplace), 1));
+	const bool is_temp_table = IS_CRM_TEMP(createMode);
+	const int  cm = RESET_CRM_TEMP(createMode);
+	uint   ctf = Generator_SQL::ctfIndent;
+	if(oneof2(cm, crmNoReplace, crmTTSNoReplace))
+		ctf |= Generator_SQL::ctfIfNotExists;
+	if(is_temp_table)
+		ctf |= Generator_SQL::ctfTemporary;
+	THROW(SqlGen.Z().CreateTable(*pTbl, 0, ctf));
 	{
 		SSqlStmt stmt(this, SqlGen);
 		THROW(stmt.Exec(1, OCI_DEFAULT));
@@ -466,7 +510,7 @@ int SSqliteDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt,
 		SqlGen.Sp().From(pTbl->fileName, p_alias);
 		if(sf & DBTable::sfDirect) {
 			DBRowId * p_rowid = static_cast<DBRowId *>(pKey);
-			THROW(p_rowid && p_rowid->IsI32());
+			THROW(p_rowid && (p_rowid->IsI32() || p_rowid->IsI64())); // @todo @err
 			p_rowid->ToStr__(temp_buf);
 			SqlGen.Sp().Tok(Generator_SQL::tokWhere).Sp().Tok(Generator_SQL::tokRowId)._Symb(_EQ_).QText(temp_buf);
 		}
@@ -533,7 +577,7 @@ int SSqliteDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt,
 								SqlGen.Text(r_fld2.Name);
 							SqlGen._Symb(_NE_);
 							SqlGen.Param(temp_buf.NumberToLat(j));
-							seg_map.add(j);
+							// @v12.4.4 @fix (этот сегмент уже добавлен в список ибо j < i) seg_map.add(j);
 							SqlGen.Sp();
 						}
 						SqlGen.RPar().RPar().Sp();
@@ -553,8 +597,10 @@ int SSqliteDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt,
 			}
 			can_continue = 1;
 		}
+		/* у SQLite нет такой конструкции 
 		if(sf & DBTable::sfForUpdate)
 			SqlGen.Tok(Generator_SQL::tokFor).Sp().Tok(Generator_SQL::tokUpdate);
+		*/
 		{
 			THROW(p_stmt = new DBTable::SelectStmt(this, SqlGen, idx, srchMode, sf));
 			new_stmt = 1;
@@ -579,12 +625,12 @@ int SSqliteDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt,
 						p_stmt->BL.atFree(lp);
 					p_stmt->BL.insert(&b);
 				}
-				memcpy(p_stmt->Key, pKey, MIN(sizeof(p_stmt->Key), key_len));
+				memcpy(p_stmt->Key, pKey, smin(sizeof(p_stmt->Key), key_len));
 				THROW(Binding(*p_stmt, -1));
 				THROW(p_stmt->SetData(0));
 			}
 			THROW(p_stmt->Exec(0, OCI_DEFAULT));
-			if(!(sf & DBTable::sfForUpdate)) {
+			/*if(!(sf & DBTable::sfForUpdate))*/ { // rowid безусловно запрашивается (see above)
 				int rowid_pos = pTbl->fields.getCount()+1;
 				THROW(p_stmt->BindRowId(rowid_pos, 1, pTbl->getCurRowIdPtr()));
 			}
@@ -1037,12 +1083,12 @@ int SSqliteDbProvider::ProcessBinding_SimpleType(int action, uint count, SSqlStm
 	const int  idx = abs(pBind->Pos);
 	const int  t = GETSTYPE(pBind->Typ);
 	const uint s = GETSSIZE(pBind->Typ);
-	bool  is_autoinc = false; // @debug
+	bool  is_autoinc = false;
 	switch(t) {
-		case S_INT:
 		case S_AUTOINC:
-			is_autoinc = true; // @debug
+			is_autoinc = true;
 			// @fallthrough
+		case S_INT:
 		case S_UINT:
 		case S_INT64:
 		case S_UINT64:

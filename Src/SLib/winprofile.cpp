@@ -362,7 +362,7 @@ static SPtrHandle DuplicateAccessToken(SPtrHandle & rH, LPCSTR file, int line)
 			SString sid_text;
 			rInfo.AccName = acc_name_u;
 			rInfo.Sid.FromPSID(sid_buf);
-			rInfo.Sid.ToStr(sid_text);
+			rInfo.Sid.ToStr(0, sid_text);
 			rInfo.RefDomainName = ref_domain_name;
 			rInfo.SidNameUse = sid_name_use;
 			if(sid_name_use == 1) { // user

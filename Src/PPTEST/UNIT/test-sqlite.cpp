@@ -55,6 +55,8 @@ SLTEST_R(SQLite)
 			{ Generator_SQL::tokRollback, "ROLLBACK" }, // @v12.3.12
 			{ Generator_SQL::tokTransaction, "TRANSACTION" }, // @v12.3.12
 			{ Generator_SQL::tokIndexedBy, "INDEXED BY" }, // @v12.4.0 sqlite "indexed by"
+			{ Generator_SQL::tokOrderBy, "ORDER BY" },      // @v12.4.0
+			{ Generator_SQL::tokTemp, "TEMP" }, // @v12.4.4 tokTemp
 		};
 		//Generator_SQL gen(sqlstSQLite, 0);
 		for(uint i = 0; i < SIZEOFARRAY(tok_list); i++) {

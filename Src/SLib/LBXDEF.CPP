@@ -1090,11 +1090,11 @@ DBQListBoxDef::~DBQListBoxDef()
 		delete query;
 }
 
-int DBQListBoxDef::GetFrameSize() const { return query->P_Frame->count; }
+int DBQListBoxDef::GetFrameSize() const { return query->P_Frame->Count; }
 
 int DBQListBoxDef::GetFrameState()
 {
-	int    st = query->P_Frame->state;
+	int    st = query->P_Frame->State;
 	return (st == 3) ? -1 : st;
 }
 
@@ -1118,7 +1118,7 @@ int DBQListBoxDef::setQuery(DBQuery & rQuery, uint aBufSize)
 		}
 		assert((int)query->fldCount > c);
 		Type = query->flds[c].type;
-		query->P_Frame->srange = 1000;
+		query->P_Frame->SRange = 1000;
 		query->top();
 		return 1;
 	}
@@ -1137,14 +1137,14 @@ void DBQListBoxDef::setViewHight(int h)
 
 void DBQListBoxDef::getScrollData(long * pScrollDelta, long * pScrollPos)
 {
-	*pScrollDelta = query ? (long)query->P_Frame->sdelta : 0;
-	*pScrollPos = query ? (long)query->P_Frame->spos : 0;
+	*pScrollDelta = query ? (long)query->P_Frame->SDelta : 0;
+	*pScrollPos = query ? (long)query->P_Frame->SPos : 0;
 }
 
 void DBQListBoxDef::setupView()
 {
-	TopItem = query ? query->P_Frame->top : 0;
-	CurItem = query ? query->P_Frame->cur : 0;
+	TopItem = query ? query->P_Frame->Top : 0;
+	CurItem = query ? query->P_Frame->Cur : 0;
 }
 
 int DBQListBoxDef::step(long d)
@@ -1187,7 +1187,7 @@ int DBQListBoxDef::refresh()
 	return 0;
 }
 
-long  DBQListBoxDef::GetRecsCount() const { return query ? (query->P_Frame->srange+1) : 0; }
+long  DBQListBoxDef::GetRecsCount() const { return query ? (query->P_Frame->SRange+1) : 0; }
 
 int DBQListBoxDef::getIdList(LongArray & rList)
 {
@@ -1204,7 +1204,7 @@ int DBQListBoxDef::TransmitData(int dir, void * pData)
 {
 	int    s = ListBoxDef::TransmitData(dir, pData);
 	if(dir > 0 && s)
-		query->P_Frame->spos = (uint)GetRecsCount() / 2;
+		query->P_Frame->SPos = (uint)GetRecsCount() / 2;
 	return s;
 }
 
@@ -1229,7 +1229,7 @@ int DBQListBoxDef::search(const void * pPattern, CompFunc fcmp, int srchMode)
 	}
 	if(ok) {
 		if((ok = query->search(pPattern, fcmp, f, srchMode, p_srch_extra)) != 0)
-			query->P_Frame->spos = (uint)GetRecsCount() / 2;
+			query->P_Frame->SPos = (uint)GetRecsCount() / 2;
 		setupView();
 	}
 	return ok;

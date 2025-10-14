@@ -3994,7 +3994,7 @@ int PPSession::PPLogin(const char * pDbSymb, const char * pUserName, const char 
 					SString file_name;
 					DBTable * p_test_tbl = new DBTable;
 					THROW_MEM(p_test_tbl);
-					THROW_DB(p_dict->CreateTempFile(p_test_tbl_name, file_name, 1));
+					THROW_DB(p_dict->CreateTempFile(p_test_tbl_name, file_name, true));
 					THROW_DB(p_test_tbl->open(p_test_tbl_name, file_name));
 					ZDELETE(p_test_tbl);
 					p_dict->DropFile(file_name);
@@ -5436,7 +5436,8 @@ static int FASTCALL Helper_GetRFileInfo(PPID fileId, PPRFile & rInfo)
 	int    ok = -1;
 	TVRez * p_rez = P_SlRez;
 	if(p_rez) {
-		long   offs = 0, sz = 0;
+		long   offs = 0;
+		long   sz = 0;
 		SString temp_buf;
 		if(p_rez->findResource(fileId, PP_RCDECLRFILE, &offs, &sz) > 0) {
 			rInfo.ID = fileId;
@@ -5471,7 +5472,7 @@ SEnum::Imp * PPSession::EnumRFileInfo()
 			if(P_Rez && p_info && p_info->IsConsistent()) {
 				uint   file_id = 0;
 				if(P_Rez->enumResources(PP_RCDECLRFILE, &file_id, &DwPos) > 0)
-					ok = Helper_GetRFileInfo((long)file_id, *p_info);
+					ok = Helper_GetRFileInfo(static_cast<long>(file_id), *p_info);
 			}
 			return ok;
 		}

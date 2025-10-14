@@ -293,6 +293,14 @@ S_WinSID::S_WinSID(const void * pSid) : SBinaryChunk()
 	FromPSID(pSid);
 }
 
+bool S_WinSID::IsEmpty() const { return SBinaryChunk::Len() == 0; }
+
+S_WinSID & S_WinSID::Z()
+{
+	SBinaryChunk::Z();
+	return *this;
+}
+
 bool S_WinSID::FromPSID(const void * pSid)
 {
 	bool    ok = false;
@@ -305,14 +313,43 @@ bool S_WinSID::FromPSID(const void * pSid)
 	return ok;
 }
 
-SString & S_WinSID::ToStr(SString & rBuf) const
+SString & S_WinSID::ToStr(uint format, SString & rBuf) const
 {
 	rBuf.Z();
 	if(Len()) {
-		char * p_text = 0;
-		if(::ConvertSidToStringSidA(const_cast<void *>(SBinaryChunk::PtrC()), &p_text)) {
-			rBuf = p_text;
-			::LocalFree(p_text);
+		SID * p_sid = static_cast<SID *>(const_cast<void *>(SBinaryChunk::PtrC()));
+		bool done = false;
+		if(format & fmtFriendly) {
+			// Получаем имя trustee
+			wchar_t * p_trustee_name = NULL;
+			wchar_t * p_domain_name = NULL;
+			DWORD  trustee_size = 0;
+			DWORD  domain_size = 0;
+			SID_NAME_USE sid_type;
+			LookupAccountSidW(NULL, p_sid, p_trustee_name, &trustee_size, p_domain_name, &domain_size, &sid_type);
+			if(trustee_size > 0) {
+				p_trustee_name = new wchar_t[trustee_size];
+				p_domain_name = new wchar_t[domain_size];
+				if(LookupAccountSidW(NULL, p_sid, p_trustee_name, &trustee_size, p_domain_name, &domain_size, &sid_type)) {
+					//p_entry->Trustee = std::wstring(p_domain_name) + L"\\" + std::wstring(p_trustee_name);
+					SString temp_buf;
+					temp_buf.Z().CopyUtf8FromUnicode(p_domain_name, sstrlen(p_domain_name), 1);
+					rBuf.Cat(temp_buf).SetLastSlash();
+					temp_buf.Z().CopyUtf8FromUnicode(p_trustee_name, sstrlen(p_trustee_name), 1);
+					rBuf.Cat(temp_buf);
+				}
+				delete [] p_trustee_name;
+				delete [] p_domain_name;
+				done = true;
+			} 
+		}
+		if(!done) {
+			char * p_text = 0;
+			if(::ConvertSidToStringSidA(p_sid, &p_text)) {
+				rBuf = p_text;
+				::LocalFree(p_text);
+				done = true;
+			}
 		}
 	}
 	return rBuf;
@@ -323,6 +360,9 @@ bool S_WinSID::FromStr(const char * pText)
 	bool   ok = false;
 	return ok;
 }
+
+const  void * S_WinSID::GetPtrC() const { return SBinaryChunk::PtrC(); }
+void * S_WinSID::GetPtr() { return SBinaryChunk::Ptr(); } // dangerous!
 //
 //
 //
@@ -599,4 +639,158 @@ int SObjID::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx) // @v1
 	THROW(pSCtx->Serialize(dir, Id, rBuf));
 	CATCHZOK
 	return ok;	
+}
+//
+//
+//
+WinSecurityAttrs::WinSecurityAttrs(uint flags) : Flags(flags & fInheritHandle), P_SD(0)
+{
+}
+
+WinSecurityAttrs::~WinSecurityAttrs()
+{
+	DestroySD();
+}
+
+int WinSecurityAttrs::MakeResult(void * pSA)
+{
+	int    ok = 1;
+	if(pSA) {
+		SECURITY_ATTRIBUTES * p_sa = static_cast<SECURITY_ATTRIBUTES *>(pSA);
+		p_sa->nLength = sizeof(SECURITY_ATTRIBUTES);
+		p_sa->lpSecurityDescriptor = P_SD;
+		p_sa->bInheritHandle = BIN(Flags & fInheritHandle);
+	}
+	else {
+		ok = -1;
+	}
+	return ok;
+}
+
+void WinSecurityAttrs::DestroySD()
+{
+	if(P_SD) {
+		::LocalFree(P_SD);
+		P_SD = 0;
+	}
+}
+
+int WinSecurityAttrs::InitSD()
+{
+	int    ok = 1;
+	DestroySD();
+	P_SD = static_cast<SECURITY_DESCRIPTOR *>(::LocalAlloc(LPTR, SECURITY_DESCRIPTOR_MIN_LENGTH));
+	if(P_SD) { 
+ 		if(InitializeSecurityDescriptor(P_SD, SECURITY_DESCRIPTOR_REVISION)) {  
+			ok = 1;
+		} 
+	}
+	if(!ok) {
+		DestroySD();
+	}
+	return ok;
+}
+
+int WinSecurityAttrs::SetSD_DACL(void * pACL, bool daclDefaulted)
+{
+	int    ok = 1;
+	if(P_SD || InitSD()) {
+		if(!::SetSecurityDescriptorDacl(static_cast<SECURITY_DESCRIPTOR *>(P_SD), TRUE, static_cast<ACL *>(pACL), daclDefaulted))
+			ok = 0;
+	}
+	else {
+		ok = 0;
+	}
+	return ok;
+}
+
+int WinSecurityAttrs::ResetSD_DACL()
+{
+	int    ok = 1;
+	if(P_SD || InitSD()) {
+		if(!::SetSecurityDescriptorDacl(static_cast<SECURITY_DESCRIPTOR *>(P_SD), FALSE, 0, FALSE))
+			ok = 0;
+	}
+	else {
+		ok = 0;
+	}
+	return ok;
+}
+
+static const SIntToSymbTabEntry WinPermissionFlags[] = {
+	{ GENERIC_ALL, "GENERIC_ALL" },
+	{ GENERIC_READ, "GENERIC_READ" },
+	{ GENERIC_WRITE, "GENERIC_WRITE"},
+	{ GENERIC_EXECUTE, "GENERIC_EXECUTE"},
+	{ FILE_READ_DATA, "FILE_READ_DATA"},
+	{ FILE_WRITE_DATA, "FILE_WRITE_DATA"},
+	{ FILE_APPEND_DATA, "FILE_APPEND_DATA"},
+	{ FILE_READ_EA, "FILE_READ_EA"},
+	{ FILE_WRITE_EA, "FILE_WRITE_EA"},
+	{ FILE_EXECUTE, "FILE_EXECUTE"},
+	{ FILE_READ_ATTRIBUTES, "FILE_READ_ATTRIBUTES"},
+	{ FILE_WRITE_ATTRIBUTES, "FILE_WRITE_ATTRIBUTES"},
+	{ DELETE, "DELETE"},
+	{ READ_CONTROL, "READ_CONTROL"},
+	{ WRITE_DAC, "WRITE_DAC"},
+	{ WRITE_OWNER, "WRITE_OWNER"},
+	{ SYNCHRONIZE, "SYNCHRONIZE"},
+};
+
+/*static*/void WinSecurityAttrs::GetPermissionFlagsMnemonic(uint flags, SString & rBuf)
+{
+	rBuf.Z();
+	if(!flags) {
+		rBuf.Cat("(empty)");
+	}
+	else {
+		for(uint i = 0; i < 32; i++) {
+			if(flags & (1<<i)) {
+				const char * p = SIntToSymbTab_GetSymbPtr(WinPermissionFlags, SIZEOFARRAY(WinPermissionFlags), (1<<i));
+				if(rBuf.NotEmpty())
+					rBuf.Space();
+				if(p) {
+					rBuf.Cat(p);
+				}
+				else
+					rBuf.Cat("undef").CatChar('(').CatHex(1<<i).CatChar(')');
+			}
+		}
+	}
+}
+
+#include <AccCtrl.h>
+
+/*static*/uint WinSecurityAttrs::GetAclInfo(void * pACL, TSCollection <AceEntry> & rList)
+{
+	uint    result = 0;
+	if(pACL) {
+		// Получаем информацию о ACL
+		ACL_SIZE_INFORMATION acl_size;
+		if(::GetAclInformation(static_cast<ACL *>(pACL), &acl_size, sizeof(acl_size), AclSizeInformation)) {
+			for(uint i = 0; i < acl_size.AceCount; i++) {
+				void * p_ace = NULL;
+				if(::GetAce(static_cast<ACL *>(pACL), i, &p_ace)) {
+					ACE_HEADER * p_ace_header = (ACE_HEADER *)p_ace;
+					// Обрабатываем разные типы ACE
+					if(p_ace_header->AceType == ACCESS_ALLOWED_ACE_TYPE) {
+						AceEntry * p_entry = rList.CreateNewItem();
+						ACCESS_ALLOWED_ACE * p_allowed_ace = (ACCESS_ALLOWED_ACE *)p_ace;
+						// Получаем имя trustee
+						S_WinSID wsid(&p_allowed_ace->SidStart);
+						wsid.ToStr(S_WinSID::fmtSystem, p_entry->TrusteeRaw);
+						wsid.ToStr(S_WinSID::fmtFriendly, p_entry->Trustee);
+						// Получаем маску прав
+						//WinSecurityAttrs::GetPermissionFlagsMnemonic(uint flags, SString & rBuf)
+						//aceInfo.permissions = GetPermissionString(pAllowedAce->Mask);
+						p_entry->Permissions = p_allowed_ace->Mask;
+						p_entry->AccessMode = GRANT_ACCESS;
+						p_entry->Inheritance = p_allowed_ace->Header.AceFlags & (OBJECT_INHERIT_ACE|CONTAINER_INHERIT_ACE|INHERIT_ONLY_ACE);
+					}
+				}
+			}
+			//::LocalFree(pSD);
+		}
+	}
+	return result;
 }

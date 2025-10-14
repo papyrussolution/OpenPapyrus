@@ -6,6 +6,8 @@
 #include <pp.h>
 #pragma hdrstop
 #include <ppsoapclient.h>
+#include <AccCtrl.h>
+#include <AclAPI.h>
 
 DBFCreateFld * LoadDBFStruct(uint rezID, uint * pNumFlds); // @prototype
 
@@ -4252,10 +4254,25 @@ int PPXmlFileDetector::Run(const char * pFileName, int * pResult)
 
 /*virtual*/int PPXmlFileDetector::StartElement(const char * pName, const char ** ppAttrList)
 {
+	enum {
+		outofhttokCAM    = 30001,
+	};
 	ElementCount++;
 	int    ok = 1;
     int    tok = 0;
-	int    do_continue = 0;
+	bool   do_continue = false;
+	// @v12.4.4 {
+	if(sstreq(pName, "CAM")) { 
+		// ?? Result = SAP_Order_Cocacola;
+		TokPath.push(outofhttokCAM);
+		do_continue = true;
+	}
+	else if(sstreq(pName, "ORDERS")) {
+		if(TokPath.getPointer() == 1 && TokPath.peek() == outofhttokCAM) {
+			Result = SAP_Order_Cocacola;
+		}
+	}
+	// } @v12.4.4 
     if(P_ShT) {
 		uint   _ut = 0;
 		uint   _ut2 = 0; // @v11.9.4
@@ -4273,6 +4290,8 @@ int PPXmlFileDetector::Run(const char * pFileName, int * pResult)
 		P_ShT->Search(r_temp_buf, &_ut, 0);
 		tok = _ut;
 		if(ElementCount == 1) {
+			if(tok)
+				TokPath.push(tok);
 			switch(tok) {
 				case PPHS_ORDERS:
 				case PPHS_ORDRSP:
@@ -4611,8 +4630,14 @@ public:
 private:
 	int    MakeProcessObj(const RepoParam & rP, SlProcess & rPrc, bool captureOutput);
 	int    GetExePath(SString & rBuf);
-	int    ShowProcessOuput(SlProcess::Result & rR);
+	enum {
+		spofStdOut = 0x0001,
+		spofStdErr = 0x0002
+	};
+	int    ShowProcessOuput(SlProcess::Result & rR, uint flags/*spofXXX*/);
 	int    ReadProcessJsonOutput(SlProcess::Result & rR, TSCollection <SJson> & rList);
+	int    Helper_GrantRightToRepoPath(const char * pPathUtf8); // @recursive
+	int    Helper_CreateRepoDir(const SString & rDir);
 
 	PPLogger * P_Logger; // @notowned
 	SString DebugLogFileName;
@@ -4674,7 +4699,7 @@ int PPResticInterface::MakeProcessObj(const RepoParam & rP, SlProcess & rPrc, bo
 		if(captureOutput)
 			rPrc.SetFlags(SlProcess::fCaptureStdErr|SlProcess::fCaptureStdOut);
 		rPrc.SetFlags(SlProcess::fDefaultErrorMode);
-		rPrc.SetWorkingDir(L"d:\\"); // @experimental @debug
+		//rPrc.SetWorkingDir(L"d:\\"); // @experimental @debug
 		ok = 1;
 	}
 	return ok;
@@ -4716,18 +4741,39 @@ int PPResticInterface::ReadProcessJsonOutput(SlProcess::Result & rR, TSCollectio
 	return ok;
 }
 
-int PPResticInterface::ShowProcessOuput(SlProcess::Result & rR)
+int PPResticInterface::ShowProcessOuput(SlProcess::Result & rR, uint flags)
 {
 	int    ok = -1;
 	if(P_Logger) {
-		if(!!rR.HStdOutRd) {
-			SString temp_buf;
-			DWORD  actual_size;
-			char   cbuf[4096];
-			SBuffer buffer;
+		SString temp_buf;
+		DWORD  actual_size;
+		char   cbuf[4096];
+		SBuffer buffer;
+		if((!flags || flags & spofStdOut) && !!rR.HStdOutRd) {
+			buffer.Z();
 			for(;;) {
 				actual_size = 0;
 				int rfr = ::ReadFile(rR.HStdOutRd, cbuf, sizeof(cbuf)-1, &actual_size, NULL);
+				if(rfr && actual_size) {
+					buffer.Write(cbuf, actual_size);
+					ok = 1;
+				}
+				else
+					break;
+			}
+			if(ok > 0) {
+				SFile f_(buffer, SFile::mRead|SFile::mBinary);
+				while(f_.ReadLine(temp_buf, SFile::rlfChomp)) {
+					P_Logger->Log(temp_buf);
+				}
+			}
+		}
+		//
+		if((!flags || flags & spofStdErr) && !!rR.HStdErrRd) {
+			buffer.Z();
+			for(;;) {
+				actual_size = 0;
+				int rfr = ::ReadFile(rR.HStdErrRd, cbuf, sizeof(cbuf)-1, &actual_size, NULL);
 				if(rfr && actual_size) {
 					buffer.Write(cbuf, actual_size);
 					ok = 1;
@@ -4746,6 +4792,95 @@ int PPResticInterface::ShowProcessOuput(SlProcess::Result & rR)
 	return ok;
 }
 
+bool GrantFullAccessForDirectoryToCurrentUser(const SString & rPathUtf8); // @prototype(sprocess.cpp)
+
+int PPResticInterface::Helper_GrantRightToRepoPath(const char * pPathUtf8) // @recursive
+{
+	int    ok = -1;
+	SString temp_buf;
+	if(SFile::IsDir(pPathUtf8)) {
+		SString path(pPathUtf8);
+		THROW(GrantFullAccessForDirectoryToCurrentUser(path));
+		ok = 1;
+		{
+			path.SetLastSlash();
+			(temp_buf = path).Cat("*.*");
+			SDirEntry de;
+			for(SDirec dir(temp_buf, 1); dir.Next(&de);) {
+				if(de.IsFolder()) {
+					de.GetNameUtf8(temp_buf);
+					path.Cat(temp_buf);
+					THROW(Helper_GrantRightToRepoPath(path)); // @recursion
+				}
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+int PPResticInterface::Helper_CreateRepoDir(const SString & rDir)
+{
+	int    ok = -1;
+	SECURITY_DESCRIPTOR * p_sd = 0;
+	ACL * p_new_dacl = 0;
+	SECURITY_ATTRIBUTES sa;
+	SECURITY_ATTRIBUTES * p_sa = 0;
+	if(0) {
+		S_WinSID current_user_sid;
+		if(SlProcess::GetCurrentUserSid(current_user_sid)) {	
+			EXPLICIT_ACCESS_W ea;
+			MEMSZERO(ea);
+			ea.grfAccessPermissions = GENERIC_ALL|STANDARD_RIGHTS_ALL|SPECIFIC_RIGHTS_ALL;
+			ea.grfAccessMode = SET_ACCESS;
+			ea.grfInheritance = CONTAINER_INHERIT_ACE|OBJECT_INHERIT_ACE;
+			ea.Trustee.TrusteeForm = TRUSTEE_IS_SID;
+			ea.Trustee.TrusteeType = TRUSTEE_IS_USER;
+			//ea.Trustee.ptstrName = (LPWSTR)pUserSid;
+			ea.Trustee.ptstrName = static_cast<LPWSTR>(current_user_sid.GetPtr());
+			{
+				// Создаем новый DACL
+				const DWORD seia_r = ::SetEntriesInAclW(1, &ea, 0/*p_old_dacl*/, &p_new_dacl);
+				THROW(seia_r == ERROR_SUCCESS); // std::wcerr << L"SetEntriesInAcl failed: " << seia_r << std::endl;
+				//
+				p_sd = (SECURITY_DESCRIPTOR *)::LocalAlloc(LPTR, SECURITY_DESCRIPTOR_MIN_LENGTH);
+				THROW(::InitializeSecurityDescriptor(p_sd, SECURITY_DESCRIPTOR_REVISION));
+				THROW(::SetSecurityDescriptorDacl(p_sd, TRUE/*bDaclPresent flag*/, p_new_dacl, FALSE/*not a default DACL*/));
+				//
+				{
+					MEMSZERO(sa);
+					sa.nLength = sizeof(sa);
+					sa.lpSecurityDescriptor = p_sd;
+					p_sa = &sa;
+				}
+			}
+		}
+	}
+	{
+		int    cdr = 0;
+		if(p_sa) {
+			cdr = SFile::CreateDirSA(rDir, p_sa);
+		}
+		else {
+			cdr = SFile::CreateDir(rDir);
+		}
+		if(cdr) {
+			ok = 1;
+		}
+		else {
+			ok = 0;
+		}
+	}
+	CATCHZOK
+	if(p_sd) {
+		::LocalFree(p_sd);
+	}
+	if(p_new_dacl) {
+		::LocalFree(p_new_dacl);
+	}
+	return ok;
+}
+
 int PPResticInterface::CreateRepo(const RepoParam & rP)
 {
 	// restic init --repo restic-repo-papyrus-main
@@ -4753,22 +4888,45 @@ int PPResticInterface::CreateRepo(const RepoParam & rP)
 	// set RESTIC_REPOSITORY=D:\__BACKUP__\Papyrus\restic-repo-test01
 	// set RESTIC_PASSWORD=repo-password
 	//
-	int    ok = -1;
+	int    ok = 0;
 	int    prr = 0;
 	SString temp_buf;
 	SlProcess prc;
-	if(MakeProcessObj(rP, prc, true) > 0) {
-		//prc.SetFlags(SlProcess::fReadOutputIntoInternalBuf);
-		prc.AddArg("init");
-		SlProcess::Result pr;
-		prr = prc.Run(&pr);
-		if(DebugLogFileName.NotEmpty()) {
-			temp_buf.Z().Cat(pr.AppNameUtf8).Space().Cat(pr.CmdLineUtf8);
-			PPLogMessage(DebugLogFileName, temp_buf, LOGMSGF_TIME|LOGMSGF_COMP);
+	if(rP.Loc.IsEmpty()) {
+		; // @todo @err // Directory is undefined
+	}
+	else if(!rP.Loc.IsLegalUtf8()) {
+		; // @todo @err // Directory is not in utf8-encoding
+	}
+	else if(SFile::IsDir(rP.Loc)) {
+		ok = -1; // @todo @err // Directory already exists // -1 - signal to not remove directory because the return is not greater than 0 
+	}
+	else {
+		if(!Helper_CreateRepoDir(rP.Loc)) {
+			; // @todo @err
 		}
-		if(prr) {
-			ShowProcessOuput(pr);
-			ok = 1;
+		/*else if(!GrantFullAccessForDirectoryToCurrentUser(rP.Loc)) {
+			; // @todo @err
+		}*/
+		if(MakeProcessObj(rP, prc, true) > 0) {
+			//prc.SetFlags(SlProcess::fReadOutputIntoInternalBuf);
+			prc.AddArg("init");
+			// (нет такой опции у init) prc.AddArg("--force");
+			SlProcess::Result pr;
+			prr = prc.Run(&pr);
+			if(DebugLogFileName.NotEmpty()) {
+				temp_buf.Z().Cat(pr.AppNameUtf8).Space().Cat(pr.CmdLineUtf8);
+				PPLogMessage(DebugLogFileName, temp_buf, LOGMSGF_TIME|LOGMSGF_COMP);
+			}
+			if(prr) {
+				ShowProcessOuput(pr, _FFFF32);
+				if(true/*Helper_GrantRightToRepoPath(rP.Loc)*/) {
+					ok = 1;
+				}
+				else {
+					ok = 0;
+				}
+			}
 		}
 	}
 	return ok;
@@ -4790,7 +4948,7 @@ int PPResticInterface::GetSnapshotList(const RepoParam & rP, TSCollection <Snaps
 			PPLogMessage(DebugLogFileName, temp_buf, LOGMSGF_TIME|LOGMSGF_COMP);
 		}
 		if(prr) {
-			//ShowProcessOuput(pr);
+			ShowProcessOuput(pr, spofStdErr);
 			TSCollection <SJson> js_list;
 			if(ReadProcessJsonOutput(pr, js_list) > 0) {
 				struct SnapshotEntry {
@@ -4976,7 +5134,7 @@ int PPResticInterface::Backup(const RepoParam & rP, bool dryMode)
 				PPLogMessage(DebugLogFileName, temp_buf, LOGMSGF_TIME|LOGMSGF_COMP);
 			}
 			if(prr) {
-				//ShowProcessOuput(pr);
+				ShowProcessOuput(pr, spofStdErr);
 				ok = 1;
 			}
 		}
@@ -4994,10 +5152,12 @@ int TestRestic()
 	PPResticInterface::RepoParam rp;
 	PPGetFilePath(PPPATH_BIN, "backup-config-01.ini", temp_buf);
 	if(rp.ReadIniFile(temp_buf)) {
+		SlProcess::EnablePrivilege(NULL, SE_RESTORE_NAME);
+		SlProcess::EnablePrivilege(NULL, SE_BACKUP_NAME);
 		//rp.Loc = "D:/__TEMP__/RESTIC-EXPERIMENTS/test-repo";
 		//rp.Pw = "restic-repo-pw";
 		//
-		//rifc.CreateRepo(rp);
+		rifc.CreateRepo(rp);
 		rifc.Backup(rp, false);
 		rifc.GetSnapshotList(rp, 0);
 		rifc.GetEntryList(rp, 0, 0);

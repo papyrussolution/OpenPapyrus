@@ -542,7 +542,6 @@ int Test_Alg_SS_Z(const char * pInputFileName)
 	char out_file_name[MAX_PATH];
 	STRNSCPY(out_file_name, pInputFileName);
 	replaceExt(out_file_name, "OUT", 1);
-	MemLeakTracer mlt;
 	SFile file(pInputFileName, SFile::mRead | SFile::mBinary);
 	SFile out_file(out_file_name, SFile::mWrite);
 	if(file.IsValid()) {

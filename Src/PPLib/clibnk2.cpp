@@ -1080,7 +1080,6 @@ int SetupCliBnkFormatsDialog::delItem(long pos, long id)
 
 int SetupCliBnkFormats()
 {
-	MemLeakTracer mlt;
 	SetupCliBnkFormatsDialog * dlg = new SetupCliBnkFormatsDialog();
 	return CheckDialogPtrErr(&dlg) ? ((ExecViewAndDestroy(dlg) == cmOK) ? 1 : -1) : 0;
 }

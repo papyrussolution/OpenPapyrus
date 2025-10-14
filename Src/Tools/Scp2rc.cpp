@@ -743,13 +743,15 @@ static int ProcessFileNameVDos(StringSet & rFileNames, StringSet & rResultFileNa
 	rResultFileNames.Z();
 
 	int    ok = 1;
-	SString temp_buf, msg_buf;
+	SString temp_buf;
+	SString msg_buf;
 	SString org_ext;
 	SString org_file_name;
 	SString file_name;
 	SString temp_file_name;
 	SString temp_file_path;
-	SFsPath ps, ps_path;
+	SFsPath ps;
+	SFsPath ps_path;
 	for(uint fnp = 0; ok && rFileNames.get(&fnp, org_file_name);) {
 		ps.Split(org_file_name);
 		ps_path.Split(rInPath);
@@ -764,7 +766,7 @@ static int ProcessFileNameVDos(StringSet & rFileNames, StringSet & rResultFileNa
 		ps.Ext = "scp";
 		ps.Merge(temp_file_path);
 		if(fileExists(file_name)) {
-			if(org_ext == "dlg") {
+			if(org_ext.IsEqiAscii("dlg")) {
 				if(rToolsPath.NotEmpty()) {
 					const char * p_dlg_src_path = "c:\\src\\rsrc\\dlg\\";
 					SString vdos_temp_file_path;
@@ -785,8 +787,144 @@ static int ProcessFileNameVDos(StringSet & rFileNames, StringSet & rResultFileNa
 	return ok;
 }
 
+static int BuildHelp(const char * pHhpFilePath, const char * pOutPath) // @v12.4.4
+{
+	int    ok = -1;
+	bool   do_build = false;
+	SString temp_buf;
+	SString file_path;
+	SString result_file_path; // .chm
+	SString result_file_name; // nam.chm
+	LDATETIME dtm_result_file = ZERODATETIME;
+	LDATETIME dtm_src_file = ZERODATETIME;
+	{
+		(temp_buf = "Building help file from").Space().Cat(pHhpFilePath);
+		printf(temp_buf.CR().cptr());
+	}
+	if(!fileExists(pHhpFilePath)) {
+		(temp_buf = "Help file ").Space().Cat(pHhpFilePath).Space().Cat("is not exists");
+		printf(temp_buf.CR().cptr());
+	}
+	else {
+		if(!SFile::GetTime(pHhpFilePath, 0, 0, &dtm_src_file)) {
+			; // @todo @err
+		}
+		else {
+			SString hhp_dir;
+			SFsPath fs_hhp(pHhpFilePath);
+			fs_hhp.Merge(SFsPath::fDrv|SFsPath::fDir, hhp_dir);
+			{
+				SFsPath fs_chm(fs_hhp);
+				fs_chm.Ext = "chm";
+				fs_chm.Merge(result_file_path);
+				fs_chm.Merge(SFsPath::fNam|SFsPath::fExt, result_file_name);
+			}
+			if(!fileExists(result_file_path)) {
+				do_build = true;
+			}
+			else {
+				if(SFile::GetTime(result_file_path, 0, 0, &dtm_result_file)) {
+					if(cmp(dtm_result_file, dtm_src_file) <= 0) {
+						do_build = true;
+					}
+				}
+				else {
+					do_build = true;
+				}
+			}
+			if(!do_build) {
+				assert(checkdate(dtm_result_file.d)); // Иначе мы бы сюда не попали
+				SIniFile f_ini(pHhpFilePath, 0, 1, 0);
+				if(f_ini.IsValid()) {
+					StringSet ss;
+					f_ini.GetEntries("FILES", &ss, true/*storeAllString*/);
+					for(uint ssp = 0; !do_build && ss.get(&ssp, temp_buf);) {
+						(file_path = hhp_dir).SetLastSlash().Cat(temp_buf);
+						LDATETIME dtm_file_ = ZERODATETIME;
+						if(fileExists(file_path) && SFile::GetTime(file_path, 0, 0, &dtm_file_)) {
+							if(cmp(dtm_result_file, dtm_file_) <= 0) {
+								do_build = true;
+							}
+						}
+						else {
+							; // this is a problem!
+							(temp_buf = "Source file").Space().Cat(file_path).Space().Cat("is not exists");
+							printf(temp_buf.CR().cptr());
+						}
+					}
+				}
+			}
+			if(!do_build) {
+				printf((temp_buf = "Nothing to do: all files are up to date").CR().cptr());
+				ok = -1;
+			}
+			else {
+				SString hhc_exe_path;
+				fs_hhp.Merge(SFsPath::fDrv|SFsPath::fDir, temp_buf);
+				temp_buf.SetLastSlash().Cat("..").SetLastSlash().Cat("..").SetLastSlash().Cat("TOOLS").SetLastSlash().Cat("HelpWorkshop").SetLastSlash().Cat("hhc.exe");
+				SFsPath::NormalizePath(temp_buf, SFsPath::npfCompensateDotDot, hhc_exe_path);
+
+				SlProcess prc;
+				prc.SetPath(hhc_exe_path);
+				prc.SetWorkingDir(hhp_dir);
+				prc.AddArg(pHhpFilePath);
+
+				SlProcess::Result pr;
+				int prr = prc.Run(&pr);
+				if(prr) {
+					{
+						(temp_buf = "Building").Space().Cat(pHhpFilePath).Space().Cat("-->").Space().Cat(result_file_path).Space().Cat("is succeeded");
+						printf(temp_buf.CR().cptr());
+					}
+					ok = 1;
+				}
+				else {
+					{
+						(temp_buf = "Building").Space().Cat(pHhpFilePath).Space().Cat("-->").Space().Cat(result_file_path).Space().Cat("is failed");
+						printf(temp_buf.CR().cptr());
+					}
+					ok = 0;
+				}
+			}
+			if(ok != 0) {
+				if(fileExists(result_file_path)) {
+					if(!isempty(pOutPath)) {
+						SString output_file_path;
+						if(SFile::IsDir(pOutPath)) {
+							(output_file_path = pOutPath).SetLastSlash().Cat(result_file_name);
+						}
+						else {
+							output_file_path = pOutPath;
+						}
+						{
+							const int cr = SFile::Compare(output_file_path, result_file_path, 0);
+							if(cr > 0) {
+								// nothing to do
+							}
+							else {
+								if(SCopyFile(result_file_path, output_file_path, 0, FILE_SHARE_READ, 0)) {
+									(temp_buf = "Copying").Space().Cat(result_file_path).Space().Cat("-->").Space().Cat(output_file_path).Space().Cat("is succeeded");
+								}
+								else {
+									(temp_buf = "Copying").Space().Cat(result_file_path).Space().Cat("-->").Space().Cat(output_file_path).Space().Cat("is failed");
+								}
+								printf(temp_buf.CR().cptr());
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return ok;
+}
+
 int main(int argc, char ** argv)
 {
+	/* Отладочные команды:
+		scp2rc -list:D:\Papyrus\Src\Rsrc\Rc\ppdlg.list -out:D:\Papyrus\Src\Rsrc\Rc\ppdlg.rc -path:D:\Papyrus\Src\Rsrc\Rc\..\dlg\ -toolspath:..\..\tools
+		scp2rc -hhp:D:\Papyrus\ManWork\Help\pphelp.hhp
+	*/ 
 	enum {
 		cmdlNone = 0,
 		cmdlInFile,
@@ -794,7 +932,8 @@ int main(int argc, char ** argv)
 		cmdlOutFile,
 		cmdlInPath,
 		cmdlDlgDsnPath,
-		cmdlToolsPath
+		cmdlToolsPath,
+		cmdlHhp // @v12.4.4 hhp-file to compile into help(chm) file
 	};
 	struct CmdLineSyntax {
 		const char * P_Text;
@@ -806,22 +945,28 @@ int main(int argc, char ** argv)
 		{ "output;out", cmdlOutFile },
 		{ "path;inpath", cmdlInPath },
 		{ "dlgdsn", cmdlDlgDsnPath },
-		{ "toolspath", cmdlToolsPath }
+		{ "toolspath", cmdlToolsPath },
+		{ "hhp", cmdlHhp }, // @v12.4.4
 	};
 	const  int use_vdos = 1;
 	int    i;
 	SFile  outf;
+	bool   nothing_to_do = true;
 	if(argc < 3)
 		error("Usage: SPC2RC OUTFILE [@]INFILE");
 	else {
-		SString out_file_name, final_file_name;
+		SString temp_buf;
+		SString msg_buf;
+		SString out_file_name;
 		SString inp_file_name;
 		SString inp_file_name_list;
 		SString inp_file_path;
 		SString tools_path;
 		SString dlgdsn_exec_path;
 		SString perl_cmd;
-		SString arg_line, arg_val, temp_buf, msg_buf;
+		SString arg_line;
+		SString arg_val;
+		SString hhp_file_name; // @v12.4.4
 		SFsPath ps;
 		for(i = 1; i < argc; i++) {
 			(arg_line = argv[i]).Strip();
@@ -863,11 +1008,12 @@ int main(int argc, char ** argv)
 						case cmdlOutFile: out_file_name = arg_val; break;
 						case cmdlDlgDsnPath: dlgdsn_exec_path = arg_val; break;
 						case cmdlToolsPath: tools_path = arg_val; break;
+						case cmdlHhp: hhp_file_name = arg_val; break; // @v12.4.4
 					}
 				}
 				else {
 					(temp_buf = "Warning: unknown argument ").Cat(arg_line).CR();
-					printf(temp_buf);
+					printf(temp_buf.cptr());
 				}
 			}
 			else if(i == 1) {
@@ -882,201 +1028,218 @@ int main(int argc, char ** argv)
 				}
 			}
 		}
-		if(out_file_name.IsEmpty()) {
-			error("Undefined output file name");
+		// @v12.4.4 {
+		if(hhp_file_name.NotEmpty()) {
+			nothing_to_do = false;
+			BuildHelp(hhp_file_name, out_file_name);
 		}
-		if(inp_file_name.IsEmpty() && inp_file_name_list.IsEmpty()) {
+		// } @v12.4.4 
+		/*if(inp_file_name.IsEmpty() && inp_file_name_list.IsEmpty()) {
 			error("Undefined input file name or list of file");
-		}
-		{
-			ps.Split(out_file_name);
-			ps.Nam = "ppdlgw";
-			ps.Ext = "rc";
-			ps.Merge(final_file_name);
-		}
+		}*/
 		// fprintf(_out, "/* %s\nGenerate by SCP2RC */\n\n#include <tvdefs.h>\n\n", strupr(argv[1]));
-
 		if(inp_file_name_list.NotEmpty()) {
-			if(!fileExists(inp_file_name_list)) {
-				(msg_buf = "File").Space().CatChar('\'').Cat(inp_file_name_list).CatChar('\'').Space().Cat("not fount");
-				error(msg_buf);
-			}
-			SFile rspf(inp_file_name_list, SFile::mRead);
-			if(!rspf.IsValid()) {
-				msg_buf.Printf("Unable open list file %s", inp_file_name_list.cptr());
-				error(msg_buf);
-			}
-			int    do_process = 0;
-			if(!fileExists(final_file_name) || !fileExists(out_file_name)) {
-				do_process = 1;
+			nothing_to_do = false;
+			if(out_file_name.IsEmpty()) {
+				error("Undefined output file name");
 			}
 			else {
-				LDATETIME finalf_dtm = ZERODATETIME;
-				SFile finalf(final_file_name, SFile::mRead);
-				if(finalf.IsValid() && finalf.GetDateTime(0, 0, &finalf_dtm)) {
-					SFsPath ps_path;
-					while(!do_process && rspf.ReadLine(temp_buf)) {
-						if(temp_buf.Chomp().NotEmptyS()) {
-							if(temp_buf.CmpPrefix("//", 0) != 0 && temp_buf.CmpPrefix("--", 0) != 0) { // @v10.5.3 comments
-								// @v12.4.1 {
-								uint comment_pos = 0;
-								if(temp_buf.Search("//", 0, 0, &comment_pos) || temp_buf.Search("--", 0, 0, &comment_pos)) {
-									temp_buf.Trim(comment_pos).Strip();
-								}
-								// } @v12.4.1 
-								LDATETIME  depf_dtm;
-								ps.Split(temp_buf);
-								ps_path.Split(inp_file_path);
-								if(ps.Drv.IsEmpty() && ps_path.Drv.NotEmpty())
-									ps.Drv = ps_path.Drv;
-								if(ps.Dir.IsEmpty() && ps_path.Dir.NotEmpty())
-									ps.Dir = ps_path.Dir;
-								ps.Merge(temp_buf);
-								SFile depf(temp_buf, SFile::mRead);
-								if(depf.IsValid()) {
-									if(depf.GetDateTime(0, 0, &depf_dtm) && cmp(depf_dtm, finalf_dtm) > 0)
-										do_process = 1;
-								}
-								else {
-									msg_buf.Printf("Unable to open file '%s'", temp_buf.cptr());
-									error(msg_buf);
+				SString final_file_name;
+				{
+					ps.Split(out_file_name);
+					ps.Nam = "ppdlgw";
+					ps.Ext = "rc";
+					ps.Merge(final_file_name);
+				}
+				if(!fileExists(inp_file_name_list)) {
+					(msg_buf = "File").Space().CatChar('\'').Cat(inp_file_name_list).CatChar('\'').Space().Cat("not fount");
+					error(msg_buf);
+				}
+				SFile rspf(inp_file_name_list, SFile::mRead);
+				if(!rspf.IsValid()) {
+					msg_buf.Printf("Unable open list file %s", inp_file_name_list.cptr());
+					error(msg_buf);
+				}
+				int    do_process = 0;
+				if(!fileExists(final_file_name) || !fileExists(out_file_name)) {
+					do_process = 1;
+				}
+				else {
+					LDATETIME finalf_dtm = ZERODATETIME;
+					SFile finalf(final_file_name, SFile::mRead);
+					if(finalf.IsValid() && finalf.GetDateTime(0, 0, &finalf_dtm)) {
+						SFsPath ps_path;
+						while(!do_process && rspf.ReadLine(temp_buf)) {
+							if(temp_buf.Chomp().NotEmptyS()) {
+								if(temp_buf.CmpPrefix("//", 0) != 0 && temp_buf.CmpPrefix("--", 0) != 0) {
+									// @v12.4.1 {
+									uint comment_pos = 0;
+									if(temp_buf.Search("//", 0, 0, &comment_pos) || temp_buf.Search("--", 0, 0, &comment_pos)) {
+										temp_buf.Trim(comment_pos).Strip();
+									}
+									// } @v12.4.1 
+									LDATETIME depf_dtm;
+									ps.Split(temp_buf);
+									ps_path.Split(inp_file_path);
+									if(ps.Drv.IsEmpty() && ps_path.Drv.NotEmpty())
+										ps.Drv = ps_path.Drv;
+									if(ps.Dir.IsEmpty() && ps_path.Dir.NotEmpty())
+										ps.Dir = ps_path.Dir;
+									ps.Merge(temp_buf);
+									SFile depf(temp_buf, SFile::mRead);
+									if(depf.IsValid()) {
+										if(depf.GetDateTime(0, 0, &depf_dtm) && cmp(depf_dtm, finalf_dtm) > 0)
+											do_process = 1;
+									}
+									else {
+										msg_buf.Printf("Unable to open file '%s'", temp_buf.cptr());
+										error(msg_buf);
+									}
 								}
 							}
 						}
 					}
+					else {
+						finalf.Close();
+						SFile::Remove(final_file_name);
+						do_process = 1;
+					}
+				}
+				if(do_process) {
+					SFile outf(out_file_name, SFile::mWrite);
+					if(!outf.IsValid()) {
+						msg_buf.Printf("Unable open output file %s", out_file_name.cptr());
+						error(msg_buf);
+					}
+					// Проверяя время модификации файлов мы переместили текущую позицию - вернем назад
+					rspf.Seek(0); 
+					//
+					if(tools_path.NotEmptyS()) {
+						if(!dlgdsn_exec_path.NotEmptyS()) {
+							(dlgdsn_exec_path = tools_path).SetLastSlash().Cat("dlgdsn.exe");
+						}
+						(perl_cmd = tools_path).SetLastSlash().Cat("perl").SetLastSlash().Cat("perl").Space().
+							Cat(tools_path).SetLastSlash().Cat("RC_CONV.PL");
+					}
+					if(use_vdos) {
+						ExecVDosParam evd_param;
+						StringSet ss_in_files;
+						StringSet ss_out_files;
+						while(rspf.ReadLine(temp_buf)) {
+							if(temp_buf.Chomp().NotEmptyS()) {
+								if(temp_buf.CmpPrefix("//", 0) != 0 && temp_buf.CmpPrefix("--", 0) != 0) {
+									//printf((msg_buf = "Processing file").Space().Cat(temp_buf).CR());
+									ss_in_files.add(temp_buf);
+								}
+							}
+						}
+						(evd_param.ExePath = tools_path).SetLastSlash().Cat("vdos");
+						(evd_param.StartUpPath = evd_param.ExePath).SetLastSlash().Cat("..").SetLastSlash().Cat("..");
+						evd_param.Flags |= (evd_param.fExitAfter|evd_param.fWait);
+						if(ProcessFileNameVDos(ss_in_files, ss_out_files, evd_param, inp_file_path, tools_path)) {
+							printf((msg_buf = "Processing dialog files").CR());
+							if(!ExecVDos(evd_param)) {
+								error((msg_buf = "Fault execute vdos"));
+							}
+							else {
+								for(uint ssp = 0; ss_out_files.get(&ssp, temp_buf);) {
+									if(::fileExists(temp_buf)) {
+										fprintf(outf, "\n\n");
+										ScpDialogProcessor prc(outf);
+										prc.Run(temp_buf);
+									}
+									else {
+										printf((msg_buf = "Warning: file").Space().Cat(temp_buf).Space().Cat("not found").CR());
+									}
+								}
+							}
+						}
+					}
+					else {
+						while(rspf.ReadLine(temp_buf)) {
+							if(temp_buf.Chomp().NotEmptyS()) {
+								printf((msg_buf = "Processing file").Space().Cat(temp_buf).CR());
+								if(ProcessFileName(temp_buf, inp_file_path, dlgdsn_exec_path)) {
+									fprintf(outf, "\n\n");
+									ScpDialogProcessor prc(outf);
+									prc.Run(temp_buf);
+								}
+							}
+						}
+					}
+					outf.Close();
+					if(perl_cmd.NotEmptyS()) {
+						//
+						// Надо отконвертировать кодировку символов OemToChar
+						// Для этого придется создать временный файл с расширением tmp и пренести в него 
+						// файл out_file_name в перекодированном виде.
+						//
+						SString temp_file_name(out_file_name);
+						SFsPath::ReplaceExt(temp_file_name, "tmp", 1);
+						{
+							SFile tempf(temp_file_name, SFile::mWrite);
+							if(!tempf.IsValid()) {
+								error((msg_buf = "Error opening file").Space().Cat(temp_file_name));
+							}
+							outf.Open(out_file_name, SFile::mRead);
+							if(!outf.IsValid()) {
+								error((msg_buf = "Error opening file").Space().Cat(out_file_name));
+							}
+							while(outf.ReadLine(temp_buf)) {
+								temp_buf.ToChar();
+								tempf.WriteLine(temp_buf);
+							}
+							outf.Close();
+						}
+						//
+						//(perl_cmd = tools_path).SetLastSlash().Cat("perl").SetLastSlash().Cat("perl").Space().
+						//	Cat(tools_path).SetLastSlash().Cat("RC_CONV.PL").Space().CatChar('<').Space().Cat(outf.GetName()).Space().CatChar('>').Space().Cat(final_file_name);
+						SECURITY_ATTRIBUTES sa;
+						sa.nLength = sizeof(SECURITY_ATTRIBUTES);
+						sa.bInheritHandle = TRUE;
+						sa.lpSecurityDescriptor = NULL;
+
+						HANDLE h_inp = ::CreateFileW(SUcSwitchW(temp_file_name),  GENERIC_READ,  FILE_SHARE_READ, &sa, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
+						HANDLE h_out = ::CreateFileW(SUcSwitchW(final_file_name), GENERIC_WRITE, FILE_SHARE_WRITE, &sa, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
+						uint   exit_code;
+						if(!__Execute(perl_cmd, h_inp, h_out, &exit_code)) {
+							error((msg_buf = "Fault execute command").Space().Cat(perl_cmd));
+						}
+						else if(exit_code == 0) {
+							// @ok
+						}
+						::CloseHandle(h_inp);
+						::CloseHandle(h_out);
+						SFile::Remove(temp_file_name);
+					}
 				}
 				else {
-					finalf.Close();
-					SFile::Remove(final_file_name);
-					do_process = 1;
+					printf((msg_buf = "All files are up to date").CR());
 				}
 			}
-			if(do_process) {
+		}
+		else if(inp_file_name.NotEmpty()) {
+			nothing_to_do = false;
+			/*if(inp_file_name.IsEmpty() && inp_file_name_list.IsEmpty()) {
+				error("Undefined input file name or list of file");
+			}*/
+			if(out_file_name.IsEmpty()) {
+				error("Output file name is undefined");
+			}
+			else {
 				SFile outf(out_file_name, SFile::mWrite);
 				if(!outf.IsValid()) {
 					msg_buf.Printf("Unable open output file %s", out_file_name.cptr());
 					error(msg_buf);
 				}
-				// Проверяя время модификации файлов мы переместили текущую позицию - вернем назад
-				rspf.Seek(0); 
-				//
-				if(tools_path.NotEmptyS()) {
-					if(!dlgdsn_exec_path.NotEmptyS()) {
-						(dlgdsn_exec_path = tools_path).SetLastSlash().Cat("dlgdsn.exe");
-					}
-					(perl_cmd = tools_path).SetLastSlash().Cat("perl").SetLastSlash().Cat("perl").Space().
-						Cat(tools_path).SetLastSlash().Cat("RC_CONV.PL");
+				if(!fileExists(inp_file_name)) {
+					error((msg_buf = "File").Space().CatChar('\'').Cat(inp_file_name).CatChar('\'').Space().Cat("not fount"));
 				}
-				if(use_vdos) {
-					ExecVDosParam evd_param;
-					StringSet ss_in_files;
-					StringSet ss_out_files;
-					while(rspf.ReadLine(temp_buf)) {
-						if(temp_buf.Chomp().NotEmptyS()) {
-							if(temp_buf.CmpPrefix("//", 0) != 0 && temp_buf.CmpPrefix("--", 0) != 0) { // @v10.5.3 comments
-								//printf((msg_buf = "Processing file").Space().Cat(temp_buf).CR());
-								ss_in_files.add(temp_buf);
-							}
-						}
-					}
-					(evd_param.ExePath = tools_path).SetLastSlash().Cat("vdos");
-					(evd_param.StartUpPath = evd_param.ExePath).SetLastSlash().Cat("..").SetLastSlash().Cat("..");
-					evd_param.Flags |= (evd_param.fExitAfter|evd_param.fWait);
-					if(ProcessFileNameVDos(ss_in_files, ss_out_files, evd_param, inp_file_path, tools_path)) {
-						printf((msg_buf = "Processing dialog files").CR());
-						if(!ExecVDos(evd_param)) {
-							error((msg_buf = "Fault execute vdos"));
-						}
-						else {
-							for(uint ssp = 0; ss_out_files.get(&ssp, temp_buf);) {
-								if(::fileExists(temp_buf)) {
-									fprintf(outf, "\n\n");
-									ScpDialogProcessor prc(outf);
-									prc.Run(temp_buf);
-								}
-								else {
-									printf((msg_buf = "Warning: file").Space().Cat(temp_buf).Space().Cat("not found").CR());
-								}
-							}
-						}
-					}
+				if(ProcessFileName(inp_file_name, inp_file_path, dlgdsn_exec_path)) {
+					fprintf(outf, "\n\n");
+					ScpDialogProcessor prc(outf);
+					prc.Run(inp_file_name);
 				}
-				else {
-					while(rspf.ReadLine(temp_buf)) {
-						if(temp_buf.Chomp().NotEmptyS()) {
-							printf((msg_buf = "Processing file").Space().Cat(temp_buf).CR());
-							if(ProcessFileName(temp_buf, inp_file_path, dlgdsn_exec_path)) {
-								fprintf(outf, "\n\n");
-								ScpDialogProcessor prc(outf);
-								prc.Run(temp_buf);
-							}
-						}
-					}
-				}
-				outf.Close();
-				if(perl_cmd.NotEmptyS()) {
-					//
-					// Надо отконвертировать кодировку символов OemToChar
-					// Для этого придется создать временный файл с расширением tmp и пренести в него 
-					// файл out_file_name в перекодированном виде.
-					//
-					SString temp_file_name;
-					temp_file_name = out_file_name;
-					SFsPath::ReplaceExt(temp_file_name = out_file_name, "tmp", 1);
-					{
-						SFile tempf(temp_file_name, SFile::mWrite);
-						if(!tempf.IsValid()) {
-							error((msg_buf = "Error opening file").Space().Cat(temp_file_name));
-						}
-						outf.Open(out_file_name, SFile::mRead);
-						if(!outf.IsValid()) {
-							error((msg_buf = "Error opening file").Space().Cat(out_file_name));
-						}
-						while(outf.ReadLine(temp_buf)) {
-							temp_buf.ToChar();
-							tempf.WriteLine(temp_buf);
-						}
-						outf.Close();
-					}
-					//
-					//(perl_cmd = tools_path).SetLastSlash().Cat("perl").SetLastSlash().Cat("perl").Space().
-					//	Cat(tools_path).SetLastSlash().Cat("RC_CONV.PL").Space().CatChar('<').Space().Cat(outf.GetName()).Space().CatChar('>').Space().Cat(final_file_name);
-					SECURITY_ATTRIBUTES sa;
-					sa.nLength = sizeof(SECURITY_ATTRIBUTES);
-					sa.bInheritHandle = TRUE;
-					sa.lpSecurityDescriptor = NULL;
-
-					HANDLE h_inp = ::CreateFile(SUcSwitch(temp_file_name),  GENERIC_READ,  FILE_SHARE_READ, &sa, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
-					HANDLE h_out = ::CreateFile(SUcSwitch(final_file_name), GENERIC_WRITE, FILE_SHARE_WRITE, &sa, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
-					uint   exit_code;
-					if(!__Execute(perl_cmd, h_inp, h_out, &exit_code)) {
-						error((msg_buf = "Fault execute command").Space().Cat(perl_cmd));
-					}
-					else if(exit_code == 0) {
-						// @ok
-					}
-					::CloseHandle(h_inp);
-					::CloseHandle(h_out);
-					SFile::Remove(temp_file_name);
-				}
-			}
-			else {
-				printf((msg_buf = "All files are up to date").CR());
-			}
-		}
-		else {
-			SFile outf(out_file_name, SFile::mWrite);
-			if(!outf.IsValid()) {
-				msg_buf.Printf("Unable open output file %s", out_file_name.cptr());
-				error(msg_buf);
-			}
-			if(!fileExists(inp_file_name)) {
-				error((msg_buf = "File").Space().CatChar('\'').Cat(inp_file_name).CatChar('\'').Space().Cat("not fount"));
-			}
-			if(ProcessFileName(inp_file_name, inp_file_path, dlgdsn_exec_path)) {
-				fprintf(outf, "\n\n");
-				ScpDialogProcessor prc(outf);
-				prc.Run(inp_file_name);
 			}
 		}
 	}

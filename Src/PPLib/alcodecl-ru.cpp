@@ -1475,6 +1475,16 @@ int PPViewAlcoDeclRu::Export()
 									loc_region_code = temp_buf.ToLong();
 								}
 								n2.PutAttrib(g.GetToken_Ansi(PPHSC_RU_APPEL), (temp_buf = main_org_name).Transf(CTRANSF_INNER_TO_OUTER));
+								// @v12.4.4 {
+								// «1» – продажа крепкого алкоголя в заведениях общепита (кроме пива, сидра, медовухи);
+								// «2» – розничная продажа алкоголя в населенных пунктах без интернета;
+								// «3» – реализация непищевой спиртосодержащей продукции;
+								// «4» – продажа алкоголя на борту самолетов (в качестве припасов);
+								// «5» – розница ввезенного алкоголя и спиртосодержащей продукции (по особым таможенным правилам);
+								// «6» – продажа алкоголя в зонах беспошлинной торговли.
+								// 
+								n2.PutAttrib(g.GetToken_Ansi(PPHSC_RU_RETAILSALEKIND), "1"); // в большинстве случаев (наших) фиксированная единица сойдет.
+								// } @v12.4.4 
 								n2.PutAttrib(g.GetToken_Ansi(PPHSC_RU_KPPJUR), (temp_buf = loc_kpp));
 								g.WriteAddress(addr_loc_pack_, loc_region_code, PPHSC_RU_ORGADDR);
 							}

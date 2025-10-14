@@ -2092,7 +2092,6 @@ int PPObjectTransmit::MakeTransmitFileName(SString & rFileName, S_GUID * pDbDivU
 
 /*static*/int PPObjectTransmit::TransmitModificationsByDBDivList(const ObjTransmitParam * pParam)
 {
-	MemLeakTracer mlt;
 	int    ok = 1;
 	PPLogger logger;
 	ObjTransmitParam param;

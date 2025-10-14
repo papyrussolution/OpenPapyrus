@@ -18,17 +18,19 @@
 
 int __archive_create_child(const char * cmd, int * child_stdin, int * child_stdout, HANDLE * out_child)
 {
-	HANDLE childStdout[2], childStdin[2], childStderr;
-	SECURITY_ATTRIBUTES secAtts;
-	STARTUPINFOA staInfo;
+	HANDLE childStdout[2];
+	HANDLE childStdin[2];
+	HANDLE childStderr;
 	PROCESS_INFORMATION childInfo;
 	archive_string cmdline;
 	archive_string fullpath;
 	struct archive_cmdline * acmd;
 	char * arg0;
 	const char * ext;
-	int i, l;
-	DWORD fl, fl_old;
+	int i;
+	int l;
+	DWORD fl;
+	DWORD fl_old;
 	HANDLE child;
 	childStdout[0] = childStdout[1] = INVALID_HANDLE_VALUE;
 	childStdin[0] = childStdin[1] = INVALID_HANDLE_VALUE;
@@ -60,7 +62,6 @@ int __archive_create_child(const char * cmd, int * child_stdin, int * child_stdo
 	} while(fl != 0 && fl > fl_old);
 	if(fl == 0)
 		goto fail;
-
 	/*
 	 * Make a command line.
 	 */
@@ -73,7 +74,8 @@ int __archive_create_child(const char * cmd, int * child_stdin, int * child_stdo
 		goto fail;
 	for(i = 0; acmd->argv[i] != NULL; i++) {
 		if(i == 0) {
-			const char * p, * sp;
+			const char * p;
+			const char * sp;
 			if((p = sstrchr(acmd->argv[i], '/')) != NULL || (p = sstrchr(acmd->argv[i], '\\')) != NULL)
 				p++;
 			else
@@ -97,28 +99,34 @@ int __archive_create_child(const char * cmd, int * child_stdin, int * child_stdo
 		if(sp)
 			archive_strappend_char(&cmdline, '"');
 	}
-	secAtts.nLength = sizeof(SECURITY_ATTRIBUTES);
-	secAtts.bInheritHandle = TRUE;
-	secAtts.lpSecurityDescriptor = NULL;
-	if(CreatePipe(&childStdout[0], &childStdout[1], &secAtts, 0) == 0)
-		goto fail;
-	if(!SetHandleInformation(childStdout[0], HANDLE_FLAG_INHERIT, 0))
-		goto fail;
-	if(CreatePipe(&childStdin[0], &childStdin[1], &secAtts, 0) == 0)
-		goto fail;
-	if(!SetHandleInformation(childStdin[1], HANDLE_FLAG_INHERIT, 0))
-		goto fail;
-	if(DuplicateHandle(GetCurrentProcess(), GetStdHandle(STD_ERROR_HANDLE), GetCurrentProcess(), &childStderr, 0, TRUE, DUPLICATE_SAME_ACCESS) == 0)
-		goto fail;
-	memzero(&staInfo, sizeof(staInfo));
-	staInfo.cb = sizeof(staInfo);
-	staInfo.hStdError = childStderr;
-	staInfo.hStdOutput = childStdout[1];
-	staInfo.hStdInput = childStdin[0];
-	staInfo.wShowWindow = SW_HIDE;
-	staInfo.dwFlags = STARTF_USESTDHANDLES | STARTF_USESHOWWINDOW;
-	if(CreateProcessA(fullpath.s, cmdline.s, NULL, NULL, TRUE, 0, NULL, NULL, &staInfo, &childInfo) == 0)
-		goto fail;
+	{
+		SECURITY_ATTRIBUTES secAtts;
+		secAtts.nLength = sizeof(SECURITY_ATTRIBUTES);
+		secAtts.bInheritHandle = TRUE;
+		secAtts.lpSecurityDescriptor = NULL;
+		if(CreatePipe(&childStdout[0], &childStdout[1], &secAtts, 0) == 0)
+			goto fail;
+		if(!SetHandleInformation(childStdout[0], HANDLE_FLAG_INHERIT, 0))
+			goto fail;
+		if(CreatePipe(&childStdin[0], &childStdin[1], &secAtts, 0) == 0)
+			goto fail;
+		if(!SetHandleInformation(childStdin[1], HANDLE_FLAG_INHERIT, 0))
+			goto fail;
+		if(DuplicateHandle(GetCurrentProcess(), GetStdHandle(STD_ERROR_HANDLE), GetCurrentProcess(), &childStderr, 0, TRUE, DUPLICATE_SAME_ACCESS) == 0)
+			goto fail;
+	}
+	{
+		STARTUPINFOA staInfo;
+		memzero(&staInfo, sizeof(staInfo));
+		staInfo.cb = sizeof(staInfo);
+		staInfo.hStdError = childStderr;
+		staInfo.hStdOutput = childStdout[1];
+		staInfo.hStdInput = childStdin[0];
+		staInfo.wShowWindow = SW_HIDE;
+		staInfo.dwFlags = STARTF_USESTDHANDLES | STARTF_USESHOWWINDOW;
+		if(CreateProcessA(fullpath.s, cmdline.s, NULL, NULL, TRUE, 0, NULL, NULL, &staInfo, &childInfo) == 0)
+			goto fail;
+	}
 	WaitForInputIdle(childInfo.hProcess, INFINITE);
 	CloseHandle(childInfo.hProcess);
 	CloseHandle(childInfo.hThread);

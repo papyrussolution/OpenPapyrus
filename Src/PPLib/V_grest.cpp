@@ -2566,12 +2566,12 @@ int PPViewGoodsRest::CreateTempTable(int use_ta, double * pPrfMeasure)
 	PPIDArray group_goods_list;
 	const  PPIDArray * p_group_goods_list = 0;
 	ZDELETE(P_Tbl);
-	DeficitList.freeAll();
-	ExclDeficitList.freeAll();
-	DraftRcptList.freeAll();
-	ExclDraftRcptList.freeAll();
-	UncompleteSessQttyList.freeAll();
-	ExclUncompleteSessQttyList.freeAll();
+	DeficitList.clear();
+	ExclDeficitList.Z();
+	DraftRcptList.clear();
+	ExclDraftRcptList.clear();
+	UncompleteSessQttyList.clear();
+	ExclUncompleteSessQttyList.clear();
 	if(P_BObj) {
 		if(Filt.Flags & GoodsRestFilt::fCalcDeficit) {
 			prf_measure_coeff *= 1.1;
@@ -2589,40 +2589,6 @@ int PPViewGoodsRest::CreateTempTable(int use_ta, double * pPrfMeasure)
 	if(Filt.Flags & GoodsRestFilt::fCalcUncompleteSess) {
 		prf_measure_coeff *= 1.1;
 		CCheckTbl.GetActiveExpendByLocList(&LocList, &UncompleteSessQttyList);
-#if 0 // @v8.5.2 кассовые чеки полностью отражают текущие продажи - драфт-документы не нужны {
-		if(P_BObj) {
-			uint   i;
-			PPIDArray cashn_list, loc_list;
-			PPObjCashNode obj_cashn;
-			PPObjLocation obj_loc;
-			if(loc_list_empty)
-				obj_loc.GetWarehouseList(&loc_list);
-			else
-				LocList.CopyTo(&loc_list);
-			for(i = 0; i < loc_list.getCount(); i++)
-				obj_cashn.GetListByLoc(loc_list.at(i), cashn_list);
-			for(i = 0; i < cashn_list.getCount(); i++) {
-				PPGenCashNode cashn_rec;
-				if(obj_cashn.Get(cashn_list.at(i), &cashn_rec) > 0 && cashn_rec.CurRestBillID) {
-					PPBillPacket bpack;
-					if(P_BObj->ExtractPacket(cashn_rec.CurRestBillID, &bpack) > 0) {
-						PPTransferItem * p_ti = 0;
-						for(uint j = 0; bpack.EnumTItems(&j, &p_ti) > 0;) {
-							uint pos = 0;
-							DraftRcptItem dr_item;
-							dr_item.GoodsID = p_ti->GoodsID;
-							dr_item.LocID   = p_ti->LocID;
-							dr_item.Qtty    = -p_ti->Qtty();
-							if(UncompleteSessQttyList.lsearch(&dr_item, &pos, PTR_CMPFUNC(_2long)) > 0)
-								UncompleteSessQttyList.at(pos).Qtty += dr_item.Qtty;
-							else
-								UncompleteSessQttyList.insert(&dr_item);
-						}
-					}
-				}
-			}
-		}
-#endif // } 0 // @v8.5.2
 		UncompleteSessQttyList.sort(PTR_CMPFUNC(_2long));
 	}
 	if(!(Filt.Flags & GoodsRestFilt::fCalcTotalOnly)) {
@@ -3500,22 +3466,22 @@ int PPViewGoodsRest::CellStyleFunc_(const void * pData, long col, int paintActio
 				brw_id = BROWSER_GOODSREST_PRGN;
 		}
 		else {
-			if(Filt.Flags & (GoodsRestFilt::fCalcOrder | GoodsRestFilt::fNoZeroOrderOnly))
+			if(Filt.Flags & (GoodsRestFilt::fCalcOrder | GoodsRestFilt::fNoZeroOrderOnly)) {
 				if(Filt.Flags & GoodsRestFilt::fBarCode) {
-					// @v11.0.0 brw_id = BROWSER_BCGDSRESTORDER;
-					brw_id = BROWSER_GOODSRESTORDER; // @v11.0.0 
+					brw_id = BROWSER_GOODSRESTORDER;
 				}
 				else
 					brw_id = BROWSER_GOODSRESTORDER;
-			else
+			}
+			else {
 				if(Filt.Flags & GoodsRestFilt::fBarCode) {
-					// @v11.0.0 brw_id = BROWSER_BCGDSREST;
-					brw_id = BROWSER_GOODSREST; // @v11.0.0 
+					brw_id = BROWSER_GOODSREST;
 				}
 				else if(DS.CheckExtFlag(ECF_GOODSRESTPACK))
 					brw_id = BROWSER_GOODSREST_UPP;
 				else
 					brw_id = BROWSER_GOODSREST;
+			}
 		}
 		if(oneof5(ord, OrdByPrice, OrdByGrp_Price, OrdByBarCode, OrdByGrp_BarCode, OrdByRest)) // @v11.4.6 OrdByRest
 			THROW(CreateOrderTable(ord, &p_ot));

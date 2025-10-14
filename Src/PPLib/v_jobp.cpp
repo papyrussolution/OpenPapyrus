@@ -318,7 +318,6 @@ int JobPoolDialog::delItem(long pos, long id)
 
 int ViewJobPool()
 {
-	MemLeakTracer mlt;
 	int    ok = -1;
 	PPJobMngr mngr;
 	PPJobPool pool(&mngr, 0, 0);

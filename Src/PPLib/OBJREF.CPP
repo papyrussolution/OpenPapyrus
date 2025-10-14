@@ -65,7 +65,6 @@ void ObjViewDialog::addItem()
 
 void ObjViewDialog::editItem()
 {
-	MemLeakTracer mlt;
 	PPID   id = getCurrID();
 	if((Rt & PPR_MOD) && id && P_Obj->Edit(&id, ExtraPtr) == cmOK)
 		updateList(-1);

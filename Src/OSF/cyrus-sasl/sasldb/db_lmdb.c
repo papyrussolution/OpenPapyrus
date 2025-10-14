@@ -149,58 +149,43 @@ int _sasldb_getdata(const sasl_utils_t * utils, sasl_conn_t * context, const cha
 	}
 	/* open the db */
 	result = do_open(utils, context, 0, &txn);
-	if(result != SASL_OK) goto cleanup;
-
+	if(result != SASL_OK) 
+		goto cleanup;
 	/* create the key to search for */
 	dbkey.mv_data = key;
 	dbkey.mv_size = key_len;
-
 	/* ask MDB for the entry */
 	result = mdb_get(txn, db_dbi, &dbkey, &data);
-
 	switch(result) {
 		case 0:
 		    /* success */
 		    break;
-
 		case MDB_NOTFOUND:
 		    result = SASL_NOUSER;
-		    utils->seterror(context, SASL_NOLOG,
-			"user: %s@%s property: %s not found in sasldb",
-			auth_identity, realm, propName);
+		    utils->seterror(context, SASL_NOLOG, "user: %s@%s property: %s not found in sasldb", auth_identity, realm, propName);
 		    goto cleanup;
 		    break;
 		default:
-		    utils->seterror(context, 0,
-			"error fetching from sasldb: %s",
-			mdb_strerror(result));
+		    utils->seterror(context, 0, "error fetching from sasldb: %s", mdb_strerror(result));
 		    result = SASL_FAIL;
 		    goto cleanup;
 		    break;
 	}
-
 	if(data.mv_size > max_out + 1)
 		return SASL_BUFOVER;
-
-	if(out_len) *out_len = data.mv_size;
+	if(out_len) 
+		*out_len = data.mv_size;
 	memcpy(out, data.mv_data, data.mv_size);
 	out[data.mv_size] = '\0';
-
 cleanup:
-
 	mdb_txn_abort(txn);
 	utils->FnFree(key);
-
 	return result;
 }
-
 /*
  * Put or delete an entry
- *
- *
  */
-int _sasldb_putdata(const sasl_utils_t * utils, sasl_conn_t * context, const char * authid, const char * realm,
-    const char * propName, const char * data_in, size_t data_len)
+int _sasldb_putdata(const sasl_utils_t * utils, sasl_conn_t * context, const char * authid, const char * realm, const char * propName, const char * data_in, size_t data_len)
 {
 	int result = SASL_OK;
 	char * key;
@@ -224,17 +209,15 @@ int _sasldb_putdata(const sasl_utils_t * utils, sasl_conn_t * context, const cha
 	}
 	/* open the db */
 	result = do_open(utils, context, 1, &txn);
-	if(result!=SASL_OK) goto cleanup;
-
+	if(result!=SASL_OK) 
+		goto cleanup;
 	/* create the db key */
 	dbkey.mv_data = key;
 	dbkey.mv_size = key_len;
-
 	if(data_in) { /* putting secret */
 		MDB_val data;
-
 		data.mv_data = (char *)data_in;
-		if(!data_len) data_len = strlen(data_in);
+		SETIFZQ(data_len, strlen(data_in));
 		data.mv_size = data_len;
 		result = mdb_put(txn, db_dbi, &dbkey, &data, 0);
 		if(result != 0) {
@@ -289,13 +272,10 @@ int _sasl_check_db(const sasl_utils_t * utils, sasl_conn_t * conn)
 		utils->seterror(conn, 0, "verifyfile failed");
 		return ret;
 	}
-
 	ret = vf(cntxt, path, SASL_VRFY_PASSWD);
-
 	if(ret == SASL_OK) {
 		db_ok = 1;
 	}
-
 	if(ret == SASL_OK || ret == SASL_CONTINUE) {
 		return SASL_OK;
 	}
@@ -305,16 +285,14 @@ int _sasl_check_db(const sasl_utils_t * utils, sasl_conn_t * conn)
 }
 
 #if defined(KEEP_DB_OPEN)
-void sasldb_auxprop_free(void * glob_context __attribute__((unused)),
-    const sasl_utils_t * utils __attribute__((unused)))
+void sasldb_auxprop_free(void * glob_context __attribute__((unused)), const sasl_utils_t * utils __attribute__((unused)))
 {
 	do_close();
 }
 
 #endif
 
-sasldb_handle _sasldb_getkeyhandle(const sasl_utils_t * utils,
-    sasl_conn_t * conn)
+sasldb_handle _sasldb_getkeyhandle(const sasl_utils_t * utils, sasl_conn_t * conn)
 {
 	int ret;
 	MDB_txn * txn;

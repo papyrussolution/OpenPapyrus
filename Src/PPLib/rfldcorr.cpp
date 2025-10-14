@@ -3276,7 +3276,6 @@ int ImpExpCfgsListDialog::GetParamDlgDTS(ImpExpParamDialog * pDlg, uint cfgPos, 
 
 int ImpExpCfgsListDialog::EditParam(const char * pIniSection, long * pCDbID)
 {
-	MemLeakTracer mlt;
 	int    ok = -1;
 	int    is_exists = 0;
 	long   cdb_id = DEREFPTRORZ(pCDbID);

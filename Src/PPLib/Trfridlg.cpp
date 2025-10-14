@@ -379,7 +379,7 @@ int EditTransferItem(PPBillPacket & rPack, int itemNo, TIDlgInitData * pInitData
 		valid_data = dlg->getDTS(p_item, &extra_qtty);
 		if(valid_data && r_cfg.Flags & CFGFLG_UNIQUELOT) {
 			for(i = 0; valid_data && rPack.EnumTItems(&i, &p_ti);) {
-				if((i-1) != (uint)itemNo && p_ti->LotID && p_ti->LotID == p_item->LotID) 
+				if((i-1) != static_cast<uint>(itemNo) && p_ti->LotID && p_ti->LotID == p_item->LotID) 
 					valid_data = (PPError(PPERR_DUPLOTSINPACKET, 0), 0);
 			}
 		}

@@ -738,8 +738,6 @@ int PPViewTSessAnlz::CalcArTimes(const PPDutySchedPacket * pDsPack, const STimeC
 	return ok;
 }
 
-// @v8.6.6 PP_CREATE_TEMP_FILE_PROC(CreateTempFile, TempTSessRep);
-
 int PPViewTSessAnlz::CreateTSessFiltByPlan(const TSessionTbl::Rec * pPlanRec, TSessionFilt * pFilt) const
 {
 	pFilt->PrcID = pPlanRec->PrcID;

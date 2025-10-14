@@ -957,14 +957,15 @@ int PPViewSysJournal::ViewBillHistory(PPID histID, LDATETIME evDtm)
 			PPBillPacket pack;
 			ObjVersioningCore * p_ovc = PPRef->P_OvT;
 			if(p_ovc && p_ovc->InitSerializeContext(1)) {
+				PPObjBill * p_bobj = BillObj;
 				SSerializeContext & r_sctx = p_ovc->GetSCtx();
 				PPObjID oid;
 				long   vv = 0;
 				THROW(p_ovc->Search(histID, &oid, &vv, &buf) > 0);
-				THROW(BillObj->SerializePacket__(-1, &pack, buf, &r_sctx));
+				THROW(p_bobj->SerializePacket__(-1, &pack, buf, &r_sctx));
 				pack.ProcessFlags |= (PPBillPacket::pfZombie | PPBillPacket::pfUpdateProhibited);
 				if(GetOpType(pack.Rec.OpID) == PPOPT_INVENTORY) {
-					THROW(BillObj->EditInventory(&pack, 0));
+					THROW(p_bobj->EditInventory(&pack, 0));
 				}
 				else {
 					THROW(::EditGoodsBill(&pack, PPObjBill::efNoUpdNotif));

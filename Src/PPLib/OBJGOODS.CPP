@@ -3633,7 +3633,6 @@ int PPObjGoods::EditClsdGoods(PPGoodsPacket * pPack, int modifyOnlyExtRec)
 
 int PPObjGoods::Helper_Edit(PPID * pID, PPGoodsPacket * pPack, GoodsPacketKind gpk, int isNew, int viewOnly /*=0*/)
 {
-	MemLeakTracer mlt;
 	int    r = cmCancel;
 	int    use_std_dialog = 1;
 	GoodsDialog * dlg = 0;
@@ -3697,7 +3696,6 @@ int PPObjGoods::Helper_Edit(PPID * pID, PPGoodsPacket * pPack, GoodsPacketKind g
 			THROW(CheckDialogPtr(&dlg));
 			THROW(dlg->setDTS(pPack));
 			while(!valid_data && (r = ExecView(dlg)) == cmOK) {
-				MemLeakTracer mlt;
 				THROW(CheckRightsModByID(pID));
 				if(viewOnly)
 					valid_data = 1;

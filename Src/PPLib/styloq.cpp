@@ -5885,7 +5885,7 @@ StyloQBlobInfo & StyloQBlobInfo::Z()
 {
 	Oid.Z();
 	BlobN = 0;
-	Ff.Clear();
+	Ff.Z();
 	HashAlg = 0;
 	Hash.Z();
 	SrcPath.Z();
@@ -13419,7 +13419,6 @@ int PPStyloQInterchange::Helper_PrepareAhed(const StyloQCommandList & rFullCmdLi
 	bool   is_logged_in = false;
 	THROW(StyloQCommandList::GetFullList(0, full_cmd_list));
 	if(useCurrentSession) {
-		//MemLeakTracer mlt;
 		THROW(DS.GetConstTLA().IsAuth());
 		{
 			PPStyloQInterchange ic;

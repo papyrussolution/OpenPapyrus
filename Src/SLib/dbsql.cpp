@@ -1609,7 +1609,7 @@ int SOraDbProvider::IsFileExists_(const char * pFileName)
 	return BIN(GetFileStat(pFileName, 0, 0) > 0);
 }
 
-SString & SOraDbProvider::GetTemporaryFileName(SString & rFileNameBuf, long * pStart, int forceInDataPath)
+SString & SOraDbProvider::GetTemporaryFileName(SString & rFileNameBuf, long * pStart, bool forceInDataPath)
 {
 	if(pStart == 0) {
 		SString temp_buf;
@@ -1629,7 +1629,7 @@ SString & SOraDbProvider::GetTemporaryFileName(SString & rFileNameBuf, long * pS
 int SOraDbProvider::CreateDataFile(const DBTable * pTbl, const char * pFileName, int createMode, const char * pAltCode)
 {
 	int    ok = 1;
-	THROW(SqlGen.Z().CreateTable(*pTbl, 0, false, 1));
+	THROW(SqlGen.Z().CreateTable(*pTbl, 0, Generator_SQL::ctfIndent));
 	{
 		SSqlStmt stmt(this, SqlGen);
 		THROW(stmt.Exec(1, OCI_DEFAULT));

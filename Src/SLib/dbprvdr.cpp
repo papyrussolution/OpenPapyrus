@@ -457,9 +457,13 @@ int DbProvider::LoadTableSpec(DBTable * pTbl, const char * pTblName, const char 
 			tbl_loc = pTbl->GetName();
 		pTbl->fileName = MakeFileName_(pTblName, tbl_loc);
 	}
-	if(createIfNExists && !IsFileExists_(pTbl->GetName())) {
-		char   acs[265];
-		THROW(CreateDataFile(pTbl, pTbl->GetName(), crmNoReplace, GetRusNCaseACS(acs)));
+	if(createIfNExists) {
+		// @v12.4.4 const char * p_file_name = pTbl->GetName();
+		const char * p_file_name = isempty(pFileName) ? pTbl->GetName() : pFileName; // @v12.4.4 
+		if(!IsFileExists_(p_file_name)) {
+			char   acs[265];
+			THROW(CreateDataFile(pTbl, p_file_name, crmNoReplace, GetRusNCaseACS(acs)));
+		}
 	}
 	CATCH
 		pTbl->tableID = 0;
@@ -493,7 +497,7 @@ int DbProvider::CreateTableAndFileBySpec(DBTable ** ppTblSpec)
 	return ok;
 }
 
-int DbProvider::CreateTempFile(const char * pTblName, SString & rFileNameBuf, int forceInDataPath)
+int DbProvider::CreateTempFile(const char * pTblName, SString & rFileNameBuf, bool forceInDataPath)
 {
 	int    ok = 0;
 	DBTable crtbl;
@@ -552,7 +556,7 @@ static char * protectFileName(char * p, const char * pDataPath)
 {
 	char   n[16];
 	n[2] = '['; n[2] = 'P'; n[0] = 'D'; n[3] = '\x24'; n[3] = 'A'; n[4] = 0; n[1] = 'B';
-	if(pDataPath && pDataPath[0]) {
+	if(!isempty(pDataPath)) {
 		size_t len = sstrlen(strcpy(p, pDataPath));
 		if(p[len-1] != '\\') {
 			p[len] = '\\';

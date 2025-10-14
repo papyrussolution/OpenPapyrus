@@ -680,7 +680,7 @@ DBQ::DBQ(DBItem & left, int cmp, DBItem & right) : count(1), items(new T)
 		items[0].flags |= DBQ_OUTER;
 		cmp = _EQ_;
 	}
-	items[0].cmp = cmp;
+	items[0].Cmpf = cmp;
 	switch(left.typeOfItem()) {
 		case DBConst_ID: items[0].left.C  = *static_cast<DBConst *>(&left);  break;
 		case DBE_ID:     items[0].left.E  = *static_cast<DBE *>(&left); break;
@@ -772,7 +772,7 @@ int DBQ::testForKey(int itm, int tblID, int * pIsDyn)
 		}
 	}
 	// Если сравнение типа _NE_, индекс не может быть использован
-	if(items[itm].cmp == _NE_)
+	if(items[itm].Cmpf == _NE_)
 		return 0;
 	return 1;
 }
@@ -783,7 +783,7 @@ int DBQ::getPotentialKey(int itm, int tblID, int segment, KR * kr)
 	if(kr->P_h == 0 || testForKey(itm, tblID, &dyn) == 0)
 		return 0;
 	int    l   = items[itm].left.GetId();
-	int    cmp = items[itm].cmp;
+	int    cmp = items[itm].Cmpf;
 	int    seg;
 	int    keyPos;
 	char   val[BTRMAXKEYLEN];
@@ -853,7 +853,7 @@ int FASTCALL DBQ::checkTerm(int itm)
 		if(!t->left.getValue(&l) || !t->right.getValue(&r))
 			return 0;
 		else {
-			int    cmp = t->cmp;
+			const  int cmp = t->Cmpf;
 			int    c = compare(&l, &r);
 			l.destroy();
 			r.destroy();
@@ -1074,7 +1074,21 @@ int DBDataCell::CreateSqlExpr(Generator_SQL & rGen) const
 	}
 	else if(GetId() == DBConst_ID) {
 		char   temp[512];
-		C.tostring(COMF_SQL, temp);
+		bool   local_done = false;
+		// @v12.4.4 {
+		if(rGen.GetServerType() == sqlstSQLite) {
+			if(C.baseType() == BTS_DATE) {
+				ultoa(C.dval.v, temp, 10);
+				local_done = true;
+			}
+			else if(C.baseType() == BTS_TIME) {
+				ultoa(C.tval.v, temp, 10);
+				local_done = true;
+			}
+		}
+		// } @v12.4.4 
+		if(!local_done)
+			C.tostring(COMF_SQL, temp);
 		rGen.Text(temp);
 	}
 	else if(GetId() == DBE_ID)
@@ -1096,7 +1110,7 @@ int DBQ::CreateSqlExpr(Generator_SQL & rGen, int itm) const
 	else {
 		t->left.CreateSqlExpr(rGen);
 		//rGen.Sp();
-		rGen._Symb(t->cmp);
+		rGen._Symb(t->Cmpf);
 		//rGen.Sp();
 		t->right.CreateSqlExpr(rGen);
 	}

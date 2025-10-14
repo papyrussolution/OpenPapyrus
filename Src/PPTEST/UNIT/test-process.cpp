@@ -5,6 +5,151 @@
 #include <pp.h>
 #pragma hdrstop
 #include <wsctl.h>
+#include <aclapi.h>
+
+SLTEST_R(SecurityAttributes) // @v12.4.4
+{
+	class LocalBlock {
+	public:
+		static int Helper_CreateDir(const SString & rDir, bool useSA)
+		{
+			int    ok = -1;
+			SECURITY_DESCRIPTOR * p_sd = 0;
+			ACL * p_new_dacl = 0;
+			SECURITY_ATTRIBUTES sa;
+			SECURITY_ATTRIBUTES * p_sa = 0;
+			if(useSA) {
+				S_WinSID current_user_sid;
+				if(SlProcess::GetCurrentUserSid(current_user_sid)) {	
+					EXPLICIT_ACCESS_W ea;
+					MEMSZERO(ea);
+					ea.grfAccessPermissions = GENERIC_ALL|STANDARD_RIGHTS_ALL|SPECIFIC_RIGHTS_ALL;
+					ea.grfAccessMode = SET_ACCESS;
+					ea.grfInheritance = CONTAINER_INHERIT_ACE|OBJECT_INHERIT_ACE;
+					ea.Trustee.TrusteeForm = TRUSTEE_IS_SID;
+					ea.Trustee.TrusteeType = TRUSTEE_IS_USER;
+					//ea.Trustee.ptstrName = (LPWSTR)pUserSid;
+					ea.Trustee.ptstrName = static_cast<LPWSTR>(current_user_sid.GetPtr());
+					{
+						// Создаем новый DACL
+						const DWORD seia_r = ::SetEntriesInAclW(1, &ea, 0/*p_old_dacl*/, &p_new_dacl);
+						THROW(seia_r == ERROR_SUCCESS); // std::wcerr << L"SetEntriesInAcl failed: " << seia_r << std::endl;
+						//
+						p_sd = (SECURITY_DESCRIPTOR *)::LocalAlloc(LPTR, SECURITY_DESCRIPTOR_MIN_LENGTH);
+						THROW(::InitializeSecurityDescriptor(p_sd, SECURITY_DESCRIPTOR_REVISION));
+						THROW(::SetSecurityDescriptorDacl(p_sd, TRUE/*bDaclPresent flag*/, p_new_dacl, FALSE/*not a default DACL*/));
+						//
+						{
+							MEMSZERO(sa);
+							sa.nLength = sizeof(sa);
+							sa.lpSecurityDescriptor = p_sd;
+							p_sa = &sa;
+						}
+					}
+				}
+			}
+			{
+				int    cdr = 0;
+				if(p_sa) {
+					cdr = SFile::CreateDirSA(rDir, p_sa);
+				}
+				else {
+					cdr = SFile::CreateDir(rDir);
+				}
+				if(cdr) {
+					ok = 1;
+				}
+				else {
+					ok = 0;
+				}
+			}
+			CATCHZOK
+			if(p_sd) {
+				::LocalFree(p_sd);
+			}
+			if(p_new_dacl) {
+				::LocalFree(p_new_dacl);
+			}
+			return ok;
+		}
+	};
+	SString temp_buf;
+	SString base_directory;
+	SString work_dir;
+	uint   arg_no = 0;
+	PSECURITY_DESCRIPTOR p_sd = 0;
+	S_WinSID current_user_sid;
+	if(EnumArg(&arg_no, temp_buf))
+		base_directory = temp_buf;
+	else {
+		(base_directory = GetSuiteEntry()->OutPath).SetLastSlash().Cat("TEST-DIRECTORY");
+	}
+	if(!SFile::IsDir(base_directory)) {
+		THROW(SFile::CreateDir(base_directory));
+	}
+	{
+		for(long i = 1; i < 10000; i++) {
+			(work_dir = base_directory).SetLastSlash().CatLongZ(i, 5);
+			if(!SFile::IsDir(work_dir))
+				break;
+			else
+				work_dir.Z();
+		}
+		THROW(work_dir.NotEmpty());
+		THROW(SlProcess::GetCurrentUserSid(current_user_sid));
+		{
+			PSID   p_owner = 0;
+			PSID   p_group = 0;
+			ACL  * p_dacl = 0;
+			ACL  * p_sacl = 0;
+			SStringU temp_buf_u;
+			THROW(LocalBlock::Helper_CreateDir(work_dir, true));
+			temp_buf_u.CopyFromUtf8(work_dir);
+			const DWORD gnsi_r = ::GetNamedSecurityInfoW(temp_buf_u.ucptr(), SE_FILE_OBJECT, DACL_SECURITY_INFORMATION, &p_owner, &p_group, &p_dacl, &p_sacl, &p_sd);
+			THROW(gnsi_r == ERROR_SUCCESS);
+			{
+				S_WinSID ws(p_dacl);
+				TSCollection <WinSecurityAttrs::AceEntry> ace_list;
+				WinSecurityAttrs::GetAclInfo(p_dacl, ace_list);
+				{
+					(temp_buf = GetSuiteEntry()->OutPath).SetLastSlash().Cat("SecurityAttributes_debug_info.txt");
+					SFile f_out(temp_buf, SFile::mWrite);
+					if(f_out.IsValid()) {
+						SString _trustee_raw;
+						SString _trustee;
+						current_user_sid.ToStr(S_WinSID::fmtSystem, _trustee_raw);
+						current_user_sid.ToStr(S_WinSID::fmtFriendly, _trustee);
+						temp_buf.Z().Cat("current_user_sid").CatDiv(':', 2).Cat(_trustee_raw).CatChar('(').Cat(_trustee).CatChar(')');
+						f_out.WriteLine(temp_buf.CR());
+						if(ace_list.getCount()) {
+							for(uint i = 0; i < ace_list.getCount(); i++) {
+								const WinSecurityAttrs::AceEntry * p_entry = ace_list.at(i);
+								if(p_entry) {
+									temp_buf.Z().Cat(p_entry->TrusteeRaw).CatChar('(').Cat(p_entry->Trustee).CatChar(')');
+									temp_buf.Space().Cat("AccessMode ").CatDiv(':', 2).CatHex(p_entry->AccessMode);
+									temp_buf.Space().Cat("Inheritance").CatDiv(':', 2).CatHex(p_entry->Inheritance);
+									temp_buf.Space().Cat("Permissions").CatDiv(':', 2).CatHex(p_entry->Permissions);
+									f_out.WriteLine(temp_buf.CR());
+								}
+							}
+						}
+						else {
+							temp_buf.Z().Cat("ace_list is empty");
+							f_out.WriteLine(temp_buf.CR());
+						}
+					}
+				}
+			}
+		}
+	}
+	CATCH
+		CurrentStatus = 0;
+	ENDCATCH
+	if(p_sd) 
+		::LocalFree(p_sd);
+	SFile::RemoveDir(work_dir);
+	return CurrentStatus;
+}
 
 SLTEST_R(Evnt)
 {

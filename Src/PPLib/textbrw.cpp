@@ -1695,7 +1695,6 @@ int STextBrowser::InsertWorkbookLink()
 {
 	int    ok = -1;
 	{
-		MemLeakTracer mlt;
 		PPObjWorkbook wb_obj;
 		PPObjWorkbook::SelectLinkBlock link;
 		link.Type = PPWBTYP_MEDIA;

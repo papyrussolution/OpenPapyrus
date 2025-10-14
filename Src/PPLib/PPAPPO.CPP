@@ -877,7 +877,6 @@ int PPApp::processCommand(uint cmd)
 		case cmIndexPhones: PPObject::IndexPhones(); break;
 		case cmIndexTextObjects:
 			{
-				MemLeakTracer mlt;
 				PPTextAnalyzer taz;
 				taz.Test();
 			}

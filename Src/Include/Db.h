@@ -1568,7 +1568,7 @@ struct DbTableStat {
 	//   в этой структуре.
 	//
 	enum {
-		iID = 0x0001,
+		iID         = 0x0001,
 		iOwnerLevel = 0x0002,
 		iFlags      = 0x0004,
 		iName       = 0x0008,
@@ -2006,7 +2006,7 @@ private:
 	void   makeIdxListQuery(BTBLID tblID, int numRecs);
 	int    getFieldList(BTBLID tblID, BNFieldList2 * fields);
 	int    getIndexList(BTBLID tblID, BNKeyList * pKeyList);
-	SString & GetTemporaryFileName(SString & rFileName, long * pCounter, int forceInDataPath = 0);
+	SString & GetTemporaryFileName(SString & rFileName, long * pCounter, bool forceInDataPath/*=false*/);
 	int    ExtractStat(const XFile & rRec, DbTableStat * pStat) const;
 
 	DBTable xfile;
@@ -2153,7 +2153,7 @@ public:
 	virtual int GetDatabaseState(uint * pStateFlags);
 	virtual SString & MakeFileName_(const char * pTblName, SString & rBuf) = 0;
 	virtual int IsFileExists_(const char * pFileName) = 0;
-	virtual SString & GetTemporaryFileName(SString & rFileNameBuf, long * pStart, int forceInDataPath) = 0;
+	virtual SString & GetTemporaryFileName(SString & rFileNameBuf, long * pStart, bool forceInDataPath) = 0;
 	//
 	// Descr: Создает файл данных с именем pFileName по спецификации pTbl.
 	//
@@ -2239,7 +2239,7 @@ public:
 	//   Значения ppTblSpec и *ppTblSpec, подаваемые как аргумент не должны быть нулевыми.
 	//
 	int    CreateTableAndFileBySpec(DBTable ** ppTblSpec);
-	int    CreateTempFile(const char * pTblName, SString & rFileNameBuf, int forceInDataPath);
+	int    CreateTempFile(const char * pTblName, SString & rFileNameBuf, bool forceInDataPath);
 	//
 	// Descr: удаляет все временные файлы, которые не
 	//   открыты в текущем объекте BDictionary. Для удаления файлов
@@ -2329,7 +2329,7 @@ public:
 	virtual int GetDatabaseState(uint * pStateFlags);
 	virtual SString & MakeFileName_(const char * pTblName, SString & rBuf);
 	virtual int IsFileExists_(const char * pFileName);
-	virtual SString & GetTemporaryFileName(SString & rFileNameBuf, long * pStart, int forceInDataPath);
+	virtual SString & GetTemporaryFileName(SString & rFileNameBuf, long * pStart, bool forceInDataPath);
 	virtual int CreateDataFile(const DBTable * pTbl, const char * pFileName, int createMode, const char * pAltCode);
 	virtual int DropFile(const char * pFileName);
 	virtual int GetFileStat(DBTable * pTbl, long reqItems, DbTableStat * pStat);
@@ -2578,6 +2578,7 @@ public:
 		tokTransaction, // @v12.3.12
 		tokIndexedBy, // @v12.4.0 sqlite "indexed by"
 		tokOrderBy, // @v12.4.0
+		tokTemp,    // @v12.4.4
 		
 		tokCountOfTokens,
 	};
@@ -2612,7 +2613,16 @@ public:
 	operator SString & () { return Buf; }
 	const SString & GetTextC() const { return Buf; }
 	int    GetExpressionType() const { return Typ; }
-	int    CreateTable(const DBTable & rTbl, const char * pFileName, bool ifNotExists, int indent);
+	//
+	// Descr: Флаги функции CreateTable
+	//
+	enum {
+		ctfIfNotExists = 0x0001, 
+		ctfTemporary   = 0x0002,
+		ctfIndent      = 0x0004
+	};
+
+	int    CreateTable(const DBTable & rTbl, const char * pFileName, uint flags/*ctfXXX*/);
 	int    CreateIndex(const DBTable & rTbl, const char * pFileName, uint n);
 	int    GetIndexName(const DBTable & rTbl, uint n, SString & rBuf);
 	int    CreateSequenceOnField(const DBTable & rTbl, const char * pFileName, uint fldN, long newVal);
@@ -2667,7 +2677,7 @@ public:
 	virtual ~SOraDbProvider();
 	virtual SString & MakeFileName_(const char * pTblName, SString & rBuf);
 	virtual int IsFileExists_(const char * pFileName);
-	virtual SString & GetTemporaryFileName(SString & rFileNameBuf, long * pStart, int forceInDataPath);
+	virtual SString & GetTemporaryFileName(SString & rFileNameBuf, long * pStart, bool forceInDataPath);
 	virtual int CreateDataFile(const DBTable * pTbl, const char * pFileName, int createMode, const char * pAltCode);
 	virtual int DropFile(const char * pFileName);
 	virtual int DbLogin(const DbLoginBlock * pBlk, long options);
@@ -2825,7 +2835,7 @@ public:
 	virtual int GetDatabaseState(uint * pStateFlags);
 	virtual SString & MakeFileName_(const char * pTblName, SString & rBuf);
 	virtual int IsFileExists_(const char * pFileName);
-	virtual SString & GetTemporaryFileName(SString & rFileNameBuf, long * pStart, int forceInDataPath);
+	virtual SString & GetTemporaryFileName(SString & rFileNameBuf, long * pStart, bool forceInDataPath);
 	virtual int CreateDataFile(const DBTable * pTbl, const char * pFileName, int createMode, const char * pAltCode);
 	virtual int DropFile(const char * pFileName);
 	virtual int PostProcessAfterUndump(DBTable * pTbl);
@@ -2957,7 +2967,7 @@ public:
 	virtual int GetDatabaseState(uint * pStateFlags);
 	virtual SString & MakeFileName_(const char * pTblName, SString & rBuf);
 	virtual int IsFileExists_(const char * pFileName);
-	virtual SString & GetTemporaryFileName(SString & rFileNameBuf, long * pStart, int forceInDataPath);
+	virtual SString & GetTemporaryFileName(SString & rFileNameBuf, long * pStart, bool forceInDataPath);
 	virtual int CreateDataFile(const DBTable * pTbl, const char * pFileName, int createMode, const char * pAltCode);
 	virtual int DropFile(const char * pFileName);
 	virtual int PostProcessAfterUndump(DBTable * pTbl);
@@ -2992,6 +3002,10 @@ private:
 	int    ProcessBinding_SimpleType(int action, uint count, SSqlStmt * pStmt, SSqlStmt::Bind * pBind, uint ntvType);
 	int    Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, uint * pActual);
 	int    ResetStatement(SSqlStmt & rS);
+	//
+	// ARG(tableType IN): 0 - regular, 1 - temporary
+	//
+	int    Helper_GetFileStat(int tableType, const char * pFileName/*регистр символов важен!*/, long reqItems, DbTableStat * pStat);
 	long   Flags;
 	void * H;
 	Generator_SQL SqlGen;
@@ -3598,14 +3612,15 @@ struct DBQ {
 	DBTree * tree;
 	uint   count;
 	struct T {
-		uchar  cmp;
-		char   tblIdx; // Индекс таблицы в списке DBQuery::tbls для //
+		uint   Cmpf;   // @v12.4.4 (uchar cmp-->uint Cmpf)
+		int    TblIdx; // @v12.4.4 (char tblIdx-->int TblIdx) Индекс таблицы в списке DBQuery::tbls для //
 		// которой этот терм является связывающим. -1 означает то,
 		// что терм не связывает ни одну из этих таблиц. Это поле
 		// используется при разноске общего дерева ограничений по
 		// таблицам и инициализируется функцией DBQuery::arrangeTerms().
 		uint   flags;
-		DBDataCell left, right;
+		DBDataCell left;
+		DBDataCell right;
 	};
 	T *  items;
 };
@@ -3844,30 +3859,30 @@ public:
 	};
 	struct Frame {
 		~Frame();
-		void FASTCALL topByCur(int dir);
+		void FASTCALL TopByCur(int dir);
 		enum {
-			Undef,
-			Top,
-			Bottom
+			stUndef,
+			stTop,
+			stBottom
 		};
-		char * buf;   // Data buffer
-		RECORDNUMBER * posBuf; // Position buffer
-		uint   zero;
-		uint   size;  // Size of buffer (records)
-		uint   state;
-		uint   inc;
-		uint   hight; // Size of frame of view
-		uint   top;
-		uint   cur;
-		uint   sdelta;
-		uint   srange;
-		uint   spos;
-		uint   last;
-		uint   count; // Number of records in buffer
+		char * P_Buf;            // Data buffer
+		RECORDNUMBER * P_PosBuf; // Position buffer
+		uint   Zero;
+		uint   Size;    // Size of buffer (records)
+		uint   State;
+		uint   Inc;
+		uint   Height;  // Size of frame of view
+		uint   Top;
+		uint   Cur;
+		uint   SDelta;
+		uint   SRange;
+		uint   SPos;
+		uint   Last;
+		uint   Count; // Number of records in buffer
 	};
 	struct Tbl {
 		Tbl();
-		int    FASTCALL Srch(void * pKey, int sp);
+		int    Srch(void * pKey, int sp);
 		DBTable * tbl;
 		DBTree tree;
 		KR     key;
@@ -3884,7 +3899,7 @@ public:
 	uint   status;
 	int    error;
 	DBQ  * w_restrict; // 'Where' restriction
-	DBQ  * h_restrict; // 'Having' restriction
+	// @v12.4.4 @unused DBQ  * h_restrict; // 'Having' restriction
 	uint   tblCount;
 	uint   fldCount;
 	uint   ordCount;

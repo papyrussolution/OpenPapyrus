@@ -1944,7 +1944,7 @@ int SSystemBackup::BackupProfile(uint32 buId, const SString & rProfileName, cons
 	{
 		SSystem::AccountInfo acc_info;
 		THROW(SSystem::GetAccountNameInfo(rProfileName, acc_info));
-		acc_info.Sid.ToStr(temp_buf);
+		acc_info.Sid.ToStr(0, temp_buf);
 		{
 			SSystem::UserProfileInfo profile_info;
 			SPtrHandle h_token = SSystem::Logon(0, rProfileName, rPw, SSystem::logontypeInteractive, &profile_info);
@@ -1986,7 +1986,7 @@ int SSystemBackup::RestoreProfile(const SString & rTerminalBackupPath, const Par
 		const SString pw(pEntry->Password);
 		SSystem::AccountInfo acc_info;
 		THROW(SSystem::GetAccountNameInfo(pEntry->Value, acc_info));
-		acc_info.Sid.ToStr(temp_buf);
+		acc_info.Sid.ToStr(0, temp_buf);
 		{
 			SSystem::UserProfileInfo profile_info;
 			SPtrHandle h_token = SSystem::Logon(0, profile_name, pw, SSystem::logontypeInteractive, &profile_info);
@@ -2343,7 +2343,7 @@ void Test_SSystemBackup()
 				param.AddProfileEntry(u, p);
 			}
 			{
-				acc_info.Sid.ToStr(temp_buf);
+				acc_info.Sid.ToStr(0, temp_buf);
 				SString reg_key_buf;
 				//(reg_key_buf = "HKEY_USERS").SetLastSlash().Cat(temp_buf);
 				param.AddRegEntry((reg_key_buf = "HKEY_LOCAL_MACHINE").SetLastSlash().Cat("software\\Eclipse Foundation"));

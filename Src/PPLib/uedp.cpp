@@ -8,6 +8,8 @@
 
 int main(int argc, const char * argv[])
 {
+	// debug-cmd: 
+	// uedp.exe -rtpath D:\Papyrus\ppy\bin -cpath D:\Papyrus\Src\include -javapath D:\Papyrus\Src\Rsrc\UED\ -tol -forceupdatepldecl D:\Papyrus\Src\Rsrc\UED\UED.txt
 	int    result = 0;
 	SString src_file_name; //("\\Papyrus\\Src\\Rsrc\\Data\\Sartre\\UED.txt");
 	SString out_path;

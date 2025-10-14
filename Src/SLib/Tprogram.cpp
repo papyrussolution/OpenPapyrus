@@ -2070,9 +2070,7 @@ int TProgram::GetDialogTextLayout(const SString & rText, int fontId, int penId, 
 
 int TProgram::DrawButton3(HWND hwnd, DRAWITEMSTRUCT * pDi)
 {
-	MemLeakTracer mlt; // @debug
     InitUiToolBox();
-
 	int    ok = -1;
 	int    draw_bitmap = 0;
 	uint   dv_id = 0;

@@ -59,6 +59,7 @@ int BNField::putValueToString(const void * pDataBuf, char * pBuf) const
 //
 //
 //
+#if 0 // @v12.4.4 {
 BNFieldList_Obsolete::BNFieldList_Obsolete() : count(0), fields(0)
 {
 }
@@ -254,6 +255,7 @@ bool BNFieldList_Obsolete::IsEqualRecords(const void * pRec1, const void * pRec2
 		}
 	}
 }*/
+#endif // } 0 @v12.4.4
 //
 // @v12.4.3 @construction (in order to replace BNFieldList2)
 //

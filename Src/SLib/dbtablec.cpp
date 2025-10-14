@@ -574,13 +574,14 @@ int DBTable::open(const char * pTblName, const char * pFileName, int openMode)
 		if(pFileName == DBTable::CrTempFileNamePtr) {
 			assert(pTblName != 0);
 			pFileName = 0;
-			THROW(P_Db && P_Db->CreateTempFile(pTblName, temp_file_name, 0));
+			THROW(P_Db && P_Db->CreateTempFile(pTblName, temp_file_name, false));
 			pFileName = temp_file_name;
 			flags |= XTF_TEMP;
 		}
+		// @20251012 @workmark
 		if(pTblName) {
 			if(!tableID) {
-				THROW(P_Db && P_Db->LoadTableSpec(this, pTblName, pFileName, 1));
+				THROW(P_Db && P_Db->LoadTableSpec(this, pTblName, pFileName, (flags & XTF_TEMP) ? 0 : 1)); // @v12.4.4 1-->((flags & XTF_TEMP) ? 0 : 1)
 			}
 		}
 		else {

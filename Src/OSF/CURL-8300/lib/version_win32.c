@@ -266,17 +266,14 @@ bool curlx_verify_windows_version(const uint majorVersion,
 		osver.dwPlatformId = VER_PLATFORM_WIN32_WINDOWS;
 	else if(platform == PLATFORM_WINNT)
 		osver.dwPlatformId = VER_PLATFORM_WIN32_NT;
-
 	cm = VerSetConditionMask(cm, VER_MAJORVERSION, majorCondition);
 	cm = VerSetConditionMask(cm, VER_MINORVERSION, minorCondition);
 	cm = VerSetConditionMask(cm, VER_SERVICEPACKMAJOR, spMajorCondition);
 	cm = VerSetConditionMask(cm, VER_SERVICEPACKMINOR, spMinorCondition);
-
 	if(platform != PLATFORM_DONT_CARE) {
 		cm = VerSetConditionMask(cm, VER_PLATFORMID, VER_EQUAL);
 		dwTypeMask |= VER_PLATFORMID;
 	}
-
 	/* Later versions of Windows have version functions that may not return the
 	   real version of Windows unless the application is so manifested. We prefer
 	   the real version always, so we use the Rtl variant of the function when
@@ -292,19 +289,14 @@ bool curlx_verify_windows_version(const uint majorVersion,
 	   do the same for build (eg 1.9 build 222 is not less than 2.0 build 111).
 	   Build comparison is only needed when build numbers are equal (eg 1.9 is
 	   always less than 2.0 so build comparison is not needed). */
-	if(matched && buildVersion &&
-	    (condition == VERSION_EQUAL ||
-	    ((condition == VERSION_GREATER_THAN_EQUAL ||
-	    condition == VERSION_LESS_THAN_EQUAL) &&
-	    curlx_verify_windows_version(majorVersion, minorVersion, 0,
-	    platform, VERSION_EQUAL)))) {
+	if(matched && buildVersion && (condition == VERSION_EQUAL || ((condition == VERSION_GREATER_THAN_EQUAL || condition == VERSION_LESS_THAN_EQUAL) &&
+	    curlx_verify_windows_version(majorVersion, minorVersion, 0, platform, VERSION_EQUAL)))) {
 		cm = VerSetConditionMask(0, VER_BUILDNUMBER, buildCondition);
 		dwTypeMask = VER_BUILDNUMBER;
 		if(pRtlVerifyVersionInfo)
 			matched = !pRtlVerifyVersionInfo(&osver, dwTypeMask, cm);
 		else
-			matched = !!VerifyVersionInfoW((OSVERSIONINFOEXW *)&osver,
-				dwTypeMask, cm);
+			matched = !!VerifyVersionInfoW((OSVERSIONINFOEXW *)&osver, dwTypeMask, cm);
 	}
 
 #endif

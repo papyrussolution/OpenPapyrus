@@ -4,6 +4,42 @@
 #include <pp.h>
 #pragma hdrstop
 #include <ppsoapclient.h>
+/* @20251009 https://support.kontur.ru/diadoc-1s8x/55031-rabota_s_markirovannym_pivom
+Для товарной группы «Пиво, напитки, изготавливаемые на основе пива, слабоалкогольные напитки» есть требования:
+
+    Необходимо отправлять внутренние перемещения в 970 формате.
+    Нужно заполнять тег <ИнфПолФХЖ1> по следующим правилам:
+
+Форма собственности 	Обязательные поля
+Юридическое лицо 	
+
+    «НомерПеревозЭлДок»
+
+Или
+
+    «НомерПеревозДок»
+    «ДатаПеревозДок»
+    «РегНомер»
+
+ИП 	
+
+    «НомерПеревозЭлДок»
+    «Продавец_ФиасИД»
+
+    и/или
+    «Покупатель_ФиасИД»
+
+Или
+
+    «НомерПеревозДок»
+    «ДатаПеревозДок»
+    «РегНомер»
+    «Продавец_ФиасИД»
+    и/или
+    «Покупатель_ФиасИД»
+
+Обязательность этих требований наступает в разные сроки для пива в кегах и пива в потребительских упаковках. Поэтому в модуле не блокируется отправка документов, если эти поля не заполнены.
+*/ 
 /*
 
 ДатаГен
@@ -8461,9 +8497,11 @@ int DocNalogRu_WriteBillBlock::Do_DP_REZRUISP(SString & rResultFileName)
 int DocNalogRu_WriteBillBlock::Do_Invoice2(SString & rResultFileName)
 {
 	int    ok = 1;
+	Reference * p_ref = PPRef;
 	rResultFileName.Z();
 	{
 		SString temp_buf;
+		PPObjTransport tr_obj;
 		THROW(IsValid());
         {
 			DocNalogRu_Generator::File f(G, _Hi);
@@ -8638,6 +8676,53 @@ int DocNalogRu_WriteBillBlock::Do_Invoice2(SString & rResultFileName)
 								n_1.PutAttrib(GetToken(PPHSC_RU_VAL), temp_buf.Z().Cat(disposal_reason));
 							}
 						}
+						// @v12.4.4 {
+						{
+							S_GUID uuid;
+							{
+								const PPID seller_loc_id = NZOR(shipper_loc_id, NZOR(suppl_loc_id, 0));
+								if(seller_loc_id && p_ref->Ot.GetTagGuid(PPOBJ_LOCATION, seller_loc_id, PPTAG_LOC_FIASGUID_ADR, uuid) > 0) {
+									assert(uuid);
+									SXml::WNode n_1(G.P_X, GetToken(PPHSC_RU_TEXTINF));
+									n_1.PutAttrib(GetToken(PPHSC_RU_IDENTIF), GetToken(PPHSC_RU_SUPPLIER_FIASID));
+									n_1.PutAttrib(GetToken(PPHSC_RU_VAL), uuid.ToStr(S_GUID::fmtIDL|S_GUID::fmtLower, temp_buf));
+								}
+							}
+							{
+								const PPID buyer_loc_id = consignee_loc_id;
+								if(buyer_loc_id && p_ref->Ot.GetTagGuid(PPOBJ_LOCATION, buyer_loc_id, PPTAG_LOC_FIASGUID_ADR, uuid) > 0) {
+									assert(uuid);
+									SXml::WNode n_1(G.P_X, GetToken(PPHSC_RU_TEXTINF));
+									n_1.PutAttrib(GetToken(PPHSC_RU_IDENTIF), GetToken(PPHSC_RU_BUYER_FIASID));
+									n_1.PutAttrib(GetToken(PPHSC_RU_VAL), uuid.ToStr(S_GUID::fmtIDL|S_GUID::fmtLower, temp_buf));
+								}
+							}
+							{
+								PPFreight freight;
+								PPTransportPacket tr_pack;
+								if(R_Bp.GetFreight(&freight) > 0) {
+									if(freight.Name[0]) {
+										SXml::WNode n_1(G.P_X, GetToken(PPHSC_RU_TEXTINF));
+										n_1.PutAttrib(GetToken(PPHSC_RU_IDENTIF), GetToken(PPHSC_RU_FREIGHTCODE));
+										n_1.PutAttrib(GetToken(PPHSC_RU_VAL), EncText(temp_buf = freight.Name));
+									}
+									{
+										LDATE  freight_date = freight.IssueDate; // @todo Здесь на самом деле должна быть дата документа фрахта, но сейчас такого поля во фрахте нет
+										if(checkdate(freight_date)) { 
+											SXml::WNode n_1(G.P_X, GetToken(PPHSC_RU_TEXTINF));
+											n_1.PutAttrib(GetToken(PPHSC_RU_IDENTIF), GetToken(PPHSC_RU_FREIGHTDATE));
+											n_1.PutAttrib(GetToken(PPHSC_RU_VAL), temp_buf.Z().Cat(freight_date, DATF_GERMANCENT));
+										}
+									}
+									if(freight.ShipID && tr_obj.Get(freight.ShipID, &tr_pack) > 0 && tr_pack.Rec.TrType == PPTRTYP_CAR && tr_pack.Rec.Code[0]) {
+										SXml::WNode n_1(G.P_X, GetToken(PPHSC_RU_TEXTINF));
+										n_1.PutAttrib(GetToken(PPHSC_RU_IDENTIF), GetToken(PPHSC_RU_LICENSEPLATE));
+										n_1.PutAttrib(GetToken(PPHSC_RU_VAL), EncText(temp_buf = tr_pack.Rec.Code));
+									}
+								}
+							}
+						}
+						// } @v12.4.4 
 					}
 				}
 				// } @v11.9.0
@@ -8884,11 +8969,13 @@ int DocNalogRu_WriteBillBlock::Do_Invoice(SString & rResultFileName)
 int DocNalogRu_WriteBillBlock::Do_UPD(SString & rResultFileName)
 {
 	int    ok = 1;
+	Reference * p_ref = PPRef;
 	PPObjBill * p_bobj = BillObj;
 	BillTbl::Rec order_bill_rec;
 	rResultFileName.Z();
 	{
 		SString temp_buf;
+		PPObjTransport tr_obj;
 		{
 			PPIDArray order_id_list;
 			R_Bp.GetOrderList(order_id_list);
@@ -9140,6 +9227,53 @@ int DocNalogRu_WriteBillBlock::Do_UPD(SString & rResultFileName)
 						}
 					}
 					// } @v11.8.12 
+					// @v12.4.4 {
+					{
+						S_GUID uuid;
+						{
+							const PPID seller_loc_id = NZOR(shipper_loc_id, NZOR(suppl_loc_id, 0));
+							if(seller_loc_id && p_ref->Ot.GetTagGuid(PPOBJ_LOCATION, seller_loc_id, PPTAG_LOC_FIASGUID_ADR, uuid) > 0) {
+								assert(uuid);
+								SXml::WNode n_1(G.P_X, GetToken(PPHSC_RU_TEXTINF));
+								n_1.PutAttrib(GetToken(PPHSC_RU_IDENTIF), GetToken(PPHSC_RU_SUPPLIER_FIASID));
+								n_1.PutAttrib(GetToken(PPHSC_RU_VAL), uuid.ToStr(S_GUID::fmtIDL|S_GUID::fmtLower, temp_buf));
+							}
+						}
+						{
+							const PPID buyer_loc_id = consignee_loc_id;
+							if(buyer_loc_id && p_ref->Ot.GetTagGuid(PPOBJ_LOCATION, buyer_loc_id, PPTAG_LOC_FIASGUID_ADR, uuid) > 0) {
+								assert(uuid);
+								SXml::WNode n_1(G.P_X, GetToken(PPHSC_RU_TEXTINF));
+								n_1.PutAttrib(GetToken(PPHSC_RU_IDENTIF), GetToken(PPHSC_RU_BUYER_FIASID));
+								n_1.PutAttrib(GetToken(PPHSC_RU_VAL), uuid.ToStr(S_GUID::fmtIDL|S_GUID::fmtLower, temp_buf));
+							}
+						}
+						{
+							PPFreight freight;
+							PPTransportPacket tr_pack;
+							if(R_Bp.GetFreight(&freight) > 0) {
+								if(freight.Name[0]) {
+									SXml::WNode n_1(G.P_X, GetToken(PPHSC_RU_TEXTINF));
+									n_1.PutAttrib(GetToken(PPHSC_RU_IDENTIF), GetToken(PPHSC_RU_FREIGHTCODE));
+									n_1.PutAttrib(GetToken(PPHSC_RU_VAL), EncText(temp_buf = freight.Name));
+								}
+								{
+									LDATE  freight_date = freight.IssueDate; // @todo Здесь на самом деле должна быть дата документа фрахта, но сейчас такого поля во фрахте нет
+									if(checkdate(freight_date)) { 
+										SXml::WNode n_1(G.P_X, GetToken(PPHSC_RU_TEXTINF));
+										n_1.PutAttrib(GetToken(PPHSC_RU_IDENTIF), GetToken(PPHSC_RU_FREIGHTDATE));
+										n_1.PutAttrib(GetToken(PPHSC_RU_VAL), temp_buf.Z().Cat(freight_date, DATF_GERMANCENT));
+									}
+								}
+								if(freight.ShipID && tr_obj.Get(freight.ShipID, &tr_pack) > 0 && tr_pack.Rec.TrType == PPTRTYP_CAR && tr_pack.Rec.Code[0]) {
+									SXml::WNode n_1(G.P_X, GetToken(PPHSC_RU_TEXTINF));
+									n_1.PutAttrib(GetToken(PPHSC_RU_IDENTIF), GetToken(PPHSC_RU_LICENSEPLATE));
+									n_1.PutAttrib(GetToken(PPHSC_RU_VAL), EncText(temp_buf = tr_pack.Rec.Code));
+								}
+							}
+						}
+					}
+					// } @v12.4.4 
 				}
 			}
 			G.WriteInvoiceItems(R_P, _Hi, R_Bp);

@@ -662,7 +662,6 @@ int PPCalculator(void * hParentWnd, const char * pInitData)
 		SString ResultText;
 		PPCalcFuncList CFL;
 	};
-	MemLeakTracer mlt;
 	int    ok = 1;
 	double c = 0.0;
 	char   ct[256];

@@ -340,7 +340,7 @@ BDictionary::~BDictionary()
 //
 // Процедура создания временной таблицы
 //
-/*virtual*/ SString & BDictionary::GetTemporaryFileName(SString & rFileNameBuf, long * pStart, int forceInDataPath)
+/*virtual*/ SString & BDictionary::GetTemporaryFileName(SString & rFileNameBuf, long * pStart, bool forceInDataPath)
 {
 	const char * p_path = (TempPath && !forceInDataPath) ? TempPath : DataPath;
 	return MakeTempFileName(p_path, "TMP", "BTR", pStart, rFileNameBuf);
@@ -407,7 +407,7 @@ int BDictionary::RecoverTable(BTBLID tblID, BRecoverParam * pParam)
 					}
 				}
 				else {
-					GetTemporaryFileName(dest_path, 0, 0);
+					GetTemporaryFileName(dest_path, 0, false);
 					do_replace_src = true;
 				}
 				THROW(LoadTableSpec(&new_tbl, tbl_name, dest_path, 0));

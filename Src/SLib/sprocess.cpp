@@ -85,6 +85,43 @@ private:
 	}
 	return result;
 }
+
+/*static*/bool SlProcess::GetCurrentUserSid(S_WinSID & rSid)
+{
+	rSid.Z();
+	bool    ok = true;
+	//HANDLE hToken = NULL;
+	DWORD  token_size = 0;
+	PTOKEN_USER p_token_user = NULL;
+	//PSID   pSid = NULL;
+	//
+	SPtrHandle h_token = SlProcess::OpenCurrentAccessToken(TOKEN_QUERY); // Открываем токен текущего процесса
+	THROW(h_token);
+	/*if(!OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &hToken)) {
+		std::wcerr << L"OpenProcessToken failed: " << GetLastError() << std::endl;
+		return NULL;
+	}*/
+	//
+	// Получаем размер буфера для информации о пользователе
+	::GetTokenInformation(h_token, TokenUser, NULL, 0, &token_size);
+	THROW(GetLastError() == ERROR_INSUFFICIENT_BUFFER);
+	// Выделяем память и получаем информацию
+	p_token_user = (PTOKEN_USER)::LocalAlloc(LPTR, token_size);
+	THROW_S(p_token_user, SLERR_NOMEM);
+	THROW(::GetTokenInformation(h_token, TokenUser, p_token_user, token_size, &token_size));
+	rSid.FromPSID(p_token_user->User.Sid);
+	{
+		/*DWORD sid_length = GetLengthSid(p_token_user->User.Sid);
+		pSid = (PSID)::LocalAlloc(LPTR, sid_length);
+		if(pSid) {
+			::CopySid(sid_length, pSid, p_token_user->User.Sid);
+		}*/
+	}
+	CATCHZOK
+	::LocalFree(p_token_user);
+	::CloseHandle(h_token);
+	return ok;
+}
 //
 //
 //
@@ -1691,3 +1728,166 @@ cleanup:
 	}
 	return status;
 }
+//
+// @construction @20251009
+//
+bool GrantFullAccessForDirectoryToCurrentUser(const SString & rPathUtf8)
+{
+	class SecurityManager_Consruction {
+	public:
+		static bool GrantFullAccessToCurrentUser(const SString & rPathUtf8) 
+		{
+			bool    ok = false;
+			S_WinSID current_user_sid;
+			if(SlProcess::GetCurrentUserSid(current_user_sid)) {	
+				ok = SetObjectSecurity(rPathUtf8, current_user_sid);
+			}
+			return ok;
+		}
+	private:
+		static bool SetObjectSecurity(const SString & rPathUtf8, S_WinSID & rUserSid)
+		{
+			bool   ok = true;
+			ACL  * p_new_dacl = NULL;
+			ACL  * p_old_dacl = NULL;
+			PSECURITY_DESCRIPTOR * p_sd = NULL;
+			BOOL result = FALSE;
+			SStringU path_u;
+			THROW(rPathUtf8.CopyToUnicode(path_u));
+			// Получаем текущий DACL
+			const DWORD gnsi_r = ::GetNamedSecurityInfoW(path_u.ucptr(), SE_FILE_OBJECT, DACL_SECURITY_INFORMATION, NULL, NULL, &p_old_dacl, NULL, p_sd);
+			THROW(gnsi_r == ERROR_SUCCESS); //std::wcerr << L"GetNamedSecurityInfo failed: " << gnsi_r << std::endl;
+			// Создаем новую запись DACL
+			/*{
+				EXPLICIT_ACCESS_W ea;
+				MEMSZERO(ea);
+				ea.grfAccessPermissions = GENERIC_ALL|STANDARD_RIGHTS_ALL|SPECIFIC_RIGHTS_ALL;
+				ea.grfAccessMode = SET_ACCESS;
+				ea.grfInheritance = CONTAINER_INHERIT_ACE|OBJECT_INHERIT_ACE;
+				ea.Trustee.TrusteeForm = TRUSTEE_IS_SID;
+				ea.Trustee.TrusteeType = TRUSTEE_IS_USER;
+				ea.Trustee.ptstrName = static_cast<LPWSTR>(rUserSid.GetPtr());
+				// Создаем новый DACL
+				const DWORD seia_r = SetEntriesInAclW(1, &ea, p_old_dacl, &p_new_dacl);
+				THROW(seia_r == ERROR_SUCCESS); // std::wcerr << L"SetEntriesInAcl failed: " << seia_r << std::endl;
+			}*/
+			{
+				EXPLICIT_ACCESS_W ea[2];
+				MEMSZERO(ea);
+				ea[0].grfAccessPermissions = GENERIC_ALL|STANDARD_RIGHTS_ALL|SPECIFIC_RIGHTS_ALL;
+				ea[0].grfAccessMode = SET_ACCESS;
+				ea[0].grfInheritance = CONTAINER_INHERIT_ACE|OBJECT_INHERIT_ACE;
+				ea[0].Trustee.TrusteeForm = TRUSTEE_IS_SID;
+				ea[0].Trustee.TrusteeType = TRUSTEE_IS_USER;
+				ea[0].Trustee.ptstrName = static_cast<LPWSTR>(rUserSid.GetPtr());
+				const DWORD seia_r = SetEntriesInAclW(1, &ea[0], p_old_dacl, &p_new_dacl);
+				THROW(seia_r == ERROR_SUCCESS); // std::wcerr << L"SetEntriesInAcl failed: " << seia_r << std::endl;
+			}
+			{
+				// Применяем новый DACL
+				const DWORD snsi_r = ::SetNamedSecurityInfoW(const_cast<wchar_t *>(path_u.ucptr()), SE_FILE_OBJECT, 
+					DACL_SECURITY_INFORMATION|PROTECTED_DACL_SECURITY_INFORMATION, NULL, NULL, p_new_dacl, NULL);
+				THROW(snsi_r == ERROR_SUCCESS); // std::wcerr << L"SetNamedSecurityInfo failed: " << snsi_r << std::endl;
+				//std::wcout << L"Successfully set permissions for: " << rPath << std::endl;
+				//result = TRUE;
+			}
+			CATCHZOK
+			if(p_sd) 
+				::LocalFree(p_sd);
+			if(p_new_dacl) 
+				::LocalFree(p_new_dacl);
+			return ok;
+		}
+	};
+	return SecurityManager_Consruction::GrantFullAccessToCurrentUser(rPathUtf8);
+}
+
+#if 0 // {
+//
+// example:
+//
+void __foo__()
+{
+	DWORD dwRes;
+	DWORD dwDisposition;
+	PSID pEveryoneSID = NULL;
+	PSID pAdminSID = NULL;
+	PACL pACL = NULL;
+	PSECURITY_DESCRIPTOR pSD = NULL;
+	EXPLICIT_ACCESS ea[2];
+	SID_IDENTIFIER_AUTHORITY SIDAuthWorld = SECURITY_WORLD_SID_AUTHORITY;
+	SID_IDENTIFIER_AUTHORITY SIDAuthNT = SECURITY_NT_AUTHORITY;
+	SECURITY_ATTRIBUTES sa;
+	LONG lRes;
+	HKEY hkSub = NULL;
+	// Create a well-known SID for the Everyone group.
+	if(!::AllocateAndInitializeSid(&SIDAuthWorld, 1, SECURITY_WORLD_RID, 0, 0, 0, 0, 0, 0, 0, &pEveryoneSID)) {
+		_tprintf(_T("AllocateAndInitializeSid Error %u\n"), GetLastError());
+		goto Cleanup;
+	}
+	// Initialize an EXPLICIT_ACCESS structure for an ACE.
+	// The ACE will allow Everyone read access to the key.
+	memzero(&ea, sizeof(ea));
+	ea[0].grfAccessPermissions = KEY_READ;
+	ea[0].grfAccessMode = SET_ACCESS;
+	ea[0].grfInheritance= NO_INHERITANCE;
+	ea[0].Trustee.TrusteeForm = TRUSTEE_IS_SID;
+	ea[0].Trustee.TrusteeType = TRUSTEE_IS_WELL_KNOWN_GROUP;
+	ea[0].Trustee.ptstrName  = (LPTSTR) pEveryoneSID;
+	// Create a SID for the BUILTIN\Administrators group.
+	if(!AllocateAndInitializeSid(&SIDAuthNT, 2, SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS, 0, 0, 0, 0, 0, 0, &pAdminSID)) {
+		_tprintf(_T("AllocateAndInitializeSid Error %u\n"), GetLastError());
+		goto Cleanup; 
+	}
+	// Initialize an EXPLICIT_ACCESS structure for an ACE.
+	// The ACE will allow the Administrators group full access to
+	// the key.
+	ea[1].grfAccessPermissions = KEY_ALL_ACCESS;
+	ea[1].grfAccessMode = SET_ACCESS;
+	ea[1].grfInheritance= NO_INHERITANCE;
+	ea[1].Trustee.TrusteeForm = TRUSTEE_IS_SID;
+	ea[1].Trustee.TrusteeType = TRUSTEE_IS_GROUP;
+	ea[1].Trustee.ptstrName  = (LPTSTR) pAdminSID;
+	// Create a new ACL that contains the new ACEs.
+	dwRes = SetEntriesInAclW(2, ea, NULL, &pACL);
+	if(ERROR_SUCCESS != dwRes) {
+		_tprintf(_T("SetEntriesInAcl Error %u\n"), GetLastError());
+		goto Cleanup;
+	}
+	// Initialize a security descriptor.  
+	pSD = (PSECURITY_DESCRIPTOR)LocalAlloc(LPTR, SECURITY_DESCRIPTOR_MIN_LENGTH); 
+	if(!pSD) { 
+		_tprintf(_T("LocalAlloc Error %u\n"), GetLastError());
+		goto Cleanup; 
+	} 
+ 	if(!InitializeSecurityDescriptor(pSD, SECURITY_DESCRIPTOR_REVISION)) {  
+		_tprintf(_T("InitializeSecurityDescriptor Error %u\n"), GetLastError());
+		goto Cleanup; 
+	} 
+	// Add the ACL to the security descriptor. 
+	if(!SetSecurityDescriptorDacl(pSD, TRUE/*bDaclPresent flag*/, pACL, FALSE)) {  // not a default DACL 
+		_tprintf(_T("SetSecurityDescriptorDacl Error %u\n"),
+		GetLastError());
+		goto Cleanup; 
+	} 
+	// Initialize a security attributes structure.
+	sa.nLength = sizeof(SECURITY_ATTRIBUTES);
+	sa.lpSecurityDescriptor = pSD;
+	sa.bInheritHandle = FALSE;
+	// Use the security attributes to set the security descriptor 
+	// when you create a key.
+	lRes = RegCreateKeyExW(HKEY_CURRENT_USER, L"mykey", 0, L"", 0, KEY_READ|KEY_WRITE, &sa, &hkSub, &dwDisposition); 
+	_tprintf(_T("RegCreateKeyEx result %u\n"), lRes);
+	Cleanup:
+	if(pEveryoneSID) 
+		FreeSid(pEveryoneSID);
+	if(pAdminSID) 
+		FreeSid(pAdminSID);
+	if(pACL) 
+		LocalFree(pACL);
+	if(pSD) 
+		LocalFree(pSD);
+	if(hkSub) 
+		RegCloseKey(hkSub);
+}
+#endif // } 0

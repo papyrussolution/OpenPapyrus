@@ -314,28 +314,40 @@ SString & Generator_SQL::GetType(TYPEID typ, SString & rBuf)
 	return rBuf;
 }
 
-int Generator_SQL::CreateTable(const DBTable & rTbl, const char * pFileName, bool ifNotExists, int indent)
+int Generator_SQL::CreateTable(const DBTable & rTbl, const char * pFileName, uint flags)
 {
 	const char * p_name = NZOR(pFileName, rTbl.GetName());
 	SString type_name;
 	Tok(tokCreate).Sp();
+	// @v12.4.4 {
+	if(flags & ctfTemporary)
+		Tok(tokTemp).Sp();
+	// } @v12.4.4 
 	Tok(tokTable).Sp();
-	if(ifNotExists) {
+	if(flags & ctfIfNotExists) {
 		Tok(tokIfNotExists).Sp();		
 	}
 	Buf.Cat(p_name);
 	Sp().LPar();
-	if(indent)
+	if(flags & ctfIndent)
 		Cr();
 	const  uint c = rTbl.GetFields().getCount();
 	for(uint i = 0; i < c; i++) {
 		const BNField & r_fld = rTbl.GetFields()[i];
-		if(indent)
+		const int st = GETSTYPE(r_fld.T);
+		if(flags & ctfIndent)
 			Tab();
 		Buf.Cat(r_fld.Name).Space().Cat(GetType(r_fld.T, type_name));
+		// @v12.4.4 {
+		/*if(Sqlst == sqlstSQLite) {
+			if(oneof4(st, S_INT, S_UINT, S_DATE, S_TIME)) {
+				Buf.Space().Cat("default 0 not null");
+			}
+		}*/
+		// } @v12.4.4 
 		if(i < (c-1))
 			Com();
-		if(indent)
+		if(flags & ctfIndent)
 			Cr();
 	}
 	RPar();
@@ -538,6 +550,7 @@ const char * Generator_SQL::P_Tokens[] = {
 	"TRANSACTION",   // @v12.3.12
 	"INDEXED BY",    // @v12.4.0 SQLITE  
 	"ORDER BY",      // @v12.4.0
+	"TEMP",          // @v12.4.4 tokTemp
 };
 
 Generator_SQL & Generator_SQL::HintBegin()

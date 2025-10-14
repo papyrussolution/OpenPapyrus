@@ -357,7 +357,7 @@ int Crosstab::CreateTable()
 		SString table_name(P_RTbl->GetTableName());
 		SString file_name;
 		THROW_DB(p_dict->CreateTableSpec(P_RTbl));
-		THROW_DB(p_dict->CreateTempFile(table_name, file_name, 0));
+		THROW_DB(p_dict->CreateTempFile(table_name, file_name, false));
 		ZDELETE(P_RTbl);
 		THROW_MEM(P_RTbl = new DBTable(table_name, file_name));
 		P_RTbl->SetFlag(XTF_TEMP);

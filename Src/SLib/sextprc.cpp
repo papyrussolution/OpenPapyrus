@@ -113,7 +113,7 @@ int ExecVDos(const ExecVDosParam & rParam)
 			{
 				STempBuffer cmd_line((exe_filename.Len()+16) * sizeof(TCHAR));
 				strnzcpy(static_cast<TCHAR *>(cmd_line.vptr()), SUcSwitch(exe_filename), cmd_line.GetSize());
-				r = ::CreateProcess(0, static_cast<TCHAR *>(cmd_line.vptr()), 0, 0, FALSE, 0, 0, SUcSwitch(vdos_path.cptr()), &si, &pi); // @unicodeproblem
+				r = ::CreateProcess(0, static_cast<TCHAR *>(cmd_line.vptr()), 0, 0, FALSE, 0, 0, SUcSwitch(vdos_path.cptr()), &si, &pi);
 			}
 			if(!r) {
 				SLS.SetOsError(0, 0);

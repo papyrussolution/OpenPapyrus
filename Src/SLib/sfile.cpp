@@ -1401,7 +1401,7 @@ backtrack:
 	}
 }
 
-/*static*/int SFile::CreateDirByTemplate(const char * pPath, const char * pTemplate) // @v11.8.12
+/*static*/int SFile::CreateDirByTemplateSA(const char * pPath, const char * pTemplate, void * pSecurityAttributes) // @v12.4.4
 {
 	int    ok = 1;
 	SString path;
@@ -1424,7 +1424,7 @@ backtrack:
 						SStringU template_buf_u;
 						SString template_buf(pTemplate);
 						template_buf.CopyToUnicode(template_buf_u);
-						const int cdr = CreateDirectoryExW(template_buf_u, temp_buf_u, 0);
+						const int cdr = CreateDirectoryExW(template_buf_u, temp_buf_u, static_cast<SECURITY_ATTRIBUTES *>(pSecurityAttributes));
 						if(!cdr) {
 							SString added_msg_buf;
 							added_msg_buf.Cat(template_buf).Cat("->").Cat(path);
@@ -1434,7 +1434,7 @@ backtrack:
 							ok = 1;
 					}
 					else {
-						const int cdr = ::CreateDirectoryW(temp_buf_u, NULL);
+						const int cdr = ::CreateDirectoryW(temp_buf_u, static_cast<SECURITY_ATTRIBUTES *>(pSecurityAttributes));
 						ok = (cdr == 0) ? SLS.SetError(SLERR_MKDIRFAULT, path) : 1;
 					}
 				}
@@ -1443,6 +1443,11 @@ backtrack:
 		path.CatChar(*p);
 	} while(ok && *p++ != 0);
 	return ok;
+}
+
+/*static*/int SFile::CreateDirByTemplate(const char * pPath, const char * pTemplate) // @v11.8.12
+{
+	return CreateDirByTemplateSA(pPath, pTemplate, 0);
 }
 
 /*static*/SString & SFile::MakeNamedPipeName(const char * pSymb, SString & rBuf)
@@ -1456,7 +1461,12 @@ backtrack:
 
 /*static*/int SFile::CreateDir(const char * pPath) // @v11.8.11
 {
-	return CreateDirByTemplate(pPath, 0);
+	return CreateDirByTemplateSA(pPath, 0, 0);
+}
+
+/*static*/int SFile::CreateDirSA(const char * pPath, void * pSecurityAttributes) // @v12.4.4
+{
+	return CreateDirByTemplateSA(pPath, 0, pSecurityAttributes);
 }
 
 static const SIntToSymbTabEntry SFileAccsfSymbList[] = {
@@ -3921,7 +3931,12 @@ SFileFormat::SFileFormat(int f) : Id(f)
 {
 }
 
-void SFileFormat::Clear() { Id = Unkn; }
+SFileFormat & SFileFormat::Z() 
+{ 
+	Id = Unkn; 
+	return *this;
+}
+
 SFileFormat::operator int () const { return Id; }
 int SFileFormat::operator !() const { return (Id == 0); }
 
@@ -4037,7 +4052,7 @@ int SFileFormat::IdentifyMime(const char * pMime)
 	Register(Bz2,    mtApplication, "x-bzip2", "bz2", "425A68");
 	Register(SevenZ, mtApplication, "x-lzma",  "7z",  "377ABCAF");
 	Register(Xz,     mtApplication, "x-xz",    "xz",  "FD377A585A");
-	Register(Z,          "z",   "1F9D90");
+	Register(Z_,         "z",   "1F9D90");
 	Register(Cab,        "cab", "49536328");
 	Register(Cab,        "cab", "4D534346");
 	Register(Arj,        "arj", "60EA");
@@ -4102,8 +4117,8 @@ int SFileFormat::IdentifyMime(const char * pMime)
 	Register(Sln,        "sln",  "TMicrosoft Visual Studio Solution File"); //
 	Register(VCProj,     mtApplication, "xml", "vcproj", "T<?xml");         // 
 	Register(VCProj,     "vcxproj", "T<?xml");
-	Register(VCProjFilers, mtApplication, "xml", "vcxproj.filters", "T<?xml"); // @v10.9.9 Visual Studio Project Filters
-	Register(VCProjUser,   mtApplication, "xml", "vcxproj.user",    "T<?xml"); // @v10.9.9 Visual Studio Project User
+	Register(VCProjFilers, mtApplication, "xml", "vcxproj.filters", "T<?xml"); // Visual Studio Project Filters
+	Register(VCProjUser,   mtApplication, "xml", "vcxproj.user",    "T<?xml"); // Visual Studio Project User
 	Register(Asm,        "asm", 0);
 	Register(C,          "c",   0);
 	Register(C,          "c",   "T/*");
@@ -4427,7 +4442,7 @@ static ACL * MyselfAcl()
 
 bool ResetAcl(const wchar_t * pPath, bool myselfAcl)
 {
-	static ACL default_acl;
+	static ACL  default_acl;
 	static BOOL once_result = ::InitializeAcl(&default_acl, sizeof(default_acl), ACL_REVISION);
 	ACL * p_acl = once_result ? &default_acl : NULL;
 	if(myselfAcl) {

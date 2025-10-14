@@ -2679,7 +2679,6 @@ IMPL_HANDLE_EVENT(PPWhatmanWindow)
 		else if(event.isCmd(cmPaint)) {
 			PaintEvent * p_pe = static_cast<PaintEvent *>(TVINFOPTR);
 			if(p_pe->PaintType == PaintEvent::tPaint) {
-				MemLeakTracer mlt;
 				{
 					TCanvas2 canv(Tb, static_cast<HDC>(p_pe->H_DeviceContext));
 					TRect rect_cli = getClientRect();
@@ -3185,7 +3184,6 @@ int PPWhatmanWindow::FileOpen()
 	int    ok = -1;
 	HWND   w_preserve_focus = ::GetFocus();
 	HWND   w_preserve_capt  = ::GetCapture();
-	MemLeakTracer mlt;
 	PPWhatmanWindow * p_win = new PPWhatmanWindow(PPWhatmanWindow::modeView);
 	const int sx = GetSystemMetrics(SM_CXSCREEN); // @v11.5.0
 	const int sy = GetSystemMetrics(SM_CYSCREEN); // @v11.5.0

@@ -132,7 +132,7 @@ int BExtQuery::CreateSqlExpr(Generator_SQL & rSg, int reverse, const char * pIni
 		_where_tok = 1;
 		rSg.LPar();
 		for(int i = 0; i < ns; i++) {
-			int fldid = r_key.getFieldID(i);
+			const int fldid = r_key.getFieldID(i);
 			const BNField & r_fld = r_indices.field(Index_, i);
 			if(i > 0) { // НЕ первый сегмент
 				rSg.Tok(Generator_SQL::tokAnd).Sp();
@@ -168,7 +168,18 @@ int BExtQuery::CreateSqlExpr(Generator_SQL & rSg, int reverse, const char * pIni
 			else if(oneof2(initSpMode, spGe, spFirst))
 				cmps = _GE_;
 			rSg._Symb(cmps);
-			sttostr(r_fld.T, PTR8C(pInitKey)+offs, COMF_SQL, temp);
+			{
+				const  int st = GETSTYPE(r_fld.T);
+				bool   local_done = false;
+				if(rSg.GetServerType() == sqlstSQLite) {
+					if(oneof2(st, S_DATE, S_TIME)) {
+						sttostr(MKSTYPE(S_INT, 4), PTR8C(pInitKey)+offs, COMF_SQL, temp);
+						local_done = true;
+					}
+				}
+				if(!local_done)
+					sttostr(r_fld.T, PTR8C(pInitKey)+offs, COMF_SQL, temp);
+			}
 			rSg.Text(temp);
 			if(i > 0 && initSpMode != spEq) {
 				//
@@ -197,7 +208,18 @@ int BExtQuery::CreateSqlExpr(Generator_SQL & rSg, int reverse, const char * pIni
 					else
 						rSg.Text(r_fld2.Name);
 					rSg._Symb(_NE_);
-					sttostr(r_fld2.T, PTR8C(pInitKey) + r_indices.getSegOffset(Index_, j), COMF_SQL, temp);
+					{
+						const  int st = GETSTYPE(r_fld2.T);
+						bool   local_done = false;
+						if(rSg.GetServerType() == sqlstSQLite) {
+							if(oneof2(st, S_DATE, S_TIME)) {
+								sttostr(MKSTYPE(S_INT, 4), PTR8C(pInitKey) + r_indices.getSegOffset(Index_, j), COMF_SQL, temp);
+								local_done = true;
+							}
+						}
+						if(!local_done)
+							sttostr(r_fld2.T, PTR8C(pInitKey) + r_indices.getSegOffset(Index_, j), COMF_SQL, temp);
+					}
 					rSg.Text(temp);
 					rSg.Sp();
 				}
@@ -610,12 +632,12 @@ int FASTCALL BExtQuery::add_term(int link, int n)
 		const  BNField * fld = 0;
 		if(t.left.GetId() == tbl_hdl) {
 			fld = &t.left.F.getField();
-			cmp = t.cmp;
+			cmp = t.Cmpf;
 			t.right.getValue(fld->T, val);
 		}
 		else /*if(t.right.GetId() == tbl_hdl)*/ {
 			fld = &t.right.F.getField();
-			cmp = _invertComp(t.cmp);
+			cmp = _invertComp(t.Cmpf);
 			t.left.getValue(fld->T, val);
 		}
 		const uint16 sz = static_cast<uint16>(fld->size());

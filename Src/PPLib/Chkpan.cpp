@@ -13653,7 +13653,6 @@ int CheckPaneDialog::LoadChkInP(PPID chkinpID, PPID goodsID, double qtty)
 //
 int CCheckPane(PPID cashNodeID, PPID chkID, const char * pInitLine, long flags)
 {
-	MemLeakTracer mlt;
 	int    ok = 1;
 	bool   is_touch_screen = false;
 	const  PPID sav_loc_id = LConfig.Location;

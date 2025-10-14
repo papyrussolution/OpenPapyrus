@@ -1406,7 +1406,6 @@ int MakeCRptDataFiles(int verifyAll/*=0*/)
 
 static int FASTCALL __PPAlddPrint(int rptId, PPFilt * pF, int isView, const PPReportEnv * pEnv)
 {
-	MemLeakTracer mlt;
 	int    ok = 1;
 	bool   inherited_tbl_names = false;
 	bool   diffidbyscope = false;

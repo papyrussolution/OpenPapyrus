@@ -2509,7 +2509,7 @@ int PPObjBill::SerializePacket__(int dir, PPBillPacket * pPack, SBuffer & rBuf, 
 			}
 		}
 		// @v12.4.1 {
-		{
+		if(pPack->Ver.IsGt(12, 4, 0)) { // @fix @v12.4.3
 			TSVector <LocTransfOpBlock> temp_list;
 			THROW(pSCtx->Serialize(dir, &temp_list, rBuf)); 
 			if(temp_list.getCount()) {

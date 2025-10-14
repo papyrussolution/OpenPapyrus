@@ -7196,9 +7196,19 @@ class S_WinSID : private SBinaryChunk {
 public:
 	S_WinSID();
 	explicit S_WinSID(const void * pSid);
+	S_WinSID & Z();
+	bool   IsEmpty() const;
 	bool   FromPSID(const void * pSid);
-	SString & ToStr(SString & rBuf) const;
-	bool FromStr(const char * pText);
+
+	enum {
+		fmtSystem   = 0x0001,
+		fmtFriendly = 0x0002
+	};
+
+	SString & ToStr(uint format, SString & rBuf) const;
+	bool   FromStr(const char * pText);
+	const  void * GetPtrC() const;
+	void * GetPtr(); // dangerous!
 };
 //
 //
@@ -8826,6 +8836,7 @@ struct BNField { // @flat
 //   с таблицами баз данных.
 // Note: Перенесено из db.h для реализации универсального сериализатора данных SSerializeContext.
 //
+#if 0 // @v12.4.4 {
 class BNFieldList_Obsolete {
 public:
 	BNFieldList_Obsolete();
@@ -8854,8 +8865,13 @@ private:
 	uint   count;
 	BNField * fields;
 };
+#endif // } 0 @v12.4.4
 //
+// Descr: Обобщенное представление записи таблицы данных. Используется в основном для работы
+//   с таблицами баз данных.
+// Note: Перенесено из db.h для реализации универсального сериализатора данных SSerializeContext.
 // @v12.4.3 @construction (in order to replace BNFieldList2)
+//
 //
 class BNFieldList2 : public TSVector <BNField> {
 public:
@@ -11130,19 +11146,19 @@ public:
 		mtExample
 	};
 	enum {
-		Unkn     =  0,  //
-		Txt      =  1,  //
-		Jpeg     =  2,  //
-		Png      =  3,  //
-		Tiff     =  4,  //
-		Gif      =  5,  //
-		Bmp      =  6,  //
-		Ico      =  7,  //
-		Cur      =  8,  //
-		Svg      =  9,  //
-		Html     = 10,  //
-		Xml      = 11,  //
-		Ini      = 12,  //
+		Unkn             =  0,  //
+		Txt      		 =  1,  //
+		Jpeg     		 =  2,  //
+		Png      		 =  3,  //
+		Tiff     		 =  4,  //
+		Gif      		 =  5,  //
+		Bmp      		 =  6,  //
+		Ico      		 =  7,  //
+		Cur      		 =  8,  //
+		Svg      		 =  9,  //
+		Html     		 = 10,  //
+		Xml      		 = 11,  //
+		Ini              = 12,  // 
 		TxtBomUTF8       = 13,  // Текстовый файл с сигнатурой типа кодировка (BOM)
 		TxtBomUTF16BE    = 14,  // Текстовый файл с сигнатурой типа кодировка (BOM)
 		TxtBomUTF16LE    = 15,  // Текстовый файл с сигнатурой типа кодировка (BOM)
@@ -11154,87 +11170,87 @@ public:
 		TxtBomSCSU       = 21,  // Текстовый файл с сигнатурой типа кодировка (BOM)
 		TxtBomBOCU1      = 22,  // Текстовый файл с сигнатурой типа кодировка (BOM)
 		TxtBomGB18030    = 23,  // Текстовый файл с сигнатурой типа кодировка (BOM)
-		Latex    = 24,  // LATEX
-		Pdf      = 25,  //
-		Rtf      = 26,  //
-		Mdb      = 27,  //
-		AccDb    = 28,  // Access
-		WbXml    = 29,  // Binary XML
-		Wmf      = 30,  //
-		Eps      = 31,  //
-		Hlp      = 32,  //
-		Ppd      = 33,  // PostScript
-		PList    = 34,  // Property List
-		Mat      = 35,  // Matlab
-		Pdb      = 36,  //
-		WcbffOld = 37,  // Windows Compound Binary File Format
-		Zip      = 38,  // Archive
-		Rar      = 39,  // Archive
-		Gz       = 40,  // Archive
-		Tar      = 41,  // Archive
-		Bz2      = 42,  // Archive
-		SevenZ   = 43,  // Archive
-		Xz       = 44,  // Archive
-		Z        = 45,  // Archive
-		Cab      = 46,  // Archive
-		Arj      = 47,  // Archive
-		Lzh      = 48,  // Archive
-		Xar      = 49,  // Archive
-		Pmd      = 50,  // Archive
-		Deb      = 51,  // Archive
-		Rpm      = 52,  // Archive
-		Chm      = 53,  // Archive
-		Iso      = 54,  // Archive
-		Vhd      = 55,  // Archive
-		Wim      = 56,  // Archive
-		Mdf      = 57,  // Archive
-		Nri      = 58,  // Archive
-		Swf      = 59,  // Archive
-		Mar      = 60,  // Archive
-		Mkv      = 61,  // Video
-		Avi      = 62,  // Video
-		Mp4      = 63,  // Video
-		Wmv      = 64,  // Video
-		Mpg      = 65,  // Video
-		Flv      = 66,  // Video
-		Mov      = 67,  // Video
-		F4f      = 68,  // Video
-		Class    = 69,  // binary:class 0:CAFEBABE
-		Exe      = 70,  // binary:exe   0:4D5A
-		Dll      = 71,  // binary:dll   0:4D5A
-		Pcap     = 72,  // binary:pcap  0:D4C3B2A1
-		Pyo      = 73,  // binary:pyo   0:03F30D0A
-		So       = 74,  // binary:so    0:7F454C46
-		Mo       = 75,  // binary:mo    0:DE120495
-		Mui      = 76,  // binary:mui   0:50413330
-		Cat      = 77,  // binary:cat   0:30 6:2A864886
-		Xsb      = 78,  // binary:xsb   0:DA7ABABE
-		Key      = 79,  // binary:key   0:4B4C737727
-		Sq3      = 80,  // binary:sq3   0:53514C697465 SQLite
-		Qst      = 81,  // binary:qst   0:0401C4030000 binary:qst   0:040180040000
-		Crx      = 82,  // binary:crx   0:43723234
-		Utx      = 83,  // binary:utx   0:4C0069006E006500610067006500
-		Rx3      = 84,  // binary:rx3   0:52583362
-		Kdc      = 85,  // binary:kdc   0:44494646
-		Xnb      = 86,  // binary:xnb   0:584E42
-		Blp      = 87,  // binary:blp   0:424C5031 binary:blp   0:424C5032
-		Big      = 88,  // binary:big   0:42494746
-		Mdl      = 89,  // binary:mdl   0:49445354
-		Spr      = 90,  // binary:spr   0:CDCC8C3F
-		Sfo      = 91,  // binary:sfo   0:00505346
-		Mpq      = 92,  // binary:mpq   0:4D50511A
-		Nes      = 93,  // binary:nes   0:4E45531A
-		Dmp      = 94,  // binary:dmp   0:4D444D5093A7
-		Dex      = 95,  // binary:dex   0:6465780a30333500 binary:dex   0:6465780a30333600
-		Gim      = 96,  // binary:gim   0:4D49472E30302E31505350
-		Amxx     = 97,  // binary:amxx  0:58584D41
-		Sln      = 98,  // Visual Studio Solution
-		VCProj   = 99,  // Visual Studio Project
-		Asm      = 100, // Assembler source file
-		C        = 101, // C source file
-		CPP      = 102, // CPP source file
-		H        = 103, // C header file
-		Perl     = 104, // perl source code
+		Latex            = 24,  // LATEX
+		Pdf      		 = 25,  //
+		Rtf      		 = 26,  //
+		Mdb      		 = 27,  //
+		AccDb    		 = 28,  // Access
+		WbXml    		 = 29,  // Binary XML
+		Wmf      		 = 30,  //
+		Eps      		 = 31,  //
+		Hlp      		 = 32,  //
+		Ppd      		 = 33,  // PostScript
+		PList    		 = 34,  // Property List
+		Mat      		 = 35,  // Matlab
+		Pdb      		 = 36,  //
+		WcbffOld 		 = 37,  // Windows Compound Binary File Format
+		Zip      		 = 38,  // Archive
+		Rar      		 = 39,  // Archive
+		Gz       		 = 40,  // Archive
+		Tar      		 = 41,  // Archive
+		Bz2      		 = 42,  // Archive
+		SevenZ   		 = 43,  // Archive
+		Xz               = 44,  // Archive
+		Z_               = 45,  // Archive // Z_ используется вместо Z чтобы не конфликтовать с функцией SFileFormat::Z()
+		Cab              = 46,  // Archive
+		Arj              = 47,  // Archive
+		Lzh      		 = 48,  // Archive
+		Xar      		 = 49,  // Archive
+		Pmd      		 = 50,  // Archive
+		Deb      		 = 51,  // Archive
+		Rpm      		 = 52,  // Archive
+		Chm      		 = 53,  // Archive
+		Iso      		 = 54,  // Archive
+		Vhd      		 = 55,  // Archive
+		Wim      		 = 56,  // Archive
+		Mdf      		 = 57,  // Archive
+		Nri      		 = 58,  // Archive
+		Swf      		 = 59,  // Archive
+		Mar      		 = 60,  // Archive
+		Mkv      		 = 61,  // Video
+		Avi      		 = 62,  // Video
+		Mp4      		 = 63,  // Video
+		Wmv      		 = 64,  // Video
+		Mpg      		 = 65,  // Video
+		Flv      		 = 66,  // Video
+		Mov      		 = 67,  // Video
+		F4f      		 = 68,  // Video
+		Class    		 = 69,  // binary:class 0:CAFEBABE
+		Exe      		 = 70,  // binary:exe   0:4D5A
+		Dll      		 = 71,  // binary:dll   0:4D5A
+		Pcap     		 = 72,  // binary:pcap  0:D4C3B2A1
+		Pyo      		 = 73,  // binary:pyo   0:03F30D0A
+		So       		 = 74,  // binary:so    0:7F454C46
+		Mo       		 = 75,  // binary:mo    0:DE120495
+		Mui      		 = 76,  // binary:mui   0:50413330
+		Cat      		 = 77,  // binary:cat   0:30 6:2A864886
+		Xsb      		 = 78,  // binary:xsb   0:DA7ABABE
+		Key      		 = 79,  // binary:key   0:4B4C737727
+		Sq3      		 = 80,  // binary:sq3   0:53514C697465 SQLite
+		Qst      		 = 81,  // binary:qst   0:0401C4030000 binary:qst   0:040180040000
+		Crx      		 = 82,  // binary:crx   0:43723234
+		Utx      		 = 83,  // binary:utx   0:4C0069006E006500610067006500
+		Rx3      		 = 84,  // binary:rx3   0:52583362
+		Kdc      		 = 85,  // binary:kdc   0:44494646
+		Xnb      		 = 86,  // binary:xnb   0:584E42
+		Blp      		 = 87,  // binary:blp   0:424C5031 binary:blp   0:424C5032
+		Big      		 = 88,  // binary:big   0:42494746
+		Mdl      		 = 89,  // binary:mdl   0:49445354
+		Spr      		 = 90,  // binary:spr   0:CDCC8C3F
+		Sfo      		 = 91,  // binary:sfo   0:00505346
+		Mpq      		 = 92,  // binary:mpq   0:4D50511A
+		Nes      		 = 93,  // binary:nes   0:4E45531A
+		Dmp      		 = 94,  // binary:dmp   0:4D444D5093A7
+		Dex      		 = 95,  // binary:dex   0:6465780a30333500 binary:dex   0:6465780a30333600
+		Gim      		 = 96,  // binary:gim   0:4D49472E30302E31505350
+		Amxx     		 = 97,  // binary:amxx  0:58584D41
+		Sln      		 = 98,  // Visual Studio Solution
+		VCProj   		 = 99,  // Visual Studio Project
+		Asm      		 = 100, // Assembler source file
+		C        		 = 101, // C source file
+		CPP      		 = 102, // CPP source file
+		H        		 = 103, // C header file
+		Perl     		 = 104, // perl source code
 		Php              = 105, // php source code
 		Java             = 106, // java source code
 		Py               = 107, // Python source code
@@ -11286,9 +11302,8 @@ public:
 	int    operator !() const;
 	//
 	// Descr: Устанавливает значение формата в SFileFormat::Unkn
-	// Note: Здесь нельзя применять семантику Z() из-за смешения с одноименным элементом перечисления.
 	//
-	void   Clear();
+	SFileFormat & Z();
 	int    GetMimeType() const;
 	//
 	// Descr: Идентифицирует формат файла pFileName по расширению и сигнатуре.
@@ -12579,7 +12594,9 @@ public:
 
 	static SString & MakeNamedPipeName(const char * pSymb, SString & rBuf);
 	static int  CreateDir(const char * pPath); // @v11.8.11
+	static int  CreateDirSA(const char * pPath, void * pSecurityAttributes); // @v12.4.4
 	static int  CreateDirByTemplate(const char * pPath, const char * pTemplate); // @v11.8.12
+	static int  CreateDirByTemplateSA(const char * pPath, const char * pTemplate, void * pSecurityAttributes); // @v12.4.4
 	static bool FASTCALL IsDir(const char * pStr);
 	static bool FASTCALL IsDir(const wchar_t * pStr);
 	static bool FASTCALL GetCurrentDir(SString & rBufUtf8);
@@ -16739,6 +16756,44 @@ private:
 //
 //
 //
+class WinSecurityAttrs { // @v12.4.4
+public:
+	struct AceEntry {
+		AceEntry() : Permissions(0), AccessMode(0), Inheritance(0)
+		{
+		}
+		uint   Permissions;
+		uint   AccessMode;
+		uint   Inheritance;
+		SString TrusteeRaw;
+		SString Trustee;
+	};
+	static void    GetPermissionFlagsMnemonic(uint flags, SString & rBuf);
+	static uint    GetAclInfo(void * pACL, TSCollection <AceEntry> & rList);
+
+	enum {
+		fInheritHandle = 0x0001
+	};
+	explicit WinSecurityAttrs(uint flags);
+	~WinSecurityAttrs();
+	//
+	// 
+	// 
+	int    MakeResult(void *);
+	//
+	// Descr: Initialize security descriptor
+	//
+	int    InitSD();
+	int    SetSD_DACL(void * pACL, bool daclDefaulted);
+	int    ResetSD_DACL();
+private:
+	void   DestroySD();
+	uint   Flags;
+	void * P_SD;
+};
+//
+//
+//
 class WinRegValue : private SBaseBuffer {
 public:
 	friend class WinRegKey;
@@ -17674,6 +17729,7 @@ public:
 	//
 	static SPtrHandle OpenAccessToken(SIntHandle hProcess, uint desiredAccess);
 	static SPtrHandle OpenCurrentAccessToken(uint desiredAccess);
+	static bool    GetCurrentUserSid(S_WinSID & rSid);
 	//
 	// Descr: Результат функции CheckAccessTokenPrivilege
 	//

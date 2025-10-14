@@ -117,8 +117,6 @@ int PPViewCashNode::EditBaseFilt(PPBaseFilt * pFilt)
 	return ok;
 }
 
-// @v8.6.6 PP_CREATE_TEMP_FILE_PROC(CreateTempFile, TempCashNode);
-
 int PPViewCashNode::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
@@ -255,7 +253,6 @@ int PPViewCashNode::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser
 			case PPVCMD_LOADDATA:
 			case PPVCMD_OPPANEL:
 				{
-					MemLeakTracer mlt; // @debug
 					bool   exec_panel = false;
 					PPIDArray cash_list;
 					PPCashNode rec;

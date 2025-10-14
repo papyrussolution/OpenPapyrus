@@ -278,7 +278,7 @@ SMutex::SMutex(int initialValue, const char * pName) : SWaitableObject()
 	sa.nLength = sizeof(sa);
 	sa.lpSecurityDescriptor = 0;
 	sa.bInheritHandle = TRUE;
-	H = ::CreateMutex(&sa, initialValue ? TRUE : FALSE, SUcSwitch(pName)); // @unicodeproblem
+	H = ::CreateMutexW(&sa, initialValue ? TRUE : FALSE, SUcSwitchW(pName));
 }
 
 int SMutex::Release()
@@ -288,7 +288,7 @@ int SMutex::Release()
 //
 //
 //
-STimer::STimer(const char * pName) : SWaitableObject(CreateWaitableTimer(0, 1, SUcSwitch(pName))) // @unicodeproblem
+STimer::STimer(const char * pName) : SWaitableObject(CreateWaitableTimerW(0, 1, SUcSwitchW(pName)))
 {
 }
 

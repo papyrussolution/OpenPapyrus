@@ -1987,7 +1987,6 @@ int PPViewUserMenu::DeleteItem(const S_GUID & rUuid)
 				}
 				else if(ppvCmd == PPVCMD_USERSORT) {
 					const long preserve_id = p_item ? p_item->ID : 0;
-					MemLeakTracer mlt;
 					if(MakeList(pBrw)) {
 						p_def->setArray(new SArray(*P_DsList), 0, 0);
 						if(preserve_id)

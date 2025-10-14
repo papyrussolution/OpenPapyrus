@@ -3641,7 +3641,6 @@ int Test_LayoutedListDialog()
 	}
 	// } @debug 
 	{
-		MemLeakTracer mlt;
 		LayoutedListDialog_Base::Param param;
 		param.Symb = "Test_LayoutedListDialog";
 		param.Bounds.Set(0, 0, 295, 300); 

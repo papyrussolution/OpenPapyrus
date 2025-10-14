@@ -4049,15 +4049,12 @@ namespace NArchive {
 							s += cc;
 							break;
 						}
-
 						if(acc & MY__GENERIC_READ) s += " GENERIC_READ";
 						if(acc & MY__GENERIC_WRITE) s += " GENERIC_WRITE";
 						if(acc & MY__GENERIC_EXECUTE) s += " GENERIC_EXECUTE";
 						if(acc & MY__GENERIC_ALL) s += " GENERIC_ALL";
-
 						const char * s2 = NULL;
-						switch(creat)
-						{
+						switch(creat) {
 							case MY__CREATE_NEW:        s2 = "CREATE_NEW"; break;
 							case MY__CREATE_ALWAYS:     s2 = "CREATE_ALWAYS"; break;
 							case MY__OPEN_EXISTING:     s2 = "OPEN_EXISTING"; break;

@@ -529,7 +529,7 @@ static int _win32_create_temp_file(_zip_source_win32_read_file_t * ctx)
 	   default security descriptor.
 	 */
 	if(ctx->h != INVALID_HANDLE_VALUE && GetFileType(ctx->h) == FILE_TYPE_DISK) {
-		si = DACL_SECURITY_INFORMATION | UNPROTECTED_DACL_SECURITY_INFORMATION;
+		si = DACL_SECURITY_INFORMATION|UNPROTECTED_DACL_SECURITY_INFORMATION;
 		len = 0;
 		success = GetUserObjectSecurity(ctx->h, &si, NULL, len, &len);
 		if(!success && GetLastError() == ERROR_INSUFFICIENT_BUFFER) {

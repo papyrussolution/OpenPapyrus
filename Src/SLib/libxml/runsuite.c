@@ -530,7 +530,6 @@ static int xsdTestCase(xmlNode * tst)
 		else {
 			xmlBufferEmpty(buf);
 			xmlNodeDump(buf, test->doc, test, 0, 0);
-
 			/*
 			 * We are ready to run the test
 			 */

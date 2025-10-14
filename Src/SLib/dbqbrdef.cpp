@@ -1,10 +1,10 @@
 // DBQBRO.CPP
-// Copyright (c) Sobolev A. 1996, 1997-2000, 2003, 2005, 2008, 2010, 2011, 2013, 2018, 2019, 2020, 2022
+// Copyright (c) Sobolev A. 1996, 1997-2000, 2003, 2005, 2008, 2010, 2011, 2013, 2018, 2019, 2020, 2022, 2025
 //
 #include <slib-internal.h>
 #pragma hdrstop
 
-DBQBrowserDef::DBQBrowserDef(DBQuery & rQuery, int captionHight, uint aOptions, uint aBufSize) : BrowserDef(captionHight, aOptions), query(0)
+DBQBrowserDef::DBQBrowserDef(DBQuery & rQuery, int captionHight, uint aOptions, uint aBufSize) : BrowserDef(captionHight, aOptions), P_Query(0)
 {
 	setQuery(rQuery, aBufSize);
 }
@@ -12,21 +12,19 @@ DBQBrowserDef::DBQBrowserDef(DBQuery & rQuery, int captionHight, uint aOptions, 
 DBQBrowserDef::~DBQBrowserDef()
 {
 	if(options & BRO_OWNER)
-		delete query;
+		delete P_Query;
 }
 
 int DBQBrowserDef::setQuery(DBQuery & rQuery, uint aBufSize)
 {
-	uint   prev_view_height = 1;
-	if(query && query->P_Frame)
-		prev_view_height = query->P_Frame->hight;
+	const uint prev_view_height = (P_Query && P_Query->P_Frame) ? P_Query->P_Frame->Height : 1;
 	if(options & BRO_OWNER)
-		ZDELETE(query);
+		ZDELETE(P_Query);
 	if(&rQuery) {
-		query = &rQuery;
-		query->setFrame(prev_view_height, aBufSize, 1);
-		query->P_Frame->srange = 1000;
-		query->top();
+		P_Query = &rQuery;
+		P_Query->setFrame(prev_view_height, aBufSize, 1);
+		P_Query->P_Frame->SRange = 1000;
+		P_Query->top();
 	}
 	return 1;
 }
@@ -37,16 +35,16 @@ int DBQBrowserDef::setQuery(DBQuery & rQuery, uint aBufSize)
 	bc.OrgOffs = fldNo;
 	if(fldNo == UNDEF)
 		fldNo = getCount();
-	if(opt & BCO_USERPROC) {  // @v12.1.8 
+	if(opt & BCO_USERPROC) { // @v12.1.8 
 		bc.T = typ;
 		bc.Offs = fldNo;
 	}
 	else {
-		assert(fldNo < query->fldCount);
-		bc.T = query->flds[fldNo].type;
+		assert(fldNo < P_Query->fldCount);
+		bc.T = P_Query->flds[fldNo].type;
 		bc.Offs = 0;
 		for(uint i = 0; i < fldNo; i++)
-			bc.Offs += stsize(query->flds[i].type);
+			bc.Offs += stsize(P_Query->flds[i].type);
 	}
 	bc.format = fmt;
 	bc.Options = (opt | BCO_CAPLEFT);
@@ -72,61 +70,59 @@ int DBQBrowserDef::setQuery(DBQuery & rQuery, uint aBufSize)
 /*virtual*/int DBQBrowserDef::insertColumn(int atPos, const char * pTxt, const char * pFldName, TYPEID typ, long fmt, uint opt)
 {
 	uint   fld_no = 0;
-	return (query->getFieldPosByName(pFldName, &fld_no) > 0) ? insertColumn(atPos, pTxt, fld_no, typ, fmt, opt) : 0;
+	return (P_Query->getFieldPosByName(pFldName, &fld_no) > 0) ? insertColumn(atPos, pTxt, fld_no, typ, fmt, opt) : 0;
 }
 
 void DBQBrowserDef::setViewHight(int h)
 {
-	query->setFrame(h, UNDEF, UNDEF);
+	P_Query->setFrame(h, UNDEF, UNDEF);
 	BrowserDef::setViewHight(h);
 }
 
 void DBQBrowserDef::getScrollData(long * pScrollDelta, long * pScrollPos)
 {
-	*pScrollDelta = static_cast<long>(query->P_Frame->sdelta);
-	//*pScrollPos = (long)query->P_Frame->spos;
+	*pScrollDelta = static_cast<long>(P_Query->P_Frame->SDelta);
+	//*pScrollPos = (long)query->P_Frame->SPos;
 	*pScrollPos = 500L;
 }
 
 void DBQBrowserDef::setupView()
 {
-	topItem = query->P_Frame->top;
-	curItem = query->P_Frame->cur;
-	isBOQ = LOGIC(query->P_Frame->state & DBQuery::Frame::Top);
-	isEOQ = LOGIC(query->P_Frame->state & DBQuery::Frame::Bottom);
+	topItem = P_Query->P_Frame->Top;
+	curItem = P_Query->P_Frame->Cur;
+	isBOQ = LOGIC(P_Query->P_Frame->State & DBQuery::Frame::stTop);
+	isEOQ = LOGIC(P_Query->P_Frame->State & DBQuery::Frame::stBottom);
 }
 
 int FASTCALL DBQBrowserDef::step(long d)
 {
-	int r = query->step(d);
+	const int r = P_Query->step(d);
 	setupView();
 	return r;
 }
 
 int DBQBrowserDef::top()
 {
-	int r = query->top();
+	const int r = P_Query->top();
 	setupView();
 	return r;
 }
 
 int DBQBrowserDef::bottom()
 {
-	int r = query->bottom();
+	const int r = P_Query->bottom();
 	setupView();
 	return r;
 }
 
 int DBQBrowserDef::refresh()
 {
-	int r = query->refresh();
+	const int r = P_Query->refresh();
 	setupView();
 	return r;
 }
 
-bool   DBQBrowserDef::IsValid() const { return !query->error; }
+bool   DBQBrowserDef::IsValid() const { return !P_Query->error; }
 int    FASTCALL DBQBrowserDef::go(long p) { return step(p-curItem); }
-long   DBQBrowserDef::GetRecsCount() const { return query->P_Frame->srange+1; }
-const  void * FASTCALL DBQBrowserDef::getRow(long r) const { return query->getRecord(static_cast<uint>(r)); }
-// @v10.9.0 int    FASTCALL DBQBrowserDef::getData(void *) { return 1; }
-// @v10.9.0 int    FASTCALL DBQBrowserDef::setData(void *) { return 1; }
+long   DBQBrowserDef::GetRecsCount() const { return P_Query->P_Frame->SRange+1; }
+const  void * FASTCALL DBQBrowserDef::getRow(long r) const { return P_Query->getRecord(static_cast<uint>(r)); }

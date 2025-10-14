@@ -755,7 +755,6 @@ static uint GetBillDialogID(const PPBillPacket * pack, uint * pPrnForm)
 //
 int EditGoodsBill(PPBillPacket * pPack, long egbFlags)
 {
-	MemLeakTracer mlt;
 	int    ok = -1;
 	int    r;
 	const  PPRights & r_rt = ObjRts;
@@ -2716,7 +2715,17 @@ int BillDialog::setDTS(PPBillPacket * pPack)
 	showCtrl(CTL_BILL_OBJ2,     !dsbl_object2);
 	showCtrl(CTLSEL_BILL_OBJ2,  !dsbl_object2);
 	showCtrl(CTL_BILL_OBJ2NAME, !dsbl_object2);
-	showCtrl(CTL_BILL_DUEDATE,  !oneof2(P_Pack->OpTypeID, PPOPT_GOODSEXPEND, PPOPT_GOODSRECEIPT));
+	{
+		bool   local_do_show = false;
+		if(oneof2(P_Pack->OpTypeID, PPOPT_GOODSEXPEND, PPOPT_GOODSRECEIPT))
+			local_do_show = true;
+		else if(P_Pack->OpTypeID == PPOPT_WAREHOUSE) { // @v12.4.4
+			if(GetOpSubType(P_Pack->Rec.OpID) == OPSUBT_BAILMENT_ORDER) { 
+				local_do_show = true;
+			}
+		}
+		showCtrl(CTL_BILL_DUEDATE, local_do_show);
+	}
 	ShowCalCtrl(CTLCAL_BILL_DUEDATE, this, !oneof2(P_Pack->OpTypeID, PPOPT_GOODSEXPEND, PPOPT_GOODSRECEIPT));
 	SetupInfoText();
 	{
@@ -3433,8 +3442,9 @@ int PPObjBill::EditFreightDialog(PPBillPacket & rPack)
 {
 	class FreightDialog : public TDialog {
 		DECL_DIALOG_DATA(PPFreight);
+		const bool CheckRighsMod;
 	public:
-		FreightDialog(PPBillPacket & rPack) : TDialog(DLG_FREIGHT), R_Pack(rPack)
+		FreightDialog(PPBillPacket & rPack) : TDialog(DLG_FREIGHT), R_Pack(rPack), CheckRighsMod(BillObj->CheckRights(PPR_MOD))
 		{
 		}
 		DECL_DIALOG_SETDTS()
@@ -3444,7 +3454,7 @@ int PPObjBill::EditFreightDialog(PPBillPacket & rPack)
 			AddClusterAssoc(CTL_FREIGHT_TRTYP, 1, PPTRTYP_SHIP);
 			SetClusterData(CTL_FREIGHT_TRTYP, Data.TrType);
 			disableCtrl(CTL_FREIGHT_TRTYP, LOGIC(Data.ShipID));
-			disableCtrl(CTL_FREIGHT_COST, (R_Pack.Rec.ID && !BillObj->CheckRights(PPR_MOD)));
+			disableCtrl(CTL_FREIGHT_COST, (R_Pack.Rec.ID && !CheckRighsMod));
 			setCtrlData(CTL_FREIGHT_NAME, Data.Name);
 			SetupPPObjCombo(this, CTLSEL_FREIGHT_SHIP,     PPOBJ_TRANSPORT, Data.ShipID,  OLW_CANINSERT|OLW_LOADDEFONOPEN, reinterpret_cast<void *>(Data.TrType));
 			SetupPPObjCombo(this, CTLSEL_FREIGHT_CAPTAIN,  PPOBJ_PERSON, Data.CaptainID,  OLW_CANINSERT, reinterpret_cast<void *>(PPPRK_CAPTAIN));
@@ -3536,7 +3546,7 @@ int PPObjBill::EditFreightDialog(PPBillPacket & rPack)
 			getCtrlData(sel = CTL_FREIGHT_ARRIVDT, &Data.ArrivalDate);
 			THROW_SL(checkdate(Data.ArrivalDate, 1));
 			getCtrlData(CTL_FREIGHT_NMBORIGSBSL, &Data.NmbOrigsBsL);
-			if(!R_Pack.Rec.ID || BillObj->CheckRights(PPR_MOD))
+			if(!R_Pack.Rec.ID || CheckRighsMod)
 				Data.Cost = getCtrlReal(CTL_FREIGHT_COST);
 			getCtrlData(CTLSEL_FREIGHT_DLVRLOC,  &Data.DlvrAddrID__);
 			GetClusterData(CTL_FREIGHT_SHIPPED,  &R_Pack.Rec.Flags);
@@ -3551,7 +3561,7 @@ int PPObjBill::EditFreightDialog(PPBillPacket & rPack)
 			if(event.isCbSelected(CTLSEL_FREIGHT_SHIP)) {
 				PPObjTransport tr_obj;
 				PPTransportPacket tr_pack;
-				PPID   tr_id = getCtrlLong(CTLSEL_FREIGHT_SHIP);
+				const PPID tr_id = getCtrlLong(CTLSEL_FREIGHT_SHIP);
 				if(tr_id && tr_obj.Get(tr_id, &tr_pack) > 0) {
 					setCtrlData(CTLSEL_FREIGHT_CAPTAIN, &tr_pack.Rec.CaptainID);
 					disableCtrl(CTL_FREIGHT_TRTYP, true);
@@ -3562,8 +3572,8 @@ int PPObjBill::EditFreightDialog(PPBillPacket & rPack)
 			// @v11.2.9 {
 			else if(event.isCbSelected(CTLSEL_FREIGHT_DLVRLOC)) { 
 				Data.PortOfDischarge = getCtrlLong(CTLSEL_FREIGHT_ARRIVLOC);
-				PPID dlvr_loc_id = getCtrlLong(CTLSEL_FREIGHT_DLVRLOC);
-				const int sdar = Data.SetupDlvrAddr(dlvr_loc_id);
+				const  PPID dlvr_loc_id = getCtrlLong(CTLSEL_FREIGHT_DLVRLOC);
+				const  int  sdar = Data.SetupDlvrAddr(dlvr_loc_id);
 				if(!sdar) {
 					PPError();
 				}
@@ -3612,7 +3622,7 @@ int PPObjBill::EditFreightDialog(PPBillPacket & rPack)
 		SETIFZ(freight.IssueDate, rPack.Rec.Dt);
 		if(CheckDialogPtrErr(&(dlg = new FreightDialog(rPack)))) {
 			dlg->setDTS(&freight);
-			while(ok <= 0 && ExecView(dlg) == cmOK)
+			while(ok <= 0 && ExecView(dlg) == cmOK) {
 	 			if(dlg->getDTS(&freight)) {
 					if(!freight.IsEmpty() || (freight.IssueDate && freight.IssueDate != rPack.Rec.Dt)) {
 						rPack.SetFreight(&freight);
@@ -3625,6 +3635,7 @@ int PPObjBill::EditFreightDialog(PPBillPacket & rPack)
 					if(!ValidatePacket(&rPack, vpfFreightOnly))
 						ok = PPErrorZ();
 				}
+			}
 		}
 		else
 			ok = 0;
@@ -3640,9 +3651,11 @@ int BillDialog::calcAdvanceRepRest()
 	if(obj_id && getCtrlView(CTL_BILL_ADV_INREST)) {
 		double rest = 0.0;
 		AcctID acctid;
-		PPID   acc_sheet_id = 0, ar_sheet_id = 0, acc_rel = 0;
+		PPID   acc_sheet_id = 0;
+		PPID   ar_sheet_id = 0;
+		PPID   acc_rel = 0;
 		DateRange period;
-		period.low = ZERODATE;
+		period.Z();
 		getCtrlData(CTL_BILL_DATE, &period.upp);
 		if(P_BObj->atobj->ConvertAcct(&CConfig.ImprestAcct, 0L/*@curID*/, &acctid, &acc_sheet_id) > 0 &&
 			acc_sheet_id && GetArticleSheetID(obj_id, &ar_sheet_id) > 0 && ar_sheet_id == acc_sheet_id) {

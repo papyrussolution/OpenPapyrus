@@ -5436,13 +5436,13 @@ int DlContext::CreateDbDictionary(const char * pDictPath, const char * pDataPath
 			for(uint sgli = 0; sgli < sqlgen_list.getCount(); sgli++) {
 				Generator_SQL * p_sqlgen = sqlgen_list.at(sgli);
 				if(p_sqlgen) {
-					p_sqlgen->CreateTable(tbl, tbl.GetTableName(), false, 1);
+					p_sqlgen->CreateTable(tbl, tbl.GetTableName(), Generator_SQL::ctfIndent);
 					p_sqlgen->Eos().Cr();
 					uint j;
 					for(j = 0; j < tbl.GetIndices().getNumKeys(); j++) {
 						int   do_skip_index = 0;
 						if(p_sqlgen->GetServerType() == sqlstMySQL && j == 0) {
-							const BNFieldList & r_fl = tbl.GetFields();
+							const BNFieldList2 & r_fl = tbl.GetFields();
 							for(uint fi = 0; !do_skip_index && fi < r_fl.getCount(); fi++) {
 								if(GETSTYPE(r_fl[fi].T) == S_AUTOINC)
 									do_skip_index = 1;

@@ -3107,8 +3107,6 @@ IMPL_HANDLE_EVENT(RestoreLostPrjTPersonDlg)
 			}
 			else {
 				enableCommand(cmResolveCreator,      0);
-				enableCommand(cmResolveCreator,      0);
-				enableCommand(cmResolveCreator,      0);
 				enableCommand(cmViewTasksByCreator,  0);
 				enableCommand(cmViewTasksByEmployer, 0);
 				enableCommand(cmResolveClient,       0);

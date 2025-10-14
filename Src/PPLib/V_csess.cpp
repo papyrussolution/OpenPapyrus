@@ -690,7 +690,6 @@ int PPViewCSess::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * 
 				ok = -1;
 				{
 					// PPASS_CSESSBILLPOOL
-					MemLeakTracer mlt;
 					BillFilt flt;
 					if(GetBillList(0, flt.List) > 0 && !flt.List.IsEmpty())
 						::ViewGoodsBills(&flt, false/*modeless*/);

@@ -4860,7 +4860,7 @@ PPTXT_EGAIS_QS_CCHECK               "Серверу @{brand_egais} отправ�
 PPTXT_EGAIS_MARKQTYNEQLOTQTY        "Замечание: количество марок не равно остатку по лоту - передается количество марок (%s)"
 PPTXT_NATURALTOKENID           /!/  "0,UNKNOW;1,NATURALWORD;2,DIGITALCODE;3,EAN13;4,EAN8;5,UPCA;6,UPCE;7,RU_INN;8,EAGAISWARECODE;9,EGAISMARKCODE;\
 	10,LUHN;11,ALPHADIGITALCODE;12,GUID;13,EMAIL;14,PHONE;15,IMEI;16,IP4;17,IP6;18,MACADDR48;19,DATE;20,TIME;21,SOFTWAREVERSION"
-PPTXT_SUPPLIXTECH              /!/  "MONOLIT-BALTIKA;ISALES-PEPSI;SAP-EFES;SFA-HEINEKEN;MERCAPP-GAZPROMNEFT;VLADIMIRSKIY_STANDARD;AGENT_PLUS;OSTANKINO;EFOP-MAYTEA;TSARITSYNO"
+PPTXT_SUPPLIXTECH              /!/  "MONOLIT-BALTIKA;ISALES-PEPSI;SAP-EFES;SFA-HEINEKEN;MERCAPP-GAZPROMNEFT;VLADIMIRSKIY_STANDARD;AGENT_PLUS;OSTANKINO;EFOP-MAYTEA;TSARITSYNO;COCACOLA"
 PPTXT_EGAIS_TESTSEDNING             "Тестовый режим отправки. Файл"
 PPTXT_EGAIS_SELFTRANSFBILL          "Документ '%s' перемещает товар межу идентичиными КПП - не передается в @{brand_egais}"
 PPTXT_EGAIS_NOEGAISCODE             "Не определен @{egaiscode} для товара или лота (%s)"
@@ -15404,6 +15404,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @supplixfilt_acn_improut                  "Импорт маршрутов"
 @supplixfilt_acn_imporder                 "Импорт заказов"
 @supplixfilt_acn_impdesadv                "Импорт DESADV"
+@supplixfilt_acn_bailment                 "Обмен данными о размещении оборудования у клиентов"
 @supplixfilt_fdeleterecentbills           "Удалить документы за день"
 @supplixfilt_frepeatprocessing            "Повторный процессинг обработанных данных"
 @supplixfilt_ftestmode                    "@{testmode}"
@@ -19121,9 +19122,9 @@ PPHSC_RU_ADDENDUMOFBASISFORWARETRANSFER "ДопСвОсн" // @v11.0.2
 PPHSC_RU_NODOCOFBASISFORWARETRANSFER    "Без документа-основания"
 PPHSC_RU_TURNOVERVOLUME        "ОбъемОборота"
 PPHSC_RU_TURNOVER              "Оборот"
-PPHSC_RU_SEQUENCE              "ПN" // порядковый номер
-PPHSC_RU_PE0                   "П0" // дальше идет 10-значный номер с набивкой нулями слева
-PPHSC_RU_PE1                   "П1" // дальше идет 10-значный номер с набивкой нулями слева
+PPHSC_RU_SEQUENCE              "ПN"      // порядковый номер
+PPHSC_RU_PE0                   "П0"      // дальше идет 10-значный номер с набивкой нулями слева
+PPHSC_RU_PE1                   "П1"      // дальше идет 10-значный номер с набивкой нулями слева
 PPHSC_RU_EGAIS_SALE            "Продажа" // @v11.0.11 Тип операции кассового чека, передаваемого в ЕГАИС
 PPHSC_RU_EGAIS_RETOFSALE       "Возврат" // @v11.0.11 Тип операции кассового чека, передаваемого в ЕГАИС
 PPHSC_RU_EGAIS_FORM2_CAPS      "ФОРМА2"  // @v12.1.8 Строка используемая в качестве параметра запроса к егаис
@@ -19151,31 +19152,36 @@ PPHSC_RU_TABOFDOCLINE          "СтрТабл"        // @v11.9.5 SBIS
 PPHSC_RU_TABOFDOCLINE_PREV     "ПредСтрТабл"    // @v11.9.9 SBIS
 PPHSC_RU_TABOFDOCTOTOAL        "ИтогТабл"       // @v11.9.5 SBIS
 PPHSC_RU_EDIOP_ORDER           "Заказ"          // @v11.9.5 SBIS (note: точно соответствует PPHSC_VETIS_DOCTYP_16 - пока не знаю какие могут из этого следовать проблемы)
-PPHSC_RU_EDIOP_ORDRSP          "ПодтверждениеЗаказа" // @v11.9.9 SBIS
+PPHSC_RU_EDIOP_ORDRSP          "ПодтверждениеЗаказа"  // @v11.9.9 SBIS
 PPHSC_RU_EDIOP_ORDRSP_NM       "подтверждение_заказа" // @v11.9.9 SBIS Вариант для атрибута "Имя" тега <Файл> (клянусь, я не знаю кто разрабатывает эти говно-стандарты - видимо, еноты какие-то).
-PPHSC_RU_CURRENCY              "Валюта" // @v11.9.9 SBIS
-PPHSC_RU_YES                   "Да" // @v12.0.11
-PPHSC_RU_NO                    "Нет" // @v12.0.11
-PPHSC_RU_CONTACT               "Контакт" // @v12.1.10
-PPHSC_RU_PHN                   "Тлф"     // @v12.1.10
-PPHSC_RU_EMAIL                 "ЭлПочта" // @v12.1.10
-
+PPHSC_RU_CURRENCY              "Валюта"             // @v11.9.9 SBIS
+PPHSC_RU_YES                   "Да"                 // @v12.0.11
+PPHSC_RU_NO                    "Нет"                // @v12.0.11
+PPHSC_RU_CONTACT               "Контакт"            // @v12.1.10
+PPHSC_RU_PHN                   "Тлф"                // @v12.1.10
+PPHSC_RU_EMAIL                 "ЭлПочта"            // @v12.1.10
+PPHSC_RU_FREIGHTCODE           "НомерПеревозДок"    // @v12.4.4
+PPHSC_RU_FREIGHTDATE           "ДатаПеревозДок"     // @v12.4.4
+PPHSC_RU_LICENSEPLATE          "РегНомер"           // @v12.4.4
+PPHSC_RU_FREIGHTCODE_EL        "НомерПеревозЭлДок"  // @v12.4.4
+PPHSC_RU_SUPPLIER_FIASID       "Продавец_ФиасИД"    // @v12.4.4
+PPHSC_RU_BUYER_FIASID          "Покупатель_ФиасИД"  // @v12.4.4
 PPHSC_RU_SALE_PL               "Продажи"         // Tsaritsyno
 PPHSC_RU_CONTRACTOR_PL         "Контрагенты"     // Tsaritsyno
 PPHSC_RU_LINE                  "Строка"          // Tsaritsyno
 PPHSC_RU_DISTRIBNAME           "ИмяДистрибутора" // Tsaritsyno
-PPHSC_RU_GENERATED             "generated"   // Tsaritsyno
-PPHSC_RU_DATERANGE_LO          "ДатаНач"     // Tsaritsyno
-PPHSC_RU_DATERANGE_UP          "ДатаКон"     // Tsaritsyno
-PPHSC_RU_EXPORTTYPE            "ТипВыгрузки" // Tsaritsyno
+PPHSC_RU_GENERATED             "generated"       // Tsaritsyno
+PPHSC_RU_DATERANGE_LO          "ДатаНач"         // Tsaritsyno
+PPHSC_RU_DATERANGE_UP          "ДатаКон"         // Tsaritsyno
+PPHSC_RU_EXPORTTYPE            "ТипВыгрузки"     // Tsaritsyno
 //PPHSC_RU_DATE                "Дата"
-PPHSC_RU_AFFILCODE             "КодФилиала" // Tsaritsyno
-PPHSC_RU_CLIENTCODE            "КлиентКод"  // Tsaritsyno
-PPHSC_RU_CLIENTINN             "КлиентИНН"  // Tsaritsyno
-PPHSC_RU_CLIENTKPP             "КлиентКПП"  // Tsaritsyno
+PPHSC_RU_AFFILCODE             "КодФилиала"      // Tsaritsyno
+PPHSC_RU_CLIENTCODE            "КлиентКод"       // Tsaritsyno
+PPHSC_RU_CLIENTINN             "КлиентИНН"       // Tsaritsyno
+PPHSC_RU_CLIENTKPP             "КлиентКПП"       // Tsaritsyno
 PPHSC_RU_CLIENTNAME            "КлиентНаименование" // Tsaritsyno
-PPHSC_RU_CLIENTADDR            "КлиентАдрес" // Tsaritsyno
-PPHSC_RU_PAYERCODE             "КодПлательщика" // Tsaritsyno
+PPHSC_RU_CLIENTADDR            "КлиентАдрес"        // Tsaritsyno
+PPHSC_RU_PAYERCODE             "КодПлательщика"     // Tsaritsyno
 PPHSC_RU_PAYMTERMDAYS          "КоличествоДнейОтсрочки" // Tsaritsyno
 //PPHSC_RU_EXTRA_WAYBILLCODE2  "НакладнаяНомер"
 //PPHSC_RU_EXTRA_WAYBILLDATE2  "НакладнаяДата"

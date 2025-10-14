@@ -1531,7 +1531,6 @@ int TestSuffixTree()
 {
 	int    ok = 1;
 	{
-		MemLeakTracer mlt;
 		{
 			SSuffixTree st(1);
 			{

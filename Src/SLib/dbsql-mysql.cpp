@@ -121,7 +121,10 @@ int FASTCALL SMySqlDbProvider::ProcessError(int status)
 	int    ok = 1;
 	// @construction {
 	const int cm = RESET_CRM_TEMP(createMode);
-	THROW(SqlGen.Z().CreateTable(*pTbl, 0, oneof2(cm, crmNoReplace, crmTTSNoReplace), 1));
+	uint   ctf = Generator_SQL::ctfIndent;
+	if(oneof2(cm, crmNoReplace, crmTTSNoReplace))
+		ctf |= Generator_SQL::ctfIfNotExists;
+	THROW(SqlGen.Z().CreateTable(*pTbl, 0, ctf));
 	{
 		SSqlStmt stmt(this, SqlGen);
 		THROW(stmt.Exec(1, OCI_DEFAULT));
@@ -171,7 +174,7 @@ int FASTCALL SMySqlDbProvider::ProcessError(int status)
 	return BIN(GetFileStat(pFileName, 0, 0) > 0);
 }
 
-/*virtual*/SString & SMySqlDbProvider::GetTemporaryFileName(SString & rFileNameBuf, long * pStart, int forceInDataPath)
+/*virtual*/SString & SMySqlDbProvider::GetTemporaryFileName(SString & rFileNameBuf, long * pStart, bool forceInDataPath)
 {
 	return rFileNameBuf.Z();
 }

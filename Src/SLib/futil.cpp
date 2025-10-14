@@ -646,8 +646,9 @@ int GetFileStat(const char * pFileName, SDirEntry * pEntry)
 int FASTCALL SFile::RemoveDir(const char * pDir)
 {
 	int    ok = 1;
-	if(pDir) {
-		SString path, wildcard;
+	if(!isempty(pDir)) {
+		SString path;
+		SString wildcard;
 		SDirEntry de;
 		for(SDirec dir((wildcard = pDir).SetLastSlash().Cat("*.*")); ok && dir.Next(&de) > 0;) {
 			if(!de.IsSelf() && !de.IsUpFolder()) {

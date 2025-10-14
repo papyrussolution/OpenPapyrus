@@ -1486,7 +1486,6 @@ int SelectCSession(PPID cashNodeID, PPID extCashNodeID, CSessInfo * pInfo)
 
 int ExecCSPanel(const CashNodePaneFilt * pFilt)
 {
-	MemLeakTracer mlt;
 	int    ok = -1;
 	int    is_single = 0;
 	PPID   ext_cash_node_id = 0;
