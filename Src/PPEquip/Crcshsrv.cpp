@@ -3925,8 +3925,14 @@ int ACS_CRCSHSRV::ConvertWareList(const SVector * pZRepList, const char * pWaitM
 				DbfRecord dbfrr(p_dbftr);
 				PPID   goods_id = 0;
 				int    banking = 0;
-				long   chkln_id = 0, chk_no = 0, sess_no = 0, cash_no = 0, div = 0;
-				double qtty, price, dscnt;
+				long   chkln_id = 0;
+				long   chk_no = 0;
+				long   sess_no = 0;
+				long   cash_no = 0;
+				long   div = 0;
+				double qtty;
+				double price;
+				double dscnt;
 				double sum = 0.0;
 				if(p_dbftr->getRec(&dbfrr) <= 0)
 					break;

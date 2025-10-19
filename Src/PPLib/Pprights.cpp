@@ -12,19 +12,19 @@ ObjRights::ObjRights(PPID objType) : ObjType(objType), Size(sizeof(ObjRights)), 
 
 bool FASTCALL ObjRights::IsEq(const ObjRights & rS) const
 {
+	bool   eq = false;
 	if(ObjType == rS.ObjType && Flags == rS.Flags && OprFlags == rS.OprFlags && Size == rS.Size) {
 		if(Size > sizeof(*this))
-			return (memcmp((this+1), ((&rS)+1), Size-sizeof(*this)) == 0);
+			eq = (memcmp((this+1), ((&rS)+1), Size-sizeof(*this)) == 0);
 		else
-			return true;
+			eq = true;
 	}
-	else
-		return false;
+	return eq;
 }
 
 /*static*/ObjRights * ObjRights::Create(PPID objType, size_t totalSize)
 {
-	const size_t total_size = MAX(totalSize, sizeof(ObjRights));
+	const size_t total_size = smax(totalSize, sizeof(ObjRights));
 	ObjRights * ptr = reinterpret_cast<ObjRights *>(::new uint8[total_size]);
 	if(ptr) {
 		ptr->ObjType = objType;
@@ -85,10 +85,8 @@ public:
 		SetupPPObjCombo(this, CTLSEL_RTCOMM_ONLYGGRP, PPOBJ_GOODSGROUP, accsr.OnlyGoodsGrpID, OLW_CANSELUPLEVEL, 0);
 		AddClusterAssoc(CTL_RTCOMM_ONLYGGRPSTRIC, 0, PPAccessRestriction::cfStrictOnlyGoodsGrp);
 		SetClusterData(CTL_RTCOMM_ONLYGGRPSTRIC, accsr.CFlags);
-		// @v10.5.7 {
 		AddClusterAssoc(CTL_RTCOMM_DBXRCV, 0, PPAccessRestriction::cfAllowDbxReceive);
 		SetClusterData(CTL_RTCOMM_DBXRCV, accsr.CFlags);
-		// } @v10.5.7
 		DisableClusterItem(CTL_RTCOMM_ONLYGGRPSTRIC, 0, accsr.OnlyGoodsGrpID == 0);
 		updateList(-1);
 		return 1;
@@ -96,14 +94,13 @@ public:
 	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
-		// @v10.3.0 (never used) long   rt_desk = 0;
 		PPAccessRestriction accsr;
 		getCtrlData(CTL_RTCOMM_PWMIN,    &accsr.PwMinLen);
 		getCtrlData(CTL_RTCOMM_PWPERIOD, &accsr.PwPeriod);
 		getCtrlData(CTL_RTCOMM_ACCESS,   &accsr.AccessLevel);
 		accsr.GetPeriodInputExt(this, CTL_RTCOMM_RBILLPRD, PPAccessRestriction::pparR);
 		accsr.GetPeriodInputExt(this, CTL_RTCOMM_WBILLPRD, PPAccessRestriction::pparW);
-		GetClusterData(CTL_RTCOMM_PRDFORCSESS, &accsr.CFlags); // @v9.2.11
+		GetClusterData(CTL_RTCOMM_PRDFORCSESS, &accsr.CFlags);
 		getCtrlData(CTLSEL_RTCOMM_ONLYGGRP, &accsr.OnlyGoodsGrpID);
 		//GetClusterData(CTL_RTCOMM_RTDESKTOP, &rt_desk);
 		//accsr.RtDesktop = (uint8)rt_desk;
@@ -999,10 +996,11 @@ int EditRightsDialog(PPRights & rights)
 }
 //
 // AdvEditRights
+// @todo @20231018 Переделать на TSCollection <PPSecurPacket>
 //
 class SecurCollection : public SCollection {
 public:
-	explicit SecurCollection(/*uint aDelta = DEFCOLLECTDELTA,*/uint o = O_COLLECTION) : SCollection(/*aDelta,*/o)
+	explicit SecurCollection(uint o = O_COLLECTION) : SCollection(o)
 	{
 	}
 	SecurCollection(const SecurCollection & src) : SCollection(src)

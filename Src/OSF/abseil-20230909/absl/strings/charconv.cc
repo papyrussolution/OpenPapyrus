@@ -510,8 +510,8 @@ uint64_t ShiftRightAndRound(uint128 value, int shift, bool input_exact,
 //
 // This function returns false if `A` is the better guess, and true if `B` is
 // the better guess, with rounding ties broken by rounding to even.
-bool MustRoundUp(uint64_t guess_mantissa, int guess_exponent,
-    const strings_internal::ParsedFloat& parsed_decimal) {
+bool MustRoundUp(uint64_t guess_mantissa, int guess_exponent, const strings_internal::ParsedFloat& parsed_decimal) 
+{
 	// 768 is the number of digits needed in the worst case.  We could determine a
 	// better limit dynamically based on the value of parsed_decimal.exponent.
 	// This would optimize pathological input cases only.  (Sane inputs won't have
@@ -549,8 +549,7 @@ bool MustRoundUp(uint64_t guess_mantissa, int guess_exponent,
 		// Move the power of 5 to the other side of the equation, giving us:
 		// lhs = exact_mantissa * 2**exact_exponent
 		// rhs = guess_mantissa * 5**(-exact_exponent) * 2**guess_exponent
-		absl::strings_internal::BigUnsigned<84> rhs =
-		    absl::strings_internal::BigUnsigned<84>::FiveToTheNth(-exact_exponent);
+		absl::strings_internal::BigUnsigned<84> rhs = absl::strings_internal::BigUnsigned<84>::FiveToTheNth(-exact_exponent);
 		rhs.MultiplyBy(guess_mantissa);
 		if(exact_exponent > guess_exponent) {
 			lhs.ShiftLeft(exact_exponent - guess_exponent);

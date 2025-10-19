@@ -4826,7 +4826,7 @@ int PPResticInterface::Helper_CreateRepoDir(const SString & rDir)
 	ACL * p_new_dacl = 0;
 	SECURITY_ATTRIBUTES sa;
 	SECURITY_ATTRIBUTES * p_sa = 0;
-	if(0) {
+	if(true) {
 		S_WinSID current_user_sid;
 		if(SlProcess::GetCurrentUserSid(current_user_sid)) {	
 			EXPLICIT_ACCESS_W ea;
@@ -5115,6 +5115,11 @@ int PPResticInterface::Backup(const RepoParam & rP, bool dryMode)
 			//fn_excl = "D:\\__BACKUP__\\Papyrus\\restic-repo-papyrus-main-exclude"; // @debug
 			prc.AddArg(fn_excl);
 		}
+		prc.AddPrivilege(sprvlgSecurity);
+		prc.AddPrivilege(sprvlgTCB);
+		prc.AddPrivilege(sprvlgBackup);
+		prc.AddPrivilege(sprvlgRestore);
+		prc.AddPrivilege(sprvlgManageVolume);
 		{
 			//SDelay(500); // @debug
 			if(P_Logger) {
@@ -5124,7 +5129,7 @@ int PPResticInterface::Backup(const RepoParam & rP, bool dryMode)
 				P_Logger->Log(temp_buf);
 			}
 			SlProcess::Result pr;
-			prc.SetCurrentUserAsImpersUser(); // @experimental
+			//prc.SetCurrentUserAsImpersUser(); // @experimental
 			prr = prc.Run(&pr);
 			if(prr) {
 				::WaitForSingleObject(pr.HProcess, INFINITE);

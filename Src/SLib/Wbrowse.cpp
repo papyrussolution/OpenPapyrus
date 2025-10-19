@@ -1452,7 +1452,7 @@ void BrowserWindow::SetFreeze(uint numFreezeCols)
 	//
 	// По крайней мере один столбец должен оставаться незамороженным
 	//
-	Freeze = P_Def->getCount() ? MIN(numFreezeCols, P_Def->getCount() - 1) : 0;
+	Freeze = P_Def->getCount() ? MIN(numFreezeCols, P_Def->getCount()-1) : 0;
 	for(uint i = 0; i < Freeze; i++) {
 		if(P_Def->groupOf(i)) { // Замороженные столбцы не должны быть в группе
 			Freeze = i;

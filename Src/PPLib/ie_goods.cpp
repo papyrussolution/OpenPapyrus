@@ -1248,7 +1248,7 @@ int PPGoodsExporter::ExportPacket(PPGoodsPacket * pPack, const char * pBarcode, 
 			//
 			// Ёкспорт артикула
 			//
-			P_GObj->P_Tbl->GetArCode(Param.SupplID, pPack->Rec.ID, temp_buf.Z(), 0);
+			P_GObj->P_Tbl->GetArCode(Param.SupplID, pPack->Rec.ID, temp_buf, 0);
 			STRNSCPY(sdr_goods.ArCode, temp_buf);
 		}
 		memzero(sdr_goods.WeightPrefix, sizeof(sdr_goods.WeightPrefix));

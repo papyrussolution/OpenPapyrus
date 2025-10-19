@@ -2450,8 +2450,7 @@ int PPEanComDocument::PreprocessPartiesOnReading(int ediOpID, const DocumentValu
 			THROW_PP_S(pResult->BillObjID, PPERR_EDI_UNBLRSLV_BILLOBJ, temp_buf);
 		}
 		else if(consignor_ar_id && consignor_ar_id != pResult->BillObjID) {
-			// @todo message (Контрагент не тот же, что и грузоотправитель. В общем случае это - нормально,
-			// но возможны и проблемы).
+			// @todo message (Контрагент не тот же, что и грузоотправитель. В общем случае это - нормально, но возможны и проблемы).
 		}
 		if(!pResult->BillLocID) {
 			pResult->BillLocID = consignee_loc_id;
@@ -3169,6 +3168,10 @@ static const SIntToSymbTabEntry EdiMsgTypeSymbols_EanCom[] = {
 	{ PPEDIOP_ALCODESADV,   "ALCODESADV" },
 	{ PPEDIOP_PARTIN,       "PARTIN" },
 	{ PPEDIOP_INVOIC,       "INVOIC" },
+	{ PPEDIOP_PLACEMENTORDER, "B_PLACEMENTORDER" }, // @v12.4.5
+	{ PPEDIOP_REMOVALORDER, "B_REMOVALORDER" }, // @v12.4.5
+	{ PPEDIOP_POS2POSMOVEMENTORDER, "B_POS2POSMOVEMENTORDER" }, // @v12.4.5
+	{ PPEDIOP_INSTALLATIONORDER, "B_INSTALLATIONORDER" }, // @v12.4.5
 };
 
 /*static*/int FASTCALL PPEanComDocument::GetMsgSymbByType(int msgType, SString & rSymb)

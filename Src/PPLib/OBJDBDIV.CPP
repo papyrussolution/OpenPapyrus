@@ -188,7 +188,7 @@ private:
 			sc.swap(pos, pos-1);
 			ok = 1;
 		}
-		else if(!up && pos < (long)(sc.getCount()-1)) {
+		else if(!up && pos < (sc.getCountI()-1)) {
 			sc.swap(pos, pos+1);
 			ok = 1;
 		}

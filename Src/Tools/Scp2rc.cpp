@@ -1129,6 +1129,12 @@ int main(int argc, char ** argv)
 							if(temp_buf.Chomp().NotEmptyS()) {
 								if(temp_buf.CmpPrefix("//", 0) != 0 && temp_buf.CmpPrefix("--", 0) != 0) {
 									//printf((msg_buf = "Processing file").Space().Cat(temp_buf).CR());
+									// @v12.4.5 {
+									uint comment_pos = 0;
+									if(temp_buf.Search("//", 0, 0, &comment_pos) || temp_buf.Search("--", 0, 0, &comment_pos)) {
+										temp_buf.Trim(comment_pos).Strip();
+									}
+									// } @v12.4.5 
 									ss_in_files.add(temp_buf);
 								}
 							}

@@ -2612,6 +2612,11 @@ public:
 		P = ptr;
 		return *this;
 	}
+	SPtrHandle & Z()
+	{
+		P = 0;
+		return *this;
+	}
 	bool   operator !() const { return (P == 0); }
 	operator void * () const { return P; }
 private:
@@ -7757,11 +7762,12 @@ public:
 //
 // Descr: Алгоритмы расчета контрольной цифры
 //
-#define SCHKDIGALG_BARCODE 1 // Розничные штрихкоды (EAN, UPC)
+#define SCHKDIGALG_BARCODE 1 // Розничные штрихкоды EAN, UPC (GS1)
 #define SCHKDIGALG_LUHN    2 // Алгоритм Луна
 #define SCHKDIGALG_RUINN   3 // Контрольная цифра ИНН (Россия)
 #define SCHKDIGALG_RUOKATO 4 // Контрольная цифра ОКАТО (Россия)
 #define SCHKDIGALG_RUSNILS 5 // Контрольная цифра СНИЛС (Россия)
+#define SCHKDIGALG_SSCC    6 // @v12.4.5 Контрольная цифра SSCC (GS1)
 
 #define SCHKDIGALG_TEST    0x80000000 // Флаг, предписывающий функции SCalcCheckDigit проверить последовательность на
 	// предмет соответствия контрольной цифре, содержащейся в ней.
@@ -8087,6 +8093,11 @@ struct SIntToSymbTabEntry {
 	int    Id;
 	const  char * P_Symb;
 };
+
+struct SIntToSymbUTabEntry { // @v12.4.5
+	int    Id;
+	const  wchar_t * P_Symb;
+};
 //
 // Descr: Ищет в таблице pTab (размером tabSize элементов) первый элемент, имеющий значение
 //   (Id == id) и в буфере rSymb возвращает значение соответствующего символа (SIntToSymbTabEntry::P_Symb).
@@ -8122,7 +8133,7 @@ int   STDCALL SIntToSymbTab_GetId(const SIntToSymbTabEntry * pTab, size_t tabSiz
 //
 // Dynamic Array structures
 //
-#define DEFCOLLECTDELTA  32 // @v8.5.12 8-->32
+// @v12.4.5 #define DEFCOLLECTDELTA  32 // @v8.5.12 8-->32
 
 #define UNDEFPOS 0xffffffffU
 
@@ -15107,6 +15118,11 @@ FORCEINLINE constexpr float sclampf(float v, float lo, float up) { return (v < l
 double FASTCALL fdiv100r(double);
 double FASTCALL fdiv100i(long);
 double FASTCALL fdiv1000i(long);
+
+FORCEINLINE constexpr int   iroundup(int a, int n) { return n ? (((a + n - 1) / n) * n) : 0; } // @v12.4.5
+FORCEINLINE constexpr int   iroundup(uint a, uint n) { return n ? (((a + n - 1) / n) * n) : 0; } // @v12.4.5
+FORCEINLINE constexpr int   irounddn(int a, int n) { return n ? ((a / n) * n) : 0; } // @v12.4.5
+FORCEINLINE constexpr int   irounddn(uint a, uint n) { return n ? ((a / n) * n) : 0; } // @v12.4.5
 //
 // Функции idivroundup реализуют целочисленное деление первого аргумента на второй с округлением вверх
 //
@@ -17595,8 +17611,48 @@ template <class T> class TSClassWrapper : public SClassWrapper {
 	virtual void Destroy(void * ptr) { delete static_cast<T *>(ptr); }
 };
 //
+// Descr: Идентификаторы привилегий WinAPI
+// @v12.4.5
 // 
-// 
+enum {
+	sprvlgCreateToken                 =  1,
+	sprvlgAssignPrimaryToken    	  =  2,
+	sprvlgLockMemory                  =  3,
+	sprvlgIncreasPrvlgQuota           =  4,
+	sprvlgUnsolicitedInput            =  5,
+	sprvlgMachineAccount              =  6,
+	sprvlgTCB                         =  7,
+	sprvlgSecurity                    =  8,
+	sprvlgTakeOwnership               =  9,
+	sprvlgLoadDriver                  = 10,
+	sprvlgSystemProfile               = 11,
+	sprvlgSystemTime                  = 12,
+	sprvlgProfSingleProcess           = 13,
+	sprvlgIncBasprvlgPriority         = 14,
+	sprvlgCreatePageFile              = 15,
+	sprvlgCreatePermanent             = 16,
+	sprvlgBackup                      = 17,
+	sprvlgRestore                     = 18,
+	sprvlgShutdown                    = 19,
+	sprvlgDebug                       = 20,
+	sprvlgAudit                       = 21,
+	sprvlgSystemEnvironment           = 22,
+	sprvlgChangeNotify                = 23,
+	sprvlgRemoteShutdown              = 24,
+	sprvlgUndock                      = 25,
+	sprvlgSyncAgent                   = 26,
+	sprvlgEnableDelegation            = 27,
+	sprvlgManageVolume                = 28,
+	sprvlgImpersonate                 = 29,
+	sprvlgCreateGlobal                = 30,
+	sprvlgTrustedCredmanAccess        = 31,
+	sprvlgRelabel                     = 32,
+	sprvlgIncWorkingSet               = 33,
+	sprvlgTimeZone                    = 34,
+	sprvlgCreateSymbolicLink          = 35,
+	sprvlgDelegateSessionUserImpers   = 36,
+};
+
 class SlProcess {
 public:
 	enum {
@@ -17692,6 +17748,7 @@ public:
 		SIntHandle HStdOutRd;
 		SIntHandle HStdErrRd;
 		SIntHandle HStdInWr;
+		SPtrHandle CallerTokenForPrivileges;
 		uint   ProcessId;
 		uint   ThreadId;
 		SString AppNameUtf8; // @v12.4.1 наименование процесса, использованное непосредственно при запуске функции исполнения (для отладки)
@@ -17730,6 +17787,8 @@ public:
 	static SPtrHandle OpenAccessToken(SIntHandle hProcess, uint desiredAccess);
 	static SPtrHandle OpenCurrentAccessToken(uint desiredAccess);
 	static bool    GetCurrentUserSid(S_WinSID & rSid);
+	static bool    GetPrivilegeSymb(int privilege, SStringU & rBuf); // @v12.4.5
+	static int     GetPrivilegeId(const wchar_t * pSymb); // @v12.4.5
 	//
 	// Descr: Результат функции CheckAccessTokenPrivilege
 	//
@@ -17740,14 +17799,13 @@ public:
 		privrNotAssigned
 	};
 
-	static int  CheckAccessTokenPrivilege(SPtrHandle token, const wchar_t * pPrivilegeName);
-	static bool EnableAccesTokenPrivilege(SPtrHandle token, const wchar_t * pName, bool enable);
-	static bool AddPrivilegeToAccessToken(SPtrHandle token, const wchar_t * pPrivilegeName);
-	static bool EnablePrivilege(HANDLE hToken, const wchar_t * pPrivSymb);
-	static bool CheckAndEnableAccesTokenPrivilege(SPtrHandle token, const wchar_t * pPrivilegeName);
-	
-	static bool FindFullPathByProcessFileName(const char * pFileName, SString & rBuf); // @v12.4.1 
-	static bool GetCurrentEnvironment(StringSet & rSsUtf8); // @v12.4.1
+	static int     CheckAccessTokenPrivilege(SPtrHandle token, const wchar_t * pPrivilegeName);
+	static bool    EnableAccesTokenPrivilege(SPtrHandle token, const wchar_t * pName, bool enable);
+	static bool    AddPrivilegeToAccessToken(SPtrHandle token, const wchar_t * pPrivilegeName);
+	static bool    EnablePrivilege(HANDLE hToken, const wchar_t * pPrivSymb);
+	static bool    CheckAndEnableAccesTokenPrivilege(SPtrHandle token, const wchar_t * pPrivilegeName);
+	static bool    FindFullPathByProcessFileName(const char * pFileName, SString & rBuf); // @v12.4.1 
+	static bool    GetCurrentEnvironment(StringSet & rSsUtf8); // @v12.4.1
 
 	class ProcessPool : public SStrGroup {
 	public:
@@ -17793,6 +17851,7 @@ public:
 	bool   AddArg(const wchar_t * pArg);
 	bool   AddEnv(const char * pKeyUtf8, const char * pValUtf8);
 	bool   AddEnv(const wchar_t * pKey, const wchar_t * pVal);
+	bool   AddPrivilege(int prvlgId);
 	bool   SetFlags(uint flags);
 	bool   SetImpersUser(const char * pUserUtf8, const char * pPasswordUtf8);
 	bool   SetCurrentUserAsImpersUser(); // @v12.4.3
@@ -17815,6 +17874,7 @@ private:
 	int    Helper_ReadOutput(SIntHandle hPipe, StringSet & rSs);
 
 	uint   Flags;   // Флаги (частично проецируются на флаги системного вызова функции создания процесса)
+	LongArray PrivilegeList; // @v12.4.5 Привилегии, которые необходимо передать процессу. 
 	SPtrHandle UserToken; // Если !!UserToken, то запуск процесса осуществляется от имени пользователя, определяемого этим токеном.
 	SStringU AppName;
 	SStringU Path;       // Полный путь до exe-модуля //

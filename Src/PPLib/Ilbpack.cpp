@@ -1384,8 +1384,8 @@ int ILBillPacket::Load__(PPID billID, long flags, PPID cvtToOpID /*=0*/)
 		}
 		if(oneof4(op_type_id, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT, PPOPT_DRAFTQUOTREQ)) {
 			if(p_bobj->P_CpTrfr) {
-				CpTrfrExt ext;
-				for(rbybill = 0; (r = p_bobj->P_CpTrfr->EnumItems(billID, &rbybill, &ti, &ext)) > 0;) {
+				CpTrfrExt cpext;
+				for(rbybill = 0; (r = p_bobj->P_CpTrfr->EnumItems(billID, &rbybill, &ti, &cpext)) > 0;) {
 					ILTI ilti(&ti);
 					row_idx = Lots.getCount();
 					THROW_SL(Lots.insert(&ilti));

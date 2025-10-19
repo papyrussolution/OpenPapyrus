@@ -7932,6 +7932,7 @@ static const SIntToSymbTabEntry SNTokSymb_List[] = {
 	{ SNTOK_BASE64_URL, "enc-base32url" }, // @v12.3.3
 	{ SNTOK_BASE64_WP, "enc-base32-withpadding" }, // @v12.3.3
 	{ SNTOK_BASE64_URL_WP, "enc-base32url-withpadding" }, // @v12.3.3
+	{ SNTOK_SSCC, "sscc" }, // @v12.4.5
 };
 
 SNaturalToken::SNaturalToken() : ID(0), Prob(0.0f), Count(0)
@@ -8690,6 +8691,12 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 								rResultList.AddTok(SNTOK_DIGITCODE, 0.1f, 0/*flags*/);
 							}
 							break;
+						case 18:
+							// SSCC without two fixed leading zeros
+							if(SCalcCheckDigit(SCHKDIGALG_SSCC|SCHKDIGALG_TEST, reinterpret_cast<const char *>(pToken), toklen)) {
+								rResultList.AddTok(SNTOK_SSCC, 0.9f, 0/*flags*/);
+							}
+							break;
 						case 19:
 							if(SCalcCheckDigit(SCHKDIGALG_LUHN|SCHKDIGALG_TEST, reinterpret_cast<const char *>(pToken), toklen)) {
 								rResultList.AddTok(SNTOK_LUHN, 0.9f, 0/*flags*/);
@@ -8697,6 +8704,12 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 							}
 							else {
 								rResultList.AddTok(SNTOK_EGAISWARECODE, 1.0f, 0/*flags*/);
+							}
+							break;
+						case 20:
+							// SSCC with two fixed leading zeros
+							if(SCalcCheckDigit(SCHKDIGALG_SSCC|SCHKDIGALG_TEST, reinterpret_cast<const char *>(pToken), toklen)) {
+								rResultList.AddTok(SNTOK_SSCC, 0.9f, 0/*flags*/);
 							}
 							break;
 					}

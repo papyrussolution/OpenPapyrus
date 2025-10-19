@@ -1083,7 +1083,7 @@ int PPBillPacket::ConvertToCheck2(const ConvertToCCheckParam & rParam, CCheckPac
 										}
 									}
 									// } @v12.1.6
-									THROW(cp.InsertItem(r_ti.GoodsID, _one, n_pr, 0.0, rParam.DivisionN));
+									THROW(cp.InsertCclSimple(r_ti.GoodsID, _one, n_pr, 0.0, rParam.DivisionN));
 									const int cp_idx = static_cast<int>(cp.GetCount());
 									cc_amount += R2(n_pr * _one);
 									dscnt += R2(r_ti.Discount * _one);
@@ -1114,7 +1114,7 @@ int PPBillPacket::ConvertToCheck2(const ConvertToCCheckParam & rParam, CCheckPac
 							THROW_PP(chznpm_ok, PPERR_B2CCCVT_CHZNMARKPMFAULT);
 						}
 						if(qtty_ > 0.0) {
-							THROW(cp.InsertItem(r_ti.GoodsID, qtty_, n_pr, 0.0, rParam.DivisionN));
+							THROW(cp.InsertCclSimple(r_ti.GoodsID, qtty_, n_pr, 0.0, rParam.DivisionN));
 							const int cp_idx = static_cast<int>(cp.GetCount());
 							cp.SetLineTextExt(cp_idx, CCheckPacket::lnextSerial, serial); // @v11.8.9
 							cc_amount += R2(n_pr * qtty_);
@@ -1126,7 +1126,7 @@ int PPBillPacket::ConvertToCheck2(const ConvertToCCheckParam & rParam, CCheckPac
 			else if(prepay_goods_id) {
 				const double qtty = 1.0;
 				const double n_pr = GetAmount();
-				THROW(cp.InsertItem(prepay_goods_id, qtty, n_pr, 0.0, rParam.DivisionN));
+				THROW(cp.InsertCclSimple(prepay_goods_id, qtty, n_pr, 0.0, rParam.DivisionN));
 				cc_amount += R2(n_pr * qtty);
 			}
 			if(cp.GetCount()) {
@@ -1155,7 +1155,7 @@ int PPBillPacket::ConvertToCheck2(const ConvertToCCheckParam & rParam, CCheckPac
 						for(uint i = 0; link_pack.EnumTItems(&i, &ti);) {
 							const double qtty = R6(fabs(ti->Quantity_) * mult);
 							const double n_pr = ti->NetPrice();
-							THROW(cp.InsertItem(ti->GoodsID, qtty, n_pr, 0.0, rParam.DivisionN));
+							THROW(cp.InsertCclSimple(ti->GoodsID, qtty, n_pr, 0.0, rParam.DivisionN));
 							cc_amount += R2(n_pr * qtty);
 							dscnt += R2(ti->Discount * qtty);
 						}
@@ -1163,7 +1163,7 @@ int PPBillPacket::ConvertToCheck2(const ConvertToCCheckParam & rParam, CCheckPac
 					else if(prepay_goods_id) {
 						const double qtty = 1.0;
 						const double n_pr = cc_req_amount;
-						THROW(cp.InsertItem(prepay_goods_id, qtty, n_pr, 0.0, rParam.DivisionN));
+						THROW(cp.InsertCclSimple(prepay_goods_id, qtty, n_pr, 0.0, rParam.DivisionN));
 						cc_amount += R2(n_pr * qtty);
 					}
 					if(cp.GetCount()) {
@@ -1207,7 +1207,7 @@ int PPBillPacket::ConvertToCheck2(const ConvertToCCheckParam & rParam, CCheckPac
 			if(prepay_goods_id) {
 				double qtty = 1.0;
 				double n_pr = bill_amount;
-				THROW(cp.InsertItem(prepay_goods_id, qtty, n_pr, 0.0, rParam.DivisionN));
+				THROW(cp.InsertCclSimple(prepay_goods_id, qtty, n_pr, 0.0, rParam.DivisionN));
 				cc_amount += R2(n_pr * qtty);
 			}
 			if(cp.GetCount()) {
@@ -1247,7 +1247,7 @@ int PPBillPacket::ConvertToCheck(CCheckPacket * pCheckPack) const
 		for(uint i = 0; i < GetTCount(); i++) {
 			const PPTransferItem & r_ti = ConstTI(i);
 			const double _qtty = r_ti.Quantity_;
-			THROW(pCheckPack->InsertItem(r_ti.GoodsID, _qtty, r_ti.NetPrice(), 0));
+			THROW(pCheckPack->InsertCclSimple(r_ti.GoodsID, _qtty, r_ti.NetPrice(), 0));
 			amount   += (r_ti.NetPrice() * _qtty);
 			discount += (r_ti.Discount   * _qtty);
 		}
@@ -4850,8 +4850,8 @@ int PPObjBill::MakeAssetCard(PPID lotID, AssetCard * pCard)
 							GObj.AdjCostToVat(0, tax_grp_id, lot_date, tax_factor, &pCard->OrgCost, 1, vat_free);
 							GObj.AdjCostToVat(0, tax_grp_id, lot_date, tax_factor, &pCard->OrgPrice, 1, vat_free);
 						}
-						long   amt_fl = ~GTAXVF_SALESTAX;
-						long   excl_fl = vat_free ? GTAXVF_VAT : 0;
+						const long amt_fl = ~GTAXVF_SALESTAX;
+						const long excl_fl = vat_free ? GTAXVF_VAT : 0;
 						gtv.Calc_(gtx, pCard->OrgCost, tax_factor, amt_fl, excl_fl);
 						pCard->OrgCost -= gtv.GetValue(GTAXVF_VAT);
 						gtv.Calc_(gtx, pCard->OrgPrice, tax_factor, amt_fl, excl_fl);
@@ -4872,8 +4872,8 @@ int PPObjBill::MakeAssetCard(PPID lotID, AssetCard * pCard)
 					if(adj_vat) {
 						if(lot_rec.Flags & LOTF_COSTWOVAT)
 							GObj.AdjCostToVat(0, tax_grp_id, lot_date, tax_factor, &item.Price, 1, vat_free);
-						long   amt_fl = ~GTAXVF_SALESTAX;
-						long   excl_fl = vat_free ? GTAXVF_VAT : 0;
+						const long amt_fl = ~GTAXVF_SALESTAX;
+						const long excl_fl = vat_free ? GTAXVF_VAT : 0;
 						gtv.Calc_(gtx, item.Price, tax_factor, amt_fl, excl_fl);
 						item.Price -= gtv.GetValue(GTAXVF_VAT);
 					}
@@ -8231,19 +8231,19 @@ int PPObjBill::TurnPacket(PPBillPacket * pPack, int use_ta)
 				const bool zero_rbybill = !(pPack->ProcessFlags & PPBillPacket::pfForceRByBill);
 				for(i = 0; pPack->EnumTItems(&i, &pti);) {
 					pPack->ErrLine = i-1;
-					CpTrfrExt cte;
+					CpTrfrExt cpext;
 					pPack->LTagL.GetString(PPTAG_LOT_CLB, i-1, clb);
-					STRNSCPY(cte.Clb, clb);
+					STRNSCPY(cpext.Clb, clb);
 					pPack->LTagL.GetString(PPTAG_LOT_SN, i-1, clb);
-					STRNSCPY(cte.PartNo, clb);
-					cte.LinkBillID = pti->Lbr.ID; 
-					cte.LinkRbb = pti->Lbr.RByBill;
+					STRNSCPY(cpext.PartNo, clb);
+					cpext.LinkBillID = pti->Lbr.ID; 
+					cpext.LinkRbb = pti->Lbr.RByBill;
 					if(pti->TFlags & PPTransferItem::tfQrSeqAccepted)
-						cte.QrSeqAckStatus = 1;
+						cpext.QrSeqAckStatus = 1;
 					else if(pti->TFlags & PPTransferItem::tfQrSeqRejected)
-						cte.QrSeqAckStatus = 2;
+						cpext.QrSeqAckStatus = 2;
 					THROW(pti->Init(&pPack->Rec, zero_rbybill));
-					THROW(P_CpTrfr->PutItem(pti, (zero_rbybill ? 0 : pti->RByBill), &cte, 0));
+					THROW(P_CpTrfr->PutItem(pti, (zero_rbybill ? 0 : pti->RByBill), &cpext, 0));
 					ufp_counter.TiAddCount++;
 					if(pPack->ProcessFlags & PPBillPacket::pfViewPercentOnTurn)
 						PPWaitPercent(i, pPack->GetTCount(), wait_msg);
@@ -8583,59 +8583,63 @@ int PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 					p_ti->TFlags |= (PPTransferItem::tfForceReplace|PPTransferItem::tfForceNew);
 			}
 			if(pPack->IsDraft()) {
-				CpTrfrExt cte;
-				for(rbybill = 0; (r = P_CpTrfr->EnumItems(id, &rbybill, &ti, &cte)) > 0;) {
-					ti.Date = org.Dt; // @v8.9.10 P_CpTrfr->EnumItems не инициализирует дату, а это пагубно сказывается на сравнении PPTransferItem::IsEq()
-					for(found = i = 0; !found && pPack->EnumTItems(&i, &p_ti);) {
-						if(p_ti->BillID == id && p_ti->RByBill == rbybill && !(p_ti->Flags & PPTransferItem::tfForceReplace)) {
-							pPack->ErrLine = i-1;
-							found = 1;
-							if(p_ti->IsEq(ti)) {
-								pPack->LTagL.GetString(PPTAG_LOT_CLB, i-1, clb);
-								if(clb.Strip().CmpNC(strip(cte.Clb)) == 0) {
-									pPack->LTagL.GetString(PPTAG_LOT_SN, i-1, clb);
-									if(clb.Strip().CmpNC(strip(cte.PartNo)) == 0) {
-										if(cte.LinkBillID == p_ti->Lbr.ID && cte.LinkRbb == p_ti->Lbr.RByBill)
-											not_changed_lines.add(i);
+				{
+					CpTrfrExt cpext;
+					for(rbybill = 0; (r = P_CpTrfr->EnumItems(id, &rbybill, &ti, &cpext)) > 0;) {
+						ti.Date = org.Dt; // P_CpTrfr->EnumItems не инициализирует дату, а это пагубно сказывается на сравнении PPTransferItem::IsEq()
+						for(found = i = 0; !found && pPack->EnumTItems(&i, &p_ti);) {
+							if(p_ti->BillID == id && p_ti->RByBill == rbybill && !(p_ti->Flags & PPTransferItem::tfForceReplace)) {
+								pPack->ErrLine = i-1;
+								found = 1;
+								if(p_ti->IsEq(ti)) {
+									pPack->LTagL.GetString(PPTAG_LOT_CLB, i-1, clb);
+									if(clb.Strip().CmpNC(strip(cpext.Clb)) == 0) {
+										pPack->LTagL.GetString(PPTAG_LOT_SN, i-1, clb);
+										if(clb.Strip().CmpNC(strip(cpext.PartNo)) == 0) {
+											if(cpext.LinkBillID == p_ti->Lbr.ID && cpext.LinkRbb == p_ti->Lbr.RByBill)
+												not_changed_lines.add(i);
+										}
 									}
 								}
 							}
 						}
-					}
-					if(!found) {
-						THROW(P_CpTrfr->RemoveItem(id, rbybill, 0));
-						ufp_counter.TiRmvCount++;
-					}
-				}
-				THROW(r);
-				//
-				// Добавляем или модифицируем строки
-				//
-				not_changed_lines.sort();
-				for(i = 0; pPack->EnumTItems(&i, &p_ti);) {
-					if(!not_changed_lines.bsearch(i)) {
-						p_ti->BillID   = id;
-						pPack->ErrLine = i-1;
-						if(!p_ti->BillID || !p_ti->RByBill) {
-							THROW(p_ti->Init(&pPack->Rec));
-							p_ti->TFlags |= PPTransferItem::tfDirty;
+						if(!found) {
+							THROW(P_CpTrfr->RemoveItem(id, rbybill, 0));
+							ufp_counter.TiRmvCount++;
 						}
-						CpTrfrExt cte;
-						pPack->LTagL.GetString(PPTAG_LOT_CLB, i-1, clb);
-						STRNSCPY(cte.Clb, clb);
-						pPack->LTagL.GetString(PPTAG_LOT_SN, i-1, clb);
-						STRNSCPY(cte.PartNo, clb);
-						cte.LinkBillID = p_ti->Lbr.ID; 
-						cte.LinkRbb = p_ti->Lbr.RByBill;
-						if(p_ti->TFlags & PPTransferItem::tfQrSeqAccepted)
-							cte.QrSeqAckStatus = 1;
-						else if(p_ti->TFlags & PPTransferItem::tfQrSeqRejected)
-							cte.QrSeqAckStatus = 2;
-						THROW(P_CpTrfr->PutItem(p_ti, 0 /*forceRByBill*/, &cte, 0));
-						ufp_counter.TiAddCount++;
 					}
-					if(pPack->ProcessFlags & PPBillPacket::pfViewPercentOnTurn)
-						PPWaitPercent(i, pPack->GetTCount(), wait_msg);
+					THROW(r);
+				}
+				{
+					//
+					// Добавляем или модифицируем строки
+					//
+					not_changed_lines.sort();
+					for(i = 0; pPack->EnumTItems(&i, &p_ti);) {
+						if(!not_changed_lines.bsearch(i)) {
+							p_ti->BillID   = id;
+							pPack->ErrLine = i-1;
+							if(!p_ti->BillID || !p_ti->RByBill) {
+								THROW(p_ti->Init(&pPack->Rec));
+								p_ti->TFlags |= PPTransferItem::tfDirty;
+							}
+							CpTrfrExt cpext;
+							pPack->LTagL.GetString(PPTAG_LOT_CLB, i-1, clb);
+							STRNSCPY(cpext.Clb, clb);
+							pPack->LTagL.GetString(PPTAG_LOT_SN, i-1, clb);
+							STRNSCPY(cpext.PartNo, clb);
+							cpext.LinkBillID = p_ti->Lbr.ID; 
+							cpext.LinkRbb = p_ti->Lbr.RByBill;
+							if(p_ti->TFlags & PPTransferItem::tfQrSeqAccepted)
+								cpext.QrSeqAckStatus = 1;
+							else if(p_ti->TFlags & PPTransferItem::tfQrSeqRejected)
+								cpext.QrSeqAckStatus = 2;
+							THROW(P_CpTrfr->PutItem(p_ti, 0 /*forceRByBill*/, &cpext, 0));
+							ufp_counter.TiAddCount++;
+						}
+						if(pPack->ProcessFlags & PPBillPacket::pfViewPercentOnTurn)
+							PPWaitPercent(i, pPack->GetTCount(), wait_msg);
+					}
 				}
 			}
 			else {
@@ -9455,7 +9459,8 @@ int PPObjBill::RecalcPayment(PPID id, int use_ta)
 	BillTbl::Rec rec;
 	if(Search(id, &rec) > 0) {
 		if(CheckOpFlags(rec.OpID, OPKF_NEEDPAYMENT) || CheckOpFlags(rec.OpID, OPKF_RECKON)) {
-			long   f, f1;
+			long   f;
+			long   f1;
 			const  PPID   cur_id = rec.CurID;
 			const  double bpaym = rec.PaymAmount;
 			const  double amt   = BR2(rec.Amount);

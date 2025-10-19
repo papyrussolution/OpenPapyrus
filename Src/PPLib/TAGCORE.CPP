@@ -839,7 +839,7 @@ const ObjTagItem * FASTCALL ObjTagList::GetItem_ForceEmpty(PPID id)
 		if(!tag_item.Init(id) || !PutItem(id, &tag_item))
 			return 0;
 		else
-			pos = getCount() - 1;
+			pos = getCount()-1;
 	}
 	return static_cast<const ObjTagItem *>(at(pos));
 }
@@ -1465,10 +1465,11 @@ int ObjTagCore::SearchObjectsByStrExactly(PPID objType, PPID tagID, const char *
 		MEMSZERO(k3);
 		k3.TagID = tagID;
  		STRNSCPY(k3.StrVal, pStr);
-		if(search(3, &k3, spEq))
+		if(search(3, &k3, spEq)) {
 	 		do {
 				list.add(data.ObjID);
 	 		} while(search(3, &k3, spNext) && k3.TagID == tagID && stricmp866(k3.StrVal, pStr) == 0);
+		}
 	}
 	list.sortAndUndup();
 	ASSIGN_PTR(pList, list);
@@ -1487,7 +1488,7 @@ int ObjTagCore::SearchObjectsByStr(PPID objType, PPID tagID, const char * pStr, 
 	if(!isempty(pStr)) {
 	 	// AHTOXA {
 		const  bool substr_srch = (pStr && pStr[0] == '*');
-		int    sp_type      = substr_srch ? spGe : spEq;
+		int    sp_type = substr_srch ? spGe : spEq;
 		const  char * p_str = substr_srch ? (pStr + 1) : pStr;
 		int    srch_str_not_empty = (p_str && sstrlen(p_str) > 0);
 		// } AHTOXA
@@ -1496,7 +1497,7 @@ int ObjTagCore::SearchObjectsByStr(PPID objType, PPID tagID, const char * pStr, 
 		k3.TagID = tagID;
 		if(!substr_srch) // AHTOXA
 	 		STRNSCPY(k3.StrVal, pStr);
-		if(search(3, &k3, sp_type))
+		if(search(3, &k3, sp_type)) {
 	 		do {
 	 			if(data.ObjType == objType) {
 	 				// AHTOXA {
@@ -1505,6 +1506,7 @@ int ObjTagCore::SearchObjectsByStr(PPID objType, PPID tagID, const char * pStr, 
 	 				// } AHTOXA
 	 			}
 	 		} while(search(3, &k3, spNext) && k3.TagID == tagID && (substr_srch || stricmp866(k3.StrVal, pStr) == 0)); // AHTOXA
+		}
 	}
 	list.sortAndUndup();
 	ASSIGN_PTR(pList, list);

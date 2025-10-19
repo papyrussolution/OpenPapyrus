@@ -1404,6 +1404,15 @@ int BillItemBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 						if(loc_id) {
 							int    r = PsnObj.LocObj.Fetch(loc_id, &loc_rec);
 							temp_buf = loc_rec.Name;
+							{
+								SString & r_addr_buf = SLS.AcquireRvlStr();
+								LocationCore::GetAddress(loc_rec, 0, r_addr_buf);
+								if(r_addr_buf.NotEmptyS()) {
+									if(temp_buf.NotEmpty())
+										temp_buf.CatDiv('-', 1);
+									temp_buf.Cat(r_addr_buf);
+								}
+							}
 							if(!temp_buf.NotEmptyS()) {
 								if(r > 0) {
 									if(loc_rec.Code[0])

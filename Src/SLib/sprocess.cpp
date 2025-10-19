@@ -172,12 +172,78 @@ static const PRIVILAGENAME_MAPPING PrivilegeNameMapping[] = {
 	{ L"", L"" }
 };
 
+static const SIntToSymbTabEntry OsPrivilegeAssoc[] = {
+	{ sprvlgCreateToken,          "SeCreateTokenPrivilege" },
+	{ sprvlgAssignPrimaryToken,   "SeAssignPrimaryTokenPrivilege" },
+	{ sprvlgLockMemory,           "SeLockMemoryPrivilege" },
+	{ sprvlgIncreasPrvlgQuota,    "SeIncreaseQuotaPrivilege" },
+	{ sprvlgUnsolicitedInput,     "SeUnsolicitedInputPrivilege" },
+	{ sprvlgMachineAccount,       "SeMachineAccountPrivilege" },
+	{ sprvlgTCB,                  "SeTcbPrivilege" },
+	{ sprvlgSecurity,             "SeSecurityPrivilege" },
+	{ sprvlgTakeOwnership,        "SeTakeOwnershipPrivilege" },
+	{ sprvlgLoadDriver,           "SeLoadDriverPrivilege" },
+	{ sprvlgSystemProfile,        "SeSystemProfilePrivilege" },
+	{ sprvlgSystemTime,           "SeSystemtimePrivilege" },
+	{ sprvlgProfSingleProcess,    "SeProfileSingleProcessPrivilege" },
+	{ sprvlgIncBasprvlgPriority,  "SeIncreaseBasePriorityPrivilege" },
+	{ sprvlgCreatePageFile,       "SeCreatePagefilePrivilege" },
+	{ sprvlgCreatePermanent,      "SeCreatePermanentPrivilege" },
+	{ sprvlgBackup,               "SeBackupPrivilege" },
+	{ sprvlgRestore,           	  "SeRestorePrivilege" },
+	{ sprvlgShutdown,          	  "SeShutdownPrivilege" },
+	{ sprvlgDebug,             	  "SeDebugPrivilege" },
+	{ sprvlgAudit,             	  "SeAuditPrivilege" },
+	{ sprvlgSystemEnvironment, 	  "SeSystemEnvironmentPrivilege" },
+	{ sprvlgChangeNotify,      	  "SeChangeNotifyPrivilege" },
+	{ sprvlgRemoteShutdown,    	  "SeRemoteShutdownPrivilege" },
+	{ sprvlgUndock,            	  "SeUndockPrivilege" },
+	{ sprvlgSyncAgent,         	  "SeSyncAgentPrivilege" },
+	{ sprvlgEnableDelegation,  	  "SeEnableDelegationPrivilege" },
+	{ sprvlgManageVolume,      	  "SeManageVolumePrivilege" },
+	{ sprvlgImpersonate,          "SeImpersonatePrivilege" },
+	{ sprvlgCreateGlobal,         "SeCreateGlobalPrivilege" },
+	{ sprvlgTrustedCredmanAccess, "SeTrustedCredManAccessPrivilege" },
+	{ sprvlgRelabel,              "SeRelabelPrivilege" },
+	{ sprvlgIncWorkingSet,        "SeIncreaseWorkingSetPrivilege" },
+	{ sprvlgTimeZone,             "SeTimeZonePrivilege" },
+	{ sprvlgCreateSymbolicLink,   "SeCreateSymbolicLinkPrivilege" },
+	{ sprvlgDelegateSessionUserImpers, "SeDelegateSessionUserImpersonatePrivilege" },
+};
+
+
+/*static*/bool SlProcess::GetPrivilegeSymb(int privilege, SStringU & rBuf)
+{
+	rBuf.Z();
+	bool    ok = false;
+	const char * p_symb = SIntToSymbTab_GetSymbPtr(OsPrivilegeAssoc, SIZEOFARRAY(OsPrivilegeAssoc), privilege);
+	if(p_symb) {
+		rBuf.CopyFromMb_OUTER(p_symb, sstrlen(p_symb));
+		ok = true;
+	}
+	return ok;
+}
+
+/*static*/int  SlProcess::GetPrivilegeId(const wchar_t * pSymb)
+{
+	int    result = 0;
+	if(!isempty(pSymb)) {
+		SString & r_temp_buf = SLS.AcquireRvlStr();
+		SStringU & r_temp_buf_u = SLS.AcquireRvlStrU();
+		r_temp_buf_u = pSymb;
+		if(r_temp_buf_u.CopyToUtf8(r_temp_buf, 1)) {
+			result = SIntToSymbTab_GetId(OsPrivilegeAssoc, SIZEOFARRAY(OsPrivilegeAssoc), r_temp_buf);
+		}
+	}
+	return result;
+}
+
 static bool _LookupPrivilegeName(const wchar_t * pSystemName, const PLUID Luid, const wchar_t ** ppSymbolName,
     wchar_t * pPrivilegeName, DWORD * pPrivilegeNameLength, wchar_t * pDisplayName, DWORD * pDisplayNameLength, BOOL noErrMsg) 
 {
-	DWORD language_id;
-	int Index = -1;
-	BOOL ret = LookupPrivilegeNameW(NULL, Luid, pPrivilegeName, pPrivilegeNameLength);
+	DWORD  language_id;
+	int    Index = -1;
+	BOOL   ret = LookupPrivilegeNameW(NULL, Luid, pPrivilegeName, pPrivilegeNameLength);
 	if(!ret) {
 		if(GetLastError()!=ERROR_INSUFFICIENT_BUFFER && !noErrMsg)
 			wprintf(L"LookupPrivilegeName failed - 0x%08x\n", GetLastError());
@@ -316,7 +382,7 @@ bool SlProcess::AddPrivilegeToAccessToken(SPtrHandle token, const wchar_t * pPri
 		wprintf(L"GetTokenInformation (size check) failed - 0x%08x\n", GetLastError());
 		goto cleanup;
 	}
-	p_cur_user_sid = (TOKEN_USER *)HeapAlloc(GetProcessHeap(), 0, cur_user_sid_len);
+	p_cur_user_sid = static_cast<TOKEN_USER *>(HeapAlloc(GetProcessHeap(), 0, cur_user_sid_len));
 	if(!p_cur_user_sid) {
 		wprintf(L"HeapAlloc failed - 0x%08x\n", GetLastError());
 		goto cleanup;
@@ -329,8 +395,10 @@ bool SlProcess::AddPrivilegeToAccessToken(SPtrHandle token, const wchar_t * pPri
 	privilege[0].Buffer = (PWCHAR)pPrivilegeName;
 	privilege[0].Length = static_cast<ushort>(priv_name_len * sizeof(WCHAR));
 	privilege[0].MaximumLength = static_cast<ushort>((priv_name_len+1)*sizeof(WCHAR));
-	ZeroMemory(&obj_attr, sizeof(obj_attr));
-	ret = LsaOpenPolicy(NULL, &obj_attr, POLICY_ALL_ACCESS, &h_policy);
+	MEMSZERO(obj_attr);
+	ret = LsaOpenPolicy(NULL, &obj_attr, 
+		/*POLICY_ALL_ACCESS*/POLICY_LOOKUP_NAMES|POLICY_CREATE_ACCOUNT/*|POLICY_VIEW_LOCAL_INFORMATION|POLICY_WRITE*/,
+		&h_policy);
 	/*
 		SCESTATUS_SUCCESS 	The function succeeded.
 		SCESTATUS_INVALID_PARAMETER 	One of the parameters passed to the function was not valid.
@@ -802,7 +870,7 @@ bool SlProcess::AddEnv(const char * pKeyUtf8, const char * pValUtf8)
 	return ok;
 }
 
-bool   SlProcess::AddEnv(const wchar_t * pKey, const wchar_t * pVal)
+bool SlProcess::AddEnv(const wchar_t * pKey, const wchar_t * pVal)
 {
 	bool   ok = true;
 	if(sstrchr(pKey, L'=') || sstrchr(pVal, L'=')) {
@@ -812,6 +880,22 @@ bool   SlProcess::AddEnv(const wchar_t * pKey, const wchar_t * pVal)
 		SStringU temp_buf;
 		temp_buf.CatEq(pKey, pVal);
 		ok = Helper_SsAdd(SsEnvUtf8, temp_buf);
+	}
+	return ok;
+}
+
+bool SlProcess::AddPrivilege(int prvlgId)
+{
+	bool   ok = false;
+	if(PrivilegeList.lsearch(prvlgId)) {
+		ok = true;
+	}
+	else {
+		SStringU temp_buf_u;
+		if(SlProcess::GetPrivilegeSymb(prvlgId, temp_buf_u)) {
+			PrivilegeList.add(prvlgId);
+			ok = true;
+		}
 	}
 	return ok;
 }
@@ -932,29 +1016,6 @@ int SlProcess::Run(SlProcess::Result * pResult)
 	SIntHandle h_stderr_wr;
 	THROW(Path.NotEmpty()); // @todo @err
 	{
-		/*
-		wchar_t cmd_line_[512];
-		wchar_t working_dir_[512];
-		SStringU cmd_line_u;
-		SStringU working_dir_u;
-		cmd_line_u.CopyFromUtf8(pPe->FullResolvedPath);
-		STRNSCPY(cmd_line_, cmd_line_u);
-		SFsPath ps(pPe->FullResolvedPath);
-		ps.Merge(SFsPath::fDrv|SFsPath::fDir, temp_buf);
-		working_dir_u.CopyFromUtf8(temp_buf.SetLastSlash());
-		STRNSCPY(working_dir_, working_dir_u);
-		SECURITY_ATTRIBUTES process_attr;
-		SECURITY_ATTRIBUTES thread_attr;
-		BOOL   inherit_handles = FALSE;
-		DWORD  creation_flags = 0;
-		void * p_env = 0;
-		STARTUPINFO si;
-		PROCESS_INFORMATION pi;
-		MEMSZERO(si);
-		si.cb = sizeof(si);
-		MEMSZERO(pi);
-		r = ::CreateProcessW(0, cmd_line_, 0, 0, inherit_handles, creation_flags, p_env, working_dir_, &si, &pi);
-		*/
 		SString temp_buf;
 		SStringU temp_buf_u;
 		const wchar_t * p_app_name = 0;
@@ -1048,7 +1109,6 @@ int SlProcess::Run(SlProcess::Result * pResult)
 			else {
 				startup_info.StartupInfo.cb = sizeof(STARTUPINFOW);
 			}
-			// @v11.9.3 @construction {
 			{
 				SECURITY_ATTRIBUTES sa_pipe;
 				MEMSZERO(sa_pipe);
@@ -1117,7 +1177,6 @@ int SlProcess::Run(SlProcess::Result * pResult)
 						startup_info.StartupInfo.hStdInput = GetStdHandle(STD_INPUT_HANDLE);
 				}
 			}
-			// } @v11.9.3
 			enum {
 				runprocessmAsUser = 1,
 				runprocessmWithToken,
@@ -1221,6 +1280,19 @@ int SlProcess::Run(SlProcess::Result * pResult)
 			}
 			else {
 				if(pResult) {
+					if(PrivilegeList.getCount()) {
+						pResult->CallerTokenForPrivileges = SlProcess::OpenCurrentAccessToken(/*TOKEN_ADJUST_PRIVILEGES|TOKEN_QUERY*/TOKEN_ALL_ACCESS);
+						if(!!pResult->CallerTokenForPrivileges) {
+							//SlProcess::CheckAccessTokenPrivilege(pResult->CallerTokenForPrivileges, SE_SECURITY_NAME);
+							//SlProcess::CheckAccessTokenPrivilege(pResult->CallerTokenForPrivileges, SE_TCB_NAME);
+							SStringU priv_symb;
+							for(uint pi = 0; pi < PrivilegeList.getCount(); pi++) {
+								if(SlProcess::GetPrivilegeSymb(PrivilegeList.get(pi), priv_symb)) {
+									SlProcess::CheckAndEnableAccesTokenPrivilege(pResult->CallerTokenForPrivileges, priv_symb);	
+								}
+							}
+						}
+					}
 					pResult->AppNameUtf8.CopyUtf8FromUnicode(p_app_name, sstrlen(p_app_name), 0);
 					pResult->CmdLineUtf8.CopyUtf8FromUnicode(p_cmd_line, sstrlen(p_cmd_line), 0);
 				}
@@ -1320,6 +1392,10 @@ SlProcess::Result::~Result()
 	if(!!HStdInWr) {
 		::CloseHandle(HStdInWr);
 		HStdInWr.Z();
+	}
+	if(!!CallerTokenForPrivileges) {
+		::CloseHandle(CallerTokenForPrivileges);
+		CallerTokenForPrivileges.Z();
 	}
 }
 
@@ -1557,7 +1633,7 @@ int _DontRun__wmain(int argc, PWCHAR argv[])
 	LPUSER_INFO_4 pUserInfo = nullptr;
 	PROFILEINFOW pProfileInfo;
 	HANDLE hToken = NULL;
-	TOKEN_PRIVILEGES tokenPrivileges;
+	TOKEN_PRIVILEGES token_privileges;
 	LPVOID pEnvironmentBlock = nullptr;
 	STARTUPINFOW startupInfo;
 	PROCESS_INFORMATION processInfo;
@@ -1568,10 +1644,10 @@ int _DontRun__wmain(int argc, PWCHAR argv[])
 		PrintWin32ErrorToString(L"ERROR: Cannot open current user token with error:", status);
 		goto cleanup;
 	}
-	ZeroMemory(&tokenPrivileges, sizeof(tokenPrivileges));
-	tokenPrivileges.PrivilegeCount = 1;
-	tokenPrivileges.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
-	if(!LookupPrivilegeValueW(nullptr, SE_ASSIGNPRIMARYTOKEN_NAME, &tokenPrivileges.Privileges[0].Luid)) {
+	ZeroMemory(&token_privileges, sizeof(token_privileges));
+	token_privileges.PrivilegeCount = 1;
+	token_privileges.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
+	if(!LookupPrivilegeValueW(nullptr, SE_ASSIGNPRIMARYTOKEN_NAME, &token_privileges.Privileges[0].Luid)) {
 		status = GetLastError();
 		PrintWin32ErrorToString(L"ERROR: Cannot lookup privilege value (LUID) with error:", status);
 		goto cleanup;
@@ -1579,7 +1655,7 @@ int _DontRun__wmain(int argc, PWCHAR argv[])
 	ZeroMemory(&privileges, sizeof(privileges));
 	privileges.PrivilegeCount = 1;
 	privileges.Control = PRIVILEGE_SET_ALL_NECESSARY;
-	privileges.Privilege[0].Luid = tokenPrivileges.Privileges[0].Luid;
+	privileges.Privilege[0].Luid = token_privileges.Privileges[0].Luid;
 	privileges.Privilege[0].Attributes = SE_PRIVILEGE_ENABLED;
 	if(!PrivilegeCheck(hToken, &privileges, &privCheckStatus)) {
 		status = GetLastError();
@@ -1588,7 +1664,7 @@ int _DontRun__wmain(int argc, PWCHAR argv[])
 	}
 	else {
 		if(!privCheckStatus) {
-			if(!AdjustTokenPrivileges(hToken, FALSE, &tokenPrivileges, NULL, nullptr, nullptr)) {
+			if(!AdjustTokenPrivileges(hToken, FALSE, &token_privileges, NULL, nullptr, nullptr)) {
 				status = GetLastError();
 				PrintWin32ErrorToString(L"ERROR: Cannot adjust privileges with error:", status);
 				goto cleanup;

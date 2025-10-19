@@ -4082,7 +4082,7 @@ int iSalesPepsi::SendStocks()
         uint   _pos = 0;
         int    skip_goods = 1;
 		iSalesStockCountingWhPacket * p_loc_item = 0;
-		if(GObj.P_Tbl->GetArCode(P.SupplID, gr_item.GoodsID, temp_buf.Z(), 0) > 0 && temp_buf.NotEmptyS()) {
+		if(GObj.P_Tbl->GetArCode(P.SupplID, gr_item.GoodsID, temp_buf, 0) > 0 && temp_buf.NotEmptyS()) {
 			skip_goods = 0;
 			if(State & stGoodsMappingInited) {
 				const iSalesGoodsPacket * p_entry = SearchGoodsMappingEntry(temp_buf);
@@ -4254,7 +4254,7 @@ int iSalesPepsi::Helper_MakeBillEntry(PPID billID, PPBillPacket * pBp, int outer
 		else {
 			for(TiIter tiiter(pBp, ETIEF_UNITEBYGOODS, 0); pBp->EnumTItemsExt(&tiiter, &ti, &tiext) > 0;) {
 				tiiterpos++;
-				if(GObj.BelongToGroup(ti.GoodsID, Ep.GoodsGrpID) > 0 && GObj.P_Tbl->GetArCode(P.SupplID, ti.GoodsID, temp_buf.Z(), 0) > 0) {
+				if(GObj.BelongToGroup(ti.GoodsID, Ep.GoodsGrpID) > 0 && GObj.P_Tbl->GetArCode(P.SupplID, ti.GoodsID, temp_buf, 0) > 0) {
 					int   skip_goods = 0;
 					if(State & stGoodsMappingInited) {
 						const iSalesGoodsPacket * p_entry = SearchGoodsMappingEntry(temp_buf);
@@ -4719,7 +4719,7 @@ int iSalesPepsi::Helper_MakeBillList(PPID opID, int outerDocType, const PPIDArra
 									long   tiiterpos = 0;
 									for(uint tiidx = 0; !is_my_goods && tiidx < pack.GetTCount(); tiidx++) {
 										const  PPID goods_id = labs(pack.ConstTI(tiidx).GoodsID);
-										if(GObj.BelongToGroup(goods_id, Ep.GoodsGrpID) > 0 && GObj.P_Tbl->GetArCode(P.SupplID, goods_id, temp_buf.Z(), 0) > 0) {
+										if(GObj.BelongToGroup(goods_id, Ep.GoodsGrpID) > 0 && GObj.P_Tbl->GetArCode(P.SupplID, goods_id, temp_buf, 0) > 0) {
 											int   skip_goods = 0;
 											if(State & stGoodsMappingInited) {
 												const iSalesGoodsPacket * p_entry = SearchGoodsMappingEntry(temp_buf);
@@ -5691,7 +5691,7 @@ int SapEfes::Helper_MakeBillList(PPID opID, TSCollection <SapEfesBillPacket> & r
 								int    is_t_goods = 0;
 								for(uint tiidx = 0; !is_t_goods && tiidx < pack.GetTCount(); tiidx++) {
 									const  PPID goods_id = labs(pack.ConstTI(tiidx).GoodsID);
-									if(GObj.BelongToGroup(goods_id, Ep.GoodsGrpID) > 0 && GObj.P_Tbl->GetArCode(P.SupplID, goods_id, temp_buf.Z(), 0) > 0)
+									if(GObj.BelongToGroup(goods_id, Ep.GoodsGrpID) > 0 && GObj.P_Tbl->GetArCode(P.SupplID, goods_id, temp_buf, 0) > 0)
 										is_t_goods = 1;
 								}
 								if(!is_t_goods) {
@@ -5723,7 +5723,7 @@ int SapEfes::Helper_MakeBillList(PPID opID, TSCollection <SapEfesBillPacket> & r
 						long   tiiterpos = 0;
 						for(TiIter tiiter(&pack, ETIEF_FORCEUNITEGOODS|ETIEF_UNITEBYGOODS, 0); pack.EnumTItemsExt(&tiiter, &ti, &tiext) > 0;) {
 							tiiterpos++;
-							if(GObj.BelongToGroup(ti.GoodsID, Ep.GoodsGrpID) > 0 && GObj.P_Tbl->GetArCode(P.SupplID, ti.GoodsID, temp_buf.Z(), 0) > 0)
+							if(GObj.BelongToGroup(ti.GoodsID, Ep.GoodsGrpID) > 0 && GObj.P_Tbl->GetArCode(P.SupplID, ti.GoodsID, temp_buf, 0) > 0)
 								ti_pos_list.Add(tiiterpos, temp_buf, 0);
 						}
 					}
@@ -6623,7 +6623,7 @@ int SfaHeineken::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCollectio
 		long   tiiterpos = 0;
 		for(TiIter tiiter(&pack, ETIEF_UNITEBYGOODS, 0); pack.EnumTItemsExt(&tiiter, &ti, &tiext) > 0;) {
 			tiiterpos++;
-			if(GObj.BelongToGroup(ti.GoodsID, Ep.GoodsGrpID) > 0 && GObj.P_Tbl->GetArCode(P.SupplID, ti.GoodsID, temp_buf.Z(), 0) > 0) {
+			if(GObj.BelongToGroup(ti.GoodsID, Ep.GoodsGrpID) > 0 && GObj.P_Tbl->GetArCode(P.SupplID, ti.GoodsID, temp_buf, 0) > 0) {
 				ti_pos_list.Add(tiiterpos, temp_buf, 0);
 			}
 		}
@@ -7286,7 +7286,7 @@ private:
 				PPBillPacket::TiItemExt tiext;
 				for(TiIter tiiter(pBp, ETIEF_UNITEBYGOODS, 0); pBp->EnumTItemsExt(&tiiter, &ti, &tiext) > 0;) {
 					tiiterpos++;
-					if(GObj.BelongToGroup(ti.GoodsID, Ep.GoodsGrpID) > 0 && GObj.P_Tbl->GetArCode(P.SupplID, ti.GoodsID, temp_buf.Z(), 0) > 0) {
+					if(GObj.BelongToGroup(ti.GoodsID, Ep.GoodsGrpID) > 0 && GObj.P_Tbl->GetArCode(P.SupplID, ti.GoodsID, temp_buf, 0) > 0) {
 						const  GazpromNeftGoodsPacket * p_entry = SearchGoodsEntry(temp_buf.ToInt64());
 						if(p_entry)
 							ti_pos_list.Add(tiiterpos, temp_buf, 0);
@@ -10190,7 +10190,7 @@ class EfopMayTea : public PrcssrSupplInterchange::ExecuteBlock { // @v12.0.7 @co
 				for(TiIter tiiter(pBp, ETIEF_UNITEBYGOODS, 0); pBp->EnumTItemsExt(&tiiter, &ti, &tiext) > 0;) {
 					tiiterpos++;
 					const GoodsEntry * p_goods_entry = SearchGoodsEntry(rGoodsList, ti.GoodsID);
-					//if(GObj.BelongToGroup(ti.GoodsID, Ep.GoodsGrpID) > 0 && GObj.P_Tbl->GetArCode(P.SupplID, ti.GoodsID, temp_buf.Z(), 0) > 0) {
+					//if(GObj.BelongToGroup(ti.GoodsID, Ep.GoodsGrpID) > 0 && GObj.P_Tbl->GetArCode(P.SupplID, ti.GoodsID, temp_buf, 0) > 0) {
 					if(p_goods_entry) {
 						//const  ObjEntry * p_entry = SearchGoodsEntry(rGoodsList, temp_buf.ToLong());
 						//if(p_entry)
@@ -11527,7 +11527,7 @@ int Ostankino::Helper_MakeBillEntry(PPID billID, PPBillPacket * pBp, const TSVec
 			for(TiIter tiiter(pBp, ETIEF_UNITEBYGOODS, 0); pBp->EnumTItemsExt(&tiiter, &ti, &tiext) > 0;) {
 				tiiterpos++;
 				const GoodsEntry * p_goods_entry = SearchGoodsEntry(rGoodsList, ti.GoodsID);
-				//if(GObj.BelongToGroup(ti.GoodsID, Ep.GoodsGrpID) > 0 && GObj.P_Tbl->GetArCode(P.SupplID, ti.GoodsID, temp_buf.Z(), 0) > 0) {
+				//if(GObj.BelongToGroup(ti.GoodsID, Ep.GoodsGrpID) > 0 && GObj.P_Tbl->GetArCode(P.SupplID, ti.GoodsID, temp_buf, 0) > 0) {
 				if(p_goods_entry) {
 					//const  ObjEntry * p_entry = SearchGoodsEntry(rGoodsList, temp_buf.ToLong());
 					//if(p_entry)
@@ -12177,7 +12177,7 @@ private:
 				for(TiIter tiiter(pBp, ETIEF_UNITEBYGOODS, 0); pBp->EnumTItemsExt(&tiiter, &ti, &tiext) > 0;) {
 					tiiterpos++;
 					const GoodsEntry * p_goods_entry = SearchGoodsEntry(rGoodsList, labs(ti.GoodsID));
-					//if(GObj.BelongToGroup(ti.GoodsID, Ep.GoodsGrpID) > 0 && GObj.P_Tbl->GetArCode(P.SupplID, ti.GoodsID, temp_buf.Z(), 0) > 0) {
+					//if(GObj.BelongToGroup(ti.GoodsID, Ep.GoodsGrpID) > 0 && GObj.P_Tbl->GetArCode(P.SupplID, ti.GoodsID, temp_buf, 0) > 0) {
 					if(p_goods_entry) {
 						//const  ObjEntry * p_entry = SearchGoodsEntry(rGoodsList, temp_buf.ToLong());
 						//if(p_entry)
@@ -13248,7 +13248,7 @@ int VladimirskiyStandard::Helper_MakeBillEntry(PPID billID, PPBillPacket * pBp, 
 			for(TiIter tiiter(pBp, ETIEF_UNITEBYGOODS, 0); pBp->EnumTItemsExt(&tiiter, &ti, &tiext) > 0;) {
 				tiiterpos++;
 				const ObjEntry * p_goods_entry = SearchGoodsEntry(rGoodsList, ti.GoodsID);
-				//if(GObj.BelongToGroup(ti.GoodsID, Ep.GoodsGrpID) > 0 && GObj.P_Tbl->GetArCode(P.SupplID, ti.GoodsID, temp_buf.Z(), 0) > 0) {
+				//if(GObj.BelongToGroup(ti.GoodsID, Ep.GoodsGrpID) > 0 && GObj.P_Tbl->GetArCode(P.SupplID, ti.GoodsID, temp_buf, 0) > 0) {
 				if(p_goods_entry) {
 					//const  ObjEntry * p_entry = SearchGoodsEntry(rGoodsList, temp_buf.ToLong());
 					//if(p_entry)
@@ -13442,14 +13442,16 @@ public:
 		//
 		enum Op {
 			opUndef = 0,
-			opPut,        // S1 (установка) SMPM
-			opGet,        // S2 (снятие) SMRM
-			opMov         // S6 (перемещение) SMPP
+			opPut,          // S1 (установка) SMPM
+			opGet,          // S2 (снятие) SMRM
+			opMov,          // S6 (перемещение) SMPP
+			opInstallation, // S8 (Installation Fountain order) SMPN
 		};
 		//
 		// Descr: Определение оборудования над которым совершается операция //
 		//
 		struct Equip {
+			bool   IsEmpty() const { return (Cat.IsEmpty() && Model.IsEmpty()); }
 			SString Type;    // <EQUI_TYPE/> Тип объекта 
 			SString Cat;     // Категория //
 			SString Model;   // Модель //
@@ -13469,9 +13471,7 @@ public:
 		};
 
 		struct PartnerItem {
-			PartnerItem() : UedGeoLoc(0), Itic(0)
-			{
-			}
+			PartnerItem();
 			SString Func;        // <FUNCTION>SP</FUNCTION>	Партнерская функция (ИНФО о Торговой точке). PPEanComDocument::iticXXX
 			int    Itic;         // PPEanComDocument::GetIticBySymb(Func) 
 			SString Code;        // <KUNNR>3804702160</KUNNR>	Код клиента
@@ -13495,9 +13495,7 @@ public:
 			uint64 UedGeoLoc;      // <GC_LONGITUD>37.786406</GC_LONGITUD>	Долгота; <GC_LATITUDE>44.701622</GC_LATITUDE>	Широта		
 		};
 		struct OrderItem {
-			OrderItem() : AUART(0), Priority(0), MsgCrDate(ZERODATE), DueDate(ZERODATE), InstDate(ZERODATE), Price(0.0)
-			{
-			}
+			OrderItem();
 			SString PoCode;        // <PONUM>4502990726</PONUM>	Номер PO
 			SString PoRowN;        // <ITEMNO>00010</ITEMNO>	Номер строки в PO
 			SString QMART;         // <QMART>S1</QMART>	Тип сообщения
@@ -13555,6 +13553,14 @@ private:
 	TokenSymbHashTable TsHt;
 	PPID   LocCodeTagID;
 };
+
+COCACOLA::BailmentOrderSet::PartnerItem::PartnerItem() : UedGeoLoc(0), Itic(0)
+{
+}
+			
+COCACOLA::BailmentOrderSet::OrderItem::OrderItem() : AUART(0), Priority(0), MsgCrDate(ZERODATE), DueDate(ZERODATE), InstDate(ZERODATE), Price(0.0)
+{
+}
 
 COCACOLA::COCACOLA(PrcssrSupplInterchange::ExecuteBlock & rEb, PPLogger & rLogger) : PrcssrSupplInterchange::ExecuteBlock(rEb), R_Logger(rLogger), TsHt(4096), LocCodeTagID(0)
 {
@@ -13623,6 +13629,9 @@ int COCACOLA::ProcessBailmentExchange()
 	int    ok = -1;
 	bool   debug_mark = false;
 	SString temp_buf;
+	SString fmt_buf;
+	SString msg_buf;
+	SString bill_text;
 	TSCollection <BailmentOrderSet> ordset_list;
 	SString in_dir("D:/Papyrus/Src/VBA/0-Coke-Sannikova/TASK/esi-samples"); // @debug
 	SDirEntry de;
@@ -13639,7 +13648,7 @@ int COCACOLA::ProcessBailmentExchange()
 						uint    new_ord_set_pos = 0;
 						BailmentOrderSet * p_new_ord_set = ordset_list.CreateNewItem(&new_ord_set_pos);
 						if(ParseBailmentOrderFile(temp_buf, *p_new_ord_set)) {
-							;
+							; // PPTXT_
 						}
 						else {
 							ordset_list.atFree(new_ord_set_pos);
@@ -13653,14 +13662,17 @@ int COCACOLA::ProcessBailmentExchange()
 		const  PPID suppl_id = P.SupplID;
 		const  PPID order_op_id = FindBailmentOrderOp();
 		PPOprKind op_rec;
-		THROW(GetOpData(order_op_id, &op_rec) > 0); // @todo @err
+		THROW_PP(GetOpData(order_op_id, &op_rec) > 0, PPERR_SUPPLIX_UNDEFOPBAILMENTORD);
 		if(P.Flags & SupplInterchangeFilt::fTestMode) {
 			Test_CreateAddresses(ordset_list);
 		}
 		{
-			PPID   loc_id = 0;
 			ArticleTbl::Rec suppl_ar_rec;
-			THROW(LocCodeTagID); // @todo @err
+			PPID   loc_id = P.LocList.GetSingle(); // Это - склад, к которому относится документ, а не точка размещения!
+			SETIFZQ(loc_id, Ep.WhList.GetSingle());
+			SETIFZQ(loc_id, LConfig.Location);
+			THROW_PP(loc_id, PPERR_SUPPLIX_WAREHOUSEUNDEF);
+			THROW_PP(LocCodeTagID, PPERR_SUPPLIX_UNDEFLOCCTAG_COCACOLA);
 			THROW(ArObj.Fetch(suppl_id, &suppl_ar_rec) > 0);
 			for(uint i = 0; i < ordset_list.getCount(); i++) {
 				const BailmentOrderSet * p_ordset = ordset_list.at(i);
@@ -13668,11 +13680,11 @@ int COCACOLA::ProcessBailmentExchange()
 					for(uint ordi = 0; ordi < p_ordset->OrderList.getCount(); ordi++) {
 						const BailmentOrderSet::OrderItem * p_ord = p_ordset->OrderList.at(ordi);
 						if(p_ord) {
-							// @construction @20251010
 							PPBillPacket bpack;
 							if(bpack.CreateBlank_WithoutCode(order_op_id, 0, loc_id, 1)) {
 								PPID   ex_bill_id = 0;
 								BillTbl::Rec ex_bill_rec;
+								int    edi_op = 0;
 
 								bpack.Rec.Dt = p_ord->MsgCrDate;
 								bpack.Rec.DueDate = p_ord->DueDate;
@@ -13681,10 +13693,218 @@ int COCACOLA::ProcessBailmentExchange()
 									bpack.Rec.Object = suppl_ar_rec.ID;
 								}
 								(bpack.SMemo = p_ord->LText).Transf(CTRANSF_UTF8_TO_INNER);
+								PPObjBill::MakeCodeString(&bpack.Rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName, bill_text);
 								if(P_BObj->P_Tbl->SearchAnalog(&bpack.Rec, BillCore::safDefault, &ex_bill_id, &ex_bill_rec) > 0) {
-									;
+									(temp_buf = bill_text).Quot('(', ')');
+									if(PPGetMessage(mfError, PPERR_DOC_ALREADY_EXISTS, temp_buf, 1, msg_buf))
+										R_Logger.Log(msg_buf);
+								}
+								else if(p_ord->Eq.IsEmpty()) {
+									; // @todo @msg
 								}
 								else {
+									PPID    goods_id = 0;
+									PPID    lot_id = 0;
+									Goods2Tbl::Rec goods_rec;
+									ReceiptTbl::Rec lot_rec;
+									PPIDArray lot_by_serial_list;
+									PPIDArray goods_by_serial_list;
+									if(p_ord->Eq.Serial.NotEmpty()) {
+										P_BObj->SearchLotsBySerialExactly(p_ord->Eq.Serial, &lot_by_serial_list);
+										for(uint lotidx = 0; lotidx < lot_by_serial_list.getCount(); lotidx++) {
+											const PPID local_lot_id = lot_by_serial_list.get(lotidx);
+											if(P_BObj->trfr->Rcpt.Search(local_lot_id, &lot_rec) > 0)
+												goods_by_serial_list.add(lot_rec.GoodsID);
+										}
+										goods_by_serial_list.sortAndUndup();
+									}
+									if(p_ord->Eq.Barcode.NotEmpty() && GObj.SearchByBarcode(p_ord->Eq.Barcode, 0, &goods_rec, 0) > 0) {
+										goods_id = goods_rec.ID;
+									}
+									else {
+										PPIDArray local_goods_list;
+										if(p_ord->Eq.Model.NotEmpty()) {
+											GObj.P_Tbl->GetListBySubstring(p_ord->Eq.Model, &local_goods_list, -1, false);
+										}
+										else if(p_ord->Eq.Cat.NotEmpty()) {
+											GObj.P_Tbl->GetListBySubstring(p_ord->Eq.Cat, &local_goods_list, -1, false);
+										}
+										if(local_goods_list.getCount()) {
+											if(local_goods_list.getCount() == 1) {
+												goods_id = local_goods_list.get(0);
+											}
+											else {
+												assert(local_goods_list.getCount());
+												if(goods_by_serial_list.getCount()) {
+													PPIDArray temp_list(local_goods_list);
+													temp_list.intersect(&goods_by_serial_list);
+													if(temp_list.getCount() == 1) {
+														goods_id = temp_list.get(0);
+													}
+													else if(temp_list.getCount() > 0) {
+														; // Не знаю пока что делать в этом случае
+													}
+												}
+											}
+										}
+									}
+									if(!goods_id) {
+										//PPTXT_LOG_SUPPLIX_GOODSNFOUND
+										PPFormatT(PPTXT_LOG_SUPPLIX_GOODSNFOUND, &msg_buf, bill_text.cptr());
+										if(p_ord->Eq.Barcode.NotEmpty()) {
+											msg_buf.Space().Cat(p_ord->Eq.Barcode);
+										}
+										temp_buf.Z();
+										if(p_ord->Eq.Cat.NotEmpty())
+											temp_buf.CatDivIfNotEmpty(' ', 0).Cat(p_ord->Eq.Cat);
+										if(p_ord->Eq.Model.NotEmpty())
+											temp_buf.CatDivIfNotEmpty(' ', 0).Cat(p_ord->Eq.Model);
+										if(p_ord->Eq.Brand.NotEmpty())
+											temp_buf.CatDivIfNotEmpty(' ', 0).Cat(p_ord->Eq.Brand);
+										if(p_ord->Eq.Barcode.NotEmpty())
+											temp_buf.CatDivIfNotEmpty(' ', 0).Cat(p_ord->Eq.Barcode);
+										if(p_ord->Eq.Serial.NotEmpty())
+											temp_buf.CatDivIfNotEmpty(' ', 0).Cat(p_ord->Eq.Serial);
+										if(temp_buf.NotEmptyS()) {
+											msg_buf.Space().CatChar('[').Cat(temp_buf).CatChar(']');
+										}
+										R_Logger.Log(msg_buf);
+									}
+									else {
+										PPID    final_lot_id = 0;
+										if(lot_by_serial_list.getCount()) {
+											for(uint lotidx = 0; !final_lot_id && lotidx < lot_by_serial_list.getCount(); lotidx++) {
+												const PPID local_lot_id = lot_by_serial_list.get(lotidx);
+												if(P_BObj->trfr->Rcpt.Search(local_lot_id, &lot_rec) > 0 && lot_rec.GoodsID == goods_id && lot_rec.LocID == loc_id)
+													final_lot_id = local_lot_id;
+											}
+										}
+										if(p_ord->AUART == BailmentOrderSet::opMov) {
+											// there is a dedicated branch for the opMov operation because of this op constists of two sub-ops:
+											// LOCTRFROP_GET and LOCTRFROP_PUT
+											edi_op = PPEDIOP_POS2POSMOVEMENTORDER;
+											//
+											// Здесь будет сдвоенная операция: get & put
+											//
+											PPID   lt_loc_donor_id = 0; // Точка с которой забирают оборудование (SP)
+											PPID   lt_loc_rcpnt_id = 0; // Точка на которую передают оборудование (YP)
+											for(uint pi = 0; pi < p_ord->PartnerList.getCount(); pi++) {
+												const BailmentOrderSet::PartnerItem * p_pi = p_ord->PartnerList.at(pi);
+												if(p_pi) {
+													if(p_pi->Itic == PPEanComDocument::iticSP) {
+														if(IdentifyAddress(*p_pi, &lt_loc_donor_id) > 0) {
+															;
+														}
+														else {
+															; // @errmsg
+														}
+													}
+ 													else if(p_pi->Itic == PPEanComDocument::iticYP) {
+														if(IdentifyAddress(*p_pi, &lt_loc_rcpnt_id) > 0) {
+															;
+														}
+														else {
+															; // @errmsg
+														}
+													}
+												}
+											}
+											if(lt_loc_donor_id && lt_loc_rcpnt_id) {
+												LocationTbl::Rec loc_donor_rec;
+												LocationTbl::Rec loc_rcpnt_rec;
+												LocTransfOpBlock lti_get(LOCTRFRDOMAIN_BAILMENT, LOCTRFROP_GET, lt_loc_donor_id);
+												LocTransfOpBlock lti_put(LOCTRFRDOMAIN_BAILMENT, LOCTRFROP_PUT, lt_loc_rcpnt_id);
+												if(LocObj.Search(lt_loc_donor_id, &loc_donor_rec) <= 0) {
+													; // @erro
+												}
+												else if(LocObj.Search(lt_loc_rcpnt_id, &loc_rcpnt_rec) <= 0) {
+													; // @erro
+												}
+												else if(!loc_donor_rec.OwnerID) {
+													; // @erro
+												}
+												else if(!loc_rcpnt_rec.OwnerID) {
+													; // @erro
+												}
+												else {
+													lti_get.LocOwnerPersonID = loc_donor_rec.OwnerID;
+													lti_get.GoodsID = goods_id;
+													lti_get.LotID = final_lot_id;
+													lti_get.Qtty = 1.0;
+													lti_get.Flags |= (LOCTRF_ORDER|LOCTRF_OWNEDBYBILL);
+
+													lti_put.LocOwnerPersonID = loc_rcpnt_rec.OwnerID;
+													lti_put.GoodsID = goods_id;
+													lti_put.LotID = final_lot_id;
+													lti_put.Qtty = 1.0;
+													lti_put.Flags |= (LOCTRF_ORDER|LOCTRF_OWNEDBYBILL);
+
+													SETIFZQ(bpack.P_LocTrfrList, new TSVector <LocTransfOpBlock>());
+													bpack.P_LocTrfrList->insert(&lti_get);
+													bpack.P_LocTrfrList->insert(&lti_put);
+												}
+											}
+										}
+										else {
+											int    lt_op = 0;
+											PPID   lt_loc_id = 0;
+											if(p_ord->AUART == BailmentOrderSet::opPut) {
+												lt_op = LOCTRFROP_PUT;
+												edi_op = PPEDIOP_PLACEMENTORDER;
+											}
+											else if(p_ord->AUART == BailmentOrderSet::opGet) {
+												lt_op = LOCTRFROP_GET;
+												edi_op = PPEDIOP_REMOVALORDER;
+											}
+											else if(p_ord->AUART == BailmentOrderSet::opInstallation) {
+												// ???
+												edi_op = PPEDIOP_INSTALLATIONORDER;
+											}
+											if(lt_op) {
+												for(uint pi = 0; pi < p_ord->PartnerList.getCount(); pi++) {
+													const BailmentOrderSet::PartnerItem * p_pi = p_ord->PartnerList.at(pi);
+													if(p_pi && p_pi->Itic == PPEanComDocument::iticSP) {
+														if(IdentifyAddress(*p_pi, &lt_loc_id) > 0) {
+															;
+														}
+														else {
+															; // @errmsg
+														}
+														break;
+													}
+												}
+												if(lt_loc_id) {
+													LocTransfOpBlock lti(LOCTRFRDOMAIN_BAILMENT, lt_op, lt_loc_id);
+													LocationTbl::Rec loc_rec;
+													lti.Flags |= (LOCTRF_ORDER|LOCTRF_OWNEDBYBILL);
+													if(LocObj.Search(lt_loc_id, &loc_rec) > 0) {
+														if(!loc_rec.OwnerID) {
+															;  // Это - проблема. Надо уходить по ошибке и выдавать сообщение.
+														}
+														else {
+															lti.LocOwnerPersonID = loc_rec.OwnerID;
+															lti.GoodsID = goods_id;
+															lti.LotID = final_lot_id;
+															lti.Qtty = 1.0;
+															//
+															SETIFZQ(bpack.P_LocTrfrList, new TSVector <LocTransfOpBlock>());
+															bpack.P_LocTrfrList->insert(&lti);
+														}
+													}
+												}
+											}
+										}
+									}
+								}
+								if(SVectorBase::GetCount(bpack.P_LocTrfrList)) {
+									bpack.SetupEdiAttributes(edi_op, "COCACOLA", 0);
+									bpack.InitAmounts();
+									if(P_BObj->TurnPacket(&bpack, 1)) {
+										;
+									}
+									else {
+										; // @todo @errmsg
+									}
 								}
 							}
 							else {
@@ -13696,7 +13916,10 @@ int COCACOLA::ProcessBailmentExchange()
 			}
 		}
 	}
-	CATCHZOK
+	CATCH
+		R_Logger.LogLastError();
+		ok = 0;
+	ENDCATCH
 	return ok;
 }
 

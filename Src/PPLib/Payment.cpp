@@ -775,7 +775,7 @@ int PPViewLinkedBill::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 					if(update_pos >= 0)
 						pBrw->go(update_pos);
 					else if(update_pos == MAXLONG)
-						pBrw->go(p_array->getCount() - 1);
+						pBrw->go(p_array->getCount()-1);
 				}
 				pBrw->Update();
 			}

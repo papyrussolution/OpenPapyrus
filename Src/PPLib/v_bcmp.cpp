@@ -447,7 +447,8 @@ int PPViewGoodsBillCmp::AddToBasketAll(int diffSign)
 void PPViewGoodsBillCmp::ViewTotal()
 {
 	TDialog * dlg = new TDialog(DLG_GBILLCMPTTL);
-	long   count = 0, diff_count = 0;
+	long   count = 0;
+	long   diff_count = 0;
 	GoodsBillCmpViewItem item;
 	for(InitIteration(); NextIteration(&item) > 0;) {
 		count++;

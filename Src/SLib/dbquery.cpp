@@ -29,10 +29,10 @@ DBQuery::~DBQuery()
 		for(i = 0; i < tblCount; i++) {
 			Tbl  * t = tbls+i;
 			if((t->flg & DBQTF_OVRRD_DESTROY_TAG) ? !o : o)
-				delete t->tbl;
+				delete t->P_Tbl;
 			t->tree.destroy();
 			t->key.destroy();
-			delete t->keyBuf;
+			// @v12.4.5 delete t->keyBuf;
 		}
 		SAlloc::F(tbls);
 	}
@@ -90,7 +90,7 @@ void DBQuery::arrangeTerms()
 	assert(tblCount <= sizeof(list));
 	uint  n;
 	for(n = 0; n < tblCount; n++)
-		list[n] = tbls[n].tbl->GetHandle();
+		list[n] = tbls[n].P_Tbl->GetHandle();
 	for(n = 0; n < w_restrict->count; n++) {
 		DBQ::T * t = &w_restrict->items[n];
 		t->TblIdx = _max_hdl(&t->right, list, _max_hdl(&t->left, list, -1));
@@ -211,15 +211,16 @@ int FASTCALL DBQuery::chooseKey(int tblN)
 			t.key.P_h->pseg = 0;
 			seg = 0;
 			do {
-				if(!t.tree.chooseKey(t.tree.Root, t.tbl->GetHandle(), seg, &t.key, 0))
+				if(!t.tree.chooseKey(t.tree.Root, t.P_Tbl->GetHandle(), seg, &t.key, 0))
 					return 0;
 			} while((t.key.P_h->pseg & ~DYN_KEY) == ++seg);
 		}
 	}
 	else {
 		int    ka_c = 0; // Количество допустимых индексов
-		int  * p_ka = 0;   // Массив допустимых индексов
-		uint   num_keys = t.tbl->GetIndices().getNumKeys();
+		int  * p_ka = 0; // Массив допустимых индексов
+		const  BNKeyList & r_indices = t.P_Tbl->GetIndices();
+		const  uint num_keys = r_indices.getNumKeys();
 		if(tblN == 0) {
 			p_ka = static_cast<int *>(SAlloc::M(num_keys * sizeof(int)));
 			if(p_ka)
@@ -229,26 +230,28 @@ int FASTCALL DBQuery::chooseKey(int tblN)
 		}
 		uint   i;
 		uint   tc = (t.tree.Count+1) * sizeof(uint);
-		uint * p_trace      = static_cast<uint *>(SAlloc::M(tc));
+		uint * p_trace = static_cast<uint *>(SAlloc::M(tc));
 		uint * p_best_trace = static_cast<uint *>(SAlloc::M(tc));
 		if(p_trace == 0 || p_best_trace == 0)
 			return 0;
 		p_best_trace[0] = 0;
 		for(i = 0; i < num_keys; i++) {
-			int    j, use_index = 1;
-			if(ka_c)
-				for(use_index = j = 0; !use_index && j < ka_c; j++)
+			bool   use_index = true;
+			if(ka_c) {
+				use_index = false;
+				for(int j = 0; !use_index && j < ka_c; j++)
 					if(p_ka[j] == i)
-						use_index = 1;
+						use_index = true;
+			}
 			if(use_index) {
 				p_trace[0] = 0;
-				KR k(t.tbl->GetHandle(), i);
+				KR     k(t.P_Tbl->GetHandle(), i);
 				seg = 0;
 				do {
-					if(!t.tree.chooseKey(t.tree.Root, t.tbl->GetHandle(), seg, &k, p_trace))
+					if(!t.tree.chooseKey(t.tree.Root, t.P_Tbl->GetHandle(), seg, &k, p_trace))
 						return (k.destroy(), 0);
 				} while((k.P_h->pseg & ~DYN_KEY) == ++seg);
-				int    cm = compare(t.key, k);
+				const int cm = compare(t.key, k);
 				if(cm < 0 || (cm == 0 && t.key.P_h == 0)) {
 					t.key.copy(k);
 					memcpy(p_best_trace, p_trace, sizeof(int) * (p_trace[0]+1));
@@ -266,10 +269,12 @@ int FASTCALL DBQuery::chooseKey(int tblN)
 			*/
 		}
 		SAlloc::F(p_best_trace);
-		t.tbl->setIndex(t.tbl->GetIndices()[t.key.P_h->keyNum].getKeyNumber());
+		t.P_Tbl->setIndex(r_indices[t.key.P_h->keyNum].getKeyNumber());
+		/* @v12.4.5 
 		t.keyBuf = new char[BTRMAXKEYLEN];
 		if(t.keyBuf == 0)
 			return 0;
+		*/
 	}
 	return 1;
 }
@@ -291,18 +296,22 @@ int FASTCALL DBQuery::analyzeOrder(int * pKeyArray)
 	uint   count = 0;
 	if(ordCount) {
 		uint   i;
-		const  uint num_keys = tbls[0].tbl->GetIndices().getNumKeys();
-		for(i = 0; i < ordCount; i++)
-			if(order[i].getTable() != tbls[0].tbl)
-				return ((status |= s_tmp_table_needed), 0);
+		const  uint num_keys = tbls[0].P_Tbl->GetIndices().getNumKeys();
+		for(i = 0; i < ordCount; i++) {
+			if(order[i].getTable() != tbls[0].P_Tbl) {
+				status |= s_tmp_table_needed;
+				return 0;
+			}
+		}
 		for(i = 0; i < num_keys; i++) {
 			int    ok = 1;
-			const  BNKey key = tbls[0].tbl->GetIndices()[i];
-			for(uint j = 0; j < (uint)key.getNumSeg() && j < ordCount; j++)
+			const  BNKey key = tbls[0].P_Tbl->GetIndices()[i];
+			for(uint j = 0; j < static_cast<uint>(key.getNumSeg()) && j < ordCount; j++) {
 				if(order[j].fld != key.getFieldID(j)) {
 					ok = 0;
 					break;
 				}
+			}
 			if(ok) {
 				if(pKeyArray)
 					pKeyArray[count] = i;
@@ -454,11 +463,11 @@ DBQuery & CDECL DBQuery::from(DBTable * first_arg, ...)
 	while((p_tbl = va_arg(list, DBTable*)) != 0) {
 		tbls = static_cast<Tbl *>(SAlloc::R(tbls, sizeof(Tbl) * (i+1)));
 		if(tbls) {
-			tbls[i].tbl    = p_tbl;
+			tbls[i].P_Tbl = p_tbl;
 			tbls[i].tree.init(0);
-			tbls[i].key.P_b  = 0;
-			tbls[i].keyBuf = 0;
-			tbls[i].flg    = 0;
+			tbls[i].key.P_b = 0;
+			// @v12.4.5 tbls[i].keyBuf = 0;
+			tbls[i].flg = 0;
 			i++;
 		}
 		else {
@@ -480,11 +489,11 @@ int FASTCALL DBQuery::addTable(DBTable * pTbl)
 		uint   i = tblCount;
 		tbls = static_cast<Tbl *>(SAlloc::R(tbls, sizeof(Tbl) * (i+1)));
 		if(tbls != 0) {
-			tbls[i].tbl    = pTbl;
+			tbls[i].P_Tbl = pTbl;
 			tbls[i].tree.init(0);
-			tbls[i].key.P_b  = 0;
-			tbls[i].keyBuf = 0;
-			tbls[i].flg    = 0;
+			tbls[i].key.P_b = 0;
+			// @v12.4.5 tbls[i].keyBuf = 0;
+			tbls[i].flg = 0;
 			++tblCount;
 			syntax |= t_from;
 			calcRecSize();
@@ -548,10 +557,10 @@ DBQuery & FASTCALL DBQuery::where(DBQ & q)
 			if(!is_first) {
 				tbls[i].tree.destroy();
 				tbls[i].key.destroy();
-				if(tbls[i].keyBuf) {
+				/* @v12.4.5 if(tbls[i].keyBuf) {
 					delete tbls[i].keyBuf;
 					tbls[i].keyBuf = 0;
-				}
+				}*/
 			}
 			tbls[i].tree.init(w_restrict);
 			if(!makeNode(i, &w_restrict->tree->Root, 0, &tbls[i].tree.Root)) {
@@ -569,7 +578,7 @@ int DBQuery::calcRecSize()
 	recSize  = 0;
 	if(syntax & t_all) {
 		for(uint i = 0; i < tblCount;) {
-			const RECORDSIZE rs = tbls[i++].tbl->getRecSize();
+			const RECORDSIZE rs = tbls[i++].P_Tbl->getRecSize();
 			recSize += rs;
 		}
 	}
@@ -591,25 +600,14 @@ int DBQuery::getFieldPosByName(const char * pFldName, uint * pPos) const
 	return 0;
 }
 
-DBQuery::Tbl::Tbl() : tbl(0), keyBuf(0), flg(0)
+DBQuery::Tbl::Tbl() : P_Tbl(0), /*keyBuf(0)*/flg(0)
 {
+	memzero(KeyBuf, sizeof(KeyBuf));
 }
 
 int DBQuery::Tbl::Srch(void * pKey, int sp)
 {
-#if 0 // {
-	//if(flg & DBQTF_LASTSRCHFAILED && (sp == spNext || sp == spPrev))
-	//	return (BtrError = BE_KEYNFOUND, 0);
-	if(tbl->search(pKey, sp)) {
-		//flg &= ~DBQTF_LASTSRCHFAILED;
-		return 1;
-	}
-	else {
-		//flg |= DBQTF_LASTSRCHFAILED;
-		return 0;
-	}
-#endif // } 0
-	int    ok = (flg & DBQTF_SEARCHFORUPDATE) ? tbl->searchForUpdate(pKey, sp) : tbl->search(pKey, sp);
+	int    ok = (flg & DBQTF_SEARCHFORUPDATE) ? P_Tbl->searchForUpdate(pKey, sp) : P_Tbl->search(pKey, sp);
 	if(!ok && BtrError == BE_INVPOS)
 		BtrError = BE_EOF;
 	return ok;
@@ -620,11 +618,11 @@ int FASTCALL DBQuery::_search(uint n, int dir)
 	Tbl  & r_tbl = tbls[n];
 	int    outer_rec = 0;
 	int    sp;
-	int    _first = (dir == spFirst || dir == spLast);
+	const  bool is_first = (dir == spFirst || dir == spLast);
 	int    more; // Флаг, предписывающий обновить значение ключа
-	if(_first) {
+	if(is_first) {
 		r_tbl.flg &= ~(DBQTF_PREVDOWN | DBQTF_PREVUP);
-		r_tbl.tbl->ToggleStmt(1);
+		r_tbl.P_Tbl->ToggleStmt(true/*release*/);
 		if(chooseKey(n)) {
 			if(dir == spFirst)
 				r_tbl.key.first();
@@ -661,24 +659,24 @@ int FASTCALL DBQuery::_search(uint n, int dir)
 		sp = dir;
 		if(dir == spNext) {
 			if(r_tbl.flg & DBQTF_PREVUP) {
-				r_tbl.tbl->ToggleStmt(0);
+				r_tbl.P_Tbl->ToggleStmt(0);
 				r_tbl.flg &= ~DBQTF_PREVUP;
 			}
 			r_tbl.flg |= DBQTF_PREVDOWN;
 		}
 		else if(dir == spPrev) {
 			if(r_tbl.flg & DBQTF_PREVDOWN) {
-				r_tbl.tbl->ToggleStmt(0);
+				r_tbl.P_Tbl->ToggleStmt(0);
 				r_tbl.flg &= ~DBQTF_PREVDOWN;
 			}
 			r_tbl.flg |= DBQTF_PREVUP;
 		}
 		if(more) {
 			r_tbl.flg &= ~ONLY_ONE_REC;
-			r_tbl.key.getKey(r_tbl.keyBuf, &sp);
+			r_tbl.key.getKey(r_tbl.KeyBuf, &sp);
 			if(sp & SKIP_ONE_REC) {
 				sp &= ~SKIP_ONE_REC;
-			   	if(!r_tbl.Srch(r_tbl.keyBuf, sp) && !BTRNFOUND)
+			   	if(!r_tbl.Srch(r_tbl.KeyBuf, sp) && !BTRNFOUND)
 					error = 1;
 				sp = dir;
 			}
@@ -691,12 +689,13 @@ int FASTCALL DBQuery::_search(uint n, int dir)
 			r_tbl.flg &= ~ONLY_ONE_REC;
 			return 0;
 		}
-		while(!error && r_tbl.Srch(r_tbl.keyBuf, sp) && r_tbl.key.checkKey(r_tbl.keyBuf)) {
+		while(!error && r_tbl.Srch(r_tbl.KeyBuf, sp) && r_tbl.key.checkKey(r_tbl.KeyBuf)) {
 			if(r_tbl.tree.checkRestriction()) {
 __get_next_tbl:
 				if((n+1 == tblCount || _search(n+1, (dir == spNext ? spFirst : spLast)))) { // @recursion
-					if(options & save_positions)
-						r_tbl.tbl->getPosition(&r_tbl.Pos);
+					if(options & save_positions) {
+						r_tbl.P_Tbl->getPosition(&r_tbl.Pos);
+					}
 					return 1;
 				}
 				else if(outer_rec)
@@ -707,9 +706,9 @@ __get_next_tbl:
 		if(!btrokornfound())
 			error = 1;
 	} while((more = error ? 0 : ((dir == spNext) ? ++r_tbl.key : --r_tbl.key)) != 0);
-	if(!error && (r_tbl.flg & DBQTF_OUTER_JOIN) && _first) {
+	if(!error && (r_tbl.flg & DBQTF_OUTER_JOIN) && is_first) {
 		outer_rec = 1;
-		r_tbl.tbl->clearDataBuf();
+		r_tbl.P_Tbl->clearDataBuf();
 		goto __get_next_tbl;
 	}
 	return 0;
@@ -721,8 +720,8 @@ void FASTCALL DBQuery::fillRecord(char * pBuf, RECORDNUMBER * pPos)
 	if(pBuf) {
 		if(syntax & t_all) {
 			for(uint i = 0; i < tblCount; i++) {
-				const RECORDSIZE s = tbls[i].tbl->GetFields().CalculateFixedRecSize();
-				memcpy(pBuf+p, tbls[i].tbl->getDataBufConst(), s);
+				const RECORDSIZE s = tbls[i].P_Tbl->GetFields().CalculateFixedRecSize();
+				memcpy(pBuf+p, tbls[i].P_Tbl->getDataBufConst(), s);
 				p += s;
 			}
 		}
@@ -791,68 +790,60 @@ void * DBQuery::getBuffer() { return P_Frame->P_Buf; }
 
 int DBQuery::setFrame(uint viewHight, uint bufSize, uint bufDelta)
 {
+	int    ok = 1;
 	if(bufSize != UNDEF && !allocFrame(bufSize))
-		return 0;
-	if(bufDelta != UNDEF)
-		P_Frame->Inc = bufDelta;
-	if(viewHight != UNDEF) {
-		P_Frame->Height = smin(viewHight, P_Frame->Size);
-		if(P_Frame->Cur != P_Frame->Top || /*P_Frame->Top < 0 ||*/ P_Frame->Top > P_Frame->Count) {
-			if((P_Frame->Cur - P_Frame->Top) >= P_Frame->Height)
-				P_Frame->Top = P_Frame->Cur-P_Frame->Height+1;
-			else if(P_Frame->Cur < P_Frame->Height)
-				P_Frame->Top = 0;
-			else if((P_Frame->Count - P_Frame->Top) < P_Frame->Height)
-				P_Frame->Top = (P_Frame->Count - P_Frame->Height);
+		ok = 0;
+	else {
+		if(P_Frame) {
+			if(bufDelta != UNDEF)
+				P_Frame->Inc = bufDelta;
+			if(viewHight != UNDEF) {
+				P_Frame->Height = smin(viewHight, P_Frame->Size);
+				if(P_Frame->Cur != P_Frame->Top ||/*P_Frame->Top < 0 ||*/P_Frame->Top > P_Frame->Count) {
+					if((P_Frame->Cur - P_Frame->Top) >= P_Frame->Height)
+						P_Frame->Top = P_Frame->Cur-P_Frame->Height+1;
+					else if(P_Frame->Cur < P_Frame->Height)
+						P_Frame->Top = 0;
+					else if((P_Frame->Count - P_Frame->Top) < P_Frame->Height)
+						P_Frame->Top = (P_Frame->Count - P_Frame->Height);
+				}
+			}
 		}
+		options |= smart_frame;
+		options &= ~fetch_reverse;
 	}
-	options |= smart_frame;
-	options &= ~fetch_reverse;
-	return 1;
+	return ok;
 }
 
 int DBQuery::allocFrame(uint bufSize)
 {
-	if(P_Frame && P_Frame->Size == bufSize)
-		return 1;
-	if(bufSize) {
-		if(P_Frame == 0) {
-			if((P_Frame = new Frame) != 0) {
-				P_Frame->P_Buf = 0;
-				P_Frame->P_PosBuf = 0;
-				P_Frame->Count = 0;
-				P_Frame->Zero = 0;
-				P_Frame->Cur = 0;
-				P_Frame->Top = 0;
-			}
-			else
-				return 0;
-		}
-		P_Frame->P_Buf = static_cast<char *>(SAlloc::R(P_Frame->P_Buf, bufSize * recSize));
-		if(!P_Frame->P_Buf) {
+	int    ok = 1;
+	if(!P_Frame || P_Frame->Size != bufSize) {
+		if(bufSize) {
 			delete P_Frame;
-			return 0;
-		}
-		P_Frame->State = Frame::stUndef;
-		P_Frame->Size = bufSize;
-		P_Frame->Count = smin(P_Frame->Count, bufSize);
-		if(options & save_positions) {
-			P_Frame->P_PosBuf = static_cast<ulong *>(SAlloc::R(P_Frame->P_PosBuf, P_Frame->Size * tblCount * sizeof(RECORDNUMBER)));
-			if(!P_Frame->P_PosBuf) {
-				options &= ~save_positions;
-				return 0;
+			P_Frame = new Frame(bufSize);
+			THROW(P_Frame);
+			P_Frame->P_Buf = static_cast<char *>(SAlloc::R(P_Frame->P_Buf, bufSize * recSize));
+			THROW(P_Frame->P_Buf);
+			P_Frame->Count = smin(P_Frame->Count, bufSize);
+			if(options & save_positions) {
+				P_Frame->P_PosBuf = static_cast<ulong *>(SAlloc::R(P_Frame->P_PosBuf, P_Frame->Size * tblCount * sizeof(RECORDNUMBER)));
+				THROW(P_Frame->P_PosBuf);
 			}
 		}
-	}
-	else {
-		if(P_Frame) {
-			ZFREE(P_Frame->P_Buf);
-			ZFREE(P_Frame->P_PosBuf);
-			P_Frame->Size = 0;
+		else {
+			if(P_Frame) {
+				ZFREE(P_Frame->P_Buf);
+				ZFREE(P_Frame->P_PosBuf);
+				// @v12.4.5 P_Frame->Size = 0;
+			}
+			options &= ~smart_frame;
 		}
-		options &= ~smart_frame;
 	}
-	return 1;
+	CATCH
+		ZDELETE(P_Frame);
+	ENDCATCH
+	return ok;
 }
 
 void DBQuery::moveRec(uint rd, uint rs)
@@ -923,9 +914,10 @@ void FASTCALL DBQuery::setCount(uint c)
 int DBQuery::_fetch_next(uint count, uint p, int dir)
 {
 	uint i;
-	for(i = 0; i < count; i++)
+	for(i = 0; i < count; i++) {
 		if(!single_fetch(LBUFPTR(p+i), LPOSPTR(p+i), i ? spNext : dir))
 			break;
+	}
 	P_Frame->State = (dir == spFirst) ? Frame::stTop : Frame::stUndef;
 	if(i < count) {
 		P_Frame->Last = _lbottom;
@@ -1074,7 +1066,7 @@ int DBQuery::bottom()
 	return !error;
 }
 
-int FASTCALL DBQuery::step(long delta)
+int DBQuery::step(long delta)
 {
 	int    result = 0;
 	if(!error) {
@@ -1151,6 +1143,11 @@ int FASTCALL DBQuery::step(long delta)
 }
 
 #pragma warn .sig
+
+DBQuery::Frame::Frame(uint sizeInRecs) : Size(sizeInRecs), P_Buf(0), P_PosBuf(0), Zero(0), State(stUndef), Inc(0),
+	Height(0), Top(0), Cur(0), SDelta(0), SRange(0), SPos(0), Last(0), Count(0)
+{
+}
 
 DBQuery::Frame::~Frame()
 {

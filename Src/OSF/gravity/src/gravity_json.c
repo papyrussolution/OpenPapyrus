@@ -92,7 +92,7 @@ static void json_write_raw(GravityJson * json, const char * buffer, size_t len, 
 	// pretty output disabled in this version
 	is_pretty = false;
 	const bool pretty_mask = json_option_isset(json, json_opt_prettify);
-	const uint32 ident_count = json->context.getCount() - 1;
+	const uint32 ident_count = json->context.getCount()-1;
 	const size_t prettylen = (is_pretty && pretty_mask) ? (ident_count * JSON_PRETTYSIZE) : 0;
 	const size_t escapelen = (escape) ? 2 : 0;
 	// check buffer reallocation

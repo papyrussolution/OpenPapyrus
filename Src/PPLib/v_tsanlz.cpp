@@ -1116,7 +1116,7 @@ int PPViewTSessAnlz::EditGoods(PPID goodsID)
 					ok = 1;
 			}
 			else if(id_list.getCount() > 1) {
-				long   egsd_flags = (ExtGoodsSelDialog::GetDefaultFlags() | ExtGoodsSelDialog::fByName); // @v10.7.7
+				long   egsd_flags = (ExtGoodsSelDialog::GetDefaultFlags() | ExtGoodsSelDialog::fByName);
 				ExtGoodsSelDialog * dlg = new ExtGoodsSelDialog(0, 0, egsd_flags);
 				if(CheckDialogPtrErr(&dlg)) {
 					dlg->setSelectionByGoodsList(&id_list);

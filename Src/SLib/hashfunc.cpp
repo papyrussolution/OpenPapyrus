@@ -3665,10 +3665,11 @@ int SCalcCheckDigit(int alg, const char * pInput, size_t inputLen)
 		if(len) {
 			const int _alg = (alg & ~SCHKDIGALG_TEST);
 			const int _do_check = BIN(alg & SCHKDIGALG_TEST);
-
 			if(_alg == SCHKDIGALG_BARCODE) {
-				int    c = 0, c1 = 0, c2 = 0;
-				const size_t _len = _do_check ? (len-1) : len;
+				int    c = 0;
+				int    c1 = 0;
+				int    c2 = 0;
+				const  size_t _len = _do_check ? (len-1) : len;
 				for(i = 0; i < _len; i++) {
 					if((i % 2) == 0)
 						c1 += (code[_len-i-1] - '0');
@@ -3763,6 +3764,35 @@ int SCalcCheckDigit(int alg, const char * pInput, size_t inputLen)
 			else if(_alg == SCHKDIGALG_RUOKATO) {
 			}
 			else if(_alg == SCHKDIGALG_RUSNILS) {
+			}
+			else if(_alg == SCHKDIGALG_SSCC) { // @v12.4.5
+				// @construction
+				/*
+					Алгоритм расчета контрольной цифры для (00)04611234567890123):
+															   12345678901234567
+
+						Присвойте веса: цифры на нечетных позициях (считая слева) умножаются на 3, на четных — на 1.
+						Позиции: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17
+						Цифры: 0, 4, 6, 1, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3
+						Считаем:
+							Нечетные позиции (x3): (0x3) + (6x3) + (1x3) + (3x3) + (5x3) + (7x3) + (9x3) + (1x3) + (3x3) = 0 + 18 + 3 + 9 + 15 + 21 + 27 + 3 + 9 = 105
+							Четные позиции (x1): (4x1) + (1x1) + (2x1) + (4x1) + (6x1) + (8x1) + (0x1) + (2x1) = 4 + 1 + 2 + 4 + 6 + 8 + 0 + 2 = 27
+						Суммируем: 105 + 27 = 132
+						Контрольная цифра — это наименьшее число, которое, будучи добавленным к сумме, дает число, кратное 10: 132 + 8 = 140.
+						Контрольная цифра = 8
+				*/
+				if(len == 18 || (len == 20 && code[0] == '0' && code[1] == '0')) {
+					const uint _shift = (len == 20) ? 2 : 0;
+					uint sum = 0;
+					for(i = 1; i <= (len-1-_shift); i++) { // i odd/even?
+						const uint dig = code[i-1+_shift] - '0';
+						sum += ((i & 0x01) ? (dig * 3) : (dig));
+					}
+					cd = (iroundup(sum, 10u) - sum) + '0';
+					if(_do_check) {
+						cd = (cd == code[len-1]);
+					}
+				}
 			}
 		}
 	}

@@ -1438,8 +1438,7 @@ private:
 					if(vdso.LookupSymbolByAddress(pc, &symbol_info)) {
 						// All VDSO symbols are known to be short.
 						size_t len = strlen(symbol_info.name);
-						ABSL_RAW_CHECK(len + 1 < sizeof(symbol_buf_),
-						    "VDSO symbol unexpectedly long");
+						ABSL_RAW_CHECK(len + 1 < sizeof(symbol_buf_), "VDSO symbol unexpectedly long");
 						memcpy(symbol_buf_, symbol_info.name, len + 1);
 					}
 				}

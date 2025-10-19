@@ -2561,7 +2561,7 @@ int CPosProcessor::Helper_InitCcPacket(CCheckPacket * pPack, CCheckPacket * pExt
 					p_item->Division = division;
 				}
 			}
-			THROW(p_pack->InsertItem(*p_item));
+			THROW(p_pack->InsertCcl(*p_item));
 		}
 		SETFLAG(pPack->Rec.Flags, CCHKF_HASGIFT, has_gift);
 		pPack->CalcAmount(&cct.Amount, &cct.Discount);
@@ -2951,7 +2951,7 @@ int CPosProcessor::TurnCorrectionStorno(PPID * pCcID, int ccOp /*CCOP_XXX*/, PPI
 														// @v12.3.4 cc_item.Quantity = fabs(p_te->Qtty); 
 														cc_item.Quantity = round(fabs(p_te->Qtty), 3, -1); // @v12.3.4 Округляем строго вниз чтоб не напороться на дефицит в доли миллилитра!
 														STRNSCPY(cc_item.EgaisMark, p_me->Mark);
-														cc_shadow_egais.InsertItem(cc_item);
+														cc_shadow_egais.InsertCcl(cc_item);
 													}
 												}
 											}
@@ -6061,7 +6061,7 @@ int SelCheckListDialog::SplitCheck()
 								chk_item.Price    = dbltointmny(p_item->Price);
 								chk_item.Dscnt    = p_item->Discount;
 								chk_item.Quantity = p_item->Quantity;
-								THROW(pack.InsertItem_(&chk_item, p_item->Serial));
+								THROW(pack.InsertCclRec(&chk_item, p_item->Serial));
 							}
 							for(uint pos = 0; right_list.enumItems(&pos, (void **)&p_item) > 0;) {
 								CCheckLineTbl::Rec chk_item;
@@ -6070,7 +6070,7 @@ int SelCheckListDialog::SplitCheck()
 								chk_item.Price    = dbltointmny(p_item->Price);
 								chk_item.Dscnt    = p_item->Discount;
 								chk_item.Quantity = p_item->Quantity;
-								THROW(add_pack.InsertItem_(&chk_item, p_item->Serial));
+								THROW(add_pack.InsertCclRec(&chk_item, p_item->Serial));
 							}
 							pack.SetupAmount(0, 0);
 							add_pack.SetupAmount(0, 0);
@@ -6138,7 +6138,7 @@ int SelCheckListDialog::UniteChecks()
 					pack1._Cash        += pack2._Cash;
 					SETIFZ(pack1.PctDis, pack2.PctDis);
 					for(pos = 0; pack2.EnumLines(&pos, &chk_item, &serial);) {
-						THROW(pack1.InsertItem_(&chk_item, serial));
+						THROW(pack1.InsertCclRec(&chk_item, serial));
 					}
 					THROW(r_cc.RemovePacket(check2.CheckID, 0));
 					pack1.SetupAmount(0, 0);
@@ -7238,32 +7238,36 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 					const CCheckLineTbl::Rec * p_line = 0;
 					CCheckLineTbl::Rec chk_line;
 					SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_CHKPAN_LIST));
-					SString egais_mark;
-					SString serial;
-					SString chzn_mark; // @v11.6.2
+					const int cclext_id_list[] = {
+						CCheckPacket::lnextSerial, CCheckPacket::lnextEgaisMark, CCheckPacket::lnextChZnMark,
+						CCheckPacket::lnextChZnPm_ReqId, CCheckPacket::lnextChZnPm_ReqTimestamp, 
+						CCheckPacket::lnextChZnPm_LocalModuleInstance, CCheckPacket::lnextChZnPm_LocalModuleDbVer
+					};
+					StrAssocArray cclext_list;
 					if(SmartListBox::IsValidS(p_list)) {
 						const long cur = p_list->P_Def->_curItem();
 						if(cur >= 0 && cur < static_cast<long>(P_ChkPack->GetCount())) {
 							chk_line = P_ChkPack->GetLineC(static_cast<uint>(cur));
-							P_ChkPack->GetLineTextExt(cur+1, CCheckPacket::lnextSerial, serial);
-							P_ChkPack->GetLineTextExt(cur+1, CCheckPacket::lnextEgaisMark, egais_mark);
-							P_ChkPack->GetLineTextExt(cur+1, CCheckPacket::lnextChZnMark, chzn_mark); // @v11.8.2 @fix egais_mark-->chzn_mark
+							for(uint i = 0; i < SIZEOFARRAY(cclext_id_list); i++) {
+								P_ChkPack->GetLineTextExt(cur+1, cclext_id_list[i], temp_buf);
+								if(temp_buf.NotEmpty())
+									cclext_list.Add(cclext_id_list[i], temp_buf);
+							}
 							p_line   = &chk_line;
 						}
 					}
 					P_ChkPack->Z();
 					if(p_line) {
-						if(!P_ChkPack->InsertItem(p_line->GoodsID, p_line->Quantity, intmnytodbl(p_line->Price), p_line->Dscnt))
+						if(!P_ChkPack->InsertCclSimple(p_line->GoodsID, p_line->Quantity, intmnytodbl(p_line->Price), p_line->Dscnt))
 							PPErrorZ();
 						else {
-							if(serial.NotEmpty())
-								P_ChkPack->SetLineTextExt(P_ChkPack->GetCount(), CCheckPacket::lnextSerial, serial);
-							if(egais_mark.NotEmpty())
-								P_ChkPack->SetLineTextExt(P_ChkPack->GetCount(), CCheckPacket::lnextEgaisMark, egais_mark);
-							// @v11.6.2 {
-							if(chzn_mark.NotEmpty())
-								P_ChkPack->SetLineTextExt(P_ChkPack->GetCount(), CCheckPacket::lnextChZnMark, chzn_mark);
-							// } @v11.6.2 
+							const uint ccl_idx = P_ChkPack->GetCount();
+							for(uint i = 0; i < cclext_list.getCount(); i++) {
+								StrAssocArray::Item cclext_list_item = cclext_list.at_WithoutParent(i);
+								if(cclext_list_item.Id && !isempty(cclext_list_item.Txt)) {
+									P_ChkPack->SetLineTextExt(ccl_idx, cclext_list_item.Id, cclext_list_item.Txt);
+								}
+							}
 							P_ChkPack->Discount = p_line->Dscnt;
 						}
 					}
@@ -8206,7 +8210,7 @@ int CheckPaneDialog::UpdateGList(int updGoodsList, PPID selGroupID)
 						else
 							temp_buf = Input;
 						p_ts_ary = new StrAssocArray;
-						GObj.P_Tbl->GetListBySubstring(temp_buf, p_ts_ary, -1, 1);
+						GObj.P_Tbl->GetListBySubstring(temp_buf, p_ts_ary, -1, true);
 						grp_name.Space().CatQStr(temp_buf);
 					}
 					PPWaitStop();
@@ -8856,7 +8860,7 @@ void CheckPaneDialog::SetupRetCheck(bool ret)
 								double sel_qtty = 0.0;
 								const double rest_qtty_ = SelLines.Search(i, &sel_qtty, 0) ? (line_rec.Quantity-sel_qtty) : line_rec.Quantity;
 								if(rest_qtty_ != 0.0)
-									chk_pack.InsertItem(line_rec.GoodsID, rest_qtty_, intmnytodbl(line_rec.Price), line_rec.Dscnt);
+									chk_pack.InsertCclSimple(line_rec.GoodsID, rest_qtty_, intmnytodbl(line_rec.Price), line_rec.Dscnt);
 							}
 						}
 						// @v12.2.12 {
@@ -9502,7 +9506,7 @@ int CheckPaneDialog::RemoveRow()
 			}
 		}
 		if(goBottom)
-			cur = P.getCount() - 1;
+			cur = P.getCount()-1;
 		p_list->focusItem(cur);
 		p_list->Draw_();
 		{
@@ -10126,56 +10130,53 @@ int CheckPaneDialog::PreprocessGoodsSelection(const PPID goodsID, PPID locID, Pg
 								}
 								// @v12.0.12 {
 								if(rBlk.ChZnMark.NotEmpty() && PNP.ChZnPermissiveMode == PPSyncCashNode::chznpmStrict && PNP.ChZnGuaID) {
-									{ // @v12.3.5 (теперь надо) if(gt_rec.ChZnProdType != GTCHZNPT_MEDICINE) { // @v12.1.10 лекарственные средства проверять через разрешительный режим не надо (пока)
-										PPChZnPrcssr::PermissiveModeInterface::CodeStatusCollection pm_code_list;
-										pm_code_list.AddCodeEntry(rBlk.ChZnMark, 0, 0);
-										if(pm_code_list.getCount()) {
-											PPChZnPrcssr::PmCheck(PNP.ChZnGuaID, 0, 2/*regular online/offline mode*/, pm_code_list);
-											for(uint i = 0; i < pm_code_list.getCount(); i++) {
-												const PPChZnPrcssr::PermissiveModeInterface::CodeStatus * p_cle = pm_code_list.at(i);
-												if(p_cle) {
-													//debug_mark = true;
-													if(CConfig.Flags2 & CCFLG2_RESTRICTCHZNPMPRICE) { // @v12.2.5
-														// @v12.2.2 {
-														const double _mrp = R2(p_cle->Mrp / 100.0);
-														const double _smp = R2(p_cle->Smp / 100.0);
-														if(gt_rec.ChZnProdType != GTCHZNPT_ALTTOBACCO) { // @v12.2.4 Для альтернативной табачной продукции ценовое ограничение не проверяем.
-															if(_mrp > 0.0) {
-																rBlk.AllowedPriceRange.upp = _mrp;
-															}
-															if(_smp > 0.0) {
-																rBlk.AllowedPriceRange.low = _smp;
-															}
-															// @v12.2.4 {
-															if(gt_rec.ChZnProdType == GTCHZNPT_TOBACCO) { // @v12.2.5 @fix (!=)-->(==)
-																if(CConfig.Flags2 & CCFLG2_RESTRICTCHZNCIGPRICEASMRC) {
-																	if(_mrp > 0.0) {
-																		rBlk.AllowedPriceRange.SetVal(_mrp);
-																	}
+									PPChZnPrcssr::PermissiveModeInterface::CodeStatusCollection pm_code_list;
+									pm_code_list.AddCodeEntry(rBlk.ChZnMark, 0, 0);
+									if(pm_code_list.getCount()) {
+										PPChZnPrcssr::PmCheck(PNP.ChZnGuaID, 0, 2/*regular online/offline mode*/, pm_code_list);
+										for(uint i = 0; i < pm_code_list.getCount(); i++) {
+											const PPChZnPrcssr::PermissiveModeInterface::CodeStatus * p_cle = pm_code_list.at(i);
+											if(p_cle) {
+												if(CConfig.Flags2 & CCFLG2_RESTRICTCHZNPMPRICE) { // @v12.2.5
+													// @v12.2.2 {
+													const double _mrp = R2(p_cle->Mrp / 100.0);
+													const double _smp = R2(p_cle->Smp / 100.0);
+													if(gt_rec.ChZnProdType != GTCHZNPT_ALTTOBACCO) { // @v12.2.4 Для альтернативной табачной продукции ценовое ограничение не проверяем.
+														if(_mrp > 0.0) {
+															rBlk.AllowedPriceRange.upp = _mrp;
+														}
+														if(_smp > 0.0) {
+															rBlk.AllowedPriceRange.low = _smp;
+														}
+														// @v12.2.4 {
+														if(gt_rec.ChZnProdType == GTCHZNPT_TOBACCO) { // @v12.2.5 @fix (!=)-->(==)
+															if(CConfig.Flags2 & CCFLG2_RESTRICTCHZNCIGPRICEASMRC) {
+																if(_mrp > 0.0) {
+																	rBlk.AllowedPriceRange.SetVal(_mrp);
 																}
 															}
-															// } @v12.2.4 
 														}
-														// } @v12.2.2 
+														// } @v12.2.4 
 													}
-													{
-														int    local_err_code = 0;
-														if(p_cle->ErrorCode != 0)
-															local_err_code = PPERR_CHZNMARKPMFAULT;
-														else if(p_cle->Flags & PPChZnPrcssr::PermissiveModeInterface::CodeStatus::fSold)
-															local_err_code = PPERR_CHZNMARKPMFAULT_SOLD;
-														else if(checkdate(p_cle->ExpiryDtm.d) && now_dtm.d >= p_cle->ExpiryDtm.d) // @v12.1.1
-															local_err_code = PPERR_CHZNMARKPMFAULT_EXPIRY;
-														if(local_err_code) {
-															ok = MessageError(local_err_code, chzn_mark, eomBeep|eomStatusLine);
-														}
-														else { // @v12.1.1
-															// OK
-															rBlk.ChZnPm_ReqId = pm_code_list.ReqId;
-															rBlk.ChZnPm_ReqTimestamp = pm_code_list.ReqTimestamp;
-															rBlk.ChZnPm_LocalModuleInstance = pm_code_list.LocalModuleInstance; // @v12.3.12
-															rBlk.ChZnPm_LocalModuleDbVer    = pm_code_list.LocalModuleDbVer;    // @v12.3.12
-														}
+													// } @v12.2.2 
+												}
+												{
+													int    local_err_code = 0;
+													if(p_cle->ErrorCode != 0)
+														local_err_code = PPERR_CHZNMARKPMFAULT;
+													else if(p_cle->Flags & PPChZnPrcssr::PermissiveModeInterface::CodeStatus::fSold)
+														local_err_code = PPERR_CHZNMARKPMFAULT_SOLD;
+													else if(checkdate(p_cle->ExpiryDtm.d) && now_dtm.d >= p_cle->ExpiryDtm.d) // @v12.1.1
+														local_err_code = PPERR_CHZNMARKPMFAULT_EXPIRY;
+													if(local_err_code) {
+														ok = MessageError(local_err_code, chzn_mark, eomBeep|eomStatusLine);
+													}
+													else { // @v12.1.1
+														// OK
+														rBlk.ChZnPm_ReqId = pm_code_list.ReqId;
+														rBlk.ChZnPm_ReqTimestamp = pm_code_list.ReqTimestamp;
+														rBlk.ChZnPm_LocalModuleInstance = pm_code_list.LocalModuleInstance; // @v12.3.12
+														rBlk.ChZnPm_LocalModuleDbVer    = pm_code_list.LocalModuleDbVer;    // @v12.3.12
 													}
 												}
 											}
@@ -12109,7 +12110,7 @@ int CPosProcessor::SetupNewRow(PPID goodsID, PgsBlock & rBlk, PPID giftID/*=0*/)
 		ok = MessageError(PPERR_NORIGHTS, 0, eomBeep|eomStatusLine);
 	}
 	else {
-		const  int gift_money = BIN(giftID && rBlk.PriceBySerial > 0.0);
+		const bool gift_money = (giftID && rBlk.PriceBySerial > 0.0);
 		if(AcceptRow(giftID)) {
 			RetailGoodsInfo rgi;
 			Goods2Tbl::Rec goods_rec;
@@ -12629,7 +12630,7 @@ int CPosProcessor::ProcessGift()
 									}
 									else {
 										double gift_quot = 0.0;
-										QuotIdent qi(QIDATE(getcurdate_()), PNP.CnLocID, PPQUOTK_GIFT);
+										const  QuotIdent qi(QIDATE(getcurdate_()), PNP.CnLocID, PPQUOTK_GIFT);
 										if(GObj.GetQuotExt(gift_id, qi, &gift_quot, 1) > 0)
 											gift_discount = -gift_quot;
 										PgsBlock pgsb(gift.Qtty);
@@ -13982,7 +13983,7 @@ void InfoKioskDialog::UpdateGList(int updGdsList)
 						pattern.CatChar('!');
 					pattern.Cat(Input);
 					p_ts_ary = new StrAssocArray;
-					GObj.P_Tbl->GetListBySubstring(pattern, p_ts_ary, -1, 1);
+					GObj.P_Tbl->GetListBySubstring(pattern, p_ts_ary, -1, true);
 					p_def = new StrAssocListBoxDef(p_ts_ary, lbtDblClkNotify | lbtFocNotify | lbtDisposeData);
 					grp_name = Input;
 				}
@@ -14193,7 +14194,7 @@ int InfoKioskDialog::SelectGoods(SearchParam srch)
 					pattern.CatChar('!').Cat(Input);
 				else
 					pattern = Input;
-				THROW(GObj.P_Tbl->GetListBySubstring(pattern, &goods_list, -1, 1));
+				THROW(GObj.P_Tbl->GetListBySubstring(pattern, &goods_list, -1, true));
 				dlg->setSelectionByGoodsList(&goods_list);
 			}
 			else if(srch == srchByPrice)

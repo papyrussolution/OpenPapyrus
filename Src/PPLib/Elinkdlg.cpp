@@ -271,7 +271,7 @@ int EditELinks(const char * pInfo, PPELinkArray * pList)
 					THROW_PP_S(nta.Has(SNTOK_EMAIL) > 0.0f, PPERR_INVEMAILADDR, p_item->Addr);
 				}
 			}
-			for(int j = Data.getCount() - 1; j >= 0; j--) {
+			for(int j = Data.getCount()-1; j >= 0; j--) {
 				p_item = &Data.at(j);
 				if(p_item->KindID == 0 || p_item->Addr[0] == 0)
 					Data.atFree(j);

@@ -1234,7 +1234,7 @@ int PPLinkFilesArray::AddNewByExt(const char * pExt, const char * pDescr, uint *
 		ok = -1;
 	if(ok > 0) {
 		THROW_SL(insert(p_flink));
-		ASSIGN_PTR(pPos, getCount() - 1);
+		ASSIGN_PTR(pPos, getCount()-1);
 	}
 	CATCHZOK
 	if(ok <= 0)
@@ -1257,7 +1257,7 @@ int PPLinkFilesArray::Add(PPLinkFile * pLink, uint * pPos)
 		if(ok <= 0)
 			delete p_flink;
 		else
-			ASSIGN_PTR(pPos, getCount() - 1);
+			ASSIGN_PTR(pPos, getCount()-1);
 	}
 	return ok;
 }
@@ -4318,7 +4318,7 @@ void LotInfoDialog::setupLinkedLot(int prev)
 		}
 	}
 	else if(Chain.getCount() > 1) {
-		const uint pos = Chain.getCount() - 1;
+		const uint pos = Chain.getCount()-1;
 		lot_id = Chain.at(pos-1);
 		Chain.atFree(pos);
 	}

@@ -966,7 +966,7 @@ int ArGoodsCodeListDialog::moveItem(long pos, long id, int up)
 	int    ok = 1;
 	if(up && pos > 0)
 		Data.swap(pos, pos-1);
-	else if(!up && pos < (long)(Data.getCount()-1))
+	else if(!up && pos < (Data.getCountI()-1))
 		Data.swap(pos, pos+1);
 	else
 		ok = -1;

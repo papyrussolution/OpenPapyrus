@@ -1680,18 +1680,10 @@ int PPSelectObject(PPID objType, PPID * pObjID, uint titleID, void * extraPtr)
 		if(titleID && PPLoadText(titleID, temp_buf))
 			p_lw->setTitle(temp_buf);
 		// @v11.9.4 {
-		int width = 0;
-		int height = 0;
-		const UiDescription * p_uid = SLS.GetUiDescription();
-		if(p_uid) {
-			int v = 0;
-			if(p_uid->VList.Get(UiValueList::vStandaloneListWidth, v) > 0 && v > 0)
-				width = v;
-			if(p_uid->VList.Get(UiValueList::vStandaloneListHeight, v) > 0 && v > 0)
-				height = v;
-		}
-		SETIFZQ(width, 216);
-		SETIFZQ(height, 144);
+		int    v = 0;
+		const  UiDescription * p_uid = SLS.GetUiDescription();
+		const  int width = (p_uid && p_uid->VList.Get(UiValueList::vStandaloneListWidth, v) > 0 && v > 0) ? v : 216;
+		const  int height = (p_uid && p_uid->VList.Get(UiValueList::vStandaloneListHeight, v) > 0 && v > 0) ? v : 144;
 		// } @v11.9.4 
 		p_lw->changeBounds(TRect(0, 0, width, height));
 		p_lw->ViewOptions |= (ofCenterX | ofCenterY);

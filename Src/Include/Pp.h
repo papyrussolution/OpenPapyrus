@@ -4475,7 +4475,7 @@ private:
 struct PPGoodsConfig { // @persistent @store(PropertyTbl)
 	PPGoodsConfig();
 	PPGoodsConfig & Z();
-	size_t GetSize_Pre770() const { return (size_t)(PTR8C(&Ver__) - PTR8C(this)); }
+	// @v12.4.5 size_t GetSize_Pre770() const { return (PTR8C(&Ver__) - PTR8C(this)); }
 	//
 	// Descr: Определяет, является ли заданный штрихкод весовым
 	// Returns:
@@ -4753,9 +4753,9 @@ public:
 	// ARG(srchByExtStr IN): Если !0, то кроме поля Name функция будет искать строку pSubstr
 	//   в дополнительных полях товаров.
 	//
-	int    GetListBySubstring(const char * pSubstr, PPIDArray * pList, int skipPassive, int srchByExtStr = 0);
+	int    GetListBySubstring(const char * pSubstr, PPIDArray * pList, int skipPassive, bool srchByExtStr = false);
 		// @>>ExtStrSrch
-	int    GetListBySubstring(const char * pSubstr, StrAssocArray * pList, int skipPassive, int srchByExtStr = 0);
+	int    GetListBySubstring(const char * pSubstr, StrAssocArray * pList, int skipPassive, bool srchByExtStr = false);
 	//
 	// Descr: Возвращает список товаров по списку брендов.
 	//   Экземпляр rGoodsList предварительно очищается. В конце работы функция сортирует его вызовом rGoodsList.sortAndUndup()
@@ -10427,9 +10427,9 @@ public:
 	//
 	int    MergeLines(long /*options*/);
 	void   ClearLines();
-	int    InsertItem_(const CCheckLineTbl::Rec *, const char * pSerial = 0, const char * pEgaisMark = 0);
-	int    InsertItem(PPID goodsID, double qtty, double price, double dscnt, short div = 0, int isPrinted = 0);
-	int    InsertItem(const CCheckItem & rItem);
+	int    InsertCclRec(const CCheckLineTbl::Rec *, const char * pSerial = 0, const char * pEgaisMark = 0);
+	int    InsertCclSimple(PPID goodsID, double qtty, double price, double dscnt, short div = 0, int isPrinted = 0);
+	int    InsertCcl(const CCheckItem & rItem);
 	double FASTCALL GetItemAmount(const CCheckLineTbl::Rec & rItem) const;
 	double FASTCALL GetItemDiscount(const CCheckLineTbl::Rec & rItem) const;
 	int    SetupPaymList(const CcAmountList * pList);
@@ -31401,12 +31401,12 @@ public:
 	static int FASTCALL GetListByGroup(PPID goodsGrpID, PPIDArray * pList);
 	static int FASTCALL GetListByFilt(const GoodsFilt * pFilt, PPIDArray * pList, PPIDArray * pDupDynGrpList = 0);
 	static int FASTCALL GetListByFilt(const GoodsFilt * pFilt, StrAssocArray * pList, int byName);
-	GoodsIterator(const GoodsFilt *, int aOrder, PPIDArray * pDupDynGrpList = 0);
-	GoodsIterator(PPID grp, int aOrder, PPIDArray * pDupDynGrpList = 0);
+	GoodsIterator(const GoodsFilt * pFilt, int aOrder, PPIDArray * pDupDynGrpList = 0);
+	GoodsIterator(PPID goodsGrpID, int aOrder, PPIDArray * pDupDynGrpList = 0);
 	explicit GoodsIterator(int aOrder = 0, PPIDArray * pDupDynGrpList = 0);
 	~GoodsIterator();
-	int    Init(const GoodsFilt *, int aOrder);
-	int    Init(PPID grp, int aOrder);
+	int    Init(const GoodsFilt * pFilt, int aOrder);
+	int    Init(PPID goodsGrpID, int aOrder);
 	int    Init(int aOrder);
 	int    Next(Goods2Tbl::Rec * pRec, GoodsIterator::Ext * pExt = 0);
 	int    GetSelectorListInfo(PPID * pClsID, StrAssocArray & rList) const;
@@ -59532,7 +59532,7 @@ public:
 		iticVP, // Vendor's (seller's) part number. Reference number assigned by a vendor/seller identifying an article.
 		iticVS, // Vendor's supplemental item number. The item number is a specified by the vendor as a supplemental number for the vendor's purposes.
 		iticVX, // Vendor specification number. The item number has been allocated by the vendor as a specification number.
-		iticYP, // @v12.4.4 COCACOLA private code (я пока не понимаю точно смысла этой функции)
+		iticYP, // @v12.4.4 COCACOLA private code (я пока не понимаю точно смысла этой функции, но, предположительно, это - получатель оборудования при передаче с одной POS-точки на другую)
 		iticZZZ, // Mutually defined. A code assigned within a code list to be used on an interim basis and as defined among trading partners until a precise code can be assigned to the code list.
 	};
 	enum { // values significat!

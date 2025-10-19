@@ -1020,7 +1020,7 @@ int RevalArray::Shift()
 	if(getCount()) {
 		double cost  = LotCost;
 		double price = LotPrice;
-		for(uint i = getCount() - 1; i > 0; i--) {
+		for(uint i = getCount()-1; i > 0; i--) {
 			Reval * p_rvl = static_cast<Reval *>(at(i));
 			p_rvl->NewCost  = cost;
 			p_rvl->NewPrice = price;

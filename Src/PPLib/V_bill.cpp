@@ -5814,7 +5814,7 @@ int PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, const PPBi
 								}
 								if(!dll_found) {
 									exp_dll_coll.insert(p_prvd_dll_link);
-									dll_pos = exp_dll_coll.getCount() - 1;
+									dll_pos = exp_dll_coll.getCount()-1;
 									if(!err) {
 										b_e.BillParam.ImpExpParamDll.FileName = b_e.BillParam.FileName;
 										PrvdrDllLink * p_prvdr_item = exp_dll_coll.at(dll_pos);
@@ -6135,7 +6135,8 @@ static int SCardNumDlg(PPSCardPacket & rScPack, CCheckTbl::Rec * pChkRec, int is
 				PPError(PPERR_SCRDCLOSEDSRV);
 			else if(sc_obj.GetPacket(sc_rec_.ID, &rScPack) > 0) {
 				if(isDraft) {
-					long   chk_no = 0, cash_no = 0;
+					long   chk_no = 0;
+					long   cash_no = 0;
 					p_dlg->getCtrlData(CTL_SCARDNUM_CHKDT,   &dt);
 					p_dlg->getCtrlData(CTL_SCARDNUM_CHKNUM,  &chk_no);
 					p_dlg->getCtrlData(CTL_SCARDNUM_CASHNUM, &cash_no);
@@ -9304,7 +9305,7 @@ int PPALDD_ContentBList::NextIteration(PPIterID iterId)
 	PPObjBill * p_bobj = BillObj;
 	BillViewItem item;
 	PPTransferItem ti;
-	CpTrfrExt ext;
+	CpTrfrExt cpext;
 	while(I.recNo || p_v->NextIteration(&item) > 0) {
 		if(!I.recNo) {
 			I.BillID = item.ID;
@@ -9321,7 +9322,7 @@ int PPALDD_ContentBList::NextIteration(PPIterID iterId)
 			p_vis->Rbb = 0;
 			if(p_vis->IsDraft) {
 				if(p_bobj->P_CpTrfr) {
-		 			r = p_bobj->P_CpTrfr->EnumItems(I.BillID, reinterpret_cast<int *>(&I.recNo), &ti, &ext);
+		 			r = p_bobj->P_CpTrfr->EnumItems(I.BillID, reinterpret_cast<int *>(&I.recNo), &ti, &cpext);
 				}
 			}
 			else {
@@ -10143,7 +10144,7 @@ int PPALDD_UhttBill::InitData(PPFilt & rFilt, long rsrv)
 	int    ok = -1;
 	MEMSZERO(H);
 	PPViewBill bv;
-	PPBillExt  ext;
+	PPBillExt ext;
 	SString temp_buf;
 	UhttBillBlock & r_blk = *static_cast<UhttBillBlock *>(Extra[0].Ptr);
 	if(bv.GetPacket(rFilt.ID, &r_blk.Pack) > 0) {

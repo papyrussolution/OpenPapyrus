@@ -756,6 +756,20 @@ static void InitTest()
 			assert(r.IsEmpty());
 		}
 		// } @v12.3.4 
+		// @v12.4.5 {
+		static_assert(iroundup(12, 10) == 20);
+		static_assert(irounddn(12, 10) == 10);
+		static_assert(iroundup(12, 0) == 0);
+		static_assert(irounddn(12, 0) == 0);
+		static_assert(iroundup(101, 10) == 110);
+		static_assert(irounddn(103, 5) == 100);
+		static_assert(irounddn(101, 3) == 99);
+		static_assert(irounddn(-1, -10) == 0);
+		static_assert(iroundup(10105, 5) == 10105);
+		static_assert(irounddn(10105, 5) == 10105);
+		static_assert(iroundup(10105, 10) == 10110);
+		static_assert(iroundup(132U, 10U) == 140U);
+		// } @v12.4.5
 	}
 }
 
@@ -1211,9 +1225,9 @@ bool SlSession::LoadUiDescription(const char * pFileName) // @v11.9.3
 			p_js = SJson::ParseFile(final_local_file_name);
 		}
 		if(!p_js) {
-			THROW_S(fileExists(final_file_name), SLERR_UID_FILENFOUND, final_file_name);
+			THROW_S_S(fileExists(final_file_name), SLERR_UID_FILENFOUND, final_file_name);
 			p_js = SJson::ParseFile(final_file_name);
-			THROW_S(p_js, SLERR_UID_JSONPARSEFAULT, final_file_name);
+			THROW_S_S(p_js, SLERR_UID_JSONPARSEFAULT, final_file_name);
 		}
 		assert(p_js); // Либо не нулевой либо мы уже в CATCH'е
 		if(p_js) {

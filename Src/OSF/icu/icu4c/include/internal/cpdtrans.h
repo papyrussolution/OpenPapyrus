@@ -77,7 +77,7 @@ public:
 	virtual int32_t getCount() const;
 	/**
 	 * Returns the transliterator at the given index in this chain.
-	 * @param idx index into chain, from 0 to <code>getCount() - 1</code>
+	 * @param idx index into chain, from 0 to <code>getCount()-1</code>
 	 * @return transliterator at the given index
 	 */
 	virtual const Transliterator& getTransliterator(int32_t idx) const;

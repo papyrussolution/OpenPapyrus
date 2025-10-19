@@ -587,7 +587,7 @@ PPJob & FASTCALL PPJob::operator = (const PPJob & s)
 /*@v12.3.1 (@obsolete) int FASTCALL PPJob::Write(SBuffer & rBuf)
 {
 	int    ok = 1;
-	long   flags = (Flags | fV579);
+	long   flags = (Flags|fV579);
 	Ver = 1;
 	THROW(rBuf.Write(ID));
 	THROW(rBuf.Write(Name));
@@ -2615,7 +2615,7 @@ public:
 			GoodsCtrlGroup::Rec grp_rec;
 			getGroupData(ctlgroupGoods, &grp_rec);
 			Data.GoodsID = grp_rec.GoodsID;
-			THROW_PP(Data.GoodsID, PPERR_GOODSNOTSEL);
+			THROW_PP(Data.GoodsID, PPERR_GOODSNEEDED);
 		}
 		ASSIGN_PTR(pData, Data);
 		CATCH

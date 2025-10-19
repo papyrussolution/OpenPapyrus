@@ -968,8 +968,8 @@ struct Strg_ProcessorExt { // @persistent
 	LTIME  CheckOutTime;
 	long   TimeFlags;
 	uint32 ExtStrLen;
-	long   InitSessStatus; // @v8.2.9
-	uint8  Reserve[40];    // @v8.2.9 [44]-->[40]
+	long   InitSessStatus;
+	uint8  Reserve[40];
 	long   ReserveVal1;
 	long   ReserveVal2;
 	// ExtString
@@ -1470,7 +1470,7 @@ private:
 			dlg->getGroupData(ProcessorDialog::ctlgroupGoods, &grp_rec);
 			pItem->GoodsID = grp_rec.GoodsID;
 			if(!pItem->GoodsID) {
-				PPErrorByDialog(dlg, sel, PPERR_GOODSNOTSEL);
+				PPErrorByDialog(dlg, sel, PPERR_GOODSNEEDED);
 			}
 			else {
 				dlg->getCtrlString(CTL_PRCPLACE_DESCR, pItem->Descr);

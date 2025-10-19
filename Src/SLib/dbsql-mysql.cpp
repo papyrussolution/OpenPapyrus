@@ -626,7 +626,7 @@ int SMySqlDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, 
 			// @todo Надо обновлять только LOB-поля, а не всю запись.
 			//
 			DBRowId row_id = *pTbl->getCurRowIdPtr();
-			THROW(Implement_Search(pTbl, -1, &row_id, spEq, DBTable::sfDirect | DBTable::sfForUpdate));
+			THROW(Implement_Search(pTbl, -1, &row_id, spEq, DBTable::sfDirect|DBTable::sfForUpdate));
 			THROW(pTbl->RestoreLob());
 			THROW(Implement_UpdateRec(pTbl, 0, 0));
 		}

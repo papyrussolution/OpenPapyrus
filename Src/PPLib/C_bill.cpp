@@ -106,9 +106,12 @@ struct RecoverAbsBillData {
 int PPObjBill::GatherPayments()
 {
 	int    ok = 1;
-	long   f, f1;
+	long   f;
+	long   f1;
 	PPID   bill_id = 0;
-	SString bill_name, fmt_buf, msg_buf;
+	SString bill_name;
+	SString fmt_buf;
+	SString msg_buf;
 	PPLogger logger;
 	PPWaitStart();
 	IterCounter cntr;

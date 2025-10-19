@@ -439,7 +439,7 @@ int XmlDbFile::Push(const Param * pParam)
 		// Запомним состояние в коллекцию
         StateColl.insert(p_st);
 		// Занесем в стек
-		int pos = StateColl.getCount() - 1;
+		int pos = StateColl.getCount()-1;
 		StateStack.push(pos);
 		// } @vmiller
 		//PreserveSt = St; // @vmiller comment

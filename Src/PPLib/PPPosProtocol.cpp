@@ -279,6 +279,7 @@ int ACS_PAPYRUS_APN::ImportSession(int sessN)
 																ccl_ext_strings.PutExtStrData(CCheckPacket::lnextChZnMark, temp_buf);
 																p_ib->GetS(p_clb->RemoteProcessingTaP, temp_buf); 
 																ccl_ext_strings.PutExtStrData(CCheckPacket::lnextRemoteProcessingTa, temp_buf);
+																// @todo lnextChZnPm_ReqId, lnextChZnPm_ReqTimestamp, lnextChZnPm_LocalModuleInstance, lnextChZnPm_LocalModuleDbVer
 																THROW(SetTempCcLineValuesAndInsert(P_TmpCclTbl, qtty, price, dscnt, &ccl_ext_strings));
 															}
 														}

@@ -914,10 +914,10 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 								THROW(ArrAdd(Arr_In, DVCPARAM_CHZNPMREQID, sl_param.ChZnPm_ReqId));
 								THROW(ArrAdd(Arr_In, DVCPARAM_CHZNPMREQTIMESTAMP, sl_param.ChZnPm_ReqTimestamp));
 								// @v12.3.12 {
-								if(!sl_param.ChZnPm_LocalModuleInstance) {
+								if(!!sl_param.ChZnPm_LocalModuleInstance) { // @v12.4.5 @fix (!sl_param.ChZnPm_LocalModuleInstance)-->(!!sl_param.ChZnPm_LocalModuleInstance)
 									THROW(ArrAdd(Arr_In, DVCPARAM_CHZNPMLOCALMODULEINST, sl_param.ChZnPm_LocalModuleInstance));
 								}
-								if(!sl_param.ChZnPm_LocalModuleDbVer) {
+								if(!!sl_param.ChZnPm_LocalModuleDbVer) { // @v12.4.5 @fix (!sl_param.ChZnPm_LocalModuleDbVer)-->(!!sl_param.ChZnPm_LocalModuleDbVer)
 									THROW(ArrAdd(Arr_In, DVCPARAM_CHZNPMLOCALMODULEDBVER, sl_param.ChZnPm_LocalModuleDbVer));
 								}
 								// } @v12.3.12 

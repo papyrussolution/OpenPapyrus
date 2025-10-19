@@ -3811,7 +3811,7 @@ public:
 	int    single_fetch(char *, RECORDNUMBER *, int);
 	int    top();
 	int    bottom();
-	int    FASTCALL step(long);
+	int    step(long);
 	int    page();
 	int    refresh();
 	char * tostr(void * rec, int fld, long fmt, char * buf);
@@ -3858,6 +3858,7 @@ public:
 		s_rec_cut          = 0x0004
 	};
 	struct Frame {
+		explicit Frame(uint sizeInRecs);
 		~Frame();
 		void FASTCALL TopByCur(int dir);
 		enum {
@@ -3865,10 +3866,10 @@ public:
 			stTop,
 			stBottom
 		};
+		const  uint Size;        // Size of buffer (records)
 		char * P_Buf;            // Data buffer
 		RECORDNUMBER * P_PosBuf; // Position buffer
 		uint   Zero;
-		uint   Size;    // Size of buffer (records)
 		uint   State;
 		uint   Inc;
 		uint   Height;  // Size of frame of view
@@ -3883,10 +3884,11 @@ public:
 	struct Tbl {
 		Tbl();
 		int    Srch(void * pKey, int sp);
-		DBTable * tbl;
+		DBTable * P_Tbl;
 		DBTree tree;
 		KR     key;
-		char * keyBuf;
+		// @v12.4.5 char * keyBuf;
+		uint8  KeyBuf[512]; // @v12.4.5 BTRMAXKEYLEN было бы достаточно, но запас прочности, знаете ли :)
 		DBRowId Pos;
 		uint   flg;        // DBQTF_XXX
 	};

@@ -80,10 +80,10 @@ int PPCycleArray::init(LDATE beg, LDATE end, int cycle, int numCycles)
 		}
 		if(getCount()) {
 			if(fw) {
-				dt = at(getCount() - 1).upp;
+				dt = at(getCount()-1).upp;
 				if(Period.upp && dt > Period.upp && getCount() > 1) {
 					atFree(getCount()-1);
-					dt = at(getCount() - 1).upp;
+					dt = at(getCount()-1).upp;
 				}
 				Period.upp = dt;
 			}

@@ -768,7 +768,7 @@ int DebtLimListDialog::addItem(long * pPos, long * pID)
 	MEMSZERO(debt_lim);
 	if(Edit(&debt_lim) > 0) {
 		Data.insert(&debt_lim);
-		pos = Data.getCount() - 1;
+		pos = Data.getCount()-1;
 		id = debt_lim.DebtDimID;
 		ok = 1;
 	}

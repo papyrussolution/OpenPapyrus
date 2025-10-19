@@ -578,31 +578,22 @@ HB_FUNCOBJ(hb_zip);
 
 /* hb_apply() */
 
-template <typename Appl>
-struct hb_apply_t {
-	hb_apply_t(Appl a) : a(a) {
+template <typename Appl> struct hb_apply_t {
+	hb_apply_t(Appl a) : a(a) 
+	{
 	}
-
-	template <typename Iter,
-	hb_requires(hb_is_iterator(Iter))>
-	void operator() (Iter it)
+	template <typename Iter, hb_requires(hb_is_iterator(Iter))> void operator() (Iter it)
 	{
 		for(; it; ++it)
 			(void)hb_invoke(a, *it);
 	}
-
 private:
 	Appl a;
 };
 
 struct {
-	template <typename Appl> hb_apply_t<Appl>
-	operator() (Appl&& a) const
-	{ return hb_apply_t<Appl> (a); }
-
-	template <typename Appl> hb_apply_t<Appl&>
-	operator() (Appl *a) const
-	{ return hb_apply_t<Appl&> (*a); }
+	template <typename Appl> hb_apply_t<Appl> operator() (Appl&& a) const { return hb_apply_t<Appl> (a); }
+	template <typename Appl> hb_apply_t<Appl&> operator() (Appl *a) const { return hb_apply_t<Appl&> (*a); }
 }
 
 HB_FUNCOBJ(hb_apply);
@@ -612,51 +603,34 @@ HB_FUNCOBJ(hb_apply);
 template <typename T, typename S>
 struct hb_range_iter_t :
 hb_iter_t<hb_range_iter_t<T, S>, T> {
-	hb_range_iter_t(T start, T end_, S step) : v(start), end_(end_for(start, end_, step)), step(step) {
+	hb_range_iter_t(T start, T end_, S step) : v(start), end_(end_for(start, end_, step)), step(step) 
+	{
 	}
-
 	typedef T __item_t__;
 	static constexpr bool is_random_access_iterator = true;
 	static constexpr bool is_sorted_iterator = true;
-	__item_t__ __item__() const {
-		return hb_ridentity(v);
-	}
-
-	__item_t__ __item_at__(unsigned j) const {
-		return v + j * step;
-	}
-
-	bool __more__() const {
-		return v != end_;
-	}
-
-	unsigned __len__() const {
-		return !step ? UINT_MAX : (end_ - v) / step;
-	}
-
-	void __next__() {
+	__item_t__ __item__() const { return hb_ridentity(v); }
+	__item_t__ __item_at__(unsigned j) const { return v + j * step; }
+	bool __more__() const { return v != end_; }
+	unsigned __len__() const { return !step ? UINT_MAX : (end_ - v) / step; }
+	void __next__() 
+	{
 		v += step;
 	}
-
-	void __forward__(uint n) {
+	void __forward__(uint n) 
+	{
 		v += n * step;
 	}
-
-	void __prev__() {
+	void __prev__() 
+	{
 		v -= step;
 	}
-
-	void __rewind__(uint n) {
+	void __rewind__(uint n) 
+	{
 		v -= n * step;
 	}
-
-	hb_range_iter_t __end__() const {
-		return hb_range_iter_t(end_, end_, step);
-	}
-
-	bool operator != (const hb_range_iter_t &o) const
-	{ return v != o.v; }
-
+	hb_range_iter_t __end__() const { return hb_range_iter_t(end_, end_, step); }
+	bool operator != (const hb_range_iter_t &o) const { return v != o.v; }
 private:
 	static inline T end_for(T start, T end_, S step)
 	{
@@ -668,7 +642,6 @@ private:
 		end_ += step - res;
 		return end_;
 	}
-
 private:
 	T v;
 	T end_;

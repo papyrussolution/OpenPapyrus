@@ -318,7 +318,7 @@ int PPHistBillPacket::RemoveRow(uint rowIdx)
 int PPHistBillPacket::RemoveRows(LongArray * pPositions)
 {
 	if(pPositions) {
-		for(int p = pPositions->getCount() - 1; p >= 0; p--) {
+		for(int p = pPositions->getCount()-1; p >= 0; p--) {
 			RemoveRow(pPositions->at(p));
 			pPositions->atFree(p);
 		}

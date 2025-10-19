@@ -3579,7 +3579,7 @@ int PPViewBizSc2Val::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 				if(update_pos >= 0)
 					pBrw->go(update_pos);
 				else if(update_pos == MAXLONG)
-					pBrw->go(p_array->getCount() - 1);
+					pBrw->go(p_array->getCount()-1);
 			}
 			pBrw->Update();
 		}

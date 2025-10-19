@@ -4093,7 +4093,14 @@ int PPChZnPrcssr::PermissiveModeInterface::CheckCodeList(const char * pHost, con
 	}
 	// } @v12.4.1 
 	{
-		const int cr = c.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, req_buf, &wr_stream);
+		const int cr = c.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose|ScURL::mfQueryTimeMetrics, &hdr_flds, req_buf, &wr_stream);
+		// @v12.4.5 {
+		{
+			const ScURL::OpTimeMetrics & r_otm = c.GetLastTimeMetrics();
+			r_otm.ToStr(0, temp_buf);
+			Lth.Log("time-metrics", 0, temp_buf);
+		}
+		// } @v12.4.5 
 		if(!cr) {
 			is_connection_problem = true;
 			CALLEXCEPT_PP(PPERR_SLIB);

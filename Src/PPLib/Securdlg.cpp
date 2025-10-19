@@ -695,7 +695,8 @@ IMPL_CMPFUNC(PPSyncItem, i1, i2)
 
 int ActiveUserListDlg::setupList()
 {
-	long   count = 0, uniq_macs = 0;
+	long   count = 0;
+	long   uniq_macs = 0;
 	SyncAry.freeAll();
 	DS.GetSync().GetItemsList(PPSYNC_DBLOCK, &SyncAry);
 	count = SyncAry.getCount();

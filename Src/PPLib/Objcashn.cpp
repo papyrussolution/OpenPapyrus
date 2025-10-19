@@ -3436,8 +3436,8 @@ int PPObjLocPrinter::Browse(void * extraPtr)
 			ObjViewDialog::handleEvent(event);
 			if(event.isCmd(cmTest)) {
 				PPLocPrinter loc_prn;
-				PPID id = getCurrID();
-				if(P_Obj->Search(getCurrID(), &loc_prn) > 0) {
+				const PPID id = getCurrID();
+				if(P_Obj->Search(id, &loc_prn) > 0) {
 					DS.GetTLA().PrintDevice = loc_prn.Port;
 					const uint rpt_id = REPORT_LOCPRNTEST;
 					PPReportEnv env(SReport::PrintingNoAsk, 0);

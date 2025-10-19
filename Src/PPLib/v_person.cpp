@@ -4467,7 +4467,7 @@ int PPALDD_SupplNameList::InitData(PPFilt & rFilt, long rsrv)
 					}
 					else {
 						suppl_name.Cat(buf);
-						if(i != suppl_list.getCount() - 1)
+						if(i != suppl_list.getCount()-1)
 							suppl_name.Semicol();
 					}
 				}

@@ -88,7 +88,8 @@ int SCDBObjOrder::Init(const char * pExpPath, const char * pImpPath)
 int SCDBObjOrder::PutHdrRec(void * pRec)
 {
 	int    ok = 1;
-	long   id = 0, shifted_id = 0;
+	long   id = 0;
+	long   shifted_id = 0;
 	uint32 ver = P_Ctx->PalmCfg.Ver;
 	LDATE dt = ZERODATE;
 	union  {

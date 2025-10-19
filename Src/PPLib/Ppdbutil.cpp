@@ -803,6 +803,7 @@ PrcssrDbDump::~PrcssrDbDump()
 int PrcssrDbDump::EditParam(Param * pData)
 {
 	class DbDumpDialog : public TDialog {
+		DECL_DIALOG_DATA(PrcssrDbDump::Param);
 	public:
 		DbDumpDialog(PPDbEntrySet2 * pDbes) : TDialog(DLG_DBDUMP), P_Dbes(pDbes)
 		{
@@ -810,10 +811,10 @@ int PrcssrDbDump::EditParam(Param * pData)
 			FileBrowseCtrlGroup::Setup(this, CTLBRW_DBDUMP_FILE, CTL_DBDUMP_FILE, 1, 0, PPTXT_FILPAT_DBDUMP,
 				FileBrowseCtrlGroup::fbcgfFile | FileBrowseCtrlGroup::fbcgfAllowNExists);
 		}
-		int    setDTS(const PrcssrDbDump::Param * pData)
+		DECL_DIALOG_SETDTS()
 		{
 			int    ok = 1;
-			Data = *pData;
+			RVALUEPTR(Data, pData);
 			AddClusterAssoc(CTL_DBDUMP_ACTION, 0, 1);
 			AddClusterAssoc(CTL_DBDUMP_ACTION, 1, 0);
 			SetClusterData(CTL_DBDUMP_ACTION, Data.Mode);
@@ -836,7 +837,7 @@ int PrcssrDbDump::EditParam(Param * pData)
 			setCtrlString(CTL_DBDUMP_FILE, Data.FileName);
 			return ok;
 		}
-		int    getDTS(PrcssrDbDump::Param * pData)
+		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
 			GetClusterData(CTL_DBDUMP_ACTION, &Data.Mode);
@@ -917,9 +918,7 @@ int PrcssrDbDump::EditParam(Param * pData)
 			}
 			return ok;
 		}
-
 		PPDbEntrySet2 * P_Dbes; // DbLoginBlockArray
-		PrcssrDbDump::Param Data;
 	};
 
 	DIALOG_PROC_BODY_P1(DbDumpDialog, P_Dbes, pData);

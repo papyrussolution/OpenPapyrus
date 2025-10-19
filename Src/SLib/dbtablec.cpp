@@ -259,7 +259,16 @@ const void * SLob::GetRawDataPtrC() const
 	}
 }
 
-size_t SLob::GetPtrSize() const { return (IsStructured() && Buf.H.Flags & hfPtr) ? Buf.H.PtrSize : 0; }
+size_t SLob::GetPtrSize() const 
+{ 
+#ifdef NDEBUG
+	return (IsStructured() && Buf.H.Flags & hfPtr) ? Buf.H.PtrSize : 0; 
+#else
+	// Так удобнее отлаживать
+	const bool iss = IsStructured();
+	return (iss && Buf.H.Flags & hfPtr) ? Buf.H.PtrSize : 0; 
+#endif
+}
 
 int SLob::SetStructured()
 {
@@ -515,7 +524,7 @@ DBTable::DBTable(const char * pTblName, const char * pFileName, void * pFlds, vo
 	RECORDSIZE s = 0;
 	if(open(pTblName, pFileName, om)) {
 		if(pFlds) {
-			for(int16 i = fields.getCount() - 1; i >= 0; i--) {
+			for(int16 i = fields.getCount()-1; i >= 0; i--) {
 				static_cast<_DBField *>(pFlds)[i].hTbl = handle;
 				static_cast<_DBField *>(pFlds)[i].hFld = i;
 				s += (RECORDSIZE)stsize(fields[i].T);
@@ -1144,9 +1153,7 @@ int DBTable::getDirect(int idx, void * pKey, const DBRowId & rPos)
 {
 	BtrDbKey k;
 	memcpy(k, &rPos, sizeof(rPos));
-#define sf (sfDirect)
-	int    ok = P_Db ? P_Db->Implement_Search(this, idx, k, 0, sf) : Btr_Implement_Search(idx, k, 0, sf);
-#undef sf
+	const int ok = P_Db ? P_Db->Implement_Search(this, idx, k, 0, sfDirect) : Btr_Implement_Search(idx, k, 0, sfDirect);
 	if(pKey && ok)
 		memcpy(pKey, k, indexes.getKeySize((idx >= 0) ? idx : index));
 	return ok;
@@ -1175,9 +1182,7 @@ int DBTable::getDirectForUpdate(int idx, void * pKey, const DBRowId & rPos)
 {
 	BtrDbKey k;
 	memcpy(k, &rPos, sizeof(rPos));
-#define sf (sfDirect|sfForUpdate)
-	int    ok = P_Db ? P_Db->Implement_Search(this, idx, k, 0, sf) : Btr_Implement_Search(idx, k, 0, sf);
-#undef sf
+	int    ok = P_Db ? P_Db->Implement_Search(this, idx, k, 0, (sfDirect|sfForUpdate)) : Btr_Implement_Search(idx, k, 0, (sfDirect|sfForUpdate));
 	if(pKey && ok)
 		memcpy(pKey, k, indexes.getKeySize((idx >= 0) ? idx : index));
 	return ok;

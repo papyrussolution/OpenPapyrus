@@ -92,11 +92,16 @@ int ACS_SMUKM30::ConvertWareList(int num)
 			do {
 				int    sign;
 				PPID   goods_id;
-				long   csh, cshr, chk, div = 0, z;
+				long   csh;
+				long   cshr;
+				long   chk;
+				long   div = 0;
+				long   z;
 				int    itime;
 				LDATE  dt;
 				LTIME  tm;
-				double qtty, price;
+				double qtty;
+				double price;
 				DbfRecord dbfr(p_dbft);
 				THROW(p_dbft->getRec(&dbfr));
 				dbfr.get( 2, csh);

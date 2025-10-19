@@ -645,7 +645,7 @@ IMPL_HANDLE_EVENT(ExtGoodsSelDialog)
 			SString transit_component_buf;
 			if(GObj.P_Tbl->SearchGoodsAnalogs(goods_id, analog_list, &transit_component_buf) > 0 && analog_list.getCount()) {
 				TIDlgInitData inner_tidi;
-				long   egsd_flags = ExtGoodsSelDialog::GetDefaultFlags(); // @v10.7.7
+				const long egsd_flags = ExtGoodsSelDialog::GetDefaultFlags();
 				ExtGoodsSelDialog * p_inner_dlg = new ExtGoodsSelDialog(0, 0, egsd_flags);
 				if(CheckDialogPtrErr(&p_inner_dlg)) {
 					SString info_buf, temp_buf;

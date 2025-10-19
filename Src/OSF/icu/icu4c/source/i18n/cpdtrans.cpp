@@ -276,7 +276,7 @@ CompoundTransliterator* CompoundTransliterator::clone() const { return new Compo
 int32_t CompoundTransliterator::getCount() const { return count; }
 /**
  * Returns the transliterator at the given index in this chain.
- * @param index index into chain, from 0 to <code>getCount() - 1</code>
+ * @param index index into chain, from 0 to <code>getCount()-1</code>
  * @return transliterator at the given index
  */
 const Transliterator& CompoundTransliterator::getTransliterator(int32_t index) const { return *trans[index]; }

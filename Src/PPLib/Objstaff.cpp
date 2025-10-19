@@ -1252,12 +1252,12 @@ int PPObjStaffList::EditFixedStaffPost(PPID orgID)
 class StaffListCache : public ObjCache {
 public:
 	struct Data : public ObjCacheEntry {
-		PPID   OrgID;         // ->Person.ID Работодатель
-		PPID   DivisionID;    // ->Location.ID (LOCTYP_DIVISION)
+		PPID   OrgID;          // ->Person.ID Работодатель
+		PPID   DivisionID;     // ->Location.ID (LOCTYP_DIVISION)
 		long   Rank;
 		long   Flags;
-		long   FixedStaff;    // Зарезервированный ИД должности (PPFIXSTF_XXX)
-		long   ChargeGrpID;   // ->Ref(PPOBJ_SALCHARGE) Группа начислений, используемая для этой должности
+		long   FixedStaff;     // Зарезервированный ИД должности (PPFIXSTF_XXX)
+		long   ChargeGrpID;    // ->Ref(PPOBJ_SALCHARGE) Группа начислений, используемая для этой должности
 	};
 	StaffListCache() : ObjCache(PPOBJ_STAFFLIST2, sizeof(Data))
 	{
@@ -1323,12 +1323,12 @@ void FASTCALL PPObjStaffList::Dirty(PPID id)
 class PersonPostCache : public ObjCache {
 public:
 	struct Data : public ObjCacheEntry {
-		PPID   StaffID;       // ->Person.ID Работодатель
-		PPID   PersonID;      // ->Location.ID (LOCTYP_DIVISION)
-		long   ChargeGrpID;   // ->Ref(PPOBJ_SALCHARGE) Группа начислений, используемая для этой должности
+		PPID   StaffID;        // ->Person.ID Работодатель
+		PPID   PersonID;       // ->Location.ID (LOCTYP_DIVISION)
+		long   ChargeGrpID;    // ->Ref(PPOBJ_SALCHARGE) Группа начислений, используемая для этой должности
 		long   Flags;
 		int16  Closed;
-		int16  Reserve;       // @alignment
+		int16  Reserve;        // @alignment
 	};
 
 	PersonPostCache() : ObjCache(PPOBJ_PERSONPOST, sizeof(Data))

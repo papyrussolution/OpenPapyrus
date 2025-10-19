@@ -865,6 +865,7 @@ int PPObjGoods::Helper_WriteConfig(const PPGoodsConfig * pCfg, const SString * p
 	pCfg->Ver__ = DS.GetVersion();
 	size_t sz = 0;
 	if(p_ref->GetPropActualSize(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_GOODSCFG, &sz) > 0) {
+		/* @v12.4.5
 		const size_t pre770_size = pCfg->GetSize_Pre770();
 		assert(pre770_size == (offsetof(PPGoodsConfig, Ver__)));
 		if(sz <= pre770_size) {
@@ -872,7 +873,9 @@ int PPObjGoods::Helper_WriteConfig(const PPGoodsConfig * pCfg, const SString * p
 			assert(ok > 0); // Раз нам удалось считать размер буфера, то последующая ошибка чтения - критична
 			THROW(ok > 0);
 		}
-		else {
+		else 
+		*/
+		{
 			STempBuffer temp_buf(sz);
 			ok = p_ref->GetPropMainConfig(PPPRP_GOODSCFG, (char *)temp_buf, sz);
 			assert(ok > 0); // Раз нам удалось считать размер буфера, то последующая ошибка чтения - критична

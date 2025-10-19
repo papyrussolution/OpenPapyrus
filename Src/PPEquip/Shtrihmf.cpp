@@ -823,7 +823,7 @@ int ACS_SHTRIHMFRK::ConvertWareList(const char * pImpPath, int numSmena)
 							} while(c);
 					}
 					else {
-						check_pack.InsertItem(labs(goods_id), qtty, price, 0, 0);
+						check_pack.InsertCclSimple(labs(goods_id), qtty, price, 0, 0);
 						if(op_type == OPTYPE_RETURN)
 							chk_type = CHK_RETURN;
 						else if(oneof2(op_type, OPTYPE_CHKLINE, OPTYPE_STORNO) && chk_type != CHK_RETURN)

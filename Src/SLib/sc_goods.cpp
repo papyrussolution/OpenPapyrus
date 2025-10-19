@@ -377,7 +377,8 @@ int SCDBObjGoods::Export(PROGRESSFN pFn, CSyncProperties * pProps)
 				int32  min_ord     = 0;
 				int16  mult_ord    = 0;
 				size_t buf_len = 0;
-				long   id = 0, temp_long;
+				long   id = 0;
+				long   temp_long;
 				double temp_dbl;
 				TSVector <Quot> quot_list;
 				IdxRec idx_rec;

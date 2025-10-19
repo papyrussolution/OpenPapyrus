@@ -392,8 +392,8 @@ uint64_t ShiftRightAndRound(uint128 value, int shift, bool input_exact, bool* ou
 //
 // This function returns false if `A` is the better guess, and true if `B` is
 // the better guess, with rounding ties broken by rounding to even.
-bool MustRoundUp(uint64_t guess_mantissa, int guess_exponent,
-    const strings_internal::ParsedFloat& parsed_decimal) {
+bool MustRoundUp(uint64_t guess_mantissa, int guess_exponent, const strings_internal::ParsedFloat& parsed_decimal) 
+{
 	// 768 is the number of digits needed in the worst case.  We could determine a
 	// better limit dynamically based on the value of parsed_decimal.exponent.
 	// This would optimize pathological input cases only.  (Sane inputs won't have

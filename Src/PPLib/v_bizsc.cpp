@@ -70,7 +70,7 @@ int PPBizScTemplPacket::AddCol(uint * pPos, PPBizScTemplCol * pCol)
 			new_id = MAX(new_id, Cols.at(i).Id);
 		pCol->Id = new_id + 1L;
 		Cols.insert(pCol);
-		ASSIGN_PTR(pPos, Cols.getCount() - 1);
+		ASSIGN_PTR(pPos, Cols.getCount()-1);
 		ok = 1;
 	}
 	return ok;
@@ -94,7 +94,7 @@ int PPBizScTemplPacket::RemoveCol(uint pos)
 	if(pos >= 0 && pos < Cols.getCount()) {
 		PPID col_id = Cols.at(pos).Id;
 		Cols.atFree(pos);
-		for(long i = Cells.getCount() - 1; i >= 0; i--) {
+		for(long i = Cells.getCount()-1; i >= 0; i--) {
 			if(Cells.at(i).ColId == col_id)
 				Cells.atFree(i);
 		}
@@ -180,7 +180,7 @@ int PPBizScTemplPacket::AddRow(uint * pPos, PPBizScTemplRow * pRow)
 		}
 		pRow->Id = new_id + 1L;
 		Rows.insert(pRow);
-		ASSIGN_PTR(pPos, Rows.getCount() - 1);
+		ASSIGN_PTR(pPos, Rows.getCount()-1);
 		ok = 1;
 	}
 	return ok;
@@ -193,7 +193,7 @@ int PPBizScTemplPacket::RemoveRow(PPID rowId)
 	if(GetRow(rowId, &pos, 0) > 0) {
 		const PPID row_id = Rows.at(pos).Id;
 		Rows.atFree(pos);
-		for(long i = Cells.getCount() - 1; i >= 0; i--) {
+		for(long i = Cells.getCount()-1; i >= 0; i--) {
 			if(Cells.at(i).RowId == row_id)
 				Cells.atFree(i);
 		}
@@ -212,7 +212,7 @@ int PPBizScTemplPacket::AddCell(uint * pPos, PPBizScTemplCell * pCell)
 			new_id = MAX(new_id, Cells.at(i).Id);
 		pCell->Id = new_id + 1L;
 		Cells.insert(pCell);
-		ASSIGN_PTR(pPos, Cells.getCount() - 1);
+		ASSIGN_PTR(pPos, Cells.getCount()-1);
 		ok = 1;
 	}
 	return ok;

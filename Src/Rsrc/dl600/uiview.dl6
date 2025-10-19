@@ -324,6 +324,24 @@ dialog DLG_OBJVIEWT [horizontal title: "@objects" size: (489, 489)  font: "MS Sh
 	}
 }
 
+dialog DLG_LOCPRNVIEW [horizontal title: "@objects" size: (394, 380) minsize: (394, 320) font: "MS Shell Dlg,8"] {
+	listbox CTL_OBJVIEW_LIST [height: bycontainer(100) growfactor: 1];
+	view [vertical height: bycontainer(100) width: 110] {
+		view [vertical growfactor: 3 width: bycontainer(100) justifycontent: start] {
+			button STDCTL_EDITBUTTON [title: "@but_edit" tabstop defaultitem size: (90, 21) margin: 4 command: cmaEdit];
+			button STDCTL_INSBUTTON [title: "@but_add" tabstop size: (90, 21) margin: 4 command: cmaInsert];
+			button STDCTL_DELBUTTON [title: "@but_delete" tabstop size: (90, 21) margin: 4 command: cmaDelete];
+		}
+		view [vertical growfactor: 2 width: bycontainer(100)] {
+			button STDCTL_SJBUTTON [title: "@but_sysj" tabstop size: (90, 21) margin: 4 command: cmSysJournalByObj];
+			button CTL_CMD_TEST [title: "@test" tabstop size: (90, 21) margin: 4 command: cmTest];
+		}
+		view [vertical growfactor: 1 width: bycontainer(100) justifycontent: end] {
+			button STDCTL_OKBUTTON [title: "@but_close" tabstop size: (90, 21) margin: 4 command: cmOK];
+		}		
+	}
+}
+
 dialog DLG_GSGIFT [title: "@goodsstruc_giftparam" vertical size: (700, 500) minsize: (370, 280) justifycontent: spaceevenly alignitems: start font: "MS Shell Dlg 2,8"] {
 	view [vertical width: bycontainer(100) height: 140] {
 		input CTL_GSTRUC_GIFTAMTRESTR [width: bycontainer(100) height: 21 margin: 4 tabstop fmtf: (nozero notrailz) fmtprec: 2 label: "@goodsstruc_giftamtrestrict" labelsize: (210, 16) ] double;
@@ -736,6 +754,8 @@ dialog DLG_PRINT2 [vertical title: "@printrpt" size: (615, 470) minsize: (613, 4
 		}
 	}
 }
+
+// @20251016 до этой точки я пометил все соответствующие файлы в ppdlg.list как присутствующие в uiview (для дальнейшей элиминации).
 
 dialog DLG_BILLPRELUDE [vertical title: "@billprelude" size: (384, 463) minsize: (240, 270) font: "MS Shell Dlg,8"] {
 	listbox CTL_BILLPRELUDE_OPLIST [tabstop width: bycontainer growfactor: 1 margin: 4];

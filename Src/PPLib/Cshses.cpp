@@ -1314,7 +1314,11 @@ int PPAsyncCashSession::FlashTempCcLines(const SVector * pList, LAssocArray * pH
 					CCheckPacket::lnextSerial, 
 					CCheckPacket::lnextEgaisMark, 
 					CCheckPacket::lnextChZnMark, 
-					CCheckPacket::lnextRemoteProcessingTa 
+					CCheckPacket::lnextRemoteProcessingTa,
+					CCheckPacket::lnextChZnPm_ReqId,                // @v12.4.5
+					CCheckPacket::lnextChZnPm_ReqTimestamp,         // @v12.4.5
+					CCheckPacket::lnextChZnPm_LocalModuleInstance,  // @v12.4.5
+					CCheckPacket::lnextChZnPm_LocalModuleDbVer,     // @v12.4.5  
 				};
 				for(uint lnefidx = 0; lnefidx < SIZEOFARRAY(lnextf_list); lnefidx++) {
 					ext_strings.GetExtStrData(lnextf_list[lnefidx], temp_buf);

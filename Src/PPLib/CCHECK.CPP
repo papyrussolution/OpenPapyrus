@@ -1508,7 +1508,7 @@ void CCheckPacket::ClearLines()
 	LnTextList.Z();
 }
 
-int CCheckPacket::InsertItem_(const CCheckLineTbl::Rec * pItem, const char * pSerial, const char * pEgaisMark)
+int CCheckPacket::InsertCclRec(const CCheckLineTbl::Rec * pItem, const char * pSerial, const char * pEgaisMark)
 {
 	int    ok = 1;
 	THROW_SL(Items_.insert(pItem));
@@ -1523,7 +1523,7 @@ int CCheckPacket::InsertItem_(const CCheckLineTbl::Rec * pItem, const char * pSe
 	return ok;
 }
 
-int CCheckPacket::InsertItem(const CCheckItem & rItem)
+int CCheckPacket::InsertCcl(const CCheckItem & rItem)
 {
 	int    ok = 1;
 	CCheckLineTbl::Rec rec;
@@ -1531,22 +1531,22 @@ int CCheckPacket::InsertItem(const CCheckItem & rItem)
 	THROW_SL(Items_.insert(&rec));
 	{
 		const int idx = static_cast<int>(Items_.getCount());
-		if(rItem.Serial[0]) {
+		if(!isempty(rItem.Serial)) {
 			THROW(SetLineTextExt(idx, CCheckPacket::lnextSerial, rItem.Serial));
 		}
-		if(rItem.EgaisMark[0]) {
+		if(!isempty(rItem.EgaisMark)) {
 			THROW(SetLineTextExt(idx, CCheckPacket::lnextEgaisMark, rItem.EgaisMark));
 		}
-		if(rItem.RemoteProcessingTa[0]) {
+		if(!isempty(rItem.RemoteProcessingTa)) {
 			THROW(SetLineTextExt(idx, CCheckPacket::lnextRemoteProcessingTa, rItem.RemoteProcessingTa));
 		}
-		if(rItem.ChZnGtin[0]) {
+		if(!isempty(rItem.ChZnGtin)) {
 			THROW(SetLineTextExt(idx, CCheckPacket::lnextChZnGtin, rItem.ChZnGtin));
 		}
-		if(rItem.ChZnSerial[0]) {
+		if(!isempty(rItem.ChZnSerial)) {
 			THROW(SetLineTextExt(idx, CCheckPacket::lnextChZnSerial, rItem.ChZnSerial));
 		}
-		if(rItem.ChZnMark[0]) {
+		if(!isempty(rItem.ChZnMark)) {
 			THROW(SetLineTextExt(idx, CCheckPacket::lnextChZnMark, rItem.ChZnMark));
 		}
 		// @v12.1.1 {
@@ -1584,7 +1584,7 @@ int CCheckPacket::InsertItem(const CCheckItem & rItem)
 	return ok;
 }
 
-int CCheckPacket::InsertItem(PPID goodsID, double qtty, double price, double dscnt, short div /* =0 */, int isPrinted /* =0 */)
+int CCheckPacket::InsertCclSimple(PPID goodsID, double qtty, double price, double dscnt, short div /* =0 */, int isPrinted /* =0 */)
 {
 	CCheckLineTbl::Rec item;
 	item.DivID = static_cast<short>(div);
@@ -1594,7 +1594,7 @@ int CCheckPacket::InsertItem(PPID goodsID, double qtty, double price, double dsc
 	item.Quantity = qtty;
 	item.Price    = dbltointmny(price);
 	item.Dscnt = dscnt;
-	return InsertItem_(&item);
+	return InsertCclRec(&item);
 }
 
 int CCheckPacket::SetupPaymList(const CcAmountList * pList)
@@ -2402,7 +2402,7 @@ int CCheckCore::LoadLinesByList(PPID goodsID, const ObjIdListFilt * pCheckList, 
 		pCheckList->CopyTo(&check_list);
 		check_list.sort();
 		beg_chk = check_list.at(0) - 1;
-		end_chk = check_list.at(check_list.getCount() - 1) + 1;
+		end_chk = check_list.at(check_list.getCount()-1) + 1;
 		MEMSZERO(k0);
 		k0.CheckID = beg_chk;
 		q.selectAll();
@@ -2510,7 +2510,7 @@ int CCheckCore::LoadLines(PPID checkID, PPID goodsID, CCheckPacket * pPack)
 	k0.CheckID = checkID;
 	k0.RByCheck = -MAXSHORT;
 	for(q.initIteration(false, &k0, spGe); q.nextIteration() > 0;)
-		pPack->InsertItem_(&Lines.data);
+		pPack->InsertCclRec(&Lines.data);
 	if(P_LnExt && goodsID == 0) {
 		BExtQuery ql(P_LnExt, 0);
 		ql.selectAll().where(P_LnExt->CheckID == checkID);

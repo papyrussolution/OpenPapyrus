@@ -1802,8 +1802,11 @@ int GBDialog::setupList()
 {
 	int    ok = 1;
 	ILTI * p_item = 0;
-	double cur_sum, sum_price = 0.0, sum_brutto = 0.0, sum_volume = 0.0;
-	long   items_count = (long)R_Data.Pack.Lots.getCount();
+	double cur_sum;
+	double sum_price = 0.0;
+	double sum_brutto = 0.0;
+	double sum_volume = 0.0;
+	const  long items_count = R_Data.Pack.Lots.getCountI();
 	SString sub;
 	StringSet ss(SLBColumnDelim);
 	PPObjGoods goods_obj;
@@ -1845,9 +1848,10 @@ int GBDialog::delItem(long pos, long)
 
 int GBDialog::addItem(long * pPos, long * pID)
 {
-	int    ok = -1, r = 0;
+	int    ok = -1;
+	int    r = 0;
 	SString msg_buf;
-	long   egsd_flags = ExtGoodsSelDialog::GetDefaultFlags();
+	const  long egsd_flags = ExtGoodsSelDialog::GetDefaultFlags();
 	SETIFZ(P_EGSDlg, new ExtGoodsSelDialog(0, 0, egsd_flags));
 	if(CheckDialogPtrErr(&P_EGSDlg)) {
 		while(ExecView(P_EGSDlg) == cmOK) {
@@ -1912,7 +1916,7 @@ int GBDialog::editItem(long pos, long)
 
 int GBDialog::addFromBasket()
 {
-	int    ok = 1, is_locked = 0;
+	int    ok = 1;
 	PPBasketCombine bc;
 	if((ok = GoodsBasketDialog(bc, 2)) > 0 && bc.BasketID && bc.BasketID != *P_ID) {
 		ILTI * p_item;
@@ -1942,7 +1946,9 @@ int GBDialog::addFromBasket()
 
 int GBDialog::DoDiscount()
 {
-	int    ok = 0, valid_data = 0, pctdis = 0;
+	int    ok = 0;
+	int    valid_data = 0;
+	int    pctdis = 0;
 	double discount = 0.0;
 	TDialog * p_dlg = new TDialog(DLG_DISCOUNT);
 	if(CheckDialogPtrErr(&p_dlg) > 0) {

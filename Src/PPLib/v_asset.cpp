@@ -213,8 +213,8 @@ int PPViewAsset::MakeItem(PPID lotID, BExtInsert * pBei, int use_ta)
 					GObj.AdjCostToVat(0, tax_grp_id, lot_date, tax_factor, &asset_rec.Cost2, 1, vat_free);
 					GObj.AdjCostToVat(0, tax_grp_id, lot_date, tax_factor, &asset_rec.Price2, 1, vat_free);
 				}
-				long   amt_fl = ~GTAXVF_SALESTAX;
-				long   excl_fl = vat_free ? GTAXVF_VAT : 0;
+				const long amt_fl = ~GTAXVF_SALESTAX;
+				const long excl_fl = vat_free ? GTAXVF_VAT : 0;
 				gtv.Calc_(gtx, start_cost, tax_factor, amt_fl, excl_fl);
 				start_cost -= gtv.GetValue(GTAXVF_VAT);
 				gtv.Calc_(gtx, asset_rec.Cost, tax_factor, amt_fl, excl_fl);

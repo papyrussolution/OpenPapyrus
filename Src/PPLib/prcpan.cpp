@@ -733,7 +733,7 @@ void PrcPaneDialog::selectGoods(int mode)
 	setCtrlString(CTL_PRCPAN_INFO, temp_buf.Z());
 	if(H.SessID && oneof6(State, sEMPTY_SESS, sGOODS_NOQTTY, sGOODS_QTTY, sREST, sREST_SERIAL_NOQTTY, sREST_SERIAL_QTTY)) {
 		if(mode == 0) {
-			long   egsd_flags = ExtGoodsSelDialog::GetDefaultFlags(); // @v10.7.7
+			const long egsd_flags = ExtGoodsSelDialog::GetDefaultFlags();
 			ExtGoodsSelDialog * dlg = new ExtGoodsSelDialog(0, NewGoodsGrpID, egsd_flags);
 			if(CheckDialogPtrErr(&dlg)) {
 				TIDlgInitData tidi;

@@ -1698,7 +1698,7 @@ int CTableOrder::MakeCCheckPacket(const Packet * pPack, CCheckPacket * pCcPack)
 	if(pPack->PrepayAmount > 0.0 && pPack->SCardID) {
 		const  PPID chg_goods_id = P_ScObj->GetConfig().ChargeGoodsID;
 		THROW_PP(chg_goods_id, PPERR_UNDEFSCCHGGOODS);
-		THROW(pCcPack->InsertItem(chg_goods_id, 1.0, pPack->PrepayAmount, 0.0));
+		THROW(pCcPack->InsertCclSimple(chg_goods_id, 1.0, pPack->PrepayAmount, 0.0));
 		pCcPack->SetupAmount(0, 0);
 	}
 	CATCHZOK
@@ -2619,7 +2619,7 @@ int PPCCheckImporter::Read_Predef_Contract01(xmlParserCtxt * pCtx, const SString
 							assert(goods_id != 0); // Выше мы нашли товар, а если нет, то выскочили по ошибке.
 							ln_rec.GoodsID = goods_id;
 							THROW_PP_S(ln_rec.Quantity > 0.0, PPERR_CCIMP_INVQTTY, goods_rec.Name);
-							THROW(rPack.InsertItem_(&ln_rec, 0, 0));
+							THROW(rPack.InsertCclRec(&ln_rec, 0, 0));
 						}
 					}
 				}

@@ -805,7 +805,7 @@ int ACS_ATOL::ConvertWareList(const char * pImpPath, const char * pExpPath)
 	uint   pos;
 	long   op_type;
 	long   nsmena;
-	long   cash_no;
+	long   cash_no = 0;
 	long   chk_no;
 	long   count = 0;
 	PPID   grp_id = 0;

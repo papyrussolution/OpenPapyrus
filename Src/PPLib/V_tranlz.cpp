@@ -528,7 +528,7 @@ int PPViewTrfrAnlz::FlashCacheItems(uint count)
 				THROW(lru_pos_array.add(pos));
 			}
 			lru_pos_array.sort();
-			for(int rev_i = lru_pos_array.getCount() - 1; rev_i >= 0; rev_i--)
+			for(int rev_i = lru_pos_array.getCount()-1; rev_i >= 0; rev_i--)
 				Cache.atFree(static_cast<uint>(lru_pos_array.at(rev_i)));
 		}
 		else {

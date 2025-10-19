@@ -809,7 +809,7 @@ int PPViewStockOpt::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser
 				{
 					TIDlgInitData tidi;
 					ExtGoodsSelDialog * dlg = 0;
-					long   egsd_flags = ExtGoodsSelDialog::GetDefaultFlags(); // @v10.7.7
+					const long egsd_flags = ExtGoodsSelDialog::GetDefaultFlags();
 					if(CheckDialogPtr(&(dlg = new ExtGoodsSelDialog(0, 0, egsd_flags)))) {
 						while(ExecView(dlg) == cmOK) {
 							if(dlg->getDTS(&tidi) > 0 && tidi.GoodsID) {

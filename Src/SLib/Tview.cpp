@@ -567,7 +567,7 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 						TInputLine * p_il = p_cv->GetLink();
 						if(p_il) {
 							p_il->Parent = hw_parent;
-							DWORD  style = WS_VISIBLE|WS_CHILD|WS_BORDER|WS_CLIPSIBLINGS|ES_AUTOHSCROLL;
+							DWORD  style = WS_VISIBLE|WS_CHILD|/*WS_BORDER|*/WS_CLIPSIBLINGS|ES_AUTOHSCROLL;
 							DWORD  ex_style = WS_EX_NOPARENTNOTIFY|WS_EX_CLIENTEDGE;
 							if(p_il->IsInState(sfTabStop))
 								style |= WS_TABSTOP;
@@ -657,7 +657,7 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 				case TV_SUBSIGN_INPUTLINE:
 					{
 						TInputLine * p_cv = static_cast<TInputLine *>(pV);
-						DWORD  style = WS_VISIBLE|WS_CHILD|WS_BORDER|WS_CLIPSIBLINGS|ES_AUTOHSCROLL/*|BS_OWNERDRAW*/;
+						DWORD  style = WS_VISIBLE|WS_CHILD|/*WS_BORDER|*/WS_CLIPSIBLINGS|ES_AUTOHSCROLL/*|BS_OWNERDRAW*/;
 						DWORD  ex_style = WS_EX_NOPARENTNOTIFY|WS_EX_CLIENTEDGE;
 						if(p_cv->IsInState(sfTabStop))
 							style |= WS_TABSTOP;

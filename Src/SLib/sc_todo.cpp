@@ -74,7 +74,8 @@ int SCDBObjToDo::ReadIdAssoc(int fromPalmCompressedFile)
 		uint16 recno = 0;
 		THROW(P_Ctx->PalmCfg.PalmCompressedData() || stbl.Open(P_ToDoAsscFileName, 0));
 		for(recno = 0; recno < stat.NumRecs; recno++) {
-			long   id = 0, shifted_id = 0;
+			long   id = 0;
+			long   shifted_id = 0;
 			LAssoc rec;
 			size_t rec_size = sizeof(rec);
 			THROW(stbl.ReadRecByIdx(recno, 0, &rec, &rec_size));
@@ -172,7 +173,8 @@ int SCDBObjToDo::Import(PROGRESSFN pFn, CSyncProperties * pProps)
 			THROW(P_Ctx->PalmCfg.PalmCompressedData() || stbl.Open("ToDoDB", 0));
 			for(i = 0; i < IdAsscList.getCount();) {
 				int    dont_inc = 0;
-				long   id = 0, shifted_id = 0;
+				long   id = 0;
+				long   shifted_id = 0;
 				size_t rec_size = 1024;
 				LAssoc & r_assc = IdAsscList.at(i);
 				int    r = 0;

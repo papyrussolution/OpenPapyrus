@@ -2144,6 +2144,19 @@ int ScURL::HttpForm::AddContentFile(const char * pFileName, const char * pConten
 	return ret;
 }
 
+ScURL::OpTimeMetrics::OpTimeMetrics()
+{
+	THISZERO();
+}
+
+SString & ScURL::OpTimeMetrics::ToStr(uint flags/*@reserve*/, SString & rBuf) const
+{
+	rBuf.Z();
+	rBuf.CatEq("total", Total*1000).Space().CatEq("dnslu", DnsLookUp*1000).Space().CatEq("conn", Connect*1000).Space().CatEq("ssltls", AppConnect*1000).
+		Space().CatEq("starttrfr", StartTransfer*1000).Space().CatEq("pretrfr", PreTransfer*1000).Space().CatEq("redir", Redirect*1000);
+	return rBuf;
+}
+
 #define _CURLH (static_cast<CURL *>(H))
 
 ScURL::ScURL() : NullWrF(0, SFile::mNullWrite), P_LogF(0), LastErrorCode(0)
@@ -3417,7 +3430,7 @@ int ScURL::SmtpSend(const InetUrl & rUrl, int mflags, const SMailMessage & rMsg)
 			}
 			THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_MAIL_RCPT, p_recipients)));
 		}
-		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_USE_SSL, static_cast<long>(CURLUSESSL_TRY)))); // @v9.9.1 CURLUSESSL_ALL-->CURLUSESSL_TRY
+		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_USE_SSL, static_cast<long>(CURLUSESSL_TRY))));
 		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_READFUNCTION, CbRead_EMailMessage)));
 		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_READDATA, &rd_blk)));
 		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_UPLOAD, 1L)));

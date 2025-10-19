@@ -457,24 +457,24 @@ char * BrowserDef::getMultiLinesText(long row, int column, char * pBuf, uint hei
 	return strnzcpy(pBuf, buf, 0);
 }
 
-int FASTCALL BrowserDef::go(long row)
+int BrowserDef::go(long row)
 {
-	int    reply = 1;
+	int    result = 1;
 	if(IsValid()) {
 		const long rc = GetRecsCount();
 		if(rc) {
 			if(row < 0) {
 				row = 0;
-				reply = -1;
+				result = -1;
 			}
 			else if(row >= rc) {
 				row = rc - 1;
-				reply = -1;
+				result = -1;
 			}
 		}
 		else {
 			row = 0;
-			reply = -1;
+			result = -1;
 		}
 		scrollDelta = curItem - row;
 		curItem = row;
@@ -484,9 +484,10 @@ int FASTCALL BrowserDef::go(long row)
 			topItem = (curItem - viewHight + 1);
 		SETMAX(topItem, 0);
 		SETMAX(curItem, 0);
-		return reply;
 	}
-	return 0;
+	else
+		result = 0;
+	return result;
 }
 
 int BrowserDef::search2(const void * data, CompFunc cmpFunc, int srchMode, size_t offs)
@@ -506,11 +507,11 @@ int BrowserDef::search2(const void * data, CompFunc cmpFunc, int srchMode, size_
 }
 
 bool   BrowserDef::IsValid() const { return true; }
-int    FASTCALL BrowserDef::step(long delta) { return go(curItem + delta); }
+int    BrowserDef::step(long delta) { return go(curItem + delta); }
 int    BrowserDef::top() { return go(0); }
 int    BrowserDef::bottom() { return go(GetRecsCount() - 1); }
 long   BrowserDef::GetRecsCount() const { return 0; }
-const  void * FASTCALL BrowserDef::getRow(long) const { return 0; }
+const  void * BrowserDef::getRow(long) const { return 0; }
 int    BrowserDef::refresh() { return 1; }
 
 int BrowserDef::search(const void * pPattern, CompFunc /*cfn*/, int srchMode, int srchCol)
@@ -592,7 +593,7 @@ bool  AryBrowserDef::IsValid() const { return (P_Array != 0); }
 
 long AryBrowserDef::GetRecsCount() const { return static_cast<long>(SVectorBase::GetCount(P_Array)); }
 
-const void * FASTCALL AryBrowserDef::getRow(long row) const
+const void * AryBrowserDef::getRow(long row) const
 {
 	return (P_Array && row >= 0 && row < P_Array->getCountI()) ? P_Array->at((uint)row) : 0;
 }

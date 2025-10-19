@@ -6271,7 +6271,7 @@ private:
 	isd_param.MaxTextLen = SKILOBYTE(4);
 	if(/*InputStringDialog__(0, 0, 0, 1, buf)*/InputStringDialog(isd_param, buf) > 0) {
 		Memos.Add(Memos.getCount() + 1, 0, buf, 0);
-		ASSIGN_PTR(pPos, Memos.getCount() - 1);
+		ASSIGN_PTR(pPos, Memos.getCount()-1);
 		ASSIGN_PTR(pID,  Memos.getCount());
 		ok = 1;
 	}
@@ -6418,7 +6418,7 @@ private:
 				MinDelta = (rect.right - rect.left - 20) / minuts_in_line;
 				offs = (rect.right - rect.left - (MinDelta * minuts_in_line)) / 2;
 				for(long i = 0; i < minutsl_count; i++) {
-					int16 top = (i == 0) ? Hours.at(Hours.getCount() - 1).b.y + 25 : Minuts.at(i - 1).b.y;
+					int16 top = (i == 0) ? Hours.at(Hours.getCount()-1).b.y + 25 : Minuts.at(i - 1).b.y;
 					item.a.x = static_cast<int16>(rect.left + offs);
 					item.a.y = top;
 					item.b.x = static_cast<int16>(item.a.x + MinDelta * minuts_in_line);
@@ -6543,7 +6543,7 @@ void TimePickerDialog::DrawMainRect(TCanvas * pCanv, RECT * pRect)
 {
 	TRect m_rect;
 	if(TmRects.Minuts.getCount()) {
-		m_rect = TmRects.Minuts.at(TmRects.Minuts.getCount() - 1);
+		m_rect = TmRects.Minuts.at(TmRects.Minuts.getCount()-1);
 		TRect draw_rect(pRect->left + 3, 3, pRect->right - 3, m_rect.b.y + 8);
 		// нарисуем прямоугольник
 		pCanv->FillRect(draw_rect, static_cast<HBRUSH>(Ptb.Get(brMainRect)));
@@ -6565,7 +6565,7 @@ void TimePickerDialog::DrawHoursRect(TCanvas * pCanv)
 	if(TmRects.Hours.getCount()) {
 		TRect  draw_rect;
 		TRect  h1_rect = TmRects.Hours.at(0);
-		TRect  h2_rect = TmRects.Hours.at(TmRects.Hours.getCount() - 1);
+		TRect  h2_rect = TmRects.Hours.at(TmRects.Hours.getCount()-1);
 		long   x1 = h1_rect.a.x - 3;
 		long   y1 = h1_rect.a.y - 4;
 		long   x2 = h2_rect.b.x + 2;
@@ -6612,7 +6612,7 @@ void TimePickerDialog::DrawMinutsRect(TCanvas * pCanv)
 	if(TmRects.Minuts.getCount()) {
 		TRect  draw_rect;
 		const TRect  m1_rect = TmRects.Minuts.at(0);
-		const TRect  m2_rect = TmRects.Minuts.at(TmRects.Minuts.getCount() - 1);
+		const TRect  m2_rect = TmRects.Minuts.at(TmRects.Minuts.getCount()-1);
 		const long x1 = m1_rect.a.x - 3;
 		const long y1 = m1_rect.a.y - 4;
 		const long x2 = m2_rect.b.x + 2;
@@ -6983,7 +6983,7 @@ int EmailListDlg::addItem(long * pPos, long * pID)
 	PPInputStringDialogParam isd_param(title, title);
 	if(/*InputStringDialog__(title, title, 0, 0, addr)*/InputStringDialog(isd_param, addr) > 0 && IsEmailAddr(addr)) {
 		if((ok = Data.Add(Data.getCount() + 1, addr, 0)) > 0) {
-			pos = Data.getCount() - 1;
+			pos = Data.getCount()-1;
 			id  = Data.getCount();
 		}
 	}
@@ -7145,7 +7145,7 @@ int SendMailDialog::setupList()
 	if(PPOpenFile(PPTXT_FILPAT_ALL, path, 0, 0) > 0) {
 		if(!Data.FilesList.lsearch(path.cptr(), 0, PTR_CMPFUNC(PcharNoCase))) {
 			Data.FilesList.insert(newStr(path));
-			id = pos = Data.FilesList.getCount() - 1;
+			id = pos = Data.FilesList.getCount()-1;
 			ok = 1;
 		}
 		else

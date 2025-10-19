@@ -2270,7 +2270,7 @@ int PPBillImporter::RunUhttImport()
 							PPTransferItem * p_ti;
 							for(uint ln = 0; pack.EnumTItems(&ln, &p_ti);) {
 								const double _qtty = fabs(p_ti->Quantity_);
-								THROW(cc_pack.InsertItem(p_ti->GoodsID, _qtty, p_ti->NetPrice(), 0));
+								THROW(cc_pack.InsertCclSimple(p_ti->GoodsID, _qtty, p_ti->NetPrice(), 0));
 							}
 							cc_pack.SetupAmount(0, 0);
 							THROW(P_Cc->TurnCheck(&cc_pack, 0));
@@ -2725,7 +2725,7 @@ int PPBillImporter::ReadRows(PPImpExp * pImpExp, int mode/*linkByLastInsBill*/, 
 		(temp_buf = brow_.BrandName).Transf(CTRANSF_OUTER_TO_INNER).CopyTo(brow_.BrandName, sizeof(brow_.BrandName));
 		(temp_buf = brow_.ArCode).Transf(CTRANSF_OUTER_TO_INNER).CopyTo(brow_.ArCode, sizeof(brow_.ArCode)); // @v11.4.4
 		if(mode == 1/*linkByLastInsBill*/)
-			STRNSCPY(brow_.BillID, Bills.at(Bills.getCount() - 1).ID);
+			STRNSCPY(brow_.BillID, Bills.at(Bills.getCount()-1).ID);
 		else if(mode == 2) {
 			if(isempty(brow_.BillID))
 				STRNSCPY(brow_.BillID, brow_.BillCode);
@@ -5174,8 +5174,19 @@ int PPBillImporter::Helper_AcceptCokeData(const SCollection * pRowList, PPID opI
 									pack.LTagL.Set(row_pos, p_lot_tag_list);
 								}
 							}
-							else
-								skip_this_doc = false;
+							else {
+								// @v12.4.5 {
+								// PPTXT_LOG_SUPPLIX_GOODSNFOUND             "Не удалось идентифицировать товар для документа '@zstr'"
+								PPFormatT(PPTXT_LOG_SUPPLIX_GOODSNFOUND, &msg_buf, (const char *)pack.Rec.Code);
+								temp_buf.Z().Cat(p_item->ProductCode);
+								if(p_item->ProductName.NotEmpty()) {
+									temp_buf.CatDiv(';', 2).Cat(p_item->ProductName);
+								}
+								msg_buf.Space().Cat(temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
+								Logger.Log(msg_buf);
+								// } @v12.4.5 
+								skip_this_doc = false; // @???
+							}
 							// Теперь инкрементируем индекс строки и после этого пытаемся получить следующую (если индекс не вышел за пределы списка).
 							rowidx++; 
 							p_item = (rowidx < pRowList->getCount()) ? static_cast<const PredefImportRecord_Coke *>(pRowList->at(rowidx)) : 0;
@@ -8707,7 +8718,7 @@ int DocNalogRu_WriteBillBlock::Do_Invoice2(SString & rResultFileName)
 										n_1.PutAttrib(GetToken(PPHSC_RU_VAL), EncText(temp_buf = freight.Name));
 									}
 									{
-										LDATE  freight_date = freight.IssueDate; // @todo Здесь на самом деле должна быть дата документа фрахта, но сейчас такого поля во фрахте нет
+										const LDATE freight_date = freight.IssueDate; // @todo Здесь на самом деле должна быть дата документа фрахта, но сейчас такого поля во фрахте нет
 										if(checkdate(freight_date)) { 
 											SXml::WNode n_1(G.P_X, GetToken(PPHSC_RU_TEXTINF));
 											n_1.PutAttrib(GetToken(PPHSC_RU_IDENTIF), GetToken(PPHSC_RU_FREIGHTDATE));
@@ -9258,7 +9269,7 @@ int DocNalogRu_WriteBillBlock::Do_UPD(SString & rResultFileName)
 									n_1.PutAttrib(GetToken(PPHSC_RU_VAL), EncText(temp_buf = freight.Name));
 								}
 								{
-									LDATE  freight_date = freight.IssueDate; // @todo Здесь на самом деле должна быть дата документа фрахта, но сейчас такого поля во фрахте нет
+									const LDATE freight_date = freight.IssueDate; // @todo Здесь на самом деле должна быть дата документа фрахта, но сейчас такого поля во фрахте нет
 									if(checkdate(freight_date)) { 
 										SXml::WNode n_1(G.P_X, GetToken(PPHSC_RU_TEXTINF));
 										n_1.PutAttrib(GetToken(PPHSC_RU_IDENTIF), GetToken(PPHSC_RU_FREIGHTDATE));

@@ -868,7 +868,7 @@ int BarcodeLabel::GetText(int wrap, char ** ppLine)
 	if(wrap) {
 		THROW_PP_S(getCount(), PPERR_BARLAB_NOWRAPTEXT, BLP.Name);
 		{
-			uint   pos = getCount()-1;
+			const  uint pos = getCount()-1;
 			const  BarcodeLabelEntry * p_entry = GetEntry(pos);
 			THROW_PP_S(p_entry->Type == BarcodeLabelEntry::etText, PPERR_BARLAB_NOWRAPTEXT, BLP.Name);
 			THROW_PP_S(p_entry->TextMaxLen, PPERR_BARLAB_NOWRAPTEXT, BLP.Name);

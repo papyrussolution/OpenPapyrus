@@ -577,7 +577,7 @@ private:
 							THROW_SL(p_list->Remove(like_id));
 						}
 					}
-					PPWaitPercent(i, p_list->getCount() - 1, msg);
+					PPWaitPercent(i, p_list->getCount()-1, msg);
 				}
 				THROW(tra.Commit());
 			}

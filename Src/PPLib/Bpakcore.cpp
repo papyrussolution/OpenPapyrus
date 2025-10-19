@@ -2371,7 +2371,7 @@ int PPBillPacket::RemoveRow(uint * pRowIdx)
 int PPBillPacket::RemoveRows(LongArray * pPositions, int lowStop)
 {
 	if(pPositions) {
-		for(int p = pPositions->getCount() - 1; p >= lowStop; p--) {
+		for(int p = pPositions->getCount()-1; p >= lowStop; p--) {
 			if(!RemoveRow(pPositions->at(p)))
 				return 0;
 			pPositions->atFree(p);
@@ -3521,9 +3521,10 @@ static int AddModifGoodsListItem(TSCollection <ModifGoodsItem> & rList, int pos,
 int PPBillPacket::CheckGoodsForRestrictions(int rowIdx, PPID goodsID, int sign, double qtty, long flags, CgrRetBlock * pRetBlk)
 {
 	int    ok = 1;
-	PPObjGoods goods_obj;
-	SString msg_buf, temp_buf;
+	SString temp_buf;
+	SString msg_buf;
 	CgrRetBlock ret_blk;
+	PPObjGoods goods_obj;
 	Goods2Tbl::Rec goods_rec;
 	THROW(goods_obj.Fetch(goodsID, &goods_rec) > 0);
 	if((flags & cgrfMatrix) && !goods_obj.CheckMatrix(goodsID, Rec.LocID, Rec.OpID, Rec.Object))

@@ -1852,7 +1852,7 @@ private:
 	}
 	virtual int editItem(long pos, long)
 	{
-		return (pos >= 0 && (uint)pos < Data.TagsRestrict.getCount()) ? EditItem(&pos) : -1;
+		return (pos >= 0 && pos < (long)Data.TagsRestrict.getCount()) ? EditItem(&pos) : -1;
 	}
 	virtual int moveItem(long pos, long id, int up)
 	{

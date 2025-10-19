@@ -2064,7 +2064,7 @@ int GSDialog::addItemExt(long * pPos, long * pID)
 		}
 	}
 	else {
-		long   egsd_flags = (ExtGoodsSelDialog::GetDefaultFlags() | ExtGoodsSelDialog::fForcePassive); // @v10.7.7
+		long   egsd_flags = (ExtGoodsSelDialog::GetDefaultFlags() | ExtGoodsSelDialog::fForcePassive);
 		ExtGoodsSelDialog * dlg = new ExtGoodsSelDialog(0, NewGoodsGrpID, egsd_flags);
 		if(CheckDialogPtrErr(&dlg)) {
 			TIDlgInitData tidi;

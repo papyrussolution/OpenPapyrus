@@ -1003,13 +1003,16 @@ int AccTurnCore::_RollbackTurn(int side, LDATE date, long oprNo, PPID bal, PPID 
 int AccTurnCore::_UpdateTurn(PPID billID, short rByBill, double newAmt, double cRate, int use_ta)
 {
 	int    ok = 1;
-	const  int do_remove = BIN(newAmt == 0.0);
+	const  bool do_remove = (newAmt == 0.0);
 	int    zero_crd_acc = 0;
 	AccTurnTbl::Key0 k0;
 	LDATE  date;
-	PPID   dbt_acc_id, crd_acc_id;
-	PPID   dbt_rel_id, crd_rel_id;
-	long   dbt_oprno,  crd_oprno;
+	PPID   dbt_acc_id;
+	PPID   crd_acc_id;
+	PPID   dbt_rel_id;
+	PPID   crd_rel_id;
+	long   dbt_oprno;
+	long   crd_oprno;
 	double amt;  // Оригинальная сумма проводки
 	double _amt; // Сумма, на которую изменяются форвардные остатки и балансы
 	{

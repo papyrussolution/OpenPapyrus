@@ -332,7 +332,7 @@ public:
 	int    Read(const char * pFileName, PPLogger * pLogger);
 	int    Write(const char * pFileName, const SBinaryChunk * pPrevHash, SBinaryChunk * pHash);
 	int    WriteProps(const char * pFileName, const SBinaryChunk * pPrevHash, SBinaryChunk * pHash);
-	bool   GenerateSourceDecl_C(const char * pFileName, uint versionN, const SBinaryChunk & rHash);
+	bool   GenerateSourceDecl_C(const char * pFileName, const char * pMultiInclProtectDef, uint versionN, const SBinaryChunk & rHash);
 	bool   GenerateSourceDecl_Java(const char * pFileName, uint versionN, const SBinaryChunk & rHash);
 	//
 	// Descr: Верифицирует this-контейнер на непротиворечивость и, если указан контейнер

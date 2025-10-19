@@ -217,7 +217,7 @@ private:
 		FLD(AmtPrice);
 		FLD(AmtDscnt);
 		FLD(AmtCVat);
-		FLD(ChZnProdType); // @v10.7.2
+		FLD(ChZnProdType);
 		FLD(Flags);
 		#undef FLD
 		GetName(pEntry, p_data_rec->Name, sizeof(p_data_rec->Name));
@@ -230,7 +230,7 @@ public:
 		PPID   AmtPrice;
 		PPID   AmtDscnt;
 		PPID   AmtCVat;
-		long   ChZnProdType; // @v10.7.2
+		long   ChZnProdType;
 		long   Flags;
 	};
 };

@@ -2118,7 +2118,7 @@ int SrUedContainer_Base::WriteSource(const char * pFileName, const SBinaryChunk 
 	return ok;
 }
 
-bool SrUedContainer_Ct::GenerateSourceDecl_C(const char * pFileName, uint versionN, const SBinaryChunk & rHash)
+bool SrUedContainer_Ct::GenerateSourceDecl_C(const char * pFileName, const char * pMultiInclProtectDef, uint versionN, const SBinaryChunk & rHash)
 {
 	bool   ok = true;
 	SString temp_buf;
@@ -2164,8 +2164,13 @@ bool SrUedContainer_Ct::GenerateSourceDecl_C(const char * pFileName, uint versio
 			}
 		}
 	}
-	h_sentinel_def.Z().Cat("__").Cat(ps.Nam).CatChar('_').Cat("h").ToUpper();
-	h_sentinel_def.ReplaceChar('-', '_');
+	if(isempty(pMultiInclProtectDef)) {
+		h_sentinel_def.Z().Cat("__").Cat(ps.Nam).CatChar('_').Cat("h").ToUpper();
+		h_sentinel_def.ReplaceChar('-', '_');
+	}
+	else {
+		h_sentinel_def = pMultiInclProtectDef;
+	}
 	gen.Wr_IfDef(h_sentinel_def, 1);
 	gen.Wr_Define(h_sentinel_def, 0);
 	gen.WriteBlancLine();
@@ -2378,8 +2383,7 @@ int SrUedContainer_Base::Verify(const char * pPath, long ver, SBinaryChunk * pHa
 	using namespace U_ICU_NAMESPACE;
 #endif
 
-int ProcessUed(const char * pSrcFileName, const char * pOutPath, const char * pRtOutPath,
-	const char * pCPath, const char * pJavaPath, uint flags, PPLogger * pLogger)
+int ProcessUed(const char * pSrcFileName, const char * pOutPath, const char * pRtOutPath, const char * pCPath, const char * pJavaPath, uint flags, PPLogger * pLogger)
 {
 	int    ok = 1;
 	bool   unchanged = false; // Если хэш нового результатного файла не отличается от предыдущей версии, то true.
@@ -2497,14 +2501,18 @@ int ProcessUed(const char * pSrcFileName, const char * pOutPath, const char * pR
 				SrUedContainer_Base::MakeUedCanonicalName(SrUedContainer_Base::canonfnIds, ps_src.Nam, -1);
 				ps_src.Ext = "h";
 				ps_src.Merge(out_file_name);
-				//
+				// @v12.4.5 {
+				SString h_sentinel_def;
+				h_sentinel_def.Z().Cat("__").Cat(ps_src.Nam).CatChar('_').Cat(ps_src.Ext).ToUpper();
+				h_sentinel_def.ReplaceChar('-', '_');
+				// @v12.4.5 {
 				if(!fileExists(out_file_name)) {
-					THROW(uedc.GenerateSourceDecl_C(out_file_name, new_version, new_hash));
+					THROW(uedc.GenerateSourceDecl_C(out_file_name, h_sentinel_def, new_version, new_hash));
 				}
 				else {
 					ps_src.Nam.CatChar('-').Cat("temp");
 					ps_src.Merge(temp_file_name);
-					THROW(uedc.GenerateSourceDecl_C(temp_file_name, new_version, new_hash));
+					THROW(uedc.GenerateSourceDecl_C(temp_file_name, h_sentinel_def, new_version, new_hash));
 					if(SFile::Compare(out_file_name, temp_file_name, 0) > 0) {
 						; // nothing-to-do
 						SFile::Remove(temp_file_name);

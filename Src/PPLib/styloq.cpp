@@ -675,7 +675,7 @@ int StyloQFace::GetLanguageList(LongArray & rList) const
 
 int StyloQFace::Set(int tag, int lang, const char * pText)
 {
-	long   eff_tag = (lang && IsTagLangDependent(tag)) ? (tag | (lang << 16)) : tag;
+	const  long eff_tag = (lang && IsTagLangDependent(tag)) ? (tag | (lang << 16)) : tag;
 	int    ok = isempty(pText) ? L.Remove(eff_tag) : L.Add(eff_tag, pText, 1);
 	if(!ok)
 		PPSetErrorSLib();

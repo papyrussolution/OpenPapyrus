@@ -908,9 +908,9 @@ int GoodsCore::GetListByBarcodeLen(const PPIDArray * pLens, PPIDArray & rList)
 	return ok;
 }
 
-int GoodsCore::GetListBySubstring(const char * pSubstr, PPIDArray * pList, int skipPassive, int srchByExtStr)
+int GoodsCore::GetListBySubstring(const char * pSubstr, PPIDArray * pList, int skipPassive, bool srchByExtStr)
 {
-	long flags = 0;
+	long   flags = 0;
 	if(skipPassive < 0)
 		flags |= glsfDefPassive;
 	else if(skipPassive)
@@ -920,9 +920,9 @@ int GoodsCore::GetListBySubstring(const char * pSubstr, PPIDArray * pList, int s
 	return Helper_GetListBySubstring(pSubstr, pList, flags);
 }
 
-int GoodsCore::GetListBySubstring(const char * pSubstr, StrAssocArray * pList, int skipPassive, int srchByExtStr)
+int GoodsCore::GetListBySubstring(const char * pSubstr, StrAssocArray * pList, int skipPassive, bool srchByExtStr)
 {
-	long flags = glsfStrList;
+	long   flags = glsfStrList;
 	if(skipPassive < 0)
 		flags |= glsfDefPassive;
 	else if(skipPassive)

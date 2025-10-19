@@ -312,7 +312,7 @@ static SPtrHandle DuplicateAccessToken(SPtrHandle & rH, LPCSTR file, int line)
 		//Log(StrFormat(L"Could not find privilege %s", privilegeStr), false);
 		return false;
 	}
-	ZeroMemory(&tp, sizeof (tp));
+	MEMSZERO(tp);
 	tp.PrivilegeCount = 1;
 	tp.Privileges[0].Luid = luid;
 	tp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;

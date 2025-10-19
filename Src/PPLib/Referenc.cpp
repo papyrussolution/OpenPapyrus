@@ -573,15 +573,16 @@ int Reference::RemoveProperty(PPID obj, PPID id, PPID prop, int use_ta)
 int Reference::ReadPropBuf(void * b, size_t s, size_t * pActualSize)
 {
 	int    ok = 1;
-	size_t actual_size = 0;
 	SBuffer temp_buf;
 	const  RECORDSIZE fix_rec_size = Prop.getRecSize();
 	temp_buf.Write(&Prop.data, fix_rec_size);
 	Prop.readLobData(Prop.VT, temp_buf);
 	Prop.destroyLobData(Prop.VT);
-	actual_size = temp_buf.GetAvailableSize();
+	{
+		const size_t actual_size = temp_buf.GetAvailableSize();
+		ASSIGN_PTR(pActualSize, actual_size);
+	}
 	temp_buf.Read(b, s);
-	ASSIGN_PTR(pActualSize, actual_size);
 	return ok;
 }
 

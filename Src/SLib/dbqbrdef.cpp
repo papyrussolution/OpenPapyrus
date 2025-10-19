@@ -31,6 +31,7 @@ int DBQBrowserDef::setQuery(DBQuery & rQuery, uint aBufSize)
 
 /*virtual*/int DBQBrowserDef::insertColumn(int atPos, const char * pTxt, uint fldNo, TYPEID typ, long fmt, uint opt)
 {
+	int    ok = 1;
 	BroColumn bc;
 	bc.OrgOffs = fldNo;
 	if(fldNo == UNDEF)
@@ -47,24 +48,24 @@ int DBQBrowserDef::setQuery(DBQuery & rQuery, uint aBufSize)
 			bc.Offs += stsize(P_Query->flds[i].type);
 	}
 	bc.format = fmt;
-	bc.Options = (opt | BCO_CAPLEFT);
+	bc.Options = (opt|BCO_CAPLEFT);
 	bc.text = newStr(pTxt);
 	if(addColumn(&bc, (atPos >= 0) ? atPos : UNDEF)) {
 		if(GETSTYPE(typ))
 			at(getCount()-1).T = typ;
 		if(atPos >= 0 && P_Groups) {
 			for(uint j = 0; j < NumGroups; j++) {
-				BroGroup & grp = P_Groups[j];
-				if(atPos <= static_cast<int>(grp.First))
-					grp.First++;
-				else if(atPos > static_cast<int>(grp.First) && atPos <= static_cast<int>(grp.NextColumn()))
-					grp.Count++;
+				BroGroup & r_grp = P_Groups[j];
+				if(atPos <= static_cast<int>(r_grp.First))
+					r_grp.First++;
+				else if(atPos > static_cast<int>(r_grp.First) && atPos <= static_cast<int>(r_grp.NextColumn()))
+					r_grp.Count++;
 			}
 		}
-		return 1;
 	}
 	else
-		return 0;
+		ok = 0;
+	return ok;
 }
 
 /*virtual*/int DBQBrowserDef::insertColumn(int atPos, const char * pTxt, const char * pFldName, TYPEID typ, long fmt, uint opt)
@@ -94,7 +95,7 @@ void DBQBrowserDef::setupView()
 	isEOQ = LOGIC(P_Query->P_Frame->State & DBQuery::Frame::stBottom);
 }
 
-int FASTCALL DBQBrowserDef::step(long d)
+int DBQBrowserDef::step(long d)
 {
 	const int r = P_Query->step(d);
 	setupView();
@@ -123,6 +124,6 @@ int DBQBrowserDef::refresh()
 }
 
 bool   DBQBrowserDef::IsValid() const { return !P_Query->error; }
-int    FASTCALL DBQBrowserDef::go(long p) { return step(p-curItem); }
+int    DBQBrowserDef::go(long p) { return step(p-curItem); }
 long   DBQBrowserDef::GetRecsCount() const { return P_Query->P_Frame->SRange+1; }
-const  void * FASTCALL DBQBrowserDef::getRow(long r) const { return P_Query->getRecord(static_cast<uint>(r)); }
+const  void * DBQBrowserDef::getRow(long r) const { return P_Query->getRecord(static_cast<uint>(r)); }

@@ -230,45 +230,25 @@ CONSTEXPR_F fields n_sec(year_t y, diff_t m, diff_t d, diff_t hh, diff_t mm,
 		cm -= 1;
 		ss += 60;
 	}
-	return n_min(y, m, d, hh, mm / 60 + cm / 60, mm % 60 + cm % 60,
-		   static_cast<second_t>(ss));
+	return n_min(y, m, d, hh, mm / 60 + cm / 60, mm % 60 + cm % 60, static_cast<second_t>(ss));
 }
 }  // namespace impl
 
 ////////////////////////////////////////////////////////////////////////
 
 // Increments the indicated (normalized) field by "n".
-CONSTEXPR_F fields step(second_tag, fields f, diff_t n) noexcept {
-	return impl::n_sec(f.y, f.m, f.d, f.hh, f.mm + n / 60, f.ss + n % 60);
-}
-
-CONSTEXPR_F fields step(minute_tag, fields f, diff_t n) noexcept {
-	return impl::n_min(f.y, f.m, f.d, f.hh + n / 60, 0, f.mm + n % 60, f.ss);
-}
-
-CONSTEXPR_F fields step(hour_tag, fields f, diff_t n) noexcept {
-	return impl::n_hour(f.y, f.m, f.d + n / 24, 0, f.hh + n % 24, f.mm, f.ss);
-}
-
-CONSTEXPR_F fields step(day_tag, fields f, diff_t n) noexcept {
-	return impl::n_day(f.y, f.m, f.d, n, f.hh, f.mm, f.ss);
-}
-
-CONSTEXPR_F fields step(month_tag, fields f, diff_t n) noexcept {
-	return impl::n_mon(f.y + n / 12, f.m + n % 12, f.d, 0, f.hh, f.mm, f.ss);
-}
-
-CONSTEXPR_F fields step(year_tag, fields f, diff_t n) noexcept {
-	return fields(f.y + n, f.m, f.d, f.hh, f.mm, f.ss);
-}
+CONSTEXPR_F fields step(second_tag, fields f, diff_t n) noexcept { return impl::n_sec(f.y, f.m, f.d, f.hh, f.mm + n / 60, f.ss + n % 60); }
+CONSTEXPR_F fields step(minute_tag, fields f, diff_t n) noexcept { return impl::n_min(f.y, f.m, f.d, f.hh + n / 60, 0, f.mm + n % 60, f.ss); }
+CONSTEXPR_F fields step(hour_tag, fields f, diff_t n) noexcept { return impl::n_hour(f.y, f.m, f.d + n / 24, 0, f.hh + n % 24, f.mm, f.ss); }
+CONSTEXPR_F fields step(day_tag, fields f, diff_t n) noexcept { return impl::n_day(f.y, f.m, f.d, n, f.hh, f.mm, f.ss); }
+CONSTEXPR_F fields step(month_tag, fields f, diff_t n) noexcept { 	return impl::n_mon(f.y + n / 12, f.m + n % 12, f.d, 0, f.hh, f.mm, f.ss); }
+CONSTEXPR_F fields step(year_tag, fields f, diff_t n) noexcept { return fields(f.y + n, f.m, f.d, f.hh, f.mm, f.ss); }
 
 ////////////////////////////////////////////////////////////////////////
 
 namespace impl {
 // Returns (v * f + a) but avoiding intermediate overflow when possible.
-CONSTEXPR_F diff_t scale_add(diff_t v, diff_t f, diff_t a) noexcept {
-	return (v < 0) ? ((v + 1) * f + a) - f : ((v - 1) * f + a) + f;
-}
+CONSTEXPR_F diff_t scale_add(diff_t v, diff_t f, diff_t a) noexcept { return (v < 0) ? ((v + 1) * f + a) - f : ((v - 1) * f + a) + f; }
 
 // Map a (normalized) Y/M/D to the number of days before/after 1970-01-01.
 // Probably overflows for years outside [-292277022656:292277026595].
@@ -452,38 +432,22 @@ public:
 		++*this;
 		return a;
 	}
-
 	CONSTEXPR_M civil_time& operator--() noexcept { return *this -= 1; }
-	CONSTEXPR_M civil_time operator--(int) noexcept {
+	CONSTEXPR_M civil_time operator--(int) noexcept 
+	{
 		const civil_time a = *this;
 		--*this;
 		return a;
 	}
-
 	// Binary arithmetic operators.
-	friend CONSTEXPR_F civil_time operator+(civil_time a, diff_t n) noexcept {
-		return civil_time(step(T{}, a.f_, n));
+	friend CONSTEXPR_F civil_time operator+(civil_time a, diff_t n) noexcept { return civil_time(step(T{}, a.f_, n)); }
+	friend CONSTEXPR_F civil_time operator+(diff_t n, civil_time a) noexcept { return a + n; }
+	friend CONSTEXPR_F civil_time operator-(civil_time a, diff_t n) noexcept 
+	{
+		return n != (std::numeric_limits<diff_t>::min)() ? civil_time(step(T{}, a.f_, -n)) : civil_time(step(T{}, step(T{}, a.f_, -(n + 1)), 1));
 	}
-
-	friend CONSTEXPR_F civil_time operator+(diff_t n, civil_time a) noexcept {
-		return a + n;
-	}
-
-	friend CONSTEXPR_F civil_time operator-(civil_time a, diff_t n) noexcept {
-		return n != (std::numeric_limits<diff_t>::min)()
-	       ? civil_time(step(T{}, a.f_, -n))
-	       : civil_time(step(T{}, step(T{}, a.f_, -(n + 1)), 1));
-	}
-
-	friend CONSTEXPR_F diff_t operator-(civil_time lhs, civil_time rhs) noexcept {
-		return difference(T{}, lhs.f_, rhs.f_);
-	}
-
-	template <typename H>
-	friend H AbslHashValue(H h, civil_time a) {
-		return impl::AbslHashValueImpl(T{}, std::move(h), a.f_);
-	}
-
+	friend CONSTEXPR_F diff_t operator-(civil_time lhs, civil_time rhs) noexcept { return difference(T{}, lhs.f_, rhs.f_); }
+	template <typename H> friend H AbslHashValue(H h, civil_time a) { return impl::AbslHashValueImpl(T{}, std::move(h), a.f_); }
 private:
 	// All instantiations of this template are allowed to call the following
 	// private constructor and access the private fields member.

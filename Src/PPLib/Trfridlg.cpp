@@ -3184,7 +3184,7 @@ void TrfrItemDialog::selectLot()
 			if(p_lot_rec->SupplID == P_Pack->Rec.Object || (op_id != _PPOPK_SUPPLRET && (P_Pack->OpTypeID != PPOPT_GOODSREVAL || !P_Pack->Rec.Object))) {
 				THROW(addLotEntry(p_ary, p_lot_rec));
 				if(p_lot_rec->ID == Item.LotID) {
-					s = p_ary->getCount() - 1;
+					s = p_ary->getCount()-1;
 					found = 1;
 				}
 			}
@@ -3203,7 +3203,7 @@ void TrfrItemDialog::selectLot()
 			}
 			if(found && !p_ary->lsearch(&p_lot_rec->ID, 0, CMPF_LONG, offsetof(SelLotBrowser::Entry, LotID))) {
 				THROW(addLotEntry(p_ary, p_lot_rec));
-				s = p_ary->getCount() - 1;
+				s = p_ary->getCount()-1;
 			}
 		}
 		THROW_MEM(p_brw = new SelLotBrowser(P_BObj, p_ary, s, SelLotBrowser::fShowManufTime));

@@ -2506,7 +2506,7 @@ int PPSession::Init(long internalAppId, long flags, HINSTANCE hInst, const char 
 			UiToolBox_.SetPen(TProgram::tbiButtonPen_F+TProgram::tbisFocus,  SPaintObj::psSolid, 1, SColor(0x15, 0x20, 0xEA));
 			UiToolBox_.SetPen(TProgram::tbiButtonPen_F+TProgram::tbisSelect, SPaintObj::psSolid, 1, SColor(0x15, 0x20, 0xEA));
 			{
-				SFontDescr fd_default("Verdana", 11, 0); // ! Не использовать "MS Sans Serif"
+				SFontDescr fd_default("Verdana", 11, 0); // ! Не использовать "MS Sans Serif" 
 				const SFontDescr * p_fd = p_uid ? p_uid->GetFontDescrC("ControlFont") : 0;
 				UiToolBox_.CreateFont_(TProgram::tbiControlFont, p_fd ? *p_fd : fd_default);
 			}
@@ -6260,8 +6260,7 @@ PPAdviseEventQueue::Stat::Stat() : LivingTime(0), StartClock(0), Push_Count(0), 
 {
 }
 
-PPAdviseEventQueue::PPAdviseEventQueue() :
-	/*TSVector <PPAdviseEvent> ()*/PPAdviseEventVector(), CliList(/*DEFCOLLECTDELTA,*/(aryDataOwner|aryPtrContainer)), LastIdent(0)
+PPAdviseEventQueue::PPAdviseEventQueue() : PPAdviseEventVector(), CliList((aryDataOwner|aryPtrContainer)), LastIdent(0)
 {
 	S.StartClock = clock();
 }

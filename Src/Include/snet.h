@@ -817,10 +817,9 @@ public:
 		void * P_CMime; // @v12.2.6 curl_mime
 	};
 	struct OpTimeMetrics { // В mks (1^-6sec)
-		OpTimeMetrics()
-		{
-			THISZERO();
-		}
+		OpTimeMetrics();
+		SString & ToStr(uint flags/*@reserve*/, SString & rBuf) const;
+		
 		uint    Total;         // CURLINFO_TOTAL_TIME
 		uint    DnsLookUp;     // CURLINFO_NAMELOOKUP_TIME  
 		uint    Connect;       // CURLINFO_CONNECT_TIME

@@ -5523,12 +5523,12 @@ public:
 	virtual void   setViewHight(int);
 	virtual void   getScrollData(long * pScrollDelta, long * pScrollPos);
 	virtual bool   IsValid() const;
-	virtual int    FASTCALL go(long);
-	virtual int    FASTCALL step(long);
+	virtual int    go(long);
+	virtual int    step(long);
 	virtual int    top();
 	virtual int    bottom();
 	virtual long   GetRecsCount() const;
-	virtual const  void * FASTCALL getRow(long) const;
+	virtual const  void * getRow(long) const;
 	virtual int    refresh();
 	virtual int    search(const void * pPattern, CompFunc, int srchMode, int srchCol);
 	virtual int    search2(const void * pSrchData, CompFunc, int srchMode, size_t offs);
@@ -5608,7 +5608,7 @@ public:
 	virtual bool   IsValid() const;
 	virtual int    insertColumn(int atPos, const char * pTxt, uint fldNo, TYPEID typ, long fmt, uint opt);
 	virtual long   GetRecsCount() const;
-	virtual const  void * FASTCALL getRow(long) const;
+	virtual const  void * getRow(long) const;
 protected:
 	SArray * P_Array;
 	BNFieldList2 * P_Fields;
@@ -5630,12 +5630,12 @@ public:
 	virtual void   setViewHight(int);
 	virtual void   getScrollData(long * pScrollDelta, long * pScrollPos);
 	virtual bool   IsValid() const;
-	virtual int    FASTCALL go(long);
-	virtual int    FASTCALL step(long);
+	virtual int    go(long);
+	virtual int    step(long);
 	virtual int    top();
 	virtual int    bottom();
 	virtual long   GetRecsCount() const;
-	virtual const  void * FASTCALL getRow(long) const;
+	virtual const  void * getRow(long) const;
 	virtual int    refresh();
 protected:
 	void   setupView();

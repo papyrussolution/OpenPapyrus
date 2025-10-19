@@ -2125,7 +2125,7 @@ int PPViewPrjTask::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser 
 					TodoObj.GetLinkTasks(id, &task_list);
 					if(p_v->Init_(&lt_flt) && p_v->Browse(0)) {
 						TodoObj.GetLinkTasks(id, &id_list);
-						for(int i = (int)task_list.getCount() - 1; i >= 0; i--)
+						for(int i = (int)task_list.getCount()-1; i >= 0; i--)
 							if(id_list.freeByKey(task_list.at(i), 0) > 0)
 								task_list.atFree(i);
 						id_list.add(&task_list);
@@ -2157,7 +2157,7 @@ int PPViewPrjTask::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser 
 				{
 					if(Filt.TabType == PrjTaskFilt::crstNone) {
 						BrowserDef * p_def = pBrw->getDef();
-						int    col = p_def ? (p_def->getCount() - 1) : -1;
+						int    col = p_def ? (p_def->getCount()-1) : -1;
 						long   h = 0;
 						if(pBrw->ItemByMousePos(&h, 0) && col > 0 && h == col) {
 							PPPrjTaskPacket pt_pack;

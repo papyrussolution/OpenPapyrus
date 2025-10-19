@@ -1307,7 +1307,7 @@ int PPViewGoodsRest::FlashCacheItems(uint count)
 			}
 			lru_array.freeAll();
 			lru_pos_array.sort(PTR_CMPFUNC(int));
-			for(int rev_i = lru_pos_array.getCount() - 1; rev_i >= 0; rev_i--)
+			for(int rev_i = lru_pos_array.getCount()-1; rev_i >= 0; rev_i--)
 				CacheBuf.atFree(*(uint *)lru_pos_array.at(rev_i));
 			PROFILE_END
 		}
