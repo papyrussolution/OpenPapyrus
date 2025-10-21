@@ -4565,8 +4565,8 @@ public:
 						Loc = temp_buf;
 					}
 				}
-				ini_file.GetEntries("include", &SsIncl, 1/*storeAllString*/);
-				ini_file.GetEntries("exclude", &SsExcl, 1/*storeAllString*/);
+				ini_file.GetEntries2("include", &SsIncl, SIniFile::gefStoreAllString);
+				ini_file.GetEntries2("exclude", &SsExcl, SIniFile::gefStoreAllString);
 				if(Loc.NotEmpty() && SsIncl.IsCountGreaterThan(0)) {
 					ok = 1;
 				}

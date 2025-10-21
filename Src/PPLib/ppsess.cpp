@@ -5254,7 +5254,7 @@ int PPDriveMapping::Load(PPIniFile * pIniFile)
 {
 	if(pIniFile) {
 		Z().setDelim(";");
-		pIniFile->GetEntryList(PPINISECT_DRIVEMAPPING, this, 1);
+		pIniFile->GetEntryList2(PPINISECT_DRIVEMAPPING, this, SIniFile::gefStoreAllString);
 		return 1;
 	}
 	else

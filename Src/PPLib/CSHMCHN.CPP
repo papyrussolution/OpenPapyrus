@@ -76,9 +76,9 @@ int PPCashMachine::SyncOrAsync(int cashID, int & rS)
 		ok = -1;
 	else {
 		StringSet set;
-		THROW(ini_file.GetEntryList(PPINISECT_DRV_SYNCPOS, &set, 1));
+		THROW(ini_file.GetEntryList2(PPINISECT_DRV_SYNCPOS, &set, SIniFile::gefStoreAllString));
 		sync_count = set.getCount();
-		THROW(ini_file.GetEntryList(PPINISECT_DRV_ASYNCPOS, &set, 1));
+		THROW(ini_file.GetEntryList2(PPINISECT_DRV_ASYNCPOS, &set, SIniFile::gefStoreAllString));
 		if(local_pos_id < static_cast<int>(sync_count))
 			rS = 1;
 		else if(local_pos_id > static_cast<int>(set.getCount()))

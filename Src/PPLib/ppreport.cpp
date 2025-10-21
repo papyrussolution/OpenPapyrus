@@ -702,11 +702,11 @@ int PrnDlgAns::SetupReportEntries(const char * pContextSymb)
 			{
 				if(ContextSymb.NotEmpty()) {
 					(section_name = ReportName).Strip().Colon().Cat(ContextSymb);
-					std_ini_file.GetEntries(section_name, &std_ss);
+					std_ini_file.GetEntries2(section_name, &std_ss, 0/*flags*/);
 				}
 				if(std_ss.getCount() == 0) {
 					(section_name = ReportName).Strip();
-					std_ini_file.GetEntries(section_name, &std_ss);
+					std_ini_file.GetEntries2(section_name, &std_ss, 0/*flags*/);
 				}
 			}
 			for(pos = 0; std_ss.get(&pos, param_buf);) {
@@ -773,11 +773,11 @@ int PrnDlgAns::SetupReportEntries(const char * pContextSymb)
 			{
 				if(ContextSymb.NotEmpty()) {
 					(section_name = ReportName).Strip().Colon().Cat(ContextSymb);
-					ini_file.GetEntries(section_name, &ss);
+					ini_file.GetEntries2(section_name, &ss, 0/*flags*/);
 				}
 				if(!ss.IsCountGreaterThan(0)) {
 					(section_name = ReportName).Strip();
-					ini_file.GetEntries(section_name, &ss);
+					ini_file.GetEntries2(section_name, &ss, 0/*flags*/);
 				}
 			}
 			for(pos = 0; ss.get(&pos, param_buf);) {

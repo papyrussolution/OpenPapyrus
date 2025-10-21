@@ -1679,7 +1679,8 @@ void PPApp::login(int processCmdLine)
 {
 	int    do_quit = 0;
 	SString arg_buf;
-	SString msg_buf, temp_buf;
+	SString temp_buf;
+	SString msg_buf;
 	const  int no_login = PPSession::GetStartUpOption(PPSession::cmdlNoLogin, arg_buf);
 	const  int is_batch = PPSession::GetStartUpOption(PPSession::cmdlBatch, arg_buf);
 	//Test_KeywordListGenerator(); // @debug
@@ -1744,7 +1745,8 @@ void PPApp::login(int processCmdLine)
 		TView::messageCommand(this, cmQuit);
 	}
 	else if(PPSession::GetStartUpOption(PPSession::cmdlAutoTranslate, arg_buf)) {
-		SString src_file_path, auto_transl_lang;
+		SString src_file_path;
+		SString auto_transl_lang;
 		arg_buf.Divide(';', src_file_path, auto_transl_lang);
 		src_file_path.Strip();
 		auto_transl_lang.Strip();
@@ -1766,7 +1768,8 @@ void PPApp::login(int processCmdLine)
 		};
 		SString db_symb;
 		SString pw;
-		SString ini_src, ini_dest;
+		SString ini_src;
+		SString ini_dest;
 		CvtCipherDialog * dlg = new CvtCipherDialog();
 		if(CheckDialogPtrErr(&dlg)) {
 			PPIniFile ini_file;

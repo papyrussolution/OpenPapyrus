@@ -2327,7 +2327,7 @@ public:
 	explicit PPIniFile(const char * pFileName, int fcreate = 0, int winCoding = 0, int useIniBuf = 0);
 	PPIniFile();
 	~PPIniFile();
-	int    GetEntryList(uint sectId, StringSet * pEntries, int storeAllString = 0);
+	int    GetEntryList2(uint sectId, StringSet * pEntries, uint flags/*SIniFile::gefXXX*/);
 	int    Get(uint sectId, uint paramId, SString & rBuf);
 	int    Get(uint sectId, const char * pParamName, SString & rBuf);
 	int    Get(const char * pSectName, uint paramId, SString & rBuf);

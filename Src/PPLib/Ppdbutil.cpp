@@ -349,7 +349,7 @@ int PPBackup::CBP_CopyProcess(const char * pSrcFile, const char * /*pDestFile*/,
 	PPIniFile ini_file;
 	THROW(ini_file.IsValid());
 	rList.clear();
-	ini_file.GetEntries(p_sect, &temp);
+	ini_file.GetEntries2(p_sect, &temp, 0/*flags*/);
 	PPLoadText(PPINIPARAM_USECOPYCONTINUOUS, text_use_copy_continuous);
 	for(pos = 0; temp.get(&pos, buf);) {
 		if(!buf.IsEqiAscii(text_use_copy_continuous)) {

@@ -837,7 +837,7 @@ static int BuildHelp(const char * pHhpFilePath, const char * pOutPath) // @v12.4
 				SIniFile f_ini(pHhpFilePath, 0, 1, 0);
 				if(f_ini.IsValid()) {
 					StringSet ss;
-					f_ini.GetEntries("FILES", &ss, true/*storeAllString*/);
+					f_ini.GetEntries2("FILES", &ss, SIniFile::gefStoreAllString);
 					for(uint ssp = 0; !do_build && ss.get(&ssp, temp_buf);) {
 						(file_path = hhp_dir).SetLastSlash().Cat(temp_buf);
 						LDATETIME dtm_file_ = ZERODATETIME;

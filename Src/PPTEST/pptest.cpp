@@ -1764,7 +1764,7 @@ public:
 		THROW(ini_file.IsValid());
 		ini_file.GetSections(&ss_sections);
 		for(uint ssp = 0; ss_sections.get(&ssp, sect_buf);) {
-			ini_file.GetEntries(sect_buf, &ss_entries, false);
+			ini_file.GetEntries2(sect_buf, &ss_entries, 0/*flags*/);
 			if(ss_entries.getCount()) {
 				HtmlParsingRule * p_rule = new HtmlParsingRule();
 				THROW_SL(p_rule);

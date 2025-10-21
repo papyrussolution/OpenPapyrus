@@ -385,12 +385,15 @@ int SIniFile::InitIniBuf()
 		//
 		StringSet ss;
 		StringSet se;
-		SString sect_buf, par_buf, par, val;
+		SString sect_buf;
+		SString par_buf;
+		SString par;
+		SString val;
 		GetSections(&ss);
 		for(uint i = 0; ss.get(&i, sect_buf);) {
 			se.Z();
 			THROW(P_IniBuf->AddSect(sect_buf));
-			GetEntries(sect_buf, &se, true);
+			GetEntries2(sect_buf, &se, gefStoreAllString);
 			for(uint j = 0; se.get(&j, par_buf);) {
 				par_buf.Divide('=', par, val);
 				//if(Flags & fWinCoding) val.Transf(CTRANSF_INNER_TO_OUTER);
@@ -549,7 +552,8 @@ int SIniFile::GetSections(StringSet * pSects)
 	return ok;
 }
 
-int SIniFile::GetEntries(const char * pSect, StringSet * pEntries, bool storeAllString)
+//int SIniFile::GetEntries(const char * pSect, StringSet * pEntries, bool storeAllString)
+int SIniFile::GetEntries2(const char * pSect, StringSet * pEntries, uint flags/*gefXXX*/)
 {
 	int    ok = 1;
 	bool   do_close = false;
@@ -561,7 +565,7 @@ int SIniFile::GetEntries(const char * pSect, StringSet * pEntries, bool storeAll
 			SIniSectBuffer * p_sect_buf = P_IniBuf->GetSect(pSect);
 			if(p_sect_buf) {
 				for(uint pos = 0; p_sect_buf->EnumParams(&pos, &temp_buf, &val) > 0;) {
-					if(storeAllString) {
+					if(flags & gefStoreAllString) {
 						//if(Flags & fWinCoding) val.Transf(CTRANSF_OUTER_TO_INNER);
 						// (В буфере текст уже декодирован) DecodeText(val);
 						temp_buf.Eq().Cat(val);
@@ -584,13 +588,14 @@ int SIniFile::GetEntries(const char * pSect, StringSet * pEntries, bool storeAll
 				Scan.Set(line_buf, 0);
 				Scan.Skip();
 				if(*Scan && *Scan != ';') {
-					if(storeAllString)
+					if(flags & gefStoreAllString)
 						temp_buf = line_buf;
 					else if(line_buf.Divide('=', temp_buf, val) <= 0)
 						temp_buf.Z();
 					if(temp_buf.NotEmptyS()) {
 						//if(Flags & fWinCoding) temp_buf.Transf(CTRANSF_OUTER_TO_INNER);
-						DecodeText(temp_buf);
+						if(!(flags & gefDontDecode))
+							DecodeText(temp_buf);
 						THROW(pEntries->add(temp_buf));
 					}
 				}
@@ -605,39 +610,50 @@ int SIniFile::GetEntries(const char * pSect, StringSet * pEntries, bool storeAll
 
 int SIniFile::SearchParam(const char * pSect, const char * pParam, SString & rVal)
 {
-	int    ok = -1;
-	int    do_close_file = 0;
 	rVal.Z();
-	if(Flags & fIniBufInited)
-		ok = (P_IniBuf->GetParam(pSect, pParam, rVal) > 0) ? 1 : -1;
-	else {
-		int    this_sect = 0;
-		SString temp_buf;
-		SString sect(pSect);
-		SString key(pParam);
-		SString line_buf;
-		SString val;
-		const int opnr = Open(FileName);
-		THROW(opnr);
-		do_close_file = BIN(opnr > 0);
-		/*if(Flags & fWinCoding) {
-			sect.Transf(CTRANSF_OUTER_TO_INNER);
-			key.Transf(CTRANSF_OUTER_TO_INNER);
-		}*/
-		DecodeText(sect);
-		DecodeText(key);
-		for(File.Seek(0); ok < 0 && File.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip);) {
-			int    r = IsSection(line_buf, sect, 0);
-			if(r > 0)
-				this_sect = BIN(r == 2);
-			else if(this_sect || isempty(pSect)) {
-				Scan.Set(line_buf, 0);
-				Scan.Skip();
-				if(*Scan != ';') {
-					line_buf.Divide('=', temp_buf, val);
-					if(temp_buf.Strip().CmpNC(key) == 0) {
-						rVal = DecodeText(val.Strip());
-						ok = 1; // end of loop
+	int    ok = -1;
+	bool   do_close_file = false;
+	if(!isempty(pParam)) {
+		if(Flags & fIniBufInited)
+			ok = (P_IniBuf->GetParam(pSect, pParam, rVal) > 0) ? 1 : -1;
+		else {
+			SString temp_buf;
+			SString sect(pSect);
+			SString key_decoded(pParam);
+			SString line_buf;
+			SString val;
+			const int opnr = Open(FileName);
+			do_close_file = (opnr > 0);
+			THROW(opnr);
+			{
+				// @fixme @20251021 По-моему, я здесь облажался: должно быть EncodeText а не DecodeText. Пока пусть так побудет, но надо перепроверить.
+				DecodeText(sect);
+				DecodeText(key_decoded);
+			}
+			bool   this_sect = false;
+			for(File.Seek(0); ok < 0 && File.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip);) {
+				int    r = IsSection(line_buf, sect, 0);
+				if(r > 0)
+					this_sect = (r == 2);
+				else if(this_sect || isempty(pSect)) {
+					Scan.Set(line_buf, 0);
+					Scan.Skip();
+					if(*Scan != ';') {
+						line_buf.Divide('=', temp_buf, val);
+						temp_buf.Strip();
+						{
+							bool   is_my_entry = false;
+							if(temp_buf.IsEqiUtf8(pParam)) {
+								is_my_entry = true;
+							}
+							else if(temp_buf.CmpNC(key_decoded) == 0) {
+								is_my_entry = true;
+							}
+							if(is_my_entry) {
+								rVal = DecodeText(val.Strip());
+								ok = 1; // end of loop
+							}
+						}
 					}
 				}
 			}

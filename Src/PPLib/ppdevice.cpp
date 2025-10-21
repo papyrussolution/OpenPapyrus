@@ -267,11 +267,11 @@ int GetStrFromDrvIni(PPIniFile & rIniFile, int iniSectID, long devTypeId, int nu
 	StringSet set;
 	const  uint local_dev_id = devTypeId - numOfOldDev;
 	if(oneof2(iniSectID, PPINISECT_DRV_SYNCPOS, PPINISECT_DRV_ASYNCPOS)) {
-		THROW(rIniFile.GetEntryList(PPINISECT_DRV_SYNCPOS, &set, 1));
-		THROW(rIniFile.GetEntryList(PPINISECT_DRV_ASYNCPOS, &set, 1));
+		THROW(rIniFile.GetEntryList2(PPINISECT_DRV_SYNCPOS, &set, SIniFile::gefStoreAllString));
+		THROW(rIniFile.GetEntryList2(PPINISECT_DRV_ASYNCPOS, &set, SIniFile::gefStoreAllString));
 	}
 	else {
-		THROW(rIniFile.GetEntryList(iniSectID, &set, 1));
+		THROW(rIniFile.GetEntryList2(iniSectID, &set, SIniFile::gefStoreAllString));
 	}
 	const uint ss_count = set.getCount();
 	if(local_dev_id < ss_count) {

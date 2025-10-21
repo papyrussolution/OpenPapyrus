@@ -3245,7 +3245,9 @@ SCodepageIdent STextEncodingStat::GetAutodetectedCp() const
 {
 	SCodepageIdent cp = cpUndef;
 	const char * p_cp_name = GetCpName();
-	if(sstreqi_ascii(p_cp_name, "IBM866"))
+	if(p_cp_name && sstreqi_ascii(p_cp_name, "utf-8")) // @v12.4.6
+		cp = cpUTF8;
+	else if(sstreqi_ascii(p_cp_name, "IBM866"))
 		cp = cp866;
 	else if(p_cp_name && strnicmp(p_cp_name, "windows", 7) == 0)
 		cp.FromStr(p_cp_name);

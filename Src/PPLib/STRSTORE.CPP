@@ -699,7 +699,7 @@ int StringStore2::RestoreState(const char * pFileName, const StrAssocArray & rFi
 			SString fnm_bin;
 			SBinaryChunk bc_src;
 			SBinaryChunk bc_bin;
-			ini_file.GetEntries("hash", &ss_hash, false);
+			ini_file.GetEntries2("hash", &ss_hash, 0/*flags*/);
 			for(uint ssp = 0; ss_hash.get(&ssp, key_buf);) {
 				const int gpr = ini_file.GetParam("hash", key_buf, val_buf);
 				assert(gpr > 0); // Это - невозможно. Мы получили ключ только что методом GetEntries
@@ -793,7 +793,7 @@ int StringStore2::RestoreState(const char * pFileName, const StrAssocArray & rFi
 			SignatureList.Z();
 			P_Pb->Saved_SignatureList.Z();
 			ss.Z();
-			ini_file.GetEntries("SignatureList", &ss, true);
+			ini_file.GetEntries2("SignatureList", &ss, SIniFile::gefStoreAllString);
 			for(uint ssp = 0; ss.get(&ssp, item_buf);) {
                 if(item_buf.Divide('=', key_buf, val_buf) > 0) {
 					P_Pb->Saved_SignatureList.Add((long)val_buf.Strip().ToULong(), key_buf.Strip(), 1);
@@ -805,7 +805,7 @@ int StringStore2::RestoreState(const char * pFileName, const StrAssocArray & rFi
 			GrpSymbList.Z();
 			P_Pb->Saved_GrpSymbList.Z();
 			ss.Z();
-			ini_file.GetEntries("GrpSymbList", &ss, true);
+			ini_file.GetEntries2("GrpSymbList", &ss, SIniFile::gefStoreAllString);
 			for(uint ssp = 0; ss.get(&ssp, item_buf);) {
                 if(item_buf.Divide('=', key_buf, val_buf) > 0) {
 					P_Pb->Saved_GrpSymbList.Add((long)val_buf.Strip().ToULong(), key_buf.Strip(), 1);
@@ -817,7 +817,7 @@ int StringStore2::RestoreState(const char * pFileName, const StrAssocArray & rFi
 			P_Pb->StrSymbList.Z();
 			P_Pb->Saved_StrSymbList.Z();
 			ss.Z();
-			ini_file.GetEntries("StrSymbList", &ss, true);
+			ini_file.GetEntries2("StrSymbList", &ss, SIniFile::gefStoreAllString);
 			for(uint ssp = 0; ss.get(&ssp, item_buf);) {
                 if(item_buf.Divide('=', key_buf, val_buf) > 0) {
 					P_Pb->Saved_StrSymbList.Add((long)val_buf.Strip().ToULong(), key_buf.Strip(), 1);

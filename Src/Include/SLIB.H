@@ -16473,11 +16473,19 @@ public:
 	int    GetSections(StringSet * pSects);
 	int    IsSectExists(const char * pSect);
 	//
+	// Descr: Флаги функции GetEntries2
+	//
+	enum {
+		gefStoreAllString = 0x0001,
+		gefDontDecode     = 0x0002 
+	};
+	//
 	// Descr: Извлекает все ключи, относящиеся к секции pSect, и заносит их в сет pEntries.
 	//   Если аргумент storeAllString == true, то в сете сохраняются не просто ключи, а строки, содержащие
 	//   и ключ и значение, разделенные символом '='.
 	//
-	int    GetEntries(const char * pSect, StringSet * pEntries, bool storeAllString = false);
+	//int    GetEntries(const char * pSect, StringSet * pEntries, bool storeAllString);
+	int    GetEntries2(const char * pSect, StringSet * pEntries, uint flags/*gefXXX*/);
 	int    GetParam(const char * pSect, const char * pParam, SString & rBuf);
 	int    GetIntParam(const char * pSect, const char * param, int *);
 	int    GetDataSizeParam(const char * pSect, const char * pParam, int64 * pVal);

@@ -92,11 +92,11 @@ int PPIniFile::GetDataSize(uint sectId, uint paramId, int64 * pVal)
 	return GetDataSizeParam(r_sect_name, r_param_name, pVal);
 }
 
-int PPIniFile::GetEntryList(uint sectId, StringSet * pEntries, int storeAllString)
+int PPIniFile::GetEntryList2(uint sectId, StringSet * pEntries, uint flags/*SIniFile::gefXXX*/)
 {
 	SString sect_name; // don't use SLS.AcquireRvlStr() (GetEntries uses loop)
 	ParamIdToStrings(sectId, 0, &sect_name, 0);
-	return SIniFile::GetEntries(sect_name, pEntries, storeAllString);
+	return SIniFile::GetEntries2(sect_name, pEntries, flags);
 }
 
 int PPIniFile::Append(uint sectId, uint paramId, const char * pVal, int overwrite)
@@ -171,12 +171,15 @@ int PPIniFile::UpdateFromFile(const char * pSrcFileName)
 	int    backup_done = 0;
 	if(fileExists(pSrcFileName)) {
 		PPIniFile src_ini(pSrcFileName);
-		StringSet sect_set, entry_set;
-		SString sect_buf, entry_buf, val_buf;
+		StringSet sect_set;
+		StringSet entry_set;
+		SString sect_buf;
+		SString entry_buf;
+		SString val_buf;
 		THROW_SL(src_ini.GetSections(&sect_set));
 		for(uint sp = 0; sect_set.get(&sp, sect_buf);) {
 			entry_set.Z();
-			THROW(src_ini.GetEntries(sect_buf, &entry_set, false));
+			THROW(src_ini.GetEntries2(sect_buf, &entry_set, 0/*flags*/));
 			for(uint ep = 0; entry_set.get(&ep, entry_buf);) {
 				src_ini.GetParam(sect_buf, entry_buf, val_buf);
 				if(!backup_done) {
