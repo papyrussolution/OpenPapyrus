@@ -6372,10 +6372,11 @@ browser STOCKOPT_RESULT north(100), 2, 1, "Результат оптимизации товарных запасо
 
 browser DIALOG north(100), 1, 1, "@{view_dialog}", OWNER|GRID, 0
 {
-	"@id",                  -1, int32,        0,  8
-	"@symbol",              -1, zstring(64),  0, 25
-	"@series",              -1, zstring(64),  0, 25
-	"@text",                -1, zstring(128), 0, 50
+	"@id",                  1, int32,        0,  8, BCO_USERPROC
+	"@symbol",              2, zstring(64),  0, 25, BCO_USERPROC
+	"SymbolId",             3, uint32,       0, 25, BCO_USERPROC
+	"@series",              4, zstring(64),  0, 25, BCO_USERPROC
+	"@text",                5, zstring(128), 0, 50, BCO_USERPROC
 }
 
 browser SPECSERIES north(100), 1, 1, "@{view_specseries}", OWNER|GRID, 0

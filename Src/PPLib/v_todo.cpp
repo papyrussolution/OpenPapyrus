@@ -1022,12 +1022,12 @@ int CrosstabProcessor::SearchRec(PPID tabID, void * pAddInfo, TempPrjTaskTbl::Re
 	}
 	else if(oneof2(tab_type, PrjTaskFilt::crstClientDate, PrjTaskFilt::crstClientEmployer)) {
 		k.k1.TabID     = tabID;
-		k.k1.ClientID  = *static_cast<const  PPID *>(pAddInfo);
+		k.k1.ClientID  = *static_cast<const PPID *>(pAddInfo);
 		idx = 1;
 	}
 	else if(oneof2(tab_type, PrjTaskFilt::crstEmployerDate, PrjTaskFilt::crstEmployerHour)) {
 		k.k2.TabID      = tabID;
-		k.k2.EmployerID = *static_cast<const  PPID *>(pAddInfo);
+		k.k2.EmployerID = *static_cast<const PPID *>(pAddInfo);
 		idx = 2;
 	}
 	return SearchByKey(P_TempTbl, idx, &k, pRec);
@@ -1766,7 +1766,7 @@ void PPViewPrjTask::ViewTotal()
 int PPViewPrjTask::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
 	PrjTaskTbl::Rec rec;
-	PPID   templ_id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
+	PPID   templ_id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 	if(TodoObj.Search(templ_id, &rec) > 0 && rec.Kind == TODOKIND_TEMPLATE) {
 		PrjTaskFilt filt;
 		filt.TemplateID = templ_id;
@@ -2045,7 +2045,7 @@ int PPViewPrjTask::ChangeTasks(PPIDArray * pAry)
 int PPViewPrjTask::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	PPIDArray id_list;
-	PPID   id = (pHdr) ? *static_cast<const  PPID *>(pHdr) : 0;
+	PPID   id = (pHdr) ? *static_cast<const PPID *>(pHdr) : 0;
 	PPID   temp_id;
 	int    ok = 0;
 	/*

@@ -2440,7 +2440,7 @@ int SelectPersonByCodeDialog::getDTS(Rec * pData)
 {
 	int    ok = 1;
 	PPIDArray psn_list;
-	SCardTbl::Rec  sc_rec;
+	SCardTbl::Rec sc_rec;
 	MEMSZERO(pData->Sc);
 	getCtrlData(CTLSEL_SELPERSONC_PRSN, &Data.PrmrPsnID);
 	if(PsnScndKindRec.ID)

@@ -766,7 +766,7 @@ int PPViewArticle::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser 
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
-		PPID   id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
+		PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 		switch(ppvCmd) {
 			case PPVCMD_DELETEALL:
 				ok = UpdateAll();
@@ -847,8 +847,8 @@ int PPViewArticle::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser 
 				break;
 		}
 	}
-	else if(ok > 0 && pHdr && *static_cast<const  PPID *>(pHdr)) {
-		UpdateTempTable(*static_cast<const  PPID *>(pHdr));
+	else if(ok > 0 && pHdr && *static_cast<const PPID *>(pHdr)) {
+		UpdateTempTable(*static_cast<const PPID *>(pHdr));
 	}
 	return ok;
 }

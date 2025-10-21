@@ -5211,15 +5211,15 @@ int run_server()
 				client_timeout = -1;
 			if(ini_file.GetInt(PPINISECT_SERVER, PPINIPARAM_SERVER_CLOSEDSOCKTIMEOUT, &(ival = 0)) > 0) {
 				if(ival >= 0)
-					sib.ClosedSockTimeout = (uint)ival;
+					sib.ClosedSockTimeout = static_cast<uint>(ival);
 			}
 			if(ini_file.GetInt(PPINISECT_SERVER, PPINIPARAM_SERVER_SUSPSOCKTIMEOUT, &(ival = 0)) > 0) {
 				if(ival >= 0)
-					sib.SuspTimeout = (uint)ival;
+					sib.SuspTimeout = static_cast<uint>(ival);
 			}
 			if(ini_file.GetInt(PPINISECT_SERVER, PPINIPARAM_SERVER_SLEEPSOCKTIMEOUT, &(ival = 0)) > 0) {
 				if(ival >= 0)
-					sib.SleepTimeout = (uint)ival;
+					sib.SleepTimeout = static_cast<uint>(ival);
 				else
 					sib.SleepTimeout = INFINITE;
 			}

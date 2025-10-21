@@ -985,7 +985,7 @@ int PPViewTSession::WriteOff(PPID sessID)
 int PPViewTSession::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = -1;
-	PPID   id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
+	PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 	TSessionTbl::Rec rec;
 	if(id && TSesObj.Search(id, &rec) > 0)
 		if(rec.Flags & TSESF_SUPERSESS) {
@@ -1039,7 +1039,7 @@ void PPViewTSession::ViewTotal()
 
 int PPViewTSession::Print(const void * pHdr)
 {
-	PPID   id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
+	PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 	if(id)
 		PPAlddPrint(REPORT_TSESSION, PPFilt(id), 0);
 	return -1;
@@ -1129,7 +1129,7 @@ int PPViewTSession::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
-		PPID   id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
+		PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 		TSessionTbl::Rec rec;
 		switch(ppvCmd) {
 			case PPVCMD_INPUTCHAR:

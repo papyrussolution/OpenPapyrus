@@ -1329,7 +1329,7 @@ int PersonCore::GetRelList(PPID id, LAssocArray * pList, int reverse)
 	if(pRec && pList) {
 		for(size_t i = PROPRECFIXSIZE; i < recLen;) {
 			PPELink entry;
-			entry.KindID = *reinterpret_cast<const  PPID *>((PTR8C(pRec) + PROPRECFIXSIZE) + i - PROPRECFIXSIZE);
+			entry.KindID = *reinterpret_cast<const PPID *>((PTR8C(pRec) + PROPRECFIXSIZE) + i - PROPRECFIXSIZE);
 			i += sizeof(entry.KindID);
 			STRNSCPY(entry.Addr, reinterpret_cast<const char *>((PTR8C(pRec) + PROPRECFIXSIZE) + i - PROPRECFIXSIZE));
 			i += (sstrlen(entry.Addr) + 1);

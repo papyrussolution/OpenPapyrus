@@ -50926,7 +50926,8 @@ public:
 };
 
 struct DialogViewItem {
-	long   Id;
+	long   ScopeId;
+	uint   SymbIdent; // @v12.4.6
 	char   Symb[64];
 	char   Serial[64];
 	char   Text[128];
@@ -50942,8 +50943,11 @@ public:
 	int    FASTCALL NextIteration(DialogViewItem * pItem);
 private:
 	virtual SArray * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
-	virtual int ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
-	virtual int Detail(const void * pHdr, PPViewBrowser * pBrw);
+	virtual void PreprocessBrowser(PPViewBrowser * pBrw); // @v12.4.6
+	virtual int  ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
+	virtual int  Detail(const void * pHdr, PPViewBrowser * pBrw);
+	int    _GetDataForBrowser(SBrowserDataProcBlock * pBlk); // @v12.4.6
+	int    TryDialog(DlContext * pCtx, uint dlgId); // @v12.4.6
 
 	DialogFilt Filt;
 	DlContext Ctx;

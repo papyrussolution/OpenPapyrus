@@ -817,7 +817,7 @@ int PPViewOpGrouping::Print(const void * pHdr)
 
 int PPViewOpGrouping::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
-	PPID   __id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
+	PPID   __id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 	TempOpGrpngTbl * p_tbl = NZOR(P_TempStatTbl, P_TempTbl);
 	if(__id && p_tbl) {
 		PPID   k = __id;
@@ -1005,7 +1005,7 @@ int PPViewOpGrouping::ViewGraph(const void * pHdr, PPViewBrowser * pBrw)
 	Generator_GnuPlot::PlotParam param;
 	if(CycleList.getCount()) {
 		uint   i;
-		PPID   __id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
+		PPID   __id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 		PPID   cur_op_id = 0;
 		long   cur_sign = 0;
 		TempOpGrpngTbl * p_tbl = NZOR(P_TempStatTbl, P_TempTbl);

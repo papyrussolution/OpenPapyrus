@@ -552,7 +552,7 @@ int PPViewLinkedBill::Print(const void * pHdr)
 	int    ok = -1;
 	if(pHdr) {
 		PPBillPacket pack;
-		PPID   bill_id = *static_cast<const  PPID *>(pHdr);
+		PPID   bill_id = *static_cast<const PPID *>(pHdr);
 		if(bill_id) {
 			if(P_BObj->ExtractPacket(bill_id, &pack))
 				if(Filt.Kind__ == LinkedBillFilt::lkWrOffDraft || pack.Rec.Flags & BILLF_BANKING || CheckOpPrnFlags(pack.Rec.OpID, OPKF_PRT_INVOICE))

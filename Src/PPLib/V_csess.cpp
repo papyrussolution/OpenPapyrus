@@ -657,7 +657,7 @@ int PPViewCSess::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * 
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
-		PPID   id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
+		PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 		switch(ppvCmd) {
 			case PPVCMD_ADDITEM: ok = AddItem(); break;
 			case PPVCMD_EDITITEMSPC: ok = EditItem(id); break;
@@ -1728,7 +1728,7 @@ int PPViewCSess::CreateDraft(PPID ruleID, PPID sessID, const SString & rMsg1, co
 int PPViewCSess::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = -1;
-	PPID   id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
+	PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 	if(id) {
 		PPIDArray sub_sess_list;
 		if(CsObj.P_Tbl->GetSubSessList(id, &sub_sess_list) > 0) {

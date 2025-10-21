@@ -2647,7 +2647,7 @@ PPViewPerson::ExtEntry::ExtEntry()
 					pStyle->Color2 = GetColorRef(SClrGreen);
 					ok = 1;
 				}
-				/*else if(col == 1 && p_view->IsNewCliPerson(*static_cast<const  PPID *>(pData))) {
+				/*else if(col == 1 && p_view->IsNewCliPerson(*static_cast<const PPID *>(pData))) {
 					pStyle->Flags = 0;
 					pStyle->Color = GetColorRef(SClrOrange);
 					ok = 1;

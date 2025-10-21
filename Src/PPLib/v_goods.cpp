@@ -724,7 +724,7 @@ const void * GoodsFilt::ReadObjIdListFilt(const /*char*/void * p, ObjIdListFilt 
 	_ptr += sizeof(uint32);
 	rList.Set(0);
 	for(uint i = 0; i < list_count; i++) {
-		PPID   id = *reinterpret_cast<const  PPID *>(_ptr);
+		PPID   id = *reinterpret_cast<const PPID *>(_ptr);
 		if(id > 0)
 			rList.Add(id);
 		_ptr += sizeof(PPID);
@@ -822,7 +822,7 @@ int GoodsFilt::ReadFromProp_Before8604(PPID obj, PPID id, PPID prop)
 				p += sstrlen(p) + 1;
 			}
 			if(p_buf->VerTag <= -17) {
-				const  PPID gds_cls_id = *reinterpret_cast<const  PPID *>(p);
+				const  PPID gds_cls_id = *reinterpret_cast<const PPID *>(p);
 				Ep.Z();
 				if(gds_cls_id) {
 					ExtParams_Before24 _ep;
@@ -843,7 +843,7 @@ int GoodsFilt::ReadFromProp_Before8604(PPID obj, PPID id, PPID prop)
 				}
 			}
 			else if(p_buf->VerTag <= -16) {
-				const  PPID gds_cls_id = *reinterpret_cast<const  PPID *>(p);
+				const  PPID gds_cls_id = *reinterpret_cast<const PPID *>(p);
 				Ep.Z();
 				if(gds_cls_id) {
 					//
@@ -937,7 +937,7 @@ int GoodsFilt::ReadFromProp_Before8604(PPID obj, PPID id, PPID prop)
 			GrpIDList.Set(0);
    	    	c = (uint)(reinterpret_cast<const PropertyTbl::Rec *>(p_buf)->Val2);
 			for(i = 0; i < c; i++)
-				GrpIDList.Add(*reinterpret_cast<const  PPID *>(PTR8C(p_buf) + PROPRECFIXSIZE + i * sizeof(PPID)));
+				GrpIDList.Add(*reinterpret_cast<const PPID *>(PTR8C(p_buf) + PROPRECFIXSIZE + i * sizeof(PPID)));
 		}
 	   	Setup();
 	}
@@ -2944,7 +2944,7 @@ void PPViewGoods::ViewGenMembers(PPID id)
 
 int PPViewGoods::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
-	ViewGenMembers(pHdr ? *static_cast<const  PPID *>(pHdr) : 0);
+	ViewGenMembers(pHdr ? *static_cast<const PPID *>(pHdr) : 0);
 	return -1;
 }
 
@@ -4012,7 +4012,7 @@ int PPViewGoods::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * 
 	int    ok = is_overrode ? -2 : PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
 		const  PPConfig & r_cfg = LConfig;
-		PPID   id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
+		PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 		PPID   temp_id;
 		switch(ppvCmd) {
 			case PPVCMD_INPUTCHAR:
@@ -4110,7 +4110,7 @@ int PPViewGoods::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * 
 				// В связи с этим текущий элемент таблицы придется получить явным вызовом pBrw->getCurItem()
 				//
 				{
-					const  PPID * p_id = static_cast<const  PPID *>(pBrw->getCurItem());
+					const  PPID * p_id = static_cast<const PPID *>(pBrw->getCurItem());
 					ok = PPView::Helper_ProcessQuickTagEdit(PPObjID(PPOBJ_GOODS, DEREFPTRORZ(p_id)), pHdr/*(LongArray *)*/);
 				}
 				break;

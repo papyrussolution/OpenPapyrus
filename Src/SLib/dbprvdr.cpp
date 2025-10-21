@@ -501,7 +501,7 @@ int DbProvider::CreateTempFile(const char * pTblName, SString & rFileNameBuf, bo
 {
 	int    ok = 0;
 	DBTable crtbl;
-	long   _start = SLS.GetTLA().Rg.GetUniformInt(100000);
+	long   _start = SLS.GetTLA().Rg.GetUniformInt(1000000); // @v12.4.6 (100000)-->(1000000)
 	do {
 		GetTemporaryFileName(rFileNameBuf, &_start, forceInDataPath);
 	} while(IsFileExists_(rFileNameBuf) > 0);
@@ -518,7 +518,7 @@ int DbProvider::RenewFile(DBTable & rTbl, int createMode, const char * pAltCode)
 {
 	int    ok = 1;
 	char   acst[512];
-	SString tbl_fname = rTbl.GetName();
+	SString tbl_fname(rTbl.GetName());
 	SString tbl_name(rTbl.GetTableName());
 	rTbl.close();
 	THROW(DropFile(tbl_fname));

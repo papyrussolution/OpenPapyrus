@@ -1397,7 +1397,7 @@ int PPViewLot::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pB
 	if(ok == -2) {
 		SString temp_buf;
 		Reference * p_ref = PPRef;
-		PPID   lot_id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
+		PPID   lot_id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 		switch(ppvCmd) {
 			// @debug {
 			case PPVCMD_TEST:
@@ -2769,7 +2769,7 @@ DBQuery * PPViewLot::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 //
 int PPViewLot::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
-	const  PPID lot_id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
+	const  PPID lot_id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 	return lot_id ? ::ViewOpersByLot(lot_id, 0) : -1;
 }
 
@@ -3658,7 +3658,7 @@ int PPViewLotExtCode::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
-		PPID   lot_id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
+		PPID   lot_id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 		switch(ppvCmd) {
 			case PPVCMD_ADDITEM:
 				if(Filt.LotID) {

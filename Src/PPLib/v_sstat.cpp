@@ -1118,7 +1118,7 @@ int PPViewSStat::CellStyleFunc_(const void * pData, long col, int paintAction, B
 		const DBQBrowserDef * p_def = static_cast<const DBQBrowserDef *>(pBrw->getDef());
 		if(p_def && col >= 0 && col < p_def->getCountI()) {
 			const BroColumn & r_col = p_def->at(col);
-			const  PPID goods_id = P_Ct ? static_cast<const  PPID *>(pData)[1] : static_cast<const  PPID *>(pData)[0];
+			const  PPID goods_id = P_Ct ? static_cast<const PPID *>(pData)[1] : static_cast<const PPID *>(pData)[0];
 			if(col == 0) { // Наименование товара
 				const TagFilt & r_tag_filt = GObj.GetConfig().TagIndFilt;
 				SColor clr;
@@ -1184,7 +1184,7 @@ void PPViewSStat::PreprocessBrowser(PPViewBrowser * pBrw)
 int PPViewSStat::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = -1;
-	PPID   goods_id = pHdr ? (P_Ct ? static_cast<const  PPID *>(pHdr)[1] : static_cast<const  PPID *>(pHdr)[0]) : 0;
+	PPID   goods_id = pHdr ? (P_Ct ? static_cast<const PPID *>(pHdr)[1] : static_cast<const PPID *>(pHdr)[0]) : 0;
 	if(goods_id) {
 		PredictSalesFilt ps_filt;
 		ps_filt.Period = Filt.Period;
@@ -1213,7 +1213,7 @@ int PPViewSStat::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * 
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
-		PPID   goods_id = pHdr ? (P_Ct ? static_cast<const  PPID *>(pHdr)[1] : static_cast<const  PPID *>(pHdr)[0]) : 0;
+		PPID   goods_id = pHdr ? (P_Ct ? static_cast<const PPID *>(pHdr)[1] : static_cast<const PPID *>(pHdr)[0]) : 0;
 		switch(ppvCmd) {
 			case PPVCMD_EDITGOODS:
 				ok = -1;
@@ -1258,7 +1258,7 @@ int PPViewSStat::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * 
 			case PPVCMD_EDITVAL:
 				ok = -1;
 				{
-					PPID ct_id = (pHdr && P_Ct) ? *static_cast<const  PPID *>(pHdr) : 0;
+					PPID ct_id = (pHdr && P_Ct) ? *static_cast<const PPID *>(pHdr) : 0;
 					if(EditOrder(ct_id, goods_id) > 0)
 						ok = 1;
 				}

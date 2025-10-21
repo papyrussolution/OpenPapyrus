@@ -238,7 +238,7 @@ BDictionary::BDictionary(int btrDict, const char * pPath) : DbProvider(sqlstNone
 			file_name = pFileName;
 		char   temp_buf[512];
 		file_name.CopyTo(temp_buf, sizeof(temp_buf));
-		int    ret = BTRV(B_OPEN, fpb, 0 /*pPassword*/, &bl, temp_buf, 0, omReadOnly);
+		int    ret = BTRV(B_OPEN, fpb, 0/*pPassword*/, &bl, temp_buf, 0, omReadOnly);
 		if(!ret) {
 			int    cret = BTRV(B_CLOSE, fpb, 0, 0, 0, 0, 0);
 			yes = 1;
@@ -342,8 +342,28 @@ BDictionary::~BDictionary()
 //
 /*virtual*/ SString & BDictionary::GetTemporaryFileName(SString & rFileNameBuf, long * pStart, bool forceInDataPath)
 {
+	rFileNameBuf.Z();
 	const char * p_path = (TempPath && !forceInDataPath) ? TempPath : DataPath;
-	return MakeTempFileName(p_path, "TMP", "BTR", pStart, rFileNameBuf);
+	const char * p_prefix = "tt";
+	const char * p_ext = "btr"; // without dot!
+	//return MakeTempFileName(p_path, "tmp", "btr", pStart, rFileNameBuf);
+	//SString & STDCALL MakeTempFileName(const char * pDir, const char * pPrefix, const char * pExt, long * pStart, SString & rBuf)
+	{
+		long   start = DEREFPTROR(pStart, 1);
+		const  size_t prefix_len = sstrlen(p_prefix);
+		const  uint nd = (prefix_len <= 6) ? (8-prefix_len) : 4;
+		while(rFileNameBuf.IsEmpty() && start < 9999999L) {
+			if(p_path)
+				(rFileNameBuf = p_path).Strip().SetLastSlash();
+			rFileNameBuf.Cat(p_prefix).CatLongZ(start++, nd).DotCat(p_ext);
+			// @v12.4.6 if(fileExists(rFileNameBuf)) {
+			if(IsFileExists_(rFileNameBuf) > 0) { // @v12.4.6
+				rFileNameBuf.Z();
+			}
+		}
+		ASSIGN_PTR(pStart, start);
+	}
+	return rFileNameBuf;
 }
 //
 //

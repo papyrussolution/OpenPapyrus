@@ -356,7 +356,7 @@ int PPViewGoodsBillCmp::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBro
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
 		int    r = 0;
-		PPID   goods_id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
+		PPID   goods_id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 		switch(ppvCmd) {
 			case PPVCMD_EDITGOODS:
 				ok = -1;

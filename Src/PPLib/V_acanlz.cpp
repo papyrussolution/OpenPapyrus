@@ -1876,17 +1876,17 @@ int PPViewAccAnlz::GetBrwHdr(const void * pRow, BrwHdr * pHdr) const
 	if(pRow) {
 		const  char * p_hdr = static_cast<const char *>(pRow);
 		if((Filt.Flags & (AccAnlzFilt::fGroupByCorAcc |	AccAnlzFilt::fTrnovrBySheet)) || Filt.Cycl.Cycle) {
-			hdr.AccRelID = *reinterpret_cast<const  PPID *>(p_hdr);
+			hdr.AccRelID = *reinterpret_cast<const PPID *>(p_hdr);
 			hdr.Dt = *reinterpret_cast<const LDATE *>(p_hdr + sizeof(PPID));
 			hdr.A = *reinterpret_cast<const Acct *>(p_hdr + sizeof(PPID) + sizeof(LDATE));
-			hdr.CurID = *reinterpret_cast<const  PPID *>(p_hdr + sizeof(PPID) + sizeof(LDATE) + sizeof(Acct));
+			hdr.CurID = *reinterpret_cast<const PPID *>(p_hdr + sizeof(PPID) + sizeof(LDATE) + sizeof(Acct));
 		}
 		else {
 			hdr.Dt = *reinterpret_cast<const LDATE *>(p_hdr);
 			hdr.OprNo = *reinterpret_cast<const long *>(p_hdr+sizeof(LDATE));
-			hdr.BillID = *reinterpret_cast<const  PPID *>(p_hdr+sizeof(long)+sizeof(LDATE));
-			hdr.AccRelID = *reinterpret_cast<const  PPID *>(p_hdr+sizeof(long)+sizeof(LDATE)+sizeof(PPID));
-			hdr.CorAccID = *reinterpret_cast<const  PPID *>(p_hdr+sizeof(long)+sizeof(LDATE)+sizeof(PPID)*2);
+			hdr.BillID = *reinterpret_cast<const PPID *>(p_hdr+sizeof(long)+sizeof(LDATE));
+			hdr.AccRelID = *reinterpret_cast<const PPID *>(p_hdr+sizeof(long)+sizeof(LDATE)+sizeof(PPID));
+			hdr.CorAccID = *reinterpret_cast<const PPID *>(p_hdr+sizeof(long)+sizeof(LDATE)+sizeof(PPID)*2);
 		}
 		ok = 1;
 	}

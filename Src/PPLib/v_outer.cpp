@@ -200,7 +200,7 @@ void PPViewWbPublicGoods::PreprocessBrowser(PPViewBrowser * pBrw)
 	if(pBrw) {
 		pBrw->SetDefUserProc([](SBrowserDataProcBlock * pBlk) -> int
 			{
-				return (pBlk && pBlk->ExtraPtr) ? static_cast<PPViewWbPublicGoods *>(pBlk->ExtraPtr)->_GetDataForBrowser(pBlk) : 0;				
+				return (pBlk && pBlk->ExtraPtr) ? static_cast<PPViewWbPublicGoods *>(pBlk->ExtraPtr)->_GetDataForBrowser(pBlk) : 0;
 			}, this);
 		//pBrw->SetCellStyleFunc(CellStyleFunc, pBrw);
 		if(Filt.ViewKind == MarketplaceGoodsSelectionFilt::vkPickUpPoints) {

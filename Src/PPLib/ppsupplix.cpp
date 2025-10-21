@@ -2027,7 +2027,7 @@ PPID PPSupplExchange_Baltika::GetSaleChannelTagID()
 	SArray * p_tags_list = obj_tag.CreateList(0, 0);
 	if(p_tags_list) {
    		for(uint i = 0; !sale_channel_tag && i < p_tags_list->getCount(); i++) {
-   			const  PPID tag_id = *static_cast<const  PPID *>(p_tags_list->at(i));
+   			const  PPID tag_id = *static_cast<const PPID *>(p_tags_list->at(i));
 			PPObjectTag tag_kind;
 			if(obj_tag.Search(tag_id, &tag_kind) > 0 && sale_channel_tag_symb.CmpPrefix(tag_kind.Symb, 1) == 0)
 				sale_channel_tag = tag_id;
@@ -13548,11 +13548,94 @@ private:
 	//
 	int    Test_CreateAddresses(const TSCollection <BailmentOrderSet> & rOrdSetList);
 	int    MakeLocationPacket(const BailmentOrderSet::PartnerItem & rI, PPLocationPacket & rLocPack);
+	int    MakeReply(PPID billID, StringSet & rSsResultFileNames);
 
 	PPLogger & R_Logger;
 	TokenSymbHashTable TsHt;
 	PPID   LocCodeTagID;
+/*
+XML Service от поставщика	Обозначения
+<CAM>
+<SERVICE>
+<ITEM>
+	<QMNUM>000300016094</QMNUM>	Номер заявки (из файла XML Мултон <QMNUM>)
+	<START_DATE>2015-10-02</START_DATE>	Дата фактического начала работы
+	<START_TIME>18:12:04</START_TIME>	Время фактического начала работы 
+	<END_DATE>2015-10-09</END_DATE>	Дата фактического завершения работы (должна быть позже START_DATE )
+	<END_TIME>00:00:00</END_TIME>	Время фактического завершения работы (должна быть позже START_TIME)
+	<DATE_COMPLETE>2015-10-08</DATE_COMPLETE>	Фактическая (ссылочная) дата окончания работы
+	<ASTXT></ASTXT>	Код технического одобрения (можно использовать закр. тег)
+	<ACTIVITIES>
+		<ITEM>
+			<CODE_GROUP>CDEM</CODE_GROUP>	Код группы работ (из ESI_Specification - Activity Codes )
+			<ACTIVITY_CODE>ML01</ACTIVITY_CODE>	Код работы (из ESI_Specification - Activity Codes )
+		</ITEM>	 
+	</ACTIVITIES>	 
+	<EQUIPMENT>
+		<item>
+		<EQUNR>000000000056451879</EQUNR>	Номер единицы оборудования (доп. файл Мултон IH08)
+		<TIDNR>045752369</TIDNR>	Штрих код оборудования (доп. файл Мултон IH08)
+		</item>	 
+	</EQUIPMENT>	 
+	<PL_MATNR>000000000080000898</PL_MATNR>	Новый номер материала (можно использовать закр. Тег <PL_MATNR/>)
+	<PL_MATXT>SIPP 100 C COKE</PL_MATXT>	Новое описание материала (можно использовать закр. тег)
+	<PL_CHARG> </PL_CHARG>	Новая партия материала (можно использовать закр. тег)
+	<PL_PLANT>6339</PL_PLANT>	Завод расположения материала (можно использовать закр. тег)
+	<PL_SLOC>6400</PL_SLOC>	Склад  (можно использовать закр. тег)
+	<MENGE>1</MENGE>	Количество материала (можно использовать закр. тег)
+	<PRICE>10.00</PRICE>	Цена договорная по прайсу
+	<PO_NUMBER>4500019315</PO_NUMBER>	Номер PO (из файла XML Мултон <PONUM>)
+	<PO_ITEM>00010</PO_ITEM>	Строка РО (из файла XML Мултон <ITEMNO>)
+	<DELIVERY_DOC> </DELIVERY_DOC>	Документ доставки
+	<DELIV_DOC_DT>2015-10-08</DELIV_DOC_DT>	Дата документа доставки
+	<COMMENTS>	Комментарии
+	</COMMENTS>	 
+</ITEM>	
+//
+//
+//
+XML EQUIPMENT от поставщика	Обозначение
+<CAM>
+	<EQUI_MOVE> Тип файла
+		<ITEM>
+			<TYPE>GI</TYPE>	Тип движения : (GI- Выдача (при установки на клиента) GR - Получение (снятие на склад с клиента))
+			<EQUNR>000000000055670495</EQUNR>	Номер единицы оборудования 
+			<BARCODE>045736540</BARCODE>	Штрих код оборудования/инвентарный номер
+			<PLANT>5180</PLANT>	Завод (доп. файл Мултон IH08)
+			<SLOCATION>6400</SLOCATION>	Склад (доп. файл Мултон IH08)
+			<ORDER>008014777184</ORDER>	Номер заказа (из файла XML Мултон <SORDER>)
+			<STTXU>PLCD</STTXU>	Новый статус оборудования (при GI – поле должно быть пустое <STTXU/>, при GR – TBRF)
+		</ITEM>	 
+	</EQUI_MOVE>	 
+</CAM>	 
+*/ 
 };
+
+int COCACOLA::MakeReply(PPID billID, StringSet & rSsResultFileNames)
+{
+	int    ok = -1;
+	if(billID) {
+		PPBillPacket bpack;
+		if(P_BObj->ExtractPacket(billID, &bpack) > 0) {
+			PPOprKind op_rec;
+			if(GetOpType(bpack.OpTypeID, &op_rec) == PPOPT_WAREHOUSE && oneof2(op_rec.SubType, OPSUBT_BAILMENT_PUT, OPSUBT_BAILMENT_GET)) {
+				const uint ltc = SVectorBase::GetCount(bpack.P_LocTrfrList);
+				if(ltc) {
+					for(uint lti = 0; lti < ltc; lti++) {
+						const LocTransfOpBlock & r_lti = bpack.P_LocTrfrList->at(lti);
+						{
+							// EQUIPMENT
+						}
+						{
+							// SERVICE
+						}
+					}
+				}
+			}
+		}
+	}
+	return ok;
+}
 
 COCACOLA::BailmentOrderSet::PartnerItem::PartnerItem() : UedGeoLoc(0), Itic(0)
 {

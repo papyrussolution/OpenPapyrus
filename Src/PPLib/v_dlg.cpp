@@ -34,13 +34,17 @@ int PPViewDialog::EditBaseFilt(PPBaseFilt * pBaseFilt) { return 1; }
 int PPViewDialog::Init_(const PPBaseFilt * pBaseFilt)
 {
 	int    ok = 1;
-	SString file_name, text_buf;
+	SString file_name;
+	SString text_buf;
 	StrAssocArray temp_list;
 	char   c_buf[1024]; // Буфер для извлечения констант
 	THROW(Helper_InitBaseFilt(pBaseFilt));
 	file_name = Filt.DlFileName;
 	if(!file_name.NotEmptyS()) {
-		file_name = "D:/PAPYRUS/SRC/RSRC/DL600/PPDLG2.BIN"; // @debug
+		// @v12.4.6 file_name = "D:/PAPYRUS/SRC/RSRC/DL600/PPDLG2.BIN"; // @debug
+		// uiview.bin
+		PPGetPath(PPPATH_SRCROOT, file_name);
+		file_name.SetLastSlash().Cat("rsrc").SetLastSlash().Cat("dl600").SetLastSlash().Cat("uiview").DotCat("bin");
 	}
 	List.freeAll();
 	THROW(Ctx.Init(file_name));
@@ -52,13 +56,14 @@ int PPViewDialog::Init_(const PPBaseFilt * pBaseFilt)
 		if(p_scope) {
 			DialogViewItem item;
 			MEMSZERO(item);
-			item.Id = t.Id;
+			item.ScopeId = t.Id;
 			STRNSCPY(item.Symb, t.Txt);
 			{
 				text_buf.Z();
 				if(Ctx.GetConstData(p_scope->GetConst(DlScope::cuifCtrlText), c_buf, sizeof(c_buf)))
 					text_buf = c_buf;
 				text_buf.ToOem().CopyTo(item.Text, sizeof(item.Text));
+				Ctx.GetConst_Uint32(p_scope, DlScope::cucmSymbolIdent, item.SymbIdent); // @v12.4.6
 				//
 				text_buf.Z();
 				if(Ctx.GetConstData(p_scope->GetConst(DlScope::cuifSymbSeries), c_buf, sizeof(c_buf)))
@@ -72,17 +77,78 @@ int PPViewDialog::Init_(const PPBaseFilt * pBaseFilt)
 	return ok;
 }
 
+int PPViewDialog::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
+{
+	int    ok = 1;
+	assert(pBlk->P_SrcData && pBlk->P_DestData); // Функция вызывается только из одной локации и эти members != 0 равно как и pBlk != 0
+	SString temp_buf;
+	const DialogViewItem * p_entry = static_cast<const DialogViewItem *>(pBlk->P_SrcData);
+	/*
+	"@id",                  1, int32,        0,  8
+	"@symbol",              2, zstring(64),  0, 25
+	"SymbolId",             3, uint32,       0, 25
+	"@series",              4, zstring(64),  0, 25
+	"@text",                5, zstring(128), 0, 50
+	*/ 
+	switch(pBlk->ColumnN) {
+		case 1: // scopeId
+			pBlk->Set(p_entry->ScopeId);
+			break;	
+		case 2: // symbol
+			pBlk->Set(p_entry->Symb);
+			break;
+		case 3: // symbolId
+			pBlk->Set(static_cast<long>(p_entry->SymbIdent));
+			break;
+		case 4: // series
+			pBlk->Set(p_entry->Serial);
+			break;
+		case 5: // text
+			pBlk->Set(p_entry->Text);
+			break;
+	}
+	return ok;
+}
+
+/*virtual*/void PPViewDialog::PreprocessBrowser(PPViewBrowser * pBrw) // @v12.4.6
+{
+	SString temp_buf;
+	if(pBrw) {
+		pBrw->SetDefUserProc([](SBrowserDataProcBlock * pBlk) -> int
+			{
+				return (pBlk && pBlk->ExtraPtr) ? static_cast<PPViewDialog *>(pBlk->ExtraPtr)->_GetDataForBrowser(pBlk) : 0;				
+			}, this);
+	}
+}
+
 SArray * PPViewDialog::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
 {
 	ASSIGN_PTR(pBrwId, BROWSER_DIALOG);
 	return new SArray(List);
 }
 
+int PPViewDialog::TryDialog(DlContext * pCtx, uint dlgId) // @v12.4.6
+{
+	int    ok = -1;
+	TDialog * dlg = 0;
+	if(dlgId) {
+		dlg = new TDialog(dlgId);
+		if(CheckDialogPtrErr(&dlg))
+			ExecView(dlg);
+		else
+			ok = 0;
+	}
+	delete dlg;
+	return ok;
+}
+
 int PPViewDialog::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
-	PPID   id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
-	if(id) {
-		EditDialogSpec(&Ctx, id);
+	const DialogViewItem * p_item = static_cast<const DialogViewItem *>(pHdr);
+	//PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
+	if(p_item && p_item->SymbIdent) {
+		// @v12.4.6 EditDialogSpec(&Ctx, id);
+		TryDialog(&Ctx, p_item->SymbIdent); // @v12.4.6
 	}
 	return -1;
 }
@@ -92,7 +158,7 @@ int PPViewDialog::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser *
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	/*
 	if(ok == -2) {
-		PPID   id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
+		PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 		switch(ppvCmd) {
 		}
 	}

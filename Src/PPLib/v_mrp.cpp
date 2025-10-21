@@ -186,13 +186,13 @@ int FASTCALL PPViewMrpTab::NextIteration(MrpTabViewItem * pItem)
 int PPViewMrpTab::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
 	if(pHdr)
-		ViewMrpLine(0, *static_cast<const  PPID *>(pHdr));
+		ViewMrpLine(0, *static_cast<const PPID *>(pHdr));
 	return -1;
 }
 
 int PPViewMrpTab::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
-	PPID   id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
+	PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 	//
 	// По умолчанию двойной щелчок мыши и Enter генерируют команду PPVCMD_EDITITEM
 	//
@@ -567,7 +567,7 @@ int PPViewMrpLine::GetItem(PPID lineID, MrpLineViewItem * pItem)
 int PPViewMrpLine::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = -1;
-	PPID   line_id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
+	PPID   line_id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 	MrpLineViewItem item;
 	if(GetItem(line_id, &item) > 0) {
 		PPID   goods_id = Filt.DestGoodsID ? item.SrcID : item.DestID;
@@ -596,7 +596,7 @@ int PPViewMrpLine::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser 
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
-		PPID   line_id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
+		PPID   line_id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 		switch(ppvCmd) {
 			case PPVCMD_EDITGOODS:
 				ok = -1;

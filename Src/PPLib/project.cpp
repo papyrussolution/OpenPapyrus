@@ -806,7 +806,7 @@ int PPViewProject::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser 
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
-		PPID   id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
+		PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 		switch(ppvCmd) {
 			case PPVCMD_VIEWPRJPHASE:
 				ok = -1;
@@ -837,7 +837,7 @@ void * PPViewProject::GetEditExtraParam() { return reinterpret_cast<void *>(Filt
 
 int PPViewProject::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
-	PPID   id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
+	PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 	if(id) {
 		PrjTaskFilt filt;
 		filt.Init(1, 0);

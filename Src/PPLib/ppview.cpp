@@ -2303,7 +2303,7 @@ int PPView::DefaultCmdProcessor(uint ppvCmd, const void * pHdr, PPViewBrowser * 
 	else if(ppvCmd == PPVCMD_CHANGEFILT)
 		ok = (ImplementFlags & implChangeFilt || !P_F) ? -2 : ChangeFilt(0, pBrw);
 	else if(P_Obj) {
-		PPID   id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
+		PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 		switch(ppvCmd) {
 			case PPVCMD_ADDITEM:
 				ok = (P_Obj->Edit(&(id = 0), GetEditExtraParam()) == cmOK) ? 1 : -1;

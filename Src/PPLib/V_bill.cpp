@@ -1192,14 +1192,14 @@ int PPViewBill::Init_(const PPBaseFilt * pFilt)
 	BExtQuery::ZDelete(&P_IterQuery);
 	ZDELETE(P_BPOX);
 	{
-		int    do_destroy_arp = 1;
+		bool   do_destroy_arp = true;
 		if(Filt.Dl.GetItemByDataId(BillFilt::dliAlcoLic, 0)) {
 			PrcssrAlcReport::Config arp_cfg;
 			if(PrcssrAlcReport::ReadConfig(&arp_cfg) > 0 && arp_cfg.AlcLicRegTypeID) {
 				THROW_MEM(P_Arp = new PrcssrAlcReport);
 				P_Arp->Init();
 				P_Arp->SetConfig(&arp_cfg);
-				do_destroy_arp = 0;
+				do_destroy_arp = false;
 			}
 		}
 		if(do_destroy_arp)
@@ -1221,8 +1221,7 @@ int PPViewBill::Init_(const PPBaseFilt * pFilt)
 	}
 	{
 		//
-		// Инициализация списка складов LocList_. Если отчет должен строиться по всем складам,
-		// то список LocList_ - пустой.
+		// Инициализация списка складов LocList_. Если отчет должен строиться по всем складам, то список LocList_ - пустой.
 		//
 		int    draft_transit_only = 0;
 		SingleLocID = 0;
@@ -6442,7 +6441,8 @@ int PPViewBill::Transmit(PPID id, int transmitKind)
 // static
 int PPViewBill::TransmitByFilt(const BillFilt * pFilt, const ObjTransmitParam * pParam)
 {
-	int    ok = -1, r = 1;
+	int    ok = -1;
+	int    r = 1;
 	uint   val = 0;
 	BillFilt filt;
 	ObjTransmitParam param;
@@ -6453,7 +6453,7 @@ int PPViewBill::TransmitByFilt(const BillFilt * pFilt, const ObjTransmitParam * 
 		filt.SetupBrowseBillsType(filt.Bbt = static_cast<BrowseBillsType>(val));
 	if((pFilt && pParam) || (r > 0 && ObjTransmDialogExt(DLG_OBJTRANSM, PPVIEW_BILL, &param, &filt) > 0)) {
 		BillViewItem item;
-		PPViewBill   view;
+		PPViewBill view;
 		const PPIDArray & rary = param.DestDBDivList.Get();
 		PPObjIDArray objid_ary;
 		THROW(view.InitLocal(&filt));

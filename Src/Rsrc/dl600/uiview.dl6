@@ -996,7 +996,7 @@ dialog DLG_LOCTRANSF_BAILMENT [vertical title: "@roptype_warehouse" size: (720, 
 		framebox [vertical growfactor: 3 height: bycontainer margin: 4 padding: 4] {
 			combobox CTLSEL_LOCTRANSF_GGRP [tabstop width: bycontainer height: 21 margin: 4 label: "@group" labelsize: (0, 13) cblinesymb: CTL_LOCTRANSF_GGRP ];
 			combobox CTLSEL_LOCTRANSF_GOODS [tabstop width: bycontainer height: 21 margin: 4 label: "@ware" labelsize: (0, 13) cblinesymb: CTL_LOCTRANSF_GOODS ];
-			input CTL_LOCTRANSF_LOTINFO [tabstop width: bycontainer height: 21 margin: 4 readonly label: "@lot" labelsize: (0, 13) ] string[64];
+			input CTL_LOCTRANSF_LOTINFO [tabstop width: bycontainer height: 21 margin: 4 readonly label: "@lot" labelsize: (0, 13) ] string[128];
 			view [horizontal width: bycontainer height: 32] {
 				button CTL_CMD_LOT [title: "@but_lot" tabstop size: (90, 21) margin: (4, 17, 4, 4) command: cmLot];
 				input CTL_LOCTRANSF_SERIAL [growfactor: 1 height: 21 margin: 4 tabstop label: "@serial" labelsize: (0, 13) ] string[24];

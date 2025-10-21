@@ -1687,7 +1687,7 @@ int PPViewSCard::CellStyleFunc_(const void * pData, long col, int paintAction, B
 		const BrowserDef * p_def = pBrw->getDef();
 		if(col < static_cast<long>(p_def->getCount())) {
 			const BroColumn & r_col = p_def->at(col);
-			const PPID sc_id = *static_cast<const  PPID *>(pData);
+			const PPID sc_id = *static_cast<const PPID *>(pData);
 			SCardTbl::Rec sc_rec;
 			if(r_col.OrgOffs == 1) { // card number
 				if(SCObj.Fetch(sc_id, &sc_rec) > 0 && sc_rec.Flags & SCRDF_CLOSED) {

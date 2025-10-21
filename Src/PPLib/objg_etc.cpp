@@ -1660,7 +1660,7 @@ static int PPViewComputer_CellStyleFunc(const void * pData, long col, int paintA
 	
 /*virtual*/int PPViewComputer::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
-	PPID   id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
+	PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 	const  PPID preserve_id = id;
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
@@ -2516,7 +2516,7 @@ static int PPViewSwProgram_CellStyleFunc(const void * pData, long col, int paint
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	PPID   preserve_id = 0;
 	if(ok == -2) {
-		PPID   id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
+		PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 		preserve_id = id;
 		switch(ppvCmd) {
 			case PPVCMD_EXPORT:

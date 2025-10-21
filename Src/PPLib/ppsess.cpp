@@ -2904,7 +2904,7 @@ int PPSession::OpenDictionary2(DbLoginBlock * pBlk, long flags)
 		}
 		else if(server_type == sqlstSQLite) {
 			if(SFile::IsDir(data_path)) {
-				_data_directory = temp_buf; 
+				_data_directory = data_path; 
 			}
 			else {
 				SFsPath ps(data_path);

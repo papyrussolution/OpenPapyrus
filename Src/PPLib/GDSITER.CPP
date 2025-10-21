@@ -349,8 +349,8 @@ IMPL_CMPFUNC(GoodsIdListByName, p1, p2)
 {
 	int    cm = 0;
 	PPObjGoods * p_goods_obj = static_cast<PPObjGoods *>(pExtraData);
-	const  PPID id1 = *static_cast<const  PPID *>(p1);
-	const  PPID id2 = *static_cast<const  PPID *>(p2);
+	const  PPID id1 = *static_cast<const PPID *>(p1);
+	const  PPID id2 = *static_cast<const PPID *>(p2);
 	if(p_goods_obj) {
 		Goods2Tbl::Rec rec1, rec2;
 		const int r1 = p_goods_obj->Fetch(id1, &rec1);
@@ -1052,7 +1052,7 @@ int GoodsGroupIterator::Next(PPID * pID, SString & rBuf)
 {
 	if(IterIndex < List.getCount()) {
 		const char * ptr = static_cast<const char *>(List.at(IterIndex));
-		ASSIGN_PTR(pID, *reinterpret_cast<const  PPID *>(ptr));
+		ASSIGN_PTR(pID, *reinterpret_cast<const PPID *>(ptr));
 		if(Flags & fSortByCode)
 			(rBuf = ptr + sizeof(PPID)).ShiftLeftChr('@');
 		else

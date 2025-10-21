@@ -414,7 +414,7 @@ int ArticleAutoAddDialog::extractFromQuery()
 {
 	int    ok = 1;
 	STRNSCPY(Rec.Name, P_Buf + sizeof(PPID));
-	Rec.ObjID = *reinterpret_cast<const  PPID *>(P_Buf);
+	Rec.ObjID = *reinterpret_cast<const PPID *>(P_Buf);
 	int    r = ArObj.P_Tbl->SearchObjRef(Rec.AccSheetID, Rec.ObjID);
 	THROW(r);
 	if(r < 0) {

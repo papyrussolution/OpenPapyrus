@@ -802,7 +802,7 @@ int PPViewSalary::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser *
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
-		PPID   id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
+		PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 		SalaryTbl::Rec rec;
 		PersonPostTbl::Rec post_rec;
 		if(ppvCmd == PPVCMD_ADDITEM) {

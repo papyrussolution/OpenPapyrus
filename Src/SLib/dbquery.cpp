@@ -608,12 +608,20 @@ DBQuery::Tbl::Tbl() : P_Tbl(0), /*keyBuf(0)*/flg(0)
 int DBQuery::Tbl::Srch(void * pKey, int sp)
 {
 	int    ok = (flg & DBQTF_SEARCHFORUPDATE) ? P_Tbl->searchForUpdate(pKey, sp) : P_Tbl->search(pKey, sp);
-	if(!ok && BtrError == BE_INVPOS)
+	if(ok) {
+		// @v12.4.6 {
+		const DBRowId * p_rowid = P_Tbl->getCurRowIdPtr();
+		if(p_rowid) {
+			Pos_ = *p_rowid;
+		}
+		// } @v12.4.6 
+	}
+	else if(BtrError == BE_INVPOS)
 		BtrError = BE_EOF;
 	return ok;
 }
 
-int FASTCALL DBQuery::_search(uint n, int dir)
+int DBQuery::_search(uint n, int dir)
 {
 	Tbl  & r_tbl = tbls[n];
 	int    outer_rec = 0;
@@ -694,7 +702,7 @@ int FASTCALL DBQuery::_search(uint n, int dir)
 __get_next_tbl:
 				if((n+1 == tblCount || _search(n+1, (dir == spNext ? spFirst : spLast)))) { // @recursion
 					if(options & save_positions) {
-						r_tbl.P_Tbl->getPosition(&r_tbl.Pos);
+						r_tbl.P_Tbl->getPosition(&r_tbl.Pos_);
 					}
 					return 1;
 				}
@@ -714,7 +722,7 @@ __get_next_tbl:
 	return 0;
 }
 
-void FASTCALL DBQuery::fillRecord(char * pBuf, RECORDNUMBER * pPos)
+void DBQuery::fillRecord(char * pBuf, RECORDNUMBER * pPos)
 {
 	RECORDSIZE p = 0;
 	if(pBuf) {
@@ -735,7 +743,7 @@ void FASTCALL DBQuery::fillRecord(char * pBuf, RECORDNUMBER * pPos)
 	}
 	if(pPos && options & save_positions) {
 		for(uint i = 0; i < tblCount; i++)
-			pPos[i] = tbls[i].Pos;
+			pPos[i] = tbls[i].Pos_;
 	}
 }
 
@@ -954,9 +962,10 @@ int DBQuery::_fetch_last(uint count, uint p)
 {
 	uint   i;
 	const  uint s = P_Frame->Size;
-	for(i = 0; i < count; i++)
+	for(i = 0; i < count; i++) {
 		if(!single_fetch(LBUFPTR(s+p-i), LPOSPTR(s+p-i), i ? spPrev : spLast))
 			break;
+	}
 	P_Frame->State = Frame::stBottom;
 	if(i < count) {
 		P_Frame->Last = _ltop;

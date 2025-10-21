@@ -4683,7 +4683,7 @@ int PPViewDebtorStat::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
-		PPID   ar_id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
+		PPID   ar_id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 		switch(ppvCmd) {
 			case PPVCMD_EDITARTICLE:
 				ok = -1;

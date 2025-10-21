@@ -1803,7 +1803,7 @@ int FASTCALL SCardSeriesView::NextIteration(PPSCardSeries * pRec)
 	if(pRec && SmartListBox::IsValidS(P_List)) {
 		const SArray * p_scs_ary = static_cast<const StdListBoxDef *>(P_List->P_Def)->P_Data;
 		if(p_scs_ary && p_scs_ary->getCount() > CurPrnPos) {
-			PPID   id = *static_cast<const  PPID *>(p_scs_ary->at(CurPrnPos++));
+			PPID   id = *static_cast<const PPID *>(p_scs_ary->at(CurPrnPos++));
 			if(P_Obj && P_Obj->Search(id, pRec) > 0)
 				ok = 1;
 		}

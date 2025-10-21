@@ -1754,8 +1754,20 @@ static void STDCALL SetupCalCtrl(int buttCtlID, TDialog * pDlg, uint editCtlID, 
 					{
 						const bool use_new_calendar = !(APPL->GetUiSettings().Flags & UserInterfaceSettings::fDateTimePickerBefore1124);
 						if(p_cbwe->CalType) {
-							if(use_new_calendar)
-								SCalendarPicker::Exec(SUiCtrlSupplement::kDateRangeCalendar, p_cbwe->Dlg, p_cbwe->EditID, 0);
+							if(use_new_calendar) {
+								// @v12.4.6 SCalendarPicker::Exec(SUiCtrlSupplement::kDateRangeCalendar, p_cbwe->Dlg, p_cbwe->EditID, 0);
+								// @v12.4.6 {
+								TView * p_ev = p_cbwe->Dlg->getCtrlView(p_cbwe->EditID);
+								if(TView::IsSubSign(p_ev, TV_SUBSIGN_INPUTLINE) && !p_ev->IsInState(sfDisabled)) {
+									if(p_ev->IsInState(sfVisible)) {
+										SCalendarPicker::Exec(SUiCtrlSupplement::kDateRangeCalendar, p_cbwe->Dlg, p_cbwe->EditID, 0);
+									}
+									else {
+										;
+									}
+								}
+								// } @v12.4.6
+							}
 							else {
 								TPeriodCalendar * pc = new TPeriodCalendar(p_cbwe->Dlg, p_cbwe->EditID);
 								if(pc) {
@@ -1765,8 +1777,17 @@ static void STDCALL SetupCalCtrl(int buttCtlID, TDialog * pDlg, uint editCtlID, 
 							}
 						}
 						else {
-							if(use_new_calendar)
-								SCalendarPicker::Exec(SUiCtrlSupplement::kDateCalendar, p_cbwe->Dlg, p_cbwe->EditID, 0);
+							if(use_new_calendar) {
+								// @v12.4.6 SCalendarPicker::Exec(SUiCtrlSupplement::kDateCalendar, p_cbwe->Dlg, p_cbwe->EditID, 0);
+								// @v12.4.6 {
+								TView * p_ev = p_cbwe->Dlg->getCtrlView(p_cbwe->EditID);
+								if(TView::IsSubSign(p_ev, TV_SUBSIGN_INPUTLINE) && !p_ev->IsInState(sfDisabled)) {
+									if(p_ev->IsInState(sfVisible)) {
+										SCalendarPicker::Exec(SUiCtrlSupplement::kDateCalendar, p_cbwe->Dlg, p_cbwe->EditID, 0);
+									}
+								}
+								// } @v12.4.6
+							}
 							else {
 								TDateCalendar * pc = new TDateCalendar(p_cbwe->Dlg, p_cbwe->EditID);
 								if(pc) {

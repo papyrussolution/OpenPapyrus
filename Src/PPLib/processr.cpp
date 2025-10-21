@@ -2194,7 +2194,7 @@ void * PPViewProcessor::GetEditExtraParam()
 int PPViewProcessor::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
 	ProcessorTbl::Rec rec;
-	PPID   id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
+	PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 	if(PrcObj.Search(id, &rec) > 0 && rec.Kind == PPPRCK_GROUP) {
 		ProcessorFilt filt;
 		filt.Kind = 0; //PPPRCK_PROCESSOR;
@@ -2280,7 +2280,7 @@ int PPViewProcessor::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowse
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
-		PPID   prc_id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
+		PPID   prc_id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 		switch(ppvCmd) {
 			case PPVCMD_ADDBYSAMPLE:
 				{

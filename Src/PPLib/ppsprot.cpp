@@ -98,7 +98,7 @@ SString & FASTCALL PPJobSrvProtocol::Header01::ToStr(SString & rBuf) const
 	rBuf.Z();
 	if(Zero == 0) {
 		rBuf.CatEq("ProtocolVer", static_cast<ulong>(ProtocolVer)).CatDiv(';', 2).
-			CatEq("Padding", static_cast<uint>(Padding)).CatEq("DataLen", DataLen).CatDiv(';', 2).CatEq("Type", Type).CatDiv(';', 2).Cat("Flags").Eq().CatHex(Flags);
+			CatEq("Padding", static_cast<uint>(Padding)).CatDiv(';', 2).CatEq("DataLen", DataLen).CatDiv(';', 2).CatEq("Type", Type).CatDiv(';', 2).Cat("Flags").Eq().CatHex(Flags);
 	}
 	else {
 		rBuf.CatChar(reinterpret_cast<const char *>(&Zero)[0]);
@@ -175,7 +175,7 @@ SString & FASTCALL PPJobSrvProtocol::ToStr(SString & rBuf) const
 		H.ToStr(rBuf);
 	}
 	else {
-		const size_t avl_sz = MIN(GetWrOffs(), 255);
+		const size_t avl_sz = smin(GetWrOffs(), 255U);
 		rBuf.Z().CatN(GetBufC(), avl_sz);
 		rBuf.Chomp();
 	}
@@ -184,12 +184,7 @@ SString & FASTCALL PPJobSrvProtocol::ToStr(SString & rBuf) const
 
 int PPJobSrvProtocol::CheckRepError()
 {
-	if(H.Flags & hfRepError) {
-		PPSetError(PPERR_JOBSRVCLI_ERR, ErrText);
-		return 0;
-	}
-	else
-		return 1;
+	return (H.Flags & hfRepError) ? PPSetError(PPERR_JOBSRVCLI_ERR, ErrText) : 1;
 }
 
 PPJobSrvProtocol::StopThreadBlock::StopThreadBlock() : TId(0)

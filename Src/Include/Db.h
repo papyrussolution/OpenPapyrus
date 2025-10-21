@@ -3829,8 +3829,8 @@ public:
 	int    FASTCALL chooseKey(int tblN);
 	int    calcRecSize();
 	int    allocFrame(uint);
-	void   FASTCALL fillRecord(char *, RECORDNUMBER *);
-	int    FASTCALL _search(uint n, int dir);
+	void   fillRecord(char *, RECORDNUMBER *);
+	int    _search(uint n, int dir);
 	int    _fetch_next(uint count, uint p, int dir);
 	int    _fetch_prev(uint count, uint p);
 	int    _fetch_last(uint count, uint p);
@@ -3889,7 +3889,7 @@ public:
 		KR     key;
 		// @v12.4.5 char * keyBuf;
 		uint8  KeyBuf[512]; // @v12.4.5 BTRMAXKEYLEN было бы достаточно, но запас прочности, знаете ли :)
-		DBRowId Pos;
+		DBRowId Pos_;
 		uint   flg;        // DBQTF_XXX
 	};
 	struct Fld {

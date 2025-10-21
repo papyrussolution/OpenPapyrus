@@ -2357,7 +2357,8 @@ int ExportBillsFiltDialog::setDTS(const ExpBillsFilt * pData)
 int ExportBillsFiltDialog::getDTS(ExpBillsFilt * pData)
 {
 	int     ok = 1;
-	uint    id = 0, sel = 0;
+	uint    id = 0;
+	uint    sel = 0;
 	long    v  = 0;
 	SString sect;
 	getCtrlData(sel = CTLSEL_BILLEXPFILT_CFG, &id);
@@ -2391,7 +2392,6 @@ public:
 		int    valid_data = 0;
 		ExportBillsFiltDialog::ExpBillsFilt filt;
 		ExportBillsFiltDialog * p_dlg = new ExportBillsFiltDialog;
-		PPViewBill view;
 		filt.Init(); // @vmiller
 		const size_t sav_offs = pParam->GetRdOffs();
 		THROW_INVARG(pParam);
@@ -2422,7 +2422,8 @@ public:
 	{
 		int    ok = -1;
 		const  PPCommConfig & r_ccfg = CConfig;
-		SString fmt_buf, msg_buf;
+		SString fmt_buf;
+		SString msg_buf;
 		ExportBillsFiltDialog::ExpBillsFilt filt;
 		CoInitialize(NULL);
 		THROW(filt.Read(*pParam, 0) > 0);
@@ -2431,7 +2432,8 @@ public:
 		}
 		{
 			PPViewBill view;
-			PPBillImpExpParam bill_param, brow_param;
+			PPBillImpExpParam bill_param;
+			PPBillImpExpParam brow_param;
 			THROW(ExportBillsFiltDialog::GetParamsByName(filt.BillParam, filt.BRowParam, &bill_param, &brow_param));
 			if(r_ccfg.Flags & CCFLG_DEBUG) {
 				const char * p1 = filt.BillParam.NotEmpty() ? filt.BillParam.cptr() : "";

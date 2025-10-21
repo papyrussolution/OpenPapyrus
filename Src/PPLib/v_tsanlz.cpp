@@ -1147,7 +1147,7 @@ int PPViewTSessAnlz::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowse
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
-		PPID   __id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
+		PPID   __id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 		TSessAnlzViewItem item;
 		switch(ppvCmd) {
 			case PPVCMD_EDITGOODS:

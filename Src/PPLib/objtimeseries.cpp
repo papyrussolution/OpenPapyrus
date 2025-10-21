@@ -2189,7 +2189,7 @@ SArray * PPViewTimeSeries::CreateBrowserArray(uint * pBrwId, SString * pSubTitle
 int PPViewTimeSeries::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = -1;
-	PPID   id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
+	PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 	if(id) {
 		TimSerDetailFilt filt;
 		filt.TsID = id;
@@ -2313,7 +2313,7 @@ int PPViewTimeSeries::DeleteAll()
 int PPViewTimeSeries::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = -2;
-	PPID   id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
+	PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 	const  PPID preserve_id = id;
 	if(ppvCmd == PPVCMD_DELETEITEM) { // Перехват обработки команды до PPView::ProcessCommand
 		ok = DeleteItem(id);
@@ -8754,7 +8754,7 @@ void PPViewTimSerDetail::PreprocessBrowser(PPViewBrowser * pBrw)
 int PPViewTimSerDetail::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
-	PPID   id = pHdr ? *static_cast<const  PPID *>(pHdr) : 0;
+	PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 	const  PPID preserve_id = id;
 	if(ok == -2) {
 		switch(ppvCmd) {

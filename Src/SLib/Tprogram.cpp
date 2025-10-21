@@ -2084,10 +2084,10 @@ int TProgram::DrawButton3(HWND hwnd, DRAWITEMSTRUCT * pDi)
 	/* if(pDi->itemState & ODS_HOTLIGHT) {
 		item_state = tbisHover;
 	} */
-	const long style = TView::SGetWindowStyle(pDi->hwndItem);
+	const  long style(TView::SGetWindowStyle(pDi->hwndItem));
 	long   text_out_fmt = /*DT_SINGLELINE|*/DT_VCENTER|DT_EXTERNALLEADING|DT_END_ELLIPSIS;
 	const  TRect rect_elem_i(pDi->rcItem);
-	const  FRect rect_elem = pDi->rcItem;
+	const  FRect rect_elem(pDi->rcItem);
 	RECT   out_r = pDi->rcItem;
 	//COLORREF brush_color = RGB(0xDC, 0xD9, 0xD1);
 	//COLORREF pen_color = _GetAssetColor(_assetCtrlBorderColor);
@@ -2095,7 +2095,7 @@ int TProgram::DrawButton3(HWND hwnd, DRAWITEMSTRUCT * pDi)
 	SString text_buf;
 	TView::SGetWindowText(pDi->hwndItem, text_buf);
 	text_buf.Strip();
-	const bool draw_text = LOGIC(text_buf.Len());
+	const bool draw_text = text_buf.NotEmpty();
 	int    erase_text = 0;
 	{
 		void * p_user_data = TView::GetWindowUserData(pDi->hwndItem);

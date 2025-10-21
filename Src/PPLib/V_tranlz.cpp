@@ -1984,7 +1984,7 @@ int PPViewTrfrAnlz::GetBrwHdr(const void * pRow, BrwHdr * pHdr) const
 			}
 		}
 		else if(P_TrGrpngTbl)
-			pHdr->__ID = *static_cast<const  PPID *>(pRow);
+			pHdr->__ID = *static_cast<const PPID *>(pRow);
 	}
 	else
 		ok = 0;
