@@ -650,7 +650,7 @@ DBQuery * PPViewSysJournal::CreateBrowserQuery(uint * pBrwId, SString *)
 		THROW(CheckTblPtr(p_t));
 		PPDbqFuncPool::InitObjNameFunc(dbe_avg_tm, PPDbqFuncPool::IdDurationToTime, p_t->Count);
 		THROW_MEM(q = new DBQuery);
-		q->syntax |= DBQuery::t_select;
+		q->syntax |= DBQuery::tSelect;
 		q->addField(p_t->ID);  // #0
 		q->addField(p_t->ID2); // #1
 		q->addField(p_t->Dt);  // #2

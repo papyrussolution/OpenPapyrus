@@ -457,6 +457,7 @@ private:
 			}
 			else {
 				PPLogMessage(PPFILNAM_SERVER_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME);
+				ok = 0; // @v12.4.6 @fix
 			}
 		}
 		CATCHZOK

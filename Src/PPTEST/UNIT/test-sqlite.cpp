@@ -16,7 +16,6 @@ int __PrcssrTestDb_Are_TestTa01_RecsEqual(const TestTa01Tbl::Rec & rRec1, const 
 
 SLTEST_R(SQLite)
 {
-	SString temp_buf;
 	{
 		static const SIntToSymbTabEntry tok_list[] = {
 			{ Generator_SQL::tokCreate, "CREATE" },
@@ -63,6 +62,8 @@ SLTEST_R(SQLite)
 			assert(sstreqi_ascii(Generator_SQL::GetToken(tok_list[i].Id), tok_list[i].P_Symb));
 		}
 	}
+	SString temp_buf;
+	SString db_file_name;
 	bool   debug_mark = false;
 	void * prc_testdbobj = __CreatePrcssrTestDbObject();
 	DBTable * p_tbl = 0;
@@ -76,9 +77,9 @@ SLTEST_R(SQLite)
     TSCollection <TestTa01Tbl::Rec> record_list;
 	TSCollection <TestRef01Tbl::Rec> ref01_rec_list;
 	TSCollection <TestRef02Tbl::Rec> ref02_rec_list;
-	SLS.QueryPath("testroot", temp_buf);
-	temp_buf.SetLastSlash().Cat("out").SetLastSlash().Cat("SQLite").SetLastSlash().Cat("test-sqlite-db");
-    const SString db_path(temp_buf);
+	SLS.QueryPath("testroot", db_file_name);
+	db_file_name.SetLastSlash().Cat("out").SetLastSlash().Cat("SQLite").SetLastSlash().Cat("test-sqlite-db"); // Без расширения!
+    const SString db_path(db_file_name);
 	dblb.SetAttr(DbLoginBlock::attrDbPath, db_path);
 	SSqliteDbProvider dbp;
 	{

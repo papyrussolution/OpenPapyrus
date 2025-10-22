@@ -8,7 +8,7 @@
 DBQuery::DBQuery()
 {
 	THISZERO();
-	options = destroy_tables;
+	options = fDestroyTables;
 }
 
 DBQuery::~DBQuery()
@@ -25,14 +25,16 @@ DBQuery::~DBQuery()
 	}*/
 	delete P_Frame;
 	if(tbls) {
-		const bool o = LOGIC(options & destroy_tables);
+		const bool do_destroy_tbl = LOGIC(options & fDestroyTables);
 		for(i = 0; i < tblCount; i++) {
-			Tbl  * t = tbls+i;
-			if((t->flg & DBQTF_OVRRD_DESTROY_TAG) ? !o : o)
-				delete t->P_Tbl;
-			t->tree.destroy();
-			t->key.destroy();
-			// @v12.4.5 delete t->keyBuf;
+			Tbl  & r_t = tbls[i];
+			// @v12.4.6 if((t->flg & DBQTF_OVRRD_DESTROY_TAG) ? !do_destroy_tbl : do_destroy_tbl)
+			if(do_destroy_tbl) {
+				delete r_t.P_Tbl;
+			}
+			r_t.tree.destroy();
+			r_t.key.destroy();
+			// @v12.4.5 delete r_t.keyBuf;
 		}
 		SAlloc::F(tbls);
 	}
@@ -48,7 +50,7 @@ DBQuery::~DBQuery()
 
 void DBQuery::setDestroyTablesMode(int set)
 {
-	SETFLAG(options, DBQuery::destroy_tables, set);
+	SETFLAG(options, DBQuery::fDestroyTables, set);
 }
 
 void DBQuery::setSearchForUpdateMode(int set)
@@ -382,7 +384,7 @@ DBQuery & FASTCALL select(const DBFieldList & list)
 			q.error = 1;
 			q.fldCount = 0;
 		}
-		q.syntax |= DBQuery::t_select;
+		q.syntax |= DBQuery::tSelect;
 	}
 	return q;
 }
@@ -402,7 +404,7 @@ DBQuery & FASTCALL selectbycell(int count, const DBDataCell * pList)
 			count   = 0;
 		}
 		q.fldCount = count;
-		q.syntax |= DBQuery::t_select;
+		q.syntax |= DBQuery::tSelect;
 	}
 	return q;
 }
@@ -442,7 +444,7 @@ DBQuery & CDECL select(DBField first_arg, ...)
 			i++;
 		}
 		q.fldCount = i;
-		q.syntax |= DBQuery::t_select;
+		q.syntax |= DBQuery::tSelect;
 	}
 	va_end(list);
 	return q;
@@ -451,7 +453,7 @@ DBQuery & CDECL select(DBField first_arg, ...)
 DBQuery & selectAll()
 {
 	DBQuery & q = *new DBQuery;
-	q.syntax |= (DBQuery::t_select | DBQuery::t_all);
+	q.syntax |= (DBQuery::tSelect | DBQuery::tAll);
 	return q;
 }
 
@@ -477,7 +479,7 @@ DBQuery & CDECL DBQuery::from(DBTable * first_arg, ...)
 	}
 	tblCount = i;
 	va_end(list);
-	syntax |= t_from;
+	syntax |= tFrom;
 	calcRecSize();
 	return *this;
 }
@@ -495,7 +497,7 @@ int FASTCALL DBQuery::addTable(DBTable * pTbl)
 			// @v12.4.5 tbls[i].keyBuf = 0;
 			tbls[i].flg = 0;
 			++tblCount;
-			syntax |= t_from;
+			syntax |= tFrom;
 			calcRecSize();
 		}
 		else {
@@ -533,7 +535,7 @@ DBQuery & CDECL DBQuery::orderBy(DBField first_arg, ...)
 		order[ordCount++] = f;
 	}
 	va_end(list);
-	syntax |= t_order;
+	syntax |= tOrder;
 	analyzeOrder(0);
 	return *this;
 }
@@ -546,7 +548,7 @@ int DBQuery::checkWhereRestriction()
 DBQuery & FASTCALL DBQuery::where(DBQ & q)
 {
 	if(&q != 0) {
-		const int is_first = !(syntax & t_where);
+		const bool is_first = !(syntax & tWhere);
 		if(w_restrict) {
 			w_restrict->destroy(1);
 			delete w_restrict;
@@ -568,7 +570,7 @@ DBQuery & FASTCALL DBQuery::where(DBQ & q)
 				break;
 			}
 		}
-		syntax |= t_where;
+		syntax |= tWhere;
 	}
 	return *this;
 }
@@ -576,7 +578,7 @@ DBQuery & FASTCALL DBQuery::where(DBQ & q)
 int DBQuery::calcRecSize()
 {
 	recSize  = 0;
-	if(syntax & t_all) {
+	if(syntax & tAll) {
 		for(uint i = 0; i < tblCount;) {
 			const RECORDSIZE rs = tbls[i++].P_Tbl->getRecSize();
 			recSize += rs;
@@ -655,7 +657,7 @@ int DBQuery::_search(uint n, int dir)
 		// за неизменной записью первой таблицы.
 		// Выбрать момент, когда можно протестировать и убрать этот участок. {
 		else {
-			if(!(options & correct_search_more_problem)) {
+			if(!(options & fCorrectSearchMoreProblem)) {
 				if(tblCount > 1)
 					return 0;
 			}
@@ -701,7 +703,7 @@ int DBQuery::_search(uint n, int dir)
 			if(r_tbl.tree.checkRestriction()) {
 __get_next_tbl:
 				if((n+1 == tblCount || _search(n+1, (dir == spNext ? spFirst : spLast)))) { // @recursion
-					if(options & save_positions) {
+					if(options & fSavePositions) {
 						r_tbl.P_Tbl->getPosition(&r_tbl.Pos_);
 					}
 					return 1;
@@ -722,11 +724,11 @@ __get_next_tbl:
 	return 0;
 }
 
-void DBQuery::fillRecord(char * pBuf, RECORDNUMBER * pPos)
+void DBQuery::fillRecord(char * pBuf, /*RECORDNUMBER*/DBRowId * pPos)
 {
 	RECORDSIZE p = 0;
 	if(pBuf) {
-		if(syntax & t_all) {
+		if(syntax & tAll) {
 			for(uint i = 0; i < tblCount; i++) {
 				const RECORDSIZE s = tbls[i].P_Tbl->GetFields().CalculateFixedRecSize();
 				memcpy(pBuf+p, tbls[i].P_Tbl->getDataBufConst(), s);
@@ -741,7 +743,7 @@ void DBQuery::fillRecord(char * pBuf, RECORDNUMBER * pPos)
 			}
 		}
 	}
-	if(pPos && options & save_positions) {
+	if(pPos && options & fSavePositions) {
 		for(uint i = 0; i < tblCount; i++)
 			pPos[i] = tbls[i].Pos_;
 	}
@@ -749,40 +751,37 @@ void DBQuery::fillRecord(char * pBuf, RECORDNUMBER * pPos)
 
 #define INVALID_DIRECTION_CODE 0
 
-int DBQuery::single_fetch(char * buf, RECORDNUMBER * pPos, int dir)
+int DBQuery::single_fetch(char * pBuf, /*RECORDNUMBER*/DBRowId * pPos, int dir)
 {
 	if(_search(0, dir)) {
-		fillRecord(buf, pPos);
-		actCount = 1;
+		fillRecord(pBuf, pPos);
+		ActualCount = 1;
 	}
 	else
-		actCount = 0;
-	return static_cast<int>(actCount);
+		ActualCount = 0;
+	return static_cast<int>(ActualCount);
 }
 
-int DBQuery::fetch(long count, char * pBuf, RECORDNUMBER * pPos, int dir)
+int DBQuery::fetch(uint count, char * pBuf, /*RECORDNUMBER*/DBRowId * pPos, int dir)
 {
-	long   i = 0L;
+	uint   rec_no = 0L;
 	assert(oneof4(dir, spNext, spFirst, spPrev, spLast));
 	const int next = (dir == spPrev || dir == spLast) ? spPrev : spNext;
 	if(_search(0, dir)) {
 		do {
 			if(pBuf)
-				fillRecord(pBuf+recSize*(size_t)i, pPos ? (pPos+tblCount*(size_t)i) : 0);
-		} while(++i < count && _search(0, next));
+				fillRecord(pBuf + recSize * rec_no, pPos ? (pPos + tblCount * rec_no) : 0);
+		} while(++rec_no < count && _search(0, next));
 	}
-	actCount = i;
-	if(next == spPrev && pBuf && i > 1 && !(options & fetch_reverse)) {
-		for(int j = 0; j < (i >> 1); j++)
-			memswap(pBuf + j * recSize, pBuf + ((size_t)i - j - 1) * recSize, recSize);
+	ActualCount = rec_no;
+	if(next == spPrev && pBuf && rec_no > 1 && !(options & fFetchReverse)) {
+		for(uint j = 0; j < (rec_no >> 1); j++)
+			memswap(pBuf + j * recSize, pBuf + (rec_no - j - 1) * recSize, recSize);
 	}
-	return (i < count) ? 0 : 1;
+	return (rec_no < count) ? 0 : 1;
 }
 
-int DBQuery::fetch(long count, char * pBuf, int dir)
-{
-	return fetch(count, pBuf, 0, dir);
-}
+int DBQuery::fetch(uint count, char * pBuf, int dir) { return fetch(count, pBuf, 0, dir); }
 
 //#define BOQ  (P_Frame->State & Frame::stTop)
 //#define EOQ  (P_Frame->State & Frame::stBottom)
@@ -817,8 +816,8 @@ int DBQuery::setFrame(uint viewHight, uint bufSize, uint bufDelta)
 				}
 			}
 		}
-		options |= smart_frame;
-		options &= ~fetch_reverse;
+		options |= fSmartFrame;
+		options &= ~fFetchReverse;
 	}
 	return ok;
 }
@@ -834,8 +833,8 @@ int DBQuery::allocFrame(uint bufSize)
 			P_Frame->P_Buf = static_cast<char *>(SAlloc::R(P_Frame->P_Buf, bufSize * recSize));
 			THROW(P_Frame->P_Buf);
 			P_Frame->Count = smin(P_Frame->Count, bufSize);
-			if(options & save_positions) {
-				P_Frame->P_PosBuf = static_cast<ulong *>(SAlloc::R(P_Frame->P_PosBuf, P_Frame->Size * tblCount * sizeof(RECORDNUMBER)));
+			if(options & fSavePositions) {
+				P_Frame->P_PosBuf = static_cast<DBRowId *>(SAlloc::R(P_Frame->P_PosBuf, P_Frame->Size * tblCount * sizeof(DBRowId)));
 				THROW(P_Frame->P_PosBuf);
 			}
 		}
@@ -845,7 +844,7 @@ int DBQuery::allocFrame(uint bufSize)
 				ZFREE(P_Frame->P_PosBuf);
 				// @v12.4.5 P_Frame->Size = 0;
 			}
-			options &= ~smart_frame;
+			options &= ~fSmartFrame;
 		}
 	}
 	CATCH
@@ -856,12 +855,12 @@ int DBQuery::allocFrame(uint bufSize)
 
 void DBQuery::moveRec(uint rd, uint rs)
 {
-	ulong * pp = P_Frame->P_PosBuf;
+	/*ulong*/DBRowId * p_position = P_Frame->P_PosBuf;
 	char * b = P_Frame->P_Buf;
 	memmove(b + rd * recSize, b + rs * recSize, recSize);
-	if(pp) {
-		uint ps = tblCount*sizeof(RECORDNUMBER);
-		memmove(pp + rd * tblCount, pp + rs * tblCount, ps);
+	if(p_position) {
+		uint ps = tblCount * sizeof(/*RECORDNUMBER*/DBRowId);
+		memmove(p_position + rd * tblCount, p_position + rs * tblCount, ps);
 	}
 }
 
@@ -934,7 +933,7 @@ int DBQuery::_fetch_next(uint count, uint p, int dir)
 	}
 	else
 		P_Frame->Last = _lnext;
-	actCount = i;
+	ActualCount = i;
 	return !error;
 }
 
@@ -954,7 +953,7 @@ int DBQuery::_fetch_prev(uint count, uint p)
 	}
 	else
 		P_Frame->Last = _lprev;
-	actCount = i;
+	ActualCount = i;
 	return !error;
 }
 
@@ -974,7 +973,7 @@ int DBQuery::_fetch_last(uint count, uint p)
 	}
 	else
 		P_Frame->Last = _lprev;
-	actCount = i;
+	ActualCount = i;
 	return !error;
 }
 
@@ -997,8 +996,8 @@ int FASTCALL DBQuery::normalizeFrame(int dir)
 		else
 			return 1;
 		_fetch_next(recs, pos, spNext);
-		if(actCount < recs)
-			setCount(actCount);
+		if(ActualCount < recs)
+			setCount(ActualCount);
 	}
 	else { // dir == spPrev
 		if(P_Frame->Last == _lnext) {
@@ -1012,9 +1011,9 @@ int FASTCALL DBQuery::normalizeFrame(int dir)
 		else
 			return 1;
 		_fetch_prev(recs, pos);
-		if(actCount < recs) {
-			P_Frame->Zero = addr(P_Frame->Count-actCount);
-			setCount(actCount);
+		if(ActualCount < recs) {
+			P_Frame->Zero = addr(P_Frame->Count-ActualCount);
+			setCount(ActualCount);
 		}
 	}
 	return !error;
@@ -1025,18 +1024,18 @@ int DBQuery::refresh()
 	P_Frame->SDelta = 0;
 	if(P_Frame->State & Frame::stTop) {
 		_fetch_next(P_Frame->Size, 0, spFirst);
-		setCount(actCount);
+		setCount(ActualCount);
 	}
 	else if(P_Frame->State & Frame::stBottom) {
 		const uint s = P_Frame->Size;
 		_fetch_last(s, s-1);
-		P_Frame->Zero = addr(s - actCount);
-		setCount(actCount);
+		P_Frame->Zero = addr(s - ActualCount);
+		setCount(ActualCount);
 	}
 	else if(P_Frame->Last == _ltop || P_Frame->Last == _lprev) {
 		_fetch_prev(1, 0);
 		_fetch_next(P_Frame->Count, 0, spNext);
-		setCount(actCount);
+		setCount(ActualCount);
 	}
 	else {
 		normalizeFrame(spPrev);
@@ -1052,7 +1051,7 @@ int DBQuery::top()
 	else {
 		P_Frame->SDelta = 0x8000;
 		_fetch_next(P_Frame->Size, 0, spFirst);
-		P_Frame->Count = actCount;
+		P_Frame->Count = ActualCount;
 	}
 	P_Frame->Top = 0;
 	P_Frame->Cur = 0;
@@ -1066,8 +1065,8 @@ int DBQuery::bottom()
 		if(!(P_Frame->State & Frame::stBottom)) {
 			const uint s = P_Frame->Size;
 			_fetch_last(s, s-1);
-			P_Frame->Zero  = addr(s - actCount);
-			P_Frame->Count = actCount;
+			P_Frame->Zero  = addr(s - ActualCount);
+			P_Frame->Count = ActualCount;
 		}
 		frameOnBottom(!(P_Frame->State & Frame::stBottom));
 		P_Frame->SPos = P_Frame->SRange;
@@ -1094,7 +1093,7 @@ int DBQuery::step(long delta)
 					if(!(P_Frame->State & Frame::stBottom)) {
 						normalizeFrame(spNext);
 						_fetch_next(diff+1, c = P_Frame->Count, spNext);
-						const uint temp = c + actCount;
+						const uint temp = c + ActualCount;
 						if(temp > s)
 							P_Frame->Zero = addr(temp % s);
 						P_Frame->Count = smin(temp, s);
@@ -1121,7 +1120,7 @@ int DBQuery::step(long delta)
 						normalizeFrame(spPrev);
 						const uint recs = delta - P_Frame->Cur;
 						_fetch_prev(recs, s-1);
-						P_Frame->Zero = addr(s - actCount % s);
+						P_Frame->Zero = addr(s - ActualCount % s);
 						P_Frame->Top = P_Frame->Cur = 0;
 						P_Frame->SDelta = -delta;
 						//P_Frame->SPos -= delta;

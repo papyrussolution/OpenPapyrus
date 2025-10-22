@@ -21,8 +21,8 @@
 		-- складской операцией размещаем единицу оборудования на адресе доставки клиента (тут придется доработать складскую операцию)
 		-- если нужно забрать у клиента оборудование или передать на другой адрес - складская операция отработает нормально
 
+	== Реализация конкретного кейса по описанному здесь ниже в классе COCACOLA ==
 */
-
 //
 // Export suppl data
 //
@@ -240,8 +240,7 @@ public:
 	{
 		ClientCode = pClientCode;
 	}
-	int    Init(const char * pFile, uint headRecType, uint lineRecType, const char * pHeadScheme, const char * pLineScheme,
-		/*const SupplExpFilt * pFilt,*/ const char * pSchemeName /*=0*/)
+	int    Init(const char * pFile, uint headRecType, uint lineRecType, const char * pHeadScheme, const char * pLineScheme, const char * pSchemeName /*=0*/)
 	{
 		int    ok = 1;
 		PPImpExpParam p;
@@ -271,8 +270,7 @@ public:
 		return ok;
 	}
 	int Init(const char * pFile, uint headRecType, uint lineRecType, uint addLineRecType, uint promoLineRecType,
-		const char * pHeadScheme, const char * pLineScheme, const char * pAddLineScheme, const char * pPromoLineScheme,
-		const char * pSchemeName)
+		const char * pHeadScheme, const char * pLineScheme, const char * pAddLineScheme, const char * pPromoLineScheme, const char * pSchemeName)
 	{
 		int    ok = 1;
 		PPImpExpParam p;
@@ -13553,67 +13551,12 @@ private:
 	PPLogger & R_Logger;
 	TokenSymbHashTable TsHt;
 	PPID   LocCodeTagID;
-/*
-XML Service от поставщика	Обозначения
-<CAM>
-<SERVICE>
-<ITEM>
-	<QMNUM>000300016094</QMNUM>	Номер заявки (из файла XML Мултон <QMNUM>)
-	<START_DATE>2015-10-02</START_DATE>	Дата фактического начала работы
-	<START_TIME>18:12:04</START_TIME>	Время фактического начала работы 
-	<END_DATE>2015-10-09</END_DATE>	Дата фактического завершения работы (должна быть позже START_DATE )
-	<END_TIME>00:00:00</END_TIME>	Время фактического завершения работы (должна быть позже START_TIME)
-	<DATE_COMPLETE>2015-10-08</DATE_COMPLETE>	Фактическая (ссылочная) дата окончания работы
-	<ASTXT></ASTXT>	Код технического одобрения (можно использовать закр. тег)
-	<ACTIVITIES>
-		<ITEM>
-			<CODE_GROUP>CDEM</CODE_GROUP>	Код группы работ (из ESI_Specification - Activity Codes )
-			<ACTIVITY_CODE>ML01</ACTIVITY_CODE>	Код работы (из ESI_Specification - Activity Codes )
-		</ITEM>	 
-	</ACTIVITIES>	 
-	<EQUIPMENT>
-		<item>
-		<EQUNR>000000000056451879</EQUNR>	Номер единицы оборудования (доп. файл Мултон IH08)
-		<TIDNR>045752369</TIDNR>	Штрих код оборудования (доп. файл Мултон IH08)
-		</item>	 
-	</EQUIPMENT>	 
-	<PL_MATNR>000000000080000898</PL_MATNR>	Новый номер материала (можно использовать закр. Тег <PL_MATNR/>)
-	<PL_MATXT>SIPP 100 C COKE</PL_MATXT>	Новое описание материала (можно использовать закр. тег)
-	<PL_CHARG> </PL_CHARG>	Новая партия материала (можно использовать закр. тег)
-	<PL_PLANT>6339</PL_PLANT>	Завод расположения материала (можно использовать закр. тег)
-	<PL_SLOC>6400</PL_SLOC>	Склад  (можно использовать закр. тег)
-	<MENGE>1</MENGE>	Количество материала (можно использовать закр. тег)
-	<PRICE>10.00</PRICE>	Цена договорная по прайсу
-	<PO_NUMBER>4500019315</PO_NUMBER>	Номер PO (из файла XML Мултон <PONUM>)
-	<PO_ITEM>00010</PO_ITEM>	Строка РО (из файла XML Мултон <ITEMNO>)
-	<DELIVERY_DOC> </DELIVERY_DOC>	Документ доставки
-	<DELIV_DOC_DT>2015-10-08</DELIV_DOC_DT>	Дата документа доставки
-	<COMMENTS>	Комментарии
-	</COMMENTS>	 
-</ITEM>	
-//
-//
-//
-XML EQUIPMENT от поставщика	Обозначение
-<CAM>
-	<EQUI_MOVE> Тип файла
-		<ITEM>
-			<TYPE>GI</TYPE>	Тип движения : (GI- Выдача (при установки на клиента) GR - Получение (снятие на склад с клиента))
-			<EQUNR>000000000055670495</EQUNR>	Номер единицы оборудования 
-			<BARCODE>045736540</BARCODE>	Штрих код оборудования/инвентарный номер
-			<PLANT>5180</PLANT>	Завод (доп. файл Мултон IH08)
-			<SLOCATION>6400</SLOCATION>	Склад (доп. файл Мултон IH08)
-			<ORDER>008014777184</ORDER>	Номер заказа (из файла XML Мултон <SORDER>)
-			<STTXU>PLCD</STTXU>	Новый статус оборудования (при GI – поле должно быть пустое <STTXU/>, при GR – TBRF)
-		</ITEM>	 
-	</EQUI_MOVE>	 
-</CAM>	 
-*/ 
 };
 
 int COCACOLA::MakeReply(PPID billID, StringSet & rSsResultFileNames)
 {
 	int    ok = -1;
+	SString temp_buf;
 	if(billID) {
 		PPBillPacket bpack;
 		if(P_BObj->ExtractPacket(billID, &bpack) > 0) {
@@ -13621,19 +13564,145 @@ int COCACOLA::MakeReply(PPID billID, StringSet & rSsResultFileNames)
 			if(GetOpType(bpack.OpTypeID, &op_rec) == PPOPT_WAREHOUSE && oneof2(op_rec.SubType, OPSUBT_BAILMENT_PUT, OPSUBT_BAILMENT_GET)) {
 				const uint ltc = SVectorBase::GetCount(bpack.P_LocTrfrList);
 				if(ltc) {
+					SString svc_file_name; // SERVICE    "Data_xxxx_date"
+					SString equ_file_name; // EQUIPMENT  "MOV_xxxx_date"
+					//PPGetFilePath(PPPATH_OUT, "")
+					
 					for(uint lti = 0; lti < ltc; lti++) {
 						const LocTransfOpBlock & r_lti = bpack.P_LocTrfrList->at(lti);
 						{
-							// EQUIPMENT
+							// EQUIPMENT "MOV_xxxx_date"
+							xmlTextWriter * p_x = xmlNewTextWriterFilename(equ_file_name, 0);
+							if(p_x) {
+								/*
+									XML EQUIPMENT от поставщика	Обозначение
+									<CAM>
+										<EQUI_MOVE> Тип файла
+											<ITEM>
+												<TYPE>GI</TYPE>	Тип движения : (GI- Выдача (при установки на клиента) GR - Получение (снятие на склад с клиента))
+												<EQUNR>000000000055670495</EQUNR>	Номер единицы оборудования 
+												<BARCODE>045736540</BARCODE>	Штрих код оборудования/инвентарный номер
+												<PLANT>5180</PLANT>	Завод (доп. файл Мултон IH08)
+												<SLOCATION>6400</SLOCATION>	Склад (доп. файл Мултон IH08)
+												<ORDER>008014777184</ORDER>	Номер заказа (из файла XML Мултон <SORDER>)
+												<STTXU>PLCD</STTXU>	Новый статус оборудования (при GI – поле должно быть пустое <STTXU/>, при GR – TBRF)
+											</ITEM>	 
+										</EQUI_MOVE>	 
+									</CAM>	 
+								*/ 
+								SXml::WDoc _doc(p_x, cpUTF8);
+								SXml::WNode n_c(p_x, "CAM");
+								{
+									SXml::WNode n_m(p_x, "EQUI_MOVE"); // Тип файла
+									{
+										SXml::WNode n_i(p_x, "ITEM");
+										n_i.PutInner("TYPE", ""); // Тип движения : (GI- Выдача (при установки на клиента) GR - Получение (снятие на склад с клиента))
+										n_i.PutInner("EQUNR", ""); // Номер единицы оборудования 
+										n_i.PutInner("BARCODE", ""); // Штрих код оборудования/инвентарный номер
+										n_i.PutInner("PLANT", ""); // Завод (доп. файл Мултон IH08)
+										n_i.PutInner("SLOCATION", ""); // Склад (доп. файл Мултон IH08)
+										n_i.PutInner("ORDER", ""); // Номер заказа (из файла XML Мултон <SORDER>)
+										n_i.PutInner("STTXU", ""); // Новый статус оборудования (при GI – поле должно быть пустое <STTXU/>, при GR – TBRF)
+									}
+								}
+							}
+							xmlFreeTextWriter(p_x);
 						}
 						{
-							// SERVICE
+							// SERVICE "Data_xxxx_date"
+							xmlTextWriter * p_x = xmlNewTextWriterFilename(svc_file_name, 0);
+							if(p_x) {
+								/*
+									XML Service от поставщика	Обозначения
+									<CAM>
+									<SERVICE>
+									<ITEM>
+										<QMNUM>000300016094</QMNUM>	Номер заявки (из файла XML Мултон <QMNUM>)
+										<START_DATE>2015-10-02</START_DATE>	Дата фактического начала работы
+										<START_TIME>18:12:04</START_TIME>	Время фактического начала работы 
+										<END_DATE>2015-10-09</END_DATE>	Дата фактического завершения работы (должна быть позже START_DATE )
+										<END_TIME>00:00:00</END_TIME>	Время фактического завершения работы (должна быть позже START_TIME)
+										<DATE_COMPLETE>2015-10-08</DATE_COMPLETE>	Фактическая (ссылочная) дата окончания работы
+										<ASTXT></ASTXT>	Код технического одобрения (можно использовать закр. тег)
+										<ACTIVITIES>
+											<ITEM>
+												<CODE_GROUP>CDEM</CODE_GROUP>	Код группы работ (из ESI_Specification - Activity Codes )
+												<ACTIVITY_CODE>ML01</ACTIVITY_CODE>	Код работы (из ESI_Specification - Activity Codes )
+											</ITEM>	 
+										</ACTIVITIES>	 
+										<EQUIPMENT>
+											<item>
+											<EQUNR>000000000056451879</EQUNR>	Номер единицы оборудования (доп. файл Мултон IH08)
+											<TIDNR>045752369</TIDNR>	Штрих код оборудования (доп. файл Мултон IH08)
+											</item>	 
+										</EQUIPMENT>	 
+										<PL_MATNR>000000000080000898</PL_MATNR>	Новый номер материала (можно использовать закр. Тег <PL_MATNR/>)
+										<PL_MATXT>SIPP 100 C COKE</PL_MATXT>	Новое описание материала (можно использовать закр. тег)
+										<PL_CHARG> </PL_CHARG>	Новая партия материала (можно использовать закр. тег)
+										<PL_PLANT>6339</PL_PLANT>	Завод расположения материала (можно использовать закр. тег)
+										<PL_SLOC>6400</PL_SLOC>	Склад  (можно использовать закр. тег)
+										<MENGE>1</MENGE>	Количество материала (можно использовать закр. тег)
+										<PRICE>10.00</PRICE>	Цена договорная по прайсу
+										<PO_NUMBER>4500019315</PO_NUMBER>	Номер PO (из файла XML Мултон <PONUM>)
+										<PO_ITEM>00010</PO_ITEM>	Строка РО (из файла XML Мултон <ITEMNO>)
+										<DELIVERY_DOC> </DELIVERY_DOC>	Документ доставки
+										<DELIV_DOC_DT>2015-10-08</DELIV_DOC_DT>	Дата документа доставки
+										<COMMENTS>	Комментарии
+										</COMMENTS>	 
+									</ITEM>	
+								*/ 
+								SXml::WDoc _doc(p_x, cpUTF8);
+								SXml::WNode n_c(p_x, "CAM");
+								{
+									SXml::WNode n_s(p_x, "SERVICE");
+									{
+										SXml::WNode n_i(p_x, "ITEM");
+										n_i.PutInner("QMNUM", ""); // Номер заявки (из файла XML Мултон <QMNUM>)
+										n_i.PutInner("START_DATE", ""); // Дата фактического начала работы
+										n_i.PutInner("START_TIME", ""); // Время фактического начала работы 
+										n_i.PutInner("END_DATE", "");
+										n_i.PutInner("END_TIME", "");
+										n_i.PutInner("DATE_COMPLETE", "");
+										n_i.PutInner("ASTXT", "");
+										{
+											SXml::WNode n_a(p_x, "ACTIVITIES");
+											{
+												SXml::WNode n_i2(p_x, "ITEM");
+												n_i2.PutInner("CODE_GROUP", ""); // Код группы работ (из ESI_Specification - Activity Codes )
+												n_i2.PutInner("ACTIVITY_CODE", ""); // Код работы (из ESI_Specification - Activity Codes )
+											}
+										}
+										{
+											SXml::WNode n_e(p_x, "EQUIPMENT");
+											{
+												SXml::WNode n_i2(p_x, "ITEM");
+												n_i2.PutInner("EQUNR", ""); // Номер единицы оборудования (доп. файл Мултон IH08)
+												n_i2.PutInner("TIDNR", ""); // Штрих код оборудования (доп. файл Мултон IH08)
+											}
+										}
+										n_i.PutInner("PL_MATNR", "");
+										n_i.PutInner("PL_MATXT", "");
+										n_i.PutInner("PL_CHARG", "");
+										n_i.PutInner("PL_PLANT", "");
+										n_i.PutInner("PL_SLOC", "");
+										n_i.PutInner("MENGE", "");
+										n_i.PutInner("PRICE", "");
+										n_i.PutInner("PO_NUMBER", "");
+										n_i.PutInner("PO_ITEM", "");
+										n_i.PutInner("DELIVERY_DOC", "");
+										n_i.PutInner("DELIV_DOC_DT", "");
+										n_i.PutInner("COMMENTS", "");
+									}
+								}
+							}
+							xmlFreeTextWriter(p_x);
 						}
 					}
 				}
 			}
 		}
 	}
+	//CATCHZOK
 	return ok;
 }
 

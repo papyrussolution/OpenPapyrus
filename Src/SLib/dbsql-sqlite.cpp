@@ -465,6 +465,112 @@ int SSqliteDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt,
 	return ok;
 }
 
+int SSqliteDbProvider::Helper_MakeSearchQuery(DBTable * pTbl, int idx, void * pKey, int srchMode, long sf, SearchQueryBlock & rBlk)
+{
+	rBlk.Z();
+	int    ok = 1;
+	SString temp_buf;
+	const  BNKeyList & r_indices = pTbl->indexes;
+	const  BNKey & r_key = r_indices[idx];
+	const  int  ns = r_key.getNumSeg();
+	const  char * p_alias = "t";
+	rBlk.SrchMode = (srchMode == spNext) ? spGt : ((srchMode == spPrev) ? spLt : srchMode);
+	rBlk.P_KeyData = pKey;
+	rBlk.SqlG.Z().Tok(Generator_SQL::tokSelect);
+	rBlk.SqlG.Sp();
+	rBlk.SqlG.Text(p_alias).Dot().Aster().Com().Text(p_alias).Dot().Tok(Generator_SQL::tokRowId);
+	rBlk.SqlG.Sp().From(pTbl->fileName, p_alias);
+	if(sf & DBTable::sfDirect) {
+		DBRowId * p_rowid = static_cast<DBRowId *>(pKey);
+		THROW(p_rowid && (p_rowid->IsI32() || p_rowid->IsI64())); // @todo @err
+		p_rowid->ToStr__(temp_buf);
+		rBlk.SqlG.Sp().Tok(Generator_SQL::tokWhere).Sp().Tok(Generator_SQL::tokRowId)._Symb(_EQ_).QText(temp_buf);
+	}
+	else {
+		{
+			if(rBlk.SqlG.GetIndexName(*pTbl, idx, temp_buf)) {
+				rBlk.SqlG.Sp().Tok(Generator_SQL::tokIndexedBy).Sp().Text(temp_buf);
+			}
+		}
+		if(oneof2(rBlk.SrchMode, spFirst, spLast)) {
+			r_indices.setBound(idx, 0, BIN(rBlk.SrchMode == spLast), rBlk.TempKey);
+			rBlk.P_KeyData = rBlk.TempKey;
+		}
+		rBlk.SqlG.Sp().Tok(Generator_SQL::tokWhere).Sp();
+		{
+			for(int i = 0; i < ns; i++) {
+				const BNField & r_fld = r_indices.field(idx, i);
+				if(i > 0) { // НЕ первый сегмент
+					rBlk.SqlG.Tok(Generator_SQL::tokAnd).Sp();
+					if(rBlk.SrchMode != spEq)
+						rBlk.SqlG.LPar();
+				}
+				if(r_key.getFlags(i) & XIF_ACS) {
+					int   _func_tok = Generator_SQL::tokLower;
+					rBlk.SqlG.Func(_func_tok, r_fld.Name);
+				}
+				else
+					rBlk.SqlG.Text(r_fld.Name);
+				int   cmps = _EQ_;
+				if(rBlk.SrchMode == spEq)
+					cmps = _EQ_;
+				else if(rBlk.SrchMode == spLt)
+					cmps = (i == ns-1) ? _LT_ : _LE_;
+				else if(oneof2(rBlk.SrchMode, spLe, spLast))
+					cmps = _LE_;
+				else if(rBlk.SrchMode == spGt) {
+					cmps = (i == ns-1) ? _GT_ : _GE_;
+				}
+				else if(oneof2(rBlk.SrchMode, spGe, spFirst))
+					cmps = _GE_;
+				rBlk.SqlG._Symb(cmps);
+				rBlk.SqlG.Param(temp_buf.NumberToLat(i));
+				rBlk.SegMap.add(i);
+				if(i > 0 && rBlk.SrchMode != spEq) {
+					//
+					// При каскадном сравнении ключа второй и последующие сегменты
+					// должны удовлетворять условиям неравенства только при равенстве
+					// всех предыдущих сегментов.
+					// Пример:
+					//   index {X, Y, Z}
+					//   X > :A and (Y > :B or (X <> :A)) and (Z > :C or (X <> :A and Y <> :B))
+					//
+					rBlk.SqlG.Sp().Tok(Generator_SQL::tokOr).Sp().LPar();
+					for(int j = 0; j < i; j++) {
+						const BNField & r_fld2 = r_indices.field(idx, j);
+						if(j > 0)
+							rBlk.SqlG.Tok(Generator_SQL::tokAnd).Sp();
+						if(r_key.getFlags(j) & XIF_ACS) {
+							rBlk.SqlG.Func(Generator_SQL::tokLower, r_fld2.Name);
+						}
+						else
+							rBlk.SqlG.Text(r_fld2.Name);
+						rBlk.SqlG._Symb(_NE_);
+						rBlk.SqlG.Param(temp_buf.NumberToLat(j));
+						// @v12.4.4 @fix (этот сегмент уже добавлен в список ибо j < i) seg_map.add(j);
+						rBlk.SqlG.Sp();
+					}
+					rBlk.SqlG.RPar().RPar().Sp();
+				}
+				rBlk.SqlG.Sp();
+			}
+		}
+		if(oneof3(rBlk.SrchMode, spLe, spLt, spLast)) { // Обратное направление поиска
+			rBlk.SqlG.Tok(Generator_SQL::tokOrderBy);
+			for(int i = 0; i < ns; i++) {
+				const BNField & r_fld = r_indices.field(idx, i);
+				if(i)
+					rBlk.SqlG.Com();
+				rBlk.SqlG.Sp().Text(r_fld.Name).Sp().Tok(Generator_SQL::tokDesc);
+			}
+			rBlk.SqlG.Sp();
+		}
+		rBlk.Flags |= SearchQueryBlock::fCanContinue;
+	}
+	CATCHZOK
+	return ok;
+}
+
 /*virtual*/int SSqliteDbProvider::Implement_Search(DBTable * pTbl, int idx, void * pKey, int srchMode, long sf)
 {
 	//
@@ -482,16 +588,28 @@ int SSqliteDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt,
 	int    can_continue = false; // Если can_continue == true, то допускается последующий запрос spNext или spPrev. Соответственно, stmt сохраняется в pTbl.
 	bool   new_stmt = false;
 	uint   actual = 0;
-	LongArray seg_map; // Карта номеров сегментов индекса, которые должны быть привязаны
 	DBTable::SelectStmt * p_stmt = 0;
 	const BNKeyList & r_indices = pTbl->indexes;
-	//
 	const char * p_alias = "t";
 	SString temp_buf;
-	uint8  temp_key[1024];
-	void * p_key_data = pKey;
 	const  BNKey & r_key = r_indices[idx];
-	const  int ns = r_key.getNumSeg();
+	const  bool is_key_uniq = !(r_key.getFlags(idx) & (XIF_DUP|XIF_REPDUP));
+	//
+	// Следующий флаг используется вот для чего: если поступил запрос на получение следующей записи, но pTbl->GetStmt() == 0,
+	// то, скорее всего, это означает, что изменилось направление перебора записе. В этом случае мы строим запрос заново,
+	// опираясь на последнее полученное значение ключа, по которому идет перебор. Здесь все бы хорошо, но есть один нюанс:
+	// если ключ неуникальный, то мы точно не знаем от какой именно из записей-дубликатов начинать обратное движение.
+	// Тем не менее у нас есть подсказка - rowid последней полученной записи (той же, которой соответствует последнее полученное значение ключа).
+	// Таким образом, в этой ситуации мы действуем по следующему плану:
+	//   запрос формируем так, будто очередная запись должна быть получена по условию РАВЕНСТВА (а не <= или >=) последнему значения ключа,
+	//   далее, перебираем одну запись за другой пока ключ РАВЕН заданному и среди перебранных записей пытаемся найти ту, у которой
+	//   rowid равен нашему текущему. Если мы нашли такую запись - прекрасно - дальше уже работаем как обычно.
+	//   Плохо если такая запись отсутствует (нет, не фантастика) - тогда мы будем вынуждены "пожертвовать" непрочитанными записями
+	//   с текущим значением ключа (если такие, конечно, были) и вести себя так, будто индекс уникальный - то есть, запрос, черт побери,
+	//   опять придется перестроить.
+	//
+	bool   do_grop_next_rec = false; // @v12.4.6 
+	//
 	bool   do_make_query = true;
 	//
 	THROW(idx < (int)r_indices.getNumKeys());
@@ -544,123 +662,28 @@ int SSqliteDbProvider::Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt,
 		}
 	}
 	if(do_make_query) {
-		// Далее вместо srchMode будем использовать _srch_mode значение которого подменяется для oneof2(srchMode, spNext, spPrev) по сравнению с srchMode!
-		const int _srch_mode = (srchMode == spNext) ? spGt : ((srchMode == spPrev) ? spLt : srchMode);
-		SqlGen.Z().Tok(Generator_SQL::tokSelect);
-		SqlGen.Sp();
-		SqlGen.Text(p_alias).Dot().Aster().Com().Text(p_alias).Dot().Tok(Generator_SQL::tokRowId);
-		SqlGen.Sp().From(pTbl->fileName, p_alias);
-		if(sf & DBTable::sfDirect) {
-			DBRowId * p_rowid = static_cast<DBRowId *>(pKey);
-			THROW(p_rowid && (p_rowid->IsI32() || p_rowid->IsI64())); // @todo @err
-			p_rowid->ToStr__(temp_buf);
-			SqlGen.Sp().Tok(Generator_SQL::tokWhere).Sp().Tok(Generator_SQL::tokRowId)._Symb(_EQ_).QText(temp_buf);
-		}
-		else {
-			{
-				if(SqlGen.GetIndexName(*pTbl, idx, temp_buf)) {
-					SqlGen.Sp().Tok(Generator_SQL::tokIndexedBy).Sp().Text(temp_buf);
-				}
-			}
-			if(oneof2(_srch_mode, spFirst, spLast)) {
-				memzero(temp_key, sizeof(temp_key));
-				r_indices.setBound(idx, 0, BIN(_srch_mode == spLast), temp_key);
-				p_key_data = temp_key;
-			}
-			SqlGen.Sp().Tok(Generator_SQL::tokWhere).Sp();
-			{
-				for(int i = 0; i < ns; i++) {
-					const BNField & r_fld = r_indices.field(idx, i);
-					if(i > 0) { // НЕ первый сегмент
-						SqlGen.Tok(Generator_SQL::tokAnd).Sp();
-						if(_srch_mode != spEq)
-							SqlGen.LPar();
-					}
-					if(r_key.getFlags(i) & XIF_ACS) {
-						int   _func_tok = Generator_SQL::tokLower;
-						SqlGen.Func(_func_tok, r_fld.Name);
-					}
-					else
-						SqlGen.Text(r_fld.Name);
-					int   cmps = _EQ_;
-					if(_srch_mode == spEq)
-						cmps = _EQ_;
-					else if(_srch_mode == spLt)
-						cmps = (i == ns-1) ? _LT_ : _LE_;
-					else if(oneof2(_srch_mode, spLe, spLast))
-						cmps = _LE_;
-					else if(_srch_mode == spGt) {
-						cmps = (i == ns-1) ? _GT_ : _GE_;
-					}
-					else if(oneof2(_srch_mode, spGe, spFirst))
-						cmps = _GE_;
-					SqlGen._Symb(cmps);
-					SqlGen.Param(temp_buf.NumberToLat(i));
-					seg_map.add(i);
-					if(i > 0 && _srch_mode != spEq) {
-						//
-						// При каскадном сравнении ключа второй и последующие сегменты
-						// должны удовлетворять условиям неравенства только при равенстве
-						// всех предыдущих сегментов.
-						// Пример:
-						//   index {X, Y, Z}
-						//   X > :A and (Y > :B or (X <> :A)) and (Z > :C or (X <> :A and Y <> :B))
-						//
-						SqlGen.Sp().Tok(Generator_SQL::tokOr).Sp().LPar();
-						for(int j = 0; j < i; j++) {
-							const BNField & r_fld2 = r_indices.field(idx, j);
-							if(j > 0)
-								SqlGen.Tok(Generator_SQL::tokAnd).Sp();
-							if(r_key.getFlags(j) & XIF_ACS) {
-								SqlGen.Func(Generator_SQL::tokLower, r_fld2.Name);
-							}
-							else
-								SqlGen.Text(r_fld2.Name);
-							SqlGen._Symb(_NE_);
-							SqlGen.Param(temp_buf.NumberToLat(j));
-							// @v12.4.4 @fix (этот сегмент уже добавлен в список ибо j < i) seg_map.add(j);
-							SqlGen.Sp();
-						}
-						SqlGen.RPar().RPar().Sp();
-					}
-					SqlGen.Sp();
-				}
-			}
-			if(oneof3(_srch_mode, spLe, spLt, spLast)) { // Обратное направление поиска
-				SqlGen.Tok(Generator_SQL::tokOrderBy);
-				for(int i = 0; i < ns; i++) {
-					const BNField & r_fld = r_indices.field(idx, i);
-					if(i)
-						SqlGen.Com();
-					SqlGen.Sp().Text(r_fld.Name).Sp().Tok(Generator_SQL::tokDesc);
-				}
-				SqlGen.Sp();
-			}
-			can_continue = true;
-		}
-		/* у SQLite нет такой конструкции 
-		if(sf & DBTable::sfForUpdate)
-			SqlGen.Tok(Generator_SQL::tokFor).Sp().Tok(Generator_SQL::tokUpdate);
-		*/
+		SearchQueryBlock sqb;
+		THROW(Helper_MakeSearchQuery(pTbl, idx, pKey, srchMode, sf, sqb));
+		can_continue = LOGIC(sqb.Flags & SearchQueryBlock::fCanContinue);
 		{
-			THROW(p_stmt = new DBTable::SelectStmt(this, SqlGen, idx, _srch_mode, sf));
+			THROW(p_stmt = new DBTable::SelectStmt(this, sqb.SqlG, idx, sqb.SrchMode, sf));
 			new_stmt = true;
 			THROW(p_stmt->IsValid());
 			{
 				size_t key_len = 0;
 				p_stmt->BL.Dim = 1;
-				for(uint i = 0; i < seg_map.getCount(); i++) {
-					const int  seg = seg_map.get(i);
+				for(uint i = 0; i < sqb.SegMap.getCount(); i++) {
+					const int  seg = sqb.SegMap.get(i);
 					const BNField & r_fld = r_indices.field(idx, seg);
 					const size_t seg_offs = r_indices.getSegOffset(idx, seg);
 					key_len += stsize(r_fld.T);
 					if(r_key.getFlags(seg) & XIF_ACS) {
-						strlwr866((char *)(PTR8(p_key_data) + seg_offs));
+						strlwr866((char *)(PTR8(sqb.P_KeyData) + seg_offs));
 					}
 					SSqlStmt::Bind b;
 					b.Pos = -(int16)(i+1);
 					b.Typ = r_fld.T;
-					b.P_Data = PTR8(p_key_data) + seg_offs;
+					b.P_Data = PTR8(sqb.P_KeyData) + seg_offs;
 					uint   lp = 0;
 					if(p_stmt->BL.lsearch(&b.Pos, &lp, PTR_CMPFUNC(int16)))
 						p_stmt->BL.atFree(lp);

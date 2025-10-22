@@ -1585,7 +1585,7 @@ DBQuery * PPViewGoods::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 				q->orderBy(g->Kind, g->Name, 0L);
 		}
 	}
-	q->options |= DBQuery::correct_search_more_problem;
+	q->options |= DBQuery::fCorrectSearchMoreProblem;
 	THROW(CheckQueryPtr(q));
 	if(pSubTitle) {
 		*pSubTitle = 0;

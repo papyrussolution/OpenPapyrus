@@ -827,12 +827,6 @@
     <ClInclude Include="..\Include\Dbf.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\Include\Dbqbrdef.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Include\Dbquery.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\Include\fann2.h">
       <Filter>Header</Filter>
     </ClInclude>

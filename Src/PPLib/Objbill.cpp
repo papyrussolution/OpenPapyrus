@@ -1827,7 +1827,7 @@ int PPObjBill::AddBailmentByOrder(PPID * pBillID, PPID sampleBillID, const SelAd
 	THROW(ExtractPacket(sampleBillID, &sample_pack) > 0);
 	THROW_PP(pParam->OpID > 0, PPERR_INVOPRKIND);
 	op_type = GetOpType(pParam->OpID, &op_rec);
-	THROW(pack.CreateBlank(pParam->OpID, 0, sample_pack.Rec.LocID, 1));
+	THROW(pack.CreateBlank(pParam->OpID, sampleBillID, sample_pack.Rec.LocID, 1));
 	pack.Rec.LocID = sample_pack.Rec.LocID;
 	GetOpCommonAccSheet(sample_pack.Rec.OpID, &org_acc_sheet_id, 0);
 	GetOpCommonAccSheet(pack.Rec.OpID, &new_acc_sheet_id, 0);

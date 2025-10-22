@@ -860,7 +860,7 @@ DBQuery * PPViewTSession::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		dbe_memo.push(static_cast<DBFunc>(PPViewTSession::DynFuncMemo));
 	}
 	THROW_MEM(q = new DBQuery);
-	q->syntax |= DBQuery::t_select;
+	q->syntax |= DBQuery::tSelect;
 	q->addField(p_tsst->ID);          //  #0
 	q->addField(p_tsst->Num);         //  #1
 	q->addField(*dbe_status);         //  #2

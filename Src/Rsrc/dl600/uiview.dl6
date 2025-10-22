@@ -755,8 +755,6 @@ dialog DLG_PRINT2 [vertical title: "@printrpt" size: (615, 470) minsize: (613, 4
 	}
 }
 
-// @20251016 до этой точки я пометил все соответствующие файлы в ppdlg.list как присутствующие в uiview (для дальнейшей элиминации).
-
 dialog DLG_BILLPRELUDE [vertical title: "@billprelude" size: (384, 463) minsize: (240, 270) font: "MS Shell Dlg,8"] {
 	listbox CTL_BILLPRELUDE_OPLIST [tabstop width: bycontainer growfactor: 1 margin: 4];
 	combobox CTLSEL_BILLPRELUDE_LOC [tabstop width: bycontainer height: 21 margin: 4 label: "@warehouse" labelsize: (0, 13) cblinesymb: CTL_BILLPRELUDE_LOC];
@@ -1245,3 +1243,6 @@ dialog DLG_SUPPLIX [vertical title: "@supplixfilt" size: (740, 440) minsize: (74
 		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
 	}
 }
+
+// @20251022 До этой точки все диалоги имеющие соответствие в ppdlg.list помечены там как присутствующие в uiview (для дальнейшей элиминации).
+// Дилоги, представленные здесь с изменными символами (DLG_CASHREPORTS_L__, например) в ppdlg.list не отмечены поскольку находятся в работе.

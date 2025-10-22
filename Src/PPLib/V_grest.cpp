@@ -3486,7 +3486,7 @@ int PPViewGoodsRest::CellStyleFunc_(const void * pData, long col, int paintActio
 		if(oneof5(ord, OrdByPrice, OrdByGrp_Price, OrdByBarCode, OrdByGrp_BarCode, OrdByRest)) // @v11.4.6 OrdByRest
 			THROW(CreateOrderTable(ord, &p_ot));
 		THROW_MEM(q = new DBQuery);
-		q->syntax |= DBQuery::t_select;
+		q->syntax |= DBQuery::tSelect;
 		q->addField(tbl->ID__);           //  #0
 
 		q->addField(tbl->GoodsID);        //  #1

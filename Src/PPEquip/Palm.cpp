@@ -522,7 +522,7 @@ public:
 		SetupPPObjCombo(this, CTLSEL_PALM_GGRP, PPOBJ_GOODSGROUP, Data.Rec.GoodsGrpID, OLW_CANSELUPLEVEL|OLW_LOADDEFONOPEN);
 		SetupPPObjCombo(this, CTLSEL_PALM_FTPACCT, PPOBJ_INTERNETACCOUNT, Data.Rec.FTPAcctID, 0, reinterpret_cast<void *>(PPObjInternetAccount::filtfFtp));
 		PPIDArray op_type_list;
-		op_type_list.addzlist(PPOPT_GOODSORDER, PPOPT_GOODSEXPEND, 0L);
+		op_type_list.addzlist(PPOPT_GOODSORDER, PPOPT_GOODSEXPEND, PPOPT_DRAFTEXPEND, PPOPT_DRAFTRECEIPT, 0L); // @v12.4.6 (PPOPT_DRAFTEXPEND, PPOPT_DRAFTRECEIPT)
 		SetupOprKindCombo(this, CTLSEL_PALM_OP, Data.Rec.OrderOpID, 0, &op_type_list, 0);
 		if(getCtrlView(CTLSEL_PALM_INHBTAGVAL)) {
 			bool   disable_inhtagval = true;

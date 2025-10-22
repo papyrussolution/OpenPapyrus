@@ -9950,7 +9950,8 @@ int PPStyloQInterchange::GetContextualOpAndLocForOrder(const StyloQDocumentPrere
 		PPStyloPalmPacket stp_pack;
 		if(stp_obj.GetPacket(rParam.PalmID, &stp_pack) > 0) {
 			op_id = stp_pack.Rec.OrderOpID;
-			if(op_id && GetOpData(op_id, &op_rec) > 0 && op_rec.OpTypeID == PPOPT_GOODSORDER) {
+			if(op_id && GetOpData(op_id, &op_rec) > 0 && oneof4(op_rec.OpTypeID, PPOPT_GOODSORDER, PPOPT_GOODSEXPEND, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND)) {
+				// @v12.4.6 (PPOPT_GOODSEXPEND, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND)
 				;
 			}
 			else {

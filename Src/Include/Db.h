@@ -3002,6 +3002,35 @@ private:
 	int    ProcessBinding_SimpleType(int action, uint count, SSqlStmt * pStmt, SSqlStmt::Bind * pBind, uint ntvType);
 	int    Helper_Fetch(DBTable * pTbl, DBTable::SelectStmt * pStmt, uint * pActual);
 	int    ResetStatement(SSqlStmt & rS);
+
+	struct SearchQueryBlock {
+		SearchQueryBlock() : Flags(0), SrchMode(0), P_KeyData(0), SqlG(sqlstSQLite, 0)
+		{
+			memzero(TempKey, sizeof(TempKey));
+		}
+		SearchQueryBlock & Z()
+		{
+			Flags = 0;
+			SrchMode = 0;
+			P_KeyData = 0;
+			SqlG.Z();
+			memzero(TempKey, sizeof(TempKey));
+			return *this;
+		}
+		enum {
+			fCanContinue = 0x0001
+		};
+		uint   Flags;
+		int    SrchMode;
+		void * P_KeyData; // Указатель на значение ключа, к которому привязан запрос. Может быть равен
+			// либо оригинальному указателю, переданному в Helper_MakeSearchQuery, либо указывать на
+			// временный буфер this->TempKey.
+		LongArray SegMap; // Карта номеров сегментов индекса, которые должны быть привязаны
+		Generator_SQL SqlG;
+		uint8  TempKey[1024];
+	};
+
+	int    Helper_MakeSearchQuery(DBTable * pTbl, int idx, void * pKey, int srchMode, long sf, SearchQueryBlock & rBlk);
 	//
 	// ARG(tableType IN): 0 - regular, 1 - temporary
 	//
@@ -3744,7 +3773,7 @@ DBQuery & CDECL select(DBField,...);
 DBQuery & selectAll();
 
 #define DBQTF_OUTER_JOIN         0x0004 // По таблице определен OUTER JOIN
-#define DBQTF_OVRRD_DESTROY_TAG  0x0008 // Не разрушать таблицу при разрушении запроса
+// @v12.4.6 #define DBQTF_OVRRD_DESTROY_TAG  0x0008 // Не разрушать таблицу при разрушении запроса
 #define DBQTF_FIXED_INDEX        0x0010 //
 #define DBQTF_LASTSRCHFAILED     0x0020 // @2003.11.09 Последняя попытка поиска
 	// в таблице завершилась неудачно. Это означает, что не следует искать
@@ -3763,13 +3792,12 @@ class DBQuery {
 	friend DBQuery & selectAll();
 public:
 	enum {
-		smart_frame    = 0x0001,
-		save_positions = 0x0002,
-		user_break     = 0x0004,
-		fetch_reverse  = 0x0008,
-		destroy_tables = 0x0010,
-		correct_search_more_problem = 0x0020 // Опционально исправляет пероблему функции DBQuery::_search
-			// (см. примечание @todo в теле функции).
+		fSmartFrame    = 0x0001,
+		fSavePositions = 0x0002,
+		// @v12.4.6 (@unused) user_break     = 0x0004,
+		fFetchReverse  = 0x0008,
+		fDestroyTables = 0x0010,
+		fCorrectSearchMoreProblem = 0x0020 // Опционально исправляет пероблему функции DBQuery::_search (см. примечание @todo в теле функции).
 	};
 	~DBQuery();
 	//
@@ -3806,9 +3834,9 @@ public:
 	void * FASTCALL getRecord(uint);
 	const void * FASTCALL getRecordC(uint r) const;
 	void * getCurrent();
-	int    fetch(long count, char * buf, int dir);
-	int    fetch(long, char *, RECORDNUMBER *, int);
-	int    single_fetch(char *, RECORDNUMBER *, int);
+	int    fetch(uint count, char * pBuf, int dir);
+	int    fetch(uint count, char * pBuf, /*RECORDNUMBER*/DBRowId *, int dir);
+	int    single_fetch(char * pBuf, /*RECORDNUMBER*/DBRowId *, int);
 	int    top();
 	int    bottom();
 	int    step(long);
@@ -3829,7 +3857,7 @@ public:
 	int    FASTCALL chooseKey(int tblN);
 	int    calcRecSize();
 	int    allocFrame(uint);
-	void   fillRecord(char *, RECORDNUMBER *);
+	void   fillRecord(char * pBuf, /*RECORDNUMBER*/DBRowId *);
 	int    _search(uint n, int dir);
 	int    _fetch_next(uint count, uint p, int dir);
 	int    _fetch_prev(uint count, uint p);
@@ -3843,14 +3871,14 @@ public:
 	void   FASTCALL frameOnBottom(int undefSDelta);
 	int    FASTCALL normalizeFrame(int dir);
 	enum {
-		t_select   = 0x0001,
-		t_from     = 0x0002,
-		t_where    = 0x0004,
-		t_group    = 0x0008,
-		t_having   = 0x0010,
-		t_order    = 0x0020,
-		t_all      = 0x0040,
-		t_distinct = 0x0080
+		tSelect   = 0x0001,
+		tFrom     = 0x0002,
+		tWhere    = 0x0004,
+		tGroup    = 0x0008,
+		tHaving   = 0x0010,
+		tOrder    = 0x0020,
+		tAll      = 0x0040,
+		tDistinct = 0x0080
 	};
 	enum {
 		s_add_index_needed = 0x0001,
@@ -3868,7 +3896,7 @@ public:
 		};
 		const  uint Size;        // Size of buffer (records)
 		char * P_Buf;            // Data buffer
-		RECORDNUMBER * P_PosBuf; // Position buffer
+		DBRowId * P_PosBuf; // Position buffer // @v12.4.6 RECORDNUMBER-->DBRowId
 		uint   Zero;
 		uint   State;
 		uint   Inc;
@@ -3893,7 +3921,7 @@ public:
 		uint   flg;        // DBQTF_XXX
 	};
 	struct Fld {
-		TYPEID     type;
+		TYPEID type;
 		DBDataCell cell;
 	};
 	uint   syntax;
@@ -3907,7 +3935,7 @@ public:
 	uint   ordCount;
 	DBField * order;
 	RECORDSIZE recSize;  // Size of record (bytes)
-	ulong  actCount;     // Number of records actualy fetched by fetch()
+	ulong  ActualCount;  // Number of records actualy fetched by fetch()
 	Tbl  * tbls;
 	Fld  * flds;
 	Frame * P_Frame;
